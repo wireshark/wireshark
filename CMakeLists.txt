@@ -15,7 +15,7 @@ else()
 endif()
 project(Wireshark C CXX)
 
-# Updated by make-version.pl
+# Updated by tools/make-version.pl
 set(GIT_REVISION 0)
 set(PROJECT_MAJOR_VERSION 2)
 set(PROJECT_MINOR_VERSION 9)
@@ -1503,7 +1503,7 @@ set( VERSION ${PROJECT_VERSION} )
 add_custom_target(version
 	BYPRODUCTS version.h
 	COMMAND ${PERL_EXECUTABLE}
-		${CMAKE_SOURCE_DIR}/make-version.pl
+		${CMAKE_SOURCE_DIR}/tools/make-version.pl
 		${CMAKE_SOURCE_DIR}
 )
 set_target_properties(version PROPERTIES FOLDER "Auxiliary")
@@ -2821,7 +2821,7 @@ if(RPMBUILD_EXECUTABLE)
 
 	execute_process(
 		COMMAND ${PERL_EXECUTABLE}
-			${CMAKE_SOURCE_DIR}/make-version.pl
+			${CMAKE_SOURCE_DIR}/tools/make-version.pl
 			${CMAKE_SOURCE_DIR}
 	)
 

@@ -91,7 +91,8 @@ my %version_pref = (
 	#"pkg_enable" => 0,
 	#"pkg_format" => "",
 	);
-my $srcdir = ".";
+my $script_dir = dirname(__FILE__);
+my $src_dir = "$script_dir/..";
 my $info_cmd = "";
 my $verbose = 0;
 my $devnull = File::Spec->devnull();
@@ -128,17 +129,17 @@ sub read_repo_info {
 	# versioning information that was provided at tarball creation time.
 	if ($version_pref{"git_description"}) {
 		$info_source = "version.conf file";
-	} elsif (-e "$srcdir/.git" && ! -d "$srcdir/.git/svn") {
+	} elsif (-e "$src_dir/.git" && ! -d "$src_dir/.git/svn") {
 		$info_source = "Command line (git)";
 		$version_pref{"git_client"} = 1;
 		$is_git_repo = 1;
-	} elsif (-d "$srcdir/.svn" or -d "$srcdir/../.svn") {
+	} elsif (-d "$src_dir/.svn" or -d "$src_dir/../.svn") {
 		$info_source = "Command line (svn info)";
-		$info_cmd = "cd $srcdir; svn info";
+		$info_cmd = "cd $src_dir; svn info";
 		$version_pref{"svn_client"} = 1;
-	} elsif (-d "$srcdir/.git/svn") {
+	} elsif (-d "$src_dir/.git/svn") {
 		$info_source = "Command line (git-svn)";
-		$info_cmd = "(cd $srcdir; git svn info)";
+		$info_cmd = "(cd $src_dir; git svn info)";
 		$is_git_repo = 1;
 		$version_pref{"git_svn"} = 1;
 	}
@@ -151,7 +152,7 @@ sub read_repo_info {
 
 	# Check whether to include VCS version information in version.h
 	if ($is_git_repo) {
-		chomp($git_cdir = qx{git --git-dir="$srcdir/.git" rev-parse --git-common-dir 2> $devnull});
+		chomp($git_cdir = qx{git --git-dir="$src_dir/.git" rev-parse --git-common-dir 2> $devnull});
 		if ($git_cdir && -f "$git_cdir/wireshark-disable-versioning") {
 			print_diag "Header versioning disabled using git override.\n";
 			$enable_vcsversion = 0;
@@ -191,13 +192,13 @@ sub read_repo_info {
 			use warnings "all";
 			no warnings "all";
 
-			chomp($line = qx{git --git-dir="$srcdir"/.git log -1 --pretty=format:%at});
+			chomp($line = qx{git --git-dir="$src_dir"/.git log -1 --pretty=format:%at});
 			if ($? == 0 && length($line) > 1) {
 				$last_change = $line;
 			}
 
 			# Commits since last annotated tag.
-			chomp($line = qx{git --git-dir="$srcdir"/.git describe --abbrev=8 --long --always --match "v[1-9]*"});
+			chomp($line = qx{git --git-dir="$src_dir"/.git describe --abbrev=8 --long --always --match "v[1-9]*"});
 			if ($? == 0 && length($line) > 1) {
 				my @parts = split(/-/, $line);
 				$git_description = $line;
@@ -207,7 +208,7 @@ sub read_repo_info {
 
 			# This will break in some cases. Hopefully not during
 			# official package builds.
-			chomp($line = qx{git --git-dir="$srcdir"/.git rev-parse --abbrev-ref --symbolic-full-name \@\{upstream\} 2> $devnull});
+			chomp($line = qx{git --git-dir="$src_dir"/.git rev-parse --abbrev-ref --symbolic-full-name \@\{upstream\} 2> $devnull});
 			if ($? == 0 && length($line) > 1) {
 				$repo_branch = basename($line);
 			}
@@ -258,7 +259,7 @@ sub read_repo_info {
 		close(TORTOISE);
 
 		$info_source = "Command line (SubWCRev)";
-		$info_cmd = "SubWCRev $srcdir $tortoise_file $version_file";
+		$info_cmd = "SubWCRev $src_dir $tortoise_file $version_file";
 		my $tortoise = system($info_cmd);
 		if ($tortoise == 0) {
 			$do_hack = 0;
@@ -269,7 +270,7 @@ sub read_repo_info {
 		unlink($tortoise_file);
 	}
 
-	if ($num_commits == 0 and -e "$srcdir/.git") {
+	if ($num_commits == 0 and -e "$src_dir/.git") {
 
 		# Try git...
 		eval {
@@ -278,21 +279,21 @@ sub read_repo_info {
 			# If someone had properly tagged 1.9.0 we could also use
 			# "git describe --abbrev=1 --tags HEAD"
 
-			$info_cmd = "(cd $srcdir; git log --format='%b' -n 1)";
+			$info_cmd = "(cd $src_dir; git log --format='%b' -n 1)";
 			$line = qx{$info_cmd};
 			if (defined($line)) {
 				if ($line =~ /svn path=.*; revision=(\d+)/) {
 					$num_commits = $1;
 				}
 			}
-			$info_cmd = "(cd $srcdir; git log --format='%ad' -n 1 --date=iso)";
+			$info_cmd = "(cd $src_dir; git log --format='%ad' -n 1 --date=iso)";
 			$line = qx{$info_cmd};
 			if (defined($line)) {
 				if ($line =~ /(\d{4})-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)/) {
 					$last_change = timegm($6, $5, $4, $3, $2 - 1, $1);
 				}
 			}
-			$info_cmd = "(cd $srcdir; git branch)";
+			$info_cmd = "(cd $src_dir; git branch)";
 			$line = qx{$info_cmd};
 			if (defined($line)) {
 				if ($line =~ /\* (\S+)/) {
@@ -302,13 +303,13 @@ sub read_repo_info {
 			1;
 			};
 	}
-	if ($num_commits == 0 and -d "$srcdir/.bzr") {
+	if ($num_commits == 0 and -d "$src_dir/.bzr") {
 
 		# Try bzr...
 		eval {
 			use warnings "all";
 			no warnings "all";
-			$info_cmd = "(cd $srcdir; bzr log -l 1)";
+			$info_cmd = "(cd $src_dir; bzr log -l 1)";
 			$line = qx{$info_cmd};
 			if (defined($line)) {
 				if ($line =~ /timestamp: \S+ (\d{4})-(\d\d)-(\d\d) (\d\d):(\d\d):(\d\d)/) {
@@ -328,8 +329,8 @@ sub read_repo_info {
 	# 'svn info' failed or the user really wants us to dig around in .svn/entries
 	if ($do_hack) {
 		# Start of ugly internal SVN file hack
-		if (! open (ENTRIES, "< $srcdir/.svn/entries")) {
-			print STDERR "Unable to open $srcdir/.svn/entries\n";
+		if (! open (ENTRIES, "< $src_dir/.svn/entries")) {
+			print STDERR "Unable to open $src_dir/.svn/entries\n";
 		} else {
 			$info_source = "Prodding .svn";
 			# We need to find out whether our parser can handle the entries file
@@ -408,7 +409,7 @@ sub update_cmakelists_txt
 	my $line;
 	my $contents = "";
 	my $version = "";
-	my $filepath = "$srcdir/CMakeLists.txt";
+	my $filepath = "$src_dir/CMakeLists.txt";
 
 	return if (!$set_version && $package_string eq "");
 
@@ -441,7 +442,7 @@ sub update_attributes_asciidoc
 	my $line;
 	my $contents = "";
 	my $version = "";
-	my $filepath = "$srcdir/docbook/attributes.asciidoc";
+	my $filepath = "$src_dir/docbook/attributes.asciidoc";
 
 	open(ADOC_CONF, "< $filepath") || die "Can't read $filepath!";
 	while ($line = <ADOC_CONF>) {
@@ -466,8 +467,8 @@ sub update_attributes_asciidoc
 sub update_docinfo_asciidoc
 {
 	my $line;
-	my @paths = ("$srcdir/docbook/developer-guide-docinfo.xml",
-			"$srcdir/docbook/user-guide-docinfo.xml");
+	my @paths = ("$src_dir/docbook/developer-guide-docinfo.xml",
+			"$src_dir/docbook/user-guide-docinfo.xml");
 
 	foreach my $filepath (@paths) {
 		my $contents = "";
@@ -495,7 +496,7 @@ sub update_debian_changelog
 	my $line;
 	my $contents = "";
 	my $version = "";
-	my $filepath = "$srcdir/debian/changelog";
+	my $filepath = "$src_dir/debian/changelog";
 
 	open(CHANGELOG, "< $filepath") || die "Can't read $filepath!";
 	while ($line = <CHANGELOG>) {
@@ -525,7 +526,7 @@ sub update_cmake_lib_releases
 	my $filedir;
 	my $filepath;
 
-	for $filedir ("$srcdir/epan", "$srcdir/wiretap") {	# "$srcdir/wsutil"
+	for $filedir ("$src_dir/epan", "$src_dir/wiretap") {	# "$src_dir/wsutil"
 		$contents = "";
 		$filepath = $filedir . "/CMakeLists.txt";
 		open(CMAKELISTS_TXT, "< $filepath") || die "Can't read $filepath!";
@@ -643,11 +644,11 @@ sub get_config {
 	}
 
 	if ($#ARGV >= 0) {
-		$srcdir = $ARGV[0]
+		$src_dir = $ARGV[0]
 	}
 
 	if (! open(FILE, "<$vconf_file")) {
-		if (! open(FILE, "<$srcdir/$vconf_file")) {
+		if (! open(FILE, "<$src_dir/$vconf_file")) {
 			print_diag "Version configuration file $vconf_file not "
 			. "found. Using defaults.\n";
 			return 1;

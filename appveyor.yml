@@ -43,7 +43,7 @@ build:
 before_build:
   # Write ASCII (not UTF-16). Cannot use cmd due to repeated '%' unescapes.
   - ps: echo "pkg_format=-%#-AppVeyor" | Out-File -Encoding ASCII version.conf
-  - perl make-version.pl --set-release
+  - perl tools/make-version.pl --set-release
   - mkdir build
   - cd build
   - cmake -E time cmake -G "%CMAKE_GENERATOR%" ..

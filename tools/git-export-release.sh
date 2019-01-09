@@ -37,7 +37,7 @@ if [ ! -e "${GIT_DIR:-.git}" ] ; then
     exit 1
 fi
 
-# --abbrev=<n> and --match should match make-version.pl.
+# --abbrev=<n> and --match should match tools/make-version.pl.
 DESCRIPTION=$(git describe --abbrev=8 --match "v[1-9]*" "${COMMIT}")
 VERSION=${DESCRIPTION#v}
 STASH_POP=False
