@@ -6,7 +6,9 @@
 # After PATHS additional paths for python to search can be provided.
 # When REQUIRED is set, the function will abort the cmake execution is the module is not found
 function(LOCATE_PYTHON_MODULE module)
-	find_package(PythonInterp)
+	if(NOT PYTHON_EXECUTABLE)
+		find_package(PythonInterp)
+	endif()
 
 	# Parse (additional) arguments
 	set(options REQUIRED)

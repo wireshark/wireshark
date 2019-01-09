@@ -117,9 +117,6 @@ Let you set the path to a locally-compiled version of c-ares. Most
 optional libraries have xxx_INCLUDE_DIR and xxx_LIB flags that let you
 control their discovery.
 
-
--DPYTHON_EXECUTABLE=c:/Python36/python:: Force the Python path.
-
 -DENABLE_APPLICATION_BUNDLE=OFF:: Disable building an application bundle (Wireshark.app) on macOS
 
 You can list all build variables (with help) by running `cmake -LH [options]

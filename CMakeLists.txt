@@ -913,7 +913,7 @@ endif()
 # - set HAVE_XXX
 
 # The minimum package list
-set(PACKAGELIST Git GLIB2 GMODULE2 GTHREAD2 GCRYPT LEX YACC Perl PythonInterp)
+set(PACKAGELIST Git GLIB2 GMODULE2 GTHREAD2 GCRYPT LEX YACC Perl)
 set(LEX_OPTIONS REQUIRED)
 set(GLIB2_OPTIONS REQUIRED)
 set(GLIB2_FIND_OPTIONS REQUIRED)
@@ -921,8 +921,20 @@ set(GLIB2_MIN_VERSION 2.32.0)
 set(GTHREAD2_OPTIONS REQUIRED)
 set(GCRYPT_OPTIONS "1.4.2" REQUIRED)
 set(Perl_OPTIONS REQUIRED)
-set(PythonInterp_OPTIONS "3.4" REQUIRED)
 set(YACC_OPTIONS REQUIRED)
+
+if(CMAKE_VERSION VERSION_LESS "3.12")
+	# Locate the Python interpreter. Finds the wrong (Python 2) version if:
+	# - PATH contains python3.6, but not python3 (3.4). Affects RHEL7+EPEL.
+	# - Path contains C:\Python27 but not C:\Python37 (which is installed,
+	#   but not present in PATH).
+	find_package(PythonInterp 3.4 REQUIRED)
+else()
+	find_package(Python3 3.4 REQUIRED)
+	# Several files (including LocatePythonModule) still use the old name
+	# from FindPythonInterp, let's stick to it for now.
+	set(PYTHON_EXECUTABLE ${Python3_EXECUTABLE})
+endif()
 
 if (NOT WIN32)
 	set(PACKAGELIST ${PACKAGELIST} Gettext M)
