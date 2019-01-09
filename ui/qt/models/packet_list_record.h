@@ -31,7 +31,7 @@ class ColumnTextList;
 class PacketListRecord
 {
 public:
-    PacketListRecord(frame_data *frameData);
+    PacketListRecord(frame_data *frameData, struct _GStringChunk *string_cache_pool);
 
     // Allocate our records using wmem.
     static void *operator new(size_t size);
@@ -52,8 +52,6 @@ public:
     inline int lineCount() { return lines_; }
     inline int lineCountChanged() { return line_count_changed_; }
 
-    static void clearStringPool();
-
 private:
     /** The column text for some columns */
     ColumnTextList *col_text_;
@@ -72,11 +70,11 @@ private:
     /** Conversation. Used by RelatedPacketDelegate */
     struct conversation *conv_;
 
+    struct _GStringChunk *string_cache_pool_;
+
     void dissect(capture_file *cap_file, bool dissect_color = false);
+
     void cacheColumnStrings(column_info *cinfo);
-
-    static struct _GStringChunk *string_pool_;
-
 };
 
 #endif // PACKET_LIST_RECORD_H

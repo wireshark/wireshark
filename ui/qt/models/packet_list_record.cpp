@@ -36,14 +36,15 @@ public:
 QMap<int, int> PacketListRecord::cinfo_column_;
 unsigned PacketListRecord::col_data_ver_ = 1;
 
-PacketListRecord::PacketListRecord(frame_data *frameData) :
+PacketListRecord::PacketListRecord(frame_data *frameData, struct _GStringChunk *string_cache_pool) :
     col_text_(0),
     fdata_(frameData),
     lines_(1),
     line_count_changed_(false),
     data_ver_(0),
     colorized_(false),
-    conv_(NULL)
+    conv_(NULL),
+    string_cache_pool_(string_cache_pool)
 {
 }
 
@@ -197,14 +198,6 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_color)
     wtap_rec_cleanup(&rec);
 }
 
-// This assumes only one packet list. We might want to move this to
-// PacketListModel (or replace this with a wmem allocator).
-struct _GStringChunk *PacketListRecord::string_pool_ = g_string_chunk_new(1 * 1024 * 1024);
-void PacketListRecord::clearStringPool()
-{
-    g_string_chunk_clear(string_pool_);
-}
-
 //#define MINIMIZE_STRING_COPYING 1
 void PacketListRecord::cacheColumnStrings(column_info *cinfo)
 {
@@ -298,7 +291,7 @@ void PacketListRecord::cacheColumnStrings(column_info *cinfo)
         // https://git.gnome.org/browse/glib/tree/glib/gstringchunk.c
         // We might be better off adding the equivalent functionality to
         // wmem_tree.
-        col_text_->append(g_string_chunk_insert_const(string_pool_, col_str));
+        col_text_->append(g_string_chunk_insert_const(string_cache_pool_, col_str));
         for (int i = 0; col_str[i]; i++) {
             if (col_str[i] == '\n') col_lines++;
         }

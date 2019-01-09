@@ -8,6 +8,7 @@
  */
 
 #include <algorithm>
+#include <glib.h>
 
 #include "packet_list_model.h"
 
@@ -49,7 +50,6 @@ PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
     idle_dissection_row_(0)
 {
     setCaptureFile(cf);
-    PacketListRecord::clearStringPool();
 
     physical_rows_.reserve(reserved_packets_);
     visible_rows_.reserve(reserved_packets_);
@@ -60,11 +60,14 @@ PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
             this, &PacketListModel::emitItemHeightChanged,
             Qt::QueuedConnection);
     idle_dissection_timer_ = new QElapsedTimer();
+
+    string_cache_pool_ = g_string_chunk_new(1 * 1024 * 1024);
 }
 
 PacketListModel::~PacketListModel()
 {
     delete idle_dissection_timer_;
+    g_string_chunk_free(string_cache_pool_);
 }
 
 void PacketListModel::setCaptureFile(capture_file *cf)
@@ -130,7 +133,7 @@ void PacketListModel::clear() {
     visible_rows_.resize(0);
     new_visible_rows_.resize(0);
     number_to_row_.resize(0);
-    PacketListRecord::clearStringPool();
+    g_string_chunk_clear(string_cache_pool_);
     endResetModel();
     max_row_height_ = 0;
     max_line_count_ = 1;
@@ -697,7 +700,7 @@ void PacketListModel::dissectIdle(bool reset)
 // line counts?
 gint PacketListModel::appendPacket(frame_data *fdata)
 {
-    PacketListRecord *record = new PacketListRecord(fdata);
+    PacketListRecord *record = new PacketListRecord(fdata, string_cache_pool_);
     gint pos = -1;
 
 #ifdef DEBUG_PACKET_LIST_MODEL
