@@ -175,6 +175,10 @@ Comment: Note that those are interface definitions thus are not copyrightable
          http://lkml.iu.edu//hypermail/linux/kernel/0301.1/0362.html
 License: GPL-3+
 
+Files: tools/pidl/idl.yp
+Copyright: Andrew Tridgell <tridge@samba.org>
+License: GPL-3+
+
 License: BSD-2-clause
  Redistribution and use in source and binary forms, with or without
  modification, are permitted provided that the following conditions
