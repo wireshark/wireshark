@@ -22,7 +22,6 @@
 #include <ui/qt/widgets/display_filter_edit.h>
 #include <ui/qt/widgets/field_filter_edit.h>
 #include <ui/qt/widgets/editor_file_dialog.h>
-#include <ui/qt/widgets/editor_color_dialog.h>
 
 // The Qt docs suggest overriding updateEditorGeometry, but the
 // defaults seem sane.
@@ -74,11 +73,8 @@ QWidget *UatDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &
    case PT_TXTMOD_COLOR:
         if (index.isValid()) {
             QColor color(index.model()->data(index, Qt::DecorationRole).toString());
-            EditorColorDialog *colorDialog = new EditorColorDialog(index, color, parent);
-
-            //Use signals to accept data from cell
-            connect(colorDialog, &EditorColorDialog::acceptEdit, this, &UatDelegate::applyColor);
-            return colorDialog;
+            QColorDialog * dialog = new QColorDialog(color, parent);
+            return dialog;
         }
 
         //shouldn't happen
@@ -152,6 +148,15 @@ void UatDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 
         break;
     }
+    case PT_TXTMOD_COLOR:
+    {
+        if ( qobject_cast<QColorDialog *>(editor) )
+        {
+            QColor color(index.model()->data(index, Qt::DecorationRole).toString());
+            qobject_cast<QColorDialog *>(editor)->setCurrentColor(color);
+        }
+        break;
+    }
 
     default:
         QStyledItemDelegate::setEditorData(editor, index);
@@ -173,6 +178,11 @@ void UatDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
     }
     case PT_TXTMOD_COLOR:
         //do nothing, dialog signals will update table
+        if ( qobject_cast<QColorDialog *>(editor) )
+        {
+            QColor newColor = qobject_cast<QColorDialog *>(editor)->currentColor();
+            ((QAbstractItemModel *)index.model())->setData(index, newColor.name(), Qt::EditRole);
+        }
         break;
 
     default:
@@ -187,16 +197,6 @@ void UatDelegate::applyFilename(const QModelIndex& index)
         ((QAbstractItemModel *)index.model())->setData(index, fileDialog->text(), Qt::EditRole);
     }
 }
-
-void UatDelegate::applyColor(const QModelIndex& index)
-{
-    if (index.isValid()) {
-        EditorColorDialog *colorDialog = static_cast<EditorColorDialog*>(sender());
-        QColor newColor = colorDialog->currentColor();
-        ((QAbstractItemModel *)index.model())->setData(index, newColor.name(), Qt::EditRole);
-    }
-}
-
 
 /* * Editor modelines
  *

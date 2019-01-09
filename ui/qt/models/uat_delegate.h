@@ -35,7 +35,6 @@ public:
 
 private slots:
     void applyFilename(const QModelIndex& index);
-    void applyColor(const QModelIndex& index);
 
 private:
     uat_field_t *indexToField(const QModelIndex &index) const;

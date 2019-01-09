@@ -22,7 +22,6 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/dissector_tables_view.h
 	widgets/drag_drop_toolbar.h
 	widgets/drag_label.h
-	widgets/editor_color_dialog.h
 	widgets/editor_file_dialog.h
 	widgets/expert_info_view.h
 	widgets/export_objects_view.h
@@ -245,7 +244,6 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/dissector_tables_view.cpp
 	widgets/drag_drop_toolbar.cpp
 	widgets/drag_label.cpp
-	widgets/editor_color_dialog.cpp
 	widgets/editor_file_dialog.cpp
 	widgets/elided_label.cpp
 	widgets/expert_info_view.cpp
