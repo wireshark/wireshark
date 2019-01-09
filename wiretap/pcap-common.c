@@ -467,6 +467,9 @@ static const struct {
 	/* Elektrobit High Speed Capture and Replay */
 	{ 279,		WTAP_ENCAP_EBHSCR },
 
+	/* VPP dispatch trace */
+	{ 280,		WTAP_ENCAP_VPP },
+
 	/*
 	 * To repeat:
 	 *

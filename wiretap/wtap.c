@@ -958,6 +958,9 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_EBHSCR */
 	{ "ebhscr", "Elektrobit High Speed Capture and Replay" },
+
+	/* WTAP_ENCAP_VPP */
+	{ "vpp", "Vector Packet Processing graph dispatch trace" },
 };
 
 WS_DLL_LOCAL
