@@ -23,6 +23,9 @@ KRB-PRIV/_untag/enc-part kRB_PRIV_enc_part
 AP-REP/_untag/enc-part aP_REP_enc_part
 KDC-REP/enc-part kDC_REP_enc_part
 Ticket/_untag/enc-part ticket_enc_part
+ETYPE-INFO-ENTRY/salt info_salt
+ETYPE-INFO2-ENTRY/salt info2_salt
+AP-REQ/_untag/authenticator authenticator_enc_part
 
 #.OMIT_ASSIGNMENT
 AD-AND-OR
