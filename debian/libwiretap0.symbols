@@ -50,6 +50,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_block_set_string_option_value_format@Base 2.1.2
  wtap_block_set_uint64_option_value@Base 2.1.2
  wtap_block_set_uint8_option_value@Base 2.1.2
+ wtap_cleanup@Base 2.3.0
  wtap_cleareof@Base 1.9.1
  wtap_close@Base 1.9.1
  wtap_compression_type_description@Base 2.9.0
@@ -77,9 +78,9 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_dump_params_init@Base 2.9.0
  wtap_dump_set_addrinfo_list@Base 1.9.1
  wtap_dump_supports_comment_types@Base 1.9.1
+ wtap_encap_description@Base 2.9.1
+ wtap_encap_name@Base 2.9.1
  wtap_encap_requires_phdr@Base 1.9.1
- wtap_encap_short_string@Base 1.9.1
- wtap_encap_string@Base 1.9.1
  wtap_fdclose@Base 1.9.1
  wtap_fdreopen@Base 1.9.1
  wtap_file_encap@Base 1.9.1
@@ -113,7 +114,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_get_savable_file_types_subtypes@Base 1.12.0~rc1
  wtap_has_open_info@Base 1.12.0~rc1
  wtap_init@Base 2.3.0
- wtap_cleanup@Base 2.3.0
+ wtap_name_to_encap@Base 2.9.1
  wtap_open_offline@Base 1.9.1
  wtap_opttype_register_custom_block_type@Base 2.1.2
  wtap_opttypes_initialize@Base 2.1.2
@@ -137,7 +138,6 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_set_cb_new_secrets@Base 2.9.0
  wtap_set_cb_new_ipv4@Base 1.9.1
  wtap_set_cb_new_ipv6@Base 1.9.1
- wtap_short_string_to_encap@Base 1.9.1
  wtap_short_string_to_file_type_subtype@Base 1.9.1
  wtap_snapshot_length@Base 1.9.1
  wtap_strerror@Base 1.9.1
