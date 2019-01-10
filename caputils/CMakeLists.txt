@@ -47,7 +47,17 @@ add_library(caputils STATIC
 	${CAPUTILS_SRC}
 )
 
-target_link_libraries(caputils PUBLIC ${PCAP_LIBRARIES})
+target_link_libraries(caputils
+	PUBLIC
+		wsutil
+	PRIVATE
+		${NL_LIBRARIES}
+)
+
+target_include_directories(caputils SYSTEM
+	PRIVATE
+		${NL_INCLUDE_DIRS}
+)
 
 if(WIN32)
 	target_link_libraries(caputils PRIVATE "iphlpapi.lib")

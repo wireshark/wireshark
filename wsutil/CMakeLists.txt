@@ -263,6 +263,7 @@ target_link_libraries(wsutil
 	${APPLE_CORE_FOUNDATION_LIBRARY}
 	${GMODULE2_LIBRARIES}
 	${GLIB2_LIBRARIES}
+	${PCAP_LIBRARIES}
 	${GCRYPT_LIBRARIES}
 	${WIN_WSOCK32_LIBRARY}
 	${GNUTLS_LIBRARIES}
@@ -271,6 +272,13 @@ target_link_libraries(wsutil
 if(WIN32)
 	target_link_libraries(wsutil PRIVATE "iphlpapi.lib" "ws2_32.lib")
 endif(WIN32)
+
+target_include_directories(wsutil SYSTEM
+	PUBLIC
+		${PCAP_INCLUDE_DIRS}
+		${GCRYPT_INCLUDE_DIRS}
+		${GNUTLS_INCLUDE_DIRS}
+)
 
 install(TARGETS wsutil
 	EXPORT WiresharkTargets

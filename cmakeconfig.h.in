@@ -345,13 +345,10 @@
 #cmakedefine PCAP_NG_DEFAULT 1
 
 /* Define if we have QtMultimedia */
-#cmakedefine QT_MULTIMEDIA_LIB 1
+#define QT_MULTIMEDIA_LIB 1
 
 /* Define if we have QtMacExtras */
 #cmakedefine QT_MACEXTRAS_LIB 1
-
-/* Define if we have QtWinExtras */
-/* #cmakedefine QT_WINEXTRAS_LIB 1 */
 
 /* Build androiddump with libpcap instead of wireshark stuff */
 #cmakedefine ANDROIDDUMP_USE_LIBPCAP 1

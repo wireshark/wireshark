@@ -64,6 +64,13 @@ set_target_properties(wscodecs PROPERTIES
 
 target_link_libraries(wscodecs ${wscodecs_LIBS})
 
+target_include_directories(wscodecs SYSTEM
+	PRIVATE
+		${SBC_INCLUDE_DIRS}
+		${SPANDSP_INCLUDE_DIRS}
+		${BCG729_INCLUDE_DIRS}
+)
+
 install(TARGETS wscodecs
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
   LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

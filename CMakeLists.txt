@@ -297,17 +297,6 @@ if( NOT CMAKE_SYSTEM_NAME STREQUAL "Linux" AND
 	set( DUMPCAP_INSTALL_OPTION )
 endif()
 
-if(APPLE AND EXISTS /usr/local/opt/qt5)
-	# Homebrew installs Qt5 (up to at least 5.11.0) in
-	# /usr/local/qt5. Ensure that it can be found by CMake
-	# since it is not in the default /usr/local prefix.
-	# Add it to PATHS so that it doesn't override the
-	# CMAKE_PREFIX_PATH environment variable.
-	# QT_FIND_PACKAGE_OPTIONS should be passed to find_package,
-	# e.g. find_package(Qt5Core ${QT_FIND_PACKAGE_OPTIONS})
-	set (QT_FIND_PACKAGE_OPTIONS PATHS /usr/local/opt/qt5)
-endif()
-
 set(OSS_FUZZ OFF CACHE BOOL "Whether building for oss-fuzz")
 mark_as_advanced(OSS_FUZZ)
 if(OSS_FUZZ)
@@ -915,23 +904,30 @@ if(APPLE AND EXISTS /usr/local/opt/gettext)
 	link_directories(/usr/local/opt/gettext/lib)
 endif()
 
-# The packagelist is doing some magic: If we add XXX to the packagelist, we
-# - may optionally set XXX_OPTIONS to pass to the find_package command
-# - will call FindXXX.cmake or find_package
-# - return found libraries in XXX_LIBRARIES
-# - return found include in XXX_INCLUDE_DIRS
-# - set HAVE_XXX
+# ws_find_package(<PackageName>
+#             <CMakeOptions.txt boolean variable>
+#             <cmakeconfig.h.in macro definition>
+#             [remaining find_package() arguments])
+macro(ws_find_package _package_name _enable_package _package_cmakedefine)
+	if(${_enable_package})
+		find_package(${_package_name} ${ARGN})
+		if(${_package_name}_FOUND)
+			set(${_package_cmakedefine} 1)
+		endif()
+	endif()
+endmacro()
 
 # The minimum package list
-set(PACKAGELIST Git GLIB2 GMODULE2 GTHREAD2 GCRYPT LEX YACC Perl)
-set(LEX_OPTIONS REQUIRED)
-set(GLIB2_OPTIONS REQUIRED)
-set(GLIB2_FIND_OPTIONS REQUIRED)
+find_package(Git)
 set(GLIB2_MIN_VERSION 2.32.0)
-set(GTHREAD2_OPTIONS REQUIRED)
-set(GCRYPT_OPTIONS "1.4.2" REQUIRED)
-set(Perl_OPTIONS REQUIRED)
-set(YACC_OPTIONS REQUIRED)
+find_package(GLIB2 REQUIRED)
+include_directories(SYSTEM ${GLIB2_INCLUDE_DIRS})
+find_package(GMODULE2)
+find_package(GTHREAD2 REQUIRED)
+find_package(GCRYPT "1.4.2" REQUIRED)
+find_package(LEX REQUIRED)
+find_package(YACC REQUIRED)
+find_package(Perl REQUIRED)
 
 if(CMAKE_VERSION VERSION_LESS "3.12")
 	# Locate the Python interpreter. Finds the wrong (Python 2) version if:
@@ -947,35 +943,40 @@ else()
 endif()
 
 if (NOT WIN32)
-	set(PACKAGELIST ${PACKAGELIST} Gettext M)
-	set(M_OPTIONS REQUIRED)
+	find_package(Gettext)
+	find_package(M REQUIRED)
 endif()
 
-set(PACKAGELIST ${PACKAGELIST} LIBSSH)
-set(LIBSSH_OPTIONS "0.6")
-
-if(ENABLE_PCAP)
-	set(PACKAGELIST ${PACKAGELIST} PCAP)
+if(BUILD_sshdump OR BUILD_ciscodump)
+	set(ENABLE_LIBSSH ON)
+else()
+	set(ENABLE_LIBSSH OFF)
 endif()
+ws_find_package(LIBSSH ENABLE_LIBSSH HAVE_LIBSSH "0.6")
 
-if(ENABLE_AIRPCAP)
-	set(PACKAGELIST ${PACKAGELIST} AIRPCAP)
-endif()
-
-if(BUILD_sdjournal)
-	set(PACKAGELIST ${PACKAGELIST} Systemd)
-endif()
+ws_find_package(PCAP ENABLE_PCAP HAVE_LIBPCAP)
+ws_find_package(AIRPCAP ENABLE_AIRPCAP HAVE_AIRPCAP)
+ws_find_package(Systemd BUILD_sdjournal HAVE_SYSTEMD)
 
 # Build the Qt GUI?
 if(BUILD_wireshark)
 	# Untested, may not work if CMAKE_PREFIX_PATH gets overwritten
 	# somewhere. The if WIN32 in this place is annoying as well.
-	if( WIN32 )
-		set( QT5_BASE_PATH "$ENV{QT5_BASE_DIR}" )
-		set( CMAKE_PREFIX_PATH "${QT5_BASE_PATH}" )
+	if(WIN32)
+		set(QT5_BASE_PATH "$ENV{QT5_BASE_DIR}")
+		set(CMAKE_PREFIX_PATH "${QT5_BASE_PATH}")
 	endif()
-	list (INSERT QT_FIND_PACKAGE_OPTIONS 0 REQUIRED)
-	set(PACKAGELIST ${PACKAGELIST}
+	if(APPLE AND EXISTS /usr/local/opt/qt5)
+		# Homebrew installs Qt5 (up to at least 5.11.0) in
+		# /usr/local/qt5. Ensure that it can be found by CMake
+		# since it is not in the default /usr/local prefix.
+		# Add it to PATHS so that it doesn't override the
+		# CMAKE_PREFIX_PATH environment variable.
+		# QT_FIND_PACKAGE_OPTIONS should be passed to find_package,
+		# e.g. find_package(Qt5Core ${QT_FIND_PACKAGE_OPTIONS})
+		list(APPEND QT_FIND_PACKAGE_OPTIONS PATHS /usr/local/opt/qt5)
+	endif()
+	set(QT_PACKAGELIST
 		Qt5Core
 		Qt5LinguistTools
 		Qt5Multimedia
@@ -983,51 +984,41 @@ if(BUILD_wireshark)
 		Qt5Svg
 		Qt5Widgets
 	)
-	set(Qt5Core_OPTIONS ${QT_FIND_PACKAGE_OPTIONS})
-	set(Qt5LinguistTools_OPTIONS ${QT_FIND_PACKAGE_OPTIONS})
-	set(Qt5Multimedia_OPTIONS ${QT_FIND_PACKAGE_OPTIONS})
-	set(Qt5PrintSupport_OPTIONS ${QT_FIND_PACKAGE_OPTIONS})
-	set(Qt5Svg_OPTIONS ${QT_FIND_PACKAGE_OPTIONS})
-	set(Qt5Widgets_OPTIONS ${QT_FIND_PACKAGE_OPTIONS})
-	if (APPLE)
-		set(PACKAGELIST ${PACKAGELIST} Qt5MacExtras)
-		set(Qt5MacExtras_OPTIONS ${QT_FIND_PACKAGE_OPTIONS})
+	if(APPLE)
+		list(APPEND QT_PACKAGELIST Qt5MacExtras)
 	endif()
-	if( WIN32 )
-		set(PACKAGELIST ${PACKAGELIST} Qt5WinExtras)
-		set(Qt5WinExtras_OPTIONS ${QT_FIND_PACKAGE_OPTIONS})
+	if(WIN32)
+		list(APPEND QT_PACKAGELIST Qt5WinExtras)
+	endif()
+	foreach(_qt_package IN LISTS QT_PACKAGELIST)
+		find_package(${_qt_package} REQUIRED ${QT_FIND_PACKAGE_OPTIONS})
+		list(APPEND QT_LIBRARIES ${${_qt_package}_LIBRARIES})
+		list(APPEND QT_INCLUDE_DIRS ${${_qt_package}_INCLUDE_DIRS})
+		list(APPEND QT_COMPILE_DEFINITIONS ${${_qt_package}_COMPILE_DEFINITIONS})
+	endforeach()
+	set(QT_FOUND ON)
+	if(Qt5MacExtras_FOUND)
+		set(QT_MACEXTRAS_LIB 1)
 	endif()
 endif()
 
 # MaxMind DB address resolution
-if(BUILD_mmdbresolve)
-	set(PACKAGELIST ${PACKAGELIST} MaxMindDB)
-endif()
+ws_find_package(MaxMindDB BUILD_mmdbresolve HAVE_MAXMINDDB)
 
 # SMI SNMP
-if(ENABLE_SMI)
-	set(PACKAGELIST ${PACKAGELIST} SMI)
-endif()
+ws_find_package(SMI ENABLE_SMI HAVE_LIBSMI)
 
 # Support for TLS decryption using RSA private keys.
-if(ENABLE_GNUTLS)
-	set(PACKAGELIST ${PACKAGELIST} GNUTLS)
-	# Minimum version needed.
-	# 3.0.2 due to GNUTLS_PRIVKEY_IMPORT_COPY
-	# 3.2.0 to remain GPLv2-compatible.
-	set(GNUTLS_OPTIONS "3.2.0")
-endif()
+ws_find_package(GNUTLS ENABLE_GNUTLS HAVE_LIBGNUTLS "3.2.0")
 
 # Kerberos
-if(ENABLE_KERBEROS)
-	set(PACKAGELIST ${PACKAGELIST} KERBEROS)
-endif()
+ws_find_package(KERBEROS ENABLE_KERBEROS HAVE_KERBEROS)
 
 # C Asynchronous resolver
-if(ENABLE_CARES)
-	set(PACKAGELIST ${PACKAGELIST} CARES)
-	# Minimum version needed.
-	set(CARES_OPTIONS "1.5.0")
+ws_find_package(CARES ENABLE_CARES HAVE_C_ARES "1.5.0")
+if(NOT CARES_FOUND)
+	message(WARNING "Not using c-ares.")
+	message(WARNING "DNS name resolution for captures will be disabled.")
 endif()
 
 # Zlib compression
@@ -1054,123 +1045,48 @@ if(ENABLE_ZLIB)
 			EXCLUDE_FROM_DEFAULT_BUILD True
 		)
 	endif()
-	set(PACKAGELIST ${PACKAGELIST} ZLIB)
+	ws_find_package(ZLIB ENABLE_ZLIB HAVE_ZLIB)
 endif()
 
 # LZ4 compression
-if(ENABLE_LZ4)
-	set(PACKAGELIST ${PACKAGELIST} LZ4)
-endif()
+ws_find_package(LZ4 ENABLE_LZ4 HAVE_LZ4)
 
 # Snappy compression
-if(ENABLE_SNAPPY)
-	set(PACKAGELIST ${PACKAGELIST} SNAPPY)
-endif()
+ws_find_package(SNAPPY ENABLE_SNAPPY HAVE_SNAPPY)
 
 # Enhanced HTTP/2 dissection
-if(ENABLE_NGHTTP2)
-	set(PACKAGELIST ${PACKAGELIST} NGHTTP2)
-endif()
+ws_find_package(NGHTTP2 ENABLE_NGHTTP2 HAVE_NGHTTP2)
 
 # Embedded Lua interpreter
-if(ENABLE_LUA)
-	set(PACKAGELIST ${PACKAGELIST} LUA)
-	set(LUA_OPTIONS "5.1")
-endif()
+ws_find_package(LUA ENABLE_LUA HAVE_LUA "5.1")
 
-if(ENABLE_NETLINK)
-	set(PACKAGELIST ${PACKAGELIST} NL)
-endif()
+ws_find_package(NL ENABLE_NETLINK HAVE_LIBNL)
 
-if(ENABLE_SBC)
-	set(PACKAGELIST ${PACKAGELIST} SBC)
-endif()
+ws_find_package(SBC ENABLE_SBC HAVE_SBC)
 
-if(ENABLE_SPANDSP)
-	set(PACKAGELIST ${PACKAGELIST} SPANDSP)
-endif()
+ws_find_package(SPANDSP ENABLE_SPANDSP HAVE_SPANDSP)
 
-if(ENABLE_BCG729)
-	set(PACKAGELIST ${PACKAGELIST} BCG729)
-endif()
+ws_find_package(BCG729 ENABLE_BCG729 HAVE_BCG729)
 
-if(ENABLE_LIBXML2)
-	set(PACKAGELIST ${PACKAGELIST} LibXml2)
+ws_find_package(LibXml2 ENABLE_LIBXML2 HAVE_LIBXML2)
+if(NOT LIBXML2_FOUND)
+	# The (official) FindLibXml2.cmake file sets this cache variable to a
+	# non-empty value, be sure to clear it when not found.
+	set(LIBXML2_LIBRARIES "")
 endif()
 
 # Capabilities
-if(ENABLE_CAP)
-	set(PACKAGELIST ${PACKAGELIST} CAP SETCAP)
+ws_find_package(CAP ENABLE_CAP HAVE_LIBCAP)
+if(NOT WIN32)
+	find_package(SETCAP)
 endif()
 
 # Windows version updates
-if(ENABLE_WINSPARKLE)
-	set(PACKAGELIST ${PACKAGELIST} WINSPARKLE)
-endif()
+ws_find_package(WINSPARKLE ENABLE_WINSPARKLE HAVE_SOFTWARE_UPDATE)
 
-set(PACKAGELIST ${PACKAGELIST} POD)
+find_package(POD)
 
-set(PACKAGELIST ${PACKAGELIST} DOXYGEN)
-
-set(PROGLIST)
-
-# Sort the package list
-list(SORT PACKAGELIST)
-string(REPLACE ";" " " _package_list "${PACKAGELIST}")
-message(STATUS "Package List: ${_package_list}")
-# Let's loop the package list
-foreach(PACKAGE ${PACKAGELIST})
-	# Most packages export uppercase variables, but there are exceptions.
-	if(PACKAGE MATCHES "^(Qt5)")
-		set(PACKAGE_VAR "${PACKAGE}")
-	else()
-		string(TOUPPER "${PACKAGE}" PACKAGE_VAR)
-	endif()
-	if(${PACKAGE}_OPTIONS)
-		find_package(${PACKAGE} ${${PACKAGE}_OPTIONS})
-	else()
-		find_package(${PACKAGE})
-	endif()
-	if (${PACKAGE_VAR}_FOUND)
-		message(STATUS "${PACKAGE_VAR} FOUND")
-		set(HAVE_LIB${PACKAGE_VAR} 1)
-		if (NOT DEFINED ${PACKAGE_VAR}_INCLUDE_DIRS AND ${PACKAGE_VAR}_INCLUDE_DIR)
-			set(${PACKAGE_VAR}_INCLUDE_DIRS ${${PACKAGE_VAR}_INCLUDE_DIR})
-		endif()
-		if (${PACKAGE_VAR}_INCLUDE_DIRS)
-			include_directories(SYSTEM ${${PACKAGE_VAR}_INCLUDE_DIRS})
-			message(STATUS "${PACKAGE} includes: ${${PACKAGE_VAR}_INCLUDE_DIRS}")
-		endif()
-		if (${PACKAGE_VAR}_LIBRARIES)
-			message(STATUS "${PACKAGE} libs: ${${PACKAGE_VAR}_LIBRARIES}")
-		endif()
-		if (${PACKAGE_VAR}_DEFINITIONS)
-			message(STATUS "${PACKAGE} definitions: ${${PACKAGE_VAR}_DEFINITIONS}")
-			string(REPLACE ";" " " _definitions "${${PACKAGE_VAR}_DEFINITIONS}")
-			set(CMAKE_C_FLAGS "${_definitions} ${CMAKE_C_FLAGS}")
-			set(CMAKE_CXX_FLAGS "${_definitions} ${CMAKE_CXX_FLAGS}")
-		endif()
-		if (${PACKAGE_VAR}_LINK_FLAGS)
-			string(REPLACE ";" " " _link_flags "${${PACKAGE_VAR}_LINK_FLAGS}")
-			set(WS_LINK_FLAGS "${_link_flags} ${WS_LINK_FLAGS}")
-			message(STATUS "${PACKAGE} other link flags: ${_link_flags}")
-		endif()
-		if (${PACKAGE_VAR}_EXECUTABLE)
-			message(STATUS "${PACKAGE} executable: ${${PACKAGE_VAR}_EXECUTABLE}")
-		endif()
-	else()
-		#
-		# Not finding a package is only a fatal error if the
-		# package is required; if it's required, then its
-		# XXX_OPTIONS variable contains REQUIRED, and the above
-		# code will pass REQUIRED to find_package, and the
-		# configure will fail if the package isn't found.
-		#
-		# Do *NOT* report this as an error!
-		#
-		message(STATUS "${PACKAGE_VAR} NOT FOUND")
-	endif()
-endforeach()
+find_package(DOXYGEN)
 
 # dist target that prepares source dir
 # XXX Duplicated in the RPM section below.
@@ -1179,13 +1095,6 @@ add_custom_target(dist
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
-if(HAVE_LIBAIRPCAP)
-	set(HAVE_AIRPCAP 1)
-endif()
-if(HAVE_LIBLUA)
-	set(HAVE_LUA_H 1)
-	set(HAVE_LUA 1)
-endif()
 if(GNUTLS_FOUND AND NOT GNUTLS_VERSION VERSION_LESS "3.4.0")
 	# While all Linux and Windows builds have PKCS #11 support enabled,
 	# macos-setup.sh explicitly disables it using --without-p11-kit.
@@ -1202,58 +1111,8 @@ if(GNUTLS_FOUND AND NOT GNUTLS_VERSION VERSION_LESS "3.4.0")
 	check_symbol_exists(gnutls_pkcs11_obj_list_import_url4 gnutls/pkcs11.h HAVE_GNUTLS_PKCS11)
 	cmake_pop_check_state()
 endif()
-if(HAVE_LIBKERBEROS)
-	set(HAVE_KERBEROS 1)
-endif()
-if(MAXMINDDB_FOUND)
-	set(HAVE_MAXMINDDB 1)
-endif()
-if(LIBSSH_FOUND)
-	set(HAVE_LIBSSH 1)
-endif()
-if(NGHTTP2_FOUND)
-	set(HAVE_NGHTTP2 1)
-endif()
-if(HAVE_LIBCARES)
-	set(HAVE_C_ARES 1)
-endif()
-if(NOT HAVE_LIBCARES)
-	message(WARNING "Not using c-ares.")
-	message(WARNING "DNS name resolution for captures will be disabled.")
-endif()
-if(HAVE_LIBNL AND HAVE_AIRPCAP)
-	message(ERROR "Airpcap and Libnl support are mutually exclusive")
-endif()
-if(HAVE_LIBSBC)
-	set(HAVE_SBC 1)
-endif()
-if(SPANDSP_FOUND)
-	set(HAVE_SPANDSP 1)
-endif()
-if(BCG729_FOUND)
-	set(HAVE_BCG729 1)
-endif()
-if(LIBXML2_FOUND)
-	set(HAVE_LIBXML2 1)
-else()
-	# The (official) FindLibXml2.cmake file sets this cache variable to a
-	# non-empty value, be sure to clear it when not found.
-	set(LIBXML2_LIBRARIES "")
-endif()
-if (HAVE_LIBWINSPARKLE)
-	set(HAVE_SOFTWARE_UPDATE 1)
-endif()
-if(HAVE_LIBZLIB)
-	set(HAVE_ZLIB 1)
-endif()
-if(HAVE_LIBLZ4)
-	set(HAVE_LZ4 1)
-endif()
-if(SNAPPY_FOUND)
-	set(HAVE_SNAPPY 1)
-endif()
 
-if (Qt5Widgets_FOUND)
+if (QT_FOUND)
 	if (Qt5Widgets_VERSION VERSION_LESS 5.2)
 		message(FATAL_ERROR "Qt 5.2 or later is required.")
 	endif()
@@ -1262,27 +1121,6 @@ if (Qt5Widgets_FOUND)
 		# Qt 5.7 and later require C++ 11.
 		set(CMAKE_CXX_STANDARD 11)
 		set(CMAKE_CXX_STANDARD_REQUIRED ON)
-	endif()
-	set (QT_FOUND ON)
-	set (QT_LIBRARIES ${Qt5Widgets_LIBRARIES} ${Qt5PrintSupport_LIBRARIES})
-	if(Qt5Multimedia_FOUND)
-		set (QT_LIBRARIES ${QT_LIBRARIES} ${Qt5Multimedia_LIBRARIES})
-		# That's the name autotools used
-		set(QT_MULTIMEDIA_LIB 1)
-	endif()
-	if(Qt5Svg_FOUND)
-		set (QT_LIBRARIES ${QT_LIBRARIES} ${Qt5Svg_LIBRARIES})
-		# That's the name autotools used
-		set(QT_SVG_LIB 1)
-	endif()
-	if(Qt5MacExtras_FOUND)
-		set (QT_LIBRARIES ${QT_LIBRARIES} ${Qt5MacExtras_LIBRARIES})
-		# That's the name autotools used
-		set(QT_MACEXTRAS_LIB 1)
-	endif()
-	if(Qt5WinExtras_FOUND)
-		set (QT_LIBRARIES ${QT_LIBRARIES} ${Qt5WinExtras_LIBRARIES})
-		# set(QT_WINEXTRAS_LIB 1) # Not needed?
 	endif()
 	if(NOT DEFINED MOC_OPTIONS)
 		# Squelch moc verbose "nothing to do" output
@@ -1736,7 +1574,10 @@ else()
 endif()
 
 set(VERSION_INFO_LIBS
-		${ZLIB_LIBRARIES}
+	${ZLIB_LIBRARIES}
+)
+set(VERSION_INFO_INCLUDE_DIRS
+	${ZLIB_INCLUDE_DIRS}
 )
 
 if(WIN32)
@@ -2129,6 +1970,7 @@ set_target_properties(copy_data_files PROPERTIES FOLDER "Copy Tasks")
 
 # Shared code, build object files once for all users.
 add_library(version_info OBJECT version_info.c)
+target_include_directories(version_info SYSTEM PRIVATE ${VERSION_INFO_INCLUDE_DIRS})
 add_dependencies(version_info version)
 # sources common for wireshark, tshark, rawshark and sharkd
 add_library(shark_common OBJECT
@@ -2141,6 +1983,7 @@ add_library(shark_common OBJECT
 )
 add_library(cli_main OBJECT cli_main.c)
 add_library(capture_opts OBJECT capture_opts.c)
+target_include_directories(capture_opts SYSTEM PRIVATE ${PCAP_INCLUDE_DIRS})
 set_target_properties(version_info shark_common cli_main capture_opts
 	PROPERTIES
 	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
@@ -2242,16 +2085,14 @@ if(BUILD_wireshark AND QT_FOUND)
 		capchild
 		caputils
 		wiretap
-		${QT_LIBRARIES}
-		${GTHREAD2_LIBRARIES}
 		wscodecs
 		epan
+		${QT_LIBRARIES}
 		${VERSION_INFO_LIBS}
 		${APPLE_APPLICATION_SERVICES_LIBRARY}
 		${APPLE_APPKIT_LIBRARY}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
-		${NL_LIBRARIES}
 		${WIN_VERSION_LIBRARY}
 		${WINSPARKLE_LIBRARIES}
 		$<$<BOOL:${WIN32}>:UxTheme.lib>
@@ -2286,6 +2127,7 @@ if(BUILD_wireshark AND QT_FOUND)
 	endif()
 
 	target_link_libraries(wireshark ${wireshark_LIBS})
+
 	install(
 		TARGETS wireshark
 		RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
@@ -2635,7 +2477,6 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		${ZLIB_LIBRARIES}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
-		${NL_LIBRARIES}
 	)
 	set(dumpcap_FILES
 		$<TARGET_OBJECTS:capture_opts>
@@ -2730,7 +2571,8 @@ if (MAXMINDDB_FOUND)
 	add_executable(mmdbresolve ${mmdbresolve_FILES})
 	set_extra_executable_properties(mmdbresolve "Executables")
 	target_link_libraries(mmdbresolve ${mmdbresolve_LIBS})
-	target_include_directories(mmdbresolve PUBLIC ${MAXMINDDB_INCLUDE_DIR})
+	target_include_directories(mmdbresolve PUBLIC ${MAXMINDDB_INCLUDE_DIRS})
+	target_compile_definitions(mmdbresolve PUBLIC ${MAXMINDDB_DEFINITIONS})
 	install(TARGETS mmdbresolve RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 

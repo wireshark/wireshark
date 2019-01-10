@@ -132,10 +132,15 @@ add_custom_command(OUTPUT libwiretap.abi.tar.gz
 
 target_link_libraries(wiretap
 	PUBLIC
-	wsutil
-	${GLIB2_LIBRARIES}
+		wsutil
+		${GLIB2_LIBRARIES}
 	PRIVATE
-	${ZLIB_LIBRARIES}
+		${ZLIB_LIBRARIES}
+)
+
+target_include_directories(wiretap SYSTEM
+	PRIVATE
+		${ZLIB_INCLUDE_DIRS}
 )
 
 install(TARGETS wiretap

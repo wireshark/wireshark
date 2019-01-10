@@ -86,10 +86,17 @@ set_target_properties(ui PROPERTIES
 	FOLDER "UI"
 )
 
+target_link_libraries(ui wsutil)
+
 if (HTML_HELP_COMPILER)
 	add_definitions(-DHHC_DIR)
 	target_link_libraries(ui Htmlhelp.lib)
 endif()
+
+target_include_directories(ui SYSTEM
+	PRIVATE
+		${WINSPARKLE_INCLUDE_DIRS}
+)
 
 add_definitions(-DDOC_DIR="${CMAKE_INSTALL_FULL_DOCDIR}")
 

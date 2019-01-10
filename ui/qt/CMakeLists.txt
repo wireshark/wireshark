@@ -655,6 +655,20 @@ add_library(qtui OBJECT
 	${WIRESHARK_QT_TAP_SRC}
 	wireshark-tap-register.c
 )
+
+target_include_directories(qtui SYSTEM
+	PUBLIC
+		${QT_INCLUDE_DIRS}
+		${WINSPARKLE_INCLUDE_DIRS}
+	PRIVATE
+		${PCAP_INCLUDE_DIRS}
+)
+
+target_compile_definitions(qtui
+	PUBLIC
+		${QT_COMPILE_DEFINITIONS}
+)
+
 set_target_properties(qtui PROPERTIES
 	LINK_FLAGS "${WS_LINK_FLAGS}"
 	FOLDER "UI"

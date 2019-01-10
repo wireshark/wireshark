@@ -15,12 +15,34 @@ if (HAVE_HFI_SECTION_INIT)
 	)
 endif()
 
+include_directories(
+		${GLIB2_INCLUDE_DIRS}
+		${CARES_INCLUDE_DIRS}
+		${GCRYPT_INCLUDE_DIRS}
+		${GTHREAD2_INCLUDE_DIRS}
+		${GNUTLS_INCLUDE_DIRS}
+		${KERBEROS_INCLUDE_DIRS}
+		${LUA_INCLUDE_DIRS}
+		${LZ4_INCLUDE_DIRS}
+		${NGHTTP2_INCLUDE_DIRS}
+		${PCAP_INCLUDE_DIRS}
+		${SMI_INCLUDE_DIRS}
+		${SNAPPY_INCLUDE_DIRS}
+		${ZLIB_INCLUDE_DIRS}
+		${LIBXML2_INCLUDE_DIR}
+)
+
+add_definitions(
+		${LIBXML2_DEFINITIONS}
+		${KERBEROS_DEFINITIONS}
+)
+
 add_subdirectory(crypt)
 add_subdirectory(dfilter)
 add_subdirectory(dissectors)
 add_subdirectory(ftypes)
 add_subdirectory(wmem)
-if (HAVE_LIBLUA)
+if(LUA_FOUND)
 	add_subdirectory(wslua)
 endif()
 
@@ -279,7 +301,7 @@ add_library(epan
 	$<TARGET_OBJECTS:ftypes>
 	$<TARGET_OBJECTS:version_info>
 	$<TARGET_OBJECTS:wmem>
-	$<$<BOOL:${HAVE_LIBLUA}>:$<TARGET_OBJECTS:wslua>>
+	$<$<BOOL:${LUA_FOUND}>:$<TARGET_OBJECTS:wslua>>
 	${CMAKE_BINARY_DIR}/image/libwireshark.rc
 )
 
@@ -370,9 +392,9 @@ target_include_directories(epan
 	INTERFACE
 	$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}>
 	$<INSTALL_INTERFACE:include/wireshark>
-	PUBLIC
-	${GLIB2_INCLUDE_DIRS}
 )
+
+target_include_directories(epan SYSTEM PUBLIC ${GLIB2_INCLUDE_DIRS})
 
 add_dependencies(epan lemon)
 
