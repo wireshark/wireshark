@@ -498,7 +498,8 @@ static const value_string mpls_echo_tlv_ds_map_mp_proto[] = {
     {2, "BGP"},
     {3, "LDP"},
     {4, "RSVP-TE"},
-    {5, "Reserved"},
+    {5, "OSPF"},
+    {6, "IS-IS"},
     {0, NULL}
 };
 
