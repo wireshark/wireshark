@@ -70,7 +70,8 @@ ADDR-TYPE TYPE_PREFIX
 Applications TYPE_PREFIX
 
 #.FN_BODY MESSAGE-TYPE VAL_PTR = &msgtype
-guint32 msgtype;
+	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
+	guint32 msgtype;
 
 %(DEFAULT_BODY)s
 
@@ -86,6 +87,9 @@ guint32 msgtype;
 	/* append the application type to the tree */
 	proto_item_append_text(tree, " %s", val_to_str(msgtype, krb5_msg_types, "Unknown:0x%x"));
 ##endif
+	if (private_data->msg_type == 0) {
+		private_data->msg_type = msgtype;
+	}
 
 #.FN_BODY ERROR-CODE VAL_PTR = &private_data->errorcode
 	kerberos_private_data_t *private_data = kerberos_get_private_data(actx);
@@ -435,22 +439,3 @@ AuthorizationData/_item/ad-type STRINGS=VALS(krb5_ad_types)
 #.FN_FTR EncKDCRepPart/encrypted-pa-data
 	private_data->is_enc_padata = FALSE;
 
-#.FN_HDR AS-REQ
-	kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
-	private_data->msg_type = KRB5_MSG_AS_REQ;
-
-#.FN_HDR AS-REP
-	kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
-	private_data->msg_type = KRB5_MSG_AS_REP;
-
-#.FN_HDR KRB-ERROR
-	kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
-	private_data->msg_type = KRB5_MSG_ERROR;
-
-#.FN_HDR TGS-REQ
-	kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
-	private_data->msg_type = KRB5_MSG_TGS_REQ;
-
-#.FN_HDR TGS-REP
-	kerberos_private_data_t* private_data = kerberos_get_private_data(actx);
-	private_data->msg_type = KRB5_MSG_TGS_REP;
