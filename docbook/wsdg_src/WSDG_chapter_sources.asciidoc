@@ -1116,13 +1116,19 @@ show how to restrict access using setcap and setuid respectively:
 [discrete]
 ===== Customization
 
-Custom version information can be added by creating a file called
-`version.conf` and running `tools/make-version.pl --set-release`. See
-`tools/make-version.pl` for details. If your package contains
-significant changes we recommend that you use this to differentiate it
-from official Wireshark releases.
+Custom version information can be added by running
+`tools/make-version.pl`. If your package contains significant changes we
+recommend that you use this to differentiate it from official Wireshark
+releases.
 
-The Git version corresponding to each release is in `version.h`. It's
+[source, sh]
+----
+$ tools/make-version.pl --set-release --untagged-version-extra=-{vcsinfo}-FooCorp --tagged-version-extra=-FooCorp
+----
+
+See `tools/make-version.pl` for details.
+
+The Git version corresponding to each release is in _version.h_. It's
 defined as a string. If you need a numeric definition, let us know.
 
 If you have a question not addressed here, please contact
