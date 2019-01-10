@@ -4907,6 +4907,9 @@ static int hf_ieee80211_vs_aerohive_hostname_length = -1;
 static int hf_ieee80211_vs_aerohive_hostname = -1;
 static int hf_ieee80211_vs_aerohive_data = -1;
 
+static int hf_ieee80211_vs_mist_ap_name = -1;
+static int hf_ieee80211_vs_mist_data = -1;
+
 static int hf_ieee80211_rsn_ie_gtk_keyid = -1;
 static int hf_ieee80211_rsn_ie_gtk_tx = -1;
 static int hf_ieee80211_rsn_ie_gtk_reserved1 = -1;
@@ -14204,6 +14207,40 @@ dissect_vendor_ie_aerohive(proto_item *item _U_, proto_tree *ietree,
   }
 }
 
+#define MIST_APNAME 1
+static const value_string ieee80211_vs_mist_type_vals[] = {
+    { MIST_APNAME, "AP Name"},
+    { 0,           NULL }
+};
+static void
+dissect_vendor_ie_mist(proto_item *item _U_, proto_tree *ietree,
+                       tvbuff_t *tvb, int offset, guint32 tag_len)
+{
+    guint32 type, length;
+    const guint8* apname;
+
+    /* VS OUI Type */
+    type = tvb_get_guint8(tvb, offset);
+    offset += 1;
+    tag_len -= 1;
+
+    switch(type){
+        case MIST_APNAME:
+
+            proto_item_append_text(item, ": %s", val_to_str_const(type, ieee80211_vs_mist_type_vals, "Unknown"));
+
+            length = tag_len;
+            proto_tree_add_item_ret_string(ietree, hf_ieee80211_vs_mist_ap_name, tvb, offset, length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &apname);
+            proto_item_append_text(item, " (%s)", apname);
+
+            break;
+
+        default:
+            proto_tree_add_item(ietree, hf_ieee80211_vs_mist_data, tvb, offset, tag_len, ENC_NA);
+            break;
+    }
+}
+
 enum vs_nintendo_type {
   NINTENDO_SERVICES = 0x11,
   NINTENDO_CONSOLEID = 0xF0
@@ -19735,6 +19772,9 @@ ieee80211_tag_vendor_specific_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
       break;
     case OUI_AEROHIVE:
       dissect_vendor_ie_aerohive(field_data->item_tag, tree, tvb, offset, tag_vs_len, pinfo);
+      break;
+    case OUI_MIST:
+      dissect_vendor_ie_mist(field_data->item_tag, tree, tvb, offset, tag_vs_len);
       break;
     default:
       proto_tree_add_item(tree, hf_ieee80211_tag_vendor_data, tvb, offset, tag_vs_len, ENC_NA);
@@ -33670,6 +33710,17 @@ proto_register_ieee80211(void)
      {"Data", "wlan.vs.aerohive.data",
       FT_BYTES, BASE_NONE, NULL, 0,
       NULL, HFILL }},
+
+    /* Vendor Specific : Mist */
+    {&hf_ieee80211_vs_mist_ap_name,
+     {"AP Name", "wlan.vs.mist.apname",
+       FT_STRING, BASE_NONE, NULL, 0,
+       NULL, HFILL }},
+
+    {&hf_ieee80211_vs_mist_data,
+     {"Data", "wlan.vs.mist.data",
+       FT_BYTES, BASE_NONE, NULL, 0,
+       NULL, HFILL }},
 
     {&hf_ieee80211_tsinfo,
      {"Traffic Stream (TS) Info", "wlan.ts_info",
