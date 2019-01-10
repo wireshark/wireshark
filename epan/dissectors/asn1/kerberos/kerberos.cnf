@@ -221,6 +221,9 @@ AUTHDATA-TYPE PROT_PREFIX UPPER_CASE
 	case KERBEROS_PA_PAC_OPTIONS:
 		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset, hf_index, dissect_kerberos_PA_PAC_OPTIONS);
 		break;
+	case KERBEROS_PA_REQ_ENC_PA_REP:
+		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_Checksum);
+		break;
 	default:
 		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, NULL);
 	}
