@@ -180,8 +180,12 @@ typedef struct quic_cid {
 
 /** QUIC decryption context. */
 typedef struct quic_cipher {
-    gcry_cipher_hd_t    pn_cipher;  /* Packet number protection cipher. */
-    gcry_cipher_hd_t    pp_cipher;  /* Packet protection cipher. */
+    // TODO hp_cipher does not change after KeyUpdate, but is still tied to the
+    //      current encryption level (initial, 0rtt, handshake, appdata).
+    //      Maybe move this into quic_info_data (2x) and quic_pp_state?
+    //      See https://tools.ietf.org/html/draft-ietf-quic-tls-17#section-5.4
+    gcry_cipher_hd_t    hp_cipher;  /**< Header protection cipher. */
+    gcry_cipher_hd_t    pp_cipher;  /**< Packet protection cipher. */
     guint8              pp_iv[TLS13_AEAD_NONCE_LENGTH];
 } quic_cipher;
 
@@ -233,7 +237,7 @@ struct quic_packet_info {
     struct quic_packet_info *next;
     guint64                 packet_number;  /**< Reconstructed full packet number. */
     quic_decrypt_result_t   decryption;
-    guint8                  pkn_len;        /**< Length of PKN (1/2/4) or unknown (0). */
+    guint8                  pkn_len;        /**< Length of PKN (1/2/3/4) or unknown (0). */
 };
 typedef struct quic_packet_info quic_packet_info_t;
 
@@ -425,7 +429,7 @@ static const value_string quic_application_error_code_vals[] = {
 static void
 quic_cipher_reset(quic_cipher *cipher)
 {
-    gcry_cipher_close(cipher->pn_cipher);
+    gcry_cipher_close(cipher->hp_cipher);
     gcry_cipher_close(cipher->pp_cipher);
     memset(cipher, 0, sizeof(*cipher));
 }
@@ -447,100 +451,72 @@ static guint64 quic_pkt_adjust_pkt_num(guint64 max_pkt_num, guint64 pkt_num,
 }
 
 #ifdef HAVE_LIBGCRYPT_AEAD
-static guint
-quic_decrypt_packet_number(tvbuff_t *tvb, guint offset, quic_cipher *cipher,
-                           int pn_cipher_algo, guint64 *pkn)
+/**
+ * Given a header protection cipher, a buffer and the packet number offset,
+ * return the unmasked first byte and packet number.
+ */
+static gboolean
+quic_decrypt_header(tvbuff_t *tvb, guint pn_offset, gcry_cipher_hd_t hp_cipher, int hp_cipher_algo,
+                    guint8 *first_byte, guint32 *pn)
 {
-    guint32 pkt_pkn;
-    guint   pkn_len;
-    guint8 *pkn_bytes = (guint8 *)&pkt_pkn;
-    gcry_cipher_hd_t h;
-    if (!cipher || !(h = cipher->pn_cipher)) {
+    gcry_cipher_hd_t h = hp_cipher;
+    if (!hp_cipher) {
         // need to know the cipher.
-        return 0;
+        return FALSE;
     }
 
-    tvb_memcpy(tvb, pkn_bytes, offset, sizeof(pkt_pkn));
-
-    // Both AES-CTR and ChaCha20 use 16 octets as sample length.
-    // https://tools.ietf.org/html/draft-ietf-quic-tls-13#section-5.3
-    const guint sample_length = 16;
-    guint sample_offset = offset + 4;
+    // Sample is always 16 bytes and starts after PKN (assuming length 4).
+    // https://tools.ietf.org/html/draft-ietf-quic-tls-17#section-5.4.2
     guint8 sample[16];
-    if (sample_offset + sample_length > tvb_reported_length(tvb)) {
-        sample_offset = tvb_reported_length(tvb) - sample_length;
-    }
-    tvb_memcpy(tvb, sample, sample_offset, sample_length);
+    tvb_memcpy(tvb, sample, pn_offset + 4, 16);
 
-    switch (pn_cipher_algo) {
+    guint8  mask[5] = { 0 };
+    switch (hp_cipher_algo) {
     case GCRY_CIPHER_AES128:
     case GCRY_CIPHER_AES256:
-        if (gcry_cipher_setctr(h, sample, sample_length)) {
-            return 0;
+        /* Encrypt in-place with AES-ECB and extract the mask. */
+        if (gcry_cipher_encrypt(h, sample, sizeof(sample), NULL, 0)) {
+            return FALSE;
         }
+        memcpy(mask, sample, sizeof(mask));
         break;
 #ifdef HAVE_LIBGCRYPT_CHACHA20
     case GCRY_CIPHER_CHACHA20:
         /* If Gcrypt receives a 16 byte IV, it will assume the buffer to be
          * counter || nonce (in little endian), as desired. */
         if (gcry_cipher_setiv(h, sample, 16)) {
-            return 0;
+            return FALSE;
+        }
+        /* Apply ChaCha20, encrypt in-place five zero bytes. */
+        if (gcry_cipher_encrypt(h, mask, sizeof(mask), NULL, 0)) {
+            return FALSE;
         }
         break;
 #endif /* HAVE_LIBGCRYPT_CHACHA20 */
     default:
-        return 0;
+        return FALSE;
     }
 
-    /* in-place decrypt. */
-    if (gcry_cipher_decrypt(h, pkn_bytes, 4, NULL, 0)) {
-        return 0;
+    // https://tools.ietf.org/html/draft-ietf-quic-tls-17#section-5.4.1
+    guint8 packet0 = tvb_get_guint8(tvb, 0);
+    if ((packet0 & 0x80) == 0x80) {
+        // Long header: 4 bits masked
+        packet0 ^= mask[0] & 0x0f;
+    } else {
+        // Short header: 5 bits masked
+        packet0 ^= mask[0] & 0x1f;
     }
+    guint pkn_len = (packet0 & 0x03) + 1;
 
-    // | First octet pattern | Encoded Length | Bits Present |
-    // | 0b0xxxxxxx          | 1 octet        | 7            |
-    // | 0b10xxxxxx          | 2              | 14           |
-    // | 0b11xxxxxx          | 4              | 30           |
-    switch (pkn_bytes[0] >> 6) {
-    default:
-        pkn_len = 1;
-        break;
-    case 2:
-        pkn_len = 2;
-        pkn_bytes[0] &= 0x3f;
-        break;
-    case 3:
-        pkn_len = 4;
-        pkn_bytes[0] &= 0x3f;
-        break;
+    guint8 pkn_bytes[4];
+    tvb_memcpy(tvb, pkn_bytes, pn_offset, pkn_len);
+    guint32 pkt_pkn = 0;
+    for (guint i = 0; i < pkn_len; i++) {
+        pkt_pkn |= (pkn_bytes[i] ^ mask[1 + i]) << (8 * (pkn_len - 1 - i));
     }
-    *pkn = g_htonl(pkt_pkn) >> (8 * (4 - pkn_len));
-    return pkn_len;
-}
-
-static void
-quic_encode_packet_number(guint8 *output, guint32 pkn, guint pkn_len)
-{
-    switch (pkn_len) {
-    default:
-        output[0] = (guint8)pkn;
-        break;
-    case 2:
-        phton16(output, (guint16)pkn);
-        output[0] |= 0x80;
-        break;
-    case 4:
-        phton32(output, pkn);
-        output[0] |= 0xc0;
-        break;
-    }
-}
-#else /* !HAVE_LIBGCRYPT_AEAD */
-static inline guint
-quic_decrypt_packet_number(tvbuff_t *tvb _U_, guint offset _U_, quic_cipher *cipher _U_,
-                           int pn_cipher_algo _U_, guint64 *pkn _U_)
-{
-    return 0;
+    *first_byte = packet0;
+    *pn = pkt_pkn;
+    return TRUE;
 }
 #endif /* !HAVE_LIBGCRYPT_AEAD */
 
@@ -551,16 +527,21 @@ static guint32
 dissect_quic_packet_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset,
                            quic_info_data_t *quic_info, quic_packet_info_t *quic_packet,
                            gboolean from_server,
-                           quic_cipher *cipher, int pn_cipher_algo, guint64 *pkn_out)
+                           gcry_cipher_hd_t hp_cipher, int hp_cipher_algo,
+                           guint8 *first_byte, guint64 *pkn_out)
 {
     proto_item *ti;
-    guint       pkn_len;
-    guint64     pkn;
+    guint       pkn_len = 0;
+    guint64     pkn = 0;
 
     /* Try to decrypt on the first pass, reuse results on the second pass. */
     if (!PINFO_FD_VISITED(pinfo)) {
-        pkn_len = quic_decrypt_packet_number(tvb, offset, cipher, pn_cipher_algo, &pkn);
-        quic_packet->pkn_len = pkn_len;
+        guint32 pkn32 = 0;
+        if (quic_decrypt_header(tvb, offset, hp_cipher, hp_cipher_algo, first_byte, &pkn32)) {
+            pkn_len = (*first_byte & 3) + 1;
+            pkn = pkn32;
+            quic_packet->pkn_len = pkn_len;
+        }
     } else {
         pkn_len = quic_packet->pkn_len;
         pkn = quic_packet->packet_number & ((1UL << (8 * pkn_len)) - 1);
@@ -1305,7 +1286,8 @@ quic_cipher_init(guint32 version, quic_cipher *cipher, int hash_algo, guint8 key
  * https://tools.ietf.org/html/draft-ietf-quic-transport-13#section-4.8
  */
 static void
-quic_decrypt_message(quic_cipher *cipher, tvbuff_t *head, guint header_length, guint pkn_len, guint64 packet_number, quic_decrypt_result_t *result)
+quic_decrypt_message(quic_cipher *cipher, tvbuff_t *head, guint header_length,
+                     guint8 first_byte, guint pkn_len, guint64 packet_number, quic_decrypt_result_t *result)
 {
     gcry_error_t    err;
     guint8         *header;
@@ -1319,9 +1301,12 @@ quic_decrypt_message(quic_cipher *cipher, tvbuff_t *head, guint header_length, g
     DISSECTOR_ASSERT(cipher->pp_cipher != NULL);
     DISSECTOR_ASSERT(pkn_len < header_length);
     DISSECTOR_ASSERT(1 <= pkn_len && pkn_len <= 4);
-    // copy header, but replace encrypted PKN by plaintext PKN.
+    // copy header, but replace encrypted first byte and PKN by plaintext.
     header = (guint8 *)tvb_memdup(wmem_packet_scope(), head, 0, header_length);
-    quic_encode_packet_number(header + header_length - pkn_len, (guint32)packet_number, pkn_len);
+    header[0] = first_byte;
+    for (guint i = 0; i < pkn_len; i++) {
+        header[header_length - 1 - i] = (guint8)(packet_number >> (8 * i));
+    }
 
     /* Input is "header || ciphertext (buffer) || auth tag (16 bytes)" */
     buffer_length = tvb_captured_length_remaining(head, header_length + 16);
@@ -1373,7 +1358,7 @@ quic_hkdf_expand_label(int hash_algo, guint8 *secret, guint secret_len, const ch
 {
     const StringInfo secret_si = { secret, secret_len };
     guchar *out_mem = NULL;
-    if (tls13_hkdf_expand_label(hash_algo, &secret_si, "quic ", label, out_len, &out_mem)) {
+    if (tls13_hkdf_expand_label(hash_algo, &secret_si, "tls13 ", label, out_len, &out_mem)) {
         memcpy(out, out_mem, out_len);
         wmem_free(NULL, out_mem);
         return TRUE;
@@ -1394,9 +1379,9 @@ quic_derive_initial_secrets(const quic_cid_t *cid,
                             const gchar **error)
 {
     /*
-     * https://tools.ietf.org/html/draft-ietf-quic-tls-14#section-5.1.1
+     * https://tools.ietf.org/html/draft-ietf-quic-tls-17#section-5.2
      *
-     * initial_salt = 0x9c108f98520a5c5c32968e950e8a2c5fe06d6c38
+     * initial_salt = 0xef4fb0abb47470c41befcf8031334fae485e09a0
      * initial_secret = HKDF-Extract(initial_salt, client_dst_connection_id)
      *
      * client_initial_secret = HKDF-Expand-Label(initial_secret,
@@ -1407,8 +1392,8 @@ quic_derive_initial_secrets(const quic_cid_t *cid,
      * Hash for handshake packets is SHA-256 (output size 32).
      */
     static const guint8 handshake_salt[20] = {
-        0x9c, 0x10, 0x8f, 0x98, 0x52, 0x0a, 0x5c, 0x5c, 0x32, 0x96,
-        0x8e, 0x95, 0x0e, 0x8a, 0x2c, 0x5f, 0xe0, 0x6d, 0x6c, 0x38
+        0xef, 0x4f, 0xb0, 0xab, 0xb4, 0x74, 0x70, 0xc4, 0x1b, 0xef,
+        0xcf, 0x80, 0x31, 0x33, 0x4f, 0xae, 0x48, 0x5e, 0x09, 0xa0
     };
     gcry_error_t    err;
     guint8          secret[HASH_SHA2_256_LENGTH];
@@ -1438,19 +1423,19 @@ quic_derive_initial_secrets(const quic_cid_t *cid,
 
 /**
  * Maps a Packet Protection cipher to the Packet Number protection cipher.
- * See https://tools.ietf.org/html/draft-ietf-quic-tls-14#section-5.3
+ * See https://tools.ietf.org/html/draft-ietf-quic-tls-17#section-5.4.3
  */
 static gboolean
-quic_get_pn_cipher_algo(int cipher_algo, int *pn_cipher_mode)
+quic_get_pn_cipher_algo(int cipher_algo, int *hp_cipher_mode)
 {
     switch (cipher_algo) {
     case GCRY_CIPHER_AES128:
     case GCRY_CIPHER_AES256:
-        *pn_cipher_mode = GCRY_CIPHER_MODE_CTR;
+        *hp_cipher_mode = GCRY_CIPHER_MODE_ECB;
         return TRUE;
 #ifdef HAVE_LIBGCRYPT_CHACHA20
     case GCRY_CIPHER_CHACHA20:
-        *pn_cipher_mode = 0;
+        *hp_cipher_mode = 0;
         return TRUE;
 #endif /* HAVE_LIBGCRYPT_CHACHA20 */
     default:
@@ -1469,13 +1454,13 @@ quic_cipher_prepare(guint32 version, quic_cipher *cipher, int hash_algo, int cip
     /* Clear previous state (if any). */
     quic_cipher_reset(cipher);
 
-    int pn_cipher_mode;
-    if (!quic_get_pn_cipher_algo(cipher_algo, &pn_cipher_mode)) {
+    int hp_cipher_mode;
+    if (!quic_get_pn_cipher_algo(cipher_algo, &hp_cipher_mode)) {
         *error = "Unsupported cipher algorithm";
         return FALSE;
     }
 
-    if (gcry_cipher_open(&cipher->pn_cipher, cipher_algo, pn_cipher_mode, 0) ||
+    if (gcry_cipher_open(&cipher->hp_cipher, cipher_algo, hp_cipher_mode, 0) ||
         gcry_cipher_open(&cipher->pp_cipher, cipher_algo, cipher_mode, 0)) {
         quic_cipher_reset(cipher);
         *error = "Failed to create ciphers";
@@ -1604,20 +1589,20 @@ static gboolean
 quic_cipher_init(guint32 version _U_, quic_cipher *cipher, int hash_algo, guint8 key_length, guint8 *secret)
 {
     guchar      write_key[256/8];   /* Maximum key size is for AES256 cipher. */
-    guchar      pn_key[256/8];
+    guchar      hp_key[256/8];
     guint       hash_len = gcry_md_get_algo_dlen(hash_algo);
 
     if (key_length > sizeof(write_key)) {
         return FALSE;
     }
 
-    if (!quic_hkdf_expand_label(hash_algo, secret, hash_len, "key", write_key, key_length) ||
-        !quic_hkdf_expand_label(hash_algo, secret, hash_len, "iv", cipher->pp_iv, sizeof(cipher->pp_iv)) ||
-        !quic_hkdf_expand_label(hash_algo, secret, hash_len, "pn", pn_key, key_length)) {
+    if (!quic_hkdf_expand_label(hash_algo, secret, hash_len, "quic key", write_key, key_length) ||
+        !quic_hkdf_expand_label(hash_algo, secret, hash_len, "quic iv", cipher->pp_iv, sizeof(cipher->pp_iv)) ||
+        !quic_hkdf_expand_label(hash_algo, secret, hash_len, "quic hp", hp_key, key_length)) {
         return FALSE;
     }
 
-    return gcry_cipher_setkey(cipher->pn_cipher, pn_key, key_length) == 0 &&
+    return gcry_cipher_setkey(cipher->hp_cipher, hp_key, key_length) == 0 &&
            gcry_cipher_setkey(cipher->pp_cipher, write_key, key_length) == 0;
 }
 
@@ -1638,7 +1623,8 @@ quic_update_key(int hash_algo, quic_pp_state_t *pp_state, gboolean from_client)
  * See also "PROTECTED PAYLOAD DECRYPTION" comment on top of this file.
  */
 static quic_cipher *
-quic_get_pp_cipher(packet_info *pinfo, gboolean key_phase, quic_info_data_t *quic_info, gboolean from_server)
+quic_get_pp_cipher(packet_info *pinfo, gboolean key_phase, quic_info_data_t *quic_info,
+                   gboolean from_server, gcry_cipher_hd_t *hp_cipher)
 {
     guint32     version = quic_info->version;
     const char *error = NULL;
@@ -1679,6 +1665,9 @@ quic_get_pp_cipher(packet_info *pinfo, gboolean key_phase, quic_info_data_t *qui
         }
         quic_update_key(quic_info->hash_algo, pp_state, !from_server);
     }
+
+    // Header Protect cipher does not change after Key Update.
+    *hp_cipher = pp_state->cipher[0].hp_cipher;
 
     /*
      * If the key phase changed, try to decrypt the packet using the new cipher.
@@ -1732,7 +1721,7 @@ quic_get_pp_cipher(packet_info *pinfo, gboolean key_phase, quic_info_data_t *qui
 static void
 quic_process_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *ti, guint offset,
                      quic_info_data_t *quic_info, quic_packet_info_t *quic_packet, gboolean from_server,
-                     quic_cipher *cipher, guint pkn_len)
+                     quic_cipher *cipher, guint8 first_byte, guint pkn_len)
 {
     quic_decrypt_result_t *decryption = &quic_packet->decryption;
 
@@ -1742,7 +1731,7 @@ quic_process_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
      */
     if (!PINFO_FD_VISITED(pinfo)) {
         if (!quic_packet->decryption.error && cipher && cipher->pp_cipher) {
-            quic_decrypt_message(cipher, tvb, offset, pkn_len, quic_packet->packet_number, &quic_packet->decryption);
+            quic_decrypt_message(cipher, tvb, offset, first_byte, pkn_len, quic_packet->packet_number, &quic_packet->decryption);
         }
     }
 
@@ -1767,7 +1756,7 @@ quic_process_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
 static void
 quic_process_payload(tvbuff_t *tvb _U_, packet_info *pinfo, proto_tree *tree _U_, proto_item *ti, guint offset _U_,
                      quic_info_data_t *quic_info _U_, quic_packet_info_t *quic_packet _U_, gboolean from_server _U_,
-                     quic_cipher *cipher _U_, guint pkn_len _U_)
+                     quic_cipher *cipher _U_, guint8 first_byte _U_, guint pkn_len _U_)
 {
     expert_add_info_format(pinfo, ti, &ei_quic_decryption_failed, "Libgcrypt >= 1.6.0 is required for QUIC decryption");
 }
@@ -1889,6 +1878,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     guint64 token_length;
     guint32 len_payload_length;
     guint64 payload_length;
+    guint8  first_byte = 0;
     guint32 pkn_len;
     guint64 pkn;
     quic_info_data_t *conn = dgram_info->conn;
@@ -1920,6 +1910,9 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     offset += len_payload_length;
 
 #ifdef HAVE_LIBGCRYPT_AEAD
+    // TODO the following code is already necessary to unmask the first byte. It
+    //      should probably moved above, but then DCID needs to be extracted
+    //      first. The version also needs to be checked.
     if (conn) {
         if (long_packet_type == QUIC_LPT_INITIAL) {
             cipher = !from_server ? &conn->client_initial_cipher : &conn->server_initial_cipher;
@@ -1936,7 +1929,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
              * ID from the *very first* Client Initial packet. */
             quic_create_initial_decoders(&dcid, &error, conn);
         } else if (long_packet_type == QUIC_LPT_HANDSHAKE) {
-            if (!cipher->pn_cipher) {
+            if (!cipher->hp_cipher) {
                 quic_create_decoders(pinfo, version, conn, cipher, from_server, TLS_SECRET_HANDSHAKE, &error);
             }
         }
@@ -1952,7 +1945,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     }
 
     pkn_len = dissect_quic_packet_number(tvb, pinfo, quic_tree, offset, conn, quic_packet, from_server,
-                                         cipher, GCRY_CIPHER_AES128, &pkn);
+                                         cipher ? cipher->hp_cipher : NULL, GCRY_CIPHER_AES128, &first_byte, &pkn);
     if (pkn_len == 0) {
         return offset;
     }
@@ -1964,7 +1957,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
 
     if (conn) {
         quic_process_payload(tvb, pinfo, quic_tree, ti, offset,
-                             conn, quic_packet, from_server, cipher, pkn_len);
+                             conn, quic_packet, from_server, cipher, first_byte, pkn_len);
     }
     offset += tvb_reported_length_remaining(tvb, offset);
 
@@ -1977,13 +1970,15 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
 {
     guint offset = 0;
     quic_cid_t dcid = {.len=0};
-    guint32 pkn_len;
+    guint8  first_byte = 0;
+    guint32 pkn_len = 0;
     guint64 pkn;
     proto_item *ti;
     gboolean    key_phase = FALSE;
     quic_cipher *cipher = NULL;
     quic_info_data_t *conn = dgram_info->conn;
     const gboolean from_server = dgram_info->from_server;
+    gcry_cipher_hd_t hp_cipher = NULL;
 
     proto_tree_add_item_ret_boolean(quic_tree, hf_quic_short_kp_flag, tvb, offset, 1, ENC_NA, &key_phase);
     proto_tree_add_item(quic_tree, hf_quic_short_reserved, tvb, offset, 1, ENC_NA);
@@ -2005,7 +2000,7 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
 
 #ifdef HAVE_LIBGCRYPT_AEAD
     if (!PINFO_FD_VISITED(pinfo) && conn) {
-        cipher = quic_get_pp_cipher(pinfo, key_phase, conn, from_server);
+        cipher = quic_get_pp_cipher(pinfo, key_phase, conn, from_server, &hp_cipher);
     }
 #endif /* !HAVE_LIBGCRYPT_AEAD */
     if (!conn || conn->skip_decryption) {
@@ -2014,7 +2009,7 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
 
     /* Packet Number */
     pkn_len = dissect_quic_packet_number(tvb, pinfo, quic_tree, offset, conn, quic_packet, from_server,
-                                         cipher, conn ? conn->cipher_algo : 0, &pkn);
+                                         hp_cipher, conn->cipher_algo, &first_byte, &pkn);
     if (pkn_len == 0) {
         return offset;
     }
@@ -2027,7 +2022,7 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
 
     if (conn) {
         quic_process_payload(tvb, pinfo, quic_tree, ti, offset,
-                             conn, quic_packet, from_server, cipher, pkn_len);
+                             conn, quic_packet, from_server, cipher, first_byte, pkn_len);
     }
     offset += tvb_reported_length_remaining(tvb, offset);
 
