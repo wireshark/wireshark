@@ -441,6 +441,24 @@
     </ComponentGroup>
   </Fragment>
 
+  <!-- Randpkt -->
+  <Fragment>
+    <DirectoryRef Id="INSTALLFOLDER">
+      <Component Id="cmpRandpkt_exe" Guid="*">
+        <File Id="filRandpkt_exe" KeyPath="yes" Source="$(var.Staging.Dir)\randpkt.exe" />
+      </Component>
+      <Component Id="cmpRandpkt_html" Guid="*">
+        <File Id="filRandpkt_html" KeyPath="yes" Source="$(var.Staging.Dir)\randpkt.html" />
+      </Component>
+    </DirectoryRef>
+  </Fragment>
+  <Fragment>
+    <ComponentGroup Id="CG.Tools.Randpkt">
+      <ComponentRef Id="cmpRandpkt_exe" />
+      <ComponentRef Id="cmpRandpkt_html" />
+    </ComponentGroup>
+  </Fragment>
+
   <!-- MMDBResolve -->
   <?ifdef MMDBRESOLVE_EXE?>
   <Fragment>

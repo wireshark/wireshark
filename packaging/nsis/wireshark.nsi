@@ -1120,6 +1120,13 @@ File "${STAGING_DIR}\rawshark.exe"
 File "${STAGING_DIR}\rawshark.html"
 SectionEnd
 
+Section /o "Randpkt" SecRandpkt
+;-------------------------------------------
+SetOutPath $INSTDIR
+File "${STAGING_DIR}\randpktdump.exe"
+File "${STAGING_DIR}\randpktdump.html"
+SectionEnd
+
 !ifdef MMDBRESOLVE_EXE
 Section "MMDBResolve" SecMMDBResolve
 ;-------------------------------------------
@@ -1222,6 +1229,7 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecDFTest} "Shows display filter byte-code, for debugging dfilter routines"
   !insertmacro MUI_DESCRIPTION_TEXT ${SecCapinfos} "Print information about capture files."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecRawshark} "Raw packet filter."
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecRandpkt} "Random packet generator."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMMDBResolve} "MaxMind Database resolution tool"
 
 !ifdef USER_GUIDE_DIR
