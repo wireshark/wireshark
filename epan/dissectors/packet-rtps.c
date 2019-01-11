@@ -1195,6 +1195,14 @@ static const value_string ndds_transport_class_id_vals[] = {
   { 0, NULL }
 };
 
+const value_string class_id_enum_names[] = {
+  { 0, "RTI_OSAPI_COMPRESSION_CLASS_ID_NONE" },
+  { 1, "RTI_OSAPI_COMPRESSION_CLASS_ID_ZLIB" },
+  { 2, "RTI_OSAPI_COMPRESSION_CLASS_ID_BZIP2" },
+  { G_MAXUINT32, "RTI_OSAPI_COMPRESSION_CLASS_ID_AUTO" },
+  { 0, NULL}
+};
+
 static const int* PAD_FLAGS[] = {
   &hf_rtps_flag_reserved80,                     /* Bit 7 */
   &hf_rtps_flag_reserved40,                     /* Bit 6 */
@@ -4446,18 +4454,8 @@ static gboolean dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tr
    *  value(-1) RTI_OSAPI_COMPRESSION_CLASS_ID_AUTO
    */
     case PID_TYPE_OBJECT_LB: {
-      const char* class_id_enum_names[] = {
-        "RTI_OSAPI_COMPRESSION_CLASS_ID_AUTO",
-        "RTI_OSAPI_COMPRESSION_CLASS_ID_NONE",
-        "RTI_OSAPI_COMPRESSION_CLASS_ID_ZLIB",
-        "RTI_OSAPI_COMPRESSION_CLASS_ID_BZIP2" };
-      gint compression_plugin_class_id;
-
       ENSURE_LENGTH(8);
-      compression_plugin_class_id = tvb_get_guint32(tvb, offset, encoding);
-      proto_tree_add_int_format(rtps_parameter_tree, hf_rtps_compression_plugin_class_id, tvb, offset,
-        4, compression_plugin_class_id, "Compression plugin class id: %d (%s)",
-        compression_plugin_class_id, class_id_enum_names[1 + compression_plugin_class_id]);
+      proto_tree_add_item(rtps_parameter_tree, hf_rtps_compression_plugin_class_id, tvb, offset, 4, encoding);
       offset += 4;
       proto_tree_add_item(rtps_parameter_tree, hf_rtps_uncompressed_serialized_length, tvb, offset, 4, encoding);
       offset += 8;
@@ -12473,8 +12471,8 @@ void proto_register_rtps(void) {
         NULL, 0x0, "The reassembled payload", HFILL }
     },
     { &hf_rtps_compression_plugin_class_id,
-        { "Compression class Id", "rtps.param.compression_class_id", FT_INT32, BASE_DEC,
-        NULL, 0x0, "The reassembled payload", HFILL }
+        { "Compression class Id", "rtps.param.compression_class_id", FT_UINT32, BASE_DEC,
+        VALS(class_id_enum_names), 0x0, NULL, HFILL }
     },
     { &hf_rtps_uncompressed_serialized_length,
         { "Uncompressed serialized length", "rtps.param.uncompressed_serialized_length", FT_UINT32, BASE_DEC,
