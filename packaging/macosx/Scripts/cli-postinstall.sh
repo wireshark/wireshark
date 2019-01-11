@@ -3,6 +3,7 @@
 CLI_PATH="$2"
 BINARIES="
     capinfos
+    captype
     dftest
     dumpcap
     editcap
@@ -10,6 +11,7 @@ BINARIES="
     mmdbresolve
     randpkt
     rawshark
+    reordercap
     text2pcap
     tshark
 "
