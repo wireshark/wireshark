@@ -1096,12 +1096,14 @@ Section "Reordercap" SecReordercap
 ;-------------------------------------------
 SetOutPath $INSTDIR
 File "${STAGING_DIR}\reordercap.exe"
+File "${STAGING_DIR}\reordercap.html"
 SectionEnd
 
 Section "DFTest" SecDFTest
 ;-------------------------------------------
 SetOutPath $INSTDIR
 File "${STAGING_DIR}\dftest.exe"
+File "${STAGING_DIR}\dftest.html"
 SectionEnd
 
 Section "Capinfos" SecCapinfos
