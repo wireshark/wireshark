@@ -4609,7 +4609,6 @@ proto_tree_set_boolean(field_info *fi, guint64 value)
 
 /* Generate, into "buf", a string showing the bits of a bitfield.
    Return a pointer to the character after that string. */
-/*XXX this needs a buf_len check */
 static char *
 other_decode_bitfield_value(char *buf, const guint64 val, const guint64 mask, const int width)
 {
@@ -4619,6 +4618,10 @@ other_decode_bitfield_value(char *buf, const guint64 val, const guint64 mask, co
 
 	i = 0;
 	p = buf;
+
+	/* This is a devel error. It is safer to stop here. */
+	DISSECTOR_ASSERT(width >= 1);
+
 	bit = G_GUINT64_CONSTANT(1) << (width - 1);
 	for (;;) {
 		if (mask & bit) {
