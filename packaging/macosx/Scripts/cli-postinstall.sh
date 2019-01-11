@@ -3,12 +3,14 @@
 CLI_PATH="$2"
 BINARIES="
     capinfos
+    captype
     dftest
     dumpcap
     editcap
     mergecap
     randpkt
     rawshark
+    reordercap
     text2pcap
     tshark
 "
