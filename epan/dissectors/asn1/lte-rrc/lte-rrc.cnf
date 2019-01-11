@@ -37,7 +37,6 @@ WLAN-backhaulRate-r12
 HandoverCommand_PDU
 HandoverPreparationInformation_PDU
 HandoverPreparationInformation-NB_PDU
-MeasurementReport_PDU
 RLF-Report-r9_PDU
 RLF-Report-v9e0_PDU
 RRCConnectionReconfigurationComplete_PDU
@@ -54,7 +53,6 @@ VisitedCellInfoList-r12_PDU
 HandoverCommand
 HandoverPreparationInformation
 HandoverPreparationInformation-NB
-MeasurementReport
 RLF-Report-r9
 RLF-Report-v9e0
 RRCConnectionReconfiguration @rrc_conn_reconf

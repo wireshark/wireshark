@@ -14,14 +14,15 @@ ProtocolIE-ID
 #.EXPORTS ONLY_VALS WS_DLL
 
 #.EXPORTS
+LastVisitedNGRANCellInformation_PDU
 SourceNGRANNode-ToTargetNGRANNode-TransparentContainer_PDU
 TargetNGRANNode-ToSourceNGRANNode-TransparentContainer_PDU
 
 #.PDU
 NGAP-PDU
+LastVisitedNGRANCellInformation
 SourceNGRANNode-ToTargetNGRANNode-TransparentContainer
 TargetNGRANNode-ToSourceNGRANNode-TransparentContainer
-
 
 #.MAKE_ENUM
 GlobalRANNodeID
@@ -623,7 +624,25 @@ ExpectedUEMovingTrajectoryItem/timeStayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRIN
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
     subtree = proto_item_add_subtree(actx->created_item, ett_ngap_LastVisitedEUTRANCellInformation);
-    dissect_lte_rrc_VisitedCellInfo_r12_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+    dissect_s1ap_LastVisitedEUTRANCellInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY LastVisitedUTRANCellInformation VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_ngap_LastVisitedUTRANCellInformation);
+    dissect_ranap_LastVisitedUTRANCell_Item_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY LastVisitedGERANCellInformation VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_ngap_LastVisitedGERANCellInformation);
+    dissect_s1ap_LastVisitedGERANCellInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   }
 
 #.TYPE_ATTR

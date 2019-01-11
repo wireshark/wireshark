@@ -29,6 +29,8 @@
 #include "packet-e212.h"
 #include "packet-lte-rrc.h"
 #include "packet-nr-rrc.h"
+#include "packet-ngap.h"
+#include "packet-ranap.h"
 #include "packet-ntp.h"
 
 #ifdef _MSC_VER
@@ -140,6 +142,8 @@ static int ett_x2ap_RRCContainer = -1;
 static int ett_x2ap_NRencryptionAlgorithms = -1;
 static int ett_x2ap_NRintegrityProtectionAlgorithms = -1;
 static int ett_x2ap_measurementTimingConfiguration = -1;
+static int ett_x2ap_LastVisitedNGRANCellInformation = -1;
+static int ett_x2ap_LastVisitedUTRANCellInformation = -1;
 #include "packet-x2ap-ett.c"
 
 typedef enum {
@@ -589,6 +593,8 @@ void proto_register_x2ap(void) {
     &ett_x2ap_NRencryptionAlgorithms,
     &ett_x2ap_NRintegrityProtectionAlgorithms,
     &ett_x2ap_measurementTimingConfiguration,
+    &ett_x2ap_LastVisitedNGRANCellInformation,
+    &ett_x2ap_LastVisitedUTRANCellInformation,
 #include "packet-x2ap-ettarr.c"
   };
 

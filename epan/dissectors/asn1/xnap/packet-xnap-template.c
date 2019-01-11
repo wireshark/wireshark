@@ -1,7 +1,7 @@
 /* packet-xnap.c
  * Routines for dissecting NG-RAN Xn application protocol (XnAP)
  * 3GPP TS 38.423 packet dissection
- * Copyright 2018, Pascal Quantin <pascal.quantin@gmail.com>
+ * Copyright 2018-2019, Pascal Quantin <pascal.quantin@gmail.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -10,7 +10,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 38.423 V15.1.0 (2018-09)
+ * 3GPP TS 38.423 V15.2.0 (2018-12)
  */
 
 #include "config.h"
@@ -26,6 +26,9 @@
 #include "packet-lte-rrc.h"
 #include "packet-nr-rrc.h"
 #include "packet-e212.h"
+#include "packet-ngap.h"
+#include "packet-s1ap.h"
+#include "packet-ranap.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
@@ -63,6 +66,9 @@ static gint ett_xnap_e_utra_IntegrityProtectionAlgorithms = -1;
 static gint ett_xnap_ng_ran_TraceID = -1;
 static gint ett_xnap_interfaces_to_trace = -1;
 static gint ett_xnap_LastVisitedEUTRANCellInformation = -1;
+static gint ett_xnap_LastVisitedNGRANCellInformation = -1;
+static gint ett_xnap_LastVisitedUTRANCellInformation = -1;
+static gint ett_xnap_LastVisitedGERANCellInformation = -1;
 #include "packet-xnap-ett.c"
 
 enum {
@@ -269,6 +275,9 @@ void proto_register_xnap(void) {
     &ett_xnap_ng_ran_TraceID,
     &ett_xnap_interfaces_to_trace,
     &ett_xnap_LastVisitedEUTRANCellInformation,
+    &ett_xnap_LastVisitedNGRANCellInformation,
+    &ett_xnap_LastVisitedUTRANCellInformation,
+    &ett_xnap_LastVisitedGERANCellInformation,
 #include "packet-xnap-ettarr.c"
   };
 

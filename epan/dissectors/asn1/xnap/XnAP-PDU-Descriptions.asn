@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V15.1.0 (2018-09)
+-- 3GPP TS 38.423 V15.2.0 (2018-12)
 -- 9.3.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -37,7 +37,7 @@ FROM XnAP-CommonDataTypes
 	RetrieveUEContextRequest,
 	RetrieveUEContextResponse,
 	RetrieveUEContextFailure,
-	DataForwardingAddressIndication,
+	XnUAddressIndication,
 	SNodeAdditionRequest,
 	SNodeAdditionRequestAcknowledge,
 	SNodeAdditionRequestReject,
@@ -86,7 +86,7 @@ FROM XnAP-PDU-Contents
 	id-notificationControl,
 	id-retrieveUEContext,
 	id-rANPaging,
-	id-dataForwardingAddressIndication,
+	id-xnUAddressIndication,
 	id-uEContextRelease,
 	id-sNGRANnodeAdditionPreparation,
 	id-sNGRANnodeReconfigurationCompletion,
@@ -185,7 +185,7 @@ XNAP-ELEMENTARY-PROCEDURES-CLASS-1 XNAP-ELEMENTARY-PROCEDURE ::= {
 	xnRemoval												|
 	xnSetup													|
 	nGRANnodeConfigurationUpdate							|
-	e-UTRA-NR-CellResourceCoordination					|
+	e-UTRA-NR-CellResourceCoordination						|
 	cellActivation											|
 	reset													,
 	...
@@ -195,7 +195,7 @@ XNAP-ELEMENTARY-PROCEDURES-CLASS-2 XNAP-ELEMENTARY-PROCEDURE ::= {
 	sNStatusTransfer						|
 	handoverCancel							|
 	rANPaging								|
-	dataForwardingAddressIndication			|
+	xnUAddressIndication					|
 	uEContextRelease						|
 	sNGRANnodeReconfigurationCompletion		|
 	sNGRANnodeCounterCheck					|
@@ -253,9 +253,9 @@ rANPaging	XNAP-ELEMENTARY-PROCEDURE ::= {
 }
 
 
-dataForwardingAddressIndication	XNAP-ELEMENTARY-PROCEDURE ::= {
-	INITIATING MESSAGE		DataForwardingAddressIndication
-	PROCEDURE CODE			id-dataForwardingAddressIndication
+xnUAddressIndication	XNAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		XnUAddressIndication
+	PROCEDURE CODE			id-xnUAddressIndication
 	CRITICALITY				reject
 }
 
@@ -337,7 +337,7 @@ sNGRANnodeChange		XNAP-ELEMENTARY-PROCEDURE ::= {
 rRCTransfer	XNAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		RRCTransfer
 	PROCEDURE CODE			id-rRCTransfer
-	CRITICALITY				ignore
+	CRITICALITY				reject
 }
 
 

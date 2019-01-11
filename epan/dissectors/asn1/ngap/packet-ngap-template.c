@@ -27,6 +27,7 @@
 #include "packet-per.h"
 #include "packet-e212.h"
 #include "packet-s1ap.h"
+#include "packet-ranap.h"
 #include "packet-lte-rrc.h"
 #include "packet-nr-rrc.h"
 #include "packet-gsm_map.h"
@@ -108,6 +109,8 @@ static gint ett_ngap_UERadioCapabilityForPagingOfNR = -1;
 static gint ett_ngap_UERadioCapabilityForPagingOfEUTRA = -1;
 static gint ett_ngap_UERadioCapability = -1;
 static gint ett_ngap_LastVisitedEUTRANCellInformation = -1;
+static gint ett_ngap_LastVisitedUTRANCellInformation = -1;
+static gint ett_ngap_LastVisitedGERANCellInformation = -1;
 static gint ett_ngap_NASSecurityParametersFromNGRAN = -1;
 #include "packet-ngap-ett.c"
 
@@ -603,6 +606,8 @@ void proto_register_ngap(void) {
     &ett_ngap_UERadioCapabilityForPagingOfEUTRA,
     &ett_ngap_UERadioCapability,
     &ett_ngap_LastVisitedEUTRANCellInformation,
+    &ett_ngap_LastVisitedUTRANCellInformation,
+    &ett_ngap_LastVisitedGERANCellInformation,
     &ett_ngap_NASSecurityParametersFromNGRAN,
 #include "packet-ngap-ettarr.c"
   };

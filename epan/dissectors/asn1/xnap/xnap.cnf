@@ -1,6 +1,6 @@
 # xnap.cnf
 # xnap conformation file
-# Copyright 2018 Pascal Quantin
+# Copyright 2018-2019 Pascal Quantin
 
 #.OPT
 PER
@@ -13,6 +13,8 @@ ProtocolIE-ID
 ProcedureCode
 
 #.USE_VALS_EXT
+CauseRadioNetworkLayer
+NRNRB
 ProcedureCode
 ProtocolIE-ID
 
@@ -38,6 +40,9 @@ SuccessfulOutcome/value successfulOutcome_value
 PrivateIE-Field/value privateIE_Field_value
 
 #.OMIT_ASSIGNMENT
+DataForwardingAccepted
+DRBsToBeModified-List-ModRqd-MNterminated
+DRBsToBeModified-List-ModRqd-MNterminated-Item
 PDUSessionResourceModRqdInfo-MNterminated
 Presence
 ProtocolIE-FieldPair
@@ -218,26 +223,6 @@ ProtocolExtensionID TYPE = FT_UINT8 DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS =
     }
   }
 
-#.FN_BODY NRUEMeasurementReportRRCTransfer/rrcContainer VAL_PTR = &parameter_tvb
-  tvbuff_t *parameter_tvb = NULL;
-
-%(DEFAULT_BODY)s
-  if (parameter_tvb) {
-    proto_tree *subtree;
-    GlobalNG_RANNode_ID_enum source_ranmode_id = xnap_get_ranmode_id(&actx->pinfo->dst, actx->pinfo->destport, actx->pinfo);
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_nxap_container);
-    if ((xnap_dissect_target_ng_ran_container_as == XNAP_NG_RAN_CONTAINER_AUTOMATIC &&
-         source_ranmode_id == GlobalNG_RANNode_ID_gNB) ||
-        (xnap_dissect_target_ng_ran_container_as == XNAP_NG_RAN_CONTAINER_GNB)) {
-      dissect_nr_rrc_MeasurementReport_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
-    } else if ((xnap_dissect_target_ng_ran_container_as == XNAP_NG_RAN_CONTAINER_AUTOMATIC &&
-                source_ranmode_id == GlobalNG_RANNode_ID_ng_eNB) ||
-               (xnap_dissect_target_ng_ran_container_as == XNAP_NG_RAN_CONTAINER_NG_ENB)) {
-      dissect_lte_rrc_MeasurementReport_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
-    }
-  }
-
 #.FN_BODY UEContextInfoRetrUECtxtResp/rrc-Context VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
 
@@ -306,6 +291,14 @@ NG-RAN-Cell-Identity/e-utra ABBREV=E-UTRA-Cell-Identity TYPE=FT_UINT32 DISPLAY=B
   }
 
 #.FN_BODY ServedCellInformation-NR/measurementTimingConfiguration VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_measurementTimingConfiguration);
+    dissect_nr_rrc_MeasurementTimingConfiguration_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY NeighbourInformation-NR-Item/measurementTimingConfiguration VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
 %(DEFAULT_BODY)s
   if (param_tvb) {
@@ -447,14 +440,50 @@ MaximumDataBurstVolume DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_byte_byt
     proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
   }
 
+#.FN_BODY LastVisitedNGRANCellInformation VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_xnap_LastVisitedNGRANCellInformation);
+    dissect_ngap_LastVisitedNGRANCellInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.FN_BODY LastVisitedEUTRANCellInformation VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
   proto_tree *subtree;
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
     subtree = proto_item_add_subtree(actx->created_item, ett_xnap_LastVisitedEUTRANCellInformation);
-    dissect_lte_rrc_VisitedCellInfo_r12_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+    dissect_s1ap_LastVisitedEUTRANCellInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   }
+
+#.FN_BODY LastVisitedUTRANCellInformation VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_xnap_LastVisitedUTRANCellInformation);
+    dissect_ranap_LastVisitedUTRANCell_Item_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY LastVisitedGERANCellInformation VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_xnap_LastVisitedGERANCellInformation);
+    dissect_s1ap_LastVisitedGERANCellInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.TYPE_ATTR
+ExpectedUEMovingTrajectoryItem/timeStayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
+#.TYPE_ATTR
+ExpectedActivityPeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
+#.TYPE_ATTR
+ExpectedIdlePeriod DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
 #.END
 
@@ -476,8 +505,8 @@ MaximumDataBurstVolume DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_byte_byt
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RetrieveUEContextFailure");
 #.FN_HDR RANPaging
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RANPaging");
-#.FN_HDR DataForwardingAddressIndication
-  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DataForwardingAddressIndication");
+#.FN_HDR XnUAddressIndication
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "XnUAddressIndication");
 #.FN_HDR UEContextRelease
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextRelease");
 #.FN_HDR SNodeAdditionRequest
@@ -568,7 +597,7 @@ id-sNStatusTransfer                                     ProcedureCode
 id-handoverCancel                                       ProcedureCode
 id-retrieveUEContext                                    ProcedureCode
 id-rANPaging                                            ProcedureCode
-id-dataForwardingAddressIndication                      ProcedureCode
+id-xnUAddressIndication                                 ProcedureCode
 id-uEContextRelease                                     ProcedureCode
 id-sNGRANnodeAdditionPreparation                        ProcedureCode
 id-sNGRANnodeReconfigurationCompletion                  ProcedureCode
@@ -592,100 +621,114 @@ id-e-UTRA-NR-CellResourceCoordination                   ProcedureCode
 
 
 # ProtocolIE-ID
-id-ActivatedServedCells                     ProtocolIE-ID
-id-ActivationIDforCellActivation            ProtocolIE-ID
-id-admittedSplitSRB                         ProtocolIE-ID
-id-admittedSplitSRBrelease                  ProtocolIE-ID
-id-AMF-Pool-Information                     ProtocolIE-ID
-id-AssistanceDataForRANPaging               ProtocolIE-ID
-id-BearersSubjectToCounterCheck             ProtocolIE-ID
-id-Cause                                    ProtocolIE-ID
-id-cellAssistanceInfo-NR                    ProtocolIE-ID
-id-ConfigurationUpdateInitiatingNodeChoice  ProtocolIE-ID
-id-CriticalityDiagnostics                   ProtocolIE-ID
-id-dataforwardingInfoperPDUSession          ProtocolIE-ID
-id-DRBsSubjectToStatusTransfer-List         ProtocolIE-ID
-id-ExpectedUEBehaviour                      ProtocolIE-ID
-id-GlobalNG-RAN-node-ID                     ProtocolIE-ID
-id-GUAMI                                    ProtocolIE-ID
-id-indexToRatFrequSelectionPriority         ProtocolIE-ID
-id-initiatingNodeType-ResourceCoordRequest  ProtocolIE-ID
-id-List-of-served-cells-E-UTRA              ProtocolIE-ID
-id-List-of-served-cells-NR                  ProtocolIE-ID
-id-LocationReportingInformation             ProtocolIE-ID
-id-MAC-I                                    ProtocolIE-ID
-id-MaskedIMEISV                             ProtocolIE-ID
-id-M-NG-RANnodeUEXnAPID                     ProtocolIE-ID
-id-MN-to-SN-Container                       ProtocolIE-ID
-id-MobilityRestrictionList                  ProtocolIE-ID
-id-new-NG-RAN-Cell-Identity                 ProtocolIE-ID
-id-newNG-RANnodeUEXnAPID                    ProtocolIE-ID
-id-NRUEMeasurementReportRRCTransfer         ProtocolIE-ID
-id-oldNG-RANnodeUEXnAPID                    ProtocolIE-ID
-id-OldtoNewNG-RANnodeResumeContainer        ProtocolIE-ID
-id-PagingDRX                                ProtocolIE-ID
-id-PCellID                                  ProtocolIE-ID
-id-PDCPChangeIndication                     ProtocolIE-ID
-id-PDUSessionAdmittedAddedAddReqAck         ProtocolIE-ID
-id-PDUSessionAdmittedModSNModConfirm        ProtocolIE-ID
-id-PDUSessionAdmitted-SNModResponse         ProtocolIE-ID
-id-PDUSessionNotAdmittedAddReqAck           ProtocolIE-ID
-id-PDUSessionNotAdmitted-SNModResponse      ProtocolIE-ID
-id-PDUSessionReleasedList-RelConf           ProtocolIE-ID
-id-PDUSessionReleasedSNModConfirm           ProtocolIE-ID
-id-PDUSessionResourcesActivityNotifyList    ProtocolIE-ID
-id-PDUSessionResourcesAdmitted-List         ProtocolIE-ID
-id-PDUSessionResourcesNotAdmitted-List      ProtocolIE-ID
-id-PDUSessionResourcesNotifyList            ProtocolIE-ID
-id-PDUSession-SNChangeConfirm-List          ProtocolIE-ID
-id-PDUSession-SNChangeRequired-List         ProtocolIE-ID
-id-PDUSessionToBeAddedAddReq                ProtocolIE-ID
-id-PDUSessionToBeModifiedSNModRequired      ProtocolIE-ID
-id-PDUSessionToBeReleasedList-RelRqd        ProtocolIE-ID
-id-PDUSessionToBeReleased-RelReq            ProtocolIE-ID
-id-PDUSessionToBeReleasedSNModRequired      ProtocolIE-ID
-id-RANPagingArea                            ProtocolIE-ID
-id-PagingPriority                           ProtocolIE-ID
-id-requestedSplitSRB                        ProtocolIE-ID
-id-requestedSplitSRBrelease                 ProtocolIE-ID
-id-ResetRequestTypeInfo                     ProtocolIE-ID
-id-ResetResponseTypeInfo                    ProtocolIE-ID
-id-RespondingNodeTypeConfigUpdateAck        ProtocolIE-ID
-id-respondingNodeType-ResourceCoordResponse ProtocolIE-ID
-id-ResponseInfo-ReconfCompl                 ProtocolIE-ID
-id-RRCConfigIndication                      ProtocolIE-ID
-id-RRCResumeCause                           ProtocolIE-ID
-id-SCGConfigurationQuery                    ProtocolIE-ID
-id-selectedPLMN                             ProtocolIE-ID
-id-ServedCellsToActivate                    ProtocolIE-ID
-id-servedCellsToUpdate-E-UTRA               ProtocolIE-ID
-id-ServedCellsToUpdateInitiatingNodeChoice  ProtocolIE-ID
-id-servedCellsToUpdate-NR                   ProtocolIE-ID
-id-s-ng-RANnode-SecurityKey                 ProtocolIE-ID
-id-S-NG-RANnodeUE-AMBR                      ProtocolIE-ID
-id-S-NG-RANnodeUEXnAPID                     ProtocolIE-ID
-id-SN-to-MN-Container                       ProtocolIE-ID
-id-sourceNG-RANnodeUEXnAPID                 ProtocolIE-ID
-id-SplitSRB-RRCTransfer                     ProtocolIE-ID
-id-TAISupport-list                          ProtocolIE-ID
-id-TimeToWait                               ProtocolIE-ID
-id-Target2SourceNG-RANnodeTranspContainer   ProtocolIE-ID
-id-targetCellGlobalID                       ProtocolIE-ID
-id-targetNG-RANnodeUEXnAPID                 ProtocolIE-ID
-id-target-S-NG-RANnodeID                    ProtocolIE-ID
-id-TraceActivation                          ProtocolIE-ID
-id-UEContextID                              ProtocolIE-ID
-id-UEContextInfoHORequest                   ProtocolIE-ID
-id-UEContextInfoRetrUECtxtResp              ProtocolIE-ID
-id-UEContextInfo-SNModRequest               ProtocolIE-ID
-id-UEContextKeptIndicator                   ProtocolIE-ID
-id-UEContextRefAtSN-HORequest               ProtocolIE-ID
-id-UEHistoryInformation                     ProtocolIE-ID
-id-UEIdentityIndexValue                     ProtocolIE-ID
-id-UERANPagingIdentity                      ProtocolIE-ID
-id-UESecurityCapabilities                   ProtocolIE-ID
-id-UserPlaneTrafficActivityReport           ProtocolIE-ID
-id-XnRemovalThreshold                       ProtocolIE-ID
+id-ActivatedServedCells                      ProtocolIE-ID
+id-ActivationIDforCellActivation             ProtocolIE-ID
+id-admittedSplitSRB                          ProtocolIE-ID
+id-admittedSplitSRBrelease                   ProtocolIE-ID
+id-AMF-Set-Information                       ProtocolIE-ID
+id-AssistanceDataForRANPaging                ProtocolIE-ID
+id-BearersSubjectToCounterCheck              ProtocolIE-ID
+id-Cause                                     ProtocolIE-ID
+id-cellAssistanceInfo-NR                     ProtocolIE-ID
+id-ConfigurationUpdateInitiatingNodeChoice   ProtocolIE-ID
+id-CriticalityDiagnostics                    ProtocolIE-ID
+id-XnUAddressInfoperPDUSession-List          ProtocolIE-ID
+id-DRBsSubjectToStatusTransfer-List          ProtocolIE-ID
+id-ExpectedUEBehaviour                       ProtocolIE-ID
+id-GlobalNG-RAN-node-ID                      ProtocolIE-ID
+id-GUAMI                                     ProtocolIE-ID
+id-indexToRatFrequSelectionPriority          ProtocolIE-ID
+id-initiatingNodeType-ResourceCoordRequest   ProtocolIE-ID
+id-List-of-served-cells-E-UTRA               ProtocolIE-ID
+id-List-of-served-cells-NR                   ProtocolIE-ID
+id-LocationReportingInformation              ProtocolIE-ID
+id-MAC-I                                     ProtocolIE-ID
+id-MaskedIMEISV                              ProtocolIE-ID
+id-M-NG-RANnodeUEXnAPID                      ProtocolIE-ID
+id-MN-to-SN-Container                        ProtocolIE-ID
+id-MobilityRestrictionList                   ProtocolIE-ID
+id-new-NG-RAN-Cell-Identity                  ProtocolIE-ID
+id-newNG-RANnodeUEXnAPID                     ProtocolIE-ID
+id-NRUEReportRRCTransfer                     ProtocolIE-ID
+id-oldNG-RANnodeUEXnAPID                     ProtocolIE-ID
+id-OldtoNewNG-RANnodeResumeContainer         ProtocolIE-ID
+id-PagingDRX                                 ProtocolIE-ID
+id-PCellID                                   ProtocolIE-ID
+id-PDCPChangeIndication                      ProtocolIE-ID
+id-PDUSessionAdmittedAddedAddReqAck          ProtocolIE-ID
+id-PDUSessionAdmittedModSNModConfirm         ProtocolIE-ID
+id-PDUSessionAdmitted-SNModResponse          ProtocolIE-ID
+id-PDUSessionNotAdmittedAddReqAck            ProtocolIE-ID
+id-PDUSessionNotAdmitted-SNModResponse       ProtocolIE-ID
+id-PDUSessionReleasedList-RelConf            ProtocolIE-ID
+id-PDUSessionReleasedSNModConfirm            ProtocolIE-ID
+id-PDUSessionResourcesActivityNotifyList     ProtocolIE-ID
+id-PDUSessionResourcesAdmitted-List          ProtocolIE-ID
+id-PDUSessionResourcesNotAdmitted-List       ProtocolIE-ID
+id-PDUSessionResourcesNotifyList             ProtocolIE-ID
+id-PDUSession-SNChangeConfirm-List           ProtocolIE-ID
+id-PDUSession-SNChangeRequired-List          ProtocolIE-ID
+id-PDUSessionToBeAddedAddReq                 ProtocolIE-ID
+id-PDUSessionToBeModifiedSNModRequired       ProtocolIE-ID
+id-PDUSessionToBeReleasedList-RelRqd         ProtocolIE-ID
+id-PDUSessionToBeReleased-RelReq             ProtocolIE-ID
+id-PDUSessionToBeReleasedSNModRequired       ProtocolIE-ID
+id-RANPagingArea                             ProtocolIE-ID
+id-PagingPriority                            ProtocolIE-ID
+id-requestedSplitSRB                         ProtocolIE-ID
+id-requestedSplitSRBrelease                  ProtocolIE-ID
+id-ResetRequestTypeInfo                      ProtocolIE-ID
+id-ResetResponseTypeInfo                     ProtocolIE-ID
+id-RespondingNodeTypeConfigUpdateAck         ProtocolIE-ID
+id-respondingNodeType-ResourceCoordResponse  ProtocolIE-ID
+id-ResponseInfo-ReconfCompl                  ProtocolIE-ID
+id-RRCConfigIndication                       ProtocolIE-ID
+id-RRCResumeCause                            ProtocolIE-ID
+id-SCGConfigurationQuery                     ProtocolIE-ID
+id-selectedPLMN                              ProtocolIE-ID
+id-ServedCellsToActivate                     ProtocolIE-ID
+id-servedCellsToUpdate-E-UTRA                ProtocolIE-ID
+id-ServedCellsToUpdateInitiatingNodeChoice   ProtocolIE-ID
+id-servedCellsToUpdate-NR                    ProtocolIE-ID
+id-s-ng-RANnode-SecurityKey                  ProtocolIE-ID
+id-S-NG-RANnodeUE-AMBR                       ProtocolIE-ID
+id-S-NG-RANnodeUEXnAPID                      ProtocolIE-ID
+id-SN-to-MN-Container                        ProtocolIE-ID
+id-sourceNG-RANnodeUEXnAPID                  ProtocolIE-ID
+id-SplitSRB-RRCTransfer                      ProtocolIE-ID
+id-TAISupport-list                           ProtocolIE-ID
+id-TimeToWait                                ProtocolIE-ID
+id-Target2SourceNG-RANnodeTranspContainer    ProtocolIE-ID
+id-targetCellGlobalID                        ProtocolIE-ID
+id-targetNG-RANnodeUEXnAPID                  ProtocolIE-ID
+id-target-S-NG-RANnodeID                     ProtocolIE-ID
+id-TraceActivation                           ProtocolIE-ID
+id-UEContextID                               ProtocolIE-ID
+id-UEContextInfoHORequest                    ProtocolIE-ID
+id-UEContextInfoRetrUECtxtResp               ProtocolIE-ID
+id-UEContextInfo-SNModRequest                ProtocolIE-ID
+id-UEContextKeptIndicator                    ProtocolIE-ID
+id-UEContextRefAtSN-HORequest                ProtocolIE-ID
+id-UEHistoryInformation                      ProtocolIE-ID
+id-UEIdentityIndexValue                      ProtocolIE-ID
+id-UERANPagingIdentity                       ProtocolIE-ID
+id-UESecurityCapabilities                    ProtocolIE-ID
+id-UserPlaneTrafficActivityReport            ProtocolIE-ID
+id-XnRemovalThreshold                        ProtocolIE-ID
+id-DesiredActNotificationLevel               ProtocolIE-ID
+id-AvailableDRBIDs                           ProtocolIE-ID
+id-AdditionalDRBIDs                          ProtocolIE-ID
+id-SpareDRBIDs                               ProtocolIE-ID
+id-RequiredNumberOfDRBIDs                    ProtocolIE-ID
+id-TNLA-To-Add-List                          ProtocolIE-ID
+id-TNLA-To-Update-List                       ProtocolIE-ID
+id-TNLA-To-Remove-List                       ProtocolIE-ID
+id-TNLA-Setup-List                           ProtocolIE-ID
+id-TNLA-Failed-To-Setup-List                 ProtocolIE-ID
+id-PDUSessionToBeReleased-RelReqAck          ProtocolIE-ID
+id-S-NG-RANnodeMaxIPDataRate                 ProtocolIE-ID
+id-PDUSession-List-withDataForwardingRequest ProtocolIE-ID
+
 #.REGISTER
 
 #XNAP-PROTOCOL-IES
@@ -693,14 +736,14 @@ ActivatedServedCells                              N xnap.ies id-ActivatedServedC
 ActivationIDforCellActivation                     N xnap.ies id-ActivationIDforCellActivation
 SplitSRBsTypes                                    N xnap.ies id-admittedSplitSRB
 SplitSRBsTypes                                    N xnap.ies id-admittedSplitSRBrelease
-AMF-Pool-Information                              N xnap.ies id-AMF-Pool-Information
+AMF-Set-Information                               N xnap.ies id-AMF-Set-Information
 AssistanceDataForRANPaging                        N xnap.ies id-AssistanceDataForRANPaging
 BearersSubjectToCounterCheck-List                 N xnap.ies id-BearersSubjectToCounterCheck
 Cause                                             N xnap.ies id-Cause
 CellAssistanceInfo-NR                             N xnap.ies id-cellAssistanceInfo-NR
 ConfigurationUpdateInitiatingNodeChoice           N xnap.ies id-ConfigurationUpdateInitiatingNodeChoice
 CriticalityDiagnostics                            N xnap.ies id-CriticalityDiagnostics
-DataforwardingInfoperPDUSession                   N xnap.ies id-dataforwardingInfoperPDUSession
+XnUAddressInfoperPDUSession-List                  N xnap.ies id-XnUAddressInfoperPDUSession-List
 DRBsSubjectToStatusTransfer-List                  N xnap.ies id-DRBsSubjectToStatusTransfer-List
 ExpectedUEBehaviour                               N xnap.ies id-ExpectedUEBehaviour
 GlobalNG-RANNode-ID                               N xnap.ies id-GlobalNG-RAN-node-ID
@@ -717,7 +760,7 @@ MN-to-SN-Container                                N xnap.ies id-MN-to-SN-Contain
 MobilityRestrictionList                           N xnap.ies id-MobilityRestrictionList
 NG-RAN-Cell-Identity                              N xnap.ies id-new-NG-RAN-Cell-Identity
 NG-RANnodeUEXnAPID                                N xnap.ies id-newNG-RANnodeUEXnAPID
-NRUEMeasurementReportRRCTransfer                  N xnap.ies id-NRUEMeasurementReportRRCTransfer
+NRUEReportRRCTransfer                             N xnap.ies id-NRUEReportRRCTransfer
 NG-RANnodeUEXnAPID                                N xnap.ies id-oldNG-RANnodeUEXnAPID
 OldtoNewNG-RANnodeResumeContainer                 N xnap.ies id-OldtoNewNG-RANnodeResumeContainer
 PagingDRX                                         N xnap.ies id-PagingDRX
@@ -739,7 +782,7 @@ PDUSession-SNChangeRequired-List                  N xnap.ies id-PDUSession-SNCha
 PDUSessionToBeAddedAddReq                         N xnap.ies id-PDUSessionToBeAddedAddReq
 PDUSessionToBeModifiedSNModRequired               N xnap.ies id-PDUSessionToBeModifiedSNModRequired
 PDUSessionToBeReleasedList-RelRqd                 N xnap.ies id-PDUSessionToBeReleasedList-RelRqd
-PDUSessionToBeReleased-RelReq                     N xnap.ies id-PDUSessionToBeReleased-RelReq
+PDUSession-List-withCause                         N xnap.ies id-PDUSessionToBeReleased-RelReq
 PDUSessionToBeReleasedSNModRequired               N xnap.ies id-PDUSessionToBeReleasedSNModRequired
 RANPagingArea                                     N xnap.ies id-RANPagingArea
 PagingPriority                                    N xnap.ies id-PagingPriority
@@ -783,6 +826,19 @@ UERANPagingIdentity                               N xnap.ies id-UERANPagingIdent
 UESecurityCapabilities                            N xnap.ies id-UESecurityCapabilities
 UserPlaneTrafficActivityReport                    N xnap.ies id-UserPlaneTrafficActivityReport
 XnBenefitValue                                    N xnap.ies id-XnRemovalThreshold
+DesiredActNotificationLevel                       N xnap.ies id-DesiredActNotificationLevel
+DRB-List                                          N xnap.ies id-AvailableDRBIDs
+DRB-List                                          N xnap.ies id-AdditionalDRBIDs
+DRB-List                                          N xnap.ies id-SpareDRBIDs
+DRB-Number                                        N xnap.ies id-RequiredNumberOfDRBIDs
+TNLA-To-Add-List                                  N xnap.ies id-TNLA-To-Add-List
+TNLA-To-Update-List                               N xnap.ies id-TNLA-To-Update-List
+TNLA-To-Remove-List                               N xnap.ies id-TNLA-To-Remove-List
+TNLA-Setup-List                                   N xnap.ies id-TNLA-Setup-List
+TNLA-Failed-To-Setup-List                         N xnap.ies id-TNLA-Failed-To-Setup-List
+PDUSessionToBeReleasedList-RelReqAck              N xnap.ies id-PDUSessionToBeReleased-RelReqAck
+BitRate                                           N xnap.ies id-S-NG-RANnodeMaxIPDataRate
+PDUSession-List-withDataForwardingRequest         N xnap.ies id-PDUSession-List-withDataForwardingRequest
 
 #XNAP-PROTOCOL-EXTENSION
 
@@ -801,7 +857,7 @@ RetrieveUEContextFailure                   N xnap.proc.uout id-retrieveUEContext
 
 RANPaging                                  N xnap.proc.imsg id-rANPaging
 
-DataForwardingAddressIndication            N xnap.proc.imsg id-dataForwardingAddressIndication
+XnUAddressIndication                       N xnap.proc.imsg id-xnUAddressIndication
 
 UEContextRelease                           N xnap.proc.imsg id-uEContextRelease
 

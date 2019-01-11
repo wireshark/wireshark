@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V15.1.0 (2018-09)
+-- 3GPP TS 38.423 V15.2.0 (2018-12)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -24,18 +24,27 @@ IMPORTS
 
 	ActivationIDforCellActivation,
 	ActivationIDforCellActivation,
-	AMF-Pool-Information,
+	AMF-Set-Information,
 	AMF-UE-NGAP-ID,
 	AS-SecurityInformation,
 	AssistanceDataForRANPaging,
+	BitRate,
 	Cause,
 	CellAssistanceInfo-NR,
 	CPTransportLayerInformation,
+	TNLA-To-Add-List,
+	TNLA-To-Update-List,
+	TNLA-To-Remove-List,
+	TNLA-Setup-List,
+	TNLA-Failed-To-Setup-List,
 	CriticalityDiagnostics,
-	DataforwardingInfoperPDUSession,
+	XnUAddressInfoperPDUSession-List,
 	DataTrafficResourceIndication,
 	DeliveryStatus,
+	DesiredActNotificationLevel,
 	DRB-ID,
+	DRB-List,
+	DRB-Number,
 	DRBsSubjectToStatusTransfer-List,
 	DRBToQoSFlowMapping-List,
 	E-UTRA-CGI,
@@ -85,7 +94,7 @@ IMPORTS
 	PDUSessionResourceModConfirmInfo-MNterminated,
 	PDUSessionResourceModRqdInfo-SNterminated,
 	PDUSessionType,
-	QoSFlowIndicator,
+	QoSFlowIdentifier,
 	QoSFlowNotificationControlIndicationInfo,
 	QoSFlows-List,
 	RANPagingArea,
@@ -137,14 +146,17 @@ FROM XnAP-Containers
 
 	id-ActivatedServedCells,
 	id-ActivationIDforCellActivation,
-	id-AMF-Pool-Information,
+	id-AdditionalDRBIDs,
+	id-AMF-Set-Information,
 	id-AssistanceDataForRANPaging,
+	id-AvailableDRBIDs,
 	id-Cause,
 	id-cellAssistanceInfo-NR,
 	id-ConfigurationUpdateInitiatingNodeChoice,
 	id-UEContextID,
 	id-CriticalityDiagnostics,
-	id-dataforwardingInfoperPDUSession,
+	id-XnUAddressInfoperPDUSession-List,
+	id-DesiredActNotificationLevel,
 	id-DRBsSubjectToStatusTransfer-List,
 	id-ExpectedUEBehaviour,
 	id-GlobalNG-RAN-node-ID,
@@ -170,8 +182,11 @@ FROM XnAP-Containers
 	id-PDUSessionResourcesNotAdmitted-List,
 	id-PDUSessionResourcesNotifyList,
 	id-PDUSessionToBeAddedAddReq,
+	id-PDUSessionToBeReleased-RelReqAck,
+	id-PDUSession-List-withDataForwardingRequest,
 	id-RANPagingArea,
 	id-requestedSplitSRB,
+	id-RequiredNumberOfDRBIDs,
 	id-ResetRequestTypeInfo,
 	id-ResetResponseTypeInfo,
 	id-RespondingNodeTypeConfigUpdateAck,
@@ -182,12 +197,19 @@ FROM XnAP-Containers
 	id-ServedCellsToUpdateInitiatingNodeChoice,
 	id-servedCellsToUpdate-NR,
 	id-sourceNG-RANnodeUEXnAPID,
+	id-SpareDRBIDs,
+	id-S-NG-RANnodeMaxIPDataRate,
 	id-S-NG-RANnodeUEXnAPID,
 	id-TAISupport-list,
 	id-Target2SourceNG-RANnodeTranspContainer,
 	id-targetCellGlobalID,
 	id-targetNG-RANnodeUEXnAPID,
 	id-TimeToWait,
+	id-TNLA-To-Add-List,
+	id-TNLA-To-Update-List,
+	id-TNLA-To-Remove-List,
+	id-TNLA-Setup-List,
+	id-TNLA-Failed-To-Setup-List,
 	id-TraceActivation,
 	id-TraceActivation,
 	id-UEContextInfoHORequest,
@@ -206,7 +228,7 @@ FROM XnAP-Containers
 	id-admittedSplitSRB,
 	id-RRCConfigIndication,
 	id-SplitSRB-RRCTransfer,
-	id-NRUEMeasurementReportRRCTransfer,
+	id-NRUEReportRRCTransfer,
 	id-PDUSessionReleasedList-RelConf,
 	id-BearersSubjectToCounterCheck,
 	id-PDUSessionReleasedList-RelConf,
@@ -233,7 +255,6 @@ FROM XnAP-Containers
 	id-PDUSessionToBeReleasedSNModRequired,
 	id-target-S-NG-RANnodeID,
 
-	maxnoofBearerConfigs,
 	maxnoofCellsinNG-RANnode,
 	maxnoofDRBs,
 	maxnoofPDUSessions,
@@ -260,7 +281,7 @@ HandoverRequest-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-TraceActivation						CRITICALITY ignore	TYPE TraceActivation							PRESENCE optional }|
 	{ ID id-MaskedIMEISV						CRITICALITY ignore	TYPE MaskedIMEISV								PRESENCE optional }|
 	{ ID id-UEHistoryInformation				CRITICALITY ignore	TYPE UEHistoryInformation						PRESENCE mandatory}|
-	{ ID id-UEContextRefAtSN-HORequest		CRITICALITY ignore	TYPE UEContextRefAtSN-HORequest			PRESENCE optional },
+	{ ID id-UEContextRefAtSN-HORequest			CRITICALITY ignore	TYPE UEContextRefAtSN-HORequest				PRESENCE optional },
 	...
 }
 
@@ -285,8 +306,8 @@ UEContextInfoHORequest-ExtIEs XNAP-PROTOCOL-EXTENSION ::={
 
 UEContextRefAtSN-HORequest ::= SEQUENCE {
 	globalNG-RANNode-ID				GlobalNG-RANNode-ID,
-	sN-NG-RANnodeUEXnAPID				NG-RANnodeUEXnAPID,
-	iE-Extensions							ProtocolExtensionContainer { {UEContextRefAtSN-HORequest-ExtIEs} }	OPTIONAL,
+	sN-NG-RANnodeUEXnAPID			NG-RANnodeUEXnAPID,
+	iE-Extensions					ProtocolExtensionContainer { {UEContextRefAtSN-HORequest-ExtIEs} }	OPTIONAL,
 	...
 }
 
@@ -316,7 +337,7 @@ HandoverRequestAcknowledge-IEs XNAP-PROTOCOL-IES ::= {
 -- WS modification: define a dedicated type
 --	{ ID id-Target2SourceNG-RANnodeTranspContainer	CRITICALITY ignore	TYPE OCTET STRING									PRESENCE mandatory}|
 	{ ID id-Target2SourceNG-RANnodeTranspContainer	CRITICALITY ignore	TYPE Target2SourceNG-RANnodeTranspContainer									PRESENCE mandatory}|
-	{ ID id-UEContextKeptIndicator					CRITICALITY ignore	TYPE UEContextKeptIndicator					PRESENCE optional }|
+	{ ID id-UEContextKeptIndicator					CRITICALITY ignore	TYPE UEContextKeptIndicator						PRESENCE optional }|
 	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional },
 	...
 }
@@ -474,26 +495,27 @@ RetrieveUEContextFailure-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-newNG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
 -- WS modification: define a dedicated type
 --	{ ID id-OldtoNewNG-RANnodeResumeContainer		CRITICALITY ignore		TYPE OCTET STRING									PRESENCE optional }|
-	{ ID id-OldtoNewNG-RANnodeResumeContainer		CRITICALITY ignore		TYPE OldtoNewNG-RANnodeResumeContainer									PRESENCE optional }|	{ ID id-Cause									CRITICALITY ignore		TYPE Cause											PRESENCE mandatory}|
+	{ ID id-OldtoNewNG-RANnodeResumeContainer		CRITICALITY ignore		TYPE OldtoNewNG-RANnodeResumeContainer									PRESENCE optional }|
+	{ ID id-Cause									CRITICALITY ignore		TYPE Cause											PRESENCE mandatory}|
 	{ ID id-CriticalityDiagnostics					CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional },
 	...
 }
 
 -- **************************************************************
 --
--- DATA FORWARDING ADDRESS INDICATION
+-- XN-U FORWARDING ADDRESS INDICATION
 --
 -- **************************************************************
 
-DataForwardingAddressIndication ::= SEQUENCE {
-	protocolIEs			ProtocolIE-Container	{{ DataForwardingAddressIndication-IEs}},
+XnUAddressIndication ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{{ XnUAddressIndication-IEs}},
 	...
 }
 
-DataForwardingAddressIndication-IEs XNAP-PROTOCOL-IES ::= {
+XnUAddressIndication-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-newNG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
 	{ ID id-oldNG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
-	{ ID id-dataforwardingInfoperPDUSession			CRITICALITY reject		TYPE DataforwardingInfoperPDUSession			PRESENCE mandatory},
+	{ ID id-XnUAddressInfoperPDUSession-List		CRITICALITY reject		TYPE XnUAddressInfoperPDUSession-List		PRESENCE mandatory},
 	...
 }
 
@@ -502,7 +524,6 @@ DataForwardingAddressIndication-IEs XNAP-PROTOCOL-IES ::= {
 -- S-NODE ADDITION REQUEST
 --
 -- **************************************************************
--- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
 
 SNodeAdditionRequest ::= SEQUENCE {
 	protocolIEs			ProtocolIE-Container	{{ SNodeAdditionRequest-IEs}},
@@ -513,32 +534,41 @@ SNodeAdditionRequest ::= SEQUENCE {
 MN-to-SN-Container ::= OCTET STRING
 
 SNodeAdditionRequest-IEs XNAP-PROTOCOL-IES ::= {
-	{ ID id-M-NG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
+	{ ID id-M-NG-RANnodeUEXnAPID				CRITICALITY reject		TYPE NG-RANnodeUEXnAPID								PRESENCE mandatory}|
 	{ ID id-UESecurityCapabilities				CRITICALITY reject		TYPE UESecurityCapabilities						PRESENCE mandatory}|
-	{ ID id-s-ng-RANnode-SecurityKey				CRITICALITY reject		TYPE S-NG-RANnode-SecurityKey					PRESENCE mandatory}|
+	{ ID id-s-ng-RANnode-SecurityKey			CRITICALITY reject		TYPE S-NG-RANnode-SecurityKey					PRESENCE mandatory}|
 	{ ID id-S-NG-RANnodeUE-AMBR					CRITICALITY reject		TYPE UEAggregateMaximumBitRate					PRESENCE mandatory}|
-	{ ID id-selectedPLMN							CRITICALITY ignore		TYPE PLMN-Identity										PRESENCE optional }|
+	{ ID id-selectedPLMN						CRITICALITY ignore		TYPE PLMN-Identity									PRESENCE optional }|
 	{ ID id-MobilityRestrictionList				CRITICALITY ignore		TYPE MobilityRestrictionList						PRESENCE optional }|
 	{ ID id-indexToRatFrequSelectionPriority	CRITICALITY reject		TYPE RFSP-Index										PRESENCE optional }|
 	{ ID id-PDUSessionToBeAddedAddReq			CRITICALITY reject		TYPE PDUSessionToBeAddedAddReq					PRESENCE mandatory}|
 -- WS modification: define a dedicated type
---	{ ID id-MN-to-SN-Container					CRITICALITY reject		TYPE OCTET STRING										PRESENCE mandatory}|
-	{ ID id-MN-to-SN-Container					CRITICALITY reject		TYPE MN-to-SN-Container										PRESENCE mandatory}|	{ ID id-S-NG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE optional }|
+--	{ ID id-MN-to-SN-Container					CRITICALITY reject		TYPE OCTET STRING									PRESENCE mandatory}|
+	{ ID id-MN-to-SN-Container					CRITICALITY reject		TYPE MN-to-SN-Container									PRESENCE mandatory}|
+	{ ID id-S-NG-RANnodeUEXnAPID				CRITICALITY reject		TYPE NG-RANnodeUEXnAPID								PRESENCE optional }|
 	{ ID id-ExpectedUEBehaviour					CRITICALITY ignore		TYPE ExpectedUEBehaviour							PRESENCE optional }|
-	{ ID id-requestedSplitSRB						CRITICALITY reject		TYPE SplitSRBsTypes									PRESENCE optional }|
-	{ ID id-PCellID								CRITICALITY reject		TYPE GlobalNG-RANCell-ID							PRESENCE optional },
+	{ ID id-requestedSplitSRB					CRITICALITY reject		TYPE SplitSRBsTypes									PRESENCE optional }|
+	{ ID id-PCellID								CRITICALITY reject		TYPE GlobalNG-RANCell-ID							PRESENCE optional }|
+	{ ID id-DesiredActNotificationLevel			CRITICALITY ignore		TYPE DesiredActNotificationLevel				PRESENCE optional }|
+	{ ID id-AvailableDRBIDs						CRITICALITY reject		TYPE DRB-List										PRESENCE conditional}
+ -- The IE shall be present if there is at least one  PDUSessionResourceSetupInfo-SNterminated included --|
+	{ ID id-S-NG-RANnodeMaxIPDataRate			CRITICALITY reject		TYPE BitRate										PRESENCE optional },
 
-
+	
 	...
 }
 
 PDUSessionToBeAddedAddReq ::= SEQUENCE (SIZE(1..maxnoofPDUSessions)) OF PDUSessionToBeAddedAddReq-Item
 
 PDUSessionToBeAddedAddReq-Item ::= SEQUENCE {
-	pduSessionId				PDUSession-ID,
-	s-NSSAI						S-NSSAI,
-	sN-PDUSessionAMBR			PDUSessionAggregateMaximumBitRate	OPTIONAL,
-	bearerConfigToBeAdded		BearerConfigToBeAdded-AddReq,
+	pduSessionId			PDUSession-ID,
+	s-NSSAI					S-NSSAI,
+	sN-PDUSessionAMBR		PDUSessionAggregateMaximumBitRate			OPTIONAL,
+	sn-terminated			PDUSessionResourceSetupInfo-SNterminated	OPTIONAL,
+	mn-terminated			PDUSessionResourceSetupInfo-MNterminated	OPTIONAL,
+-- NOTE: If neither the PDU Session Resource Setup Info – SN terminated IE
+-- nor the PDU Session Resource Setup Info – MN terminated IE is present, 
+-- abnormal conditions as specified in clause 8.3.1.4 apply.
 	iE-Extension			ProtocolExtensionContainer { {PDUSessionToBeAddedAddReq-Item-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -547,17 +577,6 @@ PDUSessionToBeAddedAddReq-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-BearerConfigToBeAdded-AddReq ::= SEQUENCE (SIZE(1..maxnoofBearerConfigs)) OF BearerConfigToBeAdded-AddReq-Item
-
-BearerConfigToBeAdded-AddReq-Item ::= CHOICE {
-	sn-terminated			PDUSessionResourceSetupInfo-SNterminated,
-	mn-terminated			PDUSessionResourceSetupInfo-MNterminated,
-	choice-extension		ProtocolIE-Single-Container { {BearerConfigToBeAdded-AddReq-Item-ExtIEs} }
-}
-
-BearerConfigToBeAdded-AddReq-Item-ExtIEs XNAP-PROTOCOL-IES ::= {
-	...
-}
 
 
 -- **************************************************************
@@ -565,7 +584,6 @@ BearerConfigToBeAdded-AddReq-Item-ExtIEs XNAP-PROTOCOL-IES ::= {
 -- S-NODE ADDITION REQUEST ACKNOWLEDGE
 --
 -- **************************************************************
--- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
 
 SNodeAdditionRequestAcknowledge ::= SEQUENCE {
 	protocolIEs			ProtocolIE-Container	{{ SNodeAdditionRequestAcknowledge-IEs}},
@@ -576,16 +594,16 @@ SNodeAdditionRequestAcknowledge ::= SEQUENCE {
 SN-to-MN-Container ::= OCTET STRING
 
 SNodeAdditionRequestAcknowledge-IEs XNAP-PROTOCOL-IES ::= {
-	{ ID id-M-NG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
-	{ ID id-S-NG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
+	{ ID id-M-NG-RANnodeUEXnAPID				CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
+	{ ID id-S-NG-RANnodeUEXnAPID				CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
 	{ ID id-PDUSessionAdmittedAddedAddReqAck	CRITICALITY ignore		TYPE PDUSessionAdmittedAddedAddReqAck		PRESENCE mandatory}|
-	{ ID id-PDUSessionNotAdmittedAddReqAck		CRITICALITY ignore		TYPE PDUSessionNotAdmittedAddReqAck			PRESENCE optional }|
+	{ ID id-PDUSessionNotAdmittedAddReqAck		CRITICALITY ignore		TYPE PDUSessionNotAdmittedAddReqAck		PRESENCE optional }|
 -- WS modification: define a dedicated type
---	{ ID id-SN-to-MN-Container					CRITICALITY reject		TYPE OCTET STRING										PRESENCE mandatory}|
-	{ ID id-SN-to-MN-Container					CRITICALITY reject		TYPE SN-to-MN-Container										PRESENCE mandatory}|
-	{ ID id-admittedSplitSRB						CRITICALITY reject		TYPE SplitSRBsTypes									PRESENCE optional }|
-	{ ID id-RRCConfigIndication					CRITICALITY reject		TYPE RRCConfigIndication							PRESENCE optional }|
-	{ ID id-CriticalityDiagnostics				CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional },
+--	{ ID id-SN-to-MN-Container					CRITICALITY reject		TYPE OCTET STRING								PRESENCE mandatory}|
+	{ ID id-SN-to-MN-Container					CRITICALITY reject		TYPE SN-to-MN-Container								PRESENCE mandatory}|
+	{ ID id-admittedSplitSRB					CRITICALITY reject		TYPE SplitSRBsTypes								PRESENCE optional }|
+	{ ID id-RRCConfigIndication					CRITICALITY reject		TYPE RRCConfigIndication						PRESENCE optional }|
+	{ ID id-CriticalityDiagnostics				CRITICALITY ignore		TYPE CriticalityDiagnostics					PRESENCE optional },
 	...
 }
 
@@ -593,24 +611,16 @@ PDUSessionAdmittedAddedAddReqAck ::= SEQUENCE (SIZE(1..maxnoofPDUSessions)) OF P
 
 PDUSessionAdmittedAddedAddReqAck-Item ::= SEQUENCE {
 	pduSessionId							PDUSession-ID,
-	bearerConfigAdmittedToBeAdded		BearerConfigAdmittedToBeAdded-AddReqAck,
+	sn-terminated			PDUSessionResourceSetupResponseInfo-SNterminated	OPTIONAL,
+	mn-terminated			PDUSessionResourceSetupResponseInfo-MNterminated	OPTIONAL,
+-- NOTE: If neither the PDU Session Resource Setup Response Info – SN terminated IE
+-- nor the PDU Session Resource Setup Response Info – MN terminated IE is present, 
+-- abnormal conditions as specified in clause 8.3.1.4 apply.
 	iE-Extension			ProtocolExtensionContainer { {PDUSessionAdmittedAddedAddReqAck-Item-ExtIEs} }	OPTIONAL,
 	...
 }
 
 PDUSessionAdmittedAddedAddReqAck-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
-	...
-}
-
-BearerConfigAdmittedToBeAdded-AddReqAck ::= SEQUENCE (SIZE(1..maxnoofBearerConfigs)) OF BearerConfigAdmittedToBeAdded-AddReqAck-Item
-
-BearerConfigAdmittedToBeAdded-AddReqAck-Item ::= CHOICE {
-	sn-terminated			PDUSessionResourceSetupResponseInfo-SNterminated,
-	mn-terminated			PDUSessionResourceSetupResponseInfo-MNterminated,
-	choice-extension		ProtocolIE-Single-Container { {BearerConfigAdmittedToBeAdded-AddReqAck-Item-ExtIEs} }
-}
-
-BearerConfigAdmittedToBeAdded-AddReqAck-Item-ExtIEs XNAP-PROTOCOL-IES ::= {
 	...
 }
 
@@ -630,7 +640,6 @@ PDUSessionNotAdmittedAddReqAck-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 -- S-NODE ADDITION REQUEST REJECT
 --
 -- **************************************************************
--- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
 
 SNodeAdditionRequestReject ::= SEQUENCE {
 	protocolIEs			ProtocolIE-Container	{{ SNodeAdditionRequestReject-IEs}},
@@ -640,8 +649,8 @@ SNodeAdditionRequestReject ::= SEQUENCE {
 SNodeAdditionRequestReject-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-M-NG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
 	{ ID id-S-NG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
-	{ ID id-Cause									CRITICALITY ignore		TYPE Cause												PRESENCE mandatory}|
-	{ ID id-CriticalityDiagnostics				CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional },
+	{ ID id-Cause									CRITICALITY ignore		TYPE Cause											PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional },
 	...
 }
 
@@ -650,7 +659,6 @@ SNodeAdditionRequestReject-IEs XNAP-PROTOCOL-IES ::= {
 -- S-NODE RECONFIGURATION COMPLETE
 --
 -- **************************************************************
--- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
 
 SNodeReconfigurationComplete ::= SEQUENCE {
 	protocolIEs			ProtocolIE-Container	{{ SNodeReconfigurationComplete-IEs}},
@@ -711,7 +719,6 @@ Configuration-rejected-by-M-NG-RANNode-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 -- S-NODE MODIFICATION REQUEST
 --
 -- **************************************************************
--- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
 
 SNodeModificationRequest ::= SEQUENCE {
 	protocolIEs			ProtocolIE-Container	{{ SNodeModificationRequest-IEs}},
@@ -721,29 +728,33 @@ SNodeModificationRequest ::= SEQUENCE {
 SNodeModificationRequest-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-M-NG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
 	{ ID id-S-NG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
-	{ ID id-Cause									CRITICALITY ignore		TYPE Cause												PRESENCE mandatory}|
-	{ ID id-PDCPChangeIndication					CRITICALITY ignore		TYPE PDCPChangeIndication							PRESENCE optional }|
-	{ ID id-selectedPLMN							CRITICALITY ignore		TYPE PLMN-Identity										PRESENCE optional }|
-	{ ID id-MobilityRestrictionList				CRITICALITY ignore		TYPE MobilityRestrictionList						PRESENCE optional }|
-	{ ID id-SCGConfigurationQuery				CRITICALITY ignore		TYPE SCGConfigurationQuery						PRESENCE optional }|
-	{ ID id-UEContextInfo-SNModRequest			CRITICALITY reject		TYPE UEContextInfo-SNModRequest				PRESENCE optional }|
+	{ ID id-Cause									CRITICALITY ignore		TYPE Cause											PRESENCE mandatory}|
+	{ ID id-PDCPChangeIndication					CRITICALITY ignore		TYPE PDCPChangeIndication						PRESENCE optional }|
+	{ ID id-selectedPLMN							CRITICALITY ignore		TYPE PLMN-Identity									PRESENCE optional }|
+	{ ID id-MobilityRestrictionList					CRITICALITY ignore		TYPE MobilityRestrictionList					PRESENCE optional }|
+	{ ID id-SCGConfigurationQuery					CRITICALITY ignore		TYPE SCGConfigurationQuery						PRESENCE optional }|
+	{ ID id-UEContextInfo-SNModRequest				CRITICALITY reject		TYPE UEContextInfo-SNModRequest				PRESENCE optional }|
 -- WS modification: define a dedicated type
---	{ ID id-MN-to-SN-Container					CRITICALITY ignore		TYPE OCTET STRING										PRESENCE optional }|
-	{ ID id-MN-to-SN-Container					CRITICALITY ignore		TYPE MN-to-SN-Container										PRESENCE optional }|
+--	{ ID id-MN-to-SN-Container						CRITICALITY ignore		TYPE OCTET STRING									PRESENCE optional }|
+	{ ID id-MN-to-SN-Container						CRITICALITY ignore		TYPE MN-to-SN-Container									PRESENCE optional }|
 	{ ID id-requestedSplitSRB						CRITICALITY ignore		TYPE SplitSRBsTypes									PRESENCE optional }|
-	{ ID id-requestedSplitSRBrelease				CRITICALITY ignore		TYPE SplitSRBsTypes									PRESENCE optional },
+	{ ID id-requestedSplitSRBrelease				CRITICALITY ignore		TYPE SplitSRBsTypes									PRESENCE optional }|
+	{ ID id-DesiredActNotificationLevel				CRITICALITY ignore		TYPE DesiredActNotificationLevel				PRESENCE optional }|
+	{ ID id-AdditionalDRBIDs						CRITICALITY reject		TYPE DRB-List										PRESENCE optional }|
+	{ ID id-S-NG-RANnodeMaxIPDataRate				CRITICALITY reject		TYPE BitRate										PRESENCE optional },
 	...
 }
 
 UEContextInfo-SNModRequest ::= SEQUENCE {
-	ueSecurityCapabilities					UESecurityCapabilities								OPTIONAL,
-	s-ng-RANnode-SecurityKey					S-NG-RANnode-SecurityKey								OPTIONAL,
-	indexToRatFrequencySelectionPriority		RFSP-Index												OPTIONAL,
-	lowerLayerPresenceStatusChange			LowerLayerPresenceStatusChange						OPTIONAL,
-	bearerConfigToBeAdded						PDUSessionsToBeAdded-SNModRequest-List				OPTIONAL,
-	bearerConfigToBeModified					PDUSessionsToBeModified-SNModRequest-List			OPTIONAL,
-	bearerConfigToBeReleased					PDUSessionsToBeReleased-SNModRequest-List			OPTIONAL,
-	iE-Extension			ProtocolExtensionContainer { {UEContextInfo-SNModRequest-ExtIEs} }	OPTIONAL,
+	ueSecurityCapabilities							UESecurityCapabilities								OPTIONAL,
+	s-ng-RANnode-SecurityKey						S-NG-RANnode-SecurityKey							OPTIONAL,
+	s-ng-RANnodeUE-AMBR								UEAggregateMaximumBitRate							OPTIONAL,
+	indexToRatFrequencySelectionPriority			RFSP-Index											OPTIONAL,
+	lowerLayerPresenceStatusChange					LowerLayerPresenceStatusChange						OPTIONAL,
+	pduSessionResourceToBeAdded						PDUSessionsToBeAdded-SNModRequest-List				OPTIONAL,
+	pduSessionResourceToBeModified					PDUSessionsToBeModified-SNModRequest-List			OPTIONAL,
+	pduSessionResourceToBeReleased					PDUSessionsToBeReleased-SNModRequest-List			OPTIONAL,
+	iE-Extension			ProtocolExtensionContainer { {UEContextInfo-SNModRequest-ExtIEs} }			OPTIONAL,
 	...
 }
 
@@ -754,10 +765,14 @@ UEContextInfo-SNModRequest-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 PDUSessionsToBeAdded-SNModRequest-List ::= SEQUENCE (SIZE(maxnoofPDUSessions)) OF PDUSessionsToBeAdded-SNModRequest-Item
 
 PDUSessionsToBeAdded-SNModRequest-Item ::= SEQUENCE {
-	pduSessionId				PDUSession-ID,
-	s-NSSAI						S-NSSAI,
-	sN-PDUSessionAMBR			PDUSessionAggregateMaximumBitRate	OPTIONAL,
-	bearerConfigToBeAdded		BearerConfigToBeAdded-SNModRequest,
+	pduSessionId			PDUSession-ID,
+	s-NSSAI					S-NSSAI,
+	sN-PDUSessionAMBR		PDUSessionAggregateMaximumBitRate			OPTIONAL,
+	sn-terminated			PDUSessionResourceSetupInfo-SNterminated	OPTIONAL,
+	mn-terminated			PDUSessionResourceSetupInfo-MNterminated	OPTIONAL,
+-- NOTE: If neither the PDU Session Resource Setup Info – SN terminated IE
+-- nor the PDU Session Resource Setup Info – MN terminated IE is present, 
+-- abnormal conditions as specified in clause 8.3.3.4 apply.
 	iE-Extension			ProtocolExtensionContainer { {PDUSessionsToBeAdded-SNModRequest-Item-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -766,24 +781,16 @@ PDUSessionsToBeAdded-SNModRequest-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-BearerConfigToBeAdded-SNModRequest ::= SEQUENCE (SIZE(1..maxnoofBearerConfigs)) OF BearerConfigToBeAdded-SNModRequest-Item
-
-BearerConfigToBeAdded-SNModRequest-Item ::= CHOICE {
-	sn-terminated			PDUSessionResourceSetupInfo-SNterminated,
-	mn-terminated			PDUSessionResourceSetupInfo-MNterminated,
-	choice-extension		ProtocolIE-Single-Container { {BearerConfigToBeAdded-SNModRequest-Item-ExtIEs} }
-}
-
-BearerConfigToBeAdded-SNModRequest-Item-ExtIEs XNAP-PROTOCOL-IES ::= {
-	...
-}
-
 PDUSessionsToBeModified-SNModRequest-List ::= SEQUENCE (SIZE(maxnoofPDUSessions)) OF PDUSessionsToBeModified-SNModRequest-Item
 
 PDUSessionsToBeModified-SNModRequest-Item ::= SEQUENCE {
-	pduSessionId					PDUSession-ID,
-	sN-PDUSessionAMBR				PDUSessionAggregateMaximumBitRate	OPTIONAL,
-	bearerConfigToBeModified		BearerConfigToBeModified-SNModRequest,
+	pduSessionId			PDUSession-ID,
+	sN-PDUSessionAMBR		PDUSessionAggregateMaximumBitRate				OPTIONAL,
+	sn-terminated			PDUSessionResourceModificationInfo-SNterminated	OPTIONAL,
+	mn-terminated			PDUSessionResourceModificationInfo-MNterminated	OPTIONAL,
+-- NOTE: If neither the PDU Session Resource Modification Info – SN terminated IE
+-- nor the PDU Session Resource Modification Info – MN terminated IE is present, 
+-- abnormal conditions as specified in clause 8.3.3.4 apply.
 	iE-Extension			ProtocolExtensionContainer { {PDUSessionsToBeModified-SNModRequest-Item-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -792,21 +799,8 @@ PDUSessionsToBeModified-SNModRequest-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-BearerConfigToBeModified-SNModRequest ::= SEQUENCE (SIZE(1..maxnoofBearerConfigs)) OF BearerConfigToBeModified-SNModRequest-Item
-
-BearerConfigToBeModified-SNModRequest-Item ::= CHOICE {
-	sn-terminated			PDUSessionResourceModificationInfo-SNterminated,
-	mn-terminated			PDUSessionResourceModificationInfo-MNterminated,
-	choice-extension		ProtocolIE-Single-Container { {BearerConfigToBeModified-SNModRequest-Item-ExtIEs} }
-}
-
-BearerConfigToBeModified-SNModRequest-Item-ExtIEs XNAP-PROTOCOL-IES ::= {
-	...
-}
-
 PDUSessionsToBeReleased-SNModRequest-List ::= SEQUENCE {
-	sn-terminated				OCTET STRING OPTIONAL, -- This IE needs to be refined
-	mn-terminated				OCTET STRING OPTIONAL, -- This IE needs to be refined
+	pdu-session-list		PDUSession-List-withCause				OPTIONAL,
 	iE-Extension			ProtocolExtensionContainer { {PDUSessionsToBeReleased-SNModRequest-List-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -820,7 +814,6 @@ PDUSessionsToBeReleased-SNModRequest-List-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 -- S-NODE MODIFICATION REQUEST ACKNOWLEDGE
 --
 -- **************************************************************
--- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
 
 SNodeModificationRequestAcknowledge ::= SEQUENCE {
 	protocolIEs			ProtocolIE-Container	{{ SNodeModificationRequestAcknowledge-IEs}},
@@ -830,20 +823,20 @@ SNodeModificationRequestAcknowledge ::= SEQUENCE {
 SNodeModificationRequestAcknowledge-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-M-NG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
 	{ ID id-S-NG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
-	{ ID id-PDUSessionAdmitted-SNModResponse	CRITICALITY ignore		TYPE PDUSessionAdmitted-SNModResponse		PRESENCE optional }|
-	{ ID id-PDUSessionNotAdmitted-SNModResponse	CRITICALITY ignore		TYPE PDUSessionNotAdmitted-SNModResponse	PRESENCE optional }|
+	{ ID id-PDUSessionAdmitted-SNModResponse		CRITICALITY ignore		TYPE PDUSessionAdmitted-SNModResponse		PRESENCE optional }|
+	{ ID id-PDUSessionNotAdmitted-SNModResponse		CRITICALITY ignore		TYPE PDUSessionNotAdmitted-SNModResponse	PRESENCE optional }|
 -- WS modification: define a dedicated type
---	{ ID id-SN-to-MN-Container					CRITICALITY ignore		TYPE OCTET STRING										PRESENCE optional }|
-	{ ID id-SN-to-MN-Container					CRITICALITY ignore		TYPE SN-to-MN-Container										PRESENCE optional }|
+--	{ ID id-SN-to-MN-Container						CRITICALITY ignore		TYPE OCTET STRING									PRESENCE optional }|
+	{ ID id-SN-to-MN-Container						CRITICALITY ignore		TYPE SN-to-MN-Container									PRESENCE optional }|
 	{ ID id-admittedSplitSRB						CRITICALITY ignore		TYPE SplitSRBsTypes									PRESENCE optional }|
-	{ ID id-admittedSplitSRBrelease				CRITICALITY ignore		TYPE SplitSRBsTypes									PRESENCE optional }|
-	{ ID id-CriticalityDiagnostics				CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional },
+	{ ID id-admittedSplitSRBrelease					CRITICALITY ignore		TYPE SplitSRBsTypes									PRESENCE optional }|
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional },
 	...
 }
 PDUSessionAdmitted-SNModResponse ::= SEQUENCE {
-	pduSessionResourcesAdmittedToBeAdded			PDUSessionAdmittedToBeAddedSNModResponse OPTIONAL,
-	pduSessionResourcesAdmittedToBeModified		PDUSessionAdmittedToBeModifiedSNModResponse OPTIONAL,
-	pduSessionResourcesAdmittedToBeReleased		PDUSessionAdmittedToBeReleasedSNModResponse OPTIONAL,
+	pduSessionResourcesAdmittedToBeAdded			PDUSessionAdmittedToBeAddedSNModResponse 			OPTIONAL,
+	pduSessionResourcesAdmittedToBeModified			PDUSessionAdmittedToBeModifiedSNModResponse 		OPTIONAL,
+	pduSessionResourcesAdmittedToBeReleased			PDUSessionAdmittedToBeReleasedSNModResponse			OPTIONAL,
 	iE-Extension			ProtocolExtensionContainer { {PDUSessionAdmitted-SNModResponse-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -854,8 +847,12 @@ PDUSessionAdmitted-SNModResponse-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 
 PDUSessionAdmittedToBeAddedSNModResponse ::= SEQUENCE (SIZE(1..maxnoofPDUSessions)) OF PDUSessionAdmittedToBeAddedSNModResponse-Item
 PDUSessionAdmittedToBeAddedSNModResponse-Item ::= SEQUENCE {
-	pduSessionId				PDUSession-ID,
-	bearerConfigs				BearerConfigToBeAdded-SNModResponse-List,
+	pduSessionId			PDUSession-ID,
+	sn-terminated			PDUSessionResourceSetupResponseInfo-SNterminated	OPTIONAL,
+	mn-terminated			PDUSessionResourceSetupResponseInfo-MNterminated	OPTIONAL,
+-- NOTE: If neither the PDU Session Resource Setup Response Info – SN terminated IE
+-- nor the PDU Session Resource Setup Response Info – MN terminated IE is present, 
+-- abnormal conditions as specified in clause 8.3.3.4 apply.
 	iE-Extension			ProtocolExtensionContainer { {PDUSessionAdmittedToBeAddedSNModResponse-Item-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -864,22 +861,14 @@ PDUSessionAdmittedToBeAddedSNModResponse-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::=
 	...
 }
 
-BearerConfigToBeAdded-SNModResponse-List ::= SEQUENCE (SIZE(1..maxnoofBearerConfigs)) OF BearerConfigToBeAdded-SNModResponse-Item
-
-BearerConfigToBeAdded-SNModResponse-Item ::= CHOICE {
-	sn-terminated			PDUSessionResourceSetupResponseInfo-SNterminated,
-	mn-terminated			PDUSessionResourceSetupResponseInfo-MNterminated,
-	choice-extension		ProtocolIE-Single-Container { {BearerConfigToBeAdded-SNModResponse-Item-ExtIEs} }
-}
-
-BearerConfigToBeAdded-SNModResponse-Item-ExtIEs XNAP-PROTOCOL-IES ::= {
-	...
-}
-
 PDUSessionAdmittedToBeModifiedSNModResponse::= SEQUENCE (SIZE(1..maxnoofPDUSessions)) OF PDUSessionAdmittedToBeModifiedSNModResponse-Item
 PDUSessionAdmittedToBeModifiedSNModResponse-Item ::= SEQUENCE {
-	pduSessionId				PDUSession-ID,
-	bearerConfigs				BearerConfigToBeModified-SNModResponse-List,
+	pduSessionId			PDUSession-ID,
+	sn-terminated			PDUSessionResourceModificationResponseInfo-SNterminated	OPTIONAL,
+	mn-terminated			PDUSessionResourceModificationResponseInfo-MNterminated	OPTIONAL,
+-- NOTE: If neither the PDU Session Resource Modification Response Info – SN terminated IE
+-- nor the PDU Session Resource Modification Response Info – MN terminated IE is present, 
+-- abnormal conditions as specified in clause 8.3.3.4 apply.
 	iE-Extension			ProtocolExtensionContainer { {PDUSessionAdmittedToBeModifiedSNModResponse-Item-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -888,22 +877,9 @@ PDUSessionAdmittedToBeModifiedSNModResponse-Item-ExtIEs XNAP-PROTOCOL-EXTENSION 
 	...
 }
 
-BearerConfigToBeModified-SNModResponse-List ::= SEQUENCE (SIZE(1..maxnoofBearerConfigs)) OF
-																			BearerConfigToBeModified-SNModResponse-Item
-
-BearerConfigToBeModified-SNModResponse-Item ::= CHOICE {
-	sn-terminated			PDUSessionResourceModificationResponseInfo-SNterminated,
-	mn-terminated			PDUSessionResourceModificationResponseInfo-MNterminated,
-	choice-extension		ProtocolIE-Single-Container { {BearerConfigToBeModified-SNModResponse-Item-ExtIEs} }
-}
-
-BearerConfigToBeModified-SNModResponse-Item-ExtIEs XNAP-PROTOCOL-IES ::= {
-	...
-}
-
 PDUSessionAdmittedToBeReleasedSNModResponse ::= SEQUENCE {
-	sn-terminated			OCTET STRING		OPTIONAL,-- This IE may need to be refined
-	mn-terminated			OCTET STRING		OPTIONAL,-- This IE may need to be refined
+	sn-terminated			PDUSession-List-withDataForwardingRequest		OPTIONAL,
+	mn-terminated			PDUSession-List-withCause						OPTIONAL,
 	iE-Extension			ProtocolExtensionContainer { {PDUSessionAdmittedToBeReleasedSNModResponse-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -913,8 +889,7 @@ PDUSessionAdmittedToBeReleasedSNModResponse-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 }
 
 PDUSessionNotAdmitted-SNModResponse ::= SEQUENCE {
-	pduSessionResourcesNotAdmitted-SNterminated		PDUSessionResourcesNotAdmitted-List OPTIONAL,
-	pduSessionResourcesNotAdmitted-MNterminated		PDUSessionResourcesNotAdmitted-List OPTIONAL,
+	pdu-Session-List		PDUSession-List OPTIONAL,
 	iE-Extension			ProtocolExtensionContainer { {PDUSessionNotAdmitted-SNModResponse-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -930,7 +905,6 @@ PDUSessionNotAdmitted-SNModResponse-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 -- S-NODE MODIFICATION REQUEST REJECT
 --
 -- **************************************************************
--- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
 
 SNodeModificationRequestReject ::= SEQUENCE {
 	protocolIEs			ProtocolIE-Container	{{ SNodeModificationRequestReject-IEs}},
@@ -940,8 +914,8 @@ SNodeModificationRequestReject ::= SEQUENCE {
 SNodeModificationRequestReject-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-M-NG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
 	{ ID id-S-NG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
-	{ ID id-Cause									CRITICALITY ignore		TYPE Cause												PRESENCE mandatory}|
-	{ ID id-CriticalityDiagnostics				CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional },
+	{ ID id-Cause									CRITICALITY ignore		TYPE Cause											PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional },
 	...
 }
 
@@ -950,7 +924,6 @@ SNodeModificationRequestReject-IEs XNAP-PROTOCOL-IES ::= {
 -- S-NODE MODIFICATION REQUIRED
 --
 -- **************************************************************
--- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
 
 SNodeModificationRequired ::= SEQUENCE {
 	protocolIEs			ProtocolIE-Container	{{ SNodeModificationRequired-IEs}},
@@ -960,20 +933,26 @@ SNodeModificationRequired ::= SEQUENCE {
 SNodeModificationRequired-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-M-NG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
 	{ ID id-S-NG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
-	{ ID id-Cause									CRITICALITY ignore		TYPE Cause												PRESENCE mandatory}|
-	{ ID id-PDCPChangeIndication					CRITICALITY ignore		TYPE PDCPChangeIndication							PRESENCE optional }|
-	{ ID id-PDUSessionToBeModifiedSNModRequired	CRITICALITY ignore		TYPE PDUSessionToBeModifiedSNModRequired	PRESENCE optional }|
-	{ ID id-PDUSessionToBeReleasedSNModRequired	CRITICALITY ignore		TYPE PDUSessionToBeReleasedSNModRequired	PRESENCE optional }|
+	{ ID id-Cause									CRITICALITY ignore		TYPE Cause											PRESENCE mandatory}|
+	{ ID id-PDCPChangeIndication					CRITICALITY ignore		TYPE PDCPChangeIndication						PRESENCE optional }|
+	{ ID id-PDUSessionToBeModifiedSNModRequired		CRITICALITY ignore		TYPE PDUSessionToBeModifiedSNModRequired	PRESENCE optional }|
+	{ ID id-PDUSessionToBeReleasedSNModRequired		CRITICALITY ignore		TYPE PDUSessionToBeReleasedSNModRequired	PRESENCE optional }|
 -- WS modification: define a dedicated type
---	{ ID id-SN-to-MN-Container					CRITICALITY ignore		TYPE OCTET STRING										PRESENCE optional },
-	{ ID id-SN-to-MN-Container					CRITICALITY ignore		TYPE SN-to-MN-Container										PRESENCE optional },
+--	{ ID id-SN-to-MN-Container						CRITICALITY ignore		TYPE OCTET STRING									PRESENCE optional }|
+	{ ID id-SN-to-MN-Container						CRITICALITY ignore		TYPE SN-to-MN-Container									PRESENCE optional }|
+	{ ID id-SpareDRBIDs								CRITICALITY ignore		TYPE DRB-List										PRESENCE optional }|
+	{ ID id-RequiredNumberOfDRBIDs					CRITICALITY ignore		TYPE DRB-Number										PRESENCE optional },
 	...
 }
 PDUSessionToBeModifiedSNModRequired::= SEQUENCE (SIZE (1.. maxnoofPDUSessions)) OF 	PDUSessionToBeModifiedSNModRequired-Item
 
 PDUSessionToBeModifiedSNModRequired-Item ::= SEQUENCE {
 	pduSessionId						PDUSession-ID,
-	bearerConfigurations				BearerConfigToBeModifiedSNModRequired-List,
+	sn-terminated			PDUSessionResourceModRqdInfo-SNterminated	OPTIONAL,
+	mn-terminated			PDUSessionResourceModRqdInfo-SNterminated	OPTIONAL,
+-- NOTE: If neither the PDU Session Resource Modification Required Info – SN terminated IE
+-- nor the PDU Session Resource Modification Required Info – MN terminated IE is present, 
+-- abnormal conditions as specified in clause 8.3.4.4 apply.
 	iE-Extension		ProtocolExtensionContainer { {PDUSessionToBeModifiedSNModRequired-Item-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -982,22 +961,9 @@ PDUSessionToBeModifiedSNModRequired-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-BearerConfigToBeModifiedSNModRequired-List::= SEQUENCE (SIZE(1..maxnoofBearerConfigs)) OF
-																			BearerConfigToBeModifiedSNModRequired-Item
-
-BearerConfigToBeModifiedSNModRequired-Item ::= CHOICE {
-	sn-terminated			PDUSessionResourceModRqdInfo-SNterminated,
-	mn-terminated			PDUSessionResourceModRqdInfo-SNterminated,
-	choice-extension		ProtocolIE-Single-Container { {BearerConfigToBeModifiedSNModRequired-Item-ExtIEs} }
-}
-
-BearerConfigToBeModifiedSNModRequired-Item-ExtIEs XNAP-PROTOCOL-IES ::= {
-	...
-}
-
 PDUSessionToBeReleasedSNModRequired ::= SEQUENCE {
 	sn-terminated			PDUSession-List-withDataForwardingRequest		OPTIONAL,
-	mn-terminated			PDUSession-List-withCause							OPTIONAL,
+	mn-terminated			PDUSession-List-withCause						OPTIONAL,
 	iE-Extension			ProtocolExtensionContainer { {PDUSessionToBeReleasedSNModRequired-ExtIEs} } OPTIONAL,
 	...
 }
@@ -1011,7 +977,6 @@ PDUSessionToBeReleasedSNModRequired-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 -- S-NODE MODIFICATION CONFIRM
 --
 -- **************************************************************
--- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
 
 SNodeModificationConfirm ::= SEQUENCE {
 	protocolIEs			ProtocolIE-Container	{{ SNodeModificationConfirm-IEs}},
@@ -1021,11 +986,13 @@ SNodeModificationConfirm ::= SEQUENCE {
 SNodeModificationConfirm-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-M-NG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
 	{ ID id-S-NG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
-	{ ID id-PDUSessionAdmittedModSNModConfirm	CRITICALITY ignore		TYPE PDUSessionAdmittedModSNModConfirm		PRESENCE optional }|
-	{ ID id-PDUSessionReleasedSNModConfirm		CRITICALITY ignore		TYPE PDUSessionReleasedSNModConfirm			PRESENCE optional }|
+	{ ID id-PDUSessionAdmittedModSNModConfirm		CRITICALITY ignore		TYPE PDUSessionAdmittedModSNModConfirm		PRESENCE optional }|
+	{ ID id-PDUSessionReleasedSNModConfirm			CRITICALITY ignore		TYPE PDUSessionReleasedSNModConfirm			PRESENCE optional }|
 -- WS modification: define a dedicated type
---	{ ID id-MN-to-SN-Container					CRITICALITY ignore		TYPE OCTET STRING										PRESENCE optional }|
-	{ ID id-MN-to-SN-Container					CRITICALITY ignore		TYPE MN-to-SN-Container										PRESENCE optional }|	{ ID id-CriticalityDiagnostics				CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional },
+--	{ ID id-MN-to-SN-Container						CRITICALITY ignore		TYPE OCTET STRING									PRESENCE optional }|
+	{ ID id-MN-to-SN-Container						CRITICALITY ignore		TYPE MN-to-SN-Container									PRESENCE optional }|
+	{ ID id-AdditionalDRBIDs						CRITICALITY reject		TYPE DRB-List										PRESENCE optional }|
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional },
 	...
 }
 
@@ -1033,7 +1000,11 @@ PDUSessionAdmittedModSNModConfirm ::= SEQUENCE (SIZE(maxnoofPDUSessions)) OF PDU
 
 PDUSessionAdmittedModSNModConfirm-Item ::= SEQUENCE {
 	pduSessionId				PDUSession-ID,
-	bearerConfigurations		BearerConfigAdmittedModSNModConfirm,
+	sn-terminated			PDUSessionResourceModConfirmInfo-SNterminated	OPTIONAL,
+	mn-terminated			PDUSessionResourceModConfirmInfo-MNterminated	OPTIONAL,
+-- NOTE: If neither the PDU Session Resource Modification Confirm Info – SN terminated IE
+-- nor the PDU Session Resource Modification Confirm Info – MN terminated IE is present, 
+-- abnormal conditions as specified in clause 8.3.4.4 apply.
 	iE-Extension			ProtocolExtensionContainer { {PDUSessionAdmittedModSNModConfirm-Item-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -1041,19 +1012,6 @@ PDUSessionAdmittedModSNModConfirm-Item ::= SEQUENCE {
 PDUSessionAdmittedModSNModConfirm-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 	...
 }
-
-BearerConfigAdmittedModSNModConfirm ::= SEQUENCE (SIZE(1..maxnoofBearerConfigs)) OF BearerConfigAdmittedModSNModConfirm-Item
-
-BearerConfigAdmittedModSNModConfirm-Item ::= CHOICE {
-	sn-terminated			PDUSessionResourceModConfirmInfo-SNterminated,
-	mn-terminated			PDUSessionResourceModConfirmInfo-MNterminated,
-	choice-extension		ProtocolIE-Single-Container { {BearerConfigAdmittedModSNModConfirm-Item-Item-ExtIEs} }
-}
-
-BearerConfigAdmittedModSNModConfirm-Item-Item-ExtIEs XNAP-PROTOCOL-IES ::= {
-	...
-}
-
 
 
 PDUSessionReleasedSNModConfirm ::= SEQUENCE {
@@ -1073,7 +1031,6 @@ PDUSessionAdmittedToBeReleasedSNModConfirm-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 -- S-NODE MODIFICATION REFUSE
 --
 -- **************************************************************
--- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
 
 SNodeModificationRefuse ::= SEQUENCE {
 	protocolIEs			ProtocolIE-Container	{{ SNodeModificationRefuse-IEs}},
@@ -1083,10 +1040,11 @@ SNodeModificationRefuse ::= SEQUENCE {
 SNodeModificationRefuse-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-M-NG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
 	{ ID id-S-NG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
-	{ ID id-Cause									CRITICALITY ignore		TYPE Cause												PRESENCE mandatory}|
+	{ ID id-Cause									CRITICALITY ignore		TYPE Cause											PRESENCE mandatory}|
 -- WS modification: define a dedicated type
---	{ ID id-MN-to-SN-Container					CRITICALITY ignore		TYPE OCTET STRING										PRESENCE optional }|
-	{ ID id-MN-to-SN-Container					CRITICALITY ignore		TYPE MN-to-SN-Container										PRESENCE optional }|	{ ID id-CriticalityDiagnostics				CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional },
+--	{ ID id-MN-to-SN-Container						CRITICALITY ignore		TYPE OCTET STRING									PRESENCE optional }|
+	{ ID id-MN-to-SN-Container						CRITICALITY ignore		TYPE MN-to-SN-Container									PRESENCE optional }|
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional },
 	...
 }
 
@@ -1095,28 +1053,22 @@ SNodeModificationRefuse-IEs XNAP-PROTOCOL-IES ::= {
 -- S-NODE RELEASE REQUEST
 --
 -- **************************************************************
--- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
 
 SNodeReleaseRequest ::= SEQUENCE {
 	protocolIEs			ProtocolIE-Container	{{ SNodeReleaseRequest-IEs}},
 	...
 }
 
--- WS modification: define a dedicated type
-PDUSessionToBeReleased-RelReq ::= OCTET STRING
-
 SNodeReleaseRequest-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-M-NG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
 	{ ID id-S-NG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE optional }|
-	{ ID id-Cause									CRITICALITY ignore		TYPE Cause												PRESENCE mandatory}|
+	{ ID id-Cause									CRITICALITY ignore		TYPE Cause											PRESENCE mandatory}|
+	{ ID id-PDUSessionToBeReleased-RelReq			CRITICALITY ignore		TYPE PDUSession-List-withCause					PRESENCE mandatory}|
+	{ ID id-UEContextKeptIndicator					CRITICALITY ignore		TYPE UEContextKeptIndicator						PRESENCE optional }|
 -- WS modification: define a dedicated type
-	{ ID id-PDUSessionToBeReleased-RelReq		CRITICALITY ignore		TYPE OCTET STRING										PRESENCE mandatory}|
---	{ ID id-PDUSessionToBeReleased-RelReq		CRITICALITY ignore		TYPE PDUSessionToBeReleased-RelReq										PRESENCE mandatory}|
--- Editor's Note: This IE needs to be refined --
-	{ ID id-UEContextKeptIndicator				CRITICALITY ignore		TYPE UEContextKeptIndicator						PRESENCE optional }|
--- WS modification: define a dedicated type
---	{ ID id-MN-to-SN-Container					CRITICALITY ignore		TYPE OCTET STRING										PRESENCE optional },
-	{ ID id-MN-to-SN-Container					CRITICALITY ignore		TYPE MN-to-SN-Container										PRESENCE optional },	...
+--	{ ID id-MN-to-SN-Container						CRITICALITY ignore		TYPE OCTET STRING									PRESENCE optional },
+	{ ID id-MN-to-SN-Container						CRITICALITY ignore		TYPE MN-to-SN-Container									PRESENCE optional },
+	...
 }
 
 -- **************************************************************
@@ -1124,7 +1076,6 @@ SNodeReleaseRequest-IEs XNAP-PROTOCOL-IES ::= {
 -- S-NODE RELEASE REQUEST ACKNOWLEDGE
 --
 -- **************************************************************
--- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
 
 SNodeReleaseRequestAcknowledge ::= SEQUENCE {
 	protocolIEs			ProtocolIE-Container	{{ SNodeReleaseRequestAcknowledge-IEs}},
@@ -1132,9 +1083,21 @@ SNodeReleaseRequestAcknowledge ::= SEQUENCE {
 }
 
 SNodeReleaseRequestAcknowledge-IEs XNAP-PROTOCOL-IES ::= {
-	{ ID id-M-NG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
-	{ ID id-S-NG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE optional }|
-	{ ID id-CriticalityDiagnostics				CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional },
+	{ ID id-M-NG-RANnodeUEXnAPID						CRITICALITY reject		TYPE NG-RANnodeUEXnAPID									PRESENCE mandatory}|
+	{ ID id-S-NG-RANnodeUEXnAPID						CRITICALITY reject		TYPE NG-RANnodeUEXnAPID									PRESENCE optional }|
+	{ ID id-PDUSession-List-withDataForwardingRequest	CRITICALITY ignore		TYPE PDUSession-List-withDataForwardingRequest	PRESENCE optional }|
+	{ ID id-PDUSessionToBeReleased-RelReqAck			CRITICALITY ignore		TYPE PDUSessionToBeReleasedList-RelReqAck			PRESENCE optional	}|
+	{ ID id-CriticalityDiagnostics						CRITICALITY ignore		TYPE CriticalityDiagnostics							PRESENCE optional },
+	...
+}
+
+PDUSessionToBeReleasedList-RelReqAck ::= SEQUENCE {
+	pduSessionsToBeReleasedList-SNterminated		PDUSession-List-withDataForwardingFromTarget												OPTIONAL,
+	iE-Extensions									ProtocolExtensionContainer { {PDUSessionToBeReleasedList-RelReqAck-ExtIEs} }	OPTIONAL,
+	...
+}
+
+PDUSessionToBeReleasedList-RelReqAck-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -1143,7 +1106,6 @@ SNodeReleaseRequestAcknowledge-IEs XNAP-PROTOCOL-IES ::= {
 -- S-NODE RELEASE REJECT
 --
 -- **************************************************************
--- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
 
 SNodeReleaseReject ::= SEQUENCE {
 	protocolIEs			ProtocolIE-Container	{{ SNodeReleaseReject-IEs}},
@@ -1153,8 +1115,8 @@ SNodeReleaseReject ::= SEQUENCE {
 SNodeReleaseReject-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-M-NG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
 	{ ID id-S-NG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE optional }|
-	{ ID id-Cause									CRITICALITY ignore		TYPE Cause												PRESENCE mandatory}|
-	{ ID id-CriticalityDiagnostics				CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional },
+	{ ID id-Cause									CRITICALITY ignore		TYPE Cause											PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional },
 	...
 }
 
@@ -1163,7 +1125,6 @@ SNodeReleaseReject-IEs XNAP-PROTOCOL-IES ::= {
 -- S-NODE RELEASE REQUIRED
 --
 -- **************************************************************
--- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
 
 SNodeReleaseRequired ::= SEQUENCE {
 	protocolIEs			ProtocolIE-Container	{{ SNodeReleaseRequired-IEs}},
@@ -1173,8 +1134,8 @@ SNodeReleaseRequired ::= SEQUENCE {
 SNodeReleaseRequired-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-M-NG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
 	{ ID id-S-NG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
-	{ ID id-PDUSessionToBeReleasedList-RelRqd	CRITICALITY ignore		TYPE PDUSessionToBeReleasedList-RelRqd		PRESENCE optional }|
-	{ ID id-Cause									CRITICALITY ignore		TYPE Cause												PRESENCE mandatory},
+	{ ID id-PDUSessionToBeReleasedList-RelRqd		CRITICALITY ignore		TYPE PDUSessionToBeReleasedList-RelRqd		PRESENCE optional }|
+	{ ID id-Cause									CRITICALITY ignore		TYPE Cause											PRESENCE mandatory},
 	...
 }
 
@@ -1194,7 +1155,6 @@ PDUSessionToBeReleasedList-RelRqd-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 -- S-NODE RELEASE CONFIRM
 --
 -- **************************************************************
--- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
 
 SNodeReleaseConfirm ::= SEQUENCE {
 	protocolIEs			ProtocolIE-Container	{{ SNodeReleaseConfirm-IEs}},
@@ -1204,13 +1164,13 @@ SNodeReleaseConfirm ::= SEQUENCE {
 SNodeReleaseConfirm-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-M-NG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
 	{ ID id-S-NG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
-	{ ID id-PDUSessionReleasedList-RelConf		CRITICALITY ignore		TYPE PDUSessionReleasedList-RelConf			PRESENCE optional }|
-	{ ID id-CriticalityDiagnostics				CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional },
+	{ ID id-PDUSessionReleasedList-RelConf			CRITICALITY ignore		TYPE PDUSessionReleasedList-RelConf			PRESENCE optional }|
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional },
 	...
 }
 
 PDUSessionReleasedList-RelConf ::= SEQUENCE {
-	pduSessionsReleasedList-SNterminated		PDUSession-List-withDataForwardingFromTarget						OPTIONAL,
+	pduSessionsReleasedList-SNterminated		PDUSession-List-withDataForwardingFromTarget					OPTIONAL,
 	iE-Extensions					ProtocolExtensionContainer { {PDUSessionReleasedList-RelConf-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -1225,8 +1185,6 @@ PDUSessionReleasedList-RelConf-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 -- S-NODE COUNTER CHECK REQUEST
 --
 -- **************************************************************
-
--- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
 
 SNodeCounterCheckRequest ::= SEQUENCE {
 	protocolIEs			ProtocolIE-Container	{{ SNodeCounterCheckRequest-IEs}},
@@ -1260,7 +1218,6 @@ BearersSubjectToCounterCheck-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 -- S-NODE CHANGE REQUIRED
 --
 -- **************************************************************
--- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
 
 SNodeChangeRequired ::= SEQUENCE {
 	protocolIEs			ProtocolIE-Container	{{ SNodeChangeRequired-IEs}},
@@ -1270,12 +1227,12 @@ SNodeChangeRequired ::= SEQUENCE {
 SNodeChangeRequired-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-M-NG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
 	{ ID id-S-NG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
-	{ ID id-target-S-NG-RANnodeID				CRITICALITY reject		TYPE GlobalNG-RANNode-ID							PRESENCE mandatory}|
-	{ ID id-Cause									CRITICALITY ignore		TYPE Cause												PRESENCE mandatory}|
-	{ ID id-PDUSession-SNChangeRequired-List	CRITICALITY ignore		TYPE PDUSession-SNChangeRequired-List		PRESENCE optional }|
+	{ ID id-target-S-NG-RANnodeID					CRITICALITY reject		TYPE GlobalNG-RANNode-ID							PRESENCE mandatory}|
+	{ ID id-Cause									CRITICALITY ignore		TYPE Cause											PRESENCE mandatory}|
+	{ ID id-PDUSession-SNChangeRequired-List		CRITICALITY ignore		TYPE PDUSession-SNChangeRequired-List		PRESENCE optional }|
 -- WS modification: define a dedicated type
---	{ ID id-SN-to-MN-Container					CRITICALITY reject		TYPE OCTET STRING										PRESENCE mandatory},
-	{ ID id-SN-to-MN-Container					CRITICALITY reject		TYPE SN-to-MN-Container										PRESENCE mandatory},
+--	{ ID id-SN-to-MN-Container						CRITICALITY reject		TYPE OCTET STRING									PRESENCE mandatory},
+	{ ID id-SN-to-MN-Container						CRITICALITY reject		TYPE SN-to-MN-Container									PRESENCE mandatory},
 	...
 }
 
@@ -1283,24 +1240,15 @@ PDUSession-SNChangeRequired-List ::= SEQUENCE (SIZE(1..maxnoofPDUSessions)) OF P
 
 PDUSession-SNChangeRequired-Item ::= SEQUENCE {
 	pduSessionId				PDUSession-ID,
-	bearerConfigToBeAdded		BearerConfigToBeAdded-ChangeRqd,
+	sn-terminated			PDUSessionResourceChangeRequiredInfo-SNterminated	OPTIONAL,
+	mn-terminated			PDUSessionResourceChangeRequiredInfo-MNterminated	OPTIONAL,
+-- NOTE: If the PDU Session Resource Change Required Info – SN terminated IE is not present, 
+-- abnormal conditions as specified in clause 8.3.5.4 apply.
 	iE-Extension			ProtocolExtensionContainer { {PDUSession-SNChangeRequired-Item-ExtIEs} }	OPTIONAL,
 	...
 }
 
 PDUSession-SNChangeRequired-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
-	...
-}
-
-BearerConfigToBeAdded-ChangeRqd ::= SEQUENCE (SIZE(1..maxnoofBearerConfigs)) OF BearerConfigToBeAdded-ChangeRqd-Item
-
-BearerConfigToBeAdded-ChangeRqd-Item ::= CHOICE {
-	sn-terminated			PDUSessionResourceChangeRequiredInfo-SNterminated,
-	mn-terminated			PDUSessionResourceChangeRequiredInfo-MNterminated,
-	choice-extension		ProtocolIE-Single-Container { { BearerConfigToBeAdded-ChangeRqd-Item-ExtIEs} }
-}
-
-BearerConfigToBeAdded-ChangeRqd-Item-ExtIEs XNAP-PROTOCOL-IES ::= {
 	...
 }
 
@@ -1310,7 +1258,6 @@ BearerConfigToBeAdded-ChangeRqd-Item-ExtIEs XNAP-PROTOCOL-IES ::= {
 -- S-NODE CHANGE CONFIRM
 --
 -- **************************************************************
--- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
 
 SNodeChangeConfirm ::= SEQUENCE {
 	protocolIEs			ProtocolIE-Container	{{ SNodeChangeConfirm-IEs}},
@@ -1320,32 +1267,23 @@ SNodeChangeConfirm ::= SEQUENCE {
 SNodeChangeConfirm-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-M-NG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
 	{ ID id-S-NG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
-	{ ID id-PDUSession-SNChangeConfirm-List		CRITICALITY ignore		TYPE PDUSession-SNChangeConfirm-List			PRESENCE optional }|
-	{ ID id-CriticalityDiagnostics				CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional },
+	{ ID id-PDUSession-SNChangeConfirm-List			CRITICALITY ignore		TYPE PDUSession-SNChangeConfirm-List			PRESENCE optional }|
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional },
 	...
 }
 PDUSession-SNChangeConfirm-List ::= SEQUENCE (SIZE(1..maxnoofPDUSessions)) OF PDUSession-SNChangeConfirm-Item
 
 PDUSession-SNChangeConfirm-Item ::= SEQUENCE {
 	pduSessionId				PDUSession-ID,
-	bearerConfigToBeAdded		BearerConfig-ChangeConfirm,
+	sn-terminated			PDUSessionResourceChangeConfirmInfo-SNterminated	OPTIONAL,
+	mn-terminated			PDUSessionResourceChangeConfirmInfo-MNterminated	OPTIONAL,
+-- NOTE: If the PDU Session Resource Change Confirm Info – SN terminated IE is not present, 
+-- abnormal conditions as specified in clause 8.3.5.4 apply.
 	iE-Extension			ProtocolExtensionContainer { {PDUSession-SNChangeConfirm-Item-ExtIEs} }	OPTIONAL,
 	...
 }
 
 PDUSession-SNChangeConfirm-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
-	...
-}
-
-BearerConfig-ChangeConfirm ::= SEQUENCE (SIZE(1..maxnoofBearerConfigs)) OF BearerConfig-ChangeConfirm-Item
-
-BearerConfig-ChangeConfirm-Item ::= CHOICE {
-	sn-terminated			PDUSessionResourceChangeConfirmInfo-SNterminated,
-	mn-terminated			PDUSessionResourceChangeConfirmInfo-MNterminated,
-	choice-extension		ProtocolIE-Single-Container { { BearerConfig-ChangeConfirm-Item-ExtIEs} }
-}
-
-BearerConfig-ChangeConfirm-Item-ExtIEs XNAP-PROTOCOL-IES ::= {
 	...
 }
 
@@ -1355,8 +1293,6 @@ BearerConfig-ChangeConfirm-Item-ExtIEs XNAP-PROTOCOL-IES ::= {
 -- S-NODE CHANGE REFUSE
 --
 -- **************************************************************
--- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
--- ASN.1 for this message is FFS.
 
 SNodeChangeRefuse ::= SEQUENCE {
 	protocolIEs			ProtocolIE-Container	{{ SNodeChangeRefuse-IEs}},
@@ -1366,8 +1302,8 @@ SNodeChangeRefuse ::= SEQUENCE {
 SNodeChangeRefuse-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-M-NG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
 	{ ID id-S-NG-RANnodeUEXnAPID					CRITICALITY ignore		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
-	{ ID id-Cause									CRITICALITY ignore		TYPE Cause												PRESENCE mandatory}|
-	{ ID id-CriticalityDiagnostics				CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional },
+	{ ID id-Cause									CRITICALITY ignore		TYPE Cause											PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore		TYPE CriticalityDiagnostics						PRESENCE optional },
 	...
 }
 
@@ -1376,7 +1312,6 @@ SNodeChangeRefuse-IEs XNAP-PROTOCOL-IES ::= {
 -- RRC TRANSFER
 --
 -- **************************************************************
--- Editor’s Note: Dual Connectivity is not complete and is targeted for completion in December 2018.
 
 RRCTransfer ::= SEQUENCE {
 	protocolIEs			ProtocolIE-Container	{{ RRCTransfer-IEs}},
@@ -1386,13 +1321,13 @@ RRCTransfer ::= SEQUENCE {
 RRCTransfer-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-M-NG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
 	{ ID id-S-NG-RANnodeUEXnAPID					CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
-	{ ID id-SplitSRB-RRCTransfer					CRITICALITY reject		TYPE SplitSRB-RRCTransfer							PRESENCE optional }|
-	{ ID id-NRUEMeasurementReportRRCTransfer	CRITICALITY reject		TYPE NRUEMeasurementReportRRCTransfer		PRESENCE optional },
+	{ ID id-SplitSRB-RRCTransfer					CRITICALITY reject		TYPE SplitSRB-RRCTransfer						PRESENCE optional }|
+	{ ID id-NRUEReportRRCTransfer		CRITICALITY reject		TYPE NRUEReportRRCTransfer		PRESENCE optional },
 	...
 }
 
 SplitSRB-RRCTransfer ::= SEQUENCE {
-	rrcContainer					OCTET STRING							OPTIONAL,
+	rrcContainer					OCTET STRING						OPTIONAL,
 	srbType							ENUMERATED {srb1, srb2, ...},
 	deliveryStatus					DeliveryStatus						OPTIONAL,
 	iE-Extensions					ProtocolExtensionContainer { {SplitSRB-RRCTransfer-ExtIEs} } OPTIONAL,
@@ -1403,13 +1338,13 @@ SplitSRB-RRCTransfer-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-NRUEMeasurementReportRRCTransfer::= SEQUENCE {
+NRUEReportRRCTransfer::= SEQUENCE {
 	rrcContainer					OCTET STRING,
-	iE-Extensions					ProtocolExtensionContainer { {NRUEMeasurementReportRRCTransfer-ExtIEs} } OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {NRUEReportRRCTransfer-ExtIEs} } OPTIONAL,
 	...
 }
 
-NRUEMeasurementReportRRCTransfer-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+NRUEReportRRCTransfer-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -1428,7 +1363,7 @@ NotificationControlIndication ::= SEQUENCE {
 NotificationControlIndication-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-M-NG-RANnodeUEXnAPID				CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
 	{ ID id-S-NG-RANnodeUEXnAPID				CRITICALITY reject		TYPE NG-RANnodeUEXnAPID							PRESENCE mandatory}|
-	{ ID id-PDUSessionResourcesNotifyList	CRITICALITY reject		TYPE PDUSessionResourcesNotifyList			PRESENCE optional },
+	{ ID id-PDUSessionResourcesNotifyList		CRITICALITY reject		TYPE PDUSessionResourcesNotifyList			PRESENCE optional },
 	...
 }
 
@@ -1481,7 +1416,7 @@ PDUSessionResourcesActivityNotify-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 QoSFlowsActivityNotifyList ::= SEQUENCE (SIZE(1..maxnoofQoSFlows)) OF QoSFlowsActivityNotifyItem
 
 QoSFlowsActivityNotifyItem ::= SEQUENCE {
-	qosFlowIndicator					QoSFlowIndicator,
+	qosFlowIdentifier					QoSFlowIdentifier,
 	pduSessionLevelUPactivityreport		UserPlaneTrafficActivityReport,
 	iE-Extensions						ProtocolExtensionContainer { {QoSFlowsActivityNotifyItem-ExtIEs} } OPTIONAL,
 	...
@@ -1505,7 +1440,7 @@ XnSetupRequest ::= SEQUENCE {
 XnSetupRequest-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-GlobalNG-RAN-node-ID		CRITICALITY reject	TYPE GlobalNG-RANNode-ID			PRESENCE mandatory}|
 	{ ID id-TAISupport-list				CRITICALITY reject	TYPE TAISupport-List				PRESENCE optional }|
-	{ ID id-AMF-Pool-Information		CRITICALITY reject	TYPE AMF-Pool-Information			PRESENCE mandatory}|
+	{ ID id-AMF-Set-Information			CRITICALITY reject	TYPE AMF-Set-Information			PRESENCE mandatory}|
 	{ ID id-List-of-served-cells-NR		CRITICALITY reject	TYPE ServedCells-NR					PRESENCE optional }|
 	{ ID id-List-of-served-cells-E-UTRA	CRITICALITY reject	TYPE ServedCells-E-UTRA				PRESENCE optional },
 	...
@@ -1562,7 +1497,11 @@ NGRANNodeConfigurationUpdate ::= SEQUENCE {
 
 NGRANNodeConfigurationUpdate-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-TAISupport-list							CRITICALITY reject	TYPE TAISupport-List									PRESENCE optional }|
-	{ ID id-ConfigurationUpdateInitiatingNodeChoice	CRITICALITY ignore	TYPE ConfigurationUpdateInitiatingNodeChoice	PRESENCE mandatory},
+	{ ID id-ConfigurationUpdateInitiatingNodeChoice	CRITICALITY ignore	TYPE ConfigurationUpdateInitiatingNodeChoice	PRESENCE mandatory}|
+	{ ID id-TNLA-To-Add-List						CRITICALITY ignore	TYPE TNLA-To-Add-List									PRESENCE optional }|
+	{ ID id-TNLA-To-Remove-List						CRITICALITY ignore	TYPE TNLA-To-Remove-List								PRESENCE optional }|
+	{ ID id-TNLA-To-Update-List						CRITICALITY ignore	TYPE TNLA-To-Update-List								PRESENCE optional }|
+	{ ID id-GlobalNG-RAN-node-ID					CRITICALITY reject	TYPE GlobalNG-RANNode-ID								PRESENCE optional },
 	...
 }
 
@@ -1604,6 +1543,8 @@ NGRANNodeConfigurationUpdateAcknowledge ::= SEQUENCE {
 
 NGRANNodeConfigurationUpdateAcknowledge-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-RespondingNodeTypeConfigUpdateAck	CRITICALITY ignore	TYPE RespondingNodeTypeConfigUpdateAck		PRESENCE mandatory}|
+	{ ID id-TNLA-Setup-List						CRITICALITY ignore	TYPE TNLA-Setup-List							PRESENCE optional }|
+	{ ID id-TNLA-Failed-To-Setup-List			CRITICALITY ignore	TYPE TNLA-Failed-To-Setup-List				PRESENCE optional }|
 	{ ID id-CriticalityDiagnostics				CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional },
 	...
 }
@@ -1686,8 +1627,8 @@ InitiatingNodeType-ResourceCoordRequest-ExtIEs XNAP-PROTOCOL-IES ::= {
 ResourceCoordRequest-ng-eNB-initiated ::= SEQUENCE {
 	dataTrafficResourceIndication		DataTrafficResourceIndication,
 	spectrumSharingGroupID				SpectrumSharingGroupID,
-	listofE-UTRACells						SEQUENCE (SIZE(1.. maxnoofCellsinNG-RANnode)) OF E-UTRA-CGI OPTIONAL,
-	iE-Extensions					ProtocolExtensionContainer { {ResourceCoordRequest-ng-eNB-initiated-ExtIEs} } OPTIONAL,
+	listofE-UTRACells					SEQUENCE (SIZE(1.. maxnoofCellsinNG-RANnode)) OF E-UTRA-CGI							OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { {ResourceCoordRequest-ng-eNB-initiated-ExtIEs} }	OPTIONAL,
 	...
 }
 
@@ -1698,10 +1639,10 @@ ResourceCoordRequest-ng-eNB-initiated-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 
 ResourceCoordRequest-gNB-initiated ::= SEQUENCE {
 	dataTrafficResourceIndication		DataTrafficResourceIndication,
-	listofE-UTRACells						SEQUENCE (SIZE(1.. maxnoofCellsinNG-RANnode)) OF E-UTRA-CGI OPTIONAL,
+	listofE-UTRACells					SEQUENCE (SIZE(1.. maxnoofCellsinNG-RANnode)) OF E-UTRA-CGI						OPTIONAL,
 	spectrumSharingGroupID				SpectrumSharingGroupID,
-	listofNRCells							SEQUENCE (SIZE(1.. maxnoofCellsinNG-RANnode)) OF NR-CGI OPTIONAL,
-	iE-Extensions					ProtocolExtensionContainer { {ResourceCoordRequest-gNB-initiated-ExtIEs} } OPTIONAL,
+	listofNRCells						SEQUENCE (SIZE(1.. maxnoofCellsinNG-RANnode)) OF NR-CGI								OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { {ResourceCoordRequest-gNB-initiated-ExtIEs} }	OPTIONAL,
 	...
 }
 
@@ -1739,8 +1680,8 @@ RespondingNodeType-ResourceCoordResponse-ExtIEs XNAP-PROTOCOL-IES ::= {
 ResourceCoordResponse-ng-eNB-initiated ::= SEQUENCE {
 	dataTrafficResourceIndication		DataTrafficResourceIndication,
 	spectrumSharingGroupID				SpectrumSharingGroupID,
-	listofE-UTRACells						SEQUENCE (SIZE(1.. maxnoofCellsinNG-RANnode)) OF E-UTRA-CGI OPTIONAL,
-	iE-Extensions					ProtocolExtensionContainer { {ResourceCoordResponse-ng-eNB-initiated-ExtIEs} } OPTIONAL,
+	listofE-UTRACells					SEQUENCE (SIZE(1.. maxnoofCellsinNG-RANnode)) OF E-UTRA-CGI								OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { {ResourceCoordResponse-ng-eNB-initiated-ExtIEs} }		OPTIONAL,
 	...
 }
 
@@ -1752,8 +1693,8 @@ ResourceCoordResponse-ng-eNB-initiated-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 ResourceCoordResponse-gNB-initiated ::= SEQUENCE {
 	dataTrafficResourceIndication		DataTrafficResourceIndication,
 	spectrumSharingGroupID				SpectrumSharingGroupID,
-	listofNRCells							SEQUENCE (SIZE(1.. maxnoofCellsinNG-RANnode)) OF NR-CGI OPTIONAL,
-	iE-Extensions					ProtocolExtensionContainer { {ResourceCoordResponse-gNB-initiated-ExtIEs} } OPTIONAL,
+	listofNRCells						SEQUENCE (SIZE(1.. maxnoofCellsinNG-RANnode)) OF NR-CGI									OPTIONAL,
+	iE-Extensions						ProtocolExtensionContainer { {ResourceCoordResponse-gNB-initiated-ExtIEs} }		OPTIONAL,
 	...
 }
 
@@ -1775,7 +1716,7 @@ XnRemovalRequest ::= SEQUENCE {
 
 XnRemovalRequest-IEs XNAP-PROTOCOL-IES ::= {
 	{ ID id-GlobalNG-RAN-node-ID		CRITICALITY reject	TYPE GlobalNG-RANNode-ID			PRESENCE mandatory}|
-	{ ID id-XnRemovalThreshold		CRITICALITY reject	TYPE XnBenefitValue			PRESENCE optional },
+	{ ID id-XnRemovalThreshold			CRITICALITY reject	TYPE XnBenefitValue					PRESENCE optional },
 	...
 }
 

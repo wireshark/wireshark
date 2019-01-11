@@ -49,7 +49,6 @@ HandoverPreparationInformation_PDU
 MeasConfig_PDU
 MeasGapConfig_PDU
 MeasResults_PDU
-MeasurementReport_PDU
 MeasurementTimingConfiguration_PDU
 MIB_PDU
 P-Max_PDU
@@ -85,7 +84,6 @@ HandoverCommand
 HandoverPreparationInformation
 MeasConfig
 MeasGapConfig
-MeasurementReport
 MeasResults
 MeasurementTimingConfiguration
 MIB

@@ -23,6 +23,8 @@ Cause
 ENB-StatusTransfer-TransparentContainer_PDU
 Global-ENB-ID_PDU
 Global-ENB-ID
+LastVisitedEUTRANCellInformation_PDU
+LastVisitedGERANCellInformation_PDU
 SourceeNB-ToTargeteNB-TransparentContainer_PDU
 SONtransferApplicationIdentity_PDU
 SONtransferRequestContainer_PDU
@@ -35,6 +37,8 @@ UE-HistoryInformation_PDU
 
 #.PDU
 ENB-StatusTransfer-TransparentContainer
+LastVisitedEUTRANCellInformation
+LastVisitedGERANCellInformation
 S1AP-PDU
 SourceeNB-ToTargeteNB-TransparentContainer
 SONtransferApplicationIdentity
@@ -837,6 +841,18 @@ Time-UE-StayedInCell DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
 #.TYPE_ATTR
 Time-UE-StayedInCell-EnhancedGranularity DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(s1ap_Time_UE_StayedInCell_EnhancedGranularity_fmt)
+
+#.FN_BODY LastVisitedNGRANCellInformation VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (!parameter_tvb)
+    return offset;
+
+  if (g_s1ap_dissect_container) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_LastVisitedNGRANCellInformation);
+    dissect_ngap_LastVisitedNGRANCellInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
 
 #.FN_BODY LastVisitedUTRANCellInformation VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
