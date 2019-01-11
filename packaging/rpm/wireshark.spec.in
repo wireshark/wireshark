@@ -3,7 +3,6 @@
 # says that recent CMake versions take care of rpathification.
 
 # To do:
-# - Find a better way to sync with git-export-release.sh.
 # - Set version in version.h
 # - Add bcond_with clang
 
@@ -32,7 +31,7 @@
 # are set.
 %global use_wireshark_group 1
 
-%global package_version @_git_description@
+%global package_version @VERSION@
 
 
 Summary:	Wireshark is the world's foremost protocol analyzer

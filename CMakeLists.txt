@@ -1165,7 +1165,7 @@ endforeach()
 # dist target that prepares source dir
 # XXX Duplicated in the RPM section below.
 add_custom_target(dist
-	COMMAND ./tools/git-export-release.sh -d "${CMAKE_BINARY_DIR}"
+	COMMAND ${CMAKE_BINARY_DIR}/packaging/source/git-export-release.sh -d "${CMAKE_BINARY_DIR}"
 	WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 )
 
@@ -1546,6 +1546,7 @@ set(CFG_OUT_FILES
 	packaging/macosx/osx-dmg.sh
 	packaging/macosx/Read_me_first.rtf
 	packaging/macosx/Wireshark_package.pmdoc/index.xml
+	packaging/source/git-export-release.sh
 	wireshark.pc
 )
 foreach( _cfg_file ${CFG_OUT_FILES} )
@@ -2773,18 +2774,9 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 	find_program(APPIMAGETOOL_EXECUTABLE appimagetool)
 endif()
 
-function(_SET_GITVERSION_CMAKE_VARIABLE OUTPUT_VARIABLE)
-	# Load version string and write it to a cmake variable so it can be accessed from cmake.
-	FILE(READ "${CMAKE_CURRENT_BINARY_DIR}/version.h" VERSION_H_FILE_CONTENT)
-	string(REPLACE "\n" "" VERSION_H_FILE_CONTENT ${VERSION_H_FILE_CONTENT})
-	#define VCSVERSION "v2.9.0rc0-305-gb8e8aa87"
-	string(SUBSTRING "${VERSION_H_FILE_CONTENT}" 21 -1 VERSION_STRING)
-	STRING(REGEX REPLACE "\"" "" VERSION_STRING "${VERSION_STRING}")
-	MESSAGE(STATUS "Version string created from version.h: ${VERSION_STRING}")
-	SET(${OUTPUT_VARIABLE} "${VERSION_STRING}"  CACHE INTERNAL "${OUTPUT_VARIABLE}")
-endfunction(_SET_GITVERSION_CMAKE_VARIABLE)
 
-
+string(REPLACE "-" "_" RPM_VERSION "${VERSION}")
+configure_file(packaging/rpm/wireshark.spec.in ${CMAKE_BINARY_DIR}/packaging/rpm/SPECS/wireshark.spec)
 if(RPMBUILD_EXECUTABLE)
 	foreach(_rpm_dir BUILD RPMS SOURCES SPECS SRPMS)
 		file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/packaging/rpm/${_rpm_dir}")
@@ -2834,26 +2826,13 @@ if(RPMBUILD_EXECUTABLE)
 			${CMAKE_SOURCE_DIR}
 	)
 
-	_SET_GITVERSION_CMAKE_VARIABLE(_git_description)
-
-	if (NOT _git_description)
-		# We're building the rpm outside the source. Guess the version from the dirname.
-		get_filename_component(CMAKE_SOURCE_DIR_NAME ${CMAKE_SOURCE_DIR} NAME)
-		# XXX this assumes the directory to start with "wireshark-"
-		string(SUBSTRING "${CMAKE_SOURCE_DIR_NAME}" 10 -1 _git_description)
-	endif()
-	string(REPLACE "-" "_" RPM_VERSION "${_git_description}")
-	configure_file(packaging/rpm/wireshark.spec.in ${CMAKE_BINARY_DIR}/packaging/rpm/SPECS/wireshark.spec)
-
 	# XXX Replace with the "dist" target?
-	set(_export_tarball "${CPACK_PACKAGE_NAME}-${_git_description}.tar.xz")
+	set(_export_tarball "${CPACK_PACKAGE_NAME}-${VERSION}.tar.xz")
 	add_custom_command(
 		OUTPUT "${CMAKE_BINARY_DIR}/packaging/rpm/SOURCES/${_export_tarball}"
-		COMMAND ./tools/git-export-release.sh
+		COMMAND ${CMAKE_BINARY_DIR}/packaging/source/git-export-release.sh
 			-d "${CMAKE_BINARY_DIR}/packaging/rpm/SOURCES"
-			"${_git_description}"
-		# XXX Add an option to git-export-release.sh to write to a
-		# specific directory so that we can get rid of `ln` below.
+			"${VERSION}"
 		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
 	)
 	add_custom_target(rpm-package
@@ -3249,9 +3228,9 @@ if(SHELLCHECK_EXECUTABLE)
 			packaging/appimage/AppRun
 			packaging/macosx/osx-app.sh.in
 			packaging/macosx/osx-dmg.sh.in
+			packaging/source/git-export-release.sh.in
 			tools/compress-pngs.sh
 			tools/debian-setup.sh
-			tools/git-export-release.sh
 			tools/fuzz-test.sh
 			tools/gen-bugnote
 			tools/pre-commit
