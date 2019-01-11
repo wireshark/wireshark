@@ -31,7 +31,7 @@ find_library( NGHTTP2_LIBRARY
 )
 
 include( FindPackageHandleStandardArgs )
-find_package_handle_standard_args( Nghttp2 DEFAULT_MSG NGHTTP2_INCLUDE_DIR NGHTTP2_LIBRARY )
+find_package_handle_standard_args( Nghttp2 DEFAULT_MSG NGHTTP2_LIBRARY NGHTTP2_INCLUDE_DIR )
 
 if( NGHTTP2_FOUND )
   set( NGHTTP2_INCLUDE_DIRS ${NGHTTP2_INCLUDE_DIR} )

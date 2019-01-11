@@ -33,7 +33,7 @@ find_library(LZ4_LIBRARY
 )
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args( LZ4 DEFAULT_MSG LZ4_INCLUDE_DIR LZ4_LIBRARY )
+find_package_handle_standard_args( LZ4 DEFAULT_MSG LZ4_LIBRARY LZ4_INCLUDE_DIR )
 
 if( LZ4_FOUND )
   include( CheckIncludeFile )
