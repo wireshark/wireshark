@@ -450,7 +450,6 @@ static guint64 quic_pkt_adjust_pkt_num(guint64 max_pkt_num, guint64 pkt_num,
   return b;
 }
 
-#ifdef HAVE_LIBGCRYPT_AEAD
 /**
  * Given a header protection cipher, a buffer and the packet number offset,
  * return the unmasked first byte and packet number.
@@ -459,6 +458,7 @@ static gboolean
 quic_decrypt_header(tvbuff_t *tvb, guint pn_offset, gcry_cipher_hd_t hp_cipher, int hp_cipher_algo,
                     guint8 *first_byte, guint32 *pn)
 {
+#ifdef HAVE_LIBGCRYPT_AEAD
     gcry_cipher_hd_t h = hp_cipher;
     if (!hp_cipher) {
         // need to know the cipher.
@@ -517,8 +517,16 @@ quic_decrypt_header(tvbuff_t *tvb, guint pn_offset, gcry_cipher_hd_t hp_cipher, 
     *first_byte = packet0;
     *pn = pkt_pkn;
     return TRUE;
-}
+#else
+    (void)tvb;
+    (void)pn_offset;
+    (void)hp_cipher;
+    (void)hp_cipher_algo;
+    (void)first_byte;
+    (void)pn;
+    return FALSE;
 #endif /* !HAVE_LIBGCRYPT_AEAD */
+}
 
 /**
  * Calculate the full packet number and store it for later use.
