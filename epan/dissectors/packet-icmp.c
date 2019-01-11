@@ -904,11 +904,9 @@ dissect_interface_identification_object(tvbuff_t * tvb, gint offset,
 	switch(c_type) {
 		case ICMP_EXT_ECHO_IDENT_NAME:
 			proto_tree_add_item(ext_object_tree, hf_icmp_int_ident_name_string, tvb, offset, obj_length - 4, ENC_ASCII|ENC_NA);
-			offset += (obj_length - 4);
 			break;
 		case ICMP_EXT_ECHO_IDENT_INDEX:
 			proto_tree_add_item(ext_object_tree, hf_icmp_int_ident_index, tvb, offset, 4, ENC_NA);
-			offset += 4;
 			break;
 		case ICMP_EXT_ECHO_IDENT_ADDRESS:
 			proto_tree_add_item_ret_uint(ext_object_tree, hf_icmp_int_ident_afi, tvb, offset, 2, ENC_BIG_ENDIAN, &afi);

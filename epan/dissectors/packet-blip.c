@@ -453,7 +453,6 @@ dissect_blip(tvbuff_t *tvb, _U_ packet_info *pinfo, proto_tree *tree, _U_ void *
 		proto_tree_add_item(blip_tree, hf_blip_message_body, tvb_to_use, offset, reported_length_remaining, ENC_UTF_8|ENC_NA);
 	}
 
-	offset += reported_length_remaining;
 	proto_tree_add_item(blip_tree, hf_blip_checksum, tvb, tvb_reported_length(tvb) - BLIP_BODY_CHECKSUM_SIZE, BLIP_BODY_CHECKSUM_SIZE, ENC_BIG_ENDIAN);
 
 	// -------------------------------------------- Etc ----------------------------------------------------------------

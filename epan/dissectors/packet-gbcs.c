@@ -292,7 +292,6 @@ dlms_date_time(tvbuff_t *tvb, guint offset, nstime_t *date_time)
     offset += 1;
 
     tm.tm_sec = tvb_get_guint8(tvb, offset);
-    offset += 1;
 
     date_time->secs = mktime_utc(&tm);
     date_time->nsecs = 0;

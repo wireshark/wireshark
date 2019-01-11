@@ -2260,7 +2260,6 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_demobilizations, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 				proto_tree_add_item(mode7_item_tree, hf_ntppriv_mode7_hashcount, tvb, offset, (gint)itemsize - 20, ENC_NA);
-				offset += ((gint)itemsize - 20);
 				break;
 
 			case PRIV_RC_LOOP_INFO:

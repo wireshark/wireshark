@@ -13641,7 +13641,6 @@ dissect_vendor_ie_rsn(proto_item * item, proto_tree * tree, tvbuff_t * tvb, int 
       proto_tree_add_item(tree, hf_ieee80211_rsn_ie_gtk_reserved2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       offset += 1;
       proto_tree_add_item(tree, hf_ieee80211_rsn_ie_gtk_key, tvb, offset, tag_len - 3, ENC_NA);
-      offset += tag_len - 3;
       proto_item_append_text(item, ": RSN GTK");
       break;
     }
@@ -13665,7 +13664,6 @@ dissect_vendor_ie_rsn(proto_item * item, proto_tree * tree, tvbuff_t * tvb, int 
       proto_tree_add_item(tree, hf_ieee80211_rsn_ie_igtk_ipn, tvb, offset, 6, ENC_LITTLE_ENDIAN);
       offset += 6;
       proto_tree_add_item(tree, hf_ieee80211_rsn_ie_igtk_key, tvb, offset, tag_len - 9, ENC_NA);
-      offset += tag_len - 9;
       proto_item_append_text(item, ": RSN IGTK");
       break;
     }
