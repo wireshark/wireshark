@@ -365,11 +365,15 @@
       <Component Id="cmpReordercap_exe" Guid="*">
         <File Id="filReordercap_exe" KeyPath="yes" Source="$(var.Staging.Dir)\reordercap.exe" />
       </Component>
+      <Component Id="cmpReordercap_html" Guid="*">
+        <File Id="filReordercap_html" KeyPath="yes" Source="$(var.Staging.Dir)\reordercap.html" />
+      </Component>
     </DirectoryRef>
   </Fragment>
   <Fragment>
     <ComponentGroup Id="CG.Tools.Reordercap">
       <ComponentRef Id="cmpReordercap_exe" />
+      <ComponentRef Id="cmpReordercap_html" />
     </ComponentGroup>
   </Fragment>
 
@@ -379,11 +383,15 @@
       <Component Id="cmpDFTest_exe" Guid="*">
         <File Id="filDFTest_exe" KeyPath="yes" Source="$(var.Staging.Dir)\dftest.exe" />
       </Component>
+      <Component Id="cmpDFTest_html" Guid="*">
+        <File Id="filDFTest_html" KeyPath="yes" Source="$(var.Staging.Dir)\dftest.html" />
+      </Component>
     </DirectoryRef>
   </Fragment>
   <Fragment>
     <ComponentGroup Id="CG.Tools.DFTest">
       <ComponentRef Id="cmpDFTest_exe" />
+      <ComponentRef Id="cmpDFTest_html" />
     </ComponentGroup>
   </Fragment>
 
