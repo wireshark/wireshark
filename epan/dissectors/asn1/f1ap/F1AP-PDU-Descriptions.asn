@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V15.3.0 (2018-09)
+-- 3GPP TS 38.473 V15.4.0 (2018-12)
 -- 9.4.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -64,7 +64,8 @@ FROM F1AP-CommonDataTypes
 	PWSCancelResponse,
 	PWSRestartIndication,
 	PWSFailureIndication,
-	GNBDUStatusIndication
+	GNBDUStatusIndication,
+	RRCDeliveryReport
 
 FROM F1AP-PDU-Contents
 	id-Reset,
@@ -90,7 +91,8 @@ FROM F1AP-PDU-Contents
 	id-PWSCancel,
 	id-PWSRestartIndication,
 	id-PWSFailureIndication,
-	id-GNBDUStatusIndication
+	id-GNBDUStatusIndication,
+	id-RRCDeliveryReport
 
 
 FROM F1AP-Constants
@@ -135,7 +137,7 @@ F1AP-PDU ::= CHOICE {
 	choice-extension	ProtocolIE-SingleContainer { { F1AP-PDU-ExtIEs} }
 }
 
-F1AP-PDU-ExtIEs F1AP-PROTOCOL-IES ::= {
+F1AP-PDU-ExtIEs F1AP-PROTOCOL-IES ::= { -- this extension is not used
 	...
 }
 
@@ -182,7 +184,8 @@ F1AP-ELEMENTARY-PROCEDURES-CLASS-1 F1AP-ELEMENTARY-PROCEDURE ::= {
 	writeReplaceWarning			|
 	pWSCancel					|
 	gNBDUResourceCoordination		,
-	...}
+	...
+}
 
  F1AP-ELEMENTARY-PROCEDURES-CLASS-2 F1AP-ELEMENTARY-PROCEDURE ::= {	
 	errorIndication					|
@@ -197,7 +200,8 @@ F1AP-ELEMENTARY-PROCEDURES-CLASS-1 F1AP-ELEMENTARY-PROCEDURE ::= {
 	notify							|
 	pWSRestartIndication				|
 	pWSFailureIndication			|
-	gNBDUStatusIndication			,
+	gNBDUStatusIndication			|
+	rRCDeliveryReport				,
 	...
 }
 -- **************************************************************
@@ -368,6 +372,14 @@ gNBDUStatusIndication 	F1AP-ELEMENTARY-PROCEDURE ::= {
 	PROCEDURE CODE			id-GNBDUStatusIndication
 	CRITICALITY				ignore
 }
+
+
+rRCDeliveryReport F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		RRCDeliveryReport
+	PROCEDURE CODE			id-RRCDeliveryReport
+	CRITICALITY				ignore
+}
+
 
 
 END

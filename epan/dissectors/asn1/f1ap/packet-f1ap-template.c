@@ -1,6 +1,6 @@
 /* packet-f1ap.c
  * Routines for E-UTRAN F1 Application Protocol (F1AP) packet dissection
- * Copyright 2018, Pascal Quantin <pascal.quantin@gmail.com>
+ * Copyright 2018-2019, Pascal Quantin <pascal.quantin@gmail.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.473 V15.3.0 (2018-09)
+ * References: 3GPP TS 38.473 V15.4.0 (2018-12)
  */
 
 #include "config.h"

@@ -132,7 +132,7 @@ id-PWSCancel                        ProcedureCode
 id-PWSRestartIndication             ProcedureCode
 id-PWSFailureIndication             ProcedureCode
 id-GNBDUStatusIndication            ProcedureCode
-
+id-RRCDeliveryReport                ProcedureCode
 
 # ProtocolIE-ID
 id-Cause                                             ProtocolIE-ID
@@ -219,7 +219,7 @@ id-SCell-FailedtoSetup-List                          ProtocolIE-ID
 id-SCell-FailedtoSetup-Item                          ProtocolIE-ID
 id-SCell-FailedtoSetupMod-List                       ProtocolIE-ID
 id-SCell-FailedtoSetupMod-Item                       ProtocolIE-ID
-id-RRCRconfigurationCompleteIndicator                ProtocolIE-ID
+id-RRCReconfigurationCompleteIndicator               ProtocolIE-ID
 id-Cells-Status-Item                                 ProtocolIE-ID
 id-Cells-Status-List                                 ProtocolIE-ID
 id-Candidate-SpCell-List                             ProtocolIE-ID
@@ -237,7 +237,7 @@ id-EUTRA-NR-CellResourceCoordinationReq-Container    ProtocolIE-ID
 id-EUTRA-NR-CellResourceCoordinationReqAck-Container ProtocolIE-ID
 id-Protected-EUTRA-Resources-List                    ProtocolIE-ID
 id-RequestType                                       ProtocolIE-ID
-id-ServCellndex                                      ProtocolIE-ID
+id-ServCellIndex                                      ProtocolIE-ID
 id-RAT-FrequencyPriorityInformation                  ProtocolIE-ID
 id-ExecuteDuplication                                ProtocolIE-ID
 id-NRCGI                                             ProtocolIE-ID
@@ -289,7 +289,7 @@ id-Cancel-all-Warning-Messages-Indicator             ProtocolIE-ID
 id-GNB-DU-UE-AMBR-UL                                 ProtocolIE-ID
 id-DRXConfigurationIndicator                         ProtocolIE-ID
 id-RLC-Status                                        ProtocolIE-ID
-id-PDCPSNLength                                      ProtocolIE-ID
+id-DLPDCPSNLength                                    ProtocolIE-ID
 id-GNB-DUConfigurationQuery                          ProtocolIE-ID
 id-MeasurementTimingConfiguration                    ProtocolIE-ID
 id-DRB-Information                                   ProtocolIE-ID
@@ -307,6 +307,25 @@ id-SULAccessIndication                               ProtocolIE-ID
 id-AvailablePLMNList                                 ProtocolIE-ID
 id-PDUSessionID                                      ProtocolIE-ID
 id-ULPDUSessionAggregateMaximumBitRate               ProtocolIE-ID
+id-ServingCellMO                                     ProtocolIE-ID
+id-QoSFlowMappingIndication                          ProtocolIE-ID
+id-RRCDeliveryStatusRequest                          ProtocolIE-ID
+id-RRCDeliveryStatus                                 ProtocolIE-ID
+id-BearerTypeChange                                  ProtocolIE-ID
+id-RLCMode                                           ProtocolIE-ID
+id-Duplication-Activation                            ProtocolIE-ID
+id-Dedicated-SIDelivery-NeededUE-List                ProtocolIE-ID
+id-Dedicated-SIDelivery-NeededUE-Item                ProtocolIE-ID
+id-DRX-LongCycleStartOffset                          ProtocolIE-ID
+id-ULPDCPSNLength                                    ProtocolIE-ID
+id-SelectedBandCombinationIndex                      ProtocolIE-ID
+id-SelectedFeatureSetEntryIndex                      ProtocolIE-ID
+id-ResourceCoordinationTransferInformation           ProtocolIE-ID
+id-ExtendedServedPLMNs-List                          ProtocolIE-ID
+id-ExtendedAvailablePLMN-List                        ProtocolIE-ID
+id-Associated-SCell-List                             ProtocolIE-ID
+id-latest-RRC-Version-Enhanced                       ProtocolIE-ID
+id-Associated-SCell-Item                             ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -395,7 +414,7 @@ SCell-FailedtoSetup-List                          N f1ap.ies id-SCell-FailedtoSe
 SCell-FailedtoSetup-Item                          N f1ap.ies id-SCell-FailedtoSetup-Item
 SCell-FailedtoSetupMod-List                       N f1ap.ies id-SCell-FailedtoSetupMod-List
 SCell-FailedtoSetupMod-Item                       N f1ap.ies id-SCell-FailedtoSetupMod-Item
-RRCRconfigurationCompleteIndicator                N f1ap.ies id-RRCRconfigurationCompleteIndicator
+RRCReconfigurationCompleteIndicator               N f1ap.ies id-RRCReconfigurationCompleteIndicator
 Cells-Status-Item                                 N f1ap.ies id-Cells-Status-Item
 Cells-Status-List                                 N f1ap.ies id-Cells-Status-List
 Candidate-SpCell-List                             N f1ap.ies id-Candidate-SpCell-List
@@ -413,7 +432,7 @@ EUTRA-NR-CellResourceCoordinationReq-Container    N f1ap.ies id-EUTRA-NR-CellRes
 EUTRA-NR-CellResourceCoordinationReqAck-Container N f1ap.ies id-EUTRA-NR-CellResourceCoordinationReqAck-Container
 Protected-EUTRA-Resources-List                    N f1ap.ies id-Protected-EUTRA-Resources-List
 RequestType                                       N f1ap.ies id-RequestType
-ServCellIndex                                     N f1ap.ies id-ServCellndex
+ServCellIndex                                     N f1ap.ies id-ServCellIndex
 RAT-FrequencyPriorityInformation                  N f1ap.ies id-RAT-FrequencyPriorityInformation
 ExecuteDuplication                                N f1ap.ies id-ExecuteDuplication
 NRCGI                                             N f1ap.ies id-NRCGI
@@ -469,6 +488,13 @@ GNBDUOverloadInformation                          N f1ap.ies id-GNBDUOverloadInf
 RLCFailureIndication                              N f1ap.ies id-RLCFailureIndication
 UplinkTxDirectCurrentListInformation              N f1ap.ies id-UplinkTxDirectCurrentListInformation
 SULAccessIndication                               N f1ap.ies id-SULAccessIndication
+ServingCellMO                                     N f1ap.ies id-ServingCellMO
+RRCDeliveryStatusRequest                          N f1ap.ies id-RRCDeliveryStatusRequest
+RRCDeliveryStatus                                 N f1ap.ies id-RRCDeliveryStatus
+Dedicated-SIDelivery-NeededUE-List                N f1ap.ies id-Dedicated-SIDelivery-NeededUE-List
+Dedicated-SIDelivery-NeededUE-Item                N f1ap.ies id-Dedicated-SIDelivery-NeededUE-Item
+Associated-SCell-List                             N f1ap.ies id-Associated-SCell-List
+Associated-SCell-Item                             N f1ap.ies id-Associated-SCell-Item
 
 #F1AP-PROTOCOL-EXTENSION
 GNB-CUSystemInformation                           N f1ap.extension id-gNB-CUSystemInformation
@@ -476,7 +502,7 @@ HandoverPreparationInformation                    N f1ap.extension id-HandoverPr
 SliceSupportList                                  N f1ap.extension id-TAISliceSupportList
 RANAC                                             N f1ap.extension id-RANAC
 RLC-Status                                        N f1ap.extension id-RLC-Status
-PDCPSNLength                                      N f1ap.extension id-PDCPSNLength
+PDCPSNLength                                      N f1ap.extension id-DLPDCPSNLength
 MeasurementTimingConfiguration                    N f1ap.extension id-MeasurementTimingConfiguration
 CellGroupConfig                                   N f1ap.extension id-CellGroupConfig
 DCBasedDuplicationConfigured                      N f1ap.extension id-DC-Based-Duplication-Configured
@@ -484,6 +510,19 @@ DuplicationActivation                             N f1ap.extension id-DC-Based-D
 AvailablePLMNList                                 N f1ap.extension id-AvailablePLMNList
 PDUSessionID                                      N f1ap.extension id-PDUSessionID
 BitRate                                           N f1ap.extension id-ULPDUSessionAggregateMaximumBitRate
+ServingCellMO                                     N f1ap.extension id-ServingCellMO
+QoSFlowMappingIndication                          N f1ap.extension id-QoSFlowMappingIndication
+BearerTypeChange                                  N f1ap.extension id-BearerTypeChange
+RLCMode                                           N f1ap.extension id-RLCMode
+DuplicationActivation                             N f1ap.extension id-Duplication-Activation
+DRX-LongCycleStartOffset                          N f1ap.extension id-DRX-LongCycleStartOffset
+PDCPSNLength                                      N f1ap.extension id-ULPDCPSNLength
+SelectedBandCombinationIndex                      N f1ap.extension id-SelectedBandCombinationIndex
+SelectedFeatureSetEntryIndex                      N f1ap.extension id-SelectedFeatureSetEntryIndex
+ResourceCoordinationTransferInformation           N f1ap.extension id-ResourceCoordinationTransferInformation
+ExtendedServedPLMNs-List                          N f1ap.extension id-ExtendedServedPLMNs-List
+ExtendedAvailablePLMN-List                        N f1ap.extension id-ExtendedAvailablePLMN-List
+Latest-RRC-Version-Enhanced                       N f1ap.extension id-latest-RRC-Version-Enhanced
 
 #F1AP-ELEMENTARY-PROCEDURE
 Reset                               N f1ap.proc.imsg id-Reset
@@ -549,6 +588,8 @@ PWSRestartIndication                N f1ap.proc.imsg id-PWSRestartIndication
 PWSFailureIndication                N f1ap.proc.imsg id-PWSFailureIndication
 
 GNBDUStatusIndication               N f1ap.proc.imsg id-GNBDUStatusIndication
+
+RRCDeliveryReport                   N f1ap.proc.imsg id-RRCDeliveryReport
 
 #.FN_BODY EUTRA-NR-CellResourceCoordinationReq-Container VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
@@ -794,6 +835,31 @@ Configured-EPS-TAC TYPE = FT_UINT16 DISPLAY = BASE_DEC_HEX
     }
   }
 
+#.FN_BODY SIBType-PWS VAL_PTR = &f1ap_data->sib_type
+  f1ap_private_data_t *f1ap_data = f1ap_get_private_data(actx->pinfo);
+%(DEFAULT_BODY)s
+
+#.FN_BODY PWSSystemInformation/sIBmessage VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    f1ap_private_data_t *f1ap_data = f1ap_get_private_data(actx->pinfo);
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_sIBmessage);
+    switch (f1ap_data->sib_type) {
+    case 6:
+      dissect_nr_rrc_SIB6_PDU(param_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 7:
+      dissect_nr_rrc_SIB7_PDU(param_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 8:
+      dissect_nr_rrc_SIB8_PDU(param_tvb, actx->pinfo, subtree, NULL);
+      break;
+    default:
+      break;
+    }
+  }
+
 #.TYPE_ATTR
 MaxPacketLossRate DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(f1ap_MaxPacketLossRate_fmt)
 
@@ -822,10 +888,10 @@ MaximumDataBurstVolume DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_byte_byt
     dissect_nr_rrc_UplinkTxDirectCurrentList_PDU(param_tvb, actx->pinfo, subtree, NULL);
   }
 
-#.FN_BODY RRC-Version/latest-RRC-Version VAL_PTR = &param_tvb
+#.FN_BODY Latest-RRC-Version-Enhanced VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
 %(DEFAULT_BODY)s
-#.FN_FTR RRC-Version/latest-RRC-Version
+#.FN_FTR Latest-RRC-Version-Enhanced
   if (param_tvb) {
     proto_item_set_text(actx->created_item, "%u.%u.%u", tvb_get_guint8(param_tvb, 0), tvb_get_guint8(param_tvb, 1), tvb_get_guint8(param_tvb, 2));
   }
@@ -933,6 +999,8 @@ MaximumDataBurstVolume DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_byte_byt
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PWSFailureIndication");
 #.FN_HDR GNBDUStatusIndication
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBDUStatusIndication");
+#.FN_HDR RRCDeliveryReport
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCDeliveryReport");
 #.END
 
 #

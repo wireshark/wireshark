@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V15.3.0 (2018-09)
+-- 3GPP TS 38.473 V15.4.0 (2018-12)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -58,6 +58,8 @@ id-PWSCancel									ProcedureCode ::= 21
 id-PWSRestartIndication						ProcedureCode ::= 22
 id-PWSFailureIndication						ProcedureCode ::= 23
 id-GNBDUStatusIndication 					ProcedureCode ::= 24
+id-RRCDeliveryReport		 					ProcedureCode ::= 25
+
 
 -- **************************************************************
 --
@@ -93,8 +95,9 @@ maxnoofPagingCells						INTEGER ::= 512
 maxnoofTNLAssociations					INTEGER ::= 32
 maxnoofQoSFlows							INTEGER ::= 64
 maxnoofSliceItems						INTEGER ::= 1024
-maxCellineNB								INTEGER ::= 256
-
+maxCellineNB							INTEGER ::= 256
+maxnoofExtendedBPLMNs					INTEGER ::= 6
+maxnoofUEIDs							INTEGER ::= 65536
 
 -- **************************************************************
 --
@@ -189,7 +192,7 @@ id-SCell-FailedtoSetup-List							ProtocolIE-ID ::= 83
 id-SCell-FailedtoSetup-Item							ProtocolIE-ID ::= 84
 id-SCell-FailedtoSetupMod-List						ProtocolIE-ID ::= 85
 id-SCell-FailedtoSetupMod-Item						ProtocolIE-ID ::= 86
-id-RRCRconfigurationCompleteIndicator 				ProtocolIE-ID ::= 87
+id-RRCReconfigurationCompleteIndicator 				ProtocolIE-ID ::= 87
 id-Cells-Status-Item								ProtocolIE-ID ::= 88
 id-Cells-Status-List								ProtocolIE-ID ::= 89
 id-Candidate-SpCell-List							ProtocolIE-ID ::= 90
@@ -197,97 +200,117 @@ id-Candidate-SpCell-Item							ProtocolIE-ID ::= 91
 id-Potential-SpCell-List							ProtocolIE-ID ::= 92
 id-Potential-SpCell-Item							ProtocolIE-ID ::= 93
 id-FullConfiguration								ProtocolIE-ID ::= 94
-id-C-RNTI										ProtocolIE-ID ::= 95
-id-SpCellULConfigured							ProtocolIE-ID ::= 96
-id-InactivityMonitoringRequest					ProtocolIE-ID ::= 97
-id-InactivityMonitoringResponse					ProtocolIE-ID ::= 98
-id-DRB-Activity-Item							ProtocolIE-ID ::= 99
-id-DRB-Activity-List							ProtocolIE-ID ::= 100
+id-C-RNTI											ProtocolIE-ID ::= 95
+id-SpCellULConfigured								ProtocolIE-ID ::= 96
+id-InactivityMonitoringRequest						ProtocolIE-ID ::= 97
+id-InactivityMonitoringResponse						ProtocolIE-ID ::= 98
+id-DRB-Activity-Item								ProtocolIE-ID ::= 99
+id-DRB-Activity-List								ProtocolIE-ID ::= 100
 id-EUTRA-NR-CellResourceCoordinationReq-Container 		ProtocolIE-ID ::= 101
 id-EUTRA-NR-CellResourceCoordinationReqAck-Container 	ProtocolIE-ID ::= 102
 -- WS extension
-id-Unknown-103									ProtocolIE-ID ::= 103
-id-Unknown-104									ProtocolIE-ID ::= 104
-id-Protected-EUTRA-Resources-List						ProtocolIE-ID ::= 105
-id-RequestType 											ProtocolIE-ID ::= 106
-id-ServCellndex									ProtocolIE-ID ::= 107 
-id-RAT-FrequencyPriorityInformation				ProtocolIE-ID ::= 108
-id-ExecuteDuplication							ProtocolIE-ID ::= 109
+id-Unknown-103										ProtocolIE-ID ::= 103
+id-Unknown-104										ProtocolIE-ID ::= 104
+id-Protected-EUTRA-Resources-List					ProtocolIE-ID ::= 105
+id-RequestType 										ProtocolIE-ID ::= 106
+id-ServCellIndex										ProtocolIE-ID ::= 107 
+id-RAT-FrequencyPriorityInformation					ProtocolIE-ID ::= 108
+id-ExecuteDuplication								ProtocolIE-ID ::= 109
 -- WS extension
 id-Unknown-110										ProtocolIE-ID ::= 110
 id-NRCGI											ProtocolIE-ID ::= 111
-id-PagingCell-Item								ProtocolIE-ID ::= 112
-id-PagingCell-List								ProtocolIE-ID ::= 113
+id-PagingCell-Item									ProtocolIE-ID ::= 112
+id-PagingCell-List									ProtocolIE-ID ::= 113
 id-PagingDRX										ProtocolIE-ID ::= 114
-id-PagingPriority 								ProtocolIE-ID ::= 115
-id-SItype-List									ProtocolIE-ID ::= 116
-id-UEIdentityIndexValue							ProtocolIE-ID ::= 117
-id-gNB-CUSystemInformation						ProtocolIE-ID ::= 118
-id-HandoverPreparationInformation				ProtocolIE-ID ::= 119
-id-GNB-CU-TNL-Association-To-Add-Item			ProtocolIE-ID ::= 120
-id-GNB-CU-TNL-Association-To-Add-List			ProtocolIE-ID ::= 121
-id-GNB-CU-TNL-Association-To-Remove-Item			ProtocolIE-ID ::= 122
+id-PagingPriority 									ProtocolIE-ID ::= 115
+id-SItype-List										ProtocolIE-ID ::= 116
+id-UEIdentityIndexValue								ProtocolIE-ID ::= 117
+id-gNB-CUSystemInformation							ProtocolIE-ID ::= 118
+id-HandoverPreparationInformation					ProtocolIE-ID ::= 119
+id-GNB-CU-TNL-Association-To-Add-Item				ProtocolIE-ID ::= 120
+id-GNB-CU-TNL-Association-To-Add-List				ProtocolIE-ID ::= 121
+id-GNB-CU-TNL-Association-To-Remove-Item		ProtocolIE-ID ::= 122
 id-GNB-CU-TNL-Association-To-Remove-List			ProtocolIE-ID ::= 123
 id-GNB-CU-TNL-Association-To-Update-Item			ProtocolIE-ID ::= 124
 id-GNB-CU-TNL-Association-To-Update-List			ProtocolIE-ID ::= 125
-id-MaskedIMEISV									ProtocolIE-ID ::= 126
-id-PagingIdentity								ProtocolIE-ID ::= 127
-id-DUtoCURRCContainer							ProtocolIE-ID ::= 128
-id-Cells-to-be-Barred-List						ProtocolIE-ID ::= 129
-id-Cells-to-be-Barred-Item						ProtocolIE-ID ::= 130
-id-TAISliceSupportList							ProtocolIE-ID ::= 131
+id-MaskedIMEISV										ProtocolIE-ID ::= 126
+id-PagingIdentity									ProtocolIE-ID ::= 127
+id-DUtoCURRCContainer								ProtocolIE-ID ::= 128
+id-Cells-to-be-Barred-List							ProtocolIE-ID ::= 129
+id-Cells-to-be-Barred-Item							ProtocolIE-ID ::= 130
+id-TAISliceSupportList								ProtocolIE-ID ::= 131
 id-GNB-CU-TNL-Association-Setup-List				ProtocolIE-ID ::= 132
 id-GNB-CU-TNL-Association-Setup-Item				ProtocolIE-ID ::= 133
-id-GNB-CU-TNL-Association-Failed-To-Setup-List	ProtocolIE-ID ::= 134
-id-GNB-CU-TNL-Association-Failed-To-Setup-Item	ProtocolIE-ID ::= 135
-id-DRB-Notify-Item								ProtocolIE-ID ::= 136
-id-DRB-Notify-List								ProtocolIE-ID ::= 137
-id-NotficationControl							ProtocolIE-ID ::= 138
+id-GNB-CU-TNL-Association-Failed-To-Setup-List		ProtocolIE-ID ::= 134
+id-GNB-CU-TNL-Association-Failed-To-Setup-Item		ProtocolIE-ID ::= 135
+id-DRB-Notify-Item									ProtocolIE-ID ::= 136
+id-DRB-Notify-List									ProtocolIE-ID ::= 137
+id-NotficationControl								ProtocolIE-ID ::= 138
 id-RANAC											ProtocolIE-ID ::= 139
-id-PWSSystemInformation							ProtocolIE-ID ::= 140
-id-RepetitionPeriod								ProtocolIE-ID ::= 141
-id-NumberofBroadcastRequest						ProtocolIE-ID ::= 142
+id-PWSSystemInformation								ProtocolIE-ID ::= 140
+id-RepetitionPeriod									ProtocolIE-ID ::= 141
+id-NumberofBroadcastRequest							ProtocolIE-ID ::= 142
 -- WS extension
-id-Unknown-143									ProtocolIE-ID ::= 143
-id-Cells-To-Be-Broadcast-List					ProtocolIE-ID ::= 144
-id-Cells-To-Be-Broadcast-Item					ProtocolIE-ID ::= 145
-id-Cells-Broadcast-Completed-List 				ProtocolIE-ID ::= 146
-id-Cells-Broadcast-Completed-Item 				ProtocolIE-ID ::= 147
-id-Broadcast-To-Be-Cancelled-List 				ProtocolIE-ID ::= 148
-id-Broadcast-To-Be-Cancelled-Item 				ProtocolIE-ID ::= 149
-id-Cells-Broadcast-Cancelled-List 				ProtocolIE-ID ::= 150
-id-Cells-Broadcast-Cancelled-Item 				ProtocolIE-ID ::= 151
+id-Unknown-143										ProtocolIE-ID ::= 143
+id-Cells-To-Be-Broadcast-List						ProtocolIE-ID ::= 144
+id-Cells-To-Be-Broadcast-Item						ProtocolIE-ID ::= 145
+id-Cells-Broadcast-Completed-List 					ProtocolIE-ID ::= 146
+id-Cells-Broadcast-Completed-Item 					ProtocolIE-ID ::= 147
+id-Broadcast-To-Be-Cancelled-List 					ProtocolIE-ID ::= 148
+id-Broadcast-To-Be-Cancelled-Item 					ProtocolIE-ID ::= 149
+id-Cells-Broadcast-Cancelled-List 					ProtocolIE-ID ::= 150
+id-Cells-Broadcast-Cancelled-Item 					ProtocolIE-ID ::= 151
 id-NR-CGI-List-For-Restart-List 					ProtocolIE-ID ::= 152
 id-NR-CGI-List-For-Restart-Item 					ProtocolIE-ID ::= 153
-id-PWS-Failed-NR-CGI-List 						ProtocolIE-ID ::= 154
-id-PWS-Failed-NR-CGI-Item 						ProtocolIE-ID ::= 155
-id-ConfirmedUEID								ProtocolIE-ID ::= 156
-id-Cancel-all-Warning-Messages-Indicator		ProtocolIE-ID ::= 157
-id-GNB-DU-UE-AMBR-UL							ProtocolIE-ID ::= 158
-id-DRXConfigurationIndicator					ProtocolIE-ID ::= 159
-id-RLC-Status									ProtocolIE-ID ::= 160
-id-PDCPSNLength									ProtocolIE-ID ::= 161
-id-GNB-DUConfigurationQuery						ProtocolIE-ID ::= 162
-id-MeasurementTimingConfiguration				ProtocolIE-ID ::= 163
-id-DRB-Information								ProtocolIE-ID ::= 164
-id-ServingPLMN									ProtocolIE-ID ::= 165
+id-PWS-Failed-NR-CGI-List 							ProtocolIE-ID ::= 154
+id-PWS-Failed-NR-CGI-Item 							ProtocolIE-ID ::= 155
+id-ConfirmedUEID									ProtocolIE-ID ::= 156
+id-Cancel-all-Warning-Messages-Indicator			ProtocolIE-ID ::= 157
+id-GNB-DU-UE-AMBR-UL								ProtocolIE-ID ::= 158
+id-DRXConfigurationIndicator						ProtocolIE-ID ::= 159
+id-RLC-Status										ProtocolIE-ID ::= 160
+id-DLPDCPSNLength									ProtocolIE-ID ::= 161
+id-GNB-DUConfigurationQuery							ProtocolIE-ID ::= 162
+id-MeasurementTimingConfiguration					ProtocolIE-ID ::= 163
+id-DRB-Information									ProtocolIE-ID ::= 164
+id-ServingPLMN										ProtocolIE-ID ::= 165
 -- WS extension
-id-Unknown-166									ProtocolIE-ID ::= 166
-id-Unknown-167									ProtocolIE-ID ::= 167
-id-Protected-EUTRA-Resources-Item				ProtocolIE-ID ::= 168
+id-Unknown-166										ProtocolIE-ID ::= 166
+id-Unknown-167										ProtocolIE-ID ::= 167
+id-Protected-EUTRA-Resources-Item					ProtocolIE-ID ::= 168
 -- WS extension
-id-Unknown-169									ProtocolIE-ID ::= 169
-id-GNB-CU-RRC-Version							ProtocolIE-ID ::= 170
-id-GNB-DU-RRC-Version							ProtocolIE-ID ::= 171
-id-GNBDUOverloadInformation						ProtocolIE-ID ::= 172
-id-CellGroupConfig								ProtocolIE-ID ::= 173
-id-RLCFailureIndication							ProtocolIE-ID ::= 174
-id-UplinkTxDirectCurrentListInformation			ProtocolIE-ID ::= 175
-id-DC-Based-Duplication-Configured				ProtocolIE-ID ::= 176
-id-DC-Based-Duplication-Activation				ProtocolIE-ID ::= 177
-id-SULAccessIndication							ProtocolIE-ID ::= 178
-id-AvailablePLMNList							ProtocolIE-ID ::= 179
-id-PDUSessionID									ProtocolIE-ID ::= 180
-id-ULPDUSessionAggregateMaximumBitRate			ProtocolIE-ID ::= 181
+id-Unknown-169										ProtocolIE-ID ::= 169
+id-GNB-CU-RRC-Version								ProtocolIE-ID ::= 170
+id-GNB-DU-RRC-Version								ProtocolIE-ID ::= 171
+id-GNBDUOverloadInformation							ProtocolIE-ID ::= 172
+id-CellGroupConfig									ProtocolIE-ID ::= 173
+id-RLCFailureIndication								ProtocolIE-ID ::= 174
+id-UplinkTxDirectCurrentListInformation				ProtocolIE-ID ::= 175
+id-DC-Based-Duplication-Configured					ProtocolIE-ID ::= 176
+id-DC-Based-Duplication-Activation					ProtocolIE-ID ::= 177
+id-SULAccessIndication								ProtocolIE-ID ::= 178
+id-AvailablePLMNList								ProtocolIE-ID ::= 179
+id-PDUSessionID										ProtocolIE-ID ::= 180
+id-ULPDUSessionAggregateMaximumBitRate				ProtocolIE-ID ::= 181
+id-ServingCellMO									ProtocolIE-ID ::= 182
+id-QoSFlowMappingIndication							ProtocolIE-ID ::= 183
+id-RRCDeliveryStatusRequest							ProtocolIE-ID ::= 184
+id-RRCDeliveryStatus								ProtocolIE-ID ::= 185
+id-BearerTypeChange									ProtocolIE-ID ::= 186
+id-RLCMode											ProtocolIE-ID ::= 187
+id-Duplication-Activation							ProtocolIE-ID ::= 188
+id-Dedicated-SIDelivery-NeededUE-List				ProtocolIE-ID ::= 189
+id-Dedicated-SIDelivery-NeededUE-Item				ProtocolIE-ID ::= 190
+id-DRX-LongCycleStartOffset							ProtocolIE-ID ::= 191
+id-ULPDCPSNLength									ProtocolIE-ID ::= 192
+id-SelectedBandCombinationIndex						ProtocolIE-ID ::= 193
+id-SelectedFeatureSetEntryIndex						ProtocolIE-ID ::= 194
+id-ResourceCoordinationTransferInformation			ProtocolIE-ID ::= 195
+id-ExtendedServedPLMNs-List							ProtocolIE-ID ::= 196
+id-ExtendedAvailablePLMN-List						ProtocolIE-ID ::= 197
+id-Associated-SCell-List							ProtocolIE-ID ::= 198
+id-latest-RRC-Version-Enhanced						ProtocolIE-ID ::= 199
+id-Associated-SCell-Item							ProtocolIE-ID ::= 200
+
 
 END
