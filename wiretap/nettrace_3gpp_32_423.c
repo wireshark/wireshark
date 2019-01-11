@@ -352,7 +352,6 @@ write_packet_data(wtap_dumper *wdh, wtap_rec *rec, int *err, gchar **err_info, g
 	int tag_str_len = 0;
 	int proto_str_len, dissector_table_str_len, raw_data_len, pkt_data_len,  exp_pdu_tags_len, i, j;
 	guint8 *packet_buf;
-	gchar chr;
 	gint val1, val2;
 	gboolean port_type_defined = FALSE;
 	gboolean use_proto_table = FALSE;
@@ -411,7 +410,7 @@ write_packet_data(wtap_dumper *wdh, wtap_rec *rec, int *err, gchar **err_info, g
 	}
 	/* Find the start of the raw data*/
 	curr_pos = strstr(next_pos, ">") + 1;
-	next_pos = strstr(next_pos, "<");
+	next_pos = strstr(curr_pos, "<");
 
 	raw_data_len = (int)(next_pos - curr_pos);
 
@@ -589,6 +588,8 @@ write_packet_data(wtap_dumper *wdh, wtap_rec *rec, int *err, gchar **err_info, g
 		i++;
 		packet_buf[i] = 0;
 		i++;
+		packet_buf[i] = EXP_PDU_TAG_IPV4_DST_LEN; /* tag length */;
+		i++;
 		memcpy(packet_buf + i, exported_pdu_info->dst_ip, EXP_PDU_TAG_IPV4_DST_LEN);
 		i += EXP_PDU_TAG_IPV4_DST_LEN;
 	}
@@ -656,17 +657,23 @@ write_packet_data(wtap_dumper *wdh, wtap_rec *rec, int *err, gchar **err_info, g
 
 	/* Convert the hex raw msg data to binary and write to the packet buf*/
 	for (; i < (pkt_data_len + exp_pdu_tags_len); i++){
-		chr = *curr_pos;
-		val1 = g_ascii_xdigit_value(chr);
+		gchar chr1, chr2;
+
+		chr1 = *curr_pos;
+		val1 = g_ascii_xdigit_value(chr1);
 		curr_pos++;
-		chr = *curr_pos;
-		val2 = g_ascii_xdigit_value(chr);
+		chr2 = *curr_pos;
+		val2 = g_ascii_xdigit_value(chr2);
 		if ((val1 != -1) && (val2 != -1)){
 			packet_buf[i] = ((guint8)val1 * 16) + val2;
 		}
 		else{
 			/* Something wrong, bail out */
-			*err_info = g_strdup("Could not parse hex data");
+			*err_info = g_strdup_printf("Could not parse hex data,bufzize %u index %u %c%c",
+				(pkt_data_len + exp_pdu_tags_len),
+				i,
+				chr1,
+				chr2);
 			*err = WTAP_ERR_BAD_FILE;
 			g_free(packet_buf);
 			return WTAP_OPEN_ERROR;
