@@ -238,6 +238,7 @@ static int ett_nas_5gs_mm_part_tal = -1;
 static int ett_nas_5gs_sm_mapd_eps_b_cont = -1;
 static int ett_nas_5gs_sm_mapd_eps_b_cont_params_list = -1;
 
+static int hf_nas_5gs_mm_abba = -1;
 static int hf_nas_5gs_mm_suci = -1;
 static int hf_nas_5gs_mm_imei = -1;
 static int hf_nas_5gs_mm_imeisv = -1;
@@ -821,7 +822,26 @@ de_nas_5gs_mm_access_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 }
 
 /*
- *  9.11.3.11    Allowed PDU session status
+ * 9.11.3.10    ABBA
+ */
+static guint16
+de_nas_5gs_mm_abba(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+    guint32 offset, guint len,
+    gchar *add_string _U_, int string_len _U_)
+{
+    guint32 length = len, curr_offset;
+
+    curr_offset = offset;
+    proto_tree_add_item(tree, hf_nas_5gs_mm_abba, tvb, curr_offset, length, ENC_BIG_ENDIAN);
+    curr_offset += length;
+
+    return length;
+
+}
+
+/* 9.11.3.11	Access type*/
+/*
+ *  9.11.3.13    Allowed PDU session status
  */
 static guint16
 de_nas_5gs_mm_allow_pdu_ses_sts(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
@@ -834,27 +854,27 @@ de_nas_5gs_mm_allow_pdu_ses_sts(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 }
 
 /*
- * 9.11.3.12    Authentication failure parameter
+ * 9.11.3.13    Authentication failure parameter
  */
 /* See subclause 10.5.3.2.2 in 3GPP TS 24.008 */
 /*
- *  9.11.3.13    Authentication parameter AUTN
+ *  9.11.3.14    Authentication parameter AUTN
  */
 /* See subclause 10.5.3.1 in 3GPP TS 24.008 [8].*/
 
 /*
- *   9.11.3.14    Authentication parameter RAND
+ *   9.11.3.15    Authentication parameter RAND
  */
 
 /* See subclause 10.5.3.1 in 3GPP TS 24.008 [8]. */
 
 /*
- * 9.11.3.15    Authentication response parameter
+ * 9.11.3.16    Authentication response parameter
  */
 /* See subclause 9.9.3.4 in 3GPP TS 24.301 [15].*/
 
 /*
- *   9.11.3.16    Configuration update indication
+ *   9.11.3.17    Configuration update indication
  */
 static guint16
 de_nas_5gs_mm_conf_upd_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
@@ -2715,50 +2735,61 @@ typedef enum
     DE_NAS_5GS_MM_5GS_REG_TYPE,              /* 9.11.3.7     5GS registration type*/
     DE_NAS_5GS_MM_5GS_TA_ID,                 /* 9.11.3.8     5GS tracking area identity */
     DE_NAS_5GS_MM_5GS_TA_ID_LIST,            /* 9.11.3.9     5GS tracking area identity list */
-    DE_NAS_5GS_MM_ACCESS_TYPE,               /* 9.11.3.10    Access type */
-    DE_NAS_5GS_MM_ALLOW_PDU_SES_STS,         /* 9.11.3.11    Allowed PDU session status*/
-    DE_NAS_5GS_MM_AUT_FAIL_PAR,              /* 9.11.3.12    Authentication failure parameter */
-    DE_NAS_5GS_MM_AUT_PAR_AUTN,              /* 9.11.3.13    Authentication parameter AUTN*/
-    DE_NAS_5GS_MM_AUT_PAR_RAND,              /* 9.11.3.14    Authentication parameter RAND*/
-    DE_NAS_5GS_MM_AUT_RESP_PAR,              /* 9.11.3.15    Authentication response parameter */
-    DE_NAS_5GS_MM_CONF_UPD_IND,              /* 9.11.3.16    Configuration update indication*/
-    DE_NAS_5GS_MM_DLGT_SAVING_TIME,          /* 9.11.3.17    Daylight saving time*/
-    DE_NAS_5GS_MM_DE_REG_TYPE,               /* 9.11.3.18    De-registration type*/
+    DE_NAS_5GS_MM_ABBA,                      /* 9.11.3.10    ABBA */
+    DE_NAS_5GS_MM_ACCESS_TYPE,               /* 9.11.3.11    Access type */
+
+    DE_NAS_5GS_MM_ALLOW_PDU_SES_STS,         /* 9.11.3.13    Allowed PDU session status*/
+    DE_NAS_5GS_MM_AUT_FAIL_PAR,              /* 9.11.3.14    Authentication failure parameter */
+    DE_NAS_5GS_MM_AUT_PAR_AUTN,              /* 9.11.3.15    Authentication parameter AUTN*/
+    DE_NAS_5GS_MM_AUT_PAR_RAND,              /* 9.11.3.16    Authentication parameter RAND*/
+    DE_NAS_5GS_MM_AUT_RESP_PAR,              /* 9.11.3.17    Authentication response parameter */
+    DE_NAS_5GS_MM_CONF_UPD_IND,              /* 9.11.3.18    Configuration update indication*/
+    DE_NAS_5GS_MM_DLGT_SAVING_TIME,          /* 9.11.3.19    Daylight saving time*/
+    DE_NAS_5GS_MM_DE_REG_TYPE,               /* 9.11.3.20    De-registration type*/
+
     DE_NAS_5GS_MM_DNN,                       /* 9.11.3.19    DNN*/
     DE_NAS_5GS_MM_DRX_PAR,                   /* 9.11.3.20    DRX parameters */
-    DE_NAS_5GS_MM_EMRG_NR_LIST,              /* 9.11.3.21    Emergency number list */
-    DE_NAS_5GS_MM_EPS_NAS_MSG_CONT,          /* 9.11.3.22    EPS NAS message container */
-    DE_NAS_5GS_MM_EPS_NAS_SEC_ALGO,          /* 9.11.3.23    EPS NAS security algorithms */
-    DE_NAS_5GS_MM_EXT_EMERG_NUM_LIST,        /* 9.11.3.24    Extended emergency number list */
-    DE_NAS_5GS_MM_HASHAMF,                   /* 9.11.3.25    HashAMF*/
-    DE_NAS_5GS_MM_IMEISV_REQ,                /* 9.11.3.26    IMEISV request*/
-    DE_NAS_5GS_MM_LADN_INF,                  /* 9.11.3.27    LADN information*/
-    DE_NAS_5GS_MM_MICO_IND,                  /* 9.11.3.28    MICO indication*/
-    DE_NAS_5GS_MM_NAS_KEY_SET_ID,            /* 9.11.3.29    NAS key set identifier*/
-    DE_NAS_5GS_MM_NAS_MSG,                   /* 9.11.3.30    NAS message */
-    DE_NAS_5GS_MM_NAS_MSG_CONT,              /* 9.11.3.31    NAS message container*/
-    DE_NAS_5GS_MM_NAS_SEC_ALGO,              /* 9.11.3.32    NAS security algorithms*/
-    DE_NAS_5GS_MM_NW_NAME,                   /* 9.11.3.33    Network name*/
-    DE_NAS_5GS_MM_NSSAI,                     /* 9.11.3.34    NSSAI*/
-    DE_NAS_5GS_MM_PLD_CONT,                  /* 9.11.3.35    Payload container*/
-    DE_NAS_5GS_MM_PLD_CONT_TYPE,             /* 9.11.3.36    Payload container type*/
-    DE_NAS_5GS_MM_PDU_SES_ID_2,              /* 9.11.3.37    PDU session identity 2 */
-    DE_NAS_5GS_MM_PDU_SES_REACT_RES,         /* 9.11.3.38    PDU session reactivation result*/
-    DE_NAS_5GS_MM_PDU_SES_REACT_RES_ERR_C,   /* 9.11.3.39    PDU session reactivation result error cause */
-    DE_NAS_5GS_MM_PDU_SES_STATUS,            /* 9.11.3.40    PDU session status */
-    DE_NAS_5GS_MM_PLMN_LIST,                 /* 9.11.3.41    PLMN list*/
-    DE_NAS_5GS_MM_REJ_NSSAI,                 /* 9.11.3.42    Rejected NSSAI*/
-    DE_NAS_5GS_MM_REQ_TYPE,                  /* 9.11.3.43    Request type */
-    DE_NAS_5GS_MM_S1_UE_NW_CAP,              /* 9.11.3.44    S1 UE network capability*/
-    DE_NAS_5GS_MM_SAL,                       /* 9.11.3.45    Service area list*/
-    NULL,                                    /* 9.11.3.46    Service type,*/ /* Used inline Half octet IE*/
-    DE_NAS_5GS_MM_TZ,                        /* 9.11.3.47    Time zone*/
-    DE_NAS_5GS_MM_TZ_AND_T,                  /* 9.11.3.48    Time zone and time*/
-    DE_NAS_5GS_MM_TRANSP_CONT,               /* 9.11.3.49    Transparent container */
-    DE_NAS_5GS_MM_UE_SEC_CAP,                /* 9.11.3.50    UE security capability*/
-    DE_NAS_5GS_MM_UE_USAGE_SET,              /* 9.11.3.51    UE's usage setting */
-    DE_NAS_5GS_MM_UE_STATUS,                 /* 9.11.3.52    UE status */
-    DE_NAS_5GS_MM_UL_DATA_STATUS,            /* 9.11.3.53    Uplink data status */
+
+    DE_NAS_5GS_MM_EMRG_NR_LIST,              /* 9.11.3.23    Emergency number list */
+    DE_NAS_5GS_MM_EPS_NAS_MSG_CONT,          /* 9.11.3.24    EPS NAS message container */
+    DE_NAS_5GS_MM_EPS_NAS_SEC_ALGO,          /* 9.11.3.25    EPS NAS security algorithms */
+    DE_NAS_5GS_MM_EXT_EMERG_NUM_LIST,        /* 9.11.3.26    Extended emergency number list */
+    DE_NAS_5GS_MM_HASHAMF,                   /* 9.11.3.27    HashAMF*/
+    DE_NAS_5GS_MM_IMEISV_REQ,                /* 9.11.3.28    IMEISV request*/
+    DE_NAS_5GS_MM_LADN_INF,                  /* 9.11.3.29    LADN information*/
+
+    DE_NAS_5GS_MM_MICO_IND,                  /* 9.11.3.31    MICO indication*/
+    DE_NAS_5GS_MM_NAS_KEY_SET_ID,            /* 9.11.3.32    NAS key set identifier*/
+
+    DE_NAS_5GS_MM_NAS_MSG,                   /* 9.11.3.33    NAS message */
+
+    DE_NAS_5GS_MM_NAS_MSG_CONT,              /* 9.11.3.33    NAS message container*/
+    DE_NAS_5GS_MM_NAS_SEC_ALGO,              /* 9.11.3.34    NAS security algorithms*/
+    DE_NAS_5GS_MM_NW_NAME,                   /* 9.11.3.35    Network name*/
+
+    DE_NAS_5GS_MM_NSSAI,                     /* 9.11.3.37    NSSAI*/
+    DE_NAS_5GS_MM_PLD_CONT,                  /* 9.11.3.39    Payload container*/
+    DE_NAS_5GS_MM_PLD_CONT_TYPE,             /* 9.11.3.40    Payload container type*/
+    DE_NAS_5GS_MM_PDU_SES_ID_2,              /* 9.11.3.41    PDU session identity 2 */
+    DE_NAS_5GS_MM_PDU_SES_REACT_RES,         /* 9.11.3.42    PDU session reactivation result*/
+    DE_NAS_5GS_MM_PDU_SES_REACT_RES_ERR_C,   /* 9.11.3.43    PDU session reactivation result error cause */
+    DE_NAS_5GS_MM_PDU_SES_STATUS,            /* 9.11.3.44    PDU session status */
+    DE_NAS_5GS_MM_PLMN_LIST,                 /* 9.11.3.45    PLMN list*/
+    DE_NAS_5GS_MM_REJ_NSSAI,                 /* 9.11.3.46    Rejected NSSAI*/
+    DE_NAS_5GS_MM_REQ_TYPE,                  /* 9.11.3.47    Request type */
+    DE_NAS_5GS_MM_S1_UE_NW_CAP,              /* 9.11.3.48    S1 UE network capability*/
+    DE_NAS_5GS_MM_SAL,                       /* 9.11.3.49    Service area list*/
+    NULL,                                    /* 9.11.3.50    Service type,*/ /* Used inline Half octet IE*/
+
+    DE_NAS_5GS_MM_TZ,                        /* 9.11.3.52    Time zone*/
+    DE_NAS_5GS_MM_TZ_AND_T,                  /* 9.11.3.53    Time zone and time*/
+
+    DE_NAS_5GS_MM_TRANSP_CONT,               /* 9.11.3.54    Transparent container */
+
+    DE_NAS_5GS_MM_UE_SEC_CAP,                /* 9.11.3.54    UE security capability*/
+    DE_NAS_5GS_MM_UE_USAGE_SET,              /* 9.11.3.55    UE's usage setting */
+    DE_NAS_5GS_MM_UE_STATUS,                 /* 9.11.3.56    UE status */
+    DE_NAS_5GS_MM_UL_DATA_STATUS,            /* 9.11.3.57    Uplink data status */
     DE_NAS_5GS_MM_NONE        /* NONE */
 }
 nas_5gs_mm_elem_idx_t;
@@ -2772,52 +2803,63 @@ static const value_string nas_5gs_mm_elem_strings[] = {
     { DE_NAS_5GS_MM_5GS_NW_FEAT_SUP,            "5GS network feature support" },        /* 9.11.3.5     5GS network feature support*/
     { DE_NAS_5GS_MM_5GS_REG_RES,                "5GS registration result" },            /* 9.11.3.6     5GS registration result*/
     { DE_NAS_5GS_MM_5GS_REG_TYPE,               "5GS registration type" },              /* 9.11.3.7     5GS registration type*/
-    { DE_NAS_5GS_MM_5GS_TA_ID,                  "5GS tracking area identity" },          /* 9.11.3.8    5GS tracking area identity */
+    { DE_NAS_5GS_MM_5GS_TA_ID,                  "5GS tracking area identity" },         /* 9.11.3.8     5GS tracking area identity */
     { DE_NAS_5GS_MM_5GS_TA_ID_LIST,             "5GS tracking area identity list" },    /* 9.11.3.9     5GS tracking area identity list*/
-    { DE_NAS_5GS_MM_ACCESS_TYPE,                "Access type" },                        /* 9.11.3.10    Access type */
-    { DE_NAS_5GS_MM_ALLOW_PDU_SES_STS,          "Allowed PDU session status" },         /* 9.11.3.11    Allowed PDU session status*/
-    { DE_NAS_5GS_MM_AUT_FAIL_PAR,               "Authentication failure parameter" },   /* 9.11.3.12    Authentication failure parameter*/
-    { DE_NAS_5GS_MM_AUT_PAR_AUTN,               "Authentication parameter AUTN" },      /* 9.11.3.13    Authentication parameter AUTN*/
-    { DE_NAS_5GS_MM_AUT_PAR_RAND,               "Authentication parameter RAND" },      /* 9.11.3.14    Authentication parameter RAND*/
-    { DE_NAS_5GS_MM_AUT_RESP_PAR,               "Authentication response parameter" },  /* 9.11.3.15    Authentication response parameter*/
-    { DE_NAS_5GS_MM_CONF_UPD_IND,               "Configuration update indication" },    /* 9.11.3.16    Configuration update indication*/
-    { DE_NAS_5GS_MM_DLGT_SAVING_TIME,           "Daylight saving time" },               /* 9.11.3.17    Daylight saving time*/
-    { DE_NAS_5GS_MM_DE_REG_TYPE,                "De-registration type" },               /* 9.11.3.18    De-registration type*/
+    { DE_NAS_5GS_MM_ABBA,                       "ABBA" },                               /* 9.11.3.10    ABBA */
+    { DE_NAS_5GS_MM_ACCESS_TYPE,                "Access type" },                        /* 9.11.3.11    Access type */
+
+    { DE_NAS_5GS_MM_ALLOW_PDU_SES_STS,          "Allowed PDU session status" },         /* 9.11.3.13    Allowed PDU session status*/
+    { DE_NAS_5GS_MM_AUT_FAIL_PAR,               "Authentication failure parameter" },   /* 9.11.3.14    Authentication failure parameter*/
+    { DE_NAS_5GS_MM_AUT_PAR_AUTN,               "Authentication parameter AUTN" },      /* 9.11.3.15    Authentication parameter AUTN*/
+    { DE_NAS_5GS_MM_AUT_PAR_RAND,               "Authentication parameter RAND" },      /* 9.11.3.16    Authentication parameter RAND*/
+    { DE_NAS_5GS_MM_AUT_RESP_PAR,               "Authentication response parameter" },  /* 9.11.3.17    Authentication response parameter*/
+    { DE_NAS_5GS_MM_CONF_UPD_IND,               "Configuration update indication" },    /* 9.11.3.18    Configuration update indication*/
+    { DE_NAS_5GS_MM_DLGT_SAVING_TIME,           "Daylight saving time" },               /* 9.11.3.19    Daylight saving time*/
+    { DE_NAS_5GS_MM_DE_REG_TYPE,                "De-registration type" },               /* 9.11.3.20    De-registration type*/
+
     { DE_NAS_5GS_MM_DNN,                        "DNN" },                                /* 9.11.3.19    DNN*/
     { DE_NAS_5GS_MM_DRX_PAR,                    "DRX parameters" },                     /* 9.11.3.20    DRX parameters*/
-    { DE_NAS_5GS_MM_EMRG_NR_LIST,               "Emergency number list" },              /* 9.11.3.21    Emergency number list*/
-    { DE_NAS_5GS_MM_EPS_NAS_MSG_CONT,           "EPS NAS message container" },          /* 9.11.3.22    EPS NAS message container*/
-    { DE_NAS_5GS_MM_EPS_NAS_SEC_ALGO,           "EPS NAS security algorithms" },        /* 9.11.3.23    EPS NAS security algorithms*/
-    { DE_NAS_5GS_MM_EXT_EMERG_NUM_LIST,         "Extended emergency number list" },     /* 9.11.3.24    Extended emergency number list */
+
+    { DE_NAS_5GS_MM_EMRG_NR_LIST,               "Emergency number list" },              /* 9.11.3.23    Emergency number list*/
+    { DE_NAS_5GS_MM_EPS_NAS_MSG_CONT,           "EPS NAS message container" },          /* 9.11.3.24    EPS NAS message container*/
+    { DE_NAS_5GS_MM_EPS_NAS_SEC_ALGO,           "EPS NAS security algorithms" },        /* 9.11.3.25    EPS NAS security algorithms*/
+    { DE_NAS_5GS_MM_EXT_EMERG_NUM_LIST,         "Extended emergency number list" },     /* 9.11.3.26    Extended emergency number list */
+
     { DE_NAS_5GS_MM_HASHAMF,                    "HashAMF" },                            /* 9.11.3.25    HashAMF*/
-    { DE_NAS_5GS_MM_IMEISV_REQ,                 "IMEISV request" },                     /* 9.11.3.26    IMEISV request*/
-    { DE_NAS_5GS_MM_LADN_INF,                   "LADN information" },                   /* 9.11.3.27    LADN information*/
-    { DE_NAS_5GS_MM_MICO_IND,                   "MICO indication" },                    /* 9.11.3.28    MICO indication*/
-    { DE_NAS_5GS_MM_NAS_KEY_SET_ID,             "NAS key set identifier" },             /* 9.11.3.29    NAS key set identifier*/
-    { DE_NAS_5GS_MM_NAS_MSG,                    "NAS message" },                        /* 9.11.3.30    NAS message*/
-    { DE_NAS_5GS_MM_NAS_MSG_CONT,               "NAS message container" },              /* 9.11.3.31    NAS message container*/
-    { DE_NAS_5GS_MM_NAS_SEC_ALGO,               "NAS security algorithms" },            /* 9.11.3.32    NAS security algorithms*/
-    { DE_NAS_5GS_MM_NW_NAME,                    "Network name" },                       /* 9.11.3.33    Network name*/
-    { DE_NAS_5GS_MM_NSSAI,                      "NSSAI" },                              /* 9.11.3.34    NSSAI*/
-    { DE_NAS_5GS_MM_PLD_CONT,                   "Payload container" },                  /* 9.11.3.35    Payload container*/
-    { DE_NAS_5GS_MM_PLD_CONT_TYPE,              "Payload container type" },             /* 9.11.3.36    Payload container type*/
-    { DE_NAS_5GS_MM_PDU_SES_ID_2,               "PDU session identity 2" },             /* 9.11.3.37    PDU session identity 2*/
-    { DE_NAS_5GS_MM_PDU_SES_REACT_RES,          "PDU session reactivation result" },    /* 9.11.3.38    PDU session reactivation result*/
-    { DE_NAS_5GS_MM_PDU_SES_REACT_RES_ERR_C,    "PDU session reactivation result error cause" },    /* 9.11.3.39    PDU session reactivation result error cause*/
-    { DE_NAS_5GS_MM_PDU_SES_STATUS,             "PDU session status" },                 /* 9.11.3.40    PDU session status*/
-    { DE_NAS_5GS_MM_PLMN_LIST,                  "PLMN list" },                          /* 9.11.3.41    PLMN list*/
-    { DE_NAS_5GS_MM_REJ_NSSAI,                  "Rejected NSSAI" },                     /* 9.11.3.42    Rejected NSSAI*/
-    { DE_NAS_5GS_MM_REQ_TYPE,                   "Request type" },                       /* 9.11.3.43    Request type*/
-    { DE_NAS_5GS_MM_S1_UE_NW_CAP,               "S1 UE network capability" },           /* 9.11.3.44    S1 UE network capability*/
-    { DE_NAS_5GS_MM_SAL,                        "Service area list" },                  /* 9.11.3.45    Service area list*/
-    { DE_NAS_5GS_MM_SERV_TYPE,                  "Service type" },                       /* 9.11.3.46    Service type*/
-    { DE_NAS_5GS_MM_TZ,                         "Time zone" },                          /* 9.11.3.47    Time zone*/
-    { DE_NAS_5GS_MM_TZ_AND_T,                   "Time zone and time" },                 /* 9.11.3.48    Time zone and time*/
-    { DE_NAS_5GS_MM_TRANSP_CONT,                "Transparent container" },              /* 9.11.3.49    Transparent container*/
-    { DE_NAS_5GS_MM_UE_SEC_CAP,                 "UE security capability" },             /* 9.11.3.50    UE security capability*/
-    { DE_NAS_5GS_MM_UE_USAGE_SET,               "UE's usage setting" },                 /* 9.11.3.50    UE's usage setting*/
-    { DE_NAS_5GS_MM_UE_STATUS,                  "UE status" },                          /* 9.11.3.52    UE status*/
-    { DE_NAS_5GS_MM_UL_DATA_STATUS,             "Uplink data status" },                 /* 9.11.3.53    Uplink data status*/
+
+    { DE_NAS_5GS_MM_IMEISV_REQ,                 "IMEISV request" },                     /* 9.11.3.28    IMEISV request*/
+    { DE_NAS_5GS_MM_LADN_INF,                   "LADN information" },                   /* 9.11.3.29    LADN information*/
+
+    { DE_NAS_5GS_MM_MICO_IND,                   "MICO indication" },                    /* 9.11.3.31    MICO indication*/
+    { DE_NAS_5GS_MM_NAS_KEY_SET_ID,             "NAS key set identifier" },             /* 9.11.3.32    NAS key set identifier*/
+
+    { DE_NAS_5GS_MM_NAS_MSG,                    "NAS message" },                        /* 9.11.3.    NAS message*/
+
+    { DE_NAS_5GS_MM_NAS_MSG_CONT,               "NAS message container" },              /* 9.11.3.33    NAS message container*/
+    { DE_NAS_5GS_MM_NAS_SEC_ALGO,               "NAS security algorithms" },            /* 9.11.3.34    NAS security algorithms*/
+    { DE_NAS_5GS_MM_NW_NAME,                    "Network name" },                       /* 9.11.3.35    Network name*/
+    { DE_NAS_5GS_MM_NSSAI,                      "NSSAI" },                              /* 9.11.3.36    NSSAI*/
+
+    { DE_NAS_5GS_MM_PLD_CONT,                   "Payload container" },                  /* 9.11.3.39    Payload container*/
+    { DE_NAS_5GS_MM_PLD_CONT_TYPE,              "Payload container type" },             /* 9.11.3.40    Payload container type*/
+    { DE_NAS_5GS_MM_PDU_SES_ID_2,               "PDU session identity 2" },             /* 9.11.3.42    PDU session identity 2*/
+    { DE_NAS_5GS_MM_PDU_SES_REACT_RES,          "PDU session reactivation result" },    /* 9.11.3.43    PDU session reactivation result*/
+    { DE_NAS_5GS_MM_PDU_SES_REACT_RES_ERR_C,    "PDU session reactivation result error cause" },    /* 9.11.3.43    PDU session reactivation result error cause*/
+    { DE_NAS_5GS_MM_PDU_SES_STATUS,             "PDU session status" },                 /* 9.11.3.44    PDU session status*/
+    { DE_NAS_5GS_MM_PLMN_LIST,                  "PLMN list" },                          /* 9.11.3.45    PLMN list*/
+    { DE_NAS_5GS_MM_REJ_NSSAI,                  "Rejected NSSAI" },                     /* 9.11.3.46    Rejected NSSAI*/
+    { DE_NAS_5GS_MM_REQ_TYPE,                   "Request type" },                       /* 9.11.3.47    Request type*/
+    { DE_NAS_5GS_MM_S1_UE_NW_CAP,               "S1 UE network capability" },           /* 9.11.3.48    S1 UE network capability*/
+    { DE_NAS_5GS_MM_SAL,                        "Service area list" },                  /* 9.11.3.49    Service area list*/
+    { DE_NAS_5GS_MM_SERV_TYPE,                  "Service type" },                       /* 9.11.3.50    Service type*/
+
+    { DE_NAS_5GS_MM_TZ,                         "Time zone" },                          /* 9.11.3.52    Time zone*/
+    { DE_NAS_5GS_MM_TZ_AND_T,                   "Time zone and time" },                 /* 9.11.3.53    Time zone and time*/
+    { DE_NAS_5GS_MM_TRANSP_CONT,                "Transparent container" },              /* 9.11.3.    Transparent container*/
+    { DE_NAS_5GS_MM_UE_SEC_CAP,                 "UE security capability" },             /* 9.11.3.54    UE security capability*/
+    { DE_NAS_5GS_MM_UE_USAGE_SET,               "UE's usage setting" },                 /* 9.11.3.55    UE's usage setting*/
+    { DE_NAS_5GS_MM_UE_STATUS,                  "UE status" },                          /* 9.11.3.56    UE status*/
+    { DE_NAS_5GS_MM_UL_DATA_STATUS,             "Uplink data status" },                 /* 9.11.3.57    Uplink data status*/
 
     { 0, NULL }
 };
@@ -2839,52 +2881,63 @@ guint16(*nas_5gs_mm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
         de_nas_5gs_mm_5gs_reg_type,              /* 9.11.3.7     5GS registration type*/
         de_nas_5gs_mm_5gs_ta_id,                 /* 9.11.3.8     5GS tracking area identity */
         de_nas_5gs_mm_5gs_ta_id_list,            /* 9.11.3.9     5GS tracking area identity list */
-        de_nas_5gs_mm_access_type,               /* 9.11.3.10    Access type */
+        de_nas_5gs_mm_abba,                      /* 9.11.3.10    ABBA */
+        de_nas_5gs_mm_access_type,               /* 9.11.3.11    Access type */
 
+        de_nas_5gs_mm_allow_pdu_ses_sts,         /* 9.11.3.13    Allowed PDU session status*/
+        NULL,                                    /* 9.11.3.14    Authentication failure parameter */
+        NULL,                                    /* 9.11.3.15    Authentication parameter AUTN*/
+        NULL,                                    /* 9.11.3.16    Authentication parameter RAND*/
+        NULL,                                    /* 9.11.3.17    Authentication response parameter */
+        de_nas_5gs_mm_conf_upd_ind,              /* 9.11.3.18    Configuration update indication*/
+        NULL,                                    /* 9.11.3.19    Daylight saving time*/
+        de_nas_5gs_mm_de_reg_type,               /* 9.11.3.20    De-registration type*/
 
-        de_nas_5gs_mm_allow_pdu_ses_sts,         /* 9.11.3.11    Allowed PDU session status*/
-        NULL,                                    /* 9.11.3.12    Authentication failure parameter */
-        NULL,                                    /* 9.11.3.13    Authentication parameter AUTN*/
-        NULL,                                    /* 9.11.3.14    Authentication parameter RAND*/
-        NULL,                                    /* 9.11.3.15    Authentication response parameter */
-        de_nas_5gs_mm_conf_upd_ind,              /* 9.11.3.16    Configuration update indication*/
-        NULL,                                    /* 9.11.3.17    Daylight saving time*/
-        de_nas_5gs_mm_de_reg_type,               /* 9.11.3.18    De-registration type*/
         de_nas_5gs_mm_dnn,                       /* 9.11.3.19    DNN*/
         de_nas_5gs_mm_drx_par,                   /* 9.11.3.20    DRX parameters*/
-        NULL,                                    /* 9.11.3.21    Emergency number list*/
-        de_nas_5gs_mm_eps_nas_msg_cont,          /* 9.11.3.22    EPS NAS message container*/
-        NULL,                                    /* 9.11.3.23    EPS NAS security algorithms*/
-        NULL,                                    /* 9.11.3.24    Extended emergency number list*/
-        de_nas_5gs_mm_hashamf,                   /* 9.11.3.25    HashAMF*/
-        NULL,                                    /* 9.11.3.26    IMEISV request*/
-        de_nas_5gs_mm_ladn_inf,                  /* 9.11.3.27    LADN information*/
-        de_nas_5gs_mm_mico_ind,                  /* 9.11.3.28    MICO indication*/
-        de_nas_5gs_mm_nas_key_set_id,            /* 9.11.3.29    NAS key set identifier*/
-        de_nas_5gs_mm_nas_msg,                   /* 9.11.3.30    NAS message*/
-        de_nas_5gs_mm_nas_msg_cont,              /* 9.11.3.31    NAS message container*/
-        de_nas_5gs_mm_nas_sec_algo,              /* 9.11.3.32    NAS security algorithms*/
-        NULL,                                    /* 9.11.3.33    Network name*/
-        de_nas_5gs_mm_nssai,                     /* 9.11.3.34    NSSAI*/
-        de_nas_5gs_mm_pld_cont,                  /* 9.11.3.35    Payload container*/
-        de_nas_5gs_mm_pld_cont_type,             /* 9.11.3.36    Payload container type*/
-        de_nas_5gs_mm_pdu_ses_id_2,              /* 9.11.3.37    PDU session identity 2*/
-        de_nas_5gs_mm_pdu_ses_react_res,         /* 9.11.3.38    PDU session reactivation result*/
-        de_nas_5gs_mm_pdu_ses_react_res_err_c,   /* 9.11.3.39    PDU session reactivation result error cause */
-        de_nas_5gs_mm_pdu_ses_status,            /* 9.11.3.40    PDU session status*/
-        NULL,                                    /* 9.11.3.41    PLMN list*/
-        de_nas_5gs_mm_rej_nssai,                 /* 9.11.3.42    Rejected NSSAI*/
-        de_nas_5gs_mm_req_type,                  /* 9.11.3.43    Request type*/
-        NULL,                                    /* 9.11.3.44    S1 UE network capability*/
-        de_nas_5gs_mm_sal,                       /* 9.11.3.45    Service area list*/
-        NULL,                                    /* 9.11.3.46    Service type*/ /* Used Inline Half octet IE */
-        NULL,                                    /* 9.11.3.47    Time zone*/
-        NULL,                                    /* 9.11.3.48    Time zone and time*/
+
+        NULL,                                    /* 9.11.3.23    Emergency number list*/
+        de_nas_5gs_mm_eps_nas_msg_cont,          /* 9.11.3.24    EPS NAS message container*/
+        NULL,                                    /* 9.11.3.25    EPS NAS security algorithms*/
+        NULL,                                    /* 9.11.3.26    Extended emergency number list*/
+
+        de_nas_5gs_mm_hashamf,                   /* 9.11.3.    HashAMF*/
+
+        NULL,                                    /* 9.11.3.28    IMEISV request*/
+        de_nas_5gs_mm_ladn_inf,                  /* 9.11.3.29    LADN information*/
+
+        de_nas_5gs_mm_mico_ind,                  /* 9.11.3.31    MICO indication*/
+        de_nas_5gs_mm_nas_key_set_id,            /* 9.11.3.32    NAS key set identifier*/
+        de_nas_5gs_mm_nas_msg,                   /* 9.11.3.    NAS message*/
+        de_nas_5gs_mm_nas_msg_cont,              /* 9.11.3.33    NAS message container*/
+        de_nas_5gs_mm_nas_sec_algo,              /* 9.11.3.34    NAS security algorithms*/
+        NULL,                                    /* 9.11.3.35    Network name*/
+
+        de_nas_5gs_mm_nssai,                     /* 9.11.3.37    NSSAI*/
+
+        de_nas_5gs_mm_pld_cont,                  /* 9.11.3.39    Payload container*/
+        de_nas_5gs_mm_pld_cont_type,             /* 9.11.3.40    Payload container type*/
+        de_nas_5gs_mm_pdu_ses_id_2,              /* 9.11.3.41    PDU session identity 2*/
+        de_nas_5gs_mm_pdu_ses_react_res,         /* 9.11.3.42    PDU session reactivation result*/
+        de_nas_5gs_mm_pdu_ses_react_res_err_c,   /* 9.11.3.43    PDU session reactivation result error cause */
+        de_nas_5gs_mm_pdu_ses_status,            /* 9.11.3.44    PDU session status*/
+        NULL,                                    /* 9.11.3.45    PLMN list*/
+        de_nas_5gs_mm_rej_nssai,                 /* 9.11.3.46    Rejected NSSAI*/
+        de_nas_5gs_mm_req_type,                  /* 9.11.3.47    Request type*/
+        NULL,                                    /* 9.11.3.48    S1 UE network capability*/
+
+        de_nas_5gs_mm_sal,                       /* 9.11.3.49    Service area list*/
+        NULL,                                    /* 9.11.3.50    Service type*/ /* Used Inline Half octet IE */
+
+        NULL,                                    /* 9.11.3.52    Time zone*/
+        NULL,                                    /* 9.11.3.53    Time zone and time*/
+
         de_nas_5gs_mm_transp_cont,               /* 9.11.3.49    Transparent container*/
-        de_nas_5gs_mm_ue_sec_cap,                /* 9.11.3.50    UE security capability*/
-        de_nas_5gs_mm_ue_usage_set,              /* 9.11.3.51    UE's usage setting*/
-        de_nas_5gs_mm_ue_status,                 /* 9.11.3.52    UE status*/
-        de_nas_5gs_mm_ul_data_status,            /* 9.11.3.53    Uplink data status*/
+
+        de_nas_5gs_mm_ue_sec_cap,                /* 9.11.3.54    UE security capability*/
+        de_nas_5gs_mm_ue_usage_set,              /* 9.11.3.55    UE's usage setting*/
+        de_nas_5gs_mm_ue_status,                 /* 9.11.3.56    UE status*/
+        de_nas_5gs_mm_ul_data_status,            /* 9.11.3.57    Uplink data status*/
         NULL,   /* NONE */
 };
 
@@ -2995,6 +3048,8 @@ nas_5gs_mm_authentication_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     ELEM_OPT_TV(0x21, GSM_A_PDU_TYPE_DTAP, DE_AUTH_PARAM_RAND, " - 5G authentication challenge");
     /*20    Authentication parameter AUTN (5G authentication challenge)    Authentication parameter AUTN     9.11.3.14    O    TLV    18*/
     ELEM_OPT_TLV(0x20, GSM_A_PDU_TYPE_DTAP, DE_AUTH_PARAM_AUTN, " - 5G authentication challenge");
+    /*38    ABBA    9.11.3.10    O    TLV    3-n */
+    ELEM_OPT_TLV(0x38, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_ABBA, NULL);
     /*78    EAP message    EAP message 9.10.2.2    O    TLV-E    7-1503 */
     ELEM_OPT_TLV_E(0x78, NAS_5GS_PDU_TYPE_COMMON, DE_NAS_5GS_CMN_EAP_MESSAGE, NULL);
 
@@ -4859,6 +4914,11 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_mm_length,
         { "Length",   "nas_5gs.mm.length",
             FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_abba,
+        { "ABBA Contents",   "nas_5gs.mm.abba_contents",
+            FT_UINT16, BASE_HEX, NULL, 0x00,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_pld_cont,

@@ -1610,6 +1610,7 @@ typedef enum
     DE_NAS_5GS_MM_5GS_REG_TYPE,              /* 9.10.3.7     5GS registration type*/
     DE_NAS_5GS_MM_5GS_TA_ID,                 /* 9.10.3.8     5GS tracking area identity */
     DE_NAS_5GS_MM_5GS_TA_ID_LIST,            /* 9.10.3.9     5GS tracking area identity list */
+    DE_NAS_5GS_MM_ABBA,                      /* 9.11.3.10    ABBA */
     DE_NAS_5GS_MM_ACCESS_TYPE,               /* 9.10.3.10    Access type */
     DE_NAS_5GS_MM_ALLOW_PDU_SES_STS,         /* 9.10.3.11    Allowed PDU session status*/
     DE_NAS_5GS_MM_AUT_FAIL_PAR,              /* 9.10.3.12    Authentication failure parameter */
