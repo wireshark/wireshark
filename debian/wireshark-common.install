@@ -1,11 +1,13 @@
-usr/bin/dumpcap
-usr/bin/rawshark
 usr/bin/capinfos
+usr/bin/captype
+usr/bin/dumpcap
 usr/bin/editcap
 usr/bin/mergecap
-usr/bin/text2pcap
-usr/bin/reordercap
 usr/bin/mmdbresolve
+usr/bin/randpkt
+usr/bin/rawshark
+usr/bin/reordercap
+usr/bin/text2pcap
 usr/lib/*/wireshark/extcap
 usr/share/icons/
 usr/share/mime/packages/
