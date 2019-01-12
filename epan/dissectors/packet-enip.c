@@ -359,7 +359,7 @@ static expert_field ei_mal_tcpip_config_control = EI_INIT;
 static expert_field ei_mal_tcpip_interface_config = EI_INIT;
 static expert_field ei_mal_tcpip_mcast_config = EI_INIT;
 static expert_field ei_mal_tcpip_last_conflict = EI_INIT;
-static expert_field ei_mal_tcpip_ssn = EI_INIT;
+static expert_field ei_mal_tcpip_snn = EI_INIT;
 static expert_field ei_mal_elink_interface_flags = EI_INIT;
 static expert_field ei_mal_elink_physical_address = EI_INIT;
 static expert_field ei_mal_elink_interface_counters = EI_INIT;
@@ -1483,16 +1483,16 @@ static int dissect_tcpip_hostname(packet_info *pinfo, proto_tree *tree, proto_it
     return parsed_len;
 }
 
-static int dissect_tcpip_ssn(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
+static int dissect_tcpip_snn(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                              int offset, int total_len)
 {
    if (total_len < 6)
    {
-      expert_add_info(pinfo, item, &ei_mal_tcpip_ssn);
+      expert_add_info(pinfo, item, &ei_mal_tcpip_snn);
       return total_len;
    }
 
-   dissect_cipsafety_ssn(tree, tvb, pinfo, offset, hf_tcpip_snn_timestamp, hf_tcpip_snn_date, hf_tcpip_snn_time);
+   dissect_cipsafety_snn(tree, tvb, pinfo, offset, hf_tcpip_snn_timestamp, hf_tcpip_snn_date, hf_tcpip_snn_time);
    return 6;
 }
 
@@ -2086,7 +2086,7 @@ attribute_info_t enip_attribute_vals[99] = {
    {0xF5, FALSE,  4, 3, "Physical Link Object",      cip_dissector_func,   NULL, dissect_tcpip_physical_link},
    {0xF5, FALSE,  5, 4, "Interface Configuration",   cip_dissector_func,   NULL, dissect_tcpip_interface_config},
    {0xF5, FALSE,  6, 5, "Host Name",                 cip_dissector_func,   NULL, dissect_tcpip_hostname},
-   {0xF5, FALSE,  7, 6, "Safety Network Number", cip_dissector_func,   NULL, dissect_tcpip_ssn},
+   {0xF5, FALSE,  7, 6, "Safety Network Number", cip_dissector_func,   NULL, dissect_tcpip_snn},
    {0xF5, FALSE,  8, 7, "TTL Value", cip_usint,      &hf_tcpip_ttl_value,  NULL},
    {0xF5, FALSE,  9, 8, "Multicast Configuration",   cip_dissector_func,   NULL, dissect_tcpip_mcast_config},
    {0xF5, FALSE, 10, 9, "Select ACD", cip_bool,      &hf_tcpip_select_acd, NULL},
@@ -3729,7 +3729,7 @@ proto_register_enip(void)
 
       { &hf_tcpip_snn_date,
         { "Safety Network Number (Manual) Date", "cip.tcpip.snn.date",
-          FT_UINT16, BASE_HEX, VALS(cipsafety_ssn_date_vals), 0,
+          FT_UINT16, BASE_HEX, VALS(cipsafety_snn_date_vals), 0,
           NULL, HFILL }
       },
 
@@ -4390,7 +4390,7 @@ proto_register_enip(void)
       { &ei_mal_tcpip_config_cap, { "cip.malformed.tcpip.config_cap", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Configuration Capability", EXPFILL }},
       { &ei_mal_tcpip_config_control, { "cip.malformed.tcpip.config_control", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Configuration Control", EXPFILL }},
       { &ei_mal_tcpip_interface_config, { "cip.malformed.tcpip.interface_config", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Interface Configuration", EXPFILL }},
-      { &ei_mal_tcpip_ssn, { "cip.malformed.tcpip.ssn", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Object Safety Network Number", EXPFILL }},
+      { &ei_mal_tcpip_snn, { "cip.malformed.tcpip.snn", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Object Safety Network Number", EXPFILL }},
       { &ei_mal_tcpip_mcast_config, { "cip.malformed.tcpip.mcast_config", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Multicast Config", EXPFILL }},
       { &ei_mal_tcpip_last_conflict, { "cip.malformed.tcpip.last_conflict", PI_MALFORMED, PI_ERROR, "Malformed TCP/IP Last Conflict Detected", EXPFILL }},
       { &ei_mal_elink_interface_flags, { "cip.malformed.elink.interface_flags", PI_MALFORMED, PI_ERROR, "Malformed Ethernet Link Interface Flags", EXPFILL }},

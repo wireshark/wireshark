@@ -334,14 +334,14 @@ static int hf_cip_seg_safety_time_correction_prio = -1;
 static int hf_cip_seg_safety_time_correction_fixed_var = -1;
 static int hf_cip_seg_safety_time_correction_con_size = -1;
 static int hf_cip_seg_safety_tunid = -1;
-static int hf_cip_seg_safety_tunid_ssn_timestamp = -1;
-static int hf_cip_seg_safety_tunid_ssn_date = -1;
-static int hf_cip_seg_safety_tunid_ssn_time = -1;
+static int hf_cip_seg_safety_tunid_snn_timestamp = -1;
+static int hf_cip_seg_safety_tunid_snn_date = -1;
+static int hf_cip_seg_safety_tunid_snn_time = -1;
 static int hf_cip_seg_safety_tunid_macid = -1;
 static int hf_cip_seg_safety_ounid = -1;
-static int hf_cip_seg_safety_ounid_ssn_timestamp = -1;
-static int hf_cip_seg_safety_ounid_ssn_date = -1;
-static int hf_cip_seg_safety_ounid_ssn_time = -1;
+static int hf_cip_seg_safety_ounid_snn_timestamp = -1;
+static int hf_cip_seg_safety_ounid_snn_date = -1;
+static int hf_cip_seg_safety_ounid_snn_time = -1;
 static int hf_cip_seg_safety_ounid_macid = -1;
 static int hf_cip_seg_safety_ping_eri_multiplier = -1;
 static int hf_cip_seg_safety_time_coord_msg_min_multiplier = -1;
@@ -541,9 +541,9 @@ static gint ett_network_seg = -1;
 static gint ett_network_seg_safety = -1;
 static gint ett_network_seg_safety_time_correction_net_params = -1;
 static gint ett_cip_seg_safety_tunid = -1;
-static gint ett_cip_seg_safety_tunid_ssn = -1;
+static gint ett_cip_seg_safety_tunid_snn = -1;
 static gint ett_cip_seg_safety_ounid = -1;
-static gint ett_cip_seg_safety_ounid_ssn = -1;
+static gint ett_cip_seg_safety_ounid_snn = -1;
 
 static gint ett_rrsc = -1;
 static gint ett_status_item = -1;
@@ -4577,7 +4577,7 @@ static int dissect_segment_safety(packet_info* pinfo, tvbuff_t* tvb, int offset,
 
          proto_tree_add_item(safety_tree, hf_cip_seg_safety_reserved, tvb, offset + 3, 1, ENC_LITTLE_ENDIAN);
          proto_tree_add_item(safety_tree, hf_cip_seg_safety_configuration_crc, tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
-         dissect_cipsafety_ssn(safety_tree, tvb, pinfo, offset + 8,
+         dissect_cipsafety_snn(safety_tree, tvb, pinfo, offset + 8,
             hf_cip_seg_safety_configuration_timestamp, hf_cip_seg_safety_configuration_date, hf_cip_seg_safety_configuration_time);
          proto_tree_add_item(safety_tree, hf_cip_seg_safety_time_correction_epi, tvb, offset + 14, 4, ENC_LITTLE_ENDIAN);
          dissect_net_param16(tvb, offset + 18, safety_tree,
@@ -4586,13 +4586,13 @@ static int dissect_segment_safety(packet_info* pinfo, tvbuff_t* tvb, int offset,
             hf_cip_seg_safety_time_correction_fixed_var, hf_cip_seg_safety_time_correction_con_size,
             ett_network_seg_safety_time_correction_net_params);
          proto_item* it = proto_tree_add_item(safety_tree, hf_cip_seg_safety_tunid, tvb, offset + 20, 10, ENC_NA);
-         dissect_unid(tvb, pinfo, offset + 20, it, "Target UNID SNN", hf_cip_seg_safety_tunid_ssn_timestamp,
-            hf_cip_seg_safety_tunid_ssn_date, hf_cip_seg_safety_tunid_ssn_time, hf_cip_seg_safety_tunid_macid,
-            ett_cip_seg_safety_tunid, ett_cip_seg_safety_tunid_ssn);
+         dissect_unid(tvb, pinfo, offset + 20, it, "Target UNID SNN", hf_cip_seg_safety_tunid_snn_timestamp,
+            hf_cip_seg_safety_tunid_snn_date, hf_cip_seg_safety_tunid_snn_time, hf_cip_seg_safety_tunid_macid,
+            ett_cip_seg_safety_tunid, ett_cip_seg_safety_tunid_snn);
          it = proto_tree_add_item(safety_tree, hf_cip_seg_safety_ounid, tvb, offset + 30, 10, ENC_NA);
-         dissect_unid(tvb, pinfo, offset + 30, it, "Originator UNID SSN", hf_cip_seg_safety_ounid_ssn_timestamp,
-            hf_cip_seg_safety_ounid_ssn_date, hf_cip_seg_safety_ounid_ssn_time, hf_cip_seg_safety_ounid_macid,
-            ett_cip_seg_safety_ounid, ett_cip_seg_safety_ounid_ssn);
+         dissect_unid(tvb, pinfo, offset + 30, it, "Originator UNID SNN", hf_cip_seg_safety_ounid_snn_timestamp,
+            hf_cip_seg_safety_ounid_snn_date, hf_cip_seg_safety_ounid_snn_time, hf_cip_seg_safety_ounid_macid,
+            ett_cip_seg_safety_ounid, ett_cip_seg_safety_ounid_snn);
          proto_tree_add_item(safety_tree, hf_cip_seg_safety_ping_eri_multiplier, tvb, offset + 40, 2, ENC_LITTLE_ENDIAN);
          proto_tree_add_item(safety_tree, hf_cip_seg_safety_time_coord_msg_min_multiplier, tvb, offset + 42, 2, ENC_LITTLE_ENDIAN);
          proto_tree_add_item(safety_tree, hf_cip_seg_safety_network_time_expected_multiplier, tvb, offset + 44, 2, ENC_LITTLE_ENDIAN);
@@ -4624,7 +4624,7 @@ static int dissect_segment_safety(packet_info* pinfo, tvbuff_t* tvb, int offset,
 
          proto_tree_add_item(safety_tree, hf_cip_seg_safety_reserved, tvb, offset + 3, 1, ENC_LITTLE_ENDIAN);
          proto_tree_add_item(safety_tree, hf_cip_seg_safety_configuration_crc, tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
-         dissect_cipsafety_ssn(safety_tree, tvb, pinfo, offset + 8,
+         dissect_cipsafety_snn(safety_tree, tvb, pinfo, offset + 8,
             hf_cip_seg_safety_configuration_timestamp, hf_cip_seg_safety_configuration_date, hf_cip_seg_safety_configuration_time);
          proto_tree_add_item(safety_tree, hf_cip_seg_safety_time_correction_epi, tvb, offset + 14, 4, ENC_LITTLE_ENDIAN);
          dissect_net_param16(tvb, offset + 18, safety_tree,
@@ -4633,13 +4633,13 @@ static int dissect_segment_safety(packet_info* pinfo, tvbuff_t* tvb, int offset,
             hf_cip_seg_safety_time_correction_fixed_var, hf_cip_seg_safety_time_correction_con_size,
             ett_network_seg_safety_time_correction_net_params);
          proto_item* it = proto_tree_add_item(safety_tree, hf_cip_seg_safety_tunid, tvb, offset + 20, 10, ENC_NA);
-         dissect_unid(tvb, pinfo, offset + 20, it, "Target UNID SNN", hf_cip_seg_safety_tunid_ssn_timestamp,
-            hf_cip_seg_safety_tunid_ssn_date, hf_cip_seg_safety_tunid_ssn_time, hf_cip_seg_safety_tunid_macid,
-            ett_cip_seg_safety_tunid, ett_cip_seg_safety_tunid_ssn);
+         dissect_unid(tvb, pinfo, offset + 20, it, "Target UNID SNN", hf_cip_seg_safety_tunid_snn_timestamp,
+            hf_cip_seg_safety_tunid_snn_date, hf_cip_seg_safety_tunid_snn_time, hf_cip_seg_safety_tunid_macid,
+            ett_cip_seg_safety_tunid, ett_cip_seg_safety_tunid_snn);
          it = proto_tree_add_item(safety_tree, hf_cip_seg_safety_ounid, tvb, offset + 30, 10, ENC_NA);
-         dissect_unid(tvb, pinfo, offset + 30, it, "Originator UNID SSN", hf_cip_seg_safety_ounid_ssn_timestamp,
-            hf_cip_seg_safety_ounid_ssn_date, hf_cip_seg_safety_ounid_ssn_time, hf_cip_seg_safety_ounid_macid,
-            ett_cip_seg_safety_ounid, ett_cip_seg_safety_ounid_ssn);
+         dissect_unid(tvb, pinfo, offset + 30, it, "Originator UNID SNN", hf_cip_seg_safety_ounid_snn_timestamp,
+            hf_cip_seg_safety_ounid_snn_date, hf_cip_seg_safety_ounid_snn_time, hf_cip_seg_safety_ounid_macid,
+            ett_cip_seg_safety_ounid, ett_cip_seg_safety_ounid_snn);
          proto_tree_add_item(safety_tree, hf_cip_seg_safety_ping_eri_multiplier, tvb, offset + 40, 2, ENC_LITTLE_ENDIAN);
          proto_tree_add_item(safety_tree, hf_cip_seg_safety_time_coord_msg_min_multiplier, tvb, offset + 42, 2, ENC_LITTLE_ENDIAN);
          proto_tree_add_item(safety_tree, hf_cip_seg_safety_network_time_expected_multiplier, tvb, offset + 44, 2, ENC_LITTLE_ENDIAN);
@@ -8160,7 +8160,7 @@ proto_register_cip(void)
       { &hf_cip_seg_safety_reserved, { "Reserved", "cip.safety_segment.reserved", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_seg_safety_configuration_crc, { "Configuration CRC", "cip.safety_segment.configuration_crc", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_seg_safety_configuration_timestamp, { "Configuration Timestamp", "cip.safety_segment.configuration_timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0, NULL, HFILL }},
-      { &hf_cip_seg_safety_configuration_date, { "Configuration (Manual) Date", "cip.safety_segment.configuration_date", FT_UINT16, BASE_HEX, VALS(cipsafety_ssn_date_vals), 0, NULL, HFILL }},
+      { &hf_cip_seg_safety_configuration_date, { "Configuration (Manual) Date", "cip.safety_segment.configuration_date", FT_UINT16, BASE_HEX, VALS(cipsafety_snn_date_vals), 0, NULL, HFILL }},
       { &hf_cip_seg_safety_configuration_time, { "Configuration (Manual) Time", "cip.safety_segment.configuration_time", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_seg_safety_time_correction_epi, { "Time Correction EPI", "cip.safety_segment.time_correction_eri", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_seg_safety_time_correction_net_params, { "Time Correction Network Connection Parameters", "cip.safety_segment.time_correction.net_params", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
@@ -8170,14 +8170,14 @@ proto_register_cip(void)
       { &hf_cip_seg_safety_time_correction_fixed_var, { "Connection Size Type", "cip.safety_segment.time_correction.f_v", FT_UINT16, BASE_DEC, VALS(cip_con_fw_vals), 0x0200, "Time Correction: Fixed or variable connection size", HFILL }},
       { &hf_cip_seg_safety_time_correction_con_size, { "Connection Size", "cip.safety_segment.time_correction.consize", FT_UINT16, BASE_DEC, NULL, 0x01FF, "Time Correction: Connection size", HFILL }},
       { &hf_cip_seg_safety_tunid, { "Target UNID", "cip.safety_segment.tunid", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-      { &hf_cip_seg_safety_tunid_ssn_timestamp, { "SSN Timestamp", "cip.safety_segment.tunid.ssn.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0, NULL, HFILL }},
-      { &hf_cip_seg_safety_tunid_ssn_date, { "SSN (Manual) Date", "cip.safety_segment.tunid.ssn.date", FT_UINT16, BASE_HEX, VALS(cipsafety_ssn_date_vals), 0, NULL, HFILL }},
-      { &hf_cip_seg_safety_tunid_ssn_time, { "SSN (Manual) Time", "cip.safety_segment.tunid.ssn.time", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+      { &hf_cip_seg_safety_tunid_snn_timestamp, { "SNN Timestamp", "cip.safety_segment.tunid.snn.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0, NULL, HFILL }},
+      { &hf_cip_seg_safety_tunid_snn_date, { "SNN (Manual) Date", "cip.safety_segment.tunid.snn.date", FT_UINT16, BASE_HEX, VALS(cipsafety_snn_date_vals), 0, NULL, HFILL }},
+      { &hf_cip_seg_safety_tunid_snn_time, { "SNN (Manual) Time", "cip.safety_segment.tunid.snn.time", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_seg_safety_tunid_macid, { "MAC ID", "cip.safety_segment.tunid.macid", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_seg_safety_ounid, { "Originator UNID", "cip.safety_segment.ounid", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
-      { &hf_cip_seg_safety_ounid_ssn_timestamp, { "SSN Timestamp", "cip.safety_segment.tunid.ssn.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0, NULL, HFILL }},
-      { &hf_cip_seg_safety_ounid_ssn_date, { "SSN (Manual) Date", "cip.safety_segment.tunid.ssn.date", FT_UINT16, BASE_HEX, VALS(cipsafety_ssn_date_vals), 0, NULL, HFILL }},
-      { &hf_cip_seg_safety_ounid_ssn_time, { "SSN (Manual) Time", "cip.safety_segment.tunid.ssn.time", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+      { &hf_cip_seg_safety_ounid_snn_timestamp, { "SNN Timestamp", "cip.safety_segment.tunid.snn.timestamp", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0, NULL, HFILL }},
+      { &hf_cip_seg_safety_ounid_snn_date, { "SNN (Manual) Date", "cip.safety_segment.tunid.snn.date", FT_UINT16, BASE_HEX, VALS(cipsafety_snn_date_vals), 0, NULL, HFILL }},
+      { &hf_cip_seg_safety_ounid_snn_time, { "SNN (Manual) Time", "cip.safety_segment.tunid.snn.time", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_seg_safety_ounid_macid, { "MAC ID", "cip.safety_segment.ounid.macid", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_seg_safety_ping_eri_multiplier, { "Ping Interval EPI Multiplier", "cip.safety_segment.ping_eri_multiplier", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_seg_safety_time_coord_msg_min_multiplier, { "Time Coord Msg Min Multiplier", "cip.safety_segment.time_coord_msg_min_multiplier", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
@@ -8558,9 +8558,9 @@ proto_register_cip(void)
       &ett_network_seg_safety,
       &ett_network_seg_safety_time_correction_net_params,
       &ett_cip_seg_safety_tunid,
-      &ett_cip_seg_safety_tunid_ssn,
+      &ett_cip_seg_safety_tunid_snn,
       &ett_cip_seg_safety_ounid,
-      &ett_cip_seg_safety_ounid_ssn,
+      &ett_cip_seg_safety_ounid_snn,
       &ett_status_item,
       &ett_add_status_item,
       &ett_cip_get_attributes_all_item,
