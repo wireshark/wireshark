@@ -1097,12 +1097,6 @@ ws_find_package(SPANDSP ENABLE_SPANDSP HAVE_SPANDSP)
 ws_find_package(BCG729 ENABLE_BCG729 HAVE_BCG729)
 
 ws_find_package(LibXml2 ENABLE_LIBXML2 HAVE_LIBXML2)
-if(NOT LIBXML2_FOUND)
-	# The (official) FindLibXml2.cmake file sets this cache variable to a
-	# non-empty value, be sure to clear it when not found.
-	set(LIBXML2_LIBRARIES "")
-	set(LIBXML2_INCLUDE_DIR "")
-endif()
 
 # Capabilities
 ws_find_package(CAP ENABLE_CAP HAVE_LIBCAP)

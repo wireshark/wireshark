@@ -41,3 +41,22 @@ function( FindWSWinLibs _WS_LIB_SEARCH_PATH _LIB_HINT_VAR )
     endforeach()
   endif()
 endfunction()
+
+function(AddWSWinDLL _PKG_NAME _PKG_HINTS _DLL_GLOB)
+  if(WIN32 AND ${_PKG_NAME}_FOUND)
+    string(TOUPPER ${_PKG_NAME} _PKG_VAR)
+    set ( ${_PKG_VAR}_DLL_DIR "${${_PKG_HINTS}}/bin"
+      CACHE PATH "Path to ${_PKG_NAME} DLL"
+    )
+    file( GLOB _pkg_dll RELATIVE "${${_PKG_VAR}_DLL_DIR}"
+      "${${_PKG_VAR}_DLL_DIR}/${_DLL_GLOB}.dll"
+    )
+    set ( ${_PKG_VAR}_DLL ${_pkg_dll}
+      CACHE STRING "${_PKG_NAME} DLL file name"
+    )
+    mark_as_advanced( ${_PKG_VAR}_DLL_DIR ${_PKG_VAR}_DLL )
+  else()
+    set( ${_PKG_VAR}_DLL_DIR )
+    set( ${_PKG_VAR}_DLL )
+  endif()
+endfunction()

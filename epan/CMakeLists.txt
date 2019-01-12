@@ -29,7 +29,7 @@ include_directories(
 		${SMI_INCLUDE_DIRS}
 		${SNAPPY_INCLUDE_DIRS}
 		${ZLIB_INCLUDE_DIRS}
-		${LIBXML2_INCLUDE_DIR}
+		${LIBXML2_INCLUDE_DIRS}
 )
 
 add_definitions(
