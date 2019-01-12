@@ -248,7 +248,6 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	unit_strings.c
 	xdlc.c
 	${CMAKE_CURRENT_BINARY_DIR}/ps.c
-	${CMAKE_SOURCE_DIR}/version_info.c
 )
 
 set(LIBWIRESHARK_FILES ${LIBWIRESHARK_NONGENERATED_FILES})
@@ -278,12 +277,11 @@ add_library(epan
 	$<TARGET_OBJECTS:dissectors>
 	$<TARGET_OBJECTS:dissectors-corba>
 	$<TARGET_OBJECTS:ftypes>
+	$<TARGET_OBJECTS:version_info>
 	$<TARGET_OBJECTS:wmem>
 	$<$<BOOL:${HAVE_LIBLUA}>:$<TARGET_OBJECTS:wslua>>
 	${CMAKE_BINARY_DIR}/image/libwireshark.rc
 )
-
-add_dependencies(epan version)
 
 if(ENABLE_PLUGINS)
 	target_compile_definitions(epan PUBLIC HAVE_PLUGINS)

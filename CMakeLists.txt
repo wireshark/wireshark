@@ -1614,17 +1614,6 @@ elseif(APPLE)
 	)
 endif()
 
-# sources common for wireshark, tshark, rawshark and sharkd
-set(SHARK_COMMON_SRC
-	cfile.c
-	file_packet_provider.c
-	frame_tvbuff.c
-	sync_pipe_write.c
-	version_info.c
-	extcap.c
-	extcap_parser.c
-)
-
 set(TSHARK_TAP_SRC
 	${CMAKE_SOURCE_DIR}/ui/cli/tap-camelsrt.c
 	${CMAKE_SOURCE_DIR}/ui/cli/tap-diameter-avp.c
@@ -2115,16 +2104,38 @@ list(APPEND copy_data_files_depends
 add_custom_target(copy_data_files ALL DEPENDS ${copy_data_files_depends} )
 set_target_properties(copy_data_files PROPERTIES FOLDER "Copy Tasks")
 
+
+# Shared code, build object files once for all users.
+add_library(version_info OBJECT version_info.c)
+add_dependencies(version_info version)
+# sources common for wireshark, tshark, rawshark and sharkd
+add_library(shark_common OBJECT
+	cfile.c
+	extcap.c
+	extcap_parser.c
+	file_packet_provider.c
+	frame_tvbuff.c
+	sync_pipe_write.c
+)
+add_library(cli_main OBJECT cli_main.c)
+add_library(capture_opts OBJECT capture_opts.c)
+set_target_properties(version_info shark_common cli_main capture_opts
+	PROPERTIES
+	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
+)
+
+
 if(BUILD_wireshark AND QT_FOUND)
 	set(WIRESHARK_SRC
 		capture_info.c
-		capture_opts.c
 		file.c
 		fileset.c
-		${SHARK_COMMON_SRC}
 		${PLATFORM_UI_SRC}
 	)
 	set(wireshark_FILES
+		$<TARGET_OBJECTS:capture_opts>
+		$<TARGET_OBJECTS:shark_common>
+		$<TARGET_OBJECTS:version_info>
 		${WIRESHARK_SRC}
 		${PLATFORM_UI_RC_FILES}
 	)
@@ -2224,7 +2235,6 @@ if(BUILD_wireshark AND QT_FOUND)
 	)
 
 	add_executable(wireshark WIN32 MACOSX_BUNDLE ${wireshark_FILES} ${EXTRA_BUNDLE_FILES})
-	add_dependencies(wireshark version)
 	set(PROGLIST ${PROGLIST} wireshark)
 	set_target_properties(wireshark PROPERTIES
 		LINK_FLAGS "${WS_LINK_FLAGS}"
@@ -2332,17 +2342,17 @@ if(BUILD_tshark)
 		${M_LIBRARIES}
 	)
 	set(tshark_FILES
-		cli_main.c
-		capture_opts.c
+		$<TARGET_OBJECTS:capture_opts>
+		$<TARGET_OBJECTS:cli_main>
+		$<TARGET_OBJECTS:shark_common>
+		$<TARGET_OBJECTS:version_info>
 		tshark-tap-register.c
 		tshark.c
 		${TSHARK_TAP_SRC}
-		${SHARK_COMMON_SRC}
 	)
 
 	set_executable_resources(tshark "TShark" UNIQUE_RC)
 	add_executable(tshark ${tshark_FILES})
-	add_dependencies(tshark version)
 	set_extra_executable_properties(tshark "Executables")
 	target_link_libraries(tshark ${tshark_LIBS})
 	install(TARGETS tshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -2358,14 +2368,14 @@ if(BUILD_tfshark)
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 	)
 	set(tfshark_FILES
-		cli_main.c
+		$<TARGET_OBJECTS:cli_main>
+		$<TARGET_OBJECTS:shark_common>
+		$<TARGET_OBJECTS:version_info>
 		tfshark.c
 		${TSHARK_TAP_SRC}
-		${SHARK_COMMON_SRC}
 	)
 	set_executable_resources(tfshark "TFShark")
 	add_executable(tfshark ${tfshark_FILES})
-	add_dependencies(tfshark version)
 	set_extra_executable_properties(tfshark "Executables")
 	target_link_libraries(tfshark ${tfshark_LIBS})
 	install(TARGETS tfshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -2382,13 +2392,13 @@ if(BUILD_rawshark AND PCAP_FOUND)
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 	)
 	set(rawshark_FILES
-		cli_main.c
-		${SHARK_COMMON_SRC}
+		$<TARGET_OBJECTS:cli_main>
+		$<TARGET_OBJECTS:shark_common>
+		$<TARGET_OBJECTS:version_info>
 		rawshark.c
 	)
 	set_executable_resources(rawshark "Rawshark")
 	add_executable(rawshark ${rawshark_FILES})
-	add_dependencies(rawshark version)
 	set_extra_executable_properties(rawshark "Executables")
 	target_link_libraries(rawshark ${rawshark_LIBS})
 	install(TARGETS rawshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -2407,16 +2417,16 @@ if(BUILD_sharkd)
 	set(sharkd_FILES
 		#
 		# XXX - currently doesn't work on Windows if it uses
-		# cli_main.c and has real_main().
+		# $<TARGET_OBJECTS:cli_main> and has real_main().
 		#
+		$<TARGET_OBJECTS:shark_common>
+		$<TARGET_OBJECTS:version_info>
 		sharkd.c
 		sharkd_daemon.c
 		sharkd_session.c
-		${SHARK_COMMON_SRC}
 	)
 	set_executable_resources(sharkd "SharkD")
 	add_executable(sharkd ${sharkd_FILES})
-	add_dependencies(sharkd version)
 	set_extra_executable_properties(sharkd "Executables")
 	target_link_libraries(sharkd ${sharkd_LIBS})
 	if(WIN32)
@@ -2437,7 +2447,6 @@ if(BUILD_dftest)
 		dftest.c
 	)
 	add_executable(dftest ${dftest_FILES})
-	add_dependencies(dftest version)
 	set_extra_executable_properties(dftest "Tests")
 	target_link_libraries(dftest ${dftest_LIBS})
 endif()
@@ -2454,12 +2463,11 @@ if(BUILD_randpkt)
 		${ZLIB_LIBRARIES}
 	)
 	set(randpkt_FILES
-		cli_main.c
+		$<TARGET_OBJECTS:cli_main>
+		$<TARGET_OBJECTS:version_info>
 		randpkt.c
-		version_info.c
 	)
 	add_executable(randpkt ${randpkt_FILES})
-	add_dependencies(randpkt version)
 	set_extra_executable_properties(randpkt "Executables")
 	target_link_libraries(randpkt ${randpkt_LIBS})
 	install(TARGETS randpkt RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -2477,9 +2485,9 @@ if(BUILD_text2pcap)
 		${ZLIB_LIBRARIES}
 	)
 	set(text2pcap_FILES
-		cli_main.c
+		$<TARGET_OBJECTS:cli_main>
+		$<TARGET_OBJECTS:version_info>
 		text2pcap.c
-		version_info.c
 	)
 	add_lex_files(text2pcap_LEX_FILES text2pcap_FILES
 		text2pcap-scanner.l
@@ -2487,7 +2495,6 @@ if(BUILD_text2pcap)
 	set_executable_resources(text2pcap "Text2pcap"
 		COPYRIGHT_INFO "2001 Ashok Narayanan <ashokn@cisco.com>")
 	add_executable(text2pcap ${text2pcap_FILES})
-	add_dependencies(text2pcap version)
 	set_extra_executable_properties(text2pcap "Executables")
 	target_link_libraries(text2pcap ${text2pcap_LIBS})
 	install(TARGETS text2pcap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -2501,13 +2508,12 @@ if(BUILD_mergecap)
 		${CMAKE_DL_LIBS}
 	)
 	set(mergecap_FILES
-		cli_main.c
+		$<TARGET_OBJECTS:cli_main>
+		$<TARGET_OBJECTS:version_info>
 		mergecap.c
-		version_info.c
 	)
 	set_executable_resources(mergecap "Mergecap")
 	add_executable(mergecap ${mergecap_FILES})
-	add_dependencies(mergecap version)
 	set_extra_executable_properties(mergecap "Executables")
 	target_link_libraries(mergecap ${mergecap_LIBS})
 	install(TARGETS mergecap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -2521,13 +2527,12 @@ if(BUILD_reordercap)
 		${CMAKE_DL_LIBS}
 	)
 	set(reordercap_FILES
-		cli_main.c
+		$<TARGET_OBJECTS:cli_main>
+		$<TARGET_OBJECTS:version_info>
 		reordercap.c
-		version_info.c
 	)
 	set_executable_resources(reordercap "Reordercap")
 	add_executable(reordercap ${reordercap_FILES})
-	add_dependencies(reordercap version)
 	set_extra_executable_properties(reordercap "Executables")
 	target_link_libraries(reordercap ${reordercap_LIBS})
 	install(TARGETS reordercap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -2543,13 +2548,12 @@ if(BUILD_capinfos)
 		${CMAKE_DL_LIBS}
 	)
 	set(capinfos_FILES
-		cli_main.c
+		$<TARGET_OBJECTS:cli_main>
+		$<TARGET_OBJECTS:version_info>
 		capinfos.c
-		version_info.c
 	)
 	set_executable_resources(capinfos "Capinfos")
 	add_executable(capinfos ${capinfos_FILES})
-	add_dependencies(capinfos version)
 	set_extra_executable_properties(capinfos "Executables")
 	target_link_libraries(capinfos ${capinfos_LIBS})
 	install(TARGETS capinfos RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -2564,13 +2568,12 @@ if(BUILD_captype)
 		${CMAKE_DL_LIBS}
 	)
 	set(captype_FILES
-		cli_main.c
+		$<TARGET_OBJECTS:cli_main>
+		$<TARGET_OBJECTS:version_info>
 		captype.c
-		version_info.c
 	)
 	set_executable_resources(captype "Captype")
 	add_executable(captype ${captype_FILES})
-	add_dependencies(captype version)
 	set_extra_executable_properties(captype "Executables")
 	target_link_libraries(captype ${captype_LIBS})
 	install(TARGETS captype RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -2585,13 +2588,12 @@ if(BUILD_editcap)
 		${CMAKE_DL_LIBS}
 	)
 	set(editcap_FILES
-		cli_main.c
+		$<TARGET_OBJECTS:cli_main>
+		$<TARGET_OBJECTS:version_info>
 		editcap.c
-		version_info.c
 	)
 	set_executable_resources(editcap "Editcap")
 	add_executable(editcap ${editcap_FILES})
-	add_dependencies(editcap version)
 	set_extra_executable_properties(editcap "Executables")
 	target_link_libraries(editcap ${editcap_LIBS})
 	install(TARGETS editcap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
@@ -2613,16 +2615,15 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		${NL_LIBRARIES}
 	)
 	set(dumpcap_FILES
-		cli_main.c
-		capture_opts.c
+		$<TARGET_OBJECTS:capture_opts>
+		$<TARGET_OBJECTS:cli_main>
+		$<TARGET_OBJECTS:version_info>
 		dumpcap.c
 		ringbuffer.c
 		sync_pipe_write.c
-		version_info.c
 	)
 	set_executable_resources(dumpcap "Dumpcap" UNIQUE_RC)
 	add_executable(dumpcap ${dumpcap_FILES})
-	add_dependencies(dumpcap version)
 	set_extra_executable_properties(dumpcap "Executables")
 	target_link_libraries(dumpcap ${dumpcap_LIBS})
 	install(TARGETS dumpcap
@@ -2948,6 +2949,7 @@ if (WIN32)
 	list(FILTER CLEAN_C_FILES EXCLUDE REGEX ".*\\.rc")
 endif (WIN32)
 
+# XXX This also contains object files ($<TARGET_OBJECTS:...>), is that an issue?
 set_source_files_properties(
 	${CLEAN_C_FILES}
 	PROPERTIES

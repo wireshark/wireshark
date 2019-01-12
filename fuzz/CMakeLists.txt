@@ -40,7 +40,7 @@ if(OSS_FUZZ)
 endif()
 set(fuzzshark_FILES
 	fuzzshark.c
-	${CMAKE_SOURCE_DIR}/version_info.c
+	$<TARGET_OBJECTS:version_info>
 )
 set(FUZZ_LINK_FLAGS "${WS_LINK_FLAGS}")
 if(ENABLE_FUZZER)
@@ -63,7 +63,6 @@ string(REPLACE ";" ", " FUZZ_DISABLED_DISSECTORS_MACRO "${FUZZ_DISABLED_DISSECTO
 add_custom_target(all-fuzzers)
 
 function(fuzzshark_set_common_options fuzzer_name)
-	add_dependencies(${fuzzer_name} version)
 	# Sanitizers require a C++ runtime, so use a C++ linker.
 	set_target_properties(${fuzzer_name} PROPERTIES
 		FOLDER "Fuzzers"

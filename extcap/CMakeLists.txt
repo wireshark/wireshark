@@ -75,6 +75,11 @@ endmacro()
 
 add_custom_target(extcaps)
 
+add_library(extcap-base OBJECT extcap-base.c)
+if(LIBSSH_FOUND)
+	add_library(ssh-base OBJECT ssh-base.c)
+endif()
+
 if(BUILD_androiddump)
 	if(EXTCAP_ANDROIDDUMP_LIBPCAP)
 		if(HAVE_LIBPCAP)
@@ -96,9 +101,9 @@ if(BUILD_androiddump)
 		)
 	endif()
 	set(androiddump_FILES
-		../cli_main.c
+		$<TARGET_OBJECTS:cli_main>
+		$<TARGET_OBJECTS:extcap-base>
 		androiddump.c
-		extcap-base.c
 	)
 
 	set_executable_resources(androiddump "Androiddump")
@@ -117,10 +122,10 @@ if(BUILD_sshdump AND LIBSSH_FOUND)
 		${LIBSSH_LIBRARIES}
 	)
 	set(sshdump_FILES
-		../cli_main.c
+		$<TARGET_OBJECTS:cli_main>
+		$<TARGET_OBJECTS:extcap-base>
+		$<TARGET_OBJECTS:ssh-base>
 		sshdump.c
-		extcap-base.c
-		ssh-base.c
 	)
 
 	set_executable_resources(sshdump "Sshdump")
@@ -143,10 +148,10 @@ if(BUILD_ciscodump AND LIBSSH_FOUND)
 		${LIBSSH_LIBRARIES}
 	)
 	set(ciscodump_FILES
-		../cli_main.c
+		$<TARGET_OBJECTS:cli_main>
+		$<TARGET_OBJECTS:extcap-base>
+		$<TARGET_OBJECTS:ssh-base>
 		ciscodump.c
-		extcap-base.c
-		ssh-base.c
 	)
 
 	set_executable_resources(ciscodump "Ciscodump")
@@ -169,8 +174,8 @@ if(BUILD_dpauxmon AND HAVE_LIBNL3)
 		${NL_LIBRARIES}
 	)
 	set(dpauxmon_FILES
+		$<TARGET_OBJECTS:extcap-base>
 		dpauxmon.c
-		extcap-base.c
 	)
 
 	set_executable_resources(dpauxmon "dpauxmon")
@@ -192,9 +197,9 @@ if(BUILD_udpdump)
 		writecap
 	)
 	set(udpdump_FILES
-		../cli_main.c
+		$<TARGET_OBJECTS:cli_main>
+		$<TARGET_OBJECTS:extcap-base>
 		udpdump.c
-		extcap-base.c
 	)
 
 	set_executable_resources(udpdump "udpdump")
@@ -215,8 +220,8 @@ if(BUILD_randpktdump)
 		${CMAKE_DL_LIBS}
 	)
 	set(randpktdump_FILES
-		../cli_main.c
-		extcap-base.c
+		$<TARGET_OBJECTS:cli_main>
+		$<TARGET_OBJECTS:extcap-base>
 		randpktdump.c
 	)
 
@@ -240,7 +245,7 @@ if(BUILD_sdjournal AND SYSTEMD_FOUND)
 		${SYSTEMD_LIBRARIES}
 	)
 	set(sdjournal_FILES
-		extcap-base.c
+		$<TARGET_OBJECTS:extcap-base>
 		sdjournal.c
 	)
 
@@ -254,9 +259,15 @@ elseif (BUILD_sdjournal)
 	#message( WARNING "Cannot find libsystemd, cannot build sdjournal" )
 endif()
 
-set(CLEAN_C_FILES
-	${dumpcap_FILES}
-	${androiddump_FILES}
-	${sshdump_FILES}
-	${ciscodump_FILES}
-)
+#
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
+#
+# Local variables:
+# c-basic-offset: 8
+# tab-width: 8
+# indent-tabs-mode: t
+# End:
+#
+# vi: set shiftwidth=8 tabstop=8 noexpandtab:
+# :indentSize=8:tabSize=8:noTabs=false:
+#

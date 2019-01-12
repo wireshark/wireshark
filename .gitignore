@@ -36,7 +36,6 @@ epan/dissectors/dissectors.in.txt
 epan/dtd_parse.c
 epan/dtd_preparse.c
 epan/uat_load.c
-epan/version_info.c
 epan/wslua/declare_wslua.h
 epan/wslua/register_wslua.c
 epan/wslua/taps.txt
@@ -51,7 +50,6 @@ tshark-tap-register.c
 wiretap/ascend.c
 wiretap/ascend.h
 wiretap/k12text.c
-wiretap/version_info.c
 wireshark-tap-register.c
 
 # CMake #

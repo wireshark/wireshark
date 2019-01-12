@@ -83,7 +83,6 @@ set(WIRETAP_NONGENERATED_FILES
 	vwr.c
 	wtap.c
 	wtap_opttypes.c
-	${CMAKE_SOURCE_DIR}/version_info.c
 )
 
 set(WIRETAP_FILES ${WIRETAP_NONGENERATED_FILES})
@@ -108,10 +107,9 @@ set_source_files_properties(
 
 add_library(wiretap
 	${WIRETAP_FILES}
+	$<TARGET_OBJECTS:version_info>
 	${CMAKE_BINARY_DIR}/image/wiretap.rc
 )
-
-add_dependencies(wiretap version)
 
 set_target_properties(wiretap PROPERTIES
 	PREFIX "lib"
