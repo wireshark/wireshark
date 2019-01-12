@@ -24,7 +24,6 @@
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "pcap-encap.h"
-#include "version_info.h"
 
 #include <wsutil/buffer.h>
 #include "wsutil/tempfile.h"
@@ -863,9 +862,10 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 
 	/*
 	* UTF-8 string containing the name of the application used to create
-	* this section.
+	* this section. Avoid the precise version (get_appname_and_version) to
+	* avoid wiretap rebuilds when only the version changes.
 	*/
-	wtap_block_add_string_option_format(shb_hdr, OPT_SHB_USERAPPL, "%s", get_appname_and_version());
+	wtap_block_add_string_option_format(shb_hdr, OPT_SHB_USERAPPL, "Wireshark %s", VERSION);
 
 	/* Add header to the array */
 	g_array_append_val(shb_hdrs, shb_hdr);
