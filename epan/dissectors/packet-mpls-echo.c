@@ -539,7 +539,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
         tlv_fec_tree = NULL;
 
         if (tree) {
-            tlv_fec_tree = proto_tree_add_subtree_format(tree, tvb, offset, length + 4 + (4-(length%4)),
+            tlv_fec_tree = proto_tree_add_subtree_format(tree, tvb, offset, length + (4-(length%4)),
                                      ett_mpls_echo_tlv_fec, NULL, "FEC Element %u: %s",
                                      idx, val_to_str_ext(type, &mpls_echo_tlv_fec_names_ext,
                                                          "Unknown FEC type (0x%04X)"));
