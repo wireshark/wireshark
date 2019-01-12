@@ -1230,16 +1230,11 @@ else()
 	# non-empty value, be sure to clear it when not found.
 	set(LIBXML2_LIBRARIES "")
 endif()
-
 if (HAVE_LIBWINSPARKLE)
 	set(HAVE_SOFTWARE_UPDATE 1)
 endif()
-
 if(HAVE_LIBZLIB)
 	set(HAVE_ZLIB 1)
-	# Always include the "true" zlib includes first. This works around a
-	# bug in the Windows setup of GTK[23] which has a faulty zconf.h.
-	include_directories(BEFORE ${ZLIB_INCLUDE_DIRS})
 endif()
 if(HAVE_LIBLZ4)
 	set(HAVE_LZ4 1)
