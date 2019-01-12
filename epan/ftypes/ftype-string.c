@@ -90,12 +90,12 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 {
 	fvalue_t *fv_bytes;
 
-	/* Free up the old value, if we have one */
-	string_fvalue_free(fv);
-
 	/* Does this look like a byte-string? */
 	fv_bytes = fvalue_from_unparsed(FT_BYTES, s, TRUE, NULL);
 	if (fv_bytes) {
+		/* Free up the old value, if we have one */
+		string_fvalue_free(fv);
+
 		/* Copy the bytes over to a string and terminate it
 		 * with a NUL. XXX - what if the user embeds a NUL
 		 * in the middle of the byte string? */
@@ -107,10 +107,10 @@ val_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_,
 
 		FVALUE_FREE(fv_bytes);
 		return TRUE;
+	} else {
+		/* Just turn it into a string */
+		return val_from_string(fv, s, err_msg);
 	}
-
-	/* Just turn it into a string */
-	return val_from_string(fv, s, err_msg);
 }
 
 static guint
