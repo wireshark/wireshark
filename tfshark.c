@@ -275,6 +275,21 @@ tfshark_log_handler (const gchar *log_domain, GLogLevelFlags log_level,
     return;
   }
 
+#if !GLIB_CHECK_VERSION(2, 31, 2)
+  /*
+   * When preferences are not loaded, be sure to disable debug/info logging
+   * by default unless G_MESSAGES_DEBUG is set to an appropriate value
+   * (this matches GLib 2.31.2 and newer).
+   */
+  if ((log_level & (G_LOG_LEVEL_DEBUG | G_LOG_LEVEL_INFO))) {
+    const gchar *domains = g_getenv("G_MESSAGES_DEBUG");
+    if (domains == NULL ||
+       (strcmp(domains, "all") != 0 && !strstr(domains, log_domain))) {
+      return;
+    }
+  }
+#endif
+
   g_log_default_handler(log_domain, log_level, message, user_data);
 
 }
