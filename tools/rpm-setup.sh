@@ -175,6 +175,9 @@ echo "asciidoctor is unavailable" >&2
 add_package ADDITIONAL_LIST ninja || add_package ADDITIONAL_LIST ninja-build ||
 echo "ninja is unavailable" >&2
 
+add_package ADDITIONAL_LIST libxslt || add_package ADDITIONAL_LIST libxslt1 ||
+echo "xslt is unavailable" >&2
+
 ACTUAL_LIST=$BASIC_LIST
 
 # Now arrange for optional support libraries

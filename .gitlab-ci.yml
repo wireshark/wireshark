@@ -124,6 +124,7 @@ rpm-opensuse-42.3:
   script:
     - zypper --non-interactive install which update-desktop-files
     - tools/rpm-setup.sh --install-optional
+    - gem install asciidoctor
     - mkdir build
     - cd build
     - cmake ..
