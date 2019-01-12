@@ -1109,8 +1109,8 @@ SectionEnd
 Section /o "Randpkt" SecRandpkt
 ;-------------------------------------------
 SetOutPath $INSTDIR
-File "${STAGING_DIR}\randpktdump.exe"
-File "${STAGING_DIR}\randpktdump.html"
+File "${STAGING_DIR}\randpkt.exe"
+File "${STAGING_DIR}\randpkt.html"
 SectionEnd
 
 !ifdef MMDBRESOLVE_EXE
