@@ -2134,6 +2134,7 @@ if(BUILD_wireshark AND QT_FOUND)
 	)
 	set(wireshark_FILES
 		$<TARGET_OBJECTS:capture_opts>
+		$<TARGET_OBJECTS:qtui>
 		$<TARGET_OBJECTS:shark_common>
 		$<TARGET_OBJECTS:version_info>
 		${WIRESHARK_SRC}
@@ -2215,7 +2216,6 @@ endif()
 
 if(BUILD_wireshark AND QT_FOUND)
 	set(wireshark_LIBS
-		qtui
 		ui
 		capchild
 		caputils
@@ -2232,6 +2232,7 @@ if(BUILD_wireshark AND QT_FOUND)
 		${NL_LIBRARIES}
 		${WIN_VERSION_LIBRARY}
 		${WINSPARKLE_LIBRARIES}
+		$<$<BOOL:${WIN32}>:UxTheme.lib>
 	)
 
 	add_executable(wireshark WIN32 MACOSX_BUNDLE ${wireshark_FILES} ${EXTRA_BUNDLE_FILES})
