@@ -132,7 +132,8 @@ rpm-opensuse-42.3:
 rpm-fedora-28:
   image: fedora:28
   script:
-    - yum install -y which
+    - dnf upgrade -y
+    - dnf install -y which
     - tools/rpm-setup.sh --install-optional -y
     - mkdir build
     - cd build
