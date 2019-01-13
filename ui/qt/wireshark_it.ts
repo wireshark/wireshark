@@ -77,9 +77,9 @@
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation type="unfinished">
+        <translation>
+            <numerusform>Copia riga</numerusform>
             <numerusform>Copia righe</numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
 </context>

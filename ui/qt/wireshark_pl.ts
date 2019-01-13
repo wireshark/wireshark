@@ -78,7 +78,7 @@
     <message numerus="yes">
         <source>Copy Row(s)</source>
         <translation type="unfinished">
-            <numerusform>Kopiuj wiersz(e)</numerusform>
+            <numerusform></numerusform>
             <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>

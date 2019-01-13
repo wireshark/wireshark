@@ -77,7 +77,7 @@
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>复制行</numerusform>
         </translation>
     </message>
@@ -701,6 +701,20 @@
 </context>
 <context>
     <name>CaptureFileDialog</name>
+    <message numerus="yes">
+        <source>%1, error after %Ln packet(s)</source>
+        <oldsource>%1, error after %2 packets</oldsource>
+        <translation type="vanished">
+            <numerusform>%1，在 %Ln 个分组后出错</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, timed out at %Ln packet(s)</source>
+        <oldsource>%1, timed out at %2 packets</oldsource>
+        <translation type="vanished">
+            <numerusform>%1，在 %Ln 个分组后超时</numerusform>
+        </translation>
+    </message>
     <message numerus="yes">
         <source>%1, %Ln packet(s)</source>
         <translation type="vanished">
@@ -7932,7 +7946,7 @@ text-decoration: underline;
     <name>PacketCommentDialog</name>
     <message>
         <source>Packet %1 Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>分组 %1 注释</translation>
     </message>
 </context>
 <context>
@@ -10470,11 +10484,11 @@ text-decoration: underline;
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished">警告</translation>
+        <translation>警告</translation>
     </message>
     <message>
         <source>Could not find SCTP Association with id: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>找不到 ID 为 %1 的 SCTP 关联</translation>
     </message>
     <message>
         <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
