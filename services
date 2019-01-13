@@ -9937,6 +9937,7 @@ warppipe         8007/udp # I/O oriented cluster computing software [MirrorWeb_L
 http-alt         8008/tcp # HTTP Alternate [James_Gettys] [James_Gettys]
 http-alt         8008/udp # HTTP Alternate [James_Gettys] [James_Gettys]
 nvme-disc        8009/tcp # NVMe over Fabrics Discovery Service [NVM_Express_Inc] [Amber_Huffman] 2018-03-27
+cfg-cloud        8015/tcp # Configuration Cloud Service [admin_at_cfg_cloud] [Goksel_Darcan] 2019-01-09
 qbdb             8019/tcp # QB DB Dynamic Port [Sridhar_Krishnamurth] [Sridhar_Krishnamurth] 2008-02-15
 qbdb             8019/udp # QB DB Dynamic Port [Sridhar_Krishnamurth] [Sridhar_Krishnamurth] 2008-02-15
 intu-ec-svcdisc  8020/tcp # Intuit Entitlement Service and Discovery [Daniel_C_McGloin] [Daniel_C_McGloin] 2005-05

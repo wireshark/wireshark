@@ -2530,7 +2530,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="200"/>
         <source>Summary</source>
-        <translation type="unfinished"></translation>
+        <translation>概要</translation>
     </message>
     <message>
         <location filename="expert_info_proxy_model.cpp" line="202"/>
