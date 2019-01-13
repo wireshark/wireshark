@@ -2279,14 +2279,6 @@ NOTE: Une option DOIT être sélectionnée.</translation>
         <source>Save All Objects In</source>
         <translation>Enregistrer tous les objets dans</translation>
     </message>
-    <message>
-        <source>Object Export</source>
-        <translation type="vanished">Object exporté</translation>
-    </message>
-    <message>
-        <source>Some files could not be saved.</source>
-        <translation type="vanished">Certains fichiers ne sont pas sauvegardés.</translation>
-    </message>
 </context>
 <context>
     <name>ExportObjectModel</name>
@@ -12669,7 +12661,8 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Remove</source>
+        <source>Remove from list</source>
+        <oldsource>Remove</oldsource>
         <translation type="unfinished"></translation>
     </message>
 </context>

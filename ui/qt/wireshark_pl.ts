@@ -102,7 +102,7 @@
     <message numerus="yes">
         <source>Copy Row(s)</source>
         <translation type="unfinished">
-            <numerusform>Kopiuj wiersz(e)</numerusform>
+            <numerusform></numerusform>
             <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
@@ -2309,14 +2309,6 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <source>Save All Objects In</source>
         <translation>Zapisz wszystkie obiekty</translation>
     </message>
-    <message>
-        <source>Object Export</source>
-        <translation type="vanished">Eksportuj obiekt</translation>
-    </message>
-    <message>
-        <source>Some files could not be saved.</source>
-        <translation type="vanished">Pewne pliki nie zostały zapisane.</translation>
-    </message>
 </context>
 <context>
     <name>ExportObjectModel</name>
@@ -2582,7 +2574,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished">Usuń</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -12765,8 +12757,9 @@ a:hover {
         <translation>Kopiuj ścieżkę</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Usuń</translation>
+        <source>Remove from list</source>
+        <oldsource>Remove</oldsource>
+        <translation type="unfinished">Usuń</translation>
     </message>
 </context>
 <context>

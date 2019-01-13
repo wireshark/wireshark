@@ -2273,14 +2273,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <source>Save All Objects In</source>
         <translation>すべてのオブジェクトを保存</translation>
     </message>
-    <message>
-        <source>Object Export</source>
-        <translation type="vanished">オブジェクト出力</translation>
-    </message>
-    <message>
-        <source>Some files could not be saved.</source>
-        <translation type="vanished">いくつかのファイルは保存できませんでした。</translation>
-    </message>
 </context>
 <context>
     <name>ExportObjectModel</name>
@@ -12659,7 +12651,8 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Remove</source>
+        <source>Remove from list</source>
+        <oldsource>Remove</oldsource>
         <translation type="unfinished"></translation>
     </message>
 </context>

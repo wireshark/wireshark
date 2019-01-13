@@ -89,11 +89,11 @@
     </message>
     <message>
         <source>Show in Finder</source>
-        <translation type="unfinished">Mostra in Finder</translation>
+        <translation>Mostra in Finder</translation>
     </message>
     <message>
         <source>Show in Folder</source>
-        <translation type="unfinished">Mostra nella cartella</translation>
+        <translation>Mostra in Finder</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -101,9 +101,9 @@
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation type="unfinished">
+        <translation>
+            <numerusform>Copia riga</numerusform>
             <numerusform>Copia righe</numerusform>
-            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -2303,14 +2303,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Save All Objects In</source>
         <translation>Salva tutti gli oggetti in</translation>
-    </message>
-    <message>
-        <source>Object Export</source>
-        <translation type="vanished">Esporta oggetti</translation>
-    </message>
-    <message>
-        <source>Some files could not be saved.</source>
-        <translation type="vanished">Alcuni file non possono essere salvati.</translation>
     </message>
 </context>
 <context>
@@ -12751,8 +12743,9 @@ a:hover {
         <translation>Copia percorso del file</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Rimuovi</translation>
+        <source>Remove from list</source>
+        <oldsource>Remove</oldsource>
+        <translation type="unfinished">Rimuovi</translation>
     </message>
 </context>
 <context>

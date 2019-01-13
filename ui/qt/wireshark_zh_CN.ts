@@ -89,11 +89,11 @@
     </message>
     <message>
         <source>Show in Finder</source>
-        <translation type="unfinished">在 Finder 中显示</translation>
+        <translation>在 Finder 中显示</translation>
     </message>
     <message>
         <source>Show in Folder</source>
-        <translation type="unfinished">在 Finder 中显示</translation>
+        <translation>在文件夹中显示</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -101,7 +101,7 @@
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation type="unfinished">
+        <translation>
             <numerusform>复制行</numerusform>
         </translation>
     </message>
@@ -2293,14 +2293,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Save All Objects In</source>
         <translation>保存所有对象在</translation>
-    </message>
-    <message>
-        <source>Object Export</source>
-        <translation type="vanished">对象导出</translation>
-    </message>
-    <message>
-        <source>Some files could not be saved.</source>
-        <translation type="vanished">部分文件无法保存。</translation>
     </message>
 </context>
 <context>
@@ -6601,7 +6593,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Osmux packet counts</source>
-        <translation type="unfinished"></translation>
+        <translation>OSMUX 分组计数</translation>
     </message>
     <message>
         <source>RTSP packet counts</source>
@@ -8036,7 +8028,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>PacketCommentDialog</name>
     <message>
         <source>Packet %1 Comment</source>
-        <translation type="unfinished"></translation>
+        <translation>分组 %1 注释</translation>
     </message>
 </context>
 <context>
@@ -12724,8 +12716,9 @@ text-decoration: underline;
         <translation>复制文件路径</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>移除</translation>
+        <source>Remove from list</source>
+        <oldsource>Remove</oldsource>
+        <translation type="unfinished">移除</translation>
     </message>
 </context>
 <context>

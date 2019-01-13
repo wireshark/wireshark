@@ -102,7 +102,7 @@
     <message numerus="yes">
         <source>Copy Row(s)</source>
         <translation type="unfinished">
-            <numerusform>Копировать Строку (строки)</numerusform>
+            <numerusform></numerusform>
             <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
@@ -2310,14 +2310,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Save All Objects In</source>
         <translation>Сохранить Все Объекты В</translation>
-    </message>
-    <message>
-        <source>Object Export</source>
-        <translation type="vanished">Экспорт Объекта</translation>
-    </message>
-    <message>
-        <source>Some files could not be saved.</source>
-        <translation type="vanished">Некоторые файлы не могут быть сохранены.</translation>
     </message>
 </context>
 <context>
@@ -12750,7 +12742,8 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Remove</source>
+        <source>Remove from list</source>
+        <oldsource>Remove</oldsource>
         <translation type="unfinished"></translation>
     </message>
 </context>

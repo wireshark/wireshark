@@ -29,7 +29,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     dpauxmon - DisplayPort AUX channel with Unigraf pseudo-header
     dpnss_link - Digital Private Signalling System No 1 Link Layer
     dvbci - DVB-CI (Common Interface)
-    ebhscr - EBHSCR
+    ebhscr - Elektrobit High Speed Capture and Replay
     enc - OpenBSD enc(4) encapsulating interface
     epon - Ethernet Passive Optical Network
     erf - Extensible Record Format
@@ -63,8 +63,8 @@ editcap: The available encapsulation types for the "-T" flag are:
     ios - Cisco IOS internal
     ip-ib - IP over IB
     ip-over-fc - RFC 2625 IP-over-Fibre Channel
-    ip-over-ib - IP over Infiniband
-    ipfix - IPFIX
+    ip-over-ib - IP over InfiniBand
+    ipfix - RFC 5655/RFC 5101 IPFIX
     ipmb - Intelligent Platform Management Bus
     ipmi-trace - IPMI Trace Data Collection
     ipnet - Solaris IPNET
@@ -121,8 +121,8 @@ editcap: The available encapsulation types for the "-T" flag are:
     mtp2-with-phdr - MTP2 with pseudoheader
     mtp3 - SS7 MTP3
     mux27010 - MUX27010
-    netanalyzer - netANALYZER
-    netanalyzer-transparent - netANALYZER-Transparent
+    netanalyzer - Hilscher netANALYZER
+    netanalyzer-transparent - Hilscher netANALYZER-Transparent
     netlink - Linux Netlink
     netmon_event - Network Monitor Network Event
     netmon_filter - Network Monitor Filter
@@ -136,7 +136,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     nstrace30 - NetScaler Encapsulation 3.0 of Ethernet
     nstrace35 - NetScaler Encapsulation 3.5 of Ethernet
     null - NULL/Loopback
-    packetlogger - PacketLogger
+    packetlogger - Apple Bluetooth PacketLogger
     pflog - OpenBSD PF Firewall logs
     pflog-old - OpenBSD PF Firewall logs, pre-3.4
     pktap - Apple PKTAP

@@ -89,11 +89,11 @@
     </message>
     <message>
         <source>Show in Finder</source>
-        <translation type="unfinished">Im Finder anzeigen</translation>
+        <translation>Im Finder anzeigen</translation>
     </message>
     <message>
         <source>Show in Folder</source>
-        <translation type="unfinished">Im Ordner anzeigen</translation>
+        <translation>Im Ordner anzeigen</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -101,9 +101,9 @@
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation type="unfinished">
-            <numerusform>Zeile(n) kopieren</numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Zeile kopieren</numerusform>
+            <numerusform>Zeilen kopieren</numerusform>
         </translation>
     </message>
 </context>
@@ -2303,14 +2303,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Save All Objects In</source>
         <translation>Alle Objekte sichern in</translation>
-    </message>
-    <message>
-        <source>Object Export</source>
-        <translation type="vanished">Objektexport</translation>
-    </message>
-    <message>
-        <source>Some files could not be saved.</source>
-        <translation type="vanished">Einige Dateien konnten nicht gespeichert werden.</translation>
     </message>
 </context>
 <context>
@@ -12756,8 +12748,9 @@ text-decoration: underline;
         <translation>Dateipfad kopieren</translation>
     </message>
     <message>
-        <source>Remove</source>
-        <translation>Entfernen</translation>
+        <source>Remove from list</source>
+        <oldsource>Remove</oldsource>
+        <translation type="unfinished">Entfernen</translation>
     </message>
 </context>
 <context>

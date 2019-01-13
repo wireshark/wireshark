@@ -12552,7 +12552,7 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Remove</source>
+        <source>Remove from list</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
