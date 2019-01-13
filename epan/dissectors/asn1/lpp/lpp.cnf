@@ -1,11 +1,14 @@
 # lpp.cnf
 # lpp conformation file
-# Copyright 2011-2018 Pascal Quantin
+# Copyright 2011-2019 Pascal Quantin
 
 #.OPT
 PER
 UNALIGNED
 #.END
+
+#.USE_VALS_EXT
+CarrierFreqOffsetNB-r14
 
 #.EXPORTS
 Ellipsoid-Point_PDU
@@ -374,6 +377,9 @@ MessageSizeLimitNB-r14/measurementLimit-r14 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(
       proto_tree_add_item(subtree, hf_lpp_LocationSource_r13_ha_gnss_v1510, locSource_tvb, 0, 1, ENC_BIG_ENDIAN);
     }
   }
+
+#.TYPE_ATTR
+OTDOA-ReferenceCellInfo/eag_4/nr-LTE-fineTiming-Offset-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_nr_LTE_fineTiming_Offset_fmt)
 
 #.TYPE_ATTR
 OTDOA-NeighbourCellInfoElement/expectedRSTD DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_expectedRSTD_fmt)
@@ -2144,6 +2150,27 @@ Sensor-AssistanceDataList-r14/refPressure-r14 DISPLAY=BASE_CUSTOM STRINGS=CF_FUN
 
 #.TYPE_ATTR
 Sensor-AssistanceDataList-r14/refTemperature-r14 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_refTemperature_fmt)
+
+#.TYPE_ATTR
+Sensor-AssistanceDataList-r14/eag_1/period-v1520/referencePressureRate-v1520 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_referencePressureRate_v1520_fmt)
+
+#.FN_FTR Sensor-AssistanceDataList-r14/eag_1/area-v1520/gN-pressure-v1520
+  proto_item_append_text(actx->created_item, "Pa/Km");
+
+#.FN_FTR Sensor-AssistanceDataList-r14/eag_1/area-v1520/gE-pressure-v1520
+  proto_item_append_text(actx->created_item, "Pa/Km");
+
+#.TYPE_ATTR
+PressureValidityArea-v1520/validityAreaWidth-v1520 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_km
+
+#.TYPE_ATTR
+PressureValidityArea-v1520/vvalidityAreaHeight-v1520 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_km
+
+#.TYPE_ATTR
+PressureValidityPeriod-v1520/beginTimeAlt-v1520 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_PressureValidityPeriod_v1520_fmt)
+
+#.TYPE_ATTR
+PressureValidityPeriod-v1520/duration-v1520 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_PressureValidityPeriod_v1520_fmt)
 
 #.TYPE_ATTR
 WLAN-MeasurementElement-r13/rssi-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm

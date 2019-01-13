@@ -1,4 +1,4 @@
--- 3GPP TS 36.355 V15.1.0 (2018-09)
+-- 3GPP TS 36.355 V15.2.0 (2018-12)
 --
 
 LPP-PDU-Definitions {
@@ -257,7 +257,7 @@ ARFCN-ValueEUTRA ::= INTEGER (0..maxEARFCN)
 
 ARFCN-ValueEUTRA-v9a0 ::=	INTEGER (maxEARFCN-Plus1..maxEARFCN2)
 
-ARFCN-ValueEUTRA-r14  ::=	INTEGER (0..maxEARFCN2)
+ARFCN-ValueEUTRA-r14 ::=	INTEGER (0..maxEARFCN2)
 
 maxEARFCN					INTEGER ::= 65535	-- Maximum value of EUTRA carrier frequency
 
@@ -281,7 +281,7 @@ CarrierFreq-NB-r14 ::=		SEQUENCE {
 
 CarrierFreqOffsetNB-r14 ::=		ENUMERATED {
 									v-10, v-9, v-8,	v-7, v-6, v-5, v-4, v-3, v-2, v-1, v-0dot5,
-									v0,  v1,	v2,	v3,  v4,  v5,	v6,  v7,  v8,  v9
+									v0, v1, v2, v3, v4, v5, v6, v7, v8, v9
 									}
 
 
@@ -500,7 +500,8 @@ PolygonPoints ::= SEQUENCE {
 PositioningModes ::= SEQUENCE {
 	posModes		BIT STRING {	standalone	(0),
 									ue-based	(1),
-									ue-assisted	(2)  } (SIZE (1..8)),
+									ue-assisted	(2)
+	} (SIZE (1..8)),
 	...
 }
 
@@ -566,7 +567,7 @@ CommonIEsProvideAssistanceData ::= SEQUENCE {
 CommonIEsRequestLocationInformation ::= SEQUENCE {
 	locationInformationType		LocationInformationType,
 	triggeredReporting			TriggeredReportingCriteria	OPTIONAL,	-- Cond ECID
-    periodicalReporting         PeriodicalReportingCriteria OPTIONAL,	-- Need ON
+	periodicalReporting			PeriodicalReportingCriteria OPTIONAL,	-- Need ON
 	additionalInformation		AdditionalInformation		OPTIONAL,	-- Need ON
 	qos							QoS							OPTIONAL,	-- Need ON
 	environment					Environment					OPTIONAL,	-- Need ON
@@ -796,7 +797,7 @@ OTDOA-ReferenceCellInfo ::= SEQUENCE {
 	...,
 	[[ earfcnRef-v9a0			ARFCN-ValueEUTRA-v9a0		OPTIONAL		-- Cond NotSameAsServ2
 	]],
-	[[ tpId-r14					INTEGER (0..4095)			OPTIONAL,		-- Need ON
+	[[	tpId-r14				INTEGER (0..4095)			OPTIONAL,		-- Need ON
 		cpLengthCRS-r14			ENUMERATED { normal, extended, ... }	
 															OPTIONAL,		-- Cond CRS
 		sameMBSFNconfigRef-r14	BOOLEAN						OPTIONAL,		-- Need ON
@@ -807,6 +808,10 @@ OTDOA-ReferenceCellInfo ::= SEQUENCE {
 	]],
 	[[
 		nr-LTE-SFN-Offset-r15	INTEGER (0..1023)			OPTIONAL		-- Cond NR
+	]],
+	[[
+		tdd-config-v1520					TDD-Config-v1520	OPTIONAL,		-- Need ON
+		nr-LTE-fineTiming-Offset-r15		INTEGER (0..19)		OPTIONAL		-- Cond FineOffset
 	]]
 }
 
@@ -846,6 +851,12 @@ PRS-Info ::= SEQUENCE {
 maxAvailNarrowBands-Minus1-r14		INTEGER ::= 15	-- Maximum number of narrowbands minus 1
 
 
+TDD-Config-v1520 ::= SEQUENCE {
+	subframeAssignment-v1520			ENUMERATED { sa0, sa1, sa2, sa3, sa4, sa5, sa6 },
+	...
+}
+
+
 OTDOA-NeighbourCellInfoList ::= SEQUENCE (SIZE (1..maxFreqLayers)) OF OTDOA-NeighbourFreqInfo
 OTDOA-NeighbourFreqInfo ::= SEQUENCE (SIZE (1..24)) OF OTDOA-NeighbourCellInfoElement
 
@@ -865,7 +876,7 @@ OTDOA-NeighbourCellInfoElement ::= SEQUENCE {
 	...,
 	[[ earfcn-v9a0					ARFCN-ValueEUTRA-v9a0	OPTIONAL		-- Cond NotSameAsRef5
 	]],
-	[[ tpId-r14						INTEGER (0..4095)		OPTIONAL,		-- Need ON
+	[[	tpId-r14					INTEGER (0..4095)		OPTIONAL,		-- Need ON
 		prs-only-tp-r14				ENUMERATED { true }		OPTIONAL,		-- Cond TBS
 		cpLengthCRS-r14				ENUMERATED { normal, extended, ... }	
 															OPTIONAL,		-- Cond CRS
@@ -875,6 +886,9 @@ OTDOA-NeighbourCellInfoElement ::= SEQUENCE {
 		addPRSconfigNeighbour-r14	SEQUENCE (SIZE (1..maxAddPRSconfig-r14)) OF
 										Add-PRSconfigNeighbourElement-r14
 															OPTIONAL		-- Need ON
+	]],
+	[[
+		tdd-config-v1520			TDD-Config-v1520		OPTIONAL		-- Need ON
 	]]
 }
 
@@ -898,6 +912,8 @@ OTDOA-ReferenceCellInfoNB-r14 ::= SEQUENCE {
 	...,
 	[[
 	nprsInfo-Type2-v1470			PRS-Info-NB-r14				OPTIONAL	-- Cond NPRS-Type2
+	]],
+	[[	tdd-config-r15				TDD-Config-v1520			OPTIONAL	-- Need ON
 	]]
 }
 
@@ -986,6 +1002,8 @@ OTDOA-NeighbourCellInfoNB-r14 ::= SEQUENCE {
 	...,
 	[[
 	nprsInfo-Type2-v1470			PRS-Info-NB-r14			OPTIONAL		-- Cond NotSameAsRef4
+	]],
+	[[	tdd-config-r15				TDD-Config-v1520		OPTIONAL		-- Need ON
 	]]
 }
 
@@ -1066,7 +1084,7 @@ NeighbourMeasurementElement ::= SEQUENCE {
 
 AdditionalPathList-r14 ::= SEQUENCE (SIZE(1..maxPaths-r14)) OF AdditionalPath-r14
 
-maxPaths-r14    INTEGER ::= 2
+maxPaths-r14	INTEGER ::= 2
 
 MotionTimeSource-r15 ::= SEQUENCE {
 	timeSource-r15				ENUMERATED {servingCell, referenceCell, gnss, mixed,
@@ -1130,7 +1148,7 @@ OTDOA-RequestLocationInformation ::= SEQUENCE {
 	...,
 	[[
 		multipathRSTD-r14		ENUMERATED { requested }	OPTIONAL,		-- Need ON
-		maxNoOfRSTDmeas-r14		INTEGER (1..32)				OPTIONAL        -- Need ON
+		maxNoOfRSTDmeas-r14		INTEGER (1..32)				OPTIONAL		-- Need ON
 	]],
 	[[
 		motionMeasurements-r15	ENUMERATED { requested }	OPTIONAL		-- Need ON
@@ -1291,20 +1309,20 @@ GNSS-PeriodicAssistData-r15 ::= SEQUENCE {
 											GNSS-PeriodicControlParam-r15	OPTIONAL, 	-- Need ON
 	gnss-SSR-PeriodicClockCorrections-r15
 											GNSS-PeriodicControlParam-r15	OPTIONAL, 	-- Need ON
-	gnss-SSR-PeriodicCodeBias-r15			GNSS-PeriodicControlParam-r15	OPTIONAL,  	-- Need ON
+	gnss-SSR-PeriodicCodeBias-r15			GNSS-PeriodicControlParam-r15	OPTIONAL, 	-- Need ON
 	...
 }
 
 
-GNSS-ReferenceTime ::= SEQUENCE  {
+GNSS-ReferenceTime ::= SEQUENCE {
 	gnss-SystemTime				GNSS-SystemTime,
 	referenceTimeUnc			INTEGER (0..127)					OPTIONAL,	-- Cond noFTA
-	gnss-ReferenceTimeForCells  SEQUENCE (SIZE (1..16)) OF
+	gnss-ReferenceTimeForCells	SEQUENCE (SIZE (1..16)) OF
 									GNSS-ReferenceTimeForOneCell	OPTIONAL,	-- Need ON
 	...
 }
 
-GNSS-ReferenceTimeForOneCell  ::= SEQUENCE {	
+GNSS-ReferenceTimeForOneCell ::= SEQUENCE {	
 	networkTime				NetworkTime,
 	referenceTimeUnc			INTEGER (0..127),
 	bsAlign						ENUMERATED {true}	OPTIONAL,
@@ -1853,7 +1871,7 @@ GNSS-AcquisitionAssistance ::= SEQUENCE {
 
 GNSS-AcquisitionAssistList ::= SEQUENCE (SIZE(1..64)) OF GNSS-AcquisitionAssistElement
 
-GNSS-AcquisitionAssistElement  ::= SEQUENCE {
+GNSS-AcquisitionAssistElement ::= SEQUENCE {
 	svID						SV-ID,
 	doppler0					INTEGER (-2048..2047),
 	doppler1					INTEGER (0..63),
@@ -2160,7 +2178,7 @@ GNSS-ObservationList-r15 ::= SEQUENCE (SIZE(1..64)) OF GNSS-RTK-SatelliteDataEle
 GNSS-RTK-SatelliteDataElement-r15 ::= SEQUENCE{
 	svID-r15								SV-ID,
 	integer-ms-r15							INTEGER (0..254)				OPTIONAL,	-- Need ON
-    rough-range-r15							INTEGER (0..1023),
+	rough-range-r15							INTEGER (0..1023),
 	rough-phase-range-rate-r15				INTEGER (-8192..8191)			OPTIONAL,	-- Need ON
 	gnss-rtk-SatelliteSignalDataList-r15	GNSS-RTK-SatelliteSignalDataList-r15,
 	...
@@ -2347,7 +2365,7 @@ A-GNSS-RequestAssistanceData ::= SEQUENCE {
 	...,
 	[[
 		gnss-PeriodicAssistDataReq-r15
-									GNSS-PeriodicAssistDataReq-r15	OPTIONAL  -- Cond PerADReq
+									GNSS-PeriodicAssistDataReq-r15	OPTIONAL -- Cond PerADReq
 	]]
 }
 
@@ -2365,10 +2383,10 @@ GNSS-CommonAssistDataReq ::= SEQUENCE {
 	[[
 		gnss-RTK-ReferenceStationInfoReq-r15	
 										GNSS-RTK-ReferenceStationInfoReq-r15
-																OPTIONAL,  -- Cond ARPReq
+																OPTIONAL, -- Cond ARPReq
 		gnss-RTK-AuxiliaryStationDataReq-r15
 										GNSS-RTK-AuxiliaryStationDataReq-r15
-																OPTIONAL  -- Cond AuxARPReq
+																OPTIONAL -- Cond AuxARPReq
 	]]
 }
 
@@ -2411,23 +2429,23 @@ GNSS-GenericAssistDataReqElement ::= SEQUENCE {
 		gnss-SSR-ClockCorrectionsReq-r15
 									GNSS-SSR-ClockCorrectionsReq-r15
 																	OPTIONAL, -- Cond CC-Req
-		gnss-SSR-CodeBiasReq-r15	GNSS-SSR-CodeBiasReq-r15		OPTIONAL  -- Cond CB-Req
+		gnss-SSR-CodeBiasReq-r15	GNSS-SSR-CodeBiasReq-r15		OPTIONAL -- Cond CB-Req
 	]]
 }
 
 
 GNSS-PeriodicAssistDataReq-r15 ::= SEQUENCE {
-	gnss-RTK-PeriodicObservationsReq-r15	GNSS-PeriodicControlParam-r15	OPTIONAL,	-- Cond pOSR
-	glo-RTK-PeriodicBiasInformationReq-r15	GNSS-PeriodicControlParam-r15	OPTIONAL,	-- Cond pCPB
+	gnss-RTK-PeriodicObservationsReq-r15	GNSS-PeriodicControlParam-r15	OPTIONAL, -- Cond pOSR
+	glo-RTK-PeriodicBiasInformationReq-r15	GNSS-PeriodicControlParam-r15	OPTIONAL, -- Cond pCPB
 	gnss-RTK-MAC-PeriodicCorrectionDifferencesReq-r15
-											GNSS-PeriodicControlParam-r15	OPTIONAL,	-- Cond pMAC
-	gnss-RTK-PeriodicResidualsReq-r15		GNSS-PeriodicControlParam-r15	OPTIONAL,	-- Cond pRes
-	gnss-RTK-FKP-PeriodicGradientsReq-r15	GNSS-PeriodicControlParam-r15	OPTIONAL,	-- Cond pFKP
+											GNSS-PeriodicControlParam-r15	OPTIONAL, -- Cond pMAC
+	gnss-RTK-PeriodicResidualsReq-r15		GNSS-PeriodicControlParam-r15	OPTIONAL, -- Cond pRes
+	gnss-RTK-FKP-PeriodicGradientsReq-r15	GNSS-PeriodicControlParam-r15	OPTIONAL, -- Cond pFKP
 	gnss-SSR-PeriodicOrbitCorrectionsReq-r15
-											GNSS-PeriodicControlParam-r15	OPTIONAL, 	-- Cond pOC
+											GNSS-PeriodicControlParam-r15	OPTIONAL, -- Cond pOC
 	gnss-SSR-PeriodicClockCorrectionsReq-r15
-											GNSS-PeriodicControlParam-r15	OPTIONAL, 	-- Cond pCC
-	gnss-SSR-PeriodicCodeBiasReq-r15		GNSS-PeriodicControlParam-r15	OPTIONAL,  	-- Cond pCB
+											GNSS-PeriodicControlParam-r15	OPTIONAL, -- Cond pCC
+	gnss-SSR-PeriodicCodeBiasReq-r15		GNSS-PeriodicControlParam-r15	OPTIONAL, -- Cond pCB
 	...
 }
 
@@ -2658,7 +2676,7 @@ GNSS-SignalMeasurementInformation ::= SEQUENCE {
 }
 
 
-MeasurementReferenceTime  ::= SEQUENCE {
+MeasurementReferenceTime ::= SEQUENCE {
 	gnss-TOD-msec		INTEGER (0..3599999),
 	gnss-TOD-frac		INTEGER (0..3999)			OPTIONAL,		
 	gnss-TOD-unc		INTEGER (0..127)			OPTIONAL,		
@@ -2718,7 +2736,7 @@ MeasurementReferenceTime  ::= SEQUENCE {
 }
 
 
-GNSS-MeasurementList  ::= SEQUENCE (SIZE(1..16)) OF GNSS-MeasurementForOneGNSS
+GNSS-MeasurementList ::= SEQUENCE (SIZE(1..16)) OF GNSS-MeasurementForOneGNSS
 
 GNSS-MeasurementForOneGNSS ::= SEQUENCE {
 	gnss-ID					GNSS-ID,
@@ -2845,7 +2863,7 @@ GNSS-CommonAssistanceDataSupport ::= SEQUENCE {
 																OPTIONAL, -- Cond ARPSup
 		gnss-RTK-AuxiliaryStationDataSupport-r15
 											GNSS-RTK-AuxiliaryStationDataSupport-r15
-																OPTIONAL  -- Cond AuxARPSup
+																OPTIONAL -- Cond AuxARPSup
 	]]
 }
 
@@ -2938,7 +2956,7 @@ GNSS-GenericAssistDataSupportElement ::= SEQUENCE {
 										GNSS-SSR-ClockCorrectionsSupport-r15
 																	OPTIONAL, -- Cond CC-Sup
 		gnss-SSR-CodeBiasSupport-r15	GNSS-SSR-CodeBiasSupport-r15
-																	OPTIONAL  -- Cond CB-Sup
+																	OPTIONAL -- Cond CB-Sup
 	]]
 }
 
@@ -3528,7 +3546,7 @@ Displacement-r15 ::= SEQUENCE {
 	horizontalDistanceUnc-r15	INTEGER (0..255)				OPTIONAL,
 	horizontalUncConfidence-r15	INTEGER (0..100)				OPTIONAL,
 	verticalDirection-r15		ENUMERATED{upward, downward}	OPTIONAL,
-	verticalDistance-r15     	INTEGER(0..8191)				OPTIONAL,
+	verticalDistance-r15		INTEGER(0..8191)				OPTIONAL,
 	verticalDistanceUnc-r15		INTEGER (0..255)				OPTIONAL,
 	verticalUncConfidence-r15	INTEGER (0..100)				OPTIONAL,
 	...
@@ -3565,8 +3583,10 @@ Sensor-ProvideCapabilities-r13 ::= SEQUENCE {
 }
 
 Sensor-AssistanceDataSupportList-r14 ::= SEQUENCE {
-	...
-
+	...,
+	[[	validityPeriodSupported-v1520			ENUMERATED { true }		OPTIONAL,
+		validityAreaSupported-v1520				ENUMERATED { true }		OPTIONAL
+	]]
 }
 
 
@@ -3612,6 +3632,33 @@ Sensor-AssistanceDataList-r14::= SEQUENCE {
 	refPressure-r14		INTEGER (-20000..10000),
 	refPosition-r14		EllipsoidPointWithAltitudeAndUncertaintyEllipsoid	OPTIONAL,	-- Need ON
 	refTemperature-r14	INTEGER (-64..63)									OPTIONAL,	-- Need ON
+	...,
+	[[
+	period-v1520		SEQUENCE {
+		pressureValidityPeriod-v1520	PressureValidityPeriod-v1520,
+		referencePressureRate-v1520		INTEGER	(-128..127)					OPTIONAL,	-- Need ON
+		...
+	}																		OPTIONAL,	-- Need ON
+	area-v1520			SEQUENCE {
+		pressureValidityArea-v1520		PressureValidityArea-v1520,
+		gN-pressure-v1520				INTEGER (-1024..1023)				OPTIONAL,	-- Need ON
+		gE-pressure-v1520				INTEGER (-1024..1023)				OPTIONAL,	-- Need ON
+		...
+	}																		OPTIONAL	-- Need ON
+	]]
+}
+
+PressureValidityArea-v1520 ::= SEQUENCE {
+	centerPoint-v1520				Ellipsoid-Point,
+	validityAreaWidth-v1520			INTEGER (1..128),
+	validityAreaHeight-v1520		INTEGER (1..128),
+	...
+}
+
+PressureValidityPeriod-v1520 ::= SEQUENCE {
+	beginTime-v1520					GNSS-SystemTime,
+	beginTimeAlt-v1520				INTEGER (0..2881)						OPTIONAL,	-- Need ON
+	duration-v1520					INTEGER (1..2881),
 	...
 }
 
@@ -3652,14 +3699,14 @@ WLAN-AP-Identifier-r13 ::= SEQUENCE {
 }
 
 WLAN-RTT-r13 ::= SEQUENCE {
-	rttValue-r13     INTEGER (0..16777215),
-	rttUnits-r13     ENUMERATED {	microseconds,
+	rttValue-r13	INTEGER (0..16777215),
+	rttUnits-r13	ENUMERATED {	microseconds,
 									hundredsofnanoseconds,
 									tensofnanoseconds,
 									nanoseconds,
 									tenthsofnanoseconds,
 									... },
-	rttAccuracy-r13  INTEGER (0..255)								OPTIONAL,
+	rttAccuracy-r13	INTEGER (0..255)								OPTIONAL,
 	...
 }
 

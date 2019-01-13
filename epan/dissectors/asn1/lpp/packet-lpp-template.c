@@ -1,6 +1,6 @@
 /* packet-lpp.c
  * Routines for 3GPP LTE Positioning Protocol (LPP) packet dissection
- * Copyright 2011-2018 Pascal Quantin <pascal.quantin@gmail.com>
+ * Copyright 2011-2019 Pascal Quantin <pascal.quantin@gmail.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 36.355 version 15.1.0 Release 15
+ * Ref 3GPP TS 36.355 version 15.2.0 Release 15
  * http://www.3gpp.org
  */
 
@@ -149,6 +149,12 @@ static void
 lpp_radius_fmt(gchar *s, guint32 v)
 {
   g_snprintf(s, ITEM_LABEL_LENGTH, "%um (%u)", 5*v, v);
+}
+
+static void
+lpp_nr_LTE_fineTiming_Offset_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fms (%u)", (float)v/2, v);
 }
 
 static void
@@ -1829,6 +1835,20 @@ lpp_refTemperature_fmt(gchar *s, guint32 v)
   gint32 temp = (gint32)v;
 
   g_snprintf(s, ITEM_LABEL_LENGTH, "%dK (%d)", 273+temp, temp);
+}
+
+static void
+lpp_referencePressureRate_v1520_fmt(gchar *s, guint32 v)
+{
+  gint32 rate = (gint32)v;
+
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%dPa/hour (%d)", 10*rate, rate);
+}
+
+static void
+lpp_PressureValidityPeriod_v1520_fmt(gchar *s, guint32 v)
+{
+  g_snprintf(s, ITEM_LABEL_LENGTH, "%umin (%u)", 15*v, v);
 }
 
 static void
