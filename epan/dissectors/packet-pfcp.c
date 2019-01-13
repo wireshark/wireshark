@@ -192,6 +192,7 @@ static int hf_pfcp_reporting_triggers_o5_b3_quhti = -1;
 static int hf_pfcp_reporting_triggers_o5_b2_timth = -1;
 static int hf_pfcp_reporting_triggers_o5_b1_volth = -1;
 static int hf_pfcp_reporting_triggers_o5_b0_perio = -1;
+static int hf_pfcp_reporting_triggers_o6_b5_evequ = -1;
 static int hf_pfcp_reporting_triggers_o6_b4_eveth = -1;
 static int hf_pfcp_reporting_triggers_o6_b3_macar = -1;
 static int hf_pfcp_reporting_triggers_o6_b2_envcl = -1;
@@ -284,6 +285,7 @@ static int hf_pfcp_usage_report_trigger_o6_b3_termr = -1;
 static int hf_pfcp_usage_report_trigger_o6_b2_liusa = -1;
 static int hf_pfcp_usage_report_trigger_o6_b1_timqu = -1;
 static int hf_pfcp_usage_report_trigger_o6_b0_volqu = -1;
+static int hf_pfcp_usage_report_trigger_o7_b0_evequ = -1;
 
 static int hf_pfcp_volume_measurement = -1;
 static int hf_pfcp_volume_measurement_b2_dlvol = -1;
@@ -357,6 +359,7 @@ static int hf_pfcp_measurement_info = -1;
 static int hf_pfcp_measurement_info_b0_mbqe = -1;
 static int hf_pfcp_measurement_info_b1_inam = -1;
 static int hf_pfcp_measurement_info_b2_radi = -1;
+static int hf_pfcp_measurement_info_b3_istm = -1;
 
 static int hf_pfcp_node_report_type = -1;
 static int hf_pfcp_node_report_type_b0_upfr = -1;
@@ -469,9 +472,9 @@ static int hf_pfcp_mac_addresses_removed_mac_address = -1;
 
 static int hf_pfcp_ethernet_inactivity_timer = -1;
 
-static int hf_pfcp_event_id = -1;
+static int hf_pfcp_subsequent_event_quota = -1;
 
-static int hf_pfcp_event_threshold = -1;
+static int hf_pfcp_subsequent_event_threshold = -1;
 
 static int hf_pfcp_trace_information_trace_id = -1;
 static int hf_pfcp_trace_information_length_trigger_events = -1;
@@ -485,6 +488,16 @@ static int hf_pfcp_trace_information_ipaddress = -1;
 static int hf_pfcp_frame_route = -1;
 static int hf_pfcp_frame_routing = -1;
 static int hf_pfcp_frame_ipv6_route = -1;
+
+static int hf_pfcp_event_quota = -1;
+
+static int hf_pfcp_event_threshold = -1;
+
+static int hf_pfcp_event_time_stamp = -1;
+
+static int hf_pfcp_averaging_window = -1;
+
+static int hf_pfcp_paging_policy_indicator = -1;
 
 static int ett_pfcp = -1;
 static int ett_pfcp_flags = -1;
@@ -617,8 +630,6 @@ static void dissect_pfcp_remove_traffic_endpoint(tvbuff_t *tvb, packet_info *pin
 static void dissect_pfcp_ethernet_packet_filter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
 static void dissect_pfcp_ethernet_traffic_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
 static void dissect_pfcp_additional_monitoring_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
-static void dissect_pfcp_event_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
-static void dissect_pfcp_event_reporting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args _U_);
 
 static const true_false_string pfcp_id_predef_dynamic_tfs = {
     "Predefined by UP",
@@ -884,15 +895,18 @@ static const value_string pfcp_ie_type[] = {
     { 145, "MAC Addresses Removed"},                                /* Extendable / Subclause 8.2.104 */
     { 146, "Ethernet Inactivity Timer"},                            /* Extendable / Subclause 8.2.105 */
     { 147, "Additional Monitoring Time"},                           /* Extendable / Table 7.5.2.4-3 */
-    { 148, "Event Information"},                                    /* Extendable / Table 7.5.2.4-4 */
-    { 149, "Event Reporting"},                                      /* Extendable / Table 7.5.8.3-2A */
-    { 150, "Event ID"},                                             /* Extendable / Subclause 8.2.106 */
-    { 151, "Event Threshold"},                                      /* Extendable / Subclause 8.2.107 */
+    { 148, "Event Quota"},                                          /* Extendable / Subclause 8.2.112 */
+    { 149, "Event Threshold"},                                      /* Extendable / Subclause 8.2.113 */
+    { 150, "Subsequent Event Quota"},                               /* Extendable / Subclause 8.2.106 */
+    { 151, "Subsequent Event Threshold"},                           /* Extendable / Subclause 8.2.107 */
     { 152, "Trace Information"},                                    /* Extendable / Subclause 8.2.108 */
     { 153, "Framed-Route"},                                         /* Variable Length  / Subclause 8.2.109 */
     { 154, "Framed-Routing"},                                       /* Fixed Length  / Subclause 8.2.110 */
     { 155, "Framed-IPv6-Route"},                                    /* Variable Length  / Subclause 8.2.111 */
-    //156 to 32767 Spare. For future use.
+    { 156, "Event Time Stamp"},                                     /* Extendable / Subclause 8.2.114 */
+    { 157, "Averaging Window"},                                     /* Extendable / Subclause 8.2.115 */
+    { 158, "Paging Policy Indicator"},                              /* Extendable / Subclause 8.2.116 */
+    //159 to 32767 Spare. For future use.
     //32768 to 65535 Vendor-specific IEs.
     {0, NULL}
 };
@@ -1192,6 +1206,90 @@ static void
 dissect_pfcp_reserved(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
     proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_reserved, tvb, 0, length);
+}
+
+/* Functions for C-Tag and S-TAG
+ * See 8.2.94 and 8.2.95
+ */
+
+/* From Tables G-2,3 of IEEE standard 802.1Q-2005 (and I-2,3,7 of 2011 and 2015 revisions) */
+static const value_string pfcp_vlan_tag_pcp_vals[] = {
+  { 0, "Best Effort (default), Drop Eligible"            },
+  { 1, "Best Effort (default)"                           },
+  { 2, "Critical Applications, Drop Eligible"            },
+  { 3, "Critical Applications"                           },
+  { 4, "Voice, < 10ms latency and jitter, Drop Eligible" },
+  { 5, "Voice, < 10ms latency and jitter"                },
+  { 6, "Internetwork Control"                            },
+  { 7, "Network Control"                                 },
+  { 0, NULL                                              }
+};
+
+static const true_false_string tfs_eligible_ineligible = {
+    "Eligible",
+    "Ineligible"
+};
+
+static int decode_pfcp_c_tag(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, gint offset)
+{
+    guint64 flags_val;
+
+    static const int * pfcp_c_tag_flags[] = {
+        &hf_pfcp_spare_b7_b3,
+        &hf_pfcp_c_tag_flags_b2_vid,
+        &hf_pfcp_c_tag_flags_b1_dei,
+        &hf_pfcp_c_tag_flags_b0_pcp,
+        NULL
+    };
+    /* Octet 5  Spare   VID   DEI   PCP */
+    proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_c_tag_flags,
+        ett_pfcp_c_tag, pfcp_c_tag_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT, &flags_val);
+    offset += 1;
+
+    //  Octet     8     7     6     5     4     3     2     1
+    //    6    | C-VID                  |DEI|   PCP value     |
+    proto_tree_add_item(tree, hf_pfcp_c_tag_cvid, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_c_tag_dei_flag,
+        ett_pfcp_c_tag_dei, pfcp_c_tag_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT | BMT_NO_TFS);
+    proto_tree_add_item(tree, hf_pfcp_c_tag_pcp_value, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    // Octet 7 C-VID value
+    proto_tree_add_item(tree, hf_pfcp_c_tag_cvid_value, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    return offset;
+}
+
+static int decode_pfcp_s_tag(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint offset)
+{
+    guint64 flags_val;
+
+    static const int * pfcp_s_tag_flags[] = {
+        &hf_pfcp_spare_b7_b3,
+        &hf_pfcp_s_tag_flags_b2_vid,
+        &hf_pfcp_s_tag_flags_b1_dei,
+        &hf_pfcp_s_tag_flags_b0_pcp,
+        NULL
+    };
+    /* Octet 5  Spare   VID   DEI   PCP */
+    proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_s_tag_flags,
+        ett_pfcp_s_tag, pfcp_s_tag_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT, &flags_val);
+    offset += 1;
+
+    //  Octet     8     7     6     5     4     3     2     1
+    //    6    | S-VID                  |DEI|   PCP value     |
+    proto_tree_add_item(tree, hf_pfcp_s_tag_svid, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_s_tag_dei_flag,
+        ett_pfcp_s_tag_dei, pfcp_s_tag_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT | BMT_NO_TFS);
+    proto_tree_add_item(tree, hf_pfcp_s_tag_pcp_value, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    // Octet 7 S-VID value
+    proto_tree_add_item(tree, hf_pfcp_s_tag_svid_value, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    return offset;
 }
 
 /*
@@ -1850,8 +1948,17 @@ dissect_pfcp_reporting_triggers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         &hf_pfcp_reporting_triggers_o5_b0_perio,
         NULL
     };
+    /* Octet 5 [Bits 15-08] LIUSA   DROTH   STOPT   START   QUHTI   TIMTH   VOLTH   PERIO */
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_reporting_triggers_o5_flags, ENC_BIG_ENDIAN);
+    offset++;
+
+    if (offset == length) {
+        return;
+    }
+
     static const int * pfcp_reporting_triggers_o6_flags[] = {
         &hf_pfcp_spare_b7_b5,
+        &hf_pfcp_reporting_triggers_o6_b5_evequ,
         &hf_pfcp_reporting_triggers_o6_b4_eveth,
         &hf_pfcp_reporting_triggers_o6_b3_macar,
         &hf_pfcp_reporting_triggers_o6_b2_envcl,
@@ -1859,12 +1966,13 @@ dissect_pfcp_reporting_triggers(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         &hf_pfcp_reporting_triggers_o6_b0_volqu,
         NULL
     };
-    /* Octet 5 [Bits 15-08] LIUSA   DROTH   STOPT   START   QUHTI   TIMTH   VOLTH   PERIO */
-    /* Octet 6 [Bits 07-00] SPARE   SPARE   SPARE   EVETH   MACAR   ENVCL   TIMQU   VOLQU */
-    proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_reporting_triggers_o5_flags, ENC_BIG_ENDIAN);
-    offset++;
+    /* Octet 6 [Bits 07-00] SPARE   SPARE   EVEQU   EVETH   MACAR   ENVCL   TIMQU   VOLQU */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_reporting_triggers_o6_flags, ENC_BIG_ENDIAN);
     offset++;
+
+    if (offset == length) {
+        return;
+    }
 
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
@@ -2638,6 +2746,14 @@ dissect_pfcp_usage_report_trigger(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         &hf_pfcp_usage_report_trigger_o5_b0_perio,
         NULL
     };
+    /* Octet 5  IMMER   DROTH   STOPT   START   QUHTI   TIMTH   VOLTH   PERIO */
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_usage_report_trigger_o5_flags, ENC_BIG_ENDIAN);
+    offset++;
+
+    if (offset == length) {
+        return;
+    }
+
     static const int * pfcp_usage_report_trigger_o6_flags[] = {
         &hf_pfcp_usage_report_trigger_o6_b7_eveth,
         &hf_pfcp_usage_report_trigger_o6_b6_macar,
@@ -2649,12 +2765,25 @@ dissect_pfcp_usage_report_trigger(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         &hf_pfcp_usage_report_trigger_o6_b0_volqu,
         NULL
     };
-    /* Octet 5  IMMER   DROTH   STOPT   START   QUHTI   TIMTH   VOLTH   PERIO*/
-    /* Octet 6  EVETH   MACAR   ENVCL   MONIT   TERMR   LIUSA   TIMQU   VOLQU*/
-    proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_usage_report_trigger_o5_flags, ENC_BIG_ENDIAN);
-    offset++;
+    /* Octet 6  EVETH   MACAR   ENVCL   MONIT   TERMR   LIUSA   TIMQU   VOLQU */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_usage_report_trigger_o6_flags, ENC_BIG_ENDIAN);
     offset++;
+
+    if (offset == length) {
+        return;
+    }
+
+    static const int * pfcp_usage_report_trigger_o7_flags[] = {
+        &hf_pfcp_usage_report_trigger_o7_b0_evequ,
+        NULL
+    };
+    /* Octet 7  Spare   Spare   Spare   Spare   Spare   Spare   Spare   EVEQU */
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_usage_report_trigger_o7_flags, ENC_BIG_ENDIAN);
+    offset++;
+
+    if (offset == length) {
+        return;
+    }
 
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
@@ -3094,6 +3223,11 @@ static const value_string pfcp_outer_hdr_desc_vals[] = {
     { 0x0400, "UDP/IPv4 " },
     { 0x0800, "UDP/IPv6 " },
     { 0x0C00, "UDP/IPv4/IPv6 " },
+    { 0x1000, "IPv4 " },
+    { 0x2000, "IPv6 " },
+    { 0x3000, "IPv4/IPv6 " },
+    { 0x4000, "C-TAG " },
+    { 0x8000, "S-TAG " },
     { 0, NULL }
 };
 
@@ -3120,7 +3254,7 @@ dissect_pfcp_outer_header_creation(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     * p to (p+3)   IPv4
     * The IPv4 Address field shall be present if the Outer Header Creation Description requests the creation of a IPv4 header
     */
-    if ((value & 0x0100) || (value & 0x0400)) {
+    if ((value & 0x0100) || (value & 0x0400) || (value & 0x1000)) {
         proto_tree_add_item(tree, hf_pfcp_outer_hdr_creation_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
     }
@@ -3129,7 +3263,7 @@ dissect_pfcp_outer_header_creation(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     * q to (q+15)   IPv6
     * The IPv6 Address field shall be present if the Outer Header Creation Description requests the creation of a IPv6 header
     */
-    if ((value & 0x0200) || (value & 0x0800)) {
+    if ((value & 0x0200) || (value & 0x0800) || (value & 0x2000)) {
         proto_tree_add_item(tree, hf_pfcp_outer_hdr_creation_ipv6, tvb, offset, 16, ENC_NA);
         offset += 16;
     }
@@ -3141,6 +3275,22 @@ dissect_pfcp_outer_header_creation(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     if ((value & 0x0400) || (value & 0x0800)) {
         proto_tree_add_item(tree, hf_pfcp_outer_hdr_creation_port, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
+    }
+
+    /*
+    * t to (t+2)   C-TAG
+    * The C-TAG field shall be present if the Outer Header Creation Description requests the setting of the C-Tag in Ethernet packet
+    */
+    if (value & 0x4000) {
+        offset = decode_pfcp_c_tag(tvb, pinfo, tree, item, offset);
+    }
+
+    /*
+    * u to (u+2)   S-TAG
+    * The S-TAG field shall be present if the Outer Header Creation Description requests the setting of the S-Tag in Ethernet packet
+    */
+    if (value & 0x8000) {
+        offset = decode_pfcp_s_tag(tvb, pinfo, tree, item, offset);
     }
 
     if (offset < length) {
@@ -3391,6 +3541,11 @@ static const value_string pfcp_out_hdr_desc_vals[] = {
     { 1, "GTP-U/UDP/IPv6" },
     { 2, "UDP/IPv4" },
     { 3, "UDP/IPv6 " },
+    { 4, "IPv4" },
+    { 5, "IPv6 " },
+    { 6, "GTP-U/UDP/IP" },
+    { 7, "VLAN S-TAG" },
+    { 8, "S-TAG and C-TAG" },
     { 0, NULL }
 };
 
@@ -3544,13 +3699,14 @@ dissect_pfcp_measurement_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     int offset = 0;
 
     static const int * pfcp_measurement_info_flags[] = {
-        &hf_pfcp_spare_b7_b3,
+        &hf_pfcp_spare_b7_b4,
+        &hf_pfcp_measurement_info_b3_istm,
         &hf_pfcp_measurement_info_b2_radi,
         &hf_pfcp_measurement_info_b1_inam,
         &hf_pfcp_measurement_info_b0_mbqe,
         NULL
     };
-    /* Octet 5  Spare   INAM    MBQE */
+    /* Octet 5  Spare   ISTM    INAM    MBQE */
     proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_measurement_info,
         ett_pfcp_measurement_info, pfcp_measurement_info_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT);
     offset += 1;
@@ -4333,53 +4489,11 @@ static void dissect_pfcp_mac_address(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 /*
  *   8.2.94 C-TAG (Customer-VLAN tag)
  */
-
-/* From Tables G-2,3 of IEEE standard 802.1Q-2005 (and I-2,3,7 of 2011 and 2015 revisions) */
-static const value_string pfcp_vlan_tag_pcp_vals[] = {
-  { 0, "Best Effort (default), Drop Eligible"            },
-  { 1, "Best Effort (default)"                           },
-  { 2, "Critical Applications, Drop Eligible"            },
-  { 3, "Critical Applications"                           },
-  { 4, "Voice, < 10ms latency and jitter, Drop Eligible" },
-  { 5, "Voice, < 10ms latency and jitter"                },
-  { 6, "Internetwork Control"                            },
-  { 7, "Network Control"                                 },
-  { 0, NULL                                              }
-};
-
-static const true_false_string tfs_eligible_ineligible = {
-    "Eligible",
-    "Ineligible"
-};
-
 static void dissect_pfcp_c_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
     int offset = 0;
-    guint64 flags_val;
 
-    static const int * pfcp_c_tag_flags[] = {
-        &hf_pfcp_spare_b7_b3,
-        &hf_pfcp_c_tag_flags_b2_vid,
-        &hf_pfcp_c_tag_flags_b1_dei,
-        &hf_pfcp_c_tag_flags_b0_pcp,
-        NULL
-    };
-    /* Octet 5  Spare   VID   DEI   PCP */
-    proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_c_tag_flags,
-        ett_pfcp_c_tag, pfcp_c_tag_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT, &flags_val);
-    offset += 1;
-
-    //  Octet     8     7     6     5     4     3     2     1
-    //    6    | C-VID                  |DEI|   PCP value     |
-    proto_tree_add_item(tree, hf_pfcp_c_tag_cvid, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_c_tag_dei_flag,
-        ett_pfcp_c_tag_dei, pfcp_c_tag_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT | BMT_NO_TFS);
-    proto_tree_add_item(tree, hf_pfcp_c_tag_pcp_value, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
-
-    // Octet 7 C-VID value
-    proto_tree_add_item(tree, hf_pfcp_c_tag_cvid_value, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
+    offset = decode_pfcp_c_tag(tvb, pinfo, tree, item, offset);
 
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
@@ -4393,31 +4507,8 @@ static void dissect_pfcp_c_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static void dissect_pfcp_s_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
     int offset = 0;
-    guint64 flags_val;
 
-    static const int * pfcp_s_tag_flags[] = {
-        &hf_pfcp_spare_b7_b3,
-        &hf_pfcp_s_tag_flags_b2_vid,
-        &hf_pfcp_s_tag_flags_b1_dei,
-        &hf_pfcp_s_tag_flags_b0_pcp,
-        NULL
-    };
-    /* Octet 5  Spare   VID   DEI   PCP */
-    proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_s_tag_flags,
-        ett_pfcp_s_tag, pfcp_s_tag_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT, &flags_val);
-    offset += 1;
-
-    //  Octet     8     7     6     5     4     3     2     1
-    //    6    | S-VID                  |DEI|   PCP value     |
-    proto_tree_add_item(tree, hf_pfcp_s_tag_svid, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_pfcp_s_tag_dei_flag,
-        ett_pfcp_s_tag_dei, pfcp_s_tag_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT | BMT_NO_TFS);
-    proto_tree_add_item(tree, hf_pfcp_s_tag_pcp_value, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
-
-    // Octet 7 S-VID value
-    proto_tree_add_item(tree, hf_pfcp_s_tag_svid_value, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
+    offset = decode_pfcp_s_tag(tvb, pinfo, tree, item, offset);
 
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
@@ -4696,19 +4787,19 @@ dissect_pfcp_ethernet_inactivity_timer(tvbuff_t *tvb, packet_info *pinfo, proto_
 }
 
 /*
- * 8.2.106   Event ID
+ * 8.2.106   Subsequent Event Quota
  */
 static void
-dissect_pfcp_event_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length _U_, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+dissect_pfcp_subsequent_event_quota(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length _U_, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
     int offset = 0;
     guint32 value;
     /*
-    * The Event ID field shall be encoded as an Unsigned32 binary integer value.
+    * The Subsequent Event Quota field shall be encoded as an Unsigned32 binary integer value.
     */
 
-    /* 5 to 8   Event ID */
-    proto_tree_add_item_ret_uint(tree, hf_pfcp_event_id, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
+    /* 5 to 8   Subsequent Event Quota */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_subsequent_event_quota, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
     offset += 4;
 
     proto_item_append_text(item, "%u", value);
@@ -4719,19 +4810,19 @@ dissect_pfcp_event_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, p
 }
 
 /*
- * 8.2.107   Event Threshold
+ * 8.2.107   Subsequent Event Threshold
  */
 static void
-dissect_pfcp_event_threshold(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length _U_, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+dissect_pfcp_subsequent_event_threshold(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length _U_, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
     int offset = 0;
     guint32 value;
     /*
-    * The Event Threshold field shall be encoded as an Unsigned32 binary integer value.
+    * The Subsequent Event Threshold field shall be encoded as an Unsigned32 binary integer value.
     */
 
-    /* 5 to 8   Event Threshold */
-    proto_tree_add_item_ret_uint(tree, hf_pfcp_event_threshold, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
+    /* 5 to 8   Subsequent Event Threshold */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_subsequent_event_threshold, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
     offset += 4;
 
     proto_item_append_text(item, "%u", value);
@@ -4824,6 +4915,117 @@ dissect_pfcp_frame_ipv6_route(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     * The Frame-IPv6-Route field shall be encoded as an Octet String as the value part of the Framed-IPv6-Route AVP specified in IETF RFC 2865
     */
     proto_tree_add_item(tree, hf_pfcp_frame_ipv6_route, tvb, 0, length, ENC_NA);
+}
+
+/*
+ * 8.2.112   Event Quota
+ */
+static void
+dissect_pfcp_event_quota(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length _U_, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    int offset = 0;
+    guint32 value;
+
+    /* 5 to 8   Event Quota
+    * The Event Quota field shall be encoded as an Unsigned32 binary integer value.
+    */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_event_quota, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
+    offset += 4;
+
+    proto_item_append_text(item, "%u", value);
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
+
+/*
+ * 8.2.113   Event Threshold
+ */
+static void
+dissect_pfcp_event_threshold(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length _U_, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    int offset = 0;
+    guint32 value;
+
+    /* 5 to 8   Event Threshold
+    * The Event Threshold field shall be encoded as an Unsigned32 binary integer value.
+    */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_event_threshold, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
+    offset += 4;
+
+    proto_item_append_text(item, "%u", value);
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
+
+/*
+ * 8.2.114   Event Time Stamp
+ */
+static void
+dissect_pfcp_event_time_stamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    const gchar *time_str;
+    int offset = 0;
+
+    /* The Event Time Stamp field shall contain a UTC time.
+    * Octets 5 to 8 shall be encoded in the same format as the first four octets
+    * of the 64-bit timestamp format as defined in section 6 of IETF RFC 5905.
+    */
+    time_str = tvb_ntp_fmt_ts_sec(tvb, 0);
+    proto_tree_add_string(tree, hf_pfcp_event_time_stamp, tvb, offset, 4, time_str);
+    proto_item_append_text(item, "%s", time_str);
+    offset += 4;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
+
+/*
+ * 8.2.115   Averaging Window
+ */
+static void
+dissect_pfcp_averaging_window(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, guint16 length _U_, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    int offset = 0;
+    guint32 value;
+
+    /* 5 to 8   Averaging Window
+    * The Averaging Window field shall be encoded as an Unsigned32 binary integer value.
+    */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_averaging_window, tvb, offset, 4, ENC_BIG_ENDIAN, &value);
+    offset += 4;
+
+    proto_item_append_text(item, "%u", value);
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+}
+
+/*
+ * 8.2.116   Paging Policy Indicator (PPI)
+ */
+static void
+dissect_pfcp_paging_policy_indicator(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    int offset = 0;
+    guint32 value;
+
+    /* Octet 5  Paging Policy Indicator (PPI)
+    * The PPI shall be encoded as a value between 0 and 7, as specified in clause 5.5.3.7 of 3GPP TS 38.415
+    */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_paging_policy_indicator, tvb, offset, 1, ENC_BIG_ENDIAN, &value);
+    offset++;
+
+    proto_item_append_text(item, "%u", value);
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
 }
 
 /* Array of functions to dissect IEs
@@ -4982,15 +5184,18 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    145 */    { dissect_pfcp_mac_addresses_removed },                         /* MAC Addresses Removed                           Extendable / Subclause 8.2.104  */
 /*    146 */    { dissect_pfcp_ethernet_inactivity_timer },                     /* Ethernet Inactivity Timer                       Extendable / Subclause 8.2.105  */
 /*    147 */    { dissect_pfcp_additional_monitoring_time },                    /* Additional Monitoring Time                      Extendable / Table 7.5.2.4-3  */
-/*    148 */    { dissect_pfcp_event_information },                             /* Event Information                               Extendable / Table 7.5.2.4-4  */
-/*    149 */    { dissect_pfcp_event_reporting },                               /* Event Reporting                                 Extendable / Table 7.5.8.3-2A  */
-/*    150 */    { dissect_pfcp_event_id },                                      /* Event ID                                        Extendable / Subclause 8.2.106  */
-/*    151 */    { dissect_pfcp_event_threshold },                               /* Event Threshold                                 Extendable / Subclause 8.2.107  */
+/*    148 */    { dissect_pfcp_event_quota },                                   /* Event Quota                                     Extendable / Subclause 8.2.112  */
+/*    149 */    { dissect_pfcp_event_threshold },                               /* Event Threshold                                 Extendable / Subclause 8.2.113  */
+/*    150 */    { dissect_pfcp_subsequent_event_quota },                        /* Subsequent Event Quota                          Extendable / Subclause 8.2.106  */
+/*    151 */    { dissect_pfcp_subsequent_event_threshold },                    /* Subsequent Event Threshold                      Extendable / Subclause 8.2.107  */
 /*    152 */    { dissect_pfcp_trace_information },                             /* Trace Information                               Extendable / Subclause 8.2.108  */
 /*    153 */    { dissect_pfcp_frame_route },                                   /* Frame-Route                                     Variable Length / Subclause 8.2.109  */
 /*    154 */    { dissect_pfcp_frame_routing },                                 /* Frame-Routing                                   Fixed Length / Subclause 8.2.110  */
 /*    155 */    { dissect_pfcp_frame_ipv6_route },                              /* Frame-IPv6-Route                                Variable Length / Subclause 8.2.111  */
-//156 to 32767 Spare. For future use.
+/*    156 */    { dissect_pfcp_event_time_stamp },                              /* Event Time Stamp                                Extendable / Subclause 8.2.114  */
+/*    157 */    { dissect_pfcp_averaging_window },                              /* Averaging Window                                Extendable / Subclause 8.2.115  */
+/*    158 */    { dissect_pfcp_paging_policy_indicator },                       /* Paging Policy Indicator                         Extendable / Subclause 8.2.116  */
+//159 to 32767 Spare. For future use.
 //32768 to 65535 Vendor-specific IEs.
     { NULL },                                                        /* End of List */
 };
@@ -5418,18 +5623,6 @@ static void
 dissect_pfcp_additional_monitoring_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 {
     dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_ADDITIONAL_MONITORING_TIME], args);
-}
-
-static void
-dissect_pfcp_event_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
-{
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_EVENT_INFORMATION], args);
-}
-
-static void
-dissect_pfcp_event_reporting(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
-{
-    dissect_pfcp_grouped_ie(tvb, pinfo, tree, item, length, message_type, ett_pfcp_elem[PFCP_IE_EVENT_REPORTING], args);
 }
 
 static void
@@ -6488,7 +6681,17 @@ proto_register_pfcp(void)
             FT_BOOLEAN, 8, NULL, 0x10,
             NULL, HFILL }
         },
+        { &hf_pfcp_reporting_triggers_o6_b5_evequ,
+        { "EVEQU (Event Quota)", "pfcp.reporting_triggers_flags.evequ",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
+        },
 
+        { &hf_pfcp_usage_report_trigger_o7_b0_evequ,
+        { "EVEQU (Event Quota)", "pfcp.usage_report_trigger_flags.evequ",
+            FT_BOOLEAN, 8, NULL, 0x01,
+            NULL, HFILL }
+        },
         { &hf_pfcp_usage_report_trigger_o6_b0_volqu,
         { "VOLQU (Volume Quota)", "pfcp.usage_report_trigger_flags.volqu",
             FT_BOOLEAN, 8, NULL, 0x01,
@@ -7191,6 +7394,11 @@ proto_register_pfcp(void)
             FT_BOOLEAN, 8, NULL, 0x04,
             NULL, HFILL }
         },
+        { &hf_pfcp_measurement_info_b3_istm,
+        { "ISTM (Immediate Start Time Metering)", "pfcp.measurement_info.istm",
+            FT_BOOLEAN, 8, NULL, 0x08,
+            NULL, HFILL }
+        },
         { &hf_pfcp_node_report_type,
         { "Flags", "pfcp.node_report_type",
             FT_UINT8, BASE_HEX, NULL, 0x0,
@@ -7655,14 +7863,14 @@ proto_register_pfcp(void)
             NULL, HFILL }
         },
 
-        { &hf_pfcp_event_id,
-        { "Event ID", "pfcp.eventid",
+        { &hf_pfcp_subsequent_event_quota,
+        { "Subsequent Event Quota", "pfcp.subsequent_event_quota",
             FT_UINT32, BASE_DEC, NULL, 0,
             NULL, HFILL }
         },
 
-        { &hf_pfcp_event_threshold,
-        { "Event Threshold", "pfcp.event_threshold",
+        { &hf_pfcp_subsequent_event_threshold,
+        { "Subsequent Event Threshold", "pfcp.subsequent_event_threshold",
             FT_UINT32, BASE_DEC, NULL, 0,
             NULL, HFILL }
         },
@@ -7721,6 +7929,36 @@ proto_register_pfcp(void)
         { &hf_pfcp_frame_ipv6_route,
         { "Frame-IPv6-Route", "pfcp.frame_ipv6_route",
             FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_event_quota,
+        { "Event Quota", "pfcp.event_quota",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_event_threshold,
+        { "Event Threshold", "pfcp.event_threshold",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_event_time_stamp,
+        { "Event Time Stamp", "pfcp.event_time_stamp",
+            FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_averaging_window,
+        { "Averaging Window", "pfcp.averaging_window",
+            FT_UINT32, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+
+        { &hf_pfcp_paging_policy_indicator,
+        { "Paging Policy Indicator (PPI)", "pfcp.ppi",
+            FT_UINT8, BASE_DEC, NULL, 0x7,
             NULL, HFILL }
         },
     };
