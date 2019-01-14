@@ -71,9 +71,11 @@ ADDITIONAL_LIST="libnl3-devel \
 	rpm-build"
 
 # Guess which package manager we will use
-PM=`which zypper 2> /dev/null ||
-which dnf 2> /dev/null ||
-which yum 2> /dev/null`
+for PM in zypper dnf yum ''; do
+	if type "$PM" >/dev/null 2>&1; then
+		break
+	fi
+done
 
 if [ -z $PM ]
 then
@@ -82,14 +84,14 @@ then
 fi
 
 case $PM in
-	*/zypper)
+	zypper)
 		PM_OPT="--non-interactive"
 		PM_SEARCH="search -x --provides"
 		;;
-	*/dnf)
+	dnf)
 		PM_SEARCH="info"
 		;;
-	*/yum)
+	yum)
 		PM_SEARCH="info"
 		;;
 esac
