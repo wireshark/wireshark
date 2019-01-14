@@ -3093,7 +3093,7 @@ if(RPMBUILD_EXECUTABLE AND GIT_EXECUTABLE AND EXISTS "${CMAKE_SOURCE_DIR}/.git")
 			--define "_topdir ${CMAKE_BINARY_DIR}/packaging/rpm"
 			--define "_prefix ${CMAKE_INSTALL_PREFIX}"
 			${_rpmbuild_with_args}
-			--clean -ba SPECS/wireshark.spec
+			-ba SPECS/wireshark.spec
 		DEPENDS "${CMAKE_SOURCE_DIR}/${_export_tarball}"
 		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/packaging/rpm"
 		COMMENT "Create a tarball from the current git commit."
