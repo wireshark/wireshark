@@ -43,6 +43,7 @@ for the UNIX based tools with `**toolname** --help` or the man page via `man
 You will find explanations of the tool usage for some of the specific
 development tasks in <<ChapterSources>>.
 
+[[ChToolsChocolatey]]
 === Chocolatey
 
 Chocolatey is a Windows package manager that can be used to install (and update)
@@ -454,6 +455,7 @@ include new and updated APIs.
 When you purchase a commercial Visual Studio or use the Community
 Edition, it will include an SDK.
 
+[[ChToolsDocumentationToolchain]]
 === Documentation Toolchain
 
 Wireshark’s documentation is split across two directories. The `doc`
@@ -1055,6 +1057,7 @@ PS$> choco install wixtoolset
 Wireshark’s .msi packaging is currently experimental and the generated
 packages may be incomplete.
 
+[[ChToolsPortableApps]]
 === Windows: PortableApps (Optional)
 
 The PortableApps.com Installer is used to generate
