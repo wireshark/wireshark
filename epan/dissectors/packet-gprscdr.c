@@ -344,6 +344,8 @@ static int hf_gprscdr_userLocationInformation_09 = -1;  /* T_userLocationInforma
 static int hf_gprscdr_presenceReportingAreaStatus = -1;  /* PresenceReportingAreaStatus */
 static int hf_gprscdr_accessAvailabilityChangeReason = -1;  /* AccessAvailabilityChangeReason */
 static int hf_gprscdr_relatedChangeOfCharCondition = -1;  /* RelatedChangeOfCharCondition */
+static int hf_gprscdr_listOfPresenceReportingAreaInformation = -1;  /* SEQUENCE_OF_PresenceReportingAreaInfo */
+static int hf_gprscdr_listOfPresenceReportingAreaInformation_item = -1;  /* PresenceReportingAreaInfo */
 static int hf_gprscdr_dataVolumeMBMSUplink = -1;  /* DataVolumeMBMS */
 static int hf_gprscdr_dataVolumeMBMSDownlink = -1;  /* DataVolumeMBMS */
 static int hf_gprscdr_serviceConditionChange_01 = -1;  /* ServiceConditionChange */
@@ -386,6 +388,7 @@ static int hf_gprscdr_counterTimestamp = -1;      /* TimeStamp */
 static int hf_gprscdr_iPAddress = -1;             /* IPAddress */
 static int hf_gprscdr_presenceReportingAreaIdentifier = -1;  /* OCTET_STRING */
 static int hf_gprscdr_presenceReportingAreaElementsList = -1;  /* PresenceReportingAreaElementsList */
+static int hf_gprscdr_presenceReportingAreaNode = -1;  /* PresenceReportingAreaNode */
 static int hf_gprscdr_pSFreeFormatData = -1;      /* FreeFormatData */
 static int hf_gprscdr_pSFFDAppendIndicator = -1;  /* FFDAppendIndicator */
 static int hf_gprscdr_dataVolumeUplink = -1;      /* DataVolumeGPRS */
@@ -582,6 +585,7 @@ static gint ett_gprscdr_CAMELInformationMM = -1;
 static gint ett_gprscdr_CAMELInformationPDP = -1;
 static gint ett_gprscdr_CAMELInformationSMS = -1;
 static gint ett_gprscdr_ChangeOfCharCondition = -1;
+static gint ett_gprscdr_SEQUENCE_OF_PresenceReportingAreaInfo = -1;
 static gint ett_gprscdr_ChangeOfMBMSCondition = -1;
 static gint ett_gprscdr_ChangeOfServiceCondition = -1;
 static gint ett_gprscdr_SEQUENCE_OF_ServiceSpecificInfo = -1;
@@ -1612,6 +1616,8 @@ static const value_string gprscdr_RecordType_vals[] = {
   { 106, "cPDTSNNRecord" },
   { 110, "sCDVTT4Record" },
   { 111, "sCSMOT4Record" },
+  { 112, "iSMSMORecord" },
+  { 113, "iSMSMTRecord" },
   { 120, "eASCERecord" },
   { 200, "chargingFunctionRecord" },
   { 0, NULL }
@@ -3401,6 +3407,63 @@ dissect_gprscdr_ServingPLMNRateControl(gboolean implicit_tag _U_, tvbuff_t *tvb 
 }
 
 
+
+static int
+dissect_gprscdr_PresenceReportingAreaElementsList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       NULL);
+
+  return offset;
+}
+
+
+static const value_string gprscdr_PresenceReportingAreaNode_vals[] = {
+  {   0, "oCS" },
+  {   1, "pCRF" },
+  {   2, "oCSandPCRF" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gprscdr_PresenceReportingAreaNode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t PresenceReportingAreaInfo_sequence[] = {
+  { &hf_gprscdr_presenceReportingAreaIdentifier, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gprscdr_OCTET_STRING },
+  { &hf_gprscdr_presenceReportingAreaStatus, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PresenceReportingAreaStatus },
+  { &hf_gprscdr_presenceReportingAreaElementsList, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PresenceReportingAreaElementsList },
+  { &hf_gprscdr_presenceReportingAreaNode, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PresenceReportingAreaNode },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_PresenceReportingAreaInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   PresenceReportingAreaInfo_sequence, hf_index, ett_gprscdr_PresenceReportingAreaInfo);
+
+  return offset;
+}
+
+
+static const ber_sequence_t SEQUENCE_OF_PresenceReportingAreaInfo_sequence_of[1] = {
+  { &hf_gprscdr_listOfPresenceReportingAreaInformation_item, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_gprscdr_PresenceReportingAreaInfo },
+};
+
+static int
+dissect_gprscdr_SEQUENCE_OF_PresenceReportingAreaInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence_of(implicit_tag, actx, tree, tvb, offset,
+                                      SEQUENCE_OF_PresenceReportingAreaInfo_sequence_of, hf_index, ett_gprscdr_SEQUENCE_OF_PresenceReportingAreaInfo);
+
+  return offset;
+}
+
+
 static const ber_sequence_t ChangeOfCharCondition_sequence[] = {
   { &hf_gprscdr_qosRequested, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_QoSInformation },
   { &hf_gprscdr_qosNegotiated, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_QoSInformation },
@@ -3422,6 +3485,7 @@ static const ber_sequence_t ChangeOfCharCondition_sequence[] = {
   { &hf_gprscdr_cPCIoTEPSOptimisationIndicator, BER_CLASS_CON, 19, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_CPCIoTEPSOptimisationIndicator },
   { &hf_gprscdr_servingPLMNRateControl, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ServingPLMNRateControl },
   { &hf_gprscdr_threeGPPPSDataOffStatus, BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ThreeGPPPSDataOffStatus },
+  { &hf_gprscdr_listOfPresenceReportingAreaInformation, BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_SEQUENCE_OF_PresenceReportingAreaInfo },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -3885,32 +3949,6 @@ dissect_gprscdr_SEQUENCE_OF_ServingNodeType(gboolean implicit_tag _U_, tvbuff_t 
 
 
 static int
-dissect_gprscdr_PresenceReportingAreaElementsList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
-
-  return offset;
-}
-
-
-static const ber_sequence_t PresenceReportingAreaInfo_sequence[] = {
-  { &hf_gprscdr_presenceReportingAreaIdentifier, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gprscdr_OCTET_STRING },
-  { &hf_gprscdr_presenceReportingAreaStatus, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PresenceReportingAreaStatus },
-  { &hf_gprscdr_presenceReportingAreaElementsList, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_PresenceReportingAreaElementsList },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_gprscdr_PresenceReportingAreaInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   PresenceReportingAreaInfo_sequence, hf_index, ett_gprscdr_PresenceReportingAreaInfo);
-
-  return offset;
-}
-
-
-
-static int
 dissect_gprscdr_T_lastUserLocationInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 191 "./asn1/gprscdr/gprscdr.cnf"
 
@@ -4349,6 +4387,7 @@ static const ber_sequence_t ChangeOfServiceCondition_sequence[] = {
   { &hf_gprscdr_trafficSteeringPolicyIDDownlink, BER_CLASS_CON, 38, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_TrafficSteeringPolicyIDDownlink },
   { &hf_gprscdr_trafficSteeringPolicyIDUplink, BER_CLASS_CON, 39, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_TrafficSteeringPolicyIDUplink },
   { &hf_gprscdr_tWANUserLocationInformation, BER_CLASS_CON, 40, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_TWANUserLocationInfo },
+  { &hf_gprscdr_listOfPresenceReportingAreaInformation, BER_CLASS_CON, 41, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_SEQUENCE_OF_PresenceReportingAreaInfo },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -6129,6 +6168,14 @@ proto_register_gprscdr(void)
       { "relatedChangeOfCharCondition", "gprscdr.relatedChangeOfCharCondition_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_gprscdr_listOfPresenceReportingAreaInformation,
+      { "listOfPresenceReportingAreaInformation", "gprscdr.listOfPresenceReportingAreaInformation",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_OF_PresenceReportingAreaInfo", HFILL }},
+    { &hf_gprscdr_listOfPresenceReportingAreaInformation_item,
+      { "PresenceReportingAreaInfo", "gprscdr.PresenceReportingAreaInfo_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_gprscdr_dataVolumeMBMSUplink,
       { "dataVolumeMBMSUplink", "gprscdr.dataVolumeMBMSUplink",
         FT_INT32, BASE_DEC, NULL, 0,
@@ -6296,6 +6343,10 @@ proto_register_gprscdr(void)
     { &hf_gprscdr_presenceReportingAreaElementsList,
       { "presenceReportingAreaElementsList", "gprscdr.presenceReportingAreaElementsList",
         FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gprscdr_presenceReportingAreaNode,
+      { "presenceReportingAreaNode", "gprscdr.presenceReportingAreaNode",
+        FT_UINT32, BASE_DEC, VALS(gprscdr_PresenceReportingAreaNode_vals), 0,
         NULL, HFILL }},
     { &hf_gprscdr_pSFreeFormatData,
       { "pSFreeFormatData", "gprscdr.pSFreeFormatData",
@@ -6837,6 +6888,7 @@ proto_register_gprscdr(void)
     &ett_gprscdr_CAMELInformationPDP,
     &ett_gprscdr_CAMELInformationSMS,
     &ett_gprscdr_ChangeOfCharCondition,
+    &ett_gprscdr_SEQUENCE_OF_PresenceReportingAreaInfo,
     &ett_gprscdr_ChangeOfMBMSCondition,
     &ett_gprscdr_ChangeOfServiceCondition,
     &ett_gprscdr_SEQUENCE_OF_ServiceSpecificInfo,

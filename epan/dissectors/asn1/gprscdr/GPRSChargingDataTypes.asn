@@ -1,7 +1,7 @@
 --
--- 3GPP TS 32.298 v15.4.0 (2018-09-21)
+-- 3GPP TS 32.298 v15.5.1 (2018-12-26)
 --
-GPRSChargingDataTypes {itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) charging (5) gprsChargingDataTypes (2) asn1Module (0) version1 (0)}
+GPRSChargingDataTypes {itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) charging (5) gprsChargingDataTypes (2) asn1Module (0) version2 (1)}
 DEFINITIONS IMPLICIT TAGS	::=
 
 BEGIN
@@ -923,7 +923,9 @@ ChangeOfCharCondition	::= SEQUENCE
 	relatedChangeOfCharCondition	[18] RelatedChangeOfCharCondition OPTIONAL,
 	cPCIoTEPSOptimisationIndicator	[19] CPCIoTEPSOptimisationIndicator OPTIONAL,
 	servingPLMNRateControl			[20] ServingPLMNRateControl OPTIONAL,
-	threeGPPPSDataOffStatus			[21] ThreeGPPPSDataOffStatus OPTIONAL
+	threeGPPPSDataOffStatus			[21] ThreeGPPPSDataOffStatus OPTIONAL,
+	listOfPresenceReportingAreaInformation	[22] SEQUENCE OF PresenceReportingAreaInfo OPTIONAL
+
 }
 
 ChangeOfMBMSCondition	::= SEQUENCE
@@ -981,7 +983,9 @@ ChangeOfServiceCondition	::= SEQUENCE
 	threeGPPPSDataOffStatus             [37] ThreeGPPPSDataOffStatus OPTIONAL,
 	trafficSteeringPolicyIDDownlink     [38] TrafficSteeringPolicyIDDownlink OPTIONAL,
 trafficSteeringPolicyIDUplink       [39] TrafficSteeringPolicyIDUplink OPTIONAL,
-	tWANUserLocationInformation			[40] TWANUserLocationInfo OPTIONAL
+	tWANUserLocationInformation			[40] TWANUserLocationInfo OPTIONAL,
+	listOfPresenceReportingAreaInformation	[41] SEQUENCE OF PresenceReportingAreaInfo OPTIONAL
+
 }
 
 ChangeLocation	::= SEQUENCE
@@ -1208,13 +1212,21 @@ PresenceReportingAreaInfo	::= SEQUENCE
 {
 	presenceReportingAreaIdentifier	 [0] OCTET STRING,
 	presenceReportingAreaStatus		 [1] PresenceReportingAreaStatus OPTIONAL,
-	presenceReportingAreaElementsList[2] PresenceReportingAreaElementsList OPTIONAL
+	presenceReportingAreaElementsList[2] PresenceReportingAreaElementsList OPTIONAL,
+	presenceReportingAreaNode		 [3] PresenceReportingAreaNode OPTIONAL
+}
+PresenceReportingAreaNode ::= ENUMERATED 
+{
+	oCS   		 (0),
+	pCRF  		 (1),
+	oCSandPCRF 	 (2)
+
 }
 
 PresenceReportingAreaStatus ::= ENUMERATED 
 {
 	insideArea   (0),
-	outsideArea  (1) ,
+	outsideArea  (1),
 	inactive 	 (2)
 
 }

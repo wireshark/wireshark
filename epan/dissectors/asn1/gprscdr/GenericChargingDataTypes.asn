@@ -1,5 +1,5 @@
--- 3GPP TS 32.298 v15.4.0 (2018-09-21)
-GenericChargingDataTypes {itu-t (0) identified-organization (4) etsi(0) mobileDomain (0) charging (5) genericChargingDataTypes (0) asn1Module (0) version1 (0)}  
+-- 3GPP TS 32.298 v15.5.1 (2018-12-26)
+GenericChargingDataTypes {itu-t (0) identified-organization (4) etsi(0) mobileDomain (0) charging (5) genericChargingDataTypes (0) asn1Module (0) version2 (1)}  
 
 DEFINITIONS IMPLICIT TAGS	::=
 
@@ -23,7 +23,7 @@ FROM MAP-ER-DataTypes { itu-t identified-organization (4) etsi (0) mobileDomain 
 
 ObjectInstance	
 FROM CMIP-1 {joint-iso-itu-t ms (9) cmip (1) modules (0) protocol (3)}
--- from Rec. X.2ab[304]
+-- from Rec. X.711 [304]
 
 -- WS localy defined
 --ManagementExtension
@@ -32,8 +32,8 @@ FROM CMIP-1 {joint-iso-itu-t ms (9) cmip (1) modules (0) protocol (3)}
 
 AE-title
 FROM ACSE-1 {joint-iso-itu-t association-control (2) modules (0) apdus (0) version1 (1) };
--- From Rec. X.2cd[306].  Note that the syntax of AE-title to be used is from 
--- ITU-T Rec. X.227 / ISO 8650 corrigendum and not "ANY"
+-- Note that the syntax of AE-title to be used is from 
+-- ITU-T Rec. X.227[306) / ISO 8650 corrigendum and not "ANY"
 
 --
 --  Generic Data Types
@@ -657,11 +657,13 @@ aTCFRecord			(91),
 --
 	cPDTSCERecord			(105),
 	cPDTSNNRecord			(106), --
---  Record values 110 to 111 are SMS specific. The contents are defined in TS 
+--  Record values 110 to 113 are SMS specific. The contents are defined in TS 
 --	32.274 [34]
 --
 	sCDVTT4Record			(110),
 	sCSMOT4Record			(111),
+	iSMSMORecord			(112),
+	iSMSMTRecord			(113),
 --  
 --  Record values 120 are Exposure Function API specific. The contents are defined in TS 
 --	32.254 [14]
