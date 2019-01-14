@@ -2861,7 +2861,7 @@ if(RPMBUILD_EXECUTABLE)
 			--define "_topdir ${CMAKE_BINARY_DIR}/packaging/rpm"
 			--define "_prefix ${CMAKE_INSTALL_PREFIX}"
 			${_rpmbuild_with_args}
-			--clean -ba SPECS/wireshark.spec
+			-ba SPECS/wireshark.spec
 		DEPENDS "${CMAKE_BINARY_DIR}/packaging/rpm/SOURCES/${_export_tarball}"
 		WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/packaging/rpm"
 		COMMENT "Create a tarball from the current git commit."
