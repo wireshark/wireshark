@@ -338,9 +338,6 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     }
   }
 
-  commandlen = 0;
-  folder_offset = 0;
-  folder_tokenlen = 0;
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "IMAP");
 
   if (pinfo->match_uint == pinfo->destport)
@@ -368,6 +365,10 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     while(tvb_offset_exists(tvb, offset)) {
+
+      commandlen = 0;
+      folder_offset = 0;
+      folder_tokenlen = 0;
 
       /*
        * Find the end of each line
@@ -490,6 +491,8 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             uid_tokenlen = tvb_get_token_len(tvb, next_token, uidlen, &uid_next_token, FALSE);
             if (tokenlen != 0) {
               proto_tree_add_item(reqresp_tree, hf_imap_request_command, tvb, uid_offset, uid_tokenlen, ENC_ASCII|ENC_NA);
+              hidden_item = proto_tree_add_item(reqresp_tree, hf_imap_command, tvb, offset, tokenlen, ENC_ASCII | ENC_NA);
+              PROTO_ITEM_SET_HIDDEN(hidden_item);
 
               /*
                * Save command string to do specialized processing.
@@ -499,6 +502,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
               command_token = wmem_ascii_strdown(wmem_packet_scope(), command_token, commandlen);
 
               folderlen = linelen - (uid_next_token - offset);
+              folder_offset = uid_next_token;
               folder_tokenlen = tvb_get_token_len(tvb, uid_next_token, folderlen, &folder_next_token, FALSE);
             }
           } else {
@@ -509,9 +513,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             if (is_request) {
               hidden_item = proto_tree_add_item(reqresp_tree, hf_imap_command, tvb, offset, tokenlen, ENC_ASCII | ENC_NA);
               PROTO_ITEM_SET_HIDDEN(hidden_item);
-            }
 
-            if (is_request) {
               /*
                * Save command string to do specialized processing.
                */
@@ -519,60 +521,59 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
               command_token = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, commandlen, ENC_ASCII);
               command_token = wmem_ascii_strdown(wmem_packet_scope(), command_token, commandlen);
 
-              if (commandlen > 0) {
-                if (strncmp(command_token, "select", commandlen) == 0 ||
-                    strncmp(command_token, "examine", commandlen) == 0 ||
-                    strncmp(command_token, "create", commandlen) == 0 ||
-                    strncmp(command_token, "delete", commandlen) == 0 ||
-                    strncmp(command_token, "rename", commandlen) == 0 ||
-                    strncmp(command_token, "subscribe", commandlen) == 0 ||
-                    strncmp(command_token, "unsubscribe", commandlen) == 0 ||
-                    strncmp(command_token, "status", commandlen) == 0 ||
-                    strncmp(command_token, "append", commandlen) == 0 ||
-                    strncmp(command_token, "search", commandlen) == 0) {
+              folderlen = linelen - (next_token - offset);
+              folder_offset = next_token;
+              folder_tokenlen = tvb_get_token_len(tvb, next_token, folderlen, &folder_next_token, FALSE);
+            }
+          }
 
-                  folderlen = linelen - (next_token - offset);
-                  folder_offset = next_token;
-                  folder_tokenlen = tvb_get_token_len(tvb, next_token, folderlen, &folder_next_token, FALSE);
+          if (commandlen > 0) { // implies is_request (i.e. can be true only if is_request but is not equivalent)
+            if (strncmp(command_token, "select", commandlen) == 0 ||
+                strncmp(command_token, "examine", commandlen) == 0 ||
+                strncmp(command_token, "create", commandlen) == 0 ||
+                strncmp(command_token, "delete", commandlen) == 0 ||
+                strncmp(command_token, "rename", commandlen) == 0 ||
+                strncmp(command_token, "subscribe", commandlen) == 0 ||
+                strncmp(command_token, "unsubscribe", commandlen) == 0 ||
+                strncmp(command_token, "status", commandlen) == 0 ||
+                strncmp(command_token, "append", commandlen) == 0 ||
+                strncmp(command_token, "search", commandlen) == 0) {
 
-                  /*
-                   * These commands support folder as an argument,
-                   * so parse out the folder name.
-                   */
-                  if (folder_tokenlen != 0) {
-                    if ((linelen > 0) && strncmp(command_token, "copy", commandlen) == 0) {
-                      /*
-                       * Handle the copy command separately since folder
-                       * is the second argument for this command.
-                       */
-                      folderlen = linelen - (folder_next_token - offset);
-                      folder_offset = folder_next_token;
-                      folder_tokenlen = tvb_get_token_len(tvb, folder_offset, folderlen, &folder_next_token, FALSE);
+              /*
+               * These commands support folder as an argument,
+               * so parse out the folder name.
+               */
+              if (folder_tokenlen != 0)
+                proto_tree_add_item(reqresp_tree, hf_imap_request_folder, tvb, folder_offset, folder_tokenlen, ENC_ASCII | ENC_NA);
+            }
+            else if ((linelen > 0) && strncmp(command_token, "copy", commandlen) == 0) {
+              /*
+               * Handle the copy command separately since folder
+               * is the second argument for this command.
+               */
+              folderlen = linelen - (folder_next_token - offset);
+              folder_offset = folder_next_token;
+              folder_tokenlen = tvb_get_token_len(tvb, folder_offset, folderlen, &folder_next_token, FALSE);
 
-                      if (folder_tokenlen != 0)
-                        proto_tree_add_item(reqresp_tree, hf_imap_request_folder, tvb, folder_offset, folder_tokenlen, ENC_ASCII | ENC_NA);
-                    } else {
-                      proto_tree_add_item(reqresp_tree, hf_imap_request_folder, tvb, folder_offset, folder_tokenlen, ENC_ASCII | ENC_NA);
-                    }
-                  }
-                }
-                else if (strncmp(command_token, "starttls", commandlen) == 0) {
-                  /* If next response is OK, then TLS should be commenced. */
-                  session_state->ssl_requested = TRUE;
-                }
-              }
+              if (folder_tokenlen != 0)
+                proto_tree_add_item(reqresp_tree, hf_imap_request_folder, tvb, folder_offset, folder_tokenlen, ENC_ASCII | ENC_NA);
+            }
+            else if (strncmp(command_token, "starttls", commandlen) == 0) {
+              /* If next response is OK, then TLS should be commenced. */
+              session_state->ssl_requested = TRUE;
+            }
+          }
 
-            } else {
-              //See if there is the response command
-              int command_next_token;
-              int command_offset = next_token;
-              commandlen = linelen - (next_token-offset);
-              commandlen = tvb_get_token_len(tvb, next_token, commandlen, &command_next_token, FALSE);
-              if (commandlen > 0) {
-                proto_tree_add_item(reqresp_tree, hf_imap_response_command, tvb, command_offset, commandlen, ENC_ASCII | ENC_NA);
-                hidden_item = proto_tree_add_item(reqresp_tree, hf_imap_command, tvb, command_offset, commandlen, ENC_ASCII | ENC_NA);
-                PROTO_ITEM_SET_HIDDEN(hidden_item);
-              }
+          if (!is_request) {
+            //See if there is the response command
+            int command_next_token;
+            int command_offset = next_token;
+            commandlen = linelen - (next_token-offset);
+            commandlen = tvb_get_token_len(tvb, next_token, commandlen, &command_next_token, FALSE);
+            if (commandlen > 0) {
+              proto_tree_add_item(reqresp_tree, hf_imap_response_command, tvb, command_offset, commandlen, ENC_ASCII | ENC_NA);
+              hidden_item = proto_tree_add_item(reqresp_tree, hf_imap_command, tvb, command_offset, commandlen, ENC_ASCII | ENC_NA);
+              PROTO_ITEM_SET_HIDDEN(hidden_item);
             }
           }
 
