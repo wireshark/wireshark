@@ -112,7 +112,6 @@ rpm-centos-7:
   image: centos:7
   script:
     - yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
-    - yum install -y which
     - tools/rpm-setup.sh --install-optional -y
     - mkdir build
     - cd build
@@ -122,7 +121,7 @@ rpm-centos-7:
 rpm-opensuse-42.3:
   image: opensuse:42.3
   script:
-    - zypper --non-interactive install which update-desktop-files
+    - zypper --non-interactive install update-desktop-files
     - tools/rpm-setup.sh --install-optional ruby
     - gem install asciidoctor
     - mkdir build
@@ -134,7 +133,6 @@ rpm-fedora-28:
   image: fedora:28
   script:
     - dnf upgrade -y
-    - dnf install -y which
     - tools/rpm-setup.sh --install-optional -y
     - mkdir build
     - cd build
