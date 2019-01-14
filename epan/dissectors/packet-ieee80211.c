@@ -27946,7 +27946,7 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_ff_timestamp,
      {"Timestamp", "wlan.fixed.timestamp",
-      FT_UINT64, BASE_HEX, NULL, 0,
+      FT_UINT64, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_ff_auth_alg,
