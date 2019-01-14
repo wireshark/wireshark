@@ -831,6 +831,8 @@ ScheduledCommunicationTime/timeofDayEnd DISPLAY=BASE_DEC|BASE_UNIT_STRING STRING
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENDCX2RemovalFailure");
 #.FN_HDR DataForwardingAddressIndication
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DataForwardingAddressIndication");
+#.FN_HDR GNBStatusIndication
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBStatusIndication");
 
 #.ASSIGN_VALUE_TO_TYPE  # X2AP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
@@ -880,7 +882,7 @@ id-eUTRANRCellResourceCoordination				ProcedureCode
 id-SgNBActivityNotification					ProcedureCode
 id-endcX2Removal						ProcedureCode
 id-dataForwardingAddressIndication				ProcedureCode
-
+id-gNBStatusIndication						ProcedureCode
 
 # ProtocolIE-ID
 
@@ -1176,7 +1178,7 @@ id-InitiatingNodeType-EndcX2Removal				ProtocolIE-ID
 id-RespondingNodeType-EndcX2Removal				ProtocolIE-ID
 id-RLC-Status							ProtocolIE-ID
 id-CNTypeRestrictions						ProtocolIE-ID
-id-pDCPSnLength							ProtocolIE-ID
+id-uLpDCPSnLength						ProtocolIE-ID
 id-BluetoothMeasurementConfiguration				ProtocolIE-ID
 id-WLANMeasurementConfiguration					ProtocolIE-ID
 id-NRrestrictionin5GS						ProtocolIE-ID
@@ -1184,6 +1186,22 @@ id-dL-Forwarding						ProtocolIE-ID
 id-E-RABs-DataForwardingAddress-List				ProtocolIE-ID
 id-E-RABs-DataForwardingAddress-Item				ProtocolIE-ID
 id-Subscription-Based-UE-DifferentiationInfo			ProtocolIE-ID
+id-GNBOverloadInformation					ProtocolIE-ID
+id-dLPDCPSnLength						ProtocolIE-ID
+id-secondarysgNBDLGTPTEIDatPDCP					ProtocolIE-ID
+id-secondarymeNBULGTPTEIDatPDCP					ProtocolIE-ID
+id-lCID								ProtocolIE-ID
+id-duplicationActivation					ProtocolIE-ID
+id-ECGI								ProtocolIE-ID
+id-RLCMode-transferred						ProtocolIE-ID
+id-E-RABs-Admitted-ToBeReleased-SgNBRelReqAckList		ProtocolIE-ID
+id-E-RABs-Admitted-ToBeReleased-SgNBRelReqAck-Item		ProtocolIE-ID
+id-E-RABs-ToBeReleased-SgNBRelReqdList				ProtocolIE-ID
+id-E-RABs-ToBeReleased-SgNBRelReqd-Item				ProtocolIE-ID
+id-NRCGI							ProtocolIE-ID
+id-MeNBCoordinationAssistanceInformation			ProtocolIE-ID
+id-SgNBCoordinationAssistanceInformation			ProtocolIE-ID
+id-new-drb-ID-req						ProtocolIE-ID
 
 #.REGISTER
 
@@ -1408,6 +1426,11 @@ RespondingNodeType-EndcX2Removal				N x2ap.ies id-RespondingNodeType-EndcX2Remov
 E-RABs-DataForwardingAddress-List				N x2ap.ies id-E-RABs-DataForwardingAddress-List
 E-RABs-DataForwardingAddress-Item				N x2ap.ies id-E-RABs-DataForwardingAddress-Item
 Subscription-Based-UE-DifferentiationInfo			N x2ap.ies id-Subscription-Based-UE-DifferentiationInfo
+GNBOverloadInformation						N x2ap.ies id-GNBOverloadInformation
+E-RABs-Admitted-ToBeReleased-SgNBRelReqAckList			N x2ap.ies id-E-RABs-Admitted-ToBeReleased-SgNBRelReqAckList
+E-RABs-Admitted-ToBeReleased-SgNBRelReqAck-Item			N x2ap.ies id-E-RABs-Admitted-ToBeReleased-SgNBRelReqAck-Item
+E-RABs-ToBeReleased-SgNBRelReqdList				N x2ap.ies id-E-RABs-ToBeReleased-SgNBRelReqdList
+E-RABs-ToBeReleased-SgNBRelReqd-Item				N x2ap.ies id-E-RABs-ToBeReleased-SgNBRelReqd-Item
 
 #X2AP-PROTOCOL-EXTENSION
 Number-of-Antennaports						N x2ap.extension id-Number-of-Antennaports
@@ -1483,11 +1506,22 @@ NSSS-NumOccasionDifferentPrecoder				N x2ap.extension id-NSSS-NumOccasionDiffere
 ProtectedEUTRAResourceIndication				N x2ap.extension id-ProtectedEUTRAResourceIndication
 RLC-Status							N x2ap.extension id-RLC-Status
 CNTypeRestrictions						N x2ap.extension id-CNTypeRestrictions
-PDCPSnLength							N x2ap.extension id-pDCPSnLength
+PDCPSnLength							N x2ap.extension id-uLpDCPSnLength
 BluetoothMeasurementConfiguration				N x2ap.extension id-BluetoothMeasurementConfiguration
 WLANMeasurementConfiguration					N x2ap.extension id-WLANMeasurementConfiguration
 NRrestrictionin5GS						N x2ap.extension id-NRrestrictionin5GS
 DL-Forwarding							N x2ap.extension id-dL-Forwarding
+PDCPSnLength							N x2ap.extension id-dLPDCPSnLength
+GTPtunnelEndpoint						N x2ap.extension id-secondarysgNBDLGTPTEIDatPDCP
+GTPtunnelEndpoint						N x2ap.extension id-secondarymeNBULGTPTEIDatPDCP
+LCID								N x2ap.extension id-lCID
+DuplicationActivation						N x2ap.extension id-duplicationActivation
+ECGI								N x2ap.extension id-ECGI
+RLCMode								N x2ap.extension id-RLCMode-transferred
+NRCGI								N x2ap.extension id-NRCGI
+MeNBCoordinationAssistanceInformation				N x2ap.extension id-MeNBCoordinationAssistanceInformation
+SgNBCoordinationAssistanceInformation				N x2ap.extension id-SgNBCoordinationAssistanceInformation
+NewDRBIDrequest							N x2ap.extension id-new-drb-ID-req
 
 # X2AP-PDU-Descriptions.asn  Interface Elementary Procedures
 #X2AP-ELEMENTARY-PROCEDURE
@@ -1625,4 +1659,6 @@ ENDCX2RemovalResponse				N x2ap.proc.sout id-endcX2Removal
 ENDCX2RemovalFailure				N x2ap.proc.uout id-endcX2Removal
 
 DataForwardingAddressIndication			N x2ap.proc.imsg id-dataForwardingAddressIndication
+
+GNBStatusIndication				N x2ap.proc.imsg id-gNBStatusIndication
 #.END

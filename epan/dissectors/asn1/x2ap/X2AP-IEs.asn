@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V15.3.0 (2018-09)
+-- 3GPP TS 36.423 V15.4.0 (2018-12)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -68,6 +68,10 @@ IMPORTS
 	id-CNTypeRestrictions,
 	id-BluetoothMeasurementConfiguration,
 	id-WLANMeasurementConfiguration,
+	id-ECGI,
+	id-NRCGI,
+	id-MeNBCoordinationAssistanceInformation,
+	id-SgNBCoordinationAssistanceInformation,
 
 
 	maxnoofBearers,
@@ -718,6 +722,8 @@ DL-Total-PRB-usage::= INTEGER (0..100)
 
 DRB-ID ::= INTEGER (1..32)
 
+DuplicationActivation::= ENUMERATED {active, inactive, ...}
+
 DynamicDLTransmissionInformation ::= CHOICE {
 	naics-active			DynamicNAICSInformation,
 	naics-inactive			NULL,
@@ -1055,6 +1061,8 @@ GlobalGNB-ID-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+GNBOverloadInformation ::= ENUMERATED {overloaded, not-overloaded, ...}
+
 GTPtunnelEndpoint ::= SEQUENCE {
 	transportLayerAddress			TransportLayerAddress,
 	gTP-TEID						GTP-TEI,
@@ -1099,6 +1107,7 @@ GNB-ID ::= CHOICE {
 	gNB-ID	BIT STRING (SIZE (22..32)),
 	...
 }
+
 
 -- H
 
@@ -1197,6 +1206,8 @@ LastVisitedGERANCellInformation ::= CHOICE {
 LastVisitedNGRANCellInformation	::= OCTET STRING
 
 LastVisitedUTRANCellInformation	::= OCTET STRING
+
+LCID ::= INTEGER(1..32, ...)
 
 LHN-ID ::= OCTET STRING(SIZE (32..256))
 
@@ -1372,6 +1383,11 @@ MeasurementThresholdA2 ::= CHOICE {
 	...
 }
 
+MeNBCoordinationAssistanceInformation ::= ENUMERATED{
+	coordination-not-required,
+	...
+}
+
 MeNBResourceCoordinationInformation ::= SEQUENCE {
 	eUTRA-Cell-ID					ECGI,
 	uLCoordinationInformation		BIT STRING (SIZE(6..4400, ...)),
@@ -1381,6 +1397,8 @@ MeNBResourceCoordinationInformation ::= SEQUENCE {
 }
 
 MeNBResourceCoordinationInformationExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-NRCGI									CRITICALITY ignore	EXTENSION NRCGI												PRESENCE optional}|
+	{ ID id-MeNBCoordinationAssistanceInformation		CRITICALITY reject	EXTENSION MeNBCoordinationAssistanceInformation	PRESENCE optional},
 	...
 }
 
@@ -1476,6 +1494,8 @@ Neighbour-Information-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 NextHopChainingCount ::= INTEGER (0..7)
 
+NewDRBIDrequest::= ENUMERATED {true, ...}
+
 Number-of-Antennaports ::= ENUMERATED {
 		an1,
 	 	an2,
@@ -1485,7 +1505,6 @@ Number-of-Antennaports ::= ENUMERATED {
 
 NRFreqInfo ::= SEQUENCE{
 	nRARFCN			INTEGER (0.. 3279165),
-	nRARFCN-SUL		INTEGER (0.. 3279165)		OPTIONAL,
 	freqBandListNr	SEQUENCE (SIZE(1..maxnoofNrCellBands)) OF FreqBandNrItem,
 	sULInformation	SULInformation		OPTIONAL,
 	iE-Extensions	ProtocolExtensionContainer { {NRFreqInfo-ExtIEs} } OPTIONAL,
@@ -2020,6 +2039,11 @@ ServiceType ::= ENUMERATED{
 	...
 }
 
+SgNBCoordinationAssistanceInformation ::= ENUMERATED{
+	coordination-not-required,
+	...
+}
+
 SgNBResourceCoordinationInformation ::= SEQUENCE {
 	nR-CGI							NRCGI,
 	uLCoordinationInformation		BIT STRING (SIZE(6..4400, ...)),
@@ -2029,6 +2053,8 @@ SgNBResourceCoordinationInformation ::= SEQUENCE {
 }
 
 SgNBResourceCoordinationInformationExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-ECGI										CRITICALITY ignore	EXTENSION ECGI												PRESENCE optional}|
+	{ ID id-SgNBCoordinationAssistanceInformation		CRITICALITY reject	EXTENSION SgNBCoordinationAssistanceInformation	PRESENCE optional},
 	...
 }
 

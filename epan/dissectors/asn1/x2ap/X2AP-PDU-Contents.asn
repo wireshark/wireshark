@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V15.3.0 (2018-09)
+-- 3GPP TS 36.423 V15.4.0 (2018-12)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -167,7 +167,11 @@ IMPORTS
 	UserPlaneTrafficActivityReport,
 	ERABActivityNotifyItemList,
 	PDCPSnLength,
-	Subscription-Based-UE-DifferentiationInfo
+	Subscription-Based-UE-DifferentiationInfo,
+	LCID,
+	DuplicationActivation,
+	GNBOverloadInformation,
+	NewDRBIDrequest
 
 
 FROM X2AP-IEs
@@ -366,6 +370,8 @@ FROM X2AP-Containers
 	id-E-RABs-Admitted-ToBeAdded-SgNBModAck-Item,
 	id-E-RABs-Admitted-ToBeModified-SgNBModAck-Item,
 	id-E-RABs-Admitted-ToBeReleased-SgNBModAck-Item,
+	id-E-RABs-Admitted-ToBeReleased-SgNBRelReqAckList,
+	id-E-RABs-Admitted-ToBeReleased-SgNBRelReqAck-Item,
 	id-E-RABs-ToBeReleased-SgNBModReqdList,
 	id-E-RABs-ToBeModified-SgNBModReqdList,
 	id-E-RABs-ToBeReleased-SgNBModReqd-Item,
@@ -376,6 +382,8 @@ FROM X2AP-Containers
 	id-E-RABs-ToBeReleased-SgNBRelReq-Item,
 	id-E-RABs-ToBeReleased-SgNBRelConfList,
 	id-E-RABs-ToBeReleased-SgNBRelConf-Item,
+	id-E-RABs-ToBeReleased-SgNBRelReqdList,
+	id-E-RABs-ToBeReleased-SgNBRelReqd-Item,
 	id-E-RABs-SubjectToSgNBCounterCheck-List,
 	id-E-RABs-SubjectToSgNBCounterCheck-Item,
 	id-Target-SgNB-ID,
@@ -430,11 +438,19 @@ FROM X2AP-Containers
 	id-MeNBCell-ID,
 	id-InitiatingNodeType-EndcX2Removal,
 	id-RespondingNodeType-EndcX2Removal,
-	id-pDCPSnLength,
+	id-uLpDCPSnLength,
 	id-dL-Forwarding,
 	id-E-RABs-DataForwardingAddress-List,
 	id-E-RABs-DataForwardingAddress-Item,
 	id-Subscription-Based-UE-DifferentiationInfo,
+	id-RLCMode-transferred,
+	id-dLPDCPSnLength,
+	id-secondarysgNBDLGTPTEIDatPDCP,
+	id-secondarymeNBULGTPTEIDatPDCP,
+	id-lCID,
+	id-duplicationActivation,
+	id-GNBOverloadInformation,
+	id-new-drb-ID-req,
 
 
 	maxCellineNB,
@@ -635,7 +651,7 @@ HandoverPreparationFailure-IEs X2AP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- Handover Report
+-- HANDOVER REPORT
 --
 -- **************************************************************
 
@@ -660,7 +676,7 @@ HandoverReport-IEs X2AP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- SN Status Transfer
+-- SN STATUS TRANSFER
 --
 -- **************************************************************
 
@@ -707,7 +723,7 @@ E-RABs-SubjectToStatusTransfer-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 -- **************************************************************
 --
--- UE Context Release
+-- UE CONTEXT RELEASE
 --
 -- **************************************************************
 
@@ -771,7 +787,7 @@ ErrorIndication-IEs X2AP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- Reset Request
+-- RESET REQUEST
 --
 -- **************************************************************
 
@@ -787,7 +803,7 @@ ResetRequest-IEs X2AP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- Reset Response
+-- RESET RESPONSE
 --
 -- **************************************************************
 
@@ -983,7 +999,7 @@ ENBConfigurationUpdateFailure-IEs X2AP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- Resource Status Request
+-- RESOURCE STATUS REQUEST
 --
 -- **************************************************************
 
@@ -1038,7 +1054,7 @@ PartialSuccessIndicator ::= ENUMERATED {
 
 -- **************************************************************
 --
--- Resource Status Response
+-- RESOURCE STATUS RESPONSE
 --
 -- **************************************************************
 
@@ -1092,7 +1108,7 @@ MeasurementFailureCause-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 -- **************************************************************
 --
--- Resource Status Failure
+-- RESOURCE STATUS FAILURE
 --
 -- **************************************************************
 
@@ -1129,7 +1145,7 @@ CompleteFailureCauseInformation-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 -- **************************************************************
 --
--- Resource Status Update
+-- RESOURCE STATUS UPDATE
 --
 -- **************************************************************
 
@@ -1246,7 +1262,7 @@ MobilityChangeFailure-IEs X2AP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- Radio Link Failure Indication
+-- RADIO LINK FAILURE INDICATION
 --
 -- **************************************************************
 
@@ -1270,7 +1286,7 @@ RLFIndication-IEs X2AP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- Cell Activation Request
+-- CELL ACTIVATION REQUEST
 --
 -- **************************************************************
 
@@ -1298,7 +1314,7 @@ ServedCellsToActivate-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 -- **************************************************************
 --
--- Cell Activation Response
+-- CELL ACTIVATION RESPONSE
 --
 -- **************************************************************
 
@@ -1360,7 +1376,7 @@ X2Release-IEs X2AP-PROTOCOL-IES ::= {
 
 -- **************************************************************
 --
--- X2AP Message Transfer
+-- X2AP MESSAGE TRANSFER
 --
 -- **************************************************************
 
@@ -2382,6 +2398,7 @@ E-RABs-ToBeAdded-SgNBAddReq-Item-SgNBPDCPpresent ::= SEQUENCE {
 }
 
 E-RABs-ToBeAdded-SgNBAddReq-Item-SgNBPDCPpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-RLCMode-transferred					CRITICALITY ignore	EXTENSION RLCMode					PRESENCE optional},
 	...
 }
 
@@ -2397,7 +2414,9 @@ E-RABs-ToBeAdded-SgNBAddReq-Item-SgNBPDCPnotpresent ::= SEQUENCE {
 }
 
 E-RABs-ToBeAdded-SgNBAddReq-Item-SgNBPDCPnotpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-pDCPSnLength							CRITICALITY ignore	EXTENSION PDCPSnLength					PRESENCE optional},
+	{ ID id-uLpDCPSnLength							CRITICALITY ignore	EXTENSION PDCPSnLength					PRESENCE optional}|
+	{ ID id-dLPDCPSnLength							CRITICALITY ignore	EXTENSION PDCPSnLength					PRESENCE optional}|
+	{ ID id-duplicationActivation					CRITICALITY ignore	EXTENSION DuplicationActivation	PRESENCE optional},
 	...
 }
 
@@ -2465,7 +2484,8 @@ E-RABs-Admitted-ToBeAdded-SgNBAddReqAck-Item-SgNBPDCPpresent ::= SEQUENCE {
 }
 
 E-RABs-Admitted-ToBeAdded-SgNBAddReqAck-Item-SgNBPDCPpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-pDCPSnLength							CRITICALITY ignore	EXTENSION PDCPSnLength					PRESENCE optional},
+	{ ID id-uLpDCPSnLength							CRITICALITY ignore	EXTENSION PDCPSnLength					PRESENCE optional}|
+	{ ID id-dLPDCPSnLength							CRITICALITY ignore	EXTENSION PDCPSnLength					PRESENCE optional},
 	...
 }
 
@@ -2477,6 +2497,7 @@ E-RABs-Admitted-ToBeAdded-SgNBAddReqAck-Item-SgNBPDCPnotpresent ::= SEQUENCE {
 }
 
 E-RABs-Admitted-ToBeAdded-SgNBAddReqAck-Item-SgNBPDCPnotpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-lCID				CRITICALITY ignore	EXTENSION LCID			PRESENCE optional},
 	...
 }
 
@@ -2568,7 +2589,7 @@ SgNBModificationRequest-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-HandoverRestrictionList				CRITICALITY ignore	TYPE HandoverRestrictionList					PRESENCE optional}|
 	{ ID	id-SCGConfigurationQuery			CRITICALITY ignore	TYPE SCGConfigurationQuery						PRESENCE optional}|
 	{ ID id-UE-ContextInformation-SgNBModReq	CRITICALITY reject	TYPE UE-ContextInformation-SgNBModReq		PRESENCE optional}|
-	{ ID id-MeNBtoSgNBContainer					CRITICALITY ignore	TYPE MeNBtoSgNBContainer						PRESENCE optional}|
+	{ ID id-MeNBtoSgNBContainer					CRITICALITY reject	TYPE MeNBtoSgNBContainer						PRESENCE optional}|
 	{ ID id-MeNB-UE-X2AP-ID-Extension			CRITICALITY reject	TYPE UE-X2AP-ID-Extension						PRESENCE optional}|
 	{ ID id-MeNBResourceCoordinationInformation	CRITICALITY ignore	TYPE MeNBResourceCoordinationInformation	PRESENCE optional}|
 	{ ID id-RequestedSplitSRBs					CRITICALITY ignore	TYPE SplitSRBs									PRESENCE optional}|
@@ -2629,6 +2650,7 @@ E-RABs-ToBeAdded-SgNBModReq-Item-SgNBPDCPpresent ::= SEQUENCE {
 }
 
 E-RABs-ToBeAdded-SgNBModReq-Item-SgNBPDCPpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-RLCMode-transferred					CRITICALITY ignore	EXTENSION RLCMode					PRESENCE optional},
 	...
 }
 
@@ -2644,7 +2666,9 @@ E-RABs-ToBeAdded-SgNBModReq-Item-SgNBPDCPnotpresent ::= SEQUENCE {
 }
 
 E-RABs-ToBeAdded-SgNBModReq-Item-SgNBPDCPnotpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-pDCPSnLength							CRITICALITY ignore	EXTENSION PDCPSnLength					PRESENCE optional},
+	{ ID id-uLpDCPSnLength							CRITICALITY ignore	EXTENSION PDCPSnLength					PRESENCE optional}|
+	{ ID id-dLPDCPSnLength							CRITICALITY ignore	EXTENSION PDCPSnLength					PRESENCE optional}|
+	{ ID id-duplicationActivation					CRITICALITY ignore	EXTENSION DuplicationActivation	PRESENCE optional},
 	...
 }
 
@@ -2696,7 +2720,9 @@ E-RABs-ToBeModified-SgNBModReq-Item-SgNBPDCPnotpresent ::= SEQUENCE {
 }
 
 E-RABs-ToBeModified-SgNBModReq-Item-SgNBPDCPnotpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-pDCPSnLength							CRITICALITY ignore	EXTENSION PDCPSnLength					PRESENCE optional},
+	{ ID id-uLpDCPSnLength							CRITICALITY ignore	EXTENSION PDCPSnLength					PRESENCE optional}|
+	{ ID id-dLPDCPSnLength							CRITICALITY ignore	EXTENSION PDCPSnLength					PRESENCE optional}|
+	{ ID id-secondarymeNBULGTPTEIDatPDCP				CRITICALITY ignore	EXTENSION GTPtunnelEndpoint			PRESENCE optional},
 	...
 }
 
@@ -2812,7 +2838,8 @@ E-RABs-Admitted-ToBeAdded-SgNBModAck-Item-SgNBPDCPpresent ::= SEQUENCE {
 }
 
 E-RABs-Admitted-ToBeAdded-SgNBModAck-Item-SgNBPDCPpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-pDCPSnLength							CRITICALITY ignore	EXTENSION PDCPSnLength					PRESENCE optional},
+	{ ID id-uLpDCPSnLength							CRITICALITY ignore	EXTENSION PDCPSnLength					PRESENCE optional}|
+	{ ID id-dLPDCPSnLength							CRITICALITY ignore	EXTENSION PDCPSnLength					PRESENCE optional},
 	...
 }
 
@@ -2824,6 +2851,7 @@ E-RABs-Admitted-ToBeAdded-SgNBModAck-Item-SgNBPDCPnotpresent ::= SEQUENCE {
 }
 
 E-RABs-Admitted-ToBeAdded-SgNBModAck-Item-SgNBPDCPnotpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	{ID id-lCID				CRITICALITY ignore	EXTENSION LCID		PRESENCE optional},
 	...
 }
 
@@ -2859,7 +2887,8 @@ E-RABs-Admitted-ToBeModified-SgNBModAck-Item-SgNBPDCPpresent ::= SEQUENCE {
 }
 
 E-RABs-Admitted-ToBeModified-SgNBModAck-Item-SgNBPDCPpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-pDCPSnLength							CRITICALITY ignore	EXTENSION PDCPSnLength					PRESENCE optional},
+	{ ID id-uLpDCPSnLength							CRITICALITY ignore	EXTENSION PDCPSnLength					PRESENCE optional}|
+	{ ID id-dLPDCPSnLength							CRITICALITY ignore	EXTENSION PDCPSnLength					PRESENCE optional},
 	...
 }
 
@@ -2870,6 +2899,8 @@ E-RABs-Admitted-ToBeModified-SgNBModAck-Item-SgNBPDCPnotpresent ::= SEQUENCE {
 }
 
 E-RABs-Admitted-ToBeModified-SgNBModAck-Item-SgNBPDCPnotpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-secondarysgNBDLGTPTEIDatPDCP			CRITICALITY ignore	EXTENSION GTPtunnelEndpoint				PRESENCE optional}|
+	{ ID id-RLC-Status								CRITICALITY ignore			EXTENSION RLC-Status				PRESENCE optional },
 	...
 }
 
@@ -2976,6 +3007,7 @@ E-RABs-ToBeReleased-SgNBModReqd-Item ::= SEQUENCE {
 }
 
 E-RABs-ToBeReleased-SgNBModReqd-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-RLCMode-transferred					CRITICALITY ignore	EXTENSION RLCMode					PRESENCE optional},
 	...
 }
 
@@ -3012,7 +3044,9 @@ E-RABs-ToBeModified-SgNBModReqd-Item-SgNBPDCPpresent ::= SEQUENCE {
 }
 
 E-RABs-ToBeModified-SgNBModReqd-Item-SgNBPDCPpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-pDCPSnLength							CRITICALITY ignore	EXTENSION PDCPSnLength					PRESENCE optional},
+	{ ID id-uLpDCPSnLength							CRITICALITY ignore	EXTENSION PDCPSnLength					PRESENCE optional}|
+	{ ID id-dLPDCPSnLength							CRITICALITY ignore	EXTENSION PDCPSnLength					PRESENCE optional}|
+	{ ID id-new-drb-ID-req							CRITICALITY ignore	EXTENSION NewDRBIDrequest				PRESENCE optional},
 	...
 }
 
@@ -3024,7 +3058,8 @@ E-RABs-ToBeModified-SgNBModReqd-Item-SgNBPDCPnotpresent ::= SEQUENCE {
 }
 
 E-RABs-ToBeModified-SgNBModReqd-Item-SgNBPDCPnotpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-RLC-Status			CRITICALITY ignore			EXTENSION RLC-Status				PRESENCE optional },
+	{ ID id-RLC-Status			CRITICALITY ignore			EXTENSION RLC-Status				PRESENCE optional}|
+	{ ID id-lCID				CRITICALITY ignore			EXTENSION LCID						PRESENCE optional},
 	...
 }
 
@@ -3091,7 +3126,8 @@ E-RABs-AdmittedToBeModified-SgNBModConf-Item-SgNBPDCPnotpresent ::= SEQUENCE {
 }
 
 E-RABs-AdmittedToBeModified-SgNBModConf-Item-SgNBPDCPnotpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-pDCPSnLength							CRITICALITY ignore	EXTENSION PDCPSnLength					PRESENCE optional},
+	{ ID id-uLpDCPSnLength							CRITICALITY ignore	EXTENSION PDCPSnLength					PRESENCE optional}|
+	{ ID id-dLPDCPSnLength							CRITICALITY ignore	EXTENSION PDCPSnLength					PRESENCE optional},
 	...
 }
 
@@ -3194,10 +3230,30 @@ SgNBReleaseRequestAcknowledge ::= SEQUENCE {
 }
 
 SgNBReleaseRequestAcknowledge-IEs X2AP-PROTOCOL-IES ::= {
-	{ ID id-MeNB-UE-X2AP-ID							CRITICALITY ignore	TYPE UE-X2AP-ID										PRESENCE mandatory}|
-	{ ID id-SgNB-UE-X2AP-ID							CRITICALITY ignore	TYPE SgNB-UE-X2AP-ID									PRESENCE mandatory}|
-	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional}|
-	{ ID id-MeNB-UE-X2AP-ID-Extension				CRITICALITY reject	TYPE UE-X2AP-ID-Extension							PRESENCE optional},
+	{ ID id-MeNB-UE-X2AP-ID									CRITICALITY ignore	TYPE UE-X2AP-ID											PRESENCE mandatory}|
+	{ ID id-SgNB-UE-X2AP-ID									CRITICALITY ignore	TYPE SgNB-UE-X2AP-ID								PRESENCE mandatory}|
+	{ ID id-CriticalityDiagnostics							CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional }|
+	{ ID id-MeNB-UE-X2AP-ID-Extension						CRITICALITY reject	TYPE UE-X2AP-ID-Extension							PRESENCE optional }|
+	{ ID id-E-RABs-Admitted-ToBeReleased-SgNBRelReqAckList	CRITICALITY ignore	TYPE E-RABs-Admitted-ToBeReleased-SgNBRelReqAckList	PRESENCE optional },
+	...
+}
+
+E-RABs-Admitted-ToBeReleased-SgNBRelReqAckList ::= SEQUENCE (SIZE(1..maxnoofBearers)) OF
+										ProtocolIE-Single-Container { {E-RABs-Admitted-ToBeReleased-SgNBRelReqAck-ItemIEs} }
+
+E-RABs-Admitted-ToBeReleased-SgNBRelReqAck-ItemIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-E-RABs-Admitted-ToBeReleased-SgNBRelReqAck-Item	CRITICALITY ignore	TYPE E-RABs-Admitted-ToBeReleased-SgNBRelReqAck-Item		PRESENCE mandatory},
+	...
+}
+
+E-RABs-Admitted-ToBeReleased-SgNBRelReqAck-Item ::= SEQUENCE {
+	e-RAB-ID							E-RAB-ID,
+	rlc-Mode-transferred			RLCMode,
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-Admitted-ToBeReleased-SgNBRelReqAck-ItemExtIEs} }	OPTIONAL,
+	...
+}
+
+E-RABs-Admitted-ToBeReleased-SgNBRelReqAck-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -3233,10 +3289,29 @@ SgNBReleaseRequired ::= SEQUENCE {
 }
 
 SgNBReleaseRequired-IEs X2AP-PROTOCOL-IES ::= {
-	{ ID id-MeNB-UE-X2AP-ID					CRITICALITY reject	TYPE UE-X2AP-ID					PRESENCE mandatory}|
-	{ ID id-SgNB-UE-X2AP-ID					CRITICALITY reject	TYPE SgNB-UE-X2AP-ID				PRESENCE mandatory}|
-	{ ID id-Cause							CRITICALITY ignore	TYPE Cause						PRESENCE mandatory}|
-	{ ID id-MeNB-UE-X2AP-ID-Extension		CRITICALITY reject	TYPE UE-X2AP-ID-Extension		PRESENCE optional},
+	{ ID id-MeNB-UE-X2AP-ID							CRITICALITY reject	TYPE UE-X2AP-ID											PRESENCE mandatory}|
+	{ ID id-SgNB-UE-X2AP-ID							CRITICALITY reject	TYPE SgNB-UE-X2AP-ID										PRESENCE mandatory}|
+	{ ID id-Cause									CRITICALITY ignore	TYPE Cause												PRESENCE mandatory}|
+	{ ID id-MeNB-UE-X2AP-ID-Extension				CRITICALITY reject	TYPE UE-X2AP-ID-Extension							PRESENCE optional }|
+	{ ID id-E-RABs-ToBeReleased-SgNBRelReqdList		CRITICALITY ignore	TYPE E-RABs-ToBeReleased-SgNBRelReqdList		PRESENCE optional },
+	...
+}
+
+E-RABs-ToBeReleased-SgNBRelReqdList ::= SEQUENCE (SIZE(1..maxnoofBearers)) OF ProtocolIE-Single-Container { {E-RABs-ToBeReleased-SgNBRelReqd-ItemIEs} }
+
+E-RABs-ToBeReleased-SgNBRelReqd-ItemIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-E-RABs-ToBeReleased-SgNBRelReqd-Item		CRITICALITY ignore	TYPE E-RABs-ToBeReleased-SgNBRelReqd-Item		PRESENCE mandatory},
+	...
+}
+
+E-RABs-ToBeReleased-SgNBRelReqd-Item ::= SEQUENCE {
+	e-RAB-ID							E-RAB-ID,
+	rlc-Mode-transferred			RLCMode,
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeReleased-SgNBRelReqd-ItemExtIEs} }	OPTIONAL,
+	...
+}
+
+E-RABs-ToBeReleased-SgNBRelReqd-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -3316,8 +3391,8 @@ SgNBCounterCheckRequest ::= SEQUENCE {
 }
 
 SgNBCounterCheckRequest-IEs X2AP-PROTOCOL-IES ::= {
-	{ ID id-MeNB-UE-X2AP-ID								CRITICALITY ignore	TYPE UE-X2AP-ID											PRESENCE mandatory}|
-	{ ID id-SgNB-UE-X2AP-ID								CRITICALITY ignore	TYPE SgNB-UE-X2AP-ID										PRESENCE mandatory}|
+	{ ID id-MeNB-UE-X2AP-ID								CRITICALITY reject	TYPE UE-X2AP-ID											PRESENCE mandatory}|
+	{ ID id-SgNB-UE-X2AP-ID								CRITICALITY reject	TYPE SgNB-UE-X2AP-ID										PRESENCE mandatory}|
 	{ ID id-E-RABs-SubjectToSgNBCounterCheck-List		CRITICALITY ignore	TYPE E-RABs-SubjectToSgNBCounterCheck-List		PRESENCE mandatory}|
 	{ ID id-MeNB-UE-X2AP-ID-Extension					CRITICALITY ignore	TYPE UE-X2AP-ID-Extension							PRESENCE optional},
 	...
@@ -3427,7 +3502,7 @@ E-RABs-ToBeReleased-SgNBChaConf-Item-SgNBPDCPnotpresentExtIEs X2AP-PROTOCOL-EXTE
 
 -- **************************************************************
 --
--- RRC Transfer
+-- RRC TRANSFER
 --
 -- **************************************************************
 
@@ -3589,7 +3664,6 @@ TDD-InfoNeighbourServedNRCell-Information-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 NRNeighbour-Information ::= SEQUENCE (SIZE (1.. maxofNRNeighbours))OF SEQUENCE {
 	nrpCI				NRPCI,
 	nrCellID				NRCGI,
-	nrFreqInfo			NRFreqInfo,
 	fiveGS-TAC			FiveGS-TAC	OPTIONAL,
 	configured-TAC		TAC			OPTIONAL,
 	measurementTimingConfiguration	OCTET STRING,
@@ -3894,6 +3968,12 @@ SecondaryRATDataUsageReport-IEs X2AP-PROTOCOL-IES ::= {
 	...
 }
 
+-- **************************************************************
+--
+-- SGNB ACTIVITY NOTIFICATION
+--
+-- **************************************************************
+
 SgNBActivityNotification ::= SEQUENCE {
 	protocolIEs		ProtocolIE-Container		{{SgNBActivityNotification-IEs}},
 	...
@@ -3902,8 +3982,8 @@ SgNBActivityNotification ::= SEQUENCE {
 SgNBActivityNotification-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-MeNB-UE-X2AP-ID						CRITICALITY reject	TYPE UE-X2AP-ID								PRESENCE mandatory}|
 	{ ID id-SgNB-UE-X2AP-ID						CRITICALITY reject	TYPE SgNB-UE-X2AP-ID							PRESENCE mandatory}|
-	{ ID id-UEContextLevelUserPlaneActivity		CRITICALITY reject	TYPE UserPlaneTrafficActivityReport		PRESENCE mandatory}|
-	{ ID id-ERABActivityNotifyItemList			CRITICALITY reject	TYPE ERABActivityNotifyItemList			PRESENCE mandatory}|
+	{ ID id-UEContextLevelUserPlaneActivity		CRITICALITY ignore	TYPE UserPlaneTrafficActivityReport		PRESENCE optional}|
+	{ ID id-ERABActivityNotifyItemList			CRITICALITY ignore	TYPE ERABActivityNotifyItemList			PRESENCE optional}|
 	{ ID id-MeNB-UE-X2AP-ID-Extension			CRITICALITY reject	TYPE UE-X2AP-ID-Extension					PRESENCE optional},
 	...
 }
@@ -4146,5 +4226,21 @@ E-RABs-DataForwardingAddress-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+-- **************************************************************
+--
+-- GNB STATUS INDICATION
+--
+-- **************************************************************
+
+
+GNBStatusIndication ::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container	{ { GNBStatusIndicationIEs} },
+	...
+}
+
+GNBStatusIndicationIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-GNBOverloadInformation		CRITICALITY ignore	TYPE GNBOverloadInformation		PRESENCE mandatory},
+	...
+}
 
 END

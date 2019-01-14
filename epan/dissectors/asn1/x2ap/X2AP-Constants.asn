@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V15.3.0 (2018-09)
+-- 3GPP TS 36.423 V15.4.0 (2018-12)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -70,6 +70,7 @@ id-eUTRANRCellResourceCoordination								ProcedureCode ::= 41
 id-SgNBActivityNotification										ProcedureCode ::= 42
 id-endcX2Removal												ProcedureCode ::= 43
 id-dataForwardingAddressIndication								ProcedureCode ::= 44
+id-gNBStatusIndication											ProcedureCode ::= 45
 
 -- **************************************************************
 --
@@ -435,7 +436,7 @@ id-InitiatingNodeType-EndcX2Removal											ProtocolIE-ID ::= 298
 id-RespondingNodeType-EndcX2Removal											ProtocolIE-ID ::= 299
 id-RLC-Status																ProtocolIE-ID ::= 300
 id-CNTypeRestrictions														ProtocolIE-ID ::= 301
-id-pDCPSnLength																ProtocolIE-ID ::= 302
+id-uLpDCPSnLength															ProtocolIE-ID ::= 302
 id-BluetoothMeasurementConfiguration										ProtocolIE-ID ::= 303
 id-WLANMeasurementConfiguration												ProtocolIE-ID ::= 304
 id-NRrestrictionin5GS														ProtocolIE-ID ::= 305
@@ -443,5 +444,21 @@ id-dL-Forwarding															ProtocolIE-ID ::= 306
 id-E-RABs-DataForwardingAddress-List										ProtocolIE-ID ::= 307
 id-E-RABs-DataForwardingAddress-Item										ProtocolIE-ID ::= 308
 id-Subscription-Based-UE-DifferentiationInfo								ProtocolIE-ID ::= 309
+id-GNBOverloadInformation													ProtocolIE-ID ::= 310
+id-dLPDCPSnLength															ProtocolIE-ID ::= 311
+id-secondarysgNBDLGTPTEIDatPDCP												ProtocolIE-ID ::= 312
+id-secondarymeNBULGTPTEIDatPDCP												ProtocolIE-ID ::= 313
+id-lCID																		ProtocolIE-ID ::= 314
+id-duplicationActivation													ProtocolIE-ID ::= 315
+id-ECGI																		ProtocolIE-ID ::= 316
+id-RLCMode-transferred														ProtocolIE-ID ::= 317
+id-E-RABs-Admitted-ToBeReleased-SgNBRelReqAckList							ProtocolIE-ID ::= 318
+id-E-RABs-Admitted-ToBeReleased-SgNBRelReqAck-Item							ProtocolIE-ID ::= 319
+id-E-RABs-ToBeReleased-SgNBRelReqdList										ProtocolIE-ID ::= 320
+id-E-RABs-ToBeReleased-SgNBRelReqd-Item										ProtocolIE-ID ::= 321
+id-NRCGI																	ProtocolIE-ID ::= 322
+id-MeNBCoordinationAssistanceInformation									ProtocolIE-ID ::= 323
+id-SgNBCoordinationAssistanceInformation									ProtocolIE-ID ::= 324
+id-new-drb-ID-req															ProtocolIE-ID ::= 325
 
 END
