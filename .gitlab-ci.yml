@@ -116,7 +116,6 @@ rpm-centos-7:
     - mkdir build
     - cd build
     - cmake3 -GNinja ..
-    - ninja-build
     - ninja-build rpm-package
 rpm-opensuse-42.3:
   image: opensuse:42.3
@@ -127,7 +126,6 @@ rpm-opensuse-42.3:
     - mkdir build
     - cd build
     - cmake ..
-    - make
     - make rpm-package
 rpm-fedora-28:
   image: fedora:28
@@ -137,7 +135,8 @@ rpm-fedora-28:
     - mkdir build
     - cd build
     - cmake3 -GNinja ..
-    - ninja-build
     - ninja-build rpm-package
 after_script:
-  - if [ -f build/run/tshark ];then build/run/tshark --version; fi
+  - for builddir in build/packaging/rpm/BUILD/wireshark-*/build build/packaging/rpm/BUILD/wireshark-* build; do [ ! -d "$builddir" ] || break; done
+  - if [ "$CI_JOB_NAME" = "rpm-opensuse-42.3" ]; then export LD_LIBRARY_PATH=$builddir/run; fi
+  - if [ -f $builddir/run/tshark ]; then $builddir/run/tshark --version; fi
