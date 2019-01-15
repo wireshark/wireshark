@@ -14,6 +14,9 @@
  *                 Krishnamurthy Mayya <krishnamurthy.mayya@ipinfusion.com>
  *                    - Decoding for Router Capability TLV and associated subTLVs as per RFC 6326
  *                    - Decoding for Group Address TLV and associated subTLVs as per RFC 6326
+ *
+ * Copyright 2019, Rohan Saini <rohan.saini@nokia.com>
+ *     - Support for dissecting BIER Info Sub-TLV (RFC 8401)
  */
 
 #include "config.h"
@@ -109,9 +112,12 @@
 /* Segment Routing Sub-TLV */
 #define ISIS_SR_SID_LABEL           1
 
-/* Segment routing Algorithm */
-#define ISIS_SR_ALG_SPF             0
-#define ISIS_SR_ALG_SSPF            1
+/*
+    From: https://www.iana.org/assignments/igp-parameters/igp-parameters.xhtml
+    IGP Algorithm Types
+*/
+#define ISIS_ALG_SPF  0
+#define ISIS_ALG_SSPF 1
 
 /* IGP MSD Type (rfc8491) */
 #define ISIS_IGP_MSD_TYPE_RESERVED  0
@@ -405,6 +411,15 @@ static int hf_isis_lsp_error_support = -1;
 static int hf_isis_lsp_clv_ipv6_te_router_id = -1;
 static int hf_isis_lsp_ext_is_reachability_ipv6_interface_address = -1;
 static int hf_isis_lsp_ext_is_reachability_ipv6_neighbor_address = -1;
+static int hf_isis_lsp_clv_bier_alg = -1;
+static int hf_isis_lsp_clv_bier_igp_alg = -1;
+static int hf_isis_lsp_clv_bier_subdomain = -1;
+static int hf_isis_lsp_clv_bier_bfrid = -1;
+static int hf_isis_lsp_clv_bier_subsub_type = -1;
+static int hf_isis_lsp_clv_bier_subsub_len = -1;
+static int hf_isis_lsp_clv_bier_subsub_mplsencap_maxsi= -1;
+static int hf_isis_lsp_clv_bier_subsub_mplsencap_bslen= -1;
+static int hf_isis_lsp_clv_bier_subsub_mplsencap_label= -1;
 
 static gint ett_isis_lsp = -1;
 static gint ett_isis_lsp_info = -1;
@@ -473,6 +488,7 @@ static gint ett_isis_lsp_sl_flags = -1;
 static gint ett_isis_lsp_sl_sub_tlv = -1;
 static gint ett_isis_lsp_sl_sub_tlv_flags = -1;
 static gint ett_isis_lsp_clv_ipv6_te_router_id = -1;
+static gint ett_isis_lsp_clv_bier_subsub_tlv = -1;
 
 static expert_field ie_isis_lsp_checksum_bad = EI_INIT;
 static expert_field ei_isis_lsp_short_packet = EI_INIT;
@@ -526,9 +542,9 @@ static const int * prefix_attr_flags[] = {
 
 static const true_false_string tfs_ipv6_ipv4 = { "IPv6", "IPv4" };
 
-static const value_string isis_lsp_sr_alg_vals[] = {
-    { ISIS_SR_ALG_SPF,      "Shortest Path First (SPF)" },
-    { ISIS_SR_ALG_SSPF,     "Strict Shortest Path First (SPF)" },
+static const value_string isis_igp_alg_vals[] = {
+    { ISIS_ALG_SPF,  "Shortest Path First (SPF)" },
+    { ISIS_ALG_SSPF, "Strict Shortest Path First (SPF)" },
     { 0, NULL }
 };
 
@@ -577,11 +593,41 @@ static const value_string isis_lsp_ext_is_reachability_code_vals[] = {
     { 0, NULL }
 };
 
+/*
+    From: https://www.iana.org/assignments/isis-tlv-codepoints/isis-tlv-codepoints.xhtml
+    Sub-TLVs for TLVs 135, 235, 236, and 237
+*/
+#define IP_REACH_SUBTLV_32BIT_ADMIN_TAG 1
+#define IP_REACH_SUBTLV_64BIT_ADMIN_TAG 2
+#define IP_REACH_SUBTLV_PFX_SID         3
+#define IP_REACH_SUBTLV_PFX_ATTRIB_FLAG 4
+#define IP_REACH_SUBTLV_BIER_INFO       32
+
 static const value_string isis_lsp_ext_ip_reachability_code_vals[] = {
-    { 1, "32-bit Administrative Tag" },
-    { 2, "64-bit Administrative Tag" },
-    { 3, "Prefix-SID" },
-    { 4, "Prefix Attribute Flags" },
+    { IP_REACH_SUBTLV_32BIT_ADMIN_TAG, "32-bit Administrative Tag" },
+    { IP_REACH_SUBTLV_64BIT_ADMIN_TAG, "64-bit Administrative Tag" },
+    { IP_REACH_SUBTLV_PFX_SID,         "Prefix-SID" },
+    { IP_REACH_SUBTLV_PFX_ATTRIB_FLAG, "Prefix Attribute Flags" },
+    { IP_REACH_SUBTLV_BIER_INFO,       "BIER Info" },
+    { 0, NULL }
+};
+
+/*
+    From: https://www.iana.org/assignments/bier/bier.xhtml
+    BIER Algorithm
+*/
+static const range_string isis_lsp_bier_alg_vals[] = {
+    {   0,   0, "No BIER specific algorithm is used" },
+    { 240, 255, "Experimental Use" },
+    {   0,   0, NULL }
+};
+
+/*
+    From: https://www.iana.org/assignments/isis-tlv-codepoints/isis-tlv-codepoints.xhtml
+    sub-sub-TLVs for BIER Info sub-TLV
+*/
+static const value_string isis_lsp_bier_subsubtlv_type_vals[] = {
+    { 1, "BIER MPLS Encapsulation" },
     { 0, NULL }
 };
 
@@ -741,6 +787,119 @@ dissect_lsp_ip_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
     }
 }
 
+
+/*
+ * Name: dissect_bierinfo_subsubtlv()
+ *
+ * Description:
+ *    Decodes a BIER Info sub-sub-TLV (RFC 8401)
+ *
+ * Input:
+ *    tvbuff_t * : tvbuffer for packet data
+ *    proto_tree * : proto tree to build on (may be null)
+ *    int : current offset into packet data
+ *
+ * Output:
+ *    void, will modify proto_tree if not null.
+ */
+static void
+dissect_bierinfo_subsubtlv (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                            int offset, int tlv_type, int tlv_len)
+{
+    switch (tlv_type) {
+    case 1:
+        if (tlv_len != 4) {
+            proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_malformed_subtlv,
+                    tvb, offset, tlv_len, "TLV length (%d) != 4 bytes", tlv_len);
+            return;
+        }
+        proto_tree_add_item(tree, hf_isis_lsp_clv_bier_subsub_mplsencap_maxsi, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_isis_lsp_clv_bier_subsub_mplsencap_bslen, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_isis_lsp_clv_bier_subsub_mplsencap_label, tvb, offset+1, 3, ENC_BIG_ENDIAN);
+        break;
+    default:
+        break;
+    }
+
+    return;
+}
+
+
+/*
+ * Name: dissect_bierinfo_subtlv()
+ *
+ * Description:
+ *    Decodes a BIER Info sub-TLV (RFC 8401)
+ *
+ * Input:
+ *    tvbuff_t * : tvbuffer for packet data
+ *    proto_tree * : proto tree to build on (may be null)
+ *    int : current offset into packet data
+ *
+ * Output:
+ *    void, will modify proto_tree if not null.
+ */
+static void
+dissect_bierinfo_subtlv (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+                         int offset, int tlv_len)
+{
+    int min_tlv_len = 5;
+    int len = tlv_len;
+    guint subsub_type, subsub_len;
+    proto_tree *subsub_tree = NULL;
+    proto_item *ti_subsub = NULL;
+
+    if (tlv_len < min_tlv_len) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_malformed_subtlv,
+                tvb, offset-2, tlv_len+2,
+                "Invalid length (%d) bytes for BIER Info sub-TLV: Minimum length (%d) bytes",
+                tlv_len+2, min_tlv_len+2);
+        return;
+    }
+    proto_tree_add_item(tree, hf_isis_lsp_clv_bier_alg, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_isis_lsp_clv_bier_igp_alg, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_isis_lsp_clv_bier_subdomain, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_isis_lsp_clv_bier_bfrid, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    len -= 5;
+
+    /* Dissect sub-sub-TLVs if present */
+    min_tlv_len = 2;
+    while (len > 0) {
+        if (len < min_tlv_len) {
+            proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_malformed_subtlv,
+                    tvb, offset, len,
+                    "Invalid data length (%d) bytes for BIER Info sub-sub-TLV: Minimum length (%d) bytes",
+                    len, min_tlv_len);
+            return;
+        }
+        subsub_type = tvb_get_guint8(tvb, offset);
+        subsub_len  = tvb_get_guint8(tvb, offset+1);
+        subsub_tree = proto_tree_add_subtree(tree, tvb, offset, subsub_len+2,
+                                             ett_isis_lsp_clv_bier_subsub_tlv,
+                                             &ti_subsub, "sub-subTLV");
+        proto_tree_add_item(subsub_tree, hf_isis_lsp_clv_bier_subsub_type,
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        proto_tree_add_item(subsub_tree, hf_isis_lsp_clv_bier_subsub_len,
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        len -= 2;
+        proto_item_append_text(ti_subsub, ": %s (t=%u, l=%u)",
+                val_to_str(subsub_type, isis_lsp_bier_subsubtlv_type_vals, "Unknown"),
+                subsub_type, subsub_len);
+        dissect_bierinfo_subsubtlv(tvb, pinfo, subsub_tree, offset, subsub_type, subsub_len);
+        offset += subsub_len;
+        len -= subsub_len;
+    }
+
+    return;
+}
+
+
 /*
  * Name: dissect_ipreach_subclv ()
  *
@@ -756,26 +915,26 @@ dissect_lsp_ip_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
  *   void
  */
 static void
-dissect_ipreach_subclv(tvbuff_t *tvb, proto_tree *tree, proto_item *tree_item, int offset, int clv_code, int clv_len)
+dissect_ipreach_subclv(tvbuff_t *tvb, packet_info *pinfo,  proto_tree *tree, proto_item *tree_item, int offset, int clv_code, int clv_len)
 {
     guint8 flags;
 
     switch (clv_code) {
-    case 1:
+    case IP_REACH_SUBTLV_32BIT_ADMIN_TAG:
         while (clv_len >= 4) {
             proto_tree_add_item(tree, hf_isis_lsp_32_bit_administrative_tag, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset+=4;
             clv_len-=4;
         }
         break;
-    case 2:
+    case IP_REACH_SUBTLV_64BIT_ADMIN_TAG:
         while (clv_len >= 8) {
             proto_tree_add_item(tree, hf_isis_lsp_64_bit_administrative_tag, tvb, offset, 8, ENC_BIG_ENDIAN);
             offset+=8;
             clv_len-=8;
         }
         break;
-    case 3:
+    case IP_REACH_SUBTLV_PFX_SID:
         flags = tvb_get_guint8(tvb, offset);
         proto_tree_add_bitmask(tree, tvb, offset, hf_isis_lsp_ext_ip_reachability_prefix_flags,
                                    ett_isis_lsp_prefix_sid_flags, prefix_sid_flags, ENC_BIG_ENDIAN);
@@ -790,7 +949,7 @@ dissect_ipreach_subclv(tvbuff_t *tvb, proto_tree *tree, proto_item *tree_item, i
             proto_tree_add_item(tree, hf_isis_lsp_sid_sli_index, tvb, offset, 4, ENC_BIG_ENDIAN);
         }
         break;
-    case 4:
+    case IP_REACH_SUBTLV_PFX_ATTRIB_FLAG:
         /* Prefix Attribute Flags */
         flags = tvb_get_guint8(tvb, offset);
         proto_tree_add_bitmask(tree, tvb, offset, hf_isis_lsp_prefix_attr_flags,
@@ -801,6 +960,9 @@ dissect_ipreach_subclv(tvbuff_t *tvb, proto_tree *tree, proto_item *tree_item, i
                                    ((flags & ISIS_LSP_PFX_ATTR_FLAG_R) != 0) ? 'R' : '-',
                                    ((flags & ISIS_LSP_PFX_ATTR_FLAG_N) != 0) ? 'N' : '-');
         }
+        break;
+    case IP_REACH_SUBTLV_BIER_INFO:
+        dissect_bierinfo_subtlv(tvb, pinfo, tree, offset, clv_len);
         break;
     default :
         break;
@@ -903,7 +1065,7 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tre
                  * therefore we need to skip 3 bytes
                  * (total subtlv len, subtlv type, subtlv len)
                  */
-                dissect_ipreach_subclv(tvb, subclv_tree, ti_subclvs, clv_offset+2, clv_code, clv_len);
+                dissect_ipreach_subclv(tvb, pinfo, subclv_tree, ti_subclvs, clv_offset+2, clv_code, clv_len);
                 i += clv_len + 2;
             }
             len += 1 + subclvs_len;
@@ -1582,7 +1744,7 @@ dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree 
                 proto_item_append_text(ti_subclvs, ": %s (c=%u, l=%u)",
                                        val_to_str(clv_code, isis_lsp_ext_ip_reachability_code_vals, "Unknown"), clv_code, clv_len);
 
-                dissect_ipreach_subclv(tvb, subtree2, ti_subclvs, clv_offset+2, clv_code, clv_len);
+                dissect_ipreach_subclv(tvb, pinfo, subtree2, ti_subclvs, clv_offset+2, clv_code, clv_len);
                 i += clv_len + 2;
             }
             len += 1 + subclvs_len;
@@ -4957,7 +5119,7 @@ proto_register_isis_lsp(void)
         },
         { &hf_isis_lsp_clv_sr_alg,
           { "Algorithm", "isis.lsp.sr_alg",
-            FT_UINT8, BASE_DEC, VALS(isis_lsp_sr_alg_vals), 0x0,
+            FT_UINT8, BASE_DEC, VALS(isis_igp_alg_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_isis_lsp_clv_sr_lb_flags,
@@ -5080,6 +5242,51 @@ proto_register_isis_lsp(void)
               FT_IPv6, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
+        { &hf_isis_lsp_clv_bier_alg,
+          { "BIER Algorithm", "isis.lsp.bier_alg",
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(isis_lsp_bier_alg_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_bier_igp_alg,
+          { "IGP Algorithm", "isis.lsp.bier_igp_alg",
+            FT_UINT8, BASE_DEC, VALS(isis_igp_alg_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_bier_subdomain,
+            { "BIER sub-domain", "isis.lsp.bier_subdomain",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_bier_bfrid,
+            { "BFR-id", "isis.lsp.bier_bfrid",
+              FT_UINT16, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_bier_subsub_type,
+            { "Type", "isis.lsp.bier.subsub.type",
+              FT_UINT8, BASE_DEC, VALS(isis_lsp_bier_subsubtlv_type_vals), 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_bier_subsub_len,
+            { "Length", "isis.lsp.bier.subsub.length",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_bier_subsub_mplsencap_maxsi,
+            { "Maximum Set Identifier", "isis.lsp.bier.subsub.mplsencap.maxsi",
+              FT_UINT8, BASE_DEC, NULL, 0x0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_bier_subsub_mplsencap_bslen,
+            { "BitString Length", "isis.lsp.bier.subsub.mplsencap.bslen",
+              FT_UINT8, BASE_DEC, NULL, 0xF0,
+              NULL, HFILL }
+        },
+        { &hf_isis_lsp_clv_bier_subsub_mplsencap_label,
+            { "Label", "isis.lsp.bier.subsub.mplsencap.label",
+              FT_UINT24, BASE_DEC, NULL, 0x0FFFFF,
+              NULL, HFILL }
+        },
     };
     static gint *ett[] = {
         &ett_isis_lsp,
@@ -5144,6 +5351,7 @@ proto_register_isis_lsp(void)
         &ett_isis_lsp_clv_sr_sid_label,
         &ett_isis_lsp_clv_sr_alg,
         &ett_isis_lsp_clv_sr_lb,
+        &ett_isis_lsp_clv_bier_subsub_tlv,
         &ett_isis_lsp_clv_node_msd,
         &ett_isis_lsp_sl_flags,
         &ett_isis_lsp_sl_sub_tlv,
