@@ -1359,20 +1359,20 @@ const value_string compress_certificate_algorithm_vals[] = {
 
 
 const value_string quic_transport_parameter_id[] = {
-    { SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_BIDI_LOCAL, "initial_max_stream_data_bidi_local" },
-    { SSL_HND_QUIC_TP_INITIAL_MAX_DATA, "initial_max_data" },
-    { SSL_HND_QUIC_TP_INITIAL_MAX_STREAMS_BIDI, "initial_max_streams_bidi" },
+    { SSL_HND_QUIC_TP_ORIGINAL_CONNECTION_ID, "original_connection_id" },
     { SSL_HND_QUIC_TP_IDLE_TIMEOUT, "idle_timeout" },
-    { SSL_HND_QUIC_TP_PREFERRED_ADDRESS, "preferred_address" },
-    { SSL_HND_QUIC_TP_MAX_PACKET_SIZE, "max_packet_size" },
     { SSL_HND_QUIC_TP_STATELESS_RESET_TOKEN, "stateless_reset_token" },
-    { SSL_HND_QUIC_TP_ACK_DELAY_EXPONENT, "ack_delay_exponent" },
-    { SSL_HND_QUIC_TP_INITIAL_MAX_STREAMS_UNI, "initial_max_streams_uni" },
-    { SSL_HND_QUIC_TP_DISABLE_MIGRATION, "disable_migration" },
+    { SSL_HND_QUIC_TP_MAX_PACKET_SIZE, "max_packet_size" },
+    { SSL_HND_QUIC_TP_INITIAL_MAX_DATA, "initial_max_data" },
+    { SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_BIDI_LOCAL, "initial_max_stream_data_bidi_local" },
     { SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_BIDI_REMOTE, "initial_max_stream_data_bidi_remote" },
     { SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_UNI, "initial_max_stream_data_uni" },
+    { SSL_HND_QUIC_TP_INITIAL_MAX_STREAMS_UNI, "initial_max_streams_uni" },
+    { SSL_HND_QUIC_TP_INITIAL_MAX_STREAMS_BIDI, "initial_max_streams_bidi" },
+    { SSL_HND_QUIC_TP_ACK_DELAY_EXPONENT, "ack_delay_exponent" },
     { SSL_HND_QUIC_TP_MAX_ACK_DELAY, "max_ack_delay" },
-    { SSL_HND_QUIC_TP_ORIGINAL_CONNECTION_ID, "original_connection_id" },
+    { SSL_HND_QUIC_TP_DISABLE_MIGRATION, "disable_migration" },
+    { SSL_HND_QUIC_TP_PREFERRED_ADDRESS, "preferred_address" },
     { 0, NULL }
 };
 
@@ -6705,14 +6705,55 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                             tvb, offset, parameter_length, ENC_NA);
 
         switch (parameter_type) {
+            case SSL_HND_QUIC_TP_ORIGINAL_CONNECTION_ID:
+                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_ocid,
+                                    tvb, offset, parameter_length, ENC_NA);
+                offset += parameter_length;
+            break;
+            case SSL_HND_QUIC_TP_IDLE_TIMEOUT:
+                proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_idle_timeout,
+                                               tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
+                proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u secs", value);
+                offset += len;
+            break;
+            case SSL_HND_QUIC_TP_STATELESS_RESET_TOKEN:
+                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_stateless_reset_token,
+                                    tvb, offset, 16, ENC_BIG_ENDIAN);
+                offset += 16;
+            break;
+            case SSL_HND_QUIC_TP_MAX_PACKET_SIZE:
+                proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_max_packet_size,
+                                               tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
+                proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u", value);
+                /*TODO display expert info about invalid value (< 1252 or >65527) ? */
+                offset += len;
+            break;
+            case SSL_HND_QUIC_TP_INITIAL_MAX_DATA:
+                proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_data,
+                                               tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
+                proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u", value);
+                offset += len;
+            break;
             case SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_BIDI_LOCAL:
                 proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_stream_data_bidi_local,
                                                tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
                 proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u", value);
                 offset += len;
             break;
-            case SSL_HND_QUIC_TP_INITIAL_MAX_DATA:
-                proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_data,
+            case SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_BIDI_REMOTE:
+                proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_stream_data_bidi_remote,
+                                               tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
+                proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u", value);
+                offset += len;
+            break;
+            case SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_UNI:
+                proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_stream_data_uni,
+                                               tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
+                proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u", value);
+                offset += len;
+            break;
+            case SSL_HND_QUIC_TP_INITIAL_MAX_STREAMS_UNI:
+                proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_streams_uni,
                                                tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
                 proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u", value);
                 offset += len;
@@ -6723,11 +6764,20 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                 proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u", value);
                 offset += len;
             break;
-            case SSL_HND_QUIC_TP_IDLE_TIMEOUT:
-                proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_idle_timeout,
-                                               tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
-                proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u secs", value);
+            case SSL_HND_QUIC_TP_ACK_DELAY_EXPONENT:
+                proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_ack_delay_exponent,
+                                               tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len);
+                /*TODO display multiplier (x8) and expert info about invalid value (> 20) ? */
                 offset += len;
+            break;
+            case SSL_HND_QUIC_TP_MAX_ACK_DELAY:
+                proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_max_ack_delay,
+                                               tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
+                proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u", value);
+                offset += len;
+            break;
+            case SSL_HND_QUIC_TP_DISABLE_MIGRATION:
+                /* No Payload */
             break;
             case SSL_HND_QUIC_TP_PREFERRED_ADDRESS: {
                 guint32 ipversion, ipaddress_length, connectionid_length;
@@ -6773,57 +6823,6 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                                     tvb, offset, 16, ENC_NA);
                 offset += 16;
             }
-            break;
-            case SSL_HND_QUIC_TP_MAX_PACKET_SIZE:
-                proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_max_packet_size,
-                                               tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
-                proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u", value);
-                /*TODO display expert info about invalid value (< 1252 or >65527) ? */
-                offset += len;
-            break;
-            case SSL_HND_QUIC_TP_STATELESS_RESET_TOKEN:
-                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_stateless_reset_token,
-                                    tvb, offset, 16, ENC_BIG_ENDIAN);
-                offset += 16;
-            break;
-            case SSL_HND_QUIC_TP_ACK_DELAY_EXPONENT:
-
-                proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_ack_delay_exponent,
-                                               tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len);
-                /*TODO display multiplier (x8) and expert info about invalid value (> 20) ? */
-                offset += len;
-            break;
-            case SSL_HND_QUIC_TP_INITIAL_MAX_STREAMS_UNI:
-                proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_streams_uni,
-                                               tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
-                proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u", value);
-                offset += len;
-            break;
-            case SSL_HND_QUIC_TP_DISABLE_MIGRATION:
-                /* No Payload */
-            break;
-            case SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_BIDI_REMOTE:
-                proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_stream_data_bidi_remote,
-                                               tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
-                proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u", value);
-                offset += len;
-            break;
-            case SSL_HND_QUIC_TP_INITIAL_MAX_STREAM_DATA_UNI:
-                proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_initial_max_stream_data_uni,
-                                               tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
-                proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u", value);
-                offset += len;
-            break;
-            case SSL_HND_QUIC_TP_MAX_ACK_DELAY:
-                proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_max_ack_delay,
-                                               tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
-                proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u", value);
-                offset += len;
-            break;
-            case SSL_HND_QUIC_TP_ORIGINAL_CONNECTION_ID:
-                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_ocid,
-                                    tvb, offset, parameter_length, ENC_NA);
-                offset += parameter_length;
             break;
             default:
                 offset += parameter_length;
