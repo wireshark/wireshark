@@ -7,7 +7,7 @@
 
 #line 1 "./asn1/nr-rrc/packet-nr-rrc-template.h"
 /* packet-nr-rrc-template.h
- * Copyright 2018, Pascal Quantin
+ * Copyright 2018-2019, Pascal Quantin
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

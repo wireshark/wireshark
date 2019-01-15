@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V15.3.0 (2018-09)
+-- 3GPP TS 38.331 V15.4.0 (2018-12)
 
 NR-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -6,6 +6,7 @@ BEGIN
 
 IMPORTS
     CellIdentity,
+    EUTRA-PhysCellId,
     MeasId,
     MeasIdToAddModList,
     MeasObjectToAddModList,
@@ -18,6 +19,7 @@ IMPORTS
     maxNrofMeasId
 FROM NR-RRC-Definitions;
 
+-- NR-UE-VARIABLES-STOP
 -- TAG-VAR-PENDING-RNA-UPDATE-START
 
 VarPendingRNA-Update ::=                    SEQUENCE {
@@ -58,8 +60,7 @@ VarMeasReport ::=                   SEQUENCE {
 
 CellsTriggeredList ::=              SEQUENCE (SIZE (1..maxNrofCellMeas)) OF CHOICE {
     physCellId                          PhysCellId,
---  Not needed for EN-DC.
-    physCellIdEUTRA                     ENUMERATED {ffsTypeAndValue}
+    physCellIdEUTRA                     EUTRA-PhysCellId
     }
 
 

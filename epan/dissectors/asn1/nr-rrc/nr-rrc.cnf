@@ -1,6 +1,6 @@
 # nr-rrc.cnf
 # nr-rrc conformation file
-# Copyright 2018 Pascal Quantin
+# Copyright 2018-2019 Pascal Quantin
 
 #.OPT
 PER
@@ -11,9 +11,9 @@ UNALIGNED
 CA-BandwidthClassNR
 ConfiguredGrantConfig/periodicity
 CSI-ReportConfig/reportFreqConfiguration/csi-ReportingBand
-CSI-RS-IM-ReceptionForFeedback/maxNumberPortsAcrossNZP-CSI-RS-PerCC
-CSI-RS-IM-ReceptionForFeedback/maxNumberSimultaneousCSI-RS-ActBWP-AllCC
-CSI-RS-IM-ReceptionForFeedback/totalNumberPortsSimultaneousCSI-RS-ActBWP-AllCC
+DummyA/maxNumberPortsAcrossNZP-CSI-RS-PerCC
+DummyA/maxNumberSimultaneousCSI-RS-ActBWP-AllCC
+DummyA/totalNumberPortsSimultaneousCSI-RS-ActBWP-AllCC
 DelayBudgetReport/type1
 DRX-Config/drx-onDurationTimer/milliSeconds
 DRX-Config/drx-InactivityTimer
@@ -327,11 +327,14 @@ RAT-Type TYPE_PREFIX
 #.FN_HDR UECapabilityInformation
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UE Capability Information");
 
-#.FN_HDR
+#.FN_HDR CounterCheckResponse
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Counter Check Response");
 
-#.FN_HDR
+#.FN_HDR UEAssistanceInformation
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UE Assistance Information");
+
+#.FN_HDR FailureInformation
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Failure Information");
 
 #.FN_BODY DedicatedNAS-Message VAL_PTR = &nas_5gs_tvb
   tvbuff_t *nas_5gs_tvb = NULL;
