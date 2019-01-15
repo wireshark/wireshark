@@ -271,7 +271,7 @@ static int hf_bssap_call_priority = -1;
 static int hf_bssap_gprs_loc_upd_type_ie = -1;
 static int hf_bssap_Gs_cause_ie = -1;
 static int hf_bssap_imei_ie = -1;
-static int hf_bssap_imesiv_ie = -1;
+static int hf_bssap_imeisv_ie = -1;
 static int hf_bssap_cell_global_id_ie = -1;
 static int hf_bssap_channel_needed_ie = -1;
 static int hf_bssap_dlink_tnl_pld_cntrl_amd_inf_ie = -1;
@@ -319,7 +319,7 @@ static gint ett_bssap_global_cn = -1;
 static gint ett_bssap_gprs_loc_upd = -1;
 static gint ett_bassp_Gs_cause = -1;
 static gint ett_bassp_imei = -1;
-static gint ett_bassp_imesiv = -1;
+static gint ett_bassp_imeisv = -1;
 static gint ett_bssap_cell_global_id = -1;
 static gint ett_bssap_cgi = -1;
 static gint ett_bssap_channel_needed = -1;
@@ -915,7 +915,7 @@ dissect_bssap_imei(tvbuff_t *tvb, proto_tree *tree, int offset)
 }
 /* 18.4.9 IMEISV */
 static int
-dissect_bssap_imesiv(tvbuff_t *tvb, proto_tree *tree, int offset)
+dissect_bssap_imeisv(tvbuff_t *tvb, proto_tree *tree, int offset)
 {
     proto_item *item;
     proto_tree *ie_tree;
@@ -924,8 +924,8 @@ dissect_bssap_imesiv(tvbuff_t *tvb, proto_tree *tree, int offset)
     const char *digit_str;
 
     ie_len  = tvb_get_guint8(tvb, offset+1);
-    item    = proto_tree_add_item(tree, hf_bssap_imesiv_ie, tvb, offset, ie_len+2, ENC_NA);
-    ie_tree = proto_item_add_subtree(item, ett_bassp_imesiv);
+    item    = proto_tree_add_item(tree, hf_bssap_imeisv_ie, tvb, offset, ie_len+2, ENC_NA);
+    ie_tree = proto_item_add_subtree(item, ett_bassp_imeisv);
 
     proto_tree_add_item(ie_tree, hf_bssap_plus_ie,     tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
@@ -1706,7 +1706,7 @@ static int dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
         /* IMEISV IMEISV 18.4.9 O TLV 10 */
         if (check_optional_ie(tvb, offset, BSSAP_IMEISV))
-            offset = dissect_bssap_imesiv(tvb, bssap_tree, offset);
+            offset = dissect_bssap_imeisv(tvb, bssap_tree, offset);
         if (tvb_reported_length_remaining(tvb, offset) <= 0)
             return tvb_reported_length(tvb);
         proto_tree_add_item(tree, hf_bssap_extraneous_data, tvb, offset, -1, ENC_NA);
@@ -1979,7 +1979,7 @@ static int dissect_bssap_plus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             return tvb_reported_length(tvb);
         /* IMEISV IMEISV 18.4.9 O TLV 10 BSSAP_IMEISV*/
         if (check_optional_ie(tvb, offset, BSSAP_IMEISV))
-            offset = dissect_bssap_imesiv(tvb, bssap_tree, offset);
+            offset = dissect_bssap_imeisv(tvb, bssap_tree, offset);
         if (tvb_reported_length_remaining(tvb, offset) <= 0)
             return tvb_reported_length(tvb);
 
@@ -2239,8 +2239,8 @@ proto_register_bssap(void)
             FT_NONE, BASE_NONE, NULL, 0,
             NULL, HFILL }},
 
-        { &hf_bssap_imesiv_ie,
-          { "IMEISV IE", "bssap.imesiv",
+        { &hf_bssap_imeisv_ie,
+          { "IMEISV IE", "bssap.imeisv",
             FT_NONE, BASE_NONE, NULL, 0,
             NULL, HFILL }},
 
@@ -2465,7 +2465,7 @@ proto_register_bssap(void)
         &ett_bssap_gprs_loc_upd,
         &ett_bassp_Gs_cause,
         &ett_bassp_imei,
-        &ett_bassp_imesiv,
+        &ett_bassp_imeisv,
         &ett_bssap_cell_global_id,
         &ett_bssap_cgi,
         &ett_bssap_channel_needed,
