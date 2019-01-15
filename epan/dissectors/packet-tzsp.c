@@ -83,7 +83,7 @@ static const value_string tzsp_encapsulation[] = {
     {TZSP_ENCAP_RAW,                  "Raw IP"},
     {TZSP_ENCAP_IEEE_802_11,          "IEEE 802.11"},
     {TZSP_ENCAP_IEEE_802_11_PRISM,    "IEEE 802.11 with Prism headers"},
-    {TZSP_ENCAP_IEEE_802_11_RADIOTAP, "IEEE 802.11 with radioTap headers"},
+    {TZSP_ENCAP_IEEE_802_11_RADIOTAP, "IEEE 802.11 with radiotap headers"},
     {TZSP_ENCAP_IEEE_802_11_AVS,      "IEEE 802.11 with AVS headers"},
     {0, NULL}
 };
