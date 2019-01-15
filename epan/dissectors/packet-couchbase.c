@@ -2480,14 +2480,14 @@ static void dissect_flexible_framing_extras(tvbuff_t* tvb,
     bytes_remaining = bytes_remaining - 1 - (len_size - 1) - (id_size - 1);;
 
     /* lookup a dissector function by id */
-    int index = 0, found = 0;
-    while (id_dissectors[index].handler) {
-      if (id_dissectors[index].id == id) {
-        id_dissectors[index].handler(tvb, frame_tree, offset, len);
+    int id_index = 0, found = 0;
+    while (id_dissectors[id_index].handler) {
+      if (id_dissectors[id_index].id == id) {
+        id_dissectors[id_index].handler(tvb, frame_tree, offset, len);
         found = 1;
         break;
       }
-      index++;
+      id_index++;
     }
 
     if (!found)  {
