@@ -6389,6 +6389,101 @@ rcpi_and_power_level_custom(gchar *result, guint8 value)
     g_snprintf(result, ITEM_LABEL_LENGTH, "%d (Measurement not available)", value);
 }
 
+/*
+ * We use this is displaying the ru allocation region.
+ */
+static guint8 global_he_trigger_bw = 0;
+
+static void
+he_ru_allocation_base_custom(gchar *result, guint32 ru_allocation)
+{
+  guint32 tones = 0;
+
+  switch (global_he_trigger_bw) {
+  case 0:
+    if (ru_allocation <= 8) {
+      tones = 26;
+      break;
+    }
+    if (ru_allocation >= 37 && ru_allocation <= 40) {
+      tones = 52;
+      break;
+    }
+    if (ru_allocation >= 53 && ru_allocation <= 54) {
+      tones = 106;
+      break;
+    }
+    if (ru_allocation == 61) {
+      tones = 242;
+      break;
+    }
+    // error
+    break;
+  case 1:
+    if (ru_allocation <= 17) {
+      tones = 26;
+      break;
+    }
+    if (ru_allocation >= 37 && ru_allocation <= 44) {
+      tones = 52;
+      break;
+    }
+    if (ru_allocation >= 53 && ru_allocation <= 56) {
+      tones = 106;
+      break;
+    }
+    if (ru_allocation >= 61 && ru_allocation <= 62) {
+      tones = 242;
+      break;
+    }
+    if (ru_allocation == 65) {
+      tones = 484;
+      break;
+    }
+    // error
+    break;
+  case 2:
+    /* fall-through */
+  case 3:
+    if (ru_allocation <= 16) {
+      tones = 26;
+      break;
+    }
+    if (ru_allocation >= 37 && ru_allocation <= 52) {
+      tones = 52;
+      break;
+    }
+    if (ru_allocation >= 53 && ru_allocation <= 60) {
+      tones = 106;
+      break;
+    }
+    if (ru_allocation >= 61 && ru_allocation <= 64) {
+      tones = 242;
+      break;
+    }
+    if (ru_allocation >= 65 && ru_allocation <= 66) {
+      tones = 484;
+      break;
+    }
+    if (ru_allocation == 67) {
+      tones = 996;
+      break;
+    }
+    if (ru_allocation == 68 && global_he_trigger_bw == 3) {
+      tones = 2*996;
+      break;
+    }
+    break;
+  default:
+    break;
+  }
+
+  if (tones)
+    g_snprintf(result, ITEM_LABEL_LENGTH, "%d (%d tones)", ru_allocation, tones);
+  else
+    g_snprintf(result, ITEM_LABEL_LENGTH, "%d (bogus number of tones)", ru_allocation);
+}
+
 /* ************************************************************************* */
 /* Mesh Control field helper functions
  *
@@ -22696,11 +22791,6 @@ static const int *common_info_headers[] = {
   NULL
 };
 
-/*
- * We use this is displaying the ru allocation region.
- */
-static guint8 global_he_trigger_bw = 0;
-
 static int
 add_he_trigger_common_info(proto_tree *tree, tvbuff_t *tvb, int offset,
   packet_info *pinfo _U_, guint8 trigger_type, int *frame_len)
@@ -34069,7 +34159,8 @@ proto_register_ieee80211(void)
 
     {&hf_ieee80211_he_trigger_ru_allocation,
      {"RU Allocation", "wlan.trigger.he.ru_allocation",
-      FT_UINT40, BASE_DEC, NULL, 0x00000FE000, NULL, HFILL }},
+      FT_UINT40, BASE_CUSTOM, CF_FUNC(he_ru_allocation_base_custom),
+      0x00000FE000, NULL, HFILL }},
 
     {&hf_ieee80211_he_trigger_ul_fec_coding_type,
      {"Coding Type", "wlan.trigger.he.coding_type",
