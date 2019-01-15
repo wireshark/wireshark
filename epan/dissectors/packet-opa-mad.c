@@ -2516,6 +2516,72 @@ static const fragment_items opa_rmpp_frag_items = {
     "RMPP Fragments"
 };
 
+/**
+ * Builds a range string from a PortSelectMask
+ *
+ * @param[in] tvb pointer to packet buffer
+ * @param[in] offset offset into packet buffer where port select mask begins
+ * @param[out] port_list optional: pointer to an arrray of ports, allocated by
+ *                                 wmem_alloc(wmem_packet_scope(), 256)
+ * @param[out] num_ports optional: pointer to a number of ports in set in port
+ *                                 select mask and portlist if provided.
+ * @return gchar* pointer to range string allocated using
+ *                wmem_strbuf_sized_new(wmem_packet_scope(),...)
+ */
+static gchar *opa_format_port_select_mask(tvbuff_t *tvb, gint offset, guint8 **port_list, guint8 *num_ports)
+{
+    gint i, j, port, last = -1, first = 0, ports = 0;
+    guint64 mask, psm[4];
+    wmem_strbuf_t *buf = NULL;
+    guint8 *portlist = NULL;
+
+    if (!tvb_bytes_exist(tvb, offset, 32)) {
+        return (gchar *)"Invalid Length: Requires 32 bytes";
+    }
+    psm[0] = tvb_get_ntoh64(tvb, offset);
+    psm[1] = tvb_get_ntoh64(tvb, offset + 8);
+    psm[2] = tvb_get_ntoh64(tvb, offset + 16);
+    psm[3] = tvb_get_ntoh64(tvb, offset + 24);
+
+    buf = wmem_strbuf_sized_new(wmem_packet_scope(), 0, ITEM_LABEL_LENGTH);
+
+    if (port_list) {
+        /* Allocate list of ports; max = 256 = 64 * 4 */
+        portlist = (guint8 *)wmem_alloc(wmem_packet_scope(), 256);
+        memset(portlist, 0xFF, 256);
+    }
+    for (i = 0; i < 4; i++) {
+        mask = psm[3 - i];
+        for (j = 0; mask && j < 64; j++, mask >>= 1) {
+            if ((mask & (guint64)0x1) == 0) continue;
+            port = (i * 64) + j;
+            if (portlist) portlist[ports] = port;
+
+            if (last == -1) {
+                wmem_strbuf_append_printf(buf, "%d", port);
+                last = first = port;
+            } else if ((port - last) > 1) {
+                if (first == last)
+                    wmem_strbuf_append_printf(buf, ",%d", port);
+                else
+                    wmem_strbuf_append_printf(buf, "-%d,%d", last, port);
+                last = first = port;
+            } else {
+                last = port;
+            }
+            ports++;
+        }
+    }
+    if (first != last && last != -1) {
+        wmem_strbuf_append_printf(buf, "-%d", last);
+    }
+    if (wmem_strbuf_get_len(buf) == 0) {
+        wmem_strbuf_append(buf, "<Empty>");
+    }
+    if (num_ports) *num_ports = ports;
+    if (port_list) *port_list = portlist;
+    return (gchar *)wmem_strbuf_finalize(buf);
+}
 /* Custom Functions */
 static void cf_opa_mad_swinfo_ar_frequency(gchar *buf, guint16 value)
 {
@@ -6154,10 +6220,6 @@ static gint parse_ClearPortStatus(proto_tree *parentTree, tvbuff_t *tvb, gint *o
     proto_tree *ClearPortStatus_header_tree;
     proto_item *ClearPortStatus_PortSelectMask_item;
     gint local_offset = *offset;
-    guint64 PortSelectMask[4];
-    guint64 PortSelectMaskTemp;
-    guint i, j;
-    guint PortsOffset = 0;
 
     if (!parentTree)
         return *offset;
@@ -6168,20 +6230,10 @@ static gint parse_ClearPortStatus(proto_tree *parentTree, tvbuff_t *tvb, gint *o
         return *offset;
 
     ClearPortStatus_header_tree = proto_item_add_subtree(ClearPortStatus_header_item, ett_clearportstatus);
-    PortSelectMask[0] = tvb_get_ntoh64(tvb, local_offset);
-    PortSelectMask[1] = tvb_get_ntoh64(tvb, local_offset + 8);
-    PortSelectMask[2] = tvb_get_ntoh64(tvb, local_offset + 16);
-    PortSelectMask[3] = tvb_get_ntoh64(tvb, local_offset + 24);
 
     ClearPortStatus_PortSelectMask_item = proto_tree_add_item(ClearPortStatus_header_tree, hf_opa_ClearPortStatus_PortSelectMask, tvb, local_offset, 32, ENC_NA);
-    for (j = 0; j < 4; j++) {
-        for (i = 0, PortSelectMaskTemp = PortSelectMask[3 - j]; i < 64 && (PortSelectMaskTemp); i++, PortSelectMaskTemp >>= (guint64)1) {
-            if (PortSelectMaskTemp & (guint64)0x1) {
-                proto_item_append_text(ClearPortStatus_PortSelectMask_item, "%s%u", (PortsOffset ? ", " : " "), (i)+(j * 64));
-                PortsOffset++;
-            }
-        }
-    }
+    proto_item_append_text(ClearPortStatus_PortSelectMask_item, ": %s",
+        opa_format_port_select_mask(tvb, local_offset, NULL, NULL));
     local_offset += 32;
 
     proto_tree_add_bitmask(ClearPortStatus_header_tree, tvb, local_offset,
@@ -6203,10 +6255,7 @@ static gint parse_DataPortCounters(proto_tree *parentTree, tvbuff_t *tvb, gint *
 
     gint local_offset = *offset;
     guint32 VLSelectMask, vlSelMskTmp;
-    guint64 PortSelectMask[4];
-    guint64 PortSelectMaskTemp;
-    guint VLs, i, j, p;
-    guint PortsOffset = 0;
+    guint VLs, i, p;
     guint Num_Ports = (MAD->AttributeModifier >> 24) & 0xFF;
 
     if (!parentTree)
@@ -6226,20 +6275,9 @@ static gint parse_DataPortCounters(proto_tree *parentTree, tvbuff_t *tvb, gint *
     }
     DataPortCounters_header_tree = proto_item_add_subtree(DataPortCounters_header_item, ett_dataportcounters);
 
-    PortSelectMask[0] = tvb_get_ntoh64(tvb, local_offset);
-    PortSelectMask[1] = tvb_get_ntoh64(tvb, local_offset + 8);
-    PortSelectMask[2] = tvb_get_ntoh64(tvb, local_offset + 16);
-    PortSelectMask[3] = tvb_get_ntoh64(tvb, local_offset + 24);
-
     DataPortCounters_PortSelectMask_item = proto_tree_add_item(DataPortCounters_header_tree, hf_opa_DataPortCounters_PortSelectMask, tvb, local_offset, 32, ENC_NA);
-    for (j = 0; j < 4; j++) {
-        for (i = 0, PortSelectMaskTemp = PortSelectMask[3 - j]; i < 64 && (PortSelectMaskTemp); i++, PortSelectMaskTemp >>= (guint64)1) {
-            if (PortSelectMaskTemp & (guint64)0x1) {
-                proto_item_append_text(DataPortCounters_PortSelectMask_item, "%s%u", (PortsOffset ? ", " : " "), (i)+(j * 64));
-                PortsOffset++;
-            }
-        }
-    }
+    proto_item_append_text(DataPortCounters_PortSelectMask_item, ": %s",
+        opa_format_port_select_mask(tvb, local_offset, NULL, NULL));
     local_offset += 32;
 
     proto_tree_add_item(DataPortCounters_header_tree, hf_opa_DataPortCounters_VLSelectMask, tvb, local_offset, 4, ENC_BIG_ENDIAN);
@@ -6351,10 +6389,7 @@ static gint parse_ErrorPortCounters(proto_tree *parentTree, tvbuff_t *tvb, gint 
 
     gint local_offset = *offset;
     guint32 VLSelectMask, vlSelMskTmp;
-    guint64 PortSelectMask[4];
-    guint64 PortSelectMaskTemp;
-    guint VLs, i, j, p;
-    guint PortsOffset = 0;
+    guint VLs, i, p;
     guint Num_Ports = (MAD->AttributeModifier & 0xFF000000) >> 24;
 
     if (!parentTree)
@@ -6374,19 +6409,9 @@ static gint parse_ErrorPortCounters(proto_tree *parentTree, tvbuff_t *tvb, gint 
     }
     ErrorPortCounters_header_tree = proto_item_add_subtree(ErrorPortCounters_header_item, ett_errorportcounters);
 
-    PortSelectMask[0] = tvb_get_ntoh64(tvb, local_offset);
-    PortSelectMask[1] = tvb_get_ntoh64(tvb, local_offset + 8);
-    PortSelectMask[2] = tvb_get_ntoh64(tvb, local_offset + 16);
-    PortSelectMask[3] = tvb_get_ntoh64(tvb, local_offset + 24);
     ErrorPortCounters_PortSelectMask_item = proto_tree_add_item(ErrorPortCounters_header_tree, hf_opa_ErrorPortCounters_PortSelectMask, tvb, local_offset, 32, ENC_NA);
-    for (j = 0; j < 4; j++) {
-        for (i = 0, PortSelectMaskTemp = PortSelectMask[3 - j]; i < 64 && (PortSelectMaskTemp); i++, PortSelectMaskTemp >>= (guint64)1) {
-            if (PortSelectMaskTemp & (guint64)0x1) {
-                proto_item_append_text(ErrorPortCounters_PortSelectMask_item, "%s%u", (PortsOffset ? ", " : " "), (i)+(j * 64));
-                PortsOffset++;
-            }
-        }
-    }
+    proto_item_append_text(ErrorPortCounters_PortSelectMask_item, ": %s",
+        opa_format_port_select_mask(tvb, local_offset, NULL, NULL));
     local_offset += 32;
 
     proto_tree_add_item(ErrorPortCounters_header_tree, hf_opa_ErrorPortCounters_VLSelectMask, tvb, local_offset, 4, ENC_BIG_ENDIAN);
@@ -6469,10 +6494,7 @@ static gint parse_ErrorPortInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *off
         *FMConfigErrorInfo_tree;
 
     gint local_offset = *offset;
-    guint64 PortSelectMask[4];
-    guint64 PortSelectMaskTemp;
-    guint i, j, p, ErrorCode;
-    guint PortsOffset = 0;
+    guint p, ErrorCode;
     guint Num_Ports = (MAD->AttributeModifier & 0xFF000000) >> 24;
 
     if (!parentTree)
@@ -6487,19 +6509,9 @@ static gint parse_ErrorPortInfo(proto_tree *parentTree, tvbuff_t *tvb, gint *off
     }
     ErrorPortInfo_header_tree = proto_item_add_subtree(ErrorPortInfo_header_item, ett_errorportinfo);
 
-    PortSelectMask[0] = tvb_get_ntoh64(tvb, local_offset);
-    PortSelectMask[1] = tvb_get_ntoh64(tvb, local_offset + 8);
-    PortSelectMask[2] = tvb_get_ntoh64(tvb, local_offset + 16);
-    PortSelectMask[3] = tvb_get_ntoh64(tvb, local_offset + 24);
     ErrorPortInfo_PortSelectMask_item = proto_tree_add_item(ErrorPortInfo_header_tree, hf_opa_ErrorPortInfo_PortSelectMask, tvb, local_offset, 32, ENC_NA);
-    for (j = 0; j < 4; j++) {
-        for (i = 0, PortSelectMaskTemp = PortSelectMask[3 - j]; i < 64 && (PortSelectMaskTemp); i++, PortSelectMaskTemp >>= (guint64)1) {
-            if (PortSelectMaskTemp & (guint64)0x1) {
-                proto_item_append_text(ErrorPortInfo_PortSelectMask_item, "%s%u", (PortsOffset ? ", " : " "), (i)+(j * 64));
-                PortsOffset++;
-            }
-        }
-    }
+    proto_item_append_text(ErrorPortInfo_PortSelectMask_item, ": %s",
+        opa_format_port_select_mask(tvb, local_offset, NULL, NULL));
     local_offset += 32;
 
     if (MAD->Method == METHOD_GET)
