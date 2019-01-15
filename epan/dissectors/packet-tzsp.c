@@ -125,6 +125,8 @@ static int hf_sensormac = -1;
 
 static int hf_device_name = -1;
 static int hf_capture_location = -1;
+static int hf_capture_info = -1;
+static int hf_capture_id = -1;
 static int hf_time_stamp = -1;
 static int hf_packet_id = -1;
 
@@ -145,6 +147,10 @@ static int hf_packet_id = -1;
 #define TZSP_DEVICE_NAME          80
 #define TZSP_CAPTURE_LOCATION     81
 #define TZSP_TIME_STAMP           82
+#define TZSP_INFO                 83  /* Addition TZSP Information; String type*/
+#define TZSP_CAPTURE_ID           84  /* Capture Instance ID; 32 bits unsigned integer */
+
+
 
 
 /* ************************************************************************* */
@@ -169,6 +175,8 @@ static const value_string option_tag_vals[] = {
     {TZSP_DEVICE_NAME,  "Device Name"},
     {TZSP_CAPTURE_LOCATION,  "Capture Location"},
     {TZSP_TIME_STAMP,  "Time Stamp"},
+    {TZSP_INFO, "Information"},
+    {TZSP_CAPTURE_ID, "Capture ID"},
     {WLAN_RADIO_HDR_SIGNAL,     "Signal"},
     {WLAN_RADIO_HDR_NOISE,      "Silence"},
     {WLAN_RADIO_HDR_RATE,       "Rate"},
@@ -241,6 +249,13 @@ add_option_info(tvbuff_t *tvb, int pos, proto_tree *tree, proto_item *ti)
             proto_tree_add_item(tag_tree, hf_capture_location, tvb, pos, length, ENC_ASCII|ENC_NA);
             break;
 
+        case TZSP_INFO:
+            proto_tree_add_item(tag_tree, hf_capture_info, tvb, pos, length, ENC_ASCII|ENC_NA);
+            break;
+
+        case TZSP_CAPTURE_ID:
+            proto_tree_add_item(tag_tree, hf_capture_id, tvb, pos, 4, ENC_BIG_ENDIAN);
+            break;
 
         case TZSP_TIME_STAMP:
             proto_tree_add_item(tag_tree, hf_time_stamp, tvb, pos, length, ENC_TIME_SECS_NSECS|ENC_BIG_ENDIAN);
@@ -569,6 +584,14 @@ proto_register_tzsp(void)
         { &hf_capture_location, {
             "Capture Location", "tzsp.device_name", FT_STRING, STR_ASCII,
             NULL, 0, "CaptureLocation", HFILL }},
+
+        { &hf_capture_info, {
+            "Capture Information", "tzsp.device_info", FT_STRING, STR_ASCII,
+            NULL, 0, "CaptureInformation", HFILL }},
+
+        { &hf_capture_id, {
+            "Capture Id", "tzsp.device_id", FT_UINT32, BASE_DEC,
+            NULL, 0, "CaptureID", HFILL }},
 
         {&hf_time_stamp, {
             "Time Stamp", "tzsp.time_stamp",
