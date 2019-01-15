@@ -2343,6 +2343,7 @@ wtap_dump_init_dumper(int file_type_subtype, wtap_compression_type compression_t
 			 *
 			 * We use WTAP_MAX_PACKET_SIZE_STANDARD for everything except
 			 * D-Bus, which has a maximum packet size of 128MB,
+			 * and EBHSCR, which has a maximum packet size of 8MB,
 			 * which is more than we want to put into files
 			 * with other link-layer header types, as that
 			 * might cause some software reading those files
@@ -2351,6 +2352,8 @@ wtap_dump_init_dumper(int file_type_subtype, wtap_compression_type compression_t
 			 */
 			if (params->encap == WTAP_ENCAP_DBUS)
 				snaplen = 128*1024*1024;
+			else if (params->encap == WTAP_ENCAP_EBHSCR)
+				snaplen = 8*1024*1024;
 			else
 				snaplen = WTAP_MAX_PACKET_SIZE_STANDARD;
 		}

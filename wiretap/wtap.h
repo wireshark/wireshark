@@ -409,6 +409,7 @@ extern "C" {
  * allocate a buffer much larger than necessary, wasting memory.
  */
 #define WTAP_MAX_PACKET_SIZE_STANDARD    262144
+#define WTAP_MAX_PACKET_SIZE_EBHSCR      (8*1024*1024)
 #define WTAP_MAX_PACKET_SIZE_DBUS        (128*1024*1024)
 
 /*

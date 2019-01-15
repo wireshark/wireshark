@@ -1980,7 +1980,16 @@ pcap_pipe_open_live(int fd,
         pcap_src->cap_pipe_max_pkt_size = WTAP_MAX_PACKET_SIZE_DBUS;
     } else
 #endif
+    if (pcap_src->linktype == 279) {             /* DLT_EBHSCR */
+        /*
+         * The maximum EBHSCR message size is 8MB, so allow packets up
+         * to that size.
+         */
+        pcap_src->cap_pipe_max_pkt_size = WTAP_MAX_PACKET_SIZE_EBHSCR;
+    }
+    else {
         pcap_src->cap_pipe_max_pkt_size = WTAP_MAX_PACKET_SIZE_STANDARD;
+    }
 
     if (hdr->version_major < 2) {
         g_snprintf(errmsg, (gulong)errmsgl,
