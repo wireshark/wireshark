@@ -829,14 +829,8 @@ de_nas_5gs_mm_abba(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    guint32 length = len, curr_offset;
-
-    curr_offset = offset;
-    proto_tree_add_item(tree, hf_nas_5gs_mm_abba, tvb, curr_offset, length, ENC_BIG_ENDIAN);
-    curr_offset += length;
-
-    return length;
-
+    proto_tree_add_item(tree, hf_nas_5gs_mm_abba, tvb, offset, len, ENC_BIG_ENDIAN);
+    return len;
 }
 
 /* 9.11.3.11	Access type*/
