@@ -894,7 +894,7 @@ static const value_string ieee80211_reason_code[] = {
   {  9, "STA requesting (re)association is not authenticated with responding STA" },
   { 10, "Disassociated because the information in the Power Capability element is unacceptable" },
   { 11, "Disassociated because the information in the Supported Channels element is unacceptable" },
-  { 12, "Reserved" },
+  { 12, "Disassociated due to BSS transition management" },
   { 13, "Invalid information element, i.e., an information element defined in this standard for which the content does not meet the specifications in Clause 7" },
   { 14, "Message integrity code (MIC) failure" },
   { 15, "4-Way Handshake timeout" },
