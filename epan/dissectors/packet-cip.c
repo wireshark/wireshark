@@ -3,7 +3,7 @@
  * CIP Home: www.odva.org
  *
  * This dissector includes items from:
- *    CIP Volume 1: Common Industrial Protocol, Edition 3.24
+ *    CIP Volume 1: Common Industrial Protocol, Edition 3.25
  *    CIP Volume 5: Integration of Modbus Devices into the CIP Architecture, Edition 2.17
  *    CIP Volume 7: CIP Safety, Edition 1.9
  *
@@ -2876,6 +2876,15 @@ const value_string cip_class_names_vals[] = {
    { 0xF6,     "Ethernet Link"                  },
    { 0xF7,     "CompoNet"                       },
    { 0xF8,     "CompoNet Repeater"              },
+   { 0xF9,     "HART Master Port"               },
+   { 0x100,    "Protection Trip"                },
+   { 0x101,    "Protection Alarm"               },
+   { 0x102,    "Circuit Breaker Supervisor"     },
+   { 0x103,    "Circuit Breaker Statistics"     },
+   { 0x104,    "Electrical Demand"              },
+   { 0x105,    "Electrical Statistics"          },
+   { 0x106,    "Machine Base Data"              },
+   { 0x107,    "HART Process Device"            },
 
    { 0,        NULL                             }
 };
