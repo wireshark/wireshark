@@ -48,7 +48,7 @@ HandoverCommand_PDU
 HandoverPreparationInformation_PDU
 MeasConfig_PDU
 MeasGapConfig_PDU
-MeasResults_PDU
+MeasResultSCG-Failure_PDU
 MeasurementTimingConfiguration_PDU
 MIB_PDU
 P-Max_PDU
@@ -84,7 +84,7 @@ HandoverCommand
 HandoverPreparationInformation
 MeasConfig
 MeasGapConfig
-MeasResults
+MeasResultSCG-Failure
 MeasurementTimingConfiguration
 MIB
 P-Max

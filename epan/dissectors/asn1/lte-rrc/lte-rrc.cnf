@@ -2560,7 +2560,7 @@ P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
   if (meas_results_tvb) {
     proto_tree *subtree;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_measResultSCG_r15);
-    dissect_nr_rrc_MeasResults_PDU(meas_results_tvb, actx->pinfo, subtree, NULL);
+    dissect_nr_rrc_MeasResultSCG_Failure_PDU(meas_results_tvb, actx->pinfo, subtree, NULL);
   }
 
 #.FN_BODY ULInformationTransferMRDC-r15-IEs/ul-DCCH-MessageNR-r15 VAL_PTR = &nr_ul_dcch_tvb
