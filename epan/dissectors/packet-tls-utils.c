@@ -9002,11 +9002,19 @@ ssl_common_register_dtls_alpn_dissector_table(const char *name,
 }
 
 void
-ssl_common_register_options(module_t *module, ssl_common_options_t *options)
+ssl_common_register_options(module_t *module, ssl_common_options_t *options, gboolean is_dtls)
 {
         prefs_register_string_preference(module, "psk", "Pre-Shared-Key",
              "Pre-Shared-Key as HEX string. Should be 0 to 16 bytes.",
              &(options->psk));
+
+        if (is_dtls) {
+            prefs_register_obsolete_preference(module, "keylog_file");
+            prefs_register_static_text_preference(module, "keylog_file_removed",
+                    "The (Pre)-Master-Secret log filename preference can be configured in the TLS protocol preferences.",
+                    "Use the TLS protocol preference to configure the keylog file for both DTLS and TLS.");
+            return;
+        }
 
         prefs_register_filename_preference(module, "keylog_file", "(Pre)-Master-Secret log filename",
              "The name of a file which contains a list of \n"

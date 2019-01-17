@@ -640,6 +640,14 @@ extern void
 ssl_common_cleanup(ssl_master_key_map_t *master_key_map, FILE **ssl_keylog_file,
                    StringInfo *decrypted_data, StringInfo *compressed_data);
 
+/**
+ * Access to the keys in the TLS dissector, for use by the DTLS dissector.
+ * (This is a transition function, it would be nice if the static keylog file
+ * contents was separated from keys derived at runtime.)
+ */
+extern ssl_master_key_map_t *
+tls_get_master_key_map(gboolean load_secrets);
+
 /* Process lines from the TLS key log and populate the secrets map. */
 extern void
 tls_keylog_process_lines(const ssl_master_key_map_t *mk_map, const guint8 *data, guint len);
@@ -2110,7 +2118,7 @@ ssl_common_register_dtls_alpn_dissector_table(const char *name,
     const char *ui_name, const int proto);
 
 extern void
-ssl_common_register_options(module_t *module, ssl_common_options_t *options);
+ssl_common_register_options(module_t *module, ssl_common_options_t *options, gboolean is_dtls);
 
 #ifdef SSL_DECRYPT_DEBUG
 extern void

@@ -147,7 +147,6 @@ static expert_field ei_dtls_handshake_fragment_past_end_msg = EI_INIT;
 static expert_field ei_dtls_msg_len_diff_fragment = EI_INIT;
 static expert_field ei_dtls_heartbeat_payload_length = EI_INIT;
 
-static ssl_master_key_map_t dtls_master_key_map;
 #ifdef HAVE_LIBGNUTLS
 static GHashTable      *dtls_key_hash   = NULL;
 static wmem_stack_t    *key_list_stack  = NULL;
@@ -160,7 +159,6 @@ static dissector_handle_t  dtls_handle               = NULL;
 static StringInfo          dtls_compressed_data      = {NULL, 0};
 static StringInfo          dtls_decrypted_data       = {NULL, 0};
 static gint                dtls_decrypted_data_avail = 0;
-static FILE               *dtls_keylog_file          = NULL;
 
 static ssl_common_options_t dtls_options = { NULL, NULL};
 static const gchar *dtls_debug_file_name = NULL;
@@ -199,8 +197,8 @@ dtls_init(void)
   module_t *dtls_module = prefs_find_module("dtls");
   pref_t   *keys_list_pref;
 
-  ssl_common_init(&dtls_master_key_map,
-                  &dtls_decrypted_data, &dtls_compressed_data);
+  ssl_data_alloc(&dtls_decrypted_data, 32);
+  ssl_data_alloc(&dtls_compressed_data, 32);
 
   /* We should have loaded "keys_list" by now. Mark it obsolete */
   if (dtls_module) {
@@ -220,8 +218,8 @@ dtls_cleanup(void)
     key_list_stack = NULL;
   }
 #endif
-  ssl_common_cleanup(&dtls_master_key_map, &dtls_keylog_file,
-                     &dtls_decrypted_data, &dtls_compressed_data);
+  g_free(dtls_decrypted_data.data);
+  g_free(dtls_compressed_data.data);
 }
 
 #ifdef HAVE_LIBGNUTLS
@@ -787,9 +785,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
                                    dtls_record_tree, offset, session,
                                    is_from_server, ssl);
     if (ssl) {
-        ssl_load_keyfile(dtls_options.keylog_filename, &dtls_keylog_file,
-                         &dtls_master_key_map);
-        ssl_finalize_decryption(ssl, &dtls_master_key_map);
+        ssl_finalize_decryption(ssl, tls_get_master_key_map(TRUE));
         ssl_change_cipher(ssl, ssl_packet_from_server(session, dtls_associations, pinfo));
     }
     /* Heuristic: any later ChangeCipherSpec is not a resumption of this
@@ -1301,7 +1297,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
              * master key with this Session Ticket */
             ssl_dissect_hnd_new_ses_ticket(&dissect_dtls_hf, sub_tvb, pinfo,
                                            ssl_hand_tree, 0, length, session, ssl, TRUE,
-                                           dtls_master_key_map.tickets);
+                                           tls_get_master_key_map(FALSE)->tickets);
             break;
 
           case SSL_HND_HELLO_RETRY_REQUEST:
@@ -1336,15 +1332,13 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             if (!ssl)
                 break;
 
-            ssl_load_keyfile(dtls_options.keylog_filename, &dtls_keylog_file,
-                             &dtls_master_key_map);
             /* try to find master key from pre-master key */
             if (!ssl_generate_pre_master_secret(ssl, length, sub_tvb, 0,
                                                 dtls_options.psk,
 #ifdef HAVE_LIBGNUTLS
                                                 dtls_key_hash,
 #endif
-                                                &dtls_master_key_map)) {
+                                                tls_get_master_key_map(TRUE))) {
                 ssl_debug_printf("dissect_dtls_handshake can't generate pre master secret\n");
             }
             break;
@@ -2000,7 +1994,7 @@ proto_register_dtls(void)
                                        "redirect dtls debug to file name; leave empty to disable debug, "
                                        "use \"" SSL_DEBUG_USE_STDERR "\" to redirect output to stderr\n",
                                        &dtls_debug_file_name, TRUE);
-    ssl_common_register_options(dtls_module, &dtls_options);
+    ssl_common_register_options(dtls_module, &dtls_options, TRUE);
   }
 
   dtls_handle = register_dissector("dtls", dissect_dtls, proto_dtls);

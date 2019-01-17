@@ -310,6 +310,16 @@ ssl_cleanup(void)
     ssl_crandom_hash = NULL;
 }
 
+ssl_master_key_map_t *
+tls_get_master_key_map(gboolean load_secrets)
+{
+    // Try to load new keys.
+    if (load_secrets) {
+        ssl_load_keyfile(ssl_options.keylog_filename, &ssl_keylog_file, &ssl_master_key_map);
+    }
+    return &ssl_master_key_map;
+}
+
 #ifdef HAVE_LIBGNUTLS
 /* parse ssl related preferences (private keys and ports association strings) */
 static void
@@ -4160,7 +4170,7 @@ proto_register_tls(void)
              "Message Authentication Code (MAC), ignore \"mac failed\"",
              "For troubleshooting ignore the mac check result and decrypt also if the Message Authentication Code (MAC) fails.",
              &tls_ignore_mac_failed);
-        ssl_common_register_options(ssl_module, &ssl_options);
+        ssl_common_register_options(ssl_module, &ssl_options, FALSE);
     }
 
     /* heuristic dissectors for any premable e.g. CredSSP before RDP */

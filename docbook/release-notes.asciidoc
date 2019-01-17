@@ -74,7 +74,7 @@ since version 2.6.0:
 * The build system now supports AppImage packages.
 * The Windows installers now ship with Qt 5.12.0. Previously they
   shipped with Qt 5.9.7.
-* Support for decrypting TLS streams in pcapng files that embedded a Decryption
+* Support for DTLS and TLS decryption using pcapng files that embed a Decryption
   Secrets Block (DSB) containing a TLS Key Log (wsbuglink:15252[]).
 * The editcap utility gained a new `--inject-secrets` option to inject an
   existing TLS Key Log file into a pcapng file.

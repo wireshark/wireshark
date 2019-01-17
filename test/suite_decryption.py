@@ -107,6 +107,16 @@ class case_decrypt_dtls(subprocesstest.SubprocessTestCase):
         wfm_count = self.countOutput('Works for me!.')
         self.assertTrue(dt_count == 7 and wfm_count == 2)
 
+    def test_dtls_dsb_aes128ccm8(self, cmd_tshark, capture_file):
+        '''DTLS 1.2 with master secrets in a pcapng Decryption Secrets Block.'''
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('dtls12-aes128ccm8-dsb.pcapng'),
+                '-x'
+            ))
+        dt_count = self.countOutput('Decrypted DTLS')
+        wfm_count = self.countOutput('Works for me!.')
+        self.assertTrue(dt_count == 7 and wfm_count == 2)
+
     def test_dtls_udt(self, cmd_tshark, dirs, capture_file, features):
         '''UDT over DTLS 1.2 with RSA key'''
         if not features.have_gnutls:
