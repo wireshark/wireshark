@@ -224,7 +224,6 @@ static int hf_smpp_dcs_cbs_class                      = -1;
 /*
  * Huawei SMPP+ extensions
  */
-static int hf_huawei_smpp_version                     = -1;
 static int hf_huawei_smpp_smsc_addr                   = -1;
 static int hf_huawei_smpp_msc_addr_noa                = -1;
 static int hf_huawei_smpp_msc_addr_npi                = -1;
@@ -3564,12 +3563,6 @@ proto_register_smpp(void)
                 }
         },
         /* Huawei SMPP+ extensions */
-        {    &hf_huawei_smpp_version,
-                {       "Version of SMPP+", "smpp.smppplus_version",
-                        FT_UINT8, BASE_HEX, NULL, 0x00,
-                        "Indicates the SMPP+ version", HFILL
-                }
-        },
         {        &hf_huawei_smpp_smsc_addr,
                 {       "SMPP+: GT of SMSC", "smpp.smsc_addr",
                         FT_STRING, BASE_NONE, NULL, 0x00,
@@ -3688,8 +3681,8 @@ proto_reg_handoff_smpp(void)
      * however.
      */
     dissector_add_for_decode_as_with_preference("tcp.port", smpp_handle);
-    heur_dissector_add("tcp", dissect_smpp_heur, "SMPP over TCP", "smpp_tcp", proto_smpp, HEURISTIC_ENABLE);
-    heur_dissector_add("x.25", dissect_smpp_heur, "SMPP over X.25", "smpp_x25", proto_smpp, HEURISTIC_ENABLE);
+    heur_dissector_add("tcp", dissect_smpp_heur, "SMPP over TCP Heuristics", "smpp_tcp", proto_smpp, HEURISTIC_ENABLE);
+    heur_dissector_add("x.25", dissect_smpp_heur, "SMPP over X.25 Heuristics", "smpp_x25", proto_smpp, HEURISTIC_ENABLE);
 
     /* Required for call_dissector() */
     gsm_sms_handle = find_dissector_add_dependency("gsm_sms_ud", proto_smpp);
