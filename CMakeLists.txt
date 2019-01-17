@@ -13,6 +13,9 @@ if(WIN32)
 else()
 	cmake_minimum_required(VERSION 3.5)
 endif()
+if(POLICY CMP0083)
+	cmake_policy(SET CMP0083 NEW)
+endif()
 project(Wireshark C CXX)
 
 # Updated by tools/make-version.pl
@@ -332,11 +335,8 @@ endif()
 
 # Always enable position-independent code when compiling, even for
 # executables, so you can build position-independent executables.
-# -pie is added below for non-MSVC.
-# Needed when either:
-# - Qt5_POSITION_INDEPENDENT_CODE is set and CMake < 2.8.11
-# - PIE is wanted (-pie) and you want to add -fPIC/-fPIE automatically.
-# This option only has an effect on CMake >= 2.8.9
+# -pie is added below for non-MSVC, but requires objects to be built with
+# -fPIC/-fPIE (so set CMAKE_POSITION_INDEPENDENT_CODE to enable that).
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 # Path to our generated executables (or wrapper scripts)
@@ -883,9 +883,14 @@ if(NOT CMAKE_C_COMPILER_ID MATCHES "MSVC" AND NOT OSS_FUZZ)
 	# independent may fail, the user can set CMAKE_EXE_LINKER_FLAGS=-no-pie
 	# as a workaround.
 	#
-	check_c_linker_flag(-pie LINK_pie_VALID)
-	if(LINK_pie_VALID)
-		set(CMAKE_EXE_LINKER_FLAGS "-pie ${CMAKE_EXE_LINKER_FLAGS}")
+	if(CMAKE_VERSION VERSION_GREATER "3.13.999")
+		include(CheckPIESupported)
+		check_pie_supported()
+	else()
+		check_c_linker_flag(-pie LINK_pie_VALID)
+		if(LINK_pie_VALID)
+			set(CMAKE_EXE_LINKER_FLAGS "-pie ${CMAKE_EXE_LINKER_FLAGS}")
+		endif()
 	endif()
 endif()
 
