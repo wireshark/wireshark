@@ -1205,12 +1205,22 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
       offset += 2;
       col_append_fstr(pinfo->cinfo, COL_INFO, " (id=%u)", mqtt_msgid);
 
-      if (mqtt->runtime_proto_version == MQTT_PROTO_V50)
+      /* MQTT v5.0: The Reason Code and Property Length can be omitted if the
+       * Reason Code is 0x00 and there are no Properties.
+       * In this case, the PUB* has a Remaining Length of 2.
+       */
+      if (mqtt->runtime_proto_version == MQTT_PROTO_V50 && mqtt_msg_len > 2)
       {
         dissect_mqtt_reason_code(mqtt_tree, tvb, offset, mqtt_msg_type);
         offset += 1;
 
-        offset += dissect_mqtt_properties(tvb, mqtt_tree, offset, hf_mqtt_property);
+        /* If the Remaining Length is less than 4, the Property Length is not
+         * present and has a value of 0.
+         */
+        if (mqtt_msg_len > 3)
+        {
+          offset += dissect_mqtt_properties(tvb, mqtt_tree, offset, hf_mqtt_property);
+        }
       }
       break;
 
