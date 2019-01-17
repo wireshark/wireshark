@@ -89,8 +89,8 @@ rpm-opensuse-42.3:
     - gem install asciidoctor
     - mkdir build
     - cd build
-    - cmake ..
-    - make rpm-package
+    - cmake -GNinja ..
+    - ninja rpm-package
 rpm-fedora-28:
   image: fedora:28
   script:
