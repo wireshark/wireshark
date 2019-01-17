@@ -12,6 +12,11 @@
     - apt-get update -qq
     - mkdir build
     - cd build
+.rpm: &rpm
+  artifacts:
+    paths:
+      - build/packaging/rpm/RPMS
+    expire_in: 3 days
 gcc-4:
   <<: *ubuntu
   script:
@@ -109,6 +114,7 @@ clang-7-nopcap:
     - cmake -GNinja -DENABLE_PCAP=OFF -DCMAKE_C_COMPILER=clang-7 -DCMAKE_CXX_COMPILER=clang++-7 -DCMAKE_C_FLAGS=-Wframe-larger-than=20000 ..
     - ninja
 rpm-centos-7:
+  <<: *rpm
   image: centos:7
   script:
     - yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
@@ -118,6 +124,7 @@ rpm-centos-7:
     - cmake3 -GNinja ..
     - ninja-build rpm-package
 rpm-opensuse-42.3:
+  <<: *rpm
   image: opensuse:42.3
   script:
     - zypper --non-interactive install update-desktop-files
@@ -128,6 +135,7 @@ rpm-opensuse-42.3:
     - cmake -GNinja ..
     - ninja rpm-package
 rpm-fedora-28:
+  <<: *rpm
   image: fedora:28
   script:
     - dnf upgrade -y
