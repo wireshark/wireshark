@@ -342,8 +342,8 @@ const value_string cipsafety_snn_date_vals[8] = {
 };
 
 static const true_false_string cip_safety_vals_active_idle = {
+   "Active",
    "Idle",
-   "Active"
 };
 
 /* Translate function to string - CIP Service codes for Safety Supervisor */
