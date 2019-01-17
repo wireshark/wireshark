@@ -574,6 +574,9 @@ sub new_version_h
 
 # Print the version control system's version to $version_file.
 # Don't change the file if it is not needed.
+#
+# XXX - We might want to add VCSVERSION to CMakeLists.txt so that it can
+# generate version.h independently.
 sub print_VCS_REVISION
 {
 	my $VCS_REVISION;
