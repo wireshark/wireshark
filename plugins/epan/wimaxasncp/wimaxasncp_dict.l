@@ -593,14 +593,13 @@ static void append_to_buffer(const gchar *txt, int len, WimaxasncpDict_scanner_s
 		state->read_ptr = state->write_ptr = state->strbuf = (gchar *)g_malloc(state->size_strbuf);
 	}
 
-	if ( (state->len_strbuf + len + 1) >= state->size_strbuf ) {
+	if (state->len_strbuf + len >= state->size_strbuf) {
 		state->read_ptr = state->strbuf = (gchar *)g_realloc(state->strbuf,state->size_strbuf *= 2);
 	}
 
 	state->write_ptr = state->strbuf + state->len_strbuf;
-	strncpy(state->write_ptr,txt,len);
+	memcpy(state->write_ptr, txt, len + 1);
 	state->len_strbuf += len;
-	state->strbuf[state->len_strbuf] = '\0';
 }
 
 static size_t file_input(gchar *buf, size_t max, yyscan_t scanner) {
