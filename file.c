@@ -1740,6 +1740,18 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
 
   epan_dissect_init(&edt, cf->epan, create_proto_tree, FALSE);
 
+  if (redissect) {
+    /*
+     * Decryption secrets are read while sequentially processing records and
+     * then passed to the dissector. During redissection, the previous secrets
+     * are lost (see epan_free above), but they are not read again from the
+     * file as only packet records are re-read. Therefore reset the wtap secrets
+     * callback such that wtap resupplies the secrets callback with previously
+     * read secrets.
+     */
+    wtap_set_cb_new_secrets(cf->provider.wth, secrets_wtap_callback);
+  }
+
   for (framenum = 1; framenum <= frames_count; framenum++) {
     fdata = frame_data_sequence_find(cf->provider.frames, framenum);
 

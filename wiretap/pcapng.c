@@ -2646,11 +2646,7 @@ pcapng_process_idb(wtap *wth, pcapng_t *pcapng, wtapng_block_t *wblock)
 static void
 pcapng_process_dsb(wtap *wth, wtapng_block_t *wblock)
 {
-    const wtapng_dsb_mandatory_t *dsb = (wtapng_dsb_mandatory_t*)wtap_block_get_mandatory_data(wblock->block);
-
-    if (wth->add_new_secrets) {
-        wth->add_new_secrets(dsb->secrets_type, dsb->secrets_data, dsb->secrets_len);
-    }
+    wtapng_process_dsb(wth, wblock->block);
 
     /* Store DSB such that it can be saved by the dumper. */
     g_array_append_val(wth->dsbs, wblock->block);

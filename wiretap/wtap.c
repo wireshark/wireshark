@@ -1266,8 +1266,29 @@ void wtap_set_cb_new_ipv6(wtap *wth, wtap_new_ipv6_callback_t add_new_ipv6) {
 }
 
 void wtap_set_cb_new_secrets(wtap *wth, wtap_new_secrets_callback_t add_new_secrets) {
-	if (wth)
-		wth->add_new_secrets = add_new_secrets;
+	/* Is a valid wth given that supports DSBs? */
+	if (!wth || !wth->dsbs)
+		return;
+
+	wth->add_new_secrets = add_new_secrets;
+	/*
+	 * Send all DSBs that were read so far to the new callback. file.c
+	 * relies on this to support redissection (during redissection, the
+	 * previous secrets are lost and has to be resupplied).
+	 */
+	for (guint i = 0; i < wth->dsbs->len; i++) {
+		wtap_block_t dsb = g_array_index(wth->dsbs, wtap_block_t, i);
+		wtapng_process_dsb(wth, dsb);
+	}
+}
+
+void
+wtapng_process_dsb(wtap *wth, wtap_block_t dsb)
+{
+	const wtapng_dsb_mandatory_t *dsb_mand = (wtapng_dsb_mandatory_t*)wtap_block_get_mandatory_data(dsb);
+
+	if (wth->add_new_secrets)
+		wth->add_new_secrets(dsb_mand->secrets_type, dsb_mand->secrets_data, dsb_mand->secrets_len);
 }
 
 gboolean

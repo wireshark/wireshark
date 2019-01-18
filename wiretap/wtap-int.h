@@ -326,6 +326,12 @@ wtap_full_file_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset);
  */
 gboolean
 wtap_full_file_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
+
+/**
+ * Invokes the callback with the given decryption secrets block.
+ */
+void
+wtapng_process_dsb(wtap *wth, wtap_block_t dsb);
 #endif /* __WTAP_INT_H__ */
 
 /*
