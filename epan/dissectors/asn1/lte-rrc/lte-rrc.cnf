@@ -1,6 +1,6 @@
 # lte-rrc.cnf
 # lte-rrc conformation file
-# Copyright 2008 Vincent Helfre, 2009-2018 Pascal Quantin
+# Copyright 2008 Vincent Helfre, 2009-2019 Pascal Quantin
 
 #.OPT
 PER
@@ -8,21 +8,28 @@ UNALIGNED
 #.END
 
 #.USE_VALS_EXT
+AUL-Config-r15/setup/aul-RetransmissionTimer-r15
 BandclassCDMA2000
 CarrierFreq-NB-r13/carrierFreqOffset-r13
 DelayBudgetReport-r14/type1
 DelayBudgetReport-r14/type2
 DRX-Config/setup/drx-InactivityTimer
 DRX-Config-r13/drx-ULRetransmissionTimer-r13
+DRX-Config-r15/drx-UL-RetransmissionTimerShortTTI-r15
 DRX-Config-NB-r13/setup/drx-ULRetransmissionTimer-r13
+MeasGapConfig/setup/gapOffset
+MeasGapConfigDensePRS-r15/setup/gapOffsetDensePRS-r15
 PDCP-Config/eag_3/t-Reordering-r12
 PDCP-Config/eag_4/statusFeedback-r13/setup/statusPDU-Periodicity-Type1-r13
 PDCP-Config/eag_4/statusFeedback-r13/setup/statusPDU-Periodicity-Type2-r13
 PollByte-r14
+PosSIB-Type-r15/posSibType-r15
+#PosSystemInformation-r15-IEs/posSIB-TypeAndInfo-r15
 PowerRampingParameters-NB-v1450/powerRampingParametersCE1-r14/preambleInitialReceivedTargetPowerCE1-r14
 Q-OffsetRange
 RRM-Config/ue-InactiveTime
 RRM-Config-NB/ue-InactiveTime
+RSTD-InterFreqInfo-r10/eag_2/measPRS-Offset-r15
 SIB-Type
 SL-CommResourcePoolV2X-r14/sizeSubchannel-r14
 SL-PeriodComm-r12
@@ -98,9 +105,7 @@ BCCH-DL-SCH-Message-MBMS     @bcch.dl.sch.mbms
 # Get rid of unused code warnings
 CellsTriggeredList
 CSI-RS-TriggeredList-r12
-HandoverPreparationInformation-v1530-IEs
 LogMeasInfoList2-r10
-N1SPUCCH-AN-PersistentList-r15
 RSRP-RangeSL3-r12
 SL-CBR-PPPP-TxPreconfigList-r14
 SL-CBR-PPPP-TxPreconfigList-v1530
@@ -128,7 +133,6 @@ SL-V2X-Preconfiguration-r14
 SL-V2X-SyncOffsetIndicators-r14
 SL-V2X-TxProfile-r15
 SL-V2X-TxProfileList-r15
-SPS-ConfigDL-STTI-r15
 SSB-IndexList-r15
 Tx-PreconfigIndex-r14
 VarConnEstFailReport-r11
@@ -145,7 +149,7 @@ VarMeasReportList
 VarMeasReportList-r12
 VarMeasReport
 VarMobilityHistoryReport-r12
-VarPendingRnaProcedure-r15
+VarPendingRnaUpdate-r15
 VarRLF-Report-r10
 VarRLF-Report-r11
 VarShortINACTIVE-MAC-Input-r15
@@ -522,6 +526,24 @@ MasterInformationBlock/schedulingInfoSIB1-BR-r13 TYPE=FT_UINT32 DISPLAY=BASE_DEC
     length = tvb_reported_length(nas_sec_param_to_eutra_tvb);
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_nas_SecurityParam);
     de_emm_sec_par_to_eutra(nas_sec_param_to_eutra_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
+  }
+
+#.FN_BODY SecurityConfigHO-v1530/handoverType-v1530/intra5GC-r15/nas-Container-r15 VAL_PTR = &nas_cont_tvb
+  tvbuff_t *nas_cont_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  if (nas_cont_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_nas_Container_r15);
+    de_nas_5gs_intra_n1_mode_nas_transparent_cont(nas_cont_tvb, subtree, actx->pinfo);
+  }
+
+#.FN_BODY SecurityConfigHO-v1530/handoverType-v1530/epc-To5GC-r15/nas-Container-r15 VAL_PTR = &nas_cont_tvb
+  tvbuff_t *nas_cont_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  if (nas_cont_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_nas_Container_r15);
+    de_nas_5gs_s1_mode_to_n1_mode_nas_transparent_cont(nas_cont_tvb, subtree, actx->pinfo);
   }
 
 #.FN_BODY SI-OrPSI-GERAN/si
@@ -1018,6 +1040,9 @@ RRCConnectionReject-v1020-IEs/extendedWaitTime-r10 DISPLAY=BASE_DEC|BASE_UNIT_ST
 
 #.TYPE_ATTR
 RRCConnectionRelease-v1020-IEs/extendedWaitTime-r10 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
+
+#.TYPE_ATTR
+RRCConnectionRelease-v1540-IEs/waitTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
 #.TYPE_ATTR
 RRCEarlyDataComplete-r15-IEs/extendedWaitTime-r15 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds

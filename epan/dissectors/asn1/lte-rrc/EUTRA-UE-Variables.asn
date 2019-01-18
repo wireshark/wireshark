@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V15.3.0 (2018-09)
+-- 3GPP TS 36.331 V15.4.0 (2018-12)
 --
 EUTRA-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -204,8 +204,8 @@ SSB-IndexList-r15::=			SEQUENCE (SIZE (1..maxRS-Index-r15)) OF RS-IndexNR-r15
 VarMobilityHistoryReport-r12 ::=	VisitedCellInfoList-r12
 
 
-VarPendingRnaProcedure-r15 ::=					SEQUENCE {
-	pendingRnaProcedure					BOOLEAN								OPTIONAL
+VarPendingRnaUpdate-r15 ::=					SEQUENCE {
+	pendingRnaUpdate					BOOLEAN								OPTIONAL
 }
 
 

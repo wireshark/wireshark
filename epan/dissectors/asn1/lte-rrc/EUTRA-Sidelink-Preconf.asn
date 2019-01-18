@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V15.3.0 (2018-09)
+-- 3GPP TS 36.331 V15.4.0 (2018-12)
 --
 EUTRA-Sidelink-Preconf DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -24,6 +24,7 @@ IMPORTS
 	maxSL-V2X-TxConfig2-r14,
 	maxSL-V2X-TxConfig2-1-r14,
 	maxSL-V2X-TxPoolPreconf-r14,
+	MCS-PSSCH-Range-r15,
 	P-Max,
 	ReselectionInfoRelay-r13,
 	SL-AnchorCarrierFreqList-V2X-r14,
@@ -168,7 +169,6 @@ SL-V2X-Preconfiguration-r14 ::=	SEQUENCE {
 		slss-TxMultiFreq-r15		ENUMERATED {true}							OPTIONAL,
 		v2x-TxProfileList-r15		SL-V2X-TxProfileList-r15					OPTIONAL
 	]]
-
 }
 
 SL-CBR-PreconfigTxConfigList-r14 ::=	SEQUENCE {
@@ -217,7 +217,7 @@ SL-V2X-PreconfigCommPool-r14 ::=		SEQUENCE {
 	cbr-pssch-TxConfigList-r14			SL-CBR-PPPP-TxPreconfigList-r14	OPTIONAL,
 	resourceSelectionConfigP2X-r14		SL-P2X-ResourceSelectionConfig-r14	OPTIONAL,
 	syncAllowed-r14						SL-SyncAllowed-r14				OPTIONAL,
-	restrictResourceReservationPeriod-r14	SL-RestrictResourceReservationPeriodList-r14	OPTIONAL,	-- Need OR
+	restrictResourceReservationPeriod-r14	SL-RestrictResourceReservationPeriodList-r14	OPTIONAL,
 	...,
 	[[	sl-MinT2ValueList-r15			SL-MinT2ValueList-r15			OPTIONAL,
 		cbr-pssch-TxConfigList-v1530	SL-CBR-PPPP-TxPreconfigList-v1530	OPTIONAL
@@ -256,14 +256,8 @@ Tx-PreconfigIndex-r14 ::=			INTEGER(0..maxSL-V2X-TxConfig2-1-r14)
 SL-CBR-PPPP-TxPreconfigList-v1530 ::=	SEQUENCE (SIZE (1..8)) OF SL-PPPP-TxPreconfigIndex-v1530
 
 SL-PPPP-TxPreconfigIndex-v1530 ::=		SEQUENCE {
-	mcs-PSSCH-Range-r15				SEQUENCE (SIZE (1..maxCBR-Level-r14)) OF MCS-PSSCH-Range-r15						OPTIONAL		--Need OR
+	mcs-PSSCH-Range-r15				SEQUENCE (SIZE (1..maxCBR-Level-r14)) OF MCS-PSSCH-Range-r15						OPTIONAL
 }
-
--- WS modification: already defined in EUTRA-RRC-Definitions.asn
--- MCS-PSSCH-Range-r15 ::=		SEQUENCE{
--- 	minMCS-PSSCH-r15			INTEGER (0..31),
--- 	maxMCS-PSSCH-r15			INTEGER (0..31)
--- }
 
 SL-V2X-TxProfileList-r15 ::=	SEQUENCE (SIZE (1..256)) OF SL-V2X-TxProfile-r15
 

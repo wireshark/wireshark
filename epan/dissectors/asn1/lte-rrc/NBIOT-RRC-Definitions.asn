@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V15.3.0 (2018-09)
+-- 3GPP TS 36.331 V15.4.0 (2018-12)
 --
 NBIOT-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -719,8 +719,8 @@ SystemInformationBlockType1-NB ::=	SEQUENCE {
 													dB6,       dB7,       dB8,
 													dB9}		OPTIONAL,	-- Cond inband-SamePCI
 	schedulingInfoList-r13				SchedulingInfoList-NB-r13,
-	si-WindowLength-r13					ENUMERATED {ms160,  ms320,  ms480,	ms640,
-													ms960,	ms1280, ms1600, spare1},
+	si-WindowLength-r13					ENUMERATED {ms160, ms320, ms480, ms640,
+													ms960, ms1280, ms1600, spare1},
 	si-RadioFrameOffset-r13				INTEGER (1..15)		OPTIONAL,	-- Need OP
 	systemInfoValueTagList-r13			SystemInfoValueTagList-NB-r13	OPTIONAL,	-- Need OR
 	lateNonCriticalExtension			OCTET STRING					OPTIONAL,
@@ -1160,41 +1160,6 @@ UL-ConfigCommonTDD-NB-r15 ::=		SEQUENCE {
 	...
 }
 
-NPRACH-ParametersList-NB-r14 ::=		SEQUENCE (SIZE (1.. maxNPRACH-Resources-NB-r13)) OF
-											NPRACH-Parameters-NB-r14
-
-
-NPRACH-Parameters-NB-r14 ::=			SEQUENCE {
-	nprach-Parameters-r14					SEQUENCE {
-		nprach-Periodicity-r14					ENUMERATED {ms40, ms80, ms160, ms240,
-															ms320, ms640, ms1280, ms2560}
-													OPTIONAL,	-- NEED OP
-		nprach-StartTime-r14					ENUMERATED {ms8, ms16, ms32, ms64,
-															ms128, ms256, ms512, ms1024}
-													OPTIONAL,	-- NEED OP
-		nprach-SubcarrierOffset-r14				ENUMERATED {n0, n12, n24, n36, n2, n18, n34, spare1}
-													OPTIONAL,	-- NEED OP
-		nprach-NumSubcarriers-r14				ENUMERATED {n12, n24, n36, n48}
-													OPTIONAL,	-- NEED OP
-		nprach-SubcarrierMSG3-RangeStart-r14	ENUMERATED {zero, oneThird, twoThird, one}
-													OPTIONAL,	-- NEED OP
-		npdcch-NumRepetitions-RA-r14			ENUMERATED {r1, r2, r4, r8, r16, r32, r64, r128,
-															r256, r512, r1024, r2048,
-															spare4, spare3, spare2, spare1}
-													OPTIONAL,	-- NEED OP
-		npdcch-StartSF-CSS-RA-r14				ENUMERATED {v1dot5, v2, v4, v8, v16, v32, v48, v64}
-														OPTIONAL,	-- NEED OP
-		npdcch-Offset-RA-r14					ENUMERATED {zero, oneEighth, oneFourth, threeEighth}
-													OPTIONAL,	-- NEED OP
-		nprach-NumCBRA-StartSubcarriers-r14		ENUMERATED {n8, n10, n11, n12, n20, n22, n23, n24,
-															n32, n34, n35, n36, n40, n44, n46, n48}
-													OPTIONAL,	-- NEED OP
-		npdcch-CarrierIndex-r14					INTEGER (1..maxNonAnchorCarriers-NB-r14)
-													OPTIONAL,	-- Need OP
-		...
-	}	OPTIONAL	-- Need OR
-}
-
 NPRACH-ProbabilityAnchorList-NB-r14 ::=	SEQUENCE (SIZE (1.. maxNPRACH-Resources-NB-r13)) OF
 												NPRACH-ProbabilityAnchor-NB-r14
 
@@ -1316,7 +1281,7 @@ DL-CarrierConfigCommon-NB-r14 ::=	SEQUENCE {
 	nrs-PowerOffsetNonAnchor-r14		ENUMERATED {dB-12, dB-10, dB-8, dB-6,
 													dB-4, dB-2, dB0, dB3}	DEFAULT dB0,
 	...,
-	[[	dl-GapNonAnchor-v1530				DL-GapConfig-NB-v1530	OPTIONAL 	-- Cond TDD
+	[[	dl-GapNonAnchor-v1530			DL-GapConfig-NB-v1530	OPTIONAL 	-- Cond TDD
 	]]
 }
 
@@ -1367,7 +1332,7 @@ MAC-MainConfig-NB-r13 ::=			SEQUENCE {
 	[[	drx-Cycle-v1430					ENUMERATED {
 									sf1280, sf2560, sf5120, sf10240}	OPTIONAL	-- Need ON
 	]],
-	[[	ra-CFRA-Config-r14		ENUMERATED {true}			OPTIONAL		-- Need ON
+	[[	ra-CFRA-Config-r14				ENUMERATED {true}				OPTIONAL	-- Need ON
 	]]
 }
 
@@ -1452,7 +1417,7 @@ NPRACH-ConfigSIB-NB-v1530 ::=		SEQUENCE {
 		edt-SmallTBS-Subset-r15				ENUMERATED {true}				OPTIONAL,	-- Need OR
 		edt-TBS-InfoList-r15				EDT-TBS-InfoList-NB-r15,
 		nprach-ParametersListEDT-r15		NPRACH-ParametersList-NB-r14	OPTIONAL	-- Need OR
-	}	OPTIONAL		-- Cond EDT
+	}	OPTIONAL		-- Cond EDT1
 }
 
 NPRACH-ParametersList-NB-r13 ::=	SEQUENCE (SIZE (1.. maxNPRACH-Resources-NB-r13)) OF NPRACH-Parameters-NB-r13
@@ -1479,6 +1444,40 @@ NPRACH-Parameters-NB-r13::=			SEQUENCE {
 NPRACH-Parameters-NB-v1330 ::=		SEQUENCE {
 	nprach-NumCBRA-StartSubcarriers-r13		ENUMERATED {n8, n10, n11, n12, n20, n22, n23, n24,
 														n32, n34, n35, n36, n40, n44, n46, n48}
+}
+
+NPRACH-ParametersList-NB-r14 ::=		SEQUENCE (SIZE (1.. maxNPRACH-Resources-NB-r13)) OF
+											NPRACH-Parameters-NB-r14
+
+NPRACH-Parameters-NB-r14 ::=			SEQUENCE {
+	nprach-Parameters-r14					SEQUENCE {
+		nprach-Periodicity-r14					ENUMERATED {ms40, ms80, ms160, ms240,
+															ms320, ms640, ms1280, ms2560}
+													OPTIONAL,	-- NEED OP
+		nprach-StartTime-r14					ENUMERATED {ms8, ms16, ms32, ms64,
+															ms128, ms256, ms512, ms1024}
+													OPTIONAL,	-- NEED OP
+		nprach-SubcarrierOffset-r14				ENUMERATED {n0, n12, n24, n36, n2, n18, n34, spare1}
+													OPTIONAL,	-- NEED OP
+		nprach-NumSubcarriers-r14				ENUMERATED {n12, n24, n36, n48}
+													OPTIONAL,	-- NEED OP
+		nprach-SubcarrierMSG3-RangeStart-r14	ENUMERATED {zero, oneThird, twoThird, one}
+													OPTIONAL,	-- NEED OP
+		npdcch-NumRepetitions-RA-r14			ENUMERATED {r1, r2, r4, r8, r16, r32, r64, r128,
+															r256, r512, r1024, r2048,
+															spare4, spare3, spare2, spare1}
+													OPTIONAL,	-- NEED OP
+		npdcch-StartSF-CSS-RA-r14				ENUMERATED {v1dot5, v2, v4, v8, v16, v32, v48, v64}
+														OPTIONAL,	-- NEED OP
+		npdcch-Offset-RA-r14					ENUMERATED {zero, oneEighth, oneFourth, threeEighth}
+													OPTIONAL,	-- NEED OP
+		nprach-NumCBRA-StartSubcarriers-r14		ENUMERATED {n8, n10, n11, n12, n20, n22, n23, n24,
+															n32, n34, n35, n36, n40, n44, n46, n48}
+													OPTIONAL,	-- NEED OP
+		npdcch-CarrierIndex-r14					INTEGER (1..maxNonAnchorCarriers-NB-r14)
+													OPTIONAL,	-- Need OP
+		...
+	}	OPTIONAL	-- Need OR
 }
 
 NPRACH-ParametersListTDD-NB-r15 ::=	SEQUENCE (SIZE (1.. maxNPRACH-Resources-NB-r13)) OF
@@ -1556,7 +1555,7 @@ EDT-TBS-InfoList-NB-r15 ::=	SEQUENCE (SIZE (1.. maxNPRACH-Resources-NB-r13)) OF 
 
 EDT-TBS-NB-r15 ::=	SEQUENCE {
 	edt-SmallTBS-Enabled-r15		BOOLEAN,
-	edt-TBS-r15			ENUMERATED {b328, b408, b504, b584, b680, b808, b936, b1000}
+	edt-TBS-r15						ENUMERATED {b328, b408, b504, b584, b680, b808, b936, b1000}
 }
 
 
@@ -1628,6 +1627,8 @@ PhysicalConfigDedicated-NB-r13 ::=	SEQUENCE {
 	[[	interferenceRandomisationConfig-r14	ENUMERATED {true}	OPTIONAL	-- Need OR
 	]],
 	[[	npdcch-ConfigDedicated-v1530	NPDCCH-ConfigDedicated-NB-v1530		OPTIONAL	-- Cond TDD
+	]],
+	[[	additionalTxSIB1-Config-v1540	ENUMERATED {true}	OPTIONAL	-- Cond additionalSIB1
 	]]
 }
 
@@ -1679,8 +1680,8 @@ PowerRampingParameters-NB-v1450 ::=		SEQUENCE {
 
 RadioResourceConfigCommonSIB-NB-r13 ::=	SEQUENCE {
 	rach-ConfigCommon-r13					RACH-ConfigCommon-NB-r13,
-	bcch-Config-r13						BCCH-Config-NB-r13,
-	pcch-Config-r13						PCCH-Config-NB-r13,
+	bcch-Config-r13							BCCH-Config-NB-r13,
+	pcch-Config-r13							PCCH-Config-NB-r13,
 	nprach-Config-r13						NPRACH-ConfigSIB-NB-r13,
 	npdsch-ConfigCommon-r13					NPDSCH-ConfigCommon-NB-r13,
 	npusch-ConfigCommon-r13					NPUSCH-ConfigCommon-NB-r13,
@@ -1769,10 +1770,9 @@ RLC-Config-NB-r13 ::=	CHOICE	{
 		dl-AM-RLC-r13				DL-AM-RLC-NB-r13
 	},
 	...,
-	[[	um-Bi-Directional-r15		NULL,
-		um-Uni-Directional-UL-r15	NULL,
-		um-Uni-Directional-DL-r15	NULL
-	]]
+	um-Bi-Directional-r15		NULL,
+	um-Uni-Directional-UL-r15	NULL,
+	um-Uni-Directional-DL-r15	NULL
 }
 
 RLC-Config-NB-v1430 ::=	SEQUENCE {

@@ -262,6 +262,9 @@ static int hf_nas_5gs_mm_tal_t_li = -1;
 static int hf_nas_5gs_mm_tal_num_e = -1;
 static int hf_nas_5gs_sm_mapd_eps_b_cont_eps_param_cont = -1;
 
+static int hf_nas_5gs_kacf = -1;
+static int hf_nas_5gs_ncc = -1;
+
 static expert_field ei_nas_5gs_extraneous_data = EI_INIT;
 static expert_field ei_nas_5gs_unknown_pd = EI_INIT;
 static expert_field ei_nas_5gs_mm_unknown_msg_type = EI_INIT;
@@ -1717,7 +1720,7 @@ de_nas_5gs_mm_ue_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
  */
 
 static true_false_string tfs_nas_5gs_ul_data_sts_psi = {
-    "uplink data are pending ",
+    "uplink data are pending",
     "no uplink data are pending"
 };
 
@@ -4717,6 +4720,121 @@ dissect_nas_5gs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     return dissect_nas_5gs_common(tvb, pinfo, tree, offset, data);
 }
 
+static true_false_string nas_5gs_kacf_tfs = {
+    "A new K_AMF has been calculated by the network",
+    "A new K_AMF has not been calculated by the network"
+};
+
+void
+de_nas_5gs_intra_n1_mode_nas_transparent_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_)
+{
+    int offset = 0;
+
+    static const int * flags[] = {
+        &hf_nas_5gs_spare_b7,
+        &hf_nas_5gs_spare_b6,
+        &hf_nas_5gs_spare_b5,
+        &hf_nas_5gs_kacf,
+        &hf_nas_5gs_mm_tsc,
+        &hf_nas_5gs_mm_nas_key_set_id,
+        NULL
+    };
+
+    proto_tree_add_item(tree, hf_nas_5gs_msg_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_nas_5gs_mm_nas_sec_algo_enc, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_5gs_mm_nas_sec_algo_ip, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags, ENC_NA);
+    offset++;
+    proto_tree_add_item(tree, hf_nas_5gs_seq_no, tvb, offset, 1, ENC_BIG_ENDIAN);
+}
+
+void
+de_nas_5gs_n1_mode_to_s1_mode_nas_transparent_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_)
+{
+    proto_tree_add_item(tree, hf_nas_5gs_seq_no, tvb, 0, 1, ENC_BIG_ENDIAN);
+}
+
+void
+de_nas_5gs_s1_mode_to_n1_mode_nas_transparent_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_)
+{
+    int offset = 0;
+
+    static const int * oct8_flags[] = {
+        &hf_nas_5gs_spare_b7,
+        &hf_nas_5gs_ncc,
+        &hf_nas_5gs_mm_tsc,
+        &hf_nas_5gs_mm_nas_key_set_id,
+        NULL
+    };
+
+    static const int * oct9_flags[] = {
+        &hf_nas_5gs_mm_5g_ea0,
+        &hf_nas_5gs_mm_128_5g_ea1,
+        &hf_nas_5gs_mm_128_5g_ea2,
+        &hf_nas_5gs_mm_128_5g_ea3,
+        &hf_nas_5gs_mm_5g_ea4,
+        &hf_nas_5gs_mm_5g_ea5,
+        &hf_nas_5gs_mm_5g_ea6,
+        &hf_nas_5gs_mm_5g_ea7,
+        NULL
+    };
+
+    static const int * oct10_flags[] = {
+        &hf_nas_5gs_mm_5g_ia0,
+        &hf_nas_5gs_mm_5g_128_ia1,
+        &hf_nas_5gs_mm_5g_128_ia2,
+        &hf_nas_5gs_mm_5g_128_ia3,
+        &hf_nas_5gs_mm_5g_ia4,
+        &hf_nas_5gs_mm_5g_ia5,
+        &hf_nas_5gs_mm_5g_ia6,
+        &hf_nas_5gs_mm_5g_ia7,
+        NULL
+    };
+
+    static const int * oct11_flags[] = {
+        &hf_nas_5gs_mm_eea0,
+        &hf_nas_5gs_mm_128eea1,
+        &hf_nas_5gs_mm_128eea2,
+        &hf_nas_5gs_mm_eea3,
+        &hf_nas_5gs_mm_eea4,
+        &hf_nas_5gs_mm_eea5,
+        &hf_nas_5gs_mm_eea6,
+        &hf_nas_5gs_mm_eea7,
+        NULL
+    };
+
+    static const int * oct12_flags[] = {
+        &hf_nas_5gs_mm_eia0,
+        &hf_nas_5gs_mm_128eia1,
+        &hf_nas_5gs_mm_128eia2,
+        &hf_nas_5gs_mm_eia3,
+        &hf_nas_5gs_mm_eia4,
+        &hf_nas_5gs_mm_eia5,
+        &hf_nas_5gs_mm_eia6,
+        &hf_nas_5gs_mm_eia7,
+        NULL
+    };
+
+    proto_tree_add_item(tree, hf_nas_5gs_msg_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_nas_5gs_mm_nas_sec_algo_enc, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_5gs_mm_nas_sec_algo_ip, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, oct8_flags, ENC_NA);
+    offset++;
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, oct9_flags, ENC_NA);
+    offset++;
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, oct10_flags, ENC_NA);
+    offset++;
+    if (tvb_reported_length_remaining(tvb, offset) > 0) {
+        proto_tree_add_bitmask_list(tree, tvb, offset, 1, oct11_flags, ENC_NA);
+        offset++;
+        proto_tree_add_bitmask_list(tree, tvb, offset, 1, oct12_flags, ENC_NA);
+    }
+}
+
 void
 proto_register_nas_5gs(void)
 {
@@ -5697,6 +5815,16 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_sm_mapd_eps_b_cont_eps_param_cont,
         { "EPS parameter contents",   "nas_5gs.sm.mapd_eps_b_cont_eps_param_cont",
             FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_kacf,
+        { "K_AMF change flag", "nas_5gs.kacf",
+            FT_BOOLEAN, 8, TFS(&nas_5gs_kacf_tfs), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_ncc,
+        { "NCC", "nas_5gs.ncc",
+            FT_UINT8, BASE_DEC, NULL, 0x70,
             NULL, HFILL }
         },
     };

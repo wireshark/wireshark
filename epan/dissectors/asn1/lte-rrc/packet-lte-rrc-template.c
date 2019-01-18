@@ -1,9 +1,9 @@
 /* packet-lte-rrc-template.c
  * Routines for Evolved Universal Terrestrial Radio Access (E-UTRA);
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 36.331 V15.3.0 Release 15) packet dissection
+ * (3GPP TS 36.331 V15.4.0 Release 15) packet dissection
  * Copyright 2008, Vincent Helfre
- * Copyright 2009-2018, Pascal Quantin
+ * Copyright 2009-2019, Pascal Quantin
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -306,6 +306,7 @@ static gint ett_lte_rrc_sourceOtherConfigSN_NR_r15 = -1;
 static gint ett_lte_rrc_sourceContextEN_DC_r15 = -1;
 static gint ett_lte_rrc_requestedFreqBandsNR_MRDC_r15 = -1;
 static gint ett_lte_rrc_measGapPatterns_v1520 = -1;
+static gint ett_lte_rrc_nas_Container_r15 = -1;
 
 static expert_field ei_lte_rrc_number_pages_le15 = EI_INIT;
 static expert_field ei_lte_rrc_si_info_value_changed = EI_INIT;
@@ -4301,7 +4302,8 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_sourceOtherConfigSN_NR_r15,
     &ett_lte_rrc_sourceContextEN_DC_r15,
     &ett_lte_rrc_requestedFreqBandsNR_MRDC_r15,
-    &ett_lte_rrc_measGapPatterns_v1520
+    &ett_lte_rrc_measGapPatterns_v1520,
+    &ett_lte_rrc_nas_Container_r15
   };
 
   static ei_register_info ei[] = {
