@@ -592,6 +592,15 @@ set(CMAKE_AUTOMOC TRUE)
 set(CMAKE_AUTOUIC TRUE)
 set(CMAKE_AUTORCC TRUE)
 
+if(NOT Qt5Widgets_VERSION VERSION_LESS "5.9")
+	# Drop the file modification time of source files from generated files
+	# to help with reproducible builds. We do not use QFileInfo.lastModified
+	# so this has no unwanted side effects. This mtime started appearing in
+	# Qt 5.8. The option to force the old file format without mtime was
+	# added in Qt 5.9. See https://bugreports.qt.io/browse/QTBUG-58769
+	set(CMAKE_AUTORCC_OPTIONS --format-version 1)
+endif()
+
 QT5_ADD_TRANSLATION(WIRESHARK_QT_QM ${WIRESHARK_QT_TS})
 
 add_custom_target(
