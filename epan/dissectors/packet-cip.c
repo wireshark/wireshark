@@ -2936,6 +2936,11 @@ static const value_string cip_run_idle_vals[] = {
    { 0, NULL }
 };
 
+void cip_rpi_api_fmt(gchar *s, guint32 value)
+{
+   g_snprintf(s, ITEM_LABEL_LENGTH, "%.3fms", value / 1000.0);
+}
+
 static void add_cip_class_to_info_column(packet_info *pinfo, guint32 class_id, int display_type)
 {
    cip_req_info_t *cip_req_info;
@@ -6299,7 +6304,7 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
 {
    proto_item *pi;
    proto_tree *epath_tree;
-   int conn_path_size, rpi, net_param_offset = 0;
+   int conn_path_size, net_param_offset = 0;
    guint32 O2TConnID, T2OConnID;
    guint8 TransportClass_trigger, O2TType, T2OType;
    cip_simple_request_info_t connection_path;
@@ -6314,12 +6319,9 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
       hf_cip_cm_conn_serial_num, hf_cip_cm_vendor, hf_cip_cm_orig_serial_num,
       &conn_triad);
 
-   proto_tree_add_item( cmd_tree, hf_cip_cm_timeout_multiplier, tvb, offset+18, 1, ENC_LITTLE_ENDIAN);
-   proto_tree_add_item( cmd_tree, hf_cip_reserved24, tvb, offset+19, 3, ENC_LITTLE_ENDIAN);
-
-   /* Display originator to target requested packet interval */
-   rpi = tvb_get_letohl( tvb, offset+22 );
-   proto_tree_add_uint_format_value(cmd_tree, hf_cip_cm_ot_rpi, tvb, offset+22, 4, rpi, "%dms (0x%08X)", rpi / 1000, rpi);
+   proto_tree_add_item(cmd_tree, hf_cip_cm_timeout_multiplier, tvb, offset+18, 1, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(cmd_tree, hf_cip_reserved24, tvb, offset+19, 3, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(cmd_tree, hf_cip_cm_ot_rpi, tvb, offset + 22, 4, ENC_LITTLE_ENDIAN);
 
    /* Display originator to target network connection parameters as a tree */
    if (large_fwd_open)
@@ -6341,9 +6343,7 @@ dissect_cip_cm_fwd_open_req(cip_req_info_t *preq_info, proto_tree *cmd_tree, tvb
       net_param_offset = 2;
    }
 
-   /* Display target to originator requested packet interval */
-   rpi = tvb_get_letohl( tvb, offset+26+net_param_offset );
-   proto_tree_add_uint_format_value(cmd_tree, hf_cip_cm_to_rpi, tvb, offset+26+net_param_offset, 4, rpi, "%dms (0x%08X)", rpi / 1000, rpi);
+   proto_tree_add_item(cmd_tree, hf_cip_cm_to_rpi, tvb, offset + 26 + net_param_offset, 4, ENC_LITTLE_ENDIAN);
 
    /* Display target to originator network connection parameters as a tree */
    if (large_fwd_open)
@@ -6436,11 +6436,11 @@ dissect_cip_cm_fwd_open_rsp_success(cip_req_info_t *preq_info, proto_tree *tree,
 
    /* Display originator to target actual packet interval */
    guint32 O2TAPI = tvb_get_letohl( tvb, offset+16 );
-   proto_tree_add_uint_format_value(tree, hf_cip_cm_ot_api, tvb, offset+16, 4, O2TAPI, "%dms (0x%08X)", O2TAPI / 1000, O2TAPI);
+   proto_tree_add_item(tree, hf_cip_cm_ot_api, tvb, offset + 16, 4, ENC_LITTLE_ENDIAN);
 
    /* Display originator to target actual packet interval */
    guint32 T2OAPI = tvb_get_letohl( tvb, offset+20 );
-   proto_tree_add_uint_format_value(tree, hf_cip_cm_to_api, tvb, offset+20, 4, T2OAPI, "%dms (0x%08X)", T2OAPI / 1000, T2OAPI);
+   proto_tree_add_item(tree, hf_cip_cm_to_api, tvb, offset + 20, 4, ENC_LITTLE_ENDIAN);
 
    /* Display the application reply size */
    app_rep_size = tvb_get_guint8( tvb, offset+24 ) * 2;
@@ -6674,7 +6674,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
 {
    proto_item *rrsc_item, *status_item;
    proto_tree *rrsc_tree, *cmd_data_tree;
-   int req_path_size, temp_data;
+   int req_path_size;
    unsigned char service, gen_status, add_stat_size;
    unsigned short add_status;
    int i;
@@ -6810,10 +6810,8 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
                {
                   proto_tree_add_item(status_tree, hf_cip_cm_ext112_ot_rpi_type, tvb, offset+6, 1, ENC_LITTLE_ENDIAN );
                   proto_tree_add_item(status_tree, hf_cip_cm_ext112_to_rpi_type, tvb, offset+7, 1, ENC_LITTLE_ENDIAN );
-                  temp_data = tvb_get_letohl( tvb, offset+8);
-                  proto_tree_add_uint_format_value(status_tree, hf_cip_cm_ext112_ot_rpi, tvb, offset+8, 4, temp_data, "%dms (0x%08X)", temp_data / 1000, temp_data);
-                  temp_data = tvb_get_letohl( tvb, offset+12);
-                  proto_tree_add_uint_format_value(status_tree, hf_cip_cm_ext112_to_rpi, tvb, offset+12, 4, temp_data, "%dms (0x%08X)", temp_data / 1000, temp_data);
+                  proto_tree_add_item(status_tree, hf_cip_cm_ext112_ot_rpi, tvb, offset + 8, 4, ENC_LITTLE_ENDIAN);
+                  proto_tree_add_item(status_tree, hf_cip_cm_ext112_to_rpi, tvb, offset + 12, 4, ENC_LITTLE_ENDIAN);
                }
                break;
             case CM_ES_INVALID_CONFIGURATION_SIZE:
@@ -7467,16 +7465,14 @@ dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, proto_item *ti,
    dissect_transport_type_trigger(tvb, offset+15, ncp_tree, hf_cip_cco_transport_type_trigger,
                                   hf_cip_cco_fwo_dir, hf_cip_cco_fwo_trigger, hf_cip_cco_fwo_class, ett_cco_ttt);
 
-   temp_data = tvb_get_letohl( tvb, offset+16);
-   proto_tree_add_uint_format_value(ncp_tree, hf_cip_cco_ot_rpi, tvb, offset+16, 4, temp_data, "%dms (0x%08X)", temp_data / 1000, temp_data);
+   proto_tree_add_item(ncp_tree, hf_cip_cco_ot_rpi, tvb, offset + 16, 4, ENC_LITTLE_ENDIAN);
 
    /* Display O->T network connection parameters */
    dissect_net_param16(tvb, offset+20, ncp_tree,
               hf_cip_cco_ot_net_param16, hf_cip_cco_fwo_own, hf_cip_cco_fwo_typ,
               hf_cip_cco_fwo_prio, hf_cip_cco_fwo_fixed_var, hf_cip_cco_fwo_con_size, ett_cco_ncp);
 
-   temp_data = tvb_get_letohl( tvb, offset+22);
-   proto_tree_add_uint_format_value(ncp_tree, hf_cip_cco_to_rpi, tvb, offset+16, 4, temp_data, "%dms (0x%08X)", temp_data / 1000, temp_data);
+   proto_tree_add_item(ncp_tree, hf_cip_cco_to_rpi, tvb, offset + 22, 4, ENC_LITTLE_ENDIAN);
 
    /* Display T->O network connection parameters */
    dissect_net_param16(tvb, offset+26, ncp_tree,
@@ -7568,16 +7564,14 @@ dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, proto_item *ti,
       dissect_transport_type_trigger(tvb, offset+variable_data_size+1, ncp_tree, hf_cip_cco_transport_type_trigger,
                                   hf_cip_cco_fwo_dir, hf_cip_cco_fwo_trigger, hf_cip_cco_fwo_class, ett_cco_ttt);
 
-      temp_data = tvb_get_letohl( tvb, offset+variable_data_size+2);
-      proto_tree_add_uint_format_value(ncp_tree, hf_cip_cco_ot_rpi, tvb, offset+variable_data_size+2, 4, temp_data, "%dms (0x%08X)", temp_data / 1000, temp_data);
+      proto_tree_add_item(ncp_tree, hf_cip_cco_ot_rpi, tvb, offset + variable_data_size + 2, 4, ENC_LITTLE_ENDIAN);
 
       /* Display O->T network connection parameters */
       dissect_net_param32(tvb, offset+variable_data_size+6, ncp_tree,
                  hf_cip_cco_ot_net_param32, hf_cip_cco_lfwo_own, hf_cip_cco_lfwo_typ,
                  hf_cip_cco_lfwo_prio, hf_cip_cco_lfwo_fixed_var, hf_cip_cco_lfwo_con_size, ett_cco_ncp);
 
-      temp_data = tvb_get_letohl( tvb, offset+variable_data_size+10);
-      proto_tree_add_uint_format_value(ncp_tree, hf_cip_cco_to_rpi, tvb, offset+variable_data_size+10, 4, temp_data, "%dms (0x%08X)", temp_data / 1000, temp_data);
+      proto_tree_add_item(ncp_tree, hf_cip_cco_to_rpi, tvb, offset + variable_data_size + 10, 4, ENC_LITTLE_ENDIAN);
 
       /* Display T->O network connection parameters */
       dissect_net_param32(tvb, offset+variable_data_size+14, ncp_tree,
@@ -8387,16 +8381,16 @@ proto_register_cip(void)
       { &hf_cip_cm_conn_serial_num, { "Connection Serial Number", "cip.cm.conn_serial_num", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_cm_vendor, { "Originator Vendor ID", "cip.cm.vendor", FT_UINT16, BASE_HEX|BASE_EXT_STRING, &cip_vendor_vals_ext, 0, NULL, HFILL }},
       { &hf_cip_cm_timeout_multiplier, { "Connection Timeout Multiplier", "cip.cm.timeout_multiplier", FT_UINT8, BASE_DEC, VALS(cip_con_time_mult_vals), 0, NULL, HFILL }},
-      { &hf_cip_cm_ot_rpi, { "O->T RPI", "cip.cm.otrpi", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_cip_cm_ot_rpi, { "O->T RPI", "cip.cm.otrpi", FT_UINT32, BASE_CUSTOM, CF_FUNC(cip_rpi_api_fmt), 0, NULL, HFILL }},
       { &hf_cip_cm_ot_net_params32, { "O->T Network Connection Parameters", "cip.cm.ot_net_params", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_cm_ot_net_params16, { "O->T Network Connection Parameters", "cip.cm.ot_net_params", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
-      { &hf_cip_cm_to_rpi, { "T->O RPI", "cip.cm.torpi", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_cip_cm_to_rpi, { "T->O RPI", "cip.cm.torpi", FT_UINT32, BASE_CUSTOM, CF_FUNC(cip_rpi_api_fmt), 0, NULL, HFILL }},
       { &hf_cip_cm_to_net_params32, { "T->O Network Connection Parameters", "cip.cm.to_net_params", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_cm_to_net_params16, { "T->O Network Connection Parameters", "cip.cm.to_net_params", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_cm_transport_type_trigger, { "Transport Type/Trigger", "cip.cm.transport_type_trigger", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_cm_conn_path_size, { "Connection Path Size", "cip.cm.connpath_size", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_word_words, 0, NULL, HFILL }},
-      { &hf_cip_cm_ot_api, { "O->T API", "cip.cm.otapi", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_cip_cm_to_api, { "T->O API", "cip.cm.toapi", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_cip_cm_ot_api, { "O->T API", "cip.cm.otapi", FT_UINT32, BASE_CUSTOM, CF_FUNC(cip_rpi_api_fmt), 0, NULL, HFILL }},
+      { &hf_cip_cm_to_api, { "T->O API", "cip.cm.toapi", FT_UINT32, BASE_CUSTOM, CF_FUNC(cip_rpi_api_fmt), 0, NULL, HFILL }},
       { &hf_cip_cm_app_reply_size, { "Application Reply Size", "cip.cm.app_reply_size", FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_word_words, 0, NULL, HFILL }},
       { &hf_cip_cm_app_reply_data , { "Application Reply", "cip.cm.app_reply_data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
       { &hf_cip_cm_consumer_number, { "Consumer Number", "cip.cm.consumer_number", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
@@ -8428,8 +8422,8 @@ proto_register_cip(void)
       { &hf_cip_cm_gco_last_action, { "Last Action", "cip.cm.gco.la", FT_UINT8, BASE_DEC, VALS(cip_con_last_action_vals), 0, "GetConnOwner: Last Action", HFILL }},
       { &hf_cip_cm_ext112_ot_rpi_type, { "Trigger", "cip.cm.ext112otrpi_type", FT_UINT8, BASE_DEC, VALS(cip_cm_rpi_type_vals), 0, NULL, HFILL }},
       { &hf_cip_cm_ext112_to_rpi_type, { "Trigger", "cip.cm.ext112torpi_type", FT_UINT8, BASE_DEC, VALS(cip_cm_rpi_type_vals), 0, NULL, HFILL }},
-      { &hf_cip_cm_ext112_ot_rpi, { "Acceptable O->T RPI", "cip.cm.ext112otrpi", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
-      { &hf_cip_cm_ext112_to_rpi, { "Acceptable T->O RPI", "cip.cm.ext112torpi", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_cip_cm_ext112_ot_rpi, { "Acceptable O->T RPI", "cip.cm.ext112otrpi", FT_UINT32, BASE_CUSTOM, CF_FUNC(cip_rpi_api_fmt), 0, NULL, HFILL }},
+      { &hf_cip_cm_ext112_to_rpi, { "Acceptable T->O RPI", "cip.cm.ext112torpi", FT_UINT32, BASE_CUSTOM, CF_FUNC(cip_rpi_api_fmt), 0, NULL, HFILL }},
       { &hf_cip_cm_ext126_size, { "Maximum Size", "cip.cm.ext126_size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_cm_ext127_size, { "Maximum Size", "cip.cm.ext127_size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_cm_ext128_size, { "Maximum Size", "cip.cm.ext128_size", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }}
@@ -8513,10 +8507,10 @@ proto_register_cip(void)
       { &hf_cip_cco_pdi_minorrev, { "Minor Revision", "cip.cco.pdi.minor_rev", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
       { &hf_cip_cco_cs_data_index, { "CS Data Index Number", "cip.cco.cs_data_index", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_cco_timeout_multiplier, { "Connection Timeout Multiplier", "cip.cco.timeout_multiplier", FT_UINT8, BASE_DEC, VALS(cip_con_time_mult_vals), 0, NULL, HFILL }},
-      { &hf_cip_cco_ot_rpi, { "O->T RPI", "cip.cco.otrpi", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_cip_cco_ot_rpi, { "O->T RPI", "cip.cco.otrpi", FT_UINT32, BASE_CUSTOM, CF_FUNC(cip_rpi_api_fmt), 0, NULL, HFILL }},
       { &hf_cip_cco_ot_net_param32, { "O->T Network Connection Parameters", "cip.cco.ot_net_params", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_cco_ot_net_param16, { "O->T Network Connection Parameters", "cip.cco.ot_net_params", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
-      { &hf_cip_cco_to_rpi, { "T->O RPI", "cip.cco.torpi", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+      { &hf_cip_cco_to_rpi, { "T->O RPI", "cip.cco.torpi", FT_UINT32, BASE_CUSTOM, CF_FUNC(cip_rpi_api_fmt), 0, NULL, HFILL }},
       { &hf_cip_cco_to_net_param16, { "T->O Network Connection Parameters", "cip.cco.to_net_params", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_cco_to_net_param32, { "T->O Network Connection Parameters", "cip.cco.to_net_params", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
       { &hf_cip_cco_transport_type_trigger, { "Transport Type/Trigger", "cip.cco.transport_type_trigger", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},

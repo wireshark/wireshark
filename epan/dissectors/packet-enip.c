@@ -2343,10 +2343,10 @@ static void display_connection_information(packet_info* pinfo, tvbuff_t* tvb, pr
 
    display_fwd_open_connection_path(conn_info, conn_info_tree, tvb, pinfo);
 
-   pi = proto_tree_add_uint_format_value(conn_info_tree, hf_cip_cm_ot_api, tvb, 0, 0, conn_info->O2Tapi, "%dms (0x%08X)", conn_info->O2Tapi / 1000, conn_info->O2Tapi);
+   pi = proto_tree_add_uint(conn_info_tree, hf_cip_cm_ot_api, tvb, 0, 0, conn_info->O2Tapi);
    PROTO_ITEM_SET_GENERATED(pi);
 
-   pi = proto_tree_add_uint_format_value(conn_info_tree, hf_cip_cm_to_api, tvb, 0, 0, conn_info->T2Oapi, "%dms (0x%08X)", conn_info->T2Oapi / 1000, conn_info->T2Oapi);
+   pi = proto_tree_add_uint(conn_info_tree, hf_cip_cm_to_api, tvb, 0, 0, conn_info->T2Oapi);
    PROTO_ITEM_SET_GENERATED(pi);
 
    pi = proto_tree_add_uint(conn_info_tree, hf_cip_connection, tvb, 0, 0, conn_info->connid);
@@ -3573,8 +3573,8 @@ proto_register_enip(void)
         FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL } },
 
       // Generated API data.
-      { &hf_cip_cm_ot_api, { "O->T API", "cip.cm.otapi", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
-      { &hf_cip_cm_to_api, { "T->O API", "cip.cm.toapi", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL } },
+      { &hf_cip_cm_ot_api, { "O->T API", "cip.cm.otapi", FT_UINT32, BASE_CUSTOM, CF_FUNC(cip_rpi_api_fmt), 0, NULL, HFILL } },
+      { &hf_cip_cm_to_api, { "T->O API", "cip.cm.toapi", FT_UINT32, BASE_CUSTOM, CF_FUNC(cip_rpi_api_fmt), 0, NULL, HFILL } },
 
       { &hf_cip_connection,
         { "CIP Connection Index", "cip.connection",
