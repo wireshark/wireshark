@@ -874,6 +874,11 @@ ChangeCondition	::= ENUMERATED
 	qoSChange						(0),
 	tariffTime						(1),
 	recordClosure					(2),
+-- WS backward compabillity addition
+	failureHandlingContinueOngoing	(3),
+	failureHandlingRetryandTerminateOngoing	(4),
+	failureHandlingTerminateOngoing	(5),
+-- WS mod END
 	cGI-SAICHange					(6),	-- bearer modification. "CGI-SAI Change"
 	rAIChange						(7),	-- bearer modification. "RAI Change"
 	dT-Establishment				(8),
