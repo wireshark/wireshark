@@ -99,8 +99,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2018-08-15-2.4"
-$Win32CurrentTag = "2018-08-15-2.4"
+$Win64CurrentTag = "2019-01-18-2.4"
+$Win32CurrentTag = "2019-01-18-2.4"
 
 # Archive file / subdir.
 $Win64Archives = @{
@@ -113,7 +113,7 @@ $Win64Archives = @{
     "libgcrypt-1.7.6-win64ws.zip" = "";
     "libsmi-svn-40773-win64ws.zip" = "";
     "libssh-0.7.3-1-win64ws.zip" = "";
-    "libxml2-2.9.4-win64ws.zip" = "";
+    "libxml2-2.9.9-win64ws.zip" = "";
     "lua-5.2.4_Win64_dllw4_lib.zip" = "lua5.2.4";
     "lz4-1.7.5-win64ws.zip" = "";
     "nasm-2.09.08-win32.zip" = "";
@@ -137,7 +137,7 @@ $Win32Archives = @{
     "libgcrypt-1.7.6-win32ws.zip" = "";
     "libsmi-svn-40773-win32ws.zip" = "";
     "libssh-0.7.3-1-win32ws.zip" = "";
-    "libxml2-2.9.4-win32ws.zip" = "";
+    "libxml2-2.9.9-win32ws.zip" = "";
     "lua-5.2.4_Win32_dllw4_lib.zip" = "lua5.2.4";
     "lz4-1.7.5-win32ws.zip" = "";
     "nasm-2.09.08-win32.zip" = "";
