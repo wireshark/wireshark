@@ -69,8 +69,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2019-01-04"
-$Win32CurrentTag = "2019-01-04"
+$Win64CurrentTag = "2019-01-18"
+$Win32CurrentTag = "2019-01-18"
 
 # Archive file / SHA256
 $Win64Archives = @{
@@ -83,7 +83,7 @@ $Win64Archives = @{
     "libgcrypt-1.8.3-win64ws.zip" = "53b1c636cb89de308ca4ea01b4990cf1deca7f6c2446189c7ff6e971137ffd76";
     "libsmi-svn-40773-win64ws.zip" = "571fcee71d741bf847c3247d4c2e1c42388ca6a9feebe08fc0d4ce053571d15d";
     "libssh-0.7.3-1-win64ws.zip" = "3a81b9f4a914a46f15243bbb13b6919ef1c20d4bf502c47646caeccff2cbd75c";
-    "libxml2-2.9.4-win64ws.zip" = "bb1892f5506f281d8f2b6c8be4fa8e83a9a3fb94c9160466fa59afdc5110d52e";
+    "libxml2-2.9.9-win64ws.zip" = "4ee89f74f650e52c1ba524fea3dd8529030c94e1ac5b91af34f22376f438fc43";
     "lua-5.2.4-unicode-win64-vc14.zip" = "e8968d2c7871ce1ea82cbd29ac1b3a2c59d3dec25e483c5e12de85df66f5d928";
     "lz4-1.7.5-win64ws.zip" = "dc946b68238c25cbc216901332d608d7f4b084be2d401210f74ce68b9b93207f";
     "MaxMindDB-1.3.2-win64ws.zip" = "9025c43e9b21ff0bfbaf206b8ed96e2920ef1434107f789e4c7c0c1d8b508952";
@@ -106,7 +106,7 @@ $Win32Archives = @{
     "libgcrypt-1.8.3-win32ws.zip" = "409b72f2809019050cca91b9e670047c50a0752ff52999089178da54ef926393";
     "libsmi-svn-40773-win32ws.zip" = "44bc81edfeb8948322ca365fc632e419383907c305cc922e6b74fdbb13827958";
     "libssh-0.7.3-1-win32ws.zip" = "b02f0d318175194ac538a24c9c9fc280a0ecad69fb3afd4945c106b4b7c4fa6f";
-    "libxml2-2.9.4-win32ws.zip" = "147e521abacdd96913f7f94d1da44d59ee138e510922f3c1e03e485c8c9d8d1c";
+    "libxml2-2.9.9-win32ws.zip" = "af41d0869533f06c6878cd49146253acb4dd58c4987bfd579803c42ee10ca7b2";
     "lua-5.2.4-unicode-win32-vc14.zip" = "ca2368a83f623674178e9441f71fb791e3c0b46f208e3dac28c6ac735f034bff";
     "lz4-1.7.5-win32ws.zip" = "1b2e4b509163bc5039c0694369b9e40ba27cdbf4c4c88fcd454ba6a34c79b41b";
     "MaxMindDB-1.3.2-win32ws.zip" = "5c8b4bf3092da8fad6edb005a5283c6a74b7e115a50da010953eed77d33c11b7";
@@ -166,7 +166,7 @@ $CleanupItems = @(
     "lua5.1.4"
     "lua5.2.?"
     "lua5.2.?-win??"
-    "lua-5.?.?-win??-vc??"
+    "lua-5.?.?-unicode-win??-vc??"
     "lz4-*-win??ws"
     "MaxMindDB-1.3.2-win??ws"
     "nghttp2-*-win??ws"
