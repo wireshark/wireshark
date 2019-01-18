@@ -664,13 +664,13 @@ append_to_buffer(const char* txt, unsigned len, DiamDict_scanner_state_t *statep
 		statep->write_ptr = statep->strbuf;
 	}
 
-	if ( (statep->len_strbuf + len) >= statep->size_strbuf ) {
+	if (statep->len_strbuf + len >= statep->size_strbuf) {
 		statep->strbuf = (char*)g_realloc(statep->strbuf,statep->size_strbuf *= 2);
 		statep->read_ptr = statep->strbuf;
 	}
 
 	statep->write_ptr = statep->strbuf + statep->len_strbuf;
-	strncpy(statep->write_ptr,txt,len);
+	memcpy(statep->write_ptr, txt, len + 1);
 	statep->len_strbuf += len;
 }
 
