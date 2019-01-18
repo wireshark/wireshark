@@ -12977,15 +12977,25 @@ proto_reg_handoff_zbee_zcl_sub_ghz(void)
 
 VALUE_STRING_ARRAY(zbee_zcl_ke_attr_names);
 
-/* Server Commands Received and Generated */
-#define zbee_zcl_ke_srv_cmd_names_VALUE_STRING_LIST(XXX) \
-    XXX(ZBEE_ZCL_CMD_ID_KE_INITIATE,                            0x00, "Initiate Key Establishment" ) \
-    XXX(ZBEE_ZCL_CMD_ID_KE_EPHEMERAL,                           0x01, "Ephemeral Data" ) \
-    XXX(ZBEE_ZCL_CMD_ID_KE_CONFIRM,                             0x02, "Confirm Key Data" ) \
-    XXX(ZBEE_ZCL_CMD_ID_KE_TERMINATE,                           0x03, "Terminate Key Establishment" )
+/* Server Commands Received */
+#define zbee_zcl_ke_srv_rx_cmd_names_VALUE_STRING_LIST(XXX) \
+    XXX(ZBEE_ZCL_CMD_ID_KE_INITIATE_REQ,                        0x00, "Initiate Key Establishment Request" ) \
+    XXX(ZBEE_ZCL_CMD_ID_KE_EPHEMERAL_REQ,                       0x01, "Ephemeral Data Request" ) \
+    XXX(ZBEE_ZCL_CMD_ID_KE_CONFIRM_REQ,                         0x02, "Confirm Key Data Request" ) \
+    XXX(ZBEE_ZCL_CMD_ID_KE_CLNT_TERMINATE,                      0x03, "Terminate Key Establishment" )
 
-VALUE_STRING_ENUM(zbee_zcl_ke_srv_cmd_names);
-VALUE_STRING_ARRAY(zbee_zcl_ke_srv_cmd_names);
+VALUE_STRING_ENUM(zbee_zcl_ke_srv_rx_cmd_names);
+VALUE_STRING_ARRAY(zbee_zcl_ke_srv_rx_cmd_names);
+
+/* Server Commands Generated */
+#define zbee_zcl_ke_srv_tx_cmd_names_VALUE_STRING_LIST(XXX) \
+    XXX(ZBEE_ZCL_CMD_ID_KE_INITIATE_RSP,                        0x00, "Initiate Key Establishment Response" ) \
+    XXX(ZBEE_ZCL_CMD_ID_KE_EPHEMERAL_RSP,                       0x01, "Ephemeral Data Response" ) \
+    XXX(ZBEE_ZCL_CMD_ID_KE_CONFIRM_RSP,                         0x02, "Confirm Key Data Response" ) \
+    XXX(ZBEE_ZCL_CMD_ID_KE_SRV_TERMINATE,                       0x03, "Terminate Key Establishment" )
+
+VALUE_STRING_ENUM(zbee_zcl_ke_srv_tx_cmd_names);
+VALUE_STRING_ARRAY(zbee_zcl_ke_srv_tx_cmd_names);
 
 /* Suite Names */
 #define zbee_zcl_ke_suite_names_VALUE_STRING_LIST(XXX) \
@@ -13317,7 +13327,7 @@ dissect_zbee_zcl_ke(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     if (zcl->direction == ZBEE_ZCL_FCF_TO_SERVER) {
         /* Append the command name to the info column. */
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
-            val_to_str_const(cmd_id, zbee_zcl_ke_srv_cmd_names, "Unknown Command"),
+            val_to_str_const(cmd_id, zbee_zcl_ke_srv_rx_cmd_names, "Unknown Command"),
             zcl->tran_seqno);
 
         /* Add the command ID. */
@@ -13330,17 +13340,17 @@ dissect_zbee_zcl_ke(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
 
             /* Call the appropriate command dissector */
             switch (cmd_id) {
-                case ZBEE_ZCL_CMD_ID_KE_INITIATE:
+                case ZBEE_ZCL_CMD_ID_KE_INITIATE_REQ:
                     dissect_zcl_ke_initiate(tvb, tree, &offset);
                     break;
 
-                case ZBEE_ZCL_CMD_ID_KE_EPHEMERAL:
+                case ZBEE_ZCL_CMD_ID_KE_EPHEMERAL_REQ:
                     return dissect_zcl_ke_ephemeral_qeu(tvb, tree, &offset);
 
-                case ZBEE_ZCL_CMD_ID_KE_CONFIRM:
+                case ZBEE_ZCL_CMD_ID_KE_CONFIRM_REQ:
                     return dissect_zcl_ke_confirm_macu(tvb, tree, &offset);
 
-                case ZBEE_ZCL_CMD_ID_KE_TERMINATE:
+                case ZBEE_ZCL_CMD_ID_KE_CLNT_TERMINATE:
                     dissect_zcl_ke_terminate(tvb, tree, &offset);
                     break;
 
@@ -13352,7 +13362,7 @@ dissect_zbee_zcl_ke(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     else { /* ZBEE_ZCL_FCF_TO_CLIENT */
         /* Append the command name to the info column. */
         col_append_fstr(pinfo->cinfo, COL_INFO, "%s, Seq: %u",
-            val_to_str_const(cmd_id, zbee_zcl_ke_srv_cmd_names, "Unknown Command"),
+            val_to_str_const(cmd_id, zbee_zcl_ke_srv_tx_cmd_names, "Unknown Command"),
             zcl->tran_seqno);
 
         /* Add the command ID. */
@@ -13363,17 +13373,17 @@ dissect_zbee_zcl_ke(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
         if (rem_len > 0) {
             /* Call the appropriate command dissector */
             switch (cmd_id) {
-                case ZBEE_ZCL_CMD_ID_KE_INITIATE:
+                case ZBEE_ZCL_CMD_ID_KE_INITIATE_RSP:
                     dissect_zcl_ke_initiate(tvb, tree, &offset);
                     break;
 
-                case ZBEE_ZCL_CMD_ID_KE_EPHEMERAL:
+                case ZBEE_ZCL_CMD_ID_KE_EPHEMERAL_RSP:
                     return dissect_zcl_ke_ephemeral_qev(tvb, tree, &offset);
 
-                case ZBEE_ZCL_CMD_ID_KE_CONFIRM:
+                case ZBEE_ZCL_CMD_ID_KE_CONFIRM_RSP:
                     return dissect_zcl_ke_confirm_macv(tvb, tree, &offset);
 
-                case ZBEE_ZCL_CMD_ID_KE_TERMINATE:
+                case ZBEE_ZCL_CMD_ID_KE_SRV_TERMINATE:
                     dissect_zcl_ke_terminate(tvb, tree, &offset);
                     break;
 
@@ -13406,11 +13416,11 @@ proto_register_zbee_zcl_ke(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_ke_srv_tx_cmd_id,
-            { "Command", "zbee_zcl_se.ke.cmd.srv_tx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_ke_srv_cmd_names),
+            { "Command", "zbee_zcl_se.ke.cmd.srv_tx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_ke_srv_tx_cmd_names),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_ke_srv_rx_cmd_id,
-            { "Command", "zbee_zcl_se.ke.cmd.srv_rx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_ke_srv_cmd_names),
+            { "Command", "zbee_zcl_se.ke.cmd.srv_rx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_ke_srv_rx_cmd_names),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_ke_suite,
