@@ -29,6 +29,7 @@ void proto_reg_handoff_nas_5gs(void);
 
 static int dissect_nas_5gs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, void* data);
 
+static dissector_handle_t nas_5gs_handle = NULL;
 static dissector_handle_t eap_handle = NULL;
 static dissector_handle_t nas_eps_handle = NULL;
 static dissector_handle_t nas_eps_plain_handle = NULL;
@@ -3816,6 +3817,9 @@ nas_5gs_sm_pdu_ses_est_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     curr_offset = offset;
     curr_len = len;
 
+    /* Direction: UE to network */
+    pinfo->link_dir = P2P_DIR_UL;
+
     /*9-    PDU session type    PDU session type     9.11.4.5    O    TV    1*/
     ELEM_OPT_TV_SHORT(0x90, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_PDU_SESSION_TYPE, NULL);
 
@@ -3851,6 +3855,9 @@ nas_5gs_sm_pdu_ses_est_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 
     curr_offset = offset;
     curr_len = len;
+
+    /* Direction: network to UE */
+    pinfo->link_dir = P2P_DIR_DL;
 
     proto_tree_add_item(tree, hf_nas_5gs_sm_sel_sc_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
     /*Selected PDU session type    PDU session type 9.11.4.5    M    V    1/2*/
@@ -3900,6 +3907,9 @@ nas_5gs_sm_pdu_ses_est_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     curr_offset = offset;
     curr_len = len;
 
+    /* Direction: network to UE */
+    pinfo->link_dir = P2P_DIR_DL;
+
     /* ESM cause    5GSM cause 9.11.4.2    M    V    1 */
     ELEM_MAND_V(NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_5GSM_CAUSE, " - ESM cause", ei_nas_5gs_missing_mandatory_elemen);
 
@@ -3934,6 +3944,9 @@ nas_5gs_sm_pdu_ses_auth_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
     curr_offset = offset;
     curr_len = len;
 
+    /* Direction: network to UE */
+    pinfo->link_dir = P2P_DIR_DL;
+
     /*78    EAP message    EAP message 9.11.3.14    O    TLV - E    7 - 1503*/
     ELEM_OPT_TLV_E(0x78,  NAS_5GS_PDU_TYPE_COMMON, DE_NAS_5GS_CMN_EAP_MESSAGE, NULL);
 
@@ -3957,6 +3970,9 @@ nas_5gs_sm_pdu_ses_auth_comp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
 
     curr_offset = offset;
     curr_len = len;
+
+    /* Direction: UE to network */
+    pinfo->link_dir = P2P_DIR_UL;
 
     /*78    EAP message    EAP message 9.11.3.14    O    TLV - E    7 - 1503*/
     ELEM_OPT_TLV_E(0x78,  NAS_5GS_PDU_TYPE_COMMON, DE_NAS_5GS_CMN_EAP_MESSAGE, NULL);
@@ -3986,6 +4002,9 @@ nas_5gs_sm_pdu_ses_mod_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 
     curr_offset = offset;
     curr_len = len;
+
+    /* Direction: UE to network */
+    pinfo->link_dir = P2P_DIR_UL;
 
     /* 28    5GSM capability    5GSM capability 9.11.4.10    O    TLV    3-15 */
     ELEM_OPT_TLV(0x28, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_5GSM_CAP, NULL);
@@ -4017,6 +4036,9 @@ nas_5gs_sm_pdu_ses_mod_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     curr_offset = offset;
     curr_len = len;
 
+    /* Direction: network to UE */
+    pinfo->link_dir = P2P_DIR_DL;
+
     /* 5GSM cause    5GSM cause 9.11.4.1    M    V    1 */
     ELEM_MAND_V(NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_5GSM_CAUSE, NULL, ei_nas_5gs_missing_mandatory_elemen);
 
@@ -4043,6 +4065,9 @@ nas_5gs_sm_pdu_ses_mod_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 
     curr_offset = offset;
     curr_len = len;
+
+    /* Direction: network to UE */
+    pinfo->link_dir = P2P_DIR_DL;
 
     /*59    5GSM cause    5GSM cause 9.11.4.2    O    TV    2*/
     ELEM_OPT_TV(0x59, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_5GSM_CAUSE, NULL);
@@ -4079,6 +4104,9 @@ nas_5gs_sm_pdu_ses_mod_comp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
     curr_offset = offset;
     curr_len = len;
 
+    /* Direction: UE to network */
+    pinfo->link_dir = P2P_DIR_UL;
+
     /*7B    Extended protocol configuration options    Extended protocol configuration options    9.11.4.2    O    TLV - E    4 - 65538*/
     ELEM_OPT_TLV_E(0x7B, NAS_PDU_TYPE_ESM, DE_ESM_EXT_PCO, NULL);
 
@@ -4099,6 +4127,9 @@ nas_5gs_sm_pdu_ses_mod_com_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
 
     curr_offset = offset;
     curr_len = len;
+
+    /* Direction: UE to network */
+    pinfo->link_dir = P2P_DIR_UL;
 
     /* 5GSM cause    5GSM cause 9.11.4.1    M    V    1 */
     ELEM_MAND_V(NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_5GSM_CAUSE, NULL, ei_nas_5gs_missing_mandatory_elemen);
@@ -4124,6 +4155,9 @@ nas_5gs_sm_pdu_ses_rel_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     curr_offset = offset;
     curr_len = len;
 
+    /* Direction: UE to network */
+    pinfo->link_dir = P2P_DIR_UL;
+
     /*7B    Extended protocol configuration options    Extended protocol configuration options    9.11.4.2    O    TLV - E    4 - 65538*/
     ELEM_OPT_TLV_E(0x7B, NAS_PDU_TYPE_ESM, DE_ESM_EXT_PCO, NULL);
 
@@ -4144,6 +4178,9 @@ nas_5gs_sm_pdu_ses_rel_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 
     curr_offset = offset;
     curr_len = len;
+
+    /* Direction: network to UE */
+    pinfo->link_dir = P2P_DIR_DL;
 
     /* 5GSM cause    5GSM cause 9.11.4.1    M    V    1 */
     ELEM_MAND_V(NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_5GSM_CAUSE, NULL, ei_nas_5gs_missing_mandatory_elemen);
@@ -4168,6 +4205,9 @@ nas_5gs_sm_pdu_ses_rel_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 
     curr_offset = offset;
     curr_len = len;
+
+    /* Direction: network to UE */
+    pinfo->link_dir = P2P_DIR_DL;
 
     /* 5GSM cause    5GSM cause 9.11.4.2    M    V    1 */
     ELEM_MAND_V(NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_5GSM_CAUSE, NULL, ei_nas_5gs_missing_mandatory_elemen);
@@ -4199,6 +4239,9 @@ nas_5gs_sm_pdu_ses_rel_comp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
     curr_offset = offset;
     curr_len = len;
 
+    /* Direction: UE to network */
+    pinfo->link_dir = P2P_DIR_UL;
+
     /*7B    Extended protocol configuration options    Extended protocol configuration options    9.11.4.2    O    TLV - E    4 - 65538*/
     ELEM_OPT_TLV_E(0x7B, NAS_PDU_TYPE_ESM, DE_ESM_EXT_PCO, NULL);
 
@@ -4220,6 +4263,7 @@ nas_5gs_sm_5gsm_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
     curr_offset = offset;
     curr_len = len;
 
+    /* Direction: both */
     /* 5GSM cause    5GSM cause 9.11.4.1    M    V    1 */
     ELEM_MAND_V(NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_5GSM_CAUSE, NULL, ei_nas_5gs_missing_mandatory_elemen);
 
@@ -5738,7 +5782,7 @@ proto_register_nas_5gs(void)
     expert_register_field_array(expert_nas_5gs, ei, array_length(ei));
 
     /* Register dissector */
-    register_dissector(PFNAME, dissect_nas_5gs, proto_nas_5gs);
+    nas_5gs_handle = register_dissector(PFNAME, dissect_nas_5gs, proto_nas_5gs);
 
 }
 
@@ -5748,7 +5792,7 @@ proto_reg_handoff_nas_5gs(void)
     eap_handle = find_dissector("eap");
     nas_eps_handle = find_dissector("nas-eps");
     nas_eps_plain_handle = find_dissector("nas-eps_plain");
-
+    dissector_add_string("media_type", "application/vnd.3gpp.5gnas", nas_5gs_handle);
 }
 
 /*
