@@ -209,6 +209,11 @@ if(NOT CMAKE_INSTALL_RPATH AND NOT (WIN32 OR APPLE))
 	endif()
 endif()
 
+# Ensure that executables in the build directory always have the same RPATH.
+# This ensures relocatable binaries and reproducible builds (invariant of the
+# build directory location). (Requires CMake 3.14)
+set(CMAKE_BUILD_RPATH_USE_ORIGIN ON)
+
 if(WIN32)
     # Linking with wsetargv.obj enables "wildcard expansion" of
     # command-line arguments.
