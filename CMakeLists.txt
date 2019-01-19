@@ -1661,6 +1661,7 @@ set(INSTALL_FILES
 	cfilters
 	colorfilters
 	dfilters
+	dfilter_macros
 	enterprises.tsv
 	ipmap.html
 	manuf
