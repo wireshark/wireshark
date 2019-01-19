@@ -46,9 +46,10 @@ macro(set_extcap_executable_properties _executable)
 			LINK_FLAGS "${WS_LINK_FLAGS}"
 			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/extcap
 		)
-		if(ENABLE_RPATH_ORIGIN)
+		if(CMAKE_INSTALL_RPATH MATCHES "\\$ORIGIN")
+			# Use relative path from ${EXTCAP_INSTALL_LIBDIR} to ${CMAKE_INSTALL_LIBDIR}
 			set_target_properties(${_executable} PROPERTIES
-				INSTALL_RPATH "\$ORIGIN/../.."
+				INSTALL_RPATH "$ORIGIN/../.."
 			)
 		endif()
 		if(ENABLE_APPLICATION_BUNDLE)

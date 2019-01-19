@@ -180,30 +180,29 @@ include(GNUInstallDirs)
 
 # Make sure our executables can can load our libraries if we install into
 # a non-default directory on Unix-like systems other than macOS.
-# https://cmake.org/Wiki/CMake_RPATH_handling
+# https://gitlab.kitware.com/cmake/community/wikis/doc/cmake/RPATH-handling
 if(NOT CMAKE_INSTALL_RPATH AND NOT (WIN32 OR APPLE))
-	# Some systems may have limited or non-existent support for $ORIGIN.
-	# https://www.lekensteyn.nl/rpath.html
-	set(_enable_rpath_origin 0)
-	if(CMAKE_SYSTEM_NAME MATCHES "^(Linux|SunOS|FreeBSD)$")
-		set(_enable_rpath_origin 1)
-	endif()
-	set(ENABLE_RPATH_ORIGIN ${_enable_rpath_origin} CACHE BOOL "Use \$ORIGIN with RPATH")
-	mark_as_advanced(ENABLE_RPATH_ORIGIN)
-
-	if(ENABLE_RPATH_ORIGIN)
-		# Set an install RPATH relative to the location of the binary, to
-		# provide a fully relocatable package.
-		set(CMAKE_INSTALL_RPATH "\$ORIGIN/../${CMAKE_INSTALL_LIBDIR}")
-		# Add the automatically determined parts of the RPATH
-		# which point to directories outside the build tree to the install RPATH.
-		set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
-	else()
-		# Add an absolute RPATH if it is not already included in the
-		# default search list.
-		list(FIND CMAKE_C_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_FULL_LIBDIR}" IS_SYSTEM_DIR)
-		if(IS_SYSTEM_DIR STREQUAL "-1")
+	# Try to set a RPATH for installed binaries if the library directory is
+	# not already included in the default search list.
+	list(FIND CMAKE_C_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_FULL_LIBDIR}" IS_SYSTEM_DIR)
+	if(IS_SYSTEM_DIR EQUAL -1)
+		# Some systems support $ORIGIN in RPATH to enable relocatable
+		# binaries. In other cases, only absolute paths can be used.
+		# https://www.lekensteyn.nl/rpath.html
+		if(CMAKE_SYSTEM_NAME MATCHES "^(Linux|SunOS|FreeBSD)$")
+			set(ENABLE_RPATH_ORIGIN TRUE CACHE BOOL
+				"Use $ORIGIN with INSTALL_RPATH")
+			mark_as_advanced(ENABLE_RPATH_ORIGIN)
+		else()
+			set(ENABLE_RPATH_ORIGIN FALSE)
+		endif()
+		if(ENABLE_RPATH_ORIGIN)
+			set(CMAKE_INSTALL_RPATH "$ORIGIN/../${CMAKE_INSTALL_LIBDIR}")
+		else()
 			set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_FULL_LIBDIR}")
+		endif()
+		# Include non-standard external libraries by default in RPATH.
+		if(NOT DEFINED CMAKE_INSTALL_RPATH_USE_LINK_PATH)
 			set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 		endif()
 	endif()
