@@ -805,6 +805,7 @@ static const value_string mf_dfs[] = {
 	{ 0x7f20, "DF.GSM" },
 	{ 0x7f22, "DF.IS-41" },
 	{ 0x7f23, "DF.FP-CTS" },
+	{ 0x7f25, "DF.CDMA" },
 	{ 0x7f31, "DF.iDEN" },
 	{ 0x7f80, "DF.PDC" },
 	{ 0x7f90, "DF.TETRA" },
