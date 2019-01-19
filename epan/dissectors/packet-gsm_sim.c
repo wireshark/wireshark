@@ -1037,7 +1037,7 @@ static const value_string sw_vals[] = {
 	{ 0x9240, "Memory problem" },
 	{ 0x9400, "No EF selected" },
 	{ 0x9402, "Out of range (invalid address)" },
-	{ 0x0404, "File ID not found" },
+	{ 0x9404, "File ID not found" },
 	{ 0x9408, "File is inconsistent with the command" },
 	{ 0x9802, "No CHV initialized" },
 	{ 0x9804, "Access condition not fulfilled / authentication failed" },
