@@ -111,7 +111,7 @@
  * failure.
  */
 
-static gboolean continue_after_wtap_open_offline_failure = TRUE;
+static gboolean stop_after_wtap_open_offline_failure = FALSE;
 
 /*
  * table report variables
@@ -1596,7 +1596,7 @@ real_main(int argc, char *argv[])
         break;
 
       case 'C':
-        continue_after_wtap_open_offline_failure = FALSE;
+        stop_after_wtap_open_offline_failure = TRUE;
         break;
 
       case 'A':
@@ -1721,7 +1721,7 @@ real_main(int argc, char *argv[])
     if (!wth) {
       cfile_open_failure_message("capinfos", argv[opt], err, err_info);
       overall_error_status = 2; /* remember that an error has occurred */
-      if (!continue_after_wtap_open_offline_failure)
+      if (stop_after_wtap_open_offline_failure)
         goto exit;
     }
 
