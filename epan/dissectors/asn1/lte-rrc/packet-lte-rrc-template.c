@@ -307,6 +307,8 @@ static gint ett_lte_rrc_sourceContextEN_DC_r15 = -1;
 static gint ett_lte_rrc_requestedFreqBandsNR_MRDC_r15 = -1;
 static gint ett_lte_rrc_measGapPatterns_v1520 = -1;
 static gint ett_lte_rrc_nas_Container_r15 = -1;
+static gint ett_lte_rrc_sourceRB_ConfigIntra5GC_r15 = -1;
+static gint ett_lte_rrc_selectedbandCombinationInfoEN_DC_v1540 = -1;
 
 static expert_field ei_lte_rrc_number_pages_le15 = EI_INIT;
 static expert_field ei_lte_rrc_si_info_value_changed = EI_INIT;
@@ -4303,7 +4305,9 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_sourceContextEN_DC_r15,
     &ett_lte_rrc_requestedFreqBandsNR_MRDC_r15,
     &ett_lte_rrc_measGapPatterns_v1520,
-    &ett_lte_rrc_nas_Container_r15
+    &ett_lte_rrc_nas_Container_r15,
+    &ett_lte_rrc_sourceRB_ConfigIntra5GC_r15,
+    &ett_lte_rrc_selectedbandCombinationInfoEN_DC_v1540
   };
 
   static ei_register_info ei[] = {

@@ -250,6 +250,7 @@ static int proto_nr_rrc = -1;
 static int hf_nr_rrc_nr_rrc_HandoverCommand_PDU = -1;  /* HandoverCommand */
 static int hf_nr_rrc_nr_rrc_HandoverPreparationInformation_PDU = -1;  /* HandoverPreparationInformation */
 static int hf_nr_rrc_nr_rrc_CG_Config_PDU = -1;   /* CG_Config */
+static int hf_nr_rrc_nr_rrc_BandCombinationInfoSN_PDU = -1;  /* BandCombinationInfoSN */
 static int hf_nr_rrc_nr_rrc_CG_ConfigInfo_PDU = -1;  /* CG_ConfigInfo */
 static int hf_nr_rrc_nr_rrc_ConfigRestrictInfoSCG_PDU = -1;  /* ConfigRestrictInfoSCG */
 static int hf_nr_rrc_nr_rrc_MeasurementTimingConfiguration_PDU = -1;  /* MeasurementTimingConfiguration */
@@ -41064,6 +41065,14 @@ int dissect_nr_rrc_CG_Config_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
   offset += 7; offset >>= 3;
   return offset;
 }
+int dissect_nr_rrc_BandCombinationInfoSN_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_nr_rrc_BandCombinationInfoSN(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_nr_rrc_BandCombinationInfoSN_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 int dissect_nr_rrc_CG_ConfigInfo_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -41400,6 +41409,10 @@ proto_register_nr_rrc(void) {
         NULL, HFILL }},
     { &hf_nr_rrc_nr_rrc_CG_Config_PDU,
       { "CG-Config", "nr-rrc.CG_Config_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_nr_rrc_BandCombinationInfoSN_PDU,
+      { "BandCombinationInfoSN", "nr-rrc.BandCombinationInfoSN_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_nr_rrc_nr_rrc_CG_ConfigInfo_PDU,

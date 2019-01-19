@@ -39,6 +39,7 @@ T-StatusProhibit
 UL-DataSplitThreshold
 
 #.EXPORTS
+BandCombinationInfoSN_PDU
 CellGroupConfig_PDU
 CG-Config_PDU
 CG-ConfigInfo_PDU
@@ -71,6 +72,7 @@ UL-DCCH-Message_PDU
 UplinkTxDirectCurrentList_PDU
 
 #.PDU
+BandCombinationInfoSN
 BCCH-BCH-Message                   @bcch.bch
 BCCH-DL-SCH-Message                @bcch.dl.sch
 CellGroupConfig

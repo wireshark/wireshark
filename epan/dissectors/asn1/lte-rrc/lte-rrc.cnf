@@ -2603,6 +2603,17 @@ P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
 # EUTRA-InterNodeDefinitions
 #
 
+#.FN_BODY HandoverPreparationInformation-v1540-IEs/sourceRB-ConfigIntra5GC-r15 VAL_PTR = &radio_bearer_config_tvb
+  tvbuff_t *radio_bearer_config_tvb = NULL;
+
+%(DEFAULT_BODY)s
+
+  if (radio_bearer_config_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_sourceRB_ConfigIntra5GC_r15);
+    dissect_nr_rrc_RadioBearerConfig_PDU(radio_bearer_config_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.FN_BODY AS-ConfigNR-r15/sourceRB-ConfigNR-r15 VAL_PTR = &radio_bearer_config_tvb
   tvbuff_t *radio_bearer_config_tvb = NULL;
 
@@ -2645,6 +2656,17 @@ P0-SL-r12 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
     proto_tree *subtree;
     subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_sourceContextEN_DC_r15);
     dissect_nr_rrc_ConfigRestrictInfoSCG_PDU(scg_config_info_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY AS-Context-v1130/eag_3/selectedbandCombinationInfoEN-DC-v1540 VAL_PTR = &band_comb_info_sn_tvb
+  tvbuff_t *band_comb_info_sn_tvb = NULL;
+
+%(DEFAULT_BODY)s
+
+  if (band_comb_info_sn_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_selectedbandCombinationInfoEN_DC_v1540);
+    dissect_nr_rrc_BandCombinationInfoSN_PDU(band_comb_info_sn_tvb, actx->pinfo, subtree, NULL);
   }
 
 #
