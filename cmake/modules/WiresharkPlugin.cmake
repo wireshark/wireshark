@@ -42,6 +42,7 @@ macro(ADD_PLUGIN_LIBRARY _plugin _subfolder)
 
 	set_target_properties(${_plugin} PROPERTIES
 		LIBRARY_OUTPUT_DIRECTORY ${PLUGIN_DIR}/${_subfolder}
+		INSTALL_RPATH ""
 	)
 
 	add_dependencies(plugins ${_plugin})
