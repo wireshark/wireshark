@@ -49,7 +49,7 @@ extern "C" {
  */
 
 /** Maximum object/array nesting depth. */
-#define JSON_DUMPER_MAX_DEPTH   15
+#define JSON_DUMPER_MAX_DEPTH   1100
 typedef struct json_dumper {
     FILE   *output_file;    /**< Output file, must be set. */
 #define JSON_DUMPER_FLAGS_PRETTY_PRINT  (1 << 0)    /* Enable pretty printing. */

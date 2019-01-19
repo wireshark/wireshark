@@ -450,3 +450,13 @@ class case_sharkd(subprocesstest.SubprocessTestCase):
                 {"v": 2, "d": "Yes - with IV"}
             ]}}},
         ))
+
+    def test_sharkd_nested_file(self, check_sharkd_session, capture_file):
+        '''Request a frame from a file with a deep level of nesting.'''
+        check_sharkd_session((
+            {"req": "load", "file": capture_file("http2-data-reassembly.pcap")},
+            {"req": "frame", "frame": "4", "proto": "yes"},
+        ), (
+            {"err": 0},
+            MatchAny(),
+        ))
