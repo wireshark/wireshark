@@ -15,8 +15,11 @@
  *
  * New capinfos features
  *
- * Add a new -C option to continue processing
- * additional files after a wiretap open failure.
+ * Continue processing additional files after
+ * a wiretap open failure.  The new -C option
+ * reverts to capinfos' original behavior which
+ * is to cancel any further file processing at
+ * first file open failure.
  *
  * Change the behavior of how the default display
  * of all infos is initiated.  This gets rid of a
