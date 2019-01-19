@@ -194,9 +194,21 @@ tvbuff_t *parameter_tvb=NULL;
 
 %(DEFAULT_BODY)s
 
-  if ((tvb_reported_length(parameter_tvb)>0)&&(nas_5gs_handle))
-    call_dissector(nas_5gs_handle,parameter_tvb,%(ACTX)s->pinfo, tree);
-
+  if (tvb_reported_length(parameter_tvb) > 0) {
+    struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
+    if (ngap_data->protocol_ie_id == id_NAS_PDU) {
+      if (nas_5gs_handle)
+        call_dissector(nas_5gs_handle,parameter_tvb,%(ACTX)s->pinfo, tree);
+    } else if (ngap_data->protocol_ie_id == id_NASC) {
+      GlobalRANNodeID_enum ranmode_id = ngap_get_ranmode_id(&actx->pinfo->dst, actx->pinfo->destport, actx->pinfo);
+      proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_NASC);
+      if (ranmode_id == globalGNB_ID) {
+        de_nas_5gs_s1_mode_to_n1_mode_nas_transparent_cont(parameter_tvb, subtree, actx->pinfo);
+      } else if (ranmode_id == globalNgENB_ID) {
+        de_nas_5gs_n1_mode_to_s1_mode_nas_transparent_cont(parameter_tvb, subtree, actx->pinfo);
+      }
+    }
+  }
 
 #.FN_HDR InitialUEMessage
   /* Set the direction of the message */
@@ -679,7 +691,7 @@ PeriodicRegistrationUpdateTimer TYPE=FT_UINT8 DISPLAY=BASE_CUSTOM STRINGS=CF_FUN
     proto_tree *subtree;
 
     subtree = proto_item_add_subtree(actx->created_item, ett_ngap_NASSecurityParametersFromNGRAN);
-    proto_tree_add_item(subtree, hf_ngap_NASSecurityParametersFromNGRAN_sn, parameter_tvb, 0, 1, ENC_BIG_ENDIAN);
+    de_nas_5gs_n1_mode_to_s1_mode_nas_transparent_cont(parameter_tvb, subtree, actx->pinfo);
   }
 
 #.ASSIGN_VALUE_TO_TYPE  # NGAP does not have constants assigned to types, they are pure INTEGER

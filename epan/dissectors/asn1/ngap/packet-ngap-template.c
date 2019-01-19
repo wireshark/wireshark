@@ -33,6 +33,7 @@
 #include "packet-gsm_map.h"
 #include "packet-cell_broadcast.h"
 #include "packet-ntp.h"
+#include "packet-gsm_a_common.h"
 
 #define PNAME  "NG Application Protocol"
 #define PSNAME "NGAP"
@@ -85,7 +86,6 @@ static int hf_ngap_EUTRAintegrityProtectionAlgorithms_eia1 = -1;
 static int hf_ngap_EUTRAintegrityProtectionAlgorithms_eia2 = -1;
 static int hf_ngap_EUTRAintegrityProtectionAlgorithms_eia3 = -1;
 static int hf_ngap_EUTRAintegrityProtectionAlgorithms_reserved = -1;
-static int hf_ngap_NASSecurityParametersFromNGRAN_sn = -1;
 #include "packet-ngap-hf.c"
 
 /* Initialize the subtree pointers */
@@ -112,6 +112,7 @@ static gint ett_ngap_LastVisitedEUTRANCellInformation = -1;
 static gint ett_ngap_LastVisitedUTRANCellInformation = -1;
 static gint ett_ngap_LastVisitedGERANCellInformation = -1;
 static gint ett_ngap_NASSecurityParametersFromNGRAN = -1;
+static gint ett_ngap_NASC = -1;
 #include "packet-ngap-ett.c"
 
 static expert_field ei_ngap_number_pages_le15 = EI_INIT;
@@ -577,10 +578,6 @@ void proto_register_ngap(void) {
       { "Reserved", "ngap.EUTRAintegrityProtectionAlgorithms.reserved",
         FT_UINT16, BASE_HEX, NULL, 0x1fff,
         NULL, HFILL }},
-    { &hf_ngap_NASSecurityParametersFromNGRAN_sn,
-      { "NAS Sequence Number", "ngap.NASSecurityParametersFromNGRAN.sn",
-        FT_UINT8, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
 #include "packet-ngap-hfarr.c"
   };
 
@@ -609,6 +606,7 @@ void proto_register_ngap(void) {
     &ett_ngap_LastVisitedUTRANCellInformation,
     &ett_ngap_LastVisitedGERANCellInformation,
     &ett_ngap_NASSecurityParametersFromNGRAN,
+    &ett_ngap_NASC,
 #include "packet-ngap-ettarr.c"
   };
 
