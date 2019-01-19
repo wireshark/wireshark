@@ -460,10 +460,10 @@ de_nas_5gs_mm_5gs_identity_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 static const value_string nas_5gs_mm_type_id_vals[] = {
     { 0x0, "No identity" },
     { 0x1, "SUCI" },
+    { 0x2, "5G-GUTI" },
     { 0x3, "IMEI" },
     { 0x4, "5G-S-TMSI" },
     { 0x5, "IMEISV" },
-    { 0x6, "5G-GUTI" },
     { 0, NULL }
  };
 
@@ -500,6 +500,26 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         digit_str = tvb_bcd_dig_to_wmem_packet_str(new_tvb, 0, -1, NULL, TRUE);
         proto_tree_add_string(tree, hf_nas_5gs_mm_suci, new_tvb, 0, -1, digit_str);
         break;
+    case 2:
+        /* 5G-GUTI*/
+        proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_odd_even_tid, ENC_BIG_ENDIAN);
+        offset++;
+        /* MCC digit 2    MCC digit 1
+         * MNC digit 3     MCC digit 3
+         * MNC digit 2    MNC digit 1
+         */
+        offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_NONE, TRUE);
+        /* AMF Region ID octet 7 */
+        proto_tree_add_item(tree, hf_nas_5gs_amf_region_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        /* AMF Set ID octet 8 */
+        proto_tree_add_item(tree, hf_nas_5gs_amf_set_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset++;
+        /* AMF AMF Pointer AMF Set ID (continued) */
+        proto_tree_add_item(tree, hf_nas_5gs_amf_pointer, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        proto_tree_add_item(tree, hf_nas_5gs_5g_tmsi, tvb, offset, 4, ENC_BIG_ENDIAN);
+        break;
     case 3:
         /* IMEI */
         proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_odd_even_tid, ENC_BIG_ENDIAN);
@@ -525,26 +545,6 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         new_tvb = tvb_new_subset_length(tvb, offset, len);
         digit_str = tvb_bcd_dig_to_wmem_packet_str(new_tvb, 0, -1, NULL, TRUE);
         proto_tree_add_string(tree, hf_nas_5gs_mm_imeisv, new_tvb, 0, -1, digit_str);
-        break;
-    case 6:
-        /* 5G-GUTI*/
-        proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_odd_even_tid, ENC_BIG_ENDIAN);
-        offset++;
-        /* MCC digit 2    MCC digit 1
-         * MNC digit 3     MCC digit 3
-         * MNC digit 2    MNC digit 1
-         */
-        offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_NONE, TRUE);
-        /* AMF Region ID octet 7 */
-        proto_tree_add_item(tree, hf_nas_5gs_amf_region_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
-        /* AMF Set ID octet 8 */
-        proto_tree_add_item(tree, hf_nas_5gs_amf_set_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset++;
-        /* AMF AMF Pointer AMF Set ID (continued) */
-        proto_tree_add_item(tree, hf_nas_5gs_amf_pointer, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset++;
-        proto_tree_add_item(tree, hf_nas_5gs_5g_tmsi, tvb, offset, 4, ENC_BIG_ENDIAN);
         break;
 
     default:
