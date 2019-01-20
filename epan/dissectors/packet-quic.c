@@ -158,6 +158,22 @@ static dissector_handle_t tls13_handshake_handle;
  * Required input from TLS dissector: TLS-Exporter 0-RTT/1-RTT secrets and
  * cipher/hash algorithms.
  *
+ * QUIC payload decryption requires proper reconstruction of the packet number
+ * which requires proper header decryption. The different states are:
+ *
+ *  Packet type             Packet number space     Secrets
+ *  Long: Initial           Initial                 Initial secrets
+ *  Long: Handshake         Handshake               Handshake
+ *  Long: 0-RTT Protected   0/1-RTT (appdata)       0-RTT
+ *  Short header            0/1-RTT (appdata)       1-RTT (KP0 / KP1)
+ *
+ * Important to note is that Short Header decryption requires TWO ciphers (one
+ * for each key phase), but that header protection uses only KP0. Total state
+ * needed for each peer (client and server):
+ * - 3 packet number spaces: Initial, Handshake, 0/1-RTT (appdata).
+ * - 4 header protection ciphers: initial, 0-RTT, HS, 1-RTT.
+ * - 5 payload protection ciphers: initial, 0-RTT, HS, 1-RTT (KP0), 1-RTT (KP1).
+ *
  * to-do list:
  * DONE key update via KEY_PHASE bit (untested)
  * TODO 0-RTT decryption
@@ -221,8 +237,8 @@ typedef struct quic_info_data {
     quic_cipher     server_handshake_cipher;
     quic_pp_state_t client_pp;
     quic_pp_state_t server_pp;
-    guint64         max_client_pkn;
-    guint64         max_server_pkn;
+    guint64         max_client_pkn[3];  /**< Packet number spaces for Initial, Handshake and appdata. */
+    guint64         max_server_pkn[3];
     quic_cid_item_t client_cids;    /**< SCID of client from first Initial Packet. */
     quic_cid_item_t server_cids;    /**< SCID of server from first Retry/Handshake. */
     quic_cid_t      client_dcid_initial;    /**< DCID from Initial Packet. */
@@ -234,6 +250,7 @@ struct quic_packet_info {
     guint64                 packet_number;  /**< Reconstructed full packet number. */
     quic_decrypt_result_t   decryption;
     guint8                  pkn_len;        /**< Length of PKN (1/2/3/4) or unknown (0). */
+    guint8                  first_byte;     /**< Decrypted flag byte, valid only if pkn_len is non-zero. */
 };
 typedef struct quic_packet_info quic_packet_info_t;
 
@@ -529,65 +546,62 @@ quic_decrypt_header(tvbuff_t *tvb, guint pn_offset, gcry_cipher_hd_t hp_cipher, 
 }
 
 /**
+ * Retrieve the maximum valid packet number space for a peer.
+ */
+static guint64 *
+quic_max_packet_number(quic_info_data_t *quic_info, gboolean from_server, guint8 first_byte)
+{
+    int pkn_space;
+    if ((first_byte & 0x80) && (first_byte & 0x30) >> 4 == QUIC_LPT_INITIAL) {
+        // Long header, Initial
+        pkn_space = 0;
+    } else if ((first_byte & 0x80) && (first_byte & 0x30) >> 4 == QUIC_LPT_HANDSHAKE) {
+        // Long header, Handshake
+        pkn_space = 1;
+    } else {
+        // Long header (0-RTT Protected) or Short Header (1-RTT appdata).
+        pkn_space = 2;
+    }
+    if (from_server) {
+        return &quic_info->max_server_pkn[pkn_space];
+    } else {
+        return &quic_info->max_client_pkn[pkn_space];
+    }
+}
+
+/**
  * Calculate the full packet number and store it for later use.
  */
-static guint32
-dissect_quic_packet_number(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset,
-                           quic_info_data_t *quic_info, quic_packet_info_t *quic_packet,
-                           gboolean from_server,
-                           gcry_cipher_hd_t hp_cipher, int hp_cipher_algo,
-                           guint8 *first_byte, guint64 *pkn_out)
+static void
+quic_set_full_packet_number(quic_info_data_t *quic_info, quic_packet_info_t *quic_packet,
+                            gboolean from_server, guint8 first_byte, guint32 pkn32)
 {
-    proto_item *ti;
-    guint       pkn_len = 0;
-    guint64     pkn = 0;
-
-    /* Try to decrypt on the first pass, reuse results on the second pass. */
-    if (!PINFO_FD_VISITED(pinfo)) {
-        guint32 pkn32 = 0;
-        if (quic_decrypt_header(tvb, offset, hp_cipher, hp_cipher_algo, first_byte, &pkn32)) {
-            pkn_len = (*first_byte & 3) + 1;
-            pkn = pkn32;
-            quic_packet->pkn_len = pkn_len;
-        }
-    } else {
-        pkn_len = quic_packet->pkn_len;
-        pkn = quic_packet->packet_number & ((1UL << (8 * pkn_len)) - 1);
-    }
-    if (!pkn_len) {
-        expert_add_info_format(pinfo, tree, &ei_quic_decryption_failed, "Failed to decrypt packet number");
-        return 0;
-    }
-
-    // TODO separate field for encrypted and decrypted PKN?
-    proto_tree_add_uint64(tree, hf_quic_packet_number, tvb, offset, pkn_len, pkn);
-
-    if (!quic_info) {
-        // if not part of a connection, the full PKN cannot be reconstructed.
-        *pkn_out = pkn;
-        return pkn_len;
-    }
+    guint       pkn_len = (first_byte & 3) + 1;
+    guint64     pkn_full;
+    guint64     max_pn = *quic_max_packet_number(quic_info, from_server, first_byte);
 
     /* Sequential first pass, try to reconstruct full packet number. */
-    if (!PINFO_FD_VISITED(pinfo)) {
-        if (from_server) {
-            pkn = quic_pkt_adjust_pkt_num(quic_info->max_server_pkn, pkn, 8 * pkn_len);
-            quic_info->max_server_pkn = pkn;
-        } else {
-            pkn = quic_pkt_adjust_pkt_num(quic_info->max_client_pkn, pkn, 8 * pkn_len);
-            quic_info->max_client_pkn = pkn;
-        }
-        quic_packet->packet_number = pkn;
-    } else {
-        pkn = quic_packet->packet_number;
-    }
+    pkn_full = quic_pkt_adjust_pkt_num(max_pn, pkn32, 8 * pkn_len);
+    quic_packet->pkn_len = pkn_len;
+    quic_packet->packet_number = pkn_full;
+}
+
+/**
+ * Display the reconstructed packet number.
+ */
+static void
+dissect_quic_packet_number(tvbuff_t *tvb, proto_tree *tree, guint offset, quic_packet_info_t *quic_packet)
+{
+    proto_item *ti;
+    guint       pkn_len = quic_packet->pkn_len;
+    guint32     pkn32 = (guint32)quic_packet->packet_number & ((1UL << (8 * pkn_len)) - 1);
+
+    // TODO separate field for encrypted and decrypted PKN?
+    proto_tree_add_uint64(tree, hf_quic_packet_number, tvb, offset, pkn_len, pkn32);
 
     /* always add the full packet number for use in columns */
-    ti = proto_tree_add_uint64(tree, hf_quic_packet_number_full, tvb, offset, pkn_len, pkn);
+    ti = proto_tree_add_uint64(tree, hf_quic_packet_number_full, tvb, offset, pkn_len, quic_packet->packet_number);
     PROTO_ITEM_SET_GENERATED(ti);
-
-    *pkn_out = pkn;
-    return pkn_len;
 }
 
 static const char *
@@ -1879,8 +1893,6 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     guint32 len_payload_length;
     guint64 payload_length;
     guint8  first_byte = 0;
-    guint32 pkn_len;
-    guint64 pkn;
     quic_info_data_t *conn = dgram_info->conn;
     const gboolean from_server = dgram_info->from_server;
     quic_cipher *cipher = NULL;
@@ -1943,23 +1955,37 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
                                "Failed to create decryption context: %s", quic_packet->decryption.error);
         return offset;
     }
-
-    pkn_len = dissect_quic_packet_number(tvb, pinfo, quic_tree, offset, conn, quic_packet, from_server,
-                                         cipher ? cipher->hp_cipher : NULL,
-                                         long_packet_type != QUIC_LPT_INITIAL && conn ? conn->cipher_algo : GCRY_CIPHER_AES128,
-                                         &first_byte, &pkn);
-    if (pkn_len == 0) {
+#ifdef HAVE_LIBGCRYPT_AEAD
+    if (!PINFO_FD_VISITED(pinfo) && conn && cipher) {
+        guint32 pkn32 = 0;
+        int hp_cipher_algo = long_packet_type != QUIC_LPT_INITIAL && conn ? conn->cipher_algo : GCRY_CIPHER_AES128;
+        if (quic_decrypt_header(tvb, offset, cipher->hp_cipher, hp_cipher_algo, &first_byte, &pkn32)) {
+            quic_set_full_packet_number(conn, quic_packet, from_server, first_byte, pkn32);
+            // TODO this is unused for LPT, see also above for the required cipher refactor.
+            quic_packet->first_byte = first_byte;
+        }
+    }
+#endif /* !HAVE_LIBGCRYPT_AEAD */
+    if (!conn || quic_packet->pkn_len == 0) {
+        // if not part of a connection, the full PKN cannot be reconstructed.
+        expert_add_info_format(pinfo, quic_tree, &ei_quic_decryption_failed, "Failed to decrypt packet number");
         return offset;
     }
-    offset += pkn_len;
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", PKN: %" G_GINT64_MODIFIER "u", pkn);
+
+    dissect_quic_packet_number(tvb, quic_tree, offset, quic_packet);
+    offset += quic_packet->pkn_len;
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", PKN: %" G_GINT64_MODIFIER "u", quic_packet->packet_number);
 
     /* Payload */
     ti = proto_tree_add_item(quic_tree, hf_quic_payload, tvb, offset, -1, ENC_NA);
 
     if (conn) {
         quic_process_payload(tvb, pinfo, quic_tree, ti, offset,
-                             conn, quic_packet, from_server, cipher, first_byte, pkn_len);
+                             conn, quic_packet, from_server, cipher, first_byte, quic_packet->pkn_len);
+    }
+    if (!PINFO_FD_VISITED(pinfo) && !quic_packet->decryption.error) {
+        // Packet number is verified to be valid, remember it.
+        *quic_max_packet_number(conn, from_server, first_byte) = quic_packet->packet_number;
     }
     offset += tvb_reported_length_remaining(tvb, offset);
 
@@ -1973,8 +1999,6 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     guint offset = 0;
     quic_cid_t dcid = {.len=0};
     guint8  first_byte = 0;
-    guint32 pkn_len = 0;
-    guint64 pkn;
     proto_item *ti;
     gboolean    key_phase = FALSE;
     quic_cipher *cipher = NULL;
@@ -2005,26 +2029,26 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
         cipher = quic_get_pp_cipher(pinfo, key_phase, conn, from_server, &hp_cipher);
     }
 #endif /* !HAVE_LIBGCRYPT_AEAD */
-    if (!conn || conn->skip_decryption) {
+    if (!conn || conn->skip_decryption || quic_packet->pkn_len == 0) {
         return offset;
     }
 
     /* Packet Number */
-    pkn_len = dissect_quic_packet_number(tvb, pinfo, quic_tree, offset, conn, quic_packet, from_server,
-                                         hp_cipher, conn->cipher_algo, &first_byte, &pkn);
-    if (pkn_len == 0) {
-        return offset;
-    }
-    offset += pkn_len;
+    dissect_quic_packet_number(tvb, quic_tree, offset, quic_packet);
+    offset += quic_packet->pkn_len;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", PKN: %" G_GINT64_MODIFIER "u", pkn);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", PKN: %" G_GINT64_MODIFIER "u", quic_packet->packet_number);
 
     /* Protected Payload */
     ti = proto_tree_add_item(quic_tree, hf_quic_protected_payload, tvb, offset, -1, ENC_NA);
 
     if (conn) {
         quic_process_payload(tvb, pinfo, quic_tree, ti, offset,
-                             conn, quic_packet, from_server, cipher, first_byte, pkn_len);
+                             conn, quic_packet, from_server, cipher, first_byte, quic_packet->pkn_len);
+        if (!PINFO_FD_VISITED(pinfo) && !quic_packet->decryption.error) {
+            // Packet number is verified to be valid, remember it.
+            *quic_max_packet_number(conn, from_server, first_byte) = quic_packet->packet_number;
+        }
     }
     offset += tvb_reported_length_remaining(tvb, offset);
 
