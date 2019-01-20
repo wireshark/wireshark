@@ -201,7 +201,6 @@ static const value_string mint_port_vals[] = {
 	{ MINT_PORT_BONJOUR,		"bonjour/dgram" },
 	{ MINT_PORT_DPD2_EXTIF,		"dpd2-extif/dgram" },
 	{ MINT_PORT_TROUBLE,		"trouble/dgram" },
-	{ MINT_PORT_TROUBLE,		"trouble/stream" },
 	{ MINT_PORT_URLF_CLASSIFIER,	"urlf_classifier/dgram" },
 	{ MINT_PORT_NF_PROXY,		"nf-proxy/dgram" },
 	{ MINT_PORT_WING_EXPRESS,	"wing_express/dgram" },
