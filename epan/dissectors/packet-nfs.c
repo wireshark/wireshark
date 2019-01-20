@@ -9607,7 +9607,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 	guint	    first_operation = 1;
 	/*guint name_offset = 0;*/
 	guint16	    sid_hash;
-	guint16	    clientid_hash   = 0;
+	guint64	    clientid        = 0;
 	guint32	    ops;
 	guint32	    ops_counter;
 	guint32	    summary_counter;
@@ -9931,9 +9931,9 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 			break;
 
 		case NFS4_OP_RENEW:
-			clientid_hash = crc16_ccitt_tvb_offset(tvb, offset, 8);
+			clientid = tvb_get_ntoh64(tvb, offset);
 			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs4_clientid, offset);
-			wmem_strbuf_append_printf (op_summary[ops_counter].optext, " CID: 0x%04x", clientid_hash);
+			wmem_strbuf_append_printf (op_summary[ops_counter].optext, " CID: 0x%016"G_GINT64_MODIFIER"x", clientid);
 
 			break;
 
