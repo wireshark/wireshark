@@ -181,7 +181,7 @@ include(GNUInstallDirs)
 # Make sure our executables can can load our libraries if we install into
 # a non-default directory on Unix-like systems other than macOS.
 # https://gitlab.kitware.com/cmake/community/wikis/doc/cmake/RPATH-handling
-if(NOT CMAKE_INSTALL_RPATH AND NOT (WIN32 OR APPLE))
+if(NOT (WIN32 OR APPLE))
 	# Try to set a RPATH for installed binaries if the library directory is
 	# not already included in the default search list.
 	list(FIND CMAKE_C_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_FULL_LIBDIR}" IS_SYSTEM_DIR)
