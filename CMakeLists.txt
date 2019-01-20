@@ -1072,6 +1072,7 @@ if(NOT LIBXML2_FOUND)
 	# The (official) FindLibXml2.cmake file sets this cache variable to a
 	# non-empty value, be sure to clear it when not found.
 	set(LIBXML2_LIBRARIES "")
+	set(LIBXML2_INCLUDE_DIR "")
 endif()
 
 # Capabilities
