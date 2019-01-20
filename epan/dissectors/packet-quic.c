@@ -59,7 +59,7 @@ static int hf_quic_packet_number_full = -1;
 static int hf_quic_version = -1;
 static int hf_quic_supported_version = -1;
 static int hf_quic_vn_unused = -1;
-static int hf_quic_short_kp_flag = -1;
+static int hf_quic_key_phase = -1;
 static int hf_quic_short_reserved = -1;
 static int hf_quic_payload = -1;
 static int hf_quic_protected_payload = -1;
@@ -322,7 +322,7 @@ static const value_string quic_short_long_header_vals[] = {
     { 0, NULL }
 };
 
-#define SH_KP       0x40    /* since draft -11 */
+#define SH_KP       0x04
 
 static const value_string quic_cid_len_vals[] = {
     { 0,    "0 octets" },
@@ -1633,16 +1633,14 @@ quic_update_key(int hash_algo, quic_pp_state_t *pp_state, gboolean from_client)
 }
 
 /**
- * Tries to construct the appropriate cipher for the current key phase.
- * See also "PROTECTED PAYLOAD DECRYPTION" comment on top of this file.
+ * Retrieves the header protection cipher for short header packets and prepares
+ * the packet protection cipher.
  */
-static quic_cipher *
-quic_get_pp_cipher(packet_info *pinfo, gboolean key_phase, quic_info_data_t *quic_info,
-                   gboolean from_server, gcry_cipher_hd_t *hp_cipher)
+static gcry_cipher_hd_t
+quic_get_1rtt_hp_cipher(packet_info *pinfo, quic_info_data_t *quic_info, gboolean from_server)
 {
     guint32     version = quic_info->version;
     const char *error = NULL;
-    gboolean    success = FALSE;
 
     /* Keys were previously not available. */
     if (quic_info->skip_decryption) {
@@ -1680,8 +1678,29 @@ quic_get_pp_cipher(packet_info *pinfo, gboolean key_phase, quic_info_data_t *qui
         quic_update_key(quic_info->hash_algo, pp_state, !from_server);
     }
 
-    // Header Protect cipher does not change after Key Update.
-    *hp_cipher = pp_state->cipher[0].hp_cipher;
+    // Note: Header Protect cipher does not change after Key Update.
+    return pp_state->cipher[0].hp_cipher;
+}
+
+/**
+ * Tries to construct the appropriate cipher for the current key phase.
+ * See also "PROTECTED PAYLOAD DECRYPTION" comment on top of this file.
+ */
+static quic_cipher *
+quic_get_pp_cipher(gboolean key_phase, quic_info_data_t *quic_info, gboolean from_server)
+{
+    guint32     version = quic_info->version;
+    const char *error = NULL;
+    gboolean    success = FALSE;
+
+    /* Keys were previously not available. */
+    if (quic_info->skip_decryption) {
+        return NULL;
+    }
+
+    quic_pp_state_t *client_pp = &quic_info->client_pp;
+    quic_pp_state_t *server_pp = &quic_info->server_pp;
+    quic_pp_state_t *pp_state = !from_server ? client_pp : server_pp;
 
     /*
      * If the key phase changed, try to decrypt the packet using the new cipher.
@@ -1999,6 +2018,7 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     guint offset = 0;
     quic_cid_t dcid = {.len=0};
     guint8  first_byte = 0;
+    guint32 pkn32 = 0;
     proto_item *ti;
     gboolean    key_phase = FALSE;
     quic_cipher *cipher = NULL;
@@ -2006,10 +2026,24 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     const gboolean from_server = dgram_info->from_server;
     gcry_cipher_hd_t hp_cipher = NULL;
 
-    proto_tree_add_item_ret_boolean(quic_tree, hf_quic_short_kp_flag, tvb, offset, 1, ENC_NA, &key_phase);
-    proto_tree_add_item(quic_tree, hf_quic_short_reserved, tvb, offset, 1, ENC_NA);
     if (conn) {
        dcid.len = from_server ? conn->client_cids.data.len : conn->server_cids.data.len;
+    }
+#ifdef HAVE_LIBGCRYPT_AEAD
+    if (!PINFO_FD_VISITED(pinfo) && conn) {
+        hp_cipher = quic_get_1rtt_hp_cipher(pinfo, conn, from_server);
+        if (hp_cipher && quic_decrypt_header(tvb, 1 + dcid.len, hp_cipher, conn->cipher_algo, &first_byte, &pkn32)) {
+            quic_set_full_packet_number(conn, quic_packet, from_server, first_byte, pkn32);
+            quic_packet->first_byte = first_byte;
+        }
+    } else if (conn && quic_packet->pkn_len) {
+        first_byte = quic_packet->first_byte;
+    }
+#endif /* !HAVE_LIBGCRYPT_AEAD */
+    if (quic_packet->pkn_len) {
+        key_phase = (first_byte & SH_KP) != 0;
+        proto_tree_add_uint(quic_tree, hf_quic_short_reserved, tvb, offset, 1, first_byte);
+        proto_tree_add_boolean(quic_tree, hf_quic_key_phase, tvb, offset, 1, key_phase);
     }
     offset += 1;
 
@@ -2026,7 +2060,7 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
 
 #ifdef HAVE_LIBGCRYPT_AEAD
     if (!PINFO_FD_VISITED(pinfo) && conn) {
-        cipher = quic_get_pp_cipher(pinfo, key_phase, conn, from_server, &hp_cipher);
+        cipher = quic_get_pp_cipher(key_phase, conn, from_server);
     }
 #endif /* !HAVE_LIBGCRYPT_AEAD */
     if (!conn || conn->skip_decryption || quic_packet->pkn_len == 0) {
@@ -2444,15 +2478,15 @@ proto_register_quic(void)
             FT_UINT8, BASE_HEX, NULL, 0x7F,
             NULL, HFILL }
         },
-        { &hf_quic_short_kp_flag,
-          { "Key Phase Bit", "quic.short.kp_flag",
+        { &hf_quic_key_phase,
+          { "Key Phase Bit", "quic.key_phase",
             FT_BOOLEAN, 8, NULL, SH_KP,
-            NULL, HFILL }
+            "Selects the packet protection keys to use (protected using header protection)", HFILL }
         },
         { &hf_quic_short_reserved,
           { "Reserved", "quic.short.reserved",
-            FT_UINT8, BASE_DEC, NULL, 0x07,
-            "Reserved bits for experimentation", HFILL }
+            FT_UINT8, BASE_DEC, NULL, 0x18,
+            "Reserved bits (protected using header protection)", HFILL }
         },
 
         { &hf_quic_payload,
