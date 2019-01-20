@@ -1287,7 +1287,7 @@ qhkdf_expand(int md, const guint8 *secret, guint secret_len,
              const char *label, guint8 *out, guint out_len);
 
 static gboolean
-quic_cipher_init(guint32 version, quic_cipher *cipher, int hash_algo, guint8 key_length, guint8 *secret);
+quic_cipher_init(quic_cipher *cipher, int hash_algo, guint8 key_length, guint8 *secret);
 
 
 /**
@@ -1463,7 +1463,7 @@ quic_get_pn_cipher_algo(int cipher_algo, int *hp_cipher_mode)
  * algorithm output.
  */
 static gboolean
-quic_cipher_prepare(guint32 version, quic_cipher *cipher, int hash_algo, int cipher_algo, int cipher_mode, guint8 *secret, const char **error)
+quic_cipher_prepare(quic_cipher *cipher, int hash_algo, int cipher_algo, int cipher_mode, guint8 *secret, const char **error)
 {
     /* Clear previous state (if any). */
     quic_cipher_reset(cipher);
@@ -1483,7 +1483,7 @@ quic_cipher_prepare(guint32 version, quic_cipher *cipher, int hash_algo, int cip
 
     if (secret) {
         guint cipher_keylen = (guint8) gcry_cipher_get_algo_keylen(cipher_algo);
-        if (!quic_cipher_init(version, cipher, hash_algo, cipher_keylen, secret)) {
+        if (!quic_cipher_init(cipher, hash_algo, cipher_keylen, secret)) {
             quic_cipher_reset(cipher);
             *error = "Failed to derive key material for cipher";
             return FALSE;
@@ -1498,7 +1498,6 @@ quic_create_initial_decoders(const quic_cid_t *cid, const gchar **error, quic_in
 {
     guint8          client_secret[HASH_SHA2_256_LENGTH];
     guint8          server_secret[HASH_SHA2_256_LENGTH];
-    guint32         version = quic_info->version;
 
     if (!quic_derive_initial_secrets(cid, client_secret, server_secret, error)) {
         return FALSE;
@@ -1506,9 +1505,9 @@ quic_create_initial_decoders(const quic_cid_t *cid, const gchar **error, quic_in
 
     /* Packet numbers are protected with AES128-CTR,
      * initial packets are protected with AEAD_AES_128_GCM. */
-    if (!quic_cipher_prepare(version, &quic_info->client_initial_cipher, GCRY_MD_SHA256,
+    if (!quic_cipher_prepare(&quic_info->client_initial_cipher, GCRY_MD_SHA256,
                              GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, client_secret, error) ||
-        !quic_cipher_prepare(version, &quic_info->server_initial_cipher, GCRY_MD_SHA256,
+        !quic_cipher_prepare(&quic_info->server_initial_cipher, GCRY_MD_SHA256,
                              GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_GCM, server_secret, error)) {
         return FALSE;
     }
@@ -1517,7 +1516,7 @@ quic_create_initial_decoders(const quic_cid_t *cid, const gchar **error, quic_in
 }
 
 static gboolean
-quic_create_decoders(packet_info *pinfo, guint32 version, quic_info_data_t *quic_info, quic_cipher *cipher,
+quic_create_decoders(packet_info *pinfo, quic_info_data_t *quic_info, quic_cipher *cipher,
                      gboolean from_server, TLSRecordType type, const char **error)
 {
     if (!quic_info->hash_algo) {
@@ -1535,7 +1534,7 @@ quic_create_decoders(packet_info *pinfo, guint32 version, quic_info_data_t *quic
         return FALSE;
     }
 
-    if (!quic_cipher_prepare(version, cipher, quic_info->hash_algo,
+    if (!quic_cipher_prepare(cipher, quic_info->hash_algo,
                              quic_info->cipher_algo, quic_info->cipher_mode, secret, error)) {
         return FALSE;
     }
@@ -1600,7 +1599,7 @@ quic_get_traffic_secret(packet_info *pinfo, int hash_algo, quic_pp_state_t *pp_s
  * and initialize cipher with the new key.
  */
 static gboolean
-quic_cipher_init(guint32 version _U_, quic_cipher *cipher, int hash_algo, guint8 key_length, guint8 *secret)
+quic_cipher_init(quic_cipher *cipher, int hash_algo, guint8 key_length, guint8 *secret)
 {
     guchar      write_key[256/8];   /* Maximum key size is for AES256 cipher. */
     guchar      hp_key[256/8];
@@ -1639,7 +1638,6 @@ quic_update_key(int hash_algo, quic_pp_state_t *pp_state, gboolean from_client)
 static gcry_cipher_hd_t
 quic_get_1rtt_hp_cipher(packet_info *pinfo, quic_info_data_t *quic_info, gboolean from_server)
 {
-    guint32     version = quic_info->version;
     const char *error = NULL;
 
     /* Keys were previously not available. */
@@ -1668,9 +1666,9 @@ quic_get_1rtt_hp_cipher(packet_info *pinfo, quic_info_data_t *quic_info, gboolea
         }
 
         /* Create initial cipher handles for KEY_PHASE 0 and 1. */
-        if (!quic_cipher_prepare(version, &client_pp->cipher[0], quic_info->hash_algo,
+        if (!quic_cipher_prepare(&client_pp->cipher[0], quic_info->hash_algo,
                                  quic_info->cipher_algo, quic_info->cipher_mode, client_pp->next_secret, &error) ||
-            !quic_cipher_prepare(version, &server_pp->cipher[0], quic_info->hash_algo,
+            !quic_cipher_prepare(&server_pp->cipher[0], quic_info->hash_algo,
                                  quic_info->cipher_algo, quic_info->cipher_mode, server_pp->next_secret, &error)) {
             quic_info->skip_decryption = TRUE;
             return NULL;
@@ -1689,7 +1687,6 @@ quic_get_1rtt_hp_cipher(packet_info *pinfo, quic_info_data_t *quic_info, gboolea
 static quic_cipher *
 quic_get_pp_cipher(gboolean key_phase, quic_info_data_t *quic_info, gboolean from_server)
 {
-    guint32     version = quic_info->version;
     const char *error = NULL;
     gboolean    success = FALSE;
 
@@ -1711,7 +1708,7 @@ quic_get_pp_cipher(gboolean key_phase, quic_info_data_t *quic_info, gboolean fro
         quic_cipher new_cipher;
 
         memset(&new_cipher, 0, sizeof(quic_cipher));
-        if (!quic_cipher_prepare(version, &new_cipher, quic_info->hash_algo,
+        if (!quic_cipher_prepare(&new_cipher, quic_info->hash_algo,
                                  quic_info->cipher_algo, quic_info->cipher_mode, server_pp->next_secret, &error)) {
             /* This should never be reached, if the parameters were wrong
              * before, then it should have set "skip_decryption". */
@@ -1961,7 +1958,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
             quic_create_initial_decoders(&dcid, &error, conn);
         } else if (long_packet_type == QUIC_LPT_HANDSHAKE) {
             if (!cipher->hp_cipher) {
-                quic_create_decoders(pinfo, version, conn, cipher, from_server, TLS_SECRET_HANDSHAKE, &error);
+                quic_create_decoders(pinfo, conn, cipher, from_server, TLS_SECRET_HANDSHAKE, &error);
             }
         }
         if (error) {
