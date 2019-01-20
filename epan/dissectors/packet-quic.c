@@ -328,9 +328,9 @@ static const value_string quic_cid_len_vals[] = {
 };
 
 #define QUIC_LPT_INITIAL    0x0
-#define QUIC_LPT_RETRY      0x1
+#define QUIC_LPT_0RTT       0x1
 #define QUIC_LPT_HANDSHAKE  0x2
-#define QUIC_LPT_0RTT       0x3
+#define QUIC_LPT_RETRY      0x3
 #define QUIC_SHORT_PACKET   0xff    /* dummy value that is definitely not LPT */
 
 static const value_string quic_long_packet_type_vals[] = {
@@ -2215,7 +2215,7 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item_ret_uint(quic_tree, hf_quic_header_form, next_tvb, 0, 1, ENC_NA, &header_form);
         guint new_offset = 0;
         if (header_form) {
-            guint8 long_packet_type = tvb_get_guint8(next_tvb, 0) & 0x7f;
+            guint8 long_packet_type = (tvb_get_guint8(next_tvb, 0) & 0x30) >> 4;
             guint32 version = tvb_get_ntohl(next_tvb, 1);
             if (version == 0) {
                 offset += dissect_quic_version_negotiation(next_tvb, pinfo, quic_tree, quic_packet);
