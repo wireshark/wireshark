@@ -231,10 +231,6 @@ enum SRT_KM_STATE
     SRT_KM_S_BADSECRET = 4       ///< Stream encrypted and wrong secret, cannot decrypt Keying Material
 };
 
-
-void proto_register_srt(void);
-void proto_reg_handoff_srt(void);
-
 static const value_string srt_ctrlmsg_types[] = {
     {UMSG_HANDSHAKE,  "UMSG_HANDSHAKE"},
     {UMSG_KEEPALIVE,  "UMSG_KEEPALIVE"},
