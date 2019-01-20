@@ -194,6 +194,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     user14 - USER 14
     user15 - USER 15
     v5-ef - V5 Envelope Function
+    vpp - Vector Packet Processing graph dispatch trace
     vsock - Linux vsock
     whdlc - Wellfleet HDLC
     wireshark-upper-pdu - Wireshark Upper PDU export

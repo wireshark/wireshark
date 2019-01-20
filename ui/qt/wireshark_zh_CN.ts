@@ -12717,8 +12717,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>Remove from list</source>
-        <oldsource>Remove</oldsource>
-        <translation type="unfinished">移除</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

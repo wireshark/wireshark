@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2019-01-13)
+# (last updated 2019-01-19)
 
 0	Reserved
 1	NxNetworks
@@ -8847,7 +8847,7 @@
 8868	Velos, Inc.
 8869	Coscend Corporation
 8870	KINS(Knowlege and Information Net for Sharing) Lab.
-8871	Porthole Interactive Technologies
+8871	Youngblood Technologies
 8872	Saintjo
 8873	JAL INFORMATION TECHNOLOGY CO.,LTD.
 8874	Utt Technologies
@@ -42505,7 +42505,7 @@
 42680	Randstad España, S.L.
 42681	Freeport of Riga Authority
 42682	Cyviz AS
-42683	Trans Data Management (TDM)
+42683	Telematix AG	# formerly 'Trans Data Management (TDM)'
 42684	Bump Networks, Inc.
 42685	Benjamin Huepeden IT
 42686	Siempelkamp Maschinen- und Anlagenbau GmbH & Co. KG
@@ -52958,7 +52958,7 @@
 53145	Ethos Infotech
 53146	Frachtwerk GmbH
 53147	fortop projects BV
-53148	xRAN Forum
+53148	O-RAN Alliance e.V.	# formerly 'xRAN Forum'
 53149	Wessanen N.V.
 53150	FAR-EASTERN GRIDS COMPANY
 53151	Beijing Zhongchuangwei Nanjing Quantum Communication Technology Co., Ltd.
@@ -53097,3 +53097,49 @@
 53284	Selecture Incorporated
 53285	Shenzhen Baitong Putian Technology Co.,Ltd.
 53286	shuangxigong
+53287	Administration of  town Salekhard
+53288	SEKOIA
+53289	Arduent Centisi LLC
+53290	AKC-Schwarz GmbH
+53291	Decafgeek Enterprises
+53292	Administration of Press, Publication, Radio and Television of Guangxi Zhuang Autonomous Region
+53293	Instytut Tele-i Radiotechniczny
+53294	openhosting
+53295	Dantherm Cooling, Inc.
+53296	Motorola Solutions PKI
+53297	Keronet Cunsulting Lrd.
+53298	Editech Co., Ltd.
+53299	Shanxi wangyun technology co. LTD
+53300	Rönningås Skog AB
+53301	Iron Gate Technology
+53302	IDRO
+53303	Tianjin Optical Electrical Group Co., Ltd.
+53304	HH Skog i Ytterhogdal AB
+53305	TrioSpring LLC
+53306	SalvaPruebas
+53307	Deutsche Telekom Technik GmbH
+53308	MULTOS Limited
+53309	Kwanko
+53310	Nickel Institute
+53311	Regional Urology, LLC
+53312	albaek.NET
+53313	CyberX-Labs Inc.
+53314	Hindmarsh Pty Ltd
+53315	ITC Global
+53316	TenderCare Pediatrics of Miami, LLC
+53317	Worktrax Pty Ltd
+53318	Enetek Power Asia Pte Ltd
+53319	Furiosa-AI
+53320	Wilab
+53321	Smokescreen Technologies
+53322	H.R.Z. Software Services LTD
+53323	Deutsche Lufthansa AG
+53324	Entrust (Europe) Limited
+53325	Wavestone
+53326	BWI GmbH
+53327	Erudicon
+53328	Declaro Support Limited
+53329	Amphenol Aerospace
+53330	Netstratum Inc
+53331	JMA Wireless
+53332	TECNAIR LV S.p.A.

@@ -12553,7 +12553,6 @@ a:hover {
     </message>
     <message>
         <source>Remove from list</source>
-        <oldsource>Remove</oldsource>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -10303,665 +10303,665 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Shift+Up</source>
-        <translation type="unfinished">Skift+upp</translation>
+        <translation>Skift+upp</translation>
     </message>
     <message>
         <source>Move Left 1 Pixel</source>
-        <translation type="unfinished">Flytta åt vänster 1 bildpunkt</translation>
+        <translation>Flytta åt vänster 1 bildpunkt</translation>
     </message>
     <message>
         <source>Shift+Left</source>
-        <translation type="unfinished">Skift+vänster</translation>
+        <translation>Skift+vänster</translation>
     </message>
     <message>
         <source>Move Right 1 Pixel</source>
-        <translation type="unfinished">Flytta åt höger 1 bildpunkt</translation>
+        <translation>Flytta åt höger 1 bildpunkt</translation>
     </message>
     <message>
         <source>Shift+Right</source>
-        <translation type="unfinished">Skift+höger</translation>
+        <translation>Skift+höger</translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation type="unfinished">Flytta ned 1 bildpunkt</translation>
+        <translation>Flytta nedåt 1 bildpunkt</translation>
     </message>
     <message>
         <source>Shift+Down</source>
-        <translation type="unfinished">Skift+ned</translation>
+        <translation>Skift+ned</translation>
     </message>
     <message>
         <source>Next Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Nästa ström</translation>
     </message>
     <message>
         <source>Go to the next stream in the capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Gå till nästa ström i fångsten</translation>
     </message>
     <message>
         <source>PgUp</source>
-        <translation type="unfinished">Sida upp</translation>
+        <translation>Sida upp</translation>
     </message>
     <message>
         <source>Previous Stream</source>
-        <translation type="unfinished"></translation>
+        <translation>Föregående ström</translation>
     </message>
     <message>
         <source>Go to the previous stream in the capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Gå till föregående ström i fångsten</translation>
     </message>
     <message>
         <source>PgDown</source>
-        <translation type="unfinished">Sida ned</translation>
+        <translation>Sida ned</translation>
     </message>
     <message>
         <source>Switch Direction</source>
-        <translation type="unfinished">Byt riktning</translation>
+        <translation>Byt riktning</translation>
     </message>
     <message>
         <source>Switch direction (swap TCP endpoints)</source>
-        <translation type="unfinished"></translation>
+        <translation>Byt riktning (växla TCP-ändpunkter)</translation>
     </message>
     <message>
         <source>D</source>
-        <translation type="unfinished">D</translation>
+        <translation>D</translation>
     </message>
     <message>
         <source>Go To Packet Under Cursor</source>
-        <translation type="unfinished">Gå till paketet under markören</translation>
+        <translation>Gå till paketet under markören</translation>
     </message>
     <message>
         <source>Go to packet currently under the cursor</source>
-        <translation type="unfinished">Gå till paketet som just nu är under markören</translation>
+        <translation>Gå till paketet som just nu är under markören</translation>
     </message>
     <message>
         <source>G</source>
-        <translation type="unfinished">G</translation>
+        <translation>G</translation>
     </message>
     <message>
         <source>Drag / Zoom</source>
-        <translation type="unfinished">Dra/zooma</translation>
+        <translation>Dra/zooma</translation>
     </message>
     <message>
         <source>Toggle mouse drag / zoom behavior</source>
-        <translation type="unfinished">Växla musbeteende mellan dra/zooma</translation>
+        <translation>Växla musbeteende mellan dra/zooma</translation>
     </message>
     <message>
         <source>Z</source>
-        <translation type="unfinished">Z</translation>
+        <translation>Z</translation>
     </message>
     <message>
         <source>Relative / Absolute Sequence Numbers</source>
-        <translation type="unfinished"></translation>
+        <translation>Relativa/absoluta sekvensnummer</translation>
     </message>
     <message>
         <source>Toggle relative / absolute sequence numbers</source>
-        <translation type="unfinished"></translation>
+        <translation>Byt mellan relativa/absoluta sekvensnummer</translation>
     </message>
     <message>
         <source>S</source>
-        <translation type="unfinished"></translation>
+        <translation>S</translation>
     </message>
     <message>
         <source>Capture / Session Time Origin</source>
-        <translation type="unfinished">Ursprungstid för fångst/session</translation>
+        <translation>Ursprungstid för fångst/session</translation>
     </message>
     <message>
         <source>Toggle capture / session time origin</source>
-        <translation type="unfinished">Växla mellan fångst/session som urprungstid</translation>
+        <translation>Växla mellan fångst/session som urprungstid</translation>
     </message>
     <message>
         <source>T</source>
-        <translation type="unfinished">T</translation>
+        <translation>T</translation>
     </message>
     <message>
         <source>Crosshairs</source>
-        <translation type="unfinished">Hårkors</translation>
+        <translation>Hårkors</translation>
     </message>
     <message>
         <source>Toggle crosshairs</source>
-        <translation type="unfinished">Byt hårkors</translation>
+        <translation>Byt hårkors</translation>
     </message>
     <message>
         <source>Space</source>
-        <translation type="unfinished">Mellanslag</translation>
+        <translation>Mellanslag</translation>
     </message>
     <message>
         <source>Round Trip Time</source>
-        <translation type="unfinished">Rundturstid</translation>
+        <translation>Rundturstid</translation>
     </message>
     <message>
         <source>Switch to the Round Trip Time graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Byt till grafen för rundturstid</translation>
     </message>
     <message>
         <source>1</source>
-        <translation type="unfinished">1</translation>
+        <translation>1</translation>
     </message>
     <message>
         <source>Throughput</source>
-        <translation type="unfinished">Genomströmning</translation>
+        <translation>Genomströmning</translation>
     </message>
     <message>
         <source>Switch to the Throughput graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Byt till grafen för genomströmning</translation>
     </message>
     <message>
         <source>2</source>
-        <translation type="unfinished">2</translation>
+        <translation>2</translation>
     </message>
     <message>
         <source>Time / Sequence (Stevens)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tid/sekvens (Stevens)</translation>
     </message>
     <message>
         <source>Switch to the Stevens-style Time / Sequence graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Byt till grafen för tid/sekvens i Stevens stil</translation>
     </message>
     <message>
         <source>3</source>
-        <translation type="unfinished">3</translation>
+        <translation>3</translation>
     </message>
     <message>
         <source>Window Scaling</source>
-        <translation type="unfinished">Fönsterskalning</translation>
+        <translation>Fönsterskalning</translation>
     </message>
     <message>
         <source>Switch to the Window Scaling graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Byt till grafen för fönsterskalning</translation>
     </message>
     <message>
         <source>5</source>
-        <translation type="unfinished">5</translation>
+        <translation>5</translation>
     </message>
     <message>
         <source>Time / Sequence (tcptrace)</source>
-        <translation type="unfinished"></translation>
+        <translation>Tid/sekvens (tcptrace)</translation>
     </message>
     <message>
         <source>Switch to the tcptrace-style Time / Sequence graph</source>
-        <translation type="unfinished"></translation>
+        <translation>Byt till grafen för tid/sekvens i tcptraces stil</translation>
     </message>
     <message>
         <source>4</source>
-        <translation type="unfinished">4</translation>
+        <translation>4</translation>
     </message>
 </context>
 <context>
     <name>SCTPAssocAnalyseDialog</name>
     <message>
         <source>Wireshark - Analyse Association</source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark — analysera associationer</translation>
     </message>
     <message>
         <source>TabWidget</source>
-        <translation type="unfinished"></translation>
+        <translation>Flik-widget</translation>
     </message>
     <message>
         <source>Statistics</source>
-        <translation type="unfinished">Statistik</translation>
+        <translation>Statistik</translation>
     </message>
     <message>
         <source>Chunk Statistics</source>
-        <translation type="unfinished"></translation>
+        <translation>Styckesstatistik</translation>
     </message>
     <message>
         <source>Filter Association</source>
-        <translation type="unfinished"></translation>
+        <translation>Filterassociation</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">Stäng</translation>
+        <translation>Stäng</translation>
     </message>
     <message>
         <source>Number of Data Chunks from EP2 to EP1: </source>
-        <translation type="unfinished"></translation>
+        <translation>Antal datastycken från EP2 till EP1:</translation>
     </message>
     <message>
         <source>Checksum Type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kontrollsummetyp</translation>
     </message>
     <message>
         <source>Number of Data Chunks from EP1 to EP2: </source>
-        <translation type="unfinished"></translation>
+        <translation>Antal datastycken från EP1 till EP2:</translation>
     </message>
     <message>
         <source>Number of Data Bytes from EP1 to EP2:</source>
-        <translation type="unfinished"></translation>
+        <translation>Antal databyte från EP1 till EP2:</translation>
     </message>
     <message>
         <source>Number of Data Bytes from EP2 to EP1: </source>
-        <translation type="unfinished"></translation>
+        <translation>Antal databyte från EP2 till EP1:</translation>
     </message>
     <message>
         <source>TextLabel</source>
-        <translation type="unfinished"></translation>
+        <translation>TextEtikett</translation>
     </message>
     <message>
         <source>Endpoint 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ändpunkt 1</translation>
     </message>
     <message>
         <source>Graph TSN</source>
-        <translation type="unfinished"></translation>
+        <translation>Graf-TSN</translation>
     </message>
     <message>
         <source>Graph Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Grafbyte</translation>
     </message>
     <message>
         <source>Complete list of IP Addresses as provided in the INIT Chunk</source>
-        <translation type="unfinished"></translation>
+        <translation>Fullständig lista över IP-adresser som de tillhandahålls av INIT-stycket</translation>
     </message>
     <message>
         <source>Requested Number of Inbound Streams:</source>
-        <translation type="unfinished"></translation>
+        <translation>Begärt antal av inkomande strömmar:</translation>
     </message>
     <message>
         <source>Port:</source>
-        <translation type="unfinished">Port:</translation>
+        <translation>Port:</translation>
     </message>
     <message>
         <source>Sent Verification Tag:</source>
-        <translation type="unfinished"></translation>
+        <translation>Skickade verifikationstagg:</translation>
     </message>
     <message>
         <source>Minimum Number of Inbound Streams:</source>
-        <translation type="unfinished"></translation>
+        <translation>Minsta antal av inkomande strömmar:</translation>
     </message>
     <message>
         <source>Minimum Number of Outbound Streams:</source>
-        <translation type="unfinished"></translation>
+        <translation>Minsta antal av utgående strömmar:</translation>
     </message>
     <message>
         <source>Graph Arwnd</source>
-        <translation type="unfinished"></translation>
+        <translation>Graf-Arwnd</translation>
     </message>
     <message>
         <source>Endpoint 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Ändpunkt 2</translation>
     </message>
     <message>
         <source>Provided Number of Outbound Streams:</source>
-        <translation type="unfinished"></translation>
+        <translation>Levererat antal utgående strömmar:</translation>
     </message>
     <message>
         <source>Complete list of IP Addresses as provided in the INIT-ACK Chunk</source>
-        <translation type="unfinished"></translation>
+        <translation>Fullständig lista över IP-adresser som de tillhandahålls av INIT-ACK-stycket</translation>
     </message>
     <message>
         <source>Graph a_rwnd</source>
-        <translation type="unfinished"></translation>
+        <translation>Graf-a_rwnd</translation>
     </message>
     <message>
         <source>SCTP Analyse Association: %1 Port1 %2 Port2 %3</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP-analysassociation: %1 Port1 %2 Port 2 %3</translation>
     </message>
     <message>
         <source>No Association found for this packet.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ingen association hittades för detta paket.</translation>
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished">Varning</translation>
+        <translation>Varning</translation>
     </message>
     <message>
         <source>Could not find SCTP Association with id: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kunde inte hitta någon SCTP-association med id: %1</translation>
     </message>
     <message>
         <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
-        <translation type="unfinished"></translation>
+        <translation>Fullständig lista över IP-adresser som de tillhandahålls av INIT-stycket</translation>
     </message>
     <message>
         <source>Complete list of IP-Addresses as provided in the INITACK-Chunk</source>
-        <translation type="unfinished"></translation>
+        <translation>Fullständig lista över IP-adresser som de tillhandahålls av INITACK-stycket</translation>
     </message>
     <message>
         <source>List of used IP-Addresses</source>
-        <translation type="unfinished"></translation>
+        <translation>Lista över använda IP-adresser</translation>
     </message>
     <message>
         <source>Used Number of Inbound Streams:</source>
-        <translation type="unfinished"></translation>
+        <translation>Använt antal av inkomande strömmar:</translation>
     </message>
     <message>
         <source>Used Number of Outbound Streams:</source>
-        <translation type="unfinished"></translation>
+        <translation>Använt antal utgående strömmar:</translation>
     </message>
 </context>
 <context>
     <name>SCTPChunkStatisticsDialog</name>
     <message>
         <source>Dialog</source>
-        <translation type="unfinished">Dialog</translation>
+        <translation>Dialog</translation>
     </message>
     <message>
         <source>Association</source>
-        <translation type="unfinished"></translation>
+        <translation>Association</translation>
     </message>
     <message>
         <source>Endpoint 1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ändpunkt 1</translation>
     </message>
     <message>
         <source>Endpoint 2</source>
-        <translation type="unfinished"></translation>
+        <translation>Ändpunkt 2</translation>
     </message>
     <message>
         <source>Save Chunk Type Order</source>
-        <translation type="unfinished"></translation>
+        <translation>Spara styckestypsordning</translation>
     </message>
     <message>
         <source>Hide Chunk Type</source>
-        <translation type="unfinished"></translation>
+        <translation>Dölj styckestyp</translation>
     </message>
     <message>
         <source>Remove the chunk type from the table</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta bort styckestypen från tabellen</translation>
     </message>
     <message>
         <source>Chunk Type Preferences</source>
-        <translation type="unfinished"></translation>
+        <translation>Styckestypsinställningar</translation>
     </message>
     <message>
         <source>Go to the chunk type preferences dialog to show or hide other chunk types</source>
-        <translation type="unfinished"></translation>
+        <translation>Gå till dialogen för styckestypsinställningar för att visa eller dölja andra styckestyper</translation>
     </message>
     <message>
         <source>Show All Registered Chunk Types</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa alla registrerade styckestyper</translation>
     </message>
     <message>
         <source>Show all chunk types with defined names</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa alla styckestyper med definierade namn</translation>
     </message>
     <message>
         <source>SCTP Chunk Statistics: %1 Port1 %2 Port2 %3</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP-styckesstatistik: %1 Port1 %2 Port 2 %3</translation>
     </message>
 </context>
 <context>
     <name>SCTPGraphArwndDialog</name>
     <message>
         <source>SCTP Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP-graf</translation>
     </message>
     <message>
         <source>Reset to full size</source>
-        <translation type="unfinished"></translation>
+        <translation>Återställ till full storlek</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Save Graph</source>
-        <translation type="unfinished">Spara grafen</translation>
+        <translation>Spara grafen</translation>
     </message>
     <message>
         <source>goToPacket</source>
-        <translation type="unfinished"></translation>
+        <translation>gåTillPaket</translation>
     </message>
     <message>
         <source>Go to Packet</source>
-        <translation type="unfinished">Gå till paket</translation>
+        <translation>Gå till paket</translation>
     </message>
     <message>
         <source>SCTP Data and Adv. Rec. Window over Time: %1 Port1 %2 Port2 %3</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP-data och avancerade inspelningsfönster över tid: %1 Port1 %2 Port 2 %3</translation>
     </message>
     <message>
         <source>No Data Chunks sent</source>
-        <translation type="unfinished"></translation>
+        <translation>Inga datastycken skickade</translation>
     </message>
     <message>
         <source>Arwnd</source>
-        <translation type="unfinished"></translation>
+        <translation>Arwnd</translation>
     </message>
     <message>
         <source>time [secs]</source>
-        <translation type="unfinished"></translation>
+        <translation>tid [s]</translation>
     </message>
     <message>
         <source>Advertised Receiver Window [Bytes]</source>
-        <translation type="unfinished"></translation>
+        <translation>Annonserat mottagningsfönster [byte]</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Graph %1: a_rwnd=%2 Time=%3 secs &lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Graf %1: a_rwnd=%2 tid=%3 s &lt;/i&gt;&lt;/small&gt;</translation>
     </message>
 </context>
 <context>
     <name>SCTPGraphByteDialog</name>
     <message>
         <source>SCTP Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP-graf</translation>
     </message>
     <message>
         <source>Reset to full size</source>
-        <translation type="unfinished"></translation>
+        <translation>Återställ till full storlek</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished">&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;&lt;br/&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Save Graph</source>
-        <translation type="unfinished">Spara grafen</translation>
+        <translation>Spara grafen</translation>
     </message>
     <message>
         <source>goToPacket</source>
-        <translation type="unfinished"></translation>
+        <translation>gåTillPaket</translation>
     </message>
     <message>
         <source>Go to Packet</source>
-        <translation type="unfinished">Gå till paket</translation>
+        <translation>Gå till paket</translation>
     </message>
     <message>
         <source>SCTP Data and Adv. Rec. Window over Time: %1 Port1 %2 Port2 %3</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP-data och avancerade inspelningsfönster över tid: %1 Port1 %2 Port 2 %3</translation>
     </message>
     <message>
         <source>No Data Chunks sent</source>
-        <translation type="unfinished"></translation>
+        <translation>Inga datastycken skickade</translation>
     </message>
     <message>
         <source>Bytes</source>
-        <translation type="unfinished">Byte</translation>
+        <translation>Byte</translation>
     </message>
     <message>
         <source>time [secs]</source>
-        <translation type="unfinished"></translation>
+        <translation>tid [s]</translation>
     </message>
     <message>
         <source>Received Bytes</source>
-        <translation type="unfinished"></translation>
+        <translation>Mottagna byte</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Graph %1: Received bytes=%2 Time=%3 secs &lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Graf %1: mottagna byte=%2 tid=%3 s &lt;/i&gt;&lt;/small&gt;</translation>
     </message>
 </context>
 <context>
     <name>SCTPGraphDialog</name>
     <message>
         <source>SCTP Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP-graf</translation>
     </message>
     <message>
         <source>Relative TSNs</source>
-        <translation type="unfinished"></translation>
+        <translation>Relativa TSN:er</translation>
     </message>
     <message>
         <source>Only SACKs</source>
-        <translation type="unfinished"></translation>
+        <translation>Endast SACK:er</translation>
     </message>
     <message>
         <source>Only TSNs</source>
-        <translation type="unfinished"></translation>
+        <translation>Endast TSN:er</translation>
     </message>
     <message>
         <source>Show both</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa båda</translation>
     </message>
     <message>
         <source>Reset to full size</source>
-        <translation type="unfinished"></translation>
+        <translation>Återställ till full storlek</translation>
     </message>
     <message>
         <source>Save Graph</source>
-        <translation type="unfinished">Spara grafen</translation>
+        <translation>Spara grafen</translation>
     </message>
     <message>
         <source>goToPacket</source>
-        <translation type="unfinished"></translation>
+        <translation>gåTillPaket</translation>
     </message>
     <message>
         <source>Go to Packet</source>
-        <translation type="unfinished">Gå till paket</translation>
+        <translation>Gå till paket</translation>
     </message>
     <message>
         <source>SCTP TSNs and SACKs over Time: %1 Port1 %2 Port2 %3</source>
-        <translation type="unfinished"></translation>
+        <translation>SCTP TSN:er och SACK:er över tid: %1 Port1 %2 Port 2 %3</translation>
     </message>
     <message>
         <source>No Data Chunks sent</source>
-        <translation type="unfinished"></translation>
+        <translation>Inga datastycken skickade</translation>
     </message>
     <message>
         <source>CumTSNAck</source>
-        <translation type="unfinished"></translation>
+        <translation>CumTSNAck</translation>
     </message>
     <message>
         <source>Gap Ack</source>
-        <translation type="unfinished"></translation>
+        <translation>Gap Ack</translation>
     </message>
     <message>
         <source>NR Gap Ack</source>
-        <translation type="unfinished"></translation>
+        <translation>NR Gap Ack</translation>
     </message>
     <message>
         <source>Duplicate Ack</source>
-        <translation type="unfinished"></translation>
+        <translation>Duplicerat Ack</translation>
     </message>
     <message>
         <source>TSN</source>
-        <translation type="unfinished"></translation>
+        <translation>TSN</translation>
     </message>
     <message>
         <source>time [secs]</source>
-        <translation type="unfinished"></translation>
+        <translation>tid [s]</translation>
     </message>
     <message>
         <source>TSNs</source>
-        <translation type="unfinished"></translation>
+        <translation>TSN:er</translation>
     </message>
     <message>
         <source>&lt;small&gt;&lt;i&gt;%1: %2 Time: %3 secs &lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;%1: %2 tid: %3 s &lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Portable Document Format (*.pdf)</source>
-        <translation type="unfinished">Portable Document Format (*.pdf)</translation>
+        <translation>Portable Document Format (*.pdf)</translation>
     </message>
     <message>
         <source>Portable Network Graphics (*.png)</source>
-        <translation type="unfinished">Portable Network Graphics (*.png)</translation>
+        <translation>Portable Network Graphics (*.png)</translation>
     </message>
     <message>
         <source>Windows Bitmap (*.bmp)</source>
-        <translation type="unfinished">Windows Bitmap (*.bmp)</translation>
+        <translation>Windows Bitmap (*.bmp)</translation>
     </message>
     <message>
         <source>JPEG File Interchange Format (*.jpeg *.jpg)</source>
-        <translation type="unfinished">JPEG File Interchange Format (*.jpeg *.jpg)</translation>
+        <translation>JPEG File Interchange Format (*.jpeg *.jpg)</translation>
     </message>
     <message>
         <source>Save Graph As</source>
-        <translation type="unfinished">Spara grafen som</translation>
+        <translation>Spara grafen som</translation>
     </message>
 </context>
 <context>
     <name>ScsiServiceResponseTimeDialog</name>
     <message>
         <source>&lt;small&gt;&lt;i&gt;Select a command and enter a filter if desired, then press Apply.&lt;/i&gt;&lt;/small&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;small&gt;&lt;i&gt;Välj ett kommand och och fyll i ett filter om så önskas, tryck sedan Verkställ.&lt;/i&gt;&lt;/small&gt;</translation>
     </message>
     <message>
         <source>Command:</source>
-        <translation type="unfinished"></translation>
+        <translation>Kommando:</translation>
     </message>
     <message>
         <source>SCSI Service Response Times</source>
-        <translation type="unfinished"></translation>
+        <translation>SCSI-tjänstesvarstid</translation>
     </message>
 </context>
 <context>
     <name>SearchFrame</name>
     <message>
         <source>Frame</source>
-        <translation type="unfinished">Ram</translation>
+        <translation>Ram</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the Info column of the packet list (summary pane), decoded packet display labels (tree view pane) or the ASCII-converted packet data (hex view pane).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sök i infokolumnen i paketlistan (sammanfattningspanel), avkodade paketvisningsetiketter (trädvypanelen) eller den ASCII-konverterade paketdatan (hexvypanelen).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Packet list</source>
-        <translation type="unfinished"></translation>
+        <translation>Paketlista</translation>
     </message>
     <message>
         <source>Packet details</source>
-        <translation type="unfinished">Paketdetaljer</translation>
+        <translation>Paketdetaljer</translation>
     </message>
     <message>
         <source>Packet bytes</source>
-        <translation type="unfinished">Paketbyte</translation>
+        <translation>Paketbyte</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for strings containing narrow (UTF-8 and ASCII) or wide (UTF-16) characters.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sök efter strängar som innehåller smala (UTF-8 och ASCII) eller breda (UTF-16) tecken.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Narrow &amp; Wide</source>
-        <translation type="unfinished"></translation>
+        <translation>Smal &amp; bred</translation>
     </message>
     <message>
         <source>Narrow (UTF-8 / ASCII)</source>
-        <translation type="unfinished"></translation>
+        <translation>Smal (UTF-8 / ASCII)</translation>
     </message>
     <message>
         <source>Wide (UTF-16)</source>
-        <translation type="unfinished"></translation>
+        <translation>Bred (UTF-16)</translation>
     </message>
     <message>
         <source>Case sensitive</source>
-        <translation type="unfinished"></translation>
+        <translation>Skiftlägeskänsligt</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for data using display filter syntax (e.g. ip.addr==10.1.1.1), a hexadecimal string (e.g. fffffda5), a plain string (e.g. My String) or a regular expression (e.g. colou?r).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <oldsource>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search for data using display filter syntax (e.g. ip.addr==10.1.1.1), a hexadecimal string (e.g. fffffda5) or a plain string (e.g. My String).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sök efter data med användning av visningsfiltersyntax (t.ex. ip.addr==10.1.1.1), en hexadecimal sträng (t.ex. fffffda5), en enkel sträng (t.ex. Min Sträng) eller ett reguljärt uttryck (t.ex. schyss?t).&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Display filter</source>
-        <translation type="unfinished"></translation>
+        <translation>Visningsfilter</translation>
     </message>
     <message>
         <source>Hex value</source>
-        <translation type="unfinished"></translation>
+        <translation>Hexvärde</translation>
     </message>
     <message>
         <source>String</source>
-        <translation type="unfinished">Sträng</translation>
+        <translation>Sträng</translation>
     </message>
     <message>
         <source>Regular Expression</source>
-        <translation type="unfinished"></translation>
+        <translation>Reguljärt uttryck</translation>
     </message>
     <message>
         <source>Find</source>
-        <translation type="unfinished">Sök</translation>
+        <translation>Sök</translation>
     </message>
     <message>
         <source>Cancel</source>
@@ -11249,7 +11249,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation type="unfinished">Flytta ned 1 bildpunkt</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Shift+Down</source>
@@ -11867,7 +11867,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Move Down 1 Pixel</source>
-        <translation type="unfinished">Flytta ned 1 bildpunkt</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Shift+Down</source>
@@ -11875,11 +11875,11 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Next Stream</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Nästa ström</translation>
     </message>
     <message>
         <source>Go to the next stream in the capture</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Gå till nästa ström i fångsten</translation>
     </message>
     <message>
         <source>PgUp</source>
@@ -11887,11 +11887,11 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Previous Stream</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Föregående ström</translation>
     </message>
     <message>
         <source>Go to the previous stream in the capture</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Gå till föregående ström i fångsten</translation>
     </message>
     <message>
         <source>PgDown</source>
@@ -11899,7 +11899,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Switch direction (swap TCP endpoints)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Byt riktning (växla TCP-ändpunkter)</translation>
     </message>
     <message>
         <source>D</source>
@@ -11931,15 +11931,15 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Relative / Absolute Sequence Numbers</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Relativa/absoluta sekvensnummer</translation>
     </message>
     <message>
         <source>Toggle relative / absolute sequence numbers</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Byt mellan relativa/absoluta sekvensnummer</translation>
     </message>
     <message>
         <source>S</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">S</translation>
     </message>
     <message>
         <source>Capture / Session Time Origin</source>
@@ -11971,7 +11971,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Switch to the Round Trip Time graph</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Byt till grafen för rundturstid</translation>
     </message>
     <message>
         <source>1</source>
@@ -11983,7 +11983,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Switch to the Throughput graph</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Byt till grafen för genomströmning</translation>
     </message>
     <message>
         <source>2</source>
@@ -11991,11 +11991,11 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Time / Sequence (Stevens)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tid/sekvens (Stevens)</translation>
     </message>
     <message>
         <source>Switch to the Stevens-style Time / Sequence graph</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Byt till grafen för tid/sekvens i Stevens stil</translation>
     </message>
     <message>
         <source>3</source>
@@ -12007,7 +12007,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Switch to the Window Scaling graph</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Byt till grafen för fönsterskalning</translation>
     </message>
     <message>
         <source>5</source>
@@ -12015,11 +12015,11 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Time / Sequence (tcptrace)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Tid/sekvens (tcptrace)</translation>
     </message>
     <message>
         <source>Switch to the tcptrace-style Time / Sequence graph</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Byt till grafen för tid/sekvens i tcptraces stil</translation>
     </message>
     <message>
         <source>4</source>
@@ -12657,7 +12657,6 @@ a:hover {
     </message>
     <message>
         <source>Remove from list</source>
-        <oldsource>Remove</oldsource>
         <translation type="unfinished"></translation>
     </message>
 </context>

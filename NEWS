@@ -87,12 +87,16 @@ Wireshark 2.9.1 Release Notes
      • The Windows installers now ship with Qt 5.12.0. Previously they
        shipped with Qt 5.9.7.
 
-     • Support for decrypting TLS streams in pcapng files that embedded
+     • Support for DTLS and TLS decryption using pcapng files that embed
        a Decryption Secrets Block (DSB) containing a TLS Key Log (Bug
        15252[4]).
 
      • The editcap utility gained a new --inject-secrets option to
        inject an existing TLS Key Log file into a pcapng file.
+
+     • A new dfilter function string() has been added. It allows the
+       conversion of non-string fields to strings so string functions
+       (as contains and matches) can be used on them.
 
   Removed Features and Support
 
@@ -205,7 +209,7 @@ Wireshark 2.9.1 Release Notes
 
   A complete FAQ is available on the Wireshark web site[13].
 
-  Last updated 2019-01-13 08:18:17 UTC
+  Last updated 2019-01-20 08:14:50 UTC
 
  References
 

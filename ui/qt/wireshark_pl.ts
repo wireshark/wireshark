@@ -89,11 +89,11 @@
     </message>
     <message>
         <source>Show in Finder</source>
-        <translation type="unfinished">Pokaż w wyszukiwarce</translation>
+        <translation>Pokaż w wyszukiwarce</translation>
     </message>
     <message>
         <source>Show in Folder</source>
-        <translation type="unfinished">Pokaż w folderze</translation>
+        <translation>Pokaż w folderze</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -12758,8 +12758,7 @@ a:hover {
     </message>
     <message>
         <source>Remove from list</source>
-        <oldsource>Remove</oldsource>
-        <translation type="unfinished">Usuń</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
