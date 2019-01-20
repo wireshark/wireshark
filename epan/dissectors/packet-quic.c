@@ -1435,7 +1435,7 @@ quic_get_pn_cipher_algo(int cipher_algo, int *hp_cipher_mode)
         return TRUE;
 #ifdef HAVE_LIBGCRYPT_CHACHA20
     case GCRY_CIPHER_CHACHA20:
-        *hp_cipher_mode = 0;
+        *hp_cipher_mode = GCRY_CIPHER_MODE_STREAM;
         return TRUE;
 #endif /* HAVE_LIBGCRYPT_CHACHA20 */
     default:
@@ -1945,7 +1945,9 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     }
 
     pkn_len = dissect_quic_packet_number(tvb, pinfo, quic_tree, offset, conn, quic_packet, from_server,
-                                         cipher ? cipher->hp_cipher : NULL, GCRY_CIPHER_AES128, &first_byte, &pkn);
+                                         cipher ? cipher->hp_cipher : NULL,
+                                         long_packet_type != QUIC_LPT_INITIAL && conn ? conn->cipher_algo : GCRY_CIPHER_AES128,
+                                         &first_byte, &pkn);
     if (pkn_len == 0) {
         return offset;
     }
