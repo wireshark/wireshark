@@ -816,7 +816,6 @@ static const value_string parameter_id_vals[] = {
   { PID_DEFAULT_UNICAST_IPADDRESS,      "PID_DEFAULT_UNICAST_IPADDRESS" },
   { PID_METATRAFFIC_UNICAST_PORT,       "PID_METATRAFFIC_UNICAST_PORT" },
   { PID_DEFAULT_UNICAST_PORT,           "PID_DEFAULT_UNICAST_PORT" },
-  { PID_IS_RELIABLE,                    "PID_IS_RELIABLE [deprecated]" },
   { PID_EXPECTS_ACK,                    "PID_EXPECTS_ACK" },
   { PID_MULTICAST_IPADDRESS,            "PID_MULTICAST_IPADDRESS" },
   { PID_MANAGER_KEY,                    "PID_MANAGER_KEY [deprecated]" },
