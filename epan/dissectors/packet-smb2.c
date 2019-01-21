@@ -9102,7 +9102,7 @@ dissect_smb2_tid_sesid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, 
 	if (!si->session) {
 		guint8 seskey[NTLMSSP_KEY_LEN] = {0, };
 
-		if (si->opcode != 0x03)
+		if (si->opcode != SMB2_COM_TREE_CONNECT)
 			return offset;
 
 
