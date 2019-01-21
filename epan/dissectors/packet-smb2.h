@@ -58,6 +58,7 @@ typedef struct _smb2_saved_info_t {
 	guint64 msg_id;
 	guint32 frame_req, frame_res;
 	nstime_t req_time;
+	guint8 *preauth_hash_req, *preauth_hash_res;
 	smb2_fid_info_t *file;
 	e_ctx_hnd policy_hnd; 		/* for eo_smb tracking */
 	smb_eo_t	*eo_info_t;	/* for storing eo_smb infos */
@@ -74,6 +75,8 @@ typedef struct _smb2_tid_info_t {
 	char *name;
 } smb2_tid_info_t;
 
+#define SMB2_PREAUTH_HASH_SIZE 64
+
 typedef struct _smb2_sesid_info_t {
 	guint64 sesid;
 	guint32 auth_frame;
@@ -85,6 +88,7 @@ typedef struct _smb2_sesid_info_t {
 	guint8 client_decryption_key[16];
 	guint8 server_decryption_key[16];
 	GHashTable *tids;
+	guint8 preauth_hash[SMB2_PREAUTH_HASH_SIZE];
 } smb2_sesid_info_t;
 
 /* Structure to keep track of conversations and the hash tables.
@@ -99,6 +103,11 @@ typedef struct _smb2_conv_info_t {
 	/* table to store some infos for smb export object */
 	GHashTable *files;
 	guint16 dialect;
+
+	/* preauth hash before session setup */
+	guint8 *preauth_hash_current;
+	guint8 preauth_hash_con[SMB2_PREAUTH_HASH_SIZE];
+	guint8 preauth_hash_ses[SMB2_PREAUTH_HASH_SIZE];
 } smb2_conv_info_t;
 
 
