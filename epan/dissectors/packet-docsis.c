@@ -543,10 +543,12 @@ dissect_encrypted_frame (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
    * - Fragmentation MAC Frames;
    * - Registration Request (REG-REQ-MP) MAC Management Message Frames;
    * - Isolation PDU MAC Frames.
+   * There are also other corner cases when MAC Management frames might be encrypted
+   * (e.g. EH_TYPE=7 as described in CM-SP-MULPIv3.1-I15-180509 Table 17 and Table 20)
    */
   if (fctype == FCTYPE_MACSPC) {
     if (fcparm == FCPARM_MAC_MGMT_HDR) {
-      col_append_str (pinfo->cinfo, COL_INFO, " (Encrypted REG-REQ-MP)");
+      col_append_str (pinfo->cinfo, COL_INFO, " (Encrypted MMM)");
     } else if (fcparm == FCPARM_FRAG_HDR) {
       col_append_str (pinfo->cinfo, COL_INFO, " (Encrypted Fragmentation MAC Frame)");
     } else {
