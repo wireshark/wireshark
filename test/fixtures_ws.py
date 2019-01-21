@@ -132,9 +132,11 @@ def cmd_wireshark(program):
 
 @fixtures.fixture(scope='session')
 def wireshark_command(cmd_wireshark):
-    if sys.platform not in ('win32', 'darwin'):
-        # TODO check DISPLAY for X11 on Linux or BSD?
-        fixtures.skip('Wireshark GUI tests requires DISPLAY')
+    # Windows and macOS can always display the GUI. On Linux, headless mode is
+    # used, see QT_QPA_PLATFORM in the 'test_env' fixture.
+    if sys.platform not in ('win32', 'darwin', 'linux'):
+        if 'DISPLAY' not in os.environ:
+            fixtures.skip('Wireshark GUI tests requires DISPLAY')
     return (cmd_wireshark, '-ogui.update.enabled:FALSE')
 
 
@@ -262,6 +264,16 @@ def test_env(base_env, conf_path, request, dirs):
     env = base_env
     env['WIRESHARK_RUN_FROM_BUILD_DIRECTORY'] = '1'
     env['WIRESHARK_QUIT_AFTER_CAPTURE'] = '1'
+
+    # Allow GUI tests to be run without opening windows nor requiring a Xserver.
+    # Set envvar QT_DEBUG_BACKINGSTORE=1 to save the window contents to a file
+    # in the current directory, output0000.png, output0001.png, etc. Note that
+    # this will overwrite existing files.
+    if sys.platform == 'linux':
+        # This option was verified working on Arch Linux with Qt 5.12.0-2 and
+        # Ubuntu 16.04 with libqt5gui5 5.5.1+dfsg-16ubuntu7.5. On macOS and
+        # Windows it unfortunately crashes (Qt 5.12.0).
+        env['QT_QPA_PLATFORM'] = 'minimal'
 
     # Remove this if test instances no longer inherit from SubprocessTestCase?
     if isinstance(request.instance, subprocesstest.SubprocessTestCase):
