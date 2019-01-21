@@ -738,6 +738,29 @@ foreach(THIS_FLAG ${WIRESHARK_COMMON_FLAGS} ${WIRESHARK_CXX_ONLY_FLAGS})
 endforeach()
 set(CMAKE_CXX_FLAGS "${ADDED_CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS}")
 
+# Strips the source and build directory prefix from the __FILE__ macro to ensure
+# reproducible builds. Supported since GCC 8, Clang support is pending.
+if(CMAKE_C_COMPILER_ID MATCHES "GNU" OR CMAKE_C_COMPILER_ID MATCHES "Clang")
+	# If the build dir is within the source dir, CMake will use something
+	# like ../epan/dfilter/semcheck.c. Map these relative paths in addition
+	# to CMAKE_BINARY_DIR since compile_commands.json uses absolute paths.
+	file(RELATIVE_PATH _relative_source_dir "${CMAKE_BINARY_DIR}" "${CMAKE_SOURCE_DIR}")
+	string(REGEX REPLACE "/$" "" _relative_source_dir "${_relative_source_dir}")
+
+	check_c_compiler_flag(-fmacro-prefix-map=old=new C_fmacro_prefix_map_old_new_VALID)
+	check_cxx_compiler_flag(-fmacro-prefix-map=old=new CXX_fmacro_prefix_map_old_new_VALID)
+	foreach(_lang C CXX)
+		if(${_lang}_fmacro_prefix_map_old_new_VALID)
+			set(_flags CMAKE_${_lang}_FLAGS)
+			set(${_flags} "${${_flags}} -fmacro-prefix-map=${CMAKE_SOURCE_DIR}/=")
+			set(${_flags} "${${_flags}} -fmacro-prefix-map=${CMAKE_BINARY_DIR}/=")
+			if(_relative_source_dir MATCHES "\\.\\.$")
+				set(${_flags} "${${_flags}} -fmacro-prefix-map=${_relative_source_dir}/=")
+			endif()
+		endif()
+	endforeach()
+endif()
+
 include(CMakePushCheckState)
 
 if(ENABLE_ASAN)
