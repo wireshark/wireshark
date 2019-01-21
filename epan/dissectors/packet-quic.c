@@ -59,8 +59,10 @@ static int hf_quic_packet_number = -1;
 static int hf_quic_version = -1;
 static int hf_quic_supported_version = -1;
 static int hf_quic_vn_unused = -1;
-static int hf_quic_key_phase = -1;
+static int hf_quic_fixed_bit = -1;
+static int hf_quic_spin_bit = -1;
 static int hf_quic_short_reserved = -1;
+static int hf_quic_key_phase = -1;
 static int hf_quic_payload = -1;
 static int hf_quic_protected_payload = -1;
 static int hf_quic_remaining_payload = -1;
@@ -1951,6 +1953,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
 #endif /* !HAVE_LIBGCRYPT_AEAD */
 
     proto_tree_add_item(quic_tree, hf_quic_long_packet_type, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(quic_tree, hf_quic_fixed_bit, tvb, offset, 1, ENC_NA);
     if (quic_packet->pkn_len) {
         proto_tree_add_uint(quic_tree, hf_quic_long_reserved, tvb, offset, 1, first_byte);
         proto_tree_add_uint(quic_tree, hf_quic_packet_number_length, tvb, offset, 1, first_byte);
@@ -2033,6 +2036,8 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
         first_byte = quic_packet->first_byte;
     }
 #endif /* !HAVE_LIBGCRYPT_AEAD */
+    proto_tree_add_item(quic_tree, hf_quic_fixed_bit, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(quic_tree, hf_quic_spin_bit, tvb, offset, 1, ENC_NA);
     if (quic_packet->pkn_len) {
         key_phase = (first_byte & SH_KP) != 0;
         proto_tree_add_uint(quic_tree, hf_quic_short_reserved, tvb, offset, 1, first_byte);
@@ -2476,15 +2481,25 @@ proto_register_quic(void)
             FT_UINT8, BASE_HEX, NULL, 0x7F,
             NULL, HFILL }
         },
-        { &hf_quic_key_phase,
-          { "Key Phase Bit", "quic.key_phase",
-            FT_BOOLEAN, 8, NULL, SH_KP,
-            "Selects the packet protection keys to use (protected using header protection)", HFILL }
+        { &hf_quic_spin_bit,
+          { "Spin Bit", "quic.spin_bit",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            "Latency Spin Bit", HFILL }
+        },
+        { &hf_quic_fixed_bit,
+          { "Fixed Bit", "quic.fixed_bit",
+            FT_BOOLEAN, 8, NULL, 0x40,
+            "Must be 1", HFILL }
         },
         { &hf_quic_short_reserved,
           { "Reserved", "quic.short.reserved",
             FT_UINT8, BASE_DEC, NULL, 0x18,
             "Reserved bits (protected using header protection)", HFILL }
+        },
+        { &hf_quic_key_phase,
+          { "Key Phase Bit", "quic.key_phase",
+            FT_BOOLEAN, 8, NULL, SH_KP,
+            "Selects the packet protection keys to use (protected using header protection)", HFILL }
         },
 
         { &hf_quic_payload,
