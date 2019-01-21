@@ -13,6 +13,7 @@
 
 #include "packet-dcerpc.h"
 #include "packet-smb.h"
+#include "packet-ntlmssp.h"
 
 /* SMB2 command codes. With MSVC and a
  * libwireshark.dll, we need a special declaration.
@@ -80,6 +81,7 @@ typedef struct _smb2_sesid_info_t {
 	char *domain_name;
 	char *host_name;
 	guint16 server_port;
+	guint8 session_key[NTLMSSP_KEY_LEN];
 	guint8 client_decryption_key[16];
 	guint8 server_decryption_key[16];
 	GHashTable *tids;

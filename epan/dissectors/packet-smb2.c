@@ -1102,6 +1102,31 @@ smb2_conv_destroy(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
 	return FALSE;
 }
 
+static smb2_sesid_info_t *
+smb2_get_session(smb2_conv_info_t *conv, guint64 id, packet_info *pinfo, smb2_info_t *si)
+{
+	smb2_sesid_info_t key = {.sesid = id};
+	smb2_sesid_info_t *ses = (smb2_sesid_info_t *)g_hash_table_lookup(conv->sesids, &key);
+
+	if (!ses) {
+		ses = wmem_new0(wmem_file_scope(), smb2_sesid_info_t);
+		ses->sesid = id;
+		ses->auth_frame = (guint32)-1;
+		ses->tids = g_hash_table_new(smb2_tid_info_hash, smb2_tid_info_equal);
+		seskey_find_sid_key(id, ses->session_key);
+		if (pinfo && si) {
+			if (si->flags & SMB2_FLAGS_RESPONSE) {
+				ses->server_port = pinfo->srcport;
+			} else {
+				ses->server_port = pinfo->destport;
+			}
+		}
+		g_hash_table_insert(conv->sesids, ses, ses);
+	}
+
+	return ses;
+}
+
 static void
 smb2_add_session_info(proto_tree *tree, tvbuff_t *tvb, gint start, smb2_sesid_info_t *ses)
 {
@@ -3132,29 +3157,15 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		idx = 0;
 		while ((ntlmssph = (const ntlmssp_header_t *)fetch_tapped_data(ntlmssp_tap_id, idx++)) != NULL) {
 			if (ntlmssph && ntlmssph->type == NTLMSSP_AUTH) {
-				smb2_sesid_info_t *sesid;
-				guint8 custom_seskey[NTLMSSP_KEY_LEN];
-				const guint8 *session_key;
-
-				sesid = wmem_new(wmem_file_scope(), smb2_sesid_info_t);
-				sesid->sesid = si->sesid;
-				sesid->acct_name = wmem_strdup(wmem_file_scope(), ntlmssph->acct_name);
-				sesid->domain_name = wmem_strdup(wmem_file_scope(), ntlmssph->domain_name);
-				sesid->host_name = wmem_strdup(wmem_file_scope(), ntlmssph->host_name);
-
-				/* Try to see first if we have a
-				 * session key set in the pref for
-				 * this particular session id */
-				if (seskey_find_sid_key(si->sesid, custom_seskey)) {
-					session_key = custom_seskey;
-				} else {
-					session_key = ntlmssph->session_key;
+				si->session = smb2_get_session(si->conv, si->sesid, pinfo, si);
+				si->session->acct_name = wmem_strdup(wmem_file_scope(), ntlmssph->acct_name);
+				si->session->domain_name = wmem_strdup(wmem_file_scope(), ntlmssph->domain_name);
+				si->session->host_name = wmem_strdup(wmem_file_scope(), ntlmssph->host_name);
+				/* don't overwrite session key from preferences */
+				if (memcmp(si->session->session_key, zeros, SMB_SESSION_ID_SIZE) == 0) {
+					memcpy(si->session->session_key, ntlmssph->session_key, NTLMSSP_KEY_LEN);
 				}
-				smb2_set_session_keys(sesid, session_key);
-				sesid->server_port = pinfo->destport;
-				sesid->auth_frame = pinfo->num;
-				sesid->tids = g_hash_table_new(smb2_tid_info_hash, smb2_tid_info_equal);
-				g_hash_table_insert(si->conv->sesids, sesid, sesid);
+				si->session->auth_frame = pinfo->num;
 			}
 		}
 	}
@@ -3290,6 +3301,10 @@ static int
 dissect_smb2_session_setup_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
 	offset_length_buffer_t s_olb;
+	si->session = smb2_get_session(si->conv, si->sesid, pinfo, si);
+	if (si->status == 0) {
+		si->session->auth_frame = pinfo->num;
+	}
 
 	/* session_setup is special and we don't use dissect_smb2_error_response() here! */
 
@@ -3323,27 +3338,7 @@ dissect_smb2_session_setup_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		}
 
 		if (ek != NULL) {
-			smb2_sesid_info_t *sesid;
-			guint8 custom_seskey[NTLMSSP_KEY_LEN] = { 0, };
-			const guint8 *session_key;
-
-			sesid = wmem_new(wmem_file_scope(), smb2_sesid_info_t);
-			sesid->sesid = si->sesid;
-			/* TODO: fill in the correct information */
-			sesid->acct_name = NULL;
-			sesid->domain_name = NULL;
-			sesid->host_name = NULL;
-
-			if (seskey_find_sid_key(si->sesid, custom_seskey)) {
-				session_key = custom_seskey;
-			} else {
-				session_key = ek->keyvalue;
-			}
-			smb2_set_session_keys(sesid, session_key);
-			sesid->server_port = pinfo->srcport;
-			sesid->auth_frame = pinfo->num;
-			sesid->tids = g_hash_table_new(smb2_tid_info_hash, smb2_tid_info_equal);
-			g_hash_table_insert(si->conv->sesids, sesid, sesid);
+			/* TODO: fill in the correct user/dom/host information */
 		}
 	}
 #endif
@@ -8929,7 +8924,6 @@ dissect_smb2_transform_header(packet_info *pinfo, proto_tree *tree,
 {
 	proto_item        *sesid_item     = NULL;
 	proto_tree        *sesid_tree     = NULL;
-	smb2_sesid_info_t  sesid_key;
 	int                sesid_offset;
 	guint8            *plain_data     = NULL;
 	guint8            *decryption_key = NULL;
@@ -8973,13 +8967,10 @@ dissect_smb2_transform_header(packet_info *pinfo, proto_tree *tree,
 	offset += 8;
 
 	/* now we need to first lookup the uid session */
-	sesid_key.sesid = sti->sesid;
-	sti->session = (smb2_sesid_info_t *)g_hash_table_lookup(sti->conv->sesids, &sesid_key);
-
-
+	sti->session = smb2_get_session(sti->conv, sti->sesid, NULL, NULL);
 	smb2_add_session_info(sesid_tree, tvb, sesid_offset, sti->session);
 
-	if (sti->session != NULL && sti->alg == ENC_ALG_aes128_ccm) {
+	if (sti->alg == ENC_ALG_aes128_ccm) {
 		if (pinfo->destport == sti->session->server_port) {
 			decryption_key = sti->session->server_decryption_key;
 		} else {
@@ -9115,31 +9106,14 @@ dissect_smb2_tid_sesid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, 
 	sesid_key.sesid = si->sesid;
 	si->session = (smb2_sesid_info_t *)g_hash_table_lookup(si->conv->sesids, &sesid_key);
 	if (!si->session) {
-		guint8 seskey[NTLMSSP_KEY_LEN] = {0, };
-
 		if (si->opcode != SMB2_COM_TREE_CONNECT)
 			return offset;
 
-
 		/* if we come to a session that is unknown, and the operation is
-		 * a tree connect, we create a dummy sessison, so we can hang the
+		 * a tree connect, we create a dummy session, so we can hang the
 		 * tree data on it
 		 */
-		si->session = wmem_new0(wmem_file_scope(), smb2_sesid_info_t);
-		si->session->sesid      = si->sesid;
-		si->session->auth_frame = (guint32)-1;
-		si->session->tids       = g_hash_table_new(smb2_tid_info_hash, smb2_tid_info_equal);
-		if (si->flags & SMB2_FLAGS_RESPONSE) {
-			si->session->server_port = pinfo->srcport;
-		} else {
-			si->session->server_port = pinfo->destport;
-		}
-		if (seskey_find_sid_key(si->sesid, seskey)) {
-			smb2_set_session_keys(si->session, seskey);
-		}
-
-		g_hash_table_insert(si->conv->sesids, si->session, si->session);
-
+		si->session = smb2_get_session(si->conv, si->sesid, pinfo, si);
 		return offset;
 	}
 
