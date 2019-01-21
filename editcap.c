@@ -835,6 +835,8 @@ print_usage(FILE *output)
     fprintf(output, "  -T <encap type>        set the output file encapsulation type; default is the\n");
     fprintf(output, "                         same as the input file. An empty \"-T\" option will\n");
     fprintf(output, "                         list the encapsulation types.\n");
+    fprintf(output, "  --inject-secrets <type>,<file>  Insert decryption secrets from <file>. List\n");
+    fprintf(output, "                         supported secret types with \"--inject-secrets help\".\n");
     fprintf(output, "\n");
     fprintf(output, "Miscellaneous:\n");
     fprintf(output, "  -h                     display this help and exit.\n");
