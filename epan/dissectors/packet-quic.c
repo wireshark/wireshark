@@ -73,60 +73,60 @@ static int hf_quic_retry_token = -1;
 static int hf_quic_frame = -1;
 static int hf_quic_frame_type = -1;
 
-static int hf_quic_frame_type_padding_length = -1;
-static int hf_quic_frame_type_ack_largest_acknowledged = -1;
-static int hf_quic_frame_type_ack_ack_delay = -1;
-static int hf_quic_frame_type_ack_ack_block_count = -1;
-static int hf_quic_frame_type_ack_fab = -1;
-static int hf_quic_frame_type_ack_gap = -1;
-static int hf_quic_frame_type_ack_ack_block = -1;
-static int hf_quic_frame_type_ae_largest_acknowledged = -1;
-static int hf_quic_frame_type_ae_ack_delay = -1;
-static int hf_quic_frame_type_ae_ect0_count = -1;
-static int hf_quic_frame_type_ae_ect1_count = -1;
-static int hf_quic_frame_type_ae_ecn_ce_count = -1;
-static int hf_quic_frame_type_ae_ack_block_count = -1;
-static int hf_quic_frame_type_ae_fab = -1;
-static int hf_quic_frame_type_ae_gap = -1;
-static int hf_quic_frame_type_ae_ack_block = -1;
-static int hf_quic_frame_type_rsts_stream_id = -1;
-static int hf_quic_frame_type_rsts_application_error_code = -1;
-static int hf_quic_frame_type_rsts_final_offset = -1;
-static int hf_quic_frame_type_ss_stream_id = -1;
-static int hf_quic_frame_type_ss_application_error_code = -1;
-static int hf_quic_frame_type_crypto_offset = -1;
-static int hf_quic_frame_type_crypto_length = -1;
-static int hf_quic_frame_type_crypto_crypto_data = -1;
-static int hf_quic_frame_type_nt_length = -1;
-static int hf_quic_frame_type_nt_token = -1;
-static int hf_quic_frame_type_stream_fin = -1;
-static int hf_quic_frame_type_stream_len = -1;
-static int hf_quic_frame_type_stream_off = -1;
+static int hf_quic_padding_length = -1;
+static int hf_quic_ack_largest_acknowledged = -1;
+static int hf_quic_ack_ack_delay = -1;
+static int hf_quic_ack_ack_block_count = -1;
+static int hf_quic_ack_fab = -1;
+static int hf_quic_ack_gap = -1;
+static int hf_quic_ack_ack_block = -1;
+static int hf_quic_ae_largest_acknowledged = -1;
+static int hf_quic_ae_ack_delay = -1;
+static int hf_quic_ae_ect0_count = -1;
+static int hf_quic_ae_ect1_count = -1;
+static int hf_quic_ae_ecn_ce_count = -1;
+static int hf_quic_ae_ack_block_count = -1;
+static int hf_quic_ae_fab = -1;
+static int hf_quic_ae_gap = -1;
+static int hf_quic_ae_ack_block = -1;
+static int hf_quic_rsts_stream_id = -1;
+static int hf_quic_rsts_application_error_code = -1;
+static int hf_quic_rsts_final_offset = -1;
+static int hf_quic_ss_stream_id = -1;
+static int hf_quic_ss_application_error_code = -1;
+static int hf_quic_crypto_offset = -1;
+static int hf_quic_crypto_length = -1;
+static int hf_quic_crypto_crypto_data = -1;
+static int hf_quic_nt_length = -1;
+static int hf_quic_nt_token = -1;
+static int hf_quic_stream_fin = -1;
+static int hf_quic_stream_len = -1;
+static int hf_quic_stream_off = -1;
 static int hf_quic_stream_stream_id = -1;
 static int hf_quic_stream_offset = -1;
 static int hf_quic_stream_length = -1;
 static int hf_quic_stream_data = -1;
-static int hf_quic_frame_type_md_maximum_data = -1;
-static int hf_quic_frame_type_msd_stream_id = -1;
-static int hf_quic_frame_type_msd_maximum_stream_data = -1;
-static int hf_quic_frame_type_ms_max_streams = -1;
-static int hf_quic_frame_type_db_stream_data_limit = -1;
-static int hf_quic_frame_type_sdb_stream_id = -1;
-static int hf_quic_frame_type_sdb_stream_data_limit = -1;
-static int hf_quic_frame_type_sb_stream_limit = -1;
-static int hf_quic_frame_type_nci_sequence = -1;
-static int hf_quic_frame_type_nci_connection_id_length = -1;
-static int hf_quic_frame_type_nci_connection_id = -1;
-static int hf_quic_frame_type_nci_stateless_reset_token = -1;
-static int hf_quic_frame_type_rci_sequence = -1;
-static int hf_quic_frame_type_path_challenge_data = -1;
-static int hf_quic_frame_type_path_response_data = -1;
-static int hf_quic_frame_type_cc_error_code = -1;
-static int hf_quic_frame_type_cc_error_code_app = -1;
-static int hf_quic_frame_type_cc_error_code_tls_alert = -1;
-static int hf_quic_frame_type_cc_frame_type = -1;
-static int hf_quic_frame_type_cc_reason_phrase_length = -1;
-static int hf_quic_frame_type_cc_reason_phrase = -1;
+static int hf_quic_md_maximum_data = -1;
+static int hf_quic_msd_stream_id = -1;
+static int hf_quic_msd_maximum_stream_data = -1;
+static int hf_quic_ms_max_streams = -1;
+static int hf_quic_db_stream_data_limit = -1;
+static int hf_quic_sdb_stream_id = -1;
+static int hf_quic_sdb_stream_data_limit = -1;
+static int hf_quic_sb_stream_limit = -1;
+static int hf_quic_nci_sequence = -1;
+static int hf_quic_nci_connection_id_length = -1;
+static int hf_quic_nci_connection_id = -1;
+static int hf_quic_nci_stateless_reset_token = -1;
+static int hf_quic_rci_sequence = -1;
+static int hf_quic_path_challenge_data = -1;
+static int hf_quic_path_response_data = -1;
+static int hf_quic_cc_error_code = -1;
+static int hf_quic_cc_error_code_app = -1;
+static int hf_quic_cc_error_code_tls_alert = -1;
+static int hf_quic_cc_frame_type = -1;
+static int hf_quic_cc_reason_phrase_length = -1;
+static int hf_quic_cc_reason_phrase = -1;
 
 static expert_field ei_quic_connection_unknown = EI_INIT;
 static expert_field ei_quic_ft_unknown = EI_INIT;
@@ -911,7 +911,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             /* A padding frame consists of a single zero octet, but for brevity
              * sake let's combine multiple zeroes into a single field. */
             pad_len = 1 + tvb_skip_guint8(tvb, offset, tvb_reported_length_remaining(tvb, offset), '\0') - offset;
-            ti = proto_tree_add_uint(ft_tree, hf_quic_frame_type_padding_length, tvb, offset, 0, pad_len);
+            ti = proto_tree_add_uint(ft_tree, hf_quic_padding_length, tvb, offset, 0, pad_len);
             PROTO_ITEM_SET_GENERATED(ti);
             proto_item_append_text(ti_ft, " Length: %u", pad_len);
             offset += pad_len - 1;
@@ -927,28 +927,28 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", ACK");
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ack_largest_acknowledged, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_ack_largest_acknowledged, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
             offset += lenvar;
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ack_ack_delay, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_ack_ack_delay, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
             offset += lenvar;
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ack_ack_block_count, tvb, offset, -1, ENC_VARINT_QUIC, &ack_block_count, &lenvar);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_ack_ack_block_count, tvb, offset, -1, ENC_VARINT_QUIC, &ack_block_count, &lenvar);
             offset += lenvar;
 
             /* ACK Block */
             /* First ACK Block Length */
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ack_fab, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_ack_fab, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
             offset += lenvar;
 
             /* Repeated "Ack Block Count" */
             while(ack_block_count){
 
                 /* Gap To Next Block */
-                proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ack_gap, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_ack_gap, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
                 offset += lenvar;
 
-                proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ack_ack_block, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_ack_ack_block, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
                 offset += lenvar;
 
                 ack_block_count--;
@@ -961,40 +961,40 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", AE");
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_largest_acknowledged, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_ae_largest_acknowledged, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
             offset += lenvar;
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_ack_delay, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_ae_ack_delay, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
             offset += lenvar;
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_ack_block_count, tvb, offset, -1, ENC_VARINT_QUIC, &ack_block_count, &lenvar);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_ae_ack_block_count, tvb, offset, -1, ENC_VARINT_QUIC, &ack_block_count, &lenvar);
             offset += lenvar;
 
             /* ACK Block */
             /* First ACK Block Length */
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_fab, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_ae_fab, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
             offset += lenvar;
 
             /* Repeated "Ack Block Count" */
             while(ack_block_count){
 
                 /* Gap To Next Block */
-                proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_gap, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_ae_gap, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
                 offset += lenvar;
 
-                proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_ack_block, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_ae_ack_block, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
                 offset += lenvar;
 
                 ack_block_count--;
             }
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_ect0_count, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_ae_ect0_count, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
             offset += lenvar;
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_ect1_count, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_ae_ect1_count, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
             offset += lenvar;
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ae_ecn_ce_count, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_ae_ecn_ce_count, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &lenvar);
             offset += lenvar;
         }
         break;
@@ -1004,13 +1004,13 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", RS");
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_rsts_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, &stream_id, &len_streamid);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_rsts_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, &stream_id, &len_streamid);
             offset += len_streamid;
 
-            proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_rsts_application_error_code, tvb, offset, 2, ENC_BIG_ENDIAN, &error_code);
+            proto_tree_add_item_ret_uint(ft_tree, hf_quic_rsts_application_error_code, tvb, offset, 2, ENC_BIG_ENDIAN, &error_code);
             offset += 2;
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_rsts_final_offset, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_finaloffset);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_rsts_final_offset, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_finaloffset);
             offset += len_finaloffset;
 
             proto_item_append_text(ti_ft, " Stream ID: %" G_GINT64_MODIFIER "u, Error code: %s", stream_id, val_to_str(error_code, quic_application_error_code_vals, "0x%04x"));
@@ -1021,10 +1021,10 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", SS");
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ss_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_streamid);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_ss_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_streamid);
             offset += len_streamid;
 
-            proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_ss_application_error_code, tvb, offset, 2, ENC_BIG_ENDIAN, &error_code);
+            proto_tree_add_item_ret_uint(ft_tree, hf_quic_ss_application_error_code, tvb, offset, 2, ENC_BIG_ENDIAN, &error_code);
             offset += 2;
 
             proto_item_append_text(ti_ft, " Error code: 0x%04x", error_code);
@@ -1034,11 +1034,11 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             guint64 crypto_offset, crypto_length;
             guint32 lenvar;
             col_append_fstr(pinfo->cinfo, COL_INFO, ", CRYPTO");
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_crypto_offset, tvb, offset, -1, ENC_VARINT_QUIC, &crypto_offset, &lenvar);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_crypto_offset, tvb, offset, -1, ENC_VARINT_QUIC, &crypto_offset, &lenvar);
             offset += lenvar;
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_crypto_length, tvb, offset, -1, ENC_VARINT_QUIC, &crypto_length, &lenvar);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_crypto_length, tvb, offset, -1, ENC_VARINT_QUIC, &crypto_length, &lenvar);
             offset += lenvar;
-            proto_tree_add_item(ft_tree, hf_quic_frame_type_crypto_crypto_data, tvb, offset, (guint32)crypto_length, ENC_NA);
+            proto_tree_add_item(ft_tree, hf_quic_crypto_crypto_data, tvb, offset, (guint32)crypto_length, ENC_NA);
             {
                 tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, (int)crypto_length);
                 col_set_writable(pinfo->cinfo, -1, FALSE);
@@ -1062,10 +1062,10 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", NT");
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_nt_length, tvb, offset, -1, ENC_VARINT_QUIC, &token_length, &lenvar);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_nt_length, tvb, offset, -1, ENC_VARINT_QUIC, &token_length, &lenvar);
             offset += lenvar;
 
-            proto_tree_add_item(ft_tree, hf_quic_frame_type_nt_token, tvb, offset, (guint32)token_length, ENC_NA);
+            proto_tree_add_item(ft_tree, hf_quic_nt_token, tvb, offset, (guint32)token_length, ENC_NA);
             offset += (guint32)token_length;
         }
         break;
@@ -1085,9 +1085,9 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             col_append_fstr(pinfo->cinfo, COL_INFO, ", STREAM");
 
             ftflags_tree = proto_item_add_subtree(ti_ftflags, ett_quic_ftflags);
-            proto_tree_add_item(ftflags_tree, hf_quic_frame_type_stream_fin, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(ftflags_tree, hf_quic_frame_type_stream_len, tvb, offset, 1, ENC_NA);
-            proto_tree_add_item(ftflags_tree, hf_quic_frame_type_stream_off, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(ftflags_tree, hf_quic_stream_fin, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(ftflags_tree, hf_quic_stream_len, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(ftflags_tree, hf_quic_stream_off, tvb, offset, 1, ENC_NA);
             offset += 1;
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_stream_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, &stream_id, &lenvar);
@@ -1117,7 +1117,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", MD");
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_md_maximum_data, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_maximumdata);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_md_maximum_data, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_maximumdata);
             offset += len_maximumdata;
         }
         break;
@@ -1126,10 +1126,10 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", MSD");
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_msd_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_streamid);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_msd_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_streamid);
             offset += len_streamid;
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_msd_maximum_stream_data, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_maximumstreamdata);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_msd_maximum_stream_data, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_maximumstreamdata);
             offset += len_maximumstreamdata;
         }
         break;
@@ -1139,7 +1139,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", MS");
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_ms_max_streams, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_streamid);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_ms_max_streams, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_streamid);
             offset += len_streamid;
         }
         break;
@@ -1148,7 +1148,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", DB");
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_db_stream_data_limit, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_offset);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_db_stream_data_limit, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_offset);
             offset += len_offset;
         }
         break;
@@ -1157,10 +1157,10 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", SDB");
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_sdb_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_streamid);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_sdb_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_streamid);
             offset += len_streamid;
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_sdb_stream_data_limit, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_offset);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_sdb_stream_data_limit, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_offset);
             offset += len_offset;
         }
         break;
@@ -1170,7 +1170,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", SB");
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_sb_stream_limit, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_streamid);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_sb_stream_limit, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_streamid);
             offset += len_streamid;
         }
         break;
@@ -1181,10 +1181,10 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", NCI");
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_nci_sequence, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_sequence);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_nci_sequence, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_sequence);
             offset += len_sequence;
 
-            ti = proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_nci_connection_id_length, tvb, offset, 1, ENC_BIG_ENDIAN, &nci_length);
+            ti = proto_tree_add_item_ret_uint(ft_tree, hf_quic_nci_connection_id_length, tvb, offset, 1, ENC_BIG_ENDIAN, &nci_length);
             offset++;
 
             valid_cid = nci_length >= 4 && nci_length <= 18;
@@ -1193,7 +1193,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                             "Connection ID Length must be between 4 and 18 bytes");
             }
 
-            proto_tree_add_item(ft_tree, hf_quic_frame_type_nci_connection_id, tvb, offset, nci_length, ENC_NA);
+            proto_tree_add_item(ft_tree, hf_quic_nci_connection_id, tvb, offset, nci_length, ENC_NA);
             if (valid_cid && quic_info) {
                 quic_cid_t cid = {.len=0};
                 tvb_memcpy(tvb, cid.cid, offset, nci_length);
@@ -1202,27 +1202,27 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             }
             offset += nci_length;
 
-            proto_tree_add_item(ft_tree, hf_quic_frame_type_nci_stateless_reset_token, tvb, offset, 16, ENC_NA);
+            proto_tree_add_item(ft_tree, hf_quic_nci_stateless_reset_token, tvb, offset, 16, ENC_NA);
             offset += 16;
         }
         break;
         case FT_RETIRE_CONNECTION_ID:{
             guint32 len_sequence;
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_rci_sequence, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_sequence);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_rci_sequence, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_sequence);
             offset += len_sequence;
         }
         break;
         case FT_PATH_CHALLENGE:{
             col_append_fstr(pinfo->cinfo, COL_INFO, ", PC");
 
-            proto_tree_add_item(ft_tree, hf_quic_frame_type_path_challenge_data, tvb, offset, 8, ENC_NA);
+            proto_tree_add_item(ft_tree, hf_quic_path_challenge_data, tvb, offset, 8, ENC_NA);
             offset += 8;
         }
         break;
         case FT_PATH_RESPONSE:{
             col_append_fstr(pinfo->cinfo, COL_INFO, ", PR");
 
-            proto_tree_add_item(ft_tree, hf_quic_frame_type_path_response_data, tvb, offset, 8, ENC_NA);
+            proto_tree_add_item(ft_tree, hf_quic_path_response_data, tvb, offset, 8, ENC_NA);
             offset += 8;
         }
         break;
@@ -1235,27 +1235,27 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             col_append_fstr(pinfo->cinfo, COL_INFO, ", CC");
 
             if (frame_type == FT_CONNECTION_CLOSE_TPT) {
-                proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_cc_error_code, tvb, offset, 2, ENC_BIG_ENDIAN, &error_code);
+                proto_tree_add_item_ret_uint(ft_tree, hf_quic_cc_error_code, tvb, offset, 2, ENC_BIG_ENDIAN, &error_code);
                 if ((error_code & 0xff00) == 0x0100) {  // CRYPTO_ERROR
                     tls_alert = try_val_to_str(error_code & 0xff, ssl_31_alert_description);
                     if (tls_alert) {
-                        proto_tree_add_item(ft_tree, hf_quic_frame_type_cc_error_code_tls_alert, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(ft_tree, hf_quic_cc_error_code_tls_alert, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
                     }
                 }
                 offset += 2;
 
-                proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_cc_frame_type, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_frametype);
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_cc_frame_type, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_frametype);
                 offset += len_frametype;
             } else { /* FT_CONNECTION_CLOSE_APP) */
-                proto_tree_add_item_ret_uint(ft_tree, hf_quic_frame_type_cc_error_code_app, tvb, offset, 2, ENC_BIG_ENDIAN, &error_code);
+                proto_tree_add_item_ret_uint(ft_tree, hf_quic_cc_error_code_app, tvb, offset, 2, ENC_BIG_ENDIAN, &error_code);
                 offset += 2;
             }
 
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_frame_type_cc_reason_phrase_length, tvb, offset, -1, ENC_VARINT_QUIC, &len_reason, &len_reasonphrase);
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_cc_reason_phrase_length, tvb, offset, -1, ENC_VARINT_QUIC, &len_reason, &len_reasonphrase);
             offset += len_reasonphrase;
 
-            proto_tree_add_item(ft_tree, hf_quic_frame_type_cc_reason_phrase, tvb, offset, (guint32)len_reason, ENC_ASCII|ENC_NA);
+            proto_tree_add_item(ft_tree, hf_quic_cc_reason_phrase, tvb, offset, (guint32)len_reason, ENC_ASCII|ENC_NA);
             offset += (guint32)len_reason;
 
             proto_item_append_text(ti_ft, " Error code: %s", rval_to_str(error_code, quic_transport_error_code_vals, "Unknown (%d)"));
@@ -2546,155 +2546,155 @@ proto_register_quic(void)
         },
 
         /* PADDING */
-        { &hf_quic_frame_type_padding_length,
-          { "Padding Length", "quic.frame_type.padding_length",
+        { &hf_quic_padding_length,
+          { "Padding Length", "quic.padding_length",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         /* ACK */
-        { &hf_quic_frame_type_ack_largest_acknowledged,
-          { "Largest Acknowledged", "quic.frame_type.ack.largest_acknowledged",
+        { &hf_quic_ack_largest_acknowledged,
+          { "Largest Acknowledged", "quic.ack.largest_acknowledged",
             FT_UINT64, BASE_DEC, NULL, 0x0,
             "Representing the largest packet number the peer is acknowledging in this packet", HFILL }
         },
-        { &hf_quic_frame_type_ack_ack_delay,
-          { "ACK Delay", "quic.frame_type.ack.ack_delay",
+        { &hf_quic_ack_ack_delay,
+          { "ACK Delay", "quic.ack.ack_delay",
             FT_UINT64, BASE_DEC, NULL, 0x0,
             "The time from when the largest acknowledged packet, as indicated in the Largest Acknowledged field, was received by this peer to when this ACK was sent", HFILL }
         },
-        { &hf_quic_frame_type_ack_ack_block_count,
-          { "ACK Block Count", "quic.frame_type.ack.ack_block_count",
+        { &hf_quic_ack_ack_block_count,
+          { "ACK Block Count", "quic.ack.ack_block_count",
             FT_UINT64, BASE_DEC, NULL, 0x0,
             "The number of Additional ACK Block (and Gap) fields after the First ACK Block", HFILL }
         },
-        { &hf_quic_frame_type_ack_fab,
-          { "First ACK Block", "quic.frame_type.ack.fab",
+        { &hf_quic_ack_fab,
+          { "First ACK Block", "quic.ack.fab",
             FT_UINT64, BASE_DEC, NULL, 0x0,
             "Indicates the number of contiguous additional packets being acknowledged starting at the Largest Acknowledged", HFILL }
         },
-        { &hf_quic_frame_type_ack_gap,
-          { "Gap", "quic.frame_type.ack.gap",
+        { &hf_quic_ack_gap,
+          { "Gap", "quic.ack.gap",
             FT_UINT64, BASE_DEC, NULL, 0x0,
             "Indicating the number of contiguous unacknowledged packets preceding the packet number one lower than the smallest in the preceding ACK Block", HFILL }
         },
-        { &hf_quic_frame_type_ack_ack_block,
-          { "ACK Block", "quic.frame_type.ack.ack_block",
+        { &hf_quic_ack_ack_block,
+          { "ACK Block", "quic.ack.ack_block",
             FT_UINT64, BASE_DEC, NULL, 0x0,
             "Indicating the number of contiguous acknowledged packets preceding the largest packet number, as determined by the preceding Gap", HFILL }
         },
         /* ACK_ECN */
-        { &hf_quic_frame_type_ae_largest_acknowledged,
-          { "Largest Acknowledged", "quic.frame_type.ae.largest_acknowledged",
+        { &hf_quic_ae_largest_acknowledged,
+          { "Largest Acknowledged", "quic.ae.largest_acknowledged",
             FT_UINT64, BASE_DEC, NULL, 0x0,
             "Representing the largest packet number the peer is acknowledging in this packet", HFILL }
         },
-        { &hf_quic_frame_type_ae_ack_delay,
-          { "ACK Delay", "quic.frame_type.ae.ack_delay",
+        { &hf_quic_ae_ack_delay,
+          { "ACK Delay", "quic.ae.ack_delay",
             FT_UINT64, BASE_DEC, NULL, 0x0,
             "The time from when the largest acknowledged packet, as indicated in the Largest Acknowledged field, was received by this peer to when this ACK was sent", HFILL }
         },
-        { &hf_quic_frame_type_ae_ect0_count,
-          { "ECT(0) Count", "quic.frame_type.ae.ect0_count",
+        { &hf_quic_ae_ect0_count,
+          { "ECT(0) Count", "quic.ae.ect0_count",
             FT_UINT64, BASE_DEC, NULL, 0x0,
             "Representing the total number packets received with the ECT(0) codepoint", HFILL }
         },
-        { &hf_quic_frame_type_ae_ect1_count,
-          { "ECT(1) Count", "quic.frame_type.ae.ect1_count",
+        { &hf_quic_ae_ect1_count,
+          { "ECT(1) Count", "quic.ae.ect1_count",
             FT_UINT64, BASE_DEC, NULL, 0x0,
             "Representing the total number packets received with the ECT(1) codepoint", HFILL }
         },
-        { &hf_quic_frame_type_ae_ecn_ce_count,
-          { "CE Count", "quic.frame_type.ae.ecn_ce_count",
+        { &hf_quic_ae_ecn_ce_count,
+          { "CE Count", "quic.ae.ecn_ce_count",
             FT_UINT64, BASE_DEC, NULL, 0x0,
             "Representing the total number packets received with the CE codepoint", HFILL }
         },
-        { &hf_quic_frame_type_ae_ack_block_count,
-          { "ACK Block Count", "quic.frame_type.ae.ack_block_count",
+        { &hf_quic_ae_ack_block_count,
+          { "ACK Block Count", "quic.ae.ack_block_count",
             FT_UINT64, BASE_DEC, NULL, 0x0,
             "The number of Additional ACK Block (and Gap) fields after the First ACK Block", HFILL }
         },
-        { &hf_quic_frame_type_ae_fab,
-          { "First ACK Block", "quic.frame_type.ack.fab",
+        { &hf_quic_ae_fab,
+          { "First ACK Block", "quic.ack.fab",
             FT_UINT64, BASE_DEC, NULL, 0x0,
             "Indicates the number of contiguous additional packets being acknowledged starting at the Largest Acknowledged", HFILL }
         },
-        { &hf_quic_frame_type_ae_gap,
-          { "Gap", "quic.frame_type.ae.gap",
+        { &hf_quic_ae_gap,
+          { "Gap", "quic.ae.gap",
             FT_UINT64, BASE_DEC, NULL, 0x0,
             "Indicating the number of contiguous unacknowledged packets preceding the packet number one lower than the smallest in the preceding ACK Block", HFILL }
         },
-        { &hf_quic_frame_type_ae_ack_block,
-          { "ACK Block", "quic.frame_type.ae.ack_block",
+        { &hf_quic_ae_ack_block,
+          { "ACK Block", "quic.ae.ack_block",
             FT_UINT64, BASE_DEC, NULL, 0x0,
             "Indicating the number of contiguous acknowledged packets preceding the largest packet number, as determined by the preceding Gap", HFILL }
         },
         /* RESET_STREAM */
-        { &hf_quic_frame_type_rsts_stream_id,
-            { "Stream ID", "quic.frame_type.rsts.stream_id",
+        { &hf_quic_rsts_stream_id,
+            { "Stream ID", "quic.rsts.stream_id",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "Stream ID of the stream being terminated", HFILL }
         },
-        { &hf_quic_frame_type_rsts_application_error_code,
-            { "Application Error code", "quic.frame_type.rsts.application_error_code",
+        { &hf_quic_rsts_application_error_code,
+            { "Application Error code", "quic.rsts.application_error_code",
               FT_UINT16, BASE_DEC, VALS(quic_application_error_code_vals), 0x0,
               "Indicates why the stream is being closed", HFILL }
         },
-        { &hf_quic_frame_type_rsts_final_offset,
-            { "Final offset", "quic.frame_type.rsts.byte_offset",
+        { &hf_quic_rsts_final_offset,
+            { "Final offset", "quic.rsts.byte_offset",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "Indicating the absolute byte offset of the end of data written on this stream", HFILL }
         },
         /* STOP_SENDING */
-        { &hf_quic_frame_type_ss_stream_id,
-            { "Stream ID", "quic.frame_type.ss.stream_id",
+        { &hf_quic_ss_stream_id,
+            { "Stream ID", "quic.ss.stream_id",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "Stream ID of the stream being ignored", HFILL }
         },
-        { &hf_quic_frame_type_ss_application_error_code,
-            { "Application Error code", "quic.frame_type.ss.application_error_code",
+        { &hf_quic_ss_application_error_code,
+            { "Application Error code", "quic.ss.application_error_code",
               FT_UINT16, BASE_DEC, NULL, 0x0,
               "Indicates why the sender is ignoring the stream", HFILL }
         },
         /* CRYPTO */
-        { &hf_quic_frame_type_crypto_offset,
-            { "Offset", "quic.frame_type.crypto.offset",
+        { &hf_quic_crypto_offset,
+            { "Offset", "quic.crypto.offset",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "Byte offset into the stream", HFILL }
         },
-        { &hf_quic_frame_type_crypto_length,
-            { "Length", "quic.frame_type.crypto.length",
+        { &hf_quic_crypto_length,
+            { "Length", "quic.crypto.length",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "Length of the Crypto Data field", HFILL }
         },
-        { &hf_quic_frame_type_crypto_crypto_data,
-            { "Crypto Data", "quic.frame_type.crypto.crypto_data",
+        { &hf_quic_crypto_crypto_data,
+            { "Crypto Data", "quic.crypto.crypto_data",
               FT_NONE, BASE_NONE, NULL, 0x0,
               "The cryptographic message data", HFILL }
         },
         /* NEW_TOKEN */
-        { &hf_quic_frame_type_nt_length,
-            { "(Token) Length", "quic.frame_type.nt.length",
+        { &hf_quic_nt_length,
+            { "(Token) Length", "quic.nt.length",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "Specifying the length of the token", HFILL }
         },
-        { &hf_quic_frame_type_nt_token,
-            { "Token", "quic.frame_type.nt.token",
+        { &hf_quic_nt_token,
+            { "Token", "quic.nt.token",
               FT_BYTES, BASE_NONE, NULL, 0x0,
               "An opaque blob that the client may use with a future Initial packet", HFILL }
         },
         /* STREAM */
-        { &hf_quic_frame_type_stream_fin,
-          { "Fin", "quic.frame_type.stream.fin",
+        { &hf_quic_stream_fin,
+          { "Fin", "quic.stream.fin",
             FT_BOOLEAN, 8, NULL, FTFLAGS_STREAM_FIN,
             NULL, HFILL }
         },
-        { &hf_quic_frame_type_stream_len,
-          { "Len(gth)", "quic.frame_type.stream.len",
+        { &hf_quic_stream_len,
+          { "Len(gth)", "quic.stream.len",
             FT_BOOLEAN, 8, NULL, FTFLAGS_STREAM_LEN,
             NULL, HFILL }
         },
-        { &hf_quic_frame_type_stream_off,
-          { "Off(set)", "quic.frame_type.stream.off",
+        { &hf_quic_stream_off,
+          { "Off(set)", "quic.stream.off",
             FT_BOOLEAN, 8, NULL, FTFLAGS_STREAM_OFF,
             NULL, HFILL }
         },
@@ -2719,118 +2719,118 @@ proto_register_quic(void)
             NULL, HFILL }
         },
         /* MAX_DATA */
-        { &hf_quic_frame_type_md_maximum_data,
-            { "Maximum Data", "quic.frame_type.md.maximum_data",
+        { &hf_quic_md_maximum_data,
+            { "Maximum Data", "quic.md.maximum_data",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "Indicating the maximum amount of data that can be sent on the entire connection, in units of 1024 octets", HFILL }
         },
         /* MAX_STREAM_DATA */
-        { &hf_quic_frame_type_msd_stream_id,
-            { "Stream ID", "quic.frame_type.msd.stream_id",
+        { &hf_quic_msd_stream_id,
+            { "Stream ID", "quic.msd.stream_id",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "The stream ID of the stream that is affected", HFILL }
         },
-        { &hf_quic_frame_type_msd_maximum_stream_data,
-            { "Maximum Stream Data", "quic.frame_type.msd.maximum_stream_data",
+        { &hf_quic_msd_maximum_stream_data,
+            { "Maximum Stream Data", "quic.msd.maximum_stream_data",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "Indicating the maximum amount of data that can be sent on the identified stream, in units of octets", HFILL }
         },
         /* MAX_STREAMS */
-        { &hf_quic_frame_type_ms_max_streams,
-            { "Max Streams", "quic.frame_type.ms.max_streams",
+        { &hf_quic_ms_max_streams,
+            { "Max Streams", "quic.ms.max_streams",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "A count of the cumulative number of streams of the corresponding type that can be opened over the lifetime of the connection", HFILL }
         },
         /* DATA_BLOCKED */
-        { &hf_quic_frame_type_db_stream_data_limit,
-            { "Stream Data Limit", "quic.frame_type.sb.stream_data_limit",
+        { &hf_quic_db_stream_data_limit,
+            { "Stream Data Limit", "quic.sb.stream_data_limit",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "Indicating the connection-level limit at which the blocking occurred", HFILL }
         },
         /* STREAM_DATA_BLOCKED */
-        { &hf_quic_frame_type_sdb_stream_id,
-            { "Stream ID", "quic.frame_type.sdb.stream_id",
+        { &hf_quic_sdb_stream_id,
+            { "Stream ID", "quic.sdb.stream_id",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "Indicating the stream which is flow control blocked", HFILL }
         },
-        { &hf_quic_frame_type_sdb_stream_data_limit,
-            { "Stream Data Limit", "quic.frame_type.sb.stream_data_limit",
+        { &hf_quic_sdb_stream_data_limit,
+            { "Stream Data Limit", "quic.sb.stream_data_limit",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "Indicating the offset of the stream at which the blocking occurred", HFILL }
         },
         /* STREAMS_BLOCKED */
-        { &hf_quic_frame_type_sb_stream_limit,
-            { "Stream Limit", "quic.frame_type.sib.stream_limit",
+        { &hf_quic_sb_stream_limit,
+            { "Stream Limit", "quic.sib.stream_limit",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "Indicating the stream limit at the time the frame was sent", HFILL }
         },
         /* NEW_CONNECTION_ID */
-        { &hf_quic_frame_type_nci_sequence,
-            { "Sequence", "quic.frame_type.nci.sequence",
+        { &hf_quic_nci_sequence,
+            { "Sequence", "quic.nci.sequence",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "Increases by 1 for each connection ID that is provided by the server", HFILL }
         },
-        { &hf_quic_frame_type_nci_connection_id_length,
-            { "Connection ID Length", "quic.frame_type.nci.connection_id.length",
+        { &hf_quic_nci_connection_id_length,
+            { "Connection ID Length", "quic.nci.connection_id.length",
               FT_UINT8, BASE_DEC, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_frame_type_nci_connection_id,
-            { "Connection ID", "quic.frame_type.nci.connection_id",
+        { &hf_quic_nci_connection_id,
+            { "Connection ID", "quic.nci.connection_id",
               FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_frame_type_nci_stateless_reset_token,
-            { "Stateless Reset Token", "quic.frame_type.stateless_reset_token",
+        { &hf_quic_nci_stateless_reset_token,
+            { "Stateless Reset Token", "quic.stateless_reset_token",
               FT_BYTES, BASE_NONE, NULL, 0x0,
               NULL, HFILL }
         },
         /* RETIRE_CONNECTION_ID */
-        { &hf_quic_frame_type_rci_sequence,
-            { "Sequence", "quic.frame_type.rci.sequence",
+        { &hf_quic_rci_sequence,
+            { "Sequence", "quic.rci.sequence",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "The sequence number of the connection ID being retired", HFILL }
         },
         /* PATH_CHALLENGE */
-        { &hf_quic_frame_type_path_challenge_data,
-          { "Data", "quic.frame_type.path_challenge.data",
+        { &hf_quic_path_challenge_data,
+          { "Data", "quic.path_challenge.data",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Arbitrary data that must be matched by a PATH_RESPONSE frame", HFILL }
         },
         /* PATH_RESPONSE */
-        { &hf_quic_frame_type_path_response_data,
-          { "Data", "quic.frame_type.path_response.data",
+        { &hf_quic_path_response_data,
+          { "Data", "quic.path_response.data",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             "Arbitrary data that must match a PATH_CHALLENGE frame", HFILL }
         },
         /* CONNECTION_CLOSE */
-        { &hf_quic_frame_type_cc_error_code,
-            { "Error code", "quic.frame_type.cc.error_code",
+        { &hf_quic_cc_error_code,
+            { "Error code", "quic.cc.error_code",
               FT_UINT16, BASE_DEC|BASE_RANGE_STRING, RVALS(quic_transport_error_code_vals), 0x0,
               "Indicates the reason for closing this connection", HFILL }
         },
-        { &hf_quic_frame_type_cc_error_code_app,
-            { "Application Error code", "quic.frame_type.cc.error_code.app",
+        { &hf_quic_cc_error_code_app,
+            { "Application Error code", "quic.cc.error_code.app",
               FT_UINT16, BASE_DEC, VALS(quic_application_error_code_vals), 0x0,
               "Indicates the reason for closing this application", HFILL }
         },
-        { &hf_quic_frame_type_cc_error_code_tls_alert,
-            { "TLS Alert Description", "quic.frame_type.cc.error_code.tls_alert",
+        { &hf_quic_cc_error_code_tls_alert,
+            { "TLS Alert Description", "quic.cc.error_code.tls_alert",
               FT_UINT8, BASE_DEC, VALS(ssl_31_alert_description), 0x0,
               NULL, HFILL }
         },
-        { &hf_quic_frame_type_cc_frame_type,
-            { "Frame Type", "quic.frame_type.cc.frame_type",
+        { &hf_quic_cc_frame_type,
+            { "Frame Type", "quic.cc.frame_type",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "The type of frame that triggered the error", HFILL }
         },
-        { &hf_quic_frame_type_cc_reason_phrase_length,
-            { "Reason phrase Length", "quic.frame_type.cc.reason_phrase.length",
+        { &hf_quic_cc_reason_phrase_length,
+            { "Reason phrase Length", "quic.cc.reason_phrase.length",
               FT_UINT64, BASE_DEC, NULL, 0x0,
               "Specifying the length of the reason phrase", HFILL }
         },
-        { &hf_quic_frame_type_cc_reason_phrase,
-            { "Reason phrase", "quic.frame_type.cc.reason_phrase",
+        { &hf_quic_cc_reason_phrase,
+            { "Reason phrase", "quic.cc.reason_phrase",
               FT_STRING, BASE_NONE, NULL, 0x0,
               "A human-readable explanation for why the connection was closed", HFILL }
         },
