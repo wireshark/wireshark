@@ -6407,10 +6407,7 @@ tvbuff_t *parameter_tvb=NULL;
 
   if (tvb_reported_length(parameter_tvb) > 0) {
     struct ngap_private_data *ngap_data = ngap_get_private_data(actx->pinfo);
-    if (ngap_data->protocol_ie_id == id_NAS_PDU) {
-      if (nas_5gs_handle)
-        call_dissector(nas_5gs_handle,parameter_tvb,actx->pinfo, tree);
-    } else if (ngap_data->protocol_ie_id == id_NASC) {
+    if (ngap_data->protocol_ie_id == id_NASC) {
       GlobalRANNodeID_enum ranmode_id = ngap_get_ranmode_id(&actx->pinfo->dst, actx->pinfo->destport, actx->pinfo);
       proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ngap_NASC);
       if (ranmode_id == globalGNB_ID) {
@@ -6418,6 +6415,9 @@ tvbuff_t *parameter_tvb=NULL;
       } else if (ranmode_id == globalNgENB_ID) {
         de_nas_5gs_n1_mode_to_s1_mode_nas_transparent_cont(parameter_tvb, subtree, actx->pinfo);
       }
+    } else {
+      if (nas_5gs_handle)
+        call_dissector(nas_5gs_handle,parameter_tvb,actx->pinfo, tree);
     }
   }
 
