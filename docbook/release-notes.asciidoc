@@ -42,6 +42,7 @@ since version 2.9.0:
 * Wireshark now supports the Swedish and Ukrainian language.
 * Initial support for using PKCS #11 tokens for RSA decryption in TLS. A
   configuration user interface is still in development.
+* The build system now produces reproducible builds (wsbuglink:15163[]).
 
 The following features are new (or have been significantly updated)
 since version 2.6.0:
@@ -81,16 +82,19 @@ since version 2.6.0:
 * A new dfilter function string() has been added. It allows the conversion of
   non-string fields to strings so string functions (as contains and matches)
   can be used on them.
+* The Bash test suite has been replaced by one based on Python unittest/pytest.
 
 === Removed Features and Support
 
 * The legacy (GTK+) user interface has been removed and is no longer supported.
+* The portaudio library is no longer needed due to the removal of GTK+.
 * Wireshark requires Qt 5.2 or later. Qt 4 is no longer supported.
 * Wireshark requires GLib 2.32 or later.
 * Wireshark requires GnuTLS 3.2 or later as optional dependency.
 * Building Wireshark requires Python 3.4 or newer, Python 2.7 is unsupported.
 * Building Wireshark requires CMake. Autotools is no longer supported.
 * TShark’s `-z compare` option was removed.
+* Building with Cygwin is no longer supported on Windows.
 
 //=== Removed Dissectors
 
