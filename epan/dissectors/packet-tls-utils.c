@@ -3638,13 +3638,21 @@ ssl_decrypt_pre_master_secret(SslDecryptSession *ssl_session,
     if (pms.size != 48) {
         ssl_debug_printf("%s wrong pre_master_secret length (%d, expected %d)\n",
                          G_STRFUNC, pms.size, 48);
-        gnutls_free(pms.data);
+        if (pk) {
+            gnutls_free(pms.data);
+        } else {
+            g_free(pms.data);
+        }
         return FALSE;
     }
 
     ssl_session->pre_master_secret.data = (guint8 *)wmem_memdup(wmem_file_scope(), pms.data, 48);
     ssl_session->pre_master_secret.data_len = 48;
-    gnutls_free(pms.data);
+    if (pk) {
+        gnutls_free(pms.data);
+    } else {
+        g_free(pms.data);
+    }
     ssl_print_string("pre master secret", &ssl_session->pre_master_secret);
 
     /* Remove the master secret if it was there.
