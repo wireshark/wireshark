@@ -1012,10 +1012,10 @@ stats_tree_get_values_from_node (const stat_node* node)
                 (node->counter?g_strdup_printf("%.2f",((float)node->total)/node->counter):g_strdup("-")):
                 g_strdup("");
     values[COL_MIN] = ((node->st_flags&ST_FLG_AVERAGE)||node->rng)?
-                (node->counter?g_strdup_printf("%u",node->minvalue):g_strdup("-")):
+                (node->counter?g_strdup_printf("%d",node->minvalue):g_strdup("-")):
                 g_strdup("");
     values[COL_MAX] = ((node->st_flags&ST_FLG_AVERAGE)||node->rng)?
-                (node->counter?g_strdup_printf("%u",node->maxvalue):g_strdup("-")):
+                (node->counter?g_strdup_printf("%d",node->maxvalue):g_strdup("-")):
                 g_strdup("");
     values[COL_RATE] = (node->st->elapsed)?g_strdup_printf("%.4f",((float)node->counter)/node->st->elapsed):g_strdup("");
     values[COL_PERCENT] = ((node->parent)&&(node->parent->counter))?
