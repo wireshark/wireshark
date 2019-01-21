@@ -1102,6 +1102,37 @@ smb2_conv_destroy(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
 	return FALSE;
 }
 
+static void
+smb2_add_session_info(proto_tree *tree, tvbuff_t *tvb, gint start, smb2_sesid_info_t *ses)
+{
+	proto_item  *item;
+	if (!ses)
+		return;
+
+	if (ses->acct_name) {
+		item = proto_tree_add_string(tree, hf_smb2_acct_name, tvb, start, 0, ses->acct_name);
+		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_append_text(item, " Acct:%s", ses->acct_name);
+	}
+
+	if (ses->domain_name) {
+		item = proto_tree_add_string(tree, hf_smb2_domain_name, tvb, start, 0, ses->domain_name);
+		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_append_text(item, " Domain:%s", ses->domain_name);
+	}
+
+	if (ses->host_name) {
+		item = proto_tree_add_string(tree, hf_smb2_host_name, tvb, start, 0, ses->host_name);
+		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_append_text(item, " Host:%s", ses->host_name);
+	}
+
+	if (ses->auth_frame != (guint32)-1) {
+		item = proto_tree_add_uint(tree, hf_smb2_auth_frame, tvb, start, 0, ses->auth_frame);
+		PROTO_ITEM_SET_GENERATED(item);
+	}
+}
+
 static void smb2_key_derivation(const guint8 *KI, guint32 KI_len,
 			 const guint8 *Label, guint32 Label_len,
 			 const guint8 *Context, guint32 Context_len,
@@ -8903,7 +8934,6 @@ dissect_smb2_transform_header(packet_info *pinfo, proto_tree *tree,
 	int                sesid_offset;
 	guint8            *plain_data     = NULL;
 	guint8            *decryption_key = NULL;
-	proto_item        *item;
 
 	static const int *sf_fields[] = {
 		&hf_smb2_encryption_aes128_ccm,
@@ -8947,22 +8977,8 @@ dissect_smb2_transform_header(packet_info *pinfo, proto_tree *tree,
 	sesid_key.sesid = sti->sesid;
 	sti->session = (smb2_sesid_info_t *)g_hash_table_lookup(sti->conv->sesids, &sesid_key);
 
-	if (sti->session != NULL && sti->session->auth_frame != (guint32)-1) {
-		item = proto_tree_add_string(sesid_tree, hf_smb2_acct_name, tvb, sesid_offset, 0, sti->session->acct_name);
-		PROTO_ITEM_SET_GENERATED(item);
-		proto_item_append_text(sesid_item, " Acct:%s", sti->session->acct_name);
 
-		item = proto_tree_add_string(sesid_tree, hf_smb2_domain_name, tvb, sesid_offset, 0, sti->session->domain_name);
-		PROTO_ITEM_SET_GENERATED(item);
-		proto_item_append_text(sesid_item, " Domain:%s", sti->session->domain_name);
-
-		item = proto_tree_add_string(sesid_tree, hf_smb2_host_name, tvb, sesid_offset, 0, sti->session->host_name);
-		PROTO_ITEM_SET_GENERATED(item);
-		proto_item_append_text(sesid_item, " Host:%s", sti->session->host_name);
-
-		item = proto_tree_add_uint(sesid_tree, hf_smb2_auth_frame, tvb, sesid_offset, 0, sti->session->auth_frame);
-		PROTO_ITEM_SET_GENERATED(item);
-	}
+	smb2_add_session_info(sesid_tree, tvb, sesid_offset, sti->session);
 
 	if (sti->session != NULL && sti->alg == ENC_ALG_aes128_ccm) {
 		if (pinfo->destport == sti->session->server_port) {
@@ -9128,22 +9144,7 @@ dissect_smb2_tid_sesid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, 
 		return offset;
 	}
 
-	if (si->session->auth_frame != (guint32)-1) {
-		item = proto_tree_add_string(sesid_tree, hf_smb2_acct_name, tvb, sesid_offset, 0, si->session->acct_name);
-		PROTO_ITEM_SET_GENERATED(item);
-		proto_item_append_text(sesid_item, " Acct:%s", si->session->acct_name);
-
-		item = proto_tree_add_string(sesid_tree, hf_smb2_domain_name, tvb, sesid_offset, 0, si->session->domain_name);
-		PROTO_ITEM_SET_GENERATED(item);
-		proto_item_append_text(sesid_item, " Domain:%s", si->session->domain_name);
-
-		item = proto_tree_add_string(sesid_tree, hf_smb2_host_name, tvb, sesid_offset, 0, si->session->host_name);
-		PROTO_ITEM_SET_GENERATED(item);
-		proto_item_append_text(sesid_item, " Host:%s", si->session->host_name);
-
-		item = proto_tree_add_uint(sesid_tree, hf_smb2_auth_frame, tvb, sesid_offset, 0, si->session->auth_frame);
-		PROTO_ITEM_SET_GENERATED(item);
-	}
+	smb2_add_session_info(sesid_tree, tvb, sesid_offset, si->session);
 
 	if (!(si->flags&SMB2_FLAGS_ASYNC_CMD)) {
 		/* see if we can find the name for this tid */
