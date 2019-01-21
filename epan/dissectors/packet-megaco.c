@@ -3022,7 +3022,7 @@ dissect_megaco_LocalRemotedescriptor(tvbuff_t *tvb, proto_tree *megaco_mediadesc
 {
     gint tokenlen;
     tvbuff_t *next_tvb;
-    http_message_info_t message_info = { SIP_DATA, NULL, NULL };
+    http_message_info_t message_info = { SIP_DATA, NULL, NULL, NULL };
 
     sdp_setup_info_t setup_info;
 

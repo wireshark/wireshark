@@ -545,7 +545,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
     proto_tree *subtree;
     proto_item *ti;
     gint offset = start, next_offset = 0;
-    http_message_info_t message_info = { input_message_info->type, NULL, NULL };
+    http_message_info_t message_info = { input_message_info->type, NULL, NULL, NULL };
     gint body_start, boundary_start, boundary_line_len;
 
     gchar *content_type_str = NULL;
@@ -708,6 +708,9 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                             filename = ws_find_media_type_parameter(wmem_packet_scope(), value_str, "filename");
                         }
                         break;
+                        case POS_CONTENT_ID:
+                            message_info.content_id = wmem_strdup(wmem_packet_scope(), value_str);
+                            break;
                     default:
                         break;
                 }

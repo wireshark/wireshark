@@ -3339,7 +3339,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
     char    cseq_method[MAX_CSEQ_METHOD_SIZE] = "";
     char    call_id[MAX_CALL_ID_SIZE] = "";
     gchar  *media_type_str_lower_case = NULL;
-    http_message_info_t message_info = { SIP_DATA, NULL, NULL };
+    http_message_info_t message_info = { SIP_DATA, NULL, NULL, NULL };
     char   *content_encoding_parameter_str = NULL;
     guint   resend_for_packet = 0;
     guint   request_for_response = 0;

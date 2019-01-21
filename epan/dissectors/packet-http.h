@@ -86,6 +86,7 @@ typedef enum _http_type {
 typedef struct _http_message_info_t {
 	http_type_t type;       /**< Message type; may be HTTP_OTHERS if not called by HTTP */
 	const char *media_str;  /**< Content-Type parameters */
+	const char *content_id; /**< Content-ID parameter */
 	void *data;             /**< The http_type is used to indicate the data transported */
 } http_message_info_t;
 

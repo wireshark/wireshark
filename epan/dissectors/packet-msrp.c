@@ -457,7 +457,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     int found_match = 0;
     gint content_type_len, content_type_parameter_str_len;
     gchar *media_type_str_lower_case = NULL;
-    http_message_info_t message_info = { HTTP_OTHERS, NULL, NULL };
+    http_message_info_t message_info = { HTTP_OTHERS, NULL, NULL, NULL };
     tvbuff_t *next_tvb;
     gint parameter_offset;
     gint semi_colon_offset;

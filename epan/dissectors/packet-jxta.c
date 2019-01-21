@@ -2017,7 +2017,7 @@ static int dissect_media( const gchar* fullmediatype, tvbuff_t * tvb, packet_inf
         gchar *mediatype = wmem_strdup(wmem_packet_scope(), fullmediatype);
         gchar *parms_at = strchr(mediatype, ';');
         const char *save_match_string = pinfo->match_string;
-        http_message_info_t message_info = { HTTP_OTHERS, NULL, NULL };
+        http_message_info_t message_info = { HTTP_OTHERS, NULL, NULL, NULL };
 
         /* Based upon what is done in packet-media.c we set up type and params */
         if (NULL != parms_at) {
