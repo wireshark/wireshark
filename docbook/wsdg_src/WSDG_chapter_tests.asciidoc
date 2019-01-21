@@ -64,11 +64,9 @@ Capture tests depend on the permissions of the user running the test
 script. We assume that the test user has capture permissions on Windows
 and macOS and capture tests are enabled by default on those platforms.
 
-If the program or feature dependencies of a test are not satisfied, then
-the test will be skipped. For example, if `dumpcap` has not been built
-or if an old version of Libgcrypt is in use, then some capture or
-decryption tests will be skipped while other tests can still run to
-completion.
+If a feature is unavailable, the test will be skipped. For example, if
+an old version of Libgcrypt is in use, then some decryption tests will
+be skipped while other tests can still run to completion.
 
 [[TestsLayout]]
 ==== Suites, Cases, and Tests
@@ -215,6 +213,19 @@ $ pytest --collect-only
 
 # List only tests containing both "dfilter" and "tvb"
 $ pytest --collect-only -k "dfilter and tvb"
+----
+
+The test suite will fail tests when programs are missing. When only a
+subset of programs are built or when some programs are disabled, then
+the test suite can be instructed to skip instead of fail tests:
+
+[source,sh]
+----
+# Run tests when libpcap support is disabled (-DENABLE_PCAP=OFF)
+$ pytest --skip-missing-programs dumpcap,rawshark
+
+# Run tests and ignore all tests with missing program dependencies
+$ pytest --skip-missing-programs all
 ----
 
 To open a Python debugger (PDB) on failing tests, use the `--pdb` option and

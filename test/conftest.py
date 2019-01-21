@@ -19,6 +19,9 @@ def pytest_addoption(parser):
         help='Capture interface index or name.'
     )
     parser.addoption('--program-path', help='Path to Wireshark executables.')
+    parser.addoption('--skip-missing-programs',
+        help='Skip tests that lack programs from this list instead of failing'
+             ' them. Use "all" to ignore all missing programs.')
 
 _all_test_groups = None
 

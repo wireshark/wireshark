@@ -127,7 +127,8 @@ script:
   # Invoke ninja (Linux/macOS, --config is ignored) or msbuild (Windows)
   - cmake --build . --config RelWithDebInfo
   - cmake --build . --config RelWithDebInfo --target test-programs
-  - pytest -v
+  - if [ "$PCAP" = "OFF" ]; then export PYTEST_ADDOPTS=--skip-missing-programs=dumpcap,rawshark; fi
+  - pytest
 after_script:
   - if [ -f run/tshark ]; then run/tshark --version; fi
   - if [ -f run/RelWithDebInfo/tshark.exe ]; then run/RelWithDebInfo/tshark.exe --version; fi

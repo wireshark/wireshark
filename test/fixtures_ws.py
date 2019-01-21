@@ -72,14 +72,20 @@ def program_path(request):
 
 
 @fixtures.fixture(scope='session')
-def program(program_path):
+def program(program_path, request):
+    skip_if_missing = request.config.getoption('--skip-missing-programs',
+                                               default='')
+    skip_if_missing = skip_if_missing.split(',') if skip_if_missing else []
+    dotexe = ''
+    if sys.platform.startswith('win32'):
+        dotexe = '.exe'
+
     def resolver(name):
-        dotexe = ''
-        if sys.platform.startswith('win32'):
-            dotexe = '.exe'
         path = os.path.abspath(os.path.join(program_path, name + dotexe))
         if not os.access(path, os.X_OK):
-            fixtures.skip('Program %s is not available' % (name,))
+            if skip_if_missing == ['all'] or name in skip_if_missing:
+                fixtures.skip('Program %s is not available' % (name,))
+            raise AssertionError('Program %s is not available' % (name,))
         return path
     return resolver
 

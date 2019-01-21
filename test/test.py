@@ -56,6 +56,9 @@ def main():
     cap_group.add_argument('-E', '--disable-capture', action='store_true', help='Disable capture tests')
     cap_group.add_argument('-i', '--capture-interface', help='Capture interface index or name')
     parser.add_argument('-p', '--program-path', default=os.path.curdir, help='Path to Wireshark executables.')
+    parser.add_argument('--skip-missing-programs',
+        help='Skip tests that lack programs from this list instead of failing'
+             ' them. Use "all" to ignore all missing programs.')
     list_group = parser.add_mutually_exclusive_group()
     list_group.add_argument('-l', '--list', action='store_true', help='List tests. One of "all" or a full or partial test name.')
     list_group.add_argument('--list-suites', action='store_true', help='List all suites.')
