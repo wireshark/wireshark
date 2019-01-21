@@ -1124,7 +1124,7 @@ stats_tree_get_values_from_node (const stat_node* node)
             switch (node->datatype)
             {
             case STAT_DT_INT:
-                values[COL_MIN] = g_strdup_printf("%u", node->minvalue.int_min);
+                values[COL_MIN] = g_strdup_printf("%d", node->minvalue.int_min);
                 break;
             case STAT_DT_FLOAT:
                 values[COL_MIN] = g_strdup_printf("%f", node->minvalue.float_min);
@@ -1144,7 +1144,7 @@ stats_tree_get_values_from_node (const stat_node* node)
             switch (node->datatype)
             {
             case STAT_DT_INT:
-                values[COL_MAX] = g_strdup_printf("%u", node->maxvalue.int_max);
+                values[COL_MAX] = g_strdup_printf("%d", node->maxvalue.int_max);
                 break;
             case STAT_DT_FLOAT:
                 values[COL_MAX] = g_strdup_printf("%f", node->maxvalue.float_max);
