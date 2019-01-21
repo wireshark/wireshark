@@ -618,16 +618,22 @@ static const value_string dcbx_llink_types[] = {
 
 /* IEEE 802.1 Subtypes */
 static const value_string ieee_802_1_subtypes[] = {
-	{ 0x01,	"Port VLAN ID" },
-	{ 0x02, "Port and Protocol VLAN ID" },
-	{ 0x03, "VLAN Name" },
-	{ 0x04, "Protocol Identity" },
-	{ 0x07,	"Link Aggregation" },
-	{ 0x08,	"Congestion Notification" },
-	{ 0x09, "ETS Configuration" },
-	{ 0x0A, "ETS Recommendation" },
-	{ 0x0B, "Priority Flow Control Configuration" },
-	{ 0x0C, "Application Protocol" },
+	{ 0x01,	"Port VLAN ID" },			/* 802.1Q - D.2.1 */
+	{ 0x02, "Port and Protocol VLAN ID" },		/* 802.1Q - D.2.2 */
+	{ 0x03, "VLAN Name" },				/* 802.1Q - D.2.3 */
+	{ 0x04, "Protocol Identity" },			/* 802.1Q - D.2.4 */
+	{ 0x05, "VID Usage Digest" },			/* 802.1Q - D.2.5 */
+	{ 0x06, "Management VID" },			/* 802.1Q - D.2.6 */
+	{ 0x07,	"Link Aggregation" },			/* 802.1Q - D.2.7 */
+	{ 0x08,	"Congestion Notification" },		/* 802.1Q - D.2.8 */
+	{ 0x09, "ETS Configuration" },			/* 802.1Q - D.2.9 */
+	{ 0x0A, "ETS Recommendation" },			/* 802.1Q - D.2.10 */
+	{ 0x0B, "Priority Flow Control Configuration" },/* 802.1Q - D.2.11 */
+	{ 0x0C, "Application Protocol" },		/* 802.1Q - D.2.12 */
+	{ 0x0D, "EVB" },				/* 802.1Q - D.2.13 */
+	{ 0x0E, "CDCP" },				/* 802.1Q - D.2.14 */
+	{ 0x0F, "Port extension" },			/* 802.1BR - B.2 */
+	{ 0x10, "Application VLAN" },			/* 802.1Q - D.2.15 */
 	{ 0, NULL }
 };
 
