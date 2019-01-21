@@ -56,7 +56,6 @@ static int hf_quic_token_length = -1;
 static int hf_quic_token = -1;
 static int hf_quic_length = -1;
 static int hf_quic_packet_number = -1;
-static int hf_quic_packet_number_full = -1;
 static int hf_quic_version = -1;
 static int hf_quic_supported_version = -1;
 static int hf_quic_vn_unused = -1;
@@ -595,24 +594,6 @@ quic_set_full_packet_number(quic_info_data_t *quic_info, quic_packet_info_t *qui
     pkn_full = quic_pkt_adjust_pkt_num(max_pn, pkn32, 8 * pkn_len);
     quic_packet->pkn_len = pkn_len;
     quic_packet->packet_number = pkn_full;
-}
-
-/**
- * Display the reconstructed packet number.
- */
-static void
-dissect_quic_packet_number(tvbuff_t *tvb, proto_tree *tree, guint offset, quic_packet_info_t *quic_packet)
-{
-    proto_item *ti;
-    guint       pkn_len = quic_packet->pkn_len;
-    guint32     pkn32 = (guint32)quic_packet->packet_number & ((1UL << (8 * pkn_len)) - 1);
-
-    // TODO separate field for encrypted and decrypted PKN?
-    proto_tree_add_uint64(tree, hf_quic_packet_number, tvb, offset, pkn_len, pkn32);
-
-    /* always add the full packet number for use in columns */
-    ti = proto_tree_add_uint64(tree, hf_quic_packet_number_full, tvb, offset, pkn_len, quic_packet->packet_number);
-    PROTO_ITEM_SET_GENERATED(ti);
 }
 
 static const char *
@@ -2003,7 +1984,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
         return offset;
     }
 
-    dissect_quic_packet_number(tvb, quic_tree, offset, quic_packet);
+    proto_tree_add_uint64(quic_tree, hf_quic_packet_number, tvb, offset, quic_packet->pkn_len, quic_packet->packet_number);
     offset += quic_packet->pkn_len;
     col_append_fstr(pinfo->cinfo, COL_INFO, ", PKN: %" G_GINT64_MODIFIER "u", quic_packet->packet_number);
 
@@ -2081,9 +2062,8 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     }
 
     /* Packet Number */
-    dissect_quic_packet_number(tvb, quic_tree, offset, quic_packet);
+    proto_tree_add_uint64(quic_tree, hf_quic_packet_number, tvb, offset, quic_packet->pkn_len, quic_packet->packet_number);
     offset += quic_packet->pkn_len;
-
     col_append_fstr(pinfo->cinfo, COL_INFO, ", PKN: %" G_GINT64_MODIFIER "u", quic_packet->packet_number);
 
     /* Protected Payload */
@@ -2479,12 +2459,7 @@ proto_register_quic(void)
         { &hf_quic_packet_number,
           { "Packet Number", "quic.packet_number",
             FT_UINT64, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_quic_packet_number_full,
-          { "Packet Number (full)", "quic.packet_number_full",
-            FT_UINT64, BASE_DEC, NULL, 0x0,
-            "Full packet number", HFILL }
+            "Decoded packet number", HFILL }
         },
         { &hf_quic_version,
           { "Version", "quic.version",
