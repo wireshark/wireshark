@@ -463,6 +463,7 @@ quic_cipher_reset(quic_cipher *cipher)
     memset(cipher, 0, sizeof(*cipher));
 }
 
+#ifdef HAVE_LIBGCRYPT_AEAD
 /* Inspired from ngtcp2 */
 static guint64 quic_pkt_adjust_pkt_num(guint64 max_pkt_num, guint64 pkt_num,
                                    size_t n) {
@@ -487,7 +488,6 @@ static gboolean
 quic_decrypt_header(tvbuff_t *tvb, guint pn_offset, gcry_cipher_hd_t hp_cipher, int hp_cipher_algo,
                     guint8 *first_byte, guint32 *pn)
 {
-#ifdef HAVE_LIBGCRYPT_AEAD
     gcry_cipher_hd_t h = hp_cipher;
     if (!hp_cipher) {
         // need to know the cipher.
@@ -546,15 +546,6 @@ quic_decrypt_header(tvbuff_t *tvb, guint pn_offset, gcry_cipher_hd_t hp_cipher, 
     *first_byte = packet0;
     *pn = pkt_pkn;
     return TRUE;
-#else
-    (void)tvb;
-    (void)pn_offset;
-    (void)hp_cipher;
-    (void)hp_cipher_algo;
-    (void)first_byte;
-    (void)pn;
-    return FALSE;
-#endif /* !HAVE_LIBGCRYPT_AEAD */
 }
 
 /**
@@ -597,6 +588,7 @@ quic_set_full_packet_number(quic_info_data_t *quic_info, quic_packet_info_t *qui
     quic_packet->pkn_len = pkn_len;
     quic_packet->packet_number = pkn_full;
 }
+#endif /* !HAVE_LIBGCRYPT_AEAD */
 
 static const char *
 cid_to_string(const quic_cid_t *cid)
@@ -1998,10 +1990,12 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
         quic_process_payload(tvb, pinfo, quic_tree, ti, offset,
                              conn, quic_packet, from_server, cipher, first_byte, quic_packet->pkn_len);
     }
+#ifdef HAVE_LIBGCRYPT_AEAD
     if (!PINFO_FD_VISITED(pinfo) && !quic_packet->decryption.error) {
         // Packet number is verified to be valid, remember it.
         *quic_max_packet_number(conn, from_server, first_byte) = quic_packet->packet_number;
     }
+#endif /* !HAVE_LIBGCRYPT_AEAD */
     offset += tvb_reported_length_remaining(tvb, offset);
 
     return offset;
@@ -2014,20 +2008,19 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     guint offset = 0;
     quic_cid_t dcid = {.len=0};
     guint8  first_byte = 0;
-    guint32 pkn32 = 0;
     proto_item *ti;
     gboolean    key_phase = FALSE;
     quic_cipher *cipher = NULL;
     quic_info_data_t *conn = dgram_info->conn;
     const gboolean from_server = dgram_info->from_server;
-    gcry_cipher_hd_t hp_cipher = NULL;
 
     if (conn) {
        dcid.len = from_server ? conn->client_cids.data.len : conn->server_cids.data.len;
     }
 #ifdef HAVE_LIBGCRYPT_AEAD
     if (!PINFO_FD_VISITED(pinfo) && conn) {
-        hp_cipher = quic_get_1rtt_hp_cipher(pinfo, conn, from_server);
+        guint32 pkn32 = 0;
+        gcry_cipher_hd_t hp_cipher = quic_get_1rtt_hp_cipher(pinfo, conn, from_server);
         if (hp_cipher && quic_decrypt_header(tvb, 1 + dcid.len, hp_cipher, conn->cipher_algo, &first_byte, &pkn32)) {
             quic_set_full_packet_number(conn, quic_packet, from_server, first_byte, pkn32);
             quic_packet->first_byte = first_byte;
@@ -2077,10 +2070,12 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     if (conn) {
         quic_process_payload(tvb, pinfo, quic_tree, ti, offset,
                              conn, quic_packet, from_server, cipher, first_byte, quic_packet->pkn_len);
+#ifdef HAVE_LIBGCRYPT_AEAD
         if (!PINFO_FD_VISITED(pinfo) && !quic_packet->decryption.error) {
             // Packet number is verified to be valid, remember it.
             *quic_max_packet_number(conn, from_server, first_byte) = quic_packet->packet_number;
         }
+#endif /* !HAVE_LIBGCRYPT_AEAD */
     }
     offset += tvb_reported_length_remaining(tvb, offset);
 
