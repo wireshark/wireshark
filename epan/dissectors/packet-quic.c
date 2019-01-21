@@ -46,6 +46,8 @@ static int proto_quic = -1;
 static int hf_quic_connection_number = -1;
 static int hf_quic_header_form = -1;
 static int hf_quic_long_packet_type = -1;
+static int hf_quic_long_reserved = -1;
+static int hf_quic_packet_number_length = -1;
 static int hf_quic_dcid = -1;
 static int hf_quic_scid = -1;
 static int hf_quic_dcil = -1;
@@ -437,6 +439,20 @@ static const value_string quic_application_error_code_vals[] = {
     { 0x0000, "STOPPING" },
     { 0, NULL }
 };
+
+static const value_string quic_packet_number_lengths[] = {
+    { 0, "1 bytes" },
+    { 1, "2 bytes" },
+    { 2, "3 bytes" },
+    { 3, "4 bytes" },
+    { 0, NULL }
+};
+
+
+static void
+quic_extract_header(tvbuff_t *tvb, guint8 *long_packet_type, guint32 *version,
+                    quic_cid_t *dcid, quic_cid_t *scid);
+
 
 static void
 quic_cipher_reset(quic_cipher *cipher)
@@ -1896,7 +1912,7 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
                          quic_datagram *dgram_info, quic_packet_info_t *quic_packet)
 {
     guint offset = 0;
-    guint32 long_packet_type;
+    guint8 long_packet_type;
     guint32 version;
     quic_cid_t  dcid = {.len=0}, scid = {.len=0};
     guint32 len_token_length;
@@ -1909,11 +1925,59 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     quic_cipher *cipher = NULL;
     proto_item *ti;
 
-    proto_tree_add_item_ret_uint(quic_tree, hf_quic_long_packet_type, tvb, offset, 1, ENC_NA, &long_packet_type);
+    quic_extract_header(tvb, &long_packet_type, &version, &dcid, &scid);
+#ifdef HAVE_LIBGCRYPT_AEAD
+    if (conn) {
+        if (long_packet_type == QUIC_LPT_INITIAL) {
+            cipher = !from_server ? &conn->client_initial_cipher : &conn->server_initial_cipher;
+        } else if (long_packet_type == QUIC_LPT_HANDSHAKE) {
+            cipher = !from_server ? &conn->client_handshake_cipher : &conn->server_handshake_cipher;
+        }
+    }
+    /* Prepare the Initial/Handshake cipher for header/payload decryption. */
+    if (!PINFO_FD_VISITED(pinfo) && conn && cipher) {
+        const gchar *error = NULL;
+        if (long_packet_type == QUIC_LPT_INITIAL && !from_server &&
+            !memcmp(&dcid, &conn->client_dcid_initial, sizeof(quic_cid_t))) {
+            /* Create new decryption context based on the Client Connection
+             * ID from the *very first* Client Initial packet. */
+            quic_create_initial_decoders(&dcid, &error, conn);
+        } else if (long_packet_type == QUIC_LPT_HANDSHAKE) {
+            if (!cipher->hp_cipher) {
+                quic_create_decoders(pinfo, conn, cipher, from_server, TLS_SECRET_HANDSHAKE, &error);
+            }
+        }
+        if (!error) {
+            guint32 pkn32 = 0;
+            int hp_cipher_algo = long_packet_type != QUIC_LPT_INITIAL && conn ? conn->cipher_algo : GCRY_CIPHER_AES128;
+            guint pn_offset = 6 + dcid.len + scid.len;
+            if (long_packet_type == QUIC_LPT_INITIAL) {
+                pn_offset += tvb_get_varint(tvb, pn_offset, 8, &token_length, ENC_VARINT_QUIC);
+                pn_offset += (guint)token_length;
+            }
+            pn_offset += tvb_get_varint(tvb, pn_offset, 8, &payload_length, ENC_VARINT_QUIC);
+            if (quic_decrypt_header(tvb, pn_offset, cipher->hp_cipher, hp_cipher_algo, &first_byte, &pkn32)) {
+                quic_set_full_packet_number(conn, quic_packet, from_server, first_byte, pkn32);
+                quic_packet->first_byte = first_byte;
+            } else {
+                error = "Header deprotection failed";
+            }
+        }
+        if (error) {
+            quic_packet->decryption.error = wmem_strdup(wmem_file_scope(), error);
+        }
+    }
+#endif /* !HAVE_LIBGCRYPT_AEAD */
+
+    proto_tree_add_item(quic_tree, hf_quic_long_packet_type, tvb, offset, 1, ENC_NA);
+    if (quic_packet->pkn_len) {
+        proto_tree_add_uint(quic_tree, hf_quic_long_reserved, tvb, offset, 1, first_byte);
+        proto_tree_add_uint(quic_tree, hf_quic_packet_number_length, tvb, offset, 1, first_byte);
+    }
     offset += 1;
     col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(long_packet_type, quic_long_packet_type_vals, "Long Header"));
 
-    offset = dissect_quic_long_header_common(tvb, pinfo, quic_tree, offset, quic_packet, &version, &dcid, &scid);
+    offset = dissect_quic_long_header_common(tvb, pinfo, quic_tree, offset, quic_packet, NULL, &dcid, &scid);
 
     if (long_packet_type == QUIC_LPT_INITIAL) {
         proto_tree_add_item_ret_varint(quic_tree, hf_quic_token_length, tvb, offset, -1, ENC_VARINT_QUIC, &token_length, &len_token_length);
@@ -1928,51 +1992,11 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     proto_tree_add_item_ret_varint(quic_tree, hf_quic_length, tvb, offset, -1, ENC_VARINT_QUIC, &payload_length, &len_payload_length);
     offset += len_payload_length;
 
-#ifdef HAVE_LIBGCRYPT_AEAD
-    // TODO the following code is already necessary to unmask the first byte. It
-    //      should probably moved above, but then DCID needs to be extracted
-    //      first. The version also needs to be checked.
-    if (conn) {
-        if (long_packet_type == QUIC_LPT_INITIAL) {
-            cipher = !from_server ? &conn->client_initial_cipher : &conn->server_initial_cipher;
-        } else if (long_packet_type == QUIC_LPT_HANDSHAKE) {
-            cipher = !from_server ? &conn->client_handshake_cipher : &conn->server_handshake_cipher;
-        }
-    }
-    /* Build handshake cipher now for PKN (and handshake) decryption. */
-    if (!PINFO_FD_VISITED(pinfo) && conn) {
-        const gchar *error = NULL;
-        if (long_packet_type == QUIC_LPT_INITIAL && !from_server &&
-            !memcmp(&dcid, &conn->client_dcid_initial, sizeof(quic_cid_t))) {
-            /* Create new decryption context based on the Client Connection
-             * ID from the *very first* Client Initial packet. */
-            quic_create_initial_decoders(&dcid, &error, conn);
-        } else if (long_packet_type == QUIC_LPT_HANDSHAKE) {
-            if (!cipher->hp_cipher) {
-                quic_create_decoders(pinfo, conn, cipher, from_server, TLS_SECRET_HANDSHAKE, &error);
-            }
-        }
-        if (error) {
-            quic_packet->decryption.error = wmem_strdup(wmem_file_scope(), error);
-        }
-    }
-#endif /* !HAVE_LIBGCRYPT_AEAD */
     if (quic_packet->decryption.error) {
         expert_add_info_format(pinfo, quic_tree, &ei_quic_decryption_failed,
                                "Failed to create decryption context: %s", quic_packet->decryption.error);
         return offset;
     }
-#ifdef HAVE_LIBGCRYPT_AEAD
-    if (!PINFO_FD_VISITED(pinfo) && conn && cipher) {
-        guint32 pkn32 = 0;
-        int hp_cipher_algo = long_packet_type != QUIC_LPT_INITIAL && conn ? conn->cipher_algo : GCRY_CIPHER_AES128;
-        if (quic_decrypt_header(tvb, offset, cipher->hp_cipher, hp_cipher_algo, &first_byte, &pkn32)) {
-            quic_set_full_packet_number(conn, quic_packet, from_server, first_byte, pkn32);
-            // TODO this is unused for LPT, see also above for the required cipher refactor.
-            quic_packet->first_byte = first_byte;
-        }
-    }
-#endif /* !HAVE_LIBGCRYPT_AEAD */
     if (!conn || quic_packet->pkn_len == 0) {
         // if not part of a connection, the full PKN cannot be reconstructed.
         expert_add_info_format(pinfo, quic_tree, &ei_quic_decryption_failed, "Failed to decrypt packet number");
@@ -2032,6 +2056,7 @@ dissect_quic_short_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
         key_phase = (first_byte & SH_KP) != 0;
         proto_tree_add_uint(quic_tree, hf_quic_short_reserved, tvb, offset, 1, first_byte);
         proto_tree_add_boolean(quic_tree, hf_quic_key_phase, tvb, offset, 1, key_phase);
+        proto_tree_add_uint(quic_tree, hf_quic_packet_number_length, tvb, offset, 1, first_byte);
     }
     offset += 1;
 
@@ -2404,6 +2429,16 @@ proto_register_quic(void)
           { "Packet Type", "quic.long.packet_type",
             FT_UINT8, BASE_DEC, VALS(quic_long_packet_type_vals), 0x30,
             "Long Header Packet Type", HFILL }
+        },
+        { &hf_quic_long_reserved,
+          { "Reserved", "quic.long.reserved",
+            FT_UINT8, BASE_DEC, NULL, 0x0c,
+            "Reserved bits (protected using header protection)", HFILL }
+        },
+        { &hf_quic_packet_number_length,
+          { "Packet Number Length", "quic.packet_number_length",
+            FT_UINT8, BASE_DEC, VALS(quic_packet_number_lengths), 0x03,
+            "Packet Number field length (protected using header protection)", HFILL }
         },
         { &hf_quic_dcid,
           { "Destination Connection ID", "quic.dcid",
