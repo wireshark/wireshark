@@ -28,13 +28,16 @@ endif()
 
 
 macro(set_extcap_executable_properties _executable)
-	set_target_properties(${_executable} PROPERTIES FOLDER "Executables/Extcaps")
+	set_target_properties(${_executable} PROPERTIES
+		LINK_FLAGS "${WS_LINK_FLAGS}"
+		FOLDER "Executables/Extcaps"
+		INSTALL_RPATH "${EXTCAP_INSTALL_RPATH}"
+	)
 
 	set(PROGLIST ${PROGLIST} ${_executable})
 
 	if(WIN32)
 		set_target_properties(${_executable} PROPERTIES
-			LINK_FLAGS "${WS_LINK_FLAGS}"
 			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/extcap
 			RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR}/run/Debug/extcap
 			RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/run/Release/extcap
@@ -43,15 +46,8 @@ macro(set_extcap_executable_properties _executable)
 		)
 	else()
 		set_target_properties(${_executable} PROPERTIES
-			LINK_FLAGS "${WS_LINK_FLAGS}"
 			RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/extcap
 		)
-		if(CMAKE_INSTALL_RPATH MATCHES "\\$ORIGIN")
-			# Use relative path from ${EXTCAP_INSTALL_LIBDIR} to ${CMAKE_INSTALL_LIBDIR}
-			set_target_properties(${_executable} PROPERTIES
-				INSTALL_RPATH "$ORIGIN/../.."
-			)
-		endif()
 		if(ENABLE_APPLICATION_BUNDLE)
 			if(NOT CMAKE_CFG_INTDIR STREQUAL ".")
 				# Xcode

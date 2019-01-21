@@ -60,6 +60,7 @@ set_target_properties(wscodecs PROPERTIES
   LINK_FLAGS "${WS_LINK_FLAGS}"
   VERSION "0.0.0" SOVERSION 0
   FOLDER "DLLs"
+  INSTALL_RPATH "${LIBRARY_INSTALL_RPATH}"
 )
 
 target_link_libraries(wscodecs ${wscodecs_LIBS})

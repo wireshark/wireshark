@@ -181,6 +181,9 @@ include(GNUInstallDirs)
 # Make sure our executables can can load our libraries if we install into
 # a non-default directory on Unix-like systems other than macOS.
 # https://gitlab.kitware.com/cmake/community/wikis/doc/cmake/RPATH-handling
+set(LIBRARY_INSTALL_RPATH "")
+set(EXECUTABLE_INSTALL_RPATH "")
+set(EXTCAP_INSTALL_RPATH "")
 if(NOT (WIN32 OR APPLE))
 	# Try to set a RPATH for installed binaries if the library directory is
 	# not already included in the default search list.
@@ -190,6 +193,9 @@ if(NOT (WIN32 OR APPLE))
 		# binaries. In other cases, only absolute paths can be used.
 		# https://www.lekensteyn.nl/rpath.html
 		if(CMAKE_SYSTEM_NAME MATCHES "^(Linux|SunOS|FreeBSD)$")
+			# Provide a knob to optionally force absolute rpaths,
+			# to support old/buggy systems and as a user preference
+			# for hardening.
 			set(ENABLE_RPATH_ORIGIN TRUE CACHE BOOL
 				"Use $ORIGIN with INSTALL_RPATH")
 			mark_as_advanced(ENABLE_RPATH_ORIGIN)
@@ -197,9 +203,13 @@ if(NOT (WIN32 OR APPLE))
 			set(ENABLE_RPATH_ORIGIN FALSE)
 		endif()
 		if(ENABLE_RPATH_ORIGIN)
-			set(CMAKE_INSTALL_RPATH "$ORIGIN/../${CMAKE_INSTALL_LIBDIR}")
+			set(LIBRARY_INSTALL_RPATH     "$ORIGIN")
+			set(EXECUTABLE_INSTALL_RPATH  "$ORIGIN/../${CMAKE_INSTALL_LIBDIR}")
+			set(EXTCAP_INSTALL_RPATH      "$ORIGIN/../..")
 		else()
-			set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_FULL_LIBDIR}")
+			set(LIBRARY_INSTALL_RPATH     "${CMAKE_INSTALL_FULL_LIBDIR}")
+			set(EXECUTABLE_INSTALL_RPATH  "${CMAKE_INSTALL_FULL_LIBDIR}")
+			set(EXTCAP_INSTALL_RPATH      "${CMAKE_INSTALL_FULL_LIBDIR}")
 		endif()
 		# Include non-standard external libraries by default in RPATH.
 		if(NOT DEFINED CMAKE_INSTALL_RPATH_USE_LINK_PATH)
@@ -2126,6 +2136,7 @@ if(BUILD_wireshark AND QT_FOUND)
 	set_target_properties(wireshark PROPERTIES
 		LINK_FLAGS "${WS_LINK_FLAGS}"
 		FOLDER "Executables"
+		INSTALL_RPATH "${EXECUTABLE_INSTALL_RPATH}"
 	)
 	if(ENABLE_APPLICATION_BUNDLE OR WIN32)
 		set_target_properties(wireshark PROPERTIES OUTPUT_NAME Wireshark)
@@ -2188,6 +2199,7 @@ macro(set_extra_executable_properties _executable _folder)
 	set_target_properties(${_executable} PROPERTIES
 		LINK_FLAGS "${WILDCARD_OBJ} ${WS_LINK_FLAGS}"
 		FOLDER ${_folder}
+		INSTALL_RPATH "${EXECUTABLE_INSTALL_RPATH}"
 	)
 
 	set(PROGLIST ${PROGLIST} ${_executable})
