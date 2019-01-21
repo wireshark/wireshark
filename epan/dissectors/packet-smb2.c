@@ -4503,7 +4503,6 @@ static int
 dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
 	offset_length_buffer_t s_olb;
-	guint16 d;
 	guint16 i;
 	guint32 nco;
 	guint16 ncc;
@@ -4521,7 +4520,7 @@ dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo, prot
 	offset++;
 
 	/* dialect picked */
-	d = tvb_get_letohs(tvb, offset);
+	si->conv->dialect = tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(tree, hf_smb2_dialect, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
@@ -4570,7 +4569,7 @@ dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo, prot
 
 	offset = dissect_smb2_olb_tvb_max_offset(offset, &s_olb);
 
-	if (d < 0x310) {
+	if (si->conv->dialect < 0x310) {
 		ncc = 0;
 	}
 

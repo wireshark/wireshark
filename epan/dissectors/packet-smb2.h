@@ -96,6 +96,7 @@ typedef struct _smb2_conv_info_t {
 	GHashTable *fids;
 	/* table to store some infos for smb export object */
 	GHashTable *files;
+	guint16 dialect;
 } smb2_conv_info_t;
 
 
