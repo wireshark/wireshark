@@ -446,6 +446,8 @@ static int hf_meta_cas = -1;
 static int hf_skip_conflict = -1;
 static int hf_force_accept = -1;
 static int hf_regenerate_cas = -1;
+static int hf_force_meta = -1;
+static int hf_is_expiration = -1;
 static int hf_meta_options = -1;
 static int hf_metalen = -1;
 static int hf_meta_reqextmeta = -1;
@@ -836,6 +838,23 @@ static const int * subdoc_doc_flags[] = {
   &hf_subdoc_doc_flags_accessdeleted,
   &hf_subdoc_doc_flags_reserved,
   NULL
+};
+
+static const int *set_with_meta_extra_flags[] = {
+        &hf_force_meta,
+        &hf_force_accept,
+        &hf_regenerate_cas,
+        &hf_skip_conflict,
+        NULL
+};
+
+static const int *del_with_meta_extra_flags[] = {
+        &hf_force_meta,
+        &hf_force_accept,
+        &hf_regenerate_cas,
+        &hf_skip_conflict,
+        &hf_is_expiration,
+        NULL
 };
 
 static const value_string feature_vals[] = {
@@ -1565,15 +1584,16 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
       // Options field (4 bytes)
       if (extlen == 28 || extlen == 30) {
-        static const int *extra_flags[] = {
-          &hf_skip_conflict,
-          &hf_force_accept,
-          &hf_regenerate_cas,
-          NULL
-        };
-        proto_tree_add_bitmask(extras_tree, tvb, offset, hf_meta_options,
-                               ett_extras_flags, extra_flags, ENC_BIG_ENDIAN);
-        offset += 4;
+          proto_tree_add_bitmask(
+                  extras_tree,
+                  tvb,
+                  offset,
+                  hf_meta_options,
+                  ett_extras_flags,
+                  (opcode == PROTOCOL_BINARY_CMD_DEL_WITH_META) ?
+                      del_with_meta_extra_flags : set_with_meta_extra_flags,
+                  ENC_BIG_ENDIAN);
+          offset += 4;
       }
       // Meta Length field (2 bytes)
       if (extlen == 26 || extlen == 30) {
@@ -2871,9 +2891,11 @@ proto_register_couchbase(void)
     { &hf_meta_revseqno, {"RevSeqno", "couchbase.extras.revseqno", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL} },
     { &hf_meta_cas, {"CAS", "couchbase.extras.cas", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL} },
     { &hf_meta_options, {"Options", "couchbase.extras.options", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL} },
-    { &hf_skip_conflict, {"SKIP_CONFLICT_RESOLUTION", "couchbase.extras.options.skip_conflict_resolution", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x01, NULL, HFILL} },
+    { &hf_force_meta, {"FORCE_WITH_META_OP", "couchbase.extras.options.force_with_meta_op", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x01, NULL, HFILL} },
     { &hf_force_accept, {"FORCE_ACCEPT_WITH_META_OPS", "couchbase.extras.options.force_accept_with_meta_ops", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x02, NULL, HFILL} },
     { &hf_regenerate_cas, {"REGENERATE_CAS", "couchbase.extras.option.regenerate_cas", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x04, NULL, HFILL} },
+    { &hf_skip_conflict, {"SKIP_CONFLICT_RESOLUTION", "couchbase.extras.options.skip_conflict_resolution", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x08, NULL, HFILL} },
+    { &hf_is_expiration, {"IS_EXPIRATION", "couchbase.extras.options.is_expiration", FT_BOOLEAN, 16, TFS(&tfs_set_notset), 0x10, NULL, HFILL} },
     { &hf_metalen, {"Meta Length", "couchbase.extras.meta_length", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL} },
     { &hf_meta_reqextmeta, {"ReqExtMeta", "couchbase.extras.reqextmeta", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL} },
     { &hf_meta_deleted, {"Deleted", "couchbase.extras.deleted", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL} },
