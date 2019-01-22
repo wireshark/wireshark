@@ -26,10 +26,8 @@ Replace `ninja test-programs` by `make test-programs` as needed.
 
 The test suite will attempt to test as much as possible and skip tests
 when its dependencies are not satisfied. For example, packet capture
-tests require an interface. On Windows, capture tests are enabled by
-default when a capture driver is installed. To disable tests, pass the
-`--disable-capture` option. On other platforms, enable capture tests
-with `--capture-interface <interface>`.
+tests require a Loopback interface and capture privileges. To avoid
+capture tests, pass the `--disable-capture` option.
 
 List available tests with `pytest --collectonly`. Enable verbose output
 with `pytest --verbose`. For more details, see <<ChTestsRunPytest>>.
@@ -39,9 +37,6 @@ a more limited test runner, `test/test.py`. Use `test/test.py --help` to
 see all options. For more details, see <<ChTestsRun>>.
 
 CMake currently runs `test/test.py` when the “test” target is built.
-Pass `-DTEST_EXTRA_ARGS=--disable-capture` or
-`-DTEST_EXTRA_ARGS=--capture-interface=<interface>` to `cmake` as needed
-for your system.
 
 [[ChTestsStructure]]
 === Test suite structure
@@ -191,10 +186,7 @@ be present in the `run` subdirectory (or `run\RelWithDebInfo` on Windows).
 $ cd /path/to/wireshark/build
 $ pytest
 
-# Run all tests including capture tests
-$ pytest --capture-interface lo
-
-# Run all except capture tests (which are enabled by default on Windows)
+# Run all except capture tests
 $ pytest --disable-capture
 
 # Run all tests with "decryption" in its name

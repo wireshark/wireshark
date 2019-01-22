@@ -13,9 +13,11 @@ import fixtures
 import glob
 import hashlib
 import os
+import socket
 import subprocess
 import subprocesstest
 import sys
+import threading
 import time
 import uuid
 
@@ -25,6 +27,23 @@ testout_pcap = 'testout.pcap'
 testout_pcapng = 'testout.pcapng'
 snapshot_len = 96
 
+class UdpTrafficGenerator(threading.Thread):
+    def __init__(self):
+        super().__init__(daemon=True)
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.stopped = False
+
+    def run(self):
+        while not self.stopped:
+            time.sleep(.05)
+            self.sock.sendto(b'Wireshark test\n', ('127.0.0.1', 9))
+
+    def stop(self):
+        if not self.stopped:
+            self.stopped = True
+            self.join()
+
+
 @fixtures.fixture
 def traffic_generator():
     '''
@@ -32,41 +51,19 @@ def traffic_generator():
     where cfilter is a capture filter to match the generated traffic.
     start_func can be invoked to start generating traffic and returns a function
     which can be used to stop traffic generation early.
-    Currently calls ping www.wireshark.org for 60 seconds.
+    Currently generates a bunch of UDP traffic to localhost.
     '''
-    # XXX replace this by something that generates UDP traffic to localhost?
-    # That would avoid external access which is forbidden by the Debian policy.
-    nprocs = 1
-    if sys.platform.startswith('win32'):
-        # XXX Check for psping? https://docs.microsoft.com/en-us/sysinternals/downloads/psping
-        args_ping = ('ping', '-n', '60', '-l', '100', 'www.wireshark.org')
-        nprocs = 3
-    elif sys.platform.startswith('linux') or sys.platform.startswith('freebsd'):
-        args_ping = ('ping', '-c', '240', '-s', '100', '-i', '0.25', 'www.wireshark.org')
-    elif sys.platform.startswith('darwin'):
-        args_ping = ('ping', '-c', '1', '-g', '1', '-G', '240', '-i', '0.25', 'www.wireshark.org')
-    else:
-        # XXX Other BSDs, Solaris, etc
-        fixtures.skip('ping utility is unavailable - cannot generate traffic')
-    procs = []
-    def kill_processes():
-        for proc in procs:
-            proc.kill()
-        for proc in procs:
-            proc.wait()
-        procs.clear()
+    threads = []
     def start_processes():
-        for i in range(nprocs):
-            if i > 0:
-                # Fake subsecond interval if the ping utility lacks support.
-                time.sleep(0.1)
-            proc = subprocess.Popen(args_ping, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT)
-            procs.append(proc)
-        return kill_processes
+        thread = UdpTrafficGenerator()
+        thread.start()
+        threads.append(thread)
+        return thread.stop
     try:
-        yield start_processes, 'icmp || icmp6'
+        yield start_processes, 'udp port 9'
     finally:
-        kill_processes()
+        for thread in threads:
+            thread.stop()
 
 
 @fixtures.fixture(scope='session')

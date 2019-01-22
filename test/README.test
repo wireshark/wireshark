@@ -1,23 +1,13 @@
 Wireshark Tests
 
-The main testing script is `test.py`. It will attempt to test as much as
-possible by default, including packet capture. This means that you will
-probably either have to supply a capture interface (`--capture-interface
-<interface>`) or disable capture tests (`--disable-capture`). You must
-also build the test-programs target in order for the unittests suite to
-pass.
+The recommended steps to prepare for and to run tests:
 
-To run all tests from CMake do the following:
-- Pass `-DTEST_EXTRA_ARGS=--disable-capture` or
-  `-DTEST_EXTRA_ARGS=--capture-interface=<interface>`
-  as needed for your system.
-- Build the “test” target or run ctest, e.g. `ctest --force-new-ctest-process -j 4 --verbose`.
+* Install two Python packages, pytest: `pip install pytest pytest-xdist`
+* Build programs (“wireshark”, “tshark”, etc.): `ninja`
+* Build additional programs for the “unittests” suite: `ninja test-programs`
+* Run tests in the build directory: `pytest`
 
-To run all tests directly, run `test.py -p
-/path/to/wireshark-build/run-directory <capture args>`.
+Replace `ninja test-programs` by `make test-programs` as needed.
 
-To see a list of all options, run `test.py -h` or `test.py --help`.
-
-To see a list of all tests, run `test.py -l`.
-
-See the “Wireshark Tests” chapter of the Developer's Guide for details.
+See the “Wireshark Tests” chapter of the Developer's Guide for details:
+https://www.wireshark.org/docs/wsdg_html_chunked/ChapterTests.html

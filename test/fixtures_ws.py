@@ -8,7 +8,6 @@
 #
 '''Fixtures that are specific to Wireshark.'''
 
-import logging
 import os
 import re
 import subprocess
@@ -24,31 +23,36 @@ import subprocesstest
 def capture_interface(request, cmd_dumpcap):
     '''
     Name of capture interface. Tests will be skipped if dumpcap is not
-    available or if the capture interface is unknown.
+    available or no Loopback interface is available.
     '''
-    iface = request.config.getoption('--capture-interface', default=None)
     disabled = request.config.getoption('--disable-capture', default=False)
     if disabled:
         fixtures.skip('Capture tests are disabled via --disable-capture')
-    if iface:
-        # If a non-empty interface is given, assume capturing is possible.
+    proc = subprocess.Popen((cmd_dumpcap, '-D'), stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE, universal_newlines=True)
+    outs, errs = proc.communicate()
+    if proc.returncode != 0:
+        print('"dumpcap -D" exited with %d. stderr:\n%s' %
+              (proc.returncode, errs))
+        fixtures.skip('Test requires capture privileges and an interface.')
+    # Matches: "lo (Loopback)" (Linux), "lo0 (Loopback)" (macOS) or
+    # "\Device\NPF_{...} (Npcap Loopback Adapter)" (Windows)
+    print('"dumpcap -D" output:\n%s' % (outs,))
+    m = re.search(r'^(\d+)\. .*\(.*Loopback.*\)', outs, re.MULTILINE)
+    if not m:
+        fixtures.skip('Test requires a capture interface.')
+    iface = m.group(1)
+    # Interface found, check for capture privileges (needed for Linux).
+    try:
+        subprocess.check_output((cmd_dumpcap, '-L', '-i', iface),
+                                stderr=subprocess.STDOUT,
+                                universal_newlines=True)
         return iface
-    else:
-        if sys.platform == 'win32':
-            patterns = '.*(Ethernet|Network Connection|VMware|Intel)'
-        else:
-            patterns = None
-        if patterns:
-            try:
-                output = subprocess.check_output((cmd_dumpcap, '-D'),
-                                                 stderr=subprocess.DEVNULL,
-                                                 universal_newlines=True)
-                m = re.search(r'^(\d+)\. %s' % patterns, output, re.MULTILINE)
-                if m:
-                    return m.group(1)
-            except subprocess.CalledProcessError:
-                pass
-    fixtures.skip('Test requires capture privileges and an interface.')
+    except subprocess.CalledProcessError as e:
+        print('"dumpcap -L -i %s" exited with %d. Output:\n%s' % (iface,
+                                                                  e.returncode,
+                                                                  e.output))
+        fixtures.skip('Test requires capture privileges.')
 
 
 @fixtures.fixture(scope='session')
@@ -152,7 +156,7 @@ def features(cmd_tshark, make_env):
         )
         tshark_v = re.sub(r'\s+', ' ', tshark_v)
     except subprocess.CalledProcessError as ex:
-        logging.warning('Failed to detect tshark features: %s', ex)
+        print('Failed to detect tshark features: %s' % (ex,))
         tshark_v = ''
     gcry_m = re.search(r'with +Gcrypt +([0-9]+\.[0-9]+)', tshark_v)
     return types.SimpleNamespace(

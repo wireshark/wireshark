@@ -15,9 +15,6 @@ def pytest_addoption(parser):
     parser.addoption('--disable-capture', action='store_true',
         help='Disable capture tests'
     )
-    parser.addoption('--capture-interface',
-        help='Capture interface index or name.'
-    )
     parser.addoption('--program-path', help='Path to Wireshark executables.')
     parser.addoption('--skip-missing-programs',
         help='Skip tests that lack programs from this list instead of failing'
