@@ -1,6 +1,7 @@
 /* packet-ilp.c
  * Routines for OMA Internal Location Protocol packet dissection
  * Copyright 2006, e.yimjia <jy.m12.0@gmail.com>
+ * Copyright 2019, Pascal Quantin <pascal.quantin@gmail.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -8,7 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * ref OMA-TS-ILP-V2_0_1-20121205-A
+ * ref OMA-TS-ILP-V2_0_4-20181213-A
  * http://www.openmobilealliance.org
  */
 

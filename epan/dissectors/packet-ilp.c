@@ -9,6 +9,7 @@
 /* packet-ilp.c
  * Routines for OMA Internal Location Protocol packet dissection
  * Copyright 2006, e.yimjia <jy.m12.0@gmail.com>
+ * Copyright 2019, Pascal Quantin <pascal.quantin@gmail.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -16,7 +17,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * ref OMA-TS-ILP-V2_0_1-20121205-A
+ * ref OMA-TS-ILP-V2_0_4-20181213-A
  * http://www.openmobilealliance.org
  */
 
@@ -81,7 +82,7 @@ static int hf_ilp_multipleLocationIds = -1;       /* MultipleLocationIds */
 static int hf_ilp_position = -1;                  /* Position */
 static int hf_ilp_triggerParams = -1;             /* TriggerParams */
 static int hf_ilp_sPCSETKey = -1;                 /* SPCSETKey */
-static int hf_ilp_sPCTID = -1;                    /* SPCTID */
+static int hf_ilp_spctid = -1;                    /* SPCTID */
 static int hf_ilp_sPCSETKeylifetime = -1;         /* SPCSETKeylifetime */
 static int hf_ilp_qoP = -1;                       /* QoP */
 static int hf_ilp_sETCapabilities = -1;           /* SETCapabilities */
@@ -128,6 +129,7 @@ static int hf_ilp_ganssIonosphericModel = -1;     /* BOOLEAN */
 static int hf_ilp_ganssAdditionalIonosphericModelForDataID00 = -1;  /* BOOLEAN */
 static int hf_ilp_ganssAdditionalIonosphericModelForDataID11 = -1;  /* BOOLEAN */
 static int hf_ilp_ganssEarthOrientationParameters = -1;  /* BOOLEAN */
+static int hf_ilp_ganssAdditionalIonosphericModelForDataID01 = -1;  /* BOOLEAN */
 static int hf_ilp_GanssRequestedGenericAssistanceDataList_item = -1;  /* GanssReqGenericData */
 static int hf_ilp_ganssId = -1;                   /* INTEGER_0_15 */
 static int hf_ilp_ganssSBASid = -1;               /* BIT_STRING_SIZE_3 */
@@ -143,6 +145,8 @@ static int hf_ilp_ganssAdditionalDataChoices = -1;  /* GanssAdditionalDataChoice
 static int hf_ilp_ganssAuxiliaryInformation = -1;  /* BOOLEAN */
 static int hf_ilp_ganssExtendedEphemeris = -1;    /* ExtendedEphemeris */
 static int hf_ilp_ganssExtendedEphemerisCheck = -1;  /* GanssExtendedEphCheck */
+static int hf_ilp_bds_DifferentialCorrection = -1;  /* BDS_Sig_Id_Req */
+static int hf_ilp_bds_GridModelReq = -1;          /* BOOLEAN */
 static int hf_ilp_ganssWeek = -1;                 /* INTEGER_0_4095 */
 static int hf_ilp_ganssToe = -1;                  /* INTEGER_0_167 */
 static int hf_ilp_t_toeLimit = -1;                /* INTEGER_0_10 */
@@ -166,11 +170,11 @@ static int hf_ilp_gANSSday = -1;                  /* INTEGER_0_8191 */
 static int hf_ilp_gANSSTODhour = -1;              /* INTEGER_0_23 */
 static int hf_ilp_gpsWeek = -1;                   /* INTEGER_0_1023 */
 static int hf_ilp_gpsToe = -1;                    /* INTEGER_0_167 */
-static int hf_ilp_nSAT = -1;                      /* INTEGER_0_31 */
+static int hf_ilp_nsat = -1;                      /* INTEGER_0_31 */
 static int hf_ilp_toeLimit = -1;                  /* INTEGER_0_10 */
 static int hf_ilp_satInfo = -1;                   /* SatelliteInfo */
 static int hf_ilp_SatelliteInfo_item = -1;        /* SatelliteInfoElement */
-static int hf_ilp_iODE = -1;                      /* INTEGER_0_255 */
+static int hf_ilp_iode = -1;                      /* INTEGER_0_255 */
 static int hf_ilp_sPCStatusCode = -1;             /* SPCStatusCode */
 static int hf_ilp_velocity = -1;                  /* Velocity */
 static int hf_ilp_utran_GPSReferenceTimeAssistance = -1;  /* UTRAN_GPSReferenceTimeAssistance */
@@ -189,6 +193,7 @@ static int hf_ilp_minsi = -1;                     /* BIT_STRING_SIZE_34 */
 static int hf_ilp_imsi = -1;                      /* T_imsi */
 static int hf_ilp_nai = -1;                       /* IA5String_SIZE_1_1000 */
 static int hf_ilp_iPAddress = -1;                 /* IPAddress */
+static int hf_ilp_imei = -1;                      /* OCTET_STRING_SIZE_8 */
 static int hf_ilp_sessionID = -1;                 /* OCTET_STRING_SIZE_4 */
 static int hf_ilp_slcId = -1;                     /* NodeAddress */
 static int hf_ilp_spcId = -1;                     /* NodeAddress */
@@ -207,17 +212,21 @@ static int hf_ilp_supportedBearers = -1;          /* SupportedBearers */
 static int hf_ilp_agpsSETassisted = -1;           /* BOOLEAN */
 static int hf_ilp_agpsSETBased = -1;              /* BOOLEAN */
 static int hf_ilp_autonomousGPS = -1;             /* BOOLEAN */
-static int hf_ilp_aFLT = -1;                      /* BOOLEAN */
-static int hf_ilp_eCID = -1;                      /* BOOLEAN */
-static int hf_ilp_eOTD = -1;                      /* BOOLEAN */
-static int hf_ilp_oTDOA = -1;                     /* BOOLEAN */
+static int hf_ilp_aflt = -1;                      /* BOOLEAN */
+static int hf_ilp_ecid = -1;                      /* BOOLEAN */
+static int hf_ilp_eotd = -1;                      /* BOOLEAN */
+static int hf_ilp_otdoa = -1;                     /* BOOLEAN */
 static int hf_ilp_gANSSPositionMethods = -1;      /* GANSSPositionMethods */
+static int hf_ilp_additionalPositioningMethods = -1;  /* AdditionalPositioningMethods */
 static int hf_ilp_GANSSPositionMethods_item = -1;  /* GANSSPositionMethod */
 static int hf_ilp_gANSSPositioningMethodTypes = -1;  /* GANSSPositioningMethodTypes */
 static int hf_ilp_gANSSSignals = -1;              /* GANSSSignals */
 static int hf_ilp_setAssisted = -1;               /* BOOLEAN */
 static int hf_ilp_setBased = -1;                  /* BOOLEAN */
 static int hf_ilp_autonomous = -1;                /* BOOLEAN */
+static int hf_ilp_AdditionalPositioningMethods_item = -1;  /* AddPosSupport_Element */
+static int hf_ilp_addPosID = -1;                  /* T_addPosID */
+static int hf_ilp_addPosMode = -1;                /* T_addPosMode */
 static int hf_ilp_tia801 = -1;                    /* BOOLEAN */
 static int hf_ilp_rrlp = -1;                      /* BOOLEAN */
 static int hf_ilp_rrc = -1;                       /* BOOLEAN */
@@ -226,6 +235,8 @@ static int hf_ilp_posProtocolVersionRRLP = -1;    /* PosProtocolVersion3GPP */
 static int hf_ilp_posProtocolVersionRRC = -1;     /* PosProtocolVersion3GPP */
 static int hf_ilp_posProtocolVersionTIA801 = -1;  /* PosProtocolVersion3GPP2 */
 static int hf_ilp_posProtocolVersionLPP = -1;     /* PosProtocolVersion3GPP */
+static int hf_ilp_lppe = -1;                      /* BOOLEAN */
+static int hf_ilp_posProtocolVersionLPPe = -1;    /* PosProtocolVersionOMA */
 static int hf_ilp_majorVersionField = -1;         /* INTEGER_0_255 */
 static int hf_ilp_technicalVersionField = -1;     /* INTEGER_0_255 */
 static int hf_ilp_editorialVersionField = -1;     /* INTEGER_0_255 */
@@ -233,6 +244,7 @@ static int hf_ilp_PosProtocolVersion3GPP2_item = -1;  /* Supported3GPP2PosProtoc
 static int hf_ilp_revisionNumber = -1;            /* BIT_STRING_SIZE_6 */
 static int hf_ilp_pointReleaseNumber = -1;        /* INTEGER_0_255 */
 static int hf_ilp_internalEditLevel = -1;         /* INTEGER_0_255 */
+static int hf_ilp_minorVersionField = -1;         /* INTEGER_0_255 */
 static int hf_ilp_gsm = -1;                       /* BOOLEAN */
 static int hf_ilp_wcdma = -1;                     /* BOOLEAN */
 static int hf_ilp_lte = -1;                       /* BOOLEAN */
@@ -241,6 +253,7 @@ static int hf_ilp_hprd = -1;                      /* BOOLEAN */
 static int hf_ilp_umb = -1;                       /* BOOLEAN */
 static int hf_ilp_wlan = -1;                      /* BOOLEAN */
 static int hf_ilp_wiMAX = -1;                     /* BOOLEAN */
+static int hf_ilp_nr = -1;                        /* BOOLEAN */
 static int hf_ilp_gsmCell = -1;                   /* GsmCellInformation */
 static int hf_ilp_wcdmaCell = -1;                 /* WcdmaCellInformation */
 static int hf_ilp_cdmaCell = -1;                  /* CdmaCellInformation */
@@ -249,6 +262,7 @@ static int hf_ilp_umbCell = -1;                   /* UmbCellInformation */
 static int hf_ilp_lteCell = -1;                   /* LteCellInformation */
 static int hf_ilp_wlanAP = -1;                    /* WlanAPInformation */
 static int hf_ilp_wimaxBS = -1;                   /* WimaxBSInformation */
+static int hf_ilp_nrCell = -1;                    /* NRCellInformation */
 static int hf_ilp_set_GPSTimingOfCell = -1;       /* T_set_GPSTimingOfCell */
 static int hf_ilp_ms_part = -1;                   /* INTEGER_0_16383 */
 static int hf_ilp_ls_part = -1;                   /* INTEGER_0_4294967295 */
@@ -273,6 +287,7 @@ static int hf_ilp_sbas = -1;                      /* BOOLEAN */
 static int hf_ilp_modernized_gps = -1;            /* BOOLEAN */
 static int hf_ilp_qzss = -1;                      /* BOOLEAN */
 static int hf_ilp_glonass = -1;                   /* BOOLEAN */
+static int hf_ilp_bds = -1;                       /* BOOLEAN */
 static int hf_ilp_timestamp = -1;                 /* UTCTime */
 static int hf_ilp_positionEstimate = -1;          /* PositionEstimate */
 static int hf_ilp_latitudeSign = -1;              /* T_latitudeSign */
@@ -299,15 +314,15 @@ static int hf_ilp_refMCC = -1;                    /* INTEGER_0_999 */
 static int hf_ilp_refMNC = -1;                    /* INTEGER_0_999 */
 static int hf_ilp_refLAC = -1;                    /* INTEGER_0_65535 */
 static int hf_ilp_refCI = -1;                     /* INTEGER_0_65535 */
-static int hf_ilp_nMR = -1;                       /* NMR */
-static int hf_ilp_tA = -1;                        /* INTEGER_0_255 */
+static int hf_ilp_nmr = -1;                       /* NMR */
+static int hf_ilp_ta = -1;                        /* INTEGER_0_255 */
 static int hf_ilp_refUC = -1;                     /* INTEGER_0_268435455 */
 static int hf_ilp_frequencyInfo = -1;             /* FrequencyInfo */
 static int hf_ilp_primaryScramblingCode = -1;     /* INTEGER_0_511 */
 static int hf_ilp_measuredResultsList = -1;       /* MeasuredResultsList */
 static int hf_ilp_cellParametersId = -1;          /* INTEGER_0_127 */
 static int hf_ilp_timingAdvance = -1;             /* TimingAdvance */
-static int hf_ilp_tA_01 = -1;                     /* INTEGER_0_8191 */
+static int hf_ilp_ta_01 = -1;                     /* INTEGER_0_8191 */
 static int hf_ilp_tAResolution = -1;              /* TAResolution */
 static int hf_ilp_chipRate = -1;                  /* ChipRate */
 static int hf_ilp_refSECTORID = -1;               /* BIT_STRING_SIZE_128 */
@@ -316,19 +331,26 @@ static int hf_ilp_physCellId = -1;                /* PhysCellId */
 static int hf_ilp_trackingAreaCode = -1;          /* TrackingAreaCode */
 static int hf_ilp_rsrpResult = -1;                /* RSRP_Range */
 static int hf_ilp_rsrqResult = -1;                /* RSRQ_Range */
-static int hf_ilp_tA_02 = -1;                     /* INTEGER_0_1282 */
+static int hf_ilp_ta_02 = -1;                     /* INTEGER_0_1282 */
 static int hf_ilp_measResultListEUTRA = -1;       /* MeasResultListEUTRA */
 static int hf_ilp_earfcn = -1;                    /* INTEGER_0_65535 */
+static int hf_ilp_earfcn_ext = -1;                /* INTEGER_65536_262143 */
+static int hf_ilp_rsrpResult_ext = -1;            /* RSRP_Range_Ext */
+static int hf_ilp_rsrqResult_ext = -1;            /* RSRQ_Range_Ext */
+static int hf_ilp_rs_sinrResult = -1;             /* RS_SINR_Range */
+static int hf_ilp_servingInformation5G = -1;      /* ServingInformation5G */
 static int hf_ilp_MeasResultListEUTRA_item = -1;  /* MeasResultEUTRA */
 static int hf_ilp_cgi_Info = -1;                  /* T_cgi_Info */
 static int hf_ilp_cellGlobalId = -1;              /* CellGlobalIdEUTRA */
 static int hf_ilp_measResult = -1;                /* T_measResult */
+static int hf_ilp_neighbourInformation5G = -1;    /* NeighbourInformation5G */
 static int hf_ilp_plmn_Identity = -1;             /* PLMN_Identity */
 static int hf_ilp_cellIdentity = -1;              /* CellIdentity */
 static int hf_ilp_mcc = -1;                       /* MCC */
 static int hf_ilp_mnc = -1;                       /* MNC */
 static int hf_ilp_MCC_item = -1;                  /* MCC_MNC_Digit */
 static int hf_ilp_MNC_item = -1;                  /* MCC_MNC_Digit */
+static int hf_ilp_trackingAreaCode_01 = -1;       /* TrackingAreaCodeNR */
 static int hf_ilp_apMACAddress = -1;              /* BIT_STRING_SIZE_48 */
 static int hf_ilp_apTransmitPower = -1;           /* INTEGER_M127_128 */
 static int hf_ilp_apAntennaGain = -1;             /* INTEGER_M127_128 */
@@ -342,6 +364,15 @@ static int hf_ilp_setAntennaGain = -1;            /* INTEGER_M127_128 */
 static int hf_ilp_setSignaltoNoise = -1;          /* INTEGER_M127_128 */
 static int hf_ilp_setSignalStrength = -1;         /* INTEGER_M127_128 */
 static int hf_ilp_apReportedLocation = -1;        /* ReportedLocation */
+static int hf_ilp_apRepLocation = -1;             /* RepLocation */
+static int hf_ilp_apSignalStrengthDelta = -1;     /* INTEGER_0_1 */
+static int hf_ilp_apSignaltoNoiseDelta = -1;      /* INTEGER_0_1 */
+static int hf_ilp_setSignalStrengthDelta = -1;    /* INTEGER_0_1 */
+static int hf_ilp_setSignaltoNoiseDelta = -1;     /* INTEGER_0_1 */
+static int hf_ilp_operatingClass = -1;            /* INTEGER_0_255 */
+static int hf_ilp_apSSID = -1;                    /* OCTET_STRING_SIZE_1_32 */
+static int hf_ilp_apPHYType = -1;                 /* T_apPHYType */
+static int hf_ilp_setMACAddress = -1;             /* BIT_STRING_SIZE_48 */
 static int hf_ilp_rTDValue = -1;                  /* INTEGER_0_16777216 */
 static int hf_ilp_rTDUnits = -1;                  /* RTDUnits */
 static int hf_ilp_rTDAccuracy = -1;               /* INTEGER_0_255 */
@@ -349,22 +380,46 @@ static int hf_ilp_locationEncodingDescriptor = -1;  /* LocationEncodingDescripto
 static int hf_ilp_locationData = -1;              /* LocationData */
 static int hf_ilp_locationAccuracy = -1;          /* INTEGER_0_4294967295 */
 static int hf_ilp_locationValue = -1;             /* OCTET_STRING_SIZE_1_128 */
+static int hf_ilp_lciLocData = -1;                /* LciLocData */
+static int hf_ilp_locationDataLCI = -1;           /* LocationDataLCI */
+static int hf_ilp_latitudeResolution = -1;        /* BIT_STRING_SIZE_6 */
+static int hf_ilp_latitude_01 = -1;               /* BIT_STRING_SIZE_34 */
+static int hf_ilp_longitudeResolution = -1;       /* BIT_STRING_SIZE_6 */
+static int hf_ilp_longitude_01 = -1;              /* BIT_STRING_SIZE_34 */
+static int hf_ilp_altitudeType = -1;              /* BIT_STRING_SIZE_4 */
+static int hf_ilp_altitudeResolution = -1;        /* BIT_STRING_SIZE_6 */
+static int hf_ilp_altitude_01 = -1;               /* BIT_STRING_SIZE_30 */
+static int hf_ilp_datum = -1;                     /* BIT_STRING_SIZE_8 */
 static int hf_ilp_wimaxBsID = -1;                 /* WimaxBsID */
 static int hf_ilp_wimaxRTD = -1;                  /* WimaxRTD */
 static int hf_ilp_wimaxNMRList = -1;              /* WimaxNMRList */
 static int hf_ilp_bsID_MSB = -1;                  /* BIT_STRING_SIZE_24 */
 static int hf_ilp_bsID_LSB = -1;                  /* BIT_STRING_SIZE_24 */
-static int hf_ilp_rTD = -1;                       /* INTEGER_0_65535 */
+static int hf_ilp_rtd = -1;                       /* INTEGER_0_65535 */
 static int hf_ilp_rTDstd = -1;                    /* INTEGER_0_1023 */
 static int hf_ilp_WimaxNMRList_item = -1;         /* WimaxNMR */
 static int hf_ilp_relDelay = -1;                  /* INTEGER_M32768_32767 */
 static int hf_ilp_relDelaystd = -1;               /* INTEGER_0_1023 */
-static int hf_ilp_rSSI = -1;                      /* INTEGER_0_255 */
+static int hf_ilp_rssi = -1;                      /* INTEGER_0_255 */
 static int hf_ilp_rSSIstd = -1;                   /* INTEGER_0_63 */
 static int hf_ilp_bSTxPower = -1;                 /* INTEGER_0_255 */
-static int hf_ilp_cINR = -1;                      /* INTEGER_0_255 */
+static int hf_ilp_cinr = -1;                      /* INTEGER_0_255 */
 static int hf_ilp_cINRstd = -1;                   /* INTEGER_0_63 */
 static int hf_ilp_bSLocation = -1;                /* ReportedLocation */
+static int hf_ilp_servingCellInformation = -1;    /* ServingCellInformationNR */
+static int hf_ilp_measuredResultsListNR = -1;     /* MeasResultListNR */
+static int hf_ilp_ServingCellInformationNR_item = -1;  /* ServCellNR */
+static int hf_ilp_physCellId_01 = -1;             /* PhysCellIdNR */
+static int hf_ilp_arfcn_NR = -1;                  /* ARFCN_NR */
+static int hf_ilp_cellGlobalId_01 = -1;           /* CellGlobalIdNR */
+static int hf_ilp_ssb_Measurements = -1;          /* NR_Measurements */
+static int hf_ilp_csi_rs_Measurements = -1;       /* NR_Measurements */
+static int hf_ilp_ta_03 = -1;                     /* INTEGER_0_3846 */
+static int hf_ilp_MeasResultListNR_item = -1;     /* MeasResultNR */
+static int hf_ilp_cellIdentityNR = -1;            /* CellIdentityNR */
+static int hf_ilp_rsrp_Range = -1;                /* INTEGER_0_127 */
+static int hf_ilp_rsrq_Range = -1;                /* INTEGER_0_127 */
+static int hf_ilp_sinr_Range = -1;                /* INTEGER_0_127 */
 static int hf_ilp_modeSpecificFrequencyInfo = -1;  /* FrequencySpecificInfo */
 static int hf_ilp_fdd_fr = -1;                    /* FrequencyInfoFDD */
 static int hf_ilp_tdd_fr = -1;                    /* FrequencyInfoTDD */
@@ -372,8 +427,8 @@ static int hf_ilp_uarfcn_UL = -1;                 /* UARFCN */
 static int hf_ilp_uarfcn_DL = -1;                 /* UARFCN */
 static int hf_ilp_uarfcn_Nt = -1;                 /* UARFCN */
 static int hf_ilp_NMR_item = -1;                  /* NMRelement */
-static int hf_ilp_aRFCN = -1;                     /* INTEGER_0_1023 */
-static int hf_ilp_bSIC = -1;                      /* INTEGER_0_63 */
+static int hf_ilp_arfcn = -1;                     /* INTEGER_0_1023 */
+static int hf_ilp_bsic = -1;                      /* INTEGER_0_63 */
 static int hf_ilp_rxLev = -1;                     /* INTEGER_0_63 */
 static int hf_ilp_MeasuredResultsList_item = -1;  /* MeasuredResults */
 static int hf_ilp_utra_CarrierRSSI = -1;          /* UTRA_CarrierRSSI */
@@ -411,6 +466,7 @@ static int hf_ilp_horacc = -1;                    /* INTEGER_0_127 */
 static int hf_ilp_veracc = -1;                    /* INTEGER_0_127 */
 static int hf_ilp_maxLocAge = -1;                 /* INTEGER_0_65535 */
 static int hf_ilp_delay = -1;                     /* INTEGER_0_7 */
+static int hf_ilp_ver2_responseTime = -1;         /* INTEGER_1_128 */
 static int hf_ilp_horvel = -1;                    /* Horvel */
 static int hf_ilp_horandvervel = -1;              /* Horandvervel */
 static int hf_ilp_horveluncert = -1;              /* Horveluncert */
@@ -422,7 +478,7 @@ static int hf_ilp_verspeed = -1;                  /* BIT_STRING_SIZE_8 */
 static int hf_ilp_uncertspeed = -1;               /* BIT_STRING_SIZE_8 */
 static int hf_ilp_horuncertspeed = -1;            /* BIT_STRING_SIZE_8 */
 static int hf_ilp_veruncertspeed = -1;            /* BIT_STRING_SIZE_8 */
-static int hf_ilp_rAND = -1;                      /* BIT_STRING_SIZE_128 */
+static int hf_ilp_rand = -1;                      /* BIT_STRING_SIZE_128 */
 static int hf_ilp_slpFQDN = -1;                   /* FQDN */
 static int hf_ilp_rrcPayload = -1;                /* OCTET_STRING_SIZE_1_8192 */
 static int hf_ilp_rrlpPayload = -1;               /* T_rrlpPayload */
@@ -440,9 +496,12 @@ static int hf_ilp_GANSSSignals_signal5 = -1;
 static int hf_ilp_GANSSSignals_signal6 = -1;
 static int hf_ilp_GANSSSignals_signal7 = -1;
 static int hf_ilp_GANSSSignals_signal8 = -1;
+static int hf_ilp_T_addPosMode_standalone = -1;
+static int hf_ilp_T_addPosMode_setBased = -1;
+static int hf_ilp_T_addPosMode_setAssisted = -1;
 
 /*--- End of included file: packet-ilp-hf.c ---*/
-#line 52 "./asn1/ilp/packet-ilp-template.c"
+#line 53 "./asn1/ilp/packet-ilp-template.c"
 static int hf_ilp_mobile_directory_number = -1;
 
 /* Initialize the subtree pointers */
@@ -503,10 +562,14 @@ static gint ett_ilp_GANSSPositionMethods = -1;
 static gint ett_ilp_GANSSPositionMethod = -1;
 static gint ett_ilp_GANSSPositioningMethodTypes = -1;
 static gint ett_ilp_GANSSSignals = -1;
+static gint ett_ilp_AdditionalPositioningMethods = -1;
+static gint ett_ilp_AddPosSupport_Element = -1;
+static gint ett_ilp_T_addPosMode = -1;
 static gint ett_ilp_PosProtocol = -1;
 static gint ett_ilp_PosProtocolVersion3GPP = -1;
 static gint ett_ilp_PosProtocolVersion3GPP2 = -1;
 static gint ett_ilp_Supported3GPP2PosProtocolVersion = -1;
+static gint ett_ilp_PosProtocolVersionOMA = -1;
 static gint ett_ilp_SupportedBearers = -1;
 static gint ett_ilp_CellInfo = -1;
 static gint ett_ilp_UTRAN_GPSReferenceTimeResult = -1;
@@ -540,15 +603,27 @@ static gint ett_ilp_CellGlobalIdEUTRA = -1;
 static gint ett_ilp_PLMN_Identity = -1;
 static gint ett_ilp_MCC = -1;
 static gint ett_ilp_MNC = -1;
+static gint ett_ilp_ServingInformation5G = -1;
+static gint ett_ilp_NeighbourInformation5G = -1;
 static gint ett_ilp_WlanAPInformation = -1;
 static gint ett_ilp_RTD = -1;
 static gint ett_ilp_ReportedLocation = -1;
 static gint ett_ilp_LocationData = -1;
+static gint ett_ilp_RepLocation = -1;
+static gint ett_ilp_LciLocData = -1;
+static gint ett_ilp_LocationDataLCI = -1;
 static gint ett_ilp_WimaxBSInformation = -1;
 static gint ett_ilp_WimaxBsID = -1;
 static gint ett_ilp_WimaxRTD = -1;
 static gint ett_ilp_WimaxNMRList = -1;
 static gint ett_ilp_WimaxNMR = -1;
+static gint ett_ilp_NRCellInformation = -1;
+static gint ett_ilp_ServingCellInformationNR = -1;
+static gint ett_ilp_ServCellNR = -1;
+static gint ett_ilp_MeasResultListNR = -1;
+static gint ett_ilp_MeasResultNR = -1;
+static gint ett_ilp_CellGlobalIdNR = -1;
+static gint ett_ilp_NR_Measurements = -1;
 static gint ett_ilp_FrequencyInfo = -1;
 static gint ett_ilp_FrequencySpecificInfo = -1;
 static gint ett_ilp_FrequencyInfoFDD = -1;
@@ -588,7 +663,7 @@ static gint ett_ilp_T_lPPPayload = -1;
 static gint ett_ilp_T_tia801Payload = -1;
 
 /*--- End of included file: packet-ilp-ett.c ---*/
-#line 58 "./asn1/ilp/packet-ilp-template.c"
+#line 59 "./asn1/ilp/packet-ilp-template.c"
 
 /* Include constants */
 
@@ -599,13 +674,15 @@ static gint ett_ilp_T_tia801Payload = -1;
 #define maxLidSize                     64
 #define maxCellReport                  8
 #define maxWimaxBSMeas                 32
+#define maxNRServingCell               32
+#define maxCellReportNR                32
 #define maxCellMeas                    32
 #define maxFreq                        8
 #define maxTS                          14
 #define maxPosSize                     1024
 
 /*--- End of included file: packet-ilp-val.h ---*/
-#line 61 "./asn1/ilp/packet-ilp-template.c"
+#line 62 "./asn1/ilp/packet-ilp-template.c"
 
 
 
@@ -821,6 +898,16 @@ dissect_ilp_IA5String_SIZE_1_1000(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 }
 
 
+
+static int
+dissect_ilp_OCTET_STRING_SIZE_8(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       8, 8, FALSE, NULL);
+
+  return offset;
+}
+
+
 static const value_string ilp_SETId_vals[] = {
   {   0, "msisdn" },
   {   1, "mdn" },
@@ -828,6 +915,7 @@ static const value_string ilp_SETId_vals[] = {
   {   3, "imsi" },
   {   4, "nai" },
   {   5, "iPAddress" },
+  {   6, "imei" },
   { 0, NULL }
 };
 
@@ -838,6 +926,7 @@ static const per_choice_t SETId_choice[] = {
   {   3, &hf_ilp_imsi            , ASN1_EXTENSION_ROOT    , dissect_ilp_T_imsi },
   {   4, &hf_ilp_nai             , ASN1_EXTENSION_ROOT    , dissect_ilp_IA5String_SIZE_1_1000 },
   {   5, &hf_ilp_iPAddress       , ASN1_EXTENSION_ROOT    , dissect_ilp_IPAddress },
+  {   6, &hf_ilp_imei            , ASN1_NOT_EXTENSION_ROOT, dissect_ilp_OCTET_STRING_SIZE_8 },
   { 0, NULL, 0, NULL }
 };
 
@@ -999,15 +1088,70 @@ dissect_ilp_GANSSPositionMethods(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 }
 
 
+static const value_string ilp_T_addPosID_vals[] = {
+  {   0, "mBS" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_ilp_T_addPosID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ilp_T_addPosMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     1, 8, FALSE, NULL, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t AddPosSupport_Element_sequence[] = {
+  { &hf_ilp_addPosID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_T_addPosID },
+  { &hf_ilp_addPosMode      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_T_addPosMode },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ilp_AddPosSupport_Element(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ilp_AddPosSupport_Element, AddPosSupport_Element_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t AdditionalPositioningMethods_sequence_of[1] = {
+  { &hf_ilp_AdditionalPositioningMethods_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ilp_AddPosSupport_Element },
+};
+
+static int
+dissect_ilp_AdditionalPositioningMethods(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_ilp_AdditionalPositioningMethods, AdditionalPositioningMethods_sequence_of,
+                                                  1, 8, FALSE);
+
+  return offset;
+}
+
+
 static const per_sequence_t PosTechnology_sequence[] = {
   { &hf_ilp_agpsSETassisted , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BOOLEAN },
   { &hf_ilp_agpsSETBased    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BOOLEAN },
   { &hf_ilp_autonomousGPS   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BOOLEAN },
-  { &hf_ilp_aFLT            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BOOLEAN },
-  { &hf_ilp_eCID            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BOOLEAN },
-  { &hf_ilp_eOTD            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BOOLEAN },
-  { &hf_ilp_oTDOA           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BOOLEAN },
+  { &hf_ilp_aflt            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BOOLEAN },
+  { &hf_ilp_ecid            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BOOLEAN },
+  { &hf_ilp_eotd            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BOOLEAN },
+  { &hf_ilp_otdoa           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BOOLEAN },
   { &hf_ilp_gANSSPositionMethods, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_GANSSPositionMethods },
+  { &hf_ilp_additionalPositioningMethods, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ilp_AdditionalPositioningMethods },
   { NULL, 0, 0, NULL }
 };
 
@@ -1051,8 +1195,8 @@ dissect_ilp_INTEGER_0_63(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 
 static const per_sequence_t NMRelement_sequence[] = {
-  { &hf_ilp_aRFCN           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_INTEGER_0_1023 },
-  { &hf_ilp_bSIC            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_INTEGER_0_63 },
+  { &hf_ilp_arfcn           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_INTEGER_0_1023 },
+  { &hf_ilp_bsic            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_INTEGER_0_63 },
   { &hf_ilp_rxLev           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_INTEGER_0_63 },
   { NULL, 0, 0, NULL }
 };
@@ -1085,8 +1229,8 @@ static const per_sequence_t GsmCellInformation_sequence[] = {
   { &hf_ilp_refMNC          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_INTEGER_0_999 },
   { &hf_ilp_refLAC          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_INTEGER_0_65535 },
   { &hf_ilp_refCI           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_INTEGER_0_65535 },
-  { &hf_ilp_nMR             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_NMR },
-  { &hf_ilp_tA              , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_INTEGER_0_255 },
+  { &hf_ilp_nmr             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_NMR },
+  { &hf_ilp_ta              , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_INTEGER_0_255 },
   { NULL, 0, 0, NULL }
 };
 
@@ -1473,7 +1617,7 @@ dissect_ilp_ChipRate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 
 static const per_sequence_t TimingAdvance_sequence[] = {
-  { &hf_ilp_tA_01           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_INTEGER_0_8191 },
+  { &hf_ilp_ta_01           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_INTEGER_0_8191 },
   { &hf_ilp_tAResolution    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_TAResolution },
   { &hf_ilp_chipRate        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_ChipRate },
   { NULL, 0, 0, NULL }
@@ -1751,10 +1895,79 @@ dissect_ilp_T_cgi_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 }
 
 
+
+static int
+dissect_ilp_INTEGER_65536_262143(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            65536U, 262143U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ilp_RSRP_Range_Ext(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            -17, -1, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ilp_RSRQ_Range_Ext(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            -30, 46U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ilp_RS_SINR_Range(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 127U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ilp_TrackingAreaCodeNR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     24, 24, FALSE, NULL, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t NeighbourInformation5G_sequence[] = {
+  { &hf_ilp_trackingAreaCode_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_TrackingAreaCodeNR },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ilp_NeighbourInformation5G(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ilp_NeighbourInformation5G, NeighbourInformation5G_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t T_measResult_sequence[] = {
   { &hf_ilp_rsrpResult      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_RSRP_Range },
   { &hf_ilp_rsrqResult      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_RSRQ_Range },
   { &hf_ilp_earfcn          , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ilp_INTEGER_0_65535 },
+  { &hf_ilp_earfcn_ext      , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ilp_INTEGER_65536_262143 },
+  { &hf_ilp_rsrpResult_ext  , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ilp_RSRP_Range_Ext },
+  { &hf_ilp_rsrqResult_ext  , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ilp_RSRQ_Range_Ext },
+  { &hf_ilp_rs_sinrResult   , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ilp_RS_SINR_Range },
+  { &hf_ilp_neighbourInformation5G, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ilp_NeighbourInformation5G },
   { NULL, 0, 0, NULL }
 };
 
@@ -1797,15 +2010,34 @@ dissect_ilp_MeasResultListEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 }
 
 
+static const per_sequence_t ServingInformation5G_sequence[] = {
+  { &hf_ilp_trackingAreaCode_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_TrackingAreaCodeNR },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ilp_ServingInformation5G(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ilp_ServingInformation5G, ServingInformation5G_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t LteCellInformation_sequence[] = {
   { &hf_ilp_cellGlobalIdEUTRA, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_CellGlobalIdEUTRA },
   { &hf_ilp_physCellId      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_PhysCellId },
   { &hf_ilp_trackingAreaCode, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_TrackingAreaCode },
   { &hf_ilp_rsrpResult      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_RSRP_Range },
   { &hf_ilp_rsrqResult      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_RSRQ_Range },
-  { &hf_ilp_tA_02           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_INTEGER_0_1282 },
+  { &hf_ilp_ta_02           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_INTEGER_0_1282 },
   { &hf_ilp_measResultListEUTRA, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_MeasResultListEUTRA },
   { &hf_ilp_earfcn          , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ilp_INTEGER_0_65535 },
+  { &hf_ilp_earfcn_ext      , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ilp_INTEGER_65536_262143 },
+  { &hf_ilp_rsrpResult_ext  , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ilp_RSRP_Range_Ext },
+  { &hf_ilp_rsrqResult_ext  , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ilp_RSRQ_Range_Ext },
+  { &hf_ilp_rs_sinrResult   , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ilp_RS_SINR_Range },
+  { &hf_ilp_servingInformation5G, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ilp_ServingInformation5G },
   { NULL, 0, 0, NULL }
 };
 
@@ -1842,6 +2074,9 @@ static const value_string ilp_T_apDeviceType_vals[] = {
   {   0, "wlan802-11a" },
   {   1, "wlan802-11b" },
   {   2, "wlan802-11g" },
+  {   3, "wlan802-11n" },
+  {   4, "wlan802-11ac" },
+  {   5, "wlan802-11ad" },
   { 0, NULL }
 };
 
@@ -1849,7 +2084,7 @@ static const value_string ilp_T_apDeviceType_vals[] = {
 static int
 dissect_ilp_T_apDeviceType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     3, NULL, TRUE, 0, NULL);
+                                     3, NULL, TRUE, 3, NULL);
 
   return offset;
 }
@@ -1911,8 +2146,8 @@ dissect_ilp_RTD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_t
 
 
 static const value_string ilp_LocationEncodingDescriptor_vals[] = {
-  {   0, "lCI" },
-  {   1, "aSN1" },
+  {   0, "lci" },
+  {   1, "asn1" },
   { 0, NULL }
 };
 
@@ -1976,6 +2211,145 @@ dissect_ilp_ReportedLocation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 }
 
 
+
+static int
+dissect_ilp_BIT_STRING_SIZE_6(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     6, 6, FALSE, NULL, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ilp_BIT_STRING_SIZE_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     4, 4, FALSE, NULL, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ilp_BIT_STRING_SIZE_30(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     30, 30, FALSE, NULL, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ilp_BIT_STRING_SIZE_8(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     8, 8, FALSE, NULL, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t LocationDataLCI_sequence[] = {
+  { &hf_ilp_latitudeResolution, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BIT_STRING_SIZE_6 },
+  { &hf_ilp_latitude_01     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BIT_STRING_SIZE_34 },
+  { &hf_ilp_longitudeResolution, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BIT_STRING_SIZE_6 },
+  { &hf_ilp_longitude_01    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BIT_STRING_SIZE_34 },
+  { &hf_ilp_altitudeType    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BIT_STRING_SIZE_4 },
+  { &hf_ilp_altitudeResolution, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BIT_STRING_SIZE_6 },
+  { &hf_ilp_altitude_01     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BIT_STRING_SIZE_30 },
+  { &hf_ilp_datum           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BIT_STRING_SIZE_8 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ilp_LocationDataLCI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ilp_LocationDataLCI, LocationDataLCI_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t LciLocData_sequence[] = {
+  { &hf_ilp_locationDataLCI , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_LocationDataLCI },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ilp_LciLocData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ilp_LciLocData, LciLocData_sequence);
+
+  return offset;
+}
+
+
+static const value_string ilp_RepLocation_vals[] = {
+  {   0, "lciLocData" },
+  { 0, NULL }
+};
+
+static const per_choice_t RepLocation_choice[] = {
+  {   0, &hf_ilp_lciLocData      , ASN1_EXTENSION_ROOT    , dissect_ilp_LciLocData },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_ilp_RepLocation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_ilp_RepLocation, RepLocation_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ilp_INTEGER_0_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 1U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ilp_OCTET_STRING_SIZE_1_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       1, 32, FALSE, NULL);
+
+  return offset;
+}
+
+
+static const value_string ilp_T_apPHYType_vals[] = {
+  {   0, "unknown" },
+  {   1, "any" },
+  {   2, "fhss" },
+  {   3, "dsss" },
+  {   4, "irbaseband" },
+  {   5, "ofdm" },
+  {   6, "hrdsss" },
+  {   7, "erp" },
+  {   8, "ht" },
+  {   9, "ihv" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_ilp_T_apPHYType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     10, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
 static const per_sequence_t WlanAPInformation_sequence[] = {
   { &hf_ilp_apMACAddress    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BIT_STRING_SIZE_48 },
   { &hf_ilp_apTransmitPower , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_INTEGER_M127_128 },
@@ -1990,6 +2364,15 @@ static const per_sequence_t WlanAPInformation_sequence[] = {
   { &hf_ilp_setSignaltoNoise, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_INTEGER_M127_128 },
   { &hf_ilp_setSignalStrength, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_INTEGER_M127_128 },
   { &hf_ilp_apReportedLocation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_ReportedLocation },
+  { &hf_ilp_apRepLocation   , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ilp_RepLocation },
+  { &hf_ilp_apSignalStrengthDelta, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ilp_INTEGER_0_1 },
+  { &hf_ilp_apSignaltoNoiseDelta, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ilp_INTEGER_0_1 },
+  { &hf_ilp_setSignalStrengthDelta, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ilp_INTEGER_0_1 },
+  { &hf_ilp_setSignaltoNoiseDelta, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ilp_INTEGER_0_1 },
+  { &hf_ilp_operatingClass  , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ilp_INTEGER_0_255 },
+  { &hf_ilp_apSSID          , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ilp_OCTET_STRING_SIZE_1_32 },
+  { &hf_ilp_apPHYType       , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ilp_T_apPHYType },
+  { &hf_ilp_setMACAddress   , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ilp_BIT_STRING_SIZE_48 },
   { NULL, 0, 0, NULL }
 };
 
@@ -2028,7 +2411,7 @@ dissect_ilp_WimaxBsID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 
 static const per_sequence_t WimaxRTD_sequence[] = {
-  { &hf_ilp_rTD             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_INTEGER_0_65535 },
+  { &hf_ilp_rtd             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_INTEGER_0_65535 },
   { &hf_ilp_rTDstd          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_INTEGER_0_1023 },
   { NULL, 0, 0, NULL }
 };
@@ -2056,10 +2439,10 @@ static const per_sequence_t WimaxNMR_sequence[] = {
   { &hf_ilp_wimaxBsID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_WimaxBsID },
   { &hf_ilp_relDelay        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_INTEGER_M32768_32767 },
   { &hf_ilp_relDelaystd     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_INTEGER_0_1023 },
-  { &hf_ilp_rSSI            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_INTEGER_0_255 },
+  { &hf_ilp_rssi            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_INTEGER_0_255 },
   { &hf_ilp_rSSIstd         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_INTEGER_0_63 },
   { &hf_ilp_bSTxPower       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_INTEGER_0_255 },
-  { &hf_ilp_cINR            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_INTEGER_0_255 },
+  { &hf_ilp_cinr            , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_INTEGER_0_255 },
   { &hf_ilp_cINRstd         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_INTEGER_0_63 },
   { &hf_ilp_bSLocation      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_ReportedLocation },
   { NULL, 0, 0, NULL }
@@ -2104,6 +2487,159 @@ dissect_ilp_WimaxBSInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 }
 
 
+
+static int
+dissect_ilp_PhysCellIdNR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 1007U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ilp_ARFCN_NR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 3279165U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ilp_CellIdentityNR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     36, 36, FALSE, NULL, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t CellGlobalIdNR_sequence[] = {
+  { &hf_ilp_plmn_Identity   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_PLMN_Identity },
+  { &hf_ilp_cellIdentityNR  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_CellIdentityNR },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ilp_CellGlobalIdNR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ilp_CellGlobalIdNR, CellGlobalIdNR_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t NR_Measurements_sequence[] = {
+  { &hf_ilp_rsrp_Range      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_INTEGER_0_127 },
+  { &hf_ilp_rsrq_Range      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_INTEGER_0_127 },
+  { &hf_ilp_sinr_Range      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_INTEGER_0_127 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ilp_NR_Measurements(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ilp_NR_Measurements, NR_Measurements_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ilp_INTEGER_0_3846(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 3846U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t ServCellNR_sequence[] = {
+  { &hf_ilp_physCellId_01   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_PhysCellIdNR },
+  { &hf_ilp_arfcn_NR        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_ARFCN_NR },
+  { &hf_ilp_cellGlobalId_01 , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_CellGlobalIdNR },
+  { &hf_ilp_trackingAreaCode_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_TrackingAreaCodeNR },
+  { &hf_ilp_ssb_Measurements, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_NR_Measurements },
+  { &hf_ilp_csi_rs_Measurements, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_NR_Measurements },
+  { &hf_ilp_ta_03           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_INTEGER_0_3846 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ilp_ServCellNR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ilp_ServCellNR, ServCellNR_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t ServingCellInformationNR_sequence_of[1] = {
+  { &hf_ilp_ServingCellInformationNR_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ilp_ServCellNR },
+};
+
+static int
+dissect_ilp_ServingCellInformationNR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_ilp_ServingCellInformationNR, ServingCellInformationNR_sequence_of,
+                                                  1, maxNRServingCell, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t MeasResultNR_sequence[] = {
+  { &hf_ilp_physCellId_01   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_PhysCellIdNR },
+  { &hf_ilp_arfcn_NR        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_ARFCN_NR },
+  { &hf_ilp_cellGlobalId_01 , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_CellGlobalIdNR },
+  { &hf_ilp_trackingAreaCode_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_TrackingAreaCodeNR },
+  { &hf_ilp_ssb_Measurements, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_NR_Measurements },
+  { &hf_ilp_csi_rs_Measurements, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_NR_Measurements },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ilp_MeasResultNR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ilp_MeasResultNR, MeasResultNR_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t MeasResultListNR_sequence_of[1] = {
+  { &hf_ilp_MeasResultListNR_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ilp_MeasResultNR },
+};
+
+static int
+dissect_ilp_MeasResultListNR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_ilp_MeasResultListNR, MeasResultListNR_sequence_of,
+                                                  1, maxCellReportNR, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t NRCellInformation_sequence[] = {
+  { &hf_ilp_servingCellInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_ServingCellInformationNR },
+  { &hf_ilp_measuredResultsListNR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_MeasResultListNR },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ilp_NRCellInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ilp_NRCellInformation, NRCellInformation_sequence);
+
+  return offset;
+}
+
+
 static const value_string ilp_CellInfo_vals[] = {
   {   0, "gsmCell" },
   {   1, "wcdmaCell" },
@@ -2113,6 +2649,7 @@ static const value_string ilp_CellInfo_vals[] = {
   {   5, "lteCell" },
   {   6, "wlanAP" },
   {   7, "wimaxBS" },
+  {   8, "nrCell" },
   { 0, NULL }
 };
 
@@ -2125,6 +2662,7 @@ static const per_choice_t CellInfo_choice[] = {
   {   5, &hf_ilp_lteCell         , ASN1_EXTENSION_ROOT    , dissect_ilp_LteCellInformation },
   {   6, &hf_ilp_wlanAP          , ASN1_EXTENSION_ROOT    , dissect_ilp_WlanAPInformation },
   {   7, &hf_ilp_wimaxBS         , ASN1_EXTENSION_ROOT    , dissect_ilp_WimaxBSInformation },
+  {   8, &hf_ilp_nrCell          , ASN1_NOT_EXTENSION_ROOT, dissect_ilp_NRCellInformation },
   { 0, NULL, 0, NULL }
 };
 
@@ -2378,16 +2916,6 @@ dissect_ilp_BIT_STRING_SIZE_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 }
 
 
-
-static int
-dissect_ilp_BIT_STRING_SIZE_8(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE, NULL, NULL);
-
-  return offset;
-}
-
-
 static const per_sequence_t Horandvervel_sequence[] = {
   { &hf_ilp_verdirect       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BIT_STRING_SIZE_1 },
   { &hf_ilp_bearing         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BIT_STRING_SIZE_9 },
@@ -2560,7 +3088,7 @@ dissect_ilp_SPCSETKey(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 
 static const per_sequence_t SPCTID_sequence[] = {
-  { &hf_ilp_rAND            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BIT_STRING_SIZE_128 },
+  { &hf_ilp_rand            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BIT_STRING_SIZE_128 },
   { &hf_ilp_slpFQDN         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_FQDN },
   { NULL, 0, 0, NULL }
 };
@@ -2594,11 +3122,22 @@ dissect_ilp_INTEGER_0_7(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 }
 
 
+
+static int
+dissect_ilp_INTEGER_1_128(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 128U, NULL, FALSE);
+
+  return offset;
+}
+
+
 static const per_sequence_t QoP_sequence[] = {
   { &hf_ilp_horacc          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_INTEGER_0_127 },
   { &hf_ilp_veracc          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_INTEGER_0_127 },
   { &hf_ilp_maxLocAge       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_INTEGER_0_65535 },
   { &hf_ilp_delay           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_INTEGER_0_7 },
+  { &hf_ilp_ver2_responseTime, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ilp_INTEGER_1_128 },
   { NULL, 0, 0, NULL }
 };
 
@@ -2644,16 +3183,6 @@ dissect_ilp_PosProtocolVersion3GPP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 }
 
 
-
-static int
-dissect_ilp_BIT_STRING_SIZE_6(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     6, 6, FALSE, NULL, NULL);
-
-  return offset;
-}
-
-
 static const per_sequence_t Supported3GPP2PosProtocolVersion_sequence[] = {
   { &hf_ilp_revisionNumber  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BIT_STRING_SIZE_6 },
   { &hf_ilp_pointReleaseNumber, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_INTEGER_0_255 },
@@ -2684,6 +3213,21 @@ dissect_ilp_PosProtocolVersion3GPP2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
+static const per_sequence_t PosProtocolVersionOMA_sequence[] = {
+  { &hf_ilp_majorVersionField, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_INTEGER_0_255 },
+  { &hf_ilp_minorVersionField, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_INTEGER_0_255 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ilp_PosProtocolVersionOMA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ilp_PosProtocolVersionOMA, PosProtocolVersionOMA_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t PosProtocol_sequence[] = {
   { &hf_ilp_tia801          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BOOLEAN },
   { &hf_ilp_rrlp            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BOOLEAN },
@@ -2693,6 +3237,8 @@ static const per_sequence_t PosProtocol_sequence[] = {
   { &hf_ilp_posProtocolVersionRRC, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_PosProtocolVersion3GPP },
   { &hf_ilp_posProtocolVersionTIA801, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_PosProtocolVersion3GPP2 },
   { &hf_ilp_posProtocolVersionLPP, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_PosProtocolVersion3GPP },
+  { &hf_ilp_lppe            , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ilp_BOOLEAN },
+  { &hf_ilp_posProtocolVersionLPPe, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ilp_PosProtocolVersionOMA },
   { NULL, 0, 0, NULL }
 };
 
@@ -2714,6 +3260,7 @@ static const per_sequence_t SupportedBearers_sequence[] = {
   { &hf_ilp_umb             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BOOLEAN },
   { &hf_ilp_wlan            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BOOLEAN },
   { &hf_ilp_wiMAX           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BOOLEAN },
+  { &hf_ilp_nr              , ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_ilp_BOOLEAN },
   { NULL, 0, 0, NULL }
 };
 
@@ -2767,7 +3314,7 @@ static const per_sequence_t PREQ_sequence[] = {
   { &hf_ilp_position        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_Position },
   { &hf_ilp_triggerParams   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_TriggerParams },
   { &hf_ilp_sPCSETKey       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_SPCSETKey },
-  { &hf_ilp_sPCTID          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_SPCTID },
+  { &hf_ilp_spctid          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_SPCTID },
   { &hf_ilp_sPCSETKeylifetime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_SPCSETKeylifetime },
   { &hf_ilp_qoP             , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_QoP },
   { &hf_ilp_sETCapabilities , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_SETCapabilities },
@@ -2790,15 +3337,16 @@ static const value_string ilp_PosMethod_vals[] = {
   {   2, "agpsSETassistedpref" },
   {   3, "agpsSETbasedpref" },
   {   4, "autonomousGPS" },
-  {   5, "aFLT" },
-  {   6, "eCID" },
-  {   7, "eOTD" },
-  {   8, "oTDOA" },
+  {   5, "aflt" },
+  {   6, "ecid" },
+  {   7, "eotd" },
+  {   8, "otdoa" },
   {   9, "agnssSETassisted" },
   {  10, "agnssSETbased" },
   {  11, "agnssSETassistedpref" },
   {  12, "agnssSETbasedpref" },
   {  13, "autonomousGNSS" },
+  {  14, "ver2-mbs" },
   { 0, NULL }
 };
 
@@ -2806,7 +3354,7 @@ static const value_string ilp_PosMethod_vals[] = {
 static int
 dissect_ilp_PosMethod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     14, NULL, TRUE, 0, NULL);
+                                     14, NULL, TRUE, 1, NULL);
 
   return offset;
 }
@@ -2819,6 +3367,7 @@ static const per_sequence_t GNSSPosTechnology_sequence[] = {
   { &hf_ilp_modernized_gps  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BOOLEAN },
   { &hf_ilp_qzss            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BOOLEAN },
   { &hf_ilp_glonass         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BOOLEAN },
+  { &hf_ilp_bds             , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ilp_BOOLEAN },
   { NULL, 0, 0, NULL }
 };
 
@@ -3010,7 +3559,7 @@ dissect_ilp_INTEGER_0_10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static const per_sequence_t SatelliteInfoElement_sequence[] = {
   { &hf_ilp_satId           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_INTEGER_0_63 },
-  { &hf_ilp_iODE            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_INTEGER_0_255 },
+  { &hf_ilp_iode            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_INTEGER_0_255 },
   { NULL, 0, 0, NULL }
 };
 
@@ -3040,7 +3589,7 @@ dissect_ilp_SatelliteInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 static const per_sequence_t NavigationModel_sequence[] = {
   { &hf_ilp_gpsWeek         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_INTEGER_0_1023 },
   { &hf_ilp_gpsToe          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_INTEGER_0_167 },
-  { &hf_ilp_nSAT            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_INTEGER_0_31 },
+  { &hf_ilp_nsat            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_INTEGER_0_31 },
   { &hf_ilp_toeLimit        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_INTEGER_0_10 },
   { &hf_ilp_satInfo         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_SatelliteInfo },
   { NULL, 0, 0, NULL }
@@ -3061,6 +3610,7 @@ static const per_sequence_t GanssRequestedCommonAssistanceDataList_sequence[] = 
   { &hf_ilp_ganssAdditionalIonosphericModelForDataID00, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BOOLEAN },
   { &hf_ilp_ganssAdditionalIonosphericModelForDataID11, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BOOLEAN },
   { &hf_ilp_ganssEarthOrientationParameters, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BOOLEAN },
+  { &hf_ilp_ganssAdditionalIonosphericModelForDataID01, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ilp_BOOLEAN },
   { NULL, 0, 0, NULL }
 };
 
@@ -3275,6 +3825,16 @@ dissect_ilp_GanssExtendedEphCheck(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 }
 
 
+
+static int
+dissect_ilp_BDS_Sig_Id_Req(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     8, 8, FALSE, NULL, NULL);
+
+  return offset;
+}
+
+
 static const per_sequence_t GanssReqGenericData_sequence[] = {
   { &hf_ilp_ganssId         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_INTEGER_0_15 },
   { &hf_ilp_ganssSBASid     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_BIT_STRING_SIZE_3 },
@@ -3290,6 +3850,8 @@ static const per_sequence_t GanssReqGenericData_sequence[] = {
   { &hf_ilp_ganssAuxiliaryInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_BOOLEAN },
   { &hf_ilp_ganssExtendedEphemeris, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_ExtendedEphemeris },
   { &hf_ilp_ganssExtendedEphemerisCheck, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_GanssExtendedEphCheck },
+  { &hf_ilp_bds_DifferentialCorrection, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ilp_BDS_Sig_Id_Req },
+  { &hf_ilp_bds_GridModelReq, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ilp_BOOLEAN },
   { NULL, 0, 0, NULL }
 };
 
@@ -3724,7 +4286,7 @@ dissect_ilp_PINIT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto
 
 static const per_sequence_t PAUTH_sequence[] = {
   { &hf_ilp_sPCSETKey       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_SPCSETKey },
-  { &hf_ilp_sPCTID          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_SPCTID },
+  { &hf_ilp_spctid          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ilp_SPCTID },
   { &hf_ilp_sPCSETKeylifetime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ilp_SPCSETKeylifetime },
   { NULL, 0, 0, NULL }
 };
@@ -4135,7 +4697,7 @@ static int dissect_ILP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
 
 /*--- End of included file: packet-ilp-fn.c ---*/
-#line 64 "./asn1/ilp/packet-ilp-template.c"
+#line 65 "./asn1/ilp/packet-ilp-template.c"
 
 
 static guint
@@ -4252,8 +4814,8 @@ void proto_register_ilp(void) {
       { "sPCSETKey", "ilp.sPCSETKey",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_ilp_sPCTID,
-      { "sPCTID", "ilp.sPCTID_element",
+    { &hf_ilp_spctid,
+      { "spctid", "ilp.spctid_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_ilp_sPCSETKeylifetime,
@@ -4440,6 +5002,10 @@ void proto_register_ilp(void) {
       { "ganssEarthOrientationParameters", "ilp.ganssEarthOrientationParameters",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
+    { &hf_ilp_ganssAdditionalIonosphericModelForDataID01,
+      { "ganssAdditionalIonosphericModelForDataID01", "ilp.ganssAdditionalIonosphericModelForDataID01",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
     { &hf_ilp_GanssRequestedGenericAssistanceDataList_item,
       { "GanssReqGenericData", "ilp.GanssReqGenericData_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -4500,6 +5066,14 @@ void proto_register_ilp(void) {
       { "ganssExtendedEphemerisCheck", "ilp.ganssExtendedEphemerisCheck_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "GanssExtendedEphCheck", HFILL }},
+    { &hf_ilp_bds_DifferentialCorrection,
+      { "bds-DifferentialCorrection", "ilp.bds_DifferentialCorrection",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BDS_Sig_Id_Req", HFILL }},
+    { &hf_ilp_bds_GridModelReq,
+      { "bds-GridModelReq", "ilp.bds_GridModelReq",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
     { &hf_ilp_ganssWeek,
       { "ganssWeek", "ilp.ganssWeek",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -4592,8 +5166,8 @@ void proto_register_ilp(void) {
       { "gpsToe", "ilp.gpsToe",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_167", HFILL }},
-    { &hf_ilp_nSAT,
-      { "nSAT", "ilp.nSAT",
+    { &hf_ilp_nsat,
+      { "nsat", "ilp.nsat",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_31", HFILL }},
     { &hf_ilp_toeLimit,
@@ -4608,8 +5182,8 @@ void proto_register_ilp(void) {
       { "SatelliteInfoElement", "ilp.SatelliteInfoElement_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_ilp_iODE,
-      { "iODE", "ilp.iODE",
+    { &hf_ilp_iode,
+      { "iode", "ilp.iode",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_255", HFILL }},
     { &hf_ilp_sPCStatusCode,
@@ -4684,6 +5258,10 @@ void proto_register_ilp(void) {
       { "iPAddress", "ilp.iPAddress",
         FT_UINT32, BASE_DEC, VALS(ilp_IPAddress_vals), 0,
         NULL, HFILL }},
+    { &hf_ilp_imei,
+      { "imei", "ilp.imei",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_8", HFILL }},
     { &hf_ilp_sessionID,
       { "sessionID", "ilp.sessionID",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -4756,24 +5334,28 @@ void proto_register_ilp(void) {
       { "autonomousGPS", "ilp.autonomousGPS",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
-    { &hf_ilp_aFLT,
-      { "aFLT", "ilp.aFLT",
+    { &hf_ilp_aflt,
+      { "aflt", "ilp.aflt",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
-    { &hf_ilp_eCID,
-      { "eCID", "ilp.eCID",
+    { &hf_ilp_ecid,
+      { "ecid", "ilp.ecid",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
-    { &hf_ilp_eOTD,
-      { "eOTD", "ilp.eOTD",
+    { &hf_ilp_eotd,
+      { "eotd", "ilp.eotd",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
-    { &hf_ilp_oTDOA,
-      { "oTDOA", "ilp.oTDOA",
+    { &hf_ilp_otdoa,
+      { "otdoa", "ilp.otdoa",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
     { &hf_ilp_gANSSPositionMethods,
       { "gANSSPositionMethods", "ilp.gANSSPositionMethods",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ilp_additionalPositioningMethods,
+      { "additionalPositioningMethods", "ilp.additionalPositioningMethods",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_ilp_GANSSPositionMethods_item,
@@ -4800,6 +5382,18 @@ void proto_register_ilp(void) {
       { "autonomous", "ilp.autonomous",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
+    { &hf_ilp_AdditionalPositioningMethods_item,
+      { "AddPosSupport-Element", "ilp.AddPosSupport_Element_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ilp_addPosID,
+      { "addPosID", "ilp.addPosID",
+        FT_UINT32, BASE_DEC, VALS(ilp_T_addPosID_vals), 0,
+        NULL, HFILL }},
+    { &hf_ilp_addPosMode,
+      { "addPosMode", "ilp.addPosMode",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_ilp_tia801,
       { "tia801", "ilp.tia801",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
@@ -4832,6 +5426,14 @@ void proto_register_ilp(void) {
       { "posProtocolVersionLPP", "ilp.posProtocolVersionLPP_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "PosProtocolVersion3GPP", HFILL }},
+    { &hf_ilp_lppe,
+      { "lppe", "ilp.lppe",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
+    { &hf_ilp_posProtocolVersionLPPe,
+      { "posProtocolVersionLPPe", "ilp.posProtocolVersionLPPe_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "PosProtocolVersionOMA", HFILL }},
     { &hf_ilp_majorVersionField,
       { "majorVersionField", "ilp.majorVersionField",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -4858,6 +5460,10 @@ void proto_register_ilp(void) {
         "INTEGER_0_255", HFILL }},
     { &hf_ilp_internalEditLevel,
       { "internalEditLevel", "ilp.internalEditLevel",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_255", HFILL }},
+    { &hf_ilp_minorVersionField,
+      { "minorVersionField", "ilp.minorVersionField",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_255", HFILL }},
     { &hf_ilp_gsm,
@@ -4892,6 +5498,10 @@ void proto_register_ilp(void) {
       { "wiMAX", "ilp.wiMAX",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
+    { &hf_ilp_nr,
+      { "nr", "ilp.nr",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
     { &hf_ilp_gsmCell,
       { "gsmCell", "ilp.gsmCell_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -4924,6 +5534,10 @@ void proto_register_ilp(void) {
       { "wimaxBS", "ilp.wimaxBS_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "WimaxBSInformation", HFILL }},
+    { &hf_ilp_nrCell,
+      { "nrCell", "ilp.nrCell_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "NRCellInformation", HFILL }},
     { &hf_ilp_set_GPSTimingOfCell,
       { "set-GPSTimingOfCell", "ilp.set_GPSTimingOfCell_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5018,6 +5632,10 @@ void proto_register_ilp(void) {
         "BOOLEAN", HFILL }},
     { &hf_ilp_glonass,
       { "glonass", "ilp.glonass",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
+    { &hf_ilp_bds,
+      { "bds", "ilp.bds",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
     { &hf_ilp_timestamp,
@@ -5124,12 +5742,12 @@ void proto_register_ilp(void) {
       { "refCI", "ilp.refCI",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_65535", HFILL }},
-    { &hf_ilp_nMR,
-      { "nMR", "ilp.nMR",
+    { &hf_ilp_nmr,
+      { "nmr", "ilp.nmr",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_ilp_tA,
-      { "tA", "ilp.tA",
+    { &hf_ilp_ta,
+      { "ta", "ilp.ta",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_255", HFILL }},
     { &hf_ilp_refUC,
@@ -5156,8 +5774,8 @@ void proto_register_ilp(void) {
       { "timingAdvance", "ilp.timingAdvance_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_ilp_tA_01,
-      { "tA", "ilp.tA",
+    { &hf_ilp_ta_01,
+      { "ta", "ilp.ta",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_8191", HFILL }},
     { &hf_ilp_tAResolution,
@@ -5192,8 +5810,8 @@ void proto_register_ilp(void) {
       { "rsrqResult", "ilp.rsrqResult",
         FT_UINT32, BASE_DEC, NULL, 0,
         "RSRQ_Range", HFILL }},
-    { &hf_ilp_tA_02,
-      { "tA", "ilp.tA",
+    { &hf_ilp_ta_02,
+      { "ta", "ilp.ta",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_1282", HFILL }},
     { &hf_ilp_measResultListEUTRA,
@@ -5204,6 +5822,26 @@ void proto_register_ilp(void) {
       { "earfcn", "ilp.earfcn",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_65535", HFILL }},
+    { &hf_ilp_earfcn_ext,
+      { "earfcn-ext", "ilp.earfcn_ext",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_65536_262143", HFILL }},
+    { &hf_ilp_rsrpResult_ext,
+      { "rsrpResult-ext", "ilp.rsrpResult_ext",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "RSRP_Range_Ext", HFILL }},
+    { &hf_ilp_rsrqResult_ext,
+      { "rsrqResult-ext", "ilp.rsrqResult_ext",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "RSRQ_Range_Ext", HFILL }},
+    { &hf_ilp_rs_sinrResult,
+      { "rs-sinrResult", "ilp.rs_sinrResult",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "RS_SINR_Range", HFILL }},
+    { &hf_ilp_servingInformation5G,
+      { "servingInformation5G", "ilp.servingInformation5G_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_ilp_MeasResultListEUTRA_item,
       { "MeasResultEUTRA", "ilp.MeasResultEUTRA_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5218,6 +5856,10 @@ void proto_register_ilp(void) {
         "CellGlobalIdEUTRA", HFILL }},
     { &hf_ilp_measResult,
       { "measResult", "ilp.measResult_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ilp_neighbourInformation5G,
+      { "neighbourInformation5G", "ilp.neighbourInformation5G_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_ilp_plmn_Identity,
@@ -5244,6 +5886,10 @@ void proto_register_ilp(void) {
       { "MCC-MNC-Digit", "ilp.MCC_MNC_Digit",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_ilp_trackingAreaCode_01,
+      { "trackingAreaCode", "ilp.trackingAreaCode",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "TrackingAreaCodeNR", HFILL }},
     { &hf_ilp_apMACAddress,
       { "apMACAddress", "ilp.apMACAddress",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -5296,6 +5942,42 @@ void proto_register_ilp(void) {
       { "apReportedLocation", "ilp.apReportedLocation_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "ReportedLocation", HFILL }},
+    { &hf_ilp_apRepLocation,
+      { "apRepLocation", "ilp.apRepLocation",
+        FT_UINT32, BASE_DEC, VALS(ilp_RepLocation_vals), 0,
+        "RepLocation", HFILL }},
+    { &hf_ilp_apSignalStrengthDelta,
+      { "apSignalStrengthDelta", "ilp.apSignalStrengthDelta",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_1", HFILL }},
+    { &hf_ilp_apSignaltoNoiseDelta,
+      { "apSignaltoNoiseDelta", "ilp.apSignaltoNoiseDelta",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_1", HFILL }},
+    { &hf_ilp_setSignalStrengthDelta,
+      { "setSignalStrengthDelta", "ilp.setSignalStrengthDelta",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_1", HFILL }},
+    { &hf_ilp_setSignaltoNoiseDelta,
+      { "setSignaltoNoiseDelta", "ilp.setSignaltoNoiseDelta",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_1", HFILL }},
+    { &hf_ilp_operatingClass,
+      { "operatingClass", "ilp.operatingClass",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_255", HFILL }},
+    { &hf_ilp_apSSID,
+      { "apSSID", "ilp.apSSID",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_1_32", HFILL }},
+    { &hf_ilp_apPHYType,
+      { "apPHYType", "ilp.apPHYType",
+        FT_UINT32, BASE_DEC, VALS(ilp_T_apPHYType_vals), 0,
+        NULL, HFILL }},
+    { &hf_ilp_setMACAddress,
+      { "setMACAddress", "ilp.setMACAddress",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_48", HFILL }},
     { &hf_ilp_rTDValue,
       { "rTDValue", "ilp.rTDValue",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -5324,6 +6006,46 @@ void proto_register_ilp(void) {
       { "locationValue", "ilp.locationValue",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING_SIZE_1_128", HFILL }},
+    { &hf_ilp_lciLocData,
+      { "lciLocData", "ilp.lciLocData_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ilp_locationDataLCI,
+      { "locationDataLCI", "ilp.locationDataLCI_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ilp_latitudeResolution,
+      { "latitudeResolution", "ilp.latitudeResolution",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_6", HFILL }},
+    { &hf_ilp_latitude_01,
+      { "latitude", "ilp.latitude",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_34", HFILL }},
+    { &hf_ilp_longitudeResolution,
+      { "longitudeResolution", "ilp.longitudeResolution",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_6", HFILL }},
+    { &hf_ilp_longitude_01,
+      { "longitude", "ilp.longitude",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_34", HFILL }},
+    { &hf_ilp_altitudeType,
+      { "altitudeType", "ilp.altitudeType",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_4", HFILL }},
+    { &hf_ilp_altitudeResolution,
+      { "altitudeResolution", "ilp.altitudeResolution",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_6", HFILL }},
+    { &hf_ilp_altitude_01,
+      { "altitude", "ilp.altitude",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_30", HFILL }},
+    { &hf_ilp_datum,
+      { "datum", "ilp.datum",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_8", HFILL }},
     { &hf_ilp_wimaxBsID,
       { "wimaxBsID", "ilp.wimaxBsID_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5344,8 +6066,8 @@ void proto_register_ilp(void) {
       { "bsID-LSB", "ilp.bsID_LSB",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_24", HFILL }},
-    { &hf_ilp_rTD,
-      { "rTD", "ilp.rTD",
+    { &hf_ilp_rtd,
+      { "rtd", "ilp.rtd",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_65535", HFILL }},
     { &hf_ilp_rTDstd,
@@ -5364,8 +6086,8 @@ void proto_register_ilp(void) {
       { "relDelaystd", "ilp.relDelaystd",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_1023", HFILL }},
-    { &hf_ilp_rSSI,
-      { "rSSI", "ilp.rSSI",
+    { &hf_ilp_rssi,
+      { "rssi", "ilp.rssi",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_255", HFILL }},
     { &hf_ilp_rSSIstd,
@@ -5376,8 +6098,8 @@ void proto_register_ilp(void) {
       { "bSTxPower", "ilp.bSTxPower",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_255", HFILL }},
-    { &hf_ilp_cINR,
-      { "cINR", "ilp.cINR",
+    { &hf_ilp_cinr,
+      { "cinr", "ilp.cinr",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_255", HFILL }},
     { &hf_ilp_cINRstd,
@@ -5388,6 +6110,62 @@ void proto_register_ilp(void) {
       { "bSLocation", "ilp.bSLocation_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "ReportedLocation", HFILL }},
+    { &hf_ilp_servingCellInformation,
+      { "servingCellInformation", "ilp.servingCellInformation",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ServingCellInformationNR", HFILL }},
+    { &hf_ilp_measuredResultsListNR,
+      { "measuredResultsListNR", "ilp.measuredResultsListNR",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "MeasResultListNR", HFILL }},
+    { &hf_ilp_ServingCellInformationNR_item,
+      { "ServCellNR", "ilp.ServCellNR_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ilp_physCellId_01,
+      { "physCellId", "ilp.physCellId",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "PhysCellIdNR", HFILL }},
+    { &hf_ilp_arfcn_NR,
+      { "arfcn-NR", "ilp.arfcn_NR",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ilp_cellGlobalId_01,
+      { "cellGlobalId", "ilp.cellGlobalId_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CellGlobalIdNR", HFILL }},
+    { &hf_ilp_ssb_Measurements,
+      { "ssb-Measurements", "ilp.ssb_Measurements_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "NR_Measurements", HFILL }},
+    { &hf_ilp_csi_rs_Measurements,
+      { "csi-rs-Measurements", "ilp.csi_rs_Measurements_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "NR_Measurements", HFILL }},
+    { &hf_ilp_ta_03,
+      { "ta", "ilp.ta",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_3846", HFILL }},
+    { &hf_ilp_MeasResultListNR_item,
+      { "MeasResultNR", "ilp.MeasResultNR_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ilp_cellIdentityNR,
+      { "cellIdentityNR", "ilp.cellIdentityNR",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ilp_rsrp_Range,
+      { "rsrp-Range", "ilp.rsrp_Range",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_127", HFILL }},
+    { &hf_ilp_rsrq_Range,
+      { "rsrq-Range", "ilp.rsrq_Range",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_127", HFILL }},
+    { &hf_ilp_sinr_Range,
+      { "sinr-Range", "ilp.sinr_Range",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_127", HFILL }},
     { &hf_ilp_modeSpecificFrequencyInfo,
       { "modeSpecificInfo", "ilp.modeSpecificInfo",
         FT_UINT32, BASE_DEC, VALS(ilp_FrequencySpecificInfo_vals), 0,
@@ -5416,12 +6194,12 @@ void proto_register_ilp(void) {
       { "NMRelement", "ilp.NMRelement_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_ilp_aRFCN,
-      { "aRFCN", "ilp.aRFCN",
+    { &hf_ilp_arfcn,
+      { "arfcn", "ilp.arfcn",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_1023", HFILL }},
-    { &hf_ilp_bSIC,
-      { "bSIC", "ilp.bSIC",
+    { &hf_ilp_bsic,
+      { "bsic", "ilp.bsic",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_63", HFILL }},
     { &hf_ilp_rxLev,
@@ -5572,6 +6350,10 @@ void proto_register_ilp(void) {
       { "delay", "ilp.delay",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_7", HFILL }},
+    { &hf_ilp_ver2_responseTime,
+      { "ver2-responseTime", "ilp.ver2_responseTime",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_1_128", HFILL }},
     { &hf_ilp_horvel,
       { "horvel", "ilp.horvel_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -5616,8 +6398,8 @@ void proto_register_ilp(void) {
       { "veruncertspeed", "ilp.veruncertspeed",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_8", HFILL }},
-    { &hf_ilp_rAND,
-      { "rAND", "ilp.rAND",
+    { &hf_ilp_rand,
+      { "rand", "ilp.rand",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_128", HFILL }},
     { &hf_ilp_slpFQDN,
@@ -5684,9 +6466,21 @@ void proto_register_ilp(void) {
       { "signal8", "ilp.signal8",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
+    { &hf_ilp_T_addPosMode_standalone,
+      { "standalone", "ilp.standalone",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_ilp_T_addPosMode_setBased,
+      { "setBased", "ilp.setBased",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_ilp_T_addPosMode_setAssisted,
+      { "setAssisted", "ilp.setAssisted",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
 
 /*--- End of included file: packet-ilp-hfarr.c ---*/
-#line 90 "./asn1/ilp/packet-ilp-template.c"
+#line 91 "./asn1/ilp/packet-ilp-template.c"
     { &hf_ilp_mobile_directory_number,
       { "Mobile Directory Number", "ilp.mobile_directory_number",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -5752,10 +6546,14 @@ void proto_register_ilp(void) {
     &ett_ilp_GANSSPositionMethod,
     &ett_ilp_GANSSPositioningMethodTypes,
     &ett_ilp_GANSSSignals,
+    &ett_ilp_AdditionalPositioningMethods,
+    &ett_ilp_AddPosSupport_Element,
+    &ett_ilp_T_addPosMode,
     &ett_ilp_PosProtocol,
     &ett_ilp_PosProtocolVersion3GPP,
     &ett_ilp_PosProtocolVersion3GPP2,
     &ett_ilp_Supported3GPP2PosProtocolVersion,
+    &ett_ilp_PosProtocolVersionOMA,
     &ett_ilp_SupportedBearers,
     &ett_ilp_CellInfo,
     &ett_ilp_UTRAN_GPSReferenceTimeResult,
@@ -5789,15 +6587,27 @@ void proto_register_ilp(void) {
     &ett_ilp_PLMN_Identity,
     &ett_ilp_MCC,
     &ett_ilp_MNC,
+    &ett_ilp_ServingInformation5G,
+    &ett_ilp_NeighbourInformation5G,
     &ett_ilp_WlanAPInformation,
     &ett_ilp_RTD,
     &ett_ilp_ReportedLocation,
     &ett_ilp_LocationData,
+    &ett_ilp_RepLocation,
+    &ett_ilp_LciLocData,
+    &ett_ilp_LocationDataLCI,
     &ett_ilp_WimaxBSInformation,
     &ett_ilp_WimaxBsID,
     &ett_ilp_WimaxRTD,
     &ett_ilp_WimaxNMRList,
     &ett_ilp_WimaxNMR,
+    &ett_ilp_NRCellInformation,
+    &ett_ilp_ServingCellInformationNR,
+    &ett_ilp_ServCellNR,
+    &ett_ilp_MeasResultListNR,
+    &ett_ilp_MeasResultNR,
+    &ett_ilp_CellGlobalIdNR,
+    &ett_ilp_NR_Measurements,
     &ett_ilp_FrequencyInfo,
     &ett_ilp_FrequencySpecificInfo,
     &ett_ilp_FrequencyInfoFDD,
@@ -5837,7 +6647,7 @@ void proto_register_ilp(void) {
     &ett_ilp_T_tia801Payload,
 
 /*--- End of included file: packet-ilp-ettarr.c ---*/
-#line 101 "./asn1/ilp/packet-ilp-template.c"
+#line 102 "./asn1/ilp/packet-ilp-template.c"
   };
 
   module_t *ilp_module;
