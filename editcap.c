@@ -1102,13 +1102,17 @@ main(int argc, char *argv[])
                 goto clean_exit;
             }
             gchar **splitted = g_strsplit(optarg, ",", 2);
-            if (splitted[0]) {
+            if (splitted[0] && splitted[0][0] != '\0') {
                 secrets_type_id = lookup_secrets_type(splitted[0]);
+                if (secrets_type_id == 0) {
+                    fprintf(stderr, "editcap: \"%s\" isn't a valid secrets type\n", splitted[0]);
+                    g_strfreev(splitted);
+                    ret = INVALID_OPTION;
+                    goto clean_exit;
+                }
                 secrets_filename = splitted[1];
-            }
-
-            if (secrets_type_id == 0) {
-                fprintf(stderr, "editcap: \"%s\" isn't a valid secrets type\n", secrets_filename);
+            } else {
+                fprintf(stderr, "editcap: no secrets type was specified for --inject-secrets\n");
                 g_strfreev(splitted);
                 ret = INVALID_OPTION;
                 goto clean_exit;
