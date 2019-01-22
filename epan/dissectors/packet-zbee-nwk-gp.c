@@ -2227,7 +2227,7 @@ proto_register_zbee_nwk_gp(void)
                 0x0, NULL, HFILL } },
 
         { &hf_zbee_nwk_gp_zcl_attr_cluster_id,
-            { "ZigBee Cluster ID", "zbee_nwk_gp.zcl.attr.cluster_id", FT_UINT16, BASE_HEX, VALS(zbee_aps_cid_names),
+            { "ZigBee Cluster ID", "zbee_nwk_gp.zcl.attr.cluster_id", FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(zbee_aps_cid_names),
                 0x0, NULL, HFILL }},
 
         { &hf_zbee_nwk_gp_cmd_channel_request_toggling_behaviour,

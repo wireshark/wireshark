@@ -223,6 +223,9 @@
 
 #define ZBEE_ZCL_CID_ZLL                            0x1000
 
+#define ZBEE_ZCL_CID_MANUFACTURER_SPECIFIC_MIN      0xFC00
+#define ZBEE_ZCL_CID_MANUFACTURER_SPECIFIC_MAX      0xFFFF
+
 /* ZCL Test Profile #2 Clusters */
 #define ZBEE_APS_T2_CID_TCP                         0x0001
 #define ZBEE_APS_T2_CID_RESPC                       0x0002
@@ -306,7 +309,7 @@ enum {
  **************************************
  */
 
-extern const value_string zbee_aps_cid_names[];
+extern const range_string zbee_aps_cid_names[];
 extern const range_string zbee_aps_apid_names[];
 
 #endif /* PACKET_ZBEE_APS_H*/

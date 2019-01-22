@@ -3071,7 +3071,7 @@ proto_register_zbee_zcl_scenes(void)
             0x00, NULL, HFILL }},
 
         { &hf_zbee_zcl_scenes_extension_set_cluster,
-            { "Cluster", "zbee_zcl_general.scenes.extension_set.cluster", FT_UINT16, BASE_HEX, VALS(zbee_aps_cid_names),
+            { "Cluster", "zbee_zcl_general.scenes.extension_set.cluster", FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(zbee_aps_cid_names),
             0x00, NULL, HFILL }},
 
         { &hf_zbee_zcl_scenes_extension_set_onoff,
@@ -9632,7 +9632,7 @@ void proto_register_zbee_zcl_part(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_part_partitioned_cluster_id,
-            { "Partitioned Cluster ID", "zbee_zcl_general.part.part_cluster_id", FT_UINT16, BASE_HEX, VALS(zbee_aps_cid_names),
+            { "Partitioned Cluster ID", "zbee_zcl_general.part.part_cluster_id", FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(zbee_aps_cid_names),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_part_ack_opt,
@@ -15316,7 +15316,7 @@ proto_register_zbee_zcl_gp(void)
           { "Number of Client clusters", "zbee_zcl_general.gp.pc.n_srv_clusters", FT_UINT8, BASE_DEC,
             NULL, ZBEE_ZCL_GP_CLUSTER_LIST_LEN_CLI, NULL, HFILL }},
         { &hf_zbee_gp_gpd_cluster_id,
-          { "Cluster ID", "zbee_zcl_general.gp.pc.cluster", FT_UINT8, BASE_HEX, VALS(zbee_aps_cid_names),
+          { "Cluster ID", "zbee_zcl_general.gp.pc.cluster", FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(zbee_aps_cid_names),
             0x0, NULL, HFILL }},
 
         /* GP Sink Table Request and  GP Proxy Table Request commands */

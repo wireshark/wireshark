@@ -778,7 +778,7 @@ void proto_register_gbcs_gbz(void)
         },
         {&hf_gbcs_gbz_extended_header_cluster,
             {"Extended Header Cluster ID", "gbcs_gbz.extended_header_cluster",
-              FT_UINT16, BASE_HEX, VALS(zbee_aps_cid_names), 0x0, NULL, HFILL}
+              FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(zbee_aps_cid_names), 0x0, NULL, HFILL}
         },
         {&hf_gbcs_gbz_extended_header_length,
             {"Extended Header Length", "gbcs_gbz.extended_header_length",

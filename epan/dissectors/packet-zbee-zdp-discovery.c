@@ -198,7 +198,7 @@ dissect_zbee_zdp_req_match_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     for (i=0; i<in_count; i++) {
         ti = proto_tree_add_item_ret_uint(field_tree, hf_zbee_zdp_in_cluster, tvb, offset, sizeof_cluster, ENC_LITTLE_ENDIAN, &cluster);
         offset += sizeof_cluster;
-        proto_item_append_text(ti, " (%s)", val_to_str(cluster, zbee_aps_cid_names, "Unknown Cluster"));
+        proto_item_append_text(ti, " (%s)", rval_to_str(cluster, zbee_aps_cid_names, "Unknown Cluster"));
     }
 
     /* Add the output cluster list. */
@@ -210,7 +210,7 @@ dissect_zbee_zdp_req_match_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     for (i=0; i<out_count; i++) {
         ti = proto_tree_add_item_ret_uint(field_tree, hf_zbee_zdp_out_cluster, tvb, offset, sizeof_cluster, ENC_LITTLE_ENDIAN, &cluster);
         offset += sizeof_cluster;
-        proto_item_append_text(ti, " (%s)", val_to_str(cluster, zbee_aps_cid_names, "Unknown Cluster"));
+        proto_item_append_text(ti, " (%s)", rval_to_str(cluster, zbee_aps_cid_names, "Unknown Cluster"));
     }
 
     zbee_append_info(tree, pinfo, ", Nwk Addr: 0x%04x, Profile: 0x%04x", device, profile);
@@ -1291,12 +1291,12 @@ dissect_zbee_zdp_rsp_ext_simple_desc(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     for (i=idx; (i<in_count) && tvb_bytes_exist(tvb, offset, sizeof_cluster); i++) {
         ti = proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_in_cluster, tvb, offset, sizeof_cluster, ENC_LITTLE_ENDIAN, &cluster);
         offset += sizeof_cluster;
-        proto_item_append_text(ti, " (%s)", val_to_str(cluster, zbee_aps_cid_names, "Unknown Cluster"));
+        proto_item_append_text(ti, " (%s)", rval_to_str(cluster, zbee_aps_cid_names, "Unknown Cluster"));
     } /* for */
     for (i-=in_count; (i<out_count) && tvb_bytes_exist(tvb, offset, sizeof_cluster); i++) {
         ti = proto_tree_add_item_ret_uint(tree, hf_zbee_zdp_out_cluster, tvb, offset, sizeof_cluster, ENC_LITTLE_ENDIAN, &cluster);
         offset += sizeof_cluster;
-        proto_item_append_text(ti, " (%s)", val_to_str(cluster, zbee_aps_cid_names, "Unknown Cluster"));
+        proto_item_append_text(ti, " (%s)", rval_to_str(cluster, zbee_aps_cid_names, "Unknown Cluster"));
     } /* for */
 
     zbee_append_info(tree, pinfo, ", Nwk Addr: 0x%04x", device);

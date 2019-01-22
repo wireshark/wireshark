@@ -1381,7 +1381,7 @@ void proto_register_zbee_zdp(void)
             NULL, HFILL }},
 
         { &hf_zbee_zdp_addr_mode,
-        { "Address Mode",               "zbee_zdp.addr_mode", FT_UINT8, BASE_DEC|BASE_RANGE_STRING, RVALS(zbee_zcl_zdp_address_modes), 0x0,
+        { "Address Mode",               "zbee_zdp.addr_mode", FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(zbee_zcl_zdp_address_modes), 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_cluster,
@@ -1409,11 +1409,11 @@ void proto_register_zbee_zdp(void)
             NULL, HFILL }},
 
         { &hf_zbee_zdp_in_cluster,
-        { "Input Cluster",              "zbee_zdp.in_cluster", FT_UINT16, BASE_HEX, VALS(zbee_aps_cid_names), 0x0,
+        { "Input Cluster",              "zbee_zdp.in_cluster", FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(zbee_aps_cid_names), 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_out_cluster,
-        { "Output Cluster",             "zbee_zdp.out_cluster", FT_UINT16, BASE_HEX, VALS(zbee_aps_cid_names), 0x0,
+        { "Output Cluster",             "zbee_zdp.out_cluster", FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(zbee_aps_cid_names), 0x0,
             NULL, HFILL }},
 
         { &hf_zbee_zdp_assoc_device_count,
