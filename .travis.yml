@@ -83,6 +83,7 @@ before_install:
   # macos
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then ./tools/macos-setup-brew.sh; fi
   - if [ "$TRAVIS_OS_NAME" == "osx" ]; then brew install softhsm; fi
+  - if [ "$TRAVIS_OS_NAME" == "osx" ]; then sed s/access_bpf/staff/ packaging/macosx/ChmodBPF/ChmodBPF | sudo bash; fi
   # linux
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo ./tools/debian-setup.sh --install-optional --install-test-deps -q; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install -y python3-pip; fi
@@ -128,6 +129,7 @@ script:
   - cmake --build . --config RelWithDebInfo
   - cmake --build . --config RelWithDebInfo --target test-programs
   - if [ "$PCAP" = "OFF" ]; then export PYTEST_ADDOPTS=--skip-missing-programs=dumpcap,rawshark; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" -a "$PCAP" = "ON" ]; then sudo setcap "CAP_NET_RAW+eip CAP_NET_ADMIN+eip" run/dumpcap; fi
   - pytest
 after_script:
   - if [ -f run/tshark ]; then run/tshark --version; fi
