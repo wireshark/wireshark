@@ -83,6 +83,7 @@ static int hf_nas_5gs_mm_nas_sec_algo_enc = -1;
 static int hf_nas_5gs_mm_nas_sec_algo_ip = -1;
 static int hf_nas_5gs_mm_s1_mode_b0 = -1;
 static int hf_nas_5gs_mm_ho_attach_b1 = -1;
+static int hf_nas_5gs_mm_lpp_cap_b2 = -1;
 static int hf_nas_5gs_mm_type_id = -1;
 static int hf_nas_5gs_mm_odd_even = -1;
 static int hf_nas_5gs_mm_length = -1;
@@ -381,7 +382,7 @@ de_nas_5gs_mm_5gmm_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         &hf_nas_5gs_spare_b5,
         &hf_nas_5gs_spare_b4,
         &hf_nas_5gs_spare_b3,
-        &hf_nas_5gs_spare_b2,
+        &hf_nas_5gs_mm_lpp_cap_b2,
         &hf_nas_5gs_mm_ho_attach_b1,
         &hf_nas_5gs_mm_s1_mode_b0,
         NULL
@@ -401,17 +402,30 @@ static const value_string nas_5gs_mm_cause_vals[] = {
     { 0x05, "PEI not accepted" },
     { 0x06, "Illegal ME" },
     { 0x07, "5GS services not allowed" },
+    { 0x09, "UE identity cannot be derived by the network" },
     { 0x0a, "Implicitly deregistered" },
     { 0x0b, "PLMN not allowed" },
     { 0x0c, "Tracking area not allowed" },
     { 0x0d, "Roaming not allowed in this tracking area" },
+    { 0x0f, "No suitable cells in tracking area" },
+    { 0x14, "MAC failure" },
     { 0x15, "Synch failure" },
+    { 0x16, "Congestion" },
+    { 0x17, "UE security capabilities mismatch" },
+    { 0x18, "Security mode rejected, unspecified" },
+    { 0x1a, "Non-5G authentication unacceptable" },
     { 0x1b, "N1 mode not allowed" },
     { 0x1c, "Restricted service area" },
     { 0x2b, "LADN not available" },
+    { 0x41, "Maximum number of PDU sessions reached" },
     { 0x43, "Insufficient resources for specific slice and DNN" },
     { 0x45, "Insufficient resources for specific slice" },
-    { 0x5a,  "Payload was not forwarded" },
+    { 0x47, "ngKSI already in use" },
+    { 0x48, "Non-3GPP access to 5GCN not allowed" },
+    { 0x49, "Serving network not authorized" },
+    { 0x5a, "Payload was not forwarded" },
+    { 0x5b, "DNN not supported or not subscribed in the slice" },
+    { 0x5c, "Insufficient user-plane resources for the PDU session" },
     { 0x5f, "Semantically incorrect message" },
     { 0x60, "Invalid mandatory information" },
     { 0x61, "Message type non-existent or not implemented" },
@@ -1451,6 +1465,8 @@ static const value_string nas_5gs_mm_req_type_vals[] = {
     { 0x02, "Existing PDU session" },
     { 0x03, "Initial emergency request" },
     { 0x04, "Existing emergency PDU session" },
+    { 0x05, "Modification request" },
+    { 0x07, "Reserved" },
     { 0, NULL } };
 
 static guint16
@@ -5188,7 +5204,12 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_mm_ho_attach_b1,
         { "HO attach",   "nas_5gs.mm.ho_attach_b1",
-            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_lpp_cap_b2,
+        { "LTE Positioning Protocol (LPP) capability",   "nas_5gs.mm.lpp_cap_b2",
+            FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x04,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_type_id,
