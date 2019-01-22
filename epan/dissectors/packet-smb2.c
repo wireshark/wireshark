@@ -1445,7 +1445,7 @@ static const true_false_string tfs_flags_dfs_op = {
 };
 
 static const true_false_string tfs_flags_chained = {
-	"This pdu a CHAINED command",
+	"This pdu is a CHAINED command",
 	"This pdu is NOT a chained command"
 };
 
@@ -1461,7 +1461,7 @@ static const true_false_string tfs_flags_replay_operation = {
 
 static const true_false_string tfs_flags_priority_mask = {
 	"This pdu contains a PRIORITY",
-	"This pdu does NOT contain a PRIORITY1"
+	"This pdu does NOT contain a PRIORITY"
 };
 
 static const true_false_string tfs_cap_dfs = {
