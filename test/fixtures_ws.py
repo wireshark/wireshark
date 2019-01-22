@@ -8,6 +8,7 @@
 #
 '''Fixtures that are specific to Wireshark.'''
 
+from contextlib import contextmanager
 import os
 import re
 import subprocess
@@ -302,3 +303,34 @@ def unicode_env(home_path, make_env):
         env=env,
         pluginsdir=pluginsdir
     )
+
+
+@fixtures.fixture(scope='session')
+def make_screenshot():
+    '''Creates a screenshot and save it to a file. Intended for CI purposes.'''
+    def make_screenshot_real(filename):
+        try:
+            if sys.platform == 'darwin':
+                subprocess.check_call(['screencapture', filename])
+            else:
+                print("Creating a screenshot on this platform is not supported")
+                return
+            size = os.path.getsize(filename)
+            print("Created screenshot %s (%d bytes)" % (filename, size))
+        except (subprocess.CalledProcessError, OSError) as e:
+            print("Failed to take screenshot:", e)
+    return make_screenshot_real
+
+
+@fixtures.fixture
+def make_screenshot_on_error(request, make_screenshot):
+    '''Writes a screenshot when a process times out.'''
+    @contextmanager
+    def make_screenshot_on_error_real():
+        try:
+            yield
+        except subprocess.TimeoutExpired:
+            filename = request.instance.filename_from_id('screenshot.png')
+            make_screenshot(filename)
+            raise
+    return make_screenshot_on_error_real

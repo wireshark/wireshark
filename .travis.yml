@@ -132,3 +132,4 @@ script:
 after_script:
   - if [ -f run/tshark ]; then run/tshark --version; fi
   - if [ -f run/RelWithDebInfo/tshark.exe ]; then run/RelWithDebInfo/tshark.exe --version; fi
+  - ../test/travis-upload-artifacts.sh

@@ -471,26 +471,30 @@ def check_dumpcap_pcapng_sections(cmd_dumpcap, cmd_tshark, capture_file):
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
 class case_wireshark_capture(subprocesstest.SubprocessTestCase):
-    def test_wireshark_capture_10_packets_to_file(self, wireshark_k, check_capture_10_packets):
+    def test_wireshark_capture_10_packets_to_file(self, wireshark_k, check_capture_10_packets, make_screenshot_on_error):
         '''Capture 10 packets from the network to a file using Wireshark'''
-        check_capture_10_packets(self, cmd=wireshark_k)
+        with make_screenshot_on_error():
+            check_capture_10_packets(self, cmd=wireshark_k)
 
     # Wireshark doesn't currently support writing to stdout while capturing.
     # def test_wireshark_capture_10_packets_to_stdout(self, wireshark_k, check_capture_10_packets):
     #     '''Capture 10 packets from the network to stdout using Wireshark'''
     #     check_capture_10_packets(self, cmd=wireshark_k, to_stdout=True)
 
-    def test_wireshark_capture_from_fifo(self, wireshark_k, check_capture_fifo):
+    def test_wireshark_capture_from_fifo(self, wireshark_k, check_capture_fifo, make_screenshot_on_error):
         '''Capture from a fifo using Wireshark'''
-        check_capture_fifo(self, cmd=wireshark_k)
+        with make_screenshot_on_error():
+            check_capture_fifo(self, cmd=wireshark_k)
 
-    def test_wireshark_capture_from_stdin(self, wireshark_k, check_capture_stdin):
+    def test_wireshark_capture_from_stdin(self, wireshark_k, check_capture_stdin, make_screenshot_on_error):
         '''Capture from stdin using Wireshark'''
-        check_capture_stdin(self, cmd=wireshark_k)
+        with make_screenshot_on_error():
+            check_capture_stdin(self, cmd=wireshark_k)
 
-    def test_wireshark_capture_snapshot_len(self, wireshark_k, check_capture_snapshot_len):
+    def test_wireshark_capture_snapshot_len(self, wireshark_k, check_capture_snapshot_len, make_screenshot_on_error):
         '''Capture truncated packets using Wireshark'''
-        check_capture_snapshot_len(self, cmd=wireshark_k)
+        with make_screenshot_on_error():
+            check_capture_snapshot_len(self, cmd=wireshark_k)
 
 
 @fixtures.mark_usefixtures('test_env')
