@@ -9,6 +9,7 @@
 /* packet-ulp.c
  * Routines for OMA UserPlane Location Protocol packet dissection
  * Copyright 2006, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2014-2019, Pascal Quantin <pascal.quantin@gmail.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -16,7 +17,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * ref OMA-TS-ULP-V2_0_2-20140708-A
+ * ref OMA-TS-ULP-V2_0_4-20181213-A
  * http://www.openmobilealliance.org
  */
 
@@ -194,6 +195,7 @@ static int hf_ulp_uMBAreaId = -1;                 /* UMBAreaId */
 static int hf_ulp_lTEAreaId = -1;                 /* LTEAreaId */
 static int hf_ulp_wLANAreaId = -1;                /* WLANAreaId */
 static int hf_ulp_wiMAXAreaId = -1;               /* WimaxAreaId */
+static int hf_ulp_nRAreaId = -1;                  /* NRAreaId */
 static int hf_ulp_refMCC = -1;                    /* INTEGER_0_999 */
 static int hf_ulp_refMNC = -1;                    /* INTEGER_0_999 */
 static int hf_ulp_refLAC = -1;                    /* INTEGER_0_65535 */
@@ -207,6 +209,7 @@ static int hf_ulp_refCI_01 = -1;                  /* BIT_STRING_SIZE_29 */
 static int hf_ulp_apMACAddress = -1;              /* T_apMACAddress */
 static int hf_ulp_bsID_MSB = -1;                  /* BIT_STRING_SIZE_24 */
 static int hf_ulp_bsID_LSB = -1;                  /* BIT_STRING_SIZE_24 */
+static int hf_ulp_refCI_02 = -1;                  /* BIT_STRING_SIZE_36 */
 static int hf_ulp_GeoAreaMappingList_item = -1;   /* GeoAreaIndex */
 static int hf_ulp_supportedNetworkInformation = -1;  /* SupportedNetworkInformation */
 static int hf_ulp_reportingMode = -1;             /* ReportingMode */
@@ -283,6 +286,7 @@ static int hf_ulp_hprd = -1;                      /* BOOLEAN */
 static int hf_ulp_umb = -1;                       /* BOOLEAN */
 static int hf_ulp_wlan = -1;                      /* BOOLEAN */
 static int hf_ulp_wiMAX = -1;                     /* BOOLEAN */
+static int hf_ulp_nr = -1;                        /* BOOLEAN */
 static int hf_ulp_lpp = -1;                       /* BOOLEAN */
 static int hf_ulp_posProtocolVersionRRLP = -1;    /* PosProtocolVersion3GPP */
 static int hf_ulp_posProtocolVersionRRC = -1;     /* PosProtocolVersion3GPP */
@@ -299,12 +303,16 @@ static int hf_ulp_pointReleaseNumber = -1;        /* INTEGER_0_255 */
 static int hf_ulp_internalEditLevel = -1;         /* INTEGER_0_255 */
 static int hf_ulp_minorVersionField = -1;         /* INTEGER_0_255 */
 static int hf_ulp_gANSSPositionMethods = -1;      /* GANSSPositionMethods */
+static int hf_ulp_additionalPositioningMethods = -1;  /* AdditionalPositioningMethods */
 static int hf_ulp_GANSSPositionMethods_item = -1;  /* GANSSPositionMethod */
 static int hf_ulp_ganssSBASid = -1;               /* T_ganssSBASid */
 static int hf_ulp_gANSSPositioningMethodTypes = -1;  /* GANSSPositioningMethodTypes */
 static int hf_ulp_setAssisted = -1;               /* BOOLEAN */
 static int hf_ulp_setBased = -1;                  /* BOOLEAN */
 static int hf_ulp_autonomous = -1;                /* BOOLEAN */
+static int hf_ulp_AdditionalPositioningMethods_item = -1;  /* AddPosSupport_Element */
+static int hf_ulp_addPosID = -1;                  /* T_addPosID */
+static int hf_ulp_addPosMode = -1;                /* T_addPosMode */
 static int hf_ulp_ganssRequestedCommonAssistanceDataList = -1;  /* GanssRequestedCommonAssistanceDataList */
 static int hf_ulp_ganssRequestedGenericAssistanceDataList = -1;  /* GanssRequestedGenericAssistanceDataList */
 static int hf_ulp_extendedEphemeris = -1;         /* ExtendedEphemeris */
@@ -374,6 +382,7 @@ static int hf_ulp_minsi = -1;                     /* BIT_STRING_SIZE_34 */
 static int hf_ulp_imsi = -1;                      /* T_imsi */
 static int hf_ulp_nai = -1;                       /* IA5String_SIZE_1_1000 */
 static int hf_ulp_iPAddress = -1;                 /* IPAddress */
+static int hf_ulp_ver2_imei = -1;                 /* OCTET_STRING_SIZE_8 */
 static int hf_ulp_sessionSlpID = -1;              /* OCTET_STRING_SIZE_4 */
 static int hf_ulp_slpId = -1;                     /* SLPAddress */
 static int hf_ulp_ipv4Address = -1;               /* OCTET_STRING_SIZE_4 */
@@ -447,6 +456,7 @@ static int hf_ulp_horacc = -1;                    /* INTEGER_0_127 */
 static int hf_ulp_veracc = -1;                    /* INTEGER_0_127 */
 static int hf_ulp_maxLocAge = -1;                 /* INTEGER_0_65535 */
 static int hf_ulp_delay = -1;                     /* INTEGER_0_7 */
+static int hf_ulp_ver2_responseTime = -1;         /* INTEGER_1_128 */
 static int hf_ulp_horvel = -1;                    /* Horvel */
 static int hf_ulp_horandvervel = -1;              /* Horandvervel */
 static int hf_ulp_horveluncert = -1;              /* Horveluncert */
@@ -490,6 +500,11 @@ static int hf_ulp_setAG = -1;                     /* BOOLEAN */
 static int hf_ulp_setSN = -1;                     /* BOOLEAN */
 static int hf_ulp_setRSSI = -1;                   /* BOOLEAN */
 static int hf_ulp_apRepLoc = -1;                  /* BOOLEAN */
+static int hf_ulp_apRL = -1;                      /* BOOLEAN */
+static int hf_ulp_opClass = -1;                   /* BOOLEAN */
+static int hf_ulp_apSSID = -1;                    /* BOOLEAN */
+static int hf_ulp_apPHYType = -1;                 /* BOOLEAN */
+static int hf_ulp_setMACAddress = -1;             /* BOOLEAN */
 static int hf_ulp_supportedWLANApDataList = -1;   /* SEQUENCE_SIZE_1_maxWLANApDataSize_OF_SupportedWLANApData */
 static int hf_ulp_supportedWLANApDataList_item = -1;  /* SupportedWLANApData */
 static int hf_ulp_supportedWLANapsChannel11a = -1;  /* SupportedWLANApsChannel11a */
@@ -532,6 +547,7 @@ static int hf_ulp_umbCell = -1;                   /* UmbCellInformation */
 static int hf_ulp_lteCell = -1;                   /* LteCellInformation */
 static int hf_ulp_wlanAP = -1;                    /* WlanAPInformation */
 static int hf_ulp_wimaxBS = -1;                   /* WimaxBSInformation */
+static int hf_ulp_nrCell = -1;                    /* NRCellInformation */
 static int hf_ulp_cellGlobalIdEUTRA = -1;         /* CellGlobalIdEUTRA */
 static int hf_ulp_physCellId = -1;                /* PhysCellId */
 static int hf_ulp_trackingAreaCode = -1;          /* TrackingAreaCode */
@@ -541,16 +557,22 @@ static int hf_ulp_ta_02 = -1;                     /* INTEGER_0_1282 */
 static int hf_ulp_measResultListEUTRA = -1;       /* MeasResultListEUTRA */
 static int hf_ulp_earfcn = -1;                    /* INTEGER_0_65535 */
 static int hf_ulp_earfcn_ext = -1;                /* INTEGER_65536_262143 */
+static int hf_ulp_rsrpResult_ext = -1;            /* RSRP_Range_Ext */
+static int hf_ulp_rsrqResult_ext = -1;            /* RSRQ_Range_Ext */
+static int hf_ulp_rs_sinrResult = -1;             /* RS_SINR_Range */
+static int hf_ulp_servingInformation5G = -1;      /* ServingInformation5G */
 static int hf_ulp_MeasResultListEUTRA_item = -1;  /* MeasResultEUTRA */
 static int hf_ulp_cgi_Info = -1;                  /* T_cgi_Info */
 static int hf_ulp_cellGlobalId = -1;              /* CellGlobalIdEUTRA */
 static int hf_ulp_measResult = -1;                /* T_measResult */
+static int hf_ulp_neighbourInformation5G = -1;    /* NeighbourInformation5G */
 static int hf_ulp_plmn_Identity = -1;             /* PLMN_Identity */
 static int hf_ulp_cellIdentity_01 = -1;           /* CellIdentity */
 static int hf_ulp_mcc = -1;                       /* MCC */
 static int hf_ulp_mnc = -1;                       /* MNC */
 static int hf_ulp_MCC_item = -1;                  /* MCC_MNC_Digit */
 static int hf_ulp_MNC_item = -1;                  /* MCC_MNC_Digit */
+static int hf_ulp_trackingAreaCode_01 = -1;       /* TrackingAreaCodeNR */
 static int hf_ulp_apMACAddress_02 = -1;           /* T_apMACAddress_02 */
 static int hf_ulp_apTransmitPower = -1;           /* INTEGER_M127_128 */
 static int hf_ulp_apAntennaGain = -1;             /* INTEGER_M127_128 */
@@ -570,9 +592,9 @@ static int hf_ulp_apSignaltoNoiseDelta = -1;      /* INTEGER_0_1 */
 static int hf_ulp_setSignalStrengthDelta = -1;    /* INTEGER_0_1 */
 static int hf_ulp_setSignaltoNoiseDelta = -1;     /* INTEGER_0_1 */
 static int hf_ulp_operatingClass = -1;            /* INTEGER_0_255 */
-static int hf_ulp_apSSID = -1;                    /* T_apSSID */
-static int hf_ulp_apPHYType = -1;                 /* T_apPHYType */
-static int hf_ulp_setMACAddress = -1;             /* T_setMACAddress */
+static int hf_ulp_apSSID_01 = -1;                 /* T_apSSID */
+static int hf_ulp_apPHYType_01 = -1;              /* T_apPHYType */
+static int hf_ulp_setMACAddress_01 = -1;          /* T_setMACAddress */
 static int hf_ulp_rTDValue = -1;                  /* INTEGER_0_16777216 */
 static int hf_ulp_rTDUnits = -1;                  /* RTDUnits */
 static int hf_ulp_rTDAccuracy = -1;               /* INTEGER_0_255 */
@@ -604,6 +626,20 @@ static int hf_ulp_bSTxPower = -1;                 /* INTEGER_0_255 */
 static int hf_ulp_cinr = -1;                      /* INTEGER_0_255 */
 static int hf_ulp_cINRstd = -1;                   /* INTEGER_0_63 */
 static int hf_ulp_bSLocation = -1;                /* ReportedLocation */
+static int hf_ulp_servingCellInformation = -1;    /* ServingCellInformationNR */
+static int hf_ulp_measuredResultsListNR = -1;     /* MeasResultListNR */
+static int hf_ulp_ServingCellInformationNR_item = -1;  /* ServCellNR */
+static int hf_ulp_physCellId_01 = -1;             /* PhysCellIdNR */
+static int hf_ulp_arfcn_NR = -1;                  /* ARFCN_NR */
+static int hf_ulp_cellGlobalId_01 = -1;           /* CellGlobalIdNR */
+static int hf_ulp_ssb_Measurements = -1;          /* NR_Measurements */
+static int hf_ulp_csi_rs_Measurements = -1;       /* NR_Measurements */
+static int hf_ulp_ta_03 = -1;                     /* INTEGER_0_3846 */
+static int hf_ulp_MeasResultListNR_item = -1;     /* MeasResultNR */
+static int hf_ulp_cellIdentityNR = -1;            /* CellIdentityNR */
+static int hf_ulp_rsrp_Range = -1;                /* INTEGER_0_127 */
+static int hf_ulp_rsrq_Range = -1;                /* INTEGER_0_127 */
+static int hf_ulp_sinr_Range = -1;                /* INTEGER_0_127 */
 static int hf_ulp_utran_GPSReferenceTime = -1;    /* UTRAN_GPSReferenceTime */
 static int hf_ulp_gpsReferenceTimeUncertainty = -1;  /* INTEGER_0_127 */
 static int hf_ulp_utranGPSDriftRate = -1;         /* UTRANGPSDriftRate */
@@ -687,6 +723,9 @@ static int hf_ulp_polygonDescription = -1;        /* PolygonDescription */
 static int hf_ulp_polygonHysteresis = -1;         /* INTEGER_1_100000 */
 static int hf_ulp_PolygonDescription_item = -1;   /* Coordinate */
 /* named bits */
+static int hf_ulp_T_addPosMode_standalone = -1;
+static int hf_ulp_T_addPosMode_setBased = -1;
+static int hf_ulp_T_addPosMode_setAssisted = -1;
 static int hf_ulp_GANSSSignals_signal1 = -1;
 static int hf_ulp_GANSSSignals_signal2 = -1;
 static int hf_ulp_GANSSSignals_signal3 = -1;
@@ -697,7 +736,7 @@ static int hf_ulp_GANSSSignals_signal7 = -1;
 static int hf_ulp_GANSSSignals_signal8 = -1;
 
 /*--- End of included file: packet-ulp-hf.c ---*/
-#line 53 "./asn1/ulp/packet-ulp-template.c"
+#line 54 "./asn1/ulp/packet-ulp-template.c"
 static int hf_ulp_mobile_directory_number = -1;
 static int hf_ulp_ganssTimeModels_bit0 = -1;
 static int hf_ulp_ganssTimeModels_bit1 = -1;
@@ -711,6 +750,7 @@ static gint ett_ulp = -1;
 static gint ett_ulp_setid = -1;
 static gint ett_ulp_thirdPartyId = -1;
 static gint ett_ulp_ganssTimeModels = -1;
+static gint ett_ulp_addPosMode = -1;
 
 /*--- Included file: packet-ulp-ett.c ---*/
 #line 1 "./asn1/ulp/packet-ulp-ett.c"
@@ -756,6 +796,7 @@ static gint ett_ulp_UMBAreaId = -1;
 static gint ett_ulp_LTEAreaId = -1;
 static gint ett_ulp_WLANAreaId = -1;
 static gint ett_ulp_WimaxAreaId = -1;
+static gint ett_ulp_NRAreaId = -1;
 static gint ett_ulp_GeoAreaMappingList = -1;
 static gint ett_ulp_Ver2_SUPLTRIGGEREDRESPONSE = -1;
 static gint ett_ulp_ReportingMode = -1;
@@ -799,6 +840,9 @@ static gint ett_ulp_Ver2_PosTechnology_extension = -1;
 static gint ett_ulp_GANSSPositionMethods = -1;
 static gint ett_ulp_GANSSPositionMethod = -1;
 static gint ett_ulp_GANSSPositioningMethodTypes = -1;
+static gint ett_ulp_AdditionalPositioningMethods = -1;
+static gint ett_ulp_AddPosSupport_Element = -1;
+static gint ett_ulp_T_addPosMode = -1;
 static gint ett_ulp_Ver2_RequestedAssistData_extension = -1;
 static gint ett_ulp_GanssRequestedCommonAssistanceDataList = -1;
 static gint ett_ulp_GanssRequestedGenericAssistanceDataList = -1;
@@ -878,6 +922,8 @@ static gint ett_ulp_CellGlobalIdEUTRA = -1;
 static gint ett_ulp_PLMN_Identity = -1;
 static gint ett_ulp_MCC = -1;
 static gint ett_ulp_MNC = -1;
+static gint ett_ulp_ServingInformation5G = -1;
+static gint ett_ulp_NeighbourInformation5G = -1;
 static gint ett_ulp_WlanAPInformation = -1;
 static gint ett_ulp_RTD = -1;
 static gint ett_ulp_ReportedLocation = -1;
@@ -890,6 +936,13 @@ static gint ett_ulp_WimaxBsID = -1;
 static gint ett_ulp_WimaxRTD = -1;
 static gint ett_ulp_WimaxNMRList = -1;
 static gint ett_ulp_WimaxNMR = -1;
+static gint ett_ulp_NRCellInformation = -1;
+static gint ett_ulp_ServingCellInformationNR = -1;
+static gint ett_ulp_ServCellNR = -1;
+static gint ett_ulp_MeasResultListNR = -1;
+static gint ett_ulp_MeasResultNR = -1;
+static gint ett_ulp_CellGlobalIdNR = -1;
+static gint ett_ulp_NR_Measurements = -1;
 static gint ett_ulp_UTRAN_GPSReferenceTimeAssistance = -1;
 static gint ett_ulp_UTRAN_GPSReferenceTime = -1;
 static gint ett_ulp_T_utran_GPSTimingOfCell = -1;
@@ -928,7 +981,7 @@ static gint ett_ulp_PolygonArea = -1;
 static gint ett_ulp_PolygonDescription = -1;
 
 /*--- End of included file: packet-ulp-ett.c ---*/
-#line 67 "./asn1/ulp/packet-ulp-template.c"
+#line 69 "./asn1/ulp/packet-ulp-template.c"
 
 static dissector_handle_t ulp_tcp_handle;
 
@@ -1196,9 +1249,11 @@ ulp_Coordinate_longitude_fmt(gchar *s, guint32 v)
 #define maxWLANApDataSize              128
 #define maxCellReport                  8
 #define maxWimaxBSMeas                 32
+#define maxNRServingCell               32
+#define maxCellReportNR                32
 
 /*--- End of included file: packet-ulp-val.h ---*/
-#line 317 "./asn1/ulp/packet-ulp-template.c"
+#line 319 "./asn1/ulp/packet-ulp-template.c"
 
 typedef struct
 {
@@ -1257,7 +1312,7 @@ dissect_ulp_Version(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
 static int
 dissect_ulp_T_msisdn(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 292 "./asn1/ulp/ulp.cnf"
+#line 303 "./asn1/ulp/ulp.cnf"
   tvbuff_t *msisdn_tvb;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        8, 8, FALSE, &msisdn_tvb);
@@ -1278,7 +1333,7 @@ dissect_ulp_T_msisdn(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 static int
 dissect_ulp_T_mdn(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 302 "./asn1/ulp/ulp.cnf"
+#line 313 "./asn1/ulp/ulp.cnf"
   tvbuff_t *mdn_tvb;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        8, 8, FALSE, &mdn_tvb);
@@ -1309,7 +1364,7 @@ dissect_ulp_BIT_STRING_SIZE_34(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_ulp_T_imsi(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 312 "./asn1/ulp/ulp.cnf"
+#line 323 "./asn1/ulp/ulp.cnf"
   tvbuff_t *imsi_tvb;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        8, 8, FALSE, &imsi_tvb);
@@ -1379,6 +1434,16 @@ dissect_ulp_IPAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 }
 
 
+
+static int
+dissect_ulp_OCTET_STRING_SIZE_8(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       8, 8, FALSE, NULL);
+
+  return offset;
+}
+
+
 static const value_string ulp_SETId_vals[] = {
   {   0, "msisdn" },
   {   1, "mdn" },
@@ -1386,6 +1451,7 @@ static const value_string ulp_SETId_vals[] = {
   {   3, "imsi" },
   {   4, "nai" },
   {   5, "iPAddress" },
+  {   6, "ver2-imei" },
   { 0, NULL }
 };
 
@@ -1396,6 +1462,7 @@ static const per_choice_t SETId_choice[] = {
   {   3, &hf_ulp_imsi            , ASN1_EXTENSION_ROOT    , dissect_ulp_T_imsi },
   {   4, &hf_ulp_nai             , ASN1_EXTENSION_ROOT    , dissect_ulp_IA5String_SIZE_1_1000 },
   {   5, &hf_ulp_iPAddress       , ASN1_EXTENSION_ROOT    , dissect_ulp_IPAddress },
+  {   6, &hf_ulp_ver2_imei       , ASN1_NOT_EXTENSION_ROOT, dissect_ulp_OCTET_STRING_SIZE_8 },
   { 0, NULL, 0, NULL }
 };
 
@@ -1493,10 +1560,10 @@ static const value_string ulp_PosMethod_vals[] = {
   {   2, "agpsSETassistedpref" },
   {   3, "agpsSETbasedpref" },
   {   4, "autonomousGPS" },
-  {   5, "aFLT" },
-  {   6, "eCID" },
-  {   7, "eOTD" },
-  {   8, "oTDOA" },
+  {   5, "aflt" },
+  {   6, "ecid" },
+  {   7, "eotd" },
+  {   8, "otdoa" },
   {   9, "noPosition" },
   {  10, "ver2-historicalDataRetrieval" },
   {  11, "ver2-agnssSETassisted" },
@@ -1505,6 +1572,7 @@ static const value_string ulp_PosMethod_vals[] = {
   {  14, "ver2-agnssSETbasedpref" },
   {  15, "ver2-autonomousGNSS" },
   {  16, "ver2-sessioninfoquery" },
+  {  17, "ver2-mbs" },
   { 0, NULL }
 };
 
@@ -1512,7 +1580,7 @@ static const value_string ulp_PosMethod_vals[] = {
 static int
 dissect_ulp_PosMethod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     10, NULL, TRUE, 7, NULL);
+                                     10, NULL, TRUE, 8, NULL);
 
   return offset;
 }
@@ -1547,7 +1615,7 @@ static const value_string ulp_EncodingType_vals[] = {
 
 static int
 dissect_ulp_EncodingType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 60 "./asn1/ulp/ulp.cnf"
+#line 61 "./asn1/ulp/ulp.cnf"
   guint32 val;
   ulp_private_data_t *ulp_priv = ulp_get_private_data(actx);
 
@@ -1565,7 +1633,7 @@ dissect_ulp_EncodingType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_ulp_T_requestorId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 67 "./asn1/ulp/ulp.cnf"
+#line 68 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
@@ -1627,7 +1695,7 @@ dissect_ulp_FormatIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_ulp_T_clientName(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 99 "./asn1/ulp/ulp.cnf"
+#line 100 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
@@ -1700,7 +1768,7 @@ static const per_sequence_t Notification_sequence[] = {
 
 static int
 dissect_ulp_Notification(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 54 "./asn1/ulp/ulp.cnf"
+#line 55 "./asn1/ulp/ulp.cnf"
   ulp_private_data_t *ulp_priv = ulp_get_private_data(actx);
 
   ulp_priv->notif_enc_type = -1;
@@ -1734,11 +1802,22 @@ dissect_ulp_INTEGER_0_7(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 }
 
 
+
+static int
+dissect_ulp_INTEGER_1_128(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 128U, NULL, FALSE);
+
+  return offset;
+}
+
+
 static const per_sequence_t QoP_sequence[] = {
   { &hf_ulp_horacc          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_INTEGER_0_127 },
   { &hf_ulp_veracc          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_127 },
   { &hf_ulp_maxLocAge       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_65535 },
   { &hf_ulp_delay           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_7 },
+  { &hf_ulp_ver2_responseTime, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_INTEGER_1_128 },
   { NULL, 0, 0, NULL }
 };
 
@@ -1825,6 +1904,11 @@ static const per_sequence_t SupportedWLANInfo_sequence[] = {
   { &hf_ulp_setSN           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
   { &hf_ulp_setRSSI         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
   { &hf_ulp_apRepLoc        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
+  { &hf_ulp_apRL            , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_BOOLEAN },
+  { &hf_ulp_opClass         , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_BOOLEAN },
+  { &hf_ulp_apSSID          , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_BOOLEAN },
+  { &hf_ulp_apPHYType       , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_BOOLEAN },
+  { &hf_ulp_setMACAddress   , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_BOOLEAN },
   { NULL, 0, 0, NULL }
 };
 
@@ -1840,7 +1924,7 @@ dissect_ulp_SupportedWLANInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_ulp_T_apMACAddress_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 545 "./asn1/ulp/ulp.cnf"
+#line 559 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -2004,6 +2088,7 @@ static const per_sequence_t SupportedNetworkInformation_sequence[] = {
   { &hf_ulp_nonServing      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
   { &hf_ulp_uTRANGPSReferenceTime, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
   { &hf_ulp_uTRANGANSSReferenceTime, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
+  { &hf_ulp_nr              , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_BOOLEAN },
   { NULL, 0, 0, NULL }
 };
 
@@ -2153,16 +2238,6 @@ dissect_ulp_ProtLevel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 
 static int
-dissect_ulp_OCTET_STRING_SIZE_8(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       8, 8, FALSE, NULL);
-
-  return offset;
-}
-
-
-
-static int
 dissect_ulp_BIT_STRING_SIZE_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      32, 32, FALSE, NULL, NULL);
@@ -2277,7 +2352,7 @@ dissect_ulp_INTEGER_0_15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_ulp_T_ganssSBASid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 190 "./asn1/ulp/ulp.cnf"
+#line 191 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -2312,8 +2387,24 @@ dissect_ulp_GANSSPositioningMethodTypes(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
 static int
 dissect_ulp_GANSSSignals(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 762 "./asn1/ulp/ulp.cnf"
+  tvbuff_t *val_tvb;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, &val_tvb, NULL);
+
+  if (val_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ulp_GANSSSignals);
+    proto_tree_add_item(subtree, hf_ulp_GANSSSignals_signal1, val_tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ulp_GANSSSignals_signal2, val_tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ulp_GANSSSignals_signal3, val_tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ulp_GANSSSignals_signal4, val_tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ulp_GANSSSignals_signal5, val_tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ulp_GANSSSignals_signal6, val_tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ulp_GANSSSignals_signal7, val_tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ulp_GANSSSignals_signal8, val_tvb, 0, 1, ENC_BIG_ENDIAN);
+  }
+
+
 
   return offset;
 }
@@ -2350,8 +2441,74 @@ dissect_ulp_GANSSPositionMethods(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 }
 
 
+static const value_string ulp_T_addPosID_vals[] = {
+  {   0, "mBS" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_ulp_T_addPosID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ulp_T_addPosMode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 202 "./asn1/ulp/ulp.cnf"
+  tvbuff_t *val_tvb;
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     1, 8, FALSE, &val_tvb, NULL);
+
+  if (val_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ulp_addPosMode);
+    proto_tree_add_item(subtree, hf_ulp_T_addPosMode_standalone, val_tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ulp_T_addPosMode_setBased, val_tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ulp_T_addPosMode_setAssisted, val_tvb, 0, 1, ENC_BIG_ENDIAN);
+  }
+
+
+
+  return offset;
+}
+
+
+static const per_sequence_t AddPosSupport_Element_sequence[] = {
+  { &hf_ulp_addPosID        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_T_addPosID },
+  { &hf_ulp_addPosMode      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_T_addPosMode },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ulp_AddPosSupport_Element(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ulp_AddPosSupport_Element, AddPosSupport_Element_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t AdditionalPositioningMethods_sequence_of[1] = {
+  { &hf_ulp_AdditionalPositioningMethods_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_AddPosSupport_Element },
+};
+
+static int
+dissect_ulp_AdditionalPositioningMethods(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_ulp_AdditionalPositioningMethods, AdditionalPositioningMethods_sequence_of,
+                                                  1, 8, FALSE);
+
+  return offset;
+}
+
+
 static const per_sequence_t Ver2_PosTechnology_extension_sequence[] = {
   { &hf_ulp_gANSSPositionMethods, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_GANSSPositionMethods },
+  { &hf_ulp_additionalPositioningMethods, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_AdditionalPositioningMethods },
   { NULL, 0, 0, NULL }
 };
 
@@ -2669,16 +2826,6 @@ dissect_ulp_EventTriggerCapabilities(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 
 static int
-dissect_ulp_INTEGER_1_128(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 128U, NULL, FALSE);
-
-  return offset;
-}
-
-
-
-static int
 dissect_ulp_INTEGER_1_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             1U, 32U, NULL, FALSE);
@@ -2729,6 +2876,7 @@ static const per_sequence_t SupportedBearers_sequence[] = {
   { &hf_ulp_umb             , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
   { &hf_ulp_wlan            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
   { &hf_ulp_wiMAX           , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_BOOLEAN },
+  { &hf_ulp_nr              , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_BOOLEAN },
   { NULL, 0, 0, NULL }
 };
 
@@ -3504,11 +3652,69 @@ dissect_ulp_INTEGER_65536_262143(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 }
 
 
+
+static int
+dissect_ulp_RSRP_Range_Ext(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            -17, -1, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ulp_RSRQ_Range_Ext(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            -30, 46U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ulp_RS_SINR_Range(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 127U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ulp_TrackingAreaCodeNR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     24, 24, FALSE, NULL, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t NeighbourInformation5G_sequence[] = {
+  { &hf_ulp_trackingAreaCode_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_TrackingAreaCodeNR },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ulp_NeighbourInformation5G(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ulp_NeighbourInformation5G, NeighbourInformation5G_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t T_measResult_sequence[] = {
   { &hf_ulp_rsrpResult      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_RSRP_Range },
   { &hf_ulp_rsrqResult      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_RSRQ_Range },
   { &hf_ulp_earfcn          , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_65535 },
   { &hf_ulp_earfcn_ext      , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_INTEGER_65536_262143 },
+  { &hf_ulp_rsrpResult_ext  , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_RSRP_Range_Ext },
+  { &hf_ulp_rsrqResult_ext  , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_RSRQ_Range_Ext },
+  { &hf_ulp_rs_sinrResult   , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_RS_SINR_Range },
+  { &hf_ulp_neighbourInformation5G, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_NeighbourInformation5G },
   { NULL, 0, 0, NULL }
 };
 
@@ -3551,6 +3757,20 @@ dissect_ulp_MeasResultListEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 }
 
 
+static const per_sequence_t ServingInformation5G_sequence[] = {
+  { &hf_ulp_trackingAreaCode_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_TrackingAreaCodeNR },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ulp_ServingInformation5G(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ulp_ServingInformation5G, ServingInformation5G_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t LteCellInformation_sequence[] = {
   { &hf_ulp_cellGlobalIdEUTRA, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_CellGlobalIdEUTRA },
   { &hf_ulp_physCellId      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_PhysCellId },
@@ -3561,6 +3781,10 @@ static const per_sequence_t LteCellInformation_sequence[] = {
   { &hf_ulp_measResultListEUTRA, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_MeasResultListEUTRA },
   { &hf_ulp_earfcn          , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_65535 },
   { &hf_ulp_earfcn_ext      , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_INTEGER_65536_262143 },
+  { &hf_ulp_rsrpResult_ext  , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_RSRP_Range_Ext },
+  { &hf_ulp_rsrqResult_ext  , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_RSRQ_Range_Ext },
+  { &hf_ulp_rs_sinrResult   , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_RS_SINR_Range },
+  { &hf_ulp_servingInformation5G, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_ServingInformation5G },
   { NULL, 0, 0, NULL }
 };
 
@@ -3576,7 +3800,7 @@ dissect_ulp_LteCellInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_ulp_T_apMACAddress_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 562 "./asn1/ulp/ulp.cnf"
+#line 576 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -3841,7 +4065,7 @@ dissect_ulp_INTEGER_0_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 static int
 dissect_ulp_T_apSSID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 609 "./asn1/ulp/ulp.cnf"
+#line 623 "./asn1/ulp/ulp.cnf"
   tvbuff_t *ssid_tvb;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, -1,
@@ -3884,7 +4108,7 @@ dissect_ulp_T_apPHYType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 static int
 dissect_ulp_T_setMACAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 620 "./asn1/ulp/ulp.cnf"
+#line 634 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -3920,9 +4144,9 @@ static const per_sequence_t WlanAPInformation_sequence[] = {
   { &hf_ulp_setSignalStrengthDelta, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_1 },
   { &hf_ulp_setSignaltoNoiseDelta, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_1 },
   { &hf_ulp_operatingClass  , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_255 },
-  { &hf_ulp_apSSID          , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_T_apSSID },
-  { &hf_ulp_apPHYType       , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_T_apPHYType },
-  { &hf_ulp_setMACAddress   , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_T_setMACAddress },
+  { &hf_ulp_apSSID_01       , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_T_apSSID },
+  { &hf_ulp_apPHYType_01    , ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_T_apPHYType },
+  { &hf_ulp_setMACAddress_01, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ulp_T_setMACAddress },
   { NULL, 0, 0, NULL }
 };
 
@@ -4037,12 +4261,166 @@ dissect_ulp_WimaxBSInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 }
 
 
+
+static int
+dissect_ulp_PhysCellIdNR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 1007U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ulp_ARFCN_NR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 3279165U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ulp_CellIdentityNR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     36, 36, FALSE, NULL, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t CellGlobalIdNR_sequence[] = {
+  { &hf_ulp_plmn_Identity   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_PLMN_Identity },
+  { &hf_ulp_cellIdentityNR  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_CellIdentityNR },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ulp_CellGlobalIdNR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ulp_CellGlobalIdNR, CellGlobalIdNR_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t NR_Measurements_sequence[] = {
+  { &hf_ulp_rsrp_Range      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_127 },
+  { &hf_ulp_rsrq_Range      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_127 },
+  { &hf_ulp_sinr_Range      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_127 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ulp_NR_Measurements(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ulp_NR_Measurements, NR_Measurements_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_ulp_INTEGER_0_3846(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 3846U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t ServCellNR_sequence[] = {
+  { &hf_ulp_physCellId_01   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_PhysCellIdNR },
+  { &hf_ulp_arfcn_NR        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_ARFCN_NR },
+  { &hf_ulp_cellGlobalId_01 , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_CellGlobalIdNR },
+  { &hf_ulp_trackingAreaCode_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_TrackingAreaCodeNR },
+  { &hf_ulp_ssb_Measurements, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_NR_Measurements },
+  { &hf_ulp_csi_rs_Measurements, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_NR_Measurements },
+  { &hf_ulp_ta_03           , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_3846 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ulp_ServCellNR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ulp_ServCellNR, ServCellNR_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t ServingCellInformationNR_sequence_of[1] = {
+  { &hf_ulp_ServingCellInformationNR_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_ServCellNR },
+};
+
+static int
+dissect_ulp_ServingCellInformationNR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_ulp_ServingCellInformationNR, ServingCellInformationNR_sequence_of,
+                                                  1, maxNRServingCell, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t MeasResultNR_sequence[] = {
+  { &hf_ulp_physCellId_01   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_PhysCellIdNR },
+  { &hf_ulp_arfcn_NR        , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_ARFCN_NR },
+  { &hf_ulp_cellGlobalId_01 , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_CellGlobalIdNR },
+  { &hf_ulp_trackingAreaCode_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_TrackingAreaCodeNR },
+  { &hf_ulp_ssb_Measurements, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_NR_Measurements },
+  { &hf_ulp_csi_rs_Measurements, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_NR_Measurements },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ulp_MeasResultNR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ulp_MeasResultNR, MeasResultNR_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t MeasResultListNR_sequence_of[1] = {
+  { &hf_ulp_MeasResultListNR_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ulp_MeasResultNR },
+};
+
+static int
+dissect_ulp_MeasResultListNR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_ulp_MeasResultListNR, MeasResultListNR_sequence_of,
+                                                  1, maxCellReportNR, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t NRCellInformation_sequence[] = {
+  { &hf_ulp_servingCellInformation, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ulp_ServingCellInformationNR },
+  { &hf_ulp_measuredResultsListNR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_MeasResultListNR },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ulp_NRCellInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ulp_NRCellInformation, NRCellInformation_sequence);
+
+  return offset;
+}
+
+
 static const value_string ulp_Ver2_CellInfo_extension_vals[] = {
   {   0, "hrpdCell" },
   {   1, "umbCell" },
   {   2, "lteCell" },
   {   3, "wlanAP" },
   {   4, "wimaxBS" },
+  {   5, "nrCell" },
   { 0, NULL }
 };
 
@@ -4052,6 +4430,7 @@ static const per_choice_t Ver2_CellInfo_extension_choice[] = {
   {   2, &hf_ulp_lteCell         , ASN1_EXTENSION_ROOT    , dissect_ulp_LteCellInformation },
   {   3, &hf_ulp_wlanAP          , ASN1_EXTENSION_ROOT    , dissect_ulp_WlanAPInformation },
   {   4, &hf_ulp_wimaxBS         , ASN1_EXTENSION_ROOT    , dissect_ulp_WimaxBSInformation },
+  {   5, &hf_ulp_nrCell          , ASN1_NOT_EXTENSION_ROOT, dissect_ulp_NRCellInformation },
   { 0, NULL, 0, NULL }
 };
 
@@ -4166,7 +4545,7 @@ dissect_ulp_MultipleLocationIds(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 static int
 dissect_ulp_T_msisdn_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 685 "./asn1/ulp/ulp.cnf"
+#line 699 "./asn1/ulp/ulp.cnf"
   tvbuff_t *msisdn_tvb;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        8, 8, FALSE, &msisdn_tvb);
@@ -4187,7 +4566,7 @@ dissect_ulp_T_msisdn_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 static int
 dissect_ulp_T_sip_uri(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 696 "./asn1/ulp/ulp.cnf"
+#line 710 "./asn1/ulp/ulp.cnf"
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
                                                       1, 255, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:./-_~%#@?", 72,
                                                       NULL);
@@ -4200,7 +4579,7 @@ dissect_ulp_T_sip_uri(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 static int
 dissect_ulp_T_ims_public_identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 701 "./asn1/ulp/ulp.cnf"
+#line 715 "./asn1/ulp/ulp.cnf"
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
                                                       1, 255, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789:./-_~%#@?", 72,
                                                       NULL);
@@ -4213,7 +4592,7 @@ dissect_ulp_T_ims_public_identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static int
 dissect_ulp_T_mdn_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 705 "./asn1/ulp/ulp.cnf"
+#line 719 "./asn1/ulp/ulp.cnf"
   tvbuff_t *mdn_tvb;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        8, 8, FALSE, &mdn_tvb);
@@ -4234,7 +4613,7 @@ dissect_ulp_T_mdn_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 
 static int
 dissect_ulp_T_uri(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 716 "./asn1/ulp/ulp.cnf"
+#line 730 "./asn1/ulp/ulp.cnf"
   offset = dissect_per_restricted_character_string(tvb, offset, actx, tree, hf_index,
                                                       1, 255, FALSE, "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789./-_~%#", 69,
                                                       NULL);
@@ -4465,7 +4844,7 @@ dissect_ulp_PositionEstimate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 static int
 dissect_ulp_T_bearing(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 377 "./asn1/ulp/ulp.cnf"
+#line 391 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -4484,7 +4863,7 @@ dissect_ulp_T_bearing(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 static int
 dissect_ulp_T_horspeed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 388 "./asn1/ulp/ulp.cnf"
+#line 402 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -4518,7 +4897,7 @@ dissect_ulp_Horvel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 
 static int
 dissect_ulp_T_verdirect(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 399 "./asn1/ulp/ulp.cnf"
+#line 413 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -4537,7 +4916,7 @@ dissect_ulp_T_verdirect(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 static int
 dissect_ulp_T_bearing_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 410 "./asn1/ulp/ulp.cnf"
+#line 424 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -4556,7 +4935,7 @@ dissect_ulp_T_bearing_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_ulp_T_horspeed_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 421 "./asn1/ulp/ulp.cnf"
+#line 435 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -4575,7 +4954,7 @@ dissect_ulp_T_horspeed_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_ulp_T_verspeed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 432 "./asn1/ulp/ulp.cnf"
+#line 446 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -4611,7 +4990,7 @@ dissect_ulp_Horandvervel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_ulp_T_bearing_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 443 "./asn1/ulp/ulp.cnf"
+#line 457 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -4630,7 +5009,7 @@ dissect_ulp_T_bearing_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_ulp_T_horspeed_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 454 "./asn1/ulp/ulp.cnf"
+#line 468 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -4649,7 +5028,7 @@ dissect_ulp_T_horspeed_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_ulp_T_uncertspeed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 465 "./asn1/ulp/ulp.cnf"
+#line 479 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -4684,7 +5063,7 @@ dissect_ulp_Horveluncert(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_ulp_T_verdirect_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 476 "./asn1/ulp/ulp.cnf"
+#line 490 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -4703,7 +5082,7 @@ dissect_ulp_T_verdirect_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_ulp_T_bearing_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 487 "./asn1/ulp/ulp.cnf"
+#line 501 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -4722,7 +5101,7 @@ dissect_ulp_T_bearing_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_ulp_T_horspeed_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 498 "./asn1/ulp/ulp.cnf"
+#line 512 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -4741,7 +5120,7 @@ dissect_ulp_T_horspeed_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_ulp_T_verspeed_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 509 "./asn1/ulp/ulp.cnf"
+#line 523 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -4760,7 +5139,7 @@ dissect_ulp_T_verspeed_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_ulp_T_horuncertspeed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 520 "./asn1/ulp/ulp.cnf"
+#line 534 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -4779,7 +5158,7 @@ dissect_ulp_T_horuncertspeed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 static int
 dissect_ulp_T_veruncertspeed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 531 "./asn1/ulp/ulp.cnf"
+#line 545 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -5103,7 +5482,7 @@ dissect_ulp_GanssRequestedCommonAssistanceDataList(tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_ulp_T_ganssId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 201 "./asn1/ulp/ulp.cnf"
+#line 212 "./asn1/ulp/ulp.cnf"
   guint32 val;
   ulp_private_data_t *ulp_priv = ulp_get_private_data(actx);
 
@@ -5121,7 +5500,7 @@ dissect_ulp_T_ganssId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 static int
 dissect_ulp_T_ganssSBASid_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 211 "./asn1/ulp/ulp.cnf"
+#line 222 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -5150,7 +5529,7 @@ dissect_ulp_DGANSS_Sig_Id_Req(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_ulp_T_ganssWeek(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 235 "./asn1/ulp/ulp.cnf"
+#line 246 "./asn1/ulp/ulp.cnf"
   ulp_private_data_t *ulp_priv = ulp_get_private_data(actx);
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -5172,7 +5551,7 @@ dissect_ulp_T_ganssWeek(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 
 static int
 dissect_ulp_T_ganssToe(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 246 "./asn1/ulp/ulp.cnf"
+#line 257 "./asn1/ulp/ulp.cnf"
   guint32 val;
   ulp_private_data_t *ulp_priv = ulp_get_private_data(actx);
 
@@ -5182,7 +5561,7 @@ dissect_ulp_T_ganssToe(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 
 
 
-#line 252 "./asn1/ulp/ulp.cnf"
+#line 263 "./asn1/ulp/ulp.cnf"
   if (ulp_priv->ganss_req_gen_data_ganss_id != 4) {
     /* Not GLONASS */
     proto_item_append_text(actx->created_item, "h");
@@ -5198,7 +5577,7 @@ dissect_ulp_T_ganssToe(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 
 static int
 dissect_ulp_T_t_toeLimit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 260 "./asn1/ulp/ulp.cnf"
+#line 271 "./asn1/ulp/ulp.cnf"
   guint32 val;
   ulp_private_data_t *ulp_priv = ulp_get_private_data(actx);
 
@@ -5208,7 +5587,7 @@ dissect_ulp_T_t_toeLimit(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 
 
-#line 266 "./asn1/ulp/ulp.cnf"
+#line 277 "./asn1/ulp/ulp.cnf"
   if (ulp_priv->ganss_req_gen_data_ganss_id != 4) {
     /* Not GLONASS */
     proto_item_append_text(actx->created_item, "h");
@@ -5270,7 +5649,7 @@ dissect_ulp_GanssNavigationModelData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static int
 dissect_ulp_T_ganssTimeModels(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 222 "./asn1/ulp/ulp.cnf"
+#line 233 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      16, 16, FALSE, &val_tvb, NULL);
@@ -5564,7 +5943,7 @@ dissect_ulp_OCTET_STRING_SIZE_1_8192(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static int
 dissect_ulp_T_rrlpPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 137 "./asn1/ulp/ulp.cnf"
+#line 138 "./asn1/ulp/ulp.cnf"
  tvbuff_t *rrlp_tvb;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -5584,7 +5963,7 @@ dissect_ulp_T_rrlpPayload(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 static int
 dissect_ulp_T_lPPPayload_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 283 "./asn1/ulp/ulp.cnf"
+#line 294 "./asn1/ulp/ulp.cnf"
  tvbuff_t *lpp_tvb;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -6706,7 +7085,7 @@ dissect_ulp_LTEAreaId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 
 static int
 dissect_ulp_T_apMACAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 161 "./asn1/ulp/ulp.cnf"
+#line 162 "./asn1/ulp/ulp.cnf"
   tvbuff_t *val_tvb;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
@@ -6751,6 +7130,32 @@ dissect_ulp_WimaxAreaId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 }
 
 
+
+static int
+dissect_ulp_BIT_STRING_SIZE_36(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     36, 36, FALSE, NULL, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t NRAreaId_sequence[] = {
+  { &hf_ulp_refMCC          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_999 },
+  { &hf_ulp_refMNC          , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_INTEGER_0_999 },
+  { &hf_ulp_refCI_02        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ulp_BIT_STRING_SIZE_36 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ulp_NRAreaId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ulp_NRAreaId, NRAreaId_sequence);
+
+  return offset;
+}
+
+
 static const value_string ulp_AreaId_vals[] = {
   {   0, "gSMAreaId" },
   {   1, "wCDMAAreaId" },
@@ -6760,6 +7165,7 @@ static const value_string ulp_AreaId_vals[] = {
   {   5, "lTEAreaId" },
   {   6, "wLANAreaId" },
   {   7, "wiMAXAreaId" },
+  {   8, "nRAreaId" },
   { 0, NULL }
 };
 
@@ -6772,6 +7178,7 @@ static const per_choice_t AreaId_choice[] = {
   {   5, &hf_ulp_lTEAreaId       , ASN1_EXTENSION_ROOT    , dissect_ulp_LTEAreaId },
   {   6, &hf_ulp_wLANAreaId      , ASN1_EXTENSION_ROOT    , dissect_ulp_WLANAreaId },
   {   7, &hf_ulp_wiMAXAreaId     , ASN1_EXTENSION_ROOT    , dissect_ulp_WimaxAreaId },
+  {   8, &hf_ulp_nRAreaId        , ASN1_NOT_EXTENSION_ROOT, dissect_ulp_NRAreaId },
   { 0, NULL, 0, NULL }
 };
 
@@ -7351,7 +7758,7 @@ static const per_choice_t UlpMessage_choice[] = {
 
 static int
 dissect_ulp_UlpMessage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 44 "./asn1/ulp/ulp.cnf"
+#line 45 "./asn1/ulp/ulp.cnf"
 
 guint32 UlpMessage;
 
@@ -7378,7 +7785,7 @@ static const per_sequence_t ULP_PDU_sequence[] = {
 
 static int
 dissect_ulp_ULP_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 29 "./asn1/ulp/ulp.cnf"
+#line 30 "./asn1/ulp/ulp.cnf"
   proto_item *it;
   proto_tree *ulp_tree;
 
@@ -7388,7 +7795,7 @@ dissect_ulp_ULP_PDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, PSNAME);
   col_clear(actx->pinfo->cinfo, COL_INFO);
 
-#line 40 "./asn1/ulp/ulp.cnf"
+#line 41 "./asn1/ulp/ulp.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, ulp_tree, hf_index,
                                    ett_ulp_ULP_PDU, ULP_PDU_sequence);
 
@@ -7410,7 +7817,7 @@ static int dissect_ULP_PDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_
 
 
 /*--- End of included file: packet-ulp-fn.c ---*/
-#line 333 "./asn1/ulp/packet-ulp-template.c"
+#line 335 "./asn1/ulp/packet-ulp-template.c"
 
 
 static guint
@@ -7975,6 +8382,10 @@ void proto_register_ulp(void) {
       { "wiMAXAreaId", "ulp.wiMAXAreaId_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_ulp_nRAreaId,
+      { "nRAreaId", "ulp.nRAreaId_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_ulp_refMCC,
       { "refMCC", "ulp.refMCC",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -8027,6 +8438,10 @@ void proto_register_ulp(void) {
       { "bsID-LSB", "ulp.bsID_LSB",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_24", HFILL }},
+    { &hf_ulp_refCI_02,
+      { "refCI", "ulp.refCI",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_36", HFILL }},
     { &hf_ulp_GeoAreaMappingList_item,
       { "GeoAreaIndex", "ulp.GeoAreaIndex",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -8331,6 +8746,10 @@ void proto_register_ulp(void) {
       { "wiMAX", "ulp.wiMAX",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
+    { &hf_ulp_nr,
+      { "nr", "ulp.nr",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
     { &hf_ulp_lpp,
       { "lpp", "ulp.lpp",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
@@ -8395,6 +8814,10 @@ void proto_register_ulp(void) {
       { "gANSSPositionMethods", "ulp.gANSSPositionMethods",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_ulp_additionalPositioningMethods,
+      { "additionalPositioningMethods", "ulp.additionalPositioningMethods",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_ulp_GANSSPositionMethods_item,
       { "GANSSPositionMethod", "ulp.GANSSPositionMethod_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -8419,6 +8842,18 @@ void proto_register_ulp(void) {
       { "autonomous", "ulp.autonomous",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
+    { &hf_ulp_AdditionalPositioningMethods_item,
+      { "AddPosSupport-Element", "ulp.AddPosSupport_Element_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ulp_addPosID,
+      { "addPosID", "ulp.addPosID",
+        FT_UINT32, BASE_DEC, VALS(ulp_T_addPosID_vals), 0,
+        NULL, HFILL }},
+    { &hf_ulp_addPosMode,
+      { "addPosMode", "ulp.addPosMode",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_ulp_ganssRequestedCommonAssistanceDataList,
       { "ganssRequestedCommonAssistanceDataList", "ulp.ganssRequestedCommonAssistanceDataList_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -8695,6 +9130,10 @@ void proto_register_ulp(void) {
       { "iPAddress", "ulp.iPAddress",
         FT_UINT32, BASE_DEC, VALS(ulp_IPAddress_vals), 0,
         NULL, HFILL }},
+    { &hf_ulp_ver2_imei,
+      { "ver2-imei", "ulp.ver2_imei",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_8", HFILL }},
     { &hf_ulp_sessionSlpID,
       { "sessionID", "ulp.sessionID",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -8987,6 +9426,10 @@ void proto_register_ulp(void) {
       { "delay", "ulp.delay",
         FT_UINT32, BASE_CUSTOM, CF_FUNC(ulp_QoP_delay_fmt), 0,
         "INTEGER_0_7", HFILL }},
+    { &hf_ulp_ver2_responseTime,
+      { "ver2-responseTime", "ulp.ver2_responseTime",
+        FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0,
+        "INTEGER_1_128", HFILL }},
     { &hf_ulp_horvel,
       { "horvel", "ulp.horvel_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -9159,6 +9602,26 @@ void proto_register_ulp(void) {
       { "apRepLoc", "ulp.apRepLoc",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
+    { &hf_ulp_apRL,
+      { "apRL", "ulp.apRL",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
+    { &hf_ulp_opClass,
+      { "opClass", "ulp.opClass",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
+    { &hf_ulp_apSSID,
+      { "apSSID", "ulp.apSSID",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
+    { &hf_ulp_apPHYType,
+      { "apPHYType", "ulp.apPHYType",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
+    { &hf_ulp_setMACAddress,
+      { "setMACAddress", "ulp.setMACAddress",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
     { &hf_ulp_supportedWLANApDataList,
       { "supportedWLANApDataList", "ulp.supportedWLANApDataList",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -9327,6 +9790,10 @@ void proto_register_ulp(void) {
       { "wimaxBS", "ulp.wimaxBS_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "WimaxBSInformation", HFILL }},
+    { &hf_ulp_nrCell,
+      { "nrCell", "ulp.nrCell_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "NRCellInformation", HFILL }},
     { &hf_ulp_cellGlobalIdEUTRA,
       { "cellGlobalIdEUTRA", "ulp.cellGlobalIdEUTRA_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -9363,6 +9830,22 @@ void proto_register_ulp(void) {
       { "earfcn-ext", "ulp.earfcn_ext",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_65536_262143", HFILL }},
+    { &hf_ulp_rsrpResult_ext,
+      { "rsrpResult-ext", "ulp.rsrpResult_ext",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "RSRP_Range_Ext", HFILL }},
+    { &hf_ulp_rsrqResult_ext,
+      { "rsrqResult-ext", "ulp.rsrqResult_ext",
+        FT_INT32, BASE_DEC, NULL, 0,
+        "RSRQ_Range_Ext", HFILL }},
+    { &hf_ulp_rs_sinrResult,
+      { "rs-sinrResult", "ulp.rs_sinrResult",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "RS_SINR_Range", HFILL }},
+    { &hf_ulp_servingInformation5G,
+      { "servingInformation5G", "ulp.servingInformation5G_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_ulp_MeasResultListEUTRA_item,
       { "MeasResultEUTRA", "ulp.MeasResultEUTRA_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -9377,6 +9860,10 @@ void proto_register_ulp(void) {
         "CellGlobalIdEUTRA", HFILL }},
     { &hf_ulp_measResult,
       { "measResult", "ulp.measResult_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ulp_neighbourInformation5G,
+      { "neighbourInformation5G", "ulp.neighbourInformation5G_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_ulp_plmn_Identity,
@@ -9403,6 +9890,10 @@ void proto_register_ulp(void) {
       { "MCC-MNC-Digit", "ulp.MCC_MNC_Digit",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_ulp_trackingAreaCode_01,
+      { "trackingAreaCode", "ulp.trackingAreaCode",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "TrackingAreaCodeNR", HFILL }},
     { &hf_ulp_apMACAddress_02,
       { "apMACAddress", "ulp.apMACAddress",
         FT_ETHER, BASE_NONE, NULL, 0,
@@ -9479,15 +9970,15 @@ void proto_register_ulp(void) {
       { "operatingClass", "ulp.operatingClass",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_0_255", HFILL }},
-    { &hf_ulp_apSSID,
+    { &hf_ulp_apSSID_01,
       { "apSSID", "ulp.apSSID",
         FT_STRING, STR_ASCII, NULL, 0,
         NULL, HFILL }},
-    { &hf_ulp_apPHYType,
+    { &hf_ulp_apPHYType_01,
       { "apPHYType", "ulp.apPHYType",
         FT_UINT32, BASE_DEC, VALS(ulp_T_apPHYType_vals), 0,
         NULL, HFILL }},
-    { &hf_ulp_setMACAddress,
+    { &hf_ulp_setMACAddress_01,
       { "setMACAddress", "ulp.setMACAddress",
         FT_ETHER, BASE_NONE, NULL, 0,
         NULL, HFILL }},
@@ -9615,6 +10106,62 @@ void proto_register_ulp(void) {
       { "bSLocation", "ulp.bSLocation_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "ReportedLocation", HFILL }},
+    { &hf_ulp_servingCellInformation,
+      { "servingCellInformation", "ulp.servingCellInformation",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ServingCellInformationNR", HFILL }},
+    { &hf_ulp_measuredResultsListNR,
+      { "measuredResultsListNR", "ulp.measuredResultsListNR",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "MeasResultListNR", HFILL }},
+    { &hf_ulp_ServingCellInformationNR_item,
+      { "ServCellNR", "ulp.ServCellNR_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ulp_physCellId_01,
+      { "physCellId", "ulp.physCellId",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "PhysCellIdNR", HFILL }},
+    { &hf_ulp_arfcn_NR,
+      { "arfcn-NR", "ulp.arfcn_NR",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ulp_cellGlobalId_01,
+      { "cellGlobalId", "ulp.cellGlobalId_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CellGlobalIdNR", HFILL }},
+    { &hf_ulp_ssb_Measurements,
+      { "ssb-Measurements", "ulp.ssb_Measurements_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "NR_Measurements", HFILL }},
+    { &hf_ulp_csi_rs_Measurements,
+      { "csi-rs-Measurements", "ulp.csi_rs_Measurements_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "NR_Measurements", HFILL }},
+    { &hf_ulp_ta_03,
+      { "ta", "ulp.ta",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_3846", HFILL }},
+    { &hf_ulp_MeasResultListNR_item,
+      { "MeasResultNR", "ulp.MeasResultNR_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ulp_cellIdentityNR,
+      { "cellIdentityNR", "ulp.cellIdentityNR",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ulp_rsrp_Range,
+      { "rsrp-Range", "ulp.rsrp_Range",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_127", HFILL }},
+    { &hf_ulp_rsrq_Range,
+      { "rsrq-Range", "ulp.rsrq_Range",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_127", HFILL }},
+    { &hf_ulp_sinr_Range,
+      { "sinr-Range", "ulp.sinr_Range",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_127", HFILL }},
     { &hf_ulp_utran_GPSReferenceTime,
       { "utran-GPSReferenceTime", "ulp.utran_GPSReferenceTime_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -9943,6 +10490,18 @@ void proto_register_ulp(void) {
       { "Coordinate", "ulp.Coordinate_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_ulp_T_addPosMode_standalone,
+      { "standalone", "ulp.standalone",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_ulp_T_addPosMode_setBased,
+      { "setBased", "ulp.setBased",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_ulp_T_addPosMode_setAssisted,
+      { "setAssisted", "ulp.setAssisted",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
     { &hf_ulp_GANSSSignals_signal1,
       { "signal1", "ulp.signal1",
         FT_BOOLEAN, 8, NULL, 0x80,
@@ -9977,7 +10536,7 @@ void proto_register_ulp(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ulp-hfarr.c ---*/
-#line 359 "./asn1/ulp/packet-ulp-template.c"
+#line 361 "./asn1/ulp/packet-ulp-template.c"
     { &hf_ulp_mobile_directory_number,
       { "Mobile Directory Number", "ulp.mobile_directory_number",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -10014,6 +10573,7 @@ void proto_register_ulp(void) {
     &ett_ulp_setid,
     &ett_ulp_thirdPartyId,
     &ett_ulp_ganssTimeModels,
+    &ett_ulp_addPosMode,
 
 /*--- Included file: packet-ulp-ettarr.c ---*/
 #line 1 "./asn1/ulp/packet-ulp-ettarr.c"
@@ -10059,6 +10619,7 @@ void proto_register_ulp(void) {
     &ett_ulp_LTEAreaId,
     &ett_ulp_WLANAreaId,
     &ett_ulp_WimaxAreaId,
+    &ett_ulp_NRAreaId,
     &ett_ulp_GeoAreaMappingList,
     &ett_ulp_Ver2_SUPLTRIGGEREDRESPONSE,
     &ett_ulp_ReportingMode,
@@ -10102,6 +10663,9 @@ void proto_register_ulp(void) {
     &ett_ulp_GANSSPositionMethods,
     &ett_ulp_GANSSPositionMethod,
     &ett_ulp_GANSSPositioningMethodTypes,
+    &ett_ulp_AdditionalPositioningMethods,
+    &ett_ulp_AddPosSupport_Element,
+    &ett_ulp_T_addPosMode,
     &ett_ulp_Ver2_RequestedAssistData_extension,
     &ett_ulp_GanssRequestedCommonAssistanceDataList,
     &ett_ulp_GanssRequestedGenericAssistanceDataList,
@@ -10181,6 +10745,8 @@ void proto_register_ulp(void) {
     &ett_ulp_PLMN_Identity,
     &ett_ulp_MCC,
     &ett_ulp_MNC,
+    &ett_ulp_ServingInformation5G,
+    &ett_ulp_NeighbourInformation5G,
     &ett_ulp_WlanAPInformation,
     &ett_ulp_RTD,
     &ett_ulp_ReportedLocation,
@@ -10193,6 +10759,13 @@ void proto_register_ulp(void) {
     &ett_ulp_WimaxRTD,
     &ett_ulp_WimaxNMRList,
     &ett_ulp_WimaxNMR,
+    &ett_ulp_NRCellInformation,
+    &ett_ulp_ServingCellInformationNR,
+    &ett_ulp_ServCellNR,
+    &ett_ulp_MeasResultListNR,
+    &ett_ulp_MeasResultNR,
+    &ett_ulp_CellGlobalIdNR,
+    &ett_ulp_NR_Measurements,
     &ett_ulp_UTRAN_GPSReferenceTimeAssistance,
     &ett_ulp_UTRAN_GPSReferenceTime,
     &ett_ulp_T_utran_GPSTimingOfCell,
@@ -10231,7 +10804,7 @@ void proto_register_ulp(void) {
     &ett_ulp_PolygonDescription,
 
 /*--- End of included file: packet-ulp-ettarr.c ---*/
-#line 396 "./asn1/ulp/packet-ulp-template.c"
+#line 399 "./asn1/ulp/packet-ulp-template.c"
   };
 
   module_t *ulp_module;

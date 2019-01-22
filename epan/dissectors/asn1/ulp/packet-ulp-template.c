@@ -1,6 +1,7 @@
 /* packet-ulp.c
  * Routines for OMA UserPlane Location Protocol packet dissection
  * Copyright 2006, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2014-2019, Pascal Quantin <pascal.quantin@gmail.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -8,7 +9,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * ref OMA-TS-ULP-V2_0_2-20140708-A
+ * ref OMA-TS-ULP-V2_0_4-20181213-A
  * http://www.openmobilealliance.org
  */
 
@@ -63,6 +64,7 @@ static gint ett_ulp = -1;
 static gint ett_ulp_setid = -1;
 static gint ett_ulp_thirdPartyId = -1;
 static gint ett_ulp_ganssTimeModels = -1;
+static gint ett_ulp_addPosMode = -1;
 #include "packet-ulp-ett.c"
 
 static dissector_handle_t ulp_tcp_handle;
@@ -392,6 +394,7 @@ void proto_register_ulp(void) {
     &ett_ulp_setid,
     &ett_ulp_thirdPartyId,
     &ett_ulp_ganssTimeModels,
+    &ett_ulp_addPosMode,
 #include "packet-ulp-ettarr.c"
   };
 

@@ -1,6 +1,7 @@
 # upl.cnf
 # upl conformation file
 # Copyright 2006-2010 Anders Broman
+# Copyright 2014-2019 Pascal Quantin
 
 #.OPT
 PER
@@ -197,6 +198,16 @@ GANSSPositionMethod/ganssId STRINGS=VALS(ulp_ganss_id_vals)
 #.TYPE_ATTR
 GANSSPositionMethod/ganssSBASid TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(ulp_ganss_sbas_id_vals)
 
+#.FN_BODY AddPosSupport-Element/addPosMode VAL_PTR=&val_tvb
+  tvbuff_t *val_tvb;
+%(DEFAULT_BODY)s
+  if (val_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ulp_addPosMode);
+    proto_tree_add_item(subtree, hf_ulp_T_addPosMode_standalone, val_tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ulp_T_addPosMode_setBased, val_tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ulp_T_addPosMode_setAssisted, val_tvb, 0, 1, ENC_BIG_ENDIAN);
+  }
+
 #.FN_BODY GanssReqGenericData/ganssId VAL_PTR=&val
   guint32 val;
   ulp_private_data_t *ulp_priv = ulp_get_private_data(actx);
@@ -372,6 +383,9 @@ QoP/maxLocAge DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
 #.TYPE_ATTR
 QoP/delay DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(ulp_QoP_delay_fmt)
+
+#.TYPE_ATTR
+QoP/ver2-responseTime DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
 #.FN_BODY Horvel/bearing VAL_PTR=&val_tvb HF_INDEX=-1
   tvbuff_t *val_tvb;
@@ -743,5 +757,20 @@ EllipticalArea/angle DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_degree_deg
 
 #.TYPE_ATTR
 PolygonArea/polygonHysteresis DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_meters
+
+#.FN_BODY GANSSSignals VAL_PTR=&val_tvb
+  tvbuff_t *val_tvb;
+%(DEFAULT_BODY)s
+  if (val_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_ulp_GANSSSignals);
+    proto_tree_add_item(subtree, hf_ulp_GANSSSignals_signal1, val_tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ulp_GANSSSignals_signal2, val_tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ulp_GANSSSignals_signal3, val_tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ulp_GANSSSignals_signal4, val_tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ulp_GANSSSignals_signal5, val_tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ulp_GANSSSignals_signal6, val_tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ulp_GANSSSignals_signal7, val_tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ulp_GANSSSignals_signal8, val_tvb, 0, 1, ENC_BIG_ENDIAN);
+  }
 
 #.END
