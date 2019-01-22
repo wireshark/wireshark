@@ -214,7 +214,6 @@ endif()
 if(BUILD_randpktdump)
 	set(randpktdump_LIBS
 		randpkt_core
-		ui
 		wiretap
 		${GLIB2_LIBRARIES}
 		${ZLIB_LIBRARIES}
@@ -236,7 +235,6 @@ endif()
 
 if(BUILD_sdjournal AND SYSTEMD_FOUND)
 	set(sdjournal_LIBS
-		ui
 		wiretap
 		writecap
 		wsutil

@@ -28,6 +28,8 @@ set_target_properties(randpkt_core PROPERTIES
 	LINK_FLAGS "${WS_LINK_FLAGS}"
 	FOLDER "Libs")
 
+target_link_libraries(randpkt_core PUBLIC ui)
+
 CHECKAPI(
 	NAME
 	  randpkt_core-base
