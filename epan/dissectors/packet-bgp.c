@@ -134,17 +134,21 @@ static dissector_handle_t bgp_handle;
 #define BGP_OPTION_AUTHENTICATION    1   /* RFC1771 */
 #define BGP_OPTION_CAPABILITY        2   /* RFC2842 */
 
-/* https://www.iana.org/assignments/capability-codes/ (last updated 2015-09-30) */
+/* https://www.iana.org/assignments/capability-codes.xhtml (last updated 2018-08-21) */
 /* BGP capability code */
-#define BGP_CAPABILITY_RESERVED                     0   /* RFC2434 */
-#define BGP_CAPABILITY_MULTIPROTOCOL                1   /* RFC2858 */
-#define BGP_CAPABILITY_ROUTE_REFRESH                2   /* RFC2918 */
-#define BGP_CAPABILITY_COOPERATIVE_ROUTE_FILTERING  3   /* RFC5291 */
-#define BGP_CAPABILITY_MULTIPLE_ROUTE_DEST          4   /* RFC3107 */
-#define BGP_CAPABILITY_EXTENDED_NEXT_HOP            5   /* RFC5549 */
-#define BGP_CAPABILITY_EXTENDED_MESSAGE             6   /* draft-ietf-idr-bgp-extended-messages */
+#define BGP_CAPABILITY_RESERVED                      0  /* RFC5492 */
+#define BGP_CAPABILITY_MULTIPROTOCOL                 1  /* RFC2858 */
+#define BGP_CAPABILITY_ROUTE_REFRESH                 2  /* RFC2918 */
+#define BGP_CAPABILITY_COOPERATIVE_ROUTE_FILTERING   3  /* RFC5291 */
+#define BGP_CAPABILITY_MULTIPLE_ROUTE_DEST           4  /* RFC8277 Deprecated */
+#define BGP_CAPABILITY_EXTENDED_NEXT_HOP             5  /* RFC5549 */
+#define BGP_CAPABILITY_EXTENDED_MESSAGE              6  /* draft-ietf-idr-bgp-extended-messages */
+#define BGP_CAPABILITY_BGPSEC                        7  /* RFC8205 */
+#define BGP_CAPABILITY_MULTIPLE_LABELS               8  /* RFC8277 */
+#define BGP_CAPABILITY_BGP_ROLE                      9  /* draft-ietf-idr-bgp-open-policy */
 #define BGP_CAPABILITY_GRACEFUL_RESTART             64  /* RFC4724 */
 #define BGP_CAPABILITY_4_OCTET_AS_NUMBER            65  /* RFC6793 */
+#define BGP_CAPABILITY_DYNAMIC_CAPABILITY_CISCO     66  /* Cisco Dynamic capabaility*/
 #define BGP_CAPABILITY_DYNAMIC_CAPABILITY           67  /* draft-ietf-idr-dynamic-cap */
 #define BGP_CAPABILITY_MULTISESSION                 68  /* draft-ietf-idr-bgp-multisession */
 #define BGP_CAPABILITY_ADDITIONAL_PATHS             69  /* [RFC7911] */
@@ -1279,8 +1283,12 @@ static const value_string capability_vals[] = {
     { BGP_CAPABILITY_MULTIPLE_ROUTE_DEST,           "Multiple routes to a destination capability" },
     { BGP_CAPABILITY_EXTENDED_NEXT_HOP,             "Extended Next Hop Encoding" },
     { BGP_CAPABILITY_EXTENDED_MESSAGE,              "BGP-Extended Message" },
+    { BGP_CAPABILITY_BGPSEC,                        "BGPsec capability" },
+    { BGP_CAPABILITY_MULTIPLE_LABELS,               "Multiple Labels capability" },
+    { BGP_CAPABILITY_BGP_ROLE,                      "BGP Role" },
     { BGP_CAPABILITY_GRACEFUL_RESTART,              "Graceful Restart capability" },
     { BGP_CAPABILITY_4_OCTET_AS_NUMBER,             "Support for 4-octet AS number capability" },
+    { BGP_CAPABILITY_DYNAMIC_CAPABILITY_CISCO,      "Deprecated Dynamic Capability (Cisco)" },
     { BGP_CAPABILITY_DYNAMIC_CAPABILITY,            "Support for Dynamic capability" },
     { BGP_CAPABILITY_MULTISESSION,                  "Multisession BGP Capability" },
     { BGP_CAPABILITY_ADDITIONAL_PATHS,              "Support for Additional Paths" },
