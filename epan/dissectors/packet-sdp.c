@@ -2835,10 +2835,10 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                 stored_setup_info = (sdp_setup_info_t *)wmem_array_index(sdp_conv_info_list, i);
                 if (stored_setup_info->hf_id) {
                     if (stored_setup_info->hf_type == SDP_TRACE_ID_HF_TYPE_STR) {
-                        item = proto_tree_add_string(sdp_tree, stored_setup_info->hf_id, tvb, 0, 0, stored_setup_info->trace_id);
+                        item = proto_tree_add_string(sdp_tree, stored_setup_info->hf_id, tvb, 0, 0, stored_setup_info->trace_id.str);
                         PROTO_ITEM_SET_GENERATED(item);
                     } else if (stored_setup_info->hf_type == SDP_TRACE_ID_HF_TYPE_GUINT32) {
-                        item = proto_tree_add_uint(sdp_tree, stored_setup_info->hf_id, tvb, 0, 0, stored_setup_info->trace_id_num);
+                        item = proto_tree_add_uint(sdp_tree, stored_setup_info->hf_id, tvb, 0, 0, stored_setup_info->trace_id.num);
                         PROTO_ITEM_SET_GENERATED(item);
                     }
                 }

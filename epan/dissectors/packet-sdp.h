@@ -44,8 +44,10 @@ typedef struct _sdp_conv_info {
 typedef struct _sdp_setup_info {
     int  hf_id;                         /* Header field to use */
     enum sdp_trace_id_hf_type hf_type;  /* Indicates which of the following variables to use( add guint32 etc as needed)*/
-    gchar *trace_id;                    /* The trace id if the type is str*/
-    guint32 trace_id_num;               /* Numerical trace id */
+    union {
+        gchar  *str;                    /* The trace id if the hf_type is str */
+        guint32 num;                    /* Numerical trace id */
+    } trace_id;
 } sdp_setup_info_t;
 
 extern void setup_sdp_transport(tvbuff_t *tvb, packet_info *pinfo, enum sdp_exchange_type type, int request_frame, const gboolean delay, sdp_setup_info_t *setup_info);

@@ -3030,7 +3030,7 @@ dissect_megaco_LocalRemotedescriptor(tvbuff_t *tvb, proto_tree *megaco_mediadesc
     if ((context != 0) && (context < 0xfffffffe)) {
         setup_info.hf_id = hf_megaco_Context;
         setup_info.hf_type = SDP_TRACE_ID_HF_TYPE_GUINT32;
-        setup_info.trace_id_num = context;
+        setup_info.trace_id.num = context;
         message_info.data = &setup_info;
     }
 
