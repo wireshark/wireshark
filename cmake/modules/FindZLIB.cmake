@@ -103,7 +103,8 @@ ELSE()
     INCLUDE(CMakePushCheckState)
     INCLUDE(CheckFunctionExists)
     CMAKE_PUSH_CHECK_STATE()
-    SET(CMAKE_REQUIRED_LIBRARIES ${ZLIB_LIBRARY})
+    set(CMAKE_REQUIRED_INCLUDES ${ZLIB_INCLUDE_DIR})
+    set(CMAKE_REQUIRED_LIBRARIES ${ZLIB_LIBRARY})
     #
     # Check for inflate() in zlib, to make sure the zlib library is
     # usable.
