@@ -952,7 +952,6 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
                     adj_offset += 4;
                     proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_adj_rec_ident_ospf,
                                         tvb, adj_offset, 4, ENC_NA);
-                    adj_offset += 4;
                     break;
                 case SUB_TLV_FEC_SR_PROTO_ISIS:
                     proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_adj_adv_ident_isis,
@@ -960,7 +959,6 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
                     adj_offset += 6;
                     proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_adj_rec_ident_isis,
                                         tvb, adj_offset, 6, ENC_NA);
-                    adj_offset += 6;
                     break;
                 case SUB_TLV_FEC_SR_PROTO_ANY:
                     proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_adj_adv_ident,
@@ -968,7 +966,6 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto
                     adj_offset += 4;
                     proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_igp_adj_rec_ident,
                                         tvb, adj_offset, 4, ENC_NA);
-                    adj_offset += 4;
                     break;
             }
             break;
