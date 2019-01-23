@@ -122,29 +122,29 @@
 static int debug = 0;
 
 /* Dummy Ethernet header */
-static int hdr_ethernet = FALSE;
+static gboolean hdr_ethernet = FALSE;
 static guint32 hdr_ethernet_proto = 0;
 
 /* Dummy IP header */
-static int hdr_ip = FALSE;
+static gboolean hdr_ip = FALSE;
 static guint hdr_ip_proto = 0;
 
 /* Dummy UDP header */
-static int hdr_udp = FALSE;
+static gboolean hdr_udp = FALSE;
 static guint32 hdr_dest_port = 0;
 static guint32 hdr_src_port = 0;
 
 /* Dummy TCP header */
-static int hdr_tcp = FALSE;
+static gboolean hdr_tcp = FALSE;
 
 /* Dummy SCTP header */
-static int hdr_sctp = FALSE;
+static gboolean hdr_sctp = FALSE;
 static guint32 hdr_sctp_src  = 0;
 static guint32 hdr_sctp_dest = 0;
 static guint32 hdr_sctp_tag  = 0;
 
 /* Dummy DATA chunk header */
-static int hdr_data_chunk = FALSE;
+static gboolean hdr_data_chunk = FALSE;
 static guint8  hdr_data_chunk_type = 0;
 static guint8  hdr_data_chunk_bits = 3;
 static guint32 hdr_data_chunk_tsn  = 0;
@@ -153,7 +153,7 @@ static guint16 hdr_data_chunk_ssn  = 0;
 static guint32 hdr_data_chunk_ppid = 0;
 
 /* Dummy ExportPdu header */
-static int hdr_export_pdu = FALSE;
+static gboolean hdr_export_pdu = FALSE;
 static gchar* hdr_export_pdu_payload = NULL;
 
 static gboolean has_direction = FALSE;
