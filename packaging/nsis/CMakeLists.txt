@@ -51,7 +51,7 @@ file(TO_NATIVE_PATH "${GLIB2_DLL_DIR}/../.." _wireshark_lib_dir)
 set(WIRESHARK_LIB_DIR "${_wireshark_lib_dir}")
 
 # Must match ${WIRESHARK_LIB_DIR}/Npcap-X.Y.Z.exe
-set(NPCAP_PACKAGE_VERSION "0.99-r8")
+set(NPCAP_PACKAGE_VERSION "0.99-r9")
 
 set(USBPCAP_PACKAGE_VERSION "1.2.0.4")
 

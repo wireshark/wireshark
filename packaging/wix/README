@@ -18,7 +18,7 @@ a file (custom_mibs.txt, etc) for inclusion
 
 
 Known issues:
-1. It does not include installing WinPcap or USBPcap (the NSIS installer does).  These
+1. It does not include installing Npcap or USBPcap (the NSIS installer does).  These
 currently come as NSIS installers and it seems it would make more sense to "bundle" them
 with WiX rather than include them as part of the Wireshark.msi.
 2. Needs more flexible handling of VC CRT Merge module (need build script to provide
