@@ -1468,7 +1468,8 @@ proto_tree_write_node_ek(proto_node *node, write_json_data *pdata)
     g_hash_table_destroy(attr_table);
 
     // Print attributes
-    GSList *current_attr = g_slist_reverse(attr_list);
+    attr_list = g_slist_reverse(attr_list);
+    GSList *current_attr = attr_list;
     while (current_attr != NULL) {
         GSList *attr_instances = (GSList *) current_attr->data;
 
