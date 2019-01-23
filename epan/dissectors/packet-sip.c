@@ -4676,7 +4676,6 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
          */
         sdp_setup_info_t setup_info;
 
-        setup_info.setup_proto = g_strdup("SIP");
         setup_info.hf_id = hf_sip_call_id_gen;
         setup_info.hf_type = SDP_TRACE_ID_HF_TYPE_STR;
         setup_info.trace_id = g_strdup(call_id);
