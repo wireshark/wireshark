@@ -1341,7 +1341,11 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
         block_read -    /* fixed and variable part, including padding */
         (int)sizeof(bh->block_total_length);
 
-    /* Allocate enough memory to hold all options */
+    /* Ensure sufficient temporary memory to hold all options. It is not freed
+     * on return to avoid frequent reallocations. When called for sequential
+     * read (wtap_read), "wblock->rec == &wth->rec" (options_buf will be freed
+     * by wtap_sequential_close). For random access, memory is managed by the
+     * caller of wtap_seek_read. */
     opt_cont_buf_len = to_read;
     ws_buffer_assure_space(&wblock->rec->options_buf, opt_cont_buf_len);
     opt_ptr = ws_buffer_start_ptr(&wblock->rec->options_buf);

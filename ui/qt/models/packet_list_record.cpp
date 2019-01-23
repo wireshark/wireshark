@@ -110,12 +110,12 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_color)
         return;
     }
 
-    memset(&rec, 0, sizeof rec);
 
     if (dissect_columns) {
         cinfo = &cap_file->cinfo;
     }
 
+    wtap_rec_init(&rec);
     ws_buffer_init(&buf, 1500);
     if (!cf_read_record_r(cap_file, fdata_, &rec, &buf)) {
         /*
@@ -138,6 +138,7 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_color)
             colorized_ = true;
         }
         ws_buffer_free(&buf);
+        wtap_rec_cleanup(&rec);
         return;    /* error reading the record */
     }
 
@@ -193,6 +194,7 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_color)
 
     epan_dissect_cleanup(&edt);
     ws_buffer_free(&buf);
+    wtap_rec_cleanup(&rec);
 }
 
 // This assumes only one packet list. We might want to move this to

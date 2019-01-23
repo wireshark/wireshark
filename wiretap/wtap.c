@@ -1195,6 +1195,8 @@ wtap_sequential_close(wtap *wth)
 		wth->fh = NULL;
 	}
 
+	wtap_rec_cleanup(&wth->rec);
+
 	if (wth->rec_data) {
 		ws_buffer_free(wth->rec_data);
 		g_free(wth->rec_data);
