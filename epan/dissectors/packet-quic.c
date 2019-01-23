@@ -91,7 +91,7 @@ static int hf_quic_ae_gap = -1;
 static int hf_quic_ae_ack_block = -1;
 static int hf_quic_rsts_stream_id = -1;
 static int hf_quic_rsts_application_error_code = -1;
-static int hf_quic_rsts_final_offset = -1;
+static int hf_quic_rsts_final_size = -1;
 static int hf_quic_ss_stream_id = -1;
 static int hf_quic_ss_application_error_code = -1;
 static int hf_quic_crypto_offset = -1;
@@ -427,7 +427,7 @@ static const range_string quic_transport_error_code_vals[] = {
     { 0x0003, 0x0003, "FLOW_CONTROL_ERROR" },
     { 0x0004, 0x0004, "STREAM_ID_ERROR" },
     { 0x0005, 0x0005, "STREAM_STATE_ERROR" },
-    { 0x0006, 0x0006, "FINAL_OFFSET_ERROR" },
+    { 0x0006, 0x0006, "FINAL_SIZE_ERROR" },
     { 0x0007, 0x0007, "FRAME_ENCODING_ERROR" },
     { 0x0008, 0x0008, "TRANSPORT_PARAMETER_ERROR" },
     { 0x0009, 0x0009, "VERSION_NEGOTIATION_ERROR" },
@@ -993,7 +993,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         break;
         case FT_RESET_STREAM:{
             guint64 stream_id;
-            guint32 error_code, len_streamid = 0, len_finaloffset = 0;
+            guint32 error_code, len_streamid = 0, len_finalsize = 0;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", RS");
 
@@ -1003,8 +1003,8 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_tree_add_item_ret_uint(ft_tree, hf_quic_rsts_application_error_code, tvb, offset, 2, ENC_BIG_ENDIAN, &error_code);
             offset += 2;
 
-            proto_tree_add_item_ret_varint(ft_tree, hf_quic_rsts_final_offset, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_finaloffset);
-            offset += len_finaloffset;
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_rsts_final_size, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_finalsize);
+            offset += len_finalsize;
 
             proto_item_append_text(ti_ft, " Stream ID: %" G_GINT64_MODIFIER "u, Error code: %s", stream_id, val_to_str(error_code, quic_application_error_code_vals, "0x%04x"));
         }
@@ -2635,10 +2635,10 @@ proto_register_quic(void)
               FT_UINT16, BASE_DEC, VALS(quic_application_error_code_vals), 0x0,
               "Indicates why the stream is being closed", HFILL }
         },
-        { &hf_quic_rsts_final_offset,
-            { "Final offset", "quic.rsts.byte_offset",
+        { &hf_quic_rsts_final_size,
+            { "Final Size", "quic.rsts.final_size",
               FT_UINT64, BASE_DEC, NULL, 0x0,
-              "Indicating the absolute byte offset of the end of data written on this stream", HFILL }
+              "The final size of the stream by the RESET_STREAM sender (in bytes)", HFILL }
         },
         /* STOP_SENDING */
         { &hf_quic_ss_stream_id,
