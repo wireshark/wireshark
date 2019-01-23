@@ -223,6 +223,7 @@ nettrace_parse_begin_time(guint8 *curr_pos, wtap_rec *rec)
 	guint year, month, day, hour, minute, second, frac;
 	int UTCdiffh = 0;
 	guint UTCdiffm = 0;
+	int time_length = 0;
 	int scan_found;
 	static const guint days_in_month[12] = {
 	    31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31
@@ -238,24 +239,23 @@ nettrace_parse_begin_time(guint8 *curr_pos, wtap_rec *rec)
 	if (length < 2) {
 		return next_pos + 3;
 	}
-	/* Scan for this format: 2001-09-11T09:30:47 Then we vill parse any fractions and UTC offset */
-	scan_found = sscanf(curr_pos, "%4u-%2u-%2uT%2u:%2u:%2u",
-		&year, &month, &day, &hour, &minute, &second);
+	/* Scan for this format: 2001-09-11T09:30:47 Then we will parse any fractions and UTC offset */
+	scan_found = sscanf(curr_pos, "%4u-%2u-%2uT%2u:%2u:%2u%n",
+		&year, &month, &day, &hour, &minute, &second, &time_length);
 
 	rec->ts.nsecs = 0;
-	if (scan_found == 6) {
+	if (scan_found == 6 && time_length == 19) {
 		guint UTCdiffsec;
 		gchar chr;
 		/* Only set time if we managed to parse it*/
 		/* Move curr_pos to end of parsed object and get that character 2019-01-10T10:14:56*/
-		curr_pos += 19;
+		curr_pos += time_length;
 		chr = *curr_pos;
 		switch (chr) {
 		case '-':
 		case '+':
 			/* We have no fractions but UTC offset*/
-			scan_found = sscanf(curr_pos, "%3d:%2u",
-				&UTCdiffh, &UTCdiffm);
+			sscanf(curr_pos, "%3d:%2u", &UTCdiffh, &UTCdiffm);
 			break;
 		case '.':
 		case ',':
@@ -263,8 +263,7 @@ nettrace_parse_begin_time(guint8 *curr_pos, wtap_rec *rec)
 			/* We have fractions and possibly UTC offset*/
 			guint multiplier;
 			curr_pos++;
-			scan_found = sscanf(curr_pos, "%u%3d:%2u",
-				&frac, &UTCdiffh, &UTCdiffm);
+			sscanf(curr_pos, "%u%3d:%2u", &frac, &UTCdiffh, &UTCdiffm);
 			if ((frac >= 1000000000) || (frac == 0)) {
 				rec->ts.nsecs = 0;
 			} else {
@@ -1143,7 +1142,6 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 		/* Check if we have "<target>"
 		*  It might contain an address
 		*/
-		prev_pos = curr_pos;
 		curr_pos = strstr(curr_pos, "<target>");
 		/* Check if we have the tag or if we pased the end of the current message */
 		if ((curr_pos) && (curr_pos < next_msg_pos)) {
