@@ -166,7 +166,7 @@ static dissector_handle_t tls13_handshake_handle;
  *  Packet type             Packet number space     Secrets
  *  Long: Initial           Initial                 Initial secrets
  *  Long: Handshake         Handshake               Handshake
- *  Long: 0-RTT Protected   0/1-RTT (appdata)       0-RTT
+ *  Long: 0-RTT             0/1-RTT (appdata)       0-RTT
  *  Short header            0/1-RTT (appdata)       1-RTT (KP0 / KP1)
  *
  * Important to note is that Short Header decryption requires TWO ciphers (one
@@ -352,7 +352,7 @@ static const value_string quic_long_packet_type_vals[] = {
     { QUIC_LPT_INITIAL, "Initial" },
     { QUIC_LPT_RETRY, "Retry" },
     { QUIC_LPT_HANDSHAKE, "Handshake" },
-    { QUIC_LPT_0RTT, "0-RTT Protected" },
+    { QUIC_LPT_0RTT, "0-RTT" },
     { 0, NULL }
 };
 
@@ -562,7 +562,7 @@ quic_max_packet_number(quic_info_data_t *quic_info, gboolean from_server, guint8
         // Long header, Handshake
         pkn_space = 1;
     } else {
-        // Long header (0-RTT Protected) or Short Header (1-RTT appdata).
+        // Long header (0-RTT) or Short Header (1-RTT appdata).
         pkn_space = 2;
     }
     if (from_server) {
