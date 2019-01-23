@@ -1132,7 +1132,7 @@ smb2_get_session(smb2_conv_info_t *conv, guint64 id, packet_info *pinfo, smb2_in
 		ses = wmem_new0(wmem_file_scope(), smb2_sesid_info_t);
 		ses->sesid = id;
 		ses->auth_frame = (guint32)-1;
-		ses->tids = g_hash_table_new(smb2_tid_info_hash, smb2_tid_info_equal);
+		ses->tids = wmem_map_new(wmem_file_scope(), smb2_tid_info_hash, smb2_tid_info_equal);
 		seskey_find_sid_key(id, ses->session_key);
 		if (pinfo && si) {
 			if (si->flags & SMB2_FLAGS_RESPONSE) {
@@ -3493,9 +3493,9 @@ dissect_smb2_tree_connect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		smb2_tid_info_t *tid, tid_key;
 
 		tid_key.tid = si->tid;
-		tid = (smb2_tid_info_t *)g_hash_table_lookup(si->session->tids, &tid_key);
+		tid = (smb2_tid_info_t *)wmem_map_lookup(si->session->tids, &tid_key);
 		if (tid) {
-			g_hash_table_remove(si->session->tids, &tid_key);
+			wmem_map_remove(si->session->tids, &tid_key);
 		}
 		tid = wmem_new(wmem_file_scope(), smb2_tid_info_t);
 		tid->tid = si->tid;
@@ -3503,7 +3503,7 @@ dissect_smb2_tree_connect_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		tid->connect_frame = pinfo->num;
 		tid->share_type = share_type;
 
-		g_hash_table_insert(si->session->tids, tid, tid);
+		wmem_map_insert(si->session->tids, tid, tid);
 
 		si->saved->extra_info_type = SMB2_EI_NONE;
 		si->saved->extra_info = NULL;
@@ -9254,7 +9254,7 @@ dissect_smb2_tid_sesid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, 
 	if (!(si->flags&SMB2_FLAGS_ASYNC_CMD)) {
 		/* see if we can find the name for this tid */
 		tid_key.tid = si->tid;
-		si->tree = (smb2_tid_info_t *)g_hash_table_lookup(si->session->tids, &tid_key);
+		si->tree = (smb2_tid_info_t *)wmem_map_lookup(si->session->tids, &tid_key);
 		if (!si->tree) return offset;
 
 		item = proto_tree_add_string(tid_tree, hf_smb2_tree, tvb, tid_offset, 4, si->tree->name);

@@ -87,7 +87,7 @@ typedef struct _smb2_sesid_info_t {
 	guint8 session_key[NTLMSSP_KEY_LEN];
 	guint8 client_decryption_key[16];
 	guint8 server_decryption_key[16];
-	GHashTable *tids;
+	wmem_map_t *tids;
 	guint8 preauth_hash[SMB2_PREAUTH_HASH_SIZE];
 } smb2_sesid_info_t;
 
