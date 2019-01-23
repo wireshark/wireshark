@@ -880,11 +880,12 @@ typedef struct ssl_common_dissect {
         gint hs_ext_quictp_parameter_ack_delay_exponent;
         gint hs_ext_quictp_parameter_max_ack_delay;
         gint hs_ext_quictp_parameter_max_packet_size;
-        gint hs_ext_quictp_parameter_pa_ipversion;
-        gint hs_ext_quictp_parameter_pa_ipaddress_length;
-        gint hs_ext_quictp_parameter_pa_ipaddress_ipv4;
-        gint hs_ext_quictp_parameter_pa_ipaddress_ipv6;
-        gint hs_ext_quictp_parameter_pa_port;
+        gint hs_ext_quictp_parameter_pa_ipversion;          // Remove in draft -18
+        gint hs_ext_quictp_parameter_pa_ipaddress_length;   // Remove in draft -18
+        gint hs_ext_quictp_parameter_pa_ipv4address;
+        gint hs_ext_quictp_parameter_pa_ipv6address;
+        gint hs_ext_quictp_parameter_pa_ipv4port;
+        gint hs_ext_quictp_parameter_pa_ipv6port;
         gint hs_ext_quictp_parameter_pa_connectionid_length;
         gint hs_ext_quictp_parameter_pa_connectionid;
         gint hs_ext_quictp_parameter_pa_statelessresettoken;
@@ -939,8 +940,6 @@ typedef struct ssl_common_dissect {
         expert_field hs_ext_cert_status_undecoded;
         expert_field resumed;
         expert_field record_length_invalid;
-
-        expert_field hs_ext_quictp_parameter_pa_ipaddress;
 
         /* do not forget to update SSL_COMMON_LIST_T and SSL_COMMON_EI_LIST! */
     } ei;
@@ -1117,14 +1116,14 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1,                                         \
+        -1, -1, -1, -1, -1, -1, -1,                                     \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,                 \
     },                                                                  \
     /* ei */ {                                                          \
-        EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT,  \
+        EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT, EI_INIT,           \
     },                                                                  \
 }
 /* }}} */
@@ -1976,25 +1975,30 @@ ssl_common_dissect_t name = {   \
     { & name .hf.hs_ext_quictp_parameter_pa_ipversion,                  \
       { "ipVersion", prefix ".quic.parameter.preferred_address.ipversion",  \
         FT_UINT8, BASE_DEC, VALS(quic_tp_preferred_address_vals), 0x00, \
-        NULL, HFILL }                                                   \
+        "IP Version (until draft -17)", HFILL }                         \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_pa_ipaddress_length,           \
       { "Length", prefix ".quic.parameter.preferred_address.ipaddress.length",  \
-        FT_UINT8, BASE_DEC, NULL, 0x00,                                \
-        "Length of ipAddress field", HFILL }                            \
+        FT_UINT8, BASE_DEC, NULL, 0x00,                                 \
+        "Length of ipAddress field (until draft -17)", HFILL }          \
     },                                                                  \
-    { & name .hf.hs_ext_quictp_parameter_pa_ipaddress_ipv4,             \
-      { "ipAddress (IPv4)", prefix ".quic.parameter.preferred_address.ipaddress.ipv4",  \
+    { & name .hf.hs_ext_quictp_parameter_pa_ipv4address,                \
+      { "ipv4Address", prefix ".quic.parameter.preferred_address.ipv4address",  \
         FT_IPv4, BASE_NONE, NULL, 0x00,                                 \
         NULL, HFILL }                                                   \
     },                                                                  \
-    { & name .hf.hs_ext_quictp_parameter_pa_ipaddress_ipv6,             \
-      { "ipAddress (IPv6)", prefix ".quic.parameter.preferred_address.ipaddress.ipv6",  \
+    { & name .hf.hs_ext_quictp_parameter_pa_ipv6address,                \
+      { "ipv6Address", prefix ".quic.parameter.preferred_address.ipv6address",  \
         FT_IPv6, BASE_NONE, NULL, 0x00,                                 \
         NULL, HFILL }                                                   \
     },                                                                  \
-    { & name .hf.hs_ext_quictp_parameter_pa_port,                       \
-      { "port", prefix ".quic.parameter.preferred_address.port",        \
+    { & name .hf.hs_ext_quictp_parameter_pa_ipv4port,                   \
+      { "ipv4Port", prefix ".quic.parameter.preferred_address.ipv4port", \
+        FT_UINT16, BASE_DEC, NULL, 0x00,                                \
+        NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_quictp_parameter_pa_ipv6port,                   \
+      { "ipv6Port", prefix ".quic.parameter.preferred_address.ipv6port", \
         FT_UINT16, BASE_DEC, NULL, 0x00,                                \
         NULL, HFILL }                                                   \
     },                                                                  \
@@ -2102,10 +2106,6 @@ ssl_common_dissect_t name = {   \
     { & name .ei.record_length_invalid, \
         { prefix ".record.length.invalid", PI_PROTOCOL, PI_ERROR, \
         "Record fragment length is too large", EXPFILL } \
-    }, \
-    { & name .ei.hs_ext_quictp_parameter_pa_ipaddress, \
-        { prefix ".quic.parameter.pa.ipaddress.unknown", PI_PROTOCOL, PI_ERROR, \
-        "Unknown QUIC Transport Parameter Preferred Address type", EXPFILL } \
     }
 /* }}} */
 

@@ -1376,6 +1376,7 @@ const value_string quic_transport_parameter_id[] = {
     { 0, NULL }
 };
 
+// Removed in QUIC draft -18
 const value_string quic_tp_preferred_address_vals[] = {
     { 4, "IPv4" },
     { 6, "IPv6" },
@@ -6638,10 +6639,21 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
      *      TransportParameter parameters<0..2^16-1>;
      *  } TransportParameters;
      *
+     *  // draft -17 and before
      *  struct {
      *    enum { IPv4(4), IPv6(6), (15) } ipVersion;
      *    opaque ipAddress<4..2^8-1>;
      *    uint16 port;
+     *    opaque connectionId<0..18>;
+     *    opaque statelessResetToken[16];
+     *  } PreferredAddress;
+     *
+     *  // Since draft -18
+     *  struct {
+     *    opaque ipv4Address[4];
+     *    uint16 ipv4Port;
+     *    opaque ipv6Address[16];
+     *    uint16 ipv6Port;
      *    opaque connectionId<0..18>;
      *    opaque statelessResetToken[16];
      *  } PreferredAddress;
@@ -6789,33 +6801,51 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
             break;
             case SSL_HND_QUIC_TP_PREFERRED_ADDRESS: {
                 guint32 ipversion, ipaddress_length, connectionid_length;
-                proto_tree_add_item_ret_uint(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_ipversion,
-                                             tvb, offset, 1, ENC_BIG_ENDIAN, &ipversion);
-                offset += 1;
-                if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &ipaddress_length,
-                                    hf->hf.hs_ext_quictp_parameter_pa_ipaddress_length, 4, G_MAXUINT8-1)) {
-                    break;
-                }
-                offset += 1;
-                switch (ipversion){
+                // Heuristically detect draft -17 vs draft -18.
+                ipversion = tvb_get_guint8(tvb, offset);
+                if (ipversion == 4 || ipversion == 6) {
+                    // Draft -17 and earlier.
+                    proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_ipversion,
+                                        tvb, offset, 1, ENC_BIG_ENDIAN);
+                    offset += 1;
+                    if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &ipaddress_length,
+                                        hf->hf.hs_ext_quictp_parameter_pa_ipaddress_length, 4, G_MAXUINT8-1)) {
+                        break;
+                    }
+                    offset += 1;
+                    switch (ipversion) {
                     case 4:
-                        proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_ipaddress_ipv4,
+                        proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_ipv4address,
                                             tvb, offset, 4, ENC_BIG_ENDIAN);
-                    break;
+                        offset += 4;
+                        proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_ipv4port,
+                                            tvb, offset, 2, ENC_BIG_ENDIAN);
+                        offset += 2;
+                        break;
                     case 6:
-                        proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_ipaddress_ipv6,
+                        proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_ipv6address,
                                             tvb, offset, 16, ENC_NA);
-                    break;
-                    default:
-                        proto_tree_add_expert(tree, pinfo, &hf->ei.hs_ext_quictp_parameter_pa_ipaddress,
-                                              tvb, offset, ipaddress_length);
-                    break;
+                        offset += 16;
+                        proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_ipv6port,
+                                            tvb, offset, 2, ENC_BIG_ENDIAN);
+                        offset += 2;
+                        break;
+                    }
+                } else {
+                    // Since draft -18
+                    proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_ipv4address,
+                                        tvb, offset, 4, ENC_BIG_ENDIAN);
+                    offset += 4;
+                    proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_ipv4port,
+                                        tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
+                    proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_ipv6address,
+                                        tvb, offset, 16, ENC_NA);
+                    offset += 16;
+                    proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_ipv6port,
+                                        tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
                 }
-                offset += ipaddress_length;
-
-                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_port,
-                                    tvb, offset, 2, ENC_BIG_ENDIAN);
-                offset += 2;
 
                 if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &connectionid_length,
                                     hf->hf.hs_ext_quictp_parameter_pa_connectionid_length, 0, 18)) {
