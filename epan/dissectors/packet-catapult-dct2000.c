@@ -1029,6 +1029,15 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, gint offset,
                 if (lte_or_nr == LTE) {
                     protocol_handle = find_dissector("lte_rrc.ul_ccch");
                 }
+                else {
+                    if (tvb_captured_length_remaining(tvb, offset) == 6) {
+                        protocol_handle = find_dissector("nr-rrc.ul.ccch");
+                    }
+                    else {
+                        /* Should be 8 bytes.. */
+                        protocol_handle = find_dissector("nr-rrc.ul.ccch1");
+                    }
+                }
                 break;
 
             default:
@@ -1051,10 +1060,16 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, gint offset,
                 if (lte_or_nr == LTE) {
                     protocol_handle = find_dissector("lte_rrc.dl_ccch");
                 }
+                else {
+                    protocol_handle = find_dissector("nr-rrc.dl.ccch");
+                }
                 break;
             case Channel_PCCH:
                 if (lte_or_nr == LTE) {
                     protocol_handle = find_dissector("lte_rrc.pcch");
+                }
+                else {
+                    protocol_handle = find_dissector("nr-rrc.pcch");
                 }
                 break;
             case Channel_BCCH:
@@ -1069,6 +1084,9 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, gint offset,
                 else {
                     if (lte_or_nr == LTE) {
                         protocol_handle = find_dissector("lte_rrc.bcch_dl_sch");
+                    }
+                    else {
+                        protocol_handle = find_dissector("nr-rrc.bcch.dl.sch");
                     }
                 }
                 break;
