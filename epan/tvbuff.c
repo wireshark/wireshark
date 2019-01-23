@@ -1648,6 +1648,20 @@ tvb_get_string_bytes(tvbuff_t *tvb, const gint offset, const gint length,
 	return retval;
 }
 
+static gboolean
+parse_month_name(const char *name, int *tm_mon)
+{
+	static const char months[][4] = { "Jan", "Feb", "Mar", "Apr", "May",
+		"Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+	for (int i = 0; i < 12; i++) {
+		if (memcmp(months[i], name, 4) == 0) {
+			*tm_mon = i;
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
 /* support hex-encoded time values? */
 nstime_t*
 tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint length,
@@ -1791,19 +1805,42 @@ tvb_get_string_time(tvbuff_t *tvb, const gint offset, const gint length,
 			}
 		}
 		else if (encoding & ENC_RFC_822 || encoding & ENC_RFC_1123) {
-			if (encoding & ENC_RFC_822) {
-				/* this will unfortunately match ENC_RFC_1123 style
-				   strings too, partially - probably need to do this the long way */
-				end = strptime(ptr, "%a, %d %b %y %H:%M:%S", &tm);
-				if (!end) end = strptime(ptr, "%a, %d %b %y %H:%M", &tm);
-				if (!end) end = strptime(ptr, "%d %b %y %H:%M:%S", &tm);
-				if (!end) end = strptime(ptr, "%d %b %y %H:%M", &tm);
-			}
-			else if (encoding & ENC_RFC_1123) {
-				end = strptime(ptr, "%a, %d %b %Y %H:%M:%S", &tm);
-				if (!end) end = strptime(ptr, "%a, %d %b %Y %H:%M", &tm);
-				if (!end) end = strptime(ptr, "%d %b %Y %H:%M:%S", &tm);
-				if (!end) end = strptime(ptr, "%d %b %Y %H:%M", &tm);
+			/*
+			 * Match [dow,] day month year hh:mm[:ss] with two-digit
+			 * years (RFC 822) or four-digit years (RFC 1123). Skip
+			 * the day of week since it is locale dependent and does
+			 * not affect the resulting date anyway.
+			 */
+			if (g_ascii_isalpha(ptr[0]) && g_ascii_isalpha(ptr[1]) && g_ascii_isalpha(ptr[2]) && ptr[3] == ',')
+				ptr += 4;   /* Skip day of week. */
+			char month_name[4] = { 0 };
+			if (sscanf(ptr, "%d %3s %d %d:%d%n:%d%n",
+			    &tm.tm_mday,
+			    month_name,
+			    &tm.tm_year,
+			    &tm.tm_hour,
+			    &tm.tm_min,
+			    &num_chars,
+			    &tm.tm_sec,
+			    &num_chars) >= 5)
+			{
+				if (encoding & ENC_RFC_822) {
+					/* Match strptime behavior: years 00-68
+					 * are in the 21th century. */
+					if (tm.tm_year <= 68) {
+						tm.tm_year += 100;
+						matched = TRUE;
+					} else if (tm.tm_year <= 99) {
+						matched = TRUE;
+					}
+				} else if (encoding & ENC_RFC_1123) {
+					tm.tm_year -= 1900;
+					matched = TRUE;
+				}
+				if (!parse_month_name(month_name, &tm.tm_mon))
+					matched = FALSE;
+				if (matched)
+					end = ptr + num_chars;
 			}
 			if (end) {
 				errno = 0;
