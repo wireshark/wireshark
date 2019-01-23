@@ -6417,7 +6417,7 @@ proto_register_gprscdr(void)
         NULL, HFILL }},
     { &hf_gprscdr_cSGId,
       { "cSGId", "gprscdr.cSGId",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_gprscdr_cSGAccessMode,
       { "cSGAccessMode", "gprscdr.cSGAccessMode",
