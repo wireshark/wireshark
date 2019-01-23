@@ -19,6 +19,10 @@ class case_time(unittest.TestCase):
         dfilter = 'frame.time == "Jan 31, 2002 13:55:31.3"'
         checkDFilterCount(dfilter, 0)
 
+    def test_eq_3(self, checkDFilterCount):
+        dfilter = 'frame.time == "2002-12-31 13:55:31.3"'
+        checkDFilterCount(dfilter, 1)
+
     def test_ne_1(self, checkDFilterCount):
         dfilter = 'frame.time != "Dec 31, 2002 13:55:31.3"'
         checkDFilterCount(dfilter, 0)
@@ -75,3 +79,17 @@ class case_time(unittest.TestCase):
         dfilter = 'frame.time <= "Dec 31, 2002 13:56:31.3"'
         checkDFilterCount(dfilter, 1)
 
+    def test_bad_time_1(self, checkDFilterFail):
+        # No text is permitted after the time.
+        dfilter = 'frame.time == "Dec 31, 2002 13:56:31.3 UTC"'
+        checkDFilterFail(dfilter)
+
+    def test_bad_time_2(self, checkDFilterFail):
+        # Miliseconds can only occur after seconds.
+        dfilter = 'frame.time == "2002-12-31 13:55.3"'
+        checkDFilterFail(dfilter)
+
+    def test_bad_time_3(self, checkDFilterFail):
+        # Reject months in a different locale (mrt is March in nl_NL.UTF-8).
+        dfilter = 'frame.time == "mrt 1, 2000 00:00:00"'
+        checkDFilterFail(dfilter)

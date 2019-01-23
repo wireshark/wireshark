@@ -221,20 +221,48 @@ fail:
 }
 
 
+/* Returns TRUE if 's' starts with an abbreviated month name. */
+static gboolean
+parse_month_name(const char *s, int *tm_mon)
+{
+	const char *months[] = {
+		"Jan", "Feb", "Mar", "Apr", "May", "Jun",
+		"Jul", "Aug", "Sep", "Oct", "Nov", "Dec"
+	};
+	for (int i = 0; i < 12; i++) {
+		if (g_ascii_strncasecmp(s, months[i], 3) == 0) {
+			*tm_mon = i;
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+
 static gboolean
 absolute_val_from_string(fvalue_t *fv, const char *s, gchar **err_msg)
 {
 	struct tm tm;
-	char    *curptr;
+	char    *curptr = NULL;
+	gboolean has_seconds = TRUE;
 
 	memset(&tm, 0, sizeof(tm));
-	curptr = strptime(s,"%b %d, %Y %H:%M:%S", &tm);
+
+	if (strlen(s) < sizeof("2000-1-1") - 1)
+		goto fail;
+
+	/* Do not use '%b' to parse the month name, it is locale-specific. */
+	if (s[3] == ' ' && parse_month_name(s, &tm.tm_mon))
+		curptr = strptime(s + 4, "%d, %Y %H:%M:%S", &tm);
+
 	if (curptr == NULL)
 		curptr = strptime(s,"%Y-%m-%dT%H:%M:%S", &tm);
 	if (curptr == NULL)
 		curptr = strptime(s,"%Y-%m-%d %H:%M:%S", &tm);
-	if (curptr == NULL)
+	if (curptr == NULL) {
+		has_seconds = FALSE;
 		curptr = strptime(s,"%Y-%m-%d %H:%M", &tm);
+	}
 	if (curptr == NULL)
 		curptr = strptime(s,"%Y-%m-%d %H", &tm);
 	if (curptr == NULL)
@@ -248,7 +276,7 @@ absolute_val_from_string(fvalue_t *fv, const char *s, gchar **err_msg)
 		 * Something came after the seconds field; it must be
 		 * a nanoseconds field.
 		 */
-		if (*curptr != '.')
+		if (*curptr != '.' || !has_seconds)
 			goto fail;	/* it's not */
 		curptr++;	/* skip the "." */
 		if (!g_ascii_isdigit((unsigned char)*curptr))
