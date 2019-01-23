@@ -1890,19 +1890,28 @@ const value_string nas_5gs_sm_cause_vals[] = {
     { 0x1a, "Insufficient resources" },
     { 0x1b, "Missing or unknown DNN" },
     { 0x1c, "Unknown PDU session type" },
-    { 0x1d, "User authentication failed" },
+    { 0x1d, "User authentication or authorization failed" },
     { 0x1f, "Request rejected, unspecified" },
     { 0x22, "Service option temporarily out of order" },
     { 0x23, "PTI already in use" },
     { 0x24, "Regular deactivation" },
+    { 0x26, "Out of LADN service area" },
     { 0x27, "Reactivation requested" },
+    { 0x2b, "Invalid PDU session identity" },
+    { 0x2c, "Semantic errors in packet filter(s)" },
+    { 0x2d, "Syntactical error in packet filter(s)" },
+    { 0x2f, "PTI mismatch" },
     { 0x32, "PDU session type Ipv4 only allowed" },
     { 0x33, "PDU session type Ipv6 only allowed" },
+    { 0x36, "PDU session does not exist" },
     { 0x43, "Insufficient resources for specific slice and DNN" },
     { 0x44, "Not supported SSC mode" },
     { 0x45, "Insufficient resources for specific slice" },
     { 0x46, "Missing or unknown DNN in a slice" },
     { 0x51, "Invalid PTI value" },
+    { 0x52, "Maximum data rate per UE for user-plane integrity protection is too low" },
+    { 0x53, "Semantic error in the QoS operation" },
+    { 0x54, "Syntactical error in the QoS operation" },
     { 0x5f, "Semantically incorrect message" },
     { 0x60, "Invalid mandatory information" },
     { 0x61, "Message type non - existent or not implemented" },
@@ -3315,7 +3324,7 @@ nas_5gs_mm_registration_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     /* 53    5GS update type    5GS update type 9.11.3.9A    O    TLV    3 */
 
     /* 71    NAS message container    NAS message container 9.11.3.33    O    TLV-E    4-n */
-    ELEM_OPT_TLV_E(0x7D, NAS_PDU_TYPE_ESM, DE_NAS_5GS_MM_NAS_MSG_CONT, NULL);
+    ELEM_OPT_TLV_E(0x71, NAS_PDU_TYPE_ESM, DE_NAS_5GS_MM_NAS_MSG_CONT, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
 
@@ -3427,7 +3436,7 @@ nas_5gs_mm_registration_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo 
     ELEM_OPT_TLV(0x5F, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3346 value");
 
     /* 16    T3502 value    GPRS timer 2 9.10.2.4    O    TLV    3 */
-    ELEM_OPT_TLV(0x6A, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3502 value");
+    ELEM_OPT_TLV(0x16, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3502 value");
 
     /* 78    EAP message    EAP message 9.10.2.2    O    TLV-E    7-1503 */
     ELEM_OPT_TLV_E(0x78, NAS_5GS_PDU_TYPE_COMMON, DE_NAS_5GS_CMN_EAP_MESSAGE, NULL);
