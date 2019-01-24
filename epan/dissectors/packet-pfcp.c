@@ -116,6 +116,7 @@ static int hf_pfcp_ue_ip_addr_ipv4 = -1;
 static int hf_pfcp_ue_ip_add_ipv6 = -1;
 static int hf_pfcp_ue_ip_add_ipv6_prefix = -1;
 static int hf_pfcp_application_id = -1;
+static int hf_pfcp_application_id_str = -1;
 
 static int hf_pfcp_sdf_filter_flags = -1;
 static int hf_pfcp_sdf_filter_flags_b0_fd = -1;
@@ -306,6 +307,7 @@ static int hf_pfcp_usage_information_b1_aft = -1;
 static int hf_pfcp_usage_information_b0_bef = -1;
 
 static int hf_pfcp_application_instance_id = -1;
+static int hf_pfcp_application_instance_id_str = -1;
 static int hf_pfcp_flow_dir = -1;
 static int hf_pfcp_packet_rate = -1;
 static int hf_pfcp_packet_rate_b0_ulpr = -1;
@@ -1469,10 +1471,13 @@ decode_pfcp_network_instance(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
                 apn = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII);
             }
             proto_tree_add_string(tree, hf_pfcp_network_instance, tvb, offset, length, apn);
+            proto_item_append_text(item, "%s", apn);
 
         } else {
             /* Domain name*/
-            proto_tree_add_item(tree, hf_pfcp_network_instance, tvb, offset, length, ENC_ASCII | ENC_NA);
+            const guint8* string_value;
+            proto_tree_add_item_ret_string(tree, hf_pfcp_network_instance, tvb, offset, length, ENC_ASCII | ENC_NA, wmem_packet_scope(), &string_value);
+            proto_item_append_text(item, "%s", string_value);
         }
     }
 
@@ -1587,10 +1592,20 @@ static void
 dissect_pfcp_application_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
     int offset = 0;
+
     /* Octet 5 to (n+4) Application Identifier
     * The Application Identifier shall be encoded as an OctetString (see 3GPP TS 29.212)
     */
-    proto_tree_add_item(tree, hf_pfcp_application_id, tvb, offset, length, ENC_NA);
+    if (tvb_ascii_isprint(tvb, offset, length))
+    {
+        const guint8* string_value;
+        proto_tree_add_item_ret_string(tree, hf_pfcp_application_id_str, tvb, offset, length, ENC_ASCII | ENC_NA, wmem_packet_scope(), &string_value);
+        proto_item_append_text(item, "%s", string_value);
+    }
+    else
+    {
+        proto_tree_add_item(tree, hf_pfcp_application_id, tvb, offset, length, ENC_NA);
+    }
 }
 /*
  * 8.2.7    Gate Status
@@ -3387,10 +3402,21 @@ dissect_pfcp_usage_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static void
 dissect_pfcp_application_instance_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
 {
+    int offset = 0;
+
     /* Octet 5 5 to (n+4)   Application Instance Identifier
      * The Application Instance Identifier shall be encoded as an OctetString (see 3GPP TS 29.212)
      */
-    proto_tree_add_item(tree, hf_pfcp_application_instance_id, tvb, 0, length, ENC_NA);
+    if (tvb_ascii_isprint(tvb, offset, length))
+    {
+        const guint8* string_value;
+        proto_tree_add_item_ret_string(tree, hf_pfcp_application_instance_id_str, tvb, offset, length, ENC_ASCII | ENC_NA, wmem_packet_scope(), &string_value);
+        proto_item_append_text(item, "%s", string_value);
+    }
+    else
+    {
+        proto_tree_add_item(tree, hf_pfcp_application_instance_id, tvb, offset, length, ENC_NA);
+    }
 }
 
 /*
@@ -6315,6 +6341,11 @@ proto_register_pfcp(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_pfcp_application_id_str,
+        { "Application Identifier", "pfcp.application_id_str",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_pfcp_sdf_filter_flags,
         { "Flags", "pfcp.sdf_filter_flags",
             FT_UINT8, BASE_HEX, NULL, 0x0,
@@ -7162,6 +7193,11 @@ proto_register_pfcp(void)
         { &hf_pfcp_application_instance_id,
         { "Application Instance Identifier", "pfcp.application_instance_id",
             FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_application_instance_id_str,
+        { "Application Instance Identifier", "pfcp.application_instance_id_str",
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_flow_dir,
