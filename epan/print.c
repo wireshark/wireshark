@@ -390,7 +390,7 @@ write_ek_proto_tree(output_fields_t* fields,
             proto_tree_write_node_ek(edt->tree, &data);
         } else {
             /* Write out specified fields */
-            write_specified_fields(FORMAT_EK, fields, edt, cinfo, fh, data.dumper);
+            write_specified_fields(FORMAT_EK, fields, edt, cinfo, NULL, data.dumper);
         }
 
         json_dumper_end_object(&dumper);
@@ -2339,7 +2339,12 @@ static void write_specified_fields(fields_format format, output_fields_t *fields
     g_assert(fields);
     g_assert(fields->fields);
     g_assert(edt);
-    g_assert(fh);
+    /* JSON formats must go through json_dumper */
+    if (format == FORMAT_JSON || format == FORMAT_EK) {
+        g_assert(!fh && dumper);
+    } else {
+        g_assert(fh && !dumper);
+    }
 
     data.fields = fields;
     data.edt = edt;
