@@ -170,9 +170,11 @@ struct tcp_acked {
 struct tcp_multisegment_pdu {
 	guint32 seq;
 	guint32 nxtpdu;
-	guint32 first_frame;
+	guint32 first_frame;            /* The frame where this MSP was created (used as key in reassembly tables). */
 	guint32 last_frame;
 	nstime_t last_frame_time;
+	guint32 first_frame_with_seq;   /* The frame that contains the first frame that matches 'seq'
+					   (same as 'first_frame', larger than 'first_frame' for OoO segments) */
 	guint32 flags;
 #define MSP_FLAGS_REASSEMBLE_ENTIRE_SEGMENT	0x00000001
 /* Whether this MSP is finished and no more segments can be added. */

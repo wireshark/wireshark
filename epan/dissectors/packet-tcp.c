@@ -1733,6 +1733,7 @@ pdu_store_sequencenumber_of_next_pdu(packet_info *pinfo, guint32 seq, guint32 nx
     msp->nxtpdu=nxtpdu;
     msp->seq=seq;
     msp->first_frame=pinfo->num;
+    msp->first_frame_with_seq=pinfo->num;
     msp->last_frame=pinfo->num;
     msp->last_frame_time=pinfo->abs_ts;
     msp->flags=0;
@@ -3065,6 +3066,7 @@ again:
         if ((msp = (struct tcp_multisegment_pdu *)wmem_tree_lookup32(tcpd->fwd->multisegment_pdus, seq)) &&
                 !(msp->flags & MSP_FLAGS_MISSING_FIRST_SEGMENT) && msp->last_frame != pinfo->num) {
             const char* str;
+            gboolean is_retransmission = FALSE;
 
             /* Yes.  This could be because we've dissected this frame before
              * or because this is a retransmission of a previously-seen
@@ -3074,24 +3076,35 @@ again:
              * find this retransmission instead of the original transmission
              * (breaking desegmentation if we'd already linked other segments
              * to the original transmission's entry).
+             *
+             * Cases to handle here:
+             * - In-order stream, pinfo->num matches begin of MSP.
+             * - In-order stream, but pinfo->num does not match the begin of the
+             *   MSP. Must be a retransmission.
+             * - OoO stream where this segment fills the gap in the begin of the
+             *   MSP. msp->first_frame is the start where the gap was detected
+             *   (and does NOT match pinfo->num).
              */
 
-            if (msp->first_frame == pinfo->num) {
+            if (msp->first_frame == pinfo->num || msp->first_frame_with_seq == pinfo->num) {
                 str = "";
                 col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[TCP segment of a reassembled PDU]");
             } else {
                 str = "Retransmitted ";
+                is_retransmission = TRUE;
                 /* TCP analysis already flags this (in COL_INFO) as a retransmission--if it's enabled */
             }
 
             /* Fix for bug 3264: look up ipfd for this (first) segment,
                so can add tcp.reassembled_in generated field on this code path. */
-            ipfd_head = fragment_get(&tcp_reassembly_table, pinfo, pinfo->num, NULL);
-            if (ipfd_head) {
-                if (ipfd_head->reassembled_in != 0) {
-                    item = proto_tree_add_uint(tcp_tree, hf_tcp_reassembled_in, tvb, 0,
-                                       0, ipfd_head->reassembled_in);
-                    PROTO_ITEM_SET_GENERATED(item);
+            if (!is_retransmission) {
+                ipfd_head = fragment_get(&tcp_reassembly_table, pinfo, msp->first_frame, NULL);
+                if (ipfd_head) {
+                    if (ipfd_head->reassembled_in != 0) {
+                        item = proto_tree_add_uint(tcp_tree, hf_tcp_reassembled_in, tvb, 0,
+                                           0, ipfd_head->reassembled_in);
+                        PROTO_ITEM_SET_GENERATED(item);
+                    }
                 }
             }
 
@@ -3242,7 +3255,8 @@ again:
 
         if (reassemble_ooo && !PINFO_FD_VISITED(pinfo)) {
             /* If the first segment of the MSP was seen, remember it. */
-            if (msp->seq == seq) {
+            if (msp->seq == seq && msp->flags & MSP_FLAGS_MISSING_FIRST_SEGMENT) {
+                msp->first_frame_with_seq = pinfo->num;
                 msp->flags &= ~MSP_FLAGS_MISSING_FIRST_SEGMENT;
             }
             /* Remember when all segments are ready to avoid subsequent
