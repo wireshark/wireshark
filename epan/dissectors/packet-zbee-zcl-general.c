@@ -10815,7 +10815,7 @@ void proto_register_zbee_zcl_ota(void)
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_ota_file_offset,
-            { "File Offset", "zbee_zcl_general.ota.file.offset", FT_UINT32, BASE_HEX, NULL,
+            { "File Offset", "zbee_zcl_general.ota.file.offset", FT_UINT32, BASE_DEC, NULL,
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_ota_max_data_size,
