@@ -33,6 +33,8 @@ The following bugs have been fixed:
 
 //_Non-empty section placeholder._
 
+Text and Image columns were handled incorrectly for TDS 7.0 and 7.1. (wsbuglink:3098[])
+
 Dumpcap might not quit if Wireshark or TShark crashes.
 (wsbuglink:1419[])
 

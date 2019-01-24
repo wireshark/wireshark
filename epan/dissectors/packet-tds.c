@@ -841,7 +841,8 @@ static int hf_tds_colname_name = -1;
 static int hf_tds_colmetadata = -1;
 static int hf_tds_colmetadata_results_token_flags = -1;
 static int hf_tds_colmetadata_columns = -1;
-static int hf_tds_colmetadata_large_type_size = -1;
+static int hf_tds_colmetadata_large2_type_size = -1;
+static int hf_tds_colmetadata_large4_type_size = -1;
 static int hf_tds_colmetadata_usertype32 = -1;
 static int hf_tds_colmetadata_usertype16 = -1;
 static int hf_tds_colmetadata_results_token_type = -1;
@@ -1399,39 +1400,30 @@ static const enum_val_t tds_protocol_type_options[] = {
 };
 
 #define TDS_PROTO_PREF_NOT_SPECIFIED (tds_protocol_type == TDS_PROTOCOL_NOT_SPECIFIED)
-#define TDS_PROTO_PREF_TDS4 (tds_protocol_type == TDS_PROTOCOL_4)
-#define TDS_PROTO_PREF_TDS5 (tds_protocol_type == TDS_PROTOCOL_5)
-#define TDS_PROTO_PREF_TDS7_0 (tds_protocol_type == TDS_PROTOCOL_7_0)
-#define TDS_PROTO_PREF_TDS7_1 (tds_protocol_type == TDS_PROTOCOL_7_1)
-#define TDS_PROTO_PREF_TDS7_2 (tds_protocol_type == TDS_PROTOCOL_7_2)
-#define TDS_PROTO_PREF_TDS7_3 (tds_protocol_type == TDS_PROTOCOL_7_3)
-#define TDS_PROTO_PREF_TDS7_3A (tds_protocol_type == TDS_PROTOCOL_7_3A)
-#define TDS_PROTO_PREF_TDS7_3B (tds_protocol_type == TDS_PROTOCOL_7_3B)
-#define TDS_PROTO_PREF_TDS7_4 (tds_protocol_type == TDS_PROTOCOL_7_4)
-#define TDS_PROTO_PREF_TDS7 (tds_protocol_type >= TDS_PROTOCOL_7_0 && tds_protocol_type <= TDS_PROTOCOL_7_4)
 
-#define TDS_PROTO_TDS4 TDS_PROTO_PREF_TDS4
-#define TDS_PROTO_LESS_THAN_TDS7(tds_info) ((tds_protocol_type <= TDS_PROTOCOL_7_0) || \
-                                            (TDS_PROTO_PREF_NOT_SPECIFIED && \
-                                             ((tds_info)->tds_version <= TDS_PROTOCOL_7_0)))
-#define TDS_PROTO_TDS7(tds_info) ((tds_protocol_type >= TDS_PROTOCOL_7_0 && tds_protocol_type <= TDS_PROTOCOL_7_4) || \
-                                  (TDS_PROTO_PREF_NOT_SPECIFIED && (tds_info->tds_version >= TDS_PROTOCOL_7_0) \
-                                                                && (tds_info->tds_version <= TDS_PROTOCOL_7_4)))
+#define TDS_PROTO_LESS_THAN_TDS7(tds_info) \
+            (TDS_PROTO_PREF_NOT_SPECIFIED ? ((tds_info)->tds_version <= TDS_PROTOCOL_7_0) \
+                                          : (tds_protocol_type <= TDS_PROTOCOL_7_0))
+#define TDS_PROTO_TDS7(tds_info) \
+            (TDS_PROTO_PREF_NOT_SPECIFIED ? ((tds_info)->tds_version >= TDS_PROTOCOL_7_0) && \
+                                            ((tds_info)->tds_version <= TDS_PROTOCOL_7_4) \
+                                          : (tds_protocol_type >= TDS_PROTOCOL_7_0 && \
+                                             tds_protocol_type <= TDS_PROTOCOL_7_4))
 #define TDS_PROTO_TDS7_1_OR_LESS(tds_info) \
-            ((tds_protocol_type <= TDS_PROTOCOL_7_1) || \
-             (TDS_PROTO_PREF_NOT_SPECIFIED && ((tds_info)->tds_version <= TDS_PROTOCOL_7_1)))
+            (TDS_PROTO_PREF_NOT_SPECIFIED ?  ((tds_info)->tds_version <= TDS_PROTOCOL_7_1) \
+                                          :  (tds_protocol_type <= TDS_PROTOCOL_7_1))
 #define TDS_PROTO_TDS7_2_OR_GREATER(tds_info) \
-            ((tds_protocol_type >= TDS_PROTOCOL_7_2) || \
-             (TDS_PROTO_PREF_NOT_SPECIFIED && ((tds_info)->tds_version >= TDS_PROTOCOL_7_2)))
+            (TDS_PROTO_PREF_NOT_SPECIFIED ? ((tds_info)->tds_version >= TDS_PROTOCOL_7_2) \
+                                          : (tds_protocol_type >= TDS_PROTOCOL_7_2))
 #define TDS_PROTO_TDS7_3A_OR_LESS(tds_info) \
-            ((tds_protocol_type <= TDS_PROTOCOL_7_3A) || \
-             (TDS_PROTO_PREF_NOT_SPECIFIED && ((tds_info)->tds_version <= TDS_PROTOCOL_7_3A)))
+            (TDS_PROTO_PREF_NOT_SPECIFIED ? ((tds_info)->tds_version <= TDS_PROTOCOL_7_3A) \
+                                          : (tds_protocol_type <= TDS_PROTOCOL_7_3A))
 #define TDS_PROTO_TDS7_3B_OR_GREATER(tds_info) \
-            ((tds_protocol_type >= TDS_PROTOCOL_7_3B) || \
-             (TDS_PROTO_PREF_NOT_SPECIFIED && (tds_info->tds_version >= TDS_PROTOCOL_7_3B)))
+            (TDS_PROTO_PREF_NOT_SPECIFIED ? (tds_info->tds_version >= TDS_PROTOCOL_7_3B) \
+                                          : (tds_protocol_type >= TDS_PROTOCOL_7_3B))
 #define TDS_PROTO_TDS7_4_OR_GREATER(tds_info) \
-            ((tds_protocol_type >= TDS_PROTOCOL_7_4) || \
-             (TDS_PROTO_PREF_NOT_SPECIFIED && ((tds_info)->tds_version >= TDS_PROTOCOL_7_4)))
+            (TDS_PROTO_PREF_NOT_SPECIFIED ? ((tds_info)->tds_version >= TDS_PROTOCOL_7_4) \
+                                          : (tds_protocol_type >= TDS_PROTOCOL_7_4))
 
 /* TDS "endian type" */
 /*   XXX: Assumption is that all TDS conversations being decoded in a particular capture */
@@ -5548,7 +5540,7 @@ static int
 dissect_tds7_colmetadata_token(tvbuff_t *tvb, struct _netlib_data *nl_data, guint offset, proto_tree *tree, tds_conv_info_t *tds_info)
 {
     guint cur = offset;
-    guint16 num_columns, flags, numparts, parti, partlen, msg_len;
+    guint16 num_columns, flags, msg_len;
     guint8 type;
     int i, col_offset;
     proto_tree* col_tree, *flags_tree;
@@ -5685,14 +5677,14 @@ dissect_tds7_colmetadata_token(tvbuff_t *tvb, struct _netlib_data *nl_data, guin
                 case TDS_DATA_TYPE_BIGVARBIN:
                 {
                     nl_data->columns[i]->csize = tvb_get_guint16(tvb, cur, encoding);
-                    proto_tree_add_item(col_tree, hf_tds_colmetadata_large_type_size, tvb, cur, 2, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(col_tree, hf_tds_colmetadata_large2_type_size, tvb, cur, 2, ENC_LITTLE_ENDIAN);
                     cur += 2;
                     break;
                 }
                 case TDS_DATA_TYPE_BIGVARCHR:
                 {
                     nl_data->columns[i]->csize = tvb_get_guint16(tvb, cur, encoding);
-                    proto_tree_add_item(col_tree, hf_tds_colmetadata_large_type_size, tvb, cur, 2, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(col_tree, hf_tds_colmetadata_large2_type_size, tvb, cur, 2, ENC_LITTLE_ENDIAN);
                     cur += 2;
 
                     proto_tree_add_item(col_tree, hf_tds_colmetadata_collate_codepage, tvb, cur, 2, ENC_LITTLE_ENDIAN );
@@ -5706,7 +5698,7 @@ dissect_tds7_colmetadata_token(tvbuff_t *tvb, struct _netlib_data *nl_data, guin
                 case TDS_DATA_TYPE_BIGBINARY:
                 {
                     nl_data->columns[i]->csize = tvb_get_guint16(tvb, cur, encoding);
-                    proto_tree_add_item(col_tree, hf_tds_colmetadata_large_type_size, tvb, cur, 2, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(col_tree, hf_tds_colmetadata_large2_type_size, tvb, cur, 2, ENC_LITTLE_ENDIAN);
                     cur += 2;
                     break;
                 }
@@ -5715,7 +5707,7 @@ dissect_tds7_colmetadata_token(tvbuff_t *tvb, struct _netlib_data *nl_data, guin
                 case TDS_DATA_TYPE_NCHAR:
                 {
                     nl_data->columns[i]->csize = tvb_get_guint16(tvb, cur, encoding);
-                    proto_tree_add_item(col_tree, hf_tds_colmetadata_large_type_size, tvb, cur, 2, ENC_LITTLE_ENDIAN);
+                    proto_tree_add_item(col_tree, hf_tds_colmetadata_large2_type_size, tvb, cur, 2, ENC_LITTLE_ENDIAN);
                     cur += 2;
 
                     proto_tree_add_item(col_tree, hf_tds_colmetadata_collate_codepage, tvb, cur, 2, ENC_LITTLE_ENDIAN );
@@ -5818,31 +5810,38 @@ dissect_tds7_colmetadata_token(tvbuff_t *tvb, struct _netlib_data *nl_data, guin
                 }
                 case TDS_DATA_TYPE_IMAGE:
                 {
+                    proto_tree_add_item(col_tree, hf_tds_colmetadata_large4_type_size, tvb, cur, 4, ENC_LITTLE_ENDIAN);
                     cur += 4;
 
                     /* Table name */
-                    numparts = tvb_get_guint8(tvb, cur);
-                    proto_tree_add_item(col_tree, hf_tds_colmetadata_table_name_parts, tvb, cur, 1, ENC_LITTLE_ENDIAN);
-                    cur += 1;
+                    if (TDS_PROTO_TDS7_2_OR_GREATER(tds_info)) {
+                        guint numparts = tvb_get_guint8(tvb, cur);
+                        guint parti;
+                        proto_tree_add_item(col_tree, hf_tds_colmetadata_table_name_parts, tvb, cur, 1, ENC_LITTLE_ENDIAN);
+                        cur += 1;
 
-                    for(parti = 0; parti < numparts; parti++)
-                    {
-                        partlen = tvb_get_letohs(tvb, cur);
+                        for(parti = 0; parti < numparts; parti++)
+                        {
+                            guint partlen = tvb_get_letohs(tvb, cur);
+                            proto_tree_add_item(col_tree, hf_tds_colmetadata_table_name_length, tvb, cur, 2, ENC_LITTLE_ENDIAN);
+                            proto_tree_add_item(col_tree, hf_tds_colmetadata_table_name, tvb, cur + 2, partlen * 2, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                            cur += 2 + (partlen * 2);
+                        }
+                    }
+                    else {
+                        guint tablenamelen = tvb_get_letohs(tvb, cur);
                         proto_tree_add_item(col_tree, hf_tds_colmetadata_table_name_length, tvb, cur, 2, ENC_LITTLE_ENDIAN);
-                        proto_tree_add_item(col_tree, hf_tds_colmetadata_table_name, tvb, cur + 2, partlen * 2, ENC_UTF_16|ENC_LITTLE_ENDIAN);
-                        cur += 2 + (partlen * 2);
+                        proto_tree_add_item(col_tree, hf_tds_colmetadata_table_name, tvb, cur + 2, tablenamelen * 2, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                        cur += 2 + (tablenamelen * 2);
                     }
                     break;
                 }
                 case TDS_DATA_TYPE_TEXT:
                 case TDS_DATA_TYPE_NTEXT:
                 {
-                    /* Not sure what we are stepping over here */
-                    cur += 2;
-
-                    nl_data->columns[i]->csize = tvb_get_guint16(tvb, cur, encoding);
-                    proto_tree_add_item(col_tree, hf_tds_colmetadata_large_type_size, tvb, cur, 2, ENC_LITTLE_ENDIAN);
-                    cur += 2;
+                    nl_data->columns[i]->csize = tvb_get_guint32(tvb, cur, encoding);
+                    proto_tree_add_item(col_tree, hf_tds_colmetadata_large4_type_size, tvb, cur, 4, ENC_LITTLE_ENDIAN);
+                    cur += 4;
 
                     proto_tree_add_item(col_tree, hf_tds_colmetadata_collate_codepage, tvb, cur, 2, ENC_LITTLE_ENDIAN );
                     cur += 2;
@@ -5852,22 +5851,32 @@ dissect_tds7_colmetadata_token(tvbuff_t *tvb, struct _netlib_data *nl_data, guin
                     cur +=1;
 
                     /* Table name */
-                    numparts = tvb_get_guint8(tvb, cur);
-                    proto_tree_add_item(col_tree, hf_tds_colmetadata_table_name_parts, tvb, cur, 1, ENC_LITTLE_ENDIAN);
-                    cur += 1;
+                    if (TDS_PROTO_TDS7_2_OR_GREATER(tds_info)) {
+                        guint numparts = tvb_get_guint8(tvb, cur);
+                        guint parti;
+                        proto_tree_add_item(col_tree, hf_tds_colmetadata_table_name_parts, tvb, cur, 1, ENC_LITTLE_ENDIAN);
+                        cur += 1;
 
-                    for(parti = 0; parti < numparts; parti++)
-                    {
-                        partlen = tvb_get_letohs(tvb, cur);
+                        for(parti = 0; parti < numparts; parti++)
+                        {
+                            guint partlen = tvb_get_letohs(tvb, cur);
+                            proto_tree_add_item(col_tree, hf_tds_colmetadata_table_name_length, tvb, cur, 2, ENC_LITTLE_ENDIAN);
+                            proto_tree_add_item(col_tree, hf_tds_colmetadata_table_name, tvb, cur + 2, partlen * 2, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                            cur += 2 + (partlen * 2);
+                        }
+                    }
+                    else {
+                        guint tablenamelen = tvb_get_letohs(tvb, cur);
                         proto_tree_add_item(col_tree, hf_tds_colmetadata_table_name_length, tvb, cur, 2, ENC_LITTLE_ENDIAN);
-                        proto_tree_add_item(col_tree, hf_tds_colmetadata_table_name, tvb, cur + 2, partlen * 2, ENC_UTF_16|ENC_LITTLE_ENDIAN);
-                        cur += 2 + (partlen * 2);
+                        proto_tree_add_item(col_tree, hf_tds_colmetadata_table_name, tvb, cur + 2, tablenamelen * 2, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                        cur += 2 + (tablenamelen * 2);
                     }
 
                     break;
                 }
                 case TDS_DATA_TYPE_SSVARIANT:
                 {
+                    proto_tree_add_item(col_tree, hf_tds_colmetadata_large4_type_size, tvb, cur, 4, ENC_LITTLE_ENDIAN);
                     cur += 4;
                     break;
                 }
@@ -7825,9 +7834,14 @@ proto_register_tds(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_tds_colmetadata_large_type_size,
+        { &hf_tds_colmetadata_large2_type_size,
           { "Large type size", "tds.colmetadata.large_type_size",
             FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_tds_colmetadata_large4_type_size,
+          { "Large type size", "tds.colmetadata.large_type_size",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_tds_colmetadata_collate_codepage,
