@@ -4232,10 +4232,8 @@ error:
            file. */
         if (capture_opts->save_file != NULL) {
             ws_unlink(capture_opts->save_file);
-            g_free(capture_opts->save_file);
         }
     }
-    capture_opts->save_file = NULL;
     if (cfilter_error)
         report_cfilter_error(capture_opts, error_index, errmsg);
     else
