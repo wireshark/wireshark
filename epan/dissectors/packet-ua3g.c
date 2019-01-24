@@ -274,6 +274,7 @@ static int hf_ua3g_ip_device_routing_freeseating_parameter_length = -1;
 static int hf_ua3g_ip_device_routing_freeseating_parameter_mac = -1;
 static int hf_ua3g_ip_device_routing_freeseating_parameter_ip = -1;
 static int hf_ua3g_ip_device_routing_freeseating_parameter_ipv6 = -1;
+static int hf_ua3g_ip_device_routing_freeseating_parameter_do_reset = -1;
 static int hf_ua3g_ip_device_routing_freeseating_parameter_uint = -1;
 static int hf_ua3g_ip_device_routing_freeseating_parameter_value = -1;
 static int hf_ua3g_main_voice_mode_handset_level = -1;
@@ -1066,6 +1067,7 @@ static const value_string ip_device_routing_cmd_freeseating_vals[] = {
     {0x00   , "Pseudo MAC Address"},
     {0x01   , "Maincpu1"},
     {0x02   , "Maincpu2"},
+    {0x03   , "Restart application"},
     {0, NULL}
 };
 
@@ -1785,6 +1787,11 @@ decode_ip_device_routing(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                         proto_tree_add_item(ua3g_param_tree, hf, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
                     else
                         proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_freeseating_parameter_value, tvb, offset, parameter_length, ENC_NA);
+                    break;
+                }
+                case 0x03: /* Restart application */
+                {
+                    proto_tree_add_item(ua3g_param_tree, hf_ua3g_ip_device_routing_freeseating_parameter_do_reset, tvb, offset, parameter_length, ENC_BIG_ENDIAN);
                     break;
                 }
                 default:
@@ -4672,6 +4679,7 @@ proto_register_ua3g(void)
         { &hf_ua3g_ip_device_routing_freeseating_parameter_mac, { "Value", "ua3g.ip.freeseating.parameter.mac", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_freeseating_parameter_ip, { "Value", "ua3g.ip.freeseating.parameter.ip", FT_IPv4, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_ip_device_routing_freeseating_parameter_ipv6, { "Value", "ua3g.ip.freeseating.parameter.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_ua3g_ip_device_routing_freeseating_parameter_do_reset, { "Value", "ua3g.ip.freeseating.parameter.do_reset", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_audio_config_dpi_chan_ua_tx1, { "UA Channel UA-TX1", "ua3g.command.audio_config.dpi_chan.ua_tx1", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_audio_config_dpi_chan_ua_tx2, { "UA Channel UA-TX2", "ua3g.command.audio_config.dpi_chan.ua_tx2", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_audio_config_dpi_chan_gci_tx1, { "GCI Channel GCI-TX1", "ua3g.command.audio_config.dpi_chan.gci_tx1", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
