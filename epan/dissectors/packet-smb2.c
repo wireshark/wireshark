@@ -3152,7 +3152,7 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		}
 	}
 
-	if (!pinfo->fd->visited) {
+	if (!pinfo->fd->visited && ssi) {
 		/* compute preauth hash on first pass */
 
 		/* start from last preauth hash of the connection if 1st request */
@@ -3164,7 +3164,7 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		memcpy(ssi->preauth_hash_req, si->conv->preauth_hash_current, SMB2_PREAUTH_HASH_SIZE);
 	}
 
-	if (ssi->preauth_hash_req) {
+	if (ssi && ssi->preauth_hash_req) {
 		hash_item = proto_tree_add_bytes_with_length(tree, hf_smb2_preauth_hash, tvb,
 							     0, tvb_captured_length(tvb),
 							     ssi->preauth_hash_req, SMB2_PREAUTH_HASH_SIZE);
@@ -3359,7 +3359,7 @@ dissect_smb2_session_setup_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	}
 
 	/* compute preauth hash on first pass */
-	if (!pinfo->fd->visited) {
+	if (!pinfo->fd->visited && ssi) {
 		ssi->preauth_hash_res = (guint8*)wmem_alloc0(wmem_file_scope(), SMB2_PREAUTH_HASH_SIZE);
 		/*
 		 * Preauth hash can only be used if the session is
@@ -3386,7 +3386,7 @@ dissect_smb2_session_setup_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		memcpy(ssi->preauth_hash_res, si->conv->preauth_hash_current, SMB2_PREAUTH_HASH_SIZE);
 	}
 
-	if (ssi->preauth_hash_res) {
+	if (ssi && ssi->preauth_hash_res) {
 		hash_item = proto_tree_add_bytes_with_length(tree, hf_smb2_preauth_hash, tvb,
 							     0, tvb_captured_length(tvb),
 							     ssi->preauth_hash_res, SMB2_PREAUTH_HASH_SIZE);
@@ -4514,7 +4514,7 @@ dissect_smb2_negotiate_protocol_request(tvbuff_t *tvb, packet_info *pinfo _U_, p
 	smb2_saved_info_t *ssi = si->saved;
 
 	/* compute preauth hash on first pass */
-	if (!pinfo->fd->visited) {
+	if (!pinfo->fd->visited && ssi) {
 		ssi->preauth_hash_req = (guint8*)wmem_alloc0(wmem_file_scope(), SMB2_PREAUTH_HASH_SIZE);
 		memset(si->conv->preauth_hash_ses, 0, SMB2_PREAUTH_HASH_SIZE);
 		memset(si->conv->preauth_hash_con, 0, SMB2_PREAUTH_HASH_SIZE);
@@ -4523,7 +4523,7 @@ dissect_smb2_negotiate_protocol_request(tvbuff_t *tvb, packet_info *pinfo _U_, p
 		memcpy(ssi->preauth_hash_req, si->conv->preauth_hash_current, SMB2_PREAUTH_HASH_SIZE);
 	}
 
-	if (ssi->preauth_hash_req) {
+	if (ssi && ssi->preauth_hash_req) {
 		hash_item = proto_tree_add_bytes_with_length(tree,
 							     hf_smb2_preauth_hash, tvb,
 							     0, tvb_captured_length(tvb),
@@ -4613,7 +4613,7 @@ dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo, prot
 	smb2_saved_info_t *ssi = si->saved;
 
 	/* compute preauth hash on first pass */
-	if (!pinfo->fd->visited) {
+	if (!pinfo->fd->visited && ssi) {
 		ssi->preauth_hash_res = (guint8*)wmem_alloc0(wmem_file_scope(), SMB2_PREAUTH_HASH_SIZE);
 		update_preauth_hash(si->conv->preauth_hash_current, tvb);
 		memcpy(ssi->preauth_hash_res, si->conv->preauth_hash_current, SMB2_PREAUTH_HASH_SIZE);
@@ -4627,7 +4627,7 @@ dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo, prot
 		si->conv->preauth_hash_current = si->conv->preauth_hash_ses;
 	}
 
-	if (ssi->preauth_hash_res) {
+	if (ssi && ssi->preauth_hash_res) {
 		hash_item = proto_tree_add_bytes_with_length(tree,
 							     hf_smb2_preauth_hash, tvb,
 							     0, tvb_captured_length(tvb),
