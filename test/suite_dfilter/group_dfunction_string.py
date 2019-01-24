@@ -21,19 +21,23 @@ class case_dfunction_string(unittest.TestCase):
     def test_fail_1(self, checkDFilterFail):
         # Invalid filter (only non-string fields are supported)
         dfilter = "string(dhcp.server) == hostname"
-        checkDFilterFail(dfilter)
+        error = 'To string conversion for this field is not supported'
+        checkDFilterFail(dfilter, error)
 
     def test_fail_2(self, checkDFilterFail):
         # Invalid field: value
         dfilter = "string(123) == \"123\""
-        checkDFilterFail(dfilter)
+        error = 'To string conversion for this field is not supported'
+        checkDFilterFail(dfilter, error)
 
     def test_fail_3(self, checkDFilterFail):
         # Invalid field: protocol
         dfilter = "string(dhcp) == hostname"
-        checkDFilterFail(dfilter)
+        error = 'To string conversion for this field is not supported'
+        checkDFilterFail(dfilter, error)
 
     def test_fail_4(self, checkDFilterFail):
         # Invalid field: bytes
         dfilter = "string(dhcp.option.value) == \"hostname\""
-        checkDFilterFail(dfilter)
+        error = 'To string conversion for this field is not supported'
+        checkDFilterFail(dfilter, error)

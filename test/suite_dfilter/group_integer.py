@@ -22,17 +22,20 @@ class case_integer(unittest.TestCase):
     def test_eq_3(self, checkDFilterFail):
         # Invalid filter (only one equals sign)
         dfilter = "ip.version = 4"
-        checkDFilterFail(dfilter)
+        error = '"=" was unexpected in this context.'
+        checkDFilterFail(dfilter, error)
 
     def test_eq_4(self, checkDFilterFail):
         # Invalid filter
         dfilter = "ip.version == the quick brown fox jumps over the lazy dog"
-        checkDFilterFail(dfilter)
+        error = '"quick" was unexpected in this context.'
+        checkDFilterFail(dfilter, error)
 
     def test_eq_5(self, checkDFilterFail):
         # Invalid filter
         dfilter = "ip.version == 4 the quick brown fox jumps over the lazy dog"
-        checkDFilterFail(dfilter)
+        error = '"the" was unexpected in this context.'
+        checkDFilterFail(dfilter, error)
 
     def test_ne_1(self, checkDFilterCount):
         dfilter = "ip.version != 0"

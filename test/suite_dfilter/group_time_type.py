@@ -82,14 +82,17 @@ class case_time(unittest.TestCase):
     def test_bad_time_1(self, checkDFilterFail):
         # No text is permitted after the time.
         dfilter = 'frame.time == "Dec 31, 2002 13:56:31.3 UTC"'
-        checkDFilterFail(dfilter)
+        error = '"Dec 31, 2002 13:56:31.3 UTC" is not a valid absolute time. Example: "Nov 12, 1999 08:55:44.123" or "2011-07-04 12:34:56"'
+        checkDFilterFail(dfilter, error)
 
     def test_bad_time_2(self, checkDFilterFail):
         # Miliseconds can only occur after seconds.
         dfilter = 'frame.time == "2002-12-31 13:55.3"'
-        checkDFilterFail(dfilter)
+        error = '"2002-12-31 13:55.3" is not a valid absolute time. Example: "Nov 12, 1999 08:55:44.123" or "2011-07-04 12:34:56"'
+        checkDFilterFail(dfilter, error)
 
     def test_bad_time_3(self, checkDFilterFail):
         # Reject months in a different locale (mrt is March in nl_NL.UTF-8).
         dfilter = 'frame.time == "mrt 1, 2000 00:00:00"'
-        checkDFilterFail(dfilter)
+        error = '"mrt 1, 2000 00:00:00" is not a valid absolute time. Example: "Nov 12, 1999 08:55:44.123" or "2011-07-04 12:34:56"'
+        checkDFilterFail(dfilter, error)

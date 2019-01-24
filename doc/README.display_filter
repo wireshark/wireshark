@@ -574,11 +574,11 @@ checkDFilterCount(dfilter, expected_count)
     matches is not the same as failure to compile the display
     filter string.
 
-checkDFilterFail(dfilter)
+checkDFilterFail(dfilter, error)
 
-    This will run tshark with the display filter, and
-    assert that tshark fails. This is useful when expecting
-    display filter syntax errors to be caught.
+    This will run dftest with the display filter, and check
+    that it fails with a given error message. This is useful
+    when expecting display filter syntax errors to be caught.
 
 To execute tests:
 
