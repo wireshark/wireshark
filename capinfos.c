@@ -88,14 +88,14 @@
 /*
  * By default capinfos now continues processing
  * the next filename if and when wiretap detects
- * a problem opening a file.
+ * a problem opening or reading a file.
  * Use the '-C' option to revert back to original
  * capinfos behavior which is to abort any
- * additional file processing at first open file
- * failure.
+ * additional file processing at the first file
+ * open or read failure.
  */
 
-static gboolean stop_after_wtap_open_offline_failure = FALSE;
+static gboolean stop_after_failure = FALSE;
 
 /*
  * table report variables
@@ -1561,7 +1561,7 @@ main(int argc, char *argv[])
         break;
 
       case 'C':
-        stop_after_wtap_open_offline_failure = TRUE;
+        stop_after_failure = TRUE;
         break;
 
       case 'A':
@@ -1679,7 +1679,7 @@ main(int argc, char *argv[])
     if (!wth) {
       cfile_open_failure_message("capinfos", argv[opt], err, err_info);
       overall_error_status = 2; /* remember that an error has occurred */
-      if (stop_after_wtap_open_offline_failure)
+      if (stop_after_failure)
         goto exit;
     }
 
@@ -1691,7 +1691,8 @@ main(int argc, char *argv[])
       wtap_close(wth);
       if (status) {
         overall_error_status = status;
-        goto exit;
+        if (stop_after_failure)
+          goto exit;
       }
     }
   }

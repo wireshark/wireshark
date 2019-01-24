@@ -124,13 +124,15 @@ Displays the number of packets in the capture file.
 =item -C
 
 Cancel processing any additional files if and
-when capinfos should fail to open an input file.
-By default capinfos will attempt to open each and
-every file name argument.
+when capinfos fails to open an input file
+or gets an error reading an input file.
+By default capinfos will continue processing files
+even if it gets an error opening or reading a file.
 
 Note: An error message will be written to stderr
-whenever capinfos fails to open a file regardless
-of whether the -C option is specified or not.
+whenever capinfos fails to open a file or gets
+an error reading from a file regardless whether
+the -C option is specified or not.
 Upon exit, capinfos will return an error status
 if any errors occurred during processing.
 
