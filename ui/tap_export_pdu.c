@@ -54,6 +54,9 @@ export_pdu_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const 
 
     rec.rec_header.packet_header.pkt_encap = exp_pdu_tap_data->pkt_encap;
 
+    /* rec.opt_comment is not modified by wtap_dump, but if for some reason the
+     * epan_get_user_comment() or pinfo->rec->opt_comment are invalidated,
+     * copying it here does not hurt. (Can invalidation really happen?) */
     if (pinfo->fd->has_user_comment) {
         rec.opt_comment = g_strdup(epan_get_user_comment(edt->session, pinfo->fd));
         rec.has_comment_changed = TRUE;

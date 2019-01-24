@@ -2257,6 +2257,9 @@ static int erf_update_anchors_from_header(erf_t *erf_priv, wtap_rec *rec, union 
   }
 
   if (comment) {
+    /* Will be freed by either wtap_sequential_close (for rec = &wth->rec) or by
+     * the caller of wtap_seek_read. See wtap_rec_cleanup. */
+    g_free(rec->opt_comment);
     rec->opt_comment = g_strdup(comment);
     rec->presence_flags |= WTAP_HAS_COMMENTS;
   } else {
@@ -2264,8 +2267,7 @@ static int erf_update_anchors_from_header(erf_t *erf_priv, wtap_rec *rec, union 
      * Need to set opt_comment to NULL to prevent other packets
      * from displaying the same comment
      */
-    /* XXX: We cannot free the old comment because it can be for a different
-     * frame and still in use, wiretap should be handling this better! */
+    g_free(rec->opt_comment);
     rec->opt_comment = NULL;
   }
 

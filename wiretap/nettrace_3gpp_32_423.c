@@ -171,7 +171,9 @@ nettrace_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	wth->rec.rec_header.packet_header.pkt_encap = file_info->wth_tmp_file->rec.rec_header.packet_header.pkt_encap;
 	wth->rec.tsprec = file_info->wth_tmp_file->rec.tsprec;
 	wth->rec.rec_header.packet_header.interface_id = file_info->wth_tmp_file->rec.rec_header.packet_header.interface_id;
+	/* Steal memory from the pcapng wth. */
 	wth->rec.opt_comment = file_info->wth_tmp_file->rec.opt_comment;
+	file_info->wth_tmp_file->rec.opt_comment = NULL;
 	wth->rec.rec_header.packet_header.drop_count = file_info->wth_tmp_file->rec.rec_header.packet_header.drop_count;
 	wth->rec.rec_header.packet_header.pack_flags = file_info->wth_tmp_file->rec.rec_header.packet_header.pack_flags;
 

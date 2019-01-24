@@ -1945,7 +1945,8 @@ main(int argc, char *argv[])
                 if (comment != NULL) {
                     /* Copy and change rather than modify returned rec */
                     temp_rec = *rec;
-                    temp_rec.opt_comment = g_strdup(comment);
+                    /* The comment is not modified by dumper, cast away. */
+                    temp_rec.opt_comment = (char *)comment;
                     temp_rec.has_comment_changed = TRUE;
                     rec = &temp_rec;
                 } else {

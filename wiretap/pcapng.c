@@ -1323,6 +1323,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
     }
 
     /* Option defaults */
+    g_free(wblock->rec->opt_comment);   /* Free memory from an earlier read. */
     wblock->rec->opt_comment = NULL;
     wblock->rec->rec_header.packet_header.drop_count  = -1;
     wblock->rec->rec_header.packet_header.pack_flags  = 0;
@@ -1374,6 +1375,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
             case(OPT_COMMENT):
                 if (oh->option_length > 0 && oh->option_length < opt_cont_buf_len) {
                     wblock->rec->presence_flags |= WTAP_HAS_COMMENTS;
+                    g_free(wblock->rec->opt_comment);
                     wblock->rec->opt_comment = g_strndup((char *)option_content, oh->option_length);
                     pcapng_debug("pcapng_read_packet_block: length %u opt_comment '%s'", oh->option_length, wblock->rec->opt_comment);
                 } else {
@@ -1571,6 +1573,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
     wblock->rec->ts.secs = 0;
     wblock->rec->ts.nsecs = 0;
     wblock->rec->rec_header.packet_header.interface_id = 0;
+    g_free(wblock->rec->opt_comment);   /* Free memory from an earlier read. */
     wblock->rec->opt_comment = NULL;
     wblock->rec->rec_header.packet_header.drop_count = 0;
     wblock->rec->rec_header.packet_header.pack_flags = 0;

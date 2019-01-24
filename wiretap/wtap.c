@@ -1460,6 +1460,8 @@ wtap_rec_init(wtap_rec *rec)
 void
 wtap_rec_cleanup(wtap_rec *rec)
 {
+	g_free(rec->opt_comment);
+	rec->opt_comment = NULL;
 	ws_buffer_free(&rec->options_buf);
 }
 
