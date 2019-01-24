@@ -611,7 +611,7 @@ static const int *tcp_option_mptcp_dss_flags[] = {
   NULL
 };
 
-const unit_name_string units_64bit_version = { " (64bits version)", NULL };
+static const unit_name_string units_64bit_version = { " (64bits version)", NULL };
 
 
 static const char *
