@@ -996,3 +996,55 @@ class case_decrypt_pkcs11(subprocesstest.SubprocessTestCase):
                 '-Y', 'http',
             ))
         self.assertIn('/', proc.stdout_str)
+
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
+class case_decrypt_smb2(subprocesstest.SubprocessTestCase):
+    def test_smb300_bad_key(self, cmd_tshark, capture_file):
+        '''Check that a bad session key doesn't crash'''
+        seskey = 'ffffffffffffffffffffffffffffffff'
+        sesid = '1900009c003c0000'
+        proc = self.assertRun((cmd_tshark,
+                '-r', capture_file('smb300-aes-128-ccm.pcap.gz'),
+                '-o', 'uat:smb2_seskey_list:{},{}'.format(sesid, seskey),
+                '-Y', 'frame.number == 7',
+        ))
+        self.assertIn('unknown', proc.stdout_str)
+
+    def test_smb311_bad_key(self, cmd_tshark, capture_file):
+        seskey = 'ffffffffffffffffffffffffffffffff'
+        sesid = '2900009c003c0000'
+        proc = self.assertRun((cmd_tshark,
+                '-r', capture_file('smb311-aes-128-ccm.pcap.gz'),
+                '-o', 'uat:smb2_seskey_list:{},{}'.format(sesid, seskey),
+                '-Y', 'frame.number == 7'
+        ))
+        self.assertIn('unknown', proc.stdout_str)
+
+    def test_smb300_aes128ccm(self, cmd_tshark, capture_file):
+        '''Check SMB 3.0 AES128CCM decryption.'''
+        sesid = '1900009c003c0000'
+        seskey = '9a9ea16a0cdbeb6064772318073f172f'
+        tree = r'\\dfsroot1.foo.test\IPC$'
+        proc = self.assertRun((cmd_tshark,
+                '-r', capture_file('smb300-aes-128-ccm.pcap.gz'),
+                '-o', 'uat:smb2_seskey_list:{},{}'.format(sesid, seskey),
+                '-Tfields',
+                '-e', 'smb2.tree',
+                '-Y', 'smb2.tree == "{}"'.format(tree.replace('\\', '\\\\')),
+        ))
+        self.assertEqual(tree, proc.stdout_str.strip())
+
+    def test_smb311_aes128ccm(self, cmd_tshark, capture_file):
+        '''Check SMB 3.1.1 AES128CCM decryption.'''
+        sesid = '2900009c003c0000'
+        seskey = 'f1fa528d3cd182cca67bd4596dabd885'
+        tree = r'\\dfsroot1.foo.test\IPC$'
+        proc = self.assertRun((cmd_tshark,
+                '-r', capture_file('smb311-aes-128-ccm.pcap.gz'),
+                '-o', 'uat:smb2_seskey_list:{},{}'.format(sesid, seskey),
+                '-Tfields',
+                '-e', 'smb2.tree',
+                '-Y', 'smb2.tree == "{}"'.format(tree.replace('\\', '\\\\')),
+        ))
+        self.assertEqual(tree, proc.stdout_str.strip())
