@@ -1127,10 +1127,9 @@ QString PacketList::packetComment()
     if (!fdata) return NULL;
 
     pkt_comment = cf_get_packet_comment(cap_file_, fdata);
+    if (!pkt_comment) return NULL;
 
-    return QString(pkt_comment);
-
-    /* XXX, g_free(pkt_comment) */
+    return gchar_free_to_qstring(pkt_comment);
 }
 
 void PacketList::setPacketComment(QString new_comment)

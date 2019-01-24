@@ -542,7 +542,7 @@ void CaptureFilePropertiesDialog::fillDetails()
 
             if (pkt_comment) {
                 QString frame_comment_html = tr("<p>Frame %1: ").arg(framenum);
-                QString raw_comment = pkt_comment;
+                QString raw_comment = gchar_free_to_qstring(pkt_comment);
 
                 frame_comment_html += html_escape(raw_comment).replace('\n', "<br>");
                 frame_comment_html += "</p>\n";

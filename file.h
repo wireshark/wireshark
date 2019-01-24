@@ -686,6 +686,7 @@ void cf_update_section_comment(capture_file *cf, gchar *comment);
  *
  * @param cf the capture file
  * @param fd the frame_data structure for the frame
+ * @returns A comment (use g_free to free) or NULL if there is none.
  */
 char *cf_get_packet_comment(capture_file *cf, const frame_data *fd);
 

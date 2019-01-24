@@ -3962,7 +3962,8 @@ cf_get_packet_comment(capture_file *cf, const frame_data *fd)
     if (!cf_read_record_r(cf, fd, &rec, &buf))
       { /* XXX, what we can do here? */ }
 
-    comment = rec.opt_comment;
+    /* rec.opt_comment is owned by the record, copy it before it is gone. */
+    comment = g_strdup(rec.opt_comment);
     wtap_rec_cleanup(&rec);
     ws_buffer_free(&buf);
     return comment;
