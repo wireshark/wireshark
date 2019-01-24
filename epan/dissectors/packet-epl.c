@@ -6180,9 +6180,6 @@ proto_register_epl(void)
 	epl_profiles_by_nodeid = wmem_map_new(wmem_epan_scope(), g_direct_hash, g_direct_equal);
 	epl_profiles_by_address = wmem_map_new(wmem_epan_scope(), epl_address_hash, epl_address_equal);
 
-#ifdef HAVE_LIBXML2
-	epl_xdd_init();
-#endif
 	epl_eds_init();
 
 	prefs_register_filename_preference(epl_module, "default_profile", "Default Profile to use if no specific profiles exist",
