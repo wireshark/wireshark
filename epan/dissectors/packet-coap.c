@@ -117,6 +117,7 @@ static const value_string vals_code[] = {
 	{ 141, "4.13 Request Entity Too Large" },
 	{ 143, "4.15 Unsupported Content-Format" },
 	{ 150, "4.22 Unprocessable Entity" },		/* RFC8132 */
+	{ 157, "4.29 Too Many Requests" },		/* RFC8516 */
 	{ 160, "5.00 Internal Server Error" },
 	{ 161, "5.01 Not Implemented" },
 	{ 162, "5.02 Bad Gateway" },
