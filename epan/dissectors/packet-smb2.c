@@ -826,7 +826,7 @@ static void update_preauth_hash(void *buf, tvbuff_t *tvb)
 	void *pkt;
 
 	err = gcry_md_open(&md, GCRY_MD_SHA512, 0);
-	if (gcry_err_code(err))
+	if (err)
 		return;
 
 	/* we dup in case of non-contiguous packet */
@@ -3347,7 +3347,7 @@ dissect_smb2_error_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 }
 
 static int
-dissect_smb2_session_setup_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si _U_)
+dissect_smb2_session_setup_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	offset_length_buffer_t s_olb;
 	proto_item *hash_item;
@@ -4503,7 +4503,7 @@ dissect_smb2_negotiate_context(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 }
 
 static int
-dissect_smb2_negotiate_protocol_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si _U_)
+dissect_smb2_negotiate_protocol_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	guint16 dc;
 	guint16 i;
@@ -4602,7 +4602,7 @@ dissect_smb2_negotiate_protocol_request(tvbuff_t *tvb, packet_info *pinfo _U_, p
 }
 
 static int
-dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si _U_)
+dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	offset_length_buffer_t s_olb;
 	guint16 i;
