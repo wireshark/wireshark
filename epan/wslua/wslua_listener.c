@@ -71,6 +71,7 @@ static int tap_packet_cb_error_handler(lua_State* L) {
 static tap_packet_status lua_tap_packet(void *tapdata, packet_info *pinfo, epan_dissect_t *edt, const void *data) {
     Listener tap = (Listener)tapdata;
     tap_packet_status retval = TAP_PACKET_DONT_REDRAW;
+    TreeItem lua_tree_tap;
 
     if (tap->packet_ref == LUA_NOREF) return TAP_PACKET_DONT_REDRAW; /* XXX - report error and return TAP_PACKET_FAILED? */
 
@@ -90,7 +91,8 @@ static tap_packet_status lua_tap_packet(void *tapdata, packet_info *pinfo, epan_
 
     lua_pinfo = pinfo;
     lua_tvb = edt->tvb;
-    lua_tree = create_TreeItem(edt->tree, NULL);
+    lua_tree_tap = create_TreeItem(edt->tree, NULL);
+    lua_tree = lua_tree_tap;
 
     switch ( lua_pcall(tap->L,3,1,1) ) {
         case 0:
@@ -115,6 +117,7 @@ static tap_packet_status lua_tap_packet(void *tapdata, packet_info *pinfo, epan_
     lua_pinfo = NULL;
     lua_tvb = NULL;
     lua_tree = NULL;
+    g_free(lua_tree_tap);
 
     return retval;
 }
