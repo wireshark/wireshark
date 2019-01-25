@@ -307,6 +307,17 @@ epan_cleanup(void)
 	dfilter_cleanup();
 	decode_clear_all();
 
+#ifdef HAVE_LUA
+	/*
+	 * Must deregister Proto objects in Lua before destroying dissector
+	 * tables in packet_cleanup(). Doing so will also deregister and free
+	 * preferences, this must happen before prefs_cleanup(). That will
+	 * update the list of deregistered fields which must be followed by
+	 * proto_cleanup() to complete deallocation.
+	 */
+	wslua_early_cleanup();
+#endif
+
 	/*
 	 * Note: packet_cleanup() will call registered shutdown routines which
 	 * may be used to deregister dynamically registered protocol fields,

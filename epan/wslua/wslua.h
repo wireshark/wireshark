@@ -165,6 +165,7 @@ typedef struct _wslua_pref_t {
 
     struct _wslua_pref_t* next;
     struct _wslua_proto_t* proto;
+    int ref;            /* Reference to enable Proto to deregister prefs. */
 } wslua_pref_t;
 
 typedef struct _wslua_proto_t {
@@ -787,6 +788,7 @@ extern void clear_outstanding_FieldInfo(void);
 extern void wslua_print_stack(char* s, lua_State* L);
 
 extern void wslua_init(register_cb cb, gpointer client_data);
+extern void wslua_early_cleanup(void);
 extern void wslua_cleanup(void);
 
 extern tap_extractor_t wslua_get_tap_extractor(const gchar* name);

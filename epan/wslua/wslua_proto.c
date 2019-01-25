@@ -618,9 +618,11 @@ int wslua_deregister_protocols(lua_State* L) {
         if (proto->prefs_module) {
             Pref pref;
             prefs_deregister_protocol(proto->hfid);
+            /* Preferences are unregistered, now free its memory via Pref__gc */
             for (pref = proto->prefs.next; pref; pref = pref->next) {
-                g_free(pref->name);
-                pref->name = NULL; /* Deregister Pref, freed in Pref__gc */
+                int pref_ref = pref->ref;
+                pref->ref = LUA_NOREF;
+                luaL_unref(L, LUA_REGISTRYINDEX, pref_ref);
             }
         }
         if (proto->expert_module) {

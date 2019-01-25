@@ -1014,6 +1014,10 @@ void wslua_init(register_cb cb, gpointer client_data) {
     first_time = FALSE;
 }
 
+void wslua_early_cleanup(void) {
+    wslua_deregister_protocols(L);
+}
+
 void wslua_reload_plugins (register_cb cb, gpointer client_data) {
     const funnel_ops_t* ops = funnel_get_funnel_ops();
 

@@ -6846,6 +6846,8 @@ proto_deregister_protocol(const char *short_name)
 		protocol->fields = NULL;
 	}
 
+	g_list_free(protocol->heur_list);
+
 	/* Remove this protocol from the list of known protocols */
 	protocols = g_list_remove(protocols, protocol);
 
