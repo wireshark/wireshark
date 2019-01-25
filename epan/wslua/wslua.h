@@ -217,6 +217,12 @@ struct _wslua_treeitem {
     gboolean expired;
 };
 
+// Internal structure for wslua_field.c to track info about registered fields.
+struct _wslua_header_field_info {
+    char *name;
+    header_field_info *hfi;
+};
+
 struct _wslua_field_info {
     field_info *ws_fi;
     gboolean expired;
@@ -320,7 +326,7 @@ typedef address* Address;
 typedef nstime_t* NSTime;
 typedef gint64 Int64;
 typedef guint64 UInt64;
-typedef header_field_info** Field;
+typedef struct _wslua_header_field_info* Field;
 typedef struct _wslua_field_info* FieldInfo;
 typedef struct _wslua_tap* Listener;
 typedef struct _wslua_tw* TextWindow;
