@@ -203,8 +203,18 @@ ringbuf_init(const char *capfile_name, guint num_files, gboolean group_read_acce
 }
 
 
+/*
+ * Whether the ringbuf filenames are ready.
+ * (Whether ringbuf_init is called and ringbuf_free is not called.)
+ */
+gboolean ringbuf_is_initialized(void)
+{
+  return rb_data.files != NULL;
+}
+
 const gchar *ringbuf_current_filename(void)
 {
+  /* g_assert(ringbuf_is_initialized()); */
   return rb_data.files[rb_data.curr_file_num % rb_data.num_files].name;
 }
 
@@ -359,7 +369,7 @@ ringbuf_error_cleanup(void)
 #endif /* HAVE_LIBPCAP */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

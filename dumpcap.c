@@ -1148,6 +1148,13 @@ exit_main(int status)
 
 #endif /* _WIN32 */
 
+    if (ringbuf_is_initialized()) {
+        /* save_file is managed by ringbuffer, be sure to release the memory and
+         * avoid capture_opts_cleanup from double-freeing 'save_file'. */
+        ringbuf_free();
+        global_capture_opts.save_file = NULL;
+    }
+
     capture_opts_cleanup(&global_capture_opts);
     exit(status);
 }
@@ -3548,10 +3555,10 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
                                              (capture_opts->has_ring_num_files) ? capture_opts->ring_num_files : 0,
                                              capture_opts->group_read_access);
 
-                /* we need the ringbuf name */
+                /* capfile_name is unused as the ringbuffer provides its own filename. */
                 if (*save_file_fd != -1) {
                     g_free(capfile_name);
-                    capfile_name = g_strdup(ringbuf_current_filename());
+                    capfile_name = NULL;
                 }
             } else {
                 /* Try to open/create the specified file for use as a capture buffer. */
@@ -3645,6 +3652,9 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
                        "could not be opened: %s.", capfile_name, g_strerror(errno));
         } else {
             if (capture_opts->multi_files_on) {
+                /* Ensures that the ringbuffer is not used. This ensures that
+                 * !ringbuf_is_initialized() is equivalent to
+                 * capture_opts->save_file not being part of ringbuffer. */
                 ringbuf_error_cleanup();
             }
 
@@ -3657,12 +3667,15 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
         return FALSE;
     }
 
-    if (capture_opts->save_file != NULL) {
-        g_free(capture_opts->save_file);
+    g_free(capture_opts->save_file);
+    if (!is_tempfile && capture_opts->multi_files_on) {
+        /* In ringbuffer mode, save_file points to a filename from ringbuffer.c.
+         * capfile_name was already freed before. */
+        capture_opts->save_file = (char *)ringbuf_current_filename();
+    } else {
+        /* capture_opts_cleanup will g_free(capture_opts->save_file). */
+        capture_opts->save_file = capfile_name;
     }
-    capture_opts->save_file = capfile_name;
-    /* capture_opts.save_file is "g_free"ed later, which is equivalent to
-       "g_free(capfile_name)". */
 
     return TRUE;
 }
