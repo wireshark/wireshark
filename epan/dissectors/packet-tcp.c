@@ -2112,6 +2112,17 @@ finished_fwd:
             goto finished_checking_retransmission_type;
         }
 
+        /* This segment is *not* considered a retransmission/out-of-order if
+         *  the segment length is larger than one (it really adds new data)
+         *  the sequence number is one less than the previous nextseq and
+         *      (the previous segment is possibly a zero window probe)
+         *
+         * We should still try to flag Spurious Retransmissions though.
+         */
+        if (seglen > 1 && tcpd->fwd->tcp_analyze_seq_info->nextseq - 1 == seq) {
+            seq_not_advanced = FALSE;
+        }
+
         /* If there were >=2 duplicate ACKs in the reverse direction
          * (there might be duplicate acks missing from the trace)
          * and if this sequence number matches those ACKs
