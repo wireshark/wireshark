@@ -5792,6 +5792,8 @@ free_cookie_value(gpointer value)
 {
   decrypt_data_t *decr = (decrypt_data_t *)value;
 
+  g_free(decr->gi);
+  g_free(decr->gr);
   g_hash_table_destroy(decr->iv_hash);
   g_slice_free1(sizeof(decrypt_data_t), decr);
 }
