@@ -207,7 +207,7 @@ WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(FrameInfo,original_length,rec->rec_header.pa
 WSLUA_ATTRIBUTE_NAMED_NUMBER_GETTER(FrameInfo,encap,rec->rec_header.packet_header.pkt_encap);
 WSLUA_ATTRIBUTE_NAMED_NUMBER_SETTER(FrameInfo,encap,rec->rec_header.packet_header.pkt_encap,int);
 
-// XXX rec->opt_comment is glib-allocated memory, rec is wtap_rec. What frees it?
+// rec->opt_comment will be freed by wtap_sequential_close -> wtap_rec_cleanup.
 /* WSLUA_ATTRIBUTE FrameInfo_comment RW A string comment for the packet, if the
     `wtap_presence_flags.COMMENTS` was set in the presence flags; nil if there is no comment. */
 WSLUA_ATTRIBUTE_NAMED_STRING_GETTER(FrameInfo,comment,rec->opt_comment);

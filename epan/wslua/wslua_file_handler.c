@@ -262,6 +262,7 @@ wslua_filehandler_read(wtap *wth, int *err, gchar **err_info,
         *err = errno = 0;
     }
 
+    g_free(wth->rec.opt_comment);
     wth->rec.opt_comment = NULL;
 
     fp = push_File(L, wth->fh);
@@ -318,6 +319,8 @@ wslua_filehandler_seek_read(wtap *wth, gint64 seek_off,
     if (err) {
         *err = errno = 0;
     }
+
+    g_free(wth->rec.opt_comment);
     rec->opt_comment = NULL;
 
     fp = push_File(L, wth->random_fh);
