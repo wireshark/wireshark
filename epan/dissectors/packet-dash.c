@@ -873,11 +873,18 @@ static header_field_info hfi_data_varint_count64 DASH_HFI_INIT =
 static header_field_info hfi_msg_specialtx_payload_version DASH_HFI_INIT =
   { "Special Transaction payload version", "dash.specialtx.payload.version", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
+/* SubTxRegister */
 static header_field_info hfi_dash_msg_subtx DASH_HFI_INIT =
     { "Subscription Transaction payload", "dash.subtx.payload", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL };
 
 static header_field_info hfi_dash_msg_subtx_username DASH_HFI_INIT =
   { "Username", "dash.subtx.payload.username", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL };
+
+/* Provider Transactions (DIP3) */
+
+/* ProRegTx */
+static header_field_info hfi_dash_msg_protx DASH_HFI_INIT =
+    { "Provider Transaction payload", "dash.protx.payload", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL };
 
 /* mnb - Masternode Broadcast
 	Whenever a masternode comes online or a client is syncing,
@@ -1768,6 +1775,43 @@ create_subtxregister_tree(tvbuff_t *tvb, proto_item *ti, guint32 offset)
   return offset;
 }
 
+/**
+ * Create a sub-tree and fill it with a Provider Registration
+ */
+static int //proto_tree *
+create_protxregister_tree(tvbuff_t *tvb, proto_item *ti, guint32 offset)
+{
+  proto_tree *tree;
+  tree = proto_item_add_subtree(ti, ett_dash_msg);
+
+  // version	uint16_t	Register transaction version number
+  // userNameSize	compactSize uint	Length of the username
+  // userName	string	Username for the account
+  // pubkeySize	compactSize uint	Length of the public key
+  // pubkey	byte[]	Owner’s public key for the account
+  // sigSize	compactSize uint	Length of the signature
+  // sig	byte[]	Signature of the hash of the preceding fields signed by the blockchain user with the private key for the specified PubKey (65 bytes)
+
+  // Payload version
+  proto_tree_add_item(tree, &hfi_msg_specialtx_payload_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  /*
+  // Username
+  //create_string_tree(tree, &hfi_dash_msg_subtx_username, tvb, &offset);
+  create_string(tree, tvb, &offset);
+
+  // Pubkey hash (20 bytes)
+  //offset = create_cpubkey_tree(tree, tvb, ti, &hfi_msg_mnb_pubkey_collateral, offset);
+  proto_tree_add_item(tree, &hfi_msg_pubkey_hash, tvb, offset, 20, ENC_NA);
+  offset += 20;
+
+  // vchSig - Signature of this message
+  offset = create_signature_tree(tree, tvb, &hfi_msg_mnp_vchsig, offset);
+  */
+  return offset;
+}
+
 /* Note: A number of the following message handlers include code of the form:
  *          ...
  *          guint64     count;
@@ -2230,6 +2274,12 @@ dissect_dash_msg_tx_common(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, pr
     /* Extra Payload (eventually dissect these too) */
     proto_tree_add_item(tree, &hfi_msg_tx_extra_payload, tvb, offset, (guint)extra_payload_size, ENC_NA);
     //offset += extra_payload_size;
+
+    if (tx_type == 1)
+    {
+      rti = proto_tree_add_item(tree, &hfi_dash_msg_protx, tvb, offset, -1, ENC_NA);
+      create_protxregister_tree(tvb, rti, offset);
+    }
 
     if (tx_type == 8)
     {
@@ -3880,6 +3930,9 @@ proto_register_dash(void)
     /* SubTx Register */
     &hfi_dash_msg_subtx,
     &hfi_dash_msg_subtx_username,
+
+    /* ProTx */
+    &hfi_dash_msg_protx,
   };
 #endif
 
