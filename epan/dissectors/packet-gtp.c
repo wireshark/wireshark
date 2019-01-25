@@ -135,7 +135,6 @@ static int hf_gtp_ext_hdr_spare_bits = -1;
 static int hf_gtp_ext_hdr_spare_bytes = -1;
 static int hf_gtp_ext_hdr_long_pdcp_sn = -1;
 static int hf_gtp_ext_hdr_xw_ran_cont = -1;
-static int hf_gtp_ext_hdr_pdu_session_cont = -1;
 static int hf_gtp_ext_hdr_pdcpsn = -1;
 static int hf_gtp_ext_hdr_udp_port = -1;
 static int hf_gtp_flags = -1;
@@ -350,6 +349,15 @@ static int hf_gtp_ext_hdr_nr_ran_cont_cause_val = -1;
 static int hf_gtp_ext_hdr_nr_ran_cont_high_success_delivered_retx_nr_pdcp_sn = -1;
 static int hf_gtp_ext_hdr_nr_ran_cont_high_retx_nr_pdcp_sn = -1;
 static int hf_pdcp_cont = -1;
+
+static int hf_gtp_ext_hdr_pdu_ses_cont_pdu_type = -1;
+static int hf_gtp_ext_hdr_pdu_ses_cont_ppp = -1;
+static int hf_gtp_ext_hdr_pdu_ses_cont_rqi = -1;
+static int hf_gtp_ext_hdr_pdu_ses_cont_qos_flow_id = -1;
+static int hf_gtp_ext_hdr_pdu_ses_cont_ppi = -1;
+
+static int hf_gtp_spare_h1 = -1;
+
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_gtp_rfsp_index = -1;
 static int hf_gtp_quintuplet_ciphering_key = -1;
@@ -441,6 +449,7 @@ static gint ett_gtp_mm_cntxt = -1;
 static gint ett_gtp_utran_cont = -1;
 static gint ett_gtp_nr_ran_cont = -1;
 static gint ett_gtp_pdcp_no_conf = -1;
+static gint ett_pdu_session_cont = -1;
 
 static expert_field ei_gtp_ext_hdr_pdcpsn = EI_INIT;
 static expert_field ei_gtp_ext_length_mal = EI_INIT;
@@ -455,6 +464,7 @@ static expert_field ei_gtp_max_bit_rate_value = EI_INIT;
 static expert_field ei_gtp_ext_geo_loc_type = EI_INIT;
 static expert_field ei_gtp_iei = EI_INIT;
 static expert_field ei_gtp_unknown_extention_header = EI_INIT;
+static expert_field ei_gtp_unknown_pdu_type = EI_INIT;
 
 /* --- PDCP DECODE ADDITIONS --- */
 typedef struct {
@@ -2064,6 +2074,13 @@ static const value_string geographic_location_type[] = {
     {0, NULL}
 };
 
+static const value_string gtp_ext_hdr_pdu_ses_cont_pdu_type_vals[] = {
+    {0,  "DL PDU SESSION INFORMATION"},
+    {1,  "UL PDU SESSION INFORMATION"},
+    {0, NULL}
+};
+
+
 #define MM_PROTO_GROUP_CALL_CONTROL     0x00
 #define MM_PROTO_BROADCAST_CALL_CONTROL 0x01
 #define MM_PROTO_PDSS1                  0x02
@@ -2595,7 +2612,7 @@ static const gtp_opt_t gtpopt[] = {
 /* 0xD7 */  {GTP_EXT_LHN_ID_W_SAPI, decode_gtp_ext_lhn_id_w_sapi },             /* 7.7.115 */
 /* 0xD8 */  {GTP_EXT_CN_OP_SEL_ENTITY, decode_gtp_ext_cn_op_sel_entity },       /* 7.7.116 */
 
-/* 0xDA */	{GTP_EXT_EXT_COMMON_FLGS_II, decode_gtp_extended_common_flgs_II},	/* 7.7.118 */
+/* 0xDA */    {GTP_EXT_EXT_COMMON_FLGS_II, decode_gtp_extended_common_flgs_II},    /* 7.7.118 */
 
 /* 0xf9 */  {GTP_EXT_REL_PACK, decode_gtp_rel_pack },                           /* charging */
 /* 0xfa */  {GTP_EXT_CAN_PACK, decode_gtp_can_pack},                            /* charging */
@@ -9272,21 +9289,51 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                              * 38.425 [30]. A G-PDU message with this extension
                              * header may be sent without a T-PDU.
                              */
-                            ran_cont_tree = proto_tree_add_subtree(ext_tree, tvb, offset, (ext_hdr_length*4)-1, ett_gtp_nr_ran_cont, NULL,"NR RAN Container");
-                            addRANContParameter(tvb,ran_cont_tree,offset);
-
+                            ran_cont_tree = proto_tree_add_subtree(ext_tree, tvb, offset, (ext_hdr_length * 4) - 1, ett_gtp_nr_ran_cont, NULL, "NR RAN Container");
+                            addRANContParameter(tvb, ran_cont_tree, offset);
                             break;
 
                         case GTP_EXT_HDR_PDU_SESSION_CONT:
+                        {
                             /* PDU Session Container
                              * 3GPP 29.281 v15.2.0, 5.2.2.7 PDU Session Container
                              * This extension header may be transmitted in a G-PDU
                              * over the N3 and N9 user plane interfaces, between
                              * NG-RAN and UPF, or between two UPFs. The PDU Session
                              * Container has a variable length and its content is
-                             * specified in 3GPP TS 38.415 [31].
+                             * specified in 3GPP TS 38.415 [31]. gtp_ext_hdr_pdu_ses_cont_pdu_type_vals
                              */
-                            proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_pdu_session_cont, tvb, offset, (4*ext_hdr_length)-1, ENC_NA);
+                            static const int * flags[] = {
+                                &hf_gtp_ext_hdr_pdu_ses_cont_ppp,
+                                &hf_gtp_ext_hdr_pdu_ses_cont_rqi,
+                                &hf_gtp_ext_hdr_pdu_ses_cont_qos_flow_id,
+                                NULL
+                            };
+                            proto_tree *pdu_ses_cont_tree;
+                            guint32 pdu_type;
+
+                            pdu_ses_cont_tree = proto_tree_add_subtree(ext_tree, tvb, offset, (ext_hdr_length * 4) - 1, ett_pdu_session_cont, NULL, "PDU Session Container");
+                            /* PDU Type (=0)    Spare */
+                            proto_tree_add_item(pdu_ses_cont_tree, hf_gtp_spare_h1, tvb, offset, 1, ENC_BIG_ENDIAN);
+                            proto_tree_add_item_ret_uint(pdu_ses_cont_tree, hf_gtp_ext_hdr_pdu_ses_cont_pdu_type, tvb, offset, 1, ENC_BIG_ENDIAN, &pdu_type);
+                            offset++;
+                            switch (pdu_type) {
+                            case 0:
+                                /* Octet 1: PPP    RQI    QoS Flow Identifier  */
+                                proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags, ENC_NA);
+                                offset++;
+                                /* Octet 2 PPI    Spare*/
+                                proto_tree_add_item(pdu_ses_cont_tree, hf_gtp_ext_hdr_pdu_ses_cont_ppi, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                break;
+                            case 1:
+                                /* Spare    QoS Flow Identifier */
+                                proto_tree_add_item(pdu_ses_cont_tree, hf_gtp_ext_hdr_pdu_ses_cont_qos_flow_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                break;
+                            default:
+                                proto_tree_add_expert(tree, pinfo, &ei_gtp_unknown_pdu_type, tvb, offset, 1);
+                                break;
+                            }
+                        }
                             break;
 
                         case GTP_EXT_HDR_PDCP_SN:
@@ -9968,13 +10015,34 @@ proto_register_gtp(void)
            FT_UINT24, BASE_DEC, NULL, 0,
            NULL, HFILL}
         },
-        {&hf_pdcp_cont,
-         { "PDCP Protocol", "gtp.pdcp",
-           FT_BYTES, BASE_NONE, NULL, 0,
+        { &hf_gtp_ext_hdr_pdu_ses_cont_pdu_type,
+         { "PDU Type", "gtp.ext_hdr.pdu_ses_con.pdu_type",
+           FT_UINT8, BASE_DEC, VALS(gtp_ext_hdr_pdu_ses_cont_pdu_type_vals), 0xf0,
            NULL, HFILL}
         },
-        {&hf_gtp_ext_hdr_pdu_session_cont,
-         { "PDU Session Container", "gtp.ext_hdr.pdu_session_cont",
+        { &hf_gtp_ext_hdr_pdu_ses_cont_ppp,
+         { "Paging Policy Presence (PPP)", "gtp.ext_hdr.pdu_ses_cont.ppp",
+           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x80,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_rqi,
+         { "Reflective QoS Indicator (RQI)", "gtp.ext_hdr.pdu_ses_cont.rqi",
+           FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x40,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_qos_flow_id,
+         { "QoS Flow Identifier (QFI)", "gtp.ext_hdr.pdu_ses_con.qos_flow_id",
+           FT_UINT8, BASE_DEC, NULL, 0x3f,
+           NULL, HFILL}
+        },
+        { &hf_gtp_ext_hdr_pdu_ses_cont_ppi,
+         { "Paging Policy Indicator (PPI)", "gtp.ext_hdr.pdu_ses_cont.ppi",
+           FT_UINT8, BASE_DEC, NULL, 0xe0,
+           NULL, HFILL}
+        },
+
+        {&hf_pdcp_cont,
+         { "PDCP Protocol", "gtp.pdcp",
            FT_BYTES, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
@@ -10941,6 +11009,11 @@ proto_register_gtp(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
       },
+      { &hf_gtp_spare_h1,
+      { "Spare", "gtp.spare",
+      FT_UINT8, BASE_HEX, NULL, 0xf0,
+      NULL, HFILL }
+      },
 
 };
 
@@ -10958,10 +11031,11 @@ proto_register_gtp(void)
         { &ei_gtp_ext_geo_loc_type, { "gtp.ext_geo_loc_type.unknown", PI_PROTOCOL, PI_WARN, "Unknown Location type data", EXPFILL }},
         { &ei_gtp_iei, { "gtp.iei.unknown", PI_PROTOCOL, PI_WARN, "Unknown IEI - Later spec than TS 29.060 9.4.0 used?", EXPFILL }},
         { &ei_gtp_unknown_extention_header, { "gtp.unknown_extention_header", PI_PROTOCOL, PI_WARN, "Unknown extension header", EXPFILL }},
+        { &ei_gtp_unknown_pdu_type, { "gtp.unknown_pdu_type", PI_PROTOCOL, PI_WARN, "Unknown PDU type", EXPFILL }},
     };
 
     /* Setup protocol subtree array */
-#define GTP_NUM_INDIVIDUAL_ELEMS    29
+#define GTP_NUM_INDIVIDUAL_ELEMS    30
     static gint *ett_gtp_array[GTP_NUM_INDIVIDUAL_ELEMS + NUM_GTP_IES];
 
     ett_gtp_array[0] = &ett_gtp;
@@ -10993,6 +11067,7 @@ proto_register_gtp(void)
     ett_gtp_array[26] = &ett_gtp_utran_cont;
     ett_gtp_array[27] = &ett_gtp_nr_ran_cont;
     ett_gtp_array[28] = &ett_gtp_pdcp_no_conf;
+    ett_gtp_array[29] = &ett_pdu_session_cont;
 
     last_offset = GTP_NUM_INDIVIDUAL_ELEMS;
 
