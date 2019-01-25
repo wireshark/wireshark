@@ -839,6 +839,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cups.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-cvspserver.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-daap.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-dash.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-data.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-daytime.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-db-lsp.c
