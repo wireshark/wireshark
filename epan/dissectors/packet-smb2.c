@@ -4516,9 +4516,6 @@ dissect_smb2_negotiate_protocol_request(tvbuff_t *tvb, packet_info *pinfo, proto
 	/* compute preauth hash on first pass */
 	if (!pinfo->fd->visited && ssi) {
 		ssi->preauth_hash_req = (guint8*)wmem_alloc0(wmem_file_scope(), SMB2_PREAUTH_HASH_SIZE);
-		memset(si->conv->preauth_hash_ses, 0, SMB2_PREAUTH_HASH_SIZE);
-		memset(si->conv->preauth_hash_con, 0, SMB2_PREAUTH_HASH_SIZE);
-		si->conv->preauth_hash_current = si->conv->preauth_hash_con;
 		update_preauth_hash(si->conv->preauth_hash_current, tvb);
 		memcpy(ssi->preauth_hash_req, si->conv->preauth_hash_current, SMB2_PREAUTH_HASH_SIZE);
 	}
@@ -9308,7 +9305,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 		/* no smb2_into_t structure for this conversation yet,
 		 * create it.
 		 */
-		si->conv = wmem_new(wmem_file_scope(), smb2_conv_info_t);
+		si->conv = wmem_new0(wmem_file_scope(), smb2_conv_info_t);
 		/* qqq this leaks memory for now since we never free
 		   the hashtables */
 		si->conv->matched = g_hash_table_new(smb2_saved_info_hash_matched,
@@ -9320,6 +9317,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 		si->conv->fids = g_hash_table_new(smb2_fid_info_hash,
 			smb2_fid_info_equal);
 		si->conv->files = g_hash_table_new(smb2_eo_files_hash,smb2_eo_files_equal);
+		si->conv->preauth_hash_current = si->conv->preauth_hash_con;
 
 		/* Bit of a hack to avoid leaking the hash tables - register a
 		 * callback to free them. Ideally wmem would implement a simple
