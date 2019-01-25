@@ -121,3 +121,28 @@ class case_dissect_tcp(subprocesstest.SubprocessTestCase):
         # H - second retransmission.
         self.assertIn('7\t\t', lines[6])
         self.assertNotIn('[TCP segment of a reassembled PDU]', lines[6])
+
+    def test_tcp_reassembly_more_data_1(self, cmd_tshark, capture_file):
+        '''
+        Tests that reassembly also works when a new packet begins at the same
+        sequence number as the initial segment. This models behavior with the
+        ZeroWindowProbe: the initial segment contains a single byte. The second
+        segment contains that byte, plus the remainder.
+        '''
+        proc = self.assertRun((cmd_tshark,
+            '-r', capture_file('retrans-tls.pcap'),
+            '-Ytls', '-Tfields', '-eframe.number', '-etls.record.length',))
+        output = proc.stdout_str.replace('\r', '')
+        # First pass dissection actually accepted the first frame as TLS, but
+        # subsequently requested reassembly.
+        self.assertEqual(output, '1\t\n2\t16\n')
+
+    def test_tcp_reassembly_more_data_2(self, cmd_tshark, capture_file):
+        '''
+        Like test_tcp_reassembly_more_data_1, but checks the second pass (-2).
+        '''
+        proc = self.assertRun((cmd_tshark,
+            '-r', capture_file('retrans-tls.pcap'),
+            '-Ytls', '-Tfields', '-eframe.number', '-etls.record.length', '-2'))
+        output = proc.stdout_str.replace('\r', '')
+        self.assertEqual(output, '2\t16\n')

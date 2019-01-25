@@ -29,6 +29,8 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark slowly leaked water under the kitchen sink over the course of several months, causing a big mess.
 
+* Data following a TCP ZeroWindowProbe is marked as retransmission and not passed to subdissectors (wsbuglink:15427[])
+
 //_Non-empty section placeholder._
 
 Dumpcap might not quit if Wireshark or TShark crashes.

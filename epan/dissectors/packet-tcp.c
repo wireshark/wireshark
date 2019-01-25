@@ -3071,10 +3071,33 @@ again:
     if (tcpd) {
         /* Have we seen this PDU before (and is it the start of a multi-
          * segment PDU)?
+         *
+         * If the sequence number was seen before, it is part of a
+         * retransmission if the whole segment fits within the MSP.
+         * (But if this is this frame was already visited and the first frame of
+         * the MSP matches the current frame, then it is not a retransmission,
+         * but the start of a new MSP.)
+         *
+         * If only part of the segment fits in the MSP, then either:
+         * - The previous segment included with the MSP was a Zero Window Probe
+         *   with one byte of data and the subdissector just asked for one more
+         *   byte. Do not mark it as retransmission (Bug 15427).
+         * - Data was actually being retransmitted, but with additional data
+         *   (Bug 13523). Do not mark it as retransmission to handle the extra
+         *   bytes. (NOTE Due to the TCP_A_RETRANSMISSION check below, such
+         *   extra data will still be ignored.)
+         * - The MSP contains multiple segments, but the subdissector finished
+         *   reassembly using a subset of the final segment (thus "msp->nxtpdu"
+         *   is smaller than the nxtseq of the previous segment). If that final
+         *   segment was retransmitted, then "nxtseq > msp->nxtpdu".
+         *   Unfortunately that will *not* be marked as retransmission here.
+         *   The next TCP_A_RETRANSMISSION hopefully takes care of it though.
+         *
          * Only shortcircuit here when the first segment of the MSP is known,
          * and when this this first segment is not one to complete the MSP.
          */
         if ((msp = (struct tcp_multisegment_pdu *)wmem_tree_lookup32(tcpd->fwd->multisegment_pdus, seq)) &&
+                nxtseq <= msp->nxtpdu &&
                 !(msp->flags & MSP_FLAGS_MISSING_FIRST_SEGMENT) && msp->last_frame != pinfo->num) {
             const char* str;
             gboolean is_retransmission = FALSE;
