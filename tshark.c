@@ -2440,6 +2440,7 @@ capture(void)
     interface_options *interface_opts;
 
     interface_opts = &g_array_index(global_capture_opts.ifaces, interface_options, i);
+    g_free(interface_opts->descr);
     interface_opts->descr = get_interface_descriptive_name(interface_opts->name);
   }
   str = get_iface_list_string(&global_capture_opts, IFLIST_QUOTE_IF_DESCRIPTION);
