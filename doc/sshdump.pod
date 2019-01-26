@@ -51,8 +51,8 @@ S<B<--remote-capture-command='tcpdump -U -i eth0 -w-'>>
 
 =head1 DESCRIPTION
 
-B<Sshdump> is a extcap tool that allows one to run a remote capture
-tool in a SSH connection. The requirement is that the capture
+B<Sshdump> is an extcap tool that allows one to run a remote capture
+tool over a SSH connection. The requirement is that the capture
 executable must have the capabilities to capture from the wanted
 interface.
 
@@ -63,6 +63,8 @@ $ wireshark FILE
 
 $ ssh remoteuser@remotehost '/sbin/dumpcap -i IFACE -P -w - -f "not port 22"' > FILE &
 $ wireshark FILE
+
+$ ssh somehost dumpcap -P -w - -f udp | tshark -i -
 
 Supported interfaces:
 
@@ -140,6 +142,9 @@ A custom remote capture command that produces the remote stream that is shown in
 The command must be able to produce a PCAP stream written to STDOUT. See below for more
 examples.
 
+When specified, this command will be used as is, no interface, port or filter
+options will be added.
+
 =item --extcap-capture-filter=E<lt>capture filterE<gt>
 
 The capture filter
@@ -160,56 +165,66 @@ To see interfaces:
 
     sshdump --extcap-interfaces
 
-Only one interface (ssh) is supported.
+Only one interface (sshdump) is supported.
 
   Output:
-    interface {value=ssh}{display=SSH remote capture}
+    interface {value=sshdump}{display=SSH remote capture}
 
 To see interface DLTs:
 
-    sshdump --extcap-interface=ssh --extcap-dlts
+    sshdump --extcap-interface=sshdump --extcap-dlts
 
   Output:
-    dlt {number=147}{name=ssh}{display=Remote capture dependent DLT}
+    dlt {number=147}{name=sshdump}{display=Remote capture dependent DLT}
 
 To see interface configuration options:
 
-    sshdump --extcap-interface=ssh --extcap-config
+    sshdump --extcap-interface=sshdump --extcap-config
 
   Output:
 
     arg {number=0}{call=--remote-host}{display=Remote SSH server address}{type=string}
-        {tooltip=The remote SSH host. It can be both an IP address or a hostname}{required=true}
+        {tooltip=The remote SSH host. It can be both an IP address or a hostname}{required=true}{group=Server}
     arg {number=1}{call=--remote-port}{display=Remote SSH server port}{type=unsigned}
-        {default=22}{tooltip=The remote SSH host port (1-65535)}{range=1,65535}
+        {tooltip=The remote SSH host port (1-65535)}{range=1,65535}{group=Server}
     arg {number=2}{call=--remote-username}{display=Remote SSH server username}{type=string}
-        {default=myusername}{tooltip=The remote SSH username. If not provided, the current user will be used}
+        {tooltip=The remote SSH username. If not provided, the current user will be used}{group=Authentication}
     arg {number=3}{call=--remote-password}{display=Remote SSH server password}{type=password}
-        {tooltip=The SSH password, used when other methods (SSH agent or key files) are unavailable.}
+        {tooltip=The SSH password, used when other methods (SSH agent or key files) are unavailable.}{group=Authentication}
     arg {number=4}{call=--sshkey}{display=Path to SSH private key}{type=fileselect}
-        {tooltip=The path on the local filesystem of the private ssh key}
-    arg {number=5}{call=--sshkey-passphrase}{display=SSH key passphrase}
-        {type=string}{tooltip=Passphrase to unlock the SSH private key}
-    arg {number=6}{call=--remote-interface}{display=Remote interface}{type=string}{default=eth0}
-        {tooltip=The remote network interface used for capture}
-    arg {number=7}{call=--remote-capture-command}{display=Remote capture command}{type=string}
-        {tooltip=The remote command used to capture.}
-    arg {number=8}{call=--remote-filter}{display=Remote capture filter}{type=string}
-        {default=not ((host myip) and port 22)}{tooltip=The remote capture filter}
-    arg {number=9}{call=--remote-count}{display=Packets to capture}{type=unsigned}{default=0}
-        {tooltip=The number of remote packets to capture. (Default: unlimited)}
+        {tooltip=The path on the local filesystem of the private ssh key}{group=Authentication}
+    arg {number=5}{call=--sshkey-passphrase}{display=SSH key passphrase}{type=password}
+        {tooltip=Passphrase to unlock the SSH private key}{group=Authentication}
+    arg {number=6}{call=--proxycommand}{display=ProxyCommand}{type=string}
+        {tooltip=The command to use as proxy for the SSH connection}{group=Authentication}
+    arg {number=7}{call=--remote-interface}{display=Remote interface}{type=string}
+        {tooltip=The remote network interface used for capture}{group=Capture}
+    arg {number=8}{call=--remote-capture-command}{display=Remote capture command}{type=string}
+        {tooltip=The remote command used to capture}{group=Capture}
+    arg {number=9}{call=--remote-sudo}{display=Use sudo on the remote machine}{type=boolean}
+        {tooltip=Prepend the capture command with sudo on the remote machine}{group=Capture}
+    arg {number=10}{call=--remote-noprom}{display=No promiscuous mode}{type=boolflag}
+        {tooltip=Don't use promiscuous mode on the remote machine}{group=Capture}
+    arg {number=11}{call=--remote-filter}{display=Remote capture filter}{type=string}
+        {tooltip=The remote capture filter}{default=not ((host myhost) and port 22)}{group=Capture}
+    arg {number=12}{call=--remote-count}{display=Packets to capture}{type=unsigned}{default=0}
+        {tooltip=The number of remote packets to capture. (Default: inf)}{group=Capture}
+    arg {number=13}{call=--debug}{display=Run in debug mode}{type=boolflag}{default=false}
+        {tooltip=Print debug messages}{required=false}{group=Debug}
+    arg {number=14}{call=--debug-file}{display=Use a file for debug}{type=string}
+        {tooltip=Set a file where the debug messages are written}{required=false}{group=Debug}
 
 To capture:
 
-    sshdump --extcap-interface=ssh --fifo=/tmp/ssh.pcap --capture --remote-host 192.168.1.10
+    sshdump --extcap-interface=sshdump --fifo=/tmp/ssh.pcap --capture --remote-host 192.168.1.10
     --remote-username user --remote-filter "not port 22"
 
 To use different capture binaries:
 
-    sshdump --extcap-interface=ssh --fifo=/tmp/ssh.pcap --capture --remote-host 192.168.1.10
+    sshdump --extcap-interface=sshdump --fifo=/tmp/ssh.pcap --capture --remote-host 192.168.1.10
     --remote-capture-command='dumpcap -i eth0 -P -w -'
 
-    sshdump --extcap-interface=ssh --fifo=/tmp/ssh.pcap --capture --remote-host 192.168.1.10
+    sshdump --extcap-interface=sshdump --fifo=/tmp/ssh.pcap --capture --remote-host 192.168.1.10
     --remote-capture-command='sudo tcpdump -i eth0 -U -w -'
 
 NOTE: To stop capturing CTRL+C/kill/terminate application.
