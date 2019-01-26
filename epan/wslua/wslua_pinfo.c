@@ -165,10 +165,14 @@ static int Pinfo__tostring(lua_State *L) { lua_pushstring(L,"a Pinfo"); return 1
       pushAddress(L,addr); \
     })
 
+/*
+ * Addresses within the Pinfo structure are only valid for a single packet, so
+ * allocate memory from the pinfo pool.
+ */
 #define PINFO_ADDRESS_SETTER(name) \
     WSLUA_ATTRIBUTE_SET(Pinfo,name, { \
       const address* from = checkAddress(L,-1); \
-      copy_address(&(obj->ws_pinfo->name),from); \
+      copy_address_wmem(obj->ws_pinfo->pool, &(obj->ws_pinfo->name), from); \
     })
 
 #define PINFO_NAMED_BOOLEAN_GETTER(name,member) \
