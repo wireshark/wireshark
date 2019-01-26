@@ -634,6 +634,12 @@ int wslua_deregister_protocols(lua_State* L) {
         lua_rawgeti(L, LUA_REGISTRYINDEX, proto->fields);
         for (lua_pushnil(L); lua_next(L, -2); lua_pop(L, 1)) {
             ProtoField f = checkProtoField(L, -1);
+
+            /* Memory ownership was previously transferred to epan in Proto_commit */
+            f->name = NULL;
+            f->abbrev = NULL;
+            f->blob = NULL;
+
             f->hfid = -2; /* Deregister ProtoField, freed in ProtoField__gc */
         }
         lua_pop(L, 1);
@@ -713,6 +719,7 @@ int Proto_commit(lua_State* L) {
             hfri.hfinfo.bitmask = f->mask;
             hfri.hfinfo.blurb = f->blob;
 
+            // XXX this will leak resources.
             if (f->hfid != -2) {
                 return luaL_error(L,"fields can be registered only once");
             }

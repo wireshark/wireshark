@@ -1413,10 +1413,22 @@ WSLUA_METAMETHOD ProtoField__tostring(lua_State* L) {
 static int ProtoField__gc(lua_State* L) {
     ProtoField f = toProtoField(L,1);
 
-    if (f->hfid == -2) {
+    /*
+     * Initialized to -2 in ProtoField_new,
+     * changed to -1 in Proto_commit and subsequently replaced by
+     * an allocated number in proto_register_field_array.
+     * Reset to -2 again in wslua_deregister_protocols.
+     */
+    if (f->hfid != -2) {
         /* Only free unregistered and deregistered ProtoField */
-        g_free(f);
+        return 0;
     }
+
+    /* Note: name, abbrev and blob will be NULL after Proto deregistration. */
+    g_free(f->name);
+    g_free(f->abbrev);
+    g_free(f->blob);
+    g_free(f);
 
     return 0;
 }
