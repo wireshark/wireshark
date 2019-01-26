@@ -62,7 +62,7 @@ static struct option longopts[] = {
 	{ 0, 0, 0, 0}
 };
 
-static char* interfaces_list_to_filter(GSList* if_list, const unsigned int remote_port);
+static char* interfaces_list_to_filter(GSList* if_list, unsigned int remote_port);
 
 static int ssh_loop_read(ssh_channel channel, FILE* fp)
 {
@@ -127,9 +127,6 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_command
 	char* count_str = NULL;
 	unsigned int remote_port = 22;
 
-	if (!iface)
-		iface = "eth0";
-
 	channel = ssh_channel_new(sshs);
 	if (!channel) {
 		g_warning("Can't create channel");
@@ -149,14 +146,15 @@ static ssh_channel run_ssh_command(ssh_session sshs, const char* capture_command
 		cmdline = g_strdup(capture_command);
 		g_debug("Remote capture command has disabled other options");
 	} else {
-		quoted_iface = g_shell_quote(iface);
+		quoted_iface = iface ? g_shell_quote(iface) : NULL;
 		quoted_filter = g_shell_quote(cfilter ? cfilter : "");
 		if (count > 0)
 			count_str = g_strdup_printf("-c %u", count);
 
-		cmdline = g_strdup_printf("%s tcpdump -U -i %s %s -w - %s %s",
+		cmdline = g_strdup_printf("%s tcpdump -U %s%s %s -w - %s %s",
 			use_sudo ? "sudo" : "",
-			quoted_iface,
+			quoted_iface ? "-i " : "",
+			quoted_iface ? quoted_iface : "",
 			noprom ? "-p" : "",
 			count_str ? count_str : "",
 			quoted_filter);
@@ -231,10 +229,17 @@ cleanup:
 	return ret;
 }
 
-static char* interfaces_list_to_filter(GSList* interfaces, const unsigned int remote_port)
+static char* interfaces_list_to_filter(GSList* interfaces, unsigned int remote_port)
 {
 	GString* filter = g_string_new(NULL);
 	GSList* cur;
+
+	// If no port is given, assume the default one. This might not be
+	// correct if the port is looked up from the ssh config file, but it is
+	// better than nothing.
+	if (remote_port == 0) {
+		remote_port = 22;
+	}
 
 	if (!interfaces) {
 		g_string_append_printf(filter, "not port %u", remote_port);
@@ -271,11 +276,11 @@ static int list_config(char *interface, unsigned int remote_port)
 		"{type=string}{tooltip=The remote SSH host. It can be both "
 		"an IP address or a hostname}{required=true}{group=Server}\n", inc++);
 	printf("arg {number=%u}{call=--remote-port}{display=Remote SSH server port}"
-		"{type=unsigned}{default=22}{tooltip=The remote SSH host port (1-65535)}"
+		"{type=unsigned}{tooltip=The remote SSH host port (1-65535)}"
 		"{range=1,65535}{group=Server}\n", inc++);
 	printf("arg {number=%u}{call=--remote-username}{display=Remote SSH server username}"
-		"{type=string}{default=%s}{tooltip=The remote SSH username. If not provided, "
-		"the current user will be used}{group=Authentication}\n", inc++, g_get_user_name());
+		"{type=string}{tooltip=The remote SSH username. If not provided, "
+		"the current user will be used}{group=Authentication}\n", inc++);
 	printf("arg {number=%u}{call=--remote-password}{display=Remote SSH server password}"
 		"{type=password}{tooltip=The SSH password, used when other methods (SSH agent "
 		"or key files) are unavailable.}{group=Authentication}\n", inc++);
@@ -289,7 +294,7 @@ static int list_config(char *interface, unsigned int remote_port)
 		"{type=string}{tooltip=The command to use as proxy for the SSH connection}"
 		"{group=Authentication}\n", inc++);
 	printf("arg {number=%u}{call=--remote-interface}{display=Remote interface}"
-		"{type=string}{default=eth0}{tooltip=The remote network interface used for capture"
+		"{type=string}{tooltip=The remote network interface used for capture"
 		"}{group=Capture}\n", inc++);
 	printf("arg {number=%u}{call=--remote-capture-command}{display=Remote capture command}"
 		"{type=string}{tooltip=The remote command used to capture}{group=Capture}\n", inc++);
@@ -368,13 +373,13 @@ int main(int argc, char *argv[])
 	extcap_help_add_option(extcap_conf, "--help", "print this help");
 	extcap_help_add_option(extcap_conf, "--version", "print the version");
 	extcap_help_add_option(extcap_conf, "--remote-host <host>", "the remote SSH host");
-	extcap_help_add_option(extcap_conf, "--remote-port <port>", "the remote SSH port (default: 22)");
-	extcap_help_add_option(extcap_conf, "--remote-username <username>", "the remote SSH username (default: the current user)");
+	extcap_help_add_option(extcap_conf, "--remote-port <port>", "the remote SSH port");
+	extcap_help_add_option(extcap_conf, "--remote-username <username>", "the remote SSH username");
 	extcap_help_add_option(extcap_conf, "--remote-password <password>", "the remote SSH password. If not specified, ssh-agent and ssh-key are used");
 	extcap_help_add_option(extcap_conf, "--sshkey <public key path>", "the path of the ssh key");
 	extcap_help_add_option(extcap_conf, "--sshkey-passphrase <public key passphrase>", "the passphrase to unlock public ssh");
 	extcap_help_add_option(extcap_conf, "--proxycommand <proxy command>", "the command to use as proxy the the ssh connection");
-	extcap_help_add_option(extcap_conf, "--remote-interface <iface>", "the remote capture interface (default: eth0)");
+	extcap_help_add_option(extcap_conf, "--remote-interface <iface>", "the remote capture interface");
 	extcap_help_add_option(extcap_conf, "--remote-capture-command <capture command>", "the remote capture command");
 	extcap_help_add_option(extcap_conf, "--remote-sudo yes", "use sudo on the remote machine to capture");
 	extcap_help_add_option(extcap_conf, "--remote-noprom", "don't use promiscuous mode on the remote machine");
