@@ -3813,13 +3813,12 @@ dissect_rpc_tcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			break;
 		}
 
-		/*  Set fences so whatever the subdissector put in the
-		 *  Protocol and Info columns stay there.  This is useful
-		 *  when the subdissector clears the column (which it
-		 *  might have to do if it runs over some other protocol
-		 *  too) and there are multiple PDUs in one frame.
+		/*  Set fence so whatever the subdissector put in the
+		 *  Info column stay there. This is useful when the
+		 *  subdissector clears the column (which it might have
+		 *  to do if it runs over some other protocol too) and
+		 *  there are multiple PDUs in one frame.
 		 */
-		col_set_fence(pinfo->cinfo, COL_PROTOCOL);
 		col_set_fence(pinfo->cinfo, COL_INFO);
 
 		/* PDU tracking
