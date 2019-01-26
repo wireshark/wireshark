@@ -3658,7 +3658,7 @@ dissect_ber_GeneralizedTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
 
     first_delim[0]  = 0;
     second_delim[0] = 0;
-    ret = sscanf( tmpstr, "%14d%1[.,+-Z]%4d%1[+-Z]%4d", &tmp_int, first_delim, &first_digits, second_delim, &second_digits);
+    ret = sscanf(tmpstr, "%14d%1[.,+-Z]%4d%1[+-Z]%4d", &tmp_int, first_delim, &first_digits, second_delim, &second_digits);
     /* tmp_int does not contain valid value because of overflow but we use it just for format checking */
     if (ret < 1) {
         /* Nothing matched */
@@ -3684,9 +3684,11 @@ dissect_ber_GeneralizedTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree 
             /*
              * Fraction of a minute or an hour.
              */
-            if (ret == 2) {
+            if (ret == 2 || first_digits < 0 || first_digits > 999) {
                 /*
-                 * We saw the decimal sign, but didn't see the fraction.
+                 * We saw the decimal sign, but didn't see the fraction
+                 * or
+                 * we got a number outside the valid range.
                  */
                 goto invalid;
             }
