@@ -1294,35 +1294,35 @@ dissect_gbcs_message_grouping_header(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     proto_tree_add_item_ret_uint(other_info_tree, hf_gbcs_message_grouping_header_message_code,
             tvb, *offset, 2, ENC_BIG_ENDIAN, &message_code);
     col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, val_to_str_ext_const(message_code, &gbcs_message_code_names_ext, "Unknown Use Case"));
-    other_info_len -= 2;
     *offset += 2;
+    other_info_len -= 2;
 
     if (other_info_len > 0) {
         proto_tree_add_item(other_info_tree, hf_gbcs_message_grouping_header_supplementary_remote_party_id,
                 tvb, *offset, 8, ENC_BIG_ENDIAN);
-        other_info_len -= 8;
         *offset += 8;
+        other_info_len -= 8;
     }
 
     if (other_info_len > 0) {
         proto_tree_add_item(other_info_tree, hf_gbcs_message_grouping_header_supplementary_remote_party_counter,
                 tvb, *offset, 8, ENC_BIG_ENDIAN);
-        other_info_len -= 8;
         *offset += 8;
+        other_info_len -= 8;
     }
 
     if (other_info_len > 0) {
         proto_tree_add_item(other_info_tree, hf_gbcs_message_grouping_header_supplementary_originator_counter,
                 tvb, *offset, 8, ENC_BIG_ENDIAN);
-        other_info_len -= 8;
         *offset += 8;
+        other_info_len -= 8;
     }
 
     if (other_info_len > 0) {
         proto_tree_add_item(other_info_tree, hf_gbcs_message_grouping_header_supplementary_remote_party_ka_certificate,
                 tvb, *offset, other_info_len, ENC_NA);
-        other_info_len -= other_info_len;
         *offset += other_info_len;
+        other_info_len -= other_info_len;
     }
 
     proto_item_set_end(other_info_ti, tvb, *offset);
