@@ -10,7 +10,19 @@
 #include "config.h"
 
 #include "ftypes/ftypes.h"
+#include "ftypes/ftypes-int.h"
 #include "syntax-tree.h"
+
+static void
+fvalue_free(gpointer value)
+{
+	fvalue_t *fvalue = (fvalue_t*)value;
+
+	/* If the data was not claimed with stnode_steal_data(), free it. */
+	if (fvalue) {
+		FVALUE_FREE(fvalue);
+	}
+}
 
 void
 sttype_register_pointer(void)
@@ -26,7 +38,7 @@ sttype_register_pointer(void)
 		STTYPE_FVALUE,
 		"FVALUE",
 		NULL,
-		NULL,
+		fvalue_free,
 		NULL
 	};
 

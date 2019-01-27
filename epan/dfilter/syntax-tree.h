@@ -102,6 +102,9 @@ stnode_type_id(stnode_t *node);
 gpointer
 stnode_data(stnode_t *node);
 
+gpointer
+stnode_steal_data(stnode_t *node);
+
 gint32
 stnode_value(stnode_t *node);
 

@@ -393,7 +393,7 @@ gen_entity(dfwork_t *dfw, stnode_t *st_arg, dfvm_value_t **p_jmp)
 		dfw_append_insn(dfw, insn);
 	}
 	else if (e_type == STTYPE_FVALUE) {
-		reg = dfw_append_put_fvalue(dfw, (fvalue_t *)stnode_data(st_arg));
+		reg = dfw_append_put_fvalue(dfw, (fvalue_t *)stnode_steal_data(st_arg));
 	}
 	else if (e_type == STTYPE_RANGE) {
 		reg = dfw_append_mk_range(dfw, st_arg, p_jmp);

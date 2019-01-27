@@ -200,6 +200,16 @@ stnode_data(stnode_t *node)
 	return node->data;
 }
 
+gpointer
+stnode_steal_data(stnode_t *node)
+{
+	assert_magic(node, STNODE_MAGIC);
+	gpointer data = node->data;
+	g_assert(data);
+	node->data = NULL;
+	return data;
+}
+
 gint32
 stnode_value(stnode_t *node)
 {
