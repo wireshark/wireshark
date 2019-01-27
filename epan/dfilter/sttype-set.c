@@ -31,6 +31,15 @@ set_nodelist_free(GSList *params)
 	g_slist_free_full(params, slist_stnode_free);
 }
 
+static void
+sttype_set_free(gpointer value)
+{
+	/* If the data was not claimed with stnode_steal_data(), free it. */
+	if (value) {
+		set_nodelist_free((GSList *)value);
+	}
+}
+
 void
 sttype_set_replace_element(stnode_t *node, stnode_t *oldnode, stnode_t *newnode)
 {
@@ -55,7 +64,7 @@ sttype_register_set(void)
 		STTYPE_SET,
 		"SET",
 		NULL,
-		NULL,
+		sttype_set_free,
 		NULL
 	};
 

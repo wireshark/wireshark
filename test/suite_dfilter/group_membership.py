@@ -48,3 +48,13 @@ class case_membership(unittest.TestCase):
         # expression should be parsed as "0.1 .. .7"
         dfilter = 'frame.time_delta in {0.1...7}'
         checkDFilterCount(dfilter, 0)
+
+    def test_membership_10_bad_lhs_number(self, checkDFilterFail):
+        dfilter = '123 in {ip}'
+        error = 'Only a field may be tested for membership in a set.'
+        checkDFilterFail(dfilter, error)
+
+    def test_membership_11_bad_rhs_string(self, checkDFilterFail):
+        dfilter = 'frame.number in {1 "foo"}'
+        error = '"foo" cannot be converted to Unsigned integer, 4 bytes.'
+        checkDFilterFail(dfilter, error)

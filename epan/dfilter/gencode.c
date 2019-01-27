@@ -297,14 +297,14 @@ gen_relation_in(dfwork_t *dfw, stnode_t *st_arg1, stnode_t *st_arg2)
 	dfvm_value_t	*jmp1 = NULL, *jmp2 = NULL, *jmp3 = NULL;
 	int		reg1 = -1, reg2 = -1, reg3 = -1;
 	stnode_t	*node1, *node2;
-	GSList		*nodelist;
+	GSList		*nodelist_head, *nodelist;
 	GSList		*jumplist = NULL;
 
 	/* Create code for the LHS of the relation */
 	reg1 = gen_entity(dfw, st_arg1, &jmp1);
 
 	/* Create code for the set on the RHS of the relation */
-	nodelist = (GSList*)stnode_data(st_arg2);
+	nodelist_head = nodelist = (GSList*)stnode_steal_data(st_arg2);
 	while (nodelist) {
 		node1 = (stnode_t*)nodelist->data;
 		nodelist = g_slist_next(nodelist);
@@ -365,8 +365,7 @@ gen_relation_in(dfwork_t *dfw, stnode_t *st_arg1, stnode_t *st_arg2)
 
 	/* Clean up */
 	g_slist_free(jumplist);
-	nodelist = (GSList*)stnode_data(st_arg2);
-	set_nodelist_free(nodelist);
+	set_nodelist_free(nodelist_head);
 }
 
 /* Parse an entity, returning the reg that it gets put into.
