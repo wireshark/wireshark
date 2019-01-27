@@ -29,6 +29,8 @@ Wireshark 2.9.1 Release Notes
      • Initial support for using PKCS #11 tokens for RSA decryption in
        TLS. A configuration user interface is still in development.
 
+     • The build system now produces reproducible builds (Bug 15163[2]).
+
    The following features are new (or have been significantly updated)
    since version 2.6.0:
 
@@ -41,7 +43,7 @@ Wireshark 2.9.1 Release Notes
        an ElasticSearch mapping file.
 
      • The “Capture Information” dialog has been added back (Bug
-       12004[2]).
+       12004[3]).
 
      • The Ethernet and IEEE 802.11 dissectors no longer validate the
        frame check sequence (checksum) by default.
@@ -51,7 +53,7 @@ Wireshark 2.9.1 Release Notes
        segments are received out-of-order. See the User’s Guide, chapter
        TCP Reassembly for details.
 
-     • Decryption support for the new WireGuard dissector (Bug 15011[3],
+     • Decryption support for the new WireGuard dissector (Bug 15011[4],
        requires Libgcrypt 1.8).
 
      • The BOOTP dissector has been renamed to DHCP. With the exception
@@ -89,7 +91,7 @@ Wireshark 2.9.1 Release Notes
 
      • Support for DTLS and TLS decryption using pcapng files that embed
        a Decryption Secrets Block (DSB) containing a TLS Key Log (Bug
-       15252[4]).
+       15252[5]).
 
      • The editcap utility gained a new --inject-secrets option to
        inject an existing TLS Key Log file into a pcapng file.
@@ -98,10 +100,16 @@ Wireshark 2.9.1 Release Notes
        conversion of non-string fields to strings so string functions
        (as contains and matches) can be used on them.
 
+     • The Bash test suite has been replaced by one based on Python
+       unittest/pytest.
+
   Removed Features and Support
 
      • The legacy (GTK+) user interface has been removed and is no
        longer supported.
+
+     • The portaudio library is no longer needed due to the removal of
+       GTK+.
 
      • Wireshark requires Qt 5.2 or later. Qt 4 is no longer supported.
 
@@ -116,6 +124,8 @@ Wireshark 2.9.1 Release Notes
        supported.
 
      • TShark’s -z compare option was removed.
+
+     • Building with Cygwin is no longer supported on Windows.
 
   New File Format Decoding Support
 
@@ -170,19 +180,19 @@ Wireshark 2.9.1 Release Notes
      • Lua: on Windows, file-related functions such as dofile now assume
        UTF-8 paths instead of the local code page. This is consistent
        with Linux and macOS and improves compatibility on non-English
-       systems. (Bug 15118[5])
+       systems. (Bug 15118[6])
 
  Getting Wireshark
 
   Wireshark source code and installation packages are available from
-  https://www.wireshark.org/download.html[6].
+  https://www.wireshark.org/download.html[7].
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[7] on the Wireshark web site.
+   be found on the download page[8] on the Wireshark web site.
 
  File Locations
 
@@ -194,22 +204,22 @@ Wireshark 2.9.1 Release Notes
  Getting Help
 
   The User’s Guide, manual pages and various other documentation can be
-  found at https://www.wireshark.org/docs/[8]
+  found at https://www.wireshark.org/docs/[9]
 
-  Community support is available on Wireshark’s Q&A site[9] and on the
+  Community support is available on Wireshark’s Q&A site[10] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[10].
+  for all of Wireshark’s mailing lists can be found on the web site[11].
 
-  Bugs and feature requests can be reported on the bug tracker[11].
+  Bugs and feature requests can be reported on the bug tracker[12].
 
   Official Wireshark training and certification are available from
-  Wireshark University[12].
+  Wireshark University[13].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[13].
+  A complete FAQ is available on the Wireshark web site[14].
 
-  Last updated 2019-01-20 08:14:50 UTC
+  Last updated 2019-01-27 08:17:42 UTC
 
  References
 
@@ -226,3 +236,4 @@ Wireshark 2.9.1 Release Notes
   11. 11
   12. 12
   13. 13
+  14. 14
