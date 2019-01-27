@@ -8628,7 +8628,7 @@ cuelink-disc     5271/udp # StageSoft CueLink discovery [Todd_Pichler] [Todd_Pic
 pk               5272/tcp # PK [Patrick_Kara] [Patrick_Kara]
 pk               5272/udp # PK [Patrick_Kara] [Patrick_Kara]
 xmpp-bosh        5280/tcp # Bidirectional-streams Over Synchronous HTTP (BOSH) [Peter_Saint_Andre] [Peter_Saint_Andre] 2009-11-25
-undo-lm          5281/tcp # Undo License Manager [Julian_Smith] [Julian_Smith] 2010-04-19
+undo-lm          5281/tcp # Undo License Manager [Undo_Ltd] [Edward_Moffett] 2010-04-19 2019-01-25
 transmit-port    5282/tcp # Marimba Transmitter Port [Johan_Eriksson] [Johan_Eriksson] 2002-04
 transmit-port    5282/udp # Marimba Transmitter Port [Johan_Eriksson] [Johan_Eriksson] 2002-04
 presence         5298/tcp # XMPP Link-Local Messaging [Eric_St_Onge] [Eric_St_Onge] 2008-01-14 Defined TXT keys: See http://www.xmpp.org/registrar/linklocal.html
