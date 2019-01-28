@@ -365,6 +365,9 @@ k2(uat_btmesh_record_t * net_key_set, guint8 *p, size_t plen)
      * (EncryptionKey)
      */
 
+    /* Now close the mac handle */
+    gcry_mac_close(mac_hd);
+
     memcpy(p_t2, t1, 16);
     memcpy(&p_t2[16], p, plen);
     p_t2[16 + plen] = 0x02;
@@ -394,6 +397,9 @@ k2(uat_btmesh_record_t * net_key_set, guint8 *p, size_t plen)
         gcry_mac_close(mac_hd);
         return FALSE;
     }
+
+    /* Now close the mac handle */
+    gcry_mac_close(mac_hd);
 
     /* T3 = AES-CMAC_T(T2 || P || 0x03) */
     /* PrivacyKey */
@@ -426,6 +432,9 @@ k2(uat_btmesh_record_t * net_key_set, guint8 *p, size_t plen)
         gcry_mac_close(mac_hd);
         return FALSE;
     }
+
+    /* Now close the mac handle */
+    gcry_mac_close(mac_hd);
 
     return TRUE;
 }
@@ -965,8 +974,11 @@ uat_btmesh_record_update_cb(void *r, char **err _U_)
 
     /* Compute keys & lengths once and for all */
     if (rec->network_key_string) {
+        g_free(rec->network_key);
         rec->network_key_length = compute_ascii_key(&rec->network_key, rec->network_key_string);
+        g_free(rec->encryptionkey);
         rec->encryptionkey = (guint8 *)g_malloc(16 * sizeof(guint8));
+        g_free(rec->privacykey);
         rec->privacykey = (guint8 *)g_malloc(16 * sizeof(guint8));
         create_master_security_keys(rec);
     }
@@ -975,7 +987,8 @@ uat_btmesh_record_update_cb(void *r, char **err _U_)
         rec->network_key = NULL;
     }
     if (rec->ivindex_string) {
-        rec-> ivindex_string_length = compute_ascii_key(&rec->ivindex, rec->ivindex_string);
+        g_free(rec->ivindex);
+        rec->ivindex_string_length = compute_ascii_key(&rec->ivindex, rec->ivindex_string);
     }
     return TRUE;
 }
@@ -989,6 +1002,7 @@ uat_btmesh_record_copy_cb(void *n, const void *o, size_t siz _U_)
     /* Copy UAT fields */
     new_rec->network_key_string = g_strdup(old_rec->network_key_string);
     new_rec->ivindex_string = g_strdup(old_rec->ivindex_string);
+
     /* Parse keys as in an update */
     uat_btmesh_record_update_cb(new_rec, NULL);
 
@@ -1002,6 +1016,10 @@ uat_btmesh_record_free_cb(void *r)
 
     g_free(rec->network_key_string);
     g_free(rec->network_key);
+    g_free(rec->ivindex_string);
+    g_free(rec->ivindex);
+    g_free(rec->privacykey);
+    g_free(rec->encryptionkey);
 }
 
 UAT_CSTRING_CB_DEF(uat_btmesh_records, network_key_string, uat_btmesh_record_t)
