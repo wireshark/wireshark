@@ -74,7 +74,7 @@ Save captured packet to file or send it through pipe.
 =item --start-from=E<lt>entry countE<gt>
 
 Start from the last E<lt>entry countE<gt> entries, similar to the
-"-n" or "--lines" argument for the L<tail> command. Values prefixed
+"-n" or "--lines" argument for the L<tail(1)> command. Values prefixed
 with a B<+> sign start from the beginning of the journal, otherwise
 the count starts from the end. The default value is 10. To include
 all entries use B<+0>.
