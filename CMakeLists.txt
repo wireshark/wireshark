@@ -135,10 +135,7 @@ if( NOT CMAKE_BUILD_TYPE )
 		"Choose the type of build, options are: None Debug Release RelWithDebInfo MinSizeRel."
 		FORCE)
 endif()
-message(STATUS "Configuration types: ${CMAKE_CONFIGURATION_TYPES}")
-string(TOUPPER "${CMAKE_BUILD_TYPE}" _build_type)
-message(STATUS "CMAKE_C_FLAGS_${_build_type}: ${CMAKE_C_FLAGS_${_build_type}}")
-message(STATUS "CMAKE_CXX_FLAGS_${_build_type}: ${CMAKE_CXX_FLAGS_${_build_type}}")
+message(STATUS "CMake build type: ${CMAKE_BUILD_TYPE}")
 
 # Ensure that all executables and libraries end up in the same directory. Actual
 # files might end up in a configuration subdirectory, e.g. run/Debug or
@@ -1048,10 +1045,6 @@ ws_find_package(KERBEROS ENABLE_KERBEROS HAVE_KERBEROS)
 
 # C Asynchronous resolver
 ws_find_package(CARES ENABLE_CARES HAVE_C_ARES "1.5.0")
-if(NOT CARES_FOUND)
-	message(WARNING "Not using c-ares.")
-	message(WARNING "DNS name resolution for captures will be disabled.")
-endif()
 
 # Zlib compression
 if(ENABLE_ZLIB)
@@ -1475,10 +1468,20 @@ set_package_properties(NGHTTP2 PROPERTIES
 	URL "https://nghttp2.org"
 	PURPOSE "Header decompression in HTTP2"
 )
+set_package_properties(CARES PROPERTIES
+	DESCRIPTION "Library for asynchronous DNS requests"
+	URL "https://c-ares.haxx.se/"
+	PURPOSE "DNS name resolution for captures"
+)
 
-message(STATUS "C-Flags: ${CMAKE_C_FLAGS}")
-message(STATUS "CXX-Flags: ${CMAKE_CXX_FLAGS}")
-message(STATUS "Warnings as errors: ${WERROR_COMMON_FLAGS}")
+string(TOUPPER "${CMAKE_BUILD_TYPE}" _build_type)
+message(STATUS "C-Flags: ${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_${_build_type}}")
+message(STATUS "CXX-Flags: ${CMAKE_CXX_FLAGS} ${CMAKE_CXX_FLAGS_${_build_type}}")
+if(WERROR_COMMON_FLAGS)
+	message(STATUS "Warnings as errors enabled: ${WERROR_COMMON_FLAGS}")
+else()
+	message(STATUS "Warnings as errors disabled")
+endif()
 
 feature_summary(WHAT ALL)
 
