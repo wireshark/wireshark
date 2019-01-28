@@ -105,7 +105,8 @@ any "error" symbols are shifted, if possible. */
 			dfilter_fail(dfw, "Syntax error near \"%s\".", hfinfo->abbrev);
 			break;
 		case STTYPE_FUNCTION:
-			dfilter_fail(dfw, "The function s was unexpected in this context.");
+			dfilter_fail(dfw, "The function %s was unexpected in this context.",
+				sttype_function_funcdef(TOKEN)->name);
 			break;
 		case STTYPE_SET:
 			dfilter_fail(dfw, "Syntax error, SET.");
