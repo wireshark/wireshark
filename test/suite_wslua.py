@@ -29,7 +29,7 @@ wpa_induction_pcap_gz = 'wpa-Induction.pcap.gz'
 @fixtures.fixture(scope='session')
 def check_lua_script(cmd_tshark, features, dirs, capture_file):
     if not features.have_lua:
-        self.skipTest('Test requires Lua scripting support.')
+        fixtures.skip('Test requires Lua scripting support.')
     def check_lua_script_real(self, lua_script, cap_file, check_passed, *args):
         tshark_cmd = [cmd_tshark,
             '-r', capture_file(cap_file),
