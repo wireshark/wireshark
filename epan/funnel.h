@@ -111,6 +111,7 @@ typedef void (*funnel_deregistration_cb_t)(funnel_menu_callback callback);
 WS_DLL_PUBLIC void funnel_register_all_menus(funnel_registration_cb_t r_cb);
 WS_DLL_PUBLIC void funnel_reload_menus(funnel_deregistration_cb_t d_cb,
                                        funnel_registration_cb_t r_cb);
+WS_DLL_PUBLIC void funnel_cleanup(void);
 
 extern void initialize_funnel_ops(void);
 

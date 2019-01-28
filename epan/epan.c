@@ -338,6 +338,7 @@ epan_cleanup(void)
 	export_pdu_cleanup();
 	cleanup_enabled_and_disabled_lists();
 	stats_tree_cleanup();
+	funnel_cleanup();
 	dtd_location(NULL);
 #ifdef HAVE_LUA
 	wslua_cleanup();

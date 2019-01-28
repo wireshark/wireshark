@@ -62,7 +62,7 @@ static void funnel_remove_menu (funnel_menu_t ** menu_list, funnel_menu_t *menu)
             if (p) {
                 m = p->next;
             } else {
-                m = *menu_list ? (*menu_list)->next : NULL;
+                m = *menu_list;
             }
         } else {
             p = m;
@@ -137,6 +137,11 @@ void funnel_reload_menus(funnel_deregistration_cb_t d_cb,
 
     funnel_clear_menu(&removed_menus);
     funnel_clear_menu(&added_menus);
+}
+
+void funnel_cleanup(void)
+{
+    funnel_clear_menu(&registered_menus);
 }
 
 /*
