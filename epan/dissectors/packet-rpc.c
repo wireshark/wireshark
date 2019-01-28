@@ -3843,10 +3843,16 @@ dissect_rpc_tcp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 
 		/*  Set fence so whatever the subdissector put in the
-		 *  Info column stay there. This is useful when the
-		 *  subdissector clears the column (which it might have
-		 *  to do if it runs over some other protocol too) and
-		 *  there are multiple PDUs in one frame.
+		 *  Info column stays there.
+		 *
+		 *  This is useful when some ONC RPC protocol is
+		 *  carrying another protocol that can also run atop
+		 *  other protocols, so that the other protocol's
+		 *  dissector has to clear the Info column to add
+		 *  its own material, and there are multiple PDUs
+		 *  in one frame.  If the fence isn't set, the Info
+		 *  column will only reflect the information from
+		 *  the first PDU in the frame.
 		 */
 		col_set_fence(pinfo->cinfo, COL_INFO);
 
