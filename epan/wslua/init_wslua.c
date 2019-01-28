@@ -567,15 +567,15 @@ static gboolean lua_load_script(const gchar* filename, const gchar* dirname, con
             break;
 
         case LUA_ERRSYNTAX:
-            report_failure("Lua: syntax error during precompilation of `%s':\n%s",filename,lua_tostring(L,-1));
+            report_failure("Lua: syntax error: %s", lua_tostring(L, -1));
             break;
 
         case LUA_ERRMEM:
-            report_failure("Lua: memory allocation error during precompilation of %s",filename);
+            report_failure("Lua: memory allocation error during precompilation of %s", filename);
             break;
 
         default:
-            report_failure("Lua: unknown error during precompilation of %s: %d",filename,error);
+            report_failure("Lua: unknown error during precompilation of %s: %d", filename, error);
             break;
     }
     fclose(file);
