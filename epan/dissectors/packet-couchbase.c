@@ -866,13 +866,16 @@ static const value_string feature_vals[] = {
   {0x06, "XATTR"},
   {0x07, "Error Map"},
   {0x08, "Select Bucket"},
-  {0x09, "Collections"},
+  {0x09, "Collections (deprecated)"},
   {0x0a, "Snappy"},
   {0x0b, "JSON"},
   {0x0c, "Duplex"},
   {0x0d, "Clustermap Change Notification"},
   {0x0e, "Unordered Execution"},
   {0x0f, "Tracing"},
+  {0x10, "AltRequestSupport"},
+  {0x11, "SyncReplication"},
+  {0x12, "Collections"},
   {0, NULL}
 };
 
