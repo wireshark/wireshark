@@ -56,6 +56,7 @@
 #include "srt_table.h"
 #include "stats_tree.h"
 #include "secrets.h"
+#include "funnel.h"
 #include <dtd.h>
 
 #ifdef HAVE_PLUGINS
