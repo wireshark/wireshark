@@ -548,7 +548,7 @@ static gboolean lua_load_script(const gchar* filename, const gchar* dirname, con
                 numargs = lua_script_push_args(file_count);
             }
             error = lua_pcall(L, numargs, 0, 1);
-            if (error != LUA_OK) {
+            if (error) {
                 switch (error) {
                     case LUA_ERRRUN:
                         report_failure("Lua: Error during loading:\n%s", lua_tostring(L, -1));
