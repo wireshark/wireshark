@@ -55,10 +55,10 @@ UnknownLongitude
 
   if (my_private_data->unsecured_data) {
     // psid may also be provided in HeaderInfo
-    guint32 *psid = (guint32*)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_ieee1609dot2, 0);
+    guint32 psid = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_ieee1609dot2, 0));
     if (psid) {
       /* Call next dissector here */
-      dissector_try_uint(unsecured_data_subdissector_table, *psid, my_private_data->unsecured_data, actx->pinfo, tree);
+      dissector_try_uint(unsecured_data_subdissector_table, psid, my_private_data->unsecured_data, actx->pinfo, tree);
       my_private_data->unsecured_data = NULL;
     }
     // else: wait for the HeaderInfo for a second chance to dissect the content

@@ -49,9 +49,7 @@ typedef struct ieee1609_private_data {
 void
 ieee1609dot2_set_next_default_psid(packet_info *pinfo, guint32 psid)
 {
-  guint32 *ctxt = wmem_new0(wmem_file_scope(), guint32);
-  *ctxt = psid;
-  p_add_proto_data(wmem_file_scope(), pinfo, proto_ieee1609dot2, 0, (void*)ctxt);
+  p_add_proto_data(wmem_file_scope(), pinfo, proto_ieee1609dot2, 0, GUINT_TO_POINTER(psid));
 }
 
 #include "packet-ieee1609dot2-fn.c"

@@ -193,7 +193,7 @@ static int hf_ieee1609dot2_EndEntityType_app = -1;
 static int hf_ieee1609dot2_EndEntityType_enrol = -1;
 
 /*--- End of included file: packet-ieee1609dot2-hf.c ---*/
-#line 37 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
+#line 36 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_ieee1609dot2_ssp = -1;
@@ -265,7 +265,7 @@ static gint ett_ieee1609dot2_SubjectPermissions = -1;
 static gint ett_ieee1609dot2_VerificationKeyIndicator = -1;
 
 /*--- End of included file: packet-ieee1609dot2-ett.c ---*/
-#line 41 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
+#line 40 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
 
 static dissector_table_t unsecured_data_subdissector_table;
 static dissector_table_t ssp_subdissector_table;
@@ -278,9 +278,7 @@ typedef struct ieee1609_private_data {
 void
 ieee1609dot2_set_next_default_psid(packet_info *pinfo, guint32 psid)
 {
-  guint32 *ctxt = wmem_new0(wmem_file_scope(), guint32);
-  *ctxt = psid;
-  p_add_proto_data(wmem_file_scope(), pinfo, proto_ieee1609dot2, 0, (void*)ctxt);
+  p_add_proto_data(wmem_file_scope(), pinfo, proto_ieee1609dot2, 0, GUINT_TO_POINTER(psid));
 }
 
 
@@ -1328,10 +1326,10 @@ dissect_ieee1609dot2_T_unsecuredData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
   if (my_private_data->unsecured_data) {
     // psid may also be provided in HeaderInfo
-    guint32 *psid = (guint32*)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_ieee1609dot2, 0);
+    guint32 psid = GPOINTER_TO_UINT(p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_ieee1609dot2, 0));
     if (psid) {
       /* Call next dissector here */
-      dissector_try_uint(unsecured_data_subdissector_table, *psid, my_private_data->unsecured_data, actx->pinfo, tree);
+      dissector_try_uint(unsecured_data_subdissector_table, psid, my_private_data->unsecured_data, actx->pinfo, tree);
       my_private_data->unsecured_data = NULL;
     }
     // else: wait for the HeaderInfo for a second chance to dissect the content
@@ -1955,7 +1953,7 @@ static int dissect_Ieee1609Dot2Data_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
 
 
 /*--- End of included file: packet-ieee1609dot2-fn.c ---*/
-#line 59 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
+#line 56 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
 
 
 /*--- proto_register_ieee1609dot2 ----------------------------------------------*/
@@ -2556,7 +2554,7 @@ void proto_register_ieee1609dot2(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ieee1609dot2-hfarr.c ---*/
-#line 67 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
+#line 64 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
   };
 
   /* List of subtrees */
@@ -2629,7 +2627,7 @@ void proto_register_ieee1609dot2(void) {
     &ett_ieee1609dot2_VerificationKeyIndicator,
 
 /*--- End of included file: packet-ieee1609dot2-ettarr.c ---*/
-#line 72 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
+#line 69 "./asn1/ieee1609dot2/packet-ieee1609dot2-template.c"
         &ett_ieee1609dot2_ssp,
   };
 
