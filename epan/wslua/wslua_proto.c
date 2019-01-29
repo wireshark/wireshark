@@ -658,11 +658,8 @@ int wslua_deregister_protocols(lua_State* L) {
             g_array_free(proto->hfa,TRUE);
         }
 
-        if (proto->etta->len) {
-            proto_add_deregistered_data(g_array_free(proto->etta,FALSE));
-        } else {
-            g_array_free(proto->etta,TRUE);
-        }
+        /* No need for deferred deletion of subtree indexes */
+        g_array_free(proto->etta,TRUE);
 
         if (proto->eia->len) {
             proto_add_deregistered_data(g_array_free(proto->eia,FALSE));
