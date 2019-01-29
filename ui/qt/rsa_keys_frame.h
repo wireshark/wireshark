@@ -42,6 +42,7 @@ private:
 
 private slots:
     void keyCurrentChanged(const QModelIndex &current, const QModelIndex &previous);
+    void on_addFileButton_clicked();
     void on_addItemButton_clicked();
     void on_deleteItemButton_clicked();
     void libCurrentChanged(const QModelIndex &current, const QModelIndex &previous);

@@ -17,6 +17,7 @@
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 #include <wsutil/report_message.h>
 #include <QMessageBox>
+#include <ui/all_files_wildcard.h>
 
 #include <epan/secrets.h>
 #include <QInputDialog>
@@ -30,6 +31,7 @@ RsaKeysFrame::RsaKeysFrame(QWidget *parent) :
     ui->setupUi(this);
 
 #ifdef Q_OS_MAC
+    ui->addFileButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->addItemButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->deleteItemButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->addLibraryButton->setAttribute(Qt::WA_MacSmallSize, true);
@@ -147,6 +149,40 @@ void RsaKeysFrame::on_addItemButton_clicked()
     }
 
     addKey(item, pin);
+}
+
+void RsaKeysFrame::on_addFileButton_clicked()
+{
+    QString filter =
+        tr("RSA private key (*.pem *.p12 *.pfx *.key);;All Files (" ALL_FILES_WILDCARD ")");
+    QString file = WiresharkFileDialog::getOpenFileName(this,
+            tr("Select RSA private key file"), "", filter);
+    if (file.isEmpty()) {
+        return;
+    }
+
+    // Try to load the key as unencrypted key file. If any errors occur, assume
+    // an encrypted key file and prompt for a password.
+    QString password, error;
+    gboolean key_ok = secrets_verify_key(qPrintable(file), NULL, NULL, NULL);
+    while (!key_ok) {
+        QString msg;
+        if (!error.isEmpty()) {
+            msg = error + "\n";
+            error.clear();
+        }
+        msg += QString("Enter the password to open %1").arg(file);
+
+        bool ok;
+        password = QInputDialog::getText(this, tr("Select RSA private key file"), msg,
+                QLineEdit::Password, "", &ok);
+        if (!ok) {
+            return;
+        }
+        key_ok = verifyKey(qPrintable(file), qPrintable(password), NULL, error);
+    }
+
+    addKey(file, password);
 }
 
 void RsaKeysFrame::on_deleteItemButton_clicked()

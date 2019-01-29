@@ -44,8 +44,8 @@ The following features are new (or have been significantly updated)
 since version 2.9.0:
 
 * Wireshark now supports the Swedish and Ukrainian language.
-* Initial support for using PKCS #11 tokens for RSA decryption in TLS. A
-  configuration user interface is still in development.
+* Initial support for using PKCS #11 tokens for RSA decryption in TLS. This can
+  be configured at _Preferences_, _RSA Keys_.
 * The build system now produces reproducible builds (wsbuglink:15163[]).
 
 The following features are new (or have been significantly updated)
