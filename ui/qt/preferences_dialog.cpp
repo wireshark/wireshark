@@ -218,6 +218,7 @@ void PreferencesDialog::on_buttonBox_accepted()
     pd_ui_->columnFrame->unstash();
     pd_ui_->filterExpressonsFrame->acceptChanges();
     pd_ui_->expertFrame->acceptChanges();
+    pd_ui_->rsaKeysFrame->acceptChanges();
 
     //Filter expressions don't affect dissection, so there is no need to
     //send any events to that effect.  However, the app needs to know
@@ -278,6 +279,7 @@ void PreferencesDialog::on_buttonBox_rejected()
     //handle frames that don't have their own OK/Cancel "buttons"
     pd_ui_->filterExpressonsFrame->rejectChanges();
     pd_ui_->expertFrame->rejectChanges();
+    pd_ui_->rsaKeysFrame->rejectChanges();
 }
 
 void PreferencesDialog::on_buttonBox_helpRequested()

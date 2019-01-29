@@ -28,11 +28,17 @@ public:
     explicit RsaKeysFrame(QWidget *parent = NULL);
     ~RsaKeysFrame();
 
+    void acceptChanges();
+    void rejectChanges();
+
 private:
     Ui::RsaKeysFrame *ui;
 
     UatModel *rsa_keys_model_;
     UatModel *pkcs11_libs_model_;
+
+    gboolean verifyKey(const char *uri, const char *password, gboolean *need_password, QString &error);
+    void addKey(const QString &uri, const QString &password);
 
 private slots:
     void keyCurrentChanged(const QModelIndex &current, const QModelIndex &previous);
