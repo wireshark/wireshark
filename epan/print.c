@@ -767,7 +767,7 @@ write_json_proto_tree(output_fields_t* fields,
  * key and its associated nodes in the proto_tree.
  * @param proto_node_list_head A 2-dimensional list containing a list of values for each different node json key. The
  * elements themselves are a linked list of values associated with the same json key.
- * @param data json writing metadata
+ * @param pdata json writing metadata
  */
 static void
 write_json_proto_node_list(GSList *proto_node_list_head, write_json_data *pdata)
@@ -853,7 +853,7 @@ write_json_proto_node_list(GSList *proto_node_list_head, write_json_data *pdata)
  * @param node_values_head Linked list containing all nodes associated with the same json key in this object.
  * @param suffix Suffix that should be added to the json key.
  * @param value_writer A function which writes the actual values of the node json key.
- * @param data json writing metadata
+ * @param pdata json writing metadata
  */
 static void
 write_json_proto_node(GSList *node_values_head,
@@ -874,7 +874,7 @@ write_json_proto_node(GSList *node_values_head,
  * Writes a list of values of a single json key. If multiple values are passed they are wrapped in a json array.
  * @param node_values_head Linked list containing all values that should be written.
  * @param value_writer Function which writes the separate values.
- * @param data json writing metadata
+ * @param pdata json writing metadata
  */
 static void
 write_json_proto_node_value_list(GSList *node_values_head, proto_node_value_writer value_writer, write_json_data *pdata)
