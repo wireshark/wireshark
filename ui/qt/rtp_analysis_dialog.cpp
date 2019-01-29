@@ -325,7 +325,8 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf, rtpstream
         ui->actionSaveReverseAudioSyncFile->setEnabled(false);
     }
 
-    QMenu *save_menu = new QMenu();
+    QPushButton *save_bt = ui->buttonBox->button(QDialogButtonBox::Save);
+    QMenu *save_menu = new QMenu(save_bt);
     save_menu->addAction(ui->actionSaveAudioUnsync);
     save_menu->addAction(ui->actionSaveForwardAudioUnsync);
     save_menu->addAction(ui->actionSaveReverseAudioUnsync);
@@ -343,7 +344,7 @@ RtpAnalysisDialog::RtpAnalysisDialog(QWidget &parent, CaptureFile &cf, rtpstream
     save_menu->addAction(ui->actionSaveReverseCsv);
     save_menu->addSeparator();
     save_menu->addAction(ui->actionSaveGraph);
-    ui->buttonBox->button(QDialogButtonBox::Save)->setMenu(save_menu);
+    save_bt->setMenu(save_menu);
 
     if (stream_fwd) { // XXX What if stream_fwd == 0 && stream_rev != 0?
         rtpstream_info_copy_deep(&fwd_statinfo_, stream_fwd);
