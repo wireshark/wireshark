@@ -110,6 +110,8 @@ WS_DLL_PUBLIC const true_false_string tfs_s2c_c2s;
 WS_DLL_PUBLIC const true_false_string tfs_c2s_s2c;
 WS_DLL_PUBLIC const true_false_string tfs_open_closed;
 WS_DLL_PUBLIC const true_false_string tfs_external_internal;
+WS_DLL_PUBLIC const true_false_string tfs_changed_not_changed;
+WS_DLL_PUBLIC const true_false_string tfs_needed_not_needed;
 
 #ifdef __cplusplus
 }

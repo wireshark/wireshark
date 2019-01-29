@@ -95,3 +95,5 @@ const true_false_string tfs_s2c_c2s = { "Server to Client", "Client to Server" }
 const true_false_string tfs_c2s_s2c = { "Client to Server", "Server to Client" };
 const true_false_string tfs_open_closed = { "Open", "Closed" };
 const true_false_string tfs_external_internal = { "External", "Internal" };
+const true_false_string tfs_changed_not_changed = { "Changed", "Not Changed" };
+const true_false_string tfs_needed_not_needed = { "Needed", "Needed Changed" };
