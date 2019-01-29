@@ -6973,7 +6973,7 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 datagram_tvb = tvb_new_subset_length(tvb, datagram_index, datagram_length);
                 if (dissector) {
                     if (total) {
-                        col_set_str(pinfo->cinfo, COL_PROTOCOL, "|");
+                        col_set_str(pinfo->cinfo, COL_PROTOCOL, "/");
                         col_set_fence(pinfo->cinfo, COL_PROTOCOL);
                         col_set_str(pinfo->cinfo, COL_INFO, " | ");
                         col_set_fence(pinfo->cinfo, COL_INFO);

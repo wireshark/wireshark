@@ -743,7 +743,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   }
 
   /* Want to preserve existing protocol name and show that it is carrying IMF */
-  col_append_str(pinfo->cinfo, COL_PROTOCOL, "|");
+  col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
   col_set_fence(pinfo->cinfo, COL_PROTOCOL);
   col_set_str(pinfo->cinfo, COL_PROTOCOL, PSNAME);
 
