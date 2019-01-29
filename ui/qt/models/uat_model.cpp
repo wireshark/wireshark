@@ -51,6 +51,43 @@ void UatModel::reloadUat()
     endResetModel();
 }
 
+bool UatModel::applyChanges(QString &error)
+{
+    if (uat_->changed) {
+        gchar *err = NULL;
+
+        if (!uat_save(uat_, &err)) {
+            error = QString("Error while saving %1: %2").arg(uat_->name).arg(err);
+            g_free(err);
+        }
+
+        if (uat_->post_update_cb) {
+            uat_->post_update_cb();
+        }
+        return true;
+    }
+
+    return false;
+}
+
+bool UatModel::revertChanges(QString &error)
+{
+    // Ideally this model should remember the changes made and try to undo them
+    // to avoid calling post_update_cb. Calling uat_clear + uat_load is a lazy
+    // option and might fail (e.g. when the UAT file is removed).
+    if (uat_->changed) {
+        gchar *err = NULL;
+        uat_clear(uat_);
+        if (!uat_load(uat_, NULL, &err)) {
+            error = QString("Error while loading %1: %2").arg(uat_->name).arg(err);
+            g_free(err);
+        }
+        return true;
+    }
+
+    return false;
+}
+
 Qt::ItemFlags UatModel::flags(const QModelIndex &index) const
 {
     if (!index.isValid())

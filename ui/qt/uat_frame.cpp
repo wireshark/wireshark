@@ -149,37 +149,26 @@ void UatFrame::applyChanges()
 
 void UatFrame::acceptChanges()
 {
-    if (!uat_) return;
+    if (!uat_model_) return;
 
-    if (uat_->changed) {
-        gchar *err = NULL;
-
-        if (!uat_save(uat_, &err)) {
-            report_failure("Error while saving %s: %s", uat_->name, err);
-            g_free(err);
+    QString error;
+    if (uat_model_->applyChanges(error)) {
+        if (!error.isEmpty()) {
+            report_failure("%s", qPrintable(error));
         }
-
-        if (uat_->post_update_cb) {
-            uat_->post_update_cb();
-        }
-
         applyChanges();
     }
 }
 
 void UatFrame::rejectChanges()
 {
-    if (!uat_) return;
+    if (!uat_model_) return;
 
-    if (uat_->changed) {
-        gchar *err = NULL;
-        uat_clear(uat_);
-        if (!uat_load(uat_, NULL, &err)) {
-            report_failure("Error while loading %s: %s", uat_->name, err);
-            g_free(err);
+    QString error;
+    if (uat_model_->revertChanges(error)) {
+        if (!error.isEmpty()) {
+            report_failure("%s", qPrintable(error));
         }
-        //Filter expressions don't affect dissection, so there is no need to
-        //send any events to that effect
     }
 }
 

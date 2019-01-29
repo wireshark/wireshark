@@ -683,20 +683,15 @@ void IOGraphDialog::keyPressEvent(QKeyEvent *event)
 
 void IOGraphDialog::reject()
 {
-    if (!iog_uat_)
+    if (!uat_model_)
         return;
 
-    //There is no "rejection" of the UAT created.  Just save what we have
-    if (iog_uat_->changed) {
-        gchar *err = NULL;
-
-        if (!uat_save(iog_uat_, &err)) {
-            report_failure("Error while saving %s: %s", iog_uat_->name, err);
-            g_free(err);
-        }
-
-        if (iog_uat_->post_update_cb) {
-            iog_uat_->post_update_cb();
+    // Changes to the I/O Graph settings are always saved,
+    // there is no possibility for "rejection".
+    QString error;
+    if (uat_model_->applyChanges(error)) {
+        if (!error.isEmpty()) {
+            report_failure("%s", qPrintable(error));
         }
     }
 
