@@ -161,6 +161,88 @@ set_pin_callback(void *userdata, int attempt _U_,
     return 0;
 }
 
+static GSList *
+get_pkcs11_token_uris(void)
+{
+    GSList *tokens = NULL;
+
+    for (unsigned i = 0; ; i++) {
+        char *uri = NULL;
+        int flags;
+        int ret = gnutls_pkcs11_token_get_url(i, GNUTLS_PKCS11_URL_GENERIC, &uri);
+        if (ret == GNUTLS_E_REQUESTED_DATA_NOT_AVAILABLE) {
+            break;
+        }
+
+        if (ret < 0) {
+            g_debug("Failed to query token %u: %s\n", i, gnutls_strerror(ret));
+            break;
+        }
+
+        ret = gnutls_pkcs11_token_get_flags(uri, &flags);
+        if (ret < 0) {
+            g_debug("Failed to query token flags for %s: %s\n", uri, gnutls_strerror(ret));
+            gnutls_free(uri);
+            continue;
+        }
+
+#if GNUTLS_VERSION_NUMBER >= 0x030300
+        // The "Trust module" is useless for decryption, so do not return it.
+        // We can only check this in GnuTLS 3.3.0, older versions lack this flag
+        // and thus we will just return some useless keys.
+        if ((flags & GNUTLS_PKCS11_TOKEN_TRUSTED)) {
+            gnutls_free(uri);
+            continue;
+        }
+#endif
+
+        tokens = g_slist_prepend(tokens, g_strdup(uri));
+        gnutls_free(uri);
+    }
+
+    tokens = g_slist_reverse(tokens);
+
+    return tokens;
+}
+
+static gboolean
+verify_pkcs11_token(const char *token_uri, const char *pin, gboolean *pin_needed, char **error)
+{
+    gnutls_pkcs11_obj_t *list = NULL;
+    unsigned int nlist = 0;
+    int ret;
+
+    /* Set PIN via a global callback since import_url can prompt for one. */
+    gnutls_pkcs11_set_pin_function(set_pin_callback, (void *)pin);
+
+    /* This should ask for a PIN if needed. If no PIN is given,
+     * GNUTLS_E_PKCS11_PIN_ERROR (-303) is returned. */
+    ret = gnutls_pkcs11_obj_list_import_url4(&list, &nlist, token_uri,
+            GNUTLS_PKCS11_OBJ_FLAG_PRIVKEY|GNUTLS_PKCS11_OBJ_FLAG_LOGIN);
+    if (ret == 0) {
+        /* Do not care about the objects, we just wanted to know whether the
+         * token and PIN were valid. */
+        for (unsigned i = 0; i < nlist; i++) {
+            gnutls_pkcs11_obj_deinit(list[i]);
+        }
+        gnutls_free(list);
+    }
+
+    /* Forget about the PIN. */
+    gnutls_pkcs11_set_pin_function(NULL, NULL);
+
+    if (pin_needed) {
+        *pin_needed = ret == GNUTLS_E_PKCS11_PIN_ERROR;
+    }
+    if (ret != 0) {
+        if (error) {
+            *error = g_strdup(gnutls_strerror(ret));
+        }
+        return FALSE;
+    }
+    return TRUE;
+}
+
 /**
  * Load private RSA keys from a PKCS #11 token. Returns zero on success and a
  * negative error code on failure.
@@ -340,7 +422,7 @@ uat_rsa_privkey_free_str_cb(void *record)
 }
 
 static void
-load_rsa_keyfile(const char *filename, const char *password, char **err)
+load_rsa_keyfile(const char *filename, const char *password, gboolean save_key, char **err)
 {
     gnutls_x509_privkey_t x509_priv_key;
     gnutls_privkey_t privkey = NULL;
@@ -355,7 +437,7 @@ load_rsa_keyfile(const char *filename, const char *password, char **err)
         return;
     }
 
-    if (!password[0]) {
+    if (!password || !password[0]) {
         x509_priv_key = rsa_load_pem_key(fp, &errmsg);
     } else {
         /* Assume encrypted PKCS #12 container. */
@@ -382,8 +464,10 @@ load_rsa_keyfile(const char *filename, const char *password, char **err)
     }
 
     /* Remember the private key. */
-    rsa_privkey_add(&key_id, privkey);
-    privkey = NULL;
+    if (save_key) {
+        rsa_privkey_add(&key_id, privkey);
+        privkey = NULL;
+    }
 
 end:
     gnutls_x509_privkey_deinit(x509_priv_key);
@@ -411,7 +495,7 @@ uat_rsa_privkeys_post_update(void)
             pkcs11_load_keys_from_token(token_uri, rec->password, &err);
 #endif  /* HAVE_GNUTLS_PKCS11 */
         } else {
-            load_rsa_keyfile(token_uri, rec->password, &err);
+            load_rsa_keyfile(token_uri, rec->password, TRUE, &err);
         }
         if (err) {
             if (!errors) {
@@ -425,6 +509,60 @@ uat_rsa_privkeys_post_update(void)
     if (errors) {
         report_failure("%s", errors->str);
         g_string_free(errors, TRUE);
+    }
+}
+
+GSList *
+secrets_get_available_keys(void)
+{
+    GSList *keys = NULL;
+#ifdef HAVE_GNUTLS_PKCS11
+    keys = g_slist_concat(keys, get_pkcs11_token_uris());
+#endif
+    return keys;
+}
+
+gboolean
+secrets_verify_key(const char *uri, const char *password, gboolean *need_password, char **error)
+{
+    if (need_password) {
+        *need_password = FALSE;
+    }
+    if (error) {
+        *error = NULL;
+    }
+
+    if (g_str_has_prefix(uri, "pkcs11:")) {
+#ifdef HAVE_GNUTLS_PKCS11
+        return verify_pkcs11_token(uri, password, need_password, error);
+#else
+        if (error) {
+            *error = g_strdup("PKCS #11 support is not available in this build");
+        }
+        return FALSE;
+#endif
+    } else if (g_file_test(uri, G_FILE_TEST_IS_REGULAR)) {
+        gchar *err = NULL;
+        load_rsa_keyfile(uri, password, FALSE, &err);
+        if (need_password) {
+            // Assume that failure to load the key is due to password errors.
+            // This might not be correct, but fixing this needs more changes.
+            *need_password = err != NULL;
+        }
+        if (err) {
+            if (error) {
+                *error = err;
+            } else {
+                g_free(err);
+            }
+            return FALSE;
+        }
+        return TRUE;
+    } else {
+        if (error) {
+            *error = g_strdup("Unsupported key URI or path");
+        }
+        return FALSE;
     }
 }
 
