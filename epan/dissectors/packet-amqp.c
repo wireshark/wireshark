@@ -64,6 +64,7 @@ typedef struct {
 } amqp_conv;
 
 static dissector_table_t version_table;
+static dissector_table_t media_type_subdissector_table;
 
 struct amqp_delivery;
 typedef struct amqp_delivery amqp_delivery;
@@ -75,13 +76,19 @@ struct amqp_delivery {
     amqp_delivery *prev;
 };
 
+typedef struct {
+    char *type;        /* content type */
+    char *encoding;    /* content encoding. Not used in subdissector now */
+} amqp_content_params;
+
 typedef struct _amqp_channel_t {
     amqp_conv *conn;
-    gboolean confirms;             /* true if publisher confirms are enabled */
-    guint16 channel_num;           /* channel number */
-    guint64 publish_count;         /* number of messages published so far */
-    amqp_delivery *last_delivery1; /* list of unacked messages on tcp flow1 */
-    amqp_delivery *last_delivery2; /* list of unacked messages on tcp flow2 */
+    gboolean confirms;                   /* true if publisher confirms are enabled */
+    guint16 channel_num;                 /* channel number */
+    guint64 publish_count;               /* number of messages published so far */
+    amqp_delivery *last_delivery1;       /* list of unacked messages on tcp flow1 */
+    amqp_delivery *last_delivery2;       /* list of unacked messages on tcp flow2 */
+    amqp_content_params *content_params; /* parameters of content */
 } amqp_channel_t;
 
 #define MAX_BUFFER 256
@@ -8695,7 +8702,7 @@ dissect_amqp_0_9_method_confirm_select_ok(guint16 channel_num,
 
 static int
 dissect_amqp_0_9_content_header_basic(tvbuff_t *tvb, packet_info *pinfo,
-    int offset, proto_tree *prop_tree)
+    int offset, proto_tree *prop_tree, amqp_content_params *eh_ptr)
 {
     proto_item   *ti;
     guint16       prop_flags;
@@ -8709,6 +8716,10 @@ dissect_amqp_0_9_content_header_basic(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree_add_item_ret_string(prop_tree, hf_amqp_header_basic_content_type,
             tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA, wmem_packet_scope(), &content);
         col_append_fstr(pinfo->cinfo, COL_INFO, "type=%s ", content);
+
+        eh_ptr->type = ascii_strdown_inplace(
+            (char*)tvb_get_string_enc(wmem_file_scope(), tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII));
+
         offset += 1 + tvb_get_guint8(tvb, offset);
     }
     prop_flags <<= 1;
@@ -8717,6 +8728,10 @@ dissect_amqp_0_9_content_header_basic(tvbuff_t *tvb, packet_info *pinfo,
         /*  content-encoding (shortstr)  */
         proto_tree_add_item(prop_tree, hf_amqp_header_basic_content_encoding,
             tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
+
+        eh_ptr->encoding = ascii_strdown_inplace(
+            tvb_get_string_enc(wmem_file_scope(), tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII));
+
         offset += 1 + tvb_get_guint8(tvb, offset);
     }
     prop_flags <<= 1;
@@ -9685,9 +9700,14 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         prop_tree = proto_item_add_subtree(ti, ett_props);
         col_append_str(pinfo->cinfo, COL_INFO, "Content-Header ");
         switch (class_id) {
-        case AMQP_0_9_CLASS_BASIC:
-            dissect_amqp_0_9_content_header_basic(tvb,
-                                                  pinfo, 21, prop_tree);
+        case AMQP_0_9_CLASS_BASIC: {
+                amqp_channel_t *channel;
+                channel = get_conversation_channel(find_or_create_conversation(pinfo), channel_num);
+                channel->content_params = wmem_new0(wmem_file_scope(), amqp_content_params);
+
+                dissect_amqp_0_9_content_header_basic(tvb,
+                                                      pinfo, 21, prop_tree, channel->content_params);
+            }
             break;
         case AMQP_0_9_CLASS_FILE:
             dissect_amqp_0_9_content_header_file(tvb,
@@ -9709,6 +9729,19 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         proto_tree_add_item(amqp_tree, hf_amqp_payload,
                             tvb, 7, length, ENC_NA);
         col_append_str(pinfo->cinfo, COL_INFO, "Content-Body ");
+
+        /* try to find disscector for content */
+        amqp_channel_t *channel;
+        tvbuff_t       *body_tvb;
+        amqp_content_params  *content_params;
+
+		channel = get_conversation_channel(find_or_create_conversation(pinfo), channel_num);
+		content_params = channel->content_params;
+
+        if (content_params != NULL && content_params->type != NULL) {
+            body_tvb = tvb_new_subset_length(tvb, 7, length);
+            dissector_try_string(media_type_subdissector_table, content_params->type, body_tvb, pinfo, amqp_tree, NULL);
+        }
         break;
     case AMQP_0_9_FRAME_TYPE_HEARTBEAT:
         col_append_str(pinfo->cinfo, COL_INFO,
@@ -13438,6 +13471,8 @@ proto_reg_handoff_amqp(void)
         ssl_dissector_add(amqps_port, amqp_tcp_handle);
         old_amqps_port = amqps_port;
     }
+
+    media_type_subdissector_table = find_dissector_table ("media_type");
 }
 
 /*
