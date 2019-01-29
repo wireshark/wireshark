@@ -87,6 +87,7 @@ since version 2.6.0:
   non-string fields to strings so string functions (as contains and matches)
   can be used on them.
 * The Bash test suite has been replaced by one based on Python unittest/pytest.
+* The custom window title can now show file path of the capture file and it has a conditional separator.
 
 === Removed Features and Support
 
