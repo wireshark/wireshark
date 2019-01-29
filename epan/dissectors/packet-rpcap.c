@@ -204,6 +204,7 @@ static expert_field ei_no_more_data = EI_INIT;
 static expert_field ei_caplen_too_big = EI_INIT;
 
 static dissector_handle_t pcap_pktdata_handle;
+static dissector_handle_t rpcap_tcp_handle;
 
 /* User definable values */
 static gboolean rpcap_desegment = TRUE;
@@ -1086,11 +1087,28 @@ get_rpcap_pdu_len (packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data
 }
 
 
+static int
+dissect_rpcap_tcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+  tcp_dissect_pdus (tvb, pinfo, tree, rpcap_desegment, 8,
+                    get_rpcap_pdu_len, dissect_rpcap, data);
+  return tvb_captured_length (tvb);
+}
+
 static gboolean
 dissect_rpcap_heur_tcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
   if (check_rpcap_heur (tvb, TRUE)) {
-    /* This is probably a rpcap tcp package */
+    /*
+     * This is probably a rpcap TCP packet.
+     * Make the dissector for this conversation the non-heuristic
+     * rpcap dissector, so that malformed rpcap packets are reported
+     * as such.
+     */
+    conversation_t *conversation = find_conversation_pinfo (pinfo, 0);
+    conversation_set_dissector_from_frame_number (conversation,
+                                                  pinfo->num,
+                                                  rpcap_tcp_handle);
     tcp_dissect_pdus (tvb, pinfo, tree, rpcap_desegment, 8,
                       get_rpcap_pdu_len, dissect_rpcap, data);
 
@@ -1467,6 +1485,8 @@ proto_reg_handoff_rpcap (void)
 
     heur_dissector_add ("tcp", dissect_rpcap_heur_tcp, "RPCAP over TCP", "rpcap_tcp", proto_rpcap, HEURISTIC_ENABLE);
     heur_dissector_add ("udp", dissect_rpcap_heur_udp, "RPCAP over UDP", "rpcap_udp", proto_rpcap, HEURISTIC_ENABLE);
+
+    rpcap_tcp_handle = create_dissector_handle(dissect_rpcap_tcp, proto_rpcap);
   }
 
   info_added = FALSE;
