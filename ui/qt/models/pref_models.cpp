@@ -133,6 +133,7 @@ const char* PrefsModel::FONT_AND_COLORS_PREFERENCE_TREE_NAME = QT_TR_NOOP("Font 
 const char* PrefsModel::CAPTURE_PREFERENCE_TREE_NAME = QT_TR_NOOP("Capture");
 const char* PrefsModel::EXPERT_PREFERENCE_TREE_NAME = QT_TR_NOOP("Expert");
 const char* PrefsModel::FILTER_BUTTONS_PREFERENCE_TREE_NAME = QT_TR_NOOP("Filter Buttons");
+const char* PrefsModel::RSA_KEYS_PREFERENCE_TREE_NAME = QT_TR_NOOP("RSA Keys");
 
 
 PrefsModel::PrefsModel(QObject *parent) :
@@ -320,6 +321,8 @@ void PrefsModel::populate()
     special_item = new PrefsItem(EXPERT_PREFERENCE_TREE_NAME, root_);
     root_->prependChild(special_item);
     special_item = new PrefsItem(FILTER_BUTTONS_PREFERENCE_TREE_NAME, root_);
+    root_->prependChild(special_item);
+    special_item = new PrefsItem(RSA_KEYS_PREFERENCE_TREE_NAME, root_);
     root_->prependChild(special_item);
     special_item = new PrefsItem(ADVANCED_PREFERENCE_TREE_NAME, root_);
     root_->prependChild(special_item);

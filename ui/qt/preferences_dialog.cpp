@@ -120,6 +120,7 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
     prefs_pane_to_item_[PrefsModel::CAPTURE_PREFERENCE_TREE_NAME] = pd_ui_->captureFrame;
     prefs_pane_to_item_[PrefsModel::EXPERT_PREFERENCE_TREE_NAME] = pd_ui_->expertFrame;
     prefs_pane_to_item_[PrefsModel::FILTER_BUTTONS_PREFERENCE_TREE_NAME] = pd_ui_->filterExpressonsFrame;
+    prefs_pane_to_item_[PrefsModel::RSA_KEYS_PREFERENCE_TREE_NAME] = pd_ui_->rsaKeysFrame;
     prefs_pane_to_item_[PrefsModel::ADVANCED_PREFERENCE_TREE_NAME] = pd_ui_->advancedFrame;
     prefs_pane_to_item_[MODULES_NAME] = NULL;
 

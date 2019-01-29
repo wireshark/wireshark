@@ -65,6 +65,7 @@ public:
     static const char* CAPTURE_PREFERENCE_TREE_NAME;
     static const char* EXPERT_PREFERENCE_TREE_NAME;
     static const char* FILTER_BUTTONS_PREFERENCE_TREE_NAME;
+    static const char* RSA_KEYS_PREFERENCE_TREE_NAME;
 
     enum PrefsModelColumn {
         colName = 0,

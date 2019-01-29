@@ -188,6 +188,7 @@ set(WIRESHARK_QT_HEADERS
 	resolved_addresses_dialog.h
 	response_time_delay_dialog.h
 	rpc_service_response_time_dialog.h
+	rsa_keys_frame.h
 	rtp_analysis_dialog.h
 	rtp_audio_stream.h
 	rtp_player_dialog.h
@@ -399,6 +400,7 @@ set(WIRESHARK_QT_SRC
 	resolved_addresses_dialog.cpp
 	response_time_delay_dialog.cpp
 	rpc_service_response_time_dialog.cpp
+	rsa_keys_frame.cpp
 	rtp_analysis_dialog.cpp
 	rtp_audio_stream.cpp
 	rtp_player_dialog.cpp
@@ -523,6 +525,7 @@ set(WIRESHARK_QT_UI
 	progress_frame.ui
 	protocol_hierarchy_dialog.ui
 	resolved_addresses_dialog.ui
+	rsa_keys_frame.ui
 	rtp_analysis_dialog.ui
 	rtp_player_dialog.ui
 	rtp_stream_dialog.ui

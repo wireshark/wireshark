@@ -50,6 +50,7 @@
       <widget class="CapturePreferencesFrame" name="captureFrame"/>
       <widget class="UatFrame" name="expertFrame"/>
       <widget class="UatFrame" name="filterExpressonsFrame"/>
+      <widget class="RsaKeysFrame" name="rsaKeysFrame"/>
       <widget class="QFrame" name="advancedFrame">
        <layout class="QVBoxLayout" name="verticalLayout_2">
         <item>
@@ -147,6 +148,12 @@
    <class>PrefModuleTreeView</class>
    <extends>QTreeView</extends>
    <header>widgets/pref_module_view.h</header>
+   <container>1</container>
+  </customwidget>
+  <customwidget>
+   <class>RsaKeysFrame</class>
+   <extends>QFrame</extends>
+   <header>rsa_keys_frame.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>
