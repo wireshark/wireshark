@@ -1774,11 +1774,11 @@ infer_pkt_encap(const guint8 *pd, int len)
 		 * file, where we might just not yet have found where
 		 * the subtype is specified in the capture?
 		 *
-		 * Bay^H^H^HNortel Networks has a mechanism in the Optivity
+		 * Bay Networks/Nortel Networks had a mechanism in the Optivity
 		 * software for some of their routers to save captures
 		 * in Sniffer format; they use a version number of 4.9, but
 		 * don't put out any header records before the first FRAME2
-		 * record.  That means we have to use heuristics to guess
+		 * record. That means we have to use heuristics to guess
 		 * what type of packet we have.
 		 */
 		for (i = 0; i < len && (pd[i] & 0x01) == 0; i++)
