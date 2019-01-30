@@ -107,6 +107,7 @@ main(int argc, char **argv)
 		fprintf(stderr, "dftest: %s\n", err_msg);
 		g_free(err_msg);
 		epan_cleanup();
+		g_free(text);
 		exit(2);
 	}
 
@@ -119,6 +120,7 @@ main(int argc, char **argv)
 
 	dfilter_free(df);
 	epan_cleanup();
+	g_free(text);
 	exit(0);
 }
 
