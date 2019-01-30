@@ -2178,7 +2178,7 @@ static int
 dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         void *data _U_)
 {
-    proto_item *ti;
+    proto_item *quic_ti;
     proto_tree *quic_tree;
     guint       offset = 0;
     guint32     header_form;
@@ -2195,9 +2195,8 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         p_add_proto_data(wmem_file_scope(), pinfo, proto_quic, 0, dgram_info);
     }
 
-    ti = proto_tree_add_item(tree, proto_quic, tvb, 0, -1, ENC_NA);
-
-    quic_tree = proto_item_add_subtree(ti, ett_quic);
+    quic_ti = proto_tree_add_item(tree, proto_quic, tvb, 0, -1, ENC_NA);
+    quic_tree = proto_item_add_subtree(quic_ti, ett_quic);
 
     if (!PINFO_FD_VISITED(pinfo)) {
         guint8      long_packet_type;
@@ -2231,7 +2230,14 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             DISSECTOR_ASSERT(quic_packet);
         }
 
+        /* Ensure that coalesced QUIC packets end up separated. */
+        if (offset > 0) {
+            quic_ti = proto_tree_add_item(tree, proto_quic, tvb, offset, -1, ENC_NA);
+            quic_tree = proto_item_add_subtree(quic_ti, ett_quic);
+        }
+
         tvbuff_t *next_tvb = quic_get_message_tvb(tvb, offset);
+        proto_item_set_len(quic_ti, tvb_reported_length(next_tvb));
         proto_tree_add_item_ret_uint(quic_tree, hf_quic_header_form, next_tvb, 0, 1, ENC_NA, &header_form);
         guint new_offset = 0;
         if (header_form) {
