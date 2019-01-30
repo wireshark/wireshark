@@ -9301,7 +9301,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                              * over the N3 and N9 user plane interfaces, between
                              * NG-RAN and UPF, or between two UPFs. The PDU Session
                              * Container has a variable length and its content is
-                             * specified in 3GPP TS 38.415 [31]. gtp_ext_hdr_pdu_ses_cont_pdu_type_vals
+                             * specified in 3GPP TS 38.415 [31].
                              */
                             static const int * flags[] = {
                                 &hf_gtp_ext_hdr_pdu_ses_cont_ppp,
@@ -9311,26 +9311,29 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                             };
                             proto_tree *pdu_ses_cont_tree;
                             guint32 pdu_type;
+                            guint8 value;
 
                             pdu_ses_cont_tree = proto_tree_add_subtree(ext_tree, tvb, offset, (ext_hdr_length * 4) - 1, ett_pdu_session_cont, NULL, "PDU Session Container");
                             /* PDU Type (=0)    Spare */
-                            proto_tree_add_item(pdu_ses_cont_tree, hf_gtp_spare_h1, tvb, offset, 1, ENC_BIG_ENDIAN);
                             proto_tree_add_item_ret_uint(pdu_ses_cont_tree, hf_gtp_ext_hdr_pdu_ses_cont_pdu_type, tvb, offset, 1, ENC_BIG_ENDIAN, &pdu_type);
-                            offset++;
+                            proto_tree_add_item(pdu_ses_cont_tree, hf_gtp_spare_h1, tvb, offset, 1, ENC_BIG_ENDIAN);
                             switch (pdu_type) {
                             case 0:
                                 /* Octet 1: PPP    RQI    QoS Flow Identifier  */
-                                proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags, ENC_NA);
-                                offset++;
-                                /* Octet 2 PPI    Spare*/
-                                proto_tree_add_item(pdu_ses_cont_tree, hf_gtp_ext_hdr_pdu_ses_cont_ppi, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                value = tvb_get_guint8(tvb, offset + 1);
+                                proto_tree_add_bitmask_list_value(pdu_ses_cont_tree, tvb, offset + 1, 1, flags, value);
+                                if (value & 0x80)
+                                {
+                                    /* Octet 2 PPI    Spare*/
+                                    proto_tree_add_item(pdu_ses_cont_tree, hf_gtp_ext_hdr_pdu_ses_cont_ppi, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
+                                }
                                 break;
                             case 1:
                                 /* Spare    QoS Flow Identifier */
-                                proto_tree_add_item(pdu_ses_cont_tree, hf_gtp_ext_hdr_pdu_ses_cont_qos_flow_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                proto_tree_add_item(pdu_ses_cont_tree, hf_gtp_ext_hdr_pdu_ses_cont_qos_flow_id, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
                                 break;
                             default:
-                                proto_tree_add_expert(tree, pinfo, &ei_gtp_unknown_pdu_type, tvb, offset, 1);
+                                proto_tree_add_expert(pdu_ses_cont_tree, pinfo, &ei_gtp_unknown_pdu_type, tvb, offset, 1);
                                 break;
                             }
                         }
@@ -11011,7 +11014,7 @@ proto_register_gtp(void)
       },
       { &hf_gtp_spare_h1,
       { "Spare", "gtp.spare",
-      FT_UINT8, BASE_HEX, NULL, 0xf0,
+      FT_UINT8, BASE_HEX, NULL, 0xf,
       NULL, HFILL }
       },
 
