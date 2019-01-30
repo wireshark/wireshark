@@ -7,8 +7,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-include(UseABICheck)
-
 set(WIRETAP_PUBLIC_HEADERS
 	file_wrappers.h
 	merge.h
@@ -125,18 +123,6 @@ set_target_properties(wiretap PROPERTIES
 	FOLDER "DLLs"
 	INSTALL_RPATH "${LIBRARY_INSTALL_RPATH}"
 )
-
-ABICHECK(libwiretap)
-
-add_custom_command(OUTPUT libwiretap.abi.tar.gz
-	COMMAND ${CMAKE_COMMAND} -E remove_directory ${ABICHECK_TMPDIR}
-	COMMAND ${CMAKE_COMMAND} -E make_directory ${ABICHECK_TMPDIR}
-	COMMAND ${ABI_COPY_COMMAND} ../config.h ${ABICHECK_TMPDIR}/ ${ABI_COPY_FLAGS}
-	COMMAND ${ABI_COPY_COMMAND} ${ABICHECK_HEADERS} ${ABICHECK_TMPDIR}/ ${ABI_COPY_FLAGS}
-	COMMAND ${ABICHECK_COMMAND}
-	COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/abi_dumps/libwiretap/libwiretap_* ${CMAKE_CURRENT_BINARY_DIR}/libwiretap.abi.tar.gz
-	COMMAND rm -rf ${ABICHECK_TMPDIR} ${CMAKE_CURRENT_BINARY_DIR}/abi_dumps
-	DEPENDS ${HEADERS} wiretap)
 
 target_link_libraries(wiretap
 	PUBLIC

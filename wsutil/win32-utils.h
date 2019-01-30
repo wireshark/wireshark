@@ -11,12 +11,6 @@
 #ifndef __WIN32UTIL_H__
 #define __WIN32UTIL_H__
 
-/*
- * This is included in ABI checking, so protect it with #ifdef _WIN32,
- * so it doesn't break ABI checking on UN*X.
- */
-#ifdef _WIN32
-
 #include "ws_symbol_export.h"
 
 #include <glib.h>
@@ -89,7 +83,5 @@ BOOL win32_create_process(const char *application_name, const char *command_line
 #ifdef	__cplusplus
 }
 #endif
-
-#endif /* _WIN32 */
 
 #endif /* __WIN32UTIL_H__ */

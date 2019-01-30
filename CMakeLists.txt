@@ -1416,10 +1416,6 @@ set(DATAFILE_DIR ${_datafile_dir} CACHE INTERNAL "Build time data file location.
 # learn about the directory location.
 add_subdirectory( wsutil )
 
-if(NOT WIN32)
-	add_custom_target(dumpabi DEPENDS dumpabi-libwireshark dumpabi-libwiretap dumpabi-libwsutil)
-endif()
-
 if(BUILD_wireshark AND QT_FOUND)
 	add_subdirectory( ui/qt )
 endif()

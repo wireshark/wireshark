@@ -7,8 +7,6 @@
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
 
-include(UseABICheck)
-
 add_definitions(-DPLUGIN_DIR=\"${CMAKE_INSTALL_PREFIX}/${PLUGIN_INSTALL_LIBDIR}\")
 add_definitions(-DEXTCAP_DIR=\"${CMAKE_INSTALL_PREFIX}/${EXTCAP_INSTALL_LIBDIR}\")
 add_definitions(-DDATA_DIR=\"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}\")
@@ -250,18 +248,6 @@ set_target_properties(wsutil PROPERTIES
 	FOLDER "DLLs"
 	INSTALL_RPATH "${LIBRARY_INSTALL_RPATH}"
 )
-
-ABICHECK(libwsutil)
-
-add_custom_command(OUTPUT libwsutil.abi.tar.gz
-	COMMAND ${CMAKE_COMMAND} -E remove_directory ${ABICHECK_TMPDIR}
-	COMMAND ${CMAKE_COMMAND} -E make_directory ${ABICHECK_TMPDIR}
-	COMMAND ${ABI_COPY_COMMAND} ../config.h ${ABICHECK_TMPDIR}/ ${ABI_COPY_FLAGS}
-	COMMAND ${ABI_COPY_COMMAND} ${ABICHECK_HEADERS} ${ABICHECK_TMPDIR}/ ${ABI_COPY_FLAGS}
-	COMMAND ${ABICHECK_COMMAND}
-	COMMAND cp ${CMAKE_CURRENT_BINARY_DIR}/abi_dumps/libwsutil/libwsutil_* ${CMAKE_CURRENT_BINARY_DIR}/libwsutil.abi.tar.gz
-	COMMAND rm -rf ${ABICHECK_TMPDIR} ${CMAKE_CURRENT_BINARY_DIR}/abi_dumps
-	DEPENDS ${HEADERS} wsutil)
 
 target_link_libraries(wsutil
 	PUBLIC
