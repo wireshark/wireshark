@@ -1,6 +1,6 @@
 /* packet-ieee802154.c
  *
- * 4-byte FCS support
+ * 4-byte FCS support and ACK tracking
  * By Carl Levesque Imbeault <carl.levesque@trilliant.com>
  * Copyright 2018 Trilliant Inc.
  * Integrated and added FCS type enum
@@ -63,6 +63,7 @@
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
 #include <epan/address_types.h>
+#include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/uat.h>
 #include <epan/strutil.h>
@@ -97,6 +98,9 @@ gint ieee802154_fcs_len = IEEE802154_FCS_LEN;
 
 /* boolean value set if the FCS must be ok before payload is dissected */
 static gboolean ieee802154_fcs_ok = TRUE;
+
+/* boolean value set to enable ack tracking */
+static gboolean ieee802154_ack_tracking = FALSE;
 
 static const char  *ieee802154_user    = "User";
 
@@ -537,6 +541,28 @@ static int hf_ieee802154_key_number = -1;
 static int hf_ieee802154_sec_frame_counter = -1;
 static int hf_ieee802154_sec_key_sequence_counter = -1;
 
+/* 802.15.4 ack */
+static int hf_ieee802154_no_ack = -1;
+static int hf_ieee802154_no_ack_request = -1;
+static int hf_ieee802154_ack_in = -1;
+static int hf_ieee802154_ack_to = -1;
+static int hf_ieee802154_ack_time = -1;
+
+typedef struct _ieee802154_transaction_t {
+    guint32 rqst_frame;
+    guint32 ack_frame;
+    nstime_t rqst_time;
+    nstime_t ack_time;
+} ieee802154_transaction_t;
+
+typedef struct _ieee802154_conv_info_t {
+    wmem_tree_t *unmatched_pdus;
+    wmem_tree_t *matched_pdus;
+} ieee802154_conv_info_t;
+
+static ieee802154_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tree, const address *src_addr, const address *dst_addr, guint32 *key);
+static ieee802154_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree, const address *src_addr, const address *dst_addr, guint32 *key);
+
 /* Initialize Subtree Pointers */
 static gint ett_ieee802154_nonask_phy = -1;
 static gint ett_ieee802154_nonask_phy_phr = -1;
@@ -601,6 +627,8 @@ static expert_field ei_ieee802154_src = EI_INIT;
 static expert_field ei_ieee802154_frame_ver = EI_INIT;
 /* static expert_field ei_ieee802154_frame_type = EI_INIT; */
 static expert_field ei_ieee802154_seqno_suppression = EI_INIT;
+static expert_field ei_ieee802154_ack_not_found = EI_INIT;
+static expert_field ei_ieee802154_ack_request_not_found = EI_INIT;
 static expert_field ei_ieee802154_time_correction_error = EI_INIT;
 static expert_field ei_ieee802154_6top_unsupported_type = EI_INIT;
 static expert_field ei_ieee802154_6top_unsupported_return_code = EI_INIT;
@@ -976,6 +1004,181 @@ static int ieee802_15_4_short_address_len(void)
 {
     return 2;
 }
+
+/* ======================================================================= */
+static conversation_t *_find_or_create_conversation(packet_info *pinfo, const address *src_addr, const address *dst_addr)
+{
+    conversation_t *conv = NULL;
+
+    /* Have we seen this conversation before? */
+    conv = find_conversation(pinfo->num, src_addr, dst_addr, ENDPOINT_NONE, 0, 0, 0);
+    if (conv == NULL) {
+        /* No, this is a new conversation. */
+        conv = conversation_new(pinfo->num, src_addr, dst_addr, ENDPOINT_NONE, 0, 0, 0);
+    }
+    return conv;
+}
+
+/* ======================================================================= */
+static ieee802154_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tree, const address *src_addr, const address *dst_addr, guint32 *key)
+{
+    conversation_t              *conversation;
+    ieee802154_conv_info_t      *ieee802154_info;
+    ieee802154_transaction_t    *ieee802154_trans;
+    wmem_tree_key_t             ieee802154_key[3];
+    proto_item                  *it;
+
+    /* Handle the conversation tracking */
+    conversation = _find_or_create_conversation(pinfo, src_addr, dst_addr);
+    ieee802154_info = (ieee802154_conv_info_t *)conversation_get_proto_data(conversation, proto_ieee802154);
+    if (ieee802154_info == NULL) {
+        ieee802154_info = wmem_new(wmem_file_scope(), ieee802154_conv_info_t);
+        ieee802154_info->unmatched_pdus = wmem_tree_new(wmem_file_scope());
+        ieee802154_info->matched_pdus = wmem_tree_new(wmem_file_scope());
+        conversation_add_proto_data(conversation, proto_ieee802154, ieee802154_info);
+    }
+
+    if (!PINFO_FD_VISITED(pinfo)) {
+        /*
+         * This is a new request, create a new transaction structure and map it
+         * to the unmatched table.
+         */
+        ieee802154_key[0].length = 2;
+        ieee802154_key[0].key = key;
+        ieee802154_key[1].length = 0;
+        ieee802154_key[1].key = NULL;
+
+        ieee802154_trans = wmem_new(wmem_file_scope(), ieee802154_transaction_t);
+        ieee802154_trans->rqst_frame = pinfo->num;
+        ieee802154_trans->ack_frame = 0;
+        ieee802154_trans->rqst_time = pinfo->abs_ts;
+        nstime_set_zero(&ieee802154_trans->ack_time);
+        wmem_tree_insert32_array(ieee802154_info->unmatched_pdus, ieee802154_key, (void *)ieee802154_trans);
+    } else {
+        /* Already visited this frame */
+        guint32 frame_num = pinfo->num;
+
+        ieee802154_key[0].length = 2;
+        ieee802154_key[0].key = key;
+        ieee802154_key[1].length = 1;
+        ieee802154_key[1].key = &frame_num;
+        ieee802154_key[2].length = 0;
+        ieee802154_key[2].key = NULL;
+
+        ieee802154_trans = (ieee802154_transaction_t *)wmem_tree_lookup32_array(ieee802154_info->matched_pdus, ieee802154_key);
+    }
+
+    if (ieee802154_trans == NULL) {
+        if (PINFO_FD_VISITED(pinfo)) {
+            /* No ACK found - add field and expert info */
+            it = proto_tree_add_item(tree, hf_ieee802154_no_ack, NULL, 0, 0, ENC_NA);
+            PROTO_ITEM_SET_GENERATED(it);
+
+            expert_add_info_format(pinfo, it, &ei_ieee802154_ack_not_found, "No ack found to ack request in frame %u", pinfo->num);
+        }
+
+        return NULL;
+    }
+
+    /* Print state tracking in the tree */
+    if (ieee802154_trans->ack_frame) {
+        it = proto_tree_add_uint(tree, hf_ieee802154_ack_in, NULL, 0, 0, ieee802154_trans->ack_frame);
+        PROTO_ITEM_SET_GENERATED(it);
+    }
+
+    return ieee802154_trans;
+} /* transaction_start() */
+
+static ieee802154_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree, const address *src_addr, const address *dst_addr, guint32 *key)
+{
+    conversation_t              *conversation;
+    ieee802154_conv_info_t      *ieee802154_info = NULL;
+    ieee802154_transaction_t    *ieee802154_trans = NULL;
+    wmem_tree_key_t             ieee802154_key[3];
+    proto_item                  *it;
+    nstime_t                    ns;
+    double                      ack_time;
+
+    conversation = find_conversation(pinfo->num, src_addr, dst_addr, ENDPOINT_NONE, 0, 0, 0);
+    if (conversation) {
+        ieee802154_info = (ieee802154_conv_info_t *)conversation_get_proto_data(conversation, proto_ieee802154);
+    }
+
+    if (!PINFO_FD_VISITED(pinfo)) {
+        guint32 frame_num;
+
+        if (!ieee802154_info) {
+            return NULL;
+        }
+
+        ieee802154_key[0].length = 2;
+        ieee802154_key[0].key = key;
+        ieee802154_key[1].length = 0;
+        ieee802154_key[1].key = NULL;
+
+        ieee802154_trans = (ieee802154_transaction_t *)wmem_tree_lookup32_array(ieee802154_info->unmatched_pdus, ieee802154_key);
+        if (ieee802154_trans == NULL)
+            return NULL;
+
+        /* we have already seen this response, or an identical one */
+        if (ieee802154_trans->ack_frame != 0)
+            return NULL;
+
+        ieee802154_trans->ack_frame = pinfo->num;
+
+        /*
+         * We found a match.  Add entries to the matched table for both
+         * request and ack frames
+         */
+        ieee802154_key[0].length = 2;
+        ieee802154_key[0].key = key;
+        ieee802154_key[1].length = 1;
+        ieee802154_key[1].key = &frame_num;
+        ieee802154_key[2].length = 0;
+        ieee802154_key[2].key = NULL;
+
+        frame_num = ieee802154_trans->rqst_frame;
+        wmem_tree_insert32_array(ieee802154_info->matched_pdus, ieee802154_key, (void *)ieee802154_trans);
+
+        frame_num = ieee802154_trans->ack_frame;
+        wmem_tree_insert32_array(ieee802154_info->matched_pdus, ieee802154_key, (void *)ieee802154_trans);
+    } else {
+        /* Already visited this frame */
+        guint32 frame_num = pinfo->num;
+
+        if (ieee802154_info) {
+            ieee802154_key[0].length = 2;
+            ieee802154_key[0].key = key;
+            ieee802154_key[1].length = 1;
+            ieee802154_key[1].key = &frame_num;
+            ieee802154_key[2].length = 0;
+            ieee802154_key[2].key = NULL;
+
+            ieee802154_trans = (ieee802154_transaction_t *)wmem_tree_lookup32_array(ieee802154_info->matched_pdus, ieee802154_key);
+        }
+        if (!ieee802154_trans) {
+            /* No ack request found - add field and expert info */
+            it = proto_tree_add_item(tree, hf_ieee802154_no_ack_request, NULL, 0, 0, ENC_NA);
+            PROTO_ITEM_SET_GENERATED(it);
+
+            expert_add_info_format(pinfo, it, &ei_ieee802154_ack_request_not_found, "No ack request found to ack in frame %u", pinfo->num);
+            return NULL;
+        }
+    }
+
+    /* Print state tracking in the tree */
+    it = proto_tree_add_uint(tree, hf_ieee802154_ack_to, NULL, 0, 0, ieee802154_trans->rqst_frame);
+    PROTO_ITEM_SET_GENERATED(it);
+
+    nstime_delta(&ns, &pinfo->abs_ts, &ieee802154_trans->rqst_time);
+    ieee802154_trans->ack_time = ns;
+    ack_time = nstime_to_msec(&ns);
+    it = proto_tree_add_double_format_value(tree, hf_ieee802154_ack_time, NULL, 0, 0, ack_time, "%.3f ms", ack_time);
+    PROTO_ITEM_SET_GENERATED(it);
+
+    return ieee802154_trans;
+
+} /* transaction_end() */
 
 /**
  * Dissector helper, parses and displays the frame control field.
@@ -1411,6 +1614,45 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     }
 
     ieee802154_dissect_fcs(tvb, pinfo, ieee802154_tree, options & DISSECT_IEEE802154_OPTION_CC24xx, fcs_ok);
+
+    if (ieee802154_ack_tracking && fcs_ok && (packet->ack_request || packet->frame_type == IEEE802154_FCF_ACK)) {
+        address src_addr;
+        address dst_addr;
+        guint32 key[2] = {0};
+
+        key[0] = packet->seqno;
+        if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
+            key[1] = pinfo->rec->rec_header.packet_header.interface_id;
+        }
+
+        if (packet->src_addr_mode == IEEE802154_FCF_ADDR_NONE) {
+            set_address(&src_addr, AT_NONE, 0, NULL);
+        }
+        else if (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
+            set_address(&src_addr, AT_EUI64, 2, &packet->src16);
+        }
+        else {
+            set_address(&src_addr, AT_EUI64, 8, &packet->src64);
+        }
+
+        if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_NONE) {
+            set_address(&dst_addr, AT_NONE, 0, NULL);
+        }
+        else if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
+            set_address(&dst_addr, AT_EUI64, 2, &packet->dst16);
+        }
+        else {
+            set_address(&dst_addr, AT_EUI64, 8, &packet->dst64);
+        }
+
+        if (packet->ack_request) {
+            transaction_start(pinfo, ieee802154_tree, &src_addr, &dst_addr, key);
+        }
+        else {
+            transaction_end(pinfo, ieee802154_tree, &src_addr, &dst_addr, key);
+        }
+    }
+
 }
 
 guint
@@ -5097,6 +5339,26 @@ void proto_register_ieee802154(void)
         { "Key Sequence Counter", "wpan.sec_key_sequence_counter", FT_UINT8, BASE_HEX, NULL, 0x0,
             "Key Sequence counter of the originator of the protected frame (802.15.4-2003)", HFILL }},
 
+        { &hf_ieee802154_no_ack,
+        { "No ack found", "wpan.no_ack", FT_NONE, BASE_NONE, NULL, 0x0,
+            "No corresponding ack frame was found", HFILL }},
+
+        { &hf_ieee802154_no_ack_request,
+        { "No ack request found", "wpan.no_ack_request", FT_NONE, BASE_NONE, NULL, 0x0,
+            "No corresponding ack request frame was found", HFILL }},
+
+        { &hf_ieee802154_ack_in,
+        { "Ack In", "wpan.ack_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            "The ack to this request is in this frame", HFILL }},
+
+        { &hf_ieee802154_ack_to,
+        { "Ack To", "wpan.ack_to", FT_FRAMENUM, BASE_NONE, FRAMENUM_TYPE(FT_FRAMENUM_ACK), 0x0,
+            "This is the ack to the request in this frame", HFILL }},
+
+        { &hf_ieee802154_ack_time,
+        { "Ack Time", "wpan.ack_time", FT_DOUBLE, BASE_NONE, NULL, 0x0,
+            "The time between the request and the ack, in ms.", HFILL }},
+
         /* ZBOSS dump */
 
         { &hf_zboss_page,
@@ -5193,6 +5455,10 @@ void proto_register_ieee802154(void)
                 "Decryption error", EXPFILL }},
         { &ei_ieee802154_fcs, { "wpan.fcs.bad", PI_CHECKSUM, PI_WARN,
                 "Bad FCS", EXPFILL }},
+        { &ei_ieee802154_ack_not_found, { "wpan.ack_not_found",  PI_SEQUENCE, PI_NOTE,
+                "Ack not found", EXPFILL }},
+        { &ei_ieee802154_ack_request_not_found, { "wpan.ack_request_not_found",  PI_SEQUENCE, PI_NOTE,
+                "Ack request not found", EXPFILL }},
         { &ei_ieee802154_seqno_suppression, { "wpan.seqno_suppression_invalid",  PI_MALFORMED, PI_WARN,
                 "Sequence Number Suppression invalid for 802.15.4-2003 and 2006", EXPFILL }},
         { &ei_ieee802154_6top_unsupported_type, { "wpan.6top_unsupported_type", PI_PROTOCOL, PI_WARN,
@@ -5301,6 +5567,10 @@ void proto_register_ieee802154(void)
                                    "Dissect only good FCS",
                                    "Dissect payload only if FCS is valid.",
                                    &ieee802154_fcs_ok);
+    prefs_register_bool_preference(ieee802154_module, "802154_ack_tracking",
+                                   "Enable ACK tracking",
+                                   "Match frames with ACK request to ACK packets",
+                                   &ieee802154_ack_tracking);
 
     /* Create a UAT for static address mappings. */
     static_addr_uat = uat_new("Static Addresses",
