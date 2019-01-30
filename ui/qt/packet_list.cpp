@@ -857,6 +857,9 @@ void PacketList::applyRecentColumnWidths()
     int column_width = 0;
 
     for (int col = 0; col < prefs.num_cols; col++) {
+        // The column must be shown before setting column width.
+        // Visibility will be updated in setColumnVisibility().
+        setColumnHidden(col, false);
         setRecentColumnWidth(col);
         column_width += columnWidth(col);
     }
