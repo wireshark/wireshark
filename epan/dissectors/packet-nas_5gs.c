@@ -1,7 +1,7 @@
 /* packet-nas_5gs.c
  * Routines for Non-Access-Stratum (NAS) protocol for Evolved Packet System (EPS) dissection
  *
- * Copyright 2018, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2018-2019, Anders Broman <anders.broman@ericsson.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -29,6 +29,7 @@ static gboolean g_nas_5gs_null_decipher = FALSE;
 
 static int dissect_nas_5gs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, void* data);
 static int dissect_nas_5gs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data);
+static guint16 de_nas_5gs_cmn_dnn(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_);
 
 static dissector_handle_t nas_5gs_handle = NULL;
 static dissector_handle_t eap_handle = NULL;
@@ -63,6 +64,7 @@ static int hf_nas_5gs_spare_half_octet = -1;
 static int hf_nas_5gs_pdu_session_id = -1;
 static int hf_nas_5gs_msg_elems = -1;
 static int hf_nas_5gs_mm_for = -1;
+static int hf_nas_5gs_cmn_dnn = -1;
 static int hf_nas_5gs_mm_sms_requested = -1;
 static int hf_nas_5gs_mm_5gs_reg_type = -1;
 static int hf_nas_5gs_mm_tsc = -1;
@@ -76,7 +78,6 @@ static int hf_nas_5gs_mm_mapped_conf_ssd = -1;
 static int hf_nas_5gs_mm_switch_off = -1;
 static int hf_nas_5gs_mm_re_reg_req = -1;
 static int hf_nas_5gs_mm_acc_type = -1;
-static int hf_nas_5gs_mm_dnn = -1;
 static int hf_nas_5gs_mm_raai_b0 = -1;
 static int hf_nas_5gs_mm_conf_upd_ind_ack_b0 = -1;
 static int hf_nas_5gs_mm_conf_upd_ind_red_b1 = -1;
@@ -266,6 +267,7 @@ static int ett_nas_5gs_mm_part_tal = -1;
 static int ett_nas_5gs_sm_mapd_eps_b_cont = -1;
 static int ett_nas_5gs_sm_mapd_eps_b_cont_params_list = -1;
 static int ett_nas_5gs_enc = -1;
+static int ett_nas_5gs_mm_ladn_indic = -1;
 
 
 static int hf_nas_5gs_mm_abba = -1;
@@ -278,6 +280,7 @@ static int hf_nas_5gs_amf_region_id = -1;
 static int hf_nas_5gs_amf_set_id = -1;
 static int hf_nas_5gs_amf_pointer = -1;
 static int hf_nas_5gs_5g_tmsi = -1;
+static int hf_nas_5gs_mm_precedence = -1;
 
 static int hf_nas_5gs_nw_feat_sup_mpsi_b7 = -1;
 static int hf_nas_5gs_nw_feat_sup_ims_iwk_n26_b6 = -1;
@@ -1092,59 +1095,6 @@ de_nas_5gs_mm_de_reg_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
     return 1;
 }
 
-/*
- *   9.11.3.19    DNN
- */
-static guint16
-de_nas_5gs_mm_dnn(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
-    guint32 offset, guint len,
-    gchar *add_string _U_, int string_len _U_)
-{
-    guint32     curr_offset;
-    guint       curr_len;
-    guint8     *str;
-    proto_item *pi;
-
-    curr_offset = offset;
-    /* A DNN value field contains an APN as defined in 3GPP TS 23.003 */
-
-    str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII | ENC_NA);
-
-    curr_len = 0;
-    while (curr_len < len)
-    {
-        guint step = str[curr_len];
-        str[curr_len] = '.';
-        curr_len += step + 1;
-    }
-
-    /* Highlight bytes including the first length byte */
-    pi = proto_tree_add_string(tree, hf_nas_5gs_mm_dnn, tvb, curr_offset, len, str + 1);
-    if (len > 100) {
-        expert_add_info(pinfo, pi, &ei_nas_5gs_dnn_too_long);
-    }
-    curr_offset += len;
-
-    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_nas_5gs_extraneous_data);
-
-    return (curr_offset - offset);
-
-}
-
-/*
- * 9.11.3.20    DRX parameters
- */
-
-static guint16
-de_nas_5gs_mm_drx_par(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
-    guint32 offset, guint len,
-    gchar *add_string _U_, int string_len _U_)
-{
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
-
-    return len;
-}
-
 /* 9.11.3.21    Void*/
 /* 9.11.3.22    Void*/
 
@@ -1193,11 +1143,29 @@ de_nas_5gs_mm_eps_nas_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
  */
 
 static guint16
-de_nas_5gs_mm_ladn_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
+de_nas_5gs_mm_ladn_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    proto_tree *sub_tree;
+    proto_item *item;
+    int i = 1;
+    guint32 length;
+    guint32 curr_offset;
+
+    curr_offset = offset;
+
+    while ((curr_offset - offset) < len) {
+        sub_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, 2, ett_nas_5gs_mm_ladn_indic, &item, "LADN DNN value %u", i);
+        /*LADN DNN value is coded as the length and value part of DNN information element as specified in subclause 9.11.2.1A starting with the second octet*/
+        proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_mm_length, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &length);
+        curr_offset++;
+        curr_offset += de_nas_5gs_cmn_dnn(tvb, sub_tree, pinfo, curr_offset, length, NULL, 0);
+        proto_item_set_len(item, length + 1);
+
+        i++;
+
+    }
 
     return len;
 }
@@ -1211,7 +1179,39 @@ de_nas_5gs_mm_ladn_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    proto_tree *sub_tree;
+    proto_item *item;
+    int i = 1;
+    guint32 length;
+    guint32 curr_offset;
+
+    curr_offset = offset;
+
+    while ((curr_offset - offset) < len) {
+        sub_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, 2, ett_nas_5gs_mm_ladn_indic, &item, "LADN %u", i);
+        /* DNN value (octet 5 to octet m):
+         * LADN DNN value is coded as the length and value part of DNN information element as specified in
+         * subclause 9.11.2.1A starting with the second octet
+         */
+        proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_mm_length, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &length);
+        curr_offset++;
+        curr_offset += de_nas_5gs_cmn_dnn(tvb, sub_tree, pinfo, curr_offset, length, NULL, 0);
+        /* 5GS tracking area identity list (octet m+1 to octet a):
+         * 5GS tracking area identity list field is coded as the length and the value part of the
+         * 5GS Tracking area identity list information element as specified in subclause 9.11.3.9
+         * starting with the second octet
+         */
+        proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_mm_length, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &length);
+        curr_offset++;
+        curr_offset += de_nas_5gs_mm_5gs_ta_id_list(tvb, sub_tree, pinfo, curr_offset, length, NULL, 0);
+
+        proto_item_set_len(item, curr_offset - offset);
+
+        i++;
+
+    }
+
+    return len;
 
     return len;
 }
@@ -1431,7 +1431,33 @@ de_nas_5gs_mm_op_def_acc_cat_def(tvbuff_t *tvb, proto_tree *tree, packet_info *p
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    proto_tree *sub_tree;
+    proto_item *item;
+    int i = 1;
+    guint32 length;
+    guint32 curr_offset;
+
+    curr_offset = offset;
+
+    while ((curr_offset - offset) < len) {
+        sub_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, 2, ett_nas_5gs_mm_nssai, &item, "Operator-defined access category definition  %u", i);
+
+        proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_mm_length, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &length);
+        curr_offset++;
+        /* Precedence value */
+        proto_tree_add_item(sub_tree, hf_nas_5gs_mm_precedence, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        curr_offset++;
+
+        /* PSAC    0 Spare    0 Spare    Operator-defined access category number */
+        /* Length of criteria */
+        /* Criteria */
+        /* 0 Spare    0 Spare    0 Spare    Standardized access category */
+        proto_tree_add_expert(sub_tree, pinfo, &ei_nas_5gs_not_diss, tvb, curr_offset, length - 1);
+        curr_offset += length;
+        proto_item_set_len(item, length + 1);
+        i++;
+
+    }
 
     return len;
 }
@@ -2894,6 +2920,47 @@ de_nas_5gs_cmn_add_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     return len;
 }
 
+/*
+ * 9.11.2.1A    DNN
+ */
+
+static guint16
+de_nas_5gs_cmn_dnn(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
+    guint32 offset, guint len,
+    gchar *add_string _U_, int string_len _U_)
+{
+
+    guint32     curr_offset;
+    guint       curr_len;
+    guint8     *str;
+    proto_item *pi;
+
+    curr_offset = offset;
+    /* A DNN value field contains an APN as defined in 3GPP TS 23.003 */
+
+    str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, len, ENC_ASCII | ENC_NA);
+
+    curr_len = 0;
+    while (curr_len < len)
+    {
+        guint step = str[curr_len];
+        str[curr_len] = '.';
+        curr_len += step + 1;
+    }
+
+    /* Highlight bytes including the first length byte */
+    pi = proto_tree_add_string(tree, hf_nas_5gs_cmn_dnn, tvb, curr_offset, len, str + 1);
+    if (len > 100) {
+        expert_add_info(pinfo, pi, &ei_nas_5gs_dnn_too_long);
+    }
+    curr_offset += len;
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_nas_5gs_extraneous_data);
+
+    return (curr_offset - offset);
+
+}
+
 /* 9.10.2.2    EAP message*/
 
 static guint16
@@ -2919,7 +2986,29 @@ de_nas_5gs_cmn_eap_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
 /* 9.10.2.5    GPRS timer 3*/
 
-/* 9.10.2.6    S-NSSAI */
+/* 9.11.2.6     Intra N1 mode NAS transparent container*/
+static guint16
+de_nas_5gs_cmn_intra_n1_mode_nas_trans_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
+    guint32 offset, guint len,
+    gchar *add_string _U_, int string_len _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+
+    return len;
+}
+
+/* 9.10.2.7     N1 mode to S1 mode NAS transparent containe */
+static guint16
+de_nas_5gs_cmn_n1_to_s1_mode_trans_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
+    guint32 offset, guint len,
+    gchar *add_string _U_, int string_len _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+
+    return len;
+}
+
+/* 9.10.2.8    S-NSSAI */
 guint16
 de_nas_5gs_cmn_s_nssai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     guint32 offset, guint len,
@@ -2951,7 +3040,8 @@ de_nas_5gs_cmn_s_nssai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     return len;
 }
 
-/* 9.10.2.7    S1 mode to N1 mode NAS transparent container */
+
+/* 9.10.2.9    S1 mode to N1 mode NAS transparent container */
 static guint16
 de_nas_5gs_cmn_s1_to_n1_mode_trans_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     guint32 offset, guint len,
@@ -2967,24 +3057,30 @@ de_nas_5gs_cmn_s1_to_n1_mode_trans_cont(tvbuff_t *tvb, proto_tree *tree, packet_
 typedef enum
 {
     DE_NAS_5GS_CMN_ADD_INF,                      /* 9.10.2.1     Additional information*/
+    DE_NAS_5GS_CMN_DNN,                          /* 9.10.2.1A    DNN*/
     DE_NAS_5GS_CMN_EAP_MESSAGE,                  /* 9.10.2.2     EAP message*/
     DE_NAS_5GS_CMN_GPRS_TIMER,                   /* 9.10.2.3     GPRS timer */
     DE_NAS_5GS_CMN_GPRS_TIMER2,                  /* 9.10.2.4     GPRS timer 2*/
     DE_NAS_5GS_CMN_GPRS_TIMER3,                  /* 9.10.2.5     GPRS timer 3*/
-    DE_NAS_5GS_CMN_S_NSSAI,                      /* 9.10.2.6     S-NSSAI */
-    DE_NAS_5GS_CMN_S1_TO_N1_MODE_TRANS_CONT,     /* 9.10.2.7     S1 mode to N1 mode NAS transparent container */
+    DE_NAS_5GS_CMN_INTRA_N1_MODE_NAS_TRANS_CONT, /* 9.11.2.6     Intra N1 mode NAS transparent container*/
+    DE_NAS_5GS_CMN_N1_TO_S1_MODE_TRANS_CONT,     /* 9.10.2.7     N1 mode to S1 mode NAS transparent containe */
+    DE_NAS_5GS_CMN_S_NSSAI,                      /* 9.10.2.8     S-NSSAI */
+    DE_NAS_5GS_CMN_S1_TO_N1_MODE_TRANS_CONT,     /* 9.10.2.9     S1 mode to N1 mode NAS transparent container */
     DE_NAS_5GS_COMMON_NONE                       /* NONE */
 }
 nas_5gs_common_elem_idx_t;
 
 static const value_string nas_5gs_common_elem_strings[] = {
-    { DE_NAS_5GS_CMN_ADD_INF,                  "Additional information" },                          /* 9.10.2.1     Additional information*/
-    { DE_NAS_5GS_CMN_EAP_MESSAGE,              "EAP message" },                                     /* 9.10.2.2     EAP message*/
-    { DE_NAS_5GS_CMN_GPRS_TIMER,               "GPRS timer" },                                      /* 9.10.2.3     GPRS timer*/
-    { DE_NAS_5GS_CMN_GPRS_TIMER2,              "GPRS timer 2" },                                    /* 9.10.2.4     GPRS timer 2*/
-    { DE_NAS_5GS_CMN_GPRS_TIMER3,              "GPRS timer 3" },                                    /* 9.10.2.5     GPRS timer 3*/
-    { DE_NAS_5GS_CMN_S_NSSAI,                  "S-NSSAI" },                                         /* 9.10.2.6     S-NSSAI */
-    { DE_NAS_5GS_CMN_S1_TO_N1_MODE_TRANS_CONT, "S1 mode to N1 mode NAS transparent container" },    /* 9.10.2.7     S1 mode to N1 mode NAS transparent container */
+    { DE_NAS_5GS_CMN_ADD_INF,                       "Additional information" },                          /* 9.10.2.1     Additional information*/
+    { DE_NAS_5GS_CMN_DNN,                           "DNN" },                                             /* 9.10.2.1A    DNN*/
+    { DE_NAS_5GS_CMN_EAP_MESSAGE,                   "EAP message" },                                     /* 9.10.2.2     EAP message*/
+    { DE_NAS_5GS_CMN_GPRS_TIMER,                    "GPRS timer" },                                      /* 9.10.2.3     GPRS timer*/
+    { DE_NAS_5GS_CMN_GPRS_TIMER2,                   "GPRS timer 2" },                                    /* 9.10.2.4     GPRS timer 2*/
+    { DE_NAS_5GS_CMN_GPRS_TIMER3,                   "GPRS timer 3" },                                    /* 9.10.2.5     GPRS timer 3*/
+    { DE_NAS_5GS_CMN_INTRA_N1_MODE_NAS_TRANS_CONT,  "Intra N1 mode NAS transparent container" },         /* 9.11.2.6     Intra N1 mode NAS transparent container*/
+    { DE_NAS_5GS_CMN_N1_TO_S1_MODE_TRANS_CONT,      "N1 mode to S1 mode NAS transparent container" },    /* 9.10.2.7     N1 mode to S1 mode NAS transparent container */
+    { DE_NAS_5GS_CMN_S_NSSAI,                       "S-NSSAI" },                                         /* 9.10.2.8     S-NSSAI */
+    { DE_NAS_5GS_CMN_S1_TO_N1_MODE_TRANS_CONT,      "S1 mode to N1 mode NAS transparent container" },    /* 9.10.2.9     S1 mode to N1 mode NAS transparent container */
     { 0, NULL }
 };
 value_string_ext nas_5gs_common_elem_strings_ext = VALUE_STRING_EXT_INIT(nas_5gs_common_elem_strings);
@@ -2997,13 +3093,16 @@ guint16(*nas_5gs_common_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info
     guint32 offset, guint len,
     gchar *add_string, int string_len) = {
         /*  9.10.2    Common information elements */
-        de_nas_5gs_cmn_add_inf,                     /* 9.10.2.1    Additional information*/
-        de_nas_5gs_cmn_eap_msg,                     /* 9.10.2.2    EAP message*/
-        NULL,                                       /* 9.10.2.3     GPRS timer*/
-        NULL,                                       /* 9.10.2.4     GPRS timer 2*/
-        NULL,                                       /* 9.10.2.5     GPRS timer 3*/
-        de_nas_5gs_cmn_s_nssai,                     /* 9.10.2.6     S-NSSAI */
-        de_nas_5gs_cmn_s1_to_n1_mode_trans_cont,    /* 9.10.2.7     S1 mode to N1 mode NAS transparent container */
+        de_nas_5gs_cmn_add_inf,                      /* 9.10.2.1     Additional information*/
+        de_nas_5gs_cmn_dnn,                          /* 9.10.2.1A    DNN*/
+        de_nas_5gs_cmn_eap_msg,                      /* 9.10.2.2     EAP message*/
+        NULL,                                        /* 9.10.2.3     GPRS timer*/
+        NULL,                                        /* 9.10.2.4     GPRS timer 2*/
+        NULL,                                        /* 9.10.2.5     GPRS timer 3*/
+        de_nas_5gs_cmn_intra_n1_mode_nas_trans_cont, /* 9.11.2.6     Intra N1 mode NAS transparent container*/
+        de_nas_5gs_cmn_n1_to_s1_mode_trans_cont,     /* 9.10.2.7     N1 mode to S1 mode NAS transparent containe */
+        de_nas_5gs_cmn_s_nssai,                      /* 9.10.2.8     S-NSSAI */
+        de_nas_5gs_cmn_s1_to_n1_mode_trans_cont,     /* 9.10.2.9     S1 mode to N1 mode NAS transparent container */
         NULL,   /* NONE */
 };
 
@@ -3039,10 +3138,6 @@ typedef enum
     DE_NAS_5GS_MM_DE_REG_TYPE,               /* 9.11.3.20    De-registration type*/
                                              /* 9.11.3.21    Void */
                                              /* 9.11.3.22    Void*/
-
-    DE_NAS_5GS_MM_DNN,                       /* 9.11.3.19    DNN*/
-    DE_NAS_5GS_MM_DRX_PAR,                   /* 9.11.3.20    DRX parameters */
-
     DE_NAS_5GS_MM_EMRG_NR_LIST,              /* 9.11.3.23    Emergency number list */
     DE_NAS_5GS_MM_EPS_NAS_MSG_CONT,          /* 9.11.3.24    EPS NAS message container */
     DE_NAS_5GS_MM_EPS_NAS_SEC_ALGO,          /* 9.11.3.25    EPS NAS security algorithms */
@@ -3110,10 +3205,6 @@ static const value_string nas_5gs_mm_elem_strings[] = {
     { DE_NAS_5GS_MM_CONF_UPD_IND,               "Configuration update indication" },    /* 9.11.3.18    Configuration update indication*/
     { DE_NAS_5GS_MM_DLGT_SAVING_TIME,           "Daylight saving time" },               /* 9.11.3.19    Daylight saving time*/
     { DE_NAS_5GS_MM_DE_REG_TYPE,                "De-registration type" },               /* 9.11.3.20    De-registration type*/
-
-    { DE_NAS_5GS_MM_DNN,                        "DNN" },                                /* 9.11.3.19    DNN*/
-    { DE_NAS_5GS_MM_DRX_PAR,                    "DRX parameters" },                     /* 9.11.3.20    DRX parameters*/
-
                                                                                         /* 9.11.3.21    Void */
                                                                                         /* 9.11.3.22    Void*/
     { DE_NAS_5GS_MM_EMRG_NR_LIST,               "Emergency number list" },              /* 9.11.3.23    Emergency number list*/
@@ -3189,10 +3280,6 @@ guint16(*nas_5gs_mm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
         de_nas_5gs_mm_conf_upd_ind,              /* 9.11.3.18    Configuration update indication*/
         NULL,                                    /* 9.11.3.19    Daylight saving time*/
         de_nas_5gs_mm_de_reg_type,               /* 9.11.3.20    De-registration type*/
-
-        de_nas_5gs_mm_dnn,                       /* 9.11.3.19    DNN*/
-        de_nas_5gs_mm_drx_par,                   /* 9.11.3.20    DRX parameters*/
-
                                                  /* 9.11.3.21    Void */
                                                  /* 9.11.3.22    Void*/
         NULL,                                    /* 9.11.3.23    Emergency number list*/
@@ -3683,8 +3770,8 @@ nas_5gs_mm_ul_nas_transp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
     ELEM_OPT_TV_SHORT(0x80, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_REQ_TYPE, NULL);
     /*22    S-NSSAI    S-NSSAI    9.11.3.37    O    TLV    3-10 */
     ELEM_OPT_TLV(0x22, NAS_5GS_PDU_TYPE_COMMON, DE_NAS_5GS_CMN_S_NSSAI, NULL);
-    /*25    DNN    DNN    9.11.3.21    O    TLV    3-102 */
-    ELEM_OPT_TLV(0x25, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_DNN, NULL);
+    /*25    DNN    DNN    9.11.2.1A    O    TLV    3-102 */
+    ELEM_OPT_TLV(0x25, NAS_5GS_PDU_TYPE_COMMON, DE_NAS_5GS_CMN_DNN, NULL);
     /*24    Additional information    Additional information    9.10.2.1    O    TLV    3-n */
     ELEM_OPT_TLV(0x24, NAS_5GS_PDU_TYPE_COMMON, DE_NAS_5GS_CMN_ADD_INF, NULL);
 
@@ -3836,14 +3923,14 @@ nas_5gs_mm_service_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
     curr_offset = offset;
     curr_len = len;
 
-    /*50    PDU session status    PDU session status     9.10.2.2    O    TLV    4*/
+    /*50    PDU session status    PDU session status     9.11.3.44    O    TLV    4-34*/
     ELEM_OPT_TLV(0x50, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_PDU_SES_STATUS, NULL);
 
-    /*26    PDU session reactivation result    PDU session reactivation result 9.11.3.37    O    TLV    4-32*/
+    /*26    PDU session reactivation result    PDU session reactivation result 9.11.3.42    O    TLV    4-32*/
     ELEM_OPT_TLV(0x26, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_PDU_SES_REACT_RES, NULL);
-    /*72    PDU session reactivation result error cause    PDU session reactivation result error cause 9.11.3.38    O    TLV-E    5-515 */
+    /*72    PDU session reactivation result error cause    PDU session reactivation result error cause 9.11.3.43    O    TLV-E    5-515 */
     ELEM_OPT_TLV_E(0x72, NAS_5GS_PDU_TYPE_COMMON, DE_NAS_5GS_MM_PDU_SES_REACT_RES_ERR_C, NULL);
-    /*78    EAP message    EAP message     9.10.2.2    O    TLV-E    7-1503*/
+    /*78    EAP message    EAP message     9.11.2.2    O    TLV-E    7-1503*/
     ELEM_OPT_TLV_E(0x78, NAS_5GS_PDU_TYPE_COMMON, DE_NAS_5GS_CMN_EAP_MESSAGE, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
@@ -3865,13 +3952,13 @@ nas_5gs_mm_service_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
     /* 5GMM cause   5GMM cause     9.11.3.2  M   V   1 */
     ELEM_MAND_V(NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_5GMM_CAUSE, NULL, ei_nas_5gs_missing_mandatory_elemen);
 
-    /*50    PDU session status    PDU session status 9.10.2.2    O    TLV    4*/
+    /*50    PDU session status    PDU session status 9.11.3.44    O    TLV    4*/
     ELEM_OPT_TLV(0x50, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_PDU_SES_STATUS, NULL);
 
-    /* 5F  T3346 value GPRS timer 2     9.11.3.16   O   TLV 3 */
+    /* 5F  T3346 value GPRS timer 2     9.11.2.4   O   TLV 3 */
     ELEM_OPT_TLV(0x5F, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER_2, " - T3346 value");
 
-    /* 78    EAP message    EAP message 9.10.2.2    O    TLV-E    7-1503 */
+    /* 78    EAP message    EAP message 9.11.2.2    O    TLV-E    7-1503 */
     ELEM_OPT_TLV_E(0x78, NAS_5GS_PDU_TYPE_COMMON, DE_NAS_5GS_CMN_EAP_MESSAGE, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
@@ -3919,8 +4006,8 @@ nas_5gs_mm_conf_upd_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     ELEM_OPT_TLV(0x31, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_NSSAI, " - Configured NSSAI");
     /*11    Rejected NSSAI     Rejected NSSAI   9.11.3.42   O   TLV   4-42*/
     ELEM_OPT_TLV(0x11, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_REJ_NSSAI, NULL);
-
     /* 76    Operator-defined access category definitions    Operator-defined access category definitions 9.11.3.38    O    TLV-E    3-TBD */
+    ELEM_OPT_TLV_E(0x76, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_OP_DEF_ACC_CAT_DEF, NULL);
     /* F-    SMS indication    SMS indication 9.10.3.50A    O    TV    1 */
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
@@ -4227,6 +4314,8 @@ nas_5gs_sm_pdu_ses_est_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     /*7B    Extended protocol configuration options    Extended protocol configuration options 9.11.4.2    O    TLV-E    4-65538*/
     ELEM_OPT_TLV_E(0x7B, NAS_PDU_TYPE_ESM, DE_ESM_EXT_PCO, NULL);
     /* 25    DNN    DNN 9.11.2.1A    O    TLV    3-102 */
+    ELEM_OPT_TLV(0x25, NAS_5GS_PDU_TYPE_COMMON, DE_NAS_5GS_CMN_DNN, NULL);
+
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
 
 }
@@ -5320,6 +5409,11 @@ proto_register_nas_5gs(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_nas_5gs_cmn_dnn,
+        { "DNN", "nas_5gs.cmn.dnn",
+            FT_STRING, BASE_NONE, NULL,0x0,
+            NULL, HFILL }
+        },
         { &hf_nas_5gs_mm_for,
         { "Follow-On Request bit (FOR)",   "nas_5gs.mm.for",
             FT_BOOLEAN, 8, TFS(&nas_5gs_for_tfs), 0x10,
@@ -5388,11 +5482,6 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_mm_acc_type,
         { "Access type",   "nas_5gs.mm.acc_type",
             FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_acc_type_vals), 0x03,
-            NULL, HFILL }
-        },
-        { &hf_nas_5gs_mm_dnn,
-        { "DNN", "nas_5gs.mm.dnn",
-            FT_STRING, BASE_NONE, NULL,0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_raai_b0,
@@ -6325,13 +6414,18 @@ proto_register_nas_5gs(void)
             FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_drx_vals), 0x0f,
             NULL, HFILL }
         },
+        { &hf_nas_5gs_mm_precedence,
+        { "Precedence", "nas_5gs.mm.precedence",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
     };
 
     guint     i;
     guint     last_offset;
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    12
+#define NUM_INDIVIDUAL_ELEMS    13
     gint *ett[NUM_INDIVIDUAL_ELEMS +
         NUM_NAS_5GS_COMMON_ELEM +
         NUM_NAS_5GS_MM_MSG + NUM_NAS_5GS_MM_ELEM +
@@ -6350,6 +6444,7 @@ proto_register_nas_5gs(void)
     ett[9] = &ett_nas_5gs_sm_mapd_eps_b_cont;
     ett[10] = &ett_nas_5gs_sm_mapd_eps_b_cont_params_list;
     ett[11] = &ett_nas_5gs_enc;
+    ett[12] = &ett_nas_5gs_mm_ladn_indic;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
