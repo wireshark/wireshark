@@ -369,6 +369,12 @@ typedef enum {
 #define IEEE802159_MPX_WISUN_SUBID_6LOWPAN        1
 #define IEEE802159_MPX_WISUN_SUBID_SECURITY       2
 
+typedef enum {
+    IEEE802154_FCS_OK_BIT = 0, /* TI CC24xx CRC_OK bit */
+    IEEE802154_FCS_16_BIT = 1, /* ITU-T CRC16 */
+    IEEE802154_FCS_32_BIT = 2, /* CCITT CRC32 */
+} ieee802154_fcs_type_t;
+
 /*  Structure containing information regarding all necessary packet fields. */
 typedef struct {
     /* Frame control field. */
@@ -570,5 +576,7 @@ extern gboolean ieee802154_long_addr_invalidate(guint64, guint);
 extern ieee802154_map_tab_t ieee802154_map;
 
 extern const value_string ieee802154_mpx_kmp_id_vals[];
+
+extern gint ieee802154_fcs_len;
 
 #endif /* PACKET_IEEE802154_H */

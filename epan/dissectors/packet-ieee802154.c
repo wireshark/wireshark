@@ -1,5 +1,12 @@
 /* packet-ieee802154.c
  *
+ * 4-byte FCS support
+ * By Carl Levesque Imbeault <carl.levesque@trilliant.com>
+ * Copyright 2018 Trilliant Inc.
+ * Integrated and added FCS type enum
+ * by James Ko <jck@exegin.com>
+ * Copyright 2019 Exegin Technologies Limited
+ *
  * Auxiliary Security Header support and
  * option to force TI CC24xx FCS format
  * By Jean-Francois Wauthy <jfw@info.fundp.ac.be>
@@ -22,8 +29,8 @@
  *------------------------------------------------------------
  *
  *  IEEE 802.15.4 Packets have the following format:
- *  |  FCF  |Seq No|  Addressing |         Data          |  FCS  |
- *  |2 bytes|1 byte|0 to 20 bytes|Length-(Overhead) bytes|2 Bytes|
+ *  |  FCF  |Seq No|  Addressing |         Data          |   FCS   |
+ *  |2 bytes|1 byte|0 to 20 bytes|Length-(Overhead) bytes|2/4 Bytes|
  *------------------------------------------------------------
  *
  *  CRC16 is calculated using the x^16 + x^12 + x^5 + 1 polynomial
@@ -33,6 +40,8 @@
  *  will require reversing the bit-order in each byte. Also, unlike
  *  most CRC algorithms, IEEE 802.15.4 uses an initial and final value
  *  of 0x0000, instead of 0xffff (which is used by the CCITT).
+ *
+ *  For a 4-byte FCS, CRC32 is calculated using the CCITT CRC32.
  *------------------------------------------------------------
  *
  *  This dissector supports both link-layer IEEE 802.15.4 captures
@@ -50,6 +59,7 @@
 #include <epan/decode_as.h>
 #include <epan/exceptions.h>
 #include <epan/crc16-tvb.h>
+#include <epan/crc32-tvb.h>
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
 #include <epan/address_types.h>
@@ -73,16 +83,17 @@ void proto_register_ieee802154(void);
 void proto_reg_handoff_ieee802154(void);
 
 /* Dissection Options for dissect_ieee802154_common */
-#define DISSECT_IEEE802154_OPTION_FCS_PRESENT 0x00000001 /* FCS field present */
-#define DISSECT_IEEE802154_OPTION_CC24xx      0x00000002 /* FCS field contains a TI CC24xx style FCS. */
-#define DISSECT_IEEE802154_OPTION_LINUX       0x00000004 /* Addressing fields are padded DLT_IEEE802_15_4_LINUX, not implemented. */
-#define DISSECT_IEEE802154_OPTION_ZBOSS       0x00000008 /* ZBOSS traffic dump */
+#define DISSECT_IEEE802154_OPTION_CC24xx    0x00000001 /* FCS field contains a TI CC24xx style FCS. */
+#define DISSECT_IEEE802154_OPTION_ZBOSS     0x00000002 /* ZBOSS traffic dump */
 
 /* ethertype for 802.15.4 tag - encapsulating an Ethernet packet */
 static unsigned int ieee802154_ethertype = 0x809A;
 
-/* boolean value set if the FCS field is using the TI CC24xx format */
-static gboolean ieee802154_cc24xx = FALSE;
+/* The configured FCS type using ieee802154_fcs_type_t */
+static gint ieee802154_fcs_type = IEEE802154_FCS_16_BIT;
+
+/* This is the actual number of FCS bytes in the encapsulated IEEE 802.15.4 packet */
+gint ieee802154_fcs_len = IEEE802154_FCS_LEN;
 
 /* boolean value set if the FCS must be ok before payload is dissected */
 static gboolean ieee802154_fcs_ok = TRUE;
@@ -464,7 +475,10 @@ static int hf_ieee802154_src_panID = -1;
 static int hf_ieee802154_src16 = -1;
 static int hf_ieee802154_src64 = -1;
 static int hf_ieee802154_src64_origin = -1;
+static int hf_ieee802154_addr16 = -1;
+static int hf_ieee802154_addr64 = -1;
 static int hf_ieee802154_fcs = -1;
+static int hf_ieee802154_fcs32 = -1;
 static int hf_ieee802154_rssi = -1;
 static int hf_ieee802154_fcs_ok = -1;
 static int hf_ieee802154_correlation = -1;
@@ -932,6 +946,9 @@ static gboolean ieee802154_extend_auth = TRUE;
 #define IEEE802154_CRC_XOROUT   0xFFFF
 #define ieee802154_crc_tvb(tvb, offset)   (crc16_ccitt_tvb_seed(tvb, offset, IEEE802154_CRC_SEED) ^ IEEE802154_CRC_XOROUT)
 
+/* For the 32-bit CRC, IEEE 802.15.4 uses CCITT CRC-32. */
+#define ieee802154_crc32_tvb(tvb, offset) (crc32_ccitt_tvb(tvb, offset))
+
 static int ieee802_15_4_short_address_to_str(const address* addr, gchar *buf, int buf_len)
 {
     guint16 ieee_802_15_4_short_addr = pletoh16(addr->data);
@@ -1148,24 +1165,29 @@ tvbuff_t *decrypt_ieee802154_payload(tvbuff_t * tvb, guint offset, packet_info *
 static gboolean
 is_cc24xx_crc_ok(tvbuff_t *tvb)
 {
-    return tvb_get_letohs(tvb, tvb_reported_length(tvb)-IEEE802154_FCS_LEN) & IEEE802154_CC24xx_CRC_OK ? TRUE : FALSE;
+    return tvb_get_letohs(tvb, tvb_reported_length(tvb)-ieee802154_fcs_len) & IEEE802154_CC24xx_CRC_OK ? TRUE : FALSE;
 }
 
 /**
- * Verify the 16 bit IEEE 802.15.4 FCS
+ * Verify the 16/32 bit IEEE 802.15.4 FCS
  * @param tvb the IEEE 802.15.4 frame from the FCF up to and including the FCS
- * @param[out] computed_fcs if != NULL, will be set to the computed FCS
  * @return if the computed FCS matches the transmitted FCS
  */
 static gboolean
-is_fcs_ok(tvbuff_t *tvb, guint16 *computed_fcs)
+is_fcs_ok(tvbuff_t *tvb)
 {
-    guint16 fcs = tvb_get_letohs(tvb, tvb_reported_length(tvb)-IEEE802154_FCS_LEN);
-    guint16 fcs_calc = (guint16) ieee802154_crc_tvb(tvb, tvb_reported_length(tvb)-IEEE802154_FCS_LEN);
-    if (computed_fcs) {
-        *computed_fcs = fcs_calc;
+    if (ieee802154_fcs_len == 2) {
+        /* The FCS is in the last two bytes of the packet. */
+        guint16 fcs = tvb_get_letohs(tvb, tvb_reported_length(tvb)-ieee802154_fcs_len);
+        guint16 fcs_calc = (guint16) ieee802154_crc_tvb(tvb, tvb_reported_length(tvb)-ieee802154_fcs_len);
+        return fcs == fcs_calc;
     }
-    return fcs == fcs_calc;
+    else {
+        /* The FCS is in the last four bytes of the packet. */
+        guint32 fcs = tvb_get_letohl(tvb, tvb_reported_length(tvb)-ieee802154_fcs_len);
+        guint32 fcs_calc = ieee802154_crc32_tvb(tvb, tvb_reported_length(tvb)-ieee802154_fcs_len);
+        return fcs == fcs_calc;
+    }
 }
 
 /**
@@ -1220,8 +1242,16 @@ dissect_ieee802154_nonask_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     return tvb_captured_length(tvb);
 } /* dissect_ieee802154_nonask_phy */
 
+/* Return the length in octets for the ieee802154_fcs_type_t which follows the PHY Payload */
+static gint
+ieee802154_fcs_type_len(gint i)
+{
+    gint fcs_type_lengths[] = { 2, 2, 4 };
+    return fcs_type_lengths[i];
+}
+
 /**
- * Dissector for IEEE 802.15.4 packet with an FCS containing a 16-bit CRC value.
+ * Dissector for IEEE 802.15.4 packet with an FCS containing a 16/32-bit CRC value.
  *
  * @param tvb pointer to buffer containing raw packet.
  * @param pinfo pointer to packet information fields.
@@ -1231,17 +1261,21 @@ static int
 dissect_ieee802154(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     tvbuff_t *new_tvb = dissect_zboss_specific(tvb, pinfo, tree);
-    guint options = DISSECT_IEEE802154_OPTION_FCS_PRESENT;
+    guint options = 0;
 
-    if (ieee802154_cc24xx)
-    {
-      options |= DISSECT_IEEE802154_OPTION_CC24xx;
+    /* Set the default FCS length based on the FCS type in the configuration */
+    ieee802154_fcs_len = ieee802154_fcs_type_len(ieee802154_fcs_type);
+
+    if (ieee802154_fcs_type == IEEE802154_FCS_OK_BIT) {
+        options |= DISSECT_IEEE802154_OPTION_CC24xx;
     }
-    if (new_tvb != tvb)
-    {
-      /* ZBOSS traffic dump: always TI FCS, always ZigBee */
-      options |= (DISSECT_IEEE802154_OPTION_CC24xx | DISSECT_IEEE802154_OPTION_ZBOSS);
+
+    if (new_tvb != tvb) {
+        /* ZBOSS traffic dump: always TI FCS, always ZigBee */
+        options |= DISSECT_IEEE802154_OPTION_CC24xx|DISSECT_IEEE802154_OPTION_ZBOSS;
+        ieee802154_fcs_len = 2;
     }
+
     /* Call the common dissector. */
     dissect_ieee802154_common(new_tvb, pinfo, tree, options);
     return tvb_captured_length(tvb);
@@ -1258,6 +1292,7 @@ dissect_ieee802154(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 static int
 dissect_ieee802154_nofcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * data _U_)
 {
+    ieee802154_fcs_len = 0;
     /* Call the common dissector. */
     dissect_ieee802154_common(tvb, pinfo, tree, 0);
     return tvb_captured_length(tvb);
@@ -1324,7 +1359,8 @@ static int
 dissect_ieee802154_cc24xx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * data _U_)
 {
     /* Call the common dissector. */
-    dissect_ieee802154_common(tvb, pinfo, tree, DISSECT_IEEE802154_OPTION_FCS_PRESENT|DISSECT_IEEE802154_OPTION_CC24xx);
+    ieee802154_fcs_len = 2;
+    dissect_ieee802154_common(tvb, pinfo, tree, DISSECT_IEEE802154_OPTION_CC24xx);
     return tvb_captured_length(tvb);
 } /* dissect_ieee802154_cc24xx */
 
@@ -1336,7 +1372,7 @@ dissect_ieee802154_cc24xx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
  * for further processing.
  *
  * This is called after the individual dissect_ieee802154* functions
- * have been called to determine what sort of FCS is present, if any.
+ * have been called to determine what sort of FCS is present.
  *
  * @param tvb pointer to buffer containing raw packet.
  * @param pinfo pointer to packet information fields
@@ -1348,90 +1384,18 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 {
     proto_tree *ieee802154_tree;
     ieee802154_packet *packet;
-    gboolean fcs_present;
-    gboolean fcs_ok;
-    tvbuff_t* no_fcs_tvb;
 
-    if (options & DISSECT_IEEE802154_OPTION_FCS_PRESENT) {
-        /*
-         * Well, this packet should, in theory, have an FCS.
-         * Do we have the entire packet, and does it have enough data for
-         * the FCS?
-         */
-        guint reported_len = tvb_reported_length(tvb);
-
-        if (reported_len < IEEE802154_FCS_LEN) {
-            /*
-             * The packet is claimed not to even have enough data
-             * for an FCS.  Pretend it doesn't have one.
-             */
-            no_fcs_tvb = tvb;
-            fcs_present = FALSE;
-            fcs_ok = TRUE;  // assume OK if not existing
-        } else {
-            /*
-             * The packet is claimed to have enough data for an FCS.
-             * Slice off the FCS from the reported length.
-             */
-            reported_len -= IEEE802154_FCS_LEN;
-            no_fcs_tvb = tvb_new_subset_length(tvb, 0, reported_len);
-
-            /*
-             * Is the FCS present in the captured data?
-             * reported_len is now the length of the packet without the
-             * FCS, so the FCS begins at an offset of reported_len.
-             */
-            if (tvb_bytes_exist(tvb, reported_len, IEEE802154_FCS_LEN)) {
-                /*
-                 * Yes.  Check it.
-                 */
-                fcs_present = TRUE;
-                fcs_ok = options & DISSECT_IEEE802154_OPTION_CC24xx ? is_cc24xx_crc_ok(tvb) : is_fcs_ok(tvb, NULL);
-            } else {
-                /*
-                 * No.
-                 *
-                 * Either 1) this means that there was a snapshot length
-                 * in effect when the capture was done, and that sliced
-                 * some or all of the FCS off or 2) this is a capture
-                 * with no FCS, using the same link-layer header type
-                 * value as captures with the FCS, and indicating the
-                 * lack of an FCS by having the captured length be the
-                 * length of the packet minus the length of the FCS
-                 * and the actual length being the length of the packet
-                 * including the FCS, rather than by using the "no FCS"
-                 * link-layer header type.
-                 *
-                 * We could try to distinguish between them by checking
-                 * for a captured length that's exactly IEEE802154_FCS_LEN
-                 * bytes less than the actual length.  That would allow
-                 * us to report packets that are cut short just before,
-                 * or in the middle of, the FCS as having been cut short
-                 * by the snapshot length.
-                 *
-                 * However, we can't distinguish between a packet that
-                 * happened to be cut IEEE802154_FCS_LEN bytes short
-                 * due to a snapshot length being in effect when
-                 * the capture was done and a packet that *wasn't*
-                 * cut short by a snapshot length but that doesn't
-                 * include the FCS.  Let's hope that rarely happens.
-                 */
-                fcs_present = FALSE;
-                fcs_ok = TRUE;  // assume OK if not existing
-            }
-        }
-    } else {
-        no_fcs_tvb = tvb;
-        fcs_present = FALSE;
-        fcs_ok = TRUE;  // assume OK if not existing
-    }
-
-    guint mhr_len = ieee802154_dissect_header(no_fcs_tvb, pinfo, tree, 0, &ieee802154_tree, &packet);
-    if (!mhr_len || tvb_reported_length_remaining(no_fcs_tvb, mhr_len) < 0 ) {
+    guint mhr_len = ieee802154_dissect_header(tvb, pinfo, tree, 0, &ieee802154_tree, &packet);
+    if (!mhr_len || tvb_reported_length_remaining(tvb, mhr_len+ieee802154_fcs_len) < 0 ) {
         return;
     }
 
-    tvbuff_t* payload = ieee802154_decrypt_payload(no_fcs_tvb, mhr_len, pinfo, ieee802154_tree, packet);
+    gboolean fcs_ok = TRUE;  // assume OK if not existing
+    if (ieee802154_fcs_len && tvb_bytes_exist(tvb, tvb_reported_length(tvb)-ieee802154_fcs_len, ieee802154_fcs_len)) {
+        fcs_ok = options & DISSECT_IEEE802154_OPTION_CC24xx ? is_cc24xx_crc_ok(tvb) : is_fcs_ok(tvb);
+    }
+
+    tvbuff_t* payload = ieee802154_decrypt_payload(tvb, mhr_len, pinfo, ieee802154_tree, packet);
     if (payload) {
         guint pie_size = ieee802154_dissect_payload_ies(payload, pinfo, ieee802154_tree, packet);
         payload = tvb_new_subset_remaining(payload, pie_size);
@@ -1446,8 +1410,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         }
     }
 
-    if (fcs_present)
-        ieee802154_dissect_fcs(tvb, pinfo, ieee802154_tree, options & DISSECT_IEEE802154_OPTION_CC24xx, fcs_ok);
+    ieee802154_dissect_fcs(tvb, pinfo, ieee802154_tree, options & DISSECT_IEEE802154_OPTION_CC24xx, fcs_ok);
 }
 
 guint
@@ -1759,6 +1722,9 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
         proto_tree_add_uint(ieee802154_tree, hf_ieee802154_dst16, tvb, offset, 2, packet->dst16);
         proto_item_append_text(proto_root, ", Dst: %s", dst_addr);
+        ti = proto_tree_add_uint(ieee802154_tree, hf_ieee802154_addr16, tvb, offset, 2, packet->dst16);
+        PROTO_ITEM_SET_GENERATED(ti);
+        PROTO_ITEM_SET_HIDDEN(ti);
 
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Dst: %s", dst_addr);
         offset += 2;
@@ -1782,6 +1748,9 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         if (tree) {
             proto_tree_add_item(ieee802154_tree, hf_ieee802154_dst64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             proto_item_append_text(proto_root, ", Dst: %s", eui64_to_display(wmem_packet_scope(), packet->dst64));
+            ti = proto_tree_add_item(ieee802154_tree, hf_ieee802154_addr64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            PROTO_ITEM_SET_GENERATED(ti);
+            PROTO_ITEM_SET_HIDDEN(ti);
         }
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Dst: %s", eui64_to_display(wmem_packet_scope(), packet->dst64));
         offset += 8;
@@ -1812,7 +1781,7 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         /* Get the address. */
         packet->src16 = tvb_get_letohs(tvb, offset);
 
-        if (!pinfo->fd->visited) {
+        if (!PINFO_FD_VISITED(pinfo)) {
             /* If we know our extended source address from previous packets,
                 * provide a pointer to it in a hint for upper layers */
             addr16.addr = packet->src16;
@@ -1833,12 +1802,18 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         if (tree) {
             proto_tree_add_uint(ieee802154_tree, hf_ieee802154_src16, tvb, offset, 2, packet->src16);
             proto_item_append_text(proto_root, ", Src: %s", src_addr);
+            ti = proto_tree_add_uint(ieee802154_tree, hf_ieee802154_addr16, tvb, offset, 2, packet->src16);
+            PROTO_ITEM_SET_GENERATED(ti);
+            PROTO_ITEM_SET_HIDDEN(ti);
 
             if (ieee_hints && ieee_hints->map_rec) {
                 /* Display inferred source address info */
                 ti = proto_tree_add_eui64(ieee802154_tree, hf_ieee802154_src64, tvb, offset, 0,
                         ieee_hints->map_rec->addr64);
                 PROTO_ITEM_SET_GENERATED(ti);
+                ti = proto_tree_add_eui64(ieee802154_tree, hf_ieee802154_addr64, tvb, offset, 0, ieee_hints->map_rec->addr64);
+                PROTO_ITEM_SET_GENERATED(ti);
+                PROTO_ITEM_SET_HIDDEN(ti);
 
                 if ( ieee_hints->map_rec->start_fnum ) {
                     ti = proto_tree_add_uint(ieee802154_tree, hf_ieee802154_src64_origin, tvb, 0, 0,
@@ -1875,6 +1850,9 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         if (tree) {
             proto_tree_add_item(ieee802154_tree, hf_ieee802154_src64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             proto_item_append_text(proto_root, ", Src: %s", eui64_to_display(wmem_packet_scope(), packet->src64));
+            ti = proto_tree_add_item(ieee802154_tree, hf_ieee802154_addr64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            PROTO_ITEM_SET_GENERATED(ti);
+            PROTO_ITEM_SET_HIDDEN(ti);
         }
 
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Src: %s", eui64_to_display(wmem_packet_scope(), packet->src64));
@@ -1965,16 +1943,16 @@ ieee802154_decrypt_payload(tvbuff_t *tvb, guint mhr_len, packet_info *pinfo, pro
 
         /* Get the unencrypted data if decryption failed.  */
         if (!payload_tvb) {
-            /* Deal with possible truncation and the MIC fields at the end. */
-            gint reported_len = tvb_reported_length(tvb)-mhr_len-rx_mic_len;
+            /* Deal with possible truncation and the MIC and FCS fields at the end. */
+            gint reported_len = tvb_reported_length(tvb)-mhr_len-rx_mic_len-ieee802154_fcs_len;
             gint captured_len = tvb_captured_length(tvb)-mhr_len;
             payload_tvb = tvb_new_subset_length_caplen(tvb, mhr_len, MIN(captured_len, reported_len), reported_len);
         }
 
         /* Display the MIC. */
         if (rx_mic_len) {
-            if (tvb_bytes_exist(tvb, tvb_reported_length(tvb) - rx_mic_len, rx_mic_len)) {
-                proto_tree_add_item(ieee802154_tree, hf_ieee802154_mic, tvb, tvb_reported_length(tvb)-rx_mic_len, rx_mic_len, ENC_NA);
+            if (tvb_bytes_exist(tvb, tvb_reported_length(tvb) - rx_mic_len - ieee802154_fcs_len, rx_mic_len)) {
+                proto_tree_add_item(ieee802154_tree, hf_ieee802154_mic, tvb, tvb_reported_length(tvb)-rx_mic_len-ieee802154_fcs_len, rx_mic_len, ENC_NA);
             }
         }
 
@@ -2029,8 +2007,8 @@ ieee802154_decrypt_payload(tvbuff_t *tvb, guint mhr_len, packet_info *pinfo, pro
     }
     /* Plaintext Payload. */
     else {
-        /* Deal with possible truncation and the MIC field at the end. */
-        gint reported_len = tvb_reported_length(tvb)-mhr_len;
+        /* Deal with possible truncation and the MIC and FCS fields at the end. */
+        gint reported_len = tvb_reported_length(tvb)-mhr_len-ieee802154_fcs_len;
         gint captured_len = tvb_captured_length(tvb)-mhr_len;
         payload_tvb = tvb_new_subset_length_caplen(tvb, mhr_len, MIN(captured_len, reported_len), reported_len);
     }
@@ -2138,33 +2116,49 @@ ieee802154_dissect_fcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154
 {
     proto_item *ti;
     /* The FCS should be the last bytes of the reported packet. */
-    guint offset = tvb_reported_length(tvb)-IEEE802154_FCS_LEN;
+    guint offset = tvb_reported_length(tvb)-ieee802154_fcs_len;
     /* Dissect the FCS only if it exists (captures which don't or can't get the
      * FCS will simply truncate the packet to omit it, but should still set the
      * reported length to cover the original packet length), so if the snapshot
      * is too short for an FCS don't make a fuss.
      */
-    if (tvb_bytes_exist(tvb, offset, IEEE802154_FCS_LEN) && (ieee802154_tree)) {
+    if (ieee802154_fcs_len && tvb_bytes_exist(tvb, offset, ieee802154_fcs_len) && (ieee802154_tree)) {
         proto_tree  *field_tree;
-        guint16     fcs = tvb_get_letohs(tvb, offset);
+        if (ieee802154_fcs_len == 2) {
+            guint16     fcs = tvb_get_letohs(tvb, offset);
 
-        /* Display the FCS depending on expected FCS format */
-        if (is_cc24xx) {
-            /* Create a subtree for the FCS. */
-            field_tree = proto_tree_add_subtree_format(ieee802154_tree, tvb, offset, 2, ett_ieee802154_fcs, NULL,
-                        "Frame Check Sequence (TI CC24xx format): FCS %s", (fcs_ok) ? "OK" : "Bad");
-            /* Display FCS contents.  */
-            proto_tree_add_int(field_tree, hf_ieee802154_rssi, tvb, offset++, 1, (gint8) (fcs & IEEE802154_CC24xx_RSSI));
-            proto_tree_add_boolean(field_tree, hf_ieee802154_fcs_ok, tvb, offset, 1, (guint32) (fcs & IEEE802154_CC24xx_CRC_OK));
-            proto_tree_add_uint(field_tree, hf_ieee802154_correlation, tvb, offset, 1, (guint8) ((fcs & IEEE802154_CC24xx_CORRELATION) >> 8));
+            /* Display the FCS depending on expected FCS format */
+            if (is_cc24xx) {
+                /* Create a subtree for the FCS. */
+                field_tree = proto_tree_add_subtree_format(ieee802154_tree, tvb, offset, 2, ett_ieee802154_fcs, NULL,
+                            "Frame Check Sequence (TI CC24xx format): FCS %s", (fcs_ok) ? "OK" : "Bad");
+                /* Display FCS contents.  */
+                proto_tree_add_int(field_tree, hf_ieee802154_rssi, tvb, offset++, 1, (gint8) (fcs & IEEE802154_CC24xx_RSSI));
+                proto_tree_add_boolean(field_tree, hf_ieee802154_fcs_ok, tvb, offset, 1, (guint32) (fcs & IEEE802154_CC24xx_CRC_OK));
+                proto_tree_add_uint(field_tree, hf_ieee802154_correlation, tvb, offset, 1, (guint8) ((fcs & IEEE802154_CC24xx_CORRELATION) >> 8));
+            }
+            else {
+                ti = proto_tree_add_uint(ieee802154_tree, hf_ieee802154_fcs, tvb, offset, 2, fcs);
+                if (fcs_ok) {
+                    proto_item_append_text(ti, " (Correct)");
+                }
+                else {
+                    proto_item_append_text(ti, " (Incorrect, expected FCS=0x%04x)", ieee802154_crc_tvb(tvb, offset));
+                }
+                /* To Help with filtering, add the fcs_ok field to the tree.  */
+                ti = proto_tree_add_boolean(ieee802154_tree, hf_ieee802154_fcs_ok, tvb, offset, 2, (guint32) fcs_ok);
+                PROTO_ITEM_SET_HIDDEN(ti);
+            }
         }
         else {
-            ti = proto_tree_add_uint(ieee802154_tree, hf_ieee802154_fcs, tvb, offset, 2, fcs);
+            guint32 fcs = tvb_get_letohl(tvb, offset);
+
+            ti = proto_tree_add_uint(ieee802154_tree, hf_ieee802154_fcs32, tvb, offset, 4, fcs);
             if (fcs_ok) {
                 proto_item_append_text(ti, " (Correct)");
             }
             else {
-                proto_item_append_text(ti, " (Incorrect, expected FCS=0x%04x)", ieee802154_crc_tvb(tvb, offset));
+                proto_item_append_text(ti, " (Incorrect, expected FCS=0x%08x)", ieee802154_crc32_tvb(tvb, offset));
             }
             /* To Help with filtering, add the fcs_ok field to the tree.  */
             ti = proto_tree_add_boolean(ieee802154_tree, hf_ieee802154_fcs_ok, tvb, offset, 2, (guint32) fcs_ok);
@@ -2921,7 +2915,7 @@ dissect_ieee802154_header_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             packet->payload_ie_present = (id == IEEE802154_HEADER_IE_HT1);
             break;
         }
-    } while ((tvb_reported_length_remaining(tvb, offset) > IEEE802154_MIC_LENGTH(packet->security_level) + 1));
+    } while ((tvb_reported_length_remaining(tvb, offset) > IEEE802154_MIC_LENGTH(packet->security_level) + ieee802154_fcs_len + 1));
 
     proto_item_set_len(ies_item, offset - orig_offset);
     return offset - orig_offset;
@@ -3401,7 +3395,7 @@ dissect_ieee802154_disassoc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         } /* switch */
     }
 
-    if (!pinfo->fd->visited) {
+    if (!PINFO_FD_VISITED(pinfo)) {
         /* Update the address tables */
         if ( packet->dst_addr_mode == IEEE802154_FCF_ADDR_EXT ) {
             ieee802154_long_addr_invalidate(packet->dst64, pinfo->num);
@@ -3708,8 +3702,8 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
     M = IEEE802154_MIC_LENGTH(packet->security_level);
     *decrypt_info->rx_mic_length = M;
 
-    /* Is the MIC larger than the total amount of data? */
-    reported_len = tvb_reported_length_remaining(tvb, offset) - M;
+    /* Is the MIC & FCS larger than the total amount of data? */
+    reported_len = tvb_reported_length_remaining(tvb, offset) - ieee802154_fcs_len - M;
     if (reported_len < 0) {
         /* Yes.  Give up. */
         *decrypt_info->status = DECRYPT_PACKET_TOO_SMALL;
@@ -4378,12 +4372,24 @@ void proto_register_ieee802154(void)
         { "Extended Source",                "wpan.src64", FT_EUI64, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
+        { &hf_ieee802154_addr16,
+        { "Address",                        "wpan.addr16", FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_addr64,
+        { "Extended Address",               "wpan.addr64", FT_EUI64, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
         { &hf_ieee802154_src64_origin,
         { "Origin",                         "wpan.src64.origin", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ieee802154_fcs,
         { "FCS",                            "wpan.fcs", FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_fcs32,
+        { "FCS",                            "wpan.fcs32", FT_UINT32, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 
         { &hf_ieee802154_rssi,
@@ -5240,6 +5246,13 @@ void proto_register_ieee802154(void)
         UAT_END_FIELDS
     };
 
+    static const enum_val_t fcs_type_vals[] = {
+        {"ok",   "TI CC24xx CRC_OK bit",    IEEE802154_FCS_OK_BIT},
+        {"16",   "ITU-T CRC-16",            IEEE802154_FCS_16_BIT},
+        {"32",   "CCITT CRC-32",            IEEE802154_FCS_32_BIT},
+        {NULL, NULL, -1}
+    };
+
     static build_valid_func     ieee802154_da_build_value[1] = {ieee802154_da_value};
     static decode_as_value_t    ieee802154_da_values = {ieee802154_da_prompt, 1, ieee802154_da_build_value};
     static decode_as_t          ieee802154_da = {
@@ -5279,10 +5292,11 @@ void proto_register_ieee802154(void)
                                    "802.15.4 Ethertype (in hex)",
                                    "(Hexadecimal) Ethertype used to indicate IEEE 802.15.4 frame.",
                                    16, &ieee802154_ethertype);
-    prefs_register_bool_preference(ieee802154_module, "802154_cc24xx",
-                                   "TI CC24xx FCS format",
-                                   "Set if the FCS field is in TI CC24xx format.",
-                                   &ieee802154_cc24xx);
+    prefs_register_obsolete_preference(ieee802154_module, "802154_cc24xx");
+    prefs_register_enum_preference(ieee802154_module, "fcs_format",
+                                   "FCS format",
+                                   "The FCS format in the captured payload",
+                                   &ieee802154_fcs_type, fcs_type_vals, FALSE);
     prefs_register_bool_preference(ieee802154_module, "802154_fcs_ok",
                                    "Dissect only good FCS",
                                    "Dissect payload only if FCS is valid.",
