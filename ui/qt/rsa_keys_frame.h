@@ -12,6 +12,8 @@
 #ifndef RSA_KEYS_FRAME_H
 #define RSA_KEYS_FRAME_H
 
+#include <config.h>
+
 #include <QFrame>
 
 #include <ui/qt/models/uat_model.h>
@@ -26,6 +28,7 @@ class RsaKeysFrame : public QFrame
 
 public:
     explicit RsaKeysFrame(QWidget *parent = NULL);
+#ifdef HAVE_LIBGNUTLS
     ~RsaKeysFrame();
 
     void acceptChanges();
@@ -48,6 +51,7 @@ private slots:
     void libCurrentChanged(const QModelIndex &current, const QModelIndex &previous);
     void on_addLibraryButton_clicked();
     void on_deleteLibraryButton_clicked();
+#endif  /* HAVE_LIBGNUTLS */
 };
 
 #endif  /* RSA_KEYS_FRAME_H */

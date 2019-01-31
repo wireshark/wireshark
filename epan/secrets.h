@@ -79,6 +79,7 @@ typedef void (*secrets_block_callback_t)(const void *secrets, guint size);
  */
 void secrets_register_type(guint32 secrets_type, secrets_block_callback_t cb);
 
+#ifdef HAVE_LIBGNUTLS
 /**
  * Retrieve a list of available key URIs. PKCS #11 token URIs begin with
  * "pkcs11:".
@@ -100,7 +101,6 @@ secrets_get_available_keys(void);
 WS_DLL_PUBLIC gboolean
 secrets_verify_key(const char *uri, const char *password, gboolean *need_password, char **error);
 
-#ifdef HAVE_LIBGNUTLS
 /** Returns a new hash table, mapping cert_key_id_t -> gnutls_privkey_t. */
 GHashTable *privkey_hash_table_new(void);
 

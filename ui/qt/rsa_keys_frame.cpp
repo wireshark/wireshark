@@ -22,6 +22,7 @@
 #include <epan/secrets.h>
 #include <QInputDialog>
 
+#ifdef HAVE_LIBGNUTLS
 RsaKeysFrame::RsaKeysFrame(QWidget *parent) :
     QFrame(parent),
     ui(new Ui::RsaKeysFrame),
@@ -52,7 +53,11 @@ RsaKeysFrame::RsaKeysFrame(QWidget *parent) :
     connect(ui->keysView->selectionModel(), &QItemSelectionModel::currentChanged,
            this, &RsaKeysFrame::keyCurrentChanged);
 }
+#else   /* ! HAVE_LIBGNUTLS */
+RsaKeysFrame::RsaKeysFrame(QWidget *parent) : QFrame(parent) { }
+#endif  /* ! HAVE_LIBGNUTLS */
 
+#ifdef HAVE_LIBGNUTLS
 RsaKeysFrame::~RsaKeysFrame()
 {
     delete ui;
@@ -67,7 +72,6 @@ gboolean RsaKeysFrame::verifyKey(const char *uri, const char *password, gboolean
     return key_ok;
 }
 
-#include <QDebug>
 void RsaKeysFrame::addKey(const QString &uri, const QString &password)
 {
     // Create a new UAT entry with the given URI and PIN/password.
@@ -266,7 +270,7 @@ void RsaKeysFrame::on_deleteLibraryButton_clicked()
         report_failure("%s", qPrintable(error));
     }
 }
-
+#endif  /* HAVE_LIBGNUTLS */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html

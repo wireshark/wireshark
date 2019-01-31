@@ -322,8 +322,10 @@ void PrefsModel::populate()
     root_->prependChild(special_item);
     special_item = new PrefsItem(FILTER_BUTTONS_PREFERENCE_TREE_NAME, root_);
     root_->prependChild(special_item);
+#ifdef HAVE_LIBGNUTLS
     special_item = new PrefsItem(RSA_KEYS_PREFERENCE_TREE_NAME, root_);
     root_->prependChild(special_item);
+#endif
     special_item = new PrefsItem(ADVANCED_PREFERENCE_TREE_NAME, root_);
     root_->prependChild(special_item);
 }
