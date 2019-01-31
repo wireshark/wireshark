@@ -1783,13 +1783,14 @@ infer_pkt_encap(const guint8 *pd, int len)
 		 */
 		for (i = 0; i < len && (pd[i] & 0x01) == 0; i++)
 			;
-		i++;	/* advance to the byte after the last DLCI byte */
 		if (i == len) {
 			/*
-			 * No control byte.
+			 * No control byte - all the bytes have the
+			 * low-order bit clear.
 			 */
 			return WTAP_ENCAP_LAPB;
 		}
+		i++;	/* advance to the byte after the last DLCI byte */
 		if (pd[i] == 0x03)
 			return WTAP_ENCAP_FRELAY_WITH_PHDR;
 	}
