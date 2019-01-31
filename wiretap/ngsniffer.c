@@ -1778,7 +1778,7 @@ infer_pkt_encap(const guint8 *pd, int len)
 		 * although there might be other frame types as well.
 		 * Scan forward until we see the last DLCI byte, with
 		 * the low-order bit being 1, and then check the next
-		 * byte to see if it's a control byte.
+		 * byte, if it exists, to see if it's a control byte.
 		 *
 		 * XXX - in version 4 and 5 captures, wouldn't this just
 		 * have a capture subtype of NET_FRAME_RELAY?  Or is this
@@ -1795,10 +1795,14 @@ infer_pkt_encap(const guint8 *pd, int len)
 		 */
 		for (i = 0; i < len && (pd[i] & 0x01) == 0; i++)
 			;
-		if (i == len) {
+		if (i >= len - 1) {
 			/*
-			 * No control byte - all the bytes have the
-			 * low-order bit clear.
+			 * Either all the bytes have the low-order bit
+			 * clear, so we didn't even find the last DLCI
+			 * byte, or the very last byte had the low-order
+			 * bit set, so, if that's a DLCI, it fills the
+			 * buffer, so there is no control byte after
+			 * the last DLCI byte.
 			 */
 			return WTAP_ENCAP_LAPB;
 		}
