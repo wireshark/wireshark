@@ -366,6 +366,7 @@ static const value_string ll_version_number_vals[] = {
     { 0x07, "4.1" },
     { 0x08, "4.2" },
     { 0x09, "5.0" },
+    { 0x0A, "5.1" },
     { 0, NULL }
 };
 static value_string_ext ll_version_number_vals_ext = VALUE_STRING_EXT_INIT(ll_version_number_vals);
