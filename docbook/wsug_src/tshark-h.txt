@@ -28,7 +28,7 @@ Capture output:
                            filesize:NUM - switch to next file after NUM KB
                               files:NUM - ringbuffer: replace after NUM files
 Input file:
-  -r <infile>              set the filename to read from (- to read from stdin)
+  -r <infile|->            set the filename to read from (or '-' for stdin)
 
 Processing:
   -2                       perform a two-pass analysis
@@ -54,7 +54,7 @@ Processing:
                            disable dissection of heuristic protocol
 Output:
   -w <outfile|->           write packets to a pcapng-format file named "outfile"
-                           (or to the standard output for "-")
+                           (or '-' for stdout)
   -C <config profile>      start with specified configuration profile
   -F <output file type>    set the output file type, default is pcapng
                            an empty "-F" option will list the file types

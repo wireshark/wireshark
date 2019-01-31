@@ -360,7 +360,7 @@ print_usage(FILE *output)
 #endif
   /*fprintf(output, "\n");*/
   fprintf(output, "Input file:\n");
-  fprintf(output, "  -r <infile>              set the filename to read from (- to read from stdin)\n");
+  fprintf(output, "  -r <infile|->            set the filename to read from (or '-' for stdin)\n");
 
   fprintf(output, "\n");
   fprintf(output, "Processing:\n");
@@ -393,7 +393,7 @@ print_usage(FILE *output)
 #else
   fprintf(output, "  -w <outfile|->           write packets to a pcap-format file named \"outfile\"\n");
 #endif
-  fprintf(output, "                           (or to the standard output for \"-\")\n");
+  fprintf(output, "                           (or '-' for stdout)\n");
   fprintf(output, "  -C <config profile>      start with specified configuration profile\n");
 #ifdef PCAP_NG_DEFAULT
   fprintf(output, "  -F <output file type>    set the output file type, default is pcapng\n");
