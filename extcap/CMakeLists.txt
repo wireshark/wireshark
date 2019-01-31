@@ -257,11 +257,8 @@ if(BUILD_sdjournal AND SYSTEMD_FOUND)
 	set_extcap_executable_properties(sdjournal)
 	target_link_libraries(sdjournal ${sdjournal_LIBS})
 	target_include_directories(sdjournal SYSTEM PRIVATE ${SYSTEMD_INCLUDE_DIRS})
-	target_compile_definitions(sdjournal PRIVATE ${SYSTEMD_DEFINITIONS})
 	install(TARGETS sdjournal RUNTIME DESTINATION ${EXTCAP_INSTALL_LIBDIR})
 	add_dependencies(extcaps sdjournal)
-elseif (BUILD_sdjournal)
-	#message( WARNING "Cannot find libsystemd, cannot build sdjournal" )
 endif()
 
 #

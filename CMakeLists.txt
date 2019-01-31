@@ -1473,6 +1473,11 @@ set_package_properties(CARES PROPERTIES
 	URL "https://c-ares.haxx.se/"
 	PURPOSE "DNS name resolution for captures"
 )
+set_package_properties(Systemd PROPERTIES
+	URL "https://freedesktop.org/wiki/Software/systemd/"
+	DESCRIPTION "System and Service Manager (libraries)"
+	PURPOSE "Support for systemd journal extcap interface (sdjournal)"
+)
 
 string(TOUPPER "${CMAKE_BUILD_TYPE}" _build_type)
 message(STATUS "C-Flags: ${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_${_build_type}}")

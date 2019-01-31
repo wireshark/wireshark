@@ -1,41 +1,37 @@
-# Copied from https://github.com/Cloudef/wlc/blob/master/CMake/FindSystemd.cmake
-#.rst:
-# FindSystemd
-# -------
 #
-# Find Systemd library
+# - Find systemd libraries
 #
-# Try to find Systemd library on UNIX systems. The following values are defined
-#
-# ::
-#
-#   SYSTEMD_FOUND         - True if Systemd is available
-#   SYSTEMD_INCLUDE_DIRS  - Include directories for Systemd
-#   SYSTEMD_LIBRARIES     - List of libraries for Systemd
-#   SYSTEMD_DEFINITIONS   - List of definitions for Systemd
-#
-#=============================================================================
-# Copyright (c) 2015 Jari Vetoniemi
-#
-# Distributed under the OSI-approved BSD License (the "License");
-#
-# This software is distributed WITHOUT ANY WARRANTY; without even the
-# implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-# See the License for more information.
-#=============================================================================
+#  SYSTEMD_INCLUDE_DIRS - where to find systemd/sd-journal.h, etc.
+#  SYSTEMD_LIBRARIES    - List of libraries when using libsystemd.
+#  SYSTEMD_FOUND        - True if libsystemd is found.
 
-include(FeatureSummary)
-set_package_properties(Systemd PROPERTIES
-   URL "http://freedesktop.org/wiki/Software/systemd/"
-   DESCRIPTION "System and Service Manager")
+pkg_search_module(PC_SYSTEMD QUIET libsystemd)
 
-find_package(PkgConfig)
-pkg_check_modules(PC_SYSTEMD QUIET libsystemd)
-find_library(SYSTEMD_LIBRARIES NAMES systemd ${PC_SYSTEMD_LIBRARY_DIRS})
-find_path(SYSTEMD_INCLUDE_DIRS systemd/sd-login.h HINTS ${PC_SYSTEMD_INCLUDE_DIRS})
+find_path(SYSTEMD_INCLUDE_DIR
+  NAMES
+    systemd/sd-journal.h
+  HINTS
+    ${PC_SYSTEMD_INCLUDE_DIRS}
+)
 
-set(SYSTEMD_DEFINITIONS ${PC_SYSTEMD_CFLAGS_OTHER})
+find_library(SYSTEMD_LIBRARY
+  NAMES
+    systemd
+  HINTS
+    ${PC_SYSTEMD_LIBRARY_DIRS}
+)
 
 include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(SYSTEMD DEFAULT_MSG SYSTEMD_LIBRARIES SYSTEMD_INCLUDE_DIRS)
-mark_as_advanced(SYSTEMD_INCLUDE_DIRS SYSTEMD_LIBRARIES SYSTEMD_DEFINITIONS)
+find_package_handle_standard_args(SYSTEMD
+  REQUIRED_VARS   SYSTEMD_LIBRARY SYSTEMD_INCLUDE_DIR
+  VERSION_VAR     PC_SYSTEMD_VERSION)
+
+if(SYSTEMD_FOUND)
+  set(SYSTEMD_LIBRARIES ${SYSTEMD_LIBRARY})
+  set(SYSTEMD_INCLUDE_DIRS ${SYSTEMD_INCLUDE_DIR})
+else()
+  set(SYSTEMD_LIBRARIES)
+  set(SYSTEMD_INCLUDE_DIRS)
+endif()
+
+mark_as_advanced(SYSTEMD_LIBRARIES SYSTEMD_INCLUDE_DIRS)
