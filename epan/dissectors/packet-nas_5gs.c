@@ -21,6 +21,7 @@
 #include <wsutil/pow2.h>
 
 #include "packet-gsm_a_common.h"
+#include "packet-e212.h"
 
 void proto_register_nas_5gs(void);
 void proto_reg_handoff_nas_5gs(void);
@@ -54,6 +55,9 @@ static int hf_nas_5gs_spare_b4 = -1;
 static int hf_nas_5gs_spare_b3 = -1;
 static int hf_nas_5gs_spare_b2 = -1;
 static int hf_nas_5gs_spare_b1 = -1;
+static int hf_nas_5gs_rfu_b2;
+static int hf_nas_5gs_rfu_b1;
+static int hf_nas_5gs_rfu_b0;
 static int hf_nas_5gs_security_header_type = -1;
 static int hf_nas_5gs_msg_auth_code = -1;
 static int hf_nas_5gs_seq_no = -1;
@@ -268,7 +272,7 @@ static int ett_nas_5gs_sm_mapd_eps_b_cont = -1;
 static int ett_nas_5gs_sm_mapd_eps_b_cont_params_list = -1;
 static int ett_nas_5gs_enc = -1;
 static int ett_nas_5gs_mm_ladn_indic = -1;
-
+static int ett_nas_5gs_mm_sor = -1;
 
 static int hf_nas_5gs_mm_abba = -1;
 static int hf_nas_5gs_mm_suci = -1;
@@ -281,6 +285,7 @@ static int hf_nas_5gs_amf_set_id = -1;
 static int hf_nas_5gs_amf_pointer = -1;
 static int hf_nas_5gs_5g_tmsi = -1;
 static int hf_nas_5gs_mm_precedence = -1;
+static int hf_nas_5gs_mm_sms_indic_sai = -1;
 
 static int hf_nas_5gs_nw_feat_sup_mpsi_b7 = -1;
 static int hf_nas_5gs_nw_feat_sup_ims_iwk_n26_b6 = -1;
@@ -296,6 +301,28 @@ static int hf_nas_5gs_sm_mapd_eps_b_cont_eps_param_cont = -1;
 
 static int hf_nas_5gs_kacf = -1;
 static int hf_nas_5gs_ncc = -1;
+
+static int hf_nas_5gs_sor_hdr0_ack = -1;
+static int hf_nas_5gs_sor_hdr0_list_type = -1;
+static int hf_nas_5gs_sor_hdr0_list_ind = -1;
+static int hf_nas_5gs_sor_hdr0_sor_data_type = -1;
+static int hf_nas_5gs_sor_mac_iue = -1;
+static int hf_nas_5gs_sor_mac_iausf = -1;
+static int hf_nas_5gs_counter_sor = -1;
+static int hf_nas_5gs_sor_sec_pkt = -1;
+
+static int hf_nas_5gs_acces_tech_o1_b7 = -1;
+static int hf_nas_5gs_acces_tech_o1_b6 = -1;
+static int hf_nas_5gs_acces_tech_o1_b5 = -1;
+static int hf_nas_5gs_acces_tech_o1_b4 = -1;
+static int hf_nas_5gs_acces_tech_o1_b3 = -1;
+
+static int hf_nas_5gs_acces_tech_o2_b7 = -1;
+static int hf_nas_5gs_acces_tech_o2_b6 = -1;
+static int hf_nas_5gs_acces_tech_o2_b5 = -1;
+static int hf_nas_5gs_acces_tech_o2_b4 = -1;
+static int hf_nas_5gs_acces_tech_o2_b3 = -1;
+static int hf_nas_5gs_acces_tech_o2_b2 = -1;
 
 static expert_field ei_nas_5gs_extraneous_data = EI_INIT;
 static expert_field ei_nas_5gs_unknown_pd = EI_INIT;
@@ -1827,11 +1854,20 @@ static const value_string nas_5gs_mm_serv_type_vals[] = {
  *   9.11.3.50A    SMS indication
  */
 static guint16
-de_nas_5gs_mm_sms_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
+de_nas_5gs_mm_sms_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+
+    static const int * flags[] = {
+        &hf_nas_5gs_spare_b3,
+        &hf_nas_5gs_spare_b2,
+        &hf_nas_5gs_spare_b1,
+        &hf_nas_5gs_mm_sms_indic_sai,
+        NULL
+    };
+
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags, ENC_BIG_ENDIAN);
 
     return len;
 }
@@ -1839,14 +1875,135 @@ de_nas_5gs_mm_sms_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 /*
  *    9.11.3.51    SOR transparent container
  */
+static true_false_string tfs_nas_5gs_list_type = {
+    "PLMN ID and access technology list",
+    "Secured packet"
+};
+
+static true_false_string tfs_nas_5gs_list_ind = {
+    "List of preferred PLMN/access technology combinations is provided",
+    "No list of preferred PLMN/access technology combinations is provided"
+};
+
+static true_false_string tfs_nas_5gs_sor_data_type = {
+    "Carries acknowledgement of successful reception of the steering of roaming information",
+    "Carries steering of roaming information"
+};
+
 static guint16
 de_nas_5gs_mm_sor_trasp_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    /* Layout differs depending on SOR data type*/
+    static const int * flags_dt0[] = {
+    &hf_nas_5gs_spare_b7,
+    &hf_nas_5gs_spare_b6,
+    &hf_nas_5gs_spare_b5,
+    &hf_nas_5gs_spare_b4,
+    &hf_nas_5gs_sor_hdr0_ack,
+    &hf_nas_5gs_sor_hdr0_list_type,
+    &hf_nas_5gs_sor_hdr0_list_ind,
+    &hf_nas_5gs_sor_hdr0_sor_data_type,
+    NULL
+    };
 
-    return len;
+    static const int * flags_dt1[] = {
+    &hf_nas_5gs_spare_b7,
+    &hf_nas_5gs_spare_b6,
+    &hf_nas_5gs_spare_b5,
+    &hf_nas_5gs_spare_b4,
+    &hf_nas_5gs_spare_b3,
+    &hf_nas_5gs_spare_b2,
+    &hf_nas_5gs_spare_b1,
+    &hf_nas_5gs_sor_hdr0_sor_data_type,
+    NULL
+    };
+    /* 3GPP TS 31.102 [22] subclause 4.2.5 */
+    static const int * flags_acces_tech_1[] = {
+    &hf_nas_5gs_acces_tech_o1_b7,
+    &hf_nas_5gs_acces_tech_o1_b6,
+    &hf_nas_5gs_acces_tech_o1_b5,
+    &hf_nas_5gs_acces_tech_o1_b4,
+    &hf_nas_5gs_acces_tech_o1_b3,
+    &hf_nas_5gs_rfu_b2,
+    &hf_nas_5gs_rfu_b1,
+    &hf_nas_5gs_rfu_b0,
+    NULL
+    };
+
+    static const int * flags_acces_tech_2[] = {
+    &hf_nas_5gs_acces_tech_o2_b7,
+    &hf_nas_5gs_acces_tech_o2_b6,
+    &hf_nas_5gs_acces_tech_o2_b5,
+    &hf_nas_5gs_acces_tech_o2_b4,
+    &hf_nas_5gs_acces_tech_o2_b3,
+    &hf_nas_5gs_acces_tech_o2_b2,
+    &hf_nas_5gs_rfu_b1,
+    &hf_nas_5gs_rfu_b0,
+    NULL
+    };
+
+    proto_tree *sub_tree;
+
+    guint8 oct, data_type, list_type;
+    guint32 curr_offset = offset;
+    int i = 1;
+
+    oct = tvb_get_guint8(tvb, offset);
+    data_type = oct & 0x01;
+    if (data_type == 0) {
+        /* SOR header    octet 4*/
+        proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags_dt0, ENC_BIG_ENDIAN);
+        curr_offset++;
+        list_type = (oct & 0x4) >> 2;
+        /* SOR-MAC-IAUSF    octet 5-20 */
+        proto_tree_add_item(tree, hf_nas_5gs_sor_mac_iausf, tvb, curr_offset, 16, ENC_NA);
+        curr_offset += 16;
+        /* CounterSOR    octet 21-22 */
+        proto_tree_add_item(tree, hf_nas_5gs_counter_sor, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+        curr_offset += 2;
+        if (list_type == 0) {
+            /* Secured packet    octet 23* - 2048* */
+            proto_tree_add_item(tree, hf_nas_5gs_sor_sec_pkt, tvb, curr_offset, len - 19, ENC_NA);
+            curr_offset = curr_offset + (len - 19);
+        } else {
+            /* PLMN ID and access technology list    octet 23*-102* */
+            while ((curr_offset - offset) < len) {
+                sub_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_mm_sor, NULL, "List item %u", i);
+                /* The PLMN ID and access technology list consists of PLMN ID and access technology identifier
+                 * and are coded as specified in 3GPP TS 31.102 [22] subclause 4.2.5
+                 *  PLMN
+                 * Contents:
+                 * - Mobile Country Code (MCC) followed by the Mobile Network Code (MNC).
+                 * Coding:
+                 * - according to TS 24.008 [9].
+                 */
+                /* PLMN ID 1    octet 23*- 25* */
+                curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, sub_tree, curr_offset, E212_NONE, FALSE);
+                curr_offset += 3;
+                /* access technology identifier 1    octet 26*- 27* */
+                proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags_acces_tech_1, ENC_BIG_ENDIAN);
+                curr_offset++;
+                proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags_acces_tech_2, ENC_BIG_ENDIAN);
+                curr_offset++;
+                i++;
+            }
+        }
+
+    } else {
+        /* SOR header    octet 4*/
+        proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags_dt1, ENC_BIG_ENDIAN);
+        curr_offset++;
+        /* SOR-MAC-IUE    octet 5 - 20*/
+        proto_tree_add_item(tree, hf_nas_5gs_sor_mac_iue, tvb, curr_offset, 16, ENC_NA);
+        curr_offset+=16;
+    }
+
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_nas_5gs_extraneous_data);
+
+    return (curr_offset - offset);
+
 }
 
 /*
@@ -5349,6 +5506,22 @@ proto_register_nas_5gs(void)
             FT_UINT8, BASE_DEC, NULL, 0x02,
             NULL, HFILL }
         },
+        { &hf_nas_5gs_rfu_b2,
+        { "Reserved for Future Use(RFU)",   "nas_5gs.rfu.b2",
+            FT_UINT8, BASE_DEC, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_rfu_b1,
+        { "Reserved for Future Use(RFU)",   "nas_5gs.rfu.b1",
+            FT_UINT8, BASE_DEC, NULL, 0x02,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_rfu_b0,
+        { "Reserved for Future Use(RFU)",   "nas_5gs.rfu.b0",
+            FT_UINT8, BASE_DEC, NULL, 0x01,
+            NULL, HFILL }
+        },
+
         { &hf_nas_5gs_security_header_type,
         { "Security header type",   "nas_5gs.security_header_type",
             FT_UINT8, BASE_DEC, VALS(nas_5gs_security_header_type_vals), 0x0f,
@@ -6419,13 +6592,113 @@ proto_register_nas_5gs(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_nas_5gs_mm_sms_indic_sai,
+        { "SMS over NAS",   "nas_5gs.mm.ms_indic.sai",
+            FT_BOOLEAN, 8, TFS(&tfs_allowed_not_allowed), 0x01,
+            "SMS availability indication (SAI)", HFILL }
+        },
+        { &hf_nas_5gs_sor_hdr0_ack,
+        { "Acknowledgement (ACK)",   "nas_5gs.sor_hdr0.ack",
+            FT_BOOLEAN, 8, TFS(&tfs_requested_not_requested), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sor_hdr0_list_type,
+        { "List type",   "nas_5gs.sor_hdr0.list_type",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_list_type), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sor_hdr0_list_ind,
+        { "List indication",   "nas_5gs.sor_hdr0.list_ind",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_list_ind), 0x02,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sor_hdr0_sor_data_type,
+        { "SOR data type",   "nas_5gs.sor.sor_data_type",
+            FT_BOOLEAN, 8, TFS(&tfs_nas_5gs_sor_data_type), 0x01,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sor_mac_iue,
+        { "SOR-MAC-IUE", "nas_5gs.mm.sor_mac_iue",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sor_mac_iausf,
+        { "SOR-MAC-IAUSF", "nas_5gs.mm.sor_mac_iausf",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_counter_sor,
+        { "CounterSOR", "nas_5gs.mm.counter_sor",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sor_sec_pkt,
+        { "Secured packet", "nas_5gs.mm.sor_sec_pkt",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_acces_tech_o1_b7,
+        { "Access technology UTRAN",   "nas_5gs.cces_tech_o1_b7.utran",
+            FT_BOOLEAN, 8, TFS(&tfs_selected_not_selected), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_acces_tech_o1_b6,
+        { "Access technology E-UTRAN",   "nas_5gs.cces_tech_o1_b6.e_utran",
+            FT_BOOLEAN, 8, TFS(&tfs_selected_not_selected), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_acces_tech_o1_b5,
+        { "Access technology E-UTRAN in WB-S1 mode",   "nas_5gs.cces_tech_o1_b5.e_utran_in_wb_s1_mode",
+            FT_BOOLEAN, 8, TFS(&tfs_selected_not_selected), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_acces_tech_o1_b4,
+        { "Access technology E-UTRAN in NB-S1 mode",   "nas_5gs.cces_tech_o1_b4.e_utran_in_nb_s1_mode",
+            FT_BOOLEAN, 8, TFS(&tfs_selected_not_selected), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_acces_tech_o1_b3,
+        { "Access technology NG-RAN",   "nas_5gs.cces_tech_o1_b3.ng_ran",
+            FT_BOOLEAN, 8, TFS(&tfs_selected_not_selected), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_acces_tech_o2_b7,
+        { "Access technology GSM",   "nas_5gs.cces_tech_o2_b7.gsm",
+            FT_BOOLEAN, 8, TFS(&tfs_selected_not_selected), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_acces_tech_o2_b6,
+        { "Access technology GSM COMPACT",   "nas_5gs.cces_tech_o2_b6.gsm_compact",
+            FT_BOOLEAN, 8, TFS(&tfs_selected_not_selected), 0x40,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_acces_tech_o2_b5,
+        { "Access technology CDMA2000 HRPD",   "nas_5gs.cces_tech_o2_b5.cdma2000_hrpd",
+            FT_BOOLEAN, 8, TFS(&tfs_selected_not_selected), 0x20,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_acces_tech_o2_b4,
+        { "Access technology CDMA2000 1xRTT",   "nas_5gs.cces_tech_o2_b4.cdma2000_1x_rtt",
+            FT_BOOLEAN, 8, TFS(&tfs_selected_not_selected), 0x10,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_acces_tech_o2_b3,
+        { "Access technology EC-GSM-IoT",   "nas_5gs.cces_tech_o2_b3.ec_gsm_iot",
+            FT_BOOLEAN, 8, TFS(&tfs_selected_not_selected), 0x08,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_acces_tech_o2_b2,
+        { "Access technology GSM",   "nas_5gs.cces_tech_o2_b2.gsm",
+            FT_BOOLEAN, 8, TFS(&tfs_selected_not_selected), 0x04,
+            NULL, HFILL }
+        },
     };
 
     guint     i;
     guint     last_offset;
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    13
+#define NUM_INDIVIDUAL_ELEMS    14
     gint *ett[NUM_INDIVIDUAL_ELEMS +
         NUM_NAS_5GS_COMMON_ELEM +
         NUM_NAS_5GS_MM_MSG + NUM_NAS_5GS_MM_ELEM +
@@ -6445,6 +6718,7 @@ proto_register_nas_5gs(void)
     ett[10] = &ett_nas_5gs_sm_mapd_eps_b_cont_params_list;
     ett[11] = &ett_nas_5gs_enc;
     ett[12] = &ett_nas_5gs_mm_ladn_indic;
+    ett[13] = &ett_nas_5gs_mm_sor;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
