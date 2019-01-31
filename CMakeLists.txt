@@ -1483,6 +1483,11 @@ set_package_properties(NL PROPERTIES
 	DESCRIPTION "Libraries for using the Netlink protocol on Linux"
 	PURPOSE "Support for managing wireless 802.11 interfaces"
 )
+set_package_properties(MaxMindDB PROPERTIES
+	URL "https://github.com/maxmind/libmaxminddb"
+	DESCRIPTION "C library for the MaxMind DB file format"
+	PURPOSE "Support for GeoIP lookup"
+)
 
 string(TOUPPER "${CMAKE_BUILD_TYPE}" _build_type)
 message(STATUS "C-Flags: ${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_${_build_type}}")
