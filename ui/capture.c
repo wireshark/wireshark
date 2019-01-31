@@ -878,14 +878,16 @@ capture_stat_stop(if_stat_cache_t *sc)
     int ret;
     gchar *msg;
 
-    if (!sc || sc->fork_child == WS_INVALID_PID) {
+    if (!sc) {
         return;
     }
 
-    ret = sync_interface_stats_close(&sc->stat_fd, &sc->fork_child, &msg);
-    if (ret == -1) {
-        /* XXX - report failure? */
-        g_free(msg);
+    if (sc->fork_child != WS_INVALID_PID) {
+        ret = sync_interface_stats_close(&sc->stat_fd, &sc->fork_child, &msg);
+        if (ret == -1) {
+            /* XXX - report failure? */
+            g_free(msg);
+        }
     }
 
     for (sc_entry = sc->cache_list; sc_entry != NULL; sc_entry = g_list_next(sc_entry)) {
