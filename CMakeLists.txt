@@ -1478,6 +1478,11 @@ set_package_properties(Systemd PROPERTIES
 	DESCRIPTION "System and Service Manager (libraries)"
 	PURPOSE "Support for systemd journal extcap interface (sdjournal)"
 )
+set_package_properties(NL PROPERTIES
+	URL "https://www.infradead.org/~tgr/libnl/"
+	DESCRIPTION "Libraries for using the Netlink protocol on Linux"
+	PURPOSE "Support for managing wireless 802.11 interfaces"
+)
 
 string(TOUPPER "${CMAKE_BUILD_TYPE}" _build_type)
 message(STATUS "C-Flags: ${CMAKE_C_FLAGS} ${CMAKE_C_FLAGS_${_build_type}}")
