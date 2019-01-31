@@ -108,6 +108,10 @@ static int hf_auth_slen2 = -1;
 static int hf_auth_username = -1;
 static int hf_auth_password = -1;
 
+static int hf_auth_reply = -1;
+static int hf_auth_minvers = -1;
+static int hf_auth_maxvers = -1;
+
 static int hf_open_request = -1;
 
 static int hf_open_reply = -1;
@@ -184,6 +188,7 @@ static gint ett_rpcap = -1;
 static gint ett_error = -1;
 static gint ett_packet = -1;
 static gint ett_auth_request = -1;
+static gint ett_auth_reply = -1;
 static gint ett_open_reply = -1;
 static gint ett_startcap_request = -1;
 static gint ett_startcap_reply = -1;
@@ -655,6 +660,33 @@ dissect_rpcap_auth_request (tvbuff_t *tvb, packet_info *pinfo _U_,
 
 
 static void
+dissect_rpcap_auth_reply (tvbuff_t *tvb, packet_info *pinfo _U_,
+                          proto_tree *parent_tree, gint offset)
+{
+  proto_tree *tree;
+  proto_item *ti;
+  guint32 minvers, maxvers;
+
+  /*
+   * Authentication replies from older servers have no payload.
+   * Replies from newer servers have a payload.
+   * Dissect the payload if we have any.
+   */
+  if (tvb_reported_length_remaining(tvb, offset) != 0) {
+    ti = proto_tree_add_item (parent_tree, hf_auth_reply, tvb, offset, -1, ENC_NA);
+    tree = proto_item_add_subtree (ti, ett_auth_reply);
+
+    proto_tree_add_item_ret_uint (tree, hf_auth_minvers, tvb, offset, 1, ENC_BIG_ENDIAN, &minvers);
+    offset += 1;
+
+    proto_tree_add_item_ret_uint (tree, hf_auth_maxvers, tvb, offset, 1, ENC_BIG_ENDIAN, &maxvers);
+
+    proto_item_append_text (ti, ", minimum version %u, maximum version %u", minvers, maxvers);
+  }
+}
+
+
+static void
 dissect_rpcap_open_request (tvbuff_t *tvb, packet_info *pinfo _U_,
                             proto_tree *parent_tree, gint offset)
 {
@@ -949,6 +981,9 @@ dissect_rpcap (tvbuff_t *tvb, packet_info *pinfo, proto_tree *top_tree, void* da
   case RPCAP_MSG_SETSAMPLING_REQ:
     dissect_rpcap_sampling_request (tvb, pinfo, tree, offset);
     break;
+  case RPCAP_MSG_AUTH_REPLY:
+    dissect_rpcap_auth_reply (tvb, pinfo, tree, offset);
+    break;
   case RPCAP_MSG_FINDALLIF_REPLY:
     dissect_rpcap_findalldevs_reply (tvb, pinfo, tree, offset, msg_value);
     break;
@@ -1024,7 +1059,6 @@ check_rpcap_heur (tvbuff_t *tvb, gboolean tcp)
 
   case RPCAP_MSG_FINDALLIF_REQ:
   case RPCAP_MSG_UPDATEFILTER_REPLY:
-  case RPCAP_MSG_AUTH_REPLY:
   case RPCAP_MSG_STATS_REQ:
   case RPCAP_MSG_CLOSE:
   case RPCAP_MSG_SETSAMPLING_REPLY:
@@ -1067,6 +1101,7 @@ check_rpcap_heur (tvbuff_t *tvb, gboolean tcp)
   case RPCAP_MSG_STARTCAP_REQ:
   case RPCAP_MSG_UPDATEFILTER_REQ:
   case RPCAP_MSG_AUTH_REQ:
+  case RPCAP_MSG_AUTH_REPLY:
     /* Variable length */
     if (plen != len)
       return FALSE;
@@ -1178,7 +1213,7 @@ proto_register_rpcap (void)
 
     /* Authentication request */
     { &hf_auth_request,
-      { "Authentication", "rpcap.auth", FT_NONE, BASE_NONE,
+      { "Authentication request", "rpcap.auth_request", FT_NONE, BASE_NONE,
         NULL, 0x0, NULL, HFILL } },
     { &hf_auth_type,
       { "Authentication type", "rpcap.auth_type", FT_UINT16, BASE_DEC,
@@ -1194,6 +1229,17 @@ proto_register_rpcap (void)
         NULL, 0x0, NULL, HFILL } },
     { &hf_auth_password,
       { "Password", "rpcap.password", FT_STRING, BASE_NONE,
+        NULL, 0x0, NULL, HFILL } },
+
+    /* Authentication reply */
+    { &hf_auth_reply,
+      { "Authentication reply", "rpcap.auth_reply", FT_NONE, BASE_NONE,
+        NULL, 0x0, NULL, HFILL } },
+    { &hf_auth_minvers,
+      { "Minimum version number supported", "rpcap.auth_minvers", FT_UINT8, BASE_DEC,
+        NULL, 0x0, NULL, HFILL } },
+    { &hf_auth_maxvers,
+      { "Maximum version number supported", "rpcap.auth_maxvers", FT_UINT8, BASE_DEC,
         NULL, 0x0, NULL, HFILL } },
 
     /* Open request */
@@ -1419,6 +1465,7 @@ proto_register_rpcap (void)
     &ett_error,
     &ett_packet,
     &ett_auth_request,
+    &ett_auth_reply,
     &ett_open_reply,
     &ett_startcap_request,
     &ett_startcap_reply,
