@@ -1796,7 +1796,7 @@ create_subtxregister_tree(tvbuff_t *tvb, proto_item *ti, guint32 offset)
  * Create a sub-tree and fill it with a Provider Registration
  */
 static int //proto_tree *
-create_protxregister_tree(tvbuff_t *tvb, proto_item *ti, guint32 offset)
+create_proregtx_tree(tvbuff_t *tvb, proto_item *ti, guint32 offset)
 {
   proto_tree *tree;
   tree = proto_item_add_subtree(ti, ett_dash_msg);
@@ -2360,7 +2360,7 @@ dissect_dash_msg_tx_common(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, pr
     if (tx_type == 1)
     {
       rti = proto_tree_add_item(tree, &hfi_dash_msg_protx, tvb, offset, -1, ENC_NA);
-      create_protxregister_tree(tvb, rti, offset);
+      create_proregtx_tree(tvb, rti, offset);
     }
 
     if (tx_type == 8)
