@@ -1010,11 +1010,11 @@ static const value_string set_param_req_stable_mode[] = {
 
 static const value_string set_param_req_skin_id[] = {
     {0x00   , "Managed By Terminal"},
-    {0x01   , "Classical"},
+    {0x01   , "Classical or Arcturus"},
     {0x02   , "Rainbow"},
-    {0x03   , "Crystal"},
+    {0x03   , "Crystal or Green"},
     {0x04   , "Luxury"},
-    {0x05   , "Release"},
+    {0x05   , "Arcturus or Classical or Century"},
     {0, NULL}
 };
 
