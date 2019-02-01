@@ -340,6 +340,9 @@ static header_field_info hfi_msg_pubkey_type DASH_HFI_INIT =
   static header_field_info hfi_msg_pubkey_hash DASH_HFI_INIT =
     { "Public Key Hash", "dash.generic.pubkeyhash", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL };
 
+static header_field_info hfi_msg_mn_outpoint DASH_HFI_INIT =
+  { "Masternode collateral output", "dash.generic.mn.outpoint", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL };
+
 /* CPubkey structure */
 static header_field_info hfi_dash_cpubkey DASH_HFI_INIT =
   { "Public Key", "dash.cpubkey", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL };
@@ -1894,6 +1897,50 @@ create_proupservtx_tree(tvbuff_t *tvb, proto_item *ti, guint32 offset)
   return offset;
 }
 
+/**
+ * Create a sub-tree and fill it with a Provider Update Registrar
+ */
+static int //proto_tree *
+create_proupregtx_tree(tvbuff_t *tvb, proto_item *ti, guint32 offset)
+{
+  proto_tree *tree;
+  tree = proto_item_add_subtree(ti, ett_dash_msg);
+
+  // version	uint16_t	Register transaction version number
+
+  // Payload version
+  proto_tree_add_item(tree, &hfi_msg_specialtx_payload_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  // Provider registration tx Hash
+  proto_tree_add_item(tree, &hfi_msg_protx_regtxhash, tvb, offset, 32, ENC_NA);
+  offset += 32;
+
+  return offset;
+}
+
+/**
+ * Create a sub-tree and fill it with a Operator Self Revocation
+ */
+static int //proto_tree *
+create_prouprevtx_tree(tvbuff_t *tvb, proto_item *ti, guint32 offset)
+{
+  proto_tree *tree;
+  tree = proto_item_add_subtree(ti, ett_dash_msg);
+
+  // version	uint16_t	Register transaction version number
+
+  // Payload version
+  proto_tree_add_item(tree, &hfi_msg_specialtx_payload_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  // Provider registration tx Hash
+  proto_tree_add_item(tree, &hfi_msg_protx_regtxhash, tvb, offset, 32, ENC_NA);
+  offset += 32;
+
+  return offset;
+}
+
 /* Note: A number of the following message handlers include code of the form:
  *          ...
  *          guint64     count;
@@ -2362,13 +2409,22 @@ dissect_dash_msg_tx_common(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, pr
       rti = proto_tree_add_item(tree, &hfi_dash_msg_protx, tvb, offset, -1, ENC_NA);
       create_proregtx_tree(tvb, rti, offset);
     }
-
-    if (tx_type == 8)
     else if (tx_type == 2)
     {
       rti = proto_tree_add_item(tree, &hfi_dash_msg_proupservtx, tvb, offset, -1, ENC_NA);
       create_proupservtx_tree(tvb, rti, offset);
     }
+    else if (tx_type == 3)
+    {
+      rti = proto_tree_add_item(tree, &hfi_dash_msg_protx, tvb, offset, -1, ENC_NA);
+      create_proupregtx_tree(tvb, rti, offset);
+    }
+    else if (tx_type == 4)
+    {
+      rti = proto_tree_add_item(tree, &hfi_dash_msg_protx, tvb, offset, -1, ENC_NA);
+      create_prouprevtx_tree(tvb, rti, offset);
+    }
+    else if (tx_type == 8)
     {
       rti = proto_tree_add_item(tree, &hfi_dash_msg_subtx, tvb, offset, -1, ENC_NA);
       create_subtxregister_tree(tvb, rti, offset);
