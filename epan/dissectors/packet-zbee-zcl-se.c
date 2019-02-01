@@ -5000,7 +5000,7 @@ static int hf_zbee_zcl_met_set_uncontrolled_flow_threshold_unit_of_measure = -1;
 static int hf_zbee_zcl_met_set_uncontrolled_flow_threshold_multiplier = -1;
 static int hf_zbee_zcl_met_set_uncontrolled_flow_threshold_divisor = -1;
 static int hf_zbee_zcl_met_set_uncontrolled_flow_threshold_stabilisation_period = -1;
-static int hf_zbee_zcl_met_set_uncontrolled_flow_threshold_measurment_period = -1;
+static int hf_zbee_zcl_met_set_uncontrolled_flow_threshold_measurement_period = -1;
 static int hf_zbee_zcl_met_take_snapshot_response_snapshot_id = -1;
 static int hf_zbee_zcl_met_take_snapshot_response_snapshot_confirmation = -1;
 static int hf_zbee_zcl_met_publish_snapshot_snapshot_id = -1;
@@ -5821,7 +5821,7 @@ dissect_zcl_met_set_uncontrolled_flow_threshold(tvbuff_t *tvb, proto_tree *tree,
     *offset += 1;
 
     /* Measurement Period */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_set_uncontrolled_flow_threshold_measurment_period, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_set_uncontrolled_flow_threshold_measurement_period, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
 } /*dissect_zcl_met_set_uncontrolled_flow_threshold*/
 
@@ -6564,8 +6564,8 @@ proto_register_zbee_zcl_met(void)
             { "Stabilisation Period", "zbee_zcl_se.met.set_uncontrolled_flow_threshold.stabilisation_period", FT_UINT8, BASE_DEC, NULL,
             0x00, NULL, HFILL } },
 
-        { &hf_zbee_zcl_met_set_uncontrolled_flow_threshold_measurment_period,
-            { "Measurement Period", "zbee_zcl_se.met.set_uncontrolled_flow_threshold.measurment_period", FT_UINT16, BASE_DEC, NULL,
+        { &hf_zbee_zcl_met_set_uncontrolled_flow_threshold_measurement_period,
+            { "Measurement Period", "zbee_zcl_se.met.set_uncontrolled_flow_threshold.measurement_period", FT_UINT16, BASE_DEC, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_met_take_snapshot_response_snapshot_id,
