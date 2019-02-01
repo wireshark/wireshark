@@ -882,9 +882,26 @@ static header_field_info hfi_dash_msg_subtx_username DASH_HFI_INIT =
 
 /* Provider Transactions (DIP3) */
 
+static header_field_info hfi_msg_protx_regtxhash DASH_HFI_INIT =
+  { "Provider Registration TXID (ProRegTx)", "dash.protx.regtxhash", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL };
+
+static header_field_info hfi_msg_protx_operator_payout_script DASH_HFI_INIT =
+  { "Operator Payout script", "dash.protx.operator.payout_script", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL };
+
+static header_field_info hfi_dash_msg_protx_input_hash DASH_HFI_INIT =
+  { "Hash of inputs", "dash.protx.input_hash", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL };
+
+static header_field_info hfi_dash_msg_protx_bls_sig DASH_HFI_INIT =
+  { "Masternode BLS Signature", "dash.protx.blssig", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL };
+
 /* ProRegTx */
 static header_field_info hfi_dash_msg_protx DASH_HFI_INIT =
     { "Provider Transaction payload", "dash.protx.payload", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL };
+
+
+/* ProUpServTx */
+static header_field_info hfi_dash_msg_proupservtx DASH_HFI_INIT =
+    { "Provider Update Service Transaction payload", "dash.proupservtx.payload", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL };
 
 /* mnb - Masternode Broadcast
 	Whenever a masternode comes online or a client is syncing,
@@ -1812,6 +1829,71 @@ create_protxregister_tree(tvbuff_t *tvb, proto_item *ti, guint32 offset)
   return offset;
 }
 
+/**
+ * Create a sub-tree and fill it with a Provider Update Service
+ */
+static int //proto_tree *
+create_proupservtx_tree(tvbuff_t *tvb, proto_item *ti, guint32 offset)
+{
+  proto_tree *tree;
+  gint        count_length;
+  guint64     script_length;
+  //guint32     scr_len_offset;
+
+  tree = proto_item_add_subtree(ti, ett_dash_msg);
+
+  // version	uint_16	2	ProUpServTx version number. Currently set to 1.
+  // proTXHash	uint256	32	The hash of the initial ProRegTx
+  // ipAddress	byte[]	16	IPv6 address in network byte order. Only IPv4 mapped addresses are allowed (to be extended in the future)
+  // port	uint_16	2	Port (network byte order)
+  // scriptOperatorPayoutSize	compactSize uint	1-9	Size of the Payee Script.
+  // scriptOperatorPayout	Script	Variable	Payee script (p2pkh/p2sh)
+  // inputsHash	uint256	32	Hash of all the outpoints of the transaction inputs
+  // payloadSig	BLSSig	96	Signature of the hash of the ProUpServTx fields. Signed by the Operator.
+
+  // Payload version
+  proto_tree_add_item(tree, &hfi_msg_specialtx_payload_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  // Provider registration tx Hash
+  proto_tree_add_item(tree, &hfi_msg_protx_regtxhash, tvb, offset, 32, ENC_NA);
+  offset += 32;
+
+  /* IPv6 address */
+  proto_tree_add_item(tree, &hfi_address_address, tvb, offset, 16, ENC_NA);
+  offset += 16;
+
+  /* port */
+  proto_tree_add_item(tree, &hfi_address_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+
+  // Operator payout script size and script
+  get_varint(tvb, offset, &count_length, &script_length);
+  //proto_tree_add_debug_text(tree, "Debug - count_length, script_length: %0d %0lu", count_length, script_length);
+
+  add_varint_item(tree, tvb, offset, count_length, &hfi_msg_tx_in_script8, &hfi_msg_tx_in_script16,
+                  &hfi_msg_tx_in_script32, &hfi_msg_tx_in_script64);
+
+  offset += count_length;
+
+  if ((offset + script_length) > G_MAXINT) {
+    return G_MAXINT;
+  }
+
+  proto_tree_add_item(tree, &hfi_msg_protx_operator_payout_script, tvb, offset, (guint)script_length, ENC_NA);
+  offset += (guint)script_length;
+
+  // Inputs Hash
+  proto_tree_add_item(tree, &hfi_dash_msg_protx_input_hash, tvb, offset, 32, ENC_NA);
+  offset += 32;
+
+  // BLS payload signature
+  proto_tree_add_item(tree, &hfi_dash_msg_protx_bls_sig, tvb, offset, 96, ENC_NA);
+  offset += 96;
+
+  return offset;
+}
+
 /* Note: A number of the following message handlers include code of the form:
  *          ...
  *          guint64     count;
@@ -2282,6 +2364,11 @@ dissect_dash_msg_tx_common(tvbuff_t *tvb, guint32 offset, packet_info *pinfo, pr
     }
 
     if (tx_type == 8)
+    else if (tx_type == 2)
+    {
+      rti = proto_tree_add_item(tree, &hfi_dash_msg_proupservtx, tvb, offset, -1, ENC_NA);
+      create_proupservtx_tree(tvb, rti, offset);
+    }
     {
       rti = proto_tree_add_item(tree, &hfi_dash_msg_subtx, tvb, offset, -1, ENC_NA);
       create_subtxregister_tree(tvb, rti, offset);
@@ -3932,7 +4019,13 @@ proto_register_dash(void)
     &hfi_dash_msg_subtx_username,
 
     /* ProTx */
+    &hfi_msg_protx_regtxhash,
+    &hfi_msg_protx_operator_payout_script,
+    &hfi_dash_msg_protx_input_hash,
+    &hfi_dash_msg_protx_bls_sig,
+
     &hfi_dash_msg_protx,
+    &hfi_dash_msg_proupservtx,
   };
 #endif
 
