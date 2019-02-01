@@ -83,31 +83,58 @@ protect_arg (const gchar *argv)
 }
 
 /*
- * Generate a string for a Win32 error.
+ * Generate a UTF-8 string for a Win32 error.
+ * The string must be freed with g_free().
  */
-#define ERRBUF_SIZE    1024
-const char *
+
+/*
+ * We make the buffer at least this big, under the assumption that doing
+ * so will reduce the number of reallocations to do.  (Otherwise, why
+ * did Microsoft bother supporting a minimum buffer size?)
+ */
+#define ERRBUF_SIZE    128
+char *
 win32strerror(DWORD error)
 {
-    static char errbuf[ERRBUF_SIZE+1];
-    size_t errlen;
-    char *p;
-
-    FormatMessageA(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
-                   NULL, error, 0, errbuf, ERRBUF_SIZE, NULL);
+    DWORD retval;
+    WCHAR *utf16_message;
+    char *msg;
+    char *utf8_message;
 
     /*
-     * "FormatMessage()" "helpfully" sticks CR/LF at the end of the
-     * message.  Get rid of it.
+     * XXX - what language ID to use?
+     *
+     * For UN*Xes, g_strerror() may or may not return localized strings.
+     *
+     * We currently don't have localized strings, except for GUI items,
+     * but we might want to do so.  On the other hand, if most of these
+     * messages are going to be read by Wireshark developers, English
+     * might be a better choice, so the developer doesn't have to get
+     * the message translated if it's in a language they don't happen
+     * to understand.  Then again, we're including the error number,
+     * so the developer can just look that up.
      */
-    errlen = strlen(errbuf);
-    if (errlen >= 2) {
-        errbuf[errlen - 1] = '\0';
-        errbuf[errlen - 2] = '\0';
+    retval = FormatMessageW(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_MAX_WIDTH_MASK,
+                            NULL, error, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+                            (LPTSTR)&utf16_message, ERRBUF_SIZE, NULL);
+    if (retval == 0) {
+        /* Failed. */
+        msg = g_strdup_printf("Couldn't get error message for error (%lu) (because %lu)",
+                               error, GetLastError());
+        return msg;
     }
-    p = strchr(errbuf, '\0');
-    g_snprintf(p, (gulong)(sizeof errbuf - (p-errbuf)), " (%lu)", error);
-    return errbuf;
+
+    utf8_message = g_utf16_to_utf8(utf16_message, -1, NULL, NULL, NULL);
+    LocalFree(utf16_message);
+    if (utf8_message == NULL) {
+        /* Conversion failed. */
+        msg = g_strdup_printf("Couldn't convert error message for error to UTF-8 (%lu) (because %lu)",
+                               error, GetLastError());
+        return msg;
+    }
+    msg = g_strdup_printf("%s (%lu)", utf8_message, error);
+    g_free(utf8_message);
+    return msg;
 }
 
 /*
@@ -162,12 +189,15 @@ win32strexception(DWORD exception)
 
 static void win32_kill_child_on_exit(HANDLE child_handle) {
     static HANDLE cjo_handle = NULL;
+    char *errmsg;
     if (!cjo_handle) {
         cjo_handle = CreateJobObject(NULL, _T("Local\\Wireshark child process cleanup"));
 
         if (!cjo_handle) {
+            errmsg = win32strerror(GetLastError());
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create child cleanup job object: %s",
-                win32strerror(GetLastError()));
+                errmsg);
+            g_free(errmsg);
             return;
         }
 
@@ -176,15 +206,19 @@ static void win32_kill_child_on_exit(HANDLE child_handle) {
         BOOL sijo_ret = SetInformationJobObject(cjo_handle, JobObjectExtendedLimitInformation,
             &cjo_jel_info, sizeof(cjo_jel_info));
         if (!sijo_ret) {
+            errmsg = win32strerror(GetLastError());
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not set child cleanup limits: %s",
-                win32strerror(GetLastError()));
+                errmsg);
+            g_free(errmsg);
         }
     }
 
     BOOL aptjo_ret = AssignProcessToJobObject(cjo_handle, child_handle);
     if (!aptjo_ret) {
+        errmsg = win32strerror(GetLastError());
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not assign child cleanup process: %s",
-            win32strerror(GetLastError()));
+            errmsg);
+        g_free(errmsg);
     }
 }
 
