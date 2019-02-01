@@ -55,7 +55,7 @@ gchar * protect_arg (const gchar *argv);
  *         it must be freed with g_free().
  */
 WS_DLL_PUBLIC
-char * win32strerror(DWORD error);
+const char * win32strerror(DWORD error);
 
 /** Generate a string for a Win32 exception code.
  *

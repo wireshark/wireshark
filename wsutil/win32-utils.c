@@ -83,8 +83,7 @@ protect_arg (const gchar *argv)
 }
 
 /*
- * Generate a UTF-8 string for a Win32 error.
- * The string must be freed with g_free().
+ * Generate a UTF-8 string for a Windows error.
  */
 
 /*
@@ -93,13 +92,14 @@ protect_arg (const gchar *argv)
  * did Microsoft bother supporting a minimum buffer size?)
  */
 #define ERRBUF_SIZE    128
-char *
+const char *
 win32strerror(DWORD error)
 {
     DWORD retval;
     WCHAR *utf16_message;
-    char *msg;
     char *utf8_message;
+    char *tempmsg;
+    const char *msg;
 
     /*
      * XXX - what language ID to use?
@@ -119,8 +119,10 @@ win32strerror(DWORD error)
                             (LPTSTR)&utf16_message, ERRBUF_SIZE, NULL);
     if (retval == 0) {
         /* Failed. */
-        msg = g_strdup_printf("Couldn't get error message for error (%lu) (because %lu)",
-                               error, GetLastError());
+        tempmsg = g_strdup_printf("Couldn't get error message for error (%lu) (because %lu)",
+                                  error, GetLastError());
+        msg = g_intern_string(tempmsg);
+        g_free(tempmsg);
         return msg;
     }
 
@@ -128,12 +130,16 @@ win32strerror(DWORD error)
     LocalFree(utf16_message);
     if (utf8_message == NULL) {
         /* Conversion failed. */
-        msg = g_strdup_printf("Couldn't convert error message for error to UTF-8 (%lu) (because %lu)",
-                               error, GetLastError());
+        tempmsg = g_strdup_printf("Couldn't convert error message for error to UTF-8 (%lu) (because %lu)",
+                                  error, GetLastError());
+        msg = g_intern_string(tempmsg);
+        g_free(tempmsg);
         return msg;
     }
-    msg = g_strdup_printf("%s (%lu)", utf8_message, error);
+    tempmsg = g_strdup_printf("%s (%lu)", utf8_message, error);
     g_free(utf8_message);
+    msg = g_intern_string(tempmsg);
+    g_free(tempmsg);
     return msg;
 }
 
@@ -189,15 +195,12 @@ win32strexception(DWORD exception)
 
 static void win32_kill_child_on_exit(HANDLE child_handle) {
     static HANDLE cjo_handle = NULL;
-    char *errmsg;
     if (!cjo_handle) {
         cjo_handle = CreateJobObject(NULL, _T("Local\\Wireshark child process cleanup"));
 
         if (!cjo_handle) {
-            errmsg = win32strerror(GetLastError());
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create child cleanup job object: %s",
-                errmsg);
-            g_free(errmsg);
+                win32strerror(GetLastError()));
             return;
         }
 
@@ -206,19 +209,15 @@ static void win32_kill_child_on_exit(HANDLE child_handle) {
         BOOL sijo_ret = SetInformationJobObject(cjo_handle, JobObjectExtendedLimitInformation,
             &cjo_jel_info, sizeof(cjo_jel_info));
         if (!sijo_ret) {
-            errmsg = win32strerror(GetLastError());
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not set child cleanup limits: %s",
-                errmsg);
-            g_free(errmsg);
+                win32strerror(GetLastError()));
         }
     }
 
     BOOL aptjo_ret = AssignProcessToJobObject(cjo_handle, child_handle);
     if (!aptjo_ret) {
-        errmsg = win32strerror(GetLastError());
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not assign child cleanup process: %s",
-            errmsg);
-        g_free(errmsg);
+            win32strerror(GetLastError()));
     }
 }
 

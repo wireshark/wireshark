@@ -206,7 +206,6 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
     PROCESS_INFORMATION pi;
     char control_id[ARGV_NUMBER_LEN];
     gchar *signal_pipe_name;
-    char *errmsg;
 #else
     char errmsg[1024+1];
     int sync_pipe[2];                       /* pipe used to send messages from child to parent */
@@ -434,9 +433,8 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
     /* (increase this value if you have trouble while fast capture file switches) */
     if (! CreatePipe(&sync_pipe_read, &sync_pipe_write, &sa, 5120)) {
         /* Couldn't create the pipe between parent and child. */
-        errmsg = win32strerror(GetLastError());
-        report_failure("Couldn't create sync pipe: %s", errmsg);
-        g_free(errmsg);
+        report_failure("Couldn't create sync pipe: %s",
+                       win32strerror(GetLastError()));
         free_argv(argv, argc);
         return FALSE;
     }
@@ -466,9 +464,8 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
 
     if (signal_pipe == INVALID_HANDLE_VALUE) {
         /* Couldn't create the signal pipe between parent and child. */
-        errmsg = win32strerror(GetLastError());
-        report_failure("Couldn't create signal pipe: %s", errmsg);
-        g_free(errmsg);
+        report_failure("Couldn't create signal pipe: %s",
+                       win32strerror(GetLastError()));
         ws_close(sync_pipe_read_fd);    /* Should close sync_pipe_read */
         CloseHandle(sync_pipe_write);
         free_argv(argv, argc);
@@ -526,10 +523,8 @@ sync_pipe_start(capture_options *capture_opts, capture_session *cap_session, inf
     /* call dumpcap */
     if(!win32_create_process(argv[0], args->str, NULL, NULL, TRUE,
                                CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
-        errmsg = win32strerror(GetLastError());
         report_failure("Couldn't run %s in child process: %s",
-                       args->str, errmsg);
-        g_free(errmsg);
+                       args->str, win32strerror(GetLastError()));
         ws_close(sync_pipe_read_fd);    /* Should close sync_pipe_read */
         CloseHandle(sync_pipe_write);
         CloseHandle(signal_pipe);
@@ -652,7 +647,6 @@ sync_pipe_open_command(char* const argv[], int *data_read_fd,
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
     int i;
-    char *errmsg;
 #else
     char errmsg[1024+1];
     int sync_pipe[2];                       /* pipe used to send messages from child to parent */
@@ -681,9 +675,8 @@ sync_pipe_open_command(char* const argv[], int *data_read_fd,
     /* (increase this value if you have trouble while fast capture file switches) */
     if (! CreatePipe(&sync_pipe[PIPE_READ], &sync_pipe[PIPE_WRITE], &sa, 5120)) {
         /* Couldn't create the message pipe between parent and child. */
-        errmsg = win32strerror(GetLastError());
-        *msg = g_strdup_printf("Couldn't create sync pipe: %s", errmsg);
-        g_free(errmsg);
+        *msg = g_strdup_printf("Couldn't create sync pipe: %s",
+                               win32strerror(GetLastError()));
         return -1;
     }
 
@@ -706,9 +699,8 @@ sync_pipe_open_command(char* const argv[], int *data_read_fd,
     /* (increase this value if you have trouble while fast capture file switches) */
     if (! CreatePipe(&data_pipe[PIPE_READ], &data_pipe[PIPE_WRITE], &sa, 5120)) {
         /* Couldn't create the message pipe between parent and child. */
-        errmsg = win32strerror(GetLastError());
-        *msg = g_strdup_printf("Couldn't create data pipe: %s", errmsg);
-        g_free(errmsg);
+        *msg = g_strdup_printf("Couldn't create data pipe: %s",
+                               win32strerror(GetLastError()));
         ws_close(*message_read_fd);    /* Should close sync_pipe[PIPE_READ] */
         CloseHandle(sync_pipe[PIPE_WRITE]);
         return -1;
@@ -760,10 +752,8 @@ sync_pipe_open_command(char* const argv[], int *data_read_fd,
     /* call dumpcap */
     if(!win32_create_process(argv[0], args->str, NULL, NULL, TRUE,
                                CREATE_NEW_CONSOLE, NULL, NULL, &si, &pi)) {
-        errmsg = win32strerror(GetLastError());
         *msg = g_strdup_printf("Couldn't run %s in child process: %s",
-                               args->str, errmsg);
-        g_free(errmsg);
+                               args->str, win32strerror(GetLastError()));
         ws_close(*data_read_fd);       /* Should close data_pipe[PIPE_READ] */
         CloseHandle(data_pipe[PIPE_WRITE]);
         ws_close(*message_read_fd);    /* Should close sync_pipe[PIPE_READ] */
