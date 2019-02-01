@@ -16,7 +16,14 @@ endif()
 if(POLICY CMP0083)
 	cmake_policy(SET CMP0083 NEW)
 endif()
-project(Wireshark C CXX)
+
+if(WIN32)
+	set(_project_name Wireshark)
+else()
+	set(_project_name wireshark)
+endif()
+
+project(${_project_name} C CXX)
 
 # Updated by tools/make-version.pl
 set(GIT_REVISION 0)
@@ -32,13 +39,6 @@ if(DEFINED ENV{WIRESHARK_VERSION_EXTRA})
 endif()
 
 set(PROJECT_VERSION "${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT_PATCH_VERSION}${PROJECT_VERSION_EXTENSION}")
-
-# packaging information
-if(WIN32)
-        set(CPACK_PACKAGE_NAME Wireshark)
-else()
-        set(CPACK_PACKAGE_NAME wireshark)
-endif()
 
 set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
 
@@ -141,15 +141,15 @@ message(STATUS "CMake build type: ${CMAKE_BUILD_TYPE}")
 # files might end up in a configuration subdirectory, e.g. run/Debug or
 # run/Release. We try to set DATAFILE_DIR to actual location below.
 if(NOT ARCHIVE_OUTPUT_PATH)
-	set(ARCHIVE_OUTPUT_PATH ${Wireshark_BINARY_DIR}/run CACHE INTERNAL
+	set(ARCHIVE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/run CACHE INTERNAL
 		   "Single output directory for building all archives.")
 endif()
 if(NOT EXECUTABLE_OUTPUT_PATH)
-	set(EXECUTABLE_OUTPUT_PATH ${Wireshark_BINARY_DIR}/run CACHE INTERNAL
+	set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/run CACHE INTERNAL
 		   "Single output directory for building all executables.")
 endif()
 if(NOT LIBRARY_OUTPUT_PATH)
-	set(LIBRARY_OUTPUT_PATH ${Wireshark_BINARY_DIR}/run CACHE INTERNAL
+	set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/run CACHE INTERNAL
 		   "Single output directory for building all libraries.")
 endif()
 
@@ -169,11 +169,13 @@ if(WIN32)
 else()
 	# By default INSTALL_DATADIR is set to INSTALL_DATAROOTDIR, set the
 	# proper value here.
-	set(CMAKE_INSTALL_DATADIR "share/${CPACK_PACKAGE_NAME}"
+	set(CMAKE_INSTALL_DATADIR "share/${PROJECT_NAME}"
 		CACHE PATH "Read-only architecture-independent data"
 	)
 endif()
 include(GNUInstallDirs)
+
+set(PROJECT_INSTALL_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}")
 
 # Make sure our executables can can load our libraries if we install into
 # a non-default directory on Unix-like systems other than macOS.
@@ -1255,14 +1257,14 @@ include( UseCheckAPI )
 if (WIN32)
 	set(EXTCAP_INSTALL_LIBDIR "extcap" CACHE INTERNAL "The extcap dir")
 else ()
-	set(EXTCAP_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/${CPACK_PACKAGE_NAME}/extcap" CACHE INTERNAL "The extcap dir")
+	set(EXTCAP_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}/extcap" CACHE INTERNAL "The extcap dir")
 endif()
 
 # Directory where plugins and Lua dissectors can be found.
 if(WIN32)
 	set(PLUGIN_INSTALL_LIBDIR "plugins" CACHE INTERNAL "The plugin dir")
 else()
-	set(PLUGIN_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/${CPACK_PACKAGE_NAME}/plugins" CACHE INTERNAL "The plugin dir")
+	set(PLUGIN_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}/plugins" CACHE INTERNAL "The plugin dir")
 endif()
 set(PLUGIN_INSTALL_VERSION_LIBDIR "${PLUGIN_INSTALL_LIBDIR}/${PROJECT_RELEASE_VERSION}")
 set(PLUGIN_VERSION_DIR "plugins/${PROJECT_RELEASE_VERSION}")
@@ -2743,7 +2745,7 @@ if(RPMBUILD_EXECUTABLE)
 	)
 
 	# XXX Replace with the "dist" target?
-	set(_export_tarball "${CPACK_PACKAGE_NAME}-${VERSION}.tar.xz")
+	set(_export_tarball "${PROJECT_NAME}-${VERSION}.tar.xz")
 	add_custom_command(
 		OUTPUT "${CMAKE_BINARY_DIR}/packaging/rpm/SOURCES/${_export_tarball}"
 		COMMAND ${CMAKE_BINARY_DIR}/packaging/source/git-export-release.sh
@@ -2878,7 +2880,7 @@ set(SHARK_PUBLIC_HEADERS
 )
 
 install(FILES ${SHARK_PUBLIC_HEADERS}
-	DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${CPACK_PACKAGE_NAME}
+	DESTINATION ${PROJECT_INSTALL_INCLUDEDIR}
 )
 
 # Install icons and other desktop files for Freedesktop.org-compliant desktops.
@@ -2937,7 +2939,7 @@ if(WIN32)
 	# path (incorrect relative path computation).
 	set(WIRESHARK_INSTALL_CMAKEDIR "cmake")
 else()
-	set(WIRESHARK_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/${CPACK_PACKAGE_NAME}/cmake")
+	set(WIRESHARK_INSTALL_CMAKEDIR "${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}/cmake")
 endif()
 
 install(
