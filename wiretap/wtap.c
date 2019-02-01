@@ -968,6 +968,9 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_VPP */
 	{ "vpp", "Vector Packet Processing graph dispatch trace" },
+
+	/* WTAP_ENCAP_IEEE802_15_4_TAP */
+	{ "wpan-tap", "IEEE 802.15.4 Wireless with TAP pseudo-header" },
 };
 
 WS_DLL_LOCAL

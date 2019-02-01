@@ -245,6 +245,7 @@ const value_string link_type_vals[] = {
     { 280,  "VPP_DISPATCH" },
     { 281,  "DSA_TAG_BRCM" },
     { 282,  "DSA_TAG_BRCM_PREPEND" },
+    { 283,  "IEEE802_15_4_TAP" },
     { 0, NULL }
 };
 

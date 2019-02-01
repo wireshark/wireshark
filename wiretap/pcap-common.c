@@ -470,6 +470,8 @@ static const struct {
 	/* VPP dispatch trace */
 	{ 280,		WTAP_ENCAP_VPP },
 
+	/* IEEE 802.15.4 TAP */
+	{ 283,		WTAP_ENCAP_IEEE802_15_4_TAP },
 	/*
 	 * To repeat:
 	 *

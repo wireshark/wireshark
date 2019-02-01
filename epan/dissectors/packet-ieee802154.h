@@ -571,6 +571,6 @@ extern ieee802154_map_tab_t ieee802154_map;
 
 extern const value_string ieee802154_mpx_kmp_id_vals[];
 
-extern gint ieee802154_fcs_len;
+extern guint ieee802154_fcs_len;
 
 #endif /* PACKET_IEEE802154_H */
