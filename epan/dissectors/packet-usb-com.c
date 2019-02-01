@@ -1,6 +1,6 @@
 /* packet-usb-com.c
  * Routines for USB Communications and CDC Control dissection
- * Copyright 2013, Pascal Quantin <pascal.quantin@gmail.com>
+ * Copyright 2013, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

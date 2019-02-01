@@ -1,6 +1,6 @@
 /* packet-mbim.c
  * Routines for MBIM dissection
- * Copyright 2013-2016, Pascal Quantin <pascal.quantin@gmail.com>
+ * Copyright 2013-2016, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

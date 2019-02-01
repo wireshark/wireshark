@@ -1,7 +1,7 @@
 /* packet-ulp.c
  * Routines for OMA UserPlane Location Protocol packet dissection
  * Copyright 2006, Anders Broman <anders.broman@ericsson.com>
- * Copyright 2014-2019, Pascal Quantin <pascal.quantin@gmail.com>
+ * Copyright 2014-2019, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

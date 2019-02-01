@@ -8,7 +8,7 @@
 #line 1 "./asn1/m2ap/packet-m2ap-template.c"
 /* packet-m2ap.c
  * Routines for M2 Application Protocol packet dissection
- * Copyright 2016, Pascal Quantin <pascal.quantin@gmail.com>
+ * Copyright 2016, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

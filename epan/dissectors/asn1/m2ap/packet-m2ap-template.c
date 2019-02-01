@@ -1,6 +1,6 @@
 /* packet-m2ap.c
  * Routines for M2 Application Protocol packet dissection
- * Copyright 2016, Pascal Quantin <pascal.quantin@gmail.com>
+ * Copyright 2016, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>

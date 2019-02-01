@@ -1,6 +1,6 @@
 /* packet-lppe.c
  * Routines for LPP Extensions (LLPe) packet dissection
- * Copyright 2012-2018, Pascal Quantin <pascal.quantin@gmail.com>
+ * Copyright 2012-2018, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
