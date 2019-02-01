@@ -166,6 +166,7 @@ if(WIN32)
 	set(CMAKE_INSTALL_LIBDIR ".")
 	set(CMAKE_INSTALL_INCLUDEDIR "include")
 	set(CMAKE_INSTALL_DATADIR ".")
+	set(CMAKE_INSTALL_DOCDIR ".")
 else()
 	# By default INSTALL_DATADIR is set to INSTALL_DATAROOTDIR, set the
 	# proper value here.
