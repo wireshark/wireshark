@@ -1,5 +1,9 @@
 /* packet-ieee802154.c
  *
+ * IEEE802154 TAP link type
+ * By James Ko <jck@exegin.com>
+ * Copyright 2019 Exegin Technologies Limited
+ *
  * 4-byte FCS support and ACK tracking
  * By Carl Levesque Imbeault <carl.levesque@trilliant.com>
  * Copyright 2018 Trilliant Inc.
@@ -89,16 +93,52 @@ void proto_reg_handoff_ieee802154(void);
 /* ethertype for 802.15.4 tag - encapsulating an Ethernet packet */
 static unsigned int ieee802154_ethertype = 0x809A;
 
-/* The configured FCS type using ieee802154_fcs_type_t */
+/* FCS Types used by both user configuration and TAP TLV
+ * NONE is not user configurable, and
+ * CC24XX_METADATA is not valid in TAP TLV.
+ */
 typedef enum {
-    IEEE802154_CC24XX_METADATA = 0, /* Not an FCS, but TI CC24xx metadata */
-    IEEE802154_FCS_16_BIT = 1,      /* ITU-T CRC16 */
-    IEEE802154_FCS_32_BIT = 2,      /* ITU-T CRC32 */
+    IEEE802154_FCS_UNDEFINED   = -1,
+    IEEE802154_FCS_NONE        = 0x00,
+    IEEE802154_CC24XX_METADATA = 0x00, /* Not an FCS, but TI CC24xx metadata */
+    IEEE802154_FCS_16_BIT      = 0x01, /* ITU-T CRC16 */
+    IEEE802154_FCS_32_BIT      = 0x02, /* ITU-T CRC32 */
 } ieee802154_fcs_type_t;
+
 static gint ieee802154_fcs_type = IEEE802154_FCS_16_BIT;
 
+/* 802.15.4 TAP Fields */
+typedef enum {
+    IEEE802154_TAP_FCS_TYPE             = 0x0000,
+    IEEE802154_TAP_RSS                  = 0x0001,
+    IEEE802154_TAP_BIT_RATE             = 0x0002,
+    IEEE802154_TAP_CHANNEL_ASSIGNMENT   = 0x0003,
+    IEEE802154_TAP_SUN_PHY_INFO         = 0x0004,
+    IEEE802154_TAP_START_OF_FRAME_TS    = 0x0005,
+    IEEE802154_TAP_END_OF_FRAME_TS      = 0x0006,
+    IEEE802154_TAP_ASN                  = 0x0007,
+    IEEE802154_TAP_SLOT_START_TS        = 0x0008,
+    IEEE802154_TAP_TIMESLOT_LENGTH      = 0x0009,
+    IEEE802154_TAP_LQI                  = 0x000A,
+} ieee802154_info_type_t;
+
+typedef enum {
+    IEEE802154_SUN_TYPE_FSK_A       = 0x00,
+    IEEE802154_SUN_TYPE_FSK_B       = 0x01,
+    IEEE802154_SUN_TYPE_OQPSK_A     = 0x02,
+    IEEE802154_SUN_TYPE_OQPSK_B     = 0x03,
+    IEEE802154_SUN_TYPE_OQPSK_C     = 0x04,
+    IEEE802154_SUN_TYPE_OFDM_OPT1   = 0x05,
+    IEEE802154_SUN_TYPE_OFDM_OPT2   = 0x06,
+    IEEE802154_SUN_TYPE_OFDM_OPT3   = 0x07,
+    IEEE802154_SUN_TYPE_OFDM_OPT4   = 0x08,
+} ieee802154_sun_type_t;
+
+/* The FCS type from the TAP packet */
+static gint ieee802154_tap_fcs_type = IEEE802154_FCS_UNDEFINED;
+
 /* This is the actual number of FCS bytes in the encapsulated IEEE 802.15.4 packet */
-gint ieee802154_fcs_len = IEEE802154_FCS_LEN;
+guint ieee802154_fcs_len = IEEE802154_FCS_LEN;
 
 /* boolean value set if the FCS must be ok before payload is dissected */
 static gboolean ieee802154_fcs_ok = TRUE;
@@ -106,10 +146,16 @@ static gboolean ieee802154_fcs_ok = TRUE;
 /* boolean value set to enable ack tracking */
 static gboolean ieee802154_ack_tracking = FALSE;
 
+/* TSCH ASN for nonce in decryption */
+static guint64 ieee802154_tsch_asn = 0;
+
 static const char  *ieee802154_user    = "User";
 
 static wmem_tree_t* mac_key_hash_handlers;
 
+#ifndef ROUND_UP
+#define ROUND_UP(_offset_, _align_) (((_offset_) + (_align_) - 1) / (_align_) * (_align_))
+#endif
 /*
  * Address Hash Tables
  *
@@ -298,10 +344,11 @@ static int dissect_ieee802154_nonask_phy   (tvbuff_t *, packet_info *, proto_tre
 static int dissect_ieee802154              (tvbuff_t *, packet_info *, proto_tree *, void *);
 static int dissect_ieee802154_nofcs        (tvbuff_t *, packet_info *, proto_tree *, void *);
 static int dissect_ieee802154_cc24xx       (tvbuff_t *, packet_info *, proto_tree *, void *);
+static int dissect_ieee802154_tap          (tvbuff_t *, packet_info *, proto_tree *, void *);
 static tvbuff_t *dissect_zboss_specific    (tvbuff_t *, packet_info *, proto_tree *);
-/*static void dissect_ieee802154_linux        (tvbuff_t *, packet_info *, proto_tree *);  TODO: Implement Me. */
-static void dissect_ieee802154_common       (tvbuff_t *, packet_info *, proto_tree *, guint);
+static void dissect_ieee802154_common      (tvbuff_t *, packet_info *, proto_tree *, guint);
 static void ieee802154_dissect_fcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154_tree, gboolean is_cc24xx, gboolean fcs_ok);
+static void dissect_ieee802154_tap_tlvs    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* Information Elements */
 static int dissect_ieee802154_header_ie        (tvbuff_t *, packet_info *, proto_tree *, guint, ieee802154_packet *);
@@ -333,6 +380,7 @@ static int hf_ieee802154_nonask_phy_length = -1;
 static int hf_ieee802154_nonask_phr = -1;
 
 static int proto_ieee802154 = -1;
+static int proto_ieee802154_tap = -1;
 static int hf_ieee802154_frame_length = -1;
 static int hf_ieee802154_fcf = -1;
 static int hf_ieee802154_frame_type = -1;
@@ -552,6 +600,36 @@ static int hf_ieee802154_ack_in = -1;
 static int hf_ieee802154_ack_to = -1;
 static int hf_ieee802154_ack_time = -1;
 
+/* 802.15.4 info */
+static int hf_ieee802154_tap_version = -1;
+static int hf_ieee802154_tap_tlv_type = -1;
+static int hf_ieee802154_tap_tlv_length = -1;
+static int hf_ieee802154_tap_tlv_unknown = -1;
+static int hf_ieee802154_tap_tlv_padding = -1;
+static int hf_ieee802154_tap_fcs_type = -1;
+static int hf_ieee802154_tap_rss = -1;
+static int hf_ieee802154_ch_page = -1;
+static int hf_ieee802154_ch_num = -1;
+static int hf_ieee802154_bit_rate = -1;
+static int hf_ieee802154_sun_band = -1;
+static int hf_ieee802154_sun_type = -1;
+static int hf_ieee802154_sun_mode = -1;
+static int hf_ieee802154_mode_fsk_a = -1;
+static int hf_ieee802154_mode_fsk_b = -1;
+static int hf_ieee802154_mode_oqpsk_a = -1;
+static int hf_ieee802154_mode_oqpsk_b = -1;
+static int hf_ieee802154_mode_oqpsk_c = -1;
+static int hf_ieee802154_mode_ofdm = -1;
+static int hf_ieee802154_sof_ts = -1;
+static int hf_ieee802154_eof_ts = -1;
+static int hf_ieee802154_slot_start_ts = -1;
+static int hf_ieee802154_tap_timeslot_length = -1;
+static int hf_ieee802154_tap_lqi = -1;
+static int hf_ieee802154_frame_start_offset = -1;
+static int hf_ieee802154_frame_duration = -1;
+static int hf_ieee802154_frame_end_offset = -1;
+static int hf_ieee802154_asn = -1;
+
 typedef struct _ieee802154_transaction_t {
     guint32 rqst_frame;
     guint32 ack_frame;
@@ -570,6 +648,8 @@ static ieee802154_transaction_t *transaction_end(packet_info *pinfo, proto_tree 
 /* Initialize Subtree Pointers */
 static gint ett_ieee802154_nonask_phy = -1;
 static gint ett_ieee802154_nonask_phy_phr = -1;
+static gint ett_ieee802154_tap = -1;
+static gint ett_ieee802154_tap_tlv = -1;
 static gint ett_ieee802154 = -1;
 static gint ett_ieee802154_fcf = -1;
 static gint ett_ieee802154_auxiliary_security = -1;
@@ -646,6 +726,9 @@ static expert_field ei_ieee802154_missing_payload_ie = EI_INIT;
 static expert_field ei_ieee802154_payload_ie_in_header = EI_INIT;
 static expert_field ei_ieee802154_unsupported_cmd = EI_INIT;
 static expert_field ei_ieee802154_unknown_cmd = EI_INIT;
+static expert_field ei_ieee802154_tap_tlv_invalid_type = EI_INIT;
+static expert_field ei_ieee802154_tap_tlv_invalid_length = EI_INIT;
+static expert_field ei_ieee802154_tap_tlv_padding_not_zeros = EI_INIT;
 
 static int ieee802_15_4_short_address_type = -1;
 /*
@@ -669,6 +752,7 @@ static dissector_handle_t  zigbee_nwk_handle;
 static dissector_handle_t  ieee802154_handle;
 static dissector_handle_t  ieee802154_nonask_phy_handle;
 static dissector_handle_t  ieee802154_nofcs_handle;
+static dissector_handle_t  ieee802154_tap_handle;
 
 /* Handles for MPX-IE the Multiplex ID */
 static dissector_table_t ethertype_table;
@@ -878,6 +962,153 @@ static const value_string zboss_direction_names[] = {
     { 0, NULL }
 };
 
+static const value_string tap_tlv_types[] = {
+    { IEEE802154_TAP_FCS_TYPE,  "FCS type"},
+    { IEEE802154_TAP_RSS, "RSS"},
+    { IEEE802154_TAP_BIT_RATE, "Bit rate"},
+    { IEEE802154_TAP_CHANNEL_ASSIGNMENT, "Channel Assignment"},
+    { IEEE802154_TAP_SUN_PHY_INFO, "SUN PHY Information"},
+    { IEEE802154_TAP_START_OF_FRAME_TS, "Start of frame timestamp"},
+    { IEEE802154_TAP_END_OF_FRAME_TS, "End of frame timestamp"},
+    { IEEE802154_TAP_ASN, "Absolute Slot Number (ASN)"},
+    { IEEE802154_TAP_SLOT_START_TS, "Start of slot timestamp"},
+    { IEEE802154_TAP_TIMESLOT_LENGTH, "Slot length"},
+    { IEEE802154_TAP_LQI, "Link Quality Indicator"},
+    { 0, NULL }
+};
+
+static const value_string tap_fcs_type_names[] = {
+    { IEEE802154_FCS_NONE, "None" },
+    { IEEE802154_FCS_16_BIT, "ITU-T CRC16" },
+    { IEEE802154_FCS_32_BIT, "CCITT CRC32" },
+    { 0, NULL }
+};
+
+/* IEEE 802.15.4 Table 7-19 */
+static const value_string sun_bands[] = {
+    { 0, "169 MHz [169.400-169.475]" },
+    { 1, "450 MHz [450-470]" },
+    { 2, "470 MHz [470-510]" },
+    { 3, "780 MHz [779-787]" },
+    { 4, "863 MHz [863-870]" },
+    { 5, "896 MHz [896-901]" },
+    { 6, "901 MHz [901-902]" },
+    { 7, "915 MHz [902-928]" },
+    { 8, "917 MHz [917-923.5]" },
+    { 9, "920 MHz [920-928]" },
+    { 10, "928 MHz [928-960]" },
+    { 11, "920 MHz [920-960]" },
+    { 12, "1427 MHz [1427-1518]" },
+    { 13, "2450 MHz [2400-2483.5]" },
+    { 14, "866 MHz [865-867]" },
+    { 15, "870 MHz [870-876]" },
+    { 16, "915 MHz-a [902-928 alternate]" },
+    { 17, "915 MHz-b [902-907.5 & 915-928]" },
+    { 18, "915 MHz-c [915-928]" },
+    { 19, "915 MHz-d [915-921]" },
+    { 20, "915 MHz-e [915-918]" },
+    { 21, "919 MHz [919-923]" },
+    { 22, "920 MHz-a [920.5-924.5]" },
+    { 23, "920 MHz-b [920-925]" },
+    { 24, "867 MHz [866-869]" },
+    /* Exegin defined numbers for bands in Table 10-1 but not in Table 7-19 */
+    { 32, "433 MHz [433.05-434.79]" },
+    { 33, "868 MHz [868-868.6]" },
+    { 34, "2380 MHz [2360-2400]" },
+    { 0, NULL }
+};
+
+/* IEEE 802.15.4 Table 7-20 */
+static const value_string sun_types[] = {
+    { IEEE802154_SUN_TYPE_FSK_A, "FSK-A" },
+    { IEEE802154_SUN_TYPE_FSK_B, "FSK-B" },
+    { IEEE802154_SUN_TYPE_OQPSK_A, "O-QPSK-A" },
+    { IEEE802154_SUN_TYPE_OQPSK_B, "O-QPSK-B" },
+    { IEEE802154_SUN_TYPE_OQPSK_C, "O-QPSK-C" },
+    { IEEE802154_SUN_TYPE_OFDM_OPT1, "OFDM Option 1" },
+    { IEEE802154_SUN_TYPE_OFDM_OPT2, "OFDM Option 2" },
+    { IEEE802154_SUN_TYPE_OFDM_OPT3, "OFDM Option 3" },
+    { IEEE802154_SUN_TYPE_OFDM_OPT4, "OFDM Option 4" },
+    { 0, NULL }
+};
+
+static const value_string fsk_a_modes[] = {
+    { 0, "4.8 kb/s; 2-FSK; mod index = 1.0; channel spacing = 12.5 kHz" },
+    { 1, "9.6 kb/s; 4-FSK; mod index = 0.33; channel spacing = 12.5 kHz" },
+    { 2, "10 kb/s; 2-FSK; mod index = 0.5; channel spacing = 12.5 kHz" },
+    { 3, "20 kb/s; 2-FSK; mod index = 0.5; channel spacing = 12.5 kHz" },
+    { 4, "40 kb/s; 2-FSK; mod index = 0.5; channel spacing = 12.5 kHz" },
+    { 5, "4.8 kb/s; 2-FSK; mod index = 0.5; channel spacing = 12.5 kHz" },
+    { 6, "2.4 kb/s; 2-FSK; mod index = 2.0; channel spacing = 12.5 kHz" },
+    { 7, "9.6 kb/s; 4-FSK; mod index = 0.33; channel spacing = 12.5 kHz" },
+    { 0, NULL }
+};
+
+static const value_string fsk_b_modes[] = {
+    { 0, "50 kb/s; 2-FSK; mod index = 1.0; channel spacing = 200 kHz" },
+    { 1, "100 kb/s; 2-FSK; mod index = 1.0; channel spacing = 400 kHz" },
+    { 2, "150 kb/s; 2-FSK; mod index = 0.5; channel spacing = 400 kHz" },
+    { 3, "200 kb/s; 2-FSK; mod index = 0.5; channel spacing = 400 kHz" },
+    { 4, "200 kb/s; 4-FSK; mod index = 0.33; channel spacing = 400 kHz" },
+    { 5, "200 kb/s; 2-FSK; mod index = 1.0; channel spacing = 600 kHz" },
+    { 6, "400 kb/s; 4-FSK; mod index = 0.33; channel spacing = 600 kHz" },
+    { 7, "100 kb/s; 2-FSK; mod index = 0.5; channel spacing = 200 kHz"},
+    { 8, "50 kb/s; 2-FSK; mod index = 0.5; channel spacing = 100 kHz"},
+    { 9, "150 kb/s; 2-FSK; mod index = 0.5; channel spacing = 200 kHz"},
+    { 10, "300 kb/s; 2-FSK; mod index = 0.5; channel spacing = 400 kHz" },
+    { 0, NULL }
+};
+
+static const value_string oqpsk_a_modes[] = {
+    { 0, "chip rate = 100 kchip/s; SpreadingMode = DSSS; RateMode = 0; data rate = 6.25 kb/s"},
+    { 1, "chip rate = 100 kchip/s; SpreadingMode = DSSS; RateMode = 1; data rate = 12.5 kb/s"},
+    { 2, "chip rate = 100 kchip/s; SpreadingMode = DSSS; RateMode = 2; data rate = 25 kb/s"},
+    { 3, "chip rate = 100 kchip/s; SpreadingMode = DSSS; RateMode = 3; data rate = 50 kb/s"},
+    { 0, NULL }
+};
+
+static const value_string oqpsk_b_modes[] = {
+    { 0, "chip rate = 1000 kchip/s; SpreadingMode = DSSS; RateMode = 0; data rate = 31.25 kb/s"},
+    { 1, "chip rate = 1000 kchip/s; SpreadingMode = DSSS; RateMode = 1; data rate = 125 kb/s"},
+    { 2, "chip rate = 1000 kchip/s; SpreadingMode = DSSS; RateMode = 2; data rate = 250 kb/s"},
+    { 3, "chip rate = 1000 kchip/s; SpreadingMode = DSSS; RateMode = 3; data rate = 500 kb/s"},
+    { 4, "chip rate = 1000 kchip/s; SpreadingMode = MDSSS; RateMode = 0; data rate = 62.5 kb/s"},
+    { 5, "chip rate = 1000 kchip/s; SpreadingMode = MDSSS; RateMode = 1; data rate = 125 kb/s"},
+    { 6, "chip rate = 1000 kchip/s; SpreadingMode = MDSSS; RateMode = 2; data rate = 250 kb/s"},
+    { 7, "chip rate = 1000 kchip/s; SpreadingMode = MDSSS; RateMode = 3; data rate = 500 kb/s"},
+    { 0, NULL }
+};
+
+static const value_string oqpsk_c_modes[] = {
+    { 0, "chip rate = 2000 kchip/s; SpreadingMode = DSSS; RateMode = 0; data rate = 31.25 kb/s"},
+    { 1, "chip rate = 2000 kchip/s; SpreadingMode = DSSS; RateMode = 1; data rate = 125 kb/s"},
+    { 2, "chip rate = 2000 kchip/s; SpreadingMode = DSSS; RateMode = 2; data rate = 250 kb/s"},
+    { 3, "chip rate = 2000 kchip/s; SpreadingMode = DSSS; RateMode = 3; data rate = 500 kb/s"},
+    { 4, "chip rate = 2000 kchip/s; SpreadingMode = MDSSS; RateMode = 0; data rate = 62.5 kb/s"},
+    { 5, "chip rate = 2000 kchip/s; SpreadingMode = MDSSS; RateMode = 1; data rate = 125 kb/s"},
+    { 6, "chip rate = 2000 kchip/s; SpreadingMode = MDSSS; RateMode = 2; data rate = 250 kb/s"},
+    { 7, "chip rate = 2000 kchip/s; SpreadingMode = MDSSS; RateMode = 3; data rate = 500 kb/s"},
+    { 0, NULL }
+};
+
+static const value_string ofdm_modes[] = {
+    { 0, "MCS0" },
+    { 1, "MCS1" },
+    { 2, "MCS2" },
+    { 3, "MCS3" },
+    { 4, "MCS4" },
+    { 5, "MCS5" },
+    { 6, "MCS6" },
+    { 0, NULL },
+};
+
+static const value_string channel_page_names[] = {
+    { 0, "Default" },
+    { 1, "ASK" },
+    { 2, "O-QPSK" },
+    { 9, "SUN" },
+    { 0, NULL }
+};
 
 static const value_string ietf_6top_types[] = {
     { IETF_6TOP_TYPE_REQUEST, "Request" },
@@ -1449,16 +1680,33 @@ dissect_ieee802154_nonask_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     return tvb_captured_length(tvb);
 } /* dissect_ieee802154_nonask_phy */
 
-/* Return the length in octets for the ieee802154_fcs_type_t which follows the PHY Payload */
-static gint
-ieee802154_fcs_type_len(gint i)
+/* Return the length in octets for the user configured
+ * ieee802154_fcs_type_t which follows the PHY Payload */
+static guint
+ieee802154_fcs_type_len(guint i)
 {
-    gint fcs_type_lengths[] = { 2, 2, 4 };
-    return fcs_type_lengths[i];
+    guint fcs_type_lengths[] = { 2, 2, 4 };
+    if (i < array_length(fcs_type_lengths)) {
+        return fcs_type_lengths[i];
+    }
+    return 0;
+}
+
+/* Return the length in octets for the TAP defined
+ * ieee802154_fcs_type_t which follows the PHY Payload */
+static guint
+ieee802154_tap_fcs_type_len(guint i)
+{
+    guint fcs_type_lengths[] = { 0, 2, 4 };
+    if (i < array_length(fcs_type_lengths)) {
+        return fcs_type_lengths[i];
+    }
+    return 0;
 }
 
 /**
- * Dissector for IEEE 802.15.4 packet with an FCS containing a 16/32-bit CRC value.
+ * Dissector for IEEE 802.15.4 packet with an FCS
+ * The FCS may be a 16/32-bit CRC value or the TI 24xx status CRC_OK bit.
  *
  * @param tvb pointer to buffer containing raw packet.
  * @param pinfo pointer to packet information fields.
@@ -1470,16 +1718,22 @@ dissect_ieee802154(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     tvbuff_t *new_tvb = dissect_zboss_specific(tvb, pinfo, tree);
     guint options = 0;
 
-    /* Set the default FCS length based on the FCS type in the configuration */
-    ieee802154_fcs_len = ieee802154_fcs_type_len(ieee802154_fcs_type);
+    /* if TAP FCS type is not set then we're dissecting from DLT*WITHFCS */
+    if (ieee802154_tap_fcs_type == IEEE802154_FCS_UNDEFINED) {
+        ieee802154_fcs_len = ieee802154_fcs_type_len(ieee802154_fcs_type);
 
-    if (ieee802154_fcs_type == IEEE802154_CC24XX_METADATA) {
-        options |= DISSECT_IEEE802154_OPTION_CC24xx;
+        if (ieee802154_fcs_type == IEEE802154_CC24XX_METADATA) {
+            options = DISSECT_IEEE802154_OPTION_CC24xx;
+        }
+    }
+    else {
+        /* Set the FCS length based on the FCS type */
+        ieee802154_fcs_len = ieee802154_tap_fcs_type_len(ieee802154_tap_fcs_type);
     }
 
     if (new_tvb != tvb) {
         /* ZBOSS traffic dump: always TI FCS, always ZigBee */
-        options |= DISSECT_IEEE802154_OPTION_CC24xx|DISSECT_IEEE802154_OPTION_ZBOSS;
+        options = DISSECT_IEEE802154_OPTION_CC24xx|DISSECT_IEEE802154_OPTION_ZBOSS;
         ieee802154_fcs_len = 2;
     }
 
@@ -1551,7 +1805,7 @@ dissect_zboss_specific(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
         }
     }
     return tvb;
-} /* dissect_zboss_heur */
+} /* dissect_zboss_specific */
 
 /**
  * Dissector for IEEE 802.15.4 packet with 2 bytes of ChipCon/Texas
@@ -1570,6 +1824,63 @@ dissect_ieee802154_cc24xx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     dissect_ieee802154_common(tvb, pinfo, tree, DISSECT_IEEE802154_OPTION_CC24xx);
     return tvb_captured_length(tvb);
 } /* dissect_ieee802154_cc24xx */
+
+/**
+ * Dissector for IEEE 802.15.4 TAP packet
+ *
+ * Contains optional TLVs and encapsulates an IEEE 802.15.4 packet.
+ *
+ * @param tvb pointer to buffer containing raw packet.
+ * @param pinfo pointer to packet information fields
+ * @param tree pointer to data tree wireshark uses to display packet.
+ */
+static int
+dissect_ieee802154_tap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * data _U_)
+{
+    proto_tree *info_tree = NULL;
+    proto_item *proto_root      = NULL;
+    guint32     version = 0;
+    guint32     length = 0;
+    tvbuff_t*   tlv_tvb;
+    tvbuff_t*   payload_tvb;
+
+    /* Check the version in the TAP header */
+    proto_tree_add_item_ret_uint(info_tree, hf_ieee802154_tap_version, tvb, 0, 1, ENC_LITTLE_ENDIAN, &version);
+    if (version != 0) {
+        /* Malformed packet. We do not understand any other version at this time */
+        return 0;
+    }
+
+    /* Get the total length of the header and TLVs */
+    length = tvb_get_letohs(tvb, 2);
+
+    if (length > tvb_captured_length(tvb)) {
+        /* Malformed packet. The TLVs exceeds our captured packet. */
+        return 0;
+    }
+
+    /* Create the protocol tree */
+    if (tree) {
+        proto_root = proto_tree_add_protocol_format(tree, proto_ieee802154_tap, tvb, 0, length, "IEEE 802.15.4 TAP");
+        info_tree = proto_item_add_subtree(proto_root, ett_ieee802154_tap);
+    }
+
+    /* Add the protocol name. */
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "IEEE 802.15.4 TAP");
+
+    /* Create a new tvb subset with only the TLVs to dissect */
+    tlv_tvb = tvb_new_subset_length_caplen(tvb, 4, length-4, length-4);
+    dissect_ieee802154_tap_tlvs(tlv_tvb, pinfo, info_tree);
+
+    /* Call the ieee802154 raw packet dissector. */
+    payload_tvb = tvb_new_subset_remaining(tvb, length);
+    dissect_ieee802154(payload_tvb, pinfo, tree, NULL);
+
+    /* Reset the default FCS type for every packet */
+    ieee802154_tap_fcs_type = IEEE802154_FCS_UNDEFINED;
+
+    return tvb_captured_length(tvb);
+} /* dissect_ieee802154_tap */
 
 /**
  * IEEE 802.15.4 packet dissection routine for Wireshark.
@@ -2498,8 +2809,222 @@ ieee802154_dissect_fcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154
         /* Flag packet as having a bad crc. */
         expert_add_info(pinfo, proto_tree_get_parent(ieee802154_tree), &ei_ieee802154_fcs);
     }
-}
+} /* ieee802154_dissect_fcs */
 
+static void
+dissect_ieee802154_tap_sun_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint length)
+{
+    (void) pinfo;
+    if (length == 3) {
+        guint32 band;
+        guint32 sun_type;
+        guint32 mode;
+        proto_tree_add_item_ret_uint(tree, hf_ieee802154_sun_band, tvb, offset, 1, ENC_LITTLE_ENDIAN, &band);
+        proto_item_append_text(proto_tree_get_parent(tree), ": Band: %s (%u)", val_to_str_const(band, sun_bands, "Unknown"), band);
+        proto_tree_add_item_ret_uint(tree, hf_ieee802154_sun_type, tvb, offset+1, 1, ENC_LITTLE_ENDIAN, &sun_type);
+        if (sun_type < array_length(sun_types)) {
+            proto_item_append_text(proto_tree_get_parent(tree), ", Type: %s (%u)", val_to_str_const(sun_type, sun_types, "Unknown"), sun_type);
+        }
+
+        switch (sun_type) {
+            case IEEE802154_SUN_TYPE_FSK_A:
+                proto_tree_add_item_ret_uint(tree, hf_ieee802154_mode_fsk_a, tvb, offset+2, 1, ENC_LITTLE_ENDIAN, &mode);
+                proto_item_append_text(proto_tree_get_parent(tree), ", Mode: %u", mode);
+                break;
+            case IEEE802154_SUN_TYPE_FSK_B:
+                proto_tree_add_item_ret_uint(tree, hf_ieee802154_mode_fsk_b, tvb, offset+2, 1, ENC_LITTLE_ENDIAN, &mode);
+                proto_item_append_text(proto_tree_get_parent(tree), ", Mode: %u", mode);
+                break;
+            case IEEE802154_SUN_TYPE_OQPSK_A:
+                proto_tree_add_item_ret_uint(tree, hf_ieee802154_mode_oqpsk_a, tvb, offset+2, 1, ENC_LITTLE_ENDIAN, &mode);
+                proto_item_append_text(proto_tree_get_parent(tree), ", Mode: %u", mode);
+                break;
+            case IEEE802154_SUN_TYPE_OQPSK_B:
+                proto_tree_add_item_ret_uint(tree, hf_ieee802154_mode_oqpsk_b, tvb, offset+2, 1, ENC_LITTLE_ENDIAN, &mode);
+                proto_item_append_text(proto_tree_get_parent(tree), ", Mode: %u", mode);
+                break;
+            case IEEE802154_SUN_TYPE_OQPSK_C:
+                proto_tree_add_item_ret_uint(tree, hf_ieee802154_mode_oqpsk_c, tvb, offset+2, 1, ENC_LITTLE_ENDIAN, &mode);
+                proto_item_append_text(proto_tree_get_parent(tree), ", Mode: %u", mode);
+                break;
+            case IEEE802154_SUN_TYPE_OFDM_OPT1:
+            case IEEE802154_SUN_TYPE_OFDM_OPT2:
+            case IEEE802154_SUN_TYPE_OFDM_OPT3:
+            case IEEE802154_SUN_TYPE_OFDM_OPT4:
+                proto_tree_add_item_ret_uint(tree, hf_ieee802154_mode_ofdm, tvb, offset+2, 1, ENC_LITTLE_ENDIAN, &mode);
+                proto_item_append_text(proto_tree_get_parent(tree), ", Mode: %u", mode);
+                break;
+            default:
+                proto_tree_add_item(tree, hf_ieee802154_sun_mode, tvb, offset+2, 1, ENC_LITTLE_ENDIAN);
+                break;
+        } /* switch (sun_type) */
+    }
+} /* dissect_ieee802154_tap_sun_phy */
+
+/**
+ * Create a tree for a TAP TLV
+ *
+ * @param tree the tree to append this item to
+ * @param tvb the tv buffer
+ * @param offset
+ * @param type TLV type
+ * @param length TLV length
+ * @returns the tree created for the Payload IE
+ */
+proto_tree*
+ieee802154_create_tap_tlv_tree(proto_tree *tree, tvbuff_t *tvb, gint offset, guint32 *type, guint32 *length)
+{
+    proto_tree *subtree = NULL;
+    proto_item *ti = NULL;
+
+    *length = tvb_get_letohs(tvb, offset+2);
+
+    subtree = proto_tree_add_subtree(tree, tvb, offset, 4+*length, ett_ieee802154_tap_tlv, &ti, "");
+
+    /* Check if we have a valid TLV */
+    proto_tree_add_item_ret_uint(subtree, hf_ieee802154_tap_tlv_type, tvb, offset, 2, ENC_LITTLE_ENDIAN, type);
+    if (*type < array_length(tap_tlv_types)) {
+        proto_item_append_text(ti, "%s", val_to_str_const(*type, tap_tlv_types, "Unknown"));
+    }
+    else {
+        expert_add_info(NULL, ti, &ei_ieee802154_tap_tlv_invalid_type);
+    }
+
+    proto_tree_add_item(subtree, hf_ieee802154_tap_tlv_length, tvb, offset+2, 2, ENC_LITTLE_ENDIAN);
+    if (!tvb_bytes_exist(tvb, offset+4, *length)) {
+        expert_add_info(NULL, ti, &ei_ieee802154_tap_tlv_invalid_length);
+    }
+    return subtree;
+} /* ieee802154_create_tap_tlv_tree */
+
+static void
+dissect_ieee802154_tap_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    guint32 type;
+    guint32 length;
+    gint offset = 0;
+    proto_item *ti;
+    proto_tree *tlvtree;
+    nstime_t nstime;
+    guint64 frame_start_ts = 0;
+    guint64 frame_end_ts = 0;
+    guint64 slot_start_ts = 0;
+    double delta_us = 0;
+    guint32 timeslot_length = 0;
+
+    /* Default the FCS type to NONE when parsing TAP packets */
+    ieee802154_tap_fcs_type = IEEE802154_FCS_NONE;
+
+    while (tvb_bytes_exist(tvb, offset, 4)) {
+        tlvtree = ieee802154_create_tap_tlv_tree(tree, tvb, offset, &type, &length);
+        offset += 4;
+
+        switch (type) {
+            case IEEE802154_TAP_FCS_TYPE:
+                proto_tree_add_item_ret_uint(tlvtree, hf_ieee802154_tap_fcs_type, tvb, offset, 1,
+                                             ENC_LITTLE_ENDIAN, &ieee802154_tap_fcs_type);
+                proto_item_append_text(proto_tree_get_parent(tlvtree), ": %s (%d)",
+                                       val_to_str_const(ieee802154_tap_fcs_type, tap_fcs_type_names, "Unknown"), ieee802154_tap_fcs_type);
+                break;
+            case IEEE802154_TAP_RSS: {
+                gfloat rss = tvb_get_ieee_float(tvb, offset, ENC_LITTLE_ENDIAN);
+                proto_tree_add_float_format_value(tlvtree, hf_ieee802154_tap_rss, tvb, offset, 4, rss, "%.2f", rss);
+                proto_item_append_text(proto_tree_get_parent(tlvtree), ": %.2f dBm", rss);
+                break;
+            }
+            case IEEE802154_TAP_BIT_RATE: {
+                guint32 bitrate;
+                proto_tree_add_item_ret_uint(tlvtree, hf_ieee802154_bit_rate, tvb, offset, 4, ENC_LITTLE_ENDIAN, &bitrate);
+                proto_item_append_text(proto_tree_get_parent(tlvtree), ": %.3f kbps", bitrate/1000.0);
+                break;
+            }
+            case IEEE802154_TAP_CHANNEL_ASSIGNMENT: {
+                guint32 channel;
+                guint32 page;
+                proto_tree_add_item_ret_uint(tlvtree, hf_ieee802154_ch_num, tvb, offset, 2, ENC_LITTLE_ENDIAN, &channel);
+                proto_tree_add_item_ret_uint(tlvtree, hf_ieee802154_ch_page, tvb, offset+2, 1, ENC_LITTLE_ENDIAN, &page);
+                proto_item_append_text(proto_tree_get_parent(tlvtree), ": Page: %s (%u), Number: %u", val_to_str_const(page, channel_page_names, "Unknown"), page, channel);
+                break;
+            }
+            case IEEE802154_TAP_SUN_PHY_INFO:
+                dissect_ieee802154_tap_sun_phy(tvb, pinfo, tlvtree, offset, length);
+                break;
+            case IEEE802154_TAP_START_OF_FRAME_TS:
+                proto_tree_add_item_ret_uint64(tlvtree, hf_ieee802154_sof_ts, tvb, offset, 8,
+                                               ENC_LITTLE_ENDIAN, &frame_start_ts);
+                nstime.secs = frame_start_ts / 1000000000L;
+                nstime.nsecs = frame_start_ts % 1000000000UL;
+                proto_item_append_text(proto_tree_get_parent(tlvtree), ": %s s", rel_time_to_secs_str(wmem_packet_scope(), &nstime));
+                break;
+            case IEEE802154_TAP_END_OF_FRAME_TS:
+                proto_tree_add_item_ret_uint64(tlvtree, hf_ieee802154_eof_ts, tvb, offset, 8,
+                                    ENC_LITTLE_ENDIAN, &frame_end_ts);
+                nstime.secs = frame_end_ts / 1000000000L;
+                nstime.nsecs = frame_end_ts % 1000000000UL;
+                proto_item_append_text(proto_tree_get_parent(tlvtree), ": %s s", rel_time_to_secs_str(wmem_packet_scope(), &nstime));
+                break;
+            case IEEE802154_TAP_ASN:
+                proto_tree_add_item_ret_uint64(tlvtree, hf_ieee802154_asn, tvb, offset, 8, ENC_LITTLE_ENDIAN, &ieee802154_tsch_asn);
+                proto_item_append_text(proto_tree_get_parent(tlvtree), ": %"G_GUINT64_FORMAT, ieee802154_tsch_asn);
+                break;
+            case IEEE802154_TAP_SLOT_START_TS:
+                proto_tree_add_item_ret_uint64(tlvtree, hf_ieee802154_slot_start_ts, tvb, offset, 8,
+                                    ENC_LITTLE_ENDIAN, &slot_start_ts);
+                nstime.secs = slot_start_ts / 1000000000L;
+                nstime.nsecs = slot_start_ts % 1000000000UL;
+                proto_item_append_text(proto_tree_get_parent(tlvtree), ": %s s", rel_time_to_secs_str(wmem_packet_scope(), &nstime));
+                break;
+            case IEEE802154_TAP_TIMESLOT_LENGTH:
+                proto_tree_add_item_ret_uint(tlvtree, hf_ieee802154_tap_timeslot_length, tvb, offset, 4,
+                                             ENC_LITTLE_ENDIAN, &timeslot_length);
+                proto_item_append_text(proto_tree_get_parent(tlvtree), ": %"G_GUINT32_FORMAT" %s", timeslot_length, units_microseconds.singular);
+                break;
+            case IEEE802154_TAP_LQI: {
+                guint32 lqi;
+                proto_tree_add_item_ret_uint(tlvtree, hf_ieee802154_tap_lqi, tvb, offset, 1, ENC_LITTLE_ENDIAN, &lqi);
+                proto_item_append_text(proto_tree_get_parent(tlvtree), ": %u", lqi);
+                break;
+            }
+            default:
+                proto_tree_add_bytes_item(tlvtree, hf_ieee802154_tap_tlv_unknown, tvb, offset, length, ENC_NA, NULL, NULL, NULL);
+                break;
+        } /* switch (tlv_type) */
+
+        if (length%4) {
+            guint32 zero = 0;
+            GByteArray *padding = g_byte_array_sized_new(4);
+            ti = proto_tree_add_bytes_item(tlvtree, hf_ieee802154_tap_tlv_padding, tvb, offset+length, 4-length%4, ENC_NA, padding, NULL, NULL);
+            if (memcmp(&zero, padding->data, 4-length%4)) {
+                expert_add_info(NULL, ti, &ei_ieee802154_tap_tlv_padding_not_zeros);
+            }
+            g_byte_array_free(padding, TRUE);
+        }
+        offset += ROUND_UP(length, 4);
+    } /* while */
+
+    /* if we have both slot start and frame start timestamp, show frame start offset */
+    if (slot_start_ts && frame_start_ts) {
+        delta_us = (double)(frame_start_ts - slot_start_ts) / 1000;
+        ti = proto_tree_add_double_format_value(tree, hf_ieee802154_frame_start_offset, NULL, 0, 0, delta_us, "%.3f %s", delta_us, units_microseconds.singular);
+        PROTO_ITEM_SET_GENERATED(ti);
+    }
+
+    /* if we have both start and end frame timestamp, show frame duration */
+    if (frame_start_ts && frame_end_ts) {
+        delta_us = (double)(frame_end_ts - frame_start_ts) / 1000;
+        ti = proto_tree_add_double_format_value(tree, hf_ieee802154_frame_duration, NULL, 0, 0, delta_us, "%.3f %s", delta_us, units_microseconds.singular);
+        PROTO_ITEM_SET_GENERATED(ti);
+    }
+
+    /* if we have start of slot, timeslot length, and end of frame timestamp, show frame overflow (+ve) or underflow (-ve) */
+    if (timeslot_length && frame_end_ts && slot_start_ts) {
+        /* overflow = frame_end_ts - slot_start_ts - timeslot_length */
+        delta_us = (double)(frame_end_ts - slot_start_ts) / 1000;
+        delta_us -= timeslot_length;
+        ti = proto_tree_add_double_format_value(tree, hf_ieee802154_frame_end_offset, NULL, 0, 0, delta_us, "%.3f %s", delta_us, units_microseconds.singular);
+        PROTO_ITEM_SET_GENERATED(ti);
+    }
+} /* dissect_ieee802154_tap_tlvs */
 
 /*
  * Information Elements Processing (IEs)
@@ -3232,7 +3757,7 @@ dissect_ieee802154_header_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             packet->payload_ie_present = (id == IEEE802154_HEADER_IE_HT1);
             break;
         }
-    } while ((tvb_reported_length_remaining(tvb, offset) > IEEE802154_MIC_LENGTH(packet->security_level) + ieee802154_fcs_len + 1));
+    } while (tvb_reported_length_remaining(tvb, offset) > (gint) (IEEE802154_MIC_LENGTH(packet->security_level) + ieee802154_fcs_len + 1));
 
     proto_item_set_len(ies_item, offset - orig_offset);
     return offset - orig_offset;
@@ -5451,12 +5976,128 @@ void proto_register_ieee802154(void)
         { &hf_zboss_trace_number,
         { "Trace number", "wpan-zboss.trace", FT_UINT32, BASE_DEC, NULL, 0x0,
             "Trace item number", HFILL }},
+
+        /* TAP Packet Fields */
+        { &hf_ieee802154_tap_version,
+        { "Version",        "wpan-tap.version", FT_UINT8, BASE_DEC, NULL, 0x0,
+            "TAP Packet Version", HFILL }},
+
+        { &hf_ieee802154_tap_tlv_type,
+        { "TLV Type",       "wpan-tap.tlv.type", FT_UINT16, BASE_DEC, VALS(tap_tlv_types), 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_tap_tlv_length,
+        { "TLV Length",       "wpan-tap.tlv.length", FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_tap_tlv_unknown,
+        { "Unknown",                "wpan-tap.tlv.unknown", FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_tap_tlv_padding,
+        { "Padding",                "wpan-tap.tlv.padding", FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_tap_fcs_type,
+        { "FCS Type",       "wpan-tap.fcs_type", FT_UINT8, BASE_DEC, VALS(tap_fcs_type_names), 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_tap_rss,
+        { "RSS",           "wpan-tap.rss", FT_FLOAT, BASE_FLOAT|BASE_UNIT_STRING, &units_dbm, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_ch_num,
+        { "Channel Number", "wpan-tap.ch_num", FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_ch_page,
+        { "Channel Page",   "wpan-tap.ch_page", FT_UINT8, BASE_DEC, VALS(channel_page_names), 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_bit_rate,
+        { "Bit Rate",       "wpan-tap.bit_rate", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_sun_band,
+        { "Band",           "wpan-tap.sun_band", FT_UINT8, BASE_DEC, VALS(sun_bands), 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_sun_type,
+        { "Type",           "wpan-tap.sun_type", FT_UINT8, BASE_DEC, VALS(sun_types), 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_sun_mode,
+        { "Mode",           "wpan-tap.sun_mode", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_mode_fsk_a,
+        { "FSK-A mode",     "wpan-tap.mode.fsk_a", FT_UINT8, BASE_DEC, VALS(fsk_a_modes), 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_mode_fsk_b,
+        { "FSK-B mode",     "wpan-tap.mode.fsk_b", FT_UINT8, BASE_DEC, VALS(fsk_b_modes), 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_mode_oqpsk_a,
+        { "O-QPSK-A mode",   "wpan-tap.mode.oqpsk_a", FT_UINT8, BASE_DEC, VALS(oqpsk_a_modes), 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_mode_oqpsk_b,
+        { "O-QPSK-B mode",   "wpan-tap.mode.oqpsk_b", FT_UINT8, BASE_DEC, VALS(oqpsk_b_modes), 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_mode_oqpsk_c,
+        { "O-QPSK-C mode",   "wpan-tap.mode.oqpsk_c", FT_UINT8, BASE_DEC, VALS(oqpsk_c_modes), 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_mode_ofdm,
+        { "OFDM mode",       "wpan-tap.mode.ofdm", FT_UINT8, BASE_DEC, VALS(ofdm_modes), 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_sof_ts,
+        { "Start of frame timestamp",   "wpan-tap.sof_ts", FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_nanoseconds, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_eof_ts,
+        { "End of frame timestamp",     "wpan-tap.eof_ts", FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_nanoseconds, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_slot_start_ts,
+        { "Start of slot timestamp",    "wpan-tap.slot_start_ts", FT_UINT64, BASE_DEC|BASE_UNIT_STRING, &units_nanoseconds, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_tap_timeslot_length,
+        { "Timeslot length",            "wpan-tap.timeslot_length", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_microseconds, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_tap_lqi,
+        { "Link Quality Indicator",     "wpan-tap.lqi", FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_ieee802154_frame_start_offset,
+        { "Frame start offset",       "wpan.tsch.frame_start_offset", FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_microseconds, 0x0,
+            "Start of frame timestamp - start of slot timestamp", HFILL }},
+
+        { &hf_ieee802154_frame_duration,
+        { "Frame duration",           "wpan.tsch.frame_duration", FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_microseconds, 0x0,
+            "End of frame timestamp - start of frame timestamp", HFILL }},
+
+        { &hf_ieee802154_frame_end_offset,
+        { "Frame end offset", "wpan.tsch.frame_end_offset", FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_microseconds, 0x0,
+            "End of frame timestamp - (start of slot timestamp + timeslot length)", HFILL }},
+
+        { &hf_ieee802154_asn,
+        { "Absolute Slot Number (ASN)", "wpan-tap.asn", FT_UINT64, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
     };
 
     /* Subtrees */
     static gint *ett[] = {
         &ett_ieee802154_nonask_phy,
         &ett_ieee802154_nonask_phy_phr,
+        &ett_ieee802154_tap,
+        &ett_ieee802154_tap_tlv,
         &ett_ieee802154,
         &ett_ieee802154_fcf,
         &ett_ieee802154_auxiliary_security,
@@ -5562,6 +6203,12 @@ void proto_register_ieee802154(void)
                 "Unsupported Command ID", EXPFILL }},
         { &ei_ieee802154_unknown_cmd, { "wpan.cmd.unknown_cmd", PI_PROTOCOL, PI_WARN,
                 "Unknown Command Id (cf. IEEE 802.15.4-2015 Table 7-49)", EXPFILL }},
+        { &ei_ieee802154_tap_tlv_invalid_type, { "wpan-tap.tlv.invalid_type", PI_MALFORMED, PI_WARN,
+                "Invalid TLV type", EXPFILL }},
+        { &ei_ieee802154_tap_tlv_invalid_length, { "wpan-tap.tlv.invalid_length", PI_MALFORMED, PI_WARN,
+                "Invalid TLV length", EXPFILL }},
+        { &ei_ieee802154_tap_tlv_padding_not_zeros, { "wpan-tap.tlv.padding_not_zeros", PI_MALFORMED, PI_WARN,
+                "TLV padding not zero", EXPFILL }},
     };
 
     /* Preferences. */
@@ -5613,6 +6260,8 @@ void proto_register_ieee802154(void)
             "IEEE 802.15.4 non-ASK PHY", "wpan-nonask-phy");
     proto_zboss = proto_register_protocol("ZBOSS IEEE 802.15.4 dump",
                                           "ZBOSS dump", "wpan-zboss");
+    proto_ieee802154_tap = proto_register_protocol("IEEE 802.15.4 Low-Rate Wireless PAN TAP",
+                                          "IEEE 802.15.4 TAP", "wpan-tap");
 
     /*  Register header fields and subtrees. */
     proto_register_field_array(proto_ieee802154, hf, array_length(hf));
@@ -5719,6 +6368,7 @@ void proto_register_ieee802154(void)
     ieee802154_nofcs_handle = register_dissector("wpan_nofcs", dissect_ieee802154_nofcs, proto_ieee802154);
     register_dissector("wpan_cc24xx", dissect_ieee802154_cc24xx, proto_ieee802154);
     ieee802154_nonask_phy_handle = register_dissector("wpan-nonask-phy", dissect_ieee802154_nonask_phy, proto_ieee802154_nonask_phy);
+    ieee802154_tap_handle = register_dissector("wpan-tap", dissect_ieee802154_tap, proto_ieee802154_tap);
 
     /* Setup registration for other dissectors to provide mac key hash algorithms */
     mac_key_hash_handlers = wmem_tree_new(wmem_epan_scope());
@@ -5746,6 +6396,7 @@ void proto_reg_handoff_ieee802154(void)
         dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE802_15_4, ieee802154_handle);
         dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE802_15_4_NONASK_PHY, ieee802154_nonask_phy_handle);
         dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE802_15_4_NOFCS, ieee802154_nofcs_handle);
+        dissector_add_uint("wtap_encap", WTAP_ENCAP_IEEE802_15_4_TAP, ieee802154_tap_handle);
         dissector_add_uint("sll.ltype", LINUX_SLL_P_IEEE802154, ieee802154_handle);
 
         prefs_initialized = TRUE;
