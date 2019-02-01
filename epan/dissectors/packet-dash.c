@@ -1816,6 +1816,38 @@ create_proregtx_tree(tvbuff_t *tvb, proto_item *ti, guint32 offset)
   proto_tree_add_item(tree, &hfi_msg_specialtx_payload_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   offset += 2;
 
+  // Masternode type
+  proto_tree_add_item(tree, &hfi_msg_specialtx_payload_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  // Masternode mode
+  proto_tree_add_item(tree, &hfi_msg_specialtx_payload_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  // Add unspent output of the Masternode that signed the message (COutPoint)
+  offset = create_coutputpoint_tree(tvb, ti, &hfi_msg_mn_outpoint, offset);
+
+  /* IPv6 address */
+  proto_tree_add_item(tree, &hfi_address_address, tvb, offset, 16, ENC_NA);
+  offset += 16;
+
+  /* port */
+  proto_tree_add_item(tree, &hfi_address_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(tree, &hfi_msg_pubkey_hash, tvb, offset, 20, ENC_NA);
+  offset += 20;
+
+  proto_tree_add_item(tree, &hfi_msg_pubkey_hash, tvb, offset, 48, ENC_NA);
+  offset += 48;
+
+  proto_tree_add_item(tree, &hfi_msg_pubkey_hash, tvb, offset, 20, ENC_NA);
+  offset += 20;
+
+  // Masternode type
+  proto_tree_add_item(tree, &hfi_msg_specialtx_payload_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
   /*
   // Username
   //create_string_tree(tree, &hfi_dash_msg_subtx_username, tvb, &offset);
@@ -3706,6 +3738,7 @@ proto_register_dash(void)
     &hfi_msg_field_size,
     &hfi_msg_pubkey_type,
     &hfi_msg_pubkey_hash,
+    &hfi_msg_mn_outpoint,
 
     &hfi_dash_cpubkey,
     &hfi_dash_coutpoint,
