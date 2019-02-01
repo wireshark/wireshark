@@ -51,8 +51,7 @@ gchar * protect_arg (const gchar *argv);
 /** Generate a string for a Windows error.
  *
  * @param error The Windows error code
- * @return a localized UTF-8 string containing the corresponding error message;
- *         it must be freed with g_free().
+ * @return a localized UTF-8 string containing the corresponding error message
  */
 WS_DLL_PUBLIC
 const char * win32strerror(DWORD error);
