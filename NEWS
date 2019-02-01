@@ -145,23 +145,24 @@ Wireshark 2.9.1 Release Notes
    Apple Wireless Direct Link (AWDL), Basic Transport Protocol (BTP),
    BLIP Couchbase Mobile (BLIP), CDMA 2000, Circuit Emulation Service
    over Ethernet (CESoETH), Cisco Meraki Discovery Protocol (MDP),
-   Distributed Ruby (DRb), DXL, E1AP (5G), EVS (3GPP TS 26.445 A.2 EVS
-   RTP), Exablaze trailers, General Circuit Services Notification
-   Application Protocol (GCSNA), GeoNetworking (GeoNw), GLOW Lawo
-   Emberplus Data format, Great Britain Companion Specification (GBCS)
-   used in the Smart Metering Equipment Technical Specifications
-   (SMETS), GSM-R (User-to-User Information Element usage),
-   HI3CCLinkData, Intelligent Transport Systems (ITS) application level,
-   ISO 13400-2 Diagnostic communication over Internet Protocol (DoIP),
-   ITU-t X.696 Octet Encoding Rules (OER), Local Number Portability
-   Database Query Protocol (ANSI), MsgPack, NGAP (5G), NR (5G) PDCP,
-   Osmocom Generic Subscriber Update Protocol (GSUP), PCOM protocol,
-   PKCS#10 (RFC2986 Certification Request Syntax), PROXY (v2), S101 Lawo
-   Emberplus transport frame, Secure Reliable Transport Protocol (SRT),
-   Spirent Test Center Signature decoding for Ethernet and FibreChannel
-   (STCSIG, disabled by default), Sybase-specific portions of TDS,
-   systemd Journal Export, TeamSpeak 3 DNS, TPM 2.0, Ubiquiti Discovery
-   Protocol (UBDP), WireGuard, XnAP (5G), and Z39.50 Information
+   Distributed Ruby (DRb), DXL, E1AP (5G), Elektrobit High Speed Capture
+   Replay (EBHSCR), EVS (3GPP TS 26.445 A.2 EVS RTP), Exablaze trailers,
+   General Circuit Services Notification Application Protocol (GCSNA),
+   GeoNetworking (GeoNw), GLOW Lawo Emberplus Data format, Great Britain
+   Companion Specification (GBCS) used in the Smart Metering Equipment
+   Technical Specifications (SMETS), GSM-R (User-to-User Information
+   Element usage), HI3CCLinkData, Intelligent Transport Systems (ITS)
+   application level, ISO 13400-2 Diagnostic communication over Internet
+   Protocol (DoIP), ITU-t X.696 Octet Encoding Rules (OER), Local Number
+   Portability Database Query Protocol (ANSI), MsgPack, NGAP (5G),
+   NR (5G) PDCP, Osmocom Generic Subscriber Update Protocol (GSUP),
+   PCOM protocol, PKCS#10 (RFC2986 Certification Request Syntax),
+   PROXY (v2), S101 Lawo Emberplus transport frame, Secure Reliable
+   Transport Protocol (SRT), Spirent Test Center Signature decoding
+   for Ethernet and FibreChannel (STCSIG, disabled by default),
+   Sybase-specific portions of TDS, systemd Journal Export,
+   TeamSpeak 3 DNS, TPM 2.0, Ubiquiti Discovery Protocol (UBDP),
+   WireGuard, XnAP (5G), and Z39.50 Information
    Retrieval Protocol
 
   Updated Protocol Support

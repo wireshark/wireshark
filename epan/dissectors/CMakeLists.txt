@@ -952,6 +952,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-e212.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-eap.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-eapol.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-ebhscr.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-echo.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ecmp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ecp.c
