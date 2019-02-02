@@ -11,25 +11,3 @@ libwscodecs.so.0 libwscodecs0 #MINVER#
  codecs_register_plugin@Base 2.5.0
  codec_get_compiled_version_info@Base 2.3.0
  register_codec@Base 2.1.0
- ws_codec_resampler_destroy@Base 2.1.0
- ws_codec_resampler_get_input_latency@Base 2.1.0
- ws_codec_resampler_get_input_stride@Base 2.1.0
- ws_codec_resampler_get_output_latency@Base 2.1.0
- ws_codec_resampler_get_output_stride@Base 2.1.0
- ws_codec_resampler_get_quality@Base 2.1.0
- ws_codec_resampler_get_rate@Base 2.1.0
- ws_codec_resampler_get_ratio@Base 2.1.0
- ws_codec_resampler_init@Base 2.1.0
- ws_codec_resampler_init_frac@Base 2.1.0
- ws_codec_resampler_process_float@Base 2.1.0
- ws_codec_resampler_process_int@Base 2.1.0
- ws_codec_resampler_process_interleaved_float@Base 2.1.0
- ws_codec_resampler_process_interleaved_int@Base 2.1.0
- ws_codec_resampler_reset_mem@Base 2.1.0
- ws_codec_resampler_set_input_stride@Base 2.1.0
- ws_codec_resampler_set_output_stride@Base 2.1.0
- ws_codec_resampler_set_quality@Base 2.1.0
- ws_codec_resampler_set_rate@Base 2.1.0
- ws_codec_resampler_set_rate_frac@Base 2.1.0
- ws_codec_resampler_skip_zeros@Base 2.1.0
- ws_codec_resampler_strerror@Base 2.1.0

@@ -35,6 +35,8 @@ The following features are new (or have been significantly updated)
 since version 3.0.0:
 
 * Brotli decompression support in HTTP/HTTP2 (requires the brotli library).
+* The build system now checks for a SpeexDSP system library installation. The
+  bundled Speex resampler code is still provided as a fallback.
 
 // === Removed Features and Support
 

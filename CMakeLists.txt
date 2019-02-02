@@ -1162,6 +1162,18 @@ find_package(POD REQUIRED)
 
 find_package(DOXYGEN)
 
+# The SpeexDSP resampler is required iff building wireshark or sharkd.
+if(BUILD_wireshark OR BUILD_sharkd)
+	find_package(SpeexDSP)
+	if(SpeexDSP_FOUND)
+		set(HAVE_SPEEXDSP 1)
+	else()
+		add_subdirectory(speexdsp)
+		set(SPEEXDSP_INCLUDE_DIRS "")
+		set(SPEEXDSP_LIBRARIES "speexresampler")
+	endif()
+endif()
+
 # dist target that prepares source dir
 # XXX Duplicated in the RPM section below.
 add_custom_target(dist
@@ -1557,6 +1569,11 @@ set_package_properties(MaxMindDB PROPERTIES
 	URL "https://github.com/maxmind/libmaxminddb"
 	DESCRIPTION "C library for the MaxMind DB file format"
 	PURPOSE "Support for GeoIP lookup"
+)
+set_package_properties(SpeexDSP PROPERTIES
+	URL "https://www.speex.org/"
+	DESCRIPTION "SpeexDSP is a patent-free, Open Source/Free Software DSP library"
+	PURPOSE "RTP audio resampling"
 )
 
 string(TOUPPER "${CMAKE_BUILD_TYPE}" _build_type)
@@ -2180,6 +2197,7 @@ if(BUILD_wireshark AND QT_FOUND)
 		${WIN_VERSION_LIBRARY}
 		${WINSPARKLE_LIBRARIES}
 		$<$<BOOL:${WIN32}>:UxTheme.lib>
+		${SPEEXDSP_LIBRARIES}
 	)
 
 	add_executable(wireshark WIN32 MACOSX_BUNDLE ${wireshark_FILES} ${EXTRA_BUNDLE_FILES})
@@ -2368,6 +2386,7 @@ if(BUILD_sharkd)
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
 		${WIN_WS2_32_LIBRARY}
+		${SPEEXDSP_LIBRARIES}
 	)
 	set(sharkd_FILES
 		#
@@ -2384,6 +2403,10 @@ if(BUILD_sharkd)
 	add_executable(sharkd ${sharkd_FILES})
 	set_extra_executable_properties(sharkd "Executables")
 	target_link_libraries(sharkd ${sharkd_LIBS})
+	target_include_directories(sharkd SYSTEM
+		PUBLIC
+			${SPEEXDSP_INCLUDE_DIRS}
+	)
 
 	install(TARGETS sharkd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()

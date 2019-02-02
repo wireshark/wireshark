@@ -15,7 +15,6 @@ set(WSCODECS_FILES
   codecs.c
   G711a/G711adecode.c
   G711u/G711udecode.c
-  speex/resample.c
 )
 
 # Enables visibility in IDEs
@@ -23,9 +22,6 @@ file(GLOB EXTRA_CODEC_HEADERS
   codecs.h
   G711a/G711adecode.h G711a/G711atable.h
   G711u/G711udecode.h G711u/G711utable.h
-  speex/arch.h
-  speex/speex_resampler.h
-  speex/stack_alloc.h
 )
 
 if(SBC_FOUND)

@@ -61,7 +61,7 @@
 #ifdef HAVE_SPEEXDSP
 # include <speex/speex_resampler.h>
 #else
-# include <codecs/speex/speex_resampler.h>
+# include "speexdsp/speex_resampler.h"
 #endif /* HAVE_SPEEXDSP */
 
 #include <epan/maxmind_db.h>

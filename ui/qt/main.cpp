@@ -235,6 +235,12 @@ get_gui_compiled_info(GString *str)
 #endif
 #endif /* _WIN32 */
 
+#ifdef HAVE_SPEEXDSP
+    g_string_append(str, ", with SpeexDSP (using system library)");
+#else
+    g_string_append(str, ", with SpeexDSP (using bundled resampler)");
+#endif
+
     codec_get_compiled_version_info(str);
 }
 
