@@ -4860,6 +4860,7 @@ static void dissect_zcl_met_local_change_supply             (tvbuff_t *tvb, prot
 static void dissect_zcl_met_set_supply_status               (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_met_set_uncontrolled_flow_threshold (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_met_get_profile_response            (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_met_request_fast_poll_mode_response (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_met_schedule_snapshot_response      (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_met_take_snapshot_response          (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_met_publish_snapshot                (tvbuff_t *tvb, proto_tree *tree, guint *offset);
@@ -5008,6 +5009,8 @@ static int hf_zbee_zcl_met_get_profile_response_status = -1;
 static int hf_zbee_zcl_met_get_profile_response_profile_interval_period = -1;
 static int hf_zbee_zcl_met_get_profile_response_number_of_periods_delivered = -1;
 static int hf_zbee_zcl_met_get_profile_response_intervals = -1;
+static int hf_zbee_zcl_met_request_fast_poll_mode_response_applied_update_period = -1;
+static int hf_zbee_zcl_met_request_fast_poll_mode_response_fast_poll_mode_end_time = -1;
 static int hf_zbee_zcl_met_schedule_snapshot_response_issuer_event_id = -1;
 static int hf_zbee_zcl_met_schedule_snapshot_response_snapshot_schedule_id = -1;
 static int hf_zbee_zcl_met_schedule_snapshot_response_snapshot_schedule_confirmation = -1;
@@ -5390,7 +5393,7 @@ dissect_zbee_zcl_met(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                     break;
 
                 case ZBEE_ZCL_CMD_ID_MET_REQUEST_FAST_POLL_MODE_RESPONSE:
-                    /* Add function to dissect payload */
+                    dissect_zcl_met_request_fast_poll_mode_response(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_MET_SCHEDULE_SNAPSHOT_RESPONSE:
@@ -5868,6 +5871,25 @@ dissect_zcl_met_get_profile_response(tvbuff_t *tvb, proto_tree *tree, guint *off
         *offset += 3;
     }
 } /*dissect_zcl_met_get_profile_response*/
+
+/**
+ *This function manages the Request Fast Poll Mode Response payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_met_request_fast_poll_mode_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Applied Update Period */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_request_fast_poll_mode_response_applied_update_period, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Fast Poll End Time */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_request_fast_poll_mode_response_fast_poll_mode_end_time, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+} /*dissect_zcl_met_request_fast_poll_mode_response*/
 
 /**
  *This function manages the Schedule Snapshot Response payload
@@ -6660,6 +6682,14 @@ proto_register_zbee_zcl_met(void)
 
         { &hf_zbee_zcl_met_get_profile_response_intervals,
             { "Intervals", "zbee_zcl_se.met.get_profile_response.intervals", FT_UINT24, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_request_fast_poll_mode_response_applied_update_period,
+            { "Applied Update Period (seconds)", "zbee_zcl_se.met.request_fast_poll_mode_response.applied_update_period", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_request_fast_poll_mode_response_fast_poll_mode_end_time,
+            { "Fast Poll Mode End Time", "zbee_zcl_se.met.request_fast_poll_mode_response.fast_poll_mode_end_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_met_schedule_snapshot_response_issuer_event_id,
