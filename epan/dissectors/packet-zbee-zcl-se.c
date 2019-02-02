@@ -4860,6 +4860,7 @@ static void dissect_zcl_met_local_change_supply             (tvbuff_t *tvb, prot
 static void dissect_zcl_met_set_supply_status               (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_met_set_uncontrolled_flow_threshold (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_met_get_profile_response            (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_met_schedule_snapshot_response      (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_met_take_snapshot_response          (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_met_publish_snapshot                (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_met_get_sampled_data_rsp            (tvbuff_t *tvb, proto_tree *tree, guint *offset);
@@ -5007,6 +5008,9 @@ static int hf_zbee_zcl_met_get_profile_response_status = -1;
 static int hf_zbee_zcl_met_get_profile_response_profile_interval_period = -1;
 static int hf_zbee_zcl_met_get_profile_response_number_of_periods_delivered = -1;
 static int hf_zbee_zcl_met_get_profile_response_intervals = -1;
+static int hf_zbee_zcl_met_schedule_snapshot_response_issuer_event_id = -1;
+static int hf_zbee_zcl_met_schedule_snapshot_response_snapshot_schedule_id = -1;
+static int hf_zbee_zcl_met_schedule_snapshot_response_snapshot_schedule_confirmation = -1;
 static int hf_zbee_zcl_met_take_snapshot_response_snapshot_id = -1;
 static int hf_zbee_zcl_met_take_snapshot_response_snapshot_confirmation = -1;
 static int hf_zbee_zcl_met_publish_snapshot_snapshot_id = -1;
@@ -5174,6 +5178,7 @@ static gint ett_zbee_zcl_met_noti_flags_3 = -1;
 static gint ett_zbee_zcl_met_noti_flags_4 = -1;
 static gint ett_zbee_zcl_met_noti_flags_5 = -1;
 static gint ett_zbee_zcl_met_snapshot_cause_flags = -1;
+static gint ett_zbee_zcl_hf_zbee_zcl_met_schedule_snapshot_response_payload = -1;
 
 /*************************/
 /* Function Bodies       */
@@ -5389,7 +5394,7 @@ dissect_zbee_zcl_met(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                     break;
 
                 case ZBEE_ZCL_CMD_ID_MET_SCHEDULE_SNAPSHOT_RESPONSE:
-                    /* Add function to dissect payload */
+                    dissect_zcl_met_schedule_snapshot_response(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_MET_TAKE_SNAPSHOT_RESPONSE:
@@ -5863,6 +5868,36 @@ dissect_zcl_met_get_profile_response(tvbuff_t *tvb, proto_tree *tree, guint *off
         *offset += 3;
     }
 } /*dissect_zcl_met_get_profile_response*/
+
+/**
+ *This function manages the Schedule Snapshot Response payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_met_schedule_snapshot_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_schedule_snapshot_response_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    while (tvb_reported_length_remaining(tvb, *offset) > 0) {
+        proto_tree *payload_tree;
+
+        payload_tree = proto_tree_add_subtree(tree, tvb, *offset, 2,
+                ett_zbee_zcl_hf_zbee_zcl_met_schedule_snapshot_response_payload, NULL, "Snapshot Response Payload");
+
+        /* Snapshot Schedule ID */
+        proto_tree_add_item(payload_tree, hf_zbee_zcl_met_schedule_snapshot_response_snapshot_schedule_id, tvb, *offset, 1, ENC_NA);
+        *offset += 1;
+
+        /* Snapshot Schedule Confirmation */
+        proto_tree_add_item(payload_tree, hf_zbee_zcl_met_schedule_snapshot_response_snapshot_schedule_confirmation, tvb, *offset, 1, ENC_NA);
+        *offset += 1;
+    }
+} /*dissect_zcl_met_schedule_snapshot_response*/
 
 /**
  *This function manages the Take Snapshot Response payload
@@ -6627,6 +6662,18 @@ proto_register_zbee_zcl_met(void)
             { "Intervals", "zbee_zcl_se.met.get_profile_response.intervals", FT_UINT24, BASE_DEC, NULL,
             0x00, NULL, HFILL } },
 
+        { &hf_zbee_zcl_met_schedule_snapshot_response_issuer_event_id,
+            { "Issuer Event ID", "zbee_zcl_se.met.schedule_snapshot_response.issuer_event_id", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_schedule_snapshot_response_snapshot_schedule_id,
+            { "Snapshot Schedule ID", "zbee_zcl_se.met.schedule_snapshot_response.response_snapshot_schedule_id", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_schedule_snapshot_response_snapshot_schedule_confirmation,
+            { "Snapshot Schedule Confirmation", "zbee_zcl_se.met.schedule_snapshot_response.snapshot_schedule_confirmation", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
         { &hf_zbee_zcl_met_take_snapshot_response_snapshot_id,
             { "Snapshot ID", "zbee_zcl_se.met.take_snapshot_response.snapshot_id", FT_UINT32, BASE_DEC, NULL,
             0x00, NULL, HFILL } },
@@ -6802,7 +6849,8 @@ proto_register_zbee_zcl_met(void)
         &ett_zbee_zcl_met_noti_flags_3,
         &ett_zbee_zcl_met_noti_flags_4,
         &ett_zbee_zcl_met_noti_flags_5,
-        &ett_zbee_zcl_met_snapshot_cause_flags
+        &ett_zbee_zcl_met_snapshot_cause_flags,
+        &ett_zbee_zcl_hf_zbee_zcl_met_schedule_snapshot_response_payload
     };
 
     /* Register the ZigBee ZCL Metering cluster protocol name and description */
