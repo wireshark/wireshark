@@ -895,7 +895,7 @@ ReadINIStr $0 "$PLUGINSDIR\NpcapPage.ini" "Field 4" "State"
 StrCmp $0 "0" SecRequired_skip_Npcap
 SetOutPath $INSTDIR
 File "${WIRESHARK_LIB_DIR}\npcap-${NPCAP_PACKAGE_VERSION}.exe"
-ExecWait '"$INSTDIR\npcap-${NPCAP_PACKAGE_VERSION}.exe"' $0
+ExecWait '"$INSTDIR\npcap-${NPCAP_PACKAGE_VERSION}.exe" /winpcap_mode=no' $0
 DetailPrint "Npcap installer returned $0"
 SecRequired_skip_Npcap:
 
@@ -1305,7 +1305,7 @@ lbl_npcap_installed:
 lbl_winpcap_installed:
     WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 2" "Text" "$WINPCAP_NAME"
     WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 4" "State" "1"
-    WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 5" "Text" "The currently installed $WINPCAP_NAME will be uninstalled first."
+    WriteINIStr "$PLUGINSDIR\NpcapPage.ini" "Field 5" "Text" "The currently installed $WINPCAP_NAME may be uninstalled first."
     Goto lbl_npcap_done
 
 lbl_npcap_do_install:
