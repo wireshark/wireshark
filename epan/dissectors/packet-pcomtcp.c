@@ -64,6 +64,7 @@ static expert_field ei_pcombinary_reserved1_bad_value = EI_INIT;
 static expert_field ei_pcombinary_reserved2_bad_value = EI_INIT;
 static expert_field ei_pcombinary_reserved3_bad_value = EI_INIT;
 static expert_field ei_pcombinary_reserved4_bad_value = EI_INIT;
+static expert_field ei_pcombinary_command_unsupported = EI_INIT;
 
 /* Initialize the subtree pointers */
 static gint ett_pcomtcp = -1;
@@ -89,65 +90,101 @@ static const value_string pcomp_protocol_vals[] = {
     { 0,                    NULL },
 };
 
-#define ID_COMMAND            0x4944    // "ID"
-#define START_COMMAND         0x434352  // "CCR"
-#define STOP_COMMAND          0x434353  // "CCS"
-#define RESET_COMMAND         0x434345  // "CCE"
-#define INIT_COMMAND          0x434349  // "CCI"
-#define REPLY_ADMIN_COMMAND   0x4343    // "CC"
-#define GET_UNITID            0x5547    // "UG"
-#define SET_UNITID            0x5553    // "US"
-#define GET_RTC               0x5243    // "RC"
-#define SET_RTC               0x5343    // "SC"
-#define READ_INPUTS           0x5245    // "RE"
-#define READ_OUTPUTS          0x5241    // "RA"
-#define READ_SYSTEM_BITS      0x4753    // "GS"
-#define READ_SYSTEM_INTEGERS  0x4746    // "GF"
-#define READ_SYSTEM_LONGS     0x524e48  // "RNH"
-#define READ_MEMORY_BITS      0x5242    // "RB"
-#define READ_MEMORY_INTEGERS  0x5257    // "RW"
-#define READ_MEMORY_LONGS     0x524e4c  // "RNL"
-#define READ_LONGS            0x524e    // "RN"
-#define WRITE_OUTPUTS         0x5341    // "SA"
-#define WRITE_SYSTEM_BITS     0x5353    // "SS"
-#define WRITE_SYSTEM_INTEGERS 0x5346    // "SF"
-#define WRITE_SYSTEM_LONGS    0x534e48  // "SNH"
-#define WRITE_MEMORY_BITS     0x5342    // "SB"
-#define WRITE_MEMORY_INTEGERS 0x5357    // "SW"
-#define WRITE_MEMORY_LONGS    0x534e4c  // "SNL"
-#define WRITE_LONGS           0x534e    // "SN"
+#define PCOMASCII_ID_COMMAND                0x4944    // "ID"
+#define PCOMASCII_START_COMMAND             0x434352  // "CCR"
+#define PCOMASCII_STOP_COMMAND              0x434353  // "CCS"
+#define PCOMASCII_RESET_COMMAND             0x434345  // "CCE"
+#define PCOMASCII_INIT_COMMAND              0x434349  // "CCI"
+#define PCOMASCII_REPLY_ADMIN_COMMAND       0x4343    // "CC"
+#define PCOMASCII_GET_UNITID                0x5547    // "UG"
+#define PCOMASCII_SET_UNITID                0x5553    // "US"
+#define PCOMASCII_GET_RTC                   0x5243    // "RC"
+#define PCOMASCII_SET_RTC                   0x5343    // "SC"
+#define PCOMASCII_READ_INPUTS               0x5245    // "RE"
+#define PCOMASCII_READ_OUTPUTS              0x5241    // "RA"
+#define PCOMASCII_READ_SYSTEM_BITS          0x4753    // "GS"
+#define PCOMASCII_READ_SYSTEM_INTEGERS      0x4746    // "GF"
+#define PCOMASCII_READ_SYSTEM_LONGS         0x524e48  // "RNH"
+#define PCOMASCII_READ_SYSTEM_DOUBLE_WORDS  0x524e4a  // "RNJ"
+#define PCOMASCII_READ_MEMORY_BITS          0x5242    // "RB"
+#define PCOMASCII_READ_MEMORY_INTEGERS      0x5257    // "RW"
+#define PCOMASCII_READ_MEMORY_LONGS         0x524e4c  // "RNL"
+#define PCOMASCII_READ_MEMORY_DOUBLE_WORDS  0x524e44  // "RND"
+#define PCOMASCII_READ_LONGS                0x524e    // "RN"
+#define PCOMASCII_WRITE_OUTPUTS             0x5341    // "SA"
+#define PCOMASCII_WRITE_SYSTEM_BITS         0x5353    // "SS"
+#define PCOMASCII_WRITE_SYSTEM_INTEGERS     0x5346    // "SF"
+#define PCOMASCII_WRITE_SYSTEM_LONGS        0x534e48  // "SNH"
+#define PCOMASCII_WRITE_SYSTEM_DOUBLE_WORDS 0x534e4a  // "SNJ"
+#define PCOMASCII_WRITE_MEMORY_BITS         0x5342    // "SB"
+#define PCOMASCII_WRITE_MEMORY_INTEGERS     0x5357    // "SW"
+#define PCOMASCII_WRITE_MEMORY_LONGS        0x534e4c  // "SNL"
+#define PCOMASCII_WRITE_MEMORY_DOUBLE_WORDS 0x534e44  // "SND"
+#define PCOMASCII_WRITE_LONGS               0x534e    // "SN"
+
+#define PCOMBINARY_GET_PLC_NAME_REQUEST     0x0c
+#define PCOMBINARY_GET_PLC_NAME_REPLY       0x8c
+#define PCOMBINARY_READ_OPERANDS_REQUEST    0x4d
+#define PCOMBINARY_READ_OPERANDS_REPLY      0xcd
+#define PCOMBINARY_READ_DATA_TABLE_REQUEST  0x04
+#define PCOMBINARY_READ_DATA_TABLE_REPLY    0x84
+#define PCOMBINARY_WRITE_DATA_TABLE_REQUEST 0x44
+#define PCOMBINARY_WRITE_DATA_TABLE_REPLY   0xc4
 
 /* Translate pcomascii_command_code to string */
 static const value_string pcomascii_cc_vals[] = {
-    { ID_COMMAND,           "Send Identification Command" },
-    { START_COMMAND,        "Send Start Command" },
-    { STOP_COMMAND,         "Send Stop Command" },
-    { RESET_COMMAND,        "Send Reset Command" },
-    { INIT_COMMAND,         "Send Init Command" },
-    { REPLY_ADMIN_COMMAND,  "Reply of Admin Commands (CC*)" },
-    { GET_UNITID,           "Get UnitID" },
-    { SET_UNITID,           "Set UnitID" },
-    { GET_RTC,              "Get RTC" },
-    { SET_RTC,              "Set RTC" },
-    { READ_INPUTS,          "Read Inputs" },
-    { READ_OUTPUTS,         "Read Outputs" },
-    { READ_SYSTEM_BITS,     "Read System Bits" },
-    { READ_SYSTEM_INTEGERS, "Read System Integers" },
-    { READ_SYSTEM_LONGS,    "Read System Longs" },
-    { READ_MEMORY_BITS,     "Read Memory Bits" },
-    { READ_MEMORY_INTEGERS, "Read Memory Integers" },
-    { READ_MEMORY_LONGS,    "Read Memory Longs" },
-    { READ_LONGS,           "Read Longs" },
-    { WRITE_OUTPUTS,        "Write Outputs" },
-    { WRITE_SYSTEM_BITS,    "Write System Bits" },
-    { WRITE_SYSTEM_INTEGERS,"Write System Integers" },
-    { WRITE_SYSTEM_LONGS,   "Write System Longs" },
-    { WRITE_MEMORY_BITS,    "Write Memory Bits" },
-    { WRITE_MEMORY_INTEGERS,"Write Memory Integers" },
-    { WRITE_MEMORY_LONGS,   "Write Memory Longs" },
-    { WRITE_LONGS,          "Write Longs" },
-    { 0,                    NULL },
+    { PCOMASCII_ID_COMMAND,               "Send Identification Command" },
+    { PCOMASCII_START_COMMAND,            "Send Start Command" },
+    { PCOMASCII_STOP_COMMAND,             "Send Stop Command" },
+    { PCOMASCII_RESET_COMMAND,            "Send Reset Command" },
+    { PCOMASCII_INIT_COMMAND,             "Send Init Command" },
+    { PCOMASCII_REPLY_ADMIN_COMMAND,      "Reply of Admin Commands (CC*)" },
+    { PCOMASCII_GET_UNITID,               "Get UnitID" },
+    { PCOMASCII_SET_UNITID,               "Set UnitID" },
+    { PCOMASCII_GET_RTC,                  "Get RTC" },
+    { PCOMASCII_SET_RTC,                  "Set RTC" },
+    { PCOMASCII_READ_INPUTS,              "Read Inputs" },
+    { PCOMASCII_READ_OUTPUTS,             "Read Outputs" },
+    { PCOMASCII_READ_SYSTEM_BITS,         "Read System Bits" },
+    { PCOMASCII_READ_SYSTEM_INTEGERS,     "Read System Integers" },
+    { PCOMASCII_READ_SYSTEM_LONGS,        "Read System Longs" },
+    { PCOMASCII_READ_SYSTEM_DOUBLE_WORDS, "Read System Double Words" },
+    { PCOMASCII_READ_MEMORY_BITS,         "Read Memory Bits" },
+    { PCOMASCII_READ_MEMORY_INTEGERS,     "Read Memory Integers" },
+    { PCOMASCII_READ_MEMORY_LONGS,        "Read Memory Longs" },
+    { PCOMASCII_READ_MEMORY_DOUBLE_WORDS, "Read Memory Double Words" },
+    { PCOMASCII_READ_LONGS,               "Read Longs / Double Words" },
+    { PCOMASCII_WRITE_OUTPUTS,            "Write Outputs" },
+    { PCOMASCII_WRITE_SYSTEM_BITS,        "Write System Bits" },
+    { PCOMASCII_WRITE_SYSTEM_INTEGERS,    "Write System Integers" },
+    { PCOMASCII_WRITE_SYSTEM_LONGS,       "Write System Longs" },
+    { PCOMASCII_WRITE_SYSTEM_DOUBLE_WORDS,"Write System Double Words" },
+    { PCOMASCII_WRITE_MEMORY_BITS,        "Write Memory Bits" },
+    { PCOMASCII_WRITE_MEMORY_INTEGERS,    "Write Memory Integers" },
+    { PCOMASCII_WRITE_MEMORY_LONGS,       "Write Memory Longs" },
+    { PCOMASCII_WRITE_MEMORY_DOUBLE_WORDS,"Write Memory Double Words" },
+    { PCOMASCII_WRITE_LONGS,              "Write Longs / Double Words" },
+    { 0,                        NULL },
 };
+
+/* Translate pcombinary_command requests to string */
+static const value_string pcombinary_command_vals_request[] = {
+    { PCOMBINARY_GET_PLC_NAME_REQUEST,            "Get PLC Name Request" },
+    { PCOMBINARY_READ_OPERANDS_REQUEST,           "Read Operands Request" },
+    { PCOMBINARY_READ_DATA_TABLE_REQUEST,         "Read Data Table Request" },
+    { PCOMBINARY_WRITE_DATA_TABLE_REQUEST,        "Write Data Table Request" },
+    { 0,                        NULL },
+};
+
+/* Translate pcombinary_command reply to string */
+static const value_string pcombinary_command_vals_reply[] = {
+    { PCOMBINARY_GET_PLC_NAME_REPLY,            "Get PLC Name Reply" },
+    { PCOMBINARY_READ_OPERANDS_REPLY,           "Read Operands Reply" },
+    { PCOMBINARY_READ_DATA_TABLE_REPLY,         "Read Data Table Reply" },
+    { PCOMBINARY_WRITE_DATA_TABLE_REPLY,        "Write Data Table Reply" },
+    { 0,                        NULL },
+};
+
 
 /* Code to actually dissect the packets */
 static int
@@ -280,38 +317,42 @@ dissect_pcomascii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += cc_len;
         switch(cc)
         {
-            case READ_INPUTS:
-            case READ_OUTPUTS:
-            case READ_SYSTEM_BITS:
-            case READ_MEMORY_BITS:
+            case PCOMASCII_READ_INPUTS:
+            case PCOMASCII_READ_OUTPUTS:
+            case PCOMASCII_READ_SYSTEM_BITS:
+            case PCOMASCII_READ_MEMORY_BITS:
                op_type = 1; // read operation
                op_size = 1; // 1 char per operand
                break;
-            case READ_SYSTEM_INTEGERS:
-            case READ_MEMORY_INTEGERS:
+            case PCOMASCII_READ_SYSTEM_INTEGERS:
+            case PCOMASCII_READ_MEMORY_INTEGERS:
                op_type = 1; // read operation
                op_size = 4; // 4 chars per operand
                break;
-            case READ_SYSTEM_LONGS:
-            case READ_MEMORY_LONGS:
-            case READ_LONGS:
+            case PCOMASCII_READ_SYSTEM_LONGS:
+            case PCOMASCII_READ_MEMORY_LONGS:
+            case PCOMASCII_READ_SYSTEM_DOUBLE_WORDS:
+            case PCOMASCII_READ_MEMORY_DOUBLE_WORDS:
+            case PCOMASCII_READ_LONGS:
                op_type = 1; // read operation
                op_size = 8; // 8 chars per operand
                break;
-            case WRITE_OUTPUTS:
-            case WRITE_SYSTEM_BITS:
-            case WRITE_MEMORY_BITS:
+            case PCOMASCII_WRITE_OUTPUTS:
+            case PCOMASCII_WRITE_SYSTEM_BITS:
+            case PCOMASCII_WRITE_MEMORY_BITS:
                op_type = 2; // write operation
                op_size = 1; // 1 char per operand
                break;
-            case WRITE_SYSTEM_INTEGERS:
-            case WRITE_MEMORY_INTEGERS:
+            case PCOMASCII_WRITE_SYSTEM_INTEGERS:
+            case PCOMASCII_WRITE_MEMORY_INTEGERS:
                op_type = 2; // write operation
                op_size = 4; // 4 chars per operand
                break;
-            case WRITE_MEMORY_LONGS:
-            case WRITE_SYSTEM_LONGS:
-            case WRITE_LONGS:
+            case PCOMASCII_WRITE_MEMORY_LONGS:
+            case PCOMASCII_WRITE_SYSTEM_LONGS:
+            case PCOMASCII_WRITE_SYSTEM_DOUBLE_WORDS:
+            case PCOMASCII_WRITE_MEMORY_DOUBLE_WORDS:
+            case PCOMASCII_WRITE_LONGS:
                op_type = 2; // write operation
                op_size = 8; // 8 chars per operand
                break;
@@ -382,6 +423,10 @@ dissect_pcombinary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item    *hf_pcombinary_reserved2_item = NULL;
     proto_item    *hf_pcombinary_reserved3_item = NULL;
     proto_item    *hf_pcombinary_reserved4_item = NULL;
+    proto_item    *hf_pcombinary_command_item = NULL;
+
+    guint8 command;
+    const gchar* command_str;
 
     /* Create protocol tree */
     ti = proto_tree_add_item(tree, proto_pcombinary, tvb, offset, 0, ENC_NA);
@@ -422,9 +467,24 @@ dissect_pcombinary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         expert_add_info_format(pinfo, hf_pcombinary_reserved3_item,
                 &ei_pcombinary_reserved3_bad_value,"Isn't 0");
     offset += 3;
-    proto_tree_add_item(pcombinary_tree, hf_pcombinary_command, tvb,
-            offset, 1, ENC_NA);
+
+    command = tvb_get_guint8(tvb, offset);
+    if(pinfo->srcport == global_pcomtcp_tcp_port){ // reply
+        command_str = try_val_to_str(command, pcombinary_command_vals_reply);
+    }else{
+        command_str = try_val_to_str(command, pcombinary_command_vals_request);
+    }
+    if ( command_str != NULL ) {
+        ti = proto_tree_add_uint_format_value(pcombinary_tree,
+            hf_pcombinary_command, tvb, offset, 1,
+                command, "%s (%02x)", command_str, command);
+    }else{
+        hf_pcombinary_command_item = proto_tree_add_item(pcombinary_tree, hf_pcombinary_command, tvb,
+                offset, 1, ENC_NA);
+        expert_add_info_format(pinfo, hf_pcombinary_command_item,
+                &ei_pcombinary_command_unsupported,"Unsupported Command");}
     offset += 1;
+
     hf_pcombinary_reserved4_item = proto_tree_add_item(pcombinary_tree,
             hf_pcombinary_reserved4, tvb, offset, 1, ENC_NA);
     if( tvb_get_guint8(tvb, offset) !=0)
@@ -563,7 +623,7 @@ proto_register_pcomtcp(void)
         },
         { &hf_pcombinary_command,
             { "Command", "pcombinary.command",
-                FT_BYTES, BASE_NONE, NULL, 0x0,
+                FT_UINT8, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }
         },
         { &hf_pcombinary_reserved4,
@@ -612,32 +672,36 @@ proto_register_pcomtcp(void)
 
     static ei_register_info pcomtcp_ei[] = {
         { &ei_pcomtcp_reserved_bad_value,
-          { "pcombinary.reserved.bad_value", PI_PROTOCOL, PI_CHAT,
+          { "pcombinary.reserved.bad_value", PI_PROTOCOL, PI_WARN,
             "Isn't 0", EXPFILL }
         },
     };
 
     static ei_register_info pcombinary_ei[] = {
         { &ei_pcombinary_reserved1_bad_value,
-          { "pcombinary.reserved1.bad_value", PI_PROTOCOL, PI_CHAT,
+          { "pcombinary.reserved1.bad_value", PI_PROTOCOL, PI_WARN,
             "Isn't  0xfe", EXPFILL }
         },
         { &ei_pcombinary_reserved2_bad_value,
-          { "pcombinary.reserved2.bad_value", PI_PROTOCOL, PI_CHAT,
+          { "pcombinary.reserved2.bad_value", PI_PROTOCOL, PI_WARN,
             "Isn't  1", EXPFILL }
         },
         { &ei_pcombinary_reserved3_bad_value,
-          { "pcombinary.reserved3.bad_value", PI_PROTOCOL, PI_CHAT,
+          { "pcombinary.reserved3.bad_value", PI_PROTOCOL, PI_WARN,
             "Isn't  0", EXPFILL }
         },
         { &ei_pcombinary_reserved4_bad_value,
-          { "pcombinary.reserved4.bad_value", PI_PROTOCOL, PI_CHAT,
+          { "pcombinary.reserved4.bad_value", PI_PROTOCOL, PI_WARN,
             "Isn't  0", EXPFILL }
+        },
+        { &ei_pcombinary_command_unsupported,
+          { "pcombinary.command.unsupported", PI_PROTOCOL, PI_WARN,
+            "Unsupported Command", EXPFILL }
         },
     };
     static ei_register_info pcomascii_ei[] = {
         { &ei_pcomascii_command_unsupported,
-          { "pcomascii.command.unsupported", PI_PROTOCOL, PI_CHAT,
+          { "pcomascii.command.unsupported", PI_PROTOCOL, PI_WARN,
             "Unsupported Command", EXPFILL }
         },
     };
