@@ -1284,6 +1284,7 @@ static const value_string dnp3_al_read_obj_vals[] = {
   { (AL_OBJ_2BI_ALL   & 0xFF00),  "Double-bit Input"            },
   { (AL_OBJ_2BIC_ALL  & 0xFF00),  "Double-bit Input Change"     },
   { (AL_OBJ_BO_ALL    & 0xFF00),  "Binary Output"               },
+  { (AL_OBJ_BOC_ALL   & 0xFF00),  "Binary Output Change"        },
   { (AL_OBJ_CTR_ALL   & 0xFF00),  "Counter"                     },
   { (AL_OBJ_FCTR_ALL  & 0xFF00),  "Frozen Counter"              },
   { (AL_OBJ_CTRC_ALL  & 0xFF00),  "Counter Change"              },
