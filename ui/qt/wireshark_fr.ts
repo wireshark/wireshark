@@ -10279,7 +10279,7 @@ a:hover {
         <translation>Supprimer cette colonne</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="1140"/>
+        <location filename="packet_list.cpp" line="1143"/>
         <source>Frame %1: %2
 
 </source>
@@ -10288,7 +10288,7 @@ a:hover {
 </translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="1144"/>
+        <location filename="packet_list.cpp" line="1147"/>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ Taille maximum de commentaire dépassé %1 Arrêt !]</translation>
     </message>

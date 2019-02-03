@@ -10312,7 +10312,7 @@ a:hover {
         <translation>この列を削除</translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="1140"/>
+        <location filename="packet_list.cpp" line="1143"/>
         <source>Frame %1: %2
 
 </source>
@@ -10321,7 +10321,7 @@ a:hover {
 </translation>
     </message>
     <message>
-        <location filename="packet_list.cpp" line="1144"/>
+        <location filename="packet_list.cpp" line="1147"/>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ コメントテキスト超過 %1 停止中 ]</translation>
     </message>
