@@ -1433,9 +1433,26 @@ if(ENABLE_PLUGINS)
 		plugins/epan/wimaxasncp
 		plugins/epan/wimaxmacphy
 		plugins/wiretap/usbdump
+		plugins/codecs/G711
 		plugins/codecs/l16_mono
 		${CUSTOM_PLUGIN_SRC_DIR}
 	)
+	if(SPANDSP_FOUND)
+		list(APPEND PLUGIN_SRC_DIRS
+			plugins/codecs/G722
+			plugins/codecs/G726
+		)
+	endif()
+	if(BCG729_FOUND)
+		list(APPEND PLUGIN_SRC_DIRS
+			plugins/codecs/G729
+		)
+	endif()
+	if(SBC_FOUND)
+		list(APPEND PLUGIN_SRC_DIRS
+			plugins/codecs/sbc
+		)
+	endif()
 
 	# Build demo plugin, only if asked explicitly
 	if(ENABLE_PLUGIN_IFDEMO)

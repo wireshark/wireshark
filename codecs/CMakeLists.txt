@@ -13,37 +13,16 @@ set(WSCODECS_PUBLIC_HEADERS
 
 set(WSCODECS_FILES
   codecs.c
-  G711a/G711adecode.c
-  G711u/G711udecode.c
 )
 
 # Enables visibility in IDEs
 file(GLOB EXTRA_CODEC_HEADERS
   codecs.h
-  G711a/G711adecode.h G711a/G711atable.h
-  G711u/G711udecode.h G711u/G711utable.h
 )
-
-if(SBC_FOUND)
-  set(WSCODECS_FILES ${WSCODECS_FILES} sbc/sbc.c)
-endif()
 
 set(wscodecs_LIBS
-  ${M_LIBRARIES}
-  ${GMODULE2_LIBRARIES}
-  ${SBC_LIBRARIES}
   wsutil
 )
-
-if(HAVE_SPANDSP)
-  list(APPEND WSCODECS_FILES G722/G722decode.c G726/G726decode.c)
-  list(APPEND wscodecs_LIBS ${SPANDSP_LIBRARIES})
-endif()
-
-if(HAVE_BCG729)
-  list(APPEND WSCODECS_FILES G729/G729decode.c)
-  list(APPEND wscodecs_LIBS ${BCG729_LIBRARIES})
-endif()
 
 add_library(wscodecs
   ${WSCODECS_FILES}
@@ -60,13 +39,6 @@ set_target_properties(wscodecs PROPERTIES
 )
 
 target_link_libraries(wscodecs ${wscodecs_LIBS})
-
-target_include_directories(wscodecs SYSTEM
-	PRIVATE
-		${SBC_INCLUDE_DIRS}
-		${SPANDSP_INCLUDE_DIRS}
-		${BCG729_INCLUDE_DIRS}
-)
 
 install(TARGETS wscodecs
   RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}

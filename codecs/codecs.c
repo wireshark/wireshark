@@ -13,24 +13,7 @@
 #include <glib.h>
 #include "codecs.h"
 
-#include "G711a/G711adecode.h"
-#include "G711u/G711udecode.h"
-
-#ifdef HAVE_SBC
-#include "sbc/sbc_private.h"
-#endif
-
-#ifdef HAVE_SPANDSP
-#include "G722/G722decode.h"
-#include "G726/G726decode.h"
-#endif
-
-#ifdef HAVE_BCG729
-#include "G729/G729decode.h"
-#endif
-
 #ifdef HAVE_PLUGINS
-
 
 static plugins_t *libwscodecs_plugins;
 static GSList *codecs_plugins = NULL;
@@ -59,39 +42,6 @@ call_plugin_register_codec_module(gpointer data, gpointer user_data _U_)
 void
 codecs_init(void)
 {
-    register_codec("g711U", codec_g711u_init, codec_g711u_release,
-            codec_g711u_get_channels, codec_g711u_get_frequency, codec_g711u_decode);
-    register_codec("g711A", codec_g711a_init, codec_g711a_release,
-            codec_g711a_get_channels, codec_g711a_get_frequency, codec_g711a_decode);
-#ifdef HAVE_SPANDSP
-    register_codec("g722", codec_g722_init, codec_g722_release,
-            codec_g722_get_channels, codec_g722_get_frequency, codec_g722_decode);
-    register_codec("G726-16", codec_g726_16_init, codec_g726_release,
-            codec_g726_get_channels, codec_g726_get_frequency, codec_g726_decode);
-    register_codec("G726-24", codec_g726_24_init, codec_g726_release,
-            codec_g726_get_channels, codec_g726_get_frequency, codec_g726_decode);
-    register_codec("G726-32", codec_g726_32_init, codec_g726_release,
-            codec_g726_get_channels, codec_g726_get_frequency, codec_g726_decode);
-    register_codec("G726-40", codec_g726_40_init, codec_g726_release,
-            codec_g726_get_channels, codec_g726_get_frequency, codec_g726_decode);
-    register_codec("AAL2-G726-16", codec_aal2_g726_16_init, codec_g726_release,
-            codec_g726_get_channels, codec_g726_get_frequency, codec_g726_decode);
-    register_codec("AAL2-G726-24", codec_aal2_g726_24_init, codec_g726_release,
-            codec_g726_get_channels, codec_g726_get_frequency, codec_g726_decode);
-    register_codec("AAL2-G726-32", codec_aal2_g726_32_init, codec_g726_release,
-            codec_g726_get_channels, codec_g726_get_frequency, codec_g726_decode);
-    register_codec("AAL2-G726-40", codec_aal2_g726_40_init, codec_g726_release,
-            codec_g726_get_channels, codec_g726_get_frequency, codec_g726_decode);
-#endif
-#ifdef HAVE_BCG729
-    register_codec("g729", codec_g729_init, codec_g729_release,
-            codec_g729_get_channels, codec_g729_get_frequency, codec_g729_decode);
-#endif
-#ifdef HAVE_SBC
-    register_codec("SBC", codec_sbc_init, codec_sbc_release,
-            codec_sbc_get_channels, codec_sbc_get_frequency, codec_sbc_decode);
-#endif
-
 #ifdef HAVE_PLUGINS
     libwscodecs_plugins = plugins_init(WS_PLUGIN_CODEC);
     g_slist_foreach(codecs_plugins, call_plugin_register_codec_module, NULL);
@@ -202,33 +152,6 @@ size_t codec_decode(codec_handle_t codec, void *context, const void *input, size
 {
     if (!codec) return 0;
     return (codec->decode_fn)(context, input, inputSizeBytes, output, outputSizeBytes);
-}
-
-/**
- * Get compile-time information for libraries used by libwscodecs.
- */
-void codec_get_compiled_version_info(GString *str)
-{
-    /* SBC */
-#ifdef HAVE_SBC
-    g_string_append(str, ", with SBC");
-#else
-    g_string_append(str, ", without SBC");
-#endif
-
-    /* SpanDSP (G.722, G.726) */
-#ifdef HAVE_SPANDSP
-    g_string_append(str, ", with SpanDSP");
-#else
-    g_string_append(str, ", without SpanDSP");
-#endif
-
-    /* BCG729 (G.729) */
-#ifdef HAVE_BCG729
-    g_string_append(str, ", with bcg729");
-#else
-    g_string_append(str, ", without bcg729");
-#endif
 }
 
 /*

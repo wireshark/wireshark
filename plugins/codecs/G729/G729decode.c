@@ -11,37 +11,36 @@
 #include "config.h"
 
 #include <glib.h>
-#ifdef HAVE_BCG729
-#include "bcg729/decoder.h"
-#include "G729decode.h"
 
+#include "bcg729/decoder.h"
+#include "codecs/codecs.h"
 #include "ws_attributes.h"
 
-void *
+static void *
 codec_g729_init(void)
 {
     return initBcg729DecoderChannel();
 }
 
-void
+static void
 codec_g729_release(void *ctx)
 {
     closeBcg729DecoderChannel((bcg729DecoderChannelContextStruct *)ctx);
 }
 
-unsigned
+static unsigned
 codec_g729_get_channels(void *ctx _U_)
 {
     return 1;
 }
 
-unsigned
+static unsigned
 codec_g729_get_frequency(void *ctx _U_)
 {
     return 8000;
 }
 
-size_t
+static size_t
 codec_g729_decode(void *ctx, const void *input, size_t inputSizeBytes, void *output,
         size_t *outputSizeBytes)
 {
@@ -77,7 +76,12 @@ codec_g729_decode(void *ctx, const void *input, size_t inputSizeBytes, void *out
     return *outputSizeBytes;
 }
 
-#endif
+void
+codec_register_g729(void)
+{
+    register_codec("g729", codec_g729_init, codec_g729_release,
+            codec_g729_get_channels, codec_g729_get_frequency, codec_g729_decode);
+}
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

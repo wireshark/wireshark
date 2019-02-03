@@ -11,10 +11,9 @@
 #include "config.h"
 
 #include <glib.h>
-#ifdef HAVE_SPANDSP
-#include "spandsp.h"
-#include "G726decode.h"
 
+#include "spandsp.h"
+#include "codecs/codecs.h"
 #include "ws_attributes.h"
 
 typedef struct _g726_codec_ctx {
@@ -22,7 +21,7 @@ typedef struct _g726_codec_ctx {
     int bit_rate;
 } g726_codec_ctx;
 
-static inline void *
+static void *
 codec_g726_init(int bit_rate, int packing)
 {
     g726_state_t *decoder = g726_init(NULL, bit_rate, G726_ENCODING_LINEAR, packing);
@@ -38,16 +37,16 @@ codec_g726_init(int bit_rate, int packing)
     return state;
 }
 
-void *codec_g726_16_init(void) { return codec_g726_init(16000, G726_PACKING_RIGHT); }
-void *codec_g726_24_init(void) { return codec_g726_init(24000, G726_PACKING_RIGHT); }
-void *codec_g726_32_init(void) { return codec_g726_init(32000, G726_PACKING_RIGHT); }
-void *codec_g726_40_init(void) { return codec_g726_init(40000, G726_PACKING_RIGHT); }
-void *codec_aal2_g726_16_init(void) { return codec_g726_init(16000, G726_PACKING_LEFT); }
-void *codec_aal2_g726_24_init(void) { return codec_g726_init(24000, G726_PACKING_LEFT); }
-void *codec_aal2_g726_32_init(void) { return codec_g726_init(32000, G726_PACKING_LEFT); }
-void *codec_aal2_g726_40_init(void) { return codec_g726_init(40000, G726_PACKING_LEFT); }
+static void *codec_g726_16_init(void) { return codec_g726_init(16000, G726_PACKING_RIGHT); }
+static void *codec_g726_24_init(void) { return codec_g726_init(24000, G726_PACKING_RIGHT); }
+static void *codec_g726_32_init(void) { return codec_g726_init(32000, G726_PACKING_RIGHT); }
+static void *codec_g726_40_init(void) { return codec_g726_init(40000, G726_PACKING_RIGHT); }
+static void *codec_aal2_g726_16_init(void) { return codec_g726_init(16000, G726_PACKING_LEFT); }
+static void *codec_aal2_g726_24_init(void) { return codec_g726_init(24000, G726_PACKING_LEFT); }
+static void *codec_aal2_g726_32_init(void) { return codec_g726_init(32000, G726_PACKING_LEFT); }
+static void *codec_aal2_g726_40_init(void) { return codec_g726_init(40000, G726_PACKING_LEFT); }
 
-void
+static void
 codec_g726_release(void *ctx)
 {
     g726_codec_ctx *state = (g726_codec_ctx *)ctx;
@@ -61,19 +60,19 @@ codec_g726_release(void *ctx)
     g_free(state);
 }
 
-unsigned
+static unsigned
 codec_g726_get_channels(void *ctx _U_)
 {
     return 1;
 }
 
-unsigned
+static unsigned
 codec_g726_get_frequency(void *ctx _U_)
 {
     return 8000;
 }
 
-size_t
+static size_t
 codec_g726_decode(void *ctx, const void *input, size_t inputSizeBytes, void *output,
         size_t *outputSizeBytes)
 {
@@ -99,7 +98,26 @@ codec_g726_decode(void *ctx, const void *input, size_t inputSizeBytes, void *out
     return *outputSizeBytes;
 }
 
-#endif
+void
+codec_register_g726(void)
+{
+    register_codec("G726-16", codec_g726_16_init, codec_g726_release,
+            codec_g726_get_channels, codec_g726_get_frequency, codec_g726_decode);
+    register_codec("G726-24", codec_g726_24_init, codec_g726_release,
+            codec_g726_get_channels, codec_g726_get_frequency, codec_g726_decode);
+    register_codec("G726-32", codec_g726_32_init, codec_g726_release,
+            codec_g726_get_channels, codec_g726_get_frequency, codec_g726_decode);
+    register_codec("G726-40", codec_g726_40_init, codec_g726_release,
+            codec_g726_get_channels, codec_g726_get_frequency, codec_g726_decode);
+    register_codec("AAL2-G726-16", codec_aal2_g726_16_init, codec_g726_release,
+            codec_g726_get_channels, codec_g726_get_frequency, codec_g726_decode);
+    register_codec("AAL2-G726-24", codec_aal2_g726_24_init, codec_g726_release,
+            codec_g726_get_channels, codec_g726_get_frequency, codec_g726_decode);
+    register_codec("AAL2-G726-32", codec_aal2_g726_32_init, codec_g726_release,
+            codec_g726_get_channels, codec_g726_get_frequency, codec_g726_decode);
+    register_codec("AAL2-G726-40", codec_aal2_g726_40_init, codec_g726_release,
+            codec_g726_get_channels, codec_g726_get_frequency, codec_g726_decode);
+}
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
@@ -113,4 +131,3 @@ codec_g726_decode(void *ctx, const void *input, size_t inputSizeBytes, void *out
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-

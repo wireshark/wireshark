@@ -12,16 +12,14 @@
 
 #include "config.h"
 
-#ifdef HAVE_SBC
-
 #include <glib.h>
 #include <sbc/sbc.h>
 
-#include "sbc_private.h"
+#include "codecs/codecs.h"
 
 #define SBC_BUFFER 8192
 
-void *
+static void *
 codec_sbc_init(void)
 {
     sbc_t *sbc;
@@ -32,7 +30,7 @@ codec_sbc_init(void)
     return sbc;
 }
 
-void
+static void
 codec_sbc_release(void *ctx)
 {
     sbc_t *sbc = (sbc_t *) ctx;
@@ -41,7 +39,7 @@ codec_sbc_release(void *ctx)
     g_free(sbc);
 }
 
-unsigned
+static unsigned
 codec_sbc_get_channels(void *ctx)
 {
     sbc_t *sbc = (sbc_t *) ctx;
@@ -51,7 +49,7 @@ codec_sbc_get_channels(void *ctx)
     return 2;
 }
 
-unsigned
+static unsigned
 codec_sbc_get_frequency(void *ctx)
 {
     sbc_t *sbc = (sbc_t *) ctx;
@@ -80,7 +78,7 @@ codec_sbc_get_frequency(void *ctx)
     return frequency;
 }
 
-size_t
+static size_t
 codec_sbc_decode(void *ctx, const void *input, size_t inputSizeBytes, void *output,
         size_t *outputSizeBytes)
 {
@@ -120,7 +118,12 @@ codec_sbc_decode(void *ctx, const void *input, size_t inputSizeBytes, void *outp
     return *outputSizeBytes;
 }
 
-#endif
+void
+codec_register_sbc(void)
+{
+    register_codec("SBC", codec_sbc_init, codec_sbc_release,
+            codec_sbc_get_channels, codec_sbc_get_frequency, codec_sbc_decode);
+}
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html

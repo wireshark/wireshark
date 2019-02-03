@@ -12,13 +12,11 @@
 
 #include <glib.h>
 
-#ifdef HAVE_SPANDSP
 #include "spandsp.h"
-#include "G722decode.h"
-
+#include "codecs/codecs.h"
 #include "ws_attributes.h"
 
-void *
+static void *
 codec_g722_init(void)
 {
     g722_decode_state_t *state;
@@ -30,7 +28,7 @@ codec_g722_init(void)
     return state;
 }
 
-void
+static void
 codec_g722_release(void *ctx)
 {
     g722_decode_state_t *state = (g722_decode_state_t *)ctx;
@@ -43,14 +41,14 @@ codec_g722_release(void *ctx)
     g722_decode_free(state);
 }
 
-unsigned
+static unsigned
 codec_g722_get_channels(void *ctx _U_)
 {
     /* G.722 has only one channel. */
     return 1;
 }
 
-unsigned
+static unsigned
 codec_g722_get_frequency(void *ctx _U_)
 {
     /* Note: RTP Clock rate is 8kHz due to a historic error, but actual sampling
@@ -58,7 +56,7 @@ codec_g722_get_frequency(void *ctx _U_)
     return 16000;
 }
 
-size_t
+static size_t
 codec_g722_decode(void *ctx, const void *input, size_t inputSizeBytes, void *output,
         size_t *outputSizeBytes)
 {
@@ -77,7 +75,12 @@ codec_g722_decode(void *ctx, const void *input, size_t inputSizeBytes, void *out
     return *outputSizeBytes;
 }
 
-#endif
+void
+codec_register_g722(void)
+{
+    register_codec("g722", codec_g722_init, codec_g722_release,
+            codec_g722_get_channels, codec_g722_get_frequency, codec_g722_decode);
+}
 
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
@@ -91,4 +94,3 @@ codec_g722_decode(void *ctx, const void *input, size_t inputSizeBytes, void *out
  * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-
