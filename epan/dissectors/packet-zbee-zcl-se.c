@@ -4859,6 +4859,7 @@ static void dissect_zcl_met_change_supply                   (tvbuff_t *tvb, prot
 static void dissect_zcl_met_local_change_supply             (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_met_set_supply_status               (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_met_set_uncontrolled_flow_threshold (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_met_get_profile_response            (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_met_take_snapshot_response          (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_met_publish_snapshot                (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_met_get_sampled_data_rsp            (tvbuff_t *tvb, proto_tree *tree, guint *offset);
@@ -5001,6 +5002,11 @@ static int hf_zbee_zcl_met_set_uncontrolled_flow_threshold_multiplier = -1;
 static int hf_zbee_zcl_met_set_uncontrolled_flow_threshold_divisor = -1;
 static int hf_zbee_zcl_met_set_uncontrolled_flow_threshold_stabilisation_period = -1;
 static int hf_zbee_zcl_met_set_uncontrolled_flow_threshold_measurement_period = -1;
+static int hf_zbee_zcl_met_get_profile_response_end_time = -1;
+static int hf_zbee_zcl_met_get_profile_response_status = -1;
+static int hf_zbee_zcl_met_get_profile_response_profile_interval_period = -1;
+static int hf_zbee_zcl_met_get_profile_response_number_of_periods_delivered = -1;
+static int hf_zbee_zcl_met_get_profile_response_intervals = -1;
 static int hf_zbee_zcl_met_take_snapshot_response_snapshot_id = -1;
 static int hf_zbee_zcl_met_take_snapshot_response_snapshot_confirmation = -1;
 static int hf_zbee_zcl_met_publish_snapshot_snapshot_id = -1;
@@ -5367,7 +5373,7 @@ dissect_zbee_zcl_met(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
             switch (cmd_id) {
 
                 case ZBEE_ZCL_CMD_ID_MET_GET_PROFILE_RESPONSE:
-                    /* Add function to dissect payload */
+                    dissect_zcl_met_get_profile_response(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_MET_REQUEST_MIRROR:
@@ -5824,6 +5830,39 @@ dissect_zcl_met_set_uncontrolled_flow_threshold(tvbuff_t *tvb, proto_tree *tree,
     proto_tree_add_item(tree, hf_zbee_zcl_met_set_uncontrolled_flow_threshold_measurement_period, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
 } /*dissect_zcl_met_set_uncontrolled_flow_threshold*/
+
+/**
+ *This function manages the Get Profile Response payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_met_get_profile_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* End Time */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_get_profile_response_end_time, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Status */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_get_profile_response_status, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Profile Interval Period */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_get_profile_response_profile_interval_period, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Number of Periods Delivered */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_get_profile_response_number_of_periods_delivered, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Intervals */
+    while (tvb_reported_length_remaining(tvb, *offset) > 0) {
+        proto_tree_add_item(tree, hf_zbee_zcl_met_get_profile_response_intervals, tvb, *offset, 3, ENC_LITTLE_ENDIAN);
+        *offset += 3;
+    }
+} /*dissect_zcl_met_get_profile_response*/
 
 /**
  *This function manages the Take Snapshot Response payload
@@ -6566,6 +6605,26 @@ proto_register_zbee_zcl_met(void)
 
         { &hf_zbee_zcl_met_set_uncontrolled_flow_threshold_measurement_period,
             { "Measurement Period", "zbee_zcl_se.met.set_uncontrolled_flow_threshold.measurement_period", FT_UINT16, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_get_profile_response_end_time,
+            { "End Time", "zbee_zcl_se.met.get_profile_response.end_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_get_profile_response_status,
+            { "Status", "zbee_zcl_se.met.get_profile_response.status", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_get_profile_response_profile_interval_period,
+            { "Profile Interval Period", "zbee_zcl_se.met.get_profile_response.profile_interval_period", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_get_profile_response_number_of_periods_delivered,
+            { "Number of Periods Delivered", "zbee_zcl_se.met.get_profile_response.number_of_periods_delivered", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_get_profile_response_intervals,
+            { "Intervals", "zbee_zcl_se.met.get_profile_response.intervals", FT_UINT24, BASE_DEC, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_met_take_snapshot_response_snapshot_id,
