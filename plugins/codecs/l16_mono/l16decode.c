@@ -13,7 +13,7 @@
 #include <glib.h>
 #include <string.h>
 
-#include "codecs/codecs.h"
+#include "wsutil/codecs.h"
 #include "ws_attributes.h"
 
 void codec_register_l16(void);

@@ -20,6 +20,7 @@ set(WSUTIL_PUBLIC_HEADERS
 	bits_ctz.h
 	bitswap.h
 	buffer.h
+	codecs.h
 	color.h
 	copyright_info.h
 	cpu_info.h
@@ -79,6 +80,7 @@ set(WSUTIL_COMMON_FILES
 	base32.c
 	bitswap.c
 	buffer.c
+	codecs.c
 	copyright_info.c
 	crash_info.c
 	crc10.c

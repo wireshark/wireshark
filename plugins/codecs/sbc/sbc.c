@@ -15,7 +15,7 @@
 #include <glib.h>
 #include <sbc/sbc.h>
 
-#include "codecs/codecs.h"
+#include "wsutil/codecs.h"
 
 #define SBC_BUFFER 8192
 

@@ -55,7 +55,7 @@
 #include <epan/dissectors/packet-kerberos.h>
 #endif
 
-#include <codecs/codecs.h>
+#include <wsutil/codecs.h>
 
 #include <extcap.h>
 

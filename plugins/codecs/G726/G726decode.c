@@ -13,7 +13,7 @@
 #include <glib.h>
 
 #include "spandsp.h"
-#include "codecs/codecs.h"
+#include "wsutil/codecs.h"
 #include "ws_attributes.h"
 
 typedef struct _g726_codec_ctx {

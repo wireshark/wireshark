@@ -53,7 +53,7 @@
 #include <epan/uat-int.h>
 #include <epan/secrets.h>
 
-#include <codecs/codecs.h>
+#include <wsutil/codecs.h>
 
 #include "log.h"
 

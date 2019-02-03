@@ -39,7 +39,7 @@ register_plugin_files(plugin.c
 
 add_plugin_library(g711 codecs)
 
-target_link_libraries(g711 wscodecs)
+target_link_libraries(g711 wsutil)
 
 install_plugin(g711 codecs)
 

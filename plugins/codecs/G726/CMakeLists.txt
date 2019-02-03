@@ -39,7 +39,7 @@ register_plugin_files(plugin.c
 
 add_plugin_library(g726 codecs)
 
-target_link_libraries(g726 wscodecs ${SPANDSP_LIBRARIES})
+target_link_libraries(g726 wsutil ${SPANDSP_LIBRARIES})
 
 target_include_directories(g726 SYSTEM PRIVATE ${SPANDSP_INCLUDE_DIRS})
 

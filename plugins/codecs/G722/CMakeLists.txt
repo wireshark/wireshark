@@ -39,7 +39,7 @@ register_plugin_files(plugin.c
 
 add_plugin_library(g722 codecs)
 
-target_link_libraries(g722 wscodecs ${SPANDSP_LIBRARIES})
+target_link_libraries(g722 wsutil ${SPANDSP_LIBRARIES})
 
 target_include_directories(g722 SYSTEM PRIVATE ${SPANDSP_INCLUDE_DIRS})
 

@@ -13,7 +13,7 @@
 #include <glib.h>
 
 #include "bcg729/decoder.h"
-#include "codecs/codecs.h"
+#include "wsutil/codecs.h"
 #include "ws_attributes.h"
 
 static void *

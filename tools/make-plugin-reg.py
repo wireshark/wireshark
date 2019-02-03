@@ -117,7 +117,7 @@ if registertype == "plugin":
 if registertype == "plugin_wtap":
     reg_code += "#include \"wiretap/wtap.h\"\n\n"
 if registertype == "plugin_codec":
-    reg_code += "#include \"codecs/codecs.h\"\n\n"
+    reg_code += "#include \"wsutil/codecs.h\"\n\n"
 
 for symbol in regs['proto_reg']:
     reg_code += "void proto_register_%s(void);\n" % (symbol)

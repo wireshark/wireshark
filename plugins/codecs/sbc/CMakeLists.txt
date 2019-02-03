@@ -39,7 +39,7 @@ register_plugin_files(plugin.c
 
 add_plugin_library(sbc codecs)
 
-target_link_libraries(sbc wscodecs ${SBC_LIBRARIES})
+target_link_libraries(sbc wsutil ${SBC_LIBRARIES})
 
 target_include_directories(sbc SYSTEM PRIVATE ${SBC_INCLUDE_DIRS})
 

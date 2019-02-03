@@ -12,7 +12,7 @@
 
 #include <glib.h>
 
-#include "codecs/codecs.h"
+#include "wsutil/codecs.h"
 #include "ws_attributes.h"
 
 static gint16 ulaw_exp_table[256] = {

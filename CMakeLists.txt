@@ -1364,7 +1364,6 @@ set(PLUGIN_VERSION_DIR "plugins/${PLUGIN_PATH_ID}")
 
 add_subdirectory( capchild )
 add_subdirectory( caputils )
-add_subdirectory( codecs )
 add_subdirectory( doc )
 add_subdirectory( docbook EXCLUDE_FROM_ALL )
 add_subdirectory( epan )
@@ -1523,7 +1522,6 @@ set(CFG_OUT_FILES
 	image/libwireshark.rc
 	image/wireshark.rc
 	image/dumpcap.rc
-	image/libwscodecs.rc
 	image/libwsutil.rc
 	image/wiretap.rc
 	image/wireshark.exe.manifest
@@ -2216,7 +2214,6 @@ if(BUILD_wireshark AND QT_FOUND)
 		capchild
 		caputils
 		wiretap
-		wscodecs
 		epan
 		${QT_LIBRARIES}
 		${VERSION_INFO_LIBS}
@@ -2416,7 +2413,6 @@ endif()
 if(BUILD_sharkd)
 	set(sharkd_LIBS
 		ui
-		wscodecs
 		wiretap
 		epan
 		${VERSION_INFO_LIBS}
