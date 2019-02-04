@@ -1510,6 +1510,11 @@ class EthCtx:
         #if self.conform.get_fn_presence(tname):
         #  out += self.conform.get_fn_text(tname, 'FN_HDR')
         #el
+        if self.conform.check_item('PDU', tname) and self.conform.proto_root_name:
+            out += '  proto_item *prot_ti = proto_tree_add_item(tree, ' + self.conform.proto_root_name + ', tvb, 0, -1, ENC_NA);\n'
+            out += '  PROTO_ITEM_SET_HIDDEN(prot_ti);\n'
+
+
         if self.conform.get_fn_presence(self.eth_type[tname]['ref'][0]):
             out += self.conform.get_fn_text(self.eth_type[tname]['ref'][0], 'FN_HDR')
         return out
@@ -2161,6 +2166,7 @@ class EthCnf:
         self.report = {}
         self.suppress_line = False
         self.include_path = []
+        self.proto_root_name = None
         #                                   Value name             Default value       Duplicity check   Usage check
         self.tblcfg['EXPORTS']         = { 'val_nm' : 'flag',     'val_dflt' : 0,     'chk_dup' : True, 'chk_use' : True }
         self.tblcfg['MAKE_ENUM']       = { 'val_nm' : 'flag',     'val_dflt' : 0,     'chk_dup' : True, 'chk_use' : True }
@@ -2744,7 +2750,7 @@ class EthCnf:
                 self.report[name][-1]['text'] += line
 
     def set_opt(self, opt, par, fn, lineno):
-        #print "set_opt: %s, %s" % (opt, par)
+        #print("set_opt: %s, %s" % (opt, par))
         if opt in ("-I",):
             par = self.check_par(par, 1, 1, fn, lineno)
             if not par: return
@@ -2769,6 +2775,10 @@ class EthCnf:
         elif opt in ("-u", "UNALIGNED"):
             par = self.check_par(par, 0, 0, fn, lineno)
             self.ectx.aligned = False
+        elif opt in ("PROTO_ROOT_NAME"):
+            par = self.check_par(par, 1, 1, fn, lineno)
+            if not par: return
+            self.proto_root_name = par[0]
         elif opt in ("-d",):
             par = self.check_par(par, 1, 1, fn, lineno)
             if not par: return

@@ -5,6 +5,7 @@
 #.OPT
 PER
 UNALIGNED
+PROTO_ROOT_NAME    proto_nr_rrc
 #.END
 
 #.USE_VALS_EXT
