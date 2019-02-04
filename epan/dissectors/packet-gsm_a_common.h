@@ -1628,10 +1628,6 @@ typedef enum
     DE_NAS_5GS_MM_DE_REG_TYPE,               /* 9.11.3.20    De-registration type*/
                                              /* 9.11.3.21    Void */
                                              /* 9.11.3.22    Void*/
-
-    DE_NAS_5GS_MM_DNN,                       /* 9.11.3.19    DNN*/
-    DE_NAS_5GS_MM_DRX_PAR,                   /* 9.11.3.20    DRX parameters */
-
     DE_NAS_5GS_MM_EMRG_NR_LIST,              /* 9.11.3.23    Emergency number list */
     DE_NAS_5GS_MM_EPS_NAS_MSG_CONT,          /* 9.11.3.24    EPS NAS message container */
     DE_NAS_5GS_MM_EPS_NAS_SEC_ALGO,          /* 9.11.3.25    EPS NAS security algorithms */
@@ -1671,8 +1667,7 @@ typedef enum
     DE_NAS_5GS_MM_UE_USAGE_SET,              /* 9.11.3.55    UE's usage setting */
     DE_NAS_5GS_MM_UE_STATUS,                 /* 9.11.3.56    UE status */
     DE_NAS_5GS_MM_UL_DATA_STATUS,            /* 9.11.3.57    Uplink data status */
-    DE_NAS_5GS_MM_NONE        /* NONE */
-}
+    DE_NAS_5GS_MM_NONE        /* NONE */}
 nas_5gs_mm_elem_idx_t;
 
 
