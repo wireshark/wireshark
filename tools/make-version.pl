@@ -626,9 +626,9 @@ sub get_version
 
 	close(CFGIN);
 
-	die "Couldn't get major version" if (!$version_major);
-	die "Couldn't get minor version" if (!$version_minor);
-	die "Couldn't get micro version" if (!$version_micro);
+	die "Couldn't get major version" if (!defined($version_major));
+	die "Couldn't get minor version" if (!defined($version_minor));
+	die "Couldn't get micro version" if (!defined($version_micro));
 }
 
 # Read values from the configuration file, if it exists.
