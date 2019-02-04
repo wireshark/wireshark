@@ -2277,6 +2277,7 @@ const value_string nas_5gs_sm_cause_vals[] = {
     { 0x22, "Service option temporarily out of order" },
     { 0x23, "PTI already in use" },
     { 0x24, "Regular deactivation" },
+    { 0x27, "Reactivation requested" },
     { 0x26, "Out of LADN service area" },
     { 0x27, "Reactivation requested" },
     { 0x2b, "Invalid PDU session identity" },
@@ -2325,9 +2326,28 @@ de_nas_5gs_sm_5gsm_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
  * 9.11.4.3 Always-on PDU session indication
  */
 
+static guint16
+de_nas_5gs_sm_always_on_pdu_ses_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
+    guint32 offset, guint len,
+    gchar *add_string _U_, int string_len _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+
+    return len;
+}
+
 /*
  * 9.11.4.4 Always-on PDU session requested
  */
+static guint16
+de_nas_5gs_sm_always_on_pdu_ses_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
+    guint32 offset, guint len,
+    gchar *add_string _U_, int string_len _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+
+    return len;
+}
 
 /*
  * 9.11.4.5    Allowed SSC mode
@@ -2361,6 +2381,15 @@ de_nas_5gs_sm_5gsm_allowed_ssc_mode(tvbuff_t *tvb, proto_tree *tree, packet_info
 /*
  * 9.11.4.7 Integrity protection maximum data rate
  */
+static guint16
+de_nas_5gs_sm_int_prot_max_data_rte(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
+    guint32 offset, guint len,
+    gchar *add_string _U_, int string_len _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+
+    return len;
+}
 
 /*
  *     9.11.4.8 Mapped EPS bearer contexts
@@ -3492,11 +3521,11 @@ typedef enum
 
     DE_NAS_5GS_SM_5GSM_CAP,                 /* 9.11.4.1    5GSM capability */
     DE_NAS_5GS_SM_5GSM_CAUSE,               /* 9.11.4.2    5GSM cause */
-                                            /* 9.11.4.3    Always-on PDU session indication */
-                                            /* 9.11.4.4    Always-on PDU session requested */
+    DE_NAS_5GS_SM_ALWAYS_ON_PDU_SES_IND,    /* 9.11.4.3    Always-on PDU session indication */
+    DE_NAS_5GS_SM_ALWAYS_ON_PDU_SES_REQ,    /* 9.11.4.4    Always-on PDU session requested */
     DE_NAS_5GS_SM_5GSM_ALLOWED_SSC_MODE,    /* 9.11.4.5    Allowed SSC mode */
     DE_NAS_5GS_SM_EXT_PROT_CONF_OPT,        /* 9.11.4.6    Extended protocol configuration options */
-                                            /* 9.11.4.7    Integrity protection maximum data rate */
+    DE_NAS_5GS_SM_INT_PROT_MAX_DATA_RTE,    /* 9.11.4.7    Integrity protection maximum data rate */
     DE_NAS_5GS_SM_MAPPED_EPS_B_CONT,        /* 9.11.4.8    Mapped EPS bearer contexts */
     DE_NAS_5GS_SM_MAX_NUM_SUP_PKT_FLT,      /* 9.11.4.9    Maximum number of supported packet filters */
     DE_NAS_5GS_SM_PDU_ADDRESS,              /* 9.11.4.10   PDU address */
@@ -3514,11 +3543,11 @@ nas_5gs_sm_elem_idx_t;
 static const value_string nas_5gs_sm_elem_strings[] = {
     { DE_NAS_5GS_SM_5GSM_CAP, "5GSM capability" },                                         /* 9.11.4.1    5GSM capability */
     { DE_NAS_5GS_SM_5GSM_CAUSE, "5GSM cause" },                                            /* 9.11.4.2    5GSM cause */
-                                                                                           /* 9.11.4.3    Always-on PDU session indication */
-                                                                                           /* 9.11.4.4    Always-on PDU session requested */
+    { DE_NAS_5GS_SM_ALWAYS_ON_PDU_SES_IND, "Always-on PDU session indication" },           /* 9.11.4.3    Always-on PDU session indication */
+    { DE_NAS_5GS_SM_ALWAYS_ON_PDU_SES_REQ, "Always-on PDU session requested" },            /* 9.11.4.4    Always-on PDU session requested */
     { DE_NAS_5GS_SM_5GSM_ALLOWED_SSC_MODE, "Allowed SSC mode" },                           /* 9.11.4.5    Allowed SSC mode */
     { DE_NAS_5GS_SM_EXT_PROT_CONF_OPT, "Extended protocol configuration options" },        /* 9.11.4.6    Extended protocol configuration options */
-                                                                                           /* 9.11.4.7    Integrity protection maximum data rate */
+    { DE_NAS_5GS_SM_INT_PROT_MAX_DATA_RTE, "Integrity protection maximum data rate" },     /* 9.11.4.7    Integrity protection maximum data rate */
     { DE_NAS_5GS_SM_MAPPED_EPS_B_CONT, "Mapped EPS bearer contexts" },                     /* 9.11.4.8    Mapped EPS bearer contexts */
     { DE_NAS_5GS_SM_MAX_NUM_SUP_PKT_FLT, "Maximum number of supported packet filters" },   /* 9.11.4.9    Maximum number of supported packet filters */
     { DE_NAS_5GS_SM_PDU_ADDRESS, "PDU address" },                                          /* 9.11.4.10   PDU address */
@@ -3542,11 +3571,11 @@ guint16(*nas_5gs_sm_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
         /*  5GS session management (5GSM) information elements */
         de_nas_5gs_sm_5gsm_cap,              /* 9.11.4.1    5GSM capability */
         de_nas_5gs_sm_5gsm_cause,            /* 9.11.4.2    5GSM cause */
-                                             /* 9.11.4.3    Always-on PDU session indication */
-                                             /* 9.11.4.4    Always-on PDU session requested */
+        de_nas_5gs_sm_always_on_pdu_ses_ind, /* 9.11.4.3    Always-on PDU session indication */
+        de_nas_5gs_sm_always_on_pdu_ses_req, /* 9.11.4.4    Always-on PDU session requested */
         de_nas_5gs_sm_5gsm_allowed_ssc_mode, /* 9.11.4.5   Allowed SSC mode */
         NULL,                                /* 9.11.4.6    Extended protocol configuration options */
-                                             /* 9.11.4.7    Integrity protection maximum data rate */
+        de_nas_5gs_sm_int_prot_max_data_rte, /* 9.11.4.7    Integrity protection maximum data rate */
         de_nas_5gs_sm_mapped_eps_b_cont,     /* 9.11.4.8    Mapped EPS bearer contexts */
         de_nas_5gs_sm_max_num_sup_pkt_flt,   /* 9.11.4.9    Maximum number of supported packet filters */
         de_nas_5gs_sm_pdu_address,           /* 9.11.4.10   PDU address */
@@ -4063,6 +4092,7 @@ nas_5gs_mm_service_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
     /*25    Allowed PDU session status    Allowed PDU session status         9.11.3.11    O    TLV    4 - 34*/
     ELEM_OPT_TLV(0x25, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_ALLOW_PDU_SES_STS, NULL);
     /* 71    NAS message container    NAS message container 9.11.3.33    O    TLV-E    4-n */
+    ELEM_OPT_TLV_E(0x71, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_NAS_MSG_CONT, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
 
@@ -4167,6 +4197,7 @@ nas_5gs_mm_conf_upd_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     /* 76    Operator-defined access category definitions    Operator-defined access category definitions 9.11.3.38    O    TLV-E    3-TBD */
     ELEM_OPT_TLV_E(0x76, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_OP_DEF_ACC_CAT_DEF, NULL);
     /* F-    SMS indication    SMS indication 9.10.3.50A    O    TV    1 */
+    ELEM_OPT_TV_SHORT(0xF0, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_SMS_IND, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_5gs_extraneous_data);
 
@@ -4462,7 +4493,7 @@ nas_5gs_sm_pdu_ses_est_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     ELEM_OPT_TLV(0x22, NAS_5GS_PDU_TYPE_COMMON, DE_NAS_5GS_CMN_S_NSSAI, NULL);
 
     /* 8-    Always-on PDU session indication    Always-on PDU session indication 9.11.4.3    O    TV    1 */
-
+    ELEM_OPT_TV_SHORT(0x80, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_ALWAYS_ON_PDU_SES_IND, NULL);
     /* 75    Mapped EPS bearer contexts    Mapped EPS bearer contexts 9.11.4.9    O    TLV-E    7-65538 */
     ELEM_OPT_TLV_E(0x75, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_MAPPED_EPS_B_CONT, NULL);
     /*78    EAP message    EAP message 9.11.3.14    O    TLV-E    7-1503*/
@@ -4625,12 +4656,17 @@ nas_5gs_sm_pdu_ses_mod_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     ELEM_OPT_TV(0x55, NAS_5GS_PDU_TYPE_SM,  DE_NAS_5GS_SM_MAX_NUM_SUP_PKT_FLT, NULL);
 
     /* B-    Always-on PDU session requested    Always-on PDU session requested 9.11.4.4    O    TV    1 */
-    /* 13    Integrity protection maximum data rate    Integrity protection maximum data rate 9.11.4.7    O    TV    3*/
+    ELEM_OPT_TV_SHORT(0xB0, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_ALWAYS_ON_PDU_SES_REQ, NULL);
+
+    /* 13    Integrity protection maximum data rate    Integrity protection maximum data rate 9.11.4.7    O    TV    3 */
+    ELEM_OPT_TV(0x13, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_INT_PROT_MAX_DATA_RTE, NULL);
 
     /*7A    Requested QoS rules    QoS rules 9.11.4.6    O    TLV-E    3-65538 */
     ELEM_OPT_TLV_E(0x7A, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_QOS_RULES, " - Requested QoS rules");
 
     /* 79    Requested QoS flow descriptions    QoS flow descriptions 9.11.4.12    O    TLV-E    5-65538 */
+    ELEM_OPT_TLV_E(0x79, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_QOS_FLOW_DES, " - Authorized");
+
     /* 75    Mapped EPS bearer contexts    Mapped EPS bearer contexts 9.11.4.8    O    TLV-E    7-65538 */
     ELEM_OPT_TLV_E(0x75, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_MAPPED_EPS_B_CONT, NULL);
     /* 7B    Extended protocol configuration options    Extended protocol configuration options    9.11.4.2    O    TLV - E    4 - 65538*/
@@ -4694,7 +4730,7 @@ nas_5gs_sm_pdu_ses_mod_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     /*56    RQ timer value    GPRS timer     9.11.4.3    O    TV    2*/
     ELEM_OPT_TV(0x56, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER, " - PDU session release time");
     /* 8-   Always-on PDU session indication    Always-on PDU session indication 9.11.4.3    O    TV    1 */
-
+    ELEM_OPT_TV_SHORT(0x80, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_ALWAYS_ON_PDU_SES_IND, NULL);
     /*7A    Authorized QoS rules    QoS rules     9.11.4.6    O    TLV-E    3-65538*/
     ELEM_OPT_TLV_E(0x7A, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_QOS_RULES, " - Authorized QoS rules");
     /*75    Mapped EPS bearer contexts     Mapped EPS  bearer contexts     9.11.4.5    O    TLV-E    7-65538*/
