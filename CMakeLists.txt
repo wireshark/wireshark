@@ -27,9 +27,9 @@ project(${_project_name} C CXX)
 
 # Updated by tools/make-version.pl
 set(GIT_REVISION 0)
-set(PROJECT_MAJOR_VERSION 2)
-set(PROJECT_MINOR_VERSION 9)
-set(PROJECT_PATCH_VERSION 1)
+set(PROJECT_MAJOR_VERSION 3)
+set(PROJECT_MINOR_VERSION 0)
+set(PROJECT_PATCH_VERSION 0)
 set(PROJECT_BUILD_VERSION ${GIT_REVISION})
 set(PROJECT_VERSION_EXTENSION "")
 set(PROJECT_RELEASE_VERSION "${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}")
@@ -232,8 +232,8 @@ endif(WIN32)
 # Banner shown at top right of Qt welcome screen.
 if(DEFINED ENV{WIRESHARK_VERSION_FLAVOR})
 	set(VERSION_FLAVOR "$ENV{WIRESHARK_VERSION_FLAVOR}")
-else()
-	set(VERSION_FLAVOR "Development Build")
+# else()
+# 	set(VERSION_FLAVOR "Development Build")
 endif()
 
 # These are required in .rc files and manifests
