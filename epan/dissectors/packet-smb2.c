@@ -4516,6 +4516,9 @@ dissect_smb2_negotiate_protocol_request(tvbuff_t *tvb, packet_info *pinfo, proto
 	/* compute preauth hash on first pass */
 	if (!pinfo->fd->visited && ssi) {
 		ssi->preauth_hash_req = (guint8*)wmem_alloc0(wmem_file_scope(), SMB2_PREAUTH_HASH_SIZE);
+		memset(si->conv->preauth_hash_ses, 0, SMB2_PREAUTH_HASH_SIZE);
+		memset(si->conv->preauth_hash_con, 0, SMB2_PREAUTH_HASH_SIZE);
+		si->conv->preauth_hash_current = si->conv->preauth_hash_con;
 		update_preauth_hash(si->conv->preauth_hash_current, tvb);
 		memcpy(ssi->preauth_hash_req, si->conv->preauth_hash_current, SMB2_PREAUTH_HASH_SIZE);
 	}
