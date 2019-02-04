@@ -43,10 +43,12 @@ Dumpcap might not quit if Wireshark or TShark crashes.
 The following features are new (or have been significantly updated)
 since version 2.9.0:
 
-* Wireshark now supports the Swedish and Ukrainian language.
+* Wireshark now supports the Swedish and Ukrainian languages.
 * Initial support for using PKCS #11 tokens for RSA decryption in TLS. This can
   be configured at _Preferences_, _RSA Keys_.
 * The build system now produces reproducible builds (wsbuglink:15163[]).
+* The Windows installers now ship with Qt 5.12.1. Previously they
+  shipped with Qt 5.12.0.
 
 The following features are new (or have been significantly updated)
 since version 2.6.0:
