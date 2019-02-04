@@ -7,9 +7,9 @@
  *
  * Generated automatically by make-packet-dcm.py from the following sources:
  *
- * DICOM PS3.5 2018e - Data Structures and Encoding
- * DICOM PS3.6 2018e - Data Dictionary
- * DICOM PS3.7 2018e - Message Exchange
+ * DICOM PS3.5 2019a - Data Structures and Encoding
+ * DICOM PS3.6 2019a - Data Dictionary
+ * DICOM PS3.7 2019a - Message Exchange
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -44,29 +44,33 @@ extern "C" {
 #define DCM_VR_OD 14  /* Other Double              */
 #define DCM_VR_OF 15  /* Other Float               */
 #define DCM_VR_OL 16  /* Other Long                */
-#define DCM_VR_OW 17  /* Other Word                */
-#define DCM_VR_PN 18  /* Person Name               */
-#define DCM_VR_SH 19  /* Short String              */
-#define DCM_VR_SL 20  /* Signed Long               */
-#define DCM_VR_SQ 21  /* Sequence of Items         */
-#define DCM_VR_SS 22  /* Signed Short              */
-#define DCM_VR_ST 23  /* Short Text                */
-#define DCM_VR_TM 24  /* Time                      */
-#define DCM_VR_UC 25  /* Unlimited Characters      */
-#define DCM_VR_UI 26  /* Unique Identifier (UID)   */
-#define DCM_VR_UL 27  /* Unsigned Long             */
-#define DCM_VR_UN 28  /* Unknown                   */
-#define DCM_VR_UR 29  /* Universal Resource Identifier or Universal Resource Locator (URI/URL) */
-#define DCM_VR_US 30  /* Unsigned Short            */
-#define DCM_VR_UT 31  /* Unlimited Text            */
+#define DCM_VR_OV 17  /* Other 64-bit Very Long    */
+#define DCM_VR_OW 18  /* Other Word                */
+#define DCM_VR_PN 19  /* Person Name               */
+#define DCM_VR_SH 20  /* Short String              */
+#define DCM_VR_SL 21  /* Signed Long               */
+#define DCM_VR_SQ 22  /* Sequence of Items         */
+#define DCM_VR_SS 23  /* Signed Short              */
+#define DCM_VR_ST 24  /* Short Text                */
+#define DCM_VR_SV 25  /* Signed 64-bit Very Long   */
+#define DCM_VR_TM 26  /* Time                      */
+#define DCM_VR_UC 27  /* Unlimited Characters      */
+#define DCM_VR_UI 28  /* Unique Identifier (UID)   */
+#define DCM_VR_UL 29  /* Unsigned Long             */
+#define DCM_VR_UN 30  /* Unknown                   */
+#define DCM_VR_UR 31  /* Universal Resource Identifier or Universal Resource Locator (URI/URL) */
+#define DCM_VR_US 32  /* Unsigned Short            */
+#define DCM_VR_UT 33  /* Unlimited Text            */
+#define DCM_VR_UV 34  /* Unsigned 64-bit Very Long */
 
 /* Following must be in the same order as the definitions above */
 static const gchar* dcm_tag_vr_lookup[] = {
     "  ",
     "AE","AS","AT","CS","DA","DS","DT","FL",
     "FD","IS","LO","LT","OB","OD","OF","OL",
-    "OW","PN","SH","SL","SQ","SS","ST","TM",
-    "UC","UI","UL","UN","UR","US","UT"
+    "OV","OW","PN","SH","SL","SQ","SS","ST",
+    "SV","TM","UC","UI","UL","UN","UR","US",
+    "UT","UV"
 };
 
 
@@ -650,6 +654,111 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x0014511D, "Wedge Chamfer Height", "DS", "1", 0, 0},
     { 0x0014511E, "Wedge Curve", "CS", "1", 0, 0},
     { 0x0014511F, "Radius Along the Wedge", "DS", "1", 0, 0},
+    { 0x00160001, "White Point", "DS", "1", 0, 0},
+    { 0x00160002, "Primary Chromaticities", "DS", "3", 0, 0},
+    { 0x00160003, "Battery Level", "UT", "1", 0, 0},
+    { 0x00160004, "Exposure Time in Seconds", "DS", "1", 0, 0},
+    { 0x00160005, "F-Number", "DS", "1", 0, 0},
+    { 0x00160006, "OECF Rows", "IS", "1", 0, 0},
+    { 0x00160007, "OECF Columns", "IS", "1", 0, 0},
+    { 0x00160008, "OECF Column Names", "UC", "1-n", 0, 0},
+    { 0x00160009, "OECF Values", "DS", "1-n", 0, 0},
+    { 0x0016000A, "Spatial Frequency Response Rows", "IS", "1", 0, 0},
+    { 0x0016000B, "Spatial Frequency Response Columns", "IS", "1", 0, 0},
+    { 0x0016000C, "Spatial Frequency Response Column Names", "UC", "1-n", 0, 0},
+    { 0x0016000D, "Spatial Frequency Response Values", "DS", "1-n", 0, 0},
+    { 0x0016000E, "Color Filter Array Pattern Rows", "IS", "1", 0, 0},
+    { 0x0016000F, "Color Filter Array Pattern Columns", "IS", "1", 0, 0},
+    { 0x00160010, "Color Filter Array Pattern Values", "DS", "1-n", 0, 0},
+    { 0x00160011, "Flash Firing Status", "US", "1", 0, 0},
+    { 0x00160012, "Flash Return Status", "US", "1", 0, 0},
+    { 0x00160013, "Flash Mode", "US", "1", 0, 0},
+    { 0x00160014, "Flash Function Present", "US", "1", 0, 0},
+    { 0x00160015, "Flash Red Eye Mode", "US", "1", 0, 0},
+    { 0x00160016, "Exposure Program", "US", "1", 0, 0},
+    { 0x00160017, "Spectral Sensitivity", "UT", "1", 0, 0},
+    { 0x00160018, "Photographic Sensitivity", "IS", "1", 0, 0},
+    { 0x00160019, "Self Timer Mode", "IS", "1", 0, 0},
+    { 0x0016001A, "Sensitivity Type", "US", "1", 0, 0},
+    { 0x0016001B, "Standard Output Sensitivity", "IS", "1", 0, 0},
+    { 0x0016001C, "Recommended Exposure Index", "IS", "1", 0, 0},
+    { 0x0016001D, "ISO Speed", "IS", "1", 0, 0},
+    { 0x0016001E, "ISO Speed Latitude yyy", "IS", "1", 0, 0},
+    { 0x0016001F, "ISO Speed Latitude zzz", "IS", "1", 0, 0},
+    { 0x00160020, "EXIF Version", "UT", "1", 0, 0},
+    { 0x00160021, "Shutter Speed Value", "DS", "1", 0, 0},
+    { 0x00160022, "Aperture Value", "DS", "1", 0, 0},
+    { 0x00160023, "Brightness Value", "DS", "1", 0, 0},
+    { 0x00160024, "Exposure Bias Value", "DS", "1", 0, 0},
+    { 0x00160025, "Max Aperture Value", "DS", "1", 0, 0},
+    { 0x00160026, "Subject Distance", "DS", "1", 0, 0},
+    { 0x00160027, "Metering Mode", "US", "1", 0, 0},
+    { 0x00160028, "Light Source", "US", "1", 0, 0},
+    { 0x00160029, "Focal Length", "DS", "1", 0, 0},
+    { 0x0016002A, "Subject Area", "IS", "2-4", 0, 0},
+    { 0x0016002B, "Maker Note", "OB", "1", 0, 0},
+    { 0x00160030, "Temperature", "DS", "1", 0, 0},
+    { 0x00160031, "Humidity", "DS", "1", 0, 0},
+    { 0x00160032, "Pressure", "DS", "1", 0, 0},
+    { 0x00160033, "Water Depth", "DS", "1", 0, 0},
+    { 0x00160034, "Acceleration", "DS", "1", 0, 0},
+    { 0x00160035, "Camera Elevation Angle", "DS", "1", 0, 0},
+    { 0x00160036, "Flash Energy", "DS", "1-2", 0, 0},
+    { 0x00160037, "Subject Location", "IS", "2", 0, 0},
+    { 0x00160038, "Photographic Exposure Index", "DS", "1", 0, 0},
+    { 0x00160039, "Sensing Method", "US", "1", 0, 0},
+    { 0x0016003A, "File Source", "US", "1", 0, 0},
+    { 0x0016003B, "Scene Type", "US", "1", 0, 0},
+    { 0x00160041, "Custom Rendered", "US", "1", 0, 0},
+    { 0x00160042, "Exposure Mode", "US", "1", 0, 0},
+    { 0x00160043, "White Balance", "US", "1", 0, 0},
+    { 0x00160044, "Digital Zoom Ratio", "DS", "1", 0, 0},
+    { 0x00160045, "Focal Length In 35mm Film", "IS", "1", 0, 0},
+    { 0x00160046, "Scene Capture Type", "US", "1", 0, 0},
+    { 0x00160047, "Gain Control", "US", "1", 0, 0},
+    { 0x00160048, "Contrast", "US", "1", 0, 0},
+    { 0x00160049, "Saturation", "US", "1", 0, 0},
+    { 0x0016004A, "Sharpness", "US", "1", 0, 0},
+    { 0x0016004B, "Device Setting Description", "OB", "1", 0, 0},
+    { 0x0016004C, "Subject Distance Range", "US", "1", 0, 0},
+    { 0x0016004D, "Camera Owner Name", "UT", "1", 0, 0},
+    { 0x0016004E, "Lens Specification", "DS", "4", 0, 0},
+    { 0x0016004F, "Lens Make", "UT", "1", 0, 0},
+    { 0x00160050, "Lens Model", "UT", "1", 0, 0},
+    { 0x00160051, "Lens Serial Number", "UT", "1", 0, 0},
+    { 0x00160061, "Interoperability Index", "CS", "1", 0, 0},
+    { 0x00160062, "Interoperability Version", "OB", "1", 0, 0},
+    { 0x00160070, "GPS Version ID", "OB", "1", 0, 0},
+    { 0x00160071, "GPS Latitude Ref", "CS", "1", 0, 0},
+    { 0x00160072, "GPS Latitude", "DS", "3", 0, 0},
+    { 0x00160073, "GPS Longitude Ref", "CS", "1", 0, 0},
+    { 0x00160074, "GPS Longitude", "DS", "3", 0, 0},
+    { 0x00160075, "GPS Altitude Ref", "US", "1", 0, 0},
+    { 0x00160076, "GPS Altitude", "DS", "1", 0, 0},
+    { 0x00160077, "GPS Time Stamp", "DT", "1", 0, 0},
+    { 0x00160078, "GPS Satellites", "UT", "1", 0, 0},
+    { 0x00160079, "GPS Status", "CS", "1", 0, 0},
+    { 0x0016007A, "GPS Measure Mode", "CS", "1", 0, 0},
+    { 0x0016007B, "GPS DOP", "DS", "1", 0, 0},
+    { 0x0016007C, "GPS Speed Ref", "CS", "1", 0, 0},
+    { 0x0016007D, "GPS Speed", "DS", "1", 0, 0},
+    { 0x0016007E, "GPS Track Ref", "CS", "1", 0, 0},
+    { 0x0016007F, "GPS Track", "DS", "1", 0, 0},
+    { 0x00160080, "GPS Img Direction Ref", "CS", "1", 0, 0},
+    { 0x00160081, "GPS Img Direction", "DS", "1", 0, 0},
+    { 0x00160082, "GPS Map Datum", "UT", "1", 0, 0},
+    { 0x00160083, "GPS Dest Latitude Ref", "CS", "1", 0, 0},
+    { 0x00160084, "GPS Dest Latitude", "DS", "3", 0, 0},
+    { 0x00160085, "GPS Dest Longitude Ref", "CS", "1", 0, 0},
+    { 0x00160086, "GPS Dest Longitude", "DS", "3", 0, 0},
+    { 0x00160087, "GPS Dest Bearing Ref", "CS", "1", 0, 0},
+    { 0x00160088, "GPS Dest Bearing", "DS", "1", 0, 0},
+    { 0x00160089, "GPS Dest Distance Ref", "CS", "1", 0, 0},
+    { 0x0016008A, "GPS Dest Distance", "DS", "1", 0, 0},
+    { 0x0016008B, "GPS Processing Method", "OB", "1", 0, 0},
+    { 0x0016008C, "GPS Area Information", "OB", "1", 0, 0},
+    { 0x0016008D, "GPS Date Stamp", "DT", "1", 0, 0},
+    { 0x0016008E, "GPS Differential", "IS", "1", 0, 0},
     { 0x00180010, "Contrast/Bolus Agent", "LO", "1", 0, 0},
     { 0x00180012, "Contrast/Bolus Agent Sequence", "SQ", "1", 0, 0},
     { 0x00180013, "Contrast/Bolus T1 Relaxivity", "FL", "1", 0, 0},
@@ -723,7 +832,7 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00181019, "Secondary Capture Device Software Versions", "LO", "1-n", 0, 0},
     { 0x0018101A, "Hardcopy Device Software Version", "LO", "1-n", -1, 0},
     { 0x0018101B, "Hardcopy Device Manufacturer's Model Name", "LO", "1", -1, 0},
-    { 0x00181020, "Software Version(s)", "LO", "1-n", 0, 0},
+    { 0x00181020, "Software Versions", "LO", "1-n", 0, 0},
     { 0x00181022, "Video Image Format Acquired", "SH", "1", 0, 0},
     { 0x00181023, "Digital Image Format Acquired", "LO", "1", 0, 0},
     { 0x00181030, "Protocol Name", "LO", "1", 0, 0},
@@ -1682,6 +1791,13 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00221039, "Refractive Procedure Occurred", "CS", "1", 0, 0},
     { 0x00221040, "Refractive Surgery Type Code Sequence", "SQ", "1", 0, 0},
     { 0x00221044, "Ophthalmic Ultrasound Method Code Sequence", "SQ", "1", 0, 0},
+    { 0x00221045, "Surgically Induced Astigmatism Sequence", "SQ", "1", 0, 0},
+    { 0x00221046, "Type of Optical Correction", "CS", "1", 0, 0},
+    { 0x00221047, "Toric IOL Power Sequence", "SQ", "1", 0, 0},
+    { 0x00221048, "Predicted Toric Error Sequence", "SQ", "1", 0, 0},
+    { 0x00221049, "Pre-Selected for Implantation", "CS", "1", 0, 0},
+    { 0x0022104A, "Toric IOL Power for Exact Emmetropia Sequence", "SQ", "1", 0, 0},
+    { 0x0022104B, "Toric IOL Power for Exact Target Refraction Sequence", "SQ", "1", 0, 0},
     { 0x00221050, "Ophthalmic Axial Length Measurements Sequence", "SQ", "1", 0, 0},
     { 0x00221053, "IOL Power", "FL", "1", 0, 0},
     { 0x00221054, "Predicted Refractive Error", "FL", "1", 0, 0},
@@ -1703,6 +1819,9 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00221125, "Anterior Chamber Depth Definition Code Sequence", "SQ", "1", 0, 0},
     { 0x00221127, "Lens Thickness Sequence", "SQ", "1", 0, 0},
     { 0x00221128, "Anterior Chamber Depth Sequence", "SQ", "1", 0, 0},
+    { 0x0022112A, "Calculation Comment Sequence", "SQ", "1", 0, 0},
+    { 0x0022112B, "Calculation Comment Type", "CS", "1", 0, 0},
+    { 0x0022112C, "Calculation Comment", "LT", "1", 0, 0},
     { 0x00221130, "Lens Thickness", "FL", "1", 0, 0},
     { 0x00221131, "Anterior Chamber Depth", "FL", "1", 0, 0},
     { 0x00221132, "Source of Lens Thickness Data Code Sequence", "SQ", "1", 0, 0},
@@ -2152,6 +2271,8 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00321055, "Study Component Status ID", "CS", "1", -1, 0},
     { 0x00321060, "Requested Procedure Description", "LO", "1", 0, 0},
     { 0x00321064, "Requested Procedure Code Sequence", "SQ", "1", 0, 0},
+    { 0x00321066, "Reason for Visit", "UT", "1", 0, 0},
+    { 0x00321067, "Reason for Visit Code Sequence", "SQ", "1", 0, 0},
     { 0x00321070, "Requested Contrast Agent", "LO", "1", 0, 0},
     { 0x00324000, "Study Comments", "LT", "1", -1, 0},
     { 0x00380004, "Referenced Patient Alias Sequence", "SQ", "1", 0, 0},
@@ -2610,6 +2731,15 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x00460102, "Add Other Sequence", "SQ", "1", 0, 0},
     { 0x00460104, "Add Power", "FD", "1", 0, 0},
     { 0x00460106, "Viewing Distance", "FD", "1", 0, 0},
+    { 0x00460110, "Cornea Measurements Sequence", "SQ", "1", 0, 0},
+    { 0x00460111, "Source of Cornea Measurement Data Code Sequence", "SQ", "1", 0, 0},
+    { 0x00460112, "Steep Corneal Axis Sequence", "SQ", "1", 0, 0},
+    { 0x00460113, "Flat Corneal Axis Sequence", "SQ", "1", 0, 0},
+    { 0x00460114, "Corneal Power", "FD", "1", 0, 0},
+    { 0x00460115, "Corneal Axis", "FD", "1", 0, 0},
+    { 0x00460116, "Cornea Measurement Method Code Sequence", "SQ", "1", 0, 0},
+    { 0x00460117, "Refractive Index of Cornea", "FL", "1", 0, 0},
+    { 0x00460118, "Refractive Index of Aqueous Humor", "FL", "1", 0, 0},
     { 0x00460121, "Visual Acuity Type Code Sequence", "SQ", "1", 0, 0},
     { 0x00460122, "Visual Acuity Right Eye Sequence", "SQ", "1", 0, 0},
     { 0x00460123, "Visual Acuity Left Eye Sequence", "SQ", "1", 0, 0},
@@ -4567,6 +4697,8 @@ static dcm_tag_t dcm_tag_data[] = {
     { 0x60001500, "Overlay Label", "LO", "1", 0, 0},
     { 0x60003000, "Overlay Data", "OB or OW", "1", 0, 0},
     { 0x60004000, "Overlay Comments", "LT", "1", -1, 0},
+    { 0x7FE00001, "Extended Offset Table", "OV", "1", 0, 0},
+    { 0x7FE00002, "Extended Offset Table Lengths", "OV", "1", 0, 0},
     { 0x7FE00008, "Float Pixel Data", "OF", "1", 0, 0},
     { 0x7FE00009, "Double Float Pixel Data", "OD", "1", 0, 0},
     { 0x7FE00010, "Pixel Data", "OB or OW", "1", 0, 0},
@@ -4730,6 +4862,11 @@ typedef struct dcm_uid {
 #define DCM_UID_CODING_SCHEME_INTEGRATED_TAXONOMIC_INFORMATION_SYSTEM_ITIS_TAXONOMIC_SERIAL_NUMBER_TSN "1.2.840.10008.2.16.7"
 #define DCM_UID_CODING_SCHEME_MOUSE_GENOME_INITIATIVE_MGI "1.2.840.10008.2.16.8"
 #define DCM_UID_CODING_SCHEME_PUBCHEM_COMPOUND_CID "1.2.840.10008.2.16.9"
+#define DCM_UID_CODING_SCHEME_ICD_11 "1.2.840.10008.2.16.10"
+#define DCM_UID_CODING_SCHEME_NEW_YORK_UNIVERSITY_MELANOMA_CLINICAL_COOPERATIVE_GROUP "1.2.840.10008.2.16.11"
+#define DCM_UID_CODING_SCHEME_MAYO_CLINIC_NON_RADIOLOGICAL_IMAGES_SPECIFIC_BODY_STRUCTURE_ANATOMICAL_SURFACE_REGION_GUIDE "1.2.840.10008.2.16.12"
+#define DCM_UID_CODING_SCHEME_IMAGE_BIOMARKER_STANDARDISATION_INITIATIVE "1.2.840.10008.2.16.13"
+#define DCM_UID_CODING_SCHEME_RADIOMICS_ONTOLOGY "1.2.840.10008.2.16.14"
 #define DCM_UID_APPLICATION_CONTEXT_NAME_DICOM "1.2.840.10008.3.1.1.1"
 #define DCM_UID_SOP_CLASS_DETACHED_PATIENT_MANAGEMENT_SOP_CLASS_RETIRED "1.2.840.10008.3.1.2.1.1"
 #define DCM_UID_META_SOP_CLASS_DETACHED_PATIENT_MANAGEMENT_META_SOP_CLASS_RETIRED "1.2.840.10008.3.1.2.1.4"
@@ -5134,6 +5271,11 @@ static dcm_uid_t dcm_uid_data[] = {
     { DCM_UID_CODING_SCHEME_INTEGRATED_TAXONOMIC_INFORMATION_SYSTEM_ITIS_TAXONOMIC_SERIAL_NUMBER_TSN, "Integrated Taxonomic Information System (ITIS) Taxonomic Serial Number (TSN)", "Coding Scheme"},
     { DCM_UID_CODING_SCHEME_MOUSE_GENOME_INITIATIVE_MGI, "Mouse Genome Initiative (MGI)", "Coding Scheme"},
     { DCM_UID_CODING_SCHEME_PUBCHEM_COMPOUND_CID, "PubChem Compound CID", "Coding Scheme"},
+    { DCM_UID_CODING_SCHEME_ICD_11, "ICD-11", "Coding Scheme"},
+    { DCM_UID_CODING_SCHEME_NEW_YORK_UNIVERSITY_MELANOMA_CLINICAL_COOPERATIVE_GROUP, "New York University Melanoma Clinical Cooperative Group", "Coding Scheme"},
+    { DCM_UID_CODING_SCHEME_MAYO_CLINIC_NON_RADIOLOGICAL_IMAGES_SPECIFIC_BODY_STRUCTURE_ANATOMICAL_SURFACE_REGION_GUIDE, "Mayo Clinic Non-radiological Images Specific Body Structure Anatomical Surface Region Guide", "Coding Scheme"},
+    { DCM_UID_CODING_SCHEME_IMAGE_BIOMARKER_STANDARDISATION_INITIATIVE, "Image Biomarker Standardisation Initiative", "Coding Scheme"},
+    { DCM_UID_CODING_SCHEME_RADIOMICS_ONTOLOGY, "Radiomics Ontology", "Coding Scheme"},
     { DCM_UID_APPLICATION_CONTEXT_NAME_DICOM, "DICOM Application Context Name", "Application Context Name"},
     { DCM_UID_SOP_CLASS_DETACHED_PATIENT_MANAGEMENT_SOP_CLASS_RETIRED, "Detached Patient Management SOP Class (Retired)", "SOP Class"},
     { DCM_UID_META_SOP_CLASS_DETACHED_PATIENT_MANAGEMENT_META_SOP_CLASS_RETIRED, "Detached Patient Management Meta SOP Class (Retired)", "Meta SOP Class"},
