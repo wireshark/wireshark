@@ -932,6 +932,24 @@ lookup_secrets_type(const char *type)
     return 0;
 }
 
+static void
+validate_secrets_file(const char *filename, guint32 secrets_type, const char *data)
+{
+    if (secrets_type == SECRETS_TYPE_TLS) {
+        /*
+         * A key log file is unlikely going to look like either:
+         * - a PEM-encoded private key file.
+         * - a BER-encoded PKCS #12 file ("PFX file"). (Look for a Constructed
+         *   SEQUENCE tag, e.g. bytes 0x30 which happens to be ASCII '0'.)
+         */
+        if (g_str_has_prefix(data, "-----BEGIN ") || data[0] == 0x30) {
+            fprintf(stderr,
+                    "editcap: Warning: \"%s\" is not a key log file, but an unsupported private key file. Decryption will not work.\n",
+                    filename);
+        }
+    }
+}
+
 static int
 framenum_compare(gconstpointer a, gconstpointer b, gpointer user_data _U_)
 {
@@ -1473,6 +1491,9 @@ main(int argc, char *argv[])
                 g_free(data);
                 continue;
             }
+
+            /* Warn for badly formatted files, but proceed anyway. */
+            validate_secrets_file(secrets_filename, secrets_type_id, data);
 
             block = wtap_block_create(WTAP_BLOCK_DSB);
             dsb = (wtapng_dsb_mandatory_t *)wtap_block_get_mandatory_data(block);

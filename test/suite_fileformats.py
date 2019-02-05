@@ -215,6 +215,26 @@ class case_fileformat_pcapng_dsb(subprocesstest.SubprocessTestCase):
             (0x544c534b, len(dsb2_contents), dsb2_contents),
         ))
 
+    def test_pcapng_dsb_bad_key(self, cmd_editcap, dirs, capture_file, check_pcapng_dsb_fields):
+        '''Insertion of a RSA key file is not very effective.'''
+        rsa_keyfile = os.path.join(dirs.key_dir, 'rsasnakeoil2.key')
+        p12_keyfile = os.path.join(dirs.key_dir, 'key.p12')
+        outfile = self.filename_from_id('rsasnakeoil2-dsb.pcapng')
+        proc = self.assertRun((cmd_editcap,
+            '--inject-secrets', 'tls,%s' % rsa_keyfile,
+            '--inject-secrets', 'tls,%s' % p12_keyfile,
+            capture_file('rsasnakeoil2.pcap'), outfile
+        ))
+        self.assertEqual(proc.stderr_str.count('unsupported private key file'), 2)
+        with open(rsa_keyfile, 'rb') as f:
+            dsb1_contents = f.read()
+        with open(p12_keyfile, 'rb') as f:
+            dsb2_contents = f.read()
+        check_pcapng_dsb_fields(outfile, (
+            (0x544c534b, len(dsb1_contents), dsb1_contents),
+            (0x544c534b, len(dsb2_contents), dsb2_contents),
+        ))
+
 
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
