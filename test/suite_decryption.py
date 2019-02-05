@@ -208,9 +208,11 @@ class case_decrypt_tls(subprocesstest.SubprocessTestCase):
         if not features.have_gnutls:
             self.skipTest('Requires GnuTLS.')
         key_file = os.path.join(dirs.key_dir, 'rsasnakeoil2.key')
+        # Test protocol alias while at it (ssl -> tls)
         self.assertRun((cmd_tshark,
                 '-r', capture_file('tls-renegotiation.pcap'),
                 '-o', 'tls.keys_list:0.0.0.0,4433,http,{}'.format(key_file),
+                '-d', 'tcp.port==4433,ssl',
                 '-Tfields',
                 '-e', 'http.content_length',
                 '-Y', 'http',
