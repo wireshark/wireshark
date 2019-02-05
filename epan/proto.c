@@ -2048,7 +2048,7 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 				 * The upper 48 bits are seconds since the
 				 * UN*X epoch.
 				 */
-				time_stamp->secs  = tvb_get_ntoh48(tvb, start);
+				time_stamp->secs  = (time_t)tvb_get_ntoh48(tvb, start);
 				/*
 				 * The lower 16 bits are 1/2^16s of a second;
 				 * convert them to nanoseconds.
@@ -2086,7 +2086,7 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 				 * The lower 48 bits are seconds since the
 				 * UN*X epoch.
 				 */
-				time_stamp->secs  = tvb_get_letoh48(tvb, start+2);
+				time_stamp->secs  = (time_t)tvb_get_letoh48(tvb, start+2);
 				/*
 				 * The upper 16 bits are 1/2^16s of a second;
 				 * convert them to nanoseconds.

@@ -742,7 +742,7 @@ void Iax2AnalysisDialog::savePayload(QTemporaryFile *tmpfile, packet_info *pinfo
 
     if (iax2info->payload_len > 0) {
         const char *data = (const char *) iax2info->payload_data;
-        size_t nchars;
+        qint64 nchars;
 
         nchars = tmpfile->write(data, iax2info->payload_len);
         if (nchars != (iax2info->payload_len)) {
@@ -908,7 +908,7 @@ void Iax2AnalysisDialog::saveAudio(Iax2AnalysisDialog::StreamDirection direction
     gint16     sample;
     guint8     pd[4];
     gboolean   stop_flag = FALSE;
-    size_t     nchars;
+    qint64     nchars;
 
     save_file.open(QIODevice::WriteOnly);
     fwd_tempfile_->seek(0);

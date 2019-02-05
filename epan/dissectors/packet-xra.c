@@ -732,7 +732,7 @@ dissect_timestamp_mb(tvbuff_t * tvb, proto_tree* tree) {
    */
   plc_timestamp_ns = ((plc_timestamp>>41)&0x7FFFFF)*100000*4194304 +  ((plc_timestamp >>9)&0xFFFFFFFF)*100000/1024 + ((plc_timestamp>>4)&0x1F)*10000/2048 + (plc_timestamp&0x0F)*10000/2048/16;
 
-  ts.secs= plc_timestamp_ns/1000000000;
+  ts.secs= (time_t)(plc_timestamp_ns/1000000000);
   ts.nsecs=plc_timestamp_ns%1000000000;
   proto_tree_add_time(timestamp_tree, hf_plc_mb_ts_timestamp_formatted, tvb, 1, 8,  &ts);
 

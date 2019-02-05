@@ -796,7 +796,7 @@ void RtpAnalysisDialog::savePayload(QTemporaryFile *tmpfile, tap_rtp_stat_t *sta
         (rtpinfo->info_payload_type == PT_CN_OLD)) {
     } else { /* All other payloads */
         const char *data;
-        size_t nchars;
+        qint64 nchars;
         tap_rtp_save_data_t save_data;
 
         if (!rtpinfo->info_all_data_present) {
@@ -827,7 +827,7 @@ void RtpAnalysisDialog::savePayload(QTemporaryFile *tmpfile, tap_rtp_stat_t *sta
         }
         if (save_data.payload_len > 0) {
             nchars = tmpfile->write(data, save_data.payload_len);
-            if (nchars != save_data.payload_len) {
+            if ((size_t)nchars != save_data.payload_len) {
                 /* Write error or short write */
                 err_str_ = tr("Can't save in a file: File I/O problem.");
                 save_payload_error_ = TAP_RTP_FILE_WRITE_ERROR;
@@ -1072,7 +1072,7 @@ size_t RtpAnalysisDialog::convert_payload_to_samples(unsigned int payload_type, 
 
 gboolean RtpAnalysisDialog::saveAudioAUSilence(size_t total_len, QFile *save_file, gboolean *stop_flag)
 {
-    size_t nchars;
+    qint64 nchars;
     guint8 pd_out[2*4000];
     gint16 silence;
     guint8 pd[4];
@@ -1095,9 +1095,9 @@ gboolean RtpAnalysisDialog::saveAudioAUSilence(size_t total_len, QFile *save_fil
     return TRUE;
 }
 
-gboolean RtpAnalysisDialog::saveAudioAUUnidir(tap_rtp_stat_t &statinfo, QTemporaryFile *tempfile, QFile *save_file, size_t header_end, gboolean *stop_flag, gboolean interleave, size_t prefix_silence)
+gboolean RtpAnalysisDialog::saveAudioAUUnidir(tap_rtp_stat_t &statinfo, QTemporaryFile *tempfile, QFile *save_file, qint64 header_end, gboolean *stop_flag, gboolean interleave, size_t prefix_silence)
 {
-    size_t nchars;
+    qint64 nchars;
     guint8 pd_out[2*4000];
     guint8 pd[4];
     tap_rtp_save_data_t save_data;
@@ -1125,7 +1125,7 @@ gboolean RtpAnalysisDialog::saveAudioAUUnidir(tap_rtp_stat_t &statinfo, QTempora
                 }
                 nchars += save_file->write((const char *)pd, 2);
             }
-            if (nchars < sample_count*2) {
+            if ((size_t)nchars < sample_count*2) {
                 return FALSE;
             }
         }
@@ -1134,7 +1134,7 @@ gboolean RtpAnalysisDialog::saveAudioAUUnidir(tap_rtp_stat_t &statinfo, QTempora
     return TRUE;
 }
 
-gboolean RtpAnalysisDialog::saveAudioAUBidir(tap_rtp_stat_t &fwd_statinfo, tap_rtp_stat_t &rev_statinfo, QTemporaryFile *fwd_tempfile, QTemporaryFile *rev_tempfile, QFile *save_file, size_t header_end, gboolean *stop_flag, size_t prefix_silence_fwd, size_t prefix_silence_rev)
+gboolean RtpAnalysisDialog::saveAudioAUBidir(tap_rtp_stat_t &fwd_statinfo, tap_rtp_stat_t &rev_statinfo, QTemporaryFile *fwd_tempfile, QTemporaryFile *rev_tempfile, QFile *save_file, qint64 header_end, gboolean *stop_flag, size_t prefix_silence_fwd, size_t prefix_silence_rev)
 {
     if (! saveAudioAUUnidir(fwd_statinfo, fwd_tempfile, save_file, header_end, stop_flag, TRUE, prefix_silence_fwd))
     {
@@ -1151,8 +1151,8 @@ gboolean RtpAnalysisDialog::saveAudioAUBidir(tap_rtp_stat_t &fwd_statinfo, tap_r
 gboolean RtpAnalysisDialog::saveAudioAU(StreamDirection direction, QFile *save_file, gboolean *stop_flag, RtpAnalysisDialog::SyncType sync)
 {
     guint8 pd[4];
-    size_t nchars;
-    size_t header_end;
+    qint64 nchars;
+    qint64 header_end;
     size_t fwd_total_len;
     size_t rev_total_len;
     size_t total_len;
