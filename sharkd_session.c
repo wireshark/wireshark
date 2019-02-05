@@ -3871,7 +3871,7 @@ sharkd_rtp_download_decode(struct sharkd_download_rtp *req)
 	SAMPLE *resample_buff = (SAMPLE *) g_malloc(resample_buff_len);
 	spx_uint32_t cur_in_rate = 0;
 	char *write_buff = NULL;
-	gint64 write_bytes = 0;
+	size_t write_bytes = 0;
 	unsigned channels = 0;
 	unsigned sample_rate = 0;
 
