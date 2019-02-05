@@ -539,6 +539,8 @@ static int hf_sflow_flow_sample_input_interface_value = -1;
 static int hf_sflow_flow_sample_sampling_rate = -1;
 static int hf_sflow_5_extended_80211_rx_rcpi = -1;
 static int hf_sflow_enterprise = -1;
+static int hf_sflow_enterprise_length = -1;
+static int hf_sflow_enterprise_data = -1;
 static int hf_sflow_245_header_frame_length = -1;
 static int hf_sflow_5_extended_user_destination_character_set = -1;
 static int hf_sflow_5_extended_80211_rx_bssid = -1;
@@ -1643,11 +1645,23 @@ dissect_sflow_5_flow_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
     } else {
         /* unknown enterprise format, what to do?? */
+        guint32 length;
+
         flow_data_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
             ett_sflow_5_flow_record, &ti, "Unknown enterprise format");
         proto_tree_add_uint_format_value(flow_data_tree, hf_sflow_enterprise, tvb, offset, 4,
                                     enterprise, "Non-standard sFlow (%u)", enterprise);
-        offset = tvb_captured_length(tvb);
+        offset += 4;
+        /* get length */
+        length = tvb_get_ntohl(tvb, offset);
+        proto_tree_add_item(flow_data_tree, hf_sflow_enterprise_length, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        /* extract data byte by byte */
+        proto_tree_add_item(flow_data_tree, hf_sflow_enterprise_data, tvb, offset, length, ENC_NA);
+        offset += length;
+        /* get the correct offset by adding padding byte count */
+        if (length % 4)
+            offset += (4 - length % 4);
     }
     proto_item_set_end(ti, tvb, offset);
 
@@ -1969,11 +1983,23 @@ dissect_sflow_5_counters_record(tvbuff_t *tvb, proto_tree *tree, gint offset) {
                 break;
         }
     } else { /* unknown enterprise format, what to do?? */
+        guint32 length;
+
         counter_data_tree = proto_tree_add_subtree(tree, tvb, offset, -1,
             ett_sflow_5_counters_record, &ti, "Unknown enterprise format");
         proto_tree_add_uint_format_value(counter_data_tree, hf_sflow_enterprise, tvb, offset, 4,
                         enterprise, "Non-standard sFlow (%u)", enterprise);
-        offset = tvb_captured_length(tvb);
+        offset += 4;
+        /* get length */
+        length = tvb_get_ntohl(tvb, offset);
+        proto_tree_add_item(counter_data_tree, hf_sflow_enterprise_length, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+        /* extract data byte by byte */
+        proto_tree_add_item(counter_data_tree, hf_sflow_enterprise_data, tvb, offset, length, ENC_NA);
+        offset += length;
+        /* get the correct offset by adding padding byte count */
+        if (length % 4)
+            offset += (4 - length % 4);
     }
     proto_item_set_end(ti, tvb, offset);
 
@@ -3414,6 +3440,16 @@ proto_register_sflow(void) {
       { &hf_sflow_enterprise,
         { "Enterprise", "sflow.enterprise",
           FT_UINT32, BASE_DEC, NULL, 0xFFFFF000,
+          NULL, HFILL }
+      },
+      { &hf_sflow_enterprise_length,
+        { "Length", "sflow.enterprise.length",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_sflow_enterprise_data,
+        { "Data", "sflow.enterprise.data",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
           NULL, HFILL }
       },
       { &hf_sflow_flow_sample_flow_record,
