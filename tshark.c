@@ -1586,7 +1586,12 @@ main(int argc, char *argv[])
 
     output_only_tables = g_hash_table_new (g_str_hash, g_str_equal);
     for (ps = strtok (output_only, ","); ps; ps = strtok (NULL, ",")) {
-      g_hash_table_insert(output_only_tables, (gpointer)ps, (gpointer)ps);
+      const char *name = ps;
+      header_field_info *hfi = proto_registrar_get_byalias(name);
+      if (hfi) {
+        name = hfi->abbrev;
+      }
+      g_hash_table_insert(output_only_tables, (gpointer)name, (gpointer)name);
     }
   }
 
