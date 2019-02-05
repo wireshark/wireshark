@@ -344,8 +344,13 @@ static int hf_ua3g_unsolicited_msg_hardware_config_8082_set = -1;
 static int hf_ua3g_unsolicited_msg_hardware_config_super_wideband = -1;
 static int hf_ua3g_unsolicited_msg_hook_status = -1;
 static int hf_ua3g_unsolicited_msg_additional_vta_type = -1;
-static int hf_ua3g_unsolicited_msg_capability_info = -1;
 static int hf_ua3g_unsolicited_msg_capability_info_bluetooth_supported = -1;
+static int hf_ua3g_unsolicited_msg_capability_info_vpn_encryption_status = -1;
+static int hf_ua3g_unsolicited_msg_capability_info_vpn = -1;
+static int hf_ua3g_unsolicited_msg_capability_info_ipsec = -1;
+static int hf_ua3g_unsolicited_msg_capability_info_dtls = -1;
+static int hf_ua3g_unsolicited_msg_capability_info_wlan_status = -1;
+static int hf_ua3g_unsolicited_msg_capability_info_reserved = -1;
 static int hf_ua3g_special_key_shift = -1;
 static int hf_ua3g_special_key_ctrl = -1;
 static int hf_ua3g_special_key_alt = -1;
@@ -665,6 +670,17 @@ static value_string_ext str_digit_ext = VALUE_STRING_EXT_INIT(str_digit);
 #define STR_ON_OFF(arg) ((arg) ? "On" : "Off")
 #define STR_YES_NO(arg) ((arg) ? "Yes" : "No")
 
+static const value_string str_yes_no[] = {
+    { 0x0, "No" },
+    { 0x1, "Yes"},
+    { 0  , NULL }
+};
+
+static const value_string str_on_off[] = {
+    { 0x0, "Off"},
+    { 0x1, "On" },
+    { 0  , NULL }
+};
 
 static const value_string str_device_type[] = {
     {0x00, "Voice Terminal Adaptor"},
@@ -1130,6 +1146,12 @@ static const value_string str_ethernet_speed_vals[] = {
     {10  , "10 Mbps"},
     {100 , "100 Mbps"},
     {0   , NULL}
+};
+
+static const value_string str_wlan_status[] = {
+    {0, "Not Connected"},
+    {1, "Connected"},
+    {0, NULL}
 };
 
 static void
@@ -3812,25 +3834,44 @@ decode_unsolicited_msg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                                 offset += 2;
                                 length -= 2;
 
-                                if (length >= 4) {
-                                    static const int *capability_info[] = {
-                                        &hf_ua3g_unsolicited_msg_capability_info_bluetooth_supported,
-                                        NULL
-                                    };
+                                proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_firmware_version_bootloader, tvb, offset, 2, ENC_BIG_ENDIAN);
+                                offset += 2;
+                                length -= 2;
 
-
-                                    proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_firmware_version_bootloader,
-                                            tvb, offset, 2, ENC_BIG_ENDIAN);
-                                    offset += 2;
-                                    length -= 2;
-
-                                    proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_additional_vta_type,
-                                            tvb, offset, 1, ENC_BIG_ENDIAN);
+                                if (length >= 1) {
+                                    proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_additional_vta_type, tvb, offset, 1, ENC_BIG_ENDIAN);
                                     offset++;
                                     length--;
+                                }
 
+                                if (length >= 1) {
+                                    proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_capability_info_bluetooth_supported, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                    offset++;
+                                    length--;
+                                }
 
-                                    proto_tree_add_bitmask(ua3g_body_tree, tvb, offset, hf_ua3g_unsolicited_msg_capability_info, ett_ua3g_param, capability_info, ENC_NA);
+                                if (length >= 1) {
+                                    const int *capability_info[] = {
+                                        &hf_ua3g_unsolicited_msg_capability_info_vpn,
+                                        &hf_ua3g_unsolicited_msg_capability_info_ipsec,
+                                        &hf_ua3g_unsolicited_msg_capability_info_dtls,
+                                        NULL
+                                    };
+                                    proto_tree_add_bitmask(ua3g_body_tree, tvb, offset, hf_ua3g_unsolicited_msg_capability_info_vpn_encryption_status, ett_ua3g_param, capability_info, ENC_NA);
+                                    offset++;
+                                    length--;
+                                }
+
+                                if (length >= 1) {
+                                    proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_capability_info_wlan_status, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                    offset++;
+                                    length--;
+                                }
+
+                                while(length > 0) {
+                                    proto_tree_add_item(ua3g_body_tree, hf_ua3g_unsolicited_msg_capability_info_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+                                    offset++;
+                                    length--;
                                 }
                             }
                         }
@@ -4800,10 +4841,15 @@ proto_register_ua3g(void)
         { &hf_ua3g_unsolicited_msg_hardware_config_3g_set, { "Hardware Generation", "ua3g.unsolicited_msg.hardware_config.3g_set", FT_BOOLEAN, 8, TFS(&tfs_2g_3g), 0x10, NULL, HFILL }},
         { &hf_ua3g_unsolicited_msg_hardware_config_8082_set, { "8082 Hardware", "ua3g.unsolicited_msg.hardware_config.8082_set", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x20, NULL, HFILL }},
         { &hf_ua3g_unsolicited_msg_hardware_config_super_wideband, { "Super Wideband Support", "ua3g.unsolicited_msg.hardware_config.super_wideband", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x40, NULL, HFILL }},
-        { &hf_ua3g_unsolicited_msg_hook_status, { "Hook Status", "ua3g.unsolicited_msg.hook_status", FT_BOOLEAN, 8, TFS(&tfs_on_off), 0x00, NULL, HFILL }},
+        { &hf_ua3g_unsolicited_msg_hook_status, { "Hook Status", "ua3g.unsolicited_msg.hook_status", FT_UINT8, BASE_DEC, VALS(str_on_off), 0x0, NULL, HFILL }},
         { &hf_ua3g_unsolicited_msg_additional_vta_type, { "Additional VTA Type", "ua3g.unsolicited_msg.additional_vta_type", FT_UINT8, BASE_HEX, VALS(str_additional_vta_type), 0x0, NULL, HFILL }},
-        { &hf_ua3g_unsolicited_msg_capability_info, { "Capability Info", "ua3g.unsolicited_msg.capability_info", FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }},
-        { &hf_ua3g_unsolicited_msg_capability_info_bluetooth_supported, { "Bluetooth Supported", "ua3g.unsolicited_msg.capability_info.bluetooth_supported", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01, NULL, HFILL }},
+        { &hf_ua3g_unsolicited_msg_capability_info_bluetooth_supported, { "Bluetooth Supported", "ua3g.unsolicited_msg.capability_info.bluetooth_supported", FT_UINT8, BASE_DEC, VALS(str_yes_no), 0x0, NULL, HFILL }},
+        { &hf_ua3g_unsolicited_msg_capability_info_vpn_encryption_status, { "VPN and Encryption Status", "ua3g.unsolicited_msg.capability_info.vpn_encryption_status", FT_UINT8, BASE_HEX, NULL, 0x00, NULL, HFILL }},
+        { &hf_ua3g_unsolicited_msg_capability_info_vpn, { "VPN", "ua3g.unsolicited_msg.capability_info.vpn", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01, NULL, HFILL }},
+        { &hf_ua3g_unsolicited_msg_capability_info_ipsec, { "IPSec", "ua3g.unsolicited_msg.capability_info.ipsec", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02, NULL, HFILL }},
+        { &hf_ua3g_unsolicited_msg_capability_info_dtls, { "DTLS", "ua3g.unsolicited_msg.capability_info.dtls", FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x4, NULL, HFILL }},
+        { &hf_ua3g_unsolicited_msg_capability_info_wlan_status, { "WLAN Status", "ua3g.unsolicited_msg.capability_info.wlan_status", FT_UINT8, BASE_DEC, VALS(str_wlan_status), 0x0, NULL, HFILL }},
+        { &hf_ua3g_unsolicited_msg_capability_info_reserved, { "Reserved", "ua3g.unsolicited_msg.capability_info.reserved", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_ua3g_special_key_shift, { "Shift", "ua3g.special_key.shift", FT_BOOLEAN, 8, TFS(&tfs_released_pressed), 0x01, NULL, HFILL }},
         { &hf_ua3g_special_key_ctrl, { "Ctrl", "ua3g.special_key.ctrl", FT_BOOLEAN, 8, TFS(&tfs_released_pressed), 0x02, NULL, HFILL }},
         { &hf_ua3g_special_key_alt, { "Alt", "ua3g.special_key.alt", FT_BOOLEAN, 8, TFS(&tfs_released_pressed), 0x04, NULL, HFILL }},
