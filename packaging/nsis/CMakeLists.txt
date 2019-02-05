@@ -131,7 +131,6 @@ endif()
 # module, e.g. cmake/modules/configure_nsis_file.cmake. However we would
 # have to figure out a clean way to pass in the variables above.
 file(READ "${CMAKE_CURRENT_SOURCE_DIR}/config.nsh.in" _config_nsh_contents)
-string(REPLACE "!define" "#cmakedefine" _config_nsh_contents "${_config_nsh_contents}")
 string(CONFIGURE "${_config_nsh_contents}" _config_nsh_contents)
 string(REPLACE "#define" "!define" _config_nsh_contents "${_config_nsh_contents}")
 string(REPLACE "#undef" "!undef" _config_nsh_contents "${_config_nsh_contents}")
