@@ -625,6 +625,8 @@ geonw_hash_new_entry(const guint8 *addr, gboolean resolve)
     _geonw_to_str(addr, tp->hexaddr, 28);
     tp->resolved_name[0] = '\0';
     tp->status = 0;
+    tp->timestamp = 0;
+    tp->sequence_number = SN_MAX + 1;
 
     if (resolve)
         geonw_addr_resolve(tp);
