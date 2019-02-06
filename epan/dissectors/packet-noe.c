@@ -786,6 +786,10 @@ static const value_string noe_evt_locappl_identifier_str_vals[] = {
     {1, "UserMenu"},
     {2, "BTConfig"},
     {3, "AudioCfg"},
+    {4, "SpkPhone"},
+    {5, "UsbSpCfg"},
+    {6, "BtSpCfg" },
+    {7, "EmnAppl" },
     {0, NULL}
 };
 
