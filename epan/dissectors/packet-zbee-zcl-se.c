@@ -2949,7 +2949,7 @@ dissect_zcl_price_publish_credit_payment(tvbuff_t *tvb, proto_tree *tree, guint 
     *offset += 4;
 
     /* Credit Payment Status */
-    proto_tree_add_item(tree, hf_zbee_zcl_price_credit_payment_status, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_price_credit_payment_status, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* Credit Payment */
@@ -5458,7 +5458,7 @@ dissect_zcl_met_get_profile(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     nstime_t end_time;
 
     /* Interval Channel */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_get_profile_interval_channel, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_get_profile_interval_channel, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* End Time */
@@ -5468,7 +5468,7 @@ dissect_zcl_met_get_profile(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += 4;
 
     /* Number of Periods */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_get_profile_number_of_periods, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_get_profile_number_of_periods, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 } /*dissect_zcl_met_get_profile*/
 
@@ -5513,11 +5513,11 @@ static void
 dissect_zcl_met_request_fast_poll_mode(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
     /* Fast Poll Update Period */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_request_fast_poll_mode_fast_poll_update_period, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_request_fast_poll_mode_fast_poll_update_period, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* Duration */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_request_fast_poll_mode_duration, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_request_fast_poll_mode_duration, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 } /*dissect_zcl_met_request_fast_poll_mode*/
 
@@ -5538,11 +5538,11 @@ dissect_zcl_met_schedule_snapshot(tvbuff_t *tvb, proto_tree *tree, guint *offset
     *offset += 4;
 
     /* Command Index */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_schedule_snapshot_command_index, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_schedule_snapshot_command_index, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* Total Number of Commands */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_schedule_snapshot_total_number_of_commands, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_schedule_snapshot_total_number_of_commands, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* Snapshot Schedule Payload */
@@ -5595,7 +5595,7 @@ dissect_zcl_met_get_snapshot(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     }
 
     /* Snapshot Offset */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_get_snapshot_snapshot_offset, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_get_snapshot_snapshot_offset, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* Snapshot Cause */
@@ -5627,7 +5627,7 @@ dissect_zcl_met_start_sampling(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += 4;
 
     /* Sample Type */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_start_sampling_sample_type, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_start_sampling_sample_type, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* Sample Request Interval */
@@ -5662,7 +5662,7 @@ dissect_zcl_met_get_sampled_data(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += 4;
 
     /* Sample Type */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_get_sampled_data_sample_type, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_get_sampled_data_sample_type, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* Number of Samples */
@@ -5681,7 +5681,7 @@ static void
 dissect_zcl_met_mirror_report_attribute_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
     /* Notification Scheme */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_mirror_report_attribute_response_notification_scheme, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_mirror_report_attribute_response_notification_scheme, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* Notification Flags #N */
@@ -5742,11 +5742,11 @@ dissect_zcl_met_change_supply(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += 4;
 
     /* Proposed Supple Status */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_change_supply_proposed_supply_status, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_change_supply_proposed_supply_status, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* Supple Control Bits */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_change_supply_supply_control_bits, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_change_supply_supply_control_bits, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 } /*dissect_zcl_met_change_supply*/
 
@@ -5761,7 +5761,7 @@ static void
 dissect_zcl_met_local_change_supply(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
     /* Proposed Supply Status */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_local_change_supply_proposed_supply_status, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_local_change_supply_proposed_supply_status, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 } /*dissect_zcl_met_local_change_supply*/
 
@@ -5780,19 +5780,19 @@ dissect_zcl_met_set_supply_status(tvbuff_t *tvb, proto_tree *tree, guint *offset
     *offset += 4;
 
     /* Supply Tamper State */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_set_supply_status_supply_tamper_state, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_set_supply_status_supply_tamper_state, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* Supply Depletion State */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_set_supply_status_supply_depletion_state, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_set_supply_status_supply_depletion_state, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* Supply Uncontrolled Flow State */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_set_supply_status_supply_uncontrolled_flow_state, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_set_supply_status_supply_uncontrolled_flow_state, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* Load Limit Supply State */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_set_supply_status_load_limit_supply_state, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_set_supply_status_load_limit_supply_state, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 } /*dissect_zcl_met_set_supply_status*/
 
@@ -5819,7 +5819,7 @@ dissect_zcl_met_set_uncontrolled_flow_threshold(tvbuff_t *tvb, proto_tree *tree,
     *offset += 2;
 
     /* Unit of Measure */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_set_uncontrolled_flow_threshold_unit_of_measure, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_set_uncontrolled_flow_threshold_unit_of_measure, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* Multiplier */
@@ -5831,7 +5831,7 @@ dissect_zcl_met_set_uncontrolled_flow_threshold(tvbuff_t *tvb, proto_tree *tree,
     *offset += 2;
 
     /* Stabilisation Period */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_set_uncontrolled_flow_threshold_stabilisation_period, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_set_uncontrolled_flow_threshold_stabilisation_period, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* Measurement Period */
@@ -5936,7 +5936,7 @@ dissect_zcl_met_take_snapshot_response(tvbuff_t *tvb, proto_tree *tree, guint *o
     *offset += 4;
 
     /* Snapshot Confirmation */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_take_snapshot_response_snapshot_confirmation, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_take_snapshot_response_snapshot_confirmation, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 } /*dissect_zcl_met_take_snapshot_response*/
 
@@ -5964,15 +5964,15 @@ dissect_zcl_met_publish_snapshot(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += 4;
 
     /* Total Snapshots Found */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_publish_snapshot_snapshots_found, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_publish_snapshot_snapshots_found, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* Command Index */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_publish_snapshot_cmd_index, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_publish_snapshot_cmd_index, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* Total Number of Commands */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_publish_snapshot_total_commands, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_publish_snapshot_total_commands, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* Snapshot Cause */
@@ -5981,7 +5981,7 @@ dissect_zcl_met_publish_snapshot(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += 4;
 
     /* Snapshot Payload Type */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_publish_snapshot_snapshot_payload_type, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_publish_snapshot_snapshot_payload_type, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* Snapshot Sub-Payload */
@@ -6014,7 +6014,7 @@ dissect_zcl_met_get_sampled_data_rsp(tvbuff_t *tvb, proto_tree *tree, guint *off
     *offset += 4;
 
     /* Sample Type */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_get_sampled_data_rsp_sample_type, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_get_sampled_data_rsp_sample_type, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* Sample Request Interval */
@@ -6058,7 +6058,7 @@ dissect_zcl_met_configure_mirror(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += 1;
 
     /* Notification Scheme */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_configure_mirror_notification_scheme, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_configure_mirror_notification_scheme, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 } /*dissect_zcl_met_configure_mirror*/
 
@@ -6075,7 +6075,7 @@ dissect_zcl_met_get_notified_msg(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     guint16 noti_flags_number;
 
     /* Notification Scheme */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_get_notified_msg_notification_scheme, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_get_notified_msg_notification_scheme, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* Notification Flag attribute ID */
@@ -6134,7 +6134,7 @@ dissect_zcl_met_supply_status_response(tvbuff_t *tvb, proto_tree *tree, guint *o
     *offset += 4;
 
     /* Supply Status After Implementation */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_supply_status_response_supply_status_after_implementation, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_supply_status_response_supply_status_after_implementation, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 } /*dissect_zcl_met_supply_status_response*/
 
@@ -8994,15 +8994,15 @@ dissect_zcl_pp_publish_prepay_snapshot(tvbuff_t *tvb, proto_tree *tree, guint *o
     *offset += 4;
 
     /* Total Snapshots Found */
-    proto_tree_add_item(tree, hf_zbee_zcl_pp_publish_prepay_snapshot_total_snapshots_found, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_publish_prepay_snapshot_total_snapshots_found, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* Command Index */
-    proto_tree_add_item(tree, hf_zbee_zcl_pp_publish_prepay_snapshot_command_index, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_publish_prepay_snapshot_command_index, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* Total Number of Commands */
-    proto_tree_add_item(tree, hf_zbee_zcl_pp_publish_prepay_snapshot_total_number_of_commands, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_publish_prepay_snapshot_total_number_of_commands, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* Snapshot Cause */
@@ -9011,7 +9011,7 @@ dissect_zcl_pp_publish_prepay_snapshot(tvbuff_t *tvb, proto_tree *tree, guint *o
     *offset += 4;
 
     /* Snapshot Payload Type */
-    proto_tree_add_item(tree, hf_zbee_zcl_pp_publish_prepay_snapshot_snapshot_payload_type, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_pp_publish_prepay_snapshot_snapshot_payload_type, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
     /* Snapshot Payload */
