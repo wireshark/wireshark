@@ -1042,6 +1042,13 @@ static int proto_gbcs_message = -1;
 
 static int hf_gbcs_message_element_length = -1;
 static int hf_gbcs_message_mac_header_general_ciphering = -1;
+static int hf_gbcs_message_mac_header_cra_flag = -1;
+static int hf_gbcs_message_mac_header_originator_counter = -1;
+static int hf_gbcs_message_mac_header_business_originator_id = -1;
+static int hf_gbcs_message_mac_header_business_target_id = -1;
+static int hf_gbcs_message_mac_header_date_time = -1;
+static int hf_gbcs_message_mac_header_other_info = -1;
+static int hf_gbcs_message_mac_header_key_info = -1;
 static int hf_gbcs_message_mac_header_security_control_byte = -1;
 static int hf_gbcs_message_mac_header_invocation_counter = -1;
 static int hf_gbcs_message_grouping_header_general_signing = -1;
@@ -1062,7 +1069,9 @@ static int hf_gbcs_message_routing_header_cra_flag = -1;
 static int hf_gbcs_message_routing_header_originator_counter = -1;
 static int hf_gbcs_message_routing_header_business_originator_id = -1;
 static int hf_gbcs_message_routing_header_business_target_id = -1;
+static int hf_gbcs_message_routing_header_date_time = -1;
 static int hf_gbcs_message_routing_header_message_code = -1;
+static int hf_gbcs_message_routing_header_key_info = -1;
 static int hf_gbcs_message_routing_header_security_control_byte = -1;
 static int hf_gbcs_message_routing_header_invocation_counter = -1;
 static int hf_gbcs_message_gbt_header_general_block_transfer = -1;
@@ -1089,6 +1098,7 @@ static gint ett_gbcs_message_mac_header = -1;
 static gint ett_gbcs_message_grouping_header = -1;
 static gint ett_gbcs_message_grouping_header_other_info = -1;
 static gint ett_gbcs_message_routing_header = -1;
+static gint ett_gbcs_message_routing_header_other_info = -1;
 static gint ett_gbcs_message_gbt_header = -1;
 static gint ett_gbcs_message_gbt_header_block_control = -1;
 static gint ett_gbcs_message_gbt_fragment = -1;
@@ -1136,7 +1146,7 @@ dissect_gbcs_message_element(proto_tree *tree, int hfindex, tvbuff_t *tvb, guint
     proto_tree_add_item_ret_uint(element_tree, hf_gbcs_message_element_length, tvb, *offset, 1, ENC_NA, &len);
     *offset += 1;
 
-    if (len > 0 && hfindex != -1) {
+    if (len > 0) {
         value_ti = proto_tree_add_item(element_tree, hfindex, tvb, *offset, len, ENC_BIG_ENDIAN);
         if (value_ti) {
             gchar *label;
@@ -1149,7 +1159,7 @@ dissect_gbcs_message_element(proto_tree *tree, int hfindex, tvbuff_t *tvb, guint
         proto_item_set_end(tree_ti, tvb, *offset);
     }
     else {
-        proto_item_append_text(tree_ti, "<none>");
+        proto_item_append_text(tree_ti, "%s: <none>", proto_registrar_get_name(hfindex));
     }
 }
 
@@ -1165,7 +1175,7 @@ dissect_gbcs_message_element_transaction_id(proto_tree *tree, int hfindex_cra_fl
     proto_tree_add_item_ret_uint(element_tree, hf_gbcs_message_element_length, tvb, *offset, 1, ENC_NA, &len);
     *offset += 1;
 
-    if (len == GBCS_MESSAGE_TRANSACTION_ID_LENGTH && hfindex_cra_flag != -1 && hfindex_originator_counter != -1) {
+    if (len > 0) {
         value_ti = proto_tree_add_item(element_tree, hfindex_cra_flag, tvb, *offset, 1, ENC_NA);
         if (value_ti) {
             gchar *label;
@@ -1190,7 +1200,7 @@ dissect_gbcs_message_element_transaction_id(proto_tree *tree, int hfindex_cra_fl
         proto_item_set_end(tree_ti, tvb, *offset);
     }
     else {
-        proto_item_append_text(tree_ti, "<none>");
+        proto_item_append_text(tree_ti, "Transaction ID: <none>");
     }
 }
 
@@ -1206,7 +1216,7 @@ dissect_gbcs_message_element_date_time(proto_tree *tree, int hfindex, tvbuff_t *
     proto_tree_add_item_ret_uint(element_tree, hf_gbcs_message_element_length, tvb, *offset, 1, ENC_NA, &len);
     *offset += 1;
 
-    if (len == GBCS_MESSAGE_DLMS_DATE_TIME_LENGTH && hfindex != -1) {
+    if (len > 0) {
         nstime_t date_time;
 
         dlms_date_time(tvb, *offset, &date_time);
@@ -1223,7 +1233,7 @@ dissect_gbcs_message_element_date_time(proto_tree *tree, int hfindex, tvbuff_t *
         proto_item_set_end(tree_ti, tvb, *offset);
     }
     else {
-        proto_item_append_text(tree_ti, "<none>");
+        proto_item_append_text(tree_ti, "%s: <none>", proto_registrar_get_name(hfindex));
     }
 }
 
@@ -1239,12 +1249,13 @@ dissect_gbcs_message_mac_header(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     proto_tree_add_item(mac_header_tree, hf_gbcs_message_mac_header_general_ciphering, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
-    dissect_gbcs_message_element_transaction_id(mac_header_tree, -1, -1, tvb, offset); // transaction-id - always none
-    dissect_gbcs_message_element(mac_header_tree, -1, tvb, offset); // originator-system-title - always none
-    dissect_gbcs_message_element(mac_header_tree, -1, tvb, offset); // recipient-system-title - always none
-    dissect_gbcs_message_element_date_time(mac_header_tree, -1, tvb, offset); // date-time - always none
-    dissect_gbcs_message_element(mac_header_tree, -1, tvb, offset); // other-information - always none
-    dissect_gbcs_message_element(mac_header_tree, -1, tvb, offset); // key-info - always none
+    dissect_gbcs_message_element_transaction_id(mac_header_tree, hf_gbcs_message_mac_header_cra_flag,
+                                                hf_gbcs_message_mac_header_originator_counter, tvb, offset); // transaction-id - always none
+    dissect_gbcs_message_element(mac_header_tree, hf_gbcs_message_mac_header_business_originator_id, tvb, offset); // originator-system-title - always none
+    dissect_gbcs_message_element(mac_header_tree, hf_gbcs_message_mac_header_business_target_id, tvb, offset); // recipient-system-title - always none
+    dissect_gbcs_message_element_date_time(mac_header_tree, hf_gbcs_message_mac_header_date_time, tvb, offset); // date-time - always none
+    dissect_gbcs_message_element(mac_header_tree, hf_gbcs_message_mac_header_other_info, tvb, offset); // other-information - always none
+    dissect_gbcs_message_element(mac_header_tree, hf_gbcs_message_mac_header_key_info, tvb, offset); // key-info - always none
 
     offset_start = *offset;
     *offset = get_ber_length(tvb, *offset, &len, NULL);
@@ -1338,11 +1349,12 @@ static void
 dissect_gbcs_message_routing_header(tvbuff_t *tvb, proto_tree *tree, guint *offset,
         guint64 *business_originator, guint64 *originator_counter)
 {
-    proto_item *ti;
-    proto_tree *routing_header_tree;
+    proto_item *routing_header_ti, *other_info_ti;
+    proto_tree *routing_header_tree, *other_info_tree;
+    guint other_info_len;
     guint len, offset_start;
 
-    routing_header_tree = proto_tree_add_subtree(tree, tvb, *offset, 1, ett_gbcs_message_routing_header, &ti, "Routing Header");
+    routing_header_tree = proto_tree_add_subtree(tree, tvb, *offset, 1, ett_gbcs_message_routing_header, &routing_header_ti, "Routing Header");
 
     proto_tree_add_item(routing_header_tree, hf_gbcs_message_routing_header_general_ciphering, tvb, *offset, 1, ENC_NA);
     *offset += 1;
@@ -1356,14 +1368,19 @@ dissect_gbcs_message_routing_header(tvbuff_t *tvb, proto_tree *tree, guint *offs
 
     dissect_gbcs_message_element(routing_header_tree, hf_gbcs_message_routing_header_business_target_id, tvb, offset);
 
-    dissect_gbcs_message_element_date_time(routing_header_tree, -1, tvb, offset); // date-time - always none
+    dissect_gbcs_message_element_date_time(routing_header_tree, hf_gbcs_message_routing_header_date_time, tvb, offset); // date-time - always none
 
-    *offset += 1; // Other information length - always 2
+    other_info_tree = proto_tree_add_subtree(routing_header_tree, tvb,
+            *offset, 1, ett_gbcs_message_routing_header_other_info, &other_info_ti, "Other Information");
 
-    proto_tree_add_item(routing_header_tree, hf_gbcs_message_routing_header_message_code, tvb, *offset, 2, ENC_BIG_ENDIAN);
+    offset_start = *offset;
+    *offset = get_ber_length(tvb, *offset, &other_info_len, NULL);
+    proto_tree_add_uint(other_info_tree, hf_gbcs_message_element_length, tvb, offset_start, *offset - offset_start, other_info_len);
+
+    proto_tree_add_item(other_info_tree, hf_gbcs_message_routing_header_message_code, tvb, *offset, 2, ENC_BIG_ENDIAN);
     *offset += 2;
 
-    dissect_gbcs_message_element(routing_header_tree, -1, tvb, offset); // key-info - always none
+    dissect_gbcs_message_element(routing_header_tree, hf_gbcs_message_routing_header_key_info, tvb, offset); // key-info - always none
 
     offset_start = *offset;
     *offset = get_ber_length(tvb, *offset, &len, NULL);
@@ -1375,7 +1392,7 @@ dissect_gbcs_message_routing_header(tvbuff_t *tvb, proto_tree *tree, guint *offs
     proto_tree_add_item(routing_header_tree, hf_gbcs_message_routing_header_invocation_counter, tvb, *offset, 4, ENC_BIG_ENDIAN);
     *offset += 4;
 
-    proto_item_set_end(ti, tvb, *offset);
+    proto_item_set_end(routing_header_ti, tvb, *offset);
 }
 
 static void
@@ -1565,6 +1582,34 @@ void proto_register_gbcs_message(void)
             {"General Ciphering", "gbcs_message.mac_header.general_ciphering",
              FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
+        {&hf_gbcs_message_mac_header_cra_flag,
+            {"CRA Flag", "gbcs_message.mac_header.cra_flag",
+             FT_UINT8, BASE_HEX, VALS(gbcs_message_cra_names), 0x0, NULL, HFILL}
+        },
+        {&hf_gbcs_message_mac_header_originator_counter,
+            {"Originator Counter", "gbcs_message.mac_header.originator_counter",
+             FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_gbcs_message_mac_header_business_originator_id,
+            {"Business Originator ID", "gbcs_message.mac_header.business_originator_id",
+             FT_EUI64, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_gbcs_message_mac_header_business_target_id,
+            {"Business Target ID", "gbcs_message.mac_header.business_target_id",
+             FT_EUI64, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_gbcs_message_mac_header_date_time,
+            {"Date Time", "gbcs_message.mac_header.date_time",
+             FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_gbcs_message_mac_header_other_info,
+            {"Other-Information", "gbcs_message.mac_header.other_info",
+             FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_gbcs_message_mac_header_key_info,
+            {"Key-Info", "gbcs_message.mac_header.key_info",
+             FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
         {&hf_gbcs_message_mac_header_security_control_byte,
             {"Security Control Byte", "gbcs_message.mac_header.security_control_byte",
              FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
@@ -1644,6 +1689,14 @@ void proto_register_gbcs_message(void)
         {&hf_gbcs_message_routing_header_business_target_id,
             {"Business Target ID", "gbcs_message.routing_header.business_target_id",
              FT_EUI64, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_gbcs_message_routing_header_date_time,
+            {"Date Time", "gbcs_message.routing_header.date_time",
+             FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0, NULL, HFILL}
+        },
+        {&hf_gbcs_message_routing_header_key_info,
+            {"Key-Info", "gbcs_message.routing_header.key_info",
+             FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
         },
         {&hf_gbcs_message_routing_header_message_code,
             {"Message Code", "gbcs_message.routing_header.message_code",
@@ -1734,6 +1787,7 @@ void proto_register_gbcs_message(void)
         &ett_gbcs_message_grouping_header,
         &ett_gbcs_message_grouping_header_other_info,
         &ett_gbcs_message_routing_header,
+        &ett_gbcs_message_routing_header_other_info,
         &ett_gbcs_message_gbt_header,
         &ett_gbcs_message_gbt_header_block_control,
         &ett_gbcs_message_gbt_fragment,
