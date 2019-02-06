@@ -21,6 +21,7 @@
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
 #include <epan/to_str.h>
+#include <epan/proto_data.h>
 #include <wsutil/pow2.h>
 #include "packet-gsm_map.h"
 #include "packet-gsm_a_common.h"
@@ -405,8 +406,6 @@ static gboolean g_nas_eps_dissect_plain = FALSE;
 static gboolean g_nas_eps_null_decipher = TRUE;
 static gboolean g_nas_eps_user_data_container_as_ip = TRUE;
 
-guint8 eps_nas_gen_msg_cont_type = 0;
-
 /* Table 9.8.1: Message types for EPS mobility management
  *  0   1   -   -   -   -   -   -       EPS mobility management messages
  */
@@ -621,7 +620,7 @@ de_eps_cmn_add_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
     new_tvb = tvb_new_subset_length(tvb, offset, len);
 
-    switch (eps_nas_gen_msg_cont_type) {
+    switch (GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_nas_eps, 0))) {
         case 1:
             /* LPP */
             dissect_lcsap_Correlation_ID_PDU(new_tvb, pinfo, sub_tree, NULL);
@@ -2427,16 +2426,16 @@ static const range_string nas_eps_emm_gen_msg_cont_type_vals[] = {
 };
 
 static guint16
-de_emm_gen_msg_cont_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+de_emm_gen_msg_cont_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                          guint32 offset, guint len _U_,
                          gchar *add_string _U_, int string_len _U_)
 {
-    guint32 curr_offset;
+    guint32 curr_offset, msg_cont_type;
 
     curr_offset = offset;
 
-    eps_nas_gen_msg_cont_type = tvb_get_guint8(tvb, curr_offset);
-    proto_tree_add_item(tree, hf_nas_eps_emm_gen_msg_cont_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_nas_eps_emm_gen_msg_cont_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &msg_cont_type);
+    p_add_proto_data(pinfo->pool, pinfo, proto_nas_eps, 0, GUINT_TO_POINTER(msg_cont_type));
     curr_offset++;
 
     return(curr_offset - offset);
@@ -2458,7 +2457,7 @@ de_emm_gen_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
     new_tvb = tvb_new_subset_length(tvb, offset, len);
 
-    switch (eps_nas_gen_msg_cont_type) {
+    switch (GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_nas_eps, 0))) {
         case 1:
             /* LPP */
             if (lpp_handle) {
@@ -5148,8 +5147,6 @@ nas_emm_dl_gen_nas_trans(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
     ELEM_OPT_TLV(0x65, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_ADD_INFO, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
-
-    eps_nas_gen_msg_cont_type = 0;
 }
 
 /*
@@ -5175,8 +5172,6 @@ nas_emm_ul_gen_nas_trans(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gu
     ELEM_OPT_TLV(0x65, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_ADD_INFO, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_nas_eps_extraneous_data);
-
-    eps_nas_gen_msg_cont_type = 0;
 }
 
 /*
