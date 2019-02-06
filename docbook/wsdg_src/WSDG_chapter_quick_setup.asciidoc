@@ -92,14 +92,16 @@ problems.
 
 ==== Install Qt
 
-The main Wireshark application uses the Qt windowing toolkit.  To
-install Qt, go to the https://www.qt.io/download[“Download Qt” page],
-select “Go open source”, download the *Qt Online Installer for Windows*
-from the Qt Project and select, for the desired Qt version, a component
-that matches your target system and compiler.  For example, the Qt {qt-lts-version}.5
-“msvc2017 64-bit” component is used to build the official 64-bit
-packages.  You can deselect all the Qt xxxx (e.g.  Qt Charts) components
-as they aren’t required.
+The main Wireshark application uses the Qt windowing toolkit. To install
+Qt, go to the https://www.qt.io/download[“Download Qt” page], select “Go
+open source”, download the *Qt Online Installer for Windows* from the Qt
+Project and select, for the desired Qt version, a component that matches
+your target system and compiler. For example, at the time of this
+writing the Qt {qt-lts-version}.1 “msvc2017 64-bit” component is used to
+build the official 64-bit packages. The “Qt Debug Information Files”
+component contains PDB files which can be used for debugging. You can
+deselect all of the other the components such as “Qt Charts” or “Android
+xxxx” as they aren’t required.
 
 Note that installation of separate Qt components are required for 32 bit
 and 64 bit builds, e.g. “msvc2017 32-bit” and “msvc2017 64-bit”. The

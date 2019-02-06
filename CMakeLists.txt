@@ -1174,6 +1174,10 @@ if (QT_FOUND)
 			HINTS "${QT_BIN_PATH}"
 			DOC "Path to the windeployqt utility."
 		)
+		if(Qt5Widgets_VERSION VERSION_GREATER "5.5.999")
+			set(QT_WINDEPLOYQT_EXTRA_OPTS --pdb)
+		endif()
+
 	elseif(APPLE)
 		find_program(QT_MACDEPLOYQT_EXECUTABLE macdeployqt
 			HINTS "${QT_BIN_PATH}"
@@ -2204,6 +2208,7 @@ if(BUILD_wireshark AND QT_FOUND)
 				$<$<NOT:$<CONFIG:Debug>>:--release>
 				--no-compiler-runtime
 				--verbose 10
+				${QT_WINDEPLOYQT_EXTRA_OPTS}
 				"$<TARGET_FILE:wireshark>"
 		)
 		add_dependencies(copy_qt_dlls wireshark)
