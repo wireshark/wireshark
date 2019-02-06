@@ -555,9 +555,8 @@ read_keytab_file_from_preferences(void)
 
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
 #ifdef _WIN32
-/* prevent redefinition warnings in kfw-2.5\inc\win_mac.h */
-#undef HAVE_GETADDRINFO
-#undef HAVE_SYS_TYPES_H
+/* prevent redefinition warnings in krb5's win-mac.h */
+#define SSIZE_T_DEFINED
 #endif /* _WIN32 */
 #include <krb5.h>
 enc_key_t *enc_key_list=NULL;
@@ -4579,7 +4578,7 @@ dissect_kerberos_EncryptedChallenge(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 /*--- End of included file: packet-kerberos-fn.c ---*/
-#line 1887 "./asn1/kerberos/packet-kerberos-template.c"
+#line 1886 "./asn1/kerberos/packet-kerberos-template.c"
 
 /* Make wrappers around exported functions for now */
 int
@@ -5761,7 +5760,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 2268 "./asn1/kerberos/packet-kerberos-template.c"
+#line 2267 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	/* List of subtrees */
@@ -5849,7 +5848,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_KrbFastArmoredRep,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 2284 "./asn1/kerberos/packet-kerberos-template.c"
+#line 2283 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	static ei_register_info ei[] = {

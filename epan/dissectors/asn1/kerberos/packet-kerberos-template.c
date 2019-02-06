@@ -254,9 +254,8 @@ read_keytab_file_from_preferences(void)
 
 #if defined(HAVE_HEIMDAL_KERBEROS) || defined(HAVE_MIT_KERBEROS)
 #ifdef _WIN32
-/* prevent redefinition warnings in kfw-2.5\inc\win_mac.h */
-#undef HAVE_GETADDRINFO
-#undef HAVE_SYS_TYPES_H
+/* prevent redefinition warnings in krb5's win-mac.h */
+#define SSIZE_T_DEFINED
 #endif /* _WIN32 */
 #include <krb5.h>
 enc_key_t *enc_key_list=NULL;

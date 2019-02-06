@@ -19,7 +19,7 @@ if(KERBEROS_INCLUDE_DIRS)
 endif()
 
 include(FindWSWinLibs)
-FindWSWinLibs("kfw-.*" "KERBEROS_HINTS")
+FindWSWinLibs("krb5-.*" "KERBEROS_HINTS")
 
 if(NOT WIN32)
   find_package(PkgConfig)
