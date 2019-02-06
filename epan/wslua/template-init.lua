@@ -149,5 +149,7 @@ datafile_path = Dir.global_config_path
 persconffile_path = Dir.personal_config_path
 
 
-dofile(DATA_DIR.."console.lua")
+if not running_superuser or run_user_scripts_when_superuser then
+    dofile(DATA_DIR.."console.lua")
+end
 --dofile(DATA_DIR.."dtd_gen.lua")
