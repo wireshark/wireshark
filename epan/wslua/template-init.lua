@@ -18,25 +18,12 @@ if not enable_lua then
     return
 end
 
--- If set and we are running with special privileges this setting
--- tells whether scripts other than this one are to be run.
-run_user_scripts_when_superuser = false
+-- If set and Wireshark was started as (setuid) root, then the user
+-- will not be able to execute custom Lua scripts from the personal
+-- configuration directory, the -Xlua_script command line option or
+-- the Lua Evaluate menu option in the GUI.
+run_user_scripts_when_superuser = true
 
-
--- disable potentialy harmful lua functions when running superuser
-if running_superuser then
-    local hint = "has been disabled due to running Wireshark as superuser. See https://wiki.wireshark.org/CaptureSetup/CapturePrivileges for help in running Wireshark as an unprivileged user."
-    local disabled_lib = {}
-    setmetatable(disabled_lib,{ __index = function() error("this package ".. hint) end } );
-
-    dofile = function() error("dofile " .. hint) end
-    loadfile = function() error("loadfile " .. hint) end
-    loadlib = function() error("loadlib " .. hint) end
-    require = function() error("require " .. hint) end
-    os = disabled_lib
-    io = disabled_lib
-    file = disabled_lib
-end
 
 function typeof(obj)
     local mt = getmetatable(obj)
