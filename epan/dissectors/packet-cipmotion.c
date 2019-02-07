@@ -18,6 +18,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/expert.h>
 
 #include "packet-cipmotion.h"
 
@@ -200,6 +201,7 @@ static int hf_cip_vel_trim                  = -1;
 static int hf_cip_accel_trim                = -1;
 static int hf_cip_trq_trim                  = -1;
 static int hf_cip_act_pos                   = -1;
+static int hf_cip_act_pos_64                = -1;
 static int hf_cip_act_vel                   = -1;
 static int hf_cip_act_accel                 = -1;
 static int hf_cip_fault_type                = -1;
@@ -272,6 +274,8 @@ static gint ett_set_axis_attr_list  = -1;
 static gint ett_group_sync          = -1;
 static gint ett_axis_status_set     = -1;
 static gint ett_command_control     = -1;
+
+static expert_field ei_format_rev_conn_pt = EI_INIT;
 
 static dissector_handle_t cipmotion_handle;
 static dissector_handle_t cipmotion3_handle;
@@ -372,6 +376,7 @@ static const value_string cip_sync_status_vals[] =
    { 0,       "Synchronized"      },
    { 1,       "Not Synchronized"  },
    { 2,       "Wrong Grandmaster" },
+   { 3,       "Clock Skew Detected" },
    { 0,       NULL }
 };
 
@@ -688,7 +693,8 @@ static int dissect_node_status(packet_info *pinfo _U_, proto_tree *tree, proto_i
    return 1;
 }
 
-static int dissect_time_data_set(proto_tree *tree, tvbuff_t *tvb, int offset)
+static int dissect_time_data_set(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+   int offset, int total_len _U_)
 {
    static const int* bits[] = {
       &hf_cip_time_data_stamp,
@@ -736,6 +742,7 @@ static int dissect_feedback_mode(packet_info *pinfo _U_, proto_tree *tree, proto
 attribute_info_t cip_motion_attribute_vals[] = {
    { CI_CLS_MOTION, CIP_ATTR_CLASS, 14, -1, "Node Control", cip_dissector_func, NULL, dissect_node_control },
    { CI_CLS_MOTION, CIP_ATTR_CLASS, 15, -1, "Node Status", cip_dissector_func, NULL, dissect_node_status },
+   { CI_CLS_MOTION, CIP_ATTR_CLASS, 31, -1, "Time Data Set", cip_dissector_func, NULL, dissect_time_data_set },
    { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 40, -1, "Control Mode", cip_usint, &hf_cip_motor_cntrl, NULL },
    { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 42, -1, "Feedback Mode", cip_dissector_func, NULL, dissect_feedback_mode },
    { CI_CLS_MOTION, CIP_ATTR_INSTANCE, 60, -1, "Event Checking Control", cip_dissector_func, NULL, dissect_event_checking_control },
@@ -820,7 +827,7 @@ dissect_cmd_data_set(guint32 cmd_data_set, proto_tree* tree, tvbuff_t* tvb, guin
  * Returns: The number of bytes in the cyclic data used
  */
 static guint32
-dissect_act_data_set(guint32 act_data_set, proto_tree* tree, tvbuff_t* tvb, guint32 offset)
+dissect_act_data_set(guint32 act_data_set, proto_tree* tree, tvbuff_t* tvb, guint32 offset, guint8 feedback_mode)
 {
    guint32 bytes_used = 0;
 
@@ -828,9 +835,18 @@ dissect_act_data_set(guint32 act_data_set, proto_tree* tree, tvbuff_t* tvb, guin
    * appear in the cyclic data */
    if ( (act_data_set & ACTUAL_DATA_SET_POSITION) == ACTUAL_DATA_SET_POSITION )
    {
-      /* Display the actual data set position feedback value */
-      proto_tree_add_item(tree, hf_cip_act_pos, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN );
-      bytes_used += 4;
+      /* Display the actual data set position feedback value in either 32 or 64 bit */
+      gboolean is_64_bit_position = (feedback_mode & FEEDBACK_DATA_TYPE_BITS) == 0x10;
+      if (is_64_bit_position)
+      {
+         proto_tree_add_item(tree, hf_cip_act_pos_64, tvb, offset + bytes_used, 8, ENC_LITTLE_ENDIAN);
+         bytes_used += 8;
+      }
+      else
+      {
+         proto_tree_add_item(tree, hf_cip_act_pos, tvb, offset + bytes_used, 4, ENC_LITTLE_ENDIAN);
+         bytes_used += 4;
+      }
    }
 
    if ( (act_data_set & ACTUAL_DATA_SET_VELOCITY) == ACTUAL_DATA_SET_VELOCITY )
@@ -973,7 +989,7 @@ dissect_cntr_cyclic(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 siz
 
    dissect_command_data_set_bits(NULL, header_tree, NULL, tvb, offset + 4, 1);
 
-   /* Display the command data values from the cyclic data payload within the command data set tree, the
+   /* Display the command data values from the cyclic data payload, the
    * cyclic data starts immediately after the interpolation control field in the controller to device
    * direction */
    bytes_used += dissect_cmd_data_set(temp_data, header_tree, tvb, offset + 8 + bytes_used, lreal_pos);
@@ -1020,10 +1036,11 @@ dissect_device_cyclic(tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 s
 
    dissect_actual_data_set_bits(NULL, header_tree, NULL, tvb, offset + 5, 1);
 
-   /* Display the actual data values from the cyclic data payload within the command data set tree, the
+   /* Display the actual data values from the cyclic data payload, the
    * cyclic data starts immediately after the interpolation control field in the controller to device
    * direction and the actual data starts immediately after the cyclic data */
-   bytes_used += dissect_act_data_set(temp_data, header_tree, tvb, offset + 8 + bytes_used);
+   guint8 feedback_mode = tvb_get_guint8(tvb, offset + 1);
+   bytes_used += dissect_act_data_set(temp_data, header_tree, tvb, offset + 8 + bytes_used, feedback_mode);
 
    /* Read the status data set header field from the packet into memory */
    temp_data = tvb_get_guint8(tvb, offset + 6);
@@ -1737,7 +1754,7 @@ dissect_var_cont_conn_header(tvbuff_t* tvb, proto_tree* tree, guint32* inst_coun
    proto_tree_add_item_ret_uint(header_tree, hf_cip_instance_cnt, tvb, offset + 4, 1, ENC_LITTLE_ENDIAN, inst_count);
    proto_tree_add_item(header_tree, hf_cip_last_update, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
 
-   dissect_time_data_set(header_tree, tvb, offset + 7);
+   dissect_time_data_set(NULL, header_tree, NULL, tvb, offset + 7, 1);
 
    /* Move the offset to the byte just beyond the time data set field */
    offset = (offset + 7 + 1);
@@ -1812,7 +1829,7 @@ dissect_var_devce_conn_header(tvbuff_t* tvb, proto_tree* tree, guint32* inst_cou
    /* Add the last update id to the connection header tree */
    proto_tree_add_item(header_tree, hf_cip_last_update, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
 
-   dissect_time_data_set(header_tree, tvb, offset + 7);
+   dissect_time_data_set(NULL, header_tree, NULL, tvb, offset + 7, 1);
 
    /* Move the offset to the byte just beyond the time data set field */
    offset = (offset + 7 + 1);
@@ -1916,16 +1933,24 @@ dissect_cipmotion(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* dat
       /* Sizes of the individual channels within the connection */
       guint32 cyc_size, cyc_blk_size, evnt_size, servc_size;
       guint32 inst_count = 0, inst;
+      guint32 format_rev = 0;
 
       /* Dissect the header fields */
       switch(con_format)
       {
       case FORMAT_VAR_CONTROL_TO_DEVICE:
+         format_rev = tvb_get_guint8(tvb, offset + 1);
          offset = dissect_var_cont_conn_header(tvb, proto_tree_top, &inst_count, offset);
          break;
       case FORMAT_VAR_DEVICE_TO_CONTROL:
+         format_rev = tvb_get_guint8(tvb, offset + 1);
          offset = dissect_var_devce_conn_header(tvb, proto_tree_top, &inst_count, offset);
          break;
+      }
+
+      if (format_rev != ConnPoint)
+      {
+         expert_add_info(pinfo, proto_item_top, &ei_format_rev_conn_pt);
       }
 
       /* Repeat the following dissections for each instance within the payload */
@@ -2987,6 +3012,11 @@ proto_register_cipmotion(void)
           FT_INT32, BASE_DEC, NULL, 0,
           "Cyclic Data Set: Actual Position", HFILL }
       },
+      { &hf_cip_act_pos_64,
+        { "Actual Position", "cipm.actpos",
+          FT_INT64, BASE_DEC, NULL, 0,
+          "Cyclic Data Set: Actual Position", HFILL }
+        },
       { &hf_cip_act_vel,
         { "Actual Velocity", "cipm.actvel",
           FT_FLOAT, BASE_NONE, NULL, 0,
@@ -3081,6 +3111,10 @@ proto_register_cipmotion(void)
       &ett_command_control
    };
 
+   static ei_register_info ei[] = {
+      { &ei_format_rev_conn_pt, { "cipm.malformed.format_revision_mismatch", PI_MALFORMED, PI_WARN, "Format Revision does not match Connection Point", EXPFILL } },
+   };
+
    /* Create a CIP Motion protocol handle */
    proto_cipmotion = proto_register_protocol(
      "Common Industrial Protocol, Motion",  /* Full name of protocol        */
@@ -3099,6 +3133,9 @@ proto_register_cipmotion(void)
 
    /* Register the subtrees for the protocol dissection */
    proto_register_subtree_array(cip_subtree, array_length(cip_subtree));
+
+   expert_module_t* expert_cipm = expert_register_protocol(proto_cipmotion);
+   expert_register_field_array(expert_cipm, ei, array_length(ei));
 
    cipmotion_handle = register_dissector("cipmotion", dissect_cipmotion, proto_cipmotion);
    cipmotion3_handle = register_dissector("cipmotion3", dissect_cipmotion3, proto_cipmotion3);

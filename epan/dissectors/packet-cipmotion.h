@@ -14,6 +14,6 @@
 
 #include "packet-cip.h"  // For attribute_info_t
 
-extern attribute_info_t cip_motion_attribute_vals[17];
+extern attribute_info_t cip_motion_attribute_vals[18];
 
 #endif /* PACKET_CIPMOTION_H */
