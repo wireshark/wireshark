@@ -30,6 +30,8 @@ The following bugs have been fixed:
 
 * Data following a TCP ZeroWindowProbe is marked as retransmission and not passed to subdissectors (wsbuglink:15427[])
 
+* Lua Error on startup: init.lua: dofile has been disabled due to running Wireshark as superuser (wsbuglink:15489[]).
+
 //_Non-empty section placeholder._
 
 Text and Image columns were handled incorrectly for TDS 7.0 and 7.1. (wsbuglink:3098[])
