@@ -6516,12 +6516,12 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_amf_set_id,
         { "AMF Set ID",   "nas_5gs.amf_set_id",
-            FT_UINT16, BASE_DEC, NULL, 0xff03,
+            FT_UINT16, BASE_DEC, NULL, 0xffc0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_amf_pointer,
         { "AMF Pointer",   "nas_5gs.amf_pointer",
-            FT_UINT8, BASE_DEC, NULL, 0xfc,
+            FT_UINT8, BASE_DEC, NULL, 0x3f,
             NULL, HFILL }
         },
         { &hf_nas_5gs_5g_tmsi,
