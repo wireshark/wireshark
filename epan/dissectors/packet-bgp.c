@@ -1488,6 +1488,9 @@ static int hf_bgp_cap_unknown = -1;
 static int hf_bgp_cap_reserved = -1;
 static int hf_bgp_cap_mp_afi = -1;
 static int hf_bgp_cap_mp_safi = -1;
+static int hf_bgp_cap_enh_afi = -1;
+static int hf_bgp_cap_enh_safi = -1;
+static int hf_bgp_cap_enh_nhafi = -1;
 static int hf_bgp_cap_gr_timers = -1;
 static int hf_bgp_cap_gr_timers_restart_flag = -1;
 static int hf_bgp_cap_gr_timers_restart_time = -1;
@@ -5755,8 +5758,29 @@ dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                 /* SAFI */
                 proto_tree_add_item(cap_tree, hf_bgp_cap_mp_safi, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
-
             }
+            break;
+        case BGP_CAPABILITY_EXTENDED_NEXT_HOP: {
+            int eclen = offset + clen;
+	        while (offset <= eclen - 6) {
+                    /* AFI */
+                    proto_tree_add_item(cap_tree, hf_bgp_cap_enh_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
+
+                    /* SAFI */
+                    proto_tree_add_item(cap_tree, hf_bgp_cap_enh_safi, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
+
+                    /* AFI */
+                    proto_tree_add_item(cap_tree, hf_bgp_cap_enh_nhafi, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
+	        }
+                if (offset != eclen) {
+                    expert_add_info_format(pinfo, ti_len, &ei_bgp_cap_len_bad, "Capability length %u is wrong, must be multiple of 6", clen);
+                    proto_tree_add_item(cap_tree, hf_bgp_cap_unknown, tvb, offset, eclen - offset, ENC_NA);
+                    offset = eclen;
+                }
+	    }
             break;
         case BGP_CAPABILITY_GRACEFUL_RESTART:
             if ((clen < 6) && (clen != 2)) {
@@ -8550,6 +8574,15 @@ proto_register_bgp(void)
       { &hf_bgp_cap_mp_safi,
         { "SAFI", "bgp.cap.mp.safi", FT_UINT8, BASE_DEC,
           VALS(bgpattr_nlri_safi), 0x0, NULL, HFILL }},
+      { &hf_bgp_cap_enh_afi,
+        { "AFI", "bgp.cap.enh.afi", FT_UINT16, BASE_DEC,
+          VALS(afn_vals), 0x0, NULL, HFILL }},
+      { &hf_bgp_cap_enh_safi,
+        { "SAFI", "bgp.cap.enh.safi", FT_UINT16, BASE_DEC,
+          VALS(bgpattr_nlri_safi), 0x0, NULL, HFILL }},
+      { &hf_bgp_cap_enh_nhafi,
+        { "Next hop AFI", "bgp.cap.enh.nhafi", FT_UINT16, BASE_DEC,
+          VALS(afn_vals), 0x0, NULL, HFILL }},
       { &hf_bgp_cap_gr_timers,
         { "Restart Timers", "bgp.cap.gr.timers", FT_UINT16, BASE_HEX,
           NULL, 0x0, NULL, HFILL }},
