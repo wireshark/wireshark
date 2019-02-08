@@ -69,8 +69,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2019-02-06"
-$Win32CurrentTag = "2019-02-06"
+$Win64CurrentTag = "2019-02-08"
+$Win32CurrentTag = "2019-02-08"
 
 # Archive file / SHA256
 $Win64Archives = @{
@@ -79,7 +79,7 @@ $Win64Archives = @{
     "c-ares-1.15.0-win64ws.zip" = "ade864fd08e887d353a9c939fa6e68b0bf3e08761b6e81f60ce15e6543256552";
     "gnutls-3.6.3-1-win64ws.zip" = "994ac2578e7b4ca01e589ab2598927d53f7370bc3ff679f3006b0e6bb7a06df4";
     "glib2-2.52.2-1.31-win64ws.zip" = "e19a7812db6715c632a5bbf96452ab474a4eaf0c6aaee999323ac7beb7ebe6db";
-    "krb5-1.17-win64ws.zip" = "ff15a8c453fa4591c85c545068112f8f7eef00bfcb9ae2f52cb671d858377e43";
+    "krb5-1.17-1-win64ws.zip" = "1f4a7ab86ae331ea9e58c9776a60def81ae9fe622882b2e8da2ad6ce6f6fb1d8";
     "libgcrypt-1.8.3-win64ws.zip" = "53b1c636cb89de308ca4ea01b4990cf1deca7f6c2446189c7ff6e971137ffd76";
     "libsmi-svn-40773-win64ws.zip" = "571fcee71d741bf847c3247d4c2e1c42388ca6a9feebe08fc0d4ce053571d15d";
     "libssh-0.7.3-1-win64ws.zip" = "3a81b9f4a914a46f15243bbb13b6919ef1c20d4bf502c47646caeccff2cbd75c";
@@ -102,7 +102,7 @@ $Win32Archives = @{
     "c-ares-1.15.0-win32ws.zip" = "a54151203a631b478470aaa21b3a1fde6178f2fea9f15a1a6da4bfcecc92cfcd";
     "gnutls-3.6.3-1-win32ws.zip" = "42d8313ffb888f525d6c39330c39bcc2182e68ee8433a09dd85e1f1e1474f592";
     "glib2-2.52.2-1.34-win32ws.zip" = "28c426a7b64c1cd5b058c2f25685ddfaebca29083bd8f94fec2a8910ece6faf0";
-    "krb5-1.17-win32ws.zip" = "a15294e49ec26d3b2a7a1c702d3bb0ff534b83ce08141f98e6583aa23fdad1a6";
+    "krb5-1.17-1-win32ws.zip" = "f90cac08355ccfe624652d3e05f8e2e077b8830382315d4ea0a6fa52af08260b";
     "libgcrypt-1.8.3-win32ws.zip" = "409b72f2809019050cca91b9e670047c50a0752ff52999089178da54ef926393";
     "libsmi-svn-40773-win32ws.zip" = "44bc81edfeb8948322ca365fc632e419383907c305cc922e6b74fdbb13827958";
     "libssh-0.7.3-1-win32ws.zip" = "b02f0d318175194ac538a24c9c9fc280a0ecad69fb3afd4945c106b4b7c4fa6f";
@@ -155,9 +155,8 @@ $CleanupItems = @(
     "gtk2"
     "gtk3"
     "json-glib-1.0.2-*-win??ws"
-    "kfw-3-2-2-final"
-    "kfw-3-2-2-i386-ws-vc6"
-    "kfw-3-2-2-x64-ws"
+    "kfw-3-2-2*"
+    "krb5-*-win??ws"
     "libgcrypt-*-win??ws"
     "libsmi-0.4.8"
     "libsmi-svn-40773-win??ws"
