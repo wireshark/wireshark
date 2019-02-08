@@ -191,7 +191,7 @@ static int parse_line(char* packet, unsigned* offset, char* line, int status)
 	/* we got the packet header                                    */
 	/* The packet header is a line like:                           */
 	/* 16:09:37.171 ITA Mar 18 2016 : IPv4 LES CEF    : Gi0/1 None */
-	if (g_regex_match_simple("^\\d{2}:\\d{2}:\\d{2}.\\d+ .*", line, G_REGEX_CASELESS, G_REGEX_MATCH_ANCHORED)) {
+	if (g_regex_match_simple("^\\d{2}:\\d{2}:\\d{2}.\\d+ .*", line, (GRegexCompileFlags) (G_REGEX_CASELESS | G_REGEX_RAW), G_REGEX_MATCH_ANCHORED)) {
 		return CISCODUMP_PARSER_IN_HEADER;
 	}
 

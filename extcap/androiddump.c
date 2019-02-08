@@ -942,7 +942,7 @@ static int add_tcpdump_interfaces(extcap_parameters * extcap_conf, const char *a
     }
     response[data_length] = '\0';
 
-    regex = g_regex_new(regex_ifaces, (GRegexCompileFlags)0, (GRegexMatchFlags)0, &err);
+    regex = g_regex_new(regex_ifaces, G_REGEX_RAW, (GRegexMatchFlags)0, &err);
     if (!regex) {
         g_warning("Failed to compile regex for tcpdump interface matching");
         return EXIT_CODE_GENERIC;
@@ -2325,7 +2325,7 @@ static int capture_android_tcpdump(char *interface, char *fifo,
     GMatchInfo                              *match = NULL;
     char                                     tcpdump_cmd[80];
 
-    regex = g_regex_new(regex_interface, (GRegexCompileFlags)0, (GRegexMatchFlags)0, &err);
+    regex = g_regex_new(regex_interface, G_REGEX_RAW, (GRegexMatchFlags)0, &err);
     if (!regex) {
         g_warning("Failed to compile regex for tcpdump interface");
         return EXIT_CODE_GENERIC;
@@ -2611,7 +2611,7 @@ int main(int argc, char *argv[]) {
                 break;
             }
 
-            if (g_regex_match_simple("(^|\\s)-[bBcDfgLnpPrv]", optarg, (GRegexCompileFlags)0, (GRegexMatchFlags)0)) {
+            if (g_regex_match_simple("(^|\\s)-[bBcDfgLnpPrv]", optarg, G_REGEX_RAW, (GRegexMatchFlags)0)) {
                 g_error("Found prohibited option in logcat-custom-options");
                 return EXIT_CODE_GENERIC;
             }

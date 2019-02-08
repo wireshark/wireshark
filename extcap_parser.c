@@ -85,6 +85,10 @@ gdouble extcap_complex_get_double(extcap_complex *comp) {
     return g_strtod(comp->_val, NULL);
 }
 
+static gboolean matches_regex(const char *pattern, const char *subject) {
+    return g_regex_match_simple(pattern, subject, (GRegexCompileFlags) (G_REGEX_CASELESS | G_REGEX_RAW), (GRegexMatchFlags)0);
+}
+
 gboolean extcap_complex_get_bool(extcap_complex *comp) {
     if (comp == NULL || comp->_val == NULL)
         return FALSE;
@@ -92,7 +96,7 @@ gboolean extcap_complex_get_bool(extcap_complex *comp) {
     if (comp->complex_type != EXTCAP_ARG_BOOLEAN && comp->complex_type != EXTCAP_ARG_BOOLFLAG)
         return FALSE;
 
-    return g_regex_match_simple(EXTCAP_BOOLEAN_REGEX, comp->_val, G_REGEX_CASELESS, (GRegexMatchFlags)0);
+    return matches_regex(EXTCAP_BOOLEAN_REGEX, comp->_val);
 }
 
 gchar *extcap_complex_get_string(extcap_complex *comp) {
@@ -113,7 +117,8 @@ static extcap_token_sentence *extcap_tokenize_sentence(const gchar *s) {
 
     /* Regex for catching just the allowed values for sentences */
     if ((regex = g_regex_new("^[\\t| ]*(arg|value|interface|extcap|dlt|control)(?=[\\t| ]+\\{)",
-                             (GRegexCompileFlags) G_REGEX_CASELESS, (GRegexMatchFlags) 0, NULL)) != NULL) {
+                             (GRegexCompileFlags) (G_REGEX_CASELESS | G_REGEX_RAW),
+                             (GRegexMatchFlags) 0, NULL)) != NULL) {
         g_regex_match(regex, s, (GRegexMatchFlags) 0, &match_info);
 
         if (g_match_info_matches(match_info))
@@ -134,7 +139,8 @@ static extcap_token_sentence *extcap_tokenize_sentence(const gchar *s) {
      * that regex patterns given to {validation=} are parsed correctly,
      * as long as }{ does not occur within the pattern */
     regex = g_regex_new("\\{([a-zA-Z_-]*?)\\=(.*?)\\}(?=\\{|$|\\s)",
-                        (GRegexCompileFlags) G_REGEX_CASELESS, (GRegexMatchFlags) 0, NULL);
+                        (GRegexCompileFlags) (G_REGEX_CASELESS | G_REGEX_RAW),
+                        (GRegexMatchFlags) 0, NULL);
     if (regex != NULL) {
         g_regex_match_full(regex, s, -1, 0, (GRegexMatchFlags) 0, &match_info, &error);
         while (g_match_info_matches(match_info)) {
@@ -374,12 +380,12 @@ static extcap_value *extcap_parse_value_sentence(extcap_token_sentence *s) {
         if ((param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_DEFAULT)))
                 != NULL) {
             /* printf("found default value\n"); */
-            value->is_default = g_regex_match_simple(EXTCAP_BOOLEAN_REGEX, param_value, G_REGEX_CASELESS, (GRegexMatchFlags)0);
+            value->is_default = matches_regex(EXTCAP_BOOLEAN_REGEX, param_value);
         }
 
         if ((param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_ENABLED)))
                 != NULL) {
-            value->enabled = g_regex_match_simple(EXTCAP_BOOLEAN_REGEX, param_value, G_REGEX_CASELESS, (GRegexMatchFlags)0);
+            value->enabled = matches_regex(EXTCAP_BOOLEAN_REGEX, param_value);
         }
     }
 
@@ -452,7 +458,7 @@ static extcap_arg *extcap_parse_arg_sentence(GList *args, extcap_token_sentence 
 
         if ((param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_FILE_MUSTEXIST)))
                 != NULL) {
-            target_arg->fileexists = g_regex_match_simple(EXTCAP_BOOLEAN_REGEX, param_value, G_REGEX_CASELESS, (GRegexMatchFlags)0);
+            target_arg->fileexists = matches_regex(EXTCAP_BOOLEAN_REGEX, param_value);
         }
 
         if ((param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_FILE_EXTENSION)))
@@ -472,7 +478,7 @@ static extcap_arg *extcap_parse_arg_sentence(GList *args, extcap_token_sentence 
 
         if ((param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_REQUIRED)))
                 != NULL) {
-            target_arg->is_required = g_regex_match_simple(EXTCAP_BOOLEAN_REGEX, param_value, G_REGEX_CASELESS, (GRegexMatchFlags)0);
+            target_arg->is_required = matches_regex(EXTCAP_BOOLEAN_REGEX, param_value);
         }
 
         if ((param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_TYPE)))
@@ -518,12 +524,12 @@ static extcap_arg *extcap_parse_arg_sentence(GList *args, extcap_token_sentence 
 
         if ((param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_SAVE)))
                 != NULL) {
-            target_arg->save = g_regex_match_simple(EXTCAP_BOOLEAN_REGEX, param_value, G_REGEX_CASELESS, (GRegexMatchFlags)0);
+            target_arg->save = matches_regex(EXTCAP_BOOLEAN_REGEX, param_value);
         }
 
         if ((param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_RELOAD)))
                 != NULL) {
-            target_arg->reload = g_regex_match_simple(EXTCAP_BOOLEAN_REGEX, param_value, G_REGEX_CASELESS, (GRegexMatchFlags)0);
+            target_arg->reload = matches_regex(EXTCAP_BOOLEAN_REGEX, param_value);
         }
 
         if ((param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_RANGE)))
@@ -731,7 +737,7 @@ static iface_toolbar_control *extcap_parse_control_sentence(GList *control_items
 
         if ((param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_REQUIRED)))
             != NULL) {
-            control->is_required = g_regex_match_simple(EXTCAP_BOOLEAN_REGEX, param_value, G_REGEX_CASELESS, (GRegexMatchFlags)0);
+            control->is_required = matches_regex(EXTCAP_BOOLEAN_REGEX, param_value);
         }
 
         param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_TOOLTIP));
@@ -836,7 +842,7 @@ static iface_toolbar_control *extcap_parse_control_sentence(GList *control_items
 
         param_value = (gchar *)g_hash_table_lookup(s->param_list, ENUM_KEY(EXTCAP_PARAM_DEFAULT));
         if (param_value != NULL) {
-            value->is_default = g_regex_match_simple(EXTCAP_BOOLEAN_REGEX, param_value, G_REGEX_CASELESS, (GRegexMatchFlags)0);
+            value->is_default = matches_regex(EXTCAP_BOOLEAN_REGEX, param_value);
         }
 
         control = (iface_toolbar_control *)entry->data;
