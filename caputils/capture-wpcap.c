@@ -245,23 +245,19 @@ load_wpcap(void)
 	has_wpcap = TRUE;
 }
 
-/*
- * The official list of WinPcap mirrors is at
- * https://www.winpcap.org/misc/mirrors.htm
- */
-char *
+static char *
 cant_load_winpcap_err(const char *app_name)
 {
 	return g_strdup_printf(
-"Unable to load WinPcap (wpcap.dll); %s will not be able to capture\n"
-"packets.\n"
+"Unable to load Npcap or WinPcap (wpcap.dll); %s will not be able to\n"
+"capture packets.\n"
 "\n"
-"In order to capture packets, WinPcap must be installed; see\n"
+"In order to capture packets Npcap or WinPcap must be installed. See\n"
 "\n"
-"        https://www.winpcap.org/\n"
+"        https://nmap.org/npcap/\n"
 "\n"
-"for a downloadable version of WinPcap and for instructions on how to install\n"
-"WinPcap.",
+"for a downloadable version of Npcap and for instructions on how to\n"
+"install it.",
 	    app_name);
 }
 
@@ -968,8 +964,8 @@ cant_get_if_list_error_message(const char *err_str)
 	if (strstr(err_str, "Not enough storage is available to process this command") != NULL ||
 	    strstr(err_str, "The operation completed successfully") != NULL) {
 		return g_strdup_printf("Can't get list of interfaces: %s\n"
-"This might be a problem with WinPcap 3.0; you should try updating to\n"
-"a later version of WinPcap - see the WinPcap site at www.winpcap.org",
+"This might be a problem with WinPcap 3.0. You should try updating to\n"
+"Npcap. See https://nmap.org/npcap/ for more information.",
 		    err_str);
 	}
 	return g_strdup_printf("Can't get list of interfaces: %s", err_str);
