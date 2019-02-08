@@ -685,6 +685,7 @@ static void mqtt_user_decode_message(proto_tree *tree, proto_tree *mqtt_tree, pa
         if (message_decode_entry->topic_regex)
         {
           GMatchInfo *match_info = NULL;
+          /* DISSECTOR_ASSERT(g_utf8_validate(topic_str, -1, NULL)); */
           g_regex_match(message_decode_entry->topic_regex, topic_str, (GRegexMatchFlags) 0, &match_info);
           match_found = g_match_info_matches(match_info);
           g_match_info_free(match_info);
@@ -1078,6 +1079,7 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
       proto_tree_add_item_ret_uint(mqtt_tree, hf_mqtt_topic_len, tvb, offset, 2, ENC_BIG_ENDIAN, &mqtt_str_len);
       offset += 2;
 
+      /* 'topic_regex' requires topic_str to be valid UTF-8. */
       proto_tree_add_item_ret_string(mqtt_tree, hf_mqtt_topic, tvb, offset, mqtt_str_len, ENC_UTF_8|ENC_NA,
                                      wmem_epan_scope(), &topic_str);
       offset += mqtt_str_len;
