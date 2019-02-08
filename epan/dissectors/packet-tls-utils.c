@@ -5162,7 +5162,7 @@ ssl_compile_keyfile_regex(void)
 
     if (!regex) {
         regex = g_regex_new(pattern,
-                (GRegexCompileFlags)(G_REGEX_OPTIMIZE | G_REGEX_ANCHORED),
+                (GRegexCompileFlags)(G_REGEX_OPTIMIZE | G_REGEX_ANCHORED | G_REGEX_RAW),
                 G_REGEX_MATCH_ANCHORED, &gerr);
         if (gerr) {
             ssl_debug_printf("%s failed to compile regex: %s\n", G_STRFUNC,
