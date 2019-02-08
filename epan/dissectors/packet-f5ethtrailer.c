@@ -1028,7 +1028,7 @@ static void f5eth_process_f5info(const guint8 *platform)
 	}
 
 	/** If the string matches the regex */
-	if(g_regex_match_simple(pref_slots_regex, platform, (GRegexCompileFlags)0,
+	if(g_regex_match_simple(pref_slots_regex, platform, G_REGEX_RAW,
 		(GRegexMatchFlags)0) == TRUE)
 	{
 		/** Then display the slot information (only if in/out only is not selected). */
