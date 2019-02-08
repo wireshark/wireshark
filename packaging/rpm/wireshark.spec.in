@@ -13,8 +13,8 @@
 %bcond_with	mmdbresolve
 %bcond_with	lz4_and_snappy
 %bcond_with	c_ares
-%bcond_without	spandsp
-%bcond_without	bcg729
+%bcond_with	spandsp
+%bcond_with	bcg729
 %bcond_with	libxml2
 %bcond_with	nghttp2
 %bcond_with	sdjournal
