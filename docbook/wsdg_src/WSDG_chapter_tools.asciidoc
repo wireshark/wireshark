@@ -293,7 +293,7 @@ compiler, you'll need:
 
 . Resource Compiler (_rc.exe_)
 
-. C runtime headers and libraries (e.g. _stdio.h_, _msvcrt.lib_)
+. C runtime headers and libraries (e.g. _stdio.h_, _vcruntime140.lib_)
 
 . Windows platform headers and libraries (e.g.
 _windows.h_, _WSock32.lib_)
@@ -303,27 +303,29 @@ _windows.h_, _WSock32.lib_)
 
 ==== Official Toolchain Packages And Alternatives
 
-The official Wireshark 2.6.x releases are compiled using Microsoft Visual {cpp} 2017.
-The Wireshark 2.4.x releases are compiled using Microsoft Visual {cpp} 2015.
-The Wireshark 2.2.x and 2.0.x releases are compiled using Microsoft Visual {cpp} 2013.
-The Wireshark 1.12.x and 1.10.x releases were compiled using
-Microsoft Visual {cpp} 2010 SP1.
-The 1.8 releases were compiled using
-Microsoft Visual {cpp} 2010 SP1 as well.
-The 1.6, 1.4, and 1.2 releases were compiled using
-Microsoft Visual {cpp} 2008 SP1.
-Other past releases, including the 1.0 branch,
-were compiled using Microsoft Visual {cpp} 6.0.
+Official releases are or were built with the following Visual {cpp} versions:
+
+* Wireshark 3.0.x: Microsoft Visual {cpp} 2017.
+* Wireshark 2.6.x: Microsoft Visual {cpp} 2017.
+* Wireshark 2.4.x: Microsoft Visual {cpp} 2015.
+* Wireshark 2.2.x: Microsoft Visual {cpp} 2013.
+* Wireshark 2.0.x: Microsoft Visual {cpp} 2013.
+* Wireshark 1.12.x: Microsoft Visual {cpp} 2010 SP1.
+* Wireshark 1.10.x: Microsoft Visual {cpp} 2010 SP1.
+* Wireshark 1.8.x: Microsoft Visual {cpp} 2010 SP1.
+* Wireshark 1.6.x: Microsoft Visual {cpp} 2008 SP1.
+* Wireshark 1.4.x: Microsoft Visual {cpp} 2008 SP1.
+* Wireshark 1.2.x: Microsoft Visual {cpp} 2008 SP1.
+* Wireshark 1.0.x and earlier: Microsoft Visual {cpp} 6.0.
 
 Using the release compilers is recommended for Wireshark development work.
 
-The older "Express
-Edition" compilers such as Visual {cpp} 2010 Express Edition SP1 can be
-used but any PortableApps packages you create with them
-will require the installation of a separate Visual {cpp}
-Redistributable package on any machine on which the PortableApps
-package is to be used. See
-<<msvc-runtime-redistributable>> below for more details.
+“Community” editions of Visual Studio such as “Visual Studio Community
+2017” can be used to compile Wireshark but any PortableApps packages you
+create with them might require the installation of a separate Visual
+{cpp} Redistributable package on any machine on which the PortableApps
+package is to be used. See <<msvc-runtime-redistributable>> below for
+more details.
 
 However, you might already have a different Microsoft {cpp} compiler
 installed.  It should be possible to use any of the following with the
