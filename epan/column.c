@@ -785,7 +785,8 @@ get_column_tooltip(const gint col)
     }
 
     fields = g_regex_split_simple(COL_CUSTOM_PRIME_REGEX, cfmt->custom_fields,
-                                  G_REGEX_ANCHORED, G_REGEX_MATCH_ANCHORED);
+                                  (GRegexCompileFlags) (G_REGEX_ANCHORED | G_REGEX_RAW),
+                                  G_REGEX_MATCH_ANCHORED);
     column_tooltip = g_string_new("");
 
     for (i = 0; i < g_strv_length(fields); i++) {

@@ -67,7 +67,8 @@ col_setup(column_info *cinfo, const gint num_cols)
     cinfo->col_last[i] = -1;
   }
   cinfo->prime_regex = g_regex_new(COL_CUSTOM_PRIME_REGEX,
-    G_REGEX_ANCHORED, G_REGEX_MATCH_ANCHORED, NULL);
+    (GRegexCompileFlags) (G_REGEX_ANCHORED | G_REGEX_RAW),
+    G_REGEX_MATCH_ANCHORED, NULL);
 }
 
 static void
