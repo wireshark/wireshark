@@ -468,7 +468,7 @@ if_info_new(const char *name, const char *description, gboolean loopback)
 
 	/*
 	 * On Windows, the "description" is a vendor description,
-	 * and the friendly name isn't returned by WinPcap.
+	 * and the friendly name isn't returned by Npcap/WinPcap.
 	 * Fetch it ourselves.
 	 */
 

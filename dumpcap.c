@@ -163,7 +163,7 @@ static void cap_pipe_close(int pipe_fd, gboolean from_socket);
  * BSD), and we don't want to do it on Windows (because "select()" is
  * something for sockets, not for arbitrary handles).  (Note that "Windows"
  * here includes Cygwin; even in its pretend-it's-UNIX environment, we're
- * using WinPcap, not a UNIX libpcap.)
+ * using Npcap, not a UNIX libpcap.)
  *
  * Fortunately, we don't need to do it on BSD, because the libpcap timeout
  * on BSD times out even if no packets have arrived, so we'll eventually
@@ -610,16 +610,16 @@ get_pcap_failure_secondary_error_message(cap_device_open_err open_err,
 {
 #ifdef _WIN32
     /*
-     * On Windows, first make sure they *have* WinPcap installed.
+     * On Windows, first make sure they *have* Npcap installed.
      */
     if (!has_wpcap) {
         return
-            "In order to capture packets, WinPcap must be installed; see\n"
+            "In order to capture packets, Npcap or WinPcap must be installed. See\n"
             "\n"
-            "        https://www.winpcap.org/\n"
+            "        https://nmap.org/npcap/\n"
             "\n"
-            "for a downloadable version of WinPcap and for instructions on how to install\n"
-            "WinPcap.";
+            "for a downloadable version of Npcap and for instructions on how to\n"
+            "install it.";
     }
 #endif
 

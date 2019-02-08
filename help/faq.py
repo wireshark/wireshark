@@ -596,29 +596,6 @@ location.  If this is the case, you may have to tweak aclocal.m4.
 """)
 
 
-question("""
-When I try to build Wireshark on Windows, why does the build fail because
-of conflicts between <code>winsock.h</code> and <code>winsock2.h</code>?
-""")
-
-answer("""
-As of Wireshark 0.9.5, you must install WinPcap 2.3 or later, and the
-corresponding version of the developer's pack, in order to be able to
-compile Wireshark; it will not compile with older versions of the
-developer's pack.  The symptoms of this failure are conflicts between
-definitions in <code>winsock.h</code> and in <code>winsock2.h</code>; Wireshark
-uses <code>winsock2.h</code>, but pre-2.3 versions of the WinPcap
-developer's packet use <code>winsock.h</code>.  (2.3 uses
-<code>winsock2.h</code>, so if Wireshark were to use <code>winsock.h</code>, it
-would not be able to build with current versions of the WinPcap
-developer's pack.)
-
-<br>
-
-Note that the installed version of the developer's pack should be the
-same version as the version of WinPcap you have installed.
-""")
-
 #################################################################
 section("Starting Wireshark")
 #################################################################
@@ -683,7 +660,7 @@ This is almost certainly a problem with one or more of:
 <ul>
 <li>the operating system you're using;
 <li>the device driver for the interface you're using;
-<li>the libpcap/WinPcap library and, if this is Windows, the WinPcap
+<li>the libpcap/Npcap library and, if this is Windows, the Npcap
 device driver;
 </ul>
 
@@ -693,8 +670,9 @@ so:
 
 <ul>
 <li>if you are using Windows, see <a
-href="https://www.winpcap.org/contact.htm">the WinPcap support
-page</a> - check the "Submitting bugs" section;
+href="https://nmap.org/npcap/">the Npcap support
+page</a> - check the "Patches, Bug Reports, Questions, Suggestions, etc" section;
+
 <li>if you are using some Linux distribution, some version of BSD, or
 some other UNIX-flavored OS, you should report the problem to the
 company or organization that produces the OS (in the case of a Linux
@@ -712,7 +690,7 @@ answer("""
 Both of those operations cause Wireshark to try to build a list of the
 interfaces that it can open; it does so by getting a list of interfaces
 and trying to open them.  There is probably an OS, driver, or, for
-Windows, WinPcap bug that causes the system to crash when this happens;
+Windows, Npcap bug that causes the system to crash when this happens;
 see the previous question.
 """)
 
@@ -907,9 +885,9 @@ Can Wireshark capture on (my T1/E1 line, SS7 links, etc.)?
 """)
 
 answer("""
-Wireshark can only capture on devices supported by libpcap/WinPcap.  On
+Wireshark can only capture on devices supported by libpcap/Npcap.  On
 most OSes, only devices that can act as network interfaces of the type
-that support IP are supported as capture devices for libpcap/WinPcap,
+that support IP are supported as capture devices for libpcap/Npcap,
 although the device doesn't necessarily have to be running as an IP
 interface in order to support traffic capture.
 
@@ -994,60 +972,15 @@ The capture filter syntax used by libpcap can be found in the
 man page.
 """)
 
-
-question("""I'm entering valid capture filters; why do I still get
-"parse error" errors?""")
-
-answer("""
-There is a bug in some versions of libpcap/WinPcap that cause it to
-report parse errors even for valid expressions if a previous filter
-expression was invalid and got a parse error.
-
-<br>
-
-Try exiting and restarting Wireshark; if you are using a version of
-libpcap/WinPcap with this bug, this will "erase" its memory of the
-previous parse error.  If the capture filter that got the "parse error"
-now works, the earlier error with that filter was probably due to this
-bug.
-
-<br>
-
-The bug was fixed in libpcap 0.6; 0.4[.x] and 0.5[.x] versions of
-libpcap have this bug, but 0.6[.x] and later versions don't.
-
-<br>
-
-Versions of WinPcap prior to 2.3 are based on pre-0.6 versions of
-libpcap, and have this bug; WinPcap 2.3 is based on libpcap 0.6.2, and
-doesn't have this bug.
-
-<br>
-
-If you are running Wireshark on a UNIX-flavored platform, run "wireshark
--v", or select "About Wireshark..." from the "Help" menu in Wireshark, to
-see what version of libpcap it's using.  If it's not 0.6 or later, you
-will need either to upgrade your OS to get a later version of libpcap,
-or will need to build and install a later version of libpcap from <a
-href="http://www.tcpdump.org/">the tcpdump.org Web site</a> and then
-recompile Wireshark from source with that later version of libpcap.
-
-<br>
-
-If you are running Wireshark on Windows with a pre-2.3 version of
-WinPcap, you will need to un-install WinPcap and then download and
-install WinPcap 2.3.
-""")
-
 question("""
 How can I capture packets with CRC errors?
 """)
 
 answer("""
 Wireshark can capture only the packets that the packet capture library -
-libpcap on UNIX-flavored OSes, and the WinPcap port to Windows of libpcap
-on Windows - can capture, and libpcap/WinPcap can capture only the
-packets that the OS's raw packet capture mechanism (or the WinPcap
+libpcap on UNIX-flavored OSes, and the Npcap port to Windows of libpcap
+on Windows - can capture, and libpcap/Npcap can capture only the
+packets that the OS's raw packet capture mechanism (or the Npcap
 driver, and the underlying OS networking code and network interface
 drivers, on Windows) will allow it to capture.
 
@@ -1089,9 +1022,9 @@ How can I capture entire frames, including the FCS?
 
 answer("""
 Wireshark can only capture data that the packet capture library -
-libpcap on UNIX-flavored OSes, and the WinPcap port to Windows of
-libpcap on Windows - can capture, and libpcap/WinPcap can capture only
-the data that the OS's raw packet capture mechanism (or the WinPcap
+libpcap on UNIX-flavored OSes, and the Npcap port to Windows of
+libpcap on Windows - can capture, and libpcap/Npcap can capture only
+the data that the OS's raw packet capture mechanism (or the Npcap
 driver, and the underlying OS networking code and network interface
 drivers, on Windows) will allow it to capture.
 
@@ -1274,65 +1207,16 @@ Wireshark give me an error if I try to capture on that interface?
 """, "capprobwin")
 
 answer("""
-If you are running Wireshark on Windows XP,
-or Windows Server 2003, and this is the first time you have run a
-WinPcap-based program (such as Wireshark, or TShark, or WinDump, or
-Analyzer, or...) since the machine was rebooted, you need to run that
-program from an account with administrator privileges; once you have run
-such a program, you will not need administrator privileges to run any
-such programs until you reboot.
+
+Wireshark relies on the Npcap library, on the Npcap device driver, and
+and on the facilities that come with the OS on which it's running in
+order to do captures.
 
 <br>
 
-If you are running on Windows Windows XP or Windows Server
-2003 and have administrator privileges or a WinPcap-based program has
-been run with those privileges since the machine rebooted, this problem
-<em>might</em> clear up if you completely un-install WinPcap and then
-re-install it.
-
-<br>
-
-If that doesn't work, then note that Wireshark relies on the WinPcap
-library, on the WinPcap device driver, and on the facilities that come
-with the OS on which it's running in order to do captures.
-
-<br>
-
-Therefore, if the OS, the WinPcap library, or the WinPcap driver don't
+Therefore, if the OS, the Npcap library, or the Npcap driver don't
 support capturing on a particular network interface device, Wireshark
 won't be able to capture on that device.
-
-<br>
-
-WinPcap 2.3 has problems supporting PPP WAN interfaces on Windows NT
-4.0, Windows 2000, Windows XP, and Windows Server 2003, and, to avoid
-those problems, support for PPP WAN interfaces on those versions of
-Windows has been disabled in WinPcap 3.0.  Regular dial-up lines, ISDN
-lines, ADSL connections using PPPoE or PPPoA, and various other lines
-such as T1/E1 lines are all PPP interfaces, so those interfaces might
-not show up on the list of interfaces in the "Capture Options"
-dialog on those OSes.
-
-<br>
-
-On Windows 2000, Windows XP, and Windows Server 2003, but
-<strong>not</strong> Windows NT 4.0 or Windows Vista Beta 1, you should
-be able to capture on the "GenericDialupAdapter" with WinPcap 3.1.  (3.1
-beta releases called it the "NdisWanAdapter"; if you're using a 3.1 beta
-release, you should un-install it and install the final 3.1 release.)
-See <a href="https://wiki.wireshark.org/CaptureSetup/PPP">the Wireshark
-Wiki item on PPP capturing</a> for details.
-
-<br>
-
-WinPcap prior to 3.0 does not support multiprocessor machines (note
-that machines with a single multi-threaded processor, such as Intel's
-new multi-threaded x86 processors, are multiprocessor machines as far as
-the OS and WinPcap are concerned), and recent 2.x versions of WinPcap
-refuse to operate if they detect that they're running on a
-multiprocessor machine, which means that they may not show any network
-interfaces.  You will need to use WinPcap 3.0 to capture on a
-multiprocessor machine.
 
 <br>
 
@@ -1375,10 +1259,10 @@ this is almost certainly a problem with one or more of:
 </ul>
 
 <p>
-so first check <a href="https://www.winpcap.org/misc/faq.htm">the
-WinPcap FAQ</a> to see if your problem is mentioned there. If not, then see <a
-href="https://www.winpcap.org/contact.htm">the WinPcap support page</a>
-- check the "Submitting bugs" section.
+so first check <a href="https://nmap.org/npcap/guide/">the
+Npcap User's Guide</a> to see if your problem is mentioned there. If not, then see <a
+href="https://nmap.org/npcap/">the main Npcap page</a>
+- check the "Patches, Bug Reports, Questions, Suggestions, etc" section.
 
 <br>
 
@@ -1409,14 +1293,14 @@ this is almost certainly a problem with one or more of:
 <ul>
 <li>the operating system you're using;
 <li>the device driver for the interface you're using;
-<li>the WinPcap library and/or the WinPcap device driver;
+<li>the Npcap library and/or the Npcap device driver;
 </ul>
 
 <p>
-so first check <a href="https://www.winpcap.org/misc/faq.htm">the
-WinPcap FAQ</a> to see if your problem is mentioned there. If not, then see <a
-href="https://www.winpcap.org/contact.htm">the WinPcap support page</a>
-- check the "Submitting bugs" section.
+so first check <a href="https://nmap.org/npcap/guide/">the
+Npcap User's Guide</a> to see if your problem is mentioned there. If not, then see <a
+href="https://nmap.org/npcap/">the main Npcap page</a>
+- check the "Patches, Bug Reports, Questions, Suggestions, etc" section.
 
 <br>
 
@@ -1427,7 +1311,7 @@ href="mailto:winpcap-users@winpcap.org">winpcap-users@winpcap.org</a>
 mailing lists to see if anybody happens to know about the problem and
 know a workaround or fix for the problem.  (Note that you will have to
 subscribe to that list in order to be allowed to mail to it; see <a
-href="https://www.winpcap.org/contact.htm">the WinPcap support
+href="https://nmap.org/npcap/">the Npcap support
 page</a> for information on the mailing list.) In your mail,
 please give full details of the problem, as described above, and also
 indicate that the problem occurs with WinDump, not just with Wireshark.
@@ -1445,58 +1329,6 @@ one</a>; see the response to that question.
 """)
 
 question("""
-I'm running Wireshark on Windows; why doesn't my serial port/ADSL
-modem/ISDN modem show up in the list of interfaces in the "Interface:"
-field in the dialog box popped up by "Capture->Start"?
-""")
-
-answer("""
-Internet access on those devices is often done with the Point-to-Point
-(PPP) protocol; WinPcap 2.3 has problems supporting PPP WAN interfaces
-on Windows NT 4.0, Windows 2000, Windows XP, and Windows Server 2003,
-and, to avoid those problems, support for PPP WAN interfaces on those
-versions of Windows has been disabled in WinPcap 3.0.
-
-<br>
-
-On Windows 2000, Windows XP, and Windows Server 2003, but
-<strong>not</strong> Windows NT 4.0 or Windows Vista Beta 1, you should
-be able to capture on the "GenericDialupAdapter" with WinPcap 3.1.  (3.1
-beta releases called it the "NdisWanAdapter"; if you're using a 3.1 beta
-release, you should un-install it and install the final 3.1 release.)
-See <a href="https://wiki.wireshark.org/CaptureSetup/PPP">the Wireshark
-Wiki item on PPP capturing</a> for details.
-""")
-
-question("""
-I'm running Wireshark on Windows NT 4.0/Windows 2000/Windows XP/Windows
-Server 2003; my machine has a PPP (dial-up POTS, ISDN, etc.) interface,
-and it shows up in the "Interface" item in the "Capture Options" dialog
-box.  Why can no packets be sent on or received from that network while
-I'm trying to capture traffic on that interface?""", "nt_ppp_sniff")
-
-answer("""
-Some versions of WinPcap have problems with PPP WAN interfaces on
-Windows NT 4.0, Windows 2000, Windows XP, and Windows Server 2003; one
-symptom that may be seen is that attempts to capture in promiscuous mode
-on the interface cause the interface to be incapable of sending or
-receiving packets.  You can disable promiscuous mode using the
-<code>-p</code> command-line flag or the item in the "Capture Preferences"
-dialog box, but this may mean that outgoing packets, or incoming
-packets, won't be seen in the capture.
-
-<br>
-
-On Windows 2000, Windows XP, and Windows Server 2003, but
-<strong>not</strong> Windows NT 4.0 or Windows Vista Beta 1, you should
-be able to capture on the "GenericDialupAdapter" with WinPcap 3.1.  (3.1
-beta releases called it the "NdisWanAdapter"; if you're using a 3.1 beta
-release, you should un-install it and install the final 3.1 release.)
-See <a href="https://wiki.wireshark.org/CaptureSetup/PPP">the Wireshark
-Wiki item on PPP capturing</a> for details.
-""")
-
-question("""
 I'm running Wireshark on Windows; why am I not seeing any traffic being
 sent by the machine running Wireshark?""")
 
@@ -1505,9 +1337,9 @@ If you are running some form of VPN client software, it might be causing
 this problem; people have seen this problem when they have Check Point's
 VPN software installed on their machine.  If that's the cause of the
 problem, you will have to remove the VPN software in order to have
-Wireshark (or any other application using WinPcap) see outgoing packets;
-unfortunately, neither we nor the WinPcap developers know any way to
-make WinPcap and the VPN software work well together.
+Wireshark (or any other application using Npcap) see outgoing packets;
+unfortunately, neither we nor the Npcap developers know any way to
+make Npcap and the VPN software work well together.
 
 <br>
 
@@ -1713,8 +1545,8 @@ question("""I'm capturing packets on Linux; why do the time stamps have
 only 100ms resolution, rather than 1us resolution?""")
 
 answer("""
-Wireshark gets time stamps from libpcap/WinPcap, and
-libpcap/WinPcap get them from the OS kernel, so Wireshark - and any other
+Wireshark gets time stamps from libpcap/Npcap, and
+libpcap/Npcap get them from the OS kernel, so Wireshark - and any other
 program using libpcap, such as tcpdump - is at the mercy of the time
 stamping code in the OS for time stamps.
 
