@@ -6626,7 +6626,7 @@ static int dissect_cip_cm_fwd_close_rsp_success(proto_tree* cmd_data_tree, tvbuf
    proto_tree_add_item(cmd_data_tree, hf_cip_reserved8, tvb, offset + 9, 1, ENC_LITTLE_ENDIAN);
    if (app_rep_size > 0)
    {
-      if (tvb_reported_length_remaining(tvb, offset + 10) <= app_rep_size)
+      if (tvb_reported_length_remaining(tvb, offset + 10) < app_rep_size)
       {
          expert_add_info(pinfo, cmd_item, &ei_mal_fwd_close_missing_data);
          return 0;

@@ -1937,7 +1937,7 @@ dissect_eip_security_active_certs(packet_info *pinfo, proto_tree *tree, proto_it
    proto_tree* cert_tree;
    int start_offset = offset;
 
-   if (total_len < 2)
+   if (total_len < 1)
    {
       expert_add_info(pinfo, item, &ei_mal_eip_security_active_certs);
       return total_len;
@@ -1966,7 +1966,7 @@ dissect_eip_security_trusted_auths(packet_info *pinfo, proto_tree *tree, proto_i
    proto_tree* cert_tree;
    int start_offset = offset;
 
-   if (total_len < 2)
+   if (total_len < 1)
    {
       expert_add_info(pinfo, item, &ei_mal_eip_security_trusted_auths);
       return total_len;
