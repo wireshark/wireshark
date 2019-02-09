@@ -210,9 +210,7 @@ public:
 
         const mmdb_lookup_t *mmdb_lookup = NULL;
         if (endp_item->myaddress.type == AT_IPv4) {
-            guint32 ip;
-            memcpy(&ip, endp_item->myaddress.data, 4);
-            mmdb_lookup = maxmind_db_lookup_ipv4(ip);
+            mmdb_lookup = maxmind_db_lookup_ipv4((ws_in4_addr *) endp_item->myaddress.data);
         } else if (endp_item->myaddress.type == AT_IPv6) {
             mmdb_lookup = maxmind_db_lookup_ipv6((ws_in6_addr *) endp_item->myaddress.data);
         }

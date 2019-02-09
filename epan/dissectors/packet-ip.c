@@ -570,9 +570,9 @@ capture_ip(const guchar *pd, int offset, int len, capture_packet_info_t *cpinfo,
 }
 
 static void
-add_geoip_info_entry(proto_tree *tree, tvbuff_t *tvb, gint offset, guint32 ip, int isdst)
+add_geoip_info_entry(proto_tree *tree, tvbuff_t *tvb, gint offset, ws_in4_addr ip, int isdst)
 {
-  const mmdb_lookup_t *lookup = maxmind_db_lookup_ipv4(ip);
+  const mmdb_lookup_t *lookup = maxmind_db_lookup_ipv4(&ip);
   if (!lookup->found) return;
 
   wmem_strbuf_t *summary = wmem_strbuf_new(wmem_packet_scope(), "");
