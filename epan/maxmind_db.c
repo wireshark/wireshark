@@ -123,7 +123,6 @@ static void mmdb_resolve_stop(void);
 
 // Interned strings and v6 addresses, similar to GLib's string chunks.
 static const char *chunkify_string(char *key) {
-    key = g_strstrip(key);
     char *chunk_string = (char *) wmem_map_lookup(mmdb_str_chunk, key);
 
     if (!chunk_string) {
@@ -239,7 +238,7 @@ read_mmdbr_stdout_worker(gpointer data _U_) {
 
             if (line_buf->len > MAX_MMDB_LINE_LEN) {
                 MMDB_DEBUG("long line");
-                g_string_printf(line_buf, "%s", RES_INVALID_LINE);
+                g_string_assign(line_buf, RES_INVALID_LINE);
             }
         }
 
@@ -261,13 +260,28 @@ read_mmdbr_stdout_worker(gpointer data _U_) {
         if (line_len < 1) continue;
 
         char *val_start = strchr(line, ':');
-        if (val_start) val_start++;
+        if (val_start) {
+            val_start = g_strstrip(val_start + 1);
+        }
 
         if (line[0] == '[' && line_len > 2) {
             // [init] or resolved address in square brackets.
             line[line_len - 1] = '\0';
             g_strlcpy(cur_addr, line + 1, WS_INET6_ADDRSTRLEN);
+            if (ws_inet_pton4(cur_addr, &response->ipv4_addr)) {
+                response->is_ipv4 = TRUE;
+            } else if (ws_inet_pton6(cur_addr, &response->ipv6_addr)) {
+                response->is_ipv4 = FALSE;
+            } else if (strcmp(cur_addr, "init") != 0) {
+                MMDB_DEBUG("Invalid address: %s", cur_addr);
+                cur_addr[0] = '\0';
+            }
+            // Reset state.
             init_lookup(&response->mmdb_val);
+            g_string_truncate(country_iso, 0);
+            g_string_truncate(country, 0);
+            g_string_truncate(city, 0);
+            g_string_truncate(as_org, 0);
         } else if (strcmp(line, RES_STATUS_ERROR) == 0) {
             // Error during init.
             cur_addr[0] = '\0';
@@ -275,21 +289,21 @@ read_mmdbr_stdout_worker(gpointer data _U_) {
             break;
         } else if (val_start && g_str_has_prefix(line, RES_COUNTRY_ISO_CODE)) {
             response->mmdb_val.found = TRUE;
-            g_string_printf(country_iso, "%s", val_start);
+            g_string_assign(country_iso, val_start);
         } else if (val_start && g_str_has_prefix(line, RES_COUNTRY_NAMES_EN)) {
             response->mmdb_val.found = TRUE;
-            g_string_printf(country, "%s", val_start);
+            g_string_assign(country, val_start);
         } else if (val_start && g_str_has_prefix(line, RES_CITY_NAMES_EN)) {
             response->mmdb_val.found = TRUE;
-            g_string_printf(city, "%s", val_start);
+            g_string_assign(city, val_start);
         } else if (val_start && g_str_has_prefix(line, RES_ASN_ORG)) {
             response->mmdb_val.found = TRUE;
-            g_string_printf(as_org, "%s", val_start);
+            g_string_assign(as_org, val_start);
         } else if (val_start && g_str_has_prefix(line, RES_ASN_NUMBER)) {
             if (ws_strtou32(val_start, NULL, &response->mmdb_val.as_number)) {
                 response->mmdb_val.found = TRUE;
             } else {
-                MMDB_DEBUG("Invalid as number: %s", val_start);
+                MMDB_DEBUG("Invalid ASN: %s", val_start);
             }
         } else if (val_start && g_str_has_prefix(line, RES_LOCATION_LATITUDE)) {
             response->mmdb_val.found = TRUE;
@@ -298,7 +312,7 @@ read_mmdbr_stdout_worker(gpointer data _U_) {
             response->mmdb_val.found = TRUE;
             response->mmdb_val.longitude = g_ascii_strtod(val_start, NULL);
         } else if (g_str_has_prefix(line, RES_END)) {
-            if (response->mmdb_val.found) {
+            if (response->mmdb_val.found && cur_addr[0]) {
                 if (country_iso->len) {
                     response->mmdb_val.country_iso = g_strdup(country_iso->str);
                 }
@@ -311,16 +325,11 @@ read_mmdbr_stdout_worker(gpointer data _U_) {
                 if (as_org->len) {
                     response->mmdb_val.as_org = g_strdup(as_org->str);
                 }
-                if (strstr(cur_addr, ".")) {
-                    ws_inet_pton4(cur_addr, &response->ipv4_addr);
-                    response->is_ipv4 = TRUE;
-                    MMDB_DEBUG("queued %p v4 %s: city %s country %s", response, cur_addr, response->mmdb_val.city, response->mmdb_val.country);
-                } else if (strstr(cur_addr, ":")) {
-                    ws_inet_pton6(cur_addr, &response->ipv6_addr);
-                    MMDB_DEBUG("queued %p v6 %s: city %s country %s", response, cur_addr, response->mmdb_val.city, response->mmdb_val.country);
-                }
+                MMDB_DEBUG("queued %p %s %s: city %s country %s", response, response->is_ipv4 ? "v4" : "v6", cur_addr, response->mmdb_val.city, response->mmdb_val.country);
                 g_async_queue_push(mmdbr_response_q, response); // Will be freed by maxmind_db_lookup_process.
                 response = g_new0(mmdb_response_t, 1);
+            } else if (strcmp(cur_addr, "init") != 0) {
+                MMDB_DEBUG("Discarded previous values due to bad address");
             }
             cur_addr[0] = '\0';
             init_lookup(&response->mmdb_val);
@@ -606,7 +615,7 @@ gboolean maxmind_db_lookup_process(void)
             mmdb_val->as_org = chunkify_string(as_org);
             g_free(as_org);
         }
-        MMDB_DEBUG("popped response v4 %d city %s country %s", response->is_ipv4, mmdb_val->city, mmdb_val->country);
+        MMDB_DEBUG("popped response %s city %s country %s", response->is_ipv4 ? "v4" : "v6", mmdb_val->city, mmdb_val->country);
 
         if (response->is_ipv4) {
             wmem_map_insert(mmdb_ipv4_map, GUINT_TO_POINTER(response->ipv4_addr), mmdb_val);
