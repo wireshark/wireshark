@@ -34,7 +34,7 @@ extern "C" {
  *  json_dumper_set_member_name(&dumper, "array");
  *  json_dumper_begin_array(&dumper);
  *  json_dumper_value_anyf(&dumper, "true");
- *  json_dumper_value_anyf(&dumper, "1.0");
+ *  json_dumper_value_double(&dumper, 1.0);
  *  json_dumper_begin_base64(&dumper);
  *  json_dumper_write_base64(&dumper, (const guchar *)"abcd", 4);
  *  json_dumper_write_base64(&dumper, (const guchar *)"1234", 4);
@@ -79,6 +79,9 @@ json_dumper_end_array(json_dumper *dumper);
 
 WS_DLL_PUBLIC void
 json_dumper_value_string(json_dumper *dumper, const char *value);
+
+WS_DLL_PUBLIC void
+json_dumper_value_double(json_dumper *dumper, double value);
 
 /**
  * Dump number, "true", "false" or "null" values.

@@ -102,6 +102,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  json_dumper_finish@Base 2.9.0
  json_dumper_set_member_name@Base 2.9.0
  json_dumper_value_anyf@Base 2.9.0
+ json_dumper_value_double@Base 3.0.0
  json_dumper_value_string@Base 2.9.0
  json_dumper_value_va_list@Base 2.9.1
  json_dumper_write_base64@Base 2.9.1
