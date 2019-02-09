@@ -212,6 +212,8 @@ static int hf_nas_5gs_sm_sc_mode = -1;
 static int hf_nas_5gs_sm_sel_sc_mode = -1;
 static int hf_nas_5gs_sm_rqos_b0 = -1;
 static int hf_nas_5gs_sm_5gsm_cause = -1;
+static int hf_nas_5gs_sm_int_prot_max_data_rate_ul = -1;
+static int hf_nas_5gs_sm_int_prot_max_data_rate_dl = -1;
 static int hf_nas_5gs_sm_pdu_ses_type = -1;
 static int hf_nas_5gs_sm_pdu_addr_inf_ipv4 = -1;
 static int hf_nas_5gs_sm_pdu_addr_inf_ipv6 = -1;
@@ -2381,12 +2383,24 @@ de_nas_5gs_sm_5gsm_allowed_ssc_mode(tvbuff_t *tvb, proto_tree *tree, packet_info
 /*
  * 9.11.4.7 Integrity protection maximum data rate
  */
+static const value_string nas_5gs_sm_int_prot_max_data_rate_vals[] = {
+    { 0x0,  "64 kbps" },
+    { 0xff, "Full data rate" },
+    { 0,    NULL }
+};
+
 static guint16
-de_nas_5gs_sm_int_prot_max_data_rte(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
+de_nas_5gs_sm_int_prot_max_data_rte(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    /* Maximum data rate per UE for user-plane integrity protection for uplink */
+    proto_tree_add_item(tree, hf_nas_5gs_sm_int_prot_max_data_rate_ul, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    /* Maximum data rate per UE for user-plane integrity protection for downlink */
+    proto_tree_add_item(tree, hf_nas_5gs_sm_int_prot_max_data_rate_dl, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
 
     return len;
 }
@@ -4435,6 +4449,9 @@ nas_5gs_sm_pdu_ses_est_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
     /* Direction: UE to network */
     pinfo->link_dir = P2P_DIR_UL;
 
+    /*Integrity protection maximum data rate    Integrity protection maximum data rate 9.11.4.7    M    V    2*/
+    ELEM_MAND_V(NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_INT_PROT_MAX_DATA_RTE, NULL, ei_nas_5gs_missing_mandatory_elemen);
+
     /*9-    PDU session type    PDU session type     9.11.4.5    O    TV    1*/
     ELEM_OPT_TV_SHORT(0x90, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_PDU_SESSION_TYPE, NULL);
 
@@ -4481,7 +4498,7 @@ nas_5gs_sm_pdu_ses_est_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 
     /*Authorized QoS rules    QoS rules 9.11.4.6    M    LV-E    2-65537 DE_NAS_5GS_SM_QOS_RULES*/
     ELEM_MAND_LV_E(NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_QOS_RULES, " - Authorized QoS rules", ei_nas_5gs_missing_mandatory_elemen);
-    /*Session AMBR    Session-AMBR 9.11.4.7    M    LV    7 */
+    /*Session AMBR    Session-AMBR 9.11.4.14    M    LV    7 */
     ELEM_MAND_LV(NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_SESSION_AMBR, NULL, ei_nas_5gs_missing_mandatory_elemen);
     /*59    5GSM cause    5GSM cause 9.11.4.2    O    TV    2*/
     ELEM_OPT_TV(0x59, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_5GSM_CAUSE, NULL);
@@ -4725,7 +4742,7 @@ nas_5gs_sm_pdu_ses_mod_cmd(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 
     /*59    5GSM cause    5GSM cause 9.11.4.2    O    TV    2*/
     ELEM_OPT_TV(0x59, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_5GSM_CAUSE, NULL);
-    /*2A    Session AMBR    Session-AMBR     9.11.4.7    O    TLV    8*/
+    /*2A    Session AMBR    Session-AMBR     9.11.4.14    O    TLV    8*/
     ELEM_OPT_TLV(0x2A, NAS_5GS_PDU_TYPE_SM, DE_NAS_5GS_SM_SESSION_AMBR, NULL);
     /*56    RQ timer value    GPRS timer     9.11.4.3    O    TV    2*/
     ELEM_OPT_TV(0x56, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER, " - PDU session release time");
@@ -6297,6 +6314,16 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_sm_5gsm_cause,
         { "5GSM cause",   "nas_5gs.sm.5gsm_cause",
             FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_cause_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_int_prot_max_data_rate_ul,
+        { "Integrity protection maximum data rate for uplink",   "nas_5gs.sm.int_prot_max_data_rate_ul",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_int_prot_max_data_rate_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_sm_int_prot_max_data_rate_dl,
+        { "Integrity protection maximum data rate for downlink",   "nas_5gs.sm.int_prot_max_data_rate_dl",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_int_prot_max_data_rate_vals), 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_sm_pdu_ses_type,
