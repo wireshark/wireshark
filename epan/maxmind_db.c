@@ -220,15 +220,13 @@ read_mmdbr_stdout_worker(gpointer data _U_) {
     GString *country = g_string_new("");
     GString *city = g_string_new("");
     GString *as_org = g_string_new("");
+    char cur_addr[WS_INET6_ADDRSTRLEN] = { 0 };
 
     MMDB_DEBUG("starting read worker");
 
     while (1) { // Start of line
-        char cur_addr[WS_INET6_ADDRSTRLEN];
         char ch;
         ssize_t status;
-
-        cur_addr[0] = '\0';
 
         g_string_truncate(line_buf, 0);
 
