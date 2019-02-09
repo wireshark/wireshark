@@ -13,6 +13,8 @@
 
 #include "json_dumper.h"
 
+#include <math.h>
+
 /*
  * json_dumper.state[current_depth] describes a nested element:
  * - type: none/object/array/value
@@ -301,6 +303,24 @@ json_dumper_value_string(json_dumper *dumper, const char *value)
 
     prepare_token(dumper);
     json_puts_string(dumper->output_file, value, FALSE);
+
+    dumper->state[dumper->current_depth] = JSON_DUMPER_TYPE_VALUE;
+}
+
+void
+json_dumper_value_double(json_dumper *dumper, double value)
+{
+    if (!json_dumper_check_state(dumper, JSON_DUMPER_SET_VALUE, JSON_DUMPER_TYPE_VALUE)) {
+        return;
+    }
+
+    prepare_token(dumper);
+    gchar buffer[G_ASCII_DTOSTR_BUF_SIZE] = { 0 };
+    if (isfinite(value) && g_ascii_dtostr(buffer, G_ASCII_DTOSTR_BUF_SIZE, value) && buffer[0]) {
+        fputs(buffer, dumper->output_file);
+    } else {
+        fputs("null", dumper->output_file);
+    }
 
     dumper->state[dumper->current_depth] = JSON_DUMPER_TYPE_VALUE;
 }
