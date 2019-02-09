@@ -39,6 +39,7 @@ static const char *asn_o_key[]      = {"autonomous_system_organization", NULL};
 static const char *asn_key[]        = {"autonomous_system_number", NULL};
 static const char *l_lat_key[]      = {"location", "latitude", NULL};
 static const char *l_lon_key[]      = {"location", "longitude", NULL};
+static const char *l_accuracy_key[] = {"location", "accuracy_radius", NULL};
 static const char *empty_key[]      = {NULL};
 
 static const char **lookup_keys[] = {
@@ -49,6 +50,7 @@ static const char **lookup_keys[] = {
     asn_key,
     l_lat_key,
     l_lon_key,
+    l_accuracy_key,
     empty_key
 };
 
@@ -181,7 +183,7 @@ main(int argc, char *argv[])
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

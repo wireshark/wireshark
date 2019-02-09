@@ -276,7 +276,8 @@ example we have MaxMind DB configured which gives us extra geographic
 columns. See <<ChMaxMindDbPaths>> for more information.
 
 The btn:[Copy] button will copy the list values to the clipboard in CSV
-(Comma Separated Values) or YAML format.
+(Comma Separated Values) or YAML format. The btn:[Map] button will show the
+endpoints mapped in your web browser.
 
 btn:[Endpoint Types] lets you choose which traffic type tabs are shown. See
 <<ChStatEndpoints>> above for a list of endpoint types. The enabled

@@ -44,7 +44,8 @@ Dumpcap might not quit if Wireshark or TShark crashes.
 The following features are new (or have been significantly updated)
 since version 3.0.0rc1:
 
-* No significant changes.
+* The IP map feature (the “Map” button in the “Endpoints” dialog) has been
+  added back in a modernized form (wsbuglink:14693[]).
 
 The following features are new (or have been significantly updated)
 since version 2.9.0:

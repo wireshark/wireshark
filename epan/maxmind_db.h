@@ -31,6 +31,7 @@ typedef struct _mmdb_lookup_t {
     const char *as_org;
     double latitude;
     double longitude;
+    guint16 accuracy;   /** Accuracy radius in kilometers. */
 } mmdb_lookup_t;
 
 /**
@@ -74,6 +75,15 @@ WS_DLL_PUBLIC gchar *maxmind_db_get_paths(void);
  * @return True if any new addresses were resolved.
  */
 WS_DLL_LOCAL gboolean maxmind_db_lookup_process(void);
+
+/**
+ * Checks whether the lookup result was successful and has valid coordinates.
+ */
+static inline gboolean maxmind_db_has_coords(const mmdb_lookup_t *result)
+{
+    return result && result->found &&
+        result->longitude != DBL_MAX && result->latitude != DBL_MAX;
+}
 
 #ifdef __cplusplus
 }
