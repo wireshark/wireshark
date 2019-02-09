@@ -119,6 +119,7 @@ static void mmdb_resolve_stop(void);
 #define RES_ASN_NUMBER          "autonomous_system_number"
 #define RES_LOCATION_LATITUDE   "location.latitude"
 #define RES_LOCATION_LONGITUDE  "location.longitude"
+#define RES_LOCATION_ACCURACY   "location.accuracy_radius"
 #define RES_END                 "# End "
 
 // Interned strings and v6 addresses, similar to GLib's string chunks.
@@ -145,7 +146,7 @@ static const void *chunkify_v6_addr(const ws_in6_addr *addr) {
 }
 
 static void init_lookup(mmdb_lookup_t *lookup) {
-    mmdb_lookup_t empty_lookup = { FALSE, NULL, NULL, NULL, 0, NULL, DBL_MAX, DBL_MAX };
+    mmdb_lookup_t empty_lookup = { FALSE, NULL, NULL, NULL, 0, NULL, DBL_MAX, DBL_MAX, 0 };
     *lookup = empty_lookup;
 }
 
@@ -311,6 +312,12 @@ read_mmdbr_stdout_worker(gpointer data _U_) {
         } else if (val_start && g_str_has_prefix(line, RES_LOCATION_LONGITUDE)) {
             response->mmdb_val.found = TRUE;
             response->mmdb_val.longitude = g_ascii_strtod(val_start, NULL);
+        } else if (val_start && g_str_has_prefix(line, RES_LOCATION_ACCURACY)) {
+            if (ws_strtou16(val_start, NULL, &response->mmdb_val.accuracy)) {
+                response->mmdb_val.found = TRUE;
+            } else {
+                MMDB_DEBUG("Invalid accuracy radius: %s", val_start);
+            }
         } else if (g_str_has_prefix(line, RES_END)) {
             if (response->mmdb_val.found && cur_addr[0]) {
                 if (country_iso->len) {

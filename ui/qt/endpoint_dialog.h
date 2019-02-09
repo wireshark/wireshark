@@ -19,12 +19,24 @@ public:
     explicit EndpointTreeWidget(QWidget *parent, register_ct_t* table);
     ~EndpointTreeWidget();
 
+#ifdef HAVE_MAXMINDDB
+    bool hasGeoIPData() const { return has_geoip_data_; }
+#endif
+
     static void tapReset(void *conv_hash_ptr);
     static void tapDraw(void *conv_hash_ptr);
+
+#ifdef HAVE_MAXMINDDB
+signals:
+    void geoIPStatusChanged();
+#endif
 
 private:
     void updateItems();
 
+#ifdef HAVE_MAXMINDDB
+    bool has_geoip_data_;
+#endif
     address_type table_address_type_;
 
 private slots:
@@ -51,10 +63,19 @@ public slots:
     void captureFileClosing();
 
 private:
+#ifdef HAVE_MAXMINDDB
+    QPushButton *map_bt_;
 
+    QUrl createMap(bool json_only);
+#endif
     bool addTrafficTable(register_ct_t* table);
 
 private slots:
+#ifdef HAVE_MAXMINDDB
+    void tabChanged();
+    void openMap();
+    void saveMap();
+#endif
     void on_buttonBox_helpRequested();
 };
 
