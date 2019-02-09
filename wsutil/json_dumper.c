@@ -60,6 +60,9 @@ json_puts_string(FILE *fp, const char *str, gboolean dot_to_underscore)
         if ((guint)str[i] < 0x20) {
             fputc('\\', fp);
             fputs(json_cntrl[(guint)str[i]], fp);
+        } else if (i > 0 && str[i - 1] == '<' && str[i] == '/') {
+            // Convert </script> to <\/script> to avoid breaking web pages.
+            fputs("\\/", fp);
         } else {
             if (str[i] == '\\' || str[i] == '"') {
                 fputc('\\', fp);
