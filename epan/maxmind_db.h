@@ -17,8 +17,9 @@
 extern "C" {
 #endif /* __cplusplus */
 
-#include <epan/ipv6.h>
 #include <epan/prefs.h>
+#include <wsutil/inet_ipv4.h>
+#include <wsutil/inet_ipv6.h>
 #include "ws_symbol_export.h"
 
 typedef struct _mmdb_lookup_t {
@@ -49,7 +50,7 @@ WS_DLL_LOCAL void maxmind_db_pref_cleanup(void);
  *
  * @return The database entry if found, else NULL.
  */
-WS_DLL_PUBLIC WS_RETNONNULL const mmdb_lookup_t *maxmind_db_lookup_ipv4(guint32 addr);
+WS_DLL_PUBLIC WS_RETNONNULL const mmdb_lookup_t *maxmind_db_lookup_ipv4(const ws_in4_addr *addr);
 
 /**
  * Look up an IPv6 address in a database

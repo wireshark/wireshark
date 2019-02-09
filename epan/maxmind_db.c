@@ -630,16 +630,16 @@ gboolean maxmind_db_lookup_process(void)
 }
 
 const mmdb_lookup_t *
-maxmind_db_lookup_ipv4(guint32 addr) {
-    mmdb_lookup_t *result = (mmdb_lookup_t *) wmem_map_lookup(mmdb_ipv4_map, GUINT_TO_POINTER(addr));
+maxmind_db_lookup_ipv4(const ws_in4_addr *addr) {
+    mmdb_lookup_t *result = (mmdb_lookup_t *) wmem_map_lookup(mmdb_ipv4_map, GUINT_TO_POINTER(*addr));
 
     if (!result) {
         result = &mmdb_not_found;
-        wmem_map_insert(mmdb_ipv4_map, GUINT_TO_POINTER(addr), result);
+        wmem_map_insert(mmdb_ipv4_map, GUINT_TO_POINTER(*addr), result);
 
         if (mmdbr_pipe_valid()) {
             char addr_str[WS_INET_ADDRSTRLEN];
-            ws_inet_ntop4(&addr, addr_str, WS_INET_ADDRSTRLEN);
+            ws_inet_ntop4(addr, addr_str, WS_INET_ADDRSTRLEN);
             MMDB_DEBUG("looking up %s", addr_str);
             g_async_queue_push(mmdbr_request_q, g_strdup_printf("%s\n", addr_str));
         }
@@ -707,7 +707,7 @@ maxmind_db_lookup_process(void)
 }
 
 const mmdb_lookup_t *
-maxmind_db_lookup_ipv4(guint32 addr _U_) {
+maxmind_db_lookup_ipv4(const ws_in4_addr *addr _U_) {
     return &mmdb_not_found;
 }
 
