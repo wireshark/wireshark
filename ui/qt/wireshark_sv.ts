@@ -49,7 +49,7 @@
     </message>
     <message>
         <source>Search Plugins</source>
-        <translation>Sökinsticksmoduler</translation>
+        <translation>Sök efter insticksmoduler</translation>
     </message>
     <message>
         <source>Filter by type:</source>
@@ -61,7 +61,7 @@
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation>Sökgenvägar</translation>
+        <translation>Sök efter genvägar</translation>
     </message>
     <message>
         <source>Acknowledgments</source>
@@ -73,7 +73,7 @@
     </message>
     <message>
         <source>The directory does not exist</source>
-        <translation>Katalogen finnsinte</translation>
+        <translation>Katalogen finns inte</translation>
     </message>
     <message>
         <source>Should the directory %1 be created?</source>
@@ -438,7 +438,7 @@
     </message>
     <message>
         <source>Is Local Adapter</source>
-        <translation>Är en lokal anpassning</translation>
+        <translation>Är en lokal adapter</translation>
     </message>
     <message>
         <source>All Interfaces</source>
@@ -718,11 +718,11 @@
     <name>CaptureFile</name>
     <message>
         <source> [closing]</source>
-        <translation>[stänger]</translation>
+        <translation> [stänger]</translation>
     </message>
     <message>
         <source> [closed]</source>
-        <translation>[stängd]</translation>
+        <translation> [stängd]</translation>
     </message>
 </context>
 <context>
@@ -1181,7 +1181,7 @@
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Du vill troligen aktivera detta.  Vanligen kommer ett nätverkskort endast fånga trafiken som skickas till sin egen nätverksadress.  Om du vill fånga all trafik som nätverkskorten kan &amp;quot;se&amp;quot;, markera detta alternativ.  Se FAQ:n för lite fler detaljer om att fånga paket från ett switchat nätverk.&lt;/p&gt;&lt;/body&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Du vill troligen aktivera detta.  Vanligen kommer ett nätverkskort endast fånga trafiken som skickas till dess egen nätverksadress.  Om du vill fånga all trafik som nätverkskortet kan &amp;quot;se&amp;quot;, markera detta alternativ.  Se FAQ:n för lite fler detaljer om att fånga paket från ett switchat nätverk.&lt;/p&gt;&lt;/body&gt;</translation>
     </message>
     <message>
         <source>Output</source>
@@ -1241,7 +1241,7 @@
     </message>
     <message>
         <source>Stop capturing after the specified number of packets have been captured.</source>
-        <translation>Sluta fånga efter det angivna antalet paket har infångats.</translation>
+        <translation>Sluta fånga efter att det angivna antalet paket har infångats.</translation>
     </message>
     <message>
         <source>Stop capturing after the specified amount of data has been captured.</source>
@@ -1249,7 +1249,7 @@
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sluta fånga efter den angivna mängden data har infångats.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sluta fånga efter att den angivna mängden data har infångats.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>packets</source>
@@ -1282,7 +1282,7 @@
     </message>
     <message>
         <source>Show and hide interfaces, add comments, and manage pipes and remote interfaces.</source>
-        <translation>Visa och dölj gränssnitt, lägg till kommentarer och hantera rör och fjärgränssnitt.</translation>
+        <translation>Visa och dölj gränssnitt, lägg till kommentarer och hantera rör och fjärrgränssnitt.</translation>
     </message>
     <message>
         <source>Manage Interfaces…</source>
@@ -1335,7 +1335,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Use a ring buffer with </source>
-        <translation>Använd en ringbuffert med</translation>
+        <translation>Använd en ringbuffert med </translation>
     </message>
     <message>
         <source>files</source>
@@ -1367,7 +1367,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Show the capture info dialog while capturing.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Visa fångstinformationsdialogen inder fångandet.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Visa fångstinformationsdialogen under fångandet.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Name Resolution</source>
@@ -1477,7 +1477,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;You probably want to enable this. Usually a network card will only capture the traffic sent to its own network address. If you want to capture all traffic that the network card can &amp;quot;see&amp;quot;, mark this option. See the FAQ for some more details of capturing packets from a switched network.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Du vill troligen aktivera detta.  Vanligen kommer ett nätverkskort endast fånga trafiken som skickas till sin egen nätverksadress.  Om du vill fånga all trafik som nätverkskorten kan &amp;quot;se&amp;quot;, markera detta alternativ.  Se FAQ:n för lite fler detaljer om att fånga paket från ett switchat nätverk.&lt;/p&gt;&lt;/body&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Du vill troligen aktivera detta.  Vanligen kommer ett nätverkskort endast fånga trafiken som skickas till dess egen nätverksadress.  Om du vill fånga all trafik som nätverkskortet kan &amp;quot;se&amp;quot;, markera detta alternativ.  Se FAQ:n för lite fler detaljer om att fånga paket från ett switchat nätverk.&lt;/p&gt;&lt;/body&gt;</translation>
     </message>
     <message>
         <source>Capture packets in promiscuous mode</source>
@@ -1603,7 +1603,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation>Öppna</translation>
+        <translation>Öppna </translation>
     </message>
     <message>
         <source>Double click to edit. Drag to move. Rules are processed in order until a match is found.</source>
@@ -1615,7 +1615,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Export %1 Coloring Rules</source>
-        <translation>Exportera %s färgläggningsregler</translation>
+        <translation>Exportera %1 färgläggningsregler</translation>
     </message>
     <message>
         <source>Your coloring rules file contains unknown rules</source>
@@ -1764,11 +1764,11 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Copy packet bytes as a hex and ASCII dump.</source>
-        <translation>Kopiera paketbyte som hex och ASCII-dump</translation>
+        <translation>Kopiera paketbyte som hex och ASCII-dump.</translation>
     </message>
     <message>
         <source>Copy packet bytes as a hex dump.</source>
-        <translation>Kopiera paketbyte som en hex-dump</translation>
+        <translation>Kopiera paketbyte som en hex-dump.</translation>
     </message>
     <message>
         <source>Copy only the printable text in the packet.</source>
@@ -1780,7 +1780,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Copy packet bytes as application/octet-stream MIME data.</source>
-        <translation>Kopiera paketbyt som application/octet-stream MIME-data.</translation>
+        <translation>Kopiera paketbyte som application/octet-stream MIME-data.</translation>
     </message>
     <message>
         <source>Copy packet bytes as an escaped string.</source>
@@ -1811,7 +1811,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation>Öppna</translation>
+        <translation>Öppna </translation>
     </message>
 </context>
 <context>
@@ -1838,7 +1838,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Integer, base </source>
-        <translation>Heltal, bas</translation>
+        <translation>Heltal, bas </translation>
     </message>
     <message>
         <source>unknown</source>
@@ -1912,7 +1912,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Invalid filter: </source>
-        <translation>Felaktigt filter:</translation>
+        <translation>Felaktigt filter: </translation>
     </message>
     <message>
         <source>Save this filter</source>
@@ -1947,7 +1947,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the list of field names.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sök i listan av filnamn.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sök i listan av fältnamn.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Search:</source>
@@ -1957,7 +1957,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Relations can be used to restrict fields to specific values. Each relation does the following:&lt;/p&gt;&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;&quot; cellspacing=&quot;2&quot; cellpadding=&quot;0&quot;&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;is present&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Match any packet that contains this field&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;==, !=, etc.&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Compare the field to a specific value.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;contains, matches&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Check the field against a string (contains) or a regular expression (matches)&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;in&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Compare the field to a specific set of values&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;
 
 </source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Relationer kan användas för att begränsa fält till specifika värden.  Varje relation gör följande:&lt;/p&gt;&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;&quot; cellspacing=&quot;2&quot; cellpadding=&quot;0&quot;&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;is present&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Matcha alla paket som innehåller detta fält&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;==, !=, etc.&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Jämför fältet med ett visst värde.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;contains, matches&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Jämför fältet med en sträng (contains) eller reguljärt uttryck (matches)&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;in&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Jämför fältet med en viss mängd värden&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Relationer kan användas för att begränsa fält till specifika värden.  Varje relation gör följande:&lt;/p&gt;&lt;table border=&quot;0&quot; style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px;&quot; cellspacing=&quot;2&quot; cellpadding=&quot;0&quot;&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;is present&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Matcha alla paket som innehåller detta fält&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;==, !=, etc.&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Jämför fältet med ett visst värde.&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;contains, matches&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Jämför fältet med en sträng (contains) eller reguljärt uttryck (matches)&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;tr&gt;&lt;td&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-weight:600;&quot;&gt;in&lt;/span&gt;&lt;/p&gt;&lt;/td&gt;&lt;td&gt;&lt;p&gt;Jämför fältet med en uppsättning värden&lt;/p&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/body&gt;&lt;/html&gt;
 
 </translation>
     </message>
@@ -2203,7 +2203,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Display filter: &quot;%1&quot;</source>
-        <translation>Visa displayfilter: ”%1”</translation>
+        <translation>Visningsfilter: ”%1”</translation>
     </message>
 </context>
 <context>
@@ -2397,7 +2397,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Invalid filter: </source>
-        <translation>Felaktigt filter:</translation>
+        <translation>Felaktigt filter: </translation>
     </message>
 </context>
 <context>
@@ -2412,7 +2412,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>No files in Set</source>
-        <translation>Inga filer angivna</translation>
+        <translation>Inga filer i uppsättningen</translation>
     </message>
     <message>
         <source>No capture loaded</source>
@@ -2488,7 +2488,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation>Öppna</translation>
+        <translation>Öppna </translation>
     </message>
     <message>
         <source>New filter</source>
@@ -2598,7 +2598,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Firewall ACL Rules</source>
-        <translation>Brandväggs-ACL-regler</translation>
+        <translation>Brandväggens ACL-regler</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -2705,7 +2705,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>binary plugins</source>
-        <translation>vinära insticksmoduler</translation>
+        <translation>binära insticksmoduler</translation>
     </message>
     <message>
         <source>Global Plugins</source>
@@ -2725,7 +2725,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Extcap path</source>
-        <translation>Extcap-sökvägar</translation>
+        <translation>Extcap-sökväg</translation>
     </message>
     <message>
         <source>Extcap Plugins search path</source>
@@ -2828,7 +2828,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Packet %1. </source>
-        <translation>Paket %1.</translation>
+        <translation>Paket %1. </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt(s), </source>
@@ -2937,7 +2937,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Find &amp;Next</source>
-        <translation>Sök &amp; nästa</translation>
+        <translation>Sök &amp;nästa</translation>
     </message>
 </context>
 <context>
@@ -3229,7 +3229,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
 &lt;tr&gt;&lt;th&gt;←&lt;/th&gt;&lt;td&gt;Flytta åt vänster 10 bildpunkter&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Flytta upp 10 bildpunkter&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Flytta ner 10 bildpunkter&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Skift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Flytta åt höger 1 bildpunktl&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Skift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Flytta åt höger 1 bildpunkt&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;&lt;i&gt;Skift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Flytta åt vänster 1 bildpunkt&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;&lt;i&gt;Skift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Flytta upp 1 bildpunkt&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;&lt;i&gt;Skift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Flytta ner 1 bildpunkt&lt;/td&gt;&lt;/th&gt;
@@ -3246,15 +3246,15 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     <message>
         <source>Remove this graph.</source>
         <oldsource>Remove this dissection behavior.</oldsource>
-        <translation>Ta bort denna graf</translation>
+        <translation>Ta bort denna graf.</translation>
     </message>
     <message>
         <source>Add a new graph.</source>
-        <translation>Lägg till en ny graf</translation>
+        <translation>Lägg till en ny graf.</translation>
     </message>
     <message>
         <source>Duplicate this graph.</source>
-        <translation>Dubblera denna graf</translation>
+        <translation>Dubblera denna graf.</translation>
     </message>
     <message>
         <source>Clear all graphs.</source>
@@ -3723,7 +3723,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Save the reverse table as CSV.</source>
-        <translation>Spara den omvända tabellen som CSV</translation>
+        <translation>Spara den omvända tabellen som CSV.</translation>
     </message>
     <message>
         <source>Save Graph</source>
@@ -3731,7 +3731,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Save the graph image.</source>
-        <translation>Spara grafbilden</translation>
+        <translation>Spara grafbilden.</translation>
     </message>
     <message>
         <source>Go to Packet</source>
@@ -4542,7 +4542,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     <name>LBMLBTRUTransportDialog</name>
     <message>
         <source>LBT-RU Transport Statistics</source>
-        <translation>LBT.RU-transportstatistik</translation>
+        <translation>LBT-RU-transportstatistik</translation>
     </message>
     <message>
         <source>Sources</source>
@@ -5595,7 +5595,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     <message>
         <source> is the highest expert information level</source>
         <oldsource> is the highest expert info level</oldsource>
-        <translation>är den högsta expertinformationsnivån</translation>
+        <translation> är den högsta expertinformationsnivån</translation>
     </message>
     <message>
         <source>ERROR</source>
@@ -5646,19 +5646,19 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     <message>
         <source> %1 Marked: %2 (%3%)</source>
         <oldsource> %1 Dropped: %2</oldsource>
-        <translation>%1 markerade: %2 (%3 %)</translation>
+        <translation> %1 markerade: %2 (%3 %)</translation>
     </message>
     <message>
         <source> %1 Dropped: %2 (%3%)</source>
-        <translation>%1 släppta: %2 (%3 %)</translation>
+        <translation> %1 släppta: %2 (%3 %)</translation>
     </message>
     <message>
         <source> %1 Ignored: %2 (%3%)</source>
-        <translation>%1 ignorerade: %2 (%3 %)</translation>
+        <translation> %1 ignorerade: %2 (%3 %)</translation>
     </message>
     <message>
         <source> %1  Load time: %2:%3.%4</source>
-        <translation>%1 inläsningstid: %2.%3.%4</translation>
+        <translation> %1 inläsningstid: %2.%3.%4</translation>
     </message>
     <message>
         <source>No Packets</source>
@@ -5695,8 +5695,9 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <translation>Avbryt</translation>
     </message>
     <message>
-        <source>Open Recent</source>
-        <translation>Öppna senaste</translation>
+        <source>Open &amp;Recent</source>
+        <oldsource>Open Recent</oldsource>
+        <translation type="unfinished">Öppna senaste</translation>
     </message>
     <message>
         <source>File Set</source>
@@ -5719,8 +5720,9 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <translation>&amp;Tidsvisningsformat</translation>
     </message>
     <message>
-        <source>Name Resolution</source>
-        <translation>Namnuppslagning</translation>
+        <source>Name Resol&amp;ution</source>
+        <oldsource>Name Resolution</oldsource>
+        <translation type="unfinished">Namnuppslagning</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -5815,8 +5817,9 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <translation>RTSP</translation>
     </message>
     <message>
-        <source>RTP</source>
-        <translation>RTP</translation>
+        <source>&amp;RTP</source>
+        <oldsource>RTP</oldsource>
+        <translation type="unfinished">RTP</translation>
     </message>
     <message>
         <source>&amp;Edit</source>
@@ -5831,16 +5834,18 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <translation>Visningsfilterverktygsrad</translation>
     </message>
     <message>
-        <source>Open</source>
-        <translation>Öppna</translation>
+        <source>&amp;Open</source>
+        <oldsource>Open</oldsource>
+        <translation type="unfinished">Öppna</translation>
     </message>
     <message>
         <source>Open a capture file</source>
         <translation>Öppna en fångstfil</translation>
     </message>
     <message>
-        <source>Quit</source>
-        <translation>Avsluta</translation>
+        <source>&amp;Quit</source>
+        <oldsource>Quit</oldsource>
+        <translation type="unfinished">Avsluta</translation>
     </message>
     <message>
         <source>Quit Wireshark</source>
@@ -5863,8 +5868,9 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <translation>Sluta fånga paket</translation>
     </message>
     <message>
-        <source>Close</source>
-        <translation>Stäng</translation>
+        <source>&amp;Close</source>
+        <oldsource>Close</oldsource>
+        <translation type="unfinished">Stäng</translation>
     </message>
     <message>
         <source>No files found</source>
@@ -5920,7 +5926,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Sample Captures</source>
-        <translation>Infångade sampel</translation>
+        <translation>Exempel på fångster</translation>
     </message>
     <message>
         <source>&amp;About Wireshark</source>
@@ -6092,7 +6098,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Packet:</source>
-        <translation>Paket</translation>
+        <translation>Paket:</translation>
     </message>
     <message>
         <source>Interface Toolbars</source>
@@ -6115,24 +6121,29 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <translation>Konversationsfilter</translation>
     </message>
     <message>
-        <source>Service Response Time</source>
-        <translation>Tjänstesvarstid</translation>
+        <source>Service &amp;Response Time</source>
+        <oldsource>Service Response Time</oldsource>
+        <translation type="unfinished">Tjänstesvarstid</translation>
     </message>
     <message>
-        <source>ANSI</source>
-        <translation>ANSI</translation>
+        <source>&amp;ANSI</source>
+        <oldsource>ANSI</oldsource>
+        <translation type="unfinished">ANSI</translation>
     </message>
     <message>
-        <source>GSM</source>
-        <translation>GSM</translation>
+        <source>&amp;GSM</source>
+        <oldsource>GSM</oldsource>
+        <translation type="unfinished">GSM</translation>
     </message>
     <message>
-        <source>LTE</source>
-        <translation>LTE</translation>
+        <source>&amp;LTE</source>
+        <oldsource>LTE</oldsource>
+        <translation type="unfinished">LTE</translation>
     </message>
     <message>
-        <source>MTP3</source>
-        <translation>MTP3</translation>
+        <source>&amp;MTP3</source>
+        <oldsource>MTP3</oldsource>
+        <translation type="unfinished">MTP3</translation>
     </message>
     <message>
         <source>Osmux</source>
@@ -6169,7 +6180,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Next Packet In History</source>
-        <translation>Nästa paket i historien</translation>
+        <translation>Nästa paket i historiken</translation>
     </message>
     <message>
         <source>Go to the next packet in your selection history</source>
@@ -6232,8 +6243,9 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <translation>Läs om som filformat/-fångst</translation>
     </message>
     <message>
-        <source>As JSON…</source>
-        <translation>Som JSON …</translation>
+        <source>As &amp;JSON…</source>
+        <oldsource>As JSON…</oldsource>
+        <translation type="unfinished">Som JSON …</translation>
     </message>
     <message>
         <source>Copy this item&apos;s description</source>
@@ -6288,8 +6300,9 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <translation>Markera alla visade paket</translation>
     </message>
     <message>
-        <source>Unmark All Displayed</source>
-        <translation>Avmarkera alla visade</translation>
+        <source>&amp;Unmark All Displayed</source>
+        <oldsource>Unmark All Displayed</oldsource>
+        <translation type="unfinished">Avmarkera alla visade</translation>
     </message>
     <message>
         <source>Unmark all displayed packets</source>
@@ -6332,8 +6345,9 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <translation>Avignorera alla visade</translation>
     </message>
     <message>
-        <source>Unignore all displayed packets</source>
-        <translation>Avignorera alla visade paket</translation>
+        <source>U&amp;nignore all displayed packets</source>
+        <oldsource>Unignore all displayed packets</oldsource>
+        <translation type="unfinished">Avignorera alla visade paket</translation>
     </message>
     <message>
         <source>Set/Unset Time Reference</source>
@@ -6681,7 +6695,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Queries by Queue</source>
-        <translation>Frågor efter gö</translation>
+        <translation>Frågor efter kö</translation>
     </message>
     <message>
         <source>Streams</source>
@@ -6716,24 +6730,27 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <translation>Återställ utseendelayouten till sin standardstorlek</translation>
     </message>
     <message>
-        <source>Conversation Hash Tables</source>
-        <translation>Konversationshashtabeller</translation>
+        <source>&amp;Conversation Hash Tables</source>
+        <oldsource>Conversation Hash Tables</oldsource>
+        <translation type="unfinished">Konversationshashtabeller</translation>
     </message>
     <message>
         <source>Show each conversation hash table</source>
         <translation>Visa varje konversations hashtabell</translation>
     </message>
     <message>
-        <source>Dissector Tables</source>
-        <translation>Dissekeringstabeller</translation>
+        <source>&amp;Dissector Tables</source>
+        <oldsource>Dissector Tables</oldsource>
+        <translation type="unfinished">Dissekeringstabeller</translation>
     </message>
     <message>
         <source>Show each dissector table and its entries</source>
         <translation>Visa varje dissekeringstabell och dess poster</translation>
     </message>
     <message>
-        <source>Supported Protocols</source>
-        <translation>Protokoll som stödjs</translation>
+        <source>&amp;Supported Protocols</source>
+        <oldsource>Supported Protocols</oldsource>
+        <translation type="unfinished">Protokoll som stödjs</translation>
     </message>
     <message>
         <source>Show the currently supported protocols and display filter fields</source>
@@ -6756,8 +6773,9 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <translation>LTE RLC-statistik</translation>
     </message>
     <message>
-        <source>RLC Graph</source>
-        <translation>RLC-graf</translation>
+        <source>RLC &amp;Graph</source>
+        <oldsource>RLC Graph</oldsource>
+        <translation type="unfinished">RLC-graf</translation>
     </message>
     <message>
         <source>LTE RLC graph</source>
@@ -6829,7 +6847,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Firewall ACL Rules</source>
-        <translation>Brandväggs-ACL-regler</translation>
+        <translation>Brandväggens ACL-regler</translation>
     </message>
     <message>
         <source>Create firewall ACL rules</source>
@@ -6856,20 +6874,24 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <translation>Som vanlig &amp;text …</translation>
     </message>
     <message>
-        <source>As CSV…</source>
-        <translation>Som CSV …</translation>
+        <source>As &amp;CSV…</source>
+        <oldsource>As CSV…</oldsource>
+        <translation type="unfinished">Som CSV …</translation>
     </message>
     <message>
-        <source>As &quot;C&quot; Arrays…</source>
-        <translation>Som ”C”-vektorer …</translation>
+        <source>As &quot;C&quot; &amp;Arrays…</source>
+        <oldsource>As &quot;C&quot; Arrays…</oldsource>
+        <translation type="unfinished">Som ”C”-vektorer …</translation>
     </message>
     <message>
-        <source>As PSML XML…</source>
-        <translation>Som PSML XML …</translation>
+        <source>As P&amp;SML XML…</source>
+        <oldsource>As PSML XML…</oldsource>
+        <translation type="unfinished">Som PSML XML …</translation>
     </message>
     <message>
-        <source>As PDML XML…</source>
-        <translation>Som PDML XML …</translation>
+        <source>As P&amp;DML XML…</source>
+        <oldsource>As PDML XML…</oldsource>
+        <translation type="unfinished">Som PDML XML …</translation>
     </message>
     <message>
         <source>All Visible Items</source>
@@ -6912,8 +6934,9 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <translation>… eller inte valda</translation>
     </message>
     <message>
-        <source>Display Filters…</source>
-        <translation>Visningsfilter …</translation>
+        <source>Display &amp;Filters…</source>
+        <oldsource>Display Filters…</oldsource>
+        <translation type="unfinished">Visningsfilter …</translation>
     </message>
     <message>
         <source>Display Filter &amp;Macros…</source>
@@ -6940,8 +6963,9 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <translation>Paketkommentar …</translation>
     </message>
     <message>
-        <source>Configuration Profiles…</source>
-        <translation>Konfigurationsprofiler …</translation>
+        <source>&amp;Configuration Profiles…</source>
+        <oldsource>Configuration Profiles…</oldsource>
+        <translation type="unfinished">Konfigurationsprofiler …</translation>
     </message>
     <message>
         <source>&amp;Preferences…</source>
@@ -6996,16 +7020,18 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <translation>Visa eller dölj filterverktygsraden</translation>
     </message>
     <message>
-        <source>Conversations</source>
-        <translation>Konversationer</translation>
+        <source>&amp;Conversations</source>
+        <oldsource>Conversations</oldsource>
+        <translation type="unfinished">Konversationer</translation>
     </message>
     <message>
         <source>Conversations at different protocol levels</source>
         <translation>Konversationer på olika protokollnivåer</translation>
     </message>
     <message>
-        <source>Endpoints</source>
-        <translation>Ändpunkter</translation>
+        <source>&amp;Endpoints</source>
+        <oldsource>Endpoints</oldsource>
+        <translation type="unfinished">Ändpunkter</translation>
     </message>
     <message>
         <source>Endpoints at different protocol levels</source>
@@ -7157,7 +7183,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Resolve &amp;Physical Addresses</source>
-        <translation>Lös upp &amp;fysiska adresser</translation>
+        <translation>Slå upp &amp;fysiska adresser</translation>
     </message>
     <message>
         <source>Show names for known MAC addresses. Lookups use a local database.</source>
@@ -7270,8 +7296,9 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <translation>Öppna visningsfiltrets referenssida för detta filterfält.</translation>
     </message>
     <message>
-        <source>Go to Linked Packet</source>
-        <translation>Gå till länkade paket</translation>
+        <source>Go to &amp;Linked Packet</source>
+        <oldsource>Go to Linked Packet</oldsource>
+        <translation type="unfinished">Gå till länkade paket</translation>
     </message>
     <message>
         <source>Go to the packet referenced by the selected field.</source>
@@ -7423,11 +7450,11 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Edit Resolved Name</source>
-        <translation>Redigera upplösta namn</translation>
+        <translation>Redigera uppslagna namn</translation>
     </message>
     <message>
         <source>Manually edit a name resolution entry.</source>
-        <translation>Redigera manuellt en namnupplösningspost.</translation>
+        <translation>Redigera manuellt en namnuppslagningspost.</translation>
     </message>
     <message>
         <source>Enable and disable specific protocols</source>
@@ -7606,7 +7633,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Merging files</source>
-        <translation>Sår samman filer</translation>
+        <translation>Slår samman filer</translation>
     </message>
     <message>
         <source>Couldn&apos;t copy text. Try another item.</source>
@@ -7669,7 +7696,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
-        <translation>&lt;p&gt;Wireshark-wikin underhålls av sällskapet.&lt;/p&gt;&lt;p&gt;Sidan du står i begrepp att läsa in kan var underbar, ofullständig, felaktig, eller saknas.&lt;/p&gt;&lt;p&gt;Gå vidare till wikin?&lt;/p&gt;</translation>
+        <translation>&lt;p&gt;Wireshark-wikin underhålls av gemenskapen.&lt;/p&gt;&lt;p&gt;Sidan du står i begrepp att läsa in kan vara underbar, ofullständig, felaktig, eller saknas.&lt;/p&gt;&lt;p&gt;Gå vidare till wikin?&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Loading</source>
@@ -7682,6 +7709,14 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     <message>
         <source>Rescanning</source>
         <translation>Söker om</translation>
+    </message>
+    <message>
+        <source>S&amp;CTP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IA&amp;X2 Stream Analysis</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -7957,7 +7992,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Source Port</source>
-        <translation>Källport.</translation>
+        <translation>Källport</translation>
     </message>
     <message>
         <source>Destination Address</source>
@@ -7965,7 +8000,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Destination Port</source>
-        <translation>Destinationsport.</translation>
+        <translation>Destinationsport</translation>
     </message>
     <message>
         <source>Packets</source>
@@ -8112,7 +8147,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Export only top-level packet detail items&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Exportera endast poster med detaljer på tippnivåpaket&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Exportera endast poster med detaljer på toppnivåpaket&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>All co&amp;llapsed</source>
@@ -8643,7 +8678,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Bars show the relative timeline for each conversation.</source>
-        <translation>Streck visar det relativa tidsförloppet för varje konversation.</translation>
+        <translation>Streck visar det relativa tidslinje för varje konversation.</translation>
     </message>
     <message>
         <source>Endpoint</source>
@@ -9307,7 +9342,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Discarded Responses</source>
-        <translation>Kasta svar</translation>
+        <translation>Kastade svar</translation>
     </message>
     <message>
         <source>Repeated Requests</source>
@@ -9545,7 +9580,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Stream Synchronized Forward and Reverse Audio</source>
-        <translation>Strömsynkroniserad framåt och omvänd audio</translation>
+        <translation>Strömma synkroniserad framåt och omvänd audio</translation>
     </message>
     <message>
         <source>Save the audio data for both channels synchronized to start of earlier stream.</source>
@@ -9553,7 +9588,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Stream Synchronized Forward Stream Audio</source>
-        <translation>Strömsynkroniserad framåtströmaudio</translation>
+        <translation>StrömMA synkroniserad framåtströmaudio</translation>
     </message>
     <message>
         <source>Save the forward stream audio data synchronized to start of earlier stream.</source>
@@ -9561,7 +9596,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Stream Synchronized Reverse Stream Audio</source>
-        <translation>Strömsynkroniserad omvänd strömaudio</translation>
+        <translation>StrömMA synkroniserad omvänd strömaudio</translation>
     </message>
     <message>
         <source>Save the reverse stream audio data synchronized to start of earlier stream.</source>
@@ -9569,7 +9604,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>File Synchronized Forward and Reverse Audio</source>
-        <translation>Filsynkroniserad framåt och omvänd audio</translation>
+        <translation>Spara synkroniserad framåt och omvänd audio</translation>
     </message>
     <message>
         <source>Save the audio data for both channels synchronized to start of file.</source>
@@ -9577,7 +9612,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>File Synchronized Forward Stream Audio</source>
-        <translation>Filsynkroniserad framåtströmaudio</translation>
+        <translation>Spara synkroniserad framåtströmaudio</translation>
     </message>
     <message>
         <source>Save the forward stream audio data synchronized to start of file.</source>
@@ -9585,7 +9620,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>File Synchronized Reverse Stream Audio</source>
-        <translation>Filsynkroniserad omvänd strömaudio</translation>
+        <translation>Spara synkroniserad omvänd strömaudio</translation>
     </message>
     <message>
         <source>Save the reverse stream audio data synchronized to start of file.</source>
@@ -9638,7 +9673,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Save the reverse table as CSV.</source>
-        <translation>Spara den omvända tabellen som CSV</translation>
+        <translation>Spara den omvända tabellen som CSV.</translation>
     </message>
     <message>
         <source>Save Graph</source>
@@ -9646,7 +9681,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Save the graph image.</source>
-        <translation>Spara grafbilden</translation>
+        <translation>Spara grafbilden.</translation>
     </message>
     <message>
         <source>Go to Packet</source>
@@ -9738,7 +9773,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Can&apos;t save in a file: RTP data with padding.</source>
-        <translation>Kan inte spara i en fil: RTP-data med utfyllnad.,</translation>
+        <translation>Kan inte spara i en fil: RTP-data med utfyllnad.</translation>
     </message>
     <message>
         <source>Can&apos;t save in a file: File I/O problem.</source>
@@ -9828,7 +9863,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Source Port</source>
-        <translation>Källport.</translation>
+        <translation>Källport</translation>
     </message>
     <message>
         <source>Destination Address</source>
@@ -9836,7 +9871,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Destination Port</source>
-        <translation>Destinationsport.</translation>
+        <translation>Destinationsport</translation>
     </message>
     <message>
         <source>SSRC</source>
@@ -10122,7 +10157,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Source Port</source>
-        <translation>Källport.</translation>
+        <translation>Källport</translation>
     </message>
     <message>
         <source>Destination Address</source>
@@ -10130,7 +10165,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Destination Port</source>
-        <translation>Destinationsport.</translation>
+        <translation>Destinationsport</translation>
     </message>
     <message>
         <source>SSRC</source>
@@ -10613,7 +10648,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Checksum Type:</source>
-        <translation>Kontrollsummetyp</translation>
+        <translation>Kontrollsummetyp:</translation>
     </message>
     <message>
         <source>Number of Data Chunks from EP1 to EP2: </source>
@@ -10649,7 +10684,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Requested Number of Inbound Streams:</source>
-        <translation>Begärt antal av inkomande strömmar:</translation>
+        <translation>Begärt antal av inkommande strömmar:</translation>
     </message>
     <message>
         <source>Port:</source>
@@ -10661,7 +10696,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Minimum Number of Inbound Streams:</source>
-        <translation>Minsta antal av inkomande strömmar:</translation>
+        <translation>Minsta antal av inkommande strömmar:</translation>
     </message>
     <message>
         <source>Minimum Number of Outbound Streams:</source>
@@ -10717,7 +10752,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Used Number of Inbound Streams:</source>
-        <translation>Använt antal av inkomande strömmar:</translation>
+        <translation>Använt antal av inkommande strömmar:</translation>
     </message>
     <message>
         <source>Used Number of Outbound Streams:</source>
@@ -11664,7 +11699,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Search the list of field names.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
-        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sök i listan av filnamn.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
+        <translation>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Sök i listan av fältnamn.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</translation>
     </message>
     <message>
         <source>Search:</source>
@@ -11810,7 +11845,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
 &lt;tr&gt;&lt;th&gt;↑&lt;/th&gt;&lt;td&gt;Flytta uppåt 10 bildpunkter&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;↓&lt;/th&gt;&lt;td&gt;Flytta nedåt 10 bildpunkter&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;&lt;i&gt;Skift+&lt;/i&gt;→&lt;/th&gt;&lt;td&gt;Flytta åt höger 1 bildpunkt&lt;/td&gt;&lt;/th&gt;
-&lt;tr&gt;&lt;th&gt;&lt;i&gt;Skift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Flytta åt vänster 1 bildpunktl&lt;/td&gt;&lt;/th&gt;
+&lt;tr&gt;&lt;th&gt;&lt;i&gt;Skift+&lt;/i&gt;←&lt;/th&gt;&lt;td&gt;Flytta åt vänster 1 bildpunkt&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;&lt;i&gt;Skift+&lt;/i&gt;↑&lt;/th&gt;&lt;td&gt;Flytta uppåt 1 bildpunkt&lt;/td&gt;&lt;/th&gt;
 &lt;tr&gt;&lt;th&gt;&lt;i&gt;Skift+&lt;/i&gt;↓&lt;/th&gt;&lt;td&gt;Flytta nedåt 1 bildpunkt&lt;/td&gt;&lt;/th&gt;
 
@@ -12513,7 +12548,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation>Öppna</translation>
+        <translation>Öppna </translation>
     </message>
 </context>
 <context>
@@ -12560,7 +12595,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation>Öppna</translation>
+        <translation>Öppna </translation>
     </message>
 </context>
 <context>

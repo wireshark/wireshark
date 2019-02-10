@@ -5672,8 +5672,9 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Annuler</translation>
     </message>
     <message>
-        <source>Open Recent</source>
-        <translation>Dernier fichier ouvert</translation>
+        <source>Open &amp;Recent</source>
+        <oldsource>Open Recent</oldsource>
+        <translation type="unfinished">Dernier fichier ouvert</translation>
     </message>
     <message>
         <source>File Set</source>
@@ -5696,8 +5697,9 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>&amp;Format d&apos;Affichage de l&apos;Heure</translation>
     </message>
     <message>
-        <source>Name Resolution</source>
-        <translation>Résolution de nom</translation>
+        <source>Name Resol&amp;ution</source>
+        <oldsource>Name Resolution</oldsource>
+        <translation type="unfinished">Résolution de nom</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -5792,8 +5794,9 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>RTSP</translation>
     </message>
     <message>
-        <source>RTP</source>
-        <translation>RTP</translation>
+        <source>&amp;RTP</source>
+        <oldsource>RTP</oldsource>
+        <translation type="unfinished">RTP</translation>
     </message>
     <message>
         <source>&amp;Edit</source>
@@ -5808,16 +5811,18 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Barre de filtrage d&apos;affichage</translation>
     </message>
     <message>
-        <source>Open</source>
-        <translation>Ouvrir</translation>
+        <source>&amp;Open</source>
+        <oldsource>Open</oldsource>
+        <translation type="unfinished">Ouvrir</translation>
     </message>
     <message>
         <source>Open a capture file</source>
         <translation>Ouvrir un fichier de capture</translation>
     </message>
     <message>
-        <source>Quit</source>
-        <translation>Quitter</translation>
+        <source>&amp;Quit</source>
+        <oldsource>Quit</oldsource>
+        <translation type="unfinished">Quitter</translation>
     </message>
     <message>
         <source>Quit Wireshark</source>
@@ -5840,8 +5845,9 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Arrêter la capturer de paquet</translation>
     </message>
     <message>
-        <source>Close</source>
-        <translation>Fermer</translation>
+        <source>&amp;Close</source>
+        <oldsource>Close</oldsource>
+        <translation type="unfinished">Fermer</translation>
     </message>
     <message>
         <source>No files found</source>
@@ -6092,24 +6098,29 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Filtre de Conversation</translation>
     </message>
     <message>
-        <source>Service Response Time</source>
-        <translation>Temps de Réponse Service</translation>
+        <source>Service &amp;Response Time</source>
+        <oldsource>Service Response Time</oldsource>
+        <translation type="unfinished">Temps de Réponse Service</translation>
     </message>
     <message>
-        <source>ANSI</source>
-        <translation>ANSI</translation>
+        <source>&amp;ANSI</source>
+        <oldsource>ANSI</oldsource>
+        <translation type="unfinished">ANSI</translation>
     </message>
     <message>
-        <source>GSM</source>
-        <translation>GSM</translation>
+        <source>&amp;GSM</source>
+        <oldsource>GSM</oldsource>
+        <translation type="unfinished">GSM</translation>
     </message>
     <message>
-        <source>LTE</source>
-        <translation>LTE</translation>
+        <source>&amp;LTE</source>
+        <oldsource>LTE</oldsource>
+        <translation type="unfinished">LTE</translation>
     </message>
     <message>
-        <source>MTP3</source>
-        <translation>MTP3</translation>
+        <source>&amp;MTP3</source>
+        <oldsource>MTP3</oldsource>
+        <translation type="unfinished">MTP3</translation>
     </message>
     <message>
         <source>Osmux</source>
@@ -6209,7 +6220,8 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>As JSON…</source>
+        <source>As &amp;JSON…</source>
+        <oldsource>As JSON…</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6265,8 +6277,9 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Marquer tous les paquets affichés</translation>
     </message>
     <message>
-        <source>Unmark All Displayed</source>
-        <translation>Démarquer tous affichés</translation>
+        <source>&amp;Unmark All Displayed</source>
+        <oldsource>Unmark All Displayed</oldsource>
+        <translation type="unfinished">Démarquer tous affichés</translation>
     </message>
     <message>
         <source>Unmark all displayed packets</source>
@@ -6309,8 +6322,9 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Ne plus ignorer tous les affichés</translation>
     </message>
     <message>
-        <source>Unignore all displayed packets</source>
-        <translation>Ne plus ignorer tous les paquets affichés</translation>
+        <source>U&amp;nignore all displayed packets</source>
+        <oldsource>Unignore all displayed packets</oldsource>
+        <translation type="unfinished">Ne plus ignorer tous les paquets affichés</translation>
     </message>
     <message>
         <source>Set/Unset Time Reference</source>
@@ -6693,7 +6707,8 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Conversation Hash Tables</source>
+        <source>&amp;Conversation Hash Tables</source>
+        <oldsource>Conversation Hash Tables</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6701,16 +6716,18 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Dissector Tables</source>
-        <translation>Tables de dissecteurs</translation>
+        <source>&amp;Dissector Tables</source>
+        <oldsource>Dissector Tables</oldsource>
+        <translation type="unfinished">Tables de dissecteurs</translation>
     </message>
     <message>
         <source>Show each dissector table and its entries</source>
         <translation>Montrer chaque table de dissecteur et ses entrées</translation>
     </message>
     <message>
-        <source>Supported Protocols</source>
-        <translation>Protocoles supportés</translation>
+        <source>&amp;Supported Protocols</source>
+        <oldsource>Supported Protocols</oldsource>
+        <translation type="unfinished">Protocoles supportés</translation>
     </message>
     <message>
         <source>Show the currently supported protocols and display filter fields</source>
@@ -6733,8 +6750,9 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Statistiques LTE RLC</translation>
     </message>
     <message>
-        <source>RLC Graph</source>
-        <translation>Graphique RLC</translation>
+        <source>RLC &amp;Graph</source>
+        <oldsource>RLC Graph</oldsource>
+        <translation type="unfinished">Graphique RLC</translation>
     </message>
     <message>
         <source>LTE RLC graph</source>
@@ -6833,20 +6851,24 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>As CSV…</source>
-        <translation>En CSV...</translation>
+        <source>As &amp;CSV…</source>
+        <oldsource>As CSV…</oldsource>
+        <translation type="unfinished">En CSV...</translation>
     </message>
     <message>
-        <source>As &quot;C&quot; Arrays…</source>
-        <translation>En Tableau &quot;C&quot;...</translation>
+        <source>As &quot;C&quot; &amp;Arrays…</source>
+        <oldsource>As &quot;C&quot; Arrays…</oldsource>
+        <translation type="unfinished">En Tableau &quot;C&quot;...</translation>
     </message>
     <message>
-        <source>As PSML XML…</source>
-        <translation>En PSML XML...</translation>
+        <source>As P&amp;SML XML…</source>
+        <oldsource>As PSML XML…</oldsource>
+        <translation type="unfinished">En PSML XML...</translation>
     </message>
     <message>
-        <source>As PDML XML…</source>
-        <translation>En PDML XML...</translation>
+        <source>As P&amp;DML XML…</source>
+        <oldsource>As PDML XML…</oldsource>
+        <translation type="unfinished">En PDML XML...</translation>
     </message>
     <message>
         <source>All Visible Items</source>
@@ -6889,8 +6911,9 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>...ou non Sélectionné</translation>
     </message>
     <message>
-        <source>Display Filters…</source>
-        <translation>Filtres d&apos;affichage...</translation>
+        <source>Display &amp;Filters…</source>
+        <oldsource>Display Filters…</oldsource>
+        <translation type="unfinished">Filtres d&apos;affichage...</translation>
     </message>
     <message>
         <source>Display Filter &amp;Macros…</source>
@@ -6917,8 +6940,9 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Commentaire Paquet...</translation>
     </message>
     <message>
-        <source>Configuration Profiles…</source>
-        <translation>Profils Configuration...</translation>
+        <source>&amp;Configuration Profiles…</source>
+        <oldsource>Configuration Profiles…</oldsource>
+        <translation type="unfinished">Profils Configuration...</translation>
     </message>
     <message>
         <source>&amp;Preferences…</source>
@@ -6973,16 +6997,18 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Afficher/Masquer la barre d&apos;outils filtre d&apos;affichage</translation>
     </message>
     <message>
-        <source>Conversations</source>
-        <translation>Conversations</translation>
+        <source>&amp;Conversations</source>
+        <oldsource>Conversations</oldsource>
+        <translation type="unfinished">Conversations</translation>
     </message>
     <message>
         <source>Conversations at different protocol levels</source>
         <translation>Conversations à différents niveaux de protocole</translation>
     </message>
     <message>
-        <source>Endpoints</source>
-        <translation>Terminaux</translation>
+        <source>&amp;Endpoints</source>
+        <oldsource>Endpoints</oldsource>
+        <translation type="unfinished">Terminaux</translation>
     </message>
     <message>
         <source>Endpoints at different protocol levels</source>
@@ -7247,8 +7273,9 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Go to Linked Packet</source>
-        <translation>Aller au Paquet Lié</translation>
+        <source>Go to &amp;Linked Packet</source>
+        <oldsource>Go to Linked Packet</oldsource>
+        <translation type="unfinished">Aller au Paquet Lié</translation>
     </message>
     <message>
         <source>Go to the packet referenced by the selected field.</source>
@@ -7653,6 +7680,14 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Rescanning</source>
         <translation>Rebalayage</translation>
+    </message>
+    <message>
+        <source>S&amp;CTP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IA&amp;X2 Stream Analysis</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

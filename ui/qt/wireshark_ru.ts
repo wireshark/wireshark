@@ -73,27 +73,27 @@
     </message>
     <message>
         <source>The directory does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation>Каталог не существует</translation>
     </message>
     <message>
         <source>Should the directory %1 be created?</source>
-        <translation type="unfinished"></translation>
+        <translation>Каталог %1 должен быть создан?</translation>
     </message>
     <message>
         <source>The directory could not be created</source>
-        <translation type="unfinished"></translation>
+        <translation>Каталог не может быть создан</translation>
     </message>
     <message>
         <source>The directory %1 could not be created!</source>
-        <translation type="unfinished"></translation>
+        <translation>Каталог %1 не может быть создан!</translation>
     </message>
     <message>
         <source>Show in Finder</source>
-        <translation type="unfinished"></translation>
+        <translation>Показать в Модуле Поиска</translation>
     </message>
     <message>
         <source>Show in Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Показать в Папке</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -101,10 +101,10 @@
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Копировать Строку</numerusform>
+            <numerusform>Копировать Строки</numerusform>
+            <numerusform>Копировать Строки</numerusform>
         </translation>
     </message>
 </context>
@@ -873,26 +873,26 @@
     <message numerus="yes">
         <source>%1, error after %Ln data record(s)</source>
         <oldsource>%1, error after %Ln record(s)</oldsource>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1, ошибка после %Ln записи данных</numerusform>
+            <numerusform>%1, ошибка после %Ln записей данных</numerusform>
+            <numerusform>%1, ошибка после %Ln записей данных</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, timed out at %Ln data record(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1, тайм-аут при %Ln записи данных</numerusform>
+            <numerusform>%1, тайм-аут при %Ln записях данных</numerusform>
+            <numerusform>%1, тайм-аут при %Ln записях данных</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, %Ln data record(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1, %Ln запись данных</numerusform>
+            <numerusform>%1, %Ln записи данных</numerusform>
+            <numerusform>%1, %Ln записи данных</numerusform>
         </translation>
     </message>
     <message>
@@ -944,15 +944,15 @@
     </message>
     <message>
         <source>Hash (SHA256)</source>
-        <translation type="unfinished"></translation>
+        <translation>Хэш (SHA256)</translation>
     </message>
     <message>
         <source>Hash (RIPEMD160)</source>
-        <translation type="unfinished"></translation>
+        <translation>Хэш (RIPEMD160)</translation>
     </message>
     <message>
         <source>Hash (SHA1)</source>
-        <translation type="unfinished"></translation>
+        <translation>Хэш (SHA1)</translation>
     </message>
     <message>
         <source>Format</source>
@@ -1150,22 +1150,22 @@
     <name>CaptureInfoDialog</name>
     <message>
         <source>Capture Information</source>
-        <translation type="unfinished"></translation>
+        <translation>Информация о Захвате</translation>
     </message>
     <message>
         <source>Stop Capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Остановить Захват</translation>
     </message>
     <message>
         <source>%1 packets, %2:%3:%4</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 пакеты, %2:%3:%4</translation>
     </message>
 </context>
 <context>
     <name>CaptureInfoModel</name>
     <message>
         <source>Other</source>
-        <translation type="unfinished">Другой</translation>
+        <translation>Другой</translation>
     </message>
 </context>
 <context>
@@ -1244,7 +1244,7 @@
     </message>
     <message>
         <source>Show capture information during live capture</source>
-        <translation type="unfinished"></translation>
+        <translation>Показывать информацию о захвате при захвате в реальном времени</translation>
     </message>
     <message>
         <source>Stop capturing after the specified number of packets have been captured.</source>
@@ -1334,7 +1334,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Switch to the next file after the specified number of packets have been captured.</source>
-        <translation type="unfinished"></translation>
+        <translation>Переключить на следующий файл после достижения указанного числа захваченных пакетов.</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1469,7 +1469,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Multiple files: No file limit given. You must specify a file size, interval, or number of packets for each file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Множество файлов: Не указано ограничение для файла. Вы должны указать размер файла, интервал или число пакетов для каждого файла.</translation>
     </message>
 </context>
 <context>
@@ -1516,7 +1516,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Don&apos;t load interfaces on startup</source>
-        <translation type="unfinished"></translation>
+        <translation>Не загружать интерфейсы при старте</translation>
     </message>
     <message>
         <source>Disable external capture interfaces</source>
@@ -1554,7 +1554,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Clear all coloring rules.</source>
-        <translation type="unfinished"></translation>
+        <translation>Очистить все цветовые правила.</translation>
     </message>
     <message>
         <source>Set the foreground color for this rule.</source>
@@ -1602,15 +1602,15 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished"></translation>
+        <translation>Копировать из</translation>
     </message>
     <message>
         <source>Copy coloring rules from another profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Копировать цветовые правила из другого профиля.</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished">Открыть</translation>
+        <translation>Открыть</translation>
     </message>
     <message>
         <source>Double click to edit. Drag to move. Rules are processed in order until a match is found.</source>
@@ -1760,7 +1760,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Conversation Hash Tables</source>
-        <translation type="unfinished">Хэш-таблицы Диалогов</translation>
+        <translation>Хэш-таблицы Диалогов</translation>
     </message>
 </context>
 <context>
@@ -1810,7 +1810,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Clear all dissection behaviors.</source>
-        <translation type="unfinished"></translation>
+        <translation>Очистить все стили анализа.</translation>
     </message>
     <message>
         <source>Decode As</source>
@@ -1818,7 +1818,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished">Открыть</translation>
+        <translation>Открыть</translation>
     </message>
 </context>
 <context>
@@ -2289,11 +2289,11 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Text Filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>Текстовый Фильтр:</translation>
     </message>
     <message>
         <source>Only display entries containing this string</source>
-        <translation type="unfinished"></translation>
+        <translation>Показывать только записи, содержащие эту строку</translation>
     </message>
     <message>
         <source>Export</source>
@@ -2377,7 +2377,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished">По умолчанию</translation>
+        <translation>По умолчанию</translation>
     </message>
     <message>
         <source>Extcap Help cannot be found</source>
@@ -2496,7 +2496,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished">Открыть</translation>
+        <translation>Открыть</translation>
     </message>
     <message>
         <source>New filter</source>
@@ -2564,19 +2564,19 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>FilterExpressionToolBar</name>
     <message>
         <source>Filter Button Preferences...</source>
-        <translation type="unfinished"></translation>
+        <translation>Параметры Кнопки Фильтра…</translation>
     </message>
     <message>
         <source>Edit</source>
-        <translation type="unfinished">Редактировать</translation>
+        <translation>Редактировать</translation>
     </message>
     <message>
         <source>Disable</source>
-        <translation type="unfinished"></translation>
+        <translation>Отключить</translation>
     </message>
     <message>
         <source>Remove</source>
-        <translation type="unfinished"></translation>
+        <translation>Удалить</translation>
     </message>
 </context>
 <context>
@@ -2982,27 +2982,27 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Sample active selected item</source>
-        <translation type="unfinished"></translation>
+        <translation>Образец выбранного активного пункта</translation>
     </message>
     <message>
         <source>Style:</source>
-        <translation type="unfinished"></translation>
+        <translation>Стиль:</translation>
     </message>
     <message>
         <source>Default</source>
-        <translation type="unfinished">По умолчанию</translation>
+        <translation>По умолчанию</translation>
     </message>
     <message>
         <source>Flat</source>
-        <translation type="unfinished"></translation>
+        <translation>Плоский</translation>
     </message>
     <message>
         <source>Gradient</source>
-        <translation type="unfinished"></translation>
+        <translation>Градиент</translation>
     </message>
     <message>
         <source>Sample inactive selected item</source>
-        <translation type="unfinished"></translation>
+        <translation>Образец выбранного неактивного пункта</translation>
     </message>
     <message>
         <source>Sample &quot;Follow Stream&quot; client text</source>
@@ -3272,7 +3272,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Clear all graphs.</source>
-        <translation type="unfinished"></translation>
+        <translation>Очистить все графы.</translation>
     </message>
     <message>
         <source>Mouse</source>
@@ -3522,11 +3522,11 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished"></translation>
+        <translation>Копировать из</translation>
     </message>
     <message>
         <source>Copy graphs from another profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>Копировать графы из другого профиля.</translation>
     </message>
     <message>
         <source>1 ms</source>
@@ -3937,7 +3937,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>ExportPDU</source>
-        <translation type="unfinished"></translation>
+        <translation>ЭкспортPDU</translation>
     </message>
     <message>
         <source>Payload</source>
@@ -5712,8 +5712,9 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>Отменить</translation>
     </message>
     <message>
-        <source>Open Recent</source>
-        <translation>Открыть Недавние</translation>
+        <source>Open &amp;Recent</source>
+        <oldsource>Open Recent</oldsource>
+        <translation type="unfinished">Открыть Недавние</translation>
     </message>
     <message>
         <source>File Set</source>
@@ -5736,8 +5737,9 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>&amp;Формат Отображения Времени</translation>
     </message>
     <message>
-        <source>Name Resolution</source>
-        <translation>Разрешение Имён</translation>
+        <source>Name Resol&amp;ution</source>
+        <oldsource>Name Resolution</oldsource>
+        <translation type="unfinished">Разрешение Имён</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -5832,8 +5834,9 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>RTSP</translation>
     </message>
     <message>
-        <source>RTP</source>
-        <translation>RTP</translation>
+        <source>&amp;RTP</source>
+        <oldsource>RTP</oldsource>
+        <translation type="unfinished">RTP</translation>
     </message>
     <message>
         <source>&amp;Edit</source>
@@ -5848,16 +5851,18 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>Панель Инструментов Дисплейного Фильтра</translation>
     </message>
     <message>
-        <source>Open</source>
-        <translation>Открыть</translation>
+        <source>&amp;Open</source>
+        <oldsource>Open</oldsource>
+        <translation type="unfinished">Открыть</translation>
     </message>
     <message>
         <source>Open a capture file</source>
         <translation>Открыть файл с захваченными данными</translation>
     </message>
     <message>
-        <source>Quit</source>
-        <translation>Выход</translation>
+        <source>&amp;Quit</source>
+        <oldsource>Quit</oldsource>
+        <translation type="unfinished">Выход</translation>
     </message>
     <message>
         <source>Quit Wireshark</source>
@@ -5880,8 +5885,9 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>Остановить захват пакетов</translation>
     </message>
     <message>
-        <source>Close</source>
-        <translation>Закрыть</translation>
+        <source>&amp;Close</source>
+        <oldsource>Close</oldsource>
+        <translation type="unfinished">Закрыть</translation>
     </message>
     <message>
         <source>No files found</source>
@@ -6132,24 +6138,29 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>Фильтр Диалога</translation>
     </message>
     <message>
-        <source>Service Response Time</source>
-        <translation>Время Ответа Сервиса</translation>
+        <source>Service &amp;Response Time</source>
+        <oldsource>Service Response Time</oldsource>
+        <translation type="unfinished">Время Ответа Сервиса</translation>
     </message>
     <message>
-        <source>ANSI</source>
-        <translation>ANSI</translation>
+        <source>&amp;ANSI</source>
+        <oldsource>ANSI</oldsource>
+        <translation type="unfinished">ANSI</translation>
     </message>
     <message>
-        <source>GSM</source>
-        <translation>GSM</translation>
+        <source>&amp;GSM</source>
+        <oldsource>GSM</oldsource>
+        <translation type="unfinished">GSM</translation>
     </message>
     <message>
-        <source>LTE</source>
-        <translation>LTE</translation>
+        <source>&amp;LTE</source>
+        <oldsource>LTE</oldsource>
+        <translation type="unfinished">LTE</translation>
     </message>
     <message>
-        <source>MTP3</source>
-        <translation>MTP3</translation>
+        <source>&amp;MTP3</source>
+        <oldsource>MTP3</oldsource>
+        <translation type="unfinished">MTP3</translation>
     </message>
     <message>
         <source>Osmux</source>
@@ -6249,8 +6260,9 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>Загрузить повторно как Файл Формата/Захвата</translation>
     </message>
     <message>
-        <source>As JSON…</source>
-        <translation>Как JSON…</translation>
+        <source>As &amp;JSON…</source>
+        <oldsource>As JSON…</oldsource>
+        <translation type="unfinished">Как JSON…</translation>
     </message>
     <message>
         <source>Copy this item&apos;s description</source>
@@ -6305,8 +6317,9 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>Пометить все отображённые пакеты</translation>
     </message>
     <message>
-        <source>Unmark All Displayed</source>
-        <translation>Отменить пометку Всего Отображённого</translation>
+        <source>&amp;Unmark All Displayed</source>
+        <oldsource>Unmark All Displayed</oldsource>
+        <translation type="unfinished">Отменить пометку Всего Отображённого</translation>
     </message>
     <message>
         <source>Unmark all displayed packets</source>
@@ -6349,8 +6362,9 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>Отменить Игнорирование Всех Показанных</translation>
     </message>
     <message>
-        <source>Unignore all displayed packets</source>
-        <translation>Отменить игнорирование всех показанных пакетов</translation>
+        <source>U&amp;nignore all displayed packets</source>
+        <oldsource>Unignore all displayed packets</oldsource>
+        <translation type="unfinished">Отменить игнорирование всех показанных пакетов</translation>
     </message>
     <message>
         <source>Set/Unset Time Reference</source>
@@ -6733,24 +6747,27 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>Сбросить внешний вид разметки до размера по умолчанию</translation>
     </message>
     <message>
-        <source>Conversation Hash Tables</source>
-        <translation>Хэш-таблицы Диалогов</translation>
+        <source>&amp;Conversation Hash Tables</source>
+        <oldsource>Conversation Hash Tables</oldsource>
+        <translation type="unfinished">Хэш-таблицы Диалогов</translation>
     </message>
     <message>
         <source>Show each conversation hash table</source>
         <translation>Показать каждую хэш-таблицу диалога</translation>
     </message>
     <message>
-        <source>Dissector Tables</source>
-        <translation>Таблицы Диссекторов</translation>
+        <source>&amp;Dissector Tables</source>
+        <oldsource>Dissector Tables</oldsource>
+        <translation type="unfinished">Таблицы Диссекторов</translation>
     </message>
     <message>
         <source>Show each dissector table and its entries</source>
         <translation>Показать каждую таблицу диссекторов и её записи</translation>
     </message>
     <message>
-        <source>Supported Protocols</source>
-        <translation>Поддерживаемые Протоколы</translation>
+        <source>&amp;Supported Protocols</source>
+        <oldsource>Supported Protocols</oldsource>
+        <translation type="unfinished">Поддерживаемые Протоколы</translation>
     </message>
     <message>
         <source>Show the currently supported protocols and display filter fields</source>
@@ -6773,8 +6790,9 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>Статистика LTE RLC</translation>
     </message>
     <message>
-        <source>RLC Graph</source>
-        <translation>График RLC</translation>
+        <source>RLC &amp;Graph</source>
+        <oldsource>RLC Graph</oldsource>
+        <translation type="unfinished">График RLC</translation>
     </message>
     <message>
         <source>LTE RLC graph</source>
@@ -6873,20 +6891,24 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>Как Обычный &amp;Текст…</translation>
     </message>
     <message>
-        <source>As CSV…</source>
-        <translation>Как CSV…</translation>
+        <source>As &amp;CSV…</source>
+        <oldsource>As CSV…</oldsource>
+        <translation type="unfinished">Как CSV…</translation>
     </message>
     <message>
-        <source>As &quot;C&quot; Arrays…</source>
-        <translation>Как Массивы &quot;C&quot;…</translation>
+        <source>As &quot;C&quot; &amp;Arrays…</source>
+        <oldsource>As &quot;C&quot; Arrays…</oldsource>
+        <translation type="unfinished">Как Массивы &quot;C&quot;…</translation>
     </message>
     <message>
-        <source>As PSML XML…</source>
-        <translation>Как PSML XML…</translation>
+        <source>As P&amp;SML XML…</source>
+        <oldsource>As PSML XML…</oldsource>
+        <translation type="unfinished">Как PSML XML…</translation>
     </message>
     <message>
-        <source>As PDML XML…</source>
-        <translation>Как PDML XML…</translation>
+        <source>As P&amp;DML XML…</source>
+        <oldsource>As PDML XML…</oldsource>
+        <translation type="unfinished">Как PDML XML…</translation>
     </message>
     <message>
         <source>All Visible Items</source>
@@ -6929,8 +6951,9 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>…или не Выбранное</translation>
     </message>
     <message>
-        <source>Display Filters…</source>
-        <translation>Дисплейные Фильтры...</translation>
+        <source>Display &amp;Filters…</source>
+        <oldsource>Display Filters…</oldsource>
+        <translation type="unfinished">Дисплейные Фильтры...</translation>
     </message>
     <message>
         <source>Display Filter &amp;Macros…</source>
@@ -6957,8 +6980,9 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>Комментарии к Пакету...</translation>
     </message>
     <message>
-        <source>Configuration Profiles…</source>
-        <translation>Конфигурационные Профили...</translation>
+        <source>&amp;Configuration Profiles…</source>
+        <oldsource>Configuration Profiles…</oldsource>
+        <translation type="unfinished">Конфигурационные Профили...</translation>
     </message>
     <message>
         <source>&amp;Preferences…</source>
@@ -7013,16 +7037,18 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>Показать или скрыть панель инструментов дисплейного фильтра</translation>
     </message>
     <message>
-        <source>Conversations</source>
-        <translation>Диалоги</translation>
+        <source>&amp;Conversations</source>
+        <oldsource>Conversations</oldsource>
+        <translation type="unfinished">Диалоги</translation>
     </message>
     <message>
         <source>Conversations at different protocol levels</source>
         <translation>Диалоги на различных уровнях протоколов</translation>
     </message>
     <message>
-        <source>Endpoints</source>
-        <translation>Конечные точки</translation>
+        <source>&amp;Endpoints</source>
+        <oldsource>Endpoints</oldsource>
+        <translation type="unfinished">Конечные точки</translation>
     </message>
     <message>
         <source>Endpoints at different protocol levels</source>
@@ -7287,8 +7313,9 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>Открыть справочную страницу дисплейного фильтра для этого поля фильтра.</translation>
     </message>
     <message>
-        <source>Go to Linked Packet</source>
-        <translation>Перейти к Связанному Пакету</translation>
+        <source>Go to &amp;Linked Packet</source>
+        <oldsource>Go to Linked Packet</oldsource>
+        <translation type="unfinished">Перейти к Связанному Пакету</translation>
     </message>
     <message>
         <source>Go to the packet referenced by the selected field.</source>
@@ -7701,6 +7728,14 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Rescanning</source>
         <translation>Повторное сканирование</translation>
+    </message>
+    <message>
+        <source>S&amp;CTP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IA&amp;X2 Stream Analysis</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -12528,7 +12563,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Копировать из</translation>
     </message>
     <message>
         <source>Copy entries from another profile.</source>
@@ -12575,7 +12610,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Копировать из</translation>
     </message>
     <message>
         <source>Unknown User Accessible Table</source>
@@ -12794,11 +12829,11 @@ a:hover {
     </message>
     <message>
         <source>Show in Finder</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Показать в Модуле Поиска</translation>
     </message>
     <message>
         <source>Show in Folder</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Показать в Папке</translation>
     </message>
     <message>
         <source>All interfaces shown</source>
