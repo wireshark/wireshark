@@ -49,8 +49,12 @@ before_build:
 after_build:
   - msbuild /m nsis_package_prep.vcxproj
   - msbuild /m nsis_package.vcxproj
-  # Relocate the installer such that the artifact URL looks nicer.
-  - move packaging\nsis\*.exe ..
+  # Publish installers only for development branches to avoid exceeding the
+  # artifact storage limit of 50 GB.
+  - ps: |
+      if ($Env:APPVEYOR_REPO_BRANCH -notlike "master*") {
+        Get-Item packaging\nsis\Wireshark-*.exe | % { Push-AppveyorArtifact $_.FullName -FileName $_.Name }
+      }
 
 before_test:
   - msbuild /m test-programs.vcxproj
@@ -62,12 +66,5 @@ on_finish:
   - ps: |
       $Tshark = "run\\$Env:CONFIGURATION\\tshark.exe"
       if (Test-Path $Tshark) { & $Tshark --version }
-
-# AppVeyor prevents to store artifacts exceeding 50 GB. Commenting out
-# their upload for now. They can be re-enabled on your own repo from the
-# configuration page:
-# https://ci.appveyor.com/project/<username>/wireshark/settings/artifacts
-# artifacts:
-#  - path: Wireshark-*.exe
 
 deploy: off
