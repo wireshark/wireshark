@@ -1040,11 +1040,15 @@ static const value_string ssl_31_ciphersuite[] = {
     { 0xC0AF, "TLS_ECDHE_ECDSA_WITH_AES_256_CCM_8" },
     /* https://www.ietf.org/archive/id/draft-cragie-tls-ecjpake-01.txt */
     { 0xC0FF, "TLS_ECJPAKE_WITH_AES_128_CCM_8" },
+    /* draft-smyshlyaev-tls12-gost-suites */
+    { 0xC100, "TLS_GOSTR341112_256_WITH_KUZNYECHIK_CTR_OMAC" },
+    { 0xC101, "TLS_GOSTR341112_256_WITH_MAGMA_CTR_OMAC" },
+    { 0xC102, "TLS_GOSTR341112_256_WITH_28147_CNT_IMIT" },
     /* https://tools.ietf.org/html/draft-ietf-tls-grease */
     { 0xCACA, "Reserved (GREASE)" },
 /*
 0xC0,0xAB-FF Unassigned
-0xC1-FD,* Unassigned
+0xC1,0x03-FD,* Unassigned
 0xFE,0x00-FD Unassigned
 0xFE,0xFE-FF Reserved to avoid conflicts with widely deployed implementations [Pasi_Eronen]
 0xFF,0x00-FF Reserved for Private Use [RFC5246]
