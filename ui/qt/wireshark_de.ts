@@ -5696,7 +5696,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Open Recent</source>
-        <translation>Zuletzt geöffnete Dateien</translation>
+        <translation type="vanished">Zuletzt geöffnete Dateien</translation>
     </message>
     <message>
         <source>File Set</source>
@@ -5720,7 +5720,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Name Resolution</source>
-        <translation>Namensauflösung</translation>
+        <translation type="vanished">Namensauflösung</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -5816,7 +5816,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>RTP</source>
-        <translation>RTP</translation>
+        <translation type="vanished">RTP</translation>
     </message>
     <message>
         <source>&amp;Edit</source>
@@ -5832,7 +5832,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation>Öffnen</translation>
+        <translation type="vanished">Öffnen</translation>
     </message>
     <message>
         <source>Open a capture file</source>
@@ -5840,7 +5840,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Quit</source>
-        <translation>Beenden</translation>
+        <translation type="vanished">Beenden</translation>
     </message>
     <message>
         <source>Quit Wireshark</source>
@@ -5864,7 +5864,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation>Schließen</translation>
+        <translation type="vanished">Schließen</translation>
     </message>
     <message>
         <source>No files found</source>
@@ -6059,6 +6059,26 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Aktuelle Aufzeichnung neu starten</translation>
     </message>
     <message>
+        <source>As &amp;CSV…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As &quot;C&quot; &amp;Arrays…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As P&amp;SML XML…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As P&amp;DML XML…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As &amp;JSON…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Description</source>
         <translation>Beschreibung</translation>
     </message>
@@ -6116,23 +6136,23 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Service Response Time</source>
-        <translation>Service Antwortzeit</translation>
+        <translation type="vanished">Service Antwortzeit</translation>
     </message>
     <message>
         <source>ANSI</source>
-        <translation>ANSI</translation>
+        <translation type="vanished">ANSI</translation>
     </message>
     <message>
         <source>GSM</source>
-        <translation>GSM</translation>
+        <translation type="vanished">GSM</translation>
     </message>
     <message>
         <source>LTE</source>
-        <translation>LTE</translation>
+        <translation type="vanished">LTE</translation>
     </message>
     <message>
         <source>MTP3</source>
-        <translation>MTP3</translation>
+        <translation type="vanished">MTP3</translation>
     </message>
     <message>
         <source>Osmux</source>
@@ -6233,7 +6253,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>As JSON…</source>
-        <translation>Als JSON...</translation>
+        <translation type="vanished">Als JSON...</translation>
     </message>
     <message>
         <source>Copy this item&apos;s description</source>
@@ -6289,7 +6309,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Unmark All Displayed</source>
-        <translation>Markierung bei allen angezeigten Paketen entfernen</translation>
+        <translation type="vanished">Markierung bei allen angezeigten Paketen entfernen</translation>
     </message>
     <message>
         <source>Unmark all displayed packets</source>
@@ -6333,7 +6353,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Unignore all displayed packets</source>
-        <translation>Alle angezeigte Pakete nicht mehr ignorieren</translation>
+        <translation type="vanished">Alle angezeigte Pakete nicht mehr ignorieren</translation>
     </message>
     <message>
         <source>Set/Unset Time Reference</source>
@@ -6382,6 +6402,10 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Remove all packet comments in the capture file</source>
         <translation>Alle Paketkommentare in der Mitschnittdatei löschen</translation>
+    </message>
+    <message>
+        <source>&amp;Configuration Profiles…</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Configuration profiles</source>
@@ -6700,6 +6724,14 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Diese Verknüpfung filtern</translation>
     </message>
     <message>
+        <source>&amp;Conversations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Endpoints</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Shrink the main window text</source>
         <translation>Text im Hauptfenster verkleinern</translation>
     </message>
@@ -6717,7 +6749,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Conversation Hash Tables</source>
-        <translation>Verbindungshashtabelle</translation>
+        <translation type="vanished">Verbindungshashtabelle</translation>
     </message>
     <message>
         <source>Show each conversation hash table</source>
@@ -6725,7 +6757,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Dissector Tables</source>
-        <translation>Dissector Tabelle</translation>
+        <translation type="vanished">Dissector Tabelle</translation>
     </message>
     <message>
         <source>Show each dissector table and its entries</source>
@@ -6733,7 +6765,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Supported Protocols</source>
-        <translation>Unterstützte Protokolle</translation>
+        <translation type="vanished">Unterstützte Protokolle</translation>
     </message>
     <message>
         <source>Show the currently supported protocols and display filter fields</source>
@@ -6757,7 +6789,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>RLC Graph</source>
-        <translation>LRC Graph</translation>
+        <translation type="vanished">LRC Graph</translation>
     </message>
     <message>
         <source>LTE RLC graph</source>
@@ -6802,6 +6834,10 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Show Packet Bytes…</source>
         <translation>Paketbytes anzeigen...</translation>
+    </message>
+    <message>
+        <source>Go to &amp;Linked Packet</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>UDP Multicast Streams</source>
@@ -6857,19 +6893,19 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>As CSV…</source>
-        <translation>Als CSV...</translation>
+        <translation type="vanished">Als CSV...</translation>
     </message>
     <message>
         <source>As &quot;C&quot; Arrays…</source>
-        <translation>Als &quot;C&quot; Array...</translation>
+        <translation type="vanished">Als &quot;C&quot; Array...</translation>
     </message>
     <message>
         <source>As PSML XML…</source>
-        <translation>Als PSML XML...</translation>
+        <translation type="vanished">Als PSML XML...</translation>
     </message>
     <message>
         <source>As PDML XML…</source>
-        <translation>Als PDML XML...</translation>
+        <translation type="vanished">Als PDML XML...</translation>
     </message>
     <message>
         <source>All Visible Items</source>
@@ -6913,7 +6949,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Display Filters…</source>
-        <translation>Anzeigefilter...</translation>
+        <translation type="vanished">Anzeigefilter...</translation>
     </message>
     <message>
         <source>Display Filter &amp;Macros…</source>
@@ -6941,7 +6977,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Configuration Profiles…</source>
-        <translation>Profile konfigurieren...</translation>
+        <translation type="vanished">Profile konfigurieren...</translation>
     </message>
     <message>
         <source>&amp;Preferences…</source>
@@ -6997,7 +7033,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Conversations</source>
-        <translation>Verbindungen</translation>
+        <translation type="vanished">Verbindungen</translation>
     </message>
     <message>
         <source>Conversations at different protocol levels</source>
@@ -7005,7 +7041,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Endpoints</source>
-        <translation>Endpunkte</translation>
+        <translation type="vanished">Endpunkte</translation>
     </message>
     <message>
         <source>Endpoints at different protocol levels</source>
@@ -7220,12 +7256,28 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Paketbytes anzeigen oder verstecken</translation>
     </message>
     <message>
+        <source>&amp;Conversation Hash Tables</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Dissector Tables</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Supported Protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>MAP Summary</source>
         <translation>MAP Zusammenfassung</translation>
     </message>
     <message>
         <source>GSM MAP summary statistics</source>
         <translation>GSM MAP Zusammenfassung Statistik</translation>
+    </message>
+    <message>
+        <source>RLC &amp;Graph</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;Coloring Rules…</source>
@@ -7247,6 +7299,10 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <source>New Coloring Rule…</source>
         <oldsource>New Conversation Rule…</oldsource>
         <translation>Neue Einfärbungsregel</translation>
+    </message>
+    <message>
+        <source>IA&amp;X2 Stream Analysis</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enabled Protocols…</source>
@@ -7271,7 +7327,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Go to Linked Packet</source>
-        <translation>Zu verknüpftem Paket gehen</translation>
+        <translation type="vanished">Zu verknüpftem Paket gehen</translation>
     </message>
     <message>
         <source>Go to the packet referenced by the selected field.</source>
@@ -7280,6 +7336,66 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>&amp;VoIP Calls</source>
         <translation>&amp;VoIP Anrufe</translation>
+    </message>
+    <message>
+        <source>Open &amp;Recent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name Resol&amp;ution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Service &amp;Response Time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;RTP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>S&amp;CTP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;ANSI</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;GSM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;LTE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;MTP3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Open</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Quit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display &amp;Filters…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Unmark All Displayed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>U&amp;nignore all displayed packets</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All VoIP Calls</source>
@@ -8357,7 +8473,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>RSA Keys</source>
-        <translation type="unfinished"></translation>
+        <translation>RSA-Schlüssel</translation>
     </message>
 </context>
 <context>
@@ -9345,91 +9461,91 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <name>RsaKeysFrame</name>
     <message>
         <source>RSA Keys</source>
-        <translation type="unfinished"></translation>
+        <translation>RSA-Schlüssel</translation>
     </message>
     <message>
         <source>RSA private keys are loaded from a file or PKCS #11 token.</source>
-        <translation type="unfinished"></translation>
+        <translation>Private RSA Schlüssel werden aus einer Datei oder einem PKCS#11 Token geladen.</translation>
     </message>
     <message>
         <source>Add new keyfile…</source>
-        <translation type="unfinished"></translation>
+        <translation>Neue Schlüsseldatei hinzufügen…</translation>
     </message>
     <message>
         <source>Add new token…</source>
-        <translation type="unfinished"></translation>
+        <translation>Neuen Token hinzufügen…</translation>
     </message>
     <message>
         <source>Remove key</source>
-        <translation type="unfinished"></translation>
+        <translation>Schlüssel entfernen</translation>
     </message>
     <message>
         <source>PKCS #11 provider libraries.</source>
-        <translation type="unfinished"></translation>
+        <translation>PKCS#11 Provider Bibliothek.</translation>
     </message>
     <message>
         <source>Add new provider…</source>
-        <translation type="unfinished"></translation>
+        <translation>Neuen Anbieter hinzufügen…</translation>
     </message>
     <message>
         <source>Remove provider</source>
-        <translation type="unfinished"></translation>
+        <translation>Anbieter entfernen</translation>
     </message>
     <message>
         <source>Add PKCS #11 token or key</source>
-        <translation type="unfinished"></translation>
+        <translation>Füge PKCS#11 Token oder Schlüssel hinzu</translation>
     </message>
     <message>
         <source>No new PKCS #11 tokens or keys found, consider adding a PKCS #11 provider.</source>
-        <translation type="unfinished"></translation>
+        <translation>Keinen neuen PKCS#11 Token oder Schlüssel gefunden, ggf. PKCS#11 Provider hinzufügen.</translation>
     </message>
     <message>
         <source>Select a new PKCS #11 token or key</source>
-        <translation type="unfinished"></translation>
+        <translation>Einen neuen PKCS#11 Token oder Schlüssel auswählen</translation>
     </message>
     <message>
         <source>PKCS #11 token or key</source>
-        <translation type="unfinished"></translation>
+        <translation>PKCS#11 Token oder Schlüssel</translation>
     </message>
     <message>
         <source>Enter PIN or password for %1 (it will be stored unencrypted)</source>
-        <translation type="unfinished"></translation>
+        <translation>PIN oder Passwort für %1 eingeben (dies wird unverschlüsselt gespeichert)</translation>
     </message>
     <message>
         <source>Enter PIN or password for key</source>
-        <translation type="unfinished"></translation>
+        <translation>Geben Sie PIN oder Passwort für den Schlüssel ein</translation>
     </message>
     <message>
         <source>Key could not be added: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Schlüssel konnte nicht hinzugefügt werden: %1</translation>
     </message>
     <message>
         <source>RSA private key (*.pem *.p12 *.pfx *.key);;All Files (</source>
-        <translation type="unfinished"></translation>
+        <translation>privater RSA Schlüssel (*.pem *.p12 *.pfx *.key);;Alle Dateien (</translation>
     </message>
     <message>
         <source>Select RSA private key file</source>
-        <translation type="unfinished"></translation>
+        <translation>Wählen Sie die private RSA-Schlüsseldatei aus</translation>
     </message>
     <message>
         <source>Libraries (*.dll)</source>
-        <translation type="unfinished"></translation>
+        <translation>Bibliotheken (*.dll)</translation>
     </message>
     <message>
         <source>Libraries (*.so)</source>
-        <translation type="unfinished"></translation>
+        <translation>Bibliotheken (*.so)</translation>
     </message>
     <message>
         <source>Select PKCS #11 Provider Library</source>
-        <translation type="unfinished"></translation>
+        <translation>PKCS#11 Provider Bibliothek auswählen</translation>
     </message>
     <message>
         <source>Changes will apply after a restart</source>
-        <translation type="unfinished"></translation>
+        <translation>Änderungen werden nach einem Neustart wirksam</translation>
     </message>
     <message>
         <source>PKCS #11 provider %1 will be removed after the next restart.</source>
-        <translation type="unfinished"></translation>
+        <translation>PKCS#11 Provider %1 wird nach dem nächsten Neustart entfernt.</translation>
     </message>
 </context>
 <context>

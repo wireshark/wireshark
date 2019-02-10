@@ -770,26 +770,6 @@
         <source>Automatically detect file type</source>
         <translation>自动检测文件类型</translation>
     </message>
-    <message numerus="yes">
-        <source>%1, error after %Ln packet(s)</source>
-        <oldsource>%1, error after %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1，%Ln 分组后出错</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, timed out at %Ln packet(s)</source>
-        <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1，在分组 %Ln 处超时</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, %Ln packet(s)</source>
-        <translation type="vanished">
-            <numerusform>%1，%Ln 分组</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Prepend packets</source>
         <translation>前置分组</translation>
@@ -2764,18 +2744,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <source>Save as</source>
         <oldsource>Save as...</oldsource>
         <translation>另存为</translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln 客户端 分组，</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln 服务器 分组，</numerusform>
-        </translation>
     </message>
     <message>
         <source>ASCII</source>
@@ -5676,7 +5644,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Open Recent</source>
-        <translation>打开最近</translation>
+        <translation type="vanished">打开最近</translation>
     </message>
     <message>
         <source>File Set</source>
@@ -5700,7 +5668,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Name Resolution</source>
-        <translation>解析名称</translation>
+        <translation type="vanished">解析名称</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -5796,7 +5764,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>RTP</source>
-        <translation>RTP</translation>
+        <translation type="vanished">RTP</translation>
     </message>
     <message>
         <source>&amp;Edit</source>
@@ -5812,7 +5780,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Open</source>
-        <translation>打开</translation>
+        <translation type="vanished">打开</translation>
     </message>
     <message>
         <source>Open a capture file</source>
@@ -5820,7 +5788,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Quit</source>
-        <translation>退出</translation>
+        <translation type="vanished">退出</translation>
     </message>
     <message>
         <source>Quit Wireshark</source>
@@ -5844,7 +5812,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Close</source>
-        <translation>关闭</translation>
+        <translation type="vanished">关闭</translation>
     </message>
     <message>
         <source>No files found</source>
@@ -6039,6 +6007,26 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>重新开始当前捕获</translation>
     </message>
     <message>
+        <source>As &amp;CSV…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As &quot;C&quot; &amp;Arrays…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As P&amp;SML XML…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As P&amp;DML XML…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As &amp;JSON…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Description</source>
         <translation>描述</translation>
     </message>
@@ -6096,23 +6084,23 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Service Response Time</source>
-        <translation>服务响应时间</translation>
+        <translation type="vanished">服务响应时间</translation>
     </message>
     <message>
         <source>ANSI</source>
-        <translation>ANSI</translation>
+        <translation type="vanished">ANSI</translation>
     </message>
     <message>
         <source>GSM</source>
-        <translation>GSM</translation>
+        <translation type="vanished">GSM</translation>
     </message>
     <message>
         <source>LTE</source>
-        <translation>LTE</translation>
+        <translation type="vanished">LTE</translation>
     </message>
     <message>
         <source>MTP3</source>
-        <translation>MTP3</translation>
+        <translation type="vanished">MTP3</translation>
     </message>
     <message>
         <source>Osmux</source>
@@ -6213,7 +6201,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>As JSON…</source>
-        <translation>为 JSON…</translation>
+        <translation type="vanished">为 JSON…</translation>
     </message>
     <message>
         <source>Copy this item&apos;s description</source>
@@ -6269,7 +6257,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Unmark All Displayed</source>
-        <translation>取消标记所有显示的分组</translation>
+        <translation type="vanished">取消标记所有显示的分组</translation>
     </message>
     <message>
         <source>Unmark all displayed packets</source>
@@ -6313,7 +6301,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Unignore all displayed packets</source>
-        <translation>取消忽略所有已经显示的分组</translation>
+        <translation type="vanished">取消忽略所有已经显示的分组</translation>
     </message>
     <message>
         <source>Set/Unset Time Reference</source>
@@ -6362,6 +6350,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Remove all packet comments in the capture file</source>
         <translation>删除捕获文件中的所有分组注释</translation>
+    </message>
+    <message>
+        <source>&amp;Configuration Profiles…</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Configuration profiles</source>
@@ -6680,6 +6672,14 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>过滤该助手</translation>
     </message>
     <message>
+        <source>&amp;Conversations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Endpoints</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Shrink the main window text</source>
         <translation>收缩主窗口文字</translation>
     </message>
@@ -6697,7 +6697,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Conversation Hash Tables</source>
-        <translation>对话哈希表</translation>
+        <translation type="vanished">对话哈希表</translation>
     </message>
     <message>
         <source>Show each conversation hash table</source>
@@ -6705,7 +6705,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Dissector Tables</source>
-        <translation>解析器表</translation>
+        <translation type="vanished">解析器表</translation>
     </message>
     <message>
         <source>Show each dissector table and its entries</source>
@@ -6713,7 +6713,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Supported Protocols</source>
-        <translation>支持的协议</translation>
+        <translation type="vanished">支持的协议</translation>
     </message>
     <message>
         <source>Show the currently supported protocols and display filter fields</source>
@@ -6737,7 +6737,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>RLC Graph</source>
-        <translation>RLC 图表</translation>
+        <translation type="vanished">RLC 图表</translation>
     </message>
     <message>
         <source>LTE RLC graph</source>
@@ -6782,6 +6782,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Show Packet Bytes…</source>
         <translation>显示分组字节…</translation>
+    </message>
+    <message>
+        <source>Go to &amp;Linked Packet</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>UDP Multicast Streams</source>
@@ -6837,19 +6841,19 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>As CSV…</source>
-        <translation>为 CSV…</translation>
+        <translation type="vanished">为 CSV…</translation>
     </message>
     <message>
         <source>As &quot;C&quot; Arrays…</source>
-        <translation>为 C 语言数组…</translation>
+        <translation type="vanished">为 C 语言数组…</translation>
     </message>
     <message>
         <source>As PSML XML…</source>
-        <translation>为 PSML XML…</translation>
+        <translation type="vanished">为 PSML XML…</translation>
     </message>
     <message>
         <source>As PDML XML…</source>
-        <translation>为 PDML XML…</translation>
+        <translation type="vanished">为 PDML XML…</translation>
     </message>
     <message>
         <source>All Visible Items</source>
@@ -6893,7 +6897,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Display Filters…</source>
-        <translation>显示过滤器…</translation>
+        <translation type="vanished">显示过滤器…</translation>
     </message>
     <message>
         <source>Display Filter &amp;Macros…</source>
@@ -6921,7 +6925,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Configuration Profiles…</source>
-        <translation>配置文件…</translation>
+        <translation type="vanished">配置文件…</translation>
     </message>
     <message>
         <source>&amp;Preferences…</source>
@@ -6977,7 +6981,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Conversations</source>
-        <translation>对话</translation>
+        <translation type="vanished">对话</translation>
     </message>
     <message>
         <source>Conversations at different protocol levels</source>
@@ -6985,7 +6989,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Endpoints</source>
-        <translation>端点</translation>
+        <translation type="vanished">端点</translation>
     </message>
     <message>
         <source>Endpoints at different protocol levels</source>
@@ -7200,12 +7204,28 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>显示或隐藏分组字节流</translation>
     </message>
     <message>
+        <source>&amp;Conversation Hash Tables</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Dissector Tables</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Supported Protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>MAP Summary</source>
         <translation>MAP 摘要</translation>
     </message>
     <message>
         <source>GSM MAP summary statistics</source>
         <translation>GSM MAP 摘要统计</translation>
+    </message>
+    <message>
+        <source>RLC &amp;Graph</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;Coloring Rules…</source>
@@ -7227,6 +7247,10 @@ PLEASE NOTE: One option MUST be selected.</source>
         <source>New Coloring Rule…</source>
         <oldsource>New Conversation Rule…</oldsource>
         <translation>新建着色规则…</translation>
+    </message>
+    <message>
+        <source>IA&amp;X2 Stream Analysis</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enabled Protocols…</source>
@@ -7251,7 +7275,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Go to Linked Packet</source>
-        <translation>转至链接的分组</translation>
+        <translation type="vanished">转至链接的分组</translation>
     </message>
     <message>
         <source>Go to the packet referenced by the selected field.</source>
@@ -7260,6 +7284,66 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>&amp;VoIP Calls</source>
         <translation>&amp;VoIP 通话</translation>
+    </message>
+    <message>
+        <source>Open &amp;Recent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name Resol&amp;ution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Service &amp;Response Time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;RTP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>S&amp;CTP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;ANSI</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;GSM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;LTE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;MTP3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Open</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Quit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display &amp;Filters…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Unmark All Displayed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>U&amp;nignore all displayed packets</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All VoIP Calls</source>
@@ -7571,13 +7655,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>No Keys</source>
         <translation>无密钥</translation>
-    </message>
-    <message numerus="yes">
-        <source>Export SSL Session Keys (%Ln key(s))</source>
-        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation type="vanished">
-            <numerusform>导出 SSL 会话密钥 (%Ln 个密钥)</numerusform>
-        </translation>
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>

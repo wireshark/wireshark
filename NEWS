@@ -1,7 +1,6 @@
-Wireshark 2.9.1 Release Notes
+Wireshark 3.0.0 Release Notes
 
- This is an experimental release intended to test new features for
- Wireshark 3.0.
+ This is the first release candidate for Wireshark 3.0.
 
  What is Wireshark?
 
@@ -20,22 +19,28 @@ Wireshark 2.9.1 Release Notes
      • Data following a TCP ZeroWindowProbe is marked as retransmission
        and not passed to subdissectors (Bug 15427[1])
 
-   Text and Image columns were handled incorrectly for TDS 7.0 and 7.1.
-   (Bug 3098[2])
+     • Lua Error on startup: init.lua: dofile has been disabled due to
+       running Wireshark as superuser (Bug 15489[2]).
 
-   Dumpcap might not quit if Wireshark or TShark crashes. (Bug 1419[3])
+   Text and Image columns were handled incorrectly for TDS 7.0 and 7.1.
+   (Bug 3098[3])
+
+   Dumpcap might not quit if Wireshark or TShark crashes. (Bug 1419[4])
 
   New and Updated Features
 
    The following features are new (or have been significantly updated)
    since version 2.9.0:
 
-     • Wireshark now supports the Swedish and Ukrainian language.
+     • Wireshark now supports the Swedish and Ukrainian languages.
 
      • Initial support for using PKCS #11 tokens for RSA decryption in
        TLS. This can be configured at Preferences, RSA Keys.
 
-     • The build system now produces reproducible builds (Bug 15163[4]).
+     • The build system now produces reproducible builds (Bug 15163[5]).
+
+     • The Windows installers now ship with Qt 5.12.1. Previously they
+       shipped with Qt 5.12.0.
 
    The following features are new (or have been significantly updated)
    since version 2.6.0:
@@ -49,7 +54,7 @@ Wireshark 2.9.1 Release Notes
        an ElasticSearch mapping file.
 
      • The “Capture Information” dialog has been added back (Bug
-       12004[5]).
+       12004[6]).
 
      • The Ethernet and IEEE 802.11 dissectors no longer validate the
        frame check sequence (checksum) by default.
@@ -59,7 +64,7 @@ Wireshark 2.9.1 Release Notes
        segments are received out-of-order. See the User’s Guide, chapter
        TCP Reassembly for details.
 
-     • Decryption support for the new WireGuard dissector (Bug 15011[6],
+     • Decryption support for the new WireGuard dissector (Bug 15011[7],
        requires Libgcrypt 1.8).
 
      • The BOOTP dissector has been renamed to DHCP. With the exception
@@ -97,7 +102,7 @@ Wireshark 2.9.1 Release Notes
 
      • Support for DTLS and TLS decryption using pcapng files that embed
        a Decryption Secrets Block (DSB) containing a TLS Key Log (Bug
-       15252[7]).
+       15252[8]).
 
      • The editcap utility gained a new --inject-secrets option to
        inject an existing TLS Key Log file into a pcapng file.
@@ -189,19 +194,19 @@ Wireshark 2.9.1 Release Notes
      • Lua: on Windows, file-related functions such as dofile now assume
        UTF-8 paths instead of the local code page. This is consistent
        with Linux and macOS and improves compatibility on non-English
-       systems. (Bug 15118[8])
+       systems. (Bug 15118[9])
 
  Getting Wireshark
 
   Wireshark source code and installation packages are available from
-  https://www.wireshark.org/download.html[9].
+  https://www.wireshark.org/download.html[10].
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[10] on the Wireshark web site.
+   be found on the download page[11] on the Wireshark web site.
 
  File Locations
 
@@ -213,22 +218,22 @@ Wireshark 2.9.1 Release Notes
  Getting Help
 
   The User’s Guide, manual pages and various other documentation can be
-  found at https://www.wireshark.org/docs/[11]
+  found at https://www.wireshark.org/docs/[12]
 
-  Community support is available on Wireshark’s Q&A site[12] and on the
+  Community support is available on Wireshark’s Q&A site[13] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[13].
+  for all of Wireshark’s mailing lists can be found on the web site[14].
 
-  Bugs and feature requests can be reported on the bug tracker[14].
+  Bugs and feature requests can be reported on the bug tracker[15].
 
   Official Wireshark training and certification are available from
-  Wireshark University[15].
+  Wireshark University[16].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[16].
+  A complete FAQ is available on the Wireshark web site[17].
 
-  Last updated 2019-02-03 08:18:33 UTC
+  Last updated 2019-02-10 08:30:47 UTC
 
  References
 
@@ -248,3 +253,4 @@ Wireshark 2.9.1 Release Notes
   14. 14
   15. 15
   16. 16
+  17. 17

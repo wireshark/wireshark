@@ -2756,22 +2756,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <oldsource>Save as...</oldsource>
         <translation>Зберегти як</translation>
     </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln пакет клієнта,</numerusform>
-            <numerusform>%Ln пакети клієнта,</numerusform>
-            <numerusform>%Ln пакетів клієнта,</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln пакет сервера,</numerusform>
-            <numerusform>%Ln пакети сервера,</numerusform>
-            <numerusform>%Ln пакетів сервера,</numerusform>
-        </translation>
-    </message>
     <message>
         <source>ASCII</source>
         <translation>ASCII</translation>
@@ -5631,7 +5615,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Open Recent</source>
-        <translation>Відрити Недавній</translation>
+        <translation type="vanished">Відрити Недавній</translation>
     </message>
     <message>
         <source>File Set</source>
@@ -5655,7 +5639,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Name Resolution</source>
-        <translation>Визначення Імен</translation>
+        <translation type="vanished">Визначення Імен</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -5751,7 +5735,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>RTP</source>
-        <translation>RTP</translation>
+        <translation type="vanished">RTP</translation>
     </message>
     <message>
         <source>&amp;Edit</source>
@@ -5767,7 +5751,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Open</source>
-        <translation>Відкрити</translation>
+        <translation type="vanished">Відкрити</translation>
     </message>
     <message>
         <source>Open a capture file</source>
@@ -5775,7 +5759,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Quit</source>
-        <translation>Вийти</translation>
+        <translation type="vanished">Вийти</translation>
     </message>
     <message>
         <source>Quit Wireshark</source>
@@ -5799,7 +5783,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Close</source>
-        <translation>Закрити</translation>
+        <translation type="vanished">Закрити</translation>
     </message>
     <message>
         <source>No files found</source>
@@ -5994,6 +5978,26 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>Перезапустити сеанс захоплення</translation>
     </message>
     <message>
+        <source>As &amp;CSV…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As &quot;C&quot; &amp;Arrays…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As P&amp;SML XML…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As P&amp;DML XML…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As &amp;JSON…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Description</source>
         <translation>Опис</translation>
     </message>
@@ -6051,23 +6055,15 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Service Response Time</source>
-        <translation>Час Відповіді Сервісу</translation>
+        <translation type="vanished">Час Відповіді Сервісу</translation>
     </message>
     <message>
         <source>ANSI</source>
-        <translation>ANSI</translation>
+        <translation type="vanished">ANSI</translation>
     </message>
     <message>
         <source>GSM</source>
-        <translation>GSM</translation>
-    </message>
-    <message>
-        <source>LTE</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>MTP3</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">GSM</translation>
     </message>
     <message>
         <source>Osmux</source>
@@ -6167,10 +6163,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>As JSON…</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Copy this item&apos;s description</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6224,7 +6216,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Unmark All Displayed</source>
-        <translation>Зняти Позначки з Усіх Відображених</translation>
+        <translation type="vanished">Зняти Позначки з Усіх Відображених</translation>
     </message>
     <message>
         <source>Unmark all displayed packets</source>
@@ -6268,7 +6260,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Unignore all displayed packets</source>
-        <translation>Повернути всі відображені пакети</translation>
+        <translation type="vanished">Повернути всі відображені пакети</translation>
     </message>
     <message>
         <source>Set/Unset Time Reference</source>
@@ -6316,6 +6308,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Remove all packet comments in the capture file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Configuration Profiles…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6635,6 +6631,14 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>&amp;Conversations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Endpoints</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Shrink the main window text</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6651,23 +6655,11 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Conversation Hash Tables</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Show each conversation hash table</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Dissector Tables</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Show each dissector table and its entries</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Supported Protocols</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6688,10 +6680,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>LTE RLC statistics</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>RLC Graph</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6736,6 +6724,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Show Packet Bytes…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Go to &amp;Linked Packet</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6792,19 +6784,19 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>As CSV…</source>
-        <translation>Як CSV...</translation>
+        <translation type="vanished">Як CSV...</translation>
     </message>
     <message>
         <source>As &quot;C&quot; Arrays…</source>
-        <translation>Як Масиви &quot;C&quot;...</translation>
+        <translation type="vanished">Як Масиви &quot;C&quot;...</translation>
     </message>
     <message>
         <source>As PSML XML…</source>
-        <translation>Як PSML XML...</translation>
+        <translation type="vanished">Як PSML XML...</translation>
     </message>
     <message>
         <source>As PDML XML…</source>
-        <translation>Як PDML XML...</translation>
+        <translation type="vanished">Як PDML XML...</translation>
     </message>
     <message>
         <source>All Visible Items</source>
@@ -6848,7 +6840,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Display Filters…</source>
-        <translation>Фільтри Відображення...</translation>
+        <translation type="vanished">Фільтри Відображення...</translation>
     </message>
     <message>
         <source>Display Filter &amp;Macros…</source>
@@ -6876,7 +6868,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Configuration Profiles…</source>
-        <translation>Профілі Конфігурації...</translation>
+        <translation type="vanished">Профілі Конфігурації...</translation>
     </message>
     <message>
         <source>&amp;Preferences…</source>
@@ -6932,7 +6924,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Conversations</source>
-        <translation>Взаємодії</translation>
+        <translation type="vanished">Взаємодії</translation>
     </message>
     <message>
         <source>Conversations at different protocol levels</source>
@@ -6940,7 +6932,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Endpoints</source>
-        <translation>Кінцеві Точки</translation>
+        <translation type="vanished">Кінцеві Точки</translation>
     </message>
     <message>
         <source>Endpoints at different protocol levels</source>
@@ -7155,12 +7147,28 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>Показати чи приховати байти пакету</translation>
     </message>
     <message>
+        <source>&amp;Conversation Hash Tables</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Dissector Tables</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Supported Protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>MAP Summary</source>
         <translation>Зведені дані MAP</translation>
     </message>
     <message>
         <source>GSM MAP summary statistics</source>
         <translation>Загальна статистика GSM MAP</translation>
+    </message>
+    <message>
+        <source>RLC &amp;Graph</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;Coloring Rules…</source>
@@ -7181,6 +7189,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>New Coloring Rule…</source>
         <oldsource>New Conversation Rule…</oldsource>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>IA&amp;X2 Stream Analysis</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -7205,16 +7217,72 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Go to Linked Packet</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Go to the packet referenced by the selected field.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;VoIP Calls</source>
         <translation>&amp;Виклики VoIP</translation>
+    </message>
+    <message>
+        <source>Open &amp;Recent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name Resol&amp;ution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Service &amp;Response Time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;RTP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>S&amp;CTP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;ANSI</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;GSM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;LTE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;MTP3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Open</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Quit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display &amp;Filters…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Unmark All Displayed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>U&amp;nignore all displayed packets</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All VoIP Calls</source>

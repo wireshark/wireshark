@@ -772,32 +772,6 @@
         <source>Automatically detect file type</source>
         <translation>Automatycznie wykryj typ pliku</translation>
     </message>
-    <message numerus="yes">
-        <source>%1, error after %Ln packet(s)</source>
-        <oldsource>%1, error after %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, błąd po wczytaniu %Ln pakietu</numerusform>
-            <numerusform>%1, błąd po wczytaniu %Ln pakietów</numerusform>
-            <numerusform>%1, błąd po wczytaniu %Ln pakietów</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, timed out at %Ln packet(s)</source>
-        <oldsource>%1, timed out at %2 packets</oldsource>
-        <translation type="vanished">
-            <numerusform>%1, przekroczenie czasu przy %Ln pakiecie</numerusform>
-            <numerusform>%1, przekroczenie czasu przy %Ln pakiecie</numerusform>
-            <numerusform>%1, przekroczenie czasu przy %Ln pakiecie</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%1, %Ln packet(s)</source>
-        <translation type="vanished">
-            <numerusform>%1, %Ln pakiet</numerusform>
-            <numerusform>%1, %Ln pakietów</numerusform>
-            <numerusform>%1, %Ln pakietów</numerusform>
-        </translation>
-    </message>
     <message>
         <source>Prepend packets</source>
         <translation>Dodaj pakiety na początku</translation>
@@ -2426,10 +2400,10 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message numerus="yes">
         <source>%Ln File(s) in Set</source>
         <oldsource>%1 File%2 in Set</oldsource>
-        <translation>
-            <numerusform>%Ln Plik w Zbiorze</numerusform>
-            <numerusform>%Ln Plików w Zbiorze</numerusform>
-            <numerusform>%Ln Plików w Zbiorze</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
 </context>
@@ -2782,22 +2756,6 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <oldsource>Save as...</oldsource>
         <translation>Zapisz jako</translation>
     </message>
-    <message numerus="yes">
-        <source>%Ln client pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln pakiet klienta,</numerusform>
-            <numerusform>%Ln pakietów klienta,</numerusform>
-            <numerusform>%Ln pakiety klienta,</numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>%Ln server pkt(s), </source>
-        <translation type="vanished">
-            <numerusform>%Ln pakiet serwera</numerusform>
-            <numerusform>%Ln pakietów serwera</numerusform>
-            <numerusform>%Ln pakiety serwera,</numerusform>
-        </translation>
-    </message>
     <message>
         <source>ASCII</source>
         <translation>ASCII</translation>
@@ -2840,26 +2798,26 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;client&lt;/span&gt; pkt(s), </source>
-        <translation>
-            <numerusform>%Ln pakiet &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;klienta&lt;/span&gt;, </numerusform>
-            <numerusform>%Ln pakietów &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;klienta&lt;/span&gt;, </numerusform>
-            <numerusform>%Ln pakiety &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;klienta&lt;/span&gt;, </numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;server&lt;/span&gt; pkt(s), </source>
-        <translation>
-            <numerusform>%Ln pakiet &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;serwera&lt;/span&gt;,</numerusform>
-            <numerusform>%Ln pakietów &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;serwera&lt;/span&gt;,</numerusform>
-            <numerusform>%Ln pakiety &lt;span style=&quot;color: %1; background-color:%2&quot;&gt;serwera&lt;/span&gt;,</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln turn(s).</source>
-        <translation>
-            <numerusform>%Ln prób.</numerusform>
-            <numerusform>%Ln prób.</numerusform>
-            <numerusform>%Ln prób.</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -2916,10 +2874,10 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message numerus="yes">
         <source>%Ln total stream(s).</source>
-        <translation>
-            <numerusform>%Ln wszystkich strumieni.</numerusform>
-            <numerusform>%Ln wszystkich strumieni.</numerusform>
-            <numerusform>%Ln wszystkich strumieni.</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -5704,7 +5662,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Open Recent</source>
-        <translation>Ostatnio otwarte</translation>
+        <translation type="vanished">Ostatnio otwarte</translation>
     </message>
     <message>
         <source>File Set</source>
@@ -5728,7 +5686,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Name Resolution</source>
-        <translation>Rozwiązywanie nazw</translation>
+        <translation type="vanished">Rozwiązywanie nazw</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -5824,7 +5782,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>RTP</source>
-        <translation>RTP</translation>
+        <translation type="vanished">RTP</translation>
     </message>
     <message>
         <source>&amp;Edit</source>
@@ -5840,7 +5798,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Open</source>
-        <translation>Otwórz</translation>
+        <translation type="vanished">Otwórz</translation>
     </message>
     <message>
         <source>Open a capture file</source>
@@ -5848,7 +5806,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Quit</source>
-        <translation>Zamknij</translation>
+        <translation type="vanished">Zamknij</translation>
     </message>
     <message>
         <source>Quit Wireshark</source>
@@ -5872,7 +5830,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Close</source>
-        <translation>Zamknij</translation>
+        <translation type="vanished">Zamknij</translation>
     </message>
     <message>
         <source>No files found</source>
@@ -6067,6 +6025,26 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation>Restartuj aktualne przechwytywanie</translation>
     </message>
     <message>
+        <source>As &amp;CSV…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As &quot;C&quot; &amp;Arrays…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As P&amp;SML XML…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As P&amp;DML XML…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As &amp;JSON…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Description</source>
         <translation>Opis</translation>
     </message>
@@ -6124,23 +6102,23 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Service Response Time</source>
-        <translation>Czas odpowiedzi serwisu</translation>
+        <translation type="vanished">Czas odpowiedzi serwisu</translation>
     </message>
     <message>
         <source>ANSI</source>
-        <translation>ANSI</translation>
+        <translation type="vanished">ANSI</translation>
     </message>
     <message>
         <source>GSM</source>
-        <translation>GSM</translation>
+        <translation type="vanished">GSM</translation>
     </message>
     <message>
         <source>LTE</source>
-        <translation>LTE</translation>
+        <translation type="vanished">LTE</translation>
     </message>
     <message>
         <source>MTP3</source>
-        <translation>MTP3</translation>
+        <translation type="vanished">MTP3</translation>
     </message>
     <message>
         <source>Osmux</source>
@@ -6241,7 +6219,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>As JSON…</source>
-        <translation>Jako JSON…</translation>
+        <translation type="vanished">Jako JSON…</translation>
     </message>
     <message>
         <source>Copy this item&apos;s description</source>
@@ -6297,7 +6275,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Unmark All Displayed</source>
-        <translation>Odzaznacz wszystkie wyświetlane</translation>
+        <translation type="vanished">Odzaznacz wszystkie wyświetlane</translation>
     </message>
     <message>
         <source>Unmark all displayed packets</source>
@@ -6341,7 +6319,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Unignore all displayed packets</source>
-        <translation>Odignoruj wszystkie wyświetlane pakiety</translation>
+        <translation type="vanished">Odignoruj wszystkie wyświetlane pakiety</translation>
     </message>
     <message>
         <source>Set/Unset Time Reference</source>
@@ -6389,6 +6367,10 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Remove all packet comments in the capture file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Configuration Profiles…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6708,6 +6690,14 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation>Wyfiltruj tą asocjacje</translation>
     </message>
     <message>
+        <source>&amp;Conversations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Endpoints</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Shrink the main window text</source>
         <translation>Pomniejsz</translation>
     </message>
@@ -6725,7 +6715,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Conversation Hash Tables</source>
-        <translation>Tablice mieszające konwersacji</translation>
+        <translation type="vanished">Tablice mieszające konwersacji</translation>
     </message>
     <message>
         <source>Show each conversation hash table</source>
@@ -6733,7 +6723,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Dissector Tables</source>
-        <translation>Tabele Dekoderów</translation>
+        <translation type="vanished">Tabele Dekoderów</translation>
     </message>
     <message>
         <source>Show each dissector table and its entries</source>
@@ -6741,7 +6731,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Supported Protocols</source>
-        <translation>Obsługiwane Protokoły</translation>
+        <translation type="vanished">Obsługiwane Protokoły</translation>
     </message>
     <message>
         <source>Show the currently supported protocols and display filter fields</source>
@@ -6765,7 +6755,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>RLC Graph</source>
-        <translation>Wykres RLC</translation>
+        <translation type="vanished">Wykres RLC</translation>
     </message>
     <message>
         <source>LTE RLC graph</source>
@@ -6810,6 +6800,10 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <source>Show Packet Bytes…</source>
         <translation>Prezentuj Bajty Pakietu…</translation>
+    </message>
+    <message>
+        <source>Go to &amp;Linked Packet</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>UDP Multicast Streams</source>
@@ -6865,19 +6859,19 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>As CSV…</source>
-        <translation>Jako CSV…</translation>
+        <translation type="vanished">Jako CSV…</translation>
     </message>
     <message>
         <source>As &quot;C&quot; Arrays…</source>
-        <translation>Jako tablica w języku C…</translation>
+        <translation type="vanished">Jako tablica w języku C…</translation>
     </message>
     <message>
         <source>As PSML XML…</source>
-        <translation>Jako PSML XML…</translation>
+        <translation type="vanished">Jako PSML XML…</translation>
     </message>
     <message>
         <source>As PDML XML…</source>
-        <translation>Jako PDML XML…</translation>
+        <translation type="vanished">Jako PDML XML…</translation>
     </message>
     <message>
         <source>All Visible Items</source>
@@ -6921,7 +6915,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Display Filters…</source>
-        <translation>Filtry wyświetlania…</translation>
+        <translation type="vanished">Filtry wyświetlania…</translation>
     </message>
     <message>
         <source>Display Filter &amp;Macros…</source>
@@ -6949,7 +6943,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Configuration Profiles…</source>
-        <translation>Konfiguracja profili…</translation>
+        <translation type="vanished">Konfiguracja profili…</translation>
     </message>
     <message>
         <source>&amp;Preferences…</source>
@@ -7005,7 +6999,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Conversations</source>
-        <translation>Konwersacje</translation>
+        <translation type="vanished">Konwersacje</translation>
     </message>
     <message>
         <source>Conversations at different protocol levels</source>
@@ -7013,7 +7007,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Endpoints</source>
-        <translation>Punkty krańcowe</translation>
+        <translation type="vanished">Punkty krańcowe</translation>
     </message>
     <message>
         <source>Endpoints at different protocol levels</source>
@@ -7228,12 +7222,28 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation>Pokaż/ukryj bajty pakietu</translation>
     </message>
     <message>
+        <source>&amp;Conversation Hash Tables</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Dissector Tables</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Supported Protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>MAP Summary</source>
         <translation>Podsumowanie MAP</translation>
     </message>
     <message>
         <source>GSM MAP summary statistics</source>
         <translation>Statystyki podsumowania GSM MAP</translation>
+    </message>
+    <message>
+        <source>RLC &amp;Graph</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;Coloring Rules…</source>
@@ -7255,6 +7265,10 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <source>New Coloring Rule…</source>
         <oldsource>New Conversation Rule…</oldsource>
         <translation>Nowa reguła kolorowania...</translation>
+    </message>
+    <message>
+        <source>IA&amp;X2 Stream Analysis</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Enabled Protocols…</source>
@@ -7279,7 +7293,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Go to Linked Packet</source>
-        <translation>Idź do podlinkowanego pakietu</translation>
+        <translation type="vanished">Idź do podlinkowanego pakietu</translation>
     </message>
     <message>
         <source>Go to the packet referenced by the selected field.</source>
@@ -7288,6 +7302,66 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <source>&amp;VoIP Calls</source>
         <translation>Połączenia VoIP</translation>
+    </message>
+    <message>
+        <source>Open &amp;Recent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name Resol&amp;ution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Service &amp;Response Time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;RTP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>S&amp;CTP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;ANSI</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;GSM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;LTE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;MTP3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Open</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Quit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display &amp;Filters…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Unmark All Displayed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>U&amp;nignore all displayed packets</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All VoIP Calls</source>
@@ -7599,15 +7673,6 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     <message>
         <source>No Keys</source>
         <translation>Brak kluczy</translation>
-    </message>
-    <message numerus="yes">
-        <source>Export SSL Session Keys (%Ln key(s))</source>
-        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
-        <translation type="vanished">
-            <numerusform>Eksportuj klucze sesji SSH (%Ln klucz)</numerusform>
-            <numerusform>Eksportuj klucze sesji SSH (%Ln kluczy)</numerusform>
-            <numerusform>Eksportuj klucze sesji SSH (%Ln kluczy)</numerusform>
-        </translation>
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
@@ -11145,18 +11210,18 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message numerus="yes">
         <source>%Ln node(s)</source>
-        <translation>
-            <numerusform>%Ln węzeł</numerusform>
-            <numerusform>%Ln węzłów</numerusform>
-            <numerusform>%Ln węzłów</numerusform>
+        <translation type="unfinished">
+            <numerusform>%Ln node</numerusform>
+            <numerusform>%Ln nodes</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%Ln item(s)</source>
-        <translation>
-            <numerusform>%Ln obiekt</numerusform>
-            <numerusform>%Ln obiektów</numerusform>
-            <numerusform>%Ln obiektów</numerusform>
+        <translation type="unfinished">
+            <numerusform>%Ln item</numerusform>
+            <numerusform>%Ln items</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -11492,10 +11557,10 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message numerus="yes">
         <source>Frame %1, %2, %Ln byte(s).</source>
-        <translation>
-            <numerusform>Ramka %1, %2, %Ln bajt.</numerusform>
-            <numerusform>Ramka %1, %2, %Ln bajtów.</numerusform>
-            <numerusform>Ramka %1, %2, %Ln bajtów.</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -11580,10 +11645,10 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message numerus="yes">
         <source>Displaying %Ln byte(s).</source>
-        <translation>
-            <numerusform>Wyświetl %Ln bajt.</numerusform>
-            <numerusform>Wyświetl %Ln bajtów.</numerusform>
-            <numerusform>Wyświetl %Ln bajtów.</numerusform>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
@@ -12821,10 +12886,10 @@ a:hover {
     </message>
     <message numerus="yes">
         <source>%n interface(s) shown, %1 hidden</source>
-        <translation>
-            <numerusform>%n wyświetlany interfejs, %1 ukrytych</numerusform>
-            <numerusform>%n wyświetlanych interfejsów, %1 ukrytych</numerusform>
-            <numerusform>%n wyświetlanych interfejsów, %1 ukrytych</numerusform>
+        <translation type="unfinished">
+            <numerusform>%n interface shown, %1 hidden</numerusform>
+            <numerusform>%n interfaces shown, %1 hidden</numerusform>
+            <numerusform></numerusform>
         </translation>
     </message>
     <message>
