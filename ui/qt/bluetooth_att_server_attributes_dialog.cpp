@@ -153,10 +153,14 @@ void BluetoothAttServerAttributesDialog::tableContextMenu(const QPoint &pos)
 
 void BluetoothAttServerAttributesDialog::on_actionMark_Unmark_Cell_triggered()
 {
+    QTreeWidgetItem *current_item = ui->tableTreeWidget->currentItem();
+    if (!current_item)
+        return;
+
     QBrush fg;
     QBrush bg;
 
-    if (ui->tableTreeWidget->currentItem()->background(ui->tableTreeWidget->currentColumn()) == QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg))) {
+    if (current_item->background(ui->tableTreeWidget->currentColumn()) == QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg))) {
         fg = QBrush();
         bg = QBrush();
     } else {
@@ -164,19 +168,23 @@ void BluetoothAttServerAttributesDialog::on_actionMark_Unmark_Cell_triggered()
         bg = QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg));
     }
 
-    ui->tableTreeWidget->currentItem()->setForeground(ui->tableTreeWidget->currentColumn(), fg);
-    ui->tableTreeWidget->currentItem()->setBackground(ui->tableTreeWidget->currentColumn(), bg);
+    current_item->setForeground(ui->tableTreeWidget->currentColumn(), fg);
+    current_item->setBackground(ui->tableTreeWidget->currentColumn(), bg);
 }
 
 
 void BluetoothAttServerAttributesDialog::on_actionMark_Unmark_Row_triggered()
 {
+    QTreeWidgetItem *current_item = ui->tableTreeWidget->currentItem();
+    if (!current_item)
+        return;
+
     QBrush fg;
     QBrush bg;
     bool   is_marked = TRUE;
 
     for (int i = 0; i < ui->tableTreeWidget->columnCount(); i += 1) {
-        if (ui->tableTreeWidget->currentItem()->background(i) != QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg)))
+        if (current_item->background(i) != QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg)))
             is_marked = FALSE;
     }
 
@@ -189,18 +197,22 @@ void BluetoothAttServerAttributesDialog::on_actionMark_Unmark_Row_triggered()
     }
 
     for (int i = 0; i < ui->tableTreeWidget->columnCount(); i += 1) {
-        ui->tableTreeWidget->currentItem()->setForeground(i, fg);
-        ui->tableTreeWidget->currentItem()->setBackground(i, bg);
+        current_item->setForeground(i, fg);
+        current_item->setBackground(i, bg);
     }
 }
 
 
 void BluetoothAttServerAttributesDialog::on_actionCopy_Cell_triggered()
 {
-    QClipboard             *clipboard = QApplication::clipboard();
-    QString                 copy;
+    QTreeWidgetItem *current_item = ui->tableTreeWidget->currentItem();
+    if (!current_item)
+        return;
 
-    copy = QString(ui->tableTreeWidget->currentItem()->text(ui->tableTreeWidget->currentColumn()));
+    QClipboard *clipboard = QApplication::clipboard();
+    QString     copy;
+
+    copy = QString(current_item->text(ui->tableTreeWidget->currentColumn()));
 
     clipboard->setText(copy);
 }

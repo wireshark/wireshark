@@ -226,10 +226,14 @@ void BluetoothDeviceDialog::keyPressEvent(QKeyEvent *event)
 
 void BluetoothDeviceDialog::on_actionMark_Unmark_Cell_triggered()
 {
+    QTableWidgetItem *current_item = ui->tableWidget->currentItem();
+    if (!current_item)
+        return;
+
     QBrush fg;
     QBrush bg;
 
-    if (ui->tableWidget->currentItem()->background() == QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg))) {
+    if (current_item->background() == QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg))) {
         fg = QBrush();
         bg = QBrush();
     } else {
@@ -237,8 +241,8 @@ void BluetoothDeviceDialog::on_actionMark_Unmark_Cell_triggered()
         bg = QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg));
     }
 
-    ui->tableWidget->currentItem()->setForeground(fg);
-    ui->tableWidget->currentItem()->setBackground(bg);
+    current_item->setForeground(fg);
+    current_item->setBackground(bg);
 }
 
 
@@ -248,8 +252,13 @@ void BluetoothDeviceDialog::on_actionMark_Unmark_Row_triggered()
     QBrush bg;
     bool   is_marked = TRUE;
 
+    QTableWidgetItem *current_item = ui->tableWidget->currentItem();
+    if (!current_item)
+        return;
+
     for (int i = 0; i < ui->tableWidget->columnCount(); i += 1) {
-        if (ui->tableWidget->item((ui->tableWidget->currentItem())->row(), i)->background() != QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg)))
+        QTableWidgetItem *item = ui->tableWidget->item(current_item->row(), i);
+        if (item->background() != QBrush(ColorUtils::fromColorT(&prefs.gui_marked_bg)))
             is_marked = FALSE;
     }
 
@@ -262,8 +271,9 @@ void BluetoothDeviceDialog::on_actionMark_Unmark_Row_triggered()
     }
 
     for (int i = 0; i < ui->tableWidget->columnCount(); i += 1) {
-        ui->tableWidget->item((ui->tableWidget->currentItem())->row(), i)->setForeground(fg);
-        ui->tableWidget->item((ui->tableWidget->currentItem())->row(), i)->setBackground(bg);
+        QTableWidgetItem *item = ui->tableWidget->item(current_item->row(), i);
+        item->setForeground(fg);
+        item->setBackground(bg);
     }
 }
 
@@ -275,10 +285,14 @@ void BluetoothDeviceDialog::tableContextMenu(const QPoint &pos)
 
 void BluetoothDeviceDialog::on_actionCopy_Cell_triggered()
 {
-    QClipboard             *clipboard = QApplication::clipboard();
-    QString                 copy;
+    QTableWidgetItem *current_item = ui->tableWidget->currentItem();
+    if (!current_item)
+        return;
 
-    copy = QString(ui->tableWidget->currentItem()->text());
+    QClipboard *clipboard = QApplication::clipboard();
+    QString     copy;
+
+    copy = QString(current_item->text());
 
     clipboard->setText(copy);
 }
