@@ -827,7 +827,7 @@ void BluetoothHciSummaryDialog::on_actionCopy_All_triggered()
 
     item = ui->tableTreeWidget->headerItem();
 
-    copy += QString("%1  %2  %3  %4  %5  %6  %7  %8  %9\n")
+    copy += QString("%1  %2  %3  %4  %5  %6  %7  %8  %9  %10\n")
             .arg(item->text(column_number_name), -60)
             .arg(item->text(column_number_ogf), -10)
             .arg(item->text(column_number_ocf), -10)
@@ -842,7 +842,7 @@ void BluetoothHciSummaryDialog::on_actionCopy_All_triggered()
     for (int i_item = 0; i_item < ui->tableTreeWidget->topLevelItemCount(); ++i_item) {
         item = ui->tableTreeWidget->topLevelItem(i_item);
 
-        copy += QString("%1  %2  %3  %4  %5  %6  %7  %8  %9\n")
+        copy += QString("%1  %2  %3  %4  %5  %6  %7  %8  %9  %10\n")
                 .arg(item->text(column_number_name), -60)
                 .arg(item->text(column_number_ogf), -10)
                 .arg(item->text(column_number_ocf), -10)
