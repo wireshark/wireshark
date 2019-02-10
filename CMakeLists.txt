@@ -936,12 +936,44 @@ if(APPLE AND EXISTS /usr/local/opt/gettext)
 	link_directories(/usr/local/opt/gettext/lib)
 endif()
 
+# Resets cache variables if the <PackageName>_LIBRARY has become invalid.
+# Call it before a find_package(<PackageName> ...) invocation that uses
+# find_library(<PackageName>_LIBRARY ...).
+#
+# Usage: reset_find_package(<PackageName> [<extra variables to clear>])
+function(reset_find_package _package_name)
+	set(variables
+		# find_library / find_package
+		${_package_name}_LIBRARY
+		${_package_name}_INCLUDE_DIR
+		# mark_as_advanced
+		${_package_name}_LIBRARIES
+		${_package_name}_INCLUDE_DIRS
+		# Others
+		${_package_name}_DLL_DIR
+		${_package_name}_DLLS
+		${_package_name}_DLL
+		${_package_name}_PDB
+		${ARGN}
+	)
+	if(NOT ${_package_name}_LIBRARY OR EXISTS ${${_package_name}_LIBRARY})
+		# Cache variable is already missing or cache entry is valid.
+		return()
+	endif()
+	message(STATUS "Package ${_package_name} has changed, clearing cache.")
+	foreach(_var IN LISTS variables)
+		unset(${_var} CACHE)
+	endforeach()
+endfunction()
+
 # ws_find_package(<PackageName>
 #             <CMakeOptions.txt boolean variable>
 #             <cmakeconfig.h.in macro definition>
 #             [remaining find_package() arguments])
 macro(ws_find_package _package_name _enable_package _package_cmakedefine)
 	if(${_enable_package})
+		# Clear outdated cache variables if not already.
+		reset_find_package(${_package_name})
 		find_package(${_package_name} ${ARGN})
 		if(${_package_name}_FOUND)
 			set(${_package_cmakedefine} 1)
@@ -952,10 +984,14 @@ endmacro()
 # The minimum package list
 find_package(Git)
 set(GLIB2_MIN_VERSION 2.32.0)
+reset_find_package(GLIB2 GLIB2_MAIN_INCLUDE_DIR GLIB2_INTERNAL_INCLUDE_DIR)
 find_package(GLIB2 REQUIRED)
 include_directories(SYSTEM ${GLIB2_INCLUDE_DIRS})
+reset_find_package(GMODULE2)
 find_package(GMODULE2)
+reset_find_package(GTHREAD2)
 find_package(GTHREAD2 REQUIRED)
+reset_find_package(GCRYPT GCRYPT_ERROR_LIBRARY)
 find_package(GCRYPT "1.4.2" REQUIRED)
 find_package(LEX REQUIRED)
 find_package(YACC REQUIRED)
@@ -1038,6 +1074,7 @@ endif()
 ws_find_package(MaxMindDB BUILD_mmdbresolve HAVE_MAXMINDDB)
 
 # SMI SNMP
+reset_find_package(SMI SMI_SHARE_DIR)
 ws_find_package(SMI ENABLE_SMI HAVE_LIBSMI)
 
 # Support for TLS decryption using RSA private keys.
@@ -1096,6 +1133,14 @@ ws_find_package(SPANDSP ENABLE_SPANDSP HAVE_SPANDSP)
 
 ws_find_package(BCG729 ENABLE_BCG729 HAVE_BCG729)
 
+# CMake 3.9 and below used 'LIBXML2_LIBRARIES' as the name of the cache entry
+# storing the find_library result. Transfer it to the new cache variable such
+# that reset_find_package can detect and clear outdated cache variables.
+if(DEFINED LIBXML2_LIBRARIES AND NOT DEFINED LIBXML2_LIBRARY)
+	set(LIBXML2_LIBRARY ${LIBXML2_LIBRARIES} CACHE FILEPATH "")
+endif()
+# Call reset_find_package explicitly since variables are in upper case.
+reset_find_package(LIBXML2)
 ws_find_package(LibXml2 ENABLE_LIBXML2 HAVE_LIBXML2)
 if(NOT LIBXML2_FOUND)
 	# CMake 3.9 and below used LIBXML2_LIBRARIES as the name of
