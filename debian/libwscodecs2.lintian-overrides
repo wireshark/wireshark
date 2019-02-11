@@ -1,0 +1,2 @@
+# It's a plugin.
+libwscodecs2: library-not-linked-against-libc usr/lib/x86_64-linux-gnu/wireshark/plugins/2.9/codecs/l16mono.so
