@@ -221,44 +221,6 @@
       </ComponentGroup>
     </Fragment>
 
-  <!-- Help files -->
-    <Fragment>
-      <DirectoryRef Id="dirHelp">
-        <Component Id="cmpHelp_toc" Guid="*">
-          <File Id="filHelp_toc" KeyPath="yes" Source="$(var.Help.Dir)\toc" />
-        </Component>
-        <Component Id="cmpHelp_overview_txt" Guid="*">
-          <File Id="filHelp_overview_txt" KeyPath="yes" Source="$(var.Help.Dir)\overview.txt" />
-        </Component>
-        <Component Id="cmpHelp_getting_started_txt" Guid="*">
-          <File Id="filHelp_getting_started_txt" KeyPath="yes" Source="$(var.Help.Dir)\getting_started.txt" />
-        </Component>
-        <Component Id="cmpHelp_capturing_txt" Guid="*">
-          <File Id="filHelp_capturing_txt" KeyPath="yes" Source="$(var.Help.Dir)\capturing.txt" />
-        </Component>
-        <Component Id="cmpHelp_capture_filters_txt" Guid="*">
-          <File Id="filHelp_capture_filters_txt" KeyPath="yes" Source="$(var.Help.Dir)\capture_filters.txt" />
-        </Component>
-        <Component Id="cmpHelp_display_filters_txt" Guid="*">
-          <File Id="filHelp_display_filters_txt" KeyPath="yes" Source="$(var.Help.Dir)\display_filters.txt" />
-        </Component>
-        <Component Id="cmpHelp_faq_txt" Guid="*">
-          <File Id="filHelp_faq_txt" KeyPath="yes" Source="$(var.Help.Dir)\faq.txt" />
-        </Component>
-      </DirectoryRef>
-    </Fragment>
-    <Fragment>
-      <ComponentGroup Id="CG.Help">
-        <ComponentRef Id="cmpHelp_toc" />
-        <ComponentRef Id="cmpHelp_overview_txt" />
-        <ComponentRef Id="cmpHelp_getting_started_txt" />
-        <ComponentRef Id="cmpHelp_capturing_txt" />
-        <ComponentRef Id="cmpHelp_capture_filters_txt" />
-        <ComponentRef Id="cmpHelp_display_filters_txt" />
-        <ComponentRef Id="cmpHelp_faq_txt" />
-      </ComponentGroup>
-    </Fragment>
-
   <!-- TShark -->
     <Fragment>
         <DirectoryRef Id="INSTALLFOLDER">
@@ -569,18 +531,27 @@
     </ComponentGroup>
   </Fragment>
 
-  <?ifdef USER_GUIDE_DIR?>
+  <?ifdef DOCBOOK_DIR?>
     <!-- User Guide -->
     <Fragment>
       <DirectoryRef Id="INSTALLFOLDER">
         <Component Id="cmpUserGuide_chm" Guid="*">
-          <File Id="filUserGuide_chm" KeyPath="yes" Source="$(var.USER_GUIDE_DIR)\user-guide.chm" />
+          <File Id="filUserGuide_chm" KeyPath="yes" Source="$(var.DOCBOOK_DIR)\user-guide.chm" />
+        </Component>
+      </DirectoryRef>
+    </Fragment>
+    <!-- FAQ -->
+    <Fragment>
+      <DirectoryRef Id="INSTALLFOLDER">
+        <Component Id="cmpFAQ_html" Guid="*">
+          <File Id="filFAQ_html" KeyPath="yes" Source="$(var.DOCBOOK_DIR)\faq.html" />
         </Component>
       </DirectoryRef>
     </Fragment>
     <Fragment>
-      <ComponentGroup Id="CG.UserGuide">
+      <ComponentGroup Id="CG.Documentation">
         <ComponentRef Id="cmpUserGuide_chm" />
+        <ComponentRef Id="cmpFAQ_html" />
       </ComponentGroup>
     </Fragment>
   <?endif?>

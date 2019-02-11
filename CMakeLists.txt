@@ -1638,15 +1638,6 @@ set(INSTALL_DIRS
 	wimaxasncp
 )
 
-# FIXME: The help files are textfified on Windows into the staging dir.
-# The DATAFILE_DIR depends on CMAKE_CFG_INTDIR therefore it cannot be
-# added to an install() command with build systems supporting multiple
-# configurations in the build tree (e.g.: Visual Studio).
-if(NOT WIN32)
-	list(APPEND INSTALL_DIRS help)
-endif()
-
-
 set(INSTALL_FILES
 	cfilters
 	colorfilters
@@ -1883,12 +1874,6 @@ endif(WIN32)
 # List of extra dependencies for the "copy_data_files" target
 set(copy_data_files_depends)
 
-# glob patterns relative to the source directory that should be copied to
-# ${DATAFILE_DIR} (including directory prefixes)
-set(DATA_FILES_SRC
-	"help/toc"
-)
-
 if(WIN32)
 	foreach(_text_file ${TEXTIFY_FILES})
 		add_custom_command(OUTPUT ${CMAKE_BINARY_DIR}/${_text_file}.txt
@@ -1929,45 +1914,6 @@ foreach(_install_file ${INSTALL_FILES})
 	list(APPEND copy_data_files_depends "${_output_file}")
 endforeach()
 
-# faq.txt is handled separately below.
-set(_help_source_files
-	help/capture_filters.txt
-	help/capturing.txt
-	help/display_filters.txt
-	help/getting_started.txt
-	help/overview.txt
-)
-
-if(WIN32)
-	file(TO_NATIVE_PATH "${DATAFILE_DIR}/help" _help_dest_dir)
-	foreach(_help_file IN LISTS _help_source_files)
-		add_custom_command(OUTPUT "${DATAFILE_DIR}/${_help_file}"
-			COMMAND ${CMAKE_COMMAND} -E make_directory "${DATAFILE_DIR}/help"
-			COMMAND ${POWERSHELL_COMMAND} "${CMAKE_SOURCE_DIR}/tools/textify.ps1"
-				-Destination "${_help_dest_dir}"
-				"${CMAKE_SOURCE_DIR}/${_help_file}"
-			DEPENDS
-				"${CMAKE_SOURCE_DIR}/${_help_file}"
-		)
-		list(APPEND copy_data_files_depends "${DATAFILE_DIR}/${_help_file}")
-	endforeach()
-else()
-	list(APPEND DATA_FILES_SRC ${_help_source_files})
-endif(WIN32)
-
-# Create help/faq.txt when missing
-add_custom_command(OUTPUT "${DATAFILE_DIR}/help/faq.txt"
-	COMMAND ${CMAKE_COMMAND} -E make_directory "${DATAFILE_DIR}/help"
-	COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/help/faq.py -b > faq.tmp.html
-	COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_SOURCE_DIR}/tools/html2text.py
-		faq.tmp.html > "${DATAFILE_DIR}/help/faq.txt"
-	COMMAND ${CMAKE_COMMAND} -E remove faq.tmp.html
-	DEPENDS
-		"${CMAKE_SOURCE_DIR}/help/faq.py"
-		"${CMAKE_SOURCE_DIR}/tools/html2text.py"
-)
-list(APPEND copy_data_files_depends "${DATAFILE_DIR}/help/faq.txt")
-
 # Install LUA files in staging directory such that LUA can used when Wireshark
 # is ran from the build directory. For install targets, see
 # epan/wslua/CMakeLists.txt
@@ -1993,8 +1939,10 @@ if(LUA_FOUND AND ENABLE_LUA)
 endif(LUA_FOUND AND ENABLE_LUA)
 # doc/*.html handled elsewhere.
 
+# Glob patterns relative to the source directory that should be copied to
+# ${DATAFILE_DIR} (including directory prefixes)
 # TODO shouldn't this use full (relative) paths instead of glob patterns?
-list(APPEND DATA_FILES_SRC
+set(DATA_FILES_SRC
 	"tpncp/tpncp.dat"
 	"wimaxasncp/*.dtd"
 	"wimaxasncp/*.xml"

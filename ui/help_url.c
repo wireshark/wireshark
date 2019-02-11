@@ -44,7 +44,7 @@ topic_online_url(topic_action_e action)
         return "https://www.wireshark.org/docs/wsug_html_chunked/";
         break;
     case(ONLINEPAGE_FAQ):
-        return "http://www.wireshark.org/faq.html";
+        return "https://www.wireshark.org/faq.html";
         break;
     case(ONLINEPAGE_ASK):
         return "https://ask.wireshark.org";

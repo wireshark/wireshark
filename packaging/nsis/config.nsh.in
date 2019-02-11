@@ -23,7 +23,7 @@
 
 #cmakedefine MMDBRESOLVE_EXE @MMDBRESOLVE_EXE@
 
-#cmakedefine USER_GUIDE_DIR "@USER_GUIDE_DIR@"
+#cmakedefine DOCBOOK_DIR "@DOCBOOK_DIR@"
 
 #cmakedefine SMI_DIR "@SMI_DIR@"
 

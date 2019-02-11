@@ -35,7 +35,7 @@ set(PROGRAM_NAME ${CMAKE_PROJECT_NAME})
 file(TO_NATIVE_PATH "${CMAKE_SOURCE_DIR}" TOP_SRC_DIR)
 # STAGING_DIR depends on the build configuration so we pass it
 # on the command line below.
-file(TO_NATIVE_PATH "${CMAKE_BINARY_DIR}/docbook" USER_GUIDE_DIR)
+file(TO_NATIVE_PATH "${CMAKE_BINARY_DIR}/docbook" DOCBOOK_DIR)
 if(WIRESHARK_TARGET_PLATFORM STREQUAL "win32")
         set(TARGET_MACHINE x86)
 elseif(WIRESHARK_TARGET_PLATFORM STREQUAL "win64")
@@ -204,6 +204,7 @@ macro( ADD_NSIS_PACKAGE_TARGET )
 			${NSIS_FILES}
 			copy_data_files
 			user_guide_chm
+			faq_html
 			${DATAFILE_DIR}/uninstall.exe
 	)
 	set_target_properties(nsis_package_prep PROPERTIES FOLDER "Packaging")

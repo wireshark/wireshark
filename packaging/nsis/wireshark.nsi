@@ -1159,11 +1159,12 @@ SectionEnd
 
 SectionGroupEnd ; "Tools"
 
-!ifdef USER_GUIDE_DIR
-Section "User's Guide" SecUsersGuide
+!ifdef DOCBOOK_DIR
+Section "Documentation" SecDocumentation
 ;-------------------------------------------
 SetOutPath $INSTDIR
-File "${USER_GUIDE_DIR}\user-guide.chm"
+File "${DOCBOOK_DIR}\user-guide.chm"
+File "${DOCBOOK_DIR}\faq.html"
 SectionEnd
 !endif
 
@@ -1215,8 +1216,8 @@ SectionEnd
   !insertmacro MUI_DESCRIPTION_TEXT ${SecRandpkt} "Random packet generator."
   !insertmacro MUI_DESCRIPTION_TEXT ${SecMMDBResolve} "MaxMind Database resolution tool"
 
-!ifdef USER_GUIDE_DIR
-  !insertmacro MUI_DESCRIPTION_TEXT ${SecUsersGuide} "Install an offline copy of the User's Guide."
+!ifdef DOCBOOK_DIR
+  !insertmacro MUI_DESCRIPTION_TEXT ${SecDocumentation} "Install an offline copy of the User's Guide and FAQ."
 !endif
 !insertmacro MUI_FUNCTION_DESCRIPTION_END
 

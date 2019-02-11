@@ -535,6 +535,19 @@ if( ASCIIDOCTOR_FOUND )
 	ASCIIDOCTOR2TXT( release-notes.asciidoc )
 endif()
 
+# FAQ
+
+add_custom_target( faq_html DEPENDS faq.html )
+set_docbook_target_properties(faq_html)
+
+add_custom_target( faq )
+set_docbook_target_properties(faq)
+add_dependencies ( faq faq_html )
+
+if( ASCIIDOCTOR_FOUND )
+	ASCIIDOCTOR2HTML( faq.adoc copy_ws.css )
+endif()
+
 #
 # Editor modelines  -  http://www.wireshark.org/tools/modelines.html
 #

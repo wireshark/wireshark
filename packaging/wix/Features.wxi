@@ -20,7 +20,6 @@
       <ComponentGroupRef Id="CG.Dtds" />
       <ComponentGroupRef Id="CG.Tpncp" />
       <ComponentGroupRef Id="CG.Wimaxasncp" />
-      <ComponentGroupRef Id="CG.Help" />
       <ComponentGroupRef Id="CG.RequiredDependencies" />
 
     </Feature>
@@ -91,9 +90,9 @@
         <ComponentGroupRef Id="CG.Tools.Udpdump" />
       </Feature>
     </Feature>
-    <?ifdef USER_GUIDE_DIR?>
-      <Feature Id="Fe.UserGuide" Title="User's Guide" Level="1" AllowAdvertise="yes" Display="expand" Description="Install an offline copy of the User's Guide.">
-        <ComponentGroupRef Id="CG.UserGuide" />
+    <?ifdef DOCBOOK_DIR?>
+      <Feature Id="Fe.Documentation" Title="Documentation" Level="1" AllowAdvertise="yes" Display="expand" Description="Install an offline copy of the User's Guide and FAQ.">
+        <ComponentGroupRef Id="CG.Documentation" />
       </Feature>
     <?endif?>
     <Feature Id="VCRedist" Title="Visual C++ Runtime" AllowAdvertise="no" Display="hidden" Level="1">
