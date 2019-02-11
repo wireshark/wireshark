@@ -1,5 +1,9 @@
 /* packet-ieee802154.c
  *
+ * IEEE 802.15.4-2015 CCM* nonce for TSCH mode
+ * By Maxime Brunelle <Maxime.Brunelle@trilliant.com>
+ * Copyright 2019 Trilliant Inc.
+ *
  * IEEE802154 TAP link type
  * By James Ko <jck@exegin.com>
  * Copyright 2019 Exegin Technologies Limited
@@ -376,6 +380,7 @@ static void dissect_ieee802154_gtsreq          (tvbuff_t *, packet_info *, proto
 static tvbuff_t *dissect_ieee802154_decrypt(tvbuff_t *, guint, packet_info *, ieee802154_packet *, ieee802154_decrypt_info_t*);
 
 static guint ieee802154_set_mac_key(ieee802154_packet *packet, unsigned char *key, unsigned char *alt_key, ieee802154_key_t *uat_key);
+static void tsch_ccm_init_nonce(guint64 addr, guint64 asn, gchar* generic_nonce);
 
 /* Initialize Protocol and Registered fields */
 static int proto_ieee802154_nonask_phy = -1;
@@ -442,7 +447,6 @@ static int hf_ieee802154_tsch_sync = -1;
 static int hf_ieee802154_tsch_asn = -1;
 static int hf_ieee802154_tsch_join_metric = -1;
 static int hf_ieee802154_tsch_slotframe = -1;
-static int hf_ieee802154_tsch_slotframe_list = -1;
 static int hf_ieee802154_tsch_link_info = -1;
 static int hf_ieee802154_tsch_slotf_link_nb_slotf = -1;
 static int hf_ieee802154_tsch_slotf_link_slotf_handle= -1;
@@ -1529,6 +1533,9 @@ void dissect_ieee802154_aux_sec_header_and_key(tvbuff_t *tvb, packet_info *pinfo
     if (!packet->frame_counter_suppression) {
         proto_tree_add_item_ret_uint(header_tree, hf_ieee802154_aux_sec_frame_counter, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &packet->frame_counter);
         (*offset) += 4;
+    }
+    else {
+        packet->asn = ieee802154_tsch_asn;
     }
 
     /* Key identifier field(s). */
@@ -3232,7 +3239,9 @@ dissect_802154_tsch_slotframe_link(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     for (slotframe_index = 1; slotframe_index <= nb_slotframes; slotframe_index++) {
         /* Create a tree for the slotframe. */
         guint8 nb_links = tvb_get_guint8(tvb, offset + 3);
-        proto_item *sf_item = proto_tree_add_none_format(subtree, hf_ieee802154_tsch_slotframe_list, tvb, offset, 4 + (5 * nb_links), "Slotframes [%u]", slotframe_index);
+        proto_item *sf_item = proto_tree_add_subtree_format(subtree, tvb, offset, 4 + (5 * nb_links),
+                                                            ett_ieee802154_tsch_slotframe, NULL,
+                                                            "Slotframes [%u]", slotframe_index);
         proto_tree *sf_tree = proto_item_add_subtree(sf_item, ett_ieee802154_tsch_slotframe_list);
         proto_tree_add_item(sf_tree, hf_ieee802154_tsch_slotf_link_slotf_handle, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(sf_tree, hf_ieee802154_tsch_slotf_size, tvb, offset + 1, 2, ENC_LITTLE_ENDIAN);
@@ -4618,18 +4627,14 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
 {
     tvbuff_t           *ptext_tvb;
     gboolean            have_mic = FALSE;
-    guint64             srcAddr;
+    guint64             srcAddr = 0;
     unsigned char       tmp[IEEE802154_CIPHER_SIZE];
     guint               M;
     gint                captured_len;
     gint                reported_len;
     ieee802154_hints_t *ieee_hints;
-
-    /* 802.15.4-2015 TSCH mode with frame counter suppression is not supported yet */
-    if (packet->frame_counter_suppression) {
-        *decrypt_info->status = DECRYPT_FRAME_COUNTER_SUPPRESSION_UNSUPPORTED;
-        return NULL;
-    }
+    gchar              *generic_nonce_ptr = NULL;
+    gchar               generic_nonce[13];
 
     ieee_hints = (ieee802154_hints_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ieee802154, 0);
 
@@ -4679,6 +4684,12 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
             /* The source EUI-64 is included in the headers. */
             srcAddr = packet->src64;
         }
+        else if (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT && packet->frame_counter_suppression) {
+            /* In TSCH mode, the source address is a combination of 802.15 CID, PAN ID and Short Address */
+            srcAddr = IEEE80215_CID << 40;
+            srcAddr |= ((guint64)packet->src_pan & 0xffff) << 16;
+            srcAddr |= packet->src16;
+        }
         else if (ieee_hints && ieee_hints->map_rec && ieee_hints->map_rec->addr64) {
             /* Use the hint */
             srcAddr = ieee_hints->map_rec->addr64;
@@ -4694,11 +4705,17 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
      * CCM* - CTR mode payload encryption
      *
      */
+    /* 802.15.4-2015 TSCH mode */
+    if (packet->frame_counter_suppression) {
+        tsch_ccm_init_nonce(srcAddr, packet->asn, generic_nonce);
+        generic_nonce_ptr = generic_nonce;
+    }
+
     /* Create the CCM* initial block for decryption (Adata=0, M=0, counter=0). */
     if (packet->version == IEEE802154_VERSION_2003)
         ccm_init_block(tmp, FALSE, 0, srcAddr, packet->frame_counter, packet->key_sequence_counter, 0, NULL);
     else
-        ccm_init_block(tmp, FALSE, 0, srcAddr, packet->frame_counter, packet->security_level, 0, NULL);
+        ccm_init_block(tmp, FALSE, 0, srcAddr, packet->frame_counter, packet->security_level, 0, generic_nonce_ptr);
 
     /*
      * If the payload is encrypted, so that it's the ciphertext, and we
@@ -4766,7 +4783,7 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
         if (packet->version == IEEE802154_VERSION_2003)
             ccm_init_block(tmp, TRUE, M, srcAddr, packet->frame_counter, packet->key_sequence_counter, l_m, NULL);
         else
-            ccm_init_block(tmp, TRUE, M, srcAddr, packet->frame_counter, packet->security_level, l_m, NULL);
+            ccm_init_block(tmp, TRUE, M, srcAddr, packet->frame_counter, packet->security_level, l_m, generic_nonce_ptr);
 
         /* Compute CBC-MAC authentication tag. */
         /*
@@ -4776,6 +4793,7 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
          * already points to contiguous memory, since we just allocated it in
          * decryption phase.
          */
+        memset(dec_mic, 0, sizeof(dec_mic));
         if (!ccm_cbc_mac(decrypt_info->key, tmp, (const gchar *)tvb_memdup(wmem_packet_scope(), tvb, 0, l_a), l_a, tvb_get_ptr(ptext_tvb, 0, l_m), l_m, dec_mic)) {
             *decrypt_info->status = DECRYPT_PACKET_MIC_CHECK_FAILED;
         }
@@ -4835,6 +4853,34 @@ ccm_init_block(gchar *block, gboolean adata, gint M, guint64 addr, guint32 frame
     block[i++] = (guint8)((ctr_val >> 8) & 0xff);
     block[i] = (guint8)((ctr_val >> 0) & 0xff);
 } /* ccm_init_block */
+
+/**
+ * Creates the IEEE 802.15.4 TSCH nonce.
+ *
+ * @param addr Source extended address.
+ * @param asn TSCH Absolute Slot Number
+ * @param generic_nonce 13-byte nonce to returned by this function.
+ */
+static void
+tsch_ccm_init_nonce(guint64 addr, guint64 asn, gchar* generic_nonce)
+{
+    gint i = 0;
+
+    /* 2015 CCM* Nonce: Source Address || ASN */
+    generic_nonce[i++] = (guint8)((addr >> 56) & 0xff);
+    generic_nonce[i++] = (guint8)((addr >> 48) & 0xff);
+    generic_nonce[i++] = (guint8)((addr >> 40) & 0xff);
+    generic_nonce[i++] = (guint8)((addr >> 32) & 0xff);
+    generic_nonce[i++] = (guint8)((addr >> 24) & 0xff);
+    generic_nonce[i++] = (guint8)((addr >> 16) & 0xff);
+    generic_nonce[i++] = (guint8)((addr >> 8) & 0xff);
+    generic_nonce[i++] = (guint8)((addr >> 0) & 0xff);
+    generic_nonce[i++] = (guint8)((asn >> 32) & 0xff);
+    generic_nonce[i++] = (guint8)((asn >> 24) & 0xff);
+    generic_nonce[i++] = (guint8)((asn >> 16) & 0xff);
+    generic_nonce[i++] = (guint8)((asn >> 8) & 0xff);
+    generic_nonce[i++] = (guint8)((asn >> 0) & 0xff);
+} /* tsch_ccm_init_nonce */
 
 /**
  * Perform an in-place CTR-mode encryption/decryption.
@@ -4947,8 +4993,13 @@ ccm_cbc_mac(const gchar *key, const gchar *iv, const gchar *a, gint a_len, const
         block[i++] = (a_len >> 0) & 0xff;
     }
     /* Append a to get the first block of input (pad if we encounter the end of a). */
-    while ((i < sizeof(block)) && (a_len-- > 0)) block[i++] = *a++;
-    while (i < sizeof(block)) block[i++] = 0;
+    while ((i < sizeof(block)) && (a_len > 0)) {
+        block[i++] = *a++;
+        a_len--;
+    }
+    while (i < sizeof(block)) {
+        block[i++] = 0;
+    }
 
     /* Process the first block of AuthData. */
     if (gcry_cipher_encrypt(cipher_hd, mic, 16, block, 16)) {
@@ -4959,8 +5010,13 @@ ccm_cbc_mac(const gchar *key, const gchar *iv, const gchar *a, gint a_len, const
     /* Transform and process the remainder of a. */
     while (a_len > 0) {
         /* Copy and pad. */
-        if ((guint)a_len >= sizeof(block)) memcpy(block, a, sizeof(block));
-        else {memcpy(block, a, a_len); memset(block+a_len, 0, sizeof(block)-a_len);}
+        if ((guint)a_len >= sizeof(block)) {
+            memcpy(block, a, sizeof(block));
+        }
+        else {
+            memcpy(block, a, a_len);
+            memset(block+a_len, 0, sizeof(block)-a_len);
+        }
         /* Adjust pointers. */
         a += sizeof(block);
         a_len -= (int)sizeof(block);
@@ -4974,8 +5030,13 @@ ccm_cbc_mac(const gchar *key, const gchar *iv, const gchar *a, gint a_len, const
     /* Process the message, m. */
     while (m_len > 0) {
         /* Copy and pad. */
-        if ((guint)m_len >= sizeof(block)) memcpy(block, m, sizeof(block));
-        else {memcpy(block, m, m_len); memset(block+m_len, 0, sizeof(block)-m_len);}
+        if ((guint)m_len >= sizeof(block)) {
+            memcpy(block, m, sizeof(block));
+        }
+        else {
+            memcpy(block, m, m_len);
+            memset(block+m_len, 0, sizeof(block)-m_len);
+        }
         /* Adjust pointers. */
         m += sizeof(block);
         m_len -= (int)sizeof(block);
@@ -5604,9 +5665,6 @@ void proto_register_ieee802154(void)
 
         { &hf_ieee802154_tsch_slotframe,
         { "Slotframe IE", "wpan.tsch.slotframe", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-
-        { &hf_ieee802154_tsch_slotframe_list,
-        { "Slotframe info list", "wpan.tsch.slotframe_list", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hf_ieee802154_tsch_link_info,
         { "Link Information", "wpan.tsch.link_info", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
