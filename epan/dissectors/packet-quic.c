@@ -1908,6 +1908,8 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
         if (error) {
             quic_packet->decryption.error = wmem_strdup(wmem_file_scope(), error);
         }
+    } else if (conn && quic_packet->pkn_len) {
+        first_byte = quic_packet->first_byte;
     }
 #endif /* !HAVE_LIBGCRYPT_AEAD */
 
