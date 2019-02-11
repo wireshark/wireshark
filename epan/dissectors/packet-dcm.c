@@ -1,7 +1,7 @@
 /* packet-dcm.c
  * Routines for DICOM dissection
  * Copyright 2003, Rich Coe <richcoe2@gmail.com>
- * Copyright 2008-2018, David Aggeler <david_aggeler@hispeed.ch>
+ * Copyright 2008-2019, David Aggeler <david_aggeler@hispeed.ch>
  *
  * DICOM communication protocol: http://www.dicomstandard.org/current/
  *
@@ -25,11 +25,25 @@
  *
  * - Implement value multiplicity (VM) consistently in dissect_dcm_tag_value()
  * - Better concatenate COL_INFO for multiple PDU in one packet
- * - Update tag list
  * - Syntax detection, in case an association request is missing in capture
  * - Read private tags from configuration and parse in capture
  *
  * History
+ *
+ * Feb 2019 - David Aggeler
+ *
+ * - Fixed re-assembly and export (consolidated duplicate code)
+ * - Fixed random COL_INFO issues
+ *
+ * Feb 2019 - Rickard Holmberg
+ *
+ * - Updated DICOM definitions to 2019a
+ *
+ * Oct 2018 - Rickard Holmberg
+ *
+ * - Moved DICOM definitions to packet-dcm.h
+ * - Generate definitions from docbook with Phyton script
+ * - Updated DICOM definitions to 2018e
  *
  * June 2018 - David Aggeler
  *
@@ -60,7 +74,7 @@
  *
  * February 2013 - Stefan Allers
  *
- * - Support for dissection of Extended Negotiation (Query/Retrieve
+ * - Support for dissection of Extended Negotiation (Query/Retrieve)
  * - Support for dissection of SCP/SCU Role Selection
  * - Support for dissection of Async Operations Window Negotiation
  * - Fixed: Improper calculation of length for Association Header
@@ -104,10 +118,6 @@
  * Oct 26, 2008 - David Aggeler (SVN 26662)
  *
  * - Support remaining DICOM/ARCNEMA tags
- *
- * Oct 12, 2008 - David Aggeler (SVN 26424)
- *
- * - Follow-up checkin 26417
  *
  * Oct 3, 2008 - David Aggeler (SVN 26417)
  *
@@ -178,7 +188,7 @@
  *   of a presentation context and therefore grouped. User Info is now grouped.
  * - Re-assemble PDVs that span multiple PDUs, i.e fix continuation packets
  *   This caused significant changes to the data structures
- * - Added preference with dicom tcp ports, to prevent 'stealing' the conversation
+ * - Added preference with DICOM TCP ports, to prevent 'stealing' the conversation
  *   i.e. don't just rely on heuristic
  * - Use pinfo->desegment_len instead of tcp_dissect_pdus()
  * - Returns number of bytes parsed
@@ -215,7 +225,7 @@
  * Nov 9, 2004 - Rich Coe
  *
  * - Fixed the heuristic code -- sometimes a conversation already exists
- * - Fixed the dissect code to display all the tags in the pdu
+ * - Fixed the dissect code to display all the tags in the PDU
  *
  * Initial - Rich Coe
  *
@@ -226,12 +236,11 @@
  *   More known tags might be added in the future.
  *   If the tag data contains a string, it will be displayed.
  *   Even if the tag contains Explicit VR, it is not currently used to
- *   symbolically display the data.  Consider this a future enhancement.
+ *   symbolically display the data.
  *
  */
 
 #include "config.h"
-
 
 #include <epan/packet.h>
 #include <epan/exceptions.h>
@@ -529,7 +538,7 @@ typedef struct dcm_open_tag {
     guint16     vl_2;           /* Partially decoded 2nd two bytes of length  */
 
     /* These ones are, where the value was truncated */
-    guint32 len_total;          /* Tag length of 'oversized' tags. Used for display */
+    guint32 len_total;          /* Tag length of 'over-sized' tags. Used for display */
     guint32 len_remaining;      /* Remaining tag bytes to 'decoded' as binary data after this PDV */
 
     gchar  *desc;               /* Last decoded description */
@@ -546,7 +555,7 @@ typedef struct dcm_state_pdv {
     guint32  packet_no;         /* Wireshark packet number, where pdv starts */
     guint32  offset;            /* Offset in packet, where PDV header starts */
 
-    gchar   *desc;              /* PDV description.         wmem_file_scope()   */
+    gchar   *desc;              /* PDV description. wmem_file_scope() */
 
     guint8  pctx_id;            /* Reference to used Presentation Context */
 
@@ -565,8 +574,7 @@ typedef struct dcm_state_pdv {
     gboolean is_flagvalid;      /* The following two flags are initialized correctly */
     gboolean is_command;        /* This PDV is a command rather than a data package */
     gboolean is_last_fragment;  /* Last Fragment bit was set, i.e. termination of an object
-                                   This flag delimits different dicom object in the same
-                                   association */
+                                   This flag delimits different DICOM object in the same association */
     gboolean is_corrupt;        /* Early termination of long PDVs */
 
                                 /* The following five attributes are only used for command PDVs */
@@ -590,7 +598,7 @@ typedef struct dcm_state_pdv {
 } dcm_state_pdv_t;
 
 /*
-    Per Presentation Context in an association store data needed, for subsequent decoding
+Per Presentation Context in an association store data needed, for subsequent decoding
 */
 typedef struct dcm_state_pctx {
 
@@ -893,11 +901,12 @@ dcm_state_pctx_get(dcm_state_assoc_t *assoc, guint8 pctx_id, gboolean create)
 }
 
 
+/*
+Create new PDV object and initialize all members
+*/
 static dcm_state_pdv_t*
 dcm_state_pdv_new(dcm_state_pctx_t *pctx, guint32 packet_no, guint32 offset)
 {
-    /* Create new PDV object and initialize the members */
-
     dcm_state_pdv_t *pdv;
 
     pdv = (dcm_state_pdv_t *) wmem_alloc0(wmem_file_scope(), sizeof(dcm_state_pdv_t));
@@ -906,7 +915,7 @@ dcm_state_pdv_new(dcm_state_pctx_t *pctx, guint32 packet_no, guint32 offset)
     pdv->packet_no = packet_no;
     pdv->offset = offset;
 
-    /* add to the end of the list list */
+    /* add to the end of the list */
     if (pctx->last_pdv) {
         pctx->last_pdv->next = pdv;
         pdv->prev = pctx->last_pdv;
@@ -1242,21 +1251,21 @@ dcm_export_create_header(guint32 *dcm_header_len, const gchar *sop_class_uid, gc
 
 }
 
+
+/*
+Concatenate related PDVs into one buffer and add it to the export object list.
+
+Supports both modes:
+
+- Multiple DICOM PDVs are reassembled with fragment_add_seq_next()
+  and process_reassembled_data(). In this case all data will be in the last
+  PDV, and all its predecessors will have zero data.
+
+- DICOM PDVs are keep separate. Every PDV contains data.
+*/
 static void
 dcm_export_create_object(packet_info *pinfo, dcm_state_assoc_t *assoc, dcm_state_pdv_t *pdv)
 {
-
-    /* Concat different PDVs into one buffer and add it to export object list
-       This function caused quite a few crashes, with all the string pointers
-
-       Every since the adding fragment_add_seq_next() and process_reassembled_data(),
-       this function would not need to perform any reassembly anymore, but it's
-       left unchanged, to still support export, even when global_dcm_reassemble
-       is not set.
-
-       Using process_reassembled_data(), all data will be in the last PDV, and all
-       its predecessors will zero data.
-    */
 
     dicom_eo_t          *eo_info = NULL;
 
@@ -1385,7 +1394,7 @@ static guint32
 dcm_vm_item_count(guint32 value_length, guint32 item_length)
 {
 
-    /* This could all be formulated in a single line but it doe not make it easier to read */
+    /* This could all be formulated in a single line but it does not make it easier to read */
 
     if (value_length == 0) {
         return 0;
@@ -1399,13 +1408,13 @@ dcm_vm_item_count(guint32 value_length, guint32 item_length)
 
 }
 
+/*
+Decode the association header
+ */
 static guint32
 dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, dcm_state_assoc_t *assoc,
                          guint8 pdu_type, guint32 pdu_len)
 {
-    /*
-     *  Decode association header
-     */
 
     proto_item *assoc_header_pitem;
     proto_tree *assoc_header_ptree;     /* Tree for item details */
@@ -1685,13 +1694,13 @@ dissect_dcm_assoc_item(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
     }
 }
 
+/*
+Decode the SOP Class Extended Negotiation Sub-Item Fields in a association request or response.
+Lookup UIDs if requested
+*/
 static void
 dissect_dcm_assoc_sopclass_extneg(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
-    /*
-     *  Decode the SOP Class Extended Negotiation Sub-Item Fields in a association request or response.
-     *  Lookup UIDs if requested
-     */
 
     proto_tree *assoc_item_extneg_tree = NULL;  /* Tree for item details */
     proto_item *assoc_item_extneg_item = NULL;
@@ -1788,12 +1797,12 @@ dissect_dcm_assoc_sopclass_extneg(tvbuff_t *tvb, proto_tree *tree, guint32 offse
     }
 }
 
+/*
+Decode user identities in the association
+*/
 static void
 dissect_dcm_assoc_user_identify(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
-    /*
-     *  Decode unknown type
-     */
 
     proto_tree *assoc_item_user_identify_tree = NULL;  /* Tree for item details */
     proto_item *assoc_item_user_identify_item = NULL;
@@ -1836,12 +1845,12 @@ dissect_dcm_assoc_user_identify(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     }
 }
 
+/*
+Decode unknown item types in the association
+*/
 static void
 dissect_dcm_assoc_unknown(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
-    /*
-     *  Decode unknown type
-     */
 
     proto_tree *assoc_item_unknown_tree = NULL;  /* Tree for item details */
     proto_item *assoc_item_unknown_item = NULL;
@@ -1858,16 +1867,15 @@ dissect_dcm_assoc_unknown(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     offset += 4;
 
     proto_tree_add_item(assoc_item_unknown_tree, hf_dcm_assoc_item_data, tvb, offset, item_len, ENC_NA);
-
 }
 
+/*
+Decode the SCP/SCU Role Selection Sub-Item Fields in a association request or response.
+Lookup UIDs if requested
+*/
 static void
 dissect_dcm_assoc_role_selection(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
-    /*
-     *  Decode the SCP/SCU Role Selection Sub-Item Fields in a association request or response.
-     *  Lookup UIDs if requested
-     */
 
     proto_tree *assoc_item_rolesel_tree; /* Tree for item details */
     proto_item *assoc_item_rolesel_item;
@@ -1923,12 +1931,12 @@ dissect_dcm_assoc_role_selection(tvbuff_t *tvb, proto_tree *tree, guint32 offset
     proto_tree_add_item(assoc_item_rolesel_tree, hf_dcm_info_rolesel_scprole, tvb, offset+7+sop_class_uid_len, 1, ENC_BIG_ENDIAN);
 }
 
+/*
+Decode the Asynchronous operations (and sub-operations) Window Negotiation Sub-Item Fields in a association request or response.
+*/
 static void
 dissect_dcm_assoc_async_negotiation(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
-    /*
-     *  Decode the Asynchronous operations (and sub-operations) Window Negotiation Sub-Item Fields in a association request or response.
-     */
 
     proto_tree *assoc_item_asyncneg_tree; /* Tree for item details */
     proto_item *assoc_item_asyncneg_item;
@@ -1999,7 +2007,7 @@ dissect_dcm_pctx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     pctx_id     = tvb_get_guint8(tvb, offset);
     pctx_result = tvb_get_guint8(tvb, 2 + offset);      /* only set in responses, otherwise reserved and 0x00 */
 
-    /* Find or create dicom context object */
+    /* Find or create DICOM context object */
     pctx = dcm_state_pctx_get(assoc, pctx_id, TRUE);
     if (pctx == NULL) { /* Internal error. Failed to create data structure */
         return;
@@ -2145,7 +2153,6 @@ Decode the user info item in a Association Request or Response
 static void
 dissect_dcm_userinfo(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 len, const gchar *pitem_prefix)
 {
-
 
     proto_item *userinfo_pitem = NULL;
     proto_tree *userinfo_ptree = NULL;  /* Tree for presentation context details */
@@ -2500,7 +2507,10 @@ dissect_dcm_pdv_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return offset;
 }
 
-/* Based on the value representation, decode the value of one tag. Support VM>1 for most types, but not all. Returns new offset */
+/*
+Based on the value representation, decode the value of one tag.
+Support VM>1 for most types, but not all. Returns new offset
+*/
 static guint32
 dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_state_pdv_t *pdv,
                       guint32 offset, guint16 grp, guint16 elm,
@@ -2764,12 +2774,12 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
 
 }
 
+/*
+Return true, if the required size does not fit at position 'offset'.
+*/
 static gboolean
 dcm_tag_is_open(dcm_state_pdv_t *pdv, guint32 startpos, guint32 offset, guint32 endpos, guint32 size_required)
 {
-    /* Return true, if the required size does not fit at position 'offset'.
-       Copy memory from startpos to endpos into pdv structure
-    */
 
     if (offset + size_required > endpos) {
 
@@ -3282,11 +3292,13 @@ dissect_dcm_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return offset;
 }
 
+/*
+'Decode' open tags from previous PDV. It mostly ends in 'continuation' or 'end' in the description.
+*/
 static guint32
 dissect_dcm_tag_open(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 dcm_state_pdv_t *pdv, guint32 offset, guint32 endpos, gboolean *is_first_tag)
 {
-    /* 'Decode' open tags from previous PDV */
 
     proto_item *pitem = NULL;
 
@@ -3357,39 +3369,74 @@ dissect_dcm_tag_open(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return offset;
 }
 
+/*
+Decode the tag section inside a PDV. This can be a single combined dataset
+or DICOM natively split PDVs. Therefore it needs to resume previously opened tags.
+For data PDVs, only process tags when tree is set.
+For command PDVs, process all tags.
+On export copy the content to the export buffer.
+*/
 static guint32
-dissect_dcm_pdv_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-                dcm_state_pdv_t *pdv, guint32 offset, guint32 pdv_body_len,
-                gchar **pdv_description)
+dissect_dcm_pdv_body(
+        tvbuff_t *tvb,
+        packet_info *pinfo,
+        proto_tree *tree,
+        dcm_state_assoc_t *assoc,
+        dcm_state_pdv_t *pdv,
+        guint32 offset,
+        guint32 pdv_body_len,
+        gchar **pdv_description)
 {
-    /* Handle one PDV inside a data PDU */
-
     const gchar *tag_value = NULL;
     gboolean dummy = FALSE;
     guint32 endpos = 0;
 
     endpos = offset + pdv_body_len;
 
-    if (pdv->syntax == DCM_UNK) {
-        /* Eventually, we will have a syntax detector. Until then, don't decode */
+    if (have_tap_listener(dicom_eo_tap)) {
 
-        proto_tree_add_bytes_format(tree, hf_dcm_data_tag, tvb,
-            offset, pdv_body_len, NULL,
-            "(%04x,%04x) %-8x Unparsed data", 0, 0, pdv_body_len);
-    }
-    else {
+        if (pdv->data_len == 0) {
+            /* Copy pure DICOM data to buffer, without PDV flags
+               Packet scope for the memory allocation is too small, since we may have PDV in different tvb.
+               Therefore check if this was already done.
+            */
+            pdv->data = wmem_alloc0(wmem_file_scope(), pdv_body_len);
+            pdv->data_len = pdv_body_len;
+            tvb_memcpy(tvb, pdv->data, offset, pdv_body_len);
+        }
 
-        gboolean is_first_tag = TRUE;
-
-        /* Treat the left overs */
-        offset = dissect_dcm_tag_open(tvb, pinfo, tree, pdv, offset, endpos, &is_first_tag);
-
-        /* Decode all tags, sequences and items in this PDV recursively */
-        while (offset < endpos) {
-            offset = dissect_dcm_tag(tvb, pinfo, tree, pdv, offset, endpos, is_first_tag, &tag_value, &dummy);
-            is_first_tag = FALSE;
+        if ((pdv_body_len > 0) && (pdv->is_last_fragment)) {
+            /* At the last segment, merge all related previous PDVs and copy to export buffer */
+            dcm_export_create_object(pinfo, assoc, pdv);
         }
     }
+
+    if (pdv->is_command || tree) {
+        /* Performance optimization starts here. Don't put any COL_INFO related stuff in here */
+
+        if (pdv->syntax == DCM_UNK) {
+            /* Eventually, we will have a syntax detector. Until then, don't decode */
+
+            proto_tree_add_bytes_format(tree, hf_dcm_data_tag, tvb,
+                offset, pdv_body_len, NULL,
+                "(%04x,%04x) %-8x Unparsed data", 0, 0, pdv_body_len);
+        }
+        else {
+
+            gboolean is_first_tag = TRUE;
+
+            /* Treat the left overs */
+            offset = dissect_dcm_tag_open(tvb, pinfo, tree, pdv, offset, endpos, &is_first_tag);
+
+            /* Decode all tags, sequences and items in this PDV recursively */
+            while (offset < endpos) {
+                offset = dissect_dcm_tag(tvb, pinfo, tree, pdv, offset, endpos, is_first_tag, &tag_value, &dummy);
+                is_first_tag = FALSE;
+            }
+        }
+    }
+
+    *pdv_description = pdv->desc;
 
     if (pdv->is_command) {
 
@@ -3425,23 +3472,17 @@ dissect_dcm_pdv_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     *pdv_description = wmem_strdup_printf(wmem_packet_scope(), "%s F=%d", *pdv_description, pdv->no_failed);
                 }
             }
-            else {
-                *pdv_description = pdv->desc;
-            }
         }
-        else {
-            *pdv_description = pdv->desc;
-        }
-    }
-    else {
-        *pdv_description = pdv->desc;
+
     }
 
-    return endpos;      /* we could try offset as return value */
+    return endpos;
 }
 
 /*
-Handle one PDV inside a data PDU. Perform the necessary reassembly of PDV fragments. Create PDV object when needed.
+Handle one PDV inside a data PDU. When needed, perform the reassembly of PDV fragments.
+PDV fragments are different from TCP fragmentation.
+Create PDV object when needed.
 Return pdv_description to be used e.g. in COL_INFO.
 */
 static guint32
@@ -3453,23 +3494,22 @@ dissect_dcm_pdv_fragmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     dcm_state_pdv_t *pdv = NULL;
 
-    tvbuff_t *next_tvb = NULL;
+    tvbuff_t *combined_tvb = NULL;
     fragment_head *head = NULL;
 
     guint32 reassembly_id;
     guint32 pdv_body_len;
-    guint32 startpos;
 
-    startpos = offset;
     pdv_body_len = pdv_len-2;
 
     /* Dissect Context ID, Find PDV object, Decode Command/Data flag and More Fragments flag */
     offset = dissect_dcm_pdv_header(tvb, pinfo, tree, assoc, offset, &pdv);
 
-    /* When fragmented, do reassembly and subsequently decode merged PDV */
     if (global_dcm_reassemble)
     {
-
+        /* Combine the different PDVs. This is the default preference and useful in most scenarios.
+           This will create one 'huge' PDV. E.g. a CT image will fits in one buffer.
+        */
         conv = find_conversation_pinfo(pinfo, 0);
 
         /* Try to create somewhat unique ID.
@@ -3477,90 +3517,73 @@ dissect_dcm_pdv_fragmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         */
         DISSECTOR_ASSERT(conv);
 
-        reassembly_id = (((conv->conv_index) & 0x00FFFFFF) << 8) + pdv->pctx_id;
+        /* The following expression seems to executed late in VS2017 in 'RelWithDebInf'.
+           Therefore it may appear as 0 at first
+        */
+        reassembly_id = (((conv->conv_index) & 0x00FFFFFF) << 8) + (guint32)(pdv->pctx_id);
 
-        head = fragment_add_seq_next(&dcm_pdv_reassembly_table,
-                                tvb, offset, pinfo, reassembly_id, NULL,
-                                pdv_body_len,
-                                !(pdv->is_last_fragment));
+        /* This one will chain the packets until 'is_last_fragment' */
+        head = fragment_add_seq_next(
+            &dcm_pdv_reassembly_table,
+            tvb,
+            offset,
+            pinfo,
+            reassembly_id,
+            NULL,
+            pdv_body_len,
+            !(pdv->is_last_fragment));
 
-        if (head && (head->next == NULL)) {
-            /* Was not really fragmented, therefore use 'conventional' decoding
-               fragment_add_seq_next() won't add any items to the list, when last fragment only
-            */
+        /* Will return a complete buffer, once last fragment is hit.
+           The description is not used in packet-dcm. COL_INFO is set specifically in dissect_dcm_pdu()
+        */
+        combined_tvb = process_reassembled_data(
+            tvb,
+            offset,
+            pinfo,
+            "Reassembled PDV",
+            head,
+            &dcm_pdv_fragment_items,
+            NULL,
+            tree);
 
-            offset = dissect_dcm_pdv_body(tvb, pinfo, tree, pdv, offset, pdv_body_len, pdv_description);
-        }
-        else {
-            next_tvb = process_reassembled_data(tvb, offset, pinfo,
-                                        "Reassembled PDV", head,
-                                        &dcm_pdv_fragment_items, NULL, tree);
+        if (combined_tvb == NULL) {
+            /* Just show this as a fragment */
 
-            if (next_tvb == NULL) {
-                /* Just show this as a fragment */
+            if (head && head->reassembled_in != pinfo->num) {
 
-                if (head && head->reassembled_in != pinfo->num) {
-
-                    if (pdv->desc) {
-                        /* We know the presentation context already */
-                        *pdv_description = wmem_strdup_printf(wmem_packet_scope(), "%s (reassembled in #%u)", pdv->desc, head->reassembled_in);
-                    }
-                    else {
-                        /* Decoding of the presentation context did not occur yet or did not succeed */
-                        *pdv_description = wmem_strdup_printf(wmem_packet_scope(), "PDV Fragment (reassembled in #%u)", head->reassembled_in);
-                    }
+                if (pdv->desc) {
+                    /* We know the presentation context already */
+                    *pdv_description = wmem_strdup_printf(wmem_packet_scope(), "%s (reassembled in #%u)", pdv->desc, head->reassembled_in);
                 }
                 else {
-                    /* We have not done any tag decoding yet */
-                    *pdv_description = wmem_strdup(wmem_packet_scope(), "PDV Fragment");
+                    /* Decoding of the presentation context did not occur yet or did not succeed */
+                    *pdv_description = wmem_strdup_printf(wmem_packet_scope(), "PDV Fragment (reassembled in #%u)", head->reassembled_in);
                 }
-
-                offset += pdv_body_len;
             }
             else {
-                guint next_tvb_length = tvb_captured_length(next_tvb);
-                /* Decode reassembled data */
-
-                if (tree || have_tap_listener(dicom_eo_tap)) {
-                    /* The performance optimization now starts at tag level.
-
-                       During, tree can be NULL, but we need a few tags to be decoded,
-                       i.e Class & Instance UID, so the export dialog has all information and
-                       that the dicom header is complete
-                    */
-                    offset += dissect_dcm_pdv_body(next_tvb, pinfo, tree, pdv, 0, next_tvb_length, pdv_description);
-                }
-
-                if (have_tap_listener(dicom_eo_tap)) {
-                    /* Copy pure DICOM data to buffer, no PDV flags */
-
-                    pdv->data = wmem_alloc(wmem_packet_scope(), next_tvb_length);
-                    tvb_memcpy(next_tvb, pdv->data, 0, next_tvb_length);
-                    pdv->data_len = next_tvb_length;
-
-                    /* Copy to export buffer */
-                    dcm_export_create_object(pinfo, assoc, pdv);
-                }
+                /* We don't know the last fragment yet (and/or we'll never see it).
+                   This can happen, e.g. when TCP packet arrive our of order.
+                */
+                *pdv_description = wmem_strdup(wmem_packet_scope(), "PDV Fragment");
             }
+
+            offset += pdv_body_len;
+        }
+        else
+        {
+            /* Decode reassembled data. This needs to be += */
+            offset += dissect_dcm_pdv_body(combined_tvb, pinfo, tree, assoc, pdv, 0, tvb_captured_length(combined_tvb), pdv_description);
         }
     }
-    else if (tree) {
-        /* Do not reassemble PDVs, i.e. decode PDV one by one. Only execute when in detail mode */
-        offset = dissect_dcm_pdv_body(tvb, pinfo, tree, pdv, offset, pdv_body_len, pdv_description);
-
-        /* During DICOM Export, perform a few extra steps */
-        if (have_tap_listener(dicom_eo_tap)) {
-            /* Copy pure DICOM data to buffer, no PDV flags */
-
-            pdv->data = wmem_alloc(wmem_packet_scope(), pdv_body_len);
-            tvb_memcpy(tvb, pdv->data, startpos, pdv_body_len);
-            pdv->data_len = pdv_body_len;
-
-            if ((pdv_body_len > 0) && (pdv->is_last_fragment)) {
-                /* At the last segment, merge all related previous PDVs and copy to export buffer */
-                dcm_export_create_object(pinfo, assoc, pdv);
-            }
-        }
+    else
+    {
+        /* Do not reassemble DICOM PDVs, i.e. decode PDVs one by one.
+           This may be useful when troubleshooting PDU length issues,
+           or to better understand the PDV split.
+           The tag level decoding is more challenging, as leftovers need
+           to be displayed adequately. Not a big deal for binary values.
+        */
+        offset = dissect_dcm_pdv_body(tvb, pinfo, tree, assoc, pdv, offset, pdv_body_len, pdv_description);
     }
 
     return offset;
@@ -3810,7 +3833,7 @@ dissect_dcm_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean i
 }
 
 /*
-Call back function used to register
+Callback function used to register
 */
 static int
 dissect_dcm_static(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
@@ -3891,6 +3914,9 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
     if (pdu_type == 4) {
         col_set_str(pinfo->cinfo, COL_INFO, "P-DATA");
 
+        /* Everything that needs to be shown in any UI column (like COL_INFO)
+           needs to be calculated also with tree == null
+        */
         offset = dissect_dcm_pdu_data(tvb, pinfo, dcm_ptree, assoc, offset, pdu_len, &pdu_data_description);
 
         if (pdu_data_description) {
@@ -3907,8 +3933,9 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
     return offset;          /* return the number of processed bytes */
 }
 
-/* Register the protocol with Wireshark */
-
+/*
+Register the protocol with Wireshark
+*/
 void
 proto_register_dcm(void)
 {
@@ -4150,7 +4177,7 @@ proto_register_dcm(void)
     prefs_register_bool_preference(dcm_module, "seq_tree",
             "Create subtrees for Sequences and Items",
             "Create a node for sequences and items, and show children in a hierarchy. "
-            "Deselect this option, if you prefer a flat display or e.g. "
+            "De-select this option, if you prefer a flat display or e.g. "
             "when using TShark to create a text output.",
             &global_dcm_seq_subtree);
 
@@ -4169,6 +4196,7 @@ proto_register_dcm(void)
     prefs_register_bool_preference(dcm_module, "pdv_reassemble",
             "Merge fragmented PDVs",
             "Decode all DICOM tags in the last PDV. This will ensure the proper reassembly. "
+            "De-select, to troubleshoot PDU length issues, or to understand PDV fragmentation. "
             "When not set, the decoding may fail and the exports may become corrupt.",
             &global_dcm_reassemble);
 
