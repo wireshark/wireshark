@@ -123,7 +123,7 @@ exclude_prefixes="$exclude_prefixes|$qt_frameworks_dir"
 pkgexec="$bundle/Contents/MacOS"
 #pkgres="$bundle/Contents/Resources"
 pkglib="$bundle/Contents/Frameworks"
-pkgplugin="$bundle/Contents/PlugIns/wireshark/@VERSION_MAJOR@.@VERSION_MINOR@"
+pkgplugin="$bundle/Contents/PlugIns/wireshark"
 
 # Set the 'macosx' directory, usually the current directory.
 #resdir=$( pwd )
