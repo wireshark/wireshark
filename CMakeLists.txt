@@ -196,7 +196,17 @@ if(NOT (WIN32 OR APPLE))
 			# Provide a knob to optionally force absolute rpaths,
 			# to support old/buggy systems and as a user preference
 			# for hardening.
-			set(ENABLE_RPATH_ORIGIN TRUE CACHE BOOL
+			set(_enable_rpath_origin TRUE)
+			if(BUILD_dumpcap AND PCAP_FOUND)
+				# dumpcap will most likely be installed with
+				# capabilities or setuid. Relative RPATHs that
+				# resolve to non-standard library directories
+				# are ignored for such binaries and since we
+				# cannot achieve relocatable builds, just
+				# disable it by default.
+				set(_enable_rpath_origin FALSE)
+			endif()
+			set(ENABLE_RPATH_ORIGIN ${_enable_rpath_origin} CACHE BOOL
 				"Use $ORIGIN with INSTALL_RPATH")
 			mark_as_advanced(ENABLE_RPATH_ORIGIN)
 		else()
