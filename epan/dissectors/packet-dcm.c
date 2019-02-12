@@ -4657,8 +4657,6 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
     proto_item *assoc_header_pitem;
     proto_tree *assoc_header_ptree;     /* Tree for item details */
 
-    guint16  assoc_ver;
-
     const gchar  *buf_desc = NULL;
     const char   *reject_result_desc = "";
     const char   *reject_source_desc = "";
@@ -4677,8 +4675,7 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
     switch (pdu_type) {
     case 1:                                     /* Association Request */
 
-        assoc_ver = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_uint(assoc_header_ptree, hf_dcm_assoc_version, tvb, offset, 2, assoc_ver);
+        proto_tree_add_item(assoc_header_ptree, hf_dcm_assoc_version, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
         offset += 2;                            /* Two reserved bytes*/
@@ -4703,8 +4700,7 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
         break;
     case 2:                                     /* Association Accept */
 
-        assoc_ver = tvb_get_ntohs(tvb, offset+2);
-        proto_tree_add_uint(assoc_header_ptree, hf_dcm_assoc_version, tvb, offset, 2, assoc_ver);
+        proto_tree_add_item(assoc_header_ptree, hf_dcm_assoc_version, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
         offset += 2;                            /* Two reserved bytes*/
