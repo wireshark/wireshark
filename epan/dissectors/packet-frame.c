@@ -149,6 +149,21 @@ static const value_string packet_word_reception_types[] = {
 static dissector_table_t wtap_encap_dissector_table;
 static dissector_table_t wtap_fts_rec_dissector_table;
 
+/* The number of tree items required to add an exception to the tree */
+#define EXCEPTION_TREE_ITEMS 5
+
+static void
+ensure_tree_item(proto_tree *tree, gint count)
+{
+	/*
+	 * Ensure that no exception is thrown in proto.c when adding the
+	 * next tree item. Even if the maximum number of items is
+	 * reached, we know for sure that no infinite loop will occur.
+	 */
+	if (tree && PTREE_DATA(tree)->count > count)
+		PTREE_DATA(tree)->count -= count;
+}
+
 /****************************************************************************/
 /* whenever a frame packet is seen by the tap listener */
 /* Add a new frame into the graph */
@@ -617,6 +632,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			}
 #ifdef _MSC_VER
 		} __except(EXCEPTION_EXECUTE_HANDLER /* handle all exceptions */) {
+			ensure_tree_item(parent_tree, EXCEPTION_TREE_ITEMS);
 			switch (GetExceptionCode()) {
 			case(STATUS_ACCESS_VIOLATION):
 				show_exception(tvb, pinfo, parent_tree, DissectorError,
@@ -641,6 +657,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 #endif
 	}
 	CATCH_BOUNDS_AND_DISSECTOR_ERRORS {
+		ensure_tree_item(parent_tree, EXCEPTION_TREE_ITEMS);
 		show_exception(tvb, pinfo, parent_tree, EXCEPT_CODE, GET_MESSAGE);
 	}
 	ENDTRY;
@@ -659,6 +676,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			wmem_strbuf_append(val, proto_get_protocol_filter_name(GPOINTER_TO_UINT(wmem_list_frame_data(frame))));
 			frame = wmem_list_frame_next(frame);
 		}
+		ensure_tree_item(fh_tree, 1);
 		ti = proto_tree_add_string(fh_tree, hf_frame_protocols, tvb, 0, 0, wmem_strbuf_get_str(val));
 		PROTO_ITEM_SET_GENERATED(ti);
 	}
@@ -682,6 +700,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 				call_all_postdissectors(tvb, pinfo, parent_tree);
 #ifdef _MSC_VER
 			} __except(EXCEPTION_EXECUTE_HANDLER /* handle all exceptions */) {
+				ensure_tree_item(parent_tree, EXCEPTION_TREE_ITEMS);
 				switch (GetExceptionCode()) {
 				case(STATUS_ACCESS_VIOLATION):
 					show_exception(tvb, pinfo, parent_tree, DissectorError,
@@ -706,6 +725,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 #endif
 		}
 		CATCH_BOUNDS_AND_DISSECTOR_ERRORS {
+			ensure_tree_item(parent_tree, EXCEPTION_TREE_ITEMS);
 			show_exception(tvb, pinfo, parent_tree, EXCEPT_CODE, GET_MESSAGE);
 		}
 		ENDTRY;
@@ -720,9 +740,11 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		color_filter = pinfo->fd->color_filter;
 	}
 	if (color_filter) {
+		ensure_tree_item(fh_tree, 1);
 		item = proto_tree_add_string(fh_tree, hf_frame_color_filter_name, tvb,
 					     0, 0, color_filter->filter_name);
 		PROTO_ITEM_SET_GENERATED(item);
+		ensure_tree_item(fh_tree, 1);
 		item = proto_tree_add_string(fh_tree, hf_frame_color_filter_text, tvb,
 					     0, 0, color_filter->filter_text);
 		PROTO_ITEM_SET_GENERATED(item);
@@ -758,6 +780,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 							"(0x%.4X+%u)",
 							(fi ? fi->hfinfo->abbrev : "[unknown]"),
 							pinfo->num, i, i - i % 16, i % 16);
+					ensure_tree_item(tree, 1);
 					proto_tree_add_expert_format(tree, pinfo, &ei_incomplete, tvb, i, 1, "Undecoded byte number: %u (0x%.4X+%u)", i, i - i % 16, i % 16);
 				}
 			}
