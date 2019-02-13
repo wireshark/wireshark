@@ -251,7 +251,6 @@ static int hf_nas_5gs_sm_all_ssc_mode_b1 = -1;
 static int hf_nas_5gs_sm_all_ssc_mode_b2 = -1;
 static int hf_nas_5gs_addr_mask_ipv4 = -1;
 static int hf_nas_5gs_protocol_identifier_or_next_hd = -1;
-static int hf_nas_5gs_protocol_identifier_or_next_hd_val = -1;
 static int hf_nas_5gs_mm_rinmr = -1;
 static int hf_nas_5gs_mm_hdp = -1;
 static int hf_nas_5gs_mm_dcni = -1;
@@ -275,6 +274,7 @@ static int ett_nas_5gs_sm_mapd_eps_b_cont_params_list = -1;
 static int ett_nas_5gs_enc = -1;
 static int ett_nas_5gs_mm_ladn_indic = -1;
 static int ett_nas_5gs_mm_sor = -1;
+static int ett_nas_5gs_sm_pkt_filter_components = -1;
 
 static int hf_nas_5gs_mm_abba = -1;
 static int hf_nas_5gs_mm_suci = -1;
@@ -2861,10 +2861,10 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     gchar *add_string _U_, int string_len _U_)
 {
 
-    proto_tree *sub_tree, *sub_tree2;
+    proto_tree *sub_tree, *sub_tree2, *sub_tree3;
     proto_item *item;
-    int i = 1, j = 1;
-    guint32 qos_rule_id, pf_len, pf_type;
+    int i = 1, j = 1, k = 1;
+    guint32 qos_rule_id, pf_len, pf_type, pfc_len;
     guint32 length, curr_offset, start_offset;
     guint8 num_pkt_flt, rop;
 
@@ -2937,40 +2937,57 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                 /* Length of packet filter contents */
                 proto_tree_add_item_ret_uint(sub_tree2, hf_nas_5gs_sm_pf_len, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &pf_len);
                 curr_offset++;
+
+                k = 1;
                 /* Packet filter contents */
-                /* Each packet filter component shall be encoded as a sequence of a one octet packet filter component type identifier
-                 * and a fixed length packet filter component value field.
-                 * The packet filter component type identifier shall be transmitted first.
-                 */
-                proto_tree_add_item_ret_uint(sub_tree2, hf_nas_5gs_sm_pf_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &pf_type);
-                curr_offset++;
-                switch (pf_type) {
-                case 1:
-                    /* Match-all type
-                     * . If the "match-all type" packet filter component is present in the packet filter, no other packet filter
-                     * component shall be present in the packet filter and the length of the packet filter contents field shall
-                     * be set to one.
+                while (pf_len > 0) {
+                    sub_tree3 = proto_tree_add_subtree_format(sub_tree2, tvb, curr_offset, -1, ett_nas_5gs_sm_pkt_filter_components, &item, "Packet filter component %u", k);
+                    /* Each packet filter component shall be encoded as a sequence of a one octet packet filter component type identifier
+                     * and a fixed length packet filter component value field.
+                     * The packet filter component type identifier shall be transmitted first.
                      */
-                    curr_offset += pf_len;
-                    break;
-                case 16:
-                    /* For "IPv4 remote address type", the packet filter component value field shall be encoded as a sequence
-                     * of a four octet IPv4 address field and a four octet IPv4 address mask field.
-                     * The IPv4 address field shall be transmitted first.
-                     */
-                    proto_tree_add_item(sub_tree2, hf_nas_5gs_sm_pdu_addr_inf_ipv4, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
-                    curr_offset += 4;
-                    proto_tree_add_item(sub_tree2, hf_nas_5gs_addr_mask_ipv4, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
-                    curr_offset += 4;
-                    proto_tree_add_item(sub_tree2, hf_nas_5gs_protocol_identifier_or_next_hd, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-                    curr_offset += 1;
-                    proto_tree_add_item(sub_tree2, hf_nas_5gs_protocol_identifier_or_next_hd_val, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item_ret_uint(sub_tree3, hf_nas_5gs_sm_pf_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN, &pf_type);
                     curr_offset++;
-                    break;
-                default:
-                    proto_tree_add_expert(sub_tree2, pinfo, &ei_nas_5gs_not_diss, tvb, curr_offset, pf_len);
-                    curr_offset += pf_len;
-                    break;
+                    /* Packet filter length contains the length of component type and content */
+                    pf_len--;
+                    switch (pf_type) {
+                    case 1:
+                        /* Match-all type
+                         * . If the "match-all type" packet filter component is present in the packet filter, no other packet filter
+                         * component shall be present in the packet filter and the length of the packet filter contents field shall
+                         * be set to one.
+                         */
+                        pfc_len = 0;
+                        break;
+                    case 16:
+                        /* For "IPv4 remote address type", the packet filter component value field shall be encoded as a sequence
+                         * of a four octet IPv4 address field and a four octet IPv4 address mask field.
+                         * The IPv4 address field shall be transmitted first.
+                         */
+                    case 17:
+                        /* For "IPv4 local address type", the packet filter component value field shall be encoded as defined
+                         * for "IPv4 remote address type"
+                         */
+                        proto_tree_add_item(sub_tree3, hf_nas_5gs_sm_pdu_addr_inf_ipv4, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
+                        curr_offset += 4;
+                        proto_tree_add_item(sub_tree3, hf_nas_5gs_addr_mask_ipv4, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
+                        curr_offset += 4;
+                        pfc_len = 8;
+                        break;
+                    case 48:
+                        proto_tree_add_item(sub_tree3, hf_nas_5gs_protocol_identifier_or_next_hd, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                        curr_offset++;
+                        pfc_len = 1;
+                        break;
+                    default:
+                        proto_tree_add_expert(sub_tree3, pinfo, &ei_nas_5gs_not_diss, tvb, curr_offset, pf_len);
+                        curr_offset += pf_len;
+                        pfc_len = pf_len;
+                        break;
+                    }
+                    pf_len -= pfc_len;
+                    k++;
+                    proto_item_set_len(item, pfc_len);
                 }
             }
             num_pkt_flt--;
@@ -6412,13 +6429,8 @@ proto_register_nas_5gs(void)
             NULL, HFILL }
         },
         { &hf_nas_5gs_protocol_identifier_or_next_hd,
-        { "packet filter component type", "nas_5gs.protocol_identifier_or_next_hd",
-            FT_UINT8, BASE_DEC, VALS(nas_5gs_sm_pf_type_values), 0x0,
-            NULL, HFILL }
-        },
-        { &hf_nas_5gs_protocol_identifier_or_next_hd_val,
-        { "packet filter component value", "nas_5gs.protocol_identifier_or_next_hd_val",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
+        { "Protocol identifier/Next header type", "nas_5gs.protocol_identifier_or_next_hd",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_sm_qos_rule_precedence,
@@ -6762,7 +6774,7 @@ proto_register_nas_5gs(void)
     guint     last_offset;
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    14
+#define NUM_INDIVIDUAL_ELEMS    15
     gint *ett[NUM_INDIVIDUAL_ELEMS +
         NUM_NAS_5GS_COMMON_ELEM +
         NUM_NAS_5GS_MM_MSG + NUM_NAS_5GS_MM_ELEM +
@@ -6783,6 +6795,7 @@ proto_register_nas_5gs(void)
     ett[11] = &ett_nas_5gs_enc;
     ett[12] = &ett_nas_5gs_mm_ladn_indic;
     ett[13] = &ett_nas_5gs_mm_sor;
+    ett[14] = &ett_nas_5gs_sm_pkt_filter_components;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
