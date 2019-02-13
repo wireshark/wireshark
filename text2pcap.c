@@ -194,7 +194,7 @@ static guint32 hdr_data_chunk_ppid = 0;
 static gboolean identify_ascii = FALSE;
 
 static gboolean has_direction = FALSE;
-static guint32 direction = 0;
+static guint32 direction = PACK_FLAGS_DIRECTION_UNKNOWN;
 
 /*--- Local data -----------------------------------------------------------------*/
 
@@ -617,8 +617,8 @@ write_current_packet (gboolean cont)
     if (curr_offset > header_length) {
         /* Write the packet */
 
-        /* Is direction indication on with an inbound packet? */
-        gboolean isInbound = has_direction && (direction == 2);
+        /* Is direction indication on with an outbound packet? */
+        gboolean isOutbound = has_direction && (direction == PACK_FLAGS_DIRECTION_OUTBOUND);
 
         /* Compute packet length */
         length = curr_offset;
@@ -632,7 +632,7 @@ write_current_packet (gboolean cont)
 
         /* Write Ethernet header */
         if (hdr_ethernet) {
-            if (isInbound)
+            if (isOutbound)
             {
                 memcpy(HDR_ETHERNET.dest_addr, hdr_eth_src_addr, 6);
                 memcpy(HDR_ETHERNET.src_addr, hdr_eth_dest_addr, 6);
@@ -646,7 +646,7 @@ write_current_packet (gboolean cont)
 
         /* Write IP header */
         if (hdr_ip) {
-            if (isInbound) {
+            if (isOutbound) {
                 HDR_IP.src_addr = hdr_ip_dest_addr ? hdr_ip_dest_addr : IP_DST;
                 HDR_IP.dest_addr = hdr_ip_src_addr? hdr_ip_src_addr : IP_SRC;
             }
@@ -672,10 +672,10 @@ write_current_packet (gboolean cont)
                 pseudoh.length      = g_htons(length - header_length + sizeof(HDR_UDP));
             }
         } else if (hdr_ipv6) {
-            if (memcmp(isInbound ? &hdr_ipv6_dest_addr : &hdr_ipv6_src_addr, &NO_IPv6_ADDRESS, sizeof(ws_in6_addr)))
-                memcpy(&HDR_IPv6.ip6_src, isInbound ? &hdr_ipv6_dest_addr : &hdr_ipv6_src_addr, sizeof(ws_in6_addr));
-            if (memcmp(isInbound ? &hdr_ipv6_src_addr : &hdr_ipv6_dest_addr, &NO_IPv6_ADDRESS, sizeof(ws_in6_addr)))
-                memcpy(&HDR_IPv6.ip6_dst, isInbound ? &hdr_ipv6_src_addr : &hdr_ipv6_dest_addr, sizeof(ws_in6_addr));
+            if (memcmp(isOutbound ? &hdr_ipv6_dest_addr : &hdr_ipv6_src_addr, &NO_IPv6_ADDRESS, sizeof(ws_in6_addr)))
+                memcpy(&HDR_IPv6.ip6_src, isOutbound ? &hdr_ipv6_dest_addr : &hdr_ipv6_src_addr, sizeof(ws_in6_addr));
+            if (memcmp(isOutbound ? &hdr_ipv6_src_addr : &hdr_ipv6_dest_addr, &NO_IPv6_ADDRESS, sizeof(ws_in6_addr)))
+                memcpy(&HDR_IPv6.ip6_dst, isOutbound ? &hdr_ipv6_src_addr : &hdr_ipv6_dest_addr, sizeof(ws_in6_addr));
 
             HDR_IPv6.ip6_ctlun.ip6_un2_vfc &= 0x0F;
             HDR_IPv6.ip6_ctlun.ip6_un2_vfc |= (6<< 4);
@@ -702,8 +702,8 @@ write_current_packet (gboolean cont)
             guint32 u;
 
             /* initialize the UDP header */
-            HDR_UDP.source_port = isInbound ? g_htons(hdr_dest_port): g_htons(hdr_src_port);
-            HDR_UDP.dest_port = isInbound ? g_htons(hdr_src_port) : g_htons(hdr_dest_port);
+            HDR_UDP.source_port = isOutbound ? g_htons(hdr_dest_port): g_htons(hdr_src_port);
+            HDR_UDP.dest_port = isOutbound ? g_htons(hdr_src_port) : g_htons(hdr_dest_port);
             HDR_UDP.length      = hdr_ipv6 ? pseudoh6.length : pseudoh.length;
             HDR_UDP.checksum = 0;
             /* Note: g_ntohs()/g_htons() macro arg may be eval'd twice so calc value before invoking macro */
@@ -726,19 +726,19 @@ write_current_packet (gboolean cont)
             guint32 u;
 
             /* initialize the TCP header */
-            HDR_TCP.source_port = isInbound ? g_htons(hdr_dest_port): g_htons(hdr_src_port);
-            HDR_TCP.dest_port = isInbound ? g_htons(hdr_src_port) : g_htons(hdr_dest_port);
+            HDR_TCP.source_port = isOutbound ? g_htons(hdr_dest_port): g_htons(hdr_src_port);
+            HDR_TCP.dest_port = isOutbound ? g_htons(hdr_src_port) : g_htons(hdr_dest_port);
             /* set ack number if we have direction */
             if (has_direction) {
                 HDR_TCP.flags = 0x10;
-                HDR_TCP.ack_num = g_ntohl(isInbound ? tcp_out_seq_num : tcp_in_seq_num);
+                HDR_TCP.ack_num = g_ntohl(isOutbound ? tcp_out_seq_num : tcp_in_seq_num);
                 HDR_TCP.ack_num = g_htonl(HDR_TCP.ack_num);
             }
             else {
                 HDR_TCP.flags = 0;
                 HDR_TCP.ack_num = 0;
             }
-            HDR_TCP.seq_num = isInbound ? tcp_in_seq_num : tcp_out_seq_num;
+            HDR_TCP.seq_num = isOutbound ? tcp_in_seq_num : tcp_out_seq_num;
             HDR_TCP.window = g_htons(0x2000);
             HDR_TCP.checksum = 0;
             /* Note: g_ntohs()/g_htons() macro arg may be eval'd twice so calc value before invoking macro */
@@ -753,7 +753,7 @@ write_current_packet (gboolean cont)
             if (HDR_TCP.checksum == 0) /* differentiate between 'none' and 0 */
                 HDR_TCP.checksum = g_htons(1);
             write_bytes((const char *)&HDR_TCP, sizeof(HDR_TCP));
-            if (isInbound) {
+            if (isOutbound) {
                 tcp_in_seq_num = g_ntohl(tcp_in_seq_num) + length - header_length;
                 tcp_in_seq_num = g_htonl(tcp_in_seq_num);
             }
@@ -789,8 +789,8 @@ write_current_packet (gboolean cont)
         if (hdr_sctp) {
             guint32 zero = 0;
 
-            HDR_SCTP.src_port  = isInbound ? g_htons(hdr_sctp_dest): g_htons(hdr_sctp_src);
-            HDR_SCTP.dest_port = isInbound ? g_htons(hdr_sctp_src) : g_htons(hdr_sctp_dest);
+            HDR_SCTP.src_port  = isOutbound ? g_htons(hdr_sctp_dest): g_htons(hdr_sctp_src);
+            HDR_SCTP.dest_port = isOutbound ? g_htons(hdr_sctp_src) : g_htons(hdr_sctp_dest);
             HDR_SCTP.tag       = g_htonl(hdr_sctp_tag);
             HDR_SCTP.checksum  = g_htonl(0);
             HDR_SCTP.checksum  = crc32c((guint8 *)&HDR_SCTP, sizeof(HDR_SCTP), ~0);
@@ -970,16 +970,16 @@ parse_preamble (void)
         switch (packet_preamble[0]) {
         case 'i':
         case 'I':
-            direction = 0x00000001;
+            direction = PACK_FLAGS_DIRECTION_INBOUND;
             packet_preamble[0] = ' ';
             break;
         case 'o':
         case 'O':
-            direction = 0x00000002;
+            direction = PACK_FLAGS_DIRECTION_OUTBOUND;
             packet_preamble[0] = ' ';
             break;
         default:
-            direction = 0x00000000;
+            direction = PACK_FLAGS_DIRECTION_UNKNOWN;
             break;
         }
         i = 0;

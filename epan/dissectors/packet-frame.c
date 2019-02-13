@@ -113,36 +113,19 @@ static const value_string p2p_dirs[] = {
 	{ 0, NULL }
 };
 
-#define PACKET_WORD_DIRECTION_MASK                        0x00000003
-#define PACKET_WORD_RECEPTION_TYPE_MASK                   0x0000001C
-#define PACKET_WORD_FCS_LENGTH_MASK                       0x000001E0
-#define PACKET_WORD_RESERVED_MASK                         0x0000FE00
-#define PACKET_WORD_CRC_ERR_MASK                          0x01000000
-#define PACKET_WORD_PACKET_TOO_LONG_ERR_MASK              0x02000000
-#define PACKET_WORD_PACKET_TOO_SHORT_ERR_MASK             0x04000000
-#define PACKET_WORD_WRONG_INTER_FRAME_GAP_ERR_MASK        0x08000000
-#define PACKET_WORD_UNALIGNED_FRAME_ERR_MASK              0x10000000
-#define PACKET_WORD_START_FRAME_DELIMITER_ERR_MASK        0x20000000
-#define PACKET_WORD_PREAMBLE_ERR_MASK                     0x40000000
-#define PACKET_WORD_SYMBOL_ERR_MASK                       0x80000000
-
 static const value_string packet_word_directions[] = {
-	{ 0x00, "Not available" },
-	{ 0x01, "Inbound" },
-	{ 0x02, "Outbound" },
-	{ 0x03, "Undefined" },
+	{ PACK_FLAGS_DIRECTION_UNKNOWN,  "Unknown" },
+	{ PACK_FLAGS_DIRECTION_INBOUND,  "Inbound" },
+	{ PACK_FLAGS_DIRECTION_OUTBOUND, "Outbound" },
 	{ 0, NULL }
 };
 
 static const value_string packet_word_reception_types[] = {
-	{ 0x00, "Not specified" },
-	{ 0x01, "Unicast" },
-	{ 0x02, "Multicast" },
-	{ 0x03, "Broadcast" },
-	{ 0x04, "Promiscuous" },
-	{ 0x05, "Undefined" },
-	{ 0x06, "Undefined" },
-	{ 0x07, "Undefined" },
+	{ PACK_FLAGS_RECEPTION_TYPE_UNSPECIFIED, "Not specified" },
+	{ PACK_FLAGS_RECEPTION_TYPE_UNICAST,     "Unicast" },
+	{ PACK_FLAGS_RECEPTION_TYPE_MULTICAST,   "Multicast" },
+	{ PACK_FLAGS_RECEPTION_TYPE_BROADCAST,   "Broadcast" },
+	{ PACK_FLAGS_RECEPTION_TYPE_PROMISCUOUS, "Promiscuous" },
 	{ 0, NULL }
 };
 
@@ -236,10 +219,21 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	case REC_TYPE_PACKET:
 		pinfo->current_proto = "Frame";
 		if (pinfo->rec->presence_flags & WTAP_HAS_PACK_FLAGS) {
-			if (pinfo->rec->rec_header.packet_header.pack_flags & 0x00000001)
+			switch (PACK_FLAGS_DIRECTION(pinfo->rec->rec_header.packet_header.pack_flags)) {
+
+			case PACK_FLAGS_DIRECTION_UNKNOWN:
+			default:
+				pinfo->p2p_dir = P2P_DIR_UNKNOWN;
+				break;
+
+			case PACK_FLAGS_DIRECTION_INBOUND:
 				pinfo->p2p_dir = P2P_DIR_RECV;
-			if (pinfo->rec->rec_header.packet_header.pack_flags & 0x00000002)
+				break;
+
+			case PACK_FLAGS_DIRECTION_OUTBOUND:
 				pinfo->p2p_dir = P2P_DIR_SENT;
+				break;
+			}
 		}
 
 		/*
@@ -362,10 +356,19 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 				    pinfo->rec->rec_header.packet_header.interface_id);
 			}
 			if (pinfo->rec->presence_flags & WTAP_HAS_PACK_FLAGS) {
-				if (pinfo->rec->rec_header.packet_header.pack_flags & 0x00000001)
+				switch (PACK_FLAGS_DIRECTION(pinfo->rec->rec_header.packet_header.pack_flags)) {
+
+				case PACK_FLAGS_DIRECTION_INBOUND:
 					proto_item_append_text(ti, " (inbound)");
-				if (pinfo->rec->rec_header.packet_header.pack_flags & 0x00000002)
+					break;
+
+				case PACK_FLAGS_DIRECTION_OUTBOUND:
 					proto_item_append_text(ti, " (outbound)");
+					break;
+
+				default:
+					break;
+				}
 			}
 			break;
 
@@ -911,62 +914,62 @@ proto_register_frame(void)
 
 		{ &hf_frame_pack_direction,
 		  { "Direction", "frame.packet_flags_direction",
-		    FT_UINT32, BASE_HEX, VALS(packet_word_directions), PACKET_WORD_DIRECTION_MASK,
+		    FT_UINT32, BASE_HEX, VALS(packet_word_directions), PACK_FLAGS_DIRECTION_MASK,
 		    NULL, HFILL }},
 
 		{ &hf_frame_pack_reception_type,
 		  { "Reception type", "frame.packet_flags_reception_type",
-		    FT_UINT32, BASE_DEC, VALS(packet_word_reception_types), PACKET_WORD_RECEPTION_TYPE_MASK,
+		    FT_UINT32, BASE_DEC, VALS(packet_word_reception_types), PACK_FLAGS_RECEPTION_TYPE_MASK,
 		    NULL, HFILL }},
 
 		{ &hf_frame_pack_fcs_length,
 		  { "FCS length", "frame.packet_flags_fcs_length",
-		    FT_UINT32, BASE_DEC, NULL, PACKET_WORD_FCS_LENGTH_MASK,
+		    FT_UINT32, BASE_DEC, NULL, PACK_FLAGS_FCS_LENGTH_MASK,
 		    NULL, HFILL }},
 
 		{ &hf_frame_pack_reserved,
 		  { "Reserved", "frame.packet_flags_reserved",
-		    FT_UINT32, BASE_DEC, NULL, PACKET_WORD_RESERVED_MASK,
+		    FT_UINT32, BASE_DEC, NULL, PACK_FLAGS_RESERVED_MASK,
 		    NULL, HFILL }},
 
 		{ &hf_frame_pack_crc_error,
 		  { "CRC error", "frame.packet_flags_crc_error",
-		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACKET_WORD_CRC_ERR_MASK,
+		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACK_FLAGS_CRC_ERROR,
 		    NULL, HFILL }},
 
 		{ &hf_frame_pack_wrong_packet_too_long_error,
 		  { "Packet too long error", "frame.packet_flags_packet_too_error",
-		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACKET_WORD_PACKET_TOO_LONG_ERR_MASK,
+		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACK_FLAGS_PACKET_TOO_LONG,
 		    NULL, HFILL }},
 
 		{ &hf_frame_pack_wrong_packet_too_short_error,
 		  { "Packet too short error", "frame.packet_flags_packet_too_short_error",
-		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACKET_WORD_PACKET_TOO_SHORT_ERR_MASK,
+		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACK_FLAGS_PACKET_TOO_SHORT,
 		    NULL, HFILL }},
 
 		{ &hf_frame_pack_wrong_inter_frame_gap_error,
 		  { "Wrong interframe gap error", "frame.packet_flags_wrong_inter_frame_gap_error",
-		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACKET_WORD_WRONG_INTER_FRAME_GAP_ERR_MASK,
+		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACK_FLAGS_WRONG_INTER_FRAME_GAP,
 		    NULL, HFILL }},
 
 		{ &hf_frame_pack_unaligned_frame_error,
 		  { "Unaligned frame error", "frame.packet_flags_unaligned_frame_error",
-		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACKET_WORD_UNALIGNED_FRAME_ERR_MASK,
+		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACK_FLAGS_UNALIGNED_FRAME,
 		    NULL, HFILL }},
 
 		{ &hf_frame_pack_start_frame_delimiter_error,
 		  { "Start frame delimiter error", "frame.packet_flags_start_frame_delimiter_error",
-		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACKET_WORD_START_FRAME_DELIMITER_ERR_MASK,
+		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACK_FLAGS_START_FRAME_DELIMITER_ERROR,
 		    NULL, HFILL }},
 
 		{ &hf_frame_pack_preamble_error,
 		  { "Preamble error", "frame.packet_flags_preamble_error",
-		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACKET_WORD_PREAMBLE_ERR_MASK,
+		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACK_FLAGS_PREAMBLE_ERROR,
 		    NULL, HFILL }},
 
 		{ &hf_frame_pack_symbol_error,
 		  { "Symbol error", "frame.packet_flags_symbol_error",
-		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACKET_WORD_SYMBOL_ERR_MASK,
+		    FT_BOOLEAN, 32, TFS(&tfs_set_notset), PACK_FLAGS_SYMBOL_ERROR,
 		    NULL, HFILL }},
 
 		{ &hf_comments_text,

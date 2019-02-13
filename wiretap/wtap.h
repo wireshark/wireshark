@@ -1268,10 +1268,81 @@ typedef struct {
                                 /* options */
     guint64   drop_count;       /* number of packets lost (by the interface and the
                                    operating system) between this packet and the preceding one. */
-    guint32   pack_flags;       /* XXX - 0 for now (any value for "we don't have it"?) */
+    guint32   pack_flags;       /* various flags, as per pcapng EPB */
 
     union wtap_pseudo_header  pseudo_header;
 } wtap_packet_header;
+
+/*
+ * The pcapng specification says "The word is encoded as an unsigned
+ * 32-bit integer, using the endianness of the Section Header Block
+ * scope it is in. In the following table, the bits are numbered with
+ * 0 being the most-significant bit and 31 being the least-significant
+ * bit of the 32-bit unsigned integer."
+ *
+ * From that, the direction, in bits 0 and 1, is at the *top* of the word.
+ *
+ * However, several implementations, such as:
+ *
+ *   the Wireshark pcapng file reading code;
+ *
+ *   macOS libpcap and tcpdump;
+ *
+ *   text2pcap;
+ *
+ *   and probably the software that generated the capture in bug 11665;
+ *
+ * treat 0 as the *least*-significant bit and bit 31 being the *most*-
+ * significant bit of the flags word, and put the direction at the
+ * *bottom* of the word.
+ *
+ * For now, we go with the known implementations.
+ */
+
+/* Direction field of the packet flags */
+#define PACK_FLAGS_DIRECTION_MASK     0x00000003 /* unshifted */
+#define PACK_FLAGS_DIRECTION_SHIFT    0
+#define PACK_FLAGS_DIRECTION(pack_flags) (((pack_flags) & PACK_FLAGS_DIRECTION_MASK) >> PACK_FLAGS_DIRECTION_SHIFT)
+#define PACK_FLAGS_DIRECTION_UNKNOWN  0
+#define PACK_FLAGS_DIRECTION_INBOUND  1
+#define PACK_FLAGS_DIRECTION_OUTBOUND 2
+
+/* Reception type field of the packet flags */
+#define PACK_FLAGS_RECEPTION_TYPE_MASK        0x0000001C /* unshifted */
+#define PACK_FLAGS_RECEPTION_TYPE_SHIFT       2
+#define PACK_FLAGS_RECEPTION_TYPE(pack_flags) (((pack_flags) & PACK_FLAGS_RECEPTION_TYPE_MASK) >> PACK_FLAGS_RECEPTION_TYPE_SHIFT)
+#define PACK_FLAGS_RECEPTION_TYPE_UNSPECIFIED 0
+#define PACK_FLAGS_RECEPTION_TYPE_UNICAST     1
+#define PACK_FLAGS_RECEPTION_TYPE_MULTICAST   2
+#define PACK_FLAGS_RECEPTION_TYPE_BROADCAST   3
+#define PACK_FLAGS_RECEPTION_TYPE_PROMISCUOUS 4
+
+/* FCS length field of the packet flags */
+#define PACK_FLAGS_FCS_LENGTH_MASK                        0x000001E0 /* unshifted */
+#define PACK_FLAGS_FCS_LENGTH_SHIFT                       5
+#define PACK_FLAGS_FCS_LENGTH(pack_flags) (((pack_flags) & PACK_FLAGS_FCS_LENGTH_MASK) >> PACK_FLAGS_FCS_LENGTH_SHIFT)
+
+/* Reserved bits of the packet flags */
+#define PACK_FLAGS_RESERVED_MASK                          0x0000FE00
+
+/* Link-layer-dependent errors of the packet flags */
+
+/* For Ethernet and possibly some other network types */
+#define PACK_FLAGS_CRC_ERROR                   0x01000000
+#define PACK_FLAGS_PACKET_TOO_LONG             0x02000000
+#define PACK_FLAGS_PACKET_TOO_SHORT            0x04000000
+#define PACK_FLAGS_WRONG_INTER_FRAME_GAP       0x08000000
+#define PACK_FLAGS_UNALIGNED_FRAME             0x10000000
+#define PACK_FLAGS_START_FRAME_DELIMITER_ERROR 0x20000000
+#define PACK_FLAGS_PREAMBLE_ERROR              0x40000000
+#define PACK_FLAGS_SYMBOL_ERROR                0x80000000
+
+/* Construct a pack_flags value from its subfield values */
+#define PACK_FLAGS_VALUE(direction, reception_type, fcs_length, ll_dependent_errors) \
+    (((direction) << 30) | \
+    ((reception_type) << 27) | \
+    ((fcs_length) << 23) | \
+    (ll_dependent_errors))
 
 typedef struct {
     guint     record_type;      /* the type of record this is - file type-specific value */

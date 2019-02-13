@@ -1400,9 +1400,9 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
                     wblock->rec->rec_header.packet_header.pack_flags = GUINT32_SWAP_LE_BE(wblock->rec->rec_header.packet_header.pack_flags);
                     memcpy(option_content, &wblock->rec->rec_header.packet_header.pack_flags, sizeof(guint32));
                 }
-                if (wblock->rec->rec_header.packet_header.pack_flags & 0x000001E0) {
+                if (PACK_FLAGS_FCS_LENGTH(wblock->rec->rec_header.packet_header.pack_flags) != 0) {
                     /* The FCS length is present */
-                    fcslen = (wblock->rec->rec_header.packet_header.pack_flags & 0x000001E0) >> 5;
+                    fcslen = PACK_FLAGS_FCS_LENGTH(wblock->rec->rec_header.packet_header.pack_flags);
                 }
                 pcapng_debug("pcapng_read_packet_block: pack_flags %u (ignored)", wblock->rec->rec_header.packet_header.pack_flags);
                 break;

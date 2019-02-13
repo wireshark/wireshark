@@ -157,7 +157,7 @@ static gboolean hdr_export_pdu = FALSE;
 static gchar* hdr_export_pdu_payload = NULL;
 
 static gboolean has_direction = FALSE;
-static guint32 direction = 0;
+static guint32 direction = PACK_FLAGS_RECEPTION_TYPE_UNSPECIFIED;
 
 /*--- Local data -----------------------------------------------------------------*/
 
@@ -627,16 +627,16 @@ parse_preamble (void)
         switch (packet_preamble[0]) {
         case 'i':
         case 'I':
-            direction = 0x00000001;
+            direction = PACK_FLAGS_DIRECTION_INBOUND;
             packet_preamble[0] = ' ';
             break;
         case 'o':
         case 'O':
-            direction = 0x00000002;
+            direction = PACK_FLAGS_DIRECTION_OUTBOUND;
             packet_preamble[0] = ' ';
             break;
         default:
-            direction = 0x00000000;
+            direction = PACK_FLAGS_DIRECTION_UNKNOWN;
             break;
         }
         i = 0;
