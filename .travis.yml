@@ -64,8 +64,7 @@ matrix:
         - QT5_BASE_DIR: C:/Qt/5.12.0/msvc2017_64
       cache:
         directories:
-          - $WIRESHARK_BASE_DIR
-          - C:/Qt
+          - travis-cache
     - name: Windows (VS2017 Win32)
       # Set a supported language, otherwise the Windows worker will not start.
       language: shell
@@ -76,8 +75,7 @@ matrix:
         - QT5_BASE_DIR: C:/Qt/5.12.0/msvc2017
       cache:
         directories:
-          - $WIRESHARK_BASE_DIR
-          - C:/Qt
+          - travis-cache
 before_install:
   - echo $TRAVIS_OS_NAME
   # macos
@@ -88,6 +86,7 @@ before_install:
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo ./tools/debian-setup.sh --install-optional --install-test-deps -q; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" ]; then sudo apt-get install -y python3-pip; fi
   # windows
+  - if [ "$TRAVIS_OS_NAME" == "windows" ]; then tools/travis-cache-windows.sh restore; fi
   - if [ "$TRAVIS_OS_NAME" == "windows" ]; then cinst -y --no-progress python3 winflexbison strawberryperl; fi
   - |
     if [ "$TRAVIS_OS_NAME" == "windows" ]; then
@@ -99,11 +98,6 @@ before_install:
         [Environment]::GetEnvironmentVariable("PATH", $_) -Split ";" -Replace "\\$", ""
       } | Select -Unique | % { cygpath $_ }) -Join ":"')"
       echo "PATH=$PATH"
-      # Workaround broken casher implementation that extracts absolute paths to the current working directory
-      # See https://github.com/travis-ci/casher/pull/38
-      for path in wireshark-libs Qt; do if [ -d "$path" ]; then echo "Restoring C:/$path"; mv "$path/"* "C:/$path"; fi; done
-      # Update checksums to avoid invalidating the cache (saves 2-3mins).
-      if [ -d Qt ]; then md5deep64 -o f -r "C:/wireshark-libs" "C:/Qt" | sort > ~/.casher/md5sums_before; fi
       # Workaround to avoid using perl from git-bash $PATH which lacks modules such as Pod::Usage
       export CMAKE_PROGRAM_PATH=C:/Strawberry/perl/bin
     fi
@@ -124,7 +118,11 @@ script:
   - if [ "$PCAP" = "OFF" ]; then export PYTEST_ADDOPTS=--skip-missing-programs=dumpcap,rawshark; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" -a "$PCAP" = "ON" ]; then sudo setcap cap_net_raw,cap_net_admin+eip run/dumpcap; fi
   - pytest
+  - cd ..
+before_cache:
+  - if [ "$TRAVIS_OS_NAME" == "windows" ]; then tools/travis-cache-windows.sh save; fi
 after_script:
+  - cd build
   - if [ -f run/tshark ]; then run/tshark --version; fi
   - if [ -f run/RelWithDebInfo/tshark.exe ]; then run/RelWithDebInfo/tshark.exe --version; fi
   - ../test/travis-upload-artifacts.sh
