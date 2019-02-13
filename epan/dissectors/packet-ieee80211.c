@@ -3823,6 +3823,7 @@ static int hf_ieee80211_mesh_config_cap_tbtt_adjusting = -1;
 static int hf_ieee80211_mesh_config_cap_power_save_level = -1;
 static int hf_ieee80211_mesh_form_info_num_of_peerings = -1;
 static int hf_ieee80211_mesh_awake_window = -1;
+static int hf_ieee80211_mesh_mic = -1;
 
 static int hf_ieee80211_ff_public_action = -1;
 static int hf_ieee80211_ff_protected_public_action = -1;
@@ -21136,6 +21137,23 @@ ieee80211_tag_mesh_perr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 }
 
 static int
+ieee80211_tag_mic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+  int tag_len = tvb_reported_length(tvb);
+  ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
+
+  if (tag_len != 16)
+  {
+    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length,
+                           "MIC Tag Length %u wrong, must be = 16", tag_len);
+    return tvb_captured_length(tvb);
+  }
+
+  proto_tree_add_item(tree, hf_ieee80211_mesh_mic, tvb, 0, 16, ENC_NA);
+  return tvb_captured_length(tvb);
+}
+
+static int
 ieee80211_tag_rann(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
   int offset = 0;
@@ -28967,6 +28985,10 @@ proto_register_ieee80211(void)
      {"Mesh ID", "wlan.mesh.id",
       FT_STRING, BASE_NONE, NULL, 0,
       NULL, HFILL }},
+
+    {&hf_ieee80211_mesh_mic,
+     {"Mesh Peering Management MIC", "wlan.mesh.mic",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_rann_flags,
      {"RANN Flags", "wlan.rann.flags",
@@ -37366,6 +37388,7 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.tag.number", TAG_MESH_PREQ, create_dissector_handle(ieee80211_tag_mesh_preq, -1));
   dissector_add_uint("wlan.tag.number", TAG_MESH_PREP, create_dissector_handle(ieee80211_tag_mesh_prep, -1));
   dissector_add_uint("wlan.tag.number", TAG_MESH_PERR, create_dissector_handle(ieee80211_tag_mesh_perr, -1));
+  dissector_add_uint("wlan.tag.number", TAG_MIC, create_dissector_handle(ieee80211_tag_mic, -1));
   dissector_add_uint("wlan.tag.number", TAG_RANN, create_dissector_handle(ieee80211_tag_rann, -1));
   dissector_add_uint("wlan.tag.number", TAG_MESH_CHANNEL_SWITCH, create_dissector_handle(ieee80211_tag_mesh_channel_switch, -1));
   dissector_add_uint("wlan.tag.number", TAG_INTERWORKING, create_dissector_handle(dissect_interworking, -1));
