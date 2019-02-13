@@ -187,6 +187,8 @@ static gboolean dissect_color = FALSE;
 static print_format_e print_format = PR_FMT_TEXT;
 static print_stream_t *print_stream = NULL;
 
+static char *output_file_name;
+
 static output_fields_t* output_fields  = NULL;
 static gchar **protocolfilter = NULL;
 static pf_flags protocolfilter_flags = PF_NONE;
@@ -226,11 +228,6 @@ static void capture_cleanup(int);
 static void report_counts_siginfo(int);
 #endif /* SIGINFO */
 #endif /* _WIN32 */
-
-#else /* HAVE_LIBPCAP */
-
-static char *output_file_name;
-
 #endif /* HAVE_LIBPCAP */
 
 static void reset_epan_mem(capture_file *cf, epan_dissect_t *edt, gboolean tree, gboolean visual);
@@ -1064,7 +1061,6 @@ main(int argc, char *argv[])
       break;
     case 'a':        /* autostop criteria */
     case 'b':        /* Ringbuffer option */
-    case 'c':        /* Capture x packets */
     case 'f':        /* capture filter */
     case 'g':        /* enable group read access on file(s) */
     case 'i':        /* Use interface x */
@@ -1077,29 +1073,38 @@ main(int argc, char *argv[])
     case 'I':        /* Capture in monitor mode, if available */
 #endif
     case 's':        /* Set the snapshot (capture) length */
-    case 'w':        /* Write to capture file x */
     case 'y':        /* Set the pcap data link type */
     case  LONGOPT_NUM_CAP_COMMENT: /* add a capture comment */
 #ifdef CAN_SET_CAPTURE_BUFFER_SIZE
     case 'B':        /* Buffer size */
 #endif
+      /* These are options only for packet capture. */
 #ifdef HAVE_LIBPCAP
       exit_status = capture_opts_add_opt(&global_capture_opts, opt, optarg, &start_capture);
       if (exit_status != 0) {
         goto clean_exit;
       }
 #else
-      if (opt == 'w') {
-        /*
-         * Output file name, if we're reading a file and writing to another
-         * file.
-         */
-        output_file_name = g_strdup(optarg);
-      } else if (opt == 'c') {
-        max_packet_count = get_positive_int(optarg, "packet count");
-      } else {
-        capture_option_specified = TRUE;
-        arg_error = TRUE;
+      capture_option_specified = TRUE;
+      arg_error = TRUE;
+#endif
+      break;
+    case 'c':        /* Stop after x packets */
+#ifdef HAVE_LIBPCAP
+      exit_status = capture_opts_add_opt(&global_capture_opts, opt, optarg, &start_capture);
+      if (exit_status != 0) {
+        goto clean_exit;
+      }
+#else
+      max_packet_count = get_positive_int(optarg, "packet count");
+#endif
+      break;
+    case 'w':        /* Write to file x */
+      output_file_name = g_strdup(optarg);
+#ifdef HAVE_LIBPCAP
+      exit_status = capture_opts_add_opt(&global_capture_opts, opt, optarg, &start_capture);
+      if (exit_status != 0) {
+        goto clean_exit;
       }
 #endif
       break;
@@ -1529,21 +1534,13 @@ main(int argc, char *argv[])
     }
   }
 
-#ifdef HAVE_LIBPCAP
-  if (!global_capture_opts.saving_to_file) {
-#else
   if (!output_file_name) {
-#endif
     /* We're not saving the capture to a file; if "-q" wasn't specified,
        we should print packet information */
     if (!quiet)
       print_packet_info = TRUE;
   } else {
-#ifdef HAVE_LIBPCAP
-    const char *save_file = global_capture_opts.save_file;
-#else
     const char *save_file = output_file_name;
-#endif
     /* We're saving to a file; if we're writing to the standard output.
        and we'll also be writing dissected packets to the standard
        output, reject the request.  At best, we could redirect that
@@ -1951,12 +1948,10 @@ main(int argc, char *argv[])
           goto clean_exit;
       }
       /* Take ownership of the '-w' output file. */
-#ifdef HAVE_LIBPCAP
-      exp_pdu_filename = global_capture_opts.save_file;
-      global_capture_opts.save_file = NULL;
-#else
       exp_pdu_filename = output_file_name;
       output_file_name = NULL;
+#ifdef HAVE_LIBPCAP
+      global_capture_opts.save_file = NULL;
 #endif
       if (exp_pdu_filename == NULL) {
           cmdarg_err("PDUs export requires an output file (-w).");
@@ -2027,12 +2022,13 @@ main(int argc, char *argv[])
     /* Process the packets in the file */
     tshark_debug("tshark: invoking process_cap_file() to process the packets");
     TRY {
+      success = process_cap_file(&cfile, output_file_name, out_file_type, out_file_name_res,
 #ifdef HAVE_LIBPCAP
-      success = process_cap_file(&cfile, global_capture_opts.save_file, out_file_type, out_file_name_res,
           global_capture_opts.has_autostop_packets ? global_capture_opts.autostop_packets : 0,
           global_capture_opts.has_autostop_filesize ? global_capture_opts.autostop_filesize : 0);
 #else
-      success = process_cap_file(&cfile, output_file_name, out_file_type, out_file_name_res, max_packet_count, 0);
+          max_packet_count,
+          0);
 #endif
     }
     CATCH(OutOfMemoryError) {
@@ -2229,10 +2225,9 @@ main(int argc, char *argv[])
 clean_exit:
   g_free(cf_name);
   destroy_print_stream(print_stream);
+  g_free(output_file_name);
 #ifdef HAVE_LIBPCAP
   capture_opts_cleanup(&global_capture_opts);
-#else
-  g_free(output_file_name);
 #endif
   col_cleanup(&cfile.cinfo);
   free_filter_lists();
