@@ -107,14 +107,7 @@ before_install:
       # Workaround to avoid using perl from git-bash $PATH which lacks modules such as Pod::Usage
       export CMAKE_PROGRAM_PATH=C:/Strawberry/perl/bin
     fi
-  - |
-    if [ "$TRAVIS_OS_NAME" == "windows" ] && [ ! -e "$QT5_BASE_DIR/bin/moc.exe" ]; then
-      curl -vLo ~/qt-unified-windows-x86-online.exe http://download.qt.io/official_releases/online_installers/qt-unified-windows-x86-online.exe
-      if ! ~/qt-unified-windows-x86-online.exe --verbose --script tools/qt-installer-windows.qs > ~/qt-installer-output.txt; then
-        cat ~/qt-installer-output.txt; exit 1
-      fi
-      du -sm "$QT5_BASE_DIR"
-    fi
+  - if [ "$TRAVIS_OS_NAME" == "windows" ]; then tools/travis-install-qt-windows.sh; fi
   # all platforms
   - pip3 install pytest pytest-xdist
 before_script:
