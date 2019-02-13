@@ -2148,6 +2148,20 @@ static const value_string lte_rrc_RSRP_RangeSL4_vals[] = {
 };
 static value_string_ext lte_rrc_RSRP_RangeSL4_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_RSRP_RangeSL4_vals);
 
+static void
+lte_rrc_RSRP_RangeNR_r15_fmt(gchar *s, guint32 v)
+{
+  if (v == 0) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "SS-RSRP < -156dBm (0)");
+  } else if (v == 126) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "-31dBm <= SS-RSRP (126)");
+  } else if (v == 127) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "Infinity (127)");
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%ddBm <= SS-RSRP < %ddBm (%u)", -157+v, -156+v, v);
+  }
+}
+
 static const value_string lte_rrc_RSRQ_Range_vals[] = {
   {-34, "RSRQ < -36dB"},
   {-33, "-36dB <= RSRQ < -35.5dB"},
@@ -2233,6 +2247,18 @@ static const value_string lte_rrc_RSRQ_Range_vals[] = {
   {  0, NULL}
 };
 static value_string_ext lte_rrc_RSRQ_Range_vals_ext = VALUE_STRING_EXT_INIT(lte_rrc_RSRQ_Range_vals);
+
+static void
+lte_rrc_RSRQ_RangeNR_r15_fmt(gchar *s, guint32 v)
+{
+  if (v == 0) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "SS-RSRQ < -43dB (0)");
+  } else if (v == 127) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "20dB < SS-RSRQ (127)");
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB <= SS-RSRQ < %.1fdB (%u)", (((float)v-1)/2)-43, ((float)v/2)-43, v);
+  }
+}
 
 static const value_string lte_rrc_MBSFN_RSRQ_Range_vals[] = {
   {  0, "RSRQ < -23dB"},
@@ -2478,6 +2504,18 @@ lte_rrc_RS_SINR_Range_r13_fmt(gchar *s, guint32 v)
     g_snprintf(s, ITEM_LABEL_LENGTH, "40dB <= RS-SINR (127)");
   } else {
     g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB <= RS-SINR < %.1fdB (%u)", (((float)v-1)/2)-23, ((float)v/2)-23, v);
+  }
+}
+
+static void
+lte_rrc_RS_SINR_RangeNR_r15_fmt(gchar *s, guint32 v)
+{
+  if (v == 0) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "SS-SINR < -23dB (0)");
+  } else if (v == 127) {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "40dB < SS-SINR (127)");
+  } else {
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1fdB <= SS-SINR < %.1fdB (%u)", (((float)v-1)/2)-23, ((float)v/2)-23, v);
   }
 }
 
