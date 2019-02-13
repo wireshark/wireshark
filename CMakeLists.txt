@@ -1405,14 +1405,19 @@ else()
 endif()
 
 if(ENABLE_APPLICATION_BUNDLE)
-	# codesign barfs if we put our plugins in a dotted version subdirectory,
-	# e.g. PlugIns/Wireshark/3.1/epan so leave the version component out
-	# for now.
+	#
+	# XXX - codesign barfs if we put our plugins in a dotted version
+	# subdirectory, e.g. PlugIns/Wireshark/3.1/epan, so we either
+	# need to figure out how to make it work, or need to leave the
+	# version component out *AND*, on macOS, look for compiled
+	# plugins in the plugins directory rather than in the dotted
+	# version subdirectory.
+	#
 	if(CMAKE_CFG_INTDIR STREQUAL ".")
-		set(_plugin_dir "${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/PlugIns/wireshark")
+		set(_plugin_dir "${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/PlugIns/wireshark/${PROJECT_RELEASE_VERSION}")
 	else()
-	  # Xcode
-		set(_plugin_dir "${CMAKE_BINARY_DIR}/run/$<CONFIG>/Wireshark.app/Contents/PlugIns/wireshark")
+		# Xcode
+		set(_plugin_dir "${CMAKE_BINARY_DIR}/run/$<CONFIG>/Wireshark.app/Contents/PlugIns/wireshark/${PROJECT_RELEASE_VERSION}")
 	endif()
 elseif(WIN32 AND NOT CMAKE_CFG_INTDIR STREQUAL ".")
 	set(_plugin_dir "${CMAKE_BINARY_DIR}/run/$<CONFIG>/${PLUGIN_VERSION_DIR}")
