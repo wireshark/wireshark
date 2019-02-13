@@ -1412,10 +1412,16 @@ if(ENABLE_APPLICATION_BUNDLE)
 	#
 	# XXX - codesign barfs if we put our plugins in a dotted version
 	# subdirectory, e.g. PlugIns/Wireshark/3.1/epan, so we either
-	# need to figure out how to make it work, or need to leave the
-	# version component out *AND*, on macOS, look for compiled
-	# plugins in the plugins directory rather than in the dotted
-	# version subdirectory.
+	# need to figure out how to make it work, or need to:
+	#
+	#   remove the version component from _plugin_dir;
+	#
+	#   remove the version component from the pkgplugin directory in
+	#   packaging/macosx/osx-app.sh.in;
+	#
+	#   have get_plugins_dir_with_version() in wsutil/filesystem.c
+	#   *not* add the version component to plugin_dir_with_version
+	#   on macOS.
 	#
 	if(CMAKE_CFG_INTDIR STREQUAL ".")
 		set(_plugin_dir "${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/PlugIns/wireshark/${PROJECT_RELEASE_VERSION}")
