@@ -32,7 +32,23 @@ set(PROJECT_MINOR_VERSION 1)
 set(PROJECT_PATCH_VERSION 0)
 set(PROJECT_BUILD_VERSION ${GIT_REVISION})
 set(PROJECT_VERSION_EXTENSION "")
-set(PROJECT_RELEASE_VERSION "${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}")
+if(ENABLE_APPLICATION_BUNDLE)
+	#
+	# As https://developer.apple.com/library/archive/technotes/tn2206/_index.html
+	# says,
+	#
+	# "Note that a location where code is expected to reside cannot generally
+	# contain directories full of nested code, because those directories tend
+	# to be interpreted as bundles. So this occasional practice is not
+	# recommended and not officially supported. If you do do this, do not use
+	# periods in the directory names. The code signing machinery interprets
+	# directories with periods in their names as code bundles and will reject
+	# them if they don't conform to the expected code bundle layout."
+	#
+	set(PLUGIN_PATH_ID "${PROJECT_MAJOR_VERSION}-${PROJECT_MINOR_VERSION}")
+else(ENABLE_APPLICATION_BUNDLE)
+	set(PLUGIN_PATH_ID "${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}")
+endif(ENABLE_APPLICATION_BUNDLE)
 
 if(DEFINED ENV{WIRESHARK_VERSION_EXTRA})
 	set(PROJECT_VERSION_EXTENSION "$ENV{WIRESHARK_VERSION_EXTRA}")
@@ -1328,8 +1344,8 @@ if(WIN32)
 else()
 	set(PLUGIN_INSTALL_LIBDIR "${CMAKE_INSTALL_LIBDIR}/${PROJECT_NAME}/plugins" CACHE INTERNAL "The plugin dir")
 endif()
-set(PLUGIN_INSTALL_VERSION_LIBDIR "${PLUGIN_INSTALL_LIBDIR}/${PROJECT_RELEASE_VERSION}")
-set(PLUGIN_VERSION_DIR "plugins/${PROJECT_RELEASE_VERSION}")
+set(PLUGIN_INSTALL_VERSION_LIBDIR "${PLUGIN_INSTALL_LIBDIR}/${PLUGIN_PATH_ID}")
+set(PLUGIN_VERSION_DIR "plugins/${PLUGIN_PATH_ID}")
 
 add_subdirectory( capchild )
 add_subdirectory( caputils )
@@ -1419,25 +1435,11 @@ else()
 endif()
 
 if(ENABLE_APPLICATION_BUNDLE)
-	#
-	# XXX - codesign barfs if we put our plugins in a dotted version
-	# subdirectory, e.g. PlugIns/Wireshark/3.1/epan, so we either
-	# need to figure out how to make it work, or need to:
-	#
-	#   remove the version component from _plugin_dir;
-	#
-	#   remove the version component from the pkgplugin directory in
-	#   packaging/macosx/osx-app.sh.in;
-	#
-	#   have get_plugins_dir_with_version() in wsutil/filesystem.c
-	#   *not* add the version component to plugin_dir_with_version
-	#   on macOS.
-	#
 	if(CMAKE_CFG_INTDIR STREQUAL ".")
-		set(_plugin_dir "${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/PlugIns/wireshark/${PROJECT_RELEASE_VERSION}")
+		set(_plugin_dir "${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/PlugIns/wireshark/${PLUGIN_PATH_ID}")
 	else()
 		# Xcode
-		set(_plugin_dir "${CMAKE_BINARY_DIR}/run/$<CONFIG>/Wireshark.app/Contents/PlugIns/wireshark/${PROJECT_RELEASE_VERSION}")
+		set(_plugin_dir "${CMAKE_BINARY_DIR}/run/$<CONFIG>/Wireshark.app/Contents/PlugIns/wireshark/${PLUGIN_PATH_ID}")
 	endif()
 elseif(WIN32 AND NOT CMAKE_CFG_INTDIR STREQUAL ".")
 	set(_plugin_dir "${CMAKE_BINARY_DIR}/run/$<CONFIG>/${PLUGIN_VERSION_DIR}")
