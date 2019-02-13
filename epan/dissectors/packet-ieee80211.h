@@ -28,6 +28,7 @@ typedef struct {
   guint16 owe_group;
   proto_node *rsn_first_ft_akm_suite;
   proto_node *rsn_first_non_ft_akm_suite;
+  guint8 ampe_frame;
 } association_sanity_check_t;
 
 typedef struct {

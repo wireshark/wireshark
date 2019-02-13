@@ -10067,20 +10067,30 @@ add_ff_action_multihop(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
 }
 
 static guint
-add_ff_action_self_protected(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+add_ff_action_self_protected(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset,
+                             association_sanity_check_t *association_sanity_check)
 {
   guint start = offset;
+  guint8 self_protected_action = tvb_get_guint8(tvb, start + 1);
 
   offset += add_ff_category_code(tree, tvb, pinfo, offset);
   offset += add_ff_selfprot_action(tree, tvb, pinfo, offset);
 
-  switch (tvb_get_guint8(tvb, start + 1)) {
+  switch (self_protected_action) {
   case SELFPROT_ACTION_MESH_PEERING_OPEN:
     offset += add_ff_cap_info(tree, tvb, pinfo, offset);
+    if (association_sanity_check)
+      association_sanity_check->ampe_frame = self_protected_action;
     break;
   case SELFPROT_ACTION_MESH_PEERING_CONFIRM:
     offset += add_ff_cap_info(tree, tvb, pinfo, offset);
     offset += add_ff_assoc_id(tree, tvb, pinfo, offset);
+    if (association_sanity_check)
+      association_sanity_check->ampe_frame = self_protected_action;
+    break;
+  case SELFPROT_ACTION_MESH_PEERING_CLOSE:
+    if (association_sanity_check)
+      association_sanity_check->ampe_frame = self_protected_action;
     break;
   }
 
@@ -12724,7 +12734,8 @@ add_ff_action_dmg(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offse
 }
 
 static guint
-add_ff_action(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
+add_ff_action(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset,
+              association_sanity_check_t *association_sanity_check)
 {
   switch (tvb_get_guint8(tvb, offset) & 0x7f) {
   case CAT_SPECTRUM_MGMT: /* 0 */
@@ -12758,7 +12769,7 @@ add_ff_action(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
   case CAT_MULTIHOP: /* 14 */
     return add_ff_action_multihop(tree, tvb, pinfo, offset);
   case CAT_SELF_PROTECTED: /* 15 */
-    return add_ff_action_self_protected(tree, tvb, pinfo, offset);
+    return add_ff_action_self_protected(tree, tvb, pinfo, offset, association_sanity_check);
   case CAT_DMG: /* 16 */
     return add_ff_action_dmg(tree, tvb, pinfo, offset);
   case CAT_MGMT_NOTIFICATION:  /* Management notification frame - 17 */
@@ -20937,16 +20948,22 @@ ieee80211_tag_ie_68_conflict(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 }
 
 static int
-ieee80211_tag_mesh_peering_mgmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+ieee80211_tag_mesh_peering_mgmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
+  ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
   int tag_len = tvb_reported_length(tvb);
   int offset = 0;
+  int ampe_frame = 0;
 
   proto_tree_add_item(tree, hf_ieee80211_mesh_peering_proto, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   offset += 2;
   proto_tree_add_item(tree, hf_ieee80211_mesh_peering_local_link_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   offset += 2;
-  switch (tvb_get_guint8(tvb, 1))
+
+  if (field_data && field_data->sanity_check)
+    ampe_frame = field_data->sanity_check->ampe_frame;
+
+  switch (ampe_frame)
   {                                         /* Self-protected action field */
     case SELFPROT_ACTION_MESH_PEERING_OPEN:
       break;
@@ -22303,7 +22320,7 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
       proto_item *lcl_fixed_hdr;
       proto_tree *lcl_fixed_tree;
       lcl_fixed_tree = proto_tree_add_subtree(mgt_tree, tvb, 0, 0, ett_fixed_parameters, &lcl_fixed_hdr, "Fixed parameters");
-      offset += add_ff_action(lcl_fixed_tree, tvb, pinfo, 0);
+      offset += add_ff_action(lcl_fixed_tree, tvb, pinfo, 0, &association_sanity_check);
 
       proto_item_set_len(lcl_fixed_hdr, offset);
       if (ieee80211_tvb_invalid)
@@ -22312,9 +22329,9 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
       if (tagged_parameter_tree_len > 0)
       {
         tagged_tree = get_tagged_parameter_tree(mgt_tree, tvb, offset,
-          tagged_parameter_tree_len);
+                                                tagged_parameter_tree_len);
         ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree,
-          tagged_parameter_tree_len, MGT_ACTION, NULL);
+                                         tagged_parameter_tree_len, MGT_ACTION, &association_sanity_check);
       }
       break;
     }
@@ -22324,7 +22341,7 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
       proto_tree *lcl_fixed_tree;
       lcl_fixed_tree = proto_tree_add_subtree(mgt_tree, tvb, 0, 0, ett_fixed_parameters, &lcl_fixed_hdr, "Fixed parameters");
 
-      offset += add_ff_action(lcl_fixed_tree, tvb, pinfo, 0);
+      offset += add_ff_action(lcl_fixed_tree, tvb, pinfo, 0, NULL);
 
       proto_item_set_len(lcl_fixed_hdr, offset);
       if (ieee80211_tvb_invalid)
@@ -25747,7 +25764,7 @@ dissect_data_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
   case 2:
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "TDLS");
     col_clear(pinfo->cinfo, COL_INFO);
-    offset += add_ff_action(tree, tvb, pinfo, offset);
+    offset += add_ff_action(tree, tvb, pinfo, offset, NULL);
     tagged_parameter_tree_len = tvb_reported_length_remaining(tvb, offset);
     if (tagged_parameter_tree_len > 0) {
       tagged_tree = get_tagged_parameter_tree(tree, tvb, offset,
