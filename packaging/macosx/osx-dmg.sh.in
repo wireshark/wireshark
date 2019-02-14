@@ -43,36 +43,40 @@ volume_name="Wireshark"
 src_dir="."
 tmp_dir="/tmp/dmg-$$"
 auto_open_opt=
+packagemaker=$( type -p packagemaker || type -p PackageMaker )
 
-if [ -f /Applications/Xcode.app/Contents/Applications/PackageMaker.app/Contents/MacOS/PackageMaker ]
-then
-	#
-	# Xcode 4 and later, with the "Auxiliary Tools for Xcode"
-	# download from developer.apple.com.  (There are no such
-	# downloads for Mavericks or later, but PackageMaker from
-	# the Late July 2012 download for Mountain Lion appears to
-	# work on Yosemite.)
-	#
-	packagemaker=/Applications/Xcode.app//Contents/Applications/PackageMaker.app/Contents/MacOS/PackageMaker
-elif [ -f /Applications/Xcode.app/Developer/Tools/packagemaker ]
-then
-	packagemaker=/Applications/Xcode.app/Developer/Tools/packagemaker
-elif [ -f /Applications/Xcode.app/Developer/usr/bin/packagemaker ]
-then
-	packagemaker=/Applications/Xcode.app/Developer/usr/bin/packagemaker
-elif [ -f /Developer/Tools/packagemaker ]
-then
-	packagemaker=/Developer/Tools/packagemaker
-elif [ -f /Developer/usr/bin/packagemaker ]
-then
-	packagemaker=/Developer/usr/bin/packagemaker
-elif [ -f /usr/bin/packagemaker ]
-then
-	packagemaker=/usr/bin/packagemaker
-elif [ -f /usr/local/bin/packagemaker ]
-then
-	packagemaker=/usr/local/bin/packagemaker
+if [ -z "$packagemaker" ] ; then
+	if [ -f /Applications/Xcode.app/Contents/Applications/PackageMaker.app/Contents/MacOS/PackageMaker ]
+	then
+		#
+		# Xcode 4 and later, with the "Auxiliary Tools for Xcode"
+		# download from developer.apple.com.  (There are no such
+		# downloads for Mavericks or later, but PackageMaker from
+		# the Late July 2012 download for Mountain Lion appears to
+		# work on Yosemite.)
+		#
+		packagemaker=/Applications/Xcode.app//Contents/Applications/PackageMaker.app/Contents/MacOS/PackageMaker
+	elif [ -f /Applications/Xcode.app/Developer/Tools/packagemaker ]
+	then
+		packagemaker=/Applications/Xcode.app/Developer/Tools/packagemaker
+	elif [ -f /Applications/Xcode.app/Developer/usr/bin/packagemaker ]
+	then
+		packagemaker=/Applications/Xcode.app/Developer/usr/bin/packagemaker
+	elif [ -f /Developer/Tools/packagemaker ]
+	then
+		packagemaker=/Developer/Tools/packagemaker
+	elif [ -f /Developer/usr/bin/packagemaker ]
+	then
+		packagemaker=/Developer/usr/bin/packagemaker
+	elif [ -f /usr/bin/packagemaker ]
+	then
+		packagemaker=/usr/bin/packagemaker
+	elif [ -f /usr/local/bin/packagemaker ]
+	then
+		packagemaker=/usr/local/bin/packagemaker
+	fi
 fi
+
 if [ -z "$packagemaker" ]
 then
 	echo "$0: couldn't find PackageMaker" 1>&2
@@ -175,13 +179,18 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 		--sign "Developer ID Installer: $CODE_SIGN_IDENTITY" \
 		--timestamp \
 		"$pkg_file_unsigned" "$pkg_file" || exit 1
+	# TN2206, "Checking Gatekeeper Conformance"
 	spctl --assess --type install "$pkg_file" || exit 1
 	pkgutil --check-signature "$pkg_file" || exit 1
 	shasum "$pkg_file"
+	shasum -a 256 "$pkg_file"
 	rm -rf "$pkg_file_unsigned"
 else
 	echo "Code signing not performed (no identity)"
 fi
+
+# To do: Notarize our package.
+# https://developer.apple.com/documentation/security/notarizing_your_app_before_distribution/customizing_the_notarization_workflow?language=objc
 
 echo -e "\\nCREATE WIRESHARK DISK IMAGE\\n"
 img_name="$pkg_title.dmg"
@@ -264,13 +273,24 @@ if [ -e "$img_name" ]; then
 	echo "$img_name already exists."
 	rm -i "$img_name"
 fi
-/usr/bin/hdiutil convert "$rw_name" -format UDZO -imagekey zlib-level=9 -o "$img_name" || exit 1
+
+# From the hdiutil man page:
+# UDZO - UDIF zlib-compressed image
+# ULFO - UDIF lzfse-compressed image (OS X 10.11+ only)
+# UDBZ - UDIF bzip2-compressed image (Mac OS X 10.4+ only)
+
+/usr/bin/hdiutil convert "$rw_name" -format UDBZ -o "$img_name" || exit 1
 rm -f "$rw_name"
 
-#if [ -n "$CODE_SIGN_IDENTITY" ] ; then
-#	echo -e "Signing the $img_name"
-#	codesign --sign "$CODE_SIGN_IDENTITY" --verbose "$img_name" || exit 1
-#	codesign --verify --verbose "$img_name" || exit 1
-#fi
+# TN2206, "Signing Disk Images"
+if [ -n "$CODE_SIGN_IDENTITY" ] ; then
+	echo -e "Signing $img_name"
+	codesign \
+		--sign "Developer ID Application: $CODE_SIGN_IDENTITY" \
+		--timestamp \
+		--verbose \
+		"$img_name"
+	spctl --assess --type open --context context:primary-signature --verbose=2 "$img_name" || exit 1
+fi
 
 exit 0
