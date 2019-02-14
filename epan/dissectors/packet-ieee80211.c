@@ -3824,6 +3824,7 @@ static int hf_ieee80211_mesh_config_cap_power_save_level = -1;
 static int hf_ieee80211_mesh_form_info_num_of_peerings = -1;
 static int hf_ieee80211_mesh_awake_window = -1;
 static int hf_ieee80211_mesh_mic = -1;
+static int hf_ieee80211_mesh_ampe_encrypted_data = -1;
 
 static int hf_ieee80211_ff_public_action = -1;
 static int hf_ieee80211_ff_protected_public_action = -1;
@@ -22019,6 +22020,8 @@ ieee_80211_add_tagged_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
   int next_len;
   beacon_padding = 0; /* this is for the beacon padding confused with ssid fix */
   while (tagged_parameters_len > 0) {
+    guint8 tag_no = tvb_get_guint8(tvb, offset);
+
     /* TODO make callers optionally specify the list of valid IE IDs? */
     if ((next_len=add_tagged_field (pinfo, tree, tvb, offset, ftype, NULL, 0, association_sanity_check)) == 0)
       break;
@@ -22032,6 +22035,12 @@ ieee_80211_add_tagged_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
     /* If FILS is used, all data after the FILS Session tag in a (re)association message is encrypted */
     if (association_sanity_check != NULL && association_sanity_check->has_fils_session) {
       proto_tree_add_item(tree, hf_ieee80211_fils_encrypted_data, tvb, offset, tagged_parameters_len, ENC_NA);
+      break;
+    }
+
+    /* In an AMPE frame the data following the MIC element is encrypted */
+    if ((tag_no == TAG_MIC) && (association_sanity_check != NULL) && association_sanity_check->ampe_frame) {
+      proto_tree_add_item(tree, hf_ieee80211_mesh_ampe_encrypted_data, tvb, offset, tagged_parameters_len, ENC_NA);
       break;
     }
   }
@@ -28989,6 +28998,10 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_mesh_mic,
      {"Mesh Peering Management MIC", "wlan.mesh.mic",
       FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_mesh_ampe_encrypted_data,
+     {"Authenticated Mesh Peering Exchange Encrypted Data", "wlan.mesh.ampe.encrypted_data",
+      FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
     {&hf_ieee80211_rann_flags,
      {"RANN Flags", "wlan.rann.flags",
