@@ -112,9 +112,10 @@ before_script:
 script:
   # Enable parallelism for msbuild too (since CMake 3.12; ninja does not need it)
   - export CMAKE_BUILD_PARALLEL_LEVEL=0
+  - if [ "$TRAVIS_OS_NAME" == "windows" ]; then build_filter=../tools/filter-msbuild.py; else build_filter=cat; fi
   # Invoke ninja (Linux/macOS, --config is ignored) or msbuild (Windows)
-  - cmake --build . --config RelWithDebInfo
-  - cmake --build . --config RelWithDebInfo --target test-programs
+  - cmake --build . --config RelWithDebInfo | $build_filter
+  - cmake --build . --config RelWithDebInfo --target test-programs | $build_filter
   - if [ "$PCAP" = "OFF" ]; then export PYTEST_ADDOPTS=--skip-missing-programs=dumpcap,rawshark; fi
   - if [ "$TRAVIS_OS_NAME" == "linux" -a "$PCAP" = "ON" ]; then sudo setcap cap_net_raw,cap_net_admin+eip run/dumpcap; fi
   - pytest
