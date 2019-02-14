@@ -33,6 +33,7 @@ SUBDIRS = \
 	eventlog	\
 	frsrpc		\
 	frstrans	\
+	fsrvp		\
 	initshutdown	\
 	lsa		\
 	mapi		\
@@ -93,6 +94,11 @@ $(SUBDIRS) $(DONT_BUILD_SUBDIRS): %: ../packet-dcerpc-%.c ../packet-dcerpc-%.h
 ../packet-dcerpc-frstrans.c \
 ../packet-dcerpc-frstrans.h: frstrans/frstrans.idl frstrans/frstrans.cnf \
 				misc/misc.idl idl_types.h
+	cd $(<D) && $(PIDL) $(pidl_out) $(pidl_inc) -- $(<F)
+
+../packet-dcerpc-fsrvp.c \
+../packet-dcerpc-fsrvp.h: fsrvp/fsrvp.idl fsrvp/fsrvp.cnf \
+				idl_types.h
 	cd $(<D) && $(PIDL) $(pidl_out) $(pidl_inc) -- $(<F)
 
 ../packet-dcerpc-initshutdown.c \

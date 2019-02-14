@@ -57,6 +57,7 @@ set(PIDL_DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-efs.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-eventlog.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-frstrans.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-fsrvp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-initshutdown.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-lsa.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcerpc-mapi.c
