@@ -1051,9 +1051,10 @@ cleanup_capture_info(capture_info *cf_info)
 }
 
 static int
-process_cap_file(wtap *wth, const char *filename)
+process_cap_file(const char *filename, gboolean need_separator)
 {
   int                   status = 0;
+  wtap                 *wth;
   int                   err;
   gchar                *err_info;
   gint64                size;
@@ -1077,8 +1078,15 @@ process_cap_file(wtap *wth, const char *filename)
   guint                 i;
   wtapng_iface_descriptions_t *idb_info;
 
-  g_assert(wth != NULL);
-  g_assert(filename != NULL);
+  wth = wtap_open_offline(filename, WTAP_TYPE_AUTO, &err, &err_info, FALSE);
+  if (!wth) {
+    cfile_open_failure_message("capinfos", filename, err, err_info);
+    return 2;
+  }
+
+  if (need_separator && long_report) {
+    printf("\n");
+  }
 
   nstime_set_zero(&start_time);
   start_time_tsprec = WTAP_TSPREC_UNKNOWN;
@@ -1225,7 +1233,8 @@ process_cap_file(wtap *wth, const char *filename)
           "  (will continue anyway, checksums might be incorrect)\n");
     } else {
         cleanup_capture_info(&cf_info);
-        return 1;
+        wtap_close(wth);
+        return 2;
     }
   }
 
@@ -1236,7 +1245,8 @@ process_cap_file(wtap *wth, const char *filename)
         "capinfos: Can't get size of \"%s\": %s.\n",
         filename, g_strerror(err));
     cleanup_capture_info(&cf_info);
-    return 1;
+    wtap_close(wth);
+    return 2;
   }
 
   cf_info.filesize = size;
@@ -1301,6 +1311,7 @@ process_cap_file(wtap *wth, const char *filename)
   }
 
   cleanup_capture_info(&cf_info);
+  wtap_close(wth);
 
   return status;
 }
@@ -1403,9 +1414,7 @@ int
 main(int argc, char *argv[])
 {
   char  *init_progfile_dir_error;
-  wtap  *wth;
-  int    err;
-  gchar *err_info;
+  gboolean need_separator = FALSE;
   int    opt;
   int    overall_error_status = EXIT_SUCCESS;
   static const struct option long_options[] = {
@@ -1674,26 +1683,20 @@ main(int argc, char *argv[])
       if (hd) gcry_md_reset(hd);
     }
 
-    wth = wtap_open_offline(argv[opt], WTAP_TYPE_AUTO, &err, &err_info, FALSE);
-
-    if (!wth) {
-      cfile_open_failure_message("capinfos", argv[opt], err, err_info);
-      overall_error_status = 2; /* remember that an error has occurred */
+    status = process_cap_file(argv[opt], need_separator);
+    if (status) {
+      /* Something failed.  It's been reported; remember that processing
+         one file failed and, if -C was specified, stop. */
+      overall_error_status = status;
       if (stop_after_failure)
         goto exit;
     }
-
-    if (wth) {
-      if ((opt > optind) && (long_report))
-        printf("\n");
-      status = process_cap_file(wth, argv[opt]);
-
-      wtap_close(wth);
-      if (status) {
-        overall_error_status = status;
-        if (stop_after_failure)
-          goto exit;
-      }
+    if (status != 2) {
+      /* Either it succeeded or it got a "short read" but printed
+         information anyway.  Note that we need a blank line before
+         the next file's information, to separate it from the
+         previous file. */
+      need_separator = TRUE;
     }
   }
 
