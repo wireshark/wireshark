@@ -836,15 +836,6 @@ File "${STAGING_DIR}\wimaxasncp\dictionary.xml"
 File "${STAGING_DIR}\wimaxasncp\dictionary.dtd"
 SetOutPath $INSTDIR
 
-SetOutPath $INSTDIR\help
-File "${STAGING_DIR}\help\toc"
-File "${STAGING_DIR}\help\overview.txt"
-File "${STAGING_DIR}\help\getting_started.txt"
-File "${STAGING_DIR}\help\capturing.txt"
-File "${STAGING_DIR}\help\capture_filters.txt"
-File "${STAGING_DIR}\help\display_filters.txt"
-File "${STAGING_DIR}\help\faq.txt"
-
 ; Write the uninstall keys for Windows
 ; http://nsis.sourceforge.net/Add_uninstall_information_to_Add/Remove_Programs
 ; https://msdn.microsoft.com/en-us/library/ms954376.aspx
