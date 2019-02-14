@@ -230,6 +230,10 @@ DEV_NAME=$( /usr/bin/hdiutil attach -readwrite -noverify $auto_open_opt "$rw_nam
 # Have the disk image window open automatically when mounted.
 bless -openfolder /Volumes/$volume_name
 
+# `hdiutil detach` sometimes fails with "Resource busy", possibly due to Spotlight.
+# Give it a chance to finish up here and pass `-force` to hdiutil below.
+sleep 5
+
 # In case the apperance has to be modified, mount the image and apply the base settings to it via Applescript
 if [ ${set_ds_store} = "true" ]; then
 	/usr/bin/osascript dmg_set_style.scpt
@@ -247,7 +251,7 @@ if [ ${set_ds_store} = "true" ]; then
 	read -r -e _
 
 	# .DS_Store files aren't written till the disk is unmounted, or finder is restarted.
-	hdiutil detach "$DEV_NAME"
+	hdiutil detach "$DEV_NAME" -force
 	auto_open_opt=-noautoopen
 	DEV_NAME=$( /usr/bin/hdiutil attach -readwrite -noverify $auto_open_opt  "$rw_name" | grep -E '^/dev/' | sed 1q | awk '{print $1}' )
 	echo
@@ -256,7 +260,7 @@ if [ ${set_ds_store} = "true" ]; then
 	echo "New $ds_store_root written. Re-run $0 without the -s option to use them"
 
 	# Unmount the disk image.
-	hdiutil detach "$DEV_NAME"
+	hdiutil detach "$DEV_NAME" -force
 	rm -f "$rw_name"
 
 	exit 0
