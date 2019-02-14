@@ -46,6 +46,7 @@
 #include <epan/expert.h>
 #include <epan/exceptions.h>
 #include <epan/oui.h>
+#include <epan/addr_resolv.h>
 #include "packet-ptp.h"
 
 /**********************************************************/
@@ -1385,6 +1386,7 @@ static int hf_ptp_v2_correction = -1;
 static int hf_ptp_v2_correctionsubns = -1;
 static int hf_ptp_v2_reserved3 = -1;
 static int hf_ptp_v2_clockidentity = -1;
+static int hf_ptp_v2_clockidentity_manuf = -1;
 static int hf_ptp_v2_sourceportid = -1;
 static int hf_ptp_v2_sequenceid = -1;
 static int hf_ptp_v2_control = -1;
@@ -1672,6 +1674,7 @@ static int hf_ptp_v2_mm_transmitAlternateMulticastSync = -1;
 /* Initialize the subtree pointers */
 static gint ett_ptp_v2 = -1;
 static gint ett_ptp_v2_flags = -1;
+static gint ett_ptp_v2_clockidentity = -1;
 static gint ett_ptp_v2_correction = -1;
 static gint ett_ptp_v2_time = -1;
 static gint ett_ptp_v2_time2 = -1;
@@ -2495,11 +2498,13 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
     guint64 timeStamp;
     guint16 msg_len;
     guint16 temp;
+    const gchar *manuf_name;
 
     /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item  *ti = NULL, *msg_len_item = NULL, *transportspecific_ti, *flags_ti, *managementData_ti, *clockType_ti, *protocolAddress_ti;
-    proto_tree  *ptp_tree = NULL, *ptp_transportspecific_tree, *ptp_flags_tree, *ptp_managementData_tree,
-                *ptp_clockType_tree, *ptp_protocolAddress_tree;
+    proto_item  *ti = NULL, *msg_len_item = NULL, *transportspecific_ti, *flags_ti, *clockidentity_ti,
+		*managementData_ti, *clockType_ti, *protocolAddress_ti;
+    proto_tree  *ptp_tree = NULL, *ptp_transportspecific_tree, *ptp_flags_tree, *ptp_clockidentity_tree,
+		*ptp_managementData_tree, *ptp_clockType_tree, *ptp_protocolAddress_tree;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "PTPv2");
@@ -2709,8 +2714,17 @@ dissect_ptp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean ptp
         proto_tree_add_item(ptp_tree,
             hf_ptp_v2_reserved3, tvb, PTP_V2_RESERVED3_OFFSET, 4, ENC_BIG_ENDIAN);
 
-        proto_tree_add_item(ptp_tree,
+        clockidentity_ti = proto_tree_add_item(ptp_tree,
             hf_ptp_v2_clockidentity, tvb, PTP_V2_CLOCKIDENTITY_OFFSET, 8, ENC_BIG_ENDIAN);
+
+	/* EUI-64: vendor ID | 0xFF - 0xFE | card ID */
+	if (tvb_get_ntohs(tvb, PTP_V2_CLOCKIDENTITY_OFFSET + 3) == 0xFFFE) {
+            ptp_clockidentity_tree = proto_item_add_subtree(clockidentity_ti, ett_ptp_v2_clockidentity);
+
+	    manuf_name = tvb_get_manuf_name(tvb, PTP_V2_CLOCKIDENTITY_OFFSET);
+	    proto_tree_add_bytes_format_value(ptp_clockidentity_tree, hf_ptp_v2_clockidentity_manuf,
+	        tvb, PTP_V2_CLOCKIDENTITY_OFFSET, 3, NULL, "%s", manuf_name);
+	}
 
         proto_tree_add_item(ptp_tree,
             hf_ptp_v2_sourceportid, tvb, PTP_V2_SOURCEPORTID_OFFSET, 2, ENC_BIG_ENDIAN);
@@ -5359,6 +5373,11 @@ proto_register_ptp(void)
             FT_UINT64, BASE_HEX, NULL, 0x00,
             NULL, HFILL }
         },
+        { &hf_ptp_v2_clockidentity_manuf,
+          { "MAC Vendor",       "ptp.v2.clockidentity_manuf",
+            FT_BYTES, BASE_NONE, NULL, 0x00,
+            NULL, HFILL }
+        },
         { &hf_ptp_v2_sourceportid,
           { "SourcePortID",           "ptp.v2.sourceportid",
             FT_UINT16, BASE_DEC, NULL, 0x00,
@@ -6593,6 +6612,7 @@ proto_register_ptp(void)
         &ett_ptp_v2,
         &ett_ptp_v2_transportspecific,
         &ett_ptp_v2_flags,
+        &ett_ptp_v2_clockidentity,
         &ett_ptp_v2_correction,
         &ett_ptp_v2_time,
         &ett_ptp_v2_time2,
