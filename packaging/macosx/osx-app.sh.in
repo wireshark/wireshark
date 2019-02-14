@@ -448,27 +448,35 @@ for plugin in "$pkgplugin"/*/*.so ; do
 done
 
 codesign_file () {
+	# https://developer.apple.com/library/archive/documentation/Security/Conceptual/CodeSigningGuide/Procedures/Procedures.html
+	# https://developer.apple.com/library/archive/technotes/tn2206/_index.html
+	# https://developer.apple.com/documentation/security/notarizing_your_app_before_distribution/resolving_common_notarization_issues?language=objc
+	#
+	# XXX do we need to add hardened runtime entitlements or exceptions, e.g.
+	# com.apple.security.cs.allow-unsigned-executable-memory for Lua?
+	# https://developer.apple.com/documentation/security/hardened_runtime_entitlements?language=objc
 	codesign \
 		--sign "Developer ID Application: $CODE_SIGN_IDENTITY" \
+		--options=runtime \
 		--timestamp \
 		--verbose \
 		"$1"
-	codesign --verify --verbose "$1" || exit 1
 }
 
 if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 	security find-identity -v -s "$CODE_SIGN_IDENTITY" -p codesigning
 
-	echo "Signing secondary executables"
-	if [ -z "$secondary_binary_list" ] ; then
-		echo "No executables specified for code signing."
-		exit 1
-	fi
-	for binary in $secondary_binary_list ; do
-		if [ -e "$binary" ];then
-			codesign_file "$binary"
-		fi
-	done
+	# The Code Signing Guide says:
+	#
+	# "While you use the --deep option for verification to mimic what Gatekeeper does,
+	# it is not recommended for signing. During signing, if you have nested code, and
+	# if you are signing manually, you sign nested code in stages (as Xcode does
+	# automatically), starting with the most deeply embedded components first. You
+	# then sign code at the next level of hierarchy, and so on. You work your way
+	# outward, finally signing the top level entity that contains all the others.
+	# Signing all the components in one shot with --deep is for emergency repairs and
+	# temporary adjustments only. Note that signing with the combination --deep
+	# --force will forcibly re-sign all code in a bundle."
 
 	echo "Signing frameworks"
 	for framework in "$pkglib"/*.framework/Versions/* ; do
@@ -486,19 +494,26 @@ if [ -n "$CODE_SIGN_IDENTITY" ] ; then
 		codesign_file "$plugin"
 	done
 
-	# Newer versions of codesign appear to require signing the primary
-	# executable last, otherwise it returns the error
-	#
-	# Wireshark.app/Contents/MacOS/Wireshark: code object is not signed at all
-	# In subcomponent: <some bit of unsigned code>
+	echo "Signing secondary executables"
+	if [ -z "$secondary_binary_list" ] ; then
+		echo "No executables specified for code signing."
+		exit 1
+	fi
+	for binary in $secondary_binary_list ; do
+		if [ -e "$binary" ];then
+			codesign_file "$binary"
+		fi
+	done
+
 	echo "Signing primary executable"
 	codesign_file "$pkgexec/Wireshark"
 
 	echo "Signing $bundle"
 	codesign_file "$bundle"
 
-	spctl --assess "$bundle" || exit 1
-
+	# Code Signing Guide, "Testing Conformance with Command Line Tools"
+	codesign --verify --deep --strict --verbose=2 "$bundle" || exit 1
+	spctl --assess --type exec --verbose=2 "$bundle" || exit 1
 else
 	echo "Code signing not performed (no identity)"
 fi
