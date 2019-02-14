@@ -896,6 +896,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcm.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcom-dispatch.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcom-oxid.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcom-provideclassinfo.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcom-remact.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcom-remunkn.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcom-sysact.c
