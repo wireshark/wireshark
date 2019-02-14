@@ -243,6 +243,7 @@
 
 #define PROTOCOL_BINARY_CMD_COLLECTIONS_SET_MANIFEST 0xb9
 #define PROTOCOL_BINARY_CMD_COLLECTIONS_GET_MANIFEST 0xba
+#define PROTOCOL_BINARY_CMD_COLLECTIONS_GET_ID       0xbb
 
 #define PROTOCOL_BINARY_CMD_SET_DRIFT_COUNTER_STATE 0xc1
 #define PROTOCOL_BINARY_CMD_GET_ADJUSTED_TIME       0xc2
@@ -334,6 +335,7 @@ static int hf_ttp = -1;
 static int hf_ttr = -1;
 static int hf_collection_key_id = -1;
 static int hf_collection_key_logical = -1;
+static int hf_collection_manifest_id = -1;
 
 static int hf_flex_extras_length = -1;
 static int hf_flex_keylength = -1;
@@ -769,6 +771,7 @@ static const value_string opcode_vals[] = {
   { PROTOCOL_BINARY_CMD_GET_KEYS,                   "Get Keys"                 },
   { PROTOCOL_BINARY_CMD_COLLECTIONS_SET_MANIFEST,   "Set Collection's Manifest" },
   { PROTOCOL_BINARY_CMD_COLLECTIONS_GET_MANIFEST,   "Get Collection's Manifest" },
+  { PROTOCOL_BINARY_CMD_COLLECTIONS_GET_ID,         "Get Collection ID"        },
   { PROTOCOL_BINARY_CMD_SET_DRIFT_COUNTER_STATE,    "Set Drift Counter State"  },
   { PROTOCOL_BINARY_CMD_GET_ADJUSTED_TIME,          "Get Adjusted Time"        },
   { PROTOCOL_BINARY_CMD_SUBDOC_GET,                 "Subdoc Get"               },
@@ -1625,6 +1628,14 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(extras_tree, hf_confres, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
       }
+    }
+    break;
+  case PROTOCOL_BINARY_CMD_COLLECTIONS_GET_ID:
+    if (!request) {
+      proto_tree_add_item(extras_tree, hf_collection_manifest_id, tvb, offset, 8, ENC_BIG_ENDIAN);
+      offset += 8;
+      proto_tree_add_item(extras_tree, hf_collection_key_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+      offset += 4;
     }
     break;
   default:
@@ -2619,9 +2630,13 @@ dissect_couchbase(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     request = TRUE;
     vbucket = tvb_get_ntohs(tvb, offset);
     proto_tree_add_item(couchbase_tree, hf_vbucket, tvb, offset, 2, ENC_BIG_ENDIAN);
-    if (opcode != PROTOCOL_BINARY_CMD_OBSERVE) {
-      proto_item_append_text(couchbase_item, ", VBucket: 0x%x", vbucket);
-      col_append_fstr(pinfo->cinfo, COL_INFO, ", VBucket: 0x%x", vbucket);
+    switch (opcode) {
+      case PROTOCOL_BINARY_CMD_OBSERVE:
+      case PROTOCOL_BINARY_CMD_COLLECTIONS_GET_ID:
+          break;
+      default:
+          proto_item_append_text(couchbase_item, ", VBucket: 0x%x", vbucket);
+          col_append_fstr(pinfo->cinfo, COL_INFO, ", VBucket: 0x%x", vbucket);
     }
   }
   offset += 2;
@@ -2765,6 +2780,7 @@ proto_register_couchbase(void)
 
     { &hf_collection_key_id, { "Collection ID", "couchbase.key.collection_id", FT_UINT32, BASE_HEX, NULL, 0x0, "If this a collection stream, this is the collection-ID", HFILL } },
     { &hf_collection_key_logical, { "Collection Logical Key", "couchbase.key.logical_key", FT_STRING, BASE_NONE, NULL, 0x0, "If this a collection stream, this is the key in the collection", HFILL } },
+    { &hf_collection_manifest_id, { "Collections Manifest ID", "couchbase.key.collection_manifest_id", FT_UINT64, BASE_HEX, NULL, 0x0, "The collections manifest id", HFILL } },
 
     { &hf_flex_keylength, { "Key Length", "couchbase.key.length", FT_UINT8, BASE_DEC, NULL, 0x0, "Length in bytes of the text key that follows the command extras", HFILL } },
     { &hf_flex_extras_length, { "Flexible Framing Extras Length", "couchbase.flex_extras", FT_UINT8, BASE_DEC, NULL, 0x0, "Length in bytes of the flexible framing extras that follows the response header", HFILL } },
