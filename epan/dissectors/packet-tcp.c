@@ -1838,7 +1838,7 @@ tcp_analyze_get_acked_struct(guint32 frame, guint32 seq, guint32 ack, gboolean c
  * New segments are always added to the head of the fwd/rev lists.
  *
  * Changes below should be synced with ChAdvTCPAnalysis in the User's
- * Guide: docbook/wsug_src/WSUG_chapter_advanced.asciidoc
+ * Guide: docbook/wsug_src/WSUG_chapter_advanced.adoc
  */
 static void
 tcp_analyze_sequence_number(packet_info *pinfo, guint32 seq, guint32 ack, guint32 seglen, guint16 flags, guint32 window, struct tcp_analysis *tcpd)

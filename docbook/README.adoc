@@ -109,9 +109,9 @@ https://asciidoctor.org/docs/editing-asciidoc-with-live-preview/[Live
 Preview] documentation for more information.
 
 Note that our documentation depends on attributes defined in
-_attributes.asciidoc_. The User’s Guide and Developer’s Guide are split
-across several files, and only the top-level _user-guide.asciidoc_ and
-_developer-guide.asciidoc_ include _attributes.asciidoc_. As a result,
+_attributes.adoc_. The User’s Guide and Developer’s Guide are split
+across several files, and only the top-level _user-guide.adoc_ and
+_developer-guide.adoc_ include _attributes.adoc_. As a result,
 some markup will be incomplete. You can work around this somewhat by
 adding some attributes such as `compat-mode experimental` to your Live
 Preview settings.

@@ -8,7 +8,6 @@
 #
 
 # To do:
-# - Rename *.asciidoc to *.adoc
 # - Make the build targets top-level on Windows, similar to the NSIS,
 #   WiX, and PortableApps targets?
 
@@ -52,7 +51,7 @@ else()
 endif()
 
 set(COMMON_FILES
-	common_src/GPL_appendix.asciidoc
+	common_src/GPL_appendix.adoc
 )
 
 set(COMMON_GRAPHICS
@@ -74,24 +73,24 @@ add_custom_target(update_tools_help
 set_docbook_target_properties(update_tools_help)
 
 set(WSUG_FILES
-	wsug_src/WSUG_app_files.asciidoc
-	wsug_src/WSUG_app_howitworks.asciidoc
-	wsug_src/WSUG_app_protocols.asciidoc
-	wsug_src/WSUG_app_messages.asciidoc
-	wsug_src/WSUG_app_tools.asciidoc
-	wsug_src/WSUG_chapter_advanced.asciidoc
-	wsug_src/WSUG_chapter_build_install.asciidoc
-	wsug_src/WSUG_chapter_capture.asciidoc
-	wsug_src/WSUG_chapter_customize.asciidoc
-	wsug_src/WSUG_chapter_introduction.asciidoc
-	wsug_src/WSUG_chapter_io.asciidoc
-	wsug_src/WSUG_chapter_mate.asciidoc
-	wsug_src/WSUG_chapter_statistics.asciidoc
-	wsug_src/WSUG_chapter_telephony.asciidoc
-	wsug_src/WSUG_chapter_troubleshoot.asciidoc
-	wsug_src/WSUG_chapter_use.asciidoc
-	wsug_src/WSUG_chapter_work.asciidoc
-	wsug_src/WSUG_preface.asciidoc
+	wsug_src/WSUG_app_files.adoc
+	wsug_src/WSUG_app_howitworks.adoc
+	wsug_src/WSUG_app_protocols.adoc
+	wsug_src/WSUG_app_messages.adoc
+	wsug_src/WSUG_app_tools.adoc
+	wsug_src/WSUG_chapter_advanced.adoc
+	wsug_src/WSUG_chapter_build_install.adoc
+	wsug_src/WSUG_chapter_capture.adoc
+	wsug_src/WSUG_chapter_customize.adoc
+	wsug_src/WSUG_chapter_introduction.adoc
+	wsug_src/WSUG_chapter_io.adoc
+	wsug_src/WSUG_chapter_mate.adoc
+	wsug_src/WSUG_chapter_statistics.adoc
+	wsug_src/WSUG_chapter_telephony.adoc
+	wsug_src/WSUG_chapter_troubleshoot.adoc
+	wsug_src/WSUG_chapter_use.adoc
+	wsug_src/WSUG_chapter_work.adoc
+	wsug_src/WSUG_preface.adoc
 	wsug_src/capinfos-h.txt
 	wsug_src/dumpcap-h.txt
 	wsug_src/editcap-F.txt
@@ -258,19 +257,19 @@ set(WSUG_GRAPHICS
 )
 
 set(WSDG_FILES
-	wsdg_src/WSDG_chapter_build_intro.asciidoc
-	wsdg_src/WSDG_chapter_capture.asciidoc
-	wsdg_src/WSDG_chapter_dissection.asciidoc
-	wsdg_src/WSDG_chapter_env_intro.asciidoc
-	wsdg_src/WSDG_chapter_libraries.asciidoc
-	wsdg_src/WSDG_chapter_quick_setup.asciidoc
-	wsdg_src/WSDG_chapter_sources.asciidoc
-	wsdg_src/WSDG_chapter_tests.asciidoc
-	wsdg_src/WSDG_chapter_tools.asciidoc
-	wsdg_src/WSDG_chapter_userinterface.asciidoc
-	wsdg_src/WSDG_chapter_works.asciidoc
-	wsdg_src/WSDG_preface.asciidoc
-	wsluarm.asciidoc
+	wsdg_src/WSDG_chapter_build_intro.adoc
+	wsdg_src/WSDG_chapter_capture.adoc
+	wsdg_src/WSDG_chapter_dissection.adoc
+	wsdg_src/WSDG_chapter_env_intro.adoc
+	wsdg_src/WSDG_chapter_libraries.adoc
+	wsdg_src/WSDG_chapter_quick_setup.adoc
+	wsdg_src/WSDG_chapter_sources.adoc
+	wsdg_src/WSDG_chapter_tests.adoc
+	wsdg_src/WSDG_chapter_tools.adoc
+	wsdg_src/WSDG_chapter_userinterface.adoc
+	wsdg_src/WSDG_chapter_works.adoc
+	wsdg_src/WSDG_preface.adoc
+	wsluarm.adoc
 	${COMMON_FILES}
 )
 
@@ -360,18 +359,18 @@ ADD_CUSTOM_COMMAND(
 set( WSDG_BUILT_DEPS copy_ws.css wsluarm )
 
 set( ASCIIDOC_CONF_FILES
-	attributes.asciidoc
+	attributes.adoc
 	# XXX Add macros
 )
 
 if(ASCIIDOCTOR_FOUND)
 	# Generate the DocBook sources of user and developer guides
 
-	ASCIIDOCTOR2DOCBOOK(user-guide.asciidoc ${ASCIIDOC_CONF_FILES} ${WSUG_SOURCE} ${WSUG_BUILT_DEPS})
+	ASCIIDOCTOR2DOCBOOK(user-guide.adoc ${ASCIIDOC_CONF_FILES} ${WSUG_SOURCE} ${WSUG_BUILT_DEPS})
 	add_custom_target(user_guide_docbook DEPENDS generate_user-guide.xml)
 	set_docbook_target_properties(user_guide_docbook)
 
-	ASCIIDOCTOR2DOCBOOK(developer-guide.asciidoc ${ASCIIDOC_CONF_FILES} ${WSDG_SOURCE} ${WSDG_BUILT_DEPS})
+	ASCIIDOCTOR2DOCBOOK(developer-guide.adoc ${ASCIIDOC_CONF_FILES} ${WSDG_SOURCE} ${WSDG_BUILT_DEPS})
 	add_custom_target(developer_guide_docbook DEPENDS generate_developer-guide.xml)
 	set_docbook_target_properties(developer_guide_docbook)
 
@@ -416,7 +415,7 @@ if(ASCIIDOCTOR_FOUND AND XSLTPROC_EXECUTABLE)
 endif()
 
 if(ASCIIDOCTOR_FOUND AND ASCIIDOCTOR_PDF_EXECUTABLE)
-	ASCIIDOCTOR2PDF(user-guide.asciidoc ${WSUG_SOURCE} ${WSUG_BUILT_DEPS})
+	ASCIIDOCTOR2PDF(user-guide.adoc ${WSUG_SOURCE} ${WSUG_BUILT_DEPS})
 
 	add_custom_target(
 		user_guide_pdf
@@ -468,7 +467,7 @@ if(ASCIIDOCTOR_FOUND AND XSLTPROC_EXECUTABLE)
 endif()
 
 if(ASCIIDOCTOR_FOUND AND ASCIIDOCTOR_PDF_EXECUTABLE)
-	ASCIIDOCTOR2PDF(developer-guide.asciidoc ${WSDG_SOURCE} ${WSDG_BUILT_DEPS})
+	ASCIIDOCTOR2PDF(developer-guide.adoc ${WSDG_SOURCE} ${WSDG_BUILT_DEPS})
 
 	add_custom_target(
 		developer_guide_pdf
@@ -531,8 +530,8 @@ add_custom_target(
 set_docbook_target_properties(news)
 
 if( ASCIIDOCTOR_FOUND )
-	ASCIIDOCTOR2HTML( release-notes.asciidoc copy_ws.css )
-	ASCIIDOCTOR2TXT( release-notes.asciidoc )
+	ASCIIDOCTOR2HTML( release-notes.adoc copy_ws.css )
+	ASCIIDOCTOR2TXT( release-notes.adoc )
 endif()
 
 # FAQ

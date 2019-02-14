@@ -306,7 +306,7 @@ my $asciidoc_template = {
 
 
 my $template_ref = $asciidoc_template;
-my $out_extension = "asciidoc";
+my $out_extension = "adoc";
 
 # It's said that only perl can parse perl... my editor isn't perl...
 # if unencoded this causes my editor's autoindent to bail out so I encoded in octal

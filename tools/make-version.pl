@@ -418,14 +418,14 @@ sub update_cmakelists_txt
 	print "$filepath has been updated.\n";
 }
 
-# Read docbook/attributes.asciidoc, then write it back out with an updated
+# Read docbook/attributes.adoc, then write it back out with an updated
 # wireshark-version replacement line.
 sub update_attributes_asciidoc
 {
 	my $line;
 	my $contents = "";
 	my $version = "";
-	my $filepath = "$src_dir/docbook/attributes.asciidoc";
+	my $filepath = "$src_dir/docbook/attributes.adoc";
 
 	open(ADOC_CONF, "< $filepath") || die "Can't read $filepath!";
 	while ($line = <ADOC_CONF>) {
@@ -747,7 +747,7 @@ Print the vcs version to standard output
 =item --set-version=<x.y.z>, -v <x.y.z>
 
 Set the major, minor, and micro versions in the top-level
-CMakeLists.txt, configure.ac, docbook/attributes.asciidoc,
+CMakeLists.txt, configure.ac, docbook/attributes.adoc,
 debian/changelog, and the CMakeLists.txt for all libraries
 to the provided version number.
 

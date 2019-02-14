@@ -204,19 +204,19 @@ Trying to access a non-existing property, function or method currently gives an
 error, but do not rely on it as the behavior may change in the future.
 
 
-include::{build_dir}/wsluarm_src/wslua_dumper.asciidoc[]
-include::{build_dir}/wsluarm_src/wslua_field.asciidoc[]
-include::{build_dir}/wsluarm_src/wslua_gui.asciidoc[]
-include::{build_dir}/wsluarm_src/wslua_listener.asciidoc[]
-include::{build_dir}/wsluarm_src/wslua_pinfo.asciidoc[]
-include::{build_dir}/wsluarm_src/wslua_proto.asciidoc[]
-include::{build_dir}/wsluarm_src/wslua_tree.asciidoc[]
-include::{build_dir}/wsluarm_src/wslua_tvb.asciidoc[]
-include::{build_dir}/wsluarm_src/wslua_file.asciidoc[]
-include::{build_dir}/wsluarm_src/wslua_dir.asciidoc[]
-include::{build_dir}/wsluarm_src/wslua_util.asciidoc[]
-include::{build_dir}/wsluarm_src/wslua_int64.asciidoc[]
-include::{build_dir}/wsluarm_src/wslua_struct.asciidoc[]
+include::{build_dir}/wsluarm_src/wslua_dumper.adoc[]
+include::{build_dir}/wsluarm_src/wslua_field.adoc[]
+include::{build_dir}/wsluarm_src/wslua_gui.adoc[]
+include::{build_dir}/wsluarm_src/wslua_listener.adoc[]
+include::{build_dir}/wsluarm_src/wslua_pinfo.adoc[]
+include::{build_dir}/wsluarm_src/wslua_proto.adoc[]
+include::{build_dir}/wsluarm_src/wslua_tree.adoc[]
+include::{build_dir}/wsluarm_src/wslua_tvb.adoc[]
+include::{build_dir}/wsluarm_src/wslua_file.adoc[]
+include::{build_dir}/wsluarm_src/wslua_dir.adoc[]
+include::{build_dir}/wsluarm_src/wslua_util.adoc[]
+include::{build_dir}/wsluarm_src/wslua_int64.adoc[]
+include::{build_dir}/wsluarm_src/wslua_struct.adoc[]
 
 [[lua_module_GRegex]]
 

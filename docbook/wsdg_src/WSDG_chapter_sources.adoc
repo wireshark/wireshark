@@ -916,8 +916,8 @@ $ git cherry-pick -x 1ab2c3d4
 $ make
 $ ...
 
-# OPTIONAL: Add entries to docbook/release-notes.asciidoc.
-$ $EDITOR docbook/release-notes.asciidoc
+# OPTIONAL: Add entries to docbook/release-notes.adoc.
+$ $EDITOR docbook/release-notes.adoc
 
 # If you made any changes, update your commit:
 $ git commit --amend -a
