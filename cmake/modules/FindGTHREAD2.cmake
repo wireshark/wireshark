@@ -13,7 +13,31 @@
 #  For details see the accompanying COPYING-CMAKE-SCRIPTS file.
 #
 
-if( NOT WIN32 )
+if( WIN32 )
+	include( FindWSWinLibs )
+	if( BUILD_wireshark_gtk )
+		#
+		# GLib is in a directory underneath the top-level
+		# directory for GTK+; pick the GTK+ version with
+		# which we'll be building.
+		#
+		if( ENABLE_GTK3 )
+			FindWSWinLibs( "gtk3" "GTHREAD2_HINTS" )
+		else()
+			FindWSWinLibs( "gtk2" "GTHREAD2_HINTS" )
+		endif()
+	else()
+		#
+		# GLib is in a directory underneath the top-level
+		# directory for GTK+; pick whatever GTK+ version
+		# we find first.
+		#
+		FindWSWinLibs( "gtk3" "GTHREAD2_HINTS" )
+		if(NOT GTHREAD2_HINTS )
+			FindWSWinLibs( "gtk2" "GTHREAD2_HINTS" )
+		endif()
+	endif()
+else()
 	include( FindPkgConfig )
 
 	if( GTHREAD2_MIN_VERSION )
@@ -24,20 +48,10 @@ if( NOT WIN32 )
 endif()
 
 if( GTHREAD2_FOUND )
-	if( GMODULE2_LIBRARY_DIRS )
-		LINK_DIRECTORIES( ${GMODULE2_LIBRARY_DIRS} )
+	if( GTHREAD2_LIBRARY_DIRS )
+		LINK_DIRECTORIES( ${GTHREAD2_LIBRARY_DIRS} )
 	endif()
 else()
-	include( FindWSWinLibs )
-	if( BUILD_wireshark )
-		if( ENABLE_GTK3 )
-			FindWSWinLibs( "gtk3" "GTHREAD2_HINTS" )
-		else()
-			FindWSWinLibs( "gtk2" "GTHREAD2_HINTS" )
-		endif()
-	else()
-		message( ERROR "Unsupported build setup" )
-	endif()
 	find_path( GTHREAD2_INCLUDE_DIRS gthread.h PATH_SUFFIXES glib-2.0 glib GLib.framework/Headers/glib glib-2.0/glib HINTS "${GTHREAD2_HINTS}/include" )
 	find_library( GTHREAD2_LIBRARIES gthread-2.0 HINTS "${GTHREAD2_HINTS}/lib" )
 	if( NOT GTHREAD2_LIBRARIES )

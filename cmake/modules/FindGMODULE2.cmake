@@ -13,7 +13,31 @@
 #  For details see the accompanying COPYING-CMAKE-SCRIPTS file.
 #
 
-if( NOT WIN32 )
+if( WIN32 )
+	include( FindWSWinLibs )
+	if( BUILD_wireshark_gtk )
+		#
+		# GLib is in a directory underneath the top-level
+		# directory for GTK+; pick the GTK+ version with
+		# which we'll be building.
+		#
+		if( ENABLE_GTK3 )
+			FindWSWinLibs( "gtk3" "GMODULE2_HINTS" )
+		else()
+			FindWSWinLibs( "gtk2" "GMODULE2_HINTS" )
+		endif()
+	else()
+		#
+		# GLib is in a directory underneath the top-level
+		# directory for GTK+; pick whatever GTK+ version
+		# we find first.
+		#
+		FindWSWinLibs( "gtk3" "GMODULE2_HINTS" )
+		if(NOT GMODULE2_HINTS )
+			FindWSWinLibs( "gtk2" "GMODULE2_HINTS" )
+		endif()
+	endif()
+else()
 	include( FindPkgConfig )
 
 	if( GMODULE2_FIND_REQUIRED )
@@ -34,16 +58,6 @@ if( GMODULE2_FOUND  )
 		LINK_DIRECTORIES( ${GMODULE2_LIBRARY_DIRS} )
 	endif()
 else()
-	include( FindWSWinLibs )
-	if( BUILD_wireshark )
-		if( ENABLE_GTK3 )
-			FindWSWinLibs( "gtk3" "GMODULE2_HINTS" )
-		else()
-			FindWSWinLibs( "gtk2" "GMODULE2_HINTS" )
-		endif()
-	else()
-		message( ERROR "Unsupported build setup" )
-	endif()
 	find_path( GMODULE2_INCLUDE_DIRS
 		NAMES
 			gmodule.h
