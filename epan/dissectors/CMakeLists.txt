@@ -299,7 +299,6 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-dcerpc-budb.h
 	packet-dcerpc-butc.h
 	packet-dcerpc-dce122.h
-	packet-dcerpc-dcom.h
 	packet-dcerpc-dnsserver.h
 	packet-dcerpc-frsapi.h
 	packet-dcerpc-frsrpc.h
