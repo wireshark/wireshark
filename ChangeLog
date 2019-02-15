@@ -1,3 +1,681 @@
+2013384176 NSIS: Add ERROR_PRODUCT_VERSION to the vcredist checks.
+0abfc10965 macOS: Try to work around .dmg packaging issues.
+4d3b30a386 macOS: Packaging and code signing updates.
+a8ae31d565 CMake: Move the PLUGIN_PATH_ID definition.
+310e2cd04d macOS: Fix our plugin path.
+518d267258 frame: fix crash when dissectors add the maximum number of tree items.
+83fc0fda56 CMake: disable relocatable builds when dumpcap is being built
+35b8d7971f Indicate what changes to make if we remove the version component.
+ca3cb8d10f Fix directory containing compiled plugins in macOS.
+46ad3d5f61 MacOS: Fix a path.
+3a9c5403da MacOS: Bundle and packaging updates
+38c5214934 DCM: Fix offset for protocol version
+ffe554fc89 json_dumper: escape forward slash in some strings
+88f9605d22 Debian: Update shared library versions.
+c15e7c93ef Qt: Fix Crash in empty Bluetooth windows
+c63202a164 QUIC: fix reserved bits and packet number length in long headers
+2684c69531 appveyor: upload installer artifacts for development branches
+b003c6fdd6 Change maxmind_db_lookup_ipv4 to look more like maxmind_db_lookup_ipv6
+262d898e04 maxmind_db: improve debug messages, harden against bad input
+6c2c3dd3c2 maxmind_db: fix broken GeoIP lookups due to bad address processing
+681787bbd6 json_dumper: add json_dumper_value_double
+4355b4901e Fix crash when using the "matches" operator on non-UTF-8 data
+4ed8189a96 CMake: clear cache variables when a library has changed
+84d8327d06 [Automatic update for 2019-02-10]
+97b3169b55 Convert WinPcap references to Npcap.
+a823d3718d release-notes: mention fix for init.lua error for root users
+87f3c92ed6 wslua: do not partially disable the Lua API when run as root
+314cce735c wslua: do not load console.lua when run as root
+59aca29a39 debian: fix wrong version in symbols.
+7094a8ea99 debian: update libwireshark symbols.
+bfb55ffdb5 GNW: always fully initialize hashgeonw_t structure
+6ca36f7fc2 Windows: uncheck WinPcap API-compatible mode in Npcap installer
+534273ee69 Accept protocol aliases in Decode As (-d tcp.port==4433,ssl)
+7017642d51 tshark: recognize protocol aliases such as "-O ssl"
+8e8072f6ca editcap: warn when --inject-secrets is given a RSA private key
+9099b9cab8 CMake: Fix build without LibXml2
+363f240e42 rpm: unconditionally add doc files.
+2b6ce9d245 NSIS: Remove a duplicate definition.
+8c052838c2 CMake: Fix config.nsh generation.
+517a8060e7 CMake: Add a version to our Windows library directory.
+46200d5c50 Initialize master-3.0.
+4d57011da8 make-version.pl: Fix version variable checks.
+cdfc56b340 Qt: Add missing main menu mnemonics.
+bfceb99f93 ua3g: add support for decoding of set-appl-param (id, enable, url) message
+6aaae113d5 SMB2: follow-up of g14d5ab01c0
+d2c541af31 Update packet-dcm.h using DICOM 2019a definitions
+0fc6489bf9 Release notes: Add a note about Qt 5.12.1.
+d6879b6c24 For ASN.1-based protocols, make sure protocol filter will match.
+23a1b085ff ftypes: make conversion of FT_DOUBLE to string locale-independent
+e71715de06 ZigBee: Dissect Metering cluster Get Profile Response
+19e4cb7f7e NAS-5GS: Align enums and functions.
+d17e218918 CMake: Update FindLibXml2.cmake
+71d1740579 ZigBee: Fix spelling
+81e8356f30 AMQP: Try to dissect Content-Body
+5acc257d1c pcomtcp: PCOM/Binary command to descritions
+235d46241d dnp3: Update Read Objects list
+7bd486ca06 ua3g: updated vta strings (added 8008G and 8058S)
+bd924e03c8 ua3g: updated skins name
+1bb1ffa9ca CMake: Install documentation to docdir
+def7a8bdf4 [Automatic update for 2019-02-03]
+c2eddffb84 CMake: Fix DOCDIR on Unix
+16e20ccec7 Switch my contact address
+731835425d Fix comment.
+b3bb4aa8f4 Have win32strerror() return interned strings.
+961d8bfc5d pcomtcp: dissection of additional PCOM/ASCII fields
+21565b9bc4 opa-mad: Fixed when ClassDataDetails is zero length
+ce6b5dba47 Have win32strerror() return a g_malloc()ated UTF-8 error message.
+768a746ede wireshark: Free the if_stat_cache_t when dumpcap is not forked
+aa90f741bc dftest: Always free the get_args_as_string result
+34873a20eb tcap: check p_tcap_private before dereferencing.
+afeec6d646 NAS-5GS: Dissect more IEs
+6aad32583d tshark: Improve options help texts
+3bbf2c5e64 CMake: describe purpose of MaxMindDB
+298da5213b CMake: describe the purpose of NL
+87e5269c69 CMake: rewrite FindSystemd.cmake file
+9feb7fb522 Fix build without GnuTLS
+7b04a4f797 QUIC: put coalesced packets in separate trees
+74f18bd005 bluetooth: Update Assigned Numbers
+66c548fdb7 Qt: Restore column width and visibility when switching profiles
+b5817dbda7 Also check whether we have nothing but DLCI bytes.
+8cfad3fd56 btle: Add Version 5.1 to ll_version_number_vals
+498b64c95c Check whether you've hit the end of the packet data before going further.
+2a675c0d5b Use tvb_reported_length_remaining() to get the remaining data length.
+660e63aaf3 Rpcap authentication replies now have an optional payload.
+58698a7de3 ngsniffer: fix comment.
+08debda4fc NAS-5GS: Dissect more V15.2.1 IEs
+1a52ab9417 GTP: fix PDU Session Container
+7db343604a print: fix parameter 'data' not found in the function declaration
+03e1efd6fe NAS-5GS: Dissect more V15.2 IE's
+fec117b99a Qt: Add support for RSA private key file selection
+f3c869d3eb Qt: implement addition of a new pkcs11 token in the RSA Keys dialog
+ec8f506c4b Qt: add initial RSA Keys preference frame
+8c7ca0e884 secrets: add functions to query and validate pkcs11 tokens/key files
+f66cb9f7ef Qt: move method to apply/undo UAT changes to UatModel
+58ffb7c306 Qt: Fix memory leak of QMenu.
+8d599e1952 dissectors: use '/' when stacking protocols in COL_PROTOCOL.
+30f8175303 column-utils: replace TAB with SPACE in prototypes.
+dbf436b67e MAC NR: add dissection of NR PHR and PCMAX,f,c fields
+5b6ba0c119 doc: Add custom window title enhancements to release notes
+d58a3ffe4f Once we've identified a TCP segment as rpcap, use rpcap for the connection.
+1260f3edea CMake: Minor standard output improvements
+ab13515315 lwm2mtlv: Fix memleaks in UAT subtree array handling
+8b75b52254 wslua: Don't defer deletion of subtree indexes
+187b587589 ASTERIX Category 020 Ed. 1.9 and Reserved Expansion Field Ed. 1.3
+469d7bf9d9 btmesh: Fix memleaks in UAT handling
+7592c1dd98 Fix: WiSUN Explicit Channel Plan parsing
+2b7875b905 wslua: Update wslua_register_menu() documentation
+7d4b47a073 Further improve that error message.
+e8f54b8aed Fix an error message.
+311dc2f14a tests: Skip Lua related tests when Lua is not present
+90cf075016 Update a column to reflect the underlying issue.
+77b7b021b9 epan: add missing include.
+d90806a9b4 IEEE1609dot2: Use GUINT_TO_POINTER/GPOINTER_TO_UINT to store a guint32
+3cd5ac36e2 BER: don't use invalid time offsets.
+7a06a66eb8 couchbase: update list of HELLO features
+8b684769a8 wslua: Improve syntax error message
+21cbfef532 doc: Fix sdjournal podpath warning
+8003c0dd75 lua: fix build with Lua 5.1 due to missing LUA_OK macro
+eec3ce3bb2 dfilter: fix memory leaks on dfilter compile errors involving a set
+e8e60df4ce dfilter: fix memory leaks if a dfilter fails to compile
+6a49c72974 wslua: include Lua stack trace in startup error messages
+6cab8c57bd funnel: Fix memleaks in funnel_remove_menu
+5b226240c6 rpc: don't set fence on COL_PROTOCOL.
+4dbb26fdb8 GBCS: Increment offset before subtracting length
+58861b07ee TDS: Fix colmetadata handling of Text and Image types
+09ea924a6a opa-mad: Fixed bfrctrl and portinfo multiblock padding
+1527177cb9 TCP: pass data after a ZeroWindowProbe to subdissectors
+596f538b5b TCP: do not mark data following a ZeroWindowProbe as retransmission
+089d7a05c8 doc: update sshdump manual to reflect the current state
+62ffa95707 sshdump: leave username, port and interface unset by default
+50fb318026 tshark: fix minor memleak of the interface description
+e3a9cc6761 wslua_pinfo: fix memleaks on setting addresses in Pinfo
+79fef2ae50 wslua: fix memleak of unregistered ProtoField field
+03e13a6a9f wslua: fix memleaks related to Proto and Pref
+311d087bbd wslua_listener: fix memleak in tap packet callback
+a1ee099ffa [Automatic update for 2019-01-27]
+141f6d8df9 wslua_field: fix memory leaks in Field_new
+14d5ab01c0 SMB2: ensure that preauth_hash_current pointer is always initialized
+6fbf28f3b8 wslua_nstime: fix memleak for bad arguments to NSTime
+ae6b585d51 ISAKMP: fix memory leaks for IKEv1 decryption
+0b632861e2 dumpcap: fix memory leak in ringbuffer mode
+728183c27e wslua_file_handler: fix leak of opt_comment
+3ee9c0facf GTP: Dissect PDU Session Container.
+d09d33262b test/suite_decryption.py: add smb2 decryption tests
+75484b106d ETSI CAT: do not call tvb_bytes_to_str() with a 0 length
+38ee25b3f5 nas5gs: v15.2.1 Updates and corrections
+0b9b531726 tcp: fix reporting of "Reassembled in" for OoO initial segment
+394e39117f pfcp: Improved printout on some IEs
+31aba351e2 wiretap: fix memleaks with wtap_rec::opt_comment
+66345f008f Fix memory ownership when using cf_get_packet_comment
+e85c8bed87 tshark: fix crash with -Tjson and -e field
+d3f1e2fa19 smb2: cleanup
+7ef8ddcad4 CoAP: Add RFC8516 response code
+50639e9243 dumpcap: fix memleak if multi_files_on is enabled
+f51821af86 ZigBee: Changed file offset from BASE_HEX to BASE_DEC
+66819a619a ua3g: updated freeseating message decoding to handle the "do_reset" parameter
+bf208ab000 smb2: add NULL checks
+557607271a EPL: fix build with incomplete libxml2 library
+0f4161a48c tcp: mark units_64bit_version as static
+198c5a2cac test/dfilter: be explicit with the expected error message
+a946eb3141 ftype-time: parse the month independent of the locale
+044a9deeca tvbuff: Fix RFC 822 and 1123 date parsing with non-English locales
+4f8b3f3d2a By default, don't stop after a read error.
+5d38999b57 opa-mad: Fix PortSelectMask parsing to common function
+9d5ab21163 wiretap: fix leak of options_buf and document memory handling
+9175a235a8 travis: enable capture tests on Linux and macOS
+cbb5b78a7d test,travis: dump a screenshot for hanging GUI tests
+8c698ffc99 Test: enable capture tests by default using the Loopback interface
+e351395339 DCT2000: Add other NR RRC entry points.
+3c1342291f text import: cleanup type usage
+e774aa6044 NAS 5Gs: Updated SM cause
+d4913bd5ba SDP: fix memleak of "trace_id"
+e8f6a90a85 SMB2: fix memleak of tids hash table
+8ce3450b24 SDP: remove unused setup_proto field to fix memleaks
+ca28f41d7e Small update up LLDP sub-tlvs
+81694c8498 Update BGP capabilities list
+064a5c90ca QUIC: correct order of Fixed bit and Packet Type in long header
+c43958cc92 QUIC: update preferred_address TP dissection (draft -18)
+4d8d7bca9f CIP Motion: Add more attributes
+1fcb321487 nettrace: fix potential buffer overflow in time parsing
+ccf37e3905 CMake: fix failure to locate zlib (and possibly libssh)
+9681df7983 mpls: Fix Dead Store (Dead assignement/Dead increment) Warning found by Clang
+c8dc4b691b gprscdr: Display CSGId as unsigned int
+32c54ef846 Windows: upgrade Npcap to 0.99-r9
+57fd0a3be2 Add support for two more metadata fields in the tzsp header
+f3e27b8a3e Show manufacturer specific cluster
+f535a6318b QUIC: update ACK Frame fields and merge ECN fields (draft -18)
+efe16e4cf1 QUIC: rename Final Offset to Final Size (draft -18)
+2b87d0156b QUIC: add draft -18 version number (draft -18)
+d486593ce3 QUIC: rename 0-RTT Protected to 0-RTT (draft -18)
+1e1c761842 print: fix memleak in ek output.
+8ab0932aa1 stats_tree: use the right modifier for int values.
+5ec0c98bf9 docsis: Not only REG-REQ-MP MMM can be encrypted
+2352fe66e8 Update couchbase set/del_with_meta option flags
+dbb8f54cd4 ULP: upgrade dissector to OMA-TS-ULP-V2_0_4-20181213-A
+b78831a1a5 ILP: upgrade dissector to OMA-TS-ILP-V2_0_4-20181213-A
+75690ce5f7 mint: fix conflict on value_string
+3eb94b0e4f smb2: implement generation of SMB3.1.1 decryption keys
+0751504db7 test: enable GUI tests on Linux, headless
+d90eab1240 NAS 5Gs: Updated MM cause, MM capability, request type
+c803e820cc NAS-5GS: Update IE's to v15.2.1.
+fa2623dd4a smb2: factor out session lookup&create
+d70bc0c40e extcap: remove dependencies from ui.
+7898405797 smb2: correct small typos
+6fc342234c TLS: Fix an allocator mismatch.
+dcaa429a34 NGAP: Handle vnd.3gpp.ngap content-type (TS 39.502)
+c2eef8f888 smb2: stash dialect in conversation stuct
+07ebe8325f smb2: factor out generated session info
+d3eb10c2c1 Fix error checking for --inject-secrets argument.
+079fbb8b82 editcap: document --inject-secrets in --help
+a468623720 Qt: Include current word in filter completion list
+6513ded460 smb2: replace magic value by macro
+4f46a2af88 CMake: Set a direct rpath for libraries
+020c90fd36 Text Import: update code comments and help texts
+f98f8bd0f5 nas5gs: Update to v 15.2
+0971d20452 test: fail tests when programs are missing
+70d9bfbf33 QUIC: fix build error without LIBGCRYPT_AEAD
+b585a50aeb NGAP: Handle id-NASC NAS-PDU
+bdba8e3829 release-notes: add developer/distribution-specific updates
+6a7865e969 CMake: strip directory prefixes from __FILE__ macros
+19630453bf QUIC: rename "quic.frame_type.*" fields to "quic.*"
+252206238c QUIC: add Fixed Bit and Spin Bit (draft -17)
+63d2349a4f QUIC: remove superfluous encrypted packet number field
+295b9883e5 QUIC: dissect unprotected fields in Long Header (draft -17)
+7acb5caa9f QUIC: remove gQUIC Q044 support
+588c10a518 QUIC: remove unused version argument from cipher creation functions
+bfcb3cb522 QUIC: update for changes in the short header flag (draft -17)
+a37388fbb6 CMake: Remove unnecessary check for CMAKE_INSTALL_RPATH
+965248dcfb wslua: register attributes along with their class
+369c39ace8 NAS 5Gs: Updated 5Gs identity type
+03d67b8867 CMake: Fix LIBXML2 handling
+5dd86a0a7e CMake: do not set RPATH when installing to a system directory
+91d68d2ec9 json_dumper: increase JSON_DUMPER_MAX_DEPTH to 1100.
+e953785dd2 QUIC: fix packet number spaces and verification (draft -17)
+e400b78204 QUIC: fix handshake decryption (draft -17)
+f1b89c3602 GSM-SIM: Add file ID for DF.CDMA
+39b09d66ff srt: redundant prototypes declaration
+15f1d0775f GSM-SIM: Fix sw value for file ID not found
+6b6bc64924 QUIC: fix long packet type numbers (draft -17)
+4a41c96be1 NFS: Display ClientID in info col for Renew requests
+a3991874eb CMake: Replace PACKAGELIST magic
+be103a4286 [Automatic update for 2019-01-20]
+77c9b21124 OpenFlow 1.5: implement version specific parts
+7c1d99cb89 CMake: do not set an invalid INSTALL_RPATH for (plugin) libraries
+0c89d8c33a Rename a Boolean flag variable to reflect the non-default behavior.
+4b6dbf4baf Revert "Change comment to reflect reality."
+b32c8432c7 Change comment to reflect reality.
+d89d98b66d MEGACO: fix dissection of Remote Descriptor
+cc3ac2a568 NGAP: dissect NASC IE
+592248c2fc LTE RRC: dissect 2 InterNode IEs
+5eb8edf1cb diam_dict.l,wimaxasncp_dict.l: fix -Werror=stringop-truncation
+7e7caaddf8 vwr: fix -Werror=maybe-uninitialized with GCC 8.2.1+20181127-1
+aade3fd587 ZigBee: Correct command names in Key-Establishment cluster
+94daef786a LTE RRC: upgrade dissector to v15.4.0
+10ef540405 CMake: avoid including file modification time for RCC
+d9fa91f0fd nas5gs: Add NAS 5GS media type dissection.
+658e504b96 gprscdr: Added backward compabillity addition in ChangeCondition
+f3f97e976b CMake: set CMAKE_BUILD_RPATH_USE_ORIGIN
+4d2a0878c4 gitlab-ci: keep artifacts in rpm builds.
+2c1d5b714a gitlab-ci: use ninja in opensuse builds.
+18cd173974 docbook: use fixed space section for filters code.
+9e7276d162 IEEE 802.11 dissector: Fixed description for reason code 12
+0e151f3987 ebhscr: increasing ebhscr snaplen
+10bcb40c5e MQTT v5 malformed packet fixes.
+362be299d0 Windows: upgrade libxml2 to 2.9.9
+e8f9ac3352 wiretap,file.c: ensure DSBs are reapplied on redissection
+ae394464df CIP: Improve API/RPI precision
+e659773f8f macos-setup.sh: Bump our libxml2 version.
+b14b048a5e CMake: Fix Vcpkg x86 directory discovery.
+ec17f61647 Update tooltip for "Resolve network (IP) addresses"
+17cdfe9d77 CMake: silence CMP0083 warning from future CMake 3.14
+cbe7f26a86 DTLS: add DSB support, use the key log file from the TLS dissector
+cda1a591e9 smpp: Make it clearer that it's a heuristic dissector.
+75f9c95888 CIP: Add more objects
+b3fe731259 CIP Safety: Multicast Active/Idle was reversed
+abd64c9ea2 VPP: add vpp graph dispatch trace dissector
+67783962cf LTE RRC: fix dissection of measResultSCG-r15 IE
+45acd9864b QUIC: Reorder Frame type code
+7f49d0d1bb udp-nm: Extend and rename to autosar-nm
+9f988b69a4 RTPS: Possible buffer overrun fixed in PID_TYPEOBJECT_LB dissection.
+c9df27552b IS-IS: support for dissecting IS-IS BIER Info Sub-TLV (RFC 8401)
+525c5c1743 make-version.pl: Add a comment about version.h.
+1af39d6dac WSDG: make Testing more accessible, add missing anchors
+5b7ea06e0a Qt: IO Graph correct color selection
+179cb6dfa1 nas_5gs: remove dead increment.
+95934d82e2 ieee80211: calculate the number of tones for RU allocation
+6ee0dabbdc Couchbase: Fix another shadow variable.
+52b252b04d Fix capitalization of "radiotap".
+003a2f07b6 QUIC: Reorder line code for QUIC Transport Parameter (draft -17)
+02bb9c0246 ssh: Host key tree selection, fix off by 4
+1f2f253424 make-version.pl updates.
+8348b7bf5b NR-RRC: upgrade dissector to v15.4.0
+80ed3a5b26 GSUP: add CHECK-IMEI message decoding
+8f3f842d9a BSSAP: fix typo imesiv -> imeisv
+56f988b125 CIP: Correct SSN to SNN
+10763239c3 IMAP: Fix regression introduced by change 30876
+d6f9279c5b ieee80211: print the TSF in decimal
+7fa8215feb Windows: Use a c-ares DLL built with vcpkg.
+33a8f5e7e6 gitlab-ci: do not build the all target when invoking rpm-package
+60e32b6eb3 RPM: remove dependency on the which utility
+e5f7f15b1f X2AP: upgrade dissector to v15.4.0
+290214adc9 tarball+RPM: Fetch our version from CMake.
+c3d198c401 dfilter: add string() function.
+252938ed25 CMake: remove --clean from rpmbuild invocation
+d38f6025b0 nettrace: Handle beginTime with fractions of seconds.
+2fee9c9726 gprscdr: Update to 3GPP TS 32.298 V15.5.1
+34c3d0104f QUIC: Update QUIC Transport Parameter (draft-17)
+4e7a772765 QUIC: Initial support of draft-17
+c43f836c17 Update packet-dcm.h using DICOM 2018e definitions
+228b4a218b MPLS Echo: Dissect additional FEC stack RFC8287
+eaee707941 dissectors: can: Handle CAN id flags
+eba51f9122 pfcp: Update to 3GPP TS 29.244 V15.4.0
+4242fc9904 LPP: upgrade dissector to v15.2.0
+178d81f804 MPLS Echo: Fix length for FEC stack elements
+3f177068f3 gitlab-ci: add missing package to opensuse.
+9e81fcf833 Updates and bugfixes of ASTERIX I021
+7f3349183b [Automatic update for 2019-01-13]
+833bd45812 CMake: Don't go on about "custom files"
+651a146667 tools/gitlab-ci: add missing packages for rpm builds.
+82326d21fd proto: ensure valid width through assert.
+e984cdeb22 proto.h: fix indentation and add modeline.
+3561c88012 gitlab-ci: upgrade before anything else in fedora28.
+48a00fd556 ftype: rework val_from_unparsed to avoid double free.
+5ed8360c21 travis: initial Windows support with non-interactive Qt installer
+fd8ddbabab wiretap: remove dependency on version_info
+7bb2c2e6bc Fix copy-and-pasteo.
+4de0ea38cd CMake: change static qtui library into an object library
+5cc461490d CMake: use object libraries to avoid redundant builds
+6d08cb2ecd CMake: Fix inconsistent find_package() report output
+16953eca30 CMake: Remove legacy workaround for GTK+Zlib
+6580499311 Use sentence case for the title, as we do for other documents.
+891bdc469d Fix up the lists of binaries and man pages in dpkgs.
+16c1f48074 Add captype and reordercap to the list of command-line binaries.
+7cbe9636eb Add randpkt to the Windows installers.
+265518a434 Include the reordercap and dftest documentation in Windows packages.
+aff37930c5 Unit tests for ASTERIX I048
+a409f5c894 quic: fix compilation without libgcrypt aead.
+646474306b mas5gs: Add dissection of IE 9.11.3.10 ABBA
+34e2eec141 F1AP: upgrade dissector to v15.4.0
+a58dd11ba0 nettrace: Fix missing tag length for IPV4_DST.
+d6b187e42f XnAP: upgrade dissector to v15.2.0
+5544d0a4da dissectors: remove unused assignments.
+e1bd0b9399 QUIC: initial support for new header protection cipher (draft -17)
+2f786ac8f7 MPLS Echo: Additional downstream mappings RFC8287
+a0b9e8b652 QUIC: update flag on long packet headers (draft-17)
+f1fa8df324 dfilter: remove size() function.
+3cc0cfc48c CMake: try harder to find the right Python version
+1243976ccd Move make-version.pl to tools.
+69a7caac06 WSDG: Move README.packaging to the Developer's Guide.
+ecd48a9752 debian: Fixup symbols.
+fd93f5490c Clarify the name and description for a link-layer encapsulation type.
+c8f8720673 E1AP: upgrade dissector to v15.2.0
+db0b79e5b3 NGAP: use extended value_string for CauseRadioNetwork
+c9f7cbdc35 NGAP: upgrade dissector to v15.2.0
+ab5bbbb2ba zbee: zbee_zdp.profile wrong data type
+c608bfec74 rdp: add parsing MONITOR_DEF fields [1]
+85c189fdb7 dissectors: j1939: Use raw id to filter packets
+b9e8fee0e7 Add validate-clang-check script for Petri Dish
+9565119d6e dissectors: socketcan: Pass raw ids to dissectors
+d50bd39b85 Qt: Cleanup deletion of CopyFromProfileMenu
+6739523a02 valgrind-wireshark: default to looking in run/ for our binaries.
+fd4d41fc32 CMake: remove LocatePythonExecutable.cmake for Windows
+aac30ba2d1 CMake,WSDG: Remove Cygwin support
+796007e0e0 dissectors: socketcan: Fix indentation
+546cb25256 Qt: Fix copy ASCII characters from ByteView
+ea001cd6c1 mas5gs: Fix dissection of QoS flow descriptions and QoS rules.
+e0d6041bcf S1AP: upgrade dissector to v15.4.0
+95c72ece61 Qt: Pluralize "Export TLS Session Keys (%Ln key(s))"
+3c372c7bac Qt: Add syntax line edit feedback symbols.
+5d30fb5d1a CIP Safety: Correct Safety Configuration ID
+00cb1e8375 NTP: don't increment offsets that aren't used again.
+d76e32f478 travis: do not run pip as root
+d45f0faf67 Qt: Clarify Remove action from the welcome page
+32b320ba0f ieee1609dot2: remove unused handoff function
+249405df33 cesoeth: declare register and handoff function
+4a71660193 ws_pipe(.h): fix issue on doxygen documentation
+3aad1ef236 epan: Add a boundary check to get_t61_string.
+e49ec73fc7 str_util(.h): fix issue on doxygen documentation
+30e6775935 f5ethtrailer: Fix Dead Store (Dead assignement/Dead increment) Warning found by Clang
+4b42a45ebc sharkd: use json_dumper for output.
+711eb94438 Minor bugfix of ASTERIX I023
+e313b25359 CIP: Correct DATE_AND_TIME parsing
+52747f466e dfilter: remove legacy comment.
+a1a30cab18 Fix whitespace.
+0168b71cfd Require that dissect_atm_pw_oam_cell() be called with a non-null data pointer.
+ffb3328d1f cdma2k: Fix Dead Store (Dead assignement/Dead increment) Warning found by Clang
+0f638f84b9 nettrace_3gpp_32_423: Fix Dead Store (Dead assignement/Dead increment) Warning found by Clang
+de71f0e16d No need to check whether atm_info is null in that code path.
+6f67da949c pgsql: Fix Dead Store (Dead assignement/Dead increment) Warning found by Clang
+90a21c29f9 ISIS(-lsp): Fix Dead Store (Dead assignement/Dead increment) Warning found by Clang
+f31513c274 H2Operations: Fix Dead Store (Dead assignement/Dead increment) Warning found by Clang
+1774aafcf1 fpp: fix this condition has identical branches [-Wduplicated-branches]
+d9700b759d smpp: Fix Dead Store (Dead assignement/Dead increment) Warning found by Clang
+5f62774231 NAS 5Gs: PDU session establishment reject msg fix
+d13244c6f7 Updates and bugfixes of ASTERIX I048
+4741168106 Unit tests for ASTERIX I034
+271b9e4385 Bugfixes of ASTERIX I034
+2b7615e603 [Automatic update for 2019-01-06]
+824baf9e16 Fix typo.
+9a20acc071 Fix link, don't put it separately from the introductory words.
+44c662ce66 Replace ancient notes about modifying libpcap with a link to a newer doc.
+b5444c3af9 Add a coloring rule for system events.
+ec606cc59e doc: remove wrong trailing slash.
+852a4212c8  ATM: add new dissector table
+10a7993bae Remove comment whose meaning is unclear at best.
+d5c6ed80f1 travis: remove asciidoctor
+67dd5443a8 travis: remove obsolete sudo key
+bbb880bb62 NTP: Adding missing commands of ntpdc mode 7
+cb9ee5e1b3 rdp: Parse the CS_MONITOR flags.
+814c57a8b5 Pass a structure including an atm_phdr to dissect_atm_pw_oam_cell().
+40b2ba8e7b WSDG: update testing section to cover use of pytest
+0a25bfe647 test: enable parallelism by default for pytest
+5dc1e77298 pytest.ini: declare minimum version requirement
+2e411dba93 test: allow running pytest without specifying the tests directory
+f100f7f122 maxmind_db: Close our pipe FDs inside a lock.
+5fa9257704 add encoding windows 1251, cp855, cp866
+340ad1793b Finish migrating to Asciidoctor's modern syntax.
+0eff9103b6 debian: add dh-python to debian deps.
+751ba4fadc test: assume binaries in $PWD\run\RelWithDebInfo by default
+aba0e8eec0 extcap: fix --extcap-version argument to include the version
+a4dad7cb6d commit-msg: accept commit messages with backslashes
+bbf77f935e wsutil: fix code according to clang-tidy.
+905d87a28f wiretap: fix code according to clang-tidy.
+393b22047b Qt: Add "Show in Finder/Folder" for plugins.
+2fe46f29c4 ws_mempbrk_sse42: use same var names.
+bab774d260 ws_pipe: use same var name.
+e0e1f3ff31 xtea: use same var name.
+29bfeccc8d CRC6: Fixed CRC lookup table and functions
+9aa63d2406 epan: remove return from functions returning void.
+1db84c9330 WSDG: Add a note about Npcap licensing.
+5dfec5f64f WSDG: Stop recommending DDD.
+874d09ce02 test/dissectorstest: assert that text2pcap and tshark runs
+6c5da2804b test: split SubprocessTestCase.run into setUp/tearDown
+da4aea6b55 Remove a no-longer-needed DIAG_OFF/DIAG_ON pair.
+1cc4c15ef0 doc/README.display_filter: Fix typo: asser -> assert
+b67b47558d epan: remove redundant casts.
+58b71c754c file: remove redundant cast.
+ce52cf4f8f sharkd: remove redundant cast.
+14c61f14fc extcap: remove redundant casts.
+0ed9656b90 rawshark: remove redundant cast.
+c7ac27b288 Put a period at the end of a sentence.
+fae1db0326 Slight fixup for where the capture code lives.
+c39bc2a4f6 WSDG: Miscellaneous updates and fixes.
+8dbca7320d test: print command output for dfiltertest failures
+20ad0ffbaf Avoid definition collisions for INVALID_SOCKET.
+f727e8b387 Fix indentation.
+86ea0055f3 tshark: remove redundant casts.
+b44f07c8b3 capture_sync: use the same var name as in other places.
+461264bc39 doc: update README.display_filter for new test location
+1d7ed3d8fe release-notes: document TLS and library changes
+30c90fa745 epan: use json_dumper for json outputs.
+19d787d051 json_dumper: make json_dumper_bad fatal.
+7c788fd459 GeoNetworking cleanup and minor corrections
+a4d7d156b1 debian: update symbols.
+310d4a861c ieee80211: print the RU Allocation in decimal
+66de3fcf9d knsxip: fix header
+1ccb0b7a8e geonw: Fix Dead Store (Dead assignement/Dead increment) Warning found by Clang
+b842b8e7c4 knxip: Fix Dead Store (Dead assignement/Dead increment) Warning found by Clang
+6fa164e7c4 Add dissector for Great Britain Companion Specification (GBCS)
+e4c53ec28c Couchbase: Fixup a shadow variable.
+7c04036e72 Windows: use lua-unicode as built with VS 2017
+9979de35e6 Don't fall out of the loop on a write error.
+62e81562e4 6lowpan: don't try to use (new) TVB that wasn't created.
+155f87f73c tools: fix trailing messages.
+f45fd81616 IEEE1609.2: Allow Service Specific Permissions dissection
+e2e5b01d77 cli_main: remove real_main from stack traces for non-Windows
+974969cd06 nas5gs: Add dissection of QoS flow descriptions.
+df891b6010 Diameter: Add 3GPP avp name="eDRX-Related-RAT" code="1705"
+22588bb924 Updates and bugfixes of ASTERIX I062
+e307c703fb Make dissect_icmp_extension_structure into a dissector function.
+ee231105cc dpaux: Minor improvements
+ae2a75233c wsutil: fix crash due to corruption of the "small_buffers" array
+8059bad284 No need to report "some files could not be saved".
+caa2c0a95e lorawan: fix this condition has identical branches [-Wduplicated-branches]
+be55c4f976 Always report errors in eo_save_entry().
+e12270a730 Limit the maximum *file* name length for exported objects.
+bac10e5869 Get rid of local_eo_save_entry().
+bfe81ab390 Fixes GeoNetworking secured packets dissection
+e9cf698512 Use dissector table to dissect content of ieee1609
+c25dbfa8a7 Qt: Pluralize "Copy Row(s)"
+103ffc1ed7 Z39.50: Eliminate unnecessary header.
+b9473c46f7 Fix asn2wrs.py: always add BASE_VAL64_STRING
+a05ba5be69 Happy New Year 2019!
+2f25e04e00 krb5: fix parsing of PA-S4U-X509-USER in AS-REQ
+2d41b15495 Add a "failed" return for tap packet routines.
+ba589a4e44 Move some command-line-oriented routines from wsutil to ui.
+5a5d236d1f Add some new symbols.
+0a4942eda5 WSDG: Update the find and goto images and descriptions.
+19c5a005f1 Export ITS-AppId/psId names from IEEE1609
+5016cd478e CESoETH: Add dissection of MEF 8 CES over Ethernet
+63106bcf60 Accept v1 of GeoNetworking and improve item tree
+7b0eee5bc5 Improve capture-on-pipe error messages.
+ba32436f60 WSDG: Update packet list and popup images and descriptions.
+c007afa7c2 asn2wrs.py: use BASE_VAL64_STRING and val64_string
+dcf6a571b0 CMake: clean up FindGNUTLS.cmake
+cfd79b4701 Windows: Upgrade GnuTLS to 1.6.3
+8d2b51410f SMPP: General improvements
+36981a653e KNET: Validate the length field before claiming packet
+080ff63a00 GSM over IP: Require a valid message type for dissection.
+a88d60509d Update the comment again.
+67621a6ac2 Update a comment.
+75047b5eeb Use size_t, not int, for sizes.
+6b7c73580b Qt: traffic table: remove a tap listener only once
+932edd0878 CMake: clean up FindGCRYPT.cmake
+54f0159950 srt: fix not a Doxygen trailing comment [-Wdocumentation]
+fc90970796 asn2wrs.py: fix regression introduced by gf4b0b2109
+0f7812f5ef [Automatic update for 2018-12-30]
+07cfef9e5a Revert "Add routines to load Lua programs that assume the path is UTF-8 on Windows."
+f4b0b21092 Fixes ASN.1 generation for VALS using 64 bits
+aaf709da67 Use cmdarg_err() to report errors in CLI taps.
+b0da9cf6d4 CMake output: Show Windows paths for the VC redist files
+1fe5921b7b Fix indentation.
+ac58eafa32 Add support for RSA decryption using PKCS #11 tokens
+53d8e6dcf8 Lua: fix crash in reloading Lua plugins that use FileHandler
+e1c02bd920 Add jsonraw to tshark's -T man page synopsis
+235c5027b0 docsis: enhancements and additions for DOCSIS TLVs 5.20 and 5.40
+f201b971d8 test: add tests for Unicode paths in Lua and tshark -G folders
+604aef7164 Windows: fix handling of Unicode paths in Lua
+a5a38daba0 Fix typo: aplications to applications
+785621dcca Add interface name when outputting packets dropped.
+d68a8a3605 Small cleanups.
+46e7148461 Fixed ASTERIX 6bit callsign decoding
+1afe11f099 Correct PsId dissection in WSMP
+c456c34cd6 DNS: Use seconds as resolution for stat response time.
+c10c7737cc Allow floating point values for stats_tree
+6180d0fdaa GTPv2: fix dissection of APN IE
+4b3cd73de2 NAS EPS: upgrade dissector to v15.5.0
+825de369d3 3GPP NAS: upgrade dissector to v15.5.0
+52b7c8929a Z39.50: Implementation of Z39.50 Information Retrieval protocol
+c3e22f0ab5 test: fix import in suite_dissectors/group_asterix.
+b28f283f8b Qt: Show Python scripts as links in the about box.
+ffbd46ce7b DNS: Use microsecond resolution for request/response statistics.
+eb8c996108 ebhscr: fixing WTAP_ENCAP_EBHSCR
+e830182d9e json_dumper: add json_dumper_value_va_list().
+c9cfae7fec ISAKMP: Fix a crash when no decryption data block is there
+3f8c3e6415 packet-http: Fix whitespace issues
+5278244a7c test: add comment to fixture.
+7eb3e47fa4 Try to squeeze some bytes out of the frame_data structure.
+c3a7986b86 Don't allocate per-frame data if we don't have an F5 trailer.
+52d22b25ab gcsna: fix no previous prototype for function 'proto_[register|reg_handoff]_gcsna' [-Wmissing-prototypes]
+ee58c3fc70 ssh-base: fix no previous prototype for ‘extcap_log’ [-Wmissing-prototypes]
+5444b41530 test: add suite_outputformats for json output regression testing.
+a051c12f2c Added a generic dissector validator and some ASTERIX unit tests that use it.
+796dca3c2a print: use frame date instead of current for json index.
+7ec16dc50d Declare register and register-handoff functions.
+3c9ac18bd5 Make dissect_oer_not_decoded_yet() static.
+1ef9889a80 No need to export a dissector for UUS1-Content_PDUs.
+767089c200 Make dissect_srt_control_packet() static.
+90faa6bb25 Make routines used outside this file static.
+d58c21ed8d Fix Doxygen comment to match function parameter names.
+e152cfe933 imap: remove unused value (CID: 1441962).
+2d9a6c2583 maxmind_db: force buffer contain an empty string (CID: 1441961).
+34eb1d37d3 ieee1609dot2: fix no previous prototype for function 'proto_register_ieee1609dot2' [-Wmissing-prototypes]
+8d2df4d887 cdma2k : fix no previous prototype for function 'proto_[register|reg_handoff]_cdma2k' [-Wmissing-prototypes]
+530c64f22c prefs: Document the possible hidden interface types
+c899c002af Qt: Switch ui/qt/widgets/*.cpp to new-style signals and slots.
+7facbfdaa5 packet-http: Fix indentation issues
+4fb2449b82 http: Add request URI to response
+03eb0a4159 Qt: Switch models and DataPrinter to new-style signals and slots.
+35569d89f3 geonw: use glib uint64 modifier.
+81fe5b8298 gitlab-ci: don't force ninja-build installation.
+73774198c5 Update definitions from ETSI TS 102 965 v3
+71517540b7 json_dumper: add base64 routines.
+c88bef54a9 quic: comment out unused function.
+855bd5bfd7 Fix AUTHORS.
+bd5e5ce93c Secured messages dissector for GeoNetworking
+8bf91750df QUIC: Remove unused field quic.odcil_draft13
+ee439bb82d QUIC: remove draft-14 support
+075785bd20 [Automatic update for 2018-12-23]
+5eacb25bec Updates and bugfix of ASTERIX 063
+70e3a48bc6 Updates and bugfix of ASTERIX 065
+79c4f0ffbb Qt: Add Ukrainian (uk) translation
+8eb3ef85fe Qt: Add Swedish (sv) translation
+ee7e414ac5 BGP: Decode next hop BGP MP_REACH_NLRI for MCAST-VPN saf
+8ea015258a knxip: fix no previous prototype for function 'proto_register_knxip'.
+75afb548eb QUIC: Remove draft-13 support
+0964b04ee3 QUIC: Add draft-16 support
+c8b68f004d docsis: SF TLV 23 is applicable to both US and DS; added SF TLVs 24.25 and 24.26
+2d57a56fa6 Qt: switch about#wireshark label to QTextBrowser.
+4f557ea164 Qt: Switch line edits to new-style signals and slots.
+272becd8ca AUTHORS: Add an acknowledgement for Npcap.
+cd41203949 json_dumper: add debugging print as corruption check
+a1ef5f6899 macOS: Make sure we package our own libraries.
+ca1d13d407 TimeShiftDialog should be considered an "edit" operation
+68b2eb2129 Added dissector for ASTERIX I019
+5feb326312 ip, tcp: add expert info for invalid header length
+cea1686495 macOS: Minimize our dsyms.
+036c3d6bc7 tshark: fix compilation with gcc-8 without pcap.
+8b652fe948 HDCP: Add support for HDCP 2.2 commands
+ffd5361662 Qt: set properties of about_dialog#label_wireshark in ui file.
+16a1768ca5 ansi_map: remove trailing spaces.
+25e1e2c848 CMake: Don't bundle our libraries at compile time.
+9d552b83e7 pfpc: update Failed Rule ID IE with clearer append text
+31e38c312b ANSI MAP: borderCellAccess parameter coded as tag 50 but should be 58.
+47ae705f39 snort: Fix a memory leak on error
+bbef2a87ff Better format for the recent file's column.width preference
+eb3066d64b tibia: Use wmem for decrypted buffer
+c18fcc6c17 ITS: regenerate dissector
+3cd661d6e0 Thrift: Update to distinguish between map key and value types
+e04fdf59bf tools: exclude Revert prefixes from 80 chars limit
+8d23cdd0fa http2: add Header unescaped presentation
+f1d8b22fec erf: Add support for attribute and sensor Provenance tags
+175951f0f3 WiX: Build packages verbosely.
+b8a4843db5 test: enable extra test summary by default
+7fd62bfb65 tshark: handle option -c when ENABLE_PCAP=OFF
+f6fb8c876f Qt: Convert more "pressed" signals to "clicked".
+099e5dddf2 Qt: Switch module preferences to new-style signals and slots.
+f01a9d9fe8 CMake: make use of sdjournal build flag
+75be0027d0 Qt: Open our preference dialogs via "clicked" signals.
+003cba974b Thrift: Update to use guint32 for iterator to eliminate cast
+9b882af449 GSUP/SMS: add READY-FOR-SM message decoding
+d749beafb9 rfc7468: Fix a memory leak
+9132725ab0 Thrift: Update to support Set types
+0fc7f37813 Don't free something before freeing some of its contents.
+05b43fc5af Clean up exp_pdu_open() API.
+5bef36f153 ISIS: Add Prefix Attribute Flags TLV (rfc7794)
+9d8b0a9cd0 Always set *dfp to NULL on an error return from dfilter_compile().
+54711eeac7 NSIS: Expand our vcredist exit code check.
+94bc8f1276 GSUP/SMS: add MO-/MT-FORWARD-SM message decoding
+afc1265b63 writecap: rename pcapng_write_session_block to _section_block
+053f47fdef Don't assume the filter will be non-null.
+060811713f Lua: Fix compilation with Lua 5.1.
+01c8397fd1 coap: Add request/response arrows
+c7f7b60c6b ITS facilities message dissector
+ae83101dd5 Treat the strings for simple dialogs as UTF-8 on Windows.
+c0a28448a5 Provide data to inner dissector for PER open type
+6556f3748b Added AVPs: Idle-To-Connected-Transition-Count and Connected-Duration
+cd0e13d764 XnAP: remove a useless variable from private data
+04b8558f7d Do not create a tvbuff on zero-length open type
+eb4bf22de3 X2AP: fix dissection of MeNBtoSgNBContainer in SgNBModificationConfirm message
+0289b315a3 Windows: upgrade Npcap to 0.99-r8
+495a6204a4 gtpv2: Update Security Capability in MM Context
+5953756305 Add routines to load Lua programs that assume the path is UTF-8 on Windows.
+0ba97f9a45 pfcp: correction of name QFII
+7af85e07be GSM A DTAP: add UMTS EVS to supported codecs list IE
+e6fdc37c2f ISIS: Add Prefix Attribute Flags TLV (rfc7794)
+f15cdcb1ea wsutil: improve plugins list output format.
+052d6a1d43 Qt: import hexdump into a pcapng file
+74bd75baa5 wiretap: use appropriate extension for temporary files
+5009f98c3a macOS: Fix a .dmg build path.
+dca4c992fc CMake: More VERSION_GREATER_EQUAL fixes.
+985fd11798 CMake: VERSION_GREATER_EQUAL didn't appear until 3.7.
+907faa6b98 text2pcap: make IP ID endianess independant
+b71c310203 [Automatic update for 2018-12-16]
+22bd32bde6 CMake: Fixup some logic in CMakeLists.txt
+ba25ec205f CIP: Minor code cleanup
+8f6872e337 VOIP: Always use frame number when hashing sequence analysis.
+e13d8be962 CMake: Make sure we use the same minimum macOS version everywhere.
+b22da8bc5d IMAP: Reassemble message elements and add request/response tracking
+2289cd49c1 packet-geonw.c: Add #include <stdlib.h> to fix Debug build on Windows
+3d90bb3a7c UI: Make sure we always have interface statistics.
+d9a201d039 PFCP: Calculate the length of Network Instance.
+3b616e4ccc secrets: clarify debug message, fix endianess swap
+3ee5747481 travis,appveyor: display tshark --version output
+a33d4ccb06 travis: upgrade to Xenial
+18c737c2a6 DCT2000: Pass NR NAS payload to dissector with S1AP framing
+b430ac31af GeoNetworking: Change cast to guint8 to fix win32 build.
+98e74957b0 Added multiple new field dissectors for the BACnet-APDU protocol.
+5bf37f63a8 text2pcap: allow to set interface name
+a87e56aa79 GeoNetworking, BTP dissectors (ITS-V2X)
+b6e13a3d84 DCT2000: Call nas-5gs dissector
+c3eb293048 diameter: Added Secondary-RAT-Type
+2d589df127 DCT2000: skip optional carrier type in LTE RRC primitive header
+2754d4d80f SIP: Add the generated Call Id to the tree.
+5e11448a7e secrets: fix build with GnuTLS 3.4.0 and older
+dae1c31351 IEEE802.11: Prevent BoundsError for packets with captured len < packet len
+236e7e89ad IEEE802.11: Fixed dissector bug with wlan.ext_tag.ess_report.ess_info.thresh
+0a0439bd61 E164: Add a valuestring with the country name abbreviated ISO3166.
+0b476966b9 GeoNetworking: Add ethertype 0x8947
+320bc80371 macOS: fixup qt_base_path in macos-setup.sh
+d2d7da1f5c sFlow: Dissect output interface according to spec
+348f2cfd6e opcua: show invalid OPC UA messages when 'opcua' filter is set
+07a22c7bad pcomtcp: new built-in dissector for PCOM protocol
+4803390686 Add new "rsa_keys" UAT for storage of RSA private keys
+43dfd45faa Move more version-info-related stuff to version_info.c.
+a34cc98b2a Put the main() and wmain() routines for CLI programs into a separate file.
+17b721e451 2.9.0 → 2.9.1.
+f4238cd266 Build 2.9.0.
 b415c6ede7 Release notes: Add a note about Qt 5.12.0.
 144d481c20 GSM A: detect buffer overrun when decoding MS Classmark 3 IE
 fcd75fb954 NSIS: Increase our verbosity.
