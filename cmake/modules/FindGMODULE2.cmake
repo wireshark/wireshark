@@ -13,31 +13,14 @@
 #  For details see the accompanying COPYING-CMAKE-SCRIPTS file.
 #
 
-if( WIN32 )
-	include( FindWSWinLibs )
-	if( BUILD_wireshark_gtk )
-		#
-		# GLib is in a directory underneath the top-level
-		# directory for GTK+; pick the GTK+ version with
-		# which we'll be building.
-		#
-		if( ENABLE_GTK3 )
-			FindWSWinLibs( "gtk3" "GMODULE2_HINTS" )
-		else()
-			FindWSWinLibs( "gtk2" "GMODULE2_HINTS" )
-		endif()
-	else()
-		#
-		# GLib is in a directory underneath the top-level
-		# directory for GTK+; pick whatever GTK+ version
-		# we find first.
-		#
-		FindWSWinLibs( "gtk3" "GMODULE2_HINTS" )
-		if(NOT GMODULE2_HINTS )
-			FindWSWinLibs( "gtk2" "GMODULE2_HINTS" )
-		endif()
-	endif()
+include( FindWSWinLibs )
+if( ENABLE_GTK3 )
+	FindWSWinLibs( "gtk3" "GMODULE2_HINTS" )
 else()
+	FindWSWinLibs( "gtk2" "GMODULE2_HINTS" )
+endif()
+
+if( NOT WIN32 )
 	include( FindPkgConfig )
 
 	if( GMODULE2_FIND_REQUIRED )
