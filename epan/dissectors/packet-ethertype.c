@@ -180,6 +180,7 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_QINQ_OLD,             "QinQ: old non-standard 802.1ad" },
 	{ ETHERTYPE_6LOWPAN,              "6LoWPAN" },
 	{ ETHERTYPE_AVSP,                 "Arista Timestamp" },
+	{ ETHERTYPE_ECPRI,                "eCPRI" },
 	{ 0, NULL }
 };
 

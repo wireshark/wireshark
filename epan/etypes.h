@@ -598,6 +598,10 @@ extern "C" {
 #define ETHERTYPE_6LOWPAN		0xA0ED	/* RFC 4944: Transmission of IPv6 Packets over IEEE 802.15.4 Networks */
 #endif
 
+#ifndef ETHERTYPE_ECPRI
+#define ETHERTYPE_ECPRI			0xAEFE /* Ethernet type of eCPRI */
+#endif
+
 #ifndef ETHERTYPE_LLT
 #define ETHERTYPE_LLT			0xCAFE	/* Veritas Low Latency Transport (not officially registered) */
 #endif

@@ -51,6 +51,7 @@ since version 3.0.0:
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
+evolved Common Public Radio Interface (eCPRI)
 --
 
 === Updated Protocol Support
