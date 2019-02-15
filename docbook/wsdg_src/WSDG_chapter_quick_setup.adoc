@@ -458,7 +458,10 @@ Note: If you do not yet have a copy of vcredist_x86.exe or vcredist_x64.exe in _
 
 If building an x86 version using a Visual Studio “Express” edition or an x64 version with any edition, then you must have the appropriate vcredist file for your compiler in the support libraries directory (_vcredist_x86.exe_ in _wireshark-32-libs_ or _vcredist_x64.exe_ in _wireshark-win64-libs_).
 
-The files can be located in the Visual Studio install directory for non-Express edition builds, or downloaded from Microsoft for Expresss edition builds.
+The files can be located in the Visual Studio install directory for
+non-Express edition builds, or downloaded from Microsoft at
+https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads
+for Express edition builds.
 
 Note you must use the correct version of vcredist for your compiler, unfortunately they all have the same name (_vcredist_x86.exe_ or _vcredist_x64.exe_).  You can use Windows Explorer and examine the “Properties -> Details” tab for a vcredist file to determine which compiler version the file is for use with.
 
