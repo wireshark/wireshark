@@ -519,9 +519,11 @@ DetailPrint "vcredist_${TARGET_MACHINE} returned $0"
 ; https://docs.microsoft.com/en-us/windows/desktop/Msi/error-codes
 !define ERROR_SUCCESS 0
 !define ERROR_SUCCESS_REBOOT_INITIATED 1641
+!define ERROR_PRODUCT_VERSION 1638
 !define ERROR_SUCCESS_REBOOT_REQUIRED 3010
 ${Switch} $0
   ${Case} ${ERROR_SUCCESS}
+  ${Case} ${ERROR_PRODUCT_VERSION}
     ${Break}
   ${Case} ${ERROR_SUCCESS_REBOOT_INITIATED} ; Shouldn't happen.
   ${Case} ${ERROR_SUCCESS_REBOOT_REQUIRED}
