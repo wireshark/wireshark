@@ -253,7 +253,7 @@ void ColoringRulesDialog::updateHint(QModelIndex idx)
         QList<QModelIndex> keys = errors_.keys();
 
         //list is not guaranteed to be sorted, so force it
-        qSort(keys.begin(), keys.end());
+        std::sort(keys.begin(), keys.end());
         const QModelIndex& error_key = keys[0];
         error_text = QString("%1: %2")
                             .arg(colorRuleModel_.data(colorRuleModel_.index(error_key.row(), ColoringRulesModel::colName), Qt::DisplayRole).toString())
@@ -394,7 +394,7 @@ void ColoringRulesDialog::on_deleteToolButton_clicked()
     int num_selected = selectedList.count()/colorRuleModel_.columnCount();
     if (num_selected > 0) {
         //list is not guaranteed to be sorted, so force it
-        qSort(selectedList.begin(), selectedList.end());
+        std::sort(selectedList.begin(), selectedList.end());
 
         //walk the list from the back because deleting a value in
         //the middle will leave the selectedList out of sync and

@@ -160,7 +160,7 @@ QWidget* DecodeAsDelegate::createEditor(QWidget *parentWidget, const QStyleOptio
 
         //put the rest of the protocols in the combo box
         QList<QString> da_list = da_set.toList();
-        qSort(da_list.begin(), da_list.end());
+        std::sort(da_list.begin(), da_list.end());
 
         foreach (table_ui_name, da_list) {
             editor->addItem(table_ui_name, table_ui_name);
