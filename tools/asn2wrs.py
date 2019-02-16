@@ -1497,6 +1497,13 @@ class EthCtx:
         out += ');\n'
         return out
 
+    def output_proto_root(self):
+        out = ''
+        if self.conform.proto_root_name:
+            out += '  proto_item *prot_ti = proto_tree_add_item(tree, ' + self.conform.proto_root_name + ', tvb, 0, -1, ENC_NA);\n'
+            out += '  PROTO_ITEM_SET_HIDDEN(prot_ti);\n'
+        return out
+
     #--- eth_type_fn_hdr --------------------------------------------------------
     def eth_type_fn_hdr(self, tname):
         out = '\n'
@@ -1510,10 +1517,8 @@ class EthCtx:
         #if self.conform.get_fn_presence(tname):
         #  out += self.conform.get_fn_text(tname, 'FN_HDR')
         #el
-        if self.conform.check_item('PDU', tname) and self.conform.proto_root_name:
-            out += '  proto_item *prot_ti = proto_tree_add_item(tree, ' + self.conform.proto_root_name + ', tvb, 0, -1, ENC_NA);\n'
-            out += '  PROTO_ITEM_SET_HIDDEN(prot_ti);\n'
-
+        if self.conform.check_item('PDU', tname):
+            out += self.output_proto_root()
 
         if self.conform.get_fn_presence(self.eth_type[tname]['ref'][0]):
             out += self.conform.get_fn_text(self.eth_type[tname]['ref'][0], 'FN_HDR')
@@ -1744,6 +1749,8 @@ class EthCtx:
                 out += 'static '
             out += 'int '
             out += 'dissect_'+f+'(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {\n'
+            out += self.output_proto_root()
+
             out += '  int offset = 0;\n'
             off_par = 'offset'
             ret_par = 'offset'
