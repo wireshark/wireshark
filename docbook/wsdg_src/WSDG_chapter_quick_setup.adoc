@@ -458,7 +458,7 @@ Note: For Visual Studio 2015 and earlier, if you do not yet have a copy
 of vcredist_x86.exe or vcredist_x64.exe in _./wireshark-win**XX**-libs_
 (where *_XX_* is 32 or 64) you will need to download the appropriate
 file and place it in _./wireshark-win**XX**-libs_ before starting this
-step. 
+step.
 
 If building an x86 version using a Visual Studio 2015 or earlier
 “Express” edition or an x64 version with any edi of Visual Studio
