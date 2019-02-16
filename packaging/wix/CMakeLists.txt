@@ -347,6 +347,17 @@ macro( ADD_WIX_PACKAGE_TARGET )
 	set (_wix_binary_dir ${CMAKE_BINARY_DIR}/packaging/wix )
 
 	# QtDependentComponents.wxs. Created using Wireshark.exe.
+	#
+	# XXX - if we're not building Wireshark, we can't build this
+	# manifest.  On the other hand, if we're not building
+	# Wireshark, we have no need to include Qt in the installer,
+	# so it's not clear we need this manifest.
+	#
+	# This should probably be fixed, so that people can produce
+	# command-line-only installer packages.
+	if(NOT BUILD_wireshark)
+		message(FATAL_ERROR "The WiX installer cannot be built if the Wireshark program isn't built.")
+	endif()
 	add_custom_command(OUTPUT ${_wix_binary_dir}/QtDependentComponents.wxs
 		COMMAND set "PATH=${QT_BIN_PATH};%PATH%"
 		COMMAND ${POWERSHELL_COMMAND} "${_wix_source_dir}/windeployqt-to-wix.ps1"

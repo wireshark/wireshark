@@ -199,6 +199,17 @@ macro( ADD_NSIS_PACKAGE_TARGET )
 	#set (_nsis_package ${CMAKE_BINARY_DIR}/packaging/nsis/Wireshark-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).exe)
 
 	# qt-dll-manifest.nsh. Created using Wireshark.exe.
+	#
+	# XXX - if we're not building Wireshark, we can't build this
+	# manifest.  On the other hand, if we're not building
+	# Wireshark, we have no need to include Qt in the installer,
+	# so it's not clear we need this manifest.
+	#
+	# This should probably be fixed, so that people can produce
+	# command-line-only installer packages.
+	if(NOT BUILD_wireshark)
+		message(FATAL_ERROR "The NSIS installer cannot be built if the Wireshark program isn't built.")
+	endif()
 	add_custom_command(OUTPUT ${_nsis_binary_dir}/qt-dll-manifest.nsh
 		COMMAND set "PATH=${QT_BIN_PATH};%PATH%"
 		COMMAND ${POWERSHELL_COMMAND} "${_nsis_source_dir}/windeployqt-to-nsis.ps1"
