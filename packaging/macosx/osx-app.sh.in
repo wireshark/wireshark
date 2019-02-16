@@ -128,9 +128,6 @@ pkgplugin="$bundle/Contents/PlugIns/wireshark/@PLUGIN_PATH_ID@"
 # Set the 'macosx' directory, usually the current directory.
 #resdir=$( pwd )
 
-# Set our desired permissions
-chmod -R u=rwX,go=rX "$bundle"
-
 #
 # Get a list of all binaries in the bundle.
 # Treat all plain files with read and execute permissions for all as
@@ -170,9 +167,10 @@ while $endl; do
 	#
 	#    use cut to extract the library name from the output;
 	#
-	#    replace "libssh" with "/usr/local/lib/libssh" because
+	#    replace "@rpath/libssh" with "/usr/local/lib/libssh" so that
+	#    it isn't excluded from subsequent filtering.
 	#    libssh, for some reason, has its "install name" set to
-	#    just libssh.4.dylib, rather than /usr/local/lib/libssh.4.dylib,
+	#    @rpath/libssh.4.dylib, rather than /usr/local/lib/libssh.4.dylib,
 	#    when built by tools/macos-setup.sh;
 	#
 	#    strip out system libraries, as we don't bundle them with
@@ -185,7 +183,7 @@ while $endl; do
 		otool -L $bundle_binary_list "$pkglib"/*.dylib 2>/dev/null \
 		| grep -F compatibility \
 		| cut -d\( -f1 \
-		| sed '1,$s;^	libssh;	/usr/local/lib/libssh;' \
+		| sed '1,$s;^	@rpath/libssh;	/usr/local/lib/libssh;' \
 		| grep -E -v "$exclude_prefixes" \
 		| sort \
 		| uniq \
@@ -201,8 +199,6 @@ while $endl; do
 		nfiles=$nnfiles
 	fi
 done
-
-chmod -R u=rwX,go=rX "$bundle"
 
 # Strip libraries and executables if requested
 #----------------------------------------------------------
