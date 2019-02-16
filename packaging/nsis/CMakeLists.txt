@@ -181,63 +181,71 @@ set(NSIS_DEFINES
 # installers. This means that uninstall.exe must be built separately AND
 # that building the installer itself won't overwrite uninstall.exe
 macro( ADD_NSIS_UNINSTALLER_TARGET )
-	set (_nsis_source_dir ${CMAKE_SOURCE_DIR}/packaging/nsis )
-	set (_nsis_binary_dir ${CMAKE_BINARY_DIR}/packaging/nsis )
+	#
+	# XXX - if we're not building Wireshark, we can't build
+	# anything, so there's nothing to uninstall.
+	#
+	if(BUILD_wireshark)
+		set (_nsis_source_dir ${CMAKE_SOURCE_DIR}/packaging/nsis )
+		set (_nsis_binary_dir ${CMAKE_BINARY_DIR}/packaging/nsis )
 
-	add_custom_command(OUTPUT ${DATAFILE_DIR}/uninstall.exe
-		DEPENDS ${_nsis_source_dir}/uninstall.nsi
-			${_nsis_source_dir}/common.nsh
-		COMMAND ${MAKENSIS_EXECUTABLE} ${NSIS_DEFINES}
-			uninstall.nsi
-		COMMAND ${DATAFILE_DIR}/uninstall_installer.exe
-		COMMAND ${CMAKE_COMMAND} -E remove ${DATAFILE_DIR}/uninstall_installer.exe
-		WORKING_DIRECTORY ${_nsis_source_dir}
-	)
+		add_custom_command(OUTPUT ${DATAFILE_DIR}/uninstall.exe
+			DEPENDS ${_nsis_source_dir}/uninstall.nsi
+				${_nsis_source_dir}/common.nsh
+			COMMAND ${MAKENSIS_EXECUTABLE} ${NSIS_DEFINES}
+				uninstall.nsi
+			COMMAND ${DATAFILE_DIR}/uninstall_installer.exe
+			COMMAND ${CMAKE_COMMAND} -E remove ${DATAFILE_DIR}/uninstall_installer.exe
+			WORKING_DIRECTORY ${_nsis_source_dir}
+		)
+	else()
+		message(WARNING "The NSIS installer cannot be built if the Wireshark program isn't built.")
+	endif()
 endmacro( ADD_NSIS_UNINSTALLER_TARGET )
 
 macro( ADD_NSIS_PACKAGE_TARGET )
-	#set (_nsis_package ${CMAKE_BINARY_DIR}/packaging/nsis/Wireshark-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).exe)
-
-	# qt-dll-manifest.nsh. Created using Wireshark.exe.
 	#
-	# XXX - if we're not building Wireshark, we can't build this
-	# manifest.  On the other hand, if we're not building
+	# XXX - if we're not building Wireshark, we can't build the
+	# manifest below.  On the other hand, if we're not building
 	# Wireshark, we have no need to include Qt in the installer,
 	# so it's not clear we need this manifest.
 	#
 	# This should probably be fixed, so that people can produce
 	# command-line-only installer packages.
-	if(NOT BUILD_wireshark)
-		message(FATAL_ERROR "The NSIS installer cannot be built if the Wireshark program isn't built.")
+	if(BUILD_wireshark)
+		#set (_nsis_package ${CMAKE_BINARY_DIR}/packaging/nsis/Wireshark-$(WIRESHARK_TARGET_PLATFORM)-$(VERSION).exe)
+
+		# qt-dll-manifest.nsh. Created using Wireshark.exe.
+		add_custom_command(OUTPUT ${_nsis_binary_dir}/qt-dll-manifest.nsh
+			COMMAND set "PATH=${QT_BIN_PATH};%PATH%"
+			COMMAND ${POWERSHELL_COMMAND} "${_nsis_source_dir}/windeployqt-to-nsis.ps1"
+				-Executable $<TARGET_FILE:wireshark>
+				-FilePath ${_nsis_binary_dir}/qt-dll-manifest.nsh
+		)
+
+		# Build NSIS package dependencies. We build the package in
+		# two stages so that nsis_package below doesn't trigger
+		# any dependencies that might clobber any signed executables.
+		add_custom_target(nsis_package_prep
+			DEPENDS
+				${NSIS_FILES}
+				copy_data_files
+				user_guide_chm
+				${CMAKE_BINARY_DIR}/docbook/user-guide.chm
+				${DATAFILE_DIR}/uninstall.exe
+		)
+		set_target_properties(nsis_package_prep PROPERTIES FOLDER "Packaging")
+
+		# Dump the installer into
+		# ${CMAKE_CURRENT_SOURCE_DIR}/packaging/nsis
+		# Note that executables and DLLs *must* be built separately
+		add_custom_target(nsis_package
+			COMMAND ${MAKENSIS_EXECUTABLE} ${NSIS_DEFINES}
+				wireshark.nsi
+			WORKING_DIRECTORY ${_nsis_source_dir}
+		)
+		set_target_properties(nsis_package PROPERTIES FOLDER "Packaging")
 	endif()
-	add_custom_command(OUTPUT ${_nsis_binary_dir}/qt-dll-manifest.nsh
-		COMMAND set "PATH=${QT_BIN_PATH};%PATH%"
-		COMMAND ${POWERSHELL_COMMAND} "${_nsis_source_dir}/windeployqt-to-nsis.ps1"
-			-Executable $<TARGET_FILE:wireshark>
-			-FilePath ${_nsis_binary_dir}/qt-dll-manifest.nsh
-	)
-
-	# Build NSIS package dependencies. We build the package in two stages
-	# so that nsis_package below doesn't trigger any dependencies that
-	# might clobber any signed executables.
-	add_custom_target(nsis_package_prep
-		DEPENDS
-			${NSIS_FILES}
-			copy_data_files
-			user_guide_chm
-			${CMAKE_BINARY_DIR}/docbook/user-guide.chm
-			${DATAFILE_DIR}/uninstall.exe
-	)
-	set_target_properties(nsis_package_prep PROPERTIES FOLDER "Packaging")
-
-	# Dump the installer into ${CMAKE_CURRENT_SOURCE_DIR}/packaging/nsis
-	# Note that executables and DLLs *must* be built separately
-	add_custom_target(nsis_package
-		COMMAND ${MAKENSIS_EXECUTABLE} ${NSIS_DEFINES}
-			wireshark.nsi
-		WORKING_DIRECTORY ${_nsis_source_dir}
-	)
-	set_target_properties(nsis_package PROPERTIES FOLDER "Packaging")
 endmacro( ADD_NSIS_PACKAGE_TARGET )
 
 set(CLEAN_FILES
