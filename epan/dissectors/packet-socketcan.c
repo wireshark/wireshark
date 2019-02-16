@@ -17,6 +17,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
 #include <epan/decode_as.h>
 #include <wiretap/wtap.h>
 
@@ -34,6 +35,45 @@ static int hf_can_rtrflag = -1;
 static int hf_can_errflag = -1;
 static int hf_can_reserved = -1;
 static int hf_can_padding = -1;
+
+static int hf_can_err_tx_timeout = -1;
+static int hf_can_err_lostarb = -1;
+static int hf_can_err_ctrl = -1;
+static int hf_can_err_prot = -1;
+static int hf_can_err_trx = -1;
+static int hf_can_err_ack = -1;
+static int hf_can_err_busoff = -1;
+static int hf_can_err_buserror = -1;
+static int hf_can_err_restarted = -1;
+static int hf_can_err_reserved = -1;
+
+static int hf_can_err_lostarb_bit_number = -1;
+
+static int hf_can_err_ctrl_rx_overflow = -1;
+static int hf_can_err_ctrl_tx_overflow = -1;
+static int hf_can_err_ctrl_rx_warning = -1;
+static int hf_can_err_ctrl_tx_warning = -1;
+static int hf_can_err_ctrl_rx_passive = -1;
+static int hf_can_err_ctrl_tx_passive = -1;
+static int hf_can_err_ctrl_active = -1;
+
+static int hf_can_err_prot_error_type_bit = -1;
+static int hf_can_err_prot_error_type_form = -1;
+static int hf_can_err_prot_error_type_stuff = -1;
+static int hf_can_err_prot_error_type_bit0 = -1;
+static int hf_can_err_prot_error_type_bit1 = -1;
+static int hf_can_err_prot_error_type_overload = -1;
+static int hf_can_err_prot_error_type_active = -1;
+static int hf_can_err_prot_error_type_tx = -1;
+
+static int hf_can_err_prot_error_location = -1;
+
+static int hf_can_err_trx_canh = -1;
+static int hf_can_err_trx_canl = -1;
+
+static int hf_can_err_ctrl_specific = -1;
+
+static expert_field ei_can_err_dlc_mismatch = EI_INIT;
 
 static int hf_canfd_brsflag = -1;
 static int hf_canfd_esiflag = -1;
@@ -71,6 +111,52 @@ static const value_string frame_type_vals[] =
 	{ 0, NULL }
 };
 
+static const value_string can_err_prot_error_location_vals[] =
+{
+	{ 0x00, "unspecified" },
+	{ 0x02, "ID bits 28 - 21 (SFF: 10 - 3)" },
+	{ 0x03, "start of frame" },
+	{ 0x04, "substitute RTR (SFF: RTR)" },
+	{ 0x05, "identifier extension" },
+	{ 0x06, "ID bits 20 - 18 (SFF: 2 - 0)" },
+	{ 0x07, "ID bits 17-13" },
+	{ 0x08, "CRC sequence" },
+	{ 0x09, "reserved bit 0" },
+	{ 0x0A, "data section" },
+	{ 0x0B, "data length code" },
+	{ 0x0C, "RTR" },
+	{ 0x0D, "reserved bit 1" },
+	{ 0x0E, "ID bits 4-0" },
+	{ 0x0F, "ID bits 12-5" },
+	{ 0x12, "intermission" },
+	{ 0x18, "CRC delimiter" },
+	{ 0x19, "ACK slot" },
+	{ 0x1A, "end of frame" },
+	{ 0x1B, "ACK delimiter" },
+	{ 0, NULL }
+};
+
+static const value_string can_err_trx_canh_vals[] =
+{
+	{ 0x00, "unspecified" },
+	{ 0x04, "no wire" },
+	{ 0x05, "short to BAT" },
+	{ 0x06, "short to VCC" },
+	{ 0x07, "short to GND" },
+	{ 0, NULL }
+};
+
+static const value_string can_err_trx_canl_vals[] =
+{
+	{ 0x00, "unspecified" },
+	{ 0x04, "no wire" },
+	{ 0x05, "short to BAT" },
+	{ 0x06, "short to VCC" },
+	{ 0x07, "short to GND" },
+	{ 0x08, "short to CANH" },
+	{ 0, NULL }
+};
+
 static int
 dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						guint encoding)
@@ -80,63 +166,156 @@ dissect_socketcan_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	guint8      frame_type;
 	gint        frame_len;
 	struct can_identifier can_id;
-	tvbuff_t*   next_tvb;
-	int * can_flags[] = {
+	const int **can_flags;
+
+	static const int *can_std_flags[] = {
+		&hf_can_ident_std,
+		&hf_can_extflag,
+		&hf_can_rtrflag,
+		&hf_can_errflag,
+		NULL,
+	};
+	static const int *can_ext_flags[] = {
 		&hf_can_ident_ext,
 		&hf_can_extflag,
 		&hf_can_rtrflag,
 		&hf_can_errflag,
 		NULL,
 	};
+	static const int *can_err_flags[] = {
+		&hf_can_errflag,
+		&hf_can_err_tx_timeout,
+		&hf_can_err_lostarb,
+		&hf_can_err_ctrl,
+		&hf_can_err_prot,
+		&hf_can_err_trx,
+		&hf_can_err_ack,
+		&hf_can_err_busoff,
+		&hf_can_err_buserror,
+		&hf_can_err_restarted,
+		&hf_can_err_reserved,
+		NULL,
+	};
 
 	can_id.id = tvb_get_guint32(tvb, 0, encoding);
 	frame_len = tvb_get_guint8(tvb, CAN_LEN_OFFSET);
-
-	if (can_id.id & CAN_EFF_FLAG)
-	{
-		frame_type = LINUX_CAN_EXT;
-		can_id.id &= (CAN_EFF_MASK | CAN_FLAG_MASK);
-	}
-	else
-	{
-		frame_type = LINUX_CAN_STD;
-		can_id.id &= (CAN_SFF_MASK | CAN_FLAG_MASK);
-		can_flags[0] = &hf_can_ident_std;
-	}
-
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CAN");
-	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* Error Message Frames are only encapsulated in Classic CAN frames */
 	if (can_id.id & CAN_ERR_FLAG)
 	{
 		frame_type = LINUX_CAN_ERR;
+		can_flags  = can_err_flags;
 	}
-
-	col_add_fstr(pinfo->cinfo, COL_INFO, "%s: 0x%08x   ",
-		     val_to_str(frame_type, frame_type_vals, "Unknown (0x%02x)"), (can_id.id & ~CAN_FLAG_MASK));
-
-	if (can_id.id & CAN_RTR_FLAG)
+	else if (can_id.id & CAN_EFF_FLAG)
 	{
-		col_append_str(pinfo->cinfo, COL_INFO, "(Remote Transmission Request)");
+		frame_type = LINUX_CAN_EXT;
+		can_id.id &= (CAN_EFF_MASK | CAN_FLAG_MASK);
+		can_flags  = can_ext_flags;
 	}
 	else
 	{
-		col_append_str(pinfo->cinfo, COL_INFO, tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, CAN_DATA_OFFSET, frame_len, ' '));
+		frame_type = LINUX_CAN_STD;
+		can_id.id &= (CAN_SFF_MASK | CAN_FLAG_MASK);
+		can_flags  = can_std_flags;
 	}
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CAN");
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	ti = proto_tree_add_item(tree, proto_can, tvb, 0, -1, ENC_NA);
 	can_tree = proto_item_add_subtree(ti, ett_can);
 
-	proto_tree_add_bitmask_list(can_tree, tvb, 0, 4, (const int**)can_flags, encoding);
+	proto_tree_add_bitmask_list(can_tree, tvb, 0, 4, can_flags, encoding);
 	proto_tree_add_item(can_tree, hf_can_len, tvb, CAN_LEN_OFFSET, 1, ENC_NA);
+	if (frame_type == LINUX_CAN_ERR && frame_len != CAN_ERR_DLC)
+	{
+		proto_tree_add_expert(tree, pinfo, &ei_can_err_dlc_mismatch, tvb, CAN_LEN_OFFSET, 1);
+	}
 	proto_tree_add_item(can_tree, hf_can_reserved, tvb, CAN_LEN_OFFSET+1, 3, ENC_NA);
 
-	next_tvb = tvb_new_subset_length(tvb, CAN_DATA_OFFSET, frame_len);
-
-	if (!dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, TRUE, &can_id))
+	if (frame_type == LINUX_CAN_ERR)
 	{
-		call_data_dissector(next_tvb, pinfo, tree);
+		const int **flag;
+		const char *sepa = ": ";
+
+		col_set_str(pinfo->cinfo, COL_INFO, "ERR");
+
+		for (flag = can_err_flags; *flag; flag++)
+		{
+			header_field_info *hfi;
+
+			hfi = proto_registrar_get_nth(**flag);
+			if (!hfi)
+				continue;
+
+			if ((can_id.id & hfi->bitmask & ~CAN_FLAG_MASK) == 0)
+				continue;
+
+			col_append_sep_str(pinfo->cinfo, COL_INFO, sepa, hfi->name);
+			sepa = ", ";
+		}
+
+		if (can_id.id & CAN_ERR_LOSTARB)
+			proto_tree_add_item(can_tree, hf_can_err_lostarb_bit_number, tvb, CAN_DATA_OFFSET+0, 1, ENC_NA);
+		if (can_id.id & CAN_ERR_CTRL)
+		{
+			static const int *can_err_ctrl_flags[] = {
+				&hf_can_err_ctrl_rx_overflow,
+				&hf_can_err_ctrl_tx_overflow,
+				&hf_can_err_ctrl_rx_warning,
+				&hf_can_err_ctrl_tx_warning,
+				&hf_can_err_ctrl_rx_passive,
+				&hf_can_err_ctrl_tx_passive,
+				&hf_can_err_ctrl_active,
+				NULL,
+			};
+
+			proto_tree_add_bitmask_list(can_tree, tvb, CAN_DATA_OFFSET+1, 1, can_err_ctrl_flags, ENC_NA);
+		}
+		if (can_id.id & CAN_ERR_PROT)
+		{
+			static const int *can_err_prot_error_type_flags[] = {
+				&hf_can_err_prot_error_type_bit,
+				&hf_can_err_prot_error_type_form,
+				&hf_can_err_prot_error_type_stuff,
+				&hf_can_err_prot_error_type_bit0,
+				&hf_can_err_prot_error_type_bit1,
+				&hf_can_err_prot_error_type_overload,
+				&hf_can_err_prot_error_type_active,
+				&hf_can_err_prot_error_type_tx,
+				NULL
+			};
+			proto_tree_add_bitmask_list(can_tree, tvb, CAN_DATA_OFFSET+2, 1, can_err_prot_error_type_flags, ENC_NA);
+			proto_tree_add_item(can_tree, hf_can_err_prot_error_location, tvb, CAN_DATA_OFFSET+3, 1, ENC_NA);
+		}
+		if (can_id.id & CAN_ERR_TRX)
+		{
+			proto_tree_add_item(can_tree, hf_can_err_trx_canh, tvb, CAN_DATA_OFFSET+4, 1, ENC_NA);
+			proto_tree_add_item(can_tree, hf_can_err_trx_canl, tvb, CAN_DATA_OFFSET+4, 1, ENC_NA);
+		}
+		proto_tree_add_item(can_tree, hf_can_err_ctrl_specific, tvb, CAN_DATA_OFFSET+5, 3, ENC_NA);
+	}
+	else
+	{
+		tvbuff_t   *next_tvb;
+
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s: 0x%08x   ",
+			     val_to_str(frame_type, frame_type_vals, "Unknown (0x%02x)"), (can_id.id & ~CAN_FLAG_MASK));
+
+		if (can_id.id & CAN_RTR_FLAG)
+		{
+			col_append_str(pinfo->cinfo, COL_INFO, "(Remote Transmission Request)");
+		}
+		else
+		{
+			col_append_str(pinfo->cinfo, COL_INFO, tvb_bytes_to_str_punct(wmem_packet_scope(), tvb, CAN_DATA_OFFSET, frame_len, ' '));
+		}
+
+		next_tvb = tvb_new_subset_length(tvb, CAN_DATA_OFFSET, frame_len);
+		if (!dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, TRUE, &can_id))
+		{
+			call_data_dissector(next_tvb, pinfo, tree);
+		}
 	}
 
 	if (tvb_captured_length_remaining(tvb, CAN_DATA_OFFSET+frame_len) > 0)
@@ -338,6 +517,276 @@ proto_register_socketcan(void)
 				NULL, HFILL
 			}
 		},
+		{
+			&hf_can_err_tx_timeout,
+			{
+				"Transmit timeout", "can.err.tx_timeout",
+				FT_BOOLEAN, 32,
+				NULL, CAN_ERR_TX_TIMEOUT,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_can_err_lostarb,
+			{
+				"Lost arbitration", "can.err.lostarb",
+				FT_BOOLEAN, 32,
+				NULL, CAN_ERR_LOSTARB,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_can_err_ctrl,
+			{
+				"Controller problems", "can.err.ctrl",
+				FT_BOOLEAN, 32,
+				NULL, CAN_ERR_CTRL,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_can_err_prot,
+			{
+				"Protocol violation", "can.err.prot",
+				FT_BOOLEAN, 32,
+				NULL, CAN_ERR_PROT,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_can_err_trx,
+			{
+				"Transceiver status", "can.err.trx",
+				FT_BOOLEAN, 32,
+				NULL, CAN_ERR_TRX,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_can_err_ack,
+			{
+				"No acknowledgement", "can.err.ack",
+				FT_BOOLEAN, 32,
+				NULL, CAN_ERR_ACK,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_can_err_busoff,
+			{
+				"Bus off", "can.err.busoff",
+				FT_BOOLEAN, 32,
+				NULL, CAN_ERR_BUSOFF,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_can_err_buserror,
+			{
+				"Bus error", "can.err.buserror",
+				FT_BOOLEAN, 32,
+				NULL, CAN_ERR_BUSERROR,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_can_err_restarted,
+			{
+				"Controller restarted", "can.err.restarted",
+				FT_BOOLEAN, 32,
+				NULL, CAN_ERR_RESTARTED,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_can_err_reserved,
+			{
+				"Reserved", "can.err.reserved",
+				FT_UINT32, BASE_HEX,
+				NULL, CAN_ERR_RESERVED,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_can_err_lostarb_bit_number,
+			{
+				"Lost arbitration in bit number", "can.err.lostarb.bitnum",
+				FT_UINT8, BASE_DEC,
+				NULL, 0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_can_err_ctrl_rx_overflow,
+			{
+				"RX buffer overflow", "can.err.ctrl.rx_overflow",
+				FT_BOOLEAN, 8,
+				NULL, 0x01,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_can_err_ctrl_tx_overflow,
+			{
+				"TX buffer overflow", "can.err.ctrl.tx_overflow",
+				FT_BOOLEAN, 8,
+				NULL, 0x02,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_can_err_ctrl_rx_warning,
+			{
+				"Reached warning level for RX errors", "can.err.ctrl.rx_warning",
+				FT_BOOLEAN, 8,
+				NULL, 0x04,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_can_err_ctrl_tx_warning,
+			{
+				"Reached warning level for TX errors", "can.err.ctrl.tx_warning",
+				FT_BOOLEAN, 8,
+				NULL, 0x08,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_can_err_ctrl_rx_passive,
+			{
+				"Reached error passive status RX", "can.err.ctrl.rx_passive",
+				FT_BOOLEAN, 8,
+				NULL, 0x10,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_can_err_ctrl_tx_passive,
+			{
+				"Reached error passive status TX", "can.err.ctrl.tx_passive",
+				FT_BOOLEAN, 8,
+				NULL, 0x20,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_can_err_ctrl_active,
+			{
+				"Recovered to error active state", "can.err.ctrl.active",
+				FT_BOOLEAN, 8,
+				NULL, 0x40,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_can_err_prot_error_type_bit,
+			{
+				"Single bit error", "can.err.prot.type.bit",
+				FT_BOOLEAN, 8,
+				NULL, 0x01,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_can_err_prot_error_type_form,
+			{
+				"Frame format error", "can.err.prot.type.form",
+				FT_BOOLEAN, 8,
+				NULL, 0x02,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_can_err_prot_error_type_stuff,
+			{
+				"Bit stuffing error", "can.err.prot.type.stuff",
+				FT_BOOLEAN, 8,
+				NULL, 0x04,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_can_err_prot_error_type_bit0,
+			{
+				"Unable to send dominant bit", "can.err.prot.type.bit0",
+				FT_BOOLEAN, 8,
+				NULL, 0x08,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_can_err_prot_error_type_bit1,
+			{
+				"Unable to send recessive bit", "can.err.prot.type.bit1",
+				FT_BOOLEAN, 8,
+				NULL, 0x10,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_can_err_prot_error_type_overload,
+			{
+				"Bus overload", "can.err.prot.type.overload",
+				FT_BOOLEAN, 8,
+				NULL, 0x20,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_can_err_prot_error_type_active,
+			{
+				"Active error announcement", "can.err.prot.type.active",
+				FT_BOOLEAN, 8,
+				NULL, 0x40,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_can_err_prot_error_type_tx,
+			{
+				"Error occurred on transmission", "can.err.prot.type.tx",
+				FT_BOOLEAN, 8,
+				NULL, 0x80,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_can_err_prot_error_location,
+			{
+				"Protocol error location", "can.err.prot.location",
+				FT_UINT8, BASE_DEC,
+				VALS(can_err_prot_error_location_vals), 0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_can_err_trx_canh,
+			{
+				"Transceiver CANH status", "can.err.trx.canh",
+				FT_UINT8, BASE_DEC,
+				VALS(can_err_trx_canh_vals), 0x0F,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_can_err_trx_canl,
+			{
+				"Transceiver CANL status", "can.err.trx.canl",
+				FT_UINT8, BASE_DEC,
+				VALS(can_err_trx_canl_vals), 0xF0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_can_err_ctrl_specific,
+			{
+				"Controller specific data", "can.err.ctrl_specific",
+				FT_BYTES, SEP_SPACE,
+				NULL, 0,
+				NULL, HFILL
+			}
+		},
 	};
 
 	/* Setup protocol subtree array */
@@ -346,6 +795,16 @@ proto_register_socketcan(void)
 			&ett_can,
 			&ett_can_fd
 		};
+
+	static ei_register_info ei[] = {
+		{
+			&ei_can_err_dlc_mismatch,
+			{
+				"can.err.dlc_mismatch", PI_MALFORMED, PI_ERROR,
+				"ERROR: DLC mismatch", EXPFILL
+			}
+		}
+	};
 
 	module_t *can_module;
 
@@ -358,6 +817,8 @@ proto_register_socketcan(void)
 
 	proto_register_field_array(proto_can, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
+
+	expert_register_field_array(expert_register_protocol(proto_can), ei, array_length(ei));
 
 	can_module = prefs_register_protocol(proto_can, NULL);
 
