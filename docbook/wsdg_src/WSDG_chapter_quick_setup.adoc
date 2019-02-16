@@ -454,16 +454,31 @@ NSIS. You can download it from http://nsis.sourceforge.net[].
 Note that the 32-bit version of NSIS will work for both 32-bit and
 64-bit versions of Wireshark. NSIS v3 is required.
 
-Note: If you do not yet have a copy of vcredist_x86.exe or vcredist_x64.exe in _./wireshark-win**XX**-libs_ (where *_XX_* is 32 or 64) you will need to download the appropriate file and place it in _./wireshark-win**XX**-libs_ before starting this step.
+Note: For Visual Studio 2015 and earlier, if you do not yet have a copy
+of vcredist_x86.exe or vcredist_x64.exe in _./wireshark-win**XX**-libs_
+(where *_XX_* is 32 or 64) you will need to download the appropriate
+file and place it in _./wireshark-win**XX**-libs_ before starting this
+step. 
 
-If building an x86 version using a Visual Studio “Express” edition or an x64 version with any edition, then you must have the appropriate vcredist file for your compiler in the support libraries directory (_vcredist_x86.exe_ in _wireshark-32-libs_ or _vcredist_x64.exe_ in _wireshark-win64-libs_).
+If building an x86 version using a Visual Studio 2015 or earlier
+“Express” edition or an x64 version with any edi of Visual Studio
+2015 or earlier, then you must have the appropriate vcredist file for
+your compiler in the support libraries directory (_vcredist_x86.exe_ in
+_wireshark-32-libs_ or _vcredist_x64.exe_ in _wireshark-win64-libs_).
 
 The files can be located in the Visual Studio install directory for
 non-Express edition builds, or downloaded from Microsoft at
 https://support.microsoft.com/en-us/help/2977003/the-latest-supported-visual-c-downloads
 for Express edition builds.
 
-Note you must use the correct version of vcredist for your compiler, unfortunately they all have the same name (_vcredist_x86.exe_ or _vcredist_x64.exe_).  You can use Windows Explorer and examine the “Properties -> Details” tab for a vcredist file to determine which compiler version the file is for use with.
+Note you must use the correct version of vcredist for your compiler,
+unfortunately they all have the same name (_vcredist_x86.exe_ or
+_vcredist_x64.exe_).  You can use Windows Explorer and examine the
+“Properties -> Details” tab for a vcredist file to determine which
+compiler version the file is for use with.
+
+For Visual Studio 2017 and later, all editions include the
+redistributables, so you do not need to download them.
 
 If you've closed the Visual Studio Command Prompt <<ChSetupPrepareCommandCom,prepare>> it again.
 
