@@ -2072,6 +2072,45 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
 </context>
 <context>
+    <name>EndpointDialog</name>
+    <message>
+        <source>Map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Draw IPv4 or IPv6 endpoints on a map.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open in browser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save As</source>
+        <translation type="unfinished">として保存</translation>
+    </message>
+    <message>
+        <source>Map file error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No endpoints available to map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to create temporary file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Endpoints Map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to save map file %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ExpertInfoDialog</name>
     <message>
         <source>Dialog</source>
@@ -5658,11 +5697,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>キャンセル</translation>
     </message>
     <message>
-        <source>Open &amp;Recent</source>
-        <oldsource>Open Recent</oldsource>
-        <translation type="unfinished">最近使ったファイルを開く</translation>
-    </message>
-    <message>
         <source>File Set</source>
         <translation>ファイルセット</translation>
     </message>
@@ -5681,11 +5715,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>&amp;Time Display Format</source>
         <translation>&amp;時刻表示形式</translation>
-    </message>
-    <message>
-        <source>Name Resol&amp;ution</source>
-        <oldsource>Name Resolution</oldsource>
-        <translation type="unfinished">名前解決</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -5780,11 +5809,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>RTSP</translation>
     </message>
     <message>
-        <source>&amp;RTP</source>
-        <oldsource>RTP</oldsource>
-        <translation type="unfinished">RTP</translation>
-    </message>
-    <message>
         <source>&amp;Edit</source>
         <translation>編集(&amp;E)</translation>
     </message>
@@ -5797,18 +5821,8 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>表示フィルタツールバー</translation>
     </message>
     <message>
-        <source>&amp;Open</source>
-        <oldsource>Open</oldsource>
-        <translation type="unfinished">開く</translation>
-    </message>
-    <message>
         <source>Open a capture file</source>
         <translation>キャプチャファイルを開きます</translation>
-    </message>
-    <message>
-        <source>&amp;Quit</source>
-        <oldsource>Quit</oldsource>
-        <translation type="unfinished">終了</translation>
     </message>
     <message>
         <source>Quit Wireshark</source>
@@ -5829,11 +5843,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Stop capturing packets</source>
         <translation>パケットキャプチャを停止します</translation>
-    </message>
-    <message>
-        <source>&amp;Close</source>
-        <oldsource>Close</oldsource>
-        <translation type="unfinished">閉じる</translation>
     </message>
     <message>
         <source>No files found</source>
@@ -6028,6 +6037,26 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>現在のキャプチャを再スタートします</translation>
     </message>
     <message>
+        <source>As &amp;CSV…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As &quot;C&quot; &amp;Arrays…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As P&amp;SML XML…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As P&amp;DML XML…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>As &amp;JSON…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Description</source>
         <translation>記述</translation>
     </message>
@@ -6082,31 +6111,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Conversation Filter</source>
         <translation>対話フィルタ</translation>
-    </message>
-    <message>
-        <source>Service &amp;Response Time</source>
-        <oldsource>Service Response Time</oldsource>
-        <translation type="unfinished">サービス応答時間</translation>
-    </message>
-    <message>
-        <source>&amp;ANSI</source>
-        <oldsource>ANSI</oldsource>
-        <translation type="unfinished">ANSI</translation>
-    </message>
-    <message>
-        <source>&amp;GSM</source>
-        <oldsource>GSM</oldsource>
-        <translation type="unfinished">GSM</translation>
-    </message>
-    <message>
-        <source>&amp;LTE</source>
-        <oldsource>LTE</oldsource>
-        <translation type="unfinished">LTE</translation>
-    </message>
-    <message>
-        <source>&amp;MTP3</source>
-        <oldsource>MTP3</oldsource>
-        <translation type="unfinished">MTP3</translation>
     </message>
     <message>
         <source>Osmux</source>
@@ -6206,11 +6210,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>ファイルフォーマット/キャプチャとして再読み込みします</translation>
     </message>
     <message>
-        <source>As &amp;JSON…</source>
-        <oldsource>As JSON…</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Copy this item&apos;s description</source>
         <translation>この項目の記述をコピーします</translation>
     </message>
@@ -6263,11 +6262,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>すべての表示されているパケットをマークします</translation>
     </message>
     <message>
-        <source>&amp;Unmark All Displayed</source>
-        <oldsource>Unmark All Displayed</oldsource>
-        <translation type="unfinished">表示されているものすべてをマーク解除します</translation>
-    </message>
-    <message>
         <source>Unmark all displayed packets</source>
         <translation>すべての表示されているパケットをマーク解除します</translation>
     </message>
@@ -6306,11 +6300,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Unignore All Displayed</source>
         <translation>すべての表示されたパケットの無視を解除</translation>
-    </message>
-    <message>
-        <source>U&amp;nignore all displayed packets</source>
-        <oldsource>Unignore all displayed packets</oldsource>
-        <translation type="unfinished">すべての表示されたパケットの無視を解除します</translation>
     </message>
     <message>
         <source>Set/Unset Time Reference</source>
@@ -6358,6 +6347,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Remove all packet comments in the capture file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Configuration Profiles…</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -6677,6 +6670,14 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>このアソシエーションをフィルタします</translation>
     </message>
     <message>
+        <source>&amp;Conversations</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Endpoints</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Shrink the main window text</source>
         <translation>メインウインドウのテキストを縮小します</translation>
     </message>
@@ -6693,27 +6694,12 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>&amp;Conversation Hash Tables</source>
-        <oldsource>Conversation Hash Tables</oldsource>
-        <translation type="unfinished">対話ハッシュ表</translation>
-    </message>
-    <message>
         <source>Show each conversation hash table</source>
         <translation>各々の会話ハッシュ表を表示します</translation>
     </message>
     <message>
-        <source>&amp;Dissector Tables</source>
-        <oldsource>Dissector Tables</oldsource>
-        <translation type="unfinished">ダイセクター表</translation>
-    </message>
-    <message>
         <source>Show each dissector table and its entries</source>
         <translation>各々のダイセクター表とそのエントリを表示します</translation>
-    </message>
-    <message>
-        <source>&amp;Supported Protocols</source>
-        <oldsource>Supported Protocols</oldsource>
-        <translation type="unfinished">サポートされているプロトコル</translation>
     </message>
     <message>
         <source>Show the currently supported protocols and display filter fields</source>
@@ -6734,11 +6720,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>LTE RLC statistics</source>
         <translation>LTE RLC統計</translation>
-    </message>
-    <message>
-        <source>RLC &amp;Graph</source>
-        <oldsource>RLC Graph</oldsource>
-        <translation type="unfinished">RLCグラフ</translation>
     </message>
     <message>
         <source>LTE RLC graph</source>
@@ -6783,6 +6764,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Show Packet Bytes…</source>
         <translation>パケットバイト列を表示…</translation>
+    </message>
+    <message>
+        <source>Go to &amp;Linked Packet</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>UDP Multicast Streams</source>
@@ -6837,26 +6822,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>プレインテキストとして…(&amp;T)</translation>
     </message>
     <message>
-        <source>As &amp;CSV…</source>
-        <oldsource>As CSV…</oldsource>
-        <translation type="unfinished">CSVとして…</translation>
-    </message>
-    <message>
-        <source>As &quot;C&quot; &amp;Arrays…</source>
-        <oldsource>As &quot;C&quot; Arrays…</oldsource>
-        <translation type="unfinished">C言語配列として…</translation>
-    </message>
-    <message>
-        <source>As P&amp;SML XML…</source>
-        <oldsource>As PSML XML…</oldsource>
-        <translation type="unfinished">PSML XMLとして…</translation>
-    </message>
-    <message>
-        <source>As P&amp;DML XML…</source>
-        <oldsource>As PDML XML…</oldsource>
-        <translation type="unfinished">PDML XMLとして…</translation>
-    </message>
-    <message>
         <source>All Visible Items</source>
         <translation>すべての見えている項目</translation>
     </message>
@@ -6897,11 +6862,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>…または選択内容と不一致</translation>
     </message>
     <message>
-        <source>Display &amp;Filters…</source>
-        <oldsource>Display Filters…</oldsource>
-        <translation type="unfinished">表示フィルタ…</translation>
-    </message>
-    <message>
         <source>Display Filter &amp;Macros…</source>
         <translation>表示フィルタマクロ…(&amp;M)</translation>
     </message>
@@ -6924,11 +6884,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Packet Comment…</source>
         <translation>パケットコメント…</translation>
-    </message>
-    <message>
-        <source>&amp;Configuration Profiles…</source>
-        <oldsource>Configuration Profiles…</oldsource>
-        <translation type="unfinished">設定プロファイル…</translation>
     </message>
     <message>
         <source>&amp;Preferences…</source>
@@ -6983,18 +6938,8 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>表示フィルタツールバーを表示もしくは非表示にします</translation>
     </message>
     <message>
-        <source>&amp;Conversations</source>
-        <oldsource>Conversations</oldsource>
-        <translation type="unfinished">対話</translation>
-    </message>
-    <message>
         <source>Conversations at different protocol levels</source>
         <translation>異なるプロトコルレベルの対話</translation>
-    </message>
-    <message>
-        <source>&amp;Endpoints</source>
-        <oldsource>Endpoints</oldsource>
-        <translation type="unfinished">終端</translation>
     </message>
     <message>
         <source>Endpoints at different protocol levels</source>
@@ -7209,12 +7154,28 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>パケットバイト列を表示または非表示にします</translation>
     </message>
     <message>
+        <source>&amp;Conversation Hash Tables</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Dissector Tables</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Supported Protocols</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>MAP Summary</source>
         <translation>MAP概要</translation>
     </message>
     <message>
         <source>GSM MAP summary statistics</source>
         <translation>GSM MAP 概要統計</translation>
+    </message>
+    <message>
+        <source>RLC &amp;Graph</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>&amp;Coloring Rules…</source>
@@ -7238,6 +7199,10 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>新規対話ルール…</translation>
     </message>
     <message>
+        <source>IA&amp;X2 Stream Analysis</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Enabled Protocols…</source>
         <oldsource>Enable Protocols…</oldsource>
         <translation>有効化したプロトコル…</translation>
@@ -7259,17 +7224,72 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>このフィルタフィールドについての表示フィルタリファレンスを開きます</translation>
     </message>
     <message>
-        <source>Go to &amp;Linked Packet</source>
-        <oldsource>Go to Linked Packet</oldsource>
-        <translation type="unfinished">リンクされたパケットへ移動</translation>
-    </message>
-    <message>
         <source>Go to the packet referenced by the selected field.</source>
         <translation>選択されたフィールドによって参照されたパケットへ移動します</translation>
     </message>
     <message>
         <source>&amp;VoIP Calls</source>
         <translation>VoIP通話(&amp;V)</translation>
+    </message>
+    <message>
+        <source>Open &amp;Recent</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Name Resol&amp;ution</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Service &amp;Response Time</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;RTP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>S&amp;CTP</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;ANSI</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;GSM</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;LTE</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;MTP3</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Open</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Quit</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Close</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Display &amp;Filters…</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>&amp;Unmark All Displayed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>U&amp;nignore all displayed packets</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All VoIP Calls</source>
@@ -7670,14 +7690,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Rescanning</source>
         <translation>再スキャニング中</translation>
-    </message>
-    <message>
-        <source>S&amp;CTP</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>IA&amp;X2 Stream Analysis</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

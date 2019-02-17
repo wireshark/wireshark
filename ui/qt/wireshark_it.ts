@@ -2103,6 +2103,45 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
 </context>
 <context>
+    <name>EndpointDialog</name>
+    <message>
+        <source>Map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Draw IPv4 or IPv6 endpoints on a map.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open in browser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save As</source>
+        <translation type="unfinished">Salva come</translation>
+    </message>
+    <message>
+        <source>Map file error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No endpoints available to map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to create temporary file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Endpoints Map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to save map file %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ExpertInfoDialog</name>
     <message>
         <source>Dialog</source>
@@ -5695,11 +5734,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Annulla</translation>
     </message>
     <message>
-        <source>Open &amp;Recent</source>
-        <oldsource>Open Recent</oldsource>
-        <translation type="unfinished">Apri recenti</translation>
-    </message>
-    <message>
         <source>File Set</source>
         <translation>Gruppo di file</translation>
     </message>
@@ -5718,11 +5752,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>&amp;Time Display Format</source>
         <translation>Formato di visualizzazione del &amp;tempo</translation>
-    </message>
-    <message>
-        <source>Name Resol&amp;ution</source>
-        <oldsource>Name Resolution</oldsource>
-        <translation type="unfinished">Risoluzione dei nomi</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -5817,11 +5846,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>RTSP</translation>
     </message>
     <message>
-        <source>&amp;RTP</source>
-        <oldsource>RTP</oldsource>
-        <translation type="unfinished">RTP</translation>
-    </message>
-    <message>
         <source>&amp;Edit</source>
         <translation>&amp;Modifica</translation>
     </message>
@@ -5834,18 +5858,8 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Barra degli strumenti dei filtri di visualizzazione</translation>
     </message>
     <message>
-        <source>&amp;Open</source>
-        <oldsource>Open</oldsource>
-        <translation type="unfinished">Apri</translation>
-    </message>
-    <message>
         <source>Open a capture file</source>
         <translation>Apri un file di cattura</translation>
-    </message>
-    <message>
-        <source>&amp;Quit</source>
-        <oldsource>Quit</oldsource>
-        <translation type="unfinished">Esci</translation>
     </message>
     <message>
         <source>Quit Wireshark</source>
@@ -5866,11 +5880,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Stop capturing packets</source>
         <translation>Ferma la cattura dei pacchetti</translation>
-    </message>
-    <message>
-        <source>&amp;Close</source>
-        <oldsource>Close</oldsource>
-        <translation type="unfinished">Chiudi</translation>
     </message>
     <message>
         <source>No files found</source>
@@ -6065,6 +6074,26 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Riavvia la cattura attuale</translation>
     </message>
     <message>
+        <source>As &amp;CSV…</source>
+        <translation>Come &amp;CSV...</translation>
+    </message>
+    <message>
+        <source>As &quot;C&quot; &amp;Arrays…</source>
+        <translation>Come &amp;array &quot;C&quot;...</translation>
+    </message>
+    <message>
+        <source>As P&amp;SML XML…</source>
+        <translation>Come P&amp;SML XML...</translation>
+    </message>
+    <message>
+        <source>As P&amp;DML XML…</source>
+        <translation>Come P&amp;DML XML...</translation>
+    </message>
+    <message>
+        <source>As &amp;JSON…</source>
+        <translation>Come &amp;JSON...</translation>
+    </message>
+    <message>
         <source>Description</source>
         <translation>Descrizione</translation>
     </message>
@@ -6119,31 +6148,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Conversation Filter</source>
         <translation>Filtro di conversazione</translation>
-    </message>
-    <message>
-        <source>Service &amp;Response Time</source>
-        <oldsource>Service Response Time</oldsource>
-        <translation type="unfinished">Tempo di risposta del servizio</translation>
-    </message>
-    <message>
-        <source>&amp;ANSI</source>
-        <oldsource>ANSI</oldsource>
-        <translation type="unfinished">ANSI</translation>
-    </message>
-    <message>
-        <source>&amp;GSM</source>
-        <oldsource>GSM</oldsource>
-        <translation type="unfinished">GSM</translation>
-    </message>
-    <message>
-        <source>&amp;LTE</source>
-        <oldsource>LTE</oldsource>
-        <translation type="unfinished">LTE</translation>
-    </message>
-    <message>
-        <source>&amp;MTP3</source>
-        <oldsource>MTP3</oldsource>
-        <translation type="unfinished">MTP3</translation>
     </message>
     <message>
         <source>Osmux</source>
@@ -6243,11 +6247,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Ricarica come file di formato/cattura</translation>
     </message>
     <message>
-        <source>As &amp;JSON…</source>
-        <oldsource>As JSON…</oldsource>
-        <translation type="unfinished">Come JSON...</translation>
-    </message>
-    <message>
         <source>Copy this item&apos;s description</source>
         <translation>Copia la descrizione di questo elemento</translation>
     </message>
@@ -6300,11 +6299,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Marca tutti i pacchetti visualizzati</translation>
     </message>
     <message>
-        <source>&amp;Unmark All Displayed</source>
-        <oldsource>Unmark All Displayed</oldsource>
-        <translation type="unfinished">Rimuovi la selezione da tutti i visualizzati</translation>
-    </message>
-    <message>
         <source>Unmark all displayed packets</source>
         <translation>Rimuovi la selezione da tutti i pacchetti visualizzati</translation>
     </message>
@@ -6343,11 +6337,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Unignore All Displayed</source>
         <translation>Considera tutti i visualizzati</translation>
-    </message>
-    <message>
-        <source>U&amp;nignore all displayed packets</source>
-        <oldsource>Unignore all displayed packets</oldsource>
-        <translation type="unfinished">Considera tutti i pacchetti visualizzati</translation>
     </message>
     <message>
         <source>Set/Unset Time Reference</source>
@@ -6396,6 +6385,10 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Remove all packet comments in the capture file</source>
         <translation>Rimuovi tutti i commenti dei pacchetti nel file di cattura</translation>
+    </message>
+    <message>
+        <source>&amp;Configuration Profiles…</source>
+        <translation>Profili di &amp;configurazione...</translation>
     </message>
     <message>
         <source>Configuration profiles</source>
@@ -6714,6 +6707,14 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Filtra questa associazione</translation>
     </message>
     <message>
+        <source>&amp;Conversations</source>
+        <translation>&amp;Conversazioni</translation>
+    </message>
+    <message>
+        <source>&amp;Endpoints</source>
+        <translation>T&amp;erminatori</translation>
+    </message>
+    <message>
         <source>Shrink the main window text</source>
         <translation>Riduci il testo della finestra principale</translation>
     </message>
@@ -6730,27 +6731,12 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Ripristina la disposizione dell&apos;aspetto alla dimensione predefinita</translation>
     </message>
     <message>
-        <source>&amp;Conversation Hash Tables</source>
-        <oldsource>Conversation Hash Tables</oldsource>
-        <translation type="unfinished">Tabella hash di conversazione</translation>
-    </message>
-    <message>
         <source>Show each conversation hash table</source>
         <translation>Mostri ogni tabella degli hash di conversazione</translation>
     </message>
     <message>
-        <source>&amp;Dissector Tables</source>
-        <oldsource>Dissector Tables</oldsource>
-        <translation type="unfinished">Tabella dei decodificatori</translation>
-    </message>
-    <message>
         <source>Show each dissector table and its entries</source>
         <translation>Mostra ogni tabella dei decodificatori e le sue voci</translation>
-    </message>
-    <message>
-        <source>&amp;Supported Protocols</source>
-        <oldsource>Supported Protocols</oldsource>
-        <translation type="unfinished">Protocolli supportati</translation>
     </message>
     <message>
         <source>Show the currently supported protocols and display filter fields</source>
@@ -6771,11 +6757,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>LTE RLC statistics</source>
         <translation>Statistiche RLC LTE</translation>
-    </message>
-    <message>
-        <source>RLC &amp;Graph</source>
-        <oldsource>RLC Graph</oldsource>
-        <translation type="unfinished">Grafico RLC</translation>
     </message>
     <message>
         <source>LTE RLC graph</source>
@@ -6820,6 +6801,10 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Show Packet Bytes…</source>
         <translation>Mostra byte del pacchetto...</translation>
+    </message>
+    <message>
+        <source>Go to &amp;Linked Packet</source>
+        <translation>Vai a&amp;l pacchetto collegato</translation>
     </message>
     <message>
         <source>UDP Multicast Streams</source>
@@ -6874,26 +6859,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Come &amp;testo semplice...</translation>
     </message>
     <message>
-        <source>As &amp;CSV…</source>
-        <oldsource>As CSV…</oldsource>
-        <translation type="unfinished">Come CSV...</translation>
-    </message>
-    <message>
-        <source>As &quot;C&quot; &amp;Arrays…</source>
-        <oldsource>As &quot;C&quot; Arrays…</oldsource>
-        <translation type="unfinished">Come array &quot;C&quot;...</translation>
-    </message>
-    <message>
-        <source>As P&amp;SML XML…</source>
-        <oldsource>As PSML XML…</oldsource>
-        <translation type="unfinished">Come PSML XML...</translation>
-    </message>
-    <message>
-        <source>As P&amp;DML XML…</source>
-        <oldsource>As PDML XML…</oldsource>
-        <translation type="unfinished">Come PDML XML...</translation>
-    </message>
-    <message>
         <source>All Visible Items</source>
         <translation>Tutti gli elementi visibili</translation>
     </message>
@@ -6934,11 +6899,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>... o non selezionati</translation>
     </message>
     <message>
-        <source>Display &amp;Filters…</source>
-        <oldsource>Display Filters…</oldsource>
-        <translation type="unfinished">Filtri di visualizzazione...</translation>
-    </message>
-    <message>
         <source>Display Filter &amp;Macros…</source>
         <translation>Visualizza &amp;macro dei filtri...</translation>
     </message>
@@ -6961,11 +6921,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Packet Comment…</source>
         <translation>Commento del pacchetto...</translation>
-    </message>
-    <message>
-        <source>&amp;Configuration Profiles…</source>
-        <oldsource>Configuration Profiles…</oldsource>
-        <translation type="unfinished">Profili di configurazione...</translation>
     </message>
     <message>
         <source>&amp;Preferences…</source>
@@ -7020,18 +6975,8 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Mostra o nascondi la barra degli strumenti del filtro di visualizzazione</translation>
     </message>
     <message>
-        <source>&amp;Conversations</source>
-        <oldsource>Conversations</oldsource>
-        <translation type="unfinished">Conversazioni</translation>
-    </message>
-    <message>
         <source>Conversations at different protocol levels</source>
         <translation>Conversazioni a diversi livelli di protocollo</translation>
-    </message>
-    <message>
-        <source>&amp;Endpoints</source>
-        <oldsource>Endpoints</oldsource>
-        <translation type="unfinished">Terminatori</translation>
     </message>
     <message>
         <source>Endpoints at different protocol levels</source>
@@ -7246,12 +7191,28 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Mostra o nascondi i byte del pacchetto</translation>
     </message>
     <message>
+        <source>&amp;Conversation Hash Tables</source>
+        <translation>Tabelle hash di &amp;conversazione</translation>
+    </message>
+    <message>
+        <source>&amp;Dissector Tables</source>
+        <translation>Tabella dei &amp;decodificatori</translation>
+    </message>
+    <message>
+        <source>&amp;Supported Protocols</source>
+        <translation>Protocolli &amp;supportati</translation>
+    </message>
+    <message>
         <source>MAP Summary</source>
         <translation>Riepilogo MAP</translation>
     </message>
     <message>
         <source>GSM MAP summary statistics</source>
         <translation>Statistiche riepilogo GSM MAP</translation>
+    </message>
+    <message>
+        <source>RLC &amp;Graph</source>
+        <translation>&amp;Grafico RLC</translation>
     </message>
     <message>
         <source>&amp;Coloring Rules…</source>
@@ -7275,6 +7236,10 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Nuova regola di colorazione...</translation>
     </message>
     <message>
+        <source>IA&amp;X2 Stream Analysis</source>
+        <translation>Analisi flusso IA&amp;X2</translation>
+    </message>
+    <message>
         <source>Enabled Protocols…</source>
         <oldsource>Enable Protocols…</oldsource>
         <translation>Abilita protocolli...</translation>
@@ -7296,17 +7261,72 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Apri la pagina di riferimento del filtro di visualizzazione per questo campo di filtro.</translation>
     </message>
     <message>
-        <source>Go to &amp;Linked Packet</source>
-        <oldsource>Go to Linked Packet</oldsource>
-        <translation type="unfinished">Vai al pacchetto collegato</translation>
-    </message>
-    <message>
         <source>Go to the packet referenced by the selected field.</source>
         <translation>Vai al pacchetto referenziato dal campo selezionato.</translation>
     </message>
     <message>
         <source>&amp;VoIP Calls</source>
         <translation>Chiamate &amp;VoIP</translation>
+    </message>
+    <message>
+        <source>Open &amp;Recent</source>
+        <translation>Apri &amp;recenti</translation>
+    </message>
+    <message>
+        <source>Name Resol&amp;ution</source>
+        <translation>Risol&amp;uzione dei nomi</translation>
+    </message>
+    <message>
+        <source>Service &amp;Response Time</source>
+        <translation>Tempo di &amp;risposta del servizio</translation>
+    </message>
+    <message>
+        <source>&amp;RTP</source>
+        <translation>&amp;RTP</translation>
+    </message>
+    <message>
+        <source>S&amp;CTP</source>
+        <translation>S&amp;CTP</translation>
+    </message>
+    <message>
+        <source>&amp;ANSI</source>
+        <translation>&amp;ANSI</translation>
+    </message>
+    <message>
+        <source>&amp;GSM</source>
+        <translation>&amp;GSM</translation>
+    </message>
+    <message>
+        <source>&amp;LTE</source>
+        <translation>&amp;LTE</translation>
+    </message>
+    <message>
+        <source>&amp;MTP3</source>
+        <translation>&amp;MTP3</translation>
+    </message>
+    <message>
+        <source>&amp;Open</source>
+        <translation>&amp;Apri</translation>
+    </message>
+    <message>
+        <source>&amp;Quit</source>
+        <translation>&amp;Esci</translation>
+    </message>
+    <message>
+        <source>&amp;Close</source>
+        <translation>Chiudi</translation>
+    </message>
+    <message>
+        <source>Display &amp;Filters…</source>
+        <translation>&amp;Filtri di visualizzazione...</translation>
+    </message>
+    <message>
+        <source>&amp;Unmark All Displayed</source>
+        <translation>Rim&amp;uovi la selezione da tutti i visualizzati</translation>
+    </message>
+    <message>
+        <source>U&amp;nignore all displayed packets</source>
+        <translation>Co&amp;nsidera tutti i pacchetti visualizzati</translation>
     </message>
     <message>
         <source>All VoIP Calls</source>
@@ -7709,14 +7729,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>Rescanning</source>
         <translation>Nuova scansione in corso</translation>
-    </message>
-    <message>
-        <source>S&amp;CTP</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>IA&amp;X2 Stream Analysis</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
