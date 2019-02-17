@@ -40,6 +40,8 @@ static int hf_atmarp_ssl = -1;
 static int hf_arp_proto_size = -1;
 static int hf_arp_opcode = -1;
 static int hf_arp_isgratuitous = -1;
+static int hf_arp_isprobe = -1;
+static int hf_arp_isannouncement = -1;
 static int hf_atmarp_spln = -1;
 static int hf_atmarp_tht = -1;
 static int hf_atmarp_thl = -1;
@@ -1358,7 +1360,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   proto_item   *ti, *item;
   const gchar  *op_str;
   int           sha_offset, spa_offset, tha_offset, tpa_offset;
-  gboolean      is_gratuitous;
+  gboolean      is_gratuitous, is_probe = FALSE, is_announcement = FALSE;
   gboolean      duplicate_detected = FALSE;
   guint32       duplicate_ip       = 0;
 
@@ -1521,20 +1523,35 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
      replies are used to announce relocation of network address, like
      in failover solutions. */
   if (((ar_op == ARPOP_REQUEST) || (ar_op == ARPOP_REPLY)) &&
-      (tvb_memeql(tvb, spa_offset, tvb_get_ptr(tvb, tpa_offset, ar_pln), ar_pln) == 0))
+      (tvb_memeql(tvb, spa_offset, tvb_get_ptr(tvb, tpa_offset, ar_pln), ar_pln) == 0)) {
     is_gratuitous = TRUE;
-  else
+    if ((ar_op == ARPOP_REQUEST) && (tvb_memeql(tvb, tha_offset, mac_allzero, 6) == 0))
+      is_announcement = TRUE;
+  }
+  else {
     is_gratuitous = FALSE;
-
+    if ((ar_op == ARPOP_REQUEST) && (tvb_memeql(tvb, tha_offset, mac_allzero, 6) == 0) && (tvb_get_ipv4(tvb, spa_offset) == 0))
+      is_probe = TRUE;
+  }
   switch (ar_op) {
     case ARPOP_REQUEST:
-      if (is_gratuitous)
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Gratuitous ARP for %s (Request)",
+      if (is_gratuitous) {
+        if (is_announcement) {
+          col_add_fstr(pinfo->cinfo, COL_INFO, "ARP Announcement for %s",
                      tvb_arpproaddr_to_str(tvb, tpa_offset, ar_pln, ar_pro));
-      else
+        } else {
+          col_add_fstr(pinfo->cinfo, COL_INFO, "Gratuitous ARP for %s (Request)",
+                     tvb_arpproaddr_to_str(tvb, tpa_offset, ar_pln, ar_pro));
+        }
+      }
+      else if (is_probe) {
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s? (ARP Probe)",
+                     tvb_arpproaddr_to_str(tvb, tpa_offset, ar_pln, ar_pro));
+      } else {
         col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s? Tell %s",
-                     tvb_arpproaddr_to_str(tvb, tpa_offset, ar_pln, ar_pro),
-                     tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
+          tvb_arpproaddr_to_str(tvb, tpa_offset, ar_pln, ar_pro),
+          tvb_arpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro));
+      }
       break;
     case ARPOP_REPLY:
       if (is_gratuitous)
@@ -1675,6 +1692,11 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         op_str = "request/gratuitous ARP";
       if (is_gratuitous && (ar_op == ARPOP_REPLY))
         op_str = "reply/gratuitous ARP";
+      if (is_probe)
+        op_str = "ARP Probe";
+      if (is_announcement)
+        op_str = "ARP Announcement";
+
       ti = proto_tree_add_protocol_format(tree, proto_arp, tvb, 0, tot_len,
                                           "Address Resolution Protocol (%s)", op_str);
     } else
@@ -1686,11 +1708,18 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     proto_tree_add_uint(arp_tree, hf_arp_hard_size, tvb, AR_HLN, 1, ar_hln);
     proto_tree_add_uint(arp_tree, hf_arp_proto_size, tvb, AR_PLN, 1, ar_pln);
     proto_tree_add_uint(arp_tree, hf_arp_opcode, tvb, AR_OP,  2, ar_op);
-    if (is_gratuitous)
-   {
-    item = proto_tree_add_boolean(arp_tree, hf_arp_isgratuitous, tvb, 0, 0, is_gratuitous);
-    PROTO_ITEM_SET_GENERATED(item);
-   }
+    if (is_gratuitous) {
+      item = proto_tree_add_boolean(arp_tree, hf_arp_isgratuitous, tvb, 0, 0, is_gratuitous);
+      PROTO_ITEM_SET_GENERATED(item);
+    }
+    if (is_probe) {
+      item = proto_tree_add_boolean(arp_tree, hf_arp_isprobe, tvb, 0, 0, is_probe);
+      PROTO_ITEM_SET_GENERATED(item);
+    }
+    if (is_announcement) {
+      item = proto_tree_add_boolean(arp_tree, hf_arp_isannouncement, tvb, 0, 0, is_announcement);
+      PROTO_ITEM_SET_GENERATED(item);
+    }
     if (ar_hln != 0) {
       proto_tree_add_item(arp_tree,
                           ARP_HW_IS_ETHER(ar_hrd, ar_hln) ?
@@ -1791,6 +1820,16 @@ proto_register_arp(void)
 
     { &hf_arp_isgratuitous,
       { "Is gratuitous",                "arp.isgratuitous",
+        FT_BOOLEAN,     BASE_NONE,      TFS(&tfs_true_false),   0x0,
+        NULL, HFILL }},
+
+    { &hf_arp_isprobe,
+      { "Is probe",                "arp.isprobe",
+        FT_BOOLEAN,     BASE_NONE,      TFS(&tfs_true_false),   0x0,
+        NULL, HFILL }},
+
+    { &hf_arp_isannouncement,
+      { "Is announcement",                "arp.isannouncement",
         FT_BOOLEAN,     BASE_NONE,      TFS(&tfs_true_false),   0x0,
         NULL, HFILL }},
 
