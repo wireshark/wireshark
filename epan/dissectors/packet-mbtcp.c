@@ -73,6 +73,7 @@ static int hf_mbtcp_protid = -1;
 static int hf_mbtcp_len = -1;
 static int hf_mbtcp_unitid = -1;
 static int hf_modbus_request_frame = -1;
+static int hf_modbus_response_time = -1;
 static int hf_modbus_functioncode = -1;
 static int hf_modbus_reference = -1;
 static int hf_modbus_padding = -1;
@@ -189,6 +190,7 @@ typedef struct {
     guint16 reg_base;
     guint16 num_reg;
     guint32 req_frame_num;
+    nstime_t req_time;
     gboolean request_found;
 } modbus_pkt_info_t;
 
@@ -1207,11 +1209,16 @@ dissect_modbus_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tr
     guint16       diagnostic_code;
     guint32       group_byte_cnt, group_word_cnt;
 
-    proto_item            *request_frame_item;
+    nstime_t      response_time;
+    proto_item    *request_frame_item, *response_time_item;
 
     if (pkt_info->request_found == TRUE) {
         request_frame_item = proto_tree_add_uint(modbus_tree, hf_modbus_request_frame, tvb, 0, 0, pkt_info->req_frame_num);
         PROTO_ITEM_SET_GENERATED(request_frame_item);
+
+        nstime_delta(&response_time, &pinfo->abs_ts, &pkt_info->req_time);
+        response_time_item = proto_tree_add_time(modbus_tree, hf_modbus_response_time, tvb, 0, 0, &response_time);
+        PROTO_ITEM_SET_GENERATED(response_time_item);
     }
 
     switch (function_code) {
@@ -1567,6 +1574,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 if (captured_length >= 5)
                     pkt_info->num_reg = frame_ptr->num_reg = tvb_get_ntohs(tvb, 3);
             }
+            frame_ptr->time = pinfo->abs_ts;
 
             wmem_list_prepend(modbus_conv_data->modbus_request_frame_data, frame_ptr);
         }
@@ -1587,6 +1595,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     pkt_info->num_reg = request_data->num_reg;
                     pkt_info->request_found = TRUE;
                     pkt_info->req_frame_num = req_frame_num;
+                    pkt_info->req_time = request_data->time;
                 }
                 frame = wmem_list_frame_next(frame);
             }
@@ -1721,6 +1730,12 @@ proto_register_modbus(void)
             FT_FRAMENUM, BASE_NONE,
             NULL, 0x0,
             NULL, HFILL }
+        },
+        { &hf_modbus_response_time,
+            { "Time from request", "modbus.response_time",
+            FT_RELATIVE_TIME, BASE_NONE,
+            NULL, 0x0,
+            "Time between request and reply", HFILL }
         },
         { &hf_modbus_functioncode,
             { "Function Code", "modbus.func_code",
