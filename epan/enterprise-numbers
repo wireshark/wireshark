@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2019-02-09)
+(last updated 2019-02-16)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -108494,9 +108494,9 @@ Decimal
     Adam Tlalka
       adcent&pg.gda.pl
 27236
-  Netoracle Ltd.
+  VOID.PL LTD (formerly 'Netoracle Ltd.')
     Maciej Pedziwiatr
-      iana&netoracle.net
+      iana&void.pl
 27237
   Smart Data Solutions, Inc.
     Luis P. Rodriguez
@@ -128566,9 +128566,9 @@ Decimal
     Michael Slevin
       ms1&danutech.com
 32254
-  Hoare Lea and Partners
-    Julian Beech
-      julianbeech&hoarelea.com
+  Hoare Lea LLP
+    Hoare Lea IT Support
+      itsupport&hoarelea.com
 32255
   J. Christof GmbH
     Wolfgang Spinotti
@@ -188699,8 +188699,8 @@ Decimal
       info&uanataca.com
 47287
   Brabbler Secure Message and Data Exchange Aktiengesellschaft
-    Ivaylo Mateev
-      imateev&brabbler.ag
+    IT Operations Department
+      itops&brabbler.ag
 47288
   COMMUNITHINGS S.A.
     JUAN HURTADO TOMERO
@@ -189814,9 +189814,9 @@ Decimal
     Security Operations
       domains&forcepoint.com
 47566
-  Uniper AG
-    Peter Marschall
-      peter.marschall&eon.com
+  Uniper SE
+    Steve Abbott
+      steve.abbott&uniper.energy
 47567
   Seifert Logistics GmbH
     IT Abteilung
@@ -208878,7 +208878,7 @@ Decimal
     Abdulrahman Al-Dabbagh
       abdul&learntotechsolutions.com
 52332
-  INTEGRITY Security Services, LLC
+  INTEGRITY Security Services LLC
     Alan Meyer
       iss.policyauthority&ghsiss.com
 52333
@@ -213305,6 +213305,162 @@ Decimal
   Färsåns Skogsentreprenader AB
     Stefan Ajax
       farsanskog&telia.com
+53439
+  Beijing Finelinx technology co.,Ltd
+    Guo Baozhong
+      gbaozhong&sina.com
+53440
+  Coromatic Nord AB
+    Bo Danielsson
+      bo.danielsson&coromatic.se
+53441
+  TECHNOPROG
+    Pavel Lepikhov
+      lepikhov&tehnoprog.ru
+53442
+  Thomas Westén
+    Thomas Westen
+      thomas.westen&hotmail.com
+53443
+  ELEPHANTVERT FRANCE SAS
+    Eric Couasnet
+      contact-dsi&elephant-vert.com
+53444
+  ROTOFRANCE IMPRESSION
+    Xavier LAMBROS
+      xavier.lambros&rotofrance.fr
+53445
+  Cyborgi
+    Josh Villareal
+      josvil&cyborgi.net
+53446
+  Firebird Foundation Incorporated
+    Helen Borrie
+      helebor&iinet.net.au
+53447
+  Numis Securities Ltd
+    Mathew Abraham
+      infrasup&numis.com
+53448
+  Ernst Dello GmbH & Co. KG
+    Matthias Timm
+      Matthias.Timm&akquinet.de
+53449
+  Optieng
+    Gustavo Azenha
+      gustavo.azenha&optieng.com
+53450
+  Laurelin Open Source
+    Alex Shafer
+      ashafer&pm.me
+53451
+  Enable Networks Limited
+    Mark Lyons
+      mark.lyons&concepts.co.nz
+53452
+  Verizon Connect
+    Alex Miller
+      alex.miller&verizonconnect.com
+53453
+  Iglesia De Dios Puente De Salvacion, Inc.
+    Daniel Soto
+      daniel.soto&iddpds.org
+53454
+  DataPlus
+    Sergey Shapotkin
+      support&shs-systems.ru
+53455
+  Susfugo
+    NetOps
+      netops+iana&susfugo.com
+53456
+  Dentons Australia Pty Ltd
+    Michael Micallef
+      michael.micallef&dentons.com
+53457
+  CleverLogic Co.,Ltd.
+    Jae Kyung KIM
+      jkiset&cleverlogic.co.kr
+53458
+  Maldun Security
+    Banyan He
+      bhe&maldun.com
+53459
+  CHALLENGE NETWORKS PTY LTD
+    Ben Larcombe
+      support&challengenetworks.com.au
+53460
+  Oasis Smart SIM Europe SAS
+    Patrick Cao
+      patrick.cao&oasis-smartsim.com
+53461
+  SimiGon
+    Hagai Piechowicz
+      picho&simigon.com
+53462
+  Staerk Industries
+    Ulrich Staerk
+      uli&ustaerk.de
+53463
+  Internetworking Solutions Ltd
+    James Mugauri
+      james&inwsolutions.net
+53464
+  Puzzle ITC Deutschland GmbH
+    Mark Pröhl
+      proehl&puzzle-itc.de
+53465
+  inPoste.it S.p.A.
+    Claudio Anastasio
+      claudio.anastasio&tnotice.com
+53466
+  Buddha Global Conferencing & Registry Services. 
+    ABHAY AANAND (ABHAY KUMAR SINGH) 
+      biharabhay&gmail.com
+53467
+  JIP InfoBridge Co.,Ltd.
+    Naoki Henna
+      nao&info-brdg.co.jp
+53468
+  Bendigo Senior Secondary College
+    Trevor Lock
+      sysadmin&bssc.edu.au
+53469
+  Soundwave Networking
+    William Ono
+      swadmin&soundwave.net
+53470
+  Shenzhen hongfusheng Technology Co., Ltd.(HFS)
+    Jingkan Lu
+      lujingkan&163.com
+53471
+  Communication Components Inc
+    Allen Cohen
+      acohen&cciproducts.com
+53472
+  ALPLA Werke Alwin Lehner GmbH & Co KG
+    Thomas Lambertz
+      thomas.lambertz&alpla.com
+53473
+  Erwin Halder KG
+    Stefan Hirschbeck
+      pki&halder.de
+53474
+  AKTOR - Information system
+    Sergey Vykhodtsev
+      svykhodtsev&aktor-is.ru
+53475
+  North East Derbyshire District Council
+    L Thompson
+      technology&ne-derbyshire.gov.uk
+53476
+  Criminal Cases Review Commission
+    Helpdesk
+      helpdesk&ccrc.gov.uk
+53477
+  LST Forest AB
+    Martin Ålander
+      martin&lstforest.se
 
 
 End of Document

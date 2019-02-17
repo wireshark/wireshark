@@ -169,12 +169,12 @@
         <translation>标记/取消标记单元格</translation>
     </message>
     <message>
-        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="368"/>
+        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="380"/>
         <source>Save Table Image</source>
         <translation>保存表格图像</translation>
     </message>
     <message>
-        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="370"/>
+        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="382"/>
         <source>PNG Image (*.png)</source>
         <translation>PNG 图像 (*.png)</translation>
     </message>
@@ -308,7 +308,7 @@
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="206"/>
-        <location filename="bluetooth_device_dialog.cpp" line="632"/>
+        <location filename="bluetooth_device_dialog.cpp" line="646"/>
         <source>%1 changes</source>
         <translation>%1 个更改</translation>
     </message>
@@ -359,27 +359,27 @@
         <translation>蓝牙设备 - %1%2</translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="567"/>
+        <location filename="bluetooth_device_dialog.cpp" line="581"/>
         <source>enabled</source>
         <translation>已启用</translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="567"/>
+        <location filename="bluetooth_device_dialog.cpp" line="581"/>
         <source>disabled</source>
         <translation>已禁用</translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="575"/>
+        <location filename="bluetooth_device_dialog.cpp" line="589"/>
         <source>%1 ms (%2 slots)</source>
         <translation>%1 ms (%2 槽)</translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="667"/>
+        <location filename="bluetooth_device_dialog.cpp" line="681"/>
         <source>Save Table Image</source>
         <translation>保存表格图像</translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="669"/>
+        <location filename="bluetooth_device_dialog.cpp" line="683"/>
         <source>PNG Image (*.png)</source>
         <translation>PNG 图像 (*.png)</translation>
     </message>

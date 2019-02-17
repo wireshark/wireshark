@@ -169,12 +169,12 @@
         <translation>Zaznacz/Odznacz komórkę</translation>
     </message>
     <message>
-        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="368"/>
+        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="380"/>
         <source>Save Table Image</source>
         <translation>Zapisz jako obraz</translation>
     </message>
     <message>
-        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="370"/>
+        <location filename="bluetooth_att_server_attributes_dialog.cpp" line="382"/>
         <source>PNG Image (*.png)</source>
         <translation>Obraz PNG (*.png)</translation>
     </message>
@@ -308,7 +308,7 @@
     </message>
     <message>
         <location filename="bluetooth_device_dialog.ui" line="206"/>
-        <location filename="bluetooth_device_dialog.cpp" line="632"/>
+        <location filename="bluetooth_device_dialog.cpp" line="646"/>
         <source>%1 changes</source>
         <translation>%1 zmian</translation>
     </message>
@@ -359,27 +359,27 @@
         <translation>Urządzenie Bluetooth - %1%2</translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="567"/>
+        <location filename="bluetooth_device_dialog.cpp" line="581"/>
         <source>enabled</source>
         <translation>włączony</translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="567"/>
+        <location filename="bluetooth_device_dialog.cpp" line="581"/>
         <source>disabled</source>
         <translation>wyłączony</translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="575"/>
+        <location filename="bluetooth_device_dialog.cpp" line="589"/>
         <source>%1 ms (%2 slots)</source>
         <translation>%1 ms (%2 sloty)</translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="667"/>
+        <location filename="bluetooth_device_dialog.cpp" line="681"/>
         <source>Save Table Image</source>
         <translation>Zapisz jako obraz</translation>
     </message>
     <message>
-        <location filename="bluetooth_device_dialog.cpp" line="669"/>
+        <location filename="bluetooth_device_dialog.cpp" line="683"/>
         <source>PNG Image (*.png)</source>
         <translation>Obraz PNG (*.png)</translation>
     </message>
