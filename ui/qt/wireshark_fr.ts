@@ -2078,6 +2078,45 @@ NOTE: Une option DOIT être sélectionnée.</translation>
     </message>
 </context>
 <context>
+    <name>EndpointDialog</name>
+    <message>
+        <source>Map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Draw IPv4 or IPv6 endpoints on a map.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open in browser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save As</source>
+        <translation type="unfinished">Enregistrer sous</translation>
+    </message>
+    <message>
+        <source>Map file error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No endpoints available to map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to create temporary file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Endpoints Map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to save map file %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ExpertInfoDialog</name>
     <message>
         <source>Dialog</source>
@@ -5658,10 +5697,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Annuler</translation>
     </message>
     <message>
-        <source>Open Recent</source>
-        <translation type="vanished">Dernier fichier ouvert</translation>
-    </message>
-    <message>
         <source>File Set</source>
         <translation>Fichier</translation>
     </message>
@@ -5680,10 +5715,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>&amp;Time Display Format</source>
         <translation>&amp;Format d&apos;Affichage de l&apos;Heure</translation>
-    </message>
-    <message>
-        <source>Name Resolution</source>
-        <translation type="vanished">Résolution de nom</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -5778,10 +5809,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>RTSP</translation>
     </message>
     <message>
-        <source>RTP</source>
-        <translation type="vanished">RTP</translation>
-    </message>
-    <message>
         <source>&amp;Edit</source>
         <translation>&amp;Editer</translation>
     </message>
@@ -5794,16 +5821,8 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Barre de filtrage d&apos;affichage</translation>
     </message>
     <message>
-        <source>Open</source>
-        <translation type="vanished">Ouvrir</translation>
-    </message>
-    <message>
         <source>Open a capture file</source>
         <translation>Ouvrir un fichier de capture</translation>
-    </message>
-    <message>
-        <source>Quit</source>
-        <translation type="vanished">Quitter</translation>
     </message>
     <message>
         <source>Quit Wireshark</source>
@@ -5824,10 +5843,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Stop capturing packets</source>
         <translation>Arrêter la capturer de paquet</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="vanished">Fermer</translation>
     </message>
     <message>
         <source>No files found</source>
@@ -6098,26 +6113,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Filtre de Conversation</translation>
     </message>
     <message>
-        <source>Service Response Time</source>
-        <translation type="vanished">Temps de Réponse Service</translation>
-    </message>
-    <message>
-        <source>ANSI</source>
-        <translation type="vanished">ANSI</translation>
-    </message>
-    <message>
-        <source>GSM</source>
-        <translation type="vanished">GSM</translation>
-    </message>
-    <message>
-        <source>LTE</source>
-        <translation type="vanished">LTE</translation>
-    </message>
-    <message>
-        <source>MTP3</source>
-        <translation type="vanished">MTP3</translation>
-    </message>
-    <message>
         <source>Osmux</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6267,10 +6262,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Marquer tous les paquets affichés</translation>
     </message>
     <message>
-        <source>Unmark All Displayed</source>
-        <translation type="vanished">Démarquer tous affichés</translation>
-    </message>
-    <message>
         <source>Unmark all displayed packets</source>
         <translation>Démarquer tous paquets affichés</translation>
     </message>
@@ -6309,10 +6300,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Unignore All Displayed</source>
         <translation>Ne plus ignorer tous les affichés</translation>
-    </message>
-    <message>
-        <source>Unignore all displayed packets</source>
-        <translation type="vanished">Ne plus ignorer tous les paquets affichés</translation>
     </message>
     <message>
         <source>Set/Unset Time Reference</source>
@@ -6711,16 +6698,8 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Dissector Tables</source>
-        <translation type="vanished">Tables de dissecteurs</translation>
-    </message>
-    <message>
         <source>Show each dissector table and its entries</source>
         <translation>Montrer chaque table de dissecteur et ses entrées</translation>
-    </message>
-    <message>
-        <source>Supported Protocols</source>
-        <translation type="vanished">Protocoles supportés</translation>
     </message>
     <message>
         <source>Show the currently supported protocols and display filter fields</source>
@@ -6741,10 +6720,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>LTE RLC statistics</source>
         <translation>Statistiques LTE RLC</translation>
-    </message>
-    <message>
-        <source>RLC Graph</source>
-        <translation type="vanished">Graphique RLC</translation>
     </message>
     <message>
         <source>LTE RLC graph</source>
@@ -6847,22 +6822,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>As CSV…</source>
-        <translation type="vanished">En CSV...</translation>
-    </message>
-    <message>
-        <source>As &quot;C&quot; Arrays…</source>
-        <translation type="vanished">En Tableau &quot;C&quot;...</translation>
-    </message>
-    <message>
-        <source>As PSML XML…</source>
-        <translation type="vanished">En PSML XML...</translation>
-    </message>
-    <message>
-        <source>As PDML XML…</source>
-        <translation type="vanished">En PDML XML...</translation>
-    </message>
-    <message>
         <source>All Visible Items</source>
         <translation>Tous les Éléments Visibles</translation>
     </message>
@@ -6903,10 +6862,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>...ou non Sélectionné</translation>
     </message>
     <message>
-        <source>Display Filters…</source>
-        <translation type="vanished">Filtres d&apos;affichage...</translation>
-    </message>
-    <message>
         <source>Display Filter &amp;Macros…</source>
         <translation>Afficher les Filtres &amp;Macros...</translation>
     </message>
@@ -6929,10 +6884,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Packet Comment…</source>
         <translation>Commentaire Paquet...</translation>
-    </message>
-    <message>
-        <source>Configuration Profiles…</source>
-        <translation type="vanished">Profils Configuration...</translation>
     </message>
     <message>
         <source>&amp;Preferences…</source>
@@ -6987,16 +6938,8 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Afficher/Masquer la barre d&apos;outils filtre d&apos;affichage</translation>
     </message>
     <message>
-        <source>Conversations</source>
-        <translation type="vanished">Conversations</translation>
-    </message>
-    <message>
         <source>Conversations at different protocol levels</source>
         <translation>Conversations à différents niveaux de protocole</translation>
-    </message>
-    <message>
-        <source>Endpoints</source>
-        <translation type="vanished">Terminaux</translation>
     </message>
     <message>
         <source>Endpoints at different protocol levels</source>
@@ -7279,10 +7222,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Open the display filter reference page for this filter field.</source>
         <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Go to Linked Packet</source>
-        <translation type="vanished">Aller au Paquet Lié</translation>
     </message>
     <message>
         <source>Go to the packet referenced by the selected field.</source>

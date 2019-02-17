@@ -2082,6 +2082,45 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
 </context>
 <context>
+    <name>EndpointDialog</name>
+    <message>
+        <source>Map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Draw IPv4 or IPv6 endpoints on a map.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open in browser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save As</source>
+        <translation type="unfinished">Зберегти Як</translation>
+    </message>
+    <message>
+        <source>Map file error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No endpoints available to map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to create temporary file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Endpoints Map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to save map file %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ExpertInfoDialog</name>
     <message>
         <source>Dialog</source>
@@ -5614,10 +5653,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>Скасувати</translation>
     </message>
     <message>
-        <source>Open Recent</source>
-        <translation type="vanished">Відрити Недавній</translation>
-    </message>
-    <message>
         <source>File Set</source>
         <translation>Набір Файлів</translation>
     </message>
@@ -5636,10 +5671,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>&amp;Time Display Format</source>
         <translation>&amp;Формат Відображення Часу</translation>
-    </message>
-    <message>
-        <source>Name Resolution</source>
-        <translation type="vanished">Визначення Імен</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -5734,10 +5765,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>RTSP</translation>
     </message>
     <message>
-        <source>RTP</source>
-        <translation type="vanished">RTP</translation>
-    </message>
-    <message>
         <source>&amp;Edit</source>
         <translation>&amp;Правка</translation>
     </message>
@@ -5750,16 +5777,8 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>Показувати Панель Фільтрації </translation>
     </message>
     <message>
-        <source>Open</source>
-        <translation type="vanished">Відкрити</translation>
-    </message>
-    <message>
         <source>Open a capture file</source>
         <translation>Відкрити файл захоплення</translation>
-    </message>
-    <message>
-        <source>Quit</source>
-        <translation type="vanished">Вийти</translation>
     </message>
     <message>
         <source>Quit Wireshark</source>
@@ -5780,10 +5799,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Stop capturing packets</source>
         <translation>Зупинити захоплення пакетів</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="vanished">Закрити</translation>
     </message>
     <message>
         <source>No files found</source>
@@ -6054,18 +6069,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>Фільтр Взаємодій</translation>
     </message>
     <message>
-        <source>Service Response Time</source>
-        <translation type="vanished">Час Відповіді Сервісу</translation>
-    </message>
-    <message>
-        <source>ANSI</source>
-        <translation type="vanished">ANSI</translation>
-    </message>
-    <message>
-        <source>GSM</source>
-        <translation type="vanished">GSM</translation>
-    </message>
-    <message>
         <source>Osmux</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6215,10 +6218,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>Позначити всі відображені пакети</translation>
     </message>
     <message>
-        <source>Unmark All Displayed</source>
-        <translation type="vanished">Зняти Позначки з Усіх Відображених</translation>
-    </message>
-    <message>
         <source>Unmark all displayed packets</source>
         <translation>Зняти позначки з усіх відображених пакетів</translation>
     </message>
@@ -6257,10 +6256,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Unignore All Displayed</source>
         <translation>Повернути Всі Відображені</translation>
-    </message>
-    <message>
-        <source>Unignore all displayed packets</source>
-        <translation type="vanished">Повернути всі відображені пакети</translation>
     </message>
     <message>
         <source>Set/Unset Time Reference</source>
@@ -6783,22 +6778,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>Як Звичайний &amp;Текст...</translation>
     </message>
     <message>
-        <source>As CSV…</source>
-        <translation type="vanished">Як CSV...</translation>
-    </message>
-    <message>
-        <source>As &quot;C&quot; Arrays…</source>
-        <translation type="vanished">Як Масиви &quot;C&quot;...</translation>
-    </message>
-    <message>
-        <source>As PSML XML…</source>
-        <translation type="vanished">Як PSML XML...</translation>
-    </message>
-    <message>
-        <source>As PDML XML…</source>
-        <translation type="vanished">Як PDML XML...</translation>
-    </message>
-    <message>
         <source>All Visible Items</source>
         <translation type="unfinished"></translation>
     </message>
@@ -6839,10 +6818,6 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>...або не Вибрані</translation>
     </message>
     <message>
-        <source>Display Filters…</source>
-        <translation type="vanished">Фільтри Відображення...</translation>
-    </message>
-    <message>
         <source>Display Filter &amp;Macros…</source>
         <translation>&amp;Макроси Фільтру Відображення...</translation>
     </message>
@@ -6865,10 +6840,6 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>Packet Comment…</source>
         <translation>Коментар До Пакету...</translation>
-    </message>
-    <message>
-        <source>Configuration Profiles…</source>
-        <translation type="vanished">Профілі Конфігурації...</translation>
     </message>
     <message>
         <source>&amp;Preferences…</source>
@@ -6923,16 +6894,8 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>Показати чи приховати панель фільтру відображення</translation>
     </message>
     <message>
-        <source>Conversations</source>
-        <translation type="vanished">Взаємодії</translation>
-    </message>
-    <message>
         <source>Conversations at different protocol levels</source>
         <translation>Взаємодії по протоколам різних рівнів</translation>
-    </message>
-    <message>
-        <source>Endpoints</source>
-        <translation type="vanished">Кінцеві Точки</translation>
     </message>
     <message>
         <source>Endpoints at different protocol levels</source>
@@ -10564,7 +10527,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Close</source>
-        <translation type="unfinished">Закрити</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Number of Data Chunks from EP2 to EP1: </source>

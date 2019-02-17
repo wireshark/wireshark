@@ -771,6 +771,21 @@
         <source>Automatically detect file type</source>
         <translation>Detektera automatiskt filtyp</translation>
     </message>
+    <message numerus="yes">
+        <source>%1, error after %Ln packet(s)</source>
+        <oldsource>%1, error after %2 packets</oldsource>
+        <translation type="vanished">
+            <numerusform>%1, fel efter %Ln paket</numerusform>
+            <numerusform>%1, fel efter %Ln paket</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, %Ln packet(s)</source>
+        <translation type="vanished">
+            <numerusform>%1, %Ln paket</numerusform>
+            <numerusform>%1, %Ln paket</numerusform>
+        </translation>
+    </message>
     <message>
         <source>Prepend packets</source>
         <translation>Lägg paket före</translation>
@@ -2077,6 +2092,45 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     <message>
         <source>Description</source>
         <translation>Beskrivning</translation>
+    </message>
+</context>
+<context>
+    <name>EndpointDialog</name>
+    <message>
+        <source>Map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Draw IPv4 or IPv6 endpoints on a map.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open in browser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save As</source>
+        <translation type="unfinished">Spara som</translation>
+    </message>
+    <message>
+        <source>Map file error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No endpoints available to map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to create temporary file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Endpoints Map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to save map file %1.</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -5658,10 +5712,6 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <translation>Avbryt</translation>
     </message>
     <message>
-        <source>Open Recent</source>
-        <translation type="vanished">Öppna senaste</translation>
-    </message>
-    <message>
         <source>File Set</source>
         <translation>Filuppsättning</translation>
     </message>
@@ -5680,10 +5730,6 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     <message>
         <source>&amp;Time Display Format</source>
         <translation>&amp;Tidsvisningsformat</translation>
-    </message>
-    <message>
-        <source>Name Resolution</source>
-        <translation type="vanished">Namnuppslagning</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -5778,10 +5824,6 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <translation>RTSP</translation>
     </message>
     <message>
-        <source>RTP</source>
-        <translation type="vanished">RTP</translation>
-    </message>
-    <message>
         <source>&amp;Edit</source>
         <translation>&amp;Redigera</translation>
     </message>
@@ -5794,16 +5836,8 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <translation>Visningsfilterverktygsrad</translation>
     </message>
     <message>
-        <source>Open</source>
-        <translation type="vanished">Öppna</translation>
-    </message>
-    <message>
         <source>Open a capture file</source>
         <translation>Öppna en fångstfil</translation>
-    </message>
-    <message>
-        <source>Quit</source>
-        <translation type="vanished">Avsluta</translation>
     </message>
     <message>
         <source>Quit Wireshark</source>
@@ -5824,10 +5858,6 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     <message>
         <source>Stop capturing packets</source>
         <translation>Sluta fånga paket</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="vanished">Stäng</translation>
     </message>
     <message>
         <source>No files found</source>
@@ -6023,7 +6053,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>As &amp;CSV…</source>
-        <translation type="unfinished"></translation>
+        <translation>Som &amp;CSV…</translation>
     </message>
     <message>
         <source>As &quot;C&quot; &amp;Arrays…</source>
@@ -6039,7 +6069,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>As &amp;JSON…</source>
-        <translation type="unfinished"></translation>
+        <translation>Som &amp;JSON…</translation>
     </message>
     <message>
         <source>Description</source>
@@ -6096,26 +6126,6 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     <message>
         <source>Conversation Filter</source>
         <translation>Konversationsfilter</translation>
-    </message>
-    <message>
-        <source>Service Response Time</source>
-        <translation type="vanished">Tjänstesvarstid</translation>
-    </message>
-    <message>
-        <source>ANSI</source>
-        <translation type="vanished">ANSI</translation>
-    </message>
-    <message>
-        <source>GSM</source>
-        <translation type="vanished">GSM</translation>
-    </message>
-    <message>
-        <source>LTE</source>
-        <translation type="vanished">LTE</translation>
-    </message>
-    <message>
-        <source>MTP3</source>
-        <translation type="vanished">MTP3</translation>
     </message>
     <message>
         <source>Osmux</source>
@@ -6215,10 +6225,6 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <translation>Läs om som filformat/-fångst</translation>
     </message>
     <message>
-        <source>As JSON…</source>
-        <translation type="vanished">Som JSON …</translation>
-    </message>
-    <message>
         <source>Copy this item&apos;s description</source>
         <translation>Kopiera detta objekts beskrivning</translation>
     </message>
@@ -6271,10 +6277,6 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <translation>Markera alla visade paket</translation>
     </message>
     <message>
-        <source>Unmark All Displayed</source>
-        <translation type="vanished">Avmarkera alla visade</translation>
-    </message>
-    <message>
         <source>Unmark all displayed packets</source>
         <translation>Avmarkera alla visade paket</translation>
     </message>
@@ -6313,10 +6315,6 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     <message>
         <source>Unignore All Displayed</source>
         <translation>Avignorera alla visade</translation>
-    </message>
-    <message>
-        <source>Unignore all displayed packets</source>
-        <translation type="vanished">Avignorera alla visade paket</translation>
     </message>
     <message>
         <source>Set/Unset Time Reference</source>
@@ -6711,24 +6709,12 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <translation>Återställ utseendelayouten till sin standardstorlek</translation>
     </message>
     <message>
-        <source>Conversation Hash Tables</source>
-        <translation type="vanished">Konversationshashtabeller</translation>
-    </message>
-    <message>
         <source>Show each conversation hash table</source>
         <translation>Visa varje konversations hashtabell</translation>
     </message>
     <message>
-        <source>Dissector Tables</source>
-        <translation type="vanished">Dissekeringstabeller</translation>
-    </message>
-    <message>
         <source>Show each dissector table and its entries</source>
         <translation>Visa varje dissekeringstabell och dess poster</translation>
-    </message>
-    <message>
-        <source>Supported Protocols</source>
-        <translation type="vanished">Protokoll som stödjs</translation>
     </message>
     <message>
         <source>Show the currently supported protocols and display filter fields</source>
@@ -6749,10 +6735,6 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     <message>
         <source>LTE RLC statistics</source>
         <translation>LTE RLC-statistik</translation>
-    </message>
-    <message>
-        <source>RLC Graph</source>
-        <translation type="vanished">RLC-graf</translation>
     </message>
     <message>
         <source>LTE RLC graph</source>
@@ -6855,22 +6837,6 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <translation>Som vanlig &amp;text …</translation>
     </message>
     <message>
-        <source>As CSV…</source>
-        <translation type="vanished">Som CSV …</translation>
-    </message>
-    <message>
-        <source>As &quot;C&quot; Arrays…</source>
-        <translation type="vanished">Som ”C”-vektorer …</translation>
-    </message>
-    <message>
-        <source>As PSML XML…</source>
-        <translation type="vanished">Som PSML XML …</translation>
-    </message>
-    <message>
-        <source>As PDML XML…</source>
-        <translation type="vanished">Som PDML XML …</translation>
-    </message>
-    <message>
         <source>All Visible Items</source>
         <translation>Alla synliga objekt</translation>
     </message>
@@ -6911,10 +6877,6 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <translation>… eller inte valda</translation>
     </message>
     <message>
-        <source>Display Filters…</source>
-        <translation type="vanished">Visningsfilter …</translation>
-    </message>
-    <message>
         <source>Display Filter &amp;Macros…</source>
         <translation>Visningsfilter&amp;makron …</translation>
     </message>
@@ -6937,10 +6899,6 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     <message>
         <source>Packet Comment…</source>
         <translation>Paketkommentar …</translation>
-    </message>
-    <message>
-        <source>Configuration Profiles…</source>
-        <translation type="vanished">Konfigurationsprofiler …</translation>
     </message>
     <message>
         <source>&amp;Preferences…</source>
@@ -6995,16 +6953,8 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <translation>Visa eller dölj filterverktygsraden</translation>
     </message>
     <message>
-        <source>Conversations</source>
-        <translation type="vanished">Konversationer</translation>
-    </message>
-    <message>
         <source>Conversations at different protocol levels</source>
         <translation>Konversationer på olika protokollnivåer</translation>
-    </message>
-    <message>
-        <source>Endpoints</source>
-        <translation type="vanished">Ändpunkter</translation>
     </message>
     <message>
         <source>Endpoints at different protocol levels</source>
@@ -7228,7 +7178,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>&amp;Supported Protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Protokoll som stöds</translation>
     </message>
     <message>
         <source>MAP Summary</source>
@@ -7289,10 +7239,6 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <translation>Öppna visningsfiltrets referenssida för detta filterfält.</translation>
     </message>
     <message>
-        <source>Go to Linked Packet</source>
-        <translation type="vanished">Gå till länkade paket</translation>
-    </message>
-    <message>
         <source>Go to the packet referenced by the selected field.</source>
         <translation>Gå till paketet refererat av det valda fältet.</translation>
     </message>
@@ -7302,7 +7248,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Open &amp;Recent</source>
-        <translation type="unfinished"></translation>
+        <translation>Öppna &amp;senaste</translation>
     </message>
     <message>
         <source>Name Resol&amp;ution</source>
@@ -7314,43 +7260,43 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>&amp;RTP</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;RTP</translation>
     </message>
     <message>
         <source>S&amp;CTP</source>
-        <translation type="unfinished"></translation>
+        <translation>S&amp;CTP</translation>
     </message>
     <message>
         <source>&amp;ANSI</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;ANSI</translation>
     </message>
     <message>
         <source>&amp;GSM</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;GSM</translation>
     </message>
     <message>
         <source>&amp;LTE</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;LTE</translation>
     </message>
     <message>
         <source>&amp;MTP3</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;MTP3</translation>
     </message>
     <message>
         <source>&amp;Open</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Öppna</translation>
     </message>
     <message>
         <source>&amp;Quit</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Avsluta</translation>
     </message>
     <message>
         <source>&amp;Close</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Stäng</translation>
     </message>
     <message>
         <source>Display &amp;Filters…</source>
-        <translation type="unfinished"></translation>
+        <translation>Visa &amp;filter…</translation>
     </message>
     <message>
         <source>&amp;Unmark All Displayed</source>
@@ -7670,6 +7616,14 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     <message>
         <source>No Keys</source>
         <translation>Inga nycklar</translation>
+    </message>
+    <message numerus="yes">
+        <source>Export SSL Session Keys (%Ln key(s))</source>
+        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
+        <translation type="vanished">
+            <numerusform>Exportera SSL-sessionsnycklar (%Ln-nyckel)</numerusform>
+            <numerusform>Exportera SSL-sessionsnycklar (%Ln-nycklar)</numerusform>
+        </translation>
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
@@ -8428,7 +8382,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>RSA Keys</source>
-        <translation type="unfinished"></translation>
+        <translation>RSA-nycklar</translation>
     </message>
 </context>
 <context>
@@ -9416,7 +9370,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     <name>RsaKeysFrame</name>
     <message>
         <source>RSA Keys</source>
-        <translation type="unfinished"></translation>
+        <translation>RSA-nycklar</translation>
     </message>
     <message>
         <source>RSA private keys are loaded from a file or PKCS #11 token.</source>
@@ -9424,7 +9378,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Add new keyfile…</source>
-        <translation type="unfinished"></translation>
+        <translation>Lägg till ny nyckelfil…</translation>
     </message>
     <message>
         <source>Add new token…</source>
@@ -9432,7 +9386,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Remove key</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta bort nyckel</translation>
     </message>
     <message>
         <source>PKCS #11 provider libraries.</source>
@@ -9440,11 +9394,11 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Add new provider…</source>
-        <translation type="unfinished"></translation>
+        <translation>Lägg till ny leverantör…</translation>
     </message>
     <message>
         <source>Remove provider</source>
-        <translation type="unfinished"></translation>
+        <translation>Ta bort leverantör</translation>
     </message>
     <message>
         <source>Add PKCS #11 token or key</source>
@@ -9464,15 +9418,15 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Enter PIN or password for %1 (it will be stored unencrypted)</source>
-        <translation type="unfinished"></translation>
+        <translation>Ange PIN-kod eller lösenord för %1 (det kommer att lagras okrypterat)</translation>
     </message>
     <message>
         <source>Enter PIN or password for key</source>
-        <translation type="unfinished"></translation>
+        <translation>Ange PIN-kod eller lösenord för nyckel</translation>
     </message>
     <message>
         <source>Key could not be added: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Det gick inte att lägga till nyckel: %1</translation>
     </message>
     <message>
         <source>RSA private key (*.pem *.p12 *.pfx *.key);;All Files (</source>
@@ -9484,11 +9438,11 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Libraries (*.dll)</source>
-        <translation type="unfinished"></translation>
+        <translation>Bibliotek (*.dll)</translation>
     </message>
     <message>
         <source>Libraries (*.so)</source>
-        <translation type="unfinished"></translation>
+        <translation>Bibliotek (*.so)</translation>
     </message>
     <message>
         <source>Select PKCS #11 Provider Library</source>
@@ -9496,7 +9450,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Changes will apply after a restart</source>
-        <translation type="unfinished"></translation>
+        <translation>Ändringarna kommer att träda i kraft efter en omstart</translation>
     </message>
     <message>
         <source>PKCS #11 provider %1 will be removed after the next restart.</source>

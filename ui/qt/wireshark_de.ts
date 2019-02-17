@@ -2103,6 +2103,45 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
 </context>
 <context>
+    <name>EndpointDialog</name>
+    <message>
+        <source>Map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Draw IPv4 or IPv6 endpoints on a map.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Open in browser</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save As</source>
+        <translation type="unfinished">Speichern als</translation>
+    </message>
+    <message>
+        <source>Map file error</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No endpoints available to map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Unable to create temporary file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save Endpoints Map</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Failed to save map file %1.</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ExpertInfoDialog</name>
     <message>
         <source>Dialog</source>
@@ -5695,10 +5734,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Abbrechen</translation>
     </message>
     <message>
-        <source>Open Recent</source>
-        <translation type="vanished">Zuletzt geöffnete Dateien</translation>
-    </message>
-    <message>
         <source>File Set</source>
         <translation>Dateisatz</translation>
     </message>
@@ -5717,10 +5752,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>&amp;Time Display Format</source>
         <translation>Format der &amp;Zeitanzeige</translation>
-    </message>
-    <message>
-        <source>Name Resolution</source>
-        <translation type="vanished">Namensauflösung</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -5815,10 +5846,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>RTSP</translation>
     </message>
     <message>
-        <source>RTP</source>
-        <translation type="vanished">RTP</translation>
-    </message>
-    <message>
         <source>&amp;Edit</source>
         <translation>&amp;Bearbeiten</translation>
     </message>
@@ -5831,16 +5858,8 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Anzeigefilter Werkzeugleiste</translation>
     </message>
     <message>
-        <source>Open</source>
-        <translation type="vanished">Öffnen</translation>
-    </message>
-    <message>
         <source>Open a capture file</source>
         <translation>Mitschnittdatei öffnen</translation>
-    </message>
-    <message>
-        <source>Quit</source>
-        <translation type="vanished">Beenden</translation>
     </message>
     <message>
         <source>Quit Wireshark</source>
@@ -5861,10 +5880,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Stop capturing packets</source>
         <translation>Aufzeichnen von Paketen beenden</translation>
-    </message>
-    <message>
-        <source>Close</source>
-        <translation type="vanished">Schließen</translation>
     </message>
     <message>
         <source>No files found</source>
@@ -6060,23 +6075,23 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>As &amp;CSV…</source>
-        <translation type="unfinished"></translation>
+        <translation>Als &amp;CSV...</translation>
     </message>
     <message>
         <source>As &quot;C&quot; &amp;Arrays…</source>
-        <translation type="unfinished"></translation>
+        <translation>Als &quot;C&quot; &amp;Array...</translation>
     </message>
     <message>
         <source>As P&amp;SML XML…</source>
-        <translation type="unfinished"></translation>
+        <translation>Als P&amp;SML XML...</translation>
     </message>
     <message>
         <source>As P&amp;DML XML…</source>
-        <translation type="unfinished"></translation>
+        <translation>Als P&amp;DML XML...</translation>
     </message>
     <message>
         <source>As &amp;JSON…</source>
-        <translation type="unfinished"></translation>
+        <translation>Als &amp;JSON...</translation>
     </message>
     <message>
         <source>Description</source>
@@ -6133,26 +6148,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Conversation Filter</source>
         <translation>Verbindungsfilter</translation>
-    </message>
-    <message>
-        <source>Service Response Time</source>
-        <translation type="vanished">Service Antwortzeit</translation>
-    </message>
-    <message>
-        <source>ANSI</source>
-        <translation type="vanished">ANSI</translation>
-    </message>
-    <message>
-        <source>GSM</source>
-        <translation type="vanished">GSM</translation>
-    </message>
-    <message>
-        <source>LTE</source>
-        <translation type="vanished">LTE</translation>
-    </message>
-    <message>
-        <source>MTP3</source>
-        <translation type="vanished">MTP3</translation>
     </message>
     <message>
         <source>Osmux</source>
@@ -6252,10 +6247,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Als Datei/Mitschnitt neu laden</translation>
     </message>
     <message>
-        <source>As JSON…</source>
-        <translation type="vanished">Als JSON...</translation>
-    </message>
-    <message>
         <source>Copy this item&apos;s description</source>
         <translation>Beschreibung des Elements kopieren</translation>
     </message>
@@ -6308,10 +6299,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Alle angezeigte Pakete markieren</translation>
     </message>
     <message>
-        <source>Unmark All Displayed</source>
-        <translation type="vanished">Markierung bei allen angezeigten Paketen entfernen</translation>
-    </message>
-    <message>
         <source>Unmark all displayed packets</source>
         <translation>Markierung bei allen angzeigten Pakete entfernen</translation>
     </message>
@@ -6350,10 +6337,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Unignore All Displayed</source>
         <translation>Alle angezeigte Pakete nicht mehr ignorieren</translation>
-    </message>
-    <message>
-        <source>Unignore all displayed packets</source>
-        <translation type="vanished">Alle angezeigte Pakete nicht mehr ignorieren</translation>
     </message>
     <message>
         <source>Set/Unset Time Reference</source>
@@ -6405,7 +6388,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>&amp;Configuration Profiles…</source>
-        <translation type="unfinished"></translation>
+        <translation>Profile konfigurieren... (&amp;C)</translation>
     </message>
     <message>
         <source>Configuration profiles</source>
@@ -6725,11 +6708,11 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>&amp;Conversations</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbindungen (&amp;C)</translation>
     </message>
     <message>
         <source>&amp;Endpoints</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Endpunkte</translation>
     </message>
     <message>
         <source>Shrink the main window text</source>
@@ -6748,24 +6731,12 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Anzeige auf Ausgangsgröße zurücksetzen</translation>
     </message>
     <message>
-        <source>Conversation Hash Tables</source>
-        <translation type="vanished">Verbindungshashtabelle</translation>
-    </message>
-    <message>
         <source>Show each conversation hash table</source>
         <translation>Jede Verbindungshashtabelle zeigen</translation>
     </message>
     <message>
-        <source>Dissector Tables</source>
-        <translation type="vanished">Dissector Tabelle</translation>
-    </message>
-    <message>
         <source>Show each dissector table and its entries</source>
         <translation>Jede Dissectortabelle und die dazugehörigen Einträge anzeigen</translation>
-    </message>
-    <message>
-        <source>Supported Protocols</source>
-        <translation type="vanished">Unterstützte Protokolle</translation>
     </message>
     <message>
         <source>Show the currently supported protocols and display filter fields</source>
@@ -6786,10 +6757,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>LTE RLC statistics</source>
         <translation>LTE RLC Statistiken</translation>
-    </message>
-    <message>
-        <source>RLC Graph</source>
-        <translation type="vanished">LRC Graph</translation>
     </message>
     <message>
         <source>LTE RLC graph</source>
@@ -6837,7 +6804,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Go to &amp;Linked Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>Zu verknüpften Paket gehen (&amp;L)</translation>
     </message>
     <message>
         <source>UDP Multicast Streams</source>
@@ -6892,22 +6859,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Als reiner &amp;Text...</translation>
     </message>
     <message>
-        <source>As CSV…</source>
-        <translation type="vanished">Als CSV...</translation>
-    </message>
-    <message>
-        <source>As &quot;C&quot; Arrays…</source>
-        <translation type="vanished">Als &quot;C&quot; Array...</translation>
-    </message>
-    <message>
-        <source>As PSML XML…</source>
-        <translation type="vanished">Als PSML XML...</translation>
-    </message>
-    <message>
-        <source>As PDML XML…</source>
-        <translation type="vanished">Als PDML XML...</translation>
-    </message>
-    <message>
         <source>All Visible Items</source>
         <translation>Alle sichtbaren Elemente</translation>
     </message>
@@ -6948,10 +6899,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>...oder nicht das Ausgewählte</translation>
     </message>
     <message>
-        <source>Display Filters…</source>
-        <translation type="vanished">Anzeigefilter...</translation>
-    </message>
-    <message>
         <source>Display Filter &amp;Macros…</source>
         <translation>Anzeigefilter &amp;Makros...</translation>
     </message>
@@ -6974,10 +6921,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>Packet Comment…</source>
         <translation>Paketkommentar...</translation>
-    </message>
-    <message>
-        <source>Configuration Profiles…</source>
-        <translation type="vanished">Profile konfigurieren...</translation>
     </message>
     <message>
         <source>&amp;Preferences…</source>
@@ -7032,16 +6975,8 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Anzeigefilter-Werkzeugleiste anzeigen oder verstecken</translation>
     </message>
     <message>
-        <source>Conversations</source>
-        <translation type="vanished">Verbindungen</translation>
-    </message>
-    <message>
         <source>Conversations at different protocol levels</source>
         <translation>Verbindungen auf einer anderen Protokollebene</translation>
-    </message>
-    <message>
-        <source>Endpoints</source>
-        <translation type="vanished">Endpunkte</translation>
     </message>
     <message>
         <source>Endpoints at different protocol levels</source>
@@ -7257,15 +7192,15 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>&amp;Conversation Hash Tables</source>
-        <translation type="unfinished"></translation>
+        <translation>Verbindungshashtabelle (&amp;C)</translation>
     </message>
     <message>
         <source>&amp;Dissector Tables</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;Dissector Tabelle</translation>
     </message>
     <message>
         <source>&amp;Supported Protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>Unter&amp;stützte Protokolle</translation>
     </message>
     <message>
         <source>MAP Summary</source>
@@ -7277,7 +7212,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>RLC &amp;Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>LRC &amp;Graph</translation>
     </message>
     <message>
         <source>&amp;Coloring Rules…</source>
@@ -7302,7 +7237,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>IA&amp;X2 Stream Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>Analyse IA&amp;X2 Stream</translation>
     </message>
     <message>
         <source>Enabled Protocols…</source>
@@ -7326,10 +7261,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Die Anzeigefilter Rerferenzseite für dieses Feld öffnen.</translation>
     </message>
     <message>
-        <source>Go to Linked Packet</source>
-        <translation type="vanished">Zu verknüpftem Paket gehen</translation>
-    </message>
-    <message>
         <source>Go to the packet referenced by the selected field.</source>
         <translation>Zum Paket gehen auf das das ausgewählte Feld referenziert.</translation>
     </message>
@@ -7339,63 +7270,63 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Open &amp;Recent</source>
-        <translation type="unfinished"></translation>
+        <translation>Zuletzt geöffnete Dateien (&amp;R)</translation>
     </message>
     <message>
         <source>Name Resol&amp;ution</source>
-        <translation type="unfinished"></translation>
+        <translation>Namensauflös&amp;ung</translation>
     </message>
     <message>
         <source>Service &amp;Response Time</source>
-        <translation type="unfinished"></translation>
+        <translation>Service Antwo&amp;rtzeit</translation>
     </message>
     <message>
         <source>&amp;RTP</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;RTP</translation>
     </message>
     <message>
         <source>S&amp;CTP</source>
-        <translation type="unfinished"></translation>
+        <translation>S&amp;CTP</translation>
     </message>
     <message>
         <source>&amp;ANSI</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;ANSI</translation>
     </message>
     <message>
         <source>&amp;GSM</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;GSM</translation>
     </message>
     <message>
         <source>&amp;LTE</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;LTE</translation>
     </message>
     <message>
         <source>&amp;MTP3</source>
-        <translation type="unfinished"></translation>
+        <translation>&amp;MTP3</translation>
     </message>
     <message>
         <source>&amp;Open</source>
-        <translation type="unfinished"></translation>
+        <translation>Öffnen (&amp;O)</translation>
     </message>
     <message>
         <source>&amp;Quit</source>
-        <translation type="unfinished"></translation>
+        <translation>Beenden (&amp;Q)</translation>
     </message>
     <message>
         <source>&amp;Close</source>
-        <translation type="unfinished"></translation>
+        <translation>Schließen (&amp;C)</translation>
     </message>
     <message>
         <source>Display &amp;Filters…</source>
-        <translation type="unfinished"></translation>
+        <translation>Anzeige&amp;filter...</translation>
     </message>
     <message>
         <source>&amp;Unmark All Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>Markier&amp;ung bei allen angezeigten Paketen entfernen</translation>
     </message>
     <message>
         <source>U&amp;nignore all displayed packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Alle angezeigte Pakete nicht mehr ig&amp;norieren</translation>
     </message>
     <message>
         <source>All VoIP Calls</source>
