@@ -101,6 +101,7 @@
         <ComponentRef Id="cmpDumpcap_exe" />
         <ComponentRef Id="cmpDumpcap_html" />
         <ComponentRef Id="cmpExtcap_html" />
+        <ComponentRef Id="cmpIpmap_html" />
       </ComponentGroup>
     </Fragment>
 
