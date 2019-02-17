@@ -1227,8 +1227,8 @@ dissect_modbus_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tr
         case READ_DISCRETE_INPUTS:
             byte_cnt = (guint32)tvb_get_guint8(tvb, payload_start);
             proto_tree_add_uint(modbus_tree, hf_modbus_bytecnt, tvb, payload_start, 1, byte_cnt);
-            //if number of coils is 0, presume the response wasn't found and set number of coils based on byte count
-            if (num_reg == 0)
+            //if the request wasn't found set number of coils based on byte count
+            if (!pkt_info->request_found)
                 num_reg = byte_cnt*8;
             dissect_modbus_data(tvb, pinfo, modbus_tree, function_code, payload_start + 1, byte_cnt, pkt_info->register_format, pkt_info->reg_base, num_reg);
             break;
@@ -1237,8 +1237,8 @@ dissect_modbus_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tr
         case READ_INPUT_REGS:
             byte_cnt = (guint32)tvb_get_guint8(tvb, payload_start);
             proto_tree_add_uint(modbus_tree, hf_modbus_bytecnt, tvb, payload_start, 1, byte_cnt);
-            //if number of registers is 0, presume the response wasn't found and set number of registers based on byte count
-            if (num_reg == 0)
+            //if the request wasn't found set number of registers based on byte count
+            if (!pkt_info->request_found)
                 num_reg = byte_cnt/2;
             dissect_modbus_data(tvb, pinfo, modbus_tree, function_code, payload_start + 1, byte_cnt, pkt_info->register_format, pkt_info->reg_base, 0);
             break;
