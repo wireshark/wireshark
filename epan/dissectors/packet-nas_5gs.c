@@ -434,9 +434,11 @@ get_ext_ambr_unit(guint32 unit, const char **unit_str)
   */
 static guint16
 de_nas_5gs_mm_5gmm_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
-    guint32 offset, guint len _U_,
+    guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
+    guint32     curr_offset;
+
     static const int * flags[] = {
         &hf_nas_5gs_spare_b7,
         &hf_nas_5gs_spare_b6,
@@ -449,9 +451,13 @@ de_nas_5gs_mm_5gmm_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
         NULL
     };
 
-    proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags, ENC_BIG_ENDIAN);
+    curr_offset = offset;
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, flags, ENC_BIG_ENDIAN);
+    curr_offset++;
 
-    return 1;
+    EXTRANEOUS_DATA_CHECK(len, curr_offset - offset, pinfo, &ei_nas_5gs_extraneous_data);
+
+    return (curr_offset - offset);
 }
 
 /*
