@@ -150,6 +150,19 @@ PS$>choco install -y python3
 
 Chocolatey installs Python in _C:\Python37_ by default.
 
+==== Install Perl
+
+Get a Perl installer from http://strawberryperl.com/
+http://www.ActiveState.com/ and install Perl into the default location.
+
+Alternatively you can install Perl using Chocolatey:
+
+----
+PS$>choco install -y strawberryperl
+# ...or...
+PS$>choco install -y activeperl
+----
+
 [[ChSetupGit]]
 
 ==== Install Git
