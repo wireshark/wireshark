@@ -23644,9 +23644,9 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
           }
         }
       }
+      /* failed to find a mesh header */
+      meshctl_len = 0;
     }
-    /* failed to find a mesh header */
-    meshctl_len = 0;
     break;
 
   case EXTENSION_FRAME:
