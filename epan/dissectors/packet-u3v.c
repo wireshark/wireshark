@@ -113,6 +113,7 @@ U3V descriptor constants
 #define U3V_STATUS_SI_PAYLOAD_SIZE_NOT_ALIGNED 0xA003
 #define U3V_STATUS_SI_REGISTERS_INCONSISTENT   0xA004
 #define U3V_STATUS_DATA_DISCARDED              0xA100
+#define U3V_STATUS_DATA_OVERRUN                0xA101
 
 /*
  Prefix
@@ -345,6 +346,22 @@ U3V descriptor constants
 #define PFNC_U3V_YUV411_8_UYYVYY 0x020C001E
 #define PFNC_U3V_YUV422_8 0x02100032
 #define PFNC_U3V_YUV422_8_UYVY 0x0210001F
+#define PFNC_U3V_YCBCR2020_8_CBYCR 0x021800F4
+#define PFNC_U3V_YCBCR2020_10_CBYCR 0x023000F5
+#define PFNC_U3V_YCBCR2020_10P_CBYCR 0x021E00F6
+#define PFNC_U3V_YCBCR2020_12_CBYCR 0x023000F7
+#define PFNC_U3V_YCBCR2020_12P_CBYCR 0x022400F8
+#define PFNC_U3V_YCBCR2020_411_8_CBYYCRYY 0x020C00F9
+#define PFNC_U3V_YCBCR2020_422_8 0x021000FA
+#define PFNC_U3V_YCBCR2020_422_8_CBYCRY 0x021000FB
+#define PFNC_U3V_YCBCR2020_422_10 0x022000FC
+#define PFNC_U3V_YCBCR2020_422_10_CBYCRY 0x022000FD
+#define PFNC_U3V_YCBCR2020_422_10P 0x021400FE
+#define PFNC_U3V_YCBCR2020_422_10P_CBYCRY 0x021400FF
+#define PFNC_U3V_YCBCR2020_422_12 0x02180100
+#define PFNC_U3V_YCBCR2020_422_12_CBYCRY 0x02180101
+#define PFNC_U3V_YCBCR2020_422_12P 0x02180102
+#define PFNC_U3V_YCBCR2020_422_12P_CBYCRY 0x02180103
 #define GVSP_MONO10PACKED 0x010C0004
 #define GVSP_MONO12PACKED 0x010C0006
 #define GVSP_BAYERBG10PACKED 0x010C0029
@@ -592,6 +609,7 @@ static const value_string status_names[] =
     { U3V_STATUS_SI_PAYLOAD_SIZE_NOT_ALIGNED, "U3V_STATUS_SI_PAYLOAD_SIZE_NOT_ALIGNED" },
     { U3V_STATUS_SI_REGISTERS_INCONSISTENT, "U3V_STATUS_SI_REGISTERS_INCONSISTENT" },
     { U3V_STATUS_DATA_DISCARDED, "U3V_STATUS_DATA_DISCARDED" },
+    { U3V_STATUS_DATA_OVERRUN, "U3V_STATUS_DATA_OVERRUN" },
     { 0, NULL }
 };
 
@@ -611,6 +629,7 @@ static const value_string status_names_short[] =
     { U3V_STATUS_SI_PAYLOAD_SIZE_NOT_ALIGNED, "U3V_STATUS_SI_PAYLOAD_SIZE_NOT_ALIGNED" },
     { U3V_STATUS_SI_REGISTERS_INCONSISTENT, "U3V_STATUS_SI_REGISTERS_INCONSISTENT" },
     { U3V_STATUS_DATA_DISCARDED, "U3V_STATUS_DATA_DISCARDED" },
+    { U3V_STATUS_DATA_OVERRUN, "U3V_STATUS_DATA_OVERRUN" },
     { 0, NULL }
 };
 
@@ -798,6 +817,22 @@ static const value_string pixel_format_names[] =
     { PFNC_U3V_YCBCR411_8, "YCbCr 4:1:1 8-bit" },
     { PFNC_U3V_YUV422_8_UYVY, "YUV 4:2:2 8-bit" },
     { PFNC_U3V_YUV422_8, "YUV 4:2:2 8-bit" },
+    { PFNC_U3V_YCBCR2020_8_CBYCR, "YCbCr 4:4:4 8-bit BT.2020" },
+    { PFNC_U3V_YCBCR2020_10_CBYCR, "YCbCr 4:4:4 10-bit unpacked BT.2020" },
+    { PFNC_U3V_YCBCR2020_10P_CBYCR, "YCbCr 4:4:4 10-bit packed BT.2020" },
+    { PFNC_U3V_YCBCR2020_12_CBYCR, "YCbCr 4:4:4 12-bit unpacked BT.2020" },
+    { PFNC_U3V_YCBCR2020_12P_CBYCR, "YCbCr 4:4:4 12-bit packed BT.2020" },
+    { PFNC_U3V_YCBCR2020_411_8_CBYYCRYY, "YCbCr 4:1:1 8-bit BT.2020" },
+    { PFNC_U3V_YCBCR2020_422_8, "YCbCr 4:2:2 8-bit BT.2020" },
+    { PFNC_U3V_YCBCR2020_422_8_CBYCRY, "YCbCr 4:2:2 8-bit BT.2020" },
+    { PFNC_U3V_YCBCR2020_422_10, "YCbCr 4:2:2 10-bit unpacked BT.2020" },
+    { PFNC_U3V_YCBCR2020_422_10_CBYCRY, "YCbCr 4:2:2 10-bit unpacked BT.2020" },
+    { PFNC_U3V_YCBCR2020_422_10P, "YCbCr 4:2:2 10-bit packed BT.2020" },
+    { PFNC_U3V_YCBCR2020_422_10P_CBYCRY, "YCbCr 4:2:2 10-bit packed BT.2020" },
+    { PFNC_U3V_YCBCR2020_422_12, "YCbCr 4:2:2 12-bit unpacked BT.2020" },
+    { PFNC_U3V_YCBCR2020_422_12_CBYCRY, "YCbCr 4:2:2 12-bit unpacked BT.2020" },
+    { PFNC_U3V_YCBCR2020_422_12P, "YCbCr 4:2:2 12-bit packed BT.2020" },
+    { PFNC_U3V_YCBCR2020_422_12P_CBYCRY, "YCbCr 4:2:2 12-bit packed BT.2020" },
     { PFNC_U3V_RGB565P, "Red-Green-Blue 5/6/5-bit packed" },
     { PFNC_U3V_BGR565P, "Blue-Green-Red 5/6/5-bit packed" },
     { PFNC_U3V_YCBCR422_8, "YCbCr 4:2:2 8-bit" },
@@ -1575,7 +1610,7 @@ dissect_u3v_stream_trailer(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_
     guint64 block_id;
     proto_item *item = NULL;
 
-    /* Subtree initialization for Stream Leader */
+    /* Subtree initialization for Stream Trailer */
     item = proto_tree_add_item(u3v_telegram_tree, hf_u3v_stream_trailer, tvb, 0, -1, ENC_NA);
     u3v_telegram_tree = proto_item_add_subtree(item, ett_u3v_stream_trailer);
 
@@ -1632,7 +1667,7 @@ dissect_u3v_stream_payload(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_
 {
     proto_item *item = NULL;
 
-    /* Subtree initialization for Stream Leader */
+    /* Subtree initialization for Stream Payload */
     item = proto_tree_add_item(u3v_telegram_tree, hf_u3v_stream_payload, tvb, 0, -1, ENC_NA);
     u3v_telegram_tree = proto_item_add_subtree(item, ett_u3v_stream_payload);
 
