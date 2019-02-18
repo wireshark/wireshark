@@ -890,6 +890,12 @@ nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len)
         {\
             while (nstrace_buf_offset < nstrace_buflen)\
             {\
+                /* check whether we have enough room to retrieve the recordType */\
+                if (nstrace_buflen - nstrace_buf_offset < 2) {\
+                    *err = WTAP_ERR_BAD_FILE; \
+                    *err_info = g_strdup("nstrace: malformed packet");\
+                    return FALSE;\
+                }\
                 nspr_hd_v##ver##_t *fp = (nspr_hd_v##ver##_t *) &nstrace_buf[nstrace_buf_offset];\
                 switch (nspr_getv##ver##recordtype(fp))\
                 {\
