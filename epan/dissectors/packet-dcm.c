@@ -24,7 +24,6 @@
  * ToDo
  *
  * - Implement value multiplicity (VM) consistently in dissect_dcm_tag_value()
- * - Better concatenate COL_INFO for multiple PDU in one packet
  * - Syntax detection, in case an association request is missing in capture
  * - Read private tags from configuration and parse in capture
  *
@@ -34,6 +33,8 @@
  *
  * - Fixed re-assembly and export (consolidated duplicate code)
  * - Fixed random COL_INFO issues
+ * - Improved COL_INFO for C-FIND
+ * - Improved COL_INFO for multiple PDUs in one frame
  *
  * Feb 2019 - Rickard Holmberg
  *
@@ -174,7 +175,7 @@
  * - Added expert_add_info() for Association Abort
  * - Added expert_add_info() for short PDVs (i.e. last fragment, but PDV is not completed yet)
  * - Clarified and grouped data structures and its related code (dcmItem, dcmState) to have
- *   consistent _new() & _get() functions and to be be according to coding conventions
+ *   consistent _new() & _get() functions and to be according to coding conventions
  * - Added more function declaration to be more consistent
  * - All dissect_dcm_xx now have (almost) the same parameter order
  * - Removed DISSECTOR_ASSERT() for packet data errors. Not designed to handle this.
@@ -580,18 +581,19 @@ typedef struct dcm_state_pdv {
                                 /* The following five attributes are only used for command PDVs */
 
     gchar   *command;           /* Decoded command as text */
-    gchar   *status;
+    gchar   *status;            /* Decoded status as text */
     gchar   *comment;           /* Error comment, if any */
 
     gboolean is_warning;        /* Command response is a cancel, warning, error */
+    gboolean is_pending;        /* Command response is 'Current Match is supplied. Sub-operations are continuing' */
 
     guint16  message_id;        /* (0000,0110) Message ID */
-    guint16  message_id_resp;   /* (0000,0120) Message ID Being Responded To */
+    guint16  message_id_resp;   /* (0000,0120) Message ID being responded to */
 
-    guint16  no_remaining;      /* (0000,1020) Number of Remaining Sub-operations */
-    guint16  no_completed;      /* (0000,1021) Number of Completed Sub-operations */
-    guint16  no_failed;         /* (0000,1022) Number of Failed Sub-operations  */
-    guint16  no_warning;        /* (0000,1023) Number of Warning Sub-operations */
+    guint16  no_remaining;      /* (0000,1020) Number of remaining sub-operations */
+    guint16  no_completed;      /* (0000,1021) Number of completed sub-operations */
+    guint16  no_failed;         /* (0000,1022) Number of failed sub-operations  */
+    guint16  no_warning;        /* (0000,1023) Number of warning sub-operations */
 
     dcm_open_tag_t  open_tag;   /* Container to store information about a fragmented tag */
 
@@ -988,23 +990,23 @@ static const value_string dcm_cmd_vals[] = {
     { 0, NULL }
 };
 
+
+/*
+Convert the two status bytes into a text based on lookup.
+
+Classification
+0x0000          : SUCCESS
+0x0001 & Bxxx   : WARNING
+0xFE00          : CANCEL
+0XFFxx          : PENDING
+All other       : FAILURE
+*/
 static const gchar *
 dcm_rsp2str(guint16 status_value)
 {
 
     dcm_status_t    *status = NULL;
-
     const gchar *s = "";
-
-    /*
-        Classification
-        0x0000          : SUCCESS
-        0x0001 & Bxxx   : WARNING
-        0xFE00          : CANCEL
-        0XFFxx          : PENDING
-
-        All other       : FAILURE
-    */
 
     /* Use specific text first */
     status = (dcm_status_t*) wmem_map_lookup(dcm_status_table, GUINT_TO_POINTER((guint32)status_value));
@@ -1027,7 +1029,7 @@ dcm_rsp2str(guint16 status_value)
             s = "Error: Cannot understand/Unable to Process";
         }
         else {
-            /* At least came across 0xD001 in one capture */
+            /* Encountered at least one case, with status_value == 0xD001 */
             s = "Unknown";
         }
     }
@@ -2717,8 +2719,12 @@ dissect_dcm_tag_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, dcm_s
             status_message = dcm_rsp2str(val16);
             *tag_value = wmem_strdup_printf(wmem_packet_scope(), "%s (0x%02x)", status_message, val16);
 
-            if (val16 != 0x0000 && ((val16 & 0xFF00) != 0xFF00)) {
-                /* Not 0x0000 0xFFxx */
+            if ((val16 & 0xFF00) == 0xFF00) {
+                /* C-FIND also has a 0xFF01 as a valid response */
+                pdv->is_pending = TRUE;
+            }
+            else if (val16 != 0x0000) {
+                /* Neither success nor pending */
                 pdv->is_warning = TRUE;
             }
 
@@ -3467,9 +3473,12 @@ dissect_dcm_pdv_body(
                 if (pdv->no_failed > 0) {
                     *pdv_description = wmem_strdup_printf(wmem_packet_scope(), "%s F=%d", *pdv_description, pdv->no_failed);
                 }
+                if (!pdv->is_pending && pdv->status)
+                {
+                    *pdv_description = wmem_strdup_printf(wmem_packet_scope(), "%s (%s)", *pdv_description, pdv->status);
+                }
             }
         }
-
     }
 
     return endpos;
@@ -3529,50 +3538,58 @@ dissect_dcm_pdv_fragmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             pdv_body_len,
             !(pdv->is_last_fragment));
 
-        /* Will return a complete buffer, once last fragment is hit.
-           The description is not used in packet-dcm. COL_INFO is set specifically in dissect_dcm_pdu()
-        */
-        combined_tvb = process_reassembled_data(
-            tvb,
-            offset,
-            pinfo,
-            "Reassembled PDV",
-            head,
-            &dcm_pdv_fragment_items,
-            NULL,
-            tree);
+        if (head && (head->next == NULL)) {
+            /* Was not really fragmented, therefore use 'conventional' decoding.
+               process_reassembled_data() does not cope with two PDVs in the same frame, therefore catch it here
+            */
 
-        if (combined_tvb == NULL) {
-            /* Just show this as a fragment */
-
-            if (head && head->reassembled_in != pinfo->num) {
-
-                if (pdv->desc) {
-                    /* We know the presentation context already */
-                    *pdv_description = wmem_strdup_printf(wmem_packet_scope(), "%s (reassembled in #%u)", pdv->desc, head->reassembled_in);
-                }
-                else {
-                    /* Decoding of the presentation context did not occur yet or did not succeed */
-                    *pdv_description = wmem_strdup_printf(wmem_packet_scope(), "PDV Fragment (reassembled in #%u)", head->reassembled_in);
-                }
-            }
-            else {
-                /* We don't know the last fragment yet (and/or we'll never see it).
-                   This can happen, e.g. when TCP packet arrive our of order.
-                */
-                *pdv_description = wmem_strdup(wmem_packet_scope(), "PDV Fragment");
-            }
-
-            offset += pdv_body_len;
+            offset = dissect_dcm_pdv_body(tvb, pinfo, tree, assoc, pdv, offset, pdv_body_len, pdv_description);
         }
         else
         {
-            /* Decode reassembled data. This needs to be += */
-            offset += dissect_dcm_pdv_body(combined_tvb, pinfo, tree, assoc, pdv, 0, tvb_captured_length(combined_tvb), pdv_description);
+            /* Will return a complete buffer, once last fragment is hit.
+               The description is not used in packet-dcm. COL_INFO is set specifically in dissect_dcm_pdu()
+            */
+            combined_tvb = process_reassembled_data(
+                tvb,
+                offset,
+                pinfo,
+                "Reassembled PDV",
+                head,
+                &dcm_pdv_fragment_items,
+                NULL,
+                tree);
+
+            if (combined_tvb == NULL) {
+                /* Just show this as a fragment */
+
+                if (head && head->reassembled_in != pinfo->num) {
+
+                    if (pdv->desc) {
+                        /* We know the presentation context already */
+                        *pdv_description = wmem_strdup_printf(wmem_packet_scope(), "%s (reassembled in #%u)", pdv->desc, head->reassembled_in);
+                    }
+                    else {
+                        /* Decoding of the presentation context did not occur yet or did not succeed */
+                        *pdv_description = wmem_strdup_printf(wmem_packet_scope(), "PDV Fragment (reassembled in #%u)", head->reassembled_in);
+                    }
+                }
+                else {
+                    /* We don't know the last fragment yet (and/or we'll never see it).
+                       This can happen, e.g. when TCP packet arrive our of order.
+                    */
+                    *pdv_description = wmem_strdup(wmem_packet_scope(), "PDV Fragment");
+                }
+
+                offset += pdv_body_len;
+            }
+            else {
+                /* Decode reassembled data. This needs to be += */
+                offset += dissect_dcm_pdv_body(combined_tvb, pinfo, tree, assoc, pdv, 0, tvb_captured_length(combined_tvb), pdv_description);
+            }
         }
     }
-    else
-    {
+    else {
         /* Do not reassemble DICOM PDVs, i.e. decode PDVs one by one.
            This may be useful when troubleshooting PDU length issues,
            or to better understand the PDV split.
@@ -3583,8 +3600,8 @@ dissect_dcm_pdv_fragmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     return offset;
-
 }
+
 static guint32
 dissect_dcm_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                      dcm_state_assoc_t *assoc, guint32 offset, guint32 pdu_len, gchar **pdu_data_description)
@@ -3865,6 +3882,29 @@ dissect_dcm_heuristic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
 }
 
 /*
+Only set a valued with col_set_str() if it does not yet exist.
+(In a multiple PDV scenario, col_set_str() actually appends for the subsequent calls)
+*/
+void col_set_str_conditional(column_info *cinfo, const gint el, const gchar* str)
+{
+    if (!g_str_has_prefix(col_get_text(cinfo, el), str))
+    {
+        col_add_str(cinfo, el, str);
+    }
+}
+
+/*
+CSV add a value to a column, if it does not exist yet
+*/
+void col_append_str_conditional(column_info *cinfo, const gint el, const gchar* str)
+{
+    if (!g_strrstr(col_get_text(cinfo, el), str))
+    {
+        col_append_fstr(cinfo, el, ", %s", str);
+    }
+}
+
+/*
 Dissect a single DICOM PDU. Can be an association or a data package. Creates a tree item.
 */
 static guint32
@@ -3908,7 +3948,8 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
     }
 
     if (pdu_type == 4) {
-        col_set_str(pinfo->cinfo, COL_INFO, "P-DATA");
+
+        col_set_str_conditional(pinfo->cinfo, COL_INFO, "P-DATA");
 
         /* Everything that needs to be shown in any UI column (like COL_INFO)
            needs to be calculated also with tree == null
@@ -3917,7 +3958,7 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
 
         if (pdu_data_description) {
             proto_item_append_text(dcm_pitem, ", %s", pdu_data_description);
-            col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", pdu_data_description);
+            col_append_str_conditional(pinfo->cinfo, COL_INFO, pdu_data_description);
         }
     }
     else {
@@ -3928,6 +3969,7 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
 
     return offset;          /* return the number of processed bytes */
 }
+
 
 /*
 Register the protocol with Wireshark
