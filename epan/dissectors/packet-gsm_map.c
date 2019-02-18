@@ -64,6 +64,7 @@
 #include "packet-smpp.h"
 #include "packet-gsm_sms.h"
 #include "packet-ranap.h"
+#include "packet-isup.h"
 
 #define PNAME  "GSM Mobile Application"
 #define PSNAME "GSM_MAP"
@@ -1993,7 +1994,7 @@ static int hf_NokiaMAP_Extensions_AccessSubscriptionListExt_item = -1;  /* Acces
 static int hf_NokiaMAP_Extensions_AllowedServiceData_amr_wb_allowed = -1;
 
 /*--- End of included file: packet-gsm_map-hf.c ---*/
-#line 159 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 160 "./asn1/gsm_map/packet-gsm_map-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_gsm_map = -1;
@@ -2026,6 +2027,9 @@ static gint ett_gsm_map_tbcd_digits = -1;
 static gint ett_gsm_map_ussd_string = -1;
 static gint ett_gsm_map_ext2_qos_subscribed = -1;
 static gint ett_gsm_map_ext3_qos_subscribed = -1;
+static gint ett_gsm_map_e_utranCellGlobalIdentity = -1;
+static gint ett_gsm_map_TA_id = -1;
+static gint ett_gsm_map_GeodeticInformation = -1;
 
 
 /*--- Included file: packet-gsm_map-ett.c ---*/
@@ -2728,7 +2732,7 @@ static gint ett_NokiaMAP_Extensions_AccessSubscriptionListExt = -1;
 static gint ett_NokiaMAP_Extensions_AllowedServiceData = -1;
 
 /*--- End of included file: packet-gsm_map-ett.c ---*/
-#line 193 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 197 "./asn1/gsm_map/packet-gsm_map-template.c"
 
 static expert_field ei_gsm_map_unknown_sequence3 = EI_INIT;
 static expert_field ei_gsm_map_unknown_sequence = EI_INIT;
@@ -4630,8 +4634,19 @@ dissect_gsm_map_PLMN_Id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 
 static int
 dissect_gsm_map_E_UTRAN_CGI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 1183 "./asn1/gsm_map/gsm_map.cnf"
+  tvbuff_t *parameter_tvb;
+  proto_tree *subtree;
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+
+  if (!parameter_tvb)
+    return offset;
+
+  subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_e_utranCellGlobalIdentity);
+  de_sgsap_ecgi(parameter_tvb, subtree, actx->pinfo, 0, tvb_reported_length(tvb), NULL, 0);
+
+
 
   return offset;
 }
@@ -4640,8 +4655,19 @@ dissect_gsm_map_E_UTRAN_CGI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 
 static int
 dissect_gsm_map_TA_Id(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 1193 "./asn1/gsm_map/gsm_map.cnf"
+  tvbuff_t *parameter_tvb;
+  proto_tree *subtree;
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+
+  if (!parameter_tvb)
+    return offset;
+
+  subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_TA_id);
+  de_emm_trac_area_id(parameter_tvb, subtree, actx->pinfo, 0, tvb_reported_length(tvb), NULL, 0);
+
+
 
   return offset;
 }
@@ -8690,8 +8716,19 @@ dissect_gsm_map_ms_CancelLocationRes(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 int
 dissect_gsm_map_ms_GeographicalInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 1203 "./asn1/gsm_map/gsm_map.cnf"
+  tvbuff_t	*parameter_tvb;
+  proto_tree	*subtree;
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+
+  if (!parameter_tvb)
+    return offset;
+
+  subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_GeographicalInformation);
+  dissect_geographical_description(parameter_tvb, actx->pinfo, subtree);
+
+
 
   return offset;
 }
@@ -8750,8 +8787,19 @@ dissect_gsm_map_ms_LSAIdentity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static int
 dissect_gsm_map_ms_GeodeticInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 1213 "./asn1/gsm_map/gsm_map.cnf"
+  tvbuff_t *parameter_tvb;
+  proto_tree *subtree;
   offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                       NULL);
+                                       &parameter_tvb);
+
+  if (!parameter_tvb)
+    return offset;
+
+  subtree = proto_item_add_subtree(actx->created_item, ett_gsm_map_GeodeticInformation);
+  dissect_isup_calling_geodetic_location_parameter(parameter_tvb, actx->pinfo, subtree, NULL);
+
+
 
   return offset;
 }
@@ -21567,7 +21615,7 @@ dissect_NokiaMAP_Extensions_AllowedServiceData(gboolean implicit_tag _U_, tvbuff
 
 
 /*--- End of included file: packet-gsm_map-fn.c ---*/
-#line 1098 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 1102 "./asn1/gsm_map/packet-gsm_map-template.c"
 
 /* Specific translation for MAP V3 */
 const value_string gsm_map_V1V2_opr_code_strings[] = {
@@ -21789,7 +21837,7 @@ const value_string gsm_map_opr_code_strings[] = {
 /* Unknown or empty loop list OPERATION */
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 1109 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 1113 "./asn1/gsm_map/packet-gsm_map-template.c"
   { 0, NULL }
 };
 
@@ -22006,7 +22054,7 @@ static const value_string gsm_map_err_code_string_vals[] = {
 /* Unknown or empty loop list OPERATION */
 
 /*--- End of included file: packet-gsm_map-table.c ---*/
-#line 1115 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 1119 "./asn1/gsm_map/packet-gsm_map-template.c"
     { 0, NULL }
 };
 #endif
@@ -24386,11 +24434,11 @@ void proto_register_gsm_map(void) {
         "ISDN_AddressString", HFILL }},
     { &hf_gsm_map_diameter_Name,
       { "diameter-Name", "gsm_map.diameter_Name",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, STR_ASCII, NULL, 0,
         "DiameterIdentity", HFILL }},
     { &hf_gsm_map_diameter_Realm,
       { "diameter-Realm", "gsm_map.diameter_Realm",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, STR_ASCII, NULL, 0,
         "DiameterIdentity", HFILL }},
     { &hf_gsm_map_cellGlobalIdOrServiceAreaIdFixedLength,
       { "cellGlobalIdOrServiceAreaIdFixedLength", "gsm_map.cellGlobalIdOrServiceAreaIdFixedLength",
@@ -26197,11 +26245,11 @@ void proto_register_gsm_map(void) {
         NULL, HFILL }},
     { &hf_gsm_map_ms_sgsn_Name,
       { "sgsn-Name", "gsm_map.ms.sgsn_Name",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, STR_ASCII, NULL, 0,
         "DiameterIdentity", HFILL }},
     { &hf_gsm_map_ms_sgsn_Realm,
       { "sgsn-Realm", "gsm_map.ms.sgsn_Realm",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, STR_ASCII, NULL, 0,
         "DiameterIdentity", HFILL }},
     { &hf_gsm_map_ms_lgd_supportIndicator,
       { "lgd-supportIndicator", "gsm_map.ms.lgd_supportIndicator_element",
@@ -27833,7 +27881,7 @@ void proto_register_gsm_map(void) {
         "TA_Id", HFILL }},
     { &hf_gsm_map_ms_mme_Name,
       { "mme-Name", "gsm_map.ms.mme_Name",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, STR_ASCII, NULL, 0,
         "DiameterIdentity", HFILL }},
     { &hf_gsm_map_ms_routeingAreaIdentity,
       { "routeingAreaIdentity", "gsm_map.ms.routeingAreaIdentity",
@@ -29511,19 +29559,19 @@ void proto_register_gsm_map(void) {
         "SupportedLCS_CapabilitySets", HFILL }},
     { &hf_gsm_map_lcs_mme_Name,
       { "mme-Name", "gsm_map.lcs.mme_Name",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, STR_ASCII, NULL, 0,
         "DiameterIdentity", HFILL }},
     { &hf_gsm_map_lcs_aaa_Server_Name,
       { "aaa-Server-Name", "gsm_map.lcs.aaa_Server_Name",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, STR_ASCII, NULL, 0,
         "DiameterIdentity", HFILL }},
     { &hf_gsm_map_lcs_sgsn_Name,
       { "sgsn-Name", "gsm_map.lcs.sgsn_Name",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, STR_ASCII, NULL, 0,
         "DiameterIdentity", HFILL }},
     { &hf_gsm_map_lcs_sgsn_Realm,
       { "sgsn-Realm", "gsm_map.lcs.sgsn_Realm",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, STR_ASCII, NULL, 0,
         "DiameterIdentity", HFILL }},
     { &hf_gsm_map_lcs_locationType,
       { "locationType", "gsm_map.lcs.locationType_element",
@@ -29851,7 +29899,7 @@ void proto_register_gsm_map(void) {
         "ISDN_AddressString", HFILL }},
     { &hf_gsm_map_lcs_mme_Number,
       { "mme-Number", "gsm_map.lcs.mme_Number",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_STRING, STR_ASCII, NULL, 0,
         "DiameterIdentity", HFILL }},
     { &hf_gsm_map_lcs_DeferredLocationEventType_msAvailable,
       { "msAvailable", "gsm_map.lcs.msAvailable",
@@ -31433,7 +31481,7 @@ void proto_register_gsm_map(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-gsm_map-hfarr.c ---*/
-#line 3400 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 3404 "./asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   /* List of subtrees */
@@ -31468,6 +31516,9 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_ussd_string,
     &ett_gsm_map_ext2_qos_subscribed,
     &ett_gsm_map_ext3_qos_subscribed,
+    &ett_gsm_map_e_utranCellGlobalIdentity,
+    &ett_gsm_map_TA_id,
+    &ett_gsm_map_GeodeticInformation,
 
 
 /*--- Included file: packet-gsm_map-ettarr.c ---*/
@@ -32170,7 +32221,7 @@ void proto_register_gsm_map(void) {
     &ett_NokiaMAP_Extensions_AllowedServiceData,
 
 /*--- End of included file: packet-gsm_map-ettarr.c ---*/
-#line 3436 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 3443 "./asn1/gsm_map/packet-gsm_map-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -32314,7 +32365,7 @@ void proto_register_gsm_map(void) {
 
 
 /*--- End of included file: packet-gsm_map-dis-tab.c ---*/
-#line 3496 "./asn1/gsm_map/packet-gsm_map-template.c"
+#line 3503 "./asn1/gsm_map/packet-gsm_map-template.c"
   oid_add_from_string("ericsson-gsm-Map-Ext","1.2.826.0.1249.58.1.0" );
   oid_add_from_string("accessTypeNotAllowed-id","1.3.12.2.1107.3.66.1.2");
   /*oid_add_from_string("map-ac networkLocUp(1) version3(3)","0.4.0.0.1.0.1.3" );

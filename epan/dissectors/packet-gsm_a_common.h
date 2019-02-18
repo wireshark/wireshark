@@ -803,6 +803,8 @@ void bssmap_conn_oriented(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, g
 
 void rp_data_n_ms(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len);
 
+guint16 de_sgsap_ecgi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_);
+
 /*
  * the following allows TAP code access to the messages
  * without having to duplicate it. With MSVC and a

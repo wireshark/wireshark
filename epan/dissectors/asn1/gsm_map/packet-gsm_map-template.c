@@ -56,6 +56,7 @@
 #include "packet-smpp.h"
 #include "packet-gsm_sms.h"
 #include "packet-ranap.h"
+#include "packet-isup.h"
 
 #define PNAME  "GSM Mobile Application"
 #define PSNAME "GSM_MAP"
@@ -188,6 +189,9 @@ static gint ett_gsm_map_tbcd_digits = -1;
 static gint ett_gsm_map_ussd_string = -1;
 static gint ett_gsm_map_ext2_qos_subscribed = -1;
 static gint ett_gsm_map_ext3_qos_subscribed = -1;
+static gint ett_gsm_map_e_utranCellGlobalIdentity = -1;
+static gint ett_gsm_map_TA_id = -1;
+static gint ett_gsm_map_GeodeticInformation = -1;
 
 #include "packet-gsm_map-ett.c"
 
@@ -3431,6 +3435,9 @@ void proto_register_gsm_map(void) {
     &ett_gsm_map_ussd_string,
     &ett_gsm_map_ext2_qos_subscribed,
     &ett_gsm_map_ext3_qos_subscribed,
+    &ett_gsm_map_e_utranCellGlobalIdentity,
+    &ett_gsm_map_TA_id,
+    &ett_gsm_map_GeodeticInformation,
 
 #include "packet-gsm_map-ettarr.c"
   };
