@@ -1814,8 +1814,13 @@ static const true_false_string csa_initiator_flags = {
 };
 
 static const true_false_string mesh_config_cap_power_save_level_flags = {
-   "One of the peer-specific mesh power modes is deep sleep mode",
-   "No one is in deep sleep mode"
+   "At least one of the peer-specific mesh power modes is deep sleep mode",
+   "None of the peer-specific mesh power modes is deep sleep mode"
+};
+
+static const true_false_string ieee80211_qos_mesh_ps = {
+  "deep sleep mode",
+  "light sleep mode"
 };
 
 static const value_string sta_cf_pollable[] = {
@@ -3240,6 +3245,11 @@ static int hf_ieee80211_qos_highest_pri_buf_ac = -1;
 static int hf_ieee80211_qos_qap_buf_load = -1;
 static int hf_ieee80211_qos_txop_dur_req = -1;
 static int hf_ieee80211_qos_queue_size = -1;
+static int hf_ieee80211_qos_mesh_ctl_present = -1;
+static int hf_ieee80211_qos_mesh_ps_rsvd = -1;
+static int hf_ieee80211_qos_mesh_ps_unicast = -1;
+static int hf_ieee80211_qos_mesh_ps_multicast = -1;
+static int hf_ieee80211_qos_mesh_rspi = -1;
 
 /* ************************************************************************* */
 /*                Header values for HT control field (+HTC) and HE control   */
@@ -24357,11 +24367,23 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
 
         proto_tree_add_item(qos_tree, hf_ieee80211_qos_ack_policy, tvb, qosoff, 2, ENC_LITTLE_ENDIAN);
 
-        if (flags & FLAG_FROM_DS) {
-          if (!DATA_FRAME_IS_NULL(frame_type_subtype)) {
-            proto_tree_add_item(qos_tree, hf_ieee80211_qos_amsdu_present, tvb, qosoff, 2, ENC_LITTLE_ENDIAN);
-            is_amsdu = QOS_AMSDU_PRESENT(qos_control);
+        if (!DATA_FRAME_IS_NULL(frame_type_subtype)) {
+          proto_tree_add_item(qos_tree, hf_ieee80211_qos_amsdu_present, tvb, qosoff, 2, ENC_LITTLE_ENDIAN);
+          is_amsdu = QOS_AMSDU_PRESENT(qos_control);
+        }
+
+        if (meshctl_len) {
+          proto_tree_add_item(qos_tree, hf_ieee80211_qos_mesh_ctl_present, tvb, qosoff, 2, ENC_LITTLE_ENDIAN);
+          if (POWER_MGT_STATUS(flags)) {
+            if (tvb_get_guint8(tvb, 4) & 0x1)
+              proto_tree_add_item(qos_tree, hf_ieee80211_qos_mesh_ps_multicast, tvb, qosoff, 2, ENC_LITTLE_ENDIAN);
+            else
+              proto_tree_add_item(qos_tree, hf_ieee80211_qos_mesh_ps_unicast, tvb, qosoff, 2, ENC_LITTLE_ENDIAN);
+          } else {
+            proto_tree_add_item(qos_tree, hf_ieee80211_qos_mesh_ps_rsvd, tvb, qosoff, 2, ENC_LITTLE_ENDIAN);
           }
+          proto_tree_add_item(qos_tree, hf_ieee80211_qos_mesh_rspi, tvb, qosoff, 2, ENC_LITTLE_ENDIAN);
+        } else if (flags & FLAG_FROM_DS) {
           if (DATA_FRAME_IS_CF_POLL(frame_type_subtype)) {
             /* txop limit */
               qos_ti = proto_tree_add_item(qos_tree, hf_ieee80211_qos_txop_limit, tvb, qosoff, 2, ENC_LITTLE_ENDIAN);
@@ -24399,10 +24421,6 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
             }
           }
         } else {
-          if (!DATA_FRAME_IS_NULL(frame_type_subtype)) {
-            proto_tree_add_item(qos_tree, hf_ieee80211_qos_amsdu_present, tvb, qosoff, 2, ENC_LITTLE_ENDIAN);
-            is_amsdu = QOS_AMSDU_PRESENT(qos_control);
-          }
           /*
            * Only QoS Data, Qos CF-ACK and NULL frames To-DS have a Queue Size
            * field.
@@ -26072,6 +26090,31 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_qos_queue_size,
      {"Queue Size", "wlan.qos.queue_size",
       FT_UINT16, BASE_DEC, NULL, 0xFF00,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_qos_mesh_ctl_present,
+     {"Mesh Control Present", "wlan.qos.mesh_ctl_present",
+      FT_UINT16, BASE_DEC, NULL, 0x0100,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_qos_mesh_ps_rsvd,
+     {"Mesh Power Save Level (reserved)", "wlan.qos.mesh_ps.reserved",
+      FT_UINT16, BASE_DEC, NULL, 0x0200,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_qos_mesh_ps_unicast,
+     {"Mesh Power Save Level (for the receiving peer)", "wlan.qos.mesh_ps.unicast",
+      FT_BOOLEAN, 16, TFS(&ieee80211_qos_mesh_ps), 0x0200,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_qos_mesh_ps_multicast,
+     {"Mesh Power Save Level (for all receiving peers)", "wlan.qos.mesh_ps.multicast",
+      FT_BOOLEAN, 16, TFS(&mesh_config_cap_power_save_level_flags), 0x0200,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_qos_mesh_rspi,
+     {"Receiver Service Period Initiated (RSPI)", "wlan.qos.mesh_rspi",
+      FT_UINT16, BASE_DEC, NULL, 0x0400,
       NULL, HFILL }},
 
     {&hf_ieee80211_fcs,
