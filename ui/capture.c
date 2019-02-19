@@ -179,18 +179,6 @@ capture_stop(capture_session *cap_session)
 
 
 void
-capture_restart(capture_session *cap_session)
-{
-    capture_options *capture_opts = cap_session->capture_opts;
-
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_MESSAGE, "Capture Restart");
-
-    capture_opts->restart = TRUE;
-    capture_stop(cap_session);
-}
-
-
-void
 capture_kill_child(capture_session *cap_session)
 {
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_INFO, "Capture Kill");
@@ -732,30 +720,12 @@ capture_input_closed(capture_session *cap_session, gchar *msg)
     if(capture_opts->restart) {
         capture_opts->restart = FALSE;
 
-        ws_unlink(capture_opts->save_file);
-
         /* If we have a ring buffer, the original save file has been overwritten
            with the "ring filename".  Restore it before starting again */
         if ((capture_opts->multi_files_on) && (capture_opts->orig_save_file != NULL)) {
             g_free(capture_opts->save_file);
             capture_opts->save_file = g_strdup(capture_opts->orig_save_file);
         }
-
-        /* if it was a tempfile, throw away the old filename (so it will become a tempfile again) */
-        if(cf_is_tempfile((capture_file *)cap_session->cf)) {
-            g_free(capture_opts->save_file);
-            capture_opts->save_file = NULL;
-        }
-
-        /* ... and start the capture again */
-        if (capture_opts->ifaces->len == 0) {
-            collect_ifaces(capture_opts);
-        }
-
-        /* close the currently loaded capture file */
-        cf_close((capture_file *)cap_session->cf);
-
-        capture_start(capture_opts, cap_session, cap_session->cap_data_info, NULL); /*XXX is this NULL ok or we need an update_cb???*/
     } else {
         /* We're not doing a capture any more, so we don't have a save file. */
         g_free(capture_opts->save_file);
