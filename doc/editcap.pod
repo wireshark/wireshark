@@ -29,6 +29,7 @@ S<[ B<-t> E<lt>time adjustmentE<gt> ]>
 S<[ B<-T> E<lt>encapsulation typeE<gt> ]>
 S<[ B<-v> ]>
 S<[ B<--inject-secrets> E<lt>secrets typeE<gt>,E<lt>fileE<gt> ]>
+S<[ B<--discard-all-secrets> ]>
 I<infile>
 I<outfile>
 S<[ I<packet#>[-I<packet#>] ... ]>
@@ -348,6 +349,12 @@ I<tls> TLS Key Log as described at L<https://developer.mozilla.org/NSS_Key_Log_F
 
 This option may be specified multiple times. The available options for
 E<lt>secrets typeE<gt> can be listed with B<--inject-secrets help>.
+
+=item --discard-all-secrets
+
+Discard all decryption secrets from the input file when writing the
+output file.  Does not discard secrets added by B<--inject-secrets> in
+the same command line.
 
 =back
 

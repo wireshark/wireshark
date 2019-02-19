@@ -328,6 +328,13 @@ wtap_dump_params_init(wtap_dump_params *params, wtap *wth)
 }
 
 void
+wtap_dump_params_discard_decryption_secrets(wtap_dump_params *params)
+{
+	params->dsbs_initial = NULL;
+	params->dsbs_growing = NULL;
+}
+
+void
 wtap_dump_params_cleanup(wtap_dump_params *params)
 {
 	wtap_block_array_free(params->shb_hdrs);
