@@ -817,6 +817,9 @@ bool CaptureInterfacesDialog::saveOptionsToPreferences()
         prefs.capture_pcap_ng = false;
     }
 
+    g_free(global_capture_opts.save_file);
+    g_free(global_capture_opts.orig_save_file);
+
     QString filename = ui->filenameLineEdit->text();
     if (filename.length() > 0) {
         /* User specified a file to which the capture should be written. */
@@ -827,7 +830,9 @@ bool CaptureInterfacesDialog::saveOptionsToPreferences()
         set_last_open_dir(get_dirname(filename.toUtf8().data()));
     } else {
         /* User didn't specify a file; save to a temporary file. */
+        global_capture_opts.saving_to_file = false;
         global_capture_opts.save_file = NULL;
+        global_capture_opts.orig_save_file = NULL;
     }
 
     global_capture_opts.has_ring_num_files = ui->RbCheckBox->isChecked();
