@@ -1009,11 +1009,15 @@ main(int argc, char *argv[])
     int           i, j, read_err, write_err;
     gchar        *read_err_info, *write_err_info;
     int           opt;
+#define LONGOPT_NO_VLAN              0x8100
+#define LONGOPT_SKIP_RADIOTAP_HEADER 0x8101
+#define LONGOPT_SEED                 0x8102
+#define LONGOPT_INJECT_SECRETS       0x8103
     static const struct option long_options[] = {
-        {"novlan", no_argument, NULL, 0x8100},
-        {"skip-radiotap-header", no_argument, NULL, 0x8101},
-        {"seed", required_argument, NULL, 0x8102},
-        {"inject-secrets", required_argument, NULL, 0x8103},
+        {"novlan", no_argument, NULL, LONGOPT_NO_VLAN},
+        {"skip-radiotap-header", no_argument, NULL, LONGOPT_SKIP_RADIOTAP_HEADER},
+        {"seed", required_argument, NULL, LONGOPT_SEED},
+        {"inject-secrets", required_argument, NULL, LONGOPT_INJECT_SECRETS},
         {"help", no_argument, NULL, 'h'},
         {"version", no_argument, NULL, 'V'},
         {0, 0, 0, 0 }
@@ -1087,19 +1091,19 @@ main(int argc, char *argv[])
     /* Process the options */
     while ((opt = getopt_long(argc, argv, ":a:A:B:c:C:dD:E:F:hi:I:Lo:rs:S:t:T:vVw:", long_options, NULL)) != -1) {
         switch (opt) {
-        case 0x8100:
+        case LONGOPT_NO_VLAN:
         {
             rem_vlan = TRUE;
             break;
         }
 
-        case 0x8101:
+        case LONGOPT_SKIP_RADIOTAP_HEADER:
         {
             skip_radiotap = TRUE;
             break;
         }
 
-        case 0x8102:
+        case LONGOPT_SEED:
         {
             if (sscanf(optarg, "%u", &seed) != 1) {
                 fprintf(stderr, "editcap: \"%s\" isn't a valid seed\n\n",
@@ -1111,7 +1115,7 @@ main(int argc, char *argv[])
             break;
         }
 
-        case 0x8103: /* --inject-secrets */
+        case LONGOPT_INJECT_SECRETS:
         {
             guint32 secrets_type_id = 0;
             const char *secrets_filename = NULL;
