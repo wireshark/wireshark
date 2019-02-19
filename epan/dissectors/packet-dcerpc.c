@@ -2628,13 +2628,8 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
      */
     tvb_ensure_bytes_exist(tvb, offset, buffer_len);
     if (size_is == sizeof(guint16)) {
-        /*
-         * Assume little-endian UTF-16.
-         *
-         * XXX - is this always little-endian?
-         */
         s = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, buffer_len,
-                               ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                               ENC_UTF_16|DREP_ENC_INTEGER(drep));
     } else {
         /*
          * XXX - what if size_is is neither 1 nor 2?
@@ -2808,13 +2803,8 @@ dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
      */
     tvb_ensure_bytes_exist(tvb, offset, buffer_len);
     if (size_is == sizeof(guint16)) {
-        /*
-         * Assume little-endian UTF-16.
-         *
-         * XXX - is this always little-endian?
-         */
         s = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, buffer_len,
-                               ENC_UTF_16|ENC_LITTLE_ENDIAN);
+                               ENC_UTF_16|DREP_ENC_INTEGER(drep));
     } else {
         /*
          * XXX - what if size_is is neither 1 nor 2?
