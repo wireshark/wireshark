@@ -4227,6 +4227,7 @@ de_gc_timer3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
 		case 3:  str = "sec"; val*=2; break;
 		case 4:  str = "sec"; val*=30; break;
 		case 5:  str = "min"; break;
+		case 6:  str = "hours"; val *= 320; break;
 		case 7:
 			item = proto_tree_add_uint_format_value(tree, hf_gsm_a_gm_gprs_timer3, tvb, curr_offset, 1, val, "timer is deactivated");
 			break;
