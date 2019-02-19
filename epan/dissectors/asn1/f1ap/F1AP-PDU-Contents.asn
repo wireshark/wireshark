@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V15.4.0 (2018-12)
+-- 3GPP TS 38.473 V15.4.1 (2019-01)
 -- 9.4.4	PDU Definitions
 -- **************************************************************
 --
@@ -1327,9 +1327,10 @@ WriteReplaceWarningResponse ::= SEQUENCE {
 
 WriteReplaceWarningResponseIEs F1AP-PROTOCOL-IES ::= { 
 	{ ID id-TransactionID							CRITICALITY reject	TYPE TransactionID										PRESENCE mandatory	}|
-	{ ID id-Cells-Broadcast-Completed-List			CRITICALITY reject	TYPE Cells-Broadcast-Completed-List				PRESENCE optional	}|
+	{ ID id-Cells-Broadcast-Completed-List			CRITICALITY reject	TYPE Cells-Broadcast-Completed-List					PRESENCE optional	}|
 	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics							PRESENCE optional	}|
-	... 
+	{ ID id-Dedicated-SIDelivery-NeededUE-List		CRITICALITY ignore	TYPE Dedicated-SIDelivery-NeededUE-List			PRESENCE optional	},
+	...
 }
 
 Cells-Broadcast-Completed-List		::= SEQUENCE (SIZE(1.. maxCellingNBDU))	OF ProtocolIE-SingleContainer { { Cells-Broadcast-Completed-List-ItemIEs } }
