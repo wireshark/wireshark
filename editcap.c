@@ -965,8 +965,9 @@ real_main(int argc, char *argv[])
     int           i, j, read_err, write_err;
     gchar        *read_err_info, *write_err_info;
     int           opt;
+#define LONGOPT_NO_VLAN              0x8100
     static const struct option long_options[] = {
-        {"novlan", no_argument, NULL, 0x8100},
+        {"novlan", no_argument, NULL, LONGOPT_NO_VLAN},
         {"help", no_argument, NULL, 'h'},
         {"version", no_argument, NULL, 'V'},
         {0, 0, 0, 0 }
@@ -1063,7 +1064,7 @@ real_main(int argc, char *argv[])
     /* Process the options */
     while ((opt = getopt_long(argc, argv, "a:A:B:c:C:dD:E:F:hi:I:Lo:rs:S:t:T:vVw:", long_options, NULL)) != -1) {
         switch (opt) {
-        case 0x8100:
+        case LONGOPT_NO_VLAN:
         {
             rem_vlan = TRUE;
             break;
