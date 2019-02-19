@@ -69,7 +69,10 @@ since version 2.9.0:
 The following features are new (or have been significantly updated)
 since version 2.6.0:
 
-* The Windows .exe installers now ship with Npcap instead of WinPcap.
+* The Windows .exe installers now ship with https://nmap.org/npcap/[Npcap]
+  instead of WinPcap.  Besides being actively maintained (by the nmap project),
+  Npcap brings support for loopback capture and 802.11 WiFi monitor mode
+  capture (if supported by the NIC driver).
 * Conversation timestamps are supported for UDP/UDP-Lite protocols
 * TShark now supports the `-G elastic-mapping` option which generates an ElasticSearch mapping file.
 * The “Capture Information” dialog has been added back (wsbuglink:12004[]).
