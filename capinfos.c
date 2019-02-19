@@ -128,6 +128,8 @@ static gboolean cap_file_size      = TRUE;  /* Report file size           */
 static gboolean cap_comment        = TRUE;  /* Display the capture comment */
 static gboolean cap_file_more_info = TRUE;  /* Report more file info      */
 static gboolean cap_file_idb       = TRUE;  /* Report Interface info      */
+static gboolean cap_file_nrb       = TRUE;  /* Report Name Resolution Block info      */
+static gboolean cap_file_dsb       = TRUE;  /* Report Decryption Secrets Block info      */
 
 static gboolean cap_data_size      = TRUE;  /* Report packet byte size    */
 static gboolean cap_duration       = TRUE;  /* Report capture duration    */
@@ -155,6 +157,10 @@ static gboolean cap_file_hashes    = TRUE;  /* Calculate file hashes */
 static gchar file_sha256[HASH_STR_SIZE];
 static gchar file_rmd160[HASH_STR_SIZE];
 static gchar file_sha1[HASH_STR_SIZE];
+
+static guint num_ipv4_addresses;
+static guint num_ipv6_addresses;
+static guint num_decryption_secrets;
 
 /*
  * If we have at least two packets with time stamps, and they're not in
@@ -225,6 +231,8 @@ enable_all_infos(void)
   cap_comment        = TRUE;
   cap_file_more_info = TRUE;
   cap_file_idb       = TRUE;
+  cap_file_nrb       = TRUE;
+  cap_file_dsb       = TRUE;
 
   cap_data_size      = TRUE;
   cap_duration       = TRUE;
@@ -253,6 +261,8 @@ disable_all_infos(void)
   cap_comment        = FALSE;
   cap_file_more_info = FALSE;
   cap_file_idb       = FALSE;
+  cap_file_nrb       = FALSE;
+  cap_file_dsb       = FALSE;
 
   cap_data_size      = FALSE;
   cap_duration       = FALSE;
@@ -729,6 +739,17 @@ print_stats(const gchar *filename, capture_info *cf_info)
         printf   ("                     Number of packets = %u\n", packet_count);
       }
     }
+
+    if (cap_file_nrb) {
+      if (num_ipv4_addresses != 0)
+        printf   ("Number of resolved IPv4 addresses in file: %u\n", num_ipv4_addresses);
+      if (num_ipv6_addresses != 0)
+        printf   ("Number of resolved IPv6 addresses in file: %u\n", num_ipv6_addresses);
+    }
+    if (cap_file_dsb) {
+      if (num_decryption_secrets != 0)
+        printf   ("Number of decryption secrets in file: %u\n", num_decryption_secrets);
+    }
   }
 }
 
@@ -1050,6 +1071,26 @@ cleanup_capture_info(capture_info *cf_info)
   cf_info->idb_info_strings = NULL;
 }
 
+static void
+count_ipv4_address(const guint addr _U_, const gchar *name _U_)
+{
+  num_ipv4_addresses++;
+}
+
+static void
+count_ipv6_address(const void *addrp _U_, const gchar *name _U_)
+{
+  num_ipv6_addresses++;
+}
+
+static void
+count_decryption_secret(guint32 secrets_type _U_, const void *secrets _U_, guint size _U_)
+{
+  /* XXX - count them based on the secrets type (which is an opaque code,
+     not a small integer)? */
+  num_decryption_secrets++;
+}
+
 static int
 process_cap_file(const char *filename, gboolean need_separator)
 {
@@ -1110,6 +1151,17 @@ process_cap_file(const char *filename, gboolean need_separator)
 
   g_free(idb_info);
   idb_info = NULL;
+
+  /* Register callbacks for new name<->address maps from the file and
+     decryption secrets from the file. */
+  wtap_set_cb_new_ipv4(wth, count_ipv4_address);
+  wtap_set_cb_new_ipv6(wth, count_ipv6_address);
+  wtap_set_cb_new_secrets(wth, count_decryption_secret);
+
+  /* Zero out the counters for the callbacks. */
+  num_ipv4_addresses = 0;
+  num_ipv6_addresses = 0;
+  num_decryption_secrets = 0;
 
   /* Tally up data that we need to parse through the file to find */
   while (wtap_read(wth, &err, &err_info, &data_offset))  {
@@ -1349,6 +1401,10 @@ print_usage(FILE *output)
   fprintf(output, "  -z display average packet size (in bytes)\n");
   fprintf(output, "  -x display average packet rate (in packets/sec)\n");
   fprintf(output, "\n");
+  fprintf(output, "Metadata infos:\n");
+  fprintf(output, "  -n display number of resolved IPv4 and IPv6 addresses\n");
+  fprintf(output, "  -D display number of decryption secrets\n");
+  fprintf(output, "\n");
   fprintf(output, "Output format:\n");
   fprintf(output, "  -L generate long report (default)\n");
   fprintf(output, "  -T generate table report\n");
@@ -1467,7 +1523,7 @@ main(int argc, char *argv[])
   wtap_init(TRUE);
 
   /* Process the options */
-  while ((opt = getopt_long(argc, argv, "abcdehiklmoqrstuvxyzABCEFHIKLMNQRST", long_options, NULL)) !=-1) {
+  while ((opt = getopt_long(argc, argv, "abcdehiklmnoqrstuvxyzABCDEFHIKLMNQRST", long_options, NULL)) !=-1) {
 
     switch (opt) {
 
@@ -1567,6 +1623,16 @@ main(int argc, char *argv[])
       case 'I':
         if (report_all_infos) disable_all_infos();
         cap_file_idb = TRUE;
+        break;
+
+      case 'n':
+        if (report_all_infos) disable_all_infos();
+        cap_file_nrb = TRUE;
+        break;
+
+      case 'D':
+        if (report_all_infos) disable_all_infos();
+        cap_file_dsb = TRUE;
         break;
 
       case 'C':
