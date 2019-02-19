@@ -935,6 +935,7 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         capture_opts->saving_to_file = TRUE;
         g_free(capture_opts->save_file);
         capture_opts->save_file = g_strdup(optarg_str_p);
+        capture_opts->orig_save_file = g_strdup(optarg_str_p);
         status = capture_opts_output_to_pipe(capture_opts->save_file, &capture_opts->output_to_pipe);
         return status;
     case 'y':        /* Set the pcap data link type */
