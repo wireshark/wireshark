@@ -344,7 +344,7 @@ selected(guint recno)
         }
     }
 
-  return 0;
+    return 0;
 }
 
 static gboolean
@@ -919,9 +919,9 @@ framenum_compare(gconstpointer a, gconstpointer b, gpointer user_data _U_)
 static void
 failure_warning_message(const char *msg_format, va_list ap)
 {
-  fprintf(stderr, "editcap: ");
-  vfprintf(stderr, msg_format, ap);
-  fprintf(stderr, "\n");
+    fprintf(stderr, "editcap: ");
+    vfprintf(stderr, msg_format, ap);
+    fprintf(stderr, "\n");
 }
 
 /*
@@ -930,8 +930,8 @@ failure_warning_message(const char *msg_format, va_list ap)
 static void
 failure_message_cont(const char *msg_format, va_list ap)
 {
-  vfprintf(stderr, msg_format, ap);
-  fprintf(stderr, "\n");
+    vfprintf(stderr, msg_format, ap);
+    fprintf(stderr, "\n");
 }
 
 static wtap_dumper *
@@ -940,19 +940,19 @@ editcap_dump_open(const char *filename, guint32 snaplen,
                   wtapng_iface_descriptions_t *idb_inf,
                   GArray* nrb_hdrs, int *write_err)
 {
-  wtap_dumper *pdh;
+    wtap_dumper *pdh;
 
-  if (strcmp(filename, "-") == 0) {
-    /* Write to the standard output. */
-    pdh = wtap_dump_open_stdout_ng(out_file_type_subtype, out_frame_type,
-                                   snaplen, FALSE /* compressed */,
-                                   shb_hdrs, idb_inf, nrb_hdrs, write_err);
-  } else {
-    pdh = wtap_dump_open_ng(filename, out_file_type_subtype, out_frame_type,
-                            snaplen, FALSE /* compressed */,
-                            shb_hdrs, idb_inf, nrb_hdrs, write_err);
-  }
-  return pdh;
+    if (strcmp(filename, "-") == 0) {
+        /* Write to the standard output. */
+        pdh = wtap_dump_open_stdout_ng(out_file_type_subtype, out_frame_type,
+                                       snaplen, FALSE /* compressed */,
+                                       shb_hdrs, idb_inf, nrb_hdrs, write_err);
+    } else {
+        pdh = wtap_dump_open_ng(filename, out_file_type_subtype, out_frame_type,
+                                snaplen, FALSE /* compressed */,
+                                shb_hdrs, idb_inf, nrb_hdrs, write_err);
+    }
+    return pdh;
 }
 
 static int
