@@ -18,6 +18,7 @@ S<[ B<-B> ]>
 S<[ B<-c> ]>
 S<[ B<-C> ]>
 S<[ B<-d> ]>
+S<[ B<-D> ]>
 S<[ B<-e> ]>
 S<[ B<-E> ]>
 S<[ B<-F> ]>
@@ -31,6 +32,7 @@ S<[ B<-l> ]>
 S<[ B<-L> ]>
 S<[ B<-m> ]>
 S<[ B<-M> ]>
+S<[ B<-n> ]>
 S<[ B<-N> ]>
 S<[ B<-o> ]>
 S<[ B<-q> ]>
@@ -146,6 +148,10 @@ For example, if a packet was originally 1514 bytes and only
 were captured with a snaplen or other slicing option),
 B<Capinfos> will consider the packet to have been 1514 bytes.
 
+=item -D
+
+Displays a count of the number of decryption secrets in the file.
+
 =item -e
 
 Displays the end time of the capture.  B<Capinfos> considers
@@ -218,6 +224,11 @@ from one another with a single comma "," character.
 Print raw (machine readable) numeric values in long reports.
 By default capinfos prints human-readable values with SI
 suffixes. Table reports (-T) always print raw values.
+
+=item -n
+
+Displays a count of the number of resolved IPv4 addresses and a count of
+the number of resolved IPv6 addresses in the file.
 
 =item -N
 
