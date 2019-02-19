@@ -1927,6 +1927,16 @@ WS_DLL_PUBLIC
 void wtap_dump_params_init(wtap_dump_params *params, wtap *wth);
 
 /**
+ * Remove any decryption secret information from the per-file information;
+ * used if we're stripping decryption secrets as we write the file.
+ *
+ * @param params The parameters for wtap_dump_* from which to remove the
+ * decryption secrets..
+ */
+WS_DLL_PUBLIC
+void wtap_dump_params_discard_decryption_secrets(wtap_dump_params *params);
+
+/**
  * Free memory associated with the wtap_dump_params when it is no longer in
  * use by wtap_dumper.
  *
@@ -2012,6 +2022,8 @@ WS_DLL_PUBLIC
 gboolean wtap_dump_set_addrinfo_list(wtap_dumper *wdh, addrinfo_lists_t *addrinfo_lists);
 WS_DLL_PUBLIC
 gboolean wtap_dump_get_needs_reload(wtap_dumper *wdh);
+WS_DLL_PUBLIC
+void wtap_dump_discard_decryption_secrets(wtap_dumper *wdh);
 
 /**
  * Closes open file handles and frees memory associated with wdh. Note that

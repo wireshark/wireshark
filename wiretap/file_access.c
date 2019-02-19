@@ -2718,6 +2718,28 @@ wtap_dump_set_addrinfo_list(wtap_dumper *wdh, addrinfo_lists_t *addrinfo_lists)
 	return TRUE;
 }
 
+void
+wtap_dump_discard_decryption_secrets(wtap_dumper *wdh)
+{
+	/*
+	 * This doesn't free the data, as it might be pointed to
+	 * from other structures; it merely marks all of them as
+	 * having been written to the file, so that they don't
+	 * get written by wtap_dump().
+	 *
+	 * XXX - our APIs for dealing with some metadata, such as
+	 * resolved names, decryption secrets, and interface
+	 * statistics is not very well oriented towards one-pass
+	 * programs; this needs to be cleaned up.  See bug 15502.
+	 */
+	if (wdh->dsbs_growing) {
+		/*
+		 * Pretend we've written all of them.
+		 */
+		wdh->dsbs_growing_written = wdh->dsbs_growing->len;
+	}
+}
+
 gboolean wtap_dump_get_needs_reload(wtap_dumper *wdh) {
         return wdh->needs_reload;
 }
