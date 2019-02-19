@@ -63,6 +63,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_dump_can_open@Base 1.9.1
  wtap_dump_can_write@Base 1.9.1
  wtap_dump_close@Base 1.9.1
+ wtap_dump_discard_decryption_secrets@Base 3.0.0
  wtap_dump_fdopen@Base 1.9.1
  wtap_dump_file_encap_type@Base 1.9.1
  wtap_dump_file_seek@Base 1.12.0~rc1
@@ -75,6 +76,7 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_dump_open_stdout@Base 2.0.0
  wtap_dump_open_tempfile@Base 2.0.0
  wtap_dump_params_cleanup@Base 2.9.0
+ wtap_dump_params_discard_decryption_secrets@Base 3.0.0
  wtap_dump_params_init@Base 2.9.0
  wtap_dump_set_addrinfo_list@Base 1.9.1
  wtap_dump_supports_comment_types@Base 1.9.1
