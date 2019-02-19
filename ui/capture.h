@@ -62,10 +62,6 @@ capture_start(capture_options *capture_opts, capture_session *cap_session, info_
 extern void
 capture_stop(capture_session *cap_session);
 
-/** Restart the current captured packets and start again. */
-extern void
-capture_restart(capture_session *cap_session);
-
 /** Terminate the capture child cleanly when exiting. */
 extern void
 capture_kill_child(capture_session *cap_session);
