@@ -9061,7 +9061,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 
 		/* Next Command */
 		chain_offset = tvb_get_letohl(tvb, offset);
-		proto_tree_add_item(header_tree, hf_smb2_chain_offset, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(header_tree, hf_smb2_chain_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		/* Message ID */
