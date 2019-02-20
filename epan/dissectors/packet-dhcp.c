@@ -303,6 +303,21 @@ static int hf_dhcp_option43_bsdp_image_desc = -1;			/* 43 BSDP  */
 static int hf_dhcp_option43_bsdp_boot_image_name = -1;			/* 43 BSDP  */
 static int hf_dhcp_option43_bsdp_boot_image_name_len = -1;		/* 43 BSDP  */
 
+static int hf_dhcp_option43_cisco_suboption = -1;			/* 43 Cisco */
+static int hf_dhcp_option43_cisco_unknown = -1;				/* 43 Cisco */
+static int hf_dhcp_option43_cisco_unknown1 = -1;			/* 43:1 Cisco */
+static int hf_dhcp_option43_cisco_unknown2 = -1;			/* 43:2 Cisco */
+static int hf_dhcp_option43_cisco_unknown3 = -1;			/* 43:3 Cisco */
+static int hf_dhcp_option43_cisco_nodeid = -1;				/* 43:4 Cisco */
+static int hf_dhcp_option43_cisco_unknown5 = -1;			/* 43:5 Cisco */
+static int hf_dhcp_option43_cisco_unknown6 = -1;			/* 43:6 Cisco */
+static int hf_dhcp_option43_cisco_model = -1;				/* 43:7 Cisco */
+static int hf_dhcp_option43_cisco_apicuuid = -1;			/* 43:8 Cisco */
+static int hf_dhcp_option43_cisco_fabricname = -1;			/* 43:9 Cisco */
+static int hf_dhcp_option43_cisco_unknown10 = -1;			/* 43:10 Cisco */
+static int hf_dhcp_option43_cisco_serialno = -1;			/* 43:11 Cisco */
+static int hf_dhcp_option43_cisco_clientint = -1;			/* 43:12 Cisco */
+
 static int hf_dhcp_option43_alcatel_suboption = -1;			/* 43 suboption */
 static int hf_dhcp_option43_alcatel_padding = -1;			/* 43:0 Alcatel	 */
 static int hf_dhcp_option43_alcatel_vlan_id = -1;			/* 43:58 Alcatel  */
@@ -1049,6 +1064,8 @@ static const enum_val_t pkt_ccc_protocol_versions[] = {
 
 #define APPLE_BSDP_SERVER "AAPLBSDPC"
 #define APPLE_BSDP_CLIENT "AAPLBSDPC/"
+
+#define CISCO_VCID "cisco"
 
 static gint pkt_ccc_protocol_version = PACKETCABLE_CCC_RFC_3495;
 static guint pkt_ccc_option = 122;
@@ -4342,13 +4359,138 @@ dissect_apple_bsdp_vendor_info_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	return TRUE;
 }
 
+/* Cisco Vendor Specific Information */
+
+static const value_string option43_cisco_suboption_vals[] = {
+	{  1, "Unk-1" },	/* Number */
+	{  2, "Unk-2" },	/* Number */
+	{  3, "Unk-3" },	/* Number */
+	{  4, "Node ID" },	/* Number */
+	{  5, "Unk-5" },	/* Number */
+	{  6, "Unk-6" },	/* Number */
+	{  7, "Model" },	/* String */
+	{  8, "APIC UUID" },	/* String */
+	{  9, "Fabricname" },	/* String */
+	{ 10, "Unk-10" },	/* Number */
+	{ 11, "SerialNo" },	/* String */
+	{ 12, "Client Int" },	/* String */
+
+	{ 0, NULL}
+};
+
+static int
+dissect_vendor_cisco_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
+				   tvbuff_t *tvb, int optoff, int optend)
+{
+	int         suboptoff = optoff;
+	guint8      subopt;
+	guint8      subopt_len;
+	guint       item_len;
+	proto_tree *o43cisco_v_tree;
+	proto_item *vti;
+
+	subopt = tvb_get_guint8(tvb, optoff);
+	suboptoff++;
+
+	if (suboptoff >= optend) {
+		expert_add_info_format(pinfo, v_ti, &ei_dhcp_missing_subopt_length,
+									"Suboption %d: No room left in option for suboption length", subopt);
+		return (optend);
+	} else {
+		subopt_len = tvb_get_guint8(tvb, suboptoff);
+		item_len = subopt_len + 2;
+	}
+
+	vti = proto_tree_add_uint_format_value(v_tree, hf_dhcp_option43_cisco_suboption,
+				tvb, optoff, item_len, subopt, "(%d) %s",
+				subopt, val_to_str_const(subopt, option43_cisco_suboption_vals, "Unknown"));
+
+	o43cisco_v_tree = proto_item_add_subtree(vti, ett_dhcp_option43_suboption);
+	proto_tree_add_item(o43cisco_v_tree, hf_dhcp_suboption_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
+	suboptoff++;
+
+	if (suboptoff+subopt_len > optend) {
+		expert_add_info_format(pinfo, vti, &ei_dhcp_missing_subopt_value,
+						"Suboption %d: Not sufficient room left in option for suboption value", subopt);
+		return (optend);
+	}
+
+	switch(subopt)
+	{
+		case 1:
+			proto_tree_add_item(o43cisco_v_tree, hf_dhcp_option43_cisco_unknown1, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
+			break;
+		case 2:
+			proto_tree_add_item(o43cisco_v_tree, hf_dhcp_option43_cisco_unknown2, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
+			break;
+		case 3:
+			proto_tree_add_item(o43cisco_v_tree, hf_dhcp_option43_cisco_unknown3, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
+			break;
+		case 4:
+			proto_tree_add_item(o43cisco_v_tree, hf_dhcp_option43_cisco_nodeid, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
+			break;
+		case 5:
+			proto_tree_add_item(o43cisco_v_tree, hf_dhcp_option43_cisco_unknown5, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
+			break;
+		case 6:
+			proto_tree_add_item(o43cisco_v_tree, hf_dhcp_option43_cisco_unknown6, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
+			break;
+		case 7:
+			proto_tree_add_item(o43cisco_v_tree, hf_dhcp_option43_cisco_model, tvb, suboptoff, subopt_len, ENC_ASCII|ENC_NA);
+			break;
+		case 8:
+			proto_tree_add_item(o43cisco_v_tree, hf_dhcp_option43_cisco_apicuuid, tvb, suboptoff, subopt_len, ENC_ASCII|ENC_NA);
+			break;
+		case 9:
+			proto_tree_add_item(o43cisco_v_tree, hf_dhcp_option43_cisco_fabricname, tvb, suboptoff, subopt_len, ENC_ASCII|ENC_NA);
+			break;
+		case 10:
+			proto_tree_add_item(o43cisco_v_tree, hf_dhcp_option43_cisco_unknown10, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
+			break;
+		case 11:
+			proto_tree_add_item(o43cisco_v_tree, hf_dhcp_option43_cisco_serialno, tvb, suboptoff, subopt_len, ENC_ASCII|ENC_NA);
+			break;
+		case 12:
+			proto_tree_add_item(o43cisco_v_tree, hf_dhcp_option43_cisco_clientint, tvb, suboptoff, subopt_len, ENC_ASCII|ENC_NA);
+			break;
+		default:
+			proto_tree_add_item(o43cisco_v_tree, hf_dhcp_option43_cisco_unknown, tvb, suboptoff, subopt_len, ENC_NA);
+	}
+
+	optoff += item_len;
+	return optoff;
+}
+
+static gboolean
+dissect_cisco_vendor_info_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+	int offset = 0;
+	dhcp_option_data_t *option_data = (dhcp_option_data_t*)data;
+	proto_tree* vendor_tree;
+
+	if ((option_data->vendor_class_id == NULL) ||
+		(strncmp((const gchar*)option_data->vendor_class_id, CISCO_VCID, strlen(CISCO_VCID)) != 0))
+		return FALSE;
+
+	/* Cisco ACI Fabric*/
+	proto_item_append_text(tree, " (Cisco ACI Fabric)");
+	vendor_tree = proto_item_add_subtree(tree, ett_dhcp_option);
+
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
+		offset = dissect_vendor_cisco_suboption(pinfo, tree, vendor_tree,
+			tvb, offset, tvb_reported_length(tvb));
+	}
+
+	return TRUE;
+}
+
 
 static int
 dissect_vendor_generic_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_tree,
 				 tvbuff_t *tvb, int optoff, int optend)
 {
 	int	    suboptoff = optoff;
-	guint8	subopt;
+	guint8	    subopt;
 	int	    subopt_len;
 	proto_item *item;
 	proto_tree *sub_tree;
@@ -5938,6 +6080,7 @@ dissect_packetcable_cm_vendor_id_heur( tvbuff_t *tvb, packet_info *pinfo _U_, pr
 
 static gboolean
 dissect_apple_bsdp_vendor_id_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+
 {
 	int vendor_id_len = (int)strlen(APPLE_BSDP_CLIENT);
 	if ((int)tvb_reported_length(tvb) < vendor_id_len) {
@@ -9226,6 +9369,77 @@ proto_register_dhcp(void)
 		  { "VLANTEST",  "dhcp.option.vendor.avaya.vlantest",
 		    FT_INT32, BASE_DEC, NULL, 0x0,
 		    "Option 242: VLANTEST (Timeout in seconds)", HFILL }},
+
+		/* Cisco vendor suboptions */
+		{ &hf_dhcp_option43_cisco_suboption,
+		  { "Option 43 Suboption", "dhcp.option.vendor.cisco.suboption",
+		    FT_UINT8, BASE_DEC, VALS(option43_cisco_suboption_vals), 0x0,
+		    "Option 43:Cisco Suboption", HFILL }},
+
+		{ &hf_dhcp_option43_cisco_unknown,
+		  { "Unknown", "dhcp.option.vendor.cisco.unknown",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_dhcp_option43_cisco_unknown1,
+		  { "Unknown1", "dhcp.option.vendor.cisco.unknown1",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_dhcp_option43_cisco_unknown2,
+		  { "Unknown2", "dhcp.option.vendor.cisco.unknown2",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_dhcp_option43_cisco_unknown3,
+		  { "Unknown3", "dhcp.option.vendor.cisco.unknown3",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_dhcp_option43_cisco_nodeid,
+		  { "Node ID", "dhcp.option.vendor.cisco.nodeid",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_dhcp_option43_cisco_unknown5,
+		  { "Unknown5", "dhcp.option.vendor.cisco.unknown5",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_dhcp_option43_cisco_unknown6,
+		  { "Unknown6", "dhcp.option.vendor.cisco.unknown6",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_dhcp_option43_cisco_model,
+		  { "Model", "dhcp.option.vendor.cisco.model",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_dhcp_option43_cisco_apicuuid,
+		  { "APIC UUID", "dhcp.option.vendor.cisco.apicuuid",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_dhcp_option43_cisco_fabricname,
+		  { "Fabricname", "dhcp.option.vendor.cisco.fabricname",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_dhcp_option43_cisco_unknown10,
+		  { "Unknown10", "dhcp.option.vendor.cisco.unknown10",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_dhcp_option43_cisco_serialno,
+		  { "SerialNo", "dhcp.option.vendor.cisco.serialno",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_dhcp_option43_cisco_clientint,
+		  { "Client Int", "dhcp.option.vendor.cisco.clientint",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
 	};
 
 	static uat_field_t dhcp_uat_flds[] = {
@@ -9466,6 +9680,7 @@ proto_reg_handoff_dhcp(void)
 	heur_dissector_add( "dhcp.vendor_info", dissect_aruba_ap_vendor_info_heur, ARUBA_AP, "aruba_ap_dhcp", proto_dhcp, HEURISTIC_ENABLE );
 	heur_dissector_add( "dhcp.vendor_info", dissect_aruba_instant_ap_vendor_info_heur, ARUBA_INSTANT_AP, "aruba_instant_ap_dhcp", proto_dhcp, HEURISTIC_ENABLE );
 	heur_dissector_add( "dhcp.vendor_info", dissect_apple_bsdp_vendor_info_heur, "Apple BSDP", "apple_bsdp_info_dhcp", proto_dhcp, HEURISTIC_ENABLE );
+	heur_dissector_add( "dhcp.vendor_info", dissect_cisco_vendor_info_heur, "Cisco", "cisco_info_dhcp", proto_dhcp, HEURISTIC_ENABLE );
 
 	/* Create dissection function handles for DHCP Enterprise dissection */
 	dissector_add_uint("dhcp.enterprise", 4491, create_dissector_handle( dissect_vendor_cl_suboption, -1 ));
