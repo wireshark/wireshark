@@ -31,6 +31,7 @@
 #define PROXY_PDU_PROVISIONING      0x03
 
 void proto_register_btmesh_proxy(void);
+void proto_reg_handoff_btmesh_proxy(void);
 
 static int proto_btmesh_proxy = -1;
 
@@ -185,7 +186,7 @@ dissect_btmesh_proxy_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
             proto_tree_add_item(sub_tree, hf_btmesh_proxy_data, tvb, offset, length, ENC_NA);
             if (!pinfo->fd->visited) {
-              fd_head = fragment_add_seq(&proxy_reassembly_table,
+              fragment_add_seq(&proxy_reassembly_table,
                 tvb, offset, pinfo,
                 sequence_counter[proxy_ctx->proxy_side], NULL,
                 fragment_counter[proxy_ctx->proxy_side],

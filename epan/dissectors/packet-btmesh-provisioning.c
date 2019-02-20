@@ -415,8 +415,6 @@ dissect_btmesh_provisioning_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
             expert_item = proto_tree_add_item(sub_tree, hf_btmesh_provisioning_authentication_method, tvb, offset, 1, ENC_NA);
             authentication_method = tvb_get_guint8(tvb, offset);
-            authentication_action = 0;
-            authentication_size = 0;
             offset += 1;
 
             switch(authentication_method){
@@ -847,8 +845,7 @@ proto_register_btmesh_provisioning(void)
     expert_btmesh_provisioning = expert_register_protocol(proto_btmesh_provisioning);
     expert_register_field_array(expert_btmesh_provisioning, ei, array_length(ei));
 
-    /*module_t *btmesh_provisioning_module;
-    btmesh_provisioning_module = */prefs_register_protocol_subtree("Bluetooth", proto_btmesh_provisioning, NULL);
+    prefs_register_protocol_subtree("Bluetooth", proto_btmesh_provisioning, NULL);
     register_dissector("btmesh.provisioning", dissect_btmesh_provisioning_msg, proto_btmesh_provisioning);
 }
 

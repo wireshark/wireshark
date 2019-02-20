@@ -32,6 +32,7 @@
 #define LINK_CLOSE 0x02
 
 void proto_register_btmesh_pbadv(void);
+void proto_reg_handoff_btmesh_pbadv(void);
 
 static int proto_btmesh_pbadv = -1;
 
@@ -298,7 +299,7 @@ dissect_btmesh_pbadv_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             offset += 1;
             //Segmentation
             if (!pinfo->fd->visited) {
-                fd_head = fragment_add(&pbadv_reassembly_table,
+                fragment_add(&pbadv_reassembly_table,
                     tvb, offset, pinfo,
                     BTMESH_PB_ADV_NOT_USED, &frg_key,
                     20 + (segment_index - 1) * 23,
@@ -522,8 +523,7 @@ proto_register_btmesh_pbadv(void)
     expert_btmesh_pbadv = expert_register_protocol(proto_btmesh_pbadv);
     expert_register_field_array(expert_btmesh_pbadv, ei, array_length(ei));
 
-    /*module_t *btmesh_pbadv_module;
-    btmesh_pbadv_module = */prefs_register_protocol_subtree("Bluetooth", proto_btmesh_pbadv, NULL);
+    prefs_register_protocol_subtree("Bluetooth", proto_btmesh_pbadv, NULL);
     register_dissector("btmesh.pbadv", dissect_btmesh_pbadv_msg, proto_btmesh_pbadv);
 
     register_init_routine(&pbadv_init_routine);
