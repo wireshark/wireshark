@@ -9,6 +9,9 @@
 
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/tango_colors.h>
+#include <ui/qt/wireshark_application.h>
+
+#include <QPalette>
 
 // Colors we use in various parts of the UI.
 //
@@ -136,6 +139,11 @@ QRgb ColorUtils::sequenceColor(int item)
                 << qRgb(211, 211, 211);
     }
     return sequence_colors_[item % sequence_colors_.size()];
+}
+
+bool ColorUtils::themeIsDark()
+{
+    return wsApp->palette().windowText().color().lightness() < wsApp->palette().text().color().lightness();
 }
 
 /*

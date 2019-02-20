@@ -45,6 +45,8 @@ public:
     static QRgb graphColor(int item);
     static QRgb sequenceColor(int item);
 
+    static bool themeIsDark();
+
 signals:
 
 public slots:

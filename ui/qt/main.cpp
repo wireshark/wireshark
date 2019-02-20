@@ -94,6 +94,7 @@
 #include "caputils/capture-pcap-util.h"
 
 #include <QMessageBox>
+#include <QScreen>
 
 #ifdef _WIN32
 #  include "caputils/capture-wpcap.h"
@@ -239,6 +240,26 @@ get_gui_compiled_info(GString *str)
 void
 get_wireshark_runtime_info(GString *str)
 {
+    if (wsApp) {
+        // Display information
+        const char *display_mode = ColorUtils::themeIsDark() ? "dark" : "light";
+        g_string_append_printf(str, ", with %s display mode", display_mode);
+
+        int hidpi_count = 0;
+        foreach (QScreen *screen, wsApp->screens()) {
+            if (screen->devicePixelRatio() > 1.0) {
+                hidpi_count++;
+            }
+        }
+        if (hidpi_count == wsApp->screens().count()) {
+            g_string_append(str, ", with HiDPI");
+        } else if (hidpi_count) {
+            g_string_append(str, ", with mixed DPI");
+        } else {
+            g_string_append(str, ", without HiDPI");
+        }
+    }
+
 #ifdef HAVE_LIBPCAP
     /* Capture libraries */
     g_string_append(str, ", ");
