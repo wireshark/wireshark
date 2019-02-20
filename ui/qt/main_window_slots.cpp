@@ -3615,12 +3615,14 @@ void MainWindow::on_actionCaptureStop_triggered()
 
 void MainWindow::on_actionCaptureRestart_triggered()
 {
+#ifdef HAVE_LIBPCAP
     QString before_what(tr(" before restarting the capture"));
     cap_session_.capture_opts->restart = TRUE;
     if (!testCaptureFileClose(before_what, Restart))
         return;
 
     startCapture();
+#endif // HAVE_LIBPCAP
 }
 
 void MainWindow::on_actionCaptureCaptureFilters_triggered()
