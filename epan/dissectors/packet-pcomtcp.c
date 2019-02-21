@@ -311,7 +311,7 @@ dissect_pcomascii(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     if ( cc_len > 0 ){
         cc_str2 = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, cc_len, ENC_ASCII);
-        ti = proto_tree_add_string_format_value(pcomascii_tree,
+        proto_tree_add_string_format_value(pcomascii_tree,
                 hf_pcomascii_command_code, tvb, offset, cc_len,
                 cc_str2, "%s (%s)", cc_str, cc_str2);
         offset += cc_len;
@@ -475,7 +475,7 @@ dissect_pcombinary(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         command_str = try_val_to_str(command, pcombinary_command_vals_request);
     }
     if ( command_str != NULL ) {
-        ti = proto_tree_add_uint_format_value(pcombinary_tree,
+        proto_tree_add_uint_format_value(pcombinary_tree,
             hf_pcombinary_command, tvb, offset, 1,
                 command, "%s (%02x)", command_str, command);
     }else{
