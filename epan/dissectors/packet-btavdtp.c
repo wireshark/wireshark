@@ -3245,7 +3245,7 @@ dissect_ldac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             expert_add_info(pinfo, rtree, &ei_ldac_truncated_or_bad_length);
         }
 
-        pitem = proto_tree_add_item(rtree, hf_ldac_syncword, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rtree, hf_ldac_syncword, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         if (cci == LDAC_CCI_MONO)
