@@ -1247,8 +1247,6 @@ de_nas_5gs_mm_ladn_inf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     }
 
     return len;
-
-    return len;
 }
 
 /*
