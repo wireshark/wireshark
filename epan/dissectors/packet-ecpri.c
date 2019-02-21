@@ -363,7 +363,7 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     concatenation = tvb_get_guint8(tvb, offset) & 0x01;
     if (concatenation != 0x00)
     {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "[eCPRI Concatenation]");
+        col_append_fstr(pinfo->cinfo, COL_INFO, "Concatenation");
     }
 
     /* do-while loop for concatenation check */
@@ -400,7 +400,7 @@ static int dissect_ecpri(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         offset += 1;
         proto_tree_add_item_ret_uint(header_tree, hf_msg_type, tvb, offset, 1, ENC_NA, &msg_type);
         /* Append Message Type into info column */
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, ",", "[eCPRI Message Type: %s]", try_rval_to_str(msg_type, ecpri_msg_types));
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, ",", "Message Type: %s", try_rval_to_str(msg_type, ecpri_msg_types));
         offset += 1;
         ti_payload_size = proto_tree_add_item(header_tree, hf_payload_size, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
