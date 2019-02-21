@@ -519,13 +519,14 @@ dissect_PNDCP_Suboption_IP(tvbuff_t *tvb, int offset, packet_info *pinfo,
             ((service_id == PNDCP_SERVICE_ID_HELLO) && !is_response) ||
             ((service_id == PNDCP_SERVICE_ID_GET) && is_response)) {
             offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_info, &block_info);
+            have_block_info = TRUE;
             block_length -= 2;
         }
 
         /* BlockQualifier? */
         if ((service_id == PNDCP_SERVICE_ID_SET) && !is_response) {
             offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_block_qualifier, &block_qualifier);
-
+            have_block_qualifier = TRUE;
             block_length -= 2;
         }
 
