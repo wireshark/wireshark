@@ -1012,7 +1012,7 @@ dissect_PNDCP_Suboption_Control(tvbuff_t *tvb, int offset, packet_info *pinfo,
         pn_append_info(pinfo, dcp_item, ", Reset FactorySettings");
         proto_item_append_text(block_item, "Control/Reset FactorySettings");
         block_length -= 2;
-        offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_blockqualifier_r2f, &BlockQualifier);
+        offset = dissect_pn_uint16(tvb, offset, pinfo, tree, hf_pn_dcp_blockqualifier, &BlockQualifier);
         proto_item_append_text(block_item, ", BlockQualifier: %s",
             val_to_str(BlockQualifier, pn_dcp_suboption_other, "reserved"));
         block_length -= 2;
