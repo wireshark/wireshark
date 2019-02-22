@@ -113,7 +113,7 @@ LIBGCRYPT_VERSION=1.7.7
 # packet data pane; see, for example, Qt bugs QTBUG-31937, QTBUG-41017,
 # and QTBUG-43464, all of which seem to be the same bug.
 #
-QT_VERSION=${QT_VERSION-5.9.7}
+QT_VERSION=${QT_VERSION-5.12.1}
 
 if [ "$QT_VERSION" ]; then
     QT_MAJOR_VERSION="`expr $QT_VERSION : '\([0-9][0-9]*\).*'`"
@@ -806,7 +806,7 @@ install_qt() {
                 QT_VOLUME=qt-opensource-mac-x64-clang-$QT_VERSION
                 ;;
 
-            9|10)
+            9|10|11|12)
                 QT_VOLUME=qt-opensource-mac-x64-$QT_VERSION
                 ;;
             esac
