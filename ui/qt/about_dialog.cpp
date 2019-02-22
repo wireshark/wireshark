@@ -435,7 +435,7 @@ void AboutDialog::showEvent(QShowEvent * event)
     // Contents + 2 em-widths
     ui->tblShortcuts->resizeColumnToContents(0);
     ui->tblShortcuts->setColumnWidth(0, ui->tblShortcuts->columnWidth(0) + (one_em * 2));
-    ui->tblShortcuts->setColumnWidth(1, one_em * 12);
+    ui->tblShortcuts->setColumnWidth(1, one_em * 18);
     ui->tblShortcuts->resizeColumnToContents(2);
 
     QDialog::showEvent(event);
