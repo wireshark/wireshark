@@ -35,6 +35,12 @@ Wireshark 3.0.0 Release Notes
      • The IP map feature (the “Map” button in the “Endpoints” dialog)
        has been added back in a modernized form (Bug 14693[5]).
 
+     • The macOS package now ships with Qt 5.12.1. Previously it shipped
+       with Qt 5.9.7.
+
+     • The macOS package requires version 10.12 or later. If you’re
+       running an older version of macOS, please use Wireshark 2.6.
+
    The following features are new (or have been significantly updated)
    since version 2.9.0:
 
@@ -239,7 +245,7 @@ Wireshark 3.0.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[18].
 
-  Last updated 2019-02-17 08:33:54 UTC
+  Last updated 2019-02-22 21:15:06 UTC
 
  References
 

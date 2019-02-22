@@ -1,3 +1,31 @@
+96b6354e24 Install Qt 5.12.1 by default.
+9c04156787 Add -D_FORTIFY_SOURCE=0 for C++ if we're using it for C.
+e76418e233 Set CXXFLAGS and LDFLAGS for all libraries.
+136236ac03 Get rid of extra space between environment variable settings.
+1bad0b1368 macOS: Replace Wireshark.app when upgrading.
+facd95870f Release notes: Add notes about the macOS package.
+05b781b319 Get rid of duplicate setting of CFLAGS.
+09f1778464 nas_5gs: fix duplicate return len (CID 1442817)
+939964197d Qt: Keep column width and align when edit custom fields
+6f83045e87 Qt: fix compilation without pcap on gcc-8 and clang-7.
+24353b82cd Qt: Fix removal of "Capture to a permanent file" setting
+682b75cfd9 Qt: Fix restart capture when using a ring buffer
+2d3c4a308b Add new Debian symbols.
+5791e2d548 SMB2: fix Chain Offset field endianness
+657512c6ca Add --discard-all-secrets to remove decryption secrets.
+d4ec2c7b83 Use #defines for long-option codes.
+7d0e08eeb4 Clean up indentation.
+30f03f0468 Report counts of decryption secrets and resolved addresses.
+fd6476fe29 macOS: Fixup our libssh workaround.
+8977ff2f3e [Automatic update for 2019-02-17]
+367d3aa68c Include the HTML IP map in the CG.WiresharkRequired component group.
+cbf9355389 Add the response time to response packets if we find the request.
+ec3c5285cf Don't fail in CMake on Windows if you've disabled building Wireshark.
+16abb3bfbd Re-implement "Map" feature for Endpoints
+f6037a1d26 Don't allow NSIS or WiX installers if we aren't building Wireshark.
+373b36bfcc html2text: Fix our footnotes.
+51afe3f0b2 3.0.0rc1 → 3.0.0rc2.
+8ec01dead7 Build 3.0.0rc1.
 2013384176 NSIS: Add ERROR_PRODUCT_VERSION to the vcredist checks.
 0abfc10965 macOS: Try to work around .dmg packaging issues.
 4d3b30a386 macOS: Packaging and code signing updates.
