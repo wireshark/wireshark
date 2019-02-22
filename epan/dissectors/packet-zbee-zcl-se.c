@@ -4753,6 +4753,66 @@ VALUE_STRING_ARRAY(zbee_zcl_met_srv_rx_cmd_names);
 VALUE_STRING_ENUM(zbee_zcl_met_srv_tx_cmd_names);
 VALUE_STRING_ARRAY(zbee_zcl_met_srv_tx_cmd_names);
 
+#define ZBEE_ZCL_MET_NOTIFICATION_SCHEME_A 0x1
+#define ZBEE_ZCL_MET_NOTIFICATION_SCHEME_B 0x2
+
+static const range_string zbee_zcl_met_mirror_rprt_attr_notification_scheme[] = {
+    { 0x0, 0x0,   "No Notification Scheme Defined" },
+    { ZBEE_ZCL_MET_NOTIFICATION_SCHEME_A, ZBEE_ZCL_MET_NOTIFICATION_SCHEME_A,   "Predefined Notification Scheme A" },
+    { ZBEE_ZCL_MET_NOTIFICATION_SCHEME_B, ZBEE_ZCL_MET_NOTIFICATION_SCHEME_B,   "Predefined Notification Scheme B" },
+    { 0x3, 0x80,  "Reserved" },
+    { 0x81, 0xFF, "For MSP Requirements" },
+    { 0xFF, 0xFF, "Reserved" },
+    { 0, 0, NULL }
+};
+
+/* Snapshot Schedule Confirmation */
+#define zbee_zcl_met_snapshot_schedule_confirmation_VALUE_STRING_LIST(XXX) \
+    XXX(ZBEE_ZCL_SNAPSHOT_SCHEDULE_CONFIRMATION_ID_ACCEPTED, 0x00, "Accepted" )                                 \
+    XXX(ZBEE_ZCL_SNAPSHOT_SCHEDULE_CONFIRMATION_ID_TYPE_NOT_SUPPORTED, 0x01, "Snapshot Type not supported")     \
+    XXX(ZBEE_ZCL_SNAPSHOT_SCHEDULE_CONFIRMATION_ID_CAUSE_NOT_SUPPORTED, 0x02, "Snapshot Cause not supported")   \
+    XXX(ZBEE_ZCL_SNAPSHOT_SCHEDULE_CONFIRMATION_ID_CURRENTLY_NOT_AVAILABLE, 0x03, "Snapshot Cause not supported")   \
+    XXX(ZBEE_ZCL_SNAPSHOT_SCHEDULE_CONFIRMATION_ID_NOT_SUPPORTED_BY_DEVICE, 0x04, "Snapshot Schedules not supported by device")   \
+    XXX(ZBEE_ZCL_SNAPSHOT_SCHEDULE_CONFIRMATION_ID_INSUFFICIENT_SPACE, 0x05, "Insufficient space for snapshot schedule")
+
+VALUE_STRING_ENUM(zbee_zcl_met_snapshot_schedule_confirmation);
+VALUE_STRING_ARRAY(zbee_zcl_met_snapshot_schedule_confirmation);
+
+/* Snapshot Schedule Frequency Type*/
+#define zbee_zcl_met_snapshot_schedule_frequency_type_VALUE_STRING_LIST(XXX)  \
+    XXX(ZBEE_ZCL_SNAPSHOT_SCHEDULE_FREQUENCY_TYPE_DAY, 0x0, "Day" )           \
+    XXX(ZBEE_ZCL_SNAPSHOT_SCHEDULE_FREQUENCY_TYPE_WEEK, 0x1, "Week" )         \
+    XXX(ZBEE_ZCL_SNAPSHOT_SCHEDULE_FREQUENCY_TYPE_MONTH, 0x2, "Month" )       \
+    XXX(ZBEE_ZCL_SNAPSHOT_SCHEDULE_FREQUENCY_TYPE_RESERVED, 0x3, "Reserved" )
+
+VALUE_STRING_ENUM(zbee_zcl_met_snapshot_schedule_frequency_type);
+VALUE_STRING_ARRAY(zbee_zcl_met_snapshot_schedule_frequency_type);
+
+/* Snapshot Schedule Wild-Card Frequency*/
+#define zbee_zcl_met_snapshot_schedule_frequency_wild_card_VALUE_STRING_LIST(XXX)   \
+    XXX(ZBEE_ZCL_SNAPSHOT_SCHEDULE_FREQUENCY_WILD_CARD_START_OF, 0x0, "Start of" )              \
+    XXX(ZBEE_ZCL_SNAPSHOT_SCHEDULE_FREQUENCY_WILD_CARD_END_OF,   0x1, "End of" )                \
+    XXX(ZBEE_ZCL_SNAPSHOT_SCHEDULE_FREQUENCY_WILD_CARD_NOT_USED, 0x2, "Wild-card not used" )    \
+    XXX(ZBEE_ZCL_SNAPSHOT_SCHEDULE_FREQUENCY_WILD_CARD_RESERVED, 0x3, "Reserved" )
+
+VALUE_STRING_ENUM(zbee_zcl_met_snapshot_schedule_frequency_wild_card);
+VALUE_STRING_ARRAY(zbee_zcl_met_snapshot_schedule_frequency_wild_card);
+
+/* Snapshot Payload Type */
+#define zbee_zcl_met_snapshot_payload_type_VALUE_STRING_LIST(XXX) \
+    XXX(ZBEE_ZCL_SNAPSHOT_PAYLOAD_TYPE_TOU_INFO_SET_DELIVERED_REGISTERS, 0, "TOU Information Set Delivered Registers" )                                 \
+    XXX(ZBEE_ZCL_SNAPSHOT_PAYLOAD_TYPE_TOU_INFO_SET_RECEIVED_REGISTERS, 1, "TOU Information Set Received Registers")     \
+    XXX(ZBEE_ZCL_SNAPSHOT_PAYLOAD_TYPE_BLOCK_TIER_INFO_SET_DELIVERED, 2, "Block Tier Information Set Delivered")   \
+    XXX(ZBEE_ZCL_SNAPSHOT_PAYLOAD_TYPE_BLOCK_TIER_INFO_SET_RECEIVED, 3, "Block Tier Information Set Received")   \
+    XXX(ZBEE_ZCL_SNAPSHOT_PAYLOAD_TYPE_TOU_INFO_SET_DELIVERED_NO_BILLING, 4, "TOU Information Set Delivered (No Billing)")   \
+    XXX(ZBEE_ZCL_SNAPSHOT_PAYLOAD_TYPE_TOU_INFO_SET_RECEIVED_NO_BILLING, 5, "TOU Information Set Received (No Billing)")     \
+    XXX(ZBEE_ZCL_SNAPSHOT_PAYLOAD_TYPE_BLOCK_TIER_INFO_SET_DELIVERED_NO_BILLING, 6, "Block Tier Information Set Delivered (No Billing)")     \
+    XXX(ZBEE_ZCL_SNAPSHOT_PAYLOAD_TYPE_BLOCK_TIER_INFO_SET_RECEIVED_NO_BILLING, 7, "Block Tier Information Set Received (No Billing)")     \
+    XXX(ZBEE_ZCL_SNAPSHOT_PAYLOAD_TYPE_DATA_UNAVAILABLE, 128, "Data Unavailable")
+
+VALUE_STRING_ENUM(zbee_zcl_met_snapshot_payload_type);
+VALUE_STRING_ARRAY(zbee_zcl_met_snapshot_payload_type);
+
 /* Functional Notification Flags */
 #define ZBEE_ZCL_FUNC_NOTI_FLAG_NEW_OTA_FIRMWARE                                0x00000001
 #define ZBEE_ZCL_FUNC_NOTI_FLAG_CBKE_UPDATE_REQUESTED                           0x00000002
@@ -4868,6 +4928,8 @@ static void dissect_zcl_met_get_sampled_data_rsp            (tvbuff_t *tvb, prot
 static void dissect_zcl_met_configure_mirror                (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_met_get_notified_msg                (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_met_supply_status_response          (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_met_start_sampling_response         (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_met_notification_flags              (tvbuff_t *tvb, proto_tree *tree, guint *offset, guint16 noti_flags_number);
 
 /*************************/
 /* Global Variables      */
@@ -4964,8 +5026,12 @@ static int hf_zbee_zcl_met_request_fast_poll_mode_fast_poll_update_period = -1;
 static int hf_zbee_zcl_met_request_fast_poll_mode_duration = -1;
 static int hf_zbee_zcl_met_schedule_snapshot_issuer_event_id = -1;
 static int hf_zbee_zcl_met_schedule_snapshot_command_index = -1;
+static int hf_zbee_zcl_met_schedule_snapshot_snapshot_schedule_payload_snapshot_schedule_id = -1;
+static int hf_zbee_zcl_met_schedule_snapshot_snapshot_schedule_payload_snapshot_start_time = -1;
+static int hf_zbee_zcl_met_schedule_snapshot_snapshot_schedule_payload_snapshot_schedule = -1;
+static int hf_zbee_zcl_met_schedule_snapshot_snapshot_schedule_payload_shapshot_payload_type = -1;
+static int hf_zbee_zcl_met_schedule_snapshot_snapshot_schedule_payload_snapshot_cause = -1;
 static int hf_zbee_zcl_met_schedule_snapshot_total_number_of_commands = -1;
-static int hf_zbee_zcl_met_schedule_snapshot_snapshot_schedule_payload = -1;
 static int hf_zbee_zcl_met_take_snapshot_snapshot_cause = -1;
 static int hf_zbee_zcl_met_get_snapshot_start_time = -1;
 static int hf_zbee_zcl_met_get_snapshot_end_time = -1;
@@ -4980,6 +5046,7 @@ static int hf_zbee_zcl_met_get_sampled_data_sample_id = -1;
 static int hf_zbee_zcl_met_get_sampled_data_sample_start_time = -1;
 static int hf_zbee_zcl_met_get_sampled_data_sample_type = -1;
 static int hf_zbee_zcl_met_get_sampled_data_number_of_samples = -1;
+static int hf_zbee_zcl_met_start_sampling_response_sample_id = -1;
 static int hf_zbee_zcl_met_mirror_report_attribute_response_notification_scheme = -1;
 static int hf_zbee_zcl_met_mirror_report_attribute_response_notification_flags_n = -1;
 static int hf_zbee_zcl_met_reset_load_limit_counter_provider_id = -1;
@@ -5060,6 +5127,16 @@ static int hf_zbee_zcl_met_snapshot_cause_debt_payment = -1;
 static int hf_zbee_zcl_met_snapshot_cause_scheduled_snapshot = -1;
 static int hf_zbee_zcl_met_snapshot_cause_ota_firmware_download = -1;
 static int hf_zbee_zcl_met_snapshot_cause_reserved = -1;
+static int hf_zbee_zcl_met_snapshot_schedule_frequency = -1;
+static int hf_zbee_zcl_met_snapshot_schedule_frequency_type = -1;
+static int hf_zbee_zcl_met_snapshot_schedule_frequency_wild_card = -1;
+
+static const int* zbee_zcl_met_snapshot_schedule_bits[] = {
+    &hf_zbee_zcl_met_snapshot_schedule_frequency,
+    &hf_zbee_zcl_met_snapshot_schedule_frequency_type,
+    &hf_zbee_zcl_met_snapshot_schedule_frequency_wild_card,
+    NULL
+};
 
 static const int* zbee_zcl_met_func_noti_flags[] = {
         &hf_zbee_zcl_met_func_noti_flag_new_ota_firmware,
@@ -5181,7 +5258,10 @@ static gint ett_zbee_zcl_met_noti_flags_3 = -1;
 static gint ett_zbee_zcl_met_noti_flags_4 = -1;
 static gint ett_zbee_zcl_met_noti_flags_5 = -1;
 static gint ett_zbee_zcl_met_snapshot_cause_flags = -1;
+static gint ett_zbee_zcl_met_snapshot_schedule = -1;
 static gint ett_zbee_zcl_hf_zbee_zcl_met_schedule_snapshot_response_payload = -1;
+static gint ett_zbee_zcl_hf_zbee_zcl_met_schedule_snapshot_payload = -1;
+static gint ett_zbee_zcl_met_mirror_noti_flag = -1;
 
 /*************************/
 /* Function Bodies       */
@@ -5257,6 +5337,20 @@ dissect_zcl_met_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint1
         }
     }
 } /*dissect_zcl_met_attr_data*/
+
+/**
+ *This function manages the Start Sampling Response payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void dissect_zcl_met_start_sampling_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Sample ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_start_sampling_response_sample_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+} /*dissect_zcl_met_start_sampling_response*/
 
 /**
  *ZigBee ZCL Metering cluster dissector for wireshark.
@@ -5433,7 +5527,7 @@ dissect_zbee_zcl_met(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                     break;
 
                 case ZBEE_ZCL_CMD_ID_MET_START_SAMPLING_RESPONSE:
-                    /* Add function to dissect payload */
+                    dissect_zcl_met_start_sampling_response(tvb, payload_tree, &offset);
                     break;
 
                 default:
@@ -5531,8 +5625,7 @@ dissect_zcl_met_request_fast_poll_mode(tvbuff_t *tvb, proto_tree *tree, guint *o
 static void
 dissect_zcl_met_schedule_snapshot(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    gint rem_len;
-
+    nstime_t start_time;
     /* Issue Event ID */
     proto_tree_add_item(tree, hf_zbee_zcl_met_schedule_snapshot_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
@@ -5546,9 +5639,38 @@ dissect_zcl_met_schedule_snapshot(tvbuff_t *tvb, proto_tree *tree, guint *offset
     *offset += 1;
 
     /* Snapshot Schedule Payload */
-    rem_len = tvb_reported_length_remaining(tvb, *offset);
-    proto_tree_add_item(tree, hf_zbee_zcl_met_schedule_snapshot_snapshot_schedule_payload, tvb, *offset, rem_len, ENC_NA);
-    *offset += rem_len;
+    proto_tree *payload_tree;
+
+    payload_tree = proto_tree_add_subtree(tree, tvb, *offset, 13,
+                ett_zbee_zcl_hf_zbee_zcl_met_schedule_snapshot_payload, NULL, "Snapshot Schedule Payload");
+
+    /* Snapshot Schedule ID */
+    proto_tree_add_item(payload_tree, hf_zbee_zcl_met_schedule_snapshot_snapshot_schedule_payload_snapshot_schedule_id,
+                        tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Snapshot Start Time */
+    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_met_schedule_snapshot_snapshot_schedule_payload_snapshot_start_time, tvb, *offset, 4, &start_time);
+    *offset += 4;
+
+    /* Snapshot Schedule */
+    proto_tree_add_bitmask(payload_tree, tvb, *offset, hf_zbee_zcl_met_schedule_snapshot_snapshot_schedule_payload_snapshot_schedule,
+                        ett_zbee_zcl_met_snapshot_schedule,
+                        zbee_zcl_met_snapshot_schedule_bits, ENC_LITTLE_ENDIAN);
+    *offset += 3;
+
+    /* Snapshot Payload Type */
+    proto_tree_add_item(payload_tree, hf_zbee_zcl_met_schedule_snapshot_snapshot_schedule_payload_shapshot_payload_type,
+                        tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Snapshot Cause */
+    proto_tree_add_bitmask(payload_tree, tvb, *offset, hf_zbee_zcl_met_schedule_snapshot_snapshot_schedule_payload_snapshot_cause,
+                           ett_zbee_zcl_met_snapshot_cause_flags, zbee_zcl_met_snapshot_cause_flags, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
 } /*dissect_zcl_met_schedule_snapshot*/
 
 /**
@@ -5680,13 +5802,39 @@ dissect_zcl_met_get_sampled_data(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 static void
 dissect_zcl_met_mirror_report_attribute_response(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
+    guint8 notif_scheme_type;
+    gint   noti_flags_count;
+
+    notif_scheme_type = tvb_get_guint8(tvb, *offset);
     /* Notification Scheme */
     proto_tree_add_item(tree, hf_zbee_zcl_met_mirror_report_attribute_response_notification_scheme, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 
-    /* Notification Flags #N */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_mirror_report_attribute_response_notification_flags_n, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
-    *offset += 4;
+    switch(notif_scheme_type) {
+        case ZBEE_ZCL_MET_NOTIFICATION_SCHEME_A:
+            noti_flags_count = 1;
+            break;
+        case ZBEE_ZCL_MET_NOTIFICATION_SCHEME_B:
+            noti_flags_count = 5;
+            break;
+        default:
+            noti_flags_count = -1;
+            break;
+    }
+    if (noti_flags_count > 0) {
+        for (guint16 noti_flags_number = 0; noti_flags_number < noti_flags_count; noti_flags_number++) {
+            dissect_zcl_met_notification_flags(tvb, tree, offset, noti_flags_number);
+        }
+    } else {
+        /* Notification Flag */
+        while (tvb_reported_length_remaining(tvb, *offset) > 0) {
+            proto_tree *notification_flag_tree;
+            notification_flag_tree = proto_tree_add_subtree(tree, tvb, *offset, 4, ett_zbee_zcl_met_mirror_noti_flag, NULL, "Notification Flags");
+            proto_tree_add_item(notification_flag_tree, hf_zbee_zcl_met_mirror_report_attribute_response_notification_flags_n,
+                                tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+            *offset += 4;
+        }
+    }
 } /*dissect_zcl_met_mirror_report_attribute_response*/
 
 /**
@@ -6062,27 +6210,9 @@ dissect_zcl_met_configure_mirror(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += 1;
 } /*dissect_zcl_met_configure_mirror*/
 
-/**
- *This function manages the Get Notified Message payload
- *
- *@param tvb pointer to buffer containing raw packet.
- *@param tree pointer to data tree Wireshark uses to display packet.
- *@param offset pointer to offset from caller
-*/
 static void
-dissect_zcl_met_get_notified_msg(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_met_notification_flags(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint16 noti_flags_number)
 {
-    guint16 noti_flags_number;
-
-    /* Notification Scheme */
-    proto_tree_add_item(tree, hf_zbee_zcl_met_get_notified_msg_notification_scheme, tvb, *offset, 1, ENC_NA);
-    *offset += 1;
-
-    /* Notification Flag attribute ID */
-    noti_flags_number = tvb_get_guint16(tvb, *offset, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(tree, hf_zbee_zcl_met_get_notified_msg_notification_flag_attribute_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
-    *offset += 2;
-
     /* Notification Flags #N */
     switch (noti_flags_number) {
         case ZBEE_ZCL_ATTR_ID_MET_CLNT_FUNC_NOTI_FLAGS:
@@ -6105,6 +6235,31 @@ dissect_zcl_met_get_notified_msg(tvbuff_t *tvb, proto_tree *tree, guint *offset)
             break;
     }
     *offset += 4;
+
+}
+
+/**
+ *This function manages the Get Notified Message payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_met_get_notified_msg(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    guint16 noti_flags_number;
+
+    /* Notification Scheme */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_get_notified_msg_notification_scheme, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Notification Flag attribute ID */
+    noti_flags_number = tvb_get_guint16(tvb, *offset, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_zbee_zcl_met_get_notified_msg_notification_flag_attribute_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    dissect_zcl_met_notification_flags(tvb, tree, offset, noti_flags_number);
 } /*dissect_zcl_met_get_notified_msg*/
 
 /**
@@ -6508,9 +6663,41 @@ proto_register_zbee_zcl_met(void)
             { "Total Number of Commands", "zbee_zcl_se.met.schedule_snapshot.total_number_of_commands", FT_UINT8, BASE_DEC, NULL,
             0x00, NULL, HFILL } },
 
-        { &hf_zbee_zcl_met_schedule_snapshot_snapshot_schedule_payload,
-            { "Snapshot Schedule Payload", "zbee_zcl_se.met.schedule_snapshot.snapshot_schedule_payload", FT_BYTES, BASE_NONE, NULL,
+        { &hf_zbee_zcl_met_schedule_snapshot_snapshot_schedule_payload_snapshot_schedule_id,
+            { "Snapshot Schedule ID", "zbee_zcl_se.met.schedule_snapshot.snapshot_schedule_payload.snapshot_schedule_id", FT_UINT8, BASE_DEC, NULL,
             0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_schedule_snapshot_snapshot_schedule_payload_snapshot_start_time,
+            { "Snapshot Start Time", "zbee_zcl_se.met.schedule_snapshot.snapshot_schedule_payload.snapshot_start_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_schedule_snapshot_snapshot_schedule_payload_snapshot_schedule,
+            { "Snapshot Schedule", "zbee_zcl_se.met.schedule_snapshot.snapshot_schedule_payload.snapshot_schedule", FT_UINT24, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_schedule_snapshot_snapshot_schedule_payload_shapshot_payload_type,
+            { "Snapshot Payload Type", "zbee_zcl_se.met.schedule_snapshot.snapshot_schedule_payload.snapshot_payload_type",
+                FT_UINT8, BASE_DEC, VALS(zbee_zcl_met_snapshot_payload_type),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_schedule_snapshot_snapshot_schedule_payload_snapshot_cause,
+            { "Snapshot Cause", "zbee_zcl_se.met.schedule_snapshot.snapshot_schedule_payload.snapshot_cause",  FT_UINT32, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_snapshot_schedule_frequency,
+            { "Snapshot Schedule Frequency", "zbee_zcl_se.met.snapshot_schedule.frequency",
+                FT_UINT24, BASE_DEC, NULL,
+            0x0FFFFF, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_snapshot_schedule_frequency_type,
+            { "Snapshot Schedule Frequency Type", "zbee_zcl_se.met.snapshot_schedule.frequency_type",
+                FT_UINT24, BASE_HEX, VALS(zbee_zcl_met_snapshot_schedule_frequency_type),
+            0x300000, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_snapshot_schedule_frequency_wild_card,
+            { "Snapshot Schedule Frequency Wild Card", "zbee_zcl_se.met.snapshot_schedule.frequency_wild_card",
+                FT_UINT24, BASE_HEX,VALS(zbee_zcl_met_snapshot_schedule_frequency_wild_card),
+            0xC00000, NULL, HFILL } },
 
         { &hf_zbee_zcl_met_take_snapshot_snapshot_cause,
             { "Snapshot Cause", "zbee_zcl_se.met.take_snapshot.snapshot_cause", FT_UINT32, BASE_HEX, NULL,
@@ -6568,12 +6755,16 @@ proto_register_zbee_zcl_met(void)
             { "Number of Samples", "zbee_zcl_se.met.get_sampled_data.number_of_samples", FT_UINT16, BASE_DEC, NULL,
             0x00, NULL, HFILL } },
 
+        { &hf_zbee_zcl_met_start_sampling_response_sample_id,
+            { "Sample ID", "zbee_zcl_se.met.start_sampling_response.sample_id", FT_UINT16, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
         { &hf_zbee_zcl_met_mirror_report_attribute_response_notification_scheme,
-            { "Notification Scheme", "zbee_zcl_se.met.mirror_report_attribute_response.notification_scheme", FT_UINT8, BASE_DEC, NULL,
+            { "Notification Scheme", "zbee_zcl_se.met.mirror_report_attribute_response.notification_scheme", FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(zbee_zcl_met_mirror_rprt_attr_notification_scheme),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_met_mirror_report_attribute_response_notification_flags_n,
-            { "Notification Flags #N", "zbee_zcl_se.met.mirror_report_attribute_response.notification_flags_n", FT_UINT32, BASE_HEX, NULL,
+            { "Notification Flag", "zbee_zcl_se.met.mirror_report_attribute_response.notification_flags_n", FT_UINT32, BASE_HEX, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_met_reset_load_limit_counter_provider_id,
@@ -6701,7 +6892,7 @@ proto_register_zbee_zcl_met(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_met_schedule_snapshot_response_snapshot_schedule_confirmation,
-            { "Snapshot Schedule Confirmation", "zbee_zcl_se.met.schedule_snapshot_response.snapshot_schedule_confirmation", FT_UINT8, BASE_HEX, NULL,
+            { "Snapshot Schedule Confirmation", "zbee_zcl_se.met.schedule_snapshot_response.snapshot_schedule_confirmation", FT_UINT8, BASE_HEX, VALS(zbee_zcl_met_snapshot_schedule_confirmation),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_met_take_snapshot_response_snapshot_id,
@@ -6880,7 +7071,10 @@ proto_register_zbee_zcl_met(void)
         &ett_zbee_zcl_met_noti_flags_4,
         &ett_zbee_zcl_met_noti_flags_5,
         &ett_zbee_zcl_met_snapshot_cause_flags,
-        &ett_zbee_zcl_hf_zbee_zcl_met_schedule_snapshot_response_payload
+        &ett_zbee_zcl_met_snapshot_schedule,
+        &ett_zbee_zcl_hf_zbee_zcl_met_schedule_snapshot_response_payload,
+        &ett_zbee_zcl_hf_zbee_zcl_met_schedule_snapshot_payload,
+        &ett_zbee_zcl_met_mirror_noti_flag
     };
 
     /* Register the ZigBee ZCL Metering cluster protocol name and description */
@@ -7258,7 +7452,6 @@ dissect_zcl_msg_get_cancel(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += 4;
 
 } /* dissect_zcl_msg_get_cancel */
-
 
 /**
  *This function manages the Message Confirmation payload
