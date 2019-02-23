@@ -6996,7 +6996,6 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
     ptvcursor_t             *volatile ptvc = NULL;
     proto_tree              *temp_tree = NULL;
     volatile gboolean       run_req_cond = FALSE;
-    guint32                 length_remaining;
     volatile unsigned long  exception_code;
     const char              *volatile message;
     proto_item              *ti;
@@ -7014,7 +7013,6 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
     /* Determine which ncp_record to use. */
     switch (type) {
     case NCP_ALLOCATE_SLOT:
-        length_remaining = tvb_captured_length_remaining(tvb, 4);
         ncp_rec = &ncp1111_request;
         if (ncp_echo_conn) {
             expert_add_info(pinfo, NULL, &ei_ncp_connection_request);
