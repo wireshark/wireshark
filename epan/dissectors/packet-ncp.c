@@ -79,7 +79,8 @@ static int hf_ncp_connection_status = -1;
 static int hf_ncp_slot = -1;
 static int hf_ncp_control_code = -1;
 /* static int hf_ncp_fragment_handle = -1; */
-static int hf_lip_echo = -1;
+static int hf_lip_echo_magic = -1;
+static int hf_lip_echo_payload = -1;
 static int hf_ncp_burst_command = -1;
 static int hf_ncp_burst_file_handle = -1;
 static int hf_ncp_burst_reserved = -1;
@@ -763,6 +764,11 @@ ncp_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, cons
 #define LST 0x40        /* Include Fragment List */
 #define SYS 0x80        /* System packet */
 
+#define LIP_ECHO_MAGIC_LEN 16
+static char lip_echo_magic[LIP_ECHO_MAGIC_LEN] = {
+    'L', 'I', 'P', ' ', 'E', 'c', 'h', 'o', ' ', 'D', 'a', 't', 'a', ' ', ' ', ' '
+};
+
 static void
 dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     gboolean is_tcp)
@@ -771,6 +777,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item            *ti;
     struct ncp_ip_header  ncpiph;
     struct ncp_ip_rqhdr   ncpiphrq;
+    gboolean              is_lip_echo = FALSE;
     guint16               ncp_burst_seqno, ncp_ack_seqno;
     guint16               flags = 0;
     proto_tree            *flags_tree = NULL;
@@ -779,7 +786,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     int                   offset = 0;
     gint                  length_remaining;
     tvbuff_t              *next_tvb;
-    guint32               testvar = 0, ncp_burst_command, burst_len, burst_off, burst_file;
+    guint32               ncp_burst_command, burst_len, burst_off, burst_file;
     guint8                subfunction;
     guint32               nw_connection = 0, data_offset;
     guint16               data_len = 0;
@@ -941,7 +948,11 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         break;
 
     case NCP_LIP_ECHO:    /* Lip Echo Packet */
-        proto_tree_add_item(ncp_tree, hf_lip_echo, tvb, commhdr, 13, ENC_ASCII|ENC_NA);
+        /* Unlike the ones with a packet type of 0x1111, in this one, the
+           packet type field is the first two bytes of "Lip Echo Data"
+           (with "Lip" not capitalized, and with "Echo Data" not followed
+           by blanks) */
+        proto_tree_add_item(ncp_tree, hf_lip_echo_magic, tvb, commhdr, 13, ENC_ASCII|ENC_NA);
         break;
 
     case NCP_BURST_MODE_XFER:    /* Packet Burst Packet */
@@ -1116,12 +1127,11 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     case NCP_ALLOCATE_SLOT:        /* Allocate Slot Request */
         length_remaining = tvb_reported_length_remaining(tvb, commhdr + 4);
-        if (length_remaining > 4) {
-            testvar = tvb_get_ntohl(tvb, commhdr+4);
-            if (testvar == 0x4c495020) {
-                proto_tree_add_item(ncp_tree, hf_lip_echo, tvb, commhdr+4, 13, ENC_ASCII|ENC_NA);
-                break;
-            }
+        if (length_remaining >= LIP_ECHO_MAGIC_LEN &&
+            tvb_memeql(tvb, commhdr+4, lip_echo_magic, LIP_ECHO_MAGIC_LEN) == 0) {
+            /* This is a LIP Echo. */
+            is_lip_echo = TRUE;
+            col_add_str(pinfo->cinfo, COL_INFO, "LIP Echo");
         }
         /* fall through */
 
@@ -1132,8 +1142,12 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case NCP_DEALLOCATE_SLOT:    /* Deallocate Slot Request */
     default:
         proto_tree_add_uint(ncp_tree, hf_ncp_seq, tvb, commhdr + 2, 1, header.sequence);
-        proto_tree_add_uint(ncp_tree, hf_ncp_connection,tvb, commhdr + 3, 3, nw_connection);
-        proto_tree_add_item(ncp_tree, hf_ncp_task, tvb, commhdr + 4, 1, ENC_BIG_ENDIAN);
+        /* XXX - what's at commhdr + 3 in a LIP Echo packet?
+           commhdr + 4 on is the LIP echo magic number and data. */
+        if (!is_lip_echo) {
+            proto_tree_add_uint(ncp_tree, hf_ncp_connection,tvb, commhdr + 3, 3, nw_connection);
+            proto_tree_add_item(ncp_tree, hf_ncp_task, tvb, commhdr + 4, 1, ENC_BIG_ENDIAN);
+        }
         break;
     }
 
@@ -1143,17 +1157,16 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     switch (header.type) {
 
     case NCP_ALLOCATE_SLOT:        /* Allocate Slot Request */
-        length_remaining = tvb_reported_length_remaining(tvb, commhdr + 4);
-        if (length_remaining > 4) {
-            testvar = tvb_get_ntohl(tvb, commhdr+4);
-            if (testvar == 0x4c495020) {
-                proto_tree_add_item(ncp_tree, hf_lip_echo, tvb, commhdr, -1, ENC_ASCII|ENC_NA);
-                /*break;*/
-            }
+        if (is_lip_echo) {
+            length_remaining = tvb_reported_length_remaining(tvb, commhdr + 4);
+            proto_tree_add_item(ncp_tree, hf_lip_echo_magic, tvb, commhdr + 4, LIP_ECHO_MAGIC_LEN, ENC_ASCII|ENC_NA);
+            if (length_remaining > LIP_ECHO_MAGIC_LEN)
+                proto_tree_add_item(ncp_tree, hf_lip_echo_payload, tvb, commhdr+4+LIP_ECHO_MAGIC_LEN, length_remaining - LIP_ECHO_MAGIC_LEN, ENC_NA);
+        } else {
+            next_tvb = tvb_new_subset_remaining(tvb, commhdr);
+            dissect_ncp_request(next_tvb, pinfo, nw_connection,
+                header.sequence, header.type, ncp_tree);
         }
-        next_tvb = tvb_new_subset_remaining(tvb, commhdr);
-        dissect_ncp_request(next_tvb, pinfo, nw_connection,
-            header.sequence, header.type, ncp_tree);
         break;
 
     case NCP_DEALLOCATE_SLOT:    /* Deallocate Slot Request */
@@ -1269,7 +1282,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         break;
 
     case NCP_LIP_ECHO:        /* LIP Echo Packet */
-        proto_tree_add_item(ncp_tree, hf_lip_echo, tvb, commhdr, -1, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(ncp_tree, hf_lip_echo_payload, tvb, commhdr + 13, -1, ENC_NA);
         break;
 
     default:
@@ -1476,9 +1489,13 @@ proto_register_ncp(void)
             FT_UINT16, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 #endif
-        { &hf_lip_echo,
-          { "Large Internet Packet Echo",       "ncp.lip_echo",
+        { &hf_lip_echo_magic,
+          { "Large Internet Packet Echo Magic String",  "ncp.lip_echo.magic_string",
             FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_lip_echo_payload,
+          { "Large Internet Packet Echo Payload",  "ncp.lip_echo.payload",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }},
         { &hf_ncp_burst_command,
           { "Burst Command",                    "ncp.burst_command",
