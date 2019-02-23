@@ -77,7 +77,7 @@ static int hf_ncp_oplock_handle = -1;
 static int hf_ncp_completion_code = -1;
 static int hf_ncp_connection_status = -1;
 static int hf_ncp_slot = -1;
-static int hf_ncp_control_code = -1;
+static int hf_ncp_signature_character = -1;
 /* static int hf_ncp_fragment_handle = -1; */
 static int hf_lip_echo_magic = -1;
 static int hf_lip_echo_payload = -1;
@@ -1235,7 +1235,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             tvb, commhdr + 7, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ncp_tree, hf_ncp_slot,
             tvb, commhdr + 8, 1, ENC_LITTLE_ENDIAN);
-        proto_tree_add_item(ncp_tree, hf_ncp_control_code,
+        proto_tree_add_item(ncp_tree, hf_ncp_signature_character,
             tvb, commhdr + 9, 1, ENC_LITTLE_ENDIAN);
         /*
          * Display the rest of the packet as data.
@@ -1479,9 +1479,9 @@ proto_register_ncp(void)
           { "Slot",                             "ncp.slot",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
-        { &hf_ncp_control_code,
-          { "Control Code",                     "ncp.control_code",
-            FT_UINT8, BASE_DEC, NULL, 0x0,
+        { &hf_ncp_signature_character,
+          { "Signature Character",              "ncp.signature_character",
+            FT_CHAR, BASE_HEX, NULL, 0x0,
             NULL, HFILL }},
 #if 0
         { &hf_ncp_fragment_handle,
