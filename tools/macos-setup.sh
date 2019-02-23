@@ -181,7 +181,12 @@ install_xz() {
         $no_build && echo "Skipping installation" && return
         bzcat xz-$XZ_VERSION.tar.bz2 | tar xf - || exit 1
         cd xz-$XZ_VERSION
-        CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0" ./configure || exit 1
+        #
+        # This builds and installs liblzma, which libxml2 uses, and
+        # Wireshark uses liblzma, so we need to build this with
+        # all the minimum-deployment-version and SDK stuff.
+        #
+        CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
         make $MAKE_BUILD_OPTS || exit 1
         $DO_MAKE_INSTALL || exit 1
         cd ..
@@ -1604,8 +1609,13 @@ install_lz4() {
         $no_build && echo "Skipping installation" && return
         gzcat lz4-$LZ4_VERSION.tar.gz | tar xf - || exit 1
         cd lz4-$LZ4_VERSION
-        # CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" ./configure || exit 1
-        CFLAGS="$CFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS -D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" make $MAKE_BUILD_OPTS || exit 1
+        #
+        # No configure script here, but it appears that if MOREFLAGS is
+        # set, that's added to CFLAGS, and those are combined with LDFLAGS
+        # and CXXFLAGS into FLAGS, which is used when building source
+        # files and libraries.
+        #
+        MOREFLAGS="-D_FORTIFY_SOURCE=0 $VERSION_MIN_FLAGS $SDKFLAGS" make $MAKE_BUILD_OPTS || exit 1
         $DO_MAKE_INSTALL || exit 1
         cd ..
         touch lz4-$LZ4_VERSION-done
@@ -1766,7 +1776,7 @@ install_libssh() {
         cd libssh-$LIBSSH_VERSION
         mkdir build
         cd build
-        CFLAGS="$CFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" CXXFLAGS="$CXXFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" LDFLAGS="$LDFLAGS $VERSION_MIN_FLAGS $SDKFLAGS" cmake -DWITH_GCRYPT=1 ../ || exit 1
+        MACOSX_DEPLOYMENT_TARGET=$min_osx_target SDKROOT="$SDKPATH" cmake -DWITH_GCRYPT=1 ../ || exit 1
         make $MAKE_BUILD_OPTS || exit 1
         $DO_MAKE_INSTALL || exit 1
         cd ../..
