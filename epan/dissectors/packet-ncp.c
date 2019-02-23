@@ -125,6 +125,13 @@ struct ncp_ip_rqhdr {
     guint32 rplybufsize;
 };
 
+static const value_string ncp_sigchar_vals[] = {
+	{ '?', "Poll inactive station" },
+	{ 'Y', "Station is still using the connection" },
+	{ '!', "Broadcast message waiting" },
+	{ 0, NULL }
+};
+
 static const value_string ncp_ip_signature[] = {
     { NCPIP_RQST, "Demand Transport (Request)" },
     { NCPIP_RPLY, "Transport is NCP (Reply)" },
@@ -1481,7 +1488,7 @@ proto_register_ncp(void)
             NULL, HFILL }},
         { &hf_ncp_signature_character,
           { "Signature Character",              "ncp.signature_character",
-            FT_CHAR, BASE_HEX, NULL, 0x0,
+            FT_CHAR, BASE_HEX, VALS(ncp_sigchar_vals), 0x0,
             NULL, HFILL }},
 #if 0
         { &hf_ncp_fragment_handle,

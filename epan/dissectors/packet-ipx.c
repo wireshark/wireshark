@@ -846,7 +846,7 @@ dissect_ipxmsg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
 	col_add_fstr(pinfo->cinfo, COL_INFO,
 			"%s, Connection %d",
-			val_to_str_const(sig_char, ipxmsg_sigchar_vals, "Unknown Signature Char"), conn_number);
+			val_to_str_const(sig_char, ipxmsg_sigchar_vals, "Unknown Signature Character"), conn_number);
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_ipxmsg, tvb, 0, -1, ENC_NA);
@@ -1517,7 +1517,7 @@ proto_register_ipx(void)
 		  NULL, HFILL }},
 
 		{ &hf_msg_sigchar,
-		{ "Signature Char",			"ipxmsg.sigchar",
+		{ "Signature Character",		"ipxmsg.sigchar",
 		  FT_CHAR,	BASE_HEX,	VALS(ipxmsg_sigchar_vals),	0x0,
 		  NULL, HFILL }}
 	};
