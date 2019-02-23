@@ -6997,7 +6997,6 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree              *temp_tree = NULL;
     volatile gboolean       run_req_cond = FALSE;
     guint32                 length_remaining;
-    guint32                 testvar;
     volatile unsigned long  exception_code;
     const char              *volatile message;
     proto_item              *ti;
@@ -7016,27 +7015,9 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
     switch (type) {
     case NCP_ALLOCATE_SLOT:
         length_remaining = tvb_captured_length_remaining(tvb, 4);
-        if (length_remaining > 4)
-        {
-            testvar = tvb_get_ntohl(tvb, 4);
-            if( testvar == 0x4c495020)
-            {
-                ncp_rec = &ncplip_echo;
-            }
-            else
-            {
-                ncp_rec = &ncp1111_request;
-                if (ncp_echo_conn) {
-                    expert_add_info(pinfo, NULL, &ei_ncp_connection_request);
-                }
-            }
-        }
-        else
-        {
-            ncp_rec = &ncp1111_request;
-            if (ncp_echo_conn) {
-                expert_add_info(pinfo, NULL, &ei_ncp_connection_request);
-            }
+        ncp_rec = &ncp1111_request;
+        if (ncp_echo_conn) {
+            expert_add_info(pinfo, NULL, &ei_ncp_connection_request);
         }
         break;
     case NCP_SERVICE_REQUEST:
