@@ -235,6 +235,13 @@ const value_string link_type_vals[] = {
     { 272,  "NORDIC_BLE" },
     { 273,  "DOCSIS31_XRA31" },
     { 274,  "ETHERNET_MPACKET" },
+    { 275,  "DISPLAYPORT_AUX" },
+    { 276,  "LINUX_SLL2" },
+    { 278,  "OPENVIZSLA" },
+    { 279,  "EBHSCR" },
+    { 280,  "VPP_DISPATCH" },
+    { 281,  "DSA_TAG_BRCM" },
+    { 282,  "DSA_TAG_BRCM_PREPEND" },
     { 0, NULL }
 };
 
