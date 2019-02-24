@@ -1882,17 +1882,17 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>发生:</translation>
     </message>
     <message>
-        <location filename="column_editor_frame.cpp" line="176"/>
+        <location filename="column_editor_frame.cpp" line="181"/>
         <source>Missing fields.</source>
         <translation>缺少字段。</translation>
     </message>
     <message>
-        <location filename="column_editor_frame.cpp" line="178"/>
+        <location filename="column_editor_frame.cpp" line="183"/>
         <source>Invalid fields.</source>
         <translation>无效字段。</translation>
     </message>
     <message>
-        <location filename="column_editor_frame.cpp" line="180"/>
+        <location filename="column_editor_frame.cpp" line="185"/>
         <source>Invalid occurrence value.</source>
         <translation>无效的实例值。</translation>
     </message>

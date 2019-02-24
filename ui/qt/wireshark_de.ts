@@ -1886,17 +1886,17 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Auftrittsreihenfolge:</translation>
     </message>
     <message>
-        <location filename="column_editor_frame.cpp" line="176"/>
+        <location filename="column_editor_frame.cpp" line="181"/>
         <source>Missing fields.</source>
         <translation>Fehlende Felder.</translation>
     </message>
     <message>
-        <location filename="column_editor_frame.cpp" line="178"/>
+        <location filename="column_editor_frame.cpp" line="183"/>
         <source>Invalid fields.</source>
         <translation>Ungültige Felder.</translation>
     </message>
     <message>
-        <location filename="column_editor_frame.cpp" line="180"/>
+        <location filename="column_editor_frame.cpp" line="185"/>
         <source>Invalid occurrence value.</source>
         <translation>Ungültiger Wert.</translation>
     </message>

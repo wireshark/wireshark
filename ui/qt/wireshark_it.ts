@@ -1886,17 +1886,17 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Occorrenza:</translation>
     </message>
     <message>
-        <location filename="column_editor_frame.cpp" line="176"/>
+        <location filename="column_editor_frame.cpp" line="181"/>
         <source>Missing fields.</source>
         <translation>Campi mancanti.</translation>
     </message>
     <message>
-        <location filename="column_editor_frame.cpp" line="178"/>
+        <location filename="column_editor_frame.cpp" line="183"/>
         <source>Invalid fields.</source>
         <translation>Campi non validi.</translation>
     </message>
     <message>
-        <location filename="column_editor_frame.cpp" line="180"/>
+        <location filename="column_editor_frame.cpp" line="185"/>
         <source>Invalid occurrence value.</source>
         <translation>Valore dell&apos;occorrenza non valido.</translation>
     </message>
