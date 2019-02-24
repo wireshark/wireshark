@@ -423,36 +423,36 @@ extern int wslua_reg_attributes(lua_State *L, const wslua_attribute_table *t, gb
     /* pop the metatable */ \
     lua_pop(L, 1)
 
-#define __WSLUA_REGISTER_META(C, ATTRS_BLOCK) { \
+#define __WSLUA_REGISTER_META(C, ATTRS) { \
     const wslua_class C ## _class = { \
         .name               = #C, \
         .instance_meta      = C ## _meta, \
-        ATTRS_BLOCK \
+        .attrs              = ATTRS \
     }; \
     wslua_register_classinstance_meta(L, &C ## _class); \
     WSLUA_REGISTER_GC(C); \
 }
 
-#define WSLUA_REGISTER_META(C)  __WSLUA_REGISTER_META(C,)
+#define WSLUA_REGISTER_META(C)  __WSLUA_REGISTER_META(C, NULL)
 #define WSLUA_REGISTER_META_WITH_ATTRS(C) \
-    __WSLUA_REGISTER_META(C, .attrs = C ## _attributes)
+    __WSLUA_REGISTER_META(C, C ## _attributes)
 
-#define __WSLUA_REGISTER_CLASS(C, ATTRS_BLOCK) { \
+#define __WSLUA_REGISTER_CLASS(C, ATTRS) { \
     const wslua_class C ## _class = { \
         .name               = #C, \
         .class_methods      = C ## _methods, \
         .class_meta         = C ## _meta, \
         .instance_methods   = C ## _methods, \
         .instance_meta      = C ## _meta, \
-        ATTRS_BLOCK \
+        .attrs              = ATTRS \
     }; \
     wslua_register_class(L, &C ## _class); \
     WSLUA_REGISTER_GC(C); \
 }
 
-#define WSLUA_REGISTER_CLASS(C)  __WSLUA_REGISTER_CLASS(C,)
+#define WSLUA_REGISTER_CLASS(C)  __WSLUA_REGISTER_CLASS(C, NULL)
 #define WSLUA_REGISTER_CLASS_WITH_ATTRS(C) \
-    __WSLUA_REGISTER_CLASS(C, .attrs = C ## _attributes)
+    __WSLUA_REGISTER_CLASS(C, C ## _attributes)
 
 #define WSLUA_INIT(L) \
     luaL_openlibs(L); \
