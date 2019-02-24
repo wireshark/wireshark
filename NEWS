@@ -22,6 +22,8 @@ Wireshark 3.1.0 Release Notes
 
   New Protocol Support
 
+   evolved Common Public Radio Interface (eCPRI)
+
   Updated Protocol Support
 
    Too many protocols have been updated to list here.
@@ -65,7 +67,7 @@ Wireshark 3.1.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[8].
 
-  Last updated 2019-02-17 08:17:47 UTC
+  Last updated 2019-02-24 08:18:25 UTC
 
  References
 

@@ -2113,39 +2113,39 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>EndpointDialog</name>
     <message>
         <source>Map</source>
-        <translation type="unfinished"></translation>
+        <translation>Карта</translation>
     </message>
     <message>
         <source>Draw IPv4 or IPv6 endpoints on a map.</source>
-        <translation type="unfinished"></translation>
+        <translation>Вывести конечные точки IPv4 или IPv6 на карте.</translation>
     </message>
     <message>
         <source>Open in browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Открыть в браузере</translation>
     </message>
     <message>
         <source>Save As</source>
-        <translation type="unfinished">Сохранить Как</translation>
+        <translation>Сохранить Как</translation>
     </message>
     <message>
         <source>Map file error</source>
-        <translation type="unfinished"></translation>
+        <translation>Ошибка файла карты</translation>
     </message>
     <message>
         <source>No endpoints available to map</source>
-        <translation type="unfinished"></translation>
+        <translation>Нет доступных конечных точек для размещения на карте</translation>
     </message>
     <message>
         <source>Unable to create temporary file</source>
-        <translation type="unfinished"></translation>
+        <translation>Невозможно создать временный файл</translation>
     </message>
     <message>
         <source>Save Endpoints Map</source>
-        <translation type="unfinished"></translation>
+        <translation>Сохранить Карту Конечных Точек</translation>
     </message>
     <message>
         <source>Failed to save map file %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Не удалось сохранить файл карты %1.</translation>
     </message>
 </context>
 <context>

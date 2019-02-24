@@ -2106,39 +2106,39 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <name>EndpointDialog</name>
     <message>
         <source>Map</source>
-        <translation type="unfinished"></translation>
+        <translation>Mappa</translation>
     </message>
     <message>
         <source>Draw IPv4 or IPv6 endpoints on a map.</source>
-        <translation type="unfinished"></translation>
+        <translation>Disegna i terminatori IPv4 o IPv6 su una mappa.</translation>
     </message>
     <message>
         <source>Open in browser</source>
-        <translation type="unfinished"></translation>
+        <translation>Apri nel browser</translation>
     </message>
     <message>
         <source>Save As</source>
-        <translation type="unfinished">Salva come</translation>
+        <translation>Salva come</translation>
     </message>
     <message>
         <source>Map file error</source>
-        <translation type="unfinished"></translation>
+        <translation>Errore nel file di mappa</translation>
     </message>
     <message>
         <source>No endpoints available to map</source>
-        <translation type="unfinished"></translation>
+        <translation>Nessun terminatore disponibile per la mappa</translation>
     </message>
     <message>
         <source>Unable to create temporary file</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile creare il file temporaneo</translation>
     </message>
     <message>
         <source>Save Endpoints Map</source>
-        <translation type="unfinished"></translation>
+        <translation>Salva mappa dei terminatori</translation>
     </message>
     <message>
         <source>Failed to save map file %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>Impossibile salvare il file di mappa %1.</translation>
     </message>
 </context>
 <context>
