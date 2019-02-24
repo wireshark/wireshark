@@ -726,6 +726,12 @@ capture_input_closed(capture_session *cap_session, gchar *msg)
             g_free(capture_opts->save_file);
             capture_opts->save_file = g_strdup(capture_opts->orig_save_file);
         }
+
+        /* If it was a tempfile, throw away the old filename (so it will become a tempfile again) */
+        if (cf_is_tempfile((capture_file *)cap_session->cf)) {
+            g_free(capture_opts->save_file);
+            capture_opts->save_file = NULL;
+        }
     } else {
         /* We're not doing a capture any more, so we don't have a save file. */
         g_free(capture_opts->save_file);
