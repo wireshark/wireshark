@@ -1,4 +1,4 @@
-Capinfos (Wireshark) 3.0.0 (v3.0.0rc0-16-g97b3169b)
+Capinfos (Wireshark) 3.0.0 (v3.0.0rc2-3-g8ef4d41b)
 Print various information (infos) about capture files.
 See https://www.wireshark.org for more information.
 
@@ -30,6 +30,10 @@ Statistic infos:
   -i display average data rate (in bits/sec)
   -z display average packet size (in bytes)
   -x display average packet rate (in packets/sec)
+
+Metadata infos:
+  -n display number of resolved IPv4 and IPv6 addresses
+  -D display number of decryption secrets
 
 Output format:
   -L generate long report (default)
