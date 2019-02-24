@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2019-02-16)
+# (last updated 2019-02-23)
 
 0	Reserved
 1	NxNetworks
@@ -21931,7 +21931,7 @@
 22084	Industec Industria Metalurgica Ltda.
 22085	CIDE Consorcio para la Interoperabilidad de Documentos Electrónicos
 22086	Paul Poeltner
-22087	Invelica GmbH
+22087	Bodo Rueskamp	# formerly 'Invelica GmbH'
 22088	Alpine-Energie Holding AG
 22089	Paedagogische Hochschule Zentralschweiz
 22090	GCommerce Inc.
@@ -26321,7 +26321,7 @@
 26476	Advanced Devices S.p.A.
 26477	Uwe Perl
 26478	SI3SI
-26479	Schenck Process  GmbH
+26479	Schenck Process  Europe GmbH
 26480	infler.de
 26481	Zane C. Bowers
 26482	Rossonet S.r.l.
@@ -48211,7 +48211,7 @@
 48390	Bottomline Technologies
 48391	photicsensing
 48392	FilmLight Ltd
-48393	SDxLab
+48393	Sdx Lab Sdn. Bhd.	# formerly 'SDxLab'
 48394	br.Svensson Skog AB
 48395	Qimtronics
 48396	Sood sales
@@ -53216,7 +53216,7 @@
 53404	The Orchard Enterprises NY, Inc.
 53405	QOS Networks
 53406	AB Habitat
-53407	COD5201
+53407	n5201
 53408	Thermomentum Ltd
 53409	VITRIA TECHNOLOGY INC
 53410	Technipad
@@ -53287,3 +53287,41 @@
 53475	North East Derbyshire District Council
 53476	Criminal Cases Review Commission
 53477	LST Forest AB
+53478	Everest Networks
+53479	Tjugoett och Trettio AB
+53480	Shanghai Horizon Information Tech. Co., Ltd.
+53481	Valmet
+53482	Economia a.s.
+53483	FOR-A ELETEX Co., Ltd.
+53484	KeySign NV
+53485	chinadaas.inc
+53486	LLC INTECH
+53487	Linkin Technology Co., Ltd.
+53488	Maeeko Cat Housing Ltd.
+53489	Institute Of Physics and Power Engineering
+53490	INVENTURE Automotive Electronics Research & Development, Inc
+53491	NPC SYSTEM
+53492	CapitalData
+53493	Sapcorda Services USA, Inc
+53494	Apex Clean Energy, Inc.
+53495	SIMS
+53496	OPTIMUS TELECOM
+53497	KosmosKosmos
+53498	QIC Global Services Limited
+53499	Austrian Airlines AG
+53500	IVES-SYSTEM Sp. z o. o.
+53501	DC IT-Consulting
+53502	RealexPayments
+53503	Sprint Federal Operations
+53504	Stephens College
+53505	TELERYS COMMUNICATION
+53506	Kaman Inc.
+53507	First Data Education Loans
+53508	Rhein-Neckar-Zeitung GmbH
+53509	Renaissance Lab
+53510	Zharfpouyan Toos
+53511	ubsafa
+53512	Bright Access
+53513	andosto GmbH & Co. KG
+53514	DPNIC
+53515	Medical Systems a.s.
