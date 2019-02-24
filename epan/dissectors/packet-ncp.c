@@ -777,7 +777,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item            *ti;
     struct ncp_ip_header  ncpiph;
     struct ncp_ip_rqhdr   ncpiphrq;
-    gboolean              is_lip_echo = FALSE;
+    gboolean              is_lip_echo_allocate_slot = FALSE;
     guint16               ncp_burst_seqno, ncp_ack_seqno;
     guint16               flags = 0;
     proto_tree            *flags_tree = NULL;
@@ -1130,8 +1130,8 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (length_remaining >= LIP_ECHO_MAGIC_LEN &&
             tvb_memeql(tvb, commhdr+4, lip_echo_magic, LIP_ECHO_MAGIC_LEN) == 0) {
             /* This is a LIP Echo. */
-            is_lip_echo = TRUE;
-            col_add_str(pinfo->cinfo, COL_INFO, "LIP Echo");
+            is_lip_echo_allocate_slot = TRUE;
+            col_set_str(pinfo->cinfo, COL_INFO, "LIP Echo");
         }
         /* fall through */
 
@@ -1144,7 +1144,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_uint(ncp_tree, hf_ncp_seq, tvb, commhdr + 2, 1, header.sequence);
         /* XXX - what's at commhdr + 3 in a LIP Echo packet?
            commhdr + 4 on is the LIP echo magic number and data. */
-        if (!is_lip_echo) {
+        if (!is_lip_echo_allocate_slot) {
             proto_tree_add_uint(ncp_tree, hf_ncp_connection,tvb, commhdr + 3, 3, nw_connection);
             proto_tree_add_item(ncp_tree, hf_ncp_task, tvb, commhdr + 4, 1, ENC_BIG_ENDIAN);
         }
@@ -1157,22 +1157,21 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     switch (header.type) {
 
     case NCP_ALLOCATE_SLOT:        /* Allocate Slot Request */
-        if (is_lip_echo) {
+        if (is_lip_echo_allocate_slot) {
             length_remaining = tvb_reported_length_remaining(tvb, commhdr + 4);
             proto_tree_add_item(ncp_tree, hf_lip_echo_magic, tvb, commhdr + 4, LIP_ECHO_MAGIC_LEN, ENC_ASCII|ENC_NA);
             if (length_remaining > LIP_ECHO_MAGIC_LEN)
                 proto_tree_add_item(ncp_tree, hf_lip_echo_payload, tvb, commhdr+4+LIP_ECHO_MAGIC_LEN, length_remaining - LIP_ECHO_MAGIC_LEN, ENC_NA);
-        } else {
-            next_tvb = tvb_new_subset_remaining(tvb, commhdr);
-            dissect_ncp_request(next_tvb, pinfo, nw_connection,
-                header.sequence, header.type, ncp_tree);
         }
+        next_tvb = tvb_new_subset_remaining(tvb, commhdr);
+        dissect_ncp_request(next_tvb, pinfo, nw_connection,
+            header.sequence, header.type, is_lip_echo_allocate_slot, ncp_tree);
         break;
 
     case NCP_DEALLOCATE_SLOT:    /* Deallocate Slot Request */
         next_tvb = tvb_new_subset_remaining(tvb, commhdr);
         dissect_ncp_request(next_tvb, pinfo, nw_connection,
-            header.sequence, header.type, ncp_tree);
+            header.sequence, header.type, FALSE, ncp_tree);
         break;
 
     case NCP_SERVICE_REQUEST:    /* Server NCP Request */
@@ -1197,12 +1196,12 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             default:
                 dissect_ncp_request(next_tvb, pinfo,
                     nw_connection, header.sequence,
-                    header.type, ncp_tree);
+                    header.type, FALSE, ncp_tree);
                 break;
              }
         } else {
             dissect_ncp_request(next_tvb, pinfo, nw_connection,
-                header.sequence, header.type, ncp_tree);
+                header.sequence, header.type, FALSE, ncp_tree);
         }
         break;
 

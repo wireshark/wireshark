@@ -6984,7 +6984,8 @@ ncp2222_compile_dfilters(void)
 void
 dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
                 guint32 nw_connection, guint8 sequence,
-                guint16 type, proto_tree *volatile ncp_tree)
+                guint16 type, gboolean is_lip_echo_allocate_slot,
+                proto_tree *volatile ncp_tree)
 {
     volatile guint8         func=0;
     volatile guint8         subfunc = 0;
@@ -7013,9 +7014,13 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
     /* Determine which ncp_record to use. */
     switch (type) {
     case NCP_ALLOCATE_SLOT:
-        ncp_rec = &ncp1111_request;
-        if (ncp_echo_conn) {
-            expert_add_info(pinfo, NULL, &ei_ncp_connection_request);
+        if (is_lip_echo_allocate_slot) {
+            ncp_rec = &ncplip_echo;
+        } else {
+            ncp_rec = &ncp1111_request;
+            if (ncp_echo_conn) {
+                expert_add_info(pinfo, NULL, &ei_ncp_connection_request);
+            }
         }
         break;
     case NCP_SERVICE_REQUEST:
