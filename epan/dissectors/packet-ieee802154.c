@@ -4638,11 +4638,11 @@ void proto_register_ieee802154(void)
             "Time to wait for the start of frame", HFILL }},
 
         { &hf_ieee802154_tsch_timeslot_ack_wait,
-          { "RX Wait",                      "wpan.tsch.timeslot.rx_wait", FT_UINT16, BASE_DEC, NULL, 0x0,
+          { "Ack Wait",                     "wpan.tsch.timeslot.ack_wait", FT_UINT16, BASE_DEC, NULL, 0x0,
             "Minimum time to wait for the start of an acknowledgment", HFILL }},
 
         { &hf_ieee802154_tsch_timeslot_turnaround,
-          { "RX Wait",                      "wpan.tsch.timeslot.turnaround", FT_UINT16, BASE_DEC, NULL, 0x0,
+          { "Turn Around",                  "wpan.tsch.timeslot.turnaround", FT_UINT16, BASE_DEC, NULL, 0x0,
             "Transmit to receive turnaround time", HFILL }},
 
         { &hf_ieee802154_tsch_timeslot_max_ack,
