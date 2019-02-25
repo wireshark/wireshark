@@ -594,6 +594,10 @@ extern "C" {
 #define ETHERTYPE_QINQ_OLD		0x9100	/* QinQ: old non-standard 802.1ad */
 #endif
 
+#ifndef ETHERTYPE_EERO
+#define ETHERTYPE_EERO			0x9104	/* EERO: broadcast packets sent by EERO MESH AP's (not officially registered) */
+#endif
+
 #ifndef ETHERTYPE_6LOWPAN
 #define ETHERTYPE_6LOWPAN		0xA0ED	/* RFC 4944: Transmission of IPv6 Packets over IEEE 802.15.4 Networks */
 #endif
