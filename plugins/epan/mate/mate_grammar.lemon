@@ -23,6 +23,7 @@
 #include "mate.h"
 #include "mate_grammar.h"
 #include <wsutil/file_util.h>
+#include <wsutil/str_util.h>
 
 #define DUMMY void*
 
@@ -126,7 +127,7 @@ static gchar* recolonize(mate_config* mc, gchar* s) {
 	vec = g_strsplit(s,":",0);
 
 	for (i = 0; vec[i]; i++) {
-		g_ascii_strdown(vec[i], -1);
+		ascii_strdown_inplace(vec[i]);
 
 		v = 0;
 		switch ( strlen(vec[i]) ) {
