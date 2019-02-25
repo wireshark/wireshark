@@ -387,6 +387,7 @@ static int ett_h265_sprop_parameters = -1;
 
 static expert_field ei_h265_undecoded = EI_INIT;
 static expert_field ei_h265_format_specific_parameter = EI_INIT;
+static expert_field ei_h265_value_to_large = EI_INIT;
 
 /* The dynamic payload type range which will be dissected as H.265 */
 
@@ -1201,7 +1202,11 @@ dissect_h265_video_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_in
 	dissect_h265_rbsp_trailing_bits(tree, tvb, pinfo, bit_offset);
 }
 
-/* Ref 7.3.2.2 Sequence parameter set RBSP syntax */
+/* Ref 7.3.2.2 Sequence parameter set RBSP syntax
+ * num_short_term_ref_pic_sets specifies the number of st_ref_pic_set( ) syntax structures included in the SPS. The value
+ * of num_short_term_ref_pic_sets shall be in the range of 0 to 64, inclusive
+ */
+#define H265_MAX_NUM_SHORT_TERM_REF_PIC_SETS 64
 static void
 dissect_h265_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
 {
@@ -1307,6 +1312,10 @@ dissect_h265_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 	}
 
 	num_short_term_ref_pic_sets = dissect_h265_exp_golomb_code(tree, hf_h265_num_short_term_ref_pic_sets, tvb, &bit_offset, H265_UE_V);
+	if (num_short_term_ref_pic_sets > H265_MAX_NUM_SHORT_TERM_REF_PIC_SETS) {
+		proto_tree_add_expert(tree, pinfo, &ei_h265_value_to_large, tvb, bit_offset>>3, 1);
+		return;
+	}
 	for (i = 0; i < num_short_term_ref_pic_sets; i++)
 		bit_offset = dissect_h265_st_ref_pic_set(tree, tvb, pinfo, bit_offset, i, num_short_term_ref_pic_sets);
 
@@ -4576,7 +4585,8 @@ proto_register_h265(void)
 
 	static ei_register_info ei[] = {
 		{ &ei_h265_undecoded,{ "h265.undecoded", PI_UNDECODED, PI_WARN, "[Not decoded yet]", EXPFILL } },
-		{ &ei_h265_format_specific_parameter,{ "h265.format_specific_parameter", PI_UNDECODED, PI_WARN, "[Unspecified media format specific parameter]", EXPFILL } },
+                { &ei_h265_value_to_large,{ "h265.value_to_large", PI_PROTOCOL, PI_ERROR, "[Value to large, protocol violation]", EXPFILL } },
+                { &ei_h265_format_specific_parameter,{ "h265.format_specific_parameter", PI_UNDECODED, PI_WARN, "[Unspecified media format specific parameter]", EXPFILL } },
 	};
 
 	/* Register the protocol name and description */
