@@ -59,7 +59,7 @@ S<[ B<--enable-protocol> E<lt>proto_nameE<gt> ]>
 S<[ B<--disable-protocol> E<lt>proto_nameE<gt> ]>
 S<[ B<--enable-heuristic> E<lt>short_nameE<gt> ]>
 S<[ B<--disable-heuristic> E<lt>short_nameE<gt> ]>
-S<[ E<lt>capture filterE<gt> ]>
+S<[ E<lt>filterE<gt> ]>
 
 B<tshark>
 B<-G> [ E<lt>report typeE<gt> ]
