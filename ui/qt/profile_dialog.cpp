@@ -165,9 +165,30 @@ void ProfileDialog::updateWidgets()
             break;
         case PROF_STAT_COPY:
             if (current_profile->reference) {
-                profile_info = tr("Created from %1").arg(current_profile->reference);
+                bool reference_exists = false;
+                gchar *reference = current_profile->reference;
+                GList *fl_entry = edited_profile_list();
+                while (fl_entry && fl_entry->data) {
+                    profile_def *profile = (profile_def *) fl_entry->data;
+                    if (strcmp(current_profile->reference, profile->reference) == 0) {
+                        if (profile->status != PROF_STAT_COPY) {
+                            // Reference profile exists (and is not current profile)
+                            reference_exists = true;
+                        }
+                        if (profile->status == PROF_STAT_CHANGED) {
+                            // Reference profile was renamed, use the new name
+                            reference = profile->name;
+                            break;
+                        }
+                    }
+
+                    fl_entry = g_list_next(fl_entry);
+                }
+                profile_info = tr("Created from %1").arg(reference);
                 if (current_profile->from_global) {
                     profile_info.append(QString(" %1").arg(tr("(system provided)")));
+                } else if (!reference_exists) {
+                    profile_info.append(QString(" %1").arg(tr("(deleted)")));
                 }
                 break;
             }
@@ -387,7 +408,9 @@ void ProfileDialog::editingFinished()
         if (item->text(0).compare(profile->name) != 0) {
             g_free(profile->name);
             profile->name = qstring_strdup(item->text(0));
-            if (profile->status == PROF_STAT_EXISTS) {
+            if (strcmp(profile->name, profile->reference) == 0) {
+                profile->status = PROF_STAT_EXISTS;
+            } else if (profile->status == PROF_STAT_EXISTS) {
                 profile->status = PROF_STAT_CHANGED;
             }
         }
