@@ -13,19 +13,26 @@ used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-* The Windows installers now ship with Qt 5.9.7. Previously they shipped with Qt 5.9.5.
-
 === Bug Fixes
 
 The following vulnerabilities have been fixed:
 
 * wssalink:2019-06[]
-A dissector went awry.
-wsbuglink:xxxx[].
+ASN.1 BER and related dissectors crash.
+wsbuglink:15447[].
 // cveidlink:2019-xxxx[].
-// Fixed in master: xxxx
-// Fixed in master-2.6: xxxx
-// Fixed in master-2.4: xxxx
+// Fixed in master: 3cd5ac36e2
+// Fixed in master-2.6: d632d88025
+// Fixed in master-2.4: f8fbe9f934
+
+* wssalink:2019-07[]
+TCAP dissector crash.
+wsbuglink:15464[].
+// cveidlink:2019-xxxx[].
+// Fixed in master: 34873a20eb
+// Fixed in master-2.6: 03c674b21b
+// Fixed in master-2.4: 3d1b8004ed
+
 
 The following bugs have been fixed:
 
@@ -33,7 +40,44 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark convinced you to switch seats on the plane while neglecting to tell you that its seat was noticeably moist.
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.7rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do ./tools/gen-bugnote $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.8rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* Alignment Lost after Editing Column. wsbuglink:14177[].
+
+* Crash on applying display filters or coloring rules on capture files containing non-UTF-8 data. wsbuglink:14905[].
+
+* tshark outputs debug information. wsbuglink:15341[].
+
+* Feature request - HTTP, add the field "request URI" to response. wsbuglink:15344[].
+
+* randpkt should be distributed with the Windows installer. wsbuglink:15395[].
+
+* Memory leak with "-T ek" output format option. wsbuglink:15406[].
+
+* Display error in negative response time stats (gint displayed as unsigned). wsbuglink:15416[].
+
+* _epl_xdd_init not found. wsbuglink:15419[].
+
+* Decoding of MEGACO/H.248 request shows the Remote descriptor as "Local descriptor". wsbuglink:15430[].
+
+* Repeated 'NFS' in Protocol Display field. wsbuglink:15443[].
+
+* RBM file dissector adds too many items to the tree, resulting in aborting the program. wsbuglink:15448[].
+
+* Wireshark heap out-of-bounds read in infer_pkt_encap. wsbuglink:15463[].
+
+* Column width and hidden issues when switching profiles. wsbuglink:15466[].
+
+* GTPv1-C SGSN Context Response / Forward Relocation Request decode GGSN address IPV6 issue. wsbuglink:15485[].
+
+* Lua Error on startup: init.lua: dofile has been disabled due to running Wireshark as superuser. wsbuglink:15489[].
+
+* DICOM ASSOCIATE Accept: Protocol Version. wsbuglink:15495[].
+
+* Multiple out-of-bounds reads in NetScaler trace handling (wiretap/netscaler.c). wsbuglink:15497[].
+
+* Wrong endianess when dissecting the "chain offset" in SMB2 protocol header. wsbuglink:15524[].
+
 
 === New and Updated Features
 
@@ -52,15 +96,35 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
+ASN.1 BER
+BSSAP
+BT Mesh
+DICOM
+DNP3
+EPL
+ETSI CAT
+GTP
+HTTP
+IEEE 802.15.4
+ISAKMP
+MEGACO
+MPLS Echo
+RPC
+RPCAP
+SMB2
+TCAP
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+IxVeriWave
+NetScaler
+Sniffer
+--
 
 === New and Updated Capture Interfaces support
 
