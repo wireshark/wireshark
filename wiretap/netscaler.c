@@ -653,6 +653,20 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 #define GET_READ_PAGE_SIZE(remaining_file_size) ((gint32)((remaining_file_size>NSPR_PAGESIZE)?NSPR_PAGESIZE:remaining_file_size))
 #define GET_READ_PAGE_SIZEV3(remaining_file_size) ((gint32)((remaining_file_size>NSPR_PAGESIZE_TRACE)?NSPR_PAGESIZE_TRACE:remaining_file_size))
 
+/*
+ * Check whether we have enough room to retrieve the data in the caller.
+ * If not, we have a malformed file.
+ */
+static gboolean nstrace_ensure_buflen(nstrace_t* nstrace, guint offset, guint len, int *err, gchar** err_info)
+{
+    if (offset > nstrace->nstrace_buflen || nstrace->nstrace_buflen - offset < len) {
+        *err = WTAP_ERR_BAD_FILE;
+        *err_info = g_strdup("nstrace: malformed file");
+        return FALSE;
+    }
+    return TRUE;
+}
+
 static guint64 ns_hrtime2nsec(guint32 tm)
 {
     guint32    val = tm & NSPR_HRTIME_MASKTM;
@@ -825,7 +839,7 @@ wtap_open_return_val nstrace_open(wtap *wth, int *err, gchar **err_info)
 
 #define nspm_signature_func(ver) \
     static guint32 nspm_signature_isv##ver(gchar *sigp) {\
-        return strncmp(sigp,NSPR_SIGSTR_V##ver,(sizeof(NSPR_SIGSTR_V##ver)-1));\
+        return strncmp(sigp,NSPR_SIGSTR_V##ver,MIN(strlen(sigp),sizeof(NSPR_SIGSTR_V##ver)-1));\
     }
 
 nspm_signature_func(10)
@@ -855,6 +869,7 @@ nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len)
 #define sigv10p    ((nspr_signature_v10_t*)dp)
             if ((pletoh16(&sigv10p->nsprRecordType) == NSPR_SIGNATURE_V10) &&
                 (pletoh16(&sigv10p->nsprRecordSize) <= len) &&
+                (pletoh16(&sigv10p->nsprRecordSize) > 0) &&
                 ((gint32)sizeof(NSPR_SIGSTR_V10) <= len) &&
                 (!nspm_signature_isv10(sigv10p->sig_Signature)))
                 return WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0;
@@ -865,6 +880,7 @@ nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len)
                 (sigv20p->sig_RecordSize <= len) &&
                 ((gint32)sizeof(NSPR_SIGSTR_V20) <= len))
             {
+                sigv20p->sig_Signature[sigv20p->sig_RecordSize] = '\0';
                 if (!nspm_signature_isv20(sigv20p->sig_Signature)){
                     return WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0;
                 } else if (!nspm_signature_isv30(sigv20p->sig_Signature)){
@@ -902,12 +918,8 @@ nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len)
         {\
             while (nstrace_buf_offset < nstrace_buflen)\
             {\
-                /* check whether we have enough room to retrieve the recordType */\
-                if (nstrace_buflen - nstrace_buf_offset < 2) {\
-                    *err = WTAP_ERR_BAD_FILE; \
-                    *err_info = g_strdup("nstrace: malformed packet");\
+                if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_hd_v##ver##_t), err, err_info))\
                     return FALSE;\
-                }\
                 nspr_hd_v##ver##_t *fp = (nspr_hd_v##ver##_t *) &nstrace_buf[nstrace_buf_offset];\
                 switch (nspr_getv##ver##recordtype(fp))\
                 {\
@@ -1004,6 +1016,7 @@ static gboolean nstrace_set_start_time(wtap *wth, int *err, gchar **err_info)
     }while(0)
 
 #define PACKET_DESCRIBE(phdr,FULLPART,fullpart,ver,type,HEADERVER) \
+    return FALSE;\
     do {\
         nspr_pktrace##fullpart##_v##ver##_t *type = (nspr_pktrace##fullpart##_v##ver##_t *) &nstrace_buf[nstrace_buf_offset];\
         /* Make sure the record header is entirely contained in the page */\
@@ -1282,13 +1295,19 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
 
                 case NSPR_ABSTIME_V20:
                 {
+                    if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_pktracefull_v20_t), err, err_info))
+                        return FALSE;
                     nspr_pktracefull_v20_t *fp20 = (nspr_pktracefull_v20_t *) &nstrace_buf[nstrace_buf_offset];
                     if (nspr_getv20recordsize((nspr_hd_v20_t *)fp20) == 0) {
                         *err = WTAP_ERR_BAD_FILE;
                         *err_info = g_strdup("nstrace: zero size record found");
                         return FALSE;
                     }
+                    if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_hd_v20_t), err, err_info))
+                        return FALSE;
                     nstrace_buf_offset += nspr_getv20recordsize((nspr_hd_v20_t *)fp20);
+                    if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_abstime_v20_t), err, err_info))
+                        return FALSE;
                     ns_setabstime(nstrace, pletoh32(&((nspr_abstime_v20_t *) fp20)->abs_Time), pletoh16(&((nspr_abstime_v20_t *) fp20)->abs_RelTime));
                     break;
                 }
@@ -1301,6 +1320,8 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
                         *err_info = g_strdup("nstrace: zero size record found");
                         return FALSE;
                     }
+                    if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_abstime_v20_t), err, err_info))
+                        return FALSE;
                     ns_setrelativetime(nstrace, pletoh16(&((nspr_abstime_v20_t *) fp20)->abs_RelTime));
                     nstrace_buf_offset += nspr_getv20recordsize((nspr_hd_v20_t *)fp20);
                     break;
@@ -1317,6 +1338,8 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
 
                 default:
                 {
+                    if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_pktracefull_v20_t), err, err_info))
+                        return FALSE;
                     nspr_pktracefull_v20_t *fp20 = (nspr_pktracefull_v20_t *) &nstrace_buf[nstrace_buf_offset];
                     if (nspr_getv20recordsize((nspr_hd_v20_t *)fp20) == 0) {
                         *err = WTAP_ERR_BAD_FILE;
@@ -1400,6 +1423,12 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
         *data_offset = nstrace->xxx_offset + nstrace_buf_offset;\
         /* Copy record header */\
         while (nstrace_tmpbuff_off < nspr_##structname##_s) {\
+            if (nstrace_buf_offset >= nstrace_buflen) {\
+                *err = WTAP_ERR_BAD_FILE;\
+                *err_info = g_strdup("nstrace: malformed file");\
+                g_free(nstrace_tmpbuff);\
+                return FALSE;\
+            }\
             nstrace_tmpbuff[nstrace_tmpbuff_off++] = nstrace_buf[nstrace_buf_offset++];\
         }\
         nst_dataSize = nspr_getv20recordsize(hdp);\
@@ -1460,6 +1489,14 @@ static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info, gint64 *
 
     do
     {
+
+        if (nstrace_buf_offset >= nstrace_buflen) {
+            *err = WTAP_ERR_BAD_FILE;
+            *err_info = g_strdup("nstrace: malformed file");
+            g_free(nstrace_tmpbuff);
+            return FALSE;
+        }
+
         if (!nstrace_buf[nstrace_buf_offset] && nstrace_buf_offset <= NSPR_PAGESIZE_TRACE){
             nstrace_buf_offset = NSPR_PAGESIZE_TRACE;
         }
@@ -1469,6 +1506,11 @@ static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info, gint64 *
         while ((nstrace_buf_offset < NSPR_PAGESIZE_TRACE) &&
             nstrace_buf[nstrace_buf_offset])
         {
+            if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_hd_v20_t), err, err_info)) {
+                g_free(nstrace_tmpbuff);
+                return FALSE;
+            }
+
             hdp = (nspr_hd_v20_t *) &nstrace_buf[nstrace_buf_offset];
             if (nspr_getv20recordsize(hdp) == 0) {
                 *err = WTAP_ERR_BAD_FILE;
@@ -1503,12 +1545,20 @@ static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info, gint64 *
                 case NSPR_ABSTIME_V20:
                 {
                     nstrace_buf_offset += nspr_getv20recordsize(hdp);
+                    if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_abstime_v20_t), err, err_info)) {
+                        g_free(nstrace_tmpbuff);
+                        return FALSE;
+                    }
                     ns_setabstime(nstrace, pletoh32(&((nspr_abstime_v20_t *) &nstrace_buf[nstrace_buf_offset])->abs_Time), pletoh16(&((nspr_abstime_v20_t *) &nstrace_buf[nstrace_buf_offset])->abs_RelTime));
                     break;
                 }
 
                 case NSPR_RELTIME_V20:
                 {
+                    if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_abstime_v20_t), err, err_info)) {
+                        g_free(nstrace_tmpbuff);
+                        return FALSE;
+                    }
                     ns_setrelativetime(nstrace, pletoh16(&((nspr_abstime_v20_t *) &nstrace_buf[nstrace_buf_offset])->abs_RelTime));
                     nstrace_buf_offset += nspr_getv20recordsize(hdp);
                     break;
@@ -1516,6 +1566,10 @@ static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info, gint64 *
 
                 default:
                 {
+                    if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_hd_v20_t), err, err_info)) {
+                        g_free(nstrace_tmpbuff);
+                        return FALSE;
+                    }
                     nstrace_buf_offset += nspr_getv20recordsize(hdp);
                     break;
                 }
