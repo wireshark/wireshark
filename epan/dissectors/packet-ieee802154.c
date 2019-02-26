@@ -5094,19 +5094,19 @@ void proto_register_ieee802154(void)
         /* ZBOSS dump */
 
         { &hf_zboss_page,
-        { "Page", "wpan.zboss.page", FT_UINT8, BASE_DEC_HEX, VALS(zboss_page_names), 0xFE,
+        { "Page", "wpan-zboss.page", FT_UINT8, BASE_DEC_HEX, VALS(zboss_page_names), 0xFE,
             "IEEE802.15.4 page number", HFILL } },
 
         { &hf_zboss_channel,
-        { "Channel", "wpan.zboss.channel", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Channel", "wpan-zboss.channel", FT_UINT8, BASE_DEC, NULL, 0x0,
             "Channel number", HFILL }},
 
         { &hf_zboss_direction,
-        { "ZBOSS Direction", "wpan.zboss.direction", FT_UINT8, BASE_HEX, VALS(zboss_direction_names), 0x01,
+        { "ZBOSS Direction", "wpan-zboss.direction", FT_UINT8, BASE_HEX, VALS(zboss_direction_names), 0x01,
             "ZBOSS Packet Direction", HFILL }},
 
         { &hf_zboss_trace_number,
-        { "Trace number", "wpan.zboss.trace", FT_UINT32, BASE_DEC, NULL, 0x0,
+        { "Trace number", "wpan-zboss.trace", FT_UINT32, BASE_DEC, NULL, 0x0,
             "Trace item number", HFILL }},
     };
 
