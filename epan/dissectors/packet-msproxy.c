@@ -1051,7 +1051,7 @@ static int dissect_msproxy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	hash_info = (hash_entry_t *)conversation_get_proto_data(conversation, proto_msproxy);
 	if ( !hash_info) {
-		hash_info = wmem_new(wmem_file_scope(), hash_entry_t);
+		hash_info = wmem_new0(wmem_file_scope(), hash_entry_t);
 		conversation_add_proto_data(conversation, proto_msproxy,
 			hash_info);
 	}
