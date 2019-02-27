@@ -17,7 +17,7 @@ The following vulnerabilities have been fixed:
 * wssalink:2019-06[]
 ASN.1 BER and related dissectors crash.
 wsbuglink:15447[].
-// cveidlink:2019-xxxx[].
+cveidlink:2019-9209[].
 // Fixed in master: 3cd5ac36e2
 // Fixed in master-2.6: d632d88025
 // Fixed in master-2.4: f8fbe9f934
@@ -25,10 +25,18 @@ wsbuglink:15447[].
 * wssalink:2019-07[]
 TCAP dissector crash.
 wsbuglink:15464[].
-// cveidlink:2019-xxxx[].
+cveidlink:2019-9208[].
 // Fixed in master: 34873a20eb
 // Fixed in master-2.6: 03c674b21b
 // Fixed in master-2.4: 3d1b8004ed
+
+* wssalink:2019-08[]
+RPCAP dissector crash.
+wsbuglink:15536[].
+// cveidlink:2019-xxxx[].
+// Fixed in master: 2f048c932d
+// Fixed in master-2.6: c32d343ff4
+// Fixed in master-2.4: c557bb0910
 
 The following bugs have been fixed:
 
