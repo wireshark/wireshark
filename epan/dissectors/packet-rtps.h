@@ -240,6 +240,7 @@ typedef struct _rtps_dissector_data {
 #define PID_KEY_HASH                            (0x0070)
 #define PID_STATUS_INFO                         (0x0071)
 #define PID_TYPE_OBJECT                         (0x0072)
+#define PID_DATA_REPRESENTATION                 (0x0073)
 #define PID_TYPE_CONSISTENCY                    (0x0074)
 #define PID_EQUIVALENT_TYPE_NAME                (0x0075)
 #define PID_BASE_TYPE_NAME                      (0x0076)
@@ -473,6 +474,13 @@ typedef struct _rtps_dissector_data {
 #define ENCAPSULATION_CDR_LE            (0x0001)
 #define ENCAPSULATION_PL_CDR_BE         (0x0002)
 #define ENCAPSULATION_PL_CDR_LE         (0x0003)
+#define ENCAPSULATION_CDR2_BE           (0x0006)
+#define ENCAPSULATION_CDR2_LE           (0x0007)
+#define ENCAPSULATION_D_CDR2_BE         (0x0008)
+#define ENCAPSULATION_D_CDR2_LE         (0x0009)
+#define ENCAPSULATION_PL_CDR2_BE        (0x000a)
+#define ENCAPSULATION_PL_CDR2_LE        (0x000b)
+
 
 /* Parameter Liveliness */
 #define LIVELINESS_AUTOMATIC            (0)
