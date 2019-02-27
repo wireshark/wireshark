@@ -14,29 +14,14 @@ used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed:
 
-* wssalink:2019-06[]
-ASN.1 BER and related dissectors crash.
-wsbuglink:15447[].
-cveidlink:2019-9209[].
-// Fixed in master: 3cd5ac36e2
-// Fixed in master-2.6: d632d88025
-// Fixed in master-2.4: f8fbe9f934
-
-* wssalink:2019-07[]
-TCAP dissector crash.
-wsbuglink:15464[].
-cveidlink:2019-9208[].
-// Fixed in master: 34873a20eb
-// Fixed in master-2.6: 03c674b21b
-// Fixed in master-2.4: 3d1b8004ed
-
-* wssalink:2019-08[]
-RPCAP dissector crash.
-wsbuglink:15536[].
+* wssalink:2019-09[]
+A dissector went awry.
+// wsbuglink:xxxx[].
 // cveidlink:2019-xxxx[].
-// Fixed in master: 2f048c932d
-// Fixed in master-2.6: c32d343ff4
-// Fixed in master-2.4: c557bb0910
+// Fixed in master: xxxx
+// Fixed in master-3.0: xxxx
+// Fixed in master-2.6: xxxx
+// Fixed in master-2.4: xxxx
 
 The following bugs have been fixed:
 
@@ -45,29 +30,6 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark keeps leaving voicemails advertising timeshare condominiums in Fresno. (wsbuglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.4.14rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* dftest should be distributed with the Windows installer. wsbuglink:13825[].
-
-* Alignment Lost after Editing Column. wsbuglink:14177[].
-
-* Crash on applying display filters or coloring rules on capture files containing non-UTF-8 data. wsbuglink:14905[].
-
-* Decoding of MEGACO/H.248 request shows the Remote descriptor as "Local descriptor". wsbuglink:15430[].
-
-* Repeated 'NFS' in Protocol Display field. wsbuglink:15443[].
-
-* Wireshark heap out-of-bounds read in infer_pkt_encap. wsbuglink:15463[].
-
-* Column width and hidden issues when switching profiles. wsbuglink:15466[].
-
-* GTPv1-C SGSN Context Response / Forward Relocation Request decode GGSN address IPV6 issue. wsbuglink:15485[].
-
-* Lua Error on startup: init.lua: dofile has been disabled due to running Wireshark as superuser. wsbuglink:15489[].
-
-* Multiple out-of-bounds reads in NetScaler trace handling (wiretap/netscaler.c). wsbuglink:15497[].
-
-* Wrong endianess when dissecting the "chain offset" in SMB2 protocol header. wsbuglink:15524[].
-
 
 === New and Updated Features
 
@@ -84,26 +46,13 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
-ASN.1 BER
-BSSAP
-DNP3
-ETSI CAT
-GTP
-MEGACO
-MPLS Echo
-RPC
-RPCAP
-SMB2
-TCAP
 --sort-and-group--
 
 === New and Updated Capture File Support
 
-// There is no new or updated capture file support in this release.
---sort-and-group--
-NetScaler
-Sniffer
---sort-and-group--
+There is no new or updated capture file support in this release.
+// --sort-and-group--
+// --sort-and-group--
 
 === New and Updated Capture Interfaces support
 
