@@ -2907,6 +2907,12 @@ static int hf_isup_app_Release_call_ind             = -1;
 static int hf_isup_cause_location                   = -1;
 
 static int hf_ansi_isup_coding_standard             = -1;
+static int hf_ansi_isup_spare_b7 = -1;
+static int hf_ansi_isup_type_of_nw_id = -1;
+static int hf_ansi_isup_nw_id_plan = -1;
+static int hf_ansi_isup_tns_nw_id_plan = -1;
+static int hf_ansi_isup_nw_id = -1;
+static int hf_ansi_isup_circuit_code = -1;
 
 static int hf_length_indicator                      = -1;
 static int hf_afi                                   = -1;
@@ -3910,6 +3916,77 @@ dissect_ansi_isup_cause_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree
       proto_tree_add_item(parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
       break;
   }
+}
+
+/* ------------------------------------------------------------------
+  Dissector ANSI Transit network selection
+ */
+
+static const value_string ansi_isup_tns_nw_id_plan_vals[] = {
+    { 0x00, "Unknown" },
+    { 0x01, "3-digit carrier id with circuit code" },
+    { 0x02, "4-digit carrier id with circuit code" },
+    {    0, NULL } };
+
+static void
+dissect_ansi_isup_transit_network_selection_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo _U_, proto_tree *parameter_tree, proto_item *parameter_item _U_)
+{
+  gint        offset = 0;
+  const char *digit_str;
+
+  static const int * indicators_fields[] = {
+    &hf_ansi_isup_spare_b7,
+    &hf_isup_type_of_network_identification,
+    &hf_ansi_isup_tns_nw_id_plan,
+    NULL
+  };
+
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, 1, indicators_fields, ENC_NA);
+  offset = 1;
+
+  digit_str = tvb_bcd_dig_to_wmem_packet_str(parameter_tvb, offset, 2, NULL, FALSE);
+  proto_tree_add_string(parameter_tree, hf_ansi_isup_nw_id, parameter_tvb, offset, 2, digit_str);
+  offset += 2;
+  proto_tree_add_item(parameter_tree, hf_ansi_isup_circuit_code, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+
+}
+
+static const value_string ansi_isup_type_of_nw_id_vals[] = {
+    { 0x00, "Spare" },
+    { 0x01, "Spare" },
+    { 0x02, "National network identification" },
+    { 0x03, "Spare" },
+    { 0x04, "Spare" },
+    { 0x05, "Spare" },
+    { 0x06, "Spare" },
+    { 0x07, "Spare" },
+    {    0, NULL } };
+
+static const value_string ansi_isup_nw_id_plan_vals[] = {
+    { 0x00, "Unknown" },
+    { 0x01, "3-digit carrier id" },
+    { 0x02, "4-digit carrier id" },
+    {    0, NULL } };
+
+static void
+dissect_ansi_isup_param_carrier_id(tvbuff_t *parameter_tvb, packet_info *pinfo _U_, proto_tree *parameter_tree, proto_item *parameter_item _U_)
+{
+  int offset = 0;
+  const char *digit_str;
+
+  static const int * flags[] = {
+    &hf_ansi_isup_spare_b7,
+    &hf_ansi_isup_type_of_nw_id,
+    &hf_ansi_isup_nw_id_plan,
+    NULL
+  };
+
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, offset, 1, flags, ENC_BIG_ENDIAN);
+  offset++;
+
+  digit_str = tvb_bcd_dig_to_wmem_packet_str(parameter_tvb, offset, 2, NULL, FALSE);
+  proto_tree_add_string(parameter_tree, hf_ansi_isup_nw_id, parameter_tvb, offset, 2, digit_str);
+
 }
 
 /* ------------------------------------------------------------------
@@ -8321,7 +8398,7 @@ dissect_ansi_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_i
             dissect_isup_suspend_resume_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
             break;
           case PARAM_TYPE_TRANSIT_NETW_SELECT:
-            dissect_isup_transit_network_selection_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
+            dissect_ansi_isup_transit_network_selection_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
             break;
           case PARAM_TYPE_EVENT_INFO:
             dissect_isup_event_information_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -8494,7 +8571,9 @@ dissect_ansi_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_i
           case PARAM_TYPE_APPLICATON_TRANS:
             dissect_isup_application_transport_parameter(parameter_tvb, pinfo, parameter_tree, parameter_item);
             break;
-
+          case ANSI_ISUP_PARAM_TYPE_CARRIER_ID:
+            dissect_ansi_isup_param_carrier_id(parameter_tvb, pinfo, parameter_tree, parameter_item);
+            break;
           default:
             dissect_isup_unknown_parameter(parameter_tvb, parameter_tree, parameter_item);
             break;
@@ -11111,10 +11190,35 @@ proto_register_isup(void)
         NULL, HFILL }},
 
     { &hf_ansi_isup_coding_standard,
-      { "Coding standard", "ansi_isup.coding_standard", FT_UINT8, BASE_HEX,
-        VALS(ansi_isup_coding_standard_vals), 0x60, NULL, HFILL }},
+      { "Coding standard", "ansi_isup.coding_standard",
+        FT_UINT8, BASE_HEX, VALS(ansi_isup_coding_standard_vals), 0x60,
+        NULL, HFILL }},
+    { &hf_ansi_isup_spare_b7,
+      { "Spare", "ansi_isup.spare.b7",
+      FT_UINT8, BASE_DEC, NULL, 0x80,
+      NULL, HFILL }},
+    { &hf_ansi_isup_type_of_nw_id,
+      { "Type of network identification", "ansi_isup.type_of_nw_id",
+        FT_UINT8, BASE_DEC, VALS(ansi_isup_type_of_nw_id_vals), 0x70,
+        NULL, HFILL } },
+    { &hf_ansi_isup_nw_id_plan,
+      { "Network identification plan", "ansi_isup.nw_id_plan",
+        FT_UINT8, BASE_DEC, VALS(ansi_isup_nw_id_plan_vals), 0x0f,
+        NULL, HFILL } },
+    { &hf_ansi_isup_tns_nw_id_plan,
+      { "Network identification plan", "ansi_isup.tns.nw_id_plan",
+        FT_UINT8, BASE_DEC, VALS(ansi_isup_tns_nw_id_plan_vals), 0x0f,
+        NULL, HFILL } },
+    { &hf_ansi_isup_nw_id,
+      { "Network id",  "ansi_isup.nw_id",
+        FT_STRING, BASE_NONE, NULL, 0x0,
+        NULL, HFILL } },
+    { &hf_ansi_isup_circuit_code,
+      { "Circuit code", "ansi_isup.circuit_code",
+        FT_UINT8, BASE_DEC, NULL, 0xf0,
+        NULL, HFILL } },
 
-    { &hf_bat_ase_identifier,
+      { &hf_bat_ase_identifier,
       { "BAT ASE Identifiers",  "bicc.bat_ase_identifier",
         FT_UINT8, BASE_HEX|BASE_EXT_STRING, &bat_ase_list_of_Identifiers_vals_ext, 0x0,
         NULL, HFILL }},
