@@ -1708,8 +1708,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         if (!payload_tvb) {
             /* Deal with possible truncation and the MIC and FCS fields at the end. */
             gint reported_len = tvb_reported_length(tvb)-offset-rx_mic_len-IEEE802154_FCS_LEN;
-            gint captured_len = tvb_captured_length(tvb)-offset;
-            payload_tvb = tvb_new_subset_length_caplen(tvb, offset, MIN(captured_len, reported_len), reported_len);
+            payload_tvb = tvb_new_subset_length(tvb, mhr_len, reported_len);
         }
 
         /* Display the MIC. */
@@ -1768,11 +1767,9 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     }
     /* Plaintext Payload. */
     else {
-        /* Deal with possible truncation and the FCS field at the end. */
+        /* Deal with possible truncation and the MIC and FCS fields at the end. */
         gint            reported_len = tvb_reported_length(tvb)-offset-IEEE802154_FCS_LEN;
-        gint            captured_len = tvb_captured_length(tvb)-offset;
-        if (reported_len < captured_len) captured_len = reported_len;
-        payload_tvb = tvb_new_subset_length_caplen(tvb, offset, captured_len, reported_len);
+        payload_tvb = tvb_new_subset_length(tvb, mhr_len, reported_len);
     }
 
     /* presense of Payload IEs is defined by the termination of the Header IEs */
