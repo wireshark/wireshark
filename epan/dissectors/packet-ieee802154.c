@@ -1767,7 +1767,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     }
     /* Plaintext Payload. */
     else {
-        /* Deal with possible truncation and the MIC and FCS fields at the end. */
+        /* Deal with possible truncation and the FCS field at the end. */
         gint            reported_len = tvb_reported_length(tvb)-offset-IEEE802154_FCS_LEN;
         payload_tvb = tvb_new_subset_length(tvb, mhr_len, reported_len);
     }
