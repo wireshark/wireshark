@@ -86,7 +86,7 @@ static dissector_handle_t zep_handle;
 
 /*  Subdissector handles */
 static dissector_handle_t ieee802154_handle;
-static dissector_handle_t ieee802154_ccfcs_handle;
+static dissector_handle_t ieee802154_cc24xx_handle;
 
 /*FUNCTION:------------------------------------------------------
  *  NAME
@@ -213,15 +213,17 @@ static int dissect_zep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     /* Determine which dissector to call next. */
     if (lqi_mode) {
-        /* CRC present, use standard IEEE dissector. */
+        /* CRC present, use standard IEEE dissector.
+         * XXX - 2-octet or 4-octet CRC?
+         */
         next_dissector = ieee802154_handle;
     }
     else {
-        /* ChipCon compliant FCS present. */
-        next_dissector = ieee802154_ccfcs_handle;
+        /* ChipCon/TI CC24xx-compliant metadata present, CRC absent */
+        next_dissector = ieee802154_cc24xx_handle;
     }
 
-    /*  Call the IEEE 802.15.4 dissector */
+    /*  Call the appropriate IEEE 802.15.4 dissector */
     if (!((version>=2) && (type==ZEP_V2_TYPE_ACK))) {
         next_tvb = tvb_new_subset_length(tvb, zep_header_len, ieee_packet_len);
         if (next_dissector != NULL) {
@@ -332,7 +334,7 @@ void proto_reg_handoff_zep(void)
     if ( !(h = find_dissector("wpan_cc24xx")) ) { /* Try use built-in 802.15.4 (Chipcon) dissector */
         h = find_dissector("ieee802154_ccfcs");   /* otherwise use older 802.15.4 (Chipcon) plugin dissector */
     }
-    ieee802154_ccfcs_handle = h;
+    ieee802154_cc24xx_handle = h;
 
     dissector_add_uint("udp.port", ZEP_DEFAULT_PORT, zep_handle);
 } /* proto_reg_handoff_zep */
