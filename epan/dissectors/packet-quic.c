@@ -12,8 +12,8 @@
 
 /*
  * See https://quicwg.org
- * https://tools.ietf.org/html/draft-ietf-quic-transport-17
- * https://tools.ietf.org/html/draft-ietf-quic-tls-17
+ * https://tools.ietf.org/html/draft-ietf-quic-transport-18
+ * https://tools.ietf.org/html/draft-ietf-quic-tls-18
  * https://tools.ietf.org/html/draft-ietf-quic-invariants-03
  */
 
