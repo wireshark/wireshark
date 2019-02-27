@@ -1069,8 +1069,6 @@ static int dissect_wisun_netricity_sc(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
         pinfo->fragmented = save_fragmented;
     } else {
-        // the decryption function expects the tvb with the FCS as part of the reported length
-        frame = tvb_new_subset_length_caplen(frame, 0, -1, tvb_reported_length(frame)+ieee802154_fcs_len);
         tvbuff_t *payload = ieee802154_decrypt_payload(frame, mhr_len, pinfo, ieee802154_tree, packet);
         if (payload) {
             guint pie_size = ieee802154_dissect_payload_ies(payload, pinfo, ieee802154_tree, packet);

@@ -1579,7 +1579,7 @@ dissect_ieee802154_cc24xx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
  * for further processing.
  *
  * This is called after the individual dissect_ieee802154* functions
- * have been called to determine what sort of FCS is present.
+ * have been called to determine what sort of FCS is present, if any.
  *
  * @param tvb pointer to buffer containing raw packet.
  * @param pinfo pointer to packet information fields
@@ -1591,18 +1591,90 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 {
     proto_tree *ieee802154_tree;
     ieee802154_packet *packet;
+    gboolean fcs_present;
+    gboolean fcs_ok;
+    tvbuff_t* no_fcs_tvb;
 
-    guint mhr_len = ieee802154_dissect_header(tvb, pinfo, tree, 0, &ieee802154_tree, &packet);
-    if (!mhr_len || tvb_reported_length_remaining(tvb, mhr_len+ieee802154_fcs_len) < 0 ) {
+    if (ieee802154_fcs_len != 0) {
+        /*
+         * Well, this packet should, in theory, have an FCS.
+         * Do we have the entire packet, and does it have enough data for
+         * the FCS?
+         */
+        guint reported_len = tvb_reported_length(tvb);
+
+        if (reported_len < (guint)ieee802154_fcs_len) {
+            /*
+             * The packet is claimed not to even have enough data
+             * for an FCS.  Pretend it doesn't have one.
+             */
+            no_fcs_tvb = tvb;
+            fcs_present = FALSE;
+            fcs_ok = TRUE;  // assume OK if not present
+        } else {
+            /*
+             * The packet is claimed to have enough data for an FCS.
+             * Slice off the FCS from the reported length.
+             */
+            reported_len -= ieee802154_fcs_len;
+            no_fcs_tvb = tvb_new_subset_length(tvb, 0, reported_len);
+
+            /*
+             * Is the FCS present in the captured data?
+             * reported_len is now the length of the packet without the
+             * FCS, so the FCS begins at an offset of reported_len.
+             */
+            if (tvb_bytes_exist(tvb, reported_len, ieee802154_fcs_len)) {
+                /*
+                 * Yes.  Check it.
+                 */
+                fcs_present = TRUE;
+                fcs_ok = options & DISSECT_IEEE802154_OPTION_CC24xx ? is_cc24xx_crc_ok(tvb) : is_fcs_ok(tvb);
+            } else {
+                /*
+                 * No.
+                 *
+                 * Either 1) this means that there was a snapshot length
+                 * in effect when the capture was done, and that sliced
+                 * some or all of the FCS off or 2) this is a capture
+                 * with no FCS, using the same link-layer header type
+                 * value as captures with the FCS, and indicating the
+                 * lack of an FCS by having the captured length be the
+                 * length of the packet minus the length of the FCS
+                 * and the actual length being the length of the packet
+                 * including the FCS, rather than by using the "no FCS"
+                 * link-layer header type.
+                 *
+                 * We could try to distinguish between them by checking
+                 * for a captured length that's exactly ieee802154_fcs_len
+                 * bytes less than the actual length.  That would allow
+                 * us to report packets that are cut short just before,
+                 * or in the middle of, the FCS as having been cut short
+                 * by the snapshot length.
+                 *
+                 * However, we can't distinguish between a packet that
+                 * happened to be cut ieee802154_fcs_len bytes short
+                 * due to a snapshot length being in effect when
+                 * the capture was done and a packet that *wasn't*
+                 * cut short by a snapshot length but that doesn't
+                 * include the FCS.  Let's hope that rarely happens.
+                 */
+                fcs_present = FALSE;
+                fcs_ok = TRUE;  // assume OK if not present
+            }
+        }
+    } else {
+        no_fcs_tvb = tvb;
+        fcs_present = FALSE;
+        fcs_ok = TRUE;  // assume OK if not present
+    }
+
+    guint mhr_len = ieee802154_dissect_header(no_fcs_tvb, pinfo, tree, 0, &ieee802154_tree, &packet);
+    if (!mhr_len || tvb_reported_length_remaining(no_fcs_tvb, mhr_len) < 0 ) {
         return;
     }
 
-    gboolean fcs_ok = TRUE;  // assume OK if not existing
-    if (ieee802154_fcs_len && tvb_bytes_exist(tvb, tvb_reported_length(tvb)-ieee802154_fcs_len, ieee802154_fcs_len)) {
-        fcs_ok = options & DISSECT_IEEE802154_OPTION_CC24xx ? is_cc24xx_crc_ok(tvb) : is_fcs_ok(tvb);
-    }
-
-    tvbuff_t* payload = ieee802154_decrypt_payload(tvb, mhr_len, pinfo, ieee802154_tree, packet);
+    tvbuff_t* payload = ieee802154_decrypt_payload(no_fcs_tvb, mhr_len, pinfo, ieee802154_tree, packet);
     if (payload) {
         guint pie_size = ieee802154_dissect_payload_ies(payload, pinfo, ieee802154_tree, packet);
         payload = tvb_new_subset_remaining(payload, pie_size);
@@ -1617,7 +1689,8 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         }
     }
 
-    ieee802154_dissect_fcs(tvb, pinfo, ieee802154_tree, options & DISSECT_IEEE802154_OPTION_CC24xx, fcs_ok);
+    if (fcs_present)
+        ieee802154_dissect_fcs(tvb, pinfo, ieee802154_tree, options & DISSECT_IEEE802154_OPTION_CC24xx, fcs_ok);
 
     if (ieee802154_ack_tracking && fcs_ok && (packet->ack_request || packet->frame_type == IEEE802154_FCF_ACK)) {
         address src_addr;
@@ -2189,15 +2262,15 @@ ieee802154_decrypt_payload(tvbuff_t *tvb, guint mhr_len, packet_info *pinfo, pro
 
         /* Get the unencrypted data if decryption failed.  */
         if (!payload_tvb) {
-            /* Deal with possible truncation and the MIC and FCS fields at the end. */
-            gint reported_len = tvb_reported_length(tvb)-mhr_len-rx_mic_len-ieee802154_fcs_len;
+            /* Deal with possible truncation and the MIC field at the end. */
+            gint reported_len = tvb_reported_length(tvb)-mhr_len-rx_mic_len;
             payload_tvb = tvb_new_subset_length(tvb, mhr_len, reported_len);
         }
 
         /* Display the MIC. */
         if (rx_mic_len) {
-            if (tvb_bytes_exist(tvb, tvb_reported_length(tvb) - rx_mic_len - ieee802154_fcs_len, rx_mic_len)) {
-                proto_tree_add_item(ieee802154_tree, hf_ieee802154_mic, tvb, tvb_reported_length(tvb)-rx_mic_len-ieee802154_fcs_len, rx_mic_len, ENC_NA);
+            if (tvb_bytes_exist(tvb, tvb_reported_length(tvb) - rx_mic_len, rx_mic_len)) {
+                proto_tree_add_item(ieee802154_tree, hf_ieee802154_mic, tvb, tvb_reported_length(tvb)-rx_mic_len, rx_mic_len, ENC_NA);
             }
         }
 
@@ -2252,8 +2325,8 @@ ieee802154_decrypt_payload(tvbuff_t *tvb, guint mhr_len, packet_info *pinfo, pro
     }
     /* Plaintext Payload. */
     else {
-        /* Deal with possible truncation and the FCS field at the end. */
-        gint reported_len = tvb_reported_length(tvb)-mhr_len-ieee802154_fcs_len;
+        /* Deal with possible truncation. */
+        gint reported_len = tvb_reported_length(tvb)-mhr_len;
         payload_tvb = tvb_new_subset_length(tvb, mhr_len, reported_len);
     }
 
