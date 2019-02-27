@@ -170,10 +170,10 @@
 
 /* Vendor OUIs */
 
-/*  Bit-masks for CC24xx style FCS */
-#define IEEE802154_CC24xx_CORRELATION       0x7F00
-#define IEEE802154_CC24xx_CRC_OK            0x8000
-#define IEEE802154_CC24xx_RSSI              0x00FF
+/*  Bit-masks for TI CC24xx end-of-packet metadata */
+#define IEEE802154_CC24xx_CRC_OK            0x8000 /* 1 if CRC OK, 0 if not */
+#define IEEE802154_CC24xx_CORRELATION       0x7F00 /* Some LQI stuff */
+#define IEEE802154_CC24xx_RSSI              0x00FF /* Raw RSSI */
 
 /*  Special IEEE802.15.4 Addresses */
 #define IEEE802154_NO_ADDR16                0xFFFE
@@ -368,12 +368,6 @@ typedef enum {
 #define IEEE802159_MPX_WISUN_SUBID_MHDS           0
 #define IEEE802159_MPX_WISUN_SUBID_6LOWPAN        1
 #define IEEE802159_MPX_WISUN_SUBID_SECURITY       2
-
-typedef enum {
-    IEEE802154_FCS_OK_BIT = 0, /* TI CC24xx CRC_OK bit */
-    IEEE802154_FCS_16_BIT = 1, /* ITU-T CRC16 */
-    IEEE802154_FCS_32_BIT = 2, /* CCITT CRC32 */
-} ieee802154_fcs_type_t;
 
 /*  Structure containing information regarding all necessary packet fields. */
 typedef struct {
