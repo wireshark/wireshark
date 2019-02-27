@@ -2252,7 +2252,7 @@ ieee802154_decrypt_payload(tvbuff_t *tvb, guint mhr_len, packet_info *pinfo, pro
     }
     /* Plaintext Payload. */
     else {
-        /* Deal with possible truncation and the MIC and FCS fields at the end. */
+        /* Deal with possible truncation and the FCS field at the end. */
         gint reported_len = tvb_reported_length(tvb)-mhr_len-ieee802154_fcs_len;
         payload_tvb = tvb_new_subset_length(tvb, mhr_len, reported_len);
     }
