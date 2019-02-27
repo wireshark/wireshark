@@ -2191,8 +2191,7 @@ ieee802154_decrypt_payload(tvbuff_t *tvb, guint mhr_len, packet_info *pinfo, pro
         if (!payload_tvb) {
             /* Deal with possible truncation and the MIC and FCS fields at the end. */
             gint reported_len = tvb_reported_length(tvb)-mhr_len-rx_mic_len-ieee802154_fcs_len;
-            gint captured_len = tvb_captured_length(tvb)-mhr_len;
-            payload_tvb = tvb_new_subset_length_caplen(tvb, mhr_len, MIN(captured_len, reported_len), reported_len);
+            payload_tvb = tvb_new_subset_length(tvb, mhr_len, reported_len);
         }
 
         /* Display the MIC. */
@@ -2255,8 +2254,7 @@ ieee802154_decrypt_payload(tvbuff_t *tvb, guint mhr_len, packet_info *pinfo, pro
     else {
         /* Deal with possible truncation and the MIC and FCS fields at the end. */
         gint reported_len = tvb_reported_length(tvb)-mhr_len-ieee802154_fcs_len;
-        gint captured_len = tvb_captured_length(tvb)-mhr_len;
-        payload_tvb = tvb_new_subset_length_caplen(tvb, mhr_len, MIN(captured_len, reported_len), reported_len);
+        payload_tvb = tvb_new_subset_length(tvb, mhr_len, reported_len);
     }
 
     return payload_tvb;
