@@ -1496,6 +1496,10 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         while (optlen > temp_optlen) {
             subopt_type = tvb_get_ntohs(tvb, off + temp_optlen);
             subopt_len = tvb_get_ntohs(tvb,  off + 2 + temp_optlen);
+            if (subopt_len > optlen - temp_optlen) {
+                expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "NFS Server: suboption too long");
+                break;
+            }
             subtree_2 = proto_tree_add_subtree(subtree, tvb, off+temp_optlen, 4 + subopt_len, ett_dhcpv6_netserver_option, &ti,
                                      val_to_str(subopt_type, ntp_server_opttype_vals, "NTP Server suboption %u"));
             proto_tree_add_item(subtree_2, hf_option_ntpserver_type,   tvb, off + temp_optlen,     2, ENC_BIG_ENDIAN);
