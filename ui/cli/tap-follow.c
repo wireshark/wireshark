@@ -37,6 +37,7 @@ typedef struct _cli_follow_info {
 
   /* filter */
   int           stream_index;
+  int           sub_stream_index;
   int           port[2];
   address       addr[2];
   union {
@@ -338,6 +339,13 @@ follow_arg_filter(const char **opt_argp, follow_info_t *follow_info)
       ((*opt_argp)[len] == 0 || (*opt_argp)[len] == ','))
   {
     *opt_argp += len;
+
+    /* if it's HTTP2 protocol we should read substream id otherwise it's a range parameter from follow_arg_range */
+    if (cli_follow_info->sub_stream_index == -1 && sscanf(*opt_argp, ",%d%n", &cli_follow_info->sub_stream_index, &len) == 1 &&
+        ((*opt_argp)[len] == 0 || (*opt_argp)[len] == ','))
+    {
+      *opt_argp += len;
+    }
   }
   else
   {
@@ -438,11 +446,20 @@ static void follow_stream(const char *opt_argp, void *userdata)
   register_follow_t* follower = (register_follow_t*)userdata;
   follow_index_filter_func index_filter;
   follow_address_filter_func address_filter;
+  int proto_id = get_follow_proto_id(follower);
+  const char* proto_filter_name = proto_get_protocol_filter_name(proto_id);
 
   opt_argp += strlen(STR_FOLLOW);
-  opt_argp += strlen(proto_get_protocol_filter_name(get_follow_proto_id(follower)));
+  opt_argp += strlen(proto_filter_name);
 
   cli_follow_info = g_new0(cli_follow_info_t, 1);
+  cli_follow_info->stream_index = -1;
+  /* use second parameter only for HTTP2 substream */
+  if (strncmp(proto_filter_name, "http2", 5) == 0) {
+      cli_follow_info->sub_stream_index = -1;
+  } else {
+      cli_follow_info->sub_stream_index = 0;
+  }
   follow_info = g_new0(follow_info_t, 1);
   follow_info->gui_data = cli_follow_info;
   cli_follow_info->follower = follower;
@@ -455,8 +472,8 @@ static void follow_stream(const char *opt_argp, void *userdata)
   if (cli_follow_info->stream_index >= 0)
   {
     index_filter = get_follow_index_func(follower);
-    follow_info->filter_out_filter = index_filter(cli_follow_info->stream_index);
-    if (follow_info->filter_out_filter == NULL)
+    follow_info->filter_out_filter = index_filter(cli_follow_info->stream_index, cli_follow_info->sub_stream_index);
+    if (follow_info->filter_out_filter == NULL || cli_follow_info->sub_stream_index < 0)
     {
       follow_exit("Error creating filter for this stream.");
     }

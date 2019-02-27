@@ -57,6 +57,33 @@ class case_dissect_http2(subprocesstest.SubprocessTestCase):
             ))
         self.assertTrue(self.grepOutput('DATA'))
 
+    def test_http2_follow_0(self, cmd_tshark, features, dirs, capture_file):
+        '''Follow HTTP/2 Stream ID 0 test'''
+        if not features.have_nghttp2:
+            self.skipTest('Requires nghttp2.')
+        key_file = os.path.join(dirs.key_dir, 'http2-data-reassembly.keys')
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('http2-data-reassembly.pcap'),
+                '-o', 'tls.keylog_file: {}'.format(key_file),
+                '-z', 'follow,http2,hex,0,0'
+            ))
+        self.assertTrue(self.grepOutput('00000000  00 00 12 04 00 00 00 00'))
+        self.assertFalse(self.grepOutput('00000000  00 00 2c 01 05 00 00 00'))
+
+    def test_http2_follow_1(self, cmd_tshark, features, dirs, capture_file):
+        '''Follow HTTP/2 Stream ID 1 test'''
+        if not features.have_nghttp2:
+            self.skipTest('Requires nghttp2.')
+        key_file = os.path.join(dirs.key_dir, 'http2-data-reassembly.keys')
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('http2-data-reassembly.pcap'),
+                '-o', 'tls.keylog_file: {}'.format(key_file),
+                '-z', 'follow,http2,hex,0,1'
+            ))
+        self.assertFalse(self.grepOutput('00000000  00 00 12 04 00 00 00 00'))
+        self.assertTrue(self.grepOutput('00000000  00 00 2c 01 05 00 00 00'))
+
+
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
 class case_dissect_tcp(subprocesstest.SubprocessTestCase):

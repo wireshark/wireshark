@@ -16,6 +16,7 @@
 #include "epan/follow.h"
 #include "epan/dissectors/packet-tcp.h"
 #include "epan/dissectors/packet-udp.h"
+#include "epan/dissectors/packet-http2.h"
 #include "epan/prefs.h"
 #include "epan/addr_resolv.h"
 #include "epan/charsets.h"
@@ -75,7 +76,8 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_
     last_from_server_(0),
     turns_(0),
     use_regex_find_(false),
-    terminating_(false)
+    terminating_(false),
+    previous_sub_stream_num_(0)
 {
     ui->setupUi(this);
     loadGeometry(parent.width() * 2 / 3, parent.height());
@@ -93,6 +95,9 @@ FollowStreamDialog::FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_
         break;
     case FOLLOW_HTTP:
         follower_ = get_follow_by_name("HTTP");
+        break;
+    case FOLLOW_HTTP2:
+        follower_ = get_follow_by_name("HTTP2");
         break;
     default :
         g_assert_not_reached();
@@ -369,8 +374,47 @@ void FollowStreamDialog::on_streamNumberSpinBox_valueChanged(int stream_num)
 {
     if (file_closed_) return;
 
+    int sub_stream_num = 0;
+    ui->subStreamNumberSpinBox->blockSignals(true);
+    sub_stream_num = ui->subStreamNumberSpinBox->value();
+    ui->subStreamNumberSpinBox->blockSignals(false);
+
+    if (sub_stream_num < 0) {
+        sub_stream_num = 0;
+    }
+
     if (stream_num >= 0) {
-        follow(previous_filter_, true, stream_num);
+        follow(previous_filter_, true, stream_num, sub_stream_num);
+    }
+}
+
+
+void FollowStreamDialog::on_subStreamNumberSpinBox_valueChanged(int sub_stream_num)
+{
+    if (file_closed_) return;
+
+    int stream_num = 0;
+    ui->streamNumberSpinBox->blockSignals(true);
+    stream_num = ui->streamNumberSpinBox->value();
+    ui->streamNumberSpinBox->blockSignals(false);
+
+    guint sub_stream_num_new = static_cast<guint>(sub_stream_num);
+    gboolean ok;
+    /* previous_sub_stream_num_ is a hack to track which buttons was pressed without event handling */
+    if (sub_stream_num < 0) {
+        // Stream ID 0 should always exist as it is used for control messages.
+        sub_stream_num_new = 0;
+        ok = TRUE;
+    } else if (previous_sub_stream_num_ < sub_stream_num){
+        ok = http2_get_stream_id_ge(static_cast<guint>(stream_num), sub_stream_num_new, &sub_stream_num_new);
+    } else {
+        ok = http2_get_stream_id_le(static_cast<guint>(stream_num), sub_stream_num_new, &sub_stream_num_new);
+    }
+    sub_stream_num = static_cast<gint>(sub_stream_num_new);
+
+    if (ok) {
+        follow(previous_filter_, true, stream_num, sub_stream_num);
+        previous_sub_stream_num_ = sub_stream_num;
     }
 }
 
@@ -388,6 +432,8 @@ void FollowStreamDialog::removeStreamControls()
     ui->horizontalLayout->removeItem(ui->streamNumberSpacer);
     ui->streamNumberLabel->setVisible(false);
     ui->streamNumberSpinBox->setVisible(false);
+    ui->subStreamNumberLabel->setVisible(false);
+    ui->subStreamNumberSpinBox->setVisible(false);
 }
 
 void FollowStreamDialog::resetStream()
@@ -455,6 +501,7 @@ FollowStreamDialog::readStream()
     case FOLLOW_TCP :
     case FOLLOW_UDP :
     case FOLLOW_HTTP :
+    case FOLLOW_HTTP2:
     case FOLLOW_TLS :
         ret = readFollowStream();
         break;
@@ -771,7 +818,7 @@ FollowStreamDialog::showBuffer(char *buffer, size_t nchars, gboolean is_from_ser
     return FRS_OK;
 }
 
-bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, guint stream_num)
+bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, guint stream_num, guint sub_stream_num)
 {
     QString             follow_filter;
     const char          *hostname0 = NULL, *hostname1 = NULL;
@@ -815,9 +862,9 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
     /* Create a new filter that matches all packets in the TCP stream,
         and set the display filter entry accordingly */
     if (use_stream_index) {
-        follow_filter = gchar_free_to_qstring(get_follow_index_func(follower_)(stream_num));
+        follow_filter = gchar_free_to_qstring(get_follow_index_func(follower_)(stream_num, sub_stream_num));
     } else {
-        follow_filter = gchar_free_to_qstring(get_follow_conv_func(follower_)(&cap_file_.capFile()->edt->pi, &stream_num));
+        follow_filter = gchar_free_to_qstring(get_follow_conv_func(follower_)(&cap_file_.capFile()->edt->pi, &stream_num, &sub_stream_num));
     }
     if (follow_filter.isEmpty()) {
         QMessageBox::warning(this,
@@ -844,6 +891,15 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
         return false;
     }
 
+    /* disable substream spin box for all protocols except HTTP2 */
+    ui->subStreamNumberSpinBox->blockSignals(true);
+    ui->subStreamNumberSpinBox->setEnabled(false);
+    ui->subStreamNumberSpinBox->setValue(0);
+    ui->subStreamNumberSpinBox->setKeyboardTracking(false);
+    ui->subStreamNumberSpinBox->blockSignals(false);
+    ui->subStreamNumberSpinBox->setVisible(false);
+    ui->subStreamNumberLabel->setVisible(false);
+
     switch (follow_type_)
     {
     case FOLLOW_TCP:
@@ -867,6 +923,31 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
         ui->streamNumberSpinBox->blockSignals(false);
         ui->streamNumberSpinBox->setToolTip(tr("%Ln total stream(s).", "", stream_count));
         ui->streamNumberLabel->setToolTip(ui->streamNumberSpinBox->toolTip());
+
+        break;
+    }
+    case FOLLOW_HTTP2:
+    {
+        int stream_count = get_tcp_stream_count();
+        ui->streamNumberSpinBox->blockSignals(true);
+        ui->streamNumberSpinBox->setMaximum(stream_count-1);
+        ui->streamNumberSpinBox->setValue(stream_num);
+        ui->streamNumberSpinBox->blockSignals(false);
+        ui->streamNumberSpinBox->setToolTip(tr("%Ln total stream(s).", "", stream_count));
+        ui->streamNumberLabel->setToolTip(ui->streamNumberSpinBox->toolTip());
+
+        guint substream_max_id = 0;
+        http2_get_stream_id_le(static_cast<guint>(stream_num), G_MAXINT32, &substream_max_id);
+        stream_count = static_cast<gint>(substream_max_id);
+        ui->subStreamNumberSpinBox->blockSignals(true);
+        ui->subStreamNumberSpinBox->setEnabled(true);
+        ui->subStreamNumberSpinBox->setMaximum(stream_count);
+        ui->subStreamNumberSpinBox->setValue(sub_stream_num);
+        ui->subStreamNumberSpinBox->blockSignals(false);
+        ui->subStreamNumberSpinBox->setToolTip(tr("%Ln total sub stream(s).", "", stream_count));
+        ui->subStreamNumberSpinBox->setToolTip(ui->subStreamNumberSpinBox->toolTip());
+        ui->subStreamNumberSpinBox->setVisible(true);
+        ui->subStreamNumberLabel->setVisible(true);
 
         break;
     }

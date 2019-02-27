@@ -1219,7 +1219,7 @@ Example: B<-z flow,tcp,network> will show data flow for all TCP frames
 
 =item B<-z> follow,I<prot>,I<mode>,I<filter>[I<,range>]
 
-Displays the contents of a TCP or UDP stream between two nodes.  The data
+Displays the contents of a TCP or UDP stream between two nodes. The data
 sent by the second node is prefixed with a tab to differentiate it from the
 data sent by the first node.
 
@@ -1241,10 +1241,12 @@ of each section of output plus a newline precedes each section of output.
 
 I<filter> specifies the stream to be displayed. UDP/TCP streams are selected
 with either the stream index or IP address plus port pairs. TLS streams are
-selected with the stream index. For example:
+selected with the stream index. HTTP/2 streams are selected by combination of
+UDP/TCP and HTTP/2 streams indices. For example:
 
   ip-addr0:port0,ip-addr1:port1
   stream-index
+  stream-index,substream-index
 
 I<range> optionally specifies which "chunks" of the stream should be displayed.
 
@@ -1276,6 +1278,23 @@ display the contents of a TCP stream between 200.57.7.197 port 32891 and
   ................
   4
   ....
+
+Example: B<-z "follow,http2,hex,0,1"> will display the contents of a HTTP/2
+stream on the first TCP session (index 0) with HTTP/2 Stream ID 1.
+
+  ===================================================================
+  Follow: http2,hex
+  Filter: tcp.stream eq 0 and http2.streamid eq 1
+  Node 0: 172.16.5.1:49178
+  Node 1: 172.16.5.10:8443
+  00000000  00 00 2c 01 05 00 00 00  01 82 04 8b 63 c1 ac 2a  ..,..... ....c..*
+  00000010  27 1d 9d 57 ae a9 bf 87  41 8c 0b a2 5c 2e 2e da  '..W.... A...\...
+  00000020  e1 05 c7 9a 69 9f 7a 88  25 b6 50 c3 ab b6 25 c3  ....i.z. %.P...%.
+  00000030  53 03 2a 2f 2a                                    S.*/*
+      00000000  00 00 22 01 04 00 00 00  01 88 5f 87 35 23 98 ac  .."..... .._.5#..
+      00000010  57 54 df 61 96 c3 61 be  94 03 8a 61 2c 6a 08 2f  WT.a..a. ...a,j./
+      00000020  34 a0 5b b8 21 5c 0b ea  62 d1 bf                 4.[.!\.. b..
+      0000002B  00 40 00 00 00 00 00 00  01 89 50 4e 47 0d 0a 1a  .@...... ..PNG...
 
 =item B<-z> h225,counter[I<,filter>]
 

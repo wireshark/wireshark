@@ -42,7 +42,8 @@ typedef enum {
     FOLLOW_TCP,
     FOLLOW_TLS,
     FOLLOW_UDP,
-    FOLLOW_HTTP
+    FOLLOW_HTTP,
+    FOLLOW_HTTP2
 } follow_type_t;
 
 /* Show Type */
@@ -99,8 +100,8 @@ typedef struct _follow_info {
 struct register_follow;
 typedef struct register_follow register_follow_t;
 
-typedef gchar* (*follow_conv_filter_func)(packet_info *pinfo, guint *stream);
-typedef gchar* (*follow_index_filter_func)(guint stream);
+typedef gchar* (*follow_conv_filter_func)(packet_info *pinfo, guint *stream, guint *sub_stream);
+typedef gchar* (*follow_index_filter_func)(guint stream, guint sub_stream);
 typedef gchar* (*follow_address_filter_func)(address* src_addr, address* dst_addr, int src_port, int dst_port);
 typedef gchar* (*follow_port_to_display_func)(wmem_allocator_t *allocator, guint port);
 

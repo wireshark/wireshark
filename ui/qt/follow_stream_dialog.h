@@ -42,7 +42,7 @@ public:
     explicit FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_type_t type = FOLLOW_TCP);
     ~FollowStreamDialog();
 
-    bool follow(QString previous_filter = QString(), bool use_stream_index = false, guint stream_num = 0);
+    bool follow(QString previous_filter = QString(), bool use_stream_index = false, guint stream_num = 0, guint sub_stream_num = 0);
 
 public slots:
     void captureEvent(CaptureEvent e);
@@ -69,6 +69,7 @@ private slots:
     void goToPacketForTextPos(int text_pos);
 
     void on_streamNumberSpinBox_valueChanged(int stream_num);
+    void on_subStreamNumberSpinBox_valueChanged(int sub_stream_num);
 
     void on_buttonBox_rejected();
 
@@ -122,6 +123,8 @@ private:
     bool                    use_regex_find_;
 
     bool                    terminating_;
+
+    int                     previous_sub_stream_num_;
 };
 
 #endif // FOLLOW_STREAM_DIALOG_H

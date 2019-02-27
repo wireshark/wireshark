@@ -415,6 +415,7 @@
      <addaction name="actionAnalyzeFollowUDPStream"/>
      <addaction name="actionAnalyzeFollowTLSStream"/>
      <addaction name="actionAnalyzeFollowHTTPStream"/>
+     <addaction name="actionAnalyzeFollowHTTP2Stream"/>
     </widget>
     <widget class="QMenu" name="menuConversationFilter">
      <property name="title">
@@ -1709,6 +1710,14 @@
    </property>
    <property name="shortcut">
     <string notr="true">Ctrl+Alt+Shift+H</string>
+   </property>
+  </action>
+  <action name="actionAnalyzeFollowHTTP2Stream">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>HTTP/2 Stream</string>
    </property>
   </action>
   <action name="actionStatisticsTcpStreamTcptrace">

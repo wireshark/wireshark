@@ -543,12 +543,14 @@ private slots:
     void on_actionAnalyzeDecodeAs_triggered();
     void on_actionAnalyzeReloadLuaPlugins_triggered();
 
-    void openFollowStreamDialog(follow_type_t type, guint stream_num, bool use_stream_index = true);
+    void openFollowStreamDialog(follow_type_t type, guint stream_num, guint sub_stream_num, bool use_stream_index = true);
     void openFollowStreamDialogForType(follow_type_t type);
     void on_actionAnalyzeFollowTCPStream_triggered();
     void on_actionAnalyzeFollowUDPStream_triggered();
     void on_actionAnalyzeFollowTLSStream_triggered();
     void on_actionAnalyzeFollowHTTPStream_triggered();
+    void on_actionAnalyzeFollowHTTP2Stream_triggered();
+
     void statCommandExpertInfo(const char *, void *);
     void on_actionAnalyzeExpertInfo_triggered();
 

@@ -425,7 +425,7 @@ udp_build_filter(packet_info *pinfo)
     return NULL;
 }
 
-static gchar *udp_follow_conv_filter(packet_info *pinfo, guint *stream)
+static gchar *udp_follow_conv_filter(packet_info *pinfo, guint *stream, guint *sub_stream _U_)
 {
     conversation_t *conv;
     struct udp_analysis *udpd;
@@ -446,7 +446,7 @@ static gchar *udp_follow_conv_filter(packet_info *pinfo, guint *stream)
     return NULL;
 }
 
-static gchar *udp_follow_index_filter(guint stream)
+static gchar *udp_follow_index_filter(guint stream, guint sub_stream _U_)
 {
     return g_strdup_printf("udp.stream eq %u", stream);
 }

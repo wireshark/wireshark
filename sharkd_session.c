@@ -2740,13 +2740,14 @@ sharkd_follower_visit_layers_cb(const void *key _U_, void *value, void *user_dat
 	const int proto_id = get_follow_proto_id(follower);
 
 	guint32 ignore_stream;
+	guint32 ignore_sub_stream;
 
 	if (proto_is_frame_protocol(pi->layers, proto_get_protocol_filter_name(proto_id)))
 	{
 		const char *layer_proto = proto_get_protocol_short_name(find_protocol_by_id(proto_id));
 		char *follow_filter;
 
-		follow_filter = get_follow_conv_func(follower)(pi, &ignore_stream);
+		follow_filter = get_follow_conv_func(follower)(pi, &ignore_stream, &ignore_sub_stream);
 
 		json_dumper_begin_array(&dumper);
 		json_dumper_value_string(&dumper, layer_proto);

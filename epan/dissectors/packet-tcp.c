@@ -904,7 +904,7 @@ tcp_seq_analysis_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U_,
 }
 
 
-gchar *tcp_follow_conv_filter(packet_info *pinfo, guint *stream)
+gchar *tcp_follow_conv_filter(packet_info *pinfo, guint *stream, guint *sub_stream _U_)
 {
     conversation_t *conv;
     struct tcp_analysis *tcpd;
@@ -925,7 +925,7 @@ gchar *tcp_follow_conv_filter(packet_info *pinfo, guint *stream)
     return NULL;
 }
 
-gchar *tcp_follow_index_filter(guint stream)
+gchar *tcp_follow_index_filter(guint stream, guint sub_stream _U_)
 {
     return g_strdup_printf("tcp.stream eq %u", stream);
 }

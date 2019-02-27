@@ -163,6 +163,7 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-filters.png
 	wsug_graphics/ws-find-packet.png
 	wsug_graphics/ws-follow-stream.png
+	wsug_graphics/ws-follow-http2-stream.png
 	wsug_graphics/ws-go-menu.png
 	wsug_graphics/ws-goto-packet.png
 	wsug_graphics/ws-gui-colors-preferences.png

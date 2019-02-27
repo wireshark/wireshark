@@ -1,5 +1,5 @@
 /* packet-http2.h
- * Routines for HTTP2 dissection
+ * Routines for HTTP/2 dissection
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -9,6 +9,10 @@
  */
 #ifndef __PACKET_HTTP2_H__
 #define __PACKET_HTTP2_H__
+
+#ifdef __cplusplus
+extern "C" {
+#endif /* __cplusplus */
 
 int dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_ );
 
@@ -26,11 +30,29 @@ int dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 const gchar* http2_get_header_value(packet_info *pinfo, const gchar* name, gboolean the_other_direction);
 
 /**
- * Get the HTTP2 Stream ID for the current PDU (typically the DATA frame).
+ * Get the HTTP/2 Stream ID for the current PDU (typically the DATA frame).
  * Only valid when called from a HTTP/2 subdissector.
  * Returns 0 if no HTTP/2 session was found.
  */
 guint32 http2_get_stream_id(packet_info *pinfo);
+
+/**
+ * Retrieves the HTTP/2 Stream ID which is smaller than or equal to the provided
+ * ID. If available, sub_stream_id_out will be set and TRUE is returned.
+ */
+WS_DLL_PUBLIC gboolean
+http2_get_stream_id_le(guint streamid, guint sub_stream_id, guint *sub_stream_id_out);
+
+/**
+ * Retrieves the HTTP/2 Stream ID which is greater than or equal to the provided
+ * ID. If available, sub_stream_id_out will be set and TRUE is returned.
+ */
+WS_DLL_PUBLIC gboolean
+http2_get_stream_id_ge(guint streamid, guint sub_stream_id, guint *sub_stream_id_out);
+
+#ifdef __cplusplus
+}
+#endif /* __cplusplus */
 
 #endif
 

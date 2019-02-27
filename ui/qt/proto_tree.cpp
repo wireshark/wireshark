@@ -285,6 +285,7 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
         submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowUDPStream"));
         submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowTLSStream"));
         submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowHTTPStream"));
+        submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowHTTP2Stream"));
         ctx_menu.addSeparator();
     }
 

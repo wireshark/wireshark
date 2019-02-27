@@ -36,16 +36,16 @@
 
 #ifdef HAVE_NGHTTP2
 #include <epan/uat.h>
-
 #include <nghttp2/nghttp2.h>
-
 #endif
 
-#include "packet-tcp.h"
 #include <epan/tap.h>
 #include <epan/stats_tree.h>
 #include <epan/reassemble.h>
+#include <epan/follow.h>
+#include <epan/addr_resolv.h>
 
+#include "packet-tcp.h"
 #include "wsutil/pint.h"
 #include "wsutil/strtoi.h"
 
@@ -199,10 +199,12 @@ typedef struct {
     nghttp2_hd_inflater *hd_inflater[2];
     http2_header_repr_info_t header_repr_info[2];
     wmem_map_t *per_stream_info;
-    guint32 current_stream_id;
 #endif
+    guint32 current_stream_id;
     tcp_flow_t *fwd_flow;
 } http2_session_t;
+
+static GHashTable* streamid_hash = NULL;
 
 void proto_register_http2(void);
 void proto_reg_handoff_http2(void);
@@ -212,6 +214,7 @@ struct HTTP2Tap {
 };
 
 static int http2_tap = -1;
+static int http2_follow_tap = -1;
 
 static const guint8* st_str_http2 = "HTTP2";
 static const guint8* st_str_http2_type = "Type";
@@ -884,6 +887,8 @@ http2_init_protocol(void)
         proto_register_field_array(proto_http2, hf_uat, num_header_fields);
     }
 #endif
+    /* Init hash table with mapping of stream id -> frames count for Follow HTTP2 */
+    streamid_hash = g_hash_table_new_full(NULL, NULL, NULL, (GDestroyNotify)g_hash_table_destroy);
 }
 
 static void
@@ -895,6 +900,7 @@ http2_cleanup_protocol(void) {
     proto_add_deregistered_data(hf_uat);
     proto_free_deregistered_fields();
 #endif
+    g_hash_table_destroy(streamid_hash);
 }
 
 static dissector_handle_t http2_handle;
@@ -1881,6 +1887,109 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
 }
 #endif
 
+static gchar*
+http2_follow_conv_filter(packet_info *pinfo, guint *stream, guint *sub_stream)
+{
+    http2_session_t *h2session;
+    struct tcp_analysis *tcpd;
+
+    if( ((pinfo->net_src.type == AT_IPv4 && pinfo->net_dst.type == AT_IPv4) ||
+         (pinfo->net_src.type == AT_IPv6 && pinfo->net_dst.type == AT_IPv6)))
+    {
+        h2session = get_http2_session(pinfo);
+        tcpd = get_tcp_conversation_data(NULL, pinfo);
+
+        if (tcpd == NULL)
+            return NULL;
+        if (h2session == NULL)
+            return NULL;
+
+        *stream = tcpd->stream;
+        *sub_stream = h2session->current_stream_id;
+        return g_strdup_printf("tcp.stream eq %u and http2.streamid eq %u", tcpd->stream, h2session->current_stream_id);
+    }
+
+    return NULL;
+}
+
+static guint32
+get_http2_stream_count(guint streamid)
+{
+    guint32 result = 0;
+    guint32 key;
+    GHashTable *entry;
+    GList *entry_set, *it;
+
+    entry = (GHashTable*)g_hash_table_lookup(streamid_hash, GUINT_TO_POINTER(streamid));
+    if (entry != NULL) {
+        entry_set = g_hash_table_get_keys(entry);
+
+        /* this is a doubly-linked list, g_list_sort has the same time complexity */
+        for (it = entry_set; it != NULL; it = it->next) {
+            key = GPOINTER_TO_UINT(it->data);
+            result = key > result ? key : result;
+        }
+        g_list_free(entry_set);
+    }
+
+    return result;
+}
+
+static gboolean
+is_http2_stream_contains(guint streamid, gint sub_stream_id)
+{
+    GHashTable *entry;
+
+    entry = (GHashTable*)g_hash_table_lookup(streamid_hash, GUINT_TO_POINTER(streamid));
+    if (entry == NULL) {
+        return FALSE;
+    }
+
+    if (!g_hash_table_contains(entry, GINT_TO_POINTER(sub_stream_id))) {
+        return FALSE;
+    }
+
+    return TRUE;
+}
+
+gboolean
+http2_get_stream_id_le(guint streamid, guint sub_stream_id, guint *sub_stream_id_out)
+{
+    // HTTP/2 Stream IDs are always 31 bit.
+    gint max_id = (gint)get_http2_stream_count(streamid);
+    gint id = (gint)(sub_stream_id & MASK_HTTP2_STREAMID);
+    if (id > max_id) {
+        id = max_id;
+    }
+    for (; id >= 0; id--) {
+        if (is_http2_stream_contains(streamid, id)) {
+            *sub_stream_id_out = (guint)id;
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
+gboolean
+http2_get_stream_id_ge(guint streamid, guint sub_stream_id, guint *sub_stream_id_out)
+{
+    // HTTP/2 Stream IDs are always 31 bit.
+    gint max_id = (gint)get_http2_stream_count(streamid);
+    for (gint id = (gint)(sub_stream_id & MASK_HTTP2_STREAMID); id <= max_id; id++) {
+        if (is_http2_stream_contains(streamid, id)) {
+            *sub_stream_id_out = (guint)id;
+            return TRUE;
+        }
+    }
+    return FALSE;
+}
+
+static gchar*
+http2_follow_index_filter(guint stream, guint sub_stream)
+{
+    return g_strdup_printf("tcp.stream eq %u and http2.streamid eq %u", stream, sub_stream);
+}
+
 static guint8
 dissect_http2_header_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *http2_tree, guint offset, guint8 type)
 {
@@ -2645,6 +2754,8 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     guint16 length;
     guint32 streamid;
     struct HTTP2Tap *http2_stats;
+    GHashTable* entry;
+    struct tcp_analysis* tcpd;
 
     if(!p_get_proto_data(wmem_file_scope(), pinfo, proto_http2, 0)) {
         http2_header_data_t *header_data;
@@ -2702,6 +2813,12 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     proto_tree_add_item(http2_tree, hf_http2_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     type = tvb_get_guint8(tvb, offset);
 
+    gint type_idx;
+    const gchar *type_str = try_val_to_str_idx(type, http2_type_vals, &type_idx);
+    if (type_str == NULL) {
+        type_str = wmem_strdup_printf(wmem_packet_scope(), "Unknown type (%d)", type);
+    }
+
     offset += 1;
 
     flags = dissect_http2_header_flags(tvb, pinfo, http2_tree, offset, type);
@@ -2710,17 +2827,27 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     proto_tree_add_item(http2_tree, hf_http2_r, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(http2_tree, hf_http2_streamid, tvb, offset, 4, ENC_BIG_ENDIAN);
     streamid = tvb_get_ntohl(tvb, offset) & MASK_HTTP2_STREAMID;
-    proto_item_append_text(ti, ": %s, Stream ID: %u, Length %u", val_to_str(type, http2_type_vals, "Unknown type (%d)"), streamid, length);
+    proto_item_append_text(ti, ": %s, Stream ID: %u, Length %u", type_str, streamid, length);
     offset += 4;
 
     /* append stream id after frame type on info column, like: HEADERS[1], DATA[1], HEADERS[3], DATA[3] */
-    col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s[%u]", val_to_str(type, http2_type_vals, "Unknown type (%d)"), streamid);
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "%s[%u]", type_str, streamid);
 
-#ifdef HAVE_NGHTTP2
+    /* fill hash table with stream ids and skip all unknown frames */
+    tcpd = get_tcp_conversation_data(NULL, pinfo);
+    if (tcpd != NULL && type_idx != -1) {
+        entry = (GHashTable*)g_hash_table_lookup(streamid_hash, GUINT_TO_POINTER(tcpd->stream));
+        if (entry == NULL) {
+            entry = g_hash_table_new(NULL, NULL);
+            g_hash_table_insert(streamid_hash, GUINT_TO_POINTER(tcpd->stream), entry);
+        }
+
+        g_hash_table_add(entry, GUINT_TO_POINTER(streamid));
+    }
+
     /* Mark the current stream, used for per-stream processing later in the dissection */
     http2_session_t *http2_session = get_http2_session(pinfo);
     http2_session->current_stream_id = streamid;
-#endif
 
     /* Collect stats */
     http2_stats = wmem_new0(wmem_packet_scope(), struct HTTP2Tap);
@@ -2779,9 +2906,11 @@ dissect_http2_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
             proto_tree_add_item(http2_tree, hf_http2_unknown, tvb, offset, -1, ENC_NA);
         break;
     }
-
     tap_queue_packet(http2_tap, pinfo, http2_stats);
 
+    if (have_tap_listener(http2_follow_tap)) {
+        tap_queue_packet(http2_follow_tap, pinfo, tvb);
+    }
 
     return tvb_captured_length(tvb);
 }
@@ -3386,6 +3515,10 @@ proto_register_http2(void)
                               &addresses_ports_reassembly_table_functions);
 
     http2_tap = register_tap("http2");
+    http2_follow_tap = register_tap("http2_follow");
+
+    register_follow_stream(proto_http2, "http2_follow", http2_follow_conv_filter, http2_follow_index_filter, tcp_follow_address_filter,
+                           tcp_port_to_display, follow_tvb_tap_listener);
 }
 
 static void http2_stats_tree_init(stats_tree* st)
