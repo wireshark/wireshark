@@ -46,10 +46,9 @@
  *
  *  This dissector supports both link-layer IEEE 802.15.4 captures
  *  and IEEE 802.15.4 packets encapsulated within other layers.
- *  Additionally, support has been provided for various formats
- *  of the frame check sequence:
- *      - IEEE 802.15.4 compliant FCS.
- *      - ChipCon/Texas Instruments CC24xx style FCS.
+ *  Additionally, support has been provided for 16-bit and 32-bit
+ *  FCS, as well as for frames with no FCS but with a 16-bit
+ *  ChipCon/Texas Instruments CC24xx-style metadata field.
  *------------------------------------------------------------
  */
 
