@@ -1160,7 +1160,8 @@ dissect_rpcap_heur_tcp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
      * as such.
      */
     conversation_t *conversation = find_or_create_conversation (pinfo);
-    conversation_set_dissector_from_frame_number (conversation,
+    if (conversation)
+      conversation_set_dissector_from_frame_number (conversation,
                                                   pinfo->num,
                                                   rpcap_tcp_handle);
     tcp_dissect_pdus (tvb, pinfo, tree, rpcap_desegment, 8,
