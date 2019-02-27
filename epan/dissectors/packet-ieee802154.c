@@ -83,13 +83,18 @@ void proto_register_ieee802154(void);
 void proto_reg_handoff_ieee802154(void);
 
 /* Dissection Options for dissect_ieee802154_common */
-#define DISSECT_IEEE802154_OPTION_CC24xx    0x00000001 /* FCS field contains a TI CC24xx style FCS. */
+#define DISSECT_IEEE802154_OPTION_CC24xx    0x00000001 /* Frame has TI CC24xx metadata, not an FCS, at the end */
 #define DISSECT_IEEE802154_OPTION_ZBOSS     0x00000002 /* ZBOSS traffic dump */
 
 /* ethertype for 802.15.4 tag - encapsulating an Ethernet packet */
 static unsigned int ieee802154_ethertype = 0x809A;
 
 /* The configured FCS type using ieee802154_fcs_type_t */
+typedef enum {
+    IEEE802154_CC24XX_METADATA = 0, /* Not an FCS, but TI CC24xx metadata */
+    IEEE802154_FCS_16_BIT = 1,      /* ITU-T CRC16 */
+    IEEE802154_FCS_32_BIT = 2,      /* ITU-T CRC32 */
+} ieee802154_fcs_type_t;
 static gint ieee802154_fcs_type = IEEE802154_FCS_16_BIT;
 
 /* This is the actual number of FCS bytes in the encapsulated IEEE 802.15.4 packet */
@@ -1266,7 +1271,7 @@ dissect_ieee802154(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     /* Set the default FCS length based on the FCS type in the configuration */
     ieee802154_fcs_len = ieee802154_fcs_type_len(ieee802154_fcs_type);
 
-    if (ieee802154_fcs_type == IEEE802154_FCS_OK_BIT) {
+    if (ieee802154_fcs_type == IEEE802154_CC24XX_METADATA) {
         options |= DISSECT_IEEE802154_OPTION_CC24xx;
     }
 
@@ -1347,9 +1352,9 @@ dissect_zboss_specific(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 } /* dissect_zboss_heur */
 
 /**
- * Dissector for IEEE 802.15.4 packet with a ChipCon/Texas
- * Instruments compatible FCS. This is typically called by
- * layers encapsulating an IEEE 802.15.4 packet.
+ * Dissector for IEEE 802.15.4 packet with 2 bytes of ChipCon/Texas
+ * Instruments compatible metadata at the end of the frame, and no FCS.
+ * This is typically called by layers encapsulating an IEEE 802.15.4 packet.
  *
  * @param tvb pointer to buffer containing raw packet.
  * @param pinfo pointer to packet information fields
@@ -2102,13 +2107,13 @@ guint ieee802154_dissect_frame_payload(tvbuff_t *tvb, packet_info *pinfo, proto_
 }
 
 /**
- * Show the 802.15.4 FCS with support for the 16 bit FCS or the TI CC24xx format. The FCS is only displayed
- * if the included length of the tvb encompasses the FCS.
+ * Dissect the FCS, or TI CC24xx metadata, at the end of the frame.
+ * That is only displayed if the included length of the tvb encompasses it.
  *
  * @param tvb the 802.15.4 frame tvb
  * @param pinfo pointer to packet information fields
  * @param ieee802154_tree the 802.15.4 protocol tree
- * @param is_cc24xx indicate if the FCS is in the TI CC24xx format
+ * @param is_cc24xx indicate if it's TI CC24xx-format metadata
  * @param fcs_ok set to FALSE to indicate FCS verification failed
  */
 static void
@@ -2127,14 +2132,14 @@ ieee802154_dissect_fcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154
         if (ieee802154_fcs_len == 2) {
             guint16     fcs = tvb_get_letohs(tvb, offset);
 
-            /* Display the FCS depending on expected FCS format */
+            /* Display the FCS or metadata, depending on expected format */
             if (is_cc24xx) {
                 /* Create a subtree for the FCS. */
                 field_tree = proto_tree_add_subtree_format(ieee802154_tree, tvb, offset, 2, ett_ieee802154_fcs, NULL,
-                            "Frame Check Sequence (TI CC24xx format): FCS %s", (fcs_ok) ? "OK" : "Bad");
-                /* Display FCS contents.  */
-                proto_tree_add_int(field_tree, hf_ieee802154_rssi, tvb, offset++, 1, (gint8) (fcs & IEEE802154_CC24xx_RSSI));
+                            "TI CC24xx-format metadata: FCS %s", (fcs_ok) ? "OK" : "Bad");
+                /* Display metadata contents.  */
                 proto_tree_add_boolean(field_tree, hf_ieee802154_fcs_ok, tvb, offset, 1, (guint32) (fcs & IEEE802154_CC24xx_CRC_OK));
+                proto_tree_add_int(field_tree, hf_ieee802154_rssi, tvb, offset++, 1, (gint8) (fcs & IEEE802154_CC24xx_RSSI));
                 proto_tree_add_uint(field_tree, hf_ieee802154_correlation, tvb, offset, 1, (guint8) ((fcs & IEEE802154_CC24xx_CORRELATION) >> 8));
             }
             else {
@@ -5247,9 +5252,9 @@ void proto_register_ieee802154(void)
     };
 
     static const enum_val_t fcs_type_vals[] = {
-        {"ok",   "TI CC24xx CRC_OK bit",    IEEE802154_FCS_OK_BIT},
-        {"16",   "ITU-T CRC-16",            IEEE802154_FCS_16_BIT},
-        {"32",   "CCITT CRC-32",            IEEE802154_FCS_32_BIT},
+        {"cc24xx", "TI CC24xx metadata",    IEEE802154_CC24XX_METADATA},
+        {"16",     "ITU-T CRC-16",          IEEE802154_FCS_16_BIT},
+        {"32",     "CCITT CRC-32",          IEEE802154_FCS_32_BIT},
         {NULL, NULL, -1}
     };
 
