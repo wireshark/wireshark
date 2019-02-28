@@ -43,9 +43,19 @@
  *  that because the least significan bits are transmitted first, this
  *  will require reversing the bit-order in each byte. Also, unlike
  *  most CRC algorithms, IEEE 802.15.4 uses an initial and final value
- *  of 0x0000, instead of 0xffff (which is used by the CCITT).
+ *  of 0x0000, instead of 0xffff (which is used by the ITU-T).
  *
- *  For a 4-byte FCS, CRC32 is calculated using the CCITT CRC32.
+ *  For a 4-byte FCS, CRC32 is calculated using the ITU-T CRC32.
+ *
+ *  (Fun fact: the reference to "a 32-bit CRC equivalent to ANSI X3.66-1979"
+ *  in IEEE Std 802.15.4-2015 nonwithstanding, ANSI X3.66-1979 does not
+ *  describe any 32-bit CRC, only a 16-bit CRC from ITU-T V.41.  ITU-T
+ *  V.42 describes both a 16-bit and 32-bit CRC; all the 16-bit CRCs
+ *  floating around seem to use the same generator polynomial,
+ *  x^16 + x^12 + x^5 + 1, but have different initial conditions and
+ *  no-error final remainder; the 32-bit CRC from V.42 and the one
+ *  described in IEEE Std 802.15.4-2015 also use the same generator
+ *  polynomial.)
  *------------------------------------------------------------
  *
  *  This dissector supports both link-layer IEEE 802.15.4 captures
@@ -980,7 +990,7 @@ static const value_string tap_tlv_types[] = {
 static const value_string tap_fcs_type_names[] = {
     { IEEE802154_FCS_NONE, "None" },
     { IEEE802154_FCS_16_BIT, "ITU-T CRC16" },
-    { IEEE802154_FCS_32_BIT, "CCITT CRC32" },
+    { IEEE802154_FCS_32_BIT, "ITU-T CRC32" },
     { 0, NULL }
 };
 
@@ -1201,15 +1211,15 @@ static gboolean ieee802154_extend_auth = TRUE;
                             "Invalid Addressing for %s",             \
                             val_to_str_const(_cmdid_, ieee802154_cmd_names, "Unknown Command"))
 
-/* CRC definitions. IEEE 802.15.4 CRCs vary from CCITT by using an initial value of
+/* CRC definitions. IEEE 802.15.4 CRCs vary from ITU-T by using an initial value of
  * 0x0000, and no XOR out. IEEE802154_CRC_XOR is defined as 0xFFFF in order to un-XOR
- * the output from the CCITT CRC routines in Wireshark.
+ * the output from the ITU-T (CCITT) CRC routines in Wireshark.
  */
 #define IEEE802154_CRC_SEED     0x0000
 #define IEEE802154_CRC_XOROUT   0xFFFF
 #define ieee802154_crc_tvb(tvb, offset)   (crc16_ccitt_tvb_seed(tvb, offset, IEEE802154_CRC_SEED) ^ IEEE802154_CRC_XOROUT)
 
-/* For the 32-bit CRC, IEEE 802.15.4 uses CCITT CRC-32. */
+/* For the 32-bit CRC, IEEE 802.15.4 uses ITU-T (CCITT) CRC-32. */
 #define ieee802154_crc32_tvb(tvb, offset) (crc32_ccitt_tvb(tvb, offset))
 
 static int ieee802_15_4_short_address_to_str(const address* addr, gchar *buf, int buf_len)
@@ -1596,9 +1606,9 @@ tvbuff_t *decrypt_ieee802154_payload(tvbuff_t * tvb, guint offset, packet_info *
 
 
 /**
- * Check if the CC24xx style CRC-OK flag is true
+ * Check if the CRC-OK flag in the CC24xx metadata trailer is true
  * @param tvb the IEEE 802.15.4 frame
- * @return if the CC24xx style CRC-OK flag is true
+ * @return if the flag is true
  */
 static gboolean
 is_cc24xx_crc_ok(tvbuff_t *tvb)
@@ -1629,7 +1639,18 @@ is_fcs_ok(tvbuff_t *tvb)
 }
 
 /**
- * Dissector for IEEE 802.15.4 non-ASK PHY packet with an FCS containing a 16-bit CRC value.
+ * Dissector for IEEE 802.15.4 packets with a PHY for which there's a
+ * 4-octet preamble, a 1-octet SFD, and a 1-octet PHY header
+ * with the uppermost bit reserved and the remaining 7 bits being
+ * the frame length, and a 16-bit CRC value at the end.
+ *
+ * Currently, those are the following PHYs:
+ *
+ *    O-QPSK
+ *    Binary phase-shift keying (BPSK)
+ *    GFSK
+ *    MSK
+ *    RCC DSSS BPSK
  *
  * @param tvb pointer to buffer containing raw packet.
  * @param pinfo pointer to packet information fields
@@ -1705,8 +1726,8 @@ ieee802154_tap_fcs_type_len(guint i)
 }
 
 /**
- * Dissector for IEEE 802.15.4 packet with an FCS
- * The FCS may be a 16/32-bit CRC value or the TI 24xx status CRC_OK bit.
+ * Dissector for IEEE 802.15.4 packet with an FCS containing a 16/32-bit
+ * CRC value, or TI CC24xx metadata, at the end.
  *
  * @param tvb pointer to buffer containing raw packet.
  * @param pinfo pointer to packet information fields.
@@ -1732,7 +1753,7 @@ dissect_ieee802154(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     }
 
     if (new_tvb != tvb) {
-        /* ZBOSS traffic dump: always TI FCS, always ZigBee */
+        /* ZBOSS traffic dump: always TI metadata trailer, always ZigBee */
         options = DISSECT_IEEE802154_OPTION_CC24xx|DISSECT_IEEE802154_OPTION_ZBOSS;
         ieee802154_fcs_len = 2;
     }
@@ -2555,6 +2576,9 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
     return offset;
 }
 
+/*
+ * XXX - "mhr_len" is really a general offset; this is used elsewhere.
+ */
 tvbuff_t*
 ieee802154_decrypt_payload(tvbuff_t *tvb, guint mhr_len, packet_info *pinfo, proto_tree *ieee802154_tree, ieee802154_packet *packet)
 {
@@ -4537,7 +4561,7 @@ dissect_ieee802154_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 /**
  * IEEE 802.15.4 decryption algorithm
- * @param tvb IEEE 802.15.4 packet.
+ * @param tvb IEEE 802.15.4 packet, not including the FCS or metadata trailer.
  * @param pinfo Packet info structure.
  * @param offset Offset where the ciphertext 'c' starts.
  * @param packet IEEE 802.15.4 packet information.
@@ -6264,7 +6288,7 @@ void proto_register_ieee802154(void)
     static const enum_val_t fcs_type_vals[] = {
         {"cc24xx", "TI CC24xx metadata",    IEEE802154_CC24XX_METADATA},
         {"16",     "ITU-T CRC-16",          IEEE802154_FCS_16_BIT},
-        {"32",     "CCITT CRC-32",          IEEE802154_FCS_32_BIT},
+        {"32",     "ITU-T CRC-32",          IEEE802154_FCS_32_BIT},
         {NULL, NULL, -1}
     };
 
