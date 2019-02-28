@@ -486,12 +486,19 @@ static int hf_smb2_cchunk_xfer_len = -1;
 static int hf_smb2_cchunk_chunks_written = -1;
 static int hf_smb2_cchunk_bytes_written = -1;
 static int hf_smb2_cchunk_total_written = -1;
+static int hf_smb2_reparse_data_buffer = -1;
+static int hf_smb2_reparse_tag = -1;
+static int hf_smb2_reparse_guid = -1;
+static int hf_smb2_reparse_data_length = -1;
+static int hf_smb2_nfs_type = -1;
+static int hf_smb2_nfs_symlink_target = -1;
+static int hf_smb2_nfs_chr_major = -1;
+static int hf_smb2_nfs_chr_minor = -1;
+static int hf_smb2_nfs_blk_major = -1;
+static int hf_smb2_nfs_blk_minor = -1;
 static int hf_smb2_symlink_error_response = -1;
 static int hf_smb2_symlink_length = -1;
 static int hf_smb2_symlink_error_tag = -1;
-static int hf_smb2_SYMBOLIC_LINK_REPARSE_DATA_BUFFER = -1;
-static int hf_smb2_reparse_tag = -1;
-static int hf_smb2_reparse_data_length = -1;
 static int hf_smb2_unparsed_path_length = -1;
 static int hf_smb2_symlink_substitute_name = -1;
 static int hf_smb2_symlink_print_name = -1;
@@ -594,7 +601,7 @@ static gint ett_smb2_pipe_fragments = -1;
 static gint ett_smb2_cchunk_entry = -1;
 static gint ett_smb2_fsctl_odx_token = -1;
 static gint ett_smb2_symlink_error_response = -1;
-static gint ett_smb2_SYMBOLIC_LINK_REPARSE_DATA_BUFFER = -1;
+static gint ett_smb2_reparse_data_buffer = -1;
 static gint ett_smb2_error_data = -1;
 
 static expert_field ei_smb2_invalid_length = EI_INIT;
@@ -814,6 +821,48 @@ static const value_string smb2_cipher_types[] = {
 
 static const val64_string unique_unsolicited_response[] = {
 	{ 0xffffffffffffffff, "unsolicited response" },
+	{ 0, NULL }
+};
+
+#define REPARSE_TAG_RESERVED_ZERO      0x00000000 /* Reserved reparse tag value. */
+#define REPARSE_TAG_RESERVED_ONE       0x00000001 /* Reserved reparse tag value. */
+#define REPARSE_TAG_MOUNT_POINT        0xA0000003 /* Used for mount point */
+#define REPARSE_TAG_HSM                0xC0000004 /* Obsolete. Used by legacy Hierarchical Storage Manager Product. */
+#define REPARSE_TAG_DRIVER_EXTENDER    0x80000005 /* Home server drive extender. */
+#define REPARSE_TAG_HSM2               0x80000006 /* Obsolete. Used by legacy Hierarchical Storage Manager Product. */
+#define REPARSE_TAG_SIS                0x80000007 /* Used by single-instance storage (SIS) filter driver. */
+#define REPARSE_TAG_DFS                0x8000000A /* Used by the DFS filter. */
+#define REPARSE_TAG_FILTER_MANAGER     0x8000000B /* Used by filter manager test harness */
+#define REPARSE_TAG_SYMLINK            0xA000000C /* Used for symbolic link support. */
+#define REPARSE_TAG_DFSR               0x80000012 /* Used by the DFS filter. */
+#define REPARSE_TAG_NFS                0x80000014 /* Used by the Network File System (NFS) component. */
+static const value_string reparse_tag_vals[] = {
+	{ REPARSE_TAG_RESERVED_ZERO,   "REPARSE_TAG_RESERVED_ZERO"},
+	{ REPARSE_TAG_RESERVED_ONE,    "REPARSE_TAG_RESERVED_ONE"},
+	{ REPARSE_TAG_MOUNT_POINT,     "REPARSE_TAG_MOUNT_POINT"},
+	{ REPARSE_TAG_HSM,             "REPARSE_TAG_HSM"},
+	{ REPARSE_TAG_DRIVER_EXTENDER, "REPARSE_TAG_DRIVER_EXTENDER"},
+	{ REPARSE_TAG_HSM2,            "REPARSE_TAG_HSM2"},
+	{ REPARSE_TAG_SIS,             "REPARSE_TAG_SIS"},
+	{ REPARSE_TAG_DFS,             "REPARSE_TAG_DFS"},
+	{ REPARSE_TAG_FILTER_MANAGER,  "REPARSE_TAG_FILTER_MANAGER"},
+	{ REPARSE_TAG_SYMLINK,         "REPARSE_TAG_SYMLINK"},
+	{ REPARSE_TAG_DFSR,            "REPARSE_TAG_DFSR"},
+	{ REPARSE_TAG_NFS,             "REPARSE_TAG_NFS"},
+	{ 0, NULL }
+};
+
+#define NFS_SPECFILE_LNK 0x00000000014B4E4C
+#define NFS_SPECFILE_CHR 0x0000000000524843
+#define NFS_SPECFILE_BLK 0x00000000004B4C42
+#define NFS_SPECFILE_FIFO 0x000000004F464946
+#define NFS_SPECFILE_SOCK 0x000000004B434F53
+static const val64_string nfs_type_vals[] = {
+	{ NFS_SPECFILE_LNK,  "Symbolic Link" },
+	{ NFS_SPECFILE_CHR,  "Character Device" },
+	{ NFS_SPECFILE_BLK,  "Block Device" },
+	{ NFS_SPECFILE_FIFO, "FIFO" },
+	{ NFS_SPECFILE_SOCK, "UNIX Socket" },
 	{ 0, NULL }
 };
 
@@ -6750,23 +6799,69 @@ dissect_smb2_FSCTL_SRV_COPYCHUNK(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 }
 
 static void
+dissect_smb2_reparse_nfs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+{
+	guint64 type;
+	int symlink_length;
+	const gchar *symlink_target;
+	guint16 bytes_left;
+
+	type = tvb_get_letoh64(tvb, offset);
+	proto_tree_add_item(tree, hf_smb2_nfs_type, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+	offset += 8;
+	bytes_left = tvb_captured_length_remaining(tvb, offset);
+
+	switch (type) {
+	case NFS_SPECFILE_LNK:
+		symlink_length = 0;
+		symlink_target = get_unicode_or_ascii_string(tvb, &offset, TRUE,
+							     &symlink_length, TRUE,
+							     FALSE, &bytes_left);
+		proto_tree_add_string(tree, hf_smb2_nfs_symlink_target, tvb, offset,
+				      symlink_length, symlink_target);
+		break;
+	case NFS_SPECFILE_CHR:
+		proto_tree_add_item(tree, hf_smb2_nfs_chr_major, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(tree, hf_smb2_nfs_chr_minor, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		break;
+	case NFS_SPECFILE_BLK:
+		proto_tree_add_item(tree, hf_smb2_nfs_blk_major, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		proto_tree_add_item(tree, hf_smb2_nfs_blk_minor, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
+		break;
+	case NFS_SPECFILE_FIFO:
+	case NFS_SPECFILE_SOCK:
+		/* no data */
+		break;
+	}
+}
+
+static void
 dissect_smb2_FSCTL_REPARSE_POINT(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset)
 {
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 
+	guint32 tag;
+	guint32 length;
 	offset_length_buffer_t  s_olb, p_olb;
 
-	/* SYMBOLIC_LINK_REPARSE_DATA_BUFFER */
+	/* REPARSE_DATA_BUFFER */
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_smb2_SYMBOLIC_LINK_REPARSE_DATA_BUFFER, tvb, offset, -1, ENC_NA);
-		tree = proto_item_add_subtree(item, ett_smb2_SYMBOLIC_LINK_REPARSE_DATA_BUFFER);
+		item = proto_tree_add_item(parent_tree, hf_smb2_reparse_data_buffer, tvb, offset, -1, ENC_NA);
+		tree = proto_item_add_subtree(item, ett_smb2_reparse_data_buffer);
 	}
 
 	/* reparse tag */
+	tag = tvb_get_letohl(tvb, offset);
 	proto_tree_add_item(tree, hf_smb2_reparse_tag, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
+	/* reparse data length */
+	length = tvb_get_letohs(tvb, offset);
 	proto_tree_add_item(tree, hf_smb2_reparse_data_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
@@ -6774,21 +6869,37 @@ dissect_smb2_FSCTL_REPARSE_POINT(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	proto_tree_add_item(tree, hf_smb2_reserved, tvb, offset, 2, ENC_NA);
 	offset += 2;
 
-	/* substitute name  offset/length */
-	offset = dissect_smb2_olb_length_offset(tvb, offset, &s_olb, OLB_O_UINT16_S_UINT16, hf_smb2_symlink_substitute_name);
+	if (!(tag & 0x80000000)) {
+		/* if high bit is not set, this buffer has a GUID field */
+		/* reparse guid */
+		proto_tree_add_item(tree, hf_smb2_reparse_guid, tvb, offset, 16, ENC_NA);
+		offset += 16;
+	}
 
-	/* print name offset/length */
-	offset = dissect_smb2_olb_length_offset(tvb, offset, &p_olb, OLB_O_UINT16_S_UINT16, hf_smb2_symlink_print_name);
+	switch (tag) {
+	case REPARSE_TAG_SYMLINK:
+		/* substitute name  offset/length */
+		offset = dissect_smb2_olb_length_offset(tvb, offset, &s_olb, OLB_O_UINT16_S_UINT16, hf_smb2_symlink_substitute_name);
 
-	/* flags */
-	proto_tree_add_item(tree, hf_smb2_symlink_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	offset += 4;
+		/* print name offset/length */
+		offset = dissect_smb2_olb_length_offset(tvb, offset, &p_olb, OLB_O_UINT16_S_UINT16, hf_smb2_symlink_print_name);
 
-	/* substitute name string */
-	dissect_smb2_olb_off_string(pinfo, tree, tvb, &s_olb, offset, OLB_TYPE_UNICODE_STRING);
+		/* flags */
+		proto_tree_add_item(tree, hf_smb2_symlink_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+		offset += 4;
 
-	/* print name string */
-	dissect_smb2_olb_off_string(pinfo, tree, tvb, &p_olb, offset, OLB_TYPE_UNICODE_STRING);
+		/* substitute name string */
+		dissect_smb2_olb_off_string(pinfo, tree, tvb, &s_olb, offset, OLB_TYPE_UNICODE_STRING);
+
+		/* print name string */
+		dissect_smb2_olb_off_string(pinfo, tree, tvb, &p_olb, offset, OLB_TYPE_UNICODE_STRING);
+		break;
+	case REPARSE_TAG_NFS:
+		dissect_smb2_reparse_nfs(tvb, pinfo, tree, offset);
+		break;
+	default:
+		proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, length, ENC_NA);
+	}
 }
 
 static void
@@ -11771,33 +11882,57 @@ proto_register_smb2(void)
 			{ "Total Bytes Written", "smb2.fsctl.cchunk.total_written", FT_UINT32, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }
 		},
-
+		{ &hf_smb2_reparse_tag,
+			{ "Reparse Tag", "smb2.reparse_tag", FT_UINT32, BASE_HEX,
+			VALS(reparse_tag_vals), 0x0, NULL, HFILL }
+		},
+		{ &hf_smb2_reparse_guid,
+			{ "Reparse GUID", "smb2.reparse_guid", FT_NONE, BASE_NONE,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_smb2_reparse_data_length,
+			{ "Reparse Data Length", "smb2.reparse_data_length", FT_UINT16, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_smb2_reparse_data_buffer,
+			{ "Reparse Data Buffer", "smb2.reparse_data_buffer", FT_NONE, BASE_NONE,
+			NULL, 0, NULL, HFILL }
+		},
+		{ &hf_smb2_nfs_type,
+			{ "NFS file type", "smb2.nfs.type", FT_UINT64, BASE_HEX|BASE_VAL64_STRING,
+			VALS64(nfs_type_vals), 0x0, NULL, HFILL }
+		},
+		{ &hf_smb2_nfs_symlink_target,
+			{ "Symlink Target", "smb2.nfs.symlink.target", FT_STRING,
+			BASE_NONE, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_smb2_nfs_chr_major,
+			{ "Major", "smb2.nfs.char.major", FT_UINT32,
+			BASE_HEX, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_smb2_nfs_chr_minor,
+			{ "Minor", "smb2.nfs.char.minor", FT_UINT32,
+			BASE_HEX, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_smb2_nfs_blk_major,
+			{ "Major", "smb2.nfs.block.major", FT_UINT32,
+			BASE_HEX, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_smb2_nfs_blk_minor,
+			{ "Minor", "smb2.nfs.block.minor", FT_UINT32,
+			BASE_HEX, NULL, 0x0, NULL, HFILL }
+		},
 		{ &hf_smb2_symlink_error_response,
 			{ "Symbolic Link Error Response", "smb2.symlink_error_response", FT_NONE, BASE_NONE,
 			NULL, 0, NULL, HFILL }
 		},
-
 		{ &hf_smb2_symlink_length,
 			{ "SymLink Length", "smb2.symlink.length", FT_UINT32,
 			BASE_DEC, NULL, 0x0, NULL, HFILL }
 		},
-
 		{ &hf_smb2_symlink_error_tag,
 			{ "SymLink Error Tag", "smb2.symlink.error_tag", FT_UINT32,
 			BASE_HEX, NULL, 0x0, NULL, HFILL }
-		},
-
-		{ &hf_smb2_SYMBOLIC_LINK_REPARSE_DATA_BUFFER,
-			{ "SYMBOLIC_LINK_REPARSE_DATA_BUFFER", "smb2.SYMBOLIC_LINK_REPARSE_DATA_BUFFER", FT_NONE, BASE_NONE,
-			NULL, 0, NULL, HFILL }
-		},
-		{ &hf_smb2_reparse_tag,
-			{ "Reparse Tag", "smb2.symlink.reparse_tag", FT_UINT32, BASE_HEX,
-			NULL, 0x0, NULL, HFILL }
-		},
-		{ &hf_smb2_reparse_data_length,
-			{ "Reparse Data Length", "smb2.symlink.reparse_data_length", FT_UINT16, BASE_DEC,
-			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_smb2_unparsed_path_length,
 			{ "Unparsed Path Length", "smb2.symlink.unparsed_path_length", FT_UINT16, BASE_DEC,
@@ -11915,7 +12050,7 @@ proto_register_smb2(void)
 		&ett_smb2_cchunk_entry,
 		&ett_smb2_fsctl_odx_token,
 		&ett_smb2_symlink_error_response,
-		&ett_smb2_SYMBOLIC_LINK_REPARSE_DATA_BUFFER,
+		&ett_smb2_reparse_data_buffer,
 		&ett_smb2_error_data,
 	};
 
