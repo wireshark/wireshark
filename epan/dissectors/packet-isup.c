@@ -1709,6 +1709,11 @@ static const true_false_string isup_end_to_end_info_ind_value = {
   "no end-to-end information available"
 };
 
+static const true_false_string ansi_isup_iam_seg_ind_value = {
+  "Additional information has been received and incorporated into call set-up",
+  "No Indication"
+};
+
 static const true_false_string isup_ISDN_user_part_ind_value = {
   "ISDN user part used all the way",
   "ISDN user part not used all the way"
@@ -2315,8 +2320,8 @@ static const true_false_string isup_calling_party_address_request_ind_value = {
   "calling party address not requested"
 };
 static const true_false_string isup_holding_ind_value = {
-  "holding requested",
-  "holding not requested"
+  "holding requested/(ANSI)holding required (No procedure specified for U.S. networks)",
+  "holding not requested/(ANSI)holding not required"
 };
 static const true_false_string isup_calling_partys_category_request_ind_value = {
   "Calling Party's category requested",
@@ -2819,6 +2824,7 @@ static int hf_isup_backw_call_called_partys_category_ind = -1;
 static int hf_isup_backw_call_end_to_end_method_ind = -1;
 static int hf_isup_backw_call_interworking_ind = -1;
 static int hf_isup_backw_call_end_to_end_info_ind = -1;
+static int hf_isup_backw_call_iam_seg_ind = -1;
 static int hf_isup_backw_call_isdn_user_part_ind = -1;
 static int hf_isup_backw_call_holding_ind = -1;
 static int hf_isup_backw_call_isdn_access_ind = -1;
@@ -3554,6 +3560,28 @@ dissect_isup_backward_call_indicators_parameter(tvbuff_t *parameter_tvb, proto_t
     &hf_isup_backw_call_end_to_end_method_ind,
     &hf_isup_backw_call_interworking_ind,
     &hf_isup_backw_call_end_to_end_info_ind,
+    &hf_isup_backw_call_isdn_user_part_ind,
+    &hf_isup_backw_call_holding_ind,
+    &hf_isup_backw_call_isdn_access_ind,
+    &hf_isup_backw_call_echo_control_device_ind,
+    &hf_isup_backw_call_sccp_method_ind,
+    NULL
+  };
+
+  proto_tree_add_bitmask_list(parameter_tree, parameter_tvb, 0, BACKWARD_CALL_IND_LENGTH, indicators, ENC_BIG_ENDIAN);
+  proto_item_append_text(parameter_item, " : 0x%x", tvb_get_ntohs(parameter_tvb, 0));
+}
+
+static void
+dissect_ansi_isup_backward_call_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
+{
+  static const int * indicators[] = {
+    &hf_isup_backw_call_charge_ind,
+    &hf_isup_backw_call_called_partys_status_ind,
+    &hf_isup_backw_call_called_partys_category_ind,
+    &hf_isup_backw_call_end_to_end_method_ind,
+    &hf_isup_backw_call_interworking_ind,
+    &hf_isup_backw_call_iam_seg_ind,
     &hf_isup_backw_call_isdn_user_part_ind,
     &hf_isup_backw_call_holding_ind,
     &hf_isup_backw_call_isdn_access_ind,
@@ -8362,7 +8390,7 @@ dissect_ansi_isup_optional_parameter(tvbuff_t *optional_parameters_tvb, packet_i
             dissect_isup_continuity_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
             break;
           case PARAM_TYPE_BACKW_CALL_IND:
-            dissect_isup_backward_call_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
+            dissect_ansi_isup_backward_call_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
             break;
           case PARAM_TYPE_CAUSE_INDICATORS:
             dissect_ansi_isup_cause_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
@@ -8910,6 +8938,28 @@ dissect_isup_address_complete_message(tvbuff_t *message_tvb, proto_tree *isup_tr
   actual_length = tvb_ensure_captured_length_remaining(message_tvb, offset);
   parameter_tvb = tvb_new_subset_length_caplen(message_tvb, offset, MIN(BACKWARD_CALL_IND_LENGTH, actual_length), BACKWARD_CALL_IND_LENGTH);
   dissect_isup_backward_call_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
+  offset += BACKWARD_CALL_IND_LENGTH;
+  return offset;
+}
+
+static gint
+dissect_ansi_isup_address_complete_message(tvbuff_t *message_tvb, proto_tree *isup_tree)
+{
+  proto_item *parameter_item;
+  proto_tree *parameter_tree;
+  tvbuff_t   *parameter_tvb;
+  gint        offset = 0;
+  gint        parameter_type, actual_length;
+
+  /* Do stuff for first mandatory fixed parameter: backward call indicators*/
+  parameter_type = PARAM_TYPE_BACKW_CALL_IND;
+  parameter_tree = proto_tree_add_subtree(isup_tree, message_tvb, offset,
+    BACKWARD_CALL_IND_LENGTH, ett_isup_parameter, &parameter_item,
+    "Backward Call Indicators");
+  proto_tree_add_uint(parameter_tree, hf_isup_mand_parameter_type, message_tvb, 0, 0, parameter_type);
+  actual_length = tvb_ensure_captured_length_remaining(message_tvb, offset);
+  parameter_tvb = tvb_new_subset_length_caplen(message_tvb, offset, MIN(BACKWARD_CALL_IND_LENGTH, actual_length), BACKWARD_CALL_IND_LENGTH);
+  dissect_ansi_isup_backward_call_indicators_parameter(parameter_tvb, parameter_tree, parameter_item);
   offset += BACKWARD_CALL_IND_LENGTH;
   return offset;
 }
@@ -9628,7 +9678,7 @@ dissect_ansi_isup_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree 
       offset += dissect_isup_continuity_message(parameter_tvb, isup_tree);
       break;
     case MESSAGE_TYPE_ADDR_CMPL:
-      offset += dissect_isup_address_complete_message(parameter_tvb, isup_tree);
+      offset += dissect_ansi_isup_address_complete_message(parameter_tvb, isup_tree);
       opt_part_possible = TRUE;
       break;
     case MESSAGE_TYPE_CONNECT:
@@ -10859,6 +10909,11 @@ proto_register_isup(void)
       { "End-to-end information indicator",  "isup.backw_call_end_to_end_information_indicator",
         FT_BOOLEAN, 16, TFS(&isup_end_to_end_info_ind_value), J_16BIT_MASK,
         NULL, HFILL }},
+
+    { &hf_isup_backw_call_iam_seg_ind,
+      { "IAM segmentation indicator",  "isup.backw_call_iam_seg_ind",
+        FT_BOOLEAN, 16, TFS(&ansi_isup_iam_seg_ind_value), J_16BIT_MASK,
+        NULL, HFILL } },
 
     { &hf_isup_backw_call_isdn_user_part_ind,
       { "ISDN user part indicator",  "isup.backw_call_isdn_user_part_indicator",
