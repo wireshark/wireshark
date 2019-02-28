@@ -1,7 +1,5 @@
 Wireshark 3.0.0 Release Notes
 
- This is the third release candidate for Wireshark 3.0.
-
  What is Wireshark?
 
   Wireshark is the world’s most popular network protocol analyzer. It is
@@ -11,6 +9,10 @@ Wireshark 3.0.0 Release Notes
 
   Many user interface improvements have been made. See the “New and
   Updated Features” section below for more details.
+
+  Support for a number of legacy features and libraries has been
+  removed. See the “Removed Features and Support” section below for more
+  details.
 
   Bug Fixes
 
@@ -62,8 +64,10 @@ Wireshark 3.0.0 Release Notes
    The following features are new (or have been significantly updated)
    since version 2.6.0:
 
-     • The Windows .exe installers now ship with Npcap instead of
-       WinPcap.
+     • The Windows .exe installers now ship with Npcap[7] instead of
+       WinPcap. Besides being actively maintained (by the nmap project),
+       Npcap brings support for loopback capture and 802.11 WiFi monitor
+       mode capture (if supported by the NIC driver).
 
      • Conversation timestamps are supported for UDP/UDP-Lite protocols
 
@@ -71,7 +75,7 @@ Wireshark 3.0.0 Release Notes
        an ElasticSearch mapping file.
 
      • The “Capture Information” dialog has been added back (Bug
-       12004[7]).
+       12004[8]).
 
      • The Ethernet and IEEE 802.11 dissectors no longer validate the
        frame check sequence (checksum) by default.
@@ -81,7 +85,7 @@ Wireshark 3.0.0 Release Notes
        segments are received out-of-order. See the User’s Guide, chapter
        TCP Reassembly for details.
 
-     • Decryption support for the new WireGuard dissector (Bug 15011[8],
+     • Decryption support for the new WireGuard dissector (Bug 15011[9],
        requires Libgcrypt 1.8).
 
      • The BOOTP dissector has been renamed to DHCP. With the exception
@@ -119,7 +123,7 @@ Wireshark 3.0.0 Release Notes
 
      • Support for DTLS and TLS decryption using pcapng files that embed
        a Decryption Secrets Block (DSB) containing a TLS Key Log (Bug
-       15252[9]).
+       15252[10]).
 
      • The editcap utility gained a new --inject-secrets option to
        inject an existing TLS Key Log file into a pcapng file.
@@ -211,19 +215,19 @@ Wireshark 3.0.0 Release Notes
      • Lua: on Windows, file-related functions such as dofile now assume
        UTF-8 paths instead of the local code page. This is consistent
        with Linux and macOS and improves compatibility on non-English
-       systems. (Bug 15118[10])
+       systems. (Bug 15118[11])
 
  Getting Wireshark
 
   Wireshark source code and installation packages are available from
-  https://www.wireshark.org/download.html[11].
+  https://www.wireshark.org/download.html[12].
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[12] on the Wireshark web site.
+   be found on the download page[13] on the Wireshark web site.
 
  File Locations
 
@@ -235,22 +239,22 @@ Wireshark 3.0.0 Release Notes
  Getting Help
 
   The User’s Guide, manual pages and various other documentation can be
-  found at https://www.wireshark.org/docs/[13]
+  found at https://www.wireshark.org/docs/[14]
 
-  Community support is available on Wireshark’s Q&A site[14] and on the
+  Community support is available on Wireshark’s Q&A site[15] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[15].
+  for all of Wireshark’s mailing lists can be found on the web site[16].
 
-  Bugs and feature requests can be reported on the bug tracker[16].
+  Bugs and feature requests can be reported on the bug tracker[17].
 
   Official Wireshark training and certification are available from
-  Wireshark University[17].
+  Wireshark University[18].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[18].
+  A complete FAQ is available on the Wireshark web site[19].
 
-  Last updated 2019-02-24 08:34:12 UTC
+  Last updated 2019-02-28 17:49:41 UTC
 
  References
 
@@ -260,15 +264,16 @@ Wireshark 3.0.0 Release Notes
    4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
    5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14693
    6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15163
-   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12004
-   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15011
-   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15252
-  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15118
-  11. https://www.wireshark.org/download.html
-  12. https://www.wireshark.org/download.html#thirdparty
-  13. https://www.wireshark.org/docs/
-  14. https://ask.wireshark.org/
-  15. https://www.wireshark.org/lists/
-  16. https://bugs.wireshark.org/
-  17. http://www.wiresharktraining.com/
-  18. https://www.wireshark.org/faq.html
+   7. https://nmap.org/npcap/
+   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12004
+   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15011
+  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15252
+  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15118
+  12. https://www.wireshark.org/download.html
+  13. https://www.wireshark.org/download.html#thirdparty
+  14. https://www.wireshark.org/docs/
+  15. https://ask.wireshark.org/
+  16. https://www.wireshark.org/lists/
+  17. https://bugs.wireshark.org/
+  18. http://www.wiresharktraining.com/
+  19. https://www.wireshark.org/faq.html

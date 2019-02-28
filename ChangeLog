@@ -1,3 +1,34 @@
+1d86804e6b .mailmap: update of November, December (2018) and start of 2019
+b52f0af368 ANSI ISUP: Dissect Transit Network Selection and Carrier Identification.
+7dab25fcac Fix the FCS handling.
+d1a13b241c QUIC: update ref draft url to draft-18
+5a0af47448 Fix a comment.
+9c80b43272 Fix subset-tvbuff creation.
+f96f8b8ac2 More "It's not a CRC, it's metadata".
+ff0dca5571 rpcap: check conversation existence before dereferencing it.
+530f826e2c Add IEEE 802.15.4 ACK tracking
+4c3712689b More "it's not an FCS, it's metadata" comment updates.
+014f8c1925 The TI CC24xx chips put metadata, not an FCS, at the end of the packet.
+96542b3329 Add support for IEEE 802.15.4 32-bit FCS
+c20fa2885f pcap: Update link_type_vals
+fe550a4ae2 Fix ieee802.15.4 wpan-zboss abbreviations
+346d3721e8 H265: Check range of H265_MAX_NUM_SHORT_TERM_REF_PIC_SETS
+89774c0afb mate: Memory leak in mate_grammar.lemon's recolonize function.
+0e803d601d MS Proxy: Initialize a variable.
+41ab963f68 The non-flag arguments to tshark aren't necessarily a capture filter.
+b8db0bea20 Qt: Info label fixes in the Profile dialog
+59dd7d120a IEEE 802.15.4 Fix duplicate strings
+b759633425 netscaler: fix multiple out-of-bounds reads.
+490b381729 netscaler: fix crash when reading malformed packets.
+bfa2abffdb Do a better job describing what the switch to Npcap means to users.
+d24a9c09e6 macos-setup: Update our GMP build flags.
+e7611c27fd Fixed a bug found in the BACnet-APDU dissector
+d35ee7b9c3 Qt: Remove save_file when restart
+1e844f6d3e [Automatic update for 2019-02-24]
+8ef4d41b47 Fix liblzma, liblz4, and libssh builds with minimum deployment version and SDK.
+f5d3e0cfb9 pcap: Update link_type_vals
+a885bbbd38 3.0.0rc2 cleanup.
+c1e98da061 Build 3.0.0rc2.
 96b6354e24 Install Qt 5.12.1 by default.
 9c04156787 Add -D_FORTIFY_SOURCE=0 for C++ if we're using it for C.
 e76418e233 Set CXXFLAGS and LDFLAGS for all libraries.

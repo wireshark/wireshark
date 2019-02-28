@@ -7,8 +7,6 @@ include::attributes.asciidoc[]
 // Asciidoctor Syntax Quick Reference:
 // http://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
 
-This is the third release candidate for Wireshark 3.0.
-
 == What is Wireshark?
 
 Wireshark is the world’s most popular network protocol analyzer. It is
@@ -18,6 +16,9 @@ used for troubleshooting, analysis, development and education.
 
 Many user interface improvements have been made. See the “New and Updated
 Features” section below for more details.
+
+Support for a number of legacy features and libraries has been removed.
+See the “Removed Features and Support” section below for more details.
 
 === Bug Fixes
 
