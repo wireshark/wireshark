@@ -224,7 +224,10 @@ macro( ADD_NSIS_PACKAGE_TARGET )
 				faq_html
 				${DATAFILE_DIR}/uninstall.exe
 		)
-		set_target_properties(nsis_package_prep PROPERTIES FOLDER "Packaging")
+		set_target_properties(nsis_package_prep PROPERTIES
+			FOLDER "Packaging"
+			EXCLUDE_FROM_DEFAULT_BUILD True
+		)
 
 		# Dump the installer into
 		# ${CMAKE_CURRENT_SOURCE_DIR}/packaging/nsis
@@ -234,7 +237,10 @@ macro( ADD_NSIS_PACKAGE_TARGET )
 				wireshark.nsi
 			WORKING_DIRECTORY ${_nsis_source_dir}
 		)
-		set_target_properties(nsis_package PROPERTIES FOLDER "Packaging")
+		set_target_properties(nsis_package PROPERTIES
+			FOLDER "Packaging"
+			EXCLUDE_FROM_DEFAULT_BUILD True
+		)
 	endif()
 endmacro( ADD_NSIS_PACKAGE_TARGET )
 

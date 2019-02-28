@@ -279,7 +279,10 @@ macro( ADD_WIX_PACKAGE_TARGET )
 				user_guide_chm
 				faq_html
 		)
-		set_target_properties(wix_package_prep PROPERTIES FOLDER "Packaging")
+		set_target_properties(wix_package_prep PROPERTIES
+			FOLDER "Packaging"
+			EXCLUDE_FROM_DEFAULT_BUILD True
+		)
 
 		# Dump the installer into
 		# ${CMAKE_CURRENT_SOURCE_DIR}/packaging/wix
@@ -291,7 +294,10 @@ macro( ADD_WIX_PACKAGE_TARGET )
 			COMMAND ${WIX_LIGHT_EXECUTABLE} ${WIX_LIGHT_DEFINES} ${WIX_OUT_FILES}
 			WORKING_DIRECTORY ${_wix_binary_dir}
 		)
-		set_target_properties(wix_package PROPERTIES FOLDER "Packaging")
+		set_target_properties(wix_package PROPERTIES
+			FOLDER "Packaging"
+			EXCLUDE_FROM_DEFAULT_BUILD True
+		)
 	else()
 		message(WARNING "The WiX installer cannot be built if the Wireshark program isn't built.")
 	endif()
