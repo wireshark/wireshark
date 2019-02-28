@@ -1908,36 +1908,42 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
     if (ieee802154_fcs_len != 0) {
         /*
-         * Well, this packet should, in theory, have an FCS.
+         * Well, this packet should, in theory, have an FCS or CC24xx
+         * metadata.
          * Do we have the entire packet, and does it have enough data for
-         * the FCS?
+         * the FCS/metadata?
          */
         guint reported_len = tvb_reported_length(tvb);
 
         if (reported_len < (guint)ieee802154_fcs_len) {
             /*
              * The packet is claimed not to even have enough data
-             * for an FCS.  Pretend it doesn't have one.
+             * for the FCS/metadata.  Pretend it doesn't have one.
              */
             no_fcs_tvb = tvb;
             fcs_present = FALSE;
             fcs_ok = TRUE;  // assume OK if not present
         } else {
             /*
-             * The packet is claimed to have enough data for an FCS.
-             * Slice off the FCS from the reported length.
+             * The packet is claimed to have enough data for the
+             * FCS/metadata.
+             * Slice it off from the reported length.
              */
             reported_len -= ieee802154_fcs_len;
             no_fcs_tvb = tvb_new_subset_length(tvb, 0, reported_len);
 
             /*
-             * Is the FCS present in the captured data?
+             * Is the FCS/metadata present in the captured data?
              * reported_len is now the length of the packet without the
-             * FCS, so the FCS begins at an offset of reported_len.
+             * FCS/metadata, so the FCS/metadata begins at an offset of
+             * reported_len.
              */
             if (tvb_bytes_exist(tvb, reported_len, ieee802154_fcs_len)) {
                 /*
-                 * Yes.  Check it.
+                 * Yes.  Check whether the FCS was OK.
+                 *
+                 * If we have an FCS, check it.
+                 * If we have metadata, check its "FCS OK" flag.
                  */
                 fcs_present = TRUE;
                 fcs_ok = options & DISSECT_IEEE802154_OPTION_CC24xx ? is_cc24xx_crc_ok(tvb) : is_fcs_ok(tvb);
@@ -1947,14 +1953,14 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
                  *
                  * Either 1) this means that there was a snapshot length
                  * in effect when the capture was done, and that sliced
-                 * some or all of the FCS off or 2) this is a capture
-                 * with no FCS, using the same link-layer header type
-                 * value as captures with the FCS, and indicating the
-                 * lack of an FCS by having the captured length be the
-                 * length of the packet minus the length of the FCS
-                 * and the actual length being the length of the packet
-                 * including the FCS, rather than by using the "no FCS"
-                 * link-layer header type.
+                 * some or all of the FCS/metadata off or 2) this is a
+                 * capture with no FCS/metadata, using the same link-layer
+                 * header type value as captures with the FCS/metadata,
+                 * and indicating the lack of the FCS/metadata by having
+                 * the captured length be the length of the packet minus
+                 * the length of the FCS/metadata and the actual length
+                 * being the length of the packet including the FCS/metadata,
+                 * rather than by using the "no FCS" link-layer header type.
                  *
                  * We could try to distinguish between them by checking
                  * for a captured length that's exactly ieee802154_fcs_len
@@ -1968,7 +1974,8 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
                  * due to a snapshot length being in effect when
                  * the capture was done and a packet that *wasn't*
                  * cut short by a snapshot length but that doesn't
-                 * include the FCS.  Let's hope that rarely happens.
+                 * include the FCS/metadata.  Let's hope that rarely
+                 * happens.
                  */
                 fcs_present = FALSE;
                 fcs_ok = TRUE;  // assume OK if not present
@@ -3712,7 +3719,26 @@ dissect_ieee802154_header_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     volatile guint offset = orig_offset;
     proto_item *ies_item = proto_tree_add_item(tree, hf_ieee802154_header_ies, tvb, offset, -1, ENC_NA);
     proto_tree *ies_tree = proto_item_add_subtree(ies_item, ett_ieee802154_header_ie);
+    gint remaining = tvb_reported_length_remaining(tvb, offset) - IEEE802154_MIC_LENGTH(packet->security_level);
 
+    // Loop as long as we don't:
+    //
+    // 1) run out of data;
+    // 2) get a header termination IE.
+    //
+    // See Table 9-6 "Termination IE inclusion rules" of IEEE Std 802.15.4-2015;
+    // unless we have no payload IEs and no payload data, we *have* to have
+    // a header termination IE to end the list of header IEs, so the "run out
+    // of data" check needs only to check whether there's any data
+    // left in the tvbuff (which has already had the FCS removed from
+    // it), other than a MIC if present - if we have no payload IEs or
+    // payload data, there might still be a MIC to Check the Message
+    // Integrity.
+    //
+    // XXX - we should make sure we have enough data left for an IE header,
+    // and report a malformed frame if not, and if we do have enough data,
+    // make sure we have enough data for the full IE, and report a malformed
+    // frame if not.
     do {
         volatile int consumed = 0;
         guint16 ie_header = tvb_get_letohs(tvb, offset);
@@ -3752,12 +3778,13 @@ dissect_ieee802154_header_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         }
 
         offset += 2 + length;
+        remaining -= 2 + length;
 
         if (id == IEEE802154_HEADER_IE_HT1 || id == IEEE802154_HEADER_IE_HT2) {
             packet->payload_ie_present = (id == IEEE802154_HEADER_IE_HT1);
             break;
         }
-    } while (tvb_reported_length_remaining(tvb, offset) > (gint) (IEEE802154_MIC_LENGTH(packet->security_level) + ieee802154_fcs_len + 1));
+    } while (remaining > 0);
 
     proto_item_set_len(ies_item, offset - orig_offset);
     return offset - orig_offset;
@@ -4544,8 +4571,8 @@ dissect_ieee802154_decrypt(tvbuff_t *tvb,
     M = IEEE802154_MIC_LENGTH(packet->security_level);
     *decrypt_info->rx_mic_length = M;
 
-    /* Is the MIC & FCS larger than the total amount of data? */
-    reported_len = tvb_reported_length_remaining(tvb, offset) - ieee802154_fcs_len - M;
+    /* Is the MIC larger than the total amount of data? */
+    reported_len = tvb_reported_length_remaining(tvb, offset) - M;
     if (reported_len < 0) {
         /* Yes.  Give up. */
         *decrypt_info->status = DECRYPT_PACKET_TOO_SMALL;
