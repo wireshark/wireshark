@@ -1801,7 +1801,7 @@ dissect_zboss_specific(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
             proto_tree_add_item(zboss_tree, hf_zboss_trace_number, tvb, off, 4, ENC_LITTLE_ENDIAN);
             off += 4;
 
-            return tvb_new_subset_length_caplen(tvb, off, tvb_captured_length(tvb) - off, tvb_captured_length(tvb) - off);
+            return tvb_new_subset_remaining(tvb, off);
         }
     }
     return tvb;
