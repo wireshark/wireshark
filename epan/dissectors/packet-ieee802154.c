@@ -103,17 +103,10 @@ void proto_reg_handoff_ieee802154(void);
 /* ethertype for 802.15.4 tag - encapsulating an Ethernet packet */
 static unsigned int ieee802154_ethertype = 0x809A;
 
-/* FCS Types used by both user configuration and TAP TLV
- * NONE is not user configurable, and
- * CC24XX_METADATA is not valid in TAP TLV.
- */
-typedef enum {
-    IEEE802154_FCS_UNDEFINED   = -1,
-    IEEE802154_FCS_NONE        = 0x00,
-    IEEE802154_CC24XX_METADATA = 0x00, /* Not an FCS, but TI CC24xx metadata */
-    IEEE802154_FCS_16_BIT      = 0x01, /* ITU-T CRC16 */
-    IEEE802154_FCS_32_BIT      = 0x02, /* ITU-T CRC32 */
-} ieee802154_fcs_type_t;
+/* FCS Types used by user configuration */
+#define IEEE802154_CC24XX_METADATA 0 /* Not an FCS, but TI CC24xx metadata */
+#define IEEE802154_FCS_16_BIT      1 /* ITU-T CRC16 */
+#define IEEE802154_FCS_32_BIT      2 /* ITU-T CRC32 */
 
 static gint ieee802154_fcs_type = IEEE802154_FCS_16_BIT;
 
@@ -133,6 +126,12 @@ typedef enum {
 } ieee802154_info_type_t;
 
 typedef enum {
+    IEEE802154_FCS_TYPE_NONE        = 0,
+    IEEE802154_FCS_TYPE_16_BIT      = 1, /* ITU-T CRC16 */
+    IEEE802154_FCS_TYPE_32_BIT      = 2, /* ITU-T CRC32 */
+} ieee802154_fcs_type_t;
+
+typedef enum {
     IEEE802154_SUN_TYPE_FSK_A       = 0x00,
     IEEE802154_SUN_TYPE_FSK_B       = 0x01,
     IEEE802154_SUN_TYPE_OQPSK_A     = 0x02,
@@ -143,9 +142,6 @@ typedef enum {
     IEEE802154_SUN_TYPE_OFDM_OPT3   = 0x07,
     IEEE802154_SUN_TYPE_OFDM_OPT4   = 0x08,
 } ieee802154_sun_type_t;
-
-/* The FCS type from the TAP packet */
-static gint ieee802154_tap_fcs_type = IEEE802154_FCS_UNDEFINED;
 
 /* This is the actual number of FCS bytes in the encapsulated IEEE 802.15.4 packet */
 guint ieee802154_fcs_len = IEEE802154_FCS_LEN;
@@ -358,7 +354,7 @@ static int dissect_ieee802154_tap          (tvbuff_t *, packet_info *, proto_tre
 static tvbuff_t *dissect_zboss_specific    (tvbuff_t *, packet_info *, proto_tree *);
 static void dissect_ieee802154_common      (tvbuff_t *, packet_info *, proto_tree *, guint);
 static void ieee802154_dissect_fcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154_tree, gboolean is_cc24xx, gboolean fcs_ok);
-static void dissect_ieee802154_tap_tlvs    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static ieee802154_fcs_type_t dissect_ieee802154_tap_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* Information Elements */
 static int dissect_ieee802154_header_ie        (tvbuff_t *, packet_info *, proto_tree *, guint, ieee802154_packet *);
@@ -739,6 +735,7 @@ static expert_field ei_ieee802154_unknown_cmd = EI_INIT;
 static expert_field ei_ieee802154_tap_tlv_invalid_type = EI_INIT;
 static expert_field ei_ieee802154_tap_tlv_invalid_length = EI_INIT;
 static expert_field ei_ieee802154_tap_tlv_padding_not_zeros = EI_INIT;
+static expert_field ei_ieee802154_tap_tlv_invalid_fcs_type = EI_INIT;
 
 static int ieee802_15_4_short_address_type = -1;
 /*
@@ -988,9 +985,9 @@ static const value_string tap_tlv_types[] = {
 };
 
 static const value_string tap_fcs_type_names[] = {
-    { IEEE802154_FCS_NONE, "None" },
-    { IEEE802154_FCS_16_BIT, "ITU-T CRC16" },
-    { IEEE802154_FCS_32_BIT, "ITU-T CRC32" },
+    { IEEE802154_FCS_TYPE_NONE, "None" },
+    { IEEE802154_FCS_TYPE_16_BIT, "ITU-T CRC16" },
+    { IEEE802154_FCS_TYPE_32_BIT, "ITU-T CRC32" },
     { 0, NULL }
 };
 
@@ -1696,29 +1693,22 @@ dissect_ieee802154_nonask_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     offset += 4+2*1;
     mac = tvb_new_subset_length_caplen(tvb,offset,-1, phr & IEEE802154_PHY_LENGTH_MASK);
 
-    /* Call the common dissector. */
-    dissect_ieee802154(mac, pinfo, ieee802154_tree, NULL);
+    /* These always have the FCS at the end. */
+
+    /*
+     * Call the common dissector; FCS length is 2, and no flags.
+     */
+    ieee802154_fcs_len = 2;
+    dissect_ieee802154_common(mac, pinfo, ieee802154_tree, 0);
     return tvb_captured_length(tvb);
 } /* dissect_ieee802154_nonask_phy */
 
 /* Return the length in octets for the user configured
- * ieee802154_fcs_type_t which follows the PHY Payload */
+ * FCS/metadata following the PHY Payload */
 static guint
 ieee802154_fcs_type_len(guint i)
 {
     guint fcs_type_lengths[] = { 2, 2, 4 };
-    if (i < array_length(fcs_type_lengths)) {
-        return fcs_type_lengths[i];
-    }
-    return 0;
-}
-
-/* Return the length in octets for the TAP defined
- * ieee802154_fcs_type_t which follows the PHY Payload */
-static guint
-ieee802154_tap_fcs_type_len(guint i)
-{
-    guint fcs_type_lengths[] = { 0, 2, 4 };
     if (i < array_length(fcs_type_lengths)) {
         return fcs_type_lengths[i];
     }
@@ -1739,17 +1729,11 @@ dissect_ieee802154(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     tvbuff_t *new_tvb = dissect_zboss_specific(tvb, pinfo, tree);
     guint options = 0;
 
-    /* if TAP FCS type is not set then we're dissecting from DLT*WITHFCS */
-    if (ieee802154_tap_fcs_type == IEEE802154_FCS_UNDEFINED) {
-        ieee802154_fcs_len = ieee802154_fcs_type_len(ieee802154_fcs_type);
+    /* Set the default FCS length based on the FCS type in the configuration */
+    ieee802154_fcs_len = ieee802154_fcs_type_len(ieee802154_fcs_type);
 
-        if (ieee802154_fcs_type == IEEE802154_CC24XX_METADATA) {
-            options = DISSECT_IEEE802154_OPTION_CC24xx;
-        }
-    }
-    else {
-        /* Set the FCS length based on the FCS type */
-        ieee802154_fcs_len = ieee802154_tap_fcs_type_len(ieee802154_tap_fcs_type);
+    if (ieee802154_fcs_type == IEEE802154_CC24XX_METADATA) {
+        options = DISSECT_IEEE802154_OPTION_CC24xx;
     }
 
     if (new_tvb != tvb) {
@@ -1774,8 +1758,10 @@ dissect_ieee802154(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 static int
 dissect_ieee802154_nofcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * data _U_)
 {
+    /*
+     * Call the common dissector; FCS length is 0, and no flags.
+     */
     ieee802154_fcs_len = 0;
-    /* Call the common dissector. */
     dissect_ieee802154_common(tvb, pinfo, tree, 0);
     return tvb_captured_length(tvb);
 } /* dissect_ieee802154_nofcs */
@@ -1840,7 +1826,10 @@ dissect_zboss_specific(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 static int
 dissect_ieee802154_cc24xx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * data _U_)
 {
-    /* Call the common dissector. */
+    /*
+     * Call the common dissector.
+     * 2 bytes of metadata at the end of the packet data.
+     */
     ieee802154_fcs_len = 2;
     dissect_ieee802154_common(tvb, pinfo, tree, DISSECT_IEEE802154_OPTION_CC24xx);
     return tvb_captured_length(tvb);
@@ -1864,6 +1853,7 @@ dissect_ieee802154_tap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     guint32     length = 0;
     tvbuff_t*   tlv_tvb;
     tvbuff_t*   payload_tvb;
+    ieee802154_fcs_type_t tap_fcs_type;
 
     /* Check the version in the TAP header */
     proto_tree_add_item_ret_uint(info_tree, hf_ieee802154_tap_version, tvb, 0, 1, ENC_LITTLE_ENDIAN, &version);
@@ -1891,14 +1881,34 @@ dissect_ieee802154_tap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     /* Create a new tvb subset with only the TLVs to dissect */
     tlv_tvb = tvb_new_subset_length(tvb, 4, length - 4);
-    dissect_ieee802154_tap_tlvs(tlv_tvb, pinfo, info_tree);
+    tap_fcs_type = dissect_ieee802154_tap_tlvs(tlv_tvb, pinfo, info_tree);
 
-    /* Call the ieee802154 raw packet dissector. */
+    /* Set the FCS length based on the FCS type */
+    switch (tap_fcs_type) {
+
+    case IEEE802154_FCS_TYPE_NONE:
+        ieee802154_fcs_len = 0;
+        break;
+
+    case IEEE802154_FCS_TYPE_16_BIT:
+        ieee802154_fcs_len = 2;
+        break;
+
+    case IEEE802154_FCS_TYPE_32_BIT:
+        ieee802154_fcs_len = 4;
+        break;
+
+    default:
+        /* Not valid */
+        return tvb_captured_length(tvb);
+    }
+
+    /*
+     * Call the common dissector with the data after the TLV header.
+     * Specified FCS length, no flags.
+     */
     payload_tvb = tvb_new_subset_remaining(tvb, length);
-    dissect_ieee802154(payload_tvb, pinfo, tree, NULL);
-
-    /* Reset the default FCS type for every packet */
-    ieee802154_tap_fcs_type = IEEE802154_FCS_UNDEFINED;
+    dissect_ieee802154_common(payload_tvb, pinfo, tree, 0);
 
     return tvb_captured_length(tvb);
 } /* dissect_ieee802154_tap */
@@ -2928,7 +2938,7 @@ ieee802154_create_tap_tlv_tree(proto_tree *tree, tvbuff_t *tvb, gint offset, gui
     return subtree;
 } /* ieee802154_create_tap_tlv_tree */
 
-static void
+static ieee802154_fcs_type_t
 dissect_ieee802154_tap_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint32 type;
@@ -2936,6 +2946,8 @@ dissect_ieee802154_tap_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint offset = 0;
     proto_item *ti;
     proto_tree *tlvtree;
+    guint32 tap_fcs_type;
+    const char *type_str;
     nstime_t nstime;
     guint64 frame_start_ts = 0;
     guint64 frame_end_ts = 0;
@@ -2944,7 +2956,7 @@ dissect_ieee802154_tap_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32 timeslot_length = 0;
 
     /* Default the FCS type to NONE when parsing TAP packets */
-    ieee802154_tap_fcs_type = IEEE802154_FCS_NONE;
+    tap_fcs_type = IEEE802154_FCS_TYPE_NONE;
 
     while (tvb_bytes_exist(tvb, offset, 4)) {
         tlvtree = ieee802154_create_tap_tlv_tree(tree, tvb, offset, &type, &length);
@@ -2952,10 +2964,18 @@ dissect_ieee802154_tap_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         switch (type) {
             case IEEE802154_TAP_FCS_TYPE:
-                proto_tree_add_item_ret_uint(tlvtree, hf_ieee802154_tap_fcs_type, tvb, offset, 1,
-                                             ENC_LITTLE_ENDIAN, &ieee802154_tap_fcs_type);
-                proto_item_append_text(proto_tree_get_parent(tlvtree), ": %s (%d)",
-                                       val_to_str_const(ieee802154_tap_fcs_type, tap_fcs_type_names, "Unknown"), ieee802154_tap_fcs_type);
+                ti = proto_tree_add_item_ret_uint(tlvtree, hf_ieee802154_tap_fcs_type, tvb, offset, 1,
+                                                  ENC_LITTLE_ENDIAN, &tap_fcs_type);
+                type_str = try_val_to_str(tap_fcs_type, tap_fcs_type_names);
+                if (type_str == NULL) {
+                    /* Invalid - flag it as such */
+                    expert_add_info(NULL, ti, &ei_ieee802154_tap_tlv_invalid_fcs_type);
+
+                    /* Use "Unknown" for the parent */
+                    type_str = "Unknown";
+                }
+                proto_item_append_text(proto_tree_get_parent(tlvtree), ": %s (%u)",
+                                       type_str, tap_fcs_type);
                 break;
             case IEEE802154_TAP_RSS: {
                 gfloat rss = tvb_get_ieee_float(tvb, offset, ENC_LITTLE_ENDIAN);
@@ -3055,6 +3075,8 @@ dissect_ieee802154_tap_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ti = proto_tree_add_double_format_value(tree, hf_ieee802154_frame_end_offset, NULL, 0, 0, delta_us, "%.3f %s", delta_us, units_microseconds.singular);
         PROTO_ITEM_SET_GENERATED(ti);
     }
+
+    return (ieee802154_fcs_type_t)tap_fcs_type;
 } /* dissect_ieee802154_tap_tlvs */
 
 /*
@@ -6260,6 +6282,8 @@ void proto_register_ieee802154(void)
                 "Invalid TLV length", EXPFILL }},
         { &ei_ieee802154_tap_tlv_padding_not_zeros, { "wpan-tap.tlv.padding_not_zeros", PI_MALFORMED, PI_WARN,
                 "TLV padding not zero", EXPFILL }},
+        { &ei_ieee802154_tap_tlv_invalid_fcs_type, { "wpan-tap.tlv.invalid_fcs_type", PI_MALFORMED, PI_ERROR,
+                "Invalid FCS type", EXPFILL }},
     };
 
     /* Preferences. */
