@@ -1869,7 +1869,7 @@ dissect_ieee802154_tap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IEEE 802.15.4 TAP");
 
     /* Create a new tvb subset with only the TLVs to dissect */
-    tlv_tvb = tvb_new_subset_length_caplen(tvb, 4, length-4, length-4);
+    tlv_tvb = tvb_new_subset_length(tvb, 4, length - 4);
     dissect_ieee802154_tap_tlvs(tlv_tvb, pinfo, info_tree);
 
     /* Call the ieee802154 raw packet dissector. */
