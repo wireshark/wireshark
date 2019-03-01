@@ -351,7 +351,8 @@ static int dissect_ieee802154_cc24xx       (tvbuff_t *, packet_info *, proto_tre
 static int dissect_ieee802154_tap          (tvbuff_t *, packet_info *, proto_tree *, void *);
 static tvbuff_t *dissect_zboss_specific    (tvbuff_t *, packet_info *, proto_tree *);
 static void dissect_ieee802154_common      (tvbuff_t *, packet_info *, proto_tree *, guint, guint);
-static void ieee802154_dissect_fcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154_tree, guint, gboolean is_cc24xx, gboolean fcs_ok);
+static void ieee802154_dissect_fcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154_tree, guint fcs_len, gboolean fcs_ok);
+static void ieee802154_dissect_cc24xx_metadata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154_tree, gboolean fcs_ok);
 static ieee802154_fcs_type_t dissect_ieee802154_tap_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* Information Elements */
@@ -2034,8 +2035,12 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         }
     }
 
-    if (fcs_present)
-        ieee802154_dissect_fcs(tvb, pinfo, ieee802154_tree, fcs_len, options & DISSECT_IEEE802154_OPTION_CC24xx, fcs_ok);
+    if (fcs_present) {
+        if (options & DISSECT_IEEE802154_OPTION_CC24xx)
+            ieee802154_dissect_cc24xx_metadata(tvb, pinfo, ieee802154_tree, fcs_ok);
+        else
+            ieee802154_dissect_fcs(tvb, pinfo, ieee802154_tree, fcs_len, fcs_ok);
+    }
 
     if (ieee802154_ack_tracking && fcs_ok && (packet->ack_request || packet->frame_type == IEEE802154_FCF_ACK)) {
         address src_addr;
@@ -2767,18 +2772,17 @@ guint ieee802154_dissect_frame_payload(tvbuff_t *tvb, packet_info *pinfo, proto_
 }
 
 /**
- * Dissect the FCS, or TI CC24xx metadata, at the end of the frame.
+ * Dissect the FCS at the end of the frame.
  * That is only displayed if the included length of the tvb encompasses it.
  *
  * @param tvb the 802.15.4 frame tvb
  * @param pinfo pointer to packet information fields
  * @param ieee802154_tree the 802.15.4 protocol tree
- * @param fcs_len length of the FCS/metadata field
- * @param is_cc24xx indicate if it's TI CC24xx-format metadata
+ * @param fcs_len length of the FCS field
  * @param fcs_ok set to FALSE to indicate FCS verification failed
  */
 static void
-ieee802154_dissect_fcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154_tree, guint fcs_len, gboolean is_cc24xx, gboolean fcs_ok)
+ieee802154_dissect_fcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154_tree, guint fcs_len, gboolean fcs_ok)
 {
     proto_item *ti;
     /* The FCS should be the last bytes of the reported packet. */
@@ -2789,32 +2793,19 @@ ieee802154_dissect_fcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154
      * is too short for an FCS don't make a fuss.
      */
     if (fcs_len && tvb_bytes_exist(tvb, offset, fcs_len) && (ieee802154_tree)) {
-        proto_tree  *field_tree;
         if (fcs_len == 2) {
             guint16     fcs = tvb_get_letohs(tvb, offset);
 
-            /* Display the FCS or metadata, depending on expected format */
-            if (is_cc24xx) {
-                /* Create a subtree for the FCS. */
-                field_tree = proto_tree_add_subtree_format(ieee802154_tree, tvb, offset, 2, ett_ieee802154_fcs, NULL,
-                            "TI CC24xx-format metadata: FCS %s", (fcs_ok) ? "OK" : "Bad");
-                /* Display metadata contents.  */
-                proto_tree_add_boolean(field_tree, hf_ieee802154_fcs_ok, tvb, offset, 1, (guint32) (fcs & IEEE802154_CC24xx_CRC_OK));
-                proto_tree_add_int(field_tree, hf_ieee802154_rssi, tvb, offset++, 1, (gint8) (fcs & IEEE802154_CC24xx_RSSI));
-                proto_tree_add_uint(field_tree, hf_ieee802154_correlation, tvb, offset, 1, (guint8) ((fcs & IEEE802154_CC24xx_CORRELATION) >> 8));
+            ti = proto_tree_add_uint(ieee802154_tree, hf_ieee802154_fcs, tvb, offset, 2, fcs);
+            if (fcs_ok) {
+                proto_item_append_text(ti, " (Correct)");
             }
             else {
-                ti = proto_tree_add_uint(ieee802154_tree, hf_ieee802154_fcs, tvb, offset, 2, fcs);
-                if (fcs_ok) {
-                    proto_item_append_text(ti, " (Correct)");
-                }
-                else {
-                    proto_item_append_text(ti, " (Incorrect, expected FCS=0x%04x)", ieee802154_crc_tvb(tvb, offset));
-                }
-                /* To Help with filtering, add the fcs_ok field to the tree.  */
-                ti = proto_tree_add_boolean(ieee802154_tree, hf_ieee802154_fcs_ok, tvb, offset, 2, (guint32) fcs_ok);
-                PROTO_ITEM_SET_HIDDEN(ti);
+                proto_item_append_text(ti, " (Incorrect, expected FCS=0x%04x)", ieee802154_crc_tvb(tvb, offset));
             }
+            /* To Help with filtering, add the fcs_ok field to the tree.  */
+            ti = proto_tree_add_boolean(ieee802154_tree, hf_ieee802154_fcs_ok, tvb, offset, 2, (guint32) fcs_ok);
+            PROTO_ITEM_SET_HIDDEN(ti);
         }
         else {
             guint32 fcs = tvb_get_letohl(tvb, offset);
@@ -2848,6 +2839,56 @@ ieee802154_dissect_fcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154
         expert_add_info(pinfo, proto_tree_get_parent(ieee802154_tree), &ei_ieee802154_fcs);
     }
 } /* ieee802154_dissect_fcs */
+
+/**
+ * Dissect the TI CC24xx metadata at the end of the frame.
+ * That is only displayed if the included length of the tvb encompasses it.
+ *
+ * @param tvb the 802.15.4 frame tvb
+ * @param pinfo pointer to packet information fields
+ * @param ieee802154_tree the 802.15.4 protocol tree
+ * @param fcs_ok set to FALSE to indicate FCS verification failed
+ */
+static void
+ieee802154_dissect_cc24xx_metadata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154_tree, gboolean fcs_ok)
+{
+    proto_item *ti;
+    /* The metadata should be the last 2 bytes of the reported packet. */
+    guint offset = tvb_reported_length(tvb)-2;
+    /* Dissect the metadata only if it exists (captures which don't or can't get the
+     * metadata will simply truncate the packet to omit it, but should still set the
+     * reported length to cover the original packet length), so if the snapshot
+     * is too short for the metadata don't make a fuss.
+     */
+    if (tvb_bytes_exist(tvb, offset, 2) && (ieee802154_tree)) {
+        proto_tree  *field_tree;
+        guint16     metadata = tvb_get_letohs(tvb, offset);
+
+        /* Create a subtree for the metadata. */
+        field_tree = proto_tree_add_subtree_format(ieee802154_tree, tvb, offset, 2, ett_ieee802154_fcs, NULL,
+                     "TI CC24xx-format metadata: FCS %s", (fcs_ok) ? "OK" : "Bad");
+        /* Display metadata contents.  */
+        proto_tree_add_boolean(field_tree, hf_ieee802154_fcs_ok, tvb, offset, 1, (guint32) (metadata & IEEE802154_CC24xx_CRC_OK));
+        proto_tree_add_int(field_tree, hf_ieee802154_rssi, tvb, offset++, 1, (gint8) (metadata & IEEE802154_CC24xx_RSSI));
+        proto_tree_add_uint(field_tree, hf_ieee802154_correlation, tvb, offset, 1, (guint8) ((metadata & IEEE802154_CC24xx_CORRELATION) >> 8));
+    }
+    else if (ieee802154_tree) {
+        /* Even if the FCS isn't present, add the fcs_ok field to the tree to
+         * help with filter. Be sure not to make it visible though.
+         */
+        ti = proto_tree_add_boolean_format_value(ieee802154_tree, hf_ieee802154_fcs_ok, tvb, offset, 2, fcs_ok, "Unknown");
+        PROTO_ITEM_SET_HIDDEN(ti);
+    }
+
+    /* If the CRC is invalid, make a note of it in the info column. */
+    if (!fcs_ok) {
+        col_append_str(pinfo->cinfo, COL_INFO, ", Bad FCS");
+        proto_item_append_text(proto_tree_get_parent(ieee802154_tree), ", Bad FCS");
+
+        /* Flag packet as having a bad crc. */
+        expert_add_info(pinfo, proto_tree_get_parent(ieee802154_tree), &ei_ieee802154_fcs);
+    }
+} /* ieee802154_dissect_cc24xx_metadata */
 
 static void
 dissect_ieee802154_tap_sun_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset, guint length)
