@@ -351,8 +351,8 @@ static int dissect_ieee802154_cc24xx       (tvbuff_t *, packet_info *, proto_tre
 static int dissect_ieee802154_tap          (tvbuff_t *, packet_info *, proto_tree *, void *);
 static tvbuff_t *dissect_zboss_specific    (tvbuff_t *, packet_info *, proto_tree *);
 static void dissect_ieee802154_common      (tvbuff_t *, packet_info *, proto_tree *, guint, guint);
-static void ieee802154_dissect_fcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154_tree, guint fcs_len, gboolean fcs_ok);
-static void ieee802154_dissect_cc24xx_metadata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154_tree, gboolean fcs_ok);
+static void ieee802154_dissect_fcs(tvbuff_t *tvb, proto_tree *ieee802154_tree, guint fcs_len, gboolean fcs_ok);
+static void ieee802154_dissect_cc24xx_metadata(tvbuff_t *tvb, proto_tree *ieee802154_tree, gboolean fcs_ok);
 static ieee802154_fcs_type_t dissect_ieee802154_tap_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* Information Elements */
@@ -2037,9 +2037,18 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
     if (fcs_present) {
         if (options & DISSECT_IEEE802154_OPTION_CC24xx)
-            ieee802154_dissect_cc24xx_metadata(tvb, pinfo, ieee802154_tree, fcs_ok);
+            ieee802154_dissect_cc24xx_metadata(tvb, ieee802154_tree, fcs_ok);
         else
-            ieee802154_dissect_fcs(tvb, pinfo, ieee802154_tree, fcs_len, fcs_ok);
+            ieee802154_dissect_fcs(tvb, ieee802154_tree, fcs_len, fcs_ok);
+
+        /* If the CRC is invalid, make a note of it in the info column. */
+        if (!fcs_ok) {
+            col_append_str(pinfo->cinfo, COL_INFO, ", Bad FCS");
+            proto_item_append_text(proto_tree_get_parent(ieee802154_tree), ", Bad FCS");
+
+            /* Flag packet as having a bad crc. */
+            expert_add_info(pinfo, proto_tree_get_parent(ieee802154_tree), &ei_ieee802154_fcs);
+        }
     }
 
     if (ieee802154_ack_tracking && fcs_ok && (packet->ack_request || packet->frame_type == IEEE802154_FCF_ACK)) {
@@ -2776,13 +2785,12 @@ guint ieee802154_dissect_frame_payload(tvbuff_t *tvb, packet_info *pinfo, proto_
  * That is only displayed if the included length of the tvb encompasses it.
  *
  * @param tvb the 802.15.4 frame tvb
- * @param pinfo pointer to packet information fields
  * @param ieee802154_tree the 802.15.4 protocol tree
  * @param fcs_len length of the FCS field
  * @param fcs_ok set to FALSE to indicate FCS verification failed
  */
 static void
-ieee802154_dissect_fcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154_tree, guint fcs_len, gboolean fcs_ok)
+ieee802154_dissect_fcs(tvbuff_t *tvb, proto_tree *ieee802154_tree, guint fcs_len, gboolean fcs_ok)
 {
     proto_item *ti;
     /* The FCS should be the last bytes of the reported packet. */
@@ -2829,15 +2837,6 @@ ieee802154_dissect_fcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154
         ti = proto_tree_add_boolean_format_value(ieee802154_tree, hf_ieee802154_fcs_ok, tvb, offset, 2, fcs_ok, "Unknown");
         PROTO_ITEM_SET_HIDDEN(ti);
     }
-
-    /* If the CRC is invalid, make a note of it in the info column. */
-    if (!fcs_ok) {
-        col_append_str(pinfo->cinfo, COL_INFO, ", Bad FCS");
-        proto_item_append_text(proto_tree_get_parent(ieee802154_tree), ", Bad FCS");
-
-        /* Flag packet as having a bad crc. */
-        expert_add_info(pinfo, proto_tree_get_parent(ieee802154_tree), &ei_ieee802154_fcs);
-    }
 } /* ieee802154_dissect_fcs */
 
 /**
@@ -2845,12 +2844,11 @@ ieee802154_dissect_fcs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154
  * That is only displayed if the included length of the tvb encompasses it.
  *
  * @param tvb the 802.15.4 frame tvb
- * @param pinfo pointer to packet information fields
  * @param ieee802154_tree the 802.15.4 protocol tree
  * @param fcs_ok set to FALSE to indicate FCS verification failed
  */
 static void
-ieee802154_dissect_cc24xx_metadata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ieee802154_tree, gboolean fcs_ok)
+ieee802154_dissect_cc24xx_metadata(tvbuff_t *tvb, proto_tree *ieee802154_tree, gboolean fcs_ok)
 {
     proto_item *ti;
     /* The metadata should be the last 2 bytes of the reported packet. */
@@ -2878,15 +2876,6 @@ ieee802154_dissect_cc24xx_metadata(tvbuff_t *tvb, packet_info *pinfo, proto_tree
          */
         ti = proto_tree_add_boolean_format_value(ieee802154_tree, hf_ieee802154_fcs_ok, tvb, offset, 2, fcs_ok, "Unknown");
         PROTO_ITEM_SET_HIDDEN(ti);
-    }
-
-    /* If the CRC is invalid, make a note of it in the info column. */
-    if (!fcs_ok) {
-        col_append_str(pinfo->cinfo, COL_INFO, ", Bad FCS");
-        proto_item_append_text(proto_tree_get_parent(ieee802154_tree), ", Bad FCS");
-
-        /* Flag packet as having a bad crc. */
-        expert_add_info(pinfo, proto_tree_get_parent(ieee802154_tree), &ei_ieee802154_fcs);
     }
 } /* ieee802154_dissect_cc24xx_metadata */
 
