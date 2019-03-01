@@ -441,9 +441,13 @@ unicode_to_bytes(tvbuff_t *tvb, int offset, int length, gboolean endianness)
         for (i = length; i > 0; i--) {
             c_char = ascii_text[i];
             if (c_char != 0) {
+                if (i == 0)
+                    break;
                 i--;
                 c_char1 = ascii_text[i];
                 if (c_char1 == 0) {
+                    if (i == 0)
+                        break;
                     i--;
                     c_char1 = ascii_text[i];
                 }
