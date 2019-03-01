@@ -900,7 +900,7 @@ tcp_seq_analysis_packet( void *ptr, packet_info *pinfo, epan_dissect_t *edt _U_,
 }
 
 
-gchar* tcp_follow_conv_filter(packet_info* pinfo, int* stream)
+gchar *tcp_follow_conv_filter(packet_info *pinfo, guint *stream)
 {
     conversation_t *conv;
     struct tcp_analysis *tcpd;
@@ -915,18 +915,18 @@ gchar* tcp_follow_conv_filter(packet_info* pinfo, int* stream)
             return NULL;
 
         *stream = tcpd->stream;
-        return g_strdup_printf("tcp.stream eq %d", tcpd->stream);
+        return g_strdup_printf("tcp.stream eq %u", tcpd->stream);
     }
 
     return NULL;
 }
 
-gchar* tcp_follow_index_filter(int stream)
+gchar *tcp_follow_index_filter(guint stream)
 {
-    return g_strdup_printf("tcp.stream eq %d", stream);
+    return g_strdup_printf("tcp.stream eq %u", stream);
 }
 
-gchar* tcp_follow_address_filter(address* src_addr, address* dst_addr, int src_port, int dst_port)
+gchar *tcp_follow_address_filter(address *src_addr, address *dst_addr, int src_port, int dst_port)
 {
     const gchar  *ip_version = src_addr->type == AT_IPv6 ? "v6" : "";
     gchar         src_addr_str[WS_INET6_ADDRSTRLEN];

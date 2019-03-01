@@ -771,7 +771,7 @@ FollowStreamDialog::showBuffer(char *buffer, size_t nchars, gboolean is_from_ser
     return FRS_OK;
 }
 
-bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, int stream_num)
+bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, guint stream_num)
 {
     QString             follow_filter;
     const char          *hostname0 = NULL, *hostname1 = NULL;

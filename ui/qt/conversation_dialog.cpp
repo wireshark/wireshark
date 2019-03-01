@@ -212,7 +212,7 @@ void ConversationDialog::followStream()
     }
 
     // Will set the display filter too.
-    emit openFollowStreamDialog(ftype, (int)conv_item->conv_id);
+    emit openFollowStreamDialog(ftype, conv_item->conv_id);
 }
 
 void ConversationDialog::graphTcp()

@@ -42,7 +42,7 @@ public:
     explicit FollowStreamDialog(QWidget &parent, CaptureFile &cf, follow_type_t type = FOLLOW_TCP);
     ~FollowStreamDialog();
 
-    bool follow(QString previous_filter = QString(), bool use_stream_index = false, int stream_num = -1);
+    bool follow(QString previous_filter = QString(), bool use_stream_index = false, guint stream_num = 0);
 
 public slots:
     void captureEvent(CaptureEvent e);

@@ -545,7 +545,8 @@ private slots:
     void on_actionAnalyzeDecodeAs_triggered();
     void on_actionAnalyzeReloadLuaPlugins_triggered();
 
-    void openFollowStreamDialog(follow_type_t type, int stream_num = -1);
+    void openFollowStreamDialog(follow_type_t type, guint stream_num, bool use_stream_index = true);
+    void openFollowStreamDialogForType(follow_type_t type);
     void on_actionAnalyzeFollowTCPStream_triggered();
     void on_actionAnalyzeFollowUDPStream_triggered();
     void on_actionAnalyzeFollowTLSStream_triggered();

@@ -2760,13 +2760,13 @@ void MainWindow::on_actionAnalyzeReloadLuaPlugins_triggered()
     reloadLuaPlugins();
 }
 
-void MainWindow::openFollowStreamDialog(follow_type_t type, int stream_num) {
+void MainWindow::openFollowStreamDialog(follow_type_t type, guint stream_num, bool use_stream_index) {
     FollowStreamDialog *fsd = new FollowStreamDialog(*this, capture_file_, type);
     connect(fsd, SIGNAL(updateFilter(QString, bool)), this, SLOT(filterPackets(QString, bool)));
     connect(fsd, SIGNAL(goToPacket(int)), packet_list_, SLOT(goToPacket(int)));
 
     fsd->show();
-    if (stream_num >= 0) {
+    if (use_stream_index) {
         // If a specific conversation was requested, then ignore any previous
         // display filters and display all related packets.
         fsd->follow("", true, stream_num);
@@ -2775,24 +2775,28 @@ void MainWindow::openFollowStreamDialog(follow_type_t type, int stream_num) {
     }
 }
 
+void MainWindow::openFollowStreamDialogForType(follow_type_t type) {
+    openFollowStreamDialog(type, 0, false);
+}
+
 void MainWindow::on_actionAnalyzeFollowTCPStream_triggered()
 {
-    openFollowStreamDialog(FOLLOW_TCP);
+    openFollowStreamDialogForType(FOLLOW_TCP);
 }
 
 void MainWindow::on_actionAnalyzeFollowUDPStream_triggered()
 {
-    openFollowStreamDialog(FOLLOW_UDP);
+    openFollowStreamDialogForType(FOLLOW_UDP);
 }
 
 void MainWindow::on_actionAnalyzeFollowTLSStream_triggered()
 {
-    openFollowStreamDialog(FOLLOW_TLS);
+    openFollowStreamDialogForType(FOLLOW_TLS);
 }
 
 void MainWindow::on_actionAnalyzeFollowHTTPStream_triggered()
 {
-    openFollowStreamDialog(FOLLOW_HTTP);
+    openFollowStreamDialogForType(FOLLOW_HTTP);
 }
 
 void MainWindow::openSCTPAllAssocsDialog()
@@ -3080,8 +3084,8 @@ void MainWindow::statCommandConversations(const char *arg, void *userdata)
     ConversationDialog *conv_dialog = new ConversationDialog(*this, capture_file_, GPOINTER_TO_INT(userdata), arg);
     connect(conv_dialog, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)),
             this, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)));
-    connect(conv_dialog, SIGNAL(openFollowStreamDialog(follow_type_t,int)),
-            this, SLOT(openFollowStreamDialog(follow_type_t,int)));
+    connect(conv_dialog, SIGNAL(openFollowStreamDialog(follow_type_t,guint)),
+            this, SLOT(openFollowStreamDialog(follow_type_t,guint)));
     connect(conv_dialog, SIGNAL(openTcpStreamGraph(int)),
             this, SLOT(openTcpStreamDialog(int)));
     conv_dialog->show();
@@ -3099,7 +3103,7 @@ void MainWindow::statCommandEndpoints(const char *arg, void *userdata)
     connect(endp_dialog, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)),
             this, SIGNAL(filterAction(QString,FilterAction::Action,FilterAction::ActionType)));
     connect(endp_dialog, SIGNAL(openFollowStreamDialog(follow_type_t)),
-            this, SLOT(openFollowStreamDialog(follow_type_t)));
+            this, SLOT(openFollowStreamDialogForType(follow_type_t)));
     connect(endp_dialog, SIGNAL(openTcpStreamGraph(int)),
             this, SLOT(openTcpStreamDialog(int)));
     endp_dialog->show();
