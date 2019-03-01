@@ -3785,7 +3785,7 @@ dissect_ieee802154_header_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     volatile guint offset = orig_offset;
     proto_item *ies_item = proto_tree_add_item(tree, hf_ieee802154_header_ies, tvb, offset, -1, ENC_NA);
     proto_tree *ies_tree = proto_item_add_subtree(ies_item, ett_ieee802154_header_ie);
-    gint remaining = tvb_reported_length_remaining(tvb, offset) - IEEE802154_MIC_LENGTH(packet->security_level);
+    volatile gint remaining = tvb_reported_length_remaining(tvb, offset) - IEEE802154_MIC_LENGTH(packet->security_level);
 
     // Loop as long as we don't:
     //
