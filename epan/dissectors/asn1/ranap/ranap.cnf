@@ -203,6 +203,8 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 
     sccp_info->data.co.assoc->calling_party =
     wmem_strdup_printf(wmem_file_scope(), "IMSI: %%s", digit_str );
+
+    sccp_info->data.co.assoc->imsi = wmem_strdup(wmem_file_scope(), digit_str );
   }
 
 #.END

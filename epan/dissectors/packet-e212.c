@@ -2873,6 +2873,7 @@ value_string_ext mcc_mnc_3digits_codes_ext = VALUE_STRING_EXT_INIT(mcc_mnc_3digi
 
 static int proto_e212   = -1;
 static int hf_E212_imsi = -1;
+static int hf_e212_assoc_imsi = -1;
 static int hf_E212_mcc  = -1;
 static int hf_E212_mcc_lai = -1;
 static int hf_E212_mcc_sai = -1;
@@ -3331,7 +3332,8 @@ dissect_e212_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
     if (!is_imsi_string_valid(imsi_str)) {
         expert_add_info(pinfo, item, &ei_E212_imsi_malformed);
     }
-
+    item = proto_tree_add_string(tree, hf_e212_assoc_imsi, tvb, offset, length, imsi_str);
+    PROTO_ITEM_SET_GENERATED(item);
     subtree = proto_item_add_subtree(item, ett_e212_imsi);
 
     if(skip_first) {
@@ -3356,6 +3358,8 @@ dissect_e212_utf8_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     if (!is_imsi_string_valid(imsi_str)) {
         expert_add_info(pinfo, item, &ei_E212_imsi_malformed);
     }
+    item = proto_tree_add_string(tree, hf_e212_assoc_imsi, tvb, offset, length, imsi_str);
+    PROTO_ITEM_SET_GENERATED(item);
 
     subtree = proto_item_add_subtree(item, ett_e212_imsi);
 
@@ -3383,6 +3387,12 @@ proto_register_e212(void)
         FT_STRING, BASE_NONE, NULL, 0x0,
         "International mobile subscriber identity(IMSI)", HFILL }
     },
+    { &hf_e212_assoc_imsi,
+      { "Association IMSI", "e212.assoc.imsi",
+        FT_STRING, BASE_NONE, NULL, 0,
+        "Used to tie MSGs related to the same IMSI", HFILL}
+    },
+
     { &hf_E212_mcc,
         { "Mobile Country Code (MCC)","e212.mcc",
         FT_UINT16, BASE_DEC|BASE_EXT_STRING, &E212_codes_ext, 0x0,
