@@ -10472,8 +10472,11 @@ VALUE_STRING_ARRAY(zbee_zcl_energy_management_srv_tx_cmd_names);
 void proto_register_zbee_zcl_energy_management(void);
 void proto_reg_handoff_zbee_zcl_energy_management(void);
 
+static void dissect_zbee_zcl_energy_management_manage_event             (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zbee_zcl_energy_management_report_event_status      (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+
 /* Attribute Dissector Helpers */
-static void dissect_zcl_energy_management_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
+static void dissect_zcl_energy_management_attr_data                     (proto_tree *tree, tvbuff_t *tvb, guint *offset, guint16 attr_id, guint data_type, gboolean client_attr);
 
 /*************************/
 /* Global Variables      */
@@ -10486,9 +10489,97 @@ static int hf_zbee_zcl_energy_management_srv_tx_cmd_id = -1;
 static int hf_zbee_zcl_energy_management_srv_rx_cmd_id = -1;
 static int hf_zbee_zcl_energy_management_attr_id = -1;
 static int hf_zbee_zcl_energy_management_attr_reporting_status = -1;
+static int hf_zbee_zcl_energy_management_issuer_event_id = -1;
+static int hf_zbee_zcl_energy_management_device_class = -1;
+static int hf_zbee_zcl_energy_management_device_class_hvac_compressor_or_furnace = -1;
+static int hf_zbee_zcl_energy_management_device_class_strip_heaters_baseboard_heaters = -1;
+static int hf_zbee_zcl_energy_management_device_class_water_heater = -1;
+static int hf_zbee_zcl_energy_management_device_class_pool_pump_spa_jacuzzi = -1;
+static int hf_zbee_zcl_energy_management_device_class_smart_appliances = -1;
+static int hf_zbee_zcl_energy_management_device_class_irrigation_pump = -1;
+static int hf_zbee_zcl_energy_management_device_class_managed_c_i_loads= -1;
+static int hf_zbee_zcl_energy_management_device_class_simple_misc_loads = -1;
+static int hf_zbee_zcl_energy_management_device_class_exterior_lighting = -1;
+static int hf_zbee_zcl_energy_management_device_class_interior_lighting = -1;
+static int hf_zbee_zcl_energy_management_device_class_electric_vehicle = -1;
+static int hf_zbee_zcl_energy_management_device_class_generation_systems = -1;
+static int hf_zbee_zcl_energy_management_device_class_reserved = -1;
+static int hf_zbee_zcl_energy_management_utility_enrollment_group = -1;
+static int hf_zbee_zcl_energy_management_action_required = -1;
+static int hf_zbee_zcl_energy_management_action_required_opt_out_of_event = -1;
+static int hf_zbee_zcl_energy_management_action_required_opt_into_event = -1;
+static int hf_zbee_zcl_energy_management_action_required_disable_duty_cycling = -1;
+static int hf_zbee_zcl_energy_management_action_required_enable_duty_cycling = -1;
+static int hf_zbee_zcl_energy_management_action_required_reserved = -1;
+
+static int hf_zbee_zcl_energy_management_report_event_issuer_event_id = -1;
+static int hf_zbee_zcl_energy_management_report_event_event_status = -1;
+static int hf_zbee_zcl_energy_management_report_event_event_status_time = -1;
+static int hf_zbee_zcl_energy_management_report_event_criticality_level_applied = -1;
+static int hf_zbee_zcl_energy_management_report_event_cooling_temp_set_point_applied = -1;
+static int hf_zbee_zcl_energy_management_report_event_heating_temp_set_point_applied = -1;
+static int hf_zbee_zcl_energy_management_report_event_average_load_adjustment_percentage = -1;
+static int hf_zbee_zcl_energy_management_report_event_duty_cycle = -1;
+static int hf_zbee_zcl_energy_management_report_event_event_control = -1;
+static int hf_zbee_zcl_energy_management_report_event_event_control_randomize_start_time = -1;
+static int hf_zbee_zcl_energy_management_report_event_event_control_randomize_duration_time = -1;
+static int hf_zbee_zcl_energy_management_report_event_event_control_reserved = -1;
+
+
+static const int* zbee_zcl_energy_management_device_classes[] = {
+    &hf_zbee_zcl_energy_management_device_class_hvac_compressor_or_furnace,
+    &hf_zbee_zcl_energy_management_device_class_strip_heaters_baseboard_heaters,
+    &hf_zbee_zcl_energy_management_device_class_water_heater,
+    &hf_zbee_zcl_energy_management_device_class_pool_pump_spa_jacuzzi,
+    &hf_zbee_zcl_energy_management_device_class_smart_appliances,
+    &hf_zbee_zcl_energy_management_device_class_irrigation_pump,
+    &hf_zbee_zcl_energy_management_device_class_managed_c_i_loads,
+    &hf_zbee_zcl_energy_management_device_class_simple_misc_loads,
+    &hf_zbee_zcl_energy_management_device_class_exterior_lighting,
+    &hf_zbee_zcl_energy_management_device_class_interior_lighting,
+    &hf_zbee_zcl_energy_management_device_class_electric_vehicle,
+    &hf_zbee_zcl_energy_management_device_class_generation_systems,
+    &hf_zbee_zcl_energy_management_device_class_reserved,
+    NULL
+};
+
+static const int* zbee_zcl_energy_management_action_required[] = {
+    &hf_zbee_zcl_energy_management_action_required_opt_out_of_event,
+    &hf_zbee_zcl_energy_management_action_required_opt_into_event,
+    &hf_zbee_zcl_energy_management_action_required_disable_duty_cycling,
+    &hf_zbee_zcl_energy_management_action_required_enable_duty_cycling,
+    &hf_zbee_zcl_energy_management_action_required_reserved,
+    NULL
+};
+
+static const int* hf_zbee_zcl_energy_management_event_control_flags[] = {
+    &hf_zbee_zcl_energy_management_report_event_event_control_randomize_start_time,
+    &hf_zbee_zcl_energy_management_report_event_event_control_randomize_duration_time,
+    &hf_zbee_zcl_energy_management_report_event_event_control_reserved,
+    NULL
+};
 
 /* Initialize the subtree pointers */
 static gint ett_zbee_zcl_energy_management = -1;
+static gint ett_zbee_zcl_energy_management_device_class = -1;
+static gint ett_zbee_zcl_energy_management_actions_required = -1;
+static gint ett_zbee_zcl_energy_management_report_event_event_control = -1;
+
+static const range_string zbee_zcl_energy_management_load_control_event_criticality_level[] = {
+    { 0x0, 0x0,   "Reserved" },
+    { 0x1, 0x1,   "Green" },
+    { 0x2, 0x2,   "1" },
+    { 0x3, 0x3,   "2" },
+    { 0x4, 0x4,   "3" },
+    { 0x5, 0x5,   "4" },
+    { 0x6, 0x6,   "5" },
+    { 0x7, 0x7,   "Emergency" },
+    { 0x8, 0x8,   "Planned Outage" },
+    { 0x9, 0x9,   "Service Disconnect" },
+    { 0x0A, 0x0F, "Utility Defined" },
+    { 0x10, 0xFF, "Reserved" },
+    { 0, 0, NULL }
+};
 
 /*************************/
 /* Function Bodies       */
@@ -10519,6 +10610,97 @@ dissect_zcl_energy_management_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *
             break;
     }
 } /*dissect_zcl_energy_management_attr_data*/
+
+/**
+ *ZigBee ZCL Energy Management cluster dissector for wireshark.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
+static void
+dissect_zbee_zcl_energy_management_manage_event(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_energy_management_issuer_event_id, tvb,
+                        *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Device Class */
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_energy_management_device_class, ett_zbee_zcl_energy_management_device_class,
+                           zbee_zcl_energy_management_device_classes, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Utility Enrollment Group */
+    proto_tree_add_item(tree, hf_zbee_zcl_energy_management_utility_enrollment_group, tvb,
+                        *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Action(s) Required */
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_energy_management_action_required, ett_zbee_zcl_energy_management_actions_required,
+                           zbee_zcl_energy_management_action_required, ENC_NA);
+    *offset += 1;
+}
+
+/**
+ *ZigBee ZCL Energy Management cluster dissector for wireshark.
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param pinfo pointer to packet information fields
+ *@param tree pointer to data tree Wireshark uses to display packet.
+*/
+static void
+dissect_zbee_zcl_energy_management_report_event_status(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Event Control */
+    nstime_t event_status_time;
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_energy_management_report_event_issuer_event_id, tvb,
+                        *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Event Status */
+    proto_tree_add_item(tree, hf_zbee_zcl_energy_management_report_event_event_status, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Event Status Time */
+    event_status_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    event_status_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_energy_management_report_event_event_status_time, tvb, *offset, 4, &event_status_time);
+    *offset += 4;
+
+    /* Criticality Level Applied */
+    proto_tree_add_item(tree, hf_zbee_zcl_energy_management_report_event_criticality_level_applied, tvb,
+                        *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Cooling Temperature Set Point Applied */
+    proto_tree_add_item(tree, hf_zbee_zcl_energy_management_report_event_cooling_temp_set_point_applied, tvb,
+                        *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Heating Temperature Set Point Applied */
+    proto_tree_add_item(tree, hf_zbee_zcl_energy_management_report_event_heating_temp_set_point_applied, tvb,
+                        *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Average Load Adjustment Percentage Applied */
+    proto_tree_add_item(tree, hf_zbee_zcl_energy_management_report_event_average_load_adjustment_percentage, tvb,
+                        *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Duty Cycle Applied */
+    proto_tree_add_item(tree, hf_zbee_zcl_energy_management_report_event_duty_cycle, tvb,
+                        *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Event Control */
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_drlc_report_event_event_control, ett_zbee_zcl_energy_management_report_event_event_control,
+                           hf_zbee_zcl_energy_management_event_control_flags, ENC_LITTLE_ENDIAN);
+    *offset += 1;
+
+} /*dissect_zbee_zcl_energy_management_report_event_status*/
 
 /**
  *ZigBee ZCL Energy Management cluster dissector for wireshark.
@@ -10560,7 +10742,7 @@ dissect_zbee_zcl_energy_management(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             switch (cmd_id) {
 
                 case ZBEE_ZCL_CMD_ID_ENERGY_MANAGEMENT_MANAGE_EVENT:
-                    /* Add function to dissect payload */
+                    dissect_zbee_zcl_energy_management_manage_event(tvb, tree, &offset);
                     break;
 
                 default:
@@ -10586,7 +10768,7 @@ dissect_zbee_zcl_energy_management(tvbuff_t *tvb, packet_info *pinfo, proto_tree
             switch (cmd_id) {
 
                 case ZBEE_ZCL_CMD_ID_ENERGY_MANAGEMENT_REPORT_EVENT_STATUS:
-                    /* Add function to dissect payload */
+                    dissect_zbee_zcl_energy_management_report_event_status(tvb, tree, &offset);
                     break;
 
                 default:
@@ -10623,11 +10805,149 @@ proto_register_zbee_zcl_energy_management(void)
             { "Command", "zbee_zcl_se.energy_management.cmd.srv_rx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_energy_management_srv_rx_cmd_names),
             0x00, NULL, HFILL } },
 
+        { &hf_zbee_zcl_energy_management_issuer_event_id,
+            { "Issuer Event ID", "zbee_zcl_se.energy_management.issuer_id",
+            FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_device_class,
+            { "Device Class", "zbee_zcl_se.energy_management.device_class",
+            FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_device_class_hvac_compressor_or_furnace,
+            { "HVAC Compressor or Furnace", "zbee_zcl_se.energy_management.device_class.hvac_compressor_or_furnace",
+            FT_BOOLEAN, 16, NULL, 0x0001, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_device_class_strip_heaters_baseboard_heaters,
+            { "Strip Heaters/Baseboard Heaters", "zbee_zcl_se.energy_management.device_class.strip_heaters_baseboard_heaters",
+            FT_BOOLEAN, 16, NULL, 0x0002, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_device_class_water_heater,
+            { "Water Heater", "zbee_zcl_se.energy_management.device_class.water_heater",
+            FT_BOOLEAN, 16, NULL, 0x0004, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_device_class_pool_pump_spa_jacuzzi,
+            { "Pool Pump/Spa/Jacuzzi", "zbee_zcl_se.energy_management.device_class.pool_pump_spa_jacuzzi",
+            FT_BOOLEAN, 16, NULL, 0x0008, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_device_class_smart_appliances,
+            { "Smart Appliances", "zbee_zcl_se.energy_management.device_class.smart_appliances",
+            FT_BOOLEAN, 16, NULL, 0x0010, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_device_class_irrigation_pump,
+            { "Irrigation Pump", "zbee_zcl_se.energy_management.device_class.irrigation_pump",
+            FT_BOOLEAN, 16, NULL, 0x0020, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_device_class_managed_c_i_loads,
+            { "Managed Commercial & Industrial (C&I) loads", "zbee_zcl_se.energy_management.device_class.managed_c_i_loads",
+            FT_BOOLEAN, 16, NULL, 0x0040, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_device_class_simple_misc_loads,
+            { "Simple misc. (Residential On/Off) loads", "zbee_zcl_se.energy_management.device_class.simple_misc_loads",
+            FT_BOOLEAN, 16, NULL, 0x0080, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_device_class_exterior_lighting,
+            { "Exterior Lighting", "zbee_zcl_se.energy_management.device_class.exterior_lighting",
+            FT_BOOLEAN, 16, NULL, 0x0100, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_device_class_interior_lighting,
+            { "Interior Lighting", "zbee_zcl_se.energy_management.device_class.interior_lighting",
+            FT_BOOLEAN, 16, NULL, 0x0200, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_device_class_electric_vehicle,
+            { "Electric Vehicle", "zbee_zcl_se.energy_management.device_class.electric_vehicle",
+            FT_BOOLEAN, 16, NULL, 0x0400, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_device_class_generation_systems,
+            { "Generation Systems", "zbee_zcl_se.energy_management.device_class.generation_systems",
+            FT_BOOLEAN, 16, NULL, 0x0800, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_device_class_reserved ,
+            { "Reserved", "zbee_zcl_se.energy_management.device_class.reserved",
+            FT_UINT16, BASE_HEX, NULL, 0xF000, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_utility_enrollment_group,
+            { "Utility Enrollment Group", "zbee_zcl_se.energy_management.utility_enrollment_group",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_action_required,
+            { "Action(s) Required", "zbee_zcl_se.energy_management.action_required",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_action_required_opt_out_of_event,
+            { "Opt Out of Event", "zbee_zcl_se.energy_management.action_required.opt_out_of_event",
+            FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_action_required_opt_into_event,
+            { "Opt Into Event", "zbee_zcl_se.energy_management.action_required.opt_into_event",
+            FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_action_required_disable_duty_cycling,
+            { "Disable Duty Cycling", "zbee_zcl_se.energy_management.action_required.disable_duty_cycling",
+            FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_action_required_enable_duty_cycling,
+            { "Enable Duty Cycling", "zbee_zcl_se.energy_management.action_required.enable_duty_cycling",
+            FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_action_required_reserved,
+            { "Reserved", "zbee_zcl_se.energy_management.action_required.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_report_event_issuer_event_id,
+            { "Issuer Event ID", "zbee_zcl_se.energy_management.report_event.issuer_id",
+            FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_report_event_event_status,
+            { "Event Status", "zbee_zcl_se.energy_management.report_event.event_status",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_report_event_event_status_time,
+            { "Event Status Time", "zbee_zcl_se.energy_management.report_event.event_status_time",
+            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_report_event_criticality_level_applied ,
+            { "Criticality Level Applied", "zbee_zcl_se.energy_management.report_event.criticality_level_applied",
+            FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(zbee_zcl_energy_management_load_control_event_criticality_level), 0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_report_event_cooling_temp_set_point_applied,
+            { "Cooling Temperature Set Point Applied", "zbee_zcl_se.energy_management.report_event.cooling_temperature_set_point_applied",
+            FT_INT16, BASE_CUSTOM, CF_FUNC(decode_zcl_drlc_temp_set_point), 0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_report_event_heating_temp_set_point_applied,
+            { "Heating Temperature Set Point Applied", "zbee_zcl_se.energy_management.report_event.heating_temperature_set_point_applied",
+            FT_INT16, BASE_CUSTOM, CF_FUNC(decode_zcl_drlc_temp_set_point), 0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_report_event_average_load_adjustment_percentage ,
+            { "Average Load Adjustment Percentage Applied", "zbee_zcl_se.energy_management.report_event.average_load_adjustment_percentage_applied",
+            FT_INT8, BASE_CUSTOM, CF_FUNC(decode_zcl_drlc_average_load_adjustment_percentage), 0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_report_event_duty_cycle,
+            { "Duty Cycle Applied", "zbee_zcl_se.energy_management.report_event.duty_cycle_applied",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_report_event_event_control,
+            { "Event Control", "zbee_zcl_se.energy_management.report_event.event_control",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_report_event_event_control_randomize_start_time,
+            { "Randomize Start time", "zbee_zcl_se.energy_management.report_event.randomize_start_time",
+            FT_BOOLEAN, 8, TFS(&zbee_zcl_drlc_randomize_start_tfs), 0x01, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_report_event_event_control_randomize_duration_time,
+            { "Randomize Duration time", "zbee_zcl_se.energy_management.report_event.randomize_duration_time",
+            FT_BOOLEAN, 8, TFS(&zbee_zcl_drlc_randomize_duration_tfs), 0x02, NULL, HFILL } },
+
+        { &hf_zbee_zcl_energy_management_report_event_event_control_reserved,
+            { "Reserved", "zbee_zcl_se.energy_management.reserved",
+            FT_UINT8, BASE_HEX, NULL, 0xFC, NULL, HFILL } },
     };
 
     /* ZCL Energy_Management subtrees */
     gint *ett[] = {
         &ett_zbee_zcl_energy_management,
+        &ett_zbee_zcl_energy_management_device_class,
+        &ett_zbee_zcl_energy_management_actions_required,
+        &ett_zbee_zcl_energy_management_report_event_event_control,
     };
 
     /* Register the ZigBee ZCL Energy Management cluster protocol name and description */
