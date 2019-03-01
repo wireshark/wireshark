@@ -2049,6 +2049,14 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
             /* Flag packet as having a bad crc. */
             expert_add_info(pinfo, proto_tree_get_parent(ieee802154_tree), &ei_ieee802154_fcs);
         }
+    } else {
+        if (ieee802154_tree) {
+            /* Even if the FCS isn't present, add the fcs_ok field to the tree to
+             * help with filter. Be sure not to make it visible though.
+             */
+            proto_item *ti = proto_tree_add_boolean_format_value(ieee802154_tree, hf_ieee802154_fcs_ok, tvb, 0, 0, fcs_ok, "Unknown");
+            PROTO_ITEM_SET_HIDDEN(ti);
+        }
     }
 
     if (ieee802154_ack_tracking && fcs_ok && (packet->ack_request || packet->frame_type == IEEE802154_FCF_ACK)) {
@@ -2800,7 +2808,7 @@ ieee802154_dissect_fcs(tvbuff_t *tvb, proto_tree *ieee802154_tree, guint fcs_len
      * reported length to cover the original packet length), so if the snapshot
      * is too short for an FCS don't make a fuss.
      */
-    if (fcs_len && tvb_bytes_exist(tvb, offset, fcs_len) && (ieee802154_tree)) {
+    if (ieee802154_tree) {
         if (fcs_len == 2) {
             guint16     fcs = tvb_get_letohs(tvb, offset);
 
@@ -2830,13 +2838,6 @@ ieee802154_dissect_fcs(tvbuff_t *tvb, proto_tree *ieee802154_tree, guint fcs_len
             PROTO_ITEM_SET_HIDDEN(ti);
         }
     }
-    else if (ieee802154_tree) {
-        /* Even if the FCS isn't present, add the fcs_ok field to the tree to
-         * help with filter. Be sure not to make it visible though.
-         */
-        ti = proto_tree_add_boolean_format_value(ieee802154_tree, hf_ieee802154_fcs_ok, tvb, offset, 2, fcs_ok, "Unknown");
-        PROTO_ITEM_SET_HIDDEN(ti);
-    }
 } /* ieee802154_dissect_fcs */
 
 /**
@@ -2850,7 +2851,6 @@ ieee802154_dissect_fcs(tvbuff_t *tvb, proto_tree *ieee802154_tree, guint fcs_len
 static void
 ieee802154_dissect_cc24xx_metadata(tvbuff_t *tvb, proto_tree *ieee802154_tree, gboolean fcs_ok)
 {
-    proto_item *ti;
     /* The metadata should be the last 2 bytes of the reported packet. */
     guint offset = tvb_reported_length(tvb)-2;
     /* Dissect the metadata only if it exists (captures which don't or can't get the
@@ -2858,7 +2858,7 @@ ieee802154_dissect_cc24xx_metadata(tvbuff_t *tvb, proto_tree *ieee802154_tree, g
      * reported length to cover the original packet length), so if the snapshot
      * is too short for the metadata don't make a fuss.
      */
-    if (tvb_bytes_exist(tvb, offset, 2) && (ieee802154_tree)) {
+    if (ieee802154_tree) {
         proto_tree  *field_tree;
         guint16     metadata = tvb_get_letohs(tvb, offset);
 
@@ -2869,13 +2869,6 @@ ieee802154_dissect_cc24xx_metadata(tvbuff_t *tvb, proto_tree *ieee802154_tree, g
         proto_tree_add_boolean(field_tree, hf_ieee802154_fcs_ok, tvb, offset, 1, (guint32) (metadata & IEEE802154_CC24xx_CRC_OK));
         proto_tree_add_int(field_tree, hf_ieee802154_rssi, tvb, offset++, 1, (gint8) (metadata & IEEE802154_CC24xx_RSSI));
         proto_tree_add_uint(field_tree, hf_ieee802154_correlation, tvb, offset, 1, (guint8) ((metadata & IEEE802154_CC24xx_CORRELATION) >> 8));
-    }
-    else if (ieee802154_tree) {
-        /* Even if the FCS isn't present, add the fcs_ok field to the tree to
-         * help with filter. Be sure not to make it visible though.
-         */
-        ti = proto_tree_add_boolean_format_value(ieee802154_tree, hf_ieee802154_fcs_ok, tvb, offset, 2, fcs_ok, "Unknown");
-        PROTO_ITEM_SET_HIDDEN(ti);
     }
 } /* ieee802154_dissect_cc24xx_metadata */
 
