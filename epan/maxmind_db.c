@@ -43,6 +43,8 @@ static mmdb_lookup_t mmdb_not_found;
 
 static GThread *write_mmdbr_stdin_thread;
 static GAsyncQueue *mmdbr_request_q; // g_allocated char *
+static char mmdbr_stop_sentinel[] = "\x04"; // ASCII EOT. Could be anything.
+
 // The GLib documentation says that g_rw_lock_reader_lock can be called
 // recursively:
 //   https://developer.gnome.org/glib/stable/glib-Threads.html#g-rw-lock-reader-lock
@@ -158,7 +160,6 @@ static gboolean mmdbr_pipe_valid(void) {
 }
 
 // Writing to mmdbr_pipe.stdin_fd can block. Do so in a separate thread.
-#define MMDB_WAIT_TIME (150 * 1000) // microseconds
 static gpointer
 write_mmdbr_stdin_worker(gpointer sifd_data) {
     int stdin_fd = GPOINTER_TO_INT(sifd_data);
@@ -172,8 +173,15 @@ write_mmdbr_stdin_worker(gpointer sifd_data) {
             return NULL;
         }
 
-        char *request = (char *) g_async_queue_timeout_pop(mmdbr_request_q, MMDB_WAIT_TIME);
-        if (!request) {
+        // On some operating systems (most notably macOS), g_async_queue_timeout_pop
+        // will return immediately if we've been built with an older version of GLib:
+        //   https://bugzilla.gnome.org/show_bug.cgi?id=673607
+        // Call g_async_queue_pop instead. When we need to stop processing,
+        // mmdb_resolve_stop will close our pipe and then push an invalid address
+        // (mmdbr_stop_sentinel) onto the queue.
+        char *request = (char *) g_async_queue_pop(mmdbr_request_q);
+        if (!request || strcmp(request, mmdbr_stop_sentinel) == 0) {
+            g_free(request);
             continue;
         }
 
@@ -212,6 +220,7 @@ static ssize_t mmdbr_pipe_read_one(char *ch_p) {
 // - Stash our worker thread handles on Windows and call CancelSynchronousIo
 //   before shutting down our threads.
 #define MAX_MMDB_LINE_LEN 2000
+#define MMDB_WAIT_TIME (150 * 1000) // microseconds
 static gpointer
 read_mmdbr_stdout_worker(gpointer data _U_) {
     mmdb_response_t *response = g_new0(mmdb_response_t, 1);
@@ -374,11 +383,17 @@ static void mmdb_resolve_stop(void) {
     MMDB_DEBUG("closing pid %d", mmdbr_pipe.pid);
     ws_pipe_close(&mmdbr_pipe);
 
+    g_async_queue_push(mmdbr_request_q, g_strdup(mmdbr_stop_sentinel));
+
     MMDB_DEBUG("closing pipe FDs");
     ws_close(mmdbr_pipe.stdin_fd);
     ws_close(mmdbr_pipe.stdout_fd);
 
+    // read_mmdbr_stdout_worker should exit
+
     g_rw_lock_writer_unlock(&mmdbr_pipe_mtx);
+
+    // write_mmdbr_stdin_worker should exit
 
     g_thread_join(write_mmdbr_stdin_thread);
     write_mmdbr_stdin_thread = NULL;
