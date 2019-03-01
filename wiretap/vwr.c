@@ -854,7 +854,7 @@ wtap_open_return_val vwr_open(wtap *wth, int *err, gchar **err_info)
 static gboolean vwr_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
     vwr_t *vwr      = (vwr_t *)wth->priv;
-    int    rec_size = 0, IS_TX = 0, log_mode;
+    int    rec_size = 0, IS_TX = 0, log_mode = 0;
 
     /* read the next frame record header in the capture file; if no more frames, return */
     if (!vwr_read_rec_header(vwr, wth->fh, &rec_size, &IS_TX, &log_mode, err, err_info))
@@ -880,7 +880,7 @@ static gboolean vwr_seek_read(wtap *wth, gint64 seek_off,
     wtap_rec *record, Buffer *buf, int *err, gchar **err_info)
 {
     vwr_t *vwr = (vwr_t *)wth->priv;
-    int    rec_size, IS_TX = 0, log_mode;
+    int    rec_size, IS_TX = 0, log_mode = 0;
 
     /* first seek to the indicated record header */
     if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
