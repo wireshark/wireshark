@@ -355,6 +355,7 @@ static int hf_nfs4_want_flags = -1;
 static int hf_nfs4_want_notify_flags = -1;
 static int hf_nfs4_want_signal_deleg_when_resrc_avail = -1;
 static int hf_nfs4_want_push_deleg_when_uncontended = -1;
+static int hf_nfs4_want_deleg_timestamps = -1;
 static int hf_nfs4_seqid = -1;
 static int hf_nfs4_lock_seqid = -1;
 static int hf_nfs4_reqd_attr = -1;
@@ -416,6 +417,7 @@ static int hf_nfs4_fattr_security_label_pi = -1;
 static int hf_nfs4_fattr_security_label_context = -1;
 static int hf_nfs4_fattr_umask_mask = -1;
 static int hf_nfs4_fattr_xattr_support = -1;
+static int hf_nfs4_fattr_offline = -1;
 static int hf_nfs4_who = -1;
 static int hf_nfs4_server = -1;
 static int hf_nfs4_fslocation = -1;
@@ -6148,6 +6150,12 @@ static const value_string fattr4_names[] = {
 	{	FATTR4_MODE_UMASK,         "Mode_Umask"			},
 #define FATTR4_XATTR_SUPPORT       82
 	{	FATTR4_XATTR_SUPPORT,      "Xattr_Support"		},
+#define FATTR4_OFFLINE             83
+	{	FATTR4_OFFLINE,            "Offline"                    },
+#define FATTR4_TIME_DELEG_ACCESS   84
+	{	FATTR4_TIME_DELEG_ACCESS,  "Time_Deleg_Access"          },
+#define FATTR4_TIME_DELEG_MODIFY   85
+	{	FATTR4_TIME_DELEG_MODIFY,  "Time_Deleg_Modify"          },
 	{	0,	NULL	}
 };
 static value_string_ext fattr4_names_ext = VALUE_STRING_EXT_INIT(fattr4_names);
@@ -7124,6 +7132,8 @@ dissect_nfs4_fattrs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 					case FATTR4_TIME_MODIFY:
 					case FATTR4_DIR_NOTIF_DELAY:
 					case FATTR4_DIRENT_NOTIF_DELAY:
+					case FATTR4_TIME_DELEG_ACCESS:
+					case FATTR4_TIME_DELEG_MODIFY:
 						if (attr_tree)
 							dissect_nfs4_nfstime(tvb, offset, attr_tree);
 						offset += 12;
@@ -7176,6 +7186,11 @@ dissect_nfs4_fattrs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 							attr_tree, hf_nfs4_fattr_xattr_support, offset);
 						break;
 
+					case FATTR4_OFFLINE:
+						offset = dissect_rpc_bool(tvb,
+							attr_tree, hf_nfs4_fattr_offline, offset);
+						break;
+
 					default:
 						break;
 					}
@@ -7220,6 +7235,9 @@ static const value_string names_open4_share_access[] = {
 #define OPEN4_SHARE_ACCESS_WANT_PUSH_DELEG_WHEN_UNCONTENDED  0x20000
 	{ OPEN4_SHARE_ACCESS_WANT_PUSH_DELEG_WHEN_UNCONTENDED,
 	 "OPEN4_SHARE_ACCESS_WANT_PUSH_DELEG_WHEN_UNCONTENDED"},
+#define OPEN4_SHARE_ACCESS_WANT_DELEG_TIMESTAMPS 0x100000
+	{OPEN4_SHARE_ACCESS_WANT_DELEG_TIMESTAMPS,
+	 "OPEN4_SHARE_ACCESS_WANT_DELEG_TIMESTAMPS"},
 	{ 0, NULL }
 };
 static value_string_ext names_open4_share_access_ext = VALUE_STRING_EXT_INIT(names_open4_share_access);
@@ -7236,7 +7254,7 @@ dissect_nfs4_open_share_access(tvbuff_t *tvb, int offset, proto_tree *tree)
 	want_notify_flags = tvb_get_ntohl(tvb, offset);
 	share_access = want_notify_flags & 0x3;
 	want_flags = want_notify_flags & 0xff00;
-	want_notify_flags &= ~share_access & ~want_flags;
+	want_notify_flags &= 0x130000;
 	proto_tree_add_uint(tree, hf_nfs4_open_share_access, tvb, offset, 4, share_access);
 	if (want_flags)
 		proto_tree_add_uint(tree, hf_nfs4_want_flags, tvb, offset, 4, want_flags);
@@ -8117,11 +8135,15 @@ dissect_nfs4_open_write_delegation(tvbuff_t *tvb, int offset,
 #define OPEN_DELEGATE_READ 1
 #define OPEN_DELEGATE_WRITE 2
 #define OPEN_DELEGATE_NONE_EXT 3 /* new to v4.1 */
+#define OPEN_DELEGATE_READ_ATTRS_DELEG 4  /* New to V4.2 */
+#define OPEN_DELEGATE_WRITE_ATTRS_DELEG 5
 static const value_string names_open_delegation_type4[] = {
 	{	OPEN_DELEGATE_NONE,	"OPEN_DELEGATE_NONE" },
 	{	OPEN_DELEGATE_READ,	"OPEN_DELEGATE_READ" },
 	{	OPEN_DELEGATE_WRITE,	"OPEN_DELEGATE_WRITE" },
 	{	OPEN_DELEGATE_NONE_EXT, "OPEN_DELEGATE_NONE_EXT"},
+	{	OPEN_DELEGATE_READ_ATTRS_DELEG, "OPEN_DELEGATE_READ_ATTRS_DELEG"},
+	{	OPEN_DELEGATE_WRITE_ATTRS_DELEG, "OPEN_DELEGATE_WRITE_ATTRS_DELEG"},
 	{	0,	NULL }
 };
 
@@ -8166,10 +8188,12 @@ dissect_nfs4_open_delegation(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 		case OPEN_DELEGATE_READ:
+		case OPEN_DELEGATE_READ_ATTRS_DELEG:
 			offset = dissect_nfs4_open_read_delegation(tvb, offset, pinfo, newftree);
 			break;
 
 		case OPEN_DELEGATE_WRITE:
+		case OPEN_DELEGATE_WRITE_ATTRS_DELEG:
 			offset = dissect_nfs4_open_write_delegation(tvb, offset, pinfo, newftree);
 			break;
 		case OPEN_DELEGATE_NONE_EXT:
@@ -12280,6 +12304,11 @@ proto_register_nfs(void)
 			"nfs.want_push_deleg_when_uncontended", FT_BOOLEAN, 32,
 			TFS(&tfs_set_notset), OPEN4_SHARE_ACCESS_WANT_PUSH_DELEG_WHEN_UNCONTENDED, NULL, HFILL }},
 
+		{ &hf_nfs4_want_deleg_timestamps, {
+			"want_deleg_timestamps",
+			"nfs.want_deleg_timestamps", FT_BOOLEAN, 32,
+			TFS(&tfs_set_notset), OPEN4_SHARE_ACCESS_WANT_DELEG_TIMESTAMPS, NULL, HFILL }},
+
 		{ &hf_nfs4_seqid, {
 			"seqid", "nfs.seqid", FT_UINT32, BASE_HEX,
 			NULL, 0, "Sequence ID", HFILL }},
@@ -12696,6 +12725,10 @@ proto_register_nfs(void)
 
 		{ &hf_nfs4_fattr_xattr_support, {
 			"fattr4_xattr_support", "nfs.fattr4_xattr_support", FT_BOOLEAN, BASE_NONE,
+			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
+
+		{ &hf_nfs4_fattr_offline, {
+			"fattr4_offline", "nfs.fattr4_offline", FT_BOOLEAN, BASE_NONE,
 			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
 
 		{ &hf_nfs4_fattr_security_label_pi, {
