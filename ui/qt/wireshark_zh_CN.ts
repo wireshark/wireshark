@@ -3040,6 +3040,18 @@ PLEASE NOTE: One option MUST be selected.</source>
         <oldsource>Save as...</oldsource>
         <translation>另存为</translation>
     </message>
+    <message numerus="yes">
+        <source>%Ln client pkt(s), </source>
+        <translation type="vanished">
+            <numerusform>%Ln 个客户端 分组，</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln server pkt(s), </source>
+        <translation type="vanished">
+            <numerusform>%Ln 服务器 分组，</numerusform>
+        </translation>
+    </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="119"/>
         <source>ASCII</source>
@@ -3155,7 +3167,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="follow_stream_dialog.cpp" line="940"/>
         <source>Entire conversation (%1)</source>
-        <translation type="unfinished"></translation>
+        <translation>整个会话（%1）</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="944"/>
@@ -3170,7 +3182,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <location filename="follow_stream_dialog.cpp" line="539"/>
         <source>[Stream output truncated]</source>
-        <translation type="unfinished"></translation>
+        <translation>[流输出被截断]</translation>
     </message>
     <message>
         <location filename="follow_stream_dialog.cpp" line="850"/>
