@@ -7466,12 +7466,12 @@ proto_register_bootp(void)
 		    "Option 43:PXE Client 1 mtftp IP", HFILL }},
 
 		{ &hf_bootp_option43_pxeclient_mtftp_client_port,
-		  { "mtftp IP", "bootp.option.vendor.pxeclient.mtftp_client_port",
+		  { "mtftp client port", "bootp.option.vendor.pxeclient.mtftp_client_port",
 		    FT_UINT16, BASE_DEC, NULL, 0x00,
 		    "Option 43:PXE Client 2 mtftp client port", HFILL }},
 
 		{ &hf_bootp_option43_pxeclient_mtftp_server_port,
-		  { "mtftp IP", "bootp.option.vendor.pxeclient.mtftp_server_port",
+		  { "mtftp server port", "bootp.option.vendor.pxeclient.mtftp_server_port",
 		    FT_UINT16, BASE_DEC, NULL, 0x00,
 		    "Option 43:PXE Client 3 mtftp server port", HFILL }},
 
