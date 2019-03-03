@@ -8490,6 +8490,10 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>(fornito dal sistema)</translation>
     </message>
     <message>
+        <source>(deleted)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Created from default settings</source>
         <translation>Creato dalle impostazioni predefinite</translation>
     </message>

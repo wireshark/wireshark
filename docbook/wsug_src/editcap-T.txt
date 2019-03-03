@@ -201,6 +201,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     wpan - IEEE 802.15.4 Wireless PAN
     wpan-nofcs - IEEE 802.15.4 Wireless PAN with FCS not present
     wpan-nonask-phy - IEEE 802.15.4 Wireless PAN non-ASK PHY
+    wpan-tap - IEEE 802.15.4 Wireless with TAP pseudo-header
     x2e-serial - X2E serial line capture
     x2e-xoraya - X2E Xoraya
     x25-nettl - X.25 with nettl headers
