@@ -1656,7 +1656,7 @@ wtap_register_file_type_subtypes(const struct file_type_subtype_info* fi, const 
 	if (subtype == WTAP_FILE_TYPE_SUBTYPE_UNKNOWN) {
 		/* register a new one; first verify there isn't one named this already */
 		if (wtap_short_string_to_file_type_subtype(fi->short_name) > -1 ) {
-			g_error("file type short name already exists");
+			g_error("file type short name \"%s\" already exists", fi->short_name);
 			return subtype;
 		}
 
