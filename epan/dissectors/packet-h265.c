@@ -74,7 +74,7 @@ static int hf_h265_vps_extension_data_flag = -1;
 static int hf_h265_general_profile_space = -1;
 static int hf_h265_general_tier_flag = -1;
 static int hf_h265_general_profile_idc = -1;
-//static int hf_h265_general_profile_compatibility_flag/*[j]*/ = -1;
+static int hf_h265_general_profile_compatibility_flags/*[j]*/ = -1;
 static int hf_h265_general_progressive_source_flag = -1;
 static int hf_h265_general_interlaced_source_flag = -1;
 static int hf_h265_general_non_packed_constraint_flag = -1;
@@ -1126,7 +1126,7 @@ dissect_h265_video_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_in
 	proto_tree_add_bits_item(tree, hf_h265_vps_temporal_id_nesting_flag, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
-	proto_tree_add_item(tree, hf_h265_vps_reserved_0xffff_16bits, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(tree, hf_h265_vps_reserved_0xffff_16bits, tvb, bit_offset, 16, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 16;
 
 	offset = bit_offset >> 3;
@@ -1644,11 +1644,12 @@ dissect_h265_profile_tier_level(proto_tree* tree, tvbuff_t* tvb, packet_info* pi
 		proto_tree_add_item_ret_uint(tree, hf_h265_general_profile_idc, tvb, offset, 1, ENC_BIG_ENDIAN, &general_profile_idc);
 		offset++;
 
-		for (int j = 0; j < 32; j++)
-			general_profile_compatibility_flag[j] = tvb_get_bits8(tvb, offset + j, 1);
-		offset = offset + 4;
+		proto_tree_add_item(tree, hf_h265_general_profile_compatibility_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
 
 		guint bit_offset = offset << 3;
+		for (int j = 0; j < 32; j++)
+			general_profile_compatibility_flag[j] = tvb_get_bits8(tvb, bit_offset + j, 1);
+		bit_offset = bit_offset + 32;
 
 		proto_tree_add_bits_item(tree, hf_h265_general_progressive_source_flag, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset++;
@@ -3082,7 +3083,7 @@ proto_register_h265(void)
 		},
 		{ &hf_h265_vps_reserved_0xffff_16bits,
 		{ "vps_reserved_0xffff_16bits", "h265.vps_reserved_0xffff_16bits",
-		FT_UINT16, BASE_DEC, NULL, 0xFFFF,
+		FT_UINT16, BASE_HEX, NULL, 0x0,
 		NULL, HFILL }
 		},
 		/* profile, level and tier*/
@@ -3099,6 +3100,11 @@ proto_register_h265(void)
 		{ &hf_h265_general_profile_idc,
 		{ "general_profile_idc", "h265.general_profile_idc",
 		FT_UINT8, BASE_DEC, VALS(h265_profile_idc_values), 0x1F,
+		NULL, HFILL }
+		},
+		{ &hf_h265_general_profile_compatibility_flags,
+		{ "general_profile_compatibility_flags", "h265.general_profile_compatibility_flags",
+		FT_UINT32, BASE_HEX, NULL, 0xFFFFFFFF,
 		NULL, HFILL }
 		},
 		{ &hf_h265_general_progressive_source_flag,
