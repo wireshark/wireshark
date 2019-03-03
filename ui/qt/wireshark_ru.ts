@@ -8509,6 +8509,10 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>(системный)</translation>
     </message>
     <message>
+        <source>(deleted)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Created from default settings</source>
         <translation>Создан из настроек по умолчанию</translation>
     </message>

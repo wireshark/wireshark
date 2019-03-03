@@ -5147,6 +5147,7 @@ warppipe	8007/tcp/udp	# I/O oriented cluster computing software
 http-alt	8008/tcp/udp	# HTTP Alternate
 nvme-disc	8009/tcp	# NVMe over Fabrics Discovery Service
 cfg-cloud	8015/tcp	# Configuration Cloud Service
+ads-s		8016/tcp	# Beckhoff Automation Device Specification
 qbdb		8019/tcp/udp	# QB DB Dynamic Port
 intu-ec-svcdisc	8020/tcp/udp	# Intuit Entitlement Service and Discovery
 intu-ec-client	8021/tcp/udp	# Intuit Entitlement Client

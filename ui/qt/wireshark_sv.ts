@@ -8468,6 +8468,10 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <translation>(tillhandahålls av systemet)</translation>
     </message>
     <message>
+        <source>(deleted)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Created from default settings</source>
         <translation>Skapad från standardinställningarna</translation>
     </message>

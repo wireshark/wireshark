@@ -770,6 +770,26 @@
         <source>Automatically detect file type</source>
         <translation>自动检测文件类型</translation>
     </message>
+    <message numerus="yes">
+        <source>%1, error after %Ln packet(s)</source>
+        <oldsource>%1, error after %2 packets</oldsource>
+        <translation type="vanished">
+            <numerusform>%1，在 %Ln 个分组后出错</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, timed out at %Ln packet(s)</source>
+        <oldsource>%1, timed out at %2 packets</oldsource>
+        <translation type="vanished">
+            <numerusform>%1，在 %Ln 个分组后超时</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, %Ln packet(s)</source>
+        <translation type="vanished">
+            <numerusform>%1，%Ln 个分组</numerusform>
+        </translation>
+    </message>
     <message>
         <source>Prepend packets</source>
         <translation>前置分组</translation>
@@ -2076,39 +2096,39 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>EndpointDialog</name>
     <message>
         <source>Map</source>
-        <translation type="unfinished"></translation>
+        <translation>映射</translation>
     </message>
     <message>
         <source>Draw IPv4 or IPv6 endpoints on a map.</source>
-        <translation type="unfinished"></translation>
+        <translation>在映射上绘制 IPv4 或 IPv6 端点。</translation>
     </message>
     <message>
         <source>Open in browser</source>
-        <translation type="unfinished"></translation>
+        <translation>在浏览器中打开</translation>
     </message>
     <message>
         <source>Save As</source>
-        <translation type="unfinished">另存为</translation>
+        <translation>另存为</translation>
     </message>
     <message>
         <source>Map file error</source>
-        <translation type="unfinished"></translation>
+        <translation>映射文件错误</translation>
     </message>
     <message>
         <source>No endpoints available to map</source>
-        <translation type="unfinished"></translation>
+        <translation>没有可用于映射的端点</translation>
     </message>
     <message>
         <source>Unable to create temporary file</source>
-        <translation type="unfinished"></translation>
+        <translation>无法创建临时文件</translation>
     </message>
     <message>
         <source>Save Endpoints Map</source>
-        <translation type="unfinished"></translation>
+        <translation>保存端点映射</translation>
     </message>
     <message>
         <source>Failed to save map file %1.</source>
-        <translation type="unfinished"></translation>
+        <translation>保存映射文件 %1 失败。</translation>
     </message>
 </context>
 <context>
@@ -2783,6 +2803,18 @@ PLEASE NOTE: One option MUST be selected.</source>
         <source>Save as</source>
         <oldsource>Save as...</oldsource>
         <translation>另存为</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln client pkt(s), </source>
+        <translation type="vanished">
+            <numerusform>%Ln 个客户端 分组，</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln server pkt(s), </source>
+        <translation type="vanished">
+            <numerusform>%Ln 服务器 分组，</numerusform>
+        </translation>
     </message>
     <message>
         <source>ASCII</source>
@@ -6023,23 +6055,23 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>As &amp;CSV…</source>
-        <translation type="unfinished"></translation>
+        <translation>为 &amp;CSV…</translation>
     </message>
     <message>
         <source>As &quot;C&quot; &amp;Arrays…</source>
-        <translation type="unfinished"></translation>
+        <translation>为 &quot;C&quot; &amp;Arrays…</translation>
     </message>
     <message>
         <source>As P&amp;SML XML…</source>
-        <translation type="unfinished"></translation>
+        <translation>为 P&amp;SML XML…</translation>
     </message>
     <message>
         <source>As P&amp;DML XML…</source>
-        <translation type="unfinished"></translation>
+        <translation>为 P&amp;DML XML…</translation>
     </message>
     <message>
         <source>As &amp;JSON…</source>
-        <translation type="unfinished"></translation>
+        <translation>为 &amp;JSON…</translation>
     </message>
     <message>
         <source>Description</source>
@@ -6336,7 +6368,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>&amp;Configuration Profiles…</source>
-        <translation type="unfinished"></translation>
+        <translation>配置配置文件(&amp;C)…</translation>
     </message>
     <message>
         <source>Configuration profiles</source>
@@ -6656,11 +6688,11 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>&amp;Conversations</source>
-        <translation type="unfinished"></translation>
+        <translation>会话(&amp;C)</translation>
     </message>
     <message>
         <source>&amp;Endpoints</source>
-        <translation type="unfinished"></translation>
+        <translation>端点(&amp;E)</translation>
     </message>
     <message>
         <source>Shrink the main window text</source>
@@ -6752,7 +6784,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Go to &amp;Linked Packet</source>
-        <translation type="unfinished"></translation>
+        <translation>转到链接的分组(&amp;L)</translation>
     </message>
     <message>
         <source>UDP Multicast Streams</source>
@@ -7140,15 +7172,15 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>&amp;Conversation Hash Tables</source>
-        <translation type="unfinished"></translation>
+        <translation>会话哈希表(&amp;C)</translation>
     </message>
     <message>
         <source>&amp;Dissector Tables</source>
-        <translation type="unfinished"></translation>
+        <translation>解析器表(&amp;D)</translation>
     </message>
     <message>
         <source>&amp;Supported Protocols</source>
-        <translation type="unfinished"></translation>
+        <translation>支持的协议(&amp;S)</translation>
     </message>
     <message>
         <source>MAP Summary</source>
@@ -7160,7 +7192,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>RLC &amp;Graph</source>
-        <translation type="unfinished"></translation>
+        <translation>RLC 图表(&amp;G)</translation>
     </message>
     <message>
         <source>&amp;Coloring Rules…</source>
@@ -7185,7 +7217,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>IA&amp;X2 Stream Analysis</source>
-        <translation type="unfinished"></translation>
+        <translation>IAX2 流分析(&amp;X)</translation>
     </message>
     <message>
         <source>Enabled Protocols…</source>
@@ -7218,15 +7250,15 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Open &amp;Recent</source>
-        <translation type="unfinished"></translation>
+        <translation>打开最近(&amp;R)</translation>
     </message>
     <message>
         <source>Name Resol&amp;ution</source>
-        <translation type="unfinished"></translation>
+        <translation>解析名称(&amp;U)</translation>
     </message>
     <message>
         <source>Service &amp;Response Time</source>
-        <translation type="unfinished"></translation>
+        <translation>服务响应时间(&amp;R)</translation>
     </message>
     <message>
         <source>&amp;RTP</source>
@@ -7254,27 +7286,27 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>&amp;Open</source>
-        <translation type="unfinished"></translation>
+        <translation>打开(&amp;O)</translation>
     </message>
     <message>
         <source>&amp;Quit</source>
-        <translation type="unfinished"></translation>
+        <translation>退出(&amp;Q)</translation>
     </message>
     <message>
         <source>&amp;Close</source>
-        <translation type="unfinished"></translation>
+        <translation>关闭(&amp;C)</translation>
     </message>
     <message>
         <source>Display &amp;Filters…</source>
-        <translation type="unfinished"></translation>
+        <translation>显示过滤器(&amp;F)…</translation>
     </message>
     <message>
         <source>&amp;Unmark All Displayed</source>
-        <translation type="unfinished"></translation>
+        <translation>取消所有显示的标记(&amp;U)</translation>
     </message>
     <message>
         <source>U&amp;nignore all displayed packets</source>
-        <translation type="unfinished"></translation>
+        <translation>取消忽略所有已经显示的分组(&amp;N)</translation>
     </message>
     <message>
         <source>All VoIP Calls</source>
@@ -7586,6 +7618,13 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>No Keys</source>
         <translation>无密钥</translation>
+    </message>
+    <message numerus="yes">
+        <source>Export SSL Session Keys (%Ln key(s))</source>
+        <oldsource>Export SSL Session Keys (%1 key%2</oldsource>
+        <translation type="vanished">
+            <numerusform>导出 SSL 会话密钥 (%Ln 个密钥)</numerusform>
+        </translation>
     </message>
     <message>
         <source>Raw data (*.bin *.dat *.raw);;All Files (</source>
@@ -8342,7 +8381,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>RSA Keys</source>
-        <translation type="unfinished"></translation>
+        <translation>RSA 密钥</translation>
     </message>
 </context>
 <context>
@@ -8426,6 +8465,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>(system provided)</source>
         <translation>(系统提供)</translation>
+    </message>
+    <message>
+        <source>(deleted)</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Created from default settings</source>
@@ -9330,91 +9373,91 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>RsaKeysFrame</name>
     <message>
         <source>RSA Keys</source>
-        <translation type="unfinished"></translation>
+        <translation>RSA 密钥</translation>
     </message>
     <message>
         <source>RSA private keys are loaded from a file or PKCS #11 token.</source>
-        <translation type="unfinished"></translation>
+        <translation>RSA 私钥是从文件或 PKCS 11 令牌加载的。</translation>
     </message>
     <message>
         <source>Add new keyfile…</source>
-        <translation type="unfinished"></translation>
+        <translation>添加新的密钥文件…</translation>
     </message>
     <message>
         <source>Add new token…</source>
-        <translation type="unfinished"></translation>
+        <translation>添加新的令牌…</translation>
     </message>
     <message>
         <source>Remove key</source>
-        <translation type="unfinished"></translation>
+        <translation>移除密钥</translation>
     </message>
     <message>
         <source>PKCS #11 provider libraries.</source>
-        <translation type="unfinished"></translation>
+        <translation>PKCS #11 提供程序库。</translation>
     </message>
     <message>
         <source>Add new provider…</source>
-        <translation type="unfinished"></translation>
+        <translation>添加新提供程序…</translation>
     </message>
     <message>
         <source>Remove provider</source>
-        <translation type="unfinished"></translation>
+        <translation>移除提供程序</translation>
     </message>
     <message>
         <source>Add PKCS #11 token or key</source>
-        <translation type="unfinished"></translation>
+        <translation>添加 PKCS #11 令牌或密钥</translation>
     </message>
     <message>
         <source>No new PKCS #11 tokens or keys found, consider adding a PKCS #11 provider.</source>
-        <translation type="unfinished"></translation>
+        <translation>没有找到新的 PKCS #11 令牌或密钥，请考虑添加 PKCS #11 提供程序。</translation>
     </message>
     <message>
         <source>Select a new PKCS #11 token or key</source>
-        <translation type="unfinished"></translation>
+        <translation>选择新的 PKCS #11 令牌或密钥</translation>
     </message>
     <message>
         <source>PKCS #11 token or key</source>
-        <translation type="unfinished"></translation>
+        <translation>PKCS #11 令牌或密钥</translation>
     </message>
     <message>
         <source>Enter PIN or password for %1 (it will be stored unencrypted)</source>
-        <translation type="unfinished"></translation>
+        <translation>输入 %1 的 PIN 或密码（它将以未加密的方式存储）</translation>
     </message>
     <message>
         <source>Enter PIN or password for key</source>
-        <translation type="unfinished"></translation>
+        <translation>输入密钥的 PIN 或密码</translation>
     </message>
     <message>
         <source>Key could not be added: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>无法添加密钥：%1</translation>
     </message>
     <message>
         <source>RSA private key (*.pem *.p12 *.pfx *.key);;All Files (</source>
-        <translation type="unfinished"></translation>
+        <translation>RSA 私钥 (*.pem *.p12 *.pfx *.key);;所有文件 (</translation>
     </message>
     <message>
         <source>Select RSA private key file</source>
-        <translation type="unfinished"></translation>
+        <translation>选择 RSA 私钥文件</translation>
     </message>
     <message>
         <source>Libraries (*.dll)</source>
-        <translation type="unfinished"></translation>
+        <translation>库 (*.dll)</translation>
     </message>
     <message>
         <source>Libraries (*.so)</source>
-        <translation type="unfinished"></translation>
+        <translation>库 (*.so)</translation>
     </message>
     <message>
         <source>Select PKCS #11 Provider Library</source>
-        <translation type="unfinished"></translation>
+        <translation>选择 PKCS #11 提供程序库</translation>
     </message>
     <message>
         <source>Changes will apply after a restart</source>
-        <translation type="unfinished"></translation>
+        <translation>重新启动后将应用更改</translation>
     </message>
     <message>
         <source>PKCS #11 provider %1 will be removed after the next restart.</source>
-        <translation type="unfinished"></translation>
+        <translation>PKCS #11 提供程序 %1 将在下次重新启动后被删除。</translation>
     </message>
 </context>
 <context>
@@ -10870,7 +10913,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Relative TSNs</source>
-        <translation type="unfinished"></translation>
+        <translation>相对 时间敏感网络(TSN)</translation>
     </message>
     <message>
         <source>Only SACKs</source>
@@ -12820,7 +12863,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>Remove from list</source>
-        <translation type="unfinished"></translation>
+        <translation>从列表中移除</translation>
     </message>
 </context>
 <context>

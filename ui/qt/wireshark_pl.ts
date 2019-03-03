@@ -8448,6 +8448,10 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
         <translation>(dostarczone przez system)</translation>
     </message>
     <message>
+        <source>(deleted)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Created from default settings</source>
         <translation>Utworzono z domyślnych ustawień</translation>
     </message>

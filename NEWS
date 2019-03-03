@@ -1,4 +1,4 @@
-Wireshark 3.0.0 Release Notes
+Wireshark 3.0.1 Release Notes
 
  What is Wireshark?
 
@@ -7,227 +7,43 @@ Wireshark 3.0.0 Release Notes
 
  What’s New
 
-  Many user interface improvements have been made. See the “New and
-  Updated Features” section below for more details.
-
-  Support for a number of legacy features and libraries has been
-  removed. See the “Removed Features and Support” section below for more
-  details.
-
   Bug Fixes
+
+   The following vulnerabilities have been fixed:
+
+     • wnpa-sec-2019-09[1] A dissector went awry.
 
    The following bugs have been fixed:
 
-     • Data following a TCP ZeroWindowProbe is marked as retransmission
-       and not passed to subdissectors (Bug 15427[1])
-
-     • Lua Error on startup: init.lua: dofile has been disabled due to
-       running Wireshark as superuser (Bug 15489[2]).
-
-   Text and Image columns were handled incorrectly for TDS 7.0 and 7.1.
-   (Bug 3098[3])
-
-   Dumpcap might not quit if Wireshark or TShark crashes. (Bug 1419[4])
-
   New and Updated Features
 
-   The following features are new (or have been significantly updated)
-   since version 3.0.0rc2:
-
-     • No significant changes.
-
-   The following features are new (or have been significantly updated)
-   since version 3.0.0rc1:
-
-     • The IP map feature (the “Map” button in the “Endpoints” dialog)
-       has been added back in a modernized form (Bug 14693[5]).
-
-     • The macOS package now ships with Qt 5.12.1. Previously it shipped
-       with Qt 5.9.7.
-
-     • The macOS package requires version 10.12 or later. If you’re
-       running an older version of macOS, please use Wireshark 2.6.
-
-   The following features are new (or have been significantly updated)
-   since version 2.9.0:
-
-     • Wireshark now supports the Swedish and Ukrainian languages.
-
-     • Initial support for using PKCS #11 tokens for RSA decryption in
-       TLS. This can be configured at Preferences, RSA Keys.
-
-     • The build system now produces reproducible builds (Bug 15163[6]).
-
-     • The Windows installers now ship with Qt 5.12.1. Previously they
-       shipped with Qt 5.12.0.
-
-   The following features are new (or have been significantly updated)
-   since version 2.6.0:
-
-     • The Windows .exe installers now ship with Npcap[7] instead of
-       WinPcap. Besides being actively maintained (by the nmap project),
-       Npcap brings support for loopback capture and 802.11 WiFi monitor
-       mode capture (if supported by the NIC driver).
-
-     • Conversation timestamps are supported for UDP/UDP-Lite protocols
-
-     • TShark now supports the -G elastic-mapping option which generates
-       an ElasticSearch mapping file.
-
-     • The “Capture Information” dialog has been added back (Bug
-       12004[8]).
-
-     • The Ethernet and IEEE 802.11 dissectors no longer validate the
-       frame check sequence (checksum) by default.
-
-     • The TCP dissector gained a new “Reassemble out-of-order segments”
-       preference to fix dissection and decryption issues in case TCP
-       segments are received out-of-order. See the User’s Guide, chapter
-       TCP Reassembly for details.
-
-     • Decryption support for the new WireGuard dissector (Bug 15011[9],
-       requires Libgcrypt 1.8).
-
-     • The BOOTP dissector has been renamed to DHCP. With the exception
-       of “bootp.dhcp”, the old “bootp.*” display filter fields are
-       still supported but may be removed in a future release.
-
-     • The SSL dissector has been renamed to TLS. As with BOOTP the old
-       “ssl.*” display filter fields are supported but may be removed in
-       a future release.
-
-     • Coloring rules, IO graphs, Filter Buttons and protocol preference
-       tables can now be copied from other profiles using a button in
-       the corresponding configuration dialogs.
-
-     • APT-X has been renamed to aptX.
-
-     • When importing from hex dump, it’s now possible to add an
-       ExportPDU header with a payload name. This calls the specific
-       dissector directly without lower protocols.
-
-     • The sshdump and ciscodump extcap interfaces can now use a proxy
-       for the SSH connection.
-
-     • Dumpcap now supports the -a packets:NUM and -b packets:NUM
-       options.
-
-     • Wireshark now includes a “No Reassembly” configuration profile.
-
-     • Wireshark now supports the Russian language.
-
-     • The build system now supports AppImage packages.
-
-     • The Windows installers now ship with Qt 5.12.0. Previously they
-       shipped with Qt 5.9.7.
-
-     • Support for DTLS and TLS decryption using pcapng files that embed
-       a Decryption Secrets Block (DSB) containing a TLS Key Log (Bug
-       15252[10]).
-
-     • The editcap utility gained a new --inject-secrets option to
-       inject an existing TLS Key Log file into a pcapng file.
-
-     • A new dfilter function string() has been added. It allows the
-       conversion of non-string fields to strings so string functions
-       (as contains and matches) can be used on them.
-
-     • The Bash test suite has been replaced by one based on Python
-       unittest/pytest.
-
-     • The custom window title can now show file path of the capture
-       file and it has a conditional separator.
-
-  Removed Features and Support
-
-     • The legacy (GTK+) user interface has been removed and is no
-       longer supported.
-
-     • The portaudio library is no longer needed due to the removal of
-       GTK+.
-
-     • Wireshark requires Qt 5.2 or later. Qt 4 is no longer supported.
-
-     • Wireshark requires GLib 2.32 or later.
-
-     • Wireshark requires GnuTLS 3.2 or later as optional dependency.
-
-     • Building Wireshark requires Python 3.4 or newer, Python 2.7 is
-       unsupported.
-
-     • Building Wireshark requires CMake. Autotools is no longer
-       supported.
-
-     • TShark’s -z compare option was removed.
-
-     • Building with Cygwin is no longer supported on Windows.
-
-  New File Format Decoding Support
-
-   Ruby Marshal format
+   There are no new features in this release.
 
   New Protocol Support
 
-   Apple Wireless Direct Link (AWDL), Basic Transport Protocol (BTP),
-   BLIP Couchbase Mobile (BLIP), CDMA 2000, Circuit Emulation Service
-   over Ethernet (CESoETH), Cisco Meraki Discovery Protocol (MDP),
-   Distributed Ruby (DRb), DXL, E1AP (5G), EVS (3GPP TS 26.445 A.2 EVS
-   RTP), Exablaze trailers, General Circuit Services Notification
-   Application Protocol (GCSNA), GeoNetworking (GeoNw), GLOW Lawo
-   Emberplus Data format, Great Britain Companion Specification (GBCS)
-   used in the Smart Metering Equipment Technical Specifications
-   (SMETS), GSM-R (User-to-User Information Element usage),
-   HI3CCLinkData, Intelligent Transport Systems (ITS) application level,
-   ISO 13400-2 Diagnostic communication over Internet Protocol (DoIP),
-   ITU-t X.696 Octet Encoding Rules (OER), Local Number Portability
-   Database Query Protocol (ANSI), MsgPack, NGAP (5G), NR (5G) PDCP,
-   Osmocom Generic Subscriber Update Protocol (GSUP), PCOM protocol,
-   PKCS#10 (RFC2986 Certification Request Syntax), PROXY (v2), S101 Lawo
-   Emberplus transport frame, Secure Reliable Transport Protocol (SRT),
-   Spirent Test Center Signature decoding for Ethernet and FibreChannel
-   (STCSIG, disabled by default), Sybase-specific portions of TDS,
-   systemd Journal Export, TeamSpeak 3 DNS, TPM 2.0, Ubiquiti Discovery
-   Protocol (UBDP), WireGuard, XnAP (5G), and Z39.50 Information
-   Retrieval Protocol
+   There are no new protocols in this release.
 
   Updated Protocol Support
 
-   Too many protocols have been updated to list here.
-
   New and Updated Capture File Support
 
-   RFC 7468 (PEM), Ruby marshal object files, systemd Journal Export,
-   and Unigraf DPA-400 DisplayPort AUX channel monitor
+   There is no new or updated capture file support in this release.
 
   New and Updated Capture Interfaces support
 
-   dpauxmon, an external capture interface (extcap) that captures
-   DisplayPort AUX channel data from linux kernel drivers.
-
-   sdjournal, an extcap that captures systemd journal entries.
-
-  Major API Changes
-
-     • Lua: the various logging functions (debug, info, message, warn
-       and critical) have been removed. Use the print function instead
-       for debugging purposes.
-
-     • Lua: on Windows, file-related functions such as dofile now assume
-       UTF-8 paths instead of the local code page. This is consistent
-       with Linux and macOS and improves compatibility on non-English
-       systems. (Bug 15118[11])
+   There is no new or updated capture file support in this release.
 
  Getting Wireshark
 
   Wireshark source code and installation packages are available from
-  https://www.wireshark.org/download.html[12].
+  https://www.wireshark.org/download.html[2].
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[13] on the Wireshark web site.
+   be found on the download page[3] on the Wireshark web site.
 
  File Locations
 
@@ -239,41 +55,31 @@ Wireshark 3.0.0 Release Notes
  Getting Help
 
   The User’s Guide, manual pages and various other documentation can be
-  found at https://www.wireshark.org/docs/[14]
+  found at https://www.wireshark.org/docs/[4]
 
-  Community support is available on Wireshark’s Q&A site[15] and on the
+  Community support is available on Wireshark’s Q&A site[5] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[16].
+  for all of Wireshark’s mailing lists can be found on the web site[6].
 
-  Bugs and feature requests can be reported on the bug tracker[17].
+  Bugs and feature requests can be reported on the bug tracker[7].
 
   Official Wireshark training and certification are available from
-  Wireshark University[18].
+  Wireshark University[8].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[19].
+  A complete FAQ is available on the Wireshark web site[9].
 
-  Last updated 2019-02-28 17:49:41 UTC
+  Last updated 2019-03-03 08:35:27 UTC
 
  References
 
-   1. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15427
-   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15489
-   3. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=3098
-   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
-   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14693
-   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15163
-   7. https://nmap.org/npcap/
-   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12004
-   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15011
-  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15252
-  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15118
-  12. https://www.wireshark.org/download.html
-  13. https://www.wireshark.org/download.html#thirdparty
-  14. https://www.wireshark.org/docs/
-  15. https://ask.wireshark.org/
-  16. https://www.wireshark.org/lists/
-  17. https://bugs.wireshark.org/
-  18. http://www.wiresharktraining.com/
-  19. https://www.wireshark.org/faq.html
+   1. https://www.wireshark.org/security/wnpa-sec-2019-09
+   2. https://www.wireshark.org/download.html
+   3. https://www.wireshark.org/download.html#thirdparty
+   4. https://www.wireshark.org/docs/
+   5. https://ask.wireshark.org/
+   6. https://www.wireshark.org/lists/
+   7. https://bugs.wireshark.org/
+   8. http://www.wiresharktraining.com/
+   9. https://www.wireshark.org/faq.html

@@ -1,4 +1,4 @@
-Capinfos (Wireshark) 3.0.0 (v3.0.0rc2-3-g8ef4d41b)
+Capinfos (Wireshark) 3.0.1 (v3.0.1rc0-3-g72c28bff)
 Print various information (infos) about capture files.
 See https://www.wireshark.org for more information.
 

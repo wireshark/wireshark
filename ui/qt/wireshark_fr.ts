@@ -8447,6 +8447,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>(deleted)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Created from default settings</source>
         <translation>Créé à partir des paramètres par défaut</translation>
     </message>
