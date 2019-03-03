@@ -8333,6 +8333,10 @@ text-decoration: underline;
         <translation>(系统提供)</translation>
     </message>
     <message>
+        <source>(deleted)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Created from default settings</source>
         <translation>根据默认设置创建</translation>
     </message>

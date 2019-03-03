@@ -8352,6 +8352,10 @@ text-decoration: underline;
         <translation>(vom System vorgegeben)</translation>
     </message>
     <message>
+        <source>(deleted)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Created from default settings</source>
         <translation>Erstellt aus den Standardeinstellungen</translation>
     </message>

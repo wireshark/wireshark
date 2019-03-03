@@ -8287,6 +8287,10 @@ a:hover {
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>(deleted)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Created from default settings</source>
         <translation>Créé à partir des paramètres par défaut</translation>
     </message>
