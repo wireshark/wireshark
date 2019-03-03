@@ -182,6 +182,37 @@ wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info)
 	}
 
 	/*
+	 * Link-layer header types are assigned for both pcap and
+	 * pcapng, and the same value must work with both.  In pcapng,
+	 * the link-layer header type field in an Interface Description
+	 * Block is 16 bits, so only the bottommost 16 bits of the
+	 * link-layer header type in a pcap file can be used for the
+	 * header type value.
+	 *
+	 * In libpcap, the upper 16 bits are divided into:
+	 *
+	 *    A "class" field, to support non-standard link-layer
+	 *    header types; class 0 is for standard header types,
+	 *    class 0x224 was reserved for a NetBSD feature, and
+	 *    all other class values are reserved.  That is in the
+	 *    lower 10 bits of the upper 16 bits.
+	 *
+	 *    An "FCS length" field, to allow the FCS length to
+	 *    be specified, just as it can be specified in the
+	 *    if_fcslen field of the pcapng IDB.  That is in the
+	 *    topmost 4 bits of the upper 16 bits.  The field is
+	 *    in units of 16 bits, i.e. 1 means 16 bits of FCS,
+	 *    2 means 32 bits of FCS, etc..
+	 *
+	 *    An "FCS length present" flag; if 0, the "FCS length"
+	 *    field should be ignored, and if 1, the "FCS length"
+	 *    field should be used.  That is in the bit just above
+	 *    the "class" field.
+	 *
+	 *    The one remaining bit is reserved.
+	 */
+
+	/*
 	 * AIX's non-standard tcpdump uses a minor version number of 2.
 	 * Unfortunately, older versions of libpcap might have used
 	 * that as well.
@@ -218,6 +249,11 @@ wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info)
 	 */
 	aix = FALSE;	/* assume it's not AIX */
 	if (hdr.version_major == 2 && hdr.version_minor == 2) {
+		/*
+		 * AIX pcap files didn't use the upper 16 bits,
+		 * so we don't need to ignore them here - they'll
+		 * be 0.
+		 */
 		switch (hdr.network) {
 
 		case 6:
@@ -242,7 +278,14 @@ wtap_open_return_val libpcap_open(wtap *wth, int *err, gchar **err_info)
 		}
 	}
 
-	file_encap = wtap_pcap_encap_to_wtap_encap(hdr.network);
+	/*
+	 * Map the "network" field from the header to a Wiretap
+	 * encapsulation.  We ignore the FCS information and reserved
+	 * bit; we include the "class" field, in case there's ever
+	 * a need to implement it - currently, any link-layer header
+	 * type with a non-zero class value will fail.
+	 */
+	file_encap = wtap_pcap_encap_to_wtap_encap(hdr.network & 0x03FFFFFF);
 	if (file_encap == WTAP_ENCAP_UNKNOWN) {
 		*err = WTAP_ERR_UNSUPPORTED;
 		*err_info = g_strdup_printf("pcap: network type %u unknown or unsupported",
