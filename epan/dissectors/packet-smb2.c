@@ -6797,7 +6797,7 @@ dissect_smb2_FSCTL_SRV_COPYCHUNK(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 }
 
 static void
-dissect_smb2_reparse_nfs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset)
+dissect_smb2_reparse_nfs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint32 length)
 {
 	guint64 type;
 	int symlink_length;
@@ -6807,7 +6807,7 @@ dissect_smb2_reparse_nfs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	type = tvb_get_letoh64(tvb, offset);
 	proto_tree_add_item(tree, hf_smb2_nfs_type, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	offset += 8;
-	bytes_left = tvb_captured_length_remaining(tvb, offset);
+	bytes_left = length;
 
 	switch (type) {
 	case NFS_SPECFILE_LNK:
@@ -6893,7 +6893,7 @@ dissect_smb2_FSCTL_REPARSE_POINT(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 		dissect_smb2_olb_off_string(pinfo, tree, tvb, &p_olb, offset, OLB_TYPE_UNICODE_STRING);
 		break;
 	case REPARSE_TAG_NFS:
-		dissect_smb2_reparse_nfs(tvb, pinfo, tree, offset);
+		dissect_smb2_reparse_nfs(tvb, pinfo, tree, offset, length);
 		break;
 	default:
 		proto_tree_add_item(tree, hf_smb2_unknown, tvb, offset, length, ENC_NA);
