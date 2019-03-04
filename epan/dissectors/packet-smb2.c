@@ -42,6 +42,9 @@
 #include <wsutil/wsgcrypt.h>
 
 #define NT_STATUS_PENDING	0x00000103
+#define NT_STATUS_BUFFER_TOO_SMALL	0xC0000023
+#define NT_STATUS_STOPPED_ON_SYMLINK	0x8000002D
+#define NT_STATUS_BAD_NETWORK_NAME	0xC00000CC
 
 void proto_register_smb2(void);
 void proto_reg_handoff_smb2(void);
@@ -455,6 +458,18 @@ static int hf_smb2_error_context_count = -1;
 static int hf_smb2_error_reserved = -1;
 static int hf_smb2_error_byte_count = -1;
 static int hf_smb2_error_data = -1;
+static int hf_smb2_error_context = -1;
+static int hf_smb2_error_context_length = -1;
+static int hf_smb2_error_context_id = -1;
+static int hf_smb2_error_min_buf_length = -1;
+static int hf_smb2_error_redir_context = -1;
+static int hf_smb2_error_redir_struct_size = -1;
+static int hf_smb2_error_redir_notif_type = -1;
+static int hf_smb2_error_redir_flags = -1;
+static int hf_smb2_error_redir_target_type = -1;
+static int hf_smb2_error_redir_ip_count = -1;
+static int hf_smb2_error_redir_ip_list = -1;
+static int hf_smb2_error_redir_res_name = -1;
 static int hf_smb2_reserved = -1;
 static int hf_smb2_reserved_random = -1;
 static int hf_smb2_transform_signature = -1;
@@ -603,6 +618,9 @@ static gint ett_smb2_fsctl_odx_token = -1;
 static gint ett_smb2_symlink_error_response = -1;
 static gint ett_smb2_reparse_data_buffer = -1;
 static gint ett_smb2_error_data = -1;
+static gint ett_smb2_error_context = -1;
+static gint ett_smb2_error_redir_context = -1;
+static gint ett_smb2_error_redir_ip_list = -1;
 
 static expert_field ei_smb2_invalid_length = EI_INIT;
 static expert_field ei_smb2_bad_response = EI_INIT;
@@ -824,6 +842,14 @@ static const val64_string unique_unsolicited_response[] = {
 	{ 0, NULL }
 };
 
+#define SMB2_ERROR_ID_DEFAULT 0x00000000
+#define SMB2_ERROR_ID_SHARE_REDIRECT 0x72645253
+static const value_string smb2_error_id_vals[] = {
+	{ SMB2_ERROR_ID_DEFAULT, "ERROR_ID_DEFAULT" },
+	{ SMB2_ERROR_ID_SHARE_REDIRECT, "ERROR_ID_SHARE_REDIRECT" },
+	{ 0, NULL }
+};
+
 #define REPARSE_TAG_RESERVED_ZERO      0x00000000 /* Reserved reparse tag value. */
 #define REPARSE_TAG_RESERVED_ONE       0x00000001 /* Reserved reparse tag value. */
 #define REPARSE_TAG_MOUNT_POINT        0xA0000003 /* Used for mount point */
@@ -867,6 +893,9 @@ static const val64_string nfs_type_vals[] = {
 };
 
 #define SMB2_NUM_PROCEDURES     256
+
+static int dissect_windows_sockaddr_storage(tvbuff_t *, packet_info *, proto_tree *, int, int);
+static void dissect_smb2_error_data(tvbuff_t *, packet_info *, proto_tree *, int, int, smb2_info_t *);
 
 static void update_preauth_hash(void *buf, tvbuff_t *tvb)
 {
@@ -3272,6 +3301,53 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 }
 
 static void
+dissect_smb2_share_redirect_error(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
+{
+	proto_tree *tree;
+	proto_item *item;
+	proto_tree *ips_tree;
+	proto_item *ips_item;
+
+	offset_length_buffer_t res_olb;
+	guint32 i, ip_count;
+
+	item = proto_tree_add_item(parent_tree, hf_smb2_error_redir_context, tvb, offset, 0, ENC_NA);
+	tree = proto_item_add_subtree(item, ett_smb2_error_redir_context);
+
+	/* structure size */
+	proto_tree_add_item(tree, hf_smb2_error_redir_struct_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	/* notification type */
+	proto_tree_add_item(tree, hf_smb2_error_redir_notif_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+
+	/* resource name offset/length */
+	offset = dissect_smb2_olb_length_offset(tvb, offset, &res_olb, OLB_O_UINT32_S_UINT32, hf_smb2_error_redir_res_name);
+
+	/* flags */
+	proto_tree_add_item(tree, hf_smb2_error_redir_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
+
+	/* target type */
+	proto_tree_add_item(tree, hf_smb2_error_redir_target_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
+
+	/* ip addr count */
+	proto_tree_add_item_ret_uint(tree, hf_smb2_error_redir_ip_count, tvb, offset, 4, ENC_LITTLE_ENDIAN, &ip_count);
+	offset += 4;
+
+	/* ip addr list */
+	ips_item = proto_tree_add_item(tree, hf_smb2_error_redir_ip_list, tvb, offset, 0, ENC_NA);
+	ips_tree = proto_item_add_subtree(ips_item, ett_smb2_error_redir_ip_list);
+	for (i = 0; i < ip_count; i++)
+		offset += dissect_windows_sockaddr_storage(tvb, pinfo, ips_tree, offset, -1);
+
+	/* resource name */
+	dissect_smb2_olb_off_string(pinfo, tree, tvb, &res_olb, offset, OLB_TYPE_UNICODE_STRING);
+}
+
+static void
 dissect_smb2_STATUS_STOPPED_ON_SYMLINK(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
 {
 	proto_tree *tree;
@@ -3317,34 +3393,89 @@ dissect_smb2_STATUS_STOPPED_ON_SYMLINK(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 	dissect_smb2_olb_off_string(pinfo, tree, tvb, &p_olb, offset, OLB_TYPE_UNICODE_STRING);
 }
 
+static int
+dissect_smb2_error_context(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, smb2_info_t *si _U_)
+{
+	proto_tree *tree;
+	proto_item *item;
+	tvbuff_t *sub_tvb;
+	guint32 length;
+	guint32 id;
+
+	item = proto_tree_add_item(parent_tree, hf_smb2_error_context, tvb, offset, -1, ENC_NA);
+	tree = proto_item_add_subtree(item, ett_smb2_error_context);
+
+	proto_tree_add_item_ret_uint(tree, hf_smb2_error_context_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, &length);
+	offset += 4;
+
+	proto_tree_add_item_ret_uint(tree, hf_smb2_error_context_id, tvb, offset, 4, ENC_LITTLE_ENDIAN, &id);
+	offset += 4;
+
+	sub_tvb = tvb_new_subset_length(tvb, offset, length);
+	dissect_smb2_error_data(sub_tvb, pinfo, tree, 0, id, si);
+	offset += length;
+
+	return offset;
+}
+
+/*
+ * Assumes it is being called with a sub-tvb (dissects at offsets 0)
+ */
 static void
-dissect_smb2_error_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int error_context_count, smb2_info_t *si _U_)
+dissect_smb2_error_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree,
+			int error_context_count, int error_id,
+			smb2_info_t *si _U_)
 {
 	proto_tree *tree;
 	proto_item *item;
 
 	int offset = 0;
+	int i;
 
 	item = proto_tree_add_item(parent_tree, hf_smb2_error_data, tvb, offset, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_smb2_error_data);
 
 	if (error_context_count == 0) {
+		if (tvb_captured_length_remaining(tvb, offset) <= 1)
+			return;
 		switch (si->status) {
-		case 0x8000002D: /* STATUS_STOPPED_ON_SYMLINK */
+		case NT_STATUS_STOPPED_ON_SYMLINK:
 			dissect_smb2_STATUS_STOPPED_ON_SYMLINK(tvb, pinfo, tree, offset, si);
-
 			break;
+		case NT_STATUS_BUFFER_TOO_SMALL:
+			proto_tree_add_item(tree, hf_smb2_error_min_buf_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			break;
+		case NT_STATUS_BAD_NETWORK_NAME:
+			if (error_id == SMB2_ERROR_ID_SHARE_REDIRECT)
+				dissect_smb2_share_redirect_error(tvb, pinfo, tree, offset, si);
 		default:
 			break;
 		}
 	} else {
-		/* TODO SMB311 supports multiple error contexts */
+		for (i = 0; i < error_context_count; i++)
+			offset += dissect_smb2_error_context(tvb, pinfo, tree, offset, si);
 	}
 }
 
-/* This needs more fixes for cases when the original header had also the constant value of 9.
-   This should be fixed on caller side where it decides if it has to call this or not.
-*/
+/*
+ * SMB2 Error responses are a bit convoluted. Error data can be a list
+ * of error contexts which themselves can hold an error data field.
+ * See [MS-SMB2] 2.2.2.1.
+ *
+ * ERROR_RESP := ERROR_DATA
+ *
+ * ERROR_DATA := ( ERROR_CONTEXT + )
+ *             | ERROR_STATUS_STOPPED_ON_SYMLINK
+ *             | ERROR_ID_SHARE_REDIRECT
+ *             | ERROR_BUFFER_TOO_SMALL
+ *
+ * ERROR_CONTEXT := ... + ERROR_DATA
+ *                | ERROR_ID_SHARE_REDIRECT
+ *
+ * This needs more fixes for cases when the original header had also the constant value of 9.
+ * This should be fixed on caller side where it decides if it has to call this or not.
+ *
+ */
 static int
 dissect_smb2_error_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, smb2_info_t *si,
 							gboolean* continue_dissection)
@@ -3389,7 +3520,7 @@ dissect_smb2_error_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 		sub_tvb = tvb_new_subset_length(tvb, offset, byte_count);
 		offset += byte_count;
 
-		dissect_smb2_error_data(sub_tvb, pinfo, tree, error_context_count, si);
+		dissect_smb2_error_data(sub_tvb, pinfo, tree, error_context_count, 0, si);
 	}
 
 	return offset;
@@ -11466,6 +11597,66 @@ proto_register_smb2(void)
 			NULL, 0, NULL, HFILL }
 		},
 
+		{ &hf_smb2_error_context,
+			{ "Error Context", "smb2.error.context", FT_BYTES, BASE_NONE,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_error_context_id,
+			{ "Type", "smb2.error.context.id", FT_UINT32, BASE_HEX,
+			VALS(smb2_error_id_vals), 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_error_context_length,
+			{ "Type", "smb2.error.context.length", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_error_min_buf_length,
+			{ "Minimum required buffer length", "smb2.error.min_buf_length", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_error_redir_context,
+			{ "Share Redirect", "smb2.error.share_redirect", FT_NONE, BASE_NONE,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_error_redir_struct_size,
+			{ "Struct Size", "smb2.error.share_redirect.struct_size", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_error_redir_notif_type,
+			{ "Notification Type", "smb2.error.share_redirect.notif_type", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_error_redir_flags,
+			{ "Flags", "smb2.error.share_redirect.flags", FT_UINT16, BASE_HEX,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_error_redir_target_type,
+			{ "Target Type", "smb2.error.share_redirect.target_type", FT_UINT16, BASE_HEX,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_error_redir_ip_count,
+			{ "IP Addr Count", "smb2.error.share_redirect.ip_count", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_error_redir_ip_list,
+			{ "IP Addr List", "smb2.error.share_redirect.ip_list", FT_NONE, BASE_NONE,
+			NULL, 0, NULL, HFILL }
+		},
+
+		{ &hf_smb2_error_redir_res_name,
+			{ "Resourse Name", "smb2.error.share_redirect.res_name", FT_STRING, BASE_NONE,
+			NULL, 0, NULL, HFILL }
+		},
+
 		{ &hf_smb2_reserved,
 			{ "Reserved", "smb2.reserved", FT_BYTES, BASE_NONE,
 			NULL, 0, NULL, HFILL }
@@ -12050,6 +12241,9 @@ proto_register_smb2(void)
 		&ett_smb2_symlink_error_response,
 		&ett_smb2_reparse_data_buffer,
 		&ett_smb2_error_data,
+		&ett_smb2_error_context,
+		&ett_smb2_error_redir_context,
+		&ett_smb2_error_redir_ip_list,
 	};
 
 	static ei_register_info ei[] = {
