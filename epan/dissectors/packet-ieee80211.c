@@ -6068,6 +6068,7 @@ static expert_field ei_ieee80211_vs_routerboard_unexpected_len = EI_INIT;
 static expert_field ei_ieee80211_twt_tear_down_bad_neg_type = EI_INIT;
 static expert_field ei_ieee80211_twt_setup_not_supported_neg_type = EI_INIT;
 static expert_field ei_ieee80211_twt_setup_bad_command = EI_INIT;
+static expert_field ei_ieee80211_invalid_control_word = EI_INIT;
 
 /* 802.11ad trees */
 static gint ett_dynamic_alloc_tree = -1;
@@ -17290,7 +17291,7 @@ dissect_a_control_cci(proto_tree *tree, tvbuff_t *tvb, int offset,
 }
 
 static void
-dissect_ht_control(proto_tree *tree, tvbuff_t *tvb, int offset)
+dissect_ht_control(packet_info* pinfo, proto_tree *tree, tvbuff_t *tvb, int offset)
 {
   proto_item *ti;
   proto_tree *htc_tree, *lac_subtree, *mfb_subtree;
@@ -17327,6 +17328,10 @@ dissect_ht_control(proto_tree *tree, tvbuff_t *tvb, int offset)
           proto_item_append_text(pi, ": %s",
                         val_to_str(control_id, a_control_control_id_vals,
                                         "Reserved (%u)"));
+        }
+        if (start_bit_offset > 31) {
+          expert_add_info(pinfo, a_control_tree, &ei_ieee80211_invalid_control_word);
+          break;
         }
         switch (control_id) {
         case A_CONTROL_TRS:
@@ -23863,7 +23868,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
           cw_tree = proto_tree_add_subtree(hdr_tree, tvb, offset, 2,
                       ett_cntrl_wrapper_fc, NULL, "Contained Frame Control");
           dissect_frame_control(cw_tree, tvb, 0, offset, pinfo);
-          dissect_ht_control(hdr_tree, tvb, offset + 2);
+          dissect_ht_control(pinfo, hdr_tree, tvb, offset + 2);
           offset += 6;
           hdr_tree = proto_tree_add_subtree(hdr_tree, tvb, offset, 2,
                       ett_cntrl_wrapper_fc, &cw_item, "Carried Frame");
@@ -24330,7 +24335,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
 
     case MGT_FRAME:
       if (htc_len == 4) {
-        dissect_ht_control(hdr_tree, tvb, ohdr_len - 4);
+        dissect_ht_control(pinfo, hdr_tree, tvb, ohdr_len - 4);
       }
       break;
 
@@ -24461,7 +24466,7 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
 
         /* Do we have +HTC? */
         if (htc_len == 4) {
-          dissect_ht_control(hdr_tree, tvb, ohdr_len - 4);
+          dissect_ht_control(pinfo, hdr_tree, tvb, ohdr_len - 4);
         }
 
       } /* end of qos control field */
@@ -37085,6 +37090,10 @@ proto_register_ieee80211(void)
     { &ei_ieee80211_twt_setup_bad_command,
       { "wlan.twt.setup_bad_command", PI_PROTOCOL, PI_ERROR,
         "This TWT Setup Command is not allowed, check the TWT Request field", EXPFILL }},
+
+    { &ei_ieee80211_invalid_control_word,
+      { "wlan.htc.he.a_control.invalid", PI_PROTOCOL, PI_MALFORMED,
+        "Invalid control word", EXPFILL }},
   };
 
   expert_module_t *expert_ieee80211;
