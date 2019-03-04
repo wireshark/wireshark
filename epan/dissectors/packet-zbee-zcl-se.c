@@ -3912,7 +3912,7 @@ dissect_zcl_drlc_load_control_event(tvbuff_t *tvb, proto_tree *tree, guint *offs
     *offset += 1;
 
     /* Cooling Temperature Set Point */
-    proto_tree_add_item(tree, hf_zbee_zcl_drlc_heating_temp_set_point, tvb,
+    proto_tree_add_item(tree, hf_zbee_zcl_drlc_cooling_temp_set_point, tvb,
                         *offset, 2, ENC_LITTLE_ENDIAN);
     *offset += 2;
 
@@ -3970,7 +3970,7 @@ dissect_zcl_drlc_cancel_load_control_event(tvbuff_t *tvb, proto_tree *tree, guin
     *offset += 1;
 
     /* Effective Time */
-    proto_tree_add_item(tree, hf_zbee_zcl_drlc_utility_enrollment_group, tvb,
+    proto_tree_add_item(tree, hf_zbee_zcl_drlc_effective_time, tvb,
                         *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
 
@@ -8327,7 +8327,7 @@ VALUE_STRING_ARRAY(zbee_zcl_tun_attr_names);
     XXX(ZBEE_ZCL_CMD_ID_TUN_TRANSFER_DATA_ERROR,                0x03, "Transfer Data Error" ) \
     XXX(ZBEE_ZCL_CMD_ID_TUN_ACK_TRANSFER_DATA,                  0x04, "Ack Transfer Data" ) \
     XXX(ZBEE_ZCL_CMD_ID_TUN_READY_DATA,                         0x05, "Ready Data" ) \
-    XXX(ZBEE_ZCL_CMD_ID_TUN_GET_SUPPORTED_PROTOCOLS,            0x06, "Get Supported Protocols" )
+    XXX(ZBEE_ZCL_CMD_ID_TUN_GET_SUPPORTED_PROTOCOLS,            0x06, "Get Supported Tunnel Protocols" )
 
 VALUE_STRING_ENUM(zbee_zcl_tun_srv_rx_cmd_names);
 VALUE_STRING_ARRAY(zbee_zcl_tun_srv_rx_cmd_names);
@@ -8339,7 +8339,7 @@ VALUE_STRING_ARRAY(zbee_zcl_tun_srv_rx_cmd_names);
     XXX(ZBEE_ZCL_CMD_ID_TUN_TRANSFER_DATA_ERROR_TX,             0x02, "Transfer Data Error" ) \
     XXX(ZBEE_ZCL_CMD_ID_TUN_ACK_TRANSFER_DATA_TX,               0x03, "Ack Transfer Data" ) \
     XXX(ZBEE_ZCL_CMD_ID_TUN_READY_DATA_TX,                      0x04, "Ready Data" ) \
-    XXX(ZBEE_ZCL_CMD_ID_TUN_GET_SUPPORTED_PROTOCOLS_RSP,        0x05, "Get Supported Tunnel Protocols" ) \
+    XXX(ZBEE_ZCL_CMD_ID_TUN_GET_SUPPORTED_PROTOCOLS_RSP,        0x05, "Supported Tunnel Protocols Response" ) \
     XXX(ZBEE_ZCL_CMD_ID_TUN_CLOSURE_NOTIFY,                     0x06, "Tunnel Closure Notification" )
 
 VALUE_STRING_ENUM(zbee_zcl_tun_srv_tx_cmd_names);
@@ -8585,8 +8585,8 @@ dissect_zcl_tun_ready_data(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 static void
 dissect_zcl_tun_get_supported(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
-    proto_tree_add_item(tree, hf_zbee_zcl_tun_protocol_offset, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
-    *offset += 2;
+    proto_tree_add_item(tree, hf_zbee_zcl_tun_protocol_offset, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
 }
 
 /**
@@ -8630,7 +8630,7 @@ dissect_zcl_tun_get_supported_rsp(tvbuff_t *tvb, proto_tree *tree, guint *offset
     while (tvb_reported_length_remaining(tvb, *offset) > 0) {
         mfg_code = tvb_get_letohs(tvb, *offset);
         if (mfg_code == 0xFFFF) {
-            proto_tree_add_string(tree, hf_zbee_zcl_tun_manufacturer_code, tvb, *offset, 2, "Standard Protocol (Mfg Code 0xFFFF)");
+            proto_tree_add_uint_format(tree, hf_zbee_zcl_tun_manufacturer_code, tvb, *offset, 2, mfg_code, "Standard Protocol (Mfg Code %#x)", mfg_code);
         }
         else {
             proto_tree_add_item(tree, hf_zbee_zcl_tun_manufacturer_code, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
@@ -10696,7 +10696,7 @@ dissect_zbee_zcl_energy_management_report_event_status(tvbuff_t *tvb, proto_tree
     *offset += 1;
 
     /* Event Control */
-    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_drlc_report_event_event_control, ett_zbee_zcl_energy_management_report_event_event_control,
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_energy_management_report_event_event_control, ett_zbee_zcl_energy_management_report_event_event_control,
                            hf_zbee_zcl_energy_management_event_control_flags, ENC_LITTLE_ENDIAN);
     *offset += 1;
 
