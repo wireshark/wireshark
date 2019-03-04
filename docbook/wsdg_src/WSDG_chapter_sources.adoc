@@ -77,14 +77,21 @@ You can also view commit logs, branches, tags, and past revisions:
 
 https://code.wireshark.org/review/gitweb?p=wireshark.git
 
+==== Git Naming Conventions
+
 Like most revision control systems, Git uses
 http://en.wikipedia.org/wiki/Branching_%28revision_control%29[branching] to
 manage different copies of the source code and allow parallel development.
-Wireshark uses the following branches for official releases:
+Wireshark uses the following branch naming conventions:
 
-* _master_: Main feature development and odd-numbered "feature" releases.
-* _master-x.y_: Stable release maintenance. For example, master-1.10 is used
-  to manage the 1.10.x official releases.
+* _master_: Main feature development and odd-numbered “development” releases.
+* _master-x.y_: Stable release maintenance. For example, master-3.0 is used
+  to manage the 3.0.x official releases.
+
+Tags for major releases and release candidates consist of a “v” followed
+by a version number such as “v3.0.1” or “v3.0.3rc0”. Major releases
+additionally have a tag prefixed with “wireshark-” followed by a version
+number, such as “wireshark-3.0.0”.
 
 [[ChSrcObtain]]
 
