@@ -6264,7 +6264,7 @@ dissect_smb2_FSCTL_STORAGE_QOS_CONTROL(tvbuff_t *tvb, packet_info *pinfo, proto_
 	}
 }
 
-static void
+static int
 dissect_windows_sockaddr_in(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, int len)
 {
 	proto_item *sub_item;
@@ -6272,7 +6272,7 @@ dissect_windows_sockaddr_in(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p
 	proto_item *parent_item;
 
 	if (len == -1) {
-		len = 16;
+		len = 8;
 	}
 
 	sub_tree = proto_tree_add_subtree(parent_tree, tvb, offset, len, ett_windows_sockaddr, &sub_item, "Socket Address");
@@ -6288,12 +6288,13 @@ dissect_windows_sockaddr_in(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *p
 
 	/* IPv4 address */
 	proto_tree_add_item(sub_tree, hf_windows_sockaddr_in_addr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-
 	proto_item_append_text(sub_item, ", IPv4: %s", tvb_ip_to_str(tvb, offset));
 	proto_item_append_text(parent_item, ", IPv4: %s", tvb_ip_to_str(tvb, offset));
+	offset += 4;
+	return offset;
 }
 
-static void
+static int
 dissect_windows_sockaddr_in6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree, int offset, int len)
 {
 	proto_item        *sub_item;
@@ -6301,7 +6302,7 @@ dissect_windows_sockaddr_in6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	proto_item        *parent_item;
 
 	if (len == -1) {
-		len = 16;
+		len = 26;
 	}
 
 	sub_tree = proto_tree_add_subtree(parent_tree, tvb, offset, len, ett_windows_sockaddr, &sub_item, "Socket Address");
@@ -6319,7 +6320,7 @@ dissect_windows_sockaddr_in6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	proto_tree_add_item(sub_tree, hf_windows_sockaddr_in6_flowinfo, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
-	/* IPv4 address */
+	/* IPv6 address */
 	proto_tree_add_item(sub_tree, hf_windows_sockaddr_in6_addr, tvb, offset, 16, ENC_NA);
 	proto_item_append_text(sub_item, ", IPv6: %s", tvb_ip6_to_str(tvb, offset));
 	proto_item_append_text(parent_item, ", IPv6: %s", tvb_ip6_to_str(tvb, offset));
@@ -6327,12 +6328,14 @@ dissect_windows_sockaddr_in6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 	/* sin6_scope_id */
 	proto_tree_add_item(sub_tree, hf_windows_sockaddr_in6_scope_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	offset += 2;
+
+	return offset;
 }
 
-static void
-dissect_windows_sockaddr_storage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset)
+static int
+dissect_windows_sockaddr_storage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int offset, int len)
 {
-	int         len         = 128;
 	proto_item *sub_item;
 	proto_tree *sub_tree;
 	proto_item *parent_item;
@@ -6341,11 +6344,9 @@ dissect_windows_sockaddr_storage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	family = tvb_get_letohs(tvb, offset);
 	switch (family) {
 	case WINSOCK_AF_INET:
-		dissect_windows_sockaddr_in(tvb, pinfo, parent_tree, offset, len);
-		return;
+		return dissect_windows_sockaddr_in(tvb, pinfo, parent_tree, offset, len);
 	case WINSOCK_AF_INET6:
-		dissect_windows_sockaddr_in6(tvb, pinfo, parent_tree, offset, len);
-		return;
+		return dissect_windows_sockaddr_in6(tvb, pinfo, parent_tree, offset, len);
 	}
 
 	sub_tree = proto_tree_add_subtree(parent_tree, tvb, offset, len, ett_windows_sockaddr, &sub_item, "Socket Address");
@@ -6355,10 +6356,7 @@ dissect_windows_sockaddr_storage(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	proto_tree_add_item(sub_tree, hf_windows_sockaddr_family, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	proto_item_append_text(sub_item, ", Family: %d (0x%04x)", family, family);
 	proto_item_append_text(parent_item, ", Family: %d (0x%04x)", family, family);
-	/*offset += 2;*/
-
-	/* unknown */
-	/*offset += 126;*/
+	return offset + len;
 }
 
 #define NETWORK_INTERFACE_CAP_RSS 0x00000001
@@ -6439,7 +6437,7 @@ dissect_smb2_NETWORK_INTERFACE_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	offset += 8;
 
 	/* socket address */
-	dissect_windows_sockaddr_storage(tvb, pinfo, sub_tree, offset);
+	dissect_windows_sockaddr_storage(tvb, pinfo, sub_tree, offset, -1);
 
 	if (next_offset) {
 		tvbuff_t *next_tvb;
