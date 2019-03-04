@@ -20,6 +20,8 @@
 #define UAUDP_KEEPALIVE_ACK     5
 #define UAUDP_NACK              6
 #define UAUDP_DATA              7
+#define UAUDP_START_SIG        64
+#define UAUDP_START_SIG_ACK    65
 
 #define UAUDP_CONNECT_VERSION           0x00
 #define UAUDP_CONNECT_WINDOW_SIZE       0x01

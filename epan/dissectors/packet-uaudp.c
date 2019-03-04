@@ -43,7 +43,8 @@ static int hf_uaudp_expseq          = -1;
 static int hf_uaudp_sntseq          = -1;
 static int hf_uaudp_type            = -1;
 static int hf_uaudp_length          = -1;
-
+static int hf_uaudp_startsig_reserved = -1;
+static int hf_uaudp_startsig_filename = -1;
 
 static gint ett_uaudp               = -1;
 static gint ett_uaudp_tlv           = -1;
@@ -70,6 +71,8 @@ static const value_string uaudp_opcode_str[] =
     { UAUDP_KEEPALIVE_ACK,  "Keepalive ACK" },
     { UAUDP_NACK,           "NACK" },
     { UAUDP_DATA,           "Data" },
+    { UAUDP_START_SIG,      "StartSig" },
+    { UAUDP_START_SIG_ACK,  "StartSig ACK" },
     { 0, NULL }
 };
 value_string_ext uaudp_opcode_str_ext = VALUE_STRING_EXT_INIT(uaudp_opcode_str);
@@ -244,6 +247,15 @@ static void _dissect_uaudp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
         break;
     }
+
+    case UAUDP_START_SIG:
+    {
+        proto_tree_add_item(uaudp_tree, hf_uaudp_startsig_reserved, tvb, offset, 6, ENC_NA);
+        offset += 6;
+        proto_tree_add_item(uaudp_tree, hf_uaudp_startsig_filename, tvb, offset, tvb_strsize(tvb, offset)-1, ENC_ASCII|ENC_NA);
+        break;
+    }
+
     default:
         break;
     }
@@ -505,6 +517,33 @@ void proto_register_uaudp(void)
                 HFILL
             }
         },
+        {
+            &hf_uaudp_startsig_reserved,
+            {
+                "Reserved",
+                "uaudp.startsig.reserved",
+                FT_BYTES,
+                BASE_NONE,
+                NULL,
+                0x0,
+                NULL,
+                HFILL
+            }
+        },
+        {
+            &hf_uaudp_startsig_filename,
+            {
+                "Filename",
+                "uaudp.startsig.filename",
+                FT_STRING,
+                BASE_NONE,
+                NULL,
+                0x0,
+                NULL,
+                HFILL
+            }
+        },
+
     };
 
     /* Setup protocol subtree array */
