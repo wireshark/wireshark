@@ -3030,14 +3030,14 @@ dissect_ieee802154_tap_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             case IEEE802154_TAP_START_OF_FRAME_TS:
                 proto_tree_add_item_ret_uint64(tlvtree, hf_ieee802154_sof_ts, tvb, offset, 8,
                                                ENC_LITTLE_ENDIAN, &frame_start_ts);
-                nstime.secs = frame_start_ts / 1000000000L;
+                nstime.secs = (time_t)frame_start_ts / 1000000000L;
                 nstime.nsecs = frame_start_ts % 1000000000UL;
                 proto_item_append_text(proto_tree_get_parent(tlvtree), ": %s s", rel_time_to_secs_str(wmem_packet_scope(), &nstime));
                 break;
             case IEEE802154_TAP_END_OF_FRAME_TS:
                 proto_tree_add_item_ret_uint64(tlvtree, hf_ieee802154_eof_ts, tvb, offset, 8,
                                     ENC_LITTLE_ENDIAN, &frame_end_ts);
-                nstime.secs = frame_end_ts / 1000000000L;
+                nstime.secs = (time_t)frame_end_ts / 1000000000L;
                 nstime.nsecs = frame_end_ts % 1000000000UL;
                 proto_item_append_text(proto_tree_get_parent(tlvtree), ": %s s", rel_time_to_secs_str(wmem_packet_scope(), &nstime));
                 break;
@@ -3048,7 +3048,7 @@ dissect_ieee802154_tap_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             case IEEE802154_TAP_SLOT_START_TS:
                 proto_tree_add_item_ret_uint64(tlvtree, hf_ieee802154_slot_start_ts, tvb, offset, 8,
                                     ENC_LITTLE_ENDIAN, &slot_start_ts);
-                nstime.secs = slot_start_ts / 1000000000L;
+                nstime.secs = (time_t)slot_start_ts / 1000000000L;
                 nstime.nsecs = slot_start_ts % 1000000000UL;
                 proto_item_append_text(proto_tree_get_parent(tlvtree), ": %s s", rel_time_to_secs_str(wmem_packet_scope(), &nstime));
                 break;
