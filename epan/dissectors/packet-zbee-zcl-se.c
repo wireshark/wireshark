@@ -12994,6 +12994,53 @@ VALUE_STRING_ARRAY(zbee_zcl_device_management_srv_rx_cmd_names);
 VALUE_STRING_ENUM(zbee_zcl_device_management_srv_tx_cmd_names);
 VALUE_STRING_ARRAY(zbee_zcl_device_management_srv_tx_cmd_names);
 
+#define zbee_zcl_device_management_password_types_VALUE_STRING_LIST(XXX)  \
+    XXX(ZBEE_ZCL_DEVICE_MANAGEMENT_PASSWORD_TYPE_RESERVED, 0x00, "Reserved")        \
+    XXX(ZBEE_ZCL_DEVICE_MANAGEMENT_PASSWORD_TYPE_PASSWORD_1, 0x01, "Password 1")    \
+    XXX(ZBEE_ZCL_DEVICE_MANAGEMENT_PASSWORD_TYPE_PASSWORD_2, 0x02, "Password 2")    \
+    XXX(ZBEE_ZCL_DEVICE_MANAGEMENT_PASSWORD_TYPE_PASSWORD_3, 0x03, "Password 3")    \
+    XXX(ZBEE_ZCL_DEVICE_MANAGEMENT_PASSWORD_TYPE_PASSWORD_4, 0x04, "Password 4")
+
+VALUE_STRING_ENUM(zbee_zcl_device_management_password_types);
+VALUE_STRING_ARRAY(zbee_zcl_device_management_password_types);
+
+#define zbee_zcl_device_management_event_configuration_log_types_VALUE_STRING_LIST(XXX) \
+    XXX(ZBEE_ZCL_DEVICE_MANAGEMENT_EVENT_CONFIGURATION_DO_NOT_LOG, 0x0, "Do not Log")       \
+    XXX(ZBEE_ZCL_DEVICE_MANAGEMENT_EVENT_CONFIGURATION_LOG_AS_TAMPER, 0x1, "Log as Tamper") \
+    XXX(ZBEE_ZCL_DEVICE_MANAGEMENT_EVENT_CONFIGURATION_LOG_AS_FAULT, 0x2, "Log as Fault")   \
+    XXX(ZBEE_ZCL_DEVICE_MANAGEMENT_EVENT_CONFIGURATION_LOG_AS_GENERAL_EVENT, 0x3, "Log as General Event")   \
+    XXX(ZBEE_ZCL_DEVICE_MANAGEMENT_EVENT_CONFIGURATION_LOG_AS_SECURITY_EVENT, 0x4, "Log as Security Event") \
+    XXX(ZBEE_ZCL_DEVICE_MANAGEMENT_EVENT_CONFIGURATION_LOG_AS_NETWORK_EVENT, 0x5, "Log as Network Event")
+
+VALUE_STRING_ENUM(zbee_zcl_device_management_event_configuration_log_types);
+VALUE_STRING_ARRAY(zbee_zcl_device_management_event_configuration_log_types);
+
+#define zbee_zcl_device_management_tariff_types_VALUE_STRING_LIST(XXX)   \
+    XXX(ZBEE_ZCL_DEVICE_MANAGEMENT_TARIFF_TYPE_DELIVERED_TARIFF, 0x0, "Delivered Tariff")   \
+    XXX(ZBEE_ZCL_DEVICE_MANAGEMENT_TARIFF_TYPE_RECEIVED_TARIFF, 0x1, "Received Tariff")     \
+    XXX(ZBEE_ZCL_DEVICE_MANAGEMENT_TARIFF_TYPE_DELIVERED_AND_RECEIVED_TARIFF, 0x2, "Delivered and Received Tariff")
+
+VALUE_STRING_ENUM(zbee_zcl_device_management_tariff_types);
+VALUE_STRING_ARRAY(zbee_zcl_device_management_tariff_types);
+
+#define zbee_zcl_device_management_contactor_states_VALUE_STRING_LIST(XXX)  \
+    XXX(ZBEE_ZCL_DEVICE_MANAGEMENT_SUPPLY_OFF,       0x0, "Supply OFF")         \
+    XXX(ZBEE_ZCL_DEVICE_MANAGEMENT_SUPPLY_OFF_ARMED, 0x1, "Supply OFF / ARMED") \
+    XXX(ZBEE_ZCL_DEVICE_MANAGEMENT_SUPPLY_ON,        0x2, "Supply ON")          \
+    XXX(ZBEE_ZCL_DEVICE_MANAGEMENT_SUPPLY_UNCHANGED, 0x3, "Supply UNCHANGED")
+
+VALUE_STRING_ENUM(zbee_zcl_device_management_contactor_states);
+VALUE_STRING_ARRAY(zbee_zcl_device_management_contactor_states);
+
+#define zbee_zcl_device_management_configuration_controls_VALUE_STRING_LIST(XXX) \
+    XXX(ZBEE_ZCL_DEVICE_MANAGEMENT_CONFIGURATION_CONTROL_APPLY_BY_LIST, 0x00, "Apply by List")  \
+    XXX(ZBEE_ZCL_DEVICE_MANAGEMENT_CONFIGURATION_CONTROL_APPLY_BY_EVENT_GROUP, 0x01, "Apply by Event Group")  \
+    XXX(ZBEE_ZCL_DEVICE_MANAGEMENT_CONFIGURATION_CONTROL_APPLY_BY_LOG_TYPE, 0x02, "Apply by Log Type")  \
+    XXX(ZBEE_ZCL_DEVICE_MANAGEMENT_CONFIGURATION_CONTROL_APPLY_BY_CONFIGURATION_MATCH, 0x03, "Apply by Configuration Match")
+
+VALUE_STRING_ENUM(zbee_zcl_device_management_configuration_controls);
+VALUE_STRING_ARRAY(zbee_zcl_device_management_configuration_controls);
+
 /*************************/
 /* Function Declarations */
 /*************************/
@@ -13015,9 +13062,107 @@ static int hf_zbee_zcl_device_management_srv_rx_cmd_id = -1;
 static int hf_zbee_zcl_device_management_attr_server_id = -1;
 static int hf_zbee_zcl_device_management_attr_client_id = -1;
 static int hf_zbee_zcl_device_management_attr_reporting_status = -1;
+static int hf_zbee_zcl_device_management_password_type = -1;
+static int hf_zbee_zcl_device_management_command_index = -1;
+static int hf_zbee_zcl_device_management_total_commands = -1;
+static int hf_zbee_zcl_device_management_event_id= -1;
+static int hf_zbee_zcl_device_management_event_configuration = -1;
+static int hf_zbee_zcl_device_management_event_configuration_logging = -1;
+static int hf_zbee_zcl_device_management_event_configuration_push_event_to_wan = -1;
+static int hf_zbee_zcl_device_management_event_configuration_push_event_to_han = -1;
+static int hf_zbee_zcl_device_management_event_configuration_raise_alarm_zigbee = -1;
+static int hf_zbee_zcl_device_management_event_configuration_raise_alarm_physical = -1;
+static int hf_zbee_zcl_device_management_event_configuration_reserved = -1;
+static int hf_zbee_zcl_device_management_publish_change_of_tenancy_provider_id = -1;
+static int hf_zbee_zcl_device_management_publish_change_of_tenancy_issuer_event_id = -1;
+static int hf_zbee_zcl_device_management_publish_change_of_tenancy_tariff_type = -1;
+static int hf_zbee_zcl_device_management_publish_change_of_tenancy_implementation_date = -1;
+static int hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control = -1;
+static int hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_pre_snapshot = -1;
+static int hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_post_snapshot = -1;
+static int hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_reset_credit_register = -1;
+static int hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_reset_debit_register = -1;
+static int hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_reset_billing_period = -1;
+static int hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_clear_tariff_plan = -1;
+static int hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_clear_standing_charge = -1;
+static int hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_block_historical_load_profile_information = -1;
+static int hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_clear_historical_load_profile_information = -1;
+static int hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_clear_ihd_data_consumer = -1;
+static int hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_clear_ihd_data_supplier = -1;
+static int hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_meter_contactor_state = -1;
+static int hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_clear_transaction_log = -1;
+static int hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_clear_prepayment_data = -1;
+static int hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_reserved = -1;
+
+static int hf_zbee_zcl_device_management_publish_change_of_supplier_current_provider_id = -1;
+static int hf_zbee_zcl_device_management_publish_change_of_supplier_issuer_event_id = -1;
+static int hf_zbee_zcl_device_management_publish_change_of_supplier_tariff_type = -1;
+static int hf_zbee_zcl_device_management_publish_change_of_supplier_proposed_provider_id = -1;
+static int hf_zbee_zcl_device_management_publish_change_of_supplier_provider_change_implementation_time = -1;
+static int hf_zbee_zcl_device_management_publish_change_of_supplier_provider_change_control = -1;
+static int hf_zbee_zcl_device_management_publish_change_of_supplier_provider_proposed_provider_name = -1;
+static int hf_zbee_zcl_device_management_publish_change_of_supplier_provider_proposed_provider_contact_details = -1;
+
+static int hf_zbee_zcl_device_management_request_new_password_issuer_event_id = -1;
+static int hf_zbee_zcl_device_management_request_new_password_implementation_date = -1;
+static int hf_zbee_zcl_device_management_request_new_password_password = -1;
+static int hf_zbee_zcl_device_management_request_new_password_duration_in_minutes = -1;
+
+static int hf_zbee_zcl_device_management_update_site_id_issuer_event_id = -1;
+static int hf_zbee_zcl_device_management_update_site_id_site_id_time = -1;
+static int hf_zbee_zcl_device_management_update_site_id_provider_id = -1;
+static int hf_zbee_zcl_device_management_update_site_id_site_id = -1;
+
+static int hf_zbee_zcl_device_management_set_event_configuration_issuer_event_id = -1;
+static int hf_zbee_zcl_device_management_set_event_configuration_start_time = -1;
+static int hf_zbee_zcl_device_management_set_event_configuration_configuration_control = -1;
+static int hf_zbee_zcl_device_management_set_event_configuration_event_configuration_number_of_events = -1;
+static int hf_zbee_zcl_device_management_set_event_configuration_event_configuration_event_id = -1;
+static int hf_zbee_zcl_device_management_set_event_configuration_event_configuration_event_group_id = -1;
+static int hf_zbee_zcl_device_management_set_event_configuration_event_configuration_event_log_id = -1;
+static int hf_zbee_zcl_device_management_set_event_configuration_event_configuration_event_configuration_value_match = -1;
+
+static int hf_zbee_zcl_device_management_get_event_configuration_event_id = -1;
+
+static int hf_zbee_zcl_device_management_update_cin_issuer_event_id = -1;
+static int hf_zbee_zcl_device_management_update_cin_cin_implementation_time = -1;
+static int hf_zbee_zcl_device_management_update_cin_provider_id = -1;
+static int hf_zbee_zcl_device_management_update_cin_customerid_number = -1;
+
+static const int* hf_zbee_zcl_device_management_event_configuration_flags[] = {
+    &hf_zbee_zcl_device_management_event_configuration_logging,
+    &hf_zbee_zcl_device_management_event_configuration_push_event_to_wan,
+    &hf_zbee_zcl_device_management_event_configuration_push_event_to_han,
+    &hf_zbee_zcl_device_management_event_configuration_raise_alarm_zigbee,
+    &hf_zbee_zcl_device_management_event_configuration_raise_alarm_physical,
+    &hf_zbee_zcl_device_management_event_configuration_reserved,
+    NULL
+};
+
+static const int* hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_flags[] = {
+    &hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_pre_snapshot,
+    &hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_post_snapshot,
+    &hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_reset_credit_register,
+    &hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_reset_debit_register,
+    &hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_reset_billing_period,
+    &hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_clear_tariff_plan,
+    &hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_clear_standing_charge,
+    &hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_block_historical_load_profile_information,
+    &hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_clear_historical_load_profile_information,
+    &hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_clear_ihd_data_consumer,
+    &hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_clear_ihd_data_supplier,
+    &hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_meter_contactor_state,
+    &hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_clear_transaction_log,
+    &hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_clear_prepayment_data,
+    &hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_reserved,
+    NULL
+};
 
 /* Initialize the subtree pointers */
 static gint ett_zbee_zcl_device_management = -1;
+static gint ett_zbee_zcl_device_management_event_configuration_payload = -1;
+static gint ett_zbee_zcl_device_management_event_configuration = -1;
+static gint ett_zbee_zcl_device_management_proposed_tenancy_change_control = -1;
 
 /*************************/
 /* Function Bodies       */
@@ -13050,6 +13195,328 @@ dissect_zcl_device_management_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *
 } /*dissect_zcl_device_management_attr_data*/
 
 /**
+ *This function is called by ZCL foundation dissector in order to decode
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset pointer to buffer offset
+*/
+static void
+dissect_zcl_device_management_request_new_password(proto_tree *tree, tvbuff_t *tvb, guint *offset)
+{
+    /* Password Type */
+    proto_tree_add_item(tree, hf_zbee_zcl_device_management_password_type, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+}
+
+/**
+ *This function is called by ZCL foundation dissector in order to decode
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset pointer to buffer offset
+*/
+static void
+dissect_zcl_device_management_report_event_configuration(proto_tree *tree, tvbuff_t *tvb, guint *offset)
+{
+    proto_tree *event_configuration_payload;
+    guint rem_len;
+
+    /* Command Index */
+    proto_tree_add_item(tree, hf_zbee_zcl_device_management_command_index, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Total Commands */
+    proto_tree_add_item(tree, hf_zbee_zcl_device_management_total_commands, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    rem_len = tvb_reported_length_remaining(tvb, *offset);
+    /* Event Configuration Payload */
+    event_configuration_payload = proto_tree_add_subtree(tree, tvb, *offset, rem_len, ett_zbee_zcl_device_management_event_configuration_payload, NULL, "Event Configuration Payload");
+
+    while(tvb_reported_length_remaining(tvb, *offset) > 2) {
+        /* Event ID */
+        proto_tree_add_item(event_configuration_payload, hf_zbee_zcl_device_management_event_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+        *offset += 2;
+
+        /* Event Configuration */
+        proto_tree_add_bitmask(event_configuration_payload, tvb, *offset, hf_zbee_zcl_device_management_event_configuration,
+                               ett_zbee_zcl_device_management_event_configuration, hf_zbee_zcl_device_management_event_configuration_flags, ENC_NA);
+        *offset += 1;
+    }
+}
+
+/**
+ *This function is called by ZCL foundation dissector in order to decode
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset pointer to buffer offset
+*/
+static void
+dissect_zcl_device_management_publish_change_of_tenancy(proto_tree *tree, tvbuff_t *tvb, guint *offset)
+{
+    nstime_t impl_date;
+
+    /* Provider ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_device_management_publish_change_of_tenancy_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_device_management_publish_change_of_tenancy_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Tariff Type */
+    proto_tree_add_item(tree, hf_zbee_zcl_device_management_publish_change_of_tenancy_tariff_type, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Implementation Date/Time */
+    impl_date.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    impl_date.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_device_management_publish_change_of_tenancy_implementation_date, tvb, *offset, 4, &impl_date);
+    *offset += 4;
+
+    /* Proposed Tenancy Change Control */
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control,
+                               ett_zbee_zcl_device_management_proposed_tenancy_change_control, hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_flags, ENC_NA);
+    *offset += 4;
+
+} /*dissect_zcl_device_management_publish_change_of_tenancy*/
+
+/**
+ *This function is called by ZCL foundation dissector in order to decode
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset pointer to buffer offset
+*/
+static void
+dissect_zcl_device_management_publish_change_of_supplier(proto_tree *tree, tvbuff_t *tvb, guint *offset)
+{
+    nstime_t impl_time;
+    gint name_length;
+    gint detail_length;
+
+    /* Current Provider ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_device_management_publish_change_of_supplier_current_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_device_management_publish_change_of_supplier_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Tariff Type */
+    proto_tree_add_item(tree, hf_zbee_zcl_device_management_publish_change_of_supplier_tariff_type, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Proposed Provider ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_device_management_publish_change_of_supplier_proposed_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Provider Change Implementation Time */
+    impl_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    impl_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_device_management_publish_change_of_supplier_provider_change_implementation_time, tvb, *offset, 4, &impl_time);
+    *offset += 4;
+
+    /* Provider Change Control */
+    proto_tree_add_item(tree, hf_zbee_zcl_device_management_publish_change_of_supplier_provider_change_control, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Proposed Provider Name */
+    proto_tree_add_item_ret_length(tree, hf_zbee_zcl_device_management_publish_change_of_supplier_provider_proposed_provider_name, tvb, *offset, 1, ENC_NA|ENC_ZIGBEE, &name_length);
+    *offset += name_length;
+
+    /* Proposed Provider Contact Details */
+    proto_tree_add_item_ret_length(tree, hf_zbee_zcl_device_management_publish_change_of_supplier_provider_proposed_provider_contact_details, tvb, *offset, 1, ENC_NA|ENC_ZIGBEE, &detail_length);
+    *offset += detail_length;
+
+} /*dissect_zcl_device_management_publish_change_of_supplier*/
+
+/**
+ *This function is called by ZCL foundation dissector in order to decode
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset pointer to buffer offset
+*/
+static void
+dissect_zcl_device_management_request_new_password_response(proto_tree *tree, tvbuff_t *tvb, guint *offset)
+{
+    nstime_t impl_date;
+    gint     password_length;
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_device_management_request_new_password_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Implementation Date/Time */
+    impl_date.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    impl_date.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_device_management_request_new_password_implementation_date, tvb, *offset, 4, &impl_date);
+    *offset += 4;
+
+    /* Duration in minutes */
+    proto_tree_add_item(tree, hf_zbee_zcl_device_management_request_new_password_duration_in_minutes, tvb, *offset, 2, ENC_NA);
+    *offset += 2;
+
+    /* Password Type */
+    proto_tree_add_item(tree, hf_zbee_zcl_device_management_password_type, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Password */
+    proto_tree_add_item_ret_length(tree, hf_zbee_zcl_device_management_request_new_password_password, tvb, *offset, 1, ENC_NA|ENC_ZIGBEE, &password_length);
+    *offset += password_length;
+
+} /*dissect_zcl_device_management_request_new_password_response*/
+
+/**
+ *This function is called by ZCL foundation dissector in order to decode
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset pointer to buffer offset
+*/
+static void
+dissect_zcl_device_management_update_site_id(proto_tree *tree, tvbuff_t *tvb, guint *offset)
+{
+    nstime_t siteid_time;
+    gint     siteid_length;
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_device_management_update_site_id_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* SiteID Time */
+    siteid_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    siteid_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_device_management_update_site_id_site_id_time, tvb, *offset, 4, &siteid_time);
+    *offset += 4;
+
+    /* Provider ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_device_management_update_site_id_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* SiteID */
+    proto_tree_add_item_ret_length(tree, hf_zbee_zcl_device_management_update_site_id_site_id, tvb, *offset, 1, ENC_NA|ENC_ZIGBEE, &siteid_length);
+    *offset += siteid_length;
+
+} /*dissect_zcl_device_management_update_site_id*/
+
+/**
+ *This function is called by ZCL foundation dissector in order to decode
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset pointer to buffer offset
+*/
+static void
+dissect_zcl_device_management_set_event_configuration(proto_tree *tree, tvbuff_t *tvb, guint *offset)
+{
+    nstime_t start_time;
+    guint8   config_control;
+    guint8   number_of_events;
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_device_management_set_event_configuration_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Start Date/Time */
+    start_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    start_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_device_management_set_event_configuration_start_time, tvb, *offset, 4, &start_time);
+    *offset += 4;
+
+    /* Event Configuration */
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_device_management_event_configuration,
+                           ett_zbee_zcl_device_management_event_configuration, hf_zbee_zcl_device_management_event_configuration_flags, ENC_NA);
+    *offset += 1;
+
+    /* Configuration Control */
+    config_control = tvb_get_guint8(tvb, *offset);
+    proto_tree_add_item(tree, hf_zbee_zcl_device_management_set_event_configuration_configuration_control, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Event Configuration Payload */
+    switch (config_control) {
+        case ZBEE_ZCL_DEVICE_MANAGEMENT_CONFIGURATION_CONTROL_APPLY_BY_LIST:
+            number_of_events = tvb_get_guint8(tvb, *offset);
+            /* Number of Events */
+            proto_tree_add_item(tree, hf_zbee_zcl_device_management_set_event_configuration_event_configuration_number_of_events, tvb, *offset, 1, ENC_NA);
+            *offset += 1;
+
+            /* Event IDs */
+            for (guint i = 0; tvb_reported_length_remaining(tvb, *offset) > 0 && i < number_of_events; i++) {
+                proto_tree_add_item(tree, hf_zbee_zcl_device_management_set_event_configuration_event_configuration_event_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+                *offset += 2;
+            }
+            break;
+        case ZBEE_ZCL_DEVICE_MANAGEMENT_CONFIGURATION_CONTROL_APPLY_BY_EVENT_GROUP:
+            /* Event Group ID */
+            proto_tree_add_item(tree, hf_zbee_zcl_device_management_set_event_configuration_event_configuration_event_group_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+            *offset += 2;
+            break;
+        case ZBEE_ZCL_DEVICE_MANAGEMENT_CONFIGURATION_CONTROL_APPLY_BY_LOG_TYPE:
+            /* Log ID */
+            proto_tree_add_item(tree, hf_zbee_zcl_device_management_set_event_configuration_event_configuration_event_log_id, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+            *offset += 1;
+            break;
+        case ZBEE_ZCL_DEVICE_MANAGEMENT_CONFIGURATION_CONTROL_APPLY_BY_CONFIGURATION_MATCH:
+            /* Configuration Value Match */
+            proto_tree_add_item(tree, hf_zbee_zcl_device_management_set_event_configuration_event_configuration_event_configuration_value_match, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
+            *offset += 1;
+            break;
+    }
+} /*dissect_zcl_device_management_set_event_configuration*/
+
+/**
+ *This function is called by ZCL foundation dissector in order to decode
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset pointer to buffer offset
+*/
+static void
+dissect_zcl_device_management_get_event_configuration(proto_tree *tree, tvbuff_t *tvb, guint *offset)
+{
+    /* Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_device_management_get_event_configuration_event_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+} /*dissect_zcl_device_management_get_event_configuration*/
+
+/**
+ *This function is called by ZCL foundation dissector in order to decode
+ *
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param tvb pointer to buffer containing raw packet.
+ *@param offset pointer to buffer offset
+*/
+static void
+dissect_zcl_device_management_update_cin(proto_tree *tree, tvbuff_t *tvb, guint *offset)
+{
+    nstime_t cin_impl_time;
+    gint     customer_id_length;
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_device_management_update_cin_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* CIN Implementation Time */
+    cin_impl_time.secs = (time_t)tvb_get_letohl(tvb, *offset) + ZBEE_ZCL_NSTIME_UTC_OFFSET;
+    cin_impl_time.nsecs = 0;
+    proto_tree_add_time(tree, hf_zbee_zcl_device_management_update_cin_cin_implementation_time, tvb, *offset, 4, &cin_impl_time);
+    *offset += 4;
+
+    /* Provider ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_device_management_update_cin_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* CustomerID Number */
+    proto_tree_add_item_ret_length(tree, hf_zbee_zcl_device_management_update_cin_customerid_number, tvb, *offset, 1, ENC_NA|ENC_ZIGBEE, &customer_id_length);
+    *offset += customer_id_length;
+} /*dissect_zcl_device_management_update_cin*/
+
+/**
  *ZigBee ZCL Device Management cluster dissector for wireshark.
  *
  *@param tvb pointer to buffer containing raw packet.
@@ -13059,7 +13526,8 @@ dissect_zcl_device_management_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *
 static int
 dissect_zbee_zcl_device_management(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
-    zbee_zcl_packet   *zcl;
+    zbee_zcl_packet  *zcl;
+    proto_tree       *payload_tree;
     guint             offset = 0;
     guint8            cmd_id;
     gint              rem_len;
@@ -13083,32 +13551,29 @@ dissect_zbee_zcl_device_management(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         /* Check is this command has a payload, than add the payload tree */
         rem_len = tvb_reported_length_remaining(tvb, ++offset);
         if (rem_len > 0) {
-            proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_device_management, NULL, "Payload");
-
+            payload_tree = proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_device_management, NULL, "Payload");
             /* Call the appropriate command dissector */
             switch (cmd_id) {
-
-               case ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_GET_CHANGE_OF_TENANCY:
-                    /* Add function to dissect payload */
+                case ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_GET_CHANGE_OF_TENANCY:
+                    /* No Payload */
                     break;
-               case ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_GET_CHANGE_OF_SUPPLIER:
-                    /* Add function to dissect payload */
+                case ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_GET_CHANGE_OF_SUPPLIER:
+                    /* No Payload */
                     break;
-
                 case ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_REQUEST_NEW_PASSWORD:
-                    /* Add function to dissect payload */
+                    dissect_zcl_device_management_request_new_password(payload_tree, tvb, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_GET_SITE_ID:
-                    /* Add function to dissect payload */
+                    /* No Payload */
                     break;
 
                 case ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_REPORT_EVENT_CONFIGURATION:
-                    /* Add function to dissect payload */
+                    dissect_zcl_device_management_report_event_configuration(payload_tree, tvb, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_GET_CIN:
-                    /* Add function to dissect payload */
+                    /* No Payload */
                     break;
 
                 default:
@@ -13128,36 +13593,36 @@ dissect_zbee_zcl_device_management(tvbuff_t *tvb, packet_info *pinfo, proto_tree
         /* Check is this command has a payload, than add the payload tree */
         rem_len = tvb_reported_length_remaining(tvb, ++offset);
         if (rem_len > 0) {
-            proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_device_management, NULL, "Payload");
+            payload_tree = proto_tree_add_subtree(tree, tvb, offset, rem_len, ett_zbee_zcl_device_management, NULL, "Payload");
 
             /* Call the appropriate command dissector */
             switch (cmd_id) {
 
                case ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_PUBLISH_CHANGE_OF_TENANCY:
-                    /* Add function to dissect payload */
+                    dissect_zcl_device_management_publish_change_of_tenancy(payload_tree, tvb, &offset);
                     break;
                case ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_PUBLISH_CHANGE_OF_SUPPLIER:
-                    /* Add function to dissect payload */
+                    dissect_zcl_device_management_publish_change_of_supplier(payload_tree, tvb, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_REQUEST_NEW_PASSWORD_RESPONSE:
-                    /* Add function to dissect payload */
+                    dissect_zcl_device_management_request_new_password_response(payload_tree, tvb, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_UPDATE_SITE_ID:
-                    /* Add function to dissect payload */
+                    dissect_zcl_device_management_update_site_id(payload_tree, tvb, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_SET_EVENT_CONFIGURATION:
-                    /* Add function to dissect payload */
+                    dissect_zcl_device_management_set_event_configuration(payload_tree, tvb, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_GET_EVENT_CONFIGURATION:
-                    /* Add function to dissect payload */
+                    dissect_zcl_device_management_get_event_configuration(payload_tree, tvb, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_DEVICE_MANAGEMENT_UPDATE_CIN:
-                    /* Add function to dissect payload */
+                    dissect_zcl_device_management_update_cin(payload_tree, tvb, &offset);
                     break;
 
                 default:
@@ -13198,11 +13663,254 @@ proto_register_zbee_zcl_device_management(void)
             { "Command", "zbee_zcl_se.device_management.cmd.srv_rx.id", FT_UINT8, BASE_HEX, VALS(zbee_zcl_device_management_srv_rx_cmd_names),
             0x00, NULL, HFILL } },
 
+        { &hf_zbee_zcl_device_management_password_type,
+            { "Password Type", "zbee_zcl_se.device_management.password_type", FT_UINT8, BASE_HEX, VALS(zbee_zcl_device_management_password_types),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_command_index,
+            { "Command Index", "zbee_zcl_se.device_management.command_index", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_total_commands,
+            { "Total Commands", "zbee_zcl_se.device_management.total_commands", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_event_id,
+            { "Event ID", "zbee_zcl_se.device_management.event_id", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_event_configuration,
+            { "Event Configuration", "zbee_zcl_se.device_management.event_configuration", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_event_configuration_logging,
+            { "Logging", "zbee_zcl_se.device_management.event_configuration.logging", FT_UINT8, BASE_HEX, VALS(zbee_zcl_device_management_event_configuration_log_types),
+            0x07, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_event_configuration_push_event_to_wan,
+            { "Push Event to WAN", "zbee_zcl_se.device_management.event_configuration.push_event_to_wan", FT_BOOLEAN, 8, NULL,
+            0x08, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_event_configuration_push_event_to_han,
+            { "Push Event to HAN", "zbee_zcl_se.device_management.event_configuration.push_event_to_han", FT_BOOLEAN, 8, NULL,
+            0x10, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_event_configuration_raise_alarm_zigbee,
+            { "Raise Alarm (Zigbee)", "zbee_zcl_se.device_management.event_configuration.raise_alarm_zigbee", FT_BOOLEAN, 8, NULL,
+            0x20, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_event_configuration_raise_alarm_physical,
+            { "Raise Alarm (Physical)", "zbee_zcl_se.device_management.event_configuration.raise_alarm_physical", FT_BOOLEAN, 8, NULL,
+            0x40, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_event_configuration_reserved,
+            { "Reserved", "zbee_zcl_se.device_management.event_configuration.reserved", FT_UINT8, BASE_HEX, NULL,
+            0x80, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_publish_change_of_tenancy_provider_id,
+            { "Provider ID", "zbee_zcl_se.device_management.publish_change_of_tenancy.provider_id", FT_UINT32, BASE_HEX, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_publish_change_of_tenancy_issuer_event_id,
+            { "Issuer Event ID", "zbee_zcl_se.device_management.publish_change_of_tenancy.issuer_event_id", FT_UINT32, BASE_HEX, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_publish_change_of_tenancy_tariff_type,
+            { "Tariff Type", "zbee_zcl_se.device_management.publish_change_of_tenancy.tariff_type", FT_UINT8, BASE_HEX, VALS(zbee_zcl_device_management_tariff_types),
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_publish_change_of_tenancy_implementation_date,
+            { "Implementation Date/Time", "zbee_zcl_se.device_management.publish_change_of_tenancy.implementation_date", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control,
+            { "Proposed Tenancy Change Control", "zbee_zcl_se.device_management.publish_change_of_tenancy.proposed_tenancy_change_control", FT_UINT32, BASE_HEX, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_pre_snapshot,
+            { "Pre Snapshots", "zbee_zcl_se.device_management.publish_change_of_tenancy.proposed_tenancy_change_control.pre_snapshot", FT_BOOLEAN, 32, NULL,
+            0x00000001, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_post_snapshot,
+            { "Post Snapshots", "zbee_zcl_se.device_management.publish_change_of_tenancy.proposed_tenancy_change_control.post_snapshot", FT_BOOLEAN, 32, NULL,
+            0x00000002, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_reset_credit_register,
+            { "Reset Credit Register", "zbee_zcl_se.device_management.publish_change_of_tenancy.proposed_tenancy_change_control.reset_credit_register", FT_BOOLEAN, 32, NULL,
+            0x00000004, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_reset_debit_register,
+            { "Reset Debit Register", "zbee_zcl_se.device_management.publish_change_of_tenancy.proposed_tenancy_change_control.reset_debit_register", FT_BOOLEAN, 32, NULL,
+            0x00000008, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_reset_billing_period,
+            { "Reset Billing Period", "zbee_zcl_se.device_management.publish_change_of_tenancy.proposed_tenancy_change_control.reset_billing_period", FT_BOOLEAN, 32, NULL,
+            0x00000010, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_clear_tariff_plan,
+            { "Clear Tariff Plan", "zbee_zcl_se.device_management.publish_change_of_tenancy.proposed_tenancy_change_control.clear_tariff_plan", FT_BOOLEAN, 32, NULL,
+            0x00000020, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_clear_standing_charge,
+            { "Clear Standing Charge", "zbee_zcl_se.device_management.publish_change_of_tenancy.proposed_tenancy_change_control.clear_standing_charge", FT_BOOLEAN, 32, NULL,
+            0x00000040, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_block_historical_load_profile_information,
+            { "Block Historical Load Profile Information", "zbee_zcl_se.device_management.publish_change_of_tenancy.proposed_tenancy_change_control.block_historical_load_profile_information", FT_BOOLEAN, 32, NULL,
+            0x00000080, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_clear_historical_load_profile_information,
+            { "Clear Historical Load Profile Information", "zbee_zcl_se.device_management.publish_change_of_tenancy.proposed_tenancy_change_control.clear_historical_load_profile_information", FT_BOOLEAN, 32, NULL,
+            0x00000100, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_clear_ihd_data_consumer,
+            { "Clear IHD Data - Consumer", "zbee_zcl_se.device_management.publish_change_of_tenancy.proposed_tenancy_change_control.clear_ihd_data_consumer", FT_BOOLEAN, 32, NULL,
+            0x00000200, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_clear_ihd_data_supplier,
+            { "Clear IHD Data - Supplier", "zbee_zcl_se.device_management.publish_change_of_tenancy.proposed_tenancy_change_control.clear_ihd_data_supplier", FT_BOOLEAN, 32, NULL,
+            0x00000400, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_meter_contactor_state,
+            { "Meter Contactor State \"On / Off / Armed\"", "zbee_zcl_se.device_management.publish_change_of_tenancy.proposed_tenancy_change_control.meter_contactor_state", FT_UINT32, BASE_HEX, VALS(zbee_zcl_device_management_contactor_states),
+            0x00001800, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_clear_transaction_log,
+            { "Clear Transaction Log", "zbee_zcl_se.device_management.publish_change_of_tenancy.proposed_tenancy_change_control.clear_transaction_log", FT_BOOLEAN, 32, NULL,
+            0x00002000, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_clear_prepayment_data,
+            { "Clear Prepayment Data", "zbee_zcl_se.device_management.publish_change_of_tenancy.proposed_tenancy_change_control.clear_prepayment_data", FT_BOOLEAN, 32, NULL,
+            0x00004000, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_publish_change_of_tenancy_proposed_tenancy_change_control_reserved,
+            { "Reserved", "zbee_zcl_se.device_management.publish_change_of_tenancy.proposed_tenancy_change_control.reserved", FT_UINT32, BASE_HEX, NULL,
+            0xFFFF8000, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_publish_change_of_supplier_current_provider_id,
+            { "Current Provider ID", "zbee_zcl_se.device_management.publish_change_of_supplier.current_provider_id", FT_UINT32, BASE_HEX, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_publish_change_of_supplier_issuer_event_id,
+            { "Issuer Event ID", "zbee_zcl_se.device_management.publish_change_of_supplier.issuer_event_id", FT_UINT32, BASE_HEX, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_publish_change_of_supplier_tariff_type,
+            { "Tariff Type", "zbee_zcl_se.device_management.publish_change_of_supplier.tariff_type", FT_UINT8, BASE_HEX, VALS(zbee_zcl_device_management_tariff_types),
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_publish_change_of_supplier_proposed_provider_id,
+            { "Proposed Provider ID", "zbee_zcl_se.device_management.publish_change_of_supplier.proposed_provider_id", FT_UINT32, BASE_HEX, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_publish_change_of_supplier_provider_change_implementation_time,
+            { "Provider Change Implementation Time", "zbee_zcl_se.device_management.publish_change_of_supplier.provider_change_implementation_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_publish_change_of_supplier_provider_change_control,
+            { "Provider Change Control", "zbee_zcl_se.device_management.publish_change_of_supplier.provider_change_control", FT_UINT32, BASE_HEX, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_publish_change_of_supplier_provider_proposed_provider_name,
+            { "Proposed Provider Name", "zbee_zcl_se.device_management.publish_change_of_supplier.provider_proposed_provider_name", FT_UINT_STRING, STR_UNICODE, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_publish_change_of_supplier_provider_proposed_provider_contact_details,
+            { "Proposed Provider Contact Details", "zbee_zcl_se.device_management.publish_change_of_supplier.provider_proposed_provider_contact_details", FT_UINT_STRING, STR_UNICODE, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_request_new_password_issuer_event_id,
+            { "Issuer Event ID", "zbee_zcl_se.device_management.request_new_password.issuer_event_id", FT_UINT32, BASE_HEX, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_request_new_password_implementation_date,
+            { "Implementation Date/Time", "zbee_zcl_se.device_management.request_new_password.implementation_date", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_request_new_password_duration_in_minutes,
+            { "Duration in minutes", "zbee_zcl_se.device_management.request_new_password.duration_in_minutes", FT_UINT16, BASE_DEC, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_request_new_password_password,
+            { "Password", "zbee_zcl_se.device_management.request_new_password.password", FT_UINT_STRING, STR_UNICODE, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_update_site_id_issuer_event_id,
+            { "Issuer Event ID", "zbee_zcl_se.device_management.update_site_id.issuer_event_id", FT_UINT32, BASE_HEX, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_update_site_id_site_id_time,
+            { "SiteID Time", "zbee_zcl_se.device_management.update_site_id.site_id_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_update_site_id_provider_id,
+            { "Provider ID", "zbee_zcl_se.device_management.update_site_id.provider_id", FT_UINT32, BASE_HEX, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_update_site_id_site_id,
+            { "SiteID", "zbee_zcl_se.device_management.update_site_id.site_id", FT_UINT_STRING, STR_UNICODE, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_get_event_configuration_event_id,
+            { "Event ID", "zbee_zcl_se.device_management.get_event_configuration.event_id", FT_UINT16, BASE_HEX, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_update_cin_issuer_event_id,
+            { "Issuer Event ID", "zbee_zcl_se.device_management.update_cin.issuer_event_id", FT_UINT32, BASE_HEX, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_update_cin_cin_implementation_time,
+            { "CIN Implementation Time", "zbee_zcl_se.device_management.update_cin.cin_implementation_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_update_cin_provider_id,
+            { "Provider ID", "zbee_zcl_se.device_management.update_cin.provider_id", FT_UINT32, BASE_HEX, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_update_cin_customerid_number,
+            { "CustomerID Number", "zbee_zcl_se.device_management.update_cin.customerid_number", FT_UINT_STRING, STR_UNICODE, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_set_event_configuration_issuer_event_id,
+            { "Issuer Event ID", "zbee_zcl_se.device_management.set_event_configuration.issuer_event_id", FT_UINT32, BASE_HEX, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_set_event_configuration_start_time,
+            { "Start Date/Time", "zbee_zcl_se.device_management.set_event_configuration.start_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_set_event_configuration_configuration_control,
+            { "Configuration Control", "zbee_zcl_se.device_management.set_event_configuration.configuration_control", FT_UINT8, BASE_HEX, VALS(zbee_zcl_device_management_configuration_controls),
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_set_event_configuration_event_configuration_number_of_events,
+            { "Number of Events", "zbee_zcl_se.device_management.set_event_configuration.event_configuration.number_of_events", FT_UINT8, BASE_DEC, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_set_event_configuration_event_configuration_event_id,
+            { "Event ID", "zbee_zcl_se.device_management.set_event_configuration.event_configuration.number_of_events", FT_UINT16, BASE_DEC, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_set_event_configuration_event_configuration_event_group_id,
+            { "Event Group ID", "zbee_zcl_se.device_management.set_event_configuration.event_configuration.event_group_id", FT_UINT16, BASE_DEC, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_set_event_configuration_event_configuration_event_log_id,
+            { "Log ID", "zbee_zcl_se.device_management.set_event_configuration.event_configuration.log_id", FT_UINT8, BASE_DEC, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_device_management_set_event_configuration_event_configuration_event_configuration_value_match,
+            { "Configuration Value Match", "zbee_zcl_se.device_management.set_event_configuration.event_configuration.configuration_value_match", FT_UINT8, BASE_DEC, NULL,
+            0x0, NULL, HFILL } },
+
     };
 
     /* ZCL Device Management subtrees */
     gint *ett[] = {
         &ett_zbee_zcl_device_management,
+        &ett_zbee_zcl_device_management_event_configuration_payload,
+        &ett_zbee_zcl_device_management_event_configuration,
+        &ett_zbee_zcl_device_management_proposed_tenancy_change_control
     };
 
     /* Register the ZigBee ZCL Device Management cluster protocol name and description */
