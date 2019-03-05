@@ -608,6 +608,9 @@ static guint utf8_properties[] = {
     ((OPCODE_C_ime_context       << 8) | OPCODE_P_A_name         )
 };
 
+#define N_UTF8_PROPERTIES (sizeof utf8_properties / sizeof utf8_properties[0])
+#define UTF8_PROPERTY_SIZE (sizeof utf8_properties[0])
+
 static guint bool_properties[] = {
     ((OPCODE_C_terminal          << 8) | OPCODE_P_B_negative_ack     ),
     ((OPCODE_C_terminal          << 8) | OPCODE_P_B_CS_idle_state    ),
@@ -671,6 +674,9 @@ static guint bool_properties[] = {
     ((OPCODE_C_ime_context       << 8) | OPCODE_P_A_state            ),
     ((OPCODE_C_ime_context       << 8) | OPCODE_P_A_enable           )
 };
+
+#define N_BOOL_PROPERTIES (sizeof bool_properties / sizeof bool_properties[0])
+#define BOOL_PROPERTY_SIZE (sizeof bool_properties[0])
 
 /*-----------------------------------------------------------------------------
   globals
@@ -1059,13 +1065,13 @@ static int compcp(const void *pcp1, const void *pcp2)
 static gboolean property_is_bool(guint8 noe_class, guint8 property_code)
 {
     guint key = ((noe_class << 8) | property_code);
-    return (bsearch(&key, bool_properties, (sizeof(bool_properties)/sizeof(guint16)), sizeof(guint16), compcp) != NULL);
+    return (bsearch(&key, bool_properties, N_BOOL_PROPERTIES, BOOL_PROPERTY_SIZE, compcp) != NULL);
 }
 
 static gboolean property_is_utf8(guint8 noe_class, guint8 property_code)
 {
     guint key = ((noe_class << 8) | property_code);
-    return (bsearch(&key, utf8_properties, (sizeof(utf8_properties)/sizeof(guint16)), sizeof(guint16), compcp) != NULL);
+    return (bsearch(&key, utf8_properties, N_UTF8_PROPERTIES, UTF8_PROPERTY_SIZE, compcp) != NULL);
 }
 
 /*-----------------------------------------------------------------------------
