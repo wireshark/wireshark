@@ -2170,7 +2170,7 @@ GHashTable* session_table;
 /* Relation between <teid,ip> -> frame */
 wmem_tree_t* frame_tree;
 
-typedef struct gtp_info {
+typedef struct {
     guint32 teid;
     guint32 frame;
 } gtp_info_t;
@@ -2482,7 +2482,7 @@ static int decode_gtp_node_addr(tvbuff_t * tvb, int offset, packet_info * pinfo,
 static int decode_gtp_priv_ext(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
 static int decode_gtp_unknown(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_);
 
-typedef struct _gtp_opt {
+typedef struct {
     int optcode;
     int (*decode) (tvbuff_t *, int, packet_info *, proto_tree *, session_args_t *);
 } gtp_opt_t;
@@ -2661,12 +2661,12 @@ id_to_str(tvbuff_t *tvb, gint offset)
 /* Next definitions and function check_field_presence checks if given field
  * in GTP packet is compliant with ETSI
  */
-typedef struct _header {
+typedef struct {
     guint8 code;
     guint8 presence;
 } ext_header;
 
-typedef struct _message {
+typedef struct {
     guint8 code;
     ext_header fields[32];
 } _gtp_mess_items;
