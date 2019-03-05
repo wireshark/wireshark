@@ -74,6 +74,17 @@ static const int *eth_mjr_hdr_bits[] = {
 	&hf_eth_phy,
 	NULL
 };
+static const value_string eth_link_strings[] = {
+	{ 0,	"Link Down" },
+	{ 1,	"Link Up" },
+	{ 0, NULL },
+};
+
+static const value_string eth_master_strings[] = {
+	{ 0,	"Slave" },
+	{ 1,	"Master" },
+	{ 0, NULL },
+};
 
 static const value_string eth_speed_strings[] = {
 	{ 0,	"Speed 10M" },
@@ -127,6 +138,7 @@ static dissector_table_t subdissector_table;
 #define EBHSCR_USER_LAST 0X4F
 
 #define ETHERNET_FRAME 0x50
+#define NMEA_FRAME 0x51
 #define EBHSCR_HEADER_LENGTH 32
 
 static int
@@ -136,11 +148,12 @@ dissect_ebhscr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 	proto_tree *ebhscr_packet_header_tree = NULL;
 	proto_tree *ebhscr_tree = NULL;
 	tvbuff_t* next_tvb;
-	guint32 ebhscr_frame_length;
+	guint32 ebhscr_frame_length, ebhscr_length;
 	gint ebhscr_current_payload_length;
 	guint8 ebhscr_major_num, ebhscr_channel;
 	guint16 ebhscr_status = 0;
 
+	guint8 *nmea_str;
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "EBHSCR");
 	col_clear(pinfo->cinfo, COL_INFO);
 
@@ -202,6 +215,14 @@ dissect_ebhscr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 		call_dissector(eth_withfcs_handle, next_tvb, pinfo, tree);
 	}
 
+	if (ebhscr_major_num == NMEA_FRAME)
+	{
+		ebhscr_length = tvb_get_guint32(tvb, 4, ENC_BIG_ENDIAN);
+		next_tvb = tvb_new_subset_length(tvb, 32, ebhscr_current_payload_length);
+		call_data_dissector(next_tvb, pinfo, tree);
+		nmea_str = tvb_get_string_enc(wmem_packet_scope(), tvb, 32, ebhscr_length, ENC_UTF_8);
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s", "NMEA:", nmea_str);
+	}
 	return tvb_captured_length(tvb);
 }
 
@@ -272,15 +293,15 @@ proto_register_ebhscr(void)
 			NULL, HFILL }
 		},
 		{ &hf_eth_link_up_down,
-			{ "Ethernet link up down", "ebhscr.elud",
-			FT_BOOLEAN, 64,
-			NULL, 0x0000000000000001,
+			{ "Link Up or Down", "ebhscr.elud",
+			FT_UINT32, BASE_DEC,
+			VALS(eth_link_strings), 0x00000001,
 			NULL, HFILL }
 		},
 		{ &hf_eth_master_slave,
-			{ "Ethernet Master Slave (if supported)", "ebhscr.ems",
-			FT_BOOLEAN, 64,
-			NULL, 0x0000000000000002,
+			{ "Master or Slave (if supported)", "ebhscr.ems",
+			FT_UINT32, BASE_DEC,
+			VALS(eth_master_strings), 0x00000002,
 			NULL, HFILL }
 		},
 		{ &hf_eth_speed,
