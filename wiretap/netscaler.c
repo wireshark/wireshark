@@ -940,6 +940,8 @@ nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len)
                 switch (nspr_getv##ver##recordtype(fp))\
                 {\
                     case NSPR_ABSTIME_V##ver:\
+                        if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_abstime_v##ver##_t), err, err_info))\
+                            return FALSE;\
                         ns_setabstime(nstrace, pletoh32(&((nspr_abstime_v##ver##_t *) fp)->abs_Time), pletoh16(&((nspr_abstime_v##ver##_t *) fp)->abs_RelTime));\
                         nstrace->nstrace_buf_offset = nstrace_buf_offset + nspr_getv##ver##recordsize(fp);\
                         nstrace->nstrace_buflen = nstrace_buflen;\
@@ -1330,6 +1332,8 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
 
                 case NSPR_RELTIME_V20:
                 {
+                    if (!nstrace_ensure_buflen(nstrace, nstrace_buf_offset, sizeof(nspr_hd_v20_t), err, err_info))
+                        return FALSE;
                     nspr_pktracefull_v20_t *fp20 = (nspr_pktracefull_v20_t *) &nstrace_buf[nstrace_buf_offset];
                     if (nspr_getv20recordsize((nspr_hd_v20_t *)fp20) == 0) {
                         *err = WTAP_ERR_BAD_FILE;
