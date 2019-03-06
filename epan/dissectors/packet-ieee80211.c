@@ -6069,6 +6069,7 @@ static expert_field ei_ieee80211_twt_tear_down_bad_neg_type = EI_INIT;
 static expert_field ei_ieee80211_twt_setup_not_supported_neg_type = EI_INIT;
 static expert_field ei_ieee80211_twt_setup_bad_command = EI_INIT;
 static expert_field ei_ieee80211_invalid_control_word = EI_INIT;
+static expert_field ei_ieee80211_invalid_control_id = EI_INIT;
 
 /* 802.11ad trees */
 static gint ett_dynamic_alloc_tree = -1;
@@ -17371,7 +17372,7 @@ dissect_ht_control(packet_info* pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
           start_bit_offset += 8;
           break;
         default:
-          /* Add an expert info ... */
+          expert_add_info(pinfo, a_control_tree, &ei_ieee80211_invalid_control_id);
           start_bit_offset += 32;  /* Abandon */
           break;
         }
@@ -37093,6 +37094,10 @@ proto_register_ieee80211(void)
 
     { &ei_ieee80211_invalid_control_word,
       { "wlan.htc.he.a_control.invalid", PI_PROTOCOL, PI_MALFORMED,
+        "Invalid control word", EXPFILL }},
+
+    { &ei_ieee80211_invalid_control_id,
+      { "wlan.htc.he.a_control.ctrl_id.invalid", PI_PROTOCOL, PI_MALFORMED,
         "Invalid control word", EXPFILL }},
   };
 
