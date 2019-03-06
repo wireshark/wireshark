@@ -245,13 +245,27 @@ static int hf_dhcp_option43_pxeclient_mtftp_server_port = -1;		/* 43:3 PXE  */
 static int hf_dhcp_option43_pxeclient_mtftp_timeout = -1;		/* 43:4 PXE  */
 static int hf_dhcp_option43_pxeclient_mtftp_delay = -1;		/* 43:5 PXE  */
 static int hf_dhcp_option43_pxeclient_discovery_control = -1;		/* 43:6 PXE  */
+static int hf_dhcp_option43_pxeclient_discovery_control_bc = -1;	/* 43:6 PXE  */
+static int hf_dhcp_option43_pxeclient_discovery_control_mc = -1;	/* 43:6 PXE  */
+static int hf_dhcp_option43_pxeclient_discovery_control_serverlist = -1;	/* 43:6 PXE  */
+static int hf_dhcp_option43_pxeclient_discovery_control_bstrap = -1;	/* 43:6 PXE  */
 static int hf_dhcp_option43_pxeclient_multicast_address = -1;		/* 43:7 PXE  */
 static int hf_dhcp_option43_pxeclient_boot_servers = -1;		/* 43:8 PXE  */
+static int hf_dhcp_option43_pxeclient_boot_server_type = -1;		/* 43:8 PXE  */
+static int hf_dhcp_option43_pxeclient_boot_server_count = -1;		/* 43:8 PXE  */
+static int hf_dhcp_option43_pxeclient_boot_server_ip = -1;		/* 43:8 PXE  */
 static int hf_dhcp_option43_pxeclient_boot_menu = -1;			/* 43:9 PXE  */
+static int hf_dhcp_option43_pxeclient_boot_menu_type = -1;		/* 43:9 PXE  */
+static int hf_dhcp_option43_pxeclient_boot_menu_length = -1;		/* 43:9 PXE  */
+static int hf_dhcp_option43_pxeclient_boot_menu_desc = -1;		/* 43:9 PXE  */
 static int hf_dhcp_option43_pxeclient_menu_prompt = -1;		/* 43:10 PXE  */
+static int hf_dhcp_option43_pxeclient_menu_prompt_timeout = -1;	/* 43:10 PXE  */
+static int hf_dhcp_option43_pxeclient_menu_prompt_prompt = -1;		/* 43:10 PXE  */
 static int hf_dhcp_option43_pxeclient_multicast_address_alloc = -1;	/* 43:11 PXE  */
 static int hf_dhcp_option43_pxeclient_credential_types = -1;		/* 43:12 PXE  */
 static int hf_dhcp_option43_pxeclient_boot_item = -1;			/* 43:71 PXE  */
+static int hf_dhcp_option43_pxeclient_boot_item_type = -1;		/* 43:71 PXE  */
+static int hf_dhcp_option43_pxeclient_boot_item_layer = -1;		/* 43:71 PXE  */
 static int hf_dhcp_option43_pxeclient_lcm_server = -1;			/* 43:179 PXE  */
 static int hf_dhcp_option43_pxeclient_lcm_domain = -1;			/* 43:180 PXE  */
 static int hf_dhcp_option43_pxeclient_lcm_nic_option = -1;		/* 43:181 PXE  */
@@ -617,6 +631,8 @@ static gint ett_dhcp = -1;
 static gint ett_dhcp_flags = -1;
 static gint ett_dhcp_option = -1;
 static gint ett_dhcp_option43_suboption = -1;
+static gint ett_dhcp_option43_suboption_discovery = -1;
+static gint ett_dhcp_option43_suboption_tree = -1;
 static gint ett_dhcp_option63_suboption = -1;
 static gint ett_dhcp_option77_instance = -1;
 static gint ett_dhcp_option82_suboption = -1;
@@ -924,6 +940,25 @@ static const value_string bulk_lease_dhcp_state_vals[] = {
 	{ 7, "Remote" },
 	{ 8, "Transitioning" },
 	{ 0, NULL },
+};
+
+static const value_string o43pxeclient_boot_server_types[] = {
+	{  0, "PXE bootstrap server" },
+	{  1, "Microsoft Windows NT Boot Server" },
+	{  2, "Intel LCM Boot Server" },
+	{  3, "DOS/UNDI Boot Server" },
+	{  4, "NEC ESMPRO Boot Server" },
+	{  5, "IBM WSoD Boot Server" },
+	{  6, "IBM LCCM Boot Server" },
+	{  7, "CA Unicenter TNG Boot Server" },
+	{  8, "HP OpenView Boot Server" },
+	{  65535, "PXE API Test server" },
+	{  0, NULL },
+};
+
+static const value_string o43pxeclient_boot_menu_types[] = {
+	{  0, "Local boot" },
+	{  0, NULL },
 };
 
 static gboolean novell_string = FALSE;
@@ -3454,6 +3489,12 @@ dissect_dhcpopt_relay_agent_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	return tvb_captured_length(tvb);
 }
 
+# define O43PXE_DISCOVERY 6
+# define O43PXE_BOOT_SERVER 8
+# define O43PXE_BOOT_MENU 9
+# define O43PXE_MENU_PROMPT 10
+# define O43PXE_BOOT_ITEM 71
+
 static const value_string option43_pxeclient_suboption_vals[] = {
 	{  0, "Padding" },
 	{  1, "PXE mtftp IP" },
@@ -3461,14 +3502,14 @@ static const value_string option43_pxeclient_suboption_vals[] = {
 	{  3, "PXE mtftp server port" },
 	{  4, "PXE mtftp timeout" },
 	{  5, "PXE mtftp delay" },
-	{  6, "PXE discovery control" },
+	{ O43PXE_DISCOVERY, "PXE discovery control" },
 	{  7, "PXE multicast address" },
-	{  8, "PXE boot servers" },
-	{  9, "PXE boot menu" },
-	{ 10, "PXE menu prompt" },
+	{ O43PXE_BOOT_SERVER, "PXE boot servers" },
+	{ O43PXE_BOOT_MENU, "PXE boot menu" },
+	{ O43PXE_MENU_PROMPT, "PXE menu prompt" },
 	{ 11, "PXE multicast address alloc", },
 	{ 12, "PXE credential types" },
-	{ 71, "PXE boot item" },
+	{ O43PXE_BOOT_ITEM, "PXE boot item" },
 	{ 179, "PXE LCM Server" },
 	{ 180, "PXE LCM Domain" },
 	{ 181, "PXE LCM NIC option 0" },
@@ -3486,10 +3527,13 @@ dissect_vendor_pxeclient_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 				   tvbuff_t *tvb, int optoff, int optend)
 {
 	int	    suboptoff = optoff;
+	int	    suboptoff_start;
 	guint8	    subopt;
 	guint8	    subopt_len;
-	proto_tree *o43pxeclient_v_tree;
+	proto_tree *o43pxeclient_v_tree, *o43pxeclient_suboption_tree;
 	proto_item *vti, *ti;
+	guint32	    boot_server_ip_count;
+	guint32	    boot_menu_length;
 
 	struct basic_types_hfs default_hfs = {
 		NULL,
@@ -3505,6 +3549,14 @@ dissect_vendor_pxeclient_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 		NULL
 	};
 
+	static const int * o43pxe_discovery_hf_flags[] = {
+		&hf_dhcp_option43_pxeclient_discovery_control_bc,
+		&hf_dhcp_option43_pxeclient_discovery_control_mc,
+		&hf_dhcp_option43_pxeclient_discovery_control_serverlist,
+		&hf_dhcp_option43_pxeclient_discovery_control_bstrap,
+		NULL
+	};
+
 	static struct opt_info o43pxeclient_opt[]= {
 		/* 0 */ {"nop", special, &hf_dhcp_option43_pxeclient_padding},	/* dummy */
 		/* 1 */ {"PXE mtftp IP", ipv4_list, &hf_dhcp_option43_pxeclient_mtftp_ip},
@@ -3512,17 +3564,11 @@ dissect_vendor_pxeclient_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 		/* 3 */ {"PXE mtftp server port",val_u_le_short, &hf_dhcp_option43_pxeclient_mtftp_server_port},
 		/* 4 */ {"PXE mtftp timeout", val_u_byte, &hf_dhcp_option43_pxeclient_mtftp_timeout},
 		/* 5 */ {"PXE mtftp delay", val_u_byte, &hf_dhcp_option43_pxeclient_mtftp_delay},
-		/* 6 */ {"PXE discovery control", val_u_byte, &hf_dhcp_option43_pxeclient_discovery_control},
-			/*
-			 * Correct: b0 (lsb): disable broadcast discovery
-			 *	b1: disable multicast discovery
-			 *	b2: only use/accept servers in boot servers
-			 *	b3: download bootfile without prompt/menu/disc
-			 */
+		/* 6 */ {"PXE discovery control", special, NULL},
 		/* 7 */ {"PXE multicast address", ipv4_list, &hf_dhcp_option43_pxeclient_multicast_address},
-		/* 8 */ {"PXE boot servers", special, &hf_dhcp_option43_pxeclient_boot_servers},
-		/* 9 */ {"PXE boot menu", special, &hf_dhcp_option43_pxeclient_boot_menu},
-		/* 10 */ {"PXE menu prompt", special, &hf_dhcp_option43_pxeclient_menu_prompt},
+		/* 8 */ {"PXE boot servers", special, NULL},
+		/* 9 */ {"PXE boot menu", special, NULL},
+		/* 10 */ {"PXE menu prompt", special, NULL},
 		/* 11 */ {"PXE multicast address alloc", special, &hf_dhcp_option43_pxeclient_multicast_address_alloc},
 		/* 12 */ {"PXE credential types", special, &hf_dhcp_option43_pxeclient_credential_types},
 		/* 13 */ {"Unassigned", opaque, NULL},
@@ -3583,7 +3629,7 @@ dissect_vendor_pxeclient_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 		/* 68 */ {"Unassigned", opaque, NULL},
 		/* 69 */ {"Unassigned", opaque, NULL},
 		/* 70 */ {"Unassigned", opaque, NULL},
-		/* 71 {"PXE boot item", bytes, &hf_dhcp_option43_pxeclient_boot_item}, */ {"Unassigned", opaque, NULL},
+		/* 71 */ {"PXE boot item", special, NULL},
 		/* 72 */ {"Unassigned", opaque, NULL},
 		/* 73 */ {"Unassigned", opaque, NULL},
 		/* 74 */ {"Unassigned", opaque, NULL},
@@ -3740,18 +3786,67 @@ dissect_vendor_pxeclient_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 	ti = proto_tree_add_item(o43pxeclient_v_tree, hf_dhcp_option43_value, tvb, suboptoff, subopt_len, ENC_NA);
 	PROTO_ITEM_SET_HIDDEN(ti);
 
-	if ( subopt == 71 ) {	/* 71 {"PXE boot item", special} */
-		/* case special */
-		/* I may need to decode that properly one day */
-		proto_tree_add_item(o43pxeclient_v_tree, hf_dhcp_option43_pxeclient_boot_item, tvb, suboptoff, subopt_len, ENC_NA);
-	} else if ((subopt < 1) || (subopt >= array_length(o43pxeclient_opt))) {
+	if ((subopt < 1) || (subopt >= array_length(o43pxeclient_opt))) {
 		expert_add_info_format(pinfo, vti, &ei_dhcp_suboption_invalid, "Unknown suboption %d (%d bytes)", subopt, subopt_len);
 	} else if (o43pxeclient_opt[subopt].ftype == special) {
 		/* I may need to decode that properly one day */
 		if (o43pxeclient_opt[subopt].phf != NULL)
 			proto_tree_add_item(o43pxeclient_v_tree, *o43pxeclient_opt[subopt].phf, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
-		else
-			proto_tree_add_item(o43pxeclient_v_tree, hf_dhcp_option43_value, tvb, suboptoff, subopt_len, ENC_NA);
+		else {
+			switch(subopt)
+			{
+			case O43PXE_DISCOVERY:
+				proto_tree_add_bitmask(o43pxeclient_v_tree, tvb, suboptoff, hf_dhcp_option43_pxeclient_discovery_control,
+						      ett_dhcp_option43_suboption_discovery, o43pxe_discovery_hf_flags, ENC_BIG_ENDIAN);
+				break;
+			case O43PXE_BOOT_SERVER:
+				suboptoff_start = suboptoff;
+				ti = proto_tree_add_item(o43pxeclient_v_tree, hf_dhcp_option43_pxeclient_boot_servers, tvb, suboptoff, subopt_len, ENC_NA);
+				o43pxeclient_suboption_tree = proto_item_add_subtree(ti, ett_dhcp_option43_suboption_tree);
+				while((suboptoff - suboptoff_start) < (subopt_len - 1)) {
+					proto_tree_add_item(o43pxeclient_suboption_tree, hf_dhcp_option43_pxeclient_boot_server_type, tvb, suboptoff, 2, ENC_BIG_ENDIAN);
+					suboptoff += 2;
+					proto_tree_add_item_ret_uint(o43pxeclient_suboption_tree, hf_dhcp_option43_pxeclient_boot_server_count, tvb, suboptoff, 1, ENC_BIG_ENDIAN, &boot_server_ip_count);
+					suboptoff += 1;
+					while(boot_server_ip_count > 0) {
+						proto_tree_add_item(o43pxeclient_suboption_tree, hf_dhcp_option43_pxeclient_boot_server_ip, tvb, suboptoff, 4, ENC_BIG_ENDIAN);
+						suboptoff += 4;
+						boot_server_ip_count -=1;
+					}
+				}
+				break;
+			case O43PXE_BOOT_MENU:
+				suboptoff_start = suboptoff;
+				ti = proto_tree_add_item(o43pxeclient_v_tree, hf_dhcp_option43_pxeclient_boot_menu, tvb, suboptoff, subopt_len, ENC_NA);
+				o43pxeclient_suboption_tree = proto_item_add_subtree(ti, ett_dhcp_option43_suboption_tree);
+				while((suboptoff - suboptoff_start) < (subopt_len - 1)) {
+					proto_tree_add_item(o43pxeclient_suboption_tree, hf_dhcp_option43_pxeclient_boot_menu_type, tvb, suboptoff, 2, ENC_BIG_ENDIAN);
+					suboptoff += 2;
+					proto_tree_add_item_ret_uint(o43pxeclient_suboption_tree, hf_dhcp_option43_pxeclient_boot_menu_length, tvb, suboptoff, 1, ENC_BIG_ENDIAN, &boot_menu_length);
+					suboptoff += 1;
+					proto_tree_add_item(o43pxeclient_suboption_tree, hf_dhcp_option43_pxeclient_boot_menu_desc, tvb, suboptoff, boot_menu_length, ENC_ASCII|ENC_NA);
+					suboptoff += boot_menu_length;
+				}
+				break;
+			case O43PXE_MENU_PROMPT:
+				ti = proto_tree_add_item(o43pxeclient_v_tree, hf_dhcp_option43_pxeclient_menu_prompt, tvb, suboptoff, subopt_len, ENC_NA);
+				o43pxeclient_suboption_tree = proto_item_add_subtree(ti, ett_dhcp_option43_suboption_tree);
+				proto_tree_add_item(o43pxeclient_suboption_tree, hf_dhcp_option43_pxeclient_menu_prompt_timeout, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
+				suboptoff += 1;
+				proto_tree_add_item(o43pxeclient_suboption_tree, hf_dhcp_option43_pxeclient_menu_prompt_prompt, tvb, suboptoff, subopt_len - 1, ENC_ASCII|ENC_NA);
+				break;
+			case O43PXE_BOOT_ITEM:
+				ti = proto_tree_add_item(o43pxeclient_v_tree, hf_dhcp_option43_pxeclient_boot_item, tvb, suboptoff, subopt_len, ENC_NA);
+				o43pxeclient_suboption_tree = proto_item_add_subtree(ti, ett_dhcp_option43_suboption_tree);
+				proto_tree_add_item(o43pxeclient_suboption_tree, hf_dhcp_option43_pxeclient_boot_item_type, tvb, suboptoff, 2, ENC_BIG_ENDIAN);
+				suboptoff += 2;
+				proto_tree_add_item(o43pxeclient_suboption_tree, hf_dhcp_option43_pxeclient_boot_item_layer, tvb, suboptoff, 2, ENC_NA);
+				break;
+			default:
+				proto_tree_add_item(o43pxeclient_v_tree, hf_dhcp_option43_value, tvb, suboptoff, subopt_len, ENC_NA);
+				break;
+			}
+		}
 	} else {
 		if (dhcp_handle_basic_types(pinfo, o43pxeclient_v_tree, vti, tvb, o43pxeclient_opt[subopt].ftype,
 							suboptoff, subopt_len, o43pxeclient_opt[subopt].phf, &default_hfs) == 0)
@@ -7947,6 +8042,26 @@ proto_register_dhcp(void)
 		    FT_UINT8, BASE_HEX, NULL, 0x0,
 		    "Option 43:PXE Client 6 discovery control", HFILL }},
 
+		{ &hf_dhcp_option43_pxeclient_discovery_control_bc,
+		  { "Disable Broadcast", "dhcp.option.vendor.pxeclient.discovery_control.broadcast",
+		    FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+		    NULL, HFILL }},
+
+		{ &hf_dhcp_option43_pxeclient_discovery_control_mc,
+		  { "Disable Multicast", "dhcp.option.vendor.pxeclient.discovery_control.multicast",
+		    FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+		    NULL, HFILL }},
+
+		{ &hf_dhcp_option43_pxeclient_discovery_control_serverlist,
+		  { "Serverlist only", "dhcp.option.vendor.pxeclient.discovery_control.serverlist",
+		    FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
+		    NULL, HFILL }},
+
+		{ &hf_dhcp_option43_pxeclient_discovery_control_bstrap,
+		  { "Bootstrap override", "dhcp.option.vendor.pxeclient.discovery_control.bstrap",
+		    FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08,
+		    NULL, HFILL }},
+
 		{ &hf_dhcp_option43_pxeclient_multicast_address,
 		  { "multicast address", "dhcp.option.vendor.pxeclient.multicast_address",
 		    FT_IPv4, BASE_NONE, NULL, 0x00,
@@ -7957,15 +8072,55 @@ proto_register_dhcp(void)
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    "Option 43:PXE Client 8 boot servers", HFILL }},
 
+		{ &hf_dhcp_option43_pxeclient_boot_server_type,
+		  { "Type", "dhcp.option.vendor.pxeclient.boot_servers.type",
+		    FT_UINT16, BASE_DEC, VALS(o43pxeclient_boot_server_types), 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_dhcp_option43_pxeclient_boot_server_count,
+		  { "IP count", "dhcp.option.vendor.pxeclient.boot_servers.count",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_dhcp_option43_pxeclient_boot_server_ip,
+		  { "IP", "dhcp.option.vendor.pxeclient.boot_servers.ip",
+		    FT_IPv4, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
 		{ &hf_dhcp_option43_pxeclient_boot_menu,
 		  { "boot menu", "dhcp.option.vendor.pxeclient.boot_menu",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    "Option 43:PXE Client 9 boot menu", HFILL }},
 
+		{ &hf_dhcp_option43_pxeclient_boot_menu_type,
+		  { "Type", "dhcp.option.vendor.pxeclient.boot_menu.type",
+		    FT_UINT16, BASE_DEC, VALS(o43pxeclient_boot_menu_types), 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_dhcp_option43_pxeclient_boot_menu_length,
+		  { "Length", "dhcp.option.vendor.pxeclient.boot_menu.length",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_dhcp_option43_pxeclient_boot_menu_desc,
+		  { "Description", "dhcp.option.vendor.pxeclient.boot_menu.desc",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
+
 		{ &hf_dhcp_option43_pxeclient_menu_prompt,
 		  { "menu prompt", "dhcp.option.vendor.pxeclient.menu_prompt",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    "Option 43:PXE Client 10 menu prompt", HFILL }},
+
+		{ &hf_dhcp_option43_pxeclient_menu_prompt_timeout,
+		  { "Timeout", "dhcp.option.vendor.pxeclient.menu_prompt.timeout",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_dhcp_option43_pxeclient_menu_prompt_prompt,
+		  { "Prompt", "dhcp.option.vendor.pxeclient.menu_prompt.prompt",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
 
 		{ &hf_dhcp_option43_pxeclient_multicast_address_alloc,
 		  { "multicast address alloc", "dhcp.option.vendor.pxeclient.multicast_address_alloc",
@@ -7981,6 +8136,16 @@ proto_register_dhcp(void)
 		  { "boot item", "dhcp.option.vendor.pxeclient.boot_item",
 		    FT_BYTES, BASE_NONE, NULL, 0x0,
 		    "Option 43:PXE Client 71 boot item", HFILL }},
+
+		{ &hf_dhcp_option43_pxeclient_boot_item_type,
+		  { "Type", "dhcp.option.vendor.pxeclient.boot_item.type",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }},
+
+		{ &hf_dhcp_option43_pxeclient_boot_item_layer,
+		  { "Layer", "dhcp.option.vendor.pxeclient.boot_item.layer",
+		    FT_BYTES, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }},
 
 		{ &hf_dhcp_option43_pxeclient_lcm_server,
 		  { "LCM Server Name", "dhcp.option.vendor.pxeclient.lcm_server",
@@ -9699,6 +9864,8 @@ proto_register_dhcp(void)
 		&ett_dhcp_flags,
 		&ett_dhcp_option,
 		&ett_dhcp_option43_suboption,
+		&ett_dhcp_option43_suboption_discovery,
+		&ett_dhcp_option43_suboption_tree,
 		&ett_dhcp_option63_suboption,
 		&ett_dhcp_option77_instance,
 		&ett_dhcp_option82_suboption,
