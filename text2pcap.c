@@ -146,7 +146,7 @@ static int debug = 0;
 static gboolean quiet = FALSE;
 
 /* Dummy Ethernet header */
-static int hdr_ethernet = FALSE;
+static gboolean hdr_ethernet = FALSE;
 static guint8 hdr_eth_dest_addr[6] = {0x0a, 0x02, 0x02, 0x02, 0x02, 0x02};
 static guint8 hdr_eth_src_addr[6]  = {0x0a, 0x02, 0x02, 0x02, 0x02, 0x01};
 static guint32 hdr_ethernet_proto = 0;
@@ -202,7 +202,7 @@ static guint32 direction = PACK_FLAGS_DIRECTION_UNKNOWN;
 static guint8  packet_buf[WTAP_MAX_PACKET_SIZE_STANDARD];
 static guint32 header_length;
 static guint32 ip_offset;
-static guint32 curr_offset;
+static guint32 curr_offset = 0;
 static guint32 max_offset = WTAP_MAX_PACKET_SIZE_STANDARD;
 static guint32 packet_start = 0;
 
@@ -462,6 +462,22 @@ unwrite_bytes (guint32 nbytes)
 }
 
 /*----------------------------------------------------------------------
+ * Determine SCTP chunk padding length
+ */
+static guint32
+number_of_padding_bytes (guint32 length)
+{
+    guint32 remainder;
+
+    remainder = length % 4;
+
+    if (remainder == 0)
+        return 0;
+    else
+        return 4 - remainder;
+}
+
+/*----------------------------------------------------------------------
  * Compute one's complement checksum (from RFC1071)
  */
 static guint16
@@ -588,19 +604,6 @@ finalize_crc32c (guint32 crc)
     byte3 = (result>>24) & 0xff;
     result = ((byte0 << 24) | (byte1 << 16) | (byte2 << 8) | byte3);
     return result;
-}
-
-static guint16
-number_of_padding_bytes (guint32 length)
-{
-    guint16 remainder;
-
-    remainder = length % 4;
-
-    if (remainder == 0)
-        return 0;
-    else
-        return 4 - remainder;
 }
 
 /*----------------------------------------------------------------------
@@ -834,7 +837,8 @@ write_current_packet (gboolean cont)
                                                          length, length,
                                                          0,
                                                          1000000000,
-                                                         packet_buf, direction,
+                                                         packet_buf,
+                                                         (direction << PACK_FLAGS_DIRECTION_SHIFT),
                                                          &bytes_written, &err);
         } else {
             success = libpcap_write_packet(output_file,
@@ -1048,7 +1052,7 @@ parse_preamble (void)
             } else {
                 /*
                  * Convert that number to a number
-                 * of microseconds; if it's N digits
+                 * of nanoseconds; if it's N digits
                  * long, it's in units of 10^(-N) seconds,
                  * so, to convert it to units of
                  * 10^-9 seconds, we multiply by
