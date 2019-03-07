@@ -1874,8 +1874,8 @@ whitespace.  The same directory as for the personal preferences file is
 used.
 
 Capture filter name resolution is handled by libpcap on UNIX-compatible
-systems and WinPcap on Windows.  As such the Wireshark personal F<hosts> file
-will not be consulted for capture filter name resolution.
+systems and Npcap or WinPcap on Windows.  As such the Wireshark personal
+F<hosts> file will not be consulted for capture filter name resolution.
 
 =item Name Resolution (subnets)
 
@@ -1921,8 +1921,8 @@ The personal F<ethers> file is looked for in the same directory as the personal
 preferences file.
 
 Capture filter name resolution is handled by libpcap on UNIX-compatible
-systems and WinPcap on Windows.  As such the Wireshark personal F<ethers> file
-will not be consulted for capture filter name resolution.
+systems and Npcap or WinPcap on Windows.  As such the Wireshark personal
+F<ethers> file will not be consulted for capture filter name resolution.
 
 =item Name Resolution (manuf)
 

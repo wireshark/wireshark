@@ -71,7 +71,7 @@ B<Wireshark> can read / import the following file formats:
 
 =item *
 pcap - captures from B<Wireshark>/B<TShark>/B<dumpcap>, B<tcpdump>,
-and various other tools using libpcap's/WinPcap's/tcpdump's/WinDump's
+and various other tools using libpcap's/Npcap's/WinPcap's/tcpdump's/WinDump's
 capture format
 
 =item *
