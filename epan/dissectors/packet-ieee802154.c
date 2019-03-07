@@ -611,6 +611,8 @@ static int hf_ieee802154_ack_time = -1;
 
 /* 802.15.4 info */
 static int hf_ieee802154_tap_version = -1;
+static int hf_ieee802154_tap_reserved = -1;
+static int hf_ieee802154_tap_length = -1;
 static int hf_ieee802154_tap_tlv_type = -1;
 static int hf_ieee802154_tap_tlv_length = -1;
 static int hf_ieee802154_tap_tlv_unknown = -1;
@@ -658,6 +660,7 @@ static ieee802154_transaction_t *transaction_end(packet_info *pinfo, proto_tree 
 static gint ett_ieee802154_nonask_phy = -1;
 static gint ett_ieee802154_nonask_phy_phr = -1;
 static gint ett_ieee802154_tap = -1;
+static gint ett_ieee802154_tap_header = -1;
 static gint ett_ieee802154_tap_tlv = -1;
 static gint ett_ieee802154 = -1;
 static gint ett_ieee802154_fcf = -1;
@@ -1852,7 +1855,8 @@ static int
 dissect_ieee802154_tap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void * data _U_)
 {
     proto_tree *info_tree = NULL;
-    proto_item *proto_root      = NULL;
+    proto_tree *header_tree = NULL;
+    proto_item *proto_root = NULL;
     guint32     version = 0;
     guint32     length = 0;
     tvbuff_t*   tlv_tvb;
@@ -1861,7 +1865,7 @@ dissect_ieee802154_tap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     guint       fcs_len;
 
     /* Check the version in the TAP header */
-    proto_tree_add_item_ret_uint(info_tree, hf_ieee802154_tap_version, tvb, 0, 1, ENC_LITTLE_ENDIAN, &version);
+    version = tvb_get_guint8(tvb, 0);
     if (version != 0) {
         /* Malformed packet. We do not understand any other version at this time */
         return 0;
@@ -1876,10 +1880,13 @@ dissect_ieee802154_tap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     }
 
     /* Create the protocol tree */
-    if (tree) {
-        proto_root = proto_tree_add_protocol_format(tree, proto_ieee802154_tap, tvb, 0, length, "IEEE 802.15.4 TAP");
-        info_tree = proto_item_add_subtree(proto_root, ett_ieee802154_tap);
-    }
+    proto_root = proto_tree_add_protocol_format(tree, proto_ieee802154_tap, tvb, 0, length, "IEEE 802.15.4 TAP");
+    info_tree = proto_item_add_subtree(proto_root, ett_ieee802154_tap);
+
+    header_tree = proto_tree_add_subtree(info_tree, tvb, 0, 4, ett_ieee802154_tap_header, &proto_root, "Header");
+    proto_tree_add_item(header_tree, hf_ieee802154_tap_version, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(header_tree, hf_ieee802154_tap_reserved, tvb, 1, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(header_tree, hf_ieee802154_tap_length, tvb, 2, 2, ENC_LITTLE_ENDIAN);
 
     /* Add the protocol name. */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "IEEE 802.15.4 TAP");
@@ -2944,10 +2951,16 @@ ieee802154_create_tap_tlv_tree(proto_tree *tree, tvbuff_t *tvb, gint offset, gui
 {
     proto_tree *subtree = NULL;
     proto_item *ti = NULL;
+    guint32 subtree_length;
 
     *length = tvb_get_letohs(tvb, offset+2);
 
-    subtree = proto_tree_add_subtree(tree, tvb, offset, 4+*length, ett_ieee802154_tap_tlv, &ti, "");
+    subtree_length = 4 + *length;
+    if (*length % 4) {
+        subtree_length += (4 - *length % 4);
+    }
+
+    subtree = proto_tree_add_subtree(tree, tvb, offset, subtree_length, ett_ieee802154_tap_tlv, &ti, "");
 
     /* Check if we have a valid TLV */
     proto_tree_add_item_ret_uint(subtree, hf_ieee802154_tap_tlv_type, tvb, offset, 2, ENC_LITTLE_ENDIAN, type);
@@ -6133,6 +6146,14 @@ void proto_register_ieee802154(void)
         { "Version",        "wpan-tap.version", FT_UINT8, BASE_DEC, NULL, 0x0,
             "TAP Packet Version", HFILL }},
 
+        { &hf_ieee802154_tap_reserved,
+        { "Reserved",        "wpan-tap.reserved", FT_UINT8, BASE_DEC, NULL, 0x0,
+            "TAP Packet Reserved", HFILL }},
+
+        { &hf_ieee802154_tap_length,
+        { "Length",        "wpan-tap.length", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "TAP Packet Length", HFILL }},
+
         { &hf_ieee802154_tap_tlv_type,
         { "TLV Type",       "wpan-tap.tlv.type", FT_UINT16, BASE_DEC, VALS(tap_tlv_types), 0x0,
             NULL, HFILL }},
@@ -6248,6 +6269,7 @@ void proto_register_ieee802154(void)
         &ett_ieee802154_nonask_phy,
         &ett_ieee802154_nonask_phy_phr,
         &ett_ieee802154_tap,
+        &ett_ieee802154_tap_header,
         &ett_ieee802154_tap_tlv,
         &ett_ieee802154,
         &ett_ieee802154_fcf,
