@@ -48,7 +48,7 @@ default capture file format is B<pcapng> format.
 When the B<-P> option is specified, the output file is written in the
 B<pcap> format.
 
-Without any options set it will use the libpcap/WinPcap library to
+Without any options set it will use the libpcap, Npcap, or WinPcap library to
 capture traffic from the first available network interface and writes
 the received raw packet data, along with the packets' time stamps into a
 pcap file.
