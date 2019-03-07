@@ -35,11 +35,16 @@ signals:
 protected:
     void timerEvent(QTimerEvent *event);
 
+public slots:
+    void handleInterfaceEvent(const char *ifname, int added, int up);
+
 private:
+    int startTimer(int interval);
     void getInterfaceInfo();
     void setInterfaceInfo();
     int getCenterFrequency(int control_frequency, int bandwidth);
     int getBandwidthFromChanType(int chan_type);
+    void updateInterfaceList();
 
 private slots:
     void updateWidgets();
@@ -55,7 +60,7 @@ private:
     Ui::WirelessFrame *ui;
     GArray *interfaces_;
     bool capture_in_progress_;
-    int iface_timer_id_;
+    int iface_timer_id_ = -1;
 };
 
 #endif // WIRELESS_FRAME_H

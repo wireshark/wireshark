@@ -32,7 +32,7 @@ extern "C" {
  * We also may want other events, such as address changes, so what
  * we might want is "add", "remove", and "modify" as the events.
  */
-typedef void (*iface_mon_cb)(const char *iface, int up);
+typedef void (*iface_mon_cb)(const char *iface, int added, int up);
 
 /*
  * Start watching for interface changes.

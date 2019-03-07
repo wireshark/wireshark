@@ -93,6 +93,7 @@ public:
     void clearRemovedMenuGroupItems();
 
     void allSystemsGo();
+    void emitLocalInterfaceEvent(const char *ifname, int added, int up);
     void refreshLocalInterfaces();
     struct _e_prefs * readConfigurationFiles(bool reset);
     QList<recent_item_status *> recentItems() const;
@@ -163,6 +164,7 @@ protected:
 
 signals:
     void appInitialized();
+    void localInterfaceEvent(const char *ifname, int added, int up);
     void localInterfaceListChanged();
     void openCaptureFile(QString cf_path, QString display_filter, unsigned int type);
     void openCaptureOptions();

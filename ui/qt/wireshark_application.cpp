@@ -1053,7 +1053,7 @@ void WiresharkApplication::clearRemovedMenuGroupItems()
 #ifdef HAVE_LIBPCAP
 
 static void
-iface_mon_event_cb(const char *iface, int up)
+iface_mon_event_cb(const char *iface, int added, int up)
 {
     int present = 0;
     guint ifs, j;
@@ -1080,6 +1080,7 @@ iface_mon_event_cb(const char *iface, int up)
         }
     }
 
+    wsApp->emitLocalInterfaceEvent(iface, added, up);
     if (present != up) {
         /*
          * We've been told that there's a new interface or that an old
@@ -1103,6 +1104,11 @@ void WiresharkApplication::ifChangeEventsAvailable()
      */
     iface_mon_event();
 #endif
+}
+
+void WiresharkApplication::emitLocalInterfaceEvent(const char *ifname, int added, int up)
+{
+    emit localInterfaceEvent(ifname, added, up);
 }
 
 void WiresharkApplication::refreshLocalInterfaces()

@@ -82,6 +82,7 @@ iface_mon_handler2(struct nl_object *obj, void *arg)
         return;
     }
 
+    int msg_type = nl_object_get_msgtype(obj);
     link_obj = (struct rtnl_link *) obj;
     flags = rtnl_link_get_flags (link_obj);
     ifname = rtnl_link_get_name(link_obj);
@@ -99,8 +100,17 @@ iface_mon_handler2(struct nl_object *obj, void *arg)
      */
     up = (flags & IFF_UP) ? 1 : 0;
 
-    cb(ifname, up);
-
+    switch (msg_type) {
+    case RTM_NEWLINK:
+        cb(ifname, 1, up);
+        break;
+    case RTM_DELLINK:
+        cb(ifname, 0, 0);
+        break;
+    default:
+        /* Ignore other events */
+        break;
+    }
     rtnl_link_put(filter);
 
     return;
@@ -303,7 +313,7 @@ iface_mon_event(void)
          * to see whether we should show it as something on
          * which we can capture.
          */
-        callback(ifr_name, 1);
+        callback(ifr_name, 1, 1);
         break;
 
     case KEV_DL_IF_DETACHED:
@@ -315,7 +325,7 @@ iface_mon_event(void)
          * bpfdetach() makes an interface no longer BPFable,
          * and that's what we *really* care about.
          */
-        callback(ifr_name, 0);
+        callback(ifr_name, 0, 0);
         break;
 
     default:
