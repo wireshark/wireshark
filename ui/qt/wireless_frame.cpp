@@ -43,7 +43,8 @@ WirelessFrame::WirelessFrame(QWidget *parent) :
     QFrame(parent),
     ui(new Ui::WirelessFrame),
     interfaces_(NULL),
-    capture_in_progress_(false)
+    capture_in_progress_(false),
+    iface_timer_id_(-1)
 {
     ui->setupUi(this);
 
