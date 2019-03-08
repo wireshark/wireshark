@@ -20,6 +20,7 @@
 #include <epan/packet.h>
 #include <epan/to_str.h>
 #include <epan/uat.h>
+#include <epan/strutil.h>
 #include <wsutil/str_util.h>
 
 #include "packet-http.h"
@@ -624,7 +625,7 @@ addValueInterpretations(tvbuff_t *tvb, proto_tree *tlv_tree, lwm2mElement_t *ele
 		{
 			const guint8 *strval;
 			proto_tree_add_item_ret_string(tlv_tree, *resource->hf_id, tvb, valueOffset, element->length_of_value, ENC_UTF_8, wmem_packet_scope(), &strval);
-			proto_item_append_text(tlv_tree, ": %s", strval);
+			proto_item_append_text(tlv_tree, ": %s", format_text(wmem_packet_scope(), strval, strlen(strval)));
 			break;
 		}
 		case DATA_TYPE_INTEGER:
