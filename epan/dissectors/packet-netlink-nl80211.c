@@ -2515,6 +2515,10 @@ static header_field_info hfi_nl80211_alpha2 NETLINK_NL80211_HFI_INIT =
     { "Alpha2", "nl80211.alpha2", FT_STRINGZ, STR_ASCII,
       NULL, 0x00, NULL, HFILL };
 
+static header_field_info hfi_nl80211_dbm NETLINK_NL80211_HFI_INIT =
+    { "dBm", "nl80211.dbm", FT_INT32, BASE_DEC,
+      NULL, 0x00, NULL, HFILL };
+
 static int
 dissect_nl80211_generic(tvbuff_t *tvb, void *data, proto_tree *tree, _U_ int nla_type, int offset, int len)
 {
@@ -2745,7 +2749,16 @@ dissect_nl80211_sta_info(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_ty
         offset = dissect_nested_attr_array(tvb, data, tree, nla_type, offset, len, nested_arr);
     }
     if (offset < offset_end) {
+        genl_info_t *genl_info = (genl_info_t *)data;
         switch (type) {
+        case WS_NL80211_STA_INFO_SIGNAL:
+        case WS_NL80211_STA_INFO_SIGNAL_AVG:
+        case WS_NL80211_STA_INFO_BEACON_SIGNAL_AVG:
+        case WS_NL80211_STA_INFO_ACK_SIGNAL:
+        case WS_NL80211_STA_INFO_ACK_SIGNAL_AVG:
+            proto_tree_add_item(tree, &hfi_nl80211_dbm, tvb, offset, len, genl_info->encoding);
+            offset += len;
+            break;
         default:
             offset = dissect_nl80211_generic(tvb, data, tree, nla_type, offset, len);
             break;
@@ -2813,6 +2826,7 @@ dissect_nl80211_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type,
         { WS_NL80211_ATTR_STA_PLINK_STATE, &hfi_nl80211_plink_state, NULL, NULL },
         { WS_NL80211_ATTR_TDLS_OPERATION, &hfi_nl80211_tdls_operation, NULL, NULL },
         { WS_NL80211_ATTR_DFS_REGION, &hfi_nl80211_dfs_regions, NULL, NULL },
+        { WS_NL80211_ATTR_RX_SIGNAL_DBM, &hfi_nl80211_dbm, NULL, NULL},
         { WS_NL80211_ATTR_USER_REG_HINT_TYPE, &hfi_nl80211_user_reg_hint_type, NULL, NULL },
         { WS_NL80211_ATTR_CONN_FAILED_REASON, &hfi_nl80211_connect_failed_reason, NULL, NULL },
         { WS_NL80211_ATTR_LOCAL_MESH_POWER_MODE, &hfi_nl80211_mesh_power_mode, NULL, NULL },
@@ -2908,6 +2922,7 @@ proto_register_netlink_nl80211(void)
         &hfi_nl80211_ifname,
         &hfi_nl80211_mac,
         &hfi_nl80211_alpha2,
+        &hfi_nl80211_dbm,
 /* Extracted using tools/generate-nl80211-fields.py */
 /* Definitions from linux/nl80211.h {{{ */
         &hfi_nl80211_commands,
