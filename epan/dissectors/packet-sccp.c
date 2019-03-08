@@ -2823,10 +2823,12 @@ static void build_assoc_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp
 {
   if (trace_sccp && sccp_info->assoc && (sccp_info->assoc != &no_assoc)) {
     proto_item *pi = proto_tree_add_uint(sccp_tree, hf_sccp_assoc_id, tvb, 0, 0, sccp_info->assoc->id);
-    proto_tree *pt = proto_item_add_subtree(pi, ett_sccp_assoc);
-    proto_item *pi2 = proto_tree_add_string(sccp_tree, hf_assoc_imsi, tvb, 0, 0, sccp_info->assoc->imsi);
     PROTO_ITEM_SET_GENERATED(pi);
-    PROTO_ITEM_SET_GENERATED(pi2);PROTO_ITEM_SET_GENERATED(pi2);
+    proto_tree *pt = proto_item_add_subtree(pi, ett_sccp_assoc);
+    if(sccp_info->assoc->imsi){
+      proto_item *pi2 = proto_tree_add_string(sccp_tree, hf_assoc_imsi, tvb, 0, 0, sccp_info->assoc->imsi);
+      PROTO_ITEM_SET_GENERATED(pi2);
+    }
     if (sccp_info->assoc->msgs) {
       sccp_msg_info_t *m;
       for(m = sccp_info->assoc->msgs; m ; m = m->data.co.next) {
