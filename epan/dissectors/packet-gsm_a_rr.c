@@ -2393,10 +2393,14 @@ de_rr_ch_dsc3(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint3
 static const value_string gsm_a_rr_channel_mode_vals[] = {
     { 0x00, "signalling only"},
     { 0x01, "speech full rate or half rate version 1(GSM FR or GSM HR)"},
-    { 0x21, "speech full rate or half rate version 2(GSM EFR)"},
-    { 0x41, "speech full rate or half rate version 3(FR AMR or HR AMR)"},
-    { 0x81, "speech full rate or half rate version 4(OFR AMR-WB or OHR AMR-WB)"},
-    { 0x82, "speech full rate or half rate version 5(FR AMR-WB )"},
+    { 0xc1, "apeech full rate or half rate version 1 (GSM FR or GSM HR) in VAMOS mode" },
+    { 0x21, "speech full rate or half rate version 2 (GSM EFR)"},
+    { 0xC2, "speech full rate or half rate version 2 (GSM EFR) in VAMOS mode"},
+    { 0x41, "speech full rate or half rate version 3 (FR AMR or HR AMR)"},
+    { 0xc3, "speech full rate or half rate version 3 (FR AMR or HR AMR) in VAMOS mode"},
+    { 0x81, "speech full rate or half rate version 4 (OFR AMR-WB or OHR AMR-WB)"},
+    { 0x82, "speech full rate or half rate version 5 (FR AMR-WB )"},
+    { 0xc5, "speech full rate or half rate version 5 (FR AMR-WB ) in VAMOS mode"},
     { 0x83, "speech full rate or half rate version 6(OHR AMR )"},
     { 0x61, "data, 43.5 kbit/s (downlink)+14.5 kbps (uplink)"},
     { 0x62, "data, 29.0 kbit/s (downlink)+14.5 kbps (uplink)"},
@@ -2411,6 +2415,7 @@ static const value_string gsm_a_rr_channel_mode_vals[] = {
     { 0x03, "data, 12.0 kbit/s radio interface rate"},
     { 0x0b, "data, 6.0 kbit/s radio interface rate"},
     { 0x13, "data, 3.6 kbit/s radio interface rate"},
+    { 0x10, "data, 64.0 kbit/s Transparent Data Bearer"},
     {    0, NULL }
 };
 
