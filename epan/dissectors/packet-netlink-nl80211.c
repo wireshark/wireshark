@@ -23,6 +23,8 @@ void proto_register_netlink_nl80211(void);
 void proto_reg_handoff_netlink_nl80211(void);
 
 static dissector_handle_t ieee80211_handle;
+static dissector_table_t ieee80211_tag_dissector_table;
+
 #define NETLINK_NL80211_HFI_INIT HFI_INIT(proto_netlink_generic)
 
 /* Extracted using tools/generate-nl80211-fields.py */
@@ -2479,6 +2481,7 @@ static header_field_info *hfi_netlink_nl80211 = NULL;
 
 static gint ett_nl80211 = -1;
 static gint ett_nl80211_frame = -1;
+static gint ett_nl80211_tag = -1;
 
 static header_field_info hfi_nl80211_attr_value NETLINK_NL80211_HFI_INIT =
     { "Attribute Value", "nl80211.attr_value", FT_BYTES, BASE_NONE,
@@ -2592,6 +2595,17 @@ dissect_value(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type, int off
 }
 
 static packet_info *m_pinfo = NULL; /* TODO find a better way to pass pinfo to functions */
+
+static int
+dissect_tag(tvbuff_t *tvb, proto_tree *tree _U_, int offset, int len, guint8 tag)
+{
+    proto_item *item;
+    ieee80211_tagged_field_data_t field_data = { 0 };
+    tvbuff_t *next_tvb = tvb_new_subset_length(tvb, offset, len);
+    proto_tree *subtree = proto_tree_add_subtree(tree, next_tvb, 0, -1, ett_nl80211_tag, &item, "Attribute Value");
+    dissector_try_uint_new(ieee80211_tag_dissector_table, tag, next_tvb, m_pinfo, subtree, FALSE, &field_data);
+    return offset +  len;
+}
 
 static int
 dissect_information_elements(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
@@ -2828,16 +2842,19 @@ dissect_nl80211_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type,
         proto_item *item;
 
         switch (type) {
-        case WS_NL80211_ATTR_HT_CAPABILITY:
         case WS_NL80211_ATTR_IE:
         case WS_NL80211_ATTR_REQ_IE:
         case WS_NL80211_ATTR_RESP_IE:
         case WS_NL80211_ATTR_IE_PROBE_RESP:
         case WS_NL80211_ATTR_IE_ASSOC_RESP:
-        case WS_NL80211_ATTR_VHT_CAPABILITY:
         case WS_NL80211_ATTR_CSA_IES:
-        case WS_NL80211_ATTR_HE_CAPABILITY:
             offset = dissect_information_elements(tvb, tree, offset, len);
+            break;
+        case WS_NL80211_ATTR_HT_CAPABILITY:
+            offset = dissect_tag(tvb, tree, offset, len, 45 /* TAG_HT_CAPABILITY */);
+            break;
+        case WS_NL80211_ATTR_VHT_CAPABILITY:
+            offset = dissect_tag(tvb, tree, offset, len, 191 /* TAG_VHT_CAPABILITY */);
             break;
         case WS_NL80211_ATTR_FRAME:
             next_tvb = tvb_new_subset_length(tvb, offset, len);
@@ -2961,6 +2978,7 @@ proto_register_netlink_nl80211(void)
     static gint *ett[] = {
         &ett_nl80211,
         &ett_nl80211_frame,
+        &ett_nl80211_tag,
 /* Extracted using tools/generate-nl80211-fields.py */
 /* Definitions from linux/nl80211.h {{{ */
         &ett_nl80211_commands,
@@ -3035,6 +3053,7 @@ proto_register_netlink_nl80211(void)
 
     netlink_nl80211_handle = create_dissector_handle(dissect_netlink_nl80211, proto_netlink_nl80211);
     ieee80211_handle = find_dissector_add_dependency("wlan", proto_netlink_nl80211);
+    ieee80211_tag_dissector_table = find_dissector_table("wlan.tag.number");
 }
 
 void
