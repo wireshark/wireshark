@@ -22,6 +22,7 @@
 void proto_register_netlink_nl80211(void);
 void proto_reg_handoff_netlink_nl80211(void);
 
+static dissector_handle_t ieee80211_handle;
 #define NETLINK_NL80211_HFI_INIT HFI_INIT(proto_netlink_generic)
 
 /* Extracted using tools/generate-nl80211-fields.py */
@@ -2477,6 +2478,7 @@ static dissector_handle_t netlink_nl80211_handle;
 static header_field_info *hfi_netlink_nl80211 = NULL;
 
 static gint ett_nl80211 = -1;
+static gint ett_nl80211_frame = -1;
 
 static header_field_info hfi_nl80211_attr_value NETLINK_NL80211_HFI_INIT =
     { "Attribute Value", "nl80211.attr_value", FT_BYTES, BASE_NONE,
@@ -2821,6 +2823,10 @@ dissect_nl80211_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type,
         offset = dissect_value(tvb, data, tree, nla_type, offset, len, values);
     }
     if (offset < offset_end) {
+        tvbuff_t *next_tvb;
+        proto_tree *subtree;
+        proto_item *item;
+
         switch (type) {
         case WS_NL80211_ATTR_HT_CAPABILITY:
         case WS_NL80211_ATTR_IE:
@@ -2832,6 +2838,12 @@ dissect_nl80211_attrs(tvbuff_t *tvb, void *data, proto_tree *tree, int nla_type,
         case WS_NL80211_ATTR_CSA_IES:
         case WS_NL80211_ATTR_HE_CAPABILITY:
             offset = dissect_information_elements(tvb, tree, offset, len);
+            break;
+        case WS_NL80211_ATTR_FRAME:
+            next_tvb = tvb_new_subset_length(tvb, offset, len);
+            subtree = proto_tree_add_subtree(tree, next_tvb, 0, -1, ett_nl80211_frame,
+                                             &item, "Attribute Value");
+            call_dissector(ieee80211_handle, next_tvb, m_pinfo, subtree);
             break;
         /* TODO add more fields here? */
         default:
@@ -2948,6 +2960,7 @@ proto_register_netlink_nl80211(void)
 
     static gint *ett[] = {
         &ett_nl80211,
+        &ett_nl80211_frame,
 /* Extracted using tools/generate-nl80211-fields.py */
 /* Definitions from linux/nl80211.h {{{ */
         &ett_nl80211_commands,
@@ -3021,6 +3034,7 @@ proto_register_netlink_nl80211(void)
     proto_register_subtree_array(ett, array_length(ett));
 
     netlink_nl80211_handle = create_dissector_handle(dissect_netlink_nl80211, proto_netlink_nl80211);
+    ieee80211_handle = find_dissector_add_dependency("wlan", proto_netlink_nl80211);
 }
 
 void
