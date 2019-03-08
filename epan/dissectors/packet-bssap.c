@@ -30,6 +30,8 @@
 void proto_register_bssap(void);
 void proto_reg_handoff_bssap(void);
 
+static dissector_handle_t bssap_handle;
+
 #define BSSAP 0
 #define BSAP  1
 
@@ -2107,6 +2109,7 @@ void
 proto_register_bssap(void)
 {
     module_t    *bssap_module;
+    module_t    *bssap_plus_module;
     expert_module_t* expert_bssap;
 
     /* Setup list of header fields */
@@ -2509,7 +2512,7 @@ proto_register_bssap(void)
     proto_bssap = proto_register_protocol("BSSAP/BSAP", "BSSAP", "bssap");
     proto_bssap_plus = proto_register_protocol("BSSAP2", "BSSAP2", "bssap_plus");
 
-    register_dissector("bssap", dissect_bssap, proto_bssap);
+    bssap_handle = register_dissector("bssap", dissect_bssap, proto_bssap);
     register_dissector("bssap.imei", dissect_bssap_imei_dissector, proto_bssap);
     register_dissector("bssap_plus", dissect_bssap_plus, proto_bssap_plus);
 
@@ -2539,10 +2542,12 @@ proto_register_bssap(void)
                        gsm_or_lb_interface_options,
                        FALSE);
 
-    prefs_register_uint_preference(bssap_module, "ssn",
-                       "Subsystem number used for BSSAP",
-                       "Set Subsystem number used for BSSAP/BSSAP+",
+    bssap_plus_module = prefs_register_protocol(proto_bssap_plus, proto_reg_handoff_bssap);
+    prefs_register_uint_preference(bssap_plus_module, "ssn",
+                       "Subsystem number used for BSSAP+",
+                       "Set Subsystem number used for BSSAP+",
                        10, &global_bssap_ssn);
+
     bssap_dissector_table = register_dissector_table("bssap.pdu_type", "BSSAP Message Type", proto_bssap, FT_UINT8, BASE_DEC);
     bsap_dissector_table  = register_dissector_table("bsap.pdu_type", "BSAP Message Type", proto_bssap, FT_UINT8, BASE_DEC);
 }
@@ -2558,7 +2563,7 @@ proto_reg_handoff_bssap(void)
         heur_dissector_add("sccp", dissect_bssap_heur, "BSSAP over SCCP", "bssap_sccp", proto_bssap, HEURISTIC_ENABLE);
         heur_dissector_add("sua", dissect_bssap_heur, "BSSAP over SUA", "bssap_sua", proto_bssap, HEURISTIC_ENABLE);
         /* BSSAP+ */
-        bssap_plus_handle = create_dissector_handle(dissect_bssap_plus, proto_bssap);
+        bssap_plus_handle = create_dissector_handle(dissect_bssap_plus, proto_bssap_plus);
 
         rrlp_handle = find_dissector_add_dependency("rrlp", proto_bssap_plus);
         gsm_bssmap_le_dissector_handle = find_dissector_add_dependency("gsm_bssmap_le", proto_bssap);
@@ -2568,6 +2573,8 @@ proto_reg_handoff_bssap(void)
     } else {
         dissector_delete_uint("sccp.ssn", old_bssap_ssn, bssap_plus_handle);
     }
+
+    dissector_add_for_decode_as("sccp.ssn", bssap_handle);
 
     dissector_add_uint("sccp.ssn", global_bssap_ssn, bssap_plus_handle);
     old_bssap_ssn = global_bssap_ssn;
