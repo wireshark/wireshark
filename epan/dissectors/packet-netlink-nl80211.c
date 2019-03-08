@@ -2490,6 +2490,10 @@ static header_field_info hfi_nl80211_attr_value32 NETLINK_NL80211_HFI_INIT =
     { "Attribute Value", "nl80211.attr_value32", FT_UINT32, BASE_HEX_DEC,
       NULL, 0x00, NULL, HFILL };
 
+static header_field_info hfi_nl80211_attr_value64 NETLINK_NL80211_HFI_INIT =
+    { "Attribute Value", "nl80211.attr_value64", FT_UINT64, BASE_HEX_DEC,
+      NULL, 0x00, NULL, HFILL };
+
 static header_field_info hfi_nl80211_ifname NETLINK_NL80211_HFI_INIT =
     { "Interface Name", "nl80211.ifname", FT_STRINGZ, STR_ASCII,
       NULL, 0x00, NULL, HFILL };
@@ -2512,6 +2516,8 @@ dissect_nl80211_generic(tvbuff_t *tvb, void *data, proto_tree *tree, _U_ int nla
             proto_tree_add_item(tree, &hfi_nl80211_attr_value16, tvb, offset, len, genl_info->encoding);
         } else if (len == 4) {
             proto_tree_add_item(tree, &hfi_nl80211_attr_value32, tvb, offset, len, genl_info->encoding);
+        } else if (len == 8) {
+            proto_tree_add_item(tree, &hfi_nl80211_attr_value64, tvb, offset, len, genl_info->encoding);
         } else {
             proto_tree_add_item(tree, &hfi_nl80211_attr_value, tvb, offset, len, genl_info->encoding);
         }
@@ -2858,6 +2864,7 @@ proto_register_netlink_nl80211(void)
         &hfi_nl80211_attr_value,
         &hfi_nl80211_attr_value16,
         &hfi_nl80211_attr_value32,
+        &hfi_nl80211_attr_value64,
         &hfi_nl80211_ifname,
         &hfi_nl80211_mac,
 /* Extracted using tools/generate-nl80211-fields.py */
