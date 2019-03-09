@@ -1,0 +1,9 @@
+#!/bin/sh
+# autopkgtest check: Run wireshark GUI to see basic functionality working
+# Author: Balint Reczey <balint@balintreczey.hu>
+
+set -e
+
+xvfb-run --auto-servernum -s '-screen 0 1920x1080x24 +extension GLX' wireshark -Xlua_script:debian/tests/frame-count.lua test/captures/dhcp.pcap 2>&1
+
+echo "run: OK"

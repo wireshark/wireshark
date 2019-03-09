@@ -1,0 +1,8 @@
+#!/bin/sh
+# autopkgtest check: Run tshark to see basic functionality working
+# Author: Balint Reczey <balint@balintreczey.hu>
+
+set -e
+
+tshark --version
+echo "run: OK"
