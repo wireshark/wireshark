@@ -355,7 +355,7 @@ void ImportTextDialog::on_encapComboBox_currentIndexChanged(int index)
 
 bool ImportTextDialog::checkDateTimeFormat(const QString &time_format)
 {
-    const QString valid_code = "aAbBcdHIjmMpSUwWxXyYzZ%";
+    const QString valid_code = "aAbBcdDHIjmMpSTUwWxXyYzZ%";
     int idx = 0;
 
     while ((idx = time_format.indexOf("%", idx)) != -1) {
