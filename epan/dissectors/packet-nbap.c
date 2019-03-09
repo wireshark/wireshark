@@ -11805,7 +11805,7 @@ dissect_nbap_LogicalChannelID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
     nbap_private_data->logical_channel_id = logical_channel_id;
     num_items = nbap_private_data->num_items;
-    if(num_items>0)
+    if(num_items > 0 && num_items < MAX_EDCH_DDIS + 1)
         nbap_edch_channel_info[nbap_private_data->e_dch_macdflow_id].lchId[num_items-1] = nbap_private_data->logical_channel_id;
 
 
@@ -12311,7 +12311,7 @@ nbap_edch_channel_info = nbap_private_data->nbap_edch_channel_info;
         return offset;
     }
     num_items = nbap_private_data->num_items;
-    if(num_items>0)
+    if(num_items > 0 && num_items < MAX_EDCH_DDIS + 1)
         nbap_edch_channel_info[nbap_private_data->e_dch_macdflow_id].edch_macd_pdu_size[num_items-1] = nbap_private_data->mac_d_pdu_size;
 
 
@@ -15043,7 +15043,7 @@ nbap_dch_chnl_info = nbap_private_data->nbap_dch_chnl_info;
     if(nbap_private_data->num_items>0){
         num_items = nbap_private_data->num_items;
         dch_id = nbap_private_data->dch_id;
-        if (num_items > 0 && dch_id != 0xffffffff) {
+        if (num_items > 0 && num_items < MAX_FP_CHANS + 1 && dch_id != 0xffffffff) {
             common_physical_channel_id = nbap_private_data->common_physical_channel_id;
             common_transport_channel_id = nbap_private_data->common_transport_channel_id;
             switch(nbap_private_data->transport_format_set_type){
@@ -15099,7 +15099,7 @@ nbap_dch_chnl_info = nbap_private_data->nbap_dch_chnl_info;
     if(nbap_private_data->num_items>0){
         num_items = nbap_private_data->num_items;
         dch_id = nbap_private_data->dch_id;
-        if (num_items > 0 && dch_id != 0xffffffff) {
+        if (num_items > 0 && num_items < MAX_FP_CHANS + 1 && dch_id != 0xffffffff) {
             common_physical_channel_id = nbap_private_data->common_physical_channel_id;
             common_transport_channel_id = nbap_private_data->common_transport_channel_id;
             switch(nbap_private_data->transport_format_set_type){
@@ -18313,7 +18313,7 @@ dissect_nbap_E_DCH_DDI_Value(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
       return offset;
   }
   num_items = nbap_private_data->num_items;
-  if(num_items>0)
+  if(num_items > 0 && num_items < MAX_EDCH_DDIS + 1)
       nbap_edch_channel_info[nbap_private_data->e_dch_macdflow_id].edch_ddi[num_items-1] = nbap_private_data->e_dch_ddi_value;
 
 
