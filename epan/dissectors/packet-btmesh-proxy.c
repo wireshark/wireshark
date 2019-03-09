@@ -17,6 +17,8 @@
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/tvbuff-int.h>
+#include <epan/expert.h>
+#include <wsutil/wsgcrypt.h>
 
 #include "packet-btmesh.h"
 
@@ -30,6 +32,13 @@
 #define PROXY_PDU_CONFIGURATION     0x02
 #define PROXY_PDU_PROVISIONING      0x03
 
+#define PROXY_SET_FILTER_TYPE               0x00
+#define PROXY_ADD_ADDRESSES_TO_FILTER       0x01
+#define PROXY_REMOVE_ADDRESSES_FROM_FILTER  0x02
+#define PROXY_FILTER_STATUS                 0x03
+
+#define UNICAST_ADDRESS_MASK        0x8000
+
 void proto_register_btmesh_proxy(void);
 void proto_reg_handoff_btmesh_proxy(void);
 
@@ -38,6 +47,7 @@ static int proto_btmesh_proxy = -1;
 static int hf_btmesh_proxy_type = -1;
 static int hf_btmesh_proxy_sar = -1;
 static int hf_btmesh_proxy_data = -1;
+static int hf_btmesh_proxy_data_fragment = -1;
 static int hf_btmesh_proxy_fragments = -1;
 static int hf_btmesh_proxy_fragment = -1;
 static int hf_btmesh_proxy_fragment_overlap = -1;
@@ -47,10 +57,34 @@ static int hf_btmesh_proxy_fragment_too_long_fragment = -1;
 static int hf_btmesh_proxy_fragment_error = -1;
 static int hf_btmesh_proxy_fragment_count = -1;
 static int hf_btmesh_proxy_reassembled_length = -1;
+static int hf_btmesh_proxy_ivi = -1;
+static int hf_btmesh_proxy_nid = -1;
+static int hf_btmesh_proxy_ctl = -1;
+static int hf_btmesh_proxy_ttl = -1;
+static int hf_btmesh_proxy_seq = -1;
+static int hf_btmesh_proxy_src = -1;
+static int hf_btmesh_proxy_dst = -1;
+static int hf_btmesh_proxy_transport_pdu = -1;
+static int hf_btmesh_proxy_netmic = -1;
+static int hf_btmesh_proxy_control_opcode = -1;
+static int hf_btmesh_proxy_control_parameters = -1;
+static int hf_btmesh_proxy_control_filter_type = -1;
+static int hf_btmesh_proxy_control_list_size = -1;
+static int hf_btmesh_proxy_control_list_item = -1;
 
 static int ett_btmesh_proxy = -1;
+static int ett_btmesh_proxy_network_pdu = -1;
+static int ett_btmesh_proxy_transport_pdu = -1;
 static int ett_btmesh_proxy_fragments = -1;
 static int ett_btmesh_proxy_fragment = -1;
+
+static expert_field ei_btmesh_proxy_unknown_opcode = EI_INIT;
+static expert_field ei_btmesh_proxy_unknown_payload = EI_INIT;
+static expert_field ei_btmesh_proxy_wrong_ctl = EI_INIT;
+static expert_field ei_btmesh_proxy_wrong_ttl = EI_INIT;
+static expert_field ei_btmesh_proxy_wrong_dst = EI_INIT;
+static expert_field ei_btmesh_proxy_unknown_filter_type = EI_INIT;
+static expert_field ei_btmesh_proxy_wrong_address_type = EI_INIT;
 
 static dissector_handle_t btmesh_handle;
 static dissector_handle_t btmesh_provisioning_handle;
@@ -72,6 +106,26 @@ static const value_string btmesh_proxy_sar[] = {
     { 1, "Data field contains the first segment of a message" },
     { 2, "Data field contains a continuation segment of a message" },
     { 3, "Data field contains the last segment of a message" },
+    { 0, NULL }
+};
+
+static const value_string btmesh_proxy_ctl_vals[] = {
+    { 0, "Unknown Message" },
+    { 1, "Proxy Message" },
+    { 0, NULL }
+};
+
+static const value_string btmesh_proxy_control_opcode[] = {
+    { 0, "Set Filter Type" },
+    { 1, "Add Addresses To Filter" },
+    { 2, "Remove Addresses From Filter" },
+    { 3, "Filter Status" },
+    { 0, NULL }
+};
+
+static const value_string btmesh_proxy_control_filter_type[] = {
+    { 0, "White list filter" },
+    { 1, "Black list filter" },
     { 0, NULL }
 };
 
@@ -98,6 +152,139 @@ static reassembly_table proxy_reassembly_table;
 static guint32 sequence_counter[E_BTMESH_PROXY_SIDE_LAST];
 static guint32 fragment_counter[E_BTMESH_PROXY_SIDE_LAST];
 static gboolean first_pass;
+
+#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
+
+static gint
+dissect_btmesh_proxy_configuration_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    guint32 enc_data_len = 0;
+    guint8 *decrypted_data = NULL;
+    tvbuff_t *de_obf_tvb;
+    tvbuff_t *de_cry_tvb;
+    proto_tree *sub_tree, *cntrl_sub_tree;
+    guint32 net_mic_size, seq, src, dst, opcode, ttl, bd_address;
+    guint32 filter_type, list_size;
+    guint32 offset = 0;
+    guint32 decry_off = 0;
+
+    proto_tree_add_item(tree, hf_btmesh_proxy_data, tvb, 0, tvb_reported_length(tvb), ENC_NA);
+
+    de_obf_tvb = btmesh_network_find_key_and_decrypt(tvb, pinfo, &decrypted_data, &enc_data_len, MESH_NONCE_TYPE_PROXY);
+    if (de_obf_tvb) {
+        sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_btmesh_proxy_network_pdu, NULL, "Proxy Network PDU");
+
+        proto_tree_add_item(sub_tree, hf_btmesh_proxy_ivi, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_proxy_nid, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+
+        add_new_data_source(pinfo, de_obf_tvb, "Deobfuscated data");
+
+        /* CTL 1 bit Network Control*/
+        proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_proxy_ctl, de_obf_tvb, 0, 1, ENC_BIG_ENDIAN, &net_mic_size);
+        if (net_mic_size != 1) {
+            proto_tree_add_expert(sub_tree, pinfo, &ei_btmesh_proxy_wrong_ctl, de_obf_tvb, 0, 1);
+        }
+        net_mic_size = (net_mic_size + 1) * 4;
+        /* The TTL field is a 7-bit field */
+        proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_proxy_ttl, de_obf_tvb, 0, 1, ENC_BIG_ENDIAN, &ttl);
+        if (ttl != 0) {
+            proto_tree_add_expert(sub_tree, pinfo, &ei_btmesh_proxy_wrong_ttl, de_obf_tvb, 0, 1);
+        }
+        /* SEQ field is a 24-bit integer */
+        proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_proxy_seq, de_obf_tvb, 1, 3, ENC_BIG_ENDIAN, &seq);
+
+        /* SRC field is a 16-bit value */
+        proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_proxy_src, de_obf_tvb, 4, 2, ENC_BIG_ENDIAN, &src);
+        if (src & UNICAST_ADDRESS_MASK ) {
+            proto_tree_add_expert(sub_tree, pinfo, &ei_btmesh_proxy_wrong_address_type, de_obf_tvb, 4, 2);
+        }
+        offset += 6;
+
+        de_cry_tvb = tvb_new_child_real_data(tvb, decrypted_data, enc_data_len, enc_data_len);
+        add_new_data_source(pinfo, de_cry_tvb, "Decrypted data");
+
+        proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_proxy_dst, de_cry_tvb, decry_off, 2, ENC_BIG_ENDIAN, &dst);
+        if (dst != 0) {
+            proto_tree_add_expert(sub_tree, pinfo, &ei_btmesh_proxy_wrong_dst, de_cry_tvb, decry_off, 2);
+        }
+        decry_off += 2;
+
+        /* TransportPDU */
+        proto_tree_add_item(sub_tree, hf_btmesh_proxy_transport_pdu, de_cry_tvb, decry_off, enc_data_len - 2, ENC_NA);
+        offset += enc_data_len;
+
+        proto_tree_add_item(sub_tree, hf_btmesh_proxy_netmic, tvb, offset, net_mic_size, ENC_BIG_ENDIAN);
+        offset += net_mic_size;
+
+        cntrl_sub_tree = proto_tree_add_subtree(tree, de_cry_tvb, decry_off, -1, ett_btmesh_proxy_transport_pdu, NULL, "Proxy Transport PDU");
+        /* Opcode */
+        proto_tree_add_item_ret_uint(cntrl_sub_tree, hf_btmesh_proxy_control_opcode, de_cry_tvb, decry_off, 1, ENC_BIG_ENDIAN, &opcode);
+        decry_off += 1;
+
+        /* Parameters */
+        switch(opcode) {
+          case PROXY_SET_FILTER_TYPE:
+              proto_tree_add_item_ret_uint(cntrl_sub_tree, hf_btmesh_proxy_control_filter_type, de_cry_tvb, decry_off, 1, ENC_BIG_ENDIAN, &filter_type);
+              if (filter_type > 1) {
+                  proto_tree_add_expert(cntrl_sub_tree, pinfo, &ei_btmesh_proxy_unknown_filter_type, de_cry_tvb, decry_off, 1);
+              }
+              decry_off += 1;
+
+          break;
+          case PROXY_ADD_ADDRESSES_TO_FILTER:
+              while (decry_off <= enc_data_len - 1) {
+                proto_tree_add_item_ret_uint(cntrl_sub_tree, hf_btmesh_proxy_control_list_item, de_cry_tvb, decry_off, 2, ENC_BIG_ENDIAN, &bd_address);
+                  if (bd_address == 0 ) {
+                      proto_tree_add_expert(cntrl_sub_tree, pinfo, &ei_btmesh_proxy_wrong_address_type, de_cry_tvb, decry_off, 2);
+                  }
+                  decry_off += 2;
+              }
+
+          break;
+          case PROXY_REMOVE_ADDRESSES_FROM_FILTER:
+              while (decry_off <= enc_data_len - 1) {
+                proto_tree_add_item_ret_uint(cntrl_sub_tree, hf_btmesh_proxy_control_list_item, de_cry_tvb, decry_off, 2, ENC_BIG_ENDIAN, &bd_address);
+                if (bd_address == 0 ) {
+                      proto_tree_add_expert(cntrl_sub_tree, pinfo, &ei_btmesh_proxy_wrong_address_type, de_cry_tvb, decry_off, 2);
+                }
+                decry_off += 2;
+              }
+
+          break;
+          case PROXY_FILTER_STATUS:
+              proto_tree_add_item_ret_uint(cntrl_sub_tree, hf_btmesh_proxy_control_filter_type, de_cry_tvb, decry_off, 1, ENC_BIG_ENDIAN, &filter_type);
+              if (filter_type > 1) {
+                  proto_tree_add_expert(cntrl_sub_tree, pinfo, &ei_btmesh_proxy_unknown_filter_type, de_cry_tvb, decry_off, 1);
+              }
+              decry_off += 1;
+
+              proto_tree_add_item_ret_uint(cntrl_sub_tree, hf_btmesh_proxy_control_list_size, de_cry_tvb, decry_off, 2, ENC_BIG_ENDIAN, &list_size);
+              decry_off += 2;
+          break;
+          default:
+              proto_tree_add_expert(cntrl_sub_tree, pinfo, &ei_btmesh_proxy_unknown_opcode, de_cry_tvb, decry_off -1 , 1);
+              proto_tree_add_item(cntrl_sub_tree, hf_btmesh_proxy_control_parameters, de_cry_tvb, decry_off, enc_data_len - 3, ENC_NA);
+              decry_off += enc_data_len - 3;
+        }
+        /* Still some octets left */
+        if (offset - net_mic_size != decry_off + 7) {
+            proto_tree_add_expert(cntrl_sub_tree, pinfo, &ei_btmesh_proxy_unknown_payload, de_cry_tvb, decry_off, -1);
+        }
+    }
+    return offset;
+}
+
+#else /* GCRYPT_VERSION_NUMBER >= 0x010600 */
+
+static gint
+dissect_btmesh_proxy_configuration_msg(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    proto_tree_add_item(tree, hf_btmesh_proxy_data, tvb, 0, tvb_reported_length(tvb), ENC_NA);
+    return tvb_reported_length(tvb);
+}
+
+#endif/* GCRYPT_VERSION_NUMBER >= 0x010600 */
 
 static gint
 dissect_btmesh_proxy_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *proxy_data)
@@ -127,8 +314,8 @@ dissect_btmesh_proxy_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     item = proto_tree_add_item(tree, proto_btmesh_proxy, tvb, offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(item, ett_btmesh_proxy);
 
-    proto_tree_add_item(sub_tree, hf_btmesh_proxy_type, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(sub_tree, hf_btmesh_proxy_sar, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(sub_tree, hf_btmesh_proxy_type, tvb, offset, 1, ENC_NA);
 
     guint8 proxy_sar = (tvb_get_guint8(tvb, offset) & 0xC0 ) >> 6;
     guint8 proxy_type = tvb_get_guint8(tvb, offset) & 0x3F;
@@ -149,7 +336,7 @@ dissect_btmesh_proxy_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
         break;
         case PROXY_FIRST_SEGMENT:
-            proto_tree_add_item(sub_tree, hf_btmesh_proxy_data, tvb, offset, length, ENC_NA);
+            proto_tree_add_item(sub_tree, hf_btmesh_proxy_data_fragment, tvb, offset, length, ENC_NA);
             if (!pinfo->fd->visited) {
               sequence_counter[proxy_ctx->proxy_side]++;
               fragment_counter[proxy_ctx->proxy_side]=0;
@@ -169,7 +356,7 @@ dissect_btmesh_proxy_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
         break;
         case PROXY_CONTINUATION_SEGMENT:
-            proto_tree_add_item(sub_tree, hf_btmesh_proxy_data, tvb, offset, length, ENC_NA);
+            proto_tree_add_item(sub_tree, hf_btmesh_proxy_data_fragment, tvb, offset, length, ENC_NA);
             if (!pinfo->fd->visited) {
               fd_head = fragment_add_seq(&proxy_reassembly_table,
                 tvb, offset, pinfo,
@@ -184,7 +371,7 @@ dissect_btmesh_proxy_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         break;
         case PROXY_LAST_SEGMENT:
 
-            proto_tree_add_item(sub_tree, hf_btmesh_proxy_data, tvb, offset, length, ENC_NA);
+            proto_tree_add_item(sub_tree, hf_btmesh_proxy_data_fragment, tvb, offset, length, ENC_NA);
             if (!pinfo->fd->visited) {
               fragment_add_seq(&proxy_reassembly_table,
                 tvb, offset, pinfo,
@@ -230,9 +417,9 @@ dissect_btmesh_proxy_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         offset = 0;
         tr_ctx.transport = E_BTMESH_TR_PROXY;
         if (packetComplete) {
-        tr_ctx.fragmented = FALSE;
+            tr_ctx.fragmented = FALSE;
         } else {
-        tr_ctx.fragmented = TRUE;
+            tr_ctx.fragmented = TRUE;
         }
         tr_ctx.segment_index = 0;
 
@@ -245,7 +432,6 @@ dissect_btmesh_proxy_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
               }
 
           break;
-
           case PROXY_PDU_MESH_BEACON:
               if (btmesh_beacon_handle) {
                   call_dissector_with_data(btmesh_beacon_handle, next_tvb, pinfo, proto_tree_get_root(tree), &tr_ctx);
@@ -255,8 +441,7 @@ dissect_btmesh_proxy_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
           break;
           case PROXY_PDU_CONFIGURATION:
-              //TODO decrypt, dissect and display
-              proto_tree_add_item(sub_tree, hf_btmesh_proxy_data, next_tvb, offset, length, ENC_NA);
+              dissect_btmesh_proxy_configuration_msg(next_tvb, pinfo, sub_tree, NULL);
 
           break;
           case PROXY_PDU_PROVISIONING:
@@ -313,6 +498,11 @@ proto_register_btmesh_proxy(void)
                 FT_BYTES, BASE_NONE, NULL, 0x00,
                 NULL, HFILL }
         },
+        { &hf_btmesh_proxy_data_fragment,
+            { "Data Fragment", "btmproxy.data_fragment",
+                FT_BYTES, BASE_NONE, NULL, 0x00,
+                NULL, HFILL }
+        },
         //Proxy Payload Reassembly
         { &hf_btmesh_proxy_fragments,
             { "Reassembled Proxy Payload Fragments", "btmproxy.fragments",
@@ -359,18 +549,105 @@ proto_register_btmesh_proxy(void)
                 FT_UINT32, BASE_DEC, NULL, 0x0,
                 "The total length of the reassembled payload", HFILL }
         },
+        { &hf_btmesh_proxy_ivi,
+            { "IVI", "btmproxy.ivi",
+                FT_UINT8, BASE_DEC, NULL, 0x80,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_proxy_nid,
+            { "NID", "btmproxy.nid",
+                FT_UINT8, BASE_DEC, NULL, 0x7f,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_proxy_ctl,
+            { "CTL", "btmproxy.ctl",
+                FT_UINT8, BASE_DEC, VALS(btmesh_proxy_ctl_vals), 0x80,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_proxy_ttl,
+            { "TTL", "btmproxy.ttl",
+                FT_UINT8, BASE_DEC, NULL, 0x7f,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_proxy_seq,
+            { "SEQ", "btmproxy.seq",
+                FT_UINT24, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_proxy_src,
+            { "SRC", "btmproxy.src",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_proxy_dst,
+            { "DST", "btmproxy.dst",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_proxy_transport_pdu,
+            { "Proxy Transport PDU", "btmproxy.transport_pdu",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_proxy_netmic,
+            { "ProxyNetMIC", "btmproxy.netmic",
+                FT_UINT64, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_proxy_control_opcode,
+            { "Opcode", "btmproxy.control.opcode",
+                FT_UINT8, BASE_DEC, VALS(btmesh_proxy_control_opcode), 0x0,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_proxy_control_parameters,
+            { "Proxy Control Parameters", "btmproxy.control.parameters",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_proxy_control_filter_type,
+            { "Filter Type", "btmproxy.control.filter_type",
+                FT_UINT8, BASE_DEC, VALS(btmesh_proxy_control_filter_type), 0x0,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_proxy_control_list_size,
+            { "List Size", "btmproxy.control.list_size",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_proxy_control_list_item,
+            { "List Item", "btmproxy.control.list_item",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+        },
     };
 
     static gint *ett[] = {
         &ett_btmesh_proxy,
+        &ett_btmesh_proxy_network_pdu,
+        &ett_btmesh_proxy_transport_pdu,
         &ett_btmesh_proxy_fragments,
         &ett_btmesh_proxy_fragment,
     };
+
+    static ei_register_info ei[] = {
+        { &ei_btmesh_proxy_unknown_opcode,{ "btmproxy.unknown_opcode", PI_PROTOCOL, PI_ERROR, "Unknown Opcode", EXPFILL } },
+        { &ei_btmesh_proxy_unknown_payload,{ "btmproxy.unknown_payload", PI_PROTOCOL, PI_ERROR, "Unknown Payload", EXPFILL } },
+        { &ei_btmesh_proxy_wrong_ctl,{ "btmproxy.wrong_ctl", PI_PROTOCOL, PI_ERROR, "Wrong CTL value", EXPFILL } },
+        { &ei_btmesh_proxy_wrong_ttl,{ "btmproxy.wrong_ttl", PI_PROTOCOL, PI_ERROR, "Wrong TTL value", EXPFILL } },
+        { &ei_btmesh_proxy_wrong_dst,{ "btmproxy.wrong_dst", PI_PROTOCOL, PI_ERROR, "Wrong DST value", EXPFILL } },
+        { &ei_btmesh_proxy_unknown_filter_type,{ "btmproxy.unknown_filter_type", PI_PROTOCOL, PI_ERROR, "Unknown Filter Type", EXPFILL } },
+        { &ei_btmesh_proxy_wrong_address_type,{ "btmproxy.wrong_address_type", PI_PROTOCOL, PI_ERROR, "Wrong Address Type", EXPFILL } },
+    };
+
+    expert_module_t* expert_btmesh_proxy;
 
     proto_btmesh_proxy = proto_register_protocol("Bluetooth Mesh Proxy", "BT Mesh proxy", "btmproxy");
 
     proto_register_field_array(proto_btmesh_proxy, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
+
+    expert_btmesh_proxy = expert_register_protocol(proto_btmesh_proxy);
+    expert_register_field_array(expert_btmesh_proxy, ei, array_length(ei));
 
     prefs_register_protocol_subtree("Bluetooth", proto_btmesh_proxy, NULL);
     register_dissector("btmesh.proxy", dissect_btmesh_proxy_msg, proto_btmesh_proxy);

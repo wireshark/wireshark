@@ -12,6 +12,11 @@
 #ifndef __PACKET_BTMESH_H__
 #define __PACKET_BTMESH_H__
 
+#include <epan/packet.h>
+
+#define MESH_NONCE_TYPE_NETWORK 0x00
+#define MESH_NONCE_TYPE_PROXY   0x03
+
 typedef enum {
     E_BTMESH_TR_UNKNOWN = 0,
     E_BTMESH_TR_ADV,
@@ -40,6 +45,8 @@ typedef struct {
     guint32 access_address;
     btle_mesh_proxy_side_t proxy_side;
 } btle_mesh_proxy_ctx_t;
+
+tvbuff_t *btmesh_network_find_key_and_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint8 **decrypted_data, int *enc_data_len, guint8 nonce_type);
 
 #endif /* __PACKET_BTMESH_H__ */
 
