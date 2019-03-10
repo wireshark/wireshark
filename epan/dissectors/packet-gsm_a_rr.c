@@ -1686,7 +1686,7 @@ dissect_arfcn_list_core(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
                 arfcn++;
                 if (((oct >> bit) & 1) == 1)
                 {
-                    proto_item_append_text(item," %d",arfcn);
+                    proto_item_append_text(item," %d",arfcn % 1024);
                 }
             }
             bit = 8;
