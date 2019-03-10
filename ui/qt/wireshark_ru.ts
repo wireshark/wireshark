@@ -8510,7 +8510,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>(deleted)</source>
-        <translation type="unfinished"></translation>
+        <translation>(удалено)</translation>
     </message>
     <message>
         <source>Created from default settings</source>
