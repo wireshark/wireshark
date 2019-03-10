@@ -8491,7 +8491,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>(deleted)</source>
-        <translation type="unfinished"></translation>
+        <translation>(gelöscht)</translation>
     </message>
     <message>
         <source>Created from default settings</source>
