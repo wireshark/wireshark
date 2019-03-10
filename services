@@ -11587,7 +11587,7 @@ nimgtw          48003/tcp # Nimbus Gateway [Carstein_Seeberg_2] [Carstein_Seeber
 nimgtw          48003/udp # Nimbus Gateway [Carstein_Seeberg_2] [Carstein_Seeberg_2]
 nimbusdb        48004/tcp # NimbusDB Connector [Stephen_Harrison] [Stephen_Harrison] 2011-01-24
 nimbusdbctrl    48005/tcp # NimbusDB Control [Stephen_Harrison] [Stephen_Harrison] 2011-01-24
-juliar          48048/tcp # Juliar Programming Language Protocol [Juliar] [Andrei_Mak] 2018-02-16
+juka            48048/tcp # Juliar Programming Language Protocol [Juliar] [Andrei_Mak] 2018-02-16 2019-03-08
 3gpp-cbsp       48049/tcp # 3GPP Cell Broadcast Service Protocol [Gert_Thomasen] [Gert_Thomasen] 2009-12-07
 weandsf         48050/tcp # WeFi Access Network Discovery and Selection Function [WeFi_Inc] [Eran_Naveh] 2013-07-19
 isnetserv       48128/tcp # Image Systems Network Services [Bengt_Gustafsson] [Bengt_Gustafsson] 2006-05
