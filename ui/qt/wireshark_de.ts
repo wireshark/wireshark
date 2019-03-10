@@ -8353,7 +8353,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>(deleted)</source>
-        <translation type="unfinished"></translation>
+        <translation>(gelöscht)</translation>
     </message>
     <message>
         <source>Created from default settings</source>

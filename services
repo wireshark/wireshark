@@ -6145,7 +6145,7 @@ nimhub		48002/tcp/udp	# Nimbus Hub
 nimgtw		48003/tcp/udp	# Nimbus Gateway
 nimbusdb	48004/tcp	# NimbusDB Connector
 nimbusdbctrl	48005/tcp	# NimbusDB Control
-juliar		48048/tcp	# Juliar Programming Language Protocol
+juka		48048/tcp	# Juliar Programming Language Protocol
 3gpp-cbsp	48049/tcp	# 3GPP Cell Broadcast Service Protocol
 weandsf		48050/tcp	# WeFi Access Network Discovery and Selection Function
 isnetserv	48128/tcp/udp	# Image Systems Network Services
