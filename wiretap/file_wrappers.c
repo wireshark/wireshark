@@ -854,7 +854,25 @@ gz_reset(FILE_T state)
 FILE_T
 file_fdopen(int fd)
 {
-#ifdef _STATBUF_ST_BLKSIZE      /* XXX, _STATBUF_ST_BLKSIZE portable? */
+    /*
+     * XXX - we now check whether we have st_blksize in struct stat;
+     * it's not available on all platforms.
+     *
+     * I'm not sure why we're testing _STATBUF_ST_BLKSIZE; it's not
+     * set on all platforms that have st_blksize in struct stat.
+     * (Not all platforms have st_blksize in struct stat.)
+     *
+     * Is there some reason *not* to make the buffer size the maximum
+     * of GBUFSIZE and st_blksize?  On most UN*Xes, the standard I/O
+     * library does I/O with st_blksize as the buffer size; on others,
+     * and on Windows, it's a 4K buffer size.  If st_blksize is bigger
+     * than GBUFSIZE (which is currently 4KB), that's probably a
+     * hint that reading in st_blksize chunks is considered a good
+     * idea (e.g., an 8K/1K Berkeley fast file system with st_blksize
+     * being 8K, or APFS, where st_blksize is big on at least some
+     * versions of macOS).
+     */
+#ifdef _STATBUF_ST_BLKSIZE
     ws_statb64 st;
 #endif
     int want = GZBUFSIZE;
