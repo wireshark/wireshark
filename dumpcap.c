@@ -4228,11 +4228,6 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
         if (pcap_src->pcap_h != NULL) {
             g_assert(!pcap_src->from_cap_pipe);
             /* Get the capture statistics, so we know how many packets were dropped. */
-            /*
-             * Older versions of libpcap didn't set ps_ifdrop on some
-             * platforms; initialize it to 0 to handle that.
-             */
-            stats->ps_ifdrop = 0;
             if (pcap_stats(pcap_src->pcap_h, stats) >= 0) {
                 *stats_known = TRUE;
                 /* Let the parent process know. */
@@ -4722,7 +4717,7 @@ main(int argc, char *argv[])
 
     gboolean          start_capture         = TRUE;
     gboolean          stats_known;
-    struct pcap_stat  stats;
+    struct pcap_stat  stats = {0};
     GLogLevelFlags    log_flags;
     gboolean          list_interfaces       = FALSE;
     int               caps_queries          = 0;
