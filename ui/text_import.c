@@ -123,6 +123,8 @@ static int debug = 0;
 
 /* Dummy Ethernet header */
 static gboolean hdr_ethernet = FALSE;
+static guint8 hdr_eth_dest_addr[6] = {0x20, 0x52, 0x45, 0x43, 0x56, 0x00};
+static guint8 hdr_eth_src_addr[6]  = {0x20, 0x53, 0x45, 0x4E, 0x44, 0x00};
 static guint32 hdr_ethernet_proto = 0;
 
 /* Dummy IP header */
@@ -136,6 +138,10 @@ static guint32 hdr_src_port = 0;
 
 /* Dummy TCP header */
 static gboolean hdr_tcp = FALSE;
+
+/* TCP sequence numbers when has_direction is true */
+static guint32 tcp_in_seq_num = 0;
+static guint32 tcp_out_seq_num = 0;
 
 /* Dummy SCTP header */
 static gboolean hdr_sctp = FALSE;
@@ -219,10 +225,7 @@ typedef struct {
     guint16 l3pid;
 } hdr_ethernet_t;
 
-static hdr_ethernet_t HDR_ETHERNET = {
-    {0x20, 0x52, 0x45, 0x43, 0x56, 0x00},
-    {0x20, 0x53, 0x45, 0x4E, 0x44, 0x00},
-    0};
+static hdr_ethernet_t HDR_ETHERNET;
 
 typedef struct {
     guint8  ver_hdrlen;
@@ -238,8 +241,18 @@ typedef struct {
     guint32 dest_addr;
 } hdr_ip_t;
 
+#if G_BYTE_ORDER == G_BIG_ENDIAN
+#define IP_ID  0x1234
+#define IP_SRC 0x01010101
+#define IP_DST 0x02020202
+#else
+#define IP_ID  0x3412
+#define IP_SRC 0x01010101
+#define IP_DST 0x02020202
+#endif
+
 static hdr_ip_t HDR_IP =
-  {0x45, 0, 0, 0x3412, 0, 0, 0xff, 0, 0, 0x01010101, 0x02020202};
+  {0x45, 0, 0, IP_ID, 0, 0, 0xff, 0, 0, IP_SRC, IP_DST};
 
 static struct {         /* pseudo header for checksum calculation */
     guint32 src_addr;
@@ -384,6 +397,9 @@ write_current_packet (void)
     if (curr_offset > 0) {
         /* Write the packet */
 
+        /* Is direction indication on with an inbound packet? */
+        gboolean isOutbound = has_direction && (direction == PACK_FLAGS_DIRECTION_OUTBOUND);
+
         /* Compute packet length */
         prefix_length = 0;
         if (hdr_export_pdu) {
@@ -412,6 +428,14 @@ write_current_packet (void)
 
         /* Write Ethernet header */
         if (hdr_ethernet) {
+            if (isOutbound)
+            {
+                memcpy(HDR_ETHERNET.dest_addr, hdr_eth_src_addr, 6);
+                memcpy(HDR_ETHERNET.src_addr, hdr_eth_dest_addr, 6);
+            } else {
+                memcpy(HDR_ETHERNET.dest_addr, hdr_eth_dest_addr, 6);
+                memcpy(HDR_ETHERNET.src_addr, hdr_eth_src_addr, 6);
+            }
             HDR_ETHERNET.l3pid = g_htons(hdr_ethernet_proto);
             memcpy(&packet_buf[prefix_index], &HDR_ETHERNET, sizeof(HDR_ETHERNET));
             prefix_index += (int)sizeof(HDR_ETHERNET);
@@ -421,6 +445,13 @@ write_current_packet (void)
         if (hdr_ip) {
             vec_t cksum_vector[1];
 
+            if (isOutbound) {
+                HDR_IP.src_addr = IP_DST;
+                HDR_IP.dest_addr = IP_SRC;
+            } else {
+                HDR_IP.src_addr = IP_SRC;
+                HDR_IP.dest_addr = IP_DST;
+            }
             HDR_IP.packet_length = g_htons(ip_length);
             HDR_IP.protocol = (guint8) hdr_ip_proto;
             HDR_IP.hdr_checksum = 0;
@@ -442,8 +473,8 @@ write_current_packet (void)
         if (hdr_udp) {
             vec_t cksum_vector[3];
 
-            HDR_UDP.source_port = g_htons(hdr_src_port);
-            HDR_UDP.dest_port = g_htons(hdr_dest_port);
+            HDR_UDP.source_port = isOutbound ? g_htons(hdr_dest_port): g_htons(hdr_src_port);
+            HDR_UDP.dest_port = isOutbound ? g_htons(hdr_src_port) : g_htons(hdr_dest_port);
             HDR_UDP.length = g_htons(proto_length);
 
             HDR_UDP.checksum = 0;
@@ -460,9 +491,20 @@ write_current_packet (void)
         if (hdr_tcp) {
             vec_t cksum_vector[3];
 
-            HDR_TCP.source_port = g_htons(hdr_src_port);
+            HDR_TCP.source_port = isOutbound ? g_htons(hdr_dest_port): g_htons(hdr_src_port);
+            HDR_TCP.dest_port = isOutbound ? g_htons(hdr_src_port) : g_htons(hdr_dest_port);
             HDR_TCP.dest_port = g_htons(hdr_dest_port);
-            /* HDR_TCP.seq_num already correct */
+            /* set ack number if we have direction */
+            if (has_direction) {
+                HDR_TCP.flags = 0x10;
+                HDR_TCP.ack_num = g_ntohl(isOutbound ? tcp_out_seq_num : tcp_in_seq_num);
+                HDR_TCP.ack_num = g_htonl(HDR_TCP.ack_num);
+            }
+            else {
+                HDR_TCP.flags = 0;
+                HDR_TCP.ack_num = 0;
+            }
+            HDR_TCP.seq_num = isOutbound ? tcp_in_seq_num : tcp_out_seq_num;
             HDR_TCP.window = g_htons(0x2000);
 
             HDR_TCP.checksum = 0;
@@ -473,6 +515,14 @@ write_current_packet (void)
 
             memcpy(&packet_buf[prefix_index], &HDR_TCP, sizeof(HDR_TCP));
             prefix_index += (int)sizeof(HDR_TCP);
+            if (isOutbound) {
+                tcp_in_seq_num = g_ntohl(tcp_in_seq_num) + curr_offset;
+                tcp_in_seq_num = g_htonl(tcp_in_seq_num);
+            }
+            else {
+                tcp_out_seq_num = g_ntohl(tcp_out_seq_num) + curr_offset;
+                tcp_out_seq_num = g_htonl(tcp_out_seq_num);
+            }
         }
 
         /* Compute DATA chunk header and append padding */
@@ -493,8 +543,8 @@ write_current_packet (void)
 
         /* Write SCTP header */
         if (hdr_sctp) {
-            HDR_SCTP.src_port  = g_htons(hdr_sctp_src);
-            HDR_SCTP.dest_port = g_htons(hdr_sctp_dest);
+            HDR_SCTP.src_port  = isOutbound ? g_htons(hdr_sctp_dest): g_htons(hdr_sctp_src);
+            HDR_SCTP.dest_port = isOutbound ? g_htons(hdr_sctp_src) : g_htons(hdr_sctp_dest);
             HDR_SCTP.tag       = g_htonl(hdr_sctp_tag);
             HDR_SCTP.checksum  = g_htonl(0);
 
