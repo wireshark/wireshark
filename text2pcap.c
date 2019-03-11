@@ -442,13 +442,9 @@ write_byte(const char *str)
 static void
 write_bytes (const char bytes[], guint32 nbytes)
 {
-    guint32 i;
-
     if (curr_offset + nbytes < WTAP_MAX_PACKET_SIZE_STANDARD) {
-        for (i = 0; i < nbytes; i++) {
-            packet_buf[curr_offset] = bytes[i];
-            curr_offset++;
-        }
+        memcpy(&packet_buf[curr_offset], bytes, nbytes);
+        curr_offset += nbytes;
     }
 }
 
