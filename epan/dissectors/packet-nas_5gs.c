@@ -2395,7 +2395,7 @@ static const value_string nas_5gs_sm_int_prot_max_data_rate_vals[] = {
 
 static guint16
 de_nas_5gs_sm_int_prot_max_data_rte(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
-    guint32 offset, guint len,
+    guint32 offset, guint len _U_,
     gchar *add_string _U_, int string_len _U_)
 {
     /* Maximum data rate per UE for user-plane integrity protection for uplink */
@@ -2406,7 +2406,7 @@ de_nas_5gs_sm_int_prot_max_data_rte(tvbuff_t *tvb, proto_tree *tree, packet_info
     proto_tree_add_item(tree, hf_nas_5gs_sm_int_prot_max_data_rate_dl, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    return len;
+    return 2;
 }
 
 /*
