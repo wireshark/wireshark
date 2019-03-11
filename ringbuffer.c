@@ -133,6 +133,7 @@ ringbuf_init(const char *capfile_name, guint num_files, gboolean group_read_acce
   rb_data.unlimited = FALSE;
   rb_data.fd = -1;
   rb_data.pdh = NULL;
+  rb_data.io_buffer = NULL;
   rb_data.group_read_access = group_read_access;
 
   /* just to be sure ... */
@@ -241,8 +242,8 @@ ringbuf_init_libpcap_fdopen(int *err)
       }
     }
 #endif
-    /* Increase the size of the IO bubffer */
-    rb_data.io_buffer = (char *)g_malloc(buffsize);
+    /* Increase the size of the IO buffer */
+    rb_data.io_buffer = (char *)g_realloc(rb_data.io_buffer, buffsize);
     setvbuf(rb_data.pdh, rb_data.io_buffer, _IOFBF, buffsize);
   }
 
