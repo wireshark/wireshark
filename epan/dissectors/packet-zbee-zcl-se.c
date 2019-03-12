@@ -5890,8 +5890,8 @@ static gint ett_zbee_zcl_met_noti_flags_4 = -1;
 static gint ett_zbee_zcl_met_noti_flags_5 = -1;
 static gint ett_zbee_zcl_met_snapshot_cause_flags = -1;
 static gint ett_zbee_zcl_met_snapshot_schedule = -1;
-static gint ett_zbee_zcl_hf_zbee_zcl_met_schedule_snapshot_response_payload = -1;
-static gint ett_zbee_zcl_hf_zbee_zcl_met_schedule_snapshot_payload = -1;
+static gint ett_zbee_zcl_met_schedule_snapshot_response_payload = -1;
+static gint ett_zbee_zcl_met_schedule_snapshot_payload = -1;
 static gint ett_zbee_zcl_met_mirror_noti_flag = -1;
 
 /*************************/
@@ -6273,7 +6273,7 @@ dissect_zcl_met_schedule_snapshot(tvbuff_t *tvb, proto_tree *tree, guint *offset
     proto_tree *payload_tree;
 
     payload_tree = proto_tree_add_subtree(tree, tvb, *offset, 13,
-                ett_zbee_zcl_hf_zbee_zcl_met_schedule_snapshot_payload, NULL, "Snapshot Schedule Payload");
+                ett_zbee_zcl_met_schedule_snapshot_payload, NULL, "Snapshot Schedule Payload");
 
     /* Snapshot Schedule ID */
     proto_tree_add_item(payload_tree, hf_zbee_zcl_met_schedule_snapshot_snapshot_schedule_payload_snapshot_schedule_id,
@@ -6688,7 +6688,7 @@ dissect_zcl_met_schedule_snapshot_response(tvbuff_t *tvb, proto_tree *tree, guin
         proto_tree *payload_tree;
 
         payload_tree = proto_tree_add_subtree(tree, tvb, *offset, 2,
-                ett_zbee_zcl_hf_zbee_zcl_met_schedule_snapshot_response_payload, NULL, "Snapshot Response Payload");
+                ett_zbee_zcl_met_schedule_snapshot_response_payload, NULL, "Snapshot Response Payload");
 
         /* Snapshot Schedule ID */
         proto_tree_add_item(payload_tree, hf_zbee_zcl_met_schedule_snapshot_response_snapshot_schedule_id, tvb, *offset, 1, ENC_NA);
@@ -7703,8 +7703,8 @@ proto_register_zbee_zcl_met(void)
         &ett_zbee_zcl_met_noti_flags_5,
         &ett_zbee_zcl_met_snapshot_cause_flags,
         &ett_zbee_zcl_met_snapshot_schedule,
-        &ett_zbee_zcl_hf_zbee_zcl_met_schedule_snapshot_response_payload,
-        &ett_zbee_zcl_hf_zbee_zcl_met_schedule_snapshot_payload,
+        &ett_zbee_zcl_met_schedule_snapshot_response_payload,
+        &ett_zbee_zcl_met_schedule_snapshot_payload,
         &ett_zbee_zcl_met_mirror_noti_flag
     };
 
