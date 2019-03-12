@@ -686,17 +686,15 @@ dissect_gsup(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	str = val_to_str(msg_type, gsup_msg_types, "Unknown GSUP Message Type 0x%02x");
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", str);
 
-	if (tree) {
-		ti = proto_tree_add_protocol_format(tree, proto_gsup, tvb, 0, len, "GSUP %s", str);
-		gsup_tree = proto_item_add_subtree(ti, ett_gsup);
+	ti = proto_tree_add_protocol_format(tree, proto_gsup, tvb, 0, len, "GSUP %s", str);
+	gsup_tree = proto_item_add_subtree(ti, ett_gsup);
 
-		proto_tree_add_item(gsup_tree, hf_gsup_msg_type,
-				    tvb, offset, 1, ENC_BIG_ENDIAN);
-		offset++;
+	proto_tree_add_item(gsup_tree, hf_gsup_msg_type,
+			    tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
 
-		dissect_gsup_tlvs(tvb, offset, tvb_reported_length_remaining(tvb, offset), pinfo,
-				  gsup_tree, ti, msg_type);
-	}
+	dissect_gsup_tlvs(tvb, offset, tvb_reported_length_remaining(tvb, offset), pinfo,
+			  gsup_tree, ti, msg_type);
 
 	return tvb_captured_length(tvb);
 }
