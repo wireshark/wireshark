@@ -237,6 +237,7 @@ static gint ett_gsup_ie = -1;
 
 static expert_field ei_sm_rp_da_invalid = EI_INIT;
 static expert_field ei_sm_rp_oa_invalid = EI_INIT;
+static expert_field ei_gsup_ie_len_invalid = EI_INIT;
 
 static dissector_handle_t gsm_map_handle;
 static dissector_handle_t gsm_sms_handle;
@@ -522,7 +523,7 @@ dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 
 	while (offset - base_offs < length) {
 		guint8 tag;
-		unsigned int len;
+		guint8 len;
 		proto_item *ti;
 		proto_tree *att_tree;
 		const guchar *apn;
@@ -534,6 +535,11 @@ dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 
 		len = tvb_get_guint8(tvb, offset);
 		offset++;
+
+		if (offset - base_offs + len > length) {
+			expert_add_info(pinfo, gsup_ti, &ei_gsup_ie_len_invalid);
+			return offset - 2;
+		}
 
 		att_tree = proto_tree_add_subtree_format(tree, tvb, offset-2, len+2, ett_gsup_ie, &ti,
 						"IE: %s",
@@ -778,6 +784,9 @@ proto_register_gsup(void)
 		{ &ei_sm_rp_oa_invalid,
 		  { "gsup.sm_rp_oa.invalid", PI_PROTOCOL, PI_ERROR,
 		    "Malformed SM-RP-OA IE", EXPFILL } },
+		{ &ei_gsup_ie_len_invalid,
+		  { "gsup.ie.len.invalid", PI_PROTOCOL, PI_MALFORMED,
+		    "Invalid Information Element Length", EXPFILL } },
 	};
 
 	proto_gsup = proto_register_protocol("Osmocom General Subscriber Update Protocol", "gsup", "gsup");
