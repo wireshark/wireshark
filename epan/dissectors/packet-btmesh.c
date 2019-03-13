@@ -849,7 +849,7 @@ create_master_security_keys(uat_btmesh_record_t * net_key_set _U_)
 
 /* Stub dissector if decryption not available on build system */
 static gint
-dissect_btmesh_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+dissect_btmesh_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     proto_item *item;
     proto_tree *sub_tree;
