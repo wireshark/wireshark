@@ -44,6 +44,7 @@
  *     in EVPN
  * draft-ietf-idr-bgp-prefix-sid-05
  * http://www.iana.org/assignments/bgp-parameters/ (last updated 2012-04-26)
+ * RFC8538 Notification Message Support for BGP Graceful Restart
 
  * TODO:
  * Destination Preference Attribute for BGP (work in progress)
@@ -854,6 +855,7 @@ static const value_string bgpnotify_minor_cease[] = {
     { 6, "Other Configuration Change"},
     { 7, "Connection Collision Resolution"},
     { 8, "Out of Resources"},
+    { 9, "Hard Reset"},
     { 0, NULL }
 };
 
@@ -1493,6 +1495,7 @@ static int hf_bgp_cap_enh_safi = -1;
 static int hf_bgp_cap_enh_nhafi = -1;
 static int hf_bgp_cap_gr_timers = -1;
 static int hf_bgp_cap_gr_timers_restart_flag = -1;
+static int hf_bgp_cap_gr_timers_notification_flag = -1;
 static int hf_bgp_cap_gr_timers_restart_time = -1;
 static int hf_bgp_cap_gr_afi = -1;
 static int hf_bgp_cap_gr_safi = -1;
@@ -5793,6 +5796,7 @@ dissect_bgp_capability_item(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
                 static const int * timer_flags[] = {
                     &hf_bgp_cap_gr_timers_restart_flag,
+                    &hf_bgp_cap_gr_timers_notification_flag,
                     &hf_bgp_cap_gr_timers_restart_time,
                     NULL
                 };
@@ -8587,8 +8591,11 @@ proto_register_bgp(void)
         { "Restart Timers", "bgp.cap.gr.timers", FT_UINT16, BASE_HEX,
           NULL, 0x0, NULL, HFILL }},
       { &hf_bgp_cap_gr_timers_restart_flag,
-        { "Restart", "bgp.cap.gr.timers.restart_flag", FT_BOOLEAN, 16,
+        { "Restart state", "bgp.cap.gr.timers.restart_flag", FT_BOOLEAN, 16,
           TFS(&tfs_yes_no), 0x8000, NULL, HFILL }},
+      { &hf_bgp_cap_gr_timers_notification_flag,
+        { "Graceful notification", "bgp.cap.gr.timers.notification_flag", FT_BOOLEAN, 16,
+          TFS(&tfs_yes_no), 0x4000, NULL, HFILL }},
       { &hf_bgp_cap_gr_timers_restart_time,
         { "Time", "bgp.cap.gr.timers.restart_time", FT_UINT16, BASE_DEC,
           NULL, 0x0FFF, "in us", HFILL }},
