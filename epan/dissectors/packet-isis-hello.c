@@ -103,6 +103,13 @@ static int hf_isis_hello_trill_neighbor_size = -1;
 static int hf_isis_hello_trill_neighbor_reserved = -1;
 static int hf_isis_hello_trill_neighbor_mtu = -1;
 static int hf_isis_hello_trill_neighbor_snpa = -1;
+static int hf_isis_hello_reverse_metric_flags = -1;
+static int hf_isis_hello_reverse_metric_flag_reserved = -1;
+static int hf_isis_hello_reverse_metric_flag_u = -1;
+static int hf_isis_hello_reverse_metric_flag_w = -1;
+static int hf_isis_hello_reverse_metric_metric = -1;
+static int hf_isis_hello_reverse_metric_sub_length = -1;
+static int hf_isis_hello_reverse_metric_sub_data = -1;
 static int hf_isis_hello_neighbor_extended_local_circuit_id = -1;
 static int hf_isis_hello_vlan_flags_port_id = -1;
 static int hf_isis_hello_vlan_flags_nickname = -1;
@@ -152,6 +159,7 @@ static gint ett_isis_hello_clv_mt_port_cap_port_trill_ver = -1;
 static gint ett_isis_hello_clv_mt_port_cap_vlans_appointed = -1;
 static gint ett_isis_hello_clv_trill_neighbor = -1;
 static gint ett_isis_hello_clv_checksum = -1;
+static gint ett_isis_hello_clv_reverse_metric = -1;
 static gint ett_isis_hello_clv_ipv6_glb_int_addr = -1;
 
 static expert_field ei_isis_hello_short_packet = EI_INIT;
@@ -722,6 +730,35 @@ dissect_hello_trill_neighbor_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 }
 
 /*
+ * Name: dissect_hello_reverse_metric_clv
+ */
+static void
+dissect_hello_reverse_metric_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
+        proto_tree *tree, int offset, int id_length _U_, int length _U_) {
+
+    guint32 sub_length;
+    static gint ett_isis_hello_reverse_metric_flags = -1;
+
+    static const int * flags[] = {
+        &hf_isis_hello_reverse_metric_flag_reserved,
+        &hf_isis_hello_reverse_metric_flag_u,
+        &hf_isis_hello_reverse_metric_flag_w,
+        NULL
+    };
+
+    proto_tree_add_bitmask(tree, tvb, offset, hf_isis_hello_reverse_metric_flags, ett_isis_hello_reverse_metric_flags, flags, ENC_NA);
+    offset += 1;
+    proto_tree_add_item(tree, hf_isis_hello_reverse_metric_metric, tvb, offset, 3, ENC_BIG_ENDIAN);
+    offset += 3;
+    proto_tree_add_item_ret_uint(tree, hf_isis_hello_reverse_metric_sub_length, tvb, offset, 1, ENC_BIG_ENDIAN, &sub_length);
+    offset += 1;
+    if (sub_length > 0) {
+        proto_tree_add_item(tree, hf_isis_hello_reverse_metric_sub_data, tvb, offset, sub_length, ENC_NA);
+    offset += sub_length;
+    }
+}
+
+/*
  * Name: dissect_hello_checksum_clv()
  *
  * Description:
@@ -1034,6 +1071,12 @@ static const isis_clv_handle_t clv_l1_hello_opts[] = {
         "IPv6 Global Interface Address",
         &ett_isis_hello_clv_ipv6_glb_int_addr,
         dissect_hello_ipv6_glb_int_addr_clv
+    },
+    {
+        ISIS_CLV_REVERSE_METRIC,
+        "Reverse Metric",
+        &ett_isis_hello_clv_reverse_metric,
+        dissect_hello_reverse_metric_clv
     },
     {
         0,
@@ -1478,6 +1521,13 @@ proto_register_isis_hello(void)
       { &hf_isis_hello_trill_hop_by_hop_flags, { "Hop-by-hop Extended Header Flags", "isis.hello.trill.hop_by_hop_flags", FT_BOOLEAN, 32, TFS(&tfs_supported_not_supported), 0x1ffc0000, NULL, HFILL }},
       { &hf_isis_hello_trill_unassigned_2, { "Unassigned", "isis.hello.trill.unassigned_2",FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x0003ffff, NULL, HFILL }},
       { &hf_isis_hello_is_neighbor, { "IS Neighbor", "isis.hello.is_neighbor", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_isis_hello_reverse_metric_flags, { "Flags", "isis.hello.reverse_metric.flags", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_isis_hello_reverse_metric_flag_reserved, { "Reserved", "isis.hello.reverse_metric.flags.reserved", FT_UINT8, BASE_HEX, NULL, 0xFC, NULL, HFILL }},
+      { &hf_isis_hello_reverse_metric_flag_u, { "U", "isis.hello.reverse_metric.flags.u", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02, NULL, HFILL }},
+      { &hf_isis_hello_reverse_metric_flag_w, { "W", "isis.hello.reverse_metric.flags.w", FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01, NULL, HFILL }},
+      { &hf_isis_hello_reverse_metric_metric, { "Metric", "isis.hello.reverse_metric.metric", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_isis_hello_reverse_metric_sub_length, { "Sub-TLV length", "isis.hello.reverse_metric.sub_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+      { &hf_isis_hello_reverse_metric_sub_data, { "Sub-TLV data", "isis.hello.reverse_metric.sub_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
       /* rfc6119 */
       { &hf_isis_hello_clv_ipv6_glb_int_addr,
@@ -1512,6 +1562,7 @@ proto_register_isis_hello(void)
         &ett_isis_hello_clv_mt_port_cap_vlans_appointed,
         &ett_isis_hello_clv_trill_neighbor,
         &ett_isis_hello_clv_checksum,
+        &ett_isis_hello_clv_reverse_metric,
         &ett_isis_hello_clv_ipv6_glb_int_addr /* CLV 233, rfc6119 */
     };
 

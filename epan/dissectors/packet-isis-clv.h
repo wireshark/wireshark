@@ -36,6 +36,7 @@
 #define ISIS_CLV_AUTHENTICATION      10  /* iso10589, rfc3567 */
 #define ISIS_CLV_CHECKSUM            12  /* rfc3358 */
 #define ISIS_CLV_LSP_BUFFERSIZE      14  /* iso10589 rev2 */
+#define ISIS_CLV_REVERSE_METRIC      16  /* rfc8500 */
 #define ISIS_CLV_EXTD_IS_REACH       22  /* draft-ietf-isis-traffic-05 */
 #define ISIS_CLV_IS_ALIAS_ID         24  /* draft-ietf-isis-ext-lsp-frags-02 */
 #define ISIS_CLV_SRV6_LOCATOR        27  /* draft-bashandy-isis-srv6-extensions-04 */
