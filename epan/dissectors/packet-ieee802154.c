@@ -127,6 +127,8 @@ typedef enum {
     IEEE802154_TAP_SLOT_START_TS        = 0x0008,
     IEEE802154_TAP_TIMESLOT_LENGTH      = 0x0009,
     IEEE802154_TAP_LQI                  = 0x000A,
+    IEEE802154_TAP_CHANNEL_FREQUENCY    = 0x000B,
+    IEEE802154_TAP_CHANNEL_PLAN         = 0x000C,
 } ieee802154_info_type_t;
 
 typedef enum {
@@ -609,7 +611,7 @@ static int hf_ieee802154_ack_in = -1;
 static int hf_ieee802154_ack_to = -1;
 static int hf_ieee802154_ack_time = -1;
 
-/* 802.15.4 info */
+/* 802.15.4 TAP */
 static int hf_ieee802154_tap_version = -1;
 static int hf_ieee802154_tap_reserved = -1;
 static int hf_ieee802154_tap_length = -1;
@@ -636,6 +638,10 @@ static int hf_ieee802154_eof_ts = -1;
 static int hf_ieee802154_slot_start_ts = -1;
 static int hf_ieee802154_tap_timeslot_length = -1;
 static int hf_ieee802154_tap_lqi = -1;
+static int hf_ieee802154_chplan_start = -1;
+static int hf_ieee802154_chplan_spacing = -1;
+static int hf_ieee802154_chplan_channels = -1;
+static int hf_ieee802154_ch_freq = -1;
 static int hf_ieee802154_frame_start_offset = -1;
 static int hf_ieee802154_frame_duration = -1;
 static int hf_ieee802154_frame_end_offset = -1;
@@ -979,7 +985,7 @@ static const value_string tap_tlv_types[] = {
     { IEEE802154_TAP_FCS_TYPE,  "FCS type"},
     { IEEE802154_TAP_RSS, "RSS"},
     { IEEE802154_TAP_BIT_RATE, "Bit rate"},
-    { IEEE802154_TAP_CHANNEL_ASSIGNMENT, "Channel Assignment"},
+    { IEEE802154_TAP_CHANNEL_ASSIGNMENT, "Channel assignment"},
     { IEEE802154_TAP_SUN_PHY_INFO, "SUN PHY Information"},
     { IEEE802154_TAP_START_OF_FRAME_TS, "Start of frame timestamp"},
     { IEEE802154_TAP_END_OF_FRAME_TS, "End of frame timestamp"},
@@ -987,6 +993,8 @@ static const value_string tap_tlv_types[] = {
     { IEEE802154_TAP_SLOT_START_TS, "Start of slot timestamp"},
     { IEEE802154_TAP_TIMESLOT_LENGTH, "Slot length"},
     { IEEE802154_TAP_LQI, "Link Quality Indicator"},
+    { IEEE802154_TAP_CHANNEL_FREQUENCY, "Channel center frequency"},
+    { IEEE802154_TAP_CHANNEL_PLAN, "Channel plan"},
     { 0, NULL }
 };
 
@@ -1119,7 +1127,17 @@ static const value_string channel_page_names[] = {
     { 0, "Default" },
     { 1, "ASK" },
     { 2, "O-QPSK" },
+    { 3, "CSS" },
+    { 4, "HRP UWB" },
+    { 5, "780 MHz" },
+    { 6, "GFSK" },
+    { 7, "MSK" },
+    { 8, "LRP_UWB" },
     { 9, "SUN" },
+    { 10, "SUN FSK" },
+    { 11, "2380 MHz" },
+    { 12, "LECIM" },
+    { 13, "RCC" },
     { 0, NULL }
 };
 
@@ -3019,7 +3037,7 @@ dissect_ieee802154_tap_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
             case IEEE802154_TAP_RSS: {
                 gfloat rss = tvb_get_ieee_float(tvb, offset, ENC_LITTLE_ENDIAN);
-                proto_tree_add_float_format_value(tlvtree, hf_ieee802154_tap_rss, tvb, offset, 4, rss, "%.2f", rss);
+                proto_tree_add_float_format_value(tlvtree, hf_ieee802154_tap_rss, tvb, offset, 4, rss, "%.2f dBm", rss);
                 proto_item_append_text(proto_tree_get_parent(tlvtree), ": %.2f dBm", rss);
                 break;
             }
@@ -3076,8 +3094,27 @@ dissect_ieee802154_tap_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_item_append_text(proto_tree_get_parent(tlvtree), ": %u", lqi);
                 break;
             }
+            case IEEE802154_TAP_CHANNEL_FREQUENCY: {
+                gfloat freq = tvb_get_ieee_float(tvb, offset, ENC_LITTLE_ENDIAN);
+                proto_tree_add_float_format_value(tlvtree, hf_ieee802154_ch_freq, tvb, offset, 4, freq, "%.3f kHz", freq);
+                proto_item_append_text(proto_tree_get_parent(tlvtree), ": %.3f kHz", freq);
+                break;
+            }
+            case IEEE802154_TAP_CHANNEL_PLAN: {
+                guint32 count;
+                gfloat ch0_freq = tvb_get_ieee_float(tvb, offset, ENC_LITTLE_ENDIAN);
+                gfloat spacing = tvb_get_ieee_float(tvb, offset+4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_float_format_value(tlvtree, hf_ieee802154_chplan_start, tvb, offset, 4, ch0_freq, "%.3f kHz", ch0_freq);
+                proto_item_append_text(proto_tree_get_parent(tlvtree), ": Start %.3f kHz", ch0_freq);
+                proto_tree_add_float_format_value(tlvtree, hf_ieee802154_chplan_spacing, tvb, offset+4, 4, spacing, "%.3f kHz", spacing);
+                proto_item_append_text(proto_tree_get_parent(tlvtree), ", Spacing %.3f kHz", spacing);
+                proto_tree_add_item_ret_uint(tlvtree, hf_ieee802154_chplan_channels, tvb, offset+8, 2, ENC_LITTLE_ENDIAN, &count);
+                proto_item_append_text(proto_tree_get_parent(tlvtree), ", Channels %u", count);
+                break;
+            }
             default:
                 proto_tree_add_bytes_item(tlvtree, hf_ieee802154_tap_tlv_unknown, tvb, offset, length, ENC_NA, NULL, NULL, NULL);
+                proto_item_append_text(proto_tree_get_parent(tlvtree), "Unknown TLV");
                 break;
         } /* switch (tlv_type) */
 
@@ -6179,12 +6216,12 @@ void proto_register_ieee802154(void)
             NULL, HFILL }},
 
         { &hf_ieee802154_ch_num,
-        { "Channel Number", "wpan-tap.ch_num", FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
+        { "Channel",        "wpan-tap.ch_num", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Channel number", HFILL }},
 
         { &hf_ieee802154_ch_page,
-        { "Channel Page",   "wpan-tap.ch_page", FT_UINT8, BASE_DEC, VALS(channel_page_names), 0x0,
-            NULL, HFILL }},
+        { "Page",           "wpan-tap.ch_page", FT_UINT8, BASE_DEC, VALS(channel_page_names), 0x0,
+            "Channel page", HFILL }},
 
         { &hf_ieee802154_bit_rate,
         { "Bit Rate",       "wpan-tap.bit_rate", FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_bit_sec, 0x0,
@@ -6246,6 +6283,22 @@ void proto_register_ieee802154(void)
         { "Link Quality Indicator",     "wpan-tap.lqi", FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
+        { &hf_ieee802154_chplan_start,
+        { "Channel0 freq",              "wpan-tap.chplan.start", FT_FLOAT, BASE_FLOAT|BASE_UNIT_STRING, &units_khz, 0x0,
+            "Channel 0 center frequency", HFILL }},
+
+        { &hf_ieee802154_chplan_spacing,
+        { "Spacing",                    "wpan-tap.chplan.spacing", FT_FLOAT, BASE_FLOAT|BASE_UNIT_STRING, &units_khz, 0x0,
+            "Channel spacing", HFILL }},
+
+        { &hf_ieee802154_chplan_channels,
+        { "Channels",                   "wpan-tap.chplan.channels", FT_UINT16, BASE_DEC, NULL, 0x0,
+            "Number of channels", HFILL }},
+
+        { &hf_ieee802154_ch_freq,
+        { "Frequency",                  "wpan-tap.ch_freq", FT_FLOAT, BASE_FLOAT|BASE_UNIT_STRING, &units_khz, 0x0,
+            "Channel center frequency", HFILL }},
+
         { &hf_ieee802154_frame_start_offset,
         { "Frame start offset",       "wpan.tsch.frame_start_offset", FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_microseconds, 0x0,
             "Start of frame timestamp - start of slot timestamp", HFILL }},
@@ -6259,8 +6312,8 @@ void proto_register_ieee802154(void)
             "End of frame timestamp - (start of slot timestamp + timeslot length)", HFILL }},
 
         { &hf_ieee802154_asn,
-        { "Absolute Slot Number (ASN)", "wpan-tap.asn", FT_UINT64, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }},
+        { "ASN", "wpan-tap.asn", FT_UINT64, BASE_DEC, NULL, 0x0,
+            "Absolute Slot Number", HFILL }},
 
     };
 
