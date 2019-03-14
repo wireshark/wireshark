@@ -2610,11 +2610,12 @@ echo "export CMAKE_PREFIX_PATH=$CMAKE_PREFIX_PATH"
 echo "export PATH=$PATH:$qt_base_path/bin"
 echo
 echo "mkdir build; cd build"
-echo "cmake .."
 if [ ! -z "$NINJA_VERSION" ]; then
+    echo "cmake -G Ninja .."
     echo "ninja app_bundle"
     echo "ninja install/strip"
 else
+    echo "cmake .."
     echo "make $MAKE_BUILD_OPTS app_bundle"
     echo "make install/strip"
 fi
