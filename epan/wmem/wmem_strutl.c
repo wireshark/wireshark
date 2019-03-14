@@ -73,10 +73,10 @@ wmem_strdup_printf(wmem_allocator_t *allocator, const gchar *fmt, ...)
 
 /*
  * Using g_printf_string_upper_bound() to find the needed length almost doubles
- * the execution time of this function. Instead we us a pre allocated buffer
+ * the execution time of this function. Instead we use a pre allocated buffer
  * which may waste a bit of memory but are faster. As this is mostly called with
  * packet scoped memory(?) that shouldn't matter that much.
- * in my test file all strings was less than 72 characters long and quite a few
+ * In my test file all strings was less than 72 characters long and quite a few
  * over 68 characters long. Chose 80 as the default.
  */
 #ifndef _WIN32
