@@ -837,6 +837,8 @@ wtap_open_return_val nstrace_open(wtap *wth, int *err, gchar **err_info)
 ** and the first N bytes of the field, where N is the length of the
 ** version string of the version (again, not counting the terminating
 ** '\0'), are equal to the version's signature string.
+**
+** XXX - should this do an exact match rather than a prefix match?
 */
 #define nspm_signature_func(ver) \
     static guint32 nspm_signature_isv##ver(gchar *sigp, size_t sigsize) {\
