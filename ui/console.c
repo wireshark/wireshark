@@ -27,7 +27,7 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
     time_t curr;
     struct tm *today;
     const char *level;
-
+    FILE *stream = stderr;
 
     /* ignore log message, if log_level isn't interesting based
        upon the console log preferences.
@@ -47,70 +47,57 @@ console_log_handler(const char *log_domain, GLogLevelFlags log_level,
         /* the user wants a console or the application will terminate immediately */
         create_console();
     }
-    if (get_has_console()) {
-        /* For some unknown reason, the above doesn't appear to actually cause
-           anything to be sent to the standard output, so we'll just splat the
-           message out directly, just to make sure it gets out. */
 #endif
-        switch(log_level & G_LOG_LEVEL_MASK) {
-            case G_LOG_LEVEL_ERROR:
-                level = "Err ";
-                break;
-            case G_LOG_LEVEL_CRITICAL:
-                level = "Crit";
-                break;
-            case G_LOG_LEVEL_WARNING:
-                level = "Warn";
-                break;
-            case G_LOG_LEVEL_MESSAGE:
-                level = "Msg ";
-                break;
-            case G_LOG_LEVEL_INFO:
-                level = "Info";
-                break;
-            case G_LOG_LEVEL_DEBUG:
-                level = "Dbg ";
-                break;
-            default:
-                fprintf(stderr, "unknown log_level %d\n", log_level);
-                level = NULL;
-                g_assert_not_reached();
-        }
 
-        /* create a "timestamp" */
-        time(&curr);
-        today = localtime(&curr);
-        guint64 microseconds = create_timestamp();
-        if (today != NULL) {
-                fprintf(stderr, "%02d:%02d:%02d.%03" G_GUINT64_FORMAT " %8s %s %s\n",
-                        today->tm_hour, today->tm_min, today->tm_sec,
-                        microseconds % 1000000 / 1000,
-                        log_domain != NULL ? log_domain : "",
-                        level, message);
-        } else {
-                fprintf(stderr, "Time not representable %8s %s %s\n",
-                        log_domain != NULL ? log_domain : "",
-                        level, message);
-        }
-#ifdef _WIN32
-        if(log_level & G_LOG_LEVEL_ERROR) {
-            /* wait for a key press before the following error handler will terminate the program
-               this way the user at least can read the error message */
-            printf("\n\nPress any key to exit\n");
-            _getch();
-        }
+    switch(log_level & G_LOG_LEVEL_MASK) {
+        case G_LOG_LEVEL_ERROR:
+            level = "Err ";
+            break;
+        case G_LOG_LEVEL_CRITICAL:
+            level = "Crit";
+            break;
+        case G_LOG_LEVEL_WARNING:
+            level = "Warn";
+            break;
+        case G_LOG_LEVEL_MESSAGE:
+            level = "Msg ";
+            break;
+        case G_LOG_LEVEL_INFO:
+            level = "Info";
+            stream = stdout;
+            break;
+        case G_LOG_LEVEL_DEBUG:
+            level = "Dbg ";
+            stream = stdout;
+            break;
+        default:
+            fprintf(stderr, "unknown log_level %d\n", log_level);
+            level = NULL;
+            g_assert_not_reached();
+    }
+
+    /* create a "timestamp" */
+    time(&curr);
+    today = localtime(&curr);
+    guint64 microseconds = create_timestamp();
+    if (today != NULL) {
+            fprintf(stream, "%02d:%02d:%02d.%03" G_GUINT64_FORMAT " %8s %s %s\n",
+                    today->tm_hour, today->tm_min, today->tm_sec,
+                    microseconds % 1000000 / 1000,
+                    log_domain != NULL ? log_domain : "",
+                    level, message);
     } else {
-        /* XXX - on UN*X, should we just use g_log_default_handler()?
-           We want the error messages to go to the standard output;
-           on macOS, that will cause them to show up in various
-           per-user logs accessible through Console (details depend
-           on whether you're running 10.0 through 10.4 or running
-           10.5 and later), and, on other UN*X desktop environments,
-           if they don't show up in some form of console log, that's
-           a deficiency in that desktop environment.  (Too bad
-           Windows doesn't set the standard output and error for
-           GUI apps to something that shows up in such a log.) */
-        g_log_default_handler(log_domain, log_level, message, user_data);
+            fprintf(stream, "Time not representable %8s %s %s\n",
+                    log_domain != NULL ? log_domain : "",
+                    level, message);
+    }
+    fflush(stream);
+#ifdef _WIN32
+    if(log_level & G_LOG_LEVEL_ERROR) {
+        /* wait for a key press before the following error handler will terminate the program
+            this way the user at least can read the error message */
+        printf("\n\nPress any key to exit\n");
+        _getch();
     }
 #endif
 }
