@@ -121,44 +121,47 @@ create_console(void)
         return;
     }
 
-    if (!has_console) {
-        /* Are the standard input, output, and error invalid handles? */
-        must_redirect_stdin = needs_redirection(STD_INPUT_HANDLE);
-        must_redirect_stdout = needs_redirection(STD_OUTPUT_HANDLE);
-        must_redirect_stderr = needs_redirection(STD_ERROR_HANDLE);
+    if (has_console) {
+        return;
+    }
 
-        /* If none of them are invalid, we don't need to do anything. */
-        if (!must_redirect_stdin && !must_redirect_stdout && !must_redirect_stderr)
-            return;
+    /* Are the standard input, output, and error invalid handles? */
+    must_redirect_stdin = needs_redirection(STD_INPUT_HANDLE);
+    must_redirect_stdout = needs_redirection(STD_OUTPUT_HANDLE);
+    must_redirect_stderr = needs_redirection(STD_ERROR_HANDLE);
 
-        /* OK, at least one of them needs to be redirected to a console;
-           try to attach to the parent process's console and, if that fails,
-           try to create one. */
-        /*
-         * See if we have an existing console (i.e. we were run from a
-         * command prompt).
-         */
-        if (!AttachConsole(ATTACH_PARENT_PROCESS)) {
-            /* Probably not, as we couldn't attach to the parent process's
-               console.
-               Try to create a console.
+    /* If none of them are invalid, we don't need to do anything. */
+    if (!must_redirect_stdin && !must_redirect_stdout && !must_redirect_stderr)
+        return;
 
-               According to a comment on
+    /* OK, at least one of them needs to be redirected to a console;
+        try to attach to the parent process's console and, if that fails,
+        try to create one. */
+    /*
+        * See if we have an existing console (i.e. we were run from a
+        * command prompt).
+        */
+    if (!AttachConsole(ATTACH_PARENT_PROCESS)) {
+        /* Probably not, as we couldn't attach to the parent process's
+            console.
+            Try to create a console.
+
+            According to a comment on
 
 http://msdn.microsoft.com/en-us/library/windows/desktop/ms681952(v=vs.85).aspx
 
-               (which now redirects to a docs.microsoft.com page that is
-               devoid of comments, and which is not available on the
-               Wayback Machine)
+            (which now redirects to a docs.microsoft.com page that is
+            devoid of comments, and which is not available on the
+            Wayback Machine)
 
-               and according to
+            and according to
 
 http://connect.microsoft.com/VisualStudio/feedback/details/689696/installing-security-update-kb2507938-prevents-console-allocation
 
-               (which has disappeared, and isn't available on the Wayback
-               Machine)
+            (which has disappeared, and isn't available on the Wayback
+            Machine)
 
-               and
+            and
 
 https://answers.microsoft.com/en-us/windows/forum/windows_xp-windows_update/kb2567680-andor-kb2507938-breaks-attachconsole-api/e8191280-2d49-4be4-9918-18486fba0afa
 
@@ -166,39 +169,38 @@ even a failed attempt to attach to another process's console
 will cause subsequent AllocConsole() calls to fail, possibly due
 to bugs introduced by a security patch.  To work around this, we
 do a FreeConsole() first. */
-            FreeConsole();
-            if (AllocConsole()) {
-                /* That succeeded. */
-                console_wait = TRUE;
-                SetConsoleTitle(_T("Wireshark Debug Console"));
-            } else {
-                /* On Windows XP, this still fails; FreeConsole() apparently
-                   doesn't clear the state, as it does on Windows 7. */
-                return;   /* couldn't create console */
-            }
+        FreeConsole();
+        if (AllocConsole()) {
+            /* That succeeded. */
+            console_wait = TRUE;
+            SetConsoleTitle(_T("Wireshark Debug Console"));
+        } else {
+            /* On Windows XP, this still fails; FreeConsole() apparently
+                doesn't clear the state, as it does on Windows 7. */
+            return;   /* couldn't create console */
         }
-
-        if (must_redirect_stdin)
-            ws_freopen("CONIN$", "r", stdin);
-        if (must_redirect_stdout) {
-            ws_freopen("CONOUT$", "w", stdout);
-            fprintf(stdout, "\n");
-        }
-        if (must_redirect_stderr) {
-            ws_freopen("CONOUT$", "w", stderr);
-            fprintf(stderr, "\n");
-        }
-
-        /* Now register "destroy_console()" as a routine to be called just
-           before the application exits, so that we can destroy the console
-           after the user has typed a key (so that the console doesn't just
-           disappear out from under them, giving the user no chance to see
-           the message(s) we put in there). */
-        atexit(destroy_console);
-
-        /* Well, we have a console now. */
-        has_console = TRUE;
     }
+
+    if (must_redirect_stdin)
+        ws_freopen("CONIN$", "r", stdin);
+    if (must_redirect_stdout) {
+        ws_freopen("CONOUT$", "w", stdout);
+        fprintf(stdout, "\n");
+    }
+    if (must_redirect_stderr) {
+        ws_freopen("CONOUT$", "w", stderr);
+        fprintf(stderr, "\n");
+    }
+
+    /* Now register "destroy_console()" as a routine to be called just
+        before the application exits, so that we can destroy the console
+        after the user has typed a key (so that the console doesn't just
+        disappear out from under them, giving the user no chance to see
+        the message(s) we put in there). */
+    atexit(destroy_console);
+
+    /* Well, we have a console now. */
+    has_console = TRUE;
 }
 
 void
@@ -221,18 +223,6 @@ gboolean
 get_console_wait(void)
 {
     return console_wait;
-}
-
-void
-set_has_console(gboolean set_has_console)
-{
-    has_console = set_has_console;
-}
-
-gboolean
-get_has_console(void)
-{
-    return has_console;
 }
 
 void
