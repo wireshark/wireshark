@@ -32,226 +32,227 @@
 #include <wsutil/time_util.h>
 
 #define gbcs_message_code_names_VALUE_STRING_LIST(XXX) \
-    XXX(GBCS_MESSAGE_CCS01,     0x0001, "CCS01 Add Device to CHF device log") \
-    XXX(GBCS_MESSAGE_CCS02,     0x0002, "CCS02 Remove device from CHF device log") \
-    XXX(GBCS_MESSAGE_CCS03,     0x0003, "CCS03 Restore CHF Device Log") \
-    XXX(GBCS_MESSAGE_CCS05CCS04,0x0004, "CCS05/CCS04 Read CHF device log / Check HAN communications (by reading the CHF Communications Store)") \
-    XXX(GBCS_MESSAGE_CS01A,     0x0007, "CS01a Apply Pre-payment Top Up to an ESME") \
-    XXX(GBCS_MESSAGE_CS02A,     0x0008, "CS02a Provide Security Credentials Details") \
-    XXX(GBCS_MESSAGE_CS02C,     0x000A, "CS02c Issue Security Credentials ") \
-    XXX(GBCS_MESSAGE_CS02D,     0x000B, "CS02d Update Device Certificates on Device") \
-    XXX(GBCS_MESSAGE_CS02E,     0x000C, "CS02e Provide Device Certificates from Device ") \
-    XXX(GBCS_MESSAGE_CS03A1,    0x000D, "CS03a1 Method A Join (Meter)") \
-    XXX(GBCS_MESSAGE_CS03B,     0x000E, "CS03b Method B Join") \
-    XXX(GBCS_MESSAGE_CS04AC,    0x000F, "CS04ac Method A or C Unjoin") \
-    XXX(GBCS_MESSAGE_CS04B,     0x0010, "CS04b Method B Unjoin") \
-    XXX(GBCS_MESSAGE_CS06,      0x0012, "CS06 Activate Firmware") \
-    XXX(GBCS_MESSAGE_CS07,      0x0013, "CS07 Read Device Join Details") \
-    XXX(GBCS_MESSAGE_CS10A,     0x0014, "CS10a Read ZigBee Device Event Log") \
-    XXX(GBCS_MESSAGE_CS11,      0x0015, "CS11 Clear ZigBee Device Event Log") \
-    XXX(GBCS_MESSAGE_CS14,      0x0018, "CS14 Device Addition To / Removal From HAN Whitelist Alerts") \
-    XXX(GBCS_MESSAGE_ECS01A,    0x0019, "ECS01a Set Tariff and Price on ESME") \
-    XXX(GBCS_MESSAGE_ECS02,     0x001A, "ECS02 Set ESME Payment Mode to Credit") \
-    XXX(GBCS_MESSAGE_ECS03,     0x001B, "ECS03 Set ESME Payment Mode to Pre-payment") \
-    XXX(GBCS_MESSAGE_ECS04A,    0x001C, "ECS04a Adjust Meter Balance on the ESME") \
-    XXX(GBCS_MESSAGE_ECS05,     0x001D, "ECS05 Reset Tariff Block Counter Matrix") \
-    XXX(GBCS_MESSAGE_ECS07,     0x001E, "ECS07 Manage Debt on the ESME") \
-    XXX(GBCS_MESSAGE_ECS08,     0x001F, "ECS08 Update Pre-payment Configuration on ESME") \
-    XXX(GBCS_MESSAGE_ECS09,     0x0020, "ECS09 Activate Emergency Credit Remotely on ESME") \
-    XXX(GBCS_MESSAGE_ECS10,     0x0021, "ECS10 Send Message to ESME") \
-    XXX(GBCS_MESSAGE_ECS12,     0x0022, "ECS12 Set Change of Tenancy date on ESME") \
-    XXX(GBCS_MESSAGE_ECS14,     0x0023, "ECS14 Disable Privacy PIN Protection on ESME") \
-    XXX(GBCS_MESSAGE_ECS15A,    0x0024, "ECS15a Clear ESME Event Log") \
-    XXX(GBCS_MESSAGE_ECS16,     0x0025, "ECS16 Write Supplier Contact Details on ESME") \
-    XXX(GBCS_MESSAGE_ECS17A,    0x0026, "ECS17a Read ESME Energy Registers (Export Energy)") \
-    XXX(GBCS_MESSAGE_ECS17B,    0x0027, "ECS17b Read ESME Energy Registers (Import Energy)") \
-    XXX(GBCS_MESSAGE_ECS17C,    0x0028, "ECS17c Read ESME Energy Registers (Power)") \
-    XXX(GBCS_MESSAGE_ECS17D,    0x0029, "ECS17d Read ESME Energy Register (TOU)") \
-    XXX(GBCS_MESSAGE_ECS17E,    0x002A, "ECS17e Read ESME Energy Register (TOU with Blocks)") \
-    XXX(GBCS_MESSAGE_ECS18A,    0x002B, "ECS18a Read Maximum Demand Registers (export)") \
-    XXX(GBCS_MESSAGE_ECS18B,    0x002C, "ECS18b Read Maximum Demand Registers (import)") \
-    XXX(GBCS_MESSAGE_ECS19,     0x002D, "ECS19 Read ESME Pre-payment Registers") \
-    XXX(GBCS_MESSAGE_ECS20A,    0x002E, "ECS20a Read ESME Billing Data Log (payment based debt payments)") \
-    XXX(GBCS_MESSAGE_ECS20B,    0x002F, "ECS20b Read ESME Billing Data Log (change of mode / tariff triggered exc export)") \
-    XXX(GBCS_MESSAGE_ECS20C,    0x0030, "ECS20c Read ESME Billing Data Log (billing calendar triggered exc export)") \
-    XXX(GBCS_MESSAGE_ECS21A,    0x0033, "ECS21a Read Electricity Daily Read Log (exc export)") \
-    XXX(GBCS_MESSAGE_ECS21B,    0x0034, "ECS21b Read Electricity (Pre-payment) Daily Read Log") \
-    XXX(GBCS_MESSAGE_ECS21C,    0x0035, "ECS21c Read Electricity Daily Read Log (export only)") \
-    XXX(GBCS_MESSAGE_ECS22A,    0x0036, "ECS22a Read Electricity Half Hour Profile Data (export)") \
-    XXX(GBCS_MESSAGE_ECS22B,    0x0037, "ECS22b Read Electricity Half Hour Profile Data (active import)") \
-    XXX(GBCS_MESSAGE_ECS22C,    0x0038, "ECS22c Read Electricity Half Hour Profile Data (reactive import)") \
-    XXX(GBCS_MESSAGE_ECS23,     0x0039, "ECS23 Read Voltage Operational Data") \
-    XXX(GBCS_MESSAGE_ECS24,     0x003A, "ECS24 Read ESME Tariff Data") \
-    XXX(GBCS_MESSAGE_ECS26A,    0x003B, "ECS26a Read ESME Configuration Data Pre-payment") \
-    XXX(GBCS_MESSAGE_ECS26B,    0x003C, "ECS26b Read ESME Configuration Voltage Data") \
-    XXX(GBCS_MESSAGE_ECS26C,    0x003D, "ECS26c Read ESME Configuration Data Device Information  (randomisation)") \
-    XXX(GBCS_MESSAGE_ECS26D,    0x003E, "ECS26d Read ESME Configuration Data Device Information (Billing Calendar)") \
-    XXX(GBCS_MESSAGE_ECS26E,    0x003F, "ECS26e Read ESME Configuration Data Device Information (device identity exc MPAN)") \
-    XXX(GBCS_MESSAGE_ECS26F,    0x0040, "ECS26f Read ESME Configuration Data Device Information (instantaneous power thresholds)") \
-    XXX(GBCS_MESSAGE_ECS27,     0x0042, "ECS27 Read ESME Load Limit Data") \
-    XXX(GBCS_MESSAGE_ECS28A,    0x0043, "ECS28a Set Load Limit Configurations - General Settings") \
-    XXX(GBCS_MESSAGE_ECS28B,    0x0044, "ECS28b Set Load Limit Configuration Counter Reset") \
-    XXX(GBCS_MESSAGE_ECS29A,    0x0045, "ECS29a Set Voltage Configurations on ESME") \
-    XXX(GBCS_MESSAGE_ECS30,     0x0046, "ECS30 Set Billing Calendar on the ESME") \
-    XXX(GBCS_MESSAGE_ECS34,     0x0047, "ECS34 Set Instantaneous Power Threshold Configuration") \
-    XXX(GBCS_MESSAGE_ECS35A,    0x0048, "ECS35a Read ESME Event Log") \
-    XXX(GBCS_MESSAGE_ECS35B,    0x0049, "ECS35b Read ESME Security Log") \
-    XXX(GBCS_MESSAGE_ECS37,     0x004A, "ECS37 Set Maximum Demand Configurable Time Period") \
-    XXX(GBCS_MESSAGE_ECS38,     0x004B, "ECS38 Update Randomised Offset Limit") \
-    XXX(GBCS_MESSAGE_ECS39A,    0x004C, "ECS39a Set MPAN Value on the ESME") \
-    XXX(GBCS_MESSAGE_ECS39B,    0x004D, "ECS39b Set Export MPAN Value on the ESME") \
-    XXX(GBCS_MESSAGE_ECS40,     0x004E, "ECS40 Read MPAN Value on the ESME") \
-    XXX(GBCS_MESSAGE_ECS42,     0x004F, "ECS42 Remotely Close the Load Switch on the ESME") \
-    XXX(GBCS_MESSAGE_ECS43,     0x0050, "ECS43 Remotely Open the Load Switch on the ESME") \
-    XXX(GBCS_MESSAGE_ECS44,     0x0051, "ECS44 Arm Load Switch in ESME") \
-    XXX(GBCS_MESSAGE_ECS45,     0x0052, "ECS45 Read Status of Load Switch in the ESME") \
-    XXX(GBCS_MESSAGE_ECS46A,    0x0053, "ECS46a Set HC ALCS or ALCS Labels in ESME") \
-    XXX(GBCS_MESSAGE_ECS46C,    0x0054, "ECS46c Set HC ALCS and ALCS configuration in ESME (excluding labels)") \
-    XXX(GBCS_MESSAGE_ECS47,     0x0055, "ECS47 Set or Reset HC ALCS or ALCS State") \
-    XXX(GBCS_MESSAGE_ECS50,     0x0058, "ECS50 Send CIN to ESME") \
-    XXX(GBCS_MESSAGE_ECS52,     0x0059, "ECS52 Read ESME/Comms Hub Firmware Version") \
-    XXX(GBCS_MESSAGE_ECS57,     0x005A, "ECS57 Reset ESME Maximum Demand Registers") \
-    XXX(GBCS_MESSAGE_ECS61C,    0x005E, "ECS61c Read Boost Button Data from ESME") \
-    XXX(GBCS_MESSAGE_ECS62,     0x005F, "ECS62 Set ALCS and Boost Button Association") \
-    XXX(GBCS_MESSAGE_ECS66,     0x0060, "ECS66 Read ESME Daily Consumption Log") \
-    XXX(GBCS_MESSAGE_ECS68,     0x0061, "ECS68 ESME Critical Sensitive Alert (Billing Data Log)") \
-    XXX(GBCS_MESSAGE_ECS70,     0x0062, "ECS70 Set Clock on ESME") \
-    XXX(GBCS_MESSAGE_ECS80,     0x0067, "ECS80 Supply Outage Restore Alert from ESME") \
-    XXX(GBCS_MESSAGE_ECS81,     0x0068, "ECS81 Set Supply Tamper State on ESME") \
-    XXX(GBCS_MESSAGE_ECS82,     0x0069, "ECS82 Read Meter Balance for ESME") \
-    XXX(GBCS_MESSAGE_GCS01A,    0x006B, "GCS01a Set Tariff and Price on GSME") \
-    XXX(GBCS_MESSAGE_GCS02,     0x006C, "GCS02 Set GSME Payment Mode to Credit") \
-    XXX(GBCS_MESSAGE_GCS03,     0x006D, "GCS03 Set GSME Payment Mode to Pre-payment") \
-    XXX(GBCS_MESSAGE_GCS04,     0x006E, "GCS04 Manage Debt on the GSME") \
-    XXX(GBCS_MESSAGE_GCS05,     0x006F, "GCS05 Update Pre-payment Configurations on GSME") \
-    XXX(GBCS_MESSAGE_GCS06,     0x0070, "GCS06 Activate Emergency Credit Remotely on GSME") \
-    XXX(GBCS_MESSAGE_GCS07,     0x0071, "GCS07 Send Message to GSME") \
-    XXX(GBCS_MESSAGE_GCS09,     0x0072, "GCS09 Set Change of Tenancy date on GPF") \
-    XXX(GBCS_MESSAGE_GCS11,     0x0073, "GCS11 Disable Privacy PIN Protection on GSME") \
-    XXX(GBCS_MESSAGE_GCS13A,    0x0074, "GCS13a Read GSME Consumption Register") \
-    XXX(GBCS_MESSAGE_GCS14,     0x0075, "GCS14 Read GSME Pre-payment Register(s)") \
-    XXX(GBCS_MESSAGE_GCS15C,    0x0076, "GCS15c Read GSME Billing Data Log (billing calendar triggered)") \
-    XXX(GBCS_MESSAGE_GCS16A,    0x0077, "GCS16a Read GSME Daily Read log(s)") \
-    XXX(GBCS_MESSAGE_GCS17,     0x0078, "GCS17 Read GSME Profile Data Log") \
-    XXX(GBCS_MESSAGE_GCS18,     0x0079, "GCS18 Read Gas Network Data Log") \
-    XXX(GBCS_MESSAGE_GCS21A,    0x007B, "GCS21a Read Gas Configuration Data Device Information") \
-    XXX(GBCS_MESSAGE_GCS23,     0x007C, "GCS23 Set CV and Conversion Factor Value(s) on the GSME") \
-    XXX(GBCS_MESSAGE_GCS24,     0x007D, "GCS24 Set Uncontrolled Gas Flow Rate and Supply Tamper State on the GSME") \
-    XXX(GBCS_MESSAGE_GCS25,     0x007E, "GCS25 Set Billing Calendar on the GSME") \
-    XXX(GBCS_MESSAGE_GCS28,     0x007F, "GCS28 Set Clock on GSME") \
-    XXX(GBCS_MESSAGE_GCS31,     0x0080, "GCS31 Start Network Data Log on GSME") \
-    XXX(GBCS_MESSAGE_GCS32,     0x0081, "GCS32 Remotely close the valve in the GSME") \
-    XXX(GBCS_MESSAGE_GCS33,     0x0082, "GCS33 Read GSME Valve Status") \
-    XXX(GBCS_MESSAGE_GCS36,     0x0083, "GCS36 Send CIN to GSME") \
-    XXX(GBCS_MESSAGE_GCS38,     0x0084, "GCS38 Read GSME Firmware Version") \
-    XXX(GBCS_MESSAGE_GCS39,     0x0085, "GCS39 Arm Valve in GSME") \
-    XXX(GBCS_MESSAGE_GCS40A,    0x0086, "GCS40a Adjust Pre-payment Mode Meter Balance on the GSME") \
-    XXX(GBCS_MESSAGE_GCS41,     0x0087, "GCS41 Set MPRN Value on the GSME") \
-    XXX(GBCS_MESSAGE_GCS44,     0x0088, "GCS44 Write Contact Details on GSME") \
-    XXX(GBCS_MESSAGE_GCS46,     0x0089, "GCS46 Read MPRN on the GSME") \
-    XXX(GBCS_MESSAGE_GCS53,     0x008B, "GCS53 Push Billing Data Log as an Alert") \
-    XXX(GBCS_MESSAGE_GCS59,     0x008C, "GCS59 Restore GPF Device Log") \
-    XXX(GBCS_MESSAGE_GCS60,     0x008D, "GCS60 Read Meter Balance for GSME") \
-    XXX(GBCS_MESSAGE_PCS02,     0x0090, "PCS02 Activate Emergency Credit on GSME from PPMID") \
-    XXX(GBCS_MESSAGE_ECS26I,    0x0092, "ECS26i Read Configuration Data Device Information (CHF identity)") \
-    XXX(GBCS_MESSAGE_ECS35C,    0x0093, "ECS35c Read CHF Event Log") \
-    XXX(GBCS_MESSAGE_ECS35D,    0x0094, "ECS35d Read CHF Security Log") \
-    XXX(GBCS_MESSAGE_GCS16B,    0x0096, "GCS16b Read GSME Daily Read log(s) (pre-payment)") \
-    XXX(GBCS_MESSAGE_CS01B,     0x0097, "CS01b Apply Pre-payment Top Up to a GSME") \
-    XXX(GBCS_MESSAGE_PCS01,     0x009B, "PCS01 Apply Pre-payment Top Up to a GSME using PPMID") \
-    XXX(GBCS_MESSAGE_GCS21D,    0x009D, "GCS21d Read GSME Configuration Data Device Information (BillingCalendar)") \
-    XXX(GBCS_MESSAGE_GCS21E,    0x009E, "GCS21e Read GSME/GPF Configuration Data Device Information (device identity)") \
-    XXX(GBCS_MESSAGE_GCS21F,    0x009F, "GCS21f Read GSME Tariff Data") \
-    XXX(GBCS_MESSAGE_GCS61,     0x00A0, "GCS61 Read gas Daily Consumption Log") \
-    XXX(GBCS_MESSAGE_CS10B,     0x00A1, "CS10b Read ZigBee Device Security Log") \
-    XXX(GBCS_MESSAGE_ECS01B,    0x00A2, "ECS01b Set Price on ESME") \
-    XXX(GBCS_MESSAGE_GCS01B,    0x00A3, "GCS01b Set Price on GSME") \
-    XXX(GBCS_MESSAGE_CS03A2,    0x00AB, "CS03a2 Method A Join (non Meter)") \
-    XXX(GBCS_MESSAGE_ECS25A,    0x00AC, "ECS25a Set Alert Behaviours - ESME - Supplier") \
-    XXX(GBCS_MESSAGE_GCS20,     0x00AD, "GCS20 Set Alert Behaviours - GSME") \
-    XXX(GBCS_MESSAGE_ECS29B,    0x00AE, "ECS29b Set Voltage Configurations on ESME - 3ph") \
-    XXX(GBCS_MESSAGE_CS03C,     0x00AF, "CS03c Method C Join") \
-    XXX(GBCS_MESSAGE_ECS25B,    0x00B0, "ECS25b Set Alert Behaviours - ESME - Network Operator") \
-    XXX(GBCS_MESSAGE_GCS62,     0x00B2, "GCS62 Backup GPF Device Log") \
-    XXX(GBCS_MESSAGE_ECS04B,    0x00B3, "ECS04b Reset Meter Balance on the ESME") \
-    XXX(GBCS_MESSAGE_GCS40B,    0x00B4, "GCS40b Reset Pre-payment Mode Meter Balance on the GSME") \
-    XXX(GBCS_MESSAGE_GCS21B,    0x00B5, "GCS21b Read GSME Configuration Data Pre-payment") \
-    XXX(GBCS_MESSAGE_GCS13C,    0x00B6, "GCS13c Read GSME Register (TOU)") \
-    XXX(GBCS_MESSAGE_ECS01C,    0x00B7, "ECS01c Set Tariff and Price on ESME secondary") \
-    XXX(GBCS_MESSAGE_GCS13B,    0x00B8, "GCS13b Read GSME Block Counters") \
-    XXX(GBCS_MESSAGE_ECS35E,    0x00B9, "ECS35e Read ESME Power Event Log") \
-    XXX(GBCS_MESSAGE_ECS35F,    0x00BA, "ECS35f Read ALCS Event Log") \
-    XXX(GBCS_MESSAGE_ECS61A,    0x00BB, "ECS61a Read HC ALCS and ALCS Data from ESME") \
-    XXX(GBCS_MESSAGE_ECS23B,    0x00BC, "ECS23b Read Voltage Operational Data -3 Phase") \
-    XXX(GBCS_MESSAGE_ECS24B,    0x00BD, "ECS24b Read ESME Tariff Data - second element") \
-    XXX(GBCS_MESSAGE_ECS26J,    0x00BE, "ECS26j Read ESME Configuration Data Device Information (Payment Mode)") \
-    XXX(GBCS_MESSAGE_GCS21J,    0x00BF, "GCS21j Read GSME Configuration Data Device Information (Payment Mode)") \
-    XXX(GBCS_MESSAGE_GCS40C,    0x00C0, "GCS40c Adjust Credit Mode Meter Balance on the GSME") \
-    XXX(GBCS_MESSAGE_ECS15C,    0x00C1, "ECS15c Clear ALCS Event Log") \
-    XXX(GBCS_MESSAGE_GCS40D,    0x00C2, "GCS40d Reset Credit Mode Meter Balance on the GSME") \
-    XXX(GBCS_MESSAGE_GCS15B,    0x00C3, "GCS15b Read GSME Billing Data Log (change of mode / tariff triggered)") \
-    XXX(GBCS_MESSAGE_GCS15D,    0x00C4, "GCS15d Read GSME Billing Data Log (payment-based debt payments) ") \
-    XXX(GBCS_MESSAGE_GCS15E,    0x00C5, "GCS15e Read GSME Billing Data Log (pre-payment credits)") \
-    XXX(GBCS_MESSAGE_ECS26K,    0x00C6, "ECS26k Read ESME Configuration Voltage Data - 3 phase") \
-    XXX(GBCS_MESSAGE_ECS01D,    0x00C7, "ECS01d Set Price on ESME secondary") \
-    XXX(GBCS_MESSAGE_ECS20D,    0x00C9, "ECS20d Read ESME Billing Data Log (pre-payment credits)") \
-    XXX(GBCS_MESSAGE_ALERT_00CA,0x00CA, "Futured Dated Firmware Activation Alert") \
-    XXX(GBCS_MESSAGE_ALERT_00CB,0x00CB, "Futured Dated Updated Security Credentials Alert") \
-    XXX(GBCS_MESSAGE_ALERT_00CC,0x00CC, "Future Dated Execution Of Instruction Alert (DLMS COSEM)") \
-    XXX(GBCS_MESSAGE_ALERT_00CD,0x00CD, "Future Dated Execution Of Instruction Alert (GBZ)") \
-    XXX(GBCS_MESSAGE_ALERT_00CE,0x00CE, "Firmware Distribution Receipt Alert (ESME or Comms Hub)") \
-    XXX(GBCS_MESSAGE_ALERT_00CF,0x00CF, "Firmware Distribution Receipt Alert (GSME)") \
-    XXX(GBCS_MESSAGE_ECS29C,    0x00D1, "ECS29c Set Voltage Configurations on ESME without counter reset") \
-    XXX(GBCS_MESSAGE_ECS29D,    0x00D2, "ECS29d Set Voltage Configurations on polyphase ESME without counter reset") \
-    XXX(GBCS_MESSAGE_ECS29E,    0x00D3, "ECS29e Reset RMS Voltage Counters on ESME") \
-    XXX(GBCS_MESSAGE_ECS29F,    0x00D4, "ECS29f Reset RMS Voltage Counters on polyphase ESME") \
-    XXX(GBCS_MESSAGE_ALERT_00D5,0x00D5, "Failure to Deliver Remote Party Message to ESME Alert") \
-    XXX(GBCS_MESSAGE_ECS30A,    0x00D7, "ECS30a Set Billing Calendar on the ESME - all periodicities") \
-    XXX(GBCS_MESSAGE_GCS25A,    0x00D8, "GCS25a Set Billing Calendar on the GSME - all periodicities") \
-    XXX(GBCS_MESSAGE_ECS26L,    0x00D9, "ECS26l Read ESME Configuration Data Device Information (Billing Calendar - all periodicities)") \
-    XXX(GBCS_MESSAGE_GCS21K,    0x00DA, "GCS21k Read GSME Configuration Data Device Information (BillingCalendar - all periodicities)") \
-    XXX(GBCS_MESSAGE_ECS48,     0x00DB, "ECS48 Configure daily resetting of Tariff Block Counter Matrix") \
-    XXX(GBCS_MESSAGE_ECS08A,    0x00DE, "ECS08a Update Pre-payment Configuration on ESME") \
-    XXX(GBCS_MESSAGE_ECS25A1,   0x00EA, "ECS25a1 Set Event Behaviours - ESME to HAN Device - Supplier") \
-    XXX(GBCS_MESSAGE_ECS25A2,   0x00EB, "ECS25a2 Set Event Behaviours - ESME audible alarm - Supplier") \
-    XXX(GBCS_MESSAGE_ECS25A3,   0x00EC, "ECS25a3 Set Event Behaviours - ESME logging - Supplier") \
-    XXX(GBCS_MESSAGE_ECS25B3,   0x00ED, "ECS25b3 Set Event Behaviours - ESME logging - Network Operator") \
-    XXX(GBCS_MESSAGE_ECS25R1,   0x00EE, "ECS25r1 Read non-critical event and alert behaviours - ESME-  Supplier") \
-    XXX(GBCS_MESSAGE_ECS25R2,   0x00EF, "ECS25r2 Read non-critical event and alert behaviours - ESME-  Network Operator") \
-    XXX(GBCS_MESSAGE_ALERT_00F0,0x00F0, "Meter Integrity Issue Warning Alert - ESME") \
-    XXX(GBCS_MESSAGE_GCS20R,    0x00F1, "GCS20r Read non-critical event and alert behaviours - GSME-  Supplier") \
-    XXX(GBCS_MESSAGE_ALERT_00F2,0x00F2, "Meter Integrity Issue Warning Alert - GSME") \
-    XXX(GBCS_MESSAGE_ECS26M,    0x00F9, "ECS26m Read ESME Configuration Data Device Information (identity, type and supply tamper state)") \
-    XXX(GBCS_MESSAGE_ECS26N,    0x00FA, "ECS26n Read CHF Configuration Data Device Information (CH identity and type)") \
-    XXX(GBCS_MESSAGE_GCS21M,    0x00FB, "GCS21m Read GSME Configuration Data Device Information (identity, type and supply tamper / depletion state)") \
-    XXX(GBCS_MESSAGE_CS02B0,    0x0100, "CS02b Update Security Credentials - rootBySupplier") \
-    XXX(GBCS_MESSAGE_CS02B1,    0x0101, "CS02b Update Security Credentials - rootByWanProvider") \
-    XXX(GBCS_MESSAGE_CS02B2,    0x0102, "CS02b Update Security Credentials - supplierBySupplier") \
-    XXX(GBCS_MESSAGE_CS02B3,    0x0103, "CS02b Update Security Credentials - networkOperatorByNetworkOperator") \
-    XXX(GBCS_MESSAGE_CS02B4,    0x0104, "CS02b Update Security Credentials - accessControlBrokerByACB") \
-    XXX(GBCS_MESSAGE_CS02B5,    0x0105, "CS02b Update Security Credentials - wanProviderByWanProvider") \
-    XXX(GBCS_MESSAGE_CS02B6,    0x0106, "CS02b Update Security Credentials - transCoSByTransCoS") \
-    XXX(GBCS_MESSAGE_CS02B7,    0x0107, "CS02b Update Security Credentials - supplierByTransCoS") \
-    XXX(GBCS_MESSAGE_CS02B8,    0x0108, "CS02b Update Security Credentials - anyExceptAbnormalRootByRecovery") \
-    XXX(GBCS_MESSAGE_CS02B9,    0x0109, "CS02b Update Security Credentials - anyByContingency") \
-    XXX(GBCS_MESSAGE_DBCH01,    0x010A, "DBCH01 Read CHF Sub GHz Channel") \
-    XXX(GBCS_MESSAGE_DBCH02,    0x010B, "DBCH02 Read CHF Sub GHz Channel Log") \
-    XXX(GBCS_MESSAGE_DBCH03,    0x010C, "DBCH03 Read CHF Sub GHz Configuration") \
-    XXX(GBCS_MESSAGE_DBCH04,    0x010D, "DBCH04 Set CHF Sub GHz Configuration") \
-    XXX(GBCS_MESSAGE_DBCH05,    0x010E, "DBCH05 Request CHF Sub GHz Channel Scan") \
-    XXX(GBCS_MESSAGE_CCS06,     0x010F, "CCS06 Read CHF device log and check HAN communications") \
-    XXX(GBCS_MESSAGE_DBCH06,    0x0110, "DBCH06 Limited Duty Cycle Action Taken Sub GHz Alert") \
-    XXX(GBCS_MESSAGE_DBCH07,    0x0111, "DBCH07 Sub GHz Sub GHz Channel Changed Sub GHz Alert") \
-    XXX(GBCS_MESSAGE_DBCH08,    0x0112, "DBCH08 Sub GHz Channel Scan Request Assessment Outcome Sub GHz Alert") \
-    XXX(GBCS_MESSAGE_DBCH09,    0x0113, "DBCH09 Sub GHz Configuration Changed Sub GHz Alert") \
-    XXX(GBCS_MESSAGE_DBCH10,    0x0114, "DBCH10 Message Discarded Due to Duty Cycle Management Sub GHz Alert") \
-    XXX(GBCS_MESSAGE_DBCH11,    0x0115, "DBCH11 No More Sub GHz Device Capacity Sub GHz Alert") \
-    XXX(GBCS_MESSAGE_PECS01,    0x0116, "PECS01 Apply Pre-payment Top Up to an ESME using PPMID") \
-    XXX(GBCS_MESSAGE_PECS02,    0x0117, "PECS02 Activate Emergency Credit on ESME from PPMID") \
-    XXX(GBCS_MESSAGE_PECS03,    0x0118, "PECS03 Request to Enable ESME Supply from PPMID") \
-    XXX(GBCS_MESSAGE_HECS01,    0x0119, "HECS01 Request Control of a HAN Connected Auxiliary Load Control Switch from HCALCS") \
-    XXX(GBCS_MESSAGE_ALERT_1000,0x1000, "Generic Critical Alert") \
-    XXX(GBCS_MESSAGE_ALERT_1001,0x1001, "Generic Non Critical Alert")
+    XXX(GBCS_MESSAGE_CCS01,      0x0001, "CCS01 Add Device to CHF device log") \
+    XXX(GBCS_MESSAGE_CCS02,      0x0002, "CCS02 Remove device from CHF device log") \
+    XXX(GBCS_MESSAGE_CCS03,      0x0003, "CCS03 Restore CHF Device Log") \
+    XXX(GBCS_MESSAGE_CCS05CCS04, 0x0004, "CCS05/CCS04 Read CHF device log / Check HAN communications (by reading the CHF Communications Store)") \
+    XXX(GBCS_MESSAGE_CS01A,      0x0007, "CS01a Apply Pre-payment Top Up to an ESME") \
+    XXX(GBCS_MESSAGE_CS02A,      0x0008, "CS02a Provide Security Credentials Details") \
+    XXX(GBCS_MESSAGE_CS02C,      0x000A, "CS02c Issue Security Credentials ") \
+    XXX(GBCS_MESSAGE_CS02D,      0x000B, "CS02d Update Device Certificates on Device") \
+    XXX(GBCS_MESSAGE_CS02E,      0x000C, "CS02e Provide Device Certificates from Device ") \
+    XXX(GBCS_MESSAGE_CS03A1,     0x000D, "CS03a1 Method A Join (Meter)") \
+    XXX(GBCS_MESSAGE_CS03B,      0x000E, "CS03b Method B Join") \
+    XXX(GBCS_MESSAGE_CS04AC,     0x000F, "CS04ac Method A or C Unjoin") \
+    XXX(GBCS_MESSAGE_CS04B,      0x0010, "CS04b Method B Unjoin") \
+    XXX(GBCS_MESSAGE_CS06,       0x0012, "CS06 Activate Firmware") \
+    XXX(GBCS_MESSAGE_CS07,       0x0013, "CS07 Read Device Join Details") \
+    XXX(GBCS_MESSAGE_CS10A,      0x0014, "CS10a Read ZigBee Device Event Log") \
+    XXX(GBCS_MESSAGE_CS11,       0x0015, "CS11 Clear ZigBee Device Event Log") \
+    XXX(GBCS_MESSAGE_CS14,       0x0018, "CS14 Device Addition To / Removal From HAN Whitelist Alerts") \
+    XXX(GBCS_MESSAGE_ECS01A,     0x0019, "ECS01a Set Tariff and Price on ESME") \
+    XXX(GBCS_MESSAGE_ECS02,      0x001A, "ECS02 Set ESME Payment Mode to Credit") \
+    XXX(GBCS_MESSAGE_ECS03,      0x001B, "ECS03 Set ESME Payment Mode to Pre-payment") \
+    XXX(GBCS_MESSAGE_ECS04A,     0x001C, "ECS04a Adjust Meter Balance on the ESME") \
+    XXX(GBCS_MESSAGE_ECS05,      0x001D, "ECS05 Reset Tariff Block Counter Matrix") \
+    XXX(GBCS_MESSAGE_ECS07,      0x001E, "ECS07 Manage Debt on the ESME") \
+    XXX(GBCS_MESSAGE_ECS08,      0x001F, "ECS08 Update Pre-payment Configuration on ESME") \
+    XXX(GBCS_MESSAGE_ECS09,      0x0020, "ECS09 Activate Emergency Credit Remotely on ESME") \
+    XXX(GBCS_MESSAGE_ECS10,      0x0021, "ECS10 Send Message to ESME") \
+    XXX(GBCS_MESSAGE_ECS12,      0x0022, "ECS12 Set Change of Tenancy date on ESME") \
+    XXX(GBCS_MESSAGE_ECS14,      0x0023, "ECS14 Disable Privacy PIN Protection on ESME") \
+    XXX(GBCS_MESSAGE_ECS15A,     0x0024, "ECS15a Clear ESME Event Log") \
+    XXX(GBCS_MESSAGE_ECS16,      0x0025, "ECS16 Write Supplier Contact Details on ESME") \
+    XXX(GBCS_MESSAGE_ECS17A,     0x0026, "ECS17a Read ESME Energy Registers (Export Energy)") \
+    XXX(GBCS_MESSAGE_ECS17B,     0x0027, "ECS17b Read ESME Energy Registers (Import Energy)") \
+    XXX(GBCS_MESSAGE_ECS17C,     0x0028, "ECS17c Read ESME Energy Registers (Power)") \
+    XXX(GBCS_MESSAGE_ECS17D,     0x0029, "ECS17d Read ESME Energy Register (TOU)") \
+    XXX(GBCS_MESSAGE_ECS17E,     0x002A, "ECS17e Read ESME Energy Register (TOU with Blocks)") \
+    XXX(GBCS_MESSAGE_ECS18A,     0x002B, "ECS18a Read Maximum Demand Registers (export)") \
+    XXX(GBCS_MESSAGE_ECS18B,     0x002C, "ECS18b Read Maximum Demand Registers (import)") \
+    XXX(GBCS_MESSAGE_ECS19,      0x002D, "ECS19 Read ESME Pre-payment Registers") \
+    XXX(GBCS_MESSAGE_ECS20A,     0x002E, "ECS20a Read ESME Billing Data Log (payment based debt payments)") \
+    XXX(GBCS_MESSAGE_ECS20B,     0x002F, "ECS20b Read ESME Billing Data Log (change of mode / tariff triggered exc export)") \
+    XXX(GBCS_MESSAGE_ECS20C,     0x0030, "ECS20c Read ESME Billing Data Log (billing calendar triggered exc export)") \
+    XXX(GBCS_MESSAGE_ECS21A,     0x0033, "ECS21a Read Electricity Daily Read Log (exc export)") \
+    XXX(GBCS_MESSAGE_ECS21B,     0x0034, "ECS21b Read Electricity (Pre-payment) Daily Read Log") \
+    XXX(GBCS_MESSAGE_ECS21C,     0x0035, "ECS21c Read Electricity Daily Read Log (export only)") \
+    XXX(GBCS_MESSAGE_ECS22A,     0x0036, "ECS22a Read Electricity Half Hour Profile Data (export)") \
+    XXX(GBCS_MESSAGE_ECS22B,     0x0037, "ECS22b Read Electricity Half Hour Profile Data (active import)") \
+    XXX(GBCS_MESSAGE_ECS22C,     0x0038, "ECS22c Read Electricity Half Hour Profile Data (reactive import)") \
+    XXX(GBCS_MESSAGE_ECS23,      0x0039, "ECS23 Read Voltage Operational Data") \
+    XXX(GBCS_MESSAGE_ECS24,      0x003A, "ECS24 Read ESME Tariff Data") \
+    XXX(GBCS_MESSAGE_ECS26A,     0x003B, "ECS26a Read ESME Configuration Data Pre-payment") \
+    XXX(GBCS_MESSAGE_ECS26B,     0x003C, "ECS26b Read ESME Configuration Voltage Data") \
+    XXX(GBCS_MESSAGE_ECS26C,     0x003D, "ECS26c Read ESME Configuration Data Device Information  (randomisation)") \
+    XXX(GBCS_MESSAGE_ECS26D,     0x003E, "ECS26d Read ESME Configuration Data Device Information (Billing Calendar)") \
+    XXX(GBCS_MESSAGE_ECS26E,     0x003F, "ECS26e Read ESME Configuration Data Device Information (device identity exc MPAN)") \
+    XXX(GBCS_MESSAGE_ECS26F,     0x0040, "ECS26f Read ESME Configuration Data Device Information (instantaneous power thresholds)") \
+    XXX(GBCS_MESSAGE_ECS27,      0x0042, "ECS27 Read ESME Load Limit Data") \
+    XXX(GBCS_MESSAGE_ECS28A,     0x0043, "ECS28a Set Load Limit Configurations - General Settings") \
+    XXX(GBCS_MESSAGE_ECS28B,     0x0044, "ECS28b Set Load Limit Configuration Counter Reset") \
+    XXX(GBCS_MESSAGE_ECS29A,     0x0045, "ECS29a Set Voltage Configurations on ESME") \
+    XXX(GBCS_MESSAGE_ECS30,      0x0046, "ECS30 Set Billing Calendar on the ESME") \
+    XXX(GBCS_MESSAGE_ECS34,      0x0047, "ECS34 Set Instantaneous Power Threshold Configuration") \
+    XXX(GBCS_MESSAGE_ECS35A,     0x0048, "ECS35a Read ESME Event Log") \
+    XXX(GBCS_MESSAGE_ECS35B,     0x0049, "ECS35b Read ESME Security Log") \
+    XXX(GBCS_MESSAGE_ECS37,      0x004A, "ECS37 Set Maximum Demand Configurable Time Period") \
+    XXX(GBCS_MESSAGE_ECS38,      0x004B, "ECS38 Update Randomised Offset Limit") \
+    XXX(GBCS_MESSAGE_ECS39A,     0x004C, "ECS39a Set MPAN Value on the ESME") \
+    XXX(GBCS_MESSAGE_ECS39B,     0x004D, "ECS39b Set Export MPAN Value on the ESME") \
+    XXX(GBCS_MESSAGE_ECS40,      0x004E, "ECS40 Read MPAN Value on the ESME") \
+    XXX(GBCS_MESSAGE_ECS42,      0x004F, "ECS42 Remotely Close the Load Switch on the ESME") \
+    XXX(GBCS_MESSAGE_ECS43,      0x0050, "ECS43 Remotely Open the Load Switch on the ESME") \
+    XXX(GBCS_MESSAGE_ECS44,      0x0051, "ECS44 Arm Load Switch in ESME") \
+    XXX(GBCS_MESSAGE_ECS45,      0x0052, "ECS45 Read Status of Load Switch in the ESME") \
+    XXX(GBCS_MESSAGE_ECS46A,     0x0053, "ECS46a Set HC ALCS or ALCS Labels in ESME") \
+    XXX(GBCS_MESSAGE_ECS46C,     0x0054, "ECS46c Set HC ALCS and ALCS configuration in ESME (excluding labels)") \
+    XXX(GBCS_MESSAGE_ECS47,      0x0055, "ECS47 Set or Reset HC ALCS or ALCS State") \
+    XXX(GBCS_MESSAGE_ECS50,      0x0058, "ECS50 Send CIN to ESME") \
+    XXX(GBCS_MESSAGE_ECS52,      0x0059, "ECS52 Read ESME/Comms Hub Firmware Version") \
+    XXX(GBCS_MESSAGE_ECS57,      0x005A, "ECS57 Reset ESME Maximum Demand Registers") \
+    XXX(GBCS_MESSAGE_ECS61C,     0x005E, "ECS61c Read Boost Button Data from ESME") \
+    XXX(GBCS_MESSAGE_ECS62,      0x005F, "ECS62 Set ALCS and Boost Button Association") \
+    XXX(GBCS_MESSAGE_ECS66,      0x0060, "ECS66 Read ESME Daily Consumption Log") \
+    XXX(GBCS_MESSAGE_ECS68,      0x0061, "ECS68 ESME Critical Sensitive Alert (Billing Data Log)") \
+    XXX(GBCS_MESSAGE_ECS70,      0x0062, "ECS70 Set Clock on ESME") \
+    XXX(GBCS_MESSAGE_ECS80,      0x0067, "ECS80 Supply Outage Restore Alert from ESME") \
+    XXX(GBCS_MESSAGE_ECS81,      0x0068, "ECS81 Set Supply Tamper State on ESME") \
+    XXX(GBCS_MESSAGE_ECS82,      0x0069, "ECS82 Read Meter Balance for ESME") \
+    XXX(GBCS_MESSAGE_GCS01A,     0x006B, "GCS01a Set Tariff and Price on GSME") \
+    XXX(GBCS_MESSAGE_GCS02,      0x006C, "GCS02 Set GSME Payment Mode to Credit") \
+    XXX(GBCS_MESSAGE_GCS03,      0x006D, "GCS03 Set GSME Payment Mode to Pre-payment") \
+    XXX(GBCS_MESSAGE_GCS04,      0x006E, "GCS04 Manage Debt on the GSME") \
+    XXX(GBCS_MESSAGE_GCS05,      0x006F, "GCS05 Update Pre-payment Configurations on GSME") \
+    XXX(GBCS_MESSAGE_GCS06,      0x0070, "GCS06 Activate Emergency Credit Remotely on GSME") \
+    XXX(GBCS_MESSAGE_GCS07,      0x0071, "GCS07 Send Message to GSME") \
+    XXX(GBCS_MESSAGE_GCS09,      0x0072, "GCS09 Set Change of Tenancy date on GPF") \
+    XXX(GBCS_MESSAGE_GCS11,      0x0073, "GCS11 Disable Privacy PIN Protection on GSME") \
+    XXX(GBCS_MESSAGE_GCS13A,     0x0074, "GCS13a Read GSME Consumption Register") \
+    XXX(GBCS_MESSAGE_GCS14,      0x0075, "GCS14 Read GSME Pre-payment Register(s)") \
+    XXX(GBCS_MESSAGE_GCS15C,     0x0076, "GCS15c Read GSME Billing Data Log (billing calendar triggered)") \
+    XXX(GBCS_MESSAGE_GCS16A,     0x0077, "GCS16a Read GSME Daily Read log(s)") \
+    XXX(GBCS_MESSAGE_GCS17,      0x0078, "GCS17 Read GSME Profile Data Log") \
+    XXX(GBCS_MESSAGE_GCS18,      0x0079, "GCS18 Read Gas Network Data Log") \
+    XXX(GBCS_MESSAGE_GCS21A,     0x007B, "GCS21a Read Gas Configuration Data Device Information") \
+    XXX(GBCS_MESSAGE_GCS23,      0x007C, "GCS23 Set CV and Conversion Factor Value(s) on the GSME") \
+    XXX(GBCS_MESSAGE_GCS24,      0x007D, "GCS24 Set Uncontrolled Gas Flow Rate and Supply Tamper State on the GSME") \
+    XXX(GBCS_MESSAGE_GCS25,      0x007E, "GCS25 Set Billing Calendar on the GSME") \
+    XXX(GBCS_MESSAGE_GCS28,      0x007F, "GCS28 Set Clock on GSME") \
+    XXX(GBCS_MESSAGE_GCS31,      0x0080, "GCS31 Start Network Data Log on GSME") \
+    XXX(GBCS_MESSAGE_GCS32,      0x0081, "GCS32 Remotely close the valve in the GSME") \
+    XXX(GBCS_MESSAGE_GCS33,      0x0082, "GCS33 Read GSME Valve Status") \
+    XXX(GBCS_MESSAGE_GCS36,      0x0083, "GCS36 Send CIN to GSME") \
+    XXX(GBCS_MESSAGE_GCS38,      0x0084, "GCS38 Read GSME Firmware Version") \
+    XXX(GBCS_MESSAGE_GCS39,      0x0085, "GCS39 Arm Valve in GSME") \
+    XXX(GBCS_MESSAGE_GCS40A,     0x0086, "GCS40a Adjust Pre-payment Mode Meter Balance on the GSME") \
+    XXX(GBCS_MESSAGE_GCS41,      0x0087, "GCS41 Set MPRN Value on the GSME") \
+    XXX(GBCS_MESSAGE_GCS44,      0x0088, "GCS44 Write Contact Details on GSME") \
+    XXX(GBCS_MESSAGE_GCS46,      0x0089, "GCS46 Read MPRN on the GSME") \
+    XXX(GBCS_MESSAGE_GCS53,      0x008B, "GCS53 Push Billing Data Log as an Alert") \
+    XXX(GBCS_MESSAGE_GCS59,      0x008C, "GCS59 Restore GPF Device Log") \
+    XXX(GBCS_MESSAGE_GCS60,      0x008D, "GCS60 Read Meter Balance for GSME") \
+    XXX(GBCS_MESSAGE_PCS02,      0x0090, "PCS02 Activate Emergency Credit on GSME from PPMID") \
+    XXX(GBCS_MESSAGE_ECS26I,     0x0092, "ECS26i Read Configuration Data Device Information (CHF identity)") \
+    XXX(GBCS_MESSAGE_ECS35C,     0x0093, "ECS35c Read CHF Event Log") \
+    XXX(GBCS_MESSAGE_ECS35D,     0x0094, "ECS35d Read CHF Security Log") \
+    XXX(GBCS_MESSAGE_GCS16B,     0x0096, "GCS16b Read GSME Daily Read log(s) (pre-payment)") \
+    XXX(GBCS_MESSAGE_CS01B,      0x0097, "CS01b Apply Pre-payment Top Up to a GSME") \
+    XXX(GBCS_MESSAGE_PCS01,      0x009B, "PCS01 Apply Pre-payment Top Up to a GSME using PPMID") \
+    XXX(GBCS_MESSAGE_GCS21D,     0x009D, "GCS21d Read GSME Configuration Data Device Information (BillingCalendar)") \
+    XXX(GBCS_MESSAGE_GCS21E,     0x009E, "GCS21e Read GSME/GPF Configuration Data Device Information (device identity)") \
+    XXX(GBCS_MESSAGE_GCS21F,     0x009F, "GCS21f Read GSME Tariff Data") \
+    XXX(GBCS_MESSAGE_GCS61,      0x00A0, "GCS61 Read gas Daily Consumption Log") \
+    XXX(GBCS_MESSAGE_CS10B,      0x00A1, "CS10b Read ZigBee Device Security Log") \
+    XXX(GBCS_MESSAGE_ECS01B,     0x00A2, "ECS01b Set Price on ESME") \
+    XXX(GBCS_MESSAGE_GCS01B,     0x00A3, "GCS01b Set Price on GSME") \
+    XXX(GBCS_MESSAGE_CS03A2,     0x00AB, "CS03a2 Method A Join (non Meter)") \
+    XXX(GBCS_MESSAGE_ECS25A,     0x00AC, "ECS25a Set Alert Behaviours - ESME - Supplier") \
+    XXX(GBCS_MESSAGE_GCS20,      0x00AD, "GCS20 Set Alert Behaviours - GSME") \
+    XXX(GBCS_MESSAGE_ECS29B,     0x00AE, "ECS29b Set Voltage Configurations on ESME - 3ph") \
+    XXX(GBCS_MESSAGE_CS03C,      0x00AF, "CS03c Method C Join") \
+    XXX(GBCS_MESSAGE_ECS25B,     0x00B0, "ECS25b Set Alert Behaviours - ESME - Network Operator") \
+    XXX(GBCS_MESSAGE_GCS62,      0x00B2, "GCS62 Backup GPF Device Log") \
+    XXX(GBCS_MESSAGE_ECS04B,     0x00B3, "ECS04b Reset Meter Balance on the ESME") \
+    XXX(GBCS_MESSAGE_GCS40B,     0x00B4, "GCS40b Reset Pre-payment Mode Meter Balance on the GSME") \
+    XXX(GBCS_MESSAGE_GCS21B,     0x00B5, "GCS21b Read GSME Configuration Data Pre-payment") \
+    XXX(GBCS_MESSAGE_GCS13C,     0x00B6, "GCS13c Read GSME Register (TOU)") \
+    XXX(GBCS_MESSAGE_ECS01C,     0x00B7, "ECS01c Set Tariff and Price on ESME secondary") \
+    XXX(GBCS_MESSAGE_GCS13B,     0x00B8, "GCS13b Read GSME Block Counters") \
+    XXX(GBCS_MESSAGE_ECS35E,     0x00B9, "ECS35e Read ESME Power Event Log") \
+    XXX(GBCS_MESSAGE_ECS35F,     0x00BA, "ECS35f Read ALCS Event Log") \
+    XXX(GBCS_MESSAGE_ECS61A,     0x00BB, "ECS61a Read HC ALCS and ALCS Data from ESME") \
+    XXX(GBCS_MESSAGE_ECS23B,     0x00BC, "ECS23b Read Voltage Operational Data -3 Phase") \
+    XXX(GBCS_MESSAGE_ECS24B,     0x00BD, "ECS24b Read ESME Tariff Data - second element") \
+    XXX(GBCS_MESSAGE_ECS26J,     0x00BE, "ECS26j Read ESME Configuration Data Device Information (Payment Mode)") \
+    XXX(GBCS_MESSAGE_GCS21J,     0x00BF, "GCS21j Read GSME Configuration Data Device Information (Payment Mode)") \
+    XXX(GBCS_MESSAGE_GCS40C,     0x00C0, "GCS40c Adjust Credit Mode Meter Balance on the GSME") \
+    XXX(GBCS_MESSAGE_ECS15C,     0x00C1, "ECS15c Clear ALCS Event Log") \
+    XXX(GBCS_MESSAGE_GCS40D,     0x00C2, "GCS40d Reset Credit Mode Meter Balance on the GSME") \
+    XXX(GBCS_MESSAGE_GCS15B,     0x00C3, "GCS15b Read GSME Billing Data Log (change of mode / tariff triggered)") \
+    XXX(GBCS_MESSAGE_GCS15D,     0x00C4, "GCS15d Read GSME Billing Data Log (payment-based debt payments) ") \
+    XXX(GBCS_MESSAGE_GCS15E,     0x00C5, "GCS15e Read GSME Billing Data Log (pre-payment credits)") \
+    XXX(GBCS_MESSAGE_ECS26K,     0x00C6, "ECS26k Read ESME Configuration Voltage Data - 3 phase") \
+    XXX(GBCS_MESSAGE_ECS01D,     0x00C7, "ECS01d Set Price on ESME secondary") \
+    XXX(GBCS_MESSAGE_ECS20D,     0x00C9, "ECS20d Read ESME Billing Data Log (pre-payment credits)") \
+    XXX(GBCS_MESSAGE_ALERT_00CA, 0x00CA, "Futured Dated Firmware Activation Alert") \
+    XXX(GBCS_MESSAGE_ALERT_00CB, 0x00CB, "Futured Dated Updated Security Credentials Alert") \
+    XXX(GBCS_MESSAGE_ALERT_00CC, 0x00CC, "Future Dated Execution Of Instruction Alert (DLMS COSEM)") \
+    XXX(GBCS_MESSAGE_ALERT_00CD, 0x00CD, "Future Dated Execution Of Instruction Alert (GBZ)") \
+    XXX(GBCS_MESSAGE_ALERT_00CE, 0x00CE, "Firmware Distribution Receipt Alert (ESME or Comms Hub)") \
+    XXX(GBCS_MESSAGE_ALERT_00CF, 0x00CF, "Firmware Distribution Receipt Alert (GSME)") \
+    XXX(GBCS_MESSAGE_ECS29C,     0x00D1, "ECS29c Set Voltage Configurations on ESME without counter reset") \
+    XXX(GBCS_MESSAGE_ECS29D,     0x00D2, "ECS29d Set Voltage Configurations on polyphase ESME without counter reset") \
+    XXX(GBCS_MESSAGE_ECS29E,     0x00D3, "ECS29e Reset RMS Voltage Counters on ESME") \
+    XXX(GBCS_MESSAGE_ECS29F,     0x00D4, "ECS29f Reset RMS Voltage Counters on polyphase ESME") \
+    XXX(GBCS_MESSAGE_ALERT_00D5, 0x00D5, "Failure to Deliver Remote Party Message to ESME Alert") \
+    XXX(GBCS_MESSAGE_ECS30A,     0x00D7, "ECS30a Set Billing Calendar on the ESME - all periodicities") \
+    XXX(GBCS_MESSAGE_GCS25A,     0x00D8, "GCS25a Set Billing Calendar on the GSME - all periodicities") \
+    XXX(GBCS_MESSAGE_ECS26L,     0x00D9, "ECS26l Read ESME Configuration Data Device Information (Billing Calendar - all periodicities)") \
+    XXX(GBCS_MESSAGE_GCS21K,     0x00DA, "GCS21k Read GSME Configuration Data Device Information (BillingCalendar - all periodicities)") \
+    XXX(GBCS_MESSAGE_ECS48,      0x00DB, "ECS48 Configure daily resetting of Tariff Block Counter Matrix") \
+    XXX(GBCS_MESSAGE_ECS08A,     0x00DE, "ECS08a Update Pre-payment Configuration on ESME") \
+    XXX(GBCS_MESSAGE_ECS25A1,    0x00EA, "ECS25a1 Set Event Behaviours - ESME to HAN Device - Supplier") \
+    XXX(GBCS_MESSAGE_ECS25A2,    0x00EB, "ECS25a2 Set Event Behaviours - ESME audible alarm - Supplier") \
+    XXX(GBCS_MESSAGE_ECS25A3,    0x00EC, "ECS25a3 Set Event Behaviours - ESME logging - Supplier") \
+    XXX(GBCS_MESSAGE_ECS25B3,    0x00ED, "ECS25b3 Set Event Behaviours - ESME logging - Network Operator") \
+    XXX(GBCS_MESSAGE_ECS25R1,    0x00EE, "ECS25r1 Read non-critical event and alert behaviours - ESME-  Supplier") \
+    XXX(GBCS_MESSAGE_ECS25R2,    0x00EF, "ECS25r2 Read non-critical event and alert behaviours - ESME-  Network Operator") \
+    XXX(GBCS_MESSAGE_ALERT_00F0, 0x00F0, "Meter Integrity Issue Warning Alert - ESME") \
+    XXX(GBCS_MESSAGE_GCS20R,     0x00F1, "GCS20r Read non-critical event and alert behaviours - GSME-  Supplier") \
+    XXX(GBCS_MESSAGE_ALERT_00F2, 0x00F2, "Meter Integrity Issue Warning Alert - GSME") \
+    XXX(GBCS_MESSAGE_ECS26M,     0x00F9, "ECS26m Read ESME Configuration Data Device Information (identity, type and supply tamper state)") \
+    XXX(GBCS_MESSAGE_ECS26N,     0x00FA, "ECS26n Read CHF Configuration Data Device Information (CH identity and type)") \
+    XXX(GBCS_MESSAGE_GCS21M,     0x00FB, "GCS21m Read GSME Configuration Data Device Information (identity, type and supply tamper / depletion state)") \
+    XXX(GBCS_USECASE_GCS24A,     0x00FC, "GCS24a Set Uncontrolled Gas Flow Rate at greater resolution and Supply Tamper State on the GSME") \
+    XXX(GBCS_MESSAGE_CS02B0,     0x0100, "CS02b Update Security Credentials - rootBySupplier") \
+    XXX(GBCS_MESSAGE_CS02B1,     0x0101, "CS02b Update Security Credentials - rootByWanProvider") \
+    XXX(GBCS_MESSAGE_CS02B2,     0x0102, "CS02b Update Security Credentials - supplierBySupplier") \
+    XXX(GBCS_MESSAGE_CS02B3,     0x0103, "CS02b Update Security Credentials - networkOperatorByNetworkOperator") \
+    XXX(GBCS_MESSAGE_CS02B4,     0x0104, "CS02b Update Security Credentials - accessControlBrokerByACB") \
+    XXX(GBCS_MESSAGE_CS02B5,     0x0105, "CS02b Update Security Credentials - wanProviderByWanProvider") \
+    XXX(GBCS_MESSAGE_CS02B6,     0x0106, "CS02b Update Security Credentials - transCoSByTransCoS") \
+    XXX(GBCS_MESSAGE_CS02B7,     0x0107, "CS02b Update Security Credentials - supplierByTransCoS") \
+    XXX(GBCS_MESSAGE_CS02B8,     0x0108, "CS02b Update Security Credentials - anyExceptAbnormalRootByRecovery") \
+    XXX(GBCS_MESSAGE_CS02B9,     0x0109, "CS02b Update Security Credentials - anyByContingency") \
+    XXX(GBCS_MESSAGE_DBCH01,     0x010A, "DBCH01 Read CHF Sub GHz Channel") \
+    XXX(GBCS_MESSAGE_DBCH02,     0x010B, "DBCH02 Read CHF Sub GHz Channel Log") \
+    XXX(GBCS_MESSAGE_DBCH03,     0x010C, "DBCH03 Read CHF Sub GHz Configuration") \
+    XXX(GBCS_MESSAGE_DBCH04,     0x010D, "DBCH04 Set CHF Sub GHz Configuration") \
+    XXX(GBCS_MESSAGE_DBCH05,     0x010E, "DBCH05 Request CHF Sub GHz Channel Scan") \
+    XXX(GBCS_MESSAGE_CCS06,      0x010F, "CCS06 Read CHF device log and check HAN communications") \
+    XXX(GBCS_MESSAGE_DBCH06,     0x0110, "DBCH06 Limited Duty Cycle Action Taken Sub GHz Alert") \
+    XXX(GBCS_MESSAGE_DBCH07,     0x0111, "DBCH07 Sub GHz Sub GHz Channel Changed Sub GHz Alert") \
+    XXX(GBCS_MESSAGE_DBCH08,     0x0112, "DBCH08 Sub GHz Channel Scan Request Assessment Outcome Sub GHz Alert") \
+    XXX(GBCS_MESSAGE_DBCH09,     0x0113, "DBCH09 Sub GHz Configuration Changed Sub GHz Alert") \
+    XXX(GBCS_MESSAGE_DBCH10,     0x0114, "DBCH10 Message Discarded Due to Duty Cycle Management Sub GHz Alert") \
+    XXX(GBCS_MESSAGE_DBCH11,     0x0115, "DBCH11 No More Sub GHz Device Capacity Sub GHz Alert") \
+    XXX(GBCS_MESSAGE_PECS01,     0x0116, "PECS01 Apply Pre-payment Top Up to an ESME using PPMID") \
+    XXX(GBCS_MESSAGE_PECS02,     0x0117, "PECS02 Activate Emergency Credit on ESME from PPMID") \
+    XXX(GBCS_MESSAGE_PECS03,     0x0118, "PECS03 Request to Enable ESME Supply from PPMID") \
+    XXX(GBCS_MESSAGE_HECS01,     0x0119, "HECS01 Request Control of a HAN Connected Auxiliary Load Control Switch from HCALCS") \
+    XXX(GBCS_MESSAGE_ALERT_1000, 0x1000, "Generic Critical Alert") \
+    XXX(GBCS_MESSAGE_ALERT_1001, 0x1001, "Generic Non Critical Alert")
 
 VALUE_STRING_ARRAY(gbcs_message_code_names);
 static value_string_ext gbcs_message_code_names_ext = VALUE_STRING_EXT_INIT(gbcs_message_code_names);
