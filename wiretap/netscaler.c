@@ -824,10 +824,24 @@ wtap_open_return_val nstrace_open(wtap *wth, int *err, gchar **err_info)
     return WTAP_OPEN_MINE;
 }
 
-
+/*
+** Generates a function that checks whether the specified signature
+** field, with the specified size, matches the signature string for
+** the version specified as an argument to the macro.
+**
+** The function does so by checking whether the signature string for
+** the version in question is a prefix of the signature field.
+**
+** For that to be true, the field must have a size >= to the size (not
+** counting the terminating'\0') of the version's signature string,
+** and the first N bytes of the field, where N is the length of the
+** version string of the version (again, not counting the terminating
+** '\0'), are equal to the version's signature string.
+*/
 #define nspm_signature_func(ver) \
-    static guint32 nspm_signature_isv##ver(gchar *sigp) {\
-        return strncmp(sigp,NSPR_SIGSTR_V##ver,MIN(strlen(sigp),sizeof(NSPR_SIGSTR_V##ver)-1));\
+    static guint32 nspm_signature_isv##ver(gchar *sigp, size_t sigsize) {\
+        size_t versiglen = sizeof(NSPR_SIGSTR_V##ver)-1;\
+        return sigsize >= versiglen && strncmp(sigp,NSPR_SIGSTR_V##ver,versiglen) == 0;\
     }
 
 nspm_signature_func(10)
@@ -859,7 +873,7 @@ nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len)
                 (pletoh16(&sigv10p->nsprRecordSize) <= len) &&
                 (pletoh16(&sigv10p->nsprRecordSize) > 0) &&
                 ((gint32)sizeof(NSPR_SIGSTR_V10) <= len) &&
-                (!nspm_signature_isv10(sigv10p->sig_Signature)))
+                (nspm_signature_isv10(sigv10p->sig_Signature, sizeof sigv10p->sig_Signature)))
                 return WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0;
 #undef    sigv10p
 
@@ -869,11 +883,11 @@ nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len)
                 ((gint32)sizeof(NSPR_SIGSTR_V20) <= len))
             {
                 sigv20p->sig_Signature[sigv20p->sig_RecordSize] = '\0';
-                if (!nspm_signature_isv20(sigv20p->sig_Signature)){
+                if (nspm_signature_isv20(sigv20p->sig_Signature, sizeof sigv20p->sig_Signature)){
                     return WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0;
-                } else if (!nspm_signature_isv30(sigv20p->sig_Signature)){
+                } else if (nspm_signature_isv30(sigv20p->sig_Signature, sizeof sigv20p->sig_Signature)){
                     return WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_0;
-                }else if (!nspm_signature_isv35(sigv20p->sig_Signature)){
+                }else if (nspm_signature_isv35(sigv20p->sig_Signature, sizeof sigv20p->sig_Signature)){
                     return WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_5;
                 }
             }
