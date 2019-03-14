@@ -5988,6 +5988,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     struct tcp_per_packet_data_t *tcppd=NULL;
     proto_item *item;
     proto_tree *checksum_tree;
+    gboolean    icmp_ip = FALSE;
 
     tcph = wmem_new0(wmem_packet_scope(), struct tcpheader);
     tcph->th_sport = tvb_get_ntohs(tvb, offset);
@@ -6031,6 +6032,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 frame = wmem_list_frame_prev(frame);
                 if (proto_icmp == (gint) GPOINTER_TO_UINT(wmem_list_frame_data(frame))) {
                     proto_tree_add_item(tcp_tree, hf_tcp_seq, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
+                    icmp_ip = TRUE;
                 }
             }
         }
@@ -6232,10 +6234,13 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     if (tcp_summary_in_tree) {
         proto_item_append_text(ti, ", Seq: %u", tcph->th_seq);
     }
-    if(tcp_relative_seq) {
-        proto_tree_add_uint_format_value(tcp_tree, hf_tcp_seq, tvb, offset + 4, 4, tcph->th_seq, "%u    (relative sequence number)", tcph->th_seq);
-    } else {
-        proto_tree_add_uint(tcp_tree, hf_tcp_seq, tvb, offset + 4, 4, tcph->th_seq);
+
+    if (!icmp_ip) {
+        if(tcp_relative_seq) {
+            proto_tree_add_uint_format_value(tcp_tree, hf_tcp_seq, tvb, offset + 4, 4, tcph->th_seq, "%u    (relative sequence number)", tcph->th_seq);
+        } else {
+            proto_tree_add_uint(tcp_tree, hf_tcp_seq, tvb, offset + 4, 4, tcph->th_seq);
+        }
     }
 
     if (tcph->th_hlen < TCPH_MIN_LEN) {
