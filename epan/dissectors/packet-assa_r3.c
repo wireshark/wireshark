@@ -6898,7 +6898,7 @@ void proto_register_r3 (void)
 #endif
       { &hf_r3_upstreamfielderror,
         { "Error", "r3.upstreamfield.error",
-          FT_STRING, BASE_NONE, NULL, 0x0,
+          FT_NONE, BASE_NONE, NULL, 0x0,
           NULL, HFILL }
       },
       { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_SERIALNUMBER],
