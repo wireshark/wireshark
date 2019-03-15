@@ -303,13 +303,15 @@ load_decode_as_entries(void)
     g_free(daf_path);
 }
 
+
+/* Make a sorted list of the enties as we are fetching them from a hash table. Then write it out from the sorted list */
 static void
 decode_as_write_entry (const gchar *table_name, ftenum_t selector_type,
                        gpointer key, gpointer value, gpointer user_data)
 {
-    FILE *da_file = (FILE *)user_data;
+    GList **decode_as_rows_list = (GList **)user_data;
     dissector_handle_t current, initial;
-    const gchar *current_proto_name, *initial_proto_name;
+    const gchar *current_proto_name, *initial_proto_name, *decode_as_row;
 
     current = dtbl_entry_get_handle((dtbl_entry_t *)value);
     if (current == NULL)
@@ -338,10 +340,10 @@ decode_as_write_entry (const gchar *table_name, ftenum_t selector_type,
          * but pre-1.10 releases are at end-of-life and won't
          * be fixed.
          */
-        fprintf (da_file,
-                 DECODE_AS_ENTRY ": %s,%u,%s,%s\n",
-                 table_name, GPOINTER_TO_UINT(key), initial_proto_name,
-                 current_proto_name);
+        decode_as_row = g_strdup_printf(
+            DECODE_AS_ENTRY ": %s,%u,%s,%s\n",
+            table_name, GPOINTER_TO_UINT(key), initial_proto_name,
+            current_proto_name);
         break;
     case FT_NONE:
         /*
@@ -349,34 +351,50 @@ decode_as_write_entry (const gchar *table_name, ftenum_t selector_type,
          * FT_NONE dissector table uses a single uint value for
          * a placeholder
          */
-        fprintf (da_file,
-                 DECODE_AS_ENTRY ": %s,0,%s,%s\n",
-                 table_name, initial_proto_name,
-                 current_proto_name);
+        decode_as_row = g_strdup_printf(
+            DECODE_AS_ENTRY ": %s,0,%s,%s\n",
+            table_name, initial_proto_name,
+            current_proto_name);
         break;
 
     case FT_STRING:
     case FT_STRINGZ:
     case FT_UINT_STRING:
     case FT_STRINGZPAD:
-        fprintf (da_file,
-                 DECODE_AS_ENTRY ": %s,%s,%s,%s\n",
-                 table_name, (gchar *)key, initial_proto_name,
-                 current_proto_name);
+        decode_as_row = g_strdup_printf(
+            DECODE_AS_ENTRY ": %s,%s,%s,%s\n",
+            table_name, (gchar *)key, initial_proto_name,
+            current_proto_name);
         break;
 
     default:
         g_assert_not_reached();
         break;
     }
+
+    /* Do we need a better sort function ???*/
+    *decode_as_rows_list = g_list_insert_sorted (*decode_as_rows_list, (gpointer)decode_as_row,
+        (GCompareFunc)g_ascii_strcasecmp);
+
 }
 
+/* Print the sorted rows to File */
+static void
+decode_as_print_rows(gpointer data, gpointer user_data)
+{
+    FILE *da_file = (FILE *)user_data;
+    const gchar *decode_as_row = (const gchar *)data;
+
+    fprintf(da_file, "%s",decode_as_row);
+
+}
 int
 save_decode_as_entries(gchar** err)
 {
     char *pf_dir_path;
     char *daf_path;
     FILE *da_file;
+    GList *decode_as_rows_list = NULL;
 
     if (create_persconffile_dir(&pf_dir_path) == -1) {
         *err = g_strdup_printf("Can't create directory\n\"%s\"\nfor recent file: %s.",
@@ -399,9 +417,14 @@ save_decode_as_entries(gchar** err)
         "# are saved within Wireshark. Making manual changes should be safe,\n"
         "# however.\n", da_file);
 
-    dissector_all_tables_foreach_changed(decode_as_write_entry, da_file);
+    dissector_all_tables_foreach_changed(decode_as_write_entry, &decode_as_rows_list);
+
+    g_list_foreach(decode_as_rows_list, decode_as_print_rows, da_file);
+
     fclose(da_file);
     g_free(daf_path);
+    g_list_free_full(decode_as_rows_list, g_free);
+
     return 0;
 }
 
