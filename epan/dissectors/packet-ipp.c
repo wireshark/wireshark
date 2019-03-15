@@ -774,12 +774,6 @@ parse_attributes(tvbuff_t *tvb, int offset, proto_tree *tree)
     return offset;
 }
 
-static const value_string boolean_vals[] = {
-    { 0x00, "false" },
-    { 0x01, "true" },
-    { 0,    NULL }
-};
-
 static proto_tree *
 add_integer_tree(proto_tree *tree, tvbuff_t *tvb, int offset,
                  int name_length, const gchar *name, int value_length, guint8 tag)
@@ -996,7 +990,7 @@ add_integer_value(const gchar *tag_desc, proto_tree *tree, tvbuff_t *tvb,
             break;
 
         default :
-            proto_tree_add_string_format(tree, hf_ipp_integer_value, tvb, valoffset, value_length, 0, "%s value: ??? %d bytes ???", tag_desc, value_length);
+            proto_tree_add_int_format(tree, hf_ipp_integer_value, tvb, valoffset, value_length, 0, "%s value: ??? %d bytes ???", tag_desc, value_length);
             break;
     }
 }
@@ -1513,7 +1507,7 @@ proto_register_ipp(void)
       { &hf_ipp_request_id, { "request-id", "ipp.request_id", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_ipp_name, { "name", "ipp.name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_ipp_memberattrname, { "memberAttrName", "ipp.memberattrname", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-      { &hf_ipp_boolean_value, { "boolean value", "ipp.boolean_value", FT_UINT8, BASE_HEX, VALS(boolean_vals), 0x0, NULL, HFILL }},
+      { &hf_ipp_boolean_value, { "boolean value", "ipp.boolean_value", FT_BOOLEAN, BASE_NONE, NULL, 0x0, NULL, HFILL }},
       { &hf_ipp_integer_value, { "integer value", "ipp.integer_value", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_ipp_enum_value, { "enum value", "ipp.enum_value", FT_INT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_ipp_enum_value_printer_state, { "printer-state", "ipp.enum_value", FT_INT32, BASE_DEC, VALS(printer_state_vals), 0x0, NULL, HFILL }},
