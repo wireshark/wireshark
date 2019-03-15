@@ -80,10 +80,13 @@ static gint hf_syslog_msg = -1;
 static gint hf_syslog_msu_present = -1;
 static gint hf_syslog_version = -1;
 static gint hf_syslog_timestamp = -1;
+static gint hf_syslog_timestamp_old = -1;
 static gint hf_syslog_hostname = -1;
 static gint hf_syslog_appname = -1;
 static gint hf_syslog_procid = -1;
 static gint hf_syslog_msgid = -1;
+static gint hf_syslog_msgid_utf8 = -1;
+static gint hf_syslog_msgid_bom = -1;
 
 static gint ett_syslog = -1;
 static gint ett_syslog_msg = -1;
@@ -158,6 +161,7 @@ static gboolean dissect_syslog_info(proto_tree* tree, tvbuff_t* tvb, guint* offs
   return TRUE;
 }
 
+/* Dissect message as defined in RFC5424 */
 static void
 dissect_syslog_message(proto_tree* tree, tvbuff_t* tvb, guint offset)
 {
@@ -182,8 +186,45 @@ dissect_syslog_message(proto_tree* tree, tvbuff_t* tvb, guint offset)
     return;
   if (!dissect_syslog_info(tree, tvb, &offset, hf_syslog_procid))
     return;
-  if (!dissect_syslog_info(tree, tvb, &offset, hf_syslog_msgid))
+  if (tvb_get_guint24(tvb, offset, ENC_BIG_ENDIAN) == 0xefbbbf) {
+    proto_tree_add_item(tree, hf_syslog_msgid_bom, tvb, offset, 3, ENC_BIG_ENDIAN);
+    offset += 3;
+    proto_tree_add_item(tree, hf_syslog_msgid_utf8, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_UTF_8|ENC_NA);
+  } else {
+    proto_tree_add_item(tree, hf_syslog_msgid, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII|ENC_NA);
+  }
+}
+
+/* Dissect message as defined in RFC3164 */
+static void
+dissect_rfc3164_syslog_message(proto_tree* tree, tvbuff_t* tvb, guint offset)
+{
+  guint tvb_offset = 0;
+
+  /* Simple check if the first 16 bytes look like TIMESTAMP "Mmm dd hh:mm:ss"
+   * by checking for spaces and colons. Otherwise return without processing
+   * the message. */
+  if (tvb_get_guint8(tvb, offset + 3) == ' ' && tvb_get_guint8(tvb, offset + 6) == ' ' &&
+        tvb_get_guint8(tvb, offset + 9) == ':' && tvb_get_guint8(tvb, offset + 12) == ':' &&
+        tvb_get_guint8(tvb, offset + 15) == ' ') {
+    proto_tree_add_item(tree, hf_syslog_timestamp_old, tvb, offset, 15, ENC_ASCII|ENC_NA);
+    offset += 16;
+  } else {
     return;
+  }
+
+  if (!dissect_syslog_info(tree, tvb, &offset, hf_syslog_hostname))
+    return;
+  for (tvb_offset=offset; tvb_offset < offset+32; tvb_offset++){
+    guint8 octet;
+    octet = tvb_get_guint8(tvb, tvb_offset);
+    if (!g_ascii_isalnum(octet)){
+      proto_tree_add_item(tree, hf_syslog_procid, tvb, offset, tvb_offset - offset, ENC_ASCII|ENC_NA);
+      offset = tvb_offset;
+      break;
+    }
+  }
+  proto_tree_add_item(tree, hf_syslog_msgid, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII|ENC_NA);
 }
 
 /* The message format is defined in RFC 3164 */
@@ -251,9 +292,18 @@ dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         msg_off, pri);
     }
     ti = proto_tree_add_item(syslog_tree, hf_syslog_msg, tvb, msg_off,
-      msg_len, ENC_ASCII|ENC_NA);
+      msg_len, ENC_UTF_8|ENC_NA);
     syslog_message_tree = proto_item_add_subtree(ti, ett_syslog_msg);
-    dissect_syslog_message(syslog_message_tree, tvb, msg_off);
+
+    /* RFC5424 defines a version field which is currently defined as '1'
+     * followed by a space (0x3120). Otherwise the message is probable
+     * a RFC3164 message.
+     */
+    if (msg_len > 2 && tvb_get_ntohs(tvb, msg_off) == 0x3120) {
+      dissect_syslog_message(syslog_message_tree, tvb, msg_off);
+    } else if ( msg_len > 15) {
+      dissect_rfc3164_syslog_message(syslog_message_tree, tvb, msg_off);
+    }
 
     if (mtp3_tvb) {
       proto_item *mtp3_item;
@@ -310,6 +360,12 @@ void proto_register_syslog(void)
         NULL,
         HFILL }
     },
+    { &hf_syslog_timestamp_old,
+      { "Syslog timestamp (RFC3164)", "syslog.timestamp_rfc3164",
+        FT_STRING, ENC_ASCII, NULL, 0x0,
+        NULL,
+        HFILL }
+    },
     { &hf_syslog_hostname,
       { "Syslog hostname", "syslog.hostname",
         FT_STRING, ENC_ASCII, NULL, 0x0,
@@ -331,6 +387,18 @@ void proto_register_syslog(void)
     { &hf_syslog_msgid,
       { "Syslog message id", "syslog.msgid",
         FT_STRING, ENC_ASCII, NULL, 0x0,
+        NULL,
+        HFILL }
+    },
+    { &hf_syslog_msgid_utf8,
+      { "Syslog message id", "syslog.msgid",
+        FT_STRING, STR_UNICODE, NULL, 0x0,
+        NULL,
+        HFILL }
+    },
+    { &hf_syslog_msgid_bom,
+      { "Syslog BOM", "syslog.msgid.bom",
+        FT_UINT24, BASE_HEX, NULL, 0x0,
         NULL,
         HFILL }
     }
