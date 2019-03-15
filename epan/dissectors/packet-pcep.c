@@ -5144,7 +5144,7 @@ proto_register_pcep(void)
         },
         { &hf_pcep_svec_obj_request_id_number,
           { "Request-ID-Number", "pcep.obj.svec.request_id_number",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pcep_notification_obj_reserved,
