@@ -4705,7 +4705,7 @@ static gboolean dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tr
         value = tvb_get_guint16(tvb, item_offset, encoding);
         proto_tree_add_uint_format(data_representation_seq_subtree, hf_rtps_param_data_representation,
           tvb, item_offset, 2, value, "[%d]: %s (0x%X)", counter,
-          val_to_str(value, data_representation_kind_vals, "%s"),
+          val_to_str(value, data_representation_kind_vals, "Unknown data representation value: %u"),
           value);
         item_offset += 2;
       }
