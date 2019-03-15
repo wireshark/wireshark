@@ -3619,6 +3619,10 @@ static guint assign_addr_port_id(address *addr, guint16 port)
     addr_port_key *key;
     guint value;
 
+    /* ensure the address contains actual data */
+    if (addr->type == AT_NONE)
+        return 0;
+
     /* Build a (non-allocated) key to do the lookup. */
 
     EP_COPY_ADDRESS(&lookup_key.addr, addr);
