@@ -2077,11 +2077,10 @@ int rtps_util_add_multichannel_locator_list(proto_tree *tree, packet_info *pinfo
 void rtps_util_add_ipv4_address_t(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, gint offset,
                                   const guint encoding, int hf_item) {
 
-  guint32 addr;
   proto_item *ti;
 
-  ti = proto_tree_add_item_ret_uint(tree, hf_item, tvb, offset, 4, encoding, &addr);
-  if (addr == IPADDRESS_INVALID)
+  ti = proto_tree_add_item(tree, hf_item, tvb, offset, 4, encoding);
+  if (tvb_get_ntohl(tvb, offset) == IPADDRESS_INVALID)
     expert_add_info(pinfo, ti, &ei_rtps_ip_invalid);
 }
 
