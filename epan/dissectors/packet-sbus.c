@@ -1010,7 +1010,6 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 /* End of attaching data to hash table*/
 
        offset = 0;
-       sbus_cmd_code = 0;
 
        switch (sbus_attribut){
                 case SBUS_REQUEST:
