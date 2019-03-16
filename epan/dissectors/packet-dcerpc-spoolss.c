@@ -315,6 +315,7 @@ static expert_field ei_driver_info_level = EI_INIT;
 static expert_field ei_level = EI_INIT;
 static expert_field ei_notify_info_data_type = EI_INIT;
 static expert_field ei_enumprinterdataex_value = EI_INIT;
+static expert_field ei_buffer_size_too_long = EI_INIT;
 
 /* Registry data types */
 
@@ -440,6 +441,13 @@ dissect_spoolss_buffer_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, di, drep,
 				    hf_buffer_size, &size);
+
+	/* Before going any further, we must ensure the bytes
+	   actually esist in the tvb */
+	if ((guint32)tvb_reported_length_remaining(tvb, offset) < size) {
+		expert_add_info(pinfo, tree, &ei_buffer_size_too_long);
+		return offset;
+	}
 
 	offset = dissect_ndr_uint8s(tvb, offset, pinfo, NULL, di, drep,
 				    hf_buffer_data, size, &data);
@@ -8315,6 +8323,7 @@ proto_register_dcerpc_spoolss(void)
 		{ &ei_level, { "spoolss.level.unknown", PI_PROTOCOL, PI_WARN, "Info level unknown", EXPFILL }},
 		{ &ei_notify_info_data_type, { "spoolss.notify_info_data.type.unknown", PI_PROTOCOL, PI_WARN, "Unknown notify type", EXPFILL }},
 		{ &ei_enumprinterdataex_value, { "spoolss.enumprinterdataex.val_unknown", PI_PROTOCOL, PI_WARN, "Unknown value type", EXPFILL }},
+		{ &ei_buffer_size_too_long, { "spoolss.buffer.size.invalid", PI_PROTOCOL, PI_ERROR, "Buffer size too long", EXPFILL }},
 	};
 
 	expert_module_t* expert_dcerpc_spoolss;
