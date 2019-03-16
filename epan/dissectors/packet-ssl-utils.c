@@ -7313,11 +7313,21 @@ ssl_set_cipher(SslDecryptSession *ssl, guint16 cipher)
     /* store selected cipher suite for decryption */
     ssl->session.cipher = cipher;
 
-    if (!(ssl->cipher_suite = ssl_find_cipher(cipher))) {
+    const SslCipherSuite *cs = ssl_find_cipher(cipher);
+    if (!cs) {
+        ssl->cipher_suite = NULL;
         ssl->state &= ~SSL_CIPHER;
         ssl_debug_printf("%s can't find cipher suite 0x%04X\n", G_STRFUNC, cipher);
+    } else if (ssl->session.version == SSLV3_VERSION && !(cs->dig == DIG_MD5 || cs->dig == DIG_SHA)) {
+        /* A malicious packet capture contains a SSL 3.0 session using a TLS 1.2
+         * cipher suite that uses for example MACAlgorithm SHA256. Reject that
+         * to avoid a potential buffer overflow in ssl3_check_mac. */
+        ssl->cipher_suite = NULL;
+        ssl->state &= ~SSL_CIPHER;
+        ssl_debug_printf("%s invalid SSL 3.0 cipher suite 0x%04X\n", G_STRFUNC, cipher);
     } else {
         /* Cipher found, save this for the delayed decoder init */
+        ssl->cipher_suite = cs;
         ssl->state |= SSL_CIPHER;
         ssl_debug_printf("%s found CIPHER 0x%04X %s -> state 0x%02X\n", G_STRFUNC, cipher,
                          val_to_str_ext_const(cipher, &ssl_31_ciphersuite_ext, "unknown"),
