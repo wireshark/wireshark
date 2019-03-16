@@ -335,6 +335,7 @@ const value_string ip_version_vals[] = {
 
 /* Differentiated Services Field. See RFCs 2474, 2597, 2598 and 3168. */
 #define IPDSFIELD_DSCP_DEFAULT  0x00
+#define IPDSFIELD_DSCP_LE       0x01
 #define IPDSFIELD_DSCP_CS1      0x08
 #define IPDSFIELD_DSCP_AF11     0x0A
 #define IPDSFIELD_DSCP_AF12     0x0C
@@ -1717,6 +1718,7 @@ local_network_control_block_addr_valid_ttl(guint32 addr)
 
 static const value_string dscp_short_vals[] = {
   { IPDSFIELD_DSCP_DEFAULT, "CS0"    },
+  { IPDSFIELD_DSCP_LE,      "LE"     },
   { IPDSFIELD_DSCP_CS1,     "CS1"    },
   { IPDSFIELD_DSCP_AF11,    "AF11"   },
   { IPDSFIELD_DSCP_AF12,    "AF12"   },
@@ -1743,6 +1745,7 @@ value_string_ext dscp_short_vals_ext = VALUE_STRING_EXT_INIT(dscp_short_vals);
 
 static const value_string dscp_vals[] = {
   { IPDSFIELD_DSCP_DEFAULT, "Default"               },
+  { IPDSFIELD_DSCP_LE,      "Lower Effort"          },
   { IPDSFIELD_DSCP_CS1,     "Class Selector 1"      },
   { IPDSFIELD_DSCP_AF11,    "Assured Forwarding 11" },
   { IPDSFIELD_DSCP_AF12,    "Assured Forwarding 12" },
