@@ -754,7 +754,6 @@ dissect_hello_reverse_metric_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
     offset += 1;
     if (sub_length > 0) {
         proto_tree_add_item(tree, hf_isis_hello_reverse_metric_sub_data, tvb, offset, sub_length, ENC_NA);
-    offset += sub_length;
     }
 }
 
