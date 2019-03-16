@@ -1091,7 +1091,6 @@ static gboolean nstrace_set_start_time(wtap *wth, int *err, gchar **err_info)
     }while(0)
 
 #define PACKET_DESCRIBE(phdr,FULLPART,fullpart,ver,type,HEADERVER) \
-    return FALSE;\
     do {\
         nspr_pktrace##fullpart##_v##ver##_t *type = (nspr_pktrace##fullpart##_v##ver##_t *) &nstrace_buf[nstrace_buf_offset];\
         /* Make sure the record header is entirely contained in the page */\
