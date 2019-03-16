@@ -602,7 +602,7 @@ typedef struct {
     guint64 file_size;
 } nstrace_t;
 
-static guint32 nspm_signature_version(wtap*, gchar*, gint32);
+static guint32 nspm_signature_version(gchar*, gint32);
 static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info,
                                  gint64 *data_offset);
 static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info,
@@ -697,16 +697,33 @@ wtap_open_return_val nstrace_open(wtap *wth, int *err, gchar **err_info)
     gchar *nstrace_buf;
     gint64 file_size;
     gint32 page_size;
+    int bytes_read;
     nstrace_t *nstrace;
 
-
     if ((file_size = wtap_file_size(wth, err)) == -1)
+        return WTAP_OPEN_ERROR;
+    if (file_size == 0)
         return WTAP_OPEN_NOT_MINE;
+    /* The size is 64 bits; we assume it fits in 63 bits, so it's positive */
 
     nstrace_buf = (gchar *)g_malloc(NSPR_PAGESIZE);
     page_size = GET_READ_PAGE_SIZE(file_size);
 
-    switch ((wth->file_type_subtype = nspm_signature_version(wth, nstrace_buf, page_size)))
+    /* Read the first page, so we can look for a signature */
+    bytes_read = file_read(nstrace_buf, page_size, wth->fh);
+    if (bytes_read < 0 || bytes_read != page_size) {
+        *err = file_error(wth->fh, err_info);
+        if (*err == 0 && bytes_read > 0)
+            return WTAP_OPEN_NOT_MINE;
+        return WTAP_OPEN_ERROR;
+    }
+
+    /*
+     * Scan it for a signature block.
+     */
+    wth->file_type_subtype = nspm_signature_version(nstrace_buf, page_size);
+
+    switch (wth->file_type_subtype)
     {
     case WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0:
         wth->file_encap = WTAP_ENCAP_NSTRACE_1_0;
@@ -736,12 +753,14 @@ wtap_open_return_val nstrace_open(wtap *wth, int *err, gchar **err_info)
         return WTAP_OPEN_NOT_MINE;
     }
 
+    /* Seek back to the beginning of the file after reading the first byte. */
     if ((file_seek(wth->fh, 0, SEEK_SET, err)) == -1)
     {
         g_free(nstrace_buf);
         return WTAP_OPEN_ERROR;
     }
 
+    /* XXX - didn't the read above already handle this? */
     if (!wtap_read_bytes(wth->fh, nstrace_buf, page_size, err, err_info))
     {
         g_free(nstrace_buf);
@@ -830,7 +849,12 @@ wtap_open_return_val nstrace_open(wtap *wth, int *err, gchar **err_info)
 ** the version specified as an argument to the macro.
 **
 ** The function does so by checking whether the signature string for
-** the version in question is a prefix of the signature field.
+** the version in question is a prefix of the signature field.  The
+** signature field appears to be a blob of text, with one or more
+** lines, with lines separated by '\n', and the last line terminated
+** with '\0'.  The first lign is the signature field; it may end with
+** '\n', meaning there's another line following it, or it may end
+** with '\0', meaning it's the last line.
 **
 ** For that to be true, the field must have a size >= to the size (not
 ** counting the terminating'\0') of the version's signature string,
@@ -838,7 +862,8 @@ wtap_open_return_val nstrace_open(wtap *wth, int *err, gchar **err_info)
 ** version string of the version (again, not counting the terminating
 ** '\0'), are equal to the version's signature string.
 **
-** XXX - should this do an exact match rather than a prefix match?
+** XXX - should this do an exact match rather than a prefix match,
+** checking whether either a '\n' or '\0' follows the first line?
 */
 #define nspm_signature_func(ver) \
     static guint32 nspm_signature_isv##ver(gchar *sigp, size_t sigsize) {\
@@ -852,49 +877,81 @@ nspm_signature_func(30)
 nspm_signature_func(35)
 
 /*
-** Check signature and return the file type and subtype for files with
-** that signature.  If it finds no signature that it recognizes, it
-** returns WTAP_FILE_TYPE_SUBTYPE_UNKNOWN. At the time of return from
-** this function we might not be at the first page. So after a call to
-** this function, there has to be a file seek to return to the start
-** of the first page.
+** Scan a page for something that looks like a signature record and,
+** if we find one, check the signature against the ones we support.
+** If we find one we support, return the file type/subtype for that
+** file version.  If we don't find a signature record with a signature
+** we support, return WTAP_FILE_TYPE_SUBTYPE_UNKNOWN.
+**
+** We don't know what version the file is, so we can't make
+** assumptions about the format of the records.
+**
+** XXX - can we assume the signature block is the first block?
 */
 static guint32
-nspm_signature_version(wtap *wth, gchar *nstrace_buf, gint32 len)
+nspm_signature_version(gchar *nstrace_buf, gint32 len)
 {
     gchar *dp = nstrace_buf;
-    int bytes_read;
 
-    bytes_read = file_read(dp, len, wth->fh);
-    if (bytes_read == len) {
-
-        for ( ; len > (gint32)(MIN(sizeof(NSPR_SIGSTR_V10), sizeof(NSPR_SIGSTR_V20))); dp++, len--)
-        {
+    for ( ; len > (gint32)(MIN(nspr_signature_v10_s, nspr_signature_v20_s)); dp++, len--)
+    {
 #define sigv10p    ((nspr_signature_v10_t*)dp)
-            if ((pletoh16(&sigv10p->nsprRecordType) == NSPR_SIGNATURE_V10) &&
-                (pletoh16(&sigv10p->nsprRecordSize) <= len) &&
-                (pletoh16(&sigv10p->nsprRecordSize) > 0) &&
-                ((gint32)sizeof(NSPR_SIGSTR_V10) <= len) &&
-                (nspm_signature_isv10(sigv10p->sig_Signature, sizeof sigv10p->sig_Signature)))
+        /*
+         * If this is a V10 signature record, then:
+         *
+         *    1) we have a full signature record's worth of data in what
+         *       remains of the first page;
+         *
+         *    2) it appears to have a record type of NSPR_SIGNATURE_V10;
+         *
+         *    3) the length field specifies a length that fits in what
+         *       remains of the first page;
+         *
+         *    4) it also specifies something as large as, or larger than,
+         *       the declared size of a V10 signature record.
+         *
+         * (XXX - are all V10 signature records that size, or might they
+         * be smaller, with a shorter signature field?)
+         */
+        if ((size_t)len >= nspr_signature_v10_s &&
+            (pletoh16(&sigv10p->nsprRecordType) == NSPR_SIGNATURE_V10) &&
+            (pletoh16(&sigv10p->nsprRecordSize) <= len) &&
+            (pletoh16(&sigv10p->nsprRecordSize) >= nspr_signature_v10_s))
+        {
+            if ((nspm_signature_isv10(sigv10p->sig_Signature, sizeof sigv10p->sig_Signature)))
                 return WTAP_FILE_TYPE_SUBTYPE_NETSCALER_1_0;
+        }
 #undef    sigv10p
 
 #define sigv20p    ((nspr_signature_v20_t*)dp)
-            if ((sigv20p->sig_RecordType == NSPR_SIGNATURE_V20) &&
-                (sigv20p->sig_RecordSize <= len) &&
-                ((gint32)sizeof(NSPR_SIGSTR_V20) <= len))
-            {
-                sigv20p->sig_Signature[sigv20p->sig_RecordSize] = '\0';
-                if (nspm_signature_isv20(sigv20p->sig_Signature, sizeof sigv20p->sig_Signature)){
-                    return WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0;
-                } else if (nspm_signature_isv30(sigv20p->sig_Signature, sizeof sigv20p->sig_Signature)){
-                    return WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_0;
-                }else if (nspm_signature_isv35(sigv20p->sig_Signature, sizeof sigv20p->sig_Signature)){
-                    return WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_5;
-                }
+        /*
+         * If this is a V20-or-later signature record, then:
+         *
+         *    1) we have a full signature record's worth of data in what
+         *       remains of the first page;
+         *
+         *    2) it appears to have a record type of NSPR_SIGNATURE_V20;
+         *
+         *    3) the length field specifies a length that fits in what
+         *       remains of the first page;
+         *
+         *    4) it also specifies something as large as, or larger than,
+         *       the declared size of a V20 signature record.
+         */
+        if ((size_t)len >= nspr_signature_v20_s &&
+            (sigv20p->sig_RecordType == NSPR_SIGNATURE_V20) &&
+            (sigv20p->sig_RecordSize <= len) &&
+            (sigv20p->sig_RecordSize >= nspr_signature_v20_s))
+        {
+            if (nspm_signature_isv20(sigv20p->sig_Signature, sizeof sigv20p->sig_Signature)){
+                return WTAP_FILE_TYPE_SUBTYPE_NETSCALER_2_0;
+            } else if (nspm_signature_isv30(sigv20p->sig_Signature, sizeof sigv20p->sig_Signature)){
+                return WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_0;
+            } else if (nspm_signature_isv35(sigv20p->sig_Signature, sizeof sigv20p->sig_Signature)){
+                return WTAP_FILE_TYPE_SUBTYPE_NETSCALER_3_5;
             }
-#undef    sigv20p
         }
+#undef    sigv20p
     }
 
     return WTAP_FILE_TYPE_SUBTYPE_UNKNOWN;    /* no version found */
