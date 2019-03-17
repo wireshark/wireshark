@@ -402,8 +402,8 @@ dissect_nt_GUID(tvbuff_t *tvb, int offset,
 int
 dissect_ndr_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_tree, dcerpc_info *di, guint8 *drep, guint32 param, int hfindex)
 {
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
+	proto_item *item;
+	proto_tree *tree;
 	int old_offset;
 	header_field_info *hf_info;
 
@@ -412,9 +412,7 @@ dissect_ndr_lsa_String(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 	old_offset = offset;
 	hf_info=proto_registrar_get_nth(hfindex);
 
-	if (parent_tree) {
-		tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, 0, ett_lsa_String, &item, "%s: ", hf_info->name);
-	}
+	tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, 0, ett_lsa_String, &item, "%s: ", hf_info->name);
 
 	offset = PIDL_dissect_uint16(tvb, offset, pinfo, tree, di, drep, hf_lsa_String_name_len, 0);
 
@@ -1116,10 +1114,8 @@ dissect_dcerpc_uint8s(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 
 	data = (const guint8 *)tvb_get_ptr(tvb, offset, length);
 
-	if (tree) {
-		/* This should be an FT_BYTES, so the byte order should not matter */
-		proto_tree_add_item (tree, hfindex, tvb, offset, length, ENC_NA);
-	}
+	/* This should be an FT_BYTES, so the byte order should not matter */
+	proto_tree_add_item (tree, hfindex, tvb, offset, length, ENC_NA);
 
 	if (pdata)
 		*pdata = data;
@@ -1147,14 +1143,12 @@ dissect_dcerpc_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 		       proto_tree *tree, guint8 *drep, int hfindex,
 		       int length)
 {
-	if (tree) {
-		/* These are FT_BYTES fields, so the byte order should not matter;
-		   however, perhaps there should be an FT_HEXADECTETS type,
-		   or something such as that, with each pair of octets
-		   displayed as a single unit, in which case the byte order
-		   would matter, so we'll calculate the byte order here.  */
-		proto_tree_add_item (tree, hfindex, tvb, offset, length * 2, DREP_ENC_INTEGER(drep));
-	}
+	/* These are FT_BYTES fields, so the byte order should not matter;
+	   however, perhaps there should be an FT_HEXADECTETS type,
+	   or something such as that, with each pair of octets
+	   displayed as a single unit, in which case the byte order
+	   would matter, so we'll calculate the byte order here.  */
+	proto_tree_add_item (tree, hfindex, tvb, offset, length * 2, DREP_ENC_INTEGER(drep));
 
 	return offset + length * 2;
 }
@@ -1484,14 +1478,12 @@ dissect_ndr_nt_PSID(tvbuff_t *tvb, int offset,
 		    packet_info *pinfo, proto_tree *parent_tree,
 		    dcerpc_info *di, guint8 *drep)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+	proto_item *item;
+	proto_tree *tree;
 	int old_offset=offset;
 
-	if(parent_tree){
-		tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
 			ett_nt_sid_pointer, &item, "SID pointer:");
-	}
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, di, drep,
 			dissect_ndr_nt_SID_hf_through_ptr, NDR_POINTER_UNIQUE,
@@ -1608,14 +1600,12 @@ dissect_LOGON_HOURS_hours(tvbuff_t *tvb, int offset,
 			  packet_info *pinfo, proto_tree *parent_tree,
 			  dcerpc_info *di, guint8 *drep)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+	proto_item *item;
+	proto_tree *tree;
 	int old_offset=offset;
 
-	if(parent_tree){
-		tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
 			ett_nt_logon_hours_hours, &item, "LOGON_HOURS:");
-	}
 
 	offset = dissect_ndr_ucvarray(tvb, offset, pinfo, tree, di, drep,
 			dissect_LOGON_HOURS_entry);
@@ -1632,16 +1622,14 @@ dissect_ndr_nt_LOGON_HOURS(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
 			dcerpc_info *di, guint8 *drep)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+	proto_item *item;
+	proto_tree *tree;
 	int old_offset=offset;
 
 	ALIGN_TO_4_BYTES;  /* strcture starts with short, but is aligned for longs */
 
-	if(parent_tree){
-		tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
 			ett_nt_logon_hours, &item, "LOGON_HOURS:");
-	}
 
 	offset = dissect_ndr_uint16(tvb, offset, pinfo, tree, di, drep,
 				hf_logonhours_divisions, NULL);
@@ -1684,14 +1672,12 @@ dissect_ndr_nt_PSID_ARRAY(tvbuff_t *tvb, int offset,
 			dcerpc_info *di, guint8 *drep)
 {
 	guint32 count;
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+	proto_item *item;
+	proto_tree *tree;
 	int old_offset=offset;
 
-	if(parent_tree){
-		tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1,
 			ett_nt_sid_array, &item, "SID array:");
-	}
 
 	ALIGN_TO_5_BYTES;
 
@@ -1718,13 +1704,11 @@ dissect_ndr_nt_SID_AND_ATTRIBUTES(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
 			dcerpc_info *di, guint8 *drep)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+	proto_item *item;
+	proto_tree *tree;
 
-	if(parent_tree){
-		tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0,
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0,
 			ett_nt_sid_and_attributes, &item, "SID_AND_ATTRIBUTES:");
-	}
 
 	offset = dissect_ndr_nt_PSID(tvb, offset, pinfo, tree, di, drep);
 
@@ -1741,14 +1725,12 @@ dissect_ndr_nt_SID_AND_ATTRIBUTES_ARRAY(tvbuff_t *tvb, int offset,
 			packet_info *pinfo, proto_tree *parent_tree,
 			dcerpc_info *di, guint8 *drep)
 {
-	proto_item *item=NULL;
-	proto_tree *tree=NULL;
+	proto_item *item;
+	proto_tree *tree;
 	int old_offset=offset;
 
-	if(parent_tree){
-		tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0,
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 0,
 			ett_nt_sid_and_attributes_array, &item, "SID_AND_ATTRIBUTES array:");
-	}
 
 	/*offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, di, drep,
 	  hf_samr_count, &count); */
