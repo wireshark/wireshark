@@ -13,7 +13,7 @@
 
 #include "file.h"
 
-ExpertPacketItem::ExpertPacketItem(expert_info_t& expert_info, column_info *cinfo, ExpertPacketItem* parent) :
+ExpertPacketItem::ExpertPacketItem(const expert_info_t& expert_info, column_info *cinfo, ExpertPacketItem* parent) :
     packet_num_(expert_info.packet_num),
     group_(expert_info.group),
     severity_(expert_info.severity),
@@ -333,7 +333,7 @@ int ExpertInfoModel::columnCount(const QModelIndex& ) const
     return colLast;
 }
 
-void ExpertInfoModel::addExpertInfo(struct expert_info_s& expert_info)
+void ExpertInfoModel::addExpertInfo(const struct expert_info_s& expert_info)
 {
     QString groupKey = ExpertPacketItem::groupKey(FALSE, expert_info.severity, expert_info.group, QString(expert_info.protocol), expert_info.hf_index);
     QString summaryKey = ExpertPacketItem::groupKey(TRUE, expert_info.severity, expert_info.group, QString(expert_info.protocol), expert_info.hf_index);
@@ -378,7 +378,7 @@ void ExpertInfoModel::tapReset(void *eid_ptr)
 tap_packet_status ExpertInfoModel::tapPacket(void *eid_ptr, struct _packet_info *pinfo, struct epan_dissect *, const void *data)
 {
     ExpertInfoModel *model = static_cast<ExpertInfoModel*>(eid_ptr);
-    expert_info_t   *expert_info = (expert_info_t *) data;
+    const expert_info_t *expert_info = (const expert_info_t *) data;
     tap_packet_status status = TAP_PACKET_DONT_REDRAW;
 
     if (!pinfo || !model || !expert_info)

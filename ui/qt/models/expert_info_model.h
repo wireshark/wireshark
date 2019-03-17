@@ -26,7 +26,7 @@
 class ExpertPacketItem
 {
 public:
-    ExpertPacketItem(expert_info_t& expert_info, column_info *cinfo, ExpertPacketItem* parent);
+    ExpertPacketItem(const expert_info_t& expert_info, column_info *cinfo, ExpertPacketItem* parent);
     virtual ~ExpertPacketItem();
 
     unsigned int packetNum() const { return packet_num_; }
@@ -109,7 +109,7 @@ public:
     void setGroupBySummary(bool group_by_summary);
 
     // Called from tapPacket
-    void addExpertInfo(struct expert_info_s& expert_info);
+    void addExpertInfo(const struct expert_info_s& expert_info);
 
     // Callbacks for register_tap_listener
     static void tapReset(void *eid_ptr);
