@@ -367,7 +367,7 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info)
   guint            erf_ext_header_size = (guint)sizeof(erf_ext_header);
   guint8           type;
 
-  memset(&prevts, 0, sizeof(prevts));
+  prevts = 0;
 
   /* number of records to scan before deciding if this really is ERF */
   if ((s = getenv("ERF_RECORDS_TO_CHECK")) != NULL) {
@@ -455,7 +455,7 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info)
       return WTAP_OPEN_NOT_MINE;
     }
 
-    memcpy(&prevts, &ts, sizeof(prevts));
+    prevts = ts;
 
     /* Read over the extension headers */
     type = header.type;
