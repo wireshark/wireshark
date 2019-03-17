@@ -335,9 +335,9 @@ public:
         hostlist_talker_t *endp_item = &g_array_index(conv_array_, hostlist_talker_t, conv_idx_);
         const mmdb_lookup_t *mmdb_lookup = NULL;
         if (endp_item->myaddress.type == AT_IPv4) {
-            mmdb_lookup = maxmind_db_lookup_ipv4((ws_in4_addr *) endp_item->myaddress.data);
+            mmdb_lookup = maxmind_db_lookup_ipv4((const ws_in4_addr *) endp_item->myaddress.data);
         } else if (endp_item->myaddress.type == AT_IPv6) {
-            mmdb_lookup = maxmind_db_lookup_ipv6((ws_in6_addr *) endp_item->myaddress.data);
+            mmdb_lookup = maxmind_db_lookup_ipv6((const ws_in6_addr *) endp_item->myaddress.data);
         }
         return mmdb_lookup && mmdb_lookup->found ? mmdb_lookup : NULL;
     }
