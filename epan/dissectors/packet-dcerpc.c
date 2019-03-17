@@ -974,11 +974,11 @@ decode_dcerpc_binding_reset(const char *name _U_, gconstpointer pattern)
 }
 
 static gboolean
-dcerpc_decode_as_change(const char *name, gconstpointer pattern, gpointer handle, gchar* list_name)
+dcerpc_decode_as_change(const char *name, gconstpointer pattern, gconstpointer handle, const gchar* list_name)
 {
     const decode_dcerpc_bind_values_t *binding = (const decode_dcerpc_bind_values_t*)pattern;
     decode_dcerpc_bind_values_t *stored_binding;
-    guid_key     *key = *((guid_key**)handle);
+    guid_key     *key = *((guid_key *const *)handle);
 
     /* remove a probably existing old binding */
     decode_dcerpc_binding_reset(name, binding);

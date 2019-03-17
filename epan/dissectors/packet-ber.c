@@ -407,7 +407,7 @@ static gboolean ber_decode_as_reset(const char *name _U_, gconstpointer pattern 
     return FALSE;
 }
 
-static gboolean ber_decode_as_change(const char *name _U_, gconstpointer pattern _U_, gpointer handle _U_, gchar* list_name)
+static gboolean ber_decode_as_change(const char *name _U_, gconstpointer pattern _U_, gconstpointer handle _U_, const gchar* list_name)
 {
     ber_decode_as(list_name);
     return FALSE;

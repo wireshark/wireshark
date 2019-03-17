@@ -75,7 +75,7 @@ public:
     void clearAll();
     bool copyRow(int dst_row, int src_row);
 
-    static QString entryString(const gchar *table_name, gpointer value);
+    static QString entryString(const gchar *table_name, gconstpointer value);
 
     void applyChanges();
 

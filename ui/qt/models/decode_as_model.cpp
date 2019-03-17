@@ -115,7 +115,7 @@ QVariant DecodeAsModel::data(const QModelIndex &index, int role) const
             if (IS_FT_UINT(selector_type)) {
                 return entryString(item->tableName_, GUINT_TO_POINTER(item->selectorUint_));
             } else if (IS_FT_STRING(selector_type)) {
-                return entryString(item->tableName_, (gpointer)item->selectorString_.toUtf8().constData());
+                return entryString(item->tableName_, (gconstpointer)item->selectorString_.toUtf8().constData());
             } else if (selector_type == FT_GUID) {
                 if (item->selectorDCERPC_ != NULL) {
                     return item->selectorDCERPC_->ctx_id;
@@ -426,7 +426,7 @@ bool DecodeAsModel::copyRow(int dst_row, int src_row)
     return true;
 }
 
-QString DecodeAsModel::entryString(const gchar *table_name, gpointer value)
+QString DecodeAsModel::entryString(const gchar *table_name, gconstpointer value)
 {
     QString entry_str;
     ftenum_t selector_type = get_dissector_table_selector_type(table_name);
@@ -479,7 +479,7 @@ QString DecodeAsModel::entryString(const gchar *table_name, gpointer value)
     case FT_STRINGZ:
     case FT_UINT_STRING:
     case FT_STRINGZPAD:
-        entry_str = (char *)value;
+        entry_str = (const char *)value;
         break;
 
     case FT_GUID:
@@ -666,7 +666,7 @@ void DecodeAsModel::applyChanges()
             if (!g_strcmp0(decode_as_entry->table_name, item->tableName_)) {
 
                 ftenum_t selector_type = get_dissector_table_selector_type(item->tableName_);
-                gpointer  selector_value;
+                gconstpointer  selector_value;
                 QByteArray byteArray;
 
                 switch (selector_type) {
@@ -681,7 +681,7 @@ void DecodeAsModel::applyChanges()
                 case FT_UINT_STRING:
                 case FT_STRINGZPAD:
                     byteArray = item->selectorString_.toUtf8();
-                    selector_value = (gpointer) byteArray.constData();
+                    selector_value = (gconstpointer) byteArray.constData();
                     break;
                 case FT_NONE:
                     //selector value is ignored, but dissector table needs to happen
@@ -689,7 +689,7 @@ void DecodeAsModel::applyChanges()
                     break;
                 case FT_GUID:
                     if (item->selectorDCERPC_ != NULL) {
-                        selector_value = (gpointer)item->selectorDCERPC_;
+                        selector_value = (gconstpointer)item->selectorDCERPC_;
                     } else {
                         //TODO: Support normal GUID dissector tables
                         selector_value = NULL;
@@ -716,7 +716,7 @@ void DecodeAsModel::applyChanges()
                     }
                     break;
                 } else {
-                    decode_as_entry->change_value(decode_as_entry->table_name, selector_value, &item->dissector_handle_, (char *) item->current_proto_.toUtf8().constData());
+                    decode_as_entry->change_value(decode_as_entry->table_name, selector_value, &item->dissector_handle_, item->current_proto_.toUtf8().constData());
                     sub_dissectors = find_dissector_table(decode_as_entry->table_name);
 
                     /* For now, only numeric dissector tables can use preferences */
