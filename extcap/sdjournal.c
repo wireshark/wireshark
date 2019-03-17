@@ -144,7 +144,7 @@ static int sdj_dump_entries(sd_journal *jnl, FILE* fp)
 					g_debug("Breaking on binary field: %u + %zd", data_end, fld_len);
 					break;
 				}
-				ptrdiff_t name_len = eq_ptr - (guint8 *) fld_data;
+				ptrdiff_t name_len = eq_ptr - (const guint8 *) fld_data;
 				uint64_t le_data_len;
 				le_data_len = htole64(fld_len - name_len - 1);
 				memcpy(entry_buff+data_end, fld_data, name_len);
@@ -153,7 +153,7 @@ static int sdj_dump_entries(sd_journal *jnl, FILE* fp)
 				data_end++;
 				memcpy(entry_buff+data_end, &le_data_len, 8);
 				data_end += 8;
-				memcpy(entry_buff+data_end, (guint8 *) fld_data + name_len + 1, fld_len - name_len);
+				memcpy(entry_buff+data_end, (const guint8 *) fld_data + name_len + 1, fld_len - name_len);
 				data_end += fld_len - name_len;
 			}
 		}
