@@ -61,6 +61,7 @@
 
 
 #include "packet-radius.h"
+#include "packet-e212.h"
 
 void proto_register_radius(void);
 void proto_reg_handoff_radius(void);
@@ -828,6 +829,12 @@ static const value_string daylight_saving_time_vals[] = {
 	{3, "Reserved"},
 	{0, NULL}
 };
+
+static const gchar *
+dissect_radius_3gpp_imsi(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
+{
+	return dissect_e212_utf8_imsi(tvb, pinfo, tree, 0, tvb_reported_length(tvb));
+}
 
 static const gchar *
 dissect_radius_3gpp_ms_tmime_zone(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_)
@@ -2809,6 +2816,7 @@ register_radius_fields(const char *unused _U_)
 	 * XXX - we should special-case Cisco attribute 252; see the comment in
 	 * dictionary.cisco.
 	 */
+	radius_register_avp_dissector(VENDOR_THE3GPP, 1, dissect_radius_3gpp_imsi);
 	radius_register_avp_dissector(VENDOR_THE3GPP, 23, dissect_radius_3gpp_ms_tmime_zone);
 }
 
