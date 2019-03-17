@@ -48,7 +48,6 @@ private slots:
 private:
     Ui::SCTPAllAssocsDialog *ui;
     capture_file *cap_file_;
-    sctp_allassocs_info_t *sctp_assocs;
     guint16 selected_assoc_id;
 
 

@@ -43,6 +43,7 @@ SCTPAllAssocsDialog::~SCTPAllAssocsDialog()
 
 void SCTPAllAssocsDialog::fillTable()
 {
+    const sctp_allassocs_info_t *sctp_assocs;
     GList *list;
     const sctp_assoc_info_t* assinfo;
     int numAssocs;
@@ -53,7 +54,7 @@ void SCTPAllAssocsDialog::fillTable()
     ui->assocList->setColumnWidth(3,  150);
     ui->assocList->setColumnWidth(4,  150);
 
-    sctp_assocs = (sctp_allassocs_info_t*)sctp_stat_get_info();
+    sctp_assocs = sctp_stat_get_info();
     if (sctp_assocs->is_registered == FALSE) {
         register_tap_listener_sctp_stat();
         /*  (redissect all packets) */
