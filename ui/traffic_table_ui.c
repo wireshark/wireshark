@@ -137,11 +137,11 @@ write_endpoint_geoip_map(FILE *fp, gboolean json_only, hostlist_talker_t *const 
         char addr[WS_INET6_ADDRSTRLEN];
         const mmdb_lookup_t *result = NULL;
         if (host->myaddress.type == AT_IPv4) {
-            ws_in4_addr *ip4 = (ws_in4_addr *)host->myaddress.data;
+            const ws_in4_addr *ip4 = (const ws_in4_addr *)host->myaddress.data;
             result = maxmind_db_lookup_ipv4(ip4);
             ws_inet_ntop4(ip4, addr, sizeof(addr));
         } else if (host->myaddress.type == AT_IPv6) {
-            ws_in6_addr *ip6 = (ws_in6_addr *)host->myaddress.data;
+            const ws_in6_addr *ip6 = (const ws_in6_addr *)host->myaddress.data;
             result = maxmind_db_lookup_ipv6(ip6);
             ws_inet_ntop6(ip6, addr, sizeof(addr));
         }
