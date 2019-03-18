@@ -2598,9 +2598,6 @@ static int dissect_block(tvbuff_t *tvb, int offset,
 static int dissect_a_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, guint8 *drep);
 
-int dissect_blocks(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, guint8 *drep);
-
 static int dissect_PNIO_IOxS(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, guint8 *drep, int hfindex);
 
