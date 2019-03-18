@@ -110,6 +110,8 @@ if(WIN32)
 		message(FATAL_ERROR "Windows setup (win-setup.ps1) failed.")
 	endif()
 
+	set(EXTRA_INSTALLER_DIR ${_ws_lib_dir})
+
 	# XXX Add a dependency on ${_ws_lib_dir}/current_tag.txt?
 
 	# Prepopulate some ConfigureChecks values. Compilation checks
