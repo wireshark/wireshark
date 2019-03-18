@@ -46,7 +46,7 @@ codec_g729_decode(void *ctx, const void *input, size_t inputSizeBytes, void *out
         size_t *outputSizeBytes)
 {
     bcg729DecoderChannelContextStruct *state = (bcg729DecoderChannelContextStruct *)ctx;
-    guint8 *dataIn = (guint8 *) input;
+    const guint8 *dataIn = (const guint8 *) input;
     gint16 *dataOut = (gint16 *) output;
     size_t i;
 
