@@ -238,6 +238,14 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   proto_tree *vlan_tree;
   proto_item *item;
   guint vlan_nested_count;
+  int hf1, hf2;
+
+  int * flags[] = {
+      &hf1,
+      &hf2,
+      &hfi_vlan_id.id,
+      NULL
+  };
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "VLAN");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -276,34 +284,36 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     vlan_tree = proto_item_add_subtree(ti, ett_vlan);
 
     if (vlan_version == IEEE_8021Q_1998) {
-        proto_tree_add_item(vlan_tree, &hfi_vlan_priority_old, tvb, 0, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(vlan_tree, &hfi_vlan_cfi, tvb, 0, 2, ENC_BIG_ENDIAN);
+      hf1 = hfi_vlan_priority_old.id;
+      hf2 = hfi_vlan_cfi.id;
     } else {
       switch (vlan_priority_drop) {
 
         case Priority_Drop_8P0D:
-          proto_tree_add_item(vlan_tree, &hfi_vlan_priority, tvb, 0, 2, ENC_BIG_ENDIAN);
+          hf1 = hfi_vlan_priority.id;
           break;
 
         case Priority_Drop_7P1D:
-          proto_tree_add_item(vlan_tree, &hfi_vlan_priority_7, tvb, 0, 2, ENC_BIG_ENDIAN);
+          hf1 = hfi_vlan_priority_7.id;
           break;
 
         case Priority_Drop_6P2D:
-          proto_tree_add_item(vlan_tree, &hfi_vlan_priority_6, tvb, 0, 2, ENC_BIG_ENDIAN);
+          hf1 = hfi_vlan_priority_6.id;
           break;
 
         case Priority_Drop_5P3D:
-          proto_tree_add_item(vlan_tree, &hfi_vlan_priority_5, tvb, 0, 2, ENC_BIG_ENDIAN);
+          hf1 = hfi_vlan_priority_5.id;
           break;
       }
       if (vlan_version == IEEE_8021Q_2005) {
-        proto_tree_add_item(vlan_tree, &hfi_vlan_cfi, tvb, 0, 2, ENC_BIG_ENDIAN);
+        hf2 = hfi_vlan_cfi.id;
       } else {
-        proto_tree_add_item(vlan_tree, &hfi_vlan_dei, tvb, 0, 2, ENC_BIG_ENDIAN);
+        hf2 = hfi_vlan_dei.id;
       }
     }
-    proto_tree_add_item(vlan_tree, &hfi_vlan_id, tvb, 0, 2, ENC_BIG_ENDIAN);
+
+    proto_tree_add_bitmask_list(vlan_tree, tvb, 0, 2, (const int **)flags, ENC_BIG_ENDIAN);
+
     if (gbl_resolv_flags.vlan_name) {
       item = proto_tree_add_string(vlan_tree, &hfi_vlan_id_name, tvb, 0, 2,
                                    get_vlan_name(wmem_packet_scope(), vlan_id));
