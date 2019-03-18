@@ -1276,7 +1276,7 @@ static const value_string openflow_v6_header_type_namespace_values[] = {
 
 typedef struct oxm_header {
     guint32 oxm_class;
-    guint32 oxm_hm;
+    gboolean oxm_hm;
     guint32 oxm_field;
     guint32 oxm_length;
 } oxm_header;
@@ -1284,7 +1284,7 @@ static int
 dissect_openflow_oxm_header_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, guint16 length _U_, oxm_header *retval)
 {
     guint32 oxm_class;
-    guint32 oxm_hm;
+    gboolean oxm_hm;
     guint32 oxm_field;
     guint32 oxm_length;
 
@@ -1306,7 +1306,7 @@ dissect_openflow_oxm_header_v6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     }
 
     /* oxm_hm */
-    proto_tree_add_item_ret_uint(tree, hf_openflow_v6_oxm_hm, tvb, offset, 1, ENC_BIG_ENDIAN, &oxm_hm);
+    proto_tree_add_item_ret_boolean(tree, hf_openflow_v6_oxm_hm, tvb, offset, 1, ENC_BIG_ENDIAN, &oxm_hm);
     offset+=1;
 
     /* oxm_length */
