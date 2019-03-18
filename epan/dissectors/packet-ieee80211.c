@@ -25557,7 +25557,7 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
 
         if (keydes_version == KEYDES_VER_TYPE1) {
           add_new_data_source(pinfo, next_tvb, "Decrypted RC4 keydata");
-        } else if (keydes_version == KEYDES_VER_TYPE2) {
+        } else {
           add_new_data_source(pinfo, next_tvb, "Decrypted AES keydata");
           int padding_len = keydata_padding_len(next_tvb);
           ieee_80211_add_tagged_parameters(next_tvb, 0, pinfo, keydes_tree,
@@ -25568,8 +25568,6 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
                                 next_tvb, keydata_len - padding_len,
                                 padding_len, ENC_NA);
           }
-        } else {
-          /* TODO? */
         }
         /* Also add the PTK used to to decrypt and validate the keydata. */
         bytes_to_hexstr(out_buff, eapol->used_key.KeyData.Wpa.Ptk, 16); /* KCK is stored in PTK at offset 0 */

@@ -79,6 +79,16 @@ class case_decrypt_80211(subprocesstest.SubprocessTestCase):
                 ))
         self.assertEqual(self.countOutput('ICMP.*Echo .ping'), 2)
 
+    def test_80211_wpa3_personal(self, cmd_tshark, capture_file):
+        '''IEEE 802.11 decode WPA3 personal / SAE'''
+        # Included in git sources test/captures/wpa3-sae.pcapng.gz
+        self.assertRun((cmd_tshark,
+                '-o', 'wlan.enable_decryption: TRUE',
+                '-r', capture_file('wpa3-sae.pcapng.gz'),
+                '-Y', 'wlan.analysis.tk == 20a2e28f4329208044f4d7edca9e20a6 || wlan.analysis.gtk == 1fc82f8813160031d6bf87bca22b6354',
+                ))
+        self.assertTrue(self.grepOutput('Who has 192.168.5.18'))
+        self.assertTrue(self.grepOutput('DHCP ACK'))
 
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures

@@ -119,7 +119,8 @@ typedef struct _DOT11DECRYPT_SEC_ASSOCIATION {
 		UCHAR nonce[DOT11DECRYPT_WPA_NONCE_LEN];
 		/* used to derive PTK, ANonce stored, SNonce taken	*/
 		/* the 2nd packet of the 4W handshake			*/
-
+		INT akm;
+		INT cipher;
 		UCHAR ptk[DOT11DECRYPT_WPA_PTK_LEN];		/* session key used in decryption algorithm	*/
 	} wpa;
 

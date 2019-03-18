@@ -84,6 +84,8 @@ extern const UINT32 crc32_table[256];
 
 #define DOT11DECRYPT_GET_TK(ptk)    (ptk + 32)
 
+#define DOT11DECRYPT_IEEE80211_OUI(oui) (pntoh24(oui) == 0x000fac)
+
 /****************************************************************************/
 
 /****************************************************************************/
@@ -182,7 +184,8 @@ static INT Dot11DecryptRsnaMicCheck(
     UCHAR *eapol,
     USHORT eapol_len,
     UCHAR KCK[DOT11DECRYPT_WPA_KCK_LEN],
-    USHORT key_ver)
+    USHORT key_ver,
+    int akm)
     ;
 
 /**
@@ -216,14 +219,32 @@ static const UCHAR * Dot11DecryptGetBssidAddress(
     const DOT11DECRYPT_MAC_FRAME_ADDR4 *frame)
     ;
 
-static void Dot11DecryptRsnaPrfX(
+static void
+Dot11DecryptDerivePtk(
+    DOT11DECRYPT_SEC_ASSOCIATION *sa,
+    const UCHAR pmk[32],
+    const UCHAR snonce[32],
+    int key_version,
+    int akm,
+    int cipher);
+
+static void
+Dot11DecryptRsnaPrfX(
     DOT11DECRYPT_SEC_ASSOCIATION *sa,
     const UCHAR pmk[32],
     const UCHAR snonce[32],
     const INT x,        /*      for TKIP 512, for CCMP 384      */
-    UCHAR *ptk)
-    ;
+    UCHAR *ptk,
+    int hash_algo);
 
+static void
+Dot11DecryptRsnaKdfX(
+    DOT11DECRYPT_SEC_ASSOCIATION *sa,
+    const UCHAR pmk[32],
+    const UCHAR snonce[32],
+    const INT x,
+    UCHAR *ptk,
+    int hash_algo);
 
 /**
  * @param sa  [IN/OUT] pointer to SA that will hold the key
@@ -282,6 +303,14 @@ typedef struct {
     guint8  key_data_len[2];  /* Make this an array rather than a U16 to avoid alignment shifting */
 } EAPOL_RSN_KEY,  * P_EAPOL_RSN_KEY;
 
+typedef void (*DOT11DECRYPT_PTK_DERIVE_FUNC)(
+    DOT11DECRYPT_SEC_ASSOCIATION *sa,
+    const UCHAR pmk[32],
+    const UCHAR snonce[32],
+    const INT x,
+    UCHAR *ptk,
+    int hash_algo);
+
 /* Minimum possible key data size (at least one GTK KDE with CCMP key) */
 #define GROUP_KEY_MIN_LEN 8 + CCMP_GROUP_KEY_LEN
 /* Minimum possible group key msg size (group key msg using CCMP as cipher)*/
@@ -300,6 +329,35 @@ Dot11DecryptCopyKey(PDOT11DECRYPT_SEC_ASSOCIATION sa, PDOT11DECRYPT_KEY_ITEM key
             key->KeyType=DOT11DECRYPT_KEY_TYPE_TKIP;
         else if (sa->wpa.key_ver==DOT11DECRYPT_WPA_KEY_VER_AES_CCMP)
             key->KeyType=DOT11DECRYPT_KEY_TYPE_CCMP;
+        else if (sa->wpa.key_ver==0) {
+            switch (sa->wpa.cipher) {
+                case 1:
+                    key->KeyType = DOT11DECRYPT_KEY_TYPE_WEP_40;
+                    break;
+                case 2:
+                    key->KeyType = DOT11DECRYPT_KEY_TYPE_TKIP;
+                    break;
+                case 4:
+                    key->KeyType = DOT11DECRYPT_KEY_TYPE_CCMP;
+                    break;
+                case 5:
+                    key->KeyType = DOT11DECRYPT_KEY_TYPE_WEP_104;
+                    break;
+                default:
+                    key->KeyType = DOT11DECRYPT_KEY_TYPE_UNKNOWN;
+                    break;
+                /* NOT SUPPORTED YET
+                case 3:  Reserved
+                case 6:  BIP-CMAC-128
+                case 7:  Group addressed traffic not allowed
+                case 8:  GCMP-128
+                case 9:  GCMP-256
+                case 10: CCMP-256
+                case 11: BIP-GMAC-128
+                case 12: BIP-GMAC-256
+                case 13: BIP-CMAC-256 */
+            }
+        }
     }
 }
 
@@ -363,6 +421,15 @@ Dot11DecryptDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8 *decrypt
         if (key_bytes_len < 16) {
             return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
         }
+    } else {
+        /* XXX Ideally group cipher suite type from EAPOL message 2 of 4 should be used to  */
+        /* determine key size. As we currently have no way to do this lookup check that key */
+        /* is at least 16 bytes (IEEE802.11-2016 Table 12-4 Cipher suite key lengths)       */
+        key_bytes_len = pntoh16(pEAPKey->key_data_len);
+
+        if (key_bytes_len < 16) {
+            return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
+        }
     }
 
     if ((key_bytes_len < GROUP_KEY_MIN_LEN) ||
@@ -412,9 +479,12 @@ Dot11DecryptDecryptWPABroadcastKey(const EAPOL_RSN_KEY *pEAPKey, guint8 *decrypt
         memcpy(decrypted_data, data, key_bytes_len);
         decrypted_key = decrypted_data;
         g_free(data);
-    } else if (key_version == DOT11DECRYPT_WPA_KEY_VER_AES_CCMP){
-        /* AES CCMP key */
+    } else {
+        /* Ideally AKM from EAPOL message 2 of 4 should be used to determine Key-wrap algoritm to use */
+        /* Though fortunately IEEE802.11-2016 Table 12-8 state that all AKMs use "NIST AES Key Wrap"  */
+        /* algorithm so no AKM lookup is needed. */
 
+        /* AES CCMP key */
         guint8 key_found;
         guint8 key_length;
         guint16 key_index;
@@ -1377,6 +1447,85 @@ Dot11DecryptWepMng(
     return DOT11DECRYPT_RET_SUCCESS;
 }
 
+static int
+Dot11DecryptGetRsne(
+    const EAPOL_RSN_KEY *pEAPKey,
+    int *group_cipher,
+    int *cipher,
+    int *akm)
+{
+    int key_data_len = pntoh16(&pEAPKey->key_data_len);
+    int offset = 0;
+    int offset_rsne;
+    int i;
+    int count;
+    const guint8 *data = ((const guint8 *)pEAPKey) + sizeof(EAPOL_RSN_KEY);
+#ifdef DOT11DECRYPT_DEBUG
+#define MSGBUF_LEN 255
+    CHAR msgbuf[MSGBUF_LEN];
+#endif
+
+    while (offset < key_data_len - 2) {
+        guint8 element_id = data[offset];
+        guint8 length = data[offset + 1];
+
+        switch (element_id) {
+        case 48:    /* RSN (802.11-2016 9.4.2.35) */
+            offset_rsne = offset + 2;
+            offset_rsne += 2; /* version */
+            if (DOT11DECRYPT_IEEE80211_OUI(data + offset_rsne)) {
+                *group_cipher = data[offset_rsne + 3];
+            }
+            offset_rsne += 4; /* Group Cipher Suite */
+
+            if (offset_rsne + 1 >= key_data_len) {
+                break;
+            }
+            count = pletoh16(data + offset_rsne);
+            offset_rsne += 2; /* Pairwise Ciper Suite Count */
+
+            if (offset_rsne + 4 * count >= key_data_len) {
+                break;;
+            }
+            for (i = 0; i < count; i++) {
+                if (DOT11DECRYPT_IEEE80211_OUI(data + offset_rsne + 4 * i)) {
+                    *cipher = data[offset_rsne + 4 * i + 3];
+                    break;
+                }
+            }
+            offset_rsne += 4 * count; /* Pairwise Cipher Suites */
+
+            count = pletoh16(data + offset_rsne);
+            offset_rsne += 2; /* AKM Suite Count */
+
+            if (offset_rsne + 4 * count >= key_data_len) {
+                break;
+            }
+            for (i = 0; i < count; i++) {
+                if (DOT11DECRYPT_IEEE80211_OUI(data + offset_rsne + 4 * i)) {
+                    *akm = data[offset_rsne + 4 * i + 3];
+                    break;
+                }
+            }
+            offset_rsne += 4 * count; /* AKM Suite OUI */
+
+            /* RSN OUI */
+#ifdef DOT11DECRYPT_DEBUG
+            g_snprintf(msgbuf, MSGBUF_LEN, "Pairwise Cipher: %d, Group Cipher: %d AKM: %d",
+                       *cipher, *group_cipher, *akm);
+            DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptGetRsne", msgbuf, DOT11DECRYPT_DEBUG_LEVEL_3);
+#endif /* DOT11DECRYPT_DEBUG */
+            return 0;
+        }
+        if (!length) {
+            break;
+        }
+        offset += length;
+    }
+    DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptGetRsne", "RSNE not found or parse failed", DOT11DECRYPT_DEBUG_LEVEL_3);
+    return -1;
+}
+
 /* Refer to IEEE 802.11i-2004, 8.5.3, pag. 85 */
 static INT
 Dot11DecryptRsna4WHandshake(
@@ -1513,13 +1662,6 @@ Dot11DecryptRsna4WHandshake(
                         tmp_pkt_key = tmp_key;
                     }
 
-                    /* derive the PTK from the BSSID, STA MAC, PMK, SNonce, ANonce */
-                    Dot11DecryptRsnaPrfX(sa,                            /* authenticator nonce, bssid, station mac */
-                                     tmp_pkt_key->KeyData.Wpa.Psk,      /* PSK == PMK */
-                                     data+offset+12,                /* supplicant nonce */
-                                     512,
-                                     sa->wpa.ptk);
-
                     /* verify the MIC (compare the MIC in the packet included in this message with a MIC calculated with the PTK) */
                     eapol_len=pntoh16(data+offset-3)+4;
                     if ((guint)(tot_len-(offset-5)) < (eapol_len<DOT11DECRYPT_EAPOL_MAX_LEN?eapol_len:DOT11DECRYPT_EAPOL_MAX_LEN)) {
@@ -1527,11 +1669,33 @@ Dot11DecryptRsna4WHandshake(
                         return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
                     }
                     memcpy(eapol, &data[offset-5], (eapol_len<DOT11DECRYPT_EAPOL_MAX_LEN?eapol_len:DOT11DECRYPT_EAPOL_MAX_LEN));
+
+                    int key_version = DOT11DECRYPT_EAP_KEY_DESCR_VER(data[offset+1]);
+                    int akm = -1;
+                    int cipher = -1;
+
+                    if (key_version == 0) {
+                        /* PTK derivation is based on Authentication Key Management Type */
+                        int _U_ group_cipher = -1;
+                        Dot11DecryptGetRsne((const EAPOL_RSN_KEY *)(data + offset - 1),
+                                            &group_cipher, &cipher, &akm);
+                    }
+
+                    /* derive the PTK from the BSSID, STA MAC, PMK, SNonce, ANonce */
+                    Dot11DecryptDerivePtk(sa,                            /* authenticator nonce, bssid, station mac */
+                                          tmp_pkt_key->KeyData.Wpa.Psk,  /* PSK == PMK */
+                                          data+offset+12,                /* supplicant nonce */
+                                          key_version,
+                                          akm,
+                                          cipher);
+
+                    DEBUG_DUMP("TK",  DOT11DECRYPT_GET_TK(sa->wpa.ptk), 16);
+
                     ret_value=Dot11DecryptRsnaMicCheck(eapol,           /*      eapol frame (header also) */
                                                    eapol_len,       /*      eapol frame length        */
                                                    sa->wpa.ptk,     /*      Key Confirmation Key      */
-                                                   DOT11DECRYPT_EAP_KEY_DESCR_VER(data[offset+1])); /*  EAPOL-Key description version */
-
+                                                   key_version,     /*  EAPOL-Key description version */
+                                                   akm);
                     /* If the MIC is valid, the Authenticator checks that the RSN information element bit-wise matches       */
                     /* that from the (Re)Association Request message.                                                        */
                     /*              i) TODO If these are not exactly the same, the Authenticator uses MLME-DEAUTHENTICATE.request */
@@ -1623,16 +1787,59 @@ Dot11DecryptRsna4WHandshake(
     return DOT11DECRYPT_RET_NO_VALID_HANDSHAKE;
 }
 
+/* From IEEE 802.11-2016 Table 12-8 Integrity and key-wrap algorithms */
+static int
+Dot11DecryptGetIntegrityAlgoFromAkm(int akm, int *algo, gboolean *hmac)
+{
+    int res = 0;
+    switch (akm) {
+        case 1:
+        case 2:
+            *algo = GCRY_MD_SHA1;
+            *hmac = TRUE;
+            break;
+#if GCRYPT_VERSION_NUMBER >= 0x010600
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+        case 9:
+        case 10:
+            *algo = GCRY_MAC_CMAC_AES;
+            *hmac = FALSE;
+            break;
+#endif
+        case 11:
+            *algo = GCRY_MD_SHA256;
+            *hmac = TRUE;
+            break;
+        case 12:
+        case 13:
+            *algo = GCRY_MD_SHA384;
+            *hmac = TRUE;
+            break;
+        default:
+            /* Unknown / Not supported yet */
+            res = -1;
+            break;
+    }
+    return res;
+}
+
 static INT
 Dot11DecryptRsnaMicCheck(
     UCHAR *eapol,
     USHORT eapol_len,
     UCHAR KCK[DOT11DECRYPT_WPA_KCK_LEN],
-    USHORT key_ver)
+    USHORT key_ver,
+    int akm)
 {
     UCHAR mic[DOT11DECRYPT_WPA_MICKEY_LEN];
     UCHAR c_mic[HASH_SHA1_LENGTH] = { 0 };  /* MIC 16 byte, the HMAC-SHA1 use a buffer of 20 bytes */
-    int algo;
+    int algo = -1;
+    gboolean hmac = TRUE;
 
     /* copy the MIC from the EAPOL packet */
     memcpy(mic, eapol+DOT11DECRYPT_WPA_MICKEY_OFFSET+4, DOT11DECRYPT_WPA_MICKEY_LEN);
@@ -1643,19 +1850,35 @@ Dot11DecryptRsnaMicCheck(
     if (key_ver==DOT11DECRYPT_WPA_KEY_VER_NOT_CCMP) {
         /* use HMAC-MD5 for the EAPOL-Key MIC */
         algo = GCRY_MD_MD5;
+        hmac = TRUE;
     } else if (key_ver==DOT11DECRYPT_WPA_KEY_VER_AES_CCMP) {
         /* use HMAC-SHA1-128 for the EAPOL-Key MIC */
         algo = GCRY_MD_SHA1;
+        hmac = TRUE;
     } else {
-        /* key descriptor version not recognized */
-        return DOT11DECRYPT_RET_UNSUCCESS;
+        /* Mic check algoritm determined by AKM type */
+        if (Dot11DecryptGetIntegrityAlgoFromAkm(akm, &algo, &hmac)) {
+            DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptRsnaMicCheck", "Unknown Mic check algo", DOT11DECRYPT_DEBUG_LEVEL_3);
+            DOT11DECRYPT_DEBUG_TRACE_END("Dot11DecryptRsnaMicCheck");
+        };
     }
-
-    if (ws_hmac_buffer(algo, c_mic, eapol, eapol_len, KCK, DOT11DECRYPT_WPA_KCK_LEN)) {
-        return DOT11DECRYPT_RET_UNSUCCESS;
+    if (hmac) {
+        if (ws_hmac_buffer(algo, c_mic, eapol, eapol_len, KCK, DOT11DECRYPT_WPA_KCK_LEN)) {
+            DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptRsnaMicCheck", "HMAC_BUFFER", DOT11DECRYPT_DEBUG_LEVEL_3);
+            DOT11DECRYPT_DEBUG_TRACE_END("Dot11DecryptRsnaMicCheck");
+            return DOT11DECRYPT_RET_UNSUCCESS;
+        }
+    } else {
+        if (ws_cmac_buffer(algo, c_mic, eapol, eapol_len, KCK, DOT11DECRYPT_WPA_KCK_LEN)) {
+            DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptRsnaMicCheck", "HMAC_BUFFER", DOT11DECRYPT_DEBUG_LEVEL_3);
+            DOT11DECRYPT_DEBUG_TRACE_END("Dot11DecryptRsnaMicCheck");
+            return DOT11DECRYPT_RET_UNSUCCESS;
+        }
     }
 
     /* compare calculated MIC with the Key MIC and return result (0 means success) */
+    DEBUG_DUMP("mic",  mic, DOT11DECRYPT_WPA_MICKEY_LEN);
+    DEBUG_DUMP("c_mic", c_mic, DOT11DECRYPT_WPA_MICKEY_LEN);
     return memcmp(mic, c_mic, DOT11DECRYPT_WPA_MICKEY_LEN);
 }
 
@@ -1907,6 +2130,167 @@ Dot11DecryptGetBssidAddress(
     }
 }
 
+/* From IEEE 802.11-2016 Table 9-131 Cipher suite selectors and
+ * Table 12-4 Cipher suite key lengths */
+static int Dot11DecryptGetTkLen(int cipher)
+{
+    switch (cipher) {
+        case 1: return 40;   /* WEP-40 */
+        case 2: return 256;  /* TKIP */
+        case 3: return -1;   /* Reserved */
+        case 4: return 128;  /* CCMP-128 */
+        case 5: return 104;  /* WEP-104 */
+        case 6: return 128;  /* BIP-CMAC-128 */
+        case 7: return -1;   /* Group addressed traffic not allowed */
+        case 8: return 128;  /* GCMP-128 */
+        case 9: return 256;  /* GCMP-256 */
+        case 10: return 256; /* CCMP-256 */
+        case 11: return 128; /* BIP-GMAC-128 */
+        case 12: return 256; /* BIP-GMAC-256 */
+        case 13: return 256; /* BIP-CMAC-256 */
+        default:
+            DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptGetTkLen", "NO", DOT11DECRYPT_DEBUG_LEVEL_3);
+            return -1;
+    }
+}
+
+/* From IEEE 802.11-2016 9.4.2.25.3 AKM suites and
+ * Table 12-8 Integrity and key-wrap algorithms */
+static int Dot11DecryptGetPtkLen(int akm, int cipher)
+{
+    int ptk_len = -1;
+    switch (akm) {
+        case 1:
+        case 2:
+        case 5:
+        case 6:
+        case 8:
+        case 11:
+            /* KCK len + KEK len + TK len */
+            ptk_len = 128 + 128 + Dot11DecryptGetTkLen(cipher);
+            break;
+        case 12:
+        case 13:
+            ptk_len = 192 + 256 + Dot11DecryptGetTkLen(cipher);
+            break;
+        default:
+            /* Unknown / Not supported */
+            DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptGetPtkLen", "NO", DOT11DECRYPT_DEBUG_LEVEL_3);
+            break;
+    }
+    return ptk_len;
+}
+
+/* From IEEE 802.11-2016 12.7.1.2 PRF and Table 9-133 AKM suite selectors */
+static DOT11DECRYPT_PTK_DERIVE_FUNC
+Dot11DecryptGetDeriveFuncFromAkm(int akm)
+{
+    DOT11DECRYPT_PTK_DERIVE_FUNC func = NULL;
+    switch (akm) {
+        case 1:
+        case 2:
+            func = Dot11DecryptRsnaPrfX;
+            break;
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+        case 9:
+        case 10:
+        case 11:
+        case 12:
+        case 13:
+            func = Dot11DecryptRsnaKdfX;
+            break;
+        default:
+            /* Unknown / Not supported yet */
+            break;
+    }
+    return func;
+}
+
+/* From IEEE 802.11-2016 12.7.1.2 PRF and Table 9-133 AKM suite selectors */
+static int
+Dot11DecryptGetDeriveAlgoFromAkm(int akm)
+{
+    int algo = -1;
+    switch (akm) {
+        case 1:
+        case 2:
+            algo = GCRY_MD_SHA1;
+            break;
+        case 3:
+        case 4:
+        case 5:
+        case 6:
+        case 7:
+        case 8:
+        case 9:
+        case 10:
+        case 11:
+            algo = GCRY_MD_SHA256;
+            break;
+        case 12:
+        case 13:
+            algo = GCRY_MD_SHA384;
+            break;
+        default:
+            /* Unknown / Not supported yet */
+            break;
+    }
+    return algo;
+}
+
+/* derive the PTK from the BSSID, STA MAC, PMK, SNonce, ANonce */
+static void
+Dot11DecryptDerivePtk(
+    DOT11DECRYPT_SEC_ASSOCIATION *sa,
+    const UCHAR pmk[32],
+    const UCHAR snonce[32],
+    int key_version,
+    int akm,
+    int cipher)
+{
+#ifdef DOT11DECRYPT_DEBUG
+#define MSGBUF_LEN 255
+    CHAR msgbuf[MSGBUF_LEN];
+#endif
+    int algo = -1;
+    int ptk_len_bits = -1;
+    DOT11DECRYPT_PTK_DERIVE_FUNC DerivePtk = NULL;
+    sa->wpa.key_ver = key_version;
+    sa->wpa.akm = akm;
+    if (key_version == DOT11DECRYPT_WPA_KEY_VER_NOT_CCMP) {
+        sa->wpa.cipher = 2; /* TKIP */
+        ptk_len_bits = 512;
+        DerivePtk = Dot11DecryptRsnaPrfX;
+        algo = GCRY_MD_MD5;
+    } else if (key_version  == DOT11DECRYPT_WPA_KEY_VER_AES_CCMP) {
+        sa->wpa.cipher = 4; /* CCMP-128 */
+        ptk_len_bits = 384;
+        DerivePtk = Dot11DecryptRsnaPrfX;
+        algo = GCRY_MD_SHA1;
+    } else {
+        /* From IEEE 802.11-2016 Table 12-8 Integrity and key-wrap algorithms */
+        sa->wpa.cipher = cipher;
+        ptk_len_bits = Dot11DecryptGetPtkLen(akm, cipher);
+        DerivePtk = Dot11DecryptGetDeriveFuncFromAkm(akm);
+        algo = Dot11DecryptGetDeriveAlgoFromAkm(akm);
+
+#ifdef DOT11DECRYPT_DEBUG
+        g_snprintf(msgbuf, MSGBUF_LEN, "ptk_len_bits: %d, algo: %d, cipher: %d", ptk_len_bits, algo, cipher);
+        DOT11DECRYPT_DEBUG_PRINT_LINE("Dot11DecryptDerivePtk", msgbuf, DOT11DECRYPT_DEBUG_LEVEL_3);
+#endif /* DOT11DECRYPT_DEBUG */
+    }
+
+    if (ptk_len_bits == -1 || !DerivePtk || algo == -1) {
+        return;
+    }
+    DerivePtk(sa, pmk, snonce, ptk_len_bits, sa->wpa.ptk, algo);
+}
+
 /* Function used to derive the PTK. Refer to IEEE 802.11I-2004, pag. 74
  * and IEEE 802.11i-2004, pag. 164 */
 static void
@@ -1915,12 +2299,14 @@ Dot11DecryptRsnaPrfX(
     const UCHAR pmk[32],
     const UCHAR snonce[32],
     const INT x,        /*      for TKIP 512, for CCMP 384 */
-    UCHAR *ptk)
+    UCHAR *ptk,
+    int hash_algo)
 {
     UINT8 i;
     UCHAR R[100];
     INT offset=sizeof("Pairwise key expansion");
     UCHAR output[80]; /* allow for sha1 overflow. */
+    int hash_len = (hash_algo == GCRY_MD_MD5) ? 16 : 20;
 
     memset(R, 0, 100);
 
@@ -1957,11 +2343,80 @@ Dot11DecryptRsnaPrfX(
     for(i = 0; i < (x+159)/160; i++)
     {
         R[offset] = i;
-        if (ws_hmac_buffer(GCRY_MD_SHA1, &output[HASH_SHA1_LENGTH * i], R, 100, pmk, 32)) {
+        if (ws_hmac_buffer(hash_algo, &output[hash_len * i], R, 100, pmk, 32)) {
           return;
         }
     }
     memcpy(ptk, output, x/8);
+}
+
+/* From IEEE 802.11-2016 12.7.1.7.2 Key derivation function (KDF) */
+static void
+Dot11DecryptRsnaKdfX(
+    DOT11DECRYPT_SEC_ASSOCIATION *sa,
+    const UCHAR pmk[32],
+    const UCHAR snonce[32],
+    const INT x,
+    UCHAR *ptk,
+    int hash_algo)
+{
+    static const char *const label = "Pairwise key expansion";
+    /* LABEL_LEN = strlen("Pairwise key expansion") */
+    #define LABEL_LEN (22)
+    /* R_LEN = "i || Label || Context || Length" */
+    #define R_LEN (2 + LABEL_LEN + DOT11DECRYPT_MAC_LEN * 2 + 2 * 32 + 2)
+
+    UCHAR R[R_LEN];
+    guint16 i;
+    INT offset = 0;
+    UCHAR output[48 * 2]; /* Big enough for largest algo results (SHA-384) */
+    guint16 hash_len = (hash_algo == GCRY_MD_SHA384) ? 48 : 32;
+    memset(R, 0, R_LEN);
+
+    offset += 2; /* i */
+    memcpy(R + offset, label, LABEL_LEN);
+    offset += LABEL_LEN;
+
+    /* Min(AA, SPA) || Max(AA, SPA) */
+    if (memcmp(sa->saId.sta, sa->saId.bssid, DOT11DECRYPT_MAC_LEN) < 0)
+    {
+        memcpy(R + offset, sa->saId.sta, DOT11DECRYPT_MAC_LEN);
+        memcpy(R + offset+DOT11DECRYPT_MAC_LEN, sa->saId.bssid, DOT11DECRYPT_MAC_LEN);
+    }
+    else
+    {
+        memcpy(R + offset, sa->saId.bssid, DOT11DECRYPT_MAC_LEN);
+        memcpy(R + offset+DOT11DECRYPT_MAC_LEN, sa->saId.sta, DOT11DECRYPT_MAC_LEN);
+    }
+    offset += DOT11DECRYPT_MAC_LEN * 2;
+
+    /* Min(ANonce,SNonce) || Max(ANonce,SNonce) */
+    if( memcmp(snonce, sa->wpa.nonce, 32) < 0 )
+    {
+        memcpy(R + offset, snonce, 32);
+        memcpy(R + offset + 32, sa->wpa.nonce, 32);
+    }
+    else
+    {
+        memcpy(R + offset, sa->wpa.nonce, 32);
+        memcpy(R + offset + 32, snonce, 32);
+    }
+    offset += 32 * 2;
+
+    guint16 len_le = GUINT16_TO_LE(x);
+    memcpy(R + offset, &len_le, 2);
+    offset += 2;
+
+    for (i = 0; i < (x + 255) / 256; i++)
+    {
+        guint16 count_le = GUINT16_TO_LE(i + 1);
+        memcpy(R, &count_le, 2);
+
+        if (ws_hmac_buffer(hash_algo, &output[hash_len * i], R, offset, pmk, 32)) {
+            return;
+        }
+    }
+    memcpy(ptk, output, x / 8);
 }
 
 #define MAX_SSID_LENGTH 32 /* maximum SSID length */
