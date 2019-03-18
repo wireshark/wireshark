@@ -572,7 +572,7 @@ capture_input_error_message(capture_session *cap_session, char *error_msg,
  */
 void
 capture_input_cfilter_error_message(capture_session *cap_session, guint i,
-                                    char *error_message)
+                                    const char *error_message)
 {
     capture_options *capture_opts = cap_session->capture_opts;
     dfilter_t *rfcode = NULL;

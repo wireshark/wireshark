@@ -2536,7 +2536,7 @@ capture_input_error_message(capture_session *cap_session _U_, char *error_msg, c
 
 /* capture child detected an capture filter related error */
 void
-capture_input_cfilter_error_message(capture_session *cap_session, guint i, char *error_message)
+capture_input_cfilter_error_message(capture_session *cap_session, guint i, const char *error_message)
 {
   capture_options *capture_opts = cap_session->capture_opts;
   dfilter_t         *rfcode = NULL;

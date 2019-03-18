@@ -136,7 +136,7 @@ capture_input_error_message(capture_session *cap_session, char *error_msg,
  */
 extern void
 capture_input_cfilter_error_message(capture_session *cap_session, guint i,
-                                    char *error_message);
+                                    const char *error_message);
 
 /**
  * Capture child closed its side of the pipe, report any error and

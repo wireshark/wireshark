@@ -1711,7 +1711,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
             message = end + 1;
         }
 
-        capture_input_cfilter_error_message(cap_session, indx, (char*)message);
+        capture_input_cfilter_error_message(cap_session, indx, message);
         /* the capture child will close the sync_pipe, nothing to do for now */
         break;
         }
