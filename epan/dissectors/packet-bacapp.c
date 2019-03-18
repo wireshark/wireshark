@@ -6960,7 +6960,7 @@ fPresentValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset,
             break;
         case BACAPP_PRESENT_VALUE_OCTET_STRING:
             if (lvt > 0)
-                tree_item = proto_tree_add_string(tree, hf_bacapp_present_value_octet_string, tvb, offset, lvt+tag_len, NULL);
+                tree_item = proto_tree_add_item(tree, hf_bacapp_present_value_octet_string, tvb, offset, lvt+tag_len, ENC_NA);
             curr_offset += tag_len + lvt;
             break;
         case BACAPP_PRESENT_VALUE_CHARACTER_STRING:
