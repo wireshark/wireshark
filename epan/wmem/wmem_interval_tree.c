@@ -27,7 +27,7 @@
 static void
 print_range(const void *value)
 {
-    wmem_range_t *range = (wmem_range_t *)value;
+    const wmem_range_t *range = (const wmem_range_t *)value;
     if(!value) {
         return;
     }
@@ -43,8 +43,8 @@ static void
 update_max_edge(wmem_tree_node_t *node)
 {
     wmem_range_t *range;
-    wmem_range_t *range_l;
-    wmem_range_t *range_r;
+    const wmem_range_t *range_l;
+    const wmem_range_t *range_r;
     guint64 maxEdge = 0;
 
     if(!node) {
@@ -53,8 +53,8 @@ update_max_edge(wmem_tree_node_t *node)
 
     range = (wmem_range_t *)node->key;
 
-    range_l = (node->left) ? (wmem_range_t *) (node->left->key) : NULL;
-    range_r = (node->right) ? (wmem_range_t *) (node->right->key) : NULL;
+    range_l = (node->left) ? (const wmem_range_t *) (node->left->key) : NULL;
+    range_r = (node->right) ? (const wmem_range_t *) (node->right->key) : NULL;
 
     maxEdge = range->high;
 
