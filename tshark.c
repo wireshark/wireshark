@@ -2781,7 +2781,7 @@ report_counts_siginfo(int signum _U_)
 
 /* capture child detected any packet drops? */
 void
-capture_input_drops(capture_session *cap_session _U_, guint32 dropped, char* interface_name)
+capture_input_drops(capture_session *cap_session _U_, guint32 dropped, const char* interface_name)
 {
   if (print_packet_counts) {
     /* We're printing packet counts to stderr.

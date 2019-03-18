@@ -1724,7 +1724,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
             name = end + 1;
         }
 
-        capture_input_drops(cap_session, num, (char*)name);
+        capture_input_drops(cap_session, num, name);
         break;
         }
     default:
