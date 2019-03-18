@@ -175,10 +175,9 @@ It also requires the following:
 
 * 500 MB available disk space. Capture files require additional disk space.
 
-* 1024 {multiplication} 768 (1280 {multiplication} 1024 or higher
-  recommended) resolution with at least 16-bit color. 8-bit color should
-  work but user experience will be degraded. Power users will find
-  multiple monitors useful.
+* Any modern display. 1280 {multiplication} 1024 or higher resolution is
+  recommended. Wireshark will make use of HiDPI or Retina resolutions if
+  available. Power users will find multiple monitors useful.
 
 * A supported network card for capturing
 
@@ -214,7 +213,11 @@ values listed above.
 Binary packages are available for most Unices and Linux distributions
 including the following platforms:
 
+* Alpine Linux
+
 * Apple macOS
+
+* Canonical Ubuntu
 
 * Debian GNU/Linux
 
@@ -230,13 +233,9 @@ including the following platforms:
 
 * OpenPKG
 
-* Red Hat Enterprise/Fedora Linux
+* Oracle Solaris
 
-* Sun Solaris/i386
-
-* Sun Solaris/SPARC
-
-* Canonical Ubuntu
+* Red Hat Enterprise Linux / CentOS / Fedora
 
 If a binary package is not available for your platform you can download
 the source and try to build it. Please report your experiences to
