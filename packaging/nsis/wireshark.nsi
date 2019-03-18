@@ -888,7 +888,7 @@ IfSilent SecRequired_skip_Npcap
 ReadINIStr $0 "$PLUGINSDIR\NpcapPage.ini" "Field 4" "State"
 StrCmp $0 "0" SecRequired_skip_Npcap
 SetOutPath $INSTDIR
-File "${WIRESHARK_LIB_DIR}\npcap-${NPCAP_PACKAGE_VERSION}.exe"
+File "${EXTRA_INSTALLER_DIR}\npcap-${NPCAP_PACKAGE_VERSION}.exe"
 ExecWait '"$INSTDIR\npcap-${NPCAP_PACKAGE_VERSION}.exe" /winpcap_mode=no' $0
 DetailPrint "Npcap installer returned $0"
 SecRequired_skip_Npcap:
@@ -899,7 +899,7 @@ IfSilent SecRequired_skip_USBPcap
 ReadINIStr $0 "$PLUGINSDIR\USBPcapPage.ini" "Field 4" "State"
 StrCmp $0 "0" SecRequired_skip_USBPcap
 SetOutPath $INSTDIR
-File "${WIRESHARK_LIB_DIR}\USBPcapSetup-${USBPCAP_PACKAGE_VERSION}.exe"
+File "${EXTRA_INSTALLER_DIR}\USBPcapSetup-${USBPCAP_PACKAGE_VERSION}.exe"
 ExecWait '"$INSTDIR\USBPcapSetup-${USBPCAP_PACKAGE_VERSION}.exe"' $0
 DetailPrint "USBPcap installer returned $0"
 ${If} $0 == "0"
