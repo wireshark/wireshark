@@ -1029,7 +1029,6 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                                                  sbus_web_seq);
                                     break;
                             case SBUS_RDWR_MULTI_MEDIAS:
-                                    sbus_rdwr_type = tvb_get_guint8(tvb, 12);
                                     col_add_fstr( pinfo->cinfo, COL_INFO,
                                                   "Request:  Multi media telegram (%d sub requests)",
                                                   request_val->mm_request_count);
