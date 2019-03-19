@@ -405,6 +405,7 @@ static const value_string sctp_payload_proto_id_values[] = {
   { NGAP_PROTOCOL_ID,                               "NGAP" },
   { XNAP_PROTOCOL_ID,                               "XnAP" },
   { F1AP_PROTOCOL_ID,                               "F1 AP" },
+  { ELE2_PROTOCOL_ID,                               "ELE2 Lawful Interception" },
 
   { 0,                                              NULL } };
 
