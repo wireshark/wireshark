@@ -293,8 +293,8 @@ pcapng_write_block(FILE* pfile,
         *err = EINVAL;
         return FALSE;
     }
-    block_length = *(guint32 *) (data+sizeof(guint32));
-    end_length = *(guint32 *) (data+length-sizeof(guint32));
+    block_length = *(const guint32 *) (data+sizeof(guint32));
+    end_length = *(const guint32 *) (data+length-sizeof(guint32));
     if (block_length != end_length) {
         *err = EBADMSG;
         return FALSE;
