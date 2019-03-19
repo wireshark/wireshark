@@ -73,6 +73,8 @@ static int hf_nas_5gs_mm_sms_requested = -1;
 static int hf_nas_5gs_mm_5gs_reg_type = -1;
 static int hf_nas_5gs_mm_tsc = -1;
 static int hf_nas_5gs_mm_nas_key_set_id = -1;
+static int hf_nas_5gs_mm_tsc_h1 = -1;
+static int hf_nas_5gs_mm_nas_key_set_id_h1 = -1;
 static int hf_nas_5gs_mm_5gmm_cause = -1;
 static int hf_nas_5gs_mm_pld_cont_type = -1;
 static int hf_nas_5gs_mm_sst = -1;
@@ -3756,6 +3758,14 @@ nas_5gs_mm_authentication_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
 /*
  * 8.2.6 Registration request
  */
+static const int * nas_5gs_registration_req_flags[] = {
+    &hf_nas_5gs_mm_tsc_h1,
+    &hf_nas_5gs_mm_nas_key_set_id_h1,
+    &hf_nas_5gs_mm_for,
+    &hf_nas_5gs_mm_5gs_reg_type,
+    NULL
+};
+
 static void
 nas_5gs_mm_registration_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len)
 {
@@ -3773,9 +3783,9 @@ nas_5gs_mm_registration_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     nas5gs_get_private_data(pinfo);
 
     /*   5GS registration type    5GS registration type 9.11.3.7    M    V    1/2  H0*/
-    proto_tree_add_bitmask_list(tree, tvb, offset, 1, nas_5gs_registration_type_flags, ENC_BIG_ENDIAN);
-
     /*    ngKSI    NAS key set identifier 9.11.3.32    M    V    1/2 H1*/
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, nas_5gs_registration_req_flags, ENC_BIG_ENDIAN);
+
     ELEM_MAND_V(NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_NAS_KEY_SET_ID, " - ngKSI", ei_nas_5gs_missing_mandatory_elemen);
 
     /*    Mobile identity    5GS mobile identity 9.11.3.4    M    LV-E    6-n*/
@@ -5664,7 +5674,7 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_mm_for,
         { "Follow-On Request bit (FOR)",   "nas_5gs.mm.for",
-            FT_BOOLEAN, 8, TFS(&nas_5gs_for_tfs), 0x10,
+            FT_BOOLEAN, 8, TFS(&nas_5gs_for_tfs), 0x08,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_sms_requested,
@@ -5685,6 +5695,16 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_mm_nas_key_set_id,
         { "NAS key set identifier",   "nas_5gs.mm.nas_key_set_id",
             FT_UINT8, BASE_DEC, NULL, 0x07,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_tsc_h1,
+        { "Type of security context flag (TSC)",   "nas_5gs.mm.tsc.h1",
+            FT_BOOLEAN, 8, TFS(&nas_5gs_mm_tsc_tfs), 0x80,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_nas_key_set_id_h1,
+        { "NAS key set identifier",   "nas_5gs.mm.nas_key_set_id.h1",
+            FT_UINT8, BASE_DEC, NULL, 0x70,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_5gmm_cause,
