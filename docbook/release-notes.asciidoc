@@ -14,6 +14,9 @@ used for troubleshooting, analysis, development and education.
 
 == What’s New
 
+* The Windows installers now ship with Npcap 0.991. They previously shipped
+  with Npcap 0.99-r9.
+
 === Bug Fixes
 
 The following vulnerabilities have been fixed:
