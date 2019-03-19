@@ -339,6 +339,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissect_h225_ReleaseCompleteReason@Base 1.9.1
  dissect_h245_H223Capability@Base 1.9.1
  dissect_isup_called_party_number_parameter@Base 1.9.1
+ dissect_isup_calling_geodetic_location_parameter@Base 3.1.0
  dissect_isup_calling_party_number_parameter@Base 1.9.1
  dissect_isup_original_called_number_parameter@Base 1.9.1
  dissect_isup_redirecting_number_parameter@Base 1.9.1
