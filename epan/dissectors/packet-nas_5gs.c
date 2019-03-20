@@ -3785,8 +3785,8 @@ nas_5gs_mm_registration_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     /*   5GS registration type    5GS registration type 9.11.3.7    M    V    1/2  H0*/
     /*    ngKSI    NAS key set identifier 9.11.3.32    M    V    1/2 H1*/
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, nas_5gs_registration_req_flags, ENC_BIG_ENDIAN);
-
-    ELEM_MAND_V(NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_NAS_KEY_SET_ID, " - ngKSI", ei_nas_5gs_missing_mandatory_elemen);
+    curr_offset++;
+    curr_len--;
 
     /*    Mobile identity    5GS mobile identity 9.11.3.4    M    LV-E    6-n*/
     ELEM_MAND_LV_E(NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_5GS_MOBILE_ID, NULL, ei_nas_5gs_missing_mandatory_elemen);
