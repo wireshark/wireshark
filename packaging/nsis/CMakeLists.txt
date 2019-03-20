@@ -206,6 +206,7 @@ macro( ADD_NSIS_PACKAGE_TARGET )
 			COMMAND ${POWERSHELL_COMMAND} "${_nsis_source_dir}/windeployqt-to-nsis.ps1"
 				-Executable $<TARGET_FILE:wireshark>
 				-FilePath ${_nsis_binary_dir}/qt-dll-manifest.nsh
+				$<$<CONFIG:Debug>:-DebugConfig>
 		)
 
 		# Build NSIS package dependencies. We build the package in
