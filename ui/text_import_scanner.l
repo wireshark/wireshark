@@ -122,8 +122,6 @@ eol \r?\n\r?
 {comment}         { parse_token(T_EOL, NULL); }
 {text}            { parse_token(T_TEXT, yytext); }
 
-<<EOF>>           { write_current_packet(); yyterminate(); }
-
 %%
 
 /*

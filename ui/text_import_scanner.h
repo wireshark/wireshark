@@ -30,7 +30,6 @@ typedef enum {
 
 
 void parse_token(token_t token, char *str);
-void write_current_packet(void);
 
 extern FILE *text_importin;
 

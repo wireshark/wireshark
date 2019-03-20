@@ -384,7 +384,7 @@ number_of_padding_bytes (guint32 length)
 /*----------------------------------------------------------------------
  * Write current packet out
  */
-void
+static void
 write_current_packet (void)
 {
     int prefix_length = 0;
@@ -1117,6 +1117,9 @@ text_import(text_import_info_t *info)
     max_offset = info->max_frame_length;
 
     ret = text_import_scan(info->import_text_file);
+    if (ret == 0) {
+        write_current_packet();
+    }
     g_free(packet_buf);
     return ret;
 }
