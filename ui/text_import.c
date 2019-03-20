@@ -13,7 +13,7 @@
 
 /*******************************************************************************
  *
- * This utility reads in an ASCII hexdump of this common format:
+ * This code reads in an ASCII hexdump of this common format:
  *
  * 00000000  00 E0 1E A7 05 6F 00 10 5A A0 B9 12 08 00 46 00 .....o..Z.....F.
  * 00000010  03 68 00 00 00 00 0A 2E EE 33 0F 19 08 7F 0F 19 .h.......3......
@@ -335,7 +335,7 @@ parse_num (const char *str, int offset)
     }
 
     num = strtoul(str, &c, offset ? offset_base : 16);
-    if (c==str) {
+    if (c == str) {
         fprintf(stderr, "FATAL ERROR: Bad hex number? [%s]\n", str);
     }
     return (guint32)num;
@@ -701,8 +701,8 @@ parse_preamble (void)
     }
 
     /*
-     * If no "-t" flag was specified, don't attempt to parse the packet
-     * preamble to extract a time stamp.
+     * If no time stamp format was specified, don't attempt to parse
+     * the packet preamble to extract a time stamp.
      */
     if (ts_fmt == NULL)
         return;
