@@ -25,7 +25,8 @@ typedef enum {
     T_OFFSET,
     T_DIRECTIVE,
     T_TEXT,
-    T_EOL
+    T_EOL,
+    T_EOF
 } token_t;
 
 
