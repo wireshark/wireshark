@@ -223,6 +223,7 @@ main(int argc, char **argv)
 			if (!example)
 				return 1;
 			example->dump = savedump;
+			example->filename = produce_filename;
 		}
 	}
 	if (!randpkt_example_close(example))
