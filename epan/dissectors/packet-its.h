@@ -67,6 +67,9 @@
 /* --- Module SSEM-PDU-Descriptions --- --- ---                               */
 
 
+/* --- Module RTCMEM-PDU-Descriptions --- --- ---                             */
+
+
 /* --- Module CAM-PDU-Descriptions --- --- ---                                */
 
 
@@ -185,6 +188,9 @@ typedef enum _RegionId_enum {
 
 
 /* --- Module SSEM-PDU-Descriptions --- --- ---                               */
+
+
+/* --- Module RTCMEM-PDU-Descriptions --- --- ---                             */
 
 
 /* --- Module CAM-PDU-Descriptions --- --- ---                                */

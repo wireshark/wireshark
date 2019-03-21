@@ -12,13 +12,13 @@
 
 /*
  * Implemented:
- * CA (CAM)                           ETSI EN 302 637-2
- * DEN (DENM)                         ETSI EN 302 637-3
- * RLT (MAPEM)                        ETSI TS 103 301
- * TLM (SPATEM)                       ETSI TS 103 301
- * IVI (IVIM)                         ETSI TS 103 301
- * TLC (SREM)                         ETSI TS 103 301
- * TLC (SSEM)                         ETSI TS 103 301
+ * CA (CAM)                           ETSI EN 302 637-2   V1.4.1 (2019-01)
+ * DEN (DENM)                         ETSI EN 302 637-3   V1.3.0 (2018-08)
+ * RLT (MAPEM)                        ETSI TS 103 301     V1.2.1 (2018-08)
+ * TLM (SPATEM)                       ETSI TS 103 301     V1.2.1 (2018-08)
+ * IVI (IVIM)                         ETSI TS 103 301     V1.2.1 (2018-08)
+ * TLC (SREM)                         ETSI TS 103 301     V1.2.1 (2018-08)
+ * TLC (SSEM)                         ETSI TS 103 301     V1.2.1 (2018-08)
  * EVCSN POI (EVCSN POI message)      ETSI TS 101 556-1
  * TPG (TRM, TCM, VDRM, VDPM, EOFM)   ETSI TS 101 556-2
  * Charging (EV-RSR, SRM, SCM)        ETSI TS 101 556-3
@@ -57,14 +57,14 @@
  * BTP port   Facilities service      Related standard
  * number     or Application
  * values
- * 2001       CA (CAM)                ETSI EN 302 637-2
+ * 2001       CA (CAM)                ETSI EN 302 637-2  V1.4.1 (2019-01)
  * 2002       DEN (DENM)              ETSI EN 302 637-3
- * 2003       RLT (MAPEM)             ETSI TS 103 301
- * 2004       TLM (SPATEM)            ETSI TS 103 301
+ * 2003       RLT (MAPEM)             ETSI TS 103 301     V1.2.1 (2018-08)
+ * 2004       TLM (SPATEM)            ETSI TS 103 301     V1.2.1 (2018-08)
  * 2005       SA (SAEM)               ETSI TS 102 890-1
- * 2006       IVI (IVIM)              ETSI TS 103 301
- * 2007       TLC (SREM)              ETSI TS 103 301
- * 2008       TLC (SSEM)              ETSI TS 103 301
+ * 2006       IVI (IVIM)              ETSI TS 103 301     V1.2.1 (2018-08)
+ * 2007       TLC (SREM)              ETSI TS 103 301     V1.2.1 (2018-08)
+ * 2008       TLC (SSEM)              ETSI TS 103 301     V1.2.1 (2018-08)
  * 2009       Allocated               Allocated for "Intelligent Transport
  *                                    System (ITS); Vehicular Communications;
  *                                    Basic Set of Applications; Specification
@@ -75,7 +75,7 @@
  *            VDPM, EOFM)
  * 2012       Charging (EV-RSR,       ETSI TS 101 556-3
  *            SRM, SCM)
- * 2013       GPC (RTCMEM)            ETSI TS 103 301
+ * 2013       GPC (RTCMEM)            ETSI TS 103 301     V1.2.1 (2018-08)
  * 2014       CTL (CTLM)              ETSI TS 102 941
  * 2015       CRL (CRLM)              ETSI TS 102 941
  * 2016       Certificate request     ETSI TS 102 941
@@ -104,6 +104,8 @@
  */
 void proto_reg_handoff_its(void);
 void proto_register_its(void);
+
+static expert_field ei_its_no_sub_dis = EI_INIT;
 
 // TAP
 static int its_tap = -1;
@@ -581,11 +583,21 @@ void proto_register_its(void)
         #include "packet-its-ettarr.c"
     };
 
+    static ei_register_info ei[] = {
+    { &ei_its_no_sub_dis, { "its.no_subdissector", PI_PROTOCOL, PI_NOTE, "No subdissector found for this Message id/protocol version combination", EXPFILL }},
+    };
+
+    expert_module_t* expert_its;
+
     proto_its = proto_register_protocol("Intelligent Transport Systems", "ITS", "its");
 
     proto_register_field_array(proto_its, hf_its, array_length(hf_its));
 
     proto_register_subtree_array(ett, array_length(ett));
+
+    expert_its = expert_register_protocol(proto_its);
+
+    expert_register_field_array(expert_its, ei, array_length(ei));
 
     register_dissector("its", dissect_its_PDU, proto_its);
 
@@ -618,6 +630,15 @@ void proto_register_its(void)
 
 #define BTP_SUBDISS_SZ 2
 #define BTP_PORTS_SZ   10
+
+#define ITS_CAM_PROT_VER 2
+#define ITS_DENM_PROT_VER 2
+#define ITS_SPATEM_PROT_VER 2
+#define ITS_MAPEM_PROT_VER 2
+#define ITS_IVIM_PROT_VER 2
+#define ITS_SREM_PROT_VER 2
+#define ITS_SREM_PROT_VER 2
+
 void proto_reg_handoff_its(void)
 {
     const char *subdissector[BTP_SUBDISS_SZ] = { "btpa.port", "btpb.port" };
@@ -633,14 +654,14 @@ void proto_reg_handoff_its(void)
         }
     }
 
-    dissector_add_uint("its.msg_id", ITS_DENM,              create_dissector_handle( dissect_denm_DecentralizedEnvironmentalNotificationMessage_PDU, proto_its_denm ));
-    dissector_add_uint("its.msg_id", ITS_CAM,               create_dissector_handle( dissect_cam_CoopAwareness_PDU, proto_its_cam ));
-    dissector_add_uint("its.msg_id", ITS_SPATEM,            create_dissector_handle( dissect_dsrc_SPAT_PDU, proto_its_spatem ));
-    dissector_add_uint("its.msg_id", ITS_MAPEM,             create_dissector_handle( dissect_dsrc_MapData_PDU, proto_its_mapem ));
-    dissector_add_uint("its.msg_id", ITS_IVIM,              create_dissector_handle( dissect_ivi_IviStructure_PDU, proto_its_ivim ));
+    dissector_add_uint("its.msg_id", (ITS_DENM_PROT_VER << 16) + ITS_DENM,          create_dissector_handle( dissect_denm_DecentralizedEnvironmentalNotificationMessage_PDU, proto_its_denm ));
+    dissector_add_uint("its.msg_id", (ITS_CAM_PROT_VER <<16) + ITS_CAM,             create_dissector_handle( dissect_cam_CoopAwareness_PDU, proto_its_cam ));
+    dissector_add_uint("its.msg_id", (ITS_SPATEM_PROT_VER << 16) + ITS_SPATEM,      create_dissector_handle( dissect_dsrc_SPAT_PDU, proto_its_spatem ));
+    dissector_add_uint("its.msg_id", (ITS_MAPEM_PROT_VER << 16) + ITS_MAPEM,        create_dissector_handle( dissect_dsrc_MapData_PDU, proto_its_mapem ));
+    dissector_add_uint("its.msg_id", (ITS_IVIM_PROT_VER << 16) + ITS_IVIM,          create_dissector_handle( dissect_ivi_IviStructure_PDU, proto_its_ivim ));
     dissector_add_uint("its.msg_id", ITS_EV_RSR,            create_dissector_handle( dissect_evrsr_EV_RSR_MessageBody_PDU, proto_its_evrsr ));
-    dissector_add_uint("its.msg_id", ITS_SREM,              create_dissector_handle( dissect_dsrc_SignalRequestMessage_PDU, proto_its_srem ));
-    dissector_add_uint("its.msg_id", ITS_SSEM,              create_dissector_handle( dissect_dsrc_SignalStatusMessage_PDU, proto_its_ssem ));
+    dissector_add_uint("its.msg_id", (ITS_SREM_PROT_VER << 16) + ITS_SREM,          create_dissector_handle( dissect_dsrc_SignalRequestMessage_PDU, proto_its_srem ));
+    dissector_add_uint("its.msg_id", (ITS_SREM_PROT_VER << 16) + ITS_SSEM,              create_dissector_handle( dissect_dsrc_SignalStatusMessage_PDU, proto_its_ssem ));
     dissector_add_uint("its.msg_id", ITS_EVCSN,             create_dissector_handle( dissect_evcsn_EVChargingSpotNotificationPOIMessage_PDU, proto_its_evcsn ));
     dissector_add_uint("its.msg_id", ITS_TISTPGTRANSACTION, create_dissector_handle( dissect_tistpg_TisTpgTransaction_PDU, proto_its_tistpg ));
 

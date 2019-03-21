@@ -18,25 +18,24 @@
 --
 -- ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
 SPATEM-PDU-Descriptions {
-	itu-t (0) identified-organization (4) etsi (0) itsDomain (5)  wg1 (1) ts-103301 (103301) spatem (0) version1 (1)
+    itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) en (103301) spatem (0) version2 (2)
 }
+    DEFINITIONS AUTOMATIC TAGS ::=
 
-DEFINITIONS AUTOMATIC TAGS ::=
+    BEGIN
 
-BEGIN
+    IMPORTS
+    SPAT FROM DSRC { iso (1) standard (0) signalizedIntersection (19091) profilec(2) dsrc (2) version2
+    (2) }
 
-IMPORTS
-SPAT FROM DSRC { iso (1) standard (0) signalizedIntersection (19091) profilec(2) dsrc (2) version (1) }
-ItsPduHeader FROM ITS-Container { itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (102894) cdd (2) version (1)  };
+    ItsPduHeader FROM ITS-Container { itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1
+    (1) ts (102894) cdd (2) version (2) };
 
-
-SPATEM ::= SEQUENCE {
-	header	ItsPduHeader,
-	spat	SPAT
-}
-
+    SPATEM ::= SEQUENCE {
+     header ItsPduHeader,
+     spat SPAT
+    }
 END
-
 
 
 -- ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
@@ -45,24 +44,26 @@ END
 --
 -- ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
 MAPEM-PDU-Descriptions {
-	itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts-103301 (103301) mapem (1) version1 (1)
+    itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) en (103301) mapem (1) version2 (2)
 }
+    DEFINITIONS AUTOMATIC TAGS ::=
 
-DEFINITIONS AUTOMATIC TAGS ::=
+    BEGIN
 
-BEGIN
+    IMPORTS
 
-IMPORTS
-MapData FROM DSRC { iso (1) standard (0) signalizedIntersection (19091) profilec(2) dsrc (2) version (1) }
-ItsPduHeader FROM ITS-Container {  itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (102894) cdd (2) version (1)};
+    MapData
+    FROM DSRC { iso (1) standard (0) signalizedIntersection (19091) profilec(2) dsrc (2) version2 (2) }
 
+    ItsPduHeader
+    FROM ITS-Container { itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (102894) cdd (2) version (2)};
 
-MAPEM ::= SEQUENCE {
-	header	ItsPduHeader,
-	map	MapData
-}
+    MAPEM ::= SEQUENCE {
+     header ItsPduHeader,
+     map MapData
+    }
 
-END
+END 
 
 
 
@@ -72,25 +73,26 @@ END
 --
 -- ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
 IVIM-PDU-Descriptions {
-	itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts-103301 (103301) ivim (2) version1 (1)
+ itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) en (103301) ivim (2)
+version2 (2)
 }
+    DEFINITIONS AUTOMATIC TAGS ::=
 
-DEFINITIONS AUTOMATIC TAGS ::=
+    BEGIN
 
-BEGIN
+    IMPORTS
 
-IMPORTS
-IviStructure FROM IVI {iso (1) standard (0) ivi (19321) version1 (1)}
-ItsPduHeader FROM ITS-Container { itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (102894) cdd (2) version (1)};
+    IviStructure FROM IVI {iso (1) standard (0) ivi (19321) version1 (1)}
 
+    ItsPduHeader FROM ITS-Container { itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1
+    (1) ts (102894) cdd (2) version (2)};
 
-IVIM ::= SEQUENCE {
-	header	ItsPduHeader,
-	ivi		IviStructure
-}
+    IVIM ::= SEQUENCE {
+     header ItsPduHeader,
+     ivi IviStructure
+    }
 
-END
-
+END 
 
 
 -- ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
@@ -99,25 +101,26 @@ END
 --
 -- ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
 SREM-PDU-Descriptions {
-	itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts-103301 (103301) srem (3) version1 (1)
+ itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) en (103301) srem (3)
+version2 (2)
 }
+    DEFINITIONS AUTOMATIC TAGS ::=
 
-DEFINITIONS AUTOMATIC TAGS ::=
+    BEGIN
 
-BEGIN
+    IMPORTS
 
-IMPORTS
-SignalRequestMessage FROM DSRC { iso (1) standard (0) signalizedIntersection (19091) profilec(2) dsrc (2) version (1) }
-ItsPduHeader FROM ITS-Container { itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (102894) cdd (2) version (1) };
+    SignalRequestMessage FROM DSRC { iso (1) standard (0) signalizedIntersection (19091) profilec(2)
+    dsrc (2) version2 (2) }
 
-SREM ::= SEQUENCE {
-	header	ItsPduHeader,
-	srm	SignalRequestMessage
-}
+    ItsPduHeader FROM ITS-Container { itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1
+    (1) ts (102894) cdd (2) version (2)};
 
-END
-
-
+    SREM ::= SEQUENCE {
+     header ItsPduHeader,
+     srm SignalRequestMessage
+    }
+END 
 
 -- ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
 --
@@ -125,22 +128,52 @@ END
 --
 -- ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
 SSEM-PDU-Descriptions {
-	itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts-103301 (103301) ssem (4) version1 (1)
+ itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) en (103301) ssem (4)
+version2 (2)
 }
+    DEFINITIONS AUTOMATIC TAGS ::=
 
-DEFINITIONS AUTOMATIC TAGS ::=
+    BEGIN
 
-BEGIN
+    IMPORTS
 
-IMPORTS
-SignalStatusMessage FROM DSRC { iso (1) standard (0) signalizedIntersection (19091) profilec(2) dsrc (2) version (1) }
-ItsPduHeader FROM ITS-Container {  itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (102894) cdd (2) version (1) };
+    SignalStatusMessage FROM DSRC { iso (1) standard (0) signalizedIntersection (19091) profilec(2) dsrc
+    (2) version2 (2) }
 
+    ItsPduHeader FROM ITS-Container { itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1
+    (1) ts (102894) cdd (2) version (2)};
 
-SSEM ::= SEQUENCE {
-	header	ItsPduHeader,
-	ssm	SignalStatusMessage
-}
+    SSEM ::= SEQUENCE {
+     header ItsPduHeader,
+     ssm SignalStatusMessage
+    }
 
 END
 
+-- ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
+--
+-- module: RTCM corrections extended message
+--
+-- ^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-^-
+RTCMEM-PDU-Descriptions {
+ itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) en (103301) rtcmem (5)
+version1 (1)
+}
+    DEFINITIONS AUTOMATIC TAGS ::=
+
+    BEGIN
+
+    IMPORTS
+
+    RTCMcorrections FROM DSRC { iso (1) standard (0) signalizedIntersection (19091) profilec(2) dsrc (2)
+    version2 (2) }
+
+    ItsPduHeader FROM ITS-Container { itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1
+    (1) ts (102894) cdd (2) version (2)};
+
+    RTCMEM ::= SEQUENCE {
+     header ItsPduHeader,
+     rtcmc RTCMcorrections
+    }
+
+END
