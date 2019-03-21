@@ -235,6 +235,7 @@ real_main(int argc, char **argv)
 				goto clean_exit;
 			}
 			example->dump = savedump;
+			example->filename = produce_filename;
 		}
 	}
 	if (!randpkt_example_close(example)) {
