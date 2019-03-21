@@ -254,11 +254,11 @@
          <string>&lt;html&gt;&lt;head&gt;
 &lt;style&gt;
 a:link {
-  color: inherit;
+  color: palette(text);
   text-decoration: none;
 }
 a:hover {
-  color: inherit;
+  color: palette(text);
   text-decoration: underline;
 }
 &lt;/style&gt;
