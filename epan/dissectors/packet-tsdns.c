@@ -73,7 +73,7 @@ static int dissect_tsdns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     address_item = proto_tree_add_item(tsdns_tree, hf_tsdns_response_address, tvb, offset, pLen, ENC_ASCII|ENC_NA);
     gchar** splitAddress;
     splitAddress = wmem_strsplit(wmem_packet_scope(), tvb_format_text(tvb, 0, pLen), ":", 1); // unsure if TSDNS also does IPv6...
-    if (splitAddress[1] == NULL) {
+    if (splitAddress == NULL || splitAddress[0] == NULL || splitAddress[1] == NULL) {
       expert_add_info(pinfo, address_item, &ei_response_port_malformed);
     } else {
       proto_tree_add_string(tsdns_tree, hf_tsdns_response_ip, tvb, 0, pLen, splitAddress[0]);
