@@ -143,7 +143,7 @@ QRgb ColorUtils::sequenceColor(int item)
 
 bool ColorUtils::themeIsDark()
 {
-    return wsApp->palette().windowText().color().lightness() < wsApp->palette().text().color().lightness();
+    return wsApp->palette().windowText().color().lightness() > wsApp->palette().window().color().lightness();
 }
 
 /*
