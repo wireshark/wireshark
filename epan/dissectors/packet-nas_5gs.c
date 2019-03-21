@@ -327,6 +327,8 @@ static int hf_nas_5gs_acces_tech_o2_b5 = -1;
 static int hf_nas_5gs_acces_tech_o2_b4 = -1;
 static int hf_nas_5gs_acces_tech_o2_b3 = -1;
 static int hf_nas_5gs_acces_tech_o2_b2 = -1;
+static int hf_nas_5gs_single_port_type = -1;
+
 
 static expert_field ei_nas_5gs_extraneous_data = EI_INIT;
 static expert_field ei_nas_5gs_unknown_pd = EI_INIT;
@@ -2984,6 +2986,12 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                         proto_tree_add_item(sub_tree3, hf_nas_5gs_protocol_identifier_or_next_hd, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
                         curr_offset++;
                         pfc_len = 1;
+                        break;
+                    case 80:
+                        /* Single remote port type */
+                        proto_tree_add_item(sub_tree3, hf_nas_5gs_single_port_type, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+                        curr_offset += 2;
+                        pfc_len = 2;
                         break;
                     default:
                         proto_tree_add_expert(sub_tree3, pinfo, &ei_nas_5gs_not_diss, tvb, curr_offset, pf_len);
@@ -6790,6 +6798,11 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_acces_tech_o2_b2,
         { "Access technology GSM",   "nas_5gs.cces_tech_o2_b2.gsm",
             FT_BOOLEAN, 8, TFS(&tfs_selected_not_selected), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_single_port_type,
+        { "Port number", "nas_5gs.port_type",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
     };
