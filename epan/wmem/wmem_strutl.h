@@ -72,6 +72,9 @@ G_GNUC_MALLOC;
  * to the last token. Successive tokens are not folded and will instead result
  * in an empty string as element.
  *
+ * If src or delimiter are NULL, or if delimiter is empty, this will return
+ * NULL.
+ *
  * Do not use with a NULL allocator, use g_strsplit instead.
  */
 WS_DLL_PUBLIC
