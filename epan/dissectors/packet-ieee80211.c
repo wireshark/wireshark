@@ -4912,7 +4912,8 @@ static int hf_ieee80211_vs_extreme_unknown = -1;
 static int hf_ieee80211_vs_extreme_ap_length = -1;
 static int hf_ieee80211_vs_extreme_ap_name = -1;
 
-static int hf_ieee80211_vs_aerohive_unknown = -1;
+static int hf_ieee80211_vs_aerohive_version = -1;
+static int hf_ieee80211_vs_aerohive_subtype = -1;
 static int hf_ieee80211_vs_aerohive_hostname_length = -1;
 static int hf_ieee80211_vs_aerohive_hostname = -1;
 static int hf_ieee80211_vs_aerohive_data = -1;
@@ -14190,14 +14191,18 @@ dissect_vendor_ie_aerohive(proto_item *item _U_, proto_tree *ietree,
   offset += 1;
   tag_len -= 1;
 
+  proto_tree_add_item(ietree, hf_ieee80211_vs_aerohive_version, tvb, offset, 1, ENC_NA);
+  offset += 1;
+  tag_len -= 1;
+
   switch(type){
-    case AEROHIVE_HOSTNAME: /* Unknown (2 bytes) + Host Name Length (1 byte) + Host Name */
+    case AEROHIVE_HOSTNAME: /* Subtype (1 byte) + Host Name Length (1 byte) + Host Name */
 
       proto_item_append_text(item, ": %s", val_to_str_const(type, ieee80211_vs_aerohive_type_vals, "Unknown"));
 
-      proto_tree_add_item(ietree, hf_ieee80211_vs_aerohive_unknown, tvb, offset, 2, ENC_NA);
-      offset += 2;
-      tag_len -= 2;
+      proto_tree_add_item(ietree, hf_ieee80211_vs_aerohive_subtype, tvb, offset, 1, ENC_NA);
+      offset += 1;
+      tag_len -= 1;
 
       ti_len = proto_tree_add_item_ret_uint(ietree, hf_ieee80211_vs_aerohive_hostname_length, tvb, offset, 1, ENC_NA, &length);
       offset += 1;
@@ -33738,9 +33743,14 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     /* Vendor Specific : Aerohive */
-    {&hf_ieee80211_vs_aerohive_unknown,
-     {"Unknown", "wlan.vs.aerohive.unknown",
-      FT_BYTES, BASE_NONE, NULL, 0,
+    {&hf_ieee80211_vs_aerohive_version,
+     {"Version", "wlan.vs.aerohive.version",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_vs_aerohive_subtype,
+     {"Subtype", "wlan.vs.aerohive.subtype",
+      FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_vs_aerohive_hostname_length,
