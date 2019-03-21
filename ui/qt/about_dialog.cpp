@@ -33,7 +33,6 @@
 #include "ui/alert_box.h"
 #include "ui/last_open_dir.h"
 #include "ui/help_url.h"
-#include "ui/text_import_scanner.h"
 #include <wsutil/utf8_entities.h>
 
 #include "file.h"
