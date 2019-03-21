@@ -189,13 +189,6 @@
           <bool>false</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_3">
-          <item row="0" column="2">
-           <widget class="QPushButton" name="browseButton">
-            <property name="text">
-             <string>Browse…</string>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="0">
            <widget class="QLabel" name="label_2">
             <property name="text">
@@ -205,6 +198,13 @@
           </item>
           <item row="0" column="1">
            <widget class="QLineEdit" name="filenameLineEdit"/>
+          </item>
+          <item row="0" column="2">
+           <widget class="QPushButton" name="browseButton">
+            <property name="text">
+             <string>Browse…</string>
+            </property>
+           </widget>
           </item>
          </layout>
         </widget>
@@ -275,11 +275,86 @@
             </property>
            </spacer>
           </item>
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="PktCheckBox">
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QSpinBox" name="PktSpinBox">
+            <property name="toolTip">
+             <string>Switch to the next file after the specified number of packets have been captured.</string>
+            </property>
+            <property name="buttonSymbols">
+             <enum>QAbstractSpinBox::PlusMinus</enum>
+            </property>
+            <property name="maximum">
+             <number>2147483647</number>
+            </property>
+            <property name="value">
+             <number>100000</number>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QLabel" name="PktLabel">
+            <property name="text">
+             <string>packets</string>
+            </property>
+           </widget>
+          </item>
           <item row="2" column="0">
            <widget class="QCheckBox" name="MBCheckBox">
             <property name="text">
              <string/>
             </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QSpinBox" name="MBSpinBox">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If the selected file size is exceeded, capturing switches to the next file.&lt;/p&gt;&lt;p&gt;PLEASE NOTE: One option MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="wrapping">
+             <bool>true</bool>
+            </property>
+            <property name="buttonSymbols">
+             <enum>QAbstractSpinBox::PlusMinus</enum>
+            </property>
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>1000000</number>
+            </property>
+            <property name="value">
+             <number>1</number>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QComboBox" name="MBComboBox">
+            <property name="toolTip">
+             <string>If the selected file size is exceeded, capturing switches to the next file.
+PLEASE NOTE: One option MUST be selected.</string>
+            </property>
+            <item>
+             <property name="text">
+              <string>kilobytes</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>megabytes</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>gigabytes</string>
+             </property>
+            </item>
            </widget>
           </item>
           <item row="3" column="0">
@@ -333,81 +408,6 @@ PLEASE NOTE: One option MUST be selected.</string>
               <string>hours</string>
              </property>
             </item>
-           </widget>
-          </item>
-          <item row="2" column="1">
-           <widget class="QSpinBox" name="MBSpinBox">
-            <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If the selected file size is exceeded, capturing switches to the next file.&lt;/p&gt;&lt;p&gt;PLEASE NOTE: One option MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-            <property name="wrapping">
-             <bool>true</bool>
-            </property>
-            <property name="buttonSymbols">
-             <enum>QAbstractSpinBox::PlusMinus</enum>
-            </property>
-            <property name="minimum">
-             <number>1</number>
-            </property>
-            <property name="maximum">
-             <number>1000000</number>
-            </property>
-            <property name="value">
-             <number>1</number>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QComboBox" name="MBComboBox">
-            <property name="toolTip">
-             <string>If the selected file size is exceeded, capturing switches to the next file.
-PLEASE NOTE: One option MUST be selected.</string>
-            </property>
-            <item>
-             <property name="text">
-              <string>kilobytes</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>megabytes</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>gigabytes</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="1" column="0">
-           <widget class="QCheckBox" name="PktCheckBox">
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="1">
-           <widget class="QSpinBox" name="PktSpinBox">
-            <property name="toolTip">
-             <string>Switch to the next file after the specified number of packets have been captured.</string>
-            </property>
-            <property name="buttonSymbols">
-             <enum>QAbstractSpinBox::PlusMinus</enum>
-            </property>
-            <property name="maximum">
-             <number>2147483647</number>
-            </property>
-            <property name="value">
-             <number>100000</number>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="2">
-           <widget class="QLabel" name="PktLabel">
-            <property name="text">
-             <string>packets</string>
-            </property>
            </widget>
           </item>
          </layout>
@@ -611,6 +611,29 @@ PLEASE NOTE: One option MUST be selected.</string>
           <bool>true</bool>
          </property>
          <layout class="QGridLayout" name="gridLayout_2">
+          <item row="0" column="3" rowspan="4">
+           <spacer name="horizontalSpacer">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="sizeHint" stdset="0">
+             <size>
+              <width>40</width>
+              <height>20</height>
+             </size>
+            </property>
+           </spacer>
+          </item>
+          <item row="0" column="0">
+           <widget class="QCheckBox" name="stopPktCheckBox">
+            <property name="toolTip">
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of packets have been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
           <item row="0" column="1">
            <widget class="QSpinBox" name="stopPktSpinBox">
             <property name="sizePolicy">
@@ -633,32 +656,6 @@ PLEASE NOTE: One option MUST be selected.</string>
             </property>
            </widget>
           </item>
-          <item row="2" column="1">
-           <widget class="QSpinBox" name="stopMBSpinBox">
-            <property name="toolTip">
-             <string>Stop capturing after the specified amount of data has been captured.</string>
-            </property>
-            <property name="buttonSymbols">
-             <enum>QAbstractSpinBox::PlusMinus</enum>
-            </property>
-            <property name="maximum">
-             <number>2147483647</number>
-            </property>
-            <property name="value">
-             <number>1</number>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0">
-           <widget class="QCheckBox" name="stopMBCheckBox">
-            <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
           <item row="0" column="2">
            <widget class="QLabel" name="label_7">
             <property name="text">
@@ -666,98 +663,15 @@ PLEASE NOTE: One option MUST be selected.</string>
             </property>
            </widget>
           </item>
-          <item row="3" column="0">
-           <widget class="QCheckBox" name="stopSecsCheckBox">
+          <item row="1" column="0">
+           <widget class="QCheckBox" name="stopFilesCheckBox">
             <property name="toolTip">
-             <string>Stop capturing after the specified amount of time has passed.</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of files have been created.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
              <string/>
             </property>
            </widget>
-          </item>
-          <item row="3" column="2">
-           <widget class="QComboBox" name="stopSecsComboBox">
-            <property name="toolTip">
-             <string>Stop capturing after the specified amount of time has passed.</string>
-            </property>
-            <item>
-             <property name="text">
-              <string>seconds</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>minutes</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>hours</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="0" column="0">
-           <widget class="QCheckBox" name="stopPktCheckBox">
-            <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of packets have been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="2">
-           <widget class="QComboBox" name="stopMBComboBox">
-            <property name="toolTip">
-             <string>Stop capturing after the specified amount of data has been captured.</string>
-            </property>
-            <item>
-             <property name="text">
-              <string>kilobytes</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>megabytes</string>
-             </property>
-            </item>
-            <item>
-             <property name="text">
-              <string>gigabytes</string>
-             </property>
-            </item>
-           </widget>
-          </item>
-          <item row="3" column="1">
-           <widget class="QSpinBox" name="stopSecsSpinBox">
-            <property name="toolTip">
-             <string>Stop capturing after the specified amount of time has passed.</string>
-            </property>
-            <property name="buttonSymbols">
-             <enum>QAbstractSpinBox::PlusMinus</enum>
-            </property>
-            <property name="maximum">
-             <number>2147483647</number>
-            </property>
-            <property name="value">
-             <number>1</number>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="3" rowspan="4">
-           <spacer name="horizontalSpacer">
-            <property name="orientation">
-             <enum>Qt::Horizontal</enum>
-            </property>
-            <property name="sizeHint" stdset="0">
-             <size>
-              <width>40</width>
-              <height>20</height>
-             </size>
-            </property>
-           </spacer>
           </item>
           <item row="1" column="1">
            <widget class="QSpinBox" name="stopFilesSpinBox">
@@ -788,14 +702,100 @@ PLEASE NOTE: One option MUST be selected.</string>
             </property>
            </widget>
           </item>
-          <item row="1" column="0">
-           <widget class="QCheckBox" name="stopFilesCheckBox">
+          <item row="2" column="0">
+           <widget class="QCheckBox" name="stopMBCheckBox">
             <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified number of files have been created.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Stop capturing after the specified amount of data has been captured.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
             </property>
             <property name="text">
              <string/>
             </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QSpinBox" name="stopMBSpinBox">
+            <property name="toolTip">
+             <string>Stop capturing after the specified amount of data has been captured.</string>
+            </property>
+            <property name="buttonSymbols">
+             <enum>QAbstractSpinBox::PlusMinus</enum>
+            </property>
+            <property name="maximum">
+             <number>2147483647</number>
+            </property>
+            <property name="value">
+             <number>1</number>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QComboBox" name="stopMBComboBox">
+            <property name="toolTip">
+             <string>Stop capturing after the specified amount of data has been captured.</string>
+            </property>
+            <item>
+             <property name="text">
+              <string>kilobytes</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>megabytes</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>gigabytes</string>
+             </property>
+            </item>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QCheckBox" name="stopSecsCheckBox">
+            <property name="toolTip">
+             <string>Stop capturing after the specified amount of time has passed.</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QSpinBox" name="stopSecsSpinBox">
+            <property name="toolTip">
+             <string>Stop capturing after the specified amount of time has passed.</string>
+            </property>
+            <property name="buttonSymbols">
+             <enum>QAbstractSpinBox::PlusMinus</enum>
+            </property>
+            <property name="maximum">
+             <number>2147483647</number>
+            </property>
+            <property name="value">
+             <number>1</number>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QComboBox" name="stopSecsComboBox">
+            <property name="toolTip">
+             <string>Stop capturing after the specified amount of time has passed.</string>
+            </property>
+            <item>
+             <property name="text">
+              <string>seconds</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>minutes</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>hours</string>
+             </property>
+            </item>
            </widget>
           </item>
          </layout>
