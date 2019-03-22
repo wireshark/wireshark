@@ -11,6 +11,7 @@
  */
 
 #include "wsgcrypt.h"
+#include "ws_attributes.h"
 
 gcry_error_t ws_hmac_buffer(int algo, void *digest, const void *buffer, size_t length, const void *key, size_t keylen)
 {
@@ -30,9 +31,9 @@ gcry_error_t ws_hmac_buffer(int algo, void *digest, const void *buffer, size_t l
 	return GPG_ERR_NO_ERROR;
 }
 
+#if GCRYPT_VERSION_NUMBER >= 0x010600
 gcry_error_t ws_cmac_buffer(int algo, void *digest, const void *buffer, size_t length, const void *key, size_t keylen)
 {
-#if GCRYPT_VERSION_NUMBER >= 0x010600
 	gcry_mac_hd_t cmac_handle;
 	gcry_error_t result =
 	result = gcry_mac_open(&cmac_handle, algo, 0, NULL);
@@ -48,10 +49,13 @@ gcry_error_t ws_cmac_buffer(int algo, void *digest, const void *buffer, size_t l
 	gcry_mac_read(cmac_handle, digest, &keylen);
 	gcry_mac_close(cmac_handle);
 	return GPG_ERR_NO_ERROR;
-#else
-	return GPG_ERR_UNSUPPORTED_ALGORITHM;
-#endif
 }
+#else
+gcry_error_t ws_cmac_buffer(int algo _U_, void *digest _U_, const void *buffer _U_, size_t length _U_, const void *key _U_, size_t keylen _U_)
+{
+	return GPG_ERR_UNSUPPORTED_ALGORITHM;
+}
+#endif
 
 void crypt_des_ecb(guint8 *output, const guint8 *buffer, const guint8 *key56)
 {
