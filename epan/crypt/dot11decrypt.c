@@ -1811,6 +1811,7 @@ Dot11DecryptGetIntegrityAlgoFromAkm(int akm, int *algo, gboolean *hmac)
             break;
 #endif
         case 11:
+        case 18:
             *algo = GCRY_MD_SHA256;
             *hmac = TRUE;
             break;
@@ -1836,7 +1837,7 @@ Dot11DecryptRsnaMicCheck(
     int akm)
 {
     UCHAR mic[DOT11DECRYPT_WPA_MICKEY_LEN];
-    UCHAR c_mic[HASH_SHA1_LENGTH] = { 0 };  /* MIC 16 byte, the HMAC-SHA1 use a buffer of 20 bytes */
+    UCHAR c_mic[32] = { 0 };  /* MIC 16 byte, though HMAC-SHA256 algo need 32 bytes buffer */
     int algo = -1;
     gboolean hmac = TRUE;
 
@@ -2165,6 +2166,7 @@ static int Dot11DecryptGetPtkLen(int akm, int cipher)
         case 6:
         case 8:
         case 11:
+        case 18:
             /* KCK len + KEK len + TK len */
             ptk_len = 128 + 128 + Dot11DecryptGetTkLen(cipher);
             break;
@@ -2201,6 +2203,7 @@ Dot11DecryptGetDeriveFuncFromAkm(int akm)
         case 11:
         case 12:
         case 13:
+        case 18:
             func = Dot11DecryptRsnaKdfX;
             break;
         default:
@@ -2229,6 +2232,7 @@ Dot11DecryptGetDeriveAlgoFromAkm(int akm)
         case 9:
         case 10:
         case 11:
+        case 18:
             algo = GCRY_MD_SHA256;
             break;
         case 12:

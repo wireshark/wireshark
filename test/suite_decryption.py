@@ -90,6 +90,17 @@ class case_decrypt_80211(subprocesstest.SubprocessTestCase):
         self.assertTrue(self.grepOutput('Who has 192.168.5.18'))
         self.assertTrue(self.grepOutput('DHCP ACK'))
 
+    def test_80211_owe(self, cmd_tshark, capture_file):
+        '''IEEE 802.11 decode OWE'''
+        # Included in git sources test/captures/owe.pcapng.gz
+        self.assertRun((cmd_tshark,
+                '-o', 'wlan.enable_decryption: TRUE',
+                '-r', capture_file('owe.pcapng.gz'),
+                '-Y', 'wlan.analysis.tk == 10f3deccc00d5c8f629fba7a0fff34aa || wlan.analysis.gtk == 016b04ae9e6050bcc1f940dda9ffff2b',
+                ))
+        self.assertTrue(self.grepOutput('Who has 192.168.5.2'))
+        self.assertTrue(self.grepOutput('DHCP ACK'))
+
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
 class case_decrypt_dtls(subprocesstest.SubprocessTestCase):
