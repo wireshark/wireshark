@@ -62,6 +62,7 @@
 #include "packet-gprscdr.h"
 #include "packet-bssgp.h"
 #include "packet-e212.h"
+#include "packet-e164.h"
 #include "packet-gtp.h"
 #include "packet-ranap.h"
 #include "packet-pdcp-nr.h"
@@ -357,6 +358,13 @@ static int hf_gtp_ext_hdr_pdu_ses_cont_qos_flow_id = -1;
 static int hf_gtp_ext_hdr_pdu_ses_cont_ppi = -1;
 
 static int hf_gtp_spare_h1 = -1;
+static int hf_gtp_rnc_ip_addr_v4 = -1;
+static int hf_gtp_rnc_ip_addr_v6 = -1;
+static int hf_gtp_ms_cm_2_len = -1;
+static int hf_gtp_ms_cm_3_len = -1;
+static int hf_gtp_sup_codec_lst_len = -1;
+static int hf_gtp_add_flg_for_srvcc_ics = -1;
+static int hf_gtp_sel_mode_val = -1;
 
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_gtp_rfsp_index = -1;
@@ -6239,8 +6247,23 @@ decode_gtp_add_rab_setup_inf(tvbuff_t * tvb, int offset, packet_info * pinfo _U_
     offset++;
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
-    /* TODO add decoding of data */
-    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+
+    proto_tree_add_item(ext_tree, hf_gtp_nsapi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    if (length == 1)
+        return 3 + length;
+
+    offset++;
+    proto_tree_add_item(ext_tree, hf_gtp_teid, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+
+    if (length == 9) {
+        /* RNC IP address IPv4*/
+        proto_tree_add_item(ext_tree, hf_gtp_rnc_ip_addr_v4, tvb, offset, 4, ENC_BIG_ENDIAN);
+    } else {
+        /* RNC IP address IPv6*/
+        proto_tree_add_item(ext_tree, hf_gtp_rnc_ip_addr_v6, tvb, offset, 16, ENC_NA);
+    }
+
 
     return 3 + length;
 
@@ -8166,10 +8189,11 @@ decode_gtp_max_mbr_apn_ambr(tvbuff_t * tvb, int offset, packet_info * pinfo _U_,
  */
 
 static int
-decode_gtp_add_mm_ctx_srvcc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
+decode_gtp_add_mm_ctx_srvcc(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
+    guint32 inf_len;
 
     length = tvb_get_ntohs(tvb, offset + 1);
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_ADD_MM_CTX_SRVCC], NULL,
@@ -8180,7 +8204,26 @@ decode_gtp_add_mm_ctx_srvcc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_,
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+    /* Length of the Mobile Station Classmark 2 */
+    proto_tree_add_item_ret_uint(ext_tree, hf_gtp_ms_cm_2_len, tvb, offset, 1, ENC_BIG_ENDIAN, &inf_len);
+    offset++;
+    if (inf_len > 0) {
+        offset += de_ms_cm_2(tvb, ext_tree, pinfo, offset, inf_len, NULL, 0);
+    }
+
+    /* Length of the Mobile Station Classmark 3 */
+    proto_tree_add_item_ret_uint(ext_tree, hf_gtp_ms_cm_3_len, tvb, offset, 1, ENC_BIG_ENDIAN, &inf_len);
+    offset++;
+    if (inf_len > 0) {
+        offset += de_ms_cm_3(tvb, ext_tree, pinfo, offset, inf_len, NULL, 0);
+    }
+
+    /* Length of the Supported Codec List */
+    proto_tree_add_item_ret_uint(ext_tree, hf_gtp_sup_codec_lst_len, tvb, offset, 1, ENC_BIG_ENDIAN, &inf_len);
+    offset++;
+    if (inf_len > 0) {
+        offset += de_sup_codec_list(tvb, ext_tree, pinfo, offset, inf_len, NULL, 0);
+    }
 
     return 3 + length;
 }
@@ -8204,7 +8247,8 @@ decode_gtp_add_flgs_srvcc(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, p
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+    /* 4    Spare ICS */
+    proto_tree_add_item(ext_tree, hf_gtp_add_flg_for_srvcc_ics, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     return 3 + length;
 }
@@ -8250,7 +8294,7 @@ decode_gtp_c_msisdn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+    dissect_e164_msisdn(tvb, ext_tree, offset, length, E164_ENC_BCD);
 
     return 3 + length;
 }
@@ -8258,10 +8302,11 @@ decode_gtp_c_msisdn(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_t
  * 7.7.111 Extended RANAP Cause
  */
 static int
-decode_gtp_ext_ranap_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
+decode_gtp_ext_ranap_cause(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, session_args_t * args _U_)
 {
     guint16     length;
     proto_tree *ext_tree;
+    tvbuff_t *new_tvb;
 
     length = tvb_get_ntohs(tvb, offset + 1);
     ext_tree = proto_tree_add_subtree(tree, tvb, offset, 3 + length, ett_gtp_ies[GTP_EXT_EXT_RANAP_CAUSE], NULL,
@@ -8272,7 +8317,9 @@ decode_gtp_ext_ranap_cause(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, 
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+    new_tvb = tvb_new_subset_remaining(tvb, offset);
+
+    dissect_ranap_Cause_PDU(new_tvb, pinfo, ext_tree, NULL);
 
     return 3 + length;
 }
@@ -8334,6 +8381,15 @@ decode_gtp_ext_enodeb_id(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, pr
 /*
  * 7.7.113 Selection Mode with NSAPI
  */
+
+static const value_string gtp_sel_mode_vals[] = {
+    { 0, "MS or network provided APN, subscription verified" },
+    { 1, "MS provided APN, subscription not verified" },
+    { 2, "Network provided APN, subscription not verified" },
+    { 3, "For future use. Shall not be sent. If received, shall be interpreted as the value 2" },
+    { 0, NULL }
+};
+
 static int
 decode_gtp_ext_sel_mode_w_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo _U_, proto_tree * tree, session_args_t * args _U_)
 {
@@ -8349,7 +8405,11 @@ decode_gtp_ext_sel_mode_w_nsapi(tvbuff_t * tvb, int offset, packet_info * pinfo 
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_expert(ext_tree, pinfo, &ei_gtp_undecoded, tvb, offset, length);
+    proto_tree_add_item(ext_tree, hf_gtp_nsapi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    proto_tree_add_item(ext_tree, hf_gtp_sel_mode_val, tvb, offset, 1, ENC_BIG_ENDIAN);
+
 
     return 3 + length;
 }
@@ -11017,7 +11077,41 @@ proto_register_gtp(void)
       FT_UINT8, BASE_HEX, NULL, 0xf,
       NULL, HFILL }
       },
-
+      { &hf_gtp_rnc_ip_addr_v4,
+      { "RNC IP address", "gtp.rnc_ip_addr_v4",
+      FT_IPv4, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }
+      },
+      { &hf_gtp_rnc_ip_addr_v6,
+      { "RNC IP address", "gtp.rnc_ip_addr_v6",
+      FT_IPv6, BASE_NONE, NULL, 0x0,
+      NULL, HFILL }
+      },
+      { &hf_gtp_ms_cm_2_len,
+      { "Length of the Mobile Station Classmark 2", "gtp.ms_cm_2_len",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }
+      },
+      { &hf_gtp_ms_cm_3_len,
+      { "Length of the Mobile Station Classmark 3", "gtp.ms_cm_3_len",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }
+      },
+      { &hf_gtp_sup_codec_lst_len,
+      { "Length of the Supported Codec List", "gtp.sup_codec_lst_len",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL }
+      },
+      { &hf_gtp_add_flg_for_srvcc_ics,
+      { "ICS (IMS Centralized Service)", "gtp.add_flg_for_srvcc_ics",
+      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+      NULL, HFILL }
+      },
+      { &hf_gtp_sel_mode_val,
+      { "Selection Mode Value", "gtp.sel_mode_val",
+      FT_UINT8, BASE_DEC, VALS(gtp_sel_mode_vals), 0x03,
+      NULL, HFILL }
+      },
 };
 
     static ei_register_info ei[] = {

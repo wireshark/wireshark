@@ -18,6 +18,7 @@ SourceRNC-ToTargetRNC-TransparentContainer_PDU
 TargetRNC-ToSourceRNC-TransparentContainer_PDU
 TargetRNC-ID
 TargetRNC-ID_PDU
+Cause_PDU
 
 #.PDU
 LastVisitedUTRANCell-Item
