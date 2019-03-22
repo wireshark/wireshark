@@ -100,6 +100,7 @@ json_dumper_bad(json_dumper *dumper, enum json_dumper_change change,
         /* Console output can be slow, disable log calls to speed up fuzzing. */
         return;
     }
+    fflush(dumper->output_file);
     g_error("Bad json_dumper state: %s; change=%d type=%d depth=%d prev/curr/next state=%02x %02x %02x",
             what, change, type, dumper->current_depth, states[0], states[1], states[2]);
 }
