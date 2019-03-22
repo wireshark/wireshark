@@ -108,7 +108,8 @@ PADATA-TYPE ::= INTEGER {
 	kRB5-PADATA-PKINIT-KX(147),		-- krb-wg-anon
 	kRB5-PADATA-PKU2U-NAME(148),		-- zhu-pku2u
 	kRB5-PADATA-REQ-ENC-PA-REP(149),	--
-	kRB5-PADATA-SUPPORTED-ETYPES(165)	-- MS-KILE
+	kRB5-PADATA-SUPPORTED-ETYPES(165),	-- MS-KILE
+	kRB5-PADATA-PAC-OPTIONS(167)		-- MS-KILE
 }
 AUTHDATA-TYPE ::= INTEGER {
 	kRB5-AUTHDATA-IF-RELEVANT(1),
@@ -833,7 +834,20 @@ PA-ServerReferralData ::= SEQUENCE {
 KERB-PA-PAC-REQUEST ::= SEQUENCE { 
 include-pac[0] BOOLEAN --If TRUE, and no pac present, include PAC. 
                        --If FALSE, and PAC present, remove PAC 
-} 
+}
+
+-- based on MS-KILE and MS-SFU
+PAC-OPTIONS-FLAGS ::= BIT STRING {
+	claims(0),
+	branch-aware(1),
+	forward-to-full-dc(2),
+	resource-based-constrained-delegation(3)
+}
+
+PA-PAC-OPTIONS ::= SEQUENCE {
+	flags [0] PAC-OPTIONS-FLAGS
+}
+
 END
 
 -- etags -r '/\([A-Za-z][-A-Za-z0-9]*\).*::=/\1/' k5.asn1

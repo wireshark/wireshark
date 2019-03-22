@@ -193,6 +193,9 @@ guint32 msgtype;
 	case KRB5_PADATA_ENCRYPTED_CHALLENGE:
 		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, dissect_kerberos_EncryptedChallenge);
 		break;
+	case KRB5_PA_PAC_OPTIONS:
+		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset, hf_index, dissect_kerberos_PA_PAC_OPTIONS);
+		break;
 	default:
 		offset=dissect_ber_octet_string_wcb(FALSE, actx, sub_tree, tvb, offset,hf_index, NULL);
 	}

@@ -112,6 +112,7 @@ static int dissect_kerberos_PA_AUTHENTICATION_SET(gboolean implicit_tag _U_, tvb
 static int dissect_kerberos_PA_FX_FAST_REQUEST(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_EncryptedChallenge(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 static int dissect_kerberos_PA_FX_FAST_REPLY(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+static int dissect_kerberos_PA_PAC_OPTIONS(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /* Desegment Kerberos over TCP messages */
 static gboolean krb_desegment = TRUE;
@@ -879,6 +880,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 #define KRB5_PADATA_ENCRYPTED_CHALLENGE	138
 #define KRB5_PADATA_PKINIT_KX	147
 #define KRB5_ENCPADATA_REQ_ENC_PA_REP	149
+#define KRB5_PA_PAC_OPTIONS		167
 
 
 #define KRB5_PA_PROV_SRV_LOCATION 0xffffffff    /* (gint32)0xFF) packetcable stuff */
@@ -1127,7 +1129,7 @@ static const value_string krb5_preauthentication_types[] = {
 	{ KRB5_PADATA_S4U_X509_USER    , "PA-S4U-X509-USER" },
 	{ KRB5_PADATA_FX_COOKIE        , "PA-FX-COOKIE" },
 	{ KRB5_PA_AUTHENTICATION_SET   , "KRB5-PA-AUTHENTICATION-SET" },
-
+	{ KRB5_PA_PAC_OPTIONS          , "PA-PAC-OPTIONS" },
 	{ KRB5_PADATA_FX_FAST          , "PA-FX-FAST" },
 	{ KRB5_PADATA_FX_ERROR         , "PA-FX-ERROR" },
 	{ KRB5_PADATA_ENCRYPTED_CHALLENGE , "PA-ENCRYPTED-CHALLENGE" },
