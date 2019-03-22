@@ -554,7 +554,6 @@ void CaptureInterfacesDialog::updateInterfaces()
         ui->PktSpinBox->setValue(global_capture_opts.file_packets);
     }
     ui->MBCheckBox->setChecked(global_capture_opts.has_autostop_filesize);
-    ui->SecsCheckBox->setChecked(global_capture_opts.has_file_interval);
     if (global_capture_opts.has_autostop_filesize) {
         int value = global_capture_opts.autostop_filesize;
         if (value > 1000000) {
@@ -586,8 +585,10 @@ void CaptureInterfacesDialog::updateInterfaces()
             }
         }
     }
-    if (global_capture_opts.has_file_interval) {
-        int value = global_capture_opts.file_interval;
+
+    ui->SecsCheckBox->setChecked(global_capture_opts.has_file_duration);
+    if (global_capture_opts.has_file_duration) {
+        int value = global_capture_opts.file_duration;
         if (value > 3600 && value % 3600 == 0) {
             ui->SecsSpinBox->setValue(value / 3600);
             ui->SecsComboBox->setCurrentIndex(2);
@@ -597,6 +598,21 @@ void CaptureInterfacesDialog::updateInterfaces()
         } else {
             ui->SecsSpinBox->setValue(value);
             ui->SecsComboBox->setCurrentIndex(0);
+        }
+    }
+
+    ui->IntervalSecsCheckBox->setChecked(global_capture_opts.has_file_interval);
+    if (global_capture_opts.has_file_interval) {
+        int value = global_capture_opts.file_interval;
+        if (value > 3600 && value % 3600 == 0) {
+            ui->IntervalSecsSpinBox->setValue(value / 3600);
+            ui->IntervalSecsComboBox->setCurrentIndex(2);
+        } else if (value > 60 && value % 60 == 0) {
+            ui->IntervalSecsSpinBox->setValue(value / 60);
+            ui->IntervalSecsComboBox->setCurrentIndex(1);
+        } else {
+            ui->IntervalSecsSpinBox->setValue(value);
+            ui->IntervalSecsComboBox->setCurrentIndex(0);
         }
     }
 

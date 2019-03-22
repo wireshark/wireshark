@@ -122,7 +122,8 @@ B<filesize>:I<value> switch to the next file after it reaches a size of
 I<value> kB.  Note that the filesize is limited to a maximum value of 2 GiB.
 
 B<interval>:I<value> switch to the next file when the time is an exact
-multiple of I<value> seconds
+multiple of I<value> seconds.  For example, use 3600 to switch to a new file
+every hour on the hour.
 
 B<packets>:I<value> switch to the next file after it contains I<value>
 packets.

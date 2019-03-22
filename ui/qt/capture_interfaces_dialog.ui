@@ -250,10 +250,10 @@
        <item>
         <widget class="QGroupBox" name="gbNewFileAuto">
          <property name="toolTip">
-          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+          <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Instead of using a single capture file, multiple files will be created.&lt;/p&gt;&lt;p&gt;The generated file names will contain an incrementing number and the start time of the capture.&lt;/p&gt;&lt;p&gt;NOTE: If enabled, at least one of the new-file criteria MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="title">
-          <string>Create a new file automatically after…</string>
+          <string>Create a new file automatically…</string>
          </property>
          <property name="flat">
           <bool>true</bool>
@@ -278,7 +278,10 @@
           <item row="1" column="0">
            <widget class="QCheckBox" name="PktCheckBox">
             <property name="text">
-             <string/>
+             <string>after</string>
+            </property>
+            <property name="toolTip">
+             <string>Switch to the next file after the specified number of packets have been captured.</string>
             </property>
            </widget>
           </item>
@@ -308,14 +311,17 @@
           <item row="2" column="0">
            <widget class="QCheckBox" name="MBCheckBox">
             <property name="text">
-             <string/>
+             <string>after</string>
+            </property>
+            <property name="toolTip">
+             <string>Switch to the next file after the file size exceeds the specified file size.</string>
             </property>
            </widget>
           </item>
           <item row="2" column="1">
            <widget class="QSpinBox" name="MBSpinBox">
             <property name="toolTip">
-             <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;If the selected file size is exceeded, capturing switches to the next file.&lt;/p&gt;&lt;p&gt;PLEASE NOTE: One option MUST be selected.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+             <string>Switch to the next file after the file size exceeds the specified file size.</string>
             </property>
             <property name="wrapping">
              <bool>true</bool>
@@ -337,8 +343,7 @@
           <item row="2" column="2">
            <widget class="QComboBox" name="MBComboBox">
             <property name="toolTip">
-             <string>If the selected file size is exceeded, capturing switches to the next file.
-PLEASE NOTE: One option MUST be selected.</string>
+             <string>Switch to the next file after the file size exceeds the specified file size.</string>
             </property>
             <item>
              <property name="text">
@@ -360,15 +365,17 @@ PLEASE NOTE: One option MUST be selected.</string>
           <item row="3" column="0">
            <widget class="QCheckBox" name="SecsCheckBox">
             <property name="text">
-             <string/>
+             <string>after</string>
+            </property>
+            <property name="toolTip">
+             <string>Switch to the next file when the time capturing to the current file exceeds the specified time.</string>
             </property>
            </widget>
           </item>
           <item row="3" column="1">
            <widget class="QSpinBox" name="SecsSpinBox">
             <property name="toolTip">
-             <string>If the selected file size is exceeded, capturing switches to the next file.
-PLEASE NOTE: One option MUST be selected.</string>
+             <string>Switch to the next file when the time capturing to the current file exceeds the specified time.</string>
             </property>
             <property name="wrapping">
              <bool>true</bool>
@@ -390,8 +397,7 @@ PLEASE NOTE: One option MUST be selected.</string>
           <item row="3" column="2">
            <widget class="QComboBox" name="SecsComboBox">
             <property name="toolTip">
-             <string>If the selected file size is exceeded, capturing switches to the next file.
-PLEASE NOTE: One option MUST be selected.</string>
+             <string>Switch to the next file when the time capturing to the current file exceeds the specified time.</string>
             </property>
             <item>
              <property name="text">
@@ -408,6 +414,66 @@ PLEASE NOTE: One option MUST be selected.</string>
               <string>hours</string>
              </property>
             </item>
+           </widget>
+          </item>
+          <item row="4" column="0">
+           <widget class="QCheckBox" name="IntervalSecsCheckBox">
+            <property name="text">
+             <string>when time is a multiple of</string>
+            </property>
+            <property name="toolTip">
+             <string>Switch to the next file when the (wall clock) time is an even multiple of the specified interval.
+For example, use 1 hour to have a new file created every hour on the hour.</string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1">
+           <widget class="QSpinBox" name="IntervalSecsSpinBox">
+            <property name="toolTip">
+             <string>Switch to the next file when the (wall clock) time is an even multiple of the specified interval.
+For example, use 1 hour to have a new file created every hour on the hour.</string>
+            </property>
+            <property name="wrapping">
+             <bool>true</bool>
+            </property>
+            <property name="buttonSymbols">
+             <enum>QAbstractSpinBox::PlusMinus</enum>
+            </property>
+            <property name="minimum">
+             <number>1</number>
+            </property>
+            <property name="maximum">
+             <number>1000000</number>
+            </property>
+            <property name="value">
+             <number>1</number>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="2">
+           <widget class="QComboBox" name="IntervalSecsComboBox">
+            <property name="toolTip">
+             <string>Switch to the next file when the (wall clock) time is an even multiple of the specified interval.
+For example, use 1 hour to have a new file created every hour on the hour.</string>
+            </property>
+            <item>
+             <property name="text">
+              <string>seconds</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>minutes</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>hours</string>
+             </property>
+            </item>
+            <property name="currentIndex">
+             <number>2</number>
+            </property>
            </widget>
           </item>
          </layout>
