@@ -171,6 +171,7 @@ static gint ett_mtp2       = -1;
 
 static dissector_handle_t mtp3_handle;
 static gboolean use_extended_sequence_numbers_default = FALSE;
+static gboolean capture_contains_fcs_crc_default = FALSE;
 
 /* sequence number of the actual packet to be reassembled
  * this is needed because the reassemble handler uses a key based on the
@@ -506,7 +507,10 @@ dissect_mtp2_with_phdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
   return tvb_captured_length(tvb);
 }
 
-/* Dissect MTP2 frame with CRC16 included at end of payload */
+/* Dissect MTP2 frame with CRC16 included at end of payload. Used
+ * if the user has associated "mtp2_with_crc" with a DLT or if the
+ * packets come from an Endace ERF file.
+ */
 static int
 dissect_mtp2_with_crc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -514,11 +518,14 @@ dissect_mtp2_with_crc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
   return tvb_captured_length(tvb);
 }
 
-/* Dissect MTP2 frame without CRC16 included at end of payload */
+/* Dissect MTP2 frame where we don't know if the CRC16 is included at
+ * end of payload or not.
+ */
 static int
 dissect_mtp2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  dissect_mtp2_common(tvb, pinfo, tree, FALSE, use_extended_sequence_numbers_default);
+  dissect_mtp2_common(tvb, pinfo, tree, capture_contains_fcs_crc_default,
+                      use_extended_sequence_numbers_default);
   return tvb_captured_length(tvb);
 }
 
@@ -1275,6 +1282,11 @@ proto_register_mtp2(void)
                                  "Use extended sequence numbers",
                                  "Whether the MTP2 dissector should use extended sequence numbers as described in Q.703, Annex A as a default.",
                                  &use_extended_sequence_numbers_default);
+  prefs_register_bool_preference(mtp2_module,
+                                 "capture_contains_frame_check_sequence",
+                                 "Assume packets have FCS",
+                                 "Some SS7 capture hardware includes the FCS at the end of the packet, others do not.",
+                                 &capture_contains_fcs_crc_default);
 
   /* register bool and range preferences */
   prefs_register_bool_preference(mtp2_module,
