@@ -8927,7 +8927,7 @@ proto_register_bthci_evt(void)
         },
         { &hf_bthci_evt_max_encryption_key_size,
           { "Max Encryption Key Size",        "bthci_evt.max_encryption_key_size",
-            FT_UINT8, BASE_DEC, &units_octet_octets, 0x0,
+            FT_UINT8, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0,
             NULL, HFILL }
         },
     };
