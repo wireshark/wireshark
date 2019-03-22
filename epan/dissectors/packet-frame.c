@@ -226,6 +226,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 	const gchar *cap_plurality, *frame_plurality;
 	frame_data_t *fr_data = (frame_data_t*)data;
 	const color_filter_t *color_filter;
+	dissector_handle_t dissector_handle;
 
 	tree=parent_tree;
 
@@ -587,19 +588,42 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 			case REC_TYPE_PACKET:
 				if ((force_docsis_encap) && (docsis_handle)) {
-					call_dissector_with_data(docsis_handle,
+					dissector_handle = docsis_handle;
+				} else {
+					/*
+					 * XXX - we don't use dissector_try_uint_new()
+					 * because we don't want to have to
+					 * treat a zero return from the dissector
+					 * as meaning "packet not accepted,
+					 * because that doesn't work for
+					 * packets where libwiretap strips
+					 * off the metadata header and puts
+					 * it into the pseudo-header, leaving
+					 * zero bytes worth of payload.  See
+					 * bug 15630.
+					 *
+					 * If the dissector for the packet's
+					 * purported link-layer header type
+					 * rejects the packet, that's a sign
+					 * of a bug somewhere, so making it
+					 * impossible for those dissectors
+					 * to reject packets isn't a problem.
+					 */
+					dissector_handle =
+					    dissector_get_uint_handle(wtap_encap_dissector_table,
+					        pinfo->rec->rec_header.packet_header.pkt_encap);
+				}
+				if (dissector_handle != NULL) {
+					pinfo->match_uint =
+					    pinfo->rec->rec_header.packet_header.pkt_encap;
+					call_dissector_only(dissector_handle,
 					    tvb, pinfo, parent_tree,
 					    (void *)pinfo->pseudo_header);
 				} else {
-					if (!dissector_try_uint_new(wtap_encap_dissector_table,
-					    pinfo->rec->rec_header.packet_header.pkt_encap, tvb, pinfo,
-					    parent_tree, TRUE,
-					    (void *)pinfo->pseudo_header)) {
-						col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
-						col_add_fstr(pinfo->cinfo, COL_INFO, "WTAP_ENCAP = %d",
-							     pinfo->rec->rec_header.packet_header.pkt_encap);
-						call_data_dissector(tvb, pinfo, parent_tree);
-					}
+					col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
+					col_add_fstr(pinfo->cinfo, COL_INFO, "WTAP_ENCAP = %d",
+						     pinfo->rec->rec_header.packet_header.pkt_encap);
+					call_data_dissector(tvb, pinfo, parent_tree);
 				}
 				break;
 
