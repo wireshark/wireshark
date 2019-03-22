@@ -753,6 +753,12 @@ proto_tree *subtree;
   }
 %(DEFAULT_BODY)s
 
+#.FN_BODY SpecializedResourceReportArg
+  if (camel_ver < 4) {
+    return dissect_camel_SpecializedResourceReportArgV23(implicit_tag, tvb, offset, actx, tree, hf_camel_allAnnouncementsComplete);
+  }
+%(DEFAULT_BODY)s
+
 #.TYPE_ATTR
 PDPTypeOrganization TYPE = FT_UINT8  DISPLAY = BASE_DEC  BITMASK = 0x0f STRINGS = VALS(gsm_map_PDP_Type_Organisation_vals)
 DateAndTime	TYPE = FT_STRING DISPLAY = BASE_NONE
