@@ -409,8 +409,8 @@ static void dissect_rbm_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* pt
 {
 	guint8 subtype = tvb_get_guint8(tvb, *offset);
 	proto_tree* tree;
-	gchar* type_local = NULL;
-	gchar* value_local = NULL;
+	gchar* type_local = "Unknown";
+	gchar* value_local = "Unknown";
 	gint offset_start = *offset;
 
 	tree = proto_tree_add_subtree(ptree, tvb, *offset, 0, ett_variable, NULL, "");
@@ -494,6 +494,7 @@ static void dissect_rbm_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* pt
 		default:
 			expert_add_info_format(pinfo, tree, &ei_rbm_invalid,
 				"Object type 0x%x is invalid", subtype);
+			*offset += tvb_reported_length_remaining(tvb, *offset);
 	}
 
 	proto_item_set_len(tree, *offset - offset_start);

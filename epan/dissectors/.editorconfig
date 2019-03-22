@@ -8,6 +8,10 @@
 indent_style = tab
 indent_size = tab
 
+[file-rbm.[ch]]
+indent_style = tab
+indent_size = tab
+
 [packet-2dparityfec.[ch]]
 indent_size = 3
 
