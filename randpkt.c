@@ -102,17 +102,17 @@ usage(gboolean is_error)
 int
 main(int argc, char *argv[])
 {
-	char                   *init_progfile_dir_error;
-	int			opt;
-	int			produce_type = -1;
-	char			*produce_filename = NULL;
-	int			produce_max_bytes = 5000;
-	int			produce_count = 1000;
-	randpkt_example		*example;
-	guint8*			type = NULL;
-	int 			allrandom = FALSE;
-	wtap_dumper		*savedump;
-	int 			 ret = EXIT_SUCCESS;
+	char *init_progfile_dir_error;
+	int opt;
+	int produce_type = -1;
+	char *produce_filename = NULL;
+	int produce_max_bytes = 5000;
+	int produce_count = 1000;
+	randpkt_example *example;
+	guint8* type = NULL;
+	int allrandom = FALSE;
+	wtap_dumper *savedump;
+	int ret = EXIT_SUCCESS;
 	static const struct option long_options[] = {
 		{"help", no_argument, NULL, 'h'},
 		{0, 0, 0, 0 }
@@ -130,8 +130,8 @@ main(int argc, char *argv[])
 	init_progfile_dir_error = init_progfile_dir(argv[0]);
 	if (init_progfile_dir_error != NULL) {
 		fprintf(stderr,
-		    "capinfos: Can't get pathname of directory containing the capinfos program: %s.\n",
-		    init_progfile_dir_error);
+			"capinfos: Can't get pathname of directory containing the capinfos program: %s.\n",
+			init_progfile_dir_error);
 		g_free(init_progfile_dir_error);
 	}
 
@@ -185,8 +185,7 @@ main(int argc, char *argv[])
 	/* any more command line parameters? */
 	if (argc > optind) {
 		produce_filename = argv[optind];
-	}
-	else {
+	} else {
 		usage(TRUE);
 		ret = INVALID_OPTION;
 		goto clean_exit;
