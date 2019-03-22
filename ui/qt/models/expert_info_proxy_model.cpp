@@ -93,7 +93,7 @@ QVariant ExpertInfoProxyModel::data(const QModelIndex &proxy_index, int role) co
         {
         source_index = mapToSource(proxy_index);
 
-        //only color base row
+        // only color base row
         if (!source_index.isValid() || source_index.parent().isValid())
             return QVariant();
 
@@ -117,8 +117,28 @@ QVariant ExpertInfoProxyModel::data(const QModelIndex &proxy_index, int role) co
         }
         break;
     case Qt::ForegroundRole:
-        //  XXX Use plain colors until our users demand to be blinded.
-        return QBrush(ColorUtils::expert_color_foreground);
+        {
+        source_index = mapToSource(proxy_index);
+
+        // only color base row
+        if (!source_index.isValid() || source_index.parent().isValid())
+            return QVariant();
+
+        ExpertPacketItem* item = static_cast<ExpertPacketItem*>(source_index.internalPointer());
+        if (item == NULL)
+            return QVariant();
+
+        // provide foreground color for groups
+        switch(item->severity()) {
+        case(PI_COMMENT):
+        case(PI_CHAT):
+        case(PI_NOTE):
+        case(PI_WARN):
+        case(PI_ERROR):
+            return QBrush(ColorUtils::expert_color_foreground);
+        }
+        }
+        break;
     case Qt::TextAlignmentRole:
         switch (proxy_index.column())
         {

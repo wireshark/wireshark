@@ -9,7 +9,6 @@
  */
 
 #include "expert_info_model.h"
-#include <ui/qt/utils/color_utils.h>
 
 #include "file.h"
 
