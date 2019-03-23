@@ -549,10 +549,13 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 					        pinfo->pkt_encap);
 				}
 				if (dissector_handle != NULL) {
+					guint32 save_match_uint = pinfo->match_uint;
+
 					pinfo->match_uint = pinfo->pkt_encap;
 					call_dissector_only(dissector_handle,
 					    tvb, pinfo, parent_tree,
 					    (void *)pinfo->pseudo_header);
+					pinfo->match_uint = save_match_uint;
 				} else {
 					col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");
 					col_add_fstr(pinfo->cinfo, COL_INFO, "WTAP_ENCAP = %d",
