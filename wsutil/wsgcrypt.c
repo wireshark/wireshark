@@ -45,9 +45,9 @@ gcry_error_t ws_cmac_buffer(int algo, void *digest, const void *buffer, size_t l
 		return result;
 	}
 	gcry_mac_write(cmac_handle, buffer, length);
-	gcry_mac_read(cmac_handle, digest, &keylen);
+	result = gcry_mac_read(cmac_handle, digest, &keylen);
 	gcry_mac_close(cmac_handle);
-	return GPG_ERR_NO_ERROR;
+	return result;
 }
 #else
 gcry_error_t ws_cmac_buffer(int algo _U_, void *digest _U_, const void *buffer _U_, size_t length _U_, const void *key _U_, size_t keylen _U_)

@@ -1450,20 +1450,25 @@ Dot11DecryptWepMng(
 static int
 Dot11DecryptGetRsne(
     const EAPOL_RSN_KEY *pEAPKey,
+    const guint tot_len,
     int *group_cipher,
     int *cipher,
     int *akm)
 {
-    int key_data_len = pntoh16(&pEAPKey->key_data_len);
+    guint16 key_data_len = pntoh16(&pEAPKey->key_data_len);
     int offset = 0;
     int offset_rsne;
     int i;
-    int count;
+    guint16 count;
     const guint8 *data = ((const guint8 *)pEAPKey) + sizeof(EAPOL_RSN_KEY);
 #ifdef DOT11DECRYPT_DEBUG
 #define MSGBUF_LEN 255
     CHAR msgbuf[MSGBUF_LEN];
 #endif
+
+    if (key_data_len + sizeof(EAPOL_RSN_KEY) > tot_len) {
+        key_data_len = (guint16)(tot_len - sizeof(EAPOL_RSN_KEY));
+    }
 
     while (offset < key_data_len - 2) {
         guint8 element_id = data[offset];
@@ -1677,6 +1682,7 @@ Dot11DecryptRsna4WHandshake(
                         /* PTK derivation is based on Authentication Key Management Type */
                         int _U_ group_cipher = -1;
                         Dot11DecryptGetRsne((const EAPOL_RSN_KEY *)(data + offset - 1),
+                                            tot_len - (offset - 1),
                                             &group_cipher, &cipher, &akm);
                     }
 
