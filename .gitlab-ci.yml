@@ -93,7 +93,7 @@ rpm-opensuse-42.3:
   script:
     - zypper --non-interactive install update-desktop-files
     - tools/rpm-setup.sh --install-optional ruby
-    - gem install asciidoctor
+    - gem install asciidoctor -v 1.5.8 --no-ri --no-rdoc
     - mkdir build
     - cd build
     - cmake -GNinja ..
