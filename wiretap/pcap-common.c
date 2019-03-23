@@ -347,8 +347,8 @@ static const struct {
 	{ 196,		WTAP_ENCAP_SITA },
 	/* Endace Record File Encapsulation */
 	{ 197,		WTAP_ENCAP_ERF },
-	/* IPMB */
-	{ 199,		WTAP_ENCAP_IPMB },
+	/* IPMB/I2C with Kontron pseudo-header */
+	{ 199,		WTAP_ENCAP_IPMB_KONTRON },
 	/* Juniper-private data link type, used for capturing data on a secure tunnel interface. */
 	{ 200,		WTAP_ENCAP_JUNIPER_ST },
 	/* Bluetooth HCI UART transport (part H:4) frames, like hcidump */
@@ -359,8 +359,8 @@ static const struct {
 	{ 203,		WTAP_ENCAP_LAPD },
 	/* PPP with pseudoheader */
 	{ 204,		WTAP_ENCAP_PPP_WITH_PHDR },
-	/* IPMB/I2C */
-	{ 209,		WTAP_ENCAP_I2C },
+	/* IPMB/I2C with a Linux-specific header (defined by Pigeon Point Systems) */
+	{ 209,		WTAP_ENCAP_I2C_LINUX },
 	/* FlexRay frame */
 	{ 210,		WTAP_ENCAP_FLEXRAY },
 	/* MOST frame */
@@ -1629,20 +1629,21 @@ pcap_write_erf_pseudoheader(wtap_dumper *wdh,
 }
 
 /*
- * I2C link-layer on-disk format
+ * I2C-with=Linux-pseudoheader link-layer on-disk format, as defined by
+ * Pigeon Point Systems.
  */
-struct i2c_file_hdr {
+struct i2c_linux_file_hdr {
 	guint8 bus;
 	guint8 flags[4];
 };
 
 static int
-pcap_read_i2c_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
+pcap_read_i2c_linux_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
     guint packet_size, int *err, gchar **err_info)
 {
-	struct i2c_file_hdr i2c_hdr;
+	struct i2c_linux_file_hdr i2c_linux_hdr;
 
-	if (packet_size < sizeof (struct i2c_file_hdr)) {
+	if (packet_size < sizeof (struct i2c_linux_file_hdr)) {
 		/*
 		 * Uh-oh, the packet isn't big enough to even
 		 * have a pseudo-header.
@@ -1652,32 +1653,32 @@ pcap_read_i2c_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 		    packet_size);
 		return -1;
 	}
-	if (!wtap_read_bytes(fh, &i2c_hdr, sizeof (i2c_hdr), err, err_info))
+	if (!wtap_read_bytes(fh, &i2c_linux_hdr, sizeof (i2c_linux_hdr), err, err_info))
 		return -1;
 
-	pseudo_header->i2c.is_event = i2c_hdr.bus & 0x80 ? 1 : 0;
-	pseudo_header->i2c.bus = i2c_hdr.bus & 0x7f;
-	pseudo_header->i2c.flags = pntoh32(&i2c_hdr.flags);
+	pseudo_header->i2c.is_event = i2c_linux_hdr.bus & 0x80 ? 1 : 0;
+	pseudo_header->i2c.bus = i2c_linux_hdr.bus & 0x7f;
+	pseudo_header->i2c.flags = pntoh32(&i2c_linux_hdr.flags);
 
-	return (int)sizeof (struct i2c_file_hdr);
+	return (int)sizeof (struct i2c_linux_file_hdr);
 }
 
 static gboolean
-pcap_write_i2c_pseudoheader(wtap_dumper *wdh,
+pcap_write_i2c_linux_pseudoheader(wtap_dumper *wdh,
     const union wtap_pseudo_header *pseudo_header, int *err)
 {
-	struct i2c_file_hdr i2c_hdr;
+	struct i2c_linux_file_hdr i2c_linux_hdr;
 
 	/*
-	 * Write the I2C header.
+	 * Write the I2C Linux-specific pseudo-header.
 	 */
-	memset(&i2c_hdr, 0, sizeof(i2c_hdr));
-	i2c_hdr.bus = pseudo_header->i2c.bus |
+	memset(&i2c_linux_hdr, 0, sizeof(i2c_linux_hdr));
+	i2c_linux_hdr.bus = pseudo_header->i2c.bus |
 			(pseudo_header->i2c.is_event ? 0x80 : 0x00);
-	phtonl((guint8 *)&i2c_hdr.flags, pseudo_header->i2c.flags);
-	if (!wtap_dump_file_write(wdh, &i2c_hdr, sizeof(i2c_hdr), err))
+	phtonl((guint8 *)&i2c_linux_hdr.flags, pseudo_header->i2c.flags);
+	if (!wtap_dump_file_write(wdh, &i2c_linux_hdr, sizeof(i2c_linux_hdr), err))
 		return FALSE;
-	wdh->bytes_dumped += sizeof(i2c_hdr);
+	wdh->bytes_dumped += sizeof(i2c_linux_hdr);
 	return TRUE;
 }
 
@@ -2233,8 +2234,8 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 			return -1;	/* Read error */
 		break;
 
-	case WTAP_ENCAP_I2C:
-		phdr_len = pcap_read_i2c_pseudoheader(fh,
+	case WTAP_ENCAP_I2C_LINUX:
+		phdr_len = pcap_read_i2c_linux_pseudoheader(fh,
 		    &rec->rec_header.packet_header.pseudo_header,
 		    packet_size, err, err_info);
 		if (phdr_len == -1)
@@ -2336,7 +2337,7 @@ wtap_encap_requires_phdr(int wtap_encap)
 	case WTAP_ENCAP_NFC_LLCP:
 	case WTAP_ENCAP_PPP_WITH_PHDR:
 	case WTAP_ENCAP_ERF:
-	case WTAP_ENCAP_I2C:
+	case WTAP_ENCAP_I2C_LINUX:
 		return TRUE;
 	}
 	return FALSE;
@@ -2436,8 +2437,8 @@ pcap_get_phdr_size(int encap, const union wtap_pseudo_header *pseudo_header)
 		}
 		break;
 
-	case WTAP_ENCAP_I2C:
-		hdrsize = (int)sizeof (struct i2c_file_hdr);
+	case WTAP_ENCAP_I2C_LINUX:
+		hdrsize = (int)sizeof (struct i2c_linux_file_hdr);
 		break;
 
 	default:
@@ -2504,8 +2505,8 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 			return FALSE;
 		break;
 
-	case WTAP_ENCAP_I2C:
-		if (!pcap_write_i2c_pseudoheader(wdh, pseudo_header, err))
+	case WTAP_ENCAP_I2C_LINUX:
+		if (!pcap_write_i2c_linux_pseudoheader(wdh, pseudo_header, err))
 			return FALSE;
 		break;
 	}

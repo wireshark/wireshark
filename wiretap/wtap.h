@@ -183,7 +183,7 @@ extern "C" {
 #define WTAP_ENCAP_SITA                         100
 #define WTAP_ENCAP_SCCP                         101
 #define WTAP_ENCAP_BLUETOOTH_HCI                102 /*raw packets without a transport layer header e.g. H4*/
-#define WTAP_ENCAP_IPMB                         103
+#define WTAP_ENCAP_IPMB_KONTRON                 103
 #define WTAP_ENCAP_IEEE802_15_4                 104
 #define WTAP_ENCAP_X2E_XORAYA                   105
 #define WTAP_ENCAP_FLEXRAY                      106
@@ -192,7 +192,7 @@ extern "C" {
 #define WTAP_ENCAP_CAN20B                       109
 #define WTAP_ENCAP_LAYER1_EVENT                 110
 #define WTAP_ENCAP_X2E_SERIAL                   111
-#define WTAP_ENCAP_I2C                          112
+#define WTAP_ENCAP_I2C_LINUX                    112
 #define WTAP_ENCAP_IEEE802_15_4_NONASK_PHY      113
 #define WTAP_ENCAP_TNEF                         114
 #define WTAP_ENCAP_USB_LINUX_MMAPPED            115

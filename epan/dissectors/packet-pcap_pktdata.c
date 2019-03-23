@@ -342,7 +342,7 @@ dissect_pcap_pktdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
             /* TODO */
         case WTAP_ENCAP_ERF:
             /* TODO no description for pseudoheader at http://www.tcpdump.org/linktypes.html */
-        case WTAP_ENCAP_I2C:
+        case WTAP_ENCAP_I2C_LINUX:
             /* TODO */
         default:
             /*

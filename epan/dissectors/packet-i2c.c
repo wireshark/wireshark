@@ -35,6 +35,8 @@ static gint ett_i2c = -1;
 
 static dissector_table_t subdissector_table;
 
+static dissector_handle_t ipmb_handle;
+
 /* I2C packet flags. */
 #define I2C_FLAG_RD			0x00000001
 #define I2C_FLAG_TEN			0x00000010
@@ -70,7 +72,7 @@ static void i2c_prompt(packet_info *pinfo _U_, gchar* result)
 }
 
 static gboolean
-capture_i2c(const guchar *pd _U_, int offset _U_, int len _U_, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
+capture_i2c_linux(const guchar *pd _U_, int offset _U_, int len _U_, capture_packet_info_t *cpinfo, const union wtap_pseudo_header *pseudo_header)
 {
 	if (pseudo_header->i2c.is_event) {
 		capture_dissector_increment_count(cpinfo, proto_i2c_event);
@@ -82,7 +84,7 @@ capture_i2c(const guchar *pd _U_, int offset _U_, int len _U_, capture_packet_in
 }
 
 static const char *
-i2c_get_event_desc(guint32 event)
+i2c_linux_get_event_desc(guint32 event)
 {
 	const char *desc;
 
@@ -151,7 +153,7 @@ i2c_get_event_desc(guint32 event)
 }
 
 static int
-dissect_i2c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_i2c_linux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_item *ti;
 	proto_tree *i2c_tree;
@@ -170,7 +172,7 @@ dissect_i2c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 		col_set_str(pinfo->cinfo, COL_PROTOCOL, "I2C Event");
 		col_add_fstr(pinfo->cinfo, COL_DEF_DST, "----");
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
-				i2c_get_event_desc(flags));
+				i2c_linux_get_event_desc(flags));
 	} else {
 		/* Report 7-bit hardware address */
 		addr = tvb_get_guint8(tvb, 0) >> 1;
@@ -194,7 +196,7 @@ dissect_i2c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	if (is_event) {
 		proto_tree_add_uint_format_value(i2c_tree, hf_i2c_event, tvb, 0, 0,
 				flags, "%s (0x%08x)",
-				i2c_get_event_desc(flags), flags);
+				i2c_linux_get_event_desc(flags), flags);
 	} else {
 		proto_tree_add_uint_format_value(i2c_tree, hf_i2c_addr, tvb, 0, 1,
 				addr, "0x%02x%s", addr, addr ? "" : " (General Call)");
@@ -205,6 +207,48 @@ dissect_i2c(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 			call_data_dissector(tvb, pinfo, tree);
 		}
 	}
+	return tvb_captured_length(tvb);
+}
+
+/* IPMB-over-I2C, with Kontron pseudo-header */
+static int
+dissect_i2c_kontron(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+{
+	proto_item *ti;
+	proto_tree *i2c_tree;
+	int         offset = 0;
+	guint8      addr;
+	tvbuff_t   *new_tvb;
+
+	col_add_str(pinfo->cinfo, COL_DEF_SRC, "I2C");
+	col_add_str(pinfo->cinfo, COL_PROTOCOL, "I2C");
+
+	ti = proto_tree_add_protocol_format(tree, proto_i2c, tvb, 0, -1,
+			"Inter-Integrated Circuit (Data)");
+
+	/* Data length field */
+	offset++;
+
+	/* Port number on which the message was received */
+	offset++;
+
+	/* Report 7-bit hardware address */
+	addr = tvb_get_guint8(tvb, offset) >> 1;
+	col_append_fstr(pinfo->cinfo, COL_PROTOCOL, " %s",
+	    tvb_get_guint8(tvb, 0) & 0x01 ? "Read" : "Write");
+	col_add_fstr(pinfo->cinfo, COL_DEF_DST, "0x%02x", addr);
+	col_add_fstr(pinfo->cinfo, COL_INFO, "I2C, %d bytes",
+				tvb_captured_length(tvb));
+
+	pinfo->ptype = PT_I2C;
+
+	i2c_tree = proto_item_add_subtree(ti, ett_i2c);
+
+	proto_tree_add_uint_format_value(i2c_tree, hf_i2c_addr, tvb, 0, 3,
+			addr, "0x%02x%s", addr, addr ? "" : " (General Call)");
+
+	new_tvb = tvb_new_subset_remaining(tvb, offset);
+	call_dissector(ipmb_handle, new_tvb, pinfo, tree);
 	return tvb_captured_length(tvb);
 }
 
@@ -239,13 +283,19 @@ proto_register_i2c(void)
 void
 proto_reg_handoff_i2c(void)
 {
-	dissector_handle_t i2c_handle;
-	capture_dissector_handle_t i2c_cap_handle;
+	dissector_handle_t i2c_linux_handle;
+	capture_dissector_handle_t i2c_linux_cap_handle;
+	dissector_handle_t i2c_kontron_handle;
 
-	i2c_handle = create_dissector_handle(dissect_i2c, proto_i2c);
-	dissector_add_uint("wtap_encap", WTAP_ENCAP_I2C, i2c_handle);
-	i2c_cap_handle = create_capture_dissector_handle(capture_i2c, proto_i2c);
-	capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_I2C, i2c_cap_handle);
+	i2c_linux_handle = create_dissector_handle(dissect_i2c_linux, proto_i2c);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_I2C_LINUX, i2c_linux_handle);
+	i2c_linux_cap_handle = create_capture_dissector_handle(capture_i2c_linux, proto_i2c);
+	capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_I2C_LINUX, i2c_linux_cap_handle);
+
+	i2c_kontron_handle = create_dissector_handle(dissect_i2c_kontron, proto_i2c);
+	dissector_add_uint("wtap_encap", WTAP_ENCAP_IPMB_KONTRON, i2c_kontron_handle);
+
+	ipmb_handle = find_dissector("ipmb");
 }
 
 /*

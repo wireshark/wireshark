@@ -660,8 +660,8 @@ static struct encap_type_info encap_table_base[] = {
 	/* WTAP_ENCAP_BLUETOOTH_HCI */
 	{ "bluetooth-hci", "Bluetooth without transport layer" },
 
-	/* WTAP_ENCAP_IPMB */
-	{ "ipmb", "Intelligent Platform Management Bus" },
+	/* WTAP_ENCAP_IPMB_KONTRON */
+	{ "ipmb-kontron", "Intelligent Platform Management Bus with Kontron pseudo-header" },
 
 	/* WTAP_ENCAP_IEEE802_15_4 */
 	{ "wpan", "IEEE 802.15.4 Wireless PAN" },
@@ -687,8 +687,8 @@ static struct encap_type_info encap_table_base[] = {
 	/* WTAP_ENCAP_X2E_SERIAL */
 	{ "x2e-serial", "X2E serial line capture" },
 
-	/* WTAP_ENCAP_I2C */
-	{ "i2c", "I2C" },
+	/* WTAP_ENCAP_I2C_LINUX */
+	{ "i2c-linux", "I2C with Linux-specific pseudo-header" },
 
 	/* WTAP_ENCAP_IEEE802_15_4_NONASK_PHY */
 	{ "wpan-nonask-phy", "IEEE 802.15.4 Wireless PAN non-ASK PHY" },
