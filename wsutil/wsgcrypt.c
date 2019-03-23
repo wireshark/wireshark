@@ -35,8 +35,7 @@ gcry_error_t ws_hmac_buffer(int algo, void *digest, const void *buffer, size_t l
 gcry_error_t ws_cmac_buffer(int algo, void *digest, const void *buffer, size_t length, const void *key, size_t keylen)
 {
 	gcry_mac_hd_t cmac_handle;
-	gcry_error_t result =
-	result = gcry_mac_open(&cmac_handle, algo, 0, NULL);
+	gcry_error_t result = gcry_mac_open(&cmac_handle, algo, 0, NULL);
 	if (result) {
 		return result;
 	}
