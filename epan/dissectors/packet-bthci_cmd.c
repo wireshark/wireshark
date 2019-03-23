@@ -305,7 +305,7 @@ static int hf_bthci_cmd_le_event_mask_le_read_local_p256_public_key_complete = -
 static int hf_bthci_cmd_le_event_mask_le_data_length_change = -1;
 static int hf_bthci_cmd_le_event_mask_le_remote_connection_parameter_request = -1;
 static int hf_bthci_cmd_le_event_mask_le_long_term_key_request = -1;
-static int hf_bthci_cmd_le_event_mask_le_read_remote_used_features_complete = -1;
+static int hf_bthci_cmd_le_event_mask_le_read_remote_features_complete = -1;
 static int hf_bthci_cmd_le_event_mask_le_connection_update_complete = -1;
 static int hf_bthci_cmd_le_event_mask_le_advertising_report = -1;
 static int hf_bthci_cmd_le_event_mask_le_connection_complete = -1;
@@ -564,7 +564,7 @@ static const int *hfx_bthci_cmd_le_event_mask[] = {
     &hf_bthci_cmd_le_event_mask_le_data_length_change,
     &hf_bthci_cmd_le_event_mask_le_remote_connection_parameter_request,
     &hf_bthci_cmd_le_event_mask_le_long_term_key_request,
-    &hf_bthci_cmd_le_event_mask_le_read_remote_used_features_complete,
+    &hf_bthci_cmd_le_event_mask_le_read_remote_features_complete,
     &hf_bthci_cmd_le_event_mask_le_connection_update_complete,
     &hf_bthci_cmd_le_event_mask_le_advertising_report,
     &hf_bthci_cmd_le_event_mask_le_connection_complete,
@@ -1300,7 +1300,7 @@ value_string_ext bthci_cmd_ocf_testing_vals_ext = VALUE_STRING_EXT_INIT(bthci_cm
     { (base) | 0x013,  "LE Connection Update" }, \
     { (base) | 0x014,  "LE Set Host Channel Classification" }, \
     { (base) | 0x015,  "LE Read Channel Map" }, \
-    { (base) | 0x016,  "LE Read Remote Used Features" }, \
+    { (base) | 0x016,  "LE Read Remote Features" }, \
     { (base) | 0x017,  "LE Encrypt" }, \
     { (base) | 0x018,  "LE Rand" }, \
     { (base) | 0x019,  "LE Start Encryption" }, \
@@ -4362,7 +4362,7 @@ dissect_le_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, 
             break;
 
         case 0x0015: /* LE Read Channel Map */
-        case 0x0016: /* LE Read Remote Used Features */
+        case 0x0016: /* LE Read Remote Features */
         case 0x001b: /* LE Long Term Key Request Negative Reply */
         case 0x0030: /* LE Read PHY */
             proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -6539,8 +6539,8 @@ proto_register_bthci_cmd(void)
             FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x04),
             NULL, HFILL }
         },
-        { &hf_bthci_cmd_le_event_mask_le_read_remote_used_features_complete,
-          { "LE Read Remote Used Features Complete",       "bthci_cmd.le_event_mask.le_read_remote_used_features_complete",
+        { &hf_bthci_cmd_le_event_mask_le_read_remote_features_complete,
+          { "LE Read Remote Features Complete",       "bthci_cmd.le_event_mask.le_read_remote_features_complete",
             FT_BOOLEAN, 64, NULL, G_GUINT64_CONSTANT(0x08),
             NULL, HFILL }
         },

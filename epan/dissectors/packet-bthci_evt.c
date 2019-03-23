@@ -962,7 +962,7 @@ static const value_string evt_le_meta_subevent[] = {
     { 0x01, "LE Connection Complete" },
     { 0x02, "LE Advertising Report" },
     { 0x03, "LE Connection Update Complete" },
-    { 0x04, "LE Read Remote Used Features Complete" },
+    { 0x04, "LE Read Remote Features Complete" },
     { 0x05, "LE Long Term Key Request" },
     { 0x06, "LE Remote Connection Parameter Request" },
     { 0x07, "LE Data Length Change" },
@@ -2514,7 +2514,7 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
             add_opcode(opcode_list, 0x2013, COMMAND_STATUS_NORMAL); /* LE Connection Update */
             break;
-        case 0x04: /* LE Read Remote Used Features Complete */
+        case 0x04: /* LE Read Remote Features Complete */
             proto_tree_add_item(tree, hf_bthci_evt_status,                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
             send_hci_summary_status_tap(tvb_get_guint8(tvb, offset), pinfo, bluetooth_data);
             offset += 1;
@@ -2525,7 +2525,7 @@ dissect_bthci_evt_le_meta(tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_tree_add_bitmask(tree, tvb, offset, hf_bthci_evt_le_features, ett_le_features, hfx_bthci_evt_le_features, ENC_LITTLE_ENDIAN);
             offset += 8;
 
-            add_opcode(opcode_list, 0x2016, COMMAND_STATUS_NORMAL); /* LE Read Remote Used Features */
+            add_opcode(opcode_list, 0x2016, COMMAND_STATUS_NORMAL); /* LE Read Remote Features */
             break;
         case 0x05: /* LE Long Term Key Request */
             proto_tree_add_item(tree, hf_bthci_evt_connection_handle,             tvb, offset, 2, ENC_LITTLE_ENDIAN);
@@ -5166,7 +5166,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset,
         case 0x0C6B: /* Short Range Mode */
         case 0x200D: /* LE Create Connection */
         case 0x2013: /* LE Connection Update */
-        case 0x2016: /* LE Read Remote Used Features */
+        case 0x2016: /* LE Read Remote Features */
         case 0x2019: /* LE Start Encryption */
         case 0x2025: /* LE Read Local P-256 Public Key */
         case 0x2026: /* LE Generate DHKey [v1] */
