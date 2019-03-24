@@ -1507,7 +1507,6 @@ Dot11DecryptGetRsne(
                     break;
                 }
             }
-            offset_rsne += 4 * count; /* AKM Suite OUI */
 
             /* RSN OUI */
 #ifdef DOT11DECRYPT_DEBUG
