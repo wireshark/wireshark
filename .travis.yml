@@ -76,6 +76,9 @@ matrix:
       cache:
         directories:
           - travis-cache
+  # Windows builds are experimental in Travis and are unreliable, do not force it.
+  allow_failures:
+    - os: windows
 before_install:
   - echo $TRAVIS_OS_NAME
   # macos
