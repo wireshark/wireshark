@@ -279,7 +279,12 @@ static int ett_nas_5gs_mm_sor = -1;
 static int ett_nas_5gs_sm_pkt_filter_components = -1;
 
 static int hf_nas_5gs_mm_abba = -1;
-static int hf_nas_5gs_mm_suci = -1;
+static int hf_nas_5gs_mm_supi_fmt = -1;
+static int hf_nas_5gs_mm_routing_indicator = -1;
+static int hf_nas_5gs_mm_prot_scheme_id = -1;
+static int hf_nas_5gs_mm_pki = -1;
+static int hf_nas_5gs_mm_scheme_output = -1;
+static int hf_nas_5gs_mm_suci_nai = -1;
 static int hf_nas_5gs_mm_imei = -1;
 static int hf_nas_5gs_mm_imeisv = -1;
 static int hf_nas_5gs_mm_reg_res_sms_allowed = -1;
@@ -579,14 +584,27 @@ static true_false_string nas_5gs_odd_even_tfs = {
     "Even number of identity digits"
 };
 
+static const value_string nas_5gs_mm_supi_fmt_vals[] = {
+    { 0x0, "IMSI" },
+    { 0x1, "Network Specific Identifier" },
+    { 0, NULL }
+};
+
+static const value_string nas_5gs_mm_prot_scheme_id_vals[] = {
+    { 0x0, "NULL scheme" },
+    { 0x1, "ECIES scheme profile A" },
+    { 0x2, "ECIES scheme profile B" },
+    { 0, NULL }
+};
+
 static guint16
 de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)
 {
-    guint8 type_id;
+    guint8 oct, type_id, supi_fmt;
     tvbuff_t * new_tvb;
-    const char *digit_str;
+    const char *digit_str, *route_id_str;
 
     static const int * flags_odd_even_tid[] = {
         &hf_nas_5gs_mm_odd_even,
@@ -594,7 +612,16 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         NULL
     };
 
-    type_id = tvb_get_guint8(tvb, offset) & 0x07;
+    static const int * flags_supi_fmt_tid[] = {
+        &hf_nas_5gs_spare_b7,
+        &hf_nas_5gs_mm_supi_fmt,
+        &hf_nas_5gs_spare_b3,
+        &hf_nas_5gs_mm_type_id,
+        NULL
+    };
+
+    oct = tvb_get_guint8(tvb, offset);
+    type_id = oct & 0x07;
 
     switch (type_id) {
     case 0:
@@ -602,17 +629,44 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         break;
     case 1:
         /* SUCI */
-        proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_odd_even_tid, ENC_BIG_ENDIAN);
-        new_tvb = tvb_new_subset_length(tvb, offset, len);
-        digit_str = tvb_bcd_dig_to_wmem_packet_str(new_tvb, 0, -1, NULL, TRUE);
-        proto_tree_add_string(tree, hf_nas_5gs_mm_suci, new_tvb, 0, -1, digit_str);
+        proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_supi_fmt_tid, ENC_BIG_ENDIAN);
+        offset++;
+
+        supi_fmt = oct & 0x70;
+        if (supi_fmt == 0) {
+            /* IMSI */
+
+            /* MCC digit 2    MCC digit 1
+             * MNC digit 3    MCC digit 3
+             * MNC digit 2    MNC digit 1
+             */
+            offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_NONE, TRUE);
+            /* Routing indicator octet 8-9 */
+            new_tvb = tvb_new_subset_length(tvb, offset, 2);
+            route_id_str = tvb_bcd_dig_to_wmem_packet_str(new_tvb, 0, -1, NULL, FALSE);
+            proto_tree_add_string(tree, hf_nas_5gs_mm_routing_indicator, new_tvb, 0, -1, route_id_str);
+            offset += 2;
+            /* Protection scheme id octet 10 */
+            proto_tree_add_item(tree, hf_nas_5gs_mm_prot_scheme_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            /* Home network public key identifier octet 11 */
+            proto_tree_add_item(tree, hf_nas_5gs_mm_pki, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset += 1;
+            /* Scheme output octet 12-x */
+            proto_tree_add_item(tree, hf_nas_5gs_mm_scheme_output, tvb, offset, len - 8, ENC_NA);
+        } else if (supi_fmt == 1) {
+            /* NAI */
+            proto_tree_add_item(tree, hf_nas_5gs_mm_suci_nai, tvb, offset, len - 1, ENC_UTF_8 | ENC_NA);
+        } else {
+            proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_unknown_value, tvb, offset, len - 1);
+        }
         break;
     case 2:
         /* 5G-GUTI*/
         proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_odd_even_tid, ENC_BIG_ENDIAN);
         offset++;
         /* MCC digit 2    MCC digit 1
-         * MNC digit 3     MCC digit 3
+         * MNC digit 3    MCC digit 3
          * MNC digit 2    MNC digit 1
          */
         offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, E212_NONE, TRUE);
@@ -6555,9 +6609,34 @@ proto_register_nas_5gs(void)
             FT_BOOLEAN, 8, TFS(&tfs_allowed_not_allowed), 0x04,
             NULL, HFILL }
         },
-        { &hf_nas_5gs_mm_suci,
-        { "SUCI",   "nas_5gs.mm.suci",
+        { &hf_nas_5gs_mm_supi_fmt,
+        { "SUPI format","nas_5gs.mm.suci.supi_fmt",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_supi_fmt_vals), 0x70,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_routing_indicator,
+        { "Routing indicator",   "nas_5gs.mm.suci.routing_indicator",
             FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_prot_scheme_id,
+        { "Protection scheme Id",   "nas_5gs.mm.suci.scheme_id",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_mm_prot_scheme_id_vals), 0x0f,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_pki,
+        { "Home network public key identifier",   "nas_5gs.mm.suci.pki",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_scheme_output,
+        { "Scheme output", "nas_5gs.mm.suci.scheme_output",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_suci_nai,
+        { "NAI", "nas_5gs.mm.suci.nai",
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_imei,
