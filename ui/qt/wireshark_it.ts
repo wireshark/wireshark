@@ -8351,7 +8351,7 @@ a:hover {
     </message>
     <message>
         <source>(deleted)</source>
-        <translation type="unfinished"></translation>
+        <translation>(eliminato)</translation>
     </message>
     <message>
         <source>Created from default settings</source>
