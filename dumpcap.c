@@ -86,6 +86,7 @@
 #include "wsutil/str_util.h"
 #include "wsutil/inet_addr.h"
 #include "wsutil/time_util.h"
+#include "wsutil/please_report_bug.h"
 
 #include "caputils/ws80211_utils.h"
 
@@ -325,14 +326,6 @@ typedef struct _pcap_queue_element {
     } u;
     u_char             *pd;
 } pcap_queue_element;
-
-/*
- * Standard secondary message for unexpected errors.
- */
-static const char please_report[] =
-    "Please report this to the Wireshark developers.\n"
-    "https://bugs.wireshark.org/\n"
-    "(This is not a crash; please do not report it as such.)";
 
 /*
  * This needs to be static, so that the SIGINT handler can clear the "go"
@@ -2774,7 +2767,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
                        "Couldn't initialize Windows Sockets: error %d", err);
             break;
         }
-        g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len, please_report);
+        g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len, please_report_bug());
         return FALSE;
     }
 #endif
@@ -3342,7 +3335,7 @@ capture_loop_dispatch(loop_data *ld,
                 if (sel_ret < 0 && errno != EINTR) {
                     g_snprintf(errmsg, errmsg_len,
                             "Unexpected error from select: %s", g_strerror(errno));
-                    report_capture_error(errmsg, please_report);
+                    report_capture_error(errmsg, please_report_bug());
                     ld->go = FALSE;
                 }
             }
@@ -3415,7 +3408,7 @@ capture_loop_dispatch(loop_data *ld,
                 if (sel_ret < 0 && errno != EINTR) {
                     g_snprintf(errmsg, errmsg_len,
                                "Unexpected error from select: %s", g_strerror(errno));
-                    report_capture_error(errmsg, please_report);
+                    report_capture_error(errmsg, please_report_bug());
                     ld->go = FALSE;
                 }
             }
@@ -3912,7 +3905,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
         case INITFILTER_OTHER_ERROR:
             g_snprintf(errmsg, sizeof(errmsg), "Can't install filter (%s).",
                        pcap_geterr(pcap_src->pcap_h));
-            g_snprintf(secondary_errmsg, sizeof(secondary_errmsg), "%s", please_report);
+            g_snprintf(secondary_errmsg, sizeof(secondary_errmsg), "%s", please_report_bug());
             goto error;
         }
     }
@@ -4164,7 +4157,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
             } else {
                 g_snprintf(errmsg, sizeof(errmsg), "Error while capturing packets: %s",
                            cap_err_str);
-                report_capture_error(errmsg, please_report);
+                report_capture_error(errmsg, please_report_bug());
             }
             break;
         } else if (pcap_src->from_cap_pipe && pcap_src->cap_pipe_err == PIPERR) {
@@ -4236,7 +4229,7 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                 g_snprintf(errmsg, sizeof(errmsg),
                            "Can't get packet-drop statistics: %s",
                            pcap_geterr(pcap_src->pcap_h));
-                report_capture_error(errmsg, please_report);
+                report_capture_error(errmsg, please_report_bug());
             }
         }
         report_packet_drops(received, pcap_dropped, pcap_src->dropped, pcap_src->flushed, stats->ps_ifdrop, interface_opts->display_name);
@@ -4348,7 +4341,7 @@ capture_loop_get_errmsg(char *errmsg, size_t errmsglen, char *secondary_errmsg,
                        fname, g_strerror(err));
         }
         g_snprintf(secondary_errmsg, (gulong)secondary_errmsglen,
-                   "%s", please_report);
+                   "%s", please_report_bug());
         break;
     }
 }

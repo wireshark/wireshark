@@ -67,6 +67,7 @@
 #include "log.h"
 
 #include <wsutil/file_util.h>
+#include <wsutil/please_report_bug.h>
 
 #ifndef _WIN32
 #include <netinet/in.h>
@@ -84,14 +85,6 @@
 #include <net/if.h>
 #include <sys/sockio.h>
 #endif
-
-/*
- * Standard secondary message for unexpected errors.
- */
-static const char please_report[] =
-    "Please report this to the Wireshark developers.\n"
-    "https://bugs.wireshark.org/\n"
-    "(This is not a crash; please do not report it as such.)";
 
 /*
  * Given an interface name, find the "friendly name" and interface
@@ -977,7 +970,8 @@ set_pcap_datalink(pcap_t *pcap_h, int datalink, char *name,
 	 * tell the user to tell the Wireshark developers about it.
 	 */
 	if (strstr(set_datalink_err_str, "is not one of the DLTs supported by this device") == NULL)
-		g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len, please_report);
+		g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len,
+		           "%s", please_report_bug());
 	else
 		secondary_errmsg[0] = '\0';
 	return FALSE;

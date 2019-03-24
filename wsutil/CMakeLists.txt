@@ -48,6 +48,7 @@ set(WSUTIL_PUBLIC_HEADERS
 	nstime.h
 	os_version_info.h
 	pint.h
+	please_report_bug.h
 	plugins.h
 	pow2.h
 	privileges.h
@@ -102,6 +103,7 @@ set(WSUTIL_COMMON_FILES
 	nstime.c
 	cpu_info.c
 	os_version_info.c
+	please_report_bug.c
 	privileges.c
 	rsa.c
 	sober128.c
