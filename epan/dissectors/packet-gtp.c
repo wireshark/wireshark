@@ -8222,7 +8222,7 @@ decode_gtp_add_mm_ctx_srvcc(tvbuff_t * tvb, int offset, packet_info * pinfo, pro
     proto_tree_add_item_ret_uint(ext_tree, hf_gtp_sup_codec_lst_len, tvb, offset, 1, ENC_BIG_ENDIAN, &inf_len);
     offset++;
     if (inf_len > 0) {
-        offset += de_sup_codec_list(tvb, ext_tree, pinfo, offset, inf_len, NULL, 0);
+        de_sup_codec_list(tvb, ext_tree, pinfo, offset, inf_len, NULL, 0);
     }
 
     return 3 + length;
