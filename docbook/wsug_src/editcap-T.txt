@@ -51,7 +51,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     gprs-llc - GPRS LLC
     gsm_um - GSM Um Interface
     hhdlc - HiPath HDLC
-    i2c - I2C
+    i2c-linux - I2C with Linux-specific pseudo-header
     ieee-802-11 - IEEE 802.11 Wireless LAN
     ieee-802-11-avs - IEEE 802.11 plus AVS radio header
     ieee-802-11-netmon - IEEE 802.11 plus Network Monitor radio header
@@ -65,7 +65,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     ip-over-fc - RFC 2625 IP-over-Fibre Channel
     ip-over-ib - IP over InfiniBand
     ipfix - RFC 5655/RFC 5101 IPFIX
-    ipmb - Intelligent Platform Management Bus
+    ipmb-kontron - Intelligent Platform Management Bus with Kontron pseudo-header
     ipmi-trace - IPMI Trace Data Collection
     ipnet - Solaris IPNET
     irda - IrDA
