@@ -996,7 +996,7 @@ iseries_UNICODE_to_ASCII (guint8 * buf, guint bytes)
             *bufptr = buf[i];
             bufptr++;
         }
-      if (buf[i] == 0x0A)
+      if (buf[i] == 0x0A || buf[i] == 0x0)
         return i;
     }
   return i;
