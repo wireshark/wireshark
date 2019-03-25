@@ -368,19 +368,36 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		    return_offset = tvb_captured_length(gss_tvb);
 		    goto done;
 		  } else {
-		    tvbuff_t *oid_tvb_local;
+			tvbuff_t *oid_tvb_local;
 
-		    oid_tvb_local = tvb_new_subset_remaining(gss_tvb, start_offset);
-		    if (is_verifier)
-			handle = oidvalue->wrap_handle;
-		    else
-			handle = oidvalue->handle;
-		    len = call_dissector_with_data(handle, oid_tvb_local, pinfo, subtree, encrypt_info);
-		    if (len == 0)
-			return_offset = tvb_captured_length(gss_tvb);
-		    else
-			return_offset = start_offset + len;
-		    goto done; /* We are finished here */
+			if (is_verifier) {
+				handle = oidvalue->wrap_handle;
+				if (handle != NULL) {
+					oid_tvb_local = tvb_new_subset_remaining(gss_tvb, start_offset);
+					len = call_dissector_with_data(handle, oid_tvb_local, pinfo, subtree, encrypt_info);
+					if (len == 0)
+						return_offset = tvb_captured_length(gss_tvb);
+					else
+						return_offset = start_offset + len;
+				} else {
+					proto_tree_add_item(subtree, hf_gssapi_auth_verifier, gss_tvb, offset, -1, ENC_NA);
+					return_offset = tvb_captured_length(gss_tvb);
+				}
+			} else {
+				handle = oidvalue->handle;
+				if (handle != NULL) {
+					oid_tvb_local = tvb_new_subset_remaining(gss_tvb, start_offset);
+					len = call_dissector_with_data(handle, oid_tvb_local, pinfo, subtree, encrypt_info);
+					if (len == 0)
+						return_offset = tvb_captured_length(gss_tvb);
+					else
+						return_offset = start_offset + len;
+				} else {
+					proto_tree_add_item(subtree, hf_gssapi_auth_credentials, gss_tvb, offset, -1, ENC_NA);
+					return_offset = tvb_captured_length(gss_tvb);
+				}
+			}
+			goto done; /* We are finished here */
 		  }
 		}
 
