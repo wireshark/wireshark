@@ -431,6 +431,11 @@ iseries_seek_next_packet (wtap * wth, int *err, gchar **err_info)
           buflen = (long) strlen (buf);
         }
       ascii_strup_inplace (buf);
+      /* Check we have enough data in the line */
+      if (buflen < 78)
+        {
+          continue;
+        }
       /* If packet header found return the offset */
       num_items_scanned =
         sscanf (buf+78,
@@ -985,8 +990,10 @@ iseries_UNICODE_to_ASCII (guint8 * buf, guint bytes)
             bufptr++;
         }
       if (buf[i] == 0x0A)
-        return i;
+        break;
     }
+  g_assert(bufptr < buf + bytes);
+  *bufptr = '\0';
   return i;
 }
 

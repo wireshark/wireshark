@@ -159,7 +159,7 @@ CHECKAPI(
 	NAME
 	  wiretap
 	SWITCHES
-	  --group abort:10 --summary-group abort
+	  --group abort:11 --summary-group abort
 	  --group termoutput:1 --summary-group termoutput
 	  --build
 	SOURCES
