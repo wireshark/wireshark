@@ -123,6 +123,7 @@ static dissector_handle_t bgp_handle;
 
 /* BGP MPLS information */
 #define BGP_MPLS_BOTTOM_L_STACK 0x000001
+#define BGP_MPLS_LABEL          0xFFFFF0
 
 /* AS_PATH segment types */
 #define AS_SET             1   /* RFC1771 */
@@ -4558,12 +4559,10 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
     proto_tree *prefix_tree;
     proto_item *ti;
     guint8 route_type;
-    guint labnum;
     guint8 nlri_len;
     guint8 ip_len;
     guint32 total_length = 0;
     proto_item *item;
-    wmem_strbuf_t *stack_strbuf; /* label stack                  */
 
     route_type = tvb_get_guint8(tvb, offset);
 
@@ -4613,11 +4612,7 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
         proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_etag, tvb, reader_offset,
                                    4, ENC_BIG_ENDIAN);
         reader_offset += 4;
-        stack_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
-        labnum = decode_MPLS_stack(tvb, reader_offset,
-                stack_strbuf);
-        proto_tree_add_string(prefix_tree, hf_bgp_evpn_nlri_mpls_ls1, tvb, reader_offset,
-                                   labnum*3, wmem_strbuf_get_str(stack_strbuf));
+        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_mpls_ls1, tvb, reader_offset, 3, ENC_BIG_ENDIAN);
         reader_offset += 3;
         total_length = reader_offset - offset;
         break;
@@ -4702,18 +4697,12 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
         } else {
             return -1;
         }
-        stack_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
-        labnum = decode_MPLS_stack(tvb, reader_offset, stack_strbuf);
-        proto_tree_add_string(prefix_tree, hf_bgp_evpn_nlri_mpls_ls1, tvb, reader_offset,
-                                   labnum*3, wmem_strbuf_get_str(stack_strbuf));
+        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_mpls_ls1, tvb, reader_offset, 3, ENC_BIG_ENDIAN);
         reader_offset += 3;
         /* we check if we reached the end of the nlri reading fields one by one */
         /* if not, the second optional label is in the payload */
         if (reader_offset - start_offset < nlri_len) {
-            stack_strbuf = wmem_strbuf_new_label(wmem_packet_scope());
-            labnum = decode_MPLS_stack(tvb, reader_offset, stack_strbuf);
-            proto_tree_add_string(prefix_tree, hf_bgp_evpn_nlri_mpls_ls2, tvb, reader_offset,
-                                   labnum*3, wmem_strbuf_get_str(stack_strbuf));
+            proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_mpls_ls2, tvb, reader_offset, 3, ENC_BIG_ENDIAN);
             reader_offset += 3;
         }
         total_length = reader_offset - offset;
@@ -8760,7 +8749,7 @@ proto_register_bgp(void)
           BASE_NONE, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_update_mpls_label_value_20bits,
         { "MPLS Label", "bgp.update.path_attribute.mpls_label_value_20bits", FT_UINT24,
-          BASE_DEC, NULL, 0xFFFFF0, NULL, HFILL}},
+          BASE_DEC, NULL, BGP_MPLS_LABEL, NULL, HFILL}},
       { &hf_bgp_update_mpls_label_value,
         { "MPLS Label", "bgp.update.path_attribute.mpls_label_value", FT_UINT24,
           BASE_DEC, NULL, 0x0, NULL, HFILL}},
@@ -9857,11 +9846,11 @@ proto_register_bgp(void)
        { "Ethernet Tag ID", "bgp.evpn.nlri.etag", FT_UINT32,
           BASE_DEC, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_evpn_nlri_mpls_ls1,
-        { "MPLS Label Stack 1", "bgp.evpn.nlri.mpls_ls1", FT_STRING,
-          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        { "MPLS Label 1", "bgp.evpn.nlri.mpls_ls1", FT_UINT24,
+          BASE_DEC, NULL, BGP_MPLS_LABEL, NULL, HFILL}},
       { &hf_bgp_evpn_nlri_mpls_ls2,
-        { "MPLS Label Stack 2", "bgp.evpn.nlri.mpls_ls2", FT_STRING,
-          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+        { "MPLS Label 2", "bgp.evpn.nlri.mpls_ls2", FT_UINT24,
+          BASE_DEC, NULL, BGP_MPLS_LABEL, NULL, HFILL}},
       { &hf_bgp_evpn_nlri_maclen,
        { "MAC Address Length", "bgp.evpn.nlri.maclen", FT_UINT8,
           BASE_DEC, NULL, 0x0, NULL, HFILL}},
