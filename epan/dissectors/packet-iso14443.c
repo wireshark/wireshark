@@ -1215,6 +1215,7 @@ iso14443_get_transaction(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 wmem_new(wmem_file_scope(), iso14443_transaction_t);
             iso14443_trans->rqst_frame = pinfo->num;
             iso14443_trans->resp_frame = 0;
+            iso14443_trans->cmd = CMD_TYPE_UNKNOWN;
             wmem_tree_insert32_array(transactions, key, (void *)iso14443_trans);
         }
     }
