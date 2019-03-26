@@ -2587,9 +2587,15 @@ show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         if (stored_setup_info->hf_type == SDP_TRACE_ID_HF_TYPE_STR) {
                             item = proto_tree_add_string(rtp_setup_tree, stored_setup_info->hf_id, tvb, 0, 0, stored_setup_info->trace_id.str);
                             PROTO_ITEM_SET_GENERATED(item);
+                            if (stored_setup_info->add_hidden == TRUE) {
+                                PROTO_ITEM_SET_HIDDEN(item);
+                            }
                         } else if (stored_setup_info->hf_type == SDP_TRACE_ID_HF_TYPE_GUINT32) {
                             item = proto_tree_add_uint(rtp_setup_tree, stored_setup_info->hf_id, tvb, 0, 0, stored_setup_info->trace_id.num);
                             PROTO_ITEM_SET_GENERATED(item);
+                            if (stored_setup_info->add_hidden == TRUE) {
+                                PROTO_ITEM_SET_HIDDEN(item);
+                            }
                         }
                     }
                 }

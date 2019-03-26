@@ -900,6 +900,9 @@ static gboolean sip_retrans_the_same_sport = TRUE;
 /* whether we hold off tracking RTP conversations until an SDP answer is received */
 static gboolean sip_delay_sdp_changes = FALSE;
 
+/* Hide the generated Call IDs or not */
+static gboolean sip_hide_generatd_call_ids = FALSE;
+
 /* Extension header subdissectors */
 static dissector_table_t ext_hdr_subdissector_table;
 
@@ -4113,6 +4116,9 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                                                     offset, next_offset - offset,
                                                     value);
                         PROTO_ITEM_SET_GENERATED(gen_item);
+                        if (sip_hide_generatd_call_ids) {
+                            PROTO_ITEM_SET_HIDDEN(gen_item);
+                        }
                         sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
                     }
                     break;
@@ -4677,6 +4683,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
         sdp_setup_info_t setup_info;
 
         setup_info.hf_id = hf_sip_call_id_gen;
+        setup_info.add_hidden = sip_hide_generatd_call_ids;
         setup_info.hf_type = SDP_TRACE_ID_HF_TYPE_STR;
         setup_info.trace_id.str = wmem_strdup(wmem_file_scope(), call_id);
         message_info.data = &setup_info;
@@ -7215,7 +7222,7 @@ void proto_register_sip(void)
             NULL, HFILL }
         },
         { &hf_sip_call_id_gen,
-        { "Call-ID",         "sip.call_id_generated",
+        { "Generated Call-ID",         "sip.call_id_generated",
             FT_STRING, BASE_NONE,NULL,0x0,
             "Use to catch call id across protocols", HFILL }
         },
@@ -7399,6 +7406,11 @@ void proto_register_sip(void)
         "effect if and when an SDP offer is successfully answered; however enabling this "
         "prevents tracking media in early-media call scenarios",
         &sip_delay_sdp_changes);
+
+    prefs_register_bool_preference(sip_module, "hide_generatd_call_id",
+        "Hide the generated Call Id",
+        "Whether the generated call id should be hiddden(not displayed) in the tree or not.",
+        &sip_hide_generatd_call_ids);
 
     /* UAT */
     sip_custom_headers_uat = uat_new("Custom SIP Header Fields",
