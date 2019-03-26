@@ -538,19 +538,19 @@ profile data.
 Windows 10, Windows 8.1, Windows 8, Windows 7, Windows Vista, and associated server editions::
 _C:\Users{backslash}**username**\AppData\Roaming\Wireshark_.
 
-Windows XP, Windows Server 2003, and Windows 2000 footnoteref:[historical,No longer supported by Wireshark. For historical reference only.]::
+Windows XP, Windows Server 2003, and Windows 2000 footnote:historical[No longer supported by Wireshark. For historical reference only.]::
 _C:\Documents and Settings{backslash}**username**\Application Data_. “Documents and
 Settings” and “Application Data” might be internationalized.
 
-Windows NT 4 footnoteref:[historical]::
+Windows NT 4 footnote:historical[]::
 _C:\WINNT\Profiles{backslash}**username**\Application Data\Wireshark_
 
-Windows ME, Windows 98 with user profiles footnoteref:[historical]::
+Windows ME, Windows 98 with user profiles footnote:historical[]::
 In Windows ME and 98 you could enable separate user profiles. In that case,
 something like _C:\windows\Profiles{backslash}**username**\Application Data\Wireshark_
 is used.
 
-Windows ME, Windows 98 without user profiles footnoteref:[historical]::
+Windows ME, Windows 98 without user profiles footnote:historical[]::
 Without user profiles enabled the default location for all users was
 _C:\windows\Application Data\Wireshark_.
 
@@ -578,10 +578,10 @@ variable. This variable will be set by the Windows installer.
 Windows 10, Windows 8.1, Windows 8, Windows 7, Windows Vista, and associated server editions::
 _C:\Users{backslash}**username**\AppData\Local\Temp_
 
-Windows XP, Windows Server 2003, Windows 2000 footnoteref:[historical]::
+Windows XP, Windows Server 2003, Windows 2000 footnote:historical[]::
 _C:\Documents and Settings{backslash}**username**\Local Settings\Temp_
 
-Windows NT footnoteref:[historical]::
+Windows NT footnote:historical[]::
 _C:\TEMP_
 
 // End of WSUG Appendix Files
