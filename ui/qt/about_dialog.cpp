@@ -132,18 +132,7 @@ PluginListModel::PluginListModel(QObject * parent) : AStringListListModel(parent
     wslua_plugins_get_descriptions(plugins_add_description, &plugin_data);
 #endif
 
-    GHashTable * tools = extcap_loaded_interfaces();
-    if (tools && g_hash_table_size(tools) > 0) {
-        GList * walker = g_list_first(g_hash_table_get_keys(tools));
-        while (walker && walker->data) {
-            extcap_info * tool = (extcap_info *)g_hash_table_lookup(tools, walker->data);
-            if (tool) {
-                QStringList plugin_row = QStringList() << tool->basename << tool->version << tr("extcap") << tool->full_path;
-                plugin_data << plugin_row;
-            }
-            walker = g_list_next(walker);
-        }
-    }
+    extcap_get_descriptions(plugins_add_description, &plugin_data);
 
     typeNames_ << QString("");
     foreach(QStringList row, plugin_data)

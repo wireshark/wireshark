@@ -20,6 +20,8 @@
 #include <wsutil/unicode-utils.h>
 #endif
 
+#include <wsutil/plugins.h>
+
 #include <ui/capture_ui_utils.h>
 
 /* As boolean flags will be allowed any form of yes, true or any number != 0 (or starting with 0)
@@ -87,13 +89,17 @@ extcap_get_tool_by_ifname(const gchar *ifname);
 gchar *
 extcap_get_help_for_ifname(const char *ifname);
 
-/* get a list of all available extcap executables and their interfaces */
-GHashTable *
-extcap_loaded_interfaces(void);
-
 /* remove all loaded interfaces */
 void
 extcap_clear_interfaces(void);
+
+/* get information about all available extcap executables */
+void
+extcap_get_descriptions(plugin_description_callback callback, void *callback_data);
+
+/* print information about all available extcap executables */
+void
+extcap_dump_all(void);
 
 /* returns the configuration for the given interface name, or an
  * empty list, if no configuration has been found

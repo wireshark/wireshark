@@ -978,6 +978,7 @@ main(int argc, char *argv[])
 #ifdef HAVE_LUA
         wslua_plugins_dump_all();
 #endif
+        extcap_dump_all();
       }
       else if (strcmp(argv[2], "protocols") == 0)
         proto_registrar_dump_protocols();
