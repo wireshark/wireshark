@@ -326,6 +326,7 @@ static expert_field ei_ipv6_opt_jumbo_fragment = EI_INIT;
 static expert_field ei_ipv6_opt_invalid_len = EI_INIT;
 static expert_field ei_ipv6_opt_unknown_data = EI_INIT;
 static expert_field ei_ipv6_opt_deprecated = EI_INIT;
+static expert_field ei_ipv6_opt_mpl_ipv6_src_seed_id = EI_INIT;
 static expert_field ei_ipv6_hopopts_not_first = EI_INIT;
 static expert_field ei_ipv6_plen_exceeds_framing = EI_INIT;
 static expert_field ei_ipv6_plen_zero = EI_INIT;
@@ -662,6 +663,14 @@ static const value_string routing_header_type[] = {
     { IPv6_RT_HEADER_SEGMENT_ROUTING,   "Segment Routing"  },
     { IPv6_RT_HEADER_EXP1,              "Experiment 1"     },
     { IPv6_RT_HEADER_EXP2,              "Experiment 2"     },
+    { 0, NULL }
+};
+
+static const value_string mpl_seed_id_len_vals[] = {
+    { 0, "0" },
+    { 1, "16-bit unsigned integer" },
+    { 2, "64-bit unsigned integer" },
+    { 3, "128-bit unsigned integer" },
     { 0, NULL }
 };
 
@@ -1768,6 +1777,9 @@ dissect_opt_mpl(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_, proto_tree *
     if (seed_id_len > 0) {
         proto_tree_add_item(opt_tree, hf_ipv6_opt_mpl_seed_id, tvb, offset, seed_id_len, ENC_NA);
         offset += seed_id_len;
+    }
+    else {
+        expert_add_info(pinfo, opt_ti->type, &ei_ipv6_opt_mpl_ipv6_src_seed_id);
     }
 
     return offset;
@@ -3017,7 +3029,7 @@ proto_register_ipv6(void)
         },
         { &hf_ipv6_opt_mpl_flag_s,
             { "Seed ID Length", "ipv6.opt.mpl.flag.s",
-                FT_UINT8, BASE_DEC, NULL, 0xC0,
+                FT_UINT8, BASE_DEC, VALS(mpl_seed_id_len_vals), 0xC0,
                 "Identifies the length of Seed ID", HFILL }
         },
         { &hf_ipv6_opt_mpl_flag_m,
@@ -3442,6 +3454,10 @@ proto_register_ipv6(void)
         { &ei_ipv6_opt_deprecated,
             { "ipv6.opt.deprecated", PI_DEPRECATED, PI_NOTE,
                 "Option type is deprecated", EXPFILL }
+        },
+        { &ei_ipv6_opt_mpl_ipv6_src_seed_id,
+            { "ipv6.opt.mpl.ipv6_src_seed_id", PI_PROTOCOL, PI_COMMENT,
+                "Seed ID is the IPv6 Source Address", EXPFILL }
         }
     };
 
