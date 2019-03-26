@@ -514,9 +514,9 @@ B<help> Displays the available report types.
 B<plugins> Dumps the plugins currently installed.
 There is one record per line.  The fields are tab-delimited.
 
- * Field 1 = plugin library (e.g. "gryphon.so")
+ * Field 1 = plugin library/Lua script/extcap executable (e.g. "gryphon.so")
  * Field 2 = plugin version (e.g. 0.0.4)
- * Field 3 = plugin type (e.g. "dissector" or "tap")
+ * Field 3 = plugin type ("dissector", "tap", "file type", etc.)
  * Field 4 = full path to plugin file
 
 B<protocols> Dumps the protocols in the registration database to stdout.
