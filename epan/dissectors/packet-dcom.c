@@ -49,6 +49,7 @@
  * packet-dcom-remunk.c:   IRemUnknown, IRemUnknown2
  * packet-dcom-dispatch.c: IDispatch
  * packet-dcom-sysact.c:   ISystemActivator
+ * packet-dcom-typeinfo.c: ITypeInfo
  */
 
 #include "config.h"
@@ -207,6 +208,7 @@ static const e_guid_t ipid_rem_unknown =  { 0x00000131, 0x1234, 0x5678, { 0xCA, 
 static const e_guid_t iid_unknown =	  { 0x00000000, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
 static const e_guid_t uuid_null =	  { 0x00000000, 0x0000, 0x0000, { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00} };
 static const e_guid_t iid_class_factory = { 0x00000001, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
+static const e_guid_t iid_type_info = { 0x00020401, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
 #if 0
 static const e_guid_t iid_act_prop_in =   { 0x000001A2, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
 static const e_guid_t iid_act_prop_out =  { 0x000001A3, 0x0000, 0x0000, { 0xC0, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x46} };
@@ -472,6 +474,7 @@ const value_string dcom_variant_type_vals[] = {
 	{ WIRESHARK_VT_ARRAY,		"VT_ARRAY"},
 	{ WIRESHARK_VT_UNKNOWN,		"VT_UNKNOWN"},
 	{ WIRESHARK_VT_USERDEFINED,	"VT_USERDEFINED"},
+	{ WIRESHARK_VT_PTR, 		"VT_PTR"},
 
 	/* XXX: this could be done better */
 	{ WIRESHARK_VT_ARRAY | WIRESHARK_VT_I2,	     "VT_ARRAY|VT_I2"},
@@ -2499,6 +2502,7 @@ proto_reg_handoff_dcom (void)
 	guids_add_uuid(&iid_unknown, "IUnknown");
 	guids_add_uuid(&uuid_null, "NULL");
 	guids_add_uuid(&iid_class_factory, "IClassFactory");
+	guids_add_uuid(&iid_type_info, "ITypeInfo");
 
 	/* Currently, we have nothing to register for DCOM */
 }

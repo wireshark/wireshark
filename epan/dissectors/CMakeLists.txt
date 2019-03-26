@@ -899,6 +899,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcom-remact.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcom-remunkn.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcom-sysact.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcom-typeinfo.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcom.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-dcp-etsi.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-ddtp.c
