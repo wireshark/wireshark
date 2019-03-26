@@ -1133,6 +1133,7 @@ iso14443_get_transaction(packet_info *pinfo, proto_tree *tree)
             iso14443_trans = wmem_new(wmem_file_scope(), iso14443_transaction_t);
             iso14443_trans->rqst_frame = pinfo->num;
             iso14443_trans->resp_frame = 0;
+            iso14443_trans->cmd = CMD_TYPE_UNKNOWN;
             /* iso14443_trans->ctrl = ctrl; */
             wmem_tree_insert32(transactions,
                     iso14443_trans->rqst_frame, (void *)iso14443_trans);
