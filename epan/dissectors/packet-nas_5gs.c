@@ -2744,7 +2744,7 @@ static const value_string nas_5gs_sm_param_id_values[] = {
     { 0, NULL }
 };
 
-static guint16
+guint16
 de_nas_5gs_sm_qos_flow_des(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     guint32 offset, guint len,
     gchar *add_string _U_, int string_len _U_)

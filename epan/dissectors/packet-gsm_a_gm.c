@@ -69,7 +69,7 @@
  *   Mobile radio interface Layer 3 specification;
  *   Core network protocols;
  *   Stage 3
- *   (3GPP TS 24.008 version 15.5.0 Release 15)
+ *   (3GPP TS 24.008 version 15.6.0 Release 15)
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -538,6 +538,7 @@ static int hf_gsm_a_gm_radio_priority_pdp = -1;
 static int hf_gsm_a_gm_radio_priority_tom8 = -1;
 static int hf_gsm_a_gm_configuration_protocol = -1;
 static int hf_gsm_a_gm_sm_pco_length = -1;
+static int hf_gsm_a_gm_sm_pco_length2 = -1;
 static int hf_gsm_a_gm_sm_pco_pcscf_ipv6 = -1;
 static int hf_gsm_a_gm_sm_pco_dns_ipv6 = -1;
 static int hf_gsm_a_gm_sm_pco_dsmipv6_home_agent_ipv6 = -1;
@@ -559,7 +560,6 @@ static int hf_gsm_a_gm_sm_pco_add_apn_rate_ctrl_params_ul_time_unit = -1;
 static int hf_gsm_a_gm_sm_pco_add_apn_rate_ctrl_params_max_ul_rate = -1;
 static int hf_gsm_a_gm_sm_pco_pdu_session_id = -1;
 static int hf_gsm_a_gm_sm_pco_pdu_session_address_lifetime = -1;
-static int hf_gsm_a_gm_sm_pco_qos_flow_descriptions = -1;
 static int hf_gsm_a_gm_sm_pco_eth_frame_payload_mtu = -1;
 static int hf_gsm_a_gm_sm_pco_unstruct_link_mtu = -1;
 static int hf_gsm_a_gm_sm_pco_5gsm_cause = -1;
@@ -4452,6 +4452,8 @@ static const range_string gsm_a_sm_pco_ms2net_prot_vals[] = {
 	{ 0x0020, 0x0020, "Ethernet Frame Payload MTU Request" },
 	{ 0x0021, 0x0021, "Unstructured Link MTU Request" },
 	{ 0x0022, 0x0022, "5GSM cause value" },
+	{ 0x0023, 0x0023, "QoS rules with the length of two octets support indicator" },
+	{ 0x0024, 0x0024, "QoS flow descriptions with the length of two octets support indicator" },
 	{ 0xff00, 0xffff, "Operator Specific Use" },
 	{ 0, 0, NULL }
 };
@@ -4490,6 +4492,8 @@ static const range_string gsm_a_sm_pco_net2ms_prot_vals[] = {
 	{ 0x0020, 0x0020, "Ethernet Frame Payload MTU" },
 	{ 0x0021, 0x0021, "Unstructured Link MTU" },
 	{ 0x0022, 0x0022, "Reserved" },
+	{ 0x0023, 0x0023, "QoS rules with the length of two octets" },
+	{ 0x0024, 0x0024, "QoS flow descriptions with the length of two octets" },
 	{ 0xff00, 0xffff, "Operator Specific Use" },
 	{ 0, 0, NULL }
 };
@@ -4570,7 +4574,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 
 	while (curr_len >= 3) /* 2 bytes protocol/container ID + 1 byte length */
 	{
-		guchar e_len;
+		guint32 e_len;
 		guint16 prot;
 		tvbuff_t *l3_tvb;
 
@@ -4591,8 +4595,10 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 
 		curr_len    -= 2;
 		curr_offset += 2;
-		e_len = tvb_get_guint8(tvb, curr_offset);
-		proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_length, tvb, curr_offset, 1, ENC_NA);
+		if (link_dir == P2P_DIR_DL && (prot == 0x0023 || prot == 0x0024))
+			proto_tree_add_item_ret_uint(pco_tree, hf_gsm_a_gm_sm_pco_length2, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &e_len);
+		else
+			proto_tree_add_item_ret_uint(pco_tree, hf_gsm_a_gm_sm_pco_length, tvb, curr_offset, 1, ENC_NA, &e_len);
 		curr_len    -= 1;
 		curr_offset += 1;
 
@@ -4710,6 +4716,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 				}
 				break;
 			case 0x001c:
+			case 0x0023:
 				if (link_dir == P2P_DIR_DL) {
 					de_nas_5gs_sm_qos_rules(tvb, pco_tree, pinfo, curr_offset, e_len, NULL, 0);
 				}
@@ -4733,8 +4740,9 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 				}
 				break;
 			case 0x001f:
+			case 0x0024:
 				if (link_dir == P2P_DIR_DL && e_len > 0) {
-					proto_tree_add_item(pco_tree, hf_gsm_a_gm_sm_pco_qos_flow_descriptions, tvb, curr_offset, e_len, ENC_NA);
+					de_nas_5gs_sm_qos_flow_des(tvb, pco_tree, pinfo, curr_offset, e_len, NULL, 0);
 				}
 				break;
 			case 0x0020:
@@ -9328,11 +9336,6 @@ proto_register_gsm_a_gm(void)
 		    FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_second_seconds, 0x0,
 		    NULL, HFILL }
 		},
-		{ &hf_gsm_a_gm_sm_pco_qos_flow_descriptions,
-		  { "QoS flow descriptions", "gsm_a.gm.sm.pco.qos_flow_descriptions",
-		    FT_BYTES, BASE_NONE, NULL, 0x0,
-		    NULL, HFILL }
-		},
 		{ &hf_gsm_a_gm_sm_pco_eth_frame_payload_mtu,
 		  { "Ethernet Frame Payload MTU", "gsm_a.gm.sm.pco.eth_frame_payload_mtu",
 		    FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_octet_octets, 0x0,
@@ -9364,6 +9367,7 @@ proto_register_gsm_a_gm(void)
 		{ &hf_gsm_a_gm_radio_priority_tom8, { "Radio Priority (TOM8)", "gsm_a.gm.radio_priority_tom8", FT_UINT8, BASE_DEC, VALS(gsm_a_gm_radio_prio_vals), 0x70, NULL, HFILL }},
 		{ &hf_gsm_a_gm_configuration_protocol, { "Configuration Protocol", "gsm_a.gm.configuration_protocol", FT_UINT8, BASE_DEC, NULL, 0x7, NULL, HFILL }},
 		{ &hf_gsm_a_gm_sm_pco_length, { "Length", "gsm_a.gm.sm.pco.length", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
+		{ &hf_gsm_a_gm_sm_pco_length2, { "Length", "gsm_a.gm.sm.pco.length", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
 		{ &hf_gsm_a_gm_sm_pco_pcscf_ipv6, { "IPv6", "gsm_a.gm.sm.pco.pcscf.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_gsm_a_gm_sm_pco_dns_ipv6, { "IPv6", "gsm_a.gm.sm.pco.dns.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ &hf_gsm_a_gm_sm_pco_dsmipv6_home_agent_ipv6, { "IPv6", "gsm_a.gm.sm.pco.dsmipv6_home_agent.ipv6", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL }},
