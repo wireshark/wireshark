@@ -24132,20 +24132,26 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
           DISSECTOR_ASSERT_NOT_REACHED();
       }
 
-
-
-      set_address_tvb(&pinfo->dl_src, wlan_address_type, 6, tvb, src_offset);
-      copy_address_shallow(&pinfo->src, &pinfo->dl_src);
-      set_address_tvb(&pinfo->dl_dst, wlan_address_type, 6, tvb, dst_offset);
-      copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
+      if (src_offset) {
+        set_address_tvb(&pinfo->dl_src, wlan_address_type, 6, tvb, src_offset);
+        copy_address_shallow(&pinfo->src, &pinfo->dl_src);
+      }
+      if (dst_offset) {
+        set_address_tvb(&pinfo->dl_dst, wlan_address_type, 6, tvb, dst_offset);
+        copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
+      }
 
       /* for tap */
       if (bssid_offset) {
         set_address_tvb(&whdr->bssid, wlan_bssid_address_type, 6, tvb, bssid_offset);
       }
 
-      copy_address_shallow(&whdr->src, &pinfo->dl_src);
-      copy_address_shallow(&whdr->dst, &pinfo->dl_dst);
+      if (src_offset) {
+        copy_address_shallow(&whdr->src, &pinfo->dl_src);
+      }
+      if (dst_offset) {
+        copy_address_shallow(&whdr->dst, &pinfo->dl_dst);
+      }
 
       seq_control = tvb_get_letohs(tvb, 22);
       frag_number = SEQCTL_FRAGMENT_NUMBER(seq_control);
