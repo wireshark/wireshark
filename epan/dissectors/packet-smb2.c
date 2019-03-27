@@ -20,6 +20,7 @@
 
 
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/tap.h>
@@ -6942,10 +6943,18 @@ dissect_smb2_reparse_nfs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
 	switch (type) {
 	case NFS_SPECFILE_LNK:
-		symlink_length = 0;
+		/*
+		 * According to [MS-FSCC] 2.1.2.6 "length" contains
+		 * the 8-byte type plus the symlink target in Unicode
+		 * non-NULL terminated.
+		 */
+		if (length < 8) {
+			THROW(ReportedBoundsError);
+		}
+		symlink_length = length - 8;
 		symlink_target = get_unicode_or_ascii_string(tvb, &offset, TRUE,
 							     &symlink_length, TRUE,
-							     FALSE, &bytes_left);
+							     TRUE, &bytes_left);
 		proto_tree_add_string(tree, hf_smb2_nfs_symlink_target, tvb, offset,
 				      symlink_length, symlink_target);
 		break;
