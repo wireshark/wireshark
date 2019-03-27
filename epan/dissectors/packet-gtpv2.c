@@ -3587,7 +3587,7 @@ static const value_string gtpv2_mm_context_unc_vals[] = {
     {0, "No ciphering"},
     {1, "128-EEA1"},
     {2, "128-EEA2"},
-    {3, "EEA3"},
+    {3, "128-EEA3"},
     {4, "EEA4"  },
     {5, "EEA5"},
     {6, "EEA6"},
@@ -3610,14 +3610,14 @@ static const value_string gtpv2_mm_context_used_cipher_vals[] = {
 
 /* Table 8.38-4: Used NAS integrity protection algorithm Values */
 static const value_string gtpv2_mm_context_unipa_vals[] = {
-    {0, "No ciphering"},
-    {1, "128-EEA1"},
-    {2, "128-EEA2"},
-    {3, "EEA3"},
-    {4, "EEA4"  },
-    {5, "EEA5"},
-    {6, "EEA6"},
-    {7, "EEA7"},
+    {0, "No integrity protection"},
+    {1, "128-EIA1"},
+    {2, "128-EIA2"},
+    {3, "128-EIA3"},
+    {4, "EIA4"  },
+    {5, "EIA5"},
+    {6, "EIA6"},
+    {7, "EIA7"},
     {0, NULL}
 };
 
