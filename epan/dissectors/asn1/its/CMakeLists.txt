@@ -16,6 +16,7 @@ set( EXT_ASN_FILE_LIST
 
 set( ASN_FILE_LIST
 	ITS-Container.asn
+	ITS-ContainerV1.asn
 	ISO_TS_14816.asn
 	ISO_TS_24534-3.asn
 	ISO_TS_17419.asn
@@ -23,7 +24,9 @@ set( ASN_FILE_LIST
 	ISO_TS_19321.asn
 	ISO_TS_19091.asn
 	ETSI_TS_103301.asn
+	CAMv1.asn
 	CAM.asn
+	DENMv1.asn
 	DENM.asn
 	TIS_TPG_Transactions_Descriptions.asn
 	EVCSN-PDU-Descriptions.asn

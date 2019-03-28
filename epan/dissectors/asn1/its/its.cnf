@@ -12,7 +12,9 @@ UNALIGNED
 # Get rid of unused code warnings
 TisTpgTransactionsPdu
 DENM
+DENMv1
 CAM
+CAMv1
 SSEM
 SREM
 IVIM
@@ -35,7 +37,9 @@ DSRCmsgID
 #.NO_EMIT
 
 #.MODULE
+CAMv1-PDU-Descriptions					camv1
 CAM-PDU-Descriptions					cam
+DENMv1-PDU-Descriptions					denmv1
 DENM-PDU-Descriptions					denm
 EVCSN-PDU-Descriptions					evcsn
 EV-RechargingSpotReservation-PDU-Descriptions		evrsr
@@ -47,6 +51,7 @@ SREM-PDU-Descriptions					srem
 SSEM-PDU-Descriptions					ssem
 AVIAEINumberingAndDataStructures			anads
 ITS-Container						its
+ITS-ContainerV1						itsv1
 ElectronicRegistrationIdentificationVehicleDataModule	erivdm
 CITSapplMgmtIDs						csmid
 EfcDsrcApplication					dsrc_app
@@ -56,7 +61,9 @@ DSRC							dsrc
 
 #.PDU
 CoopAwareness
+CoopAwarenessV1
 DecentralizedEnvironmentalNotificationMessage
+DecentralizedEnvironmentalNotificationMessageV1
 EVChargingSpotNotificationPOIMessage
 EV-RSR-MessageBody
 TisTpgTransaction
@@ -275,10 +282,22 @@ CauseCodeType
   col_set_str(actx->pinfo->cinfo, COL_INFO, "CAM");
 #.END
 
+#.FN_HDR CoopAwarenessV1
+  actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "CAMv1");
+  col_set_str(actx->pinfo->cinfo, COL_INFO, "CAMv1");
+#.END
+
 #.FN_HDR DecentralizedEnvironmentalNotificationMessage
   actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "DENM");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "DENM");
+#.END
+
+#.FN_HDR DecentralizedEnvironmentalNotificationMessageV1
+  actx->private_data = (void*)wmem_new0(wmem_packet_scope(), its_private_data_t);
+  col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "DENMv1");
+  col_set_str(actx->pinfo->cinfo, COL_INFO, "DENMv1");
 #.END
 
 #.FN_HDR EVChargingSpotNotificationPOIMessage
