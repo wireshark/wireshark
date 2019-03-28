@@ -468,6 +468,7 @@ static int hf_gtpv2_throttling_delay_value = -1;
 static int hf_gtpv2_timer_value = -1;
 static int hf_gtpv2_lapi = -1;
 
+static int hf_gtpv2_pres_rep_area_act_inapra = -1;
 static int hf_gtpv2_pres_rep_area_action = -1;
 static int hf_gtpv2_pres_rep_area_id = -1;
 static int hf_gtpv2_pres_rep_area_act_no_tai = -1;
@@ -6597,8 +6598,14 @@ dissect_gtpv2_pres_rep_area_action(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     int offset = 0;
     tvbuff_t * new_tvb;
 
-    /* Octet 5  Spare   Action */
-    proto_tree_add_item(tree, hf_gtpv2_pres_rep_area_action, tvb, offset, 1, ENC_BIG_ENDIAN);
+    static const int * flags[] = {
+        &hf_gtpv2_pres_rep_area_act_inapra,
+        &hf_gtpv2_pres_rep_area_action,
+        NULL
+    };
+
+    /* Octet 5  Spare INAPRA Action */
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags, ENC_BIG_ENDIAN);
     offset++;
 
     if (length == 1)
@@ -9713,6 +9720,11 @@ void proto_register_gtpv2(void)
         { &hf_gtpv2_mmbr_dl,
           {"Max MBR/APN-AMBR for downlink", "gtpv2.mmbr_dl",
            FT_UINT32, BASE_DEC, NULL, 0x0,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_pres_rep_area_act_inapra,
+          {"INAPRA", "gtpv2.pres_rep_area_action.inapra",
+           FT_UINT8, BASE_DEC, NULL, 0x08,
            NULL, HFILL}
         },
         { &hf_gtpv2_pres_rep_area_action,
