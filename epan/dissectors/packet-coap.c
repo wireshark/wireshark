@@ -44,11 +44,15 @@ static int hf_coap_mid						= -1;
 static int hf_coap_response_in					= -1;
 static int hf_coap_response_to					= -1;
 static int hf_coap_response_time				= -1;
+static int hf_coap_request_resend_in				= -1;
+static int hf_coap_response_resend_in				= -1;
 static int hf_coap_oscore_kid					= -1;
 static int hf_coap_oscore_kid_context				= -1;
 static int hf_coap_oscore_piv					= -1;
 
 static gint ett_coap						= -1;
+
+static expert_field ei_retransmitted				= EI_INIT;
 
 static COAP_COMMON_LIST_T(dissect_coap_hf);
 
@@ -1128,8 +1132,10 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 			} else {
 				if ((code_class >= 2) && (code_class <= 5)) {
 					if (!PINFO_FD_VISITED(pinfo)) {
-						/* Log the first matching response frame */
-						coap_trans->rsp_frame = pinfo->num;
+						if (coap_trans->rsp_frame == 0) {
+							/* Log the first matching response frame */
+							coap_trans->rsp_frame = pinfo->num;
+						}
 					}
 					if (coap_trans->uri_str_strbuf) {
 						/* Copy the URI stored in matching transaction info into CoAP packet info */
@@ -1164,6 +1170,21 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 		}
 	}
 
+	/* add informations to the packet list */
+	if (coap_token_str != NULL)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", TKN:%s", coap_token_str);
+	if (coinfo->block_number != DEFAULT_COAP_BLOCK_NUMBER)
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %sBlock #%u",
+				coinfo->block_mflag ? "" : "End of ", coinfo->block_number);
+	if (wmem_strbuf_get_len(coinfo->uri_str_strbuf) > 0) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", wmem_strbuf_get_str(coinfo->uri_str_strbuf));
+		/* Add a generated protocol item as well */
+		pi = proto_tree_add_string(coap_tree, dissect_coap_hf.hf.opt_uri_path_recon, tvb, 0, 0, wmem_strbuf_get_str(coinfo->uri_str_strbuf));
+		PROTO_ITEM_SET_GENERATED(pi);
+	}
+	if (wmem_strbuf_get_len(coinfo->uri_query_strbuf) > 0)
+		col_append_str(pinfo->cinfo, COL_INFO, wmem_strbuf_get_str(coinfo->uri_query_strbuf));
+
 	if (coap_trans != NULL) {
 		/* Print state tracking in the tree */
 		if (code_class == 0) {
@@ -1174,6 +1195,13 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 				it = proto_tree_add_uint(coap_tree, hf_coap_response_in,
 						tvb, 0, 0, coap_trans->rsp_frame);
 				PROTO_ITEM_SET_GENERATED(it);
+			}
+			if (coap_trans->req_frame != pinfo->num) {
+				col_append_str(pinfo->cinfo, COL_INFO, " [Retransmission]");
+				proto_item *it = proto_tree_add_uint(coap_tree, hf_coap_request_resend_in,
+				                                     tvb, 0, 0, coap_trans->req_frame);
+				PROTO_ITEM_SET_GENERATED(it);
+				expert_add_info(pinfo, it, &ei_retransmitted);
 			}
 		} else if ((code_class >= 2) && (code_class <= 5)) {
 			/* This is a reply */
@@ -1188,6 +1216,13 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 				nstime_delta(&ns, &pinfo->abs_ts, &coap_trans->req_time);
 				it = proto_tree_add_time(coap_tree, hf_coap_response_time, tvb, 0, 0, &ns);
 				PROTO_ITEM_SET_GENERATED(it);
+			}
+			if (coap_trans->rsp_frame != pinfo->num) {
+				col_append_str(pinfo->cinfo, COL_INFO, " [Retransmission]");
+				proto_item *it = proto_tree_add_uint(coap_tree, hf_coap_response_resend_in,
+				                                     tvb, 0, 0, coap_trans->rsp_frame);
+				PROTO_ITEM_SET_GENERATED(it);
+				expert_add_info(pinfo, it, &ei_retransmitted);
 			}
 			if (coinfo->object_security && coap_trans->oscore_info) {
 				proto_item *it;
@@ -1207,21 +1242,6 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 			}
 		}
 	}
-
-	/* add informations to the packet list */
-	if (coap_token_str != NULL)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", TKN:%s", coap_token_str);
-	if (coinfo->block_number != DEFAULT_COAP_BLOCK_NUMBER)
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %sBlock #%u",
-				coinfo->block_mflag ? "" : "End of ", coinfo->block_number);
-	if (wmem_strbuf_get_len(coinfo->uri_str_strbuf) > 0) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", wmem_strbuf_get_str(coinfo->uri_str_strbuf));
-		/* Add a generated protocol item as well */
-		pi = proto_tree_add_string(coap_tree, dissect_coap_hf.hf.opt_uri_path_recon, tvb, 0, 0, wmem_strbuf_get_str(coinfo->uri_str_strbuf));
-		PROTO_ITEM_SET_GENERATED(pi);
-	}
-	if (wmem_strbuf_get_len(coinfo->uri_query_strbuf) > 0)
-		col_append_str(pinfo->cinfo, COL_INFO, wmem_strbuf_get_str(coinfo->uri_query_strbuf));
 
 	/* dissect the payload */
 	if (coap_length > offset) {
@@ -1278,6 +1298,16 @@ proto_register_coap(void)
 		    FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
 		    "The time between the Call and the Reply", HFILL }
 		},
+		{ &hf_coap_request_resend_in,
+		  { "Retransmission of request in", "coap.request_first_in",
+		    FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+		    "This request was first sent in this frame", HFILL }
+		},
+		{ &hf_coap_response_resend_in,
+		  { "Retransmission of response in", "coap.response_first_in",
+		    FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+		    "This response was first sent in this frame", HFILL }
+		},
 		{ &hf_coap_oscore_kid,
 		  { "OSCORE Key ID", "coap.oscore_kid", FT_BYTES, BASE_NONE, NULL, 0x0,
 		    "Matched OSCORE Key ID", HFILL }
@@ -1299,6 +1329,10 @@ proto_register_coap(void)
 	};
 
 	static ei_register_info ei[] = {
+		{ &ei_retransmitted,
+		  { "coap.retransmitted", PI_SEQUENCE, PI_NOTE,
+		    "Retransmitted", EXPFILL }
+		},
 		COAP_COMMON_EI_LIST(dissect_coap_hf, "coap")
 	};
 
