@@ -9387,11 +9387,12 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                             guint8 value;
 
                             pdu_ses_cont_tree = proto_tree_add_subtree(ext_tree, tvb, offset, (ext_hdr_length * 4) - 1, ett_pdu_session_cont, NULL, "PDU Session Container");
-                            /* PDU Type (=0)    Spare */
+                            /* PDU Type    Spare */
                             proto_tree_add_item_ret_uint(pdu_ses_cont_tree, hf_gtp_ext_hdr_pdu_ses_cont_pdu_type, tvb, offset, 1, ENC_BIG_ENDIAN, &pdu_type);
                             proto_tree_add_item(pdu_ses_cont_tree, hf_gtp_spare_h1, tvb, offset, 1, ENC_BIG_ENDIAN);
                             switch (pdu_type) {
                             case 0:
+                                /* PDU Type: DL PDU SESSION INFORMATION (0) */
                                 /* Octet 1: PPP    RQI    QoS Flow Identifier  */
                                 value = tvb_get_guint8(tvb, offset + 1);
                                 proto_tree_add_bitmask_list_value(pdu_ses_cont_tree, tvb, offset + 1, 1, flags1, value);
@@ -9402,8 +9403,9 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                                 }
                                 break;
                             case 1:
+                                /* PDU Type: UL PDU SESSION INFORMATION (1)*/
                                 /* Spare    QoS Flow Identifier */
-                                proto_tree_add_bitmask_list(pdu_ses_cont_tree, tvb, offset + 2, 1, flags3, ENC_BIG_ENDIAN);
+                                proto_tree_add_bitmask_list(pdu_ses_cont_tree, tvb, offset + 1, 1, flags3, ENC_BIG_ENDIAN);
                                 break;
                             default:
                                 proto_tree_add_expert(pdu_ses_cont_tree, pinfo, &ei_gtp_unknown_pdu_type, tvb, offset, 1);
