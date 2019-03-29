@@ -218,6 +218,7 @@ $INCLUDE dictionary.localweb
 $INCLUDE dictionary.lucent
 $INCLUDE dictionary.manzara
 $INCLUDE dictionary.meinberg
+$INCLUDE dictionary.meraki
 $INCLUDE dictionary.merit
 $INCLUDE dictionary.meru
 $INCLUDE dictionary.microsemi
