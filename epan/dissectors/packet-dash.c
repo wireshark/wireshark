@@ -2963,9 +2963,6 @@ dissect_dash_msg_dsq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, vo
   proto_tree_add_item(tree, &hfi_msg_dsq_denom, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   offset += 4;
 
-  proto_tree_add_item(tree, &hfi_msg_dsq_inputcount, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-  offset += 4;
-
   // Add unspent output of the Masternode that signed the message (COutPoint)
   offset = create_coutputpoint_tree(tvb, ti, &hfi_msg_dsq_outpoint, offset);
 
