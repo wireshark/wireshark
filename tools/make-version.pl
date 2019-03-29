@@ -239,7 +239,7 @@ sub read_repo_info {
 		unlink($tortoise_file);
 	}
 
-	if ($num_commits == 0 and -e "$src_dir/.git") {
+	if (defined $num_commits and $num_commits == 0 and -e "$src_dir/.git") {
 
 		# Try git...
 		eval {
@@ -272,7 +272,7 @@ sub read_repo_info {
 			1;
 			};
 	}
-	if ($num_commits == 0 and -d "$src_dir/.bzr") {
+	if (defined $num_commits and $num_commits == 0 and -d "$src_dir/.bzr") {
 
 		# Try bzr...
 		eval {
@@ -298,9 +298,8 @@ sub read_repo_info {
 	# 'svn info' failed or the user really wants us to dig around in .svn/entries
 	if ($do_hack) {
 		# Start of ugly internal SVN file hack
-		if (! open (ENTRIES, "< $src_dir/.svn/entries")) {
-			print STDERR "Unable to open $src_dir/.svn/entries\n";
-		} else {
+		if (open (ENTRIES, "< $src_dir/.svn/entries")) {
+			print STDERR "Opening $src_dir/.svn/entries\n";
 			$info_source = "Prodding .svn";
 			# We need to find out whether our parser can handle the entries file
 			$line = <ENTRIES>;
@@ -359,10 +358,19 @@ sub read_repo_info {
 	# If we picked up the revision and modification time,
 	# generate our strings.
 	if ($package_string) {
-		if($commit_id){
-			$package_string =~ s/{vcsinfo}/$num_commits-$commit_id/;
-		}else{
-			$package_string =~ s/{vcsinfo}/$num_commits/;
+		if(defined $num_commits){
+			if($commit_id){
+				$package_string =~ s/{vcsinfo}/$num_commits-$commit_id/;
+			}else{
+				$package_string =~ s/{vcsinfo}/$num_commits/;
+			}
+		}
+		else{
+			if($commit_id){
+				$package_string =~ s/{vcsinfo}/-$commit_id/;
+			}else{
+				$package_string =~ s/{vcsinfo}//;
+			}
 		}
 	}
 	$package_string = $release_candidate . $package_string;
