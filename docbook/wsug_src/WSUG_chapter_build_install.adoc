@@ -63,7 +63,7 @@ Once you have downloaded the relevant files, you can go on to the next step.
 
 Windows installer names contain the platform and version. For example,
 Wireshark-win64-{wireshark-version}.exe installs Wireshark {wireshark-version}
-for 64-bit Windows. The Wireshark installer includes WinPcap which is required
+for 64-bit Windows. The Wireshark installer includes Npcap which is required
 for packet capture.
 
 Simply download the Wireshark installer from {wireshark-download-url}
@@ -134,19 +134,19 @@ By default Wireshark installs into `%ProgramFiles%\Wireshark` on 32-bit Windows
 and `%ProgramFiles64%\Wireshark` on 64-bit Windows. This expands to `C:\Program
 Files\Wireshark` on most systems.
 
-[[ChBuildInstallWinPcap]]
+[[ChBuildInstallNpcap]]
 
-==== Installing WinPcap
+==== Installing Npcap
 
-The Wireshark installer contains the latest WinPcap installer.
+The Wireshark installer contains the latest Npcap installer.
 
-If you don’t have WinPcap installed you won’t be able to capture live network
+If you don’t have Npcap installed you won’t be able to capture live network
 traffic but you will still be able to open saved capture files. By default the
-latest version of WinPcap will be installed. If you don’t wish to do this or if
-you wish to reinstall WinPcap you can check the _Install WinPcap_ box as needed.
+latest version of Npcap will be installed. If you don’t wish to do this or if
+you wish to reinstall Npcap you can check the _Install Npcap_ box as needed.
 
-For more information about WinPcap see {winpcap-main-url} and
-{wireshark-wiki-url}WinPcap.
+For more information about Npcap see {npcap-main-url} and
+{wireshark-wiki-url}Npcap.
 
 
 [[ChBuildInstallWinWiresharkCommandLine]]
@@ -156,7 +156,7 @@ For more information about WinPcap see {winpcap-main-url} and
 For special cases, there are some command line parameters available:
 
 * `/S` runs the installer or uninstaller silently with default values. The
-  silent installer *will not* install WinPCap.
+  silent installer *will not* install Npcap.
 
 * `/desktopicon` installation of the desktop icon, `=yes` - force installation,
   `=no` - don’t install, otherwise use default settings. This option can be
@@ -178,17 +178,17 @@ Example:
 
 Running the installer without any parameters shows the normal interactive installer.
 
-[[ChBuildInstallWinPcapManually]]
+[[ChBuildInstallNpcapManually]]
 
-==== Manual WinPcap Installation
+==== Manual Npcap Installation
 
-As mentioned above, the Wireshark installer takes care of installing WinPcap.
+As mentioned above, the Wireshark installer takes care of installing Npcap.
 The following is only necessary if you want to use a different version than the
-one included in the Wireshark installer, e.g. because a new WinPcap version was
+one included in the Wireshark installer, e.g. because a new Npcap version was
 released.
 
-Additional WinPcap versions (including newer alpha or beta releases) can
-be downloaded from the main WinPcap site at {winpcap-main-url}. The
+Additional Npcap versions (including newer alpha or beta releases) can
+be downloaded from the main Npcap site at {npcap-main-url}. The
 _Installer for Windows_ supports modern Windows operating systems.
 
 [[ChBuildInstallWinWiresharkUpdate]]
@@ -206,14 +206,13 @@ Wireshark is done the same way as installing it. Simply download and start the
 installer exe. A reboot is usually not required and all your personal settings
 remain unchanged.
 
-[[ChBuildInstallWinPcapUpdate]]
+[[ChBuildInstallNpcapUpdate]]
 
-==== Update WinPcap
+==== Update Npcap
 
-New versions of WinPcap are less frequently available. You will find
-WinPcap update instructions the WinPcap web site at {winpcap-main-url}.
-You may have to reboot your machine after installing a new WinPcap
-version.
+New versions of Npcap. You will find Npcap update instructions the Npcap web
+site at {npcap-main-url}. You may have to reboot your machine after installing
+a new Npcap version.
 
 [[ChBuildInstallWinUninstall]]
 
@@ -223,16 +222,16 @@ You can uninstall Wireshark using the _Programs and Features_ control panel.
 Select the “Wireshark” entry to start the uninstallation procedure.
 
 The Wireshark uninstaller provides several options for removal. The default is
-to remove the core components but keep your personal settings and WinPcap.
-WinPcap is left installed by default in case other programs need it.
+to remove the core components but keep your personal settings.
+Npcap is left installed by default in case other programs need it.
 
-[[ChBuildInstallWinPcapUninstall]]
+[[ChBuildInstallNpcapUninstall]]
 
-==== Uninstall WinPcap
+==== Uninstall Npcap
 
-You can uninstall WinPcap independently of Wireshark using the _WinPcap_ entry
+You can uninstall Npcap independently of Wireshark using the _Npcap_ entry
 in the _Programs and Features_ control panel. Remember that if you uninstall
-WinPcap you won’t be able to capture anything with Wireshark.
+Npcap you won’t be able to capture anything with Wireshark.
 
 //
 // macOS

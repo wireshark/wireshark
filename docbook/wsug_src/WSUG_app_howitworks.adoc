@@ -23,7 +23,7 @@ When Wireshark starts, a lot of things are done:
 
 * Load and set the disabled protocols from the disabled_protos file
 
-* Init libpcap/winpcap (the capturing engine)
+* Init libpcap/Npcap (the capturing engine)
 
 * Process command line parameters
 

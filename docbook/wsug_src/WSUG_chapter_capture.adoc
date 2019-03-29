@@ -533,7 +533,7 @@ you can achieve the same effect (securely) through an SSH tunnel.
 
 The Remote Packet Capture Protocol service must first be running on the
 target platform before Wireshark can connect to it. The easiest way is
-to install WinPcap from {winpcap-download-url} on the target. Once
+to install Npcap from {npcap-download-url} on the target. Once
 installation is completed go to the Services control panel, find the
 Remote Packet Capture Protocol service and start it.
 

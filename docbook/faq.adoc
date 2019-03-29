@@ -735,7 +735,7 @@ problem with one or more of:
 
 * the operating system you're using;
 * the device driver for the interface you're using;
-* the WinPcap library and/or the WinPcap device driver;
+* the Npcap library and/or the Npcap device driver;
 
 so first check https://nmap.org/npcap/guide/[the Npcap User's Guide] to
 see if your problem is mentioned there. If not, then see
@@ -770,7 +770,7 @@ Reports, Questions, Suggestions, etc" section.
 
 You may also want to ask the
 mailto:wireshark-users@wireshark.org[wireshark-users@wireshark.org] and
-the mailto:winpcap-users@winpcap.org[winpcap-users@winpcap.org] mailing
+the mailto:dev@nmap.org[dev@nmap.org] mailing
 lists to see if anybody happens to know about the problem and know a
 workaround or fix for the problem. (Note that you will have to subscribe
 to that list in order to be allowed to mail to it; see

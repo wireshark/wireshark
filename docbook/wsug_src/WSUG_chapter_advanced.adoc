@@ -566,7 +566,7 @@ time stamps will be saved to the capture file, so they also will be available
 for (later) analysis.
 
 So where do these time stamps come from? While capturing, Wireshark gets the
-time stamps from the libpcap (WinPcap) library, which in turn gets them from the
+time stamps from the libpcap (Npcap) library, which in turn gets them from the
 operating system kernel. If the capture data is loaded from a capture file,
 Wireshark obviously gets the data from that file.
 
@@ -581,7 +581,7 @@ packet list, see the “Time Display Format” item in the
 While reading or writing capture files, Wireshark converts the time stamp data
 between the capture file format and the internal format as required.
 
-While capturing, Wireshark uses the libpcap (WinPcap) capture library which
+While capturing, Wireshark uses the libpcap (Npcap) capture library which
 supports microsecond resolution. Unless you are working with specialized
 capturing hardware, this resolution should be adequate.
 
@@ -736,7 +736,7 @@ formats, save the arrival time of packets as UTC values. UN*X systems, and
 “Windows NT based” systems represent time internally as UTC. When Wireshark is
 capturing, no conversion is necessary. However, if the system time zone is not
 set correctly, the system’s UTC time might not be correctly set even if the
-system clock appears to display correct local time. When capturing, WinPcap has
+system clock appears to display correct local time. When capturing, Npcap has
 to convert the time to UTC before supplying it to Wireshark. If the system’s
 time zone is not set correctly, that conversion will not be done correctly.
 
