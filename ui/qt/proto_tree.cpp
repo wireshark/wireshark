@@ -15,6 +15,7 @@
 #include <epan/ftypes/ftypes.h>
 #include <epan/prefs.h>
 
+#include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/utils/wireshark_mime_data.h>
 #include <ui/qt/widgets/drag_label.h>
@@ -47,6 +48,22 @@ ProtoTree::ProtoTree(QWidget *parent, epan_dissect_t *edt_fixed) :
     // too much we should add a custom delegate which handles SizeHintRole
     // similar to PacketListModel::data.
     setHeaderHidden(true);
+
+#if !defined(Q_OS_WIN)
+#if defined(Q_OS_MAC)
+    QPalette default_pal = QApplication::palette();
+    default_pal.setCurrentColorGroup(QPalette::Active);
+    QColor hover_color = default_pal.highlight().color();
+#else
+    QColor hover_color = ColorUtils::alphaBlend(palette().window(), palette().highlight(), 0.5);
+#endif
+
+    setStyleSheet(QString(
+        "QTreeView:item:hover {"
+        "  background-color: %1;"
+        "  color: palette(text);"
+        "}").arg(hover_color.name()));
+#endif
 
     // Shrink down to a small but nonzero size in the main splitter.
     int one_em = fontMetrics().height();

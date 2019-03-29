@@ -297,6 +297,23 @@ void PacketList::colorsChanged()
         "  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1 stop: 0 %4, stop: 0.5 %3, stop: 1 %4);"
         "}";
 
+    QString hover_style;
+#if !defined(Q_OS_WIN)
+#if defined(Q_OS_MAC)
+    QPalette default_pal = QApplication::palette();
+    default_pal.setCurrentColorGroup(QPalette::Active);
+    QColor hover_color = default_pal.highlight().color();
+#else
+    QColor hover_color = ColorUtils::alphaBlend(palette().window(), palette().highlight(), 0.5);
+#endif
+
+    hover_style = QString(
+        "QTreeView:item:hover {"
+        "  background-color: %1;"
+        "  color: palette(text);"
+        "}").arg(hover_color.name());
+#endif
+
     QString active_style   = QString();
     QString inactive_style = QString();
 
@@ -391,7 +408,7 @@ void PacketList::colorsChanged()
     }
 
     // Set the style sheet
-    setStyleSheet(active_style + inactive_style);
+    setStyleSheet(active_style + inactive_style + hover_style);
 }
 
 void PacketList::drawRow (QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const

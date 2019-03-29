@@ -73,6 +73,11 @@ void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
     QColor fg;
     if (cg == QPalette::Normal && !(option_vi.state & QStyle::State_Active))
         cg = QPalette::Inactive;
+#if !defined(Q_OS_WIN)
+    if (option_vi.state & QStyle::State_MouseOver) {
+        fg = QApplication::palette().text().color();
+    } else
+#endif
     if (option_vi.state & QStyle::State_Selected) {
         fg = option_vi.palette.color(cg, QPalette::HighlightedText);
     } else {
