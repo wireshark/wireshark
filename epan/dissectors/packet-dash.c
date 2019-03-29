@@ -1299,6 +1299,16 @@ static header_field_info hfi_dash_msg_qsendrecsigs DASH_HFI_INIT =
 static header_field_info hfi_dash_msg_qsendrecsigs_sendrecsigs DASH_HFI_INIT =
   { "Enable", "dash.qsendrecsigs.sendrecsigs", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
+/* mnauth message - Masternode authorization messages */
+static header_field_info hfi_dash_msg_mnauth DASH_HFI_INIT =
+  { "Masternode Authorization", "dash.mnauth", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL };
+
+static header_field_info hfi_dash_msg_mnauth_proregtxhash DASH_HFI_INIT =
+  { "Provider Registration TXID (ProRegTx)", "dash.mnauth.proregtxhash", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL };
+
+static header_field_info hfi_dash_msg_mnauth_bls_sig DASH_HFI_INIT =
+  { "Masternode BLS Signature", "dash.mnauth.blssig", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL };
+
 static gint ett_dash = -1;
 static gint ett_dash_msg = -1;
 static gint ett_services = -1;
@@ -3743,6 +3753,31 @@ dissect_dash_msg_qsendrecsigs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
   return offset;
 }
 
+/**
+ * Handler for mnauth messages
+ */
+static int
+dissect_dash_msg_mnauth(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+  proto_item *ti;
+  guint32     offset = 0;
+
+  ti   = proto_tree_add_item(tree, &hfi_dash_msg_mnauth, tvb, offset, -1, ENC_NA);
+  tree = proto_item_add_subtree(ti, ett_dash_msg);
+
+
+
+  // ProRegTx Hash - Current chaintip blockhash minus 12
+  proto_tree_add_item(tree, &hfi_dash_msg_mnauth_proregtxhash, tvb, offset, 32, ENC_NA);
+  offset += 32;
+
+  // BLS payload signature
+  proto_tree_add_item(tree, &hfi_dash_msg_protx_bls_sig, tvb, offset, 96, ENC_NA);
+  offset += 96;
+
+  return offset;
+}
+
 static int
 dissect_dash(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
@@ -4176,6 +4211,11 @@ proto_register_dash(void)
     /* qsendrecsigs message */
     &hfi_dash_msg_qsendrecsigs,
     &hfi_dash_msg_qsendrecsigs_sendrecsigs,
+
+    /* mnauth message */
+    &hfi_dash_msg_mnauth,
+    &hfi_dash_msg_mnauth_proregtxhash,
+    &hfi_dash_msg_mnauth_bls_sig,
   };
 #endif
 
@@ -4331,6 +4371,8 @@ proto_reg_handoff_dash(void)
   dissector_add_string("dash.command", "mnget", command_handle);
   command_handle = create_dissector_handle( dissect_dash_msg_qsendrecsigs, hfi_dash->id );
   dissector_add_string("dash.command", "qsendrecsigs", command_handle);
+  command_handle = create_dissector_handle( dissect_dash_msg_mnauth, hfi_dash->id );
+  dissector_add_string("dash.command", "mnauth", command_handle);
 
   /* messages with no payload */
   command_handle = create_dissector_handle( dissect_dash_msg_empty, hfi_dash->id );
