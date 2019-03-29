@@ -1056,6 +1056,13 @@ static header_field_info hfi_dash_msg_dssu_status_update DASH_HFI_INIT =
 static header_field_info hfi_dash_msg_dssu_message_id DASH_HFI_INIT =
   { "Message ID", "dash.dssu.message", FT_UINT32, BASE_DEC, VALS(pool_message), 0x0, NULL, HFILL };
 
+/* senddsq message - Send dsq messages */
+static header_field_info hfi_dash_msg_senddsq DASH_HFI_INIT =
+  { "Send PrivateSend Queue messages", "dash.senddsq", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL };
+
+static header_field_info hfi_dash_msg_senddsq_senddsqueue DASH_HFI_INIT =
+  { "Enable", "dash.senddsq.senddsqueue", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL };
+
 /* dsq message - Darksend Queue
 	Field Size 	Field Name 	Data type 	Description
 	4 		nDenom 		int 		Which denomination is allowed in this mixing session
@@ -1284,6 +1291,13 @@ static header_field_info hfi_dash_msg_mnget DASH_HFI_INIT =
 // Removed in protocol version 70210
 //static header_field_info hfi_dash_msg_mnget_count32 DASH_HFI_INIT =
 //  { "Count", "dash.mnget.count", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL };
+
+/* qsendrecsigs message - Send recovered quorum signing messages */
+static header_field_info hfi_dash_msg_qsendrecsigs DASH_HFI_INIT =
+  { "Send recovered LLMQ (quorum) signatures", "dash.qsendrecsigs", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL };
+
+static header_field_info hfi_dash_msg_qsendrecsigs_sendrecsigs DASH_HFI_INIT =
+  { "Enable", "dash.qsendrecsigs.sendrecsigs", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL };
 
 static gint ett_dash = -1;
 static gint ett_dash_msg = -1;
@@ -2898,6 +2912,26 @@ static int dissect_dash_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 }
 
 /**
+ * Handler for senddsq messages
+ */
+
+static int
+dissect_dash_msg_senddsq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+  proto_item *ti;
+  guint32     offset = 0;
+
+  ti   = proto_tree_add_item(tree, &hfi_dash_msg_senddsq, tvb, offset, -1, ENC_NA);
+  tree = proto_item_add_subtree(ti, ett_dash_msg);
+
+  // Send DSQ - if the client wants to receive DSQ messages
+  proto_tree_add_item(tree, &hfi_dash_msg_senddsq_senddsqueue, tvb, offset, 1, ENC_NA);
+  offset += 1;
+
+  return offset;
+}
+
+/**
  * Handler for dsq messages
  */
 static int
@@ -3689,6 +3723,25 @@ dissect_dash_msg_mnget(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
   return offset;
 }
 
+/**
+ * Handler for qsendrecsigs messages
+ */
+
+static int
+dissect_dash_msg_qsendrecsigs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+  proto_item *ti;
+  guint32     offset = 0;
+
+  ti   = proto_tree_add_item(tree, &hfi_dash_msg_qsendrecsigs, tvb, offset, -1, ENC_NA);
+  tree = proto_item_add_subtree(ti, ett_dash_msg);
+
+  // Send Recovered signatures - if the client wants to receive qrecsig messages
+  proto_tree_add_item(tree, &hfi_dash_msg_qsendrecsigs_sendrecsigs, tvb, offset, 1, ENC_NA);
+  offset += 1;
+
+  return offset;
+}
 
 static int
 dissect_dash(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
@@ -4002,6 +4055,10 @@ proto_register_dash(void)
     &hfi_dash_msg_dssu_status_update,
     &hfi_dash_msg_dssu_message_id,
 
+    /* senddsq message */
+    &hfi_dash_msg_senddsq,
+    &hfi_dash_msg_senddsq_senddsqueue,
+
     /* dsq message */
     &hfi_dash_msg_dsq,
     &hfi_msg_dsq_denom,
@@ -4115,6 +4172,10 @@ proto_register_dash(void)
 
     &hfi_dash_msg_protx,
     &hfi_dash_msg_proupservtx,
+
+    /* qsendrecsigs message */
+    &hfi_dash_msg_qsendrecsigs,
+    &hfi_dash_msg_qsendrecsigs_sendrecsigs,
   };
 #endif
 
@@ -4235,6 +4296,8 @@ proto_reg_handoff_dash(void)
   dissector_add_string("dash.command", "dstx", command_handle);
   command_handle = create_dissector_handle( dissect_dash_msg_dssu, hfi_dash->id );
   dissector_add_string("dash.command", "dssu", command_handle);
+  command_handle = create_dissector_handle( dissect_dash_msg_senddsq, hfi_dash->id );
+  dissector_add_string("dash.command", "senddsq", command_handle);
   command_handle = create_dissector_handle( dissect_dash_msg_dsq, hfi_dash->id );
   dissector_add_string("dash.command", "dsq", command_handle);
   command_handle = create_dissector_handle( dissect_dash_msg_dsa, hfi_dash->id );
@@ -4266,6 +4329,8 @@ proto_reg_handoff_dash(void)
   dissector_add_string("dash.command", "ssc", command_handle);
   command_handle = create_dissector_handle( dissect_dash_msg_mnget, hfi_dash->id );
   dissector_add_string("dash.command", "mnget", command_handle);
+  command_handle = create_dissector_handle( dissect_dash_msg_qsendrecsigs, hfi_dash->id );
+  dissector_add_string("dash.command", "qsendrecsigs", command_handle);
 
   /* messages with no payload */
   command_handle = create_dissector_handle( dissect_dash_msg_empty, hfi_dash->id );
