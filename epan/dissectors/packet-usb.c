@@ -3424,13 +3424,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
 
             ctrl_recip = USB_RECIPIENT(usb_trans_info->setup.requesttype);
 
-            if (ctrl_recip == RQT_SETUP_RECIPIENT_DEVICE) {
-                /* a non-standard control message addressed to a device
-                   this is not supported (I don't think it's used
-                   anywhere) */
-                break;
-            }
-            else if (ctrl_recip == RQT_SETUP_RECIPIENT_INTERFACE) {
+            if (ctrl_recip == RQT_SETUP_RECIPIENT_INTERFACE) {
                 guint8 interface_num = usb_trans_info->setup.wIndex & 0xff;
 
                 heur_subdissector_list = heur_control_subdissector_list;
@@ -3473,7 +3467,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
                 usb_conv_info->usb_trans_info = usb_trans_info;
             }
             else {
-                /* the recipient is "other" or "reserved"
+                /* the recipient is "device" or "other" or "reserved"
                    there's no way for us to determine the interfaceClass
                    we set the usb_dissector_table anyhow as some
                    dissectors register for control messages to
