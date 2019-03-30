@@ -56,6 +56,7 @@ since version 3.0.0:
 evolved Common Public Radio Interface (eCPRI)
 Distributed Replicated Block Device (DRBD)
 GSM/3GPP CBSP (Cell Broadcast Service Protocol)
+NVM Express over Fabrics for TCP (nvme-tcp)
 --
 
 === Updated Protocol Support

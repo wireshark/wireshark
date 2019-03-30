@@ -414,6 +414,16 @@ nvme_publish_cqe_to_cmd_link(proto_tree *cqe_tree, tvbuff_t *nvme_tvb,
 }
 
 void
+nvme_publish_data_pdu_to_cmd_link(proto_tree *pdu_tree, tvbuff_t *nvme_tvb,
+                           int hf_index, struct nvme_cmd_ctx *cmd_ctx)
+{
+    proto_item *cmd_ref_item;
+    cmd_ref_item = proto_tree_add_uint(pdu_tree, hf_index,
+                             nvme_tvb, 0, 0, cmd_ctx->cmd_pkt_num);
+    proto_item_set_generated(cmd_ref_item);
+}
+
+void
 nvme_publish_cmd_to_cqe_link(proto_tree *cmd_tree, tvbuff_t *cmd_tvb,
                              int hf_index, struct nvme_cmd_ctx *cmd_ctx)
 {
@@ -612,8 +622,7 @@ dissect_nvme_data_response(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *r
             break;
         }
     }
-    col_add_lstr(pinfo->cinfo, COL_INFO, "NVMe ", str_opcode, ": Data",
-                 COL_ADD_LSTR_TERMINATOR);
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, " | ", "NVMe %s: Data", str_opcode);
 }
 
 void
@@ -676,6 +685,30 @@ dissect_nvme_cmd(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree,
             break;
         }
     }
+}
+
+const gchar *nvme_get_opcode_string(guint8  opcode, guint16 qid)
+{
+    if (qid)
+        return val_to_str_const(opcode, ioq_opc_tbl, "Reserved");
+    else
+        return val_to_str_const(opcode, aq_opc_tbl, "Reserved");
+}
+
+int
+nvme_is_io_queue_opcode(guint8  opcode)
+{
+    return ((opcode == NVME_IOQ_OPC_FLUSH) ||
+            (opcode == NVME_IOQ_OPC_WRITE) ||
+            (opcode == NVME_IOQ_OPC_READ) ||
+            (opcode == NVME_IOQ_OPC_WRITE_UNCORRECTABLE) ||
+            (opcode == NVME_IOQ_OPC_COMPARE) ||
+            (opcode == NVME_IOQ_OPC_WRITE_ZEROS) ||
+            (opcode == NVME_IOQ_OPC_DATASET_MGMT) ||
+            (opcode == NVME_IOQ_OPC_RESV_REG) ||
+            (opcode == NVME_IOQ_OPC_RESV_REPORT) ||
+            (opcode == NVME_IOQ_OPC_RESV_ACQUIRE) ||
+            (opcode == NVME_IOQ_OPC_RESV_RELEASE));
 }
 
 void

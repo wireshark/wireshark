@@ -52,6 +52,10 @@ void
 nvme_publish_cmd_to_cqe_link(proto_tree *cmd_tree, tvbuff_t *cqe_tvb,
                              int hf_index, struct nvme_cmd_ctx *cmd_ctx);
 
+void
+nvme_publish_data_pdu_to_cmd_link(proto_tree *pdu_tree, tvbuff_t *nvme_tvb,
+                           int hf_index, struct nvme_cmd_ctx *cmd_ctx);
+
 void nvme_update_cmd_end_info(packet_info *pinfo, struct nvme_cmd_ctx *cmd_ctx);
 
 void
@@ -92,6 +96,21 @@ dissect_nvme_data_response(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *r
 void
 dissect_nvme_cqe(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *root_tree,
                  struct nvme_cmd_ctx *cmd_ctx);
+
+/**
+ * Returns string representation of opcode according
+ * to opcode and queue id
+ */
+const gchar *
+nvme_get_opcode_string(guint8  opcode, guint16 qid);
+
+/*
+ * Tells if opcode can be an opcode of io queue.
+ * Used to "Guess" queue type for nvme-tcp in case that "connect"
+ * command was not recorded
+ */
+int
+nvme_is_io_queue_opcode(guint8  opcode);
 
 #endif
 
