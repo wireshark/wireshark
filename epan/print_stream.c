@@ -72,11 +72,9 @@ print_color_escape(FILE *fh, const color_t *fg, const color_t *bg)
      *
      *  https://docs.microsoft.com/en-us/windows/console/console-virtual-terminal-sequences
      *
-     * documents all the escape sequences the Console supports.  The current
-     * version says that 24-bit color is supported using Operating System
-     * Command (OSC) control sequences and that the ODA versions with 24-bit
-     * color are supported but select the closest color from the 16-color
-     * palette.
+     * documents all the escape sequences the Console supports.  It currently
+     * seems to indicate that the ODA versions with 24-bit color are supported
+     * but select the closest color from the 16-color palette.
      *
      * The console in Windows 10 builds 14931 (a preview version of Windows 10
      * version 1703) and later supports SGR RGB sequences:
@@ -92,7 +90,7 @@ print_color_escape(FILE *fh, const color_t *fg, const color_t *bg)
      *
      * which suggests that, with that version, whatever escape sequences
      * work on UN*Xes also work on Windows, so maybe they support full
-     * 24-bit color with the ODA versions.
+     * 24-bit color with the ODA sequences.
      *
      * We might want to print those instead depending on the version of
      * Windows or just remove the SetConsoleTextAttribute calls and only
