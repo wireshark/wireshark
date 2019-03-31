@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2019-03-23)
+(last updated 2019-03-30)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -18656,7 +18656,7 @@ Decimal
 4666
   Itchigo Communications GmbH
     Bodo Rueskamp
-      oid4666&pinda.de
+      oid-4666&spamtrap.pinda.de
 4667
   Telperion Network Systems
     Hayoung OH
@@ -36094,9 +36094,9 @@ Decimal
     Constantin Nickonov
       nickonov&jabber.com
 9035
-  Carlisle FoodService Products
-    Kenny Austin
-      kennyaustin&carlislefsp.com
+  CFS Brands, LLC
+    Andrew Nowlin
+      andrewnowlin&cfsbrands.com
 9036
   Jim Dutton
     Jim Dutton
@@ -76614,9 +76614,9 @@ Decimal
     Harry L. White
       harry&momenco.com
 19266
-  Bayerisches Landesamt für Statistik und Datenverarbeitung
+  Landesamt für Digitalisierung, Breitband und Vermessung (formerly 'Bayerisches Landesamt für Statistik und Datenverarbeitung')
     Christian Brensing
-      christian.brensing&lfstad.bayern.de
+      christian.brensing&ldbv.bayern.de
 19267
   Ajuntament de Palma
     Jose de Juan Sola
@@ -87898,9 +87898,9 @@ Decimal
     Paul Poeltner
       paul.poeltner&emp.co.at
 22087
-  Bodo Rueskamp (formerly 'Invelica GmbH')
+  Bodo Rueskamp
     Bodo Rueskamp
-      oid22087&pinda.de
+      oid-22087&spamtrap.pinda.de
 22088
   Alpine-Energie Holding AG
     Silvia Schmid
@@ -165535,8 +165535,8 @@ Decimal
       gasov&northgas.ru
 41496
   Dedicated Network Partners
-    Petteri Hamalainen
-      petteri.hamalainen&dnwpartners.com
+    Antti Viro
+      antti.viro&dnwpartners.com
 41497
   Optimus S.A.
     Ferran Girones
@@ -174390,9 +174390,9 @@ Decimal
     Iliyan Dobrev
       iliyan&airdsl.co.za
 43710
-  GAMESA
+  Siemens Gamesa Renewable Energy (formerly 'GAMESA')
     Jose Antonio Contreras Caballero
-      jacontreras&gamesacorp.com
+      jose.contreras&siemensgamesa.com
 43711
   mySupply ApS
     Peter Freiberg
@@ -183314,7 +183314,7 @@ Decimal
     Keith Beckman
       kbeckman&becknet.com
 45941
-  Papa Malick MBOW
+  PM CONSULTING
     Papa Malick MBOW
       pm.mbow&gmail.com
 45942
@@ -207430,7 +207430,7 @@ Decimal
     David Dai
       david.dai&ff.com
 51970
-  Cloud9 Mobile Limited
+  Wireless Logic Limited
     Paul Furmedge
       admin.oid&cloud9mobile.co.uk
 51971
@@ -214201,6 +214201,146 @@ Decimal
   KUZBASSHIMBANK
     Gennadiy Gerasimov
       grenadir2007&yandex.ru
+53663
+  Serous
+    D Gifford
+      davegifford&protonmail.com
+53664
+  BLP Mobile Paint
+    Kyle Stewart
+      kss&mobilepaint.com
+53665
+  BD Diesel Performance
+    Dan Reimer
+      admin&bddiesel.com
+53666
+  Certograph Ltd
+    Jacek Artymiak
+      jacek.artymiak&certograph.com
+53667
+  Biamino & Figli SPA
+    Dario Biamino
+      dario.biamino&biamino.com
+53668
+  Synergetic Management Systems
+    Ian MacRae
+      imacrae&synergetic.net.au
+53669
+  Agena Bioscience
+    Maggie Lowe
+      maggie.lowe&agenabio.com
+53670
+  Silumin-Vostok, LLC
+    Kirill Dmitrievich Lukin
+      it&silumin.kz
+53671
+  Forensic Risk Alliance Limited
+    Alex Pheysey
+      APheysey&forensicrisk.com
+53672
+  Alturing
+    Cabuzel Guillaume
+      guillaume.cabuzel&chronopost.fr
+53673
+  Coreit
+    Marjan Erceg
+      marjan.erceg&coreit.me
+53674
+  FGUE STC Atlas
+    Sergey Matveev
+      stargrave&stargrave.org
+53675
+  VESvault Corp
+    Jim Zubov
+      jz&vesvault.com
+53676
+  Eckelmann AG
+    Philipp Eckelmann
+      postmaster&eckelmann.de
+53677
+  PICA Group Pty Ltd
+    Peter Dodemont
+      iana.pen&picagroup.com.au
+53678
+  Brush New Zealand Limited
+    Stephen Irons
+      stephen&brush.co.nz
+53679
+  Bank of China Sydney Branch
+    Michael Yeung
+      itdept_sydney&mail.notes.bank-of-china.com
+53680
+  fivetek
+    Alfred Kim
+      alfred.kim&fivetek.com
+53681
+  European Institute for Gender Equality
+    Ramunas Lunskus
+      adminmail&eige.europa.eu
+53682
+  Ofcom
+    Jonathan Riches
+      registrar&ofcom.org.uk
+53683
+  Cisco Sytems, Inc.
+    Joshua Dotson
+      josdotso&cisco.com
+53684
+  Circle Cardiovascular Imaging Inc.
+    Ben Park
+      ben.park&circlecvi.com
+53685
+  neurodine.com
+    Blazej Kaczmarek
+      fajny.masz.tornister&gmail.com
+53686
+  Saankhya Labs Pvt Ltd
+    Makarand G Kulkarni
+      makarand.kulkarni&saankhyalabs.com
+53687
+  6YS Pty Ltd
+    Alun Carp
+      alun.carp&6ys.com.au
+53688
+  Toyota Tsusho Corporation
+    Naoki Kimura
+      1100-ttc_oid&dist.toyota-tsusho.com
+53689
+  TAKEBISHI CORPORATION
+    Masatoshi Ike
+      Masatoshi.Ike&takebishi.co.jp
+53690
+  LanRoad LLC
+    Andrew Makarov
+      a.makarov&lanroad.ru
+53691
+  Citizens & Farmers Bank
+    Jonathan Olson
+      jolson&cffc.com
+53692
+  Mount Pleasant Waterworks
+    Chase Hassold
+      chassold&mpwonline.com
+53693
+  Miami Pulmonary Specialists
+    Linda Maggi
+      miamipulmonaryspecialist&gmail.com
+53694
+  CapSpecialty
+    Tim Moermond
+      tmoermond&capspecialty.com
+53695
+  AMC
+    Nathan Rees
+      n.rees&amcllc.net
+53696
+  BITECH SPA
+    GENNARO D'ANGELO
+      gennaro.dangelo&bitech.it
+53697
+  Liceo Classico Statale "G.B. Morgagni"
+    Giano Donato
+      donato.giano&morgagni.cloud
 
 
 End of Document

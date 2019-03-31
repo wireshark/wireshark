@@ -4465,7 +4465,7 @@ PLEASE NOTE: One option MUST be selected.</source>
         <location filename="import_text_dialog.ui" line="470"/>
         <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
         <oldsource>The maximum size of the frames to write to the import capture file (max 64000)</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>インポートするキャプチャファイルへ書き込む最大のフレームサイズ（最大256kB)</translation>
     </message>
     <message>
         <location filename="import_text_dialog.ui" line="238"/>

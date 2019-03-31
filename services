@@ -6351,8 +6351,8 @@ nppmp            3476/tcp # NVIDIA Mgmt Protocol [Gilbert_Yeung] [Gilbert_Yeung]
 nppmp            3476/udp # NVIDIA Mgmt Protocol [Gilbert_Yeung] [Gilbert_Yeung] 2002-04
 ecomm            3477/tcp # eComm link port [Thomas_Soerensen] [Thomas_Soerensen] 2002-04
 ecomm            3477/udp # eComm link port [Thomas_Soerensen] [Thomas_Soerensen] 2002-04
-stun             3478/tcp # Session Traversal Utilities for NAT (STUN) port [RFC5389]
-stun             3478/udp # Session Traversal Utilities for NAT (STUN) port [RFC5389]
+stun             3478/tcp # Session Traversal Utilities for NAT (STUN) port [IESG] [IETF_Chair] 2019-03-28 [RFC-ietf-tram-stunbis-21]
+stun             3478/udp # Session Traversal Utilities for NAT (STUN) port [IESG] [IETF_Chair] 2019-03-28 [RFC-ietf-tram-stunbis-21]
 turn             3478/tcp # TURN over TCP [RFC5766]
 turn             3478/udp # TURN over UDP [RFC5766]
 stun-behavior    3478/tcp # STUN Behavior Discovery over TCP [RFC5780]
@@ -8674,7 +8674,7 @@ kfserver         5343/tcp # Sculptor Database Server [Keith_Ashman] [Keith_Ashma
 kfserver         5343/udp # Sculptor Database Server [Keith_Ashman] [Keith_Ashman] 2005-12
 xkotodrcp        5344/tcp # xkoto DRCP [Jeff_Heisz] [Jeff_Heisz] 2006-02
 xkotodrcp        5344/udp # xkoto DRCP [Jeff_Heisz] [Jeff_Heisz] 2006-02
-stuns            5349/tcp # STUN over TLS [RFC5389]
+stuns            5349/tcp # Session Traversal Utilities for NAT (STUN) port [IESG] [IETF_Chair] 2019-03-28 [RFC-ietf-tram-stunbis-21]
 stuns            5349/udp # STUN over DTLS [IESG] [IETF_Chair] 2014-07-03 [RFC7350] This service name was initially created by [RFC5389].
 turns            5349/tcp # TURN over TLS [RFC5766]
 turns            5349/udp # TURN over DTLS [IESG] [IETF_Chair] 2014-07-03 [RFC7350] This service name was initially created by [RFC5766].
