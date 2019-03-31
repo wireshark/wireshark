@@ -77,8 +77,8 @@
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>行をコピー</numerusform>
         </translation>
     </message>
 </context>
@@ -3814,7 +3814,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>The maximum size of the frames to write to the import capture file (max 256kiB)</source>
-        <translation type="unfinished"></translation>
+        <translation>インポートするキャプチャファイルへ書き込む最大のフレームサイズ（最大256kB)</translation>
     </message>
     <message>
         <source>Import From Hex Dump</source>
@@ -8339,7 +8339,7 @@ a:hover {
     </message>
     <message>
         <source>(deleted)</source>
-        <translation type="unfinished"></translation>
+        <translation>(削除済)</translation>
     </message>
     <message>
         <source>Created from default settings</source>
@@ -8882,11 +8882,11 @@ a:hover {
     </message>
     <message>
         <source>Invalid Display Filter</source>
-        <translation type="unfinished">無効な表示フィルタ</translation>
+        <translation>無効な表示フィルタ</translation>
     </message>
     <message>
         <source>The filter expression %1 isn&apos;t a valid display filter. (%2).</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 フィルターの書式は有効な表示フィルタではありません (%2)</translation>
     </message>
 </context>
 <context>
@@ -10493,11 +10493,11 @@ a:hover {
     </message>
     <message>
         <source>Warning</source>
-        <translation type="unfinished">警告</translation>
+        <translation>警告</translation>
     </message>
     <message>
         <source>Could not find SCTP Association with id: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>id: %1 とのSCTPアソシエーションを見つけることができません</translation>
     </message>
     <message>
         <source>Complete list of IP-Addresses as provided in the INIT-Chunk</source>
