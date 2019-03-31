@@ -29,7 +29,7 @@
     </message>
     <message>
         <source>Search Authors</source>
-        <translation type="unfinished"></translation>
+        <translation>Пошук авторів</translation>
     </message>
     <message>
         <source>Folders</source>
@@ -37,7 +37,7 @@
     </message>
     <message>
         <source>Filter by path</source>
-        <translation type="unfinished"></translation>
+        <translation>Фільтр за шляхом</translation>
     </message>
     <message>
         <source>Plugins</source>
@@ -45,27 +45,27 @@
     </message>
     <message>
         <source>No plugins found.</source>
-        <translation type="unfinished"></translation>
+        <translation>Плагіни не знайдено</translation>
     </message>
     <message>
         <source>Search Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>Пошук плагінів</translation>
     </message>
     <message>
         <source>Filter by type:</source>
-        <translation type="unfinished"></translation>
+        <translation>Фільтр за типом:</translation>
     </message>
     <message>
         <source>Keyboard Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>Комбінації Клавіш</translation>
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>Шукати Комбінації Клавіш</translation>
     </message>
     <message>
         <source>Acknowledgments</source>
-        <translation type="unfinished"></translation>
+        <translation>Підтвердження</translation>
     </message>
     <message>
         <source>License</source>
@@ -73,38 +73,38 @@
     </message>
     <message>
         <source>The directory does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation>Директорія не існує</translation>
     </message>
     <message>
         <source>Should the directory %1 be created?</source>
-        <translation type="unfinished"></translation>
+        <translation>Директорія %1 може бути створена?</translation>
     </message>
     <message>
         <source>The directory could not be created</source>
-        <translation type="unfinished"></translation>
+        <translation>Директорія не може бути створена</translation>
     </message>
     <message>
         <source>The directory %1 could not be created!</source>
-        <translation type="unfinished"></translation>
+        <translation>Директорія %1 не може бути створена!</translation>
     </message>
     <message>
         <source>Show in Finder</source>
-        <translation type="unfinished"></translation>
+        <translation>Показати у Модулі Пошуку</translation>
     </message>
     <message>
         <source>Show in Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>Показати у Папці</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Скопіювати</translation>
+        <translation>Копіювати</translation>
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>Копіювати Рядок</numerusform>
+            <numerusform>Копіювати Рядки</numerusform>
+            <numerusform>Копіювати Рядки</numerusform>
         </translation>
     </message>
 </context>
@@ -129,44 +129,44 @@
     </message>
     <message>
         <source>Can&apos;t assign %1 to %2</source>
-        <translation type="unfinished"></translation>
+        <translation>Неможливо присвоїти %1 для %2</translation>
     </message>
 </context>
 <context>
     <name>AdvancedPrefsModel</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Ім&apos;я</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation type="unfinished">Статус</translation>
+        <translation>Статус</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Тип</translation>
+        <translation>Тип</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished">Значення</translation>
+        <translation>Значення</translation>
     </message>
 </context>
 <context>
     <name>ApplyLineEdit</name>
     <message>
         <source>Apply changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Застосувати зміни</translation>
     </message>
 </context>
 <context>
     <name>AuthorListModel</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Ім&apos;я</translation>
     </message>
     <message>
         <source>Email</source>
-        <translation type="unfinished"></translation>
+        <translation>Email</translation>
     </message>
 </context>
 <context>
@@ -217,15 +217,15 @@
     </message>
     <message>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>Позначити Рядок/Відмінити Позначення</translation>
     </message>
     <message>
         <source>CtrlM</source>
-        <translation type="unfinished"></translation>
+        <translation>CtrlM</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>Позначити Клітинку/Відмінити Позначення</translation>
     </message>
     <message>
         <source>Save Table Image</source>
@@ -240,87 +240,87 @@
     <name>BluetoothDeviceDialog</name>
     <message>
         <source>Bluetooth Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Пристрій Bluetooth</translation>
     </message>
     <message>
         <source>BD_ADDR</source>
-        <translation type="unfinished">BD_ADDR</translation>
+        <translation>BD_ADDR</translation>
     </message>
     <message>
         <source>OUI</source>
-        <translation type="unfinished">УІО (OUI)</translation>
+        <translation>OUI</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished"></translation>
+        <translation>Ім&apos;я</translation>
     </message>
     <message>
         <source>Class of Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Клас Пристрою</translation>
     </message>
     <message>
         <source>LMP Version</source>
-        <translation type="unfinished">Версія LMP</translation>
+        <translation>Версія LMP</translation>
     </message>
     <message>
         <source>LMP Subverion</source>
-        <translation type="unfinished"></translation>
+        <translation>Підверсія LMP</translation>
     </message>
     <message>
         <source>Manufacturer</source>
-        <translation type="unfinished">Виробник</translation>
+        <translation>Виробник</translation>
     </message>
     <message>
         <source>HCI Version</source>
-        <translation type="unfinished">Версія HCI</translation>
+        <translation>Версія HCI</translation>
     </message>
     <message>
         <source>HCI Revision</source>
-        <translation type="unfinished">Ревізія HCI</translation>
+        <translation>Ревізія HCI</translation>
     </message>
     <message>
         <source>Scan</source>
-        <translation type="unfinished"></translation>
+        <translation>Сканувати</translation>
     </message>
     <message>
         <source>Authentication</source>
-        <translation type="unfinished"></translation>
+        <translation>Аутентифікація</translation>
     </message>
     <message>
         <source>Encryption</source>
-        <translation type="unfinished"></translation>
+        <translation>Шифрування</translation>
     </message>
     <message>
         <source>ACL MTU</source>
-        <translation type="unfinished"></translation>
+        <translation>ACL MTU</translation>
     </message>
     <message>
         <source>ACL Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Усього Пакетів ACL</translation>
     </message>
     <message>
         <source>SCO MTU</source>
-        <translation type="unfinished"></translation>
+        <translation>SCO MTU</translation>
     </message>
     <message>
         <source>SCO Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Усього Пакетів SCO</translation>
     </message>
     <message>
         <source>LE ACL MTU</source>
-        <translation type="unfinished"></translation>
+        <translation>LE ACL MTU</translation>
     </message>
     <message>
         <source>LE ACL Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>Усього Пакетів LE ACL</translation>
     </message>
     <message>
         <source>Inquiry Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>Режим Запитів</translation>
     </message>
     <message>
         <source>Page Timeout</source>
-        <translation type="unfinished"></translation>
+        <translation>Таймаут Сторінки</translation>
     </message>
     <message>
         <source>Simple Pairing Mode</source>
@@ -336,47 +336,47 @@
     </message>
     <message>
         <source>Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>Зміни</translation>
     </message>
     <message>
         <source>%1 changes</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 зміни</translation>
     </message>
     <message>
         <source>Copy Cell</source>
-        <translation type="unfinished">Скопіювати Клітинку</translation>
+        <translation>Копіювати Клітинку</translation>
     </message>
     <message>
         <source>Copy Rows</source>
-        <translation type="unfinished">Скопіювати Рядки</translation>
+        <translation>Копіювати Рядки</translation>
     </message>
     <message>
         <source>Copy All</source>
-        <translation type="unfinished">Скопіювати Все</translation>
+        <translation>Копіювати Все</translation>
     </message>
     <message>
         <source>Save as image</source>
-        <translation type="unfinished">Зберегти як зображення</translation>
+        <translation>Зберегти як зображення</translation>
     </message>
     <message>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>Позначити Рядок/Відмінити Позначення</translation>
     </message>
     <message>
         <source>CtrlM</source>
-        <translation type="unfinished"></translation>
+        <translation>CtrlM</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>Позначити Клітинку/Відмінити Позначення</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Невідомо</translation>
+        <translation>Невідомий</translation>
     </message>
     <message>
         <source>Bluetooth Device - %1%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Пристрій Bluetooth - %1%2</translation>
     </message>
     <message>
         <source>enabled</source>
@@ -471,15 +471,15 @@
     </message>
     <message>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Позначити Рядок/Відмінити Позначення</translation>
     </message>
     <message>
         <source>CtrlM</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">CtrlM</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Позначити Клітинку/Відмінити Позначення</translation>
     </message>
     <message>
         <source>true</source>
@@ -662,7 +662,7 @@
     </message>
     <message>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Позначити Рядок/Відмінити Позначення</translation>
     </message>
     <message>
         <source>Ctrl+M</source>
@@ -670,11 +670,11 @@
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Позначити Клітинку/Відмінити Позначення</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Невідомо</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Adapter %1</source>
@@ -2621,7 +2621,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Скопіювати</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>IPv4 source address.</source>
@@ -3484,7 +3484,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Скопіювати</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy from</source>
@@ -4155,7 +4155,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     <name>InterfaceToolbarLineEdit</name>
     <message>
         <source>Apply changes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Застосувати зміни</translation>
     </message>
 </context>
 <context>
@@ -8632,7 +8632,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Скопіювати</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>UNKNOWN</source>
@@ -8884,7 +8884,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Невідомо</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>UE Id</source>
@@ -8974,7 +8974,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Authentication</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Аутентифікація</translation>
     </message>
     <message>
         <source>Null authentication</source>
@@ -10033,7 +10033,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Невідомо</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -11466,7 +11466,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Скопіювати</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Save as</source>
@@ -12192,7 +12192,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Скопіювати</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy a text representation of the tree to the clipboard</source>
@@ -12316,7 +12316,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Скопіювати</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>as CSV</source>
@@ -12336,7 +12336,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">Невідомо</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -12483,7 +12483,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">Скопіювати</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>as CSV</source>
@@ -12639,11 +12639,11 @@ a:hover {
     </message>
     <message>
         <source>Show in Finder</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Показати у Модулі Пошуку</translation>
     </message>
     <message>
         <source>Show in Folder</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">Показати у Папці</translation>
     </message>
     <message>
         <source>All interfaces shown</source>
