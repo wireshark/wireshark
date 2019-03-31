@@ -63,7 +63,8 @@ hosts_draw(void *dummy _U_)
 
 	printf("# TShark hosts output\n");
 	printf("#\n");
-	printf("# Host data gathered from %s\n", cfile.filename);
+	printf("# Host data gathered from %s\n",
+	    cfile.is_tempfile ? "the temporary capture file" : cfile.filename);
 	printf("\n");
 
 	if (dump_v4) {
