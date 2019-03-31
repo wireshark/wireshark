@@ -2215,7 +2215,12 @@ main(int argc, char *argv[])
     cfile.provider.frames = NULL;
   }
 
-  draw_tap_listeners(TRUE);
+  /*
+   * If we never got a capture file, don't draw the taps; we not only
+   * didn't capture any packets, we never even did any capturing.
+   */
+  if (cfile.filename != NULL)
+    draw_tap_listeners(TRUE);
   /* Memory cleanup */
   reset_tap_listeners();
   funnel_dump_all_text_windows();
