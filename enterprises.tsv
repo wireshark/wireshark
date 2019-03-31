@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2019-03-23)
+# (last updated 2019-03-30)
 
 0	Reserved
 1	NxNetworks
@@ -9011,7 +9011,7 @@
 9032	IVSTel
 9033	Elion Enterprises Ltd
 9034	Jabber.com
-9035	Carlisle FoodService Products
+9035	CFS Brands, LLC
 9036	Jim Dutton
 9037	Everyday Office Inc.
 9038	Well Diagnostics
@@ -19113,7 +19113,7 @@
 19263	ET VOILA !!
 19264	Magnus Weis
 19265	Momentum Computer, Inc.
-19266	Bayerisches Landesamt für Statistik und Datenverarbeitung
+19266	Landesamt für Digitalisierung, Breitband und Vermessung	# formerly 'Bayerisches Landesamt für Statistik und Datenverarbeitung'
 19267	Ajuntament de Palma
 19268	Intercomp Ltd.
 19269	Hybrigenics SA
@@ -21931,7 +21931,7 @@
 22084	Industec Industria Metalurgica Ltda.
 22085	CIDE Consorcio para la Interoperabilidad de Documentos Electrónicos
 22086	Paul Poeltner
-22087	Bodo Rueskamp	# formerly 'Invelica GmbH'
+22087	Bodo Rueskamp
 22088	Alpine-Energie Holding AG
 22089	Paedagogische Hochschule Zentralschweiz
 22090	GCommerce Inc.
@@ -43531,7 +43531,7 @@
 43707	Australian Rail Tecchnology
 43708	SimonMed Imaging
 43709	AirDSL (Pty) Ltd
-43710	GAMESA
+43710	Siemens Gamesa Renewable Energy	# formerly 'GAMESA'
 43711	mySupply ApS
 43712	Universidad Central de Venezuela
 43713	Code 42
@@ -45760,7 +45760,7 @@
 45938	Intelligent Visibility, Inc.
 45939	TRIMET S.A.
 45940	Beckman Library
-45941	Papa Malick MBOW
+45941	PM CONSULTING
 45942	ezVoice Telecom
 45943	Londelec UK Ltd
 45944	IT Telecom co.,Ltd
@@ -51781,7 +51781,7 @@
 51967	Smartweb s.r.o.
 51968	RobCo sp. z o.o.
 51969	Faraday&Future Inc.
-51970	Cloud9 Mobile Limited
+51970	Wireless Logic Limited
 51971	Confédération des Jeunes Chercheurs
 51972	RELEX
 51973	Raptor Engineering, LLC
@@ -53472,3 +53472,38 @@
 53660	EduCoach Consultants Inc
 53661	Here's work
 53662	KUZBASSHIMBANK
+53663	Serous
+53664	BLP Mobile Paint
+53665	BD Diesel Performance
+53666	Certograph Ltd
+53667	Biamino & Figli SPA
+53668	Synergetic Management Systems
+53669	Agena Bioscience
+53670	Silumin-Vostok, LLC
+53671	Forensic Risk Alliance Limited
+53672	Alturing
+53673	Coreit
+53674	FGUE STC Atlas
+53675	VESvault Corp
+53676	Eckelmann AG
+53677	PICA Group Pty Ltd
+53678	Brush New Zealand Limited
+53679	Bank of China Sydney Branch
+53680	fivetek
+53681	European Institute for Gender Equality
+53682	Ofcom
+53683	Cisco Sytems, Inc.
+53684	Circle Cardiovascular Imaging Inc.
+53685	neurodine.com
+53686	Saankhya Labs Pvt Ltd
+53687	6YS Pty Ltd
+53688	Toyota Tsusho Corporation
+53689	TAKEBISHI CORPORATION
+53690	LanRoad LLC
+53691	Citizens & Farmers Bank
+53692	Mount Pleasant Waterworks
+53693	Miami Pulmonary Specialists
+53694	CapSpecialty
+53695	AMC
+53696	BITECH SPA
+53697	Liceo Classico Statale "G.B. Morgagni"

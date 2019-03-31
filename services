@@ -4426,7 +4426,7 @@ bsfserver-zn	5320/tcp	# Webservices-based Zn interface of BSF
 bsfsvr-zn-ssl	5321/tcp	# Webservices-based Zn interface of BSF over SSL
 kfserver	5343/tcp/udp	# Sculptor Database Server
 xkotodrcp	5344/tcp/udp	# xkoto DRCP
-stuns		5349/tcp/udp	# STUN over TLS
+stuns		5349/tcp/udp	# Session Traversal Utilities for NAT (STUN) port
 pcp-multicast	5350/udp	# Port Control Protocol Multicast
 pcp		5351/udp	# Port Control Protocol
 dns-llq		5352/tcp/udp	# DNS Long-Lived Queries
