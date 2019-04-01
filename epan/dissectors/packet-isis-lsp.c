@@ -540,6 +540,7 @@ static expert_field ei_isis_lsp_clv_mt = EI_INIT;
 static expert_field ei_isis_lsp_clv_unknown = EI_INIT;
 static expert_field ei_isis_lsp_malformed_subtlv = EI_INIT;
 static expert_field ei_isis_lsp_reserved_not_zero = EI_INIT;
+static expert_field ei_isis_lsp_length_invalid = EI_INIT;
 
 static const value_string isis_lsp_istype_vals[] = {
     { ISIS_LSP_TYPE_UNUSED0,    "Unused 0x0 (invalid)"},
@@ -3635,14 +3636,18 @@ dissect_lsp_srv6_locator_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree
     length--;
 
     /* Locator */
-    byte_length = ((int)bit_length + 7) / 8;
+    byte_length = tvb_get_ipv6_addr_with_prefix_len(tvb, offset, &prefix, bit_length);
+    if (byte_length < 0) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_length_invalid, tvb, offset - 1, length,
+                                     "Invalid locator size %u", bit_length);
+        return;
+    }
     if (length < byte_length + 1) { /* including Sub-tlv-len */
         proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_packet, tvb, offset, length,
                                      "Invalid locator length %u (%d bytes left)",
                                      byte_length, length);
         return;
     }
-    (void)tvb_get_ipv6_addr_with_prefix_len(tvb, offset, &prefix, bit_length);
     proto_tree_add_ipv6(tree, hf_isis_lsp_srv6_loc_locator, tvb, offset, byte_length, &prefix);
     offset += byte_length;
     length -= byte_length;
@@ -5828,6 +5833,7 @@ proto_register_isis_lsp(void)
         { &ei_isis_lsp_clv_unknown, { "isis.lsp.clv.unknown", PI_UNDECODED, PI_NOTE, "Unknown option", EXPFILL }},
         { &ei_isis_lsp_malformed_subtlv, { "isis.lsp.subtlv.malformed", PI_MALFORMED, PI_ERROR, "malformed SubTLV", EXPFILL }},
         { &ei_isis_lsp_reserved_not_zero, { "isis.lsp.reserved_not_zero", PI_PROTOCOL, PI_WARN, "Reserve bit not 0", EXPFILL }},
+        { &ei_isis_lsp_length_invalid, { "isis.lsp.length.invalid", PI_PROTOCOL, PI_WARN, "Invalid length", EXPFILL }},
     };
 
     expert_module_t* expert_isis_lsp;
