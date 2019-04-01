@@ -311,27 +311,38 @@ print_line_color_text(print_stream_t *self, int indent, const char *line, const 
 
     ret = fwrite(spaces, 1, num_spaces, output->fh);
     if (ret == num_spaces) {
-        gchar *tty_out = NULL;
-
         if (output->isatty && output->to_codeset) {
             /* XXX Allocating a fresh buffer every line probably isn't the
              * most efficient way to do this. However, this has the side
              * effect of scrubbing invalid output.
              */
-            tty_out = g_convert_with_fallback(line, -1, output->to_codeset, "UTF-8", "?", NULL, NULL, NULL);
-        }
+            gchar *tty_out;
 
-        if (tty_out) {
+            tty_out = g_convert_with_fallback(line, -1, output->to_codeset, "UTF-8", "?", NULL, NULL, NULL);
+
+            if (tty_out) {
 #ifdef _WIN32
-            DWORD out_len = (DWORD) wcslen((wchar_t *) tty_out);
-            WriteConsoleW((HANDLE)_get_osfhandle(_fileno(output->fh)), tty_out, out_len, &out_len, NULL);
+                /*
+                 * We mapped to little-endian UTF-16, so write to the
+                 * console using the Unicode API.
+                 */
+                DWORD out_len = (DWORD) wcslen((wchar_t *) tty_out);
+                WriteConsoleW((HANDLE)_get_osfhandle(_fileno(output->fh)), tty_out, out_len, &out_len, NULL);
 #else
-            fputs(tty_out, output->fh);
+                fputs(tty_out, output->fh);
 #endif
-            g_free(tty_out);
+                g_free(tty_out);
+            } else {
+                fputs(line, output->fh);
+            }
         } else {
+            /*
+             * Either we're not writing to a terminal/console or we are
+             * but we're just writing UTF-8 there.
+             */
             fputs(line, output->fh);
         }
+
 
         if (emit_color)
             print_color_eol(self);
@@ -384,31 +395,60 @@ print_stream_text_alloc(gboolean to_file, FILE *fh)
 {
     print_stream_t *stream;
     output_text    *output;
-#ifndef _WIN32
-    const gchar *charset;
-    gboolean is_utf8;
-#endif
 
     output          = (output_text *)g_malloc(sizeof *output);
     output->to_file = to_file;
     output->fh      = fh;
     output->isatty  = ws_isatty(ws_fileno(fh));
-    stream          = (print_stream_t *)g_malloc0(sizeof (print_stream_t));
+
+    if (output->isatty) {
+#ifdef _WIN32
+        CONSOLE_SCREEN_BUFFER_INFO csb_info;
+
+        GetConsoleScreenBufferInfo((HANDLE)_get_osfhandle(_fileno(fh)), &csb_info);
+        output->csb_attrs = csb_info.wAttributes;
+
+        /*
+         * Map to little-endian UTF-16; we'll be doing Unicode-API
+         * writes to the console, and that expects the standard flavor
+         * of Unicode on Windows, which is little-endian UTF-16.
+         */
+        output->to_codeset = "UTF-16LE";
+#else
+        const gchar *charset;
+        gboolean is_utf8;
+
+        /* Is there a more reliable way to do this? */
+        is_utf8 = g_get_charset(&charset);
+        if (!is_utf8) {
+            /*
+             * The local character set isn't UTF-8, so arrange to
+             * map from UTF-8 to that character set before printing
+             * on the terminal.
+             */
+            output->to_codeset = charset;
+        } else {
+            /*
+             * The local character set is UTF-8, so no mapping is
+             * necessary.
+             */
+            output->to_codeset = NULL;
+        }
+#endif
+    } else {
+        /*
+         * Not used if we're not on a console; we're not doing
+         * coloring or mapping from UTF-8 to a local character set.
+         */
+#ifdef _WIN32
+        output->csb_attrs = 0;
+#endif
+        output->to_codeset = NULL;
+    }
+
+    stream          = (print_stream_t *)g_malloc(sizeof (print_stream_t));
     stream->ops     = &print_text_ops;
     stream->data    = output;
-
-#ifndef _WIN32
-    is_utf8 = g_get_charset(&charset);
-    if (!is_utf8) {
-        output->to_codeset = charset;
-    }
-#else
-    CONSOLE_SCREEN_BUFFER_INFO csb_info;
-    GetConsoleScreenBufferInfo((HANDLE)_get_osfhandle(_fileno(fh)), &csb_info);
-    output->csb_attrs = csb_info.wAttributes;
-
-    output->to_codeset = "UTF-16LE";
-#endif
 
     return stream;
 }
@@ -575,6 +615,7 @@ print_stream_ps_alloc(gboolean to_file, FILE *fh)
     output          = (output_ps *)g_malloc(sizeof *output);
     output->to_file = to_file;
     output->fh      = fh;
+
     stream          = (print_stream_t *)g_malloc(sizeof (print_stream_t));
     stream->ops     = &print_ps_ops;
     stream->data    = output;
