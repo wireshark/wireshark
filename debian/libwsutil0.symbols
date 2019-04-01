@@ -130,6 +130,8 @@ libwsutil.so.0 libwsutil0 #MINVER#
  nstime_sum@Base 1.12.0~rc1
  nstime_to_msec@Base 1.12.0~rc1
  nstime_to_sec@Base 1.12.0~rc1
+ please_report_bug@Base 3.1.0
+ please_report_bug_short@Base 3.1.0
  plugins_cleanup@Base 2.3.0
  plugins_dump_all@Base 1.12.0~rc1
  plugins_get_count@Base 2.5.0
