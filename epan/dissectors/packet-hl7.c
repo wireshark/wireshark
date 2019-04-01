@@ -1103,7 +1103,7 @@ proto_register_hl7(void)
     proto_register_subtree_array(ett, array_length(ett));
     expert_hl7 = expert_register_protocol(proto_hl7);
     expert_register_field_array(expert_hl7, ei, array_length(ei));
-    hl7_module = prefs_register_protocol(proto_hl7, proto_reg_handoff_hl7);
+    hl7_module = prefs_register_protocol(proto_hl7, NULL);
     prefs_register_bool_preference(hl7_module, "display_raw",
                                    "Display raw text for HL7 message",
                                    "Specifies that the raw text of the "
