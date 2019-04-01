@@ -6970,8 +6970,8 @@
 			<enum name="CURRENT_LOCATION" code="0"/>
 			<enum name="CURRENT_OR_LAST_KNOWN_LOCATION" code="1"/>
 			<enum name="INITIAL_LOCATION " code="2"/>
-			<enum name="RESERVED" code="3"/>
-			<enum name="RESERVED" code="4"/>
+			<enum name="ACTIVATE_DEFERRED_LOCATION" code="3"/>
+			<enum name="CANCEL_DEFERRED_LOCATION" code="4"/>
 			<enum name="NOTIFICATION_VERIFICATION_ONLY" code="5"/>
 		</avp>
 		<avp name="LCS-EPS-Client-Name" code="2501" vendor-bit="must" vendor-id="TGPP">
@@ -7106,8 +7106,14 @@
 		Reporting-Interval 2542 7.4.47 Unsigned32 V M No
 		Reporting-PLMN-List 2543 7.4.48 Grouped V M No
 		PLMN-ID-List 2544 7.4.49 Grouped V M No
-		PLR-Flags 2545 7.4.52 Unsigned32 V M No
-		PLA-Flags 2546 7.4.53 Unsigned32 V M No
+		-->
+		<avp name="PLR-Flags" code="2545" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="PLA-Flags" code="2546" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<!--
 		Deferred-MT-LR-Data 2547 7.4.54 Grouped V M No
 		Termination-Cause 2548 7.4.55 Unsigned32 V M No
 		LRA-Flags 2549 7.4.56 Unsigned32 V M No
@@ -7117,7 +7123,6 @@
 		Cell-Portion-ID 2553 7.4.58 Unsigned32 V M No
 		1xRTT-RCID 2554 7.4.59 OctetString V M No
 		-->
-
 		<avp name="Civic-Address" code="2556" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
