@@ -12333,7 +12333,7 @@ static const int *he_mimo_control_headers[] = {
  * Handle compressed beamforming matrices and CQI
  */
 static guint
-dissect_compressed_beamforming_and_cqi(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+dissect_compressed_beamforming_and_cqi(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int offset)
 {
   int byte_count = 0;
   guint64 mimo_cntl = tvb_get_letoh40(tvb, offset);
@@ -12411,8 +12411,14 @@ dissect_compressed_beamforming_and_cqi(proto_tree *tree, tvbuff_t *tvb, packet_i
   scidx = SCIDX_END_SENTINAL;
   while ((scidx = next_he_scidx(scidx, bw, grouping, feedback,
           ru_start_index, ru_end_index)) != (int)SCIDX_END_SENTINAL) {
+    int prev_bit_offset = bit_offset;
     bit_offset = dissect_he_feedback_matrix(feedback_tree, tvb, offset,
                         bit_offset, scidx, nr, nc, phi_bits, psi_bits);
+    if (bit_offset <= prev_bit_offset) {
+      expert_add_info(pinfo, tree, &ei_ieee80211_bad_length);
+      break;
+    }
+
     offset = bit_offset / 8;
   }
 
@@ -13693,7 +13699,7 @@ dissect_hs20_indication(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 }
 
 static int
-dissect_owe_transition_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_owe_transition_mode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   guint8 ssid_len;
 
