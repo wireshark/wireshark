@@ -31,8 +31,13 @@
 #define TERM_CSI_EL    "\x1B[K"   /* EL - Erase in Line (to end of line) */
 
 typedef struct {
-    gboolean  to_file;
-    FILE     *fh;
+    gboolean    to_file;
+    FILE       *fh;
+    gboolean    isatty;
+    const char *to_codeset;
+#ifdef _WIN32
+    WORD        csb_attrs;
+#endif
 } output_text;
 
 static void
@@ -191,7 +196,7 @@ print_color_eol(print_stream_t *self)
     output_text *output = (output_text *)self->data;
     FILE *fh = output->fh;
 #ifdef _WIN32
-    SetConsoleTextAttribute((HANDLE)_get_osfhandle(_fileno(fh)), self->csb_attrs);
+    SetConsoleTextAttribute((HANDLE)_get_osfhandle(_fileno(fh)), output->csb_attrs);
     fprintf(fh, "\n");
 #else // UN*X
 
@@ -287,7 +292,7 @@ print_line_color_text(print_stream_t *self, int indent, const char *line, const 
     size_t ret;
     output_text *output = (output_text *)self->data;
     unsigned int num_spaces;
-    gboolean emit_color = self->isatty && (fg != NULL || bg != NULL);
+    gboolean emit_color = output->isatty && (fg != NULL || bg != NULL);
 
     /* should be space, if NUL -> initialize */
     if (!spaces[0])
@@ -308,12 +313,12 @@ print_line_color_text(print_stream_t *self, int indent, const char *line, const 
     if (ret == num_spaces) {
         gchar *tty_out = NULL;
 
-        if (self->isatty && self->to_codeset) {
+        if (output->isatty && output->to_codeset) {
             /* XXX Allocating a fresh buffer every line probably isn't the
              * most efficient way to do this. However, this has the side
              * effect of scrubbing invalid output.
              */
-            tty_out = g_convert_with_fallback(line, -1, self->to_codeset, "UTF-8", "?", NULL, NULL, NULL);
+            tty_out = g_convert_with_fallback(line, -1, output->to_codeset, "UTF-8", "?", NULL, NULL, NULL);
         }
 
         if (tty_out) {
@@ -387,23 +392,22 @@ print_stream_text_alloc(gboolean to_file, FILE *fh)
     output          = (output_text *)g_malloc(sizeof *output);
     output->to_file = to_file;
     output->fh      = fh;
+    output->isatty  = ws_isatty(ws_fileno(fh));
     stream          = (print_stream_t *)g_malloc0(sizeof (print_stream_t));
     stream->ops     = &print_text_ops;
-    stream->isatty  = ws_isatty(ws_fileno(fh));
     stream->data    = output;
 
 #ifndef _WIN32
-    /* Is there a more reliable way to do this? */
     is_utf8 = g_get_charset(&charset);
     if (!is_utf8) {
-        stream->to_codeset = charset;
+        output->to_codeset = charset;
     }
 #else
     CONSOLE_SCREEN_BUFFER_INFO csb_info;
     GetConsoleScreenBufferInfo((HANDLE)_get_osfhandle(_fileno(fh)), &csb_info);
-    stream->csb_attrs = csb_info.wAttributes;
+    output->csb_attrs = csb_info.wAttributes;
 
-    stream->to_codeset = "UTF-16LE";
+    output->to_codeset = "UTF-16LE";
 #endif
 
     return stream;
