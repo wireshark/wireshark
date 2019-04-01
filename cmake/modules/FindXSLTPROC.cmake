@@ -171,9 +171,14 @@ MACRO(XML2HHP _target_dep _guide _dbk_source)
         COMMAND ${CMAKE_COMMAND} -E make_directory ${_basedir}/${_gfxdir}
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/${_gfxdir} ${_basedir}/${_gfxdir}
         COMMAND ${CMAKE_COMMAND} -E copy_directory ${CMAKE_CURRENT_SOURCE_DIR}/common_graphics ${_basedir}/${_gfxdir}
-        # HTML Help doesn't render decimal character entities in the title.
+        # Dumb down our title. HTML Help can render most of our content
+        # correctly because we tell it to use the IE9 rendering engine in
+        # custom_layer_chm.xsl. However, this doesn't apply to the window
+        # title. Neither "’", "'", nor "&#8217;" will render correctly, so
+        # just remove everything between "Developer", "User", and their
+        # respective trailing "s"es.
         COMMAND ${PERL_EXECUTABLE} -p
-            -e "s|er&#8217;s Guide</title>|er's Guide</title>|"
+            -e "s|er.*s Guide</title>|ers Guide</title>|"
             < ${_dbk_source}
             > ${_docbook_plain_title}
         COMMAND ${XSLTPROC_EXECUTABLE}
