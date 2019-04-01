@@ -50,8 +50,6 @@ typedef struct print_stream_ops {
 
 typedef struct print_stream {
 	const print_stream_ops_t *ops;
-	gboolean isatty;
-	const char *to_codeset;
 	void *data;
 } print_stream_t;
 

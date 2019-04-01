@@ -102,8 +102,10 @@ destroy_print_stream(print_stream_t *self)
 }
 
 typedef struct {
-    gboolean  to_file;
-    FILE     *fh;
+    gboolean    to_file;
+    FILE       *fh;
+    gboolean    isatty;
+    const char *to_codeset;
 } output_text;
 
 #define MAX_INDENT    160
@@ -134,12 +136,12 @@ print_line_text(print_stream_t *self, int indent, const char *line)
     if (ret == num_spaces) {
         gchar *tty_out = NULL;
 
-        if (self->isatty && self->to_codeset) {
+        if (output->isatty && output->to_codeset) {
             /* XXX Allocating a fresh buffer every line probably isn't the
              * most efficient way to do this. However, this has the side
              * effect of scrubbing invalid output.
              */
-            tty_out = g_convert_with_fallback(line, -1, self->to_codeset, "UTF-8", "?", NULL, NULL, NULL);
+            tty_out = g_convert_with_fallback(line, -1, output->to_codeset, "UTF-8", "?", NULL, NULL, NULL);
         }
 
         if (tty_out) {
@@ -201,19 +203,18 @@ print_stream_text_alloc(gboolean to_file, FILE *fh)
     output          = (output_text *)g_malloc(sizeof *output);
     output->to_file = to_file;
     output->fh      = fh;
+    output->isatty  = ws_isatty(ws_fileno(fh));
     stream          = (print_stream_t *)g_malloc0(sizeof (print_stream_t));
     stream->ops     = &print_text_ops;
-    stream->isatty  = ws_isatty(ws_fileno(fh));
     stream->data    = output;
 
 #ifndef _WIN32
-    /* Is there a more reliable way to do this? */
     is_utf8 = g_get_charset(&charset);
     if (!is_utf8) {
-        stream->to_codeset = charset;
+        output->to_codeset = charset;
     }
 #else
-    stream->to_codeset = "UTF-16LE";
+    output->to_codeset = "UTF-16LE";
 #endif
 
     return stream;
