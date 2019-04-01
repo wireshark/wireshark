@@ -2016,6 +2016,7 @@ get_time_value(proto_tree *tree, tvbuff_t *tvb, const gint start,
 			break;
 
 		case ENC_TIME_MSECS|ENC_BIG_ENDIAN:
+		case ENC_TIME_MSECS|ENC_LITTLE_ENDIAN:
 			/*
 			 * Milliseconds, 1 to 8 bytes.
 			 * For absolute times, it's milliseconds since the
