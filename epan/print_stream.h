@@ -41,12 +41,7 @@ typedef struct print_stream_ops {
 
 typedef struct print_stream {
 	const print_stream_ops_t *ops;
-	gboolean isatty;
-	const char *to_codeset;
 	void *data;
-#ifdef _WIN32
-	unsigned short csb_attrs; // WORD
-#endif
 } print_stream_t;
 
 WS_DLL_PUBLIC print_stream_t *print_stream_text_new(gboolean to_file, const char *dest);
