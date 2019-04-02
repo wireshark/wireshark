@@ -14,6 +14,7 @@
 
 #include <epan/packet.h>
 #include <epan/etypes.h>
+#include <epan/expert.h>
 #include <epan/to_str.h>
 
 /* Forward declarations */
@@ -36,6 +37,8 @@ static int hf_aarp_dst_proto = -1;
 static int hf_aarp_dst_proto_id = -1;
 
 static gint ett_aarp = -1;
+
+static expert_field ei_aarp_length_invalid = EI_INIT;
 
 #ifndef AARP_REQUEST
 #define AARP_REQUEST    0x0001
@@ -158,13 +161,31 @@ dissect_aarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   tpa_offset = tha_offset + ar_hln;
 
   /* Extract the addresses.  */
-  sha_str = tvb_aarphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd);
-  spa_str = tvb_aarpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro);
+
+  if (ar_hln < 1) {
+    expert_add_info_format(pinfo, tree, &ei_aarp_length_invalid,
+      "Invalid hardware address length: %d", ar_hln);
+    sha_str = "Unknown";
 #if 0
-  /* TODO: tha_str is currently not shown nor parsed */
-  tha_str = tvb_aarphrdaddr_to_str(tvb, tha_offset, ar_hln, ar_hrd);
+    tha_str = "Unknown";
 #endif
-  tpa_str = tvb_aarpproaddr_to_str(tvb, tpa_offset, ar_pln, ar_pro);
+  } else {
+    sha_str = tvb_aarphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd);
+#if 0
+    /* TODO: tha_str is currently not shown nor parsed */
+    tha_str = tvb_aarphrdaddr_to_str(tvb, tha_offset, ar_hln, ar_hrd);
+#endif
+  }
+
+  if (ar_pln < 1) {
+    expert_add_info_format(pinfo, tree, &ei_aarp_length_invalid,
+      "Invalid protocol address length: %d", ar_pln);
+    spa_str = "Unknown";
+    tpa_str = "Unknown";
+  } else {
+    spa_str = tvb_aarpproaddr_to_str(tvb, spa_offset, ar_pln, ar_pro);
+    tpa_str = tvb_aarpproaddr_to_str(tvb, tpa_offset, ar_pln, ar_pro);
+  }
 
   switch (ar_op) {
     case AARP_REQUEST:
@@ -317,11 +338,19 @@ proto_register_aarp(void)
     &ett_aarp,
   };
 
+  static ei_register_info ei[] = {
+    { &ei_aarp_length_invalid, { "aarp.length.invalid", PI_PROTOCOL, PI_WARN, "Invalid length", EXPFILL }},
+  };
+
   proto_aarp = proto_register_protocol("Appletalk Address Resolution Protocol",
                                        "AARP",
                                        "aarp");
   proto_register_field_array(proto_aarp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  expert_module_t* expert_aarp = expert_register_protocol(proto_aarp);
+  expert_register_field_array(expert_aarp, ei, array_length(ei));
+
 }
 
 void
