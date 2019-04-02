@@ -1065,7 +1065,7 @@ dissect_common_timing_adjustment(packet_info *pinfo, proto_tree *tree, tvbuff_t 
         offset++;
 
         /* ToA */
-        toa = (gint32)tvb_get_ntohs(tvb, offset);
+        toa = tvb_get_ntohis(tvb, offset);
         toa_ti = proto_tree_add_item(tree, hf_fp_toa, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
