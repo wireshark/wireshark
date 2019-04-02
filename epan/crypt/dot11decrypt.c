@@ -2269,7 +2269,7 @@ Dot11DecryptDerivePtk(
         sa->wpa.cipher = 2; /* TKIP */
         ptk_len_bits = 512;
         DerivePtk = Dot11DecryptRsnaPrfX;
-        algo = GCRY_MD_MD5;
+        algo = GCRY_MD_SHA1;
     } else if (key_version  == DOT11DECRYPT_WPA_KEY_VER_AES_CCMP) {
         sa->wpa.cipher = 4; /* CCMP-128 */
         ptk_len_bits = 384;
@@ -2309,7 +2309,7 @@ Dot11DecryptRsnaPrfX(
     UCHAR R[100];
     INT offset=sizeof("Pairwise key expansion");
     UCHAR output[80]; /* allow for sha1 overflow. */
-    int hash_len = (hash_algo == GCRY_MD_MD5) ? 16 : 20;
+    int hash_len = 20;
 
     memset(R, 0, 100);
 

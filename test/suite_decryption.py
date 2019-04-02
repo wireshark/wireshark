@@ -101,6 +101,17 @@ class case_decrypt_80211(subprocesstest.SubprocessTestCase):
         self.assertTrue(self.grepOutput('Who has 192.168.5.2'))
         self.assertTrue(self.grepOutput('DHCP ACK'))
 
+    def test_80211_wpa1_gtk_rekey(self, cmd_tshark, capture_file):
+        '''Decode WPA1 with multiple GTK rekeys'''
+        # Included in git sources test/captures/wpa1-gtk-rekey.pcapng.gz
+        self.assertRun((cmd_tshark,
+                '-o', 'wlan.enable_decryption: TRUE',
+                '-r', capture_file('wpa1-gtk-rekey.pcapng.gz'),
+                '-Y', 'wlan.analysis.tk == "d0e57d224c1bb8806089d8c23154074c" || wlan.analysis.gtk == "6eaf63f4ad7997ced353723de3029f4d" || wlan.analysis.gtk == "fb42811bcb59b7845376246454fbdab7"',
+                ))
+        self.assertTrue(self.grepOutput('DHCP Discover'))
+        self.assertEqual(self.countOutput('ICMP.*Echo .ping'), 8)
+
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
 class case_decrypt_dtls(subprocesstest.SubprocessTestCase):
