@@ -1214,12 +1214,14 @@ class EthCtx:
         for t in self.eth_type_ord:
             bits = self.eth_type[t]['val'].eth_named_bits()
             if (bits):
+                old_val = 0
                 for (val, id) in bits:
                     self.named_bit.append({'name' : id, 'val' : val,
-                                           'ethname' : 'hf_%s_%s_%s' % (self.eproto, t, asn2c(id)),
-                                           'ftype'   : 'FT_BOOLEAN', 'display' : '8',
-                                           'strings' : 'NULL',
-                                           'bitmask' : '0x'+('80','40','20','10','08','04','02','01')[val%8]})
+                                            'ethname' : 'hf_%s_%s_%s' % (self.eproto, t, asn2c(id)),
+                                            'ftype'   : 'FT_BOOLEAN', 'display' : '8',
+                                            'strings' : 'NULL',
+                                            'bitmask' : '0x'+('80','40','20','10','08','04','02','01')[val%8]})
+                    old_val = val + 1
             if self.eth_type[t]['val'].eth_need_tree():
                 self.eth_type[t]['tree'] = "ett_%s_%s" % (self.eth_type[t]['proto'], t)
             else:
@@ -1461,10 +1463,10 @@ class EthCtx:
     def eth_bits(self, tname, bits):
         out = ""
         out += "static const "
-        out += "asn_namedbit %(TABLE)s[] = {\n"
+        out += "int * %(TABLE)s[] = {\n"
         for (val, id) in bits:
-            out += '  { %2d, &hf_%s_%s_%s, -1, -1, "%s", NULL },\n' % (val, self.eproto, tname, asn2c(id), id)
-        out += "  { 0, NULL, 0, 0, NULL, NULL }\n};\n"
+            out += '  &hf_%s_%s_%s,\n' % (self.eproto, tname, asn2c(id))
+        out += "  NULL\n};\n"
         return out
 
     #--- eth_type_fn_h ----------------------------------------------------------
@@ -4071,7 +4073,7 @@ class SeqType (SqType):
                 e.val.eth_reg(ident, ectx, tstrip=1, parent=ident)
 
     def eth_type_default_table(self, ectx, tname):
-        #print "eth_type_default_table(tname='%s')" % (tname)
+        #print ("eth_type_default_table(tname='%s')" % (tname))
         fname = ectx.eth_type[tname]['ref'][0]
         table = "static const %(ER)s_sequence_t %(TABLE)s[] = {\n"
         if hasattr(self, 'ext_list'):
@@ -5330,6 +5332,8 @@ class ObjectIdentifierValue (Value):
 class NamedNumber(Node):
     def to_python (self, ctx):
         return "('%s',%s)" % (self.ident, self.val)
+    def __lt__(self, other):
+        return int(self.val) < int(other.val)
 
 class NamedNumListBase(Node):
     def to_python (self, ctx):
@@ -5494,7 +5498,7 @@ class BitStringType (Type):
         return ('BER_CLASS_UNI', 'BER_UNI_TAG_BITSTRING')
 
     def eth_ftype(self, ectx):
-        return ('FT_BYTES', 'BASE_NONE')
+            return ('FT_BYTES', 'BASE_NONE')
 
     def eth_need_tree(self):
         return self.named_list
@@ -5508,11 +5512,24 @@ class BitStringType (Type):
                         'new' : ectx.default_containing_variant == '_pdu_new' }
         return pdu
 
+    def sortNamedBits(self):
+        return self.named_list.val
+
     def eth_named_bits(self):
         bits = []
         if (self.named_list):
-            for e in (self.named_list):
+            sorted_list = self.named_list
+            sorted_list.sort()
+            expected_bit_no = 0;
+            for e in (sorted_list):
+            # Fill the table with "spare_bit" for "un named bits"
+                if (int(e.val) != 0) and (expected_bit_no != int(e.val)):
+                        while ( expected_bit_no < int(e.val)):
+                            bits.append((expected_bit_no, ("spare_bit_%u" % (expected_bit_no))))
+                            expected_bit_no = expected_bit_no + 1
+                            #print ("Adding named bits to list %s bit no %d" % (e.ident, int (e.val)))
                 bits.append((int(e.val), e.ident))
+                expected_bit_no = int(e.val) + 1
         return bits
 
     def eth_type_default_pars(self, ectx, tname):
@@ -5543,7 +5560,7 @@ class BitStringType (Type):
         return pars
 
     def eth_type_default_table(self, ectx, tname):
-        #print "eth_type_default_table(tname='%s')" % (tname)
+        #print ("eth_type_default_table(tname='%s')" % (tname))
         table = ''
         bits = self.eth_named_bits()
         if (bits and ectx.Ber()):
@@ -5552,15 +5569,16 @@ class BitStringType (Type):
 
     def eth_type_default_body(self, ectx, tname):
         if (ectx.Ber()):
+            bits = self.eth_named_bits()
             if (ectx.constraints_check and self.HasSizeConstraint()):
                 body = ectx.eth_fn_call('dissect_%(ER)s_constrained_bitstring', ret='offset',
                                         par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
-                                             ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),
+                                             ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(TABLE)s', '%s' %  len(bits),'%(HF_INDEX)s', '%(ETT_INDEX)s',),
                                              ('%(VAL_PTR)s',),))
             else:
                 body = ectx.eth_fn_call('dissect_%(ER)s_bitstring', ret='offset',
                                         par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
-                                             ('%(TABLE)s', '%(HF_INDEX)s', '%(ETT_INDEX)s',),
+                                             ('%(TABLE)s', '%s' % len(bits), '%(HF_INDEX)s', '%(ETT_INDEX)s',),
                                              ('%(VAL_PTR)s',),))
         elif (ectx.Per() or ectx.Oer()):
             if self.HasContentsConstraint():

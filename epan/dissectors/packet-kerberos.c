@@ -2729,31 +2729,31 @@ dissect_kerberos_Authenticator(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const asn_namedbit TicketFlags_bits[] = {
-  {  0, &hf_kerberos_TicketFlags_reserved, -1, -1, "reserved", NULL },
-  {  1, &hf_kerberos_TicketFlags_forwardable, -1, -1, "forwardable", NULL },
-  {  2, &hf_kerberos_TicketFlags_forwarded, -1, -1, "forwarded", NULL },
-  {  3, &hf_kerberos_TicketFlags_proxiable, -1, -1, "proxiable", NULL },
-  {  4, &hf_kerberos_TicketFlags_proxy, -1, -1, "proxy", NULL },
-  {  5, &hf_kerberos_TicketFlags_may_postdate, -1, -1, "may-postdate", NULL },
-  {  6, &hf_kerberos_TicketFlags_postdated, -1, -1, "postdated", NULL },
-  {  7, &hf_kerberos_TicketFlags_invalid, -1, -1, "invalid", NULL },
-  {  8, &hf_kerberos_TicketFlags_renewable, -1, -1, "renewable", NULL },
-  {  9, &hf_kerberos_TicketFlags_initial, -1, -1, "initial", NULL },
-  { 10, &hf_kerberos_TicketFlags_pre_authent, -1, -1, "pre-authent", NULL },
-  { 11, &hf_kerberos_TicketFlags_hw_authent, -1, -1, "hw-authent", NULL },
-  { 12, &hf_kerberos_TicketFlags_transited_policy_checked, -1, -1, "transited-policy-checked", NULL },
-  { 13, &hf_kerberos_TicketFlags_ok_as_delegate, -1, -1, "ok-as-delegate", NULL },
-  { 14, &hf_kerberos_TicketFlags_unused, -1, -1, "unused", NULL },
-  { 15, &hf_kerberos_TicketFlags_enc_pa_rep, -1, -1, "enc-pa-rep", NULL },
-  { 16, &hf_kerberos_TicketFlags_anonymous, -1, -1, "anonymous", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * TicketFlags_bits[] = {
+  &hf_kerberos_TicketFlags_reserved,
+  &hf_kerberos_TicketFlags_forwardable,
+  &hf_kerberos_TicketFlags_forwarded,
+  &hf_kerberos_TicketFlags_proxiable,
+  &hf_kerberos_TicketFlags_proxy,
+  &hf_kerberos_TicketFlags_may_postdate,
+  &hf_kerberos_TicketFlags_postdated,
+  &hf_kerberos_TicketFlags_invalid,
+  &hf_kerberos_TicketFlags_renewable,
+  &hf_kerberos_TicketFlags_initial,
+  &hf_kerberos_TicketFlags_pre_authent,
+  &hf_kerberos_TicketFlags_hw_authent,
+  &hf_kerberos_TicketFlags_transited_policy_checked,
+  &hf_kerberos_TicketFlags_ok_as_delegate,
+  &hf_kerberos_TicketFlags_unused,
+  &hf_kerberos_TicketFlags_enc_pa_rep,
+  &hf_kerberos_TicketFlags_anonymous,
+  NULL
 };
 
 static int
 dissect_kerberos_TicketFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    TicketFlags_bits, hf_index, ett_kerberos_TicketFlags,
+                                    TicketFlags_bits, 17, hf_index, ett_kerberos_TicketFlags,
                                     NULL);
 
   return offset;
@@ -3163,46 +3163,46 @@ dissect_kerberos_SEQUENCE_OF_PA_DATA(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 }
 
 
-static const asn_namedbit KDCOptions_bits[] = {
-  {  0, &hf_kerberos_KDCOptions_reserved, -1, -1, "reserved", NULL },
-  {  1, &hf_kerberos_KDCOptions_forwardable, -1, -1, "forwardable", NULL },
-  {  2, &hf_kerberos_KDCOptions_forwarded, -1, -1, "forwarded", NULL },
-  {  3, &hf_kerberos_KDCOptions_proxiable, -1, -1, "proxiable", NULL },
-  {  4, &hf_kerberos_KDCOptions_proxy, -1, -1, "proxy", NULL },
-  {  5, &hf_kerberos_KDCOptions_allow_postdate, -1, -1, "allow-postdate", NULL },
-  {  6, &hf_kerberos_KDCOptions_postdated, -1, -1, "postdated", NULL },
-  {  7, &hf_kerberos_KDCOptions_unused7, -1, -1, "unused7", NULL },
-  {  8, &hf_kerberos_KDCOptions_renewable, -1, -1, "renewable", NULL },
-  {  9, &hf_kerberos_KDCOptions_unused9, -1, -1, "unused9", NULL },
-  { 10, &hf_kerberos_KDCOptions_unused10, -1, -1, "unused10", NULL },
-  { 11, &hf_kerberos_KDCOptions_opt_hardware_auth, -1, -1, "opt-hardware-auth", NULL },
-  { 12, &hf_kerberos_KDCOptions_unused12, -1, -1, "unused12", NULL },
-  { 13, &hf_kerberos_KDCOptions_unused13, -1, -1, "unused13", NULL },
-  { 14, &hf_kerberos_KDCOptions_constrained_delegation, -1, -1, "constrained-delegation", NULL },
-  { 15, &hf_kerberos_KDCOptions_canonicalize, -1, -1, "canonicalize", NULL },
-  { 16, &hf_kerberos_KDCOptions_request_anonymous, -1, -1, "request-anonymous", NULL },
-  { 17, &hf_kerberos_KDCOptions_unused17, -1, -1, "unused17", NULL },
-  { 18, &hf_kerberos_KDCOptions_unused18, -1, -1, "unused18", NULL },
-  { 19, &hf_kerberos_KDCOptions_unused19, -1, -1, "unused19", NULL },
-  { 20, &hf_kerberos_KDCOptions_unused20, -1, -1, "unused20", NULL },
-  { 21, &hf_kerberos_KDCOptions_unused21, -1, -1, "unused21", NULL },
-  { 22, &hf_kerberos_KDCOptions_unused22, -1, -1, "unused22", NULL },
-  { 23, &hf_kerberos_KDCOptions_unused23, -1, -1, "unused23", NULL },
-  { 24, &hf_kerberos_KDCOptions_unused24, -1, -1, "unused24", NULL },
-  { 25, &hf_kerberos_KDCOptions_unused25, -1, -1, "unused25", NULL },
-  { 26, &hf_kerberos_KDCOptions_disable_transited_check, -1, -1, "disable-transited-check", NULL },
-  { 27, &hf_kerberos_KDCOptions_renewable_ok, -1, -1, "renewable-ok", NULL },
-  { 28, &hf_kerberos_KDCOptions_enc_tkt_in_skey, -1, -1, "enc-tkt-in-skey", NULL },
-  { 29, &hf_kerberos_KDCOptions_unused29, -1, -1, "unused29", NULL },
-  { 30, &hf_kerberos_KDCOptions_renew, -1, -1, "renew", NULL },
-  { 31, &hf_kerberos_KDCOptions_validate, -1, -1, "validate", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * KDCOptions_bits[] = {
+  &hf_kerberos_KDCOptions_reserved,
+  &hf_kerberos_KDCOptions_forwardable,
+  &hf_kerberos_KDCOptions_forwarded,
+  &hf_kerberos_KDCOptions_proxiable,
+  &hf_kerberos_KDCOptions_proxy,
+  &hf_kerberos_KDCOptions_allow_postdate,
+  &hf_kerberos_KDCOptions_postdated,
+  &hf_kerberos_KDCOptions_unused7,
+  &hf_kerberos_KDCOptions_renewable,
+  &hf_kerberos_KDCOptions_unused9,
+  &hf_kerberos_KDCOptions_unused10,
+  &hf_kerberos_KDCOptions_opt_hardware_auth,
+  &hf_kerberos_KDCOptions_unused12,
+  &hf_kerberos_KDCOptions_unused13,
+  &hf_kerberos_KDCOptions_constrained_delegation,
+  &hf_kerberos_KDCOptions_canonicalize,
+  &hf_kerberos_KDCOptions_request_anonymous,
+  &hf_kerberos_KDCOptions_unused17,
+  &hf_kerberos_KDCOptions_unused18,
+  &hf_kerberos_KDCOptions_unused19,
+  &hf_kerberos_KDCOptions_unused20,
+  &hf_kerberos_KDCOptions_unused21,
+  &hf_kerberos_KDCOptions_unused22,
+  &hf_kerberos_KDCOptions_unused23,
+  &hf_kerberos_KDCOptions_unused24,
+  &hf_kerberos_KDCOptions_unused25,
+  &hf_kerberos_KDCOptions_disable_transited_check,
+  &hf_kerberos_KDCOptions_renewable_ok,
+  &hf_kerberos_KDCOptions_enc_tkt_in_skey,
+  &hf_kerberos_KDCOptions_unused29,
+  &hf_kerberos_KDCOptions_renew,
+  &hf_kerberos_KDCOptions_validate,
+  NULL
 };
 
 static int
 dissect_kerberos_KDCOptions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    KDCOptions_bits, hf_index, ett_kerberos_KDCOptions,
+                                    KDCOptions_bits, 32, hf_index, ett_kerberos_KDCOptions,
                                     NULL);
 
   return offset;
@@ -3450,17 +3450,17 @@ dissect_kerberos_TGS_REP(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
-static const asn_namedbit APOptions_bits[] = {
-  {  0, &hf_kerberos_APOptions_reserved, -1, -1, "reserved", NULL },
-  {  1, &hf_kerberos_APOptions_use_session_key, -1, -1, "use-session-key", NULL },
-  {  2, &hf_kerberos_APOptions_mutual_required, -1, -1, "mutual-required", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * APOptions_bits[] = {
+  &hf_kerberos_APOptions_reserved,
+  &hf_kerberos_APOptions_use_session_key,
+  &hf_kerberos_APOptions_mutual_required,
+  NULL
 };
 
 static int
 dissect_kerberos_APOptions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    APOptions_bits, hf_index, ett_kerberos_APOptions,
+                                    APOptions_bits, 3, hf_index, ett_kerberos_APOptions,
                                     NULL);
 
   return offset;
@@ -4398,7 +4398,7 @@ dissect_kerberos_T_subject_certificate(gboolean implicit_tag _U_, tvbuff_t *tvb 
 static int
 dissect_kerberos_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -4461,18 +4461,18 @@ dissect_kerberos_KERB_PA_PAC_REQUEST(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 }
 
 
-static const asn_namedbit PAC_OPTIONS_FLAGS_bits[] = {
-  {  0, &hf_kerberos_PAC_OPTIONS_FLAGS_claims, -1, -1, "claims", NULL },
-  {  1, &hf_kerberos_PAC_OPTIONS_FLAGS_branch_aware, -1, -1, "branch-aware", NULL },
-  {  2, &hf_kerberos_PAC_OPTIONS_FLAGS_forward_to_full_dc, -1, -1, "forward-to-full-dc", NULL },
-  {  3, &hf_kerberos_PAC_OPTIONS_FLAGS_resource_based_constrained_delegation, -1, -1, "resource-based-constrained-delegation", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * PAC_OPTIONS_FLAGS_bits[] = {
+  &hf_kerberos_PAC_OPTIONS_FLAGS_claims,
+  &hf_kerberos_PAC_OPTIONS_FLAGS_branch_aware,
+  &hf_kerberos_PAC_OPTIONS_FLAGS_forward_to_full_dc,
+  &hf_kerberos_PAC_OPTIONS_FLAGS_resource_based_constrained_delegation,
+  NULL
 };
 
 static int
 dissect_kerberos_PAC_OPTIONS_FLAGS(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    PAC_OPTIONS_FLAGS_bits, hf_index, ett_kerberos_PAC_OPTIONS_FLAGS,
+                                    PAC_OPTIONS_FLAGS_bits, 4, hf_index, ett_kerberos_PAC_OPTIONS_FLAGS,
                                     NULL);
 
   return offset;

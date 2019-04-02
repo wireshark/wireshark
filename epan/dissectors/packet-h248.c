@@ -3917,19 +3917,19 @@ dissect_h248_SignalType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 }
 
 
-static const asn_namedbit NotifyCompletion_bits[] = {
-  {  0, &hf_h248_NotifyCompletion_onTimeOut, -1, -1, "onTimeOut", NULL },
-  {  1, &hf_h248_NotifyCompletion_onInterruptByEvent, -1, -1, "onInterruptByEvent", NULL },
-  {  2, &hf_h248_NotifyCompletion_onInterruptByNewSignalDescr, -1, -1, "onInterruptByNewSignalDescr", NULL },
-  {  3, &hf_h248_NotifyCompletion_otherReason, -1, -1, "otherReason", NULL },
-  {  4, &hf_h248_NotifyCompletion_onIteration, -1, -1, "onIteration", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * NotifyCompletion_bits[] = {
+  &hf_h248_NotifyCompletion_onTimeOut,
+  &hf_h248_NotifyCompletion_onInterruptByEvent,
+  &hf_h248_NotifyCompletion_onInterruptByNewSignalDescr,
+  &hf_h248_NotifyCompletion_otherReason,
+  &hf_h248_NotifyCompletion_onIteration,
+  NULL
 };
 
 static int
 dissect_h248_NotifyCompletion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NotifyCompletion_bits, hf_index, ett_h248_NotifyCompletion,
+                                    NotifyCompletion_bits, 5, hf_index, ett_h248_NotifyCompletion,
                                     NULL);
 
   return offset;
@@ -4401,24 +4401,24 @@ dissect_h248_DigitMapDescriptor(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 }
 
 
-static const asn_namedbit T_auditToken_bits[] = {
-  {  0, &hf_h248_T_auditToken_muxToken, -1, -1, "muxToken", NULL },
-  {  1, &hf_h248_T_auditToken_modemToken, -1, -1, "modemToken", NULL },
-  {  2, &hf_h248_T_auditToken_mediaToken, -1, -1, "mediaToken", NULL },
-  {  3, &hf_h248_T_auditToken_eventsToken, -1, -1, "eventsToken", NULL },
-  {  4, &hf_h248_T_auditToken_signalsToken, -1, -1, "signalsToken", NULL },
-  {  5, &hf_h248_T_auditToken_digitMapToken, -1, -1, "digitMapToken", NULL },
-  {  6, &hf_h248_T_auditToken_statsToken, -1, -1, "statsToken", NULL },
-  {  7, &hf_h248_T_auditToken_observedEventsToken, -1, -1, "observedEventsToken", NULL },
-  {  8, &hf_h248_T_auditToken_packagesToken, -1, -1, "packagesToken", NULL },
-  {  9, &hf_h248_T_auditToken_eventBufferToken, -1, -1, "eventBufferToken", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * T_auditToken_bits[] = {
+  &hf_h248_T_auditToken_muxToken,
+  &hf_h248_T_auditToken_modemToken,
+  &hf_h248_T_auditToken_mediaToken,
+  &hf_h248_T_auditToken_eventsToken,
+  &hf_h248_T_auditToken_signalsToken,
+  &hf_h248_T_auditToken_digitMapToken,
+  &hf_h248_T_auditToken_statsToken,
+  &hf_h248_T_auditToken_observedEventsToken,
+  &hf_h248_T_auditToken_packagesToken,
+  &hf_h248_T_auditToken_eventBufferToken,
+  NULL
 };
 
 static int
 dissect_h248_T_auditToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    T_auditToken_bits, hf_index, ett_h248_T_auditToken,
+                                    T_auditToken_bits, 10, hf_index, ett_h248_T_auditToken,
                                     NULL);
 
   return offset;

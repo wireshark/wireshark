@@ -619,6 +619,7 @@ static int hf_mms_ParameterSupportOptions_vsca = -1;
 static int hf_mms_ParameterSupportOptions_tpy = -1;
 static int hf_mms_ParameterSupportOptions_vlis = -1;
 static int hf_mms_ParameterSupportOptions_real = -1;
+static int hf_mms_ParameterSupportOptions_spare_bit_9 = -1;
 static int hf_mms_ParameterSupportOptions_cei = -1;
 static int hf_mms_ServiceSupportOptions_status = -1;
 static int hf_mms_ServiceSupportOptions_getNameList = -1;
@@ -1111,21 +1112,21 @@ dissect_mms_ObjectName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const asn_namedbit Transitions_bits[] = {
-  {  0, &hf_mms_Transitions_idle_to_disabled, -1, -1, "idle-to-disabled", NULL },
-  {  1, &hf_mms_Transitions_active_to_disabled, -1, -1, "active-to-disabled", NULL },
-  {  2, &hf_mms_Transitions_disabled_to_idle, -1, -1, "disabled-to-idle", NULL },
-  {  3, &hf_mms_Transitions_active_to_idle, -1, -1, "active-to-idle", NULL },
-  {  4, &hf_mms_Transitions_disabled_to_active, -1, -1, "disabled-to-active", NULL },
-  {  5, &hf_mms_Transitions_idle_to_active, -1, -1, "idle-to-active", NULL },
-  {  6, &hf_mms_Transitions_any_to_deleted, -1, -1, "any-to-deleted", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * Transitions_bits[] = {
+  &hf_mms_Transitions_idle_to_disabled,
+  &hf_mms_Transitions_active_to_disabled,
+  &hf_mms_Transitions_disabled_to_idle,
+  &hf_mms_Transitions_active_to_idle,
+  &hf_mms_Transitions_disabled_to_active,
+  &hf_mms_Transitions_idle_to_active,
+  &hf_mms_Transitions_any_to_deleted,
+  NULL
 };
 
 static int
 dissect_mms_Transitions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    Transitions_bits, hf_index, ett_mms_Transitions,
+                                    Transitions_bits, 7, hf_index, ett_mms_Transitions,
                                     NULL);
 
   return offset;
@@ -1888,7 +1889,7 @@ dissect_mms_SEQUENCE_OF_Data(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_mms_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -4541,7 +4542,7 @@ dissect_mms_T_vmdPhysicalStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 static int
 dissect_mms_BIT_STRING_SIZE_0_128(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -6853,123 +6854,124 @@ dissect_mms_Integer16(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 }
 
 
-static const asn_namedbit ParameterSupportOptions_bits[] = {
-  {  0, &hf_mms_ParameterSupportOptions_str1, -1, -1, "str1", NULL },
-  {  1, &hf_mms_ParameterSupportOptions_str2, -1, -1, "str2", NULL },
-  {  2, &hf_mms_ParameterSupportOptions_vnam, -1, -1, "vnam", NULL },
-  {  3, &hf_mms_ParameterSupportOptions_valt, -1, -1, "valt", NULL },
-  {  4, &hf_mms_ParameterSupportOptions_vadr, -1, -1, "vadr", NULL },
-  {  5, &hf_mms_ParameterSupportOptions_vsca, -1, -1, "vsca", NULL },
-  {  6, &hf_mms_ParameterSupportOptions_tpy, -1, -1, "tpy", NULL },
-  {  7, &hf_mms_ParameterSupportOptions_vlis, -1, -1, "vlis", NULL },
-  {  8, &hf_mms_ParameterSupportOptions_real, -1, -1, "real", NULL },
-  { 10, &hf_mms_ParameterSupportOptions_cei, -1, -1, "cei", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * ParameterSupportOptions_bits[] = {
+  &hf_mms_ParameterSupportOptions_str1,
+  &hf_mms_ParameterSupportOptions_str2,
+  &hf_mms_ParameterSupportOptions_vnam,
+  &hf_mms_ParameterSupportOptions_valt,
+  &hf_mms_ParameterSupportOptions_vadr,
+  &hf_mms_ParameterSupportOptions_vsca,
+  &hf_mms_ParameterSupportOptions_tpy,
+  &hf_mms_ParameterSupportOptions_vlis,
+  &hf_mms_ParameterSupportOptions_real,
+  &hf_mms_ParameterSupportOptions_spare_bit_9,
+  &hf_mms_ParameterSupportOptions_cei,
+  NULL
 };
 
 static int
 dissect_mms_ParameterSupportOptions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    ParameterSupportOptions_bits, hf_index, ett_mms_ParameterSupportOptions,
+                                    ParameterSupportOptions_bits, 11, hf_index, ett_mms_ParameterSupportOptions,
                                     NULL);
 
   return offset;
 }
 
 
-static const asn_namedbit ServiceSupportOptions_bits[] = {
-  {  0, &hf_mms_ServiceSupportOptions_status, -1, -1, "status", NULL },
-  {  1, &hf_mms_ServiceSupportOptions_getNameList, -1, -1, "getNameList", NULL },
-  {  2, &hf_mms_ServiceSupportOptions_identify, -1, -1, "identify", NULL },
-  {  3, &hf_mms_ServiceSupportOptions_rename, -1, -1, "rename", NULL },
-  {  4, &hf_mms_ServiceSupportOptions_read, -1, -1, "read", NULL },
-  {  5, &hf_mms_ServiceSupportOptions_write, -1, -1, "write", NULL },
-  {  6, &hf_mms_ServiceSupportOptions_getVariableAccessAttributes, -1, -1, "getVariableAccessAttributes", NULL },
-  {  7, &hf_mms_ServiceSupportOptions_defineNamedVariable, -1, -1, "defineNamedVariable", NULL },
-  {  8, &hf_mms_ServiceSupportOptions_defineScatteredAccess, -1, -1, "defineScatteredAccess", NULL },
-  {  9, &hf_mms_ServiceSupportOptions_getScatteredAccessAttributes, -1, -1, "getScatteredAccessAttributes", NULL },
-  { 10, &hf_mms_ServiceSupportOptions_deleteVariableAccess, -1, -1, "deleteVariableAccess", NULL },
-  { 11, &hf_mms_ServiceSupportOptions_defineNamedVariableList, -1, -1, "defineNamedVariableList", NULL },
-  { 12, &hf_mms_ServiceSupportOptions_getNamedVariableListAttributes, -1, -1, "getNamedVariableListAttributes", NULL },
-  { 13, &hf_mms_ServiceSupportOptions_deleteNamedVariableList, -1, -1, "deleteNamedVariableList", NULL },
-  { 14, &hf_mms_ServiceSupportOptions_defineNamedType, -1, -1, "defineNamedType", NULL },
-  { 15, &hf_mms_ServiceSupportOptions_getNamedTypeAttributes, -1, -1, "getNamedTypeAttributes", NULL },
-  { 16, &hf_mms_ServiceSupportOptions_deleteNamedType, -1, -1, "deleteNamedType", NULL },
-  { 17, &hf_mms_ServiceSupportOptions_input, -1, -1, "input", NULL },
-  { 18, &hf_mms_ServiceSupportOptions_output, -1, -1, "output", NULL },
-  { 19, &hf_mms_ServiceSupportOptions_takeControl, -1, -1, "takeControl", NULL },
-  { 20, &hf_mms_ServiceSupportOptions_relinquishControl, -1, -1, "relinquishControl", NULL },
-  { 21, &hf_mms_ServiceSupportOptions_defineSemaphore, -1, -1, "defineSemaphore", NULL },
-  { 22, &hf_mms_ServiceSupportOptions_deleteSemaphore, -1, -1, "deleteSemaphore", NULL },
-  { 23, &hf_mms_ServiceSupportOptions_reportSemaphoreStatus, -1, -1, "reportSemaphoreStatus", NULL },
-  { 24, &hf_mms_ServiceSupportOptions_reportPoolSemaphoreStatus, -1, -1, "reportPoolSemaphoreStatus", NULL },
-  { 25, &hf_mms_ServiceSupportOptions_reportSemaphoreEntryStatus, -1, -1, "reportSemaphoreEntryStatus", NULL },
-  { 26, &hf_mms_ServiceSupportOptions_initiateDownloadSequence, -1, -1, "initiateDownloadSequence", NULL },
-  { 27, &hf_mms_ServiceSupportOptions_downloadSegment, -1, -1, "downloadSegment", NULL },
-  { 28, &hf_mms_ServiceSupportOptions_terminateDownloadSequence, -1, -1, "terminateDownloadSequence", NULL },
-  { 29, &hf_mms_ServiceSupportOptions_initiateUploadSequence, -1, -1, "initiateUploadSequence", NULL },
-  { 30, &hf_mms_ServiceSupportOptions_uploadSegment, -1, -1, "uploadSegment", NULL },
-  { 31, &hf_mms_ServiceSupportOptions_terminateUploadSequence, -1, -1, "terminateUploadSequence", NULL },
-  { 32, &hf_mms_ServiceSupportOptions_requestDomainDownload, -1, -1, "requestDomainDownload", NULL },
-  { 33, &hf_mms_ServiceSupportOptions_requestDomainUpload, -1, -1, "requestDomainUpload", NULL },
-  { 34, &hf_mms_ServiceSupportOptions_loadDomainContent, -1, -1, "loadDomainContent", NULL },
-  { 35, &hf_mms_ServiceSupportOptions_storeDomainContent, -1, -1, "storeDomainContent", NULL },
-  { 36, &hf_mms_ServiceSupportOptions_deleteDomain, -1, -1, "deleteDomain", NULL },
-  { 37, &hf_mms_ServiceSupportOptions_getDomainAttributes, -1, -1, "getDomainAttributes", NULL },
-  { 38, &hf_mms_ServiceSupportOptions_createProgramInvocation, -1, -1, "createProgramInvocation", NULL },
-  { 39, &hf_mms_ServiceSupportOptions_deleteProgramInvocation, -1, -1, "deleteProgramInvocation", NULL },
-  { 40, &hf_mms_ServiceSupportOptions_start, -1, -1, "start", NULL },
-  { 41, &hf_mms_ServiceSupportOptions_stop, -1, -1, "stop", NULL },
-  { 42, &hf_mms_ServiceSupportOptions_resume, -1, -1, "resume", NULL },
-  { 43, &hf_mms_ServiceSupportOptions_reset, -1, -1, "reset", NULL },
-  { 44, &hf_mms_ServiceSupportOptions_kill, -1, -1, "kill", NULL },
-  { 45, &hf_mms_ServiceSupportOptions_getProgramInvocationAttributes, -1, -1, "getProgramInvocationAttributes", NULL },
-  { 46, &hf_mms_ServiceSupportOptions_obtainFile, -1, -1, "obtainFile", NULL },
-  { 47, &hf_mms_ServiceSupportOptions_defineEventCondition, -1, -1, "defineEventCondition", NULL },
-  { 48, &hf_mms_ServiceSupportOptions_deleteEventCondition, -1, -1, "deleteEventCondition", NULL },
-  { 49, &hf_mms_ServiceSupportOptions_getEventConditionAttributes, -1, -1, "getEventConditionAttributes", NULL },
-  { 50, &hf_mms_ServiceSupportOptions_reportEventConditionStatus, -1, -1, "reportEventConditionStatus", NULL },
-  { 51, &hf_mms_ServiceSupportOptions_alterEventConditionMonitoring, -1, -1, "alterEventConditionMonitoring", NULL },
-  { 52, &hf_mms_ServiceSupportOptions_triggerEvent, -1, -1, "triggerEvent", NULL },
-  { 53, &hf_mms_ServiceSupportOptions_defineEventAction, -1, -1, "defineEventAction", NULL },
-  { 54, &hf_mms_ServiceSupportOptions_deleteEventAction, -1, -1, "deleteEventAction", NULL },
-  { 55, &hf_mms_ServiceSupportOptions_getEventActionAttributes, -1, -1, "getEventActionAttributes", NULL },
-  { 56, &hf_mms_ServiceSupportOptions_reportActionStatus, -1, -1, "reportActionStatus", NULL },
-  { 57, &hf_mms_ServiceSupportOptions_defineEventEnrollment, -1, -1, "defineEventEnrollment", NULL },
-  { 58, &hf_mms_ServiceSupportOptions_deleteEventEnrollment, -1, -1, "deleteEventEnrollment", NULL },
-  { 59, &hf_mms_ServiceSupportOptions_alterEventEnrollment, -1, -1, "alterEventEnrollment", NULL },
-  { 60, &hf_mms_ServiceSupportOptions_reportEventEnrollmentStatus, -1, -1, "reportEventEnrollmentStatus", NULL },
-  { 61, &hf_mms_ServiceSupportOptions_getEventEnrollmentAttributes, -1, -1, "getEventEnrollmentAttributes", NULL },
-  { 62, &hf_mms_ServiceSupportOptions_acknowledgeEventNotification, -1, -1, "acknowledgeEventNotification", NULL },
-  { 63, &hf_mms_ServiceSupportOptions_getAlarmSummary, -1, -1, "getAlarmSummary", NULL },
-  { 64, &hf_mms_ServiceSupportOptions_getAlarmEnrollmentSummary, -1, -1, "getAlarmEnrollmentSummary", NULL },
-  { 65, &hf_mms_ServiceSupportOptions_readJournal, -1, -1, "readJournal", NULL },
-  { 66, &hf_mms_ServiceSupportOptions_writeJournal, -1, -1, "writeJournal", NULL },
-  { 67, &hf_mms_ServiceSupportOptions_initializeJournal, -1, -1, "initializeJournal", NULL },
-  { 68, &hf_mms_ServiceSupportOptions_reportJournalStatus, -1, -1, "reportJournalStatus", NULL },
-  { 69, &hf_mms_ServiceSupportOptions_createJournal, -1, -1, "createJournal", NULL },
-  { 70, &hf_mms_ServiceSupportOptions_deleteJournal, -1, -1, "deleteJournal", NULL },
-  { 71, &hf_mms_ServiceSupportOptions_getCapabilityList, -1, -1, "getCapabilityList", NULL },
-  { 72, &hf_mms_ServiceSupportOptions_fileOpen, -1, -1, "fileOpen", NULL },
-  { 73, &hf_mms_ServiceSupportOptions_fileRead, -1, -1, "fileRead", NULL },
-  { 74, &hf_mms_ServiceSupportOptions_fileClose, -1, -1, "fileClose", NULL },
-  { 75, &hf_mms_ServiceSupportOptions_fileRename, -1, -1, "fileRename", NULL },
-  { 76, &hf_mms_ServiceSupportOptions_fileDelete, -1, -1, "fileDelete", NULL },
-  { 77, &hf_mms_ServiceSupportOptions_fileDirectory, -1, -1, "fileDirectory", NULL },
-  { 78, &hf_mms_ServiceSupportOptions_unsolicitedStatus, -1, -1, "unsolicitedStatus", NULL },
-  { 79, &hf_mms_ServiceSupportOptions_informationReport, -1, -1, "informationReport", NULL },
-  { 80, &hf_mms_ServiceSupportOptions_eventNotification, -1, -1, "eventNotification", NULL },
-  { 81, &hf_mms_ServiceSupportOptions_attachToEventCondition, -1, -1, "attachToEventCondition", NULL },
-  { 82, &hf_mms_ServiceSupportOptions_attachToSemaphore, -1, -1, "attachToSemaphore", NULL },
-  { 83, &hf_mms_ServiceSupportOptions_conclude, -1, -1, "conclude", NULL },
-  { 84, &hf_mms_ServiceSupportOptions_cancel, -1, -1, "cancel", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * ServiceSupportOptions_bits[] = {
+  &hf_mms_ServiceSupportOptions_status,
+  &hf_mms_ServiceSupportOptions_getNameList,
+  &hf_mms_ServiceSupportOptions_identify,
+  &hf_mms_ServiceSupportOptions_rename,
+  &hf_mms_ServiceSupportOptions_read,
+  &hf_mms_ServiceSupportOptions_write,
+  &hf_mms_ServiceSupportOptions_getVariableAccessAttributes,
+  &hf_mms_ServiceSupportOptions_defineNamedVariable,
+  &hf_mms_ServiceSupportOptions_defineScatteredAccess,
+  &hf_mms_ServiceSupportOptions_getScatteredAccessAttributes,
+  &hf_mms_ServiceSupportOptions_deleteVariableAccess,
+  &hf_mms_ServiceSupportOptions_defineNamedVariableList,
+  &hf_mms_ServiceSupportOptions_getNamedVariableListAttributes,
+  &hf_mms_ServiceSupportOptions_deleteNamedVariableList,
+  &hf_mms_ServiceSupportOptions_defineNamedType,
+  &hf_mms_ServiceSupportOptions_getNamedTypeAttributes,
+  &hf_mms_ServiceSupportOptions_deleteNamedType,
+  &hf_mms_ServiceSupportOptions_input,
+  &hf_mms_ServiceSupportOptions_output,
+  &hf_mms_ServiceSupportOptions_takeControl,
+  &hf_mms_ServiceSupportOptions_relinquishControl,
+  &hf_mms_ServiceSupportOptions_defineSemaphore,
+  &hf_mms_ServiceSupportOptions_deleteSemaphore,
+  &hf_mms_ServiceSupportOptions_reportSemaphoreStatus,
+  &hf_mms_ServiceSupportOptions_reportPoolSemaphoreStatus,
+  &hf_mms_ServiceSupportOptions_reportSemaphoreEntryStatus,
+  &hf_mms_ServiceSupportOptions_initiateDownloadSequence,
+  &hf_mms_ServiceSupportOptions_downloadSegment,
+  &hf_mms_ServiceSupportOptions_terminateDownloadSequence,
+  &hf_mms_ServiceSupportOptions_initiateUploadSequence,
+  &hf_mms_ServiceSupportOptions_uploadSegment,
+  &hf_mms_ServiceSupportOptions_terminateUploadSequence,
+  &hf_mms_ServiceSupportOptions_requestDomainDownload,
+  &hf_mms_ServiceSupportOptions_requestDomainUpload,
+  &hf_mms_ServiceSupportOptions_loadDomainContent,
+  &hf_mms_ServiceSupportOptions_storeDomainContent,
+  &hf_mms_ServiceSupportOptions_deleteDomain,
+  &hf_mms_ServiceSupportOptions_getDomainAttributes,
+  &hf_mms_ServiceSupportOptions_createProgramInvocation,
+  &hf_mms_ServiceSupportOptions_deleteProgramInvocation,
+  &hf_mms_ServiceSupportOptions_start,
+  &hf_mms_ServiceSupportOptions_stop,
+  &hf_mms_ServiceSupportOptions_resume,
+  &hf_mms_ServiceSupportOptions_reset,
+  &hf_mms_ServiceSupportOptions_kill,
+  &hf_mms_ServiceSupportOptions_getProgramInvocationAttributes,
+  &hf_mms_ServiceSupportOptions_obtainFile,
+  &hf_mms_ServiceSupportOptions_defineEventCondition,
+  &hf_mms_ServiceSupportOptions_deleteEventCondition,
+  &hf_mms_ServiceSupportOptions_getEventConditionAttributes,
+  &hf_mms_ServiceSupportOptions_reportEventConditionStatus,
+  &hf_mms_ServiceSupportOptions_alterEventConditionMonitoring,
+  &hf_mms_ServiceSupportOptions_triggerEvent,
+  &hf_mms_ServiceSupportOptions_defineEventAction,
+  &hf_mms_ServiceSupportOptions_deleteEventAction,
+  &hf_mms_ServiceSupportOptions_getEventActionAttributes,
+  &hf_mms_ServiceSupportOptions_reportActionStatus,
+  &hf_mms_ServiceSupportOptions_defineEventEnrollment,
+  &hf_mms_ServiceSupportOptions_deleteEventEnrollment,
+  &hf_mms_ServiceSupportOptions_alterEventEnrollment,
+  &hf_mms_ServiceSupportOptions_reportEventEnrollmentStatus,
+  &hf_mms_ServiceSupportOptions_getEventEnrollmentAttributes,
+  &hf_mms_ServiceSupportOptions_acknowledgeEventNotification,
+  &hf_mms_ServiceSupportOptions_getAlarmSummary,
+  &hf_mms_ServiceSupportOptions_getAlarmEnrollmentSummary,
+  &hf_mms_ServiceSupportOptions_readJournal,
+  &hf_mms_ServiceSupportOptions_writeJournal,
+  &hf_mms_ServiceSupportOptions_initializeJournal,
+  &hf_mms_ServiceSupportOptions_reportJournalStatus,
+  &hf_mms_ServiceSupportOptions_createJournal,
+  &hf_mms_ServiceSupportOptions_deleteJournal,
+  &hf_mms_ServiceSupportOptions_getCapabilityList,
+  &hf_mms_ServiceSupportOptions_fileOpen,
+  &hf_mms_ServiceSupportOptions_fileRead,
+  &hf_mms_ServiceSupportOptions_fileClose,
+  &hf_mms_ServiceSupportOptions_fileRename,
+  &hf_mms_ServiceSupportOptions_fileDelete,
+  &hf_mms_ServiceSupportOptions_fileDirectory,
+  &hf_mms_ServiceSupportOptions_unsolicitedStatus,
+  &hf_mms_ServiceSupportOptions_informationReport,
+  &hf_mms_ServiceSupportOptions_eventNotification,
+  &hf_mms_ServiceSupportOptions_attachToEventCondition,
+  &hf_mms_ServiceSupportOptions_attachToSemaphore,
+  &hf_mms_ServiceSupportOptions_conclude,
+  &hf_mms_ServiceSupportOptions_cancel,
+  NULL
 };
 
 static int
 dissect_mms_ServiceSupportOptions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    ServiceSupportOptions_bits, hf_index, ett_mms_ServiceSupportOptions,
+                                    ServiceSupportOptions_bits, 85, hf_index, ett_mms_ServiceSupportOptions,
                                     NULL);
 
   return offset;
@@ -9476,6 +9478,10 @@ void proto_register_mms(void) {
     { &hf_mms_ParameterSupportOptions_real,
       { "real", "mms.real",
         FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_mms_ParameterSupportOptions_spare_bit_9,
+      { "spare_bit_9", "mms.spare_bit_9",
+        FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_mms_ParameterSupportOptions_cei,
       { "cei", "mms.cei",

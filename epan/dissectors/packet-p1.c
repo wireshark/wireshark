@@ -569,8 +569,12 @@ static int hf_p1_PerMessageIndicators_U_reserved = -1;
 static int hf_p1_PerMessageIndicators_U_bit_5 = -1;
 static int hf_p1_PerMessageIndicators_U_bit_6 = -1;
 static int hf_p1_PerMessageIndicators_U_service_message = -1;
+static int hf_p1_OriginatorReportRequest_spare_bit_0 = -1;
+static int hf_p1_OriginatorReportRequest_spare_bit_1 = -1;
+static int hf_p1_OriginatorReportRequest_spare_bit_2 = -1;
 static int hf_p1_OriginatorReportRequest_report = -1;
 static int hf_p1_OriginatorReportRequest_non_delivery_report = -1;
+static int hf_p1_DeliveryFlags_spare_bit_0 = -1;
 static int hf_p1_DeliveryFlags_implicit_conversion_prohibited = -1;
 static int hf_p1_Criticality_for_submission = -1;
 static int hf_p1_Criticality_for_transfer = -1;
@@ -593,29 +597,77 @@ static int hf_p1_BuiltInEncodedInformationTypes_videotex = -1;
 static int hf_p1_BuiltInEncodedInformationTypes_voice = -1;
 static int hf_p1_BuiltInEncodedInformationTypes_sfd = -1;
 static int hf_p1_BuiltInEncodedInformationTypes_mixed_mode = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_0 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_1 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_2 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_3 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_4 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_5 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_6 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_7 = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_two_dimensional = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_fine_resolution = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_10 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_11 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_12 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_13 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_14 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_15 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_16 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_17 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_18 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_19 = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_unlimited_length = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_b4_length = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_a3_width = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_b4_width = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_24 = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_t6_coding = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_26 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_27 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_28 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_29 = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_uncompressed = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_31 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_32 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_33 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_34 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_35 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_36 = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_width_middle_864_of_1728 = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_width_middle_1216_of_1728 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_39 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_40 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_41 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_42 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_43 = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_resolution_type = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_resolution_400x400 = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_resolution_300x300 = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_resolution_8x15 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_48 = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_edi = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_dtm = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_bft = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_52 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_53 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_54 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_55 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_56 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_57 = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_mixed_mode = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_59 = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_character_mode = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_61 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_62 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_63 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_64 = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_twelve_bits = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_preferred_huffmann = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_full_colour = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_jpeg = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_69 = -1;
+static int hf_p1_G3FacsimileNonBasicParameters_spare_bit_70 = -1;
 static int hf_p1_G3FacsimileNonBasicParameters_processable_mode_26 = -1;
 
 /*--- End of included file: packet-p1-hf.c ---*/
@@ -1091,7 +1143,7 @@ dissect_p1_StrongCredentials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_p1_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -2319,62 +2371,110 @@ dissect_p1_MTAOriginatorName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 }
 
 
-static const asn_namedbit BuiltInEncodedInformationTypes_bits[] = {
-  {  0, &hf_p1_BuiltInEncodedInformationTypes_unknown, -1, -1, "unknown", NULL },
-  {  1, &hf_p1_BuiltInEncodedInformationTypes_telex, -1, -1, "telex", NULL },
-  {  2, &hf_p1_BuiltInEncodedInformationTypes_ia5_text, -1, -1, "ia5-text", NULL },
-  {  3, &hf_p1_BuiltInEncodedInformationTypes_g3_facsimile, -1, -1, "g3-facsimile", NULL },
-  {  4, &hf_p1_BuiltInEncodedInformationTypes_g4_class_1, -1, -1, "g4-class-1", NULL },
-  {  5, &hf_p1_BuiltInEncodedInformationTypes_teletex, -1, -1, "teletex", NULL },
-  {  6, &hf_p1_BuiltInEncodedInformationTypes_videotex, -1, -1, "videotex", NULL },
-  {  7, &hf_p1_BuiltInEncodedInformationTypes_voice, -1, -1, "voice", NULL },
-  {  8, &hf_p1_BuiltInEncodedInformationTypes_sfd, -1, -1, "sfd", NULL },
-  {  9, &hf_p1_BuiltInEncodedInformationTypes_mixed_mode, -1, -1, "mixed-mode", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * BuiltInEncodedInformationTypes_bits[] = {
+  &hf_p1_BuiltInEncodedInformationTypes_unknown,
+  &hf_p1_BuiltInEncodedInformationTypes_telex,
+  &hf_p1_BuiltInEncodedInformationTypes_ia5_text,
+  &hf_p1_BuiltInEncodedInformationTypes_g3_facsimile,
+  &hf_p1_BuiltInEncodedInformationTypes_g4_class_1,
+  &hf_p1_BuiltInEncodedInformationTypes_teletex,
+  &hf_p1_BuiltInEncodedInformationTypes_videotex,
+  &hf_p1_BuiltInEncodedInformationTypes_voice,
+  &hf_p1_BuiltInEncodedInformationTypes_sfd,
+  &hf_p1_BuiltInEncodedInformationTypes_mixed_mode,
+  NULL
 };
 
 static int
 dissect_p1_BuiltInEncodedInformationTypes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                                0, ub_built_in_encoded_information_types, BuiltInEncodedInformationTypes_bits, hf_index, ett_p1_BuiltInEncodedInformationTypes,
+                                                0, ub_built_in_encoded_information_types, BuiltInEncodedInformationTypes_bits, 10, hf_index, ett_p1_BuiltInEncodedInformationTypes,
                                                 NULL);
 
   return offset;
 }
 
 
-static const asn_namedbit G3FacsimileNonBasicParameters_bits[] = {
-  {  8, &hf_p1_G3FacsimileNonBasicParameters_two_dimensional, -1, -1, "two-dimensional", NULL },
-  {  9, &hf_p1_G3FacsimileNonBasicParameters_fine_resolution, -1, -1, "fine-resolution", NULL },
-  { 20, &hf_p1_G3FacsimileNonBasicParameters_unlimited_length, -1, -1, "unlimited-length", NULL },
-  { 21, &hf_p1_G3FacsimileNonBasicParameters_b4_length, -1, -1, "b4-length", NULL },
-  { 22, &hf_p1_G3FacsimileNonBasicParameters_a3_width, -1, -1, "a3-width", NULL },
-  { 23, &hf_p1_G3FacsimileNonBasicParameters_b4_width, -1, -1, "b4-width", NULL },
-  { 25, &hf_p1_G3FacsimileNonBasicParameters_t6_coding, -1, -1, "t6-coding", NULL },
-  { 30, &hf_p1_G3FacsimileNonBasicParameters_uncompressed, -1, -1, "uncompressed", NULL },
-  { 37, &hf_p1_G3FacsimileNonBasicParameters_width_middle_864_of_1728, -1, -1, "width-middle-864-of-1728", NULL },
-  { 38, &hf_p1_G3FacsimileNonBasicParameters_width_middle_1216_of_1728, -1, -1, "width-middle-1216-of-1728", NULL },
-  { 44, &hf_p1_G3FacsimileNonBasicParameters_resolution_type, -1, -1, "resolution-type", NULL },
-  { 45, &hf_p1_G3FacsimileNonBasicParameters_resolution_400x400, -1, -1, "resolution-400x400", NULL },
-  { 46, &hf_p1_G3FacsimileNonBasicParameters_resolution_300x300, -1, -1, "resolution-300x300", NULL },
-  { 47, &hf_p1_G3FacsimileNonBasicParameters_resolution_8x15, -1, -1, "resolution-8x15", NULL },
-  { 49, &hf_p1_G3FacsimileNonBasicParameters_edi, -1, -1, "edi", NULL },
-  { 50, &hf_p1_G3FacsimileNonBasicParameters_dtm, -1, -1, "dtm", NULL },
-  { 51, &hf_p1_G3FacsimileNonBasicParameters_bft, -1, -1, "bft", NULL },
-  { 58, &hf_p1_G3FacsimileNonBasicParameters_mixed_mode, -1, -1, "mixed-mode", NULL },
-  { 60, &hf_p1_G3FacsimileNonBasicParameters_character_mode, -1, -1, "character-mode", NULL },
-  { 65, &hf_p1_G3FacsimileNonBasicParameters_twelve_bits, -1, -1, "twelve-bits", NULL },
-  { 66, &hf_p1_G3FacsimileNonBasicParameters_preferred_huffmann, -1, -1, "preferred-huffmann", NULL },
-  { 67, &hf_p1_G3FacsimileNonBasicParameters_full_colour, -1, -1, "full-colour", NULL },
-  { 68, &hf_p1_G3FacsimileNonBasicParameters_jpeg, -1, -1, "jpeg", NULL },
-  { 71, &hf_p1_G3FacsimileNonBasicParameters_processable_mode_26, -1, -1, "processable-mode-26", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * G3FacsimileNonBasicParameters_bits[] = {
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_0,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_1,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_2,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_3,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_4,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_5,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_6,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_7,
+  &hf_p1_G3FacsimileNonBasicParameters_two_dimensional,
+  &hf_p1_G3FacsimileNonBasicParameters_fine_resolution,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_10,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_11,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_12,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_13,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_14,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_15,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_16,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_17,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_18,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_19,
+  &hf_p1_G3FacsimileNonBasicParameters_unlimited_length,
+  &hf_p1_G3FacsimileNonBasicParameters_b4_length,
+  &hf_p1_G3FacsimileNonBasicParameters_a3_width,
+  &hf_p1_G3FacsimileNonBasicParameters_b4_width,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_24,
+  &hf_p1_G3FacsimileNonBasicParameters_t6_coding,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_26,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_27,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_28,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_29,
+  &hf_p1_G3FacsimileNonBasicParameters_uncompressed,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_31,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_32,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_33,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_34,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_35,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_36,
+  &hf_p1_G3FacsimileNonBasicParameters_width_middle_864_of_1728,
+  &hf_p1_G3FacsimileNonBasicParameters_width_middle_1216_of_1728,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_39,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_40,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_41,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_42,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_43,
+  &hf_p1_G3FacsimileNonBasicParameters_resolution_type,
+  &hf_p1_G3FacsimileNonBasicParameters_resolution_400x400,
+  &hf_p1_G3FacsimileNonBasicParameters_resolution_300x300,
+  &hf_p1_G3FacsimileNonBasicParameters_resolution_8x15,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_48,
+  &hf_p1_G3FacsimileNonBasicParameters_edi,
+  &hf_p1_G3FacsimileNonBasicParameters_dtm,
+  &hf_p1_G3FacsimileNonBasicParameters_bft,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_52,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_53,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_54,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_55,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_56,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_57,
+  &hf_p1_G3FacsimileNonBasicParameters_mixed_mode,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_59,
+  &hf_p1_G3FacsimileNonBasicParameters_character_mode,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_61,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_62,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_63,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_64,
+  &hf_p1_G3FacsimileNonBasicParameters_twelve_bits,
+  &hf_p1_G3FacsimileNonBasicParameters_preferred_huffmann,
+  &hf_p1_G3FacsimileNonBasicParameters_full_colour,
+  &hf_p1_G3FacsimileNonBasicParameters_jpeg,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_69,
+  &hf_p1_G3FacsimileNonBasicParameters_spare_bit_70,
+  &hf_p1_G3FacsimileNonBasicParameters_processable_mode_26,
+  NULL
 };
 
 int
 dissect_p1_G3FacsimileNonBasicParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    G3FacsimileNonBasicParameters_bits, hf_index, ett_p1_G3FacsimileNonBasicParameters,
+                                    G3FacsimileNonBasicParameters_bits, 72, hf_index, ett_p1_G3FacsimileNonBasicParameters,
                                     NULL);
 
   return offset;
@@ -2632,22 +2732,22 @@ dissect_p1_Priority(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 }
 
 
-static const asn_namedbit PerMessageIndicators_U_bits[] = {
-  {  0, &hf_p1_PerMessageIndicators_U_disclosure_of_other_recipients, -1, -1, "disclosure-of-other-recipients", NULL },
-  {  1, &hf_p1_PerMessageIndicators_U_implicit_conversion_prohibited, -1, -1, "implicit-conversion-prohibited", NULL },
-  {  2, &hf_p1_PerMessageIndicators_U_alternate_recipient_allowed, -1, -1, "alternate-recipient-allowed", NULL },
-  {  3, &hf_p1_PerMessageIndicators_U_content_return_request, -1, -1, "content-return-request", NULL },
-  {  4, &hf_p1_PerMessageIndicators_U_reserved, -1, -1, "reserved", NULL },
-  {  5, &hf_p1_PerMessageIndicators_U_bit_5, -1, -1, "bit-5", NULL },
-  {  6, &hf_p1_PerMessageIndicators_U_bit_6, -1, -1, "bit-6", NULL },
-  {  7, &hf_p1_PerMessageIndicators_U_service_message, -1, -1, "service-message", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * PerMessageIndicators_U_bits[] = {
+  &hf_p1_PerMessageIndicators_U_disclosure_of_other_recipients,
+  &hf_p1_PerMessageIndicators_U_implicit_conversion_prohibited,
+  &hf_p1_PerMessageIndicators_U_alternate_recipient_allowed,
+  &hf_p1_PerMessageIndicators_U_content_return_request,
+  &hf_p1_PerMessageIndicators_U_reserved,
+  &hf_p1_PerMessageIndicators_U_bit_5,
+  &hf_p1_PerMessageIndicators_U_bit_6,
+  &hf_p1_PerMessageIndicators_U_service_message,
+  NULL
 };
 
 static int
 dissect_p1_PerMessageIndicators_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                                0, ub_bit_options, PerMessageIndicators_U_bits, hf_index, ett_p1_PerMessageIndicators_U,
+                                                0, ub_bit_options, PerMessageIndicators_U_bits, 8, hf_index, ett_p1_PerMessageIndicators_U,
                                                 NULL);
 
   return offset;
@@ -2833,16 +2933,16 @@ dissect_p1_ConvertedEncodedInformationTypes(gboolean implicit_tag _U_, tvbuff_t 
 }
 
 
-static const asn_namedbit OtherActions_bits[] = {
-  {  0, &hf_p1_OtherActions_redirected, -1, -1, "redirected", NULL },
-  {  1, &hf_p1_OtherActions_dl_operation, -1, -1, "dl-operation", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * OtherActions_bits[] = {
+  &hf_p1_OtherActions_redirected,
+  &hf_p1_OtherActions_dl_operation,
+  NULL
 };
 
 static int
 dissect_p1_OtherActions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                                0, ub_bit_options, OtherActions_bits, hf_index, ett_p1_OtherActions,
+                                                0, ub_bit_options, OtherActions_bits, 2, hf_index, ett_p1_OtherActions,
                                                 NULL);
 
   return offset;
@@ -3028,17 +3128,17 @@ dissect_p1_ExtensionType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
-static const asn_namedbit Criticality_bits[] = {
-  {  0, &hf_p1_Criticality_for_submission, -1, -1, "for-submission", NULL },
-  {  1, &hf_p1_Criticality_for_transfer, -1, -1, "for-transfer", NULL },
-  {  2, &hf_p1_Criticality_for_delivery, -1, -1, "for-delivery", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * Criticality_bits[] = {
+  &hf_p1_Criticality_for_submission,
+  &hf_p1_Criticality_for_transfer,
+  &hf_p1_Criticality_for_delivery,
+  NULL
 };
 
 static int
 dissect_p1_Criticality(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                                0, ub_bit_options, Criticality_bits, hf_index, ett_p1_Criticality,
+                                                0, ub_bit_options, Criticality_bits, 3, hf_index, ett_p1_Criticality,
                                                 NULL);
 
   return offset;
@@ -3125,22 +3225,22 @@ dissect_p1_OriginallySpecifiedRecipientNumber(gboolean implicit_tag _U_, tvbuff_
 }
 
 
-static const asn_namedbit PerRecipientIndicators_bits[] = {
-  {  0, &hf_p1_PerRecipientIndicators_responsibility, -1, -1, "responsibility", NULL },
-  {  1, &hf_p1_PerRecipientIndicators_originating_MTA_report, -1, -1, "originating-MTA-report", NULL },
-  {  2, &hf_p1_PerRecipientIndicators_originating_MTA_non_delivery_report, -1, -1, "originating-MTA-non-delivery-report", NULL },
-  {  3, &hf_p1_PerRecipientIndicators_originator_report, -1, -1, "originator-report", NULL },
-  {  4, &hf_p1_PerRecipientIndicators_originator_non_delivery_report, -1, -1, "originator-non-delivery-report", NULL },
-  {  5, &hf_p1_PerRecipientIndicators_reserved_5, -1, -1, "reserved-5", NULL },
-  {  6, &hf_p1_PerRecipientIndicators_reserved_6, -1, -1, "reserved-6", NULL },
-  {  7, &hf_p1_PerRecipientIndicators_reserved_7, -1, -1, "reserved-7", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * PerRecipientIndicators_bits[] = {
+  &hf_p1_PerRecipientIndicators_responsibility,
+  &hf_p1_PerRecipientIndicators_originating_MTA_report,
+  &hf_p1_PerRecipientIndicators_originating_MTA_non_delivery_report,
+  &hf_p1_PerRecipientIndicators_originator_report,
+  &hf_p1_PerRecipientIndicators_originator_non_delivery_report,
+  &hf_p1_PerRecipientIndicators_reserved_5,
+  &hf_p1_PerRecipientIndicators_reserved_6,
+  &hf_p1_PerRecipientIndicators_reserved_7,
+  NULL
 };
 
 static int
 dissect_p1_PerRecipientIndicators(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                                8, ub_bit_options, PerRecipientIndicators_bits, hf_index, ett_p1_PerRecipientIndicators,
+                                                8, ub_bit_options, PerRecipientIndicators_bits, 8, hf_index, ett_p1_PerRecipientIndicators,
                                                 NULL);
 
   return offset;
@@ -4060,16 +4160,19 @@ dissect_p1_RecipientName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offse
 }
 
 
-static const asn_namedbit OriginatorReportRequest_bits[] = {
-  {  3, &hf_p1_OriginatorReportRequest_report, -1, -1, "report", NULL },
-  {  4, &hf_p1_OriginatorReportRequest_non_delivery_report, -1, -1, "non-delivery-report", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * OriginatorReportRequest_bits[] = {
+  &hf_p1_OriginatorReportRequest_spare_bit_0,
+  &hf_p1_OriginatorReportRequest_spare_bit_1,
+  &hf_p1_OriginatorReportRequest_spare_bit_2,
+  &hf_p1_OriginatorReportRequest_report,
+  &hf_p1_OriginatorReportRequest_non_delivery_report,
+  NULL
 };
 
 static int
 dissect_p1_OriginatorReportRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                                0, ub_bit_options, OriginatorReportRequest_bits, hf_index, ett_p1_OriginatorReportRequest,
+                                                0, ub_bit_options, OriginatorReportRequest_bits, 5, hf_index, ett_p1_OriginatorReportRequest,
                                                 NULL);
 
   return offset;
@@ -4306,16 +4409,16 @@ dissect_p1_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 }
 
 
-static const asn_namedbit Operations_bits[] = {
-  {  0, &hf_p1_Operations_probe_submission_or_report_delivery, -1, -1, "probe-submission-or-report-delivery", NULL },
-  {  1, &hf_p1_Operations_message_submission_or_message_delivery, -1, -1, "message-submission-or-message-delivery", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * Operations_bits[] = {
+  &hf_p1_Operations_probe_submission_or_report_delivery,
+  &hf_p1_Operations_message_submission_or_message_delivery,
+  NULL
 };
 
 static int
 dissect_p1_Operations(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                                0, ub_bit_options, Operations_bits, hf_index, ett_p1_Operations,
+                                                0, ub_bit_options, Operations_bits, 2, hf_index, ett_p1_Operations,
                                                 NULL);
 
   return offset;
@@ -4398,17 +4501,17 @@ dissect_p1_SubmissionControlArgument(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 }
 
 
-static const asn_namedbit WaitingMessages_bits[] = {
-  {  0, &hf_p1_WaitingMessages_long_content, -1, -1, "long-content", NULL },
-  {  1, &hf_p1_WaitingMessages_low_priority, -1, -1, "low-priority", NULL },
-  {  2, &hf_p1_WaitingMessages_other_security_labels, -1, -1, "other-security-labels", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * WaitingMessages_bits[] = {
+  &hf_p1_WaitingMessages_long_content,
+  &hf_p1_WaitingMessages_low_priority,
+  &hf_p1_WaitingMessages_other_security_labels,
+  NULL
 };
 
 static int
 dissect_p1_WaitingMessages(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                                0, ub_bit_options, WaitingMessages_bits, hf_index, ett_p1_WaitingMessages,
+                                                0, ub_bit_options, WaitingMessages_bits, 3, hf_index, ett_p1_WaitingMessages,
                                                 NULL);
 
   return offset;
@@ -4629,15 +4732,16 @@ dissect_p1_DeliveredOriginatorName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 }
 
 
-static const asn_namedbit DeliveryFlags_bits[] = {
-  {  1, &hf_p1_DeliveryFlags_implicit_conversion_prohibited, -1, -1, "implicit-conversion-prohibited", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * DeliveryFlags_bits[] = {
+  &hf_p1_DeliveryFlags_spare_bit_0,
+  &hf_p1_DeliveryFlags_implicit_conversion_prohibited,
+  NULL
 };
 
 static int
 dissect_p1_DeliveryFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                                0, ub_bit_options, DeliveryFlags_bits, hf_index, ett_p1_DeliveryFlags,
+                                                0, ub_bit_options, DeliveryFlags_bits, 2, hf_index, ett_p1_DeliveryFlags,
                                                 NULL);
 
   return offset;
@@ -5136,17 +5240,17 @@ dissect_p1_T_objects(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const asn_namedbit T_source_type_bits[] = {
-  {  0, &hf_p1_T_source_type_originated_by, -1, -1, "originated-by", NULL },
-  {  1, &hf_p1_T_source_type_redirected_by, -1, -1, "redirected-by", NULL },
-  {  2, &hf_p1_T_source_type_dl_expanded_by, -1, -1, "dl-expanded-by", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * T_source_type_bits[] = {
+  &hf_p1_T_source_type_originated_by,
+  &hf_p1_T_source_type_redirected_by,
+  &hf_p1_T_source_type_dl_expanded_by,
+  NULL
 };
 
 static int
 dissect_p1_T_source_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    T_source_type_bits, hf_index, ett_p1_T_source_type,
+                                    T_source_type_bits, 3, hf_index, ett_p1_T_source_type,
                                     NULL);
 
   return offset;
@@ -5328,20 +5432,20 @@ dissect_p1_RestrictedDelivery(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const asn_namedbit T_standard_parameters_bits[] = {
-  {  0, &hf_p1_T_standard_parameters_user_name, -1, -1, "user-name", NULL },
-  {  1, &hf_p1_T_standard_parameters_user_address, -1, -1, "user-address", NULL },
-  {  2, &hf_p1_T_standard_parameters_deliverable_class, -1, -1, "deliverable-class", NULL },
-  {  3, &hf_p1_T_standard_parameters_default_delivery_controls, -1, -1, "default-delivery-controls", NULL },
-  {  4, &hf_p1_T_standard_parameters_redirections, -1, -1, "redirections", NULL },
-  {  5, &hf_p1_T_standard_parameters_restricted_delivery, -1, -1, "restricted-delivery", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * T_standard_parameters_bits[] = {
+  &hf_p1_T_standard_parameters_user_name,
+  &hf_p1_T_standard_parameters_user_address,
+  &hf_p1_T_standard_parameters_deliverable_class,
+  &hf_p1_T_standard_parameters_default_delivery_controls,
+  &hf_p1_T_standard_parameters_redirections,
+  &hf_p1_T_standard_parameters_restricted_delivery,
+  NULL
 };
 
 static int
 dissect_p1_T_standard_parameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    T_standard_parameters_bits, hf_index, ett_p1_T_standard_parameters,
+                                    T_standard_parameters_bits, 6, hf_index, ett_p1_T_standard_parameters,
                                     NULL);
 
   return offset;
@@ -5670,22 +5774,22 @@ dissect_p1_PhysicalForwardingAddressRequest(gboolean implicit_tag _U_, tvbuff_t 
 }
 
 
-static const asn_namedbit PhysicalDeliveryModes_bits[] = {
-  {  0, &hf_p1_PhysicalDeliveryModes_ordinary_mail, -1, -1, "ordinary-mail", NULL },
-  {  1, &hf_p1_PhysicalDeliveryModes_special_delivery, -1, -1, "special-delivery", NULL },
-  {  2, &hf_p1_PhysicalDeliveryModes_express_mail, -1, -1, "express-mail", NULL },
-  {  3, &hf_p1_PhysicalDeliveryModes_counter_collection, -1, -1, "counter-collection", NULL },
-  {  4, &hf_p1_PhysicalDeliveryModes_counter_collection_with_telephone_advice, -1, -1, "counter-collection-with-telephone-advice", NULL },
-  {  5, &hf_p1_PhysicalDeliveryModes_counter_collection_with_telex_advice, -1, -1, "counter-collection-with-telex-advice", NULL },
-  {  6, &hf_p1_PhysicalDeliveryModes_counter_collection_with_teletex_advice, -1, -1, "counter-collection-with-teletex-advice", NULL },
-  {  7, &hf_p1_PhysicalDeliveryModes_bureau_fax_delivery, -1, -1, "bureau-fax-delivery", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * PhysicalDeliveryModes_bits[] = {
+  &hf_p1_PhysicalDeliveryModes_ordinary_mail,
+  &hf_p1_PhysicalDeliveryModes_special_delivery,
+  &hf_p1_PhysicalDeliveryModes_express_mail,
+  &hf_p1_PhysicalDeliveryModes_counter_collection,
+  &hf_p1_PhysicalDeliveryModes_counter_collection_with_telephone_advice,
+  &hf_p1_PhysicalDeliveryModes_counter_collection_with_telex_advice,
+  &hf_p1_PhysicalDeliveryModes_counter_collection_with_teletex_advice,
+  &hf_p1_PhysicalDeliveryModes_bureau_fax_delivery,
+  NULL
 };
 
 static int
 dissect_p1_PhysicalDeliveryModes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_constrained_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                                0, ub_bit_options, PhysicalDeliveryModes_bits, hf_index, ett_p1_PhysicalDeliveryModes,
+                                                0, ub_bit_options, PhysicalDeliveryModes_bits, 8, hf_index, ett_p1_PhysicalDeliveryModes,
                                                 NULL);
 
   return offset;
@@ -7226,7 +7330,7 @@ dissect_p1_AsymmetricToken(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 static int
 dissect_p1_RandomNumber(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -7274,7 +7378,7 @@ dissect_p1_MessageTokenSignedData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 static int
 dissect_p1_EncryptionKey(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -10681,6 +10785,18 @@ void proto_register_p1(void) {
       { "service-message", "p1.service-message",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
+    { &hf_p1_OriginatorReportRequest_spare_bit_0,
+      { "spare_bit_0", "p1.spare_bit_0",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_p1_OriginatorReportRequest_spare_bit_1,
+      { "spare_bit_1", "p1.spare_bit_1",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_p1_OriginatorReportRequest_spare_bit_2,
+      { "spare_bit_2", "p1.spare_bit_2",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
     { &hf_p1_OriginatorReportRequest_report,
       { "report", "p1.report",
         FT_BOOLEAN, 8, NULL, 0x10,
@@ -10688,6 +10804,10 @@ void proto_register_p1(void) {
     { &hf_p1_OriginatorReportRequest_non_delivery_report,
       { "non-delivery-report", "p1.non-delivery-report",
         FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_p1_DeliveryFlags_spare_bit_0,
+      { "spare_bit_0", "p1.spare_bit_0",
+        FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_p1_DeliveryFlags_implicit_conversion_prohibited,
       { "implicit-conversion-prohibited", "p1.implicit-conversion-prohibited",
@@ -10777,6 +10897,38 @@ void proto_register_p1(void) {
       { "mixed-mode", "p1.mixed-mode",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_0,
+      { "spare_bit_0", "p1.spare_bit_0",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_1,
+      { "spare_bit_1", "p1.spare_bit_1",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_2,
+      { "spare_bit_2", "p1.spare_bit_2",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_3,
+      { "spare_bit_3", "p1.spare_bit_3",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_4,
+      { "spare_bit_4", "p1.spare_bit_4",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_5,
+      { "spare_bit_5", "p1.spare_bit_5",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_6,
+      { "spare_bit_6", "p1.spare_bit_6",
+        FT_BOOLEAN, 8, NULL, 0x02,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_7,
+      { "spare_bit_7", "p1.spare_bit_7",
+        FT_BOOLEAN, 8, NULL, 0x01,
+        NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_two_dimensional,
       { "two-dimensional", "p1.two-dimensional",
         FT_BOOLEAN, 8, NULL, 0x80,
@@ -10784,6 +10936,46 @@ void proto_register_p1(void) {
     { &hf_p1_G3FacsimileNonBasicParameters_fine_resolution,
       { "fine-resolution", "p1.fine-resolution",
         FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_10,
+      { "spare_bit_10", "p1.spare_bit_10",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_11,
+      { "spare_bit_11", "p1.spare_bit_11",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_12,
+      { "spare_bit_12", "p1.spare_bit_12",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_13,
+      { "spare_bit_13", "p1.spare_bit_13",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_14,
+      { "spare_bit_14", "p1.spare_bit_14",
+        FT_BOOLEAN, 8, NULL, 0x02,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_15,
+      { "spare_bit_15", "p1.spare_bit_15",
+        FT_BOOLEAN, 8, NULL, 0x01,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_16,
+      { "spare_bit_16", "p1.spare_bit_16",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_17,
+      { "spare_bit_17", "p1.spare_bit_17",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_18,
+      { "spare_bit_18", "p1.spare_bit_18",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_19,
+      { "spare_bit_19", "p1.spare_bit_19",
+        FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_unlimited_length,
       { "unlimited-length", "p1.unlimited-length",
@@ -10801,13 +10993,57 @@ void proto_register_p1(void) {
       { "b4-width", "p1.b4-width",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_24,
+      { "spare_bit_24", "p1.spare_bit_24",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_t6_coding,
       { "t6-coding", "p1.t6-coding",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_26,
+      { "spare_bit_26", "p1.spare_bit_26",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_27,
+      { "spare_bit_27", "p1.spare_bit_27",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_28,
+      { "spare_bit_28", "p1.spare_bit_28",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_29,
+      { "spare_bit_29", "p1.spare_bit_29",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_uncompressed,
       { "uncompressed", "p1.uncompressed",
         FT_BOOLEAN, 8, NULL, 0x02,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_31,
+      { "spare_bit_31", "p1.spare_bit_31",
+        FT_BOOLEAN, 8, NULL, 0x01,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_32,
+      { "spare_bit_32", "p1.spare_bit_32",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_33,
+      { "spare_bit_33", "p1.spare_bit_33",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_34,
+      { "spare_bit_34", "p1.spare_bit_34",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_35,
+      { "spare_bit_35", "p1.spare_bit_35",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_36,
+      { "spare_bit_36", "p1.spare_bit_36",
+        FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_width_middle_864_of_1728,
       { "width-middle-864-of-1728", "p1.width-middle-864-of-1728",
@@ -10816,6 +11052,26 @@ void proto_register_p1(void) {
     { &hf_p1_G3FacsimileNonBasicParameters_width_middle_1216_of_1728,
       { "width-middle-1216-of-1728", "p1.width-middle-1216-of-1728",
         FT_BOOLEAN, 8, NULL, 0x02,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_39,
+      { "spare_bit_39", "p1.spare_bit_39",
+        FT_BOOLEAN, 8, NULL, 0x01,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_40,
+      { "spare_bit_40", "p1.spare_bit_40",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_41,
+      { "spare_bit_41", "p1.spare_bit_41",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_42,
+      { "spare_bit_42", "p1.spare_bit_42",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_43,
+      { "spare_bit_43", "p1.spare_bit_43",
+        FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_resolution_type,
       { "resolution-type", "p1.resolution-type",
@@ -10833,6 +11089,10 @@ void proto_register_p1(void) {
       { "resolution-8x15", "p1.resolution-8x15",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_48,
+      { "spare_bit_48", "p1.spare_bit_48",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_edi,
       { "edi", "p1.edi",
         FT_BOOLEAN, 8, NULL, 0x40,
@@ -10845,13 +11105,57 @@ void proto_register_p1(void) {
       { "bft", "p1.bft",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_52,
+      { "spare_bit_52", "p1.spare_bit_52",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_53,
+      { "spare_bit_53", "p1.spare_bit_53",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_54,
+      { "spare_bit_54", "p1.spare_bit_54",
+        FT_BOOLEAN, 8, NULL, 0x02,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_55,
+      { "spare_bit_55", "p1.spare_bit_55",
+        FT_BOOLEAN, 8, NULL, 0x01,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_56,
+      { "spare_bit_56", "p1.spare_bit_56",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_57,
+      { "spare_bit_57", "p1.spare_bit_57",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_mixed_mode,
       { "mixed-mode", "p1.mixed-mode",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_59,
+      { "spare_bit_59", "p1.spare_bit_59",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_character_mode,
       { "character-mode", "p1.character-mode",
         FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_61,
+      { "spare_bit_61", "p1.spare_bit_61",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_62,
+      { "spare_bit_62", "p1.spare_bit_62",
+        FT_BOOLEAN, 8, NULL, 0x02,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_63,
+      { "spare_bit_63", "p1.spare_bit_63",
+        FT_BOOLEAN, 8, NULL, 0x01,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_64,
+      { "spare_bit_64", "p1.spare_bit_64",
+        FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_twelve_bits,
       { "twelve-bits", "p1.twelve-bits",
@@ -10868,6 +11172,14 @@ void proto_register_p1(void) {
     { &hf_p1_G3FacsimileNonBasicParameters_jpeg,
       { "jpeg", "p1.jpeg",
         FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_69,
+      { "spare_bit_69", "p1.spare_bit_69",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        NULL, HFILL }},
+    { &hf_p1_G3FacsimileNonBasicParameters_spare_bit_70,
+      { "spare_bit_70", "p1.spare_bit_70",
+        FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_p1_G3FacsimileNonBasicParameters_processable_mode_26,
       { "processable-mode-26", "p1.processable-mode-26",

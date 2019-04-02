@@ -980,15 +980,19 @@ static int hf_xnap_T_interfaces_to_trace_x_nc = -1;
 static int hf_xnap_T_interfaces_to_trace_uu = -1;
 static int hf_xnap_T_interfaces_to_trace_f1_c = -1;
 static int hf_xnap_T_interfaces_to_trace_e1 = -1;
+static int hf_xnap_T_nr_EncyptionAlgorithms_spare_bit_0 = -1;
 static int hf_xnap_T_nr_EncyptionAlgorithms_nea1_128 = -1;
 static int hf_xnap_T_nr_EncyptionAlgorithms_nea2_128 = -1;
 static int hf_xnap_T_nr_EncyptionAlgorithms_nea3_128 = -1;
+static int hf_xnap_T_nr_IntegrityProtectionAlgorithms_spare_bit_0 = -1;
 static int hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia1_128 = -1;
 static int hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia2_128 = -1;
 static int hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia3_128 = -1;
+static int hf_xnap_T_e_utra_EncyptionAlgorithms_spare_bit_0 = -1;
 static int hf_xnap_T_e_utra_EncyptionAlgorithms_eea1_128 = -1;
 static int hf_xnap_T_e_utra_EncyptionAlgorithms_eea2_128 = -1;
 static int hf_xnap_T_e_utra_EncyptionAlgorithms_eea3_128 = -1;
+static int hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_spare_bit_0 = -1;
 static int hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_eia1_128 = -1;
 static int hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_eia2_128 = -1;
 static int hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_eia3_128 = -1;
@@ -15124,6 +15128,10 @@ void proto_register_xnap(void) {
       { "e1", "xnap.e1",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
+    { &hf_xnap_T_nr_EncyptionAlgorithms_spare_bit_0,
+      { "spare_bit_0", "xnap.spare_bit_0",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
     { &hf_xnap_T_nr_EncyptionAlgorithms_nea1_128,
       { "nea1-128", "xnap.nea1-128",
         FT_BOOLEAN, 8, NULL, 0x40,
@@ -15135,6 +15143,10 @@ void proto_register_xnap(void) {
     { &hf_xnap_T_nr_EncyptionAlgorithms_nea3_128,
       { "nea3-128", "xnap.nea3-128",
         FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_xnap_T_nr_IntegrityProtectionAlgorithms_spare_bit_0,
+      { "spare_bit_0", "xnap.spare_bit_0",
+        FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia1_128,
       { "nia1-128", "xnap.nia1-128",
@@ -15148,6 +15160,10 @@ void proto_register_xnap(void) {
       { "nia3-128", "xnap.nia3-128",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
+    { &hf_xnap_T_e_utra_EncyptionAlgorithms_spare_bit_0,
+      { "spare_bit_0", "xnap.spare_bit_0",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
     { &hf_xnap_T_e_utra_EncyptionAlgorithms_eea1_128,
       { "eea1-128", "xnap.eea1-128",
         FT_BOOLEAN, 8, NULL, 0x40,
@@ -15159,6 +15175,10 @@ void proto_register_xnap(void) {
     { &hf_xnap_T_e_utra_EncyptionAlgorithms_eea3_128,
       { "eea3-128", "xnap.eea3-128",
         FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_spare_bit_0,
+      { "spare_bit_0", "xnap.spare_bit_0",
+        FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_eia1_128,
       { "eia1-128", "xnap.eia1-128",

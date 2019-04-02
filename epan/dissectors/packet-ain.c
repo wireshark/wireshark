@@ -3421,16 +3421,16 @@ dissect_ain_GenericDigitsList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const asn_namedbit ApplyRestrictions_U_bits[] = {
-  {  0, &hf_ain_ApplyRestrictions_U_code, -1, -1, "code", NULL },
-  {  1, &hf_ain_ApplyRestrictions_U_toll, -1, -1, "toll", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * ApplyRestrictions_U_bits[] = {
+  &hf_ain_ApplyRestrictions_U_code,
+  &hf_ain_ApplyRestrictions_U_toll,
+  NULL
 };
 
 static int
 dissect_ain_ApplyRestrictions_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    ApplyRestrictions_U_bits, hf_index, ett_ain_ApplyRestrictions_U,
+                                    ApplyRestrictions_U_bits, 2, hf_index, ett_ain_ApplyRestrictions_U,
                                     NULL);
 
   return offset;
@@ -5627,18 +5627,18 @@ dissect_ain_DelayInterval(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-static const asn_namedbit Empty_bits[] = {
-  {  0, &hf_ain_Empty_entireList, -1, -1, "entireList", NULL },
-  {  1, &hf_ain_Empty_outgoingmemorySlot, -1, -1, "outgoingmemorySlot", NULL },
-  {  2, &hf_ain_Empty_incomingmemorySlot, -1, -1, "incomingmemorySlot", NULL },
-  {  3, &hf_ain_Empty_forwardToDn, -1, -1, "forwardToDn", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * Empty_bits[] = {
+  &hf_ain_Empty_entireList,
+  &hf_ain_Empty_outgoingmemorySlot,
+  &hf_ain_Empty_incomingmemorySlot,
+  &hf_ain_Empty_forwardToDn,
+  NULL
 };
 
 static int
 dissect_ain_Empty(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    Empty_bits, hf_index, ett_ain_Empty,
+                                    Empty_bits, 4, hf_index, ett_ain_Empty,
                                     NULL);
 
   return offset;
@@ -5715,15 +5715,15 @@ dissect_ain_Service1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const asn_namedbit Request1_bits[] = {
-  {  0, &hf_ain_Request1_activationStatus, -1, -1, "activationStatus", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * Request1_bits[] = {
+  &hf_ain_Request1_activationStatus,
+  NULL
 };
 
 static int
 dissect_ain_Request1(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    Request1_bits, hf_index, ett_ain_Request1,
+                                    Request1_bits, 1, hf_index, ett_ain_Request1,
                                     NULL);
 
   return offset;
@@ -5760,16 +5760,16 @@ dissect_ain_Service2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const asn_namedbit Request2_bits[] = {
-  {  0, &hf_ain_Request2_activationStatus, -1, -1, "activationStatus", NULL },
-  {  1, &hf_ain_Request2_delayInterval, -1, -1, "delayInterval", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * Request2_bits[] = {
+  &hf_ain_Request2_activationStatus,
+  &hf_ain_Request2_delayInterval,
+  NULL
 };
 
 static int
 dissect_ain_Request2(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    Request2_bits, hf_index, ett_ain_Request2,
+                                    Request2_bits, 2, hf_index, ett_ain_Request2,
                                     NULL);
 
   return offset;
@@ -5807,17 +5807,17 @@ dissect_ain_Service3(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const asn_namedbit Request3_bits[] = {
-  {  0, &hf_ain_Request3_activationStatus, -1, -1, "activationStatus", NULL },
-  {  1, &hf_ain_Request3_entireList, -1, -1, "entireList", NULL },
-  {  2, &hf_ain_Request3_listSize, -1, -1, "listSize", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * Request3_bits[] = {
+  &hf_ain_Request3_activationStatus,
+  &hf_ain_Request3_entireList,
+  &hf_ain_Request3_listSize,
+  NULL
 };
 
 static int
 dissect_ain_Request3(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    Request3_bits, hf_index, ett_ain_Request3,
+                                    Request3_bits, 3, hf_index, ett_ain_Request3,
                                     NULL);
 
   return offset;
@@ -5856,16 +5856,16 @@ dissect_ain_Service4(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const asn_namedbit Request4_bits[] = {
-  {  0, &hf_ain_Request4_activationStatus, -1, -1, "activationStatus", NULL },
-  {  1, &hf_ain_Request4_forwardingDn, -1, -1, "forwardingDn", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * Request4_bits[] = {
+  &hf_ain_Request4_activationStatus,
+  &hf_ain_Request4_forwardingDn,
+  NULL
 };
 
 static int
 dissect_ain_Request4(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    Request4_bits, hf_index, ett_ain_Request4,
+                                    Request4_bits, 2, hf_index, ett_ain_Request4,
                                     NULL);
 
   return offset;
@@ -5903,18 +5903,18 @@ dissect_ain_Service5(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const asn_namedbit Request5_bits[] = {
-  {  0, &hf_ain_Request5_activationStatus, -1, -1, "activationStatus", NULL },
-  {  1, &hf_ain_Request5_forwardingDn, -1, -1, "forwardingDn", NULL },
-  {  2, &hf_ain_Request5_entireList, -1, -1, "entireList", NULL },
-  {  3, &hf_ain_Request5_listSize, -1, -1, "listSize", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * Request5_bits[] = {
+  &hf_ain_Request5_activationStatus,
+  &hf_ain_Request5_forwardingDn,
+  &hf_ain_Request5_entireList,
+  &hf_ain_Request5_listSize,
+  NULL
 };
 
 static int
 dissect_ain_Request5(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    Request5_bits, hf_index, ett_ain_Request5,
+                                    Request5_bits, 4, hf_index, ett_ain_Request5,
                                     NULL);
 
   return offset;
@@ -5951,15 +5951,15 @@ dissect_ain_Service6(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const asn_namedbit Request6_bits[] = {
-  {  0, &hf_ain_Request6_delayInterval, -1, -1, "delayInterval", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * Request6_bits[] = {
+  &hf_ain_Request6_delayInterval,
+  NULL
 };
 
 static int
 dissect_ain_Request6(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    Request6_bits, hf_index, ett_ain_Request6,
+                                    Request6_bits, 1, hf_index, ett_ain_Request6,
                                     NULL);
 
   return offset;
@@ -6011,16 +6011,16 @@ dissect_ain_RequestGroups(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-static const asn_namedbit RequestMemorySlot_bits[] = {
-  {  0, &hf_ain_RequestMemorySlot_incoming, -1, -1, "incoming", NULL },
-  {  1, &hf_ain_RequestMemorySlot_outgoing, -1, -1, "outgoing", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * RequestMemorySlot_bits[] = {
+  &hf_ain_RequestMemorySlot_incoming,
+  &hf_ain_RequestMemorySlot_outgoing,
+  NULL
 };
 
 static int
 dissect_ain_RequestMemorySlot(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    RequestMemorySlot_bits, hf_index, ett_ain_RequestMemorySlot,
+                                    RequestMemorySlot_bits, 2, hf_index, ett_ain_RequestMemorySlot,
                                     NULL);
 
   return offset;
@@ -6071,35 +6071,35 @@ dissect_ain_QueryRequestArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const asn_namedbit EDPRequest_U_bits[] = {
-  {  0, &hf_ain_EDPRequest_U_oCalledPartyBusy, -1, -1, "oCalledPartyBusy", NULL },
-  {  1, &hf_ain_EDPRequest_U_oNoAnswer, -1, -1, "oNoAnswer", NULL },
-  {  2, &hf_ain_EDPRequest_U_oTermSeized, -1, -1, "oTermSeized", NULL },
-  {  3, &hf_ain_EDPRequest_U_oAnswer, -1, -1, "oAnswer", NULL },
-  {  4, &hf_ain_EDPRequest_U_tBusy, -1, -1, "tBusy", NULL },
-  {  5, &hf_ain_EDPRequest_U_tNoAnswer, -1, -1, "tNoAnswer", NULL },
-  {  6, &hf_ain_EDPRequest_U_termResourceAvailable, -1, -1, "termResourceAvailable", NULL },
-  {  7, &hf_ain_EDPRequest_U_tAnswer, -1, -1, "tAnswer", NULL },
-  {  8, &hf_ain_EDPRequest_U_networkBusy, -1, -1, "networkBusy", NULL },
-  {  9, &hf_ain_EDPRequest_U_oSuspended, -1, -1, "oSuspended", NULL },
-  { 10, &hf_ain_EDPRequest_U_oDisconnectCalled, -1, -1, "oDisconnectCalled", NULL },
-  { 11, &hf_ain_EDPRequest_U_oDisconnect, -1, -1, "oDisconnect", NULL },
-  { 12, &hf_ain_EDPRequest_U_oAbandon, -1, -1, "oAbandon", NULL },
-  { 13, &hf_ain_EDPRequest_U_featureActivator, -1, -1, "featureActivator", NULL },
-  { 14, &hf_ain_EDPRequest_U_switchHookFlash, -1, -1, "switchHookFlash", NULL },
-  { 15, &hf_ain_EDPRequest_U_success, -1, -1, "success", NULL },
-  { 16, &hf_ain_EDPRequest_U_tDisconnect, -1, -1, "tDisconnect", NULL },
-  { 17, &hf_ain_EDPRequest_U_timeout, -1, -1, "timeout", NULL },
-  { 18, &hf_ain_EDPRequest_U_originationAttempt, -1, -1, "originationAttempt", NULL },
-  { 19, &hf_ain_EDPRequest_U_oDTMFEntered, -1, -1, "oDTMFEntered", NULL },
-  { 20, &hf_ain_EDPRequest_U_tDTMFEntered, -1, -1, "tDTMFEntered", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * EDPRequest_U_bits[] = {
+  &hf_ain_EDPRequest_U_oCalledPartyBusy,
+  &hf_ain_EDPRequest_U_oNoAnswer,
+  &hf_ain_EDPRequest_U_oTermSeized,
+  &hf_ain_EDPRequest_U_oAnswer,
+  &hf_ain_EDPRequest_U_tBusy,
+  &hf_ain_EDPRequest_U_tNoAnswer,
+  &hf_ain_EDPRequest_U_termResourceAvailable,
+  &hf_ain_EDPRequest_U_tAnswer,
+  &hf_ain_EDPRequest_U_networkBusy,
+  &hf_ain_EDPRequest_U_oSuspended,
+  &hf_ain_EDPRequest_U_oDisconnectCalled,
+  &hf_ain_EDPRequest_U_oDisconnect,
+  &hf_ain_EDPRequest_U_oAbandon,
+  &hf_ain_EDPRequest_U_featureActivator,
+  &hf_ain_EDPRequest_U_switchHookFlash,
+  &hf_ain_EDPRequest_U_success,
+  &hf_ain_EDPRequest_U_tDisconnect,
+  &hf_ain_EDPRequest_U_timeout,
+  &hf_ain_EDPRequest_U_originationAttempt,
+  &hf_ain_EDPRequest_U_oDTMFEntered,
+  &hf_ain_EDPRequest_U_tDTMFEntered,
+  NULL
 };
 
 static int
 dissect_ain_EDPRequest_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    EDPRequest_U_bits, hf_index, ett_ain_EDPRequest_U,
+                                    EDPRequest_U_bits, 21, hf_index, ett_ain_EDPRequest_U,
                                     NULL);
 
   return offset;
@@ -6116,35 +6116,35 @@ dissect_ain_EDPRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const asn_namedbit EDPNotification_U_bits[] = {
-  {  0, &hf_ain_EDPNotification_U_oCalledPartyBusy, -1, -1, "oCalledPartyBusy", NULL },
-  {  1, &hf_ain_EDPNotification_U_oNoAnswer, -1, -1, "oNoAnswer", NULL },
-  {  2, &hf_ain_EDPNotification_U_oTermSeized, -1, -1, "oTermSeized", NULL },
-  {  3, &hf_ain_EDPNotification_U_oAnswer, -1, -1, "oAnswer", NULL },
-  {  4, &hf_ain_EDPNotification_U_tBusy, -1, -1, "tBusy", NULL },
-  {  5, &hf_ain_EDPNotification_U_tNoAnswer, -1, -1, "tNoAnswer", NULL },
-  {  6, &hf_ain_EDPNotification_U_termResourceAvailable, -1, -1, "termResourceAvailable", NULL },
-  {  7, &hf_ain_EDPNotification_U_tAnswer, -1, -1, "tAnswer", NULL },
-  {  8, &hf_ain_EDPNotification_U_networkBusy, -1, -1, "networkBusy", NULL },
-  {  9, &hf_ain_EDPNotification_U_oSuspended, -1, -1, "oSuspended", NULL },
-  { 10, &hf_ain_EDPNotification_U_oDisconnectCalled, -1, -1, "oDisconnectCalled", NULL },
-  { 11, &hf_ain_EDPNotification_U_oDisconnect, -1, -1, "oDisconnect", NULL },
-  { 12, &hf_ain_EDPNotification_U_oAbandon, -1, -1, "oAbandon", NULL },
-  { 13, &hf_ain_EDPNotification_U_featureActivator, -1, -1, "featureActivator", NULL },
-  { 14, &hf_ain_EDPNotification_U_switchHookFlash, -1, -1, "switchHookFlash", NULL },
-  { 15, &hf_ain_EDPNotification_U_success, -1, -1, "success", NULL },
-  { 16, &hf_ain_EDPNotification_U_tDisconnect, -1, -1, "tDisconnect", NULL },
-  { 17, &hf_ain_EDPNotification_U_timeout, -1, -1, "timeout", NULL },
-  { 18, &hf_ain_EDPNotification_U_originationAttempt, -1, -1, "originationAttempt", NULL },
-  { 19, &hf_ain_EDPNotification_U_oDTMFEntered, -1, -1, "oDTMFEntered", NULL },
-  { 20, &hf_ain_EDPNotification_U_tDTMFEntered, -1, -1, "tDTMFEntered", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * EDPNotification_U_bits[] = {
+  &hf_ain_EDPNotification_U_oCalledPartyBusy,
+  &hf_ain_EDPNotification_U_oNoAnswer,
+  &hf_ain_EDPNotification_U_oTermSeized,
+  &hf_ain_EDPNotification_U_oAnswer,
+  &hf_ain_EDPNotification_U_tBusy,
+  &hf_ain_EDPNotification_U_tNoAnswer,
+  &hf_ain_EDPNotification_U_termResourceAvailable,
+  &hf_ain_EDPNotification_U_tAnswer,
+  &hf_ain_EDPNotification_U_networkBusy,
+  &hf_ain_EDPNotification_U_oSuspended,
+  &hf_ain_EDPNotification_U_oDisconnectCalled,
+  &hf_ain_EDPNotification_U_oDisconnect,
+  &hf_ain_EDPNotification_U_oAbandon,
+  &hf_ain_EDPNotification_U_featureActivator,
+  &hf_ain_EDPNotification_U_switchHookFlash,
+  &hf_ain_EDPNotification_U_success,
+  &hf_ain_EDPNotification_U_tDisconnect,
+  &hf_ain_EDPNotification_U_timeout,
+  &hf_ain_EDPNotification_U_originationAttempt,
+  &hf_ain_EDPNotification_U_oDTMFEntered,
+  &hf_ain_EDPNotification_U_tDTMFEntered,
+  NULL
 };
 
 static int
 dissect_ain_EDPNotification_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    EDPNotification_U_bits, hf_index, ett_ain_EDPNotification_U,
+                                    EDPNotification_U_bits, 21, hf_index, ett_ain_EDPNotification_U,
                                     NULL);
 
   return offset;

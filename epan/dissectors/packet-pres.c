@@ -358,15 +358,15 @@ dissect_pres_Mode_selector(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 }
 
 
-static const asn_namedbit Protocol_version_bits[] = {
-  {  0, &hf_pres_Protocol_version_version_1, -1, -1, "version-1", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * Protocol_version_bits[] = {
+  &hf_pres_Protocol_version_version_1,
+  NULL
 };
 
 static int
 dissect_pres_Protocol_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    Protocol_version_bits, hf_index, ett_pres_Protocol_version,
+                                    Protocol_version_bits, 1, hf_index, ett_pres_Protocol_version,
                                     NULL);
 
   return offset;
@@ -518,60 +518,60 @@ dissect_pres_Default_context_name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 }
 
 
-static const asn_namedbit Presentation_requirements_bits[] = {
-  {  0, &hf_pres_Presentation_requirements_context_management, -1, -1, "context-management", NULL },
-  {  1, &hf_pres_Presentation_requirements_restoration, -1, -1, "restoration", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * Presentation_requirements_bits[] = {
+  &hf_pres_Presentation_requirements_context_management,
+  &hf_pres_Presentation_requirements_restoration,
+  NULL
 };
 
 static int
 dissect_pres_Presentation_requirements(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    Presentation_requirements_bits, hf_index, ett_pres_Presentation_requirements,
+                                    Presentation_requirements_bits, 2, hf_index, ett_pres_Presentation_requirements,
                                     NULL);
 
   return offset;
 }
 
 
-static const asn_namedbit User_session_requirements_bits[] = {
-  {  0, &hf_pres_User_session_requirements_half_duplex, -1, -1, "half-duplex", NULL },
-  {  1, &hf_pres_User_session_requirements_duplex, -1, -1, "duplex", NULL },
-  {  2, &hf_pres_User_session_requirements_expedited_data, -1, -1, "expedited-data", NULL },
-  {  3, &hf_pres_User_session_requirements_minor_synchronize, -1, -1, "minor-synchronize", NULL },
-  {  4, &hf_pres_User_session_requirements_major_synchronize, -1, -1, "major-synchronize", NULL },
-  {  5, &hf_pres_User_session_requirements_resynchronize, -1, -1, "resynchronize", NULL },
-  {  6, &hf_pres_User_session_requirements_activity_management, -1, -1, "activity-management", NULL },
-  {  7, &hf_pres_User_session_requirements_negotiated_release, -1, -1, "negotiated-release", NULL },
-  {  8, &hf_pres_User_session_requirements_capability_data, -1, -1, "capability-data", NULL },
-  {  9, &hf_pres_User_session_requirements_exceptions, -1, -1, "exceptions", NULL },
-  { 10, &hf_pres_User_session_requirements_typed_data, -1, -1, "typed-data", NULL },
-  { 11, &hf_pres_User_session_requirements_symmetric_synchronize, -1, -1, "symmetric-synchronize", NULL },
-  { 12, &hf_pres_User_session_requirements_data_separation, -1, -1, "data-separation", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * User_session_requirements_bits[] = {
+  &hf_pres_User_session_requirements_half_duplex,
+  &hf_pres_User_session_requirements_duplex,
+  &hf_pres_User_session_requirements_expedited_data,
+  &hf_pres_User_session_requirements_minor_synchronize,
+  &hf_pres_User_session_requirements_major_synchronize,
+  &hf_pres_User_session_requirements_resynchronize,
+  &hf_pres_User_session_requirements_activity_management,
+  &hf_pres_User_session_requirements_negotiated_release,
+  &hf_pres_User_session_requirements_capability_data,
+  &hf_pres_User_session_requirements_exceptions,
+  &hf_pres_User_session_requirements_typed_data,
+  &hf_pres_User_session_requirements_symmetric_synchronize,
+  &hf_pres_User_session_requirements_data_separation,
+  NULL
 };
 
 static int
 dissect_pres_User_session_requirements(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    User_session_requirements_bits, hf_index, ett_pres_User_session_requirements,
+                                    User_session_requirements_bits, 13, hf_index, ett_pres_User_session_requirements,
                                     NULL);
 
   return offset;
 }
 
 
-static const asn_namedbit Protocol_options_bits[] = {
-  {  0, &hf_pres_Protocol_options_nominated_context, -1, -1, "nominated-context", NULL },
-  {  1, &hf_pres_Protocol_options_short_encoding, -1, -1, "short-encoding", NULL },
-  {  2, &hf_pres_Protocol_options_packed_encoding_rules, -1, -1, "packed-encoding-rules", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * Protocol_options_bits[] = {
+  &hf_pres_Protocol_options_nominated_context,
+  &hf_pres_Protocol_options_short_encoding,
+  &hf_pres_Protocol_options_packed_encoding_rules,
+  NULL
 };
 
 static int
 dissect_pres_Protocol_options(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    Protocol_options_bits, hf_index, ett_pres_Protocol_options,
+                                    Protocol_options_bits, 3, hf_index, ett_pres_Protocol_options,
                                     NULL);
 
   return offset;
@@ -655,7 +655,7 @@ dissect_pres_T_octet_aligned(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_pres_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;

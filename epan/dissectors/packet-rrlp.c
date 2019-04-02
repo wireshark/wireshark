@@ -847,6 +847,7 @@ static int hf_rrlp_GPSAssistance_ephemerisExtension = -1;
 static int hf_rrlp_GPSAssistance_ephemerisExtensionCheck = -1;
 static int hf_rrlp_CommonGANSSAssistance_referenceTime = -1;
 static int hf_rrlp_CommonGANSSAssistance_referenceLocation = -1;
+static int hf_rrlp_CommonGANSSAssistance_spare_bit_2 = -1;
 static int hf_rrlp_CommonGANSSAssistance_ionosphericModel = -1;
 static int hf_rrlp_CommonGANSSAssistance_addIonosphericModel = -1;
 static int hf_rrlp_CommonGANSSAssistance_earthOrientationParam = -1;
@@ -10296,6 +10297,10 @@ void proto_register_rrlp(void) {
     { &hf_rrlp_CommonGANSSAssistance_referenceLocation,
       { "referenceLocation", "rrlp.referenceLocation",
         FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_rrlp_CommonGANSSAssistance_spare_bit_2,
+      { "spare_bit_2", "rrlp.spare_bit_2",
+        FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_rrlp_CommonGANSSAssistance_ionosphericModel,
       { "ionosphericModel", "rrlp.ionosphericModel",

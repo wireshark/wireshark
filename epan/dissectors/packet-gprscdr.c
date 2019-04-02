@@ -429,6 +429,7 @@ static int hf_gprscdr_ServiceConditionChangeV651_configurationChange = -1;
 static int hf_gprscdr_ServiceConditionChangeV651_serviceStop = -1;
 static int hf_gprscdr_ServiceConditionChangeV651_timeThresholdReached = -1;
 static int hf_gprscdr_ServiceConditionChangeV651_volumeThresholdReached = -1;
+static int hf_gprscdr_ServiceConditionChangeV651_spare_bit_12 = -1;
 static int hf_gprscdr_ServiceConditionChangeV651_timeExhausted = -1;
 static int hf_gprscdr_ServiceConditionChangeV651_volumeExhausted = -1;
 static int hf_gprscdr_ServiceConditionChangeV651_timeout = -1;
@@ -1222,17 +1223,17 @@ dissect_gprscdr_LCSQoSInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 }
 
 
-static const asn_namedbit LevelOfCAMELService_bits[] = {
-  {  0, &hf_gprscdr_LevelOfCAMELService_basic, -1, -1, "basic", NULL },
-  {  1, &hf_gprscdr_LevelOfCAMELService_callDurationSupervision, -1, -1, "callDurationSupervision", NULL },
-  {  2, &hf_gprscdr_LevelOfCAMELService_onlineCharging, -1, -1, "onlineCharging", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * LevelOfCAMELService_bits[] = {
+  &hf_gprscdr_LevelOfCAMELService_basic,
+  &hf_gprscdr_LevelOfCAMELService_callDurationSupervision,
+  &hf_gprscdr_LevelOfCAMELService_onlineCharging,
+  NULL
 };
 
 static int
 dissect_gprscdr_LevelOfCAMELService(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    LevelOfCAMELService_bits, hf_index, ett_gprscdr_LevelOfCAMELService,
+                                    LevelOfCAMELService_bits, 3, hf_index, ett_gprscdr_LevelOfCAMELService,
                                     NULL);
 
   return offset;
@@ -2628,34 +2629,35 @@ dissect_gprscdr_ResultCode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 }
 
 
-static const asn_namedbit ServiceConditionChangeV651_bits[] = {
-  {  0, &hf_gprscdr_ServiceConditionChangeV651_qoSChange, -1, -1, "qoSChange", NULL },
-  {  1, &hf_gprscdr_ServiceConditionChangeV651_sGSNChange, -1, -1, "sGSNChange", NULL },
-  {  2, &hf_gprscdr_ServiceConditionChangeV651_sGSNPLMNIDChange, -1, -1, "sGSNPLMNIDChange", NULL },
-  {  3, &hf_gprscdr_ServiceConditionChangeV651_tariffTimeSwitch, -1, -1, "tariffTimeSwitch", NULL },
-  {  4, &hf_gprscdr_ServiceConditionChangeV651_pDPContextRelease, -1, -1, "pDPContextRelease", NULL },
-  {  5, &hf_gprscdr_ServiceConditionChangeV651_rATChange, -1, -1, "rATChange", NULL },
-  {  6, &hf_gprscdr_ServiceConditionChangeV651_serviceIdledOut, -1, -1, "serviceIdledOut", NULL },
-  {  7, &hf_gprscdr_ServiceConditionChangeV651_qCTExpiry, -1, -1, "qCTExpiry", NULL },
-  {  8, &hf_gprscdr_ServiceConditionChangeV651_configurationChange, -1, -1, "configurationChange", NULL },
-  {  9, &hf_gprscdr_ServiceConditionChangeV651_serviceStop, -1, -1, "serviceStop", NULL },
-  { 10, &hf_gprscdr_ServiceConditionChangeV651_timeThresholdReached, -1, -1, "timeThresholdReached", NULL },
-  { 11, &hf_gprscdr_ServiceConditionChangeV651_volumeThresholdReached, -1, -1, "volumeThresholdReached", NULL },
-  { 13, &hf_gprscdr_ServiceConditionChangeV651_timeExhausted, -1, -1, "timeExhausted", NULL },
-  { 14, &hf_gprscdr_ServiceConditionChangeV651_volumeExhausted, -1, -1, "volumeExhausted", NULL },
-  { 15, &hf_gprscdr_ServiceConditionChangeV651_timeout, -1, -1, "timeout", NULL },
-  { 16, &hf_gprscdr_ServiceConditionChangeV651_returnRequested, -1, -1, "returnRequested", NULL },
-  { 17, &hf_gprscdr_ServiceConditionChangeV651_reauthorisationRequest, -1, -1, "reauthorisationRequest", NULL },
-  { 18, &hf_gprscdr_ServiceConditionChangeV651_continueOngoingSession, -1, -1, "continueOngoingSession", NULL },
-  { 19, &hf_gprscdr_ServiceConditionChangeV651_retryAndTerminateOngoingSession, -1, -1, "retryAndTerminateOngoingSession", NULL },
-  { 20, &hf_gprscdr_ServiceConditionChangeV651_terminateOngoingSession, -1, -1, "terminateOngoingSession", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * ServiceConditionChangeV651_bits[] = {
+  &hf_gprscdr_ServiceConditionChangeV651_qoSChange,
+  &hf_gprscdr_ServiceConditionChangeV651_sGSNChange,
+  &hf_gprscdr_ServiceConditionChangeV651_sGSNPLMNIDChange,
+  &hf_gprscdr_ServiceConditionChangeV651_tariffTimeSwitch,
+  &hf_gprscdr_ServiceConditionChangeV651_pDPContextRelease,
+  &hf_gprscdr_ServiceConditionChangeV651_rATChange,
+  &hf_gprscdr_ServiceConditionChangeV651_serviceIdledOut,
+  &hf_gprscdr_ServiceConditionChangeV651_qCTExpiry,
+  &hf_gprscdr_ServiceConditionChangeV651_configurationChange,
+  &hf_gprscdr_ServiceConditionChangeV651_serviceStop,
+  &hf_gprscdr_ServiceConditionChangeV651_timeThresholdReached,
+  &hf_gprscdr_ServiceConditionChangeV651_volumeThresholdReached,
+  &hf_gprscdr_ServiceConditionChangeV651_spare_bit_12,
+  &hf_gprscdr_ServiceConditionChangeV651_timeExhausted,
+  &hf_gprscdr_ServiceConditionChangeV651_volumeExhausted,
+  &hf_gprscdr_ServiceConditionChangeV651_timeout,
+  &hf_gprscdr_ServiceConditionChangeV651_returnRequested,
+  &hf_gprscdr_ServiceConditionChangeV651_reauthorisationRequest,
+  &hf_gprscdr_ServiceConditionChangeV651_continueOngoingSession,
+  &hf_gprscdr_ServiceConditionChangeV651_retryAndTerminateOngoingSession,
+  &hf_gprscdr_ServiceConditionChangeV651_terminateOngoingSession,
+  NULL
 };
 
 static int
 dissect_gprscdr_ServiceConditionChangeV651(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    ServiceConditionChangeV651_bits, hf_index, ett_gprscdr_ServiceConditionChangeV651,
+                                    ServiceConditionChangeV651_bits, 21, hf_index, ett_gprscdr_ServiceConditionChangeV651,
                                     NULL);
 
   return offset;
@@ -2862,43 +2864,43 @@ dissect_gprscdr_T_userLocationInformation_03(gboolean implicit_tag _U_, tvbuff_t
 }
 
 
-static const asn_namedbit ServiceConditionChangeV750_bits[] = {
-  {  0, &hf_gprscdr_ServiceConditionChangeV750_qoSChange, -1, -1, "qoSChange", NULL },
-  {  1, &hf_gprscdr_ServiceConditionChangeV750_sGSNChange, -1, -1, "sGSNChange", NULL },
-  {  2, &hf_gprscdr_ServiceConditionChangeV750_sGSNPLMNIDChange, -1, -1, "sGSNPLMNIDChange", NULL },
-  {  3, &hf_gprscdr_ServiceConditionChangeV750_tariffTimeSwitch, -1, -1, "tariffTimeSwitch", NULL },
-  {  4, &hf_gprscdr_ServiceConditionChangeV750_pDPContextRelease, -1, -1, "pDPContextRelease", NULL },
-  {  5, &hf_gprscdr_ServiceConditionChangeV750_rATChange, -1, -1, "rATChange", NULL },
-  {  6, &hf_gprscdr_ServiceConditionChangeV750_serviceIdledOut, -1, -1, "serviceIdledOut", NULL },
-  {  7, &hf_gprscdr_ServiceConditionChangeV750_reserved, -1, -1, "reserved", NULL },
-  {  8, &hf_gprscdr_ServiceConditionChangeV750_configurationChange, -1, -1, "configurationChange", NULL },
-  {  9, &hf_gprscdr_ServiceConditionChangeV750_serviceStop, -1, -1, "serviceStop", NULL },
-  { 10, &hf_gprscdr_ServiceConditionChangeV750_dCCATimeThresholdReached, -1, -1, "dCCATimeThresholdReached", NULL },
-  { 11, &hf_gprscdr_ServiceConditionChangeV750_dCCAVolumeThresholdReached, -1, -1, "dCCAVolumeThresholdReached", NULL },
-  { 12, &hf_gprscdr_ServiceConditionChangeV750_dCCAServiceSpecificUnitThresholdReached, -1, -1, "dCCAServiceSpecificUnitThresholdReached", NULL },
-  { 13, &hf_gprscdr_ServiceConditionChangeV750_dCCATimeExhausted, -1, -1, "dCCATimeExhausted", NULL },
-  { 14, &hf_gprscdr_ServiceConditionChangeV750_dCCAVolumeExhausted, -1, -1, "dCCAVolumeExhausted", NULL },
-  { 15, &hf_gprscdr_ServiceConditionChangeV750_dCCAValidityTimeout, -1, -1, "dCCAValidityTimeout", NULL },
-  { 16, &hf_gprscdr_ServiceConditionChangeV750_reserved2, -1, -1, "reserved2", NULL },
-  { 17, &hf_gprscdr_ServiceConditionChangeV750_dCCAReauthorisationRequest, -1, -1, "dCCAReauthorisationRequest", NULL },
-  { 18, &hf_gprscdr_ServiceConditionChangeV750_dCCAContinueOngoingSession, -1, -1, "dCCAContinueOngoingSession", NULL },
-  { 19, &hf_gprscdr_ServiceConditionChangeV750_dCCARetryAndTerminateOngoingSession, -1, -1, "dCCARetryAndTerminateOngoingSession", NULL },
-  { 20, &hf_gprscdr_ServiceConditionChangeV750_dCCATerminateOngoingSession, -1, -1, "dCCATerminateOngoingSession", NULL },
-  { 21, &hf_gprscdr_ServiceConditionChangeV750_cGI_SAIChange, -1, -1, "cGI-SAIChange", NULL },
-  { 22, &hf_gprscdr_ServiceConditionChangeV750_rAIChange, -1, -1, "rAIChange", NULL },
-  { 23, &hf_gprscdr_ServiceConditionChangeV750_dCCAServiceSpecificUnitExhausted, -1, -1, "dCCAServiceSpecificUnitExhausted", NULL },
-  { 24, &hf_gprscdr_ServiceConditionChangeV750_recordClosure, -1, -1, "recordClosure", NULL },
-  { 25, &hf_gprscdr_ServiceConditionChangeV750_timeLimit, -1, -1, "timeLimit", NULL },
-  { 26, &hf_gprscdr_ServiceConditionChangeV750_volumeLimit, -1, -1, "volumeLimit", NULL },
-  { 27, &hf_gprscdr_ServiceConditionChangeV750_serviceSpecificUnitLimit, -1, -1, "serviceSpecificUnitLimit", NULL },
-  { 28, &hf_gprscdr_ServiceConditionChangeV750_envelopeClosure, -1, -1, "envelopeClosure", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * ServiceConditionChangeV750_bits[] = {
+  &hf_gprscdr_ServiceConditionChangeV750_qoSChange,
+  &hf_gprscdr_ServiceConditionChangeV750_sGSNChange,
+  &hf_gprscdr_ServiceConditionChangeV750_sGSNPLMNIDChange,
+  &hf_gprscdr_ServiceConditionChangeV750_tariffTimeSwitch,
+  &hf_gprscdr_ServiceConditionChangeV750_pDPContextRelease,
+  &hf_gprscdr_ServiceConditionChangeV750_rATChange,
+  &hf_gprscdr_ServiceConditionChangeV750_serviceIdledOut,
+  &hf_gprscdr_ServiceConditionChangeV750_reserved,
+  &hf_gprscdr_ServiceConditionChangeV750_configurationChange,
+  &hf_gprscdr_ServiceConditionChangeV750_serviceStop,
+  &hf_gprscdr_ServiceConditionChangeV750_dCCATimeThresholdReached,
+  &hf_gprscdr_ServiceConditionChangeV750_dCCAVolumeThresholdReached,
+  &hf_gprscdr_ServiceConditionChangeV750_dCCAServiceSpecificUnitThresholdReached,
+  &hf_gprscdr_ServiceConditionChangeV750_dCCATimeExhausted,
+  &hf_gprscdr_ServiceConditionChangeV750_dCCAVolumeExhausted,
+  &hf_gprscdr_ServiceConditionChangeV750_dCCAValidityTimeout,
+  &hf_gprscdr_ServiceConditionChangeV750_reserved2,
+  &hf_gprscdr_ServiceConditionChangeV750_dCCAReauthorisationRequest,
+  &hf_gprscdr_ServiceConditionChangeV750_dCCAContinueOngoingSession,
+  &hf_gprscdr_ServiceConditionChangeV750_dCCARetryAndTerminateOngoingSession,
+  &hf_gprscdr_ServiceConditionChangeV750_dCCATerminateOngoingSession,
+  &hf_gprscdr_ServiceConditionChangeV750_cGI_SAIChange,
+  &hf_gprscdr_ServiceConditionChangeV750_rAIChange,
+  &hf_gprscdr_ServiceConditionChangeV750_dCCAServiceSpecificUnitExhausted,
+  &hf_gprscdr_ServiceConditionChangeV750_recordClosure,
+  &hf_gprscdr_ServiceConditionChangeV750_timeLimit,
+  &hf_gprscdr_ServiceConditionChangeV750_volumeLimit,
+  &hf_gprscdr_ServiceConditionChangeV750_serviceSpecificUnitLimit,
+  &hf_gprscdr_ServiceConditionChangeV750_envelopeClosure,
+  NULL
 };
 
 static int
 dissect_gprscdr_ServiceConditionChangeV750(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    ServiceConditionChangeV750_bits, hf_index, ett_gprscdr_ServiceConditionChangeV750,
+                                    ServiceConditionChangeV750_bits, 29, hf_index, ett_gprscdr_ServiceConditionChangeV750,
                                     NULL);
 
   return offset;
@@ -4126,52 +4128,52 @@ dissect_gprscdr_T_userLocationInformation_07(gboolean implicit_tag _U_, tvbuff_t
 }
 
 
-static const asn_namedbit ServiceConditionChange_bits[] = {
-  {  0, &hf_gprscdr_ServiceConditionChange_qoSChange, -1, -1, "qoSChange", NULL },
-  {  1, &hf_gprscdr_ServiceConditionChange_sGSNChange, -1, -1, "sGSNChange", NULL },
-  {  2, &hf_gprscdr_ServiceConditionChange_sGSNPLMNIDChange, -1, -1, "sGSNPLMNIDChange", NULL },
-  {  3, &hf_gprscdr_ServiceConditionChange_tariffTimeSwitch, -1, -1, "tariffTimeSwitch", NULL },
-  {  4, &hf_gprscdr_ServiceConditionChange_pDPContextRelease, -1, -1, "pDPContextRelease", NULL },
-  {  5, &hf_gprscdr_ServiceConditionChange_rATChange, -1, -1, "rATChange", NULL },
-  {  6, &hf_gprscdr_ServiceConditionChange_serviceIdledOut, -1, -1, "serviceIdledOut", NULL },
-  {  7, &hf_gprscdr_ServiceConditionChange_reserved, -1, -1, "reserved", NULL },
-  {  8, &hf_gprscdr_ServiceConditionChange_configurationChange, -1, -1, "configurationChange", NULL },
-  {  9, &hf_gprscdr_ServiceConditionChange_serviceStop, -1, -1, "serviceStop", NULL },
-  { 10, &hf_gprscdr_ServiceConditionChange_dCCATimeThresholdReached, -1, -1, "dCCATimeThresholdReached", NULL },
-  { 11, &hf_gprscdr_ServiceConditionChange_dCCAVolumeThresholdReached, -1, -1, "dCCAVolumeThresholdReached", NULL },
-  { 12, &hf_gprscdr_ServiceConditionChange_dCCAServiceSpecificUnitThresholdReached, -1, -1, "dCCAServiceSpecificUnitThresholdReached", NULL },
-  { 13, &hf_gprscdr_ServiceConditionChange_dCCATimeExhausted, -1, -1, "dCCATimeExhausted", NULL },
-  { 14, &hf_gprscdr_ServiceConditionChange_dCCAVolumeExhausted, -1, -1, "dCCAVolumeExhausted", NULL },
-  { 15, &hf_gprscdr_ServiceConditionChange_dCCAValidityTimeout, -1, -1, "dCCAValidityTimeout", NULL },
-  { 16, &hf_gprscdr_ServiceConditionChange_reserved1, -1, -1, "reserved1", NULL },
-  { 17, &hf_gprscdr_ServiceConditionChange_dCCAReauthorisationRequest, -1, -1, "dCCAReauthorisationRequest", NULL },
-  { 18, &hf_gprscdr_ServiceConditionChange_dCCAContinueOngoingSession, -1, -1, "dCCAContinueOngoingSession", NULL },
-  { 19, &hf_gprscdr_ServiceConditionChange_dCCARetryAndTerminateOngoingSession, -1, -1, "dCCARetryAndTerminateOngoingSession", NULL },
-  { 20, &hf_gprscdr_ServiceConditionChange_dCCATerminateOngoingSession, -1, -1, "dCCATerminateOngoingSession", NULL },
-  { 21, &hf_gprscdr_ServiceConditionChange_cGI_SAIChange, -1, -1, "cGI-SAIChange", NULL },
-  { 22, &hf_gprscdr_ServiceConditionChange_rAIChange, -1, -1, "rAIChange", NULL },
-  { 23, &hf_gprscdr_ServiceConditionChange_dCCAServiceSpecificUnitExhausted, -1, -1, "dCCAServiceSpecificUnitExhausted", NULL },
-  { 24, &hf_gprscdr_ServiceConditionChange_recordClosure, -1, -1, "recordClosure", NULL },
-  { 25, &hf_gprscdr_ServiceConditionChange_timeLimit, -1, -1, "timeLimit", NULL },
-  { 26, &hf_gprscdr_ServiceConditionChange_volumeLimit, -1, -1, "volumeLimit", NULL },
-  { 27, &hf_gprscdr_ServiceConditionChange_serviceSpecificUnitLimit, -1, -1, "serviceSpecificUnitLimit", NULL },
-  { 28, &hf_gprscdr_ServiceConditionChange_envelopeClosure, -1, -1, "envelopeClosure", NULL },
-  { 29, &hf_gprscdr_ServiceConditionChange_eCGIChange, -1, -1, "eCGIChange", NULL },
-  { 30, &hf_gprscdr_ServiceConditionChange_tAIChange, -1, -1, "tAIChange", NULL },
-  { 31, &hf_gprscdr_ServiceConditionChange_userLocationChange, -1, -1, "userLocationChange", NULL },
-  { 32, &hf_gprscdr_ServiceConditionChange_userCSGInformationChange, -1, -1, "userCSGInformationChange", NULL },
-  { 33, &hf_gprscdr_ServiceConditionChange_presenceInPRAChange, -1, -1, "presenceInPRAChange", NULL },
-  { 34, &hf_gprscdr_ServiceConditionChange_accessChangeOfSDF, -1, -1, "accessChangeOfSDF", NULL },
-  { 35, &hf_gprscdr_ServiceConditionChange_indirectServiceConditionChange, -1, -1, "indirectServiceConditionChange", NULL },
-  { 36, &hf_gprscdr_ServiceConditionChange_servingPLMNRateControlChange, -1, -1, "servingPLMNRateControlChange", NULL },
-  { 37, &hf_gprscdr_ServiceConditionChange_aPNRateControlChange, -1, -1, "aPNRateControlChange", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * ServiceConditionChange_bits[] = {
+  &hf_gprscdr_ServiceConditionChange_qoSChange,
+  &hf_gprscdr_ServiceConditionChange_sGSNChange,
+  &hf_gprscdr_ServiceConditionChange_sGSNPLMNIDChange,
+  &hf_gprscdr_ServiceConditionChange_tariffTimeSwitch,
+  &hf_gprscdr_ServiceConditionChange_pDPContextRelease,
+  &hf_gprscdr_ServiceConditionChange_rATChange,
+  &hf_gprscdr_ServiceConditionChange_serviceIdledOut,
+  &hf_gprscdr_ServiceConditionChange_reserved,
+  &hf_gprscdr_ServiceConditionChange_configurationChange,
+  &hf_gprscdr_ServiceConditionChange_serviceStop,
+  &hf_gprscdr_ServiceConditionChange_dCCATimeThresholdReached,
+  &hf_gprscdr_ServiceConditionChange_dCCAVolumeThresholdReached,
+  &hf_gprscdr_ServiceConditionChange_dCCAServiceSpecificUnitThresholdReached,
+  &hf_gprscdr_ServiceConditionChange_dCCATimeExhausted,
+  &hf_gprscdr_ServiceConditionChange_dCCAVolumeExhausted,
+  &hf_gprscdr_ServiceConditionChange_dCCAValidityTimeout,
+  &hf_gprscdr_ServiceConditionChange_reserved1,
+  &hf_gprscdr_ServiceConditionChange_dCCAReauthorisationRequest,
+  &hf_gprscdr_ServiceConditionChange_dCCAContinueOngoingSession,
+  &hf_gprscdr_ServiceConditionChange_dCCARetryAndTerminateOngoingSession,
+  &hf_gprscdr_ServiceConditionChange_dCCATerminateOngoingSession,
+  &hf_gprscdr_ServiceConditionChange_cGI_SAIChange,
+  &hf_gprscdr_ServiceConditionChange_rAIChange,
+  &hf_gprscdr_ServiceConditionChange_dCCAServiceSpecificUnitExhausted,
+  &hf_gprscdr_ServiceConditionChange_recordClosure,
+  &hf_gprscdr_ServiceConditionChange_timeLimit,
+  &hf_gprscdr_ServiceConditionChange_volumeLimit,
+  &hf_gprscdr_ServiceConditionChange_serviceSpecificUnitLimit,
+  &hf_gprscdr_ServiceConditionChange_envelopeClosure,
+  &hf_gprscdr_ServiceConditionChange_eCGIChange,
+  &hf_gprscdr_ServiceConditionChange_tAIChange,
+  &hf_gprscdr_ServiceConditionChange_userLocationChange,
+  &hf_gprscdr_ServiceConditionChange_userCSGInformationChange,
+  &hf_gprscdr_ServiceConditionChange_presenceInPRAChange,
+  &hf_gprscdr_ServiceConditionChange_accessChangeOfSDF,
+  &hf_gprscdr_ServiceConditionChange_indirectServiceConditionChange,
+  &hf_gprscdr_ServiceConditionChange_servingPLMNRateControlChange,
+  &hf_gprscdr_ServiceConditionChange_aPNRateControlChange,
+  NULL
 };
 
 static int
 dissect_gprscdr_ServiceConditionChange(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    ServiceConditionChange_bits, hf_index, ett_gprscdr_ServiceConditionChange,
+                                    ServiceConditionChange_bits, 38, hf_index, ett_gprscdr_ServiceConditionChange,
                                     NULL);
 
   return offset;
@@ -6506,6 +6508,10 @@ proto_register_gprscdr(void)
     { &hf_gprscdr_ServiceConditionChangeV651_volumeThresholdReached,
       { "volumeThresholdReached", "gprscdr.volumeThresholdReached",
         FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_gprscdr_ServiceConditionChangeV651_spare_bit_12,
+      { "spare_bit_12", "gprscdr.spare_bit_12",
+        FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_gprscdr_ServiceConditionChangeV651_timeExhausted,
       { "timeExhausted", "gprscdr.timeExhausted",

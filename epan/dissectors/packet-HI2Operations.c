@@ -2121,7 +2121,7 @@ dissect_HI2Operations_LIIDType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 static int
 dissect_HI2Operations_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -3123,7 +3123,7 @@ dissect_HI2Operations_CorrelationValues(gboolean implicit_tag _U_, tvbuff_t *tvb
 static int
 dissect_HI2Operations_TLIIdType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -3134,7 +3134,7 @@ dissect_HI2Operations_TLIIdType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 static int
 dissect_HI2Operations_MCCType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -3145,7 +3145,7 @@ dissect_HI2Operations_MCCType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 static int
 dissect_HI2Operations_MNCType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -3156,7 +3156,7 @@ dissect_HI2Operations_MNCType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 static int
 dissect_HI2Operations_LocationAreaType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -3167,7 +3167,7 @@ dissect_HI2Operations_LocationAreaType(gboolean implicit_tag _U_, tvbuff_t *tvb 
 static int
 dissect_HI2Operations_CellIdType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -3195,7 +3195,7 @@ dissect_HI2Operations_TETRACGIType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 static int
 dissect_HI2Operations_SSIType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -3233,7 +3233,7 @@ dissect_HI2Operations_NumericString_SIZE_20(gboolean implicit_tag _U_, tvbuff_t 
 static int
 dissect_HI2Operations_BIT_STRING_SIZE_32(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -3244,7 +3244,7 @@ dissect_HI2Operations_BIT_STRING_SIZE_32(gboolean implicit_tag _U_, tvbuff_t *tv
 static int
 dissect_HI2Operations_BIT_STRING_SIZE_128(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -3255,7 +3255,7 @@ dissect_HI2Operations_BIT_STRING_SIZE_128(gboolean implicit_tag _U_, tvbuff_t *t
 static int
 dissect_HI2Operations_TEIType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;

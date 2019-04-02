@@ -1900,17 +1900,17 @@ dissect_x509if_SEQUENCE_SIZE_1_MAX_OF_AttributeType(gboolean implicit_tag _U_, t
 }
 
 
-static const asn_namedbit AllowedSubset_bits[] = {
-  {  0, &hf_x509if_AllowedSubset_baseObject, -1, -1, "baseObject", NULL },
-  {  1, &hf_x509if_AllowedSubset_oneLevel, -1, -1, "oneLevel", NULL },
-  {  2, &hf_x509if_AllowedSubset_wholeSubtree, -1, -1, "wholeSubtree", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * AllowedSubset_bits[] = {
+  &hf_x509if_AllowedSubset_baseObject,
+  &hf_x509if_AllowedSubset_oneLevel,
+  &hf_x509if_AllowedSubset_wholeSubtree,
+  NULL
 };
 
 int
 dissect_x509if_AllowedSubset(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    AllowedSubset_bits, hf_index, ett_x509if_AllowedSubset,
+                                    AllowedSubset_bits, 3, hf_index, ett_x509if_AllowedSubset,
                                     NULL);
 
   return offset;

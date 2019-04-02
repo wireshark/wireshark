@@ -986,19 +986,19 @@ dissect_p22_AuthorizingUsersField(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 }
 
 
-static const asn_namedbit NotificationRequests_bits[] = {
-  {  0, &hf_p22_NotificationRequests_rn, -1, -1, "rn", NULL },
-  {  1, &hf_p22_NotificationRequests_nrn, -1, -1, "nrn", NULL },
-  {  2, &hf_p22_NotificationRequests_ipm_return, -1, -1, "ipm-return", NULL },
-  {  3, &hf_p22_NotificationRequests_an_supported, -1, -1, "an-supported", NULL },
-  {  4, &hf_p22_NotificationRequests_suppress_an, -1, -1, "suppress-an", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * NotificationRequests_bits[] = {
+  &hf_p22_NotificationRequests_rn,
+  &hf_p22_NotificationRequests_nrn,
+  &hf_p22_NotificationRequests_ipm_return,
+  &hf_p22_NotificationRequests_an_supported,
+  &hf_p22_NotificationRequests_suppress_an,
+  NULL
 };
 
 static int
 dissect_p22_NotificationRequests(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NotificationRequests_bits, hf_index, ett_p22_NotificationRequests,
+                                    NotificationRequests_bits, 5, hf_index, ett_p22_NotificationRequests,
                                     NULL);
 
   return offset;
@@ -1441,7 +1441,7 @@ dissect_p22_G3FacsimileParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 static int
 dissect_p22_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -1633,7 +1633,7 @@ dissect_p22_EncryptedParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 static int
 dissect_p22_EncryptedData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -3189,22 +3189,22 @@ dissect_p22_User_Identity_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 }
 
 
-static const asn_namedbit Access_Request_bits[] = {
-  {  0, &hf_p22_Access_Request_read, -1, -1, "read", NULL },
-  {  1, &hf_p22_Access_Request_insert, -1, -1, "insert", NULL },
-  {  2, &hf_p22_Access_Request_replace, -1, -1, "replace", NULL },
-  {  3, &hf_p22_Access_Request_extend, -1, -1, "extend", NULL },
-  {  4, &hf_p22_Access_Request_erase, -1, -1, "erase", NULL },
-  {  5, &hf_p22_Access_Request_read_attribute, -1, -1, "read-attribute", NULL },
-  {  6, &hf_p22_Access_Request_change_attribute, -1, -1, "change-attribute", NULL },
-  {  7, &hf_p22_Access_Request_delete_object, -1, -1, "delete-object", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * Access_Request_bits[] = {
+  &hf_p22_Access_Request_read,
+  &hf_p22_Access_Request_insert,
+  &hf_p22_Access_Request_replace,
+  &hf_p22_Access_Request_extend,
+  &hf_p22_Access_Request_erase,
+  &hf_p22_Access_Request_read_attribute,
+  &hf_p22_Access_Request_change_attribute,
+  &hf_p22_Access_Request_delete_object,
+  NULL
 };
 
 static int
 dissect_p22_Access_Request(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    Access_Request_bits, hf_index, ett_p22_Access_Request,
+                                    Access_Request_bits, 8, hf_index, ett_p22_Access_Request,
                                     NULL);
 
   return offset;
@@ -3801,18 +3801,18 @@ dissect_p22_RecipientCategory(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const asn_namedbit RecipientSecurityRequest_bits[] = {
-  {  0, &hf_p22_RecipientSecurityRequest_content_non_repudiation, -1, -1, "content-non-repudiation", NULL },
-  {  1, &hf_p22_RecipientSecurityRequest_content_proof, -1, -1, "content-proof", NULL },
-  {  2, &hf_p22_RecipientSecurityRequest_ipn_non_repudiation, -1, -1, "ipn-non-repudiation", NULL },
-  {  3, &hf_p22_RecipientSecurityRequest_ipn_proof, -1, -1, "ipn-proof", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * RecipientSecurityRequest_bits[] = {
+  &hf_p22_RecipientSecurityRequest_content_non_repudiation,
+  &hf_p22_RecipientSecurityRequest_content_proof,
+  &hf_p22_RecipientSecurityRequest_ipn_non_repudiation,
+  &hf_p22_RecipientSecurityRequest_ipn_proof,
+  NULL
 };
 
 static int
 dissect_p22_RecipientSecurityRequest(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    RecipientSecurityRequest_bits, hf_index, ett_p22_RecipientSecurityRequest,
+                                    RecipientSecurityRequest_bits, 4, hf_index, ett_p22_RecipientSecurityRequest,
                                     NULL);
 
   return offset;

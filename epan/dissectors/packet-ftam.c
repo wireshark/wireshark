@@ -388,6 +388,8 @@ static int hf_ftam_Service_Class_U_management_class = -1;
 static int hf_ftam_Service_Class_U_transfer_class = -1;
 static int hf_ftam_Service_Class_U_transfer_and_management_class = -1;
 static int hf_ftam_Service_Class_U_access_class = -1;
+static int hf_ftam_Functional_Units_U_spare_bit_0 = -1;
+static int hf_ftam_Functional_Units_U_spare_bit_1 = -1;
 static int hf_ftam_Functional_Units_U_read = -1;
 static int hf_ftam_Functional_Units_U_write = -1;
 static int hf_ftam_Functional_Units_U_file_access = -1;
@@ -432,11 +434,11 @@ static int hf_ftam_Permitted_Actions_Attribute_erase = -1;
 static int hf_ftam_Permitted_Actions_Attribute_read_attribute = -1;
 static int hf_ftam_Permitted_Actions_Attribute_change_attribute = -1;
 static int hf_ftam_Permitted_Actions_Attribute_delete_Object = -1;
-static int hf_ftam_Permitted_Actions_Attribute_pass = -1;
-static int hf_ftam_Permitted_Actions_Attribute_link = -1;
 static int hf_ftam_Permitted_Actions_Attribute_traversal = -1;
 static int hf_ftam_Permitted_Actions_Attribute_reverse_traversal = -1;
 static int hf_ftam_Permitted_Actions_Attribute_random_Order = -1;
+static int hf_ftam_Permitted_Actions_Attribute_pass = -1;
+static int hf_ftam_Permitted_Actions_Attribute_link = -1;
 static int hf_ftam_Equality_Comparision_no_value_available_matches = -1;
 static int hf_ftam_Equality_Comparision_equals_matches = -1;
 static int hf_ftam_Relational_Comparision_no_value_available_matches = -1;
@@ -444,12 +446,8 @@ static int hf_ftam_Relational_Comparision_equals_matches = -1;
 static int hf_ftam_Relational_Comparision_less_than_matches = -1;
 static int hf_ftam_Relational_Comparision_greater_than_matches = -1;
 static int hf_ftam_Attribute_Names_read_pathname = -1;
-static int hf_ftam_Attribute_Names_read_Object_type = -1;
 static int hf_ftam_Attribute_Names_read_permitted_actions = -1;
 static int hf_ftam_Attribute_Names_read_contents_type = -1;
-static int hf_ftam_Attribute_Names_read_linked_Object = -1;
-static int hf_ftam_Attribute_Names_read_Child_objects = -1;
-static int hf_ftam_Attribute_Names_read_primary_pathname = -1;
 static int hf_ftam_Attribute_Names_read_storage_account = -1;
 static int hf_ftam_Attribute_Names_read_date_and_time_of_creation = -1;
 static int hf_ftam_Attribute_Names_read_date_and_time_of_last_modification = -1;
@@ -463,9 +461,14 @@ static int hf_ftam_Attribute_Names_read_Object_availability = -1;
 static int hf_ftam_Attribute_Names_read_Object_size = -1;
 static int hf_ftam_Attribute_Names_read_future_Object_size = -1;
 static int hf_ftam_Attribute_Names_read_access_control = -1;
-static int hf_ftam_Attribute_Names_read_path_access_control = -1;
 static int hf_ftam_Attribute_Names_read_l8gal_qualifiCatiOnS = -1;
 static int hf_ftam_Attribute_Names_read_private_use = -1;
+static int hf_ftam_Attribute_Names_read_Object_type = -1;
+static int hf_ftam_Attribute_Names_read_linked_Object = -1;
+static int hf_ftam_Attribute_Names_read_primary_pathname = -1;
+static int hf_ftam_Attribute_Names_read_path_access_control = -1;
+static int hf_ftam_Attribute_Names_spare_bit_22 = -1;
+static int hf_ftam_Attribute_Names_read_Child_objects = -1;
 
 /*--- End of included file: packet-ftam-hf.c ---*/
 #line 44 "./asn1/ftam/packet-ftam-template.c"
@@ -647,16 +650,16 @@ static expert_field ei_ftam_zero_pdu = EI_INIT;
 /*--- Included file: packet-ftam-fn.c ---*/
 #line 1 "./asn1/ftam/packet-ftam-fn.c"
 
-static const asn_namedbit Protocol_Version_U_bits[] = {
-  {  0, &hf_ftam_Protocol_Version_U_version_1, -1, -1, "version-1", NULL },
-  {  1, &hf_ftam_Protocol_Version_U_version_2, -1, -1, "version-2", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * Protocol_Version_U_bits[] = {
+  &hf_ftam_Protocol_Version_U_version_1,
+  &hf_ftam_Protocol_Version_U_version_2,
+  NULL
 };
 
 static int
 dissect_ftam_Protocol_Version_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    Protocol_Version_U_bits, hf_index, ett_ftam_Protocol_Version_U,
+                                    Protocol_Version_U_bits, 2, hf_index, ett_ftam_Protocol_Version_U,
                                     NULL);
 
   return offset;
@@ -703,19 +706,19 @@ dissect_ftam_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
-static const asn_namedbit Service_Class_U_bits[] = {
-  {  0, &hf_ftam_Service_Class_U_unconstrained_class, -1, -1, "unconstrained-class", NULL },
-  {  1, &hf_ftam_Service_Class_U_management_class, -1, -1, "management-class", NULL },
-  {  2, &hf_ftam_Service_Class_U_transfer_class, -1, -1, "transfer-class", NULL },
-  {  3, &hf_ftam_Service_Class_U_transfer_and_management_class, -1, -1, "transfer-and-management-class", NULL },
-  {  4, &hf_ftam_Service_Class_U_access_class, -1, -1, "access-class", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * Service_Class_U_bits[] = {
+  &hf_ftam_Service_Class_U_unconstrained_class,
+  &hf_ftam_Service_Class_U_management_class,
+  &hf_ftam_Service_Class_U_transfer_class,
+  &hf_ftam_Service_Class_U_transfer_and_management_class,
+  &hf_ftam_Service_Class_U_access_class,
+  NULL
 };
 
 static int
 dissect_ftam_Service_Class_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    Service_Class_U_bits, hf_index, ett_ftam_Service_Class_U,
+                                    Service_Class_U_bits, 5, hf_index, ett_ftam_Service_Class_U,
                                     NULL);
 
   return offset;
@@ -732,29 +735,31 @@ dissect_ftam_Service_Class(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int off
 }
 
 
-static const asn_namedbit Functional_Units_U_bits[] = {
-  {  2, &hf_ftam_Functional_Units_U_read, -1, -1, "read", NULL },
-  {  3, &hf_ftam_Functional_Units_U_write, -1, -1, "write", NULL },
-  {  4, &hf_ftam_Functional_Units_U_file_access, -1, -1, "file-access", NULL },
-  {  5, &hf_ftam_Functional_Units_U_limited_file_management, -1, -1, "limited-file-management", NULL },
-  {  6, &hf_ftam_Functional_Units_U_enhanced_file_management, -1, -1, "enhanced-file-management", NULL },
-  {  7, &hf_ftam_Functional_Units_U_grouping, -1, -1, "grouping", NULL },
-  {  8, &hf_ftam_Functional_Units_U_fadu_locking, -1, -1, "fadu-locking", NULL },
-  {  9, &hf_ftam_Functional_Units_U_recovery, -1, -1, "recovery", NULL },
-  { 10, &hf_ftam_Functional_Units_U_restart_data_transfer, -1, -1, "restart-data-transfer", NULL },
-  { 11, &hf_ftam_Functional_Units_U_limited_filestore_management, -1, -1, "limited-filestore-management", NULL },
-  { 12, &hf_ftam_Functional_Units_U_enhanced_filestore_management, -1, -1, "enhanced-filestore-management", NULL },
-  { 13, &hf_ftam_Functional_Units_U_object_manipulation, -1, -1, "object-manipulation", NULL },
-  { 14, &hf_ftam_Functional_Units_U_group_manipulation, -1, -1, "group-manipulation", NULL },
-  { 15, &hf_ftam_Functional_Units_U_consecutive_access, -1, -1, "consecutive-access", NULL },
-  { 16, &hf_ftam_Functional_Units_U_concurrent_access, -1, -1, "concurrent-access", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * Functional_Units_U_bits[] = {
+  &hf_ftam_Functional_Units_U_spare_bit_0,
+  &hf_ftam_Functional_Units_U_spare_bit_1,
+  &hf_ftam_Functional_Units_U_read,
+  &hf_ftam_Functional_Units_U_write,
+  &hf_ftam_Functional_Units_U_file_access,
+  &hf_ftam_Functional_Units_U_limited_file_management,
+  &hf_ftam_Functional_Units_U_enhanced_file_management,
+  &hf_ftam_Functional_Units_U_grouping,
+  &hf_ftam_Functional_Units_U_fadu_locking,
+  &hf_ftam_Functional_Units_U_recovery,
+  &hf_ftam_Functional_Units_U_restart_data_transfer,
+  &hf_ftam_Functional_Units_U_limited_filestore_management,
+  &hf_ftam_Functional_Units_U_enhanced_filestore_management,
+  &hf_ftam_Functional_Units_U_object_manipulation,
+  &hf_ftam_Functional_Units_U_group_manipulation,
+  &hf_ftam_Functional_Units_U_consecutive_access,
+  &hf_ftam_Functional_Units_U_concurrent_access,
+  NULL
 };
 
 static int
 dissect_ftam_Functional_Units_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    Functional_Units_U_bits, hf_index, ett_ftam_Functional_Units_U,
+                                    Functional_Units_U_bits, 17, hf_index, ett_ftam_Functional_Units_U,
                                     NULL);
 
   return offset;
@@ -771,18 +776,18 @@ dissect_ftam_Functional_Units(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const asn_namedbit Attribute_Groups_U_bits[] = {
-  {  0, &hf_ftam_Attribute_Groups_U_storage, -1, -1, "storage", NULL },
-  {  1, &hf_ftam_Attribute_Groups_U_security, -1, -1, "security", NULL },
-  {  2, &hf_ftam_Attribute_Groups_U_private, -1, -1, "private", NULL },
-  {  3, &hf_ftam_Attribute_Groups_U_extension, -1, -1, "extension", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * Attribute_Groups_U_bits[] = {
+  &hf_ftam_Attribute_Groups_U_storage,
+  &hf_ftam_Attribute_Groups_U_security,
+  &hf_ftam_Attribute_Groups_U_private,
+  &hf_ftam_Attribute_Groups_U_extension,
+  NULL
 };
 
 static int
 dissect_ftam_Attribute_Groups_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    Attribute_Groups_U_bits, hf_index, ett_ftam_Attribute_Groups_U,
+                                    Attribute_Groups_U_bits, 4, hf_index, ett_ftam_Attribute_Groups_U,
                                     NULL);
 
   return offset;
@@ -1373,22 +1378,22 @@ dissect_ftam_Select_Attributes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const asn_namedbit Access_Request_U_bits[] = {
-  {  0, &hf_ftam_Access_Request_U_read, -1, -1, "read", NULL },
-  {  1, &hf_ftam_Access_Request_U_insert, -1, -1, "insert", NULL },
-  {  2, &hf_ftam_Access_Request_U_replace, -1, -1, "replace", NULL },
-  {  3, &hf_ftam_Access_Request_U_extend, -1, -1, "extend", NULL },
-  {  4, &hf_ftam_Access_Request_U_erase, -1, -1, "erase", NULL },
-  {  5, &hf_ftam_Access_Request_U_read_attribute, -1, -1, "read-attribute", NULL },
-  {  6, &hf_ftam_Access_Request_U_change_attribute, -1, -1, "change-attribute", NULL },
-  {  7, &hf_ftam_Access_Request_U_delete_Object, -1, -1, "delete-Object", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * Access_Request_U_bits[] = {
+  &hf_ftam_Access_Request_U_read,
+  &hf_ftam_Access_Request_U_insert,
+  &hf_ftam_Access_Request_U_replace,
+  &hf_ftam_Access_Request_U_extend,
+  &hf_ftam_Access_Request_U_erase,
+  &hf_ftam_Access_Request_U_read_attribute,
+  &hf_ftam_Access_Request_U_change_attribute,
+  &hf_ftam_Access_Request_U_delete_Object,
+  NULL
 };
 
 static int
 dissect_ftam_Access_Request_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    Access_Request_U_bits, hf_index, ett_ftam_Access_Request_U,
+                                    Access_Request_U_bits, 8, hf_index, ett_ftam_Access_Request_U,
                                     NULL);
 
   return offset;
@@ -1661,27 +1666,27 @@ dissect_ftam_Object_Type_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 }
 
 
-static const asn_namedbit Permitted_Actions_Attribute_bits[] = {
-  {  0, &hf_ftam_Permitted_Actions_Attribute_read, -1, -1, "read", NULL },
-  {  1, &hf_ftam_Permitted_Actions_Attribute_insert, -1, -1, "insert", NULL },
-  {  2, &hf_ftam_Permitted_Actions_Attribute_replace, -1, -1, "replace", NULL },
-  {  3, &hf_ftam_Permitted_Actions_Attribute_extend, -1, -1, "extend", NULL },
-  {  4, &hf_ftam_Permitted_Actions_Attribute_erase, -1, -1, "erase", NULL },
-  {  5, &hf_ftam_Permitted_Actions_Attribute_read_attribute, -1, -1, "read-attribute", NULL },
-  {  6, &hf_ftam_Permitted_Actions_Attribute_change_attribute, -1, -1, "change-attribute", NULL },
-  {  7, &hf_ftam_Permitted_Actions_Attribute_delete_Object, -1, -1, "delete-Object", NULL },
-  { 11, &hf_ftam_Permitted_Actions_Attribute_pass, -1, -1, "pass", NULL },
-  { 12, &hf_ftam_Permitted_Actions_Attribute_link, -1, -1, "link", NULL },
-  {  8, &hf_ftam_Permitted_Actions_Attribute_traversal, -1, -1, "traversal", NULL },
-  {  9, &hf_ftam_Permitted_Actions_Attribute_reverse_traversal, -1, -1, "reverse-traversal", NULL },
-  { 10, &hf_ftam_Permitted_Actions_Attribute_random_Order, -1, -1, "random-Order", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * Permitted_Actions_Attribute_bits[] = {
+  &hf_ftam_Permitted_Actions_Attribute_read,
+  &hf_ftam_Permitted_Actions_Attribute_insert,
+  &hf_ftam_Permitted_Actions_Attribute_replace,
+  &hf_ftam_Permitted_Actions_Attribute_extend,
+  &hf_ftam_Permitted_Actions_Attribute_erase,
+  &hf_ftam_Permitted_Actions_Attribute_read_attribute,
+  &hf_ftam_Permitted_Actions_Attribute_change_attribute,
+  &hf_ftam_Permitted_Actions_Attribute_delete_Object,
+  &hf_ftam_Permitted_Actions_Attribute_traversal,
+  &hf_ftam_Permitted_Actions_Attribute_reverse_traversal,
+  &hf_ftam_Permitted_Actions_Attribute_random_Order,
+  &hf_ftam_Permitted_Actions_Attribute_pass,
+  &hf_ftam_Permitted_Actions_Attribute_link,
+  NULL
 };
 
 int
 dissect_ftam_Permitted_Actions_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    Permitted_Actions_Attribute_bits, hf_index, ett_ftam_Permitted_Actions_Attribute,
+                                    Permitted_Actions_Attribute_bits, 13, hf_index, ett_ftam_Permitted_Actions_Attribute,
                                     NULL);
 
   return offset;
@@ -1855,18 +1860,18 @@ dissect_ftam_Object_Size_Attribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 }
 
 
-static const asn_namedbit Concurrency_Key_bits[] = {
-  {  0, &hf_ftam_Concurrency_Key_not_required, -1, -1, "not-required", NULL },
-  {  1, &hf_ftam_Concurrency_Key_shared, -1, -1, "shared", NULL },
-  {  2, &hf_ftam_Concurrency_Key_exclusive, -1, -1, "exclusive", NULL },
-  {  3, &hf_ftam_Concurrency_Key_no_access, -1, -1, "no-access", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * Concurrency_Key_bits[] = {
+  &hf_ftam_Concurrency_Key_not_required,
+  &hf_ftam_Concurrency_Key_shared,
+  &hf_ftam_Concurrency_Key_exclusive,
+  &hf_ftam_Concurrency_Key_no_access,
+  NULL
 };
 
 static int
 dissect_ftam_Concurrency_Key(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    Concurrency_Key_bits, hf_index, ett_ftam_Concurrency_Key,
+                                    Concurrency_Key_bits, 4, hf_index, ett_ftam_Concurrency_Key,
                                     NULL);
 
   return offset;
@@ -2235,37 +2240,38 @@ dissect_ftam_F_DELETE_response(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const asn_namedbit Attribute_Names_bits[] = {
-  {  0, &hf_ftam_Attribute_Names_read_pathname, -1, -1, "read-pathname", NULL },
-  { 18, &hf_ftam_Attribute_Names_read_Object_type, -1, -1, "read-Object-type", NULL },
-  {  1, &hf_ftam_Attribute_Names_read_permitted_actions, -1, -1, "read-permitted-actions", NULL },
-  {  2, &hf_ftam_Attribute_Names_read_contents_type, -1, -1, "read-contents-type", NULL },
-  { 19, &hf_ftam_Attribute_Names_read_linked_Object, -1, -1, "read-linked-Object", NULL },
-  { 23, &hf_ftam_Attribute_Names_read_Child_objects, -1, -1, "read-Child-objects", NULL },
-  { 20, &hf_ftam_Attribute_Names_read_primary_pathname, -1, -1, "read-primary-pathname", NULL },
-  {  3, &hf_ftam_Attribute_Names_read_storage_account, -1, -1, "read-storage-account", NULL },
-  {  4, &hf_ftam_Attribute_Names_read_date_and_time_of_creation, -1, -1, "read-date-and-time-of-creation", NULL },
-  {  5, &hf_ftam_Attribute_Names_read_date_and_time_of_last_modification, -1, -1, "read-date-and-time-of-last-modification", NULL },
-  {  6, &hf_ftam_Attribute_Names_read_date_and_time_of_last_read_access, -1, -1, "read-date-and-time-of-last-read-access", NULL },
-  {  7, &hf_ftam_Attribute_Names_read_date_and_time_of_last_attribute_modification, -1, -1, "read-date-and-time-of-last-attribute-modification", NULL },
-  {  8, &hf_ftam_Attribute_Names_read_identity_of_creator, -1, -1, "read-identity-of-creator", NULL },
-  {  9, &hf_ftam_Attribute_Names_read_identity_of_last_modifier, -1, -1, "read-identity-of-last-modifier", NULL },
-  { 10, &hf_ftam_Attribute_Names_read_identity_of_last_reader, -1, -1, "read-identity-of-last-reader", NULL },
-  { 11, &hf_ftam_Attribute_Names_read_identity_of_last_attribute_modifier, -1, -1, "read-identity-of-last-attribute-modifier", NULL },
-  { 12, &hf_ftam_Attribute_Names_read_Object_availability, -1, -1, "read-Object-availability", NULL },
-  { 13, &hf_ftam_Attribute_Names_read_Object_size, -1, -1, "read-Object-size", NULL },
-  { 14, &hf_ftam_Attribute_Names_read_future_Object_size, -1, -1, "read-future-Object-size", NULL },
-  { 15, &hf_ftam_Attribute_Names_read_access_control, -1, -1, "read-access-control", NULL },
-  { 21, &hf_ftam_Attribute_Names_read_path_access_control, -1, -1, "read-path-access-control", NULL },
-  { 16, &hf_ftam_Attribute_Names_read_l8gal_qualifiCatiOnS, -1, -1, "read-l8gal-qualifiCatiOnS", NULL },
-  { 17, &hf_ftam_Attribute_Names_read_private_use, -1, -1, "read-private-use", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * Attribute_Names_bits[] = {
+  &hf_ftam_Attribute_Names_read_pathname,
+  &hf_ftam_Attribute_Names_read_permitted_actions,
+  &hf_ftam_Attribute_Names_read_contents_type,
+  &hf_ftam_Attribute_Names_read_storage_account,
+  &hf_ftam_Attribute_Names_read_date_and_time_of_creation,
+  &hf_ftam_Attribute_Names_read_date_and_time_of_last_modification,
+  &hf_ftam_Attribute_Names_read_date_and_time_of_last_read_access,
+  &hf_ftam_Attribute_Names_read_date_and_time_of_last_attribute_modification,
+  &hf_ftam_Attribute_Names_read_identity_of_creator,
+  &hf_ftam_Attribute_Names_read_identity_of_last_modifier,
+  &hf_ftam_Attribute_Names_read_identity_of_last_reader,
+  &hf_ftam_Attribute_Names_read_identity_of_last_attribute_modifier,
+  &hf_ftam_Attribute_Names_read_Object_availability,
+  &hf_ftam_Attribute_Names_read_Object_size,
+  &hf_ftam_Attribute_Names_read_future_Object_size,
+  &hf_ftam_Attribute_Names_read_access_control,
+  &hf_ftam_Attribute_Names_read_l8gal_qualifiCatiOnS,
+  &hf_ftam_Attribute_Names_read_private_use,
+  &hf_ftam_Attribute_Names_read_Object_type,
+  &hf_ftam_Attribute_Names_read_linked_Object,
+  &hf_ftam_Attribute_Names_read_primary_pathname,
+  &hf_ftam_Attribute_Names_read_path_access_control,
+  &hf_ftam_Attribute_Names_spare_bit_22,
+  &hf_ftam_Attribute_Names_read_Child_objects,
+  NULL
 };
 
 static int
 dissect_ftam_Attribute_Names(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    Attribute_Names_bits, hf_index, ett_ftam_Attribute_Names,
+                                    Attribute_Names_bits, 24, hf_index, ett_ftam_Attribute_Names,
                                     NULL);
 
   return offset;
@@ -2565,19 +2571,19 @@ dissect_ftam_F_CHANGE_ATTRIB_response(gboolean implicit_tag _U_, tvbuff_t *tvb _
 }
 
 
-static const asn_namedbit T_processing_mode_bits[] = {
-  {  0, &hf_ftam_T_processing_mode_f_read, -1, -1, "f-read", NULL },
-  {  1, &hf_ftam_T_processing_mode_f_insert, -1, -1, "f-insert", NULL },
-  {  2, &hf_ftam_T_processing_mode_f_replace, -1, -1, "f-replace", NULL },
-  {  3, &hf_ftam_T_processing_mode_f_extend, -1, -1, "f-extend", NULL },
-  {  4, &hf_ftam_T_processing_mode_f_erase, -1, -1, "f-erase", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * T_processing_mode_bits[] = {
+  &hf_ftam_T_processing_mode_f_read,
+  &hf_ftam_T_processing_mode_f_insert,
+  &hf_ftam_T_processing_mode_f_replace,
+  &hf_ftam_T_processing_mode_f_extend,
+  &hf_ftam_T_processing_mode_f_erase,
+  NULL
 };
 
 static int
 dissect_ftam_T_processing_mode(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    T_processing_mode_bits, hf_index, ett_ftam_T_processing_mode,
+                                    T_processing_mode_bits, 5, hf_index, ett_ftam_T_processing_mode,
                                     NULL);
 
   return offset;
@@ -3492,16 +3498,16 @@ dissect_ftam_F_CHANGE_PREFIX_response(gboolean implicit_tag _U_, tvbuff_t *tvb _
 }
 
 
-static const asn_namedbit Equality_Comparision_bits[] = {
-  {  0, &hf_ftam_Equality_Comparision_no_value_available_matches, -1, -1, "no-value-available-matches", NULL },
-  {  1, &hf_ftam_Equality_Comparision_equals_matches, -1, -1, "equals-matches", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * Equality_Comparision_bits[] = {
+  &hf_ftam_Equality_Comparision_no_value_available_matches,
+  &hf_ftam_Equality_Comparision_equals_matches,
+  NULL
 };
 
 static int
 dissect_ftam_Equality_Comparision(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    Equality_Comparision_bits, hf_index, ett_ftam_Equality_Comparision,
+                                    Equality_Comparision_bits, 2, hf_index, ett_ftam_Equality_Comparision,
                                     NULL);
 
   return offset;
@@ -3610,18 +3616,18 @@ dissect_ftam_Pathname_Pattern(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const asn_namedbit Relational_Comparision_bits[] = {
-  {  0, &hf_ftam_Relational_Comparision_no_value_available_matches, -1, -1, "no-value-available-matches", NULL },
-  {  1, &hf_ftam_Relational_Comparision_equals_matches, -1, -1, "equals-matches", NULL },
-  {  2, &hf_ftam_Relational_Comparision_less_than_matches, -1, -1, "less-than-matches", NULL },
-  {  3, &hf_ftam_Relational_Comparision_greater_than_matches, -1, -1, "greater-than-matches", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * Relational_Comparision_bits[] = {
+  &hf_ftam_Relational_Comparision_no_value_available_matches,
+  &hf_ftam_Relational_Comparision_equals_matches,
+  &hf_ftam_Relational_Comparision_less_than_matches,
+  &hf_ftam_Relational_Comparision_greater_than_matches,
+  NULL
 };
 
 static int
 dissect_ftam_Relational_Comparision(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    Relational_Comparision_bits, hf_index, ett_ftam_Relational_Comparision,
+                                    Relational_Comparision_bits, 4, hf_index, ett_ftam_Relational_Comparision,
                                     NULL);
 
   return offset;
@@ -3647,7 +3653,7 @@ dissect_ftam_Integer_Pattern(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 static int
 dissect_ftam_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -6145,6 +6151,14 @@ void proto_register_ftam(void) {
       { "access-class", "ftam.access-class",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
+    { &hf_ftam_Functional_Units_U_spare_bit_0,
+      { "spare_bit_0", "ftam.spare_bit_0",
+        FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_ftam_Functional_Units_U_spare_bit_1,
+      { "spare_bit_1", "ftam.spare_bit_1",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
     { &hf_ftam_Functional_Units_U_read,
       { "read", "ftam.read",
         FT_BOOLEAN, 8, NULL, 0x20,
@@ -6321,14 +6335,6 @@ void proto_register_ftam(void) {
       { "delete-Object", "ftam.delete-Object",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
-    { &hf_ftam_Permitted_Actions_Attribute_pass,
-      { "pass", "ftam.pass",
-        FT_BOOLEAN, 8, NULL, 0x10,
-        NULL, HFILL }},
-    { &hf_ftam_Permitted_Actions_Attribute_link,
-      { "link", "ftam.link",
-        FT_BOOLEAN, 8, NULL, 0x08,
-        NULL, HFILL }},
     { &hf_ftam_Permitted_Actions_Attribute_traversal,
       { "traversal", "ftam.traversal",
         FT_BOOLEAN, 8, NULL, 0x80,
@@ -6340,6 +6346,14 @@ void proto_register_ftam(void) {
     { &hf_ftam_Permitted_Actions_Attribute_random_Order,
       { "random-Order", "ftam.random-Order",
         FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_ftam_Permitted_Actions_Attribute_pass,
+      { "pass", "ftam.pass",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_ftam_Permitted_Actions_Attribute_link,
+      { "link", "ftam.link",
+        FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_ftam_Equality_Comparision_no_value_available_matches,
       { "no-value-available-matches", "ftam.no-value-available-matches",
@@ -6369,10 +6383,6 @@ void proto_register_ftam(void) {
       { "read-pathname", "ftam.read-pathname",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
-    { &hf_ftam_Attribute_Names_read_Object_type,
-      { "read-Object-type", "ftam.read-Object-type",
-        FT_BOOLEAN, 8, NULL, 0x20,
-        NULL, HFILL }},
     { &hf_ftam_Attribute_Names_read_permitted_actions,
       { "read-permitted-actions", "ftam.read-permitted-actions",
         FT_BOOLEAN, 8, NULL, 0x40,
@@ -6380,18 +6390,6 @@ void proto_register_ftam(void) {
     { &hf_ftam_Attribute_Names_read_contents_type,
       { "read-contents-type", "ftam.read-contents-type",
         FT_BOOLEAN, 8, NULL, 0x20,
-        NULL, HFILL }},
-    { &hf_ftam_Attribute_Names_read_linked_Object,
-      { "read-linked-Object", "ftam.read-linked-Object",
-        FT_BOOLEAN, 8, NULL, 0x10,
-        NULL, HFILL }},
-    { &hf_ftam_Attribute_Names_read_Child_objects,
-      { "read-Child-objects", "ftam.read-Child-objects",
-        FT_BOOLEAN, 8, NULL, 0x01,
-        NULL, HFILL }},
-    { &hf_ftam_Attribute_Names_read_primary_pathname,
-      { "read-primary-pathname", "ftam.read-primary-pathname",
-        FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_ftam_Attribute_Names_read_storage_account,
       { "read-storage-account", "ftam.read-storage-account",
@@ -6445,10 +6443,6 @@ void proto_register_ftam(void) {
       { "read-access-control", "ftam.read-access-control",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
-    { &hf_ftam_Attribute_Names_read_path_access_control,
-      { "read-path-access-control", "ftam.read-path-access-control",
-        FT_BOOLEAN, 8, NULL, 0x04,
-        NULL, HFILL }},
     { &hf_ftam_Attribute_Names_read_l8gal_qualifiCatiOnS,
       { "read-l8gal-qualifiCatiOnS", "ftam.read-l8gal-qualifiCatiOnS",
         FT_BOOLEAN, 8, NULL, 0x80,
@@ -6456,6 +6450,30 @@ void proto_register_ftam(void) {
     { &hf_ftam_Attribute_Names_read_private_use,
       { "read-private-use", "ftam.read-private-use",
         FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_ftam_Attribute_Names_read_Object_type,
+      { "read-Object-type", "ftam.read-Object-type",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_ftam_Attribute_Names_read_linked_Object,
+      { "read-linked-Object", "ftam.read-linked-Object",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_ftam_Attribute_Names_read_primary_pathname,
+      { "read-primary-pathname", "ftam.read-primary-pathname",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_ftam_Attribute_Names_read_path_access_control,
+      { "read-path-access-control", "ftam.read-path-access-control",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        NULL, HFILL }},
+    { &hf_ftam_Attribute_Names_spare_bit_22,
+      { "spare_bit_22", "ftam.spare_bit_22",
+        FT_BOOLEAN, 8, NULL, 0x02,
+        NULL, HFILL }},
+    { &hf_ftam_Attribute_Names_read_Child_objects,
+      { "read-Child-objects", "ftam.read-Child-objects",
+        FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
 
 /*--- End of included file: packet-ftam-hfarr.c ---*/

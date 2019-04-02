@@ -214,6 +214,7 @@ static int hf_dop_DSEType_xr = -1;
 static int hf_dop_DSEType_admPoint = -1;
 static int hf_dop_DSEType_subentry = -1;
 static int hf_dop_DSEType_shadow = -1;
+static int hf_dop_DSEType_spare_bit_12 = -1;
 static int hf_dop_DSEType_immSupr = -1;
 static int hf_dop_DSEType_rhob = -1;
 static int hf_dop_DSEType_sa = -1;
@@ -351,33 +352,34 @@ static void append_oid(packet_info *pinfo, const char *oid)
 /*--- Included file: packet-dop-fn.c ---*/
 #line 1 "./asn1/dop/packet-dop-fn.c"
 
-static const asn_namedbit DSEType_bits[] = {
-  {  0, &hf_dop_DSEType_root, -1, -1, "root", NULL },
-  {  1, &hf_dop_DSEType_glue, -1, -1, "glue", NULL },
-  {  2, &hf_dop_DSEType_cp, -1, -1, "cp", NULL },
-  {  3, &hf_dop_DSEType_entry, -1, -1, "entry", NULL },
-  {  4, &hf_dop_DSEType_alias, -1, -1, "alias", NULL },
-  {  5, &hf_dop_DSEType_subr, -1, -1, "subr", NULL },
-  {  6, &hf_dop_DSEType_nssr, -1, -1, "nssr", NULL },
-  {  7, &hf_dop_DSEType_supr, -1, -1, "supr", NULL },
-  {  8, &hf_dop_DSEType_xr, -1, -1, "xr", NULL },
-  {  9, &hf_dop_DSEType_admPoint, -1, -1, "admPoint", NULL },
-  { 10, &hf_dop_DSEType_subentry, -1, -1, "subentry", NULL },
-  { 11, &hf_dop_DSEType_shadow, -1, -1, "shadow", NULL },
-  { 13, &hf_dop_DSEType_immSupr, -1, -1, "immSupr", NULL },
-  { 14, &hf_dop_DSEType_rhob, -1, -1, "rhob", NULL },
-  { 15, &hf_dop_DSEType_sa, -1, -1, "sa", NULL },
-  { 16, &hf_dop_DSEType_dsSubentry, -1, -1, "dsSubentry", NULL },
-  { 17, &hf_dop_DSEType_familyMember, -1, -1, "familyMember", NULL },
-  { 18, &hf_dop_DSEType_ditBridge, -1, -1, "ditBridge", NULL },
-  { 19, &hf_dop_DSEType_writeableCopy, -1, -1, "writeableCopy", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * DSEType_bits[] = {
+  &hf_dop_DSEType_root,
+  &hf_dop_DSEType_glue,
+  &hf_dop_DSEType_cp,
+  &hf_dop_DSEType_entry,
+  &hf_dop_DSEType_alias,
+  &hf_dop_DSEType_subr,
+  &hf_dop_DSEType_nssr,
+  &hf_dop_DSEType_supr,
+  &hf_dop_DSEType_xr,
+  &hf_dop_DSEType_admPoint,
+  &hf_dop_DSEType_subentry,
+  &hf_dop_DSEType_shadow,
+  &hf_dop_DSEType_spare_bit_12,
+  &hf_dop_DSEType_immSupr,
+  &hf_dop_DSEType_rhob,
+  &hf_dop_DSEType_sa,
+  &hf_dop_DSEType_dsSubentry,
+  &hf_dop_DSEType_familyMember,
+  &hf_dop_DSEType_ditBridge,
+  &hf_dop_DSEType_writeableCopy,
+  NULL
 };
 
 int
 dissect_dop_DSEType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    DSEType_bits, hf_index, ett_dop_DSEType,
+                                    DSEType_bits, 20, hf_index, ett_dop_DSEType,
                                     NULL);
 
   return offset;
@@ -781,7 +783,7 @@ dissect_dop_EstablishOperationalBindingArgumentData(gboolean implicit_tag _U_, t
 static int
 dissect_dop_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -1772,40 +1774,40 @@ dissect_dop_UserClasses(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset
 }
 
 
-static const asn_namedbit GrantsAndDenials_bits[] = {
-  {  0, &hf_dop_GrantsAndDenials_grantAdd, -1, -1, "grantAdd", NULL },
-  {  1, &hf_dop_GrantsAndDenials_denyAdd, -1, -1, "denyAdd", NULL },
-  {  2, &hf_dop_GrantsAndDenials_grantDiscloseOnError, -1, -1, "grantDiscloseOnError", NULL },
-  {  3, &hf_dop_GrantsAndDenials_denyDiscloseOnError, -1, -1, "denyDiscloseOnError", NULL },
-  {  4, &hf_dop_GrantsAndDenials_grantRead, -1, -1, "grantRead", NULL },
-  {  5, &hf_dop_GrantsAndDenials_denyRead, -1, -1, "denyRead", NULL },
-  {  6, &hf_dop_GrantsAndDenials_grantRemove, -1, -1, "grantRemove", NULL },
-  {  7, &hf_dop_GrantsAndDenials_denyRemove, -1, -1, "denyRemove", NULL },
-  {  8, &hf_dop_GrantsAndDenials_grantBrowse, -1, -1, "grantBrowse", NULL },
-  {  9, &hf_dop_GrantsAndDenials_denyBrowse, -1, -1, "denyBrowse", NULL },
-  { 10, &hf_dop_GrantsAndDenials_grantExport, -1, -1, "grantExport", NULL },
-  { 11, &hf_dop_GrantsAndDenials_denyExport, -1, -1, "denyExport", NULL },
-  { 12, &hf_dop_GrantsAndDenials_grantImport, -1, -1, "grantImport", NULL },
-  { 13, &hf_dop_GrantsAndDenials_denyImport, -1, -1, "denyImport", NULL },
-  { 14, &hf_dop_GrantsAndDenials_grantModify, -1, -1, "grantModify", NULL },
-  { 15, &hf_dop_GrantsAndDenials_denyModify, -1, -1, "denyModify", NULL },
-  { 16, &hf_dop_GrantsAndDenials_grantRename, -1, -1, "grantRename", NULL },
-  { 17, &hf_dop_GrantsAndDenials_denyRename, -1, -1, "denyRename", NULL },
-  { 18, &hf_dop_GrantsAndDenials_grantReturnDN, -1, -1, "grantReturnDN", NULL },
-  { 19, &hf_dop_GrantsAndDenials_denyReturnDN, -1, -1, "denyReturnDN", NULL },
-  { 20, &hf_dop_GrantsAndDenials_grantCompare, -1, -1, "grantCompare", NULL },
-  { 21, &hf_dop_GrantsAndDenials_denyCompare, -1, -1, "denyCompare", NULL },
-  { 22, &hf_dop_GrantsAndDenials_grantFilterMatch, -1, -1, "grantFilterMatch", NULL },
-  { 23, &hf_dop_GrantsAndDenials_denyFilterMatch, -1, -1, "denyFilterMatch", NULL },
-  { 24, &hf_dop_GrantsAndDenials_grantInvoke, -1, -1, "grantInvoke", NULL },
-  { 25, &hf_dop_GrantsAndDenials_denyInvoke, -1, -1, "denyInvoke", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * GrantsAndDenials_bits[] = {
+  &hf_dop_GrantsAndDenials_grantAdd,
+  &hf_dop_GrantsAndDenials_denyAdd,
+  &hf_dop_GrantsAndDenials_grantDiscloseOnError,
+  &hf_dop_GrantsAndDenials_denyDiscloseOnError,
+  &hf_dop_GrantsAndDenials_grantRead,
+  &hf_dop_GrantsAndDenials_denyRead,
+  &hf_dop_GrantsAndDenials_grantRemove,
+  &hf_dop_GrantsAndDenials_denyRemove,
+  &hf_dop_GrantsAndDenials_grantBrowse,
+  &hf_dop_GrantsAndDenials_denyBrowse,
+  &hf_dop_GrantsAndDenials_grantExport,
+  &hf_dop_GrantsAndDenials_denyExport,
+  &hf_dop_GrantsAndDenials_grantImport,
+  &hf_dop_GrantsAndDenials_denyImport,
+  &hf_dop_GrantsAndDenials_grantModify,
+  &hf_dop_GrantsAndDenials_denyModify,
+  &hf_dop_GrantsAndDenials_grantRename,
+  &hf_dop_GrantsAndDenials_denyRename,
+  &hf_dop_GrantsAndDenials_grantReturnDN,
+  &hf_dop_GrantsAndDenials_denyReturnDN,
+  &hf_dop_GrantsAndDenials_grantCompare,
+  &hf_dop_GrantsAndDenials_denyCompare,
+  &hf_dop_GrantsAndDenials_grantFilterMatch,
+  &hf_dop_GrantsAndDenials_denyFilterMatch,
+  &hf_dop_GrantsAndDenials_grantInvoke,
+  &hf_dop_GrantsAndDenials_denyInvoke,
+  NULL
 };
 
 static int
 dissect_dop_GrantsAndDenials(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    GrantsAndDenials_bits, hf_index, ett_dop_GrantsAndDenials,
+                                    GrantsAndDenials_bits, 26, hf_index, ett_dop_GrantsAndDenials,
                                     NULL);
 
   return offset;
@@ -2809,6 +2811,10 @@ void proto_register_dop(void) {
     { &hf_dop_DSEType_shadow,
       { "shadow", "dop.shadow",
         FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
+    { &hf_dop_DSEType_spare_bit_12,
+      { "spare_bit_12", "dop.spare_bit_12",
+        FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_dop_DSEType_immSupr,
       { "immSupr", "dop.immSupr",

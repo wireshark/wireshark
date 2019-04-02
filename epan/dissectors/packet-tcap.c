@@ -1018,15 +1018,15 @@ dissect_tcap_TCMessage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const asn_namedbit AUDT_protocol_version_bits[] = {
-  {  0, &hf_tcap_AUDT_protocol_version_version1, -1, -1, "version1", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * AUDT_protocol_version_bits[] = {
+  &hf_tcap_AUDT_protocol_version_version1,
+  NULL
 };
 
 static int
 dissect_tcap_AUDT_protocol_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    AUDT_protocol_version_bits, hf_index, ett_tcap_AUDT_protocol_version,
+                                    AUDT_protocol_version_bits, 1, hf_index, ett_tcap_AUDT_protocol_version,
                                     NULL);
 
   return offset;
@@ -1118,15 +1118,15 @@ dissect_tcap_UniDialoguePDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int of
 }
 
 
-static const asn_namedbit AARQ_protocol_version_bits[] = {
-  {  0, &hf_tcap_AARQ_protocol_version_version1, -1, -1, "version1", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * AARQ_protocol_version_bits[] = {
+  &hf_tcap_AARQ_protocol_version_version1,
+  NULL
 };
 
 static int
 dissect_tcap_AARQ_protocol_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    AARQ_protocol_version_bits, hf_index, ett_tcap_AARQ_protocol_version,
+                                    AARQ_protocol_version_bits, 1, hf_index, ett_tcap_AARQ_protocol_version,
                                     NULL);
 
   return offset;
@@ -1189,15 +1189,15 @@ dissect_tcap_AARQ_apdu(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset 
 }
 
 
-static const asn_namedbit AARE_protocol_version_bits[] = {
-  {  0, &hf_tcap_AARE_protocol_version_version1, -1, -1, "version1", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * AARE_protocol_version_bits[] = {
+  &hf_tcap_AARE_protocol_version_version1,
+  NULL
 };
 
 static int
 dissect_tcap_AARE_protocol_version(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    AARE_protocol_version_bits, hf_index, ett_tcap_AARE_protocol_version,
+                                    AARE_protocol_version_bits, 1, hf_index, ett_tcap_AARE_protocol_version,
                                     NULL);
 
   return offset;

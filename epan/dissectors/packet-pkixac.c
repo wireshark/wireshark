@@ -160,7 +160,7 @@ dissect_pkixac_OBJECT_IDENTIFIER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 static int
 dissect_pkixac_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -357,20 +357,20 @@ dissect_pkixac_RoleSyntax(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-static const asn_namedbit ClassList_bits[] = {
-  {  0, &hf_pkixac_ClassList_unmarked, -1, -1, "unmarked", NULL },
-  {  1, &hf_pkixac_ClassList_unclassified, -1, -1, "unclassified", NULL },
-  {  2, &hf_pkixac_ClassList_restricted, -1, -1, "restricted", NULL },
-  {  3, &hf_pkixac_ClassList_confidential, -1, -1, "confidential", NULL },
-  {  4, &hf_pkixac_ClassList_secret, -1, -1, "secret", NULL },
-  {  5, &hf_pkixac_ClassList_topSecret, -1, -1, "topSecret", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * ClassList_bits[] = {
+  &hf_pkixac_ClassList_unmarked,
+  &hf_pkixac_ClassList_unclassified,
+  &hf_pkixac_ClassList_restricted,
+  &hf_pkixac_ClassList_confidential,
+  &hf_pkixac_ClassList_secret,
+  &hf_pkixac_ClassList_topSecret,
+  NULL
 };
 
 static int
 dissect_pkixac_ClassList(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    ClassList_bits, hf_index, ett_pkixac_ClassList,
+                                    ClassList_bits, 6, hf_index, ett_pkixac_ClassList,
                                     NULL);
 
   return offset;

@@ -295,17 +295,17 @@ dissect_p772_InformationObject(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 }
 
 
-static const asn_namedbit Acp127NotificationType_bits[] = {
-  {  0, &hf_p772_Acp127NotificationType_acp127_nn, -1, -1, "acp127-nn", NULL },
-  {  1, &hf_p772_Acp127NotificationType_acp127_pn, -1, -1, "acp127-pn", NULL },
-  {  2, &hf_p772_Acp127NotificationType_acp127_tn, -1, -1, "acp127-tn", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * Acp127NotificationType_bits[] = {
+  &hf_p772_Acp127NotificationType_acp127_nn,
+  &hf_p772_Acp127NotificationType_acp127_pn,
+  &hf_p772_Acp127NotificationType_acp127_tn,
+  NULL
 };
 
 static int
 dissect_p772_Acp127NotificationType(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    Acp127NotificationType_bits, hf_index, ett_p772_Acp127NotificationType,
+                                    Acp127NotificationType_bits, 3, hf_index, ett_p772_Acp127NotificationType,
                                     NULL);
 
   return offset;
@@ -1012,7 +1012,7 @@ dissect_p772_ForwardedEncryptedParameters(gboolean implicit_tag _U_, tvbuff_t *t
 static int
 dissect_p772_ForwardedEncryptedData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;

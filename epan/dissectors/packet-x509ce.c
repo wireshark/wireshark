@@ -511,23 +511,23 @@ dissect_x509ce_SubjectKeyIdentifier(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 }
 
 
-static const asn_namedbit KeyUsage_bits[] = {
-  {  0, &hf_x509ce_KeyUsage_digitalSignature, -1, -1, "digitalSignature", NULL },
-  {  1, &hf_x509ce_KeyUsage_contentCommitment, -1, -1, "contentCommitment", NULL },
-  {  2, &hf_x509ce_KeyUsage_keyEncipherment, -1, -1, "keyEncipherment", NULL },
-  {  3, &hf_x509ce_KeyUsage_dataEncipherment, -1, -1, "dataEncipherment", NULL },
-  {  4, &hf_x509ce_KeyUsage_keyAgreement, -1, -1, "keyAgreement", NULL },
-  {  5, &hf_x509ce_KeyUsage_keyCertSign, -1, -1, "keyCertSign", NULL },
-  {  6, &hf_x509ce_KeyUsage_cRLSign, -1, -1, "cRLSign", NULL },
-  {  7, &hf_x509ce_KeyUsage_encipherOnly, -1, -1, "encipherOnly", NULL },
-  {  8, &hf_x509ce_KeyUsage_decipherOnly, -1, -1, "decipherOnly", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * KeyUsage_bits[] = {
+  &hf_x509ce_KeyUsage_digitalSignature,
+  &hf_x509ce_KeyUsage_contentCommitment,
+  &hf_x509ce_KeyUsage_keyEncipherment,
+  &hf_x509ce_KeyUsage_dataEncipherment,
+  &hf_x509ce_KeyUsage_keyAgreement,
+  &hf_x509ce_KeyUsage_keyCertSign,
+  &hf_x509ce_KeyUsage_cRLSign,
+  &hf_x509ce_KeyUsage_encipherOnly,
+  &hf_x509ce_KeyUsage_decipherOnly,
+  NULL
 };
 
 int
 dissect_x509ce_KeyUsage(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    KeyUsage_bits, hf_index, ett_x509ce_KeyUsage,
+                                    KeyUsage_bits, 9, hf_index, ett_x509ce_KeyUsage,
                                     NULL);
 
   return offset;
@@ -885,40 +885,40 @@ dissect_x509ce_DistributionPointName(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 }
 
 
-static const asn_namedbit OnlyCertificateTypes_bits[] = {
-  {  0, &hf_x509ce_OnlyCertificateTypes_user, -1, -1, "user", NULL },
-  {  1, &hf_x509ce_OnlyCertificateTypes_authority, -1, -1, "authority", NULL },
-  {  2, &hf_x509ce_OnlyCertificateTypes_attribute, -1, -1, "attribute", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * OnlyCertificateTypes_bits[] = {
+  &hf_x509ce_OnlyCertificateTypes_user,
+  &hf_x509ce_OnlyCertificateTypes_authority,
+  &hf_x509ce_OnlyCertificateTypes_attribute,
+  NULL
 };
 
 int
 dissect_x509ce_OnlyCertificateTypes(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    OnlyCertificateTypes_bits, hf_index, ett_x509ce_OnlyCertificateTypes,
+                                    OnlyCertificateTypes_bits, 3, hf_index, ett_x509ce_OnlyCertificateTypes,
                                     NULL);
 
   return offset;
 }
 
 
-static const asn_namedbit ReasonFlags_bits[] = {
-  {  0, &hf_x509ce_ReasonFlags_unused, -1, -1, "unused", NULL },
-  {  1, &hf_x509ce_ReasonFlags_keyCompromise, -1, -1, "keyCompromise", NULL },
-  {  2, &hf_x509ce_ReasonFlags_cACompromise, -1, -1, "cACompromise", NULL },
-  {  3, &hf_x509ce_ReasonFlags_affiliationChanged, -1, -1, "affiliationChanged", NULL },
-  {  4, &hf_x509ce_ReasonFlags_superseded, -1, -1, "superseded", NULL },
-  {  5, &hf_x509ce_ReasonFlags_cessationOfOperation, -1, -1, "cessationOfOperation", NULL },
-  {  6, &hf_x509ce_ReasonFlags_certificateHold, -1, -1, "certificateHold", NULL },
-  {  7, &hf_x509ce_ReasonFlags_privilegeWithdrawn, -1, -1, "privilegeWithdrawn", NULL },
-  {  8, &hf_x509ce_ReasonFlags_aACompromise, -1, -1, "aACompromise", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * ReasonFlags_bits[] = {
+  &hf_x509ce_ReasonFlags_unused,
+  &hf_x509ce_ReasonFlags_keyCompromise,
+  &hf_x509ce_ReasonFlags_cACompromise,
+  &hf_x509ce_ReasonFlags_affiliationChanged,
+  &hf_x509ce_ReasonFlags_superseded,
+  &hf_x509ce_ReasonFlags_cessationOfOperation,
+  &hf_x509ce_ReasonFlags_certificateHold,
+  &hf_x509ce_ReasonFlags_privilegeWithdrawn,
+  &hf_x509ce_ReasonFlags_aACompromise,
+  NULL
 };
 
 int
 dissect_x509ce_ReasonFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    ReasonFlags_bits, hf_index, ett_x509ce_ReasonFlags,
+                                    ReasonFlags_bits, 9, hf_index, ett_x509ce_ReasonFlags,
                                     NULL);
 
   return offset;
@@ -1589,20 +1589,20 @@ dissect_x509ce_GeneralString(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int o
 }
 
 
-static const asn_namedbit EntrustInfoFlags_bits[] = {
-  {  0, &hf_x509ce_EntrustInfoFlags_keyUpdateAllowed, -1, -1, "keyUpdateAllowed", NULL },
-  {  1, &hf_x509ce_EntrustInfoFlags_newExtensions, -1, -1, "newExtensions", NULL },
-  {  2, &hf_x509ce_EntrustInfoFlags_pKIXCertificate, -1, -1, "pKIXCertificate", NULL },
-  {  3, &hf_x509ce_EntrustInfoFlags_enterpriseCategory, -1, -1, "enterpriseCategory", NULL },
-  {  4, &hf_x509ce_EntrustInfoFlags_webCategory, -1, -1, "webCategory", NULL },
-  {  5, &hf_x509ce_EntrustInfoFlags_sETCategory, -1, -1, "sETCategory", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * EntrustInfoFlags_bits[] = {
+  &hf_x509ce_EntrustInfoFlags_keyUpdateAllowed,
+  &hf_x509ce_EntrustInfoFlags_newExtensions,
+  &hf_x509ce_EntrustInfoFlags_pKIXCertificate,
+  &hf_x509ce_EntrustInfoFlags_enterpriseCategory,
+  &hf_x509ce_EntrustInfoFlags_webCategory,
+  &hf_x509ce_EntrustInfoFlags_sETCategory,
+  NULL
 };
 
 static int
 dissect_x509ce_EntrustInfoFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    EntrustInfoFlags_bits, hf_index, ett_x509ce_EntrustInfoFlags,
+                                    EntrustInfoFlags_bits, 6, hf_index, ett_x509ce_EntrustInfoFlags,
                                     NULL);
 
   return offset;
@@ -1643,7 +1643,7 @@ dissect_x509ce_ScramblerCapabilities(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 int
 dissect_x509ce_CiplusInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;

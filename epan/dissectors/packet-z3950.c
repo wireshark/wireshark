@@ -1506,6 +1506,7 @@ static int hf_z3950_Options_U_resourceCtrl = -1;
 static int hf_z3950_Options_U_accessCtrl = -1;
 static int hf_z3950_Options_U_scan = -1;
 static int hf_z3950_Options_U_sort = -1;
+static int hf_z3950_Options_U_spare_bit_9 = -1;
 static int hf_z3950_Options_U_extendedServices = -1;
 static int hf_z3950_Options_U_level_1Segmentation = -1;
 static int hf_z3950_Options_U_level_2Segmentation = -1;
@@ -2116,17 +2117,17 @@ dissect_z3950_ReferenceId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 }
 
 
-static const asn_namedbit ProtocolVersion_U_bits[] = {
-  {  0, &hf_z3950_ProtocolVersion_U_version_1, -1, -1, "version-1", NULL },
-  {  1, &hf_z3950_ProtocolVersion_U_version_2, -1, -1, "version-2", NULL },
-  {  2, &hf_z3950_ProtocolVersion_U_version_3, -1, -1, "version-3", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * ProtocolVersion_U_bits[] = {
+  &hf_z3950_ProtocolVersion_U_version_1,
+  &hf_z3950_ProtocolVersion_U_version_2,
+  &hf_z3950_ProtocolVersion_U_version_3,
+  NULL
 };
 
 static int
 dissect_z3950_ProtocolVersion_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    ProtocolVersion_U_bits, hf_index, ett_z3950_ProtocolVersion_U,
+                                    ProtocolVersion_U_bits, 3, hf_index, ett_z3950_ProtocolVersion_U,
                                     NULL);
 
   return offset;
@@ -2143,28 +2144,29 @@ dissect_z3950_ProtocolVersion(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 }
 
 
-static const asn_namedbit Options_U_bits[] = {
-  {  0, &hf_z3950_Options_U_search, -1, -1, "search", NULL },
-  {  1, &hf_z3950_Options_U_present, -1, -1, "present", NULL },
-  {  2, &hf_z3950_Options_U_delSet, -1, -1, "delSet", NULL },
-  {  3, &hf_z3950_Options_U_resourceReport, -1, -1, "resourceReport", NULL },
-  {  4, &hf_z3950_Options_U_triggerResourceCtrl, -1, -1, "triggerResourceCtrl", NULL },
-  {  5, &hf_z3950_Options_U_resourceCtrl, -1, -1, "resourceCtrl", NULL },
-  {  6, &hf_z3950_Options_U_accessCtrl, -1, -1, "accessCtrl", NULL },
-  {  7, &hf_z3950_Options_U_scan, -1, -1, "scan", NULL },
-  {  8, &hf_z3950_Options_U_sort, -1, -1, "sort", NULL },
-  { 10, &hf_z3950_Options_U_extendedServices, -1, -1, "extendedServices", NULL },
-  { 11, &hf_z3950_Options_U_level_1Segmentation, -1, -1, "level-1Segmentation", NULL },
-  { 12, &hf_z3950_Options_U_level_2Segmentation, -1, -1, "level-2Segmentation", NULL },
-  { 13, &hf_z3950_Options_U_concurrentOperations, -1, -1, "concurrentOperations", NULL },
-  { 14, &hf_z3950_Options_U_namedResultSets, -1, -1, "namedResultSets", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * Options_U_bits[] = {
+  &hf_z3950_Options_U_search,
+  &hf_z3950_Options_U_present,
+  &hf_z3950_Options_U_delSet,
+  &hf_z3950_Options_U_resourceReport,
+  &hf_z3950_Options_U_triggerResourceCtrl,
+  &hf_z3950_Options_U_resourceCtrl,
+  &hf_z3950_Options_U_accessCtrl,
+  &hf_z3950_Options_U_scan,
+  &hf_z3950_Options_U_sort,
+  &hf_z3950_Options_U_spare_bit_9,
+  &hf_z3950_Options_U_extendedServices,
+  &hf_z3950_Options_U_level_1Segmentation,
+  &hf_z3950_Options_U_level_2Segmentation,
+  &hf_z3950_Options_U_concurrentOperations,
+  &hf_z3950_Options_U_namedResultSets,
+  NULL
 };
 
 static int
 dissect_z3950_Options_U(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    Options_U_bits, hf_index, ett_z3950_Options_U,
+                                    Options_U_bits, 15, hf_index, ett_z3950_Options_U,
                                     NULL);
 
   return offset;
@@ -12066,6 +12068,10 @@ void proto_register_z3950(void) {
     { &hf_z3950_Options_U_sort,
       { "sort", "z3950.sort",
         FT_BOOLEAN, 8, NULL, 0x80,
+        NULL, HFILL }},
+    { &hf_z3950_Options_U_spare_bit_9,
+      { "spare_bit_9", "z3950.spare_bit_9",
+        FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_z3950_Options_U_extendedServices,
       { "extendedServices", "z3950.extendedServices",

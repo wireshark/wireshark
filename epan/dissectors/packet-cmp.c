@@ -495,41 +495,41 @@ dissect_cmp_PKIStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 }
 
 
-static const asn_namedbit PKIFailureInfo_bits[] = {
-  {  0, &hf_cmp_PKIFailureInfo_badAlg, -1, -1, "badAlg", NULL },
-  {  1, &hf_cmp_PKIFailureInfo_badMessageCheck, -1, -1, "badMessageCheck", NULL },
-  {  2, &hf_cmp_PKIFailureInfo_badRequest, -1, -1, "badRequest", NULL },
-  {  3, &hf_cmp_PKIFailureInfo_badTime, -1, -1, "badTime", NULL },
-  {  4, &hf_cmp_PKIFailureInfo_badCertId, -1, -1, "badCertId", NULL },
-  {  5, &hf_cmp_PKIFailureInfo_badDataFormat, -1, -1, "badDataFormat", NULL },
-  {  6, &hf_cmp_PKIFailureInfo_wrongAuthority, -1, -1, "wrongAuthority", NULL },
-  {  7, &hf_cmp_PKIFailureInfo_incorrectData, -1, -1, "incorrectData", NULL },
-  {  8, &hf_cmp_PKIFailureInfo_missingTimeStamp, -1, -1, "missingTimeStamp", NULL },
-  {  9, &hf_cmp_PKIFailureInfo_badPOP, -1, -1, "badPOP", NULL },
-  { 10, &hf_cmp_PKIFailureInfo_certRevoked, -1, -1, "certRevoked", NULL },
-  { 11, &hf_cmp_PKIFailureInfo_certConfirmed, -1, -1, "certConfirmed", NULL },
-  { 12, &hf_cmp_PKIFailureInfo_wrongIntegrity, -1, -1, "wrongIntegrity", NULL },
-  { 13, &hf_cmp_PKIFailureInfo_badRecipientNonce, -1, -1, "badRecipientNonce", NULL },
-  { 14, &hf_cmp_PKIFailureInfo_timeNotAvailable, -1, -1, "timeNotAvailable", NULL },
-  { 15, &hf_cmp_PKIFailureInfo_unacceptedPolicy, -1, -1, "unacceptedPolicy", NULL },
-  { 16, &hf_cmp_PKIFailureInfo_unacceptedExtension, -1, -1, "unacceptedExtension", NULL },
-  { 17, &hf_cmp_PKIFailureInfo_addInfoNotAvailable, -1, -1, "addInfoNotAvailable", NULL },
-  { 18, &hf_cmp_PKIFailureInfo_badSenderNonce, -1, -1, "badSenderNonce", NULL },
-  { 19, &hf_cmp_PKIFailureInfo_badCertTemplate, -1, -1, "badCertTemplate", NULL },
-  { 20, &hf_cmp_PKIFailureInfo_signerNotTrusted, -1, -1, "signerNotTrusted", NULL },
-  { 21, &hf_cmp_PKIFailureInfo_transactionIdInUse, -1, -1, "transactionIdInUse", NULL },
-  { 22, &hf_cmp_PKIFailureInfo_unsupportedVersion, -1, -1, "unsupportedVersion", NULL },
-  { 23, &hf_cmp_PKIFailureInfo_notAuthorized, -1, -1, "notAuthorized", NULL },
-  { 24, &hf_cmp_PKIFailureInfo_systemUnavail, -1, -1, "systemUnavail", NULL },
-  { 25, &hf_cmp_PKIFailureInfo_systemFailure, -1, -1, "systemFailure", NULL },
-  { 26, &hf_cmp_PKIFailureInfo_duplicateCertReq, -1, -1, "duplicateCertReq", NULL },
-  { 0, NULL, 0, 0, NULL, NULL }
+static const int * PKIFailureInfo_bits[] = {
+  &hf_cmp_PKIFailureInfo_badAlg,
+  &hf_cmp_PKIFailureInfo_badMessageCheck,
+  &hf_cmp_PKIFailureInfo_badRequest,
+  &hf_cmp_PKIFailureInfo_badTime,
+  &hf_cmp_PKIFailureInfo_badCertId,
+  &hf_cmp_PKIFailureInfo_badDataFormat,
+  &hf_cmp_PKIFailureInfo_wrongAuthority,
+  &hf_cmp_PKIFailureInfo_incorrectData,
+  &hf_cmp_PKIFailureInfo_missingTimeStamp,
+  &hf_cmp_PKIFailureInfo_badPOP,
+  &hf_cmp_PKIFailureInfo_certRevoked,
+  &hf_cmp_PKIFailureInfo_certConfirmed,
+  &hf_cmp_PKIFailureInfo_wrongIntegrity,
+  &hf_cmp_PKIFailureInfo_badRecipientNonce,
+  &hf_cmp_PKIFailureInfo_timeNotAvailable,
+  &hf_cmp_PKIFailureInfo_unacceptedPolicy,
+  &hf_cmp_PKIFailureInfo_unacceptedExtension,
+  &hf_cmp_PKIFailureInfo_addInfoNotAvailable,
+  &hf_cmp_PKIFailureInfo_badSenderNonce,
+  &hf_cmp_PKIFailureInfo_badCertTemplate,
+  &hf_cmp_PKIFailureInfo_signerNotTrusted,
+  &hf_cmp_PKIFailureInfo_transactionIdInUse,
+  &hf_cmp_PKIFailureInfo_unsupportedVersion,
+  &hf_cmp_PKIFailureInfo_notAuthorized,
+  &hf_cmp_PKIFailureInfo_systemUnavail,
+  &hf_cmp_PKIFailureInfo_systemFailure,
+  &hf_cmp_PKIFailureInfo_duplicateCertReq,
+  NULL
 };
 
 static int
 dissect_cmp_PKIFailureInfo(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    PKIFailureInfo_bits, hf_index, ett_cmp_PKIFailureInfo,
+                                    PKIFailureInfo_bits, 27, hf_index, ett_cmp_PKIFailureInfo,
                                     NULL);
 
   return offset;
@@ -1088,7 +1088,7 @@ dissect_cmp_PKIBody(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 static int
 dissect_cmp_PKIProtection(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;
@@ -1172,7 +1172,7 @@ dissect_cmp_OOBCert(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 static int
 dissect_cmp_BIT_STRING(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
-                                    NULL, hf_index, -1,
+                                    NULL, 0, hf_index, -1,
                                     NULL);
 
   return offset;

@@ -1336,8 +1336,16 @@ static int hf_evcsn_ChargingSpotType_standardChargeMode1 = -1;
 static int hf_evcsn_ChargingSpotType_standardChargeMode2 = -1;
 static int hf_evcsn_ChargingSpotType_standardOrFastChargeMode3 = -1;
 static int hf_evcsn_ChargingSpotType_fastChargeWithExternalCharger = -1;
+static int hf_evcsn_ChargingSpotType_spare_bit_4 = -1;
+static int hf_evcsn_ChargingSpotType_spare_bit_5 = -1;
+static int hf_evcsn_ChargingSpotType_spare_bit_6 = -1;
+static int hf_evcsn_ChargingSpotType_spare_bit_7 = -1;
 static int hf_evcsn_ChargingSpotType_quickDrop = -1;
+static int hf_evcsn_ChargingSpotType_spare_bit_9 = -1;
+static int hf_evcsn_ChargingSpotType_spare_bit_10 = -1;
+static int hf_evcsn_ChargingSpotType_spare_bit_11 = -1;
 static int hf_evcsn_ChargingSpotType_inductiveChargeWhileStationary = -1;
+static int hf_evcsn_ChargingSpotType_spare_bit_13 = -1;
 static int hf_evcsn_ChargingSpotType_inductiveChargeWhileDriving = -1;
 
 /* --- Module EV-RechargingSpotReservation-PDU-Descriptions --- --- ---       */
@@ -17083,13 +17091,45 @@ void proto_register_its(void)
       { "fastChargeWithExternalCharger", "evcsn.fastChargeWithExternalCharger",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
+    { &hf_evcsn_ChargingSpotType_spare_bit_4,
+      { "spare_bit_4", "evcsn.spare_bit_4",
+        FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_evcsn_ChargingSpotType_spare_bit_5,
+      { "spare_bit_5", "evcsn.spare_bit_5",
+        FT_BOOLEAN, 8, NULL, 0x04,
+        NULL, HFILL }},
+    { &hf_evcsn_ChargingSpotType_spare_bit_6,
+      { "spare_bit_6", "evcsn.spare_bit_6",
+        FT_BOOLEAN, 8, NULL, 0x02,
+        NULL, HFILL }},
+    { &hf_evcsn_ChargingSpotType_spare_bit_7,
+      { "spare_bit_7", "evcsn.spare_bit_7",
+        FT_BOOLEAN, 8, NULL, 0x01,
+        NULL, HFILL }},
     { &hf_evcsn_ChargingSpotType_quickDrop,
       { "quickDrop", "evcsn.quickDrop",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
+    { &hf_evcsn_ChargingSpotType_spare_bit_9,
+      { "spare_bit_9", "evcsn.spare_bit_9",
+        FT_BOOLEAN, 8, NULL, 0x40,
+        NULL, HFILL }},
+    { &hf_evcsn_ChargingSpotType_spare_bit_10,
+      { "spare_bit_10", "evcsn.spare_bit_10",
+        FT_BOOLEAN, 8, NULL, 0x20,
+        NULL, HFILL }},
+    { &hf_evcsn_ChargingSpotType_spare_bit_11,
+      { "spare_bit_11", "evcsn.spare_bit_11",
+        FT_BOOLEAN, 8, NULL, 0x10,
+        NULL, HFILL }},
     { &hf_evcsn_ChargingSpotType_inductiveChargeWhileStationary,
       { "inductiveChargeWhileStationary", "evcsn.inductiveChargeWhileStationary",
         FT_BOOLEAN, 8, NULL, 0x08,
+        NULL, HFILL }},
+    { &hf_evcsn_ChargingSpotType_spare_bit_13,
+      { "spare_bit_13", "evcsn.spare_bit_13",
+        FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_evcsn_ChargingSpotType_inductiveChargeWhileDriving,
       { "inductiveChargeWhileDriving", "evcsn.inductiveChargeWhileDriving",

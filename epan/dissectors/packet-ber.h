@@ -168,19 +168,9 @@ WS_DLL_PUBLIC int dissect_ber_GeneralizedTime(gboolean implicit_tag, asn1_ctx_t 
 
 WS_DLL_PUBLIC int dissect_ber_UTCTime(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id);
 
-typedef struct _asn_namedbit {
-	guint32 bit;
-	int *p_id;
-	gint32 gb0;  /* the 1st bit of "bit group", -1 = the 1st bit of current byte */
-	gint32 gb1;  /* last bit of "bit group", -1 = last bit of current byte */
-	const gchar *tstr;  /* true string */
-	const gchar *fstr;  /* false string */
-} asn_namedbit;
-/* this function dissects a BER BIT-STRING
- */
-extern int dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, gint32 min_len, gint32 max_len, const asn_namedbit *named_bits, gint hf_id, gint ett_id, tvbuff_t **out_tvb);
-WS_DLL_PUBLIC int dissect_ber_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const asn_namedbit *named_bits, gint hf_id, gint ett_id, tvbuff_t **out_tvb);
-extern int dissect_ber_bitstring32(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, int **bit_fields, gint hf_id, gint ett_id, tvbuff_t **out_tvb);
+
+extern int dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, gint32 min_len, gint32 max_len, const int **named_bits, int num_named_bits, gint hf_id, gint ett_id, tvbuff_t **out_tvb);
+WS_DLL_PUBLIC int dissect_ber_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *parent_tree, tvbuff_t *tvb, int offset, const int **named_bits, gint num_named_bits, gint hf_id, gint ett_id, tvbuff_t **out_tvb);
 
 WS_DLL_PUBLIC
 int call_ber_oid_callback(const char *oid, tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, void* data);
