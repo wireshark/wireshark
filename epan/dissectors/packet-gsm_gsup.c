@@ -70,6 +70,7 @@ enum osmo_gsup_iei {
 	OSMO_GSUP_FREEZE_PTMSI_IE		= 0x07,
 	OSMO_GSUP_MSISDN_IE			= 0x08,
 	OSMO_GSUP_HLR_NUMBER_IE			= 0x09,
+	OSMO_GSUP_MESSAGE_CLASS_IE		= 0x0a,
 	OSMO_GSUP_PDP_CONTEXT_ID_IE		= 0x10,
 	OSMO_GSUP_PDP_TYPE_IE			= 0x11,
 	OSMO_GSUP_ACCESS_POINT_NAME_IE		= 0x12,
@@ -99,6 +100,14 @@ enum osmo_gsup_iei {
 
 	OSMO_GSUP_IMEI_IE			= 0x50,
 	OSMO_GSUP_IMEI_RESULT_IE		= 0x51,
+
+	/* Inter-MSC handover related */
+	OSMO_GSUP_SOURCE_NAME_IE		= 0x60,
+	OSMO_GSUP_DESTINATION_NAME_IE		= 0x61,
+	OSMO_GSUP_AN_APDU_IE			= 0x62,
+	OSMO_GSUP_CAUSE_RR_IE			= 0x63,
+	OSMO_GSUP_CAUSE_BSSAP_IE		= 0x64,
+	OSMO_GSUP_CAUSE_SM_IE			= 0x65,
 };
 
 /*! GSUP message type */
@@ -148,6 +157,26 @@ enum osmo_gsup_message_type {
 	OSMO_GSUP_MSGT_CHECK_IMEI_REQUEST	= 0x30,
 	OSMO_GSUP_MSGT_CHECK_IMEI_ERROR		= 0x31,
 	OSMO_GSUP_MSGT_CHECK_IMEI_RESULT	= 0x32,
+
+	OSMO_GSUP_MSGT_E_PREPARE_HANDOVER_REQUEST		= 0x34,
+	OSMO_GSUP_MSGT_E_PREPARE_HANDOVER_ERROR			= 0x35,
+	OSMO_GSUP_MSGT_E_PREPARE_HANDOVER_RESULT		= 0x36,
+
+	OSMO_GSUP_MSGT_E_PREPARE_SUBSEQUENT_HANDOVER_REQUEST	= 0x38,
+	OSMO_GSUP_MSGT_E_PREPARE_SUBSEQUENT_HANDOVER_ERROR	= 0x39,
+	OSMO_GSUP_MSGT_E_PREPARE_SUBSEQUENT_HANDOVER_RESULT	= 0x3a,
+
+	OSMO_GSUP_MSGT_E_SEND_END_SIGNAL_REQUEST		= 0x3c,
+	OSMO_GSUP_MSGT_E_SEND_END_SIGNAL_ERROR			= 0x3d,
+	OSMO_GSUP_MSGT_E_SEND_END_SIGNAL_RESULT			= 0x3e,
+
+	OSMO_GSUP_MSGT_E_PROCESS_ACCESS_SIGNALLING_REQUEST	= 0x40,
+	OSMO_GSUP_MSGT_E_FORWARD_ACCESS_SIGNALLING_REQUEST	= 0x44,
+
+	OSMO_GSUP_MSGT_E_CLOSE					= 0x47,
+	OSMO_GSUP_MSGT_E_ABORT					= 0x4b,
+
+	OSMO_GSUP_MSGT_E_ROUTING_ERROR				= 0x4e,
 };
 
 #define OSMO_GSUP_IS_MSGT_REQUEST(msgt) (((msgt) & 0b00000011) == 0b00)
@@ -193,6 +222,25 @@ enum osmo_gsup_sms_sm_alert_rsn_t {
 	OSMO_GSUP_SMS_SM_ALERT_RSN_MEM_AVAIL	= 0x02,
 };
 
+enum osmo_gsup_access_network_protocol {
+	OSMO_GSUP_ACCESS_NETWORK_PROTOCOL_TS3G_48006 = 1,
+	OSMO_GSUP_ACCESS_NETWORK_PROTOCOL_TS3G_25413 = 2,
+};
+
+enum osmo_gsup_message_class {
+	OSMO_GSUP_MESSAGE_CLASS_UNSET = 0,
+	OSMO_GSUP_MESSAGE_CLASS_SUBSCRIBER_MANAGEMENT = 1,
+	OSMO_GSUP_MESSAGE_CLASS_SMS = 2,
+	OSMO_GSUP_MESSAGE_CLASS_USSD = 3,
+	OSMO_GSUP_MESSAGE_CLASS_INTER_MSC = 4,
+};
+
+/* like TS 29.002 access network protocol ID */
+enum osmo_gsup_an_type {
+	OSMO_GSUP_AN_TYPE_BSSAP = 1,
+	OSMO_GSUP_AN_TYPE_RANAP = 2,
+};
+
 /***********************************************************************
  * Wireshark Dissector Implementation
  ***********************************************************************/
@@ -201,6 +249,9 @@ void proto_register_gsup(void);
 void proto_reg_handoff_gsup(void);
 
 static int proto_gsup = -1;
+
+/* show GSUP source/destination names as text (true) or only binary (false) */
+static gboolean show_name_as_text = TRUE;
 
 static int hf_gsup_msg_type = -1;
 static int hf_gsup_iei = -1;
@@ -231,6 +282,12 @@ static int hf_gsup_sm_rp_cause = -1;
 static int hf_gsup_sm_rp_mms = -1;
 static int hf_gsup_sm_alert_rsn = -1;
 static int hf_gsup_imei_result = -1;
+static int hf_gsup_msg_class = -1;
+static int hf_gsup_an_type = -1;
+static int hf_gsup_source_name = -1;
+static int hf_gsup_source_name_text = -1;
+static int hf_gsup_destination_name = -1;
+static int hf_gsup_destination_name_text = -1;
 
 static gint ett_gsup = -1;
 static gint ett_gsup_ie = -1;
@@ -242,6 +299,8 @@ static expert_field ei_gsup_ie_len_invalid = EI_INIT;
 static dissector_handle_t gsm_map_handle;
 static dissector_handle_t gsm_sms_handle;
 static dissector_handle_t bssap_imei_handle;
+static dissector_handle_t bssap_handle;
+static dissector_handle_t ranap_handle;
 
 static const value_string gsup_iei_types[] = {
 	{ OSMO_GSUP_IMSI_IE,		"IMSI" },
@@ -279,6 +338,13 @@ static const value_string gsup_iei_types[] = {
 	{ OSMO_GSUP_SM_ALERT_RSN_IE,	"SM Alert Reason" },
 	{ OSMO_GSUP_IMEI_IE,		"IMEI" },
 	{ OSMO_GSUP_IMEI_RESULT_IE,	"IMEI Check Result" },
+	{ OSMO_GSUP_MESSAGE_CLASS_IE,	"Message Class" },
+	{ OSMO_GSUP_SOURCE_NAME_IE,	"Source Name"},
+	{ OSMO_GSUP_DESTINATION_NAME_IE,"Destination Name"},
+	{ OSMO_GSUP_AN_APDU_IE,		"AN-APDU"},
+	{ OSMO_GSUP_CAUSE_RR_IE,	"RR-Cause"},
+	{ OSMO_GSUP_CAUSE_BSSAP_IE,	"BSSAP-Cause"},
+	{ OSMO_GSUP_CAUSE_SM_IE,	"Session Management Cause"},
 	{ 0, NULL }
 };
 
@@ -317,6 +383,20 @@ static const value_string gsup_msg_types[] = {
 	{ OSMO_GSUP_MSGT_CHECK_IMEI_REQUEST,		"Check IMEI Request"},
 	{ OSMO_GSUP_MSGT_CHECK_IMEI_ERROR,		"Check IMEI Error"},
 	{ OSMO_GSUP_MSGT_CHECK_IMEI_RESULT,		"Check IMEI Result"},
+	{ OSMO_GSUP_MSGT_E_PREPARE_HANDOVER_REQUEST,	"E Prepare Handover Request"},
+	{ OSMO_GSUP_MSGT_E_PREPARE_HANDOVER_ERROR,	"E Prepare Handover Error"},
+	{ OSMO_GSUP_MSGT_E_PREPARE_HANDOVER_RESULT,	"E Prepare Handover Result"},
+	{ OSMO_GSUP_MSGT_E_PREPARE_SUBSEQUENT_HANDOVER_REQUEST,	"E Prepare Subsequent Handover Request"},
+	{ OSMO_GSUP_MSGT_E_PREPARE_SUBSEQUENT_HANDOVER_ERROR,	"E Prepare Subsequent Handover Error"},
+	{ OSMO_GSUP_MSGT_E_PREPARE_SUBSEQUENT_HANDOVER_RESULT,	"E Prepare Subsequent Handover Result"},
+	{ OSMO_GSUP_MSGT_E_SEND_END_SIGNAL_REQUEST,	"E Send End Signal Request"},
+	{ OSMO_GSUP_MSGT_E_SEND_END_SIGNAL_ERROR,	"E Send End Signal Error"},
+	{ OSMO_GSUP_MSGT_E_SEND_END_SIGNAL_RESULT,	"E Send End Signal Result"},
+	{ OSMO_GSUP_MSGT_E_PROCESS_ACCESS_SIGNALLING_REQUEST,	"E Process Access Signalling Request"},
+	{ OSMO_GSUP_MSGT_E_FORWARD_ACCESS_SIGNALLING_REQUEST,	"E Forward Access Signalling Request"},
+	{ OSMO_GSUP_MSGT_E_CLOSE,			"E Close"},
+	{ OSMO_GSUP_MSGT_E_ABORT,			"E Abort"},
+	{ OSMO_GSUP_MSGT_E_ROUTING_ERROR,		"E Routing Error"},
 	{ 0, NULL }
 };
 
@@ -361,6 +441,22 @@ static const value_string gsup_imei_result_types[] = {
 	{ OSMO_GSUP_IMEI_RESULT_NACK,		"NACK" },
 	{ 0, NULL }
 };
+
+static const value_string gsup_msg_class_types[] = {
+	{ OSMO_GSUP_MESSAGE_CLASS_UNSET, "unset" },
+	{ OSMO_GSUP_MESSAGE_CLASS_SUBSCRIBER_MANAGEMENT, "Subscriber-Management" },
+	{ OSMO_GSUP_MESSAGE_CLASS_SMS, "SMS" },
+	{ OSMO_GSUP_MESSAGE_CLASS_USSD, "USSD" },
+	{ OSMO_GSUP_MESSAGE_CLASS_INTER_MSC, "Inter-MSC" },
+	{ 0, NULL }
+};
+
+static const value_string gsup_an_type_vals[] = {
+	{ OSMO_GSUP_AN_TYPE_BSSAP, "BSSAP" },
+	{ OSMO_GSUP_AN_TYPE_RANAP, "RANAP" },
+	{ 0, NULL }
+};
+
 
 static void dissect_ss_info_ie(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint len, proto_tree *tree)
 {
@@ -515,6 +611,58 @@ static void dissect_imei_ie(tvbuff_t *tvb, packet_info *pinfo, guint offset,
 		call_dissector(bssap_imei_handle, ss_tvb, pinfo, tree);
 }
 
+static void dissect_an_apdu_ie(tvbuff_t *tvb, packet_info *pinfo, guint offset,
+			       guint ie_len, proto_tree *tree, proto_item *parent_ti)
+{
+	tvbuff_t *ss_tvb = tvb_new_subset_length(tvb, offset+1, ie_len-1);
+	guint32 an_type;
+
+	proto_tree_add_item_ret_uint(tree, hf_gsup_an_type, tvb, offset, 1, ENC_NA, &an_type);
+	proto_item_append_text(parent_ti, ": %s", val_to_str_const(an_type, gsup_msg_class_types, "unknown"));
+
+	switch (an_type) {
+	case OSMO_GSUP_AN_TYPE_BSSAP:
+		call_dissector(bssap_handle, ss_tvb, pinfo, tree);
+		break;
+	case OSMO_GSUP_AN_TYPE_RANAP:
+		call_dissector(ranap_handle, ss_tvb, pinfo, tree);
+		break;
+	default:
+		proto_tree_add_item(tree, hf_gsup_ie_payload, ss_tvb, 0, -1, ENC_NA);
+		break;
+	}
+}
+
+static void dissect_name_ie(tvbuff_t *tvb, packet_info *pinfo _U_, guint offset,
+			    guint ie_len, proto_tree *tree, proto_item *parent_ti, guint8 tag)
+{
+	proto_item *ti;
+
+	if (show_name_as_text) {
+		guint8 *str;
+		str = tvb_get_stringzpad(wmem_packet_scope(), tvb, offset, ie_len,  ENC_ASCII|ENC_NA);
+		proto_item_append_text(parent_ti, ": %s", (char *)str);
+	}
+
+	switch (tag) {
+	case OSMO_GSUP_SOURCE_NAME_IE:
+		ti = proto_tree_add_item(tree, hf_gsup_source_name, tvb, offset, ie_len, ENC_NA);
+		if (show_name_as_text) {
+			proto_item_set_hidden(ti);
+			proto_tree_add_item(tree, hf_gsup_source_name_text, tvb, offset, ie_len, ENC_ASCII|ENC_NA);
+		}
+		break;
+	case OSMO_GSUP_DESTINATION_NAME_IE:
+		ti = proto_tree_add_item(tree, hf_gsup_destination_name, tvb, offset, ie_len, ENC_NA);
+		if (show_name_as_text) {
+			proto_item_set_hidden(ti);
+			proto_tree_add_item(tree, hf_gsup_destination_name_text, tvb, offset, ie_len, ENC_ASCII|ENC_NA);
+		}
+		break;
+	}
+}
+
+
 static gint
 dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, proto_tree *tree,
 		  proto_item *gsup_ti, guint8 msg_type)
@@ -529,6 +677,7 @@ dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 		const guchar *apn;
 		const gchar *str;
 		guint apn_len;
+		guint32 ui32;
 
 		tag = tvb_get_guint8(tvb, offset);
 		offset++;
@@ -658,6 +807,21 @@ dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 		case OSMO_GSUP_IMEI_RESULT_IE:
 			proto_tree_add_item(att_tree, hf_gsup_imei_result, tvb, offset, len, ENC_NA);
 			break;
+		case OSMO_GSUP_MESSAGE_CLASS_IE:
+			proto_tree_add_item_ret_uint(att_tree, hf_gsup_msg_class, tvb, offset, len, ENC_NA, &ui32);
+			proto_item_append_text(ti, ": %s", val_to_str_const(ui32, gsup_msg_class_types, "unknown"));
+			break;
+		case OSMO_GSUP_AN_APDU_IE:
+			dissect_an_apdu_ie(tvb, pinfo, offset, len, att_tree, ti);
+			break;
+		case OSMO_GSUP_SOURCE_NAME_IE:
+		case OSMO_GSUP_DESTINATION_NAME_IE:
+			dissect_name_ie(tvb, pinfo, offset, len, att_tree, ti, tag);
+			break;
+		case OSMO_GSUP_CAUSE_RR_IE:
+		case OSMO_GSUP_CAUSE_BSSAP_IE:
+		case OSMO_GSUP_CAUSE_SM_IE:
+
 		case OSMO_GSUP_HLR_NUMBER_IE:
 		case OSMO_GSUP_PDP_TYPE_IE:
 		case OSMO_GSUP_PDP_QOS_IE:
@@ -769,6 +933,18 @@ proto_register_gsup(void)
 		  FT_UINT8, BASE_DEC, VALS(osmo_gsup_sms_sm_alert_rsn_types), 0, NULL, HFILL } },
 		{ &hf_gsup_imei_result, { "IMEI Check Result", "gsup.imei_check_res",
 		  FT_UINT8, BASE_DEC, VALS(gsup_imei_result_types), 0, NULL, HFILL } },
+		{ &hf_gsup_msg_class, { "Message Class", "gsup.msg_class",
+		  FT_UINT8, BASE_DEC, VALS(gsup_msg_class_types), 0, NULL, HFILL } },
+		{ &hf_gsup_an_type, { "Access Network Type", "gsup.an_type",
+		  FT_UINT8, BASE_DEC, VALS(gsup_an_type_vals), 0, NULL, HFILL } },
+		{ &hf_gsup_source_name, { "Source Name", "gsup.source_name",
+		  FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
+		{ &hf_gsup_source_name_text, { "Source Name (Text)", "gsup.source_name.text",
+		  FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+		{ &hf_gsup_destination_name, { "Destination Name", "gsup.dest_name",
+		  FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
+		{ &hf_gsup_destination_name_text, { "Destination Name (Text)", "gsup.dest_name.text",
+		  FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
 	};
 	static gint *ett[] = {
 		&ett_gsup,
@@ -776,6 +952,7 @@ proto_register_gsup(void)
 	};
 
 	expert_module_t *expert_gsup;
+	module_t *module_gsup;
 
 	static ei_register_info ei[] = {
 		{ &ei_sm_rp_da_invalid,
@@ -795,6 +972,13 @@ proto_register_gsup(void)
 
 	expert_gsup = expert_register_protocol(proto_gsup);
 	expert_register_field_array(expert_gsup, ei, array_length(ei));
+
+	module_gsup = prefs_register_protocol(proto_gsup, NULL);
+	prefs_register_bool_preference(module_gsup,
+			"show_name_as_text",
+			"Show Names as text",
+			"Show GSUP Source/Destination names as text in the Packet Details pane",
+			&show_name_as_text);
 }
 
 void
@@ -806,6 +990,8 @@ proto_reg_handoff_gsup(void)
 	gsm_map_handle = find_dissector_add_dependency("gsm_map", proto_gsup);
 	gsm_sms_handle = find_dissector_add_dependency("gsm_sms", proto_gsup);
 	bssap_imei_handle = find_dissector_add_dependency("bssap.imei", proto_gsup);
+	bssap_handle = find_dissector_add_dependency("bssap", proto_gsup);
+	ranap_handle = find_dissector_add_dependency("ranap", proto_gsup);
 }
 
 /*
