@@ -13866,22 +13866,22 @@ proto_register_pn_io (void)
     },
     { &hf_pn_io_am_device_identification_device_sub_id,
         { "AM_DeviceIdentification.DeviceSubID", "pn_io.am_device_identification.device_sub_id",
-          FT_UINT64, BASE_HEX, NULL, 0xFFFF000000000000,
+          FT_UINT64, BASE_HEX, NULL, 0x000000000000FFFF,
           NULL, HFILL }
     },
     { &hf_pn_io_am_device_identification_device_id,
         { "AM_DeviceIdentification.DeviceID", "pn_io.am_device_identification.device_id",
-          FT_UINT64, BASE_HEX, NULL, 0x0000FFFF00000000,
+          FT_UINT64, BASE_HEX, NULL, 0x00000000FFFF0000,
           NULL, HFILL }
     },
     { &hf_pn_io_am_device_identification_vendor_id,
         { "AM_DeviceIdentification.VendorID", "pn_io.am_device_identification.vendor_id",
-          FT_UINT64, BASE_HEX, NULL, 0x00000000FFFF0000,
+          FT_UINT64, BASE_HEX, NULL, 0x0000FFFF00000000,
           NULL, HFILL }
     },
     { &hf_pn_io_am_device_identification_organization,
         { "AM_DeviceIdentification.Organization", "pn_io.am_device_identification.organization",
-          FT_UINT64, BASE_HEX, NULL, 0x000000000000FFFF,
+          FT_UINT64, BASE_HEX, NULL, 0xFFFF000000000000,
           NULL, HFILL }
     },
     { &hf_pn_io_rs_adjust_info,
