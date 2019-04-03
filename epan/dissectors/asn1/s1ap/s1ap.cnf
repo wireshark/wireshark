@@ -1167,7 +1167,22 @@ M-TMSI TYPE = FT_UINT32 DISPLAY = BASE_DEC_HEX
   guint32 enb_ue_s1ap_id;
   struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
 %(DEFAULT_BODY)s
+  if (hf_index == hf_s1ap_eNB_UE_S1AP_ID) {
+    proto_item *item;
+    item = proto_tree_add_uint(tree, hf_s1ap_ENB_UE_S1AP_ID_PDU, tvb, offset, 0 , enb_ue_s1ap_id );
+    proto_item_set_hidden(item);
+  }
+
   s1ap_data->enb_ue_s1ap_id = (guint16)enb_ue_s1ap_id;
+
+#.FN_BODY MME-UE-S1AP-ID VAL_PTR = &mme_ue_s1ap_id
+  guint32 mme_ue_s1ap_id;
+%(DEFAULT_BODY)s
+  if (hf_index == hf_s1ap_mME_UE_S1AP_ID) {
+    proto_item *item;
+    item = proto_tree_add_uint(tree, hf_s1ap_MME_UE_S1AP_ID_PDU, tvb, offset, 0 , mme_ue_s1ap_id );
+    proto_item_set_hidden(item);
+  }
 
 #.FN_BODY TAI
   struct s1ap_private_data *s1ap_data = s1ap_get_private_data(actx->pinfo);
