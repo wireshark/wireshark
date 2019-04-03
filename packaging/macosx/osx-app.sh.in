@@ -454,6 +454,7 @@ codesign_file () {
 	codesign \
 		--sign "Developer ID Application: $CODE_SIGN_IDENTITY" \
 		--options=runtime \
+		--entitlements "@CMAKE_SOURCE_DIR@/packaging/macosx/entitlements.plist" \
 		--timestamp \
 		--verbose \
 		"$1"
