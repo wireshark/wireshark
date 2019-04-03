@@ -466,13 +466,10 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 		 * Compression: 0
 		 * (remote end sends the file identified by the digest) */
 		guint offset = 0;
-		gboolean already_dissected = TRUE;
 
 		col_set_str(pinfo->cinfo, COL_INFO, "LDSS File Transfer (Requesting file - pull)");
 
 		if (transfer_info->req == NULL) {
-
-			already_dissected = FALSE;
 			transfer_info->req = wmem_new0(wmem_file_scope(), ldss_file_request_t);
 			transfer_info->req->file = wmem_new0(wmem_file_scope(), ldss_file_t);
 		}
@@ -490,8 +487,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			gint next_offset;
 			const guint8 *line;
 			int linelen;
-			gboolean is_digest_line;
-			guint digest_type_len;
+			guint digest_type_len = 0;
 
 			linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
 
@@ -502,28 +498,19 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 							 ett_ldss_transfer_req, NULL,
 							 tvb_format_text(tvb, offset, next_offset-offset));
 
-			/* Reduce code duplication processing digest lines.
-			 * There are too many locals to pass to a function - the signature
-			 * looked pretty ugly when I tried! */
-			is_digest_line = FALSE;
-
 			if (strncmp(line,"md5:",4)==0) {
-				is_digest_line = TRUE;
 				digest_type_len = 4;
 				transfer_info->file->digest_type = DIGEST_TYPE_MD5;
 			}
 			else if (strncmp(line, "sha1:", 5)==0) {
-				is_digest_line = TRUE;
 				digest_type_len = 5;
 				transfer_info->file->digest_type = DIGEST_TYPE_SHA1;
 			}
 			else if (strncmp(line, "sha256:", 7)==0) {
-				is_digest_line = TRUE;
 				digest_type_len = 7;
 				transfer_info->file->digest_type = DIGEST_TYPE_SHA256;
 			}
 			else if (strncmp(line, "unknown:", 8)==0) {
-				is_digest_line = TRUE;
 				digest_type_len = 8;
 				transfer_info->file->digest_type = DIGEST_TYPE_UNKNOWN;
 			}
@@ -555,12 +542,12 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 				proto_tree_add_expert(line_tree, pinfo, &ei_ldss_unrecognized_line, tvb, offset, linelen);
 			}
 
-			if (is_digest_line) {
+			if (digest_type_len > 0) {
 				proto_item *tii = NULL;
 
 				/* Sample digest-type/digest line:
 				 * md5:0123456789ABCDEF\n */
-				if (!already_dissected) {
+				if (!transfer_info->file->digest) {
 					GByteArray *digest_bytes;
 
 					digest_bytes = g_byte_array_new();
