@@ -16,10 +16,13 @@
 
 #include <epan/packet.h>
 #include <epan/charsets.h>
+#include <epan/conversation.h>
 
 #include "packet-e212.h"
 #include "packet-gsm_a_common.h"
 #include "packet-gsm_sms.h"
+#include "packet-rrc.h"
+#include "packet-lte-rrc.h"
 
 void proto_register_card_app_toolkit(void);
 void proto_reg_handoff_card_app_toolkit(void);
@@ -254,7 +257,7 @@ static const value_string comp_tlv_tag_vals[] = {
 	{ 0x71, "Registry application data" },
 	{ 0x72, "3GPP PLMNwAcT List" },
 	{ 0x73, "3GPP Routing Area Information" },
-	{ 0x74, "3GPP Update/Attach Type" },
+	{ 0x74, "3GPP Update/Attach/Registration Type" },
 	{ 0x75, "3GPP Rejection Cause Code" },
 	{ 0x76, "3GPP Geographical Location Parameters / IARI" },
 	{ 0x77, "3GPP GAD Shapes / IMPU list" },
@@ -837,6 +840,7 @@ static const value_string utran_eutran_meas_qual_vals[] = {
 	{ 0x06, "E-UTRAN Inter-frequency measurements" },
 	{ 0x07, "E-UTRAN Inter-RAT (GERAN) measurements" },
 	{ 0x08, "E-UTRAN Inter-RAT (UTRAN) measurements" },
+	{ 0x09, "E-UTRAN Inter-RAT (NR) measurements" },
 	{ 0, NULL }
 };
 
@@ -870,6 +874,9 @@ static const value_string upd_attach_type_vals[] = {
 	{ 0x0C, "\"Combined TA/LA updating\" in the case of an EMM TRACKING AREA UPDATE REQUEST message" },
 	{ 0x0D, "\"Combined TA/LA updating with IMSI attach\" in the case of an EMM TRACKING AREA UPDATE REQUEST message" },
 	{ 0x0E, "\"Periodic updating\" in the case of an EMM TRACKING AREA UPDATE REQUEST message" },
+	{ 0x0F, "\"Initial Registration\" in the case of a 5GMM REGISTRATION REQUEST message" },
+	{ 0x10, "\"Mobility Registration updating\" in the case of a 5GMM REGISTRATION REQUEST message" },
+	{ 0x11, "\"Periodic Registration updating\" in the case of a 5GMM REGISTRATION REQUEST message" },
 	{ 0, NULL }
 };
 static value_string_ext upd_attach_type_vals_ext = VALUE_STRING_EXT_INIT(upd_attach_type_vals);
@@ -973,6 +980,23 @@ static const value_string aid_pix_app_code_3gpp2_vals[] = {
 	{ 0, NULL}
 };
 
+typedef struct {
+	wmem_tree_t *pdus;
+} cat_conv_info_t;
+
+typedef enum {
+	CAT_NMR_NONE,
+	CAT_NMR_GERAN,
+	CAT_NMR_UTRAN,
+	CAT_NMR_E_UTRAN
+} cat_nmr_type;
+
+typedef struct {
+	guint32 req_frame;
+	guint32 id;
+	cat_nmr_type nmr_type;
+} cat_transaction_t;
+
 static void
 dissect_cat_efadn_coding(tvbuff_t *tvb, proto_tree *tree, guint32 pos, guint32 len, int hf_entry)
 {
@@ -1070,12 +1094,25 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 	gboolean ims_event = FALSE, dns_server = FALSE;
 	guint length = tvb_reported_length(tvb);
 	gsm_sms_data_t sms_data = {0};
+	conversation_t *conversation;
+	cat_conv_info_t *cat_info;
+	cat_transaction_t *cat_trans = NULL;
+	wmem_tree_key_t key[3];
+
+
+	conversation = find_or_create_conversation(pinfo);
+	cat_info = (cat_conv_info_t*)conversation_get_proto_data(conversation, proto_cat);
+	if (!cat_info) {
+		cat_info = wmem_new(wmem_file_scope(), cat_conv_info_t);
+		cat_info->pdus = wmem_tree_new(wmem_file_scope());
+		conversation_add_proto_data(conversation, proto_cat, cat_info);
+	}
 
 	cat_ti = proto_tree_add_item(tree, proto_cat, tvb, 0, -1, ENC_NA);
 	cat_tree = proto_item_add_subtree(cat_ti, ett_cat);
 	while (pos < length) {
 		proto_item *ti;
-		guint8 g8;
+		guint32 g8, cmd_nr, cmd_qual;
 		guint16 tag;
 		guint32 len, i;
 		guint8 *ptr = NULL;
@@ -1118,36 +1155,58 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 		case 0x01:	/* command details */
 			if (len < 3)
 				break;
-			proto_tree_add_item(elem_tree, hf_ctlv_cmd_nr, tvb, pos, 1, ENC_BIG_ENDIAN);
-			if (tvb_get_guint8(tvb, pos) == 0x40) {
+			proto_tree_add_item_ret_uint(elem_tree, hf_ctlv_cmd_nr, tvb, pos, 1, ENC_BIG_ENDIAN, &cmd_nr);
+			if (cmd_nr == 0x40) {
 				ims_event = TRUE;
 				dns_server = TRUE;
 			}
-			proto_tree_add_item(elem_tree, hf_ctlv_cmd_type, tvb, pos+1, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item_ret_uint(elem_tree, hf_ctlv_cmd_type, tvb, pos+1, 1, ENC_BIG_ENDIAN, &g8);
 			/* append command type to INFO column */
-			g8 = tvb_get_guint8(tvb, pos+1);
 			col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
 					val_to_str_ext(g8, &cmd_type_vals_ext, "%02x "));
 			switch (g8) {
 			case 0x01:
-				proto_tree_add_item(elem_tree, hf_ctlv_cmd_qual_refresh, tvb, pos+2, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item_ret_uint(elem_tree, hf_ctlv_cmd_qual_refresh, tvb, pos+2, 1, ENC_BIG_ENDIAN, &cmd_qual);
 				break;
 			case 0x13:
-				proto_tree_add_item(elem_tree, hf_ctlv_cmd_qual_send_short_msg, tvb, pos+2, 1, ENC_NA);
-				sms_data.stk_packing_required = tvb_get_guint8(tvb, pos+2) & 0x01 ? TRUE : FALSE;
+				proto_tree_add_item_ret_uint(elem_tree, hf_ctlv_cmd_qual_send_short_msg, tvb, pos+2, 1, ENC_BIG_ENDIAN, &cmd_qual);
+				sms_data.stk_packing_required = cmd_qual & 0x01 ? TRUE : FALSE;
 				break;
 			case 0x26:
-				proto_tree_add_item(elem_tree, hf_ctlv_cmd_qual_loci, tvb, pos+2, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item_ret_uint(elem_tree, hf_ctlv_cmd_qual_loci, tvb, pos+2, 1, ENC_BIG_ENDIAN, &cmd_qual);
 				break;
 			case 0x27:
-				proto_tree_add_item(elem_tree, hf_ctlv_cmd_qual_timer_mgmt, tvb, pos+2, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item_ret_uint(elem_tree, hf_ctlv_cmd_qual_timer_mgmt, tvb, pos+2, 1, ENC_BIG_ENDIAN, &cmd_qual);
 				break;
 			case 0x43:
-				proto_tree_add_item(elem_tree, hf_ctlv_cmd_qual_send_data, tvb, pos+2, 1, ENC_NA);
+				proto_tree_add_item_ret_uint(elem_tree, hf_ctlv_cmd_qual_send_data, tvb, pos+2, 1, ENC_BIG_ENDIAN, &cmd_qual);
 				break;
 			default:
-				proto_tree_add_item(elem_tree, hf_ctlv_cmd_qual, tvb, pos+2, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item_ret_uint(elem_tree, hf_ctlv_cmd_qual, tvb, pos+2, 1, ENC_BIG_ENDIAN, &cmd_qual);
 				break;
+			}
+			if (data) {
+				guint32 id = (cmd_nr << 16) | (g8 << 8) | cmd_qual;
+				key[0].length = 1;
+				key[0].key = &id;
+				key[1].length = 1;
+				key[1].key = &pinfo->num;
+				key[2].length = 0;
+				key[2].key = NULL;
+
+				if (GPOINTER_TO_INT(data) == 0xd0 && !PINFO_FD_VISITED(pinfo)) {
+					/* Proactive command */
+					cat_trans = wmem_new(wmem_file_scope(), cat_transaction_t);
+					cat_trans->req_frame = pinfo->num;
+					cat_trans->id = id;
+					cat_trans->nmr_type = ((id & 0x00ffff) == 0x2602) ? CAT_NMR_GERAN : CAT_NMR_NONE;
+					wmem_tree_insert32_array(cat_info->pdus, key, (void*)cat_trans);
+				} else if (GPOINTER_TO_INT(data) == 0x14) {
+					/* Terminal response */
+					cat_trans = (cat_transaction_t*)wmem_tree_lookup32_array_le(cat_info->pdus, key);
+					if (cat_trans && cat_trans->id != id)
+						cat_trans = NULL;
+				}
 			}
 			break;
 		case 0x02:	/* device identity */
@@ -1157,8 +1216,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			proto_tree_add_item(elem_tree, hf_ctlv_devid_dst, tvb, pos+1, 1, ENC_BIG_ENDIAN);
 			break;
 		case 0x03:	/* Result */
-			g8 = tvb_get_guint8(tvb, pos);
-			proto_tree_add_item(elem_tree, hf_ctlv_result_gen, tvb, pos, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item_ret_uint(elem_tree, hf_ctlv_result_gen, tvb, pos, 1, ENC_BIG_ENDIAN, &g8);
 			switch (g8) {
 			case 0x20:
 				proto_tree_add_item(elem_tree, hf_ctlv_result_term, tvb, pos+1, 1, ENC_BIG_ENDIAN);
@@ -1219,8 +1277,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			if (len == 0)
 				break;
 			/* 1st byte: encoding */
-			proto_tree_add_item(elem_tree, hf_ctlv_text_string_enc, tvb, pos, 1, ENC_BIG_ENDIAN);
-			g8 = tvb_get_guint8(tvb, pos);
+			proto_tree_add_item_ret_uint(elem_tree, hf_ctlv_text_string_enc, tvb, pos, 1, ENC_BIG_ENDIAN, &g8);
 			switch (g8 & 0xf0) {
 			case 0x00:
 				g8 &= 0x0c;
@@ -1273,6 +1330,25 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 		case 0x14:	/* IMEI */
 		case 0x62:	/* IMEISV */
 			de_mid(tvb, elem_tree, pinfo, pos, len, NULL, 0);
+			break;
+		case 0x16:
+			if (cat_trans && ((cat_trans->id & 0x00ffff) == 0x2602)) {
+				switch (cat_trans->nmr_type) {
+				case CAT_NMR_GERAN:
+					de_rr_meas_res(tvb, elem_tree, pinfo, pos, len, NULL, 0);
+					break;
+				case CAT_NMR_UTRAN:
+					new_tvb = tvb_new_subset_length(tvb, pos, len);
+					dissect_rrc_MeasurementReport_PDU(new_tvb, pinfo, elem_tree, NULL);
+					break;
+				case CAT_NMR_E_UTRAN:
+					new_tvb = tvb_new_subset_length(tvb, pos, len);
+					dissect_lte_rrc_MeasurementReport_PDU(new_tvb, pinfo, elem_tree, NULL);
+					break;
+				default:
+					break;
+				}
+			}
 			break;
 		case 0x19:	/* event list */
 			for (i = 0; i < len; i++) {
@@ -1367,8 +1443,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 				proto_tree_add_item(elem_tree, hf_ctlv_bearer, tvb, pos+i, 1, ENC_BIG_ENDIAN);
 			break;
 		case 0x35:	/* bearer description */
-			g8 = tvb_get_guint8(tvb, pos);
-			proto_tree_add_uint(elem_tree, hf_ctlv_bearer_descr, tvb, pos, 1, g8);
+			proto_tree_add_item_ret_uint(elem_tree, hf_ctlv_bearer_descr, tvb, pos, 1, ENC_BIG_ENDIAN, &g8);
 			switch (g8) {
 			case 0x01:
 				proto_tree_add_item(elem_tree, hf_ctlv_bearer_csd_data_rate, tvb, pos+1, 1, ENC_BIG_ENDIAN);
@@ -1421,8 +1496,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			proto_tree_add_item(elem_tree, hf_ctlv_transport_port, tvb, pos+1, 2, ENC_BIG_ENDIAN);
 			break;
 		case 0x3e:	/* other address */
-			g8 = tvb_get_guint8(tvb, pos);
-			proto_tree_add_uint(elem_tree, hf_ctlv_other_address_coding, tvb, pos, 1, g8);
+			proto_tree_add_item_ret_uint(elem_tree, hf_ctlv_other_address_coding, tvb, pos, 1, ENC_BIG_ENDIAN, &g8);
 			switch (g8) {
 			case 0x21:
 				proto_tree_add_item(elem_tree, hf_ctlv_other_address_ipv4, tvb, pos+1, 4, ENC_NA);
@@ -1440,8 +1514,7 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			break;
 		case 0x40:	/* Display parameters / DNS server address */
 			if (dns_server) {
-				g8 = tvb_get_guint8(tvb, pos);
-				proto_tree_add_uint(elem_tree, hf_ctlv_dns_server_address_coding, tvb, pos, 1, g8);
+				proto_tree_add_item_ret_uint(elem_tree, hf_ctlv_dns_server_address_coding, tvb, pos, 1, ENC_BIG_ENDIAN, &g8);
 				switch (g8) {
 				case 0x21:
 					proto_tree_add_item(elem_tree, hf_ctlv_dns_server_address_ipv4, tvb, pos+1, 4, ENC_NA);
@@ -1458,12 +1531,20 @@ dissect_cat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 			de_sm_apn(tvb, elem_tree, pinfo, pos, len, NULL, 0);
 			break;
 		case 0x69:	/* UTRAN EUTRAN measurement qualifier */
-			proto_tree_add_item(elem_tree, hf_ctlv_utran_eutran_meas_qual, tvb, pos, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item_ret_uint(elem_tree, hf_ctlv_utran_eutran_meas_qual, tvb, pos, 1, ENC_BIG_ENDIAN, &g8);
+			if (cat_trans && ((cat_trans->id & 0x00ffff) == 0x2602)) {
+				if (g8 >= 1 && g8 <= 4)
+					cat_trans->nmr_type = CAT_NMR_UTRAN;
+				else if (g8 >= 5 && g8 <= 9)
+					cat_trans->nmr_type = CAT_NMR_E_UTRAN;
+				else
+					cat_trans->nmr_type = CAT_NMR_NONE;
+			}
 			break;
 		case 0x73:	/* Routing Area Information */
 			de_gmm_rai(tvb, elem_tree, pinfo, pos, len, NULL, 0);
 			break;
-		case 0x74:	/* Update/Attach Type */
+		case 0x74:	/* Update/Attach/Registration Type */
 			proto_tree_add_item(elem_tree, hf_ctlv_upd_attach_type, tvb, pos, 1, ENC_BIG_ENDIAN);
 			break;
 		case 0x76:	/* Geographical Location Parameters / IARI */
@@ -1980,7 +2061,7 @@ proto_register_card_app_toolkit(void)
 			  NULL, HFILL },
 		},
 		{ &hf_ctlv_upd_attach_type,
-			{ "UTRAN/E-UTRAN Measurement Qualifier", "etsi_cat.comp_tlv.upd_attach_type",
+			{ "Update/Attach/Registration", "etsi_cat.comp_tlv.upd_attach_type",
 			  FT_UINT8, BASE_HEX | BASE_EXT_STRING, &upd_attach_type_vals_ext, 0,
 			  NULL, HFILL },
 		},

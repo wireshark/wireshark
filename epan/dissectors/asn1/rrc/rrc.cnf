@@ -75,6 +75,7 @@ SysInfoType17_PDU
 SysInfoType18_PDU
 SysInfoType19_PDU
 MasterInformationBlock_PDU
+MeasurementReport_PDU
 
 #.OMIT_ASSIGNMENT
 # Omit System-Information-Container for now it messes up the
@@ -110,6 +111,7 @@ SystemInformation-BCH        @sysinfo
 SystemInformation2-BCH       @sysinfo2
 System-Information-Container @sysinfo.cont
 MasterInformationBlock       @si.mib
+MeasurementReport
 SysInfoType1                 @si.sib1
 SysInfoType2                 @si.sib2
 SysInfoType3                 @si.sib3
