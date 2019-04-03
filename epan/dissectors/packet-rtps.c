@@ -2185,7 +2185,7 @@ static void rtps_util_add_guid_prefix_v2(proto_tree *tree, tvbuff_t *tvb, gint o
     /* Optional filter that can be guidPrefix.src or guidPrefix.dst */
     if (hf_prefix_extra != 0) {
       ti = proto_tree_add_item(tree, hf_prefix_extra, tvb, offset, 12, ENC_NA);
-      PROTO_ITEM_SET_HIDDEN(ti);
+      proto_item_set_hidden(ti);
     }
 
     /* Host Id */
@@ -3359,7 +3359,7 @@ static gint rtps_util_add_type_id(proto_tree *tree,
   int hf_type;
   short_number = tvb_get_guint16(tvb, offset, encoding);
   ti = proto_tree_add_item(tree, hf_rtps_type_object_type_id_disc, tvb, offset, 2, encoding);
-  PROTO_ITEM_SET_HIDDEN(ti);
+  proto_item_set_hidden(ti);
 
   /* Here we choose the proper hf item to use */
   if (hf_base != -1) {
@@ -3896,19 +3896,19 @@ static int rtps_util_add_bitmap(proto_tree *tree,
   if (first_seq_number == 0 && show_analysis) {
     ti = proto_tree_add_uint_format(bitmap_tree, hf_rtps_acknack_analysis, tvb, 0, 0,
         1, "Acknack Analysis: Preemptive ACKNACK");
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
   }
 
   if (first_seq_number > 0 && num_bits == 0 && show_analysis) {
     ti = proto_tree_add_uint_format(bitmap_tree, hf_rtps_acknack_analysis, tvb, 0, 0,
             2, "Acknack Analysis: Expecting sample %" G_GINT64_MODIFIER "u", first_seq_number);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
   }
 
   if (num_bits > 0 && show_analysis) {
     ti = proto_tree_add_uint_format(bitmap_tree, hf_rtps_acknack_analysis, tvb, 0, 0,
             3, "Acknack Analysis: Lost samples");
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
   }
 
   /* Reads the bits (and format the print buffer) */
@@ -4151,19 +4151,19 @@ static void rtps_util_topic_info_add_tree(proto_tree *tree, tvbuff_t *tvb,
                 ett_rtps_topic_info, NULL, "[Topic Information (from Discovery)]");
       ti = proto_tree_add_string(topic_info_tree, hf_rtps_param_topic_name, tvb, offset, 0,
                 type_mapping_object->topic_name);
-      PROTO_ITEM_SET_GENERATED(ti);
+      proto_item_set_generated(ti);
       ti = proto_tree_add_string(topic_info_tree, hf_rtps_param_type_name, tvb, offset, 0,
                 type_mapping_object->type_name);
-      PROTO_ITEM_SET_GENERATED(ti);
+      proto_item_set_generated(ti);
       dw_qos_tree = proto_tree_add_subtree_format(topic_info_tree, tvb, 0, 0,
           ett_rtps_topic_info_dw_qos, NULL, "DataWriter QoS: %s, %s, %s",
           val_to_str(type_mapping_object->dw_qos.reliability_kind, reliability_qos_vals, "%02x"),
           val_to_str(type_mapping_object->dw_qos.durability_kind, durability_qos_vals, "%02x"),
           val_to_str(type_mapping_object->dw_qos.ownership_kind, ownership_qos_vals, "%02x"));
-      PROTO_ITEM_SET_GENERATED(dw_qos_tree);
+      proto_item_set_generated(dw_qos_tree);
       ti = proto_tree_add_uint(topic_info_tree, hf_rtps_dcps_publication_data_frame_number,
           tvb, 0, 0, type_mapping_object->dcps_publication_frame_number);
-      PROTO_ITEM_SET_GENERATED(ti);
+      proto_item_set_generated(ti);
     }
   }
 }
@@ -10048,14 +10048,14 @@ static gboolean dissect_rtps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     }
 
     ti = proto_tree_add_uint(mapping_tree, hf_rtps_domain_id, tvb, 0, 0, domain_id);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     if ((nature == PORT_METATRAFFIC_UNICAST) || (nature == PORT_USERTRAFFIC_UNICAST) ||
         (version < 0x0200)) {
       ti = proto_tree_add_uint(mapping_tree, hf_rtps_participant_idx, tvb, 0, 0, participant_idx);
-      PROTO_ITEM_SET_GENERATED(ti);
+      proto_item_set_generated(ti);
     }
     ti = proto_tree_add_uint(mapping_tree, hf_rtps_nature_type, tvb, 0, 0, nature);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
   }
 
   /* offset behind RTPS's Header (need to be set in case tree=NULL)*/

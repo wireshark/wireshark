@@ -101,7 +101,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         direction = P2P_DIR_SENT;
 
         p_item = proto_tree_add_uint(main_tree, hf_role, tvb, offset, 0, 0x02);
-        PROTO_ITEM_SET_GENERATED(p_item);
+        proto_item_set_generated(p_item);
 
         col_add_fstr(pinfo->cinfo, COL_INFO, "Client");
 
@@ -121,7 +121,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         client_request = (subtree) ? (client_request_t *) wmem_tree_lookup32_le(subtree, pinfo->num) : NULL;
         if (client_request && client_request->service_in > -1 && client_request->service_in < pinfo->num) {
             p_item = proto_tree_add_string(main_tree, hf_service, tvb, offset, 0, client_request->service);
-            PROTO_ITEM_SET_GENERATED(p_item);
+            proto_item_set_generated(p_item);
             service = client_request->service;
             client_request_service = TRUE;
         } else {
@@ -264,10 +264,10 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         }
 
         p_item = proto_tree_add_uint(main_tree, hf_role, tvb, offset, 0, 0x01);
-        PROTO_ITEM_SET_GENERATED(p_item);
+        proto_item_set_generated(p_item);
 
         p_item = proto_tree_add_string(main_tree, hf_service, tvb, offset, 0, service);
-        PROTO_ITEM_SET_GENERATED(p_item);
+        proto_item_set_generated(p_item);
 
         col_add_fstr(pinfo->cinfo, COL_INFO, "Server");
 
@@ -336,7 +336,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown role");
 
         p_item = proto_tree_add_uint(main_tree, hf_role, tvb, offset, 0, 0x00);
-        PROTO_ITEM_SET_GENERATED(p_item);
+        proto_item_set_generated(p_item);
 
         next_tvb = tvb_new_subset_remaining(tvb, offset);
         call_data_dissector(next_tvb, pinfo, main_tree);

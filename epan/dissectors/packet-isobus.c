@@ -342,26 +342,26 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
     /* add priority */
     ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_priority, tvb, 0, 0, can_id.id);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* add extended data page */
     ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_ext_data_page, tvb, 0, 0, can_id.id);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* add data page */
     ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_data_page, tvb, 0, 0, can_id.id);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* add pdu format */
     switch(data_page)
     {
     case 0:
         ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_pdu_format_dp0, tvb, 0, 0, can_id.id);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
         break;
     case 1:
         ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_pdu_format_dp1, tvb, 0, 0, can_id.id);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
         break;
     }
 
@@ -369,17 +369,17 @@ dissect_isobus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
     if(pdu_format <= 239)
     {
         ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_dst_addr, tvb, 0, 0, can_id.id);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
     }
     else
     {
         ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_group_extension, tvb, 0, 0, can_id.id);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
     }
 
     /* add source address */
     ti = proto_tree_add_uint(isobus_can_id_tree, hf_isobus_src_addr, tvb, 0, 0, can_id.id);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* put source address in source field */
     g_snprintf(str_src, 4, "%d", src_addr);

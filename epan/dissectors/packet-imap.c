@@ -168,7 +168,7 @@ imap_match_request(packet_info *pinfo, proto_tree *tree, imap_request_key_t *req
       {
 
         it = proto_tree_add_uint(tree, hf_imap_response_in, NULL, 0, 0, request_info->rep_num);
-        PROTO_ITEM_SET_GENERATED(it);
+        proto_item_set_generated(it);
       }
     }
     else
@@ -179,11 +179,11 @@ imap_match_request(packet_info *pinfo, proto_tree *tree, imap_request_key_t *req
         nstime_t    ns;
 
         it = proto_tree_add_uint(tree, hf_imap_response_to, NULL, 0, 0, request_info->req_num);
-        PROTO_ITEM_SET_GENERATED(it);
+        proto_item_set_generated(it);
 
         nstime_delta(&ns, &pinfo->abs_ts, &request_info->req_time);
         it = proto_tree_add_time(tree, hf_imap_time, NULL, 0, 0, &ns);
-        PROTO_ITEM_SET_GENERATED(it);
+        proto_item_set_generated(it);
       }
     }
   }
@@ -362,7 +362,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     imap_tree = proto_item_add_subtree(ti, ett_imap);
 
     hidden_item = proto_tree_add_boolean(imap_tree, hf_imap_isrequest, tvb, 0, 0, is_request);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_item_set_hidden(hidden_item);
 
     while(tvb_offset_exists(tvb, offset)) {
 
@@ -464,7 +464,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
           proto_tree_add_string(reqresp_tree, (is_request) ? hf_imap_request_tag : hf_imap_response_tag, tvb, offset, tokenlen, tag);
           hidden_item = proto_tree_add_string(reqresp_tree, hf_imap_tag, tvb, offset, tokenlen, tag);
-          PROTO_ITEM_SET_HIDDEN(hidden_item);
+          proto_item_set_hidden(hidden_item);
 
           linelen -= (next_token-offset);
           offset = next_token;
@@ -492,7 +492,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             if (tokenlen != 0) {
               proto_tree_add_item(reqresp_tree, hf_imap_request_command, tvb, uid_offset, uid_tokenlen, ENC_ASCII|ENC_NA);
               hidden_item = proto_tree_add_item(reqresp_tree, hf_imap_command, tvb, offset, tokenlen, ENC_ASCII | ENC_NA);
-              PROTO_ITEM_SET_HIDDEN(hidden_item);
+              proto_item_set_hidden(hidden_item);
 
               /*
                * Save command string to do specialized processing.
@@ -512,7 +512,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             proto_tree_add_item(reqresp_tree, (is_request) ? hf_imap_request_command : hf_imap_response_status, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
             if (is_request) {
               hidden_item = proto_tree_add_item(reqresp_tree, hf_imap_command, tvb, offset, tokenlen, ENC_ASCII | ENC_NA);
-              PROTO_ITEM_SET_HIDDEN(hidden_item);
+              proto_item_set_hidden(hidden_item);
 
               /*
                * Save command string to do specialized processing.
@@ -573,7 +573,7 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             if (commandlen > 0) {
               proto_tree_add_item(reqresp_tree, hf_imap_response_command, tvb, command_offset, commandlen, ENC_ASCII | ENC_NA);
               hidden_item = proto_tree_add_item(reqresp_tree, hf_imap_command, tvb, command_offset, commandlen, ENC_ASCII | ENC_NA);
-              PROTO_ITEM_SET_HIDDEN(hidden_item);
+              proto_item_set_hidden(hidden_item);
             }
           }
 

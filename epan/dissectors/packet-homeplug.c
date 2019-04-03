@@ -1020,7 +1020,7 @@ static void dissect_homeplug_ns(ptvcursor_t * cursor, packet_info * pinfo)
   {
     ti = proto_tree_add_boolean(ptvcursor_tree(cursor), hf_homeplug_ns_extended,
              ptvcursor_tvbuff(cursor), 0, 0, extended);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     ptvcursor_add_no_advance(cursor, hf_homeplug_ns_netw_ctrl_ac, 1, ENC_BIG_ENDIAN);
     ptvcursor_add(cursor, hf_homeplug_ns_netw_ctrl_icid, 1, ENC_BIG_ENDIAN);

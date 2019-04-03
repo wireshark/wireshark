@@ -679,7 +679,7 @@ dissect_openwire_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
         if (!openwire_verbose_type)
         {
             /* Hide it but allow it in search filters */
-            PROTO_ITEM_SET_HIDDEN(cached_item);
+            proto_item_set_hidden(cached_item);
         }
         if (inlined == FALSE)
         {

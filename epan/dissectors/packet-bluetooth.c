@@ -3258,30 +3258,30 @@ dissect_bluetooth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (src && src->type == AT_STRINGZ) {
         sub_item = proto_tree_add_string(main_tree, hf_bluetooth_addr_str, tvb, 0, 0, (const char *) src->data);
-        PROTO_ITEM_SET_HIDDEN(sub_item);
+        proto_item_set_hidden(sub_item);
 
         sub_item = proto_tree_add_string(main_tree, hf_bluetooth_src_str, tvb, 0, 0, (const char *) src->data);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
     } else if (src && src->type == AT_ETHER) {
         sub_item = proto_tree_add_ether(main_tree, hf_bluetooth_addr, tvb, 0, 0, (const guint8 *) src->data);
-        PROTO_ITEM_SET_HIDDEN(sub_item);
+        proto_item_set_hidden(sub_item);
 
         sub_item = proto_tree_add_ether(main_tree, hf_bluetooth_src, tvb, 0, 0, (const guint8 *) src->data);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
     }
 
     if (dst && dst->type == AT_STRINGZ) {
         sub_item = proto_tree_add_string(main_tree, hf_bluetooth_addr_str, tvb, 0, 0, (const char *) dst->data);
-        PROTO_ITEM_SET_HIDDEN(sub_item);
+        proto_item_set_hidden(sub_item);
 
         sub_item = proto_tree_add_string(main_tree, hf_bluetooth_dst_str, tvb, 0, 0, (const char *) dst->data);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
     } else if (dst && dst->type == AT_ETHER) {
         sub_item = proto_tree_add_ether(main_tree, hf_bluetooth_addr, tvb, 0, 0, (const guint8 *) dst->data);
-        PROTO_ITEM_SET_HIDDEN(sub_item);
+        proto_item_set_hidden(sub_item);
 
         sub_item = proto_tree_add_ether(main_tree, hf_bluetooth_dst, tvb, 0, 0, (const guint8 *) dst->data);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
     }
 
     return bluetooth_data;

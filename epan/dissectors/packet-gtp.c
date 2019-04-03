@@ -3849,15 +3849,15 @@ gtp_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint 
 
         if (gcrp->is_request) {
             it = proto_tree_add_uint(tree, hf_gtp_response_in, tvb, 0, 0, gcrp->rep_frame);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
         } else {
             nstime_t ns;
 
             it = proto_tree_add_uint(tree, hf_gtp_response_to, tvb, 0, 0, gcrp->req_frame);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
             nstime_delta(&ns, &pinfo->abs_ts, &gcrp->req_time);
             it = proto_tree_add_time(tree, hf_gtp_time, tvb, 0, 0, &ns);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
             if (g_gtp_session) {
                 if (!PINFO_FD_VISITED(pinfo) && gtp_version == 1) {
                     /* GTP session */
@@ -8803,7 +8803,7 @@ track_gtp_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtp_hd
         session = (guint32*)g_hash_table_lookup(session_table, &pinfo->num);
         if (session) {
             it = proto_tree_add_uint(tree, hf_gtp_session, tvb, 0, 0, *session);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
         }
     }
 

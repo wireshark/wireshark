@@ -147,21 +147,21 @@ xmpp_iq(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *pac
 
         if (jingle_sid) {
             proto_item *it = proto_tree_add_string(tree, hf_xmpp_jingle_session, tvb, 0, 0, jingle_sid);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
         }
 
         ibb_sid = (gchar *)wmem_tree_lookup_string(xmpp_info->ibb_sessions, attr_id->value, WMEM_TREE_STRING_NOCASE);
 
         if (ibb_sid) {
             proto_item *it = proto_tree_add_string(tree, hf_xmpp_ibb, tvb, 0, 0, ibb_sid);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
         }
 
         gtalk_sid = (gchar *)wmem_tree_lookup_string(xmpp_info->gtalk_sessions, attr_id->value, WMEM_TREE_STRING_NOCASE);
 
         if (gtalk_sid) {
             proto_item *it = proto_tree_add_string(tree, hf_xmpp_gtalk, tvb, 0, 0, gtalk_sid);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
         }
 
         reqresp_trans = (xmpp_transaction_t *)wmem_tree_lookup_string(xmpp_info->req_resp, attr_id->value, WMEM_TREE_STRING_NOCASE);
@@ -171,7 +171,7 @@ xmpp_iq(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *pac
             if (reqresp_trans->req_frame == pinfo->num) {
                 if (reqresp_trans->resp_frame) {
                     proto_item *it = proto_tree_add_uint(tree, hf_xmpp_response_in, tvb, 0, 0, reqresp_trans->resp_frame);
-                    PROTO_ITEM_SET_GENERATED(it);
+                    proto_item_set_generated(it);
                 } else
                 {
                     expert_add_info(pinfo, xmpp_iq_item, &ei_xmpp_packet_without_response);
@@ -180,7 +180,7 @@ xmpp_iq(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t *pac
             } else {
                 if (reqresp_trans->req_frame) {
                     proto_item *it = proto_tree_add_uint(tree, hf_xmpp_response_to, tvb, 0, 0, reqresp_trans->req_frame);
-                    PROTO_ITEM_SET_GENERATED(it);
+                    proto_item_set_generated(it);
                 } else
                 {
                     expert_add_info(pinfo, xmpp_iq_item, &ei_xmpp_packet_without_response);
@@ -400,7 +400,7 @@ xmpp_message(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_element_t
 
         if (ibb_sid) {
             proto_item *it = proto_tree_add_string(tree, hf_xmpp_ibb, tvb, 0, 0, ibb_sid);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
         }
 
     }

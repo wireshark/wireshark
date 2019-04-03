@@ -56,11 +56,11 @@ QString ProtoNode::labelText() const
     }
 
     // Generated takes precedence.
-    if (PROTO_ITEM_IS_GENERATED(node_)) {
+    if (proto_item_is_generated(node_)) {
         label.prepend("[");
         label.append("]");
     }
-    if (PROTO_ITEM_IS_HIDDEN(node_)) {
+    if (proto_item_is_hidden(node_)) {
         label.prepend("<");
         label.append(">");
     }

@@ -1385,11 +1385,11 @@ static int oap_1_tree_add_alias(dof_api_data *api_data, oap_1_packet_data *oap_p
 
             /* Decode the Interface */
             ti = proto_tree_add_bytes_format_value(tree, hf_oap_1_interfaceid, tvb, offset, alias_length, binding->iid, "%s", dof_iid_create_standard_string(binding->iid_length, binding->iid));
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             /* Decode the Object ID */
             ti = proto_tree_add_bytes_format_value(tree, hf_oap_1_objectid, tvb, offset, alias_length, binding->oid, "%s", dof_oid_create_standard_string(binding->oid_length, binding->oid));
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             proto_tree_add_uint_format(options_tree, hf_oap_1_alias_frame,
                                        tvb, 0, 0, binding->frame,
@@ -5509,31 +5509,31 @@ static int dissect_dof_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         /* Add the general packet information. */
         {
             ti = proto_tree_add_uint(dof_root, hf_2008_1_dof_session_transport, tvb, 0, 0, api_data->transport_session->transport_session_id);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             ti = proto_tree_add_boolean(dof_root, hf_2008_1_dof_is_2_node, tvb, 0, 0, api_data->transport_session->is_2_node);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             ti = proto_tree_add_boolean(dof_root, hf_2008_1_dof_is_streaming, tvb, 0, 0, api_data->transport_session->is_streaming);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             if (api_data->session)
             {
                 ti = proto_tree_add_uint(dof_root, hf_2008_1_dof_session, tvb, 0, 0, api_data->session->session_id);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
             }
 
             if (api_data->secure_session)
             {
                 ti = proto_tree_add_uint_format(dof_root, hf_2008_1_dof_session, tvb, 0, 0, api_data->secure_session->original_session_id, "DPS Session (Non-secure): %d", api_data->secure_session->original_session_id);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
             }
 
             ti = proto_tree_add_uint(dof_root, hf_2008_1_dof_frame, tvb, 0, 0, packet->dof_frame);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             ti = proto_tree_add_boolean(dof_root, hf_2008_1_dof_is_from_client, tvb, 0, 0, api_data->transport_packet->is_sent_by_client);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
         }
     }
 
@@ -6524,7 +6524,7 @@ static int dissect_dnp_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             else
             {
                 proto_item *item = proto_tree_add_uint_format(dnp_tree, hf_2009_9_dnp_1_srcport, tvb, 0, 0, 0, "Source Address: %u", 0);
-                PROTO_ITEM_SET_GENERATED(item);
+                proto_item_set_generated(item);
             }
 
             /* Read the dstport */
@@ -6542,7 +6542,7 @@ static int dissect_dnp_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
             else
             {
                 proto_item *item = proto_tree_add_uint_format(dnp_tree, hf_2009_9_dnp_1_dstport, tvb, 0, 0, 0, "Destination Address: %u", 0);
-                PROTO_ITEM_SET_GENERATED(item);
+                proto_item_set_generated(item);
             }
         }
 
@@ -6807,24 +6807,24 @@ static int dissect_dpp_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
             ti = proto_tree_add_uint_format(tree, hf_2008_1_dpp_sid_num, tvb,
                                             0, 0, packet_data->sender_sid_id, "SID ID: %d", packet_data->sender_sid_id);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             if (packet_data->sender_sid)
             {
                 const gchar *SID = dof_oid_create_standard_string(packet_data->sender_sid[0], packet_data->sender_sid + 1);
                 ti = proto_tree_add_bytes_format_value(tree, hf_2008_1_dpp_sid_str, tvb, 0, 0, packet_data->sender_sid, "%s", SID);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
             }
 
             ti = proto_tree_add_uint_format(tree, hf_2008_1_dpp_rid_num, tvb,
                                             0, 0, packet_data->receiver_sid_id, "RID ID: %d", packet_data->receiver_sid_id);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             if (packet_data->receiver_sid)
             {
                 const gchar *SID = dof_oid_create_standard_string(packet_data->receiver_sid[0], packet_data->receiver_sid + 1);
                 ti = proto_tree_add_bytes_format_value(tree, hf_2008_1_dpp_rid_str, tvb, 0, 0, packet_data->receiver_sid, "%s", SID);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
             }
 
             if (dpp_flags_included)
@@ -6943,7 +6943,7 @@ static int dissect_dpp_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 
                     call_dissector_only(dof_oid_handle, next_tvb, pinfo, oid_tree, NULL);
 
-                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_set_generated(ti);
                 }
 
                 read_c4(tvb, offset, &opcnt, &opcnt_len);
@@ -7793,7 +7793,7 @@ static int dissect_ccm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         else
         {
             item = proto_tree_add_uint_format(tree, hf_epp_v1_ccm_nid, tvb, 0, 0, pdata->nid, "Node ID: %u", pdata->nid);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
         }
 
         if (!secure_session->is_2_node)
@@ -7808,7 +7808,7 @@ static int dissect_ccm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         else
         {
             item = proto_tree_add_uint_format(tree, hf_epp_v1_ccm_slot, tvb, 0, 0, 0, "Slot: %u", 0);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
         }
 
         if (ccm_flags & 0x01)
@@ -7824,7 +7824,7 @@ static int dissect_ccm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         else
         {
             item = proto_tree_add_uint_format(tree, hf_epp_v1_ccm_pn, tvb, 0, 0, pdata->dn, "Packet Number: %u", pdata->dn);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
         }
 
         if (ccm_flags & 0x08)
@@ -9309,7 +9309,7 @@ static int dissect_tep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
     operation_tree = proto_item_add_subtree(ti, ett_tep_operation);
     ti = proto_tree_add_boolean(operation_tree, hf_tep_operation_type, tvb, offset, 0, operation);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* The flags are reserved except for OPCODE=1 & COMMAND */
     if ((operation & 0x8F) == 0x01)
@@ -9502,7 +9502,7 @@ static int dissect_tep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         {
             const gchar *SID = bytestring_to_str(NULL, rekey_data->key_data->session_key, 32, ':');
             ti = proto_tree_add_bytes_format_value(tree, hf_tep_session_key, tvb, 0, 0, rekey_data->key_data->session_key, "%s", SID);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
         }
 
         /* Responder Initialization - present based on whether the command was a rekey */

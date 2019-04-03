@@ -114,7 +114,7 @@ dissect_finger(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (tree && finger_trans->rep_frame) {
             ti = proto_tree_add_uint(finger_tree, hf_finger_response_in,
                 tvb, 0, 0, finger_trans->rep_frame);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
         }
     } else if (tree && finger_trans->rep_frame) {
         proto_tree_add_item(finger_tree, hf_finger_response, tvb, 0, -1, ENC_ASCII|ENC_NA);
@@ -123,12 +123,12 @@ dissect_finger(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             ti = proto_tree_add_uint(finger_tree, hf_finger_response_to,
                 tvb, 0, 0, finger_trans->req_frame);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             if (pinfo->num == finger_trans->rep_frame) {
                 nstime_delta(&ns, &pinfo->abs_ts, &finger_trans->req_time);
                 ti = proto_tree_add_time(finger_tree, hf_finger_response_time, tvb, 0, 0, &ns);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
             }
         }
     }

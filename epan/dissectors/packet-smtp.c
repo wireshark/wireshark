@@ -818,7 +818,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
         hidden_item = proto_tree_add_boolean(smtp_tree, hf_smtp_req, tvb,
                                              0, 0, TRUE);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        proto_item_set_hidden(hidden_item);
 
         if (session_state->username_frame == pinfo->num) {
           if (decrypt == NULL) {
@@ -1034,7 +1034,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     if (tree) {
       hidden_item = proto_tree_add_boolean(smtp_tree, hf_smtp_rsp, tvb,
                                            0, 0, TRUE);
-      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      proto_item_set_hidden(hidden_item);
     }
 
     loffset = offset;

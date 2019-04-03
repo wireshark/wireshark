@@ -2053,7 +2053,7 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 						no_of_segments-1);
 					item = proto_tree_add_bytes_format(tipc_tree, hf_tipc_data_fragment, tvb, offset, -1, NULL, "Segmented message size %u bytes -> No segments = %i",
 							reassembled_msg_length, no_of_segments);
-					PROTO_ITEM_SET_GENERATED(item);
+					proto_item_set_generated(item);
 				}
 
 				new_tvb = process_reassembled_data(tvb, offset, pinfo,

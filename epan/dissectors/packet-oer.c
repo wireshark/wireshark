@@ -136,7 +136,7 @@ dissect_oer_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, 
         *length = oct;
         if (hf_index != -1) {
             item = proto_tree_add_item(tree, hf_index, tvb, offset, 1, ENC_BIG_ENDIAN);
-            if (!display_internal_oer_fields) PROTO_ITEM_SET_HIDDEN(item);
+            if (!display_internal_oer_fields) proto_item_set_hidden(item);
         }
         offset++;
 
@@ -442,7 +442,7 @@ dissect_oer_sequence(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree
          */
         actx->created_item = proto_tree_add_bits_item(tree, hf_oer_extension_present_bit, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
         bit_offset++;
-        if (!display_internal_oer_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
+        if (!display_internal_oer_fields) proto_item_set_hidden(actx->created_item);
     }
     /* The presence bitmap is encoded as a bit string with a fixed size constraint (see 16.2.3),
     * and has one bit for each field of the sequence type that has the keyword OPTIONAL or DEFAULT,
@@ -466,7 +466,7 @@ dissect_oer_sequence(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree
             proto_item_append_text(actx->created_item, " (%s %s present)",
                 index_get_optional_name(sequence, i), optional_field_flag ? "is" : "is NOT");
         }
-        if (!display_internal_oer_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
+        if (!display_internal_oer_fields) proto_item_set_hidden(actx->created_item);
         if (optional_field_flag) {
             optional_mask[i >> 5] |= 0x80000000 >> (i & 0x1f);
         }
@@ -614,7 +614,7 @@ dissect_oer_choice(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *
 
     /* 8.7.2.1 Bits 8 and 7 of the first octet shall denote the tag class */
     item = proto_tree_add_bits_ret_val(tree, hf_oer_class, tvb, bit_offset, 2, &oer_class, ENC_BIG_ENDIAN);
-    if (!display_internal_oer_fields) PROTO_ITEM_SET_HIDDEN(item);
+    if (!display_internal_oer_fields) proto_item_set_hidden(item);
     bit_offset += 2;
 
     tag = tvb_get_bits8(tvb, bit_offset, 6);
@@ -631,12 +631,12 @@ dissect_oer_choice(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *
             /* Bits 7 to 1 of the first subsequent octet shall not be all set to 0.*/
             tag = oct;
             item = proto_tree_add_uint(tree, hf_oer_tag, tvb, offset, 1, tag);
-            if (!display_internal_oer_fields) PROTO_ITEM_SET_HIDDEN(item);
+            if (!display_internal_oer_fields) proto_item_set_hidden(item);
         }
     } else {
         /* Tag value in first octet */
         item = proto_tree_add_bits_item(tree, hf_oer_tag, tvb, bit_offset, 6, ENC_BIG_ENDIAN);
-        if (!display_internal_oer_fields) PROTO_ITEM_SET_HIDDEN(item);
+        if (!display_internal_oer_fields) proto_item_set_hidden(item);
     }
 
     /* 20.2 If the choice type contains an extension marker in the "AlternativeTypeLists" and the chosen alternative

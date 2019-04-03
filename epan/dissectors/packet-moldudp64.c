@@ -90,7 +90,7 @@ dissect_moldudp64_msgblk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     ti = proto_tree_add_uint64(blk_tree, hf_moldudp64_msgseq,
             tvb, offset, 0, sequence);
 
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     ti = proto_tree_add_item(blk_tree, hf_moldudp64_msglen,
             tvb, offset, MOLDUDP64_MSGLEN_LEN, ENC_BIG_ENDIAN);

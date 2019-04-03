@@ -1227,12 +1227,12 @@ wg_dissect_key_extra(proto_tree *tree, tvbuff_t *tvb, const wg_qqword *pubkey, g
         wg_skey_t *skey = (wg_skey_t *)g_hash_table_lookup(wg_static_keys, pubkey->data);
         has_private = skey && has_private_key(&skey->priv_key);
         ti = proto_tree_add_boolean(tree, hf_wg_static_known_pubkey, tvb, 0, 0, !!skey);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
     int hf_known_privkey = is_ephemeral ? hf_wg_ephemeral_known_privkey : hf_wg_static_known_privkey;
     ti = proto_tree_add_boolean(tree, hf_known_privkey, tvb, 0, 0, has_private);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 }
 #endif /* WG_DECRYPTION_SUPPORTED */
 
@@ -1339,10 +1339,10 @@ wg_dissect_mac1_pubkey(proto_tree *tree, tvbuff_t *tvb, const wg_skey_t *skey)
     }
 
     ti = proto_tree_add_string(tree, hf_wg_receiver_pubkey, tvb, 0, 0, pubkey_to_string(&skey->pub_key));
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     proto_tree *key_tree = proto_item_add_subtree(ti, ett_key_info);
     ti = proto_tree_add_boolean(key_tree, hf_wg_receiver_pubkey_known_privkey, tvb, 0, 0, !!has_private_key(&skey->priv_key));
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 }
 #endif /* WG_DECRYPTION_SUPPORTED */
 
@@ -1401,11 +1401,11 @@ wg_dissect_handshake_initiation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *w
     wg_session_t *session = wg_pinfo->session;
     if (session) {
         ti = proto_tree_add_uint(wg_tree, hf_wg_stream, tvb, 0, 0, session->stream);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
     if (session && session->response_frame) {
         ti = proto_tree_add_uint(wg_tree, hf_wg_response_in, tvb, 0, 0, session->response_frame);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
     return 148;
@@ -1445,7 +1445,7 @@ wg_dissect_handshake_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wg_
 #ifdef WG_DECRYPTION_SUPPORTED
     if (session && session->hs) {
         ti = proto_tree_add_boolean(wg_tree, hf_wg_handshake_ok, tvb, 0, 0, !!session->hs->empty_ok);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 #endif /* WG_DECRYPTION_SUPPORTED */
     proto_tree_add_item(wg_tree, hf_wg_mac1, tvb, 60, 16, ENC_NA);
@@ -1466,9 +1466,9 @@ wg_dissect_handshake_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wg_
     }
     if (session) {
         ti = proto_tree_add_uint(wg_tree, hf_wg_stream, tvb, 0, 0, session->stream);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
         ti = proto_tree_add_uint(wg_tree, hf_wg_response_to, tvb, 0, 0, session->initiator_frame);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
     return 92;
@@ -1500,10 +1500,10 @@ wg_dissect_handshake_cookie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wg_tr
     }
     if (session) {
         ti = proto_tree_add_uint(wg_tree, hf_wg_stream, tvb, 0, 0, session->stream);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
         /* XXX check for cookie reply from Initiator to Responder */
         ti = proto_tree_add_uint(wg_tree, hf_wg_response_to, tvb, 0, 0, session->initiator_frame);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
     return 64;
@@ -1549,7 +1549,7 @@ wg_dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wg_tree, wg_packe
     }
     if (session) {
         ti = proto_tree_add_uint(wg_tree, hf_wg_stream, tvb, 0, 0, session->stream);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
 #ifdef WG_DECRYPTION_SUPPORTED

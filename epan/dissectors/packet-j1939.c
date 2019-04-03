@@ -186,19 +186,19 @@ static int dissect_j1939(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     can_tree = proto_tree_add_subtree_format(j1939_tree, tvb, 0, 0,
                     ett_j1939_can, NULL, "CAN Identifier: 0x%08x", can_id.id);
     can_id_item = proto_tree_add_uint(can_tree, hf_j1939_can_id, tvb, 0, 0, can_id.id);
-    PROTO_ITEM_SET_GENERATED(can_id_item);
+    proto_item_set_generated(can_id_item);
     ti = proto_tree_add_uint(can_tree, hf_j1939_priority, tvb, 0, 0, can_id.id);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     ti = proto_tree_add_uint(can_tree, hf_j1939_extended_data_page, tvb, 0, 0, can_id.id);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     ti = proto_tree_add_uint(can_tree, hf_j1939_data_page, tvb, 0, 0, can_id.id);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     ti = proto_tree_add_uint(can_tree, hf_j1939_pdu_format, tvb, 0, 0, can_id.id);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     ti = proto_tree_add_uint(can_tree, hf_j1939_pdu_specific, tvb, 0, 0, can_id.id);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     ti = proto_tree_add_uint(can_tree, hf_j1939_src_addr, tvb, 0, 0, can_id.id);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* Set source address */
     src_addr = (guint8*)wmem_alloc(pinfo->pool, 1);
@@ -213,12 +213,12 @@ static int dissect_j1939(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         pgn &= 0x3FF00;
 
         ti = proto_tree_add_uint(can_tree, hf_j1939_dst_addr, tvb, 0, 0, can_id.id);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
     else
     {
         ti = proto_tree_add_uint(can_tree, hf_j1939_group_extension, tvb, 0, 0, can_id.id);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
     /* Fill in "destination" address even if its "broadcast" */
@@ -242,7 +242,7 @@ static int dissect_j1939(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
     msg_tree = proto_tree_add_subtree(j1939_tree, tvb, 0, tvb_reported_length(tvb), ett_j1939_message, NULL, "Message");
 
     ti = proto_tree_add_uint(msg_tree, hf_j1939_pgn, tvb, 0, 0, pgn);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     if (!dissector_try_uint_new(subdissector_pgn_table, pgn, tvb, pinfo, msg_tree, TRUE, data))
     {

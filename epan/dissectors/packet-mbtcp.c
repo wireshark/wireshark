@@ -900,7 +900,7 @@ dissect_modbus_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 
                     bit_tree = proto_tree_add_subtree_format(tree, next_tvb, data_offset, 1,
                         ett_bit, NULL, "Bit %u : %u", reg_num, data_bool);
                     bitnum_ti = proto_tree_add_uint(bit_tree, hf_modbus_bitnum, next_tvb, data_offset, 1, reg_num);
-                    PROTO_ITEM_SET_GENERATED(bitnum_ti);
+                    proto_item_set_generated(bitnum_ti);
                     proto_tree_add_boolean(bit_tree, hf_modbus_bitval, next_tvb, data_offset, 1, data_bool);
                     reg_num++;
 
@@ -1214,11 +1214,11 @@ dissect_modbus_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *modbus_tr
 
     if (pkt_info->request_found == TRUE) {
         request_frame_item = proto_tree_add_uint(modbus_tree, hf_modbus_request_frame, tvb, 0, 0, pkt_info->req_frame_num);
-        PROTO_ITEM_SET_GENERATED(request_frame_item);
+        proto_item_set_generated(request_frame_item);
 
         nstime_delta(&response_time, &pinfo->abs_ts, &pkt_info->req_time);
         response_time_item = proto_tree_add_time(modbus_tree, hf_modbus_response_time, tvb, 0, 0, &response_time);
-        PROTO_ITEM_SET_GENERATED(response_time_item);
+        proto_item_set_generated(response_time_item);
     }
 
     switch (function_code) {

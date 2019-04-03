@@ -4759,7 +4759,7 @@ dissect_ppp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (pinfo->p2p_dir == P2P_DIR_RECV || pinfo->p2p_dir == P2P_DIR_SENT) {
         proto_item *direction_ti = proto_tree_add_uint(tree, hf_ppp_direction,
             tvb, 0, 0, pinfo->p2p_dir);
-        PROTO_ITEM_SET_GENERATED(direction_ti);
+        proto_item_set_generated(direction_ti);
     }
 
     ppp_prot = tvb_get_guint8(tvb, 0);
@@ -5230,7 +5230,7 @@ dissect_pppmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         /* if protocol is not present in the sub-frame */
         if (!(flags & PPPMUX_PFF_BIT_SET)) {
             /* mark this item as generated */
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
         }
 
         offset += hdr_length;

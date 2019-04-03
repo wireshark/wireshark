@@ -5489,7 +5489,7 @@ dissect_ranap_IMSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
   if(!imsi_tvb)
     return offset;
   /* Hide the octet string default printout */
-  PROTO_ITEM_SET_HIDDEN(actx->created_item);
+  proto_item_set_hidden(actx->created_item);
   digit_str = dissect_e212_imsi(imsi_tvb, actx->pinfo, tree,  0, tvb_reported_length(imsi_tvb), FALSE);
 
   sccp_info = (sccp_msg_info_t *)p_get_proto_data(actx->pinfo->pool, actx->pinfo, proto_ranap, actx->pinfo->curr_layer_num);

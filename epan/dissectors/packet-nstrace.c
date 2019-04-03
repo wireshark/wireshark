@@ -551,11 +551,11 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 	case NSPR_HEADER_VERSION201:
 		proto_tree_add_item(ns_tree, hf_ns_pcbdevno, tvb, pnstr->pcb_offset, 4, ENC_LITTLE_ENDIAN);
 		ti = proto_tree_add_item(ns_tree, hf_ns_devno, tvb, pnstr->pcb_offset, 4, ENC_LITTLE_ENDIAN);
-		PROTO_ITEM_SET_HIDDEN(ti);
+		proto_item_set_hidden(ti);
 
 		proto_tree_add_item(ns_tree, hf_ns_l_pcbdevno, tvb, pnstr->l_pcb_offset, 4, ENC_LITTLE_ENDIAN);
 		ti = proto_tree_add_item(ns_tree, hf_ns_devno, tvb, pnstr->l_pcb_offset, 4, ENC_LITTLE_ENDIAN);
-		PROTO_ITEM_SET_HIDDEN(ti);
+		proto_item_set_hidden(ti);
 
 		break;
 
@@ -582,11 +582,11 @@ dissect_nstrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			/* NSPR_HEADER_VERSION201 stuff */
 			proto_tree_add_item(ns_tree, hf_ns_pcbdevno, tvb, pnstr->pcb_offset, 4, ENC_LITTLE_ENDIAN);
 			ti = proto_tree_add_item(ns_tree, hf_ns_devno, tvb, pnstr->pcb_offset, 4, ENC_LITTLE_ENDIAN);
-			PROTO_ITEM_SET_HIDDEN(ti);
+			proto_item_set_hidden(ti);
 
 			proto_tree_add_item(ns_tree, hf_ns_l_pcbdevno, tvb, pnstr->l_pcb_offset, 4, ENC_LITTLE_ENDIAN);
 			ti = proto_tree_add_item(ns_tree, hf_ns_devno, tvb, pnstr->l_pcb_offset, 4, ENC_LITTLE_ENDIAN);
-			PROTO_ITEM_SET_HIDDEN(ti);
+			proto_item_set_hidden(ti);
 
 			add35records(tvb, pinfo, tree, ns_tree);
 			if (error_code)

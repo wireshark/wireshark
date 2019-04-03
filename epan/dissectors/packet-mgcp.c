@@ -508,7 +508,7 @@ static int dissect_mgcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 	tii = proto_tree_add_uint(mgcp_tree, hf_mgcp_messagecount, tvb,
 			0 , 0 , num_messages);
-	PROTO_ITEM_SET_HIDDEN(tii);
+	proto_item_set_hidden(tii);
 
 	/*
 	 * Add our column information after dissecting SDP
@@ -1281,7 +1281,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		{
 			case MGCP_RESPONSE:
 				hidden_item = proto_tree_add_boolean(tree, hf_mgcp_rsp, tvb, 0, 0, TRUE);
-				PROTO_ITEM_SET_HIDDEN(hidden_item);
+				proto_item_set_hidden(hidden_item);
 				/* Check for MGCP response.  A response must match a call that
 				   we've seen, and the response must be sent to the same
 				   port and address that the call came from, and must
@@ -1335,10 +1335,10 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 							                                  tvb, 0, 0, mgcp_call->req_num,
 							                                  "This is a response to a request in frame %u",
 							                                  mgcp_call->req_num);
-							PROTO_ITEM_SET_GENERATED(item);
+							proto_item_set_generated(item);
 							nstime_delta(&delta, &pinfo->abs_ts, &mgcp_call->req_time);
 							item = proto_tree_add_time(tree, hf_mgcp_time, tvb, 0, 0, &delta);
-							PROTO_ITEM_SET_GENERATED(item);
+							proto_item_set_generated(item);
 						}
 
 						if (mgcp_call->rsp_num == 0)
@@ -1365,13 +1365,13 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 										mi->transid);
 
 								item = proto_tree_add_uint(tree, hf_mgcp_dup, tvb, 0, 0, mi->transid);
-								PROTO_ITEM_SET_HIDDEN(item);
+								proto_item_set_hidden(item);
 								item = proto_tree_add_uint(tree, hf_mgcp_rsp_dup,
 										tvb, 0, 0, mi->transid);
-								PROTO_ITEM_SET_GENERATED(item);
+								proto_item_set_generated(item);
 								item = proto_tree_add_uint(tree, hf_mgcp_rsp_dup_frame,
 										tvb, 0, 0, mgcp_call->rsp_num);
-								PROTO_ITEM_SET_GENERATED(item);
+								proto_item_set_generated(item);
 							}
 						}
 						/* Now store the response code (after comparison above) */
@@ -1381,7 +1381,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 				break;
 			case MGCP_REQUEST:
 				hidden_item = proto_tree_add_boolean(tree, hf_mgcp_req, tvb, 0, 0, TRUE);
-				PROTO_ITEM_SET_HIDDEN(hidden_item);
+				proto_item_set_hidden(hidden_item);
 				/* Keep track of the address and port whence the call came,
 				 * and the port to which the call is being sent, so that
 				 * we can match up calls with replies.
@@ -1455,11 +1455,11 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 						{
 							proto_item* item;
 							item = proto_tree_add_uint(tree, hf_mgcp_dup, tvb, 0, 0, mi->transid);
-							PROTO_ITEM_SET_HIDDEN(item);
+							proto_item_set_hidden(item);
 							item = proto_tree_add_uint(tree, hf_mgcp_req_dup, tvb, 0, 0, mi->transid);
-							PROTO_ITEM_SET_GENERATED(item);
+							proto_item_set_generated(item);
 							item = proto_tree_add_uint(tree, hf_mgcp_req_dup_frame, tvb, 0, 0, mi->req_num);
-							PROTO_ITEM_SET_GENERATED(item);
+							proto_item_set_generated(item);
 						}
 					}
 				}
@@ -1489,7 +1489,7 @@ static void dissect_mgcp_firstline(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 					                                              tvb, 0, 0, mgcp_call->rsp_num,
 					                                              "The response to this request is in frame %u",
 					                                              mgcp_call->rsp_num);
-					PROTO_ITEM_SET_GENERATED(item);
+					proto_item_set_generated(item);
 				}
 				break;
 			default:

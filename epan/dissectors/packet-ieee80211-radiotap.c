@@ -2583,7 +2583,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 						hf_radiotap_datarate,
 						tvb, offset, 3, rate,
 						"Data Rate: %.1f Mb/s", rate);
-					PROTO_ITEM_SET_GENERATED(rate_ti);
+					proto_item_set_generated(rate_ti);
 				}
 			}
 			break;
@@ -2814,7 +2814,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 								nsts = nss;
 							nsts_ti = proto_tree_add_uint(user_tree, hf_radiotap_vht_nsts[user],
 								tvb, offset + 4 + user, 1, nsts);
-							PROTO_ITEM_SET_GENERATED(nsts_ti);
+							proto_item_set_generated(nsts_ti);
 						}
 						proto_tree_add_item(user_tree, hf_radiotap_vht_coding[user],
 							tvb, offset + 8, 1,ENC_LITTLE_ENDIAN);
@@ -2828,7 +2828,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 									hf_radiotap_vht_datarate[user],
 									tvb, offset, 12, rate,
 									"Data Rate: %.1f Mb/s", rate);
-							PROTO_ITEM_SET_GENERATED(rate_ti);
+							proto_item_set_generated(rate_ti);
 							if (ieee80211_vhtvalid[mcs].valid[bandwidth][nss-1] == FALSE)
 								expert_add_info(pinfo, rate_ti, &ei_radiotap_invalid_data_rate);
 
@@ -2927,7 +2927,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* u
 							   hf_radiotap_fcs_bad,
 							   tvb, hdr_fcs_offset,
 							   4, TRUE);
-				PROTO_ITEM_SET_HIDDEN(hidden_item);
+				proto_item_set_hidden(hidden_item);
 			}
 		} else {
 			proto_item_append_text(hdr_fcs_ti,

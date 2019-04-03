@@ -303,16 +303,16 @@ dissect_gfp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
             fcs_ti = proto_tree_add_uint_format_value(gfp_tree, hf_gfp_fcs, tvb, *offset+payload_len, 4, fcs, "0x%08x [correct]", fcs);
             fcs_tree = proto_item_add_subtree(fcs_ti, ett_gfp_fcs);
             fcs_ti = proto_tree_add_boolean(fcs_tree, hf_gfp_fcs_good, tvb, *offset+payload_len, 4, TRUE);
-            PROTO_ITEM_SET_GENERATED(fcs_ti);
+            proto_item_set_generated(fcs_ti);
             fcs_ti = proto_tree_add_boolean(fcs_tree, hf_gfp_fcs_bad, tvb, *offset+payload_len, 4, FALSE);
-            PROTO_ITEM_SET_GENERATED(fcs_ti);
+            proto_item_set_generated(fcs_ti);
         } else {
             fcs_ti = proto_tree_add_uint_format_value(gfp_tree, hf_gfp_fcs, tvb, *offset+payload_len, 4, fcs, "0x%08x [incorrect, should be 0x%08x]", fcs, fcs_calc);
             fcs_tree = proto_item_add_subtree(fcs_ti, ett_gfp_fcs);
             fcs_ti = proto_tree_add_boolean(fcs_tree, hf_gfp_fcs_good, tvb, *offset+payload_len, 4, FALSE);
-            PROTO_ITEM_SET_GENERATED(fcs_ti);
+            proto_item_set_generated(fcs_ti);
             fcs_ti = proto_tree_add_boolean(fcs_tree, hf_gfp_fcs_bad, tvb, *offset+payload_len, 4, TRUE);
-            PROTO_ITEM_SET_GENERATED(fcs_ti);
+            proto_item_set_generated(fcs_ti);
             expert_add_info(pinfo, fcs_ti, &ei_gfp_fcs_bad);
         }
         /* Method 2: */

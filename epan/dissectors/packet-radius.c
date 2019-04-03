@@ -1305,7 +1305,7 @@ radius_tlv(radius_attr_info_t *a, proto_tree *tree, packet_info *pinfo _U_, tvbu
 			tlv_len_item = proto_tree_add_uint(tlv_tree,
 							   dictionary_entry->hf_len,
 							   tvb, 0, 0, tlv_length);
-			PROTO_ITEM_SET_GENERATED(tlv_len_item);
+			proto_item_set_generated(tlv_len_item);
 		}
 
 		add_tlv_to_tree(tlv_tree, tlv_item, pinfo, tvb, dictionary_entry,
@@ -1643,7 +1643,7 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 					avp_len_item = proto_tree_add_uint(avp_tree,
 									   dictionary_entry->hf_len,
 									   tvb, 0, 0, avp_length);
-					PROTO_ITEM_SET_GENERATED(avp_len_item);
+					proto_item_set_generated(avp_len_item);
 				}
 
 				if (vendor->has_flags) {
@@ -1725,7 +1725,7 @@ dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, tvbuff_t *tv
 			avp_len_item = proto_tree_add_uint(avp_tree,
 							   dictionary_entry->hf_len,
 							   tvb, 0, 0, avp_length);
-			PROTO_ITEM_SET_GENERATED(avp_len_item);
+			proto_item_set_generated(avp_len_item);
 		}
 
 		if (avp_is_extended) {
@@ -2031,7 +2031,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				break;
 
 			hidden_item = proto_tree_add_boolean(radius_tree, hf_radius_req, tvb, 0, 0, TRUE);
-			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			proto_item_set_hidden(hidden_item);
 
 			/* Keep track of the address and port whence the call came
 			 *  so that we can match up requests with replies.
@@ -2091,9 +2091,9 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 					if (tree) {
 						proto_item *item;
 						hidden_item = proto_tree_add_uint(radius_tree, hf_radius_dup, tvb, 0, 0, rh.rh_ident);
-						PROTO_ITEM_SET_HIDDEN(hidden_item);
+						proto_item_set_hidden(hidden_item);
 						item = proto_tree_add_uint(radius_tree, hf_radius_req_dup, tvb, 0, 0, radius_call->req_num);
-						PROTO_ITEM_SET_GENERATED(item);
+						proto_item_set_generated(item);
 					}
 				}
 			}
@@ -2125,7 +2125,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 					hf_radius_rsp_frame, tvb, 0, 0, radius_call->rsp_num,
 					"The response to this request is in frame %u",
 					radius_call->rsp_num);
-				PROTO_ITEM_SET_GENERATED(item);
+				proto_item_set_generated(item);
 			}
 			break;
 		case RADIUS_PKT_TYPE_ACCESS_ACCEPT:
@@ -2151,7 +2151,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 				break;
 
 			hidden_item = proto_tree_add_boolean(radius_tree, hf_radius_rsp, tvb, 0, 0, TRUE);
-			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			proto_item_set_hidden(hidden_item);
 
 			/* Check for RADIUS response.  A response must match a call that
 			 * we've seen, and the response must be sent to the same
@@ -2209,10 +2209,10 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 					radius_call->req_num,
 					"This is a response to a request in frame %u",
 					radius_call->req_num);
-				PROTO_ITEM_SET_GENERATED(item);
+				proto_item_set_generated(item);
 				nstime_delta(&delta, &pinfo->abs_ts, &radius_call->req_time);
 				item = proto_tree_add_time(radius_tree, hf_radius_time, tvb, 0, 0, &delta);
-				PROTO_ITEM_SET_GENERATED(item);
+				proto_item_set_generated(item);
 				/* Response Authenticator Validation */
 				if (validate_authenticator && *shared_secret != '\0') {
 					proto_item *authenticator_tree;
@@ -2222,9 +2222,9 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 					proto_item_append_text(authenticator_item, " [%s]", valid? "correct" : "incorrect");
 					authenticator_tree = proto_item_add_subtree(authenticator_item, ett_radius_authenticator);
 					item = proto_tree_add_boolean(authenticator_tree, hf_radius_authenticator_valid, tvb, 4, AUTHENTICATOR_LENGTH, valid ? TRUE : FALSE);
-					PROTO_ITEM_SET_GENERATED(item);
+					proto_item_set_generated(item);
 					item = proto_tree_add_boolean(authenticator_tree, hf_radius_authenticator_invalid, tvb, 4, AUTHENTICATOR_LENGTH, valid ? FALSE : TRUE);
-					PROTO_ITEM_SET_GENERATED(item);
+					proto_item_set_generated(item);
 
 					if (!valid) {
 						col_append_fstr(pinfo->cinfo, COL_INFO, " [incorrect authenticator]");
@@ -2249,10 +2249,10 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 						proto_item *item;
 						hidden_item = proto_tree_add_uint(radius_tree,
 							hf_radius_dup, tvb, 0, 0, rh.rh_ident);
-						PROTO_ITEM_SET_HIDDEN(hidden_item);
+						proto_item_set_hidden(hidden_item);
 						item = proto_tree_add_uint(radius_tree,
 							hf_radius_rsp_dup, tvb, 0, 0, radius_call->rsp_num);
-						PROTO_ITEM_SET_GENERATED(item);
+						proto_item_set_generated(item);
 					}
 				}
 			}

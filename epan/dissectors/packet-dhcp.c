@@ -2048,7 +2048,7 @@ dhcp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 	proto_tree_add_item(v_tree, hf_dhcp_option_length, tvb, voff+1, 1, ENC_BIG_ENDIAN);
 
 	ti_value = proto_tree_add_item(v_tree, hf_dhcp_option_value, tvb, voff+2, optlen, ENC_NA);
-	PROTO_ITEM_SET_HIDDEN(ti_value);
+	proto_item_set_hidden(ti_value);
 
 	/* prepate data for dissector table */
 	option_tvb = tvb_new_subset_length(tvb, voff+2, optlen);
@@ -2060,7 +2060,7 @@ dhcp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 
 	if (!dissector_try_uint_new(dhcp_option_table, code, option_tvb, pinfo, v_tree, FALSE, &option_data)) {
 		/* hf_dhcp_option_value is already in tree, just make it visible */
-		PROTO_ITEM_SET_VISIBLE(ti_value);
+		proto_item_set_visible(ti_value);
 	}
 
 	return consumed;
@@ -3107,7 +3107,7 @@ dissect_dhcpopt_dhcp_captive_portal(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 {
 	proto_item *ti_cp;
 	ti_cp = proto_tree_add_item(tree, hf_dhcp_option_captive_portal, tvb, 0, tvb_reported_length(tvb), ENC_ASCII|ENC_NA);
-	PROTO_ITEM_SET_URL(ti_cp);
+	proto_item_set_url(ti_cp);
 
 	return tvb_captured_length(tvb);
 }
@@ -3386,7 +3386,7 @@ dhcp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 	ti = proto_tree_add_item(o82_v_tree, hf_dhcp_option82_value, tvb, suboptoff, subopt_len, ENC_NA);
 
 	if ( (idx >= 1 ) && (idx < array_length(o82_opt)) ) {
-		PROTO_ITEM_SET_HIDDEN(ti);
+		proto_item_set_hidden(ti);
 		if (o82_opt[idx].info.ftype == special) {
 			switch(subopt)
 			{
@@ -3784,7 +3784,7 @@ dissect_vendor_pxeclient_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 	suboptoff++;
 
 	ti = proto_tree_add_item(o43pxeclient_v_tree, hf_dhcp_option43_value, tvb, suboptoff, subopt_len, ENC_NA);
-	PROTO_ITEM_SET_HIDDEN(ti);
+	proto_item_set_hidden(ti);
 
 	if ((subopt < 1) || (subopt >= array_length(o43pxeclient_opt))) {
 		expert_add_info_format(pinfo, vti, &ei_dhcp_suboption_invalid, "Unknown suboption %d (%d bytes)", subopt, subopt_len);
@@ -5104,7 +5104,7 @@ dissect_netware_ip_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 	suboptoff++;
 
 	ti = proto_tree_add_item(o63_v_tree, hf_dhcp_option63_value, tvb, suboptoff, subopt_len, ENC_NA);
-	PROTO_ITEM_SET_HIDDEN(ti);
+	proto_item_set_hidden(ti);
 
 	if (subopt < array_length(o63_opt)) {
 		if (dhcp_handle_basic_types(pinfo, o63_v_tree, vti, tvb, o63_opt[subopt].ftype,
@@ -5210,7 +5210,7 @@ dissect_vendor_tr111_suboption(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	}
 
 	ti = proto_tree_add_item(tree, hf_dhcp_option125_value, tvb, offset, subopt_len, ENC_NA);
-	PROTO_ITEM_SET_HIDDEN(ti);
+	proto_item_set_hidden(ti);
 
 	if (subopt < array_length(o125_tr111_opt)) {
 		if (dhcp_handle_basic_types(pinfo, o125_v_tree, vti, tvb, o125_tr111_opt[subopt].ftype, offset, subopt_len, o125_tr111_opt[subopt].phf, &default_hfs) == 0) {
@@ -7006,7 +7006,7 @@ dissect_dhcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 	voff = VENDOR_INFO_OFFSET;
 	if (dhcp_type == NULL) {
 		hidden_item = proto_tree_add_boolean(bp_tree, hf_dhcp_bootp, tvb, 0, 0, 1);
-		PROTO_ITEM_SET_HIDDEN(hidden_item);
+		proto_item_set_hidden(hidden_item);
 	}
 	if (tvb_bytes_exist(tvb, voff, 4) &&
 	    (tvb_get_ntohl(tvb, voff) == 0x63825363)) {

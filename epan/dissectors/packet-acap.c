@@ -122,11 +122,11 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         if (is_request) {
             hidden_item = proto_tree_add_boolean(acap_tree,
                 &hfi_acap_request, tvb, 0, 0, TRUE);
-            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            proto_item_set_hidden(hidden_item);
         } else {
             hidden_item = proto_tree_add_boolean(acap_tree,
                 &hfi_acap_response, tvb, 0, 0, TRUE);
-            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            proto_item_set_hidden(hidden_item);
         }
 
         /*

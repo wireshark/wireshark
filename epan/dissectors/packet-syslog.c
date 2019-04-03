@@ -309,7 +309,7 @@ dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
       proto_item *mtp3_item;
       mtp3_item = proto_tree_add_boolean(syslog_tree, hf_syslog_msu_present,
                                          tvb, msg_off, msg_len, TRUE);
-      PROTO_ITEM_SET_GENERATED(mtp3_item);
+      proto_item_set_generated(mtp3_item);
     }
   }
 

@@ -1045,7 +1045,7 @@ dissect_ixveriwave(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
                 ti = proto_tree_add_uint_format_value(common_tree, hf_ixveriwave_vw_ifg, tvb, 18, 0, p_ifg_info->ifg, "Cannot be determined");
         }
 
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
     if(cmd_type ==3 || cmd_type ==4)
@@ -1518,7 +1518,7 @@ ethernettap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_t
     p_ifg_info = (struct ifg_info *) p_get_proto_data(wmem_file_scope(), pinfo, proto_ixveriwave, 0);
     ti = proto_tree_add_uint(tap_tree, hf_ixveriwave_vw_ifg,
                             tvb, offset, 0, p_ifg_info->ifg);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     length = tvb_get_letohs(tvb, offset);
     length_remaining = length;
@@ -1933,7 +1933,7 @@ wlantap_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         ti = proto_tree_add_uint(tap_tree, hf_ixveriwave_vw_ifg, tvb, 18, 0, 0);
     else
         ti = proto_tree_add_uint(tap_tree, hf_ixveriwave_vw_ifg, tvb, 18, 0, p_ifg_info->ifg);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     offset      = 0;
     /* header length */

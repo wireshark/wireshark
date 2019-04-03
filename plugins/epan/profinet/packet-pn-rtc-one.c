@@ -538,13 +538,13 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
                             if (io_data_object->lastToggleBit != toggleBitSb) {    /* ToggleBit has changed --> new Data incoming */
                                 /* Special Filter for ToggleBit within Statusbyte */
                                 ModuleID_item = proto_tree_add_uint(IODataObject_tree, hf_pn_io_ps_sb_toggelBitChanged, tvb, offset, 0, toggleBitSb);
-                                PROTO_ITEM_SET_HIDDEN(ModuleID_item);
+                                proto_item_set_hidden(ModuleID_item);
 
                                 ModuleID_item = proto_tree_add_uint(IODataObject_tree, hf_pn_io_ps_sb_toggelBitChange_slot_nr, tvb, offset, 0, io_data_object->slotNr);
-                                PROTO_ITEM_SET_HIDDEN(ModuleID_item);
+                                proto_item_set_hidden(ModuleID_item);
 
                                 ModuleID_item = proto_tree_add_uint(IODataObject_tree, hf_pn_io_ps_sb_toggelBitChange_subslot_nr, tvb, offset, 0, io_data_object->subSlotNr);
-                                PROTO_ITEM_SET_HIDDEN(ModuleID_item);
+                                proto_item_set_hidden(ModuleID_item);
                             }
 
                             offset = dissect_pn_io_ps_SB(tvb, offset, pinfo, IODataObject_tree, drep, hf_pn_io_ps_sb, ps_sb_fields);
@@ -733,13 +733,13 @@ dissect_PNIO_C_SDU_RTC1(tvbuff_t *tvb, int offset,
                             if (io_data_object->lastToggleBit != toggleBitCb) {   /* ToggleBit has changed --> new Data incoming */
                                 /* Special Filter for ToggleBit within Controlbyte */
                                 ModuleID_item = proto_tree_add_uint(IODataObject_tree, hf_pn_io_ps_cb_toggelBitChanged, tvb, offset, 0, toggleBitCb);
-                                PROTO_ITEM_SET_HIDDEN(ModuleID_item);
+                                proto_item_set_hidden(ModuleID_item);
 
                                 ModuleID_item = proto_tree_add_uint(IODataObject_tree, hf_pn_io_ps_cb_toggelBitChange_slot_nr, tvb, offset, 0, io_data_object->slotNr);
-                                PROTO_ITEM_SET_HIDDEN(ModuleID_item);
+                                proto_item_set_hidden(ModuleID_item);
 
                                 ModuleID_item = proto_tree_add_uint(IODataObject_tree, hf_pn_io_ps_cb_toggelBitChange_subslot_nr, tvb, offset, 0, io_data_object->subSlotNr);
-                                PROTO_ITEM_SET_HIDDEN(ModuleID_item);
+                                proto_item_set_hidden(ModuleID_item);
                             }
 
                             offset = dissect_pn_io_ps_CB(tvb, offset, pinfo, IODataObject_tree, drep, hf_pn_io_ps_cb, ps_cb_fields);

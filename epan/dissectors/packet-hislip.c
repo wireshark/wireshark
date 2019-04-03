@@ -748,7 +748,7 @@ dissect_hislip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         proto_item_append_text(hislip_data.hislip_item," (Asynchron)");
         it = proto_tree_add_item(hislip_tree, hf_hislip_asyn, tvb, 0, 0, ENC_NA);
     }
-    PROTO_ITEM_SET_GENERATED(it);
+    proto_item_set_generated(it);
 
     switch(hislip_data.messagetype)
     {
@@ -777,14 +777,14 @@ dissect_hislip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
         if(hislip_trans && hislip_trans->rep_frame != 0)
         {
             it = proto_tree_add_uint(hislip_tree, hf_hislip_response, tvb, 0, 0, hislip_trans->rep_frame);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
         }
 
         /*Retransmisson*/
         if((frame_number = search_for_retransmission(hislip_info->pdus, &hislip_data , pinfo->num))!=0)
         {
             it = proto_tree_add_uint( hislip_tree, hf_hislip_retransmission, tvb, 0, 0, frame_number);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
         }
 
         break;
@@ -804,7 +804,7 @@ dissect_hislip_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
             hislip_trans->rep_frame = pinfo->num;
             oldcontrolvalue = hislip_trans->controltype;
             it = proto_tree_add_uint( hislip_tree, hf_hislip_request,tvb, 0, 0, hislip_trans->req_frame);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
         }
         break;
 

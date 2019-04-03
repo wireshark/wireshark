@@ -259,16 +259,16 @@ dissect_bthci_sco(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     if (chandle_session) {
         sub_item = proto_tree_add_uint(bthci_sco_tree, hf_bthci_sco_connect_in, tvb, 0, 0, chandle_session->connect_in_frame);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
 
         if (chandle_session->disconnect_in_frame < G_MAXUINT32) {
             sub_item = proto_tree_add_uint(bthci_sco_tree, hf_bthci_sco_disconnect_in, tvb, 0, 0, chandle_session->disconnect_in_frame);
-            PROTO_ITEM_SET_GENERATED(sub_item);
+            proto_item_set_generated(sub_item);
         }
     }
     if (sco_stream_number) {
         sub_item = proto_tree_add_uint(bthci_sco_tree, hf_bthci_sco_stream_number, tvb, 0, 0, sco_stream_number->stream_number);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
     }
 
     return tvb_reported_length(tvb);

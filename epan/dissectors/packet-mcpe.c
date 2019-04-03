@@ -241,7 +241,7 @@ mcpe_dissect_login(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
                                      offset, item_size, ENC_NA);
             login_tree = proto_item_add_subtree(ti, ett_mcpe_login);
             proto_item_append_text(ti, " (%u octets)", decomp_length);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             mcpe_dissect_string(login_tree, hf_mcpe_chain_JSON     , login_tvb, &offset, ENC_LITTLE_ENDIAN | ENC_UTF_8);
             mcpe_dissect_string(login_tree, hf_mcpe_client_data_JWT, login_tvb, &offset, ENC_LITTLE_ENDIAN | ENC_UTF_8);
@@ -306,7 +306,7 @@ mcpe_dissect_batch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
                                      offset, item_size, ENC_NA);
             batch_tree = proto_item_add_subtree(ti, ett_mcpe_batch);
             proto_item_append_text(ti, " (%u octets)", decomp_length);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             col_append_str(pinfo->cinfo, COL_INFO, " [");
 

@@ -466,13 +466,13 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
               proto_item *ti2 = proto_tree_add_item(slsk_tree, hf_slsk_compr_packet, tvb, offset, -1, ENC_NA);
               proto_tree *slsk_compr_packet_tree = proto_item_add_subtree(ti2, ett_slsk_compr_packet);
-              PROTO_ITEM_SET_GENERATED(ti2);
+              proto_item_set_generated(ti2);
 
               ti = proto_tree_add_uint(slsk_tree, hf_slsk_compressed_packet_length, tvb, offset, 0, comprlen);
-              PROTO_ITEM_SET_GENERATED(ti);
+              proto_item_set_generated(ti);
               uncomprlen = tvb_reported_length_remaining(uncompr_tvb, 0);
               ti = proto_tree_add_uint(slsk_tree, hf_slsk_uncompressed_packet_length, tvb, offset, 0, uncomprlen);
-              PROTO_ITEM_SET_GENERATED(ti);
+              proto_item_set_generated(ti);
 
               add_new_data_source(pinfo, uncompr_tvb, "Uncompressed SoulSeek data");
               uncompr_tvb_offset = 0;
@@ -528,9 +528,9 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             }
           }else {
             ti = proto_tree_add_item(slsk_tree, hf_slsk_compr_packet, tvb, offset, -1, ENC_NA);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             ti = proto_tree_add_uint(slsk_tree, hf_slsk_compressed_packet_length, tvb, offset, 0, comprlen);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             offset += tvb_captured_length_remaining(tvb, offset);
           }
         }
@@ -573,20 +573,20 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             if (uncompr_tvb == NULL) {
               ti = proto_tree_add_item(slsk_tree, hf_slsk_compr_packet, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA);
-              PROTO_ITEM_SET_GENERATED(ti);
+              proto_item_set_generated(ti);
               offset += tvb_captured_length_remaining(tvb, offset);
               expert_add_info(pinfo, ti, &ei_slsk_decompression_failed);
             } else {
 
               proto_item *ti2 = proto_tree_add_item(slsk_tree, hf_slsk_compr_packet, tvb, offset, -1, ENC_NA);
               proto_tree *slsk_compr_packet_tree = proto_item_add_subtree(ti2, ett_slsk_compr_packet);
-              PROTO_ITEM_SET_GENERATED(ti2);
+              proto_item_set_generated(ti2);
 
               ti = proto_tree_add_uint(slsk_tree, hf_slsk_compressed_packet_length, tvb, offset, 0, comprlen);
-              PROTO_ITEM_SET_GENERATED(ti);
+              proto_item_set_generated(ti);
               uncomprlen = tvb_captured_length_remaining(uncompr_tvb, 0);
               ti = proto_tree_add_uint(slsk_tree, hf_slsk_uncompressed_packet_length, tvb, offset, 0, uncomprlen);
-              PROTO_ITEM_SET_GENERATED(ti);
+              proto_item_set_generated(ti);
 
               add_new_data_source(pinfo, uncompr_tvb, "Uncompressed SoulSeek data");
               uncompr_tvb_offset = 0;
@@ -639,9 +639,9 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             }
           }else {
             ti = proto_tree_add_item(slsk_tree, hf_slsk_compr_packet, tvb, offset, -1, ENC_NA);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             ti = proto_tree_add_uint(slsk_tree, hf_slsk_compressed_packet_length, tvb, offset, 0, comprlen);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             offset += tvb_captured_length_remaining(tvb, offset);
           }
         }
@@ -1033,13 +1033,13 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
               proto_item *ti2 = proto_tree_add_item(slsk_tree, hf_slsk_compr_packet, tvb, offset, -1, ENC_NA);
               proto_tree *slsk_compr_packet_tree = proto_item_add_subtree(ti2, ett_slsk_compr_packet);
-              PROTO_ITEM_SET_GENERATED(ti2);
+              proto_item_set_generated(ti2);
 
               ti = proto_tree_add_uint(slsk_tree, hf_slsk_compressed_packet_length, tvb, offset, 0, comprlen);
-              PROTO_ITEM_SET_GENERATED(ti);
+              proto_item_set_generated(ti);
               uncomprlen = tvb_captured_length_remaining(uncompr_tvb, 0);
               ti = proto_tree_add_uint(slsk_tree, hf_slsk_uncompressed_packet_length, tvb, offset, 0, uncomprlen);
-              PROTO_ITEM_SET_GENERATED(ti);
+              proto_item_set_generated(ti);
               add_new_data_source(pinfo, uncompr_tvb, "Uncompressed SoulSeek data");
 
               uncompr_tvb_offset = 0;
@@ -1102,9 +1102,9 @@ static int dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             }
           }else {
             ti = proto_tree_add_item(slsk_tree, hf_slsk_compr_packet, tvb, offset, -1, ENC_NA);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             ti = proto_tree_add_uint(slsk_tree, hf_slsk_compressed_packet_length, tvb, offset, 0, comprlen);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             offset += tvb_captured_length_remaining(tvb, offset);
           }
         }

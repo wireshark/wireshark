@@ -1953,7 +1953,7 @@ de_emm_trac_area_id_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                 curr_offset+=2;
                 for (i = 1; i < n_elem; i++) {
                     it = proto_tree_add_uint(tree, hf_nas_eps_emm_tai_tac, tvb, curr_offset, 0, tac+i);
-                    PROTO_ITEM_SET_GENERATED(it);
+                    proto_item_set_generated(it);
                 }
                 break;
             case 2:

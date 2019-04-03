@@ -140,7 +140,7 @@ request_response_handling(tvbuff_t *tvb, packet_info *pinfo, proto_tree *djiuav_
 
 				it = proto_tree_add_uint(djiuav_tree, hf_djiuav_response_in,
 						tvb, 0, 0, djiuav_trans->reply_frame);
-				PROTO_ITEM_SET_GENERATED(it);
+				proto_item_set_generated(it);
 			}
 		} else {
 			if (djiuav_trans->request_frame) {
@@ -149,11 +149,11 @@ request_response_handling(tvbuff_t *tvb, packet_info *pinfo, proto_tree *djiuav_
 
 				it = proto_tree_add_uint(djiuav_tree, hf_djiuav_response_to,
 						tvb, 0, 0, djiuav_trans->request_frame);
-				PROTO_ITEM_SET_GENERATED(it);
+				proto_item_set_generated(it);
 
 				nstime_delta(&ns, &pinfo->abs_ts, &djiuav_trans->request_time);
 				it = proto_tree_add_time(djiuav_tree, hf_djiuav_response_time, tvb, 0, 0, &ns);
-				PROTO_ITEM_SET_GENERATED(it);
+				proto_item_set_generated(it);
 			}
 		}
 	}

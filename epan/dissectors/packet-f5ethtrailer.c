@@ -1362,7 +1362,7 @@ static void render_analysis(
 		return;
 
 	pi = proto_tree_add_item(tree, hf_analysis, tvb, 0, 0, ENC_NA);
-	PROTO_ITEM_SET_GENERATED(pi);
+	proto_item_set_generated(pi);
 	if(ad->analysis_flowreuse) {
 		expert_add_info(pinfo, pi, &ei_f5eth_flowreuse);
 	}
@@ -1523,7 +1523,7 @@ static proto_item *displayIPv6as4(
 	if(tvb_memeql(tvb, offset, ipv4as6prefix, sizeof(ipv4as6prefix)) == 0) {
 		if(addrfield >= 0) {
 			pi = proto_tree_add_item(tree, addrfield, tvb, offset+(int)sizeof(ipv4as6prefix), 4, ENC_BIG_ENDIAN);
-			if(hidden) PROTO_ITEM_SET_HIDDEN(pi);
+			if(hidden) proto_item_set_hidden(pi);
 		}
 	} else if(tvb_memeql(tvb, offset, f5rtdomprefix, sizeof(f5rtdomprefix)) == 0) {
 		/* Route domain information may show up here if the traffic is between tmm and the BIG-IP
@@ -1535,11 +1535,11 @@ static proto_item *displayIPv6as4(
 		 * particular ordering is used (and none of the callers currently use the return value). */
 		if(addrfield >= 0) {
 			pi = proto_tree_add_item(tree, addrfield, tvb, offset+(int)sizeof(f5rtdomprefix)+2, 4, ENC_BIG_ENDIAN);
-			if(hidden) PROTO_ITEM_SET_HIDDEN(pi);
+			if(hidden) proto_item_set_hidden(pi);
 		}
 		if(rtdomfield >= 0) {
 			pi = proto_tree_add_item(tree, rtdomfield, tvb, offset+(int)sizeof(f5rtdomprefix), 2, ENC_BIG_ENDIAN);
-			if(hidden) PROTO_ITEM_SET_HIDDEN(pi);
+			if(hidden) proto_item_set_hidden(pi);
 		}
 	}
 
@@ -1600,14 +1600,14 @@ dissect_high_trailer(
 	if(pop_other_fields) {
 		displayIPv6as4(tree, hf_ip_ipaddr, -1, tvb, o, TRUE);
 		pi = proto_tree_add_item(tree, hf_ip6_ip6addr, tvb, o, 16, ENC_NA);
-		PROTO_ITEM_SET_HIDDEN(pi);
+		proto_item_set_hidden(pi);
 	}
 #endif
 	displayIPv6as4(tree, hf_peer_remote_addr, hf_peer_remote_rtdom, tvb, o, FALSE);
 	displayIPv6as4(tree, hf_peer_ipaddr, hf_peer_rtdom, tvb, o, TRUE);
 	proto_tree_add_item(tree, hf_peer_remote_ip6addr, tvb, o, 16, ENC_NA);
 	pi = proto_tree_add_item(tree, hf_peer_ip6addr, tvb, o, 16, ENC_NA);
-	PROTO_ITEM_SET_HIDDEN(pi);
+	proto_item_set_hidden(pi);
 	o += 16;
 
 	/* peer local address */
@@ -1615,14 +1615,14 @@ dissect_high_trailer(
 	if(pop_other_fields) {
 		displayIPv6as4(tree, hf_ip_ipaddr, -1, tvb, o, TRUE);
 		pi = proto_tree_add_item(tree, hf_ip6_ip6addr, tvb, o, 16, ENC_NA);
-		PROTO_ITEM_SET_HIDDEN(pi);
+		proto_item_set_hidden(pi);
 	}
 #endif
 	displayIPv6as4(tree, hf_peer_local_addr, hf_peer_local_rtdom, tvb, o, FALSE);
 	displayIPv6as4(tree, hf_peer_ipaddr, hf_peer_rtdom, tvb, o, TRUE);
 	proto_tree_add_item(tree, hf_peer_local_ip6addr, tvb, o, 16, ENC_NA);
 	pi = proto_tree_add_item(tree, hf_peer_ip6addr, tvb, o, 16, ENC_NA);
-	PROTO_ITEM_SET_HIDDEN(pi);
+	proto_item_set_hidden(pi);
 	o += 16;
 
 #ifdef F5_POP_OTHERFIELDS
@@ -1640,18 +1640,18 @@ dissect_high_trailer(
 		{
 		case IP_PROTO_TCP:
 			pi = proto_tree_add_item(tree, hf_tcp_tcpport, tvb, o, 2, ENC_BIG_ENDIAN);
-			PROTO_ITEM_SET_HIDDEN(pi);
+			proto_item_set_hidden(pi);
 			break;
 		case IP_PROTO_UDP:
 			pi = proto_tree_add_item(tree, hf_udp_udpport, tvb, o, 2, ENC_BIG_ENDIAN);
-			PROTO_ITEM_SET_HIDDEN(pi);
+			proto_item_set_hidden(pi);
 			break;
 		}
 	}
 #endif
 	proto_tree_add_item(tree, hf_peer_remote_port, tvb, o, 2, ENC_BIG_ENDIAN);
 	pi = proto_tree_add_item(tree, hf_peer_port, tvb, o, 2, ENC_BIG_ENDIAN);
-	PROTO_ITEM_SET_HIDDEN(pi);
+	proto_item_set_hidden(pi);
 	o += 2;
 
 	/* peer remote port */
@@ -1661,18 +1661,18 @@ dissect_high_trailer(
 		{
 		case IP_PROTO_TCP:
 			pi = proto_tree_add_item(tree, hf_tcp_tcpport, tvb, o, 2, ENC_BIG_ENDIAN);
-			PROTO_ITEM_SET_HIDDEN(pi);
+			proto_item_set_hidden(pi);
 			break;
 		case IP_PROTO_UDP:
 			pi = proto_tree_add_item(tree, hf_udp_udpport, tvb, o, 2, ENC_BIG_ENDIAN);
-			PROTO_ITEM_SET_HIDDEN(pi);
+			proto_item_set_hidden(pi);
 			break;
 		}
 	}
 #endif
 	proto_tree_add_item(tree, hf_peer_local_port, tvb, o, 2, ENC_BIG_ENDIAN);
 	pi = proto_tree_add_item(tree, hf_peer_port, tvb, o, 2, ENC_BIG_ENDIAN);
-	PROTO_ITEM_SET_HIDDEN(pi);
+	proto_item_set_hidden(pi);
 
 	return(trailer_length);
 } /* dissect_high_trailer() */
@@ -1785,24 +1785,24 @@ dissect_med_trailer(
 			tdata->flow = tvb_get_ntohl(tvb,o);
 			proto_tree_add_item(tree, hf_flow_id, tvb, o, 4, ENC_BIG_ENDIAN);
 			pi = proto_tree_add_item(tree, hf_any_flow, tvb, o, 4, ENC_BIG_ENDIAN);
-			PROTO_ITEM_SET_HIDDEN(pi);
+			proto_item_set_hidden(pi);
 			o += 4;
 			tdata->peer_flow = tvb_get_ntohl(tvb,o);
 			proto_tree_add_item(tree, hf_peer_id, tvb, o, 4, ENC_BIG_ENDIAN);
 			pi = proto_tree_add_item(tree, hf_any_flow, tvb, o, 4, ENC_BIG_ENDIAN);
-			PROTO_ITEM_SET_HIDDEN(pi);
+			proto_item_set_hidden(pi);
 			o += 4;
 		} else {
 			/* After v10, flowIDs are 64bit */
 			tdata->flow = tvb_get_ntoh64(tvb,o);
 			proto_tree_add_item(tree, hf_flow_id, tvb, o, 8, ENC_BIG_ENDIAN);
 			pi = proto_tree_add_item(tree, hf_any_flow, tvb, o, 8, ENC_BIG_ENDIAN);
-			PROTO_ITEM_SET_HIDDEN(pi);
+			proto_item_set_hidden(pi);
 			o += 8;
 			tdata->peer_flow = tvb_get_ntoh64(tvb,o);
 			proto_tree_add_item(tree, hf_peer_id, tvb, o, 8, ENC_BIG_ENDIAN);
 			pi = proto_tree_add_item(tree, hf_any_flow, tvb, o, 8, ENC_BIG_ENDIAN);
-			PROTO_ITEM_SET_HIDDEN(pi);
+			proto_item_set_hidden(pi);
 			o += 8;
 		}
 		tdata->flows_set = 1;
@@ -2000,12 +2000,12 @@ dissect_low_trailer(
 		tdata->flow = tvb_get_ntohl(tvb,o);
 		proto_tree_add_item(tree, hf_flow_id, tvb, o, 4, ENC_BIG_ENDIAN);
 		pi = proto_tree_add_item(tree, hf_any_flow, tvb, o, 4, ENC_BIG_ENDIAN);
-		PROTO_ITEM_SET_HIDDEN(pi);
+		proto_item_set_hidden(pi);
 		o += 4;
 		tdata->peer_flow = tvb_get_ntohl(tvb,o);
 		proto_tree_add_item(tree, hf_peer_id, tvb, o, 4, ENC_BIG_ENDIAN);
 		pi = proto_tree_add_item(tree, hf_any_flow, tvb, o, 4, ENC_BIG_ENDIAN);
-		PROTO_ITEM_SET_HIDDEN(pi);
+		proto_item_set_hidden(pi);
 		o += 4;
 		tdata->flows_set = 1;
 		proto_tree_add_item(tree, hf_cf_flags, tvb, o, 4, ENC_BIG_ENDIAN);
@@ -2020,7 +2020,7 @@ dissect_low_trailer(
 
 	if(trailer_ver == 1) {
 		pi = proto_tree_add_item(tree, hf_vipnamelen, tvb, o, 1, ENC_BIG_ENDIAN);
-		PROTO_ITEM_SET_HIDDEN(pi);
+		proto_item_set_hidden(pi);
 		o += 1;
 	}
 	proto_tree_add_item(tree, hf_vip, tvb, o, vipnamelen, ENC_ASCII|ENC_NA);
@@ -2112,14 +2112,14 @@ dissect_dpt_trailer_noise_high(
 	if(pop_other_fields) {
 		displayIPv6as4(tree, hf_ip_ipaddr, -1, tvb, o, TRUE);
 		pi = proto_tree_add_item(tree, hf_ip6_ip6addr, tvb, o, 16, ENC_NA);
-		PROTO_ITEM_SET_HIDDEN(pi);
+		proto_item_set_hidden(pi);
 	}
 #endif
 	displayIPv6as4(tree, hf_peer_remote_addr, hf_peer_remote_rtdom, tvb, o, FALSE);
 	displayIPv6as4(tree, hf_peer_ipaddr, hf_peer_rtdom, tvb, o, TRUE);
 	proto_tree_add_item(tree, hf_peer_remote_ip6addr, tvb, o, 16, ENC_NA);
 	pi = proto_tree_add_item(tree, hf_peer_ip6addr, tvb, o, 16, ENC_NA);
-	PROTO_ITEM_SET_HIDDEN(pi);
+	proto_item_set_hidden(pi);
 	o += 16;
 
 	/* peer local address */
@@ -2127,14 +2127,14 @@ dissect_dpt_trailer_noise_high(
 	if(pop_other_fields) {
 		displayIPv6as4(tree, hf_ip_ipaddr, -1, tvb, o, TRUE);
 		pi = proto_tree_add_item(tree, hf_ip6_ip6addr, tvb, o, 16, ENC_NA);
-		PROTO_ITEM_SET_HIDDEN(pi);
+		proto_item_set_hidden(pi);
 	}
 #endif
 	displayIPv6as4(tree, hf_peer_local_addr, hf_peer_local_rtdom, tvb, o, FALSE);
 	displayIPv6as4(tree, hf_peer_ipaddr, hf_peer_rtdom, tvb, o, TRUE);
 	proto_tree_add_item(tree, hf_peer_local_ip6addr, tvb, o, 16, ENC_NA);
 	pi = proto_tree_add_item(tree, hf_peer_ip6addr, tvb, o, 16, ENC_NA);
-	PROTO_ITEM_SET_HIDDEN(pi);
+	proto_item_set_hidden(pi);
 	o += 16;
 
 	/* peer remote port */
@@ -2144,18 +2144,18 @@ dissect_dpt_trailer_noise_high(
 		{
 		case IP_PROTO_TCP:
 			pi = proto_tree_add_item(tree, hf_tcp_tcpport, tvb, o, 2, ENC_BIG_ENDIAN);
-			PROTO_ITEM_SET_HIDDEN(pi);
+			proto_item_set_hidden(pi);
 			break;
 		case IP_PROTO_UDP:
 			pi = proto_tree_add_item(tree, hf_udp_udpport, tvb, o, 2, ENC_BIG_ENDIAN);
-			PROTO_ITEM_SET_HIDDEN(pi);
+			proto_item_set_hidden(pi);
 			break;
 		}
 	}
 #endif
 	proto_tree_add_item(tree, hf_peer_remote_port, tvb, o, 2, ENC_BIG_ENDIAN);
 	pi = proto_tree_add_item(tree, hf_peer_port, tvb, o, 2, ENC_BIG_ENDIAN);
-	PROTO_ITEM_SET_HIDDEN(pi);
+	proto_item_set_hidden(pi);
 	o += 2;
 
 	/* peer remote port */
@@ -2165,18 +2165,18 @@ dissect_dpt_trailer_noise_high(
 		{
 		case IP_PROTO_TCP:
 			pi = proto_tree_add_item(tree, hf_tcp_tcpport, tvb, o, 2, ENC_BIG_ENDIAN);
-			PROTO_ITEM_SET_HIDDEN(pi);
+			proto_item_set_hidden(pi);
 			break;
 		case IP_PROTO_UDP:
 			pi = proto_tree_add_item(tree, hf_udp_udpport, tvb, o, 2, ENC_BIG_ENDIAN);
-			PROTO_ITEM_SET_HIDDEN(pi);
+			proto_item_set_hidden(pi);
 			break;
 		}
 	}
 #endif
 	proto_tree_add_item(tree, hf_peer_local_port, tvb, o, 2, ENC_BIG_ENDIAN);
 	pi = proto_tree_add_item(tree, hf_peer_port, tvb, o, 2, ENC_BIG_ENDIAN);
-	PROTO_ITEM_SET_HIDDEN(pi);
+	proto_item_set_hidden(pi);
 
 	return(len);
 } /* dissect_dpt_trailer_noise_high() */
@@ -2250,12 +2250,12 @@ dissect_dpt_trailer_noise_med(
 	tdata->flow = tvb_get_ntoh64(tvb,o);
 	proto_tree_add_item(tree, hf_flow_id,   tvb, o, 8, ENC_BIG_ENDIAN);
 	pi = proto_tree_add_item(tree, hf_any_flow,  tvb, o, 8, ENC_BIG_ENDIAN);
-	PROTO_ITEM_SET_HIDDEN(pi);
+	proto_item_set_hidden(pi);
 	o += 8;
 	tdata->peer_flow = tvb_get_ntoh64(tvb,o);
 	proto_tree_add_item(tree, hf_peer_id,   tvb, o, 8, ENC_BIG_ENDIAN);
 	pi = proto_tree_add_item(tree, hf_any_flow,  tvb, o, 8, ENC_BIG_ENDIAN);
-	PROTO_ITEM_SET_HIDDEN(pi);
+	proto_item_set_hidden(pi);
 	o += 8;
 	tdata->flows_set = 1;
 	proto_tree_add_item(tree, hf_cf_flags2, tvb, o, 4, ENC_BIG_ENDIAN);

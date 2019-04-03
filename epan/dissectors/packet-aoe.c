@@ -250,15 +250,15 @@ dissect_ata_pdu(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset,
       if(ata_info->request_frame){
         nstime_t delta_ts;
         tmp_item=proto_tree_add_uint(tree, hf_aoe_response_to, tvb, 0, 0, ata_info->request_frame);
-        PROTO_ITEM_SET_GENERATED(tmp_item);
+        proto_item_set_generated(tmp_item);
         nstime_delta(&delta_ts, &pinfo->abs_ts, &ata_info->req_time);
         tmp_item=proto_tree_add_time(tree, hf_aoe_time, tvb, offset, 0, &delta_ts);
-        PROTO_ITEM_SET_GENERATED(tmp_item);
+        proto_item_set_generated(tmp_item);
       }
     } else {
       if(ata_info->response_frame){
         tmp_item=proto_tree_add_uint(tree, hf_aoe_response_in, tvb, 0, 0, ata_info->response_frame);
-        PROTO_ITEM_SET_GENERATED(tmp_item);
+        proto_item_set_generated(tmp_item);
       }
     }
   }
@@ -292,7 +292,7 @@ dissect_ata_pdu(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offset,
     if(ata_info != NULL && ata_info->request_frame){
       /* we don't know what command it was unless we saw the request_frame */
       tmp_item=proto_tree_add_uint(tree, hf_aoe_acmd, tvb, 0, 0, ata_info->cmd);
-      PROTO_ITEM_SET_GENERATED(tmp_item);
+      proto_item_set_generated(tmp_item);
       col_append_fstr(pinfo->cinfo, COL_INFO, " ATA:%s", val_to_str(ata_info->cmd, ata_cmd_vals, " Unknown ATA<0x%02x>"));
     }
   }

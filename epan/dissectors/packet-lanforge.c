@@ -101,12 +101,12 @@ static gboolean dissect_lanforge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
         pld_len = tvb_get_ntohs(tvb, offset);
         tmp = proto_tree_add_item(lanforge_tree, hf_lanforge_pld_len_l, tvb, offset, 2, ENC_BIG_ENDIAN);
-        PROTO_ITEM_SET_GENERATED(tmp);
+        proto_item_set_generated(tmp);
         offset+=2;
 
         tmpi = tvb_get_guint8(tvb, offset);
         tmp = proto_tree_add_item(lanforge_tree, hf_lanforge_pld_len_h, tvb, offset, 1, ENC_BIG_ENDIAN);
-        PROTO_ITEM_SET_GENERATED(tmp);
+        proto_item_set_generated(tmp);
         offset+=1;
         pld_len |= (tmpi << 16);
 
@@ -121,13 +121,13 @@ static gboolean dissect_lanforge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         tss = tvb_get_ntohl(tvb, offset);
         tstamp.secs = tss;
         tmp = proto_tree_add_item(lanforge_tree, hf_lanforge_tx_time_s, tvb, offset, 4, ENC_BIG_ENDIAN);
-        PROTO_ITEM_SET_GENERATED(tmp);
+        proto_item_set_generated(tmp);
         offset+=4;
 
         tss = tvb_get_ntohl(tvb, offset);
         tstamp.nsecs = tss;
         tmp = proto_tree_add_item(lanforge_tree, hf_lanforge_tx_time_ns, tvb, offset, 4, ENC_BIG_ENDIAN);
-        PROTO_ITEM_SET_GENERATED(tmp);
+        proto_item_set_generated(tmp);
         offset+=4;
 
         proto_tree_add_time(lanforge_tree, hf_lanforge_timestamp, tvb, offset - 8, 8, &tstamp);

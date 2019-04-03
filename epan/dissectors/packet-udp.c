@@ -803,7 +803,7 @@ udp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      item=proto_tree_add_uint((proto_tree *)p_get_proto_data(pinfo->pool, pinfo, hfi_udp->id, curr_layer_num),
                                     &hfi_udp_pdu_size,
                                     tvb, offset, plen, plen);
-     PROTO_ITEM_SET_GENERATED(item);
+     proto_item_set_generated(item);
 
      /*
       * Construct a tvbuff containing the amount of the payload we have
@@ -928,16 +928,16 @@ udp_print_timestamps(packet_info *pinfo, tvbuff_t *tvb, proto_tree *parent_tree,
   udp_p_info_t *udp_per_packet_data = (udp_p_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto, pinfo->curr_layer_num);
 
   tree = proto_tree_add_subtree(parent_tree, tvb, 0, 0, ett_udp_timestamps, &item, "Timestamps");
-  PROTO_ITEM_SET_GENERATED(item);
+  proto_item_set_generated(item);
 
   nstime_delta(&ts, &pinfo->abs_ts, &udp_data->ts_first);
   item = proto_tree_add_time(tree, &hfi_udp_ts_relative, tvb, 0, 0, &ts);
-  PROTO_ITEM_SET_GENERATED(item);
+  proto_item_set_generated(item);
 
   if (udp_per_packet_data && udp_per_packet_data->ts_delta_valid) {
       item = proto_tree_add_time(tree, &hfi_udp_ts_delta, tvb, 0, 0,
           &udp_per_packet_data->ts_delta);
-      PROTO_ITEM_SET_GENERATED(item);
+      proto_item_set_generated(item);
   }
 }
 
@@ -1005,9 +1005,9 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   p_add_proto_data(pinfo->pool, pinfo, hfi_udp_dstport.id, pinfo->curr_layer_num, GUINT_TO_POINTER(udph->uh_dport));
 
   hidden_item = proto_tree_add_item(udp_tree, &hfi_udp_port, tvb, offset, 2, ENC_BIG_ENDIAN);
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  proto_item_set_hidden(hidden_item);
   hidden_item = proto_tree_add_item(udp_tree, &hfi_udp_port, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  proto_item_set_hidden(hidden_item);
 
   /* The beginning port number, 32768 + 666 (33434), is from LBL's traceroute.c source code and this code
    * further assumes that 3 attempts are made per hop */
@@ -1054,7 +1054,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
       udph->uh_sum_cov = reported_len;
     }
     item = proto_tree_add_uint(udp_tree, &hfi_udp_length, tvb, offset + 4, 0, udph->uh_ulen);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
     if ((udph->uh_sum_cov < 8) || (udph->uh_sum_cov > udph->uh_ulen)) {
       /* Bogus coverage - it includes the header, so it must be >= 8, and no larger then the IP payload size. */
       proto_item_append_text(len_cov_item, " (bogus, must be >= 8 and <= %u)", udph->uh_ulen);
@@ -1088,7 +1088,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
       /* XXX - What should this special status be? */
       item = proto_tree_add_uint(checksum_tree, &hfi_udp_checksum_status, tvb,
                                         offset + 6, 0, 4);
-      PROTO_ITEM_SET_GENERATED(item);
+      proto_item_set_generated(item);
     }
   } else if (!pinfo->fragmented && (len >= reported_len) &&
              (len >= udph->uh_sum_cov) && (reported_len >= udph->uh_sum_cov) &&
@@ -1143,7 +1143,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
          calc_item = proto_tree_add_uint(checksum_tree, &hfi_udp_checksum_calculated,
                                    tvb, offset + 6, 2, udph->uh_sum);
       }
-      PROTO_ITEM_SET_GENERATED(calc_item);
+      proto_item_set_generated(calc_item);
 
     } else {
       proto_tree_add_checksum(udp_tree, tvb, offset + 6, &hfi_udp_checksum, hfi_udp_checksum_status.id, &ei_udp_checksum_bad, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
@@ -1164,7 +1164,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
   udpd = get_udp_conversation_data(conv, pinfo);
   if (udpd) {
     item = proto_tree_add_uint(udp_tree, &hfi_udp_stream, tvb, offset, 0, udpd->stream);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
 
     /* Copy the stream index into the header as well to make it available
     * to tap listeners.
@@ -1176,7 +1176,7 @@ dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 ip_proto)
 
   if (udpd && ((udpd->fwd && udpd->fwd->command) || (udpd->rev && udpd->rev->command))) {
     process_tree = proto_tree_add_subtree(udp_tree, tvb, offset, 0, ett_udp_process_info, &ti, "Process Information");
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     if (udpd->fwd && udpd->fwd->command) {
       proto_tree_add_uint(process_tree, &hfi_udp_proc_dst_uid, tvb, 0, 0, udpd->fwd->process_uid);
       proto_tree_add_uint(process_tree, &hfi_udp_proc_dst_pid, tvb, 0, 0, udpd->fwd->process_pid);

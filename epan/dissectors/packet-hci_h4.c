@@ -85,7 +85,7 @@ dissect_hci_h4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     main_tree = proto_item_add_subtree(main_item, ett_hci_h4);
 
     sub_item = proto_tree_add_uint(main_tree, hf_hci_h4_direction, tvb, 0, 0, pinfo->p2p_dir);
-    PROTO_ITEM_SET_GENERATED(sub_item);
+    proto_item_set_generated(sub_item);
 
     proto_tree_add_item(main_tree, hf_hci_h4_type,
         tvb, 0, 1, ENC_LITTLE_ENDIAN);

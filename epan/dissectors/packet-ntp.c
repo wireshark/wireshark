@@ -1311,7 +1311,7 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, ntp_con
 				proto_item *resp_it;
 
 				resp_it = proto_tree_add_uint(ntp_tree, hf_ntp_response_in, tvb, 0, 0, ntp_trans->resp_frame);
-				PROTO_ITEM_SET_GENERATED(resp_it);
+				proto_item_set_generated(resp_it);
 			}
 		}
 	} else if ((flags & NTP_MODE_MASK) == NTP_MODE_SERVER) {
@@ -1326,10 +1326,10 @@ dissect_ntp_std(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntp_tree, ntp_con
 				nstime_t delta;
 
 				req_it = proto_tree_add_uint(ntp_tree, hf_ntp_request_in, tvb, 0, 0, ntp_trans->req_frame);
-				PROTO_ITEM_SET_GENERATED(req_it);
+				proto_item_set_generated(req_it);
 				nstime_delta(&delta, &pinfo->abs_ts, &ntp_trans->req_time);
 				req_it = proto_tree_add_time(ntp_tree, hf_ntp_delta_time, tvb, 0, 0, &delta);
-				PROTO_ITEM_SET_GENERATED(req_it);
+				proto_item_set_generated(req_it);
 			}
 		}
 	}
@@ -1503,10 +1503,10 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 				nstime_t delta;
 
 				req_it = proto_tree_add_uint(ntp_tree, hf_ntp_request_in, tvb, 0, 0, ntp_trans->req_frame);
-				PROTO_ITEM_SET_GENERATED(req_it);
+				proto_item_set_generated(req_it);
 				nstime_delta(&delta, &pinfo->abs_ts, &ntp_trans->req_time);
 				req_it = proto_tree_add_time(ntp_tree, hf_ntp_delta_time, tvb, 0, 0, &delta);
-				PROTO_ITEM_SET_GENERATED(req_it);
+				proto_item_set_generated(req_it);
 			}
 		}
 		if (flags2 & NTPCTRL_ERROR_MASK) {
@@ -1598,7 +1598,7 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 				proto_item *resp_it;
 
 				resp_it = proto_tree_add_uint(ntp_tree, hf_ntp_response_in, tvb, 0, 0, ntp_trans->resp_frame);
-				PROTO_ITEM_SET_GENERATED(resp_it);
+				proto_item_set_generated(resp_it);
 			}
 		}
 		proto_tree_add_item(ntp_tree, hf_ntpctrl_status, tvb, 4, 2, ENC_BIG_ENDIAN);
@@ -1695,13 +1695,13 @@ dissect_ntp_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 			{
 			case 20:
 				ti = proto_tree_add_uint(auth_tree, hf_ntp_key_type, tvb, data_offset, 0, NTP_MD5_ALGO);
-				PROTO_ITEM_SET_GENERATED(ti);
+				proto_item_set_generated(ti);
 				proto_tree_add_item(auth_tree, hf_ntp_key_index, tvb, data_offset, 4, ENC_BIG_ENDIAN);
 				proto_tree_add_item(auth_tree, hf_ntp_key_signature, tvb, data_offset+4, 16, ENC_NA);
 				break;
 			case 24:
 				ti = proto_tree_add_uint(auth_tree, hf_ntp_key_type, tvb, data_offset, 0, NTP_SHA_ALGO);
-				PROTO_ITEM_SET_GENERATED(ti);
+				proto_item_set_generated(ti);
 				proto_tree_add_item(auth_tree, hf_ntp_key_index, tvb, data_offset, 4, ENC_BIG_ENDIAN);
 				proto_tree_add_item(auth_tree, hf_ntp_key_signature, tvb, data_offset+4, 20, ENC_NA);
 				break;
@@ -1810,10 +1810,10 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 				nstime_t delta;
 
 				req_it = proto_tree_add_uint(ntp_tree, hf_ntp_request_in, tvb, 0, 0, ntp_trans->req_frame);
-				PROTO_ITEM_SET_GENERATED(req_it);
+				proto_item_set_generated(req_it);
 				nstime_delta(&delta, &pinfo->abs_ts, &ntp_trans->req_time);
 				req_it = proto_tree_add_time(ntp_tree, hf_ntp_delta_time, tvb, 0, 0, &delta);
-				PROTO_ITEM_SET_GENERATED(req_it);
+				proto_item_set_generated(req_it);
 			}
 		}
 	} else {
@@ -1831,7 +1831,7 @@ dissect_ntp_priv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *ntp_tree, nt
 				proto_item *resp_it;
 
 				resp_it = proto_tree_add_uint(ntp_tree, hf_ntp_response_in, tvb, 0, 0, ntp_trans->resp_frame);
-				PROTO_ITEM_SET_GENERATED(resp_it);
+				proto_item_set_generated(resp_it);
 			}
 		}
 	}

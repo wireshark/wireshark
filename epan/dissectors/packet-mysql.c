@@ -2320,17 +2320,17 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	generation= conn_data->generation;
 	if (tree) {
 		pi = proto_tree_add_debug_text(mysql_tree, "conversation: %p", conversation);
-		PROTO_ITEM_SET_GENERATED(pi);
+		proto_item_set_generated(pi);
 		pi = proto_tree_add_debug_text(mysql_tree, "generation: %" G_GINT64_MODIFIER "d", generation);
-		PROTO_ITEM_SET_GENERATED(pi);
+		proto_item_set_generated(pi);
 		pi = proto_tree_add_debug_text(mysql_tree, "conn state: %s (%u)",
 				    val_to_str(conn_state_in, state_vals, "Unknown (%u)"),
 				    conn_state_in);
-		PROTO_ITEM_SET_GENERATED(pi);
+		proto_item_set_generated(pi);
 		pi = proto_tree_add_debug_text(mysql_tree, "frame state: %s (%u)",
 				    val_to_str(frame_state, state_vals, "Unknown (%u)"),
 				    frame_state);
-		PROTO_ITEM_SET_GENERATED(pi);
+		proto_item_set_generated(pi);
 	}
 #endif
 
@@ -2366,7 +2366,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 	pi = proto_tree_add_debug_text(mysql_tree, "next proto state: %s (%u)",
 			    val_to_str(conn_state_out, state_vals, "Unknown (%u)"),
 			    conn_state_out);
-	PROTO_ITEM_SET_GENERATED(pi);
+	proto_item_set_generated(pi);
 #endif
 
 	/* remaining payload indicates an error */

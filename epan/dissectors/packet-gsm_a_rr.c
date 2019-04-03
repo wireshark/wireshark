@@ -3388,7 +3388,7 @@ de_tbf_starting_time(tvbuff_t *tvb, proto_tree *tree, guint32 bit_offset)
     rfn = (guint16)((51 * t) + t3 + (51 * 26 * t1));
 
     item = proto_tree_add_uint(tree, hf_gsm_a_rr_tbf_starting_time, tvb, bit_offset >> 3, ((curr_bit_offset - bit_offset) >> 3) + 1, rfn);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
     return(curr_bit_offset - bit_offset);
 }
 
@@ -5213,7 +5213,7 @@ de_rr_req_ref(tvbuff_t *tvb, proto_tree *subtree, packet_info *pinfo _U_, guint3
     proto_tree_add_item(subtree, hf_gsm_a_rr_T2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
     item = proto_tree_add_uint(subtree, hf_gsm_a_rr_rfn, tvb, curr_offset-2, 2, rfn);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
 
     return(curr_offset - offset);
 }
@@ -8517,7 +8517,7 @@ de_rr_starting_time(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     proto_tree_add_item(tree, hf_gsm_a_rr_T2, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
     item = proto_tree_add_uint(tree, hf_gsm_a_rr_rfn, tvb, curr_offset-2, 2, rfn);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
     return(curr_offset - offset);
 }
 /*

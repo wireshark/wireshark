@@ -356,7 +356,7 @@ dissect_ble_delta_time(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tre
         /* Calculated start-to-start is not valid for the first packet because we don't have the previous packet */
         delta_time_ss = prev_packet_time + delta_time;
         pi = proto_tree_add_uint(tree, hf_nordic_ble_delta_time_ss, tvb, offset, 4, delta_time_ss);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
     }
     offset += 4;
 
@@ -398,7 +398,7 @@ dissect_packet_header(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree
 
     if (nordic_ble_context->protover == 0) {
         proto_item *item = proto_tree_add_uint(header_tree, hf_nordic_ble_protover, tvb, 0, 0, 0);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
 
         proto_tree_add_item(header_tree, hf_nordic_ble_packet_id, tvb, offset, 1, ENC_NA);
         offset += 1;

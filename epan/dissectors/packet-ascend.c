@@ -74,14 +74,14 @@ dissect_ascend(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
       proto_tree_add_uint(fh_tree, hf_chunk, tvb, 0, 0,
                           pseudo_header->ascend.chunk);
       hidden_item = proto_tree_add_uint(fh_tree, hf_session_id, tvb, 0, 0, 0);
-      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      proto_item_set_hidden(hidden_item);
     } else {  /* It's wandsession data */
       proto_tree_add_string(fh_tree, hf_user_name, tvb, 0, 0,
                             pseudo_header->ascend.user);
       proto_tree_add_uint(fh_tree, hf_session_id, tvb, 0, 0,
                           pseudo_header->ascend.sess);
       hidden_item = proto_tree_add_uint(fh_tree, hf_chunk, tvb, 0, 0, 0);
-      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      proto_item_set_hidden(hidden_item);
     }
     proto_tree_add_uint(fh_tree, hf_task, tvb, 0, 0, pseudo_header->ascend.task);
   }

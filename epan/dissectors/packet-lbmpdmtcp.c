@@ -280,14 +280,14 @@ static int dissect_lbmpdm_tcp_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tre
         proto_item * item = NULL;
 
         item = proto_tree_add_string(lbmpdm_tcp_tree, hf_lbmpdm_tcp_tag, tvb, 0, 0, tag_name);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
     }
     if (channel != LBM_CHANNEL_NO_CHANNEL)
     {
         proto_item * item = NULL;
 
         item = proto_tree_add_uint64(lbmpdm_tcp_tree, hf_lbmpdm_tcp_channel, tvb, 0, 0, channel);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
     }
     return (lbmpdm_dissect_lbmpdm_payload(tvb, 0, pinfo, tree, channel));
 }

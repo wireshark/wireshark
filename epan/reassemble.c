@@ -2682,7 +2682,7 @@ show_fragment(fragment_item *fd, const int offset, const fragment_items *fit,
 			fd->len,
 			plurality(fd->len, "", "s"));
 	}
-	PROTO_ITEM_SET_GENERATED(fei);
+	proto_item_set_generated(fei);
 	mark_frame_as_depended_upon(pinfo, fd->frame);
 	if (fd->flags & (FD_OVERLAP|FD_OVERLAPCONFLICT
 		|FD_MULTIPLETAILS|FD_TOOLONGFRAGMENT) ) {
@@ -2697,28 +2697,28 @@ show_fragment(fragment_item *fd, const int offset, const fragment_items *fit,
 				*(fit->hf_fragment_overlap),
 				tvb, 0, 0,
 				TRUE);
-			PROTO_ITEM_SET_GENERATED(fei);
+			proto_item_set_generated(fei);
 		}
 		if (fd->flags&FD_OVERLAPCONFLICT) {
 			fei=proto_tree_add_boolean(fet,
 				*(fit->hf_fragment_overlap_conflict),
 				tvb, 0, 0,
 				TRUE);
-			PROTO_ITEM_SET_GENERATED(fei);
+			proto_item_set_generated(fei);
 		}
 		if (fd->flags&FD_MULTIPLETAILS) {
 			fei=proto_tree_add_boolean(fet,
 				*(fit->hf_fragment_multiple_tails),
 				tvb, 0, 0,
 				TRUE);
-			PROTO_ITEM_SET_GENERATED(fei);
+			proto_item_set_generated(fei);
 		}
 		if (fd->flags&FD_TOOLONGFRAGMENT) {
 			fei=proto_tree_add_boolean(fet,
 				*(fit->hf_fragment_too_long_fragment),
 				tvb, 0, 0,
 				TRUE);
-			PROTO_ITEM_SET_GENERATED(fei);
+			proto_item_set_generated(fei);
 		}
 	}
 }
@@ -2754,7 +2754,7 @@ show_fragment_tree(fragment_head *fd_head, const fragment_items *fit,
 	pinfo->fragmented = FALSE;
 
 	*fi = proto_tree_add_item(tree, *(fit->hf_fragments), tvb, 0, -1, ENC_NA);
-	PROTO_ITEM_SET_GENERATED(*fi);
+	proto_item_set_generated(*fi);
 
 	ft = proto_item_add_subtree(*fi, *(fit->ett_fragments));
 	first_frag = TRUE;
@@ -2769,19 +2769,19 @@ show_fragment_tree(fragment_head *fd_head, const fragment_items *fit,
 	if (fit->hf_fragment_count) {
 		proto_item *fli = proto_tree_add_uint(ft, *(fit->hf_fragment_count),
 						      tvb, 0, 0, count);
-		PROTO_ITEM_SET_GENERATED(fli);
+		proto_item_set_generated(fli);
 	}
 
 	if (fit->hf_reassembled_length) {
 		proto_item *fli = proto_tree_add_uint(ft, *(fit->hf_reassembled_length),
 						      tvb, 0, 0, tvb_captured_length (tvb));
-		PROTO_ITEM_SET_GENERATED(fli);
+		proto_item_set_generated(fli);
 	}
 
 	if (fit->hf_reassembled_data) {
 		proto_item *fli = proto_tree_add_item(ft, *(fit->hf_reassembled_data),
 						      tvb, 0, tvb_captured_length(tvb), ENC_NA);
-		PROTO_ITEM_SET_GENERATED(fli);
+		proto_item_set_generated(fli);
 	}
 
 	return show_fragment_errs_in_col(fd_head, fit, pinfo);
@@ -2806,7 +2806,7 @@ show_fragment_seq_tree(fragment_head *fd_head, const fragment_items *fit,
 	pinfo->fragmented = FALSE;
 
 	*fi = proto_tree_add_item(tree, *(fit->hf_fragments), tvb, 0, -1, ENC_NA);
-	PROTO_ITEM_SET_GENERATED(*fi);
+	proto_item_set_generated(*fi);
 
 	ft = proto_item_add_subtree(*fi, *(fit->ett_fragments));
 	offset = 0;
@@ -2829,19 +2829,19 @@ show_fragment_seq_tree(fragment_head *fd_head, const fragment_items *fit,
 	if (fit->hf_fragment_count) {
 		proto_item *fli = proto_tree_add_uint(ft, *(fit->hf_fragment_count),
 						      tvb, 0, 0, count);
-		PROTO_ITEM_SET_GENERATED(fli);
+		proto_item_set_generated(fli);
 	}
 
 	if (fit->hf_reassembled_length) {
 		proto_item *fli = proto_tree_add_uint(ft, *(fit->hf_reassembled_length),
 						      tvb, 0, 0, tvb_captured_length (tvb));
-		PROTO_ITEM_SET_GENERATED(fli);
+		proto_item_set_generated(fli);
 	}
 
 	if (fit->hf_reassembled_data) {
 		proto_item *fli = proto_tree_add_item(ft, *(fit->hf_reassembled_data),
 						      tvb, 0, tvb_captured_length(tvb), ENC_NA);
-		PROTO_ITEM_SET_GENERATED(fli);
+		proto_item_set_generated(fli);
 	}
 
 	return show_fragment_errs_in_col(fd_head, fit, pinfo);

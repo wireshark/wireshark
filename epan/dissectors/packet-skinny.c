@@ -2343,7 +2343,7 @@ static void skinny_reqrep_add_request(ptvcursor_t *cursor, packet_info * pinfo, 
     DPRINT(("SKINNY: show request in tree: frame/key=%d\n", pinfo->num));
     proto_item *it;
     it = proto_tree_add_uint(tree, hf_skinny_response_in, tvb, 0, 0, req_resp->response_frame);
-    PROTO_ITEM_SET_GENERATED(it);
+    proto_item_set_generated(it);
   } else {
     DPRINT(("SKINNY: no request found for frame/key=%d\n", pinfo->num));
   }
@@ -2374,11 +2374,11 @@ static void skinny_reqrep_add_response(ptvcursor_t *cursor, packet_info * pinfo,
     proto_item *it;
     nstime_t ns;
     it = proto_tree_add_uint(tree, hf_skinny_response_to, tvb, 0, 0, req_resp->request_frame);
-    PROTO_ITEM_SET_GENERATED(it);
+    proto_item_set_generated(it);
 
     nstime_delta(&ns, &pinfo->abs_ts, &req_resp->request_time);
     it = proto_tree_add_time(tree, hf_skinny_response_time, tvb, 0, 0, &ns);
-    PROTO_ITEM_SET_GENERATED(it);
+    proto_item_set_generated(it);
   } else {
     DPRINT(("SKINNY: no response found for frame/key=%d\n", pinfo->num));
   }

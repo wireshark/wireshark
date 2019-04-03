@@ -315,7 +315,7 @@ dissect_igmp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int* of
 
 	/* version of IGMP protocol */
 	ti = proto_tree_add_uint(igmp_tree, hf_version, tvb, 0, 0, version);
-	PROTO_ITEM_SET_GENERATED(ti);
+	proto_item_set_generated(ti);
 
 	/* type of command */
 	proto_tree_add_item(igmp_tree, hf_type, tvb, 0, 1, ENC_BIG_ENDIAN);

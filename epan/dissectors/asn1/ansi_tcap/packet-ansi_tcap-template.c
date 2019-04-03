@@ -260,7 +260,7 @@ find_tcap_subdissector(tvbuff_t *tvb, asn1_ctx_t *actx, proto_tree *tree){
                         }else{
                                 item = proto_tree_add_int(tree, hf_ansi_tcap_private, tvb, 0, 0, ansi_tcap_private.d.OperationCode_private);
                         }
-                        PROTO_ITEM_SET_GENERATED(item);
+                        proto_item_set_generated(item);
                         ansi_tcap_private.d.OperationCode_item = item;
                 }
         }
@@ -345,7 +345,7 @@ dissect_ansi_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, vo
     if (g_ansi_tcap_HandleSRT && !tcap_subdissector_used ) {
                 if (gtcap_DisplaySRT && tree) {
                         stat_tree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_ansi_tcap_stat, &stat_item, "Stat");
-                        PROTO_ITEM_SET_GENERATED(stat_item);
+                        proto_item_set_generated(stat_item);
                 }
                 p_tcap_context=tcapsrt_call_matching(tvb, pinfo, stat_tree, gp_tcapsrt_info);
                 ansi_tcap_private.context=p_tcap_context;

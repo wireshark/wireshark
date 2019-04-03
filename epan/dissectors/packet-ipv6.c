@@ -743,7 +743,7 @@ add_geoip_info_entry(proto_tree *tree, tvbuff_t *tvb, gint offset, const ws_in6_
     int addr_offset = offset + isdst ? IP6H_DST : IP6H_SRC;
     int dir_hf = isdst ? hf_geoip_dst_summary : hf_geoip_src_summary;
     proto_item *geoip_info_item = proto_tree_add_string(tree, dir_hf, tvb, addr_offset, 16, wmem_strbuf_finalize(summary));
-    PROTO_ITEM_SET_GENERATED(geoip_info_item);
+    proto_item_set_generated(geoip_info_item);
     proto_tree *geoip_info_tree = proto_item_add_subtree(geoip_info_item, ett_geoip_info);
 
     proto_item *item;
@@ -751,57 +751,57 @@ add_geoip_info_entry(proto_tree *tree, tvbuff_t *tvb, gint offset, const ws_in6_
     if (lookup->city) {
         dir_hf = isdst ? hf_geoip_dst_city : hf_geoip_src_city;
         item = proto_tree_add_string(geoip_info_tree, dir_hf, tvb, addr_offset, 16, lookup->city);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
         item = proto_tree_add_string(geoip_info_tree, hf_geoip_city, tvb, addr_offset, 16, lookup->city);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
     }
 
     if (lookup->country) {
         dir_hf = isdst ? hf_geoip_dst_country : hf_geoip_src_country;
         item = proto_tree_add_string(geoip_info_tree, dir_hf, tvb, addr_offset, 16, lookup->country);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
         item = proto_tree_add_string(geoip_info_tree, hf_geoip_country, tvb, addr_offset, 16, lookup->country);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
     }
 
     if (lookup->country_iso) {
         dir_hf = isdst ? hf_geoip_dst_country_iso : hf_geoip_src_country_iso;
         item = proto_tree_add_string(geoip_info_tree, dir_hf, tvb, addr_offset, 16, lookup->country_iso);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
         item = proto_tree_add_string(geoip_info_tree, hf_geoip_country_iso, tvb, addr_offset, 16, lookup->country_iso);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
     }
 
     if (lookup->as_number > 0) {
         dir_hf = isdst ? hf_geoip_dst_as_number : hf_geoip_src_as_number;
         item = proto_tree_add_uint(geoip_info_tree, dir_hf, tvb, addr_offset, 16, lookup->as_number);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
         item = proto_tree_add_uint(geoip_info_tree, hf_geoip_as_number, tvb, addr_offset, 16, lookup->as_number);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
     }
 
     if (lookup->as_org) {
         dir_hf = isdst ? hf_geoip_dst_as_org : hf_geoip_src_as_org;
         item = proto_tree_add_string(geoip_info_tree, dir_hf, tvb, addr_offset, 16, lookup->as_org);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
         item = proto_tree_add_string(geoip_info_tree, hf_geoip_as_org, tvb, addr_offset, 16, lookup->as_org);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
     }
 
     if (lookup->latitude >= -90.0 && lookup->latitude <= 90.0) {
         dir_hf = isdst ? hf_geoip_dst_latitude : hf_geoip_src_latitude;
         item = proto_tree_add_double(geoip_info_tree, dir_hf, tvb, addr_offset, 16, lookup->latitude);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
         item = proto_tree_add_double(geoip_info_tree, hf_geoip_latitude, tvb, addr_offset, 16, lookup->latitude);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
     }
 
     if (lookup->longitude >= -180.0 && lookup->longitude <= 180.0) {
         dir_hf = isdst ? hf_geoip_dst_longitude : hf_geoip_src_longitude;
         item = proto_tree_add_double(geoip_info_tree, dir_hf, tvb, addr_offset, 16, lookup->longitude);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
         item = proto_tree_add_double(geoip_info_tree, hf_geoip_longitude, tvb, addr_offset, 16, lookup->longitude);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
     }
 }
 
@@ -1004,7 +1004,7 @@ dissect_routing6_rpl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
         rpl_addr_count = (((rt->hdr.ip6r_len * 8) - pad - (16 - cmprE)) / (16 - cmprI)) + 1;
     }
     ti = proto_tree_add_int(tree, hf_ipv6_routing_rpl_addr_count, tvb, offset, 2, rpl_addr_count);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     if (rpl_addr_count < 0) {
         /* This error should always be reported */
         expert_add_info_format(pinfo, ti, &ei_ipv6_routing_rpl_addr_count_ge0, "Calculated total address count must be greater than or equal to 0, instead was %d", rpl_addr_count);
@@ -1032,7 +1032,7 @@ dissect_routing6_rpl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
             tvb_memcpy(tvb, &rpl_fulladdr.bytes[16-cmprX], offset, cmprX);
             ti = _proto_tree_add_ipv6_vector_address(tree, hf_ipv6_routing_rpl_fulladdr, tvb,
                                 offset, cmprX, &rpl_fulladdr, idx);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             offset += cmprX;
 
             /* IPv6 Source and Destination addresses of the encapsulating datagram (MUST) not appear in the SRH*/
@@ -1148,7 +1148,7 @@ dissect_routing6_srh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 
     rthdr_srh_addr_tree = proto_tree_add_subtree_format(tree, tvb, offstart, srh_addr_count * IPv6_ADDR_SIZE,
                             ett_ipv6_routing_srh_vect, &ti, "Segments in Traversal Order");
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     offset -= IPv6_ADDR_SIZE;
     for (idx = srh_first_seg; offset >= offstart; offset -= IPv6_ADDR_SIZE, idx--) {
         addr = tvb_get_ptr_ipv6(tvb, offset);
@@ -1208,9 +1208,9 @@ dissect_routing6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
     proto_item_set_len(pi, total_len);
     ti = proto_tree_add_uint(rt_tree, hf_ipv6_routing_len_oct, tvb, offset, 1, total_len);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     if (ipv6_exthdr_hide_len_oct_field) {
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         proto_item_append_text(ti_hdr_len, " (%d bytes)", total_len);
     }
     p_ipv6_pinfo_add_len(pinfo, total_len);
@@ -1491,7 +1491,7 @@ dissect_opt_quickstart(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tre
 
             ttl_diff = (iph->ip6_hop - qs_ttl) % 256;
             ti = proto_tree_add_uint(opt_tree, hf_ipv6_opt_qs_ttl_diff, tvb, offset, 1, ttl_diff);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             proto_item_append_text(pi, ", QS TTL diff %u", ttl_diff);
         }
         offset += 1;
@@ -1890,9 +1890,9 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo, ws
 
     ti_len = proto_tree_add_item(exthdr_tree, hf_exthdr_item_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     ti = proto_tree_add_uint(exthdr_tree, hf_exthdr_item_len_oct, tvb, offset, 1, len);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     if (ipv6_exthdr_hide_len_oct_field) {
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         proto_item_append_text(ti_len, " (%d bytes)", len);
     }
     offset += 1;
@@ -2087,23 +2087,23 @@ add_ipv6_address(proto_tree *tree, tvbuff_t *tvb, int offset,
 
     proto_tree_add_item(tree, hf_addr, tvb, offset, IPv6_ADDR_SIZE, ENC_NA);
     ti = proto_tree_add_item(tree, hf_ipv6_addr, tvb, offset, IPv6_ADDR_SIZE, ENC_NA);
-    PROTO_ITEM_SET_HIDDEN(ti);
+    proto_item_set_hidden(ti);
 
     set_address_ipv6_tvb(&addr, tvb, offset);
     name = address_to_display(wmem_packet_scope(), &addr);
 
     ti = proto_tree_add_string(tree, hf_host, tvb, offset, IPv6_ADDR_SIZE, name);
-    PROTO_ITEM_SET_GENERATED(ti);
-    PROTO_ITEM_SET_HIDDEN(ti);
+    proto_item_set_generated(ti);
+    proto_item_set_hidden(ti);
     ti = proto_tree_add_string(tree, hf_ipv6_host, tvb, offset, IPv6_ADDR_SIZE, name);
-    PROTO_ITEM_SET_GENERATED(ti);
-    PROTO_ITEM_SET_HIDDEN(ti);
+    proto_item_set_generated(ti);
+    proto_item_set_hidden(ti);
 }
 
 #define ADDRESS_SET_GENERATED_HIDDEN(ti) \
     G_STMT_START {                              \
-        PROTO_ITEM_SET_GENERATED(ti);           \
-        if (i > 0) PROTO_ITEM_SET_HIDDEN(ti);   \
+        proto_item_set_generated(ti);           \
+        if (i > 0) proto_item_set_hidden(ti);   \
     } G_STMT_END
 
 /* RFC 3056 section 2 */
@@ -2254,7 +2254,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     pi = proto_tree_add_item(ipv6_tree, hf_ip_version, tvb,
                                  offset + IP6H_CTL_VFC, 1, ENC_BIG_ENDIAN);
     proto_item_append_text(pi, " [This field makes the filter match on \"ip.version == 6\" possible]");
-    PROTO_ITEM_SET_HIDDEN(pi);
+    proto_item_set_hidden(pi);
     if (version != 6) {
         col_add_fstr(pinfo->cinfo, COL_INFO,
                  "Bogus IPv6 version (%u, must be 6)", version);
@@ -2304,7 +2304,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                                 "%u bytes (reported as 0, presumed to be because "
                                 "of \"TCP segmentation offload\" (TSO))",
                                 ip6_plen);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
     } else {
         ti_ipv6_plen = proto_tree_add_item(ipv6_tree, hf_ipv6_plen, tvb,
                                 offset + IP6H_CTL_PLEN, 2, ENC_BIG_ENDIAN);

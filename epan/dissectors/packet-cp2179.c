@@ -578,7 +578,7 @@ dissect_response_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int 
             req_address_word = request_data->address_word;
                 if ((pinfo->num > req_frame_num) && (req_address_word == address_word)) {
                     response_item = proto_tree_add_uint(cp2179_proto_tree, hf_cp2179_request_frame, tvb, 0, 0, req_frame_num);
-                    PROTO_ITEM_SET_GENERATED(response_item);
+                    proto_item_set_generated(response_item);
                     request_found = TRUE;
                 }
                 frame = wmem_list_frame_next(frame);

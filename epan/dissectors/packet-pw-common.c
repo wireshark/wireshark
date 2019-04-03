@@ -88,7 +88,7 @@ int dissect_pw_padding(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, v
 
 	call_data_dissector(tvb, pinfo, tree_p);
 	item = proto_tree_add_int(tree_p, hf_padding_len, tvb, 0, 0, size);
-	PROTO_ITEM_SET_HIDDEN(item); /*allow filtering*/
+	proto_item_set_hidden(item); /*allow filtering*/
 
 	return tvb_captured_length(tvb);
 }

@@ -3484,7 +3484,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
 
             usb_tap_queue_packet(pinfo, urb_type, usb_conv_info);
             sub_item = proto_tree_add_uint(urb_tree, hf_usb_bInterfaceClass, next_tvb, 0, 0, usb_conv_info->interfaceClass);
-            PROTO_ITEM_SET_GENERATED(sub_item);
+            proto_item_set_generated(sub_item);
             break;
 
         default:
@@ -3952,16 +3952,16 @@ usb_set_addr(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint16 bus_id
     str_dst_addr = address_to_str(wmem_packet_scope(), &pinfo->dst);
 
     sub_item = proto_tree_add_string(tree, hf_usb_src, tvb, 0, 0, str_src_addr);
-    PROTO_ITEM_SET_GENERATED(sub_item);
+    proto_item_set_generated(sub_item);
 
     sub_item = proto_tree_add_string(tree, hf_usb_addr, tvb, 0, 0, str_src_addr);
-    PROTO_ITEM_SET_HIDDEN(sub_item);
+    proto_item_set_hidden(sub_item);
 
     sub_item = proto_tree_add_string(tree, hf_usb_dst, tvb, 0, 0, str_dst_addr);
-    PROTO_ITEM_SET_GENERATED(sub_item);
+    proto_item_set_generated(sub_item);
 
     sub_item = proto_tree_add_string(tree, hf_usb_addr, tvb, 0, 0, str_dst_addr);
-    PROTO_ITEM_SET_HIDDEN(sub_item);
+    proto_item_set_hidden(sub_item);
 }
 
 
@@ -4002,7 +4002,7 @@ static usb_trans_info_t
 
         if (usb_trans_info->response_in) {
             ti = proto_tree_add_uint(tree, hf_usb_response_in, tvb, 0, 0, usb_trans_info->response_in);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
         }
 
     } else {
@@ -4028,12 +4028,12 @@ static usb_trans_info_t
         if (usb_trans_info && usb_trans_info->request_in) {
 
             ti = proto_tree_add_uint(tree, hf_usb_request_in, tvb, 0, 0, usb_trans_info->request_in);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             t = pinfo->abs_ts;
             nstime_delta(&deltat, &t, &usb_trans_info->req_time);
             ti = proto_tree_add_time(tree, hf_usb_time, tvb, 0, 0, &deltat);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
         }
     }
 
@@ -4160,7 +4160,7 @@ dissect_linux_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
     guint32     iso_len = 0;
 
     tii = proto_tree_add_uint(urb_tree, hf_usb_bInterfaceClass, tvb, offset, 0, usb_conv_info->interfaceClass);
-    PROTO_ITEM_SET_GENERATED(tii);
+    proto_item_set_generated(tii);
 
     /* All fields which belong to Linux usbmon headers are in host-endian
      * byte order. The fields coming from the USB communication are in little
@@ -4254,7 +4254,7 @@ dissect_usbip_iso_transfer(packet_info *pinfo _U_, proto_tree *urb_tree,
     guint32     iso_len = 0;
 
     tii = proto_tree_add_uint(urb_tree, hf_usb_bInterfaceClass, tvb, offset, 0, usb_conv_info->interfaceClass);
-    PROTO_ITEM_SET_GENERATED(tii);
+    proto_item_set_generated(tii);
 
     /* All fields which belong to usbip are in big-endian byte order.
      * unlike the linux kernel, the usb isoc descriptor is appended at
@@ -4319,7 +4319,7 @@ dissect_darwin_usb_iso_transfer(packet_info *pinfo _U_, proto_tree *tree, usb_he
     len -= offset;
 
     tii = proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, offset, 0, usb_conv_info->interfaceClass);
-    PROTO_ITEM_SET_GENERATED(tii);
+    proto_item_set_generated(tii);
 
     status      = tvb_get_guint32(tvb, 8, ENC_LITTLE_ENDIAN);
     iso_numdesc = tvb_get_guint32(tvb, 12, ENC_LITTLE_ENDIAN);
@@ -4747,9 +4747,9 @@ dissect_netmon_usb_port(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent, v
     usb_port_tree = proto_item_add_subtree(ti, ett_usbport);
 
     generated = proto_tree_add_uint(usb_port_tree, hf_usbport_event_id, tvb, 0, 0, provider_id_data->event_id);
-    PROTO_ITEM_SET_GENERATED(generated);
+    proto_item_set_generated(generated);
     generated = proto_tree_add_bitmask_value(usb_port_tree, tvb, 0, hf_usbport_keyword, ett_usbport_keyword, keyword_fields, provider_id_data->keyword);
-    PROTO_ITEM_SET_GENERATED(generated);
+    proto_item_set_generated(generated);
 
     switch (provider_id_data->event_id)
     {
@@ -4912,7 +4912,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     case URB_BULK:
     case URB_INTERRUPT:
         item = proto_tree_add_uint(tree, hf_usb_bInterfaceClass, tvb, 0, 0, usb_conv_info->interfaceClass);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
 
         switch (header_type) {
 

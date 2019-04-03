@@ -627,7 +627,7 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                         /* Display inferred source address info */
                         ti = proto_tree_add_eui64(nwk_tree, hf_zbee_nwk_src64, tvb, offset, 0,
                                                   nwk_hints->map_rec->addr64);
-                        PROTO_ITEM_SET_GENERATED(ti);
+                        proto_item_set_generated(ti);
 
                         if ( nwk_hints->map_rec->start_fnum ) {
                             ti = proto_tree_add_uint(nwk_tree, hf_zbee_nwk_src64_origin, tvb, 0, 0,
@@ -636,7 +636,7 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                         else {
                             ti = proto_tree_add_uint_format_value(nwk_tree, hf_zbee_nwk_src64_origin, tvb, 0, 0, 0, "Pre-configured");
                         }
-                        PROTO_ITEM_SET_GENERATED(ti);
+                        proto_item_set_generated(ti);
                     }
                 }
             }

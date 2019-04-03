@@ -517,12 +517,12 @@ static void show_esp_sequence_info(guint32 spi, guint32 sequence_number,
       proto_item_append_text(sn_ti, " (%u SNs missing)",
                              sequence_number - (status->previousSequenceNumber+1));
     }
-    PROTO_ITEM_SET_GENERATED(sn_ti);
+    proto_item_set_generated(sn_ti);
 
     /* Link back to previous frame for SPI */
     frame_ti = proto_tree_add_uint(tree, hf_esp_sequence_analysis_previous_frame,
                                    tvb, 0, 0, status->previousFrameNum);
-    PROTO_ITEM_SET_GENERATED(frame_ti);
+    proto_item_set_generated(frame_ti);
 
     /* Expert info */
     if (sequence_number == status->previousSequenceNumber) {
@@ -1260,11 +1260,11 @@ dissect_esp_authentication(proto_tree *tree, tvbuff_t *tvb, gint len, gint esp_a
 
   item = proto_tree_add_boolean(icv_tree, hf_esp_icv_good,
                                 tvb, len - esp_auth_len, esp_auth_len, good);
-  PROTO_ITEM_SET_GENERATED(item);
+  proto_item_set_generated(item);
 
   item = proto_tree_add_boolean(icv_tree, hf_esp_icv_bad,
                                 tvb, len - esp_auth_len, esp_auth_len, bad);
-  PROTO_ITEM_SET_GENERATED(item);
+  proto_item_set_generated(item);
 }
 
 static int

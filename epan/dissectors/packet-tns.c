@@ -1192,7 +1192,7 @@ dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 		hidden_item = proto_tree_add_boolean(tns_tree, hf_tns_response,
 					tvb, offset, 0, TRUE);
 	}
-	PROTO_ITEM_SET_HIDDEN(hidden_item);
+	proto_item_set_hidden(hidden_item);
 
 	chksum = tvb_get_ntohs(tvb, offset+2);
 	if (chksum == 0 || chksum == 4)

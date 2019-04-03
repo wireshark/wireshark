@@ -4257,7 +4257,7 @@ dissect_gsm_map_IMSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
     return offset;
 
   /* Hide the octet string default printout */
-  PROTO_ITEM_SET_HIDDEN(actx->created_item);
+  proto_item_set_hidden(actx->created_item);
   imsi_str = dissect_e212_imsi(parameter_tvb, actx->pinfo, tree,
                                0, tvb_reported_length(parameter_tvb), FALSE);
   if (!PINFO_FD_VISITED(actx->pinfo))
@@ -6588,7 +6588,7 @@ dissect_gsm_map_sm_SM_RP_SMEA(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
   if (payload_tvb) {
     guint32 tvb_offset = 0;
-    PROTO_ITEM_SET_HIDDEN(actx->created_item);
+    proto_item_set_hidden(actx->created_item);
     dis_field_addr(payload_tvb, actx->pinfo, tree, &tvb_offset, "SM-RP-SMEA");
   }
 

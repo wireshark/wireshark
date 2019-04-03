@@ -71,7 +71,7 @@ dissect_etv_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int prot
 		proto_item *msg_error;
 		msg_error = items[PACKET_MPEG_SECT_PI__SSI];
 
-		PROTO_ITEM_SET_GENERATED(msg_error);
+		proto_item_set_generated(msg_error);
 		expert_add_info(pinfo, msg_error, ei_section_syntax_indicator);
 	}
 
@@ -79,7 +79,7 @@ dissect_etv_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int prot
 		proto_item *msg_error;
 		msg_error = items[PACKET_MPEG_SECT_PI__RESERVED];
 
-		PROTO_ITEM_SET_GENERATED(msg_error);
+		proto_item_set_generated(msg_error);
 		expert_add_info(pinfo, msg_error, ei_reserved);
 	}
 
@@ -89,7 +89,7 @@ dissect_etv_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int prot
 		proto_item *msg_error;
 		msg_error = items[PACKET_MPEG_SECT_PI__LENGTH];
 
-		PROTO_ITEM_SET_GENERATED(msg_error);
+		proto_item_set_generated(msg_error);
 		expert_add_info(pinfo, msg_error, ei_section_length);
 	}
 

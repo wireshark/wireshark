@@ -1061,7 +1061,7 @@ dissect_icqv5Client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     icq_header_tree = proto_tree_add_subtree(tree, tvb, 0, ICQ5_CL_HDRSIZE, ett_icq_header, NULL, "Header");
 
     ti = proto_tree_add_boolean(icq_header_tree, hf_icq_type, tvb, 0, 0, ICQ5_CLIENT);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     proto_tree_add_item(icq_header_tree, hf_icq_version, tvb, ICQ_VERSION, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(icq_header_tree, hf_icq_uin, tvb, ICQ5_CL_UIN, 4, ENC_LITTLE_ENDIAN);
@@ -1071,7 +1071,7 @@ dissect_icqv5Client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(icq_header_tree, hf_icq_seqnum2, decr_tvb, ICQ5_CL_SEQNUM2, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(icq_header_tree, hf_icq_checkcode, tvb, ICQ5_CL_CHECKCODE, 4, ENC_LITTLE_ENDIAN);
     ti = proto_tree_add_uint(icq_header_tree, hf_icq_checkcode_key, tvb, ICQ5_CL_CHECKCODE, 4, key);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     icq_body_tree = proto_tree_add_subtree(tree, decr_tvb, ICQ5_CL_HDRSIZE, pktsize - ICQ5_CL_HDRSIZE, ett_icq_body, NULL, "Body");
 
@@ -1138,7 +1138,7 @@ dissect_icqv5Server(tvbuff_t *tvb, int offset, packet_info *pinfo,
     icq_header_tree = proto_tree_add_subtree(tree, tvb, offset, ICQ5_SRV_HDRSIZE, ett_icq_header, NULL, "Header");
 
     ti = proto_tree_add_boolean(icq_header_tree, hf_icq_type, tvb, 0, 0, ICQ5_SERVER);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     proto_tree_add_item(icq_header_tree, hf_icq_version, tvb, offset + ICQ_VERSION, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(icq_header_tree, hf_icq_sessionid, tvb, offset + ICQ5_SRV_SESSIONID, 4, ENC_LITTLE_ENDIAN);

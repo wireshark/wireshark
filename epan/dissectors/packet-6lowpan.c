@@ -1949,7 +1949,7 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
         proto_item *tclass_item;
         tclass_item = proto_tree_add_uint(tree, hf_6lowpan_traffic_class, tvb, 0, 0,
                                           (ipv6_dscp << LOWPAN_IPHC_ECN_BITS) | ipv6_ecn);
-        PROTO_ITEM_SET_GENERATED(tclass_item);
+        proto_item_set_generated(tclass_item);
     }
 
     /* Parse the flow label. */
@@ -2045,7 +2045,7 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     /* Display the source IPv6 address. */
     ti = proto_tree_add_ipv6(tree, hf_6lowpan_source, tvb, offset, length, &ipv6.ip6h_src);
     if (length == 0) {
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
     if (ipv6_summary_in_tree) {
         address src_addr = ADDRESS_INIT(AT_IPv6, sizeof(ipv6.ip6h_src), &ipv6.ip6h_src);
@@ -2056,10 +2056,10 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     /* TODO: We should display the prefix length too. */
     if (sctx->plen) {
         ti = proto_tree_add_ipv6(iphc_tree, hf_6lowpan_iphc_sctx_prefix, tvb, 0, 0, &sctx->prefix);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
         if ( sctx->frame ) {
             ti = proto_tree_add_uint(iphc_tree, hf_6lowpan_iphc_sctx_origin, tvb, 0, 0, sctx->frame);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
         }
     }
     offset += length;
@@ -2177,7 +2177,7 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     /* Display the destination IPv6 address. */
     ti = proto_tree_add_ipv6(tree, hf_6lowpan_dest, tvb, offset, length, &ipv6.ip6h_dst);
     if (length == 0) {
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
     if (ipv6_summary_in_tree) {
         address dst_addr = ADDRESS_INIT(AT_IPv6, sizeof(ipv6.ip6h_dst), &ipv6.ip6h_dst);
@@ -2188,10 +2188,10 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     /* TODO: We should display the prefix length too. */
     if (dctx->plen) {
         ti = proto_tree_add_ipv6(iphc_tree, hf_6lowpan_iphc_dctx_prefix, tvb, 0, 0, &dctx->prefix);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
         if ( dctx->frame ) {
             ti = proto_tree_add_uint(iphc_tree, hf_6lowpan_iphc_dctx_origin, tvb, 0, 0, dctx->frame);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
         }
     }
     offset += length;

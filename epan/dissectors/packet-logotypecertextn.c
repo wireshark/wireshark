@@ -171,7 +171,7 @@ dissect_logotypecertextn_T_logotypeURI_item(gboolean implicit_tag _U_, tvbuff_t 
                                             NULL);
 
 #line 16 "./asn1/logotypecertextn/logotypecertextn.cnf"
-	   PROTO_ITEM_SET_URL(actx->created_item);
+	   proto_item_set_url(actx->created_item);
 
 
   return offset;
@@ -371,7 +371,7 @@ dissect_logotypecertextn_T_refStructURI_item(gboolean implicit_tag _U_, tvbuff_t
                                             NULL);
 
 #line 19 "./asn1/logotypecertextn/logotypecertextn.cnf"
-	   PROTO_ITEM_SET_URL(actx->created_item);
+	   proto_item_set_url(actx->created_item);
 
 
   return offset;

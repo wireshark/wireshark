@@ -282,12 +282,12 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     if (reload_frame->data_frame != pinfo->num) {
       proto_item *it;
       it = proto_tree_add_uint(reload_framing_tree, hf_reload_framing_duplicate, tvb, 0, 0, reload_frame->data_frame);
-      PROTO_ITEM_SET_GENERATED(it);
+      proto_item_set_generated(it);
     }
     if (reload_frame->ack_frame) {
       proto_item *it;
       it = proto_tree_add_uint(reload_framing_tree, hf_reload_framing_response_in, tvb, 0, 0, reload_frame->ack_frame);
-      PROTO_ITEM_SET_GENERATED(it);
+      proto_item_set_generated(it);
     }
   }
   else {
@@ -295,7 +295,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     if (reload_frame->ack_frame != pinfo->num) {
       proto_item *it;
       it = proto_tree_add_uint(reload_framing_tree, hf_reload_framing_duplicate, tvb, 0, 0, reload_frame->ack_frame);
-      PROTO_ITEM_SET_GENERATED(it);
+      proto_item_set_generated(it);
     }
 
     if (reload_frame->data_frame) {
@@ -303,11 +303,11 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
       nstime_t    ns;
 
       it = proto_tree_add_uint(reload_framing_tree, hf_reload_framing_response_to, tvb, 0, 0, reload_frame->data_frame);
-      PROTO_ITEM_SET_GENERATED(it);
+      proto_item_set_generated(it);
 
       nstime_delta(&ns, &pinfo->abs_ts, &reload_frame->req_time);
       it = proto_tree_add_time(reload_framing_tree, hf_reload_framing_time, tvb, 0, 0, &ns);
-      PROTO_ITEM_SET_GENERATED(it);
+      proto_item_set_generated(it);
     }
   }
 
@@ -417,7 +417,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
           }
         }
         proto_item_append_text(ti_parsed_received, "]");
-        PROTO_ITEM_SET_GENERATED(ti_parsed_received);
+        proto_item_set_generated(ti_parsed_received);
       }
     }
   }

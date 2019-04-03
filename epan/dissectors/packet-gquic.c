@@ -1374,7 +1374,7 @@ dissect_gquic_tag(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tree, gui
         total_tag_len += tag_len;
         ti_len = proto_tree_add_uint(tag_tree, hf_gquic_tag_length, tvb, offset, 4, tag_len);
         proto_item_append_text(ti_tag, " (l=%u)", tag_len);
-        PROTO_ITEM_SET_GENERATED(ti_len);
+        proto_item_set_generated(ti_len);
         offset += 4;
 
         /* Fix issue with CRT.. (Fragmentation ?) */
@@ -1663,7 +1663,7 @@ dissect_gquic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gquic_tr
                 guint32 pad_len = tvb_reported_length_remaining(tvb, offset);
 
                 ti_pad_len = proto_tree_add_uint(ft_tree, hf_gquic_frame_type_padding_length, tvb, offset, 0, pad_len);
-                PROTO_ITEM_SET_GENERATED(ti_pad_len);
+                proto_item_set_generated(ti_pad_len);
                 proto_item_append_text(ti_ft, " Length: %u", pad_len);
                 proto_tree_add_item(ft_tree, hf_gquic_frame_type_padding, tvb, offset, -1, ENC_NA);
                 offset += pad_len;

@@ -655,7 +655,7 @@ dissect_gadu_gadu_login_protocol(tvbuff_t *tvb, proto_tree *tree, int offset)
 	protocol = tvb_get_letohl(tvb, offset) & 0xff;
 	proto_tree_add_item(tree, &hfi_gadu_gadu_login_protocol, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	ti = proto_tree_add_string(tree, &hfi_gadu_gadu_login_version, tvb, offset, 4, val_to_str(protocol, gadu_gadu_version_vals, "Unknown (0x%x)"));
-	PROTO_ITEM_SET_GENERATED(ti);
+	proto_item_set_generated(ti);
 	offset += 4;
 
 	return offset;
@@ -678,7 +678,7 @@ dissect_gadu_gadu_login(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 	offset += 4;
 
 	ti = proto_tree_add_uint(tree, &hfi_gadu_gadu_login_hash_type, tvb, 0, 0, GG_LOGIN_HASH_GG32);
-	PROTO_ITEM_SET_GENERATED(ti);
+	proto_item_set_generated(ti);
 
 	/* hash is 32-bit number written in LE */
 	_tvb_memcpy_reverse(tvb, hash, offset, 4);
@@ -927,15 +927,15 @@ dissect_gadu_gadu_recv_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	if ((conv = gadu_gadu_get_conversation_data(pinfo))) {
 		ti = proto_tree_add_uint(tree, &hfi_gadu_gadu_msg_recipient, tvb, 0, 0, conv->uin);
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 
 		ti = proto_tree_add_uint(tree, &hfi_gadu_gadu_msg_uin, tvb, 0, 0, conv->uin);
-		PROTO_ITEM_SET_GENERATED(ti);
-		PROTO_ITEM_SET_HIDDEN(ti);
+		proto_item_set_generated(ti);
+		proto_item_set_hidden(ti);
 	}
 
 	ti = proto_tree_add_item(tree, &hfi_gadu_gadu_msg_uin, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	PROTO_ITEM_SET_HIDDEN(ti);
+	proto_item_set_hidden(ti);
 	proto_tree_add_item(tree, &hfi_gadu_gadu_msg_sender, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
@@ -964,24 +964,24 @@ dissect_gadu_gadu_send_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	col_set_str(pinfo->cinfo, COL_INFO, "Send message (< 8.0)");
 
 	ti = proto_tree_add_item(tree, &hfi_gadu_gadu_msg_uin, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	PROTO_ITEM_SET_HIDDEN(ti);
+	proto_item_set_hidden(ti);
 	proto_tree_add_item(tree, &hfi_gadu_gadu_msg_recipient, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	if ((conv = gadu_gadu_get_conversation_data(pinfo))) {
 		ti = proto_tree_add_uint(tree, &hfi_gadu_gadu_msg_sender, tvb, 0, 0, conv->uin);
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 
 		ti = proto_tree_add_uint(tree, &hfi_gadu_gadu_msg_uin, tvb, 0, 0, conv->uin);
-		PROTO_ITEM_SET_GENERATED(ti);
-		PROTO_ITEM_SET_HIDDEN(ti);
+		proto_item_set_generated(ti);
+		proto_item_set_hidden(ti);
 	}
 
 	proto_tree_add_item(tree, &hfi_gadu_gadu_msg_seq, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	ti = proto_tree_add_time(tree, &hfi_gadu_gadu_msg_time, tvb, 0, 0, &(pinfo->abs_ts));
-	PROTO_ITEM_SET_GENERATED(ti);
+	proto_item_set_generated(ti);
 
 	proto_tree_add_item(tree, &hfi_gadu_gadu_msg_class, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
@@ -1003,15 +1003,15 @@ dissect_gadu_gadu_recv_msg80(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	if ((conv = gadu_gadu_get_conversation_data(pinfo))) {
 		ti = proto_tree_add_uint(tree, &hfi_gadu_gadu_msg_recipient, tvb, 0, 0, conv->uin);
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 
 		ti = proto_tree_add_uint(tree, &hfi_gadu_gadu_msg_uin, tvb, 0, 0, conv->uin);
-		PROTO_ITEM_SET_GENERATED(ti);
-		PROTO_ITEM_SET_HIDDEN(ti);
+		proto_item_set_generated(ti);
+		proto_item_set_hidden(ti);
 	}
 
 	ti = proto_tree_add_item(tree, &hfi_gadu_gadu_msg_uin, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	PROTO_ITEM_SET_HIDDEN(ti);
+	proto_item_set_hidden(ti);
 	proto_tree_add_item(tree, &hfi_gadu_gadu_msg_sender, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
@@ -1044,24 +1044,24 @@ dissect_gadu_gadu_send_msg80(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	col_set_str(pinfo->cinfo, COL_INFO, "Send message (8.0)");
 
 	ti = proto_tree_add_item(tree, &hfi_gadu_gadu_msg_uin, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-	PROTO_ITEM_SET_HIDDEN(ti);
+	proto_item_set_hidden(ti);
 	proto_tree_add_item(tree, &hfi_gadu_gadu_msg_recipient, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	if ((conv = gadu_gadu_get_conversation_data(pinfo))) {
 		ti = proto_tree_add_uint(tree, &hfi_gadu_gadu_msg_sender, tvb, 0, 0, conv->uin);
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 
 		ti = proto_tree_add_uint(tree, &hfi_gadu_gadu_msg_uin, tvb, 0, 0, conv->uin);
-		PROTO_ITEM_SET_GENERATED(ti);
-		PROTO_ITEM_SET_HIDDEN(ti);
+		proto_item_set_generated(ti);
+		proto_item_set_hidden(ti);
 	}
 
 	proto_tree_add_item(tree, &hfi_gadu_gadu_msg_seq, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	ti = proto_tree_add_time(tree, &hfi_gadu_gadu_msg_time, tvb, 0, 0, &(pinfo->abs_ts));
-	PROTO_ITEM_SET_GENERATED(ti);
+	proto_item_set_generated(ti);
 
 	proto_tree_add_item(tree, &hfi_gadu_gadu_msg_class, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
@@ -1455,7 +1455,7 @@ dissect_gadu_gadu_userlist_request80(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	offset += 1;
 
 	ti = proto_tree_add_uint(tree, &hfi_gadu_gadu_userlist_format, tvb, 0, 0, GG_USERLIST100_FORMAT_TYPE_GG100);
-	PROTO_ITEM_SET_GENERATED(ti);
+	proto_item_set_generated(ti);
 
 	switch (type) {
 		case GG_USERLIST_PUT:

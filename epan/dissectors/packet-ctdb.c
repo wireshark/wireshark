@@ -613,13 +613,13 @@ ctdb_display_trans(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, ctdb_tra
 
 	if(ctdb_trans->request_in!=pinfo->num){
 		item=proto_tree_add_uint(tree, hf_ctdb_request_in, tvb, 0, 0, ctdb_trans->request_in);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 	}
 
 	if( (ctdb_trans->response_in!=0)
 	  &&(ctdb_trans->response_in!=pinfo->num) ){
 		item=proto_tree_add_uint(tree, hf_ctdb_response_in, tvb, 0, 0, ctdb_trans->response_in);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 	}
 
 	if(pinfo->num==ctdb_trans->response_in){
@@ -627,7 +627,7 @@ ctdb_display_trans(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, ctdb_tra
 
 		nstime_delta(&ns, &pinfo->abs_ts, &ctdb_trans->req_time);
 		item=proto_tree_add_time(tree, hf_ctdb_time, tvb, 0, 0, &ns);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 	}
 }
 
@@ -638,13 +638,13 @@ ctdb_display_control(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, ctdb_c
 
 	if(ctdb_control->request_in!=pinfo->num){
 		item=proto_tree_add_uint(tree, hf_ctdb_request_in, tvb, 0, 0, ctdb_control->request_in);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 	}
 
 	if( (ctdb_control->response_in!=0)
 	  &&(ctdb_control->response_in!=pinfo->num) ){
 		item=proto_tree_add_uint(tree, hf_ctdb_response_in, tvb, 0, 0, ctdb_control->response_in);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 	}
 
 	if(pinfo->num==ctdb_control->response_in){
@@ -652,7 +652,7 @@ ctdb_display_control(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, ctdb_c
 
 		nstime_delta(&ns, &pinfo->abs_ts, &ctdb_control->req_time);
 		item=proto_tree_add_time(tree, hf_ctdb_time, tvb, 0, 0, &ns);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 	}
 }
 
@@ -684,7 +684,7 @@ dissect_ctdb_key(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 keylen, gu
 	keyhash=ctdb_hash(tvb, offset, keylen);
 	proto_item_append_text(key_item, " (Hash:0x%08x)", keyhash);
 	key_item=proto_tree_add_uint(key_tree, hf_ctdb_keyhash, tvb, 0, 0, keyhash);
-	PROTO_ITEM_SET_GENERATED(key_item);
+	proto_item_set_generated(key_item);
 
 	offset+=keylen;
 
@@ -967,7 +967,7 @@ dissect_ctdb_reply_control(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_
 
 	/* ctrl opcode */
 	item=proto_tree_add_uint(tree, hf_ctdb_ctrl_opcode, tvb, 0, 0, ctdb_control->opcode);
-	PROTO_ITEM_SET_GENERATED(item);
+	proto_item_set_generated(item);
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s Reply %d->%d",
 		val_to_str(ctdb_control->opcode, ctrl_opcode_vals, "Unknown:%d"),

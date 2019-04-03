@@ -243,7 +243,7 @@ hf_rtls_nack_flags, ett_rtls_nack_flags, rtls_nack_flags, ENC_BIG_ENDIAN, BMT_NO
             offset += 6;
             proto_tree_add_item(rtls_tree, hf_rtls_tr_rssi, tvb, offset, 1, ENC_BIG_ENDIAN);
             ti_rssi = proto_tree_add_item(rtls_tree, hf_rtls_tr_rssi_calculated, tvb, offset, 1, ENC_BIG_ENDIAN);
-            PROTO_ITEM_SET_GENERATED(ti_rssi);
+            proto_item_set_generated(ti_rssi);
             offset += 1;
             proto_tree_add_item(rtls_tree, hf_rtls_tr_noise_floor, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
@@ -277,7 +277,7 @@ hf_rtls_nack_flags, ett_rtls_nack_flags, rtls_nack_flags, ENC_BIG_ENDIAN, BMT_NO
             offset += 1;
             proto_tree_add_item(rtls_tree, hf_rtls_sr_rssi, tvb, offset, 1, ENC_BIG_ENDIAN);
             ti_rssi = proto_tree_add_item(rtls_tree, hf_rtls_sr_rssi_calculated, tvb, offset, 1, ENC_BIG_ENDIAN);
-            PROTO_ITEM_SET_GENERATED(ti_rssi);
+            proto_item_set_generated(ti_rssi);
             offset += 1;
             proto_tree_add_item(rtls_tree, hf_rtls_sr_type, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
@@ -303,7 +303,7 @@ hf_rtls_nack_flags, ett_rtls_nack_flags, rtls_nack_flags, ENC_BIG_ENDIAN, BMT_NO
             offset += 1;
             proto_tree_add_item(rtls_tree, hf_rtls_ser_rssi, tvb, offset, 1, ENC_BIG_ENDIAN);
             ti_rssi = proto_tree_add_item(rtls_tree, hf_rtls_ser_rssi_calculated, tvb, offset, 1, ENC_BIG_ENDIAN);
-            PROTO_ITEM_SET_GENERATED(ti_rssi);
+            proto_item_set_generated(ti_rssi);
             offset += 1;
             proto_tree_add_item(rtls_tree, hf_rtls_ser_duration, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
@@ -327,7 +327,7 @@ hf_rtls_nack_flags, ett_rtls_nack_flags, rtls_nack_flags, ENC_BIG_ENDIAN, BMT_NO
             offset += 1;
             proto_tree_add_item(rtls_tree, hf_rtls_aer_rssi, tvb, offset, 1, ENC_BIG_ENDIAN);
             ti_rssi = proto_tree_add_item(rtls_tree, hf_rtls_aer_rssi_calculated, tvb, offset, 1, ENC_BIG_ENDIAN);
-            PROTO_ITEM_SET_GENERATED(ti_rssi);
+            proto_item_set_generated(ti_rssi);
             offset += 1;
             proto_tree_add_item(rtls_tree, hf_rtls_aer_duration, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;

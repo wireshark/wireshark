@@ -492,7 +492,7 @@ dissect_e164_number(tvbuff_t *tvb, proto_tree *tree, int offset, int length, e16
 
 	if (e164_info.nature_of_address == E164_NA_INTERNATIONAL_NUMBER) {
 		pi = proto_tree_add_string(tree, hf_E164_number, tvb, offset, length, e164_info.E164_number_str);
-		PROTO_ITEM_SET_HIDDEN(pi);
+		proto_item_set_hidden(pi);
 	}
 }
 

@@ -603,10 +603,10 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (command_frame_number) {
             pitem = proto_tree_add_uint(command_tree, hf_command_in, tvb, offset,
                     0, command_frame_number);
-            PROTO_ITEM_SET_GENERATED(pitem);
+            proto_item_set_generated(pitem);
         } else {
             pitem = proto_tree_add_item(command_tree, hf_unsolicited, tvb, offset, 0, ENC_NA);
-            PROTO_ITEM_SET_GENERATED(pitem);
+            proto_item_set_generated(pitem);
         }
     }
 
@@ -753,7 +753,7 @@ dissect_bthsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     }
 
     pitem = proto_tree_add_uint(main_tree, hf_role, tvb, 0, 0, role);
-    PROTO_ITEM_SET_GENERATED(pitem);
+    proto_item_set_generated(pitem);
 
     if (role == ROLE_UNKNOWN) {
         col_append_fstr(pinfo->cinfo, COL_INFO, "Data: %s",
@@ -989,7 +989,7 @@ dissect_bthsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         col_append_fstr(pinfo->cinfo, COL_INFO, "Fragment: %s",
                 tvb_format_text_wsp(wmem_packet_scope(), tvb, offset, tvb_captured_length_remaining(tvb, offset)));
         pitem = proto_tree_add_item(main_tree, hf_fragmented, tvb, 0, 0, ENC_NA);
-        PROTO_ITEM_SET_GENERATED(pitem);
+        proto_item_set_generated(pitem);
         proto_tree_add_item(main_tree, hf_fragment, tvb, offset,
                 tvb_captured_length_remaining(tvb, offset), ENC_ASCII | ENC_NA);
         offset = tvb_captured_length(tvb);

@@ -2053,7 +2053,7 @@ dissect_epl_pdo(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, pa
 	if ( payload_len < len )
 	{
 		item = proto_tree_add_uint(epl_tree, hf_epl_payload_real, tvb, offset, payload_len, payload_len);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 		expert_add_info(pinfo, item, &ei_real_length_differs );
 	}
 
@@ -2077,12 +2077,12 @@ dissect_epl_pdo(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, pa
 		pdo_tree = proto_item_add_subtree(item, map->ett);
 
 		item = proto_tree_add_uint_format_value(pdo_tree, hf_epl_pdo_index, payload_tvb, 0, 0, map->pdo.idx, "%04X", map->pdo.idx);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 		if (map->info)
 			proto_item_append_text (item, " (%s)", map->index_name);
 
 		item = proto_tree_add_uint_format_value(pdo_tree, hf_epl_pdo_subindex, payload_tvb, 0, 0, map->pdo.subindex, "%02X", map->pdo.subindex);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 
 		if (map->info && map->info->name != map->index_name)
 			proto_item_append_text (item, " (%s)", map->info->name);
@@ -2106,7 +2106,7 @@ dissect_epl_pdo(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, pa
 			proto_item_append_text (item, " bits");
 
 
-			PROTO_ITEM_SET_GENERATED(meta_item);
+			proto_item_set_generated(meta_item);
 		}
 
 		dissect_epl_payload(
@@ -2575,13 +2575,13 @@ dissect_eplpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean udp
 	if (tree && !udpencap)
 	{
 		epl_dest_item = proto_tree_add_item(epl_tree, hf_epl_node, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-		PROTO_ITEM_SET_HIDDEN(epl_dest_item);
+		proto_item_set_hidden(epl_dest_item);
 		epl_dest_item = proto_tree_add_item(epl_tree, hf_epl_dest, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		proto_item_append_text (epl_dest_item, "%s", dest_str);
 		offset += 1;
 
 		epl_src_item = proto_tree_add_item(epl_tree, hf_epl_node, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-		PROTO_ITEM_SET_HIDDEN(epl_src_item);
+		proto_item_set_hidden(epl_src_item);
 		epl_src_item = proto_tree_add_item(epl_tree, hf_epl_src, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		proto_item_append_text (epl_src_item, "%s", src_str);
 		offset += 1;
@@ -2690,7 +2690,7 @@ dissect_epl_payload(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gin
 	if ( payload_len < len )
 	{
 		item = proto_tree_add_uint(epl_tree, hf_epl_payload_real, tvb, offset, payload_len, payload_len);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 		expert_add_info(pinfo, item, &ei_real_length_differs );
 	}
 
@@ -3344,7 +3344,7 @@ dissect_epl_asnd_ires(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *t
 	if (convo->profile && convo->profile->path)
 	{
 		ti = proto_tree_add_string(epl_tree, hf_epl_asnd_identresponse_profile_path, tvb, offset, 2, convo->profile->path);
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 	}
 
 	offset += 4;
@@ -4174,7 +4174,7 @@ dissect_object_mapping(struct profile *profile, wmem_array_t *mappings, proto_tr
 		}
 		else
 		{
-			PROTO_ITEM_SET_HIDDEN(ti_subobj);
+			proto_item_set_hidden(ti_subobj);
 		}
 	}
 
@@ -4423,7 +4423,7 @@ dissect_epl_sdo_command_write_multiple_by_index(struct epl_convo *convo, proto_t
 
 			/* size of embedded data */
 			psf_item = proto_tree_add_uint_format(psf_od_tree, hf_epl_asnd_sdo_cmd_data_size, tvb, dataoffset, size, size, "Data size: %d byte", size);
-			PROTO_ITEM_SET_GENERATED(psf_item);
+			proto_item_set_generated(psf_item);
 
 			/* if the frame is a PDO Mapping and the subindex is bigger than 0x00 */
 			if((idx == EPL_SOD_PDO_TX_MAPP && subindex > 0x00) ||(idx == EPL_SOD_PDO_RX_MAPP && subindex > 0x00))
@@ -5072,7 +5072,7 @@ dissect_epl_sdo_command_read_by_index(struct epl_convo *convo, proto_tree *epl_t
 		{
 			proto_item *ti;
 			ti = proto_tree_add_uint_format_value(epl_tree, hf_epl_asnd_sdo_cmd_data_index, tvb, 0, 0, req->idx, "%04X", req->idx);
-			PROTO_ITEM_SET_GENERATED(ti);
+			proto_item_set_generated(ti);
 			if (req->info)
 			{
 				proto_item_append_text (ti, " (%s)", req->index_name);
@@ -5080,7 +5080,7 @@ dissect_epl_sdo_command_read_by_index(struct epl_convo *convo, proto_tree *epl_t
 			}
 
 			ti = proto_tree_add_uint_format_value(epl_tree, hf_epl_asnd_sdo_cmd_data_subindex, tvb, 0, 0, req->subindex, "%02X", req->subindex);
-			PROTO_ITEM_SET_GENERATED(ti);
+			proto_item_set_generated(ti);
 
 			if (req->info && req->info->name != req->index_name)
 				proto_item_append_text (ti, " (%s)", req->info->name);

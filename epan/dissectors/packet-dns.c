@@ -1490,11 +1490,11 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
     proto_tree_add_string(q_tree, hf_dns_qry_name, tvb, offset, used_bytes - 4, name_out);
 
     tq = proto_tree_add_uint(q_tree, hf_dns_qry_name_len, tvb, offset, name_len, name_len > 1 ? name_len : 0);
-    PROTO_ITEM_SET_GENERATED(tq);
+    proto_item_set_generated(tq);
 
     labels = qname_labels_count(name, name_len);
     tq = proto_tree_add_uint(q_tree, hf_dns_count_labels, tvb, offset, name_len, labels);
-    PROTO_ITEM_SET_GENERATED(tq);
+    proto_item_set_generated(tq);
 
     offset += used_bytes - 4;
 
@@ -1766,7 +1766,7 @@ compute_key_id(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb, int offset, 
     proto_item *item;
     *key_id = 0;
     item = proto_tree_add_expert(tree, pinfo, &ei_dns_key_id_buffer_too_short, tvb, offset, size);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
     return FALSE;
   }
 
@@ -2351,7 +2351,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
       if (compute_key_id(rr_tree, pinfo, tvb, cur_offset-4, rr_len+4, algo, &key_id)) {
         ti_gen = proto_tree_add_uint(rr_tree, hf_dns_key_key_id, tvb, 0, 0, key_id);
-        PROTO_ITEM_SET_GENERATED(ti_gen);
+        proto_item_set_generated(ti_gen);
       }
 
       if (rr_len != 0) {
@@ -2565,7 +2565,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       used_bytes = get_dns_name(tvb, offset, 0, dns_data_offset, &replacement, &replacement_len);
       name_out = format_text(wmem_packet_scope(), replacement, replacement_len);
       ti_len = proto_tree_add_uint(rr_tree, hf_dns_naptr_replacement_length, tvb, offset, 0, replacement_len);
-      PROTO_ITEM_SET_GENERATED(ti_len);
+      proto_item_set_generated(ti_len);
 
       proto_tree_add_string(rr_tree, hf_dns_naptr_replacement, tvb, offset, used_bytes, name_out);
 
@@ -3100,7 +3100,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
       if (compute_key_id(rr_tree, pinfo, tvb, cur_offset-4, rr_len+4, algo, &key_id)) {
         ti_gen = proto_tree_add_uint(rr_tree, hf_dns_dnskey_key_id, tvb, 0, 0, key_id);
-        PROTO_ITEM_SET_GENERATED(ti_gen);
+        proto_item_set_generated(ti_gen);
       }
 
       proto_tree_add_item(rr_tree, hf_dns_dnskey_public_key, tvb, cur_offset, rr_len, ENC_NA);
@@ -3982,16 +3982,16 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       expert_add_info_format(pinfo, transaction_item, &ei_dns_retransmit_request, "DNS query retransmission. Original request in frame %d", dns_trans->req_frame);
 
       it=proto_tree_add_uint(dns_tree, hf_dns_retransmit_request_in, tvb, 0, 0, dns_trans->req_frame);
-      PROTO_ITEM_SET_GENERATED(it);
+      proto_item_set_generated(it);
 
       if (!pinfo->flags.in_error_pkt) {
         it=proto_tree_add_boolean(dns_tree, hf_dns_retransmission, tvb, 0, 0, TRUE);
-        PROTO_ITEM_SET_GENERATED(it);
+        proto_item_set_generated(it);
       }
     } else if (dns_trans->rep_frame) {
 
       it=proto_tree_add_uint(dns_tree, hf_dns_response_in, tvb, 0, 0, dns_trans->rep_frame);
-      PROTO_ITEM_SET_GENERATED(it);
+      proto_item_set_generated(it);
     }
   } else {
     /* This is a reply */
@@ -4001,24 +4001,24 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         expert_add_info_format(pinfo, transaction_item, &ei_dns_retransmit_response, "DNS response retransmission. Original response in frame %d", dns_trans->rep_frame);
 
         it=proto_tree_add_uint(dns_tree, hf_dns_retransmit_response_in, tvb, 0, 0, dns_trans->rep_frame);
-        PROTO_ITEM_SET_GENERATED(it);
+        proto_item_set_generated(it);
 
         if (!pinfo->flags.in_error_pkt) {
           it=proto_tree_add_boolean(dns_tree, hf_dns_retransmission, tvb, 0, 0, TRUE);
-          PROTO_ITEM_SET_GENERATED(it);
+          proto_item_set_generated(it);
         }
       } else {
         it=proto_tree_add_uint(dns_tree, hf_dns_response_to, tvb, 0, 0, dns_trans->req_frame);
-        PROTO_ITEM_SET_GENERATED(it);
+        proto_item_set_generated(it);
 
         nstime_delta(&delta, &pinfo->abs_ts, &dns_trans->req_time);
         it=proto_tree_add_time(dns_tree, hf_dns_time, tvb, 0, 0, &delta);
-        PROTO_ITEM_SET_GENERATED(it);
+        proto_item_set_generated(it);
       }
     } else {
       if (!retransmission) {
         it=proto_tree_add_boolean(dns_tree, hf_dns_unsolicited, tvb, 0, 0, TRUE);
-        PROTO_ITEM_SET_GENERATED(it);
+        proto_item_set_generated(it);
       }
     }
   }

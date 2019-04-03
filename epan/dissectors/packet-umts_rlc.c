@@ -762,7 +762,7 @@ tree_add_li(enum rlc_mode mode, struct rlc_li *li, guint8 li_idx, guint32 hdr_of
         if (li->li > tvb_reported_length_remaining(tvb, hdr_offs)) return li_tree;
         if (li->len > li->li) return li_tree;
         ti = proto_tree_add_item(li_tree, hf_rlc_li_data, tvb, hdr_offs + li->li - li->len, li->len, ENC_NA);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
     }
 
     return li_tree;
@@ -1388,13 +1388,13 @@ add_channel_info(packet_info * pinfo, proto_tree * tree, fp_info * fpinf, rlc_in
     channel_tree = proto_item_add_subtree(item, ett_rlc_channel);
     proto_item_append_text(item, " (rbid: %u, dir: %s, uid: 0x%08x)", rlcinf->rbid[fpinf->cur_tb],
                            val_to_str_const(pinfo->link_dir, rlc_dir_vals, "Unknown"), rlcinf->ueid[fpinf->cur_tb]);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
     item = proto_tree_add_uint(channel_tree, hf_rlc_channel_rbid, NULL, 0, 0, rlcinf->rbid[fpinf->cur_tb]);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
     item = proto_tree_add_uint(channel_tree, hf_rlc_channel_dir, NULL, 0, 0, pinfo->link_dir);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
     item = proto_tree_add_uint(channel_tree, hf_rlc_channel_ueid, NULL, 0, 0, rlcinf->ueid[fpinf->cur_tb]);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
 
 }
 
@@ -1982,11 +1982,11 @@ dissect_rlc_um(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
         truncated_ti = proto_tree_add_boolean(tree, hf_rlc_header_only, tvb, 0, 0,
                                               is_truncated);
         if (is_truncated) {
-            PROTO_ITEM_SET_GENERATED(truncated_ti);
+            proto_item_set_generated(truncated_ti);
             expert_add_info(pinfo, truncated_ti, &ei_rlc_header_only);
             return;
         } else {
-            PROTO_ITEM_SET_HIDDEN(truncated_ti);
+            proto_item_set_hidden(truncated_ti);
         }
     }
 
@@ -2414,11 +2414,11 @@ dissect_rlc_am(enum rlc_channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
         truncated_ti = proto_tree_add_boolean(tree, hf_rlc_header_only, tvb, 0, 0,
                                               is_truncated);
         if (is_truncated) {
-            PROTO_ITEM_SET_GENERATED(truncated_ti);
+            proto_item_set_generated(truncated_ti);
             expert_add_info(pinfo, truncated_ti, &ei_rlc_header_only);
             return;
         } else {
-            PROTO_ITEM_SET_HIDDEN(truncated_ti);
+            proto_item_set_hidden(truncated_ti);
         }
     }
 

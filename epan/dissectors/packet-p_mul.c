@@ -530,7 +530,7 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
 
   if (pdu_type == Address_PDU) {
     analysis_tree = proto_tree_add_subtree(p_mul_tree, tvb, 0, 0, ett_ack_analysis, &sa, "ACK analysis");
-    PROTO_ITEM_SET_GENERATED (sa);
+    proto_item_set_generated (sa);
 
     /* Fetch package data */
     if ((pkg_data = lookup_seq_val (message_id, 0, src)) == NULL) {
@@ -543,12 +543,12 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
       if (pkg_data->addr_id) {
         en = proto_tree_add_uint (analysis_tree, hf_analysis_acks_acked_addr_pdu_num, tvb,
                                   0, 0, pkg_data->addr_id);
-        PROTO_ITEM_SET_GENERATED (en);
+        proto_item_set_generated (en);
 
         nstime_delta (&ns, &pinfo->abs_ts, &pkg_data->addr_time);
         en = proto_tree_add_time (analysis_tree, hf_analysis_total_time,
                                   tvb, 0, 0, &ns);
-        PROTO_ITEM_SET_GENERATED (en);
+        proto_item_set_generated (en);
       } else {
         proto_tree_add_expert(analysis_tree, pinfo, &ei_address_pdu_missing, tvb, offset, 0);
       }
@@ -563,7 +563,7 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
       if (ack_data && ack_data->ack_id) {
         en = proto_tree_add_uint (analysis_tree, hf_analysis_ack_num, tvb,
                                   0, 0, ack_data->ack_id);
-        PROTO_ITEM_SET_GENERATED (en);
+        proto_item_set_generated (en);
         item_added = TRUE;
       } else if (!pkg_data->msg_resend_count) {
         en = proto_tree_add_item (analysis_tree,
@@ -573,18 +573,18 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
           /* We do not know this on first visit and we do not want to
              add a entry in the "Expert Severity Info" for this note */
           expert_add_info(pinfo, en, &ei_analysis_ack_missing);
-          PROTO_ITEM_SET_GENERATED (en);
+          proto_item_set_generated (en);
         }
         item_added = TRUE;
       }
     }
 
     if (!item_added) {
-      PROTO_ITEM_SET_HIDDEN (sa);
+      proto_item_set_hidden (sa);
     }
   } else if (pdu_type == Ack_PDU) {
     analysis_tree = proto_tree_add_subtree(p_mul_tree, tvb, 0, 0, ett_seq_ack_analysis, &sa, "SEQ/ACK analysis");
-    PROTO_ITEM_SET_GENERATED (sa);
+    proto_item_set_generated (sa);
 
     /* Fetch package data */
     memcpy((guint8 *)&dstIp, dst->data, 4);
@@ -600,13 +600,13 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
     if (pkg_data->msg_type != Ack_PDU) {
       en = proto_tree_add_uint (analysis_tree, hf_analysis_acks_addr_pdu_num, tvb,
                                 0, 0, pkg_data->pdu_id);
-      PROTO_ITEM_SET_GENERATED (en);
+      proto_item_set_generated (en);
 
       if (no_missing == 0) {
         nstime_delta (&ns, &pinfo->abs_ts, &pkg_data->first_msg_time);
         en = proto_tree_add_time (analysis_tree, hf_analysis_trans_time,
                                   tvb, 0, 0, &ns);
-        PROTO_ITEM_SET_GENERATED (en);
+        proto_item_set_generated (en);
       }
     } else {
       proto_tree_add_expert(analysis_tree, pinfo, &ei_address_pdu_missing, tvb, offset, 0);
@@ -616,25 +616,25 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
       /* Add reference to previous PDU */
       en = proto_tree_add_uint (analysis_tree, hf_analysis_last_pdu_num,
                                 tvb, 0, 0, pkg_data->prev_pdu_id);
-      PROTO_ITEM_SET_GENERATED (en);
+      proto_item_set_generated (en);
 
       nstime_delta (&ns, &pinfo->abs_ts, &pkg_data->prev_pdu_time);
       en = proto_tree_add_time (analysis_tree, hf_analysis_ack_time,
                                 tvb, 0, 0, &ns);
-      PROTO_ITEM_SET_GENERATED (en);
+      proto_item_set_generated (en);
     }
 
     if (ack_data && ack_data->ack_resend_count) {
       /* Add resend statistics */
       en = proto_tree_add_uint (analysis_tree, hf_analysis_ack_dup_no,
                                 tvb, 0, 0, ack_data->ack_resend_count);
-      PROTO_ITEM_SET_GENERATED (en);
+      proto_item_set_generated (en);
 
       expert_add_info_format(pinfo, en, &ei_analysis_ack_dup_no, "Dup ACK #%d", ack_data->ack_resend_count);
 
       en = proto_tree_add_uint (analysis_tree, hf_analysis_ack_resend_from,
                                 tvb, 0, 0, ack_data->ack_id);
-      PROTO_ITEM_SET_GENERATED (en);
+      proto_item_set_generated (en);
 
       col_append_fstr (pinfo->cinfo, COL_INFO, "[Dup ACK %d#%d] ",
                        ack_data->ack_id, ack_data->ack_resend_count);
@@ -663,25 +663,25 @@ static p_mul_seq_val *add_seq_analysis (tvbuff_t *tvb, packet_info *pinfo,
   }
 
   analysis_tree = proto_tree_add_subtree(p_mul_tree, tvb, 0, 0, ett_seq_analysis, &sa, "SEQ analysis");
-  PROTO_ITEM_SET_GENERATED (sa);
+  proto_item_set_generated (sa);
 
   if (pdu_type == Data_PDU || pdu_type == Discard_Message_PDU) {
     /* Add reference to Address_PDU */
     if (pkg_data->addr_id) {
       en = proto_tree_add_uint (analysis_tree, hf_analysis_addr_pdu_num, tvb,
                                 0, 0, pkg_data->addr_id);
-      PROTO_ITEM_SET_GENERATED (en);
+      proto_item_set_generated (en);
 
       nstime_delta (&ns, &pinfo->abs_ts, &pkg_data->addr_time);
       en = proto_tree_add_time (analysis_tree, hf_analysis_addr_pdu_time,
                                 tvb, 0, 0, &ns);
-      PROTO_ITEM_SET_GENERATED (en);
+      proto_item_set_generated (en);
 
       if (pkg_data->prev_pdu_id == pkg_data->addr_id) {
         /* Previous pdu time is the same as time since address pdu */
         en = proto_tree_add_time (analysis_tree, hf_analysis_prev_pdu_time,
                                   tvb, 0, 0, &ns);
-        PROTO_ITEM_SET_GENERATED (en);
+        proto_item_set_generated (en);
       }
       item_added = TRUE;
     } else if (!pkg_data->msg_resend_count) {
@@ -695,12 +695,12 @@ static p_mul_seq_val *add_seq_analysis (tvbuff_t *tvb, packet_info *pinfo,
     if (pkg_data->prev_pdu_id) {
       en = proto_tree_add_uint (analysis_tree, hf_analysis_prev_pdu_num, tvb,
                                 0, 0, pkg_data->prev_pdu_id);
-      PROTO_ITEM_SET_GENERATED (en);
+      proto_item_set_generated (en);
 
       nstime_delta (&ns, &pinfo->abs_ts, &pkg_data->prev_pdu_time);
       en = proto_tree_add_time (analysis_tree, hf_analysis_prev_pdu_time,
                                 tvb, 0, 0, &ns);
-      PROTO_ITEM_SET_GENERATED (en);
+      proto_item_set_generated (en);
       item_added = TRUE;
     } else if (!pkg_data->msg_resend_count) {
       proto_tree_add_expert(analysis_tree, pinfo, &ei_analysis_prev_pdu_missing, tvb, offset, 0);
@@ -714,28 +714,28 @@ static p_mul_seq_val *add_seq_analysis (tvbuff_t *tvb, packet_info *pinfo,
     if (pkg_data->msg_resend_count) {
       en = proto_tree_add_uint (analysis_tree, hf_analysis_retrans_no,
                                 tvb, 0, 0, pkg_data->msg_resend_count);
-      PROTO_ITEM_SET_GENERATED (en);
+      proto_item_set_generated (en);
 
       en = proto_tree_add_uint (analysis_tree, hf_analysis_msg_resend_from,
                                 tvb, 0, 0, pkg_data->pdu_id);
-      PROTO_ITEM_SET_GENERATED (en);
+      proto_item_set_generated (en);
 
       expert_add_info_format(pinfo, en, &ei_analysis_retrans_no, "Retransmission #%d", pkg_data->msg_resend_count);
 
       nstime_delta (&ns, &pinfo->abs_ts, &pkg_data->prev_msg_time);
       en = proto_tree_add_time (analysis_tree, hf_analysis_retrans_time,
                                 tvb, 0, 0, &ns);
-      PROTO_ITEM_SET_GENERATED (en);
+      proto_item_set_generated (en);
 
       nstime_delta (&ns, &pinfo->abs_ts, &pkg_data->first_msg_time);
       eh = proto_tree_add_time (analysis_tree, hf_analysis_total_retrans_time,
                                 tvb, 0, 0, &ns);
-      PROTO_ITEM_SET_GENERATED (eh);
+      proto_item_set_generated (eh);
 
       if (pkg_data->first_msg_time.secs == pkg_data->prev_msg_time.secs &&
           pkg_data->first_msg_time.nsecs == pkg_data->prev_msg_time.nsecs) {
         /* Time values does not differ, hide the total time */
-        PROTO_ITEM_SET_HIDDEN (eh);
+        proto_item_set_hidden (eh);
       }
       item_added = TRUE;
 
@@ -745,7 +745,7 @@ static p_mul_seq_val *add_seq_analysis (tvbuff_t *tvb, packet_info *pinfo,
   }
 
   if (!item_added) {
-    PROTO_ITEM_SET_HIDDEN (sa);
+    proto_item_set_hidden (sa);
   }
 
   return pkg_data;
@@ -916,19 +916,19 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
     proto_item_append_text (en, " (correct)");
     en = proto_tree_add_boolean (checksum_tree, hf_checksum_good, tvb,
                                  offset, 2, TRUE);
-    PROTO_ITEM_SET_GENERATED (en);
+    proto_item_set_generated (en);
     en = proto_tree_add_boolean (checksum_tree, hf_checksum_bad, tvb,
                                  offset, 2, FALSE);
-    PROTO_ITEM_SET_GENERATED (en);
+    proto_item_set_generated (en);
   } else {
     proto_item_append_text (en, " (incorrect, should be 0x%04x)", checksum_calc);
     expert_add_info(pinfo, en, &ei_checksum_bad);
     en = proto_tree_add_boolean (checksum_tree, hf_checksum_good, tvb,
                                  offset, 2, FALSE);
-    PROTO_ITEM_SET_GENERATED (en);
+    proto_item_set_generated (en);
     en = proto_tree_add_boolean (checksum_tree, hf_checksum_bad, tvb,
                                  offset, 2, TRUE);
-    PROTO_ITEM_SET_GENERATED (en);
+    proto_item_set_generated (en);
   }
   offset += 2;
 
@@ -1130,7 +1130,7 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
                 en = proto_tree_add_uint_format_value(missing_tree, hf_miss_seq_no,
                                                  tvb, offset, 6, sno,
                                                  "%d", sno);
-                PROTO_ITEM_SET_GENERATED (en);
+                proto_item_set_generated (en);
               }
               tot_no_missing += (end_seq_no - ack_seq_no + 1);
             }
@@ -1180,7 +1180,7 @@ static int dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
       proto_item_append_text (ti, ", Missing seq numbers: %u", tot_no_missing);
       en = proto_tree_add_uint (p_mul_tree, hf_tot_miss_seq_no, tvb, 0, 0,
                                 tot_no_missing);
-      PROTO_ITEM_SET_GENERATED (en);
+      proto_item_set_generated (en);
       expert_add_info_format(pinfo, en, &ei_tot_miss_seq_no, "Missing seq numbers: %d", tot_no_missing);
     }
     break;

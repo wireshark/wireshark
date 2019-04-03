@@ -879,7 +879,7 @@ enip_match_request( packet_info *pinfo, proto_tree *tree, enip_request_key_t *pr
 
             it = proto_tree_add_uint(tree, hf_enip_response_in,
                   NULL, 0, 0, request_info->rep_num);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
          }
       }
       else
@@ -894,11 +894,11 @@ enip_match_request( packet_info *pinfo, proto_tree *tree, enip_request_key_t *pr
 
                it = proto_tree_add_uint(tree, hf_enip_response_to,
                      NULL, 0, 0, request_info->req_num);
-               PROTO_ITEM_SET_GENERATED(it);
+               proto_item_set_generated(it);
 
                nstime_delta(&ns, &pinfo->abs_ts, &request_info->req_time);
                it = proto_tree_add_time(tree, hf_enip_time, NULL, 0, 0, &ns);
-               PROTO_ITEM_SET_GENERATED(it);
+               proto_item_set_generated(it);
             }
          }
       }
@@ -2319,7 +2319,7 @@ static void display_fwd_open_connection_path(enip_conn_val_t* conn_info, proto_t
    {
       proto_item* pi = NULL;
       proto_tree* epath_tree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_connection_path_info, &pi, "Connection Path: ");
-      PROTO_ITEM_SET_GENERATED(pi);
+      proto_item_set_generated(pi);
 
       dissect_epath(tvbIOI, pinfo, epath_tree, pi, 0, conn_info->FwdOpenPathLenBytes, TRUE, FALSE, NULL, NULL, NO_DISPLAY, NULL, FALSE);
       tvb_free(tvbIOI);
@@ -2330,7 +2330,7 @@ static void display_connection_information(packet_info* pinfo, tvbuff_t* tvb, pr
 {
    proto_item* pi = NULL;
    proto_tree* conn_info_tree = proto_tree_add_subtree(tree, tvb, 0, 0, ett_connection_info, &pi, "Connection Information");
-   PROTO_ITEM_SET_GENERATED(pi);
+   proto_item_set_generated(pi);
 
    if (connid_type == ECIDT_O2T)
    {
@@ -2344,16 +2344,16 @@ static void display_connection_information(packet_info* pinfo, tvbuff_t* tvb, pr
    display_fwd_open_connection_path(conn_info, conn_info_tree, tvb, pinfo);
 
    pi = proto_tree_add_uint(conn_info_tree, hf_cip_cm_ot_api, tvb, 0, 0, conn_info->O2Tapi);
-   PROTO_ITEM_SET_GENERATED(pi);
+   proto_item_set_generated(pi);
 
    pi = proto_tree_add_uint(conn_info_tree, hf_cip_cm_to_api, tvb, 0, 0, conn_info->T2Oapi);
-   PROTO_ITEM_SET_GENERATED(pi);
+   proto_item_set_generated(pi);
 
    pi = proto_tree_add_uint(conn_info_tree, hf_cip_connection, tvb, 0, 0, conn_info->connid);
-   PROTO_ITEM_SET_GENERATED(pi);
+   proto_item_set_generated(pi);
 
    pi = proto_tree_add_uint(conn_info_tree, hf_enip_fwd_open_in, tvb, 0, 0, conn_info->open_frame);
-   PROTO_ITEM_SET_GENERATED(pi);
+   proto_item_set_generated(pi);
 }
 
 // This dissects Class 0 or Class 1 I/O.

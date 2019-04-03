@@ -468,7 +468,7 @@ dissect_elcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         hidden_item = proto_tree_add_boolean(elcom_tree,
                                              is_request ? hf_elcom_request : hf_elcom_response,
                                              tvb, 0, 0, TRUE);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        proto_item_set_hidden(hidden_item);
 
         /* 2 first bytes are the frame length */
         offset = 0;

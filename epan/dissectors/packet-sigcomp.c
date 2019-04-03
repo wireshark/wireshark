@@ -4957,7 +4957,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
             proto_item *ti;
             ti = proto_tree_add_uint(sigcomp_tree, hf_sigcomp_remaining_message_bytes, tvb,
                                      offset, 0, msg_len);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
         }
 
         if ( decompress ) {
@@ -5030,7 +5030,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
                 /* Show compression ratio achieved */
                 ti = proto_tree_add_uint(sigcomp_tree, hf_sigcomp_compression_ratio, decomp_tvb,
                                          0, 0, compression_ratio);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
 
                 if ( display_raw_txt )
                     tvb_raw_text_add(decomp_tvb, top_tree);
@@ -5139,7 +5139,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
             msg_len = tvb_reported_length_remaining(tvb, offset);
             if (msg_len>0) {
                 proto_item *ti = proto_tree_add_item(sigcomp_tree, hf_sigcomp_remaining_sigcomp_message, tvb, offset, -1, ENC_NA);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
             }
             if ( decompress ) {
 
@@ -5161,7 +5161,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
                     /* Show compression ratio achieved */
                     ti = proto_tree_add_uint(sigcomp_tree, hf_sigcomp_compression_ratio, decomp_tvb,
                                              0, 0, compression_ratio);
-                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_set_generated(ti);
 
                     if ( display_raw_txt )
                         tvb_raw_text_add(decomp_tvb, top_tree);
@@ -5201,7 +5201,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
         item = proto_tree_add_uint_format(sigcomp_udvm_tree, hf_sigcomp_udvm_instruction, udvm_tvb, offset, 1,
                     instruction_no, "######### UDVM instruction %u at UDVM-address %u (0x%x) #########",
                     instruction_no,UDVM_address,UDVM_address);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
         proto_tree_add_item(sigcomp_udvm_tree, hf_sigcomp_udvm_instr, udvm_tvb, offset, 1, ENC_BIG_ENDIAN);
         offset ++;
         switch ( instruction ) {
@@ -6079,7 +6079,7 @@ dissect_udvm_bytecode(tvbuff_t *udvm_tvb, packet_info* pinfo, proto_tree *sigcom
             } else {
                 item2 = proto_tree_add_uint_format_value(sigcomp_udvm_tree, hf_udvm_state_ret_pri, udvm_tvb, offset, 1, 0,
                         "0 (Not in the uploaded code as UDVM buffer initialized to Zero");
-                PROTO_ITEM_SET_GENERATED(item2);
+                proto_item_set_generated(item2);
             }
             if ( tvb_reported_length_remaining(udvm_tvb, offset) != 0 ) {
                 len = tvb_reported_length_remaining(udvm_tvb, offset);

@@ -531,7 +531,7 @@ dissect_iso7816_params(guint8 ins, tvbuff_t *tvb, gint offset,
             break;
     }
 
-    PROTO_ITEM_SET_GENERATED(p1_p2_it);
+    proto_item_set_generated(p1_p2_it);
 
     return 2;
 }
@@ -566,7 +566,7 @@ dissect_iso7816_cmd_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             trans_ti = proto_tree_add_uint_format(tree, hf_iso7816_resp_in,
                            NULL, 0, 0, iso7816_trans->resp_frame,
                            "Response in frame %d", iso7816_trans->resp_frame);
-            PROTO_ITEM_SET_GENERATED(trans_ti);
+            proto_item_set_generated(trans_ti);
         }
     }
     else {
@@ -660,7 +660,7 @@ dissect_iso7816_resp_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         NULL, 0, 0, iso7816_trans->cmd_frame,
                         "Response to frame %d (%s)",
                         iso7816_trans->cmd_frame, cmd_ins_str);
-                PROTO_ITEM_SET_GENERATED(trans_ti);
+                proto_item_set_generated(trans_ti);
 
                 col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
                         "(to %s)", cmd_ins_str);

@@ -679,16 +679,16 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         (request_data != NULL) && (request_data->itlq->first_exchange_frame)) {
         proto_item *it;
         it = proto_tree_add_uint(fcp_tree, hf_fcp_singlelun, tvb, 0, 0, proto_data->lun);
-        PROTO_ITEM_SET_GENERATED(it);
+        proto_item_set_generated(it);
         if (request_data != NULL) {
             it = proto_tree_add_uint(fcp_tree, hf_fcp_request_in, tvb, 0, 0, request_data->request_frame);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
             /* only put the response time in the actual response frame */
             if (r_ctl == FCP_IU_RSP) {
                 nstime_t delta_ts;
                 nstime_delta(&delta_ts, &pinfo->abs_ts, &request_data->request_time);
                 it = proto_tree_add_time(ti, hf_fcp_time, tvb, 0, 0, &delta_ts);
-                PROTO_ITEM_SET_GENERATED(it);
+                proto_item_set_generated(it);
             }
         }
     }
@@ -697,7 +697,7 @@ dissect_fcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         (request_data != NULL) && (request_data->response_frame)) {
         proto_item *it;
         it = proto_tree_add_uint(fcp_tree, hf_fcp_response_in, tvb, 0, 0, request_data->response_frame);
-        PROTO_ITEM_SET_GENERATED(it);
+        proto_item_set_generated(it);
     }
 
     if (els) {

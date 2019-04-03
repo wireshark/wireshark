@@ -98,7 +98,7 @@ dissect_corosync_totemnet_security_header(tvbuff_t *tvb,
           key_item = proto_tree_add_string(tree,
                                            hf_corosync_totemnet_security_crypto_key,
                                            tvb, 0, 0, key);
-          PROTO_ITEM_SET_GENERATED(key_item);
+          proto_item_set_generated(key_item);
         }
     }
   return HASH_SHA1_LENGTH + SALT_SIZE;

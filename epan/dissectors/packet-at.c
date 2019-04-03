@@ -970,7 +970,7 @@ dissect_cimi_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      /* Only parameter is found in the response from DCE - the IMSI */
      pitem = proto_tree_add_item(tree, hf_cimi_imsi, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
      /* Hiding the AT IMSI item because we are showing the detailed E.212 item */
-     PROTO_ITEM_SET_HIDDEN(pitem);
+     proto_item_set_hidden(pitem);
      dissect_e212_utf8_imsi(tvb, pinfo, tree, offset, parameter_length);
 
      return TRUE;
@@ -1857,7 +1857,7 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 /* No suffix, assume line break (which translates to 'ACTION_SIMPLY') */
                 type = TYPE_ACTION_SIMPLY;
                 pitem = proto_tree_add_uint(command_tree, hf_at_cmd_type, tvb, offset, 0, type);
-                PROTO_ITEM_SET_GENERATED(pitem);
+                proto_item_set_generated(pitem);
             }
         }
 
@@ -2022,7 +2022,7 @@ static int dissect_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 
     /* Show role in tree */
     item = proto_tree_add_uint(at_tree, hf_role, tvb, 0, 0, role);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
 
 
     /* Dissect command(s) */

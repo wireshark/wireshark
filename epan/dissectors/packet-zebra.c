@@ -2276,7 +2276,7 @@ dissect_zebra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 		zebra_tree = proto_item_add_subtree(ti, ett_zebra);
 		ti = proto_tree_add_boolean(zebra_tree, hf_zebra_request,
 					    tvb, offset, 0, request);
-		PROTO_ITEM_SET_HIDDEN(ti);
+		proto_item_set_hidden(ti);
 
 		for (;;) {
 			guint8 		headermarker, version;

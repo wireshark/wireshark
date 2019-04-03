@@ -321,7 +321,7 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                 it=proto_tree_add_uint(classicstun_tree, hf_classicstun_response_in,
                                tvb, 0, 0,
                                classicstun_trans->rep_frame);
-                PROTO_ITEM_SET_GENERATED(it);
+                proto_item_set_generated(it);
             }
         }
         else if ((((msg_type & CLASS_MASK) >> 4) == RESPONSE) ||
@@ -332,11 +332,11 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                 nstime_t ns;
 
                 it=proto_tree_add_uint(classicstun_tree, hf_classicstun_response_to, tvb, 0, 0, classicstun_trans->req_frame);
-                PROTO_ITEM_SET_GENERATED(it);
+                proto_item_set_generated(it);
 
                 nstime_delta(&ns, &pinfo->abs_ts, &classicstun_trans->req_time);
                 it=proto_tree_add_time(classicstun_tree, hf_classicstun_time, tvb, 0, 0, &ns);
-                PROTO_ITEM_SET_GENERATED(it);
+                proto_item_set_generated(it);
             }
 
         }
@@ -482,7 +482,7 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                            Add host-order port into tree. */
                         clear_port = tvb_get_ntohs(tvb, offset+2) ^ (transaction_id_first_word >> 16);
                         ti = proto_tree_add_uint(att_tree, classicstun_att_port, tvb, offset+2, 2, clear_port);
-                        PROTO_ITEM_SET_GENERATED(ti);
+                        proto_item_set_generated(ti);
 
                         switch( tvb_get_guint8(tvb, offset+1) ){
                             case 1:
@@ -495,7 +495,7 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
                                    Add in network order tree. */
                                 clear_ip = tvb_get_ipv4(tvb, offset+4) ^ g_htonl(transaction_id_first_word);
                                 ti = proto_tree_add_ipv4(att_tree, classicstun_att_ipv4, tvb, offset+4, 4, clear_ip);
-                                PROTO_ITEM_SET_GENERATED(ti);
+                                proto_item_set_generated(ti);
                                 break;
 
                             case 2:

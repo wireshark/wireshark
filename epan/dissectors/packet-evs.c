@@ -547,7 +547,7 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     if (str) {
         /* A.2.1 EVS codec Compact Format */
         proto_tree_add_subtree(evs_tree, tvb, offset, -1, ett_evs_header, &ti, "Framing Mode: Compact");
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         /* One of the protected payload sizes, no further dissection currently. XXX add handling of "Special case"*/
         col_append_fstr(pinfo->cinfo, COL_INFO, ", %s ", str);
@@ -643,7 +643,7 @@ dissect_evs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     /* A.2.2 EVS codec Header-Full format */
     proto_tree_add_subtree(evs_tree, tvb, offset, -1, ett_evs_header, &ti, "Framing Mode: Header-full");
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /*proto_tree_add_int_format(evs_tree, hf_evs_packet_length, tvb, offset, 1, packet_len * 8, "packet_len %i bits", packet_len * 8);*/
     oct = tvb_get_guint8(tvb, offset);

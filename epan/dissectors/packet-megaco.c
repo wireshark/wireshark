@@ -546,7 +546,7 @@ megaco_tree_add_string(proto_tree *tree, int hfindex, tvbuff_t *tvb,
 
     pi = proto_tree_add_string(tree, hfindex, tvb, start, length, value);
     if (!global_megaco_dissect_tree) {
-        PROTO_ITEM_SET_HIDDEN(pi);
+        proto_item_set_hidden(pi);
     }
 
     return(pi);
@@ -563,7 +563,7 @@ my_proto_tree_add_uint(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     proto_item_set_len(pi, length);
 
     if (!global_megaco_dissect_tree) {
-        PROTO_ITEM_SET_HIDDEN(pi);
+        proto_item_set_hidden(pi);
     }
 
     return(pi);
@@ -1108,7 +1108,7 @@ nextcontext:
                 megaco_tree_command_line = proto_item_add_subtree(sub_ti, ett_megaco_command_line);
                 */
                 if (!global_megaco_dissect_tree) {
-                    PROTO_ITEM_SET_HIDDEN(sub_ti);
+                    proto_item_set_hidden(sub_ti);
                 }
 
                 tvb_next_offset = tvb_command_start_offset + tokenlen;

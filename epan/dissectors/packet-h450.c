@@ -965,7 +965,7 @@ dissect_h450_H4501SupplementaryService(tvbuff_t *tvb _U_, int offset _U_, asn1_c
   proto_item *hidden_item;
 
   hidden_item = proto_tree_add_item(tree, proto_h450, tvb, offset, -1, ENC_NA);
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  proto_item_set_hidden(hidden_item);
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_h450_H4501SupplementaryService, h450_H4501SupplementaryService_sequence);
@@ -4723,7 +4723,7 @@ dissect_h450_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     return offset;
 
   hidden_item = proto_tree_add_uint(tree, hf_h450_operation, tvb, 0, 0, opcode);
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  proto_item_set_hidden(hidden_item);
   p = try_val_to_str(opcode, VALS(h450_str_operation));
   if (p) {
     proto_item_append_text(rctx->d.code_item, " - %s", p);
@@ -4768,7 +4768,7 @@ dissect_h450_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     return offset;
 
   hidden_item = proto_tree_add_uint(tree, hf_h450_operation, tvb, 0, 0, opcode);
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  proto_item_set_hidden(hidden_item);
   p = try_val_to_str(opcode, VALS(h450_str_operation));
   if (p) {
     proto_item_append_text(rctx->d.code_item, " - %s", p);
@@ -4813,7 +4813,7 @@ dissect_h450_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     return offset;
 
   hidden_item = proto_tree_add_uint(tree, hf_h450_error, tvb, 0, 0, errcode);
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  proto_item_set_hidden(hidden_item);
   p = try_val_to_str(errcode, VALS(h450_str_error));
   if (p) {
     proto_item_append_text(rctx->d.code_item, " - %s", p);

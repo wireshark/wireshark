@@ -1578,20 +1578,20 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 			subtree, hf_nt_sid_wkwn, tvb, offset_sid_start, wkwn_sid1_len,
 			wmem_strbuf_get_str(wkwn_sid1_str), "%s", wmem_strbuf_get_str(wkwn_sid1_str));
 		proto_item_append_text(hidden_item, "  (%s)", mapped_name);
-		PROTO_ITEM_SET_HIDDEN(hidden_item);
+		proto_item_set_hidden(hidden_item);
 	}
 	if (wmem_strbuf_get_len(wkwn_sid2_str) > 0) {
 		hidden_item = proto_tree_add_string_format_value(
 			subtree, hf_nt_sid_wkwn, tvb, offset_sid_start, wkwn_sid2_len,
 			wmem_strbuf_get_str(wkwn_sid2_str), "%s", wmem_strbuf_get_str(wkwn_sid2_str));
 		proto_item_append_text(hidden_item, "  (%s)", wmem_strbuf_get_str(label_str));
-		PROTO_ITEM_SET_HIDDEN(hidden_item);
+		proto_item_set_hidden(hidden_item);
 	}
 	if (domain_sid && wmem_strbuf_get_len(domain_str) > 0) {
 		hidden_item = proto_tree_add_string_format_value(
 			subtree, hf_nt_sid_domain, tvb, offset_sid_start + 12, 12,
 			wmem_strbuf_get_str(domain_str), "%s", wmem_strbuf_get_str(domain_str));
-		PROTO_ITEM_SET_HIDDEN(hidden_item);
+		proto_item_set_hidden(hidden_item);
 	}
 
 	/* If requested, return SID string with mapped name */

@@ -516,7 +516,7 @@ gluster_rpc_dissect_dict(proto_tree *tree, tvbuff_t *tvb, int hfindex, int offse
 	roundup = rpc_roundup(len) - len;
 	ti = proto_tree_add_item_ret_uint(subtree, hf_gluster_dict_size, tvb, offset, 4, ENC_BIG_ENDIAN, &len);
 	proto_item_append_text(ti, " (%d bytes inc. RPC-roundup)", rpc_roundup(len));
-	PROTO_ITEM_SET_GENERATED(ti);
+	proto_item_set_generated(ti);
 	offset += 4;
 
 	if (len == 0)
@@ -580,7 +580,7 @@ gluster_rpc_dissect_dict(proto_tree *tree, tvbuff_t *tvb, int hfindex, int offse
 
 	if (roundup) {
 		ti = proto_tree_add_item(subtree, hf_gluster_rpc_roundup_bytes, tvb, offset, -1, ENC_NA);
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 		offset += roundup;
 	}
 

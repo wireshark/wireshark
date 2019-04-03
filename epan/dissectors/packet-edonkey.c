@@ -960,7 +960,7 @@ static int dissect_kademlia_tagname(tvbuff_t *tvb, packet_info *pinfo _U_,
     proto_tree_add_uint(tree, hf_kademlia_tag_name_length, tvb, offset, 2, string_length);
 
     hidden_item = proto_tree_add_uint(tree, hf_edonkey_string_length, tvb, offset, 2, string_length);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_item_set_hidden(hidden_item);
 
     tagname = tvb_get_string_enc(wmem_packet_scope(), tvb, offset + 2, string_length, ENC_ASCII|ENC_NA);
 
@@ -1066,7 +1066,7 @@ static int dissect_kademlia_hash_hidden(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     /* <File hash> ::= HASH (16 word MD4 digest) */
     hidden_item = proto_tree_add_string(tree, hf_kademlia_hash, tvb, offset, 16, hash);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_item_set_hidden(hidden_item);
 
     return offset+16;
 }
@@ -1093,7 +1093,7 @@ static int dissect_kademlia_tag_hash_hidden(tvbuff_t *tvb, packet_info *pinfo _U
 
     /* <File hash> ::= HASH (16 word MD4 digest) */
     hidden_item = proto_tree_add_string(tree, hf_kademlia_tag_hash, tvb, offset, 16, hash);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_item_set_hidden(hidden_item);
 
     return offset+16;
 }
@@ -1129,9 +1129,9 @@ static int dissect_kademlia_tag_string(tvbuff_t *tvb, packet_info *pinfo _U_,
     guint16 string_length = tvb_get_letohs(tvb, offset);
 
     hidden_item = proto_tree_add_uint(tree, hf_edonkey_string_length, tvb, offset, 2, string_length);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_item_set_hidden(hidden_item);
     hidden_item = proto_tree_add_item_ret_string(tree, hf_edonkey_string, tvb, offset + 2, string_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), string_value);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_item_set_hidden(hidden_item);
 
     proto_tree_add_item(tree, hf_kademlia_tag_string, tvb, offset + 2, string_length, ENC_ASCII|ENC_NA);
     return offset + 2 + string_length;
@@ -2580,7 +2580,7 @@ static int dissect_kademlia_udp_message(guint8 msg_type,
     if (length <= 0) return offset;
 
     hidden_item = proto_tree_add_item(tree, hf_kademlia, tvb, offset, 1, ENC_BIG_ENDIAN);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_item_set_hidden(hidden_item);
 
     msg_end = offset + length;
 

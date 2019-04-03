@@ -92,7 +92,7 @@ dissect_hci_h1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     "Unknown 0x%02x"));
 
     ti = proto_tree_add_int(hci_h1_tree, hf_hci_h1_direction, tvb, 0, 0, pinfo->p2p_dir);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     next_tvb = tvb_new_subset_remaining(tvb, 0);
     if (!dissector_try_uint_new(hci_h1_table, type, next_tvb, pinfo, tree, TRUE, bluetooth_data)) {

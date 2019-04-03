@@ -271,7 +271,7 @@ collectd_proto_tree_add_assembled_metric (tvbuff_t *tvb,
 
 	subtree = proto_tree_add_subtree(root, tvb, offset + 6, length - 6,
 			ett_collectd_dispatch, &root_item, "Assembled metric");
-	PROTO_ITEM_SET_GENERATED (root_item);
+	proto_item_set_generated (root_item);
 
 	proto_tree_add_string (subtree, hf_collectd_data_host, tvb,
 			vdispatch->host_off, vdispatch->host_len,
@@ -319,7 +319,7 @@ collectd_proto_tree_add_assembled_notification (tvbuff_t *tvb,
 
 	subtree = proto_tree_add_subtree(root, tvb, offset + 6, length - 6,
 			ett_collectd_dispatch, &root_item, "Assembled notification");
-	PROTO_ITEM_SET_GENERATED (root_item);
+	proto_item_set_generated (root_item);
 
 	proto_tree_add_string (subtree, hf_collectd_data_host, tvb,
 			ndispatch->host_off, ndispatch->host_len,

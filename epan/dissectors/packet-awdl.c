@@ -1388,7 +1388,7 @@ dissect_awdl_action(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
   targettime = tvb_get_guint32(tvb, offset, ENC_LITTLE_ENDIAN);
   offset += 4;
   item = proto_tree_add_uint(fixed_tree, hf_awdl_txdelay, tvb, 0, 0, phytime - targettime);
-  PROTO_ITEM_SET_GENERATED(item);
+  proto_item_set_generated(item);
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "AWDL");
   col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(subtype, awdl_subtype_col, "Unknown"));

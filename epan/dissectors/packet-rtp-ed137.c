@@ -755,7 +755,7 @@ dissect_rtp_hdr_ext_ed137b_feature_rrc_single(tvbuff_t *tvb, packet_info *pinfo 
 
     /* Generated item points really to previous byte */
     item = proto_tree_add_item( tree, hf_rtp_hdr_ed137b_ft_rrc_single, tvb, -1, 1, ENC_NA);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
 
     proto_tree_add_item( tree, hf_rtp_hdr_ed137b_ft_rrc_single_ms_tx_f1, tvb, 0, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item( tree, hf_rtp_hdr_ed137b_ft_rrc_single_ms_rx_f1, tvb, 0, 1, ENC_BIG_ENDIAN);
@@ -779,7 +779,7 @@ dissect_rtp_hdr_ext_ed137b_feature_climax_ddc_rmm(tvbuff_t *tvb, packet_info *pi
 
     /* Generated item points really to previous byte */
     item = proto_tree_add_item( tree, hf_rtp_hdr_ed137b_ft_climax_ddc_rmm, tvb, -1, 1, ENC_NA);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
 
     ext_value = tvb_get_ntoh24( tvb, 0 );
     climax_ddc_rmm_tqv = RTP_ED137B_feature_climax_ddc_rmm_tqv(ext_value);
@@ -802,7 +802,7 @@ dissect_rtp_hdr_ext_ed137b_feature_climax_ddc_mam(tvbuff_t *tvb, packet_info *pi
 
     /* Generated item points really to previous byte */
     item = proto_tree_add_item( tree, hf_rtp_hdr_ed137b_ft_climax_ddc_mam, tvb, -1, 1, ENC_NA);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
 
     ext_value = tvb_get_ntoh24( tvb, 0 + 0 );
     climax_ddc_mam_tqg = RTP_ED137B_feature_climax_ddc_mam_tqg(ext_value);
@@ -835,7 +835,7 @@ dissect_rtp_hdr_ext_ed137c_feature_climax_ddc_mam(tvbuff_t *tvb, packet_info *pi
 
     /* Generated item points really to previous byte */
     item = proto_tree_add_item( tree, hf_rtp_hdr_ed137c_ft_climax_ddc_mam, tvb, -1, 1, ENC_NA);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
 
     ext_value = tvb_get_ntoh24( tvb, 0 + 0 );
     climax_ddc_mam_tqg = RTP_ED137C_feature_climax_ddc_mam_tqg(ext_value);

@@ -431,7 +431,7 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     can_tree = proto_tree_add_subtree_format(devicenet_tree, tvb, 0, 0, ett_devicenet_can, NULL, "CAN Identifier: 0x%04x", can_id.id);
     can_id_item = proto_tree_add_uint(can_tree, hf_devicenet_can_id, tvb, 0, 0, can_id.id);
-    PROTO_ITEM_SET_GENERATED(can_id_item);
+    proto_item_set_generated(can_id_item);
 
     /*
      * Message group 1
@@ -439,9 +439,9 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     if ( can_id.id <= MESSAGE_GROUP_1_ID )
     {
         ti = proto_tree_add_uint(can_tree, hf_devicenet_grp_msg1_id, tvb, 0, 0, can_id.id);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
         ti = proto_tree_add_uint(can_tree, hf_devicenet_src_mac_id, tvb, 0, 0, can_id.id & MESSAGE_GROUP_1_MAC_ID_MASK);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         /* Set source address */
         src_address = (guint8*)wmem_alloc(pinfo->pool, 1);
@@ -459,14 +459,14 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     else if (can_id.id <= MESSAGE_GROUP_2_ID )
     {
         ti = proto_tree_add_uint(can_tree, hf_devicenet_grp_msg2_id, tvb, 0, 0, can_id.id);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         /* create display subtree for the protocol */
         message_id = can_id.id & MESSAGE_GROUP_2_MSG_MASK;
         col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(message_id, devicenet_grp_msg2_vals, "Unknown"));
 
         ti = proto_tree_add_uint(can_tree, hf_devicenet_src_mac_id, tvb, 0, 0, (can_id.id & MESSAGE_GROUP_2_MAC_ID_MASK) >> 3);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         /* Set source address */
         src_address = (guint8*)wmem_alloc(pinfo->pool, 1);
@@ -510,9 +510,9 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         guint8 byte1;
 
         msg_id_item = proto_tree_add_uint(can_tree, hf_devicenet_grp_msg3_id, tvb, 0, 0, can_id.id);
-        PROTO_ITEM_SET_GENERATED(msg_id_item);
+        proto_item_set_generated(msg_id_item);
         ti = proto_tree_add_uint(can_tree, hf_devicenet_src_mac_id, tvb, 0, 0, can_id.id & MESSAGE_GROUP_3_MAC_ID_MASK);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         /* Set source address */
         src_address = (guint8*)wmem_alloc(pinfo->pool, 1);
@@ -687,7 +687,7 @@ static int dissect_devicenet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     else if (can_id.id <= MESSAGE_GROUP_4_ID )
     {
         ti = proto_tree_add_uint(can_tree, hf_devicenet_grp_msg4_id, tvb, 0, 0, can_id.id);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         message_id = can_id.id & MESSAGE_GROUP_4_MSG_MASK;
         col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(message_id, devicenet_grp_msg4_vals, "Reserved Group 4 Message"));

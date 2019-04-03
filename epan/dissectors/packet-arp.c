@@ -712,12 +712,12 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
                                                 address_to_str(wmem_packet_scope(), &mac_addr),
                                                 address_to_str(wmem_packet_scope(), &result_mac_addr),
                                                 result->frame_num);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* Add item for navigating to earlier frame */
     ti = proto_tree_add_uint(duplicate_tree, hf_arp_duplicate_ip_address_earlier_frame,
                              tvb, 0, 0, result->frame_num);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     expert_add_info_format(pinfo, ti,
                            &ei_seq_arp_dup_ip,
                            "Duplicate IP address configured (%s)",
@@ -728,7 +728,7 @@ check_for_duplicate_addresses(packet_info *pinfo, proto_tree *tree,
                              hf_arp_duplicate_ip_address_seconds_since_earlier_frame,
                              tvb, 0, 0,
                              (guint32)(pinfo->abs_ts.secs - result->time_of_entry));
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* Set out parameter */
     *duplicate_ip = ip;
@@ -1710,15 +1710,15 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     if (is_gratuitous) {
       item = proto_tree_add_boolean(arp_tree, hf_arp_isgratuitous, tvb, 0, 0, is_gratuitous);
-      PROTO_ITEM_SET_GENERATED(item);
+      proto_item_set_generated(item);
     }
     if (is_probe) {
       item = proto_tree_add_boolean(arp_tree, hf_arp_isprobe, tvb, 0, 0, is_probe);
-      PROTO_ITEM_SET_GENERATED(item);
+      proto_item_set_generated(item);
     }
     if (is_announcement) {
       item = proto_tree_add_boolean(arp_tree, hf_arp_isannouncement, tvb, 0, 0, is_announcement);
-      PROTO_ITEM_SET_GENERATED(item);
+      proto_item_set_generated(item);
     }
     if (ar_hln != 0) {
       proto_tree_add_item(arp_tree,

@@ -757,7 +757,7 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
             /* Show link forward to where alert is now shown! */
             ti = proto_tree_add_uint(tree, hf_snort_reassembled_in, tvb, 0, 0,
                                      alert->reassembled_frame);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             return;
         }
         else {
@@ -765,7 +765,7 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
             /* Show link back to segment where alert was detected. */
             ti = proto_tree_add_uint(tree, hf_snort_reassembled_from, tvb, 0, 0,
                                      alert->original_frame);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             /* Should find this if look late enough.. */
             reassembled_tvb = get_data_source_tvb_by_name(pinfo, "Reassembled TCP");
@@ -798,36 +798,36 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
             alert->raw_alert_ts_fixed = TRUE;
         }
         ti = proto_tree_add_string(snort_tree, hf_snort_raw_alert, tvb, 0, 0, alert->raw_alert);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
     /* Rule classification */
     if (alert->classification) {
         ti = proto_tree_add_string(snort_tree, hf_snort_classification, tvb, 0, 0, alert->classification);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
     /* Put rule fields under a rule subtree */
 
     rule_ti = proto_tree_add_string_format(snort_tree, hf_snort_rule, tvb, 0, 0, "", "Rule");
-    PROTO_ITEM_SET_GENERATED(rule_ti);
+    proto_item_set_generated(rule_ti);
     rule_tree = proto_item_add_subtree(rule_ti, ett_snort_rule);
 
     /* msg/description */
     ti = proto_tree_add_string(rule_tree, hf_snort_msg, tvb, 0, 0, alert->msg);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     /* Snort ID */
     ti = proto_tree_add_uint(rule_tree, hf_snort_sid, tvb, 0, 0, alert->sid);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     /* Rule revision */
     ti = proto_tree_add_uint(rule_tree, hf_snort_rev, tvb, 0, 0, alert->rev);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     /* Generator seems to correspond to gid. */
     ti = proto_tree_add_uint(rule_tree, hf_snort_generator, tvb, 0, 0, alert->gen);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     /* Default priority is 2 - very few rules have a different priority... */
     ti = proto_tree_add_uint(rule_tree, hf_snort_priority, tvb, 0, 0, alert->prio);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* If we know the rule for this alert, show some of the rule fields */
     if (rule && rule->rule_string) {
@@ -847,32 +847,32 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
             ti = proto_tree_add_string(rule_tree, hf_snort_rule_string, tvb, 0, 0,
                                        rule->rule_string);
         }
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         /* Protocol from rule */
         ti = proto_tree_add_string(rule_tree, hf_snort_rule_protocol, tvb, 0, 0, rule->protocol);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         /* Show file alert came from */
         ti = proto_tree_add_string(rule_tree, hf_snort_rule_filename, tvb, 0, 0, rule->file);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
         /* Line number within file */
         ti = proto_tree_add_uint(rule_tree, hf_snort_rule_line_number, tvb, 0, 0, rule->line_number);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         /* Show IP vars */
         for (n=0; n < rule->relevant_vars.num_ip_vars; n++) {
             ti = proto_tree_add_none_format(rule_tree, hf_snort_rule_ip_var, tvb, 0, 0, "IP Var: ($%s -> %s)",
                                             rule->relevant_vars.ip_vars[n].name,
                                             rule->relevant_vars.ip_vars[n].value);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
         }
         /* Show Port vars */
         for (n=0; n < rule->relevant_vars.num_port_vars; n++) {
             ti = proto_tree_add_none_format(rule_tree, hf_snort_rule_port_var, tvb, 0, 0, "Port Var: ($%s -> %s)",
                                             rule->relevant_vars.port_vars[n].name,
                                             rule->relevant_vars.port_vars[n].value);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
         }
     }
 
@@ -1028,8 +1028,8 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
             ti = proto_tree_add_string(snort_tree, hf_snort_reference, tvb, 0, 0,
                                        expand_reference(g_snort_config, rule->references[n]));
             /* Make clickable */
-            PROTO_ITEM_SET_URL(ti);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_url(ti);
+            proto_item_set_generated(ti);
         }
     }
 
@@ -1041,29 +1041,29 @@ static void snort_show_alert(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 
         /* Create tree for these items */
         stats_ti = proto_tree_add_string_format(snort_tree, hf_snort_global_stats, tvb, 0, 0, "", "Global Stats");
-        PROTO_ITEM_SET_GENERATED(rule_ti);
+        proto_item_set_generated(rule_ti);
         stats_tree = proto_item_add_subtree(stats_ti, ett_snort_global_stats);
 
         /* Get overall number of rules */
         get_global_rule_stats(g_snort_config, alert->sid, &number_rule_files, &number_rules, &alerts_detected,
                               &this_rule_alerts_detected);
         ti = proto_tree_add_uint(stats_tree, hf_snort_global_stats_rule_file_count, tvb, 0, 0, number_rule_files);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
         ti = proto_tree_add_uint(stats_tree, hf_snort_global_stats_rule_count, tvb, 0, 0, number_rules);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         /* Overall alert stats (total, and where this one comes in order) */
         ti = proto_tree_add_uint(stats_tree, hf_snort_global_stats_total_alerts_count, tvb, 0, 0, alerts_detected);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
         ti = proto_tree_add_uint(stats_tree, hf_snort_global_stats_alert_match_number, tvb, 0, 0, alert->overall_match_number);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         if (rule) {
             /* Stats just for this rule (overall, and where this one comes in order) */
             ti = proto_tree_add_uint(stats_tree, hf_snort_global_stats_rule_alerts_count, tvb, 0, 0, this_rule_alerts_detected);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             ti = proto_tree_add_uint(stats_tree, hf_snort_global_stats_rule_match_number, tvb, 0, 0, alert->rule_match_number);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             /* Add a summary to the stats root */
             proto_item_append_text(stats_ti, " (%u rules from %u files, #%u of %u alerts seen (%u/%u for sid %u))",

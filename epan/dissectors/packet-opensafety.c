@@ -357,7 +357,7 @@ opensafety_packet_node(tvbuff_t * message_tvb, packet_info *pinfo, proto_tree *t
     psf_item = proto_tree_add_uint(tree, hf_field, message_tvb, posInFrame, 2, saddr);
     psf_tree = proto_item_add_subtree(psf_item, ett_opensafety_node);
     psf_item = proto_tree_add_uint(psf_tree, hf_oss_msg_node, message_tvb, posInFrame, 2, saddr);
-    PROTO_ITEM_SET_GENERATED(psf_item);
+    proto_item_set_generated(psf_item);
 
     if ( sdn > 0 )
     {
@@ -368,7 +368,7 @@ opensafety_packet_node(tvbuff_t * message_tvb, packet_info *pinfo, proto_tree *t
                 posSdnInFrame, 2, sdn * -1);
         expert_add_info(pinfo, psf_item, &ei_scmudid_unknown );
     }
-    PROTO_ITEM_SET_GENERATED(psf_item);
+    proto_item_set_generated(psf_item);
 }
 
 static void
@@ -444,7 +444,7 @@ opensafety_packet_payloadtree(tvbuff_t *message_tvb, proto_tree *opensafety_tree
     proto_item *item = NULL;
 
     item = proto_tree_add_item(opensafety_tree, hf_oss_msg_category, message_tvb, OSS_FRAME_POS_ID + packet->frame.subframe1, 1, ENC_NA );
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
 
     if ( packet->msg_type == OPENSAFETY_SNMT_MESSAGE_TYPE)
         packet->payload.snmt = wmem_new0(wmem_packet_scope(), opensafety_packet_snmt);
@@ -849,7 +849,7 @@ dissect_opensafety_spdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
         item = proto_tree_add_uint_format_value(spdo_tree, hf_oss_spdo_ct, message_tvb, 0, 0, ct,
                                                 "0x%04X [%d] (%s)", ct, ct,
                                                 (packet->scm_udid_valid ? "Complete" : "Low byte only"));
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
         packet->payload.spdo->counter.b16 = ct;
 
         packet->payload.spdo->timerequest = taddr;
@@ -864,7 +864,7 @@ dissect_opensafety_spdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
         {
             item = proto_tree_add_uint_format_value(spdo_tree, hf_oss_spdo_ct, message_tvb, 0, 0, ct,
                     "0x%04X [%d] (%s)", ct, ct, (packet->scm_udid_valid ? "Complete" : "Low byte only"));
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
             packet->payload.spdo->counter.b16 = ct;
         }
         else
@@ -883,13 +883,13 @@ dissect_opensafety_spdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
             ct40bit += tvb_get_guint8(message_tvb, packet->frame.subframe1 + 3);
 
             item = proto_tree_add_uint64(spdo_tree, hf_oss_spdo_ct_40bit, message_tvb, 0, 0, ct40bit);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
 
             packet->payload.spdo->counter.b40 = ct40bit;
             if ( global_opensafety_debug_verbose )
                 expert_add_info ( pinfo, item, &ei_40bit_default_domain );
         }
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
 
         if ( b_ID == OPENSAFETY_MSG_SPDO_DATA_WITH_TIME_RESPONSE )
         {
@@ -977,13 +977,13 @@ static void dissect_opensafety_ssdo_payload ( packet_info *pinfo, tvbuff_t *new_
                                                     val_to_str_ext_const( ((guint32) (0x1018 << 16) ),
                                                                           &opensafety_sod_idx_names_ext, "Unknown") );
             sod_tree = proto_item_add_subtree(item, ett_opensafety_ssdo_sodentry);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
 
             item = proto_tree_add_uint_format_value(sod_tree, hf_oss_ssdo_sod_subindex, new_tvb, 0, 0,
                                                     0x06, "0x%02X (%s)", 0x06,
                                                     val_to_str_ext_const(((guint32) (0x1018 << 16) +  0x06),
                                                                          &opensafety_sod_idx_names_ext, "Unknown") );
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
 
             proto_tree_add_item( sod_tree, hf_oss_sod_par_timestamp, new_tvb, 0, 4, ENC_LITTLE_ENDIAN );
 
@@ -1021,7 +1021,7 @@ static void dissect_opensafety_ssdo_payload ( packet_info *pinfo, tvbuff_t *new_
                                                         val_to_str_ext_const( ((guint32) (dispSSDOIndex << 16) ),
                                                                               &opensafety_sod_idx_names_ext, "Unknown") );
                 if ( ssdoIndex != dispSSDOIndex )
-                    PROTO_ITEM_SET_GENERATED ( item );
+                    proto_item_set_generated ( item );
 
                 if ( ssdoIndex < 0x1000 || ssdoIndex > 0xE7FF )
                     expert_add_info ( pinfo, item, &ei_payload_unknown_format );
@@ -1296,7 +1296,7 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
                         if ( frag_msg != NULL )
                         {
                             item = proto_tree_add_bytes_format_value(ssdo_tree, hf_oss_ssdo_payload, message_tvb, 0, 0, NULL, "Reassembled" );
-                            PROTO_ITEM_SET_GENERATED(item);
+                            proto_item_set_generated(item);
 
                             ssdo_payload = proto_item_add_subtree(item, ett_opensafety_ssdo_payload);
                             process_reassembled_data(message_tvb, 0, pinfo, "Reassembled Message", frag_msg, &oss_frag_items, NULL, ssdo_payload );
@@ -1334,7 +1334,7 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
                 {
                     item = proto_tree_add_bytes_format_value(ssdo_tree, hf_oss_ssdo_payload, message_tvb,
                                                              0, 0, NULL, "Reassembled" );
-                    PROTO_ITEM_SET_GENERATED(item);
+                    proto_item_set_generated(item);
                     ssdo_payload = proto_item_add_subtree(item, ett_opensafety_ssdo_payload);
 
                     new_tvb = process_reassembled_data(message_tvb, 0, pinfo, "Reassembled Message", frag_msg,
@@ -1343,7 +1343,7 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
                     {
                         item = proto_tree_add_uint_format_value(ssdo_payload, hf_oss_ssdo_payload_size, message_tvb, 0, 0,
                                                                 payloadSize, "%d octets (over all fragments)", frag_msg->len);
-                        PROTO_ITEM_SET_GENERATED(item);
+                        proto_item_set_generated(item);
 
                         col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)" );
                         dissect_opensafety_ssdo_payload ( pinfo, new_tvb, ssdo_payload, db0 );
@@ -1353,7 +1353,7 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb, packet_info *pinfo, proto
                 {
                     item = proto_tree_add_uint_format_value(ssdo_tree, hf_oss_ssdo_payload_size, message_tvb, 0, 0, payloadSize,
                             "%d octets", payloadSize);
-                    PROTO_ITEM_SET_GENERATED(item);
+                    proto_item_set_generated(item);
 
                     if ( ssdoIndex == OPENSAFETY_SOD_DVI && ssdoSubIndex == 0x06 )
                     {
@@ -1675,7 +1675,7 @@ dissect_opensafety_checksum(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
 
     item = proto_tree_add_boolean(checksum_tree, hf_oss_crc_valid, message_tvb,
             packet->frame.subframe1, dataLength + 4, (frame1_crc == calc1_crc));
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
     if ( crcType == OPENSAFETY_CHECKSUM_INVALID || frame1_crc != calc1_crc )
         expert_add_info(pinfo, item, &ei_crc_frame_1_invalid );
 
@@ -1766,13 +1766,13 @@ dissect_opensafety_checksum(tvbuff_t *message_tvb, packet_info *pinfo, proto_tre
 
             item = proto_tree_add_boolean(checksum_tree, hf_oss_crc2_valid, message_tvb,
                     packet->frame.subframe2, frame2Length, (frame2_crc == calc2_crc));
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
 
             if ( frame2_crc != calc2_crc )
             {
                 item = proto_tree_add_uint_format(checksum_tree, hf_oss_crc, message_tvb,
                         packet->frame.subframe2, frame2Length, calc2_crc, "Calculated CRC: 0x%04X", calc2_crc);
-                PROTO_ITEM_SET_GENERATED(item);
+                proto_item_set_generated(item);
                 expert_add_info(pinfo, item, &ei_crc_frame_2_invalid );
             }
             else
@@ -1864,7 +1864,7 @@ dissect_opensafety_message(opensafety_packet_info *packet,
     }
 
     item = proto_tree_add_uint(opensafety_tree, hf_oss_byte_offset, packet->frame.frame_tvb, 0, 1, packet->frame.byte_offset);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
 
     if ( packet->msg_type == OPENSAFETY_SNMT_MESSAGE_TYPE )
     {
@@ -1885,13 +1885,13 @@ dissect_opensafety_message(opensafety_packet_info *packet,
             }
             else
                 item = proto_tree_add_string(opensafety_tree, hf_oss_scm_udid, message_tvb, 0, 0, global_scm_udid);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
         }
 
         item = proto_tree_add_boolean(opensafety_tree, hf_oss_scm_udid_valid, message_tvb, 0, 0, packet->scm_udid_valid);
         if ( udidLen != 6 )
             expert_add_info(pinfo, item, &ei_scmudid_invalid_preference );
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
 
         if ( packet->msg_type == OPENSAFETY_SSDO_MESSAGE_TYPE || packet->msg_type == OPENSAFETY_SLIM_SSDO_MESSAGE_TYPE )
         {

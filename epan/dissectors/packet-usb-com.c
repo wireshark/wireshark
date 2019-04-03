@@ -565,7 +565,7 @@ dissect_usb_com_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
         ti = proto_tree_add_uint(subtree, hf_usb_com_control_subclass, tvb, 0, 0,
                                  usb_conv_info->interfaceSubclass);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         is_request = (pinfo->srcport==NO_ENDPOINT);
         col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
@@ -584,7 +584,7 @@ dissect_usb_com_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
         } else {
             ti = proto_tree_add_uint(subtree, hf_usb_com_control_response_code, tvb, 0, 0,
                                      usb_trans_info->setup.request);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
         }
 
         switch (usb_trans_info->setup.request)

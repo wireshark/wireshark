@@ -1201,7 +1201,7 @@ dissect_lg8979(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
                     if (exp_code == 14) {
                         proto_item *lg8979_dfc_item;
                         lg8979_dfc_item = proto_tree_add_item(lg8979_tree, hf_lg8979_disallowed_func, tvb, offset+1, 1, ENC_NA);
-                        PROTO_ITEM_SET_GENERATED(lg8979_dfc_item);
+                        proto_item_set_generated(lg8979_dfc_item);
                     }
 
                     offset += 2;

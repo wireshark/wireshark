@@ -558,7 +558,7 @@ static void reassembly_show_source(rlc_channel_reassembly_info *reassembly_info,
                                     hf_rlc_lte_reassembly_source,
                                     tvb, 0, 0, ENC_ASCII|ENC_NA);
     source_tree = proto_item_add_subtree(source_ti, ett_rlc_lte_reassembly_source);
-    PROTO_ITEM_SET_GENERATED(source_ti);
+    proto_item_set_generated(source_ti);
 
     for (n=0; n < reassembly_info->number_of_segments; n++) {
         total_length += reassembly_info->segments[n].length;
@@ -570,13 +570,13 @@ static void reassembly_show_source(rlc_channel_reassembly_info *reassembly_info,
     ti = proto_tree_add_uint(source_tree,
                              hf_rlc_lte_reassembly_source_number_of_segments,
                              tvb, 0, 0, reassembly_info->number_of_segments);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* Total length */
     ti = proto_tree_add_uint(source_tree,
                              hf_rlc_lte_reassembly_source_total_length,
                              tvb, 0, 0, total_length);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* Now add info about each segment in turn */
     for (n=0; n < reassembly_info->number_of_segments; n++) {
@@ -596,18 +596,18 @@ static void reassembly_show_source(rlc_channel_reassembly_info *reassembly_info,
         segment_tree = proto_item_add_subtree(segment_ti, ett_rlc_lte_reassembly_source_segment);
         proto_item_append_text(segment_ti, " (SN=%u frame=%u length=%u)",
                                segment->SN, segment->frameNum, segment->length);
-        PROTO_ITEM_SET_GENERATED(segment_ti);
+        proto_item_set_generated(segment_ti);
 
         /* Add details to segment tree */
         ti = proto_tree_add_uint(segment_tree, hf_rlc_lte_reassembly_source_segment_sn,
                                  tvb, 0, 0, segment->SN);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
         ti = proto_tree_add_uint(segment_tree, hf_rlc_lte_reassembly_source_segment_framenum,
                                  tvb, 0, 0, segment->frameNum);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
         ti = proto_tree_add_uint(segment_tree, hf_rlc_lte_reassembly_source_segment_length,
                                  tvb, 0, 0, segment->length);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 }
 
@@ -902,7 +902,7 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
             }
             ENDTRY
 
-            PROTO_ITEM_SET_HIDDEN(data_ti);
+            proto_item_set_hidden(data_ti);
         }
         else if (global_rlc_lte_call_rrc_for_mcch && (rlc_info->channelType == CHANNEL_TYPE_MCCH)) {
             /* Send whole PDU to RRC */
@@ -925,7 +925,7 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
             }
             ENDTRY
 
-            PROTO_ITEM_SET_HIDDEN(data_ti);
+            proto_item_set_hidden(data_ti);
         }
         else if (global_rlc_lte_call_ip_for_mtch && (rlc_info->channelType == CHANNEL_TYPE_MTCH)) {
             /* Send whole PDU to IP */
@@ -948,7 +948,7 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
             }
             ENDTRY
 
-            PROTO_ITEM_SET_HIDDEN(data_ti);
+            proto_item_set_hidden(data_ti);
         }
     }
 }
@@ -1062,7 +1062,7 @@ static void checkFIconsistency(sequence_analysis_report *p,
         else {
            ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_framing_info_correct,
                                        tvb, 0, 0, TRUE);
-           PROTO_ITEM_SET_HIDDEN(ti);
+           proto_item_set_hidden(ti);
         }
     }
     else {
@@ -1079,10 +1079,10 @@ static void checkFIconsistency(sequence_analysis_report *p,
         else {
            ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_framing_info_correct,
                                        tvb, 0, 0, TRUE);
-           PROTO_ITEM_SET_HIDDEN(ti);
+           proto_item_set_hidden(ti);
         }
     }
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 }
 
 /* Add to the tree values associated with sequence analysis for this frame */
@@ -1105,12 +1105,12 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
                                              "", "Sequence Analysis");
     seqnum_tree = proto_item_add_subtree(seqnum_ti,
                                          ett_rlc_lte_sequence_analysis);
-    PROTO_ITEM_SET_GENERATED(seqnum_ti);
+    proto_item_set_generated(seqnum_ti);
 
     if (p->previousFrameNum != 0) {
         ti = proto_tree_add_uint(seqnum_tree, hf_rlc_lte_sequence_analysis_previous_frame,
                                  tvb, 0, 0, p->previousFrameNum);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
     switch (p_rlc_lte_info->rlcMode) {
@@ -1128,7 +1128,7 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
 
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
                                                 tvb, 0, 0, TRUE);
-                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_set_generated(ti);
                     proto_item_append_text(seqnum_ti, " - OK");
 
                     /* Link to next SN in channel (if known) */
@@ -1148,10 +1148,10 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
 
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
                                                 tvb, 0, 0, FALSE);
-                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_set_generated(ti);
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_mac_retx,
                                                 tvb, 0, 0, TRUE);
-                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_set_generated(ti);
                     expert_add_info_format(pinfo, ti, &ei_rlc_lte_sequence_analysis_mac_retx,
                                            "AM Frame retransmitted for %s on UE %u - due to MAC retx! (%s-%u)",
                                            val_to_str_const(p_rlc_lte_info->direction, direction_vals, "Unknown"),
@@ -1168,10 +1168,10 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
 
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
                                                 tvb, 0, 0, FALSE);
-                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_set_generated(ti);
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_retx,
                                                 tvb, 0, 0, TRUE);
-                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_set_generated(ti);
                     expert_add_info_format(pinfo, ti, &ei_rlc_lte_sequence_analysis_retx,
                                            "AM Frame retransmitted for %s on UE %u - most likely in response to NACK (%s-%u)",
                                            val_to_str_const(p_rlc_lte_info->direction, direction_vals, "Unknown"),
@@ -1188,10 +1188,10 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
 
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
                                                 tvb, 0, 0, FALSE);
-                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_set_generated(ti);
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_repeated,
                                                 tvb, 0, 0, TRUE);
-                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_set_generated(ti);
                     expert_add_info_format(pinfo, ti, &ei_rlc_lte_sequence_analysis_repeated,
                                            "AM SN Repeated for %s for UE %u - probably because didn't receive Status PDU? (%s-%u)",
                                            val_to_str_const(p_rlc_lte_info->direction, direction_vals, "Unknown"),
@@ -1208,10 +1208,10 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
 
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
                                                 tvb, 0, 0, FALSE);
-                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_set_generated(ti);
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_skipped,
                                                 tvb, 0, 0, TRUE);
-                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_set_generated(ti);
                     if (p->lastSN != p->firstSN) {
                         expert_add_info_format(pinfo, ti, &ei_rlc_lte_am_sn_missing,
                                                "AM SNs (%u to %u) missing for %s on UE %u (%s-%u)",
@@ -1251,15 +1251,15 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
                                                 tvb, 0, 0, FALSE);
                     /* Out of range */
-                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_set_generated(ti);
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ack_out_of_range,
                                                 tvb, 0, 0, TRUE);
-                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_set_generated(ti);
 
                     /* Link back to last seen SN in other direction */
                     ti = proto_tree_add_uint(seqnum_tree, hf_rlc_lte_sequence_analysis_ack_out_of_range_opposite_frame,
                                              tvb, 0, 0, p->previousFrameNum);
-                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_set_generated(ti);
 
                     /* Expert error */
                     expert_add_info_format(pinfo, ti, &ei_rlc_lte_sequence_analysis_ack_out_of_range_opposite_frame,
@@ -1287,9 +1287,9 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
             /* Expected sequence number */
             ti = proto_tree_add_uint(seqnum_tree, hf_rlc_lte_sequence_analysis_expected_sn,
                                     tvb, 0, 0, p->sequenceExpected);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             if (p->sequenceExpectedCorrect) {
-                PROTO_ITEM_SET_HIDDEN(ti);
+                proto_item_set_hidden(ti);
             }
 
             if (!p->sequenceExpectedCorrect) {
@@ -1306,10 +1306,10 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
                     case SN_Missing:
                         ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
                                                     tvb, 0, 0, FALSE);
-                        PROTO_ITEM_SET_GENERATED(ti);
+                        proto_item_set_generated(ti);
                         ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_skipped,
                                                     tvb, 0, 0, TRUE);
-                        PROTO_ITEM_SET_GENERATED(ti);
+                        proto_item_set_generated(ti);
                         if (p->lastSN != p->firstSN) {
                             expert_add_info_format(pinfo, ti, &ei_rlc_lte_um_sn_missing,
                                                    "UM SNs (%u to %u) missing for %s on UE %u (%s-%u)",
@@ -1339,10 +1339,10 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
                     case SN_Repeated:
                         ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
                                                     tvb, 0, 0, FALSE);
-                        PROTO_ITEM_SET_GENERATED(ti);
+                        proto_item_set_generated(ti);
                         ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_repeated,
                                                     tvb, 0, 0, TRUE);
-                        PROTO_ITEM_SET_GENERATED(ti);
+                        proto_item_set_generated(ti);
                         expert_add_info_format(pinfo, ti, &ei_rlc_lte_um_sn_repeated,
                                                "UM SN (%u) repeated for %s for UE %u (%s-%u)",
                                                p->firstSN,
@@ -1357,10 +1357,10 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
                     case SN_MAC_Retx:
                         ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
                                                     tvb, 0, 0, FALSE);
-                        PROTO_ITEM_SET_GENERATED(ti);
+                        proto_item_set_generated(ti);
                         ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_mac_retx,
                                                     tvb, 0, 0, TRUE);
-                        PROTO_ITEM_SET_GENERATED(ti);
+                        proto_item_set_generated(ti);
                         expert_add_info_format(pinfo, ti, &ei_rlc_lte_sequence_analysis_mac_retx,
                                                "UM Frame retransmitted for %s on UE %u - due to MAC retx! (%s-%u)",
                                                val_to_str_const(p_rlc_lte_info->direction, direction_vals, "Unknown"),
@@ -1389,7 +1389,7 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
                 /* Set OK here! */
                 ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
                                             tvb, 0, 0, TRUE);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
                 proto_item_append_text(seqnum_ti, " - OK");
             }
 
@@ -1397,7 +1397,7 @@ static void addChannelSequenceInfo(sequence_analysis_report *p,
             if (p->nextFrameNum != 0) {
                 ti = proto_tree_add_uint(seqnum_tree, hf_rlc_lte_sequence_analysis_next_frame,
                                          tvb, 0, 0, p->nextFrameNum);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
             }
     }
 }
@@ -1793,19 +1793,19 @@ static void addChannelRepeatedNACKInfo(channel_repeated_nack_report *p,
                                              "", "Sequence Analysis");
     seqnum_tree = proto_item_add_subtree(seqnum_ti,
                                          ett_rlc_lte_sequence_analysis);
-    PROTO_ITEM_SET_GENERATED(seqnum_ti);
+    proto_item_set_generated(seqnum_ti);
 
     /* OK = FALSE */
     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
                                 tvb, 0, 0, FALSE);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* Add each repeated NACK as item & expert info */
     for (n=0; n < p->noOfNACKsRepeated; n++) {
 
         ti = proto_tree_add_uint(seqnum_tree, hf_rlc_lte_sequence_analysis_repeated_nack,
                                  tvb, 0, 0, p->repeatedNACKs[n]);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         expert_add_info_format(pinfo, ti, &ei_rlc_lte_sequence_analysis_repeated_nack,
                                "Same SN  (%u) NACKd for %s on UE %u in successive Status PDUs",
@@ -1817,7 +1817,7 @@ static void addChannelRepeatedNACKInfo(channel_repeated_nack_report *p,
     /* Link back to previous status report */
     ti = proto_tree_add_uint(seqnum_tree, hf_rlc_lte_sequence_analysis_repeated_nack_original_frame,
                              tvb, 0, 0, p->previousFrameNum);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* Append count to sequence analysis root */
     proto_item_append_text(seqnum_ti, " - %u SNs repeated from previous Status PDU",
@@ -2021,7 +2021,7 @@ static void dissect_rlc_lte_tm(tvbuff_t *tvb, packet_info *pinfo,
     /* Create hidden TM root */
     tm_ti = proto_tree_add_string_format(tree, hf_rlc_lte_tm,
                                          tvb, offset, 0, "", "TM");
-    PROTO_ITEM_SET_HIDDEN(tm_ti);
+    proto_item_set_hidden(tm_ti);
 
     /* Remaining bytes are all data */
     raw_tm_ti = proto_tree_add_item(tree, hf_rlc_lte_tm_data, tvb, offset, -1, ENC_NA);
@@ -2070,7 +2070,7 @@ static void dissect_rlc_lte_tm(tvbuff_t *tvb, packet_info *pinfo,
         }
 
         /* Hide raw view of bytes */
-        PROTO_ITEM_SET_HIDDEN(raw_tm_ti);
+        proto_item_set_hidden(raw_tm_ti);
 
         /* Call it (catch exceptions) */
         TRY {
@@ -2110,7 +2110,7 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
     /* Hidden UM root */
     um_ti = proto_tree_add_string_format(tree, hf_rlc_lte_um,
                                          tvb, offset, 0, "", "UM");
-    PROTO_ITEM_SET_HIDDEN(um_ti);
+    proto_item_set_hidden(um_ti);
 
     /* Add UM header subtree */
     um_header_ti = proto_tree_add_string_format(tree, hf_rlc_lte_um_header,
@@ -2205,7 +2205,7 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
                                            is_truncated);
         if (is_truncated) {
             int n;
-            PROTO_ITEM_SET_GENERATED(truncated_ti);
+            proto_item_set_generated(truncated_ti);
             expert_add_info(pinfo, truncated_ti, &ei_rlc_lte_header_only);
 
             /* Show in the info column how long the data would be */
@@ -2221,7 +2221,7 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
                              last_includes_end);
         }
         else {
-            PROTO_ITEM_SET_HIDDEN(truncated_ti);
+            proto_item_set_hidden(truncated_ti);
         }
     }
 
@@ -2453,7 +2453,7 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
 
     if (nack_count > 0) {
         proto_item *count_ti = proto_tree_add_uint(tree, hf_rlc_lte_am_nacks, tvb, 0, 1, nack_count);
-        PROTO_ITEM_SET_GENERATED(count_ti);
+        proto_item_set_generated(count_ti);
         proto_item_append_text(status_ti, "  (%u NACKs)", nack_count);
         tap_info->noOfNACKs = nack_count;
     }
@@ -2516,7 +2516,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     /* Hidden AM root */
     am_ti = proto_tree_add_string_format(tree, hf_rlc_lte_am,
                                          tvb, offset, 0, "", "AM");
-    PROTO_ITEM_SET_HIDDEN(am_ti);
+    proto_item_set_hidden(am_ti);
 
     /* Add AM header subtree */
     am_header_ti = proto_tree_add_string_format(tree, hf_rlc_lte_am_header,
@@ -2662,7 +2662,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
                                            is_truncated);
         if (is_truncated) {
             int n;
-            PROTO_ITEM_SET_GENERATED(truncated_ti);
+            proto_item_set_generated(truncated_ti);
             expert_add_info(pinfo, truncated_ti, &ei_rlc_lte_header_only);
             /* Show in the info column how long the data would be */
             for (n=0; n < s_number_of_extensions; n++) {
@@ -2677,7 +2677,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
                              last_includes_end);
         }
         else {
-            PROTO_ITEM_SET_HIDDEN(truncated_ti);
+            proto_item_set_hidden(truncated_ti);
         }
     }
 
@@ -2949,55 +2949,55 @@ static void dissect_rlc_lte_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     context_ti = proto_tree_add_string_format(rlc_lte_tree, hf_rlc_lte_context,
                                               tvb, offset, 0, "", "Context");
     context_tree = proto_item_add_subtree(context_ti, ett_rlc_lte_context);
-    PROTO_ITEM_SET_GENERATED(context_ti);
+    proto_item_set_generated(context_ti);
 
     ti = proto_tree_add_uint(context_tree, hf_rlc_lte_context_direction,
                              tvb, 0, 0, p_rlc_lte_info->direction);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     mode_ti = proto_tree_add_uint(context_tree, hf_rlc_lte_context_mode,
                                   tvb, 0, 0, p_rlc_lte_info->rlcMode);
-    PROTO_ITEM_SET_GENERATED(mode_ti);
+    proto_item_set_generated(mode_ti);
 
     if (p_rlc_lte_info->ueid != 0) {
         ti = proto_tree_add_uint(context_tree, hf_rlc_lte_context_ueid,
                                  tvb, 0, 0, p_rlc_lte_info->ueid);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
     if ((p_rlc_lte_info->priority >= 1) && (p_rlc_lte_info->priority <=16)) {
         ti = proto_tree_add_uint(context_tree, hf_rlc_lte_context_priority,
                                  tvb, 0, 0, p_rlc_lte_info->priority);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
     ti = proto_tree_add_uint(context_tree, hf_rlc_lte_context_channel_type,
                              tvb, 0, 0, p_rlc_lte_info->channelType);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     if ((p_rlc_lte_info->channelType == CHANNEL_TYPE_SRB) ||
         (p_rlc_lte_info->channelType == CHANNEL_TYPE_DRB) ||
         (p_rlc_lte_info->channelType == CHANNEL_TYPE_MTCH)) {
         ti = proto_tree_add_uint(context_tree, hf_rlc_lte_context_channel_id,
                                  tvb, 0, 0, p_rlc_lte_info->channelId);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
     ti = proto_tree_add_uint(context_tree, hf_rlc_lte_context_pdu_length,
                              tvb, 0, 0, p_rlc_lte_info->pduLength);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     if (p_rlc_lte_info->rlcMode == RLC_UM_MODE) {
         ti = proto_tree_add_uint(context_tree, hf_rlc_lte_context_um_sn_length,
                                  tvb, 0, 0, p_rlc_lte_info->sequenceNumberLength);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
     if (p_rlc_lte_info->rlcMode == RLC_AM_MODE) {
         ti = proto_tree_add_uint(context_tree, hf_rlc_lte_context_am_sn_length,
                                  tvb, 0, 0, p_rlc_lte_info->sequenceNumberLength ?
                                     p_rlc_lte_info->sequenceNumberLength : 10);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
     /* Append highlights to top-level item */

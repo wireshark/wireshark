@@ -1088,13 +1088,13 @@ dissect_rpc_authgss_context(proto_tree *tree, tvbuff_t *tvb, int offset,
 	if (context_info->create_frame) {
 		proto_item *it;
 		it = proto_tree_add_uint(context_tree, hf_rpc_authgss_ctx_create_frame, tvb, 0, 0, context_info->create_frame);
-		PROTO_ITEM_SET_GENERATED(it);
+		proto_item_set_generated(it);
 	}
 
 	if (context_info->destroy_frame) {
 		proto_item *it;
 		it = proto_tree_add_uint(context_tree, hf_rpc_authgss_ctx_destroy_frame, tvb, 0, 0, context_info->destroy_frame);
-		PROTO_ITEM_SET_GENERATED(it);
+		proto_item_set_generated(it);
 	}
 
 	proto_item_set_len(context_item, offset - old_offset);
@@ -1937,15 +1937,15 @@ dissect_rpc_indir_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		tmp_item=proto_tree_add_uint_format(tree, prog_id, tvb,
 			0, 0, rpc_call->prog, "Program: %s (%u)",
 			rpc_prog_name(rpc_call->prog), rpc_call->prog);
-		PROTO_ITEM_SET_GENERATED(tmp_item);
+		proto_item_set_generated(tmp_item);
 
 		tmp_item=proto_tree_add_uint(tree, vers_id, tvb, 0, 0, rpc_call->vers);
-		PROTO_ITEM_SET_GENERATED(tmp_item);
+		proto_item_set_generated(tmp_item);
 
 		tmp_item=proto_tree_add_uint_format(tree, proc_id, tvb,
 			0, 0, rpc_call->proc, "Procedure: %s (%u)",
 			procname, rpc_call->proc);
-		PROTO_ITEM_SET_GENERATED(tmp_item);
+		proto_item_set_generated(tmp_item);
 	}
 
 	if (dissect_function == NULL) {
@@ -2511,7 +2511,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			    tvb, 0, 0, rpc_call->rep_num,
 			    "The reply to this request is in frame %u",
 			    rpc_call->rep_num);
-			PROTO_ITEM_SET_GENERATED(tmp_item);
+			proto_item_set_generated(tmp_item);
 		}
 
 		offset += 16;
@@ -2600,14 +2600,14 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			tmp_item=proto_tree_add_uint_format_value(rpc_tree,
 				hf_rpc_program, tvb, 0, 0, prog,
 				"%s (%u)", progname, prog);
-			PROTO_ITEM_SET_GENERATED(tmp_item);
+			proto_item_set_generated(tmp_item);
 			tmp_item=proto_tree_add_uint(rpc_tree,
 				hf_rpc_programversion, tvb, 0, 0, vers);
-			PROTO_ITEM_SET_GENERATED(tmp_item);
+			proto_item_set_generated(tmp_item);
 			tmp_item=proto_tree_add_uint_format_value(rpc_tree,
 				hf_rpc_procedure, tvb, 0, 0, proc,
 				"%s (%u)", procname, proc);
-			PROTO_ITEM_SET_GENERATED(tmp_item);
+			proto_item_set_generated(tmp_item);
 		}
 
 		reply_state = tvb_get_ntohl(tvb,offset);
@@ -2623,12 +2623,12 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			    tvb, 0, 0, rpc_call->req_num,
 			    "This is a reply to a request in frame %u",
 			    rpc_call->req_num);
-			PROTO_ITEM_SET_GENERATED(tmp_item);
+			proto_item_set_generated(tmp_item);
 
 			nstime_delta(&ns, &pinfo->abs_ts, &rpc_call->req_time);
 			tmp_item=proto_tree_add_time(rpc_tree, hf_rpc_time, tvb, offset, 0,
 				&ns);
-			PROTO_ITEM_SET_GENERATED(tmp_item);
+			proto_item_set_generated(tmp_item);
 
 			col_append_fstr(pinfo->cinfo, COL_INFO," (Call In %d)", rpc_call->req_num);
 		}
@@ -2651,11 +2651,11 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						"[RPC duplicate of #%d]", rpc_call->rep_num);
 				tmp_item=proto_tree_add_item(rpc_tree,
 					hf_rpc_dup, tvb, 0,0, ENC_NA);
-				PROTO_ITEM_SET_GENERATED(tmp_item);
+				proto_item_set_generated(tmp_item);
 
 				tmp_item=proto_tree_add_uint(rpc_tree,
 					hf_rpc_reply_dup, tvb, 0,0, rpc_call->rep_num);
-				PROTO_ITEM_SET_GENERATED(tmp_item);
+				proto_item_set_generated(tmp_item);
 			}
 		}
 
@@ -2822,7 +2822,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		tmp_item=proto_tree_add_uint(ptree,
 				hf_rpc_programversion, tvb, 0, 0, vers);
-		PROTO_ITEM_SET_GENERATED(tmp_item);
+		proto_item_set_generated(tmp_item);
 		if (rpc_prog && rpc_prog->procedure_hfs && (rpc_prog->procedure_hfs->len > vers) )
 			procedure_hf = g_array_index(rpc_prog->procedure_hfs, int, vers);
 		else {
@@ -2834,12 +2834,12 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (procedure_hf != 0 && procedure_hf != -1) {
 			tmp_item=proto_tree_add_uint(ptree,
 				procedure_hf, tvb, 0, 0, proc);
-			PROTO_ITEM_SET_GENERATED(tmp_item);
+			proto_item_set_generated(tmp_item);
 		} else {
 			tmp_item=proto_tree_add_uint_format_value(ptree,
 				hf_rpc_procedure, tvb, 0, 0, proc,
 				"%s (%u)", procname, proc);
-			PROTO_ITEM_SET_GENERATED(tmp_item);
+			proto_item_set_generated(tmp_item);
 		}
 	}
 

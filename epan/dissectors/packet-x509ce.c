@@ -400,7 +400,7 @@ dissect_x509ce_T_uniformResourceIdentifier(gboolean implicit_tag _U_, tvbuff_t *
 
 #line 190 "./asn1/x509ce/x509ce.cnf"
 
-  PROTO_ITEM_SET_URL(actx->created_item);
+  proto_item_set_url(actx->created_item);
 
 
   return offset;

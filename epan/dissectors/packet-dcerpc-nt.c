@@ -978,14 +978,14 @@ dissect_nt_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 			item_local=proto_tree_add_uint(
 				subtree, hf_nt_policy_open_frame, tvb,
 				old_offset, sizeof(e_ctx_hnd), open_frame);
-			PROTO_ITEM_SET_GENERATED(item_local);
+			proto_item_set_generated(item_local);
 		}
 		if (close_frame) {
 			proto_item *item_local;
 			item_local=proto_tree_add_uint(
 				subtree, hf_nt_policy_close_frame, tvb,
 				old_offset, sizeof(e_ctx_hnd), close_frame);
-			PROTO_ITEM_SET_GENERATED(item_local);
+			proto_item_set_generated(item_local);
 		}
 
 		/*

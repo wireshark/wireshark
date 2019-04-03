@@ -463,7 +463,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
         error_code = (error_class * 100) + error_number;
         it = proto_tree_add_uint(attr_tree, xmcp_attr_error_code, tvb,
                                         (offset+2), 2, error_code);
-        PROTO_ITEM_SET_GENERATED(it);
+        proto_item_set_generated(it);
         proto_item_append_text(attr_tree, ": %d", error_code);
         col_append_fstr(pinfo->cinfo, COL_INFO, ", error %d (%s)", error_code,
                           val_to_str_const(error_code, error_codes, "Unknown"));
@@ -940,7 +940,7 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     if (xmcp_trans->response_frame) {
       ti = proto_tree_add_uint(xmcp_tree, hf_xmcp_response_in, tvb, 0, 0,
                                xmcp_trans->response_frame);
-      PROTO_ITEM_SET_GENERATED(ti);
+      proto_item_set_generated(ti);
     }
   } else if (xmcp_msg_type_class != XMCP_CLASS_RESERVED) {
     if (xmcp_trans->request_frame) {
@@ -948,11 +948,11 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
       ti = proto_tree_add_uint(xmcp_tree, hf_xmcp_response_to, tvb, 0, 0,
                                xmcp_trans->request_frame);
-      PROTO_ITEM_SET_GENERATED(ti);
+      proto_item_set_generated(ti);
 
       nstime_delta(&ns, &pinfo->abs_ts, &xmcp_trans->request_time);
       ti = proto_tree_add_time(xmcp_tree, hf_xmcp_time, tvb, 0, 0, &ns);
-      PROTO_ITEM_SET_GENERATED(ti);
+      proto_item_set_generated(ti);
     } else {
       /* This is a response, but we don't know about a request for this response? */
       expert_add_info(pinfo, ti, &ei_xmcp_response_without_request);
@@ -1013,7 +1013,7 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   if (xmcp_msg_is_keepalive) {
     ti = proto_tree_add_none_format(xmcp_tree, hf_xmcp_msg_is_keepalive, tvb,
                                     0, 0, "This is a Keepalive message");
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     if (xmcp_msg_type_method != XMCP_METHOD_KEEPALIVE) {
       col_prepend_fstr(pinfo->cinfo, COL_INFO, "[Keepalive] ");
     }

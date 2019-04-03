@@ -362,9 +362,9 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
                     }
                     checksum_tree = proto_item_add_subtree(item, ett_checksum);
                     item = proto_tree_add_boolean(checksum_tree, hf_fix_checksum_good, tvb, field_offset, tag->field_len, sum_ok);
-                    PROTO_ITEM_SET_GENERATED(item);
+                    proto_item_set_generated(item);
                     item = proto_tree_add_boolean(checksum_tree, hf_fix_checksum_bad, tvb, field_offset, tag->field_len, !sum_ok);
-                    PROTO_ITEM_SET_GENERATED(item);
+                    proto_item_set_generated(item);
                     if (!sum_ok)
                         expert_add_info(pinfo, item, &ei_fix_checksum_bad);
                 }

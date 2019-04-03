@@ -3333,7 +3333,7 @@ dissect_e212_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offse
         expert_add_info(pinfo, item, &ei_E212_imsi_malformed);
     }
     item = proto_tree_add_string(tree, hf_e212_assoc_imsi, tvb, offset, length, imsi_str);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
     subtree = proto_item_add_subtree(item, ett_e212_imsi);
 
     if(skip_first) {
@@ -3359,7 +3359,7 @@ dissect_e212_utf8_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
         expert_add_info(pinfo, item, &ei_E212_imsi_malformed);
     }
     item = proto_tree_add_string(tree, hf_e212_assoc_imsi, tvb, offset, length, imsi_str);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
 
     subtree = proto_item_add_subtree(item, ett_e212_imsi);
 

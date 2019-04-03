@@ -1551,7 +1551,7 @@ static void aeron_sequence_report_frame(tvbuff_t * tvb, proto_tree * tree, aeron
     {
         item = proto_tree_add_uint(tree, hf_aeron_sequence_analysis_term_offset_frame, tvb, 0, 0, finfo->frame);
     }
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
 }
 
 static void aeron_sequence_report(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, aeron_transport_t * transport, aeron_packet_info_t * info, aeron_frame_info_t * finfo)
@@ -1564,17 +1564,17 @@ static void aeron_sequence_report(tvbuff_t * tvb, packet_info * pinfo, proto_tre
             proto_item * item;
 
             item = proto_tree_add_item(tree, hf_aeron_sequence_analysis, tvb, 0, 0, ENC_NA);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
             subtree = proto_item_add_subtree(item, ett_aeron_sequence_analysis);
             if (finfo->transport.previous != 0)
             {
                 item = proto_tree_add_uint(subtree, hf_aeron_sequence_analysis_channel_prev_frame, tvb, 0, 0, finfo->transport.previous);
-                PROTO_ITEM_SET_GENERATED(item);
+                proto_item_set_generated(item);
             }
             if (finfo->transport.next != 0)
             {
                 item = proto_tree_add_uint(subtree, hf_aeron_sequence_analysis_channel_next_frame, tvb, 0, 0, finfo->transport.next);
-                PROTO_ITEM_SET_GENERATED(item);
+                proto_item_set_generated(item);
             }
             if ((info->info_flags & AERON_PACKET_INFO_FLAGS_STREAM_ID_VALID) != 0)
             {
@@ -1586,12 +1586,12 @@ static void aeron_sequence_report(tvbuff_t * tvb, packet_info * pinfo, proto_tre
                     if (finfo->stream.previous != 0)
                     {
                         item = proto_tree_add_uint(subtree, hf_aeron_sequence_analysis_stream_prev_frame, tvb, 0, 0, finfo->stream.previous);
-                        PROTO_ITEM_SET_GENERATED(item);
+                        proto_item_set_generated(item);
                     }
                     if (finfo->stream.next != 0)
                     {
                         item = proto_tree_add_uint(subtree, hf_aeron_sequence_analysis_stream_next_frame, tvb, 0, 0, finfo->stream.next);
-                        PROTO_ITEM_SET_GENERATED(item);
+                        proto_item_set_generated(item);
                     }
                     if ((info->info_flags & AERON_PACKET_INFO_FLAGS_TERM_ID_VALID) != 0)
                     {
@@ -1603,12 +1603,12 @@ static void aeron_sequence_report(tvbuff_t * tvb, packet_info * pinfo, proto_tre
                             if (finfo->term.previous != 0)
                             {
                                 item = proto_tree_add_uint(subtree, hf_aeron_sequence_analysis_term_prev_frame, tvb, 0, 0, finfo->term.previous);
-                                PROTO_ITEM_SET_GENERATED(item);
+                                proto_item_set_generated(item);
                             }
                             if (finfo->term.next != 0)
                             {
                                 item = proto_tree_add_uint(subtree, hf_aeron_sequence_analysis_term_next_frame, tvb, 0, 0, finfo->term.next);
-                                PROTO_ITEM_SET_GENERATED(item);
+                                proto_item_set_generated(item);
                             }
                             if ((info->info_flags & AERON_PACKET_INFO_FLAGS_TERM_OFFSET_VALID) != 0)
                             {
@@ -1630,7 +1630,7 @@ static void aeron_sequence_report(tvbuff_t * tvb, packet_info * pinfo, proto_tre
                                             wmem_list_frame_t * lf;
 
                                             frame_item = proto_tree_add_item(subtree, hf_aeron_sequence_analysis_term_offset, tvb, 0, 0, ENC_NA);
-                                            PROTO_ITEM_SET_GENERATED(frame_item);
+                                            proto_item_set_generated(frame_item);
                                             frame_tree = proto_item_add_subtree(frame_item, ett_aeron_sequence_analysis_term_offset);
                                             lf = wmem_list_head(fragment->frame);
                                             while (lf != NULL)
@@ -1647,7 +1647,7 @@ static void aeron_sequence_report(tvbuff_t * tvb, packet_info * pinfo, proto_tre
                                             }
                                         }
                                         fei_item = proto_tree_add_boolean(subtree, hf_aeron_sequence_analysis_retransmission, tvb, 0, 0, rx);
-                                        PROTO_ITEM_SET_GENERATED(fei_item);
+                                        proto_item_set_generated(fei_item);
                                         if (rx)
                                         {
                                             if (wmem_list_count(finfo->rx) > 0)
@@ -1657,7 +1657,7 @@ static void aeron_sequence_report(tvbuff_t * tvb, packet_info * pinfo, proto_tre
                                                 wmem_list_frame_t * lf;
 
                                                 rx_item = proto_tree_add_item(subtree, hf_aeron_sequence_analysis_retransmission_rx, tvb, 0, 0, ENC_NA);
-                                                PROTO_ITEM_SET_GENERATED(rx_item);
+                                                proto_item_set_generated(rx_item);
                                                 rx_tree = proto_item_add_subtree(rx_item, ett_aeron_sequence_analysis_retransmission_rx);
                                                 lf = wmem_list_head(finfo->rx);
                                                 while (lf != NULL)
@@ -1666,14 +1666,14 @@ static void aeron_sequence_report(tvbuff_t * tvb, packet_info * pinfo, proto_tre
                                                     if (nak != NULL)
                                                     {
                                                         rx_item = proto_tree_add_uint(rx_tree, hf_aeron_sequence_analysis_retransmission_rx_frame, tvb, 0, 0, nak->frame);
-                                                        PROTO_ITEM_SET_GENERATED(rx_item);
+                                                        proto_item_set_generated(rx_item);
                                                     }
                                                     lf = wmem_list_frame_next(lf);
                                                 }
                                             }
                                         }
                                         fei_item = proto_tree_add_boolean(subtree, hf_aeron_sequence_analysis_keepalive, tvb, 0, 0, ka);
-                                        PROTO_ITEM_SET_GENERATED(fei_item);
+                                        proto_item_set_generated(fei_item);
                                     }
                                 }
                             }
@@ -1682,7 +1682,7 @@ static void aeron_sequence_report(tvbuff_t * tvb, packet_info * pinfo, proto_tre
                                 proto_item * nak_item;
 
                                 nak_item = proto_tree_add_uint(subtree, hf_aeron_sequence_analysis_nak_unrecovered, tvb, 0, 0, finfo->nak_analysis->unrecovered_length);
-                                PROTO_ITEM_SET_GENERATED(nak_item);
+                                proto_item_set_generated(nak_item);
                                 if (wmem_list_count(finfo->nak_analysis->rx) > 0)
                                 {
                                     proto_tree * rx_tree;
@@ -1690,7 +1690,7 @@ static void aeron_sequence_report(tvbuff_t * tvb, packet_info * pinfo, proto_tre
                                     wmem_list_frame_t * lf;
 
                                     rx_item = proto_tree_add_item(subtree, hf_aeron_sequence_analysis_nak_rx, tvb, 0, 0, ENC_NA);
-                                    PROTO_ITEM_SET_GENERATED(rx_item);
+                                    proto_item_set_generated(rx_item);
                                     rx_tree = proto_item_add_subtree(rx_item, ett_aeron_sequence_analysis_nak_rx);
                                     lf = wmem_list_head(finfo->nak_analysis->rx);
                                     while (lf != NULL)
@@ -1700,7 +1700,7 @@ static void aeron_sequence_report(tvbuff_t * tvb, packet_info * pinfo, proto_tre
                                         {
                                             rx_item = proto_tree_add_uint_format_value(rx_tree, hf_aeron_sequence_analysis_nak_rx_frame, tvb, 0, 0, rx->frame_info->frame,
                                                 "%" G_GUINT32_FORMAT ", Term offset=%" G_GUINT32_FORMAT " (0x%08x), Length=%" G_GUINT32_FORMAT, rx->frame_info->frame, rx->term_offset, rx->term_offset, rx->length);
-                                            PROTO_ITEM_SET_GENERATED(rx_item);
+                                            proto_item_set_generated(rx_item);
                                         }
                                         lf = wmem_list_frame_next(lf);
                                     }
@@ -1724,16 +1724,16 @@ static void aeron_stream_report(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
             proto_item * item;
 
             item = proto_tree_add_item(tree, hf_aeron_stream_analysis, tvb, 0, 0, ENC_NA);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
             subtree = proto_item_add_subtree(item, ett_aeron_stream_analysis);
             item = proto_tree_add_uint(subtree, hf_aeron_stream_analysis_high_term_id, tvb, 0, 0, finfo->stream_analysis->high.term_id);
             if ((finfo->stream_analysis->flags & AERON_STREAM_ANALYSIS_FLAGS_TERM_ID_CHANGE) != 0)
             {
                 expert_add_info(pinfo, item, &ei_aeron_analysis_term_id_change);
             }
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
             item = proto_tree_add_uint(subtree, hf_aeron_stream_analysis_high_term_offset, tvb, 0, 0, finfo->stream_analysis->high.term_offset);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
             if ((finfo->stream_analysis->flags & AERON_STREAM_ANALYSIS_FLAGS_IDLE_RX) != 0)
             {
                 expert_add_info(pinfo, item, &ei_aeron_analysis_idle_rx);
@@ -1761,9 +1761,9 @@ static void aeron_stream_report(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
             if ((finfo->stream_analysis->flags2 & AERON_STREAM_ANALYSIS_FLAGS2_RCV_VALID) != 0)
             {
                 item = proto_tree_add_uint(subtree, hf_aeron_stream_analysis_completed_term_id, tvb, 0, 0, finfo->stream_analysis->completed.term_id);
-                PROTO_ITEM_SET_GENERATED(item);
+                proto_item_set_generated(item);
                 item = proto_tree_add_uint(subtree, hf_aeron_stream_analysis_completed_term_offset, tvb, 0, 0, finfo->stream_analysis->completed.term_offset);
-                PROTO_ITEM_SET_GENERATED(item);
+                proto_item_set_generated(item);
                 if ((finfo->stream_analysis->flags & AERON_STREAM_ANALYSIS_FLAGS_OOO_SM) != 0)
                 {
                     expert_add_info(pinfo, item, &ei_aeron_analysis_ooo_sm);
@@ -1773,7 +1773,7 @@ static void aeron_stream_report(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
                     expert_add_info(pinfo, item, &ei_aeron_analysis_keepalive_sm);
                 }
                 item = proto_tree_add_uint(subtree, hf_aeron_stream_analysis_outstanding_bytes, tvb, 0, 0, finfo->stream_analysis->outstanding_bytes);
-                PROTO_ITEM_SET_GENERATED(item);
+                proto_item_set_generated(item);
                 if ((finfo->stream_analysis->flags & AERON_STREAM_ANALYSIS_FLAGS_WINDOW_FULL) != 0)
                 {
                     expert_add_info(pinfo, item, &ei_aeron_analysis_window_full);
@@ -1813,12 +1813,12 @@ static void aeron_next_offset_report(tvbuff_t * tvb, proto_tree * tree, aeron_tr
                     next_offset_term_id++;
                 }
                 item = proto_tree_add_uint(tree, hf_aeron_data_next_offset, tvb, 0, 0, next_offset);
-                PROTO_ITEM_SET_GENERATED(item);
+                proto_item_set_generated(item);
                 if (next_offset_term_id != term_id)
                 {
                     next_offset_term = aeron_stream_term_find(stream, next_offset_term_id);
                     item = proto_tree_add_uint(tree, hf_aeron_data_next_offset_term, tvb, 0, 0, next_offset_term_id);
-                    PROTO_ITEM_SET_GENERATED(item);
+                    proto_item_set_generated(item);
                 }
                 else
                 {
@@ -1834,7 +1834,7 @@ static void aeron_next_offset_report(tvbuff_t * tvb, proto_tree * tree, aeron_tr
                         {
                             next_offset_first_frame = next_offset_fragment->first_frame->frame;
                             item = proto_tree_add_uint(tree, hf_aeron_data_next_offset_first_frame, tvb, 0, 0, next_offset_first_frame);
-                            PROTO_ITEM_SET_GENERATED(item);
+                            proto_item_set_generated(item);
                         }
                     }
                 }
@@ -2254,7 +2254,7 @@ static int dissect_aeron_pad(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
         term_id, term_offset, frame_length, rounded_length);
     subtree = proto_item_add_subtree(pad_item, ett_aeron_pad);
     channel_item = proto_tree_add_uint64(subtree, hf_aeron_channel_id, tvb, 0, 0, transport->channel_id);
-    PROTO_ITEM_SET_GENERATED(channel_item);
+    proto_item_set_generated(channel_item);
     frame_length_item = proto_tree_add_item(subtree, hf_aeron_pad_frame_length, tvb, offset + O_AERON_PAD_FRAME_LENGTH, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_pad_version, tvb, offset + O_AERON_PAD_VERSION, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_pad_flags, tvb, offset + O_AERON_PAD_FLAGS, 1, ENC_LITTLE_ENDIAN);
@@ -2320,7 +2320,7 @@ static void dissect_aeron_reassembled_data(packet_info * pinfo, proto_tree * tre
                 msg_ofs,
                 (msg_ofs + frag->data_length) - 1,
                 frag->data_length);
-            PROTO_ITEM_SET_GENERATED(pi);
+            proto_item_set_generated(pi);
             if (first_item)
             {
                 proto_item_append_text(frag_item, " #%" G_GUINT32_FORMAT "(%" G_GUINT32_FORMAT ")", frag->frame, frag->data_length);
@@ -2334,7 +2334,7 @@ static void dissect_aeron_reassembled_data(packet_info * pinfo, proto_tree * tre
         }
         lf = wmem_list_frame_next(lf);
     }
-    PROTO_ITEM_SET_GENERATED(frag_item);
+    proto_item_set_generated(frag_item);
 }
 
 static int dissect_aeron_data(tvbuff_t * tvb, int offset, packet_info * pinfo, proto_tree * tree, aeron_conversation_info_t * cinfo, aeron_frame_info_t * finfo)
@@ -2398,7 +2398,7 @@ static int dissect_aeron_data(tvbuff_t * tvb, int offset, packet_info * pinfo, p
         (guint32) term_id, term_offset, frame_length, rounded_length);
     subtree = proto_item_add_subtree(data_item, ett_aeron_data);
     channel_item = proto_tree_add_uint64(subtree, hf_aeron_channel_id, tvb, 0, 0, transport->channel_id);
-    PROTO_ITEM_SET_GENERATED(channel_item);
+    proto_item_set_generated(channel_item);
     frame_length_item = proto_tree_add_item(subtree, hf_aeron_data_frame_length, tvb, offset + O_AERON_DATA_FRAME_LENGTH, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_data_version, tvb, offset + O_AERON_DATA_VERSION, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_bitmask(subtree, tvb, offset + O_AERON_DATA_FLAGS, hf_aeron_data_flags, ett_aeron_data_flags, flags, ENC_LITTLE_ENDIAN);
@@ -2504,7 +2504,7 @@ static int dissect_aeron_nak(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
         term_id, nak_term_offset, nak_length);
     subtree = proto_item_add_subtree(nak_item, ett_aeron_nak);
     channel_item = proto_tree_add_uint64(subtree, hf_aeron_channel_id, tvb, 0, 0, transport->channel_id);
-    PROTO_ITEM_SET_GENERATED(channel_item);
+    proto_item_set_generated(channel_item);
     frame_length_item = proto_tree_add_item(subtree, hf_aeron_nak_frame_length, tvb, offset + O_AERON_NAK_FRAME_LENGTH, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_nak_version, tvb, offset + O_AERON_NAK_VERSION, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_nak_flags, tvb, offset + O_AERON_NAK_FLAGS, 1, ENC_LITTLE_ENDIAN);
@@ -2605,7 +2605,7 @@ static int dissect_aeron_sm(tvbuff_t * tvb, int offset, packet_info * pinfo, pro
         term_id, consumption_offset, rcv_window, rcv_id);
     subtree = proto_item_add_subtree(sm_item, ett_aeron_sm);
     item = proto_tree_add_uint64(subtree, hf_aeron_channel_id, tvb, 0, 0, transport->channel_id);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
     frame_length_item = proto_tree_add_item(subtree, hf_aeron_sm_frame_length, tvb, offset + O_AERON_SM_FRAME_LENGTH, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_sm_version, tvb, offset + O_AERON_SM_VERSION, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_bitmask(subtree, tvb, offset + O_AERON_SM_FLAGS, hf_aeron_sm_flags, ett_aeron_sm_flags, flags, ENC_LITTLE_ENDIAN);
@@ -2729,7 +2729,7 @@ static int dissect_aeron_heartbeat(tvbuff_t * tvb, int offset, packet_info * pin
         (guint32) term_id, term_offset, frame_length, rounded_length);
     subtree = proto_item_add_subtree(data_item, ett_aeron_data);
     channel_item = proto_tree_add_uint64(subtree, hf_aeron_channel_id, tvb, 0, 0, transport->channel_id);
-    PROTO_ITEM_SET_GENERATED(channel_item);
+    proto_item_set_generated(channel_item);
     frame_length_item = proto_tree_add_item(subtree, hf_aeron_heartbeat_frame_length, tvb, offset + O_AERON_HEAERTBEAT_FRAME_LENGTH, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_heartbeat_version, tvb, offset + O_AERON_HEAERTBEAT_VERSION, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_bitmask(subtree, tvb, offset + O_AERON_HEAERTBEAT_FLAGS, hf_aeron_heartbeat_flags, ett_aeron_data_flags, flags, ENC_LITTLE_ENDIAN);
@@ -2784,7 +2784,7 @@ static int dissect_aeron_rtt(tvbuff_t * tvb, int offset, packet_info * pinfo, pr
         stream_id, rcv_id);
     subtree = proto_item_add_subtree(rtt_item, ett_aeron_rtt);
     item = proto_tree_add_uint64(subtree, hf_aeron_channel_id, tvb, 0, 0, transport->channel_id);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
     frame_length_item = proto_tree_add_item(subtree, hf_aeron_rtt_frame_length, tvb, offset + O_AERON_RTT_FRAME_LENGTH, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_rtt_version, tvb, offset + O_AERON_RTT_VERSION, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_bitmask(subtree, tvb, offset + O_AERON_RTT_FLAGS, hf_aeron_rtt_flags, ett_aeron_rtt_flags, flags, ENC_LITTLE_ENDIAN);
@@ -2874,7 +2874,7 @@ static int dissect_aeron_setup(tvbuff_t * tvb, int offset, packet_info * pinfo, 
         initial_term_id, (guint32) active_term_id, term_length, term_offset, mtu, ttl);
     subtree = proto_item_add_subtree(setup_item, ett_aeron_setup);
     channel_item = proto_tree_add_uint64(subtree, hf_aeron_channel_id, tvb, 0, 0, transport->channel_id);
-    PROTO_ITEM_SET_GENERATED(channel_item);
+    proto_item_set_generated(channel_item);
     frame_length_item = proto_tree_add_item(subtree, hf_aeron_setup_frame_length, tvb, offset + O_AERON_SETUP_FRAME_LENGTH, 4, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_setup_version, tvb, offset + O_AERON_SETUP_VERSION, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item(subtree, hf_aeron_setup_flags, tvb, offset + O_AERON_SETUP_FLAGS, 1, ENC_LITTLE_ENDIAN);

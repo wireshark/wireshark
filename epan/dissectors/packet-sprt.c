@@ -835,17 +835,17 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                         "Stream setup by %s (frame %u)",
                                         p_conv_data->method,
                                         p_conv_data->frame_number);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     sprt_setup_tree = proto_item_add_subtree(ti, ett_sprt_setup);
     if (sprt_setup_tree)
     {
         /* Add details into subtree */
         proto_item* item = proto_tree_add_uint(sprt_setup_tree, hf_sprt_setup_frame,
                                                 tvb, 0, 0, p_conv_data->frame_number);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
         item = proto_tree_add_string(sprt_setup_tree, hf_sprt_setup_method,
                                         tvb, 0, 0, p_conv_data->method);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
     }
 }
 
@@ -1209,18 +1209,18 @@ dissect_sprt_data(tvbuff_t *tvb,
                         payload_length--;
                     }
                     ti = proto_tree_add_uint(sprt_payload_tree, hf_sprt_payload_i_octet_dlci_setup_by_connect_frame, tvb, 0, 0, p_conv_data->connect_frame_number);
-                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_set_generated(ti);
                     break;
                 case DLCI_ABSENT:
                     ti = proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_i_octet_no_dlci, tvb, 0, 0, ENC_NA);
-                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_set_generated(ti);
                     ti = proto_tree_add_uint(sprt_payload_tree, hf_sprt_payload_i_octet_dlci_setup_by_connect_frame, tvb, 0, 0, p_conv_data->connect_frame_number);
-                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_set_generated(ti);
                     break;
                 case DLCI_UNKNOWN: /* e.g., we didn't see the CONNECT msg so we don't know if there is a DLCI */
                 default:
                     ti = proto_tree_add_item(sprt_payload_tree, hf_sprt_payload_i_octet_dlci_presence_unknown, tvb, 0, 0, ENC_NA);
-                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_set_generated(ti);
                     break;
                 }
             }

@@ -4279,7 +4279,7 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         qua_tree = proto_item_add_subtree(qua_item, ett_gtpv2_qua);
         offset = dissect_gtpv2_authentication_quadruplets(tvb, qua_tree, offset, nr_qua);
     }else {
-        PROTO_ITEM_SET_GENERATED(qua_item);
+        proto_item_set_generated(qua_item);
     }
 
     qui_item = proto_tree_add_uint(tree, hf_gtpv2_authentication_quintuplets, tvb, offset, 0, nr_qui);
@@ -4287,7 +4287,7 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         qui_tree = proto_item_add_subtree(qui_item, ett_gtpv2_qui);
         offset = dissect_gtpv2_authentication_quintuplets(tvb, qui_tree, offset, nr_qui);
     }else{
-        PROTO_ITEM_SET_GENERATED(qui_item);
+        proto_item_set_generated(qui_item);
     }
 
     /* (h+1) to (h+2) DRX parameter */
@@ -7387,15 +7387,15 @@ gtpv2_match_response(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gin
 
         if (gcrp->is_request) {
             it = proto_tree_add_uint(tree, hf_gtpv2_response_in, tvb, 0, 0, gcrp->rep_frame);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
         } else {
             nstime_t ns;
 
             it = proto_tree_add_uint(tree, hf_gtpv2_response_to, tvb, 0, 0, gcrp->req_frame);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
             nstime_delta(&ns, &pinfo->abs_ts, &gcrp->req_time);
             it = proto_tree_add_time(tree, hf_gtpv2_response_time, tvb, 0, 0, &ns);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
             if (g_gtp_session && !PINFO_FD_VISITED(pinfo)) {
                 /* GTP session */
                 /* If it's not already in the list */
@@ -7428,7 +7428,7 @@ track_gtpv2_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtpv
         session = (guint32*)g_hash_table_lookup(session_table, &pinfo->num);
         if (session) {
             it = proto_tree_add_uint(tree, hf_gtpv2_session, tvb, 0, 0, *session);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
         }
     }
 

@@ -974,8 +974,8 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         }
         osm_uri = wmem_strdup_printf(wmem_packet_scope(), "https://www.openstreetmap.org/?mlat=%s&mlon=%s&zoom=12", deg_lat_str, deg_lon_str);
         loc_uri_item = proto_tree_add_string(tree, hf_gsm_a_geo_loc_osm_uri, tvb, loc_offset, 6, osm_uri);
-        PROTO_ITEM_SET_URL(loc_uri_item);
-        PROTO_ITEM_SET_GENERATED(loc_uri_item);
+        proto_item_set_url(loc_uri_item);
+        proto_item_set_generated(loc_uri_item);
 
         break;
     case POLYGON:                   /* Polygon */

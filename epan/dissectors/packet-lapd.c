@@ -509,7 +509,7 @@ dissect_lapd_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 f
 		if (direction != P2P_DIR_UNKNOWN) {
 			direction_ti = proto_tree_add_uint(lapd_tree, hf_lapd_direction,
 			                                   tvb, 0, 0, pinfo->p2p_dir);
-			PROTO_ITEM_SET_GENERATED(direction_ti);
+			proto_item_set_generated(direction_ti);
 		}
 
 		addr_ti = proto_tree_add_uint(lapd_tree, hf_lapd_address, tvb,

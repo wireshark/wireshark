@@ -673,7 +673,7 @@ static int dissect_field(tvbuff_t * tvb, int offset, proto_tree * tree, lbmpdm_d
     field_item = proto_tree_add_item(tree, hf_lbmpdm_field, tvb, offset, field->len, ENC_NA);
     field_tree = proto_item_add_subtree(field_item, ett_lbmpdm_field);
     ti = proto_tree_add_uint(field_tree, hf_lbmpdm_field_id, tvb, 0, 0, field->id);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     if (string_field_names)
     {
         ti = proto_tree_add_string(field_tree, hf_lbmpdm_field_string_name, tvb, 0, 0, field->field_string_name);
@@ -682,9 +682,9 @@ static int dissect_field(tvbuff_t * tvb, int offset, proto_tree * tree, lbmpdm_d
     {
         ti = proto_tree_add_uint(field_tree, hf_lbmpdm_field_int_name, tvb, 0, 0, field->field_int_name);
     }
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     ti = proto_tree_add_uint(field_tree, hf_lbmpdm_field_type, tvb, 0, 0, field->field_type);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     if (field->num_array_elem == 0)
     {
         element_count = 1;
@@ -1210,7 +1210,7 @@ int lbmpdm_dissect_lbmpdm_payload(tvbuff_t * tvb, int offset, packet_info * pinf
     proto_tree_add_item(subtree, hf_lbmpdm_magic, tvb, offset + O_LBMPDM_MSG_HDR_T_MAGIC, L_LBMPDM_MSG_HDR_T_MAGIC, encoding);
     pi = proto_tree_add_string(subtree, hf_lbmpdm_encoding, tvb, offset + O_LBMPDM_MSG_HDR_T_MAGIC, L_LBMPDM_MSG_HDR_T_MAGIC,
         ((encoding == ENC_BIG_ENDIAN) ? "Big-Endian" : "Little-Endian"));
-    PROTO_ITEM_SET_GENERATED(pi);
+    proto_item_set_generated(pi);
     proto_tree_add_item(subtree, hf_lbmpdm_ver, tvb, offset + O_LBMPDM_MSG_HDR_T_VER_TYPE, L_LBMPDM_MSG_HDR_T_VER_TYPE, encoding);
     proto_tree_add_item(subtree, hf_lbmpdm_type, tvb, offset + O_LBMPDM_MSG_HDR_T_VER_TYPE, L_LBMPDM_MSG_HDR_T_VER_TYPE, encoding);
     proto_tree_add_item(subtree, hf_lbmpdm_next_hdr, tvb, offset + O_LBMPDM_MSG_HDR_T_NEXT_HDR, L_LBMPDM_MSG_HDR_T_NEXT_HDR, encoding);

@@ -191,7 +191,7 @@ dissect_proxy_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(proxy_tree, hf_proxy2_ver, tvb, offset, 1, ENC_NA);
     proto_tree_add_item(proxy_tree, hf_proxy2_cmd, tvb, offset, 1, ENC_NA);
     ti_ver = proto_tree_add_uint(proxy_tree, hf_proxy_version, tvb, offset, 1, 2);
-    PROTO_ITEM_SET_GENERATED(ti_ver);
+    proto_item_set_generated(ti_ver);
     offset += 1;
 
     ti = proto_tree_add_item_ret_uint(proxy_tree, hf_proxy2_addr_family_protocol, tvb, offset, 1, ENC_NA, &fam_pro);

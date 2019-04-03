@@ -1170,7 +1170,7 @@ dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
     if (have_duration) {
       proto_item *item = proto_tree_add_uint(radio_tree, hf_wlan_radio_duration, tvb, 0, 0, duration);
       proto_tree *d_tree = proto_item_add_subtree(item, ett_wlan_radio_duration);
-      PROTO_ITEM_SET_GENERATED(item);
+      proto_item_set_generated(item);
 
       if (assumed_short_preamble)
         expert_add_info(pinfo, item, &ei_wlan_radio_assumed_short_preamble);
@@ -1185,7 +1185,7 @@ dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
 
       if (preamble) {
         p_item = proto_tree_add_uint(d_tree, hf_wlan_radio_preamble, tvb, 0, 0, preamble);
-        PROTO_ITEM_SET_GENERATED(p_item);
+        proto_item_set_generated(p_item);
       }
       if (wlan_radio_info->aggregate) {
         proto_tree *agg_tree;
@@ -1193,25 +1193,25 @@ dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
         p_item = proto_tree_add_none_format(d_tree, hf_wlan_radio_aggregate, tvb, 0, 0,
           "This MPDU is part of an A-MPDU");
         agg_tree = proto_item_add_subtree(item, ett_wlan_radio_aggregate);
-        PROTO_ITEM_SET_GENERATED(p_item);
+        proto_item_set_generated(p_item);
         if (wlan_radio_info->aggregate->duration) {
           proto_item *aitem = proto_tree_add_uint(agg_tree, hf_wlan_radio_aggregate_duration, tvb, 0, 0,
                   wlan_radio_info->aggregate->duration);
-          PROTO_ITEM_SET_GENERATED(aitem);
+          proto_item_set_generated(aitem);
         }
       }
       if (wlan_radio_info->ifs) {
         p_item = proto_tree_add_int64(d_tree, hf_wlan_radio_ifs, tvb, 0, 0, wlan_radio_info->ifs);
-        PROTO_ITEM_SET_GENERATED(p_item);
+        proto_item_set_generated(p_item);
         /* TODO: warnings on unusual IFS values (too small or negative) */
       }
       if (wlan_radio_info->start_tsf) {
         p_item = proto_tree_add_uint64(d_tree, hf_wlan_radio_start_tsf, tvb, 0, 0, wlan_radio_info->start_tsf);
-        PROTO_ITEM_SET_GENERATED(p_item);
+        proto_item_set_generated(p_item);
       }
       if (wlan_radio_info->end_tsf) {
         p_item = proto_tree_add_uint64(d_tree, hf_wlan_radio_end_tsf, tvb, 0, 0, wlan_radio_info->end_tsf);
-        PROTO_ITEM_SET_GENERATED(p_item);
+        proto_item_set_generated(p_item);
       }
     }
   } /* if (have_data_rate) */

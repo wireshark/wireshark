@@ -1251,20 +1251,20 @@ static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                        p_conv_data->method,
                                                        p_conv_data->frame_number,
                                                        p_conv_data->feature_level);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
         rdt_setup_tree = proto_item_add_subtree(ti, ett_rdt_setup);
         if (rdt_setup_tree)
         {
             /* Add details into subtree */
             proto_item* item = proto_tree_add_uint(rdt_setup_tree, hf_rdt_setup_frame,
                                                    tvb, 0, 0, p_conv_data->frame_number);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
             item = proto_tree_add_string(rdt_setup_tree, hf_rdt_setup_method,
                                          tvb, 0, 0, p_conv_data->method);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
             item = proto_tree_add_int(rdt_setup_tree, hf_rdt_feature_level,
                                       tvb, 0, 0, p_conv_data->feature_level);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
         }
     }
 }

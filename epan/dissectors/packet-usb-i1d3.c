@@ -233,7 +233,7 @@ static void dissect_usb_i1d3_command(
         proto_item *response_item = proto_tree_add_uint(
                 tree, hf_usb_i1d3_response_in, tvb, 0, 0,
                 transaction->response);
-        PROTO_ITEM_SET_GENERATED(response_item);
+        proto_item_set_generated(response_item);
     }
 
     const gchar *command_code_string = try_val_to_str(
@@ -405,14 +405,14 @@ static void dissect_usb_i1d3_response(
     proto_item *request_item = proto_tree_add_uint(
             tree, hf_usb_i1d3_request_in, tvb, 0, 0,
             transaction ? transaction->request : 0);
-    PROTO_ITEM_SET_GENERATED(request_item);
+    proto_item_set_generated(request_item);
     if (!transaction) {
         expert_add_info(pinfo, request_item, &ei_usb_i1d3_unexpected_response);
     } else {
         proto_item *command_code_item = proto_tree_add_uint(
                 tree, hf_usb_i1d3_command_code, tvb, 0, 0,
                 transaction->command_code);
-        PROTO_ITEM_SET_GENERATED(command_code_item);
+        proto_item_set_generated(command_code_item);
     }
 
     const gchar *command_string = transaction ? try_val_to_str(
@@ -593,11 +593,11 @@ static void dissect_usb_i1d3_response(
             proto_item *offset_item = proto_tree_add_uint(
                     tree, hf_usb_i1d3_readintee_offset, tvb, 0, 0,
                     transaction->offset);
-            PROTO_ITEM_SET_GENERATED(offset_item);
+            proto_item_set_generated(offset_item);
             proto_item *length_item = proto_tree_add_uint(
                     tree, hf_usb_i1d3_readintee_length, tvb, 0, 0,
                     transaction->length);
-            PROTO_ITEM_SET_GENERATED(length_item);
+            proto_item_set_generated(length_item);
             proto_tree_add_item(
                 tree, hf_usb_i1d3_readintee_data, tvb,
                 4, transaction->length, ENC_NA);
@@ -611,11 +611,11 @@ static void dissect_usb_i1d3_response(
             proto_item *offset_item = proto_tree_add_uint(
                     tree, hf_usb_i1d3_readextee_offset, tvb, 0, 0,
                     transaction->offset);
-            PROTO_ITEM_SET_GENERATED(offset_item);
+            proto_item_set_generated(offset_item);
             proto_item *length_item = proto_tree_add_uint(
                     tree, hf_usb_i1d3_readextee_length, tvb, 0, 0,
                     transaction->length);
-            PROTO_ITEM_SET_GENERATED(length_item);
+            proto_item_set_generated(length_item);
             proto_tree_add_item(
                 tree, hf_usb_i1d3_readextee_data, tvb,
                 5, transaction->length, ENC_NA);

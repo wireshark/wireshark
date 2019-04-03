@@ -476,21 +476,21 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     if (service_data && !(command_data->command == A_OPEN && is_next_fragment)) {
         sub_item = proto_tree_add_string(main_tree, hf_service, tvb, offset, 0, service_data->service);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
     }
 
     if (service_data) {
         sub_item = proto_tree_add_uint(main_tree, hf_service_start_in_frame, tvb, offset, 0, service_data->start_in_frame);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
 
         if (service_data->close_local_in_frame < max_in_frame) {
             sub_item = proto_tree_add_uint(main_tree, hf_close_local_in_frame, tvb, offset, 0, service_data->close_local_in_frame);
-            PROTO_ITEM_SET_GENERATED(sub_item);
+            proto_item_set_generated(sub_item);
         }
 
         if (service_data->close_remote_in_frame < max_in_frame) {
             sub_item = proto_tree_add_uint(main_tree, hf_close_remote_in_frame, tvb, offset, 0, service_data->close_remote_in_frame);
-            PROTO_ITEM_SET_GENERATED(sub_item);
+            proto_item_set_generated(sub_item);
         }
     }
 
@@ -594,22 +594,22 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     if (is_next_fragment && command_data) {
         sub_item = proto_tree_add_uint(main_tree, hf_command_in_frame, tvb, offset, 0, command_data->command_in_frame);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
 
         sub_item = proto_tree_add_uint(main_tree, hf_command, tvb, offset, 0, command_data->command);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
 
         sub_item = proto_tree_add_uint(main_tree, hf_data_length, tvb, offset, 0, command_data->data_length);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
 
         crc_item = proto_tree_add_uint(main_tree, hf_data_crc32, tvb, offset, 0, command_data->crc32);
         crc_tree = proto_item_add_subtree(crc_item, ett_adb_crc);
-        PROTO_ITEM_SET_GENERATED(crc_item);
+        proto_item_set_generated(crc_item);
     }
 
     if (command_data && command_data->completed_in_frame != frame_number) {
         sub_item = proto_tree_add_uint(main_tree, hf_completed_in_frame, tvb, offset, 0, command_data->completed_in_frame);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
     }
 
 

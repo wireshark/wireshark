@@ -1176,7 +1176,7 @@ static icmp_transaction_t *transaction_start(packet_info * pinfo,
 			/* No response found - add field and expert info */
 			it = proto_tree_add_item(tree, hf_icmp_no_resp, NULL, 0, 0,
 						 ENC_NA);
-			PROTO_ITEM_SET_GENERATED(it);
+			proto_item_set_generated(it);
 
 			col_append_fstr(pinfo->cinfo, COL_INFO, " (no response found!)");
 
@@ -1193,7 +1193,7 @@ static icmp_transaction_t *transaction_start(packet_info * pinfo,
 	if (icmp_trans->resp_frame) {
 		it = proto_tree_add_uint(tree, hf_icmp_resp_in, NULL, 0, 0,
 					 icmp_trans->resp_frame);
-		PROTO_ITEM_SET_GENERATED(it);
+		proto_item_set_generated(it);
 
 		col_append_frame_number(pinfo, COL_INFO, " (reply in %u)",
 				icmp_trans->resp_frame);
@@ -1288,7 +1288,7 @@ static icmp_transaction_t *transaction_end(packet_info * pinfo,
 
 	it = proto_tree_add_uint(tree, hf_icmp_resp_to, NULL, 0, 0,
 				 icmp_trans->rqst_frame);
-	PROTO_ITEM_SET_GENERATED(it);
+	proto_item_set_generated(it);
 
 	nstime_delta(&ns, &pinfo->abs_ts, &icmp_trans->rqst_time);
 	icmp_trans->resp_time = ns;
@@ -1296,7 +1296,7 @@ static icmp_transaction_t *transaction_end(packet_info * pinfo,
 	it = proto_tree_add_double_format_value(tree, hf_icmp_resptime,
 						NULL, 0, 0, resp_time,
 						"%.3f ms", resp_time);
-	PROTO_ITEM_SET_GENERATED(it);
+	proto_item_set_generated(it);
 
 	col_append_frame_number(pinfo, COL_INFO, " (request in %d)",
 			icmp_trans->rqst_frame);
@@ -1529,7 +1529,7 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 			proto_tree_add_item(icmp_tree, hf_icmp_length, tvb, 5, 1, ENC_BIG_ENDIAN);
 			ti = proto_tree_add_uint(icmp_tree, hf_icmp_length_original_datagram,
 						 tvb, 5, 1, icmp_original_dgram_length * 4);
-			PROTO_ITEM_SET_GENERATED(ti);
+			proto_item_set_generated(ti);
 			if (icmp_code == ICMP_FRAG_NEEDED) {
 				proto_tree_add_item(icmp_tree, hf_icmp_mtu, tvb, 6, 2, ENC_BIG_ENDIAN);
 			} else {
@@ -1557,7 +1557,7 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 			proto_tree_add_item(icmp_tree, hf_icmp_length, tvb, 5, 1, ENC_BIG_ENDIAN);
 			ti = proto_tree_add_uint(icmp_tree, hf_icmp_length_original_datagram,
 						 tvb, 5, 1, icmp_original_dgram_length * 4);
-			PROTO_ITEM_SET_GENERATED(ti);
+			proto_item_set_generated(ti);
 			proto_tree_add_item(icmp_tree, hf_icmp_unused, tvb, 6, 2, ENC_NA);
 		} else {
 			proto_tree_add_item(icmp_tree, hf_icmp_unused, tvb, 4, 4, ENC_NA);
@@ -1574,7 +1574,7 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 			proto_tree_add_item(icmp_tree, hf_icmp_length, tvb, 5, 1, ENC_BIG_ENDIAN);
 			ti = proto_tree_add_uint(icmp_tree, hf_icmp_length_original_datagram,
 						 tvb, 5, 1, icmp_original_dgram_length * 4);
-			PROTO_ITEM_SET_GENERATED(ti);
+			proto_item_set_generated(ti);
 			proto_tree_add_item(icmp_tree, hf_icmp_unused, tvb, 6, 2, ENC_NA);
 		} else {
 			proto_tree_add_item(icmp_tree, hf_icmp_unused, tvb, 4, 4, ENC_NA);
@@ -1744,7 +1744,7 @@ dissect_icmp(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 						 hf_icmp_data_time_relative,
 						 tvb, 8, 8,
 						 &time_relative);
-			PROTO_ITEM_SET_GENERATED(ti);
+			proto_item_set_generated(ti);
 			call_data_dissector(tvb_new_subset_remaining(tvb,
 								8 + 8),
 				       pinfo, icmp_tree);

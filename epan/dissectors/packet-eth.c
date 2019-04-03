@@ -378,13 +378,13 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     addr_tree = proto_item_add_subtree(addr_item, ett_addr);
     addr_item=proto_tree_add_string(addr_tree, hf_eth_dst_resolved, tvb, 0, 6,
         dst_addr_name);
-    PROTO_ITEM_SET_GENERATED(addr_item);
-    PROTO_ITEM_SET_HIDDEN(addr_item);
+    proto_item_set_generated(addr_item);
+    proto_item_set_hidden(addr_item);
     proto_tree_add_ether(addr_tree, hf_eth_addr, tvb, 0, 6, dst_addr);
     addr_item=proto_tree_add_string(addr_tree, hf_eth_addr_resolved, tvb, 0, 6,
         dst_addr_name);
-    PROTO_ITEM_SET_GENERATED(addr_item);
-    PROTO_ITEM_SET_HIDDEN(addr_item);
+    proto_item_set_generated(addr_item);
+    proto_item_set_hidden(addr_item);
     proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 0, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 0, 3, ENC_BIG_ENDIAN);
 
@@ -392,13 +392,13 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     addr_tree = proto_item_add_subtree(addr_item, ett_addr);
     addr_item=proto_tree_add_string(addr_tree, hf_eth_src_resolved, tvb, 6, 6,
         src_addr_name);
-    PROTO_ITEM_SET_GENERATED(addr_item);
-    PROTO_ITEM_SET_HIDDEN(addr_item);
+    proto_item_set_generated(addr_item);
+    proto_item_set_hidden(addr_item);
     proto_tree_add_ether(addr_tree, hf_eth_addr, tvb, 6, 6, src_addr);
     addr_item=proto_tree_add_string(addr_tree, hf_eth_addr_resolved, tvb, 6, 6,
         src_addr_name);
-    PROTO_ITEM_SET_GENERATED(addr_item);
-    PROTO_ITEM_SET_HIDDEN(addr_item);
+    proto_item_set_generated(addr_item);
+    proto_item_set_hidden(addr_item);
     proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 6, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 6, 3, ENC_BIG_ENDIAN);
 
@@ -436,13 +436,13 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     addr_tree = proto_item_add_subtree(addr_item, ett_addr);
     addr_item=proto_tree_add_string(addr_tree, hf_eth_dst_resolved, tvb, 0, 6,
         dst_addr_name);
-    PROTO_ITEM_SET_GENERATED(addr_item);
-    PROTO_ITEM_SET_HIDDEN(addr_item);
+    proto_item_set_generated(addr_item);
+    proto_item_set_hidden(addr_item);
     proto_tree_add_ether(addr_tree, hf_eth_addr, tvb, 0, 6, dst_addr);
     addr_item=proto_tree_add_string(addr_tree, hf_eth_addr_resolved, tvb, 0, 6,
         dst_addr_name);
-    PROTO_ITEM_SET_GENERATED(addr_item);
-    PROTO_ITEM_SET_HIDDEN(addr_item);
+    proto_item_set_generated(addr_item);
+    proto_item_set_hidden(addr_item);
     proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 0, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 0, 3, ENC_BIG_ENDIAN);
 
@@ -450,13 +450,13 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     addr_tree = proto_item_add_subtree(addr_item, ett_addr);
     addr_item=proto_tree_add_string(addr_tree, hf_eth_src_resolved, tvb, 6, 6,
         src_addr_name);
-    PROTO_ITEM_SET_GENERATED(addr_item);
-    PROTO_ITEM_SET_HIDDEN(addr_item);
+    proto_item_set_generated(addr_item);
+    proto_item_set_hidden(addr_item);
     proto_tree_add_ether(addr_tree, hf_eth_addr, tvb, 6, 6, src_addr);
     addr_item=proto_tree_add_string(addr_tree, hf_eth_addr_resolved, tvb, 6, 6,
         src_addr_name);
-    PROTO_ITEM_SET_GENERATED(addr_item);
-    PROTO_ITEM_SET_HIDDEN(addr_item);
+    proto_item_set_generated(addr_item);
+    proto_item_set_hidden(addr_item);
     proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 6, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 6, 3, ENC_BIG_ENDIAN);
 
@@ -490,13 +490,13 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     addr_tree = proto_item_add_subtree(addr_item, ett_addr);
     addr_item = proto_tree_add_string(addr_tree, hf_eth_dst_resolved, tvb, 0, 6,
         dst_addr_name);
-    PROTO_ITEM_SET_GENERATED(addr_item);
-    PROTO_ITEM_SET_HIDDEN(addr_item);
+    proto_item_set_generated(addr_item);
+    proto_item_set_hidden(addr_item);
     proto_tree_add_ether(addr_tree, hf_eth_addr, tvb, 0, 6, dst_addr);
     addr_item=proto_tree_add_string(addr_tree, hf_eth_addr_resolved, tvb, 0, 6,
         dst_addr_name);
-    PROTO_ITEM_SET_GENERATED(addr_item);
-    PROTO_ITEM_SET_HIDDEN(addr_item);
+    proto_item_set_generated(addr_item);
+    proto_item_set_hidden(addr_item);
     proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 0, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 0, 3, ENC_BIG_ENDIAN);
 
@@ -507,13 +507,13 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     }
     addr_item=proto_tree_add_string(addr_tree, hf_eth_src_resolved, tvb, 6, 6,
         src_addr_name);
-    PROTO_ITEM_SET_GENERATED(addr_item);
-    PROTO_ITEM_SET_HIDDEN(addr_item);
+    proto_item_set_generated(addr_item);
+    proto_item_set_hidden(addr_item);
     proto_tree_add_ether(addr_tree, hf_eth_addr, tvb, 6, 6, src_addr);
     addr_item=proto_tree_add_string(addr_tree, hf_eth_addr_resolved, tvb, 6, 6,
         src_addr_name);
-    PROTO_ITEM_SET_GENERATED(addr_item);
-    PROTO_ITEM_SET_HIDDEN(addr_item);
+    proto_item_set_generated(addr_item);
+    proto_item_set_hidden(addr_item);
     proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 6, 3, ENC_BIG_ENDIAN);
     proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 6, 3, ENC_BIG_ENDIAN);
 

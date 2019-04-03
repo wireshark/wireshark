@@ -717,7 +717,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
     if ( decrypted ) {
         if ( tree && key_rec ) {
             key_item = proto_tree_add_bytes(sec_tree, hf_zbee_sec_key, tvb, 0, ZBEE_SEC_CONST_KEYSIZE, key_rec->key);
-            PROTO_ITEM_SET_GENERATED(key_item);
+            proto_item_set_generated(key_item);
 
             if ( key_rec->frame_num == ZBEE_SEC_PC_KEY ) {
                 ti = proto_tree_add_string(sec_tree, hf_zbee_sec_decryption_key, tvb, 0, 0, key_rec->label);
@@ -725,7 +725,7 @@ dissect_zbee_secure(tvbuff_t *tvb, packet_info *pinfo, proto_tree* tree, guint o
                 ti = proto_tree_add_uint(sec_tree, hf_zbee_sec_key_origin, tvb, 0, 0,
                         key_rec->frame_num);
             }
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
         }
 
         /* Found a key that worked, setup the new tvbuff_t and return */

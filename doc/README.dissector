@@ -2229,9 +2229,9 @@ proto_tree_add_bitmask() and proto_tree_add_bitmask_text() may not:
   than the packet it was called to interpret.
 
 
-PROTO_ITEM_SET_GENERATED()
+proto_item_set_generated()
 --------------------------
-PROTO_ITEM_SET_GENERATED is used to mark fields as not being read from the
+proto_item_set_generated is used to mark fields as not being read from the
 captured data directly, but inferred from one or more values.
 
 One of the primary uses of this is the presentation of verification of
@@ -2243,9 +2243,9 @@ indicating a generated field.
   Header checksum: 0x3d42 [correct]
   [Checksum Status: Good (1)]
 
-PROTO_ITEM_SET_HIDDEN()
+proto_item_set_hidden()
 -----------------------
-PROTO_ITEM_SET_HIDDEN is used to hide fields, which have already been added
+proto_item_set_hidden is used to hide fields, which have already been added
 to the tree, from being visible in the displayed tree.
 
 NOTE that creating hidden fields is actually quite a bad idea from a UI design
@@ -2269,7 +2269,7 @@ Rings are 3-digit hex numbers, and bridges are single hex digits:
 In the case of RIF, the programmer should use a field with no value and
 use proto_tree_add_none_format() to build the above representation. The
 programmer can then add the ring and bridge values, one-by-one, with
-proto_tree_add_item() and hide them with PROTO_ITEM_SET_HIDDEN() so that the
+proto_tree_add_item() and hide them with proto_item_set_hidden() so that the
 user can then filter on or search for a particular ring or bridge. Here's a
 skeleton of how the programmer might code this.
 
@@ -2283,14 +2283,14 @@ skeleton of how the programmer might code this.
 
         pi = proto_tree_add_item(tree, hf_tr_rif_ring, ...,
             ENC_BIG_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(pi);
+        proto_item_set_hidden(pi);
     }
     for(i = 0; i < num_rings - 1; i++) {
         proto_item *pi;
 
         pi = proto_tree_add_item(tree, hf_tr_rif_bridge, ...,
             ENC_BIG_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(pi);
+        proto_item_set_hidden(pi);
     }
 
 The logical tree has these items:
@@ -2310,9 +2310,9 @@ filter is then possible:
 
     tr.rif_ring eq 0x013
 
-PROTO_ITEM_SET_URL
+proto_item_set_url
 ------------------
-PROTO_ITEM_SET_URL is used to mark fields as containing a URL. This can only
+proto_item_set_url is used to mark fields as containing a URL. This can only
 be done with fields of type FT_STRING(Z). If these fields are presented they
 are underlined, as could be done in a browser. These fields are sensitive to
 clicks as well, launching the configured browser with this URL as parameter.

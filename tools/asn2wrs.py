@@ -1503,7 +1503,7 @@ class EthCtx:
         out = ''
         if self.conform.proto_root_name:
             out += '  proto_item *prot_ti = proto_tree_add_item(tree, ' + self.conform.proto_root_name + ', tvb, 0, -1, ENC_NA);\n'
-            out += '  PROTO_ITEM_SET_HIDDEN(prot_ti);\n'
+            out += '  proto_item_set_hidden(prot_ti);\n'
         return out
 
     #--- eth_type_fn_hdr --------------------------------------------------------

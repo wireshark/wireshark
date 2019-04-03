@@ -6888,16 +6888,16 @@ guint c_dissect_pdu(proto_tree *root,
 		/*** General Filter Data ***/
 		fi = proto_tree_add_string(tree_filter, hf_src_slug,
 					   NULL, 0, 0, srcn);
-		PROTO_ITEM_SET_GENERATED(fi);
+		proto_item_set_generated(fi);
 		fi = proto_tree_add_uint(tree_filter, hf_src_type,
 					 NULL, 0, 0, data->src->name.type);
-		PROTO_ITEM_SET_GENERATED(fi);
+		proto_item_set_generated(fi);
 		fi = proto_tree_add_string(tree_filter, hf_dst_slug,
 					   NULL, 0, 0, dstn);
-		PROTO_ITEM_SET_GENERATED(fi);
+		proto_item_set_generated(fi);
 		fi = proto_tree_add_uint(tree_filter, hf_dst_type,
 					 NULL, 0, 0, data->dst->name.type);
-		PROTO_ITEM_SET_GENERATED(fi);
+		proto_item_set_generated(fi);
 
 		proto_item_set_end(tif, tvb, off);
 	}

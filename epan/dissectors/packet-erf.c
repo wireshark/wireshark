@@ -1858,12 +1858,12 @@ static void dissect_host_anchor_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
     /* TODO: top level linking to most recent frame like we have for Host ID? */
     subtree = proto_tree_add_subtree_format(tree, tvb, 0, 0, ett_erf_anchor, &pi, "Host ID: 0x%012" G_GINT64_MODIFIER "x, Anchor ID: 0x%012" G_GINT64_MODIFIER "x", host_id & ERF_EHDR_HOST_ID_MASK, anchor_id & ERF_EHDR_ANCHOR_ID_MASK);
-    PROTO_ITEM_SET_GENERATED(pi);
+    proto_item_set_generated(pi);
 
     pi = proto_tree_add_uint64(subtree, hf_erf_anchor_hostid, tvb, 0, 0, host_id & ERF_EHDR_HOST_ID_MASK);
-    PROTO_ITEM_SET_GENERATED(pi);
+    proto_item_set_generated(pi);
     pi = proto_tree_add_uint64(subtree, hf_erf_anchor_anchorid, tvb, 0, 0, anchor_id & ERF_EHDR_ANCHOR_ID_MASK);
-    PROTO_ITEM_SET_GENERATED(pi);
+    proto_item_set_generated(pi);
 
     anchor_info = (erf_host_anchor_info_t*)wmem_map_lookup(erf_state.host_anchor_map, &key);
 
@@ -1880,7 +1880,7 @@ static void dissect_host_anchor_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree
       if(pinfo->num != anchored_info->frame_num) {
         /* Don't list the frame itself */
         pi = proto_tree_add_uint(subtree, hf_erf_anchor_linked, tvb, 0, 0, anchored_info->frame_num);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
         /* XXX: Need to do this each time because pinfo is discarded. Filtering does not reset visited as it does not do a full redissect.
         We also might not catch all frames in the first pass (e.g. comment after record). */
         mark_frame_as_depended_upon(pinfo, anchored_info->frame_num);
@@ -1918,22 +1918,22 @@ dissect_host_id_source_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
       hostid_tree = proto_tree_add_subtree_format(tree, tvb, 0, 0, ett_erf_source, &pi,
           "Host ID: 0x%012" G_GINT64_MODIFIER "x, Source ID: %u", host_id, source_id&0xFF);
     }
-    PROTO_ITEM_SET_GENERATED(pi);
+    proto_item_set_generated(pi);
 
     pi = proto_tree_add_uint64(hostid_tree, hf_erf_hostid, tvb, 0, 0, host_id);
-    PROTO_ITEM_SET_GENERATED(pi);
+    proto_item_set_generated(pi);
     pi = proto_tree_add_uint(hostid_tree, hf_erf_sourceid, tvb, 0, 0, source_id);
-    PROTO_ITEM_SET_GENERATED(pi);
+    proto_item_set_generated(pi);
 
     if (fnum_next != G_MAXUINT32) {
       pi = proto_tree_add_uint(hostid_tree, hf_erf_source_next, tvb, 0, 0, fnum_next);
-      PROTO_ITEM_SET_GENERATED(pi);
+      proto_item_set_generated(pi);
       /* XXX: Save the surrounding nearest periodic records when we do a filtered save so we keep native ERF metadata */
       mark_frame_as_depended_upon(pinfo, fnum_next);
     }
     if (fnum != G_MAXUINT32) {
       pi = proto_tree_add_uint(hostid_tree, hf_erf_source_prev, tvb, 0, 0, fnum);
-      PROTO_ITEM_SET_GENERATED(pi);
+      proto_item_set_generated(pi);
       mark_frame_as_depended_upon(pinfo, fnum);
     }
   }

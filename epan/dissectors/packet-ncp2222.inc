@@ -7187,7 +7187,7 @@ dissect_ncp_request(tvbuff_t *tvb, packet_info *pinfo,
          * information to display anyway. Put it in the tree for filtering and tap use*/
         if (ncp_rec) {
             ti = proto_tree_add_uint_format_value(ncp_tree, hf_ncp_group, tvb, 0, 0, ncp_rec->group, "%s", ncp_groups[ncp_rec->group]);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
         }
 
         exception_code = 0;
@@ -9297,7 +9297,7 @@ dissect_ping_req(tvbuff_t *tvb, packet_info *pinfo,
                 }
 
                 pi = proto_tree_add_uint(ncp_tree, hf_ncp_nds_verb, tvb, 0, 0, 240);
-                PROTO_ITEM_SET_HIDDEN(pi);
+                proto_item_set_hidden(pi);
 
                 proto_tree_add_bitmask(ncp_tree, tvb, 12, hf_pingflags1, ett_ncp, ncp_pingflags1, ENC_LITTLE_ENDIAN);
                 proto_tree_add_bitmask(ncp_tree, tvb, 14, hf_pingflags2, ett_ncp, ncp_pingflags2, ENC_LITTLE_ENDIAN);

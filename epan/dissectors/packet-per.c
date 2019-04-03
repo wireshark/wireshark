@@ -369,7 +369,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 				if (display_internal_per_fields)
 					proto_item_append_text(pi," %s", str);
 				else
-					PROTO_ITEM_SET_HIDDEN(pi);
+					proto_item_set_hidden(pi);
 			}
 
 			return offset;
@@ -381,7 +381,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 				if (display_internal_per_fields)
 					proto_item_append_text(pi," %s", str);
 				else
-					PROTO_ITEM_SET_HIDDEN(pi);
+					proto_item_set_hidden(pi);
 			}
 
 			return offset;
@@ -393,7 +393,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 				if (display_internal_per_fields)
 					proto_item_append_text(pi," %s", str);
 				else
-					PROTO_ITEM_SET_HIDDEN(pi);
+					proto_item_set_hidden(pi);
 			}
 
 			return offset;
@@ -409,7 +409,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 		*length=byte;
 		if(hf_index!=-1){
 			pi = proto_tree_add_uint(tree, hf_index, tvb, (offset>>3)-1, 1, *length);
-			if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
+			if (!display_internal_per_fields) proto_item_set_hidden(pi);
 		}
 		return offset;
 	}
@@ -421,7 +421,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 		offset+=8;
 		if(hf_index!=-1){
 			pi = proto_tree_add_uint(tree, hf_index, tvb, (offset>>3)-2, 2, *length);
-			if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
+			if (!display_internal_per_fields) proto_item_set_hidden(pi);
 		}
 		return offset;
 	}
@@ -437,7 +437,7 @@ dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _
 		*is_fragmented = TRUE;
 		if(hf_index!=-1){
 			pi = proto_tree_add_uint(tree, hf_index, tvb, (offset>>3)-1, 1, *length);
-			if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
+			if (!display_internal_per_fields) proto_item_set_hidden(pi);
 		}
 		return offset;
 	}
@@ -460,7 +460,7 @@ DEBUG_ENTRY("dissect_per_normally_small_nonnegative_whole_number");
 	}
 
 	offset=dissect_per_boolean(tvb, offset, actx, tree, hf_per_small_number_bit, &small_number);
-	if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
+	if (!display_internal_per_fields) proto_item_set_hidden(actx->created_item);
 	if(!small_number){
 		int i;
 		/* 10.6.1 */
@@ -474,7 +474,7 @@ DEBUG_ENTRY("dissect_per_normally_small_nonnegative_whole_number");
 		}
 		if(hf_index!=-1){
 			pi = proto_tree_add_uint(tree, hf_index, tvb, (offset-6)>>3, (offset%8<6)?2:1, *length);
-			if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
+			if (!display_internal_per_fields) proto_item_set_hidden(pi);
 		}
 		return offset;
 	}
@@ -509,7 +509,7 @@ DEBUG_ENTRY("dissect_per_normally_small_nonnegative_whole_number");
 	}
 	if(hf_index!=-1){
 		pi = proto_tree_add_uint(tree, hf_index, tvb, (offset-(8*length_determinant))>>3, length_determinant, *length);
-		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(pi);
+		if (!display_internal_per_fields) proto_item_set_hidden(pi);
 	}
 
 	return offset;
@@ -677,7 +677,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 	if (has_extension) {
 		gboolean extension_present;
 		offset = dissect_per_boolean(tvb, offset, actx, tree, hf_per_extension_present_bit, &extension_present);
-		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
+		if (!display_internal_per_fields) proto_item_set_hidden(actx->created_item);
 		if(extension_present){
 			min_len = NO_BOUND;
 			max_len = NO_BOUND;
@@ -702,7 +702,7 @@ DEBUG_ENTRY("dissect_per_restricted_character_string");
 		offset=dissect_per_constrained_integer(tvb, offset, actx,
 			tree, hf_per_octet_string_length, min_len, max_len,
 			&length, FALSE);
-			if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
+			if (!display_internal_per_fields) proto_item_set_hidden(actx->created_item);
 	}
 
 	if(!length){
@@ -845,7 +845,7 @@ dissect_per_BMPString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tre
 		offset=dissect_per_constrained_integer(tvb, offset, actx,
 			tree, hf_per_octet_string_length, min_len, max_len,
 			&length, FALSE);
-		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
+		if (!display_internal_per_fields) proto_item_set_hidden(actx->created_item);
 	}
 
 
@@ -898,7 +898,7 @@ DEBUG_ENTRY("dissect_per_constrained_sequence_of");
 	if(has_extension){
 		gboolean extension_present;
 		offset=dissect_per_boolean(tvb, offset, actx, parent_tree, hf_per_extension_present_bit, &extension_present);
-		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
+		if (!display_internal_per_fields) proto_item_set_hidden(actx->created_item);
 		if(extension_present){
 			/* 10.9 shall be invoked to add the length determinant as a semi-constrained whole number to the field-list,
 			 * followed by the component values
@@ -925,7 +925,7 @@ DEBUG_ENTRY("dissect_per_constrained_sequence_of");
 	offset=dissect_per_constrained_integer(tvb, offset, actx,
 		parent_tree, hf_per_sequence_of_length, min_len, max_len,
 		&length, FALSE);
-	if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
+	if (!display_internal_per_fields) proto_item_set_hidden(actx->created_item);
 
 call_sohelper:
 	hfi = proto_registrar_get_nth(hf_index);
@@ -1252,7 +1252,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer");
 	if(has_extension){
 		gboolean extension_present;
 		offset=dissect_per_boolean(tvb, offset, actx, tree, hf_per_extension_present_bit, &extension_present);
-		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
+		if (!display_internal_per_fields) proto_item_set_hidden(actx->created_item);
 		if(extension_present){
 			offset = dissect_per_integer(tvb, offset, actx, tree, hf_index, (gint32*)value);
 			return offset;
@@ -1417,7 +1417,7 @@ DEBUG_ENTRY("dissect_per_constrained_integer_64b");
 	if(has_extension){
 		gboolean extension_present;
 		offset=dissect_per_boolean(tvb, offset, actx, tree, hf_per_extension_present_bit, &extension_present);
-		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
+		if (!display_internal_per_fields) proto_item_set_hidden(actx->created_item);
 		if(extension_present){
 			offset = dissect_per_integer64b(tvb, offset, actx, tree, hf_index, (gint64*)value);
 			return offset;
@@ -1618,13 +1618,13 @@ dissect_per_enumerated(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tr
 	if (has_extension) {
 		/* Extension bit */
 		offset = dissect_per_boolean(tvb, offset, actx, tree, hf_per_extension_present_bit, &extension_present);
-		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
+		if (!display_internal_per_fields) proto_item_set_hidden(actx->created_item);
 	}
 
 	if (!extension_present) {
 		/* 13.2  */
 		offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_per_enum_index, 0, root_num - 1, &enum_index, FALSE);
-		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
+		if (!display_internal_per_fields) proto_item_set_hidden(actx->created_item);
 	} else {
 		/* 13.3 ".. and the value shall be added to the field-list as a
 		 * normally small non-negative whole number whose value is the
@@ -1695,7 +1695,7 @@ DEBUG_ENTRY("dissect_per_choice");
 	} else {
 		/*extension_present = TRUE; ?? */
 		offset = dissect_per_boolean(tvb, offset, actx, tree, hf_per_extension_bit, &extension_flag);
-		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
+		if (!display_internal_per_fields) proto_item_set_hidden(actx->created_item);
 	}
 
 	/* count the number of entries in the extension root and extension addition */
@@ -1720,7 +1720,7 @@ DEBUG_ENTRY("dissect_per_choice");
 			offset = dissect_per_constrained_integer(tvb, offset, actx,
 				tree, hf_per_choice_index, 0, extension_root_entries - 1,
 				&choice_index, FALSE);
-			if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
+			if (!display_internal_per_fields) proto_item_set_hidden(actx->created_item);
 		}
 
 		idx = -1; cidx = choice_index;
@@ -1855,7 +1855,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 	} else {
 		/*extension_present=1; ?? */
 		offset=dissect_per_boolean(tvb, offset, actx, tree, hf_per_extension_bit, &extension_flag);
-		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
+		if (!display_internal_per_fields) proto_item_set_hidden(actx->created_item);
 	}
 	/* 18.2 */
 	num_opts=0;
@@ -1875,7 +1875,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 			proto_item_append_text(actx->created_item, " (%s %s present)",
 				index_get_optional_name(sequence, i), optional_field_flag?"is":"is NOT");
 		}
-		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
+		if (!display_internal_per_fields) proto_item_set_hidden(actx->created_item);
 		if(optional_field_flag){
 			optional_mask[i>>5]|=0x80000000>>(i&0x1f);
 		}
@@ -1942,7 +1942,7 @@ DEBUG_ENTRY("dissect_per_sequence");
 				proto_item_append_text(actx->created_item, " (%s %s present)",
 					index_get_extension_name(sequence, i), extension_bit?"is":"is NOT");
 			}
-			if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
+			if (!display_internal_per_fields) proto_item_set_hidden(actx->created_item);
 
 			extension_mask=(extension_mask<<1)|extension_bit;
 		}
@@ -2040,7 +2040,7 @@ DEBUG_ENTRY("dissect_per_sequence_eag");
 			proto_item_append_text(actx->created_item, " (%s %s present)",
 				index_get_optional_name(sequence, i), optional_field_flag?"is":"is NOT");
 		}
-		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
+		if (!display_internal_per_fields) proto_item_set_hidden(actx->created_item);
 		if(optional_field_flag){
 			optional_mask[i>>5]|=0x80000000>>(i&0x1f);
 		}
@@ -2161,7 +2161,7 @@ DEBUG_ENTRY("dissect_per_bit_string");
 	 if (has_extension) {
 		 gboolean extension_present;
 		 offset = dissect_per_boolean(tvb, offset, actx, tree, hf_per_extension_present_bit, &extension_present);
-		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
+		if (!display_internal_per_fields) proto_item_set_hidden(actx->created_item);
 		if(extension_present){
 		next_fragment1:
 			offset=dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_bit_string_length, &length, &is_fragmented);
@@ -2239,7 +2239,7 @@ DEBUG_ENTRY("dissect_per_bit_string");
 		offset=dissect_per_constrained_integer(tvb, offset, actx,
 			tree, hf_per_bit_string_length, min_len, max_len,
 			&length, FALSE);
-			if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
+			if (!display_internal_per_fields) proto_item_set_hidden(actx->created_item);
 	} else {
 	next_fragment2:
 		offset=dissect_per_length_determinant(tvb, offset, actx, tree, hf_per_bit_string_length, &length, &is_fragmented);
@@ -2328,7 +2328,7 @@ DEBUG_ENTRY("dissect_per_octet_string");
 	if (has_extension) {  /* 16.3 an extension marker is present */
 		gboolean extension_present;
 		offset = dissect_per_boolean(tvb, offset, actx, tree, hf_per_extension_present_bit, &extension_present);
-		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
+		if (!display_internal_per_fields) proto_item_set_hidden(actx->created_item);
 		if (extension_present) max_len = NO_BOUND;  /* skip to 16.8 */
 	}
 
@@ -2371,7 +2371,7 @@ DEBUG_ENTRY("dissect_per_octet_string");
 				hf_per_octet_string_length, min_len, max_len, &length, FALSE);
 
 				if (!display_internal_per_fields)
-					PROTO_ITEM_SET_HIDDEN(actx->created_item);
+					proto_item_set_hidden(actx->created_item);
 		} else {
 		next_fragment:
 			offset = dissect_per_length_determinant(tvb, offset, actx, tree,

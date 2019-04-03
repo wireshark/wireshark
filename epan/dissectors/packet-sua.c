@@ -2209,7 +2209,7 @@ dissect_sua_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *sua_t
       }
       if (assoc && assoc->assoc_id !=0) {
           assoc_item = proto_tree_add_uint(tree, hf_sua_assoc_id, message_tvb, 0, 0, assoc->assoc_id);
-          PROTO_ITEM_SET_GENERATED(assoc_item);
+          proto_item_set_generated(assoc_item);
 #if 0
           assoc_tree = proto_item_add_subtree(assoc_item, ett_sua_assoc);
           proto_tree_add_debug_text(assoc_tree, message_tvb, 0, 0, "routing_ind %u", assoc->calling_routing_ind);

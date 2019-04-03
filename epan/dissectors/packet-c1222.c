@@ -1085,9 +1085,9 @@ dissect_epsem(tvbuff_t *tvb, int offset, guint32 len, packet_info *pinfo, proto_
       /* now we have enough information to fill in the crypto subtree */
       crypto_tree = proto_item_add_subtree(yt, ett_c1222_crypto);
       item = proto_tree_add_boolean(crypto_tree, hf_c1222_epsem_crypto_good, tvb, local_offset, 4, crypto_good);
-      PROTO_ITEM_SET_GENERATED(item);
+      proto_item_set_generated(item);
       item = proto_tree_add_boolean(crypto_tree, hf_c1222_epsem_crypto_bad, tvb, local_offset, 4, crypto_bad);
-      PROTO_ITEM_SET_GENERATED(item);
+      proto_item_set_generated(item);
     } else {
       expert_add_info(pinfo, tree, &ei_c1222_mac_missing);
       return offset+len;

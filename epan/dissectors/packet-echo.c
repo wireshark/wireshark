@@ -46,7 +46,7 @@ static int dissect_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
   hidden_item = proto_tree_add_boolean(echo_tree,
       request ?  hf_echo_request : hf_echo_response, tvb, 0, 0, 1);
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  proto_item_set_hidden(hidden_item);
 
   proto_tree_add_item(echo_tree, hf_echo_data, tvb, 0, -1, ENC_NA);
 

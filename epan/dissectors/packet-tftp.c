@@ -382,13 +382,13 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
     if (tftp_info->source_file) {
       ti = proto_tree_add_string(tftp_tree, hf_tftp_source_file, tvb,
           0, 0, tftp_info->source_file);
-      PROTO_ITEM_SET_GENERATED(ti);
+      proto_item_set_generated(ti);
     }
 
     if (tftp_info->destination_file) {
       ti = proto_tree_add_string(tftp_tree, hf_tftp_destination_file, tvb,
           0, 0, tftp_info->destination_file);
-      PROTO_ITEM_SET_GENERATED(ti);
+      proto_item_set_generated(ti);
     }
   }
 
@@ -466,7 +466,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
     }
     ti = proto_tree_add_uint(tftp_tree, hf_tftp_full_blocknum, tvb, 0, 0,
                              blocknum);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* Sequence analysis on blocknums (first pass only) */
     if (!PINFO_FD_VISITED(pinfo)) {
@@ -579,7 +579,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
     }
     ti = proto_tree_add_uint(tftp_tree, hf_tftp_full_blocknum, tvb, 0, 0,
                              blocknum);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", Block: %u",
                     blocknum);

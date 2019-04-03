@@ -1679,7 +1679,7 @@ static void dissect_writemem_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, 
 		{
 			proto_item *item = NULL;
 			item = proto_tree_add_uint(gvcp_telegram_tree, hf_gvcp_response_in, tvb, 0, 0, gvcp_trans->rep_frame);
-			PROTO_ITEM_SET_GENERATED(item);
+			proto_item_set_generated(item);
 		}
 
 		if (try_val_to_str(addr, bootstrapregisternames) != NULL)
@@ -2164,7 +2164,7 @@ static void dissect_writemem_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, 
 		if (gvcp_trans && gvcp_trans->req_frame)
 		{
 			item = proto_tree_add_uint(gvcp_telegram_tree, hf_gvcp_response_to, tvb, 0, 0, gvcp_trans->req_frame);
-			PROTO_ITEM_SET_GENERATED(item);
+			proto_item_set_generated(item);
 		}
 
 		gvcp_telegram_tree = proto_tree_add_subtree(gvcp_telegram_tree, tvb, startoffset, length,
@@ -2421,7 +2421,7 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 			if (gvcp_trans->rep_frame)
 			{
 				item = proto_tree_add_uint(gvcp_telegram_tree, hf_gvcp_response_in, tvb, 0, 0, gvcp_trans->rep_frame);
-				PROTO_ITEM_SET_GENERATED(item);
+				proto_item_set_generated(item);
 			}
 		}
 
@@ -2494,7 +2494,7 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 			if (gvcp_trans->req_frame)
 			{
 				item = proto_tree_add_uint(gvcp_telegram_tree, hf_gvcp_response_to, tvb, 0, 0, gvcp_trans->req_frame);
-				PROTO_ITEM_SET_GENERATED(item);
+				proto_item_set_generated(item);
 			}
 		}
 

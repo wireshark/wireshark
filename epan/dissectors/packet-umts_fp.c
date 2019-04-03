@@ -736,7 +736,7 @@ dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                        0, chan+1);
             proto_item_append_text(no_tb_ti, " (of size %d)",
                                    p_fp_info->chan_tf_size[chan]);
-            PROTO_ITEM_SET_GENERATED(no_tb_ti);
+            proto_item_set_generated(no_tb_ti);
         }
 
         /* Show TBs from non-empty channels */
@@ -766,11 +766,11 @@ dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     if ( p_fp_info->channel == CHANNEL_RACH_FDD) {    /*In RACH we don't have any QE field, hence go back 8 bits.*/
                         crci_bit = tvb_get_bits8(tvb, crci_bit_offset+n-8, 1);
                         item = proto_tree_add_item(data_tree, hf_fp_crci[n%8], tvb, (crci_bit_offset+n-8)/8, 1, ENC_BIG_ENDIAN);
-                        PROTO_ITEM_SET_GENERATED(item);
+                        proto_item_set_generated(item);
                     } else {
                         crci_bit = tvb_get_bits8(tvb, crci_bit_offset+n, 1);
                         item = proto_tree_add_item(data_tree, hf_fp_crci[n%8], tvb, (crci_bit_offset+n)/8, 1, ENC_BIG_ENDIAN);
-                        PROTO_ITEM_SET_GENERATED(item);
+                        proto_item_set_generated(item);
                     }
                 }
 
@@ -1283,14 +1283,14 @@ dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tree,
     /* Calculated and show effective rate enabled */
     if (credits == 2047) {
         rate_ti = proto_tree_add_item(tree, hf_fp_hsdsch_unlimited_rate, tvb, 0, 0, ENC_NA);
-        PROTO_ITEM_SET_GENERATED(rate_ti);
+        proto_item_set_generated(rate_ti);
     }
     else {
         if (interval != 0) {
             /* Cast on credits is safe, since we know it won't exceed 10^11 */
             rate_ti = proto_tree_add_uint(tree, hf_fp_hsdsch_calculated_rate, tvb, 0, 0,
                                           (guint16)credits * max_pdu_length * (1000 / (interval*10)));
-            PROTO_ITEM_SET_GENERATED(rate_ti);
+            proto_item_set_generated(rate_ti);
         }
     }
 
@@ -1361,13 +1361,13 @@ dissect_hsdpa_capacity_allocation_type_2(packet_info *pinfo, proto_tree *tree,
     /* Calculated and show effective rate enabled */
     if (credits == 65535) {
         rate_ti = proto_tree_add_item(tree, hf_fp_hsdsch_unlimited_rate, tvb, 0, 0, ENC_NA);
-        PROTO_ITEM_SET_GENERATED(rate_ti);
+        proto_item_set_generated(rate_ti);
     }
     else {
         if (interval != 0) {
             rate_ti = proto_tree_add_uint(tree, hf_fp_hsdsch_calculated_rate, tvb, 0, 0,
                                           credits * max_pdu_length * (1000 / (interval*10)));
-            PROTO_ITEM_SET_GENERATED(rate_ti);
+            proto_item_set_generated(rate_ti);
         }
     }
 
@@ -2050,11 +2050,11 @@ dissect_pch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                          (p_fp_info->paging_indications+7) / 8,
                                          ENC_NA);
                 proto_item_append_text(ti, " (%u bits)", p_fp_info->paging_indications);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
                 relevant_pi_tree = proto_item_add_subtree(ti, ett_fp_pch_relevant_pi);
                 ti = proto_tree_add_uint(relevant_pi_tree, hf_fp_relevant_pi_frame,
                                                            tvb, 0, 0, p_fp_info->relevant_paging_indications->frame_number);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
             }
             else {
                 /* PI info not attached. Check if this frame has any Transport Blocks (i.e. RRC payloads) */
@@ -5827,7 +5827,7 @@ dissect_fp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
             proto_item *item= proto_tree_add_uint(fp_tree, hf_fp_ul_setup_frame,
                                                   tvb, 0, 0, p_conv_data->ul_frame_number);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
         }
         else {
             /* CRNC -> Node B */
@@ -5836,7 +5836,7 @@ dissect_fp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
             /* Maybe the frame number should be stored in the proper location already in nbap?, in ul_frame_number*/
             proto_item *item= proto_tree_add_uint(fp_tree, hf_fp_dl_setup_frame,
                                                    tvb, 0, 0, p_conv_data->ul_frame_number);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
         }
         if (p_fp_info == NULL) {
             p_fp_info = fp_set_per_packet_inf_from_conv(p_conv, p_conv_data, tvb, pinfo, fp_tree);
@@ -5864,19 +5864,19 @@ dissect_fp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         proto_item *temp_ti;
 
         release_ti = proto_tree_add_item(fp_tree, hf_fp_release, tvb, 0, 0, ENC_NA);
-        PROTO_ITEM_SET_GENERATED(release_ti);
+        proto_item_set_generated(release_ti);
         proto_item_append_text(release_ti, " R%u (%d/%d)",
                                p_fp_info->release, p_fp_info->release_year, p_fp_info->release_month);
         release_tree = proto_item_add_subtree(release_ti, ett_fp_release);
 
         temp_ti = proto_tree_add_uint(release_tree, hf_fp_release_version, tvb, 0, 0, p_fp_info->release);
-        PROTO_ITEM_SET_GENERATED(temp_ti);
+        proto_item_set_generated(temp_ti);
 
         temp_ti = proto_tree_add_uint(release_tree, hf_fp_release_year, tvb, 0, 0, p_fp_info->release_year);
-        PROTO_ITEM_SET_GENERATED(temp_ti);
+        proto_item_set_generated(temp_ti);
 
         temp_ti = proto_tree_add_uint(release_tree, hf_fp_release_month, tvb, 0, 0, p_fp_info->release_month);
-        PROTO_ITEM_SET_GENERATED(temp_ti);
+        proto_item_set_generated(temp_ti);
     }
 
     /* Show channel type in info column, tree */
@@ -5899,17 +5899,17 @@ dissect_fp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     /* Add channel type as a generated field */
     ti = proto_tree_add_uint(fp_tree, hf_fp_channel_type, tvb, 0, 0, p_fp_info->channel);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* Add division type as a generated field */
     if (p_fp_info->release == 7) {
         ti = proto_tree_add_uint(fp_tree, hf_fp_division, tvb, 0, 0, p_fp_info->division);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
     /* Add link direction as a generated field */
     ti = proto_tree_add_uint(fp_tree, hf_fp_direction, tvb, 0, 0, p_fp_info->is_uplink);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* Don't currently handle IuR-specific formats, but it's useful to even see
        the channel type and direction */
@@ -5925,7 +5925,7 @@ dissect_fp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
         ddi_config_ti = proto_tree_add_string_format(fp_tree, hf_fp_ddi_config, tvb, offset, 0,
                                                      "", "DDI Config (");
-        PROTO_ITEM_SET_GENERATED(ddi_config_ti);
+        proto_item_set_generated(ddi_config_ti);
         ddi_config_tree = proto_item_add_subtree(ddi_config_ti, ett_fp_ddi_config);
 
         /* Add each entry */
@@ -5935,10 +5935,10 @@ dissect_fp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                                    p_fp_info->edch_ddi[n], p_fp_info->edch_macd_pdu_size[n]);
             ti = proto_tree_add_uint(ddi_config_tree, hf_fp_ddi_config_ddi, tvb, 0, 0,
                                 p_fp_info->edch_ddi[n]);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             ti = proto_tree_add_uint(ddi_config_tree, hf_fp_ddi_config_macd_pdu_size, tvb, 0, 0,
                                 p_fp_info->edch_macd_pdu_size[n]);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
         }
         proto_item_append_text(ddi_config_ti, ")");
@@ -5989,7 +5989,7 @@ dissect_fp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 entity_ti = proto_tree_add_uint(fp_tree, hf_fp_hsdsch_entity,
                                                 tvb, 0, 0,
                                                 p_fp_info->hsdsch_entity);
-                PROTO_ITEM_SET_GENERATED(entity_ti);
+                proto_item_set_generated(entity_ti);
             }
             switch (p_fp_info->hsdsch_entity) {
                 case entity_not_specified:
@@ -6035,7 +6035,7 @@ dissect_fp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 entity_ti = proto_tree_add_uint(fp_tree, hf_fp_edch_entity,
                                                 tvb, 0, 0,
                                                 p_fp_info->edch_type);
-                PROTO_ITEM_SET_GENERATED(entity_ti);
+                proto_item_set_generated(entity_ti);
             }
             dissect_e_dch_channel_info(tvb, pinfo, fp_tree, offset, p_fp_info,
                                        p_fp_info->channel == CHANNEL_EDCH_COMMON,

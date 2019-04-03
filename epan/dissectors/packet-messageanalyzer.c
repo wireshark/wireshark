@@ -208,15 +208,15 @@ add_ipv4_src_address(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
 
 		proto_tree_add_ipv4(tree, hf_ip_src, tvb, offset, 4, addr);
 		item = proto_tree_add_ipv4(tree, hf_ip_addr, tvb, offset, 4, addr);
-		PROTO_ITEM_SET_HIDDEN(item);
+		proto_item_set_hidden(item);
 
 		item = proto_tree_add_string(tree, hf_ip_src_host, tvb, offset, 4, src_host);
-		PROTO_ITEM_SET_GENERATED(item);
-		PROTO_ITEM_SET_HIDDEN(item);
+		proto_item_set_generated(item);
+		proto_item_set_hidden(item);
 
 		item = proto_tree_add_string(tree, hf_ip_host, tvb, offset, 4, src_host);
-		PROTO_ITEM_SET_GENERATED(item);
-		PROTO_ITEM_SET_HIDDEN(item);
+		proto_item_set_generated(item);
+		proto_item_set_hidden(item);
 	}
 }
 
@@ -238,15 +238,15 @@ add_ipv4_dst_address(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
 
 		proto_tree_add_ipv4(tree, hf_ip_dst, tvb, offset, 4, addr);
 		item = proto_tree_add_ipv4(tree, hf_ip_addr, tvb, offset, 4, addr);
-		PROTO_ITEM_SET_HIDDEN(item);
+		proto_item_set_hidden(item);
 
 		item = proto_tree_add_string(tree, hf_ip_dst_host, tvb, offset, 4, dst_host);
-		PROTO_ITEM_SET_GENERATED(item);
-		PROTO_ITEM_SET_HIDDEN(item);
+		proto_item_set_generated(item);
+		proto_item_set_hidden(item);
 
 		item = proto_tree_add_string(tree, hf_ip_host, tvb, offset, 4, dst_host);
-		PROTO_ITEM_SET_GENERATED(item);
-		PROTO_ITEM_SET_HIDDEN(item);
+		proto_item_set_generated(item);
+		proto_item_set_hidden(item);
 	}
 }
 
@@ -265,15 +265,15 @@ add_ipv6_src_address(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
 
 		proto_tree_add_item(tree, hf_ipv6_src, tvb, offset, IPv6_ADDR_SIZE, ENC_NA);
 		item = proto_tree_add_item(tree, hf_ipv6_addr, tvb, offset, IPv6_ADDR_SIZE, ENC_NA);
-		PROTO_ITEM_SET_HIDDEN(item);
+		proto_item_set_hidden(item);
 
 		item = proto_tree_add_string(tree, hf_ipv6_src_host, tvb, offset, IPv6_ADDR_SIZE, src_host);
-		PROTO_ITEM_SET_GENERATED(item);
-		PROTO_ITEM_SET_HIDDEN(item);
+		proto_item_set_generated(item);
+		proto_item_set_hidden(item);
 
 		item = proto_tree_add_string(tree, hf_ipv6_host, tvb, offset, IPv6_ADDR_SIZE, src_host);
-		PROTO_ITEM_SET_GENERATED(item);
-		PROTO_ITEM_SET_HIDDEN(item);
+		proto_item_set_generated(item);
+		proto_item_set_hidden(item);
 	}
 }
 
@@ -292,15 +292,15 @@ add_ipv6_dst_address(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int of
 
 		proto_tree_add_item(tree, hf_ipv6_dst, tvb, offset, IPv6_ADDR_SIZE, ENC_NA);
 		item = proto_tree_add_item(tree, hf_ipv6_addr, tvb, offset, IPv6_ADDR_SIZE, ENC_NA);
-		PROTO_ITEM_SET_HIDDEN(item);
+		proto_item_set_hidden(item);
 
 		item = proto_tree_add_string(tree, hf_ipv6_dst_host, tvb, offset, IPv6_ADDR_SIZE, dst_host);
-		PROTO_ITEM_SET_GENERATED(item);
-		PROTO_ITEM_SET_HIDDEN(item);
+		proto_item_set_generated(item);
+		proto_item_set_hidden(item);
 
 		item = proto_tree_add_string(tree, hf_ipv6_host, tvb, offset, IPv6_ADDR_SIZE, dst_host);
-		PROTO_ITEM_SET_GENERATED(item);
-		PROTO_ITEM_SET_HIDDEN(item);
+		proto_item_set_generated(item);
+		proto_item_set_hidden(item);
 	}
 }
 
@@ -578,7 +578,7 @@ dissect_etw_wfp_capture(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	etw_tree = proto_item_add_subtree(ti, ett_etw_wfp_capture);
 
 	generated = proto_tree_add_uint(etw_tree, hf_etw_wfp_capture_event_id, tvb, 0, 0, provider_id_data->event_id);
-	PROTO_ITEM_SET_GENERATED(generated);
+	proto_item_set_generated(generated);
 	col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(provider_id_data->event_id, etw_wfp_capture_event_vals, "Unknown"));
 
 	switch (provider_id_data->event_id)
@@ -887,10 +887,10 @@ dissect_etw_ndis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 	etw_tree = proto_item_add_subtree(ti, ett_etw_ndis);
 
 	generated = proto_tree_add_uint(etw_tree, hf_etw_ndis_event_id, tvb, 0, 0, provider_id_data->event_id);
-	PROTO_ITEM_SET_GENERATED(generated);
+	proto_item_set_generated(generated);
 	col_set_str(pinfo->cinfo, COL_INFO, val_to_str_const(provider_id_data->event_id, etw_ndis_event_vals, "Unknown"));
 	generated = proto_tree_add_bitmask_value(etw_tree, tvb, 0, hf_etw_ndis_keyword, ett_etw_ndis_keyword, keyword_fields, provider_id_data->keyword);
-	PROTO_ITEM_SET_GENERATED(generated);
+	proto_item_set_generated(generated);
 
 
 

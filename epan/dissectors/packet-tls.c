@@ -1516,7 +1516,7 @@ again:
              */
             item=proto_tree_add_uint(tree, *ssl_segment_items.hf_reassembled_in,
                                      tvb, 0, 0, ipfd_head->reassembled_in);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
         }
 
         /*
@@ -1907,7 +1907,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             content_type = record->type;
             ti = proto_tree_add_uint(ssl_record_tree, hf_tls_record_content_type,
                                      tvb, content_type_offset, 1, record->type);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
         }
     }
     ssl_check_record_length(&dissect_ssl3_hf, pinfo, record_length, length_pi, version, decrypted);
@@ -2699,7 +2699,7 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             ti = proto_tree_add_uint(ssl_record_tree,
                     hf_tls_record_version, tvb,
                     initial_offset, 0, 0x0002);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
         }
 
         col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Encrypted Data");
@@ -2731,7 +2731,7 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         ti = proto_tree_add_uint(ssl_record_tree,
                                  hf_tls_record_version, tvb,
                                  initial_offset, 0, 0x0002);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         /* add the record length */
         tvb_ensure_bytes_exist(tvb, offset, record_length_length);

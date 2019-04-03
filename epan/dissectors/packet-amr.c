@@ -443,7 +443,7 @@ dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint amr
 
     item = proto_tree_add_uint(amr_tree, hf_amr_payload_decoded_as, tvb, offset, 4, amr_encoding_type);
     proto_item_set_len(item, tvb_reported_length(tvb));
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
 
     switch (amr_encoding_type) {
     case 0: /* RFC 3267 Byte aligned */
@@ -477,7 +477,7 @@ dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint amr
     item = proto_tree_add_item(amr_tree, hf_amr_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
     if ( octet != 0  ) {
         expert_add_info(pinfo, item, &ei_amr_reserved);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
         return;
 
     }

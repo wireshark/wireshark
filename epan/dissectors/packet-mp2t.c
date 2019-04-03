@@ -953,11 +953,11 @@ detect_cc_drops(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
         flags_item = proto_tree_add_uint(tree, hf_mp2t_analysis_skips,
                 tvb, 0, 0, skips);
-        PROTO_ITEM_SET_GENERATED(flags_item);
+        proto_item_set_generated(flags_item);
 
         flags_item = proto_tree_add_uint(tree, hf_mp2t_analysis_drops,
                 tvb, 0, 0, 1);
-        PROTO_ITEM_SET_GENERATED(flags_item);
+        proto_item_set_generated(flags_item);
     }
     return skips;
 }
@@ -1186,7 +1186,7 @@ dissect_tsp(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
     /* Create a subtree for analysis stuff */
     mp2t_analysis_tree = proto_tree_add_subtree_format(mp2t_tree, tvb, offset, 0, ett_mp2t_analysis, &item, "MPEG2 PCR Analysis");
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
 
     skips = detect_cc_drops(tvb, mp2t_analysis_tree, pinfo, pid, cc, mp2t_data);
 

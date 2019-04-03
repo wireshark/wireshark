@@ -244,7 +244,7 @@ nvme_publish_qid(proto_tree *tree, int field_index, guint16 qid)
                      qid ? "%d (IOQ)" : "%d (AQ)",
                                      qid);
 
-    PROTO_ITEM_SET_GENERATED(cmd_ref_item);
+    proto_item_set_generated(cmd_ref_item);
 }
 
 static void nvme_build_pending_cmd_key(wmem_tree_key_t *cmd_key, guint32 *key)
@@ -394,7 +394,7 @@ nvme_publish_cmd_latency(proto_tree *tree, struct nvme_cmd_ctx *cmd_ctx,
     cmd_ref_item = proto_tree_add_double_format_value(tree, field_index,
                             NULL, 0, 0, cmd_latency,
                             "%.3f ms", cmd_latency);
-    PROTO_ITEM_SET_GENERATED(cmd_ref_item);
+    proto_item_set_generated(cmd_ref_item);
 }
 
 void nvme_update_cmd_end_info(packet_info *pinfo, struct nvme_cmd_ctx *cmd_ctx)
@@ -410,7 +410,7 @@ nvme_publish_cqe_to_cmd_link(proto_tree *cqe_tree, tvbuff_t *nvme_tvb,
     proto_item *cqe_ref_item;
     cqe_ref_item = proto_tree_add_uint(cqe_tree, hf_index,
                              nvme_tvb, 0, 0, cmd_ctx->cmd_pkt_num);
-    PROTO_ITEM_SET_GENERATED(cqe_ref_item);
+    proto_item_set_generated(cqe_ref_item);
 }
 
 void
@@ -422,7 +422,7 @@ nvme_publish_cmd_to_cqe_link(proto_tree *cmd_tree, tvbuff_t *cmd_tvb,
     if (cmd_ctx->cqe_pkt_num) {
         cmd_ref_item = proto_tree_add_uint(cmd_tree, hf_index,
                                  cmd_tvb, 0, 0, cmd_ctx->cqe_pkt_num);
-        PROTO_ITEM_SET_GENERATED(cmd_ref_item);
+        proto_item_set_generated(cmd_ref_item);
     }
 }
 

@@ -260,7 +260,7 @@ dissect_brdwlk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
         hidden_item = proto_tree_add_boolean(brdwlk_tree, hf_brdwlk_drop,
                 tvb, offset, 0, dropped_packets);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        proto_item_set_hidden(hidden_item);
 
         packet_count = pkt_cnt;
 

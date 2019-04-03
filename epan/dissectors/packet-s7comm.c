@@ -5241,7 +5241,7 @@ dissect_s7comm(tvbuff_t *tvb,
         /* when there is an error, use the errorcode from parameterpart*/
         if (errorcode > 0) {
             s7comm_item = proto_tree_add_item(s7comm_header_tree, hf_s7comm_param_errcod, tvb, offset-2, 2, ENC_BIG_ENDIAN);
-            PROTO_ITEM_SET_GENERATED (s7comm_item);
+            proto_item_set_generated (s7comm_item);
         }
     }
 

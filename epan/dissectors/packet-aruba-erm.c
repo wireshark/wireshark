@@ -276,7 +276,7 @@ dissect_aruba_erm_type3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                                                 (float)data_rate / 2,
                                                 "Data Rate: %.1f Mb/s",
                                                 (float)data_rate / 2);
-    PROTO_ITEM_SET_GENERATED(ti_data_rate);
+    proto_item_set_generated(ti_data_rate);
     offset += 2;
 
     proto_tree_add_item_ret_uint(aruba_erm_tree, hf_aruba_erm_channel, tvb, offset, 1, ENC_BIG_ENDIAN, &channel);

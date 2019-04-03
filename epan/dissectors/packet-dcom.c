@@ -807,7 +807,7 @@ dissect_dcom_this(tvbuff_t *tvb, int offset,
 		pi = proto_tree_add_guid_format(tree, hf_dcom_ipid, tvb, offset, 0,
 			(e_guid_t *) &di->call_data->object_uuid,
 			"Object UUID/IPID: %s", guids_resolve_guid_to_str(&di->call_data->object_uuid));
-		PROTO_ITEM_SET_GENERATED(pi);
+		proto_item_set_generated(pi);
 	}
 
 	return offset;
@@ -841,7 +841,7 @@ dissect_dcom_that(tvbuff_t *tvb, int offset,
 		pi = proto_tree_add_guid_format(tree, hf_dcom_ipid, tvb, offset, 0,
 			(e_guid_t *) &di->call_data->object_uuid,
 			"Object UUID/IPID: %s", guids_resolve_guid_to_str(&di->call_data->object_uuid));
-		PROTO_ITEM_SET_GENERATED(pi);
+		proto_item_set_generated(pi);
 	}
 
 	return offset;
@@ -930,7 +930,7 @@ dissect_dcom_tobedone_data(tvbuff_t *tvb, int offset,
 
 
 	item = proto_tree_add_item(tree, hf_dcom_tobedone, tvb, offset, length, ENC_NA);
-	PROTO_ITEM_SET_GENERATED(item);
+	proto_item_set_generated(item);
 	expert_add_info(pinfo, item, &ei_dcom_dissetion_incomplete);
 
 	offset += length;
@@ -949,7 +949,7 @@ dissect_dcom_nospec_data(tvbuff_t *tvb, int offset,
 
 
 	item = proto_tree_add_item(tree, hf_dcom_nospec, tvb, offset, length, ENC_NA);
-	PROTO_ITEM_SET_GENERATED(item);
+	proto_item_set_generated(item);
 	expert_add_info(pinfo, item, &ei_dcom_no_spec);
 
 	offset += length;

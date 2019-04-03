@@ -3474,7 +3474,7 @@ static void show_sequence_analysis_info(guint32 domain_id, guint32 seqnum,
         /* Expected sequence number, i.e. what we stored in state when checking previous frame */
         ti = proto_tree_add_uint(tree, hf_cflow_sequence_analysis_expected_sn, tvb,
                                  0, 0, state->current_sequence_number);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
         expert_add_info_format(pinfo, flow_sequence_ti, &ei_unexpected_sequence_number,
                                "Unexpected flow sequence for domain ID %u (expected %u, got %u)",
                                domain_id, state->current_sequence_number, seqnum);
@@ -3485,7 +3485,7 @@ static void show_sequence_analysis_info(guint32 domain_id, guint32 seqnum,
         /* Previous frame for this observation domain ID */
         ti = proto_tree_add_uint(tree, hf_cflow_sequence_analysis_previous_frame, tvb,
                                  0, 0, state->current_frame_number);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 }
 
@@ -3884,7 +3884,7 @@ flow_process_timeperiod(proto_tree *pdutree, tvbuff_t *tvb, int offset)
 
     timeitem = proto_tree_add_time(pdutree, hf_cflow_timedelta, tvb,
                                    offset_s, 8, &ts_delta);
-    PROTO_ITEM_SET_GENERATED(timeitem);
+    proto_item_set_generated(timeitem);
     timetree = proto_item_add_subtree(timeitem, ett_flowtime);
 
     proto_tree_add_time(timetree, hf_cflow_timestart, tvb, offset_s, 4,
@@ -4194,7 +4194,7 @@ dissect_v9_v10_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, int 
         if (tmplt_p->template_frame_number > pinfo->num) {
             proto_item_append_text(ti, " (received after this frame)");
         }
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         /* Note: If the flow contains variable length fields then          */
         /*       tmplt_p->length will be less then actual length of the flow. */
@@ -4460,49 +4460,49 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
             case VENDOR_CACE:
                 if (!cace_pie_seen) {
                     proto_item *pie_cace_ti = proto_tree_add_item(pdutree, hf_pie_cace, tvb, 0, 0, ENC_NA);
-                    PROTO_ITEM_SET_HIDDEN(pie_cace_ti);
+                    proto_item_set_hidden(pie_cace_ti);
                     cace_pie_seen = TRUE;
                 }
                 break;
             case VENDOR_PLIXER:
                 if (!plixer_pie_seen) {
                     proto_item *pie_plixer_ti = proto_tree_add_item(pdutree, hf_pie_plixer, tvb, 0, 0, ENC_NA);
-                    PROTO_ITEM_SET_HIDDEN(pie_plixer_ti);
+                    proto_item_set_hidden(pie_plixer_ti);
                     plixer_pie_seen = TRUE;
                 }
                 break;
             case VENDOR_NTOP:
                 if (!ntop_pie_seen) {
                     proto_item *pie_ntop_ti = proto_tree_add_item(pdutree, hf_pie_ntop, tvb, 0, 0, ENC_NA);
-                    PROTO_ITEM_SET_HIDDEN(pie_ntop_ti);
+                    proto_item_set_hidden(pie_ntop_ti);
                     ntop_pie_seen = TRUE;
                 }
                 break;
             case VENDOR_IXIA:
                 if (!ixia_pie_seen) {
                     proto_item *pie_ixia_ti = proto_tree_add_item(pdutree, hf_pie_ixia, tvb, 0, 0, ENC_NA);
-                    PROTO_ITEM_SET_HIDDEN(pie_ixia_ti);
+                    proto_item_set_hidden(pie_ixia_ti);
                     ixia_pie_seen = TRUE;
                 }
                 break;
             case VENDOR_NETSCALER:
                 if (!netscaler_pie_seen) {
                     proto_item *pie_netscaler_ti = proto_tree_add_item(pdutree, hf_pie_netscaler, tvb, 0, 0, ENC_NA);
-                    PROTO_ITEM_SET_HIDDEN(pie_netscaler_ti);
+                    proto_item_set_hidden(pie_netscaler_ti);
                     netscaler_pie_seen = TRUE;
                 }
                 break;
             case VENDOR_BARRACUDA:
                 if (!barracuda_pie_seen) {
                     proto_item *pie_barracuda_ti = proto_tree_add_item(pdutree, hf_pie_barracuda, tvb, 0, 0, ENC_NA);
-                    PROTO_ITEM_SET_HIDDEN(pie_barracuda_ti);
+                    proto_item_set_hidden(pie_barracuda_ti);
                     barracuda_pie_seen = TRUE;
                 }
                 break;
             case VENDOR_GIGAMON:
                 if (!gigamon_pie_seen) {
                     proto_item *pie_gigamon_ti = proto_tree_add_item(pdutree, hf_pie_gigamon, tvb, 0, 0, ENC_NA);
-                    PROTO_ITEM_SET_HIDDEN(pie_gigamon_ti);
+                    proto_item_set_hidden(pie_gigamon_ti);
                     gigamon_pie_seen = TRUE;
                 }
                 break;
@@ -4742,7 +4742,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                 timeitem =
                     proto_tree_add_time(pdutree, hf_cflow_timedelta, tvb,
                                         offset_s[rev][duration_type], 0, &ts_delta);
-                PROTO_ITEM_SET_GENERATED(timeitem);
+                proto_item_set_generated(timeitem);
                 timetree = proto_item_add_subtree(timeitem, ett_flowtime);
 
                 /* Show the type/units used to calculate the duration */

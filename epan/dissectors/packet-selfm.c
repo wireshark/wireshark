@@ -1345,7 +1345,7 @@ dissect_fmdata_frame(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int of
                                     else if (cfg_data->sf_loc == FM_CONFIG_SF_LOC_CFG) {
                                         ai_sf_fp = ai->sf_fp;
                                         fmdata_ai_sf_item = proto_tree_add_float(fmdata_ai_ch_tree, hf_selfm_fmdata_ai_sf_fp, tvb, offset, ch_size, ai_sf_fp);
-                                        PROTO_ITEM_SET_GENERATED(fmdata_ai_sf_item);
+                                        proto_item_set_generated(fmdata_ai_sf_item);
                                     }
                                     /* If there was no scale factor, default value to 1 */
                                     else {
@@ -1794,10 +1794,10 @@ dissect_fastmsg_readresp_frame(tvbuff_t *tvb, proto_tree *fastmsg_tree, packet_i
                     pi_type = proto_tree_add_uint(fastmsg_tag_tree, hf_selfm_fmdata_data_type, payload_tvb, payload_offset, 0, dataitem->data_type);
                     pi_qty = proto_tree_add_uint(fastmsg_tag_tree, hf_selfm_fmdata_quantity, payload_tvb, payload_offset, 0, dataitem->quantity );
 
-                    PROTO_ITEM_SET_GENERATED(pi_fnum);
-                    PROTO_ITEM_SET_GENERATED(pi_type);
+                    proto_item_set_generated(pi_fnum);
+                    proto_item_set_generated(pi_type);
                     proto_item_set_len(pi_type, data_size);
-                    PROTO_ITEM_SET_GENERATED(pi_qty);
+                    proto_item_set_generated(pi_qty);
                     proto_item_set_len(pi_qty, data_size);
 
                     /* Data Item Type determines how to decode */

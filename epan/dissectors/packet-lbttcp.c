@@ -497,7 +497,7 @@ static int dissect_lbttcp_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
         proto_item * item = NULL;
 
         item = proto_tree_add_string(lbttcp_tree, hf_lbttcp_tag, tvb, 0, 0, tag_name);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
     }
     if (lbttcp_packet_is_transport_source(pinfo, tag))
     {
@@ -598,12 +598,12 @@ static int dissect_lbttcp_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * 
         proto_tree * channel_tree = NULL;
 
         channel_item = proto_tree_add_item(lbttcp_tree, hf_lbttcp_channel, tvb, 0, 0, ENC_NA);
-        PROTO_ITEM_SET_GENERATED(channel_item);
+        proto_item_set_generated(channel_item);
         channel_tree = proto_item_add_subtree(channel_item, ett_lbttcp_channel);
         channel_item = proto_tree_add_uint64(channel_tree, hf_lbttcp_channel_id, tvb, 0, 0, channel);
-        PROTO_ITEM_SET_GENERATED(channel_item);
+        proto_item_set_generated(channel_item);
         channel_item = proto_tree_add_uint(channel_tree, hf_lbttcp_channel_client, tvb, 0, 0, client_id);
-        PROTO_ITEM_SET_GENERATED(channel_item);
+        proto_item_set_generated(channel_item);
     }
     len_dissected = lbmc_dissect_lbmc_packet(tvb, 0, pinfo, tree, tag_name, channel);
     return (len_dissected);

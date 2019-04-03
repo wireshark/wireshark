@@ -478,7 +478,7 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
             it = proto_tree_add_uint(ipp_tree, hf_ipp_response_in,
                             tvb, 0, 0, ipp_trans->rep_frame);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
         }
     } else {
         /* This is a response */
@@ -488,11 +488,11 @@ dissect_ipp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 
             it = proto_tree_add_uint(ipp_tree, hf_ipp_response_to,
                             tvb, 0, 0, ipp_trans->req_frame);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
 
             nstime_delta(&ns, &pinfo->abs_ts, &ipp_trans->req_time);
             it = proto_tree_add_time(ipp_tree, hf_ipp_response_time, tvb, 0, 0, &ns);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
         }
     }
 

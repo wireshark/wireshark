@@ -92,7 +92,7 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 					add_new_data_source(pinfo, uncompr_tvb, "Uncompressed Data");
 					proto_tree_add_item(data_tree, &hfi_data_uncompressed_data, uncompr_tvb, 0, uncompr_len, ENC_NA);
 					ti = proto_tree_add_int(data_tree, &hfi_data_uncompressed_len, uncompr_tvb, 0, 0, uncompr_len);
-					PROTO_ITEM_SET_GENERATED (ti);
+					proto_item_set_generated (ti);
 				}
 			}
 
@@ -114,11 +114,11 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 				gcry_md_hash_buffer(GCRY_MD_MD5, digest, cp, bytes);
 				digest_string = bytestring_to_str(wmem_packet_scope(), digest, HASH_MD5_LENGTH, '\0');
 				ti = proto_tree_add_string(data_tree, &hfi_data_md5_hash, tvb, 0, 0, digest_string);
-				PROTO_ITEM_SET_GENERATED(ti);
+				proto_item_set_generated(ti);
 			}
 
 			ti = proto_tree_add_int(data_tree, &hfi_data_len, data_tvb, 0, 0, bytes);
-			PROTO_ITEM_SET_GENERATED (ti);
+			proto_item_set_generated (ti);
 		}
 	}
 	return tvb_captured_length(tvb);

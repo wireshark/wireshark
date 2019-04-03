@@ -1235,25 +1235,25 @@ smb2_add_session_info(proto_tree *tree, tvbuff_t *tvb, gint start, smb2_sesid_in
 
 	if (ses->acct_name) {
 		item = proto_tree_add_string(tree, hf_smb2_acct_name, tvb, start, 0, ses->acct_name);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 		proto_item_append_text(item, " Acct:%s", ses->acct_name);
 	}
 
 	if (ses->domain_name) {
 		item = proto_tree_add_string(tree, hf_smb2_domain_name, tvb, start, 0, ses->domain_name);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 		proto_item_append_text(item, " Domain:%s", ses->domain_name);
 	}
 
 	if (ses->host_name) {
 		item = proto_tree_add_string(tree, hf_smb2_host_name, tvb, start, 0, ses->host_name);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 		proto_item_append_text(item, " Host:%s", ses->host_name);
 	}
 
 	if (ses->auth_frame != (guint32)-1) {
 		item = proto_tree_add_uint(tree, hf_smb2_auth_frame, tvb, start, 0, ses->auth_frame);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 	}
 }
 
@@ -3247,7 +3247,7 @@ dissect_smb2_session_setup_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		hash_item = proto_tree_add_bytes_with_length(tree, hf_smb2_preauth_hash, tvb,
 							     0, tvb_captured_length(tvb),
 							     ssi->preauth_hash_req, SMB2_PREAUTH_HASH_SIZE);
-		PROTO_ITEM_SET_GENERATED(hash_item);
+		proto_item_set_generated(hash_item);
 	}
 
 	/* buffer code */
@@ -3571,7 +3571,7 @@ dissect_smb2_session_setup_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		hash_item = proto_tree_add_bytes_with_length(tree, hf_smb2_preauth_hash, tvb,
 							     0, tvb_captured_length(tvb),
 							     ssi->preauth_hash_res, SMB2_PREAUTH_HASH_SIZE);
-		PROTO_ITEM_SET_GENERATED(hash_item);
+		proto_item_set_generated(hash_item);
 	}
 
 	/* session_setup is special and we don't use dissect_smb2_error_response() here! */
@@ -4585,7 +4585,7 @@ dissect_smb2_find_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	if (si->saved) {
 		/* infolevel */
 		item = proto_tree_add_uint(tree, hf_smb2_find_info_level, tvb, offset, 0, si->saved->infolevel);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 	}
 
 	if (!pinfo->fd->visited && si->saved && si->saved->extra_info_type == SMB2_EI_FINDPATTERN) {
@@ -4709,7 +4709,7 @@ dissect_smb2_negotiate_protocol_request(tvbuff_t *tvb, packet_info *pinfo, proto
 							     hf_smb2_preauth_hash, tvb,
 							     0, tvb_captured_length(tvb),
 							     ssi->preauth_hash_req, SMB2_PREAUTH_HASH_SIZE);
-		PROTO_ITEM_SET_GENERATED(hash_item);
+		proto_item_set_generated(hash_item);
 	}
 
 	/* buffer code */
@@ -4813,7 +4813,7 @@ dissect_smb2_negotiate_protocol_response(tvbuff_t *tvb, packet_info *pinfo, prot
 							     hf_smb2_preauth_hash, tvb,
 							     0, tvb_captured_length(tvb),
 							     ssi->preauth_hash_res, SMB2_PREAUTH_HASH_SIZE);
-		PROTO_ITEM_SET_GENERATED(hash_item);
+		proto_item_set_generated(hash_item);
 	}
 
 	switch (si->status) {
@@ -5018,12 +5018,12 @@ dissect_smb2_class_infolevel(packet_info *pinfo, tvbuff_t *tvb, int offset, prot
 	/* class */
 	item = proto_tree_add_uint(tree, hf_smb2_class, tvb, offset, 1, cl);
 	if (si->flags & SMB2_FLAGS_RESPONSE) {
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 	}
 	/* infolevel */
 	item = proto_tree_add_uint(tree, hfindex, tvb, offset+1, 1, il);
 	if (si->flags & SMB2_FLAGS_RESPONSE) {
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 	}
 	offset += 2;
 
@@ -5299,7 +5299,7 @@ dissect_smb2_infolevel(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	if (si->status == 0x80000005) {
 		proto_item *item;
 		item = proto_tree_add_item(tree, hf_smb2_truncated, tvb, old_offset, 0, ENC_NA);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 	}
 	return offset;
 }
@@ -5772,7 +5772,7 @@ dissect_file_data_smb2_pipe(tvbuff_t *raw_tvb, packet_info *pinfo, proto_tree *t
 		proto_item *item;
 		item = proto_tree_add_uint(top_tree, hf_smb2_pipe_reassembled_in,
 					   tvb, 0, 0, fd_head->reassembled_in);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 		goto clean_up_and_exit;
 	}
 
@@ -9507,14 +9507,14 @@ dissect_smb2_tid_sesid(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, 
 		if (!si->tree) return offset;
 
 		item = proto_tree_add_string(tid_tree, hf_smb2_tree, tvb, tid_offset, 4, si->tree->name);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 		proto_item_append_text(tid_item, "  %s", si->tree->name);
 
 		item = proto_tree_add_uint(tid_tree, hf_smb2_share_type, tvb, tid_offset, 0, si->tree->share_type);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 
 		item = proto_tree_add_uint(tid_tree, hf_smb2_tcon_frame, tvb, tid_offset, 0, si->tree->connect_frame);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 	}
 
 	return offset;
@@ -9761,7 +9761,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 				if (ssi->frame_res) {
 					proto_item *tmp_item;
 					tmp_item = proto_tree_add_uint(header_tree, hf_smb2_response_in, tvb, 0, 0, ssi->frame_res);
-					PROTO_ITEM_SET_GENERATED(tmp_item);
+					proto_item_set_generated(tmp_item);
 				}
 			} else {
 				if (ssi->frame_req) {
@@ -9769,12 +9769,12 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 					nstime_t    t, deltat;
 
 					tmp_item = proto_tree_add_uint(header_tree, hf_smb2_response_to, tvb, 0, 0, ssi->frame_req);
-					PROTO_ITEM_SET_GENERATED(tmp_item);
+					proto_item_set_generated(tmp_item);
 					t = pinfo->abs_ts;
 					nstime_delta(&deltat, &t, &ssi->req_time);
 					tmp_item = proto_tree_add_time(header_tree, hf_smb2_time, tvb,
 					0, 0, &deltat);
-					PROTO_ITEM_SET_GENERATED(tmp_item);
+					proto_item_set_generated(tmp_item);
 				}
 			}
 			if (si->file != NULL) {

@@ -1138,7 +1138,7 @@ static void dissect_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     /* Show which transport layer it came in on (inferred from RNTI type) */
     ti = proto_tree_add_uint(tree, hf_mac_nr_context_bcch_transport_channel,
                              tvb, offset, 0, p_mac_nr_info->rntiType);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /****************************************/
     /* Whole frame is BCCH data             */
@@ -1159,7 +1159,7 @@ static void dissect_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         }
 
         /* Hide raw view of bytes */
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
 
         call_with_catch_all(protocol_handle, rrc_tvb, pinfo, tree);
     }
@@ -1188,7 +1188,7 @@ static void dissect_pcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         tvbuff_t *rrc_tvb = tvb_new_subset_remaining(tvb, offset);
 
         /* Hide raw view of bytes */
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
 
         call_with_catch_all(nr_rrc_pcch_handle, rrc_tvb, pinfo, tree);
 
@@ -1205,7 +1205,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     /* Create hidden 'virtual root' so can filter on mac-nr.rar */
     proto_item *ti = proto_tree_add_item(tree, hf_mac_nr_rar, tvb, offset, -1, ENC_NA);
-    PROTO_ITEM_SET_HIDDEN(ti);
+    proto_item_set_hidden(ti);
 
     gboolean E, T;
 
@@ -1652,7 +1652,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     protocol_handle = nr_rrc_dl_ccch_handle;
                 }
                 /* Hide raw view of bytes */
-                PROTO_ITEM_SET_HIDDEN(sch_pdu_ti);
+                proto_item_set_hidden(sch_pdu_ti);
                 call_with_catch_all(protocol_handle, rrc_tvb, pinfo, tree);
                 dissected_by_upper_layer = TRUE;
             }
@@ -2433,48 +2433,48 @@ static int dissect_mac_nr(tvbuff_t *tvb, packet_info *pinfo,
     context_ti = proto_tree_add_string_format(mac_nr_tree, hf_mac_nr_context,
                                               tvb, offset, 0, "", "Context");
     context_tree = proto_item_add_subtree(context_ti, ett_mac_nr_context);
-    PROTO_ITEM_SET_GENERATED(context_ti);
+    proto_item_set_generated(context_ti);
 
     /* Radio type */
     ti = proto_tree_add_uint(context_tree, hf_mac_nr_context_radio_type,
                              tvb, 0, 0, p_mac_nr_info->radioType);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* Direction */
     ti = proto_tree_add_uint(context_tree, hf_mac_nr_context_direction,
                              tvb, 0, 0, p_mac_nr_info->direction);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* RNTI type and value */
     if (p_mac_nr_info->rntiType != NO_RNTI) {
         ti = proto_tree_add_uint(context_tree, hf_mac_nr_context_rnti,
                                  tvb, 0, 0, p_mac_nr_info->rnti);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
         proto_item_append_text(context_ti, " (RNTI=%u)", p_mac_nr_info->rnti);
     }
 
     ti = proto_tree_add_uint(context_tree, hf_mac_nr_context_rnti_type,
                              tvb, 0, 0, p_mac_nr_info->rntiType);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* UEId */
     if (p_mac_nr_info->ueid != 0) {
         ti = proto_tree_add_uint(context_tree, hf_mac_nr_context_ueid,
                                  tvb, 0, 0, p_mac_nr_info->ueid);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
     if (p_mac_nr_info->rntiType == C_RNTI || p_mac_nr_info->rntiType == CS_RNTI) {
         /* Harqid */
         ti = proto_tree_add_uint(context_tree, hf_mac_nr_context_harqid,
                                 tvb, 0, 0, p_mac_nr_info->harqid);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         if (p_mac_nr_info->direction == DIRECTION_UPLINK) {
             /* Type 2 other */
             ti = proto_tree_add_boolean(context_tree, hf_mac_nr_context_phr_type2_othercell,
                                         tvb, 0, 0, p_mac_nr_info->phr_type2_othercell);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
         }
     }
 

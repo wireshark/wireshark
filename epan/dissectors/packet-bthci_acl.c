@@ -445,7 +445,7 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 proto_item *item;
 
                 item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_reassembled_in, tvb, 0, 0, mfp->last_frame);
-                PROTO_ITEM_SET_GENERATED(item);
+                proto_item_set_generated(item);
                 col_append_frame_number(pinfo, COL_INFO, " [Reassembled in #%u]", mfp->last_frame);
             }
         }
@@ -465,11 +465,11 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
                 proto_item *item;
 
                 item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_continuation_to, tvb, 0, 0, mfp->first_frame);
-                PROTO_ITEM_SET_GENERATED(item);
+                proto_item_set_generated(item);
                 col_append_frame_number(pinfo, COL_INFO, " [Continuation to #%u]", mfp->first_frame);
                 if (mfp->last_frame && mfp->last_frame != pinfo->num) {
                     item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_reassembled_in, tvb, 0, 0, mfp->last_frame);
-                    PROTO_ITEM_SET_GENERATED(item);
+                    proto_item_set_generated(item);
                     col_append_frame_number(pinfo, COL_INFO, " [Reassembled in #%u]", mfp->last_frame);
                 }
             }
@@ -491,11 +491,11 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     if (chandle_session) {
         sub_item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_connect_in, tvb, 0, 0, chandle_session->connect_in_frame);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
 
         if (chandle_session->disconnect_in_frame < G_MAXUINT32) {
             sub_item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_disconnect_in, tvb, 0, 0, chandle_session->disconnect_in_frame);
-            PROTO_ITEM_SET_GENERATED(sub_item);
+            proto_item_set_generated(sub_item);
         }
     }
 
@@ -516,34 +516,34 @@ dissect_bthci_acl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     }
 
     sub_item = proto_tree_add_ether(bthci_acl_tree, hf_bthci_acl_src_bd_addr, tvb, 0, 0, src_bd_addr);
-    PROTO_ITEM_SET_GENERATED(sub_item);
+    proto_item_set_generated(sub_item);
 
     sub_item = proto_tree_add_string(bthci_acl_tree, hf_bthci_acl_src_name, tvb, 0, 0, src_name);
-    PROTO_ITEM_SET_GENERATED(sub_item);
+    proto_item_set_generated(sub_item);
 
     sub_item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_src_role, tvb, 0, 0, src_role);
-    PROTO_ITEM_SET_GENERATED(sub_item);
+    proto_item_set_generated(sub_item);
 
     sub_item = proto_tree_add_ether(bthci_acl_tree, hf_bthci_acl_dst_bd_addr, tvb, 0, 0, dst_bd_addr);
-    PROTO_ITEM_SET_GENERATED(sub_item);
+    proto_item_set_generated(sub_item);
 
     sub_item = proto_tree_add_string(bthci_acl_tree, hf_bthci_acl_dst_name, tvb, 0, 0, dst_name);
-    PROTO_ITEM_SET_GENERATED(sub_item);
+    proto_item_set_generated(sub_item);
 
     sub_item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_dst_role, tvb, 0, 0, dst_role);
-    PROTO_ITEM_SET_GENERATED(sub_item);
+    proto_item_set_generated(sub_item);
 
     if (role_last_change_in_frame > 0) {
         sub_item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_role_last_change_in_frame, tvb, 0, 0, role_last_change_in_frame);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
     }
 
     sub_item = proto_tree_add_int(bthci_acl_tree, hf_bthci_acl_mode, tvb, 0, 0, mode);
-    PROTO_ITEM_SET_GENERATED(sub_item);
+    proto_item_set_generated(sub_item);
 
     if (mode_last_change_in_frame > 0) {
         sub_item = proto_tree_add_uint(bthci_acl_tree, hf_bthci_acl_mode_last_change_in_frame, tvb, 0, 0, mode_last_change_in_frame);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
     }
 
     return tvb_captured_length(tvb);

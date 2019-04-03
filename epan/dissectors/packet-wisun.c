@@ -487,9 +487,9 @@ dissect_wisun_fcie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
                 set_address(&pinfo->dl_src, AT_EUI64, 8, p_addr);
                 copy_address_shallow(&pinfo->src, &pinfo->dl_src);
                 proto_item* src = proto_tree_add_eui64(tree, hf_wisun_fcie_src, tvb, 0, 0, hints->map_rec->addr64);
-                PROTO_ITEM_SET_GENERATED(src);
+                proto_item_set_generated(src);
                 proto_item* frm = proto_tree_add_uint(tree, hf_wisun_fcie_initial_frame, tvb, 0, 0, hints->map_rec->start_fnum);
-                PROTO_ITEM_SET_GENERATED(frm);
+                proto_item_set_generated(frm);
             } else {
                 expert_add_info(pinfo, tree, &ei_wisun_edfe_start_not_found);
             }
@@ -991,7 +991,7 @@ static int dissect_wisun_eapol_relay(tvbuff_t *tvb, packet_info *pinfo, proto_tr
         up = (tvb_get_guint8(tvb, offset+6) & 0x80) == 0;  // Key Info ACK==0
     }
     proto_item* diritem = proto_tree_add_boolean(subtree, hf_wisun_eapol_relay_direction, tvb, offset, 0, (guint32) up);
-    PROTO_ITEM_SET_GENERATED(diritem);
+    proto_item_set_generated(diritem);
 
     int r = call_dissector(eapol_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 

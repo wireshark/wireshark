@@ -1675,7 +1675,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
     /* Try to detect blackholes and overlapping segments */
     generated_tree = proto_tree_add_subtree(main_tree, tvb, 0, 0, ett_elf_info, &generated_item, "Infos");
-    PROTO_ITEM_SET_GENERATED(generated_item);
+    proto_item_set_generated(generated_item);
 
     blackhole_tree = proto_tree_add_subtree(generated_tree, tvb, 0, 0, ett_elf_black_holes, NULL, "Backholes");
     overlapping_tree = proto_tree_add_subtree(generated_tree, tvb, 0, 0, ett_elf_overlapping, NULL, "Overlapping");

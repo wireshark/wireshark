@@ -658,7 +658,7 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                                              "", "Sequence Analysis");
     seqnum_tree = proto_item_add_subtree(seqnum_ti,
                                          ett_pdcp_lte_sequence_analysis);
-    PROTO_ITEM_SET_GENERATED(seqnum_ti);
+    proto_item_set_generated(seqnum_ti);
 
 
     /* Previous channel frame */
@@ -670,7 +670,7 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
     /* Expected sequence number */
     ti_expected_sn = proto_tree_add_uint(seqnum_tree, hf_pdcp_lte_sequence_analysis_expected_sn,
                                          tvb, 0, 0, p->sequenceExpected);
-    PROTO_ITEM_SET_GENERATED(ti_expected_sn);
+    proto_item_set_generated(ti_expected_sn);
 
     /* Make sure we have recognised SN length */
     switch (p_pdcp_lte_info->seqnum_length) {
@@ -687,10 +687,10 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
 
     switch (p->state) {
         case SN_OK:
-            PROTO_ITEM_SET_HIDDEN(ti_expected_sn);
+            proto_item_set_hidden(ti_expected_sn);
             ti = proto_tree_add_boolean(seqnum_tree, hf_pdcp_lte_sequence_analysis_ok,
                                         tvb, 0, 0, TRUE);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             proto_item_append_text(seqnum_ti, " - OK");
 
             /* Link to next SN in channel (if known) */
@@ -710,13 +710,13 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                 /* BEARER */
                 ti = proto_tree_add_uint(security_tree, hf_pdcp_lte_security_bearer,
                                          tvb, 0, 0, p_pdcp_lte_info->channelId-1);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
                 pdu_security->bearer = p_pdcp_lte_info->channelId-1;
 
                 /* DIRECTION */
                 ti = proto_tree_add_uint(security_tree, hf_pdcp_lte_security_direction,
                                          tvb, 0, 0, p_pdcp_lte_info->direction);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
 
                 /* COUNT (HFN * snLength^2 + SN) */
                 switch (p_pdcp_lte_info->seqnum_length) {
@@ -742,7 +742,7 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                 count = (p->hfn * hfn_multiplier) + sequenceNumber;
                 ti = proto_tree_add_uint(security_tree, hf_pdcp_lte_security_count,
                                          tvb, 0, 0, count);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
                 pdu_security->count = count;
 
                 /* KEY.  Look this UE up among UEs that have keys configured */
@@ -775,12 +775,12 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
                     if (cipher_key != NULL) {
                         ti = proto_tree_add_string(security_tree, hf_pdcp_lte_security_cipher_key,
                                                    tvb, 0, 0, cipher_key);
-                        PROTO_ITEM_SET_GENERATED(ti);
+                        proto_item_set_generated(ti);
                     }
                     if (integrity_key != NULL) {
                         ti = proto_tree_add_string(security_tree, hf_pdcp_lte_security_integrity_key,
                                                    tvb, 0, 0, integrity_key);
-                        PROTO_ITEM_SET_GENERATED(ti);
+                        proto_item_set_generated(ti);
                     }
 
                     pdu_security->direction = p_pdcp_lte_info->direction;
@@ -791,10 +791,10 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
         case SN_Missing:
             ti = proto_tree_add_boolean(seqnum_tree, hf_pdcp_lte_sequence_analysis_ok,
                                         tvb, 0, 0, FALSE);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             ti = proto_tree_add_boolean(seqnum_tree, hf_pdcp_lte_sequence_analysis_skipped,
                                         tvb, 0, 0, TRUE);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             if (p->lastSN != p->firstSN) {
                 expert_add_info_format(pinfo, ti, &ei_pdcp_lte_sequence_analysis_sn_missing,
                                        "PDCP SNs (%u to %u) missing for %s on UE %u (%s-%u)",
@@ -822,10 +822,10 @@ static void addChannelSequenceInfo(pdcp_sequence_report_in_frame *p,
         case SN_Repeated:
             ti = proto_tree_add_boolean(seqnum_tree, hf_pdcp_lte_sequence_analysis_ok,
                                         tvb, 0, 0, FALSE);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             ti = proto_tree_add_boolean(seqnum_tree, hf_pdcp_lte_sequence_analysis_repeated,
                                         tvb, 0, 0, TRUE);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             expert_add_info_format(pinfo, ti, &ei_pdcp_lte_sequence_analysis_sn_repeated,
                                    "PDCP SN (%u) repeated for %s for UE %u (%s-%u)",
                                    p->firstSN,
@@ -1118,29 +1118,29 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
     /* Direction */
     ti = proto_tree_add_uint(configuration_tree, hf_pdcp_lte_direction, tvb, 0, 0,
                              p_pdcp_info->direction);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* Plane */
     ti = proto_tree_add_uint(configuration_tree, hf_pdcp_lte_plane, tvb, 0, 0,
                              p_pdcp_info->plane);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* UEId */
     if (p_pdcp_info->ueid != 0) {
         ti = proto_tree_add_uint(configuration_tree, hf_pdcp_lte_ueid, tvb, 0, 0,
                                  p_pdcp_info->ueid);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
     /* Channel type */
     ti = proto_tree_add_uint(configuration_tree, hf_pdcp_lte_channel_type, tvb, 0, 0,
                              p_pdcp_info->channelType);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     if (p_pdcp_info->channelId != 0) {
         /* Channel type */
         ti = proto_tree_add_uint(configuration_tree, hf_pdcp_lte_channel_id, tvb, 0, 0,
                                  p_pdcp_info->channelId);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
 
@@ -1150,21 +1150,21 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
         /* No Header PDU */
         ti = proto_tree_add_uint(configuration_tree, hf_pdcp_lte_no_header_pdu, tvb, 0, 0,
                                  p_pdcp_info->no_header_pdu);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         if (!p_pdcp_info->no_header_pdu) {
 
             /* Seqnum length */
             ti = proto_tree_add_uint(configuration_tree, hf_pdcp_lte_seqnum_length, tvb, 0, 0,
                                      p_pdcp_info->seqnum_length);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
         }
     }
 
     /* ROHC compression */
     ti = proto_tree_add_boolean(configuration_tree, hf_pdcp_lte_rohc_compression, tvb, 0, 0,
                                 p_pdcp_info->rohc.rohc_compression);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     /* ROHC-specific settings */
     if (p_pdcp_info->rohc.rohc_compression) {
@@ -1172,32 +1172,32 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
         /* Show ROHC mode */
         ti = proto_tree_add_uint(configuration_tree, hf_pdcp_lte_rohc_mode, tvb, 0, 0,
                                  p_pdcp_info->rohc.mode);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         /* Show RND */
         ti = proto_tree_add_uint(configuration_tree, hf_pdcp_lte_rohc_rnd, tvb, 0, 0,
                                  p_pdcp_info->rohc.rnd);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         /* UDP Checksum */
         ti = proto_tree_add_uint(configuration_tree, hf_pdcp_lte_rohc_udp_checksum_present, tvb, 0, 0,
                                  p_pdcp_info->rohc.udp_checksum_present);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         /* ROHC profile */
         ti = proto_tree_add_uint(configuration_tree, hf_pdcp_lte_rohc_profile, tvb, 0, 0,
                                  p_pdcp_info->rohc.profile);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         /* CID Inclusion Info */
         ti = proto_tree_add_uint(configuration_tree, hf_pdcp_lte_cid_inclusion_info, tvb, 0, 0,
                                  p_pdcp_info->rohc.cid_inclusion_info);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         /* Large CID */
         ti = proto_tree_add_uint(configuration_tree, hf_pdcp_lte_large_cid_present, tvb, 0, 0,
                                  p_pdcp_info->rohc.large_cid_present);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
     /* Append summary to configuration root */
@@ -1212,7 +1212,7 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
                                val_to_str_const(p_pdcp_info->rohc.profile, rohc_profile_vals, "Unknown"));
     }
     proto_item_append_text(configuration_ti, ")");
-    PROTO_ITEM_SET_GENERATED(configuration_ti);
+    proto_item_set_generated(configuration_ti);
 
     /* Show plane in info column */
     col_append_fstr(pinfo->cinfo, COL_INFO, " %s: ",
@@ -1868,24 +1868,24 @@ static int dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                                    tvb, 0, 0,
                                                    "", "UE Security");
         security_tree = proto_item_add_subtree(security_ti, ett_pdcp_security);
-        PROTO_ITEM_SET_GENERATED(security_ti);
+        proto_item_set_generated(security_ti);
 
         /* Setup frame */
         if (pinfo->num > pdu_security->configuration_frame) {
             ti = proto_tree_add_uint(security_tree, hf_pdcp_lte_security_setup_frame,
                                      tvb, 0, 0, pdu_security->configuration_frame);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
         }
 
         /* Ciphering */
         ti = proto_tree_add_uint(security_tree, hf_pdcp_lte_security_ciphering_algorithm,
                                  tvb, 0, 0, pdu_security->ciphering);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         /* Integrity */
         ti = proto_tree_add_uint(security_tree, hf_pdcp_lte_security_integrity_algorithm,
                                  tvb, 0, 0, pdu_security->integrity);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         proto_item_append_text(security_ti, " (ciphering=%s, integrity=%s)",
                                val_to_str_const(pdu_security->ciphering, ciphering_algorithm_vals, "Unknown"),

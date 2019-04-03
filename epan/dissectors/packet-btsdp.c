@@ -4226,7 +4226,7 @@ dissect_sdp_service_search_response(proto_tree *tree, tvbuff_t *tvb,
         reassembled_item = proto_tree_add_item(tree, (is_continued) ? hf_partial_record_handle_list : hf_reassembled_record_handle_list,new_tvb, 0, new_length, ENC_NA);
         proto_item_append_text(reassembled_item, " [count = %u]", new_length / 4);
         reassembled_tree = proto_item_add_subtree(reassembled_item, ett_btsdp_reassembled);
-        PROTO_ITEM_SET_GENERATED(reassembled_item);
+        proto_item_set_generated(reassembled_item);
 
         while (new_length > 0) {
             proto_tree_add_item(reassembled_tree, hf_sdp_service_record_handle, new_tvb,
@@ -4322,7 +4322,7 @@ dissect_sdp_service_attribute_response(proto_tree *tree, tvbuff_t *tvb,
                 (is_continued) ? hf_partial_attribute_list : hf_reassembled_attribute_list,
                 new_tvb, 0, tvb_reported_length(new_tvb), ENC_NA);
         reassembled_tree = proto_item_add_subtree(reassembled_item, ett_btsdp_reassembled);
-        PROTO_ITEM_SET_GENERATED(reassembled_item);
+        proto_item_set_generated(reassembled_item);
 
         if (!is_continued) {
             dissect_sdp_service_attribute_list(reassembled_tree, new_tvb, 0,
@@ -4447,7 +4447,7 @@ dissect_sdp_service_search_attribute_response(proto_tree *tree, tvbuff_t *tvb,
                 (is_continued) ? hf_partial_attribute_list : hf_reassembled_attribute_list,
                 new_tvb, 0, tvb_reported_length(new_tvb), ENC_NA);
         reassembled_tree = proto_item_add_subtree(reassembled_item, ett_btsdp_reassembled);
-        PROTO_ITEM_SET_GENERATED(reassembled_item);
+        proto_item_set_generated(reassembled_item);
 
         if (!is_continued)
             dissect_sdp_service_attribute_list_array(reassembled_tree, new_tvb, 0,

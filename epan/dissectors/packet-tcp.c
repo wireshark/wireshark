@@ -1610,11 +1610,11 @@ tcp_print_timestamps(packet_info *pinfo, tvbuff_t *tvb, proto_tree *parent_tree,
         return;
 
     tree=proto_tree_add_subtree(parent_tree, tvb, 0, 0, ett_tcp_timestamps, &item, "Timestamps");
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
 
     nstime_delta(&ts, &pinfo->abs_ts, &tcpd->ts_first);
     item = proto_tree_add_time(tree, hf_tcp_ts_relative, tvb, 0, 0, &ts);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
 
     if( !tcppd )
         tcppd = (struct tcp_per_packet_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_tcp, pinfo->curr_layer_num);
@@ -1622,7 +1622,7 @@ tcp_print_timestamps(packet_info *pinfo, tvbuff_t *tvb, proto_tree *parent_tree,
     if( tcppd ) {
         item = proto_tree_add_time(tree, hf_tcp_ts_delta, tvb, 0, 0,
             &tcppd->ts_del);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
     }
 }
 
@@ -1634,7 +1634,7 @@ print_pdu_tracking_data(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tcp_tree,
     col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[Continuation to #%u] ", msp->first_frame);
     item=proto_tree_add_uint(tcp_tree, hf_tcp_continuation_to,
         tvb, 0, 0, msp->first_frame);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
 }
 
 /* if we know that a PDU starts inside this segment, return the adjusted
@@ -1689,12 +1689,12 @@ scan_for_next_pdu(tvbuff_t *tvb, proto_tree *tcp_tree, packet_info *pinfo, int o
                 nstime_t ns;
 
                 item=proto_tree_add_uint(tcp_tree, hf_tcp_pdu_last_frame, tvb, 0, 0, msp->last_frame);
-                PROTO_ITEM_SET_GENERATED(item);
+                proto_item_set_generated(item);
 
                 nstime_delta(&ns, &msp->last_frame_time, &pinfo->abs_ts);
                 item = proto_tree_add_time(tcp_tree, hf_tcp_pdu_time,
                         tvb, 0, 0, &ns);
-                PROTO_ITEM_SET_GENERATED(item);
+                proto_item_set_generated(item);
             }
         }
 
@@ -2368,10 +2368,10 @@ tcp_sequence_number_analysis_print_retransmission(packet_info * pinfo,
         if (ta->rto_ts.secs || ta->rto_ts.nsecs) {
             flags_item = proto_tree_add_time(flags_tree, hf_tcp_analysis_rto,
                                              tvb, 0, 0, &ta->rto_ts);
-            PROTO_ITEM_SET_GENERATED(flags_item);
+            proto_item_set_generated(flags_item);
             flags_item=proto_tree_add_uint(flags_tree, hf_tcp_analysis_rto_frame,
                                            tvb, 0, 0, ta->rto_frame);
-            PROTO_ITEM_SET_GENERATED(flags_item);
+            proto_item_set_generated(flags_item);
         }
     }
     /* TCP Fast Retransmission */
@@ -2489,7 +2489,7 @@ tcp_sequence_number_analysis_print_duplicate(packet_info * pinfo,
                                                   tvb, 0, 0,
                                                   "This is a TCP duplicate ack"
                 );
-            PROTO_ITEM_SET_GENERATED(flags_item);
+            proto_item_set_generated(flags_item);
             col_prepend_fence_fstr(pinfo->cinfo, COL_INFO,
                                    "[TCP Dup ACK %u#%u] ",
                                    ta->dupack_frame,
@@ -2499,10 +2499,10 @@ tcp_sequence_number_analysis_print_duplicate(packet_info * pinfo,
         }
         flags_item=proto_tree_add_uint(tree, hf_tcp_analysis_duplicate_ack_num,
                                        tvb, 0, 0, ta->dupack_num);
-        PROTO_ITEM_SET_GENERATED(flags_item);
+        proto_item_set_generated(flags_item);
         flags_item=proto_tree_add_uint(tree, hf_tcp_analysis_duplicate_ack_frame,
                                        tvb, 0, 0, ta->dupack_frame);
-        PROTO_ITEM_SET_GENERATED(flags_item);
+        proto_item_set_generated(flags_item);
         expert_add_info_format(pinfo, flags_item, &ei_tcp_analysis_duplicate_ack, "Duplicate ACK (#%u)", ta->dupack_num);
     }
 }
@@ -2548,7 +2548,7 @@ tcp_sequence_number_analysis_print_bytes_in_flight(packet_info * pinfo _U_,
                                        hf_tcp_analysis_bytes_in_flight,
                                        tvb, 0, 0, ta->bytes_in_flight);
 
-        PROTO_ITEM_SET_GENERATED(flags_item);
+        proto_item_set_generated(flags_item);
     }
 }
 
@@ -2581,7 +2581,7 @@ mptcp_analysis_add_subflows(packet_info *pinfo _U_,  tvbuff_t *tvb,
     proto_item *item;
 
     item=proto_tree_add_item(parent_tree, hf_mptcp_analysis_subflows, tvb, 0, 0, ENC_NA);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
 
     tree=proto_item_add_subtree(item, ett_mptcp_analysis_subflows);
 
@@ -2590,12 +2590,12 @@ mptcp_analysis_add_subflows(packet_info *pinfo _U_,  tvbuff_t *tvb,
         struct tcp_analysis *sf = (struct tcp_analysis *)wmem_list_frame_data(it);
         proto_item *subflow_item;
         subflow_item=proto_tree_add_uint(tree, hf_mptcp_analysis_subflows_stream_id, tvb, 0, 0, sf->stream);
-        PROTO_ITEM_SET_HIDDEN(subflow_item);
+        proto_item_set_hidden(subflow_item);
 
         proto_item_append_text(item, " %d", sf->stream);
     }
 
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
 }
 
 /* Compute raw dsn if relative tcp seq covered by DSS mapping */
@@ -2642,7 +2642,7 @@ guint64 rawdsn64low, guint64 rawdsn64high
         else {
             item = proto_tree_add_uint(tree, hf_mptcp_reinjected_in, tvb, 0, 0, packet->frame);
         }
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
     }
 
     return packet;
@@ -2729,7 +2729,7 @@ mptcp_analysis_dsn_lookup(packet_info *pinfo , tvbuff_t *tvb,
                 DISSECTOR_ASSERT(mapping);
 
                 item = proto_tree_add_uint(parent_tree, hf_mptcp_related_mapping, tvb, 0, 0, mapping->frame);
-                PROTO_ITEM_SET_GENERATED(item);
+                proto_item_set_generated(item);
             }
         }
 
@@ -2767,7 +2767,7 @@ mptcp_analysis_dsn_lookup(packet_info *pinfo , tvbuff_t *tvb,
                         packet
                         );
         }
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
 
         /* We can do this only if rawdsn64 is valid !
         if enabled, look for overlapping mappings on other subflows */
@@ -2817,9 +2817,9 @@ mptcp_add_analysis_subtree(packet_info *pinfo, tvbuff_t *tvb, proto_tree *parent
     }
 
     item=proto_tree_add_item(parent_tree, hf_mptcp_analysis, tvb, 0, 0, ENC_NA);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
     tree=proto_item_add_subtree(item, ett_mptcp_analysis);
-    PROTO_ITEM_SET_GENERATED(tree);
+    proto_item_set_generated(tree);
 
     /* set field with mptcp stream */
     if(mptcpd->master) {
@@ -2835,10 +2835,10 @@ mptcp_add_analysis_subtree(packet_info *pinfo, tvbuff_t *tvb, proto_tree *parent
                                      0, FALSE);
     }
 
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
 
     item = proto_tree_add_uint(tree, hf_mptcp_stream, tvb, 0, 0, mptcpd->stream);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
 
     /* retrieve saved analysis of packets, else create it */
     mptcppd = (mptcp_per_packet_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_mptcp, pinfo->curr_layer_num);
@@ -2870,7 +2870,7 @@ tcp_sequence_number_analysis_print_push_bytes_sent(packet_info * pinfo _U_,
                                        hf_tcp_analysis_push_bytes_sent,
                                        tvb, 0, 0, ta->push_bytes_sent);
 
-        PROTO_ITEM_SET_GENERATED(flags_item);
+        proto_item_set_generated(flags_item);
     }
 }
 
@@ -2895,7 +2895,7 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
     }
 
     item=proto_tree_add_item(parent_tree, hf_tcp_analysis, tvb, 0, 0, ENC_NA);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
     tree=proto_item_add_subtree(item, ett_tcp_analysis);
 
     /* encapsulate all proto_tree_add_xxx in ifs so we only print what
@@ -2903,19 +2903,19 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
     if(ta->frame_acked) {
         item = proto_tree_add_uint(tree, hf_tcp_analysis_acks_frame,
             tvb, 0, 0, ta->frame_acked);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
 
         /* only display RTT if we actually have something we are acking */
         if( ta->ts.secs || ta->ts.nsecs ) {
             item = proto_tree_add_time(tree, hf_tcp_analysis_ack_rtt,
             tvb, 0, 0, &ta->ts);
-                PROTO_ITEM_SET_GENERATED(item);
+                proto_item_set_generated(item);
         }
     }
     if (!nstime_is_zero(&tcpd->ts_first_rtt)) {
         item = proto_tree_add_time(tree, hf_tcp_analysis_first_rtt,
                 tvb, 0, 0, &(tcpd->ts_first_rtt));
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
     }
 
     if(ta->bytes_in_flight) {
@@ -2926,7 +2926,7 @@ tcp_print_sequence_number_analysis(packet_info *pinfo, tvbuff_t *tvb, proto_tree
 
     if(ta->flags) {
         item = proto_tree_add_item(tree, hf_tcp_analysis_flags, tvb, 0, 0, ENC_NA);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
         flags_tree=proto_item_add_subtree(item, ett_tcp_analysis);
 
         /* print results for reused tcp ports */
@@ -3137,7 +3137,7 @@ again:
                     if (ipfd_head->reassembled_in != 0) {
                         item = proto_tree_add_uint(tcp_tree, hf_tcp_reassembled_in, tvb, 0,
                                            0, ipfd_head->reassembled_in);
-                        PROTO_ITEM_SET_GENERATED(item);
+                        proto_item_set_generated(item);
                     }
                 }
             }
@@ -3584,7 +3584,7 @@ again:
              */
             item = proto_tree_add_uint(tcp_tree, hf_tcp_reassembled_in, tvb, 0,
                                        0, ipfd_head->reassembled_in);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
         }
 
         /*
@@ -3783,13 +3783,13 @@ tcp_dissect_pdus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 item=proto_tree_add_uint((proto_tree *)p_get_proto_data(pinfo->pool, pinfo, proto_tcp, curr_layer_num),
                                          hf_tcp_pdu_size,
                                          tvb, offset, plen, plen);
-                PROTO_ITEM_SET_GENERATED(item);
+                proto_item_set_generated(item);
 #if 0
         } else {
                 item = proto_tree_add_expert_format((proto_tree *)p_get_proto_data(pinfo->pool, pinfo, proto_tcp, curr_layer_num),
                                         tvb, offset, -1,
                     "PDU Size: %u cut short at %u",plen,captured_length_remaining);
-                PROTO_ITEM_SET_GENERATED(item);
+                proto_item_set_generated(item);
         }
 #endif
 
@@ -4069,7 +4069,7 @@ dissect_tcpopt_wscale(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
 
     gen_pi = proto_tree_add_uint(wscale_tree, hf_tcp_option_wscale_multiplier, tvb,
                                  offset, 1, 1 << shift);
-    PROTO_ITEM_SET_GENERATED(gen_pi);
+    proto_item_set_generated(gen_pi);
     val = tvb_get_guint8(tvb, offset);
 
     proto_item_append_text(wscale_pi, ": %u (multiply by %u)", val, 1 << shift);
@@ -4157,7 +4157,7 @@ dissect_tcpopt_sack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     /* Show number of SACK ranges in this option as a generated field */
     tf = proto_tree_add_uint(field_tree, hf_tcp_option_sack_range_count,
                              tvb, 0, 0, num_sack_ranges);
-    PROTO_ITEM_SET_GENERATED(tf);
+    proto_item_set_generated(tf);
 
     return tvb_captured_length(tvb);
 }
@@ -4451,11 +4451,11 @@ dissect_tcpopt_mptcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
                 item = proto_tree_add_uint(mptcp_tree,
                       hf_mptcp_expected_token, tvb, offset, 0, tcpd->fwd->mptcp_subflow->meta->token);
-                PROTO_ITEM_SET_GENERATED(item);
+                proto_item_set_generated(item);
 
                 item = proto_tree_add_uint64(mptcp_tree,
                       hf_mptcp_expected_idsn, tvb, offset, 0, tcpd->fwd->mptcp_subflow->meta->base_dsn);
-                PROTO_ITEM_SET_GENERATED(item);
+                proto_item_set_generated(item);
 
                 /* last ACK of 3WHS, repeats both keys */
                 if (optlen == 20) {
@@ -4582,7 +4582,7 @@ dissect_tcpopt_mptcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                         proto_item_append_text(item, " (Relative)");
                     }
 
-                    PROTO_ITEM_SET_GENERATED(item);
+                    proto_item_set_generated(item);
                 }
                 else {
                     /* ignore and continue */
@@ -4634,7 +4634,7 @@ dissect_tcpopt_mptcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                             proto_item_append_text(item, " (Relative)");
                     }
 
-                    PROTO_ITEM_SET_GENERATED(item);
+                    proto_item_set_generated(item);
                 }
                 else {
                     /* ignore and continue */
@@ -4713,7 +4713,7 @@ dissect_tcpopt_mptcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
         case TCPOPT_MPTCP_REMOVE_ADDR:
             item = proto_tree_add_uint(mptcp_tree, hf_mptcp_number_of_removed_addresses, tvb, start_offset+2,
                 1, optlen - 3);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
             offset += 1;
             while(offset < start_offset + (int)optlen) {
                 proto_tree_add_item(mptcp_tree, hf_tcp_option_mptcp_address_id, tvb, offset,
@@ -5140,11 +5140,11 @@ dissect_tcpopt_snack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
         hidden_item = proto_tree_add_uint(field_tree, hf_tcp_option_snack_le,
                                           tvb, offset + 2, 2, hole_start);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        proto_item_set_hidden(hidden_item);
 
         hidden_item = proto_tree_add_uint(field_tree, hf_tcp_option_snack_re,
                                           tvb, offset + 4, 2, hole_end);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        proto_item_set_hidden(hidden_item);
 
         proto_tree_add_expert_format(field_tree, pinfo, &ei_tcp_option_snack_sequence, tvb, offset+2, 4,
                             "SNACK Sequence %u - %u%s", hole_start, hole_end, ((tcp_relative_seq) ? " (relative)" : ""));
@@ -5375,7 +5375,7 @@ dissect_tcpopt_rvbd_probe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
            value is 0, but filtering is usually done for value 2 */
         ver_pi = proto_tree_add_uint(field_tree, hf_tcp_option_rvbd_probe_version1, tvb,
                                      offset + PROBE_VERSION_TYPE_OFFSET, 1, ver);
-        PROTO_ITEM_SET_HIDDEN(ver_pi);
+        proto_item_set_hidden(ver_pi);
 
         switch (type) {
 
@@ -6013,9 +6013,9 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         proto_tree_add_item(tcp_tree, hf_tcp_srcport, tvb, offset, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(tcp_tree, hf_tcp_dstport, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
         hidden_item = proto_tree_add_item(tcp_tree, hf_tcp_port, tvb, offset, 2, ENC_BIG_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        proto_item_set_hidden(hidden_item);
         hidden_item = proto_tree_add_item(tcp_tree, hf_tcp_port, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        proto_item_set_hidden(hidden_item);
 
         /*  If we're dissecting the headers of a TCP packet in an ICMP packet
          *  then go ahead and put the sequence numbers in the tree now (because
@@ -6131,7 +6131,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     if (tcpd) {
         item = proto_tree_add_uint(tcp_tree, hf_tcp_stream, tvb, offset, 0, tcpd->stream);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
 
         /* Copy the stream index into the header as well to make it available
          * to tap listeners.
@@ -6182,7 +6182,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             tcph->th_have_seglen = TRUE;
 
             pi = proto_tree_add_uint(ti, hf_tcp_len, tvb, offset+12, 1, tcph->th_seglen);
-            PROTO_ITEM_SET_GENERATED(pi);
+            proto_item_set_generated(pi);
 
             /* handle TCP seq# analysis parse all new segments we see */
             if(tcp_analyze_seq) {
@@ -6273,7 +6273,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         } else {
             tf=proto_tree_add_uint(tcp_tree, hf_tcp_nxtseq, tvb, offset, 0, nxtseq);
         }
-        PROTO_ITEM_SET_GENERATED(tf);
+        proto_item_set_generated(tf);
     }
 
     tf = proto_tree_add_uint(tcp_tree, hf_tcp_ack, tvb, offset + 8, 4, tcph->th_ack);
@@ -6307,13 +6307,13 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         tf_fin = proto_tree_add_boolean(field_tree, hf_tcp_flags_fin, tvb, offset + 13, 1, tcph->th_flags);
 
         tf = proto_tree_add_string(field_tree, hf_tcp_flags_str, tvb, offset + 12, 2, flags_str_first_letter);
-        PROTO_ITEM_SET_GENERATED(tf);
+        proto_item_set_generated(tf);
         /* As discussed in bug 5541, it is better to use two separate
          * fields for the real and calculated window size.
          */
         proto_tree_add_uint(tcp_tree, hf_tcp_window_size_value, tvb, offset + 14, 2, real_window);
         scaled_pi = proto_tree_add_uint(tcp_tree, hf_tcp_window_size, tvb, offset + 14, 2, tcph->th_win);
-        PROTO_ITEM_SET_GENERATED(scaled_pi);
+        proto_item_set_generated(scaled_pi);
 
         if( !(tcph->th_flags&TH_SYN) && tcpd ) {
             switch (tcpd->fwd->win_scale) {
@@ -6333,18 +6333,18 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                                                           win_scale, "%d (%s)",
                                                           win_scale,
                                                           (override_with_pref) ? "missing - taken from preference" : "unknown");
-                    PROTO_ITEM_SET_GENERATED(scaled_pi);
+                    proto_item_set_generated(scaled_pi);
                 }
                 break;
 
             case -2:
                 scaled_pi = proto_tree_add_int_format_value(tcp_tree, hf_tcp_window_size_scalefactor, tvb, offset + 14, 2, tcpd->fwd->win_scale, "%d (no window scaling used)", tcpd->fwd->win_scale);
-                PROTO_ITEM_SET_GENERATED(scaled_pi);
+                proto_item_set_generated(scaled_pi);
                 break;
 
             default:
                 scaled_pi = proto_tree_add_int_format_value(tcp_tree, hf_tcp_window_size_scalefactor, tvb, offset + 14, 2, 1<<tcpd->fwd->win_scale, "%d", 1<<tcpd->fwd->win_scale);
-                PROTO_ITEM_SET_GENERATED(scaled_pi);
+                proto_item_set_generated(scaled_pi);
             }
         }
     }
@@ -6448,11 +6448,11 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 checksum_tree = proto_item_add_subtree(item, ett_tcp_checksum);
                 item = proto_tree_add_uint(checksum_tree, hf_tcp_checksum_calculated, tvb,
                                               offset + 16, 2, 0x0000);
-                PROTO_ITEM_SET_GENERATED(item);
+                proto_item_set_generated(item);
                 /* XXX - What should this special status be? */
                 item = proto_tree_add_uint(checksum_tree, hf_tcp_checksum_status, tvb,
                                               offset + 16, 0, 4);
-                PROTO_ITEM_SET_GENERATED(item);
+                proto_item_set_generated(item);
                 expert_add_info(pinfo, item, &ei_tcp_checksum_ffff);
 
                 col_append_str(pinfo->cinfo, COL_INFO, " [TCP CHECKSUM 0xFFFF]");
@@ -6466,7 +6466,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
                 calc_item = proto_tree_add_uint(tcp_tree, hf_tcp_checksum_calculated, tvb,
                                               offset + 16, 2, in_cksum_shouldbe(th_sum, computed_cksum));
-                PROTO_ITEM_SET_GENERATED(calc_item);
+                proto_item_set_generated(calc_item);
 
                 /* Checksum is valid, so we're willing to desegment it. */
                 if (computed_cksum == 0) {
@@ -6711,7 +6711,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     if (tcp_display_process_info && tcpd && ((tcpd->fwd && tcpd->fwd->process_info && tcpd->fwd->process_info->command) ||
                  (tcpd->rev && tcpd->rev->process_info && tcpd->rev->process_info->command))) {
         field_tree = proto_tree_add_subtree(tcp_tree, tvb, offset, 0, ett_tcp_process_info, &ti, "Process Information");
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
         if (tcpd->fwd && tcpd->fwd->process_info && tcpd->fwd->process_info->command) {
             proto_tree_add_uint(field_tree, hf_tcp_proc_dst_uid, tvb, 0, 0, tcpd->fwd->process_info->process_uid);
             proto_tree_add_uint(field_tree, hf_tcp_proc_dst_pid, tvb, 0, 0, tcpd->fwd->process_info->process_pid);

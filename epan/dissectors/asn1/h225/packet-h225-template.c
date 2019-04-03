@@ -1018,7 +1018,7 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                  Mark it as such. */
               pi->is_duplicate = TRUE;
               hidden_item = proto_tree_add_uint(tree, hf_h225_ras_dup, tvb, 0,0, pi->requestSeqNum);
-              PROTO_ITEM_SET_HIDDEN(hidden_item);
+              proto_item_set_hidden(hidden_item);
             }
             break;
           }
@@ -1035,7 +1035,7 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         proto_tree_add_uint_format(tree, hf_h225_ras_rsp_frame, tvb, 0, 0, h225ras_call->rsp_num,
                                      "The response to this request is in frame %u",
                                      h225ras_call->rsp_num);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
       }
 
     /* end of request message handling*/
@@ -1071,7 +1071,7 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
           if (msg_category == 3 || msg_category == 5) {
             pi->guid = h225ras_call->guid;
             hidden_item = proto_tree_add_guid(tree, hf_h225_guid, tvb, 0, GUID_LEN, &pi->guid);
-            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            proto_item_set_hidden(hidden_item);
           }
 
           if (h225ras_call->rsp_num == 0) {
@@ -1088,7 +1088,7 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                  Mark it as such. */
               pi->is_duplicate = TRUE;
               hidden_item = proto_tree_add_uint(tree, hf_h225_ras_dup, tvb, 0,0, pi->requestSeqNum);
-              PROTO_ITEM_SET_HIDDEN(hidden_item);
+              proto_item_set_hidden(hidden_item);
             }
           }
 
@@ -1100,7 +1100,7 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
             /* Indicate the frame to which this is a reply. */
             ti = proto_tree_add_uint_format(tree, hf_h225_ras_req_frame, tvb, 0, 0, h225ras_call->req_num,
               "This is a response to a request in frame %u", h225ras_call->req_num);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             /* Calculate RAS Service Response Time */
             nstime_delta(&delta, &pinfo->abs_ts, &h225ras_call->req_time);
@@ -1108,7 +1108,7 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
             /* display Ras Service Response Time and make it filterable */
             ti = proto_tree_add_time(tree, hf_h225_ras_deltatime, tvb, 0, 0, &(pi->delta_time));
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
           }
         }
       }

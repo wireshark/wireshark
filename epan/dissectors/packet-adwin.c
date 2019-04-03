@@ -561,7 +561,7 @@ adwin_request_response_handling(tvbuff_t *tvb, packet_info *pinfo,
 
 			it = proto_tree_add_uint(adwin_tree, hf_adwin_response_in,
 					tvb, 0, 0, adwin_trans->rep_frame);
-			PROTO_ITEM_SET_GENERATED(it);
+			proto_item_set_generated(it);
 		}
 	} else {
 		/* This is a reply */
@@ -571,11 +571,11 @@ adwin_request_response_handling(tvbuff_t *tvb, packet_info *pinfo,
 
 			it = proto_tree_add_uint(adwin_tree, hf_adwin_response_to,
 					tvb, 0, 0, adwin_trans->req_frame);
-			PROTO_ITEM_SET_GENERATED(it);
+			proto_item_set_generated(it);
 
 			nstime_delta(&ns, &pinfo->abs_ts, &adwin_trans->req_time);
 			it = proto_tree_add_time(adwin_tree, hf_adwin_response_time, tvb, 0, 0, &ns);
-			PROTO_ITEM_SET_GENERATED(it);
+			proto_item_set_generated(it);
 		}
 	}
 }
@@ -851,11 +851,11 @@ dissect_UDPR2(tvbuff_t *tvb, packet_info *pinfo,
 				    "Data[%3d]: %10d - %10f - 0x%08x",
 				    i, value, *(float*)fvalue, value);
 		item = proto_tree_add_item(adwin_debug_tree, hf_adwin_data_int,   tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		PROTO_ITEM_SET_HIDDEN(item);
+		proto_item_set_hidden(item);
 		item = proto_tree_add_item(adwin_debug_tree, hf_adwin_data_float, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		PROTO_ITEM_SET_HIDDEN(item);
+		proto_item_set_hidden(item);
 		item = proto_tree_add_item(adwin_debug_tree, hf_adwin_data_hex,   tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		PROTO_ITEM_SET_HIDDEN(item);
+		proto_item_set_hidden(item);
 	}
 }
 
@@ -890,11 +890,11 @@ dissect_UDPR3(tvbuff_t *tvb, packet_info *pinfo,
 				    "Data[%3d]: %10d - %10f - 0x%08x",
 				    i, value, *(float*)fvalue, value);
 		item = proto_tree_add_item(adwin_debug_tree, hf_adwin_data_int,   tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		PROTO_ITEM_SET_HIDDEN(item);
+		proto_item_set_hidden(item);
 		item = proto_tree_add_item(adwin_debug_tree, hf_adwin_data_float, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		PROTO_ITEM_SET_HIDDEN(item);
+		proto_item_set_hidden(item);
 		item = proto_tree_add_item(adwin_debug_tree, hf_adwin_data_hex,   tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		PROTO_ITEM_SET_HIDDEN(item);
+		proto_item_set_hidden(item);
 	}
 }
 
@@ -946,25 +946,25 @@ dissect_UDPR4(tvbuff_t *tvb, packet_info *pinfo,
 					    "Data[%3d]: %10d - 0x%08x",
 					    i, value, value);
 			item = proto_tree_add_item(adwin_debug_tree, hf_adwin_data_int,   tvb, offset, 4, ENC_LITTLE_ENDIAN);
-			PROTO_ITEM_SET_HIDDEN(item);
+			proto_item_set_hidden(item);
 			item = proto_tree_add_item(adwin_debug_tree, hf_adwin_data_hex,   tvb, offset, 4, ENC_LITTLE_ENDIAN);
-			PROTO_ITEM_SET_HIDDEN(item);
+			proto_item_set_hidden(item);
 			break;
 		case 5: /* float */
 			proto_tree_add_none_format(adwin_debug_tree, hf_adwin_data, tvb, offset, 4,
 					    "Data[%3d]: %10f - 0x%08x",
 					    i, *(float*)fvalue, value);
 			item = proto_tree_add_item(adwin_debug_tree, hf_adwin_data_float, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-			PROTO_ITEM_SET_HIDDEN(item);
+			proto_item_set_hidden(item);
 			item = proto_tree_add_item(adwin_debug_tree, hf_adwin_data_hex,   tvb, offset, 4, ENC_LITTLE_ENDIAN);
-			PROTO_ITEM_SET_HIDDEN(item);
+			proto_item_set_hidden(item);
 			break;
 		default: /* string, double, variant, something funny... */
 			proto_tree_add_none_format(adwin_debug_tree, hf_adwin_data, tvb, offset, 4,
 					    "Data[%3d]: 0x%08x",
 					    i, value);
 			item = proto_tree_add_item(adwin_debug_tree, hf_adwin_data_hex,   tvb, offset, 4, ENC_LITTLE_ENDIAN);
-			PROTO_ITEM_SET_HIDDEN(item);
+			proto_item_set_hidden(item);
 		}
 	}
 }
@@ -1001,11 +1001,11 @@ dissect_GDSHP(tvbuff_t *tvb, packet_info *pinfo,
 				    "Data[%3d]: %10d - %10f - 0x%08x",
 				    i, value, *(float*)fvalue, value);
 		item = proto_tree_add_item(adwin_debug_tree, hf_adwin_data_int,   tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		PROTO_ITEM_SET_HIDDEN(item);
+		proto_item_set_hidden(item);
 		item = proto_tree_add_item(adwin_debug_tree, hf_adwin_data_float, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		PROTO_ITEM_SET_HIDDEN(item);
+		proto_item_set_hidden(item);
 		item = proto_tree_add_item(adwin_debug_tree, hf_adwin_data_hex,   tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		PROTO_ITEM_SET_HIDDEN(item);
+		proto_item_set_hidden(item);
 	}
 }
 

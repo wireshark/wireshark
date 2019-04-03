@@ -1314,23 +1314,23 @@ nfs_name_snoop_fh(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int fh_of
 		if (hidden) {
 			fh_item = proto_tree_add_string(tree, hf_nfs_name, NULL,
 				0, 0, nns->name);
-			PROTO_ITEM_SET_HIDDEN(fh_item);
+			proto_item_set_hidden(fh_item);
 		} else {
 			fh_item = proto_tree_add_string(tree, hf_nfs_name, tvb,
 				fh_offset, 0, nns->name);
 		}
-		PROTO_ITEM_SET_GENERATED(fh_item);
+		proto_item_set_generated(fh_item);
 
 		if (nns->full_name) {
 			if (hidden) {
 				fh_item = proto_tree_add_string(tree, hf_nfs_full_name, NULL,
 					0, 0, nns->full_name);
-				PROTO_ITEM_SET_HIDDEN(fh_item);
+				proto_item_set_hidden(fh_item);
 			} else {
 				fh_item = proto_tree_add_string_format_value(tree, hf_nfs_full_name, tvb,
 					fh_offset, 0, nns->full_name, "%s", nns->full_name);
 			}
-			PROTO_ITEM_SET_GENERATED(fh_item);
+			proto_item_set_generated(fh_item);
 		}
 	}
 }
@@ -2257,12 +2257,12 @@ dissect_fhandle_data(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 		if (hidden) {
 			fh_item = proto_tree_add_uint(tree, hf_nfs_fh_hash, NULL, 0,
 				0, fhhash);
-			PROTO_ITEM_SET_HIDDEN(fh_item);
+			proto_item_set_hidden(fh_item);
 		} else {
 			fh_item = proto_tree_add_uint(tree, hf_nfs_fh_hash, tvb, offset,
 				fhlen, fhhash);
 		}
-		PROTO_ITEM_SET_GENERATED(fh_item);
+		proto_item_set_generated(fh_item);
 		if (hash) {
 			*hash = fhhash;
 		}
@@ -2393,7 +2393,7 @@ dissect_nfs2_status(tvbuff_t *tvb, int offset, proto_tree *tree, guint32 *status
 
 	proto_tree_add_item_ret_uint(tree, hf_nfs2_status, tvb, offset+0, 4, ENC_BIG_ENDIAN, &stat);
 	stat_item = proto_tree_add_uint(tree, hf_nfs_status, tvb, offset+0, 4, stat);
-	PROTO_ITEM_SET_HIDDEN(stat_item);
+	proto_item_set_hidden(stat_item);
 
 	offset += 4;
 
@@ -3581,7 +3581,7 @@ dissect_nfs3_status(tvbuff_t *tvb, int offset, proto_tree *tree, guint32 *status
 		proto_item *stat_item;
 		proto_tree_add_uint(tree, hf_nfs3_status, tvb, offset+0, 4, nfsstat3);
 		stat_item = proto_tree_add_uint(tree, hf_nfs_status, tvb, offset+0, 4, nfsstat3);
-		PROTO_ITEM_SET_HIDDEN(stat_item);
+		proto_item_set_hidden(stat_item);
 	}
 
 	offset += 4;
@@ -4743,7 +4743,7 @@ dissect_access_reply(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 
 	ditem = proto_tree_add_boolean(access_tree, hf_nfs_access_denied, tvb,
 				offset, 4, (mask_denied > 0 ? TRUE : FALSE ));
-	PROTO_ITEM_SET_GENERATED(ditem);
+	proto_item_set_generated(ditem);
 
 	return offset+4;
 }
@@ -6168,7 +6168,7 @@ dissect_nfs4_status(tvbuff_t *tvb, int offset, proto_tree *tree, guint32 *status
 
 	proto_tree_add_item_ret_uint(tree, hf_nfs4_status, tvb, offset+0, 4, ENC_BIG_ENDIAN, &stat);
 	stat_item = proto_tree_add_uint(tree, hf_nfs_status, tvb, offset+0, 4, stat);
-	PROTO_ITEM_SET_HIDDEN(stat_item);
+	proto_item_set_hidden(stat_item);
 
 	if (status)
 		*status = stat;
@@ -6882,8 +6882,8 @@ dissect_nfs4_fattrs(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 					count += (bitmap & 1);
 				bitmap = bitmaps[i];
 				hitem = proto_tree_add_uint_format(bitmap_tree, hf_nfs4_attr_count, tvb, attr_mask_offset, 4, count, "%u attribute%s", count, plurality(count, "", "s"));
-				PROTO_ITEM_SET_HIDDEN(hitem);
-				PROTO_ITEM_SET_GENERATED(hitem);
+				proto_item_set_hidden(hitem);
+				proto_item_set_generated(hitem);
 			}
 		} else {
 			attr_mask_offset += 4;
@@ -7492,13 +7492,13 @@ dissect_nfs4_clientaddr(tvbuff_t *tvb, int offset, proto_tree *tree)
 			set_address(&addr, AT_IPv4, 4, &ipv4);
 			ti = proto_tree_add_ipv4_format(tree, hf_nfs4_universal_address_ipv4, tvb, addr_offset, offset-addr_offset, ipv4, "IPv4 address %s, protocol=%s, port=%u",
 				address_to_str(wmem_packet_scope(), &addr), protocol, port);
-			PROTO_ITEM_SET_GENERATED(ti);
+			proto_item_set_generated(ti);
 		} else if (universal_ip_address && sscanf(universal_ip_address, "%u.%u",
 						   &b1, &b2) == 2) {
 			/* Some clients (linux) sometimes send only the port. */
 			port = (b1<<8) | b2;
 			ti = proto_tree_add_ipv4_format(tree, hf_nfs4_universal_address_ipv4, tvb, addr_offset, offset-addr_offset, 0, "ip address NOT SPECIFIED, protocol=%s, port=%u", protocol, port);
-			PROTO_ITEM_SET_GENERATED(ti);
+			proto_item_set_generated(ti);
 		} else if (universal_ip_address && sscanf(universal_ip_address,
 						"%2x:%2x:%2x:%2x:%2x:%2x:%2x:%2x.%u.%u",
 						&b1, &b2, &b3, &b4, &b5, &b6, &b7, &b8, &b9, &b10) == 10) {
@@ -7509,10 +7509,10 @@ dissect_nfs4_clientaddr(tvbuff_t *tvb, int offset, proto_tree *tree)
 			set_address(&addr, AT_IPv6, 16, &ipv6);
 			ti = proto_tree_add_ipv6_format(tree, hf_nfs4_universal_address_ipv6, tvb, addr_offset, offset-addr_offset, &ipv6, "IPv6 address %s, protocol=%s, port=%u",
 				address_to_str(wmem_packet_scope(), &addr), protocol, port);
-			PROTO_ITEM_SET_GENERATED(ti);
+			proto_item_set_generated(ti);
 		} else {
 			ti = proto_tree_add_ipv4_format(tree, hf_nfs4_universal_address_ipv4, tvb, addr_offset, offset-addr_offset, 0, "Invalid address");
-			PROTO_ITEM_SET_GENERATED(ti);
+			proto_item_set_generated(ti);
 		}
 	}
 	return offset;
@@ -7897,7 +7897,7 @@ dissect_nfs4_stateid(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *hash)
 
 	stateid_hash = crc16_ccitt_tvb_offset(tvb, offset, 16);
 	hitem = proto_tree_add_uint(stateid_tree, hf_nfs4_stateid_hash, tvb, offset, 16, stateid_hash);
-	PROTO_ITEM_SET_GENERATED(hitem);
+	proto_item_set_generated(hitem);
 
 	offset = dissect_rpc_uint32(tvb, sitem, hf_nfs4_seqid_stateid, offset);
 
@@ -7905,7 +7905,7 @@ dissect_nfs4_stateid(tvbuff_t *tvb, int offset, proto_tree *tree, guint16 *hash)
 
 	other_hash = crc16_ccitt_tvb_offset(tvb, offset, 12);
 	oth_item = proto_tree_add_uint(stateid_tree, hf_nfs4_stateid_other_hash, tvb, offset, 12, other_hash);
-	PROTO_ITEM_SET_GENERATED(oth_item);
+	proto_item_set_generated(oth_item);
 	offset+=12;
 
 	if (hash)
@@ -8465,8 +8465,8 @@ dissect_nfs4_io_hints(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 					count += (bitmap & 1);
 				bitmap = bitmaps[i];
 				hitem = proto_tree_add_uint_format(bitmap_tree, hf_nfs4_io_hint_count, tvb, hints_mask_offset, 4, count, "%u hint%s", count, plurality(count, "", "s"));
-				PROTO_ITEM_SET_HIDDEN(hitem);
-				PROTO_ITEM_SET_GENERATED(hitem);
+				proto_item_set_hidden(hitem);
+				proto_item_set_generated(hitem);
 			}
 		} else {
 			hints_mask_offset += 4;
@@ -8520,7 +8520,7 @@ dissect_nfs4_app_data_block(tvbuff_t *tvb, int offset, proto_tree *tree, guint32
 
 	pattern_hash = crc32_ccitt_tvb_offset(tvb, offset, pattern_len);
 	fitem = proto_tree_add_uint(tree, hf_nfs4_pattern_hash, tvb, offset, pattern_len, pattern_hash);
-	PROTO_ITEM_SET_GENERATED(fitem);
+	proto_item_set_generated(fitem);
 	proto_item_set_len(fitem, pattern_len);
 
 	offset += pattern_len;
@@ -10366,7 +10366,7 @@ dissect_nfs4_request_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tre
 				main_opname = val_to_str_ext_const(main_opcode, &names_nfs4_operation_ext, "Unknown");
 				main_op_item = proto_tree_add_uint_format_value(tree, hf_nfs4_main_opcode, tvb, 0, 0,
 							      main_opcode, "%s (%u)", main_opname, main_opcode);
-				PROTO_ITEM_SET_GENERATED(main_op_item);
+				proto_item_set_generated(main_op_item);
 			}
 
 			if (first_operation == 0)
@@ -10897,7 +10897,7 @@ dissect_nfs4_response_op(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 				main_opname = val_to_str_ext_const(main_opcode, &names_nfs4_operation_ext, "Unknown");
 				main_op_item = proto_tree_add_uint_format_value(tree, hf_nfs4_main_opcode, tvb, 0, 0,
 									main_opcode, "%s (%u)", main_opname, main_opcode);
-				PROTO_ITEM_SET_GENERATED(main_op_item);
+				proto_item_set_generated(main_op_item);
 			}
 
 			if (first_operation == 0)

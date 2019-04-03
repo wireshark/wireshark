@@ -1002,7 +1002,7 @@ integer32_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_
 						"Error!  Bad Integer32 Length");
 		expert_add_info_format(c->pinfo, pi, &ei_diameter_avp_len,
 					"Bad Integer32 Length (%u)", length);
-		PROTO_ITEM_SET_GENERATED(pi);
+		proto_item_set_generated(pi);
 	}
 
 	return label;
@@ -1030,7 +1030,7 @@ integer64_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_
 						"Error!  Bad Integer64 Length");
 		expert_add_info_format(c->pinfo, pi, &ei_diameter_avp_len,
 				"Bad Integer64 Length (%u)", length);
-		PROTO_ITEM_SET_GENERATED(pi);
+		proto_item_set_generated(pi);
 	}
 
 	return label;
@@ -1058,7 +1058,7 @@ unsigned32_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam
 						"Error!  Bad Unsigned32 Length");
 		expert_add_info_format(c->pinfo, pi, &ei_diameter_avp_len,
 					"Bad Unsigned32 Length (%u)", length);
-		PROTO_ITEM_SET_GENERATED(pi);
+		proto_item_set_generated(pi);
 	}
 
 	return label;
@@ -1086,7 +1086,7 @@ unsigned64_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam
 						"Error!  Bad Unsigned64 Length");
 		expert_add_info_format(c->pinfo, pi, &ei_diameter_avp_len,
 				"Bad Unsigned64 Length (%u)", length);
-		PROTO_ITEM_SET_GENERATED(pi);
+		proto_item_set_generated(pi);
 	}
 
 	return label;
@@ -1114,7 +1114,7 @@ float32_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_su
 						"Error!  Bad Float32 Length");
 		expert_add_info_format(c->pinfo, pi, &ei_diameter_avp_len,
 				"Bad Float32 Length (%u)", length);
-		PROTO_ITEM_SET_GENERATED(pi);
+		proto_item_set_generated(pi);
 	}
 
 	return label;
@@ -1142,7 +1142,7 @@ float64_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_su
 						"Error!  Bad Float64 Length");
 		expert_add_info_format(c->pinfo, pi, &ei_diameter_avp_len,
 				"Bad Float64 Length (%u)", length);
-		PROTO_ITEM_SET_GENERATED(pi);
+		proto_item_set_generated(pi);
 	}
 
 	return label;
@@ -1392,19 +1392,19 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 		if (diameter_pair->ans_frame) {
 			it = proto_tree_add_uint(diam_tree, hf_diameter_answer_in,
 					tvb, 0, 0, diameter_pair->ans_frame);
-			PROTO_ITEM_SET_GENERATED(it);
+			proto_item_set_generated(it);
 		}
 	} else {
 		/* This is an answer */
 		if (diameter_pair->req_frame) {
 			it = proto_tree_add_uint(diam_tree, hf_diameter_answer_to,
 					tvb, 0, 0, diameter_pair->req_frame);
-			PROTO_ITEM_SET_GENERATED(it);
+			proto_item_set_generated(it);
 
 			nstime_delta(&ns, &pinfo->abs_ts, &diameter_pair->req_time);
 			diameter_pair->srt_time = ns;
 			it = proto_tree_add_time(diam_tree, hf_diameter_answer_time, tvb, 0, 0, &ns);
-			PROTO_ITEM_SET_GENERATED(it);
+			proto_item_set_generated(it);
 			/* TODO: Populate result_code in tap record from AVP 268 */
 		}
 	}

@@ -1226,31 +1226,31 @@ dissect_game_packet(struct tibia_convo *convo, tvbuff_t *tvb, int offset, packet
         if (convo->has.session_key) {
             if (convo->session_key) {
                 ti = proto_tree_add_string(tree, hf_tibia_session_key_convo, tvb, offset, 0, (const char*)convo->session_key);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
             }
         } else {
             if (convo->acc) {
                 ti = proto_tree_add_string(tree, hf_tibia_acc_name_convo, tvb, offset, 0, (const char*)convo->acc);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
             }
 
             if (convo->pass) {
                 ti = proto_tree_add_string(tree, hf_tibia_acc_pass_convo, tvb, offset, 0, (const char*)convo->pass);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
             }
         }
     }
 
     if (show_char_name && convo->char_name) {
         ti = proto_tree_add_string(tree, hf_tibia_char_name_convo, tvb, offset, 0, (const char*)convo->char_name);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
     if (is_xtea_encrypted) {
         if (pinfo->num > convo->xtea_framenum) {
             if (show_xtea_key && convo->has.xtea) {
                 ti = proto_tree_add_bytes_with_length(tree, hf_tibia_xtea_key, tvb, 0, 0, (guint8*)convo->xtea_key, XTEA_KEY_LEN);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
             }
 
             int end = offset + len;

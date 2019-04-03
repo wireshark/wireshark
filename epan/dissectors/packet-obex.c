@@ -2316,11 +2316,11 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
       }
 
     sub_item = proto_tree_add_uint(main_tree, hf_profile, tvb, 0, 0, profile);
-    PROTO_ITEM_SET_GENERATED(sub_item);
+    proto_item_set_generated(sub_item);
 
     if (path) {
         sub_item = proto_tree_add_string(main_tree, hf_current_path, tvb, 0, 0, path);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
     }
 
     current_handle = dissector_get_uint_handle(obex_profile_table, profile);
@@ -2492,7 +2492,7 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 obex_last_opcode_data->channel == obex_proto_data.channel) {
             if (obex_last_opcode_data->request_in_frame > 0 && obex_last_opcode_data->request_in_frame != pinfo->num) {
                 sub_item = proto_tree_add_uint(main_tree, hf_request_in_frame, next_tvb, 0, 0, obex_last_opcode_data->request_in_frame);
-                PROTO_ITEM_SET_GENERATED(sub_item);
+                proto_item_set_generated(sub_item);
             }
 
             if (!pinfo->fd->visited && obex_last_opcode_data->response_in_frame == 0 && obex_last_opcode_data->request_in_frame < pinfo->num) {
@@ -2501,7 +2501,7 @@ dissect_obex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             if (obex_last_opcode_data->response_in_frame > 0 && obex_last_opcode_data->response_in_frame != pinfo->num) {
                 sub_item = proto_tree_add_uint(main_tree, hf_response_in_frame, next_tvb, 0, 0, obex_last_opcode_data->response_in_frame);
-                PROTO_ITEM_SET_GENERATED(sub_item);
+                proto_item_set_generated(sub_item);
             }
         }
 

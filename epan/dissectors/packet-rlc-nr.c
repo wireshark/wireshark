@@ -390,7 +390,7 @@ static void dissect_rlc_nr_tm(tvbuff_t *tvb, packet_info *pinfo,
     /* Create hidden TM root */
     tm_ti = proto_tree_add_string_format(tree, hf_rlc_nr_tm,
                                          tvb, offset, 0, "", "TM");
-    PROTO_ITEM_SET_HIDDEN(tm_ti);
+    proto_item_set_hidden(tm_ti);
 
     /* Remaining bytes are all data */
     raw_tm_ti = proto_tree_add_item(tree, hf_rlc_nr_tm_data, tvb, offset, -1, ENC_NA);
@@ -418,7 +418,7 @@ static void dissect_rlc_nr_tm(tvbuff_t *tvb, packet_info *pinfo,
         }
 
         /* Hide raw view of bytes */
-        PROTO_ITEM_SET_HIDDEN(raw_tm_ti);
+        proto_item_set_hidden(raw_tm_ti);
 
         /* Call it (catch exceptions) */
         TRY {
@@ -453,7 +453,7 @@ static void dissect_rlc_nr_um(tvbuff_t *tvb, packet_info *pinfo,
     /* Hidden UM root */
     um_ti = proto_tree_add_string_format(tree, hf_rlc_nr_um,
                                          tvb, offset, 0, "", "UM");
-    PROTO_ITEM_SET_HIDDEN(um_ti);
+    proto_item_set_hidden(um_ti);
 
     /* Add UM header subtree */
     um_header_ti = proto_tree_add_string_format(tree, hf_rlc_nr_um_header,
@@ -510,12 +510,12 @@ static void dissect_rlc_nr_um(tvbuff_t *tvb, packet_info *pinfo,
         truncated_ti = proto_tree_add_boolean(tree, hf_rlc_nr_header_only, tvb, 0, 0,
                                               is_truncated);
         if (is_truncated) {
-            PROTO_ITEM_SET_GENERATED(truncated_ti);
+            proto_item_set_generated(truncated_ti);
             expert_add_info(pinfo, truncated_ti, &ei_rlc_nr_header_only);
             show_PDU_in_info(pinfo, top_ti, p_rlc_nr_info->pduLength - offset, seg_info);
             return;
         } else {
-            PROTO_ITEM_SET_HIDDEN(truncated_ti);
+            proto_item_set_hidden(truncated_ti);
         }
     }
 
@@ -703,7 +703,7 @@ static void dissect_rlc_nr_am_status_pdu(tvbuff_t *tvb,
 
     if (nack_count > 0) {
         proto_item *count_ti = proto_tree_add_uint(tree, hf_rlc_nr_am_nacks, tvb, 0, 1, nack_count);
-        PROTO_ITEM_SET_GENERATED(count_ti);
+        proto_item_set_generated(count_ti);
         proto_item_append_text(status_ti, "  (%u NACKs)", nack_count);
     }
 
@@ -743,7 +743,7 @@ static void dissect_rlc_nr_am(tvbuff_t *tvb, packet_info *pinfo,
     /* Hidden AM root */
     am_ti = proto_tree_add_string_format(tree, hf_rlc_nr_am,
                                          tvb, offset, 0, "", "AM");
-    PROTO_ITEM_SET_HIDDEN(am_ti);
+    proto_item_set_hidden(am_ti);
 
     /* Add AM header subtree */
     am_header_ti = proto_tree_add_string_format(tree, hf_rlc_nr_am_header,
@@ -827,12 +827,12 @@ static void dissect_rlc_nr_am(tvbuff_t *tvb, packet_info *pinfo,
         truncated_ti = proto_tree_add_boolean(tree, hf_rlc_nr_header_only, tvb, 0, 0,
                                               is_truncated);
         if (is_truncated) {
-            PROTO_ITEM_SET_GENERATED(truncated_ti);
+            proto_item_set_generated(truncated_ti);
             expert_add_info(pinfo, truncated_ti, &ei_rlc_nr_header_only);
             show_PDU_in_info(pinfo, top_ti, p_rlc_nr_info->pduLength - offset, seg_info);
             return;
         } else {
-            PROTO_ITEM_SET_HIDDEN(truncated_ti);
+            proto_item_set_hidden(truncated_ti);
         }
     }
 
@@ -993,41 +993,41 @@ static void dissect_rlc_nr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     context_ti = proto_tree_add_string_format(rlc_nr_tree, hf_rlc_nr_context,
                                               tvb, offset, 0, "", "Context");
     context_tree = proto_item_add_subtree(context_ti, ett_rlc_nr_context);
-    PROTO_ITEM_SET_GENERATED(context_ti);
+    proto_item_set_generated(context_ti);
 
     ti = proto_tree_add_uint(context_tree, hf_rlc_nr_context_direction,
                              tvb, 0, 0, p_rlc_nr_info->direction);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     mode_ti = proto_tree_add_uint(context_tree, hf_rlc_nr_context_mode,
                                   tvb, 0, 0, p_rlc_nr_info->rlcMode);
-    PROTO_ITEM_SET_GENERATED(mode_ti);
+    proto_item_set_generated(mode_ti);
 
     if (p_rlc_nr_info->ueid != 0) {
         ti = proto_tree_add_uint(context_tree, hf_rlc_nr_context_ueid,
                                  tvb, 0, 0, p_rlc_nr_info->ueid);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
     ti = proto_tree_add_uint(context_tree, hf_rlc_nr_context_bearer_type,
                              tvb, 0, 0, p_rlc_nr_info->bearerType);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     if ((p_rlc_nr_info->bearerType == BEARER_TYPE_SRB) ||
         (p_rlc_nr_info->bearerType == BEARER_TYPE_DRB)) {
         ti = proto_tree_add_uint(context_tree, hf_rlc_nr_context_bearer_id,
                                  tvb, 0, 0, p_rlc_nr_info->bearerId);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
     ti = proto_tree_add_uint(context_tree, hf_rlc_nr_context_pdu_length,
                              tvb, 0, 0, p_rlc_nr_info->pduLength);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     if (p_rlc_nr_info->rlcMode != RLC_TM_MODE) {
         ti = proto_tree_add_uint(context_tree, hf_rlc_nr_context_sn_length,
                                  tvb, 0, 0, p_rlc_nr_info->sequenceNumberLength);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
     /* Append highlights to top-level item */

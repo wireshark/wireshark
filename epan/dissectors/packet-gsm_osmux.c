@@ -252,7 +252,7 @@ static void finish_process_pkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     osmuxh->stream = get_stream(pinfo, osmuxh->circuit_id);
 
     ti = proto_tree_add_uint(tree, hf_osmux_stream_id, tvb, 0, 0, osmuxh->stream->id);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     tap_queue_packet(osmux_tap, pinfo, osmuxh);
 }
 

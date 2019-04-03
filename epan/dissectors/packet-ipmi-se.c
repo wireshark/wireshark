@@ -1833,7 +1833,7 @@ parse_platform_event(tvbuff_t *tvb, proto_tree *tree)
 			|| (si->intrp2 && si->intrp2(tree, next_tvb, si, b2, offs, d))) {
 		/* One of them succeeded. */
 		ti = proto_tree_add_item(tree, hf_ipmi_se_evt_data2, next_tvb, 0, 1, ENC_LITTLE_ENDIAN);
-		PROTO_ITEM_SET_HIDDEN(ti);
+		proto_item_set_hidden(ti);
 	} else {
 		/* Just add as hex */
 		proto_tree_add_item(tree, hf_ipmi_se_evt_data2, next_tvb, 0, 1, ENC_LITTLE_ENDIAN);
@@ -1850,7 +1850,7 @@ parse_platform_event(tvbuff_t *tvb, proto_tree *tree)
 			|| (si->intrp3 && si->intrp3(tree, next_tvb, si, b3, offs, d))) {
 		/* One of them succeeded. */
 		ti = proto_tree_add_item(tree, hf_ipmi_se_evt_data3, next_tvb, 0, 1, ENC_LITTLE_ENDIAN);
-		PROTO_ITEM_SET_HIDDEN(ti);
+		proto_item_set_hidden(ti);
 	} else {
 		/* Just add as hex */
 		proto_tree_add_item(tree, hf_ipmi_se_evt_data3, next_tvb, 0, 1, ENC_LITTLE_ENDIAN);
@@ -2322,7 +2322,7 @@ rs13(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	ti = proto_tree_add_uint_format_value(tree, hf_ipmi_se_13_parameter, tvb, 0, 0,
 		pno, "%s", desc);
-	PROTO_ITEM_SET_GENERATED(ti);
+	proto_item_set_generated(ti);
 
 	if (tvb_captured_length(tvb) > 1) {
 		if (pno < array_length(conf_params)) {

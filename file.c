@@ -3093,7 +3093,7 @@ match_subtree_text(proto_node *node, gpointer data)
   }
 
   /* Don't match invisible entries. */
-  if (PROTO_ITEM_IS_HIDDEN(node))
+  if (proto_item_is_hidden(node))
     return;
 
   /* was a free format label produced? */

@@ -166,7 +166,7 @@ dissect_dmx_chan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 		/* Add the real type hidden */
 		item = proto_tree_add_item(dmx_chan_tree, hf_dmx_chan_output_data_filter, tvb,
 						offset, length, ENC_NA );
-		PROTO_ITEM_SET_HIDDEN(item);
+		proto_item_set_hidden(item);
 	}
 	return tvb_captured_length(tvb);
 }
@@ -310,10 +310,10 @@ dissect_dmx_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 			test_data_tree = proto_item_add_subtree(item, ett_dmx_test);
 			item = proto_tree_add_boolean(test_data_tree, hf_dmx_test_data_good, tvb,
 							offset, size, TRUE);
-			PROTO_ITEM_SET_GENERATED(item);
+			proto_item_set_generated(item);
 			item = proto_tree_add_boolean(test_data_tree, hf_dmx_test_data_bad, tvb,
 							offset, size, FALSE);
-			PROTO_ITEM_SET_GENERATED(item);
+			proto_item_set_generated(item);
 		} else {
 			proto_item_append_text(ti, ", Data incorrect");
 			proto_item_append_text(item, " [incorrect]");
@@ -321,10 +321,10 @@ dissect_dmx_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data
 			test_data_tree = proto_item_add_subtree(item, ett_dmx_test);
 			item = proto_tree_add_boolean(test_data_tree, hf_dmx_test_data_good, tvb,
 							offset, size, FALSE);
-			PROTO_ITEM_SET_GENERATED(item);
+			proto_item_set_generated(item);
 			item = proto_tree_add_boolean(test_data_tree, hf_dmx_test_data_bad, tvb,
 								offset, size, TRUE);
-			PROTO_ITEM_SET_GENERATED(item);
+			proto_item_set_generated(item);
 		}
 	}
 	return tvb_captured_length(tvb);

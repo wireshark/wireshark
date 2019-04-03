@@ -5180,7 +5180,7 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 		if (request_val->frame_res != 0) {
 			ti = proto_tree_add_uint(afp_tree, hf_afp_response_in,
 			    tvb, 0, 0, request_val->frame_res);
-			PROTO_ITEM_SET_GENERATED(ti);
+			proto_item_set_generated(ti);
 		}
 
 		offset++;
@@ -5388,11 +5388,11 @@ dissect_afp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 		if (request_val->frame_req != 0) {
 			ti = proto_tree_add_uint(afp_tree, hf_afp_response_to,
 			    tvb, 0, 0, request_val->frame_req);
-			PROTO_ITEM_SET_GENERATED(ti);
+			proto_item_set_generated(ti);
 			nstime_delta(&delta_ts, &pinfo->abs_ts, &request_val->req_time);
 			ti = proto_tree_add_time(afp_tree, hf_afp_time, tvb,
 			    0, 0, &delta_ts);
-			PROTO_ITEM_SET_GENERATED(ti);
+			proto_item_set_generated(ti);
 		}
 
 		/*

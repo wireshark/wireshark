@@ -712,7 +712,7 @@ static void mqtt_user_decode_message(proto_tree *tree, proto_tree *mqtt_tree, pa
     {
       proto_item *ti = proto_tree_add_string(mqtt_tree, hf_mqtt_pubmsg_decoded, msg_tvb, 0, -1,
                                              message_decode_entry->payload_proto_name);
-      PROTO_ITEM_SET_GENERATED(ti);
+      proto_item_set_generated(ti);
 
       call_dissector(message_decode_entry->payload_proto, msg_tvb, pinfo, tree);
     }

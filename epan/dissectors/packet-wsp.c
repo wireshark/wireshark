@@ -4469,7 +4469,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
             }
             hidden_item = proto_tree_add_string(wsp_headers, hf_hdr_name_string,
                                                 tvb, hdr_start, offset - hdr_start, hdr_str);
-            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            proto_item_set_hidden(hidden_item);
         } else if (hdr_id > 0) { /* Shorthand HCP switch */
             codepage = hdr_id;
             proto_tree_add_uint (wsp_headers, hf_wsp_header_shift_code,

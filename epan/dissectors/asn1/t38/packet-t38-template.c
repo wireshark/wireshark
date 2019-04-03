@@ -608,17 +608,17 @@ show_setup_info(tvbuff_t *tvb, proto_tree *tree, t38_conv *p_t38_conversation)
                       "Stream setup by %s (frame %u)",
                       p_t38_conversation->setup_method,
                       p_t38_conversation->setup_frame_number);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     t38_setup_tree = proto_item_add_subtree(ti, ett_t38_setup);
     if (t38_setup_tree)
     {
 		/* Add details into subtree */
 		proto_item* item = proto_tree_add_uint(t38_setup_tree, hf_t38_setup_frame,
                                                                tvb, 0, 0, p_t38_conversation->setup_frame_number);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 		item = proto_tree_add_string(t38_setup_tree, hf_t38_setup_method,
                                                      tvb, 0, 0, p_t38_conversation->setup_method);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
     }
 }
 

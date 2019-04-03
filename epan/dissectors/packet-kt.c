@@ -196,7 +196,7 @@ dissect_kt_replication(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
     } else {
         /* This is an empty ack to the message with magic 0xB0. */
         pi = proto_tree_add_uint(tree, hf_kt_type, tvb, offset, 1, KT_OPER_RESPONSE);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
         col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[response]");
     }
 
@@ -222,7 +222,7 @@ dissect_kt_set_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
     if (tvb_reported_length_remaining(tvb, (new_offset + 4)) > 0) {
         /* There's more data after the 32 bits. This is a request */
         pi = proto_tree_add_uint(tree, hf_kt_type, tvb, offset, 1, KT_OPER_REQUEST);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
 
         proto_tree_add_uint(tree, hf_kt_flags, tvb, new_offset, 4, next32);
         new_offset += 4;
@@ -254,14 +254,14 @@ dissect_kt_set_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
             proto_tree_add_item(rec_tree, hf_kt_key, tvb, new_offset, ksiz, ENC_NA);
             if (kt_present_key_val_as_ascii) {
                 pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, new_offset, ksiz, ENC_ASCII|ENC_NA);
-                PROTO_ITEM_SET_GENERATED(pi);
+                proto_item_set_generated(pi);
             }
             new_offset += ksiz;
 
             proto_tree_add_item(rec_tree, hf_kt_val, tvb, new_offset, vsiz, ENC_NA);
             if (kt_present_key_val_as_ascii) {
                 pi = proto_tree_add_item(rec_tree, hf_kt_val_str, tvb, new_offset, vsiz, ENC_ASCII|ENC_NA);
-                PROTO_ITEM_SET_GENERATED(pi);
+                proto_item_set_generated(pi);
             }
             new_offset += vsiz;
 
@@ -271,7 +271,7 @@ dissect_kt_set_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
     } else {
         /* Nothing remaining after the 32 bits. This is a response. */
         pi = proto_tree_add_uint(tree, hf_kt_type, tvb, offset, 1, KT_OPER_RESPONSE);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
         col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[response]");
 
         proto_tree_add_uint(tree, hf_kt_hits, tvb, new_offset, 4, next32);
@@ -301,7 +301,7 @@ dissect_kt_play_script(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
         if (tvb_reported_length_remaining(tvb, (new_offset + 4)) > 0) {
             /* There's more data after the 32 bits. This is a request */
             pi = proto_tree_add_uint(tree, hf_kt_type, tvb, offset, 1, KT_OPER_REQUEST);
-            PROTO_ITEM_SET_GENERATED(pi);
+            proto_item_set_generated(pi);
 
             proto_tree_add_uint(tree, hf_kt_flags, tvb, new_offset, 4, next32);
             new_offset += 4;
@@ -334,14 +334,14 @@ dissect_kt_play_script(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
                 proto_tree_add_item(rec_tree, hf_kt_key, tvb, new_offset, ksiz, ENC_NA);
                 if (kt_present_key_val_as_ascii) {
                     pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, new_offset, ksiz, ENC_ASCII|ENC_NA);
-                    PROTO_ITEM_SET_GENERATED(pi);
+                    proto_item_set_generated(pi);
                 }
                 new_offset += ksiz;
 
                 proto_tree_add_item(rec_tree, hf_kt_val, tvb, new_offset, vsiz, ENC_NA);
                 if (kt_present_key_val_as_ascii) {
                     pi = proto_tree_add_item(rec_tree, hf_kt_val_str, tvb, new_offset, vsiz, ENC_ASCII|ENC_NA);
-                    PROTO_ITEM_SET_GENERATED(pi);
+                    proto_item_set_generated(pi);
                 }
                 new_offset += vsiz;
 
@@ -351,7 +351,7 @@ dissect_kt_play_script(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
         } else {
             /* Nothing remaining after the 32 bits. This is a response with no records. */
             pi = proto_tree_add_uint(tree, hf_kt_type, tvb, offset, 1, KT_OPER_RESPONSE);
-            PROTO_ITEM_SET_GENERATED(pi);
+            proto_item_set_generated(pi);
             col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[response]");
 
             proto_tree_add_uint(tree, hf_kt_rnum, tvb, new_offset, 4, next32);
@@ -359,7 +359,7 @@ dissect_kt_play_script(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
         }
     } else { /* response - one or more records */
         pi = proto_tree_add_uint(tree, hf_kt_type, tvb, offset, 1, KT_OPER_RESPONSE);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
         col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[response]");
 
         rnum = tvb_get_ntohl(tvb, new_offset);
@@ -383,14 +383,14 @@ dissect_kt_play_script(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
             proto_tree_add_item(rec_tree, hf_kt_key, tvb, new_offset, ksiz, ENC_NA);
             if (kt_present_key_val_as_ascii) {
                 pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, new_offset, ksiz, ENC_ASCII|ENC_NA);
-                PROTO_ITEM_SET_GENERATED(pi);
+                proto_item_set_generated(pi);
             }
             new_offset += ksiz;
 
             proto_tree_add_item(rec_tree, hf_kt_val, tvb, new_offset, vsiz, ENC_NA);
             if (kt_present_key_val_as_ascii) {
                 pi = proto_tree_add_item(rec_tree, hf_kt_val_str, tvb, new_offset, vsiz, ENC_ASCII|ENC_NA);
-                PROTO_ITEM_SET_GENERATED(pi);
+                proto_item_set_generated(pi);
             }
             new_offset += vsiz;
 
@@ -423,7 +423,7 @@ dissect_kt_get_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
     if (next32 == 0) {
         if (tvb_reported_length_remaining(tvb, (new_offset + 4)) > 0) { /* request */
             pi = proto_tree_add_uint(tree, hf_kt_type, tvb, offset, 1, KT_OPER_REQUEST);
-            PROTO_ITEM_SET_GENERATED(pi);
+            proto_item_set_generated(pi);
 
             proto_tree_add_uint(tree, hf_kt_flags, tvb, new_offset, 4, next32);
             new_offset += 4;
@@ -448,7 +448,7 @@ dissect_kt_get_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
                 proto_tree_add_item(rec_tree, hf_kt_key, tvb, new_offset, ksiz, ENC_NA);
                 if (kt_present_key_val_as_ascii) {
                     pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, new_offset, ksiz, ENC_ASCII|ENC_NA);
-                    PROTO_ITEM_SET_GENERATED(pi);
+                    proto_item_set_generated(pi);
                 }
                 new_offset += ksiz;
 
@@ -457,7 +457,7 @@ dissect_kt_get_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
             }
         } else { /* response - no records */
             pi = proto_tree_add_uint(tree, hf_kt_type, tvb, offset, 1, KT_OPER_RESPONSE);
-            PROTO_ITEM_SET_GENERATED(pi);
+            proto_item_set_generated(pi);
             col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[response]");
 
             proto_tree_add_uint(tree, hf_kt_hits, tvb, new_offset, 4, next32);
@@ -465,7 +465,7 @@ dissect_kt_get_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
         }
     } else { /* response - one or more records */
         pi = proto_tree_add_uint(tree, hf_kt_type, tvb, offset, 1, KT_OPER_RESPONSE);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
         col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[response]");
 
         rnum = tvb_get_ntohl(tvb, new_offset);
@@ -498,14 +498,14 @@ dissect_kt_get_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
             proto_tree_add_item(rec_tree, hf_kt_key, tvb, new_offset, ksiz, ENC_NA);
             if (kt_present_key_val_as_ascii) {
                 pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, new_offset, ksiz, ENC_ASCII|ENC_NA);
-                PROTO_ITEM_SET_GENERATED(pi);
+                proto_item_set_generated(pi);
             }
             new_offset += ksiz;
 
             proto_tree_add_item(rec_tree, hf_kt_val, tvb, new_offset, vsiz, ENC_NA);
             if (kt_present_key_val_as_ascii) {
                 pi = proto_tree_add_item(rec_tree, hf_kt_val_str, tvb, new_offset, vsiz, ENC_ASCII|ENC_NA);
-                PROTO_ITEM_SET_GENERATED(pi);
+                proto_item_set_generated(pi);
             }
             new_offset += vsiz;
 
@@ -535,7 +535,7 @@ dissect_kt_remove_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
 
     if (tvb_reported_length_remaining(tvb, (new_offset + 4)) > 0) { /* request */
         pi = proto_tree_add_uint(tree, hf_kt_type, tvb, offset, 1, KT_OPER_REQUEST);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
 
         proto_tree_add_uint(tree, hf_kt_flags, tvb, new_offset, 4, next32);
         new_offset += 4;
@@ -560,7 +560,7 @@ dissect_kt_remove_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
             proto_tree_add_item(rec_tree, hf_kt_key, tvb, new_offset, ksiz, ENC_NA);
             if (kt_present_key_val_as_ascii) {
                 pi = proto_tree_add_item(rec_tree, hf_kt_key_str, tvb, new_offset, ksiz, ENC_ASCII|ENC_NA);
-                PROTO_ITEM_SET_GENERATED(pi);
+                proto_item_set_generated(pi);
             }
             new_offset += ksiz;
 
@@ -569,7 +569,7 @@ dissect_kt_remove_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint
         }
     } else { /* response */
         pi = proto_tree_add_uint(tree, hf_kt_type, tvb, offset, 1, KT_OPER_RESPONSE);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
         col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "[response]");
 
         proto_tree_add_uint(tree, hf_kt_hits, tvb, new_offset, 4, next32);

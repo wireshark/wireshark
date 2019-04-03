@@ -886,13 +886,13 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 
     hidden_item = proto_tree_add_uint (fc_tree, hf_fc_ftype, tvb, offset, 1,
                                        ftype);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_item_set_hidden(hidden_item);
 
     /* XXX - use "fc_wka_vals[]" on this? */
     set_address(&addr, AT_FC, 3, fchdr->d_id.data);
     proto_tree_add_item(fc_tree, hf_fc_did, tvb, offset+1, 3, ENC_NA);
     hidden_item = proto_tree_add_item (fc_tree, hf_fc_id, tvb, offset+1, 3, ENC_NA);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_item_set_hidden(hidden_item);
 
     proto_tree_add_uint (fc_tree, hf_fc_csctl, tvb, offset+4, 1, fchdr->cs_ctl);
 
@@ -900,7 +900,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     set_address(&addr, AT_FC, 3, fchdr->s_id.data);
     proto_tree_add_item(fc_tree, hf_fc_sid, tvb, offset+5, 3, ENC_NA);
     hidden_item = proto_tree_add_item (fc_tree, hf_fc_id, tvb, offset+5, 3, ENC_NA);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_item_set_hidden(hidden_item);
 
     if (ftype == FC_FTYPE_LINKCTL) {
         if (((fchdr->r_ctl & 0x0F) == FC_LCTL_FBSYB) ||
@@ -1105,12 +1105,12 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
 
                   hidden_item = proto_tree_add_boolean (fc_tree, hf_fc_reassembled,
                           tvb, offset+9, 1, 1);
-                  PROTO_ITEM_SET_HIDDEN(hidden_item);
+                  proto_item_set_hidden(hidden_item);
              }
              else {
                  hidden_item = proto_tree_add_boolean (fc_tree, hf_fc_reassembled,
                          tvb, offset+9, 1, 0);
-                 PROTO_ITEM_SET_HIDDEN(hidden_item);
+                 proto_item_set_hidden(hidden_item);
                  next_tvb = tvb_new_subset_remaining (tvb, next_offset);
                  call_data_dissector(next_tvb, pinfo, tree);
                  return;
@@ -1119,7 +1119,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     } else {
         hidden_item = proto_tree_add_boolean (fc_tree, hf_fc_reassembled,
                 tvb, offset+9, 1, 0);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        proto_item_set_hidden(hidden_item);
         next_tvb = tvb_new_subset_remaining (tvb, next_offset);
     }
 
@@ -1187,18 +1187,18 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     if(!(fchdr->fctl&FC_FCTL_EXCHANGE_FIRST)){
         proto_item *it;
         it=proto_tree_add_uint(fc_tree, hf_fc_exchange_first_frame, tvb, 0, 0, fc_ex->first_exchange_frame);
-        PROTO_ITEM_SET_GENERATED(it);
+        proto_item_set_generated(it);
         if(fchdr->fctl&FC_FCTL_EXCHANGE_LAST){
             nstime_t delta_ts;
             nstime_delta(&delta_ts, &pinfo->abs_ts, &fc_ex->fc_time);
             it=proto_tree_add_time(ti, hf_fc_time, tvb, 0, 0, &delta_ts);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
         }
     }
     if(!(fchdr->fctl&FC_FCTL_EXCHANGE_LAST)){
         proto_item *it;
         it=proto_tree_add_uint(fc_tree, hf_fc_exchange_last_frame, tvb, 0, 0, fc_ex->last_exchange_frame);
-        PROTO_ITEM_SET_GENERATED(it);
+        proto_item_set_generated(it);
     }
 
     tap_queue_packet(fc_tap, pinfo, fchdr);

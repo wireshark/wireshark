@@ -1088,7 +1088,7 @@ static gboolean dissect_lbtrm_sqn_frame_list_callback(const void *key _U_, void 
         {
             transport_item = proto_tree_add_uint(cb_data->tree, hf_lbtrm_analysis_sqn_frame, cb_data->tvb, 0, 0, sqn_frame->frame);
         }
-        PROTO_ITEM_SET_GENERATED(transport_item);
+        proto_item_set_generated(transport_item);
     }
     return (FALSE);
 }
@@ -1185,14 +1185,14 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
         channel = transport->channel;
         item = proto_tree_add_uint64(lbtrm_tree, hf_lbtrm_channel, tvb, 0, 0, channel);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
     }
     if (tag_name != NULL)
     {
         proto_item * item = NULL;
 
         item = proto_tree_add_string(lbtrm_tree, hf_lbtrm_tag, tvb, 0, 0, tag_name);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
     }
     tapinfo = wmem_new0(wmem_packet_scope(), lbm_lbtrm_tap_info_t);
     if (transport != NULL)
@@ -1294,7 +1294,7 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
                 /* Setup the tree */
                 transport_item = proto_tree_add_item(lbtrm_tree, hf_lbtrm_analysis, tvb, 0, 0, ENC_NA);
-                PROTO_ITEM_SET_GENERATED(transport_item);
+                proto_item_set_generated(transport_item);
                 transport_tree = proto_item_add_subtree(transport_item, ett_lbtrm_transport);
                 frame = lbtrm_transport_frame_find(transport, pinfo->num);
                 if (frame != NULL)
@@ -1304,12 +1304,12 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                     if (frame->previous_frame != 0)
                     {
                         transport_item = proto_tree_add_uint(transport_tree, hf_lbtrm_analysis_prev_frame, tvb, 0, 0, frame->previous_frame);
-                        PROTO_ITEM_SET_GENERATED(transport_item);
+                        proto_item_set_generated(transport_item);
                     }
                     if (frame->next_frame != 0)
                     {
                         transport_item = proto_tree_add_uint(transport_tree, hf_lbtrm_analysis_next_frame, tvb, 0, 0, frame->next_frame);
-                        PROTO_ITEM_SET_GENERATED(transport_item);
+                        proto_item_set_generated(transport_item);
                     }
                     switch (packet_type)
                     {
@@ -1317,12 +1317,12 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                             if (frame->previous_type_frame != 0)
                             {
                                 transport_item = proto_tree_add_uint(transport_tree, hf_lbtrm_analysis_prev_data_frame, tvb, 0, 0, frame->previous_type_frame);
-                                PROTO_ITEM_SET_GENERATED(transport_item);
+                                proto_item_set_generated(transport_item);
                             }
                             if (frame->next_type_frame != 0)
                             {
                                 transport_item = proto_tree_add_uint(transport_tree, hf_lbtrm_analysis_next_data_frame, tvb, 0, 0, frame->next_type_frame);
-                                PROTO_ITEM_SET_GENERATED(transport_item);
+                                proto_item_set_generated(transport_item);
                             }
                             sqn = lbtrm_transport_sqn_find(transport, packet_type, sequence);
                             if (sqn != NULL)
@@ -1334,7 +1334,7 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                                     lbtrm_sqn_frame_list_callback_data_t cb_data;
 
                                     frame_tree_item = proto_tree_add_item(transport_tree, hf_lbtrm_analysis_sqn, tvb, 0, 0, ENC_NA);
-                                    PROTO_ITEM_SET_GENERATED(frame_tree_item);
+                                    proto_item_set_generated(frame_tree_item);
                                     frame_tree = proto_item_add_subtree(frame_tree_item, ett_lbtrm_transport_sqn);
                                     cb_data.tree = frame_tree;
                                     cb_data.tvb = tvb;
@@ -1345,25 +1345,25 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                             if (frame->retransmission)
                             {
                                 transport_item = proto_tree_add_boolean(transport_tree, hf_lbtrm_analysis_data_retransmission, tvb, 0, 0, TRUE);
-                                PROTO_ITEM_SET_GENERATED(transport_item);
+                                proto_item_set_generated(transport_item);
                                 expert_add_info(pinfo, transport_item, &ei_lbtrm_analysis_data_rx);
                             }
                             if (frame->sqn_gap != 0)
                             {
                                 transport_item = proto_tree_add_uint(transport_tree, hf_lbtrm_analysis_data_sqn_gap, tvb, 0, 0, frame->sqn_gap);
-                                PROTO_ITEM_SET_GENERATED(transport_item);
+                                proto_item_set_generated(transport_item);
                                 expert_add_info_format(pinfo, transport_item, &ei_lbtrm_analysis_data_gap, "Data sequence gap (%" G_GUINT32_FORMAT ")", frame->sqn_gap);
                             }
                             if (frame->ooo_gap != 0)
                             {
                                 transport_item = proto_tree_add_uint(transport_tree, hf_lbtrm_analysis_data_ooo_gap, tvb, 0, 0, frame->ooo_gap);
-                                PROTO_ITEM_SET_GENERATED(transport_item);
+                                proto_item_set_generated(transport_item);
                                 expert_add_info_format(pinfo, transport_item, &ei_lbtrm_analysis_data_ooo, "Data sequence out of order gap (%" G_GUINT32_FORMAT ")", frame->ooo_gap);
                             }
                             if (frame->duplicate)
                             {
                                 transport_item = proto_tree_add_boolean(transport_tree, hf_lbtrm_analysis_data_duplicate, tvb, 0, 0, TRUE);
-                                PROTO_ITEM_SET_GENERATED(transport_item);
+                                proto_item_set_generated(transport_item);
                                 expert_add_info(pinfo, transport_item, &ei_lbtrm_analysis_data_dup);
                             }
                             break;
@@ -1371,12 +1371,12 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                             if (frame->previous_type_frame != 0)
                             {
                                 transport_item = proto_tree_add_uint(transport_tree, hf_lbtrm_analysis_prev_sm_frame, tvb, 0, 0, frame->previous_type_frame);
-                                PROTO_ITEM_SET_GENERATED(transport_item);
+                                proto_item_set_generated(transport_item);
                             }
                             if (frame->next_type_frame != 0)
                             {
                                 transport_item = proto_tree_add_uint(transport_tree, hf_lbtrm_analysis_next_sm_frame, tvb, 0, 0, frame->next_type_frame);
-                                PROTO_ITEM_SET_GENERATED(transport_item);
+                                proto_item_set_generated(transport_item);
                             }
                             sqn = lbtrm_transport_sqn_find(transport, packet_type, sequence);
                             if (sqn != NULL)
@@ -1388,7 +1388,7 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                                     lbtrm_sqn_frame_list_callback_data_t cb_data;
 
                                     frame_tree_item = proto_tree_add_item(transport_tree, hf_lbtrm_analysis_sqn, tvb, 0, 0, ENC_NA);
-                                    PROTO_ITEM_SET_GENERATED(frame_tree_item);
+                                    proto_item_set_generated(frame_tree_item);
                                     frame_tree = proto_item_add_subtree(frame_tree_item, ett_lbtrm_transport_sqn);
                                     cb_data.tree = frame_tree;
                                     cb_data.tvb = tvb;
@@ -1399,19 +1399,19 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                             if (frame->sqn_gap != 0)
                             {
                                 transport_item = proto_tree_add_uint(transport_tree, hf_lbtrm_analysis_sm_sqn_gap, tvb, 0, 0, frame->sqn_gap);
-                                PROTO_ITEM_SET_GENERATED(transport_item);
+                                proto_item_set_generated(transport_item);
                                 expert_add_info_format(pinfo, transport_item, &ei_lbtrm_analysis_sm_gap, "SM sequence gap (%" G_GUINT32_FORMAT ")", frame->sqn_gap);
                             }
                             if (frame->ooo_gap != 0)
                             {
                                 transport_item = proto_tree_add_uint(transport_tree, hf_lbtrm_analysis_sm_ooo_gap, tvb, 0, 0, frame->ooo_gap);
-                                PROTO_ITEM_SET_GENERATED(transport_item);
+                                proto_item_set_generated(transport_item);
                                 expert_add_info_format(pinfo, transport_item, &ei_lbtrm_analysis_sm_ooo, "SM sequence out of order gap (%" G_GUINT32_FORMAT ")", frame->ooo_gap);
                             }
                             if (frame->duplicate)
                             {
                                 transport_item = proto_tree_add_boolean(transport_tree, hf_lbtrm_analysis_sm_duplicate, tvb, 0, 0, TRUE);
-                                PROTO_ITEM_SET_GENERATED(transport_item);
+                                proto_item_set_generated(transport_item);
                                 expert_add_info(pinfo, transport_item, &ei_lbtrm_analysis_sm_dup);
                             }
                             break;
@@ -1419,24 +1419,24 @@ static int dissect_lbtrm(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
                             if (frame->previous_type_frame != 0)
                             {
                                 transport_item = proto_tree_add_uint(transport_tree, hf_lbtrm_analysis_prev_nak_frame, tvb, 0, 0, frame->previous_type_frame);
-                                PROTO_ITEM_SET_GENERATED(transport_item);
+                                proto_item_set_generated(transport_item);
                             }
                             if (frame->next_type_frame != 0)
                             {
                                 transport_item = proto_tree_add_uint(transport_tree, hf_lbtrm_analysis_next_nak_frame, tvb, 0, 0, frame->next_type_frame);
-                                PROTO_ITEM_SET_GENERATED(transport_item);
+                                proto_item_set_generated(transport_item);
                             }
                             break;
                         case LBTRM_PACKET_TYPE_NCF:
                             if (frame->previous_type_frame != 0)
                             {
                                 transport_item = proto_tree_add_uint(transport_tree, hf_lbtrm_analysis_prev_ncf_frame, tvb, 0, 0, frame->previous_type_frame);
-                                PROTO_ITEM_SET_GENERATED(transport_item);
+                                proto_item_set_generated(transport_item);
                             }
                             if (frame->next_type_frame != 0)
                             {
                                 transport_item = proto_tree_add_uint(transport_tree, hf_lbtrm_analysis_next_ncf_frame, tvb, 0, 0, frame->next_type_frame);
-                                PROTO_ITEM_SET_GENERATED(transport_item);
+                                proto_item_set_generated(transport_item);
                             }
                             break;
                         default:

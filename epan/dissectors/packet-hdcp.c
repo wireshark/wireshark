@@ -122,7 +122,7 @@ dissect_hdcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                            val_to_str_const(hdcp_trans->rqst_type,
                                hdcp_reg, "unknown (0x%x)"),
                            hdcp_trans->resp_frame);
-                    PROTO_ITEM_SET_GENERATED(it);
+                    proto_item_set_generated(it);
                 }
             }
             else {
@@ -178,7 +178,7 @@ dissect_hdcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                         hdcp_trans->rqst_frame,
                         val_to_str_const(hdcp_trans->rqst_type,
                             hdcp_reg, "unknown (0x%x)"));
-                PROTO_ITEM_SET_GENERATED(it);
+                proto_item_set_generated(it);
                 switch (hdcp_trans->rqst_type) {
                     case REG_BKSV:
                         b_ksv = tvb_get_letoh40(tvb,

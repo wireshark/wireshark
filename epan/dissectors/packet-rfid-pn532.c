@@ -716,7 +716,7 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         if (command_data) {
             sub_item = proto_tree_add_uint(pn532_tree, hf_pn532_response_for, tvb, offset, tvb_captured_length_remaining(tvb, offset), command_data->command_frame_number);
-            PROTO_ITEM_SET_GENERATED(sub_item);
+            proto_item_set_generated(sub_item);
         }
     }
 
@@ -1260,7 +1260,7 @@ dissect_pn532(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             baudrate = -1; /* Force unknown baudrate... */
 
         sub_item = proto_tree_add_uint(pn532_tree, hf_pn532_BrTy, tvb, offset, tvb_captured_length_remaining(tvb, offset), baudrate);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
 
         for (item_value = 1; item_value <= value; item_value += 1) {
             sub_item = proto_tree_add_item(pn532_tree, hf_pn532_target, tvb, offset, tvb_captured_length_remaining(tvb, offset), ENC_NA);

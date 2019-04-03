@@ -918,7 +918,7 @@ dissect_tacplus_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 			hidden_item = proto_tree_add_boolean(tacplus_tree,
 			    hf_tacplus_response, tvb, 0, 0, TRUE);
 		}
-		PROTO_ITEM_SET_HIDDEN(hidden_item);
+		proto_item_set_hidden(hidden_item);
 
 		version = tvb_get_guint8(tvb,0);
 		proto_tree_add_uint_format_value(tacplus_tree, hf_tacplus_majvers, tvb, 0, 1,

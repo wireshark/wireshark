@@ -4357,7 +4357,7 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* when a circuit is found, it always contains a valid resource id */
         res_id = GPOINTER_TO_UINT(conversation_get_proto_data(conv, proto_dvbci));
         res_id_it = dissect_res_id(NULL, 0, pinfo, sess_tree, res_id, TRUE);
-        PROTO_ITEM_SET_GENERATED(res_id_it);
+        proto_item_set_generated(res_id_it);
     }
 
     if (payload_tvb) {

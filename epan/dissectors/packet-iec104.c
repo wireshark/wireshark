@@ -1259,7 +1259,7 @@ static int dissect_iec104asdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 						proto_item *ti;
 						asdu_info_obj_addr++;
 						ti = proto_tree_add_uint(trSignal, hf_ioa, tvb, 0, 0, asdu_info_obj_addr);
-						PROTO_ITEM_SET_GENERATED(ti);
+						proto_item_set_generated(ti);
 					} else { /* SQ=0, info obj addr given */
 						/* --------  Information object address */
 						/* check length */

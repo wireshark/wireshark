@@ -737,14 +737,14 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             it=proto_tree_add_uint(stun_tree, hf_stun_duplicate,
                                    tvb, offset, 0,
                                    stun_trans->req_frame);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
         }
         if (stun_trans->rep_frame) {
             proto_item *it;
             it=proto_tree_add_uint(stun_tree, hf_stun_response_in,
                                    tvb, offset, 0,
                                    stun_trans->rep_frame);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
         }
     }
     else {
@@ -754,7 +754,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
             it=proto_tree_add_uint(stun_tree, hf_stun_duplicate,
                                    tvb, offset, 0,
                                    stun_trans->rep_frame);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
         }
         if (msg_type_class == RESPONSE || msg_type_class == ERROR_RESPONSE) {
             /* This is a response */
@@ -765,12 +765,12 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                 it=proto_tree_add_uint(stun_tree, hf_stun_response_to, tvb,
                                        offset, 0,
                                        stun_trans->req_frame);
-                PROTO_ITEM_SET_GENERATED(it);
+                proto_item_set_generated(it);
 
                 nstime_delta(&ns, &pinfo->abs_ts, &stun_trans->req_time);
                 it=proto_tree_add_time(stun_tree, hf_stun_time, tvb,
                                        offset, 0, &ns);
-                PROTO_ITEM_SET_GENERATED(it);
+                proto_item_set_generated(it);
             }
 
         }
@@ -1049,7 +1049,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                    Add host-order port into tree. */
                 clear_port = tvb_get_ntohs(tvb, offset+2) ^ (magic_cookie_first_word >> 16);
                 ti = proto_tree_add_uint(att_tree, hf_stun_att_port, tvb, offset+2, 2, clear_port);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
 
                 if (att_length < 8)
                     break;
@@ -1062,7 +1062,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                        Add in network order tree. */
                     clear_ip = tvb_get_ipv4(tvb, offset+4) ^ g_htonl(magic_cookie_first_word);
                     ti = proto_tree_add_ipv4(att_tree, hf_stun_att_ipv4, tvb, offset+4, 4, clear_ip);
-                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_set_generated(ti);
 
                     {
                         const gchar *ipstr;
@@ -1097,7 +1097,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboole
                         IPv6[3] = IPv6[3] ^ g_htonl(transaction_id[2]);
                         ti = proto_tree_add_ipv6(att_tree, hf_stun_att_ipv6, tvb, offset+4, 16,
                                                  (const ws_in6_addr *)IPv6);
-                        PROTO_ITEM_SET_GENERATED(ti);
+                        proto_item_set_generated(ti);
                     }
 
                     break;

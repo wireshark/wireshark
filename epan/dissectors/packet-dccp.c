@@ -629,12 +629,12 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
     proto_tree_add_item(dccp_tree, hf_dccp_srcport, tvb, offset, 2, ENC_BIG_ENDIAN);
     hidden_item = proto_tree_add_item(dccp_tree, hf_dccp_port, tvb, offset, 2, ENC_BIG_ENDIAN);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_item_set_hidden(hidden_item);
     offset += 2;
 
     proto_tree_add_item(dccp_tree, hf_dccp_dstport, tvb, offset, 2, ENC_BIG_ENDIAN);
     hidden_item = proto_tree_add_item(dccp_tree, hf_dccp_port, tvb, offset, 2, ENC_BIG_ENDIAN);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_item_set_hidden(hidden_item);
     offset += 2;
 
     /*
@@ -708,7 +708,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
     hidden_item =
         proto_tree_add_uint(dccp_tree, hf_dccp_res1, tvb, offset, 1,
                             dccph->reserved1);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_item_set_hidden(hidden_item);
 
     dccph->type = tvb_get_guint8(tvb, offset) & 0x1E;
     dccph->type >>= 1;
@@ -739,7 +739,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         hidden_item =
             proto_tree_add_uint(dccp_tree, hf_dccp_res2, tvb, offset, 1,
                                 dccph->reserved2);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        proto_item_set_hidden(hidden_item);
         offset += 1;
 
         dccph->seq = tvb_get_ntoh48(tvb, offset);
@@ -797,7 +797,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             hidden_item =
                 proto_tree_add_uint(dccp_tree, hf_dccp_ack_res, tvb, offset, 2,
                                     dccph->ack_reserved);
-            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            proto_item_set_hidden(hidden_item);
         }
         dccph->ack = tvb_get_ntohs(tvb, offset + 2);
         dccph->ack <<= 32;
@@ -838,7 +838,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 hidden_item =
                     proto_tree_add_uint(dccp_tree, hf_dccp_ack_res, tvb, offset,
                                         2, dccph->ack_reserved);
-                PROTO_ITEM_SET_HIDDEN(hidden_item);
+                proto_item_set_hidden(hidden_item);
             }
             dccph->ack = tvb_get_ntohs(tvb, offset + 2);
             dccph->ack <<= 32;
@@ -863,7 +863,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
                 hidden_item =
                     proto_tree_add_uint(dccp_tree, hf_dccp_ack_res, tvb, offset,
                                         1, dccph->ack_reserved);
-                PROTO_ITEM_SET_HIDDEN(hidden_item);
+                proto_item_set_hidden(hidden_item);
             }
             dccph->ack = tvb_get_guint8(tvb, offset + 1);
             dccph->ack <<= 16;
@@ -889,7 +889,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             hidden_item =
                 proto_tree_add_uint(dccp_tree, hf_dccp_ack_res, tvb, offset, 2,
                                     dccph->ack_reserved);
-            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            proto_item_set_hidden(hidden_item);
         }
 
         dccph->ack = tvb_get_ntohs(tvb, offset + 2);
@@ -940,7 +940,7 @@ dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
             hidden_item =
                 proto_tree_add_uint(dccp_tree, hf_dccp_ack_res, tvb, offset, 2,
                                     dccph->ack_reserved);
-            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            proto_item_set_hidden(hidden_item);
         }
         dccph->ack = tvb_get_ntohs(tvb, offset + 2);
         dccph->ack <<= 32;

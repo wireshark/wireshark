@@ -325,7 +325,7 @@ dissect_metamako(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
   /* [Timestamp difference from pcap time] */
   nstime_delta(&timediff, &metamako_time, &pinfo->abs_ts);
   item = proto_tree_add_time(timestamp_tree, hf_metamako_tdiff, tvb, offset, 8, &timediff);
-  PROTO_ITEM_SET_GENERATED(item);
+  proto_item_set_generated(item);
 
   offset += 8;
 

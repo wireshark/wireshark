@@ -248,17 +248,17 @@ show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                        "Stream setup by %s (frame %u)",
                                                        p_conv_data->setup_method,
                                                        p_conv_data->setup_frame_number);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
         msrp_setup_tree = proto_item_add_subtree(ti, ett_msrp_setup);
         if (msrp_setup_tree)
         {
             /* Add details into subtree */
             proto_item* item = proto_tree_add_uint(msrp_setup_tree, hf_msrp_setup_frame,
                                                    tvb, 0, 0, p_conv_data->setup_frame_number);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
             item = proto_tree_add_string(msrp_setup_tree, hf_msrp_setup_method,
                                          tvb, 0, 0, p_conv_data->setup_method);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
         }
     }
 }

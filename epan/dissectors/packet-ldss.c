@@ -319,7 +319,7 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			tvb, 0, 2, ENC_BIG_ENDIAN);
 	ti = proto_tree_add_uint(ldss_tree, hf_ldss_message_detail,
 			tvb, 0, 0, messageDetail);
-	PROTO_ITEM_SET_GENERATED(ti);
+	proto_item_set_generated(ti);
 	proto_tree_add_item(ldss_tree, hf_ldss_digest_type,
 			tvb, 2,	    1,	ENC_BIG_ENDIAN);
 	proto_tree_add_item(ldss_tree, hf_ldss_compression,
@@ -520,7 +520,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 				transfer_info->req->size = g_ascii_strtoull(line+6, NULL, 10);
 				ti = proto_tree_add_uint64(line_tree, hf_ldss_size,
 						tvb, offset+6, linelen-6, transfer_info->req->size);
-				PROTO_ITEM_SET_GENERATED(ti);
+				proto_item_set_generated(ti);
 			}
 			else if (strncmp(line, "Start: ", 7)==0) {
 				/* Sample offset line:
@@ -528,7 +528,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 				transfer_info->req->offset = g_ascii_strtoull(line+7, NULL, 10);
 				ti = proto_tree_add_uint64(line_tree, hf_ldss_offset,
 						tvb, offset+7, linelen-7, transfer_info->req->offset);
-				PROTO_ITEM_SET_GENERATED(ti);
+				proto_item_set_generated(ti);
 			}
 			else if (strncmp(line, "Compression: ", 13)==0) {
 				/* Sample compression line:
@@ -536,7 +536,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 				transfer_info->req->compression = (gint8)strtol(line+13, NULL, 10); /* XXX - bad cast */
 				ti = proto_tree_add_uint(line_tree, hf_ldss_compression,
 						tvb, offset+13, linelen-13, transfer_info->req->compression);
-				PROTO_ITEM_SET_GENERATED(ti);
+				proto_item_set_generated(ti);
 			}
 			else {
 				proto_tree_add_expert(line_tree, pinfo, &ei_ldss_unrecognized_line, tvb, offset, linelen);
@@ -566,11 +566,11 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 
 				tii = proto_tree_add_uint(line_tree, hf_ldss_digest_type,
 						tvb, offset, digest_type_len, transfer_info->file->digest_type);
-				PROTO_ITEM_SET_GENERATED(tii);
+				proto_item_set_generated(tii);
 				tii = proto_tree_add_bytes(line_tree, hf_ldss_digest,
 						tvb, offset+digest_type_len, MIN(linelen-digest_type_len, DIGEST_LEN),
 						transfer_info->file->digest);
-				PROTO_ITEM_SET_GENERATED(tii);
+				proto_item_set_generated(tii);
 			}
 
 			offset = next_offset;
@@ -580,7 +580,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 		if (transfer_info->resp_num != 0) {
 			ti = proto_tree_add_uint(ldss_tree, hf_ldss_response_in,
 						 tvb, 0, 0, transfer_info->resp_num);
-			PROTO_ITEM_SET_GENERATED(ti);
+			proto_item_set_generated(ti);
 		}
 
 		transfer_info->req->num = pinfo->num;
@@ -663,7 +663,7 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 #endif
 		ti = proto_tree_add_uint(ldss_tree, hf_ldss_digest_type,
 				tvb, 0, 0, transfer_info->file->digest_type);
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 		if (transfer_info->file->digest != NULL) {
 			/* This is ugly. You can't add bytes of nonzero length and have
 			 * filtering work correctly unless you give a valid location in
@@ -673,23 +673,23 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			ti = proto_tree_add_bytes(ldss_tree, hf_ldss_digest,
 					tvb, 0, DIGEST_LEN, transfer_info->file->digest);
 		}
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 		ti = proto_tree_add_uint64(ldss_tree, hf_ldss_size,
 				tvb, 0, 0, size);
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 		ti = proto_tree_add_uint64(ldss_tree, hf_ldss_offset,
 				tvb, 0, 0, offset);
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 		ti = proto_tree_add_uint(ldss_tree, hf_ldss_compression,
 				tvb, 0, 0, compression);
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 		/* Link to the request for a pull. */
 		if (transfer_info->broadcast->message_id == MESSAGE_ID_WILLSEND &&
 				transfer_info->req != NULL &&
 				transfer_info->req->num != 0) {
 			ti = proto_tree_add_uint(ldss_tree, hf_ldss_response_to,
 					tvb, 0, 0, transfer_info->req->num);
-			PROTO_ITEM_SET_GENERATED(ti);
+			proto_item_set_generated(ti);
 		}
 	}
 
@@ -702,21 +702,21 @@ dissect_ldss_transfer (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
 			     &transfer_info->req->ts);
 		ti = proto_tree_add_time(ldss_tree, hf_ldss_transfer_response_time,
 					 tvb, 0, 0, &pull_response_time);
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 	}
 
 	/* Link the transfer back to the initiating broadcast. Response time is
 	 * calculated as the time from broadcast to completed transfer. */
 	ti = proto_tree_add_uint(ldss_tree, hf_ldss_initiated_by,
 				 tvb, 0, 0, transfer_info->broadcast->num);
-	PROTO_ITEM_SET_GENERATED(ti);
+	proto_item_set_generated(ti);
 
 	if (transfer_info->resp_num != 0) {
 		nstime_delta(&broadcast_response_time, &transfer_info->resp_ts,
 			     &transfer_info->broadcast->ts);
 		ti = proto_tree_add_time(ldss_tree, hf_ldss_transfer_completed_in,
 					 tvb, 0, 0, &broadcast_response_time);
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 	}
 
 	/* This conv got its addr2/port2 set by the TCP dissector because a TCP

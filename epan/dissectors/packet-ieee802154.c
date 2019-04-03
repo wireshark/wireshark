@@ -1338,7 +1338,7 @@ static ieee802154_transaction_t *transaction_start(packet_info *pinfo, proto_tre
         if (PINFO_FD_VISITED(pinfo)) {
             /* No ACK found - add field and expert info */
             it = proto_tree_add_item(tree, hf_ieee802154_no_ack, NULL, 0, 0, ENC_NA);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
 
             expert_add_info_format(pinfo, it, &ei_ieee802154_ack_not_found, "No ack found to ack request in frame %u", pinfo->num);
         }
@@ -1349,7 +1349,7 @@ static ieee802154_transaction_t *transaction_start(packet_info *pinfo, proto_tre
     /* Print state tracking in the tree */
     if (ieee802154_trans->ack_frame) {
         it = proto_tree_add_uint(tree, hf_ieee802154_ack_in, NULL, 0, 0, ieee802154_trans->ack_frame);
-        PROTO_ITEM_SET_GENERATED(it);
+        proto_item_set_generated(it);
     }
 
     return ieee802154_trans;
@@ -1425,7 +1425,7 @@ static ieee802154_transaction_t *transaction_end(packet_info *pinfo, proto_tree 
         if (!ieee802154_trans) {
             /* No ack request found - add field and expert info */
             it = proto_tree_add_item(tree, hf_ieee802154_no_ack_request, NULL, 0, 0, ENC_NA);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
 
             expert_add_info_format(pinfo, it, &ei_ieee802154_ack_request_not_found, "No ack request found to ack in frame %u", pinfo->num);
             return NULL;
@@ -1434,13 +1434,13 @@ static ieee802154_transaction_t *transaction_end(packet_info *pinfo, proto_tree 
 
     /* Print state tracking in the tree */
     it = proto_tree_add_uint(tree, hf_ieee802154_ack_to, NULL, 0, 0, ieee802154_trans->rqst_frame);
-    PROTO_ITEM_SET_GENERATED(it);
+    proto_item_set_generated(it);
 
     nstime_delta(&ns, &pinfo->abs_ts, &ieee802154_trans->rqst_time);
     ieee802154_trans->ack_time = ns;
     ack_time = nstime_to_msec(&ns);
     it = proto_tree_add_double_format_value(tree, hf_ieee802154_ack_time, NULL, 0, 0, ack_time, "%.3f ms", ack_time);
-    PROTO_ITEM_SET_GENERATED(it);
+    proto_item_set_generated(it);
 
     return ieee802154_trans;
 
@@ -1569,7 +1569,7 @@ void dissect_ieee802154_aux_sec_header_and_key(tvbuff_t *tvb, packet_info *pinfo
             packet->key_source.addr32 = tvb_get_ntohl(tvb, *offset);
             proto_tree_add_uint64(field_tree, hf_ieee802154_aux_sec_key_source, tvb, *offset, 4, packet->key_source.addr32);
             hidden_item = proto_tree_add_item(field_tree, hf_ieee802154_aux_sec_key_source_bytes, tvb, *offset, 4, ENC_NA);
-            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            proto_item_set_hidden(hidden_item);
             proto_item_set_len(ti, 1 + 4);
             (*offset) += 4;
         }
@@ -1577,7 +1577,7 @@ void dissect_ieee802154_aux_sec_header_and_key(tvbuff_t *tvb, packet_info *pinfo
             packet->key_source.addr64 = tvb_get_ntoh64(tvb, *offset);
             proto_tree_add_uint64(field_tree, hf_ieee802154_aux_sec_key_source, tvb, *offset, 8, packet->key_source.addr64);
             hidden_item = proto_tree_add_item(field_tree, hf_ieee802154_aux_sec_key_source_bytes, tvb, *offset, 8, ENC_NA);
-            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            proto_item_set_hidden(hidden_item);
             proto_item_set_len(ti, 1 + 8);
             (*offset) += 8;
         }
@@ -1624,7 +1624,7 @@ tvbuff_t *decrypt_ieee802154_payload(tvbuff_t * tvb, guint offset, packet_info *
 
     /* Store the key number used for retrieval */
     ti = proto_tree_add_uint(key_tree, hf_ieee802154_key_number, tvb, 0, 0, decrypt_info->key_number);
-    PROTO_ITEM_SET_HIDDEN(ti);
+    proto_item_set_hidden(ti);
     return payload_tvb;
 }
 
@@ -2087,7 +2087,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
              * help with filter. Be sure not to make it visible though.
              */
             proto_item *ti = proto_tree_add_boolean_format_value(ieee802154_tree, hf_ieee802154_fcs_ok, tvb, 0, 0, fcs_ok, "Unknown");
-            PROTO_ITEM_SET_HIDDEN(ti);
+            proto_item_set_hidden(ti);
         }
     }
 
@@ -2171,7 +2171,7 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 
     /* Add the packet length to the filter field */
     hidden_item = proto_tree_add_uint(ieee802154_tree, hf_ieee802154_frame_length, NULL, 0, 0, tvb_reported_length(tvb));
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_item_set_hidden(hidden_item);
 
     /* Frame Control Field */
     dissect_ieee802154_fcf(tvb, pinfo, ieee802154_tree, packet, &offset);
@@ -2441,8 +2441,8 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         proto_tree_add_uint(ieee802154_tree, hf_ieee802154_dst16, tvb, offset, 2, packet->dst16);
         proto_item_append_text(proto_root, ", Dst: %s", dst_addr);
         ti = proto_tree_add_uint(ieee802154_tree, hf_ieee802154_addr16, tvb, offset, 2, packet->dst16);
-        PROTO_ITEM_SET_GENERATED(ti);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_generated(ti);
+        proto_item_set_hidden(ti);
 
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Dst: %s", dst_addr);
         offset += 2;
@@ -2467,8 +2467,8 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
             proto_tree_add_item(ieee802154_tree, hf_ieee802154_dst64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             proto_item_append_text(proto_root, ", Dst: %s", eui64_to_display(wmem_packet_scope(), packet->dst64));
             ti = proto_tree_add_item(ieee802154_tree, hf_ieee802154_addr64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-            PROTO_ITEM_SET_GENERATED(ti);
-            PROTO_ITEM_SET_HIDDEN(ti);
+            proto_item_set_generated(ti);
+            proto_item_set_hidden(ti);
         }
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Dst: %s", eui64_to_display(wmem_packet_scope(), packet->dst64));
         offset += 8;
@@ -2521,17 +2521,17 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
             proto_tree_add_uint(ieee802154_tree, hf_ieee802154_src16, tvb, offset, 2, packet->src16);
             proto_item_append_text(proto_root, ", Src: %s", src_addr);
             ti = proto_tree_add_uint(ieee802154_tree, hf_ieee802154_addr16, tvb, offset, 2, packet->src16);
-            PROTO_ITEM_SET_GENERATED(ti);
-            PROTO_ITEM_SET_HIDDEN(ti);
+            proto_item_set_generated(ti);
+            proto_item_set_hidden(ti);
 
             if (ieee_hints && ieee_hints->map_rec) {
                 /* Display inferred source address info */
                 ti = proto_tree_add_eui64(ieee802154_tree, hf_ieee802154_src64, tvb, offset, 0,
                         ieee_hints->map_rec->addr64);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
                 ti = proto_tree_add_eui64(ieee802154_tree, hf_ieee802154_addr64, tvb, offset, 0, ieee_hints->map_rec->addr64);
-                PROTO_ITEM_SET_GENERATED(ti);
-                PROTO_ITEM_SET_HIDDEN(ti);
+                proto_item_set_generated(ti);
+                proto_item_set_hidden(ti);
 
                 if ( ieee_hints->map_rec->start_fnum ) {
                     ti = proto_tree_add_uint(ieee802154_tree, hf_ieee802154_src64_origin, tvb, 0, 0,
@@ -2541,7 +2541,7 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
                     ti = proto_tree_add_uint_format_value(ieee802154_tree, hf_ieee802154_src64_origin, tvb, 0, 0,
                         ieee_hints->map_rec->start_fnum, "Pre-configured");
                 }
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
             }
         }
 
@@ -2569,8 +2569,8 @@ ieee802154_dissect_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
             proto_tree_add_item(ieee802154_tree, hf_ieee802154_src64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
             proto_item_append_text(proto_root, ", Src: %s", eui64_to_display(wmem_packet_scope(), packet->src64));
             ti = proto_tree_add_item(ieee802154_tree, hf_ieee802154_addr64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-            PROTO_ITEM_SET_GENERATED(ti);
-            PROTO_ITEM_SET_HIDDEN(ti);
+            proto_item_set_generated(ti);
+            proto_item_set_hidden(ti);
         }
 
         col_append_fstr(pinfo->cinfo, COL_INFO, ", Src: %s", eui64_to_display(wmem_packet_scope(), packet->src64));
@@ -2681,7 +2681,7 @@ ieee802154_decrypt_payload(tvbuff_t *tvb, guint mhr_len, packet_info *pinfo, pro
         case DECRYPT_PACKET_SUCCEEDED:
         {
             proto_item *pi = proto_tree_add_uint(ieee802154_tree, hf_ieee802154_key_number, tvb, 0, 0, decrypt_info.key_number);
-            PROTO_ITEM_SET_GENERATED(pi);
+            proto_item_set_generated(pi);
             break;
         }
         case DECRYPT_NOT_ENCRYPTED:
@@ -2853,7 +2853,7 @@ ieee802154_dissect_fcs(tvbuff_t *tvb, proto_tree *ieee802154_tree, guint fcs_len
             }
             /* To Help with filtering, add the fcs_ok field to the tree.  */
             ti = proto_tree_add_boolean(ieee802154_tree, hf_ieee802154_fcs_ok, tvb, offset, 2, (guint32) fcs_ok);
-            PROTO_ITEM_SET_HIDDEN(ti);
+            proto_item_set_hidden(ti);
         }
         else {
             guint32 fcs = tvb_get_letohl(tvb, offset);
@@ -2867,7 +2867,7 @@ ieee802154_dissect_fcs(tvbuff_t *tvb, proto_tree *ieee802154_tree, guint fcs_len
             }
             /* To Help with filtering, add the fcs_ok field to the tree.  */
             ti = proto_tree_add_boolean(ieee802154_tree, hf_ieee802154_fcs_ok, tvb, offset, 2, (guint32) fcs_ok);
-            PROTO_ITEM_SET_HIDDEN(ti);
+            proto_item_set_hidden(ti);
         }
     }
 } /* ieee802154_dissect_fcs */
@@ -3134,14 +3134,14 @@ dissect_ieee802154_tap_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (slot_start_ts && frame_start_ts) {
         delta_us = (double)(frame_start_ts - slot_start_ts) / 1000;
         ti = proto_tree_add_double_format_value(tree, hf_ieee802154_frame_start_offset, NULL, 0, 0, delta_us, "%.3f %s", delta_us, units_microseconds.singular);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
     /* if we have both start and end frame timestamp, show frame duration */
     if (frame_start_ts && frame_end_ts) {
         delta_us = (double)(frame_end_ts - frame_start_ts) / 1000;
         ti = proto_tree_add_double_format_value(tree, hf_ieee802154_frame_duration, NULL, 0, 0, delta_us, "%.3f %s", delta_us, units_microseconds.singular);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
     /* if we have start of slot, timeslot length, and end of frame timestamp, show frame overflow (+ve) or underflow (-ve) */
@@ -3150,7 +3150,7 @@ dissect_ieee802154_tap_tlvs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         delta_us = (double)(frame_end_ts - slot_start_ts) / 1000;
         delta_us -= timeslot_length;
         ti = proto_tree_add_double_format_value(tree, hf_ieee802154_frame_end_offset, NULL, 0, 0, delta_us, "%.3f %s", delta_us, units_microseconds.singular);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 
     return (ieee802154_fcs_type_t)tap_fcs_type;

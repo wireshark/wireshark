@@ -5015,7 +5015,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
     ti = proto_tree_add_item(tree, proto_mbim, tvb, offset, -1, ENC_NA);
     mbim_tree = proto_item_add_subtree(ti, ett_mbim);
     ti = proto_tree_add_item(mbim_tree, hf_mbim_control, tvb, offset, 0, ENC_NA);
-    PROTO_ITEM_SET_HIDDEN(ti);
+    proto_item_set_hidden(ti);
 
     header_tree = proto_tree_add_subtree(mbim_tree, tvb, offset, 12, ett_mbim_msg_header, NULL, "Message Header");
     proto_tree_add_item_ret_uint(header_tree, hf_mbim_header_message_type, tvb, offset, 4, ENC_LITTLE_ENDIAN, &msg_type);
@@ -5094,7 +5094,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                         proto_item *resp_it;
 
                         resp_it = proto_tree_add_uint(header_tree, hf_mbim_response_in, tvb, 0, 0, mbim_info->resp_frame);
-                        PROTO_ITEM_SET_GENERATED(resp_it);
+                        proto_item_set_generated(resp_it);
                     }
                 }
 
@@ -5896,7 +5896,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                     proto_item *req_it;
 
                     req_it = proto_tree_add_uint(header_tree, hf_mbim_request_in, tvb, 0, 0, mbim_info->req_frame);
-                    PROTO_ITEM_SET_GENERATED(req_it);
+                    proto_item_set_generated(req_it);
                 }
             }
             /* FALLTHROUGH */
@@ -5952,7 +5952,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                             proto_item *req_it;
 
                             req_it = proto_tree_add_uint(header_tree, hf_mbim_request_in, tvb, 0, 0, mbim_info->req_frame);
-                            PROTO_ITEM_SET_GENERATED(req_it);
+                            proto_item_set_generated(req_it);
                         }
                     }
                 }
@@ -6767,7 +6767,7 @@ dissect_mbim_descriptor(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     }
 
     ti = proto_tree_add_item(tree, hf_mbim_descriptor, tvb, 0, 0, ENC_NA);
-    PROTO_ITEM_SET_HIDDEN(ti);
+    proto_item_set_hidden(ti);
 
     if (subtype == 0x1b) {
         proto_tree_add_item(tree, hf_mbim_descriptor_version, tvb, 3, 2, ENC_LITTLE_ENDIAN);
@@ -6820,7 +6820,7 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
     ti = proto_tree_add_item(tree, proto_mbim, tvb, 0, -1, ENC_NA);
     mbim_tree = proto_item_add_subtree(ti, ett_mbim);
     ti =proto_tree_add_item(mbim_tree, hf_mbim_bulk, tvb, 0, 0, ENC_NA);
-    PROTO_ITEM_SET_HIDDEN(ti);
+    proto_item_set_hidden(ti);
 
     subtree = proto_tree_add_subtree(mbim_tree, tvb, 0, 0, ett_mbim_msg_header, NULL, "NCM Transfer Header");
     proto_tree_add_item(subtree, hf_mbim_bulk_nth_signature, tvb, 0, 4, ENC_ASCII|ENC_NA);
@@ -6992,7 +6992,7 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
              }
         }
         ti = proto_tree_add_uint(subtree, hf_mbim_bulk_ndp_nb_datagrams, tvb, 0, 0, nb);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
         if (++ndp > MBIM_MAX_ITEMS) {
             expert_add_info_format(pinfo, NULL, &ei_mbim_too_many_items,
                                    "More than %u NCM Datagram Pointers, dissection seems suspicious",
@@ -7001,7 +7001,7 @@ dissect_mbim_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         }
     }
     ti = proto_tree_add_uint(mbim_tree, hf_mbim_bulk_total_nb_datagrams, tvb, 0, 0, total);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     return tvb_captured_length(tvb);
 }
@@ -7069,7 +7069,7 @@ dissect_mbim_bulk_ndp_ctrl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
     ti = proto_tree_add_protocol_format(tree, proto_mbim, tvb, 0, -1, "MBIM NDP Control");
     ndp_ctrl_tree = proto_item_add_subtree(ti, ett_mbim_bulk_ndp_ctrl);
     ti = proto_tree_add_item(ndp_ctrl_tree, hf_mbim_bulk_ndp_ctrl, tvb, offset, 0, ENC_NA);
-    PROTO_ITEM_SET_HIDDEN(ti);
+    proto_item_set_hidden(ti);
 
     proto_tree_add_item_ret_uint(ndp_ctrl_tree, hf_mbim_bulk_ndp_ctrl_message_type, tvb, offset, 2, ENC_LITTLE_ENDIAN, &msg_type);
     offset += 2;

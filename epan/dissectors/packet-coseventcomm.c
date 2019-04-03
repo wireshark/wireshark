@@ -345,7 +345,7 @@ process_RequestOperation(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ptree, M
     }
     /* fill-up the field */
     pi=proto_tree_add_string(ptree, hf_operationrequest, tvb, 0, 0, operation);
-    PROTO_ITEM_SET_GENERATED(pi);
+    proto_item_set_generated(pi);
     return pi;
 }
 

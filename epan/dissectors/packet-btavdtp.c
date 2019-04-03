@@ -3090,30 +3090,30 @@ dissect_aptx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         cumulative_frame_duration = (tvb_reported_length(tvb) / 4.0) * frame_duration;
 
         pitem = proto_tree_add_double(aptx_tree, hf_aptx_cumulative_frame_duration, tvb, 0, 0, cumulative_frame_duration);
-        PROTO_ITEM_SET_GENERATED(pitem);
+        proto_item_set_generated(pitem);
 
         if (info && info->previous_media_packet_info && info->current_media_packet_info) {
             nstime_t  delta;
 
             nstime_delta(&delta, &pinfo->abs_ts, &info->previous_media_packet_info->abs_ts);
             pitem = proto_tree_add_double(aptx_tree, hf_aptx_delta_time, tvb, 0, 0, nstime_to_msec(&delta));
-            PROTO_ITEM_SET_GENERATED(pitem);
+            proto_item_set_generated(pitem);
 
             pitem = proto_tree_add_double(aptx_tree, hf_aptx_avrcp_song_position, tvb, 0, 0, info->previous_media_packet_info->avrcp_song_position);
-            PROTO_ITEM_SET_GENERATED(pitem);
+            proto_item_set_generated(pitem);
 
             nstime_delta(&delta, &pinfo->abs_ts, &info->previous_media_packet_info->first_abs_ts);
             pitem = proto_tree_add_double(aptx_tree, hf_aptx_delta_time_from_the_beginning, tvb, 0, 0, nstime_to_msec(&delta));
-            PROTO_ITEM_SET_GENERATED(pitem);
+            proto_item_set_generated(pitem);
 
             if (!pinfo->fd->visited)
                 info->current_media_packet_info->cumulative_frame_duration += cumulative_frame_duration;
 
             pitem = proto_tree_add_double(aptx_tree, hf_aptx_cumulative_duration, tvb, 0, 0, info->previous_media_packet_info->cumulative_frame_duration);
-            PROTO_ITEM_SET_GENERATED(pitem);
+            proto_item_set_generated(pitem);
 
             pitem = proto_tree_add_double(aptx_tree, hf_aptx_diff, tvb, 0, 0, info->previous_media_packet_info->cumulative_frame_duration - nstime_to_msec(&delta));
-            PROTO_ITEM_SET_GENERATED(pitem);
+            proto_item_set_generated(pitem);
         }
     }
 
@@ -3298,7 +3298,7 @@ dissect_ldac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
         expected_speed_data = (8*(frame_length+3) * frequency) / (frame_sample_size*1000);
         pitem = proto_tree_add_uint(rtree, hf_ldac_expected_data_speed, tvb, offset, 0, expected_speed_data);
         proto_item_append_text(pitem, " kbits/sec");
-        PROTO_ITEM_SET_GENERATED(pitem);
+        proto_item_set_generated(pitem);
         counter += 1;
     }
 
@@ -3473,20 +3473,20 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     bta2dp_tree = proto_item_add_subtree(ti, ett_bta2dp);
 
     pitem = proto_tree_add_uint(bta2dp_tree, hf_bta2dp_acp_seid, tvb, 0, 0, sep_data.acp_seid);
-    PROTO_ITEM_SET_GENERATED(pitem);
+    proto_item_set_generated(pitem);
 
     pitem = proto_tree_add_uint(bta2dp_tree, hf_bta2dp_int_seid, tvb, 0, 0, sep_data.int_seid);
-    PROTO_ITEM_SET_GENERATED(pitem);
+    proto_item_set_generated(pitem);
 
     pitem = proto_tree_add_uint(bta2dp_tree, hf_bta2dp_codec, tvb, 0, 0, sep_data.codec);
-    PROTO_ITEM_SET_GENERATED(pitem);
+    proto_item_set_generated(pitem);
 
     if (sep_data.codec == 0xFF) { /* Vendor Specific Codec */
         pitem = proto_tree_add_uint(bta2dp_tree, hf_bta2dp_vendor_id, tvb, 0, 0, sep_data.vendor_id);
-        PROTO_ITEM_SET_GENERATED(pitem);
+        proto_item_set_generated(pitem);
 
         pitem = proto_tree_add_uint(bta2dp_tree, hf_bta2dp_vendor_codec_id, tvb, 0, 0, sep_data.vendor_codec);
-        PROTO_ITEM_SET_GENERATED(pitem);
+        proto_item_set_generated(pitem);
 
         if ((sep_data.vendor_id == 0x004F && sep_data.vendor_codec == CODECID_APT_X) ||
                 (sep_data.vendor_id == 0x00D7 && sep_data.vendor_codec == CODECID_APT_X_HD))
@@ -3498,21 +3498,21 @@ dissect_bta2dp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     if (sep_data.content_protection_type > 0) {
         pitem = proto_tree_add_uint(bta2dp_tree, hf_bta2dp_content_protection, tvb, 0, 0, sep_data.content_protection_type);
-        PROTO_ITEM_SET_GENERATED(pitem);
+        proto_item_set_generated(pitem);
     }
 
     if (sep_data.stream_start_in_frame > 0) {
         pitem = proto_tree_add_uint(bta2dp_tree, hf_bta2dp_stream_start_in_frame, tvb, 0, 0, sep_data.stream_start_in_frame);
-        PROTO_ITEM_SET_GENERATED(pitem);
+        proto_item_set_generated(pitem);
     }
 
     if (sep_data.stream_end_in_frame > 0) {
         pitem = proto_tree_add_uint(bta2dp_tree, hf_bta2dp_stream_end_in_frame, tvb, 0, 0, sep_data.stream_end_in_frame);
-        PROTO_ITEM_SET_GENERATED(pitem);
+        proto_item_set_generated(pitem);
     }
 
     pitem = proto_tree_add_uint(bta2dp_tree, hf_bta2dp_stream_number, tvb, 0, 0, sep_data.stream_number);
-    PROTO_ITEM_SET_GENERATED(pitem);
+    proto_item_set_generated(pitem);
 
     switch (sep_data.codec) {
         case CODEC_SBC:
@@ -3731,39 +3731,39 @@ dissect_btvdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     btvdp_tree = proto_item_add_subtree(ti, ett_btvdp);
 
     pitem = proto_tree_add_uint(btvdp_tree, hf_btvdp_acp_seid, tvb, 0, 0, sep_data.acp_seid);
-    PROTO_ITEM_SET_GENERATED(pitem);
+    proto_item_set_generated(pitem);
 
     pitem = proto_tree_add_uint(btvdp_tree, hf_btvdp_int_seid, tvb, 0, 0, sep_data.int_seid);
-    PROTO_ITEM_SET_GENERATED(pitem);
+    proto_item_set_generated(pitem);
 
     pitem = proto_tree_add_uint(btvdp_tree, hf_btvdp_codec, tvb, 0, 0, sep_data.codec);
-    PROTO_ITEM_SET_GENERATED(pitem);
+    proto_item_set_generated(pitem);
 
     if (sep_data.codec == 0xFF) { /* Vendor Specific Codec */
         pitem = proto_tree_add_uint(btvdp_tree, hf_btvdp_vendor_id, tvb, 0, 0, sep_data.vendor_id);
-        PROTO_ITEM_SET_GENERATED(pitem);
+        proto_item_set_generated(pitem);
 
         pitem = proto_tree_add_uint(btvdp_tree, hf_btvdp_vendor_codec_id, tvb, 0, 0, sep_data.vendor_codec);
-        PROTO_ITEM_SET_GENERATED(pitem);
+        proto_item_set_generated(pitem);
     }
 
     if (sep_data.content_protection_type > 0) {
         pitem = proto_tree_add_uint(btvdp_tree, hf_btvdp_content_protection, tvb, 0, 0, sep_data.content_protection_type);
-        PROTO_ITEM_SET_GENERATED(pitem);
+        proto_item_set_generated(pitem);
     }
 
     if (sep_data.stream_start_in_frame > 0) {
         pitem = proto_tree_add_uint(btvdp_tree, hf_btvdp_stream_start_in_frame, tvb, 0, 0, sep_data.stream_start_in_frame);
-        PROTO_ITEM_SET_GENERATED(pitem);
+        proto_item_set_generated(pitem);
     }
 
     if (sep_data.stream_end_in_frame > 0) {
         pitem = proto_tree_add_uint(btvdp_tree, hf_btvdp_stream_end_in_frame, tvb, 0, 0, sep_data.stream_end_in_frame);
-        PROTO_ITEM_SET_GENERATED(pitem);
+        proto_item_set_generated(pitem);
     }
 
     pitem = proto_tree_add_uint(btvdp_tree, hf_btvdp_stream_number, tvb, 0, 0, sep_data.stream_number);
-    PROTO_ITEM_SET_GENERATED(pitem);
+    proto_item_set_generated(pitem);
 
     switch (sep_data.codec) {
         case CODEC_H263_BASELINE:

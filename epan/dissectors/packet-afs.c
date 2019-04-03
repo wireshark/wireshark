@@ -2955,7 +2955,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 			if ( typenode != 0 ) {
 				/* indicate the type of request */
 				hidden_item = proto_tree_add_boolean(afs_tree, typenode, tvb, offset, 0, 1);
-				PROTO_ITEM_SET_HIDDEN(hidden_item);
+				proto_item_set_hidden(hidden_item);
 			}
 
 			/* Process the packet according to what service it is */

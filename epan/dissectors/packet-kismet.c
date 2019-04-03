@@ -136,7 +136,7 @@ dissect_kismet(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * da
 		tmp_item = proto_tree_add_boolean(kismet_tree,
 				hf_kismet_response, tvb, 0, 0, TRUE);
 	}
-	PROTO_ITEM_SET_GENERATED (tmp_item);
+	proto_item_set_generated (tmp_item);
 
 	while (tvb_offset_exists(tvb, offset)) {
 		/*

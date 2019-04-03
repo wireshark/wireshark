@@ -1217,7 +1217,7 @@ dissect_vendor_dependent(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 offset = 0;
 
                 pitem = proto_tree_add_item(tree, hf_btavrcp_reassembled, tvb, offset, 0, ENC_NA);
-                PROTO_ITEM_SET_GENERATED(pitem);
+                proto_item_set_generated(pitem);
             }
         }
     }
@@ -2265,18 +2265,18 @@ dissect_btavrcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             if (response_time > timing_info->max_response_time) {
                 proto_item_append_text(pitem, "; TIME EXCEEDED");
             }
-            PROTO_ITEM_SET_GENERATED(pitem);
+            proto_item_set_generated(pitem);
 
             if (timing_info->response_frame_number == 0) {
                 pitem = proto_tree_add_expert(btavrcp_tree, pinfo, &ei_btavrcp_no_response, tvb, 0, 0);
-                PROTO_ITEM_SET_GENERATED(pitem);
+                proto_item_set_generated(pitem);
             }  else {
                 if (is_command)  {
                     pitem = proto_tree_add_uint(btavrcp_tree, hf_btavrcp_response_in_frame, tvb, 0, 0, timing_info->response_frame_number);
-                    PROTO_ITEM_SET_GENERATED(pitem);
+                    proto_item_set_generated(pitem);
                 } else {
                     pitem = proto_tree_add_uint(btavrcp_tree, hf_btavrcp_command_in_frame, tvb, 0, 0, timing_info->command_frame_number);
-                    PROTO_ITEM_SET_GENERATED(pitem);
+                    proto_item_set_generated(pitem);
                 }
             }
 

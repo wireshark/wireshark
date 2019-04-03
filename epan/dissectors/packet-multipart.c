@@ -839,7 +839,7 @@ static int dissect_multipart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     /* Show multi-part type as a generated field */
     type_ti = proto_tree_add_string(subtree, hf_multipart_type,
           tvb, 0, 0, pinfo->match_string);
-    PROTO_ITEM_SET_GENERATED(type_ti);
+    proto_item_set_generated(type_ti);
 
     /*
      * Make no entries in Protocol column and Info column on summary display,

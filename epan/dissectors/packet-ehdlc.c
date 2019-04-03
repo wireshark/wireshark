@@ -237,13 +237,13 @@ dissect_ehdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 					    tvb, offset, 1, ENC_BIG_ENDIAN);
 			ti = proto_tree_add_uint(ehdlc_tree, hf_ehdlc_c_r,
 							 tvb, offset, 1, c_r);
-			PROTO_ITEM_SET_GENERATED(ti);
+			proto_item_set_generated(ti);
 			ti = proto_tree_add_uint(ehdlc_tree, hf_ehdlc_sapi,
 							 tvb, offset, 1, sapi);
-			PROTO_ITEM_SET_GENERATED(ti);
+			proto_item_set_generated(ti);
 			ti = proto_tree_add_uint(ehdlc_tree, hf_ehdlc_tei,
 							 tvb, offset, 1, tei);
-			PROTO_ITEM_SET_GENERATED(ti);
+			proto_item_set_generated(ti);
 			proto_tree_add_item(ehdlc_tree, hf_ehdlc_data_len,
 					    tvb, offset, 2, ENC_BIG_ENDIAN);
 		}

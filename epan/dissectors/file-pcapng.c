@@ -1236,7 +1236,7 @@ pcapng_add_timestamp(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
             timestamp.nsecs = (int)(ts - (ts / interface_description->timestamp_resolution) * interface_description->timestamp_resolution);
 
             ti = proto_tree_add_time(tree, hf_pcapng_timestamp, tvb, offset, 8, &timestamp);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             pinfo->abs_ts = timestamp;
         }

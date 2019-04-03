@@ -235,7 +235,7 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
                            ett_lacp_a_flags, actor_flags, ENC_NA, BMT_NO_INT|BMT_NO_TFS|BMT_NO_FALSE);
     flagstr = lacp_state_flags_to_str(tvb_get_guint8(tvb, offset));
     ti = proto_tree_add_string(lacp_tree, hf_lacp_actor_state_str, tvb, offset, 1, flagstr);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     offset += 1;
 
     proto_tree_add_item(lacp_tree, hf_lacp_actor_reserved, tvb, offset, 3, ENC_NA);
@@ -277,7 +277,7 @@ dissect_lacp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     proto_tree_add_bitmask_with_flags(lacp_tree, tvb, offset, hf_lacp_partner_state, ett_lacp_p_flags, partner_flags, ENC_NA, BMT_NO_INT|BMT_NO_TFS|BMT_NO_FALSE);
     flagstr = lacp_state_flags_to_str(tvb_get_guint8(tvb, offset));
     ti = proto_tree_add_string(lacp_tree, hf_lacp_partner_state_str, tvb, offset, 1, flagstr);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     offset += 1;
 
     proto_tree_add_item(lacp_tree, hf_lacp_partner_reserved, tvb, offset, 3, ENC_NA);

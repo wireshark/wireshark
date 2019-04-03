@@ -1768,7 +1768,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
     add_new_data_source(pinfo, header_tvb, "Decompressed Header");
 
     ti = proto_tree_add_uint(tree, hf_http2_header_length, header_tvb, hoffset, 1, header_len);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     if (header_data->header_size_attempted > 0) {
         expert_add_info_format(pinfo, ti, &ei_http2_header_size,
@@ -1778,7 +1778,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
     }
 
     ti = proto_tree_add_uint(tree, hf_http2_header_count, header_tvb, hoffset, 1, wmem_array_get_count(headers));
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     if (header_data->header_lines_exceeded) {
         expert_add_info(pinfo, ti, &ei_http2_header_lines);
@@ -1826,7 +1826,7 @@ inflate_http2_header_block(tvbuff_t *tvb, packet_info *pinfo, guint offset,
         header_unescaped = g_uri_unescape_string(header_value, NULL);
         if (header_unescaped != NULL) {
             ti = proto_tree_add_string(header_tree, hf_http2_header_unescaped, header_tvb, hoffset, header_value_length, header_unescaped);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
             g_free(header_unescaped);
         }
         hoffset += header_value_length;
@@ -1955,7 +1955,7 @@ dissect_frame_padding(tvbuff_t *tvb, guint16 *padding, proto_tree *http2_tree,
         pad_len ++;
     }
     ti = proto_tree_add_uint(http2_tree, hf_http2_pad_length, tvb, offset-pad_len, pad_len, *padding);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     return offset;
 }
@@ -1977,7 +1977,7 @@ dissect_frame_prio(tvbuff_t *tvb, proto_tree *http2_tree, guint offset, guint8 f
         weight = tvb_get_guint8(tvb, offset);
         /* 6.2: Weight:  An 8-bit weight for the stream; Add one to the value to obtain a weight between 1 and 256 */
         ti = proto_tree_add_uint(http2_tree, hf_http2_weight_real, tvb, offset, 1, weight+1);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
         offset++;
     }
 

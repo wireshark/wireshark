@@ -264,7 +264,7 @@ dissect_eiss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		proto_item *msg_error;
 		msg_error = items[PACKET_MPEG_SECT_PI__SSI];
 
-		PROTO_ITEM_SET_GENERATED(msg_error);
+		proto_item_set_generated(msg_error);
 		expert_add_info(pinfo, msg_error, &ei_eiss_invalid_section_syntax_indicator);
 	}
 
@@ -272,7 +272,7 @@ dissect_eiss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		proto_item *msg_error;
 		msg_error = items[PACKET_MPEG_SECT_PI__RESERVED];
 
-		PROTO_ITEM_SET_GENERATED(msg_error);
+		proto_item_set_generated(msg_error);
 		expert_add_info_format(pinfo, msg_error, &ei_eiss_invalid_reserved_bits, "Invalid reserved1 bits (should all be 0)");
 	}
 
@@ -280,7 +280,7 @@ dissect_eiss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		proto_item *msg_error;
 		msg_error = items[PACKET_MPEG_SECT_PI__LENGTH];
 
-		PROTO_ITEM_SET_GENERATED(msg_error);
+		proto_item_set_generated(msg_error);
 		expert_add_info(pinfo, msg_error, &ei_eiss_invalid_section_length);
 	}
 

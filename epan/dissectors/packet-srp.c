@@ -155,7 +155,7 @@ static int dissect_srp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
         } else {
             hidden_item = proto_tree_add_boolean(srp_tree, hf_srp_crc_bad, tvb,
                                           crc_offset, 2, TRUE);
-            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            proto_item_set_hidden(hidden_item);
             proto_tree_add_uint_format_value(srp_tree, hf_srp_crc, tvb,
                                        crc_offset, 2, crc,
                                        "0x%04x (incorrect, should be 0x%04x)",

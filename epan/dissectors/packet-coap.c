@@ -972,7 +972,7 @@ dissect_coap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, p
 
 	proto_tree_add_string(payload_tree, dissect_hf->hf.payload_desc, tvb, offset, 0, coinfo->ctype_str);
 	length_item = proto_tree_add_uint(payload_tree, dissect_hf->hf.payload_length, tvb, offset, 0, payload_length);
-	PROTO_ITEM_SET_GENERATED(length_item);
+	proto_item_set_generated(length_item);
 	payload_tvb = tvb_new_subset_length(tvb, offset, payload_length);
 
 	message_info.type = HTTP_OTHERS;
@@ -1180,7 +1180,7 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", wmem_strbuf_get_str(coinfo->uri_str_strbuf));
 		/* Add a generated protocol item as well */
 		pi = proto_tree_add_string(coap_tree, dissect_coap_hf.hf.opt_uri_path_recon, tvb, 0, 0, wmem_strbuf_get_str(coinfo->uri_str_strbuf));
-		PROTO_ITEM_SET_GENERATED(pi);
+		proto_item_set_generated(pi);
 	}
 	if (wmem_strbuf_get_len(coinfo->uri_query_strbuf) > 0)
 		col_append_str(pinfo->cinfo, COL_INFO, wmem_strbuf_get_str(coinfo->uri_query_strbuf));
@@ -1194,13 +1194,13 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 
 				it = proto_tree_add_uint(coap_tree, hf_coap_response_in,
 						tvb, 0, 0, coap_trans->rsp_frame);
-				PROTO_ITEM_SET_GENERATED(it);
+				proto_item_set_generated(it);
 			}
 			if (coap_trans->req_frame != pinfo->num) {
 				col_append_str(pinfo->cinfo, COL_INFO, " [Retransmission]");
 				proto_item *it = proto_tree_add_uint(coap_tree, hf_coap_request_resend_in,
 				                                     tvb, 0, 0, coap_trans->req_frame);
-				PROTO_ITEM_SET_GENERATED(it);
+				proto_item_set_generated(it);
 				expert_add_info(pinfo, it, &ei_retransmitted);
 			}
 		} else if ((code_class >= 2) && (code_class <= 5)) {
@@ -1211,34 +1211,34 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* d
 
 				it = proto_tree_add_uint(coap_tree, hf_coap_response_to,
 						tvb, 0, 0, coap_trans->req_frame);
-				PROTO_ITEM_SET_GENERATED(it);
+				proto_item_set_generated(it);
 
 				nstime_delta(&ns, &pinfo->abs_ts, &coap_trans->req_time);
 				it = proto_tree_add_time(coap_tree, hf_coap_response_time, tvb, 0, 0, &ns);
-				PROTO_ITEM_SET_GENERATED(it);
+				proto_item_set_generated(it);
 			}
 			if (coap_trans->rsp_frame != pinfo->num) {
 				col_append_str(pinfo->cinfo, COL_INFO, " [Retransmission]");
 				proto_item *it = proto_tree_add_uint(coap_tree, hf_coap_response_resend_in,
 				                                     tvb, 0, 0, coap_trans->rsp_frame);
-				PROTO_ITEM_SET_GENERATED(it);
+				proto_item_set_generated(it);
 				expert_add_info(pinfo, it, &ei_retransmitted);
 			}
 			if (coinfo->object_security && coap_trans->oscore_info) {
 				proto_item *it;
 
 				it = proto_tree_add_bytes(coap_tree, hf_coap_oscore_kid, tvb, 0, coap_trans->oscore_info->kid_len, coap_trans->oscore_info->kid);
-				PROTO_ITEM_SET_GENERATED(it);
+				proto_item_set_generated(it);
 
 				it = proto_tree_add_bytes(coap_tree, hf_coap_oscore_kid_context, tvb, 0, coap_trans->oscore_info->kid_context_len, coap_trans->oscore_info->kid_context);
-				PROTO_ITEM_SET_GENERATED(it);
+				proto_item_set_generated(it);
 
 				if (coap_trans->oscore_info->piv_in_response) {
 					it = proto_tree_add_bytes(coap_tree, hf_coap_oscore_piv, tvb, 0, coinfo->oscore_info->piv_len, coinfo->oscore_info->piv);
 				} else {
 					it = proto_tree_add_bytes(coap_tree, hf_coap_oscore_piv, tvb, 0, coap_trans->oscore_info->piv_len, coap_trans->oscore_info->piv);
 				}
-				PROTO_ITEM_SET_GENERATED(it);
+				proto_item_set_generated(it);
 			}
 		}
 	}

@@ -767,7 +767,7 @@ static int TreeItem_get_visible(lua_State* L) {
 static int TreeItem_get_generated(lua_State* L) {
     TreeItem ti = checkTreeItem(L,1);
 
-    lua_pushboolean(L, PROTO_ITEM_IS_GENERATED(ti->item));
+    lua_pushboolean(L, proto_item_is_generated(ti->item));
 
     return 1;
 }
@@ -785,7 +785,7 @@ WSLUA_METHOD TreeItem_set_generated(lua_State *L) {
     gboolean set = wslua_optbool(L, WSLUA_OPTARG_TreeItem_set_generated_BOOL, TRUE);
 
     if (set) {
-        PROTO_ITEM_SET_GENERATED(ti->item);
+        proto_item_set_generated(ti->item);
     } else {
         if (ti->item)
             FI_RESET_FLAG(PITEM_FINFO(ti->item), FI_GENERATED);
@@ -804,7 +804,7 @@ WSLUA_METHOD TreeItem_set_generated(lua_State *L) {
 static int TreeItem_get_hidden(lua_State* L) {
     TreeItem ti = checkTreeItem(L,1);
 
-    lua_pushboolean(L, PROTO_ITEM_IS_HIDDEN(ti->item));
+    lua_pushboolean(L, proto_item_is_hidden(ti->item));
 
     return 1;
 }
@@ -822,9 +822,9 @@ WSLUA_METHOD TreeItem_set_hidden(lua_State *L) {
     gboolean set = wslua_optbool(L, WSLUA_OPTARG_TreeItem_set_hidden_BOOL, TRUE);
 
     if (set) {
-        PROTO_ITEM_SET_HIDDEN(ti->item);
+        proto_item_set_hidden(ti->item);
     } else {
-        PROTO_ITEM_SET_VISIBLE(ti->item);
+        proto_item_set_visible(ti->item);
     }
 
     /* copy the TreeItem userdata so we give it back */

@@ -1546,7 +1546,7 @@ static guint32 dissect_ies(tvbuff_t *tvb, packet_info *pinfo, guint32 offset,
 
       /* Retrieve the text from the item we added, and append it to the main IE
        * item */
-      if (ie_item && !PROTO_ITEM_IS_HIDDEN(ti)) {
+      if (ie_item && !proto_item_is_hidden(ti)) {
         field_info *ie_finfo = PITEM_FINFO(ie_item);
 
         /* if the representation of the item has already been set, use that;
@@ -1739,12 +1739,12 @@ static void iax2_add_ts_fields(packet_info *pinfo, proto_tree *iax2_tree, tvbuff
 
   if (iax2_tree) {
     item = proto_tree_add_time(iax2_tree, hf_iax2_absts, tvb, 0, 0, &iax_packet->abstime);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
 
     nstime_delta(&lateness, &pinfo->abs_ts, &iax_packet->abstime);
 
     item = proto_tree_add_time(iax2_tree, hf_iax2_lateness, tvb, 0, 0, &lateness);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
   }
 }
 
@@ -1813,7 +1813,7 @@ dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
       proto_item *item =
         proto_tree_add_uint(iax2_tree, hf_iax2_callno, tvb, 0, 4,
                             iax_call->forward_circuit_ids[0]);
-      PROTO_ITEM_SET_GENERATED(item);
+      proto_item_set_generated(item);
     }
 
     proto_tree_add_uint(iax2_tree, hf_iax2_ts, tvb, offset+2, 4, ts);
@@ -1876,7 +1876,7 @@ dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
       proto_item *item;
       proto_tree_add_item(packet_type_tree, hf_iax2_voice_csub, tvb, offset+9, 1, ENC_BIG_ENDIAN);
       item = proto_tree_add_uint64(packet_type_tree, hf_iax2_voice_codec, tvb, offset+9, 1, CODEC_MASK(codec));
-      PROTO_ITEM_SET_GENERATED(item);
+      proto_item_set_generated(item);
     }
 
     offset += 10;
@@ -1902,7 +1902,7 @@ dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
       proto_tree_add_item(packet_type_tree, hf_iax2_video_csub, tvb, offset+9, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(packet_type_tree, hf_iax2_marker, tvb, offset+9, 1, ENC_BIG_ENDIAN);
       item = proto_tree_add_uint64(packet_type_tree, hf_iax2_video_codec, tvb, offset+9, 1, CODEC_MASK(codec));
-      PROTO_ITEM_SET_GENERATED(item);
+      proto_item_set_generated(item);
     }
 
     offset += 10;
@@ -1954,7 +1954,7 @@ dissect_fullpacket(tvbuff_t *tvb, guint32 offset,
       if (urllen > 0)
       {
         proto_item *pi = proto_tree_add_item(packet_type_tree, hf_iax2_html_url, tvb, offset, urllen, ENC_UTF_8|ENC_NA);
-        PROTO_ITEM_SET_URL(pi);
+        proto_item_set_url(pi);
         offset += urllen;
       }
     }
@@ -2030,7 +2030,7 @@ static guint32 dissect_minivideopacket(tvbuff_t *tvb, guint32 offset,
       item =
         proto_tree_add_uint(iax2_tree, hf_iax2_callno, tvb, 0, 4,
                             iax_packet->call_data->forward_circuit_ids[0]);
-      PROTO_ITEM_SET_GENERATED(item);
+      proto_item_set_generated(item);
     }
 
     proto_tree_add_item(iax2_tree, hf_iax2_minividts, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2072,7 +2072,7 @@ static guint32 dissect_minipacket(tvbuff_t *tvb, guint32 offset, guint16 scallno
     if (iax_packet->call_data) {
       item = proto_tree_add_uint(iax2_tree, hf_iax2_callno, tvb, 0, 4,
                                  iax_packet->call_data->forward_circuit_ids[0]);
-      PROTO_ITEM_SET_GENERATED(item);
+      proto_item_set_generated(item);
     }
 
     proto_tree_add_uint(iax2_tree, hf_iax2_minits, tvb, offset, 2, ts);
@@ -2277,7 +2277,7 @@ static guint32 dissect_trunkpacket(tvbuff_t *tvb, guint32 offset,
   if (iax2_tree) {
     /* number of items */
     nc = proto_tree_add_uint(iax2_tree, hf_iax2_trunk_ncalls, NULL, 0, 0, ncalls);
-    PROTO_ITEM_SET_GENERATED(nc);
+    proto_item_set_generated(nc);
   }
 
   col_add_fstr(pinfo->cinfo, COL_INFO, "Trunk packet with %d media frame%s for %d call%s",
@@ -2489,7 +2489,7 @@ static void desegment_iax(tvbuff_t *tvb, packet_info *pinfo, proto_tree *iax2_tr
       iax_tree_item = proto_tree_add_uint(tree, hf_iax2_reassembled_in,
                                           tvb, deseg_offset, tvb_reported_length_remaining(tvb, deseg_offset),
                                           fd_head->reassembled_in);
-      PROTO_ITEM_SET_GENERATED(iax_tree_item);
+      proto_item_set_generated(iax_tree_item);
     } else {
       /* this fragment is never reassembled */
       proto_tree_add_item(tree, hf_iax2_fragment_unfinished, tvb, deseg_offset, -1, ENC_NA);

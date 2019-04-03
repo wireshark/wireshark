@@ -912,10 +912,10 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
     hidden_item = proto_tree_add_boolean(ftp_tree,
             hf_ftp_request, tvb, 0, 0, is_request);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_item_set_hidden(hidden_item);
     hidden_item = proto_tree_add_boolean(ftp_tree,
             hf_ftp_response, tvb, 0, 0, is_request == FALSE);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_item_set_hidden(hidden_item);
 
     /* Put the line into the protocol tree. */
     ti = proto_tree_add_format_text(ftp_tree, tvb, 0, next_offset);
@@ -1195,13 +1195,13 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                     memcpy(&addr, ftp_ip_address.data, 4);
                     addr_it = proto_tree_add_ipv4(reqresp_tree,
                             hf_ftp_epsv_ip, tvb, 0, 0, addr);
-                    PROTO_ITEM_SET_GENERATED(addr_it);
+                    proto_item_set_generated(addr_it);
                 }
                 else if (ftp_ip_address.type == AT_IPv6) {
                     addr_it = proto_tree_add_ipv6(reqresp_tree,
                             hf_ftp_epsv_ipv6, tvb, 0, 0,
                             (const ws_in6_addr *)ftp_ip_address.data);
-                    PROTO_ITEM_SET_GENERATED(addr_it);
+                    proto_item_set_generated(addr_it);
                 }
 
                 proto_tree_add_uint(reqresp_tree,
@@ -1245,7 +1245,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
         if (ftp_packet_data->current_working_directory) {
             proto_item *cwd_ti = proto_tree_add_string(tree, hf_ftp_current_working_directory,
                                                        tvb, 0, 0, wmem_strbuf_get_str(ftp_packet_data->current_working_directory));
-            PROTO_ITEM_SET_GENERATED(cwd_ti);
+            proto_item_set_generated(cwd_ti);
         }
     }
 
@@ -1260,22 +1260,22 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                 /* Number of frames */
                 ti = proto_tree_add_uint(tree, hf_ftp_command_response_frames,
                                          tvb, 0, 0, ftp_data->frames_seen);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
 
                 /* Number of bytes */
                 ti = proto_tree_add_uint(tree, hf_ftp_command_response_bytes,
                                          tvb, 0, 0, ftp_data->bytes_seen);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
 
                 /* First frame */
                 ti = proto_tree_add_uint(tree, hf_ftp_command_response_first_frame_num,
                                          tvb, 0, 0, ftp_data->first_frame_num);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
 
                 /* Last frame */
                 ti = proto_tree_add_uint(tree, hf_ftp_command_response_last_frame_num,
                                          tvb, 0, 0, ftp_data->last_frame_num);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
 
                 /* Length of stream */
                 if (ftp_data->frames_seen > 1) {
@@ -1289,29 +1289,29 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
                     gint gap_ms = (seconds*1000) + ((nseconds+500000) / 1000000);
                     ti = proto_tree_add_uint(tree, hf_ftp_command_response_duration,
                                          tvb, 0, 0, gap_ms);
-                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_set_generated(ti);
 
                     /* Bitrate (kbps)*/
                     guint bitrate = (guint)(((ftp_data->bytes_seen*8.0)/(gap_ms/1000.0))/1000);
                     ti = proto_tree_add_uint(tree, hf_ftp_command_response_kbps,
                                              tvb, offset, 0, bitrate);
-                    PROTO_ITEM_SET_GENERATED(ti);
+                    proto_item_set_generated(ti);
                 }
 
                 ti = proto_tree_add_uint(tree, hf_ftp_command_setup_frame,
                                          tvb, 0, 0, ftp_data->setup_frame);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
             }
 
             /* Show this only under the setup frame */
             if (pinfo->num == ftp_data->setup_frame) {
                 ti = proto_tree_add_string(tree, hf_ftp_command_command,
                                            tvb, 0, 0, ftp_data->command);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
 
                 ti = proto_tree_add_uint(tree, hf_ftp_command_command_frame,
                                          tvb, 0, 0, ftp_data->command_frame);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
             }
         }
     }
@@ -1343,7 +1343,7 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
         /* Link back to FTP frame where this conversation was created */
         ti = proto_tree_add_uint(tree, hf_ftp_data_setup_frame,
                                  tvb, 0, 0, p_conv->setup_frame);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         p_ftp_data_conv = (ftp_data_conversation_t*)conversation_get_proto_data(p_conv, proto_ftp_data);
 
@@ -1370,26 +1370,26 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
                 ti = proto_tree_add_string(tree, hf_ftp_data_setup_method,
                                            tvb, 0, 0, p_ftp_data_conv->setup_method);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", p_ftp_data_conv->setup_method);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
             }
 
             /* Show command in info column */
             if (p_ftp_data_conv->command) {
                 ti = proto_tree_add_string(tree, hf_ftp_data_command,
                                            tvb, 0, 0, p_ftp_data_conv->command);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", p_ftp_data_conv->command);
 
                 proto_tree_add_uint(tree, hf_ftp_data_command_frame,
                                     tvb, 0, 0, p_ftp_data_conv->command_frame);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
             }
 
             /* Show current working directory */
             if (p_ftp_data_conv->current_working_directory) {
                 ti = proto_tree_add_string(tree, hf_ftp_data_current_working_directory,
                                            tvb, 0, 0, wmem_strbuf_get_str(p_ftp_data_conv->current_working_directory));
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
             }
         }
     }

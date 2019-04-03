@@ -102,7 +102,7 @@ dissect_v5ef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		if (direction != P2P_DIR_UNKNOWN) {
 			direction_ti = proto_tree_add_uint(v5ef_tree, hf_v5ef_direction,
 			                                   tvb, 0, 0, direction);
-			PROTO_ITEM_SET_GENERATED(direction_ti);
+			proto_item_set_generated(direction_ti);
 		}
 
 		addr_ti = proto_tree_add_uint(v5ef_tree, hf_v5ef_address, tvb,

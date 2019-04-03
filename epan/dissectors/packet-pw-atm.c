@@ -679,11 +679,11 @@ dissect_11_or_aal5_pdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, v
 						,hf_pw_type_11_vcc
 						,hf_pw_type_aal5_pdu)
 					,tvb, 0, 0, TRUE);
-				PROTO_ITEM_SET_GENERATED(item2);
+				proto_item_set_generated(item2);
 				if (MODE_11(pd.mode))
 				{
 					item2 = proto_tree_add_int(tree2, hf_11_ncells, tvb, 0, 0, cells);
-					PROTO_ITEM_SET_GENERATED(item2);
+					proto_item_set_generated(item2);
 				}
 			}
 		}
@@ -890,7 +890,7 @@ dissect_aal5_sdu(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* d
 			tree2 = proto_item_add_subtree(item, ett_encaps);
 			{
 				item = proto_tree_add_boolean(tree2, hf_pw_type_aal5_sdu, tvb, 0, 0, TRUE);
-				PROTO_ITEM_SET_GENERATED(item);
+				proto_item_set_generated(item);
 			}
 		}
 		if (pd.props & PWC_PAY_SIZE_BAD)
@@ -1057,9 +1057,9 @@ dissect_n1_cw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data
 			{
 				proto_item* item2;
 				item2 = proto_tree_add_boolean(tree2, hf_pw_type_n1_cw, tvb, 0, 0, TRUE);
-				PROTO_ITEM_SET_GENERATED(item2);
+				proto_item_set_generated(item2);
 				item2 = proto_tree_add_int(tree2, hf_n1_cw_ncells, tvb, 0, 0, cells);
-				PROTO_ITEM_SET_GENERATED(item2);
+				proto_item_set_generated(item2);
 			}
 		}
 		if (pd.props & PWC_PAY_SIZE_BAD)
@@ -1134,9 +1134,9 @@ dissect_n1_nocw(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
 			{
 				proto_item* item2;
 				item2 = proto_tree_add_boolean(tree2, hf_pw_type_n1_nocw, tvb, 0, 0, TRUE);
-				PROTO_ITEM_SET_GENERATED(item2);
+				proto_item_set_generated(item2);
 				item2 = proto_tree_add_int(tree2, hf_n1_nocw_ncells, tvb, 0, 0, cells);
-				PROTO_ITEM_SET_GENERATED(item2);
+				proto_item_set_generated(item2);
 			}
 		}
 		if (pd.props & PWC_PAY_SIZE_BAD)
@@ -1238,7 +1238,7 @@ dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, voi
 		}
 		else
 		{
-			PROTO_ITEM_SET_HIDDEN(item); /* show only in error cases */
+			proto_item_set_hidden(item); /* show only in error cases */
 		}
 
 		/* flags */
@@ -1295,7 +1295,7 @@ dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, voi
 			}
 			else
 			{
-				PROTO_ITEM_SET_HIDDEN(item); /*...and show only in error cases */
+				proto_item_set_hidden(item); /*...and show only in error cases */
 			}
 		}
 
@@ -1584,7 +1584,7 @@ dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
 					}
 					else
 					{
-				                PROTO_ITEM_SET_HIDDEN(item2); /*...and show only in error cases */
+				                proto_item_set_hidden(item2); /*...and show only in error cases */
 			                }
 
 					if (MODE_11(pd->mode))
@@ -1673,7 +1673,7 @@ dissect_cell(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void * data
 		tvb_d = tvb_new_subset_length_caplen(tvb, 0, dissect_size, -1);
 		call_data_dissector(tvb_d, pinfo, tree2);
 		item = proto_tree_add_int(tree2, hf_cell_payload_len, tvb, 0, 0, dissect_size);
-		PROTO_ITEM_SET_HIDDEN(item);
+		proto_item_set_hidden(item);
 	}
 
 	return dissect_size;

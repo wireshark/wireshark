@@ -117,7 +117,7 @@ dissect_unknown_option(tvbuff_t *tvb, proto_tree *opts_tree, int offset,
     proto_item_append_text(type_item, " (%s)", critical);
     hidden_item = proto_tree_add_item(opt_tree, hf_geneve_option_type_critical,
                                       tvb, offset, 1, ENC_BIG_ENDIAN);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_item_set_hidden(hidden_item);
     offset += 1;
 
     flags = tvb_get_guint8(tvb, offset) >> OPT_FLAGS_SHIFT;
@@ -129,7 +129,7 @@ dissect_unknown_option(tvbuff_t *tvb, proto_tree *opts_tree, int offset,
     if (flags) {
         proto_item_append_text(flag_item, " (RSVD)");
     } else {
-        PROTO_ITEM_SET_HIDDEN(flag_item);
+        proto_item_set_hidden(flag_item);
     }
 
     proto_tree_add_uint(opt_tree, hf_geneve_option_length, tvb, offset, 1, len);
@@ -248,7 +248,7 @@ dissect_geneve(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
     rsvd_item = proto_tree_add_item(geneve_tree, hf_geneve_reserved, tvb,
                                     offset, 1, ENC_BIG_ENDIAN);
     if (!tvb_get_guint8(tvb, offset)) {
-        PROTO_ITEM_SET_HIDDEN(rsvd_item);
+        proto_item_set_hidden(rsvd_item);
     }
     offset += 1;
 

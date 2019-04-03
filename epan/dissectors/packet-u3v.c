@@ -1443,7 +1443,7 @@ dissect_u3v_read_mem_ack(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_in
     /* Bootstrap register known address */
     if (have_address) {
         item = proto_tree_add_uint64(u3v_telegram_tree, hf_u3v_address, tvb, 0,0 , addr);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
 
         if (is_known_bootstrap_register(addr, u3v_conv_info)) {
             dissect_u3v_register(addr, u3v_telegram_tree, tvb, offset, byte_count, u3v_conv_info);
@@ -1479,7 +1479,7 @@ dissect_u3v_write_mem_ack(proto_tree *u3v_telegram_tree, tvbuff_t *tvb, packet_i
 
     if (have_address) {
             item = proto_tree_add_uint64(u3v_telegram_tree, hf_u3v_address, tvb, 0,0 , addr);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
         }
     /* Number of bytes successfully written to the device register map */
     if ( length == 4 ) {

@@ -916,7 +916,7 @@ static void dissect_key_mgmt(tvbuff_t *tvb, packet_info * pinfo, proto_item * ti
     if (found_match) {
         proto_item *ti2 = proto_tree_add_item(key_tree, hf_key_mgmt_data,
                                               keymgmt_tvb, 0, -1, ENC_NA);
-        PROTO_ITEM_SET_HIDDEN(ti2);
+        proto_item_set_hidden(ti2);
     } else {
         proto_tree_add_item(key_tree, hf_key_mgmt_data,
                             keymgmt_tvb, 0, -1, ENC_NA);
@@ -1043,7 +1043,7 @@ dissect_sdp_media(tvbuff_t *tvb, packet_info* pinfo, proto_item *ti,
                                    ENC_UTF_8|ENC_NA, wmem_packet_scope(), &media_port_str);
         DPRINT(("parsed media_port=%s", media_port_str));
         if (g_ascii_isdigit(media_port_str[0])) {
-            PROTO_ITEM_SET_HIDDEN(it);
+            proto_item_set_hidden(it);
             media_port_valid = ws_strtou16(media_port_str, NULL, &media_port);
             pi = proto_tree_add_uint(sdp_media_tree, hf_media_port, tvb, offset, tokenlen,
                                 media_port);
@@ -1074,7 +1074,7 @@ dissect_sdp_media(tvbuff_t *tvb, packet_info* pinfo, proto_item *ti,
                                    ENC_UTF_8|ENC_NA, wmem_packet_scope(), &media_port_str);
         DPRINT(("parsed media_port=%s", media_port_str));
         if (g_ascii_isdigit(media_port_str[0])) {
-            PROTO_ITEM_SET_HIDDEN(it);
+            proto_item_set_hidden(it);
             media_port_valid = ws_strtou16(media_port_str, NULL, &media_port);
             pi = proto_tree_add_uint(sdp_media_tree, hf_media_port, tvb, offset, tokenlen,
                                 media_port);
@@ -1300,7 +1300,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
             format_specific_parameter = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
             item = proto_tree_add_uint(tree, hf_sdp_fmtp_mpeg4_profile_level_id, tvb, offset, tokenlen,
                                        (guint32)strtol((char*)format_specific_parameter, NULL, 10));
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
         } else if (strcmp((char*)field_name, "config") == 0) {
             /* String including "=" */
             tokenlen = end_offset - offset;
@@ -1322,14 +1322,14 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
             format_specific_parameter = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
             item = proto_tree_add_uint(tree, hf_sdp_fmtp_h263_profile, tvb, offset, tokenlen,
                                        (guint32)strtol((char*)format_specific_parameter, NULL, 10));
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
         } else if (strcmp((char*)field_name, "level") == 0) {
             offset++;
             tokenlen = end_offset - offset;
             format_specific_parameter = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
             item = proto_tree_add_uint(tree, hf_sdp_fmtp_h263_level, tvb, offset, tokenlen,
                                        (guint32)strtol((char*)format_specific_parameter, NULL, 10));
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
         }
     }
 
@@ -1365,7 +1365,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
                 }
             } else {
                 item = proto_tree_add_expert_format(tree, pinfo, &ei_sdp_invalid_conversion, tvb, offset, tokenlen, "Incorrectly coded, must be three bytes");
-                PROTO_ITEM_SET_GENERATED(item);
+                proto_item_set_generated(item);
             }
         } else if (strcmp(field_name, "packetization-mode") == 0) {
             offset++;
@@ -1373,7 +1373,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
             format_specific_parameter = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_UTF_8|ENC_NA);
             item = proto_tree_add_uint(tree, hf_sdp_h264_packetization_mode, tvb, offset, tokenlen,
                                        (guint32)strtol((char*)format_specific_parameter, NULL, 10));
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
         } else if (strcmp(field_name, "sprop-parameter-sets") == 0) {
             /* The value of the parameter is the
                base64 [6] representation of the initial
@@ -2836,15 +2836,15 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
                 if (stored_setup_info->hf_id) {
                     if (stored_setup_info->hf_type == SDP_TRACE_ID_HF_TYPE_STR) {
                         item = proto_tree_add_string(sdp_tree, stored_setup_info->hf_id, tvb, 0, 0, stored_setup_info->trace_id.str);
-                        PROTO_ITEM_SET_GENERATED(item);
+                        proto_item_set_generated(item);
                         if (stored_setup_info->add_hidden == TRUE) {
-                            PROTO_ITEM_SET_HIDDEN(item);
+                            proto_item_set_hidden(item);
                         }
                     } else if (stored_setup_info->hf_type == SDP_TRACE_ID_HF_TYPE_GUINT32) {
                         item = proto_tree_add_uint(sdp_tree, stored_setup_info->hf_id, tvb, 0, 0, stored_setup_info->trace_id.num);
-                        PROTO_ITEM_SET_GENERATED(item);
+                        proto_item_set_generated(item);
                         if (stored_setup_info->add_hidden == TRUE) {
-                            PROTO_ITEM_SET_HIDDEN(item);
+                            proto_item_set_hidden(item);
                         }
                     }
                 }

@@ -1492,7 +1492,7 @@ static icmp_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tre
             /* No response found - add field and expert info */
             it = proto_tree_add_item(tree, hf_icmpv6_no_resp, NULL, 0, 0,
                                      ENC_NA);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, " (no response found!)");
 
@@ -1511,7 +1511,7 @@ static icmp_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tre
         if (tree) {
             it = proto_tree_add_uint(tree, hf_icmpv6_resp_in, NULL, 0, 0,
                 icmpv6_trans->resp_frame);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
         }
         col_append_frame_number(pinfo, COL_INFO, " (reply in %d)", icmpv6_trans->resp_frame);
     }
@@ -1594,7 +1594,7 @@ static icmp_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree,
     if (tree) {
         it = proto_tree_add_uint(tree, hf_icmpv6_resp_to, NULL, 0, 0,
             icmpv6_trans->rqst_frame);
-        PROTO_ITEM_SET_GENERATED(it);
+        proto_item_set_generated(it);
     }
 
     nstime_delta(&ns, &pinfo->abs_ts, &icmpv6_trans->rqst_time);
@@ -1603,7 +1603,7 @@ static icmp_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree,
         resp_time = nstime_to_msec(&ns);
         it = proto_tree_add_double_format_value(tree, hf_icmpv6_resptime, NULL,
             0, 0, resp_time, "%.3f ms", resp_time);
-        PROTO_ITEM_SET_GENERATED(it);
+        proto_item_set_generated(it);
     }
 
     col_append_frame_number(pinfo, COL_INFO, " (request in %d)",
@@ -1662,7 +1662,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 if(opt_len == 8){
                     proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_linkaddr_mac, tvb, opt_offset, 6, ENC_NA);
                     ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_src_linkaddr_mac, tvb, opt_offset, 6, ENC_NA);
-                    PROTO_ITEM_SET_HIDDEN(ti_opt);
+                    proto_item_set_hidden(ti_opt);
 
                     link_str = tvb_ether_to_str(tvb, opt_offset);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " from %s", link_str);
@@ -1671,11 +1671,11 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 }else if(opt_len == 16 && tvb_get_ntohl(tvb, opt_offset + 8) == 0 && tvb_get_ntohs(tvb, opt_offset + 12) == 0){
                     proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_linkaddr_eui64, tvb, opt_offset, 8, ENC_BIG_ENDIAN);
                     ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_src_linkaddr_eui64, tvb, opt_offset, 8, ENC_BIG_ENDIAN);
-                    PROTO_ITEM_SET_HIDDEN(ti_opt);
+                    proto_item_set_hidden(ti_opt);
                     ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_linkaddr, tvb, opt_offset, 8, ENC_NA);
-                    PROTO_ITEM_SET_HIDDEN(ti_opt);
+                    proto_item_set_hidden(ti_opt);
                     ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_src_linkaddr, tvb, opt_offset, 8, ENC_NA);
-                    PROTO_ITEM_SET_HIDDEN(ti_opt);
+                    proto_item_set_hidden(ti_opt);
 
                     /* Padding: 6 bytes */
                     proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_padding, tvb, opt_offset + 8, 6, ENC_NA);
@@ -1686,7 +1686,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 }else{
                     proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_linkaddr, tvb, opt_offset, opt_len-2, ENC_NA);
                     ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_src_linkaddr, tvb, opt_offset, opt_len-2, ENC_NA);
-                    PROTO_ITEM_SET_HIDDEN(ti_opt);
+                    proto_item_set_hidden(ti_opt);
                 }
                 opt_offset += opt_len;
 
@@ -1699,7 +1699,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 if(opt_len == 8){
                     proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_linkaddr_mac, tvb, opt_offset, 6, ENC_NA);
                     ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_target_linkaddr_mac, tvb, opt_offset, 6, ENC_NA);
-                    PROTO_ITEM_SET_HIDDEN(ti_opt);
+                    proto_item_set_hidden(ti_opt);
 
                     link_str = tvb_ether_to_str(tvb, opt_offset);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " is at %s", link_str);
@@ -1709,7 +1709,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 }else if(opt_len == 16 && tvb_get_ntohl(tvb, opt_offset + 8) == 0 && tvb_get_ntohs(tvb, opt_offset + 12) == 0){
                     proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_linkaddr_eui64, tvb, opt_offset, 8, ENC_BIG_ENDIAN);
                     ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_target_linkaddr_eui64, tvb, opt_offset, 8, ENC_BIG_ENDIAN);
-                    PROTO_ITEM_SET_HIDDEN(ti_opt);
+                    proto_item_set_hidden(ti_opt);
 
                     /* Padding: 6 bytes */
                     proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_padding, tvb, opt_offset + 8, 6, ENC_NA);
@@ -1720,7 +1720,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 }else{
                     proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_linkaddr, tvb, opt_offset, opt_len-2, ENC_NA);
                     ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_target_linkaddr, tvb, opt_offset, opt_len-2, ENC_NA);
-                    PROTO_ITEM_SET_HIDDEN(ti_opt);
+                    proto_item_set_hidden(ti_opt);
                 }
                 opt_offset += opt_len;
                 break;
@@ -2505,7 +2505,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 proto_item *ti_cp;
 
                 ti_cp = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_captive_portal, tvb, opt_offset, opt_len-2, ENC_ASCII|ENC_NA);
-                PROTO_ITEM_SET_URL(ti_cp);
+                proto_item_set_url(ti_cp);
                 opt_offset += opt_len - 2;
 
             }

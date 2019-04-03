@@ -184,7 +184,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
 
         hidden_item = proto_tree_add_item(mdshdr_tree_hdr, hf_mdshdr_sof, tvb, MDSHDR_SOF_OFFSET,
                                           MDSHDR_SIZE_BYTE, ENC_BIG_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        proto_item_set_hidden(hidden_item);
         proto_tree_add_item(mdshdr_tree_hdr, hf_mdshdr_pkt_len, tvb, MDSHDR_PKTLEN_OFFSET,
                             MDSHDR_SIZE_INT16, ENC_BIG_ENDIAN);
         proto_tree_add_item(mdshdr_tree_hdr, hf_mdshdr_dstidx, tvb, MDSHDR_DIDX_OFFSET,
@@ -196,7 +196,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _
         hidden_item = proto_tree_add_item(mdshdr_tree_hdr, hf_mdshdr_span,
                                           tvb, MDSHDR_VSAN_OFFSET,
                                           MDSHDR_SIZE_INT16, ENC_BIG_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        proto_item_set_hidden(hidden_item);
 
         /* Add Mdshdr Trailer part */
         if (tvb_reported_length(tvb) >= MDSHDR_HEADER_SIZE + pktlen

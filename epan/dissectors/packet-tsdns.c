@@ -63,7 +63,7 @@ static int dissect_tsdns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
   tsdns_tree = proto_item_add_subtree(ti, ett_tsdns);
 
   hidden_item = proto_tree_add_item(tsdns_tree, hf_tsdns_data, tvb, offset, -1, ENC_ASCII|ENC_NA);
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  proto_item_set_hidden(hidden_item);
 
   if (request) { // request is DOMAIN\n\r\r\r\n
     hidden_item = proto_tree_add_boolean(tsdns_tree, hf_tsdns_request, tvb, 0, 0, 1); // using pLen - 5 as the last chars are \n\r\r\r\n which are just indicating the end of the request
@@ -82,7 +82,7 @@ static int dissect_tsdns(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
         proto_tree_add_uint(tsdns_tree, hf_tsdns_response_port, tvb, 0, pLen, port);
     }
   }
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  proto_item_set_hidden(hidden_item);
 
   return tvb_captured_length(tvb);
 

@@ -395,7 +395,7 @@ dissect_iso14443_cmd_type_wupa(tvbuff_t *tvb, packet_info *pinfo,
             proto_item *pi_uid_size;
             pi_uid_size = proto_tree_add_uint(tree, hf_iso14443_uid_size,
                     tvb, offset+1, 1, uid_size);
-            PROTO_ITEM_SET_GENERATED(pi_uid_size);
+            proto_item_set_generated(pi_uid_size);
         }
         else {
             expert_add_info(pinfo, pi_uid, &ei_iso14443_uid_inval_size);
@@ -472,7 +472,7 @@ static int dissect_iso14443_atqb(tvbuff_t *tvb, gint offset,
     if (max_frame_size_code < LEN_CODE_MAX) {
         pi = proto_tree_add_uint(prot_inf_tree, hf_iso14443_max_frame_size,
                 tvb, offset, 1, code_to_len[max_frame_size_code]);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
     }
     prot_type_it = proto_tree_add_item(prot_inf_tree, hf_iso14443_prot_type,
             tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -727,7 +727,7 @@ static int dissect_iso14443_ats(tvbuff_t *tvb, gint offset,
         if (fsci < LEN_CODE_MAX) {
             pi = proto_tree_add_uint(t0_tree, hf_iso14443_fsc,
                     tvb, offset, 1, code_to_len[fsci]);
-            PROTO_ITEM_SET_GENERATED(pi);
+            proto_item_set_generated(pi);
         }
         offset++;
     }
@@ -809,7 +809,7 @@ dissect_iso14443_cmd_type_ats(tvbuff_t *tvb, packet_info *pinfo,
         if (fsdi < LEN_CODE_MAX) {
             pi = proto_tree_add_uint(tree, hf_iso14443_fsd,
                     tvb, offset, 1, code_to_len[fsdi]);
-            PROTO_ITEM_SET_GENERATED(pi);
+            proto_item_set_generated(pi);
         }
         cid = tvb_get_guint8(tvb, offset) & 0x0F;
         proto_tree_add_uint_bits_format_value(tree, hf_iso14443_cid,
@@ -878,7 +878,7 @@ static int dissect_iso14443_attrib(tvbuff_t *tvb, gint offset,
     if (max_frame_size_code < LEN_CODE_MAX) {
         pi = proto_tree_add_uint(p2_tree, hf_iso14443_max_frame_size,
                 tvb, offset, 1, code_to_len[max_frame_size_code]);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
     }
     offset++;
 
@@ -1207,7 +1207,7 @@ iso14443_get_transaction(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     iso14443_trans->resp_frame!=0) {
                it = proto_tree_add_uint(tree, hf_iso14443_resp_in,
                        NULL, 0, 0, iso14443_trans->resp_frame);
-               PROTO_ITEM_SET_GENERATED(it);
+               proto_item_set_generated(it);
             }
         }
         else {
@@ -1231,7 +1231,7 @@ iso14443_get_transaction(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (iso14443_trans && iso14443_trans->resp_frame == pinfo->num) {
             it = proto_tree_add_uint(tree, hf_iso14443_resp_to,
                     NULL, 0, 0, iso14443_trans->rqst_frame);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
         }
     }
 

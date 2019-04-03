@@ -58,7 +58,7 @@ dissect_pw_eth_cw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
 
         ti = proto_tree_add_boolean(tree, hf_pw_eth_cw,
                                     tvb, 0, 0, TRUE);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
         ti = proto_tree_add_item(tree, proto_pw_eth_cw,
                                  tvb, 0, 4, ENC_NA);
         pw_eth_tree = proto_item_add_subtree(ti, ett_pw_eth);
@@ -86,7 +86,7 @@ dissect_pw_eth_nocw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     if (tree) {
         proto_item *ti;
         ti = proto_tree_add_boolean(tree, hf_pw_eth, tvb, 0, 0, TRUE);
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
     }
 
     next_tvb = tvb_new_subset_remaining(tvb, 0);

@@ -2387,9 +2387,9 @@ DRX-Config/setup/shortDRX/drxShortCycleTimer DISPLAY=BASE_DEC|BASE_UNIT_STRING S
   /* Show parts as generated fields */
   subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_sr_ConfigIndex);
   ti = proto_tree_add_uint(subtree, hf_lte_rrc_sr_config_periodicity, tvb, index_offset>>3, 1, periodicity);
-  PROTO_ITEM_SET_GENERATED(ti);
+  proto_item_set_generated(ti);
   ti = proto_tree_add_uint(subtree, hf_lte_rrc_sr_config_subframe_offset, tvb, index_offset>>3, 1, subframe_offset);
-  PROTO_ITEM_SET_GENERATED(ti);
+  proto_item_set_generated(ti);
 
 #.FN_BODY SchedulingRequestConfigSCell-r13/setup/sr-ConfigIndex-r13 VAL_PTR=&value
   guint32 value;
@@ -2403,9 +2403,9 @@ DRX-Config/setup/shortDRX/drxShortCycleTimer DISPLAY=BASE_DEC|BASE_UNIT_STRING S
   /* Show parts as generated fields */
   subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_sr_ConfigIndex);
   ti = proto_tree_add_uint(subtree, hf_lte_rrc_sr_config_periodicity, tvb, index_offset>>3, 1, periodicity);
-  PROTO_ITEM_SET_GENERATED(ti);
+  proto_item_set_generated(ti);
   ti = proto_tree_add_uint(subtree, hf_lte_rrc_sr_config_subframe_offset, tvb, index_offset>>3, 1, subframe_offset);
-  PROTO_ITEM_SET_GENERATED(ti);
+  proto_item_set_generated(ti);
 
 #.FN_BODY FreqBandIndicator VAL_PTR=&value
   guint32 value;
@@ -2431,7 +2431,7 @@ DRX-Config/setup/shortDRX/drxShortCycleTimer DISPLAY=BASE_DEC|BASE_UNIT_STRING S
     /* Add a generated item showing serving & target band for this entry */
     it = proto_tree_add_uint(tree, hf_lte_rrc_bandEUTRA, tvb, 0, 0, serving_band);
     proto_item_append_text(it, " -> band %%u", target_band);
-    PROTO_ITEM_SET_GENERATED(it);
+    proto_item_set_generated(it);
   }
 
 #.FN_BODY UE-EUTRA-Capability/measParameters

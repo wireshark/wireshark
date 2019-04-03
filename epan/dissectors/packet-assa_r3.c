@@ -5940,7 +5940,7 @@ dissect_r3_cmd_downloadfirmware (tvbuff_t *tvb, guint32 start_offset, guint32 le
                                 packetCRC, "0x%04x (incorrect, should be 0x%04x)", calculatedCRC, packetCRC);
     tmp_item = proto_tree_add_boolean (dlfw_tree, hf_r3_firmwaredownload_crc_bad, payload_tvb,
                                        cmdLen - 2 - 2, 2, TRUE);
-    PROTO_ITEM_SET_GENERATED (tmp_item);
+    proto_item_set_generated (tmp_item);
   }
 }
 
@@ -6665,7 +6665,7 @@ dissect_r3_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *r3_tree)
       proto_tree_add_uint_format_value(tail_tree, hf_r3_crc, tvb, offset, 2, packetCRC,
                                   "0x%04x (incorrect, should be 0x%04x)", calculatedCRC, packetCRC);
       tmp_item = proto_tree_add_boolean (tail_tree, hf_r3_crc_bad, tvb, offset, 2, TRUE);
-      PROTO_ITEM_SET_GENERATED (tmp_item);
+      proto_item_set_generated (tmp_item);
     }
 
     if ((packetLen ^ 0xff) == packetXor)
@@ -6678,7 +6678,7 @@ dissect_r3_packet (tvbuff_t *tvb, packet_info *pinfo, proto_tree *r3_tree)
       proto_tree_add_uint_format_value(tail_tree, hf_r3_xor, tvb, offset + 7, 1, packetXor,
                                   "0x%02x (incorrect, should be 0x%02x)", packetXor, packetLen ^ 0xff);
       tmp_item = proto_tree_add_boolean (tail_tree, hf_r3_xor_bad, tvb, offset + 7, 1, TRUE);
-      PROTO_ITEM_SET_GENERATED (tmp_item);
+      proto_item_set_generated (tmp_item);
     }
   }
 

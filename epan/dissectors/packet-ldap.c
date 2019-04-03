@@ -1102,14 +1102,14 @@ ldap_match_call_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 
       if(lcrp->is_request){
         it=proto_tree_add_uint(tree, hf_ldap_response_in, tvb, 0, 0, lcrp->rep_frame);
-        PROTO_ITEM_SET_GENERATED(it);
+        proto_item_set_generated(it);
       } else {
         nstime_t ns;
         it=proto_tree_add_uint(tree, hf_ldap_response_to, tvb, 0, 0, lcrp->req_frame);
-        PROTO_ITEM_SET_GENERATED(it);
+        proto_item_set_generated(it);
         nstime_delta(&ns, &pinfo->abs_ts, &lcrp->req_time);
         it=proto_tree_add_time(tree, hf_ldap_time, tvb, 0, 0, &ns);
-        PROTO_ITEM_SET_GENERATED(it);
+        proto_item_set_generated(it);
       }
     }
 
@@ -1613,7 +1613,7 @@ dissect_ldap_LDAPURL(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
                                        NULL);
 
 #line 54 "./asn1/ldap/ldap.cnf"
-  PROTO_ITEM_SET_URL(actx->created_item);
+  proto_item_set_url(actx->created_item);
 
 
   return offset;

@@ -4197,7 +4197,7 @@ dissect_cert(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp
         length -= 20;
 
         ti_url = proto_tree_add_item(tree, hf_isakmp_cert_x509_url, tvb, offset, length, ENC_ASCII|ENC_NA);
-        PROTO_ITEM_SET_URL(ti_url);
+        proto_item_set_url(ti_url);
         }
         break;
       default:

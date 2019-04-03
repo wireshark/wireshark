@@ -688,7 +688,7 @@ dissect_fr_nlpid(tvbuff_t *tvb, int offset, packet_info *pinfo,
       proto_item *hidden_item;
       hidden_item = proto_tree_add_uint(fr_tree, hf_fr_nlpid,
                                         tvb, offset, 1, fr_nlpid );
-      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      proto_item_set_hidden(hidden_item);
     }
     return;
   }

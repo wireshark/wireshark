@@ -4157,12 +4157,12 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     if (reload_trans->req_frame != pinfo->num) {
       proto_item *it;
       it = proto_tree_add_uint(reload_tree, hf_reload_duplicate, tvb, 0, 0, reload_trans->req_frame);
-      PROTO_ITEM_SET_GENERATED(it);
+      proto_item_set_generated(it);
     }
     if (reload_trans->rep_frame) {
       proto_item *it;
       it = proto_tree_add_uint(reload_tree, hf_reload_response_in, tvb, 0, 0, reload_trans->rep_frame);
-      PROTO_ITEM_SET_GENERATED(it);
+      proto_item_set_generated(it);
     }
   }
   else {
@@ -4170,7 +4170,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     if (reload_trans->rep_frame != pinfo->num) {
       proto_item *it;
       it = proto_tree_add_uint(reload_tree, hf_reload_duplicate, tvb, 0, 0, reload_trans->rep_frame);
-      PROTO_ITEM_SET_GENERATED(it);
+      proto_item_set_generated(it);
     }
 
     if (reload_trans->req_frame) {
@@ -4178,11 +4178,11 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
       nstime_t ns;
 
       it = proto_tree_add_uint(reload_tree, hf_reload_response_to, tvb, 0, 0, reload_trans->req_frame);
-      PROTO_ITEM_SET_GENERATED(it);
+      proto_item_set_generated(it);
 
       nstime_delta(&ns, &pinfo->abs_ts, &reload_trans->req_time);
       it = proto_tree_add_time(reload_tree, hf_reload_time, tvb, 0, 0, &ns);
-      PROTO_ITEM_SET_GENERATED(it);
+      proto_item_set_generated(it);
     }
   }
 

@@ -1727,7 +1727,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
         guint8      t2timer_code, participants_code;
         proto_item *item;
         item            = proto_tree_add_uint( tree, hf_rtcp_app_poc1_subtype, tvb, offset - 8, 1, rtcp_subtype );
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
         col_add_fstr(pinfo->cinfo, COL_INFO,"(%s) %s",ascii_name,
                      val_to_str(rtcp_subtype,rtcp_app_poc1_floor_cnt_type_vals,"unknown (%u)") );
         offset         += 4;
@@ -2947,7 +2947,7 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
             offset+=4;
             proto_tree_add_item(content_tree, hf_rtcp_xr_idms_ntp_rcv_ts, tvb, offset, 8, ENC_BIG_ENDIAN);
             item = proto_tree_add_item(content_tree, hf_rtcp_ntp, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
 
             proto_tree_add_item(content_tree, hf_rtcp_xr_idms_rtp_ts, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset+=4;
@@ -3021,7 +3021,7 @@ dissect_rtcp_rsi( tvbuff_t *tvb, packet_info *pinfo _U_, int offset, proto_tree 
     proto_tree_add_item(tree, hf_rtcp_ntp_lsw, tvb, offset+4, 4, ENC_BIG_ENDIAN);
 
     item = proto_tree_add_item(tree, hf_rtcp_ntp, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
     offset += 8;
 
     /* Sub report blocks */
@@ -3282,7 +3282,7 @@ dissect_rtcp_sr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
     proto_tree_add_item(tree, hf_rtcp_ntp_lsw, tvb, offset+4, 4, ENC_BIG_ENDIAN);
 
     item = proto_tree_add_item(tree, hf_rtcp_ntp, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
     offset += 8;
 
     /* RTP timestamp, 32 bits */
@@ -3364,17 +3364,17 @@ void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                        "Stream setup by %s (frame %u)",
                                                        p_conv_data->setup_method,
                                                        p_conv_data->setup_frame_number);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
         rtcp_setup_tree = proto_item_add_subtree(ti, ett_rtcp_setup);
         if (rtcp_setup_tree)
         {
             /* Add details into subtree */
             proto_item *item = proto_tree_add_uint(rtcp_setup_tree, hf_rtcp_setup_frame,
                                                    tvb, 0, 0, p_conv_data->setup_frame_number);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
             item = proto_tree_add_string(rtcp_setup_tree, hf_rtcp_setup_method,
                                          tvb, 0, 0, p_conv_data->setup_method);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
         }
     }
 }
@@ -3584,13 +3584,13 @@ static void add_roundtrip_delay_info(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     proto_item *item = proto_tree_add_uint(tree,
                                            hf_rtcp_last_sr_timestamp_frame,
                                            tvb, 0, 0, frame);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
 
     /* Time elapsed since 'Last SR' time in capture */
     item = proto_tree_add_uint(tree,
                                hf_rtcp_time_since_last_sr,
                                tvb, 0, 0, gap_between_reports);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
 
     /* Don't report on calculated delays below the threshold.
        Will report delays less than -threshold, to highlight
@@ -3602,7 +3602,7 @@ static void add_roundtrip_delay_info(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
     /* Calculated delay in ms */
     item = proto_tree_add_int(tree, hf_rtcp_roundtrip_delay, tvb, 0, 0, delay);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
 
     /* Add to expert info */
     if (delay >= 0)
@@ -3923,7 +3923,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                                             0, 0, TRUE, "OK - %u bytes",
                                             offset);
         /* Hidden might be less annoying here...? */
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
     else
     {
@@ -3931,7 +3931,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
                                             0, 0, FALSE,
                                             "Wrong (expected %u bytes, found %d)",
                                             total_packet_length, offset);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         expert_add_info_format(pinfo, ti, &ei_rtcp_length_check, "Incorrect RTCP packet length information (expected %u bytes, found %d)", total_packet_length, offset);
     }

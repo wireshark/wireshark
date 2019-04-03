@@ -641,7 +641,7 @@ oscore_decrypt_and_verify(tvbuff_t *tvb_ciphertext,
         /* Display the tag. */
         if (tag_len) {
             item = proto_tree_add_bytes(tree, hf_oscore_tag, tvb_ciphertext, ciphertext_captured_len, tag_len, rx_tag);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
         }
 
         return STATUS_SUCCESS_DECRYPTED_TAG_CHECKED;

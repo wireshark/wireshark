@@ -199,7 +199,7 @@ dissect_beep_more(tvbuff_t *tvb, packet_info *pinfo, int offset,
   guint8 more = tvb_get_guint8(tvb, offset);
 
   hidden_item = proto_tree_add_item(tree, hf_beep_more, tvb, offset, 1, ENC_ASCII|ENC_NA);
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  proto_item_set_hidden(hidden_item);
 
   switch(more) {
   case '.':
@@ -370,7 +370,7 @@ dissect_beep_int(tvbuff_t *tvb, int offset,
   while (hfa[ind]) {
 
     hidden_item = proto_tree_add_uint(tree, *hfa[ind], tvb, offset, len, ival);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        proto_item_set_hidden(hidden_item);
     ind++;
 
   }

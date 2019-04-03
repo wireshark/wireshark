@@ -2204,7 +2204,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
     case OPTION_CAPTIVE_PORTAL:{
         proto_item *ti_cp;
         ti_cp = proto_tree_add_item(subtree, hf_option_captive_portal, tvb, off, optlen, ENC_ASCII|ENC_NA);
-        PROTO_ITEM_SET_URL(ti_cp);
+        proto_item_set_url(ti_cp);
         break;
         }
     }

@@ -119,17 +119,17 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 					   frame_len, frame_plurality, frame_len * 8);
 
 		ti = proto_tree_add_boolean(fh_tree, hf_file_marked, tvb, 0, 0,pinfo->fd->marked);
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 
 		ti = proto_tree_add_boolean(fh_tree, hf_file_ignored, tvb, 0, 0,pinfo->fd->ignored);
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 
 		if(pinfo->fd->pfd != 0){
 			proto_item *ppd_item;
 			guint num_entries = g_slist_length(pinfo->fd->pfd);
 			guint i;
 			ppd_item = proto_tree_add_uint(fh_tree, hf_file_num_p_prot_data, tvb, 0, 0, num_entries);
-			PROTO_ITEM_SET_GENERATED(ppd_item);
+			proto_item_set_generated(ppd_item);
 			for(i=0; i<num_entries; i++){
 				gchar* str = p_get_proto_name_and_key(wmem_file_scope(), pinfo, i);
 				proto_tree_add_string_format(fh_tree, hf_file_proto_name_and_key, tvb, 0, 0, str, "%s", str);
@@ -220,7 +220,7 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 			frame = wmem_list_frame_next(frame);
 		}
 		ti = proto_tree_add_string(fh_tree, hf_file_protocols, tvb, 0, 0, wmem_strbuf_get_str(val));
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 	}
 
 	/*  Call postdissectors if we have any (while trying to avoid another
@@ -283,10 +283,10 @@ dissect_file_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		pinfo->fd->color_filter = color_filter;
 		item = proto_tree_add_string(fh_tree, hf_file_color_filter_name, tvb,
 					     0, 0, color_filter->filter_name);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 		item = proto_tree_add_string(fh_tree, hf_file_color_filter_text, tvb,
 					     0, 0, color_filter->filter_text);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 	}
 
 	tap_queue_packet(file_tap, pinfo, NULL);

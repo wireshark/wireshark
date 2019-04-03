@@ -1315,7 +1315,7 @@ dissect_ansi_801_for_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	proto_tree_add_item(tree, hf_ansi_801_for_sess_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	hidden_item = proto_tree_add_item(tree, hf_ansi_801_sess_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
-	PROTO_ITEM_SET_HIDDEN(hidden_item);
+	proto_item_set_hidden(hidden_item);
 
 	offset++;
 	oct = tvb_get_guint8(tvb, offset);
@@ -1437,7 +1437,7 @@ dissect_ansi_801_rev_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	proto_tree_add_item(tree, hf_ansi_801_rev_sess_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	hidden_item = proto_tree_add_item(tree, hf_ansi_801_sess_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
-	PROTO_ITEM_SET_HIDDEN(hidden_item);
+	proto_item_set_hidden(hidden_item);
 
 	offset++;
 	oct = tvb_get_guint8(tvb, offset);

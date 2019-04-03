@@ -336,21 +336,21 @@ dissect_usb_dfu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     command_item = proto_tree_add_uint(main_tree, hf_response, tvb, offset, 0, command_response);
     command_tree = proto_item_add_subtree(command_item, ett_command);
-    PROTO_ITEM_SET_GENERATED(command_item);
+    proto_item_set_generated(command_item);
 
     if (command_data) {
         command_item = proto_tree_add_uint(main_tree, hf_setup_interface, tvb, offset, 0, command_data->interface);
-        PROTO_ITEM_SET_GENERATED(command_item);
+        proto_item_set_generated(command_item);
 
         command_item = proto_tree_add_uint(main_tree, hf_command_in_frame, tvb, offset, 0, command_data->command_frame_number);
-        PROTO_ITEM_SET_GENERATED(command_item);
+        proto_item_set_generated(command_item);
     }
 
     switch (command_response) {
     case 0x02: /* Upload */
         if (block_number != -1) {
             sub_item = proto_tree_add_uint(main_tree, hf_setup_block_number, tvb, offset, 0, block_number);
-            PROTO_ITEM_SET_GENERATED(sub_item);
+            proto_item_set_generated(sub_item);
             col_append_fstr(pinfo->cinfo, COL_INFO, " Block Number=%u", block_number);
         }
 

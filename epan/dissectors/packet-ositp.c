@@ -631,12 +631,12 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
                               print_tsap(tvb, offset, length));
         hidden_item = proto_tree_add_item(tree, hf_cotp_vp_src_tsap_bytes, tvb,
                                           offset, length, ENC_NA);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        proto_item_set_hidden(hidden_item);
       } else {
         hidden_item = proto_tree_add_string(tree, hf_cotp_vp_src_tsap, tvb,
                                             offset, length,
                                             print_tsap(tvb, offset, length));
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        proto_item_set_hidden(hidden_item);
         proto_tree_add_item(tree, hf_cotp_vp_src_tsap_bytes, tvb, offset,
                             length, ENC_NA);
       }
@@ -654,12 +654,12 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset, int vp_length,
                               print_tsap(tvb, offset, length));
         hidden_item = proto_tree_add_item(tree, hf_cotp_vp_dst_tsap_bytes, tvb,
                                           offset, length, ENC_NA);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        proto_item_set_hidden(hidden_item);
       } else {
         hidden_item = proto_tree_add_string(tree, hf_cotp_vp_dst_tsap, tvb,
                                             offset, length,
                                             print_tsap(tvb, offset, length));
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        proto_item_set_hidden(hidden_item);
         proto_tree_add_item(tree, hf_cotp_vp_dst_tsap_bytes, tvb, offset,
                             length, ENC_NA);
       }
@@ -1071,7 +1071,7 @@ static int ositp_decode_DT(tvbuff_t *tvb, int offset, guint8 li, guint8 tpdu,
   } else if (tree) {
     ti = proto_tree_add_uint (cotp_tree, hf_cotp_destref, tvb, offset, 0,
                               dst_ref);
-    PROTO_ITEM_SET_GENERATED (ti);
+    proto_item_set_generated (ti);
   }
 
   if (is_extended) {

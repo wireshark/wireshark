@@ -268,7 +268,7 @@ MAP-DialoguePDU				B "0.4.0.0.1.1.1.1" "map-DialogueAS"
     return offset;
 
   /* Hide the octet string default printout */
-  PROTO_ITEM_SET_HIDDEN(actx->created_item);
+  proto_item_set_hidden(actx->created_item);
   imsi_str = dissect_e212_imsi(parameter_tvb, actx->pinfo, tree,
                                0, tvb_reported_length(parameter_tvb), FALSE);
   if (!PINFO_FD_VISITED(actx->pinfo))
@@ -1174,7 +1174,7 @@ MAP interfaces
 %(DEFAULT_BODY)s
   if (payload_tvb) {
     guint32 tvb_offset = 0;
-    PROTO_ITEM_SET_HIDDEN(actx->created_item);
+    proto_item_set_hidden(actx->created_item);
     dis_field_addr(payload_tvb, actx->pinfo, tree, &tvb_offset, "SM-RP-SMEA");
   }
 

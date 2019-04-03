@@ -1527,7 +1527,7 @@ dfilter_store_sip_from_addr(tvbuff_t *tvb,proto_tree *tree,guint parameter_offse
     proto_item *pi;
 
     pi = proto_tree_add_item(tree, hf_sip_from_addr, tvb, parameter_offset, parameter_len, ENC_UTF_8|ENC_NA);
-    PROTO_ITEM_SET_GENERATED(pi);
+    proto_item_set_generated(pi);
 }
 
 static proto_item *
@@ -2807,7 +2807,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
                             ti = proto_tree_add_uint(tree, hf_sip_via_oc_val, tvb,
                                 parameter_name_end + 1, current_offset - parameter_name_end - 1,
                                 (guint32)strtoul(value, NULL, 10));
-                            PROTO_ITEM_SET_GENERATED(ti);
+                            proto_item_set_generated(ti);
                         }
                         else if (g_ascii_strcasecmp(param_name, "oc-seq") == 0) {
                             proto_item *ti;
@@ -2824,7 +2824,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
                                 ts.nsecs = (guint32)strtoul(value, NULL, 10) * 1000;
                                 ti = proto_tree_add_time(tree, hf_sip_oc_seq_timestamp, tvb,
                                     parameter_name_end + 1, current_offset - parameter_name_end - 1, &ts);
-                                PROTO_ITEM_SET_GENERATED(ti);
+                                proto_item_set_generated(ti);
                             }
                         }
                     }
@@ -2918,7 +2918,7 @@ static void dissect_sip_session_id_header(tvbuff_t *tvb, proto_tree *tree, gint 
                  */
                 e_guid_t guid;
 
-                PROTO_ITEM_SET_HIDDEN(pi);
+                proto_item_set_hidden(pi);
                 guid.data1 = (bytes->data[0] << 24) | (bytes->data[1] << 16) |
                              (bytes->data[2] <<  8) |  bytes->data[3];
                 guid.data2 = (bytes->data[4] <<  8) |  bytes->data[5];
@@ -3678,7 +3678,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                                                     parameter_len, ENC_UTF_8|ENC_NA);
                                 item = proto_tree_add_item(sip_element_tree, hf_sip_tag, tvb, parameter_offset,
                                                            parameter_len, ENC_UTF_8|ENC_NA);
-                                PROTO_ITEM_SET_HIDDEN(item);
+                                proto_item_set_hidden(item);
 
                                 /* Tag indicates in-dialog messages, in case we have a INVITE, SUBSCRIBE or REFER, mark it */
                                 switch (current_method_idx) {
@@ -3740,7 +3740,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                                                     parameter_len, ENC_UTF_8|ENC_NA);
                                 item = proto_tree_add_item(sip_element_tree, hf_sip_tag, tvb, parameter_offset,
                                                            parameter_len, ENC_UTF_8|ENC_NA);
-                                PROTO_ITEM_SET_HIDDEN(item);
+                                proto_item_set_hidden(item);
                             }
                         }/* hdr_tree */
                     break;
@@ -4115,9 +4115,9 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                                                     hf_sip_call_id_gen, tvb,
                                                     offset, next_offset - offset,
                                                     value);
-                        PROTO_ITEM_SET_GENERATED(gen_item);
+                        proto_item_set_generated(gen_item);
                         if (sip_hide_generatd_call_ids) {
-                            PROTO_ITEM_SET_HIDDEN(gen_item);
+                            proto_item_set_hidden(gen_item);
                         }
                         sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
                     }
@@ -4295,7 +4295,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                             ti_c = proto_tree_add_item(hdr_tree, hf_sip_auth, tvb,
                                                      offset, next_offset-offset,
                                                      ENC_UTF_8|ENC_NA);
-                            PROTO_ITEM_SET_HIDDEN(ti_c);
+                            proto_item_set_hidden(ti_c);
 
                             /* Authentication-Info does not begin with the scheme name */
                             if (hf_index != POS_AUTHENTICATION_INFO)
@@ -4811,26 +4811,26 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
         proto_item *item;
         item = proto_tree_add_boolean(reqresp_tree, hf_sip_resend, tvb, orig_offset, 0,
                                       resend_for_packet > 0);
-        PROTO_ITEM_SET_GENERATED(item);
+        proto_item_set_generated(item);
         if (resend_for_packet > 0)
         {
             item = proto_tree_add_uint(reqresp_tree, hf_sip_original_frame,
                                        tvb, orig_offset, 0, resend_for_packet);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
         }
 
         if (request_for_response > 0)
         {
             item = proto_tree_add_uint(reqresp_tree, hf_sip_matching_request_frame,
                                        tvb, orig_offset, 0, request_for_response);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
             item = proto_tree_add_uint(reqresp_tree, hf_sip_response_time,
                                        tvb, orig_offset, 0, response_time);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
             if ((line_type == STATUS_LINE)&&(strcmp(cseq_method, "BYE") == 0)){
                 item = proto_tree_add_uint(reqresp_tree, hf_sip_release_time,
                                           tvb, orig_offset, 0, response_time);
-                PROTO_ITEM_SET_GENERATED(item);
+                proto_item_set_generated(item);
             }
         }
     }

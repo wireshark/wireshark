@@ -4555,7 +4555,7 @@ de_sm_pco(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, g
 
 	link_dir = pinfo->link_dir;
 	generated_item = proto_tree_add_int(tree, hf_gsm_a_gm_link_dir, tvb, curr_offset, 0, link_dir);
-	PROTO_ITEM_SET_GENERATED(generated_item);
+	proto_item_set_generated(generated_item);
 
 
 	/* 1 ext 0 0 0 0 Spare  Configuration protocol */

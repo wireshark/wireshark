@@ -379,7 +379,7 @@ static gint dissect_msmms_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
     /* Add hidden filter for "msmms.command" */
     ti = proto_tree_add_item(tree, hf_msmms_command, tvb, 0, 0, ENC_ASCII|ENC_NA);
-    PROTO_ITEM_SET_HIDDEN(ti);
+    proto_item_set_hidden(ti);
 
     /* Create MSMMS control protocol tree */
     ti = proto_tree_add_item(tree, proto_msmms, tvb, offset, -1, ENC_NA);
@@ -639,7 +639,7 @@ static gint dissect_msmms_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
     /* Add hidden filter for "msmms.data" */
     ti = proto_tree_add_item(tree, hf_msmms_data, tvb, 0, 0, ENC_NA);
-    PROTO_ITEM_SET_HIDDEN(ti);
+    proto_item_set_hidden(ti);
 
     /* Create MSMMS data protocol tree */
     ti = proto_tree_add_item(tree, proto_msmms, tvb, offset, -1, ENC_NA);

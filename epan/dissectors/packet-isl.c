@@ -151,7 +151,7 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
 
     ti = proto_tree_add_item(fh_tree, hf_isl_dst, tvb, 0, 6, ENC_NA);
     hidden_item = proto_tree_add_item(fh_tree, hf_isl_addr, tvb, 0, 6, ENC_NA);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_item_set_hidden(hidden_item);
     dst_tree = proto_item_add_subtree(ti, ett_isl_dst);
     proto_tree_add_item(dst_tree, hf_isl_type, tvb, 5, 1, ENC_BIG_ENDIAN);
 
@@ -169,7 +169,7 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
     }
     proto_tree_add_item(fh_tree, hf_isl_src, tvb, 6, 6, ENC_NA);
     hidden_item = proto_tree_add_item(fh_tree, hf_isl_addr, tvb, 6, 6, ENC_NA);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_item_set_hidden(hidden_item);
   }
   length = tvb_get_ntohs(tvb, 12);
   if (tree)

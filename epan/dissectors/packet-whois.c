@@ -115,7 +115,7 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (tree && whois_trans->rep_frame) {
             ti = proto_tree_add_uint(whois_tree, hf_whois_answer_in,
                 tvb, 0, 0, whois_trans->rep_frame);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
         }
     } else if (tree && whois_trans->rep_frame) {
         proto_tree_add_item(whois_tree, hf_whois_answer, tvb, 0, -1, ENC_ASCII|ENC_NA);
@@ -124,12 +124,12 @@ dissect_whois(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             ti = proto_tree_add_uint(whois_tree, hf_whois_answer_to,
                 tvb, 0, 0, whois_trans->req_frame);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
 
             if (pinfo->num == whois_trans->rep_frame) {
                 nstime_delta(&ns, &pinfo->abs_ts, &whois_trans->req_time);
                 ti = proto_tree_add_time(whois_tree, hf_whois_response_time, tvb, 0, 0, &ns);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
             }
         }
     }

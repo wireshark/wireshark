@@ -2320,7 +2320,7 @@ dissect_file_ext_attr_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 	item = proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset,
 			hf_smb_file_eattr, ett_smb_file_attributes, mask_fields, mask, BMT_NO_APPEND);
 	if (len == 0)
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 
 	offset += len;
 
@@ -3089,7 +3089,7 @@ dissect_empty(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offse
 
 	if (si->sip && (si->sip->extra_info_type == SMB_EI_FILENAME)) {
 		item = proto_tree_add_string(tree, hf_smb_file_name, tvb, 0, 0, (const char *)si->sip->extra_info);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 	}
 
 
@@ -3115,9 +3115,9 @@ dissect_rename_file_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		smb_rename_saved_info_t *rni = (smb_rename_saved_info_t *)si->sip->extra_info;
 
 		item = proto_tree_add_string(tree, hf_smb_old_file_name, tvb, 0, 0, rni->old_name);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 		item = proto_tree_add_string(tree, hf_smb_file_name, tvb, 0, 0, rni->new_name);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 	}
 
 
@@ -3266,22 +3266,22 @@ dissect_smb_uid(tvbuff_t *tvb, proto_tree *parent_tree, int offset, smb_info_t *
 		if (smb_uid->domain) {
 			proto_item_append_text(item, "%s", smb_uid->domain);
 			subitem = proto_tree_add_string(tree, hf_smb_primary_domain, tvb, 0, 0, smb_uid->domain);
-			PROTO_ITEM_SET_GENERATED(subitem);
+			proto_item_set_generated(subitem);
 		}
 		if (smb_uid->account) {
 			proto_item_append_text(item, "\\%s", smb_uid->account);
 			subitem = proto_tree_add_string(tree, hf_smb_account, tvb, 0, 0, smb_uid->account);
-			PROTO_ITEM_SET_GENERATED(subitem);
+			proto_item_set_generated(subitem);
 		}
 		if (smb_uid->domain && smb_uid->account)
 			proto_item_append_text(item, ")");
 		if (smb_uid->logged_in > 0) {
 			subitem = proto_tree_add_uint(tree, hf_smb_logged_in, tvb, 0, 0, smb_uid->logged_in);
-			PROTO_ITEM_SET_GENERATED(subitem);
+			proto_item_set_generated(subitem);
 		}
 		if (smb_uid->logged_out > 0) {
 			subitem = proto_tree_add_uint(tree, hf_smb_logged_out, tvb, 0, 0, smb_uid->logged_out);
-			PROTO_ITEM_SET_GENERATED(subitem);
+			proto_item_set_generated(subitem);
 		}
 	}
 	offset += 2;
@@ -3332,15 +3332,15 @@ dissect_smb_tid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 			proto_item_append_text(it, "  (%s)", tid_info->filename);
 
 			it = proto_tree_add_string(tr, hf_smb_path, tvb, 0, 0, tid_info->filename);
-			PROTO_ITEM_SET_GENERATED(it);
+			proto_item_set_generated(it);
 		}
 
 		it = proto_tree_add_uint(tr, hf_smb_mapped_in, tvb, 0, 0, tid_info->opened_in);
-		PROTO_ITEM_SET_GENERATED(it);
+		proto_item_set_generated(it);
 	}
 	if (tid_info->closed_in) {
 		it = proto_tree_add_uint(tr, hf_smb_unmapped_in, tvb, 0, 0, tid_info->closed_in);
-		PROTO_ITEM_SET_GENERATED(it);
+		proto_item_set_generated(it);
 	}
 
 
@@ -3706,7 +3706,7 @@ dissect_nt_create_bits(tvbuff_t *tvb, proto_tree *parent_tree, int offset,
 							fields, mask, BMT_NO_APPEND);
 
 	if (len == 0)
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 
 	offset += len;
 
@@ -3755,7 +3755,7 @@ dissect_smb_access_mask_bits(tvbuff_t *tvb, proto_tree *parent_tree,
 							fields, mask, BMT_NO_APPEND);
 
 	if (len == 0)
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 	offset += len;
 
 	return offset;
@@ -3792,7 +3792,7 @@ dissect_nt_share_access_bits(tvbuff_t *tvb, proto_tree *parent_tree,
 	item = proto_tree_add_bitmask_value(parent_tree, tvb, offset, hf_smb_share_access, ett_smb_nt_share_access, fields, mask);
 
 	if (len == 0)
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 
 	offset += len;
 
@@ -3848,7 +3848,7 @@ dissect_nt_create_options_bits(tvbuff_t *tvb, proto_tree *parent_tree,
 
 	item = proto_tree_add_bitmask_value_with_flags(parent_tree, tvb, offset, hf_smb_create_options, ett_smb_nt_create_options, fields, mask, BMT_NO_APPEND);
 	if (len == 0)
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 
 	offset += len;
 
@@ -3887,7 +3887,7 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 
 	it = proto_tree_add_uint(tree, hf_smb_fid, tvb, offset, len, fid);
 	if (is_generated) {
-		PROTO_ITEM_SET_GENERATED(it);
+		proto_item_set_generated(it);
 	}
 	tr = proto_item_add_subtree(it, ett_smb_fid);
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", FID: 0x%04x", fid);
@@ -3951,19 +3951,19 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 
 	if (fid_info->opened_in) {
 		it = proto_tree_add_uint(tr, hf_smb_opened_in, tvb, 0, 0, fid_info->opened_in);
-		PROTO_ITEM_SET_GENERATED(it);
+		proto_item_set_generated(it);
 	}
 
 	if (fid_info->closed_in) {
 		it = proto_tree_add_uint(tr, hf_smb_closed_in, tvb, 0, 0, fid_info->closed_in);
-		PROTO_ITEM_SET_GENERATED(it);
+		proto_item_set_generated(it);
 	}
 
 
 	if (fid_info->opened_in) {
 		if (fid_info->fsi && fid_info->fsi->filename) {
 			it = proto_tree_add_string(tr, hf_smb_file_name, tvb, 0, 0, fid_info->fsi->filename);
-			PROTO_ITEM_SET_GENERATED(it);
+			proto_item_set_generated(it);
 			proto_item_append_text(tr, " (%s)", fid_info->fsi->filename);
 			dissect_nt_create_bits(tvb, tr, 0, 0, fid_info->fsi->create_flags);
 			dissect_smb_access_mask_bits(tvb, tr, 0, 0, fid_info->fsi->access_mask);
@@ -3971,7 +3971,7 @@ dissect_smb_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset,
 			dissect_nt_share_access_bits(tvb, tr, 0, 0, fid_info->fsi->share_access);
 			dissect_nt_create_options_bits(tvb, tr, 0, 0, fid_info->fsi->create_options);
 			it = proto_tree_add_uint(tr, hf_smb_nt_create_disposition, tvb, 0, 0, fid_info->fsi->create_disposition);
-			PROTO_ITEM_SET_GENERATED(it);
+			proto_item_set_generated(it);
 		}
 	}
 
@@ -4737,9 +4737,9 @@ dissect_read_file_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 		it = proto_tree_add_uint64(tree, hf_smb_file_rw_offset, tvb, 0, 0, rwi->offset);
 
-		PROTO_ITEM_SET_GENERATED(it);
+		proto_item_set_generated(it);
 		it = proto_tree_add_uint(tree, hf_smb_file_rw_length, tvb, 0, 0, rwi->len);
-		PROTO_ITEM_SET_GENERATED(it);
+		proto_item_set_generated(it);
 
 		/* we need the fid for the call to dcerpc below */
 		fid = rwi->fid;
@@ -4844,9 +4844,9 @@ dissect_write_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 		it = proto_tree_add_uint64(tree, hf_smb_file_rw_offset, tvb, 0, 0, rwi->offset);
 
-		PROTO_ITEM_SET_GENERATED(it);
+		proto_item_set_generated(it);
 		it = proto_tree_add_uint(tree, hf_smb_file_rw_length, tvb, 0, 0, rwi->len);
-		PROTO_ITEM_SET_GENERATED(it);
+		proto_item_set_generated(it);
 	}
 
 	/* remaining */
@@ -4911,9 +4911,9 @@ dissect_write_file_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		it = proto_tree_add_uint64(tree, hf_smb_file_rw_offset, tvb, 0, 0, rwi->offset);
 
-		PROTO_ITEM_SET_GENERATED(it);
+		proto_item_set_generated(it);
 		it = proto_tree_add_uint(tree, hf_smb_file_rw_length, tvb, 0, 0, rwi->len);
-		PROTO_ITEM_SET_GENERATED(it);
+		proto_item_set_generated(it);
 	}
 
 	BYTE_COUNT;
@@ -6271,7 +6271,7 @@ dissect_locking_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 			smb_lock_info_t *li;
 			if (tree) {
 				litem = proto_tree_add_item(tree, hf_smb_lock_type, tvb, 0, 0, ENC_NA);
-				PROTO_ITEM_SET_GENERATED(litem);
+				proto_item_set_generated(litem);
 				ltree = proto_item_add_subtree(litem, ett_smb_lock_type);
 
 				proto_tree_add_boolean(ltree, hf_smb_lock_type_large, tvb, 0, 0, ld->type);
@@ -6843,9 +6843,9 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 		it = proto_tree_add_uint64(tree, hf_smb_file_rw_offset, tvb, 0, 0, rwi->offset);
 
-		PROTO_ITEM_SET_GENERATED(it);
+		proto_item_set_generated(it);
 		it = proto_tree_add_uint(tree, hf_smb_file_rw_length, tvb, 0, 0, rwi->len);
-		PROTO_ITEM_SET_GENERATED(it);
+		proto_item_set_generated(it);
 	}
 
 	BYTE_COUNT;
@@ -6910,9 +6910,9 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 		it = proto_tree_add_uint64(tree, hf_smb_file_rw_offset, tvb, 0, 0, rwi->offset);
 
-		PROTO_ITEM_SET_GENERATED(it);
+		proto_item_set_generated(it);
 		it = proto_tree_add_uint(tree, hf_smb_file_rw_length, tvb, 0, 0, rwi->len);
-		PROTO_ITEM_SET_GENERATED(it);
+		proto_item_set_generated(it);
 
 		/* we need the fid for the call to dcerpc below */
 		fid = rwi->fid;
@@ -7110,9 +7110,9 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 		it = proto_tree_add_uint64(tree, hf_smb_file_rw_offset, tvb, 0, 0, rwi->offset);
 
-		PROTO_ITEM_SET_GENERATED(it);
+		proto_item_set_generated(it);
 		it = proto_tree_add_uint(tree, hf_smb_file_rw_length, tvb, 0, 0, rwi->len);
-		PROTO_ITEM_SET_GENERATED(it);
+		proto_item_set_generated(it);
 	}
 
 
@@ -7212,9 +7212,9 @@ dissect_write_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		it = proto_tree_add_uint64(tree, hf_smb_file_rw_offset, tvb, 0, 0, rwi->offset);
 
-		PROTO_ITEM_SET_GENERATED(it);
+		proto_item_set_generated(it);
 		it = proto_tree_add_uint(tree, hf_smb_file_rw_length, tvb, 0, 0, rwi->len);
-		PROTO_ITEM_SET_GENERATED(it);
+		proto_item_set_generated(it);
 	}
 
 
@@ -16580,10 +16580,10 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 										"<UNKNOWN> since information level wasn't found in request packet");
 					else
 						item = proto_tree_add_uint(tree, hf_smb_ff2_information_level, tvb, 0, 0, t2i->info_level);
-					PROTO_ITEM_SET_GENERATED(item);
+					proto_item_set_generated(item);
 					if (t2i->name) {
 						item = proto_tree_add_string(tree, hf_smb_search_pattern, tvb, 0, 0, t2i->name);
-						PROTO_ITEM_SET_GENERATED(item);
+						proto_item_set_generated(item);
 					}
 					break;
 
@@ -16593,10 +16593,10 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 										"<UNKNOWN> since information level wasn't found in request packet");
 					else
 						item = proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, 0, 0, t2i->info_level);
-					PROTO_ITEM_SET_GENERATED(item);
+					proto_item_set_generated(item);
 					if (t2i->name) {
 						item = proto_tree_add_string(tree, hf_smb_file_name, tvb, 0, 0, t2i->name);
-						PROTO_ITEM_SET_GENERATED(item);
+						proto_item_set_generated(item);
 					}
 					break;
 
@@ -16606,7 +16606,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 										"<UNKNOWN> since information level wasn't found in request packet");
 					else
 						item = proto_tree_add_uint(tree, hf_smb_qpi_loi, tvb, 0, 0, t2i->info_level);
-					PROTO_ITEM_SET_GENERATED(item);
+					proto_item_set_generated(item);
 					break;
 
 				case 0x0003:	/* QUERY_FS_INFORMATION */
@@ -16615,7 +16615,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 										"<UNKNOWN> since information level wasn't found in request packet");
 					else
 						item = proto_tree_add_uint(tree, hf_smb_qfsi_information_level, tvb, 0, 0, si->info_level);
-					PROTO_ITEM_SET_GENERATED(item);
+					proto_item_set_generated(item);
 					break;
 
 				case 0x0004:	/* SET_FS_INFORMATION */
@@ -16624,7 +16624,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 										"<UNKNOWN> since information level wasn't found in request packet");
 					else
 						item = proto_tree_add_uint(tree, hf_smb_sfsi_information_level, tvb, 0, 0, si->info_level);
-					PROTO_ITEM_SET_GENERATED(item);
+					proto_item_set_generated(item);
 					break;
 				}
 
@@ -17843,14 +17843,14 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 			case SMB_COM_NT_CANCEL:
 				tmp_item = proto_tree_add_uint(htree, hf_smb_cancel_to,
 						    tvb, 0, 0, sip->frame_req);
-				PROTO_ITEM_SET_GENERATED(tmp_item);
+				proto_item_set_generated(tmp_item);
 				break;
 			case SMB_COM_TRANSACTION_SECONDARY:
 			case SMB_COM_TRANSACTION2_SECONDARY:
 			case SMB_COM_NT_TRANSACT_SECONDARY:
 				tmp_item = proto_tree_add_uint(htree, hf_smb_continuation_to,
 						    tvb, 0, 0, sip->frame_req);
-				PROTO_ITEM_SET_GENERATED(tmp_item);
+				proto_item_set_generated(tmp_item);
 				break;
 			}
 		} else {
@@ -18026,17 +18026,17 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* da
 		if (si->request) {
 			if (sip->frame_res != 0) {
 				tmp_item = proto_tree_add_uint(htree, hf_smb_response_in, tvb, 0, 0, sip->frame_res);
-				PROTO_ITEM_SET_GENERATED(tmp_item);
+				proto_item_set_generated(tmp_item);
 			}
 		} else {
 			if (sip->frame_req != 0) {
 				tmp_item = proto_tree_add_uint(htree, hf_smb_response_to, tvb, 0, 0, sip->frame_req);
-				PROTO_ITEM_SET_GENERATED(tmp_item);
+				proto_item_set_generated(tmp_item);
 				t = pinfo->abs_ts;
 				nstime_delta(&deltat, &t, &sip->req_time);
 				tmp_item = proto_tree_add_time(htree, hf_smb_time, tvb,
 				    0, 0, &deltat);
-				PROTO_ITEM_SET_GENERATED(tmp_item);
+				proto_item_set_generated(tmp_item);
 			}
 		}
 	}

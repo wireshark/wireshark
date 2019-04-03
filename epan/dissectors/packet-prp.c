@@ -153,7 +153,7 @@ dissect_prp_redundancy_control_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, pr
             ti = proto_tree_add_string(prp_tree, hf_prp_redundancy_control_trailer_version,
                                        tvb, trailer_start, trailer_length, "PRP-1");
         }
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         proto_tree_add_item(prp_tree, hf_prp_redundancy_control_trailer_sequence_nr,
                             tvb, trailer_start, 2, ENC_BIG_ENDIAN);

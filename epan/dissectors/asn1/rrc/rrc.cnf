@@ -1154,9 +1154,9 @@ HNBName TYPE=FT_STRING DISPLAY=STR_UNICODE
   sub_tree = proto_item_get_subtree(actx->created_item);
   item_len = proto_item_get_len(actx->created_item);
   ti = proto_tree_add_uint(sub_tree, generated_field_hf, tvb, original_offset/8, item_len, u_rnti_value);
-  PROTO_ITEM_SET_GENERATED(ti);
+  proto_item_set_generated(ti);
   ti = proto_tree_add_uint(sub_tree, hf_urnti, tvb, original_offset/8, item_len, u_rnti_value);
-  PROTO_ITEM_SET_HIDDEN(ti);
+  proto_item_set_hidden(ti);
 
   private_data_set_s_rnc_id(actx, 0);
   private_data_set_s_rnti(actx, 0);
@@ -1253,9 +1253,9 @@ if(state_dec >= 0 && state_dec <= 3) {
   if(cell_id_tvb != NULL) {
       cell_identity_tree = proto_item_add_subtree(actx->created_item, ett_rrc_cellIdentity);
       temp_ti = proto_tree_add_bits_item(cell_identity_tree, hf_rrc_cellIdentity_rnc_id,cell_id_tvb, 0, 12, ENC_BIG_ENDIAN);
-      PROTO_ITEM_SET_GENERATED(temp_ti);
+      proto_item_set_generated(temp_ti);
       temp_ti = proto_tree_add_bits_item(cell_identity_tree, hf_rrc_cellIdentity_c_id, cell_id_tvb, 12, 16, ENC_BIG_ENDIAN);
-      PROTO_ITEM_SET_GENERATED(temp_ti);
+      proto_item_set_generated(temp_ti);
   }
 
 #.FN_BODY DL-TransportChannelType-r5 VAL_PTR = &type

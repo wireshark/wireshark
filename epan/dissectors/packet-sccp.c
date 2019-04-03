@@ -1711,7 +1711,7 @@ dissect_sccp_dlr_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
   sccp_info->dlr = tvb_get_letoh24(tvb, 0);
   proto_tree_add_uint(tree, hf_sccp_dlr, tvb, 0, length, sccp_info->dlr);
   lr_item = proto_tree_add_uint(tree, hf_sccp_lr, tvb, 0, length, sccp_info->dlr);
-  PROTO_ITEM_SET_GENERATED(lr_item);
+  proto_item_set_generated(lr_item);
 
   if (show_key_params)
     col_append_fstr(pinfo->cinfo, COL_INFO, "DLR=%d ", sccp_info->dlr);
@@ -1731,7 +1731,7 @@ dissect_sccp_slr_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
   sccp_info->slr = tvb_get_letoh24(tvb, 0);
   proto_tree_add_uint(tree, hf_sccp_slr, tvb, 0, length, sccp_info->slr);
   lr_item = proto_tree_add_uint(tree, hf_sccp_lr, tvb, 0, length, sccp_info->slr);
-  PROTO_ITEM_SET_GENERATED(lr_item);
+  proto_item_set_generated(lr_item);
 
   if (show_key_params)
     col_append_fstr(pinfo->cinfo, COL_INFO, "SLR=%d ", sccp_info->slr);
@@ -2081,7 +2081,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
                           tvb, offset, ADDRESS_SSN_LENGTH, ssn);
       hidden_item = proto_tree_add_uint(call_tree, hf_sccp_ssn, tvb, offset,
                                         ADDRESS_SSN_LENGTH, ssn);
-      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      proto_item_set_hidden(hidden_item);
 
       offset += ADDRESS_SSN_LENGTH;
 
@@ -2096,7 +2096,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
         if (ssn_dissector_short_name) {
           item = proto_tree_add_string_format(call_tree, hf_sccp_linked_dissector, tvb, offset - 1, ADDRESS_SSN_LENGTH,
                                      ssn_dissector_short_name, "Linked to %s", ssn_dissector_short_name);
-          PROTO_ITEM_SET_GENERATED(item);
+          proto_item_set_generated(item);
 
           if (g_ascii_strncasecmp("TCAP", ssn_dissector_short_name, 4)== 0) {
             tcap_ssn_dissector = get_itu_tcap_subdissector(ssn);
@@ -2166,7 +2166,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
                           tvb, offset, ADDRESS_SSN_LENGTH, ssn);
       hidden_item = proto_tree_add_uint(call_tree, hf_sccp_ssn, tvb, offset,
                                         ADDRESS_SSN_LENGTH, ssn);
-      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      proto_item_set_hidden(hidden_item);
 
       offset += ADDRESS_SSN_LENGTH;
     }
@@ -2771,7 +2771,7 @@ dissect_sccp_variable_parameter(tvbuff_t *tvb, packet_info *pinfo,
                                   parameter_length);
   if (!sccp_show_length) {
     /* The user doesn't want to see it... */
-    PROTO_ITEM_SET_HIDDEN(pi);
+    proto_item_set_hidden(pi);
   }
 
   offset += length_length;
@@ -2823,11 +2823,11 @@ static void build_assoc_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp
 {
   if (trace_sccp && sccp_info->assoc && (sccp_info->assoc != &no_assoc)) {
     proto_item *pi = proto_tree_add_uint(sccp_tree, hf_sccp_assoc_id, tvb, 0, 0, sccp_info->assoc->id);
-    PROTO_ITEM_SET_GENERATED(pi);
+    proto_item_set_generated(pi);
     proto_tree *pt = proto_item_add_subtree(pi, ett_sccp_assoc);
     if(sccp_info->assoc->imsi){
       proto_item *pi2 = proto_tree_add_string(sccp_tree, hf_assoc_imsi, tvb, 0, 0, sccp_info->assoc->imsi);
-      PROTO_ITEM_SET_GENERATED(pi2);
+      proto_item_set_generated(pi2);
     }
     if (sccp_info->assoc->msgs) {
       sccp_msg_info_t *m;
@@ -2846,7 +2846,7 @@ static void build_assoc_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp
           tap_queue_packet(sccp_tap, pinfo, m);
           proto_item_append_text(pi," (current)");
         }
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
       }
     }
   }

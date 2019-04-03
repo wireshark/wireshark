@@ -280,7 +280,7 @@ dissect_device_list_response(packet_info *pinfo, proto_tree *tree,
         num_of_intf = tvb_get_guint8(tvb, offset + 0x137);
         ti_dev = proto_tree_add_uint(tree, hf_usbip_device, tvb, offset,
                                      0x138 + 4 * num_of_intf, i + 1);
-        PROTO_ITEM_SET_GENERATED(ti_dev);
+        proto_item_set_generated(ti_dev);
 
         dev_tree = proto_item_add_subtree(ti_dev, ett_usbip_dev);
         offset = dissect_device(dev_tree, tvb, offset);
@@ -409,7 +409,7 @@ dissect_cmd_unlink(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
         ti = proto_tree_add_uint(tree, hf_usbip_vic_frame, NULL, 0, 0,
                                  victim->cmd_frame);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
     return offset;
 }
@@ -430,7 +430,7 @@ dissect_ret_unlink(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
         victim->ret_frame = pinfo->num;
         ti = proto_tree_add_uint(tree, hf_usbip_vic_frame, NULL, 0, 0,
                                  victim->cmd_frame);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
     proto_tree_add_item(tree, hf_usbip_status, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
@@ -564,16 +564,16 @@ usbip_dissect_urb(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree,
 
     ti = proto_tree_add_uint(tree, hf_usbip_cmd_frame, NULL, 0, 0,
                              usbip_trans->cmd_frame);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     ti = proto_tree_add_uint(tree, hf_usbip_ret_frame, NULL, 0, 0,
                              usbip_trans->ret_frame);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     ti = proto_tree_add_uint(tree, hf_usbip_devid, NULL, 0, 0, devid);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     ti = proto_tree_add_uint(tree, hf_usbip_direction, NULL, 0, 0, dir);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
     ti = proto_tree_add_uint(tree, hf_usbip_ep, NULL, 0, 0, ep);
-    PROTO_ITEM_SET_GENERATED(ti);
+    proto_item_set_generated(ti);
 
     proto_tree_add_item(tree, hf_usbip_devid, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;

@@ -343,9 +343,9 @@ dissect_btpa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_
 
     // Add hidden port field
     hidden_item = proto_tree_add_item(btpa_tree, hf_btpa_port, tvb, 0, 2, ENC_BIG_ENDIAN);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_item_set_hidden(hidden_item);
     hidden_item = proto_tree_add_item(btpa_tree, hf_btpa_port, tvb, 2, 2, ENC_BIG_ENDIAN);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_item_set_hidden(hidden_item);
 
     btpah->btp_psrc = src_port;
     btpah->btp_pdst = dst_port;
@@ -731,7 +731,7 @@ static geonw_transaction_t *transaction_start(packet_info * pinfo, proto_tree * 
         if (PINFO_FD_VISITED(pinfo)) {
             /* No response found - add field and expert info */
             it = proto_tree_add_item(tree, hf_geonw_no_resp, NULL, 0, 0, ENC_NA);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, " (no response found!)");
 
@@ -745,7 +745,7 @@ static geonw_transaction_t *transaction_start(packet_info * pinfo, proto_tree * 
     /* Print state tracking in the tree */
     if (geonw_trans->resp_frame) {
         it = proto_tree_add_uint(tree, hf_geonw_resp_in, NULL, 0, 0, geonw_trans->resp_frame);
-        PROTO_ITEM_SET_GENERATED(it);
+        proto_item_set_generated(it);
 
         col_append_frame_number(pinfo, COL_INFO, " (reply in %u)", geonw_trans->resp_frame);
     }
@@ -819,13 +819,13 @@ static geonw_transaction_t *transaction_end(packet_info * pinfo, proto_tree * tr
 
 
     it = proto_tree_add_uint(tree, hf_geonw_resp_to, NULL, 0, 0, geonw_trans->rqst_frame);
-    PROTO_ITEM_SET_GENERATED(it);
+    proto_item_set_generated(it);
 
     nstime_delta(&ns, &pinfo->abs_ts, &geonw_trans->rqst_time);
     geonw_trans->resp_time = ns;
     resp_time = nstime_to_msec(&ns);
     it = proto_tree_add_double_format_value(tree, hf_geonw_resptime, NULL, 0, 0, resp_time, "%.3f ms", resp_time);
-    PROTO_ITEM_SET_GENERATED(it);
+    proto_item_set_generated(it);
 
     col_append_frame_number(pinfo, COL_INFO, " (request in %d)", geonw_trans->rqst_frame);
 
@@ -2515,7 +2515,7 @@ dissect_geonw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                                                                     // SN(P) is not greater than SN(SO)
                                                                     // P is a duplicate
                             ti = proto_tree_add_item(geonw_tree, hf_geonw_analysis_flags, tvb, 0, 0, ENC_NA);
-                            PROTO_ITEM_SET_GENERATED(ti);
+                            proto_item_set_generated(ti);
                             expert_add_info(pinfo, ti, &ei_geonw_analysis_duplicate);
                             col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[Duplicate packet] ");
                         }
@@ -2543,7 +2543,7 @@ dissect_geonw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
                     } else {
                                                         // P is a duplicate
                         ti = proto_tree_add_item(geonw_tree, hf_geonw_analysis_flags, tvb, 0, 0, ENC_NA);
-                        PROTO_ITEM_SET_GENERATED(ti);
+                        proto_item_set_generated(ti);
                         expert_add_info(pinfo, ti, &ei_geonw_analysis_duplicate);
                         col_prepend_fence_fstr(pinfo->cinfo, COL_INFO, "[Duplicate packet] ");
                     }

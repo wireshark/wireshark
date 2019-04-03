@@ -188,7 +188,7 @@ EnhancedCertificateAssertion/pathToName                 enhancedPathToName
 
 #.FN_FTR GeneralName/uniformResourceIdentifier
 
-  PROTO_ITEM_SET_URL(actx->created_item);
+  proto_item_set_url(actx->created_item);
 
 #.END
 

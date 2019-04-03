@@ -4521,7 +4521,7 @@ dissect_handle(proto_tree *tree, packet_info *pinfo, gint hf,
         handle = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
     } else if (handle >= 0 && handle <= G_MAXUINT16) {
         handle_item = proto_tree_add_uint(tree, hf, tvb, 0, 0, handle);
-        PROTO_ITEM_SET_GENERATED(handle_item);
+        proto_item_set_generated(handle_item);
     } else {
         DISSECTOR_ASSERT_NOT_REACHED();
     }
@@ -4541,7 +4541,7 @@ dissect_handle(proto_tree *tree, packet_info *pinfo, gint hf,
             else
                 sub_item = proto_tree_add_bytes_with_length(sub_tree, hf_btatt_service_uuid128, tvb, 0, 0, service_uuid.data, 16);
 
-            PROTO_ITEM_SET_GENERATED(sub_item);
+            proto_item_set_generated(sub_item);
         }
     }
 
@@ -4555,7 +4555,7 @@ dissect_handle(proto_tree *tree, packet_info *pinfo, gint hf,
             else
                 sub_item = proto_tree_add_bytes_with_length(sub_tree, hf_btatt_characteristic_uuid128, tvb, 0, 0, characteristic_uuid.data, 16);
 
-            PROTO_ITEM_SET_GENERATED(sub_item);
+            proto_item_set_generated(sub_item);
         }
     }
 
@@ -4568,7 +4568,7 @@ dissect_handle(proto_tree *tree, packet_info *pinfo, gint hf,
         else
             sub_item = proto_tree_add_bytes_with_length(sub_tree, hf_btatt_uuid128, tvb, 0, 0, attribute_uuid.data, 16);
 
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
     }
 
     if (uuid)
@@ -10864,7 +10864,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         if (request_data && (request_opcode == 0x08 || request_opcode == 0x10)) {
             sub_item = proto_tree_add_uint(main_tree, hf_btatt_uuid16, tvb, 0, 0, request_data->parameters.read_by_type.uuid.bt_uuid);
-            PROTO_ITEM_SET_GENERATED(sub_item);
+            proto_item_set_generated(sub_item);
         }
         }
         break;
@@ -11109,7 +11109,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             if (request_data) {
                 sub_item = proto_tree_add_uint(main_tree, hf_btatt_uuid16, tvb, 0, 0, request_data->parameters.read_by_type.uuid.bt_uuid);
-                PROTO_ITEM_SET_GENERATED(sub_item);
+                proto_item_set_generated(sub_item);
             }
         }
         break;
@@ -11295,7 +11295,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             if (request_data) {
                 sub_item = proto_tree_add_uint(main_tree, hf_btatt_uuid16, tvb, 0, 0, request_data->parameters.read_by_type.uuid.bt_uuid);
-                PROTO_ITEM_SET_GENERATED(sub_item);
+                proto_item_set_generated(sub_item);
             }
         }
         break;
@@ -11440,7 +11440,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     if (request_data) {
         if (request_data->request_in_frame > 0  && request_data->request_in_frame != pinfo->num) {
             sub_item = proto_tree_add_uint(main_tree, hf_request_in_frame, tvb, 0, 0, request_data->request_in_frame);
-            PROTO_ITEM_SET_GENERATED(sub_item);
+            proto_item_set_generated(sub_item);
         }
 
         if (!pinfo->fd->visited && request_data->response_in_frame == 0 &&
@@ -11449,7 +11449,7 @@ dissect_btatt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         if (request_data->response_in_frame > 0 && request_data->response_in_frame != pinfo->num) {
             sub_item = proto_tree_add_uint(main_tree, hf_response_in_frame, tvb, 0, 0, request_data->response_in_frame);
-            PROTO_ITEM_SET_GENERATED(sub_item);
+            proto_item_set_generated(sub_item);
         }
     }
 

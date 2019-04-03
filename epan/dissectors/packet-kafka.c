@@ -576,7 +576,7 @@ dissect_kafka_string(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet_info *
     else {
         /* Only showing length field if preference indicates */
         if (!kafka_show_string_bytes_lengths) {
-            PROTO_ITEM_SET_HIDDEN(pi);
+            proto_item_set_hidden(pi);
         }
 
         if (len == -1) {
@@ -615,7 +615,7 @@ dissect_kafka_bytes(proto_tree *tree, int hf_item, tvbuff_t *tvb, packet_info *p
     else {
         /* Only showing length field if preference indicates */
         if (!kafka_show_string_bytes_lengths) {
-            PROTO_ITEM_SET_HIDDEN(pi);
+            proto_item_set_hidden(pi);
         }
 
         if (len == -1) {
@@ -678,7 +678,7 @@ static void show_compression_reduction(tvbuff_t *tvb, proto_tree *tree, guint co
     if (uncompressed_size != 0) {
         ti = proto_tree_add_float(tree, hf_kafka_message_compression_reduction, tvb, 0, 0,
                                   (float)compressed_size / (float)uncompressed_size);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
     }
 }
 
@@ -3490,7 +3490,7 @@ dissect_kafka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         if (matcher->response_found) {
             ti = proto_tree_add_uint(kafka_tree, hf_kafka_response_frame, tvb,
                     0, 0, matcher->response_frame);
-            PROTO_ITEM_SET_GENERATED(ti);
+            proto_item_set_generated(ti);
         }
 
         ti = proto_tree_add_item(kafka_tree, hf_kafka_request_api_key, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -3613,18 +3613,18 @@ dissect_kafka(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
         /* Show request frame */
         ti = proto_tree_add_uint(kafka_tree, hf_kafka_request_frame, tvb,
                 0, 0, matcher->request_frame);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
 
         /* Show api key (message type) */
         ti = proto_tree_add_int(kafka_tree, hf_kafka_response_api_key, tvb,
                 0, 0, matcher->api_key);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
         kafka_check_supported_api_key(pinfo, ti, matcher);
 
         /* Also show api version from request */
         ti = proto_tree_add_int(kafka_tree, hf_kafka_response_api_version, tvb,
                 0, 0, matcher->api_version);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
         kafka_check_supported_api_version(pinfo, ti, matcher);
 
         switch (matcher->api_key) {

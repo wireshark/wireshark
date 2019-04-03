@@ -417,7 +417,7 @@ dissect_stt_tree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *stt_tree,
     }
     /* Show if any part of this is set to aid debugging bad implementations. */
     if (attributes == 0) {
-        PROTO_ITEM_SET_HIDDEN(vlan_item);
+        proto_item_set_hidden(vlan_item);
     }
     offset += 2;
 

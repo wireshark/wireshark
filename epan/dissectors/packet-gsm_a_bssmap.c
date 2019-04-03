@@ -1892,7 +1892,7 @@ be_l3_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
     else if ((cell_discriminator & 0x0f) < 8) {
         ti = proto_tree_add_uint(tree, hf_gsm_a_bssmap_cell_discriminator, l3_tvb, curr_offset, 1, cell_discriminator);
         /* cell_discriminator is a preference, so value should be known, but keeping presence of field consistent for filtering */
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
 
         /* GSM */
         call_dissector(dtap_handle, l3_tvb, pinfo, g_tree);
@@ -1900,7 +1900,7 @@ be_l3_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
     else if ((cell_discriminator & 0x0f) < 13) {
         ti = proto_tree_add_uint(tree, hf_gsm_a_bssmap_cell_discriminator, l3_tvb, curr_offset, 1, cell_discriminator);
         /* cell_discriminator is a preference, so value should be known, but keeping presence of field consistent for filtering */
-        PROTO_ITEM_SET_HIDDEN(ti);
+        proto_item_set_hidden(ti);
 
         /* UMTS or CDMA 2000 */
         dissect_rrc_HandoverToUTRANCommand_PDU(l3_tvb, pinfo, g_tree, NULL);

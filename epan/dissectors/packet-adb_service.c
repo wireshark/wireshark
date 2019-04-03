@@ -156,7 +156,7 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     service = adb_service_data->service;
 
     sub_item = proto_tree_add_string(main_tree, hf_service, tvb, offset, 0, service);
-    PROTO_ITEM_SET_GENERATED(sub_item);
+    proto_item_set_generated(sub_item);
 
         if (g_strcmp0(service, "host:version") == 0) {
             guint32               version;

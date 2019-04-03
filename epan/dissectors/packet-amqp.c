@@ -7719,7 +7719,7 @@ dissect_amqp_0_9_method_basic_publish(guint16 channel_num,
     {
         pi = proto_tree_add_uint64(args_tree, hf_amqp_method_basic_publish_number,
             tvb, offset-2, 2, delivery->delivery_tag);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
     }
 
     /*  ticket (short)           */
@@ -9874,7 +9874,7 @@ generate_msg_reference(tvbuff_t *tvb, packet_info *pinfo, proto_tree *amqp_tree)
         {
             pi = proto_tree_add_uint(amqp_tree, hf_amqp_message_in,
                 tvb, 0, 0, delivery->msg_framenum);
-            PROTO_ITEM_SET_GENERATED(pi);
+            proto_item_set_generated(pi);
         }
 
         delivery = delivery->prev;
@@ -9893,7 +9893,7 @@ generate_ack_reference(tvbuff_t *tvb, packet_info *pinfo, proto_tree *amqp_tree)
         proto_item *pi;
 
         pi = proto_tree_add_uint(amqp_tree, hf_amqp_ack_in, tvb, 0, 0, delivery->ack_framenum);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
     }
 
 }

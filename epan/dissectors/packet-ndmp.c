@@ -3207,7 +3207,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 	} else {
 		vers_item=proto_tree_add_uint_format(ndmp_tree, hf_ndmp_version, new_tvb, offset, 0, ndmp_default_protocol_version, "Unknown NDMP version, using default:%d", ndmp_default_protocol_version);
 	}
-	PROTO_ITEM_SET_GENERATED(vers_item);
+	proto_item_set_generated(vers_item);
 
 	/* request response matching */
 	ndmp_conv_data->task=NULL;
@@ -3227,7 +3227,7 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 			proto_item *it;
 			it=proto_tree_add_uint(ndmp_tree, hf_ndmp_response_frame, new_tvb, 0, 0, ndmp_conv_data->task->response_frame);
 
-			PROTO_ITEM_SET_GENERATED(it);
+			proto_item_set_generated(it);
 		}
 		break;
 	case NDMP_MESSAGE_REPLY:
@@ -3245,11 +3245,11 @@ dissect_ndmp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 
 			it=proto_tree_add_uint(ndmp_tree, hf_ndmp_request_frame, new_tvb, 0, 0, ndmp_conv_data->task->request_frame);
 
-			PROTO_ITEM_SET_GENERATED(it);
+			proto_item_set_generated(it);
 
 			nstime_delta(&delta_ts, &pinfo->abs_ts, &ndmp_conv_data->task->ndmp_time);
 			it=proto_tree_add_time(ndmp_tree, hf_ndmp_time, new_tvb, 0, 0, &delta_ts);
-			PROTO_ITEM_SET_GENERATED(it);
+			proto_item_set_generated(it);
 		}
 		break;
 	}

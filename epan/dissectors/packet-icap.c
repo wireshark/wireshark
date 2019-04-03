@@ -198,25 +198,25 @@ is_icap_header:
         case ICAP_OPTIONS:
             hidden_item = proto_tree_add_boolean(icap_tree,
                         hf_icap_options, tvb, 0, 0, 1);
-                        PROTO_ITEM_SET_HIDDEN(hidden_item);
+                        proto_item_set_hidden(hidden_item);
             break;
 
         case ICAP_REQMOD:
             hidden_item = proto_tree_add_boolean(icap_tree,
                         hf_icap_reqmod, tvb, 0, 0, 1);
-                        PROTO_ITEM_SET_HIDDEN(hidden_item);
+                        proto_item_set_hidden(hidden_item);
             break;
 
         case ICAP_RESPMOD:
             hidden_item = proto_tree_add_boolean(icap_tree,
                         hf_icap_respmod, tvb, 0, 0, 1);
-                        PROTO_ITEM_SET_HIDDEN(hidden_item);
+                        proto_item_set_hidden(hidden_item);
             break;
 
         case ICAP_RESPONSE:
             hidden_item = proto_tree_add_boolean(icap_tree,
                         hf_icap_response, tvb, 0, 0, 1);
-                        PROTO_ITEM_SET_HIDDEN(hidden_item);
+                        proto_item_set_hidden(hidden_item);
             break;
 
         case ICAP_OTHER:

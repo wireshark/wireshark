@@ -1390,8 +1390,8 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					     hf_http_request_full_uri, tvb, 0,
 					     0, uri);
 
-			PROTO_ITEM_SET_URL(e_ti);
-			PROTO_ITEM_SET_GENERATED(e_ti);
+			proto_item_set_url(e_ti);
+			proto_item_set_generated(e_ti);
 		}
 	}
 
@@ -1414,45 +1414,45 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		case HTTP_NOTIFICATION:
 			hidden_item = proto_tree_add_boolean(http_tree,
 					    hf_http_notification, tvb, 0, 0, 1);
-			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			proto_item_set_hidden(hidden_item);
 			break;
 
 		case HTTP_RESPONSE:
 			hidden_item = proto_tree_add_boolean(http_tree,
 					    hf_http_response, tvb, 0, 0, 1);
-			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			proto_item_set_hidden(hidden_item);
 
 			if (curr) {
 				nstime_t delta;
 
 				pi = proto_tree_add_uint_format(http_tree, hf_http_response_number, tvb, 0, 0, curr->number, "HTTP response %u/%u", curr->number, conv_data->req_res_num);
-				PROTO_ITEM_SET_GENERATED(pi);
+				proto_item_set_generated(pi);
 
 				if (! nstime_is_unset(&(curr->req_ts))) {
 					nstime_delta(&delta, &pinfo->abs_ts, &(curr->req_ts));
 					pi = proto_tree_add_time(http_tree, hf_http_time, tvb, 0, 0, &delta);
-					PROTO_ITEM_SET_GENERATED(pi);
+					proto_item_set_generated(pi);
 				}
 			}
 			if (prev && prev->req_framenum) {
 				pi = proto_tree_add_uint(http_tree, hf_http_prev_request_in, tvb, 0, 0, prev->req_framenum);
-				PROTO_ITEM_SET_GENERATED(pi);
+				proto_item_set_generated(pi);
 			}
 			if (prev && prev->res_framenum) {
 				pi = proto_tree_add_uint(http_tree, hf_http_prev_response_in, tvb, 0, 0, prev->res_framenum);
-				PROTO_ITEM_SET_GENERATED(pi);
+				proto_item_set_generated(pi);
 			}
 			if (curr && curr->req_framenum) {
 				pi = proto_tree_add_uint(http_tree, hf_http_request_in, tvb, 0, 0, curr->req_framenum);
-				PROTO_ITEM_SET_GENERATED(pi);
+				proto_item_set_generated(pi);
 			}
 			if (next && next->req_framenum) {
 				pi = proto_tree_add_uint(http_tree, hf_http_next_request_in, tvb, 0, 0, next->req_framenum);
-				PROTO_ITEM_SET_GENERATED(pi);
+				proto_item_set_generated(pi);
 			}
 			if (next && next->res_framenum) {
 				pi = proto_tree_add_uint(http_tree, hf_http_next_response_in, tvb, 0, 0, next->res_framenum);
-				PROTO_ITEM_SET_GENERATED(pi);
+				proto_item_set_generated(pi);
 			}
 
 			/*
@@ -1465,7 +1465,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				else {
 					pi = proto_tree_add_string(http_tree, hf_http_response_for_uri, tvb, 0, 0, conv_data->request_uri);
 				}
-				PROTO_ITEM_SET_GENERATED(pi);
+				proto_item_set_generated(pi);
 			}
 
 			break;
@@ -1473,23 +1473,23 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		case HTTP_REQUEST:
 			hidden_item = proto_tree_add_boolean(http_tree,
 					    hf_http_request, tvb, 0, 0, 1);
-			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			proto_item_set_hidden(hidden_item);
 
 			if (curr) {
 				pi = proto_tree_add_uint_format(http_tree, hf_http_request_number, tvb, 0, 0, curr->number, "HTTP request %u/%u", curr->number, conv_data->req_res_num);
-				PROTO_ITEM_SET_GENERATED(pi);
+				proto_item_set_generated(pi);
 			}
 			if (prev && prev->req_framenum) {
 				pi = proto_tree_add_uint(http_tree, hf_http_prev_request_in, tvb, 0, 0, prev->req_framenum);
-				PROTO_ITEM_SET_GENERATED(pi);
+				proto_item_set_generated(pi);
 			}
 			if (curr && curr->res_framenum) {
 				pi = proto_tree_add_uint(http_tree, hf_http_response_in, tvb, 0, 0, curr->res_framenum);
-				PROTO_ITEM_SET_GENERATED(pi);
+				proto_item_set_generated(pi);
 			}
 			if (next && next->req_framenum) {
 				pi = proto_tree_add_uint(http_tree, hf_http_next_request_in, tvb, 0, 0, next->req_framenum);
-				PROTO_ITEM_SET_GENERATED(pi);
+				proto_item_set_generated(pi);
 			}
 
 			break;
@@ -2031,7 +2031,7 @@ basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 		tvb, offset, 3, val_to_str(stat_info->response_code,
 		vals_http_status_code, "Unknown (%d)"));
 
-	PROTO_ITEM_SET_GENERATED(r_ti);
+	proto_item_set_generated(r_ti);
 
 	/* Advance to the start of the next token. */
 	offset += (int) (next_token - line);
@@ -2437,11 +2437,11 @@ http_payload_subdissector(tvbuff_t *tvb, proto_tree *tree,
 
 			item = proto_tree_add_string(proxy_tree, hf_http_proxy_connect_host,
 						     tvb, 0, 0, strings[0]);
-			PROTO_ITEM_SET_GENERATED(item);
+			proto_item_set_generated(item);
 
 			item = proto_tree_add_uint(proxy_tree, hf_http_proxy_connect_port,
 						   tvb, 0, 0, (guint32)strtol(strings[1], NULL, 10) );
-			PROTO_ITEM_SET_GENERATED(item);
+			proto_item_set_generated(item);
 		}
 
 		uri_port = (int)strtol(strings[1], NULL, 10); /* Convert string to a base-10 integer */
@@ -3029,7 +3029,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 						ENC_NA|ENC_ASCII);
 					proto_item_set_text(it, "%s",
 							format_text(wmem_packet_scope(), line, len));
-					PROTO_ITEM_SET_HIDDEN(it);
+					proto_item_set_hidden(it);
 				}
 			}
 		}
@@ -3063,7 +3063,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 						tvb, offset, len,
 						ENC_NA|ENC_ASCII);
 					proto_item_set_text(it, "%d", tmp);
-					PROTO_ITEM_SET_HIDDEN(it);
+					proto_item_set_hidden(it);
 				}
 				break;
 			default:
@@ -3080,7 +3080,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 						ENC_NA|ENC_ASCII);
 					proto_item_set_text(it, "%s",
 							format_text(wmem_packet_scope(), line, len));
-					PROTO_ITEM_SET_HIDDEN(it);
+					proto_item_set_hidden(it);
 				}
 			}
 		} else
@@ -3173,7 +3173,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 				header_tree = proto_item_add_subtree(hdr_item, ett_http_header_item);
 				tree_item = proto_tree_add_uint64(header_tree, hf_http_content_length,
 					tvb, offset, len, eh_ptr->content_length);
-				PROTO_ITEM_SET_GENERATED(tree_item);
+				proto_item_set_generated(tree_item);
 				if (eh_ptr->transfer_encoding != HTTP_TE_NONE) {
 					expert_add_info(pinfo, hdr_item, &ei_http_te_and_length);
 				}
@@ -3381,7 +3381,7 @@ check_auth_citrixbasic(proto_item *hdr_item, tvbuff_t *tvb, gchar *value, int of
 			offset += (int)hdrlen + 15;
 			hidden_item = proto_tree_add_boolean(hdr_tree,
 					    hf_http_citrix, tvb, 0, 0, 1);
-			PROTO_ITEM_SET_HIDDEN(hidden_item);
+			proto_item_set_hidden(hidden_item);
 
 			if(strncmp(value, "username=\"", 10) == 0) {
 				value += 10;
@@ -3396,7 +3396,7 @@ check_auth_citrixbasic(proto_item *hdr_item, tvbuff_t *tvb, gchar *value, int of
 					}
 					pi = proto_tree_add_string(hdr_tree, hf_http_citrix_user, tvb,
 					    offset , data_len - 1, data_val);
-					PROTO_ITEM_SET_GENERATED(pi);
+					proto_item_set_generated(pi);
 					value += data_len;
 					offset += data_len;
 				}
@@ -3414,7 +3414,7 @@ check_auth_citrixbasic(proto_item *hdr_item, tvbuff_t *tvb, gchar *value, int of
 					}
 					pi = proto_tree_add_string(hdr_tree, hf_http_citrix_domain, tvb,
 					    offset, data_len - 1, data_val);
-					PROTO_ITEM_SET_GENERATED(pi);
+					proto_item_set_generated(pi);
 					value += data_len;
 					offset += data_len;
 				}
@@ -3432,7 +3432,7 @@ check_auth_citrixbasic(proto_item *hdr_item, tvbuff_t *tvb, gchar *value, int of
 					}
 					pi = proto_tree_add_string(hdr_tree, hf_http_citrix_passwd, tvb,
 					    offset, data_len - 1, data_val);
-					PROTO_ITEM_SET_GENERATED(pi);
+					proto_item_set_generated(pi);
 					value += data_len;
 					offset += data_len;
 				}
@@ -3450,7 +3450,7 @@ check_auth_citrixbasic(proto_item *hdr_item, tvbuff_t *tvb, gchar *value, int of
 					}
 					pi = proto_tree_add_string(hdr_tree, hf_http_citrix_session, tvb,
 					    offset, data_len - 1, data_val);
-					PROTO_ITEM_SET_GENERATED(pi);
+					proto_item_set_generated(pi);
 				}
 			}
 			return TRUE;

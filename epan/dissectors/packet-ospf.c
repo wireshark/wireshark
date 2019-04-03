@@ -1268,7 +1268,7 @@ dissect_ospf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
         hidden_item = proto_tree_add_item(ospf_header_tree,
                                           *hf_ospf_msg_type_array[ospf_msg_type_to_filter(packet_type)],
                                           tvb, 1, 1, ENC_BIG_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        proto_item_set_hidden(hidden_item);
     }
     proto_tree_add_item(ospf_header_tree, hf_ospf_header_packet_length, tvb, 2, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(ospf_header_tree, hf_ospf_header_src_router, tvb, 4, 4, ENC_BIG_ENDIAN);
@@ -2036,7 +2036,7 @@ dissect_ospf_lsa_mpls(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree 
                              ett_ospf_lsa_mpls, NULL, "MPLS Traffic Engineering LSA");
     hidden_item = proto_tree_add_item(tree, hf_ospf_ls_mpls,
                                       tvb, offset, 2, ENC_BIG_ENDIAN);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    proto_item_set_hidden(hidden_item);
 
     while (length != 0) {
         tlv_type = tvb_get_ntohs(tvb, offset);
@@ -3192,7 +3192,7 @@ dissect_ospf_v2_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
         hidden_item = proto_tree_add_item(ospf_lsa_tree,
                                           *hf_ospf_ls_type_array[ospf_ls_type_to_filter(ls_type)], tvb,
                                           offset + 3, 1, ENC_BIG_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        proto_item_set_hidden(hidden_item);
     }
 
     if (options & OSPF_V2_OPTIONS_MT) {
@@ -3450,7 +3450,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *t
         hidden_item = proto_tree_add_item(ospf_lsa_tree,
                                           *hf_ospf_v3_ls_type_array[ospf_v3_ls_type_to_filter(ls_type)], tvb,
                                           offset + 2, 2, ENC_BIG_ENDIAN);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        proto_item_set_hidden(hidden_item);
     }
 
     proto_tree_add_item(ospf_lsa_tree, hf_ospf_link_state_id, tvb, offset + 4, 4, ENC_BIG_ENDIAN);

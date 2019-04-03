@@ -289,7 +289,7 @@ dissect_nasdaq_itch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* d
     nasdaq_itch_tree = proto_item_add_subtree(ti, ett_nasdaq_itch);
 
     item = proto_tree_add_uint(nasdaq_itch_tree, hf_nasdaq_itch_version, tvb, 0, 0, version);
-    PROTO_ITEM_SET_GENERATED(item);
+    proto_item_set_generated(item);
   }
 
   if (version == 2) {

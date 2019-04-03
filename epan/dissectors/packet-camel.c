@@ -7756,7 +7756,7 @@ camelsrt_request_call_matching(tvbuff_t *tvb, packet_info *pinfo,
           p_camelsrt_info->msginfo[srt_type].is_duplicate = TRUE;
           if (gcamel_DisplaySRT){
             hidden_item = proto_tree_add_uint(tree, hf_camelsrt_Duplicate, tvb, 0,0, 77);
-                PROTO_ITEM_SET_HIDDEN(hidden_item);
+                proto_item_set_hidden(hidden_item);
           }
 
         } else {
@@ -7785,7 +7785,7 @@ camelsrt_request_call_matching(tvbuff_t *tvb, packet_info *pinfo,
                                       "Linked response %s in frame %u",
                                       val_to_str_const(srt_type, camelSRTtype_naming, "Unk"),
                                       p_camelsrt_call->category[srt_type].rsp_num);
-      PROTO_ITEM_SET_GENERATED(ti);
+      proto_item_set_generated(ti);
     } /* frame valid */
   } /* call reference */
 }
@@ -7804,34 +7804,34 @@ camelsrt_display_DeltaTime(proto_tree *tree, tvbuff_t *tvb, nstime_t *value_ptr,
     switch(category) {
     case CAMELSRT_VOICE_INITIALDP:
       ti = proto_tree_add_time(tree, hf_camelsrt_DeltaTime31, tvb, 0, 0, value_ptr);
-      PROTO_ITEM_SET_GENERATED(ti);
+      proto_item_set_generated(ti);
       break;
 
     case CAMELSRT_VOICE_ACR1:
     case CAMELSRT_VOICE_ACR2:
     case CAMELSRT_VOICE_ACR3:
       ti = proto_tree_add_time(tree, hf_camelsrt_DeltaTime22, tvb, 0, 0, value_ptr);
-      PROTO_ITEM_SET_GENERATED(ti);
+      proto_item_set_generated(ti);
       break;
 
     case CAMELSRT_VOICE_DISC:
       ti = proto_tree_add_time(tree, hf_camelsrt_DeltaTime35, tvb, 0, 0, value_ptr);
-      PROTO_ITEM_SET_GENERATED(ti);
+      proto_item_set_generated(ti);
       break;
 
     case CAMELSRT_GPRS_INITIALDP:
       ti = proto_tree_add_time(tree, hf_camelsrt_DeltaTime75, tvb, 0, 0, value_ptr);
-      PROTO_ITEM_SET_GENERATED(ti);
+      proto_item_set_generated(ti);
       break;
 
     case CAMELSRT_GPRS_REPORT:
       ti = proto_tree_add_time(tree, hf_camelsrt_DeltaTime80, tvb, 0, 0, value_ptr);
-      PROTO_ITEM_SET_GENERATED(ti);
+      proto_item_set_generated(ti);
       break;
 
     case CAMELSRT_SMS_INITIALDP:
       ti = proto_tree_add_time(tree, hf_camelsrt_DeltaTime65, tvb, 0, 0, value_ptr);
-      PROTO_ITEM_SET_GENERATED(ti);
+      proto_item_set_generated(ti);
       break;
 
     default:
@@ -7914,7 +7914,7 @@ camelsrt_report_call_matching(tvbuff_t *tvb, packet_info *pinfo,
         p_camelsrt_info->msginfo[srt_type].is_duplicate = TRUE;
         if ( gcamel_DisplaySRT ){
           hidden_item = proto_tree_add_uint(tree, hf_camelsrt_Duplicate, tvb, 0,0, 77);
-          PROTO_ITEM_SET_HIDDEN(hidden_item);
+          proto_item_set_hidden(hidden_item);
         }
       }
     } /* rsp_num != 0 */
@@ -7935,7 +7935,7 @@ camelsrt_report_call_matching(tvbuff_t *tvb, packet_info *pinfo,
                                         "Linked request %s in frame %u",
                                         val_to_str_const(srt_type, camelSRTtype_naming, "Unk"),
                                         p_camelsrt_call->category[srt_type].req_num);
-        PROTO_ITEM_SET_GENERATED(ti);
+        proto_item_set_generated(ti);
       }
       /* Calculate Service Response Time */
       nstime_delta(&delta, &pinfo->abs_ts, &p_camelsrt_call->category[srt_type].req_time);

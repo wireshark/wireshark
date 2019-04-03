@@ -72,7 +72,7 @@ dissect_gift(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 		} else {
 			hidden_item = proto_tree_add_boolean(gift_tree, hf_gift_response, tvb, 0, 0, TRUE);
 		}
-		PROTO_ITEM_SET_HIDDEN(hidden_item);
+		proto_item_set_hidden(hidden_item);
 
 		ti = proto_tree_add_format_text(gift_tree, tvb, offset, next_offset - offset);
 		cmd_tree = proto_item_add_subtree(ti, ett_gift_cmd);

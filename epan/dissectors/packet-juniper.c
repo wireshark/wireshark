@@ -627,7 +627,7 @@ dissect_juniper_payload_proto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
   tvbuff_t   *next_tvb;
 
   ti = proto_tree_add_uint(juniper_subtree, hf_juniper_payload_type, tvb, offset, 0, proto);
-  PROTO_ITEM_SET_GENERATED(ti);
+  proto_item_set_generated(ti);
 
   if (proto == 0xa248)
   {
@@ -750,7 +750,7 @@ dissect_juniper_mlfr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   }
 
   ti = proto_tree_add_uint(juniper_subtree, hf_juniper_cookie_len, tvb, offset, 0, cookie_len);
-  PROTO_ITEM_SET_GENERATED(ti);
+  proto_item_set_generated(ti);
 
   dissect_juniper_payload_proto(tvb, pinfo, tree, juniper_subtree, proto, offset);
 
@@ -824,7 +824,7 @@ dissect_juniper_mlppp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
   }
 
   ti = proto_tree_add_uint(juniper_subtree, hf_juniper_cookie_len, tvb, offset, 0, cookie_len);
-  PROTO_ITEM_SET_GENERATED(ti);
+  proto_item_set_generated(ti);
   offset += cookie_len;
 
   dissect_juniper_payload_proto(tvb, pinfo, tree, juniper_subtree, proto, offset);

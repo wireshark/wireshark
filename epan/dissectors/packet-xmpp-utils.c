@@ -722,7 +722,7 @@ children_foreach_hide_func(proto_node *node, gpointer data)
 {
     int *i = (int *)data;
     if((*i) == 0)
-        PROTO_ITEM_SET_HIDDEN(node);
+        proto_item_set_hidden(node);
     (*i)++;
 }
 
@@ -731,7 +731,7 @@ children_foreach_show_func(proto_node *node, gpointer data)
 {
     int *i = (int *)data;
     if((*i) == 0)
-        PROTO_ITEM_SET_VISIBLE(node);
+        proto_item_set_visible(node);
     (*i)++;
 }
 

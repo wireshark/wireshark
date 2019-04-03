@@ -2024,7 +2024,7 @@ rs2f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	}
 
 	ti = proto_tree_add_uint_format_value(tree, hf_ipmi_picmg_2f_comp_prop, tvb, 0, 0, pno, "%s (0x%02x)", desc, pno);
-	PROTO_ITEM_SET_GENERATED(ti);
+	proto_item_set_generated(ti);
 	if (pno < array_length(compprops)) {
 		compprops[pno].intrp(tvb, tree);
 	} else {

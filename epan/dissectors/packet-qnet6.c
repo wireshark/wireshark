@@ -1583,7 +1583,7 @@ dissect_qnet6_lr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint * 
                                          len,
                                          ENC_ASCII|ENC_NA);
                 ti = proto_tree_add_string(sstree, hf_index, tvb, addr_data_offset, len, name[i]);
-                PROTO_ITEM_SET_GENERATED(ti);
+                proto_item_set_generated(ti);
             }
           else
             {
@@ -1591,7 +1591,7 @@ dissect_qnet6_lr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gint * 
                 {
                   name[i] = tvb_ether_to_str(tvb, addr_data_offset + 2);
                   ti = proto_tree_add_item(sstree, hf_index, tvb, addr_data_offset + 2, 6, ENC_NA);
-                  PROTO_ITEM_SET_GENERATED(ti);
+                  proto_item_set_generated(ti);
                 }
               else
                 {
@@ -3275,7 +3275,7 @@ qos_tcs_init_addtree(tvbuff_t * tvb, proto_tree * tree, gint * poffset, guint en
       if (i <= rlen)
         {
           ti = proto_tree_add_item(tree, hf_generated, tvb, name_start + off, i - off, ENC_ASCII|ENC_NA);
-          PROTO_ITEM_SET_GENERATED(ti);
+          proto_item_set_generated(ti);
         }
 
     }

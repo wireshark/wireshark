@@ -617,7 +617,7 @@ dissect_mle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         /* MIC */
         if (rx_mic_len) {
             mic_item = proto_tree_add_bytes(header_tree, hf_mle_mic, tvb, 0, rx_mic_len, rx_mic);
-            PROTO_ITEM_SET_GENERATED(mic_item);
+            proto_item_set_generated(mic_item);
         }
     } else {
         status = DECRYPT_NOT_ENCRYPTED;

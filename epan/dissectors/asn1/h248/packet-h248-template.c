@@ -770,7 +770,7 @@ void gcp_analyze_msg(proto_tree* gcp_tree, packet_info* pinfo, tvbuff_t* gcp_tvb
         proto_tree* ctx_tree = proto_item_add_subtree(ctx_item,ids->ett.ctx);
         gcp_terms_t *ctx_term;
 
-        PROTO_ITEM_SET_GENERATED(ctx_item);
+        proto_item_set_generated(ctx_item);
 
         if (ctx->cmds) {
             proto_tree* history_tree = proto_tree_add_subtree(ctx_tree,gcp_tvb,0,0,ids->ett.ctx_cmds,NULL,"[ Command History ]");
@@ -778,7 +778,7 @@ void gcp_analyze_msg(proto_tree* gcp_tree, packet_info* pinfo, tvbuff_t* gcp_tvb
             for (c = ctx->cmds; c; c = c->next) {
                 proto_item* cmd_item = proto_tree_add_uint(history_tree,ids->hf.ctx_cmd,gcp_tvb,0,0,c->cmd->msg->framenum);
                 if (c->cmd->str) proto_item_append_text(cmd_item,"  %s ",c->cmd->str);
-                PROTO_ITEM_SET_GENERATED(cmd_item);
+                proto_item_set_generated(cmd_item);
                 if (c->cmd->error) {
                     expert_add_info(pinfo, cmd_item, command_err);
                 }
@@ -793,21 +793,21 @@ void gcp_analyze_msg(proto_tree* gcp_tree, packet_info* pinfo, tvbuff_t* gcp_tvb
                     proto_item* pi = proto_tree_add_string(terms_tree,ids->hf.ctx_term,gcp_tvb,0,0,ctx_term->term->str);
                     proto_tree* term_tree = proto_item_add_subtree(pi,ids->ett.ctx_term);
 
-                    PROTO_ITEM_SET_GENERATED(pi);
+                    proto_item_set_generated(pi);
 
                     if (ctx_term->term->type) {
                         pi = proto_tree_add_uint(term_tree,ids->hf.ctx_term_type,gcp_tvb,0,0,ctx_term->term->type);
-                        PROTO_ITEM_SET_GENERATED(pi);
+                        proto_item_set_generated(pi);
                     }
 
                     if (ctx_term->term->bir) {
                         pi = proto_tree_add_string(term_tree,ids->hf.ctx_term_bir,gcp_tvb,0,0,ctx_term->term->bir);
-                        PROTO_ITEM_SET_GENERATED(pi);
+                        proto_item_set_generated(pi);
                     }
 
                     if (ctx_term->term->nsap) {
                         pi = proto_tree_add_string(term_tree,ids->hf.ctx_term_nsap,gcp_tvb,0,0,ctx_term->term->nsap);
-                        PROTO_ITEM_SET_GENERATED(pi);
+                        proto_item_set_generated(pi);
                     }
 
                     if (ctx_term->term->bir && ctx_term->term->nsap) {
@@ -2193,7 +2193,7 @@ dissect_h248(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             guint32 magic_num = 0, offset = 0;
             magic_num = tvb_get_ntohl(tvb, offset);
             hidden_item = proto_tree_add_uint(tree, hf_248_magic_num, tvb, offset, 4, magic_num);
-            PROTO_ITEM_SET_HIDDEN(hidden_item);
+            proto_item_set_hidden(hidden_item);
             if( dissector_try_uint(subdissector_table, magic_num, tvb, pinfo, tree) ) {
                 return tvb_captured_length(tvb);
             }

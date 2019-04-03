@@ -338,7 +338,7 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 				call_data_dissector(tvb, pinfo, tree2);
 				item2 = proto_tree_add_int(tree2, hf_payload_l, tvb, 0, 0
 					,(int)payload_size); /* allow filtering */
-				PROTO_ITEM_SET_HIDDEN(item2);
+				proto_item_set_hidden(item2);
 			}
 		}
 

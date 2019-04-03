@@ -478,7 +478,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			}
 			item = proto_tree_add_time(fh_tree, hf_frame_shift_offset, tvb,
 					    0, 0, &(pinfo->fd->shift_offset));
-			PROTO_ITEM_SET_GENERATED(item);
+			proto_item_set_generated(item);
 
 			if (generate_epoch_time) {
 				proto_tree_add_time(fh_tree, hf_frame_arrival_time_epoch, tvb,
@@ -492,7 +492,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 				item = proto_tree_add_time(fh_tree, hf_frame_time_delta, tvb,
 							   0, 0, &(del_cap_ts));
-				PROTO_ITEM_SET_GENERATED(item);
+				proto_item_set_generated(item);
 			}
 
 			if (proto_field_is_referenced(tree, hf_frame_time_delta_displayed)) {
@@ -502,16 +502,16 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 
 				item = proto_tree_add_time(fh_tree, hf_frame_time_delta_displayed, tvb,
 							   0, 0, &(del_dis_ts));
-				PROTO_ITEM_SET_GENERATED(item);
+				proto_item_set_generated(item);
 			}
 
 			item = proto_tree_add_time(fh_tree, hf_frame_time_relative, tvb,
 						   0, 0, &(pinfo->rel_ts));
-			PROTO_ITEM_SET_GENERATED(item);
+			proto_item_set_generated(item);
 
 			if (pinfo->fd->ref_time) {
 				ti = proto_tree_add_item(fh_tree, hf_frame_time_reference, tvb, 0, 0, ENC_NA);
-				PROTO_ITEM_SET_GENERATED(ti);
+				proto_item_set_generated(ti);
 			}
 		}
 
@@ -536,14 +536,14 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 			gcry_md_hash_buffer(GCRY_MD_MD5, digest, cp, cap_len);
 			digest_string = bytestring_to_str(wmem_packet_scope(), digest, HASH_MD5_LENGTH, '\0');
 			ti = proto_tree_add_string(fh_tree, hf_frame_md5_hash, tvb, 0, 0, digest_string);
-			PROTO_ITEM_SET_GENERATED(ti);
+			proto_item_set_generated(ti);
 		}
 
 		ti = proto_tree_add_boolean(fh_tree, hf_frame_marked, tvb, 0, 0,pinfo->fd->marked);
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 
 		ti = proto_tree_add_boolean(fh_tree, hf_frame_ignored, tvb, 0, 0,pinfo->fd->ignored);
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 
 		if (pinfo->rec->rec_type == REC_TYPE_PACKET) {
 			/* Check for existences of P2P pseudo header */
@@ -708,7 +708,7 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		}
 		ensure_tree_item(fh_tree, 1);
 		ti = proto_tree_add_string(fh_tree, hf_frame_protocols, tvb, 0, 0, wmem_strbuf_get_str(val));
-		PROTO_ITEM_SET_GENERATED(ti);
+		proto_item_set_generated(ti);
 	}
 
 	/*  Call postdissectors if we have any (while trying to avoid another
@@ -773,11 +773,11 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 		ensure_tree_item(fh_tree, 1);
 		item = proto_tree_add_string(fh_tree, hf_frame_color_filter_name, tvb,
 					     0, 0, color_filter->filter_name);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 		ensure_tree_item(fh_tree, 1);
 		item = proto_tree_add_string(fh_tree, hf_frame_color_filter_text, tvb,
 					     0, 0, color_filter->filter_text);
-		PROTO_ITEM_SET_GENERATED(item);
+		proto_item_set_generated(item);
 	}
 
 	tap_queue_packet(frame_tap, pinfo, NULL);

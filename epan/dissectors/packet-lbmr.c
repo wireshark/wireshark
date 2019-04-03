@@ -4089,7 +4089,7 @@ static int dissect_lbmr_tir_transport(tvbuff_t * tvb, int offset, lbm_uint8_t tr
     {
         lbm_topic_add(channel, topic_index, topic_name);
         channel_item = proto_tree_add_uint64(tree, hf_lbmr_tir_channel, tvb, 0, 0, channel);
-        PROTO_ITEM_SET_GENERATED(channel_item);
+        proto_item_set_generated(channel_item);
     }
     return (len);
 }
@@ -5202,7 +5202,7 @@ static int dissect_lbmr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
             proto_item * item = NULL;
 
             item = proto_tree_add_string(lbmr_tree, hf_lbmr_tag, tvb, 0, 0, tag_name);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
         }
         lbmr_hdr_item = proto_tree_add_item(lbmr_tree, hf_lbmr_hdr, tvb, 0, -1, ENC_NA);
         lbmr_hdr_tree = proto_item_add_subtree(lbmr_hdr_item, ett_lbmr_hdr);
@@ -5361,7 +5361,7 @@ static int dissect_lbmr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
         {
             proto_item * item;
             item = proto_tree_add_string(lbmr_tree, hf_lbmr_tag, tvb, 0, 0, tag_name);
-            PROTO_ITEM_SET_GENERATED(item);
+            proto_item_set_generated(item);
         }
         lbmr_hdr_item = proto_tree_add_item(lbmr_tree, hf_lbmr_hdr, tvb, 0, -1, ENC_NA);
         lbmr_hdr_tree = proto_item_add_subtree(lbmr_hdr_item, ett_lbmr_hdr);

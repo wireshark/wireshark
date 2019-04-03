@@ -732,7 +732,7 @@ dissect_pgsql_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
         proto_tree_add_string(ptree, hf_type, tvb, 0, n, typestr);
         proto_tree_add_item(ptree, hf_length, tvb, n, 4, ENC_BIG_ENDIAN);
         hidden_item = proto_tree_add_boolean(ptree, hf_frontend, tvb, 0, 0, fe);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        proto_item_set_hidden(hidden_item);
         n += 4;
 
         if (fe)

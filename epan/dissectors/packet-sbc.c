@@ -217,19 +217,19 @@ dissect_sbc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 /* TODO: expert_info for invalid CRC */
 
         pitem = proto_tree_add_uint(rtree, hf_sbc_expected_data_speed, tvb, offset, 0, expected_speed_data / 1024);
-        PROTO_ITEM_SET_GENERATED(pitem);
+        proto_item_set_generated(pitem);
 
         frame_duration = (((double) frame_length / (double) expected_speed_data) * 1000.0);
         cumulative_frame_duration += frame_duration;
 
         pitem = proto_tree_add_double(rtree, hf_sbc_frame_duration, tvb, offset, 0, frame_duration);
-        PROTO_ITEM_SET_GENERATED(pitem);
+        proto_item_set_generated(pitem);
 
         counter += 1;
     }
 
     pitem = proto_tree_add_double(sbc_tree, hf_sbc_cumulative_frame_duration, tvb, offset, 0, cumulative_frame_duration);
-    PROTO_ITEM_SET_GENERATED(pitem);
+    proto_item_set_generated(pitem);
 
     if (info && info->configuration && info->configuration_length > 0) {
 /* TODO: display current codec configuration */
@@ -240,14 +240,14 @@ dissect_sbc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         nstime_delta(&delta, &pinfo->abs_ts, &info->previous_media_packet_info->abs_ts);
         pitem = proto_tree_add_double(sbc_tree, hf_sbc_delta_time, tvb, offset, 0, nstime_to_msec(&delta));
-        PROTO_ITEM_SET_GENERATED(pitem);
+        proto_item_set_generated(pitem);
 
         pitem = proto_tree_add_double(sbc_tree, hf_sbc_avrcp_song_position, tvb, offset, 0, info->previous_media_packet_info->avrcp_song_position);
-        PROTO_ITEM_SET_GENERATED(pitem);
+        proto_item_set_generated(pitem);
 
         nstime_delta(&delta, &pinfo->abs_ts, &info->previous_media_packet_info->first_abs_ts);
         pitem = proto_tree_add_double(sbc_tree, hf_sbc_delta_time_from_the_beginning, tvb, offset, 0,  nstime_to_msec(&delta));
-        PROTO_ITEM_SET_GENERATED(pitem);
+        proto_item_set_generated(pitem);
 
         if (!pinfo->fd->visited) {
             info->current_media_packet_info->cumulative_frame_duration += cumulative_frame_duration;
@@ -255,10 +255,10 @@ dissect_sbc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         }
 
         pitem = proto_tree_add_double(sbc_tree, hf_sbc_cumulative_duration, tvb, offset, 0, info->previous_media_packet_info->cumulative_frame_duration);
-        PROTO_ITEM_SET_GENERATED(pitem);
+        proto_item_set_generated(pitem);
 
         pitem = proto_tree_add_double(sbc_tree, hf_sbc_diff, tvb, offset, 0, info->previous_media_packet_info->cumulative_frame_duration - nstime_to_msec(&delta));
-        PROTO_ITEM_SET_GENERATED(pitem);
+        proto_item_set_generated(pitem);
     }
 
 /* TODO: more precise dissection: blocks, channels, subbands, padding  */

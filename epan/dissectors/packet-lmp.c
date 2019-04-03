@@ -737,7 +737,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         hidden_item = proto_tree_add_boolean(lmp_header_tree,
                                              hf_lmp_filter[lmp_msg_to_filter_num(message_type)],
                                              tvb, offset+3, 1, 1);
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
+        proto_item_set_hidden(hidden_item);
     } else {
         expert_add_info_format(pinfo, msg_item, &ei_lmp_invalid_msg_type,
                                "Invalid message type: %u", message_type);
@@ -776,7 +776,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         negotiable = (type >> 7); type &= 0x7f;
         hidden_item = proto_tree_add_uint(lmp_tree, hf_lmp_filter[LMPF_OBJECT], tvb,
                                           offset, 1, lmp_class);
-        PROTO_ITEM_SET_GENERATED(hidden_item);
+        proto_item_set_generated(hidden_item);
         filter_num = lmp_class_to_filter_num(lmp_class);
         if (filter_num != -1 && lmp_valid_class(lmp_class)) {
             ti = proto_tree_add_item(lmp_tree,

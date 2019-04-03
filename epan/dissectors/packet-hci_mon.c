@@ -129,10 +129,10 @@ dissect_hci_mon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     }
 
     sub_item = proto_tree_add_uint(hci_mon_tree, hf_adapter_id,  tvb, offset, 0, adapter_id);
-    PROTO_ITEM_SET_GENERATED(sub_item);
+    proto_item_set_generated(sub_item);
 
     sub_item = proto_tree_add_uint(hci_mon_tree, hf_opcode, tvb, offset, 0, opcode);
-    PROTO_ITEM_SET_GENERATED(sub_item);
+    proto_item_set_generated(sub_item);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "Adapter Id: %u, Opcode: %s",
             adapter_id, val_to_str_ext_const(opcode, &hci_mon_opcode_vals_ext, "Unknown"));

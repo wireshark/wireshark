@@ -787,7 +787,7 @@ dissect_zvt_apdu(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tre
         if (zvt_trans && zvt_trans->resp_frame == pinfo->num) {
             it = proto_tree_add_uint(apdu_tree, hf_zvt_resp_to,
                     NULL, 0, 0, zvt_trans->rqst_frame);
-            PROTO_ITEM_SET_GENERATED(it);
+            proto_item_set_generated(it);
         }
     }
     else {
@@ -804,7 +804,7 @@ dissect_zvt_apdu(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tre
                     zvt_trans->resp_frame!=0) {
                it = proto_tree_add_uint(apdu_tree, hf_zvt_resp_in,
                        NULL, 0, 0, zvt_trans->resp_frame);
-               PROTO_ITEM_SET_GENERATED(it);
+               proto_item_set_generated(it);
             }
         }
         else {

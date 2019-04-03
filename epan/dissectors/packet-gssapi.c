@@ -276,7 +276,7 @@ dissect_gssapi_work(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					} else {
 						proto_item *it;
 						it=proto_tree_add_uint(tree, hf_gssapi_reassembled_in, tvb, 0, 0, fi->reassembled_in);
-					        PROTO_ITEM_SET_GENERATED(it);
+					        proto_item_set_generated(it);
 						goto done;
 					}
 				}

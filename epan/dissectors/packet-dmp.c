@@ -1467,14 +1467,14 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
   }
 
   analysis_tree = proto_tree_add_subtree(dmp_tree, tvb, 0, 0, ett_analysis, &en, "SEQ/ACK analysis");
-  PROTO_ITEM_SET_GENERATED (en);
+  proto_item_set_generated (en);
 
   if ((dmp.msg_type == STANAG) || (dmp.msg_type == IPM) ||
       (dmp.msg_type == REPORT) || (dmp.msg_type == NOTIF)) {
     if (dmp.id_val->ack_id) {
       en = proto_tree_add_uint (analysis_tree, hf_analysis_ack_num, tvb,
                                 0, 0, dmp.id_val->ack_id);
-      PROTO_ITEM_SET_GENERATED (en);
+      proto_item_set_generated (en);
       if (!dmp.checksum) {
         proto_item_append_text (en, " (unexpected)");
         expert_add_info(pinfo, en, &ei_analysis_ack_unexpected);
@@ -1485,7 +1485,7 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
         /* We do not know this on first visit and we do not want to
            add a entry in the "Expert Severity Info" for this note */
         expert_add_info(pinfo, en, &ei_analysis_ack_missing);
-        PROTO_ITEM_SET_GENERATED (en);
+        proto_item_set_generated (en);
       }
     }
 
@@ -1493,12 +1493,12 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
       if (dmp.id_val->msg_id) {
         en = proto_tree_add_uint (analysis_tree, hf_analysis_msg_num,
                                   tvb, 0, 0, dmp.id_val->msg_id);
-        PROTO_ITEM_SET_GENERATED (en);
+        proto_item_set_generated (en);
 
         nstime_delta (&ns, &pinfo->abs_ts, &dmp.id_val->rep_not_msg_time);
         en = proto_tree_add_time (analysis_tree, hf_analysis_rep_time,
                                   tvb, 0, 0, &ns);
-        PROTO_ITEM_SET_GENERATED (en);
+        proto_item_set_generated (en);
       } else {
         proto_tree_add_expert (analysis_tree, pinfo, &ei_analysis_msg_missing, tvb, 0, 0);
       }
@@ -1506,12 +1506,12 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
       if (dmp.id_val->msg_id) {
         en = proto_tree_add_uint (analysis_tree, hf_analysis_msg_num,
                                   tvb, 0, 0, dmp.id_val->msg_id);
-        PROTO_ITEM_SET_GENERATED (en);
+        proto_item_set_generated (en);
 
         nstime_delta (&ns, &pinfo->abs_ts, &dmp.id_val->rep_not_msg_time);
         en = proto_tree_add_time (analysis_tree, hf_analysis_not_time,
                                   tvb, 0, 0, &ns);
-        PROTO_ITEM_SET_GENERATED (en);
+        proto_item_set_generated (en);
       } else {
         proto_tree_add_expert (analysis_tree, pinfo, &ei_analysis_msg_missing, tvb, 0, 0);
       }
@@ -1520,7 +1520,7 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
     if (dmp.id_val->msg_resend_count) {
       en = proto_tree_add_uint (analysis_tree, hf_analysis_retrans_no,
                                 tvb, 0, 0, dmp.id_val->msg_resend_count);
-      PROTO_ITEM_SET_GENERATED (en);
+      proto_item_set_generated (en);
 
       expert_add_info_format(pinfo, en, &ei_analysis_retrans_no, "Retransmission #%d", dmp.id_val->msg_resend_count);
 
@@ -1534,22 +1534,22 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
         en = proto_tree_add_uint (analysis_tree, hf_analysis_msg_resend_from,
                                   tvb, 0, 0, dmp.id_val->msg_id);
       }
-      PROTO_ITEM_SET_GENERATED (en);
+      proto_item_set_generated (en);
 
       nstime_delta (&ns, &pinfo->abs_ts, &dmp.id_val->prev_msg_time);
       en = proto_tree_add_time (analysis_tree, hf_analysis_retrans_time,
                                 tvb, 0, 0, &ns);
-      PROTO_ITEM_SET_GENERATED (en);
+      proto_item_set_generated (en);
 
       nstime_delta (&ns, &pinfo->abs_ts, &dmp.id_val->first_msg_time);
       eh = proto_tree_add_time (analysis_tree, hf_analysis_total_retrans_time,
                                 tvb, 0, 0, &ns);
-      PROTO_ITEM_SET_GENERATED (eh);
+      proto_item_set_generated (eh);
 
       if (dmp.id_val->first_msg_time.secs == dmp.id_val->prev_msg_time.secs &&
           dmp.id_val->first_msg_time.nsecs == dmp.id_val->prev_msg_time.nsecs) {
         /* Time values does not differ, hide the total time */
-        PROTO_ITEM_SET_HIDDEN (eh);
+        proto_item_set_hidden (eh);
       }
     }
   } else if (dmp.msg_type == ACK) {
@@ -1564,22 +1564,22 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
         en = proto_tree_add_uint (analysis_tree, hf_analysis_acks_msg_num,
                                   tvb, 0, 0, dmp.id_val->msg_id);
       }
-      PROTO_ITEM_SET_GENERATED (en);
+      proto_item_set_generated (en);
 
       nstime_delta (&ns, &pinfo->abs_ts, &dmp.id_val->msg_time);
       en = proto_tree_add_time (analysis_tree, hf_analysis_ack_time,
                                 tvb, 0, 0, &ns);
-      PROTO_ITEM_SET_GENERATED (en);
+      proto_item_set_generated (en);
 
       nstime_delta (&ns, &pinfo->abs_ts, &dmp.id_val->first_msg_time);
       eh = proto_tree_add_time (analysis_tree, hf_analysis_total_time,
                                 tvb, 0, 0, &ns);
-      PROTO_ITEM_SET_GENERATED (eh);
+      proto_item_set_generated (eh);
 
       if (dmp.id_val->first_msg_time.secs == dmp.id_val->msg_time.secs &&
           dmp.id_val->first_msg_time.nsecs == dmp.id_val->msg_time.nsecs) {
         /* Time values does not differ, hide the total time */
-        PROTO_ITEM_SET_HIDDEN (eh);
+        proto_item_set_hidden (eh);
       } else {
         /* Different times, add a reference to the message we have ack'ed */
         proto_item_append_text (en, " (from frame %d)",
@@ -1592,13 +1592,13 @@ static void dmp_add_seq_ack_analysis (tvbuff_t *tvb, packet_info *pinfo,
     if (dmp.id_val->ack_resend_count) {
       en = proto_tree_add_uint (analysis_tree, hf_analysis_ack_dup_no,
                                 tvb, 0, 0, dmp.id_val->ack_resend_count);
-      PROTO_ITEM_SET_GENERATED (en);
+      proto_item_set_generated (en);
 
       expert_add_info_format(pinfo, en, &ei_analysis_ack_dup_no, "Dup ACK #%d", dmp.id_val->ack_resend_count);
 
       en = proto_tree_add_uint (analysis_tree, hf_analysis_ack_resend_from,
                                 tvb, 0, 0, dmp.id_val->ack_id);
-      PROTO_ITEM_SET_GENERATED (en);
+      proto_item_set_generated (en);
     }
   }
 }
@@ -1965,7 +1965,7 @@ static gint dissect_dmp_direct_addr (tvbuff_t *tvb, packet_info *pinfo,
                                      "%sDirect Address: %d",
                                      val_to_str_const (addr_type, addr_type_str, ""),
                                      dir_addr);
-    PROTO_ITEM_SET_GENERATED (en);
+    proto_item_set_generated (en);
   } else {
     en = proto_tree_add_uint_format (field_tree, hf_addr_dir_address, tvb,
                                      offset, 1, value,
@@ -2074,7 +2074,7 @@ static gint dissect_dmp_ext_addr (tvbuff_t *tvb, packet_info *pinfo,
     en = proto_tree_add_uint_format (ext_tree, hf_addr_ext_length_generated,
                                      tvb, offset, 0, length,
                                      "Address Length: %d", length);
-    PROTO_ITEM_SET_GENERATED (en);
+    proto_item_set_generated (en);
   }
 
   proto_item_append_text (ef, ", Type: %s, Length: %d",
@@ -2211,7 +2211,7 @@ static gint dissect_dmp_originator (tvbuff_t *tvb, packet_info *pinfo,
         en = proto_tree_add_boolean (field_tree, hf_addr_dl_expanded, tvb,
                                      offset, 0, TRUE);
       }
-      PROTO_ITEM_SET_GENERATED (en);
+      proto_item_set_generated (en);
     }
   }
   proto_item_set_len (tf, offset - boffset);
@@ -2390,13 +2390,13 @@ static gint dissect_dmp_direct_encoding (tvbuff_t *tvb, packet_info *pinfo,
     proto_item_append_text (en, " (maximum 32767)");
     expert_add_info(pinfo, en, &ei_addr_dir_rec_no_generated);
   }
-  PROTO_ITEM_SET_GENERATED (en);
+  proto_item_set_generated (en);
 
   if (dir_addr_extended) {
     en = proto_tree_add_uint_format (field_tree, hf_addr_dir_address_generated,
                                      tvb, offset, 0, dir_addr,
                                      "Direct Address: %d", dir_addr);
-    PROTO_ITEM_SET_GENERATED (en);
+    proto_item_set_generated (en);
   }
 
   proto_item_append_text (tf, " %d", rec_no);
@@ -2510,7 +2510,7 @@ static gint dissect_dmp_ext_encoding (tvbuff_t *tvb, packet_info *pinfo,
     proto_item_append_text (en, " (maximum 32767)");
     expert_add_info(pinfo, en, &ei_addr_ext_rec_no_generated);
   }
-  PROTO_ITEM_SET_GENERATED (en);
+  proto_item_set_generated (en);
 
   switch (dmp_addr_form) {
 
@@ -2615,7 +2615,7 @@ static gint dissect_dmp_ack (tvbuff_t *tvb, packet_info *pinfo,
   dmp.subj_id = tvb_get_ntohs (tvb, offset);
   proto_tree_add_item (ack_tree, hf_message_subj_id, tvb, offset, 2, ENC_BIG_ENDIAN);
   hidden_item = proto_tree_add_item (ack_tree, hf_dmp_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-  PROTO_ITEM_SET_HIDDEN (hidden_item);
+  proto_item_set_hidden (hidden_item);
   offset += 2;
 
   if (use_seq_ack_analysis) {
@@ -2672,7 +2672,7 @@ static gint dissect_mts_identifier (tvbuff_t *tvb, packet_info *pinfo, proto_tre
     /* Insert into hash, for analysis */
     wmem_map_insert (dmp_long_id_hash_table, wmem_strdup (wmem_file_scope(), mts_id), GUINT_TO_POINTER ((guint)dmp.msg_id));
   }
-  PROTO_ITEM_SET_HIDDEN (hidden_item);
+  proto_item_set_hidden (hidden_item);
   offset += dmp.mts_id_length;
 
   if (byte_rest) {
@@ -2728,7 +2728,7 @@ static gint dissect_ipm_identifier (tvbuff_t *tvb, packet_info *pinfo, proto_tre
     /* Insert into hash, for analysis */
     wmem_map_insert (dmp_long_id_hash_table, wmem_strdup (wmem_file_scope(), ipm_id), GUINT_TO_POINTER ((guint)dmp.msg_id));
   }
-  PROTO_ITEM_SET_HIDDEN (hidden_item);
+  proto_item_set_hidden (hidden_item);
   offset += ipm_id_length;
 
   if (byte_rest) {
@@ -2916,7 +2916,7 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
   } else if (dmp.version >= DMP_VERSION_2 && dmp.msg_id_type == ONLY_DMP_ID && dmp.msg_id < 4096) {
     expert_add_info(pinfo, tf, &ei_envelope_msg_id);
   }
-  PROTO_ITEM_SET_HIDDEN (hidden_item);
+  proto_item_set_hidden (hidden_item);
   offset += 2;
 
   if (dmp.version >= DMP_VERSION_2) {
@@ -3122,7 +3122,7 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
         tf = proto_tree_add_item (message_tree, hf_message_body_data,
                                   body_tvb, 0, body_len, ENC_NA);
         proto_item_set_text (tf, "User data, Length: %d", body_len);
-        PROTO_ITEM_SET_GENERATED (tf);
+        proto_item_set_generated (tf);
       } else {
         proto_tree_add_expert (message_tree, pinfo, &ei_message_body_uncompress, tvb, offset, len);
       }
@@ -3695,7 +3695,7 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
     /* Show configured national policy */
     tf = proto_tree_add_uint (message_tree, hf_message_national_policy_id,
                               tvb, offset, 0, dmp_local_nation);
-    PROTO_ITEM_SET_GENERATED (tf);
+    proto_item_set_generated (tf);
   } else if (dmp_sec_pol == EXTENDED_NATIONAL) {
     /* National Policy Identifier */
     proto_tree_add_item (message_tree, hf_message_national_policy_id, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3728,7 +3728,7 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
     proto_item_append_text (en, ", Security Label: %s", label_string);
     tf = proto_tree_add_string (message_tree, hf_message_sec_label, tvb, loffset,
                                 offset - loffset, label_string);
-    PROTO_ITEM_SET_GENERATED (tf);
+    proto_item_set_generated (tf);
   } else {
     tf = proto_tree_add_item (message_tree, hf_message_sec_cat_val, tvb, offset, 1, ENC_BIG_ENDIAN);
     field_tree = proto_item_add_subtree (tf, ett_message_sec_cat);
@@ -3802,7 +3802,7 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
       dmp.subj_id = tvb_get_ntohs (tvb, offset);
       proto_tree_add_item (message_tree, hf_message_subj_id, tvb, offset, 2, ENC_BIG_ENDIAN);
       hidden_item = proto_tree_add_item (message_tree, hf_dmp_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-      PROTO_ITEM_SET_HIDDEN (hidden_item);
+      proto_item_set_hidden (hidden_item);
       offset += 2;
     } else if (dmp.msg_id_type == X400_MSG_ID || dmp.msg_id_type == NAT_MSG_ID) {
       if (dmp.msg_type == REPORT) {
@@ -3814,10 +3814,10 @@ static gint dissect_dmp_content (tvbuff_t *tvb, packet_info *pinfo,
       }
       if (dmp.subj_id) {
         tf = proto_tree_add_uint (message_tree, hf_message_subj_id, tvb, offset, 0, dmp.subj_id);
-        PROTO_ITEM_SET_GENERATED (tf);
+        proto_item_set_generated (tf);
         hidden_item = proto_tree_add_uint (message_tree, hf_dmp_id, tvb, offset, 0, dmp.subj_id);
-        PROTO_ITEM_SET_GENERATED (hidden_item);
-        PROTO_ITEM_SET_HIDDEN (hidden_item);
+        proto_item_set_generated (hidden_item);
+        proto_item_set_hidden (hidden_item);
       }
     }
   }

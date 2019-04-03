@@ -846,34 +846,34 @@ static void write_rte(RRPD *in_rrpd, tvbuff_t *tvb, proto_tree *tree, char *summ
         {
             pi = proto_tree_add_string(rte_tree, hf_tsum_status, tvb, 0, 0, "Response missing");
         }
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
 
 
         pi = proto_tree_add_uint(rte_tree, hf_tsum_req_first_seg, tvb, 0, 0, in_rrpd->req_first_frame);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
         pi = proto_tree_add_uint(rte_tree, hf_tsum_req_last_seg, tvb, 0, 0, in_rrpd->req_last_frame);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
 
         if (in_rrpd->rsp_first_frame)
         {
             pi = proto_tree_add_uint(rte_tree, hf_tsum_rsp_first_seg, tvb, 0, 0, in_rrpd->rsp_first_frame);
-            PROTO_ITEM_SET_GENERATED(pi);
+            proto_item_set_generated(pi);
             pi = proto_tree_add_uint(rte_tree, hf_tsum_rsp_last_seg, tvb, 0, 0, in_rrpd->rsp_last_frame);
-            PROTO_ITEM_SET_GENERATED(pi);
+            proto_item_set_generated(pi);
 
             pi = proto_tree_add_time(rte_tree, hf_tsum_apdu_rsp_time, tvb, 0, 0, &rte_art);
-            PROTO_ITEM_SET_GENERATED(pi);
+            proto_item_set_generated(pi);
             pi = proto_tree_add_time(rte_tree, hf_tsum_service_time, tvb, 0, 0, &rte_st);
-            PROTO_ITEM_SET_GENERATED(pi);
+            proto_item_set_generated(pi);
         }
 
         pi = proto_tree_add_time(rte_tree, hf_tsum_req_spread, tvb, 0, 0, &rte_reqspread);
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
 
         if (in_rrpd->rsp_first_frame)
         {
             pi = proto_tree_add_time(rte_tree, hf_tsum_rsp_spread, tvb, 0, 0, &rte_rspspread);
-            PROTO_ITEM_SET_GENERATED(pi);
+            proto_item_set_generated(pi);
         }
 
         if (in_rrpd->ip_proto == IP_PROTO_TCP)
@@ -890,10 +890,10 @@ static void write_rte(RRPD *in_rrpd, tvbuff_t *tvb, proto_tree *tree, char *summ
             wmem_strbuf_append_printf(temp_string, " && tcp.len>0");
 
         pi = proto_tree_add_string(rte_tree, hf_tsum_clip_filter, tvb, 0, 0, wmem_strbuf_get_str(temp_string));
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
 
         pi = proto_tree_add_string(rte_tree, hf_tsum_calculation, tvb, 0, 0, val_to_str(in_rrpd->calculation, rrdp_calculation_vals, "Unknown calculation type: %d"));
-        PROTO_ITEM_SET_GENERATED(pi);
+        proto_item_set_generated(pi);
 
         if (in_rrpd->rsp_first_frame)
         {
@@ -902,7 +902,7 @@ static void write_rte(RRPD *in_rrpd, tvbuff_t *tvb, proto_tree *tree, char *summ
                 if (summary)
                 {
                     pi = proto_tree_add_string(tree, hf_tsum_summary, tvb, 0, 0, summary);
-                    PROTO_ITEM_SET_GENERATED(pi);
+                    proto_item_set_generated(pi);
                 }
             }
         }
@@ -910,9 +910,9 @@ static void write_rte(RRPD *in_rrpd, tvbuff_t *tvb, proto_tree *tree, char *summ
         if (preferences.debug_enabled)
         {
             pi = proto_tree_add_uint(rte_tree, hf_tsum_req_search, tvb, 0, 0, in_rrpd->req_search_total);
-            PROTO_ITEM_SET_GENERATED(pi);
+            proto_item_set_generated(pi);
             pi = proto_tree_add_uint(rte_tree, hf_tsum_rsp_search, tvb, 0, 0, in_rrpd->rsp_search_total);
-            PROTO_ITEM_SET_GENERATED(pi);
+            proto_item_set_generated(pi);
         }
     }
 }

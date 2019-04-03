@@ -65,7 +65,7 @@ dissect_nntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 			ti = proto_tree_add_boolean(nntp_tree,
 			    hf_nntp_response, tvb, 0, 0, TRUE);
 		}
-		PROTO_ITEM_SET_HIDDEN(ti);
+		proto_item_set_hidden(ti);
 
 		/*
 		 * Show the request or response as text, a line at a time.

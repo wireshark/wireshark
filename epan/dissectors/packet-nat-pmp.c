@@ -321,7 +321,7 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
   if(!is_response)
   {
     ti = proto_tree_add_boolean(pcp_tree, hf_request, tvb, offset-1, 1, is_response == FALSE);
-    PROTO_ITEM_SET_HIDDEN(ti);
+    proto_item_set_hidden(ti);
 
     proto_tree_add_item(pcp_tree, hf_reserved2, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
@@ -335,7 +335,7 @@ dissect_portcontrol_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
   else
   {
     ti = proto_tree_add_boolean(pcp_tree, hf_response, tvb, offset-1, 1, is_response == TRUE);
-    PROTO_ITEM_SET_HIDDEN(ti);
+    proto_item_set_hidden(ti);
 
     proto_tree_add_item(pcp_tree, hf_reserved1, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;

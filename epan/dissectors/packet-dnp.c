@@ -1466,7 +1466,7 @@ dnp3_al_obj_procprefix(tvbuff_t *tvb, int offset, guint8 al_objq_prefix, guint32
     case AL_OBJQL_PREFIX_NI:        /* No Prefix */
       prefixbytes = 0;
       prefix_item = proto_tree_add_uint(item_tree, hf_dnp3_al_point_index, tvb, offset, 0, *al_ptaddr);
-      PROTO_ITEM_SET_GENERATED(prefix_item);
+      proto_item_set_generated(prefix_item);
       break;
     case AL_OBJQL_PREFIX_1O:
       *al_ptaddr = tvb_get_guint8(tvb, offset);
@@ -1749,7 +1749,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
   {
     case AL_OBJQL_RANGE_SSI8:           /* 8-bit Start and Stop Indices in Range Field */
       num_items = ( tvb_get_guint8(tvb, offset+1) - tvb_get_guint8(tvb, offset) + 1);
-      PROTO_ITEM_SET_GENERATED(range_item);
+      proto_item_set_generated(range_item);
       al_ptaddr = tvb_get_guint8(tvb, offset);
       proto_tree_add_item(range_tree, hf_dnp3_al_range_start8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(range_tree, hf_dnp3_al_range_stop8, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
@@ -1757,7 +1757,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
       break;
     case AL_OBJQL_RANGE_SSI16:          /* 16-bit Start and Stop Indices in Range Field */
       num_items = ( tvb_get_letohs(tvb, offset+2) - tvb_get_letohs(tvb, (offset)) + 1);
-      PROTO_ITEM_SET_GENERATED(range_item);
+      proto_item_set_generated(range_item);
       al_ptaddr = tvb_get_letohs(tvb, offset);
       proto_tree_add_item(range_tree, hf_dnp3_al_range_start16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(range_tree, hf_dnp3_al_range_stop16, tvb, offset + 2, 2, ENC_LITTLE_ENDIAN);
@@ -1765,7 +1765,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
       break;
     case AL_OBJQL_RANGE_SSI32:          /* 32-bit Start and Stop Indices in Range Field */
       num_items = ( tvb_get_letohl(tvb, offset+4) - tvb_get_letohl(tvb, offset) + 1);
-      PROTO_ITEM_SET_GENERATED(range_item);
+      proto_item_set_generated(range_item);
       al_ptaddr = tvb_get_letohl(tvb, offset);
       proto_tree_add_item(range_tree, hf_dnp3_al_range_start32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(range_tree, hf_dnp3_al_range_stop32, tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
@@ -1773,21 +1773,21 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset,
       break;
     case AL_OBJQL_RANGE_AA8:            /* 8-bit Absolute Address in Range Field */
       num_items = 1;
-      PROTO_ITEM_SET_GENERATED(range_item);
+      proto_item_set_generated(range_item);
       al_ptaddr = tvb_get_guint8(tvb, offset);
       proto_tree_add_item(range_tree, hf_dnp3_al_range_abs8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       rangebytes = 1;
       break;
     case AL_OBJQL_RANGE_AA16:           /* 16-bit Absolute Address in Range Field */
       num_items = 1;
-      PROTO_ITEM_SET_GENERATED(range_item);
+      proto_item_set_generated(range_item);
       al_ptaddr = tvb_get_letohs(tvb, offset);
       proto_tree_add_item(range_tree, hf_dnp3_al_range_abs16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
       rangebytes = 2;
       break;
     case AL_OBJQL_RANGE_AA32:           /* 32-bit Absolute Address in Range Field */
       num_items = 1;
-      PROTO_ITEM_SET_GENERATED(range_item);
+      proto_item_set_generated(range_item);
       al_ptaddr = tvb_get_letohl(tvb, offset);
       proto_tree_add_item(range_tree, hf_dnp3_al_range_abs32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
       rangebytes = 4;
@@ -3290,11 +3290,11 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
   /* add destination and source addresses */
   proto_tree_add_item(dl_tree, hf_dnp3_dst, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   hidden_item = proto_tree_add_item(dl_tree, hf_dnp3_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  proto_item_set_hidden(hidden_item);
   offset += 2;
   proto_tree_add_item(dl_tree, hf_dnp3_src, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   hidden_item = proto_tree_add_item(dl_tree, hf_dnp3_addr, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-  PROTO_ITEM_SET_HIDDEN(hidden_item);
+  proto_item_set_hidden(hidden_item);
   offset += 2;
 
   /* and header CRC */
@@ -3368,7 +3368,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
       chk_tree = proto_tree_add_subtree_format(data_tree, tvb, offset, chk_size + 2, ett_dnp3_dl_chunk, NULL, "Data Chunk: %u", i);
       proto_tree_add_item(chk_tree, hf_dnp3_data_chunk, tvb, offset, chk_size, ENC_NA);
       chk_len_ti = proto_tree_add_uint(chk_tree, hf_dnp3_data_chunk_len, tvb, offset, 0, chk_size);
-      PROTO_ITEM_SET_GENERATED(chk_len_ti);
+      proto_item_set_generated(chk_len_ti);
 
       offset  += chk_size;
 

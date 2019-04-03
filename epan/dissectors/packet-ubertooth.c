@@ -1739,7 +1739,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
 
     command_item = proto_tree_add_uint(main_tree, hf_response, tvb, offset, 0, command_response);
     command_tree = proto_item_add_subtree(command_item, ett_command);
-    PROTO_ITEM_SET_GENERATED(command_item);
+    proto_item_set_generated(command_item);
     switch (command_response) {
 
     case 1: /* Rx Symbols */
@@ -1960,7 +1960,7 @@ dissect_ubertooth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *dat
         break;
     case 53: /* Read Register */
         sub_item = proto_tree_add_uint(main_tree, hf_register, tvb, offset, 0, register_id);
-        PROTO_ITEM_SET_GENERATED(sub_item);
+        proto_item_set_generated(sub_item);
         if (try_val_to_str_ext(register_id, &register_vals_ext))
             proto_item_append_text(sub_item, " [%s]", val_to_str_ext_const(register_id, &register_description_vals_ext, "Unknown"));
 

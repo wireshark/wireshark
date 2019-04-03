@@ -915,7 +915,7 @@ NavModelCNAV-KeplerianSet/cnavDeltaNoDot DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp
 %(DEFAULT_BODY)s
 
 #.FN_FTR NavModelCNAV-KeplerianSet/cnavMo
-  PROTO_ITEM_SET_HIDDEN(actx->created_item);
+  proto_item_set_hidden(actx->created_item);
   actx->created_item = proto_tree_add_int64_format_value(tree, hf_index, tvb, curr_offset>>3, (offset+7-curr_offset)>>3,
                                                          cnavMo, "%g semi-circles (%"G_GINT64_MODIFIER"d)",
                                                          (double)cnavMo*pow(2, -32), cnavMo);
@@ -926,7 +926,7 @@ NavModelCNAV-KeplerianSet/cnavDeltaNoDot DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp
 %(DEFAULT_BODY)s
 
 #.FN_FTR NavModelCNAV-KeplerianSet/cnavE
-  PROTO_ITEM_SET_HIDDEN(actx->created_item);
+  proto_item_set_hidden(actx->created_item);
   actx->created_item = proto_tree_add_uint64_format_value(tree, hf_index, tvb, curr_offset>>3, (offset+7-curr_offset)>>3,
                                                           cnavE, "%g (%"G_GINT64_MODIFIER"u)",
                                                           (double)cnavE*pow(2, -34), cnavE);
@@ -937,7 +937,7 @@ NavModelCNAV-KeplerianSet/cnavDeltaNoDot DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp
 %(DEFAULT_BODY)s
 
 #.FN_FTR NavModelCNAV-KeplerianSet/cnavOmega
-  PROTO_ITEM_SET_HIDDEN(actx->created_item);
+  proto_item_set_hidden(actx->created_item);
   actx->created_item = proto_tree_add_int64_format_value(tree, hf_index, tvb, curr_offset>>3, (offset+7-curr_offset)>>3,
                                                          cnavOmega, "%g semi-circles (%"G_GINT64_MODIFIER"d)",
                                                          (double)cnavOmega*pow(2, -32), cnavOmega);
@@ -948,7 +948,7 @@ NavModelCNAV-KeplerianSet/cnavDeltaNoDot DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp
 %(DEFAULT_BODY)s
 
 #.FN_FTR NavModelCNAV-KeplerianSet/cnavOMEGA0
-  PROTO_ITEM_SET_HIDDEN(actx->created_item);
+  proto_item_set_hidden(actx->created_item);
   actx->created_item = proto_tree_add_int64_format_value(tree, hf_index, tvb, curr_offset>>3, (offset+7-curr_offset)>>3,
                                                          cnavOMEGA0, "%g semi-circles (%"G_GINT64_MODIFIER"d)",
                                                          (double)cnavOMEGA0*pow(2, -32), cnavOMEGA0);
@@ -962,7 +962,7 @@ NavModelCNAV-KeplerianSet/cnavDeltaOmegaDot DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(
 %(DEFAULT_BODY)s
 
 #.FN_FTR NavModelCNAV-KeplerianSet/cnavIo
-  PROTO_ITEM_SET_HIDDEN(actx->created_item);
+  proto_item_set_hidden(actx->created_item);
   actx->created_item = proto_tree_add_int64_format_value(tree, hf_index, tvb, curr_offset>>3, (offset+7-curr_offset)>>3,
                                                          cnavIo, "%g semi-circles (%"G_GINT64_MODIFIER"d)",
                                                          (double)cnavIo*pow(2, -32), cnavIo);
