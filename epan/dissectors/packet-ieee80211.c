@@ -244,6 +244,7 @@ typedef struct mimo_control
 #define IS_AP_KEY 2
 #define IS_CTRL_GRANT_OR_GRANT_ACK_KEY 2
 #define EAPOL_KEY 3
+#define PACKET_DATA_KEY 4
 /* ************************************************************************* */
 /*  Define some very useful macros that are used to analyze frame types etc. */
 /* ************************************************************************* */
@@ -14480,6 +14481,17 @@ dissect_qos_capability(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
   return offset;
 }
 
+static ieee80211_packet_data_t* get_or_create_packet_data(packet_info *pinfo) {
+  ieee80211_packet_data_t *packet_data =
+    (ieee80211_packet_data_t*)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, PACKET_DATA_KEY);
+  if (!packet_data) {
+    packet_data = wmem_new(pinfo->pool, ieee80211_packet_data_t);
+    p_add_proto_data(pinfo->pool, pinfo, proto_wlan, PACKET_DATA_KEY, packet_data);
+    memset(packet_data, 0, sizeof(ieee80211_packet_data_t));
+  }
+  return packet_data;
+}
+
 /* See ieee80211_rsn_keymgmt_vals */
 static gboolean is_ft_akm_suite(guint32 akm_suite)
 {
@@ -14591,6 +14603,9 @@ dissect_rsn_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 
   rsn_akms_item = proto_tree_add_item(tree, hf_ieee80211_rsn_akms_list, tvb, offset, akms_count * 4, ENC_NA);
   rsn_akms_tree = proto_item_add_subtree(rsn_akms_item, ett_rsn_akms_tree);
+
+  ieee80211_packet_data_t *packet_data = get_or_create_packet_data(pinfo);
+
   for (ii = 0; ii < akms_count; ii++)
   {
     rsn_sub_akms_item = proto_tree_add_item(rsn_akms_tree, hf_ieee80211_rsn_akms, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -14603,6 +14618,7 @@ dissect_rsn_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
       proto_tree_add_item(rsn_sub_akms_tree, hf_ieee80211_rsn_akms_80211_type, tvb, offset+3, 1, ENC_LITTLE_ENDIAN);
       proto_item_append_text(rsn_akms_item, " %s", rsn_akms_return(tvb_get_ntohl(tvb, offset)));
 
+      packet_data->last_akm_suite = tvb_get_ntohl(tvb, offset);
       if (association_sanity_check) {
         guint32 akm_suite = tvb_get_ntohl(tvb, offset);
         association_sanity_check->last_akm_suite = akm_suite;
@@ -15158,11 +15174,113 @@ dissect_mobility_domain(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   return tvb_captured_length(tvb);
 }
 
+static guint16 get_mic_len_owe(guint16 group) {
+  switch(group) {
+    // FFC, len(p) <= 2048
+    case 1:
+    case 2:
+    case 5:
+    case 14:
+    case 22:
+    case 23:
+    case 24:
+    // ECC, len(p) <= 256
+    case 19:
+    case 25:
+    case 26:
+    case 27:
+    case 28:
+    case 31:
+      // HMAC-SHA-256
+      return 16;
+
+    // FFC, 2048 < len(p) <= 3072
+    case 15:
+    // ECC, 256 < len(p) <= 384
+    case 20:
+    case 29:
+      // HMAC-SHA-384
+      return 24;
+
+    // FCC, 3072 < len(p)
+    case 16:
+    case 17:
+    case 18:
+    // ECC, 384 < len(p)
+    case 21:
+    case 30:
+    case 32:
+      // HMAC-SHA-512
+      return 32;
+
+    default:
+      return 16;
+  }
+}
+
+static guint16 get_mic_len(guint32 akm_suite) {
+  switch(akm_suite) {
+    case AKMS_WPA_SHA384_SUITEB:
+    case AKMS_FT_IEEE802_1X_SHA384:
+      // HMAC-SHA-384
+      return 24;
+
+    case AKMS_FILS_SHA256:
+    case AKMS_FILS_SHA384:
+    case AKMS_FT_FILS_SHA256:
+    case AKMS_FT_FILS_SHA384:
+      // AES-SIV-256 and AES-SIV-512
+      return 0;
+
+    default:
+      // HMAC-SHA-1-128, AES-128-CMAC, HMAC-SHA-256
+      return 16;
+  }
+}
+
+static guint16 determine_mic_len(packet_info *pinfo, gboolean assoc_frame) {
+  guint16 eapol_key_mic_len = 16; /* Default MIC length */
+  conversation_t *conversation = find_conversation_pinfo(pinfo, 0);
+  ieee80211_conversation_data_t *conversation_data = NULL;
+  ieee80211_packet_data_t *packet_data =
+    (ieee80211_packet_data_t*)p_get_proto_data(pinfo->pool, pinfo, proto_wlan, PACKET_DATA_KEY);
+  if (conversation) {
+      conversation_data = (ieee80211_conversation_data_t*)conversation_get_proto_data(conversation, proto_wlan);
+  }
+
+  if (wlan_key_mic_len_enable) {
+    /* 1st - Use user overridden MIC length setting */
+    eapol_key_mic_len = wlan_key_mic_len;
+  }
+  else if (conversation_data && !assoc_frame) {
+    /* 2nd - Use AKMS negotiated during association to determine MIC length */
+    if (conversation_data->last_akm_suite == AKMS_OWE) {
+      /* For OWE the the length of MIC depends on the selected group */
+      eapol_key_mic_len = get_mic_len_owe(conversation_data->owe_group);
+    }
+    else {
+      eapol_key_mic_len = get_mic_len(conversation_data->last_akm_suite);
+    }
+  }
+  else if (packet_data) {
+    /* 3rd - Use AKMS from current packet to determine MIC length */
+    if (packet_data->last_akm_suite == AKMS_OWE) {
+      /* For OWE the the length of MIC depends on the selected group */
+      eapol_key_mic_len = get_mic_len_owe(packet_data->owe_group);
+    }
+    else {
+      eapol_key_mic_len = get_mic_len(packet_data->last_akm_suite);
+    }
+  }
+  return eapol_key_mic_len;
+}
+
 static int
 dissect_fast_bss_transition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
   int tag_len = tvb_reported_length(tvb);
   ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
+  gboolean assoc_frame = field_data->sanity_check != NULL;
   int offset = 0;
   if (tag_len < 82) {
     expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length,
@@ -15175,9 +15293,11 @@ dissect_fast_bss_transition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   proto_tree_add_item(tree, hf_ieee80211_tag_ft_element_count,
                       tvb, offset, 2, ENC_LITTLE_ENDIAN);
   offset += 2;
+
+  int mic_len = determine_mic_len(pinfo, assoc_frame);
   proto_tree_add_item(tree, hf_ieee80211_tag_ft_mic,
-                      tvb, offset, 16, ENC_NA);
-  offset += 16;
+                      tvb, offset, mic_len, ENC_NA);
+  offset += mic_len;
   proto_tree_add_item(tree, hf_ieee80211_tag_ft_anonce,
                       tvb, offset, 32, ENC_NA);
   offset += 32;
@@ -20734,7 +20854,7 @@ static const value_string owe_dh_parameter_group_vals[] = {
 };
 
 static int
-dissect_owe_dh_parameter(tvbuff_t *tvb, packet_info *pinfo _U_,
+dissect_owe_dh_parameter(tvbuff_t *tvb, packet_info *pinfo,
   proto_tree *tree, int offset, int len _U_, association_sanity_check_t* sanity_check)
 {
   if (len < 2) {
@@ -20744,6 +20864,8 @@ dissect_owe_dh_parameter(tvbuff_t *tvb, packet_info *pinfo _U_,
     return offset + len;
   }
 
+  ieee80211_packet_data_t *packet_data = get_or_create_packet_data(pinfo);
+  packet_data->owe_group = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
   if (sanity_check != NULL) {
     sanity_check->owe_group = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
   }
@@ -25357,70 +25479,6 @@ static gint ett_wlan_rsna_eapol_keydes_data = -1;
 
 static const true_false_string keyinfo_key_type_tfs = { "Pairwise Key", "Group Key" };
 
-static guint16 get_mic_len_owe(guint16 group) {
-  switch(group) {
-    // FFC, len(p) <= 2048
-    case 1:
-    case 2:
-    case 5:
-    case 14:
-    case 22:
-    case 23:
-    case 24:
-    // ECC, len(p) <= 256
-    case 19:
-    case 25:
-    case 26:
-    case 27:
-    case 28:
-    case 31:
-      // HMAC-SHA-256
-      return 16;
-
-    // FFC, 2048 < len(p) <= 3072
-    case 15:
-    // ECC, 256 < len(p) <= 384
-    case 20:
-    case 29:
-      // HMAC-SHA-384
-      return 24;
-
-    // FCC, 3072 < len(p)
-    case 16:
-    case 17:
-    case 18:
-    // ECC, 384 < len(p)
-    case 21:
-    case 30:
-    case 32:
-      // HMAC-SHA-512
-      return 32;
-
-    default:
-      return 16;
-  }
-}
-
-static guint16 get_mic_len(guint32 akm_suite) {
-  switch(akm_suite) {
-    case AKMS_WPA_SHA384_SUITEB:
-    case AKMS_FT_IEEE802_1X_SHA384:
-      // HMAC-SHA-384
-      return 24;
-
-    case AKMS_FILS_SHA256:
-    case AKMS_FILS_SHA384:
-    case AKMS_FT_FILS_SHA256:
-    case AKMS_FT_FILS_SHA384:
-      // AES-SIV-256 and AES-SIV-512
-      return 0;
-
-    default:
-      // HMAC-SHA-1-128, AES-128-CMAC, HMAC-SHA-256
-      return 16;
-  }
-}
-
 static int
 keydata_padding_len(tvbuff_t *tvb)
 {
@@ -25460,34 +25518,7 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
     NULL
   };
   guint16 eapol_data_offset = 76;  /* 92 - 16 */
-  guint16 eapol_key_mic_len = 16; // Default MIC length
-
-  conversation_t *conversation = find_conversation_pinfo(pinfo, 0);
-  ieee80211_packet_data_t *packet_data = (ieee80211_packet_data_t*)p_get_proto_data(wmem_file_scope(), pinfo, proto_wlan, 0);
-
-  if (wlan_key_mic_len_enable) {
-    eapol_key_mic_len = wlan_key_mic_len;
-  } else if (packet_data) {
-    eapol_key_mic_len = packet_data->mic_len;
-  } else if (conversation) {
-    ieee80211_conversation_data_t *conversation_data = (ieee80211_conversation_data_t*)conversation_get_proto_data(conversation, proto_wlan);
-
-    if (conversation_data) {
-      if (conversation_data->last_akm_suite == AKMS_OWE) {
-        /* For OWE the the length of MIC depends on the selected group */
-        eapol_key_mic_len = get_mic_len_owe(conversation_data->owe_group);
-      } else {
-        eapol_key_mic_len = get_mic_len(conversation_data->last_akm_suite);
-      }
-    }
-  }
-
-  if (!packet_data) {
-    packet_data = wmem_new(wmem_file_scope(), ieee80211_packet_data_t);
-    packet_data->mic_len = eapol_key_mic_len;
-    p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, 0, packet_data);
-  }
-
+  guint16 eapol_key_mic_len = determine_mic_len(pinfo, FALSE);
   eapol_data_offset += eapol_key_mic_len;
 
   /*

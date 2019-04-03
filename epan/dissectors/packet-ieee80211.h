@@ -37,7 +37,8 @@ typedef struct {
 } ieee80211_conversation_data_t;
 
 typedef struct {
-  guint16 mic_len;
+  guint32 last_akm_suite;
+  guint16 owe_group;
 } ieee80211_packet_data_t;
 
 typedef struct ieee80211_tagged_field_data
