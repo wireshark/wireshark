@@ -24,6 +24,8 @@
 
 #include <wsutil/time_util.h>
 
+#include <ws_diag_control.h>
+
 #define STRING_80               "12345678901234567890123456789012345678901234567890123456789012345678901234567890"
 #define MAX_ALLOC_SIZE          (1024*64)
 #define MAX_SIMULTANEOUS_ALLOCS  1024
@@ -687,10 +689,12 @@ wmem_test_array(void)
 
     wmem_array_sort(array, wmem_test_compare_guint32);
     for (i=0, k=0; i<8; i++) {
+DIAG_OFF(unsafe-loop-optimizations)
         for (j=0; j<=i; j++, k++) {
             val = *(guint32*)wmem_array_index(array, k);
             g_assert(val == i);
         }
+DIAG_ON(unsafe-loop-optimizations)
     }
     for (j=k; k<8*(CONTAINER_ITERS+1)-j; k++) {
             val = *(guint32*)wmem_array_index(array, k);
