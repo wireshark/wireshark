@@ -14459,6 +14459,22 @@ dissect_qos_capability(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
   return offset;
 }
 
+/* See ieee80211_rsn_keymgmt_vals */
+static gboolean is_ft_akm_suite(guint32 akm_suite)
+{
+  switch (akm_suite) {
+    case 0x000FAC03:
+    case 0x000FAC04:
+    case 0x000FAC09:
+    case 0x000FAC0D:
+    case 0x000FAC10:
+    case 0x000FAC11:
+      return TRUE;
+    default:
+      return FALSE;
+  }
+}
+
 /*
  * 7.3.2.25 RSNE information element. Common format with OSEN except the
  * verison... should refactor
@@ -14570,7 +14586,7 @@ dissect_rsn_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
         guint32 akm_suite = tvb_get_ntohl(tvb, offset);
         association_sanity_check->last_akm_suite = akm_suite;
 
-        if (akm_suite == 0x000FAC03 || akm_suite == 0x000FAC04 || akm_suite == 0x000FAC09 || akm_suite == 0x000FAC10 || akm_suite == 0x000FAC11) {
+        if (is_ft_akm_suite(akm_suite)) {
           /* This is an FT AKM suite */
           association_sanity_check->has_ft_akm_suite = TRUE;
           if (association_sanity_check->rsn_first_ft_akm_suite == NULL && rsn_sub_akms_tree != NULL) {
