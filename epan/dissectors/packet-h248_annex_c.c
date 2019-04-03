@@ -1561,7 +1561,7 @@ void proto_register_h248_annex_c(void) {
 	};
 
 	static ei_register_info ei[] = {
-		{ &ei_h248_sdp_media_port_invalid, { "sdp.media.port.invalid", PI_MALFORMED, PI_ERROR,
+		{ &ei_h248_sdp_media_port_invalid, { "h248.annexc.sdp.media.port.invalid", PI_MALFORMED, PI_ERROR,
 			"Invalid SDP media port", EXPFILL }}
 	};
 
