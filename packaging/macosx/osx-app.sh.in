@@ -448,12 +448,12 @@ codesign_file () {
 	# https://developer.apple.com/library/archive/technotes/tn2206/_index.html
 	# https://developer.apple.com/documentation/security/notarizing_your_app_before_distribution/resolving_common_notarization_issues?language=objc
 	#
-	# XXX do we need to add hardened runtime entitlements or exceptions, e.g.
-	# com.apple.security.cs.allow-unsigned-executable-memory for Lua?
+	# XXX Do we need to add the com.apple.security.cs.allow-unsigned-executable-memory
+	# entitlement for Lua?
 	# https://developer.apple.com/documentation/security/hardened_runtime_entitlements?language=objc
 	codesign \
 		--sign "Developer ID Application: $CODE_SIGN_IDENTITY" \
-		--options=runtime \
+		--options runtime \
 		--entitlements "@CMAKE_SOURCE_DIR@/packaging/macosx/entitlements.plist" \
 		--timestamp \
 		--verbose \
