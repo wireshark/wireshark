@@ -12838,6 +12838,26 @@ static const value_string ieee80211_rsn_cipher_vals[] = {
   {0, NULL}
 };
 
+#define AKMS_NONE                 0x000FAC00
+#define AKMS_WPA                  0x000FAC01
+#define AKMS_PSK                  0x000FAC02
+#define AKMS_FT_IEEE802_1X        0x000FAC03
+#define AKMS_FT_PSK               0x000FAC04
+#define AKMS_WPA_SHA256           0x000FAC05
+#define AKMS_PSK_SHA256           0x000FAC06
+#define AKMS_TDLS                 0x000FAC07
+#define AKMS_SAE                  0x000FAC08
+#define AKMS_FT_SAE               0x000FAC09
+#define AKMS_AP_PEER_KEY          0x000FAC0A
+#define AKMS_WPA_SHA256_SUITEB    0x000FAC0B
+#define AKMS_WPA_SHA384_SUITEB    0x000FAC0C
+#define AKMS_FT_IEEE802_1X_SHA384 0x000FAC0D
+#define AKMS_FILS_SHA256          0x000FAC0E
+#define AKMS_FILS_SHA384          0x000FAC0F
+#define AKMS_FT_FILS_SHA256       0x000FAC10
+#define AKMS_FT_FILS_SHA384       0x000FAC11
+#define AKMS_OWE                  0x000FAC12
+
 static const value_string ieee80211_rsn_keymgmt_vals[] = {
   {0, "NONE"},
   {1, "WPA"},
@@ -14463,12 +14483,12 @@ dissect_qos_capability(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
 static gboolean is_ft_akm_suite(guint32 akm_suite)
 {
   switch (akm_suite) {
-    case 0x000FAC03:
-    case 0x000FAC04:
-    case 0x000FAC09:
-    case 0x000FAC0D:
-    case 0x000FAC10:
-    case 0x000FAC11:
+    case AKMS_FT_IEEE802_1X:
+    case AKMS_FT_PSK:
+    case AKMS_FT_SAE:
+    case AKMS_FT_IEEE802_1X_SHA384:
+    case AKMS_FT_FILS_SHA256:
+    case AKMS_FT_FILS_SHA384:
       return TRUE;
     default:
       return FALSE;
@@ -25379,15 +25399,15 @@ static guint16 get_mic_len_owe(guint16 group) {
 
 static guint16 get_mic_len(guint32 akm_suite) {
   switch(akm_suite) {
-    case 0x000FAC0C:
-    case 0x000FAC0D:
+    case AKMS_WPA_SHA384_SUITEB:
+    case AKMS_FT_IEEE802_1X_SHA384:
       // HMAC-SHA-384
       return 24;
 
-    case 0x000FAC0E:
-    case 0x000FAC0F:
-    case 0x000FAC10:
-    case 0x000FAC11:
+    case AKMS_FILS_SHA256:
+    case AKMS_FILS_SHA384:
+    case AKMS_FT_FILS_SHA256:
+    case AKMS_FT_FILS_SHA384:
       // AES-SIV-256 and AES-SIV-512
       return 0;
 
@@ -25449,7 +25469,7 @@ dissect_wlan_rsna_eapol_wpa_or_rsn_key(tvbuff_t *tvb, packet_info *pinfo, proto_
     ieee80211_conversation_data_t *conversation_data = (ieee80211_conversation_data_t*)conversation_get_proto_data(conversation, proto_wlan);
 
     if (conversation_data) {
-      if (conversation_data->last_akm_suite == 0x000FAC12) {
+      if (conversation_data->last_akm_suite == AKMS_OWE) {
         /* For OWE the the length of MIC depends on the selected group */
         eapol_key_mic_len = get_mic_len_owe(conversation_data->owe_group);
       } else {
