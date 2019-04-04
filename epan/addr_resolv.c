@@ -432,7 +432,9 @@ wait_for_sync_resolv(gboolean *completed) {
         nfds = ares_fds(ghba_chan, &rfds, &wfds);
         if (nfds > 0) {
             if (select(nfds, &rfds, &wfds, NULL, &tv) == -1) { /* call to select() failed */
-                fprintf(stderr, "Warning: call to select() failed, error is %s\n", g_strerror(errno));
+                /* If it's interrupted by a signal, no need to put out a message */
+                if (errno != EINTR)
+                    fprintf(stderr, "Warning: call to select() failed, error is %s\n", g_strerror(errno));
                 return;
             }
             ares_process(ghba_chan, &rfds, &wfds);
@@ -2776,7 +2778,9 @@ host_name_lookup_process(void) {
     nfds = ares_fds(ghba_chan, &rfds, &wfds);
     if (nfds > 0) {
         if (select(nfds, &rfds, &wfds, NULL, &tv) == -1) { /* call to select() failed */
-            fprintf(stderr, "Warning: call to select() failed, error is %s\n", g_strerror(errno));
+            /* If it's interrupted by a signal, no need to put out a message */
+            if (errno != EINTR)
+                fprintf(stderr, "Warning: call to select() failed, error is %s\n", g_strerror(errno));
             return nro;
         }
         ares_process(ghba_chan, &rfds, &wfds);
@@ -3387,7 +3391,9 @@ get_host_ipaddr(const char *host, guint32 *addrp)
         if (nfds > 0) {
             tvp = ares_timeout(ghbn_chan, &tv, &tv);
             if (select(nfds, &rfds, &wfds, NULL, tvp) == -1) { /* call to select() failed */
-                fprintf(stderr, "Warning: call to select() failed, error is %s\n", g_strerror(errno));
+                /* If it's interrupted by a signal, no need to put out a message */
+                if (errno != EINTR)
+                    fprintf(stderr, "Warning: call to select() failed, error is %s\n", g_strerror(errno));
                 return FALSE;
             }
             ares_process(ghbn_chan, &rfds, &wfds);
@@ -3452,7 +3458,9 @@ get_host_ipaddr6(const char *host, ws_in6_addr *addrp)
     if (nfds > 0) {
         tvp = ares_timeout(ghbn_chan, &tv, &tv);
         if (select(nfds, &rfds, &wfds, NULL, tvp) == -1) { /* call to select() failed */
-            fprintf(stderr, "Warning: call to select() failed, error is %s\n", g_strerror(errno));
+            /* If it's interrupted by a signal, no need to put out a message */
+            if (errno != EINTR)
+                fprintf(stderr, "Warning: call to select() failed, error is %s\n", g_strerror(errno));
             return FALSE;
         }
         ares_process(ghbn_chan, &rfds, &wfds);
