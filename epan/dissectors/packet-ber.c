@@ -173,7 +173,7 @@ static expert_field ei_ber_unknown_field_set = EI_INIT;
 static expert_field ei_ber_missing_field_set = EI_INIT;
 static expert_field ei_ber_empty_choice = EI_INIT;
 static expert_field ei_ber_choice_not_found = EI_INIT;
-//static expert_field ei_ber_bits_unknown = EI_INIT;
+static expert_field ei_ber_bits_unknown = EI_INIT;
 static expert_field ei_ber_bits_set_padded = EI_INIT;
 static expert_field ei_ber_illegal_padding = EI_INIT;
 static expert_field ei_ber_invalid_format_generalized_time = EI_INIT;
@@ -3928,7 +3928,7 @@ dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto
     gint32      tag;
     int         identifier_offset;
     int         identifier_len;
-    guint32     len;
+    gint        len;
     guint8      pad = 0;
     int         end_offset;
     int         hoffset;
@@ -4020,15 +4020,21 @@ dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto
         len--;
         if (hf_id >= 0) {
             if (named_bits) {
+                gint section_len;
                 if (num_named_bits < 65) {
-                    item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, len, ENC_BIG_ENDIAN);
+                    item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, len, ENC_NA);
                     actx->created_item = item;
                     if (ett_id != -1) {
                         tree = proto_item_add_subtree(item, ett_id);
                     }
-                    proto_tree_add_bitmask_list(tree, tvb, offset, len, named_bits, ENC_BIG_ENDIAN);
+                    section_len = (num_named_bits + 7) / 8;
+                    proto_tree_add_bitmask_list(tree, tvb, offset, section_len, named_bits, ENC_BIG_ENDIAN);
+                    if (section_len < len) {
+                        expert_add_info_format(actx->pinfo, item, &ei_ber_bits_unknown, "Unknown bit(s): 0x%s",
+                                               tvb_bytes_to_str(wmem_packet_scope(), tvb, offset + section_len, len - section_len));
+                    }
                 } else {
-                    item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, len, ENC_BIG_ENDIAN);
+                    item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, len, ENC_NA);
                     actx->created_item = item;
                     if (ett_id != -1) {
                         tree = proto_item_add_subtree(item, ett_id);
@@ -4037,9 +4043,9 @@ dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto
                     int i = 0;
                     int j = 0;
                     int bits_to_load = 64;
-                    guint32 section_len = 8;
                     int temp_offset = offset;
 
+                    section_len = 8;
                     while (j < num_named_bits){
                         for (i = 0; i < bits_to_load; i++) {
                             flags[i] = (int *)named_bits[j];
@@ -4054,6 +4060,10 @@ dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto
                         proto_tree_add_bitmask_list(tree, tvb, temp_offset, section_len, (const int **)flags, ENC_BIG_ENDIAN);
                         temp_offset += section_len;
                         section_len = (bits_to_load + 7) / 8;
+                    }
+                    if ((temp_offset - offset) < len) {
+                        expert_add_info_format(actx->pinfo, item, &ei_ber_bits_unknown, "Unknown bit(s): 0x%s",
+                                               tvb_bytes_to_str(wmem_packet_scope(), tvb, temp_offset, len - (temp_offset - offset)));
                     }
                 }
             }
@@ -4500,7 +4510,7 @@ proto_register_ber(void)
         { &ei_ber_missing_field_set, { "ber.error.missing_field.set", PI_MALFORMED, PI_WARN, "BER Error: Missing field in SET", EXPFILL }},
         { &ei_ber_empty_choice, { "ber.error.empty_choice", PI_MALFORMED, PI_WARN, "BER Error: Empty choice was found", EXPFILL }},
         { &ei_ber_choice_not_found, { "ber.error.choice_not_found", PI_MALFORMED, PI_WARN, "BER Error: This choice field was not found", EXPFILL }},
-        /*{ &ei_ber_bits_unknown, { "ber.error.bits_unknown", PI_UNDECODED, PI_WARN, "BER Error: Bits unknown", EXPFILL }},*/
+        { &ei_ber_bits_unknown, { "ber.error.bits_unknown", PI_UNDECODED, PI_WARN, "BER Error: Bits unknown", EXPFILL }},
         { &ei_ber_bits_set_padded, { "ber.error.bits_set_padded", PI_UNDECODED, PI_WARN, "BER Error: Bits set in padded area", EXPFILL }},
         { &ei_ber_illegal_padding, { "ber.error.illegal_padding", PI_UNDECODED, PI_WARN, "Illegal padding", EXPFILL }},
         { &ei_ber_invalid_format_generalized_time, { "ber.error.invalid_format.generalized_time", PI_MALFORMED, PI_WARN, "BER Error: GeneralizedTime invalid format", EXPFILL }},
