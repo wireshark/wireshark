@@ -1996,7 +1996,7 @@ dissect_xnap_PLMN_Identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 static int
 dissect_xnap_BIT_STRING_SIZE_8(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE, NULL, NULL);
+                                     8, 8, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -2006,7 +2006,7 @@ dissect_xnap_BIT_STRING_SIZE_8(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_xnap_BIT_STRING_SIZE_10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     10, 10, FALSE, NULL, NULL);
+                                     10, 10, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -2107,7 +2107,7 @@ dissect_xnap_NR_Cell_Identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 #line 272 "./asn1/xnap/xnap.cnf"
   tvbuff_t *cell_id_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
-                                     36, 36, FALSE, &cell_id_tvb, NULL);
+                                     36, 36, FALSE, NULL, 0, &cell_id_tvb, NULL);
 
   if (cell_id_tvb) {
     guint64 cell_id = tvb_get_bits64(cell_id_tvb, 0, 36, ENC_BIG_ENDIAN);
@@ -2126,7 +2126,7 @@ dissect_xnap_E_UTRA_Cell_Identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 #line 286 "./asn1/xnap/xnap.cnf"
   tvbuff_t *cell_id_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
-                                     28, 28, FALSE, &cell_id_tvb, NULL);
+                                     28, 28, FALSE, NULL, 0, &cell_id_tvb, NULL);
 
   if (cell_id_tvb) {
     guint32 cell_id = tvb_get_bits32(cell_id_tvb, 0, 28, ENC_BIG_ENDIAN);
@@ -2197,7 +2197,7 @@ dissect_xnap_ListOfCells(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 static int
 dissect_xnap_BIT_STRING_SIZE_22_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     22, 32, FALSE, NULL, NULL);
+                                     22, 32, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -2245,7 +2245,7 @@ dissect_xnap_GlobalgNB_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 static int
 dissect_xnap_BIT_STRING_SIZE_20(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     20, 20, FALSE, NULL, NULL);
+                                     20, 20, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -2255,7 +2255,7 @@ dissect_xnap_BIT_STRING_SIZE_20(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_xnap_BIT_STRING_SIZE_18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     18, 18, FALSE, NULL, NULL);
+                                     18, 18, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -2265,7 +2265,7 @@ dissect_xnap_BIT_STRING_SIZE_18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_xnap_BIT_STRING_SIZE_21(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     21, 21, FALSE, NULL, NULL);
+                                     21, 21, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -2428,7 +2428,7 @@ dissect_xnap_AreaOfInterestInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 static int
 dissect_xnap_BIT_STRING_SIZE_256(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     256, 256, FALSE, NULL, NULL);
+                                     256, 256, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -2962,7 +2962,7 @@ dissect_xnap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
   int len;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 160, TRUE, &parameter_tvb, &len);
+                                     1, 160, TRUE, NULL, 0, &parameter_tvb, &len);
 
   if (!parameter_tvb)
     return offset;
@@ -3078,7 +3078,7 @@ dissect_xnap_CriticalityDiagnostics(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 static int
 dissect_xnap_C_RNTI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, FALSE, NULL, NULL);
+                                     16, 16, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -3507,7 +3507,7 @@ dissect_xnap_DataforwardingandOffloadingInfofromSource(tvbuff_t *tvb _U_, int of
 static int
 dissect_xnap_DataTrafficResources(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     6, 17600, FALSE, NULL, NULL);
+                                     6, 17600, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -3683,7 +3683,7 @@ dissect_xnap_T_subframeType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 static int
 dissect_xnap_BIT_STRING_SIZE_10_160(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     10, 160, FALSE, NULL, NULL);
+                                     10, 160, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -3820,7 +3820,7 @@ dissect_xnap_DRB_Number(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 static int
 dissect_xnap_BIT_STRING_SIZE_1_2048(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 2048, FALSE, NULL, NULL);
+                                     1, 2048, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -3846,7 +3846,7 @@ dissect_xnap_DRBBStatusTransfer12bitsSN(tvbuff_t *tvb _U_, int offset _U_, asn1_
 static int
 dissect_xnap_BIT_STRING_SIZE_1_131072(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 131072, FALSE, NULL, NULL);
+                                     1, 131072, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -4438,7 +4438,7 @@ dissect_xnap_GBRQoSFlowInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 static int
 dissect_xnap_BIT_STRING_SIZE_6(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     6, 6, FALSE, NULL, NULL);
+                                     6, 6, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -4466,7 +4466,7 @@ dissect_xnap_GUAMI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 static int
 dissect_xnap_BIT_STRING_SIZE_40(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     40, 40, FALSE, NULL, NULL);
+                                     40, 40, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -4476,7 +4476,7 @@ dissect_xnap_BIT_STRING_SIZE_40(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_xnap_BIT_STRING_SIZE_24(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     24, 24, FALSE, NULL, NULL);
+                                     24, 24, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -4676,7 +4676,7 @@ dissect_xnap_LowerLayerPresenceStatusChange(tvbuff_t *tvb _U_, int offset _U_, a
 static int
 dissect_xnap_MAC_I(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, FALSE, NULL, NULL);
+                                     16, 16, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -4686,7 +4686,7 @@ dissect_xnap_MAC_I(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 static int
 dissect_xnap_MaskedIMEISV(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     64, 64, FALSE, NULL, NULL);
+                                     64, 64, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -4822,13 +4822,18 @@ dissect_xnap_SEQUENCE_SIZE_1_maxnoofEPLMNs_OF_PLMN_Identity(tvbuff_t *tvb _U_, i
 }
 
 
+static const int * RAT_RestrictionInformation_bits[] = {
+  &hf_xnap_RAT_RestrictionInformation_e_UTRA,
+  &hf_xnap_RAT_RestrictionInformation_nR,
+  NULL
+};
 
 static int
 dissect_xnap_RAT_RestrictionInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 404 "./asn1/xnap/xnap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, TRUE, &parameter_tvb, NULL);
+                                     8, 8, TRUE, RAT_RestrictionInformation_bits, 2, &parameter_tvb, NULL);
 
   if (parameter_tvb) {
     const gint *fields[] = {
@@ -7094,7 +7099,7 @@ dissect_xnap_T_resourceType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 static int
 dissect_xnap_BIT_STRING_SIZE_84_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     84, 84, TRUE, NULL, NULL);
+                                     84, 84, TRUE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -7104,7 +7109,7 @@ dissect_xnap_BIT_STRING_SIZE_84_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 static int
 dissect_xnap_BIT_STRING_SIZE_6_110_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     6, 110, TRUE, NULL, NULL);
+                                     6, 110, TRUE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -8005,7 +8010,7 @@ dissect_xnap_ServedCellsToUpdate_NR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 static int
 dissect_xnap_S_NG_RANnode_SecurityKey(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     256, 256, FALSE, NULL, NULL);
+                                     256, 256, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -8313,13 +8318,21 @@ dissect_xnap_T_ng_ran_TraceID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 }
 
 
+static const int * T_interfaces_to_trace_bits[] = {
+  &hf_xnap_T_interfaces_to_trace_ng_c,
+  &hf_xnap_T_interfaces_to_trace_x_nc,
+  &hf_xnap_T_interfaces_to_trace_uu,
+  &hf_xnap_T_interfaces_to_trace_f1_c,
+  &hf_xnap_T_interfaces_to_trace_e1,
+  NULL
+};
 
 static int
 dissect_xnap_T_interfaces_to_trace(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 428 "./asn1/xnap/xnap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE, &parameter_tvb, NULL);
+                                     8, 8, FALSE, T_interfaces_to_trace_bits, 5, &parameter_tvb, NULL);
 
   if (parameter_tvb) {
     const gint *fields[] = {
@@ -8466,13 +8479,20 @@ dissect_xnap_UEContextID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 }
 
 
+static const int * T_nr_EncyptionAlgorithms_bits[] = {
+  &hf_xnap_T_nr_EncyptionAlgorithms_spare_bit_0,
+  &hf_xnap_T_nr_EncyptionAlgorithms_nea1_128,
+  &hf_xnap_T_nr_EncyptionAlgorithms_nea2_128,
+  &hf_xnap_T_nr_EncyptionAlgorithms_nea3_128,
+  NULL
+};
 
 static int
 dissect_xnap_T_nr_EncyptionAlgorithms(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 348 "./asn1/xnap/xnap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, TRUE, &parameter_tvb, NULL);
+                                     16, 16, TRUE, T_nr_EncyptionAlgorithms_bits, 4, &parameter_tvb, NULL);
 
   if (parameter_tvb) {
     const gint *fields[] = {
@@ -8491,13 +8511,20 @@ dissect_xnap_T_nr_EncyptionAlgorithms(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 }
 
 
+static const int * T_nr_IntegrityProtectionAlgorithms_bits[] = {
+  &hf_xnap_T_nr_IntegrityProtectionAlgorithms_spare_bit_0,
+  &hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia1_128,
+  &hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia2_128,
+  &hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia3_128,
+  NULL
+};
 
 static int
 dissect_xnap_T_nr_IntegrityProtectionAlgorithms(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 362 "./asn1/xnap/xnap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, TRUE, &parameter_tvb, NULL);
+                                     16, 16, TRUE, T_nr_IntegrityProtectionAlgorithms_bits, 4, &parameter_tvb, NULL);
 
   if (parameter_tvb) {
     const gint *fields[] = {
@@ -8516,13 +8543,20 @@ dissect_xnap_T_nr_IntegrityProtectionAlgorithms(tvbuff_t *tvb _U_, int offset _U
 }
 
 
+static const int * T_e_utra_EncyptionAlgorithms_bits[] = {
+  &hf_xnap_T_e_utra_EncyptionAlgorithms_spare_bit_0,
+  &hf_xnap_T_e_utra_EncyptionAlgorithms_eea1_128,
+  &hf_xnap_T_e_utra_EncyptionAlgorithms_eea2_128,
+  &hf_xnap_T_e_utra_EncyptionAlgorithms_eea3_128,
+  NULL
+};
 
 static int
 dissect_xnap_T_e_utra_EncyptionAlgorithms(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 376 "./asn1/xnap/xnap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, TRUE, &parameter_tvb, NULL);
+                                     16, 16, TRUE, T_e_utra_EncyptionAlgorithms_bits, 4, &parameter_tvb, NULL);
 
   if (parameter_tvb) {
     const gint *fields[] = {
@@ -8541,13 +8575,20 @@ dissect_xnap_T_e_utra_EncyptionAlgorithms(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
+static const int * T_e_utra_IntegrityProtectionAlgorithms_bits[] = {
+  &hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_spare_bit_0,
+  &hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_eia1_128,
+  &hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_eia2_128,
+  &hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_eia3_128,
+  NULL
+};
 
 static int
 dissect_xnap_T_e_utra_IntegrityProtectionAlgorithms(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
 #line 390 "./asn1/xnap/xnap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, TRUE, &parameter_tvb, NULL);
+                                     16, 16, TRUE, T_e_utra_IntegrityProtectionAlgorithms_bits, 4, &parameter_tvb, NULL);
 
   if (parameter_tvb) {
     const gint *fields[] = {

@@ -2076,7 +2076,7 @@ DEBUG_ENTRY("dissect_per_sequence_eag");
 
 */
 
-static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, header_field_info *hfi, guint32 length)
+static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, header_field_info *hfi, guint32 length, const int **named_bits, gint num_named_bits _U_)
 {
 	tvbuff_t *out_tvb = NULL;
 	guint32  pad_length=0;
@@ -2123,6 +2123,9 @@ static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, a
 			}
 			proto_item_append_text(actx->created_item, ", %s decimal value %" G_GINT64_MODIFIER "u",
 				decode_bits_in_field(0, length, value), value);
+			if (named_bits) {
+				proto_tree_add_bitmask_list(tree, out_tvb, 0, ((length + 7) / 8), named_bits, ENC_BIG_ENDIAN);
+			}
 		}
 		proto_item_append_text(actx->created_item, "]");
 	}
@@ -2130,7 +2133,7 @@ static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, a
 	return out_tvb;
 }
 guint32
-dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, tvbuff_t **value_tvb, int *len)
+dissect_per_bit_string(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension, const int **named_bits, gint num_named_bits, tvbuff_t **value_tvb, int *len)
 {
 	/*gint val_start, val_length;*/
 	guint32 length, fragmented_length = 0;
@@ -2186,10 +2189,10 @@ DEBUG_ENTRY("dissect_per_bit_string");
 					tvb_composite_finalize(fragmented_tvb);
 					add_new_data_source(actx->pinfo, fragmented_tvb, "Fragmented bitstring tvb");
 					out_tvb = dissect_per_bit_string_display(fragmented_tvb, 0, actx, tree, hf_index, hfi,
-										 fragmented_length);
+										 fragmented_length, named_bits, num_named_bits);
 				}
 				else
-					out_tvb = dissect_per_bit_string_display(tvb, offset, actx, tree, hf_index, hfi, length);
+					out_tvb = dissect_per_bit_string_display(tvb, offset, actx, tree, hf_index, hfi, length, named_bits, num_named_bits);
 			}
 			/* XXX: ?? */
 			/*val_start = offset>>3;*/
@@ -2207,7 +2210,7 @@ DEBUG_ENTRY("dissect_per_bit_string");
 
 	/* 15.9 if length is fixed and less than or equal to sixteen bits*/
 	if ((min_len==max_len) && (max_len<=16)) {
-		out_tvb = dissect_per_bit_string_display(tvb, offset, actx, tree, hf_index, hfi, min_len);
+		out_tvb = dissect_per_bit_string_display(tvb, offset, actx, tree, hf_index, hfi, min_len, named_bits, num_named_bits);
 		offset+=min_len;
 		if (value_tvb)
 			*value_tvb = out_tvb;
@@ -2225,7 +2228,7 @@ DEBUG_ENTRY("dissect_per_bit_string");
 		if (actx->aligned){
 			BYTE_ALIGN_OFFSET(offset);
 		}
-		out_tvb = dissect_per_bit_string_display(tvb, offset, actx, tree, hf_index, hfi, min_len);
+		out_tvb = dissect_per_bit_string_display(tvb, offset, actx, tree, hf_index, hfi, min_len, named_bits, num_named_bits);
 		offset+=min_len;
 		if (value_tvb)
 			*value_tvb = out_tvb;
@@ -2265,10 +2268,10 @@ DEBUG_ENTRY("dissect_per_bit_string");
 			tvb_composite_finalize(fragmented_tvb);
 			add_new_data_source(actx->pinfo, fragmented_tvb, "Fragmented bitstring tvb");
 			out_tvb = dissect_per_bit_string_display(fragmented_tvb, 0, actx, tree, hf_index, hfi,
-								 fragmented_length);
+								 fragmented_length, named_bits, num_named_bits);
 		}
 		else
-			out_tvb = dissect_per_bit_string_display(tvb, offset, actx, tree, hf_index, hfi, length);
+			out_tvb = dissect_per_bit_string_display(tvb, offset, actx, tree, hf_index, hfi, length, named_bits, num_named_bits);
 	}
 	/* XXX: ?? */
 	/*val_start = offset>>3;*/
@@ -2288,7 +2291,7 @@ guint32 dissect_per_bit_string_containing_pdu_new(tvbuff_t *tvb, guint32 offset,
 	tvbuff_t *val_tvb = NULL;
 	proto_tree *subtree = tree;
 
-	offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index, min_len, max_len, has_extension, &val_tvb, NULL);
+	offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index, min_len, max_len, has_extension, NULL, 0, &val_tvb, NULL);
 
 	if (type_cb && val_tvb) {
 		subtree = proto_item_add_subtree(actx->created_item, ett_per_containing);
@@ -2569,7 +2572,7 @@ dissect_per_T_octet_aligned(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_t
 static int
 dissect_per_T_arbitrary(tvbuff_t *tvb, int offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index) {
 	offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-					NO_BOUND, NO_BOUND, FALSE, &actx->external.arbitrary, NULL);
+					NO_BOUND, NO_BOUND, FALSE, NULL, 0, &actx->external.arbitrary, NULL);
 
 	if (actx->external.arbitrary) {
 		if (actx->external.u.per.type_cb) {

@@ -5563,13 +5563,13 @@ class BitStringType (Type):
         #print ("eth_type_default_table(tname='%s')" % (tname))
         table = ''
         bits = self.eth_named_bits()
-        if (bits and ectx.Ber()):
+        if (bits):
             table = ectx.eth_bits(tname, bits)
         return table
 
     def eth_type_default_body(self, ectx, tname):
+        bits = self.eth_named_bits()
         if (ectx.Ber()):
-            bits = self.eth_named_bits()
             if (ectx.constraints_check and self.HasSizeConstraint()):
                 body = ectx.eth_fn_call('dissect_%(ER)s_constrained_bitstring', ret='offset',
                                         par=(('%(IMPLICIT_TAG)s', '%(ACTX)s', '%(TREE)s', '%(TVB)s', '%(OFFSET)s'),
@@ -5588,7 +5588,7 @@ class BitStringType (Type):
             else:
                 body = ectx.eth_fn_call('dissect_%(ER)s_bit_string', ret='offset',
                                         par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
-                                             ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(EXT)s', '%(VAL_PTR)s', '%(LEN_PTR)s'),))
+                                             ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(EXT)s','%(TABLE)s', '%s' %  len(bits), '%(VAL_PTR)s', '%(LEN_PTR)s'),))
         else:
             body = '#error Can not decode %s' % (tname)
         return body

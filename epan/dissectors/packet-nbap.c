@@ -8867,7 +8867,7 @@ dissect_nbap_TransportLayerAddress(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
   nbap_private_data_t* nbap_private_data = nbap_get_private_data(actx->pinfo);
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 160, TRUE, &parameter_tvb, NULL);
+                                     1, 160, TRUE, NULL, 0, &parameter_tvb, NULL);
 
   if (!parameter_tvb)
     return offset;
@@ -8946,7 +8946,7 @@ dissect_nbap_Additional_EDCH_MAC_d_Flows_Specific_Info_List(tvbuff_t *tvb _U_, i
 static int
 dissect_nbap_HARQ_Process_Allocation_2ms_EDCH(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     maxNrOfEDCHHARQProcesses2msEDCH, maxNrOfEDCHHARQProcesses2msEDCH, FALSE, NULL, NULL);
+                                     maxNrOfEDCHHARQProcesses2msEDCH, maxNrOfEDCHHARQProcesses2msEDCH, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -10713,7 +10713,7 @@ dissect_nbap_BroadcastCommonTransportBearerIndication(tvbuff_t *tvb _U_, int off
 static int
 dissect_nbap_BroadcastReference(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     24, 24, FALSE, NULL, NULL);
+                                     24, 24, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -10733,7 +10733,7 @@ dissect_nbap_CCTrCH_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 static int
 dissect_nbap_Cell_Capability_Container(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     128, 128, FALSE, NULL, NULL);
+                                     128, 128, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -11509,11 +11509,30 @@ if(commonphysicalchannelid<maxNrOfDCHs)
 }
 
 
+static const int * PreambleSignatures_bits[] = {
+  &hf_nbap_PreambleSignatures_signature15,
+  &hf_nbap_PreambleSignatures_signature14,
+  &hf_nbap_PreambleSignatures_signature13,
+  &hf_nbap_PreambleSignatures_signature12,
+  &hf_nbap_PreambleSignatures_signature11,
+  &hf_nbap_PreambleSignatures_signature10,
+  &hf_nbap_PreambleSignatures_signature9,
+  &hf_nbap_PreambleSignatures_signature8,
+  &hf_nbap_PreambleSignatures_signature7,
+  &hf_nbap_PreambleSignatures_signature6,
+  &hf_nbap_PreambleSignatures_signature5,
+  &hf_nbap_PreambleSignatures_signature4,
+  &hf_nbap_PreambleSignatures_signature3,
+  &hf_nbap_PreambleSignatures_signature2,
+  &hf_nbap_PreambleSignatures_signature1,
+  &hf_nbap_PreambleSignatures_signature0,
+  NULL
+};
 
 static int
 dissect_nbap_PreambleSignatures(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, FALSE, NULL, NULL);
+                                     16, 16, FALSE, PreambleSignatures_bits, 16, NULL, NULL);
 
   return offset;
 }
@@ -11693,7 +11712,7 @@ dissect_nbap_TransportBearerRequestIndicator(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 dissect_nbap_DsField(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE, NULL, NULL);
+                                     8, 8, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -11703,7 +11722,7 @@ dissect_nbap_DsField(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
 static int
 dissect_nbap_GenericTrafficCategory(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE, NULL, NULL);
+                                     8, 8, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -11783,7 +11802,7 @@ dissect_nbap_E_DCH_HARQ_PO_FDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_nbap_E_DCH_MACdFlow_Multiplexing_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     maxNrOfEDCHMACdFlows, maxNrOfEDCHMACdFlows, FALSE, NULL, NULL);
+                                     maxNrOfEDCHMACdFlows, maxNrOfEDCHMACdFlows, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -14676,7 +14695,7 @@ dissect_nbap_SPS_Reservation_Indicator(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 static int
 dissect_nbap_LogicalChannellevel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, FALSE, NULL, NULL);
+                                     16, 16, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -14686,7 +14705,7 @@ dissect_nbap_LogicalChannellevel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 static int
 dissect_nbap_PriorityQueuelevel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE, NULL, NULL);
+                                     8, 8, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -14752,7 +14771,7 @@ dissect_nbap_HS_DSCH_Semi_PersistentScheduling_Information_to_Modify_LCR(tvbuff_
 static int
 dissect_nbap_E_DCH_SPS_Indicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, FALSE, NULL, NULL);
+                                     16, 16, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -15660,7 +15679,7 @@ dissect_nbap_INTEGER_1_512(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 static int
 dissect_nbap_BIT_STRING_SIZE_7(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     7, 7, FALSE, NULL, NULL);
+                                     7, 7, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -16325,7 +16344,7 @@ dissect_nbap_INTEGER_0_63(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 static int
 dissect_nbap_BIT_STRING_SIZE_10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     10, 10, FALSE, NULL, NULL);
+                                     10, 10, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -16453,7 +16472,7 @@ dissect_nbap_DGANSSCorrections(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_nbap_BIT_STRING_SIZE_8(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE, NULL, NULL);
+                                     8, 8, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -19662,7 +19681,7 @@ dissect_nbap_E_DCH_MACdFlows_Information_TDD(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 dissect_nbap_E_DCH_TimeslotResource(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     13, 13, FALSE, NULL, NULL);
+                                     13, 13, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -19758,7 +19777,7 @@ dissect_nbap_E_DCH_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_nbap_E_DCH_TimeslotResourceLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     5, 5, FALSE, NULL, NULL);
+                                     5, 5, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -20574,7 +20593,7 @@ dissect_nbap_FPACH_Power(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 static int
 dissect_nbap_BIT_STRING_SIZE_16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, FALSE, NULL, NULL);
+                                     16, 16, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -20584,7 +20603,7 @@ dissect_nbap_BIT_STRING_SIZE_16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_nbap_BIT_STRING_SIZE_22(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     22, 22, FALSE, NULL, NULL);
+                                     22, 22, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -20613,7 +20632,7 @@ dissect_nbap_GANSS_NAVclockModel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 static int
 dissect_nbap_BIT_STRING_SIZE_11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     11, 11, FALSE, NULL, NULL);
+                                     11, 11, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -20623,7 +20642,7 @@ dissect_nbap_BIT_STRING_SIZE_11(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_nbap_BIT_STRING_SIZE_5(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     5, 5, FALSE, NULL, NULL);
+                                     5, 5, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -20633,7 +20652,7 @@ dissect_nbap_BIT_STRING_SIZE_5(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_nbap_BIT_STRING_SIZE_3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     3, 3, FALSE, NULL, NULL);
+                                     3, 3, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -20643,7 +20662,7 @@ dissect_nbap_BIT_STRING_SIZE_3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_nbap_BIT_STRING_SIZE_20(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     20, 20, FALSE, NULL, NULL);
+                                     20, 20, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -20653,7 +20672,7 @@ dissect_nbap_BIT_STRING_SIZE_20(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_nbap_BIT_STRING_SIZE_26(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     26, 26, FALSE, NULL, NULL);
+                                     26, 26, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -20663,7 +20682,7 @@ dissect_nbap_BIT_STRING_SIZE_26(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_nbap_BIT_STRING_SIZE_13(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     13, 13, FALSE, NULL, NULL);
+                                     13, 13, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -20719,7 +20738,7 @@ dissect_nbap_GANSS_GLONASSclockModel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 static int
 dissect_nbap_BIT_STRING_SIZE_12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     12, 12, FALSE, NULL, NULL);
+                                     12, 12, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -20772,7 +20791,7 @@ dissect_nbap_GANSS_AddClockModels(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 static int
 dissect_nbap_GANSS_AddIonoModelReq(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     2, 2, FALSE, NULL, NULL);
+                                     2, 2, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -20791,7 +20810,7 @@ dissect_nbap_GANSS_AddNavigationModelsReq(tvbuff_t *tvb _U_, int offset _U_, asn
 static int
 dissect_nbap_BIT_STRING_SIZE_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     4, 4, FALSE, NULL, NULL);
+                                     4, 4, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -20801,7 +20820,7 @@ dissect_nbap_BIT_STRING_SIZE_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_nbap_BIT_STRING_SIZE_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 1, FALSE, NULL, NULL);
+                                     1, 1, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -20811,7 +20830,7 @@ dissect_nbap_BIT_STRING_SIZE_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_nbap_BIT_STRING_SIZE_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     32, 32, FALSE, NULL, NULL);
+                                     32, 32, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -20821,7 +20840,7 @@ dissect_nbap_BIT_STRING_SIZE_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_nbap_BIT_STRING_SIZE_24(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     24, 24, FALSE, NULL, NULL);
+                                     24, 24, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -20831,7 +20850,7 @@ dissect_nbap_BIT_STRING_SIZE_24(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_nbap_BIT_STRING_SIZE_14(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     14, 14, FALSE, NULL, NULL);
+                                     14, 14, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -20873,7 +20892,7 @@ dissect_nbap_GANSS_NavModel_NAVKeplerianSet(tvbuff_t *tvb _U_, int offset _U_, a
 static int
 dissect_nbap_BIT_STRING_SIZE_25(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     25, 25, FALSE, NULL, NULL);
+                                     25, 25, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -20883,7 +20902,7 @@ dissect_nbap_BIT_STRING_SIZE_25(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_nbap_BIT_STRING_SIZE_17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     17, 17, FALSE, NULL, NULL);
+                                     17, 17, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -20893,7 +20912,7 @@ dissect_nbap_BIT_STRING_SIZE_17(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_nbap_BIT_STRING_SIZE_23(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     23, 23, FALSE, NULL, NULL);
+                                     23, 23, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -20903,7 +20922,7 @@ dissect_nbap_BIT_STRING_SIZE_23(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_nbap_BIT_STRING_SIZE_33(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     33, 33, FALSE, NULL, NULL);
+                                     33, 33, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -20913,7 +20932,7 @@ dissect_nbap_BIT_STRING_SIZE_33(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_nbap_BIT_STRING_SIZE_15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     15, 15, FALSE, NULL, NULL);
+                                     15, 15, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -20923,7 +20942,7 @@ dissect_nbap_BIT_STRING_SIZE_15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_nbap_BIT_STRING_SIZE_21(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     21, 21, FALSE, NULL, NULL);
+                                     21, 21, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -20966,7 +20985,7 @@ dissect_nbap_GANSS_NavModel_CNAVKeplerianSet(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 dissect_nbap_BIT_STRING_SIZE_2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     2, 2, FALSE, NULL, NULL);
+                                     2, 2, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -20976,7 +20995,7 @@ dissect_nbap_BIT_STRING_SIZE_2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_nbap_BIT_STRING_SIZE_27(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     27, 27, FALSE, NULL, NULL);
+                                     27, 27, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -21013,7 +21032,7 @@ dissect_nbap_GANSS_NavModel_GLONASSecef(tvbuff_t *tvb _U_, int offset _U_, asn1_
 static int
 dissect_nbap_BIT_STRING_SIZE_30(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     30, 30, FALSE, NULL, NULL);
+                                     30, 30, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -21023,7 +21042,7 @@ dissect_nbap_BIT_STRING_SIZE_30(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_nbap_BIT_STRING_SIZE_18(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     18, 18, FALSE, NULL, NULL);
+                                     18, 18, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -21182,7 +21201,7 @@ dissect_nbap_T_non_broadcastIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 static int
 dissect_nbap_BIT_STRING_SIZE_6(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     6, 6, FALSE, NULL, NULL);
+                                     6, 6, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -21561,7 +21580,7 @@ dissect_nbap_GANSS_Almanac(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 static int
 dissect_nbap_BIT_STRING_SIZE_9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     9, 9, FALSE, NULL, NULL);
+                                     9, 9, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -21945,7 +21964,7 @@ dissect_nbap_GANSS_AuxInfoReq(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 static int
 dissect_nbap_BIT_STRING_SIZE_28(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     28, 28, FALSE, NULL, NULL);
+                                     28, 28, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -22148,7 +22167,7 @@ dissect_nbap_INTEGER_0_59_(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 static int
 dissect_nbap_BIT_STRING_SIZE_1_1024(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 1024, FALSE, NULL, NULL);
+                                     1, 1024, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -22291,7 +22310,7 @@ dissect_nbap_GANSS_Data_Bit_Assistance_ReqItem(tvbuff_t *tvb _U_, int offset _U_
 static int
 dissect_nbap_BIT_STRING_SIZE_31(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     31, 31, FALSE, NULL, NULL);
+                                     31, 31, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -22301,7 +22320,7 @@ dissect_nbap_BIT_STRING_SIZE_31(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_nbap_BIT_STRING_SIZE_19(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     19, 19, FALSE, NULL, NULL);
+                                     19, 19, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -22694,7 +22713,7 @@ dissect_nbap_SAT_Info_Almanac(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 static int
 dissect_nbap_BIT_STRING_SIZE_364(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     364, 364, FALSE, NULL, NULL);
+                                     364, 364, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -22830,7 +22849,7 @@ dissect_nbap_INTEGER_0_1048575(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_nbap_BIT_STRING_SIZE_87(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     87, 87, FALSE, NULL, NULL);
+                                     87, 87, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -26259,7 +26278,7 @@ dissect_nbap_HS_SICH_InformationList_for_HS_DSCH_SPS(tvbuff_t *tvb _U_, int offs
 static int
 dissect_nbap_HS_DSCH_TimeslotResourceLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     5, 5, FALSE, NULL, NULL);
+                                     5, 5, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -26678,7 +26697,7 @@ dissect_nbap_IB_SG_DATA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
   offset = first_off;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     NO_BOUND, NO_BOUND, FALSE, &parameter_tvb, NULL);
+                                     NO_BOUND, NO_BOUND, FALSE, NULL, 0, &parameter_tvb, NULL);
 
 
   if(!parameter_tvb)
@@ -29132,11 +29151,26 @@ dissect_nbap_RACH_SlotFormat(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 }
 
 
+static const int * RACH_SubChannelNumbers_bits[] = {
+  &hf_nbap_RACH_SubChannelNumbers_subCh11,
+  &hf_nbap_RACH_SubChannelNumbers_subCh10,
+  &hf_nbap_RACH_SubChannelNumbers_subCh9,
+  &hf_nbap_RACH_SubChannelNumbers_subCh8,
+  &hf_nbap_RACH_SubChannelNumbers_subCh7,
+  &hf_nbap_RACH_SubChannelNumbers_subCh6,
+  &hf_nbap_RACH_SubChannelNumbers_subCh5,
+  &hf_nbap_RACH_SubChannelNumbers_subCh4,
+  &hf_nbap_RACH_SubChannelNumbers_subCh3,
+  &hf_nbap_RACH_SubChannelNumbers_subCh2,
+  &hf_nbap_RACH_SubChannelNumbers_subCh1,
+  &hf_nbap_RACH_SubChannelNumbers_subCh0,
+  NULL
+};
 
 static int
 dissect_nbap_RACH_SubChannelNumbers(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     12, 12, FALSE, NULL, NULL);
+                                     12, 12, FALSE, RACH_SubChannelNumbers_bits, 12, NULL, NULL);
 
   return offset;
 }
@@ -32242,7 +32276,7 @@ dissect_nbap_UE_TS0_CapabilityLCR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 static int
 dissect_nbap_UE_SupportIndicatorExtension(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     32, 32, FALSE, NULL, NULL);
+                                     32, 32, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }

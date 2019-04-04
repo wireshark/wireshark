@@ -2914,11 +2914,17 @@ dissect_lppe_OMA_LPPe_RequestCapabilities(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
+static const int * T_iP_Address_support_bits[] = {
+  &hf_lppe_T_iP_Address_support_iPv4,
+  &hf_lppe_T_iP_Address_support_iPv6,
+  &hf_lppe_T_iP_Address_support_nat,
+  NULL
+};
 
 static int
 dissect_lppe_T_iP_Address_support(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, T_iP_Address_support_bits, 3, NULL, NULL);
 
   return offset;
 }
@@ -3076,11 +3082,16 @@ dissect_lppe_OMA_LPPe_RelativeLocationChange_Capabilities(tvbuff_t *tvb _U_, int
 }
 
 
+static const int * OMA_LPPe_HighAccuracyFormatCapabilities_bits[] = {
+  &hf_lppe_OMA_LPPe_HighAccuracyFormatCapabilities_hAposition,
+  &hf_lppe_OMA_LPPe_HighAccuracyFormatCapabilities_hAvelocity,
+  NULL
+};
 
 static int
 dissect_lppe_OMA_LPPe_HighAccuracyFormatCapabilities(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, OMA_LPPe_HighAccuracyFormatCapabilities_bits, 2, NULL, NULL);
 
   return offset;
 }
@@ -3123,11 +3134,17 @@ dissect_lppe_OMA_LPPe_SegmentedAssistanceData_ProvideCapabs(tvbuff_t *tvb _U_, i
 }
 
 
+static const int * T_relativeLocationReportingSupport_bits[] = {
+  &hf_lppe_T_relativeLocationReportingSupport_geo,
+  &hf_lppe_T_relativeLocationReportingSupport_civic,
+  &hf_lppe_T_relativeLocationReportingSupport_otherProviders,
+  NULL
+};
 
 static int
 dissect_lppe_T_relativeLocationReportingSupport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, T_relativeLocationReportingSupport_bits, 3, NULL, NULL);
 
   return offset;
 }
@@ -3223,21 +3240,38 @@ dissect_lppe_OMA_LPPe_ScheduledLocation_Capabilities(tvbuff_t *tvb _U_, int offs
 }
 
 
+static const int * OMA_LPPe_FixedAccessTypes_bits[] = {
+  &hf_lppe_OMA_LPPe_FixedAccessTypes_cable,
+  &hf_lppe_OMA_LPPe_FixedAccessTypes_dsl,
+  &hf_lppe_OMA_LPPe_FixedAccessTypes_lan,
+  &hf_lppe_OMA_LPPe_FixedAccessTypes_pstn,
+  &hf_lppe_OMA_LPPe_FixedAccessTypes_other,
+  NULL
+};
 
 static int
 dissect_lppe_OMA_LPPe_FixedAccessTypes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, OMA_LPPe_FixedAccessTypes_bits, 5, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * OMA_LPPe_WirelessAccessTypes_bits[] = {
+  &hf_lppe_OMA_LPPe_WirelessAccessTypes_gsm,
+  &hf_lppe_OMA_LPPe_WirelessAccessTypes_utra,
+  &hf_lppe_OMA_LPPe_WirelessAccessTypes_lte,
+  &hf_lppe_OMA_LPPe_WirelessAccessTypes_wimax,
+  &hf_lppe_OMA_LPPe_WirelessAccessTypes_wifi,
+  &hf_lppe_OMA_LPPe_WirelessAccessTypes_other,
+  NULL
+};
 
 static int
 dissect_lppe_OMA_LPPe_WirelessAccessTypes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, OMA_LPPe_WirelessAccessTypes_bits, 6, NULL, NULL);
 
   return offset;
 }
@@ -3299,11 +3333,17 @@ dissect_lppe_OMA_LPPe_CommonIEsProvideCapabilities(tvbuff_t *tvb _U_, int offset
 }
 
 
+static const int * T_ionoModel_bits[] = {
+  &hf_lppe_T_ionoModel_localKlobuchar,
+  &hf_lppe_T_ionoModel_ionoStormWarning,
+  &hf_lppe_T_ionoModel_wideAreaIonoSurface,
+  NULL
+};
 
 static int
 dissect_lppe_T_ionoModel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, T_ionoModel_bits, 3, NULL, NULL);
 
   return offset;
 }
@@ -3323,11 +3363,16 @@ dissect_lppe_OMA_LPPe_AGNSS_IonosphericModelSupport(tvbuff_t *tvb _U_, int offse
 }
 
 
+static const int * T_tropoModel_bits[] = {
+  &hf_lppe_T_tropoModel_localTroposphereDelay,
+  &hf_lppe_T_tropoModel_surfaceParameters,
+  NULL
+};
 
 static int
 dissect_lppe_T_tropoModel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, T_tropoModel_bits, 2, NULL, NULL);
 
   return offset;
 }
@@ -3541,11 +3586,16 @@ dissect_lppe_OMA_LPPe_AGNSS_AssistanceDataSupportList(tvbuff_t *tvb _U_, int off
 }
 
 
+static const int * T_ionosphereMeasurementSupport_bits[] = {
+  &hf_lppe_T_ionosphereMeasurementSupport_tecPerSVsupport,
+  &hf_lppe_T_ionosphereMeasurementSupport_zenithTecSupport,
+  NULL
+};
 
 static int
 dissect_lppe_T_ionosphereMeasurementSupport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, T_ionosphereMeasurementSupport_bits, 2, NULL, NULL);
 
   return offset;
 }
@@ -3567,21 +3617,31 @@ dissect_lppe_OMA_LPPe_AGNSS_EnvironmentObservationSupportList(tvbuff_t *tvb _U_,
 }
 
 
+static const int * T_modeSupport_bits[] = {
+  &hf_lppe_T_modeSupport_ueBased,
+  &hf_lppe_T_modeSupport_ueAssisted,
+  NULL
+};
 
 static int
 dissect_lppe_T_modeSupport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     2, 2, FALSE, NULL, NULL);
+                                     2, 2, FALSE, T_modeSupport_bits, 2, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * T_haGNSSantennaInformationSupport_bits[] = {
+  &hf_lppe_T_haGNSSantennaInformationSupport_antennaDescriptionSupported,
+  &hf_lppe_T_haGNSSantennaInformationSupport_antennaOrientationSupported,
+  NULL
+};
 
 static int
 dissect_lppe_T_haGNSSantennaInformationSupport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE, NULL, NULL);
+                                     8, 8, FALSE, T_haGNSSantennaInformationSupport_bits, 2, NULL, NULL);
 
   return offset;
 }
@@ -3690,11 +3750,16 @@ dissect_lppe_OMA_LPPe_OTDOA_ProvideCapabilities(tvbuff_t *tvb _U_, int offset _U
 }
 
 
+static const int * T_eotdSupport_bits[] = {
+  &hf_lppe_T_eotdSupport_ueBased,
+  &hf_lppe_T_eotdSupport_ueAssisted,
+  NULL
+};
 
 static int
 dissect_lppe_T_eotdSupport(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     NO_BOUND, NO_BOUND, FALSE, NULL, NULL);
+                                     NO_BOUND, NO_BOUND, FALSE, T_eotdSupport_bits, 2, NULL, NULL);
 
   return offset;
 }
@@ -3730,31 +3795,62 @@ dissect_lppe_OMA_LPPe_OTDOA_UTRA_ProvideCapabilities(tvbuff_t *tvb _U_, int offs
 }
 
 
+static const int * T_ecid_lte_MeasSupported_bits[] = {
+  &hf_lppe_T_ecid_lte_MeasSupported_rsrp,
+  &hf_lppe_T_ecid_lte_MeasSupported_rsrq,
+  &hf_lppe_T_ecid_lte_MeasSupported_ueRxTx,
+  &hf_lppe_T_ecid_lte_MeasSupported_non_serving,
+  &hf_lppe_T_ecid_lte_MeasSupported_historic,
+  NULL
+};
 
 static int
 dissect_lppe_T_ecid_lte_MeasSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, T_ecid_lte_MeasSupported_bits, 5, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * T_ecid_lte_eNodeB_ADSupported_bits[] = {
+  &hf_lppe_T_ecid_lte_eNodeB_ADSupported_bslist,
+  &hf_lppe_T_ecid_lte_eNodeB_ADSupported_bslocation,
+  &hf_lppe_T_ecid_lte_eNodeB_ADSupported_transmit_power,
+  &hf_lppe_T_ecid_lte_eNodeB_ADSupported_antennaPortConfig,
+  &hf_lppe_T_ecid_lte_eNodeB_ADSupported_antenna_gain,
+  &hf_lppe_T_ecid_lte_eNodeB_ADSupported_beam_width,
+  &hf_lppe_T_ecid_lte_eNodeB_ADSupported_transmit_direction,
+  &hf_lppe_T_ecid_lte_eNodeB_ADSupported_frequency_accuracy,
+  &hf_lppe_T_ecid_lte_eNodeB_ADSupported_non_serving,
+  NULL
+};
 
 static int
 dissect_lppe_T_ecid_lte_eNodeB_ADSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_ecid_lte_eNodeB_ADSupported_bits, 9, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * T_ecid_utra_HeNB_ADSupported_bits[] = {
+  &hf_lppe_T_ecid_utra_HeNB_ADSupported_bslist,
+  &hf_lppe_T_ecid_utra_HeNB_ADSupported_bslocation,
+  &hf_lppe_T_ecid_utra_HeNB_ADSupported_locationreliability,
+  &hf_lppe_T_ecid_utra_HeNB_ADSupported_transmit_power,
+  &hf_lppe_T_ecid_utra_HeNB_ADSupported_antennaPortConfig,
+  &hf_lppe_T_ecid_utra_HeNB_ADSupported_frequency_accuracy,
+  &hf_lppe_T_ecid_utra_HeNB_ADSupported_coveragearea,
+  &hf_lppe_T_ecid_utra_HeNB_ADSupported_non_serving,
+  NULL
+};
 
 static int
 dissect_lppe_T_ecid_utra_HeNB_ADSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_ecid_utra_HeNB_ADSupported_bits, 8, NULL, NULL);
 
   return offset;
 }
@@ -3776,21 +3872,40 @@ dissect_lppe_OMA_LPPe_ECID_LTE_ProvideCapabilities(tvbuff_t *tvb _U_, int offset
 }
 
 
+static const int * T_ecid_gsm_MeasSupported_bits[] = {
+  &hf_lppe_T_ecid_gsm_MeasSupported_rxLevel,
+  &hf_lppe_T_ecid_gsm_MeasSupported_tA,
+  &hf_lppe_T_ecid_gsm_MeasSupported_nMR_GERAN,
+  &hf_lppe_T_ecid_gsm_MeasSupported_non_serving,
+  &hf_lppe_T_ecid_gsm_MeasSupported_historic,
+  NULL
+};
 
 static int
 dissect_lppe_T_ecid_gsm_MeasSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, T_ecid_gsm_MeasSupported_bits, 5, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * T_ecid_gsm_ADSupported_bits[] = {
+  &hf_lppe_T_ecid_gsm_ADSupported_bslist,
+  &hf_lppe_T_ecid_gsm_ADSupported_bslocation,
+  &hf_lppe_T_ecid_gsm_ADSupported_transmit_power,
+  &hf_lppe_T_ecid_gsm_ADSupported_antenna_gain,
+  &hf_lppe_T_ecid_gsm_ADSupported_beam_width,
+  &hf_lppe_T_ecid_gsm_ADSupported_transmit_direction,
+  &hf_lppe_T_ecid_gsm_ADSupported_frequency_accuracy,
+  &hf_lppe_T_ecid_gsm_ADSupported_non_serving,
+  NULL
+};
 
 static int
 dissect_lppe_T_ecid_gsm_ADSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_ecid_gsm_ADSupported_bits, 8, NULL, NULL);
 
   return offset;
 }
@@ -3811,31 +3926,65 @@ dissect_lppe_OMA_LPPe_ECID_GSM_ProvideCapabilities(tvbuff_t *tvb _U_, int offset
 }
 
 
+static const int * T_ecid_utra_MeasSupported_bits[] = {
+  &hf_lppe_T_ecid_utra_MeasSupported_measuredResultsList,
+  &hf_lppe_T_ecid_utra_MeasSupported_tdd_timingAdvance,
+  &hf_lppe_T_ecid_utra_MeasSupported_mRL_utra_CarrierRSSI,
+  &hf_lppe_T_ecid_utra_MeasSupported_mRL_FDD_cpich_Ec_N0,
+  &hf_lppe_T_ecid_utra_MeasSupported_mRL_FDD_cpich_RSCP,
+  &hf_lppe_T_ecid_utra_MeasSupported_mRL_FDD_pathloss,
+  &hf_lppe_T_ecid_utra_MeasSupported_mRL_TDD_primaryCCPCH_RSCP,
+  &hf_lppe_T_ecid_utra_MeasSupported_mRL_TDD_pathloss,
+  &hf_lppe_T_ecid_utra_MeasSupported_non_serving,
+  &hf_lppe_T_ecid_utra_MeasSupported_historic,
+  NULL
+};
 
 static int
 dissect_lppe_T_ecid_utra_MeasSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_ecid_utra_MeasSupported_bits, 10, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * T_ecid_utra_nodeB_ADSupported_bits[] = {
+  &hf_lppe_T_ecid_utra_nodeB_ADSupported_bslist,
+  &hf_lppe_T_ecid_utra_nodeB_ADSupported_bslocation,
+  &hf_lppe_T_ecid_utra_nodeB_ADSupported_transmit_power,
+  &hf_lppe_T_ecid_utra_nodeB_ADSupported_antenna_gain,
+  &hf_lppe_T_ecid_utra_nodeB_ADSupported_beam_width,
+  &hf_lppe_T_ecid_utra_nodeB_ADSupported_transmit_direction,
+  &hf_lppe_T_ecid_utra_nodeB_ADSupported_frequency_accuracy,
+  &hf_lppe_T_ecid_utra_nodeB_ADSupported_non_serving,
+  NULL
+};
 
 static int
 dissect_lppe_T_ecid_utra_nodeB_ADSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_ecid_utra_nodeB_ADSupported_bits, 8, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * T_ecid_utra_HNB_ADSupported_bits[] = {
+  &hf_lppe_T_ecid_utra_HNB_ADSupported_bslist,
+  &hf_lppe_T_ecid_utra_HNB_ADSupported_bslocation,
+  &hf_lppe_T_ecid_utra_HNB_ADSupported_locationreliability,
+  &hf_lppe_T_ecid_utra_HNB_ADSupported_transmit_power,
+  &hf_lppe_T_ecid_utra_HNB_ADSupported_frequency_accuracy,
+  &hf_lppe_T_ecid_utra_HNB_ADSupported_coveragearea,
+  &hf_lppe_T_ecid_utra_HNB_ADSupported_non_serving,
+  NULL
+};
 
 static int
 dissect_lppe_T_ecid_utra_HNB_ADSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_ecid_utra_HNB_ADSupported_bits, 7, NULL, NULL);
 
   return offset;
 }
@@ -3857,21 +4006,49 @@ dissect_lppe_OMA_LPPe_ECID_UTRA_ProvideCapabilities(tvbuff_t *tvb _U_, int offse
 }
 
 
+static const int * T_wlan_ecid_MeasSupported_bits[] = {
+  &hf_lppe_T_wlan_ecid_MeasSupported_apSSID,
+  &hf_lppe_T_wlan_ecid_MeasSupported_apSN,
+  &hf_lppe_T_wlan_ecid_MeasSupported_apDevType,
+  &hf_lppe_T_wlan_ecid_MeasSupported_apPhyType,
+  &hf_lppe_T_wlan_ecid_MeasSupported_apRSSI,
+  &hf_lppe_T_wlan_ecid_MeasSupported_apChanFreq,
+  &hf_lppe_T_wlan_ecid_MeasSupported_apRTD,
+  &hf_lppe_T_wlan_ecid_MeasSupported_ueTP,
+  &hf_lppe_T_wlan_ecid_MeasSupported_ueAG,
+  &hf_lppe_T_wlan_ecid_MeasSupported_apRepLoc,
+  &hf_lppe_T_wlan_ecid_MeasSupported_non_serving,
+  &hf_lppe_T_wlan_ecid_MeasSupported_historic,
+  &hf_lppe_T_wlan_ecid_MeasSupported_apTP,
+  &hf_lppe_T_wlan_ecid_MeasSupported_apAG,
+  &hf_lppe_T_wlan_ecid_MeasSupported_ueSN,
+  &hf_lppe_T_wlan_ecid_MeasSupported_ueRSSI,
+  NULL
+};
 
 static int
 dissect_lppe_T_wlan_ecid_MeasSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_wlan_ecid_MeasSupported_bits, 16, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * OMA_LPPe_WLAN_AP_Type_List_bits[] = {
+  &hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11a,
+  &hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11b,
+  &hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11g,
+  &hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11n,
+  &hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11ac,
+  &hf_lppe_OMA_LPPe_WLAN_AP_Type_List_ieee802_11ad,
+  NULL
+};
 
 static int
 dissect_lppe_OMA_LPPe_WLAN_AP_Type_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, OMA_LPPe_WLAN_AP_Type_List_bits, 6, NULL, NULL);
 
   return offset;
 }
@@ -3881,7 +4058,7 @@ dissect_lppe_OMA_LPPe_WLAN_AP_Type_List(tvbuff_t *tvb _U_, int offset _U_, asn1_
 static int
 dissect_lppe_BIT_STRING_SIZE_48(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     48, 48, FALSE, NULL, NULL);
+                                     48, 48, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -3916,21 +4093,36 @@ dissect_lppe_OMA_LPPe_WLAN_AP_Capability(tvbuff_t *tvb _U_, int offset _U_, asn1
 }
 
 
+static const int * T_wlan_ap_ADSupported_bits[] = {
+  &hf_lppe_T_wlan_ap_ADSupported_aplist,
+  &hf_lppe_T_wlan_ap_ADSupported_aplocation,
+  &hf_lppe_T_wlan_ap_ADSupported_locationreliability,
+  &hf_lppe_T_wlan_ap_ADSupported_transmit_power,
+  &hf_lppe_T_wlan_ap_ADSupported_antenna_gain,
+  &hf_lppe_T_wlan_ap_ADSupported_coveragearea,
+  &hf_lppe_T_wlan_ap_ADSupported_non_serving,
+  NULL
+};
 
 static int
 dissect_lppe_T_wlan_ap_ADSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_wlan_ap_ADSupported_bits, 7, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * T_additional_wlan_ecid_MeasSupported_bits[] = {
+  &hf_lppe_T_additional_wlan_ecid_MeasSupported_oc,
+  &hf_lppe_T_additional_wlan_ecid_MeasSupported_ueMacAddr,
+  NULL
+};
 
 static int
 dissect_lppe_T_additional_wlan_ecid_MeasSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_additional_wlan_ecid_MeasSupported_bits, 2, NULL, NULL);
 
   return offset;
 }
@@ -3954,11 +4146,27 @@ dissect_lppe_OMA_LPPe_WLAN_AP_ProvideCapabilities(tvbuff_t *tvb _U_, int offset 
 }
 
 
+static const int * T_ecid_wimax_MeasSupported_bits[] = {
+  &hf_lppe_T_ecid_wimax_MeasSupported_rTD,
+  &hf_lppe_T_ecid_wimax_MeasSupported_rTDstd,
+  &hf_lppe_T_ecid_wimax_MeasSupported_nMR,
+  &hf_lppe_T_ecid_wimax_MeasSupported_nMRrelDelay,
+  &hf_lppe_T_ecid_wimax_MeasSupported_nMRrelDelaystd,
+  &hf_lppe_T_ecid_wimax_MeasSupported_nMRrSSI,
+  &hf_lppe_T_ecid_wimax_MeasSupported_nMRrSSIstd,
+  &hf_lppe_T_ecid_wimax_MeasSupported_nMRbSTxPower,
+  &hf_lppe_T_ecid_wimax_MeasSupported_nMRcINR,
+  &hf_lppe_T_ecid_wimax_MeasSupported_nMRcINRstd,
+  &hf_lppe_T_ecid_wimax_MeasSupported_nMRbSLocation,
+  &hf_lppe_T_ecid_wimax_MeasSupported_non_serving,
+  &hf_lppe_T_ecid_wimax_MeasSupported_historic,
+  NULL
+};
 
 static int
 dissect_lppe_T_ecid_wimax_MeasSupported(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_ecid_wimax_MeasSupported_bits, 13, NULL, NULL);
 
   return offset;
 }
@@ -3995,11 +4203,16 @@ dissect_lppe_OMA_LPPe_Sensor_ProvideCapabilities(tvbuff_t *tvb _U_, int offset _
 }
 
 
+static const int * T_srnMeasurements_bits[] = {
+  &hf_lppe_T_srnMeasurements_rssi,
+  &hf_lppe_T_srnMeasurements_rtd,
+  NULL
+};
 
 static int
 dissect_lppe_T_srnMeasurements(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_srnMeasurements_bits, 2, NULL, NULL);
 
   return offset;
 }
@@ -4019,11 +4232,16 @@ dissect_lppe_OMA_LPPe_SRN_MeasurementMask(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
+static const int * T_supportedAssistanceData_bits[] = {
+  &hf_lppe_T_supportedAssistanceData_srnGroup,
+  &hf_lppe_T_supportedAssistanceData_antennaPattern,
+  NULL
+};
 
 static int
 dissect_lppe_T_supportedAssistanceData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_supportedAssistanceData_bits, 2, NULL, NULL);
 
   return offset;
 }
@@ -4398,11 +4616,16 @@ dissect_lppe_OMA_LPPe_CommonIEsRequestAssistanceData(tvbuff_t *tvb _U_, int offs
 }
 
 
+static const int * T_ionoreq_bits[] = {
+  &hf_lppe_T_ionoreq_klobucharModel,
+  &hf_lppe_T_ionoreq_ionoStormWarning,
+  NULL
+};
 
 static int
 dissect_lppe_T_ionoreq(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, T_ionoreq_bits, 2, NULL, NULL);
 
   return offset;
 }
@@ -4520,11 +4743,16 @@ dissect_lppe_OMA_LPPe_AGNSS_IonosphericModelReq(tvbuff_t *tvb _U_, int offset _U
 }
 
 
+static const int * T_troposphereModelReq_bits[] = {
+  &hf_lppe_T_troposphereModelReq_delay,
+  &hf_lppe_T_troposphereModelReq_surface,
+  NULL
+};
 
 static int
 dissect_lppe_T_troposphereModelReq(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, T_troposphereModelReq_bits, 2, NULL, NULL);
 
   return offset;
 }
@@ -4981,11 +5209,16 @@ dissect_lppe_T_lteCell(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, 
 }
 
 
+static const int * T_requestedCells_bits[] = {
+  &hf_lppe_T_requestedCells_eNBs,
+  &hf_lppe_T_requestedCells_heNBs,
+  NULL
+};
 
 static int
 dissect_lppe_T_requestedCells(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, T_requestedCells_bits, 2, NULL, NULL);
 
   return offset;
 }
@@ -5006,11 +5239,16 @@ dissect_lppe_OMA_LPPe_OTDOA_RequestAssistanceData(tvbuff_t *tvb _U_, int offset 
 }
 
 
+static const int * T_eotdAssistanceReq_bits[] = {
+  &hf_lppe_T_eotdAssistanceReq_ueAssisted,
+  &hf_lppe_T_eotdAssistanceReq_ueBased,
+  NULL
+};
 
 static int
 dissect_lppe_T_eotdAssistanceReq(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     NO_BOUND, NO_BOUND, FALSE, NULL, NULL);
+                                     NO_BOUND, NO_BOUND, FALSE, T_eotdAssistanceReq_bits, 2, NULL, NULL);
 
   return offset;
 }
@@ -5030,11 +5268,16 @@ dissect_lppe_OMA_LPPe_EOTD_RequestAssistanceData(tvbuff_t *tvb _U_, int offset _
 }
 
 
+static const int * T_otdoaUtraAssistanceReq_bits[] = {
+  &hf_lppe_T_otdoaUtraAssistanceReq_ueAssisted,
+  &hf_lppe_T_otdoaUtraAssistanceReq_ueBased,
+  NULL
+};
 
 static int
 dissect_lppe_T_otdoaUtraAssistanceReq(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, T_otdoaUtraAssistanceReq_bits, 2, NULL, NULL);
 
   return offset;
 }
@@ -5054,21 +5297,44 @@ dissect_lppe_OMA_LPPe_OTDOA_UTRA_RequestAssistanceData(tvbuff_t *tvb _U_, int of
 }
 
 
+static const int * T_eNBrequestedAD_bits[] = {
+  &hf_lppe_T_eNBrequestedAD_bslist,
+  &hf_lppe_T_eNBrequestedAD_bslocation,
+  &hf_lppe_T_eNBrequestedAD_transmit_power,
+  &hf_lppe_T_eNBrequestedAD_antennaPortConfig,
+  &hf_lppe_T_eNBrequestedAD_antenna_gain,
+  &hf_lppe_T_eNBrequestedAD_beam_width,
+  &hf_lppe_T_eNBrequestedAD_transmit_direction,
+  &hf_lppe_T_eNBrequestedAD_frequency_accuracy,
+  &hf_lppe_T_eNBrequestedAD_non_serving,
+  NULL
+};
 
 static int
 dissect_lppe_T_eNBrequestedAD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_eNBrequestedAD_bits, 9, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * T_heNBrequestedAD_bits[] = {
+  &hf_lppe_T_heNBrequestedAD_bslist,
+  &hf_lppe_T_heNBrequestedAD_bslocation,
+  &hf_lppe_T_heNBrequestedAD_locationreliability,
+  &hf_lppe_T_heNBrequestedAD_transmit_power,
+  &hf_lppe_T_heNBrequestedAD_antennaPortConfig,
+  &hf_lppe_T_heNBrequestedAD_frequency_accuracy,
+  &hf_lppe_T_heNBrequestedAD_coveragearea,
+  &hf_lppe_T_heNBrequestedAD_non_serving,
+  NULL
+};
 
 static int
 dissect_lppe_T_heNBrequestedAD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_heNBrequestedAD_bits, 8, NULL, NULL);
 
   return offset;
 }
@@ -5089,11 +5355,22 @@ dissect_lppe_OMA_LPPe_ECID_LTE_RequestAssistanceData(tvbuff_t *tvb _U_, int offs
 }
 
 
+static const int * T_requestedAD_bits[] = {
+  &hf_lppe_T_requestedAD_bslist,
+  &hf_lppe_T_requestedAD_bslocation,
+  &hf_lppe_T_requestedAD_transmit_power,
+  &hf_lppe_T_requestedAD_antenna_gain,
+  &hf_lppe_T_requestedAD_beam_width,
+  &hf_lppe_T_requestedAD_transmit_direction,
+  &hf_lppe_T_requestedAD_frequency_accuracy,
+  &hf_lppe_T_requestedAD_non_serving,
+  NULL
+};
 
 static int
 dissect_lppe_T_requestedAD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_requestedAD_bits, 8, NULL, NULL);
 
   return offset;
 }
@@ -5113,21 +5390,42 @@ dissect_lppe_OMA_LPPe_ECID_GSM_RequestAssistanceData(tvbuff_t *tvb _U_, int offs
 }
 
 
+static const int * T_nBrequestedAD_bits[] = {
+  &hf_lppe_T_nBrequestedAD_bslist,
+  &hf_lppe_T_nBrequestedAD_bslocation,
+  &hf_lppe_T_nBrequestedAD_transmit_power,
+  &hf_lppe_T_nBrequestedAD_antenna_gain,
+  &hf_lppe_T_nBrequestedAD_beam_width,
+  &hf_lppe_T_nBrequestedAD_transmit_direction,
+  &hf_lppe_T_nBrequestedAD_frequency_accuracy,
+  &hf_lppe_T_nBrequestedAD_non_serving,
+  NULL
+};
 
 static int
 dissect_lppe_T_nBrequestedAD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_nBrequestedAD_bits, 8, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * T_hNBrequestedAD_bits[] = {
+  &hf_lppe_T_hNBrequestedAD_bslist,
+  &hf_lppe_T_hNBrequestedAD_bslocation,
+  &hf_lppe_T_hNBrequestedAD_locationreliability,
+  &hf_lppe_T_hNBrequestedAD_transmit_power,
+  &hf_lppe_T_hNBrequestedAD_frequency_accuracy,
+  &hf_lppe_T_hNBrequestedAD_coveragearea,
+  &hf_lppe_T_hNBrequestedAD_non_serving,
+  NULL
+};
 
 static int
 dissect_lppe_T_hNBrequestedAD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_hNBrequestedAD_bits, 7, NULL, NULL);
 
   return offset;
 }
@@ -5148,11 +5446,21 @@ dissect_lppe_OMA_LPPe_ECID_UTRA_RequestAssistanceData(tvbuff_t *tvb _U_, int off
 }
 
 
+static const int * T_requestedAD_01_bits[] = {
+  &hf_lppe_T_requestedAD_01_aplist,
+  &hf_lppe_T_requestedAD_01_aplocation,
+  &hf_lppe_T_requestedAD_01_locationreliability,
+  &hf_lppe_T_requestedAD_01_transmit_power,
+  &hf_lppe_T_requestedAD_01_antenna_gain,
+  &hf_lppe_T_requestedAD_01_coveragearea,
+  &hf_lppe_T_requestedAD_01_non_serving,
+  NULL
+};
 
 static int
 dissect_lppe_T_requestedAD_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_requestedAD_01_bits, 7, NULL, NULL);
 
   return offset;
 }
@@ -5264,7 +5572,7 @@ dissect_lppe_OMA_LPPe_SRN_SRNgroupRequest(tvbuff_t *tvb _U_, int offset _U_, asn
 static int
 dissect_lppe_BIT_STRING_SIZE_8(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE, NULL, NULL);
+                                     8, 8, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -5289,7 +5597,7 @@ dissect_lppe_T_nfc(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, prot
 static int
 dissect_lppe_BIT_STRING_SIZE_12(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     12, 12, FALSE, NULL, NULL);
+                                     12, 12, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -8125,7 +8433,7 @@ dissect_lppe_OMA_LPPe_AGNSS_ProvideAssistanceData(tvbuff_t *tvb _U_, int offset 
 static int
 dissect_lppe_BIT_STRING_SIZE_10(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     10, 10, FALSE, NULL, NULL);
+                                     10, 10, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -9739,7 +10047,7 @@ dissect_lppe_T_plmn_Identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 static int
 dissect_lppe_BIT_STRING_SIZE_28(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     28, 28, FALSE, NULL, NULL);
+                                     28, 28, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -10211,7 +10519,7 @@ dissect_lppe_T_plmn_Identity_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_lppe_BIT_STRING_SIZE_16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, FALSE, NULL, NULL);
+                                     16, 16, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -10484,7 +10792,7 @@ dissect_lppe_T_plmn_Identity_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_lppe_BIT_STRING_SIZE_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     32, 32, FALSE, NULL, NULL);
+                                     32, 32, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -12247,11 +12555,16 @@ dissect_lppe_OMA_LPPe_AGNSS_PositioningInstructions(tvbuff_t *tvb _U_, int offse
 }
 
 
+static const int * T_ionosphereMeasurementsReq_bits[] = {
+  &hf_lppe_T_ionosphereMeasurementsReq_tecPerSV,
+  &hf_lppe_T_ionosphereMeasurementsReq_zenithTEC,
+  NULL
+};
 
 static int
 dissect_lppe_T_ionosphereMeasurementsReq(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, T_ionosphereMeasurementsReq_bits, 2, NULL, NULL);
 
   return offset;
 }
@@ -12326,11 +12639,19 @@ dissect_lppe_OMA_LPPe_OTDOA_UTRA_RequestLocationInformation(tvbuff_t *tvb _U_, i
 }
 
 
+static const int * T_requestedMeasurements_bits[] = {
+  &hf_lppe_T_requestedMeasurements_rsrp,
+  &hf_lppe_T_requestedMeasurements_rsrq,
+  &hf_lppe_T_requestedMeasurements_ueRxTx,
+  &hf_lppe_T_requestedMeasurements_non_serving,
+  &hf_lppe_T_requestedMeasurements_historic,
+  NULL
+};
 
 static int
 dissect_lppe_T_requestedMeasurements(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, T_requestedMeasurements_bits, 5, NULL, NULL);
 
   return offset;
 }
@@ -12350,11 +12671,19 @@ dissect_lppe_OMA_LPPe_ECID_LTE_RequestLocationInformation(tvbuff_t *tvb _U_, int
 }
 
 
+static const int * T_requestedMeasurements_01_bits[] = {
+  &hf_lppe_T_requestedMeasurements_01_rxLevel,
+  &hf_lppe_T_requestedMeasurements_01_tA,
+  &hf_lppe_T_requestedMeasurements_01_nMR_GERAN,
+  &hf_lppe_T_requestedMeasurements_01_non_serving,
+  &hf_lppe_T_requestedMeasurements_01_historic,
+  NULL
+};
 
 static int
 dissect_lppe_T_requestedMeasurements_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, T_requestedMeasurements_01_bits, 5, NULL, NULL);
 
   return offset;
 }
@@ -12374,11 +12703,24 @@ dissect_lppe_OMA_LPPe_ECID_GSM_RequestLocationInformation(tvbuff_t *tvb _U_, int
 }
 
 
+static const int * T_requestedMeasurements_02_bits[] = {
+  &hf_lppe_T_requestedMeasurements_02_measuredResultsList,
+  &hf_lppe_T_requestedMeasurements_02_tdd_timingAdvance,
+  &hf_lppe_T_requestedMeasurements_02_mRL_utra_CarrierRSSI,
+  &hf_lppe_T_requestedMeasurements_02_mRL_FDD_cpich_Ec_N0,
+  &hf_lppe_T_requestedMeasurements_02_mRL_FDD_cpich_RSCP,
+  &hf_lppe_T_requestedMeasurements_02_mRL_FDD_pathloss,
+  &hf_lppe_T_requestedMeasurements_02_mRL_TDD_primaryCCPCH_RSCP,
+  &hf_lppe_T_requestedMeasurements_02_mRL_TDD_pathloss,
+  &hf_lppe_T_requestedMeasurements_02_non_serving,
+  &hf_lppe_T_requestedMeasurements_02_historic,
+  NULL
+};
 
 static int
 dissect_lppe_T_requestedMeasurements_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_requestedMeasurements_02_bits, 10, NULL, NULL);
 
   return offset;
 }
@@ -12398,21 +12740,45 @@ dissect_lppe_OMA_LPPe_ECID_UTRA_RequestLocationInformation(tvbuff_t *tvb _U_, in
 }
 
 
+static const int * T_requestedMeasurements_03_bits[] = {
+  &hf_lppe_T_requestedMeasurements_03_apSSID,
+  &hf_lppe_T_requestedMeasurements_03_apSN,
+  &hf_lppe_T_requestedMeasurements_03_apDevType,
+  &hf_lppe_T_requestedMeasurements_03_apPhyType,
+  &hf_lppe_T_requestedMeasurements_03_apRSSI,
+  &hf_lppe_T_requestedMeasurements_03_apChanFreq,
+  &hf_lppe_T_requestedMeasurements_03_apRTD,
+  &hf_lppe_T_requestedMeasurements_03_ueTP,
+  &hf_lppe_T_requestedMeasurements_03_ueAG,
+  &hf_lppe_T_requestedMeasurements_03_apRepLoc,
+  &hf_lppe_T_requestedMeasurements_03_non_serving,
+  &hf_lppe_T_requestedMeasurements_03_historic,
+  &hf_lppe_T_requestedMeasurements_03_apTP,
+  &hf_lppe_T_requestedMeasurements_03_apAG,
+  &hf_lppe_T_requestedMeasurements_03_ueSN,
+  &hf_lppe_T_requestedMeasurements_03_ueRSSI,
+  NULL
+};
 
 static int
 dissect_lppe_T_requestedMeasurements_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_requestedMeasurements_03_bits, 16, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * T_additionalRequestedMeasurements_bits[] = {
+  &hf_lppe_T_additionalRequestedMeasurements_oc,
+  &hf_lppe_T_additionalRequestedMeasurements_ueMacAddr,
+  NULL
+};
 
 static int
 dissect_lppe_T_additionalRequestedMeasurements(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_additionalRequestedMeasurements_bits, 2, NULL, NULL);
 
   return offset;
 }
@@ -12433,11 +12799,27 @@ dissect_lppe_OMA_LPPe_WLAN_AP_RequestLocationInformation(tvbuff_t *tvb _U_, int 
 }
 
 
+static const int * T_requestedMeasurements_04_bits[] = {
+  &hf_lppe_T_requestedMeasurements_04_rTD,
+  &hf_lppe_T_requestedMeasurements_04_rTDstd,
+  &hf_lppe_T_requestedMeasurements_04_nMR,
+  &hf_lppe_T_requestedMeasurements_04_nMRrelDelay,
+  &hf_lppe_T_requestedMeasurements_04_nMRrelDelaystd,
+  &hf_lppe_T_requestedMeasurements_04_nMRrSSI,
+  &hf_lppe_T_requestedMeasurements_04_nMRrSSIstd,
+  &hf_lppe_T_requestedMeasurements_04_nMRbSTxPower,
+  &hf_lppe_T_requestedMeasurements_04_nMRcINR,
+  &hf_lppe_T_requestedMeasurements_04_nMRcINRstd,
+  &hf_lppe_T_requestedMeasurements_04_nMRbSLocation,
+  &hf_lppe_T_requestedMeasurements_04_non_serving,
+  &hf_lppe_T_requestedMeasurements_04_historic,
+  NULL
+};
 
 static int
 dissect_lppe_T_requestedMeasurements_04(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_requestedMeasurements_04_bits, 13, NULL, NULL);
 
   return offset;
 }
@@ -12632,7 +13014,7 @@ dissect_lppe_OMA_LPPe_HighAccuracy3Dvelocity(tvbuff_t *tvb _U_, int offset _U_, 
 static int
 dissect_lppe_BIT_STRING_SIZE_128(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     128, 128, FALSE, NULL, NULL);
+                                     128, 128, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -13375,7 +13757,7 @@ dissect_lppe_OMA_LPPe_EOTD_ModuloTimeSlot(tvbuff_t *tvb _U_, int offset _U_, asn
 static int
 dissect_lppe_BIT_STRING_SIZE_5(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     5, 5, FALSE, NULL, NULL);
+                                     5, 5, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -13385,7 +13767,7 @@ dissect_lppe_BIT_STRING_SIZE_5(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_lppe_BIT_STRING_SIZE_3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     3, 3, FALSE, NULL, NULL);
+                                     3, 3, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -13410,7 +13792,7 @@ dissect_lppe_OMA_LPPe_EOTD_TOA_MeasurementsOfRef(tvbuff_t *tvb _U_, int offset _
 static int
 dissect_lppe_BIT_STRING_SIZE_2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     2, 2, FALSE, NULL, NULL);
+                                     2, 2, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -14392,7 +14774,7 @@ dissect_lppe_OMA_LPPe_WLAN_RTD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_lppe_BIT_STRING_SIZE_6(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     6, 6, FALSE, NULL, NULL);
+                                     6, 6, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -14402,7 +14784,7 @@ dissect_lppe_BIT_STRING_SIZE_6(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_lppe_BIT_STRING_SIZE_34(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     34, 34, FALSE, NULL, NULL);
+                                     34, 34, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -14412,7 +14794,7 @@ dissect_lppe_BIT_STRING_SIZE_34(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_lppe_BIT_STRING_SIZE_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     4, 4, FALSE, NULL, NULL);
+                                     4, 4, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -14422,7 +14804,7 @@ dissect_lppe_BIT_STRING_SIZE_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static int
 dissect_lppe_BIT_STRING_SIZE_30(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     30, 30, FALSE, NULL, NULL);
+                                     30, 30, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -14556,7 +14938,7 @@ dissect_lppe_OMA_LPPe_WLAN_AP_ProvideLocationInformation(tvbuff_t *tvb _U_, int 
 static int
 dissect_lppe_BIT_STRING_SIZE_24(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     24, 24, FALSE, NULL, NULL);
+                                     24, 24, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -14808,11 +15190,23 @@ dissect_lppe_T_primaryMotionState(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 }
 
 
+static const int * T_secondaryMotionState_bits[] = {
+  &hf_lppe_T_secondaryMotionState_stationary,
+  &hf_lppe_T_secondaryMotionState_pedestrian,
+  &hf_lppe_T_secondaryMotionState_running,
+  &hf_lppe_T_secondaryMotionState_cycling,
+  &hf_lppe_T_secondaryMotionState_car,
+  &hf_lppe_T_secondaryMotionState_train,
+  &hf_lppe_T_secondaryMotionState_aeroplane,
+  &hf_lppe_T_secondaryMotionState_boat,
+  &hf_lppe_T_secondaryMotionState_fidgeting,
+  NULL
+};
 
 static int
 dissect_lppe_T_secondaryMotionState(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, T_secondaryMotionState_bits, 9, NULL, NULL);
 
   return offset;
 }

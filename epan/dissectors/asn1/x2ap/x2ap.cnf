@@ -188,7 +188,7 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
   tvbuff_t *parameter_tvb = NULL;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     32, 32, FALSE, &parameter_tvb, NULL);
+                                     32, 32, FALSE, NULL, 0, &parameter_tvb, NULL);
 
   if(parameter_tvb){
     const gint *fields[] = {

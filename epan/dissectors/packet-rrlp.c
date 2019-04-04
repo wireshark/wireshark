@@ -2754,11 +2754,20 @@ dissect_rrlp_Rel5_MsrPosition_Req_Extension(tvbuff_t *tvb _U_, int offset _U_, a
 }
 
 
+static const int * GANSSPositioningMethod_bits[] = {
+  &hf_rrlp_GANSSPositioningMethod_gps,
+  &hf_rrlp_GANSSPositioningMethod_galileo,
+  &hf_rrlp_GANSSPositioningMethod_sbas,
+  &hf_rrlp_GANSSPositioningMethod_modernizedGPS,
+  &hf_rrlp_GANSSPositioningMethod_qzss,
+  &hf_rrlp_GANSSPositioningMethod_glonass,
+  NULL
+};
 
 static int
 dissect_rrlp_GANSSPositioningMethod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     2, 16, FALSE, NULL, NULL);
+                                     2, 16, FALSE, GANSSPositioningMethod_bits, 6, NULL, NULL);
 
   return offset;
 }
@@ -2932,7 +2941,7 @@ dissect_rrlp_GANSSIonosphericModel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 static int
 dissect_rrlp_BIT_STRING_SIZE_2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     2, 2, FALSE, NULL, NULL);
+                                     2, 2, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -3220,7 +3229,7 @@ dissect_rrlp_GANSSDiffCorrections(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 static int
 dissect_rrlp_BIT_STRING_SIZE_5(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     5, 5, FALSE, NULL, NULL);
+                                     5, 5, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -3656,7 +3665,7 @@ dissect_rrlp_NavModel_GLONASSecef(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 static int
 dissect_rrlp_BIT_STRING_SIZE_4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     4, 4, FALSE, NULL, NULL);
+                                     4, 4, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -3728,7 +3737,7 @@ dissect_rrlp_GANSSOrbitModel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 static int
 dissect_rrlp_BIT_STRING_SIZE_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 1, FALSE, NULL, NULL);
+                                     1, 1, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -3783,11 +3792,22 @@ dissect_rrlp_GANSSNavModel(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 }
 
 
+static const int * GANSSSignals_bits[] = {
+  &hf_rrlp_GANSSSignals_signal1,
+  &hf_rrlp_GANSSSignals_signal2,
+  &hf_rrlp_GANSSSignals_signal3,
+  &hf_rrlp_GANSSSignals_signal4,
+  &hf_rrlp_GANSSSignals_signal5,
+  &hf_rrlp_GANSSSignals_signal6,
+  &hf_rrlp_GANSSSignals_signal7,
+  &hf_rrlp_GANSSSignals_signal8,
+  NULL
+};
 
 static int
 dissect_rrlp_GANSSSignals(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, GANSSSignals_bits, 8, NULL, NULL);
 
   return offset;
 }
@@ -4221,7 +4241,7 @@ dissect_rrlp_Almanac_GlonassAlmanacSet(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 static int
 dissect_rrlp_BIT_STRING_SIZE_8(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE, NULL, NULL);
+                                     8, 8, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -4661,7 +4681,7 @@ dissect_rrlp_GANSSEphemerisExtension(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 static int
 dissect_rrlp_BIT_STRING_SIZE_64(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     64, 64, FALSE, NULL, NULL);
+                                     64, 64, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -5316,7 +5336,7 @@ dissect_rrlp_GPSEphemerisExtension(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 static int
 dissect_rrlp_BIT_STRING_SIZE_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     32, 32, FALSE, NULL, NULL);
+                                     32, 32, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -6412,11 +6432,21 @@ dissect_rrlp_INTEGER_0_16384(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 }
 
 
+static const int * PositionData_bits[] = {
+  &hf_rrlp_PositionData_e_otd,
+  &hf_rrlp_PositionData_gps,
+  &hf_rrlp_PositionData_galileo,
+  &hf_rrlp_PositionData_sbas,
+  &hf_rrlp_PositionData_modernizedGPS,
+  &hf_rrlp_PositionData_qzss,
+  &hf_rrlp_PositionData_glonass,
+  NULL
+};
 
 static int
 dissect_rrlp_PositionData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     3, 16, FALSE, NULL, NULL);
+                                     3, 16, FALSE, PositionData_bits, 7, NULL, NULL);
 
   return offset;
 }
@@ -6769,21 +6799,34 @@ dissect_rrlp_ProtocolError(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 }
 
 
+static const int * GANSSPositioningMethodTypes_bits[] = {
+  &hf_rrlp_GANSSPositioningMethodTypes_msAssisted,
+  &hf_rrlp_GANSSPositioningMethodTypes_msBased,
+  &hf_rrlp_GANSSPositioningMethodTypes_standalone,
+  NULL
+};
 
 static int
 dissect_rrlp_GANSSPositioningMethodTypes(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, GANSSPositioningMethodTypes_bits, 3, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * SBASID_bits[] = {
+  &hf_rrlp_SBASID_waas,
+  &hf_rrlp_SBASID_egnos,
+  &hf_rrlp_SBASID_masas,
+  &hf_rrlp_SBASID_gagan,
+  NULL
+};
 
 static int
 dissect_rrlp_SBASID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, SBASID_bits, 4, NULL, NULL);
 
   return offset;
 }
@@ -6836,21 +6879,35 @@ dissect_rrlp_PosCapability_Req(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 }
 
 
+static const int * NonGANSSPositionMethods_bits[] = {
+  &hf_rrlp_NonGANSSPositionMethods_msAssistedEOTD,
+  &hf_rrlp_NonGANSSPositionMethods_msBasedEOTD,
+  &hf_rrlp_NonGANSSPositionMethods_msAssistedGPS,
+  &hf_rrlp_NonGANSSPositionMethods_msBasedGPS,
+  &hf_rrlp_NonGANSSPositionMethods_standaloneGPS,
+  NULL
+};
 
 static int
 dissect_rrlp_NonGANSSPositionMethods(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, NonGANSSPositionMethods_bits, 5, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * MultipleMeasurementSets_bits[] = {
+  &hf_rrlp_MultipleMeasurementSets_eotd,
+  &hf_rrlp_MultipleMeasurementSets_gps,
+  &hf_rrlp_MultipleMeasurementSets_ganss,
+  NULL
+};
 
 static int
 dissect_rrlp_MultipleMeasurementSets(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, MultipleMeasurementSets_bits, 3, NULL, NULL);
 
   return offset;
 }
@@ -6872,31 +6929,69 @@ dissect_rrlp_PosCapabilities(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 }
 
 
+static const int * GPSAssistance_bits[] = {
+  &hf_rrlp_GPSAssistance_almanac,
+  &hf_rrlp_GPSAssistance_uTCmodel,
+  &hf_rrlp_GPSAssistance_ionosphericModel,
+  &hf_rrlp_GPSAssistance_navigationmodel,
+  &hf_rrlp_GPSAssistance_dGPScorrections,
+  &hf_rrlp_GPSAssistance_referenceLocation,
+  &hf_rrlp_GPSAssistance_referenceTime,
+  &hf_rrlp_GPSAssistance_acquisitionAssistance,
+  &hf_rrlp_GPSAssistance_realTimeIntegrity,
+  &hf_rrlp_GPSAssistance_ephemerisExtension,
+  &hf_rrlp_GPSAssistance_ephemerisExtensionCheck,
+  NULL
+};
 
 static int
 dissect_rrlp_GPSAssistance(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, GPSAssistance_bits, 11, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * CommonGANSSAssistance_bits[] = {
+  &hf_rrlp_CommonGANSSAssistance_referenceTime,
+  &hf_rrlp_CommonGANSSAssistance_referenceLocation,
+  &hf_rrlp_CommonGANSSAssistance_spare_bit_2,
+  &hf_rrlp_CommonGANSSAssistance_ionosphericModel,
+  &hf_rrlp_CommonGANSSAssistance_addIonosphericModel,
+  &hf_rrlp_CommonGANSSAssistance_earthOrientationParam,
+  NULL
+};
 
 static int
 dissect_rrlp_CommonGANSSAssistance(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, CommonGANSSAssistance_bits, 6, NULL, NULL);
 
   return offset;
 }
 
 
+static const int * GANSSAssistance_bits[] = {
+  &hf_rrlp_GANSSAssistance_realTimeIntegrity,
+  &hf_rrlp_GANSSAssistance_differentialCorrections,
+  &hf_rrlp_GANSSAssistance_almanac,
+  &hf_rrlp_GANSSAssistance_referenceMeasurementInformation,
+  &hf_rrlp_GANSSAssistance_navigationModel,
+  &hf_rrlp_GANSSAssistance_timeModelGNSS_UTC,
+  &hf_rrlp_GANSSAssistance_timeModelGNSS_GNSS,
+  &hf_rrlp_GANSSAssistance_databitassistance,
+  &hf_rrlp_GANSSAssistance_ephemerisExtension,
+  &hf_rrlp_GANSSAssistance_ephemerisExtensionCheck,
+  &hf_rrlp_GANSSAssistance_addUTCmodel,
+  &hf_rrlp_GANSSAssistance_auxiliaryInformation,
+  NULL
+};
 
 static int
 dissect_rrlp_GANSSAssistance(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 16, FALSE, NULL, NULL);
+                                     1, 16, FALSE, GANSSAssistance_bits, 12, NULL, NULL);
 
   return offset;
 }
@@ -6946,11 +7041,22 @@ dissect_rrlp_GANSSAssistanceSet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 }
 
 
+static const int * GANSSModelID_bits[] = {
+  &hf_rrlp_GANSSModelID_model1,
+  &hf_rrlp_GANSSModelID_model2,
+  &hf_rrlp_GANSSModelID_model3,
+  &hf_rrlp_GANSSModelID_model4,
+  &hf_rrlp_GANSSModelID_model5,
+  &hf_rrlp_GANSSModelID_model6,
+  &hf_rrlp_GANSSModelID_model7,
+  &hf_rrlp_GANSSModelID_model8,
+  NULL
+};
 
 static int
 dissect_rrlp_GANSSModelID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 8, FALSE, NULL, NULL);
+                                     1, 8, FALSE, GANSSModelID_bits, 8, NULL, NULL);
 
   return offset;
 }

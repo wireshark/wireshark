@@ -478,7 +478,7 @@ dissect_sabp_Broadcast_Message_Content(tvbuff_t *tvb _U_, int offset _U_, asn1_c
  tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     1, 9968, FALSE, &parameter_tvb, NULL);
+                                     1, 9968, FALSE, NULL, 0, &parameter_tvb, NULL);
 
 	if (!parameter_tvb)
 		return offset;
@@ -663,7 +663,7 @@ dissect_sabp_Data_Coding_Scheme(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
  proto_tree *subtree;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE, &parameter_tvb, NULL);
+                                     8, 8, FALSE, NULL, 0, &parameter_tvb, NULL);
 
 
 	if (!parameter_tvb)
@@ -761,7 +761,7 @@ dissect_sabp_Message_Identifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
  tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, FALSE, &parameter_tvb, NULL);
+                                     16, 16, FALSE, NULL, 0, &parameter_tvb, NULL);
 
 	if (!parameter_tvb)
 		return offset;
@@ -781,7 +781,7 @@ dissect_sabp_Serial_Number(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
  proto_tree *subtree;
 
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, FALSE, &parameter_tvb, NULL);
+                                     16, 16, FALSE, NULL, 0, &parameter_tvb, NULL);
 
 	if (!parameter_tvb)
 		return offset;

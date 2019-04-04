@@ -1533,11 +1533,16 @@ dissect_ieee1609dot2_INTEGER(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 }
 
 
+static const int * EndEntityType_bits[] = {
+  &hf_ieee1609dot2_EndEntityType_app,
+  &hf_ieee1609dot2_EndEntityType_enrol,
+  NULL
+};
 
 static int
 dissect_ieee1609dot2_EndEntityType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_oer_bit_string(tvb, offset, actx, tree, hf_index,
-                                     8, 8, FALSE, NULL, NULL);
+                                     8, 8, FALSE, EndEntityType_bits, 2, NULL, NULL);
 
   return offset;
 }
