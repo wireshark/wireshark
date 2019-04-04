@@ -400,11 +400,33 @@ destroy_text(print_stream_t *self)
     output_text *output = (output_text *)self->data;
     gboolean     ret;
 
+    switch (output->color_type) {
+
+    case COLOR_NONE:
+        break;
+
 #ifdef _WIN32
-    /* Restore the console mode before we changed it. */
-    if (output->color_type == COLOR_24BIT_ESCAPE)
+    case COLOR_CONSOLE:
+        /* Restore the default text attribute. */
+        SetConsoleTextAttribute((HANDLE)_get_osfhandle(_fileno(output->fh)), output->csb_attrs);
+        break;
+#endif
+
+    case COLOR_24BIT_ESCAPE:
+        /* Reset the color to the default */
+        fprintf(output->fh, "%s", TERM_SGR_RESET);
+        fflush(output->fh);
+
+#ifdef _WIN32
+        /*
+         * Restore the console mode before we changed it.
+         * We must do that *after* sending escape sequences,
+         * as this may disable escape sequence processing.
+         */
         SetConsoleMode((HANDLE)_get_osfhandle(_fileno(output->fh)), output->console_mode);
 #endif
+        break;
+    }
 
     ret = close_print_dest(output->to_file, output->fh);
     g_free(output);

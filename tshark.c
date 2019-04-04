@@ -231,7 +231,15 @@ static void report_counts_siginfo(int);
 #endif /* HAVE_LIBPCAP */
 
 static void reset_epan_mem(capture_file *cf, epan_dissect_t *edt, gboolean tree, gboolean visual);
-static gboolean process_cap_file(capture_file *, char *, int, gboolean, int, gint64);
+
+typedef enum {
+  PROCESS_FILE_SUCCEEDED,
+  PROCESS_FILE_NO_FILE_PROCESSED,
+  PROCESS_FILE_ERROR,
+  PROCESS_FILE_INTERRUPTED
+} process_file_status_t;
+static process_file_status_t process_cap_file(capture_file *, char *, int, gboolean, int, gint64);
+
 static gboolean process_packet_single_pass(capture_file *cf,
     epan_dissect_t *edt, gint64 offset, wtap_rec *rec,
     const guchar *pd, guint tap_flags);
@@ -694,7 +702,8 @@ main(int argc, char *argv[])
 #endif  /* _WIN32 */
 
   int                  err;
-  volatile gboolean    success;
+  volatile process_file_status_t status;
+  volatile gboolean    draw_taps = FALSE;
   volatile int         exit_status = EXIT_SUCCESS;
 #ifdef HAVE_LIBPCAP
   int                  caps_queries = 0;
@@ -2023,7 +2032,7 @@ main(int argc, char *argv[])
     /* Process the packets in the file */
     tshark_debug("tshark: invoking process_cap_file() to process the packets");
     TRY {
-      success = process_cap_file(&cfile, output_file_name, out_file_type, out_file_name_res,
+      status = process_cap_file(&cfile, output_file_name, out_file_type, out_file_name_res,
 #ifdef HAVE_LIBPCAP
           global_capture_opts.has_autostop_packets ? global_capture_opts.autostop_packets : 0,
           global_capture_opts.has_autostop_filesize ? global_capture_opts.autostop_filesize : 0);
@@ -2040,14 +2049,35 @@ main(int argc, char *argv[])
               "\n"
               "More information and workarounds can be found at\n"
               "https://wiki.wireshark.org/KnownBugs/OutOfMemory\n");
-      success = FALSE;
+      status = PROCESS_FILE_ERROR;
     }
     ENDTRY;
 
-    if (!success) {
+    switch (status) {
+
+    case PROCESS_FILE_SUCCEEDED:
+      /* Everything worked OK; draw the taps. */
+      draw_taps = TRUE;
+      break;
+
+    case PROCESS_FILE_NO_FILE_PROCESSED:
+      /* We never got to try to read the file, so there are no tap
+         results to dump.  Exit with an error status. */
+      exit_status = 2;
+      break;
+
+    case PROCESS_FILE_ERROR:
       /* We still dump out the results of taps, etc., as we might have
          read some packets; however, we exit with an error status. */
+      draw_taps = TRUE;
       exit_status = 2;
+      break;
+
+    case PROCESS_FILE_INTERRUPTED:
+      /* The user interrupted the read process; Don't dump out the
+         result of taps, etc., and exit with an error status. */
+      exit_status = 2;
+      break;
     }
 
     if (pdu_export_arg) {
@@ -2199,6 +2229,13 @@ main(int argc, char *argv[])
         show_print_file_io_error(errno);
       }
     }
+
+    /*
+     * If we never got a capture file, don't draw the taps; we not only
+     * didn't capture any packets, we never even did any capturing.
+     */
+    if (cfile.filename != NULL)
+      draw_taps = TRUE;
 #else
     /* No - complain. */
     cmdarg_err("This version of TShark was not built with support for capturing packets.");
@@ -2212,11 +2249,7 @@ main(int argc, char *argv[])
     cfile.provider.frames = NULL;
   }
 
-  /*
-   * If we never got a capture file, don't draw the taps; we not only
-   * didn't capture any packets, we never even did any capturing.
-   */
-  if (cfile.filename != NULL)
+  if (draw_taps)
     draw_tap_listeners(TRUE);
   /* Memory cleanup */
   reset_tap_listeners();
@@ -2835,9 +2868,6 @@ capture_input_closed(capture_session *cap_session, gchar *msg)
 #endif
 }
 
-
-
-
 #ifdef _WIN32
 static BOOL WINAPI
 capture_cleanup(DWORD ctrltype _U_)
@@ -2885,12 +2915,6 @@ capture_cleanup(int signum _U_)
 }
 #endif /* _WIN32 */
 #endif /* HAVE_LIBPCAP */
-
-typedef enum {
-  PASS_SUCCEEDED,
-  PASS_READ_ERROR,
-  PASS_WRITE_ERROR
-} pass_status_t;
 
 static gboolean
 process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
@@ -2975,6 +2999,58 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
   return passed;
 }
 
+/*
+ * Set if reading a file was interrupted by a CTRL_ event on Windows or
+ * a signal on UN*X.
+ */
+static gboolean read_interrupted = FALSE;
+
+#ifdef _WIN32
+static BOOL WINAPI
+read_cleanup(DWORD ctrltype _U_)
+{
+  /* CTRL_C_EVENT is sort of like SIGINT, CTRL_BREAK_EVENT is unique to
+     Windows, CTRL_CLOSE_EVENT is sort of like SIGHUP, CTRL_LOGOFF_EVENT
+     is also sort of like SIGHUP, and CTRL_SHUTDOWN_EVENT is sort of
+     like SIGTERM at least when the machine's shutting down.
+
+     For now, we handle them all as indications that we should clean up
+     and quit, just as we handle SIGINT, SIGHUP, and SIGTERM in that
+     way on UNIX.
+
+     We must return TRUE so that no other handler - such as one that would
+     terminate the process - gets called.
+
+     XXX - for some reason, typing ^C to TShark, if you run this in
+     a Cygwin console window in at least some versions of Cygwin,
+     causes TShark to terminate immediately; this routine gets
+     called, but the main loop doesn't get a chance to run and
+     exit cleanly, at least if this is compiled with Microsoft Visual
+     C++ (i.e., it's a property of the Cygwin console window or Bash;
+     it happens if TShark is not built with Cygwin - for all I know,
+     building it with Cygwin may make the problem go away). */
+
+  /* tell the read to stop */
+  read_interrupted = TRUE;
+
+  return TRUE;
+}
+#else
+static void
+read_cleanup(int signum _U_)
+{
+  /* tell the read to stop */
+  read_interrupted = TRUE;
+}
+#endif /* _WIN32 */
+
+typedef enum {
+  PASS_SUCCEEDED,
+  PASS_READ_ERROR,
+  PASS_WRITE_ERROR,
+  PASS_INTERRUPTED
+} pass_status_t;
+
 static pass_status_t
 process_cap_file_first_pass(capture_file *cf, int max_packet_count,
                             gint64 max_byte_count, int *err, gchar **err_info)
@@ -3013,6 +3089,10 @@ process_cap_file_first_pass(capture_file *cf, int max_packet_count,
   tshark_debug("tshark: reading records for first pass");
   *err = 0;
   while (wtap_read(cf->provider.wth, err, err_info, &data_offset)) {
+    if (read_interrupted) {
+      status = PASS_INTERRUPTED;
+      break;
+    }
     if (process_packet_first_pass(cf, edt, data_offset, wtap_get_rec(cf->provider.wth),
                                   wtap_get_buf_ptr(cf->provider.wth))) {
       /* Stop reading if we have the maximum number of packets;
@@ -3193,6 +3273,10 @@ process_cap_file_second_pass(capture_file *cf, wtap_dumper *pdh,
   set_resolution_synchrony(TRUE);
 
   for (framenum = 1; framenum <= cf->count; framenum++) {
+    if (read_interrupted) {
+      status = PASS_INTERRUPTED;
+      break;
+    }
     fdata = frame_data_sequence_find(cf->provider.frames, framenum);
     if (!wtap_seek_read(cf->provider.wth, fdata->file_off, &rec, &buf, err,
                         err_info)) {
@@ -3294,6 +3378,10 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
 
   *err = 0;
   while (wtap_read(cf->provider.wth, err, err_info, &data_offset)) {
+    if (read_interrupted) {
+      status = PASS_INTERRUPTED;
+      break;
+    }
     framenum++;
 
     tshark_debug("tshark: processing packet #%d", framenum);
@@ -3340,12 +3428,15 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
   return status;
 }
 
-static gboolean
+static process_file_status_t
 process_cap_file(capture_file *cf, char *save_file, int out_file_type,
     gboolean out_file_name_res, int max_packet_count, gint64 max_byte_count)
 {
-  gboolean     success = TRUE;
+  process_file_status_t status = PROCESS_FILE_SUCCEEDED;
   wtap_dumper *pdh;
+#ifndef _WIN32
+  struct sigaction  action, oldaction;
+#endif
   int          err = 0, err_pass1 = 0;
   gchar       *err_info = NULL, *err_info_pass1 = NULL;
   volatile guint32 err_framenum;
@@ -3379,7 +3470,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
     if (pdh == NULL) {
       /* We couldn't set up to write to the capture file. */
       cfile_dump_open_failure_message("TShark", save_file, err, out_file_type);
-      success = FALSE;
+      status = PROCESS_FILE_NO_FILE_PROCESSED;
       goto out;
     }
   } else {
@@ -3387,12 +3478,36 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
     if (print_packet_info) {
       if (!write_preamble(cf)) {
         show_print_file_io_error(errno);
-        success = FALSE;
+        status = PROCESS_FILE_NO_FILE_PROCESSED;
         goto out;
       }
     }
     pdh = NULL;
   }
+
+#ifdef _WIN32
+  /* Catch a CTRL+C event and, if we get it, clean up and exit. */
+  SetConsoleCtrlHandler(read_cleanup, TRUE);
+#else /* _WIN32 */
+  /* Catch SIGINT and SIGTERM and, if we get either of them,
+     clean up and exit.  If SIGHUP isn't being ignored, catch
+     it too and, if we get it, clean up and exit.
+
+     We restart any read that was in progress, so that it doesn't
+     disrupt reading from the sync pipe.  The signal handler tells
+     the capture child to finish; it will report that it finished,
+     or will exit abnormally, so  we'll stop reading from the sync
+     pipe, pick up the exit status, and quit. */
+  memset(&action, 0, sizeof(action));
+  action.sa_handler = read_cleanup;
+  action.sa_flags = SA_RESTART;
+  sigemptyset(&action.sa_mask);
+  sigaction(SIGTERM, &action, NULL);
+  sigaction(SIGINT, &action, NULL);
+  sigaction(SIGHUP, NULL, &oldaction);
+  if (oldaction.sa_handler == SIG_DFL)
+    sigaction(SIGHUP, &action, NULL);
+#endif /* _WIN32 */
 
   if (perform_two_pass_analysis) {
     tshark_debug("tshark: perform_two_pass_analysis, do_dissection=%s", do_dissection ? "TRUE" : "FALSE");
@@ -3404,17 +3519,23 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
     tshark_debug("tshark: done with first pass");
 
-    /*
-     * If we got a read error on the first pass, we still do the second
-     * pass, so we can at least process the packets we read, and then
-     * report the first-pass error after the second pass (and before
-     * we report any second-pass errors), so all the the errors show up
-     * at the end.
-     */
-    second_pass_status = process_cap_file_second_pass(cf, pdh, &err, &err_info,
-                                                      &err_framenum);
+    if (first_pass_status == PASS_INTERRUPTED) {
+      /* The first pass was interrupted; skip the second pass.
+         It won't be run, so it won't get an error. */
+      second_pass_status = PASS_SUCCEEDED;
+    } else {
+      /*
+       * If we got a read error on the first pass, we still do the second
+       * pass, so we can at least process the packets we read, and then
+       * report the first-pass error after the second pass (and before
+       * we report any second-pass errors), so all the the errors show up
+       * at the end.
+       */
+      second_pass_status = process_cap_file_second_pass(cf, pdh, &err, &err_info,
+                                                        &err_framenum);
 
-    tshark_debug("tshark: done with second pass");
+      tshark_debug("tshark: done with second pass");
+    }
   }
   else {
     /* !perform_two_pass_analysis */
@@ -3430,31 +3551,37 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
 
   if (first_pass_status != PASS_SUCCEEDED ||
       second_pass_status != PASS_SUCCEEDED) {
-    tshark_debug("tshark: something failed along the line (%d)", err);
     /*
-     * Print a message noting that the read failed somewhere along the line.
-     *
-     * If we're printing packet data, and the standard output and error are
-     * going to the same place, flush the standard output, so everything
-     * buffered up is written, and then print a newline to the standard error
-     * before printing the error message, to separate it from the packet
-     * data.  (Alas, that only works on UN*X; st_dev is meaningless, and
-     * the _fstat() documentation at Microsoft doesn't indicate whether
-     * st_ino is even supported.)
+     * At least one of the passes didn't succeed; either it got a failure
+     * or it was interrupted.
      */
+    if (first_pass_status != PASS_INTERRUPTED ||
+        second_pass_status != PASS_INTERRUPTED) {
+      /* At least one of the passes got an error. */
+      tshark_debug("tshark: something failed along the line (%d)", err);
+      /*
+       * If we're printing packet data, and the standard output and error
+       * are going to the same place, flush the standard output, so everything
+       * buffered up is written, and then print a newline to the standard
+       * error before printing the error message, to separate it from the
+       * packet data.  (Alas, that only works on UN*X; st_dev is meaningless,
+       * and the _fstat() documentation at Microsoft doesn't indicate whether
+       * st_ino is even supported.)
+       */
 #ifndef _WIN32
-    if (print_packet_info) {
-      ws_statb64 stat_stdout, stat_stderr;
+      if (print_packet_info) {
+        ws_statb64 stat_stdout, stat_stderr;
 
-      if (ws_fstat64(1, &stat_stdout) == 0 && ws_fstat64(2, &stat_stderr) == 0) {
-        if (stat_stdout.st_dev == stat_stderr.st_dev &&
-            stat_stdout.st_ino == stat_stderr.st_ino) {
-          fflush(stdout);
-          fprintf(stderr, "\n");
+        if (ws_fstat64(1, &stat_stdout) == 0 && ws_fstat64(2, &stat_stderr) == 0) {
+          if (stat_stdout.st_dev == stat_stderr.st_dev &&
+              stat_stdout.st_ino == stat_stderr.st_ino) {
+            fflush(stdout);
+            fprintf(stderr, "\n");
+          }
         }
       }
-    }
 #endif
+    }
     /* Report status of pass 1 of two-pass processing. */
     switch (first_pass_status) {
 
@@ -3466,11 +3593,16 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
       /* Read error. */
       cfile_read_failure_message("TShark", cf->filename, err_pass1,
                                  err_info_pass1);
-      success = FALSE;
+      status = PROCESS_FILE_ERROR;
       break;
 
     case PASS_WRITE_ERROR:
       /* Won't happen on the first pass. */
+      break;
+
+    case PASS_INTERRUPTED:
+      /* Not an error, so nothing to report. */
+      status = PROCESS_FILE_INTERRUPTED;
       break;
     }
 
@@ -3485,7 +3617,7 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
     case PASS_READ_ERROR:
       /* Read error. */
       cfile_read_failure_message("TShark", cf->filename, err, err_info);
-      success = FALSE;
+      status = PROCESS_FILE_ERROR;
       break;
 
     case PASS_WRITE_ERROR:
@@ -3494,7 +3626,12 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
          the input file if there was a read filter. */
       cfile_write_failure_message("TShark", cf->filename, save_file,
                                   err, err_info, err_framenum, out_file_type);
-      success = FALSE;
+      status = PROCESS_FILE_ERROR;
+      break;
+
+    case PASS_INTERRUPTED:
+      /* Not an error, so nothing to report. */
+      status = PROCESS_FILE_INTERRUPTED;
       break;
     }
   }
@@ -3509,19 +3646,19 @@ process_cap_file(capture_file *cf, char *save_file, int out_file_type,
       /* Now close the capture file. */
       if (!wtap_dump_close(pdh, &err)) {
         cfile_close_failure_message(save_file, err);
-        success = FALSE;
+        status = PROCESS_FILE_ERROR;
       }
     } else {
       /* We got a write error; it was reported, so just close the dump file
          without bothering to check for further errors. */
       wtap_dump_close(pdh, &err);
-      success = FALSE;
+      status = PROCESS_FILE_ERROR;
     }
   } else {
     if (print_packet_info) {
       if (!write_finale()) {
         show_print_file_io_error(errno);
-        success = FALSE;
+        status = PROCESS_FILE_ERROR;
       }
     }
   }
@@ -3532,7 +3669,7 @@ out:
 
   wtap_dump_params_cleanup(&params);
 
-  return success;
+  return status;
 }
 
 static gboolean
