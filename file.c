@@ -1144,7 +1144,7 @@ void cf_set_rfcode(capture_file *cf, dfilter_t *rfcode)
 static void
 add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     epan_dissect_t *edt, dfilter_t *dfcode, column_info *cinfo,
-    wtap_rec *rec, const guint8 *buf, gboolean add_to_packet_list)
+    wtap_rec *rec, const guint8 *pd, gboolean add_to_packet_list)
 {
   frame_data_set_before_dissect(fdata, &cf->elapsed_time,
                                 &cf->provider.ref, cf->provider.prev_dis);
@@ -1171,7 +1171,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 
   /* Dissect the frame. */
   epan_dissect_run_with_taps(edt, cf->cd_t, rec,
-                             frame_tvbuff_new(&cf->provider, fdata, buf),
+                             frame_tvbuff_new(&cf->provider, fdata, pd),
                              fdata, cinfo);
 
   /* If we don't have a display filter, set "passed_dfilter" to 1. */
@@ -1222,7 +1222,7 @@ read_record(capture_file *cf, dfilter_t *dfcode, epan_dissect_t *edt,
             column_info *cinfo, gint64 offset)
 {
   wtap_rec     *rec = wtap_get_rec(cf->provider.wth);
-  const guint8 *buf = wtap_get_buf_ptr(cf->provider.wth);
+  const guint8 *pd = wtap_get_buf_ptr(cf->provider.wth);
   frame_data    fdlocal;
   frame_data   *fdata;
   gboolean      passed = TRUE;
@@ -1248,7 +1248,7 @@ read_record(capture_file *cf, dfilter_t *dfcode, epan_dissect_t *edt,
     epan_dissect_init(&rf_edt, cf->epan, TRUE, FALSE);
     epan_dissect_prime_with_dfilter(&rf_edt, cf->rfcode);
     epan_dissect_run(&rf_edt, cf->cd_t, rec,
-                     frame_tvbuff_new(&cf->provider, &fdlocal, buf),
+                     frame_tvbuff_new(&cf->provider, &fdlocal, pd),
                      &fdlocal, NULL);
     passed = dfilter_apply_edt(cf->rfcode, &rf_edt);
     epan_dissect_cleanup(&rf_edt);
@@ -1269,7 +1269,7 @@ read_record(capture_file *cf, dfilter_t *dfcode, epan_dissect_t *edt,
      * This will be done once all (new) packets have been scanned. */
     if (!cf->redissecting && cf->redissection_queued == RESCAN_NONE) {
       add_packet_to_packet_list(fdata, cf, edt, dfcode,
-                                cinfo, rec, buf, TRUE);
+                                cinfo, rec, pd, TRUE);
     }
   }
 
