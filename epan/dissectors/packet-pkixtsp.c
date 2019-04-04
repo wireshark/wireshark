@@ -66,30 +66,30 @@ static int hf_pkixtsp_millis = -1;                /* INTEGER_1_999 */
 static int hf_pkixtsp_micros = -1;                /* INTEGER_1_999 */
 /* named bits */
 static int hf_pkixtsp_PKIFailureInfo_badAlg = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit_1 = -1;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit1 = -1;
 static int hf_pkixtsp_PKIFailureInfo_badRequest = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit_3 = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit_4 = -1;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit3 = -1;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit4 = -1;
 static int hf_pkixtsp_PKIFailureInfo_badDataFormat = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit_6 = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit_7 = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit_8 = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit_9 = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit_10 = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit_11 = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit_12 = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit_13 = -1;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit6 = -1;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit7 = -1;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit8 = -1;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit9 = -1;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit10 = -1;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit11 = -1;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit12 = -1;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit13 = -1;
 static int hf_pkixtsp_PKIFailureInfo_timeNotAvailable = -1;
 static int hf_pkixtsp_PKIFailureInfo_unacceptedPolicy = -1;
 static int hf_pkixtsp_PKIFailureInfo_unacceptedExtension = -1;
 static int hf_pkixtsp_PKIFailureInfo_addInfoNotAvailable = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit_18 = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit_19 = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit_20 = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit_21 = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit_22 = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit_23 = -1;
-static int hf_pkixtsp_PKIFailureInfo_spare_bit_24 = -1;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit18 = -1;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit19 = -1;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit20 = -1;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit21 = -1;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit22 = -1;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit23 = -1;
+static int hf_pkixtsp_PKIFailureInfo_spare_bit24 = -1;
 static int hf_pkixtsp_PKIFailureInfo_systemFailure = -1;
 
 /*--- End of included file: packet-pkixtsp-hf.c ---*/
@@ -225,30 +225,30 @@ dissect_pkixtsp_PKIStatus(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 static const int * PKIFailureInfo_bits[] = {
   &hf_pkixtsp_PKIFailureInfo_badAlg,
-  &hf_pkixtsp_PKIFailureInfo_spare_bit_1,
+  &hf_pkixtsp_PKIFailureInfo_spare_bit1,
   &hf_pkixtsp_PKIFailureInfo_badRequest,
-  &hf_pkixtsp_PKIFailureInfo_spare_bit_3,
-  &hf_pkixtsp_PKIFailureInfo_spare_bit_4,
+  &hf_pkixtsp_PKIFailureInfo_spare_bit3,
+  &hf_pkixtsp_PKIFailureInfo_spare_bit4,
   &hf_pkixtsp_PKIFailureInfo_badDataFormat,
-  &hf_pkixtsp_PKIFailureInfo_spare_bit_6,
-  &hf_pkixtsp_PKIFailureInfo_spare_bit_7,
-  &hf_pkixtsp_PKIFailureInfo_spare_bit_8,
-  &hf_pkixtsp_PKIFailureInfo_spare_bit_9,
-  &hf_pkixtsp_PKIFailureInfo_spare_bit_10,
-  &hf_pkixtsp_PKIFailureInfo_spare_bit_11,
-  &hf_pkixtsp_PKIFailureInfo_spare_bit_12,
-  &hf_pkixtsp_PKIFailureInfo_spare_bit_13,
+  &hf_pkixtsp_PKIFailureInfo_spare_bit6,
+  &hf_pkixtsp_PKIFailureInfo_spare_bit7,
+  &hf_pkixtsp_PKIFailureInfo_spare_bit8,
+  &hf_pkixtsp_PKIFailureInfo_spare_bit9,
+  &hf_pkixtsp_PKIFailureInfo_spare_bit10,
+  &hf_pkixtsp_PKIFailureInfo_spare_bit11,
+  &hf_pkixtsp_PKIFailureInfo_spare_bit12,
+  &hf_pkixtsp_PKIFailureInfo_spare_bit13,
   &hf_pkixtsp_PKIFailureInfo_timeNotAvailable,
   &hf_pkixtsp_PKIFailureInfo_unacceptedPolicy,
   &hf_pkixtsp_PKIFailureInfo_unacceptedExtension,
   &hf_pkixtsp_PKIFailureInfo_addInfoNotAvailable,
-  &hf_pkixtsp_PKIFailureInfo_spare_bit_18,
-  &hf_pkixtsp_PKIFailureInfo_spare_bit_19,
-  &hf_pkixtsp_PKIFailureInfo_spare_bit_20,
-  &hf_pkixtsp_PKIFailureInfo_spare_bit_21,
-  &hf_pkixtsp_PKIFailureInfo_spare_bit_22,
-  &hf_pkixtsp_PKIFailureInfo_spare_bit_23,
-  &hf_pkixtsp_PKIFailureInfo_spare_bit_24,
+  &hf_pkixtsp_PKIFailureInfo_spare_bit18,
+  &hf_pkixtsp_PKIFailureInfo_spare_bit19,
+  &hf_pkixtsp_PKIFailureInfo_spare_bit20,
+  &hf_pkixtsp_PKIFailureInfo_spare_bit21,
+  &hf_pkixtsp_PKIFailureInfo_spare_bit22,
+  &hf_pkixtsp_PKIFailureInfo_spare_bit23,
+  &hf_pkixtsp_PKIFailureInfo_spare_bit24,
   &hf_pkixtsp_PKIFailureInfo_systemFailure,
   NULL
 };
@@ -553,107 +553,107 @@ void proto_register_pkixtsp(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_1_999", HFILL }},
     { &hf_pkixtsp_PKIFailureInfo_badAlg,
-      { "badAlg", "pkixtsp.badAlg",
+      { "badAlg", "pkixtsp.PKIFailureInfo.badAlg",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
-    { &hf_pkixtsp_PKIFailureInfo_spare_bit_1,
-      { "spare_bit_1", "pkixtsp.spare_bit_1",
+    { &hf_pkixtsp_PKIFailureInfo_spare_bit1,
+      { "spare_bit1", "pkixtsp.PKIFailureInfo.spare.bit1",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_pkixtsp_PKIFailureInfo_badRequest,
-      { "badRequest", "pkixtsp.badRequest",
+      { "badRequest", "pkixtsp.PKIFailureInfo.badRequest",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
-    { &hf_pkixtsp_PKIFailureInfo_spare_bit_3,
-      { "spare_bit_3", "pkixtsp.spare_bit_3",
+    { &hf_pkixtsp_PKIFailureInfo_spare_bit3,
+      { "spare_bit3", "pkixtsp.PKIFailureInfo.spare.bit3",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
-    { &hf_pkixtsp_PKIFailureInfo_spare_bit_4,
-      { "spare_bit_4", "pkixtsp.spare_bit_4",
+    { &hf_pkixtsp_PKIFailureInfo_spare_bit4,
+      { "spare_bit4", "pkixtsp.PKIFailureInfo.spare.bit4",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
     { &hf_pkixtsp_PKIFailureInfo_badDataFormat,
-      { "badDataFormat", "pkixtsp.badDataFormat",
+      { "badDataFormat", "pkixtsp.PKIFailureInfo.badDataFormat",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
-    { &hf_pkixtsp_PKIFailureInfo_spare_bit_6,
-      { "spare_bit_6", "pkixtsp.spare_bit_6",
+    { &hf_pkixtsp_PKIFailureInfo_spare_bit6,
+      { "spare_bit6", "pkixtsp.PKIFailureInfo.spare.bit6",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
-    { &hf_pkixtsp_PKIFailureInfo_spare_bit_7,
-      { "spare_bit_7", "pkixtsp.spare_bit_7",
+    { &hf_pkixtsp_PKIFailureInfo_spare_bit7,
+      { "spare_bit7", "pkixtsp.PKIFailureInfo.spare.bit7",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
-    { &hf_pkixtsp_PKIFailureInfo_spare_bit_8,
-      { "spare_bit_8", "pkixtsp.spare_bit_8",
+    { &hf_pkixtsp_PKIFailureInfo_spare_bit8,
+      { "spare_bit8", "pkixtsp.PKIFailureInfo.spare.bit8",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
-    { &hf_pkixtsp_PKIFailureInfo_spare_bit_9,
-      { "spare_bit_9", "pkixtsp.spare_bit_9",
+    { &hf_pkixtsp_PKIFailureInfo_spare_bit9,
+      { "spare_bit9", "pkixtsp.PKIFailureInfo.spare.bit9",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
-    { &hf_pkixtsp_PKIFailureInfo_spare_bit_10,
-      { "spare_bit_10", "pkixtsp.spare_bit_10",
+    { &hf_pkixtsp_PKIFailureInfo_spare_bit10,
+      { "spare_bit10", "pkixtsp.PKIFailureInfo.spare.bit10",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
-    { &hf_pkixtsp_PKIFailureInfo_spare_bit_11,
-      { "spare_bit_11", "pkixtsp.spare_bit_11",
+    { &hf_pkixtsp_PKIFailureInfo_spare_bit11,
+      { "spare_bit11", "pkixtsp.PKIFailureInfo.spare.bit11",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
-    { &hf_pkixtsp_PKIFailureInfo_spare_bit_12,
-      { "spare_bit_12", "pkixtsp.spare_bit_12",
+    { &hf_pkixtsp_PKIFailureInfo_spare_bit12,
+      { "spare_bit12", "pkixtsp.PKIFailureInfo.spare.bit12",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
-    { &hf_pkixtsp_PKIFailureInfo_spare_bit_13,
-      { "spare_bit_13", "pkixtsp.spare_bit_13",
+    { &hf_pkixtsp_PKIFailureInfo_spare_bit13,
+      { "spare_bit13", "pkixtsp.PKIFailureInfo.spare.bit13",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
     { &hf_pkixtsp_PKIFailureInfo_timeNotAvailable,
-      { "timeNotAvailable", "pkixtsp.timeNotAvailable",
+      { "timeNotAvailable", "pkixtsp.PKIFailureInfo.timeNotAvailable",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
     { &hf_pkixtsp_PKIFailureInfo_unacceptedPolicy,
-      { "unacceptedPolicy", "pkixtsp.unacceptedPolicy",
+      { "unacceptedPolicy", "pkixtsp.PKIFailureInfo.unacceptedPolicy",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
     { &hf_pkixtsp_PKIFailureInfo_unacceptedExtension,
-      { "unacceptedExtension", "pkixtsp.unacceptedExtension",
+      { "unacceptedExtension", "pkixtsp.PKIFailureInfo.unacceptedExtension",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_pkixtsp_PKIFailureInfo_addInfoNotAvailable,
-      { "addInfoNotAvailable", "pkixtsp.addInfoNotAvailable",
+      { "addInfoNotAvailable", "pkixtsp.PKIFailureInfo.addInfoNotAvailable",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
-    { &hf_pkixtsp_PKIFailureInfo_spare_bit_18,
-      { "spare_bit_18", "pkixtsp.spare_bit_18",
+    { &hf_pkixtsp_PKIFailureInfo_spare_bit18,
+      { "spare_bit18", "pkixtsp.PKIFailureInfo.spare.bit18",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
-    { &hf_pkixtsp_PKIFailureInfo_spare_bit_19,
-      { "spare_bit_19", "pkixtsp.spare_bit_19",
+    { &hf_pkixtsp_PKIFailureInfo_spare_bit19,
+      { "spare_bit19", "pkixtsp.PKIFailureInfo.spare.bit19",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
-    { &hf_pkixtsp_PKIFailureInfo_spare_bit_20,
-      { "spare_bit_20", "pkixtsp.spare_bit_20",
+    { &hf_pkixtsp_PKIFailureInfo_spare_bit20,
+      { "spare_bit20", "pkixtsp.PKIFailureInfo.spare.bit20",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
-    { &hf_pkixtsp_PKIFailureInfo_spare_bit_21,
-      { "spare_bit_21", "pkixtsp.spare_bit_21",
+    { &hf_pkixtsp_PKIFailureInfo_spare_bit21,
+      { "spare_bit21", "pkixtsp.PKIFailureInfo.spare.bit21",
         FT_BOOLEAN, 8, NULL, 0x04,
         NULL, HFILL }},
-    { &hf_pkixtsp_PKIFailureInfo_spare_bit_22,
-      { "spare_bit_22", "pkixtsp.spare_bit_22",
+    { &hf_pkixtsp_PKIFailureInfo_spare_bit22,
+      { "spare_bit22", "pkixtsp.PKIFailureInfo.spare.bit22",
         FT_BOOLEAN, 8, NULL, 0x02,
         NULL, HFILL }},
-    { &hf_pkixtsp_PKIFailureInfo_spare_bit_23,
-      { "spare_bit_23", "pkixtsp.spare_bit_23",
+    { &hf_pkixtsp_PKIFailureInfo_spare_bit23,
+      { "spare_bit23", "pkixtsp.PKIFailureInfo.spare.bit23",
         FT_BOOLEAN, 8, NULL, 0x01,
         NULL, HFILL }},
-    { &hf_pkixtsp_PKIFailureInfo_spare_bit_24,
-      { "spare_bit_24", "pkixtsp.spare_bit_24",
+    { &hf_pkixtsp_PKIFailureInfo_spare_bit24,
+      { "spare_bit24", "pkixtsp.PKIFailureInfo.spare.bit24",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_pkixtsp_PKIFailureInfo_systemFailure,
-      { "systemFailure", "pkixtsp.systemFailure",
+      { "systemFailure", "pkixtsp.PKIFailureInfo.systemFailure",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
 

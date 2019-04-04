@@ -1612,8 +1612,13 @@ class EthCtx:
             fx.write('        %(TYPE)s, %(DISPLAY)s, %(STRINGS)s, %(BITMASK)s,\n' % attr)
             fx.write('        %(BLURB)s, HFILL }},\n' % attr)
         for nb in self.named_bit:
+            flt_str = nb['ethname']
+            # cut out hf_
+            flt_str = flt_str[3:]
+            flt_str = flt_str.replace('_' , '.')
+            #print("filter string=%s" % (flt_str))
             fx.write('    { &%s,\n' % (nb['ethname']))
-            fx.write('      { "%s", "%s.%s",\n' % (nb['name'], self.proto, nb['name']))
+            fx.write('      { "%s", "%s",\n' % (nb['name'], flt_str))
             fx.write('        %s, %s, %s, %s,\n' % (nb['ftype'], nb['display'], nb['strings'], nb['bitmask']))
             fx.write('        NULL, HFILL }},\n')
         self.output.file_close(fx)
@@ -5525,7 +5530,7 @@ class BitStringType (Type):
             # Fill the table with "spare_bit" for "un named bits"
                 if (int(e.val) != 0) and (expected_bit_no != int(e.val)):
                         while ( expected_bit_no < int(e.val)):
-                            bits.append((expected_bit_no, ("spare_bit_%u" % (expected_bit_no))))
+                            bits.append((expected_bit_no, ("spare_bit%u" % (expected_bit_no))))
                             expected_bit_no = expected_bit_no + 1
                             #print ("Adding named bits to list %s bit no %d" % (e.ident, int (e.val)))
                 bits.append((int(e.val), e.ident))

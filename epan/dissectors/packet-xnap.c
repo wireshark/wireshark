@@ -980,19 +980,19 @@ static int hf_xnap_T_interfaces_to_trace_x_nc = -1;
 static int hf_xnap_T_interfaces_to_trace_uu = -1;
 static int hf_xnap_T_interfaces_to_trace_f1_c = -1;
 static int hf_xnap_T_interfaces_to_trace_e1 = -1;
-static int hf_xnap_T_nr_EncyptionAlgorithms_spare_bit_0 = -1;
+static int hf_xnap_T_nr_EncyptionAlgorithms_spare_bit0 = -1;
 static int hf_xnap_T_nr_EncyptionAlgorithms_nea1_128 = -1;
 static int hf_xnap_T_nr_EncyptionAlgorithms_nea2_128 = -1;
 static int hf_xnap_T_nr_EncyptionAlgorithms_nea3_128 = -1;
-static int hf_xnap_T_nr_IntegrityProtectionAlgorithms_spare_bit_0 = -1;
+static int hf_xnap_T_nr_IntegrityProtectionAlgorithms_spare_bit0 = -1;
 static int hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia1_128 = -1;
 static int hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia2_128 = -1;
 static int hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia3_128 = -1;
-static int hf_xnap_T_e_utra_EncyptionAlgorithms_spare_bit_0 = -1;
+static int hf_xnap_T_e_utra_EncyptionAlgorithms_spare_bit0 = -1;
 static int hf_xnap_T_e_utra_EncyptionAlgorithms_eea1_128 = -1;
 static int hf_xnap_T_e_utra_EncyptionAlgorithms_eea2_128 = -1;
 static int hf_xnap_T_e_utra_EncyptionAlgorithms_eea3_128 = -1;
-static int hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_spare_bit_0 = -1;
+static int hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_spare_bit0 = -1;
 static int hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_eia1_128 = -1;
 static int hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_eia2_128 = -1;
 static int hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_eia3_128 = -1;
@@ -8480,7 +8480,7 @@ dissect_xnap_UEContextID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 
 static const int * T_nr_EncyptionAlgorithms_bits[] = {
-  &hf_xnap_T_nr_EncyptionAlgorithms_spare_bit_0,
+  &hf_xnap_T_nr_EncyptionAlgorithms_spare_bit0,
   &hf_xnap_T_nr_EncyptionAlgorithms_nea1_128,
   &hf_xnap_T_nr_EncyptionAlgorithms_nea2_128,
   &hf_xnap_T_nr_EncyptionAlgorithms_nea3_128,
@@ -8512,7 +8512,7 @@ dissect_xnap_T_nr_EncyptionAlgorithms(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 
 
 static const int * T_nr_IntegrityProtectionAlgorithms_bits[] = {
-  &hf_xnap_T_nr_IntegrityProtectionAlgorithms_spare_bit_0,
+  &hf_xnap_T_nr_IntegrityProtectionAlgorithms_spare_bit0,
   &hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia1_128,
   &hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia2_128,
   &hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia3_128,
@@ -8544,7 +8544,7 @@ dissect_xnap_T_nr_IntegrityProtectionAlgorithms(tvbuff_t *tvb _U_, int offset _U
 
 
 static const int * T_e_utra_EncyptionAlgorithms_bits[] = {
-  &hf_xnap_T_e_utra_EncyptionAlgorithms_spare_bit_0,
+  &hf_xnap_T_e_utra_EncyptionAlgorithms_spare_bit0,
   &hf_xnap_T_e_utra_EncyptionAlgorithms_eea1_128,
   &hf_xnap_T_e_utra_EncyptionAlgorithms_eea2_128,
   &hf_xnap_T_e_utra_EncyptionAlgorithms_eea3_128,
@@ -8576,7 +8576,7 @@ dissect_xnap_T_e_utra_EncyptionAlgorithms(tvbuff_t *tvb _U_, int offset _U_, asn
 
 
 static const int * T_e_utra_IntegrityProtectionAlgorithms_bits[] = {
-  &hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_spare_bit_0,
+  &hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_spare_bit0,
   &hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_eia1_128,
   &hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_eia2_128,
   &hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_eia3_128,
@@ -15142,95 +15142,95 @@ void proto_register_xnap(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         "UnsuccessfulOutcome_value", HFILL }},
     { &hf_xnap_RAT_RestrictionInformation_e_UTRA,
-      { "e-UTRA", "xnap.e-UTRA",
+      { "e-UTRA", "xnap.RAT.RestrictionInformation.e.UTRA",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_xnap_RAT_RestrictionInformation_nR,
-      { "nR", "xnap.nR",
+      { "nR", "xnap.RAT.RestrictionInformation.nR",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_xnap_T_interfaces_to_trace_ng_c,
-      { "ng-c", "xnap.ng-c",
+      { "ng-c", "xnap.T.interfaces.to.trace.ng.c",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_xnap_T_interfaces_to_trace_x_nc,
-      { "x-nc", "xnap.x-nc",
+      { "x-nc", "xnap.T.interfaces.to.trace.x.nc",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_xnap_T_interfaces_to_trace_uu,
-      { "uu", "xnap.uu",
+      { "uu", "xnap.T.interfaces.to.trace.uu",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_xnap_T_interfaces_to_trace_f1_c,
-      { "f1-c", "xnap.f1-c",
+      { "f1-c", "xnap.T.interfaces.to.trace.f1.c",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
     { &hf_xnap_T_interfaces_to_trace_e1,
-      { "e1", "xnap.e1",
+      { "e1", "xnap.T.interfaces.to.trace.e1",
         FT_BOOLEAN, 8, NULL, 0x08,
         NULL, HFILL }},
-    { &hf_xnap_T_nr_EncyptionAlgorithms_spare_bit_0,
-      { "spare_bit_0", "xnap.spare_bit_0",
+    { &hf_xnap_T_nr_EncyptionAlgorithms_spare_bit0,
+      { "spare_bit0", "xnap.T.nr.EncyptionAlgorithms.spare.bit0",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_xnap_T_nr_EncyptionAlgorithms_nea1_128,
-      { "nea1-128", "xnap.nea1-128",
+      { "nea1-128", "xnap.T.nr.EncyptionAlgorithms.nea1.128",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_xnap_T_nr_EncyptionAlgorithms_nea2_128,
-      { "nea2-128", "xnap.nea2-128",
+      { "nea2-128", "xnap.T.nr.EncyptionAlgorithms.nea2.128",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_xnap_T_nr_EncyptionAlgorithms_nea3_128,
-      { "nea3-128", "xnap.nea3-128",
+      { "nea3-128", "xnap.T.nr.EncyptionAlgorithms.nea3.128",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
-    { &hf_xnap_T_nr_IntegrityProtectionAlgorithms_spare_bit_0,
-      { "spare_bit_0", "xnap.spare_bit_0",
+    { &hf_xnap_T_nr_IntegrityProtectionAlgorithms_spare_bit0,
+      { "spare_bit0", "xnap.T.nr.IntegrityProtectionAlgorithms.spare.bit0",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia1_128,
-      { "nia1-128", "xnap.nia1-128",
+      { "nia1-128", "xnap.T.nr.IntegrityProtectionAlgorithms.nia1.128",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia2_128,
-      { "nia2-128", "xnap.nia2-128",
+      { "nia2-128", "xnap.T.nr.IntegrityProtectionAlgorithms.nia2.128",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia3_128,
-      { "nia3-128", "xnap.nia3-128",
+      { "nia3-128", "xnap.T.nr.IntegrityProtectionAlgorithms.nia3.128",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
-    { &hf_xnap_T_e_utra_EncyptionAlgorithms_spare_bit_0,
-      { "spare_bit_0", "xnap.spare_bit_0",
+    { &hf_xnap_T_e_utra_EncyptionAlgorithms_spare_bit0,
+      { "spare_bit0", "xnap.T.e.utra.EncyptionAlgorithms.spare.bit0",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_xnap_T_e_utra_EncyptionAlgorithms_eea1_128,
-      { "eea1-128", "xnap.eea1-128",
+      { "eea1-128", "xnap.T.e.utra.EncyptionAlgorithms.eea1.128",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_xnap_T_e_utra_EncyptionAlgorithms_eea2_128,
-      { "eea2-128", "xnap.eea2-128",
+      { "eea2-128", "xnap.T.e.utra.EncyptionAlgorithms.eea2.128",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_xnap_T_e_utra_EncyptionAlgorithms_eea3_128,
-      { "eea3-128", "xnap.eea3-128",
+      { "eea3-128", "xnap.T.e.utra.EncyptionAlgorithms.eea3.128",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
-    { &hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_spare_bit_0,
-      { "spare_bit_0", "xnap.spare_bit_0",
+    { &hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_spare_bit0,
+      { "spare_bit0", "xnap.T.e.utra.IntegrityProtectionAlgorithms.spare.bit0",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_eia1_128,
-      { "eia1-128", "xnap.eia1-128",
+      { "eia1-128", "xnap.T.e.utra.IntegrityProtectionAlgorithms.eia1.128",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
     { &hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_eia2_128,
-      { "eia2-128", "xnap.eia2-128",
+      { "eia2-128", "xnap.T.e.utra.IntegrityProtectionAlgorithms.eia2.128",
         FT_BOOLEAN, 8, NULL, 0x20,
         NULL, HFILL }},
     { &hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_eia3_128,
-      { "eia3-128", "xnap.eia3-128",
+      { "eia3-128", "xnap.T.e.utra.IntegrityProtectionAlgorithms.eia3.128",
         FT_BOOLEAN, 8, NULL, 0x10,
         NULL, HFILL }},
 

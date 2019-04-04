@@ -2550,11 +2550,11 @@ void proto_register_ieee1609dot2(void) {
         FT_UINT32, BASE_DEC, VALS(ieee1609dot2_EccP256CurvePoint_vals), 0,
         "EccP256CurvePoint", HFILL }},
     { &hf_ieee1609dot2_EndEntityType_app,
-      { "app", "ieee1609dot2.app",
+      { "app", "ieee1609dot2.EndEntityType.app",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_ieee1609dot2_EndEntityType_enrol,
-      { "enrol", "ieee1609dot2.enrol",
+      { "enrol", "ieee1609dot2.EndEntityType.enrol",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
 

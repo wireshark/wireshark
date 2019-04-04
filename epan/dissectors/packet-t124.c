@@ -3874,11 +3874,11 @@ void proto_register_t124(void) {
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_t124_Segmentation_begin,
-      { "begin", "t124.begin",
+      { "begin", "t124.Segmentation.begin",
         FT_BOOLEAN, 8, NULL, 0x80,
         NULL, HFILL }},
     { &hf_t124_Segmentation_end,
-      { "end", "t124.end",
+      { "end", "t124.Segmentation.end",
         FT_BOOLEAN, 8, NULL, 0x40,
         NULL, HFILL }},
 
