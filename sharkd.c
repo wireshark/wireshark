@@ -320,6 +320,8 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
   int          err;
   gchar       *err_info = NULL;
   gint64       data_offset;
+  wtap_rec     rec;
+  Buffer       buf;
   epan_dissect_t *edt = NULL;
 
   {
@@ -348,9 +350,12 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
       edt = epan_dissect_new(cf->epan, create_proto_tree, FALSE);
     }
 
-    while (wtap_read(cf->provider.wth, &err, &err_info, &data_offset)) {
-      if (process_packet(cf, edt, data_offset, wtap_get_rec(cf->provider.wth),
-                         wtap_get_buf_ptr(cf->provider.wth))) {
+    wtap_rec_init(&rec);
+    ws_buffer_init(&buf, 1500);
+
+    while (wtap_read(cf->provider.wth, &rec, &buf, &err, &err_info, &data_offset)) {
+      if (process_packet(cf, edt, data_offset, &rec,
+                         ws_buffer_start_ptr(&buf))) {
         /* Stop reading if we have the maximum number of packets;
          * When the -c option has not been used, max_packet_count
          * starts at 0, which practically means, never stop reading.
@@ -367,6 +372,9 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
       epan_dissect_free(edt);
       edt = NULL;
     }
+
+    wtap_rec_cleanup(&rec);
+    ws_buffer_free(&buf);
 
     /* Close the sequential I/O side, to free up memory it requires. */
     wtap_sequential_close(cf->provider.wth);

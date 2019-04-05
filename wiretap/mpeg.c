@@ -182,12 +182,12 @@ mpeg_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf,
 }
 
 static gboolean
-mpeg_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+mpeg_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+		gchar **err_info, gint64 *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
-	return mpeg_read_packet(wth, wth->fh, &wth->rec, wth->rec_data,
-	    FALSE, err, err_info);
+	return mpeg_read_packet(wth, wth->fh, rec, buf, FALSE, err, err_info);
 }
 
 static gboolean

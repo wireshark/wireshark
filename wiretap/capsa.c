@@ -106,8 +106,8 @@ typedef struct {
 	guint32 record_offsets[N_RECORDS_PER_GROUP];
 } capsa_t;
 
-static gboolean capsa_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
+static gboolean capsa_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset);
 static gboolean capsa_seek_read(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static int capsa_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
@@ -217,8 +217,8 @@ wtap_open_return_val capsa_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Read the next packet */
-static gboolean capsa_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean capsa_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset)
 {
 	capsa_t *capsa = (capsa_t *)wth->priv;
 	guint32 frame_within_block;
@@ -262,8 +262,7 @@ static gboolean capsa_read(wtap *wth, int *err, gchar **err_info,
 	if (!file_seek(wth->fh, *data_offset, SEEK_SET, err))
 		return FALSE;
 
-	padbytes = capsa_read_packet(wth, wth->fh, &wth->rec,
-	    wth->rec_data, err, err_info);
+	padbytes = capsa_read_packet(wth, wth->fh, rec, buf, err, err_info);
 	if (padbytes == -1)
 		return FALSE;
 

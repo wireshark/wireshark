@@ -70,8 +70,8 @@ static const char dbs_etherwatch_rec_magic[]  =
  */
 #define DBS_ETHERWATCH_MAX_ETHERNET_PACKET_LEN   1514
 
-static gboolean dbs_etherwatch_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
+static gboolean dbs_etherwatch_read(wtap *wth, wtap_rec *rec,
+    Buffer *buf, int *err, gchar **err_info, gint64 *data_offset);
 static gboolean dbs_etherwatch_seek_read(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static gboolean parse_dbs_etherwatch_packet(FILE_T fh, wtap_rec *rec,
@@ -182,8 +182,8 @@ wtap_open_return_val dbs_etherwatch_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Find the next packet and parse it; called from wtap_read(). */
-static gboolean dbs_etherwatch_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean dbs_etherwatch_read(wtap *wth, wtap_rec *rec,
+    Buffer *buf, int *err, gchar **err_info, gint64 *data_offset)
 {
     gint64  offset;
 
@@ -194,8 +194,7 @@ static gboolean dbs_etherwatch_read(wtap *wth, int *err, gchar **err_info,
     *data_offset = offset;
 
     /* Parse the packet */
-    return parse_dbs_etherwatch_packet(wth->fh, &wth->rec,
-         wth->rec_data, err, err_info);
+    return parse_dbs_etherwatch_packet(wth->fh, rec, buf, err, err_info);
 }
 
 /* Used to read packets in random-access fashion */

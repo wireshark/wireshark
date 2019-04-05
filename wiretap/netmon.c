@@ -215,8 +215,8 @@ static const int netmon_encap[] = {
 #define NETMON_NET_DNS_CACHE		0xFFFE
 #define NETMON_NET_NETMON_FILTER	0xFFFF
 
-static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
+static gboolean netmon_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset);
 static gboolean netmon_seek_read(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static gboolean netmon_read_atm_pseudoheader(FILE_T fh,
@@ -1430,8 +1430,8 @@ netmon_process_record(wtap *wth, FILE_T fh, wtap_rec *rec,
 }
 
 /* Read the next packet */
-static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean netmon_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset)
 {
 	netmon_t *netmon = (netmon_t *)wth->priv;
 	gint64	rec_offset;
@@ -1462,8 +1462,8 @@ static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
 
 		*data_offset = file_tell(wth->fh);
 
-		switch (netmon_process_record(wth, wth->fh, &wth->rec,
-		    wth->rec_data, err, err_info)) {
+		switch (netmon_process_record(wth, wth->fh, rec, buf, err,
+		    err_info)) {
 
 		case RETRY:
 			continue;

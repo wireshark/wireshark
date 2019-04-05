@@ -54,14 +54,14 @@ static gboolean erf_read_header(wtap *wth, FILE_T fh,
                                 guint32 *bytes_read,
                                 guint32 *packet_size,
                                 GPtrArray *anchor_mappings_to_update);
-static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
-                         gint64 *data_offset);
+static gboolean erf_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+                         int *err, gchar **err_info, gint64 *data_offset);
 static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
                               wtap_rec *rec, Buffer *buf,
                               int *err, gchar **err_info);
 static void erf_close(wtap *wth);
 
-static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header, guint32 packet_size, GPtrArray *anchor_mappings_to_update);
+static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header, Buffer *buf, guint32 packet_size, GPtrArray *anchor_mappings_to_update);
 static int erf_update_anchors_from_header(erf_t *erf_priv, wtap_rec *rec, union wtap_pseudo_header *pseudo_header, guint64 host_id, GPtrArray *anchor_mappings_to_update);
 
 typedef struct {
@@ -554,8 +554,8 @@ extern wtap_open_return_val erf_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Read the next packet */
-static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
-                         gint64 *data_offset)
+static gboolean erf_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+                         int *err, gchar **err_info, gint64 *data_offset)
 {
   erf_header_t erf_header;
   guint32      packet_size, bytes_read;
@@ -566,16 +566,14 @@ static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
   anchor_mappings_to_update = g_ptr_array_new_with_free_func(erf_anchor_mapping_destroy);
 
   do {
-    if (!erf_read_header(wth, wth->fh,
-                         &wth->rec, &erf_header,
+    if (!erf_read_header(wth, wth->fh, rec, &erf_header,
                          err, err_info, &bytes_read, &packet_size,
                          anchor_mappings_to_update)) {
       g_ptr_array_free(anchor_mappings_to_update, TRUE);
       return FALSE;
     }
 
-    if (!wtap_read_packet_bytes(wth->fh, wth->rec_data, packet_size,
-                                err, err_info)) {
+    if (!wtap_read_packet_bytes(wth->fh, buf, packet_size, err, err_info)) {
       g_ptr_array_free(anchor_mappings_to_update, TRUE);
       return FALSE;
     }
@@ -587,7 +585,7 @@ static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
      */
     if ((erf_header.type & 0x7F) == ERF_TYPE_META && packet_size > 0)
     {
-      populate_summary_info((erf_t*) wth->priv, wth, &wth->rec.rec_header.packet_header.pseudo_header, packet_size, anchor_mappings_to_update);
+      populate_summary_info((erf_t*) wth->priv, wth, &rec->rec_header.packet_header.pseudo_header, buf, packet_size, anchor_mappings_to_update);
     }
 
   } while ( erf_header.type == ERF_TYPE_PAD );
@@ -3122,7 +3120,7 @@ static int populate_anchor_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_he
 }
 
 /* Populates the capture and interface information for display on the Capture File Properties */
-static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header, guint32 packet_size, GPtrArray *anchor_mappings_to_update)
+static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_header *pseudo_header, Buffer *buf, guint32 packet_size, GPtrArray *anchor_mappings_to_update)
 {
   struct erf_meta_read_state state;
   struct erf_meta_read_state *state_post = NULL;
@@ -3155,7 +3153,7 @@ static int populate_summary_info(erf_t *erf_priv, wtap *wth, union wtap_pseudo_h
   }
 
 
-  state.tag_ptr = wth->rec_data->data;
+  state.tag_ptr = buf->data;
   state.remaining_len = packet_size;
 
   /* Read until see next section tag */

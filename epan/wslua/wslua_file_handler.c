@@ -130,8 +130,8 @@ static gboolean in_routine = FALSE;
 
 /* some declarations */
 static gboolean
-wslua_filehandler_read(wtap *wth, int *err, gchar **err_info,
-                      gint64 *data_offset);
+wslua_filehandler_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+                       int *err, gchar **err_info, gint64 *offset);
 static gboolean
 wslua_filehandler_seek_read(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf,
@@ -245,8 +245,8 @@ wslua_filehandler_open(wtap *wth, int *err, gchar **err_info)
  * This will be the seek_off parameter when this frame is re-read.
 */
 static gboolean
-wslua_filehandler_read(wtap *wth, int *err, gchar **err_info,
-                      gint64 *data_offset)
+wslua_filehandler_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+                       int *err, gchar **err_info, gint64 *offset)
 {
     FileHandler fh = (FileHandler)(wth->wslua_data);
     int retval = -1;
@@ -262,12 +262,12 @@ wslua_filehandler_read(wtap *wth, int *err, gchar **err_info,
         *err = errno = 0;
     }
 
-    g_free(wth->rec.opt_comment);
-    wth->rec.opt_comment = NULL;
+    g_free(rec->opt_comment);
+    rec->opt_comment = NULL;
 
     fp = push_File(L, wth->fh);
     fc = push_CaptureInfo(L, wth, FALSE);
-    fi = push_FrameInfo(L, &wth->rec, wth->rec_data);
+    fi = push_FrameInfo(L, rec, buf);
 
     switch ( lua_pcall(L,3,1,1) ) {
         case 0:
@@ -279,7 +279,7 @@ wslua_filehandler_read(wtap *wth, int *err, gchar **err_info,
              * succeed without advancing data offset. Should it fail instead?
              */
             if (lua_type(L, -1) == LUA_TNUMBER) {
-                *data_offset = wslua_togint64(L, -1);
+                *offset = wslua_togint64(L, -1);
                 retval = 1;
                 break;
             }
@@ -320,7 +320,7 @@ wslua_filehandler_seek_read(wtap *wth, gint64 seek_off,
         *err = errno = 0;
     }
 
-    g_free(wth->rec.opt_comment);
+    g_free(rec->opt_comment);
     rec->opt_comment = NULL;
 
     fp = push_File(L, wth->random_fh);

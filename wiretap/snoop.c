@@ -71,8 +71,8 @@ struct shomiti_trailer {
 #define RX_STATUS_FIFO_ERROR		0x0080	/* receive FIFO error */
 #define RX_STATUS_TRIGGERED		0x0001	/* frame did trigger */
 
-static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
+static gboolean snoop_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset);
 static gboolean snoop_seek_read(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static int snoop_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
@@ -417,15 +417,14 @@ typedef struct {
 
 
 /* Read the next packet */
-static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean snoop_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset)
 {
 	int	padbytes;
 
 	*data_offset = file_tell(wth->fh);
 
-	padbytes = snoop_read_packet(wth, wth->fh, &wth->rec,
-	    wth->rec_data, err, err_info);
+	padbytes = snoop_read_packet(wth, wth->fh, rec, buf, err, err_info);
 	if (padbytes == -1)
 		return FALSE;
 

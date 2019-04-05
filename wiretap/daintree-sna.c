@@ -58,8 +58,8 @@ static const char daintree_magic_text[] = "#Format=";
 
 #define COMMENT_LINE daintree_magic_text[0]
 
-static gboolean daintree_sna_read(wtap *wth, int *err, gchar **err_info,
-	gint64 *data_offset);
+static gboolean daintree_sna_read(wtap *wth, wtap_rec *rec,
+	Buffer *buf, int *err, gchar **err_info, gint64 *data_offset);
 
 static gboolean daintree_sna_seek_read(wtap *wth, gint64 seek_off,
 	wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
@@ -110,13 +110,13 @@ wtap_open_return_val daintree_sna_open(wtap *wth, int *err, gchar **err_info)
 /* Read the capture file sequentially
  * Wireshark scans the file with sequential reads during preview and initial display. */
 static gboolean
-daintree_sna_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+daintree_sna_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+	int *err, gchar **err_info, gint64 *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
 	/* parse that line and the following packet data */
-	return daintree_sna_read_packet(wth->fh, &wth->rec,
-	    wth->rec_data, err, err_info);
+	return daintree_sna_read_packet(wth->fh, rec, buf, err, err_info);
 }
 
 /* Read the capture file randomly

@@ -24,7 +24,8 @@
 WS_DLL_PUBLIC
 int wtap_fstat(wtap *wth, ws_statb64 *statb, int *err);
 
-typedef gboolean (*subtype_read_func)(struct wtap*, int*, char**, gint64*);
+typedef gboolean (*subtype_read_func)(struct wtap*, wtap_rec *,
+                                      Buffer *, int *, char **, gint64 *);
 typedef gboolean (*subtype_seek_read_func)(struct wtap*, gint64, wtap_rec *,
                                            Buffer *, int *, char **);
 
@@ -37,8 +38,6 @@ struct wtap {
     gboolean                    ispipe;                 /**< TRUE if the file is a pipe */
     int                         file_type_subtype;
     guint                       snapshot_length;
-    wtap_rec                    rec;
-    Buffer                      *rec_data;
     GArray                      *shb_hdrs;
     GArray                      *interface_data;        /**< An array holding the interface data from pcapng IDB:s or equivalent(?)*/
     GArray                      *nrb_hdrs;              /**< holds the Name Res Block's comment/custom_opts, or NULL */
@@ -318,7 +317,8 @@ wtap_read_packet_bytes(FILE_T fh, Buffer *buf, guint length, int *err,
  * as a single packet.
  */
 gboolean
-wtap_full_file_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset);
+wtap_full_file_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset);
 
 /*
  * Implementation of wth->subtype_seek_read that reads the full file contents

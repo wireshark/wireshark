@@ -1762,23 +1762,44 @@ typedef void (*wtap_new_secrets_callback_t)(guint32 secrets_type, const void *se
 WS_DLL_PUBLIC
 void wtap_set_cb_new_secrets(wtap *wth, wtap_new_secrets_callback_t add_new_secrets);
 
-/** Returns TRUE if read was successful. FALSE if failure. data_offset is
- * set to the offset in the file where the data for the read packet is
- * located. */
+/** Read the next record in the file, filling in *phdr and *buf.
+ *
+ * @wth a wtap * returned by a call that opened a file for reading.
+ * @rec a pointer to a wtap_rec, filled in with information about the
+ * record.
+ * @buf a pointer to a Buffer, filled in with data from the record.
+ * @param err a positive "errno" value, or a negative number indicating
+ * the type of error, if the read failed.
+ * @param err_info for some errors, a string giving more details of
+ * the error
+ * @param offset a pointer to a gint64, set to the offset in the file
+ * that should be used on calls to wtap_seek_read() to reread that record,
+ * if the read succeeded.
+ * @return TRUE on success, FALSE on failure.
+ */
 WS_DLL_PUBLIC
-gboolean wtap_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
+gboolean wtap_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+    gchar **err_info, gint64 *offset);
 
+/** Read the record at a specified offset in a capture file, filling in
+ * *phdr and *buf.
+ *
+ * @wth a wtap * returned by a call that opened a file for random-access
+ * reading.
+ * @seek_off a gint64 giving an offset value returned by a previous
+ * wtap_read() call.
+ * @phdr a pointer to a struct wtap_pkthdr, filled in with information
+ * about the record.
+ * @buf a pointer to a Buffer, filled in with data from the record.
+ * @param err a positive "errno" value, or a negative number indicating
+ * the type of error, if the read failed.
+ * @param err_info for some errors, a string giving more details of
+ * the error
+ * @return TRUE on success, FALSE on failure.
+ */
 WS_DLL_PUBLIC
 gboolean wtap_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
     Buffer *buf, int *err, gchar **err_info);
-
-/*** get various information snippets about the current record ***/
-WS_DLL_PUBLIC
-wtap_rec *wtap_get_rec(wtap *wth);
-
-WS_DLL_PUBLIC
-guint8 *wtap_get_buf_ptr(wtap *wth);
 
 /*** initialize a wtap_rec structure ***/
 WS_DLL_PUBLIC

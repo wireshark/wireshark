@@ -603,11 +603,14 @@ typedef struct {
 } nstrace_t;
 
 static guint32 nspm_signature_version(gchar*, gint32);
-static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info,
+static gboolean nstrace_read_v10(wtap *wth, wtap_rec *rec, Buffer *buf,
+                                 int *err, gchar **err_info,
                                  gint64 *data_offset);
-static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info,
+static gboolean nstrace_read_v20(wtap *wth, wtap_rec *rec, Buffer *buf,
+                                 int *err, gchar **err_info,
                                  gint64 *data_offset);
-static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info,
+static gboolean nstrace_read_v30(wtap *wth, wtap_rec *rec, Buffer *buf,
+                                 int *err, gchar **err_info,
                                  gint64 *data_offset);
 static gboolean nstrace_seek_read_v10(wtap *wth, gint64 seek_off,
                                       wtap_rec *rec,
@@ -836,8 +839,6 @@ wtap_open_return_val nstrace_open(wtap *wth, int *err, gchar **err_info)
     }
 
     wth->file_tsprec = WTAP_TSPREC_NSEC;
-    wth->rec.ts.secs = nstrace->nspm_curtime;
-    wth->rec.ts.nsecs = 0;
 
     *err = 0;
     return WTAP_OPEN_MINE;
@@ -1078,7 +1079,7 @@ static gboolean nstrace_set_start_time(wtap *wth, int *err, gchar **err_info)
         (rec)->rec_header.packet_header.caplen = (rec)->rec_header.packet_header.len;\
     }while(0)
 
-#define PACKET_DESCRIBE(rec,FULLPART,fullpart,ver,type,HEADERVER) \
+#define PACKET_DESCRIBE(rec,buf,FULLPART,fullpart,ver,type,HEADERVER) \
     do {\
         nspr_pktrace##fullpart##_v##ver##_t *type = (nspr_pktrace##fullpart##_v##ver##_t *) &nstrace_buf[nstrace_buf_offset];\
         /* Make sure the record header is entirely contained in the page */\
@@ -1103,8 +1104,8 @@ static gboolean nstrace_set_start_time(wtap *wth, int *err, gchar **err_info)
             *err_info = g_strdup("nstrace: record crosses page boundary");\
             return FALSE;\
         }\
-        ws_buffer_assure_space(wth->rec_data, (rec)->rec_header.packet_header.caplen);\
-        memcpy(ws_buffer_start_ptr(wth->rec_data), type, (rec)->rec_header.packet_header.caplen);\
+        ws_buffer_assure_space((buf), (rec)->rec_header.packet_header.caplen);\
+        memcpy(ws_buffer_start_ptr((buf)), type, (rec)->rec_header.packet_header.caplen);\
         *data_offset = nstrace->xxx_offset + nstrace_buf_offset;\
         nstrace->nstrace_buf_offset = nstrace_buf_offset + (rec)->rec_header.packet_header.caplen;\
         nstrace->nstrace_buflen = nstrace_buflen;\
@@ -1112,9 +1113,9 @@ static gboolean nstrace_set_start_time(wtap *wth, int *err, gchar **err_info)
         return TRUE;\
     }while(0)
 
-static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+static gboolean nstrace_read_v10(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset)
 {
-    wtap_rec *rec = &wth->rec;
     nstrace_t *nstrace = (nstrace_t *)wth->priv;
     guint64 nsg_creltime = nstrace->nsg_creltime;
     gchar *nstrace_buf = nstrace->pnstrace_buf;
@@ -1129,22 +1130,22 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
             ((nstrace_buflen - nstrace_buf_offset) >= ((gint32)sizeof((( nspr_header_v10_t*)&nstrace_buf[nstrace_buf_offset])->ph_RecordType))))
         {
 
-#define GENERATE_CASE_FULL(rec,ver,HEADERVER) \
+#define GENERATE_CASE_FULL(rec,buf,ver,HEADERVER) \
         case NSPR_PDPKTRACEFULLTX_V##ver:\
         case NSPR_PDPKTRACEFULLTXB_V##ver:\
         case NSPR_PDPKTRACEFULLRX_V##ver:\
-            PACKET_DESCRIBE(rec,FULL,full,ver,fp,HEADERVER);
+            PACKET_DESCRIBE(rec,buf,FULL,full,ver,fp,HEADERVER);
 
-#define GENERATE_CASE_PART(rec,ver,HEADERVER) \
+#define GENERATE_CASE_PART(rec,buf,ver,HEADERVER) \
         case NSPR_PDPKTRACEPARTTX_V##ver:\
         case NSPR_PDPKTRACEPARTTXB_V##ver:\
         case NSPR_PDPKTRACEPARTRX_V##ver:\
-            PACKET_DESCRIBE(rec,PART,part,ver,pp,HEADERVER);
+            PACKET_DESCRIBE(rec,buf,PART,part,ver,pp,HEADERVER);
 
             switch (pletoh16(&(( nspr_header_v10_t*)&nstrace_buf[nstrace_buf_offset])->ph_RecordType))
             {
-                GENERATE_CASE_FULL(rec,10,100)
-                GENERATE_CASE_PART(rec,10,100)
+                GENERATE_CASE_FULL(rec,buf,10,100)
+                GENERATE_CASE_PART(rec,buf,10,100)
 
 #undef GENERATE_CASE_FULL
 #undef GENERATE_CASE_PART
@@ -1257,7 +1258,7 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
 #define FULLSIZEDEFV25(rec,fp,ver) FULLSIZEDEFV20(rec,fp,ver)
 #define FULLSIZEDEFV26(rec,fp,ver) FULLSIZEDEFV20(rec,fp,ver)
 
-#define PACKET_DESCRIBE(rec,FULLPART,ver,enumprefix,type,structname,HEADERVER)\
+#define PACKET_DESCRIBE(rec,buf,FULLPART,ver,enumprefix,type,structname,HEADERVER)\
     do {\
         nspr_##structname##_t *fp= (nspr_##structname##_t*)&nstrace_buf[nstrace_buf_offset];\
         /* Make sure the record header is entirely contained in the page */\
@@ -1283,8 +1284,8 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
             *err_info = g_strdup("nstrace: record crosses page boundary");\
             return FALSE;\
         }\
-        ws_buffer_assure_space(wth->rec_data, (rec)->rec_header.packet_header.caplen);\
-        memcpy(ws_buffer_start_ptr(wth->rec_data), fp, (rec)->rec_header.packet_header.caplen);\
+        ws_buffer_assure_space((buf), (rec)->rec_header.packet_header.caplen);\
+        memcpy(ws_buffer_start_ptr((buf)), fp, (rec)->rec_header.packet_header.caplen);\
         *data_offset = nstrace->xxx_offset + nstrace_buf_offset;\
         nstrace->nstrace_buf_offset = nstrace_buf_offset + nspr_getv20recordsize((nspr_hd_v20_t *)fp);\
         nstrace->nstrace_buflen = nstrace_buflen;\
@@ -1292,9 +1293,9 @@ static gboolean nstrace_read_v10(wtap *wth, int *err, gchar **err_info, gint64 *
         return TRUE;\
     }while(0)
 
-static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+static gboolean nstrace_read_v20(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset)
 {
-    wtap_rec *rec = &wth->rec;
     nstrace_t *nstrace = (nstrace_t *)wth->priv;
     guint64 nsg_creltime = nstrace->nsg_creltime;
     gchar *nstrace_buf = nstrace->pnstrace_buf;
@@ -1311,46 +1312,46 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
             switch ((( nspr_hd_v20_t*)&nstrace_buf[nstrace_buf_offset])->phd_RecordType)
             {
 
-#define GENERATE_CASE_FULL(rec,ver,HEADERVER) \
+#define GENERATE_CASE_FULL(rec,buf,ver,HEADERVER) \
         case NSPR_PDPKTRACEFULLTX_V##ver:\
         case NSPR_PDPKTRACEFULLTXB_V##ver:\
         case NSPR_PDPKTRACEFULLRX_V##ver:\
-            PACKET_DESCRIBE(rec,FULL,ver,v##ver##_full,fp,pktracefull_v##ver,HEADERVER);
+            PACKET_DESCRIBE(rec,buf,FULL,ver,v##ver##_full,fp,pktracefull_v##ver,HEADERVER);
 
-#define GENERATE_CASE_FULL_V25(rec,ver,HEADERVER) \
+#define GENERATE_CASE_FULL_V25(rec,buf,ver,HEADERVER) \
         case NSPR_PDPKTRACEFULLTX_V##ver:\
         case NSPR_PDPKTRACEFULLTXB_V##ver:\
         case NSPR_PDPKTRACEFULLRX_V##ver:\
         case NSPR_PDPKTRACEFULLNEWRX_V##ver:\
-            PACKET_DESCRIBE(rec,FULL,ver,v##ver##_full,fp,pktracefull_v##ver,HEADERVER);
+            PACKET_DESCRIBE(rec,buf,FULL,ver,v##ver##_full,fp,pktracefull_v##ver,HEADERVER);
 
-#define GENERATE_CASE_PART(rec,ver,HEADERVER) \
+#define GENERATE_CASE_PART(rec,buf,ver,HEADERVER) \
         case NSPR_PDPKTRACEPARTTX_V##ver:\
         case NSPR_PDPKTRACEPARTTXB_V##ver:\
         case NSPR_PDPKTRACEPARTRX_V##ver:\
-            PACKET_DESCRIBE(rec,PART,ver,v##ver##_part,pp,pktracepart_v##ver,HEADERVER);
+            PACKET_DESCRIBE(rec,buf,PART,ver,v##ver##_part,pp,pktracepart_v##ver,HEADERVER);
 
-#define GENERATE_CASE_PART_V25(rec,ver,HEADERVER) \
+#define GENERATE_CASE_PART_V25(rec,buf,ver,HEADERVER) \
         case NSPR_PDPKTRACEPARTTX_V##ver:\
         case NSPR_PDPKTRACEPARTTXB_V##ver:\
         case NSPR_PDPKTRACEPARTRX_V##ver:\
         case NSPR_PDPKTRACEPARTNEWRX_V##ver:\
-            PACKET_DESCRIBE(rec,PART,ver,v##ver##_part,pp,pktracepart_v##ver,HEADERVER);
+            PACKET_DESCRIBE(rec,buf,PART,ver,v##ver##_part,pp,pktracepart_v##ver,HEADERVER);
 
-                GENERATE_CASE_FULL(rec,20,200);
-                GENERATE_CASE_PART(rec,20,200);
-                GENERATE_CASE_FULL(rec,21,201);
-                GENERATE_CASE_PART(rec,21,201);
-                GENERATE_CASE_FULL(rec,22,202);
-                GENERATE_CASE_PART(rec,22,202);
-                GENERATE_CASE_FULL(rec,23,203);
-                GENERATE_CASE_PART(rec,23,203);
-                GENERATE_CASE_FULL_V25(rec,24,204);
-                GENERATE_CASE_PART_V25(rec,24,204);
-                GENERATE_CASE_FULL_V25(rec,25,205);
-                GENERATE_CASE_PART_V25(rec,25,205);
-                GENERATE_CASE_FULL_V25(rec,26,206);
-                GENERATE_CASE_PART_V25(rec,26,206);
+                GENERATE_CASE_FULL(rec,buf,20,200);
+                GENERATE_CASE_PART(rec,buf,20,200);
+                GENERATE_CASE_FULL(rec,buf,21,201);
+                GENERATE_CASE_PART(rec,buf,21,201);
+                GENERATE_CASE_FULL(rec,buf,22,202);
+                GENERATE_CASE_PART(rec,buf,22,202);
+                GENERATE_CASE_FULL(rec,buf,23,203);
+                GENERATE_CASE_PART(rec,buf,23,203);
+                GENERATE_CASE_FULL_V25(rec,buf,24,204);
+                GENERATE_CASE_PART_V25(rec,buf,24,204);
+                GENERATE_CASE_FULL_V25(rec,buf,25,205);
+                GENERATE_CASE_PART_V25(rec,buf,25,205);
+                GENERATE_CASE_FULL_V25(rec,buf,26,206);
+                GENERATE_CASE_PART_V25(rec,buf,26,206);
 
 #undef GENERATE_CASE_FULL
 #undef GENERATE_CASE_FULL_V25
@@ -1462,7 +1463,7 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
         (rec)->rec_header.packet_header.caplen = nspr_getv20recordsize((nspr_hd_v20_t *)fp);\
     }while(0)
 
-#define PACKET_DESCRIBE(rec,FULLPART,ver,enumprefix,type,structname,HEADERVER)\
+#define PACKET_DESCRIBE(rec,buf,FULLPART,ver,enumprefix,type,structname,HEADERVER)\
     do {\
         nspr_##structname##_t *fp = (nspr_##structname##_t *) &nstrace_buf[nstrace_buf_offset];\
         /* Make sure the record header is entirely contained in the page */\
@@ -1485,7 +1486,7 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
             g_free(nstrace_tmpbuff);\
             return FALSE;\
         }\
-        ws_buffer_assure_space(wth->rec_data, (rec)->rec_header.packet_header.caplen);\
+        ws_buffer_assure_space((buf), (rec)->rec_header.packet_header.caplen);\
         *data_offset = nstrace->xxx_offset + nstrace_buf_offset;\
         /* Copy record header */\
         while (nstrace_tmpbuff_off < nspr_##structname##_s) {\
@@ -1526,7 +1527,7 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
         while (nstrace_tmpbuff_off < nst_dataSize) {\
             nstrace_tmpbuff[nstrace_tmpbuff_off++] = nstrace_buf[nstrace_buf_offset++];\
         }\
-        memcpy(ws_buffer_start_ptr(wth->rec_data), nstrace_tmpbuff, (rec)->rec_header.packet_header.caplen);\
+        memcpy(ws_buffer_start_ptr((buf)), nstrace_tmpbuff, (rec)->rec_header.packet_header.caplen);\
         nstrace->nstrace_buf_offset = nstrace_buf_offset;\
         nstrace->nstrace_buflen = nstrace_buflen;\
         nstrace->nsg_creltime = nsg_creltime;\
@@ -1534,9 +1535,9 @@ static gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info, gint64 *
         return TRUE;\
     } while(0)
 
-static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+static gboolean nstrace_read_v30(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset)
 {
-    wtap_rec *rec = &wth->rec;
     nstrace_t *nstrace = (nstrace_t *)wth->priv;
     guint64 nsg_creltime;
     gchar *nstrace_buf = nstrace->pnstrace_buf;
@@ -1589,24 +1590,24 @@ static gboolean nstrace_read_v30(wtap *wth, int *err, gchar **err_info, gint64 *
             switch (hdp->phd_RecordType)
             {
 
-#define GENERATE_CASE_FULL_V30(rec,ver,HEADERVER) \
+#define GENERATE_CASE_FULL_V30(rec,buf,ver,HEADERVER) \
         case NSPR_PDPKTRACEFULLTX_V##ver:\
         case NSPR_PDPKTRACEFULLTXB_V##ver:\
         case NSPR_PDPKTRACEFULLRX_V##ver:\
         case NSPR_PDPKTRACEFULLNEWRX_V##ver:\
-            PACKET_DESCRIBE(rec,FULL,ver,v##ver##_full,fp,pktracefull_v##ver,HEADERVER);
+            PACKET_DESCRIBE(rec,buf,FULL,ver,v##ver##_full,fp,pktracefull_v##ver,HEADERVER);
 
-                GENERATE_CASE_FULL_V30(rec,30,300);
+                GENERATE_CASE_FULL_V30(rec,buf,30,300);
 
 #undef GENERATE_CASE_FULL_V30
 
-#define GENERATE_CASE_FULL_V35(rec,ver,HEADERVER) \
+#define GENERATE_CASE_FULL_V35(rec,buf,ver,HEADERVER) \
         case NSPR_PDPKTRACEFULLTX_V##ver:\
         case NSPR_PDPKTRACEFULLTXB_V##ver:\
         case NSPR_PDPKTRACEFULLRX_V##ver:\
         case NSPR_PDPKTRACEFULLNEWRX_V##ver:\
-            PACKET_DESCRIBE(rec,FULL,ver,v##ver##_full,fp,pktracefull_v##ver,HEADERVER);
-                GENERATE_CASE_FULL_V35(rec,35,350);
+            PACKET_DESCRIBE(rec,buf,FULL,ver,v##ver##_full,fp,pktracefull_v##ver,HEADERVER);
+                GENERATE_CASE_FULL_V35(rec,buf,35,350);
 
 #undef GENERATE_CASE_FULL_V35
 

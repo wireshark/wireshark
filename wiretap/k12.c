@@ -658,7 +658,7 @@ process_packet_data(wtap_rec *rec, Buffer *target, guint8 *buffer,
     return TRUE;
 }
 
-static gboolean k12_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset) {
+static gboolean k12_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info, gint64 *data_offset) {
     k12_t *k12 = (k12_t *)wth->priv;
     k12_src_desc_t* src_desc;
     guint8* buffer;
@@ -721,7 +721,7 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
 
     } while ( ((type & K12_MASK_PACKET) != K12_REC_PACKET && (type & K12_MASK_PACKET) != K12_REC_D0020) || !src_id || !src_desc );
 
-    return process_packet_data(&wth->rec, wth->rec_data, buffer, (guint)len, k12, err, err_info);
+    return process_packet_data(rec, buf, buffer, (guint)len, k12, err, err_info);
 }
 
 

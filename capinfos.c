@@ -1105,7 +1105,8 @@ process_cap_file(const char *filename, gboolean need_separator)
   gint64                bytes  = 0;
   guint32               snaplen_min_inferred = 0xffffffff;
   guint32               snaplen_max_inferred =          0;
-  wtap_rec             *rec;
+  wtap_rec              rec;
+  Buffer                buf;
   capture_info          cf_info;
   gboolean              have_times = TRUE;
   nstime_t              start_time;
@@ -1164,28 +1165,29 @@ process_cap_file(const char *filename, gboolean need_separator)
   num_decryption_secrets = 0;
 
   /* Tally up data that we need to parse through the file to find */
-  while (wtap_read(wth, &err, &err_info, &data_offset))  {
-    rec = wtap_get_rec(wth);
-    if (rec->presence_flags & WTAP_HAS_TS) {
+  wtap_rec_init(&rec);
+  ws_buffer_init(&buf, 1500);
+  while (wtap_read(wth, &rec, &buf, &err, &err_info, &data_offset))  {
+    if (rec.presence_flags & WTAP_HAS_TS) {
       prev_time = cur_time;
-      cur_time = rec->ts;
+      cur_time = rec.ts;
       if (packet == 0) {
-        start_time = rec->ts;
-        start_time_tsprec = rec->tsprec;
-        stop_time  = rec->ts;
-        stop_time_tsprec = rec->tsprec;
-        prev_time  = rec->ts;
+        start_time = rec.ts;
+        start_time_tsprec = rec.tsprec;
+        stop_time  = rec.ts;
+        stop_time_tsprec = rec.tsprec;
+        prev_time  = rec.ts;
       }
       if (nstime_cmp(&cur_time, &prev_time) < 0) {
         order = NOT_IN_ORDER;
       }
       if (nstime_cmp(&cur_time, &start_time) < 0) {
         start_time = cur_time;
-        start_time_tsprec = rec->tsprec;
+        start_time_tsprec = rec.tsprec;
       }
       if (nstime_cmp(&cur_time, &stop_time) > 0) {
         stop_time = cur_time;
-        stop_time_tsprec = rec->tsprec;
+        stop_time_tsprec = rec.tsprec;
       }
     } else {
       have_times = FALSE; /* at least one packet has no time stamp */
@@ -1193,33 +1195,33 @@ process_cap_file(const char *filename, gboolean need_separator)
         order = ORDER_UNKNOWN;
     }
 
-    if (rec->rec_type == REC_TYPE_PACKET) {
-      bytes += rec->rec_header.packet_header.len;
+    if (rec.rec_type == REC_TYPE_PACKET) {
+      bytes += rec.rec_header.packet_header.len;
       packet++;
 
       /* If caplen < len for a rcd, then presumably           */
       /* 'Limit packet capture length' was done for this rcd. */
       /* Keep track as to the min/max actual snapshot lengths */
       /*  seen for this file.                                 */
-      if (rec->rec_header.packet_header.caplen < rec->rec_header.packet_header.len) {
-        if (rec->rec_header.packet_header.caplen < snaplen_min_inferred)
-          snaplen_min_inferred = rec->rec_header.packet_header.caplen;
-        if (rec->rec_header.packet_header.caplen > snaplen_max_inferred)
-          snaplen_max_inferred = rec->rec_header.packet_header.caplen;
+      if (rec.rec_header.packet_header.caplen < rec.rec_header.packet_header.len) {
+        if (rec.rec_header.packet_header.caplen < snaplen_min_inferred)
+          snaplen_min_inferred = rec.rec_header.packet_header.caplen;
+        if (rec.rec_header.packet_header.caplen > snaplen_max_inferred)
+          snaplen_max_inferred = rec.rec_header.packet_header.caplen;
       }
 
-      if ((rec->rec_header.packet_header.pkt_encap > 0) &&
-          (rec->rec_header.packet_header.pkt_encap < WTAP_NUM_ENCAP_TYPES)) {
-        cf_info.encap_counts[rec->rec_header.packet_header.pkt_encap] += 1;
+      if ((rec.rec_header.packet_header.pkt_encap > 0) &&
+          (rec.rec_header.packet_header.pkt_encap < WTAP_NUM_ENCAP_TYPES)) {
+        cf_info.encap_counts[rec.rec_header.packet_header.pkt_encap] += 1;
       } else {
         fprintf(stderr, "capinfos: Unknown packet encapsulation %d in frame %u of file \"%s\"\n",
-                rec->rec_header.packet_header.pkt_encap, packet, filename);
+                rec.rec_header.packet_header.pkt_encap, packet, filename);
       }
 
       /* Packet interface_id info */
-      if (rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
+      if (rec.presence_flags & WTAP_HAS_INTERFACE_ID) {
         /* cf_info.num_interfaces is size, not index, so it's one more than max index */
-        if (rec->rec_header.packet_header.interface_id >= cf_info.num_interfaces) {
+        if (rec.rec_header.packet_header.interface_id >= cf_info.num_interfaces) {
           /*
            * OK, re-fetch the number of interfaces, as there might have
            * been an interface that was in the middle of packets, and
@@ -1234,9 +1236,9 @@ process_cap_file(const char *filename, gboolean need_separator)
           g_free(idb_info);
           idb_info = NULL;
         }
-        if (rec->rec_header.packet_header.interface_id < cf_info.num_interfaces) {
+        if (rec.rec_header.packet_header.interface_id < cf_info.num_interfaces) {
           g_array_index(cf_info.interface_packet_counts, guint32,
-                        rec->rec_header.packet_header.interface_id) += 1;
+                        rec.rec_header.packet_header.interface_id) += 1;
         }
         else {
           cf_info.pkt_interface_id_unknown += 1;
@@ -1254,6 +1256,8 @@ process_cap_file(const char *filename, gboolean need_separator)
     }
 
   } /* while */
+  wtap_rec_cleanup(&rec);
+  ws_buffer_free(&buf);
 
   /*
    * Get IDB info strings.

@@ -62,8 +62,8 @@ static const ascend_magic_string ascend_magic[] = {
 
 #define ASCEND_DATE             "Date:"
 
-static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
-        gint64 *data_offset);
+static gboolean ascend_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+        int *err, gchar **err_info, gint64 *data_offset);
 static gboolean ascend_seek_read(wtap *wth, gint64 seek_off,
         wtap_rec *rec, Buffer *buf,
         int *err, gchar **err_info);
@@ -209,6 +209,7 @@ wtap_open_return_val ascend_open(wtap *wth, int *err, gchar **err_info)
   ascend_state_t parser_state;
   ws_statb64 statbuf;
   ascend_t *ascend;
+  wtap_rec rec;
 
   /* We haven't yet allocated a data structure for our private stuff;
      set the pointer to null, so that "ascend_find_next_packet()" knows
@@ -225,7 +226,7 @@ wtap_open_return_val ascend_open(wtap *wth, int *err, gchar **err_info)
   /* Do a trial parse of the first packet just found to see if we might
      really have an Ascend file.  If it fails with an actual error,
      fail; those will be I/O errors. */
-  if (run_ascend_parser(wth->fh, &wth->rec, buf, &parser_state, err,
+  if (run_ascend_parser(wth->fh, &rec, buf, &parser_state, err,
                         err_info) != 0 && *err != 0) {
       /* An I/O error. */
       return WTAP_OPEN_ERROR;
@@ -246,7 +247,7 @@ wtap_open_return_val ascend_open(wtap *wth, int *err, gchar **err_info)
 
   wth->file_type_subtype = WTAP_FILE_TYPE_SUBTYPE_ASCEND;
 
-  switch(wth->rec.rec_header.packet_header.pseudo_header.ascend.type) {
+  switch(rec.rec_header.packet_header.pseudo_header.ascend.type) {
     case ASCEND_PFX_ISDN_X:
     case ASCEND_PFX_ISDN_R:
       wth->file_encap = WTAP_ENCAP_ISDN;
@@ -399,8 +400,8 @@ parse_ascend(ascend_t *ascend, FILE_T fh, wtap_rec *rec, Buffer *buf,
 }
 
 /* Read the next packet; called from wtap_read(). */
-static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
-        gint64 *data_offset)
+static gboolean ascend_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+	gchar **err_info, gint64 *data_offset)
 {
   ascend_t *ascend = (ascend_t *)wth->priv;
   gint64 offset;
@@ -416,9 +417,8 @@ static gboolean ascend_read(wtap *wth, int *err, gchar **err_info,
   offset = ascend_find_next_packet(wth, err, err_info);
   if (offset == -1)
     return FALSE;
-  if (!parse_ascend(ascend, wth->fh, &wth->rec, wth->rec_data,
-                   wth->snapshot_length, &ascend->next_packet_seek_start,
-                   err, err_info))
+  if (!parse_ascend(ascend, wth->fh, rec, buf, wth->snapshot_length,
+                    &ascend->next_packet_seek_start, err, err_info))
     return FALSE;
 
   /* Flex might have gotten an EOF and caused *err to be set to

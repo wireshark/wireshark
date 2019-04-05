@@ -1054,6 +1054,8 @@ main(int argc, char *argv[])
     guint         max_packet_number  = 0;
     GArray       *dsb_types          = NULL;
     GPtrArray    *dsb_filenames      = NULL;
+    wtap_rec                     read_rec;
+    Buffer                       read_buf;
     const wtap_rec              *rec;
     wtap_rec                     temp_rec;
     wtap_dump_params             params = WTAP_DUMP_PARAMS_INIT;
@@ -1566,13 +1568,15 @@ main(int argc, char *argv[])
     }
 
     /* Read all of the packets in turn */
-    while (wtap_read(wth, &read_err, &read_err_info, &data_offset)) {
+    wtap_rec_init(&read_rec);
+    ws_buffer_init(&read_buf, 1500);
+    while (wtap_read(wth, &read_rec, &read_buf, &read_err, &read_err_info, &data_offset)) {
         if (max_packet_number <= read_count)
             break;
 
         read_count++;
 
-        rec = wtap_get_rec(wth);
+        rec = &read_rec;
 
         /* Extra actions for the first packet */
         if (read_count == 1) {
@@ -1605,7 +1609,7 @@ main(int argc, char *argv[])
         } /* first packet only handling */
 
 
-        buf = wtap_get_buf_ptr(wth);
+        buf = ws_buffer_start_ptr(&read_buf);
 
         /*
          * Not all packets have time stamps. Only process the time
@@ -1699,7 +1703,7 @@ main(int argc, char *argv[])
             /* We simply write it, perhaps after truncating it; we could
              * do other things, like modify it. */
 
-            rec = wtap_get_rec(wth);
+            rec = &read_rec;
 
             if (rec->presence_flags & WTAP_HAS_TS) {
                 /* Do we adjust timestamps to ensure strict chronological
@@ -2024,6 +2028,8 @@ main(int argc, char *argv[])
         }
         count++;
     }
+    wtap_rec_cleanup(&read_rec);
+    ws_buffer_free(&read_buf);
 
     g_free(fprefix);
     g_free(fsuffix);

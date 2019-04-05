@@ -71,8 +71,8 @@
 # include <ws2tcpip.h>
 #endif
 
-static gboolean read_record(capture_file *cf, dfilter_t *dfcode,
-    epan_dissect_t *edt, column_info *cinfo, gint64 offset);
+static gboolean read_record(capture_file *cf, wtap_rec *rec, Buffer *buf,
+    dfilter_t *dfcode, epan_dissect_t *edt, column_info *cinfo, gint64 offset);
 
 static void rescan_packets(capture_file *cf, const char *action, const char *action_item, gboolean redissect);
 
@@ -569,6 +569,9 @@ cf_read(capture_file *cf, gboolean reloading)
     gint64  file_pos;
     gint64  data_offset;
 
+    wtap_rec rec;
+    Buffer buf;
+
     float   progbar_val;
     gchar   status_str[100];
 
@@ -582,7 +585,10 @@ cf_read(capture_file *cf, gboolean reloading)
 
     g_timer_start(prog_timer);
 
-    while ((wtap_read(cf->provider.wth, &err, &err_info, &data_offset))) {
+    wtap_rec_init(&rec);
+    ws_buffer_init(&buf, 1500);
+    while ((wtap_read(cf->provider.wth, &rec, &buf, &err, &err_info,
+            &data_offset))) {
       if (size >= 0) {
         count++;
         file_pos = wtap_read_so_far(cf->provider.wth);
@@ -637,8 +643,10 @@ cf_read(capture_file *cf, gboolean reloading)
            hours even on fast machines) just to see that it was the wrong file. */
         break;
       }
-      read_record(cf, dfcode, &edt, cinfo, data_offset);
+      read_record(cf, &rec, &buf, dfcode, &edt, cinfo, data_offset);
     }
+    wtap_rec_cleanup(&rec);
+    ws_buffer_free(&buf);
   }
   CATCH(OutOfMemoryError) {
     simple_message_box(ESD_TYPE_ERROR, NULL,
@@ -791,15 +799,20 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
   epan_dissect_init(&edt, cf->epan, create_proto_tree, FALSE);
 
   TRY {
+    wtap_rec rec;
+    Buffer buf;
     gint64 data_offset = 0;
     column_info *cinfo;
 
     /* If any tap listeners require the columns, construct them. */
     cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cf->cinfo : NULL;
 
+    wtap_rec_init(&rec);
+    ws_buffer_init(&buf, 1500);
     while (to_read != 0) {
       wtap_cleareof(cf->provider.wth);
-      if (!wtap_read(cf->provider.wth, err, &err_info, &data_offset)) {
+      if (!wtap_read(cf->provider.wth, &rec, &buf, err, &err_info,
+                     &data_offset)) {
         break;
       }
       if (cf->state == FILE_READ_ABORTED) {
@@ -808,11 +821,13 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
            aren't any packets left to read) exit. */
         break;
       }
-      if (read_record(cf, dfcode, &edt, cinfo, data_offset)) {
+      if (read_record(cf, &rec, &buf, dfcode, &edt, cinfo, data_offset)) {
         newly_displayed_packets++;
       }
       to_read--;
     }
+    wtap_rec_cleanup(&rec);
+    ws_buffer_free(&buf);
   }
   CATCH(OutOfMemoryError) {
     simple_message_box(ESD_TYPE_ERROR, NULL,
@@ -886,6 +901,8 @@ cf_read_status_t
 cf_finish_tail(capture_file *cf, int *err)
 {
   gchar     *err_info;
+  wtap_rec   rec;
+  Buffer     buf;
   gint64     data_offset;
   dfilter_t *dfcode;
   column_info *cinfo;
@@ -934,15 +951,19 @@ cf_finish_tail(capture_file *cf, int *err)
 
   epan_dissect_init(&edt, cf->epan, create_proto_tree, FALSE);
 
-  while ((wtap_read(cf->provider.wth, err, &err_info, &data_offset))) {
+  wtap_rec_init(&rec);
+  ws_buffer_init(&buf, 1500);
+  while ((wtap_read(cf->provider.wth, &rec, &buf, err, &err_info, &data_offset))) {
     if (cf->state == FILE_READ_ABORTED) {
       /* Well, the user decided to abort the read.  Break out of the
          loop, and let the code below (which is called even if there
          aren't any packets left to read) exit. */
       break;
     }
-    read_record(cf, dfcode, &edt, cinfo, data_offset);
+    read_record(cf, &rec, &buf, dfcode, &edt, cinfo, data_offset);
   }
+  wtap_rec_cleanup(&rec);
+  ws_buffer_free(&buf);
 
   /* Cleanup and release all dfilter resources */
   dfilter_free(dfcode);
@@ -1218,11 +1239,9 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
  * FALSE otherwise.
  */
 static gboolean
-read_record(capture_file *cf, dfilter_t *dfcode, epan_dissect_t *edt,
-            column_info *cinfo, gint64 offset)
+read_record(capture_file *cf, wtap_rec *rec, Buffer *buf, dfilter_t *dfcode,
+            epan_dissect_t *edt, column_info *cinfo, gint64 offset)
 {
-  wtap_rec     *rec = wtap_get_rec(cf->provider.wth);
-  const guint8 *pd = wtap_get_buf_ptr(cf->provider.wth);
   frame_data    fdlocal;
   frame_data   *fdata;
   gboolean      passed = TRUE;
@@ -1248,7 +1267,7 @@ read_record(capture_file *cf, dfilter_t *dfcode, epan_dissect_t *edt,
     epan_dissect_init(&rf_edt, cf->epan, TRUE, FALSE);
     epan_dissect_prime_with_dfilter(&rf_edt, cf->rfcode);
     epan_dissect_run(&rf_edt, cf->cd_t, rec,
-                     frame_tvbuff_new(&cf->provider, &fdlocal, pd),
+                     frame_tvbuff_new_buffer(&cf->provider, &fdlocal, buf),
                      &fdlocal, NULL);
     passed = dfilter_apply_edt(cf->rfcode, &rf_edt);
     epan_dissect_cleanup(&rf_edt);
@@ -1269,7 +1288,7 @@ read_record(capture_file *cf, dfilter_t *dfcode, epan_dissect_t *edt,
      * This will be done once all (new) packets have been scanned. */
     if (!cf->redissecting && cf->redissection_queued == RESCAN_NONE) {
       add_packet_to_packet_list(fdata, cf, edt, dfcode,
-                                cinfo, rec, pd, TRUE);
+                                cinfo, rec, ws_buffer_start_ptr(buf), TRUE);
     }
   }
 
@@ -4192,7 +4211,8 @@ cf_has_unsaved_data(capture_file *cf)
 static cf_read_status_t
 rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile)
 {
-  const wtap_rec      *rec;
+  wtap_rec             rec;
+  Buffer               buf;
   int                  err;
   gchar               *err_info;
   gchar               *name_ptr;
@@ -4259,8 +4279,10 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile)
   g_get_current_time(&start_time);
 
   framenum = 0;
-  rec = wtap_get_rec(cf->provider.wth);
-  while ((wtap_read(cf->provider.wth, &err, &err_info, &data_offset))) {
+  wtap_rec_init(&rec);
+  ws_buffer_init(&buf, 1500);
+  while ((wtap_read(cf->provider.wth, &rec, &buf, &err, &err_info,
+          &data_offset))) {
     framenum++;
     fdata = frame_data_sequence_find(cf->provider.frames, framenum);
     fdata->file_off = data_offset;
@@ -4304,10 +4326,12 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile)
        link-layer encapsulation type, it'd be O(N^2) to read the file, but
        there are probably going to be a small number of encapsulation types
        in a file. */
-    if (rec->rec_type == REC_TYPE_PACKET) {
-      cf_add_encapsulation_type(cf, rec->rec_header.packet_header.pkt_encap);
+    if (rec.rec_type == REC_TYPE_PACKET) {
+      cf_add_encapsulation_type(cf, rec.rec_header.packet_header.pkt_encap);
     }
   }
+  wtap_rec_cleanup(&rec);
+  ws_buffer_free(&buf);
 
   /* Free the display name */
   g_free(name_ptr);

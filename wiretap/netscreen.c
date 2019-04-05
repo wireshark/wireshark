@@ -52,11 +52,10 @@ static gint64 netscreen_seek_next_packet(wtap *wth, int *err, gchar **err_info,
 	char *hdr);
 static gboolean netscreen_check_file_type(wtap *wth, int *err,
 	gchar **err_info);
-static gboolean netscreen_read(wtap *wth, int *err, gchar **err_info,
-	gint64 *data_offset);
+static gboolean netscreen_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+	int *err, gchar **err_info, gint64 *data_offset);
 static gboolean netscreen_seek_read(wtap *wth, gint64 seek_off,
-	wtap_rec *rec, Buffer *buf,
-	int *err, gchar **err_info);
+	wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static gboolean parse_netscreen_packet(FILE_T fh, wtap_rec *rec,
 	Buffer* buf, char *line, int *err, gchar **err_info);
 static int parse_single_hex_dump_line(char* rec, guint8 *buf,
@@ -170,8 +169,8 @@ wtap_open_return_val netscreen_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Find the next packet and parse it; called from wtap_read(). */
-static gboolean netscreen_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean netscreen_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset)
 {
 	gint64		offset;
 	char		line[NETSCREEN_LINE_LENGTH];
@@ -182,8 +181,7 @@ static gboolean netscreen_read(wtap *wth, int *err, gchar **err_info,
 		return FALSE;
 
 	/* Parse the header and convert the ASCII hex dump to binary data */
-	if (!parse_netscreen_packet(wth->fh, &wth->rec,
-	    wth->rec_data, line, err, err_info))
+	if (!parse_netscreen_packet(wth->fh, rec, buf, line, err, err_info))
 		return FALSE;
 
 	/*
@@ -195,9 +193,9 @@ static gboolean netscreen_read(wtap *wth, int *err, gchar **err_info,
 	 * have a single encapsulation for all packets in the file.
 	 */
 	if (wth->file_encap == WTAP_ENCAP_UNKNOWN)
-		wth->file_encap = wth->rec.rec_header.packet_header.pkt_encap;
+		wth->file_encap = rec->rec_header.packet_header.pkt_encap;
 	else {
-		if (wth->file_encap != wth->rec.rec_header.packet_header.pkt_encap)
+		if (wth->file_encap != rec->rec_header.packet_header.pkt_encap)
 			wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	}
 
@@ -207,8 +205,7 @@ static gboolean netscreen_read(wtap *wth, int *err, gchar **err_info,
 
 /* Used to read packets in random-access fashion */
 static gboolean
-netscreen_seek_read(wtap *wth, gint64 seek_off,
-	wtap_rec *rec, Buffer *buf,
+netscreen_seek_read(wtap *wth, gint64 seek_off,	wtap_rec *rec, Buffer *buf,
 	int *err, gchar **err_info)
 {
 	char		line[NETSCREEN_LINE_LENGTH];

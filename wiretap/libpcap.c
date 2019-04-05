@@ -42,8 +42,8 @@ typedef struct {
 static int libpcap_try(wtap *wth, int *err, gchar **err_info);
 static int libpcap_try_record(wtap *wth, FILE_T fh, int *err, gchar **err_info);
 
-static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
+static gboolean libpcap_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset);
 static gboolean libpcap_seek_read(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static gboolean libpcap_read_packet(wtap *wth, FILE_T fh,
@@ -714,13 +714,12 @@ static int libpcap_try_record(wtap *wth, FILE_T fh, int *err, gchar **err_info)
 }
 
 /* Read the next packet */
-static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean libpcap_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
-	return libpcap_read_packet(wth, wth->fh, &wth->rec,
-	    wth->rec_data, err, err_info);
+	return libpcap_read_packet(wth, wth->fh, rec, buf, err, err_info);
 }
 
 static gboolean

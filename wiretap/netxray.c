@@ -389,8 +389,8 @@ typedef struct {
 	guint		isdn_type;	/* 1 = E1 PRI, 2 = T1 PRI, 3 = BRI */
 } netxray_t;
 
-static gboolean netxray_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
+static gboolean netxray_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset);
 static gboolean netxray_seek_read(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static int netxray_process_rec_header(wtap *wth, FILE_T fh,
@@ -967,8 +967,8 @@ netxray_open(wtap *wth, int *err, gchar **err_info)
 
 /* Read the next packet */
 static gboolean
-netxray_read(wtap *wth, int *err, gchar **err_info,
-	     gint64 *data_offset)
+netxray_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+             gchar **err_info, gint64 *data_offset)
 {
 	netxray_t *netxray = (netxray_t *)wth->priv;
 	int	padding;
@@ -988,8 +988,7 @@ reread:
 	}
 
 	/* Read and process record header. */
-	padding = netxray_process_rec_header(wth, wth->fh, &wth->rec, err,
-	    err_info);
+	padding = netxray_process_rec_header(wth, wth->fh, rec, err, err_info);
 	if (padding < 0) {
 		/*
 		 * Error or EOF.
@@ -1042,8 +1041,8 @@ reread:
 	/*
 	 * Read the packet data.
 	 */
-	if (!wtap_read_packet_bytes(wth->fh, wth->rec_data,
-	    wth->rec.rec_header.packet_header.caplen, err, err_info))
+	if (!wtap_read_packet_bytes(wth->fh, buf,
+	    rec->rec_header.packet_header.caplen, err, err_info))
 		return FALSE;
 
 	/*
@@ -1057,7 +1056,7 @@ reread:
 	 * from the packet header to determine its type or subtype,
 	 * attempt to guess them from the packet data.
 	 */
-	netxray_guess_atm_type(wth, &wth->rec, wth->rec_data);
+	netxray_guess_atm_type(wth, rec, buf);
 	return TRUE;
 }
 

@@ -241,8 +241,8 @@ typedef enum {
 static process_file_status_t process_cap_file(capture_file *, char *, int, gboolean, int, gint64);
 
 static gboolean process_packet_single_pass(capture_file *cf,
-    epan_dissect_t *edt, gint64 offset, wtap_rec *rec,
-    const guchar *pd, guint tap_flags);
+    epan_dissect_t *edt, gint64 offset, wtap_rec *rec, Buffer *buf,
+    guint tap_flags);
 static void show_print_file_io_error(int err);
 static gboolean write_preamble(capture_file *cf);
 static gboolean print_packet(capture_file *cf, epan_dissect_t *edt);
@@ -2702,6 +2702,8 @@ capture_input_new_packets(capture_session *cap_session, int to_read)
   if (do_dissection) {
     gboolean create_proto_tree;
     epan_dissect_t *edt;
+    wtap_rec rec;
+    Buffer buf;
 
     /*
      * Determine whether we need to create a protocol tree.
@@ -2734,9 +2736,12 @@ capture_input_new_packets(capture_session *cap_session, int to_read)
        ("packet_details" is true). */
     edt = epan_dissect_new(cf->epan, create_proto_tree, print_packet_info && print_details);
 
+    wtap_rec_init(&rec);
+    ws_buffer_init(&buf, 1500);
+
     while (to_read-- && cf->provider.wth) {
       wtap_cleareof(cf->provider.wth);
-      ret = wtap_read(cf->provider.wth, &err, &err_info, &data_offset);
+      ret = wtap_read(cf->provider.wth, &rec, &buf, &err, &err_info, &data_offset);
       reset_epan_mem(cf, edt, create_proto_tree, print_packet_info && print_details);
       if (ret == FALSE) {
         /* read from file failed, tell the capture child to stop */
@@ -2744,9 +2749,8 @@ capture_input_new_packets(capture_session *cap_session, int to_read)
         wtap_close(cf->provider.wth);
         cf->provider.wth = NULL;
       } else {
-        ret = process_packet_single_pass(cf, edt, data_offset,
-                                         wtap_get_rec(cf->provider.wth),
-                                         wtap_get_buf_ptr(cf->provider.wth), tap_flags);
+        ret = process_packet_single_pass(cf, edt, data_offset, &rec, &buf,
+                                         tap_flags);
       }
       if (ret != FALSE) {
         /* packet successfully read and gone through the "Read Filter" */
@@ -2755,6 +2759,9 @@ capture_input_new_packets(capture_session *cap_session, int to_read)
     }
 
     epan_dissect_free(edt);
+
+    wtap_rec_cleanup(&rec);
+    ws_buffer_free(&buf);
 
   } else {
     /*
@@ -2918,8 +2925,7 @@ capture_cleanup(int signum _U_)
 
 static gboolean
 process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
-                          gint64 offset, wtap_rec *rec,
-                          const guchar *pd)
+                          gint64 offset, wtap_rec *rec, Buffer *buf)
 {
   frame_data     fdlocal;
   guint32        framenum;
@@ -2962,7 +2968,7 @@ process_packet_first_pass(capture_file *cf, epan_dissect_t *edt,
     }
 
     epan_dissect_run(edt, cf->cd_t, rec,
-                     frame_tvbuff_new(&cf->provider, &fdlocal, pd),
+                     frame_tvbuff_new_buffer(&cf->provider, &fdlocal, buf),
                      &fdlocal, NULL);
 
     /* Run the read filter if we have one. */
@@ -3055,9 +3061,14 @@ static pass_status_t
 process_cap_file_first_pass(capture_file *cf, int max_packet_count,
                             gint64 max_byte_count, int *err, gchar **err_info)
 {
+  wtap_rec        rec;
+  Buffer          buf;
   epan_dissect_t *edt = NULL;
   gint64          data_offset;
   pass_status_t   status = PASS_SUCCEEDED;
+
+  wtap_rec_init(&rec);
+  ws_buffer_init(&buf, 1500);
 
   /* Allocate a frame_data_sequence for all the frames. */
   cf->provider.frames = new_frame_data_sequence();
@@ -3088,13 +3099,12 @@ process_cap_file_first_pass(capture_file *cf, int max_packet_count,
 
   tshark_debug("tshark: reading records for first pass");
   *err = 0;
-  while (wtap_read(cf->provider.wth, err, err_info, &data_offset)) {
+  while (wtap_read(cf->provider.wth, &rec, &buf, err, err_info, &data_offset)) {
     if (read_interrupted) {
       status = PASS_INTERRUPTED;
       break;
     }
-    if (process_packet_first_pass(cf, edt, data_offset, wtap_get_rec(cf->provider.wth),
-                                  wtap_get_buf_ptr(cf->provider.wth))) {
+    if (process_packet_first_pass(cf, edt, data_offset, &rec, &buf)) {
       /* Stop reading if we have the maximum number of packets;
        * When the -c option has not been used, max_packet_count
        * starts at 0, which practically means, never stop reading.
@@ -3123,6 +3133,9 @@ process_cap_file_first_pass(capture_file *cf, int max_packet_count,
 
   cf->provider.prev_dis = NULL;
   cf->provider.prev_cap = NULL;
+
+  ws_buffer_free(&buf);
+  wtap_rec_cleanup(&rec);
 
   return status;
 }
@@ -3285,8 +3298,7 @@ process_cap_file_second_pass(capture_file *cf, wtap_dumper *pdh,
       break;
     }
     tshark_debug("tshark: invoking process_packet_second_pass() for frame #%d", framenum);
-    if (process_packet_second_pass(cf, edt, fdata, &rec, &buf,
-                                   tap_flags)) {
+    if (process_packet_second_pass(cf, edt, fdata, &rec, &buf, tap_flags)) {
       /* Either there's no read filtering or this packet passed the
          filter, so, if we're writing to a capture file, write
          this packet out. */
@@ -3318,6 +3330,8 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
                              int *err, gchar **err_info,
                              volatile guint32 *err_framenum)
 {
+  wtap_rec        rec;
+  Buffer          buf;
   gboolean create_proto_tree = FALSE;
   gboolean        filtering_tap_listeners;
   guint           tap_flags;
@@ -3325,6 +3339,9 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
   epan_dissect_t *edt = NULL;
   gint64          data_offset;
   pass_status_t   status = PASS_SUCCEEDED;
+
+  wtap_rec_init(&rec);
+  ws_buffer_init(&buf, 1500);
 
   framenum = 0;
 
@@ -3377,7 +3394,7 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
   set_resolution_synchrony(TRUE);
 
   *err = 0;
-  while (wtap_read(cf->provider.wth, err, err_info, &data_offset)) {
+  while (wtap_read(cf->provider.wth, &rec, &buf, err, err_info, &data_offset)) {
     if (read_interrupted) {
       status = PASS_INTERRUPTED;
       break;
@@ -3388,15 +3405,13 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
 
     reset_epan_mem(cf, edt, create_proto_tree, print_packet_info && print_details);
 
-    if (process_packet_single_pass(cf, edt, data_offset, wtap_get_rec(cf->provider.wth),
-                                   wtap_get_buf_ptr(cf->provider.wth), tap_flags)) {
+    if (process_packet_single_pass(cf, edt, data_offset, &rec, &buf, tap_flags)) {
       /* Either there's no read filtering or this packet passed the
          filter, so, if we're writing to a capture file, write
          this packet out. */
       if (pdh != NULL) {
         tshark_debug("tshark: writing packet #%d to outfile", framenum);
-        if (!wtap_dump(pdh, wtap_get_rec(cf->provider.wth),
-                       wtap_get_buf_ptr(cf->provider.wth), err, err_info)) {
+        if (!wtap_dump(pdh, &rec, ws_buffer_start_ptr(&buf), err, err_info)) {
           /* Error writing to the output file. */
           tshark_debug("tshark: error writing to a capture file (%d)", *err);
           *err_framenum = framenum;
@@ -3424,6 +3439,9 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
 
   if (edt)
     epan_dissect_free(edt);
+
+  ws_buffer_free(&buf);
+  wtap_rec_cleanup(&rec);
 
   return status;
 }
@@ -3674,8 +3692,7 @@ out:
 
 static gboolean
 process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
-                           wtap_rec *rec, const guchar *pd,
-                           guint tap_flags)
+                           wtap_rec *rec, Buffer *buf, guint tap_flags)
 {
   frame_data      fdata;
   column_info    *cinfo;
@@ -3733,7 +3750,7 @@ process_packet_single_pass(capture_file *cf, epan_dissect_t *edt, gint64 offset,
     }
 
     epan_dissect_run_with_taps(edt, cf->cd_t, rec,
-                               frame_tvbuff_new(&cf->provider, &fdata, pd),
+                               frame_tvbuff_new_buffer(&cf->provider, &fdata, buf),
                                &fdata, cinfo);
 
     /* Run the filter if we have it. */

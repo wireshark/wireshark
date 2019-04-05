@@ -98,8 +98,8 @@ static const char *init_gmt_to_localtime_offset(void)
     return NULL;
 }
 
-static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
+static gboolean observer_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset);
 static gboolean observer_seek_read(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static int read_packet_header(wtap *wth, FILE_T fh, union wtap_pseudo_header *pseudo_header,
@@ -315,8 +315,8 @@ wtap_open_return_val network_instruments_open(wtap *wth, int *err, gchar **err_i
 }
 
 /* Reads the next packet. */
-static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean observer_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset)
 {
     int header_bytes_consumed;
     int data_bytes_consumed;
@@ -327,7 +327,7 @@ static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
         *data_offset = file_tell(wth->fh);
 
         /* process the packet header, including TLVs */
-        header_bytes_consumed = read_packet_header(wth, wth->fh, &wth->rec.rec_header.packet_header.pseudo_header, &packet_header, err,
+        header_bytes_consumed = read_packet_header(wth, wth->fh, &rec->rec_header.packet_header.pseudo_header, &packet_header, err,
             err_info);
         if (header_bytes_consumed <= 0)
             return FALSE;    /* EOF or error */
@@ -342,13 +342,13 @@ static gboolean observer_read(wtap *wth, int *err, gchar **err_info,
         }
     }
 
-    if (!process_packet_header(wth, &packet_header, &wth->rec, err, err_info))
+    if (!process_packet_header(wth, &packet_header, rec, err, err_info))
         return FALSE;
 
     /* read the frame data */
     data_bytes_consumed = read_packet_data(wth->fh, packet_header.offset_to_frame,
-            header_bytes_consumed, wth->rec_data,
-            wth->rec.rec_header.packet_header.caplen, err, err_info);
+            header_bytes_consumed, buf, rec->rec_header.packet_header.caplen,
+            err, err_info);
     if (data_bytes_consumed < 0) {
         return FALSE;
     }

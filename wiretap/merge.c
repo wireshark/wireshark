@@ -81,6 +81,9 @@ cleanup_in_file(merge_in_file_t *in_file)
 
     g_array_free(in_file->idb_index_map, TRUE);
     in_file->idb_index_map = NULL;
+
+    wtap_rec_cleanup(&in_file->rec);
+    ws_buffer_free(&in_file->frame_buffer);
 }
 
 static void
@@ -145,6 +148,8 @@ merge_open_in_files(guint in_file_count, const char *const *in_file_names,
             *err_fileno = i;
             return FALSE;
         }
+        wtap_rec_init(&files[i].rec);
+        ws_buffer_init(&files[i].frame_buffer, 1500);
         files[i].size = size;
         files[i].idb_index_map = g_array_new(FALSE, FALSE, sizeof(guint));
     }
@@ -264,7 +269,9 @@ merge_read_packet(int in_file_count, merge_in_file_t in_files[],
              * No packet available, and we haven't seen an error or EOF yet,
              * so try to read the next packet.
              */
-            if (!wtap_read(in_files[i].wth, err, err_info, &data_offset)) {
+            if (!wtap_read(in_files[i].wth, &in_files[i].rec,
+                           &in_files[i].frame_buffer, err, err_info,
+                           &data_offset)) {
                 if (*err != 0) {
                     in_files[i].state = GOT_ERROR;
                     return &in_files[i];
@@ -275,7 +282,7 @@ merge_read_packet(int in_file_count, merge_in_file_t in_files[],
         }
 
         if (in_files[i].state == RECORD_PRESENT) {
-            rec = wtap_get_rec(in_files[i].wth);
+            rec = &in_files[i].rec;
             if (!(rec->presence_flags & WTAP_HAS_TS)) {
                 /*
                  * No time stamp.  Pick this record, and stop looking.
@@ -348,7 +355,9 @@ merge_append_read_packet(int in_file_count, merge_in_file_t in_files[],
     for (i = 0; i < in_file_count; i++) {
         if (in_files[i].state == AT_EOF)
             continue; /* This file is already at EOF */
-        if (wtap_read(in_files[i].wth, err, err_info, &data_offset))
+        if (wtap_read(in_files[i].wth, &in_files[i].rec,
+                      &in_files[i].frame_buffer, err, err_info,
+                      &data_offset))
             break; /* We have a packet */
         if (*err != 0) {
             /* Read error - quit immediately. */
@@ -876,7 +885,7 @@ merge_process_packets(wtap_dumper *pdh, const int file_type,
             break;
         }
 
-        rec = wtap_get_rec(in_file->wth);
+        rec = &in_file->rec;
 
         switch (rec->rec_type) {
 
@@ -926,7 +935,8 @@ merge_process_packets(wtap_dumper *pdh, const int file_type,
             }
         }
 
-        if (!wtap_dump(pdh, rec, wtap_get_buf_ptr(in_file->wth), err, err_info)) {
+        if (!wtap_dump(pdh, rec, ws_buffer_start_ptr(&in_file->frame_buffer),
+                       err, err_info)) {
             status = MERGE_ERR_CANT_WRITE_OUTFILE;
             break;
         }

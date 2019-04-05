@@ -59,8 +59,8 @@ struct btsnooprec_hdr {
 
 static const gint64 KUnixTimeBase = G_GINT64_CONSTANT(0x00dcddb30f2f8000); /* offset from symbian - unix time */
 
-static gboolean btsnoop_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
+static gboolean btsnoop_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *offset);
 static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static gboolean btsnoop_read_record(wtap *wth, FILE_T fh,
@@ -136,13 +136,12 @@ wtap_open_return_val btsnoop_open(wtap *wth, int *err, gchar **err_info)
     return WTAP_OPEN_MINE;
 }
 
-static gboolean btsnoop_read(wtap *wth, int *err, gchar **err_info,
-                             gint64 *data_offset)
+static gboolean btsnoop_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+                             int *err, gchar **err_info, gint64 *offset)
 {
-    *data_offset = file_tell(wth->fh);
+    *offset = file_tell(wth->fh);
 
-    return btsnoop_read_record(wth, wth->fh, &wth->rec, wth->rec_data,
-                               err, err_info);
+    return btsnoop_read_record(wth, wth->fh, rec, buf, err, err_info);
 }
 
 static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,

@@ -1204,14 +1204,6 @@ wtap_sequential_close(wtap *wth)
 		file_close(wth->fh);
 		wth->fh = NULL;
 	}
-
-	wtap_rec_cleanup(&wth->rec);
-
-	if (wth->rec_data) {
-		ws_buffer_free(wth->rec_data);
-		g_free(wth->rec_data);
-		wth->rec_data = NULL;
-	}
 }
 
 static void
@@ -1304,7 +1296,8 @@ wtapng_process_dsb(wtap *wth, wtap_block_t dsb)
 }
 
 gboolean
-wtap_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+wtap_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+	gchar **err_info, gint64 *offset)
 {
 	/*
 	 * Set the packet encapsulation to the file's encapsulation
@@ -1316,12 +1309,12 @@ wtap_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	 *
 	 * Do the same for the packet time stamp resolution.
 	 */
-	wth->rec.rec_header.packet_header.pkt_encap = wth->file_encap;
-	wth->rec.tsprec = wth->file_tsprec;
+	rec->rec_header.packet_header.pkt_encap = wth->file_encap;
+	rec->tsprec = wth->file_tsprec;
 
 	*err = 0;
 	*err_info = NULL;
-	if (!wth->subtype_read(wth, err, err_info, data_offset)) {
+	if (!wth->subtype_read(wth, rec, buf, err, err_info, offset)) {
 		/*
 		 * If we didn't get an error indication, we read
 		 * the last packet.  See if there's any deferred
@@ -1339,13 +1332,13 @@ wtap_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	/*
 	 * Is this a packet record?
 	 */
-	if (wth->rec.rec_type == REC_TYPE_PACKET) {
+	if (rec->rec_type == REC_TYPE_PACKET) {
 		/*
 		 * It makes no sense for the captured data length
 		 * to be bigger than the actual data length.
 		 */
-		if (wth->rec.rec_header.packet_header.caplen > wth->rec.rec_header.packet_header.len)
-			wth->rec.rec_header.packet_header.caplen = wth->rec.rec_header.packet_header.len;
+		if (rec->rec_header.packet_header.caplen > rec->rec_header.packet_header.len)
+			rec->rec_header.packet_header.caplen = rec->rec_header.packet_header.len;
 
 		/*
 		 * Make sure that it's not WTAP_ENCAP_PER_PACKET, as that
@@ -1353,7 +1346,7 @@ wtap_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		 * but the read routine didn't set this packet's
 		 * encapsulation type.
 		 */
-		g_assert(wth->rec.rec_header.packet_header.pkt_encap != WTAP_ENCAP_PER_PACKET);
+		g_assert(rec->rec_header.packet_header.pkt_encap != WTAP_ENCAP_PER_PACKET);
 	}
 
 	return TRUE;	/* success */
@@ -1446,18 +1439,6 @@ gint64
 wtap_read_so_far(wtap *wth)
 {
 	return file_tell_raw(wth->fh);
-}
-
-wtap_rec *
-wtap_get_rec(wtap *wth)
-{
-	return &wth->rec;
-}
-
-guint8 *
-wtap_get_buf_ptr(wtap *wth)
-{
-	return ws_buffer_start_ptr(wth->rec_data);
 }
 
 void
@@ -1580,7 +1561,8 @@ wtap_full_file_read_file(wtap *wth, FILE_T fh, wtap_rec *rec, Buffer *buf, int *
 }
 
 gboolean
-wtap_full_file_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+wtap_full_file_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+                    int *err, gchar **err_info, gint64 *data_offset)
 {
 	gint64 offset = file_tell(wth->fh);
 
@@ -1591,7 +1573,7 @@ wtap_full_file_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	}
 
 	*data_offset = offset;
-	return wtap_full_file_read_file(wth, wth->fh, &wth->rec, wth->rec_data, err, err_info);
+	return wtap_full_file_read_file(wth, wth->fh, rec, buf, err, err_info);
 }
 
 gboolean

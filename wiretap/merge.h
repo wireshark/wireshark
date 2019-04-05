@@ -30,6 +30,8 @@ typedef enum {
 typedef struct merge_in_file_s {
     const char     *filename;
     wtap           *wth;
+    wtap_rec        rec;
+    Buffer          frame_buffer;
     in_file_state_e state;
     guint32         packet_num;     /* current packet number */
     gint64          size;           /* file size */

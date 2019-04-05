@@ -495,8 +495,8 @@ static int process_rec_header2_v2(wtap *wth, unsigned char *buffer,
     guint16 length, int *err, gchar **err_info);
 static int process_rec_header2_v145(wtap *wth, unsigned char *buffer,
     guint16 length, gint16 maj_vers, int *err, gchar **err_info);
-static gboolean ngsniffer_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
+static gboolean ngsniffer_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset);
 static gboolean ngsniffer_seek_read(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static int ngsniffer_process_record(wtap *wth, gboolean is_random,
@@ -1007,7 +1007,8 @@ process_rec_header2_v145(wtap *wth, unsigned char *buffer, guint16 length,
 
 /* Read the next packet */
 static gboolean
-ngsniffer_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+ngsniffer_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+    gchar **err_info, gint64 *data_offset)
 {
 	ngsniffer_t *ngsniffer;
 	int	ret;
@@ -1025,7 +1026,7 @@ ngsniffer_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 		 * Process the record.
 		 */
 		ret = ngsniffer_process_record(wth, FALSE, &padding,
-		    &wth->rec, wth->rec_data, err, err_info);
+		    rec, buf, err, err_info);
 		if (ret < 0) {
 			/* Read error or short read */
 			return FALSE;

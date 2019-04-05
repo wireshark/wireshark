@@ -1307,8 +1307,7 @@ process_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
       edt = epan_dissect_new(cf->epan, create_proto_tree, FALSE);
     }
     while (local_wtap_read(cf, &file_rec, &err, &err_info, &data_offset, &raw_data)) {
-      if (process_packet_first_pass(cf, edt, data_offset, &file_rec/*wtap_get_rec(cf->provider.wth)*/,
-                                    wtap_get_buf_ptr(cf->provider.wth))) {
+      if (process_packet_first_pass(cf, edt, data_offset, &file_rec, raw_data)) {
 
         /* Stop reading if we have the maximum number of packets;
          * When the -c option has not been used, max_packet_count

@@ -83,8 +83,8 @@ typedef enum {
 	DIRECTION_RECV
 } direction_enum;
 
-static gboolean pppdump_read(wtap *wth, int *err, gchar **err_info,
-	gint64 *data_offset);
+static gboolean pppdump_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+	int *err, gchar **err_info, gint64 *data_offset);
 static gboolean pppdump_seek_read(wtap *wth, gint64 seek_off,
 	wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 
@@ -315,11 +315,11 @@ pppdump_set_phdr(wtap_rec *rec, int num_bytes,
 
 /* Find the next packet and parse it; called from wtap_read(). */
 static gboolean
-pppdump_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+pppdump_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info,
+    gint64 *data_offset)
 {
 	int		num_bytes;
 	direction_enum	direction;
-	guint8		*buf;
 	pppdump_t	*state;
 	pkt_id		*pid;
 
@@ -337,11 +337,9 @@ pppdump_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	} else
 		pid = NULL;	/* sequential only */
 
-	ws_buffer_assure_space(wth->rec_data, PPPD_BUF_SIZE);
-	buf = ws_buffer_start_ptr(wth->rec_data);
-
-	if (!collate(state, wth->fh, err, err_info, buf, &num_bytes, &direction,
-	    pid, 0)) {
+	ws_buffer_assure_space(buf, PPPD_BUF_SIZE);
+	if (!collate(state, wth->fh, err, err_info, ws_buffer_start_ptr(buf),
+	    &num_bytes, &direction, pid, 0)) {
 		g_free(pid);
 		return FALSE;
 	}
@@ -355,10 +353,10 @@ pppdump_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	*data_offset = state->pkt_cnt;
 	state->pkt_cnt++;
 
-	pppdump_set_phdr(&wth->rec, num_bytes, direction);
-	wth->rec.presence_flags = WTAP_HAS_TS;
-	wth->rec.ts.secs	= state->timestamp;
-	wth->rec.ts.nsecs	= state->tenths * 100000000;
+	pppdump_set_phdr(rec, num_bytes, direction);
+	rec->presence_flags = WTAP_HAS_TS;
+	rec->ts.secs = state->timestamp;
+	rec->ts.nsecs = state->tenths * 100000000;
 
 	return TRUE;
 }

@@ -145,8 +145,8 @@ struct visual_write_info
 
 
 /* Local functions to handle file reads and writes */
-static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
+static gboolean visual_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset);
 static gboolean visual_seek_read(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static gboolean visual_read_packet(wtap *wth, FILE_T fh,
@@ -259,8 +259,8 @@ wtap_open_return_val visual_open(wtap *wth, int *err, gchar **err_info)
    in a loop to sequentially read the entire file one time.  After
    the file has been read once, any Future access to the packets is
    done through seek_read. */
-static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean visual_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset)
 {
     struct visual_read_info *visual = (struct visual_read_info *)wth->priv;
 
@@ -276,8 +276,7 @@ static gboolean visual_read(wtap *wth, int *err, gchar **err_info,
 
     *data_offset = file_tell(wth->fh);
 
-    return visual_read_packet(wth, wth->fh, &wth->rec, wth->rec_data,
-            err, err_info);
+    return visual_read_packet(wth, wth->fh, rec, buf, err, err_info);
 }
 
 /* Read packet header and data for random access. */

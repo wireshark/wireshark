@@ -166,12 +166,11 @@ main(int argc, char *argv[])
     char *init_progfile_dir_error;
     wtap *wth = NULL;
     wtap_dumper *pdh = NULL;
-    wtap_rec dump_rec;
+    wtap_rec rec;
     Buffer buf;
     int err;
     gchar *err_info;
     gint64 data_offset;
-    const wtap_rec *rec;
     guint wrong_order_count = 0;
     gboolean write_output_regardless = TRUE;
     guint i;
@@ -284,16 +283,16 @@ main(int argc, char *argv[])
     frames = g_ptr_array_new();
 
     /* Read each frame from infile */
-    while (wtap_read(wth, &err, &err_info, &data_offset)) {
+    wtap_rec_init(&rec);
+    ws_buffer_init(&buf, 1500);
+    while (wtap_read(wth, &rec, &buf, &err, &err_info, &data_offset)) {
         FrameRecord_t *newFrameRecord;
-
-        rec = wtap_get_rec(wth);
 
         newFrameRecord = g_slice_new(FrameRecord_t);
         newFrameRecord->num = frames->len + 1;
         newFrameRecord->offset = data_offset;
-        if (rec->presence_flags & WTAP_HAS_TS) {
-            newFrameRecord->frame_time = rec->ts;
+        if (rec.presence_flags & WTAP_HAS_TS) {
+            newFrameRecord->frame_time = rec.ts;
         } else {
             nstime_set_unset(&newFrameRecord->frame_time);
         }
@@ -305,6 +304,8 @@ main(int argc, char *argv[])
         g_ptr_array_add(frames, newFrameRecord);
         prevFrame = newFrameRecord;
     }
+    wtap_rec_cleanup(&rec);
+    ws_buffer_free(&buf);
     if (err != 0) {
       /* Print a message noting that the read failed somewhere along the line. */
       cfile_read_failure_message("reordercap", infile, err, err_info);
@@ -318,18 +319,18 @@ main(int argc, char *argv[])
     }
 
     /* Write out each sorted frame in turn */
-    wtap_rec_init(&dump_rec);
+    wtap_rec_init(&rec);
     ws_buffer_init(&buf, 1500);
     for (i = 0; i < frames->len; i++) {
         FrameRecord_t *frame = (FrameRecord_t *)frames->pdata[i];
 
         /* Avoid writing if already sorted and configured to */
         if (write_output_regardless || (wrong_order_count > 0)) {
-            frame_write(frame, wth, pdh, &dump_rec, &buf, infile, outfile);
+            frame_write(frame, wth, pdh, &rec, &buf, infile, outfile);
         }
         g_slice_free(FrameRecord_t, frame);
     }
-    wtap_rec_cleanup(&dump_rec);
+    wtap_rec_cleanup(&rec);
     ws_buffer_free(&buf);
 
     if (!write_output_regardless && (wrong_order_count == 0)) {

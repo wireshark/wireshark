@@ -102,7 +102,6 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_get_all_capture_file_extensions_list@Base 2.3.0
  wtap_get_all_compression_type_extensions_list@Base 2.9.0
  wtap_get_all_file_extensions_list@Base 2.6.2
- wtap_get_buf_ptr@Base 2.5.1
  wtap_get_bytes_dumped@Base 1.9.1
  wtap_get_compression_type@Base 2.9.0
  wtap_get_debug_if_descr@Base 1.99.9
@@ -112,7 +111,6 @@ libwiretap.so.0 libwiretap0 #MINVER#
  wtap_get_num_encap_types@Base 1.9.1
  wtap_get_num_file_type_extensions@Base 1.12.0~rc1
  wtap_get_num_file_types_subtypes@Base 1.12.0~rc1
- wtap_get_rec@Base 2.5.1
  wtap_get_savable_file_types_subtypes@Base 1.12.0~rc1
  wtap_has_open_info@Base 1.12.0~rc1
  wtap_init@Base 2.3.0

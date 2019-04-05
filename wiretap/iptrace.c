@@ -18,13 +18,13 @@
 #define IPTRACE_IFT_HF	0x3d    /* Support for PERCS IP-HFI*/
 #define IPTRACE_IFT_IB  0xc7    /* IP over Infiniband. Number by IANA */
 
-static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
+static gboolean iptrace_read_1_0(wtap *wth, wtap_rec *rec,
+    Buffer *buf, int *err, gchar **err_info, gint64 *data_offset);
 static gboolean iptrace_seek_read_1_0(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 
-static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
+static gboolean iptrace_read_2_0(wtap *wth, wtap_rec *rec,
+    Buffer *buf, int *err, gchar **err_info, gint64 *data_offset);
 static gboolean iptrace_seek_read_2_0(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 
@@ -195,14 +195,13 @@ iptrace_read_rec_1_0(FILE_T fh, wtap_rec *rec, Buffer *buf,
 }
 
 /* Read the next packet */
-static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean iptrace_read_1_0(wtap *wth, wtap_rec *rec,
+    Buffer *buf, int *err, gchar **err_info, gint64 *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
 	/* Read the packet */
-	if (!iptrace_read_rec_1_0(wth->fh, &wth->rec, wth->rec_data,
-	    err, err_info)) {
+	if (!iptrace_read_rec_1_0(wth->fh, rec, buf, err, err_info)) {
 		/* Read error or EOF */
 		return FALSE;
 	}
@@ -214,9 +213,9 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info,
 	   set it to WTAP_ENCAP_PER_PACKET, as this file doesn't
 	   have a single encapsulation for all packets in the file. */
 	if (wth->file_encap == WTAP_ENCAP_UNKNOWN)
-		wth->file_encap = wth->rec.rec_header.packet_header.pkt_encap;
+		wth->file_encap = rec->rec_header.packet_header.pkt_encap;
 	else {
-		if (wth->file_encap != wth->rec.rec_header.packet_header.pkt_encap)
+		if (wth->file_encap != rec->rec_header.packet_header.pkt_encap)
 			wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	}
 
@@ -388,14 +387,13 @@ iptrace_read_rec_2_0(FILE_T fh, wtap_rec *rec, Buffer *buf,
 }
 
 /* Read the next packet */
-static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean iptrace_read_2_0(wtap *wth, wtap_rec *rec,
+    Buffer *buf, int *err, gchar **err_info, gint64 *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
 	/* Read the packet */
-	if (!iptrace_read_rec_2_0(wth->fh, &wth->rec, wth->rec_data,
-	    err, err_info)) {
+	if (!iptrace_read_rec_2_0(wth->fh, rec, buf, err, err_info)) {
 		/* Read error or EOF */
 		return FALSE;
 	}
@@ -407,9 +405,9 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info,
 	   set it to WTAP_ENCAP_PER_PACKET, as this file doesn't
 	   have a single encapsulation for all packets in the file. */
 	if (wth->file_encap == WTAP_ENCAP_UNKNOWN)
-		wth->file_encap = wth->rec.rec_header.packet_header.pkt_encap;
+		wth->file_encap = rec->rec_header.packet_header.pkt_encap;
 	else {
-		if (wth->file_encap != wth->rec.rec_header.packet_header.pkt_encap)
+		if (wth->file_encap != rec->rec_header.packet_header.pkt_encap)
 			wth->file_encap = WTAP_ENCAP_PER_PACKET;
 	}
 

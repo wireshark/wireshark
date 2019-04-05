@@ -126,8 +126,8 @@ to handle them.
 #define VMS_HEADER_LINES_TO_CHECK    200
 #define VMS_LINE_LENGTH              240
 
-static gboolean vms_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
+static gboolean vms_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset);
 static gboolean vms_seek_read(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static gboolean parse_single_hex_dump_line(char* rec, guint8 *buf,
@@ -242,8 +242,8 @@ wtap_open_return_val vms_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Find the next packet and parse it; called from wtap_read(). */
-static gboolean vms_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean vms_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset)
 {
     gint64   offset = 0;
 
@@ -260,7 +260,7 @@ static gboolean vms_read(wtap *wth, int *err, gchar **err_info,
     *data_offset = offset;
 
     /* Parse the packet */
-    return parse_vms_packet(wth->fh, &wth->rec, wth->rec_data, err, err_info);
+    return parse_vms_packet(wth->fh, rec, buf, err, err_info);
 }
 
 /* Used to read packets in random-access fashion */

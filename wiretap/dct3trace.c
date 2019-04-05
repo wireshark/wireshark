@@ -60,8 +60,8 @@ static const char dct3trace_magic_end[]  = "</dump>";
 
 #define MAX_PACKET_LEN 23
 
-static gboolean dct3trace_read(wtap *wth, int *err, gchar **err_info,
-	gint64 *data_offset);
+static gboolean dct3trace_read(wtap *wth, wtap_rec *rec,
+	Buffer *buf, int *err, gchar **err_info, gint64 *data_offset);
 static gboolean dct3trace_seek_read(wtap *wth, gint64 seek_off,
 	wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 
@@ -367,13 +367,12 @@ static gboolean dct3trace_get_packet(FILE_T fh, wtap_rec *rec,
 
 
 /* Find the next packet and parse it; called from wtap_read(). */
-static gboolean dct3trace_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean dct3trace_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
-	return dct3trace_get_packet(wth->fh, &wth->rec, wth->rec_data,
-	    err, err_info);
+	return dct3trace_get_packet(wth->fh, rec, buf, err, err_info);
 }
 
 

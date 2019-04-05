@@ -20,8 +20,8 @@ typedef struct {
 	gboolean byte_swapped;
 } i4btrace_t;
 
-static gboolean i4btrace_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
+static gboolean i4btrace_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *offset);
 static gboolean i4btrace_seek_read(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static int i4b_read_rec(wtap *wth, FILE_T fh, wtap_rec *rec,
@@ -93,13 +93,12 @@ wtap_open_return_val i4btrace_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Read the next packet */
-static gboolean i4btrace_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean i4btrace_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
-	return i4b_read_rec(wth, wth->fh, &wth->rec, wth->rec_data,
-	    err, err_info);
+	return i4b_read_rec(wth, wth->fh, rec, buf, err, err_info);
 }
 
 static gboolean

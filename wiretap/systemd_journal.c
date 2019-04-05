@@ -41,8 +41,8 @@
 // SYSLOG_IDENTIFIER=kernel
 // MESSAGE=Initializing cgroup subsys cpuset
 
-static gboolean systemd_journal_read(wtap *wth, int *err, gchar **err_info,
-        gint64 *data_offset);
+static gboolean systemd_journal_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+        int *err, gchar **err_info, gint64 *data_offset);
 static gboolean systemd_journal_seek_read(wtap *wth, gint64 seek_off,
         wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static gboolean systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec,
@@ -101,13 +101,13 @@ wtap_open_return_val systemd_journal_open(wtap *wth, int *err _U_, gchar **err_i
 }
 
 /* Read the next packet */
-static gboolean systemd_journal_read(wtap *wth, int *err _U_, gchar **err_info,
-        gint64 *data_offset)
+static gboolean systemd_journal_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+        int *err, gchar **err_info, gint64 *data_offset)
 {
     *data_offset = file_tell(wth->fh);
 
     /* Read record. */
-    if (!systemd_journal_read_export_entry(wth->fh, &wth->rec, wth->rec_data, err, err_info)) {
+    if (!systemd_journal_read_export_entry(wth->fh, rec, buf, err, err_info)) {
         /* Read error or EOF */
         return FALSE;
     }

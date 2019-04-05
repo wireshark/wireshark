@@ -385,12 +385,13 @@ camins_read_packet(FILE_T fh, wtap_rec *rec, Buffer *buf,
 
 
 static gboolean
-camins_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+camins_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+    gchar **err_info, gint64 *data_offset)
 {
     *data_offset = file_tell(wth->fh);
 
-    return camins_read_packet(wth->fh, &wth->rec, wth->rec_data,
-        (guint64 *)(wth->priv), err, err_info);
+    return camins_read_packet(wth->fh, rec, buf, (guint64 *)(wth->priv),
+                              err, err_info);
 }
 
 

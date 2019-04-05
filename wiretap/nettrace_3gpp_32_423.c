@@ -149,51 +149,21 @@ typedef struct exported_pdu_info {
 
 
 static gboolean
-nettrace_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+nettrace_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info, gint64 *data_offset)
 {
-	struct Buffer               *frame_buffer_saved;
-	gboolean result;
-
 	nettrace_3gpp_32_423_file_info_t *file_info = (nettrace_3gpp_32_423_file_info_t *)wth->priv;
 
-	frame_buffer_saved = file_info->wth_tmp_file->rec_data;
-	file_info->wth_tmp_file->rec_data = wth->rec_data;
 	/* we read the created pcapng file instead */
-	result =  wtap_read(file_info->wth_tmp_file, err, err_info, data_offset);
-	file_info->wth_tmp_file->rec_data = frame_buffer_saved;
-	if (!result)
-		return result;
-	wth->rec.rec_type = file_info->wth_tmp_file->rec.rec_type;
-	wth->rec.presence_flags = file_info->wth_tmp_file->rec.presence_flags;
-	wth->rec.ts = file_info->wth_tmp_file->rec.ts;
-	wth->rec.rec_header.packet_header.caplen = file_info->wth_tmp_file->rec.rec_header.packet_header.caplen;
-	wth->rec.rec_header.packet_header.len = file_info->wth_tmp_file->rec.rec_header.packet_header.len;
-	wth->rec.rec_header.packet_header.pkt_encap = file_info->wth_tmp_file->rec.rec_header.packet_header.pkt_encap;
-	wth->rec.tsprec = file_info->wth_tmp_file->rec.tsprec;
-	wth->rec.rec_header.packet_header.interface_id = file_info->wth_tmp_file->rec.rec_header.packet_header.interface_id;
-	/* Steal memory from the pcapng wth. */
-	wth->rec.opt_comment = file_info->wth_tmp_file->rec.opt_comment;
-	file_info->wth_tmp_file->rec.opt_comment = NULL;
-	wth->rec.rec_header.packet_header.drop_count = file_info->wth_tmp_file->rec.rec_header.packet_header.drop_count;
-	wth->rec.rec_header.packet_header.pack_flags = file_info->wth_tmp_file->rec.rec_header.packet_header.pack_flags;
-
-	return result;
+	return wtap_read(file_info->wth_tmp_file, rec, buf, err, err_info, data_offset);
 }
 
 static gboolean
 nettrace_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info)
 {
-	struct Buffer               *frame_buffer_saved;
-	gboolean result;
 	nettrace_3gpp_32_423_file_info_t *file_info = (nettrace_3gpp_32_423_file_info_t *)wth->priv;
 
-	frame_buffer_saved = file_info->wth_tmp_file->rec_data;
-	file_info->wth_tmp_file->rec_data = wth->rec_data;
-
-	result = wtap_seek_read(file_info->wth_tmp_file, seek_off, rec, buf, err, err_info);
-	file_info->wth_tmp_file->rec_data = frame_buffer_saved;
-
-	return result;
+	/* we read the created pcapng file instead */
+	return wtap_seek_read(file_info->wth_tmp_file, seek_off, rec, buf, err, err_info);
 }
 
 /* classic wtap: close capture file */

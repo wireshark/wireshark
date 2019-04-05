@@ -85,7 +85,8 @@ static const gchar catapult_dct2000_magic[] = "Session Transcript";
 
 /************************************************************/
 /* Functions called from wiretap core                       */
-static gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
+static gboolean catapult_dct2000_read(wtap *wth, wtap_rec *rec,
+                                      Buffer *buf, int *err, gchar **err_info,
                                       gint64 *data_offset);
 static gboolean catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
                                            wtap_rec *rec,
@@ -323,8 +324,8 @@ static void write_timestamp_string(char *timestamp_string, int secs, int tenthou
 /* - return TRUE and details if found             */
 /**************************************************/
 static gboolean
-catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
-                      gint64 *data_offset)
+catapult_dct2000_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+                      int *err, gchar **err_info, gint64 *data_offset)
 {
     long dollar_offset, before_time_offset, after_time_offset;
     packet_direction_t direction;
@@ -380,8 +381,7 @@ catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
             *data_offset = this_offset;
 
             if (!process_parsed_line(wth, file_externals,
-                                     &wth->rec,
-                                     wth->rec_data, this_offset,
+                                     rec, buf, this_offset,
                                      linebuff, dollar_offset,
                                      seconds, useconds,
                                      timestamp_string,

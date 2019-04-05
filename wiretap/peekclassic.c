@@ -136,14 +136,14 @@ typedef struct {
 	time_t reference_time;
 } peekclassic_t;
 
-static gboolean peekclassic_read_v7(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
+static gboolean peekclassic_read_v7(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset);
 static gboolean peekclassic_seek_read_v7(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
-static gboolean peekclassic_read_v56(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
+static gboolean peekclassic_read_v56(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset);
 static gboolean peekclassic_seek_read_v56(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
@@ -344,22 +344,22 @@ wtap_open_return_val peekclassic_open(wtap *wth, int *err, gchar **err_info)
 	return WTAP_OPEN_MINE;
 }
 
-static gboolean peekclassic_read_v7(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean peekclassic_read_v7(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset)
 {
 	int sliceLength;
 
 	*data_offset = file_tell(wth->fh);
 
 	/* Read the packet. */
-	sliceLength = peekclassic_read_packet_v7(wth, wth->fh, &wth->rec,
-	    wth->rec_data, err, err_info);
+	sliceLength = peekclassic_read_packet_v7(wth, wth->fh, rec, buf,
+	    err, err_info);
 	if (sliceLength < 0)
 		return FALSE;
 
 	/* Skip extra ignored data at the end of the packet. */
-	if ((guint32)sliceLength > wth->rec.rec_header.packet_header.caplen) {
-		if (!wtap_read_bytes(wth->fh, NULL, sliceLength - wth->rec.rec_header.packet_header.caplen,
+	if ((guint32)sliceLength > rec->rec_header.packet_header.caplen) {
+		if (!wtap_read_bytes(wth->fh, NULL, sliceLength - rec->rec_header.packet_header.caplen,
 		    err, err_info))
 			return FALSE;
 	}
@@ -528,14 +528,14 @@ static int peekclassic_read_packet_v7(wtap *wth, FILE_T fh,
 	return sliceLength;
 }
 
-static gboolean peekclassic_read_v56(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean peekclassic_read_v56(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
 	/* read the packet */
-	if (!peekclassic_read_packet_v56(wth, wth->fh, &wth->rec,
-	    wth->rec_data, err, err_info))
+	if (!peekclassic_read_packet_v56(wth, wth->fh, rec, buf,
+	    err, err_info))
 		return FALSE;
 
 	/*

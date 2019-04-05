@@ -183,12 +183,12 @@ static gboolean mplog_read_packet(FILE_T fh, wtap_rec *rec,
 
 
 static gboolean
-mplog_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+mplog_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+        gchar **err_info, gint64 *data_offset)
 {
     *data_offset = file_tell(wth->fh);
 
-    return mplog_read_packet(
-            wth->fh, &wth->rec, wth->rec_data, err, err_info);
+    return mplog_read_packet(wth->fh, rec, buf, err, err_info);
 }
 
 

@@ -38,8 +38,8 @@
 #endif
 
 static gboolean
-pcapng_read(wtap *wth, int *err, gchar **err_info,
-            gint64 *data_offset);
+pcapng_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+            gchar **err_info, gint64 *data_offset);
 static gboolean
 pcapng_seek_read(wtap *wth, gint64 seek_off,
                  wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
@@ -2790,7 +2790,8 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
 
 /* classic wtap: read packet */
 static gboolean
-pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+pcapng_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+            gchar **err_info, gint64 *data_offset)
 {
     pcapng_t *pcapng = (pcapng_t *)wth->priv;
     wtapng_block_t wblock;
@@ -2799,8 +2800,8 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
     wtapng_if_stats_mandatory_t *if_stats_mand_block, *if_stats_mand;
     wtapng_if_descr_mandatory_t *wtapng_if_descr_mand;
 
-    wblock.frame_buffer  = wth->rec_data;
-    wblock.rec = &wth->rec;
+    wblock.frame_buffer  = buf;
+    wblock.rec = rec;
 
     pcapng->add_new_ipv4 = wth->add_new_ipv4;
     pcapng->add_new_ipv6 = wth->add_new_ipv6;
@@ -2912,7 +2913,7 @@ pcapng_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
         }
     }
 
-    /*pcapng_debug("Read length: %u Packet length: %u", bytes_read, wth->rec.rec_header.packet_header.caplen);*/
+    /*pcapng_debug("Read length: %u Packet length: %u", bytes_read, rec->rec_header.packet_header.caplen);*/
     pcapng_debug("pcapng_read: data_offset is finally %" G_GINT64_MODIFIER "d", *data_offset);
 
     return TRUE;

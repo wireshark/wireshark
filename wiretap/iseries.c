@@ -179,8 +179,8 @@ typedef struct {
   int      format;              /* Trace format type        */
 } iseries_t;
 
-static gboolean iseries_read (wtap * wth, int *err, gchar ** err_info,
-                              gint64 *data_offset);
+static gboolean iseries_read (wtap * wth, wtap_rec *rec, Buffer *buf,
+                              int *err, gchar ** err_info, gint64 *data_offset);
 static gboolean iseries_seek_read (wtap * wth, gint64 seek_off,
                                    wtap_rec *rec,
                                    Buffer * buf, int *err, gchar ** err_info);
@@ -376,7 +376,8 @@ iseries_check_file_type (wtap * wth, int *err, gchar **err_info, int format)
  * Find the next packet and parse it; called from wtap_read().
  */
 static gboolean
-iseries_read (wtap * wth, int *err, gchar ** err_info, gint64 *data_offset)
+iseries_read (wtap * wth, wtap_rec *rec, Buffer *buf, int *err,
+    gchar ** err_info, gint64 *data_offset)
 {
   gint64 offset;
 
@@ -391,8 +392,7 @@ iseries_read (wtap * wth, int *err, gchar ** err_info, gint64 *data_offset)
   /*
    * Parse the packet and extract the various fields
    */
-  return iseries_parse_packet (wth, wth->fh, &wth->rec, wth->rec_data,
-                               err, err_info);
+  return iseries_parse_packet (wth, wth->fh, rec, buf, err, err_info);
 }
 
 /*

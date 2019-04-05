@@ -63,7 +63,8 @@ typedef struct {
 } usbdump_info_t;
 
 
-static gboolean usbdump_read(wtap *wth, int *err, gchar **err_info,
+static gboolean usbdump_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+                             int *err, gchar **err_info,
                              gint64 *data_offset);
 static gboolean usbdump_seek_read(wtap *wth, gint64 seek_off,
                                   wtap_rec *rec, Buffer *buf,
@@ -159,7 +160,8 @@ usbdump_open(wtap *wth, int *err, char **err_info)
  * support subsequent random access read.
  */
 static gboolean
-usbdump_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+usbdump_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err, gchar **err_info,
+             gint64 *data_offset)
 {
     usbdump_info_t *usbdump_info = (usbdump_info_t *)wth->priv;
 
@@ -167,8 +169,7 @@ usbdump_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
     *data_offset = file_tell(wth->fh);
 
     /* Try to read a packet worth of data */
-    if (!usbdump_read_packet(wth, wth->fh, &wth->rec, wth->rec_data,
-        err, err_info))
+    if (!usbdump_read_packet(wth, wth->fh, rec, buf, err, err_info))
         return FALSE;
 
     /* Check if we overrun the multiframe during the last read */

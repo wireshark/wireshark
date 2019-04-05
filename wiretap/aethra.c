@@ -102,8 +102,8 @@ typedef struct {
 	time_t	start;
 } aethra_t;
 
-static gboolean aethra_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
+static gboolean aethra_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+    gchar **err_info, gint64 *data_offset);
 static gboolean aethra_seek_read(wtap *wth, gint64 seek_off,
     wtap_rec *rec, Buffer *buf, int *err, gchar **err_info);
 static gboolean aethra_read_rec_header(wtap *wth, FILE_T fh, struct aethrarec_hdr *hdr,
@@ -163,8 +163,8 @@ static guint packet = 0;
 #endif
 
 /* Read the next packet */
-static gboolean aethra_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean aethra_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+    gchar **err_info, gint64 *data_offset)
 {
 	struct aethrarec_hdr hdr;
 
@@ -176,16 +176,16 @@ static gboolean aethra_read(wtap *wth, int *err, gchar **err_info,
 		*data_offset = file_tell(wth->fh);
 
 		/* Read record header. */
-		if (!aethra_read_rec_header(wth, wth->fh, &hdr, &wth->rec, err, err_info))
+		if (!aethra_read_rec_header(wth, wth->fh, &hdr, rec, err, err_info))
 			return FALSE;
 
 		/*
 		 * XXX - if this is big, we might waste memory by
 		 * growing the buffer to handle it.
 		 */
-		if (wth->rec.rec_header.packet_header.caplen != 0) {
-			if (!wtap_read_packet_bytes(wth->fh, wth->rec_data,
-			    wth->rec.rec_header.packet_header.caplen, err, err_info))
+		if (rec->rec_header.packet_header.caplen != 0) {
+			if (!wtap_read_packet_bytes(wth->fh, buf,
+			    rec->rec_header.packet_header.caplen, err, err_info))
 				return FALSE;	/* Read error */
 		}
 #if 0
@@ -235,7 +235,7 @@ fprintf(stderr, "    subtype 0x%02x (AETHRA_ISDN_LINK_ALL_ALARMS_CLEARED)\n", hd
 			default:
 #if 0
 fprintf(stderr, "    subtype 0x%02x, packet_size %u, direction 0x%02x\n",
-hdr.flags & AETHRA_ISDN_LINK_SUBTYPE, wth->rec.rec_header.packet_header.caplen, hdr.flags & AETHRA_U_TO_N);
+hdr.flags & AETHRA_ISDN_LINK_SUBTYPE, rec->rec_header.packet_header.caplen, hdr.flags & AETHRA_U_TO_N);
 #endif
 				break;
 			}
@@ -244,7 +244,7 @@ hdr.flags & AETHRA_ISDN_LINK_SUBTYPE, wth->rec.rec_header.packet_header.caplen, 
 		default:
 #if 0
 fprintf(stderr, "Packet %u: type 0x%02x, packet_size %u, flags 0x%02x\n",
-packet, hdr.rec_type, wth->rec.rec_header.packet_header.caplen, hdr.flags);
+packet, hdr.rec_type, rec->rec_header.packet_header.caplen, hdr.flags);
 #endif
 			break;
 		}

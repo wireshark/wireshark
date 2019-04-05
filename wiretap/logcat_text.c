@@ -238,12 +238,11 @@ static gboolean logcat_text_read_packet(FILE_T fh, wtap_rec *rec,
     return TRUE;
 }
 
-static gboolean logcat_text_read(wtap *wth, int *err _U_ , gchar **err_info _U_,
-        gint64 *data_offset) {
+static gboolean logcat_text_read(wtap *wth, wtap_rec *rec,
+        Buffer *buf, int *err _U_ , gchar **err_info _U_, gint64 *data_offset) {
     *data_offset = file_tell(wth->fh);
 
-    return logcat_text_read_packet(wth->fh, &wth->rec, wth->rec_data,
-            wth->file_type_subtype);
+    return logcat_text_read_packet(wth->fh, rec, buf, wth->file_type_subtype);
 }
 
 static gboolean logcat_text_seek_read(wtap *wth, gint64 seek_off,

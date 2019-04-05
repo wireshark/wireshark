@@ -85,8 +85,8 @@ typedef struct
 #define CST_5VW_CAPTURES_RECORD		(CST_5VW_SECTION_CAPTURES << 28)	/* 0x80000000 */
 #define CST_5VW_SYSTEM_RECORD		0x00000000U
 
-static gboolean _5views_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset);
+static gboolean _5views_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+    gchar **err_info, gint64 *data_offset);
 static gboolean _5views_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec,
     Buffer *buf, int *err, gchar **err_info);
 static int _5views_read_header(wtap *wth, FILE_T fh, t_5VW_TimeStamped_Header *hdr,
@@ -172,7 +172,8 @@ _5views_open(wtap *wth, int *err, gchar **err_info)
 
 /* Read the next packet */
 static gboolean
-_5views_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+_5views_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+    gchar **err_info, gint64 *data_offset)
 {
 	t_5VW_TimeStamped_Header TimeStamped_Header;
 
@@ -186,7 +187,7 @@ _5views_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 		/* Read record header. */
 		if (!_5views_read_header(wth, wth->fh, &TimeStamped_Header,
-		    &wth->rec, err, err_info))
+		    rec, err, err_info))
 			return FALSE;
 
 		if (TimeStamped_Header.RecSubType == CST_5VW_FRAME_RECORD) {
@@ -203,19 +204,19 @@ _5views_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 			return FALSE;
 	} while (1);
 
-	if (wth->rec.rec_header.packet_header.caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
+	if (rec->rec_header.packet_header.caplen > WTAP_MAX_PACKET_SIZE_STANDARD) {
 		/*
 		 * Probably a corrupt capture file; don't blow up trying
 		 * to allocate space for an immensely-large packet.
 		 */
 		*err = WTAP_ERR_BAD_FILE;
 		*err_info = g_strdup_printf("5views: File has %u-byte packet, bigger than maximum of %u",
-		    wth->rec.rec_header.packet_header.caplen, WTAP_MAX_PACKET_SIZE_STANDARD);
+		    rec->rec_header.packet_header.caplen, WTAP_MAX_PACKET_SIZE_STANDARD);
 		return FALSE;
 	}
 
-	return wtap_read_packet_bytes(wth->fh, wth->rec_data,
-	    wth->rec.rec_header.packet_header.caplen, err, err_info);
+	return wtap_read_packet_bytes(wth->fh, buf,
+	    rec->rec_header.packet_header.caplen, err, err_info);
 }
 
 static gboolean

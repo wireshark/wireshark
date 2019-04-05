@@ -40,32 +40,36 @@ void capture_info_new_packets(int to_read, info_data_t* cap_info)
     int err;
     gchar *err_info;
     gint64 data_offset;
-    wtap_rec *rec;
+    wtap_rec rec;
+    Buffer buf;
     union wtap_pseudo_header *pseudo_header;
     int wtap_linktype;
-    const guchar *buf;
-
 
     cap_info->ui.new_packets = to_read;
 
     /*g_warning("new packets: %u", to_read);*/
 
+    wtap_rec_init(&rec);
+    ws_buffer_init(&buf, 1500);
     while (to_read > 0) {
         wtap_cleareof(cap_info->wtap);
-        if (wtap_read(cap_info->wtap, &err, &err_info, &data_offset)) {
-            rec = wtap_get_rec(cap_info->wtap);
-            if (rec->rec_type == REC_TYPE_PACKET) {
-                pseudo_header = &rec->rec_header.packet_header.pseudo_header;
-                wtap_linktype = rec->rec_header.packet_header.pkt_encap;
-                buf = wtap_get_buf_ptr(cap_info->wtap);
+        if (wtap_read(cap_info->wtap, &rec, &buf, &err, &err_info, &data_offset)) {
+            if (rec.rec_type == REC_TYPE_PACKET) {
+                pseudo_header = &rec.rec_header.packet_header.pseudo_header;
+                wtap_linktype = rec.rec_header.packet_header.pkt_encap;
 
-                capture_info_packet(cap_info, wtap_linktype, buf, rec->rec_header.packet_header.caplen, pseudo_header);
+                capture_info_packet(cap_info, wtap_linktype,
+                                    ws_buffer_start_ptr(&buf),
+                                    rec.rec_header.packet_header.caplen,
+                                    pseudo_header);
 
                 /*g_warning("new packet");*/
                 to_read--;
             }
         }
     }
+    wtap_rec_cleanup(&rec);
+    ws_buffer_free(&buf);
 
     capture_info_ui_update(&cap_info->ui);
 }

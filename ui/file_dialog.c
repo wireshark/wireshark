@@ -27,7 +27,8 @@ get_stats_for_preview(wtap *wth, ws_file_preview_stats *stats,
                       int *err, gchar **err_info)
 {
     gint64       data_offset;
-    const wtap_rec *rec;
+    wtap_rec     rec;
+    Buffer       buf;
     guint32      records;
     guint32      data_records;
     double       start_time;
@@ -44,10 +45,9 @@ get_stats_for_preview(wtap *wth, ws_file_preview_stats *stats,
     data_records = 0;
     timed_out = FALSE;
     time(&time_preview);
-    while ((wtap_read(wth, err, err_info, &data_offset))) {
-        rec = wtap_get_rec(wth);
-        if (rec->presence_flags & WTAP_HAS_TS) {
-            cur_time = nstime_to_sec(&rec->ts);
+    while ((wtap_read(wth, &rec, &buf, err, err_info, &data_offset))) {
+        if (rec.presence_flags & WTAP_HAS_TS) {
+            cur_time = nstime_to_sec(&rec.ts);
             if (!have_times) {
                 start_time = cur_time;
                 stop_time = cur_time;
@@ -61,7 +61,7 @@ get_stats_for_preview(wtap *wth, ws_file_preview_stats *stats,
             }
         }
 
-        switch (rec->rec_type) {
+        switch (rec.rec_type) {
 
         case REC_TYPE_PACKET:
         case REC_TYPE_FT_SPECIFIC_EVENT:

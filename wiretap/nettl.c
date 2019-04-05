@@ -162,8 +162,8 @@ typedef struct {
         gboolean is_hpux_11;
 } nettl_t;
 
-static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
-                gint64 *data_offset);
+static gboolean nettl_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+                int *err, gchar **err_info, gint64 *data_offset);
 static gboolean nettl_seek_read(wtap *wth, gint64 seek_off,
                 wtap_rec *rec, Buffer *buf,
                 int *err, gchar **err_info);
@@ -261,13 +261,12 @@ wtap_open_return_val nettl_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /* Read the next packet */
-static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
-    gint64 *data_offset)
+static gboolean nettl_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset)
 {
     /* Read record. */
     *data_offset = file_tell(wth->fh);
-    if (!nettl_read_rec(wth, wth->fh, &wth->rec, wth->rec_data,
-        err, err_info)) {
+    if (!nettl_read_rec(wth, wth->fh, rec, buf, err, err_info)) {
         /* Read error or EOF */
         return FALSE;
     }
@@ -281,9 +280,9 @@ static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
      * have a single encapsulation for all packets in the file.
      */
     if (wth->file_encap == WTAP_ENCAP_UNKNOWN)
-        wth->file_encap = wth->rec.rec_header.packet_header.pkt_encap;
+        wth->file_encap = rec->rec_header.packet_header.pkt_encap;
     else {
-        if (wth->file_encap != wth->rec.rec_header.packet_header.pkt_encap)
+        if (wth->file_encap != rec->rec_header.packet_header.pkt_encap)
             wth->file_encap = WTAP_ENCAP_PER_PACKET;
     }
 

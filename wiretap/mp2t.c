@@ -91,7 +91,8 @@ mp2t_read_packet(mp2t_filetype_t *mp2t, FILE_T fh, gint64 offset,
 }
 
 static gboolean
-mp2t_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+mp2t_read(wtap *wth, wtap_rec *rec, Buffer *buf, int *err,
+        gchar **err_info, gint64 *data_offset)
 {
     mp2t_filetype_t *mp2t;
 
@@ -99,8 +100,8 @@ mp2t_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
     *data_offset = file_tell(wth->fh);
 
-    if (!mp2t_read_packet(mp2t, wth->fh, *data_offset, &wth->rec,
-                          wth->rec_data, err, err_info)) {
+    if (!mp2t_read_packet(mp2t, wth->fh, *data_offset, rec, buf, err,
+                          err_info)) {
         return FALSE;
     }
 

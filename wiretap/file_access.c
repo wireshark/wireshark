@@ -1128,11 +1128,6 @@ fail:
 	return NULL;
 
 success:
-	/* wth->rec_data is used for the sequential read and will be freed by
-	 * wtap_sequential_close (which is also called by wtap_close). */
-	wth->rec_data = g_new(struct Buffer, 1);
-	ws_buffer_init(wth->rec_data, 1500);
-
 	if ((wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_PCAP) ||
 		(wth->file_type_subtype == WTAP_FILE_TYPE_SUBTYPE_PCAP_NSEC)) {
 

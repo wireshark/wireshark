@@ -192,7 +192,7 @@ static gboolean dpa400_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
 	return TRUE;
 }
 
-static gboolean dpa400_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buffer *buf,
+static gboolean dpa400_seek_read(wtap *wth,gint64 seek_off, wtap_rec *rec, Buffer *buf,
     int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
@@ -201,11 +201,12 @@ static gboolean dpa400_seek_read(wtap *wth, gint64 seek_off, wtap_rec *rec, Buff
 	return dpa400_read_packet(wth, wth->random_fh, rec, buf, err, err_info);
 }
 
-static gboolean dpa400_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
+static gboolean dpa400_read(wtap *wth, wtap_rec *rec, Buffer *buf,
+    int *err, gchar **err_info, gint64 *data_offset)
 {
 	*data_offset = file_tell(wth->fh);
 
-	return dpa400_read_packet(wth, wth->fh, &wth->rec, wth->rec_data, err, err_info);
+	return dpa400_read_packet(wth, wth->fh, rec, buf, err, err_info);
 }
 
 wtap_open_return_val dpa400_open(wtap *wth, int *err, gchar **err_info)
