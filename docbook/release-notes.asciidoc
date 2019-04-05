@@ -102,9 +102,16 @@ wsbuglink:15620[].
 // Fixed in master-2.6: d368eed192
 // Fixed in master-2.4: cf801a2507
 
-// Unable to replicate
-// * Wireshark stack corruption in ascii_strup_inplace (called by iseries_seek_next_packet). wsbuglink:15614[].
+* wssalink:2019-18[]
+ISO 14443 dissector crash.
+wsbuglink:15634[].
+// cveidlink:2019-xxxx[].
+// Fixed in master: 4e688ec8da
+// Fixed in master-3.0: a31c439401
+// Fixed in master-2.6: 4c59603f1f
+// Fixed in master-2.4: 39199def60
 
+* Buildbot crash output: fuzz-2019-03-23-1789.pcap. wsbuglink:15634[].
 
 The following bugs have been fixed:
 
@@ -116,9 +123,9 @@ The following bugs have been fixed:
 
 * [oss-fuzz] UBSAN: shift exponent 34 is too large for 32-bit type 'guint32' (aka 'unsigned int') in packet-ieee80211.c:15534:49. wsbuglink:14770[].
 
-* Duplicated TCP SEQ field in ICMP packets. wsbuglink:15533[].
-
 * [oss-fuzz] UBSAN: shift exponent 35 is too large for 32-bit type 'int' in packet-couchbase.c:1674:37. wsbuglink:15439[].
+
+* Duplicated TCP SEQ field in ICMP packets. wsbuglink:15533[].
 
 * Wrong length in dhcpv6 NTP Server suboption results in "Malformed Packet" and breaks further dissection. wsbuglink:15542[].
 
@@ -130,8 +137,7 @@ The following bugs have been fixed:
 
 * %T not supported for timestamps. wsbuglink:15565[].
 
-* LWM2M: resource with {backslash}r
- badly shown. wsbuglink:15572[].
+* LWM2M: resource with {backslash}r{backslash}n badly shown. wsbuglink:15572[].
 
 * When selecting BSSAP in 'Decode As' for a SCCP payload, it uses BSSAP+ which is not the same protocol. wsbuglink:15578[].
 
@@ -184,15 +190,43 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
+BGP
+BSSAP
+Couchbase
+DHCP
+DHCPv6
+DOF
+FP
+GSM A RR
+GSS-API
+GSUP
+GTP
+GTPv2
+IEEE 802.11
+IEEE 802.15.4
+H248C
+HL7
+LDSS
+LwM2M-TLV
+NLM
+Rbm
+SIP
+SRVLOC
+Syslog
+TCP
+TLS
+TSDNS
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+pcap
+NetScaler
+--
 
 === New and Updated Capture Interfaces support
 
