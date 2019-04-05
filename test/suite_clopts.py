@@ -10,10 +10,12 @@
 '''Command line option tests'''
 
 import json
+import sys
 import os.path
 import subprocess
 import subprocesstest
 import fixtures
+import shutil
 
 #glossaries = ('fields', 'protocols', 'values', 'decodes', 'defaultprefs', 'currentprefs')
 
@@ -279,3 +281,27 @@ class case_tshark_z_expert(subprocesstest.SubprocessTestCase):
         self.assertFalse(self.grepOutput('Errors'))
         self.assertFalse(self.grepOutput('Warns'))
         self.assertFalse(self.grepOutput('Chats'))
+
+
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
+class case_tshark_extcap(subprocesstest.SubprocessTestCase):
+    def test_tshark_extcap_interfaces(self, cmd_tshark, program_path):
+        # Script extcaps don't work with the current code on windows.
+        # https://www.wireshark.org/docs/wsdg_html_chunked/ChCaptureExtcap.html
+        # TODO: skip this test until it will get fixed.
+        if sys.platform == 'win32':
+            self.skipTest('FIXME extcap .py scripts needs special treatment on Windows')
+        extcap_tool = 'sampleif.py'
+        target_dir = os.path.join(program_path, 'extcap')
+        target_file = os.path.join(target_dir, extcap_tool)
+        source_file = os.path.join(os.path.dirname(__file__), extcap_tool)
+        os.makedirs(target_dir, exist_ok=True)
+        shutil.copy2(source_file, target_file)
+        # Ensure the test extcap_tool is properly loaded
+        self.assertRun((cmd_tshark, '-D'))
+        self.assertEqual(1, self.countOutput('sampleif'))
+        # Ensure tshark lists 2 interfaces in the preferences
+        self.assertRun((cmd_tshark, '-G', 'currentprefs'))
+        self.assertEqual(2, self.countOutput('extcap.sampleif.test'))
+        os.remove(target_file)

@@ -86,7 +86,9 @@ gdouble extcap_complex_get_double(extcap_complex *comp) {
 }
 
 static gboolean matches_regex(const char *pattern, const char *subject) {
-    return g_regex_match_simple(pattern, subject, (GRegexCompileFlags) (G_REGEX_CASELESS | G_REGEX_RAW), (GRegexMatchFlags)0);
+    if (!g_utf8_validate(subject, -1, NULL))
+        return FALSE;
+    return g_regex_match_simple(pattern, subject, (GRegexCompileFlags) (G_REGEX_CASELESS), (GRegexMatchFlags)0);
 }
 
 gboolean extcap_complex_get_bool(extcap_complex *comp) {
@@ -111,13 +113,16 @@ static extcap_token_sentence *extcap_tokenize_sentence(const gchar *s) {
     gchar *param_value = NULL;
     guint param_type = EXTCAP_PARAM_UNKNOWN;
 
+    if (!g_utf8_validate(s, -1, NULL))
+        return FALSE;
+
     extcap_token_sentence *rs = g_new0(extcap_token_sentence, 1);
 
     rs->sentence = NULL;
 
     /* Regex for catching just the allowed values for sentences */
     if ((regex = g_regex_new("^[\\t| ]*(arg|value|interface|extcap|dlt|control)(?=[\\t| ]+\\{)",
-                             (GRegexCompileFlags) (G_REGEX_CASELESS | G_REGEX_RAW),
+                             (GRegexCompileFlags) (G_REGEX_CASELESS),
                              (GRegexMatchFlags) 0, NULL)) != NULL) {
         g_regex_match(regex, s, (GRegexMatchFlags) 0, &match_info);
 
@@ -139,7 +144,7 @@ static extcap_token_sentence *extcap_tokenize_sentence(const gchar *s) {
      * that regex patterns given to {validation=} are parsed correctly,
      * as long as }{ does not occur within the pattern */
     regex = g_regex_new("\\{([a-zA-Z_-]*?)\\=(.*?)\\}(?=\\{|$|\\s)",
-                        (GRegexCompileFlags) (G_REGEX_CASELESS | G_REGEX_RAW),
+                        (GRegexCompileFlags) (G_REGEX_CASELESS),
                         (GRegexMatchFlags) 0, NULL);
     if (regex != NULL) {
         g_regex_match_full(regex, s, -1, 0, (GRegexMatchFlags) 0, &match_info, &error);
