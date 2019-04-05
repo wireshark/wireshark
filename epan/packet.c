@@ -2995,7 +2995,7 @@ call_dissector_only(dissector_handle_t handle, tvbuff_t *tvb,
 {
 	int ret;
 
-	g_assert(handle != NULL);
+	DISSECTOR_ASSERT(handle != NULL);
 	ret = call_dissector_work(handle, tvb, pinfo, tree, TRUE, data);
 	return ret;
 }
@@ -3015,7 +3015,7 @@ call_dissector_with_data(dissector_handle_t handle, tvbuff_t *tvb,
 		 * The protocol was disabled, or the dissector rejected
 		 * it.  Just dissect this packet as data.
 		 */
-		g_assert(data_handle->protocol != NULL);
+		DISSECTOR_ASSERT(data_handle->protocol != NULL);
 		call_dissector_work(data_handle, tvb, pinfo, tree, TRUE, NULL);
 		return tvb_captured_length(tvb);
 	}
@@ -3046,7 +3046,7 @@ void call_heur_dissector_direct(heur_dtbl_entry_t *heur_dtbl_entry, tvbuff_t *tv
 	guint16            saved_can_desegment;
 	guint              saved_layers_len = 0;
 
-	g_assert(heur_dtbl_entry);
+	DISSECTOR_ASSERT(heur_dtbl_entry);
 
 	/* can_desegment is set to 2 by anyone which offers this api/service.
 	   then everytime a subdissector is called it is decremented by one.
@@ -3068,7 +3068,7 @@ void call_heur_dissector_direct(heur_dtbl_entry_t *heur_dtbl_entry, tvbuff_t *tv
 
 	if (!heur_dtbl_entry->enabled ||
 		(heur_dtbl_entry->protocol != NULL && !proto_is_protocol_enabled(heur_dtbl_entry->protocol))) {
-		g_assert(data_handle->protocol != NULL);
+		DISSECTOR_ASSERT(data_handle->protocol != NULL);
 		call_dissector_work(data_handle, tvb, pinfo, tree, TRUE, NULL);
 		return;
 	}
