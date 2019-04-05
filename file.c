@@ -1165,7 +1165,7 @@ void cf_set_rfcode(capture_file *cf, dfilter_t *rfcode)
 static void
 add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
     epan_dissect_t *edt, dfilter_t *dfcode, column_info *cinfo,
-    wtap_rec *rec, const guint8 *pd, gboolean add_to_packet_list)
+    wtap_rec *rec, Buffer *buf, gboolean add_to_packet_list)
 {
   frame_data_set_before_dissect(fdata, &cf->elapsed_time,
                                 &cf->provider.ref, cf->provider.prev_dis);
@@ -1192,7 +1192,7 @@ add_packet_to_packet_list(frame_data *fdata, capture_file *cf,
 
   /* Dissect the frame. */
   epan_dissect_run_with_taps(edt, cf->cd_t, rec,
-                             frame_tvbuff_new(&cf->provider, fdata, pd),
+                             frame_tvbuff_new_buffer(&cf->provider, fdata, buf),
                              fdata, cinfo);
 
   /* If we don't have a display filter, set "passed_dfilter" to 1. */
@@ -1287,8 +1287,7 @@ read_record(capture_file *cf, wtap_rec *rec, Buffer *buf, dfilter_t *dfcode,
     /* When a redissection is in progress (or queued), do not process packets.
      * This will be done once all (new) packets have been scanned. */
     if (!cf->redissecting && cf->redissection_queued == RESCAN_NONE) {
-      add_packet_to_packet_list(fdata, cf, edt, dfcode,
-                                cinfo, rec, ws_buffer_start_ptr(buf), TRUE);
+      add_packet_to_packet_list(fdata, cf, edt, dfcode, cinfo, rec, buf, TRUE);
     }
   }
 
@@ -1856,8 +1855,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
     }
 
     add_packet_to_packet_list(fdata, cf, &edt, dfcode,
-                                    cinfo, &cf->rec,
-                                    ws_buffer_start_ptr(&cf->buf),
+                                    cinfo, &cf->rec, &cf->buf,
                                     add_to_packet_list);
 
     /* If this frame is displayed, and this is the first frame we've

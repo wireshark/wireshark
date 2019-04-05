@@ -233,7 +233,7 @@ sharkd_epan_new(capture_file *cf)
 
 static gboolean
 process_packet(capture_file *cf, epan_dissect_t *edt,
-               gint64 offset, wtap_rec *rec, const guchar *pd)
+               gint64 offset, wtap_rec *rec, Buffer *buf)
 {
   frame_data     fdlocal;
   gboolean       passed;
@@ -276,7 +276,7 @@ process_packet(capture_file *cf, epan_dissect_t *edt,
     }
 
     epan_dissect_run(edt, cf->cd_t, rec,
-                     frame_tvbuff_new(&cf->provider, &fdlocal, pd),
+                     frame_tvbuff_new_buffer(&cf->provider, &fdlocal, buf),
                      &fdlocal, NULL);
 
     /* Run the read filter if we have one. */
@@ -354,8 +354,7 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
     ws_buffer_init(&buf, 1500);
 
     while (wtap_read(cf->provider.wth, &rec, &buf, &err, &err_info, &data_offset)) {
-      if (process_packet(cf, edt, data_offset, &rec,
-                         ws_buffer_start_ptr(&buf))) {
+      if (process_packet(cf, edt, data_offset, &rec, &buf)) {
         /* Stop reading if we have the maximum number of packets;
          * When the -c option has not been used, max_packet_count
          * starts at 0, which practically means, never stop reading.
@@ -688,7 +687,7 @@ sharkd_retap(void)
     fdata->frame_ref_num = (framenum != 1) ? 1 : 0;
     fdata->prev_dis_num = framenum - 1;
     epan_dissect_run_with_taps(&edt, cfile.cd_t, &rec,
-                               frame_tvbuff_new(&cfile.provider, fdata, ws_buffer_start_ptr(&buf)),
+                               frame_tvbuff_new_buffer(&cfile.provider, fdata, &buf),
                                fdata, cinfo);
     epan_dissect_reset(&edt);
   }
