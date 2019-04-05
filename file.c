@@ -2084,7 +2084,7 @@ static psp_return_t
 process_specified_records(capture_file *cf, packet_range_t *range,
     const char *string1, const char *string2, gboolean terminate_is_stop,
     gboolean (*callback)(capture_file *, frame_data *,
-                         wtap_rec *, const guint8 *, void *),
+                         wtap_rec *, Buffer *, void *),
     void *callback_args,
     gboolean show_progress_bar)
 {
@@ -2189,7 +2189,7 @@ process_specified_records(capture_file *cf, packet_range_t *range,
       break;
     }
     /* Process the packet */
-    if (!callback(cf, fdata, &rec, ws_buffer_start_ptr(&buf), callback_args)) {
+    if (!callback(cf, fdata, &rec, &buf, callback_args)) {
       /* Callback failed.  We assume it reported the error appropriately. */
       ret = PSP_FAILED;
       break;
@@ -2217,13 +2217,13 @@ typedef struct {
 } retap_callback_args_t;
 
 static gboolean
-retap_packet(capture_file *cf, frame_data *fdata, wtap_rec *rec,
-             const guint8 *pd, void *argsp)
+retap_packet(capture_file *cf, frame_data *fdata, wtap_rec *rec, Buffer *buf,
+             void *argsp)
 {
   retap_callback_args_t *args = (retap_callback_args_t *)argsp;
 
   epan_dissect_run_with_taps(&args->edt, cf->cd_t, rec,
-                             frame_tvbuff_new(&cf->provider, fdata, pd),
+                             frame_tvbuff_new_buffer(&cf->provider, fdata, buf),
                              fdata, args->cinfo);
   epan_dissect_reset(&args->edt);
 
@@ -2317,8 +2317,8 @@ typedef struct {
 } print_callback_args_t;
 
 static gboolean
-print_packet(capture_file *cf, frame_data *fdata, wtap_rec *rec,
-             const guint8 *pd, void *argsp)
+print_packet(capture_file *cf, frame_data *fdata, wtap_rec *rec, Buffer *buf,
+             void *argsp)
 {
   print_callback_args_t *args = (print_callback_args_t *)argsp;
   int             i;
@@ -2335,12 +2335,13 @@ print_packet(capture_file *cf, frame_data *fdata, wtap_rec *rec,
   if (args->print_args->print_summary) {
     col_custom_prime_edt(&args->edt, &cf->cinfo);
     epan_dissect_run(&args->edt, cf->cd_t, rec,
-                     frame_tvbuff_new(&cf->provider, fdata, pd),
+                     frame_tvbuff_new_buffer(&cf->provider, fdata, buf),
                      fdata, &cf->cinfo);
     epan_dissect_fill_in_columns(&args->edt, FALSE, TRUE);
   } else
     epan_dissect_run(&args->edt, cf->cd_t, rec,
-                     frame_tvbuff_new(&cf->provider, fdata, pd), fdata, NULL);
+                     frame_tvbuff_new_buffer(&cf->provider, fdata, buf),
+                     fdata, NULL);
 
   if (args->print_formfeed) {
     if (!new_page(args->print_args->stream))
@@ -2664,13 +2665,14 @@ typedef struct {
 
 static gboolean
 write_pdml_packet(capture_file *cf, frame_data *fdata, wtap_rec *rec,
-                  const guint8 *pd, void *argsp)
+                  Buffer *buf, void *argsp)
 {
   write_packet_callback_args_t *args = (write_packet_callback_args_t *)argsp;
 
   /* Create the protocol tree, but don't fill in the column information. */
   epan_dissect_run(&args->edt, cf->cd_t, rec,
-                   frame_tvbuff_new(&cf->provider, fdata, pd), fdata, NULL);
+                   frame_tvbuff_new_buffer(&cf->provider, fdata, buf),
+                   fdata, NULL);
 
   /* Write out the information in that tree. */
   write_pdml_proto_tree(NULL, NULL, PF_NONE, &args->edt, &cf->cinfo, args->fh, FALSE);
@@ -2739,14 +2741,14 @@ cf_write_pdml_packets(capture_file *cf, print_args_t *print_args)
 
 static gboolean
 write_psml_packet(capture_file *cf, frame_data *fdata, wtap_rec *rec,
-                  const guint8 *pd, void *argsp)
+                  Buffer *buf, void *argsp)
 {
   write_packet_callback_args_t *args = (write_packet_callback_args_t *)argsp;
 
   /* Fill in the column information */
   col_custom_prime_edt(&args->edt, &cf->cinfo);
   epan_dissect_run(&args->edt, cf->cd_t, rec,
-                   frame_tvbuff_new(&cf->provider, fdata, pd),
+                   frame_tvbuff_new_buffer(&cf->provider, fdata, buf),
                    fdata, &cf->cinfo);
   epan_dissect_fill_in_columns(&args->edt, FALSE, TRUE);
 
@@ -2823,14 +2825,14 @@ cf_write_psml_packets(capture_file *cf, print_args_t *print_args)
 
 static gboolean
 write_csv_packet(capture_file *cf, frame_data *fdata, wtap_rec *rec,
-                 const guint8 *pd, void *argsp)
+                 Buffer *buf, void *argsp)
 {
   write_packet_callback_args_t *args = (write_packet_callback_args_t *)argsp;
 
   /* Fill in the column information */
   col_custom_prime_edt(&args->edt, &cf->cinfo);
   epan_dissect_run(&args->edt, cf->cd_t, rec,
-                   frame_tvbuff_new(&cf->provider, fdata, pd),
+                   frame_tvbuff_new_buffer(&cf->provider, fdata, buf),
                    fdata, &cf->cinfo);
   epan_dissect_fill_in_columns(&args->edt, FALSE, TRUE);
 
@@ -2899,12 +2901,13 @@ cf_write_csv_packets(capture_file *cf, print_args_t *print_args)
 
 static gboolean
 carrays_write_packet(capture_file *cf, frame_data *fdata, wtap_rec *rec,
-                     const guint8 *pd, void *argsp)
+                     Buffer *buf, void *argsp)
 {
   write_packet_callback_args_t *args = (write_packet_callback_args_t *)argsp;
 
   epan_dissect_run(&args->edt, cf->cd_t, rec,
-                   frame_tvbuff_new(&cf->provider, fdata, pd), fdata, NULL);
+                   frame_tvbuff_new_buffer(&cf->provider, fdata, buf),
+                   fdata, NULL);
   write_carrays_hex_data(fdata->num, args->fh, &args->edt);
   epan_dissect_reset(&args->edt);
 
@@ -2960,13 +2963,14 @@ cf_write_carrays_packets(capture_file *cf, print_args_t *print_args)
 
 static gboolean
 write_json_packet(capture_file *cf, frame_data *fdata, wtap_rec *rec,
-                  const guint8 *pd, void *argsp)
+                  Buffer *buf, void *argsp)
 {
   write_packet_callback_args_t *args = (write_packet_callback_args_t *)argsp;
 
   /* Create the protocol tree, but don't fill in the column information. */
   epan_dissect_run(&args->edt, cf->cd_t, rec,
-                   frame_tvbuff_new(&cf->provider, fdata, pd), fdata, NULL);
+                   frame_tvbuff_new_buffer(&cf->provider, fdata, buf),
+                   fdata, NULL);
 
   /* Write out the information in that tree. */
   write_json_proto_tree(NULL, args->print_args->print_dissections,
@@ -4066,7 +4070,7 @@ typedef struct {
  */
 static gboolean
 save_record(capture_file *cf, frame_data *fdata, wtap_rec *rec,
-            const guint8 *pd, void *argsp)
+            Buffer *buf, void *argsp)
 {
   save_callback_args_t *args = (save_callback_args_t *)argsp;
   wtap_rec      new_rec;
@@ -4088,7 +4092,7 @@ save_record(capture_file *cf, frame_data *fdata, wtap_rec *rec,
   /* XXX - what if times have been shifted? */
 
   /* and save the packet */
-  if (!wtap_dump(args->pdh, &new_rec, pd, &err, &err_info)) {
+  if (!wtap_dump(args->pdh, &new_rec, ws_buffer_start_ptr(buf), &err, &err_info)) {
     cfile_write_failure_alert_box(NULL, args->fname, err, err_info, fdata->num,
                                   args->file_type);
     return FALSE;
