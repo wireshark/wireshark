@@ -17,7 +17,7 @@ The following vulnerabilities have been fixed:
 * wssalink:2019-09[]
 NetScaler file parser crash.
 wsbuglink:15497[].
-// cveidlink:2019-xxxx[].
+cveidlink:2019-10895[].
 // Fixed in master: efe920af3a, 07bb974bcd, 134a513dd5
 // Fixed in master-3.0: 490b381729, b759633425, 3ced6f5b05
 // Fixed in master-2.6: dedcdbcdc4, 213c2c9afb, fc8367a505
@@ -26,7 +26,7 @@ wsbuglink:15497[].
 * wssalink:2019-10[]
 SRVLOC dissector crash.
 wsbuglink:15546[].
-// cveidlink:2019-xxxx[].
+cveidlink:2019-10899[].
 // Fixed in master: 8f15ebed65
 // Fixed in master-3.0: fb94bfef5f
 // Fixed in master-2.6: f43ac1291b
@@ -35,7 +35,7 @@ wsbuglink:15546[].
 * wssalink:2019-14[]
 GSS-API dissector crash.
 wsbuglink:15613[].
-// cveidlink:2019-xxxx[].
+cveidlink:2019-10894[].
 // Fixed in master: 8cdc958426
 // Fixed in master-3.0: ea75daa28b
 // Fixed in master-2.6: a9c0287976
@@ -44,7 +44,7 @@ wsbuglink:15613[].
 * wssalink:2019-15[]
 DOF dissector crash.
 wsbuglink:15617[].
-// cveidlink:2019-xxxx[].
+cveidlink:2019-10896[].
 // Fixed in master: b572b65e51
 // Fixed in master-3.0: 651cd91b16
 // Fixed in master-2.6: a35c64380b
@@ -53,7 +53,7 @@ wsbuglink:15617[].
 * wssalink:2019-17[]
 LDSS dissector crash.
 wsbuglink:15620[].
-// cveidlink:2019-xxxx[].
+cveidlink:2019-10901[].
 // Fixed in master: 6c3467945c
 // Fixed in master-3.0: 1cf349ddb2
 // Fixed in master-2.6: d368eed192
@@ -62,7 +62,7 @@ wsbuglink:15620[].
 * wssalink:2019-18[]
 DCERPC SPOOLSS dissector crash.
 wsbuglink:15568[].
-// cveidlink:2019-xxxx[].
+cveidlink:2019-10903[].
 // Fixed in master: 5aba3ed0cd
 // Fixed in master-3.0: 2f529f8acf
 // Fixed in master-2.6: 85499cde33
@@ -74,7 +74,7 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark keeps leaving voicemails advertising timeshare condominiums in Fresno. (wsbuglink:0000[])
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.4.14rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.4.15rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
 * GSM-A-RR variable bitmap decoding may report ARFCNs > 1023. wsbuglink:15549[].
 

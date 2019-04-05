@@ -1,4 +1,4 @@
-                         Wireshark 2.4.13 Release Notes
+                         Wireshark 2.4.14 Release Notes
      __________________________________________________________________
 
 What is Wireshark?
@@ -12,33 +12,30 @@ What's New
   Bug Fixes
 
    The following vulnerabilities have been fixed:
-     * [1]wnpa-sec-2019-06 ASN.1 BER and related dissectors crash. [2]Bug
-       15447. [3]CVE-2019-9209.
-     * [4]wnpa-sec-2019-07 TCAP dissector crash. [5]Bug 15464.
-       [6]CVE-2019-9208.
-     * [7]wnpa-sec-2019-08 RPCAP dissector crash. [8]Bug 15536.
+     * [1]wnpa-sec-2019-09 NetScaler file parser crash. [2]Bug 15497.
+       [3]CVE-2019-10895.
+     * [4]wnpa-sec-2019-10 SRVLOC dissector crash. [5]Bug 15546.
+       [6]CVE-2019-10899.
+     * [7]wnpa-sec-2019-14 GSS-API dissector crash. [8]Bug 15613.
+       [9]CVE-2019-10894.
+     * [10]wnpa-sec-2019-15 DOF dissector crash. [11]Bug 15617.
+       [12]CVE-2019-10896.
+     * [13]wnpa-sec-2019-17 LDSS dissector crash. [14]Bug 15620.
+       [15]CVE-2019-10901.
+     * [16]wnpa-sec-2019-18 DCERPC SPOOLSS dissector crash. [17]Bug 15568.
+       [18]CVE-2019-10903.
 
    The following bugs have been fixed:
-     * dftest should be distributed with the Windows installer. [9]Bug
-       13825.
-     * Alignment Lost after Editing Column. [10]Bug 14177.
-     * Crash on applying display filters or coloring rules on capture
-       files containing non-UTF-8 data. [11]Bug 14905.
-     * Decoding of MEGACO/H.248 request shows the Remote descriptor as
-       "Local descriptor". [12]Bug 15430.
-     * Repeated NFS in Protocol Display field. [13]Bug 15443.
-     * Wireshark heap out-of-bounds read in infer_pkt_encap. [14]Bug
-       15463.
-     * Column width and hidden issues when switching profiles. [15]Bug
-       15466.
-     * GTPv1-C SGSN Context Response / Forward Relocation Request decode
-       GGSN address IPV6 issue. [16]Bug 15485.
-     * Lua Error on startup: init.lua: dofile has been disabled due to
-       running Wireshark as superuser. [17]Bug 15489.
-     * Multiple out-of-bounds reads in NetScaler trace handling
-       (wiretap/netscaler.c). [18]Bug 15497.
-     * Wrong endianess when dissecting the "chain offset" in SMB2 protocol
-       header. [19]Bug 15524.
+     * GSM-A-RR variable bitmap decoding may report ARFCNs > 1023. [19]Bug
+       15549.
+
+     * Possible buffer overflow in function ssl_md_final for crafted SSL
+       3.0 sessions. [20]Bug 15599.
+     * randpkt -r causes segfault when count > 1. [21]Bug 15627.
+     * Packets with metadata but no data get the Protocol Info column
+       overwritten. [22]Bug 15630.
+
+     * Buildbot crash output: fuzz-2019-03-23-1789.pcap. [23]Bug 15634.
 
   New and Updated Features
 
@@ -50,12 +47,12 @@ What's New
 
   Updated Protocol Support
 
-   ASN.1 BER, BSSAP, DNP3, ETSI CAT, GTP, MEGACO, MPLS Echo, RPC, RPCAP,
-   SMB2, and TCAP
+   DCERPC SPOOLSS, DOF, GSM A RR, GSS-API, HL7, IEEE 802.15.4, ISO 14443,
+   LDSS, SRVLOC, and TLS
 
   New and Updated Capture File Support
 
-   NetScaler, and Sniffer
+   NetScaler, and pcap
 
   New and Updated Capture Interfaces support
 
@@ -66,14 +63,14 @@ What's New
 Getting Wireshark
 
    Wireshark source code and installation packages are available from
-   [20]https://www.wireshark.org/download.html.
+   [24]https://www.wireshark.org/download.html.
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can be
-   found on the [21]download page on the Wireshark web site.
+   found on the [25]download page on the Wireshark web site.
      __________________________________________________________________
 
 File Locations
@@ -86,73 +83,77 @@ File Locations
 
 Known Problems
 
-   Dumpcap might not quit if Wireshark or TShark crashes. ([22]Bug 1419)
+   Dumpcap might not quit if Wireshark or TShark crashes. ([26]Bug 1419)
 
-   The BER dissector might infinitely loop. ([23]Bug 1516)
+   The BER dissector might infinitely loop. ([27]Bug 1516)
 
    Capture filters aren't applied when capturing from named pipes.
-   ([24]Bug 1814)
+   ([28]Bug 1814)
 
    Filtering tshark captures with read filters (-R) no longer works.
-   ([25]Bug 2234)
+   ([29]Bug 2234)
 
-   Application crash when changing real-time option. ([26]Bug 4035)
+   Application crash when changing real-time option. ([30]Bug 4035)
 
    Wireshark and TShark will display incorrect delta times in some cases.
-   ([27]Bug 4985)
+   ([31]Bug 4985)
 
-   Wireshark should let you work with multiple capture files. ([28]Bug
+   Wireshark should let you work with multiple capture files. ([32]Bug
    10488)
      __________________________________________________________________
 
 Getting Help
 
-   Community support is available on [29]Wireshark's Q&A site and on the
+   Community support is available on [33]Wireshark's Q&A site and on the
    wireshark-users mailing list. Subscription information and archives for
-   all of Wireshark's mailing lists can be found on [30]the web site.
+   all of Wireshark's mailing lists can be found on [34]the web site.
 
    Official Wireshark training and certification are available from
-   [31]Wireshark University.
+   [35]Wireshark University.
      __________________________________________________________________
 
 Frequently Asked Questions
 
-   A complete FAQ is available on the [32]Wireshark web site.
+   A complete FAQ is available on the [36]Wireshark web site.
      __________________________________________________________________
 
-   Last updated 2019-02-27 17:41:14 UTC
+   Last updated 2019-04-08 18:22:29 UTC
 
 References
 
-   1. https://www.wireshark.org/security/wnpa-sec-2019-06.html
-   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15447
-   3. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-9209
-   4. https://www.wireshark.org/security/wnpa-sec-2019-07.html
-   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15464
-   6. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-9208
-   7. https://www.wireshark.org/security/wnpa-sec-2019-08.html
-   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15536
-   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13825
-  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14177
-  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14905
-  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15430
-  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15443
-  14. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15463
-  15. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15466
-  16. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15485
-  17. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15489
-  18. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15497
-  19. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15524
-  20. https://www.wireshark.org/download.html
-  21. https://www.wireshark.org/download.html#thirdparty
-  22. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
-  23. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
-  24. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
-  25. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
-  26. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
-  27. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
-  28. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10488
-  29. https://ask.wireshark.org/
-  30. https://www.wireshark.org/lists/
-  31. http://www.wiresharktraining.com/
-  32. https://www.wireshark.org/faq.html
+   1. https://www.wireshark.org/security/wnpa-sec-2019-09.html
+   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15497
+   3. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-10895
+   4. https://www.wireshark.org/security/wnpa-sec-2019-10.html
+   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15546
+   6. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-10899
+   7. https://www.wireshark.org/security/wnpa-sec-2019-14.html
+   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15613
+   9. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-10894
+  10. https://www.wireshark.org/security/wnpa-sec-2019-15.html
+  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15617
+  12. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-10896
+  13. https://www.wireshark.org/security/wnpa-sec-2019-17.html
+  14. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15620
+  15. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-10901
+  16. https://www.wireshark.org/security/wnpa-sec-2019-18.html
+  17. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15568
+  18. http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-10903
+  19. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15549
+  20. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15599
+  21. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15627
+  22. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15630
+  23. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15634
+  24. https://www.wireshark.org/download.html
+  25. https://www.wireshark.org/download.html#thirdparty
+  26. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1419
+  27. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1516
+  28. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=1814
+  29. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=2234
+  30. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4035
+  31. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4985
+  32. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=10488
+  33. https://ask.wireshark.org/
+  34. https://www.wireshark.org/lists/
+  35. http://www.wiresharktraining.com/
+  36. https://www.wireshark.org/faq.html
