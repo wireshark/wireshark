@@ -111,8 +111,6 @@ wsbuglink:15634[].
 // Fixed in master-2.6: 4c59603f1f
 // Fixed in master-2.4: 39199def60
 
-* Buildbot crash output: fuzz-2019-03-23-1789.pcap. wsbuglink:15634[].
-
 The following bugs have been fixed:
 
 //* wsbuglink:5000[]
@@ -156,8 +154,6 @@ The following bugs have been fixed:
 * Packets with metadata but no data get the Protocol Info column overwritten. wsbuglink:15630[].
 
 * BGP MP_REACH_NLRI AFI: Layer-2 VPN, SAFI: EVPN - Label stack not decoded. wsbuglink:15631[].
-
-* Buildbot crash output: fuzz-2019-03-23-1789.pcap. wsbuglink:15634[].
 
 * Typo: broli -> brotli. wsbuglink:15647[].
 
