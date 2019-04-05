@@ -1558,15 +1558,24 @@ void RtpAnalysisDialog::findStreams()
 
     frame_data *fdata = cap_file_.capFile()->current_frame;
 
-    if (!cf_read_record(cap_file_.capFile(), fdata)) close();
+    wtap_rec rec;
+    Buffer buf;
+    wtap_rec_init(&rec);
+    ws_buffer_init(&buf, 1500);
+    if (!cf_read_record(cap_file_.capFile(), fdata, &rec, &buf)) {
+        wtap_rec_cleanup(&rec);
+        ws_buffer_free(&buf);
+        close();
+        return;
+    }
 
     epan_dissect_t edt;
 
     epan_dissect_init(&edt, cap_file_.capFile()->epan, TRUE, FALSE);
     epan_dissect_prime_with_dfilter(&edt, sfcode);
     epan_dissect_prime_with_hfid(&edt, hfid_rtp_ssrc);
-    epan_dissect_run(&edt, cap_file_.capFile()->cd_t, &cap_file_.capFile()->rec,
-                     frame_tvbuff_new_buffer(&cap_file_.capFile()->provider, fdata, &cap_file_.capFile()->buf),
+    epan_dissect_run(&edt, cap_file_.capFile()->cd_t, &rec,
+                     frame_tvbuff_new_buffer(&cap_file_.capFile()->provider, fdata, &buf),
                      fdata, NULL);
 
     /*
@@ -1575,6 +1584,8 @@ void RtpAnalysisDialog::findStreams()
      */
     if (!dfilter_apply_edt(sfcode, &edt)) {
         epan_dissect_cleanup(&edt);
+        wtap_rec_cleanup(&rec);
+        ws_buffer_free(&buf);
         dfilter_free(sfcode);
         err_str_ = tr("Please select an RTPv2 packet with an SSRC value");
         updateWidgets();
@@ -1594,6 +1605,8 @@ void RtpAnalysisDialog::findStreams()
     if (gp == NULL || gp->len == 0) {
         /* XXX - should not happen, as the filter includes rtp.ssrc */
         epan_dissect_cleanup(&edt);
+        wtap_rec_cleanup(&rec);
+        ws_buffer_free(&buf);
         err_str_ = tr("SSRC value not found.");
         updateWidgets();
         return;
@@ -1601,6 +1614,8 @@ void RtpAnalysisDialog::findStreams()
     fwd_statinfo_.id.ssrc = fvalue_get_uinteger(&((field_info *)gp->pdata[0])->value);
 
     epan_dissect_cleanup(&edt);
+    wtap_rec_cleanup(&rec);
+    ws_buffer_free(&buf);
 
     /* Register the tap listener */
     memset(&tapinfo_, 0, sizeof(rtpstream_tapinfo_t));

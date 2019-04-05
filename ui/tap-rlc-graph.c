@@ -96,6 +96,8 @@ rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf,
                                          gchar **err_msg)
 {
     frame_data     *fdata;
+    wtap_rec        rec;
+    Buffer          buf;
     epan_dissect_t  edt;
     dfilter_t      *sfcode;
 
@@ -116,7 +118,11 @@ rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf,
     }
 
     /* Dissect the data from the current frame. */
-    if (!cf_read_record(cf, fdata)) {
+    wtap_rec_init(&rec);
+    ws_buffer_init(&buf, 1500);
+    if (!cf_read_record(cf, fdata, &rec, &buf)) {
+        wtap_rec_cleanup(&rec);
+        ws_buffer_free(&buf);
         return NULL;  /* error reading the record */
     }
 
@@ -131,8 +137,8 @@ rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf,
 
     epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
     epan_dissect_prime_with_dfilter(&edt, sfcode);
-    epan_dissect_run_with_taps(&edt, cf->cd_t, &cf->rec,
-                               frame_tvbuff_new_buffer(&cf->provider, fdata, &cf->buf),
+    epan_dissect_run_with_taps(&edt, cf->cd_t, &rec,
+                               frame_tvbuff_new_buffer(&cf->provider, fdata, &buf),
                                fdata, NULL);
     rel_ts = edt.pi.rel_ts;
     epan_dissect_cleanup(&edt);
@@ -142,6 +148,8 @@ rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf,
         /* This "shouldn't happen", as the graph menu items won't
          * even be enabled if the selected packet isn't an RLC PDU.
          */
+        wtap_rec_cleanup(&rec);
+        ws_buffer_free(&buf);
         *err_msg = g_strdup("Selected packet doesn't have an RLC PDU");
         return NULL;
     }
@@ -149,6 +157,8 @@ rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf,
      * to select which session he wants here */
     if (th.num_hdrs>1){
         /* Can only handle a single RLC channel yet */
+        wtap_rec_cleanup(&rec);
+        ws_buffer_free(&buf);
         *err_msg = g_strdup("The selected packet has more than one LTE RLC channel in it.");
         return NULL;
     }
@@ -165,6 +175,9 @@ rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf,
     hdrs->isControlPDU = th.rlchdrs[0]->isControlPDU;
     /* Flip direction if have control PDU */
     hdrs->direction = !hdrs->isControlPDU ? th.rlchdrs[0]->direction : !th.rlchdrs[0]->direction;
+
+    wtap_rec_cleanup(&rec);
+    ws_buffer_free(&buf);
 
     return th.rlchdrs[0];
 }

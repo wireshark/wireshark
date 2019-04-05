@@ -272,6 +272,8 @@ struct tcpheader *
 select_tcpip_session(capture_file *cf, struct segment *hdrs)
 {
     frame_data     *fdata;
+    wtap_rec        rec;
+    Buffer          buf;
     epan_dissect_t  edt;
     dfilter_t      *sfcode;
     gchar          *err_msg;
@@ -293,7 +295,11 @@ select_tcpip_session(capture_file *cf, struct segment *hdrs)
     }
 
     /* dissect the current record */
-    if (!cf_read_record(cf, fdata)) {
+    wtap_rec_init(&rec);
+    ws_buffer_init(&buf, 1500);
+    if (!cf_read_record(cf, fdata, &rec, &buf)) {
+        wtap_rec_cleanup(&rec);
+        ws_buffer_free(&buf);
         return NULL;    /* error reading the record */
     }
 
@@ -308,8 +314,8 @@ select_tcpip_session(capture_file *cf, struct segment *hdrs)
 
     epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
     epan_dissect_prime_with_dfilter(&edt, sfcode);
-    epan_dissect_run_with_taps(&edt, cf->cd_t, &cf->rec,
-                               frame_tvbuff_new_buffer(&cf->provider, fdata, &cf->buf),
+    epan_dissect_run_with_taps(&edt, cf->cd_t, &rec,
+                               frame_tvbuff_new_buffer(&cf->provider, fdata, &buf),
                                fdata, NULL);
     rel_ts = edt.pi.rel_ts;
     epan_dissect_cleanup(&edt);
@@ -320,6 +326,8 @@ select_tcpip_session(capture_file *cf, struct segment *hdrs)
          * even be enabled if the selected packet isn't a TCP
          * segment, as tcp_graph_selected_packet_enabled() is used
          * to determine whether to enable any of our menu items. */
+        wtap_rec_cleanup(&rec);
+        ws_buffer_free(&buf);
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                       "Selected packet isn't a TCP segment or is truncated");
         return NULL;
@@ -329,6 +337,8 @@ select_tcpip_session(capture_file *cf, struct segment *hdrs)
     */
     if (th.num_hdrs > 1) {
         /* can only handle a single tcp layer yet */
+        wtap_rec_cleanup(&rec);
+        ws_buffer_free(&buf);
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                       "The selected packet has more than one TCP unique conversation "
                       "in it.");
@@ -352,6 +362,8 @@ select_tcpip_session(capture_file *cf, struct segment *hdrs)
     hdrs->th_seglen = th.tcphdrs[0]->th_seglen;
     copy_address(&hdrs->ip_src, &th.tcphdrs[0]->ip_src);
     copy_address(&hdrs->ip_dst, &th.tcphdrs[0]->ip_dst);
+    wtap_rec_cleanup(&rec);
+    ws_buffer_free(&buf);
     return th.tcphdrs[0];
 }
 

@@ -311,19 +311,30 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
 
     frame_data *fdata = cap_file_.capFile()->current_frame;
 
-    if (!cf_read_record(cap_file_.capFile(), fdata)) close();
+    wtap_rec rec;
+    Buffer buf;
+    wtap_rec_init(&rec);
+    ws_buffer_init(&buf, 1500);
+    if (!cf_read_record(cap_file_.capFile(), fdata, &rec, &buf)) {
+        wtap_rec_cleanup(&rec);
+        ws_buffer_free(&buf);
+        close();
+        return;
+    }
 
     epan_dissect_t edt;
 
     epan_dissect_init(&edt, cap_file_.capFile()->epan, TRUE, FALSE);
     epan_dissect_prime_with_dfilter(&edt, sfcode);
-    epan_dissect_run(&edt, cap_file_.capFile()->cd_t, &cap_file_.capFile()->rec,
-                     frame_tvbuff_new_buffer(&cap_file_.capFile()->provider, fdata, &cap_file_.capFile()->buf),
+    epan_dissect_run(&edt, cap_file_.capFile()->cd_t, &rec,
+                     frame_tvbuff_new_buffer(&cap_file_.capFile()->provider, fdata, &buf),
                      fdata, NULL);
 
     // This shouldn't happen (the menu item should be disabled) but check anyway
     if (!dfilter_apply_edt(sfcode, &edt)) {
         epan_dissect_cleanup(&edt);
+        wtap_rec_cleanup(&rec);
+        ws_buffer_free(&buf);
         dfilter_free(sfcode);
         err_str_ = tr("Please select an IAX2 packet.");
         save_payload_error_ = TAP_IAX2_NO_PACKET_SELECTED;
@@ -340,6 +351,8 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
     rtpstream_id_copy_pinfo(&(edt.pi),&(rev_id_),TRUE);
 
     epan_dissect_cleanup(&edt);
+    wtap_rec_cleanup(&rec);
+    ws_buffer_free(&buf);
 
 #ifdef IAX2_RTP_STREAM_CHECK
     rtpstream_tapinfo_t tapinfo;
