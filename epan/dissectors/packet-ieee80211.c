@@ -124,6 +124,13 @@ static gint wlan_ignore_prot = WLAN_IGNORE_PROT_NO;
 static gboolean wlan_key_mic_len_enable = FALSE;
 static guint wlan_key_mic_len = 0;
 
+/* Counter incremented on each (re)association
+ * This value will be assiged to each packet's pinfo->srcport/pinfo->destport
+ * as a way to uniquely make a one to one mapping between conversations and
+ * associations
+ */
+static guint32 association_counter = 0;
+
 /* Table for reassembly of fragments. */
 static reassembly_table wlan_reassembly_table;
 
@@ -245,6 +252,7 @@ typedef struct mimo_control
 #define IS_CTRL_GRANT_OR_GRANT_ACK_KEY 2
 #define EAPOL_KEY 3
 #define PACKET_DATA_KEY 4
+#define ASSOC_COUNTER_KEY 5
 /* ************************************************************************* */
 /*  Define some very useful macros that are used to analyze frame types etc. */
 /* ************************************************************************* */
@@ -22364,6 +22372,11 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
           tagged_parameter_tree_len, MGT_ASSOC_REQ, &association_sanity_check);
       ieee_80211_do_association_sanity_check(pinfo, &association_sanity_check);
 
+      if (!pinfo->fd->visited) {
+        association_counter++;
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, ASSOC_COUNTER_KEY,
+                         GUINT_TO_POINTER(association_counter));
+      }
       conversation = find_or_create_conversation(pinfo);
       conversation_data = get_or_create_conversation_data(conversation);
       conversation_data->last_akm_suite = association_sanity_check.last_akm_suite;
@@ -22402,6 +22415,11 @@ dissect_ieee80211_mgt(guint16 fcf, tvbuff_t *tvb, packet_info *pinfo, proto_tree
           tagged_parameter_tree_len, MGT_REASSOC_REQ, &association_sanity_check);
       ieee_80211_do_association_sanity_check(pinfo, &association_sanity_check);
 
+      if (!pinfo->fd->visited) {
+        association_counter++;
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, ASSOC_COUNTER_KEY,
+                         GUINT_TO_POINTER(association_counter));
+      }
       conversation = find_or_create_conversation(pinfo);
       conversation_data = get_or_create_conversation_data(conversation);
       conversation_data->last_akm_suite = association_sanity_check.last_akm_suite;
@@ -23645,6 +23663,15 @@ dissect_ieee80211_common(tvbuff_t *tvb, packet_info *pinfo,
   p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, IS_DMG_KEY, GINT_TO_POINTER(isDMG));
 
   whdr= &whdrs[0];
+
+  /* Handling for one-one mapping between assocations and conversations */
+  if (!pinfo->fd->visited) {
+    p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, ASSOC_COUNTER_KEY,
+                     GUINT_TO_POINTER(association_counter));
+  }
+  pinfo->srcport = GPOINTER_TO_UINT(
+    p_get_proto_data(wmem_file_scope(), pinfo, proto_wlan, ASSOC_COUNTER_KEY));
+  pinfo->destport = pinfo->srcport;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "802.11");
   col_clear(pinfo->cinfo, COL_INFO);
