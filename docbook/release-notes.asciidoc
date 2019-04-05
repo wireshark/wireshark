@@ -103,13 +103,13 @@ wsbuglink:15620[].
 // Fixed in master-2.4: cf801a2507
 
 * wssalink:2019-18[]
-ISO 14443 dissector crash.
-wsbuglink:15634[].
+DCERPC SPOOLSS dissector crash.
+wsbuglink:15568[].
 // cveidlink:2019-xxxx[].
-// Fixed in master: 4e688ec8da
-// Fixed in master-3.0: a31c439401
-// Fixed in master-2.6: 4c59603f1f
-// Fixed in master-2.4: 39199def60
+// Fixed in master: 5aba3ed0cd
+// Fixed in master-3.0: 2f529f8acf
+// Fixed in master-2.6: 85499cde33
+// Fixed in master-2.4: eafdcfa4b6
 
 The following bugs have been fixed:
 
@@ -119,6 +119,7 @@ The following bugs have been fixed:
 //* Wireshark slowly leaked water under the kitchen sink over the course of several months, causing a big mess.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v3.0.2rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
+// Undefined behavior
 * [oss-fuzz] UBSAN: shift exponent 34 is too large for 32-bit type 'guint32' (aka 'unsigned int') in packet-ieee80211.c:15534:49. wsbuglink:14770[].
 
 * [oss-fuzz] UBSAN: shift exponent 35 is too large for 32-bit type 'int' in packet-couchbase.c:1674:37. wsbuglink:15439[].
@@ -139,6 +140,7 @@ The following bugs have been fixed:
 
 * When selecting BSSAP in 'Decode As' for a SCCP payload, it uses BSSAP+ which is not the same protocol. wsbuglink:15578[].
 
+// Requires extraordinary conditions
 * Possible buffer overflow in function ssl_md_final for crafted SSL 3.0 sessions. wsbuglink:15599[].
 
 * Windows console log output delay. wsbuglink:15605[].
@@ -154,6 +156,9 @@ The following bugs have been fixed:
 * Packets with metadata but no data get the Protocol Info column overwritten. wsbuglink:15630[].
 
 * BGP MP_REACH_NLRI AFI: Layer-2 VPN, SAFI: EVPN - Label stack not decoded. wsbuglink:15631[].
+
+// Uninitialized memory
+* Buildbot crash output: fuzz-2019-03-23-1789.pcap. wsbuglink:15634[].
 
 * Typo: broli -> brotli. wsbuglink:15647[].
 
@@ -189,6 +194,7 @@ There are no new protocols in this release.
 BGP
 BSSAP
 Couchbase
+DCERPC SPOOLSS
 DHCP
 DHCPv6
 DOF
@@ -200,6 +206,7 @@ GTP
 GTPv2
 IEEE 802.11
 IEEE 802.15.4
+ISO 14443
 H248C
 HL7
 LDSS
@@ -220,8 +227,8 @@ TSDNS
 // Add one file type per line between the -- delimiters.
 [commaize]
 --
-pcap
 NetScaler
+pcap
 --
 
 === New and Updated Capture Interfaces support
