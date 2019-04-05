@@ -32662,12 +32662,12 @@ proto_register_ieee80211(void)
       "The SSID in this BSS is interpreted using UTF-8 encoding", HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b49,
-     {"QMFActivated", "wlan.extcap.b49",
+     {"QMF Activated", "wlan.extcap.b49",
       FT_BOOLEAN, 8, NULL, 0x02,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_extended_capabilities_b50,
-     {"QMFReconfigurationActivated", "wlan.extcap.b50",
+     {"QMF Reconfiguration Activated", "wlan.extcap.b50",
       FT_BOOLEAN, 8, NULL, 0x04,
       NULL, HFILL }},
 
