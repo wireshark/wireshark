@@ -2557,6 +2557,7 @@ static const value_string vht_op_channel_width_flag[] = {
   {0x01, "80 MHz"},
   {0x02, "160 MHz"},
   {0x03, "80+80 MHz"},
+  {0x04, "Reserved"},
   {0x00, NULL}
 };
 
