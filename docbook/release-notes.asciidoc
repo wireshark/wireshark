@@ -60,13 +60,14 @@ wsbuglink:15620[].
 // Fixed in master-2.4: cf801a2507
 
 * wssalink:2019-18[]
-ISO 14443 dissector crash.
-wsbuglink:15634[].
+DCERPC SPOOLSS dissector crash.
+wsbuglink:15568[].
 // cveidlink:2019-xxxx[].
-// Fixed in master: 4e688ec8da
-// Fixed in master-3.0: a31c439401
-// Fixed in master-2.6: 4c59603f1f
-// Fixed in master-2.4: 39199def60
+// Fixed in master: 5aba3ed0cd
+// Fixed in master-3.0: 2f529f8acf
+// Fixed in master-2.6: 85499cde33
+// Fixed in master-2.4: eafdcfa4b6
+
 The following bugs have been fixed:
 
 //* wsbuglink:5000[]
@@ -77,11 +78,15 @@ The following bugs have been fixed:
 
 * GSM-A-RR variable bitmap decoding may report ARFCNs > 1023. wsbuglink:15549[].
 
+// Requires extraordinary conditions
 * Possible buffer overflow in function ssl_md_final for crafted SSL 3.0 sessions. wsbuglink:15599[].
 
 * randpkt -r causes segfault when count > 1. wsbuglink:15627[].
 
 * Packets with metadata but no data get the Protocol Info column overwritten. wsbuglink:15630[].
+
+// Uninitialized memory
+* Buildbot crash output: fuzz-2019-03-23-1789.pcap. wsbuglink:15634[].
 
 === New and Updated Features
 
@@ -98,6 +103,7 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
+DCERPC SPOOLSS
 DOF
 GSM A RR
 GSS-API
