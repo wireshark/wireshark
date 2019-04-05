@@ -18,13 +18,58 @@ used for troubleshooting, analysis, development and education.
 The following vulnerabilities have been fixed:
 
 * wssalink:2019-09[]
-A dissector went awry.
-// wsbuglink:xxxx[].
+NetScaler file parser crash.
+wsbuglink:15497[].
 // cveidlink:2019-xxxx[].
-// Fixed in master: xxxx
-// Fixed in master-3.0: xxxx
-// Fixed in master-2.6: xxxx
-// Fixed in master-2.4: xxxx
+// Fixed in master: efe920af3a, 07bb974bcd, 134a513dd5
+// Fixed in master-3.0: 490b381729, b759633425, 3ced6f5b05
+// Fixed in master-2.6: dedcdbcdc4, 213c2c9afb, fc8367a505
+// Fixed in master-2.4: cab0cff6ab, 38680c4c69
+
+* wssalink:2019-10[]
+SRVLOC dissector crash.
+wsbuglink:15546[].
+// cveidlink:2019-xxxx[].
+// Fixed in master: 8f15ebed65
+// Fixed in master-3.0: fb94bfef5f
+// Fixed in master-2.6: f43ac1291b
+// Fixed in master-2.4: b16fea2f17
+
+* wssalink:2019-14[]
+GSS-API dissector crash.
+wsbuglink:15613[].
+// cveidlink:2019-xxxx[].
+// Fixed in master: 8cdc958426
+// Fixed in master-3.0: ea75daa28b
+// Fixed in master-2.6: a9c0287976
+// Fixed in master-2.4: b20e5d8aae
+
+* wssalink:2019-15[]
+DOF dissector crash.
+wsbuglink:15617[].
+// cveidlink:2019-xxxx[].
+// Fixed in master: b572b65e51
+// Fixed in master-3.0: 651cd91b16
+// Fixed in master-2.6: a35c64380b
+// Fixed in master-2.4: 441b6d9071
+
+* wssalink:2019-17[]
+LDSS dissector crash.
+wsbuglink:15620[].
+// cveidlink:2019-xxxx[].
+// Fixed in master: 6c3467945c
+// Fixed in master-3.0: 1cf349ddb2
+// Fixed in master-2.6: d368eed192
+// Fixed in master-2.4: cf801a2507
+
+* wssalink:2019-18[]
+ISO 14443 dissector crash.
+wsbuglink:15634[].
+// cveidlink:2019-xxxx[].
+// Fixed in master: 4e688ec8da
+// Fixed in master-3.0: a31c439401
+// Fixed in master-2.6: 4c59603f1f
+// Fixed in master-2.4: 39199def60
 
 The following bugs have been fixed:
 
@@ -33,6 +78,20 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark convinced you to switch seats on the plane while neglecting to tell you that its seat was noticeably moist.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.8rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* Wireshark uninstaller fails to remove styles{backslash}qwindowsvistastyle.dll. wsbuglink:15469[].
+
+* Duplicated TCP SEQ field in ICMP packets. wsbuglink:15533[].
+
+* GSM-A-RR variable bitmap decoding may report ARFCNs > 1023. wsbuglink:15549[].
+
+* Possible buffer overflow in function ssl_md_final for crafted SSL 3.0 sessions. wsbuglink:15599[].
+
+* NFS/NLM: Wrong lock byte range in the "Info" column. wsbuglink:15608[].
+
+* randpkt -r causes segfault when count > 1. wsbuglink:15627[].
+
+* Packets with metadata but no data get the Protocol Info column overwritten. wsbuglink:15630[].
 
 === New and Updated Features
 
@@ -51,15 +110,28 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
+DHCP
+DOF
+GSM A RR
+GSS-API
+HL7
+ISO 14443
+LDSS
+NLM
+SRVLOC
+TCP
+TLS
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+NetScaler
+pcap
+--
 
 === New and Updated Capture Interfaces support
 
