@@ -134,7 +134,7 @@ static gboolean want_pcap_pkthdr;
 cf_status_t raw_cf_open(capture_file *cf, const char *fname);
 static gboolean load_cap_file(capture_file *cf);
 static gboolean process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset,
-                               wtap_rec *rec, const guchar *pd);
+                               wtap_rec *rec, Buffer *buf);
 static void show_print_file_io_error(int err);
 
 static void failure_warning_message(const char *msg_format, va_list ap);
@@ -822,7 +822,7 @@ clean_exit:
  * @return TRUE on success, FALSE on failure.
  */
 static gboolean
-raw_pipe_read(wtap_rec *rec, guchar * pd, int *err, gchar **err_info, gint64 *data_offset) {
+raw_pipe_read(wtap_rec *rec, Buffer *buf, int *err, gchar **err_info, gint64 *data_offset) {
     struct pcap_pkthdr mem_hdr;
     struct pcaprec_hdr disk_hdr;
     ssize_t bytes_read = 0;
@@ -901,7 +901,8 @@ raw_pipe_read(wtap_rec *rec, guchar * pd, int *err, gchar **err_info, gint64 *da
         return FALSE;
     }
 
-    ptr = pd;
+    ws_buffer_assure_space(buf, bytes_needed);
+    ptr = ws_buffer_start_ptr(buf);
     while (bytes_needed > 0) {
         bytes_read = ws_read(fd, ptr, bytes_needed);
         if (bytes_read == 0) {
@@ -927,23 +928,23 @@ load_cap_file(capture_file *cf)
     gchar       *err_info = NULL;
     gint64       data_offset = 0;
 
-    guchar      *pd;
     wtap_rec     rec;
+    Buffer       buf;
     epan_dissect_t edt;
 
     wtap_rec_init(&rec);
+    ws_buffer_init(&buf, 1500);
 
     epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
 
-    pd = (guchar*)g_malloc(WTAP_MAX_PACKET_SIZE_STANDARD);
-    while (raw_pipe_read(&rec, pd, &err, &err_info, &data_offset)) {
-        process_packet(cf, &edt, data_offset, &rec, pd);
+    while (raw_pipe_read(&rec, &buf, &err, &err_info, &data_offset)) {
+        process_packet(cf, &edt, data_offset, &rec, &buf);
     }
 
     epan_dissect_cleanup(&edt);
 
     wtap_rec_cleanup(&rec);
-    g_free(pd);
+    ws_buffer_free(&buf);
     if (err != 0) {
         /* Print a message noting that the read failed somewhere along the line. */
         cfile_read_failure_message("Rawshark", cf->filename, err, err_info);
@@ -955,7 +956,7 @@ load_cap_file(capture_file *cf)
 
 static gboolean
 process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset,
-               wtap_rec *rec, const guchar *pd)
+               wtap_rec *rec, Buffer *buf)
 {
     frame_data fdata;
     gboolean passed;
@@ -1007,7 +1008,7 @@ process_packet(capture_file *cf, epan_dissect_t *edt, gint64 offset,
      *not* verbose; in verbose mode, we print the protocol tree, not
      the protocol summary. */
     epan_dissect_run_with_taps(edt, cf->cd_t, rec,
-                               frame_tvbuff_new(&cf->provider, &fdata, pd),
+                               frame_tvbuff_new_buffer(&cf->provider, &fdata, buf),
                                &fdata, &cf->cinfo);
 
     frame_data_set_after_dissect(&fdata, &cum_bytes);
