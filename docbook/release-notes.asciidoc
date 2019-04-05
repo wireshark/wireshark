@@ -24,7 +24,7 @@ The following vulnerabilities have been fixed:
 * wssalink:2019-09[]
 NetScaler file parser crash.
 wsbuglink:15497[].
-// cveidlink:2019-xxxx[].
+cveidlink:2019-10895[].
 // Fixed in master: efe920af3a, 07bb974bcd, 134a513dd5
 // Fixed in master-3.0: 490b381729, b759633425, 3ced6f5b05
 // Fixed in master-2.6: dedcdbcdc4, 213c2c9afb, fc8367a505
@@ -33,7 +33,7 @@ wsbuglink:15497[].
 * wssalink:2019-10[]
 SRVLOC dissector crash.
 wsbuglink:15546[].
-// cveidlink:2019-xxxx[].
+cveidlink:2019-10899[].
 // Fixed in master: 8f15ebed65
 // Fixed in master-3.0: fb94bfef5f
 // Fixed in master-2.6: f43ac1291b
@@ -42,7 +42,7 @@ wsbuglink:15546[].
 * wssalink:2019-11[]
 IEEE 802.11 dissector infinite loop.
 wsbuglink:15553[].
-// cveidlink:2019-xxxx[].
+cveidlink:2019-10897[].
 // Fixed in master: 355fe66340
 // Fixed in master-3.0: 00d5e9e9fb
 // Fixed in master-2.6: n/a
@@ -51,7 +51,7 @@ wsbuglink:15553[].
 * wssalink:2019-12[]
 GSUP dissector infinite loop.
 wsbuglink:15585[].
-// cveidlink:2019-xxxx[].
+cveidlink:2019-10898[].
 // Fixed in master: 5a8e9e35b3
 // Fixed in master-3.0: f80b7d1b27
 // Fixed in master-2.6: n/a
@@ -60,7 +60,7 @@ wsbuglink:15585[].
 * wssalink:2019-13[]
 Rbm dissector infinite loop.
 wsbuglink:15612[].
-// cveidlink:2019-xxxx[].
+cveidlink:2019-10900[].
 // Fixed in master: 108507e504
 // Fixed in master-3.0: 26eee01f57
 // Fixed in master-2.6: n/a
@@ -69,7 +69,7 @@ wsbuglink:15612[].
 * wssalink:2019-14[]
 GSS-API dissector crash.
 wsbuglink:15613[].
-// cveidlink:2019-xxxx[].
+cveidlink:2019-10894[].
 // Fixed in master: 8cdc958426
 // Fixed in master-3.0: ea75daa28b
 // Fixed in master-2.6: a9c0287976
@@ -78,7 +78,7 @@ wsbuglink:15613[].
 * wssalink:2019-15[]
 DOF dissector crash.
 wsbuglink:15617[].
-// cveidlink:2019-xxxx[].
+cveidlink:2019-10896[].
 // Fixed in master: b572b65e51
 // Fixed in master-3.0: 651cd91b16
 // Fixed in master-2.6: a35c64380b
@@ -87,7 +87,7 @@ wsbuglink:15617[].
 * wssalink:2019-16[]
 TSDNS dissector crash.
 wsbuglink:15619[].
-// cveidlink:2019-xxxx[].
+cveidlink:2019-10902[].
 // Fixed in master: 19d54ac364
 // Fixed in master-3.0: 95571f17d5
 // Fixed in master-2.6: n/a
@@ -96,7 +96,7 @@ wsbuglink:15619[].
 * wssalink:2019-17[]
 LDSS dissector crash.
 wsbuglink:15620[].
-// cveidlink:2019-xxxx[].
+cveidlink:2019-10901[].
 // Fixed in master: 6c3467945c
 // Fixed in master-3.0: 1cf349ddb2
 // Fixed in master-2.6: d368eed192
@@ -105,7 +105,7 @@ wsbuglink:15620[].
 * wssalink:2019-18[]
 DCERPC SPOOLSS dissector crash.
 wsbuglink:15568[].
-// cveidlink:2019-xxxx[].
+cveidlink:2019-10903[].
 // Fixed in master: 5aba3ed0cd
 // Fixed in master-3.0: 2f529f8acf
 // Fixed in master-2.6: 85499cde33
