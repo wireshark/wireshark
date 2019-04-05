@@ -46,6 +46,8 @@ void proto_reg_handoff_1722_61883(void);
 void proto_register_1722_cvf(void);
 void proto_reg_handoff_1722_cvf(void);
 
+#define UDP_PORT_IEEE_1722                  17220
+
 /**************************************************************************************************/
 /* 1722                                                                                           */
 /*                                                                                                */
@@ -615,6 +617,7 @@ void proto_reg_handoff_1722(void)
 
     avbtp_handle = create_dissector_handle(dissect_1722, proto_1722);
     dissector_add_uint("ethertype", ETHERTYPE_AVBTP, avbtp_handle);
+    dissector_add_uint("udp.port", UDP_PORT_IEEE_1722, avbtp_handle);
 }
 
 /**************************************************************************************************/
