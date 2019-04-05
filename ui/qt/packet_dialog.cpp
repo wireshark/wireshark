@@ -41,7 +41,7 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
     ui->setupUi(this);
     loadGeometry(parent.width() * 4 / 5, parent.height() * 4 / 5);
     ui->hintLabel->setSmallText();
-    
+
     wtap_rec_init(&rec_);
     ws_buffer_init(&buf_, 1500);
 
