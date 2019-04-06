@@ -267,7 +267,7 @@ cf_open(capture_file *cf, const char *fname, unsigned int type, gboolean is_temp
 
   /* XXX - we really want to initialize this after we've read all
      the packets, so we know how much we'll ultimately need. */
-  ws_buffer_init(&cf->buf, 1500);
+  ws_buffer_init(&cf->buf, 1514);
 
   /* We're about to start reading the file. */
   cf->state = FILE_READ_IN_PROGRESS;
@@ -586,7 +586,7 @@ cf_read(capture_file *cf, gboolean reloading)
     g_timer_start(prog_timer);
 
     wtap_rec_init(&rec);
-    ws_buffer_init(&buf, 1500);
+    ws_buffer_init(&buf, 1514);
     while ((wtap_read(cf->provider.wth, &rec, &buf, &err, &err_info,
             &data_offset))) {
       if (size >= 0) {
@@ -808,7 +808,7 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
     cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cf->cinfo : NULL;
 
     wtap_rec_init(&rec);
-    ws_buffer_init(&buf, 1500);
+    ws_buffer_init(&buf, 1514);
     while (to_read != 0) {
       wtap_cleareof(cf->provider.wth);
       if (!wtap_read(cf->provider.wth, &rec, &buf, err, &err_info,
@@ -952,7 +952,7 @@ cf_finish_tail(capture_file *cf, int *err)
   epan_dissect_init(&edt, cf->epan, create_proto_tree, FALSE);
 
   wtap_rec_init(&rec);
-  ws_buffer_init(&buf, 1500);
+  ws_buffer_init(&buf, 1514);
   while ((wtap_read(cf->provider.wth, &rec, &buf, err, &err_info, &data_offset))) {
     if (cf->state == FILE_READ_ABORTED) {
       /* Well, the user decided to abort the read.  Break out of the
@@ -2103,7 +2103,7 @@ process_specified_records(capture_file *cf, packet_range_t *range,
   range_process_e  process_this;
 
   wtap_rec_init(&rec);
-  ws_buffer_init(&buf, 1500);
+  ws_buffer_init(&buf, 1514);
 
   g_timer_start(prog_timer);
   /* Count of packets at which we've looked. */
@@ -3978,7 +3978,7 @@ cf_get_packet_comment(capture_file *cf, const frame_data *fd)
     Buffer buf;   /* Record data */
 
     wtap_rec_init(&rec);
-    ws_buffer_init(&buf, 1500);
+    ws_buffer_init(&buf, 1514);
 
     if (!cf_read_record_r(cf, fd, &rec, &buf))
       { /* XXX, what we can do here? */ }
@@ -4282,7 +4282,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile)
 
   framenum = 0;
   wtap_rec_init(&rec);
-  ws_buffer_init(&buf, 1500);
+  ws_buffer_init(&buf, 1514);
   while ((wtap_read(cf->provider.wth, &rec, &buf, &err, &err_info,
           &data_offset))) {
     framenum++;

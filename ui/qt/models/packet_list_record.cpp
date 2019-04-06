@@ -117,7 +117,7 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_color)
     }
 
     wtap_rec_init(&rec);
-    ws_buffer_init(&buf, 1500);
+    ws_buffer_init(&buf, 1514);
     if (!cf_read_record_r(cap_file, fdata_, &rec, &buf)) {
         /*
          * Error reading the record.

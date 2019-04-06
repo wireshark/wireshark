@@ -50,7 +50,7 @@ void capture_info_new_packets(int to_read, info_data_t* cap_info)
     /*g_warning("new packets: %u", to_read);*/
 
     wtap_rec_init(&rec);
-    ws_buffer_init(&buf, 1500);
+    ws_buffer_init(&buf, 1514);
     while (to_read > 0) {
         wtap_cleareof(cap_info->wtap);
         if (wtap_read(cap_info->wtap, &rec, &buf, &err, &err_info, &data_offset)) {

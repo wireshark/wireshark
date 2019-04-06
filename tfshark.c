@@ -1337,7 +1337,7 @@ process_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
 
     cf->provider.prev_dis = NULL;
     cf->provider.prev_cap = NULL;
-    ws_buffer_init(&buf, 1500);
+    ws_buffer_init(&buf, 1514);
 
     if (do_dissection) {
       gboolean create_proto_tree;

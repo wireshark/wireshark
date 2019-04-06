@@ -351,7 +351,7 @@ load_cap_file(capture_file *cf, int max_packet_count, gint64 max_byte_count)
     }
 
     wtap_rec_init(&rec);
-    ws_buffer_init(&buf, 1500);
+    ws_buffer_init(&buf, 1514);
 
     while (wtap_read(cf->provider.wth, &rec, &buf, &err, &err_info, &data_offset)) {
       if (process_packet(cf, edt, data_offset, &rec, &buf)) {
@@ -536,7 +536,7 @@ sharkd_dissect_request(guint32 framenum, guint32 frame_ref_num, guint32 prev_dis
     return -1;
 
   wtap_rec_init(&rec);
-  ws_buffer_init(&buf, 1500);
+  ws_buffer_init(&buf, 1514);
 
   if (!wtap_seek_read(cfile.provider.wth, fdata->file_off, &rec, &buf, &err, &err_info)) {
     wtap_rec_cleanup(&rec);
@@ -596,7 +596,7 @@ sharkd_dissect_columns(frame_data *fdata, guint32 frame_ref_num, guint32 prev_di
   char *err_info = NULL;
 
   wtap_rec_init(&rec);
-  ws_buffer_init(&buf, 1500);
+  ws_buffer_init(&buf, 1514);
 
   if (!wtap_seek_read(cfile.provider.wth, fdata->file_off, &rec, &buf, &err, &err_info)) {
     col_fill_in_error(cinfo, fdata, FALSE, FALSE /* fill_fd_columns */);
@@ -672,7 +672,7 @@ sharkd_retap(void)
     (have_filtering_tap_listeners() || (tap_flags & TL_REQUIRES_PROTO_TREE));
 
   wtap_rec_init(&rec);
-  ws_buffer_init(&buf, 1500);
+  ws_buffer_init(&buf, 1514);
   epan_dissect_init(&edt, cfile.epan, create_proto_tree, FALSE);
 
   reset_tap_listeners();
@@ -732,7 +732,7 @@ sharkd_filter(const char *dftext, guint8 **result)
   frames_count = cfile.count;
 
   wtap_rec_init(&rec);
-  ws_buffer_init(&buf, 1500);
+  ws_buffer_init(&buf, 1514);
   epan_dissect_init(&edt, cfile.epan, TRUE, FALSE);
 
   passed_bits = 0;

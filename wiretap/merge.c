@@ -149,7 +149,7 @@ merge_open_in_files(guint in_file_count, const char *const *in_file_names,
             return FALSE;
         }
         wtap_rec_init(&files[i].rec);
-        ws_buffer_init(&files[i].frame_buffer, 1500);
+        ws_buffer_init(&files[i].frame_buffer, 1514);
         files[i].size = size;
         files[i].idb_index_map = g_array_new(FALSE, FALSE, sizeof(guint));
     }

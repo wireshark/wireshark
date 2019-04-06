@@ -933,7 +933,7 @@ load_cap_file(capture_file *cf)
     epan_dissect_t edt;
 
     wtap_rec_init(&rec);
-    ws_buffer_init(&buf, 1500);
+    ws_buffer_init(&buf, 1514);
 
     epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
 

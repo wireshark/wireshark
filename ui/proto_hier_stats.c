@@ -157,7 +157,7 @@ process_record(capture_file *cf, frame_data *frame, column_info *cinfo, ph_stats
     wtap_rec_init(&rec);
 
     /* Load the record from the capture file */
-    ws_buffer_init(&buf, 1500);
+    ws_buffer_init(&buf, 1514);
     if (!cf_read_record_r(cf, frame, &rec, &buf))
         return FALSE;	/* failure */
 

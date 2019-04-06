@@ -284,7 +284,7 @@ main(int argc, char *argv[])
 
     /* Read each frame from infile */
     wtap_rec_init(&rec);
-    ws_buffer_init(&buf, 1500);
+    ws_buffer_init(&buf, 1514);
     while (wtap_read(wth, &rec, &buf, &err, &err_info, &data_offset)) {
         FrameRecord_t *newFrameRecord;
 
@@ -320,7 +320,7 @@ main(int argc, char *argv[])
 
     /* Write out each sorted frame in turn */
     wtap_rec_init(&rec);
-    ws_buffer_init(&buf, 1500);
+    ws_buffer_init(&buf, 1514);
     for (i = 0; i < frames->len; i++) {
         FrameRecord_t *frame = (FrameRecord_t *)frames->pdata[i];
 

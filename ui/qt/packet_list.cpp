@@ -1074,7 +1074,7 @@ QString PacketList::getFilterFromRowAndColumn()
         Buffer buf;   /* Record data */
 
         wtap_rec_init(&rec);
-        ws_buffer_init(&buf, 1500);
+        ws_buffer_init(&buf, 1514);
         if (!cf_read_record_r(cap_file_, fdata, &rec, &buf)) {
             wtap_rec_cleanup(&rec);
             ws_buffer_free(&buf);

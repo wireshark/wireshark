@@ -1569,7 +1569,7 @@ main(int argc, char *argv[])
 
     /* Read all of the packets in turn */
     wtap_rec_init(&read_rec);
-    ws_buffer_init(&read_buf, 1500);
+    ws_buffer_init(&read_buf, 1514);
     while (wtap_read(wth, &read_rec, &read_buf, &read_err, &read_err_info, &data_offset)) {
         if (max_packet_number <= read_count)
             break;

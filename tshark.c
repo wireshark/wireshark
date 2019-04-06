@@ -2737,7 +2737,7 @@ capture_input_new_packets(capture_session *cap_session, int to_read)
     edt = epan_dissect_new(cf->epan, create_proto_tree, print_packet_info && print_details);
 
     wtap_rec_init(&rec);
-    ws_buffer_init(&buf, 1500);
+    ws_buffer_init(&buf, 1514);
 
     while (to_read-- && cf->provider.wth) {
       wtap_cleareof(cf->provider.wth);
@@ -3068,7 +3068,7 @@ process_cap_file_first_pass(capture_file *cf, int max_packet_count,
   pass_status_t   status = PASS_SUCCEEDED;
 
   wtap_rec_init(&rec);
-  ws_buffer_init(&buf, 1500);
+  ws_buffer_init(&buf, 1514);
 
   /* Allocate a frame_data_sequence for all the frames. */
   cf->provider.frames = new_frame_data_sequence();
@@ -3242,7 +3242,7 @@ process_cap_file_second_pass(capture_file *cf, wtap_dumper *pdh,
   pass_status_t   status = PASS_SUCCEEDED;
 
   wtap_rec_init(&rec);
-  ws_buffer_init(&buf, 1500);
+  ws_buffer_init(&buf, 1514);
 
   /* Do we have any tap listeners with filters? */
   filtering_tap_listeners = have_filtering_tap_listeners();
@@ -3341,7 +3341,7 @@ process_cap_file_single_pass(capture_file *cf, wtap_dumper *pdh,
   pass_status_t   status = PASS_SUCCEEDED;
 
   wtap_rec_init(&rec);
-  ws_buffer_init(&buf, 1500);
+  ws_buffer_init(&buf, 1514);
 
   framenum = 0;
 

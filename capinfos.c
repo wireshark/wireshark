@@ -1166,7 +1166,7 @@ process_cap_file(const char *filename, gboolean need_separator)
 
   /* Tally up data that we need to parse through the file to find */
   wtap_rec_init(&rec);
-  ws_buffer_init(&buf, 1500);
+  ws_buffer_init(&buf, 1514);
   while (wtap_read(wth, &rec, &buf, &err, &err_info, &data_offset))  {
     if (rec.presence_flags & WTAP_HAS_TS) {
       prev_time = cur_time;

@@ -30,7 +30,7 @@ FrameInformation::FrameInformation(CaptureFile * capfile, frame_data * fi, QObje
  cap_file_(capfile)
 {
     wtap_rec_init(&rec_);
-    ws_buffer_init(&buf_, 1500);
+    ws_buffer_init(&buf_, 1514);
     loadFrameTree();
 }
 
