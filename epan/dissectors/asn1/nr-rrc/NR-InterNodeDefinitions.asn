@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V15.4.0 (2018-12)
+-- 3GPP TS 38.331 V15.5.0 (2019-03)
 
 NR-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -39,6 +39,7 @@ IMPORTS
     SS-RSSI-Measurement,
     ShortMAC-I,
     SubcarrierSpacing,
+    UEAssistanceInformation,
     UE-CapabilityRAT-ContainerList
 FROM NR-RRC-Definitions;
 
@@ -91,6 +92,8 @@ AS-Context ::=                          SEQUENCE {
     configRestrictInfo                      ConfigRestrictInfoSCG                   OPTIONAL,
     ...,
     [[  ran-NotificationAreaInfo            RAN-NotificationAreaInfo                OPTIONAL
+    ]],
+    [[  ueAssistanceInformation             OCTET STRING (CONTAINING UEAssistanceInformation)  OPTIONAL   -- Cond HO2
     ]]
 }
 
@@ -102,7 +105,7 @@ ReestablishmentInfo ::=             SEQUENCE {
 
 ReestabNCellInfoList ::=        SEQUENCE ( SIZE (1..maxCellPrep) ) OF ReestabNCellInfo
 
-ReestabNCellInfo::=	SEQUENCE{
+ReestabNCellInfo::= SEQUENCE{
     cellIdentity                            CellIdentity,
     key-gNodeB-Star                         BIT STRING (SIZE (256)),
     shortMAC-I                              ShortMAC-I
@@ -198,9 +201,9 @@ BandCombinationInfoSN ::=   SEQUENCE {
     requestedFeatureSets                FeatureSetEntryIndex
 }
 
-FR-InfoList ::=	SEQUENCE (SIZE (1..maxNrofServingCells-1)) OF FR-Info
+FR-InfoList ::= SEQUENCE (SIZE (1..maxNrofServingCells-1)) OF FR-Info
 
-FR-Info ::=	SEQUENCE {
+FR-Info ::= SEQUENCE {
     servCellIndex       ServCellIndex,
     fr-Type             ENUMERATED {fr1, fr2}
 }
@@ -228,9 +231,9 @@ CG-ConfigInfo-IEs ::=       SEQUENCE {
     measResultCellListSFTD          MeasResultCellListSFTD                                        OPTIONAL,
     scgFailureInfo                  SEQUENCE {
         failureType                     ENUMERATED { t310-Expiry, randomAccessProblem,
-                                                        rlc-MaxNumRetx, synchReconfigFailure-SCG,
-                                                        scg-reconfigFailure,
-                                                        srb3-IntegrityFailure},
+                                                     rlc-MaxNumRetx, synchReconfigFailure-SCG,
+                                                     scg-reconfigFailure,
+                                                     srb3-IntegrityFailure},
         measResultSCG                   OCTET STRING (CONTAINING MeasResultSCG-Failure)
     }                                                                                             OPTIONAL,
     configRestrictInfo          ConfigRestrictInfoSCG                                             OPTIONAL,
@@ -263,7 +266,7 @@ ConfigRestrictInfoSCG ::=       SEQUENCE {
     servCellIndexRangeSCG           SEQUENCE {
         lowBound                        ServCellIndex,
         upBound                         ServCellIndex
-    }                                                                                             OPTIONAL,   -- Cond SN-Addition
+    }                                                                                             OPTIONAL,   -- Cond SN-AddMod
     maxMeasFreqsSCG-NR                  INTEGER(1..maxMeasFreqsMN)                                OPTIONAL,
     maxMeasIdentitiesSCG-NR             INTEGER(1..maxMeasIdentitiesMN)                           OPTIONAL,
     ...
@@ -326,7 +329,7 @@ DRX-Info ::=                    SEQUENCE {
 
 MeasConfigMN ::= SEQUENCE {
     measuredFrequenciesMN               SEQUENCE (SIZE (1..maxMeasFreqsMN)) OF NR-FreqInfo        OPTIONAL,
-    measGapConfig                   CHOICE { release NULL, setup GapConfig }                                    OPTIONAL,
+    measGapConfig                       CHOICE { release NULL, setup GapConfig }                                OPTIONAL,
     gapPurpose                          ENUMERATED {perUE, perFR1}                                OPTIONAL,
     ...
 }
@@ -338,9 +341,9 @@ MRDC-AssistanceInfo ::= SEQUENCE {
 
 AffectedCarrierFreqCombInfoMRDC ::= SEQUENCE {
     victimSystemType                    VictimSystemType,
-    interferenceDirectionMRDC       ENUMERATED {eutra-nr, nr, other, utra-nr-other, nr-other, spare3, spare2, spare1},
+    interferenceDirectionMRDC           ENUMERATED {eutra-nr, nr, other, utra-nr-other, nr-other, spare3, spare2, spare1},
     affectedCarrierFreqCombMRDC         SEQUENCE    {
-        affectedCarrierFreqCombEUTRA            AffectedCarrierFreqCombEUTRA                      OPTIONAL,
+        affectedCarrierFreqCombEUTRA        AffectedCarrierFreqCombEUTRA                      OPTIONAL,
         affectedCarrierFreqCombNR           AffectedCarrierFreqCombNR
     }       OPTIONAL
 }
@@ -372,8 +375,14 @@ MeasurementTimingConfiguration ::=              SEQUENCE {
 }
 
 MeasurementTimingConfiguration-IEs ::=  SEQUENCE {
-    measTiming                              MeasTimingList                          OPTIONAL,
-    nonCriticalExtension                    SEQUENCE {}                             OPTIONAL
+    measTiming                              MeasTimingList                           OPTIONAL,
+    nonCriticalExtension                    MeasurementTimingConfiguration-v1550-IEs OPTIONAL
+}
+
+MeasurementTimingConfiguration-v1550-IEs ::= SEQUENCE {
+    campOnFirstSSB                               BOOLEAN,
+    psCellOnlyOnFirstSSB                         BOOLEAN,
+    nonCriticalExtension                         SEQUENCE {}                        OPTIONAL
 }
 
 MeasTimingList ::= SEQUENCE (SIZE (1..maxMeasFreqsMN)) OF MeasTiming
@@ -430,7 +439,7 @@ UERadioAccessCapabilityInformation ::= SEQUENCE {
 
 UERadioAccessCapabilityInformation-IEs ::= SEQUENCE {
     ue-RadioAccessCapabilityInfo        OCTET STRING (CONTAINING UE-CapabilityRAT-ContainerList),
-    nonCriticalExtension                SEQUENCE {}                         							 OPTIONAL
+    nonCriticalExtension                SEQUENCE {}                           OPTIONAL
 }
 
 -- TAG-UE-RADIO-ACCESS-CAPABILITY-INFORMATION-STOP

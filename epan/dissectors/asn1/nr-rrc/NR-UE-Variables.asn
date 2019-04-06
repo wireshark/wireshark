@@ -1,4 +1,4 @@
--- 3GPP TS 38.331 V15.4.0 (2018-12)
+-- 3GPP TS 38.331 V15.5.0 (2019-03)
 
 NR-UE-Variables DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -20,14 +20,14 @@ IMPORTS
 FROM NR-RRC-Definitions;
 
 -- NR-UE-VARIABLES-STOP
--- TAG-VAR-PENDING-RNA-UPDATE-START
+-- TAG-VARPENDINGRNA-UPDATE-START
 
 VarPendingRNA-Update ::=                    SEQUENCE {
     pendingRNA-Update                   BOOLEAN                             OPTIONAL
 }
 
--- TAG-VAR-PENDING-RNA-UPDATE-STOP
--- TAG-VAR-MEAS-CONFIG-START
+-- TAG-VARPENDINGRNA-UPDATE-STOP
+-- TAG-VARMEASCONFIG-START
 
 VarMeasConfig ::=                   SEQUENCE {
     -- Measurement identities
@@ -46,8 +46,8 @@ VarMeasConfig ::=                   SEQUENCE {
 
 }
 
--- TAG-VAR-MEAS-CONFIG-STOP
--- TAG-VAR-MEAS-REPORT-START
+-- TAG-VARMEASCONFIG-STOP
+-- TAG-VARMEASREPORTLIST-START
 
 VarMeasReportList ::=               SEQUENCE (SIZE (1..maxNrofMeasId)) OF VarMeasReport
 
@@ -64,8 +64,8 @@ CellsTriggeredList ::=              SEQUENCE (SIZE (1..maxNrofCellMeas)) OF CHOI
     }
 
 
--- TAG-VAR-MEAS-REPORT-STOP
--- TAG-VAR-RESUMEMACINPUT-START
+-- TAG-VARMEASREPORTLIST-STOP
+-- TAG-VARRESUMEMAC-INPUT-START
 
 VarResumeMAC-Input  ::=     SEQUENCE {
     sourcePhysCellId                        PhysCellId,
@@ -74,8 +74,8 @@ VarResumeMAC-Input  ::=     SEQUENCE {
 
 }
 
--- TAG-VAR-RESUMEMACINPUT-STOP
--- TAG-VAR-SHORTMACINPUT-START
+-- TAG-VARRESUMEMAC-INPUT-STOP
+-- TAG-VARSHORTMAC-INPUT-START
 
 VarShortMAC-Input   ::=                 SEQUENCE {
     sourcePhysCellId                        PhysCellId,
@@ -83,6 +83,6 @@ VarShortMAC-Input   ::=                 SEQUENCE {
     source-c-RNTI                           RNTI-Value
 }
 
--- TAG-VAR- SHORTMACINPUT-STOP
+-- TAG-VARSHORTMAC-INPUT-STOP
 
 END
