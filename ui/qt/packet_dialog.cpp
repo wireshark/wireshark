@@ -35,16 +35,12 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
     ui(new Ui::PacketDialog),
     proto_tree_(NULL),
     byte_view_tab_(NULL),
-    rec_(),
-    buf_()
+    rec_(wtap_rec()),
+    packet_data_(NULL)
 {
     ui->setupUi(this);
     loadGeometry(parent.width() * 4 / 5, parent.height() * 4 / 5);
     ui->hintLabel->setSmallText();
-
-    wtap_rec_init(&rec_);
-    ws_buffer_init(&buf_, 1500);
-
     edt_.session = NULL;
     edt_.tvb = NULL;
     edt_.tree = NULL;
@@ -53,17 +49,23 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
 
     setWindowSubtitle(tr("Packet %1").arg(fdata->num));
 
-    if (!cf_read_record(cap_file_.capFile(), fdata, &rec_, &buf_)) {
+    if (!cf_read_record(cap_file_.capFile(), fdata)) {
         reject();
         return;
     }
+
+    rec_ = cap_file_.capFile()->rec;
+
+#ifndef __clang_analyzer__
+    packet_data_ = (guint8 *) g_memdup(ws_buffer_start_ptr(&(cap_file_.capFile()->buf)), fdata->cap_len);
+#endif
 
     /* proto tree, visible. We need a proto tree if there's custom columns */
     epan_dissect_init(&edt_, cap_file_.capFile()->epan, TRUE, TRUE);
     col_custom_prime_edt(&edt_, &(cap_file_.capFile()->cinfo));
 
     epan_dissect_run(&edt_, cap_file_.capFile()->cd_t, &rec_,
-                     frame_tvbuff_new_buffer(&cap_file_.capFile()->provider, fdata, &buf_),
+                     frame_tvbuff_new(&cap_file_.capFile()->provider, fdata, packet_data_),
                      fdata, &(cap_file_.capFile()->cinfo));
     epan_dissect_fill_in_columns(&edt_, TRUE, TRUE);
 
@@ -106,8 +108,7 @@ PacketDialog::~PacketDialog()
 {
     delete ui;
     epan_dissect_cleanup(&edt_);
-    wtap_rec_cleanup(&rec_);
-    ws_buffer_free(&buf_);
+    g_free(packet_data_);
 }
 
 void PacketDialog::captureFileClosing()

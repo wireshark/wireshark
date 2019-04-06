@@ -46,7 +46,7 @@ private:
     ByteViewTab *byte_view_tab_;
     epan_dissect_t edt_;
     wtap_rec rec_;
-    Buffer buf_;
+    guint8 *packet_data_;
 };
 
 #endif // PACKET_DIALOG_H

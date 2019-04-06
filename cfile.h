@@ -107,6 +107,9 @@ typedef struct _capture_file {
   search_charset_t            scs_type;             /* Character set for text search */
   search_direction            dir;                  /* Direction in which to do searches */
   gboolean                    search_in_progress;   /* TRUE if user just clicked OK in the Find dialog or hit <control>N/B */
+  /* packet data */
+  wtap_rec                    rec;                  /* Record header */
+  Buffer                      buf;                  /* Record data */
   /* packet provider */
   struct packet_provider_data provider;
   /* frames */

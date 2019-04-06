@@ -50,9 +50,6 @@ AddressEditorFrame::~AddressEditorFrame()
 
 void AddressEditorFrame::editAddresses(CaptureFile &cf, int column)
 {
-    wtap_rec    rec;
-    Buffer      buf;
-
     cap_file_ = cf.capFile();
 
     if (!cap_file_->current_frame) {
@@ -60,11 +57,7 @@ void AddressEditorFrame::editAddresses(CaptureFile &cf, int column)
         return;
     }
 
-    wtap_rec_init(&rec);
-    ws_buffer_init(&buf, 1500);
-    if (!cf_read_record(cap_file_, cap_file_->current_frame, &rec, &buf)) {
-        wtap_rec_cleanup(&rec);
-        ws_buffer_free(&buf);
+    if (!cf_read_record(cap_file_, cap_file_->current_frame)) {
         on_buttonBox_rejected();
         return; // error reading the frame
     }
@@ -77,8 +70,8 @@ void AddressEditorFrame::editAddresses(CaptureFile &cf, int column)
     epan_dissect_init(&edt, cap_file_->epan, FALSE, FALSE);
     col_custom_prime_edt(&edt, &cap_file_->cinfo);
 
-    epan_dissect_run(&edt, cap_file_->cd_t, &rec,
-        frame_tvbuff_new_buffer(&cap_file_->provider, cap_file_->current_frame, &buf),
+    epan_dissect_run(&edt, cap_file_->cd_t, &cap_file_->rec,
+        frame_tvbuff_new_buffer(&cap_file_->provider, cap_file_->current_frame, &cap_file_->buf),
         cap_file_->current_frame, &cap_file_->cinfo);
     epan_dissect_fill_in_columns(&edt, TRUE, TRUE);
 
@@ -95,8 +88,6 @@ void AddressEditorFrame::editAddresses(CaptureFile &cf, int column)
     }
 
     epan_dissect_cleanup(&edt);
-    wtap_rec_cleanup(&rec);
-    ws_buffer_free(&buf);
 
     ui->addressComboBox->addItems(addresses);
     ui->nameLineEdit->setFocus();
