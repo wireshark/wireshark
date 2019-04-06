@@ -3812,7 +3812,7 @@ cf_select_packet(capture_file *cf, int row)
   }
 
   /* Get the data in that frame. */
-  if (!cf_read_record (cf, fdata)) {
+  if (!cf_read_record_r(cf, fdata, &cf->rec, &cf->buf)) {
     return;
   }
 
@@ -3820,6 +3820,25 @@ cf_select_packet(capture_file *cf, int row)
   cf->current_frame = fdata;
   cf->current_row = row;
 
+  /*
+   * The change to defer freeing the current epan_dissect_t was in
+   * commit a2bb94c3b33d53f42534aceb7cc67aab1d1fb1f9; to quote
+   * that commit's comment:
+   *
+   *   Clear GtkTreeStore before freeing edt
+   *
+   *   When building current data for packet details treeview we store two
+   *   things.
+   *      - Generated string with item label
+   *      - Pointer to node field_info structure
+   *
+   *   After epan_dissect_{free, cleanup} pointer to field_info node is no
+   *   longer valid so we should clear GtkTreeStore before freeing.
+   *
+   * XXX - we're no longer using GTK+; is there a way to ensure that
+   * *nothing* refers to any of the current frame information before
+   * we replace it?
+   */
   old_edt = cf->edt;
   /* Create the logical protocol tree. */
   /* We don't need the columns here. */
@@ -3834,7 +3853,6 @@ cf_select_packet(capture_file *cf, int row)
 
   if (old_edt != NULL)
     epan_dissect_free(old_edt);
-
 }
 
 /* Unselect the selected packet, if any. */
@@ -3843,6 +3861,10 @@ cf_unselect_packet(capture_file *cf)
 {
   epan_dissect_t *old_edt = cf->edt;
 
+  /*
+   * See the comment in cf_select_packet() about deferring the freeing
+   * of the old cf->edt.
+   */
   cf->edt = NULL;
 
   /* No packet is selected. */

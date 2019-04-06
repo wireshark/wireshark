@@ -107,19 +107,20 @@ typedef struct _capture_file {
   search_charset_t            scs_type;             /* Character set for text search */
   search_direction            dir;                  /* Direction in which to do searches */
   gboolean                    search_in_progress;   /* TRUE if user just clicked OK in the Find dialog or hit <control>N/B */
-  /* packet data */
-  wtap_rec                    rec;                  /* Record header */
-  Buffer                      buf;                  /* Record data */
   /* packet provider */
   struct packet_provider_data provider;
   /* frames */
   guint32                     first_displayed;      /* Frame number of first frame displayed */
   guint32                     last_displayed;       /* Frame number of last frame displayed */
+  /* Data for currently selected frame */
   column_info                 cinfo;                /* Column formatting information */
-  frame_data                 *current_frame;        /* Frame data for current frame */
-  gint                        current_row;          /* Row number for current frame */
-  epan_dissect_t             *edt;                  /* Protocol dissection for currently selected packet */
-  field_info                 *finfo_selected;       /* Field info for currently selected field */
+  frame_data                 *current_frame;        /* Frame data */
+  gint                        current_row;          /* Row number */
+  epan_dissect_t             *edt;                  /* Protocol dissection */
+  field_info                 *finfo_selected;       /* Field info */
+  wtap_rec                    rec;                  /* Record header */
+  Buffer                      buf;                  /* Record data */
+
   gpointer                    window;               /* Top-level window associated with file */
   gulong                      computed_elapsed;     /* Elapsed time to load the file (in msec). */
 
