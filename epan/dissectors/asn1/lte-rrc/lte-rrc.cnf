@@ -205,6 +205,14 @@ SI-OrPSI-GERAN TYPE_PREFIX
     dissect_nr_rrc_FreqBandList_PDU(freq_band_list_tvb, actx->pinfo, subtree, NULL);
   }
 
+#.FN_BODY UECapabilityEnquiry-v1550-IEs/requestedCapabilityNR-r15 VAL_PTR = &ue_cap_req_filter_nr_tvb
+  tvbuff_t *ue_cap_req_filter_nr_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (ue_cap_req_filter_nr_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_requestedFreqBandsNR_MRDC_r15);
+    dissect_nr_rrc_UE_CapabilityRequestFilterNR_PDU(ue_cap_req_filter_nr_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.FN_BODY UE-CapabilityRAT-Container
   /* Initialise to invalid value */
   private_data_set_rat_type(actx, 0xFF);
@@ -1335,6 +1343,9 @@ CarrierFreqNR-r15/q-RxLevMin-r15 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_r
 
 #.TYPE_ATTR
 CarrierFreqNR-r15/q-RxLevMinSUL-r15 DISPLAY=BASE_DEC|BASE_EXT_STRING STRINGS=&lte_rrc_q_RxLevMin_vals_ext
+
+#.TYPE_ATTR
+CarrierFreqNR-r15/q-QualMin-r15 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels
 
 #.TYPE_ATTR
 Q-OffsetRangeInterRAT DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_decibels

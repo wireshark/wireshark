@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V15.4.0 (2018-12)
+-- 3GPP TS 36.331 V15.5.0 (2019-03)
 --
 NBIOT-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -15,6 +15,7 @@ FROM EUTRA-RRC-Definitions
 FROM EUTRA-InterNodeDefinitions
 
 	CarrierFreq-NB-r13,
+	CarrierFreq-NB-v1550,
 	RadioResourceConfigDedicated-NB-r13,
 	UECapabilityInformation-NB,
 	UE-Capability-NB-r13,
@@ -117,7 +118,9 @@ AS-Config-NB ::=					SEQUENCE {
 	sourceSecurityAlgorithmConfig-r13		SecurityAlgorithmConfig,
 	sourceUE-Identity-r13					C-RNTI,
 	sourceDl-CarrierFreq-r13				CarrierFreq-NB-r13,
-	...
+	...,
+	[[	sourceDL-CarrierFreq-v1550			CarrierFreq-NB-v1550	OPTIONAL	-- Cond TDD
+	]]
 }
 
 

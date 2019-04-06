@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V15.4.0 (2018-12)
+-- 3GPP TS 36.331 V15.5.0 (2019-03)
 --
 NBIOT-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -485,7 +485,12 @@ RRCConnectionRelease-NB-v1430-IEs ::=	SEQUENCE {
 RRCConnectionRelease-NB-v1530-IEs ::=	SEQUENCE {
 	drb-ContinueROHC-r15					ENUMERATED {true}			OPTIONAL,	-- Cond UP-EDT
 	nextHopChainingCount-r15				NextHopChainingCount		OPTIONAL,	-- Cond UP-EDT
-	nonCriticalExtension				SEQUENCE {}						OPTIONAL
+	nonCriticalExtension				RRCConnectionRelease-NB-v1550-IEs	OPTIONAL
+}
+
+RRCConnectionRelease-NB-v1550-IEs ::=	SEQUENCE {
+	redirectedCarrierInfo-v1550			RedirectedCarrierInfo-NB-v1550	OPTIONAL,	-- Cond Redirection-TDD
+	nonCriticalExtension				SEQUENCE {}		OPTIONAL
 }
 
 ReleaseCause-NB-r13 ::=					ENUMERATED {loadBalancingTAUrequired, other,
@@ -500,6 +505,8 @@ RedirectedCarrierInfo-NB-v1430	::=		SEQUENCE {
 												min5, min10, min20, min30, min60, min120, min180,
 												spare1}
 }
+
+RedirectedCarrierInfo-NB-v1550::=		CarrierFreq-NB-v1550
 
 
 RRCConnectionRequest-NB ::=		SEQUENCE {
@@ -986,6 +993,8 @@ OPTIONAL,	--	Need OP
 	]],
 	[[	nsss-RRM-Config-r15				NSSS-RRM-Config-NB-r15	OPTIONAL,	-- Need OR
 		interFreqNeighCellList-v1530	InterFreqNeighCellList-NB-v1530	OPTIONAL -- Need OR
+	]],
+	[[	dl-CarrierFreq-v1550			CarrierFreq-NB-v1550	OPTIONAL -- Cond TDD
 	]]
 }
 
@@ -1226,6 +1235,8 @@ DL-CarrierConfigDedicated-NB-r13 ::=	SEQUENCE {
 									OPTIONAL	-- Need ON
 	]],
 	[[	dl-GapNonAnchor-v1530				DL-GapConfig-NB-v1530	OPTIONAL 	-- Cond TDD1
+	]],
+	[[	dl-CarrierFreq-v1550				CarrierFreq-NB-v1550	OPTIONAL 	-- Cond TDD1
 	]]
 }
 
@@ -1243,6 +1254,10 @@ CarrierFreq-NB-r13 ::=		SEQUENCE {
 									v-10, v-9, v-8,	v-7, v-6, v-5, v-4, v-3, v-2, v-1, v-0dot5,
 									 v0, v1, v2, v3, v4, v5, v6, v7, v8, v9
 									}	OPTIONAL	-- Need ON
+}
+
+CarrierFreq-NB-v1550	::=		SEQUENCE {
+	carrierFreqOffset-v1550		ENUMERATED {v-8dot5, v-4dot5, v3dot5, v7dot5}
 }
 
 
@@ -1282,6 +1297,8 @@ DL-CarrierConfigCommon-NB-r14 ::=	SEQUENCE {
 													dB-4, dB-2, dB0, dB3}	DEFAULT dB0,
 	...,
 	[[	dl-GapNonAnchor-v1530			DL-GapConfig-NB-v1530	OPTIONAL 	-- Cond TDD
+	]],
+	[[	dl-CarrierFreq-v1550			CarrierFreq-NB-v1550	OPTIONAL 	-- Cond TDD
 	]]
 }
 
@@ -1404,7 +1421,7 @@ NPRACH-ConfigSIB-NB-v1530 ::=		SEQUENCE {
 	tdd-Parameters-r15					SEQUENCE {
 		nprach-PreambleFormat-r15			ENUMERATED {
 												fmt0, fmt1, fmt2, fmt0-a, fmt1-a},
-		numRepetitionsPerPreambleAttempt-r15 ENUMERATED {
+		dummy								ENUMERATED {
 												n1, n2, n4, n8, n16, n32, n64, n128,
 												n256, n512, n1024},
 		nprach-ParametersListTDD-r15		NPRACH-ParametersListTDD-NB-r15
@@ -1418,6 +1435,12 @@ NPRACH-ConfigSIB-NB-v1530 ::=		SEQUENCE {
 		edt-TBS-InfoList-r15				EDT-TBS-InfoList-NB-r15,
 		nprach-ParametersListEDT-r15		NPRACH-ParametersList-NB-r14	OPTIONAL	-- Need OR
 	}	OPTIONAL		-- Cond EDT1
+}
+
+NPRACH-ConfigSIB-NB-v1550 ::=		SEQUENCE {
+	tdd-Parameters-v1550				SEQUENCE {
+		nprach-ParametersListTDD-v1550		NPRACH-ParametersListTDD-NB-v1550
+	}
 }
 
 NPRACH-ParametersList-NB-r13 ::=	SEQUENCE (SIZE (1.. maxNPRACH-Resources-NB-r13)) OF NPRACH-Parameters-NB-r13
@@ -1512,6 +1535,15 @@ NPRACH-ParametersTDD-NB-r15 ::=		SEQUENCE {
 													OPTIONAL,	-- NEED OP
 		...
 	}	OPTIONAL	-- Need OR
+}
+
+NPRACH-ParametersListTDD-NB-v1550 ::=	SEQUENCE (SIZE (1.. maxNPRACH-Resources-NB-r13)) OF
+												NPRACH-ParametersTDD-NB-v1550
+
+NPRACH-ParametersTDD-NB-v1550 ::=	SEQUENCE {
+	maxNumPreambleAttemptCE-v1550			ENUMERATED {n3, n4, n5, n6, n7, n8, n10, spare1},
+	numRepetitionsPerPreambleAttempt-v1550	ENUMERATED {n1, n2, n4, n8, n16, n32, n64, n128,
+															 n256, n512, n1024}
 }
 
 NPRACH-ParametersListFmt2-NB-r15 ::=	SEQUENCE (SIZE (1.. maxNPRACH-Resources-NB-r13)) OF NPRACH-ParametersFmt2-NB-r15
@@ -1695,6 +1727,8 @@ RadioResourceConfigCommonSIB-NB-r13 ::=	SEQUENCE {
 	[[	nprach-Config-v1530					NPRACH-ConfigSIB-NB-v1530	OPTIONAL,	-- Need OR
 		dl-Gap-v1530						DL-GapConfig-NB-v1530		OPTIONAL, 	-- Cond TDD
 		wus-Config-r15						WUS-Config-NB-r15			OPTIONAL	-- Need OR
+	]],
+	[[	nprach-Config-v1550					NPRACH-ConfigSIB-NB-v1550	OPTIONAL	-- Cond TDD1
 	]]
 }
 

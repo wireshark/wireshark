@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V15.4.0 (2018-12)
+-- 3GPP TS 36.331 V15.5.0 (2019-03)
 --
 EUTRA-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -42,6 +42,7 @@ IMPORTS
 	SidelinkUEInformation-r12,
 	SL-CommConfig-r12,
 	SL-DiscConfig-r12,
+	SubframeAssignment-r15,
 	RadioResourceConfigDedicated,
 	RadioResourceConfigDedicated-v13c0,
 	RadioResourceConfigDedicated-v1370,
@@ -56,6 +57,7 @@ IMPORTS
 	SCellToAddModListExt-r13,
 	SCellToAddModListExt-v13c0,
 	SCG-ConfigPartSCG-r12,
+	SCG-ConfigPartSCG-v12f0,
 	SCG-ConfigPartSCG-v13c0,
 	SecurityAlgorithmConfig,
 	SCellIndex-r10,
@@ -213,8 +215,13 @@ SCG-Config-r12-IEs ::=				SEQUENCE {
 
 SCG-Config-v12x0-IEs ::=				SEQUENCE {
 	-- Following field is only for late non-critical extensions from REL-12
-	lateNonCriticalExtension			OCTET STRING						OPTIONAL,
+	lateNonCriticalExtension			OCTET STRING (CONTAINING SCG-Config-v12i0-IEs)	OPTIONAL,
 	nonCriticalExtension				SCG-Config-v13c0-IEs				OPTIONAL
+}
+
+SCG-Config-v12i0-IEs ::=				SEQUENCE {
+	scg-RadioConfig-v12i0				SCG-ConfigPartSCG-v12f0			OPTIONAL,	-- Need ON
+	nonCriticalExtension				SEQUENCE {}						OPTIONAL
 }
 
 SCG-Config-v13c0-IEs ::=				SEQUENCE {
@@ -429,6 +436,8 @@ AS-Config ::=				SEQUENCE {
 	[[	sourceConfigSCG-r12					SCG-Config-r12		OPTIONAL
 	]],
 	[[	as-ConfigNR-r15						AS-ConfigNR-r15					OPTIONAL
+	]],
+	[[	as-Config-v1550						AS-Config-v1550					OPTIONAL
 	]]
 }
 
@@ -468,6 +477,14 @@ AS-ConfigNR-r15 ::=				SEQUENCE {
 	sourceRB-ConfigNR-r15				OCTET STRING			OPTIONAL,
 	sourceRB-ConfigSN-NR-r15				OCTET STRING			OPTIONAL,
 	sourceOtherConfigSN-NR-r15			OCTET STRING			OPTIONAL
+}
+
+AS-Config-v1550 ::=			SEQUENCE {
+	tdm-PatternConfig-r15		SEQUENCE {
+		subframeAssignment-r15		SubframeAssignment-r15,
+		harq-Offset-r15				INTEGER (0.. 9)
+	}												OPTIONAL,
+	p-MaxEUTRA-r15				P-Max		OPTIONAL
 }
 
 

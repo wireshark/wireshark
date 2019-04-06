@@ -137,9 +137,6 @@ nr_rrc_call_dissector(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pin
   ENDTRY;
 }
 
-/* Forward declarations */
-static int dissect_UE_CapabilityRequestFilterNR_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
-
 static void
 nr_rrc_q_RxLevMin_fmt(gchar *s, guint32 v)
 {

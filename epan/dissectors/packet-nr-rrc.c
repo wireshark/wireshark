@@ -285,7 +285,7 @@ static int hf_nr_rrc_nr_rrc_RadioBearerConfig_PDU = -1;  /* RadioBearerConfig */
 static int hf_nr_rrc_nr_rrc_UplinkTxDirectCurrentList_PDU = -1;  /* UplinkTxDirectCurrentList */
 static int hf_nr_rrc_nr_rrc_FreqBandList_PDU = -1;  /* FreqBandList */
 static int hf_nr_rrc_nr_rrc_UE_CapabilityRAT_ContainerList_PDU = -1;  /* UE_CapabilityRAT_ContainerList */
-static int hf_nr_rrc_UE_CapabilityRequestFilterNR_PDU = -1;  /* UE_CapabilityRequestFilterNR */
+static int hf_nr_rrc_nr_rrc_UE_CapabilityRequestFilterNR_PDU = -1;  /* UE_CapabilityRequestFilterNR */
 static int hf_nr_rrc_nr_rrc_UE_MRDC_Capability_PDU = -1;  /* UE_MRDC_Capability */
 static int hf_nr_rrc_nr_rrc_UE_NR_Capability_PDU = -1;  /* UE_NR_Capability */
 static int hf_nr_rrc_MeasResultList2NR_PDU = -1;  /* MeasResultList2NR */
@@ -4313,9 +4313,6 @@ nr_rrc_call_dissector(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pin
   }
   ENDTRY;
 }
-
-/* Forward declarations */
-static int dissect_UE_CapabilityRequestFilterNR_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 static void
 nr_rrc_q_RxLevMin_fmt(gchar *s, guint32 v)
@@ -17676,7 +17673,7 @@ dissect_nr_rrc_T_capabilityRequestFilter(tvbuff_t *tvb _U_, int offset _U_, asn1
     subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_capabilityRequestFilter);
     switch(nr_priv->rat_type){
     case RAT_Type_nr:
-      dissect_UE_CapabilityRequestFilterNR_PDU(cap_req_filter_tvb, actx->pinfo, subtree, NULL);
+      dissect_nr_rrc_UE_CapabilityRequestFilterNR_PDU(cap_req_filter_tvb, actx->pinfo, subtree, NULL);
       break;
     default:
       break;
@@ -41471,13 +41468,13 @@ int dissect_nr_rrc_UE_CapabilityRAT_ContainerList_PDU(tvbuff_t *tvb _U_, packet_
   offset += 7; offset >>= 3;
   return offset;
 }
-static int dissect_UE_CapabilityRequestFilterNR_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+int dissect_nr_rrc_UE_CapabilityRequestFilterNR_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   proto_item *prot_ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
   proto_item_set_hidden(prot_ti);
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
-  offset = dissect_nr_rrc_UE_CapabilityRequestFilterNR(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_UE_CapabilityRequestFilterNR_PDU);
+  offset = dissect_nr_rrc_UE_CapabilityRequestFilterNR(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_nr_rrc_UE_CapabilityRequestFilterNR_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -41524,7 +41521,7 @@ static int dissect_SystemInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 
 
 /*--- End of included file: packet-nr-rrc-fn.c ---*/
-#line 356 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 353 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 
 void
 proto_register_nr_rrc(void) {
@@ -41687,7 +41684,7 @@ proto_register_nr_rrc(void) {
       { "UE-CapabilityRAT-ContainerList", "nr-rrc.UE_CapabilityRAT_ContainerList",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_UE_CapabilityRequestFilterNR_PDU,
+    { &hf_nr_rrc_nr_rrc_UE_CapabilityRequestFilterNR_PDU,
       { "UE-CapabilityRequestFilterNR", "nr-rrc.UE_CapabilityRequestFilterNR_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
@@ -52797,7 +52794,7 @@ proto_register_nr_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-nr-rrc-hfarr.c ---*/
-#line 364 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 361 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 
     { &hf_nr_rrc_serialNumber_gs,
       { "Geographical Scope", "nr-rrc.serialNumber.gs",
@@ -54093,7 +54090,7 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_OverheatingAssistanceConfig,
 
 /*--- End of included file: packet-nr-rrc-ettarr.c ---*/
-#line 498 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 495 "./asn1/nr-rrc/packet-nr-rrc-template.c"
     &ett_nr_rrc_DedicatedNAS_Message,
     &ett_rr_rrc_targetRAT_MessageContainer,
     &ett_nr_rrc_nas_Container,
@@ -54144,7 +54141,7 @@ proto_register_nr_rrc(void) {
 
 
 /*--- End of included file: packet-nr-rrc-dis-reg.c ---*/
-#line 530 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 527 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 
   nr_rrc_etws_cmas_dcs_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(),
                                                      g_direct_hash, g_direct_equal);

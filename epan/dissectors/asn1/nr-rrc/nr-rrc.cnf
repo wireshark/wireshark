@@ -67,6 +67,7 @@ SIB7_PDU
 SIB8_PDU
 SIB9_PDU
 UE-CapabilityRAT-ContainerList_PDU
+UE-CapabilityRequestFilterNR_PDU
 UE-MRDC-Capability_PDU
 UE-NR-Capability_PDU
 UL-DCCH-Message_PDU
@@ -823,7 +824,7 @@ T-Reselection DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
     subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_capabilityRequestFilter);
     switch(nr_priv->rat_type){
     case RAT_Type_nr:
-      dissect_UE_CapabilityRequestFilterNR_PDU(cap_req_filter_tvb, actx->pinfo, subtree, NULL);
+      dissect_nr_rrc_UE_CapabilityRequestFilterNR_PDU(cap_req_filter_tvb, actx->pinfo, subtree, NULL);
       break;
     default:
       break;
