@@ -1,9 +1,10 @@
 General Information
 -------------------
 
-Wireshark is a network traffic analyzer, or "sniffer", for Unix and
-Unix-like operating systems.  It uses Qt, a graphical user interface
-library, and libpcap, a packet capture and filtering library.
+Wireshark is a network traffic analyzer, or "sniffer", for Linux, macOS,
+\*BSD and other Unix and Unix-like operating systems and for Windows.
+It uses Qt, a graphical user interface library, and libpcap and npcap as
+packet capture and filtering libraries.
 
 The Wireshark distribution also comes with TShark, which is a
 line-oriented sniffer (similar to Sun's snoop or tcpdump) that uses the
