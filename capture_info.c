@@ -35,7 +35,7 @@ capture_info_packet(info_data_t* cap_info, gint wtap_linktype, const guchar *pd,
 }
 
 /* new packets arrived */
-void capture_info_new_packets(int to_read, info_data_t* cap_info)
+void capture_info_new_packets(int to_read, wtap *wth, info_data_t* cap_info)
 {
     int err;
     gchar *err_info;
@@ -52,8 +52,8 @@ void capture_info_new_packets(int to_read, info_data_t* cap_info)
     wtap_rec_init(&rec);
     ws_buffer_init(&buf, 1514);
     while (to_read > 0) {
-        wtap_cleareof(cap_info->wtap);
-        if (wtap_read(cap_info->wtap, &rec, &buf, &err, &err_info, &data_offset)) {
+        wtap_cleareof(wth);
+        if (wtap_read(wth, &rec, &buf, &err, &err_info, &data_offset)) {
             if (rec.rec_type == REC_TYPE_PACKET) {
                 pseudo_header = &rec.rec_header.packet_header.pseudo_header;
                 wtap_linktype = rec.rec_header.packet_header.pkt_encap;

@@ -38,12 +38,11 @@ typedef struct _capture_info {
 
 typedef struct _info_data {
     packet_counts     counts;     /* Packet counting */
-    struct wtap*      wtap;       /* current wtap file */
     capture_info      ui;         /* user interface data */
 } info_data_t;
 
 /* new packets arrived - read from wtap, count */
-extern void capture_info_new_packets(int to_read, info_data_t* cap_info);
+extern void capture_info_new_packets(int to_read, wtap *wtap, info_data_t* cap_info);
 
 /** Create the capture info dialog */
 extern void

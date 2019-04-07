@@ -145,6 +145,8 @@ capture_start(capture_options *capture_opts, capture_session *cap_session, info_
         capture_callback_invoke(capture_cb_capture_prepared, cap_session);
 
         if (capture_opts->show_info) {
+            cap_session->wtap = NULL;
+
             if (cap_data->counts.counts_hash != NULL)
             {
                 /* Clean up any previous lists of packet counts */
@@ -155,7 +157,6 @@ capture_start(capture_options *capture_opts, capture_session *cap_session, info_
             cap_data->counts.other = 0;
             cap_data->counts.total = 0;
 
-            cap_data->wtap = NULL;
             cap_data->ui.counts = &cap_data->counts;
 
             capture_info_ui_create(&cap_data->ui, cap_session);
@@ -447,12 +448,12 @@ capture_input_new_file(capture_session *cap_session, gchar *new_file)
     }
 
     if(capture_opts->show_info) {
-        if (cap_session->cap_data_info->wtap != NULL) {
-            wtap_close(cap_session->cap_data_info->wtap);
+        if (cap_session->wtap != NULL) {
+            wtap_close(cap_session->wtap);
         }
 
-        cap_session->cap_data_info->wtap = wtap_open_offline(new_file, WTAP_TYPE_AUTO, &err, &err_info, FALSE);
-        if (!cap_session->cap_data_info->wtap) {
+        cap_session->wtap = wtap_open_offline(new_file, WTAP_TYPE_AUTO, &err, &err_info, FALSE);
+        if (!cap_session->wtap) {
             err_msg = g_strdup_printf(cf_open_error_message(err, err_info, FALSE, WTAP_FILE_TYPE_SUBTYPE_UNKNOWN),
                                       new_file);
             g_warning("capture_input_new_file: %d (%s)", err, err_msg);
@@ -508,7 +509,7 @@ capture_input_new_packets(capture_session *cap_session, int to_read)
     }
 
     if(capture_opts->show_info)
-        capture_info_new_packets(to_read, cap_session->cap_data_info);
+        capture_info_new_packets(to_read, cap_session->wtap, cap_session->cap_data_info);
 }
 
 
@@ -704,8 +705,8 @@ capture_input_closed(capture_session *cap_session, gchar *msg)
 
     if(capture_opts->show_info) {
         capture_info_ui_destroy(&cap_session->cap_data_info->ui);
-        if(cap_session->cap_data_info->wtap)
-            wtap_close(cap_session->cap_data_info->wtap);
+        if(cap_session->wtap)
+            wtap_close(cap_session->wtap);
     }
 
     cap_session->state = CAPTURE_STOPPED;
