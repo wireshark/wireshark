@@ -329,24 +329,20 @@ void ExtcapOptionsDialog::on_buttonBox_helpRequested()
 
     QUrl help_url(interface_help);
 
-    /* The help is not a local file, open it and exit */
-    if (help_url.scheme().compare("file") != 0) {
-        QDesktopServices::openUrl(help_url);
-        return;
-    }
-
-    /* The help information is a file url and has been provided as-is by the extcap.
-       Before attempting to open the it, check if it actually exists.
-    */
-    QFileInfo help_file(help_url.path());
-    if ( !help_file.exists() )
-    {
-        QMessageBox::warning(this, tr("Extcap Help cannot be found"),
+    /* Check the existence for a local file */
+    if (help_url.isLocalFile()) {
+        QFileInfo help_file(help_url.toLocalFile());
+        if (!help_file.exists()) {
+            QMessageBox::warning(this, tr("Extcap Help cannot be found"),
                 QString(tr("The help for the extcap interface %1 cannot be found. Given file: %2"))
                     .arg(device.name).arg(help_url.path()),
                 QMessageBox::Ok);
+            return;
+        }
     }
 
+    /* We have an actual url or an existing local file. Let's open it. */
+    QDesktopServices::openUrl(help_url);
 }
 
 bool ExtcapOptionsDialog::saveOptionToCaptureInfo()
