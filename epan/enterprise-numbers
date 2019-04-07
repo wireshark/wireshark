@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2019-03-30)
+(last updated 2019-04-07)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -22358,9 +22358,9 @@ Decimal
     Stig A. Olsen
       stig.arne.olsen&tandberg.no
 5597
-  Meinberg Funkuhren
-    Martin Burnicki
-      martin.burnicki&meinberg.de
+  Meinberg
+    IANA Registry Administration
+      iana-admin&meinberg.de
 5598
   Submarine Warfare Systems Centre
     David Laarakkers
@@ -114086,9 +114086,9 @@ Decimal
     Alex Yanchenko
       yanchenko&gmail.com
 28634
-  ComAp, spol. s r. o.
-    Steiger Miroslav
-      steiger&papouch.com
+  ComAp, a.s.
+    Jan Tomandl
+      jan.tomandl&comap.cz
 28635
   Fragnetics LLP
     Kwok Yang Bin
@@ -135626,8 +135626,8 @@ Decimal
     Bruno MAHE
       mglsys&macguff.fr
 34019
-  Agrokor
-    Igor Bagic
+  Fortenova Grupa d.d.
+    Dario Miculinic
       admin&agrokor.hr
 34020
   OpenHTTPD
@@ -144263,8 +144263,8 @@ Decimal
       jscott&airsage.com
 36178
   Minetec Pty Ltd
-    Midhat Bahtijarevic
-      midhat.bahtijarevic&minetec.com.au
+    Paul Morton
+      paul.morton&minetec.com.au
 36179
   Celerity Systems (Pty) Ltd
     Hugo Lombard
@@ -207432,7 +207432,7 @@ Decimal
 51970
   Wireless Logic Limited
     Paul Furmedge
-      admin.oid&cloud9mobile.co.uk
+      admin.oid&wirelesslogic.com
 51971
   Confédération des Jeunes Chercheurs
     Mathieu Durero
@@ -214341,6 +214341,170 @@ Decimal
   Liceo Classico Statale "G.B. Morgagni"
     Giano Donato
       donato.giano&morgagni.cloud
+53698
+  Gray Day Cafe
+    Paul Wojcicki-Jarocki
+      paul&graydaycafe.com
+53699
+  mecom Medien-Communikations-Gesellschaft mbH
+    Marcus Rating
+      rating&mecom.de
+53700
+  PrimeWest Health
+    Troy Ronning
+      troy.ronning&primewest.org
+53701
+  Microdyne Systems
+    Marco Zoggia
+      mzoggia&microdynesys.com
+53702
+  madeIT.hu Ltd.
+    János Lajos
+      janos.lajos&madeit.hu
+53703
+  Gotthardt Healthgroup AG
+    Sven Peter
+      sven.peter&gotthardt.com
+53704
+  NOKAS AS
+    IT Department Nokas
+      adsecurity&nokas.com
+53705
+  Jatom Systems Inc.
+    Kolin Baetz
+      kbaetz&jsitelecom.com
+53706
+  North Plains Electric Cooperative, Inc.
+    Wayne Brockwell
+      wayne&brockwelltech.com
+53707
+  Arbalo AG
+    Bruno Kaiser
+      admin&arbalo.ch
+53708
+  Kateza Realty
+    Massimiliano Pala
+      cto&katezarealty.com
+53709
+  Conectate Soluciones y Aplicaciones SL
+    Fernando Latorre
+      gestion&conectate-soluciones.com
+53710
+  Tjärnberg Service AB
+    Hans Tjärnberg
+      hans.tjernberg&hotmail.com
+53711
+  huikongchuanghengData System Co., Ltd
+    chujia.zhao
+      hkchsjxtyxgs&163.com
+53712
+  Clarios
+    Jesse Bociek
+      jwatts&concurrency.com
+53713
+  MCUplay Technology
+    huang quan
+      121014889&qq.com
+53714
+  ZMS Insurance Company
+    Shilnikov Andrey Borisovich
+      Andrey.Shilnikov&zms.chita.ru
+53715
+  Podravka d.d.
+    Krunoslav Vecenaj
+      krunoslav.vecenaj&podravka.hr
+53716
+  Dexy Co d.o.o.
+    Ljuban Milosevic
+      ljuban.milosevic&dexy.co.rs
+53717
+  NCS Pte. Ltd.
+    Koh Vui Chueh
+      vuichueh&ncs.com.sg
+53718
+  GETEC net GmbH
+    Ulf Weber
+      aw&getec-net.de
+53719
+  Sopra Steria AG Schweiz
+    Manuel Duffner
+      manuel.duffner&soprasteria.com
+53720
+  Q2 Holdings, Inc
+    Robert Shelton
+      rob.shelton&q2ebanking.com
+53721
+  Wyoming Judicial Branch
+    Keven McGill
+      kmcgill&courts.state.wy.us
+53722
+  SpecPromDizajn LLC
+    Frolov Dmitry
+      info&spd.net.ru
+53723
+  Crooked
+    Spencer Butler
+      spencerunderground&gmail.com
+53724
+  Council of Dubinia
+    Joel Dubiner
+      joel&dubiner.com
+53725
+  Montajes Y Proyectos Electrotécnicos, S.L.
+    Luis Alvarez 
+      lalvarez&mype.com
+53726
+  Cognicase Management Consulting S.L.
+    Iñigo Ubago
+      inigo.ubago&grupocmc.es
+53727
+  OXYLIOM
+    Lamine Diouf
+      lamine.diouf&oxyliom.com
+53728
+  NPC, Inc.
+    Danielle Gerko
+      danielle.gerko&npcweb.com
+53729
+  celos Computer GmbH
+    Stephan Hardtmann
+      stephan.hardtmann&celos.de
+53730
+  GRUPOVIVA S.A. DE C.V.
+    Yury Dubon
+      ydubon&grupovesta.net
+53731
+  evanto media AG
+    Sven von Kaenel
+      svk&evanto.de
+53732
+  Stelkom d.o.o.
+    Bostjan Stros
+      bostjan.stros&stelkom.si
+53733
+  Exterion Media
+    Arthur Gibson
+      arthur.gibson&exterionmedia.co.uk
+53734
+  Forerunner (Electronic) Ltd.
+    Alun Hawkins
+      alun&forelec.co.uk
+53735
+  Stella Technology
+    Sean Smith
+      ssmith&stellatechnology.com
+53736
+  PRIVATE ENTERPRICE NETWORK
+    Keth
+      kennethsorianomalonga&outlook.com
+53737
+  KellemannConsult ApS
+    Jacob Kellemann
+      jacob&kellemann.dk
+53738
+  Beijing Tasson Technology Ltd.
+    Xian Changming
+      xianchangming&tasson.cn
 
 
 End of Document
