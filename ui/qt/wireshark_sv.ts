@@ -8323,10 +8323,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>PluginListModel</name>
     <message>
-        <source>extcap</source>
-        <translation type="vanished">extcap</translation>
-    </message>
-    <message>
         <source>Name</source>
         <translation>Namn</translation>
     </message>

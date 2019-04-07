@@ -8324,10 +8324,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
 <context>
     <name>PluginListModel</name>
     <message>
-        <source>extcap</source>
-        <translation type="vanished">extcap</translation>
-    </message>
-    <message>
         <source>Name</source>
         <translation>Nome</translation>
     </message>

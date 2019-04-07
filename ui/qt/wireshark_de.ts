@@ -8324,10 +8324,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
 <context>
     <name>PluginListModel</name>
     <message>
-        <source>extcap</source>
-        <translation type="vanished">extcap</translation>
-    </message>
-    <message>
         <source>Name</source>
         <translation>Name</translation>
     </message>
