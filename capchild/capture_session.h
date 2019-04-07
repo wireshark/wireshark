@@ -52,6 +52,8 @@ typedef struct _capture_session {
     guint32   count;                      /**< Total number of frames captured */
     capture_options *capture_opts;        /**< options for this capture */
     capture_file *cf;                     /**< handle to cfile */
+    wtap_rec rec;                         /**< record we're reading packet metadata into */
+    Buffer buf;                           /**< Buffer we're reading packet data into */
     struct wtap *wtap;                    /**< current wtap file */
     struct _info_data *cap_data_info;     /**< stats for this capture */
 } capture_session;

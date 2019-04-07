@@ -752,7 +752,8 @@ cf_read(capture_file *cf, gboolean reloading)
 
 #ifdef HAVE_LIBPCAP
 cf_read_status_t
-cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
+cf_continue_tail(capture_file *cf, volatile int to_read, wtap_rec *rec,
+                 Buffer *buf, int *err)
 {
   gchar            *err_info;
   volatile int      newly_displayed_packets = 0;
@@ -799,19 +800,15 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
   epan_dissect_init(&edt, cf->epan, create_proto_tree, FALSE);
 
   TRY {
-    wtap_rec rec;
-    Buffer buf;
     gint64 data_offset = 0;
     column_info *cinfo;
 
     /* If any tap listeners require the columns, construct them. */
     cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cf->cinfo : NULL;
 
-    wtap_rec_init(&rec);
-    ws_buffer_init(&buf, 1514);
     while (to_read != 0) {
       wtap_cleareof(cf->provider.wth);
-      if (!wtap_read(cf->provider.wth, &rec, &buf, err, &err_info,
+      if (!wtap_read(cf->provider.wth, rec, buf, err, &err_info,
                      &data_offset)) {
         break;
       }
@@ -821,13 +818,11 @@ cf_continue_tail(capture_file *cf, volatile int to_read, int *err)
            aren't any packets left to read) exit. */
         break;
       }
-      if (read_record(cf, &rec, &buf, dfcode, &edt, cinfo, data_offset)) {
+      if (read_record(cf, rec, buf, dfcode, &edt, cinfo, data_offset)) {
         newly_displayed_packets++;
       }
       to_read--;
     }
-    wtap_rec_cleanup(&rec);
-    ws_buffer_free(&buf);
   }
   CATCH(OutOfMemoryError) {
     simple_message_box(ESD_TYPE_ERROR, NULL,
@@ -898,11 +893,9 @@ cf_fake_continue_tail(capture_file *cf) {
 }
 
 cf_read_status_t
-cf_finish_tail(capture_file *cf, int *err)
+cf_finish_tail(capture_file *cf, wtap_rec *rec, Buffer *buf, int *err)
 {
   gchar     *err_info;
-  wtap_rec   rec;
-  Buffer     buf;
   gint64     data_offset;
   dfilter_t *dfcode;
   column_info *cinfo;
@@ -951,19 +944,15 @@ cf_finish_tail(capture_file *cf, int *err)
 
   epan_dissect_init(&edt, cf->epan, create_proto_tree, FALSE);
 
-  wtap_rec_init(&rec);
-  ws_buffer_init(&buf, 1514);
-  while ((wtap_read(cf->provider.wth, &rec, &buf, err, &err_info, &data_offset))) {
+  while ((wtap_read(cf->provider.wth, rec, buf, err, &err_info, &data_offset))) {
     if (cf->state == FILE_READ_ABORTED) {
       /* Well, the user decided to abort the read.  Break out of the
          loop, and let the code below (which is called even if there
          aren't any packets left to read) exit. */
       break;
     }
-    read_record(cf, &rec, &buf, dfcode, &edt, cinfo, data_offset);
+    read_record(cf, rec, buf, dfcode, &edt, cinfo, data_offset);
   }
-  wtap_rec_cleanup(&rec);
-  ws_buffer_free(&buf);
 
   /* Cleanup and release all dfilter resources */
   dfilter_free(dfcode);

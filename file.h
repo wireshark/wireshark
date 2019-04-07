@@ -169,10 +169,13 @@ gboolean cf_read_record(capture_file *cf, frame_data *fdata);
  *
  * @param cf the capture file to be read from
  * @param to_read the number of packets to read
+ * @param rec pointer to wtap_rec to use when reading
+ * @param buf pointer to Buffer to use when reading
  * @param err the error code, if an error had occurred
  * @return one of cf_read_status_t
  */
-cf_read_status_t cf_continue_tail(capture_file *cf, volatile int to_read, int *err);
+cf_read_status_t cf_continue_tail(capture_file *cf, volatile int to_read,
+                                  wtap_rec *rec, Buffer *buf, int *err);
 
 /**
  * Fake reading packets from the "end" of a capture file.
@@ -185,10 +188,13 @@ void cf_fake_continue_tail(capture_file *cf);
  * Finish reading from "end" of a capture file.
  *
  * @param cf the capture file to be read from
+ * @param rec pointer to wtap_rec to use when reading
+ * @param buf pointer to Buffer to use when reading
  * @param err the error code, if an error had occurred
  * @return one of cf_read_status_t
  */
-cf_read_status_t cf_finish_tail(capture_file *cf, int *err);
+cf_read_status_t cf_finish_tail(capture_file *cf, wtap_rec *rec,
+                                Buffer *buf, int *err);
 
 /**
  * Determine whether this capture file (or a range of it) can be written
