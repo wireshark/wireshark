@@ -7,16 +7,99 @@ Wireshark 3.0.1 Release Notes
 
  What’s New
 
-    • The Windows installers now ship with Npcap 0.991. They previously
+    • The Windows installers now ship with Npcap 0.992. They previously
       shipped with Npcap 0.99-r9.
 
   Bug Fixes
 
    The following vulnerabilities have been fixed:
 
-     • wnpa-sec-2019-09[1] A dissector went awry.
+     • wnpa-sec-2019-09[1] NetScaler file parser crash. Bug 15497[2].
+
+     • wnpa-sec-2019-10[3] SRVLOC dissector crash. Bug 15546[4].
+
+     • wnpa-sec-2019-11[5] IEEE 802.11 dissector infinite loop. Bug
+       15553[6].
+
+     • wnpa-sec-2019-12[7] GSUP dissector infinite loop. Bug 15585[8].
+
+     • wnpa-sec-2019-13[9] Rbm dissector infinite loop. Bug 15612[10].
+
+     • wnpa-sec-2019-14[11] GSS-API dissector crash. Bug 15613[12].
+
+     • wnpa-sec-2019-15[13] DOF dissector crash. Bug 15617[14].
+
+     • wnpa-sec-2019-16[15] TSDNS dissector crash. Bug 15619[16].
+
+     • wnpa-sec-2019-17[17] LDSS dissector crash. Bug 15620[18].
+
+     • wnpa-sec-2019-18[19] DCERPC SPOOLSS dissector crash. Bug
+       15568[20].
 
    The following bugs have been fixed:
+
+     • [oss-fuzz] UBSAN: shift exponent 34 is too large for 32-bit type
+       'guint32' (aka 'unsigned int') in packet-ieee80211.c:15534:49.
+       Bug 14770[21].
+
+     • [oss-fuzz] UBSAN: shift exponent 35 is too large for 32-bit type
+       'int' in packet-couchbase.c:1674:37. Bug 15439[22].
+
+     • Duplicated TCP SEQ field in ICMP packets. Bug 15533[23].
+
+     • Wrong length in dhcpv6 NTP Server suboption results in "Malformed
+       Packet" and breaks further dissection. Bug 15542[24].
+
+     • Wireshark’s speaker-to-MaxMind is burning up the CPU. Bug
+       15545[25].
+
+     • GSM-A-RR variable bitmap decoding may report ARFCNs > 1023. Bug
+       15549[26].
+
+     • Import hexdump dummy Ethernet header generation ignores direction
+       indication. Bug 15561[27].
+
+     • %T not supported for timestamps. Bug 15565[28].
+
+     • LWM2M: resource with \r\n badly shown. Bug 15572[29].
+
+     • When selecting BSSAP in 'Decode As' for a SCCP payload, it uses
+       BSSAP+ which is not the same protocol. Bug 15578[30].
+
+     • Possible buffer overflow in function ssl_md_final for crafted SSL
+       3.0 sessions. Bug 15599[31].
+
+     • Windows console log output delay. Bug 15605[32].
+
+     • Syslog dissector processes the UTF-8 BOM incorrectly. Bug
+       15607[33].
+
+     • NFS/NLM: Wrong lock byte range in the "Info" column. Bug
+       15608[34].
+
+     • randpkt -r causes segfault when count > 1. Bug 15627[35].
+
+     • Tshark export to ElasticSearch (-Tek) fails with Bad json_dumper
+       state: illegal transition. Bug 15628[36].
+
+     • Packets with metadata but no data get the Protocol Info column
+       overwritten. Bug 15630[37].
+
+     • BGP MP_REACH_NLRI AFI: Layer-2 VPN, SAFI: EVPN - Label stack not
+       decoded. Bug 15631[38].
+
+     • Buildbot crash output: fuzz-2019-03-23-1789.pcap. Bug 15634[39].
+
+     • Typo: broli → brotli. Bug 15647[40].
+
+     • Wrong dissection of GTPv2 MM Context Used NAS integrity
+       protection algorithm. Bug 15648[41].
+
+     • Windows CHM (help file) title displays quoted HTML characters.
+       Bug 15656[42].
+
+     • Unable to load 3rd party plugins not signed by Wireshark’s
+       codesigning certificate. Bug 15667[43].
 
   New and Updated Features
 
@@ -28,9 +111,14 @@ Wireshark 3.0.1 Release Notes
 
   Updated Protocol Support
 
+   BGP, BSSAP, Couchbase, DCERPC SPOOLSS, DHCP, DHCPv6, DOF, FP, GSM A
+   RR, GSS-API, GSUP, GTP, GTPv2, H248C, HL7, IEEE 802.11, IEEE
+   802.15.4, ISO 14443, LDSS, LwM2M-TLV, NLM, Rbm, SIP, SRVLOC, Syslog,
+   TCP, TLS, and TSDNS
+
   New and Updated Capture File Support
 
-   There is no new or updated capture file support in this release.
+   NetScaler and pcap
 
   New and Updated Capture Interfaces support
 
@@ -39,14 +127,14 @@ Wireshark 3.0.1 Release Notes
  Getting Wireshark
 
   Wireshark source code and installation packages are available from
-  https://www.wireshark.org/download.html[2].
+  https://www.wireshark.org/download.html[44].
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[3] on the Wireshark web site.
+   be found on the download page[45] on the Wireshark web site.
 
  File Locations
 
@@ -58,31 +146,73 @@ Wireshark 3.0.1 Release Notes
  Getting Help
 
   The User’s Guide, manual pages and various other documentation can be
-  found at https://www.wireshark.org/docs/[4]
+  found at https://www.wireshark.org/docs/[46]
 
-  Community support is available on Wireshark’s Q&A site[5] and on the
+  Community support is available on Wireshark’s Q&A site[47] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[6].
+  for all of Wireshark’s mailing lists can be found on the web site[48].
 
-  Bugs and feature requests can be reported on the bug tracker[7].
+  Bugs and feature requests can be reported on the bug tracker[49].
 
   Official Wireshark training and certification are available from
-  Wireshark University[8].
+  Wireshark University[50].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[9].
+  A complete FAQ is available on the Wireshark web site[51].
 
-  Last updated 2019-03-31 08:36:42 UTC
+  Last updated 2019-04-07 08:35:16 UTC
 
  References
 
    1. https://www.wireshark.org/security/wnpa-sec-2019-09
-   2. https://www.wireshark.org/download.html
-   3. https://www.wireshark.org/download.html#thirdparty
-   4. https://www.wireshark.org/docs/
-   5. https://ask.wireshark.org/
-   6. https://www.wireshark.org/lists/
-   7. https://bugs.wireshark.org/
-   8. http://www.wiresharktraining.com/
-   9. https://www.wireshark.org/faq.html
+   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15497
+   3. https://www.wireshark.org/security/wnpa-sec-2019-10
+   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15546
+   5. https://www.wireshark.org/security/wnpa-sec-2019-11
+   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15553
+   7. https://www.wireshark.org/security/wnpa-sec-2019-12
+   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15585
+   9. https://www.wireshark.org/security/wnpa-sec-2019-13
+  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15612
+  11. https://www.wireshark.org/security/wnpa-sec-2019-14
+  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15613
+  13. https://www.wireshark.org/security/wnpa-sec-2019-15
+  14. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15617
+  15. https://www.wireshark.org/security/wnpa-sec-2019-16
+  16. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15619
+  17. https://www.wireshark.org/security/wnpa-sec-2019-17
+  18. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15620
+  19. https://www.wireshark.org/security/wnpa-sec-2019-18
+  20. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15568
+  21. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=14770
+  22. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15439
+  23. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15533
+  24. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15542
+  25. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15545
+  26. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15549
+  27. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15561
+  28. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15565
+  29. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15572
+  30. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15578
+  31. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15599
+  32. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15605
+  33. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15607
+  34. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15608
+  35. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15627
+  36. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15628
+  37. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15630
+  38. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15631
+  39. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15634
+  40. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15647
+  41. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15648
+  42. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15656
+  43. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15667
+  44. https://www.wireshark.org/download.html
+  45. https://www.wireshark.org/download.html#thirdparty
+  46. https://www.wireshark.org/docs/
+  47. https://ask.wireshark.org/
+  48. https://www.wireshark.org/lists/
+  49. https://bugs.wireshark.org/
+  50. http://www.wiresharktraining.com/
+  51. https://www.wireshark.org/faq.html
