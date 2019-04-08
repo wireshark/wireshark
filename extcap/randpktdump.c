@@ -17,6 +17,7 @@
 #include "randpkt_core/randpkt_core.h"
 #include <wsutil/strtoi.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/privileges.h>
 
 #define RANDPKT_EXTCAP_INTERFACE "randpkt"
 #define RANDPKTDUMP_VERSION_MAJOR "0"
@@ -116,6 +117,7 @@ static int list_config(char *interface)
 
 int main(int argc, char *argv[])
 {
+	char* init_progfile_dir_error;
 	int option_idx = 0;
 	int result;
 	guint16 maxbytes = 5000;
@@ -135,6 +137,22 @@ int main(int argc, char *argv[])
 	extcap_parameters * extcap_conf = g_new0(extcap_parameters, 1);
 	char* help_url;
 	char* help_header = NULL;
+
+	/*
+	 * Get credential information for later use.
+	 */
+	init_process_policies();
+
+	/*
+	 * Attempt to get the pathname of the directory containing the
+	 * executable file.
+	 */
+	init_progfile_dir_error = init_progfile_dir(argv[0], NULL);
+	if (init_progfile_dir_error != NULL) {
+		g_warning("Can't get pathname of directory containing the captype program: %s.",
+			init_progfile_dir_error);
+		g_free(init_progfile_dir_error);
+	}
 
 	help_url = data_file_url("randpktdump.html");
 	extcap_base_set_util_info(extcap_conf, argv[0], RANDPKTDUMP_VERSION_MAJOR, RANDPKTDUMP_VERSION_MINOR,

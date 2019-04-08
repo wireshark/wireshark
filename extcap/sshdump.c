@@ -19,6 +19,7 @@
 #include <wsutil/strtoi.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/glib-compat.h>
+#include <wsutil/privileges.h>
 
 #include <errno.h>
 #include <string.h>
@@ -325,6 +326,7 @@ static char* concat_filters(const char* extcap_filter, const char* remote_filter
 
 int main(int argc, char **argv)
 {
+	char* init_progfile_dir_error;
 	int result;
 	int option_idx = 0;
 	char* remote_host = NULL;
@@ -349,6 +351,22 @@ int main(int argc, char **argv)
 
 	attach_parent_console();
 #endif  /* _WIN32 */
+
+	/*
+	 * Get credential information for later use.
+	 */
+	init_process_policies();
+
+	/*
+	 * Attempt to get the pathname of the directory containing the
+	 * executable file.
+	 */
+	init_progfile_dir_error = init_progfile_dir(argv[0], NULL);
+	if (init_progfile_dir_error != NULL) {
+		g_warning("Can't get pathname of directory containing the captype program: %s.",
+			init_progfile_dir_error);
+		g_free(init_progfile_dir_error);
+	}
 
 	help_url = data_file_url("sshdump.html");
 	extcap_base_set_util_info(extcap_conf, argv[0], SSHDUMP_VERSION_MAJOR, SSHDUMP_VERSION_MINOR,

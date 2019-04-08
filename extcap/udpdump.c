@@ -47,6 +47,7 @@
 #include <wsutil/strtoi.h>
 #include <wsutil/inet_addr.h>
 #include <wsutil/filesystem.h>
+#include <wsutil/privileges.h>
 
 #define PCAP_SNAPLEN 0xffff
 
@@ -356,6 +357,7 @@ static void run_listener(const char* fifo, const guint16 port, const char* proto
 
 int main(int argc, char *argv[])
 {
+	char* init_progfile_dir_error;
 	int option_idx = 0;
 	int result;
 	guint16 port = 0;
@@ -369,6 +371,22 @@ int main(int argc, char *argv[])
 	WSADATA wsaData;
 	attach_parent_console();
 #endif  /* _WIN32 */
+
+	/*
+	 * Get credential information for later use.
+	 */
+	init_process_policies();
+
+	/*
+	 * Attempt to get the pathname of the directory containing the
+	 * executable file.
+	 */
+	init_progfile_dir_error = init_progfile_dir(argv[0], NULL);
+	if (init_progfile_dir_error != NULL) {
+		g_warning("Can't get pathname of directory containing the captype program: %s.",
+			init_progfile_dir_error);
+		g_free(init_progfile_dir_error);
+	}
 
 	help_url = data_file_url("udpdump.html");
 	extcap_base_set_util_info(extcap_conf, argv[0], UDPDUMP_VERSION_MAJOR, UDPDUMP_VERSION_MINOR, UDPDUMP_VERSION_RELEASE,
