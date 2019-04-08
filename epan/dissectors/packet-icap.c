@@ -16,6 +16,7 @@
 
 #include <epan/packet.h>
 #include <epan/strutil.h>
+#include "packet-tls.h"
 
 void proto_register_icap(void);
 void proto_reg_handoff_icap(void);
@@ -310,8 +311,13 @@ proto_reg_handoff_icap(void)
 
     http_handle = find_dissector_add_dependency("http", proto_icap);
 
-    icap_handle = create_dissector_handle(dissect_icap, proto_icap);
+    icap_handle = register_dissector("icap", dissect_icap, proto_icap);
     dissector_add_uint_with_preference("tcp.port", TCP_PORT_ICAP, icap_handle);
+
+    /* As ICAPS port is not officially assigned by IANA
+     * (de facto standard is 11344), we default to 0
+     * to have "decode as" available */
+    ssl_dissector_add(0, icap_handle);
 }
 
 /*
