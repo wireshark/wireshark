@@ -273,6 +273,7 @@ typedef struct {
 #define ANV_PROTO_ID_MIH_IS    1
 #define ADV_PROTO_ID_MIH_CESCD 2
 #define ADV_PROTO_ID_EAS       3
+#define ADV_PROTO_ID_RLQP       4
 #define ADV_PROTO_ID_VS        221
 
 typedef struct anqp_info_dissector_data {
