@@ -31472,7 +31472,7 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_bss_avb_adm_cap_bitmask_up6,
-     {"UP0 (bit6)", "wlan.bss_avb_adm_cap.bitmask.up6",
+     {"UP6 (bit6)", "wlan.bss_avb_adm_cap.bitmask.up6",
       FT_BOOLEAN, 16, TFS(&tfs_set_notset), BSS_BITMASK_UP6,
       NULL, HFILL }},
 
