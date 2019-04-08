@@ -85,11 +85,8 @@ void proto_register_wlan_rsna_eapol(void);
 typedef struct {
   DOT11DECRYPT_KEY_ITEM used_key;
   guint keydata_len;
-  guint8 keydata[0]; /* dynamic size */
+  guint8 *keydata;
 } proto_eapol_keydata_t;
-
-#define PROTO_EAPOL_KEYDATA_OFFSET (offsetof(proto_eapol_keydata_t, keydata))
-#define PROTO_EAPOL_MAX_SIZE (DOT11DECRYPT_MAX_CAPLEN + PROTO_EAPOL_KEYDATA_OFFSET)
 
 extern value_string_ext eap_type_vals_ext; /* from packet-eap.c */
 
@@ -25692,10 +25689,10 @@ try_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint offset, guint len, gboolean
   } else if (ret == DOT11DECRYPT_RET_SUCCESS_HANDSHAKE && dec_caplen > 0) {
       proto_eapol_keydata_t *eapol;
       eapol = (proto_eapol_keydata_t *)wmem_alloc(wmem_file_scope(),
-                                                  dec_caplen + PROTO_EAPOL_KEYDATA_OFFSET);
-      memcpy(&eapol->used_key, used_key, sizeof(*used_key));
-      memcpy(eapol->keydata, dec_data, dec_caplen);
+                                                  sizeof(proto_eapol_keydata_t));
+      eapol->used_key = *used_key;
       eapol->keydata_len = dec_caplen;
+      eapol->keydata = (guint8 *)wmem_memdup(wmem_file_scope(), dec_data, dec_caplen);
 
       /* Save decrypted eapol keydata for rsna dissector */
       p_add_proto_data(wmem_file_scope(), pinfo, proto_wlan, EAPOL_KEY, eapol);
