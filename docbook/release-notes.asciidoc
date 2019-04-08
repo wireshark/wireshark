@@ -3,7 +3,6 @@ include::attributes.asciidoc[]
 :linkcss:
 
 = Wireshark {wireshark-version} Release Notes
-// AsciiDoc quick reference: http://powerman.name/doc/asciidoc
 // Asciidoctor Syntax Quick Reference:
 // http://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
 
@@ -14,102 +13,18 @@ used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-* The Windows installers now ship with Npcap 0.992. They previously shipped
-  with Npcap 0.99-r9.
-
 === Bug Fixes
 
 The following vulnerabilities have been fixed:
 
-* wssalink:2019-09[]
-NetScaler file parser crash.
-wsbuglink:15497[].
-cveidlink:2019-10895[].
-// Fixed in master: efe920af3a, 07bb974bcd, 134a513dd5
-// Fixed in master-3.0: 490b381729, b759633425, 3ced6f5b05
-// Fixed in master-2.6: dedcdbcdc4, 213c2c9afb, fc8367a505
-// Fixed in master-2.4: cab0cff6ab, 38680c4c69
-
-* wssalink:2019-10[]
-SRVLOC dissector crash.
-wsbuglink:15546[].
-cveidlink:2019-10899[].
-// Fixed in master: 8f15ebed65
-// Fixed in master-3.0: fb94bfef5f
-// Fixed in master-2.6: f43ac1291b
-// Fixed in master-2.4: b16fea2f17
-
-* wssalink:2019-11[]
-IEEE 802.11 dissector infinite loop.
-wsbuglink:15553[].
-cveidlink:2019-10897[].
-// Fixed in master: 355fe66340
-// Fixed in master-3.0: 00d5e9e9fb
-// Fixed in master-2.6: n/a
-// Fixed in master-2.4: n/a
-
-* wssalink:2019-12[]
-GSUP dissector infinite loop.
-wsbuglink:15585[].
-cveidlink:2019-10898[].
-// Fixed in master: 5a8e9e35b3
-// Fixed in master-3.0: f80b7d1b27
-// Fixed in master-2.6: n/a
-// Fixed in master-2.4: n/a
-
-* wssalink:2019-13[]
-Rbm dissector infinite loop.
-wsbuglink:15612[].
-cveidlink:2019-10900[].
-// Fixed in master: 108507e504
-// Fixed in master-3.0: 26eee01f57
-// Fixed in master-2.6: n/a
-// Fixed in master-2.4: n/a
-
-* wssalink:2019-14[]
-GSS-API dissector crash.
-wsbuglink:15613[].
-cveidlink:2019-10894[].
-// Fixed in master: 8cdc958426
-// Fixed in master-3.0: ea75daa28b
-// Fixed in master-2.6: a9c0287976
-// Fixed in master-2.4: b20e5d8aae
-
-* wssalink:2019-15[]
-DOF dissector crash.
-wsbuglink:15617[].
-cveidlink:2019-10896[].
-// Fixed in master: b572b65e51
-// Fixed in master-3.0: 651cd91b16
-// Fixed in master-2.6: a35c64380b
-// Fixed in master-2.4: 441b6d9071
-
-* wssalink:2019-16[]
-TSDNS dissector crash.
-wsbuglink:15619[].
-cveidlink:2019-10902[].
-// Fixed in master: 19d54ac364
-// Fixed in master-3.0: 95571f17d5
-// Fixed in master-2.6: n/a
-// Fixed in master-2.4: n/a
-
-* wssalink:2019-17[]
-LDSS dissector crash.
-wsbuglink:15620[].
-cveidlink:2019-10901[].
-// Fixed in master: 6c3467945c
-// Fixed in master-3.0: 1cf349ddb2
-// Fixed in master-2.6: d368eed192
-// Fixed in master-2.4: cf801a2507
-
-* wssalink:2019-18[]
-DCERPC SPOOLSS dissector crash.
-wsbuglink:15568[].
-cveidlink:2019-10903[].
-// Fixed in master: 5aba3ed0cd
-// Fixed in master-3.0: 2f529f8acf
-// Fixed in master-2.6: 85499cde33
-// Fixed in master-2.4: eafdcfa4b6
+* wssalink:2019-19[]
+A dissector went awry.
+// wsbuglink:XXXXX[].
+// cveidlink:2019-XXXXX[].
+// Fixed in master: XXXXX
+// Fixed in master-3.0: XXXXX
+// Fixed in master-2.6: XXXXX
+// Fixed in master-2.4: XXXXX
 
 The following bugs have been fixed:
 
@@ -118,57 +33,6 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark slowly leaked water under the kitchen sink over the course of several months, causing a big mess.
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v3.0.2rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-// Undefined behavior
-* [oss-fuzz] UBSAN: shift exponent 34 is too large for 32-bit type 'guint32' (aka 'unsigned int') in packet-ieee80211.c:15534:49. wsbuglink:14770[].
-
-* [oss-fuzz] UBSAN: shift exponent 35 is too large for 32-bit type 'int' in packet-couchbase.c:1674:37. wsbuglink:15439[].
-
-* Duplicated TCP SEQ field in ICMP packets. wsbuglink:15533[].
-
-* Wrong length in dhcpv6 NTP Server suboption results in "Malformed Packet" and breaks further dissection. wsbuglink:15542[].
-
-* Wireshark's speaker-to-MaxMind is burning up the CPU. wsbuglink:15545[].
-
-* GSM-A-RR variable bitmap decoding may report ARFCNs > 1023. wsbuglink:15549[].
-
-* Import hexdump dummy Ethernet header generation ignores direction indication. wsbuglink:15561[].
-
-* %T not supported for timestamps. wsbuglink:15565[].
-
-* LWM2M: resource with {backslash}r{backslash}n badly shown. wsbuglink:15572[].
-
-* When selecting BSSAP in 'Decode As' for a SCCP payload, it uses BSSAP+ which is not the same protocol. wsbuglink:15578[].
-
-// Requires extraordinary conditions
-* Possible buffer overflow in function ssl_md_final for crafted SSL 3.0 sessions. wsbuglink:15599[].
-
-* Windows console log output delay. wsbuglink:15605[].
-
-* Syslog dissector processes the UTF-8 BOM incorrectly. wsbuglink:15607[].
-
-* NFS/NLM: Wrong lock byte range in the "Info" column. wsbuglink:15608[].
-
-* randpkt -r causes segfault when count > 1. wsbuglink:15627[].
-
-* Tshark export to ElasticSearch (-Tek) fails with Bad json_dumper state: illegal transition. wsbuglink:15628[].
-
-* Packets with metadata but no data get the Protocol Info column overwritten. wsbuglink:15630[].
-
-* BGP MP_REACH_NLRI AFI: Layer-2 VPN, SAFI: EVPN - Label stack not decoded. wsbuglink:15631[].
-
-// Uninitialized memory
-* Buildbot crash output: fuzz-2019-03-23-1789.pcap. wsbuglink:15634[].
-
-* Typo: broli -> brotli. wsbuglink:15647[].
-
-* Wrong dissection of GTPv2 MM Context Used NAS integrity protection algorithm. wsbuglink:15648[].
-
-* Windows CHM (help file) title displays quoted HTML characters. wsbuglink:15656[].
-
-* Unable to load 3rd party plugins not signed by Wireshark's codesigning certificate. wsbuglink:15667[].
-
-// Left off at 08bdd4c22e
 
 === New and Updated Features
 
@@ -191,45 +55,15 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
-BGP
-BSSAP
-Couchbase
-DCERPC SPOOLSS
-DHCP
-DHCPv6
-DOF
-FP
-GSM A RR
-GSS-API
-GSUP
-GTP
-GTPv2
-IEEE 802.11
-IEEE 802.15.4
-ISO 14443
-H248C
-HL7
-LDSS
-LwM2M-TLV
-NLM
-Rbm
-SIP
-SRVLOC
-Syslog
-TCP
-TLS
-TSDNS
 --
 
 === New and Updated Capture File Support
 
-// There is no new or updated capture file support in this release.
+There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-[commaize]
---
-NetScaler
-pcap
---
+// [commaize]
+// --
+// --
 
 === New and Updated Capture Interfaces support
 
