@@ -114,7 +114,7 @@ add_library(wiretap ${LINK_MODE_LIB}
 
 add_dependencies(wiretap version)
 
-set(FULL_SO_VERSION "7.0.14")
+set(FULL_SO_VERSION "7.0.15")
 
 set_target_properties(wiretap PROPERTIES
 	PREFIX "lib"

@@ -306,7 +306,7 @@ libwireshark_la_SOURCES = \
 libwireshark_la_CPPFLAGS = $(AM_CPPFLAGS) -DWS_BUILD_DLL
 
 # http://www.gnu.org/software/libtool/manual/html_node/Updating-version-info.html
-libwireshark_la_LDFLAGS = -version-info 10:14:1 @LDFLAGS_BIGSHAREDLIB@ @LDFLAGS_SHAREDLIB@
+libwireshark_la_LDFLAGS = -version-info 10:15:1 @LDFLAGS_BIGSHAREDLIB@ @LDFLAGS_SHAREDLIB@
 
 #
 # Add the object files for missing routines, if any.
