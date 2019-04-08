@@ -312,7 +312,7 @@ add_library(epan
 
 add_dependencies(epan version)
 
-set(FULL_SO_VERSION "11.1.8")
+set(FULL_SO_VERSION "11.1.9")
 
 set_target_properties(epan PROPERTIES
 	COMPILE_DEFINITIONS "WS_BUILD_DLL"
