@@ -407,7 +407,7 @@ cf_close(capture_file *cf)
 
   /* No frames, no frame selected, no field in that frame selected. */
   cf->count = 0;
-  cf->current_frame = 0;
+  cf->current_frame = NULL;
   cf->current_row = 0;
   cf->finfo_selected = NULL;
 
