@@ -18296,7 +18296,7 @@ ieee80211_tag_mesh_configuration(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
   subtree = proto_item_add_subtree(item, ett_mesh_formation_info_tree);
   proto_tree_add_item(subtree, hf_ieee80211_mesh_form_info_num_of_peerings, tvb, offset + 5, 1, ENC_LITTLE_ENDIAN);
 
-  proto_tree_add_bitmask_with_flags(tree, tvb, offset, hf_ieee80211_mesh_config_capability,
+  proto_tree_add_bitmask_with_flags(tree, tvb, offset + 6, hf_ieee80211_mesh_config_capability,
                                     ett_mesh_config_cap_tree, ieee80211_mesh_config_cap,
                                     ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
   return tvb_captured_length(tvb);
