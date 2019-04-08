@@ -232,6 +232,12 @@ static int hf_ldp_tlv_fec_gen_taii_value = -1;
 static int hf_ldp_tlv_fec_gen_aai_globalid = -1;
 static int hf_ldp_tlv_fec_gen_aai_prefix = -1;
 static int hf_ldp_tlv_fec_gen_aai_ac_id = -1;
+static int hf_ldp_tlv_fec_pw_controlword = -1;
+static int hf_ldp_tlv_fec_pw_pwtype = -1;
+static int hf_ldp_tlv_fec_pw_infolength = -1;
+static int hf_ldp_tlv_fec_pw_groupid = -1;
+static int hf_ldp_tlv_fec_pw_pwid = -1;
+static int hf_ldp_tlv_fec_pw_interface_parameter = -1;
 static int hf_ldp_tlv_pw_status_data = -1;
 static int hf_ldp_tlv_pw_not_forwarding = -1;
 static int hf_ldp_tlv_pw_lac_ingress_recv_fault = -1;
@@ -1125,6 +1131,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
     guint16     op_length = tvb_get_bits16(tvb, ((offset+8)*8), 16, ENC_BIG_ENDIAN);
     guint8      addr_size=0, *addr, implemented, prefix_len_octets, prefix_len, host_len, vc_len;
     guint8      intparam_len, aai_type = 0;
+    guint32     pwid_len, agi_aii_len;
     const char *str;
     guint8 gen_fec_id_len = 0;
     address_type addr_type;
@@ -1340,6 +1347,7 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
                 offset += intparam_len;
             }
             break;
+
         case P2MP_PW_UPSTREAM_FEC:
         {
             /* Ref: RFC 4447 */
@@ -1515,6 +1523,100 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
 
             break;
         }
+
+        case PWID_FEC_ELEMENT:
+        {
+            if (rem < 8 ){/*not enough*/
+                proto_item* inv_length;
+                inv_length = proto_tree_add_item(val_tree, hf_ldp_tlv_inv_length, tvb, offset, rem, ENC_BIG_ENDIAN);
+                expert_add_info(pinfo, inv_length, &ei_ldp_inv_length);
+                return;
+            }
+
+            fec_tree = proto_tree_add_subtree_format(val_tree, tvb, offset, 8+tvb_get_guint8 (tvb, offset+3),
+                                                            ett_ldp_fec, NULL, "FEC Element %u", ix);
+            proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_wc, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_pw_controlword, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_pw_pwtype, tvb, offset+1, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(fec_tree, hf_ldp_tlv_fec_pw_infolength, tvb, offset+3,1,ENC_BIG_ENDIAN, &pwid_len);
+            proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_pw_groupid,tvb, offset +4, 4, ENC_BIG_ENDIAN);
+            rem -=8;
+            offset +=8;
+
+            if ( (pwid_len > 3) && ( rem > 3 ) ) { /* there is enough room for pwid */
+                proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_pw_pwid,tvb, offset, 4, ENC_BIG_ENDIAN);
+                rem -=4;
+                offset +=4;
+
+            }
+            if ( (pwid_len > 4) && ( rem > 4 ) ) { /* there is enough room for interface parameter sub TLV */
+                proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_pw_interface_parameter,tvb, offset, pwid_len - 4, ENC_NA);
+                rem -= (pwid_len - 4);
+                offset += (pwid_len -4);
+
+            }
+
+            break;
+        }
+
+        case GENERALIZED_PWID_FEC:
+        {
+            if (rem < 4 ){/*not enough*/
+                proto_item* inv_length;
+                inv_length = proto_tree_add_item(val_tree, hf_ldp_tlv_inv_length, tvb, offset, rem, ENC_BIG_ENDIAN);
+                expert_add_info(pinfo, inv_length, &ei_ldp_inv_length);
+                return;
+            }
+
+            fec_tree = proto_tree_add_subtree_format(val_tree, tvb, offset, 4+tvb_get_guint8 (tvb, offset+3),
+                                                            ett_ldp_fec, NULL, "FEC Element %u", ix);
+            proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_wc, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_pw_controlword, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_pw_pwtype, tvb, offset+1, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(fec_tree, hf_ldp_tlv_fec_pw_infolength, tvb, offset+3,1,ENC_BIG_ENDIAN, &pwid_len);
+            rem -= 4;
+            offset += 4;
+            if ( (pwid_len > 5) && ( rem > 5 ) ) { /* there is enough room for AGI/AII data */
+                proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_gen_agi_type,tvb, offset, 1, ENC_BIG_ENDIAN);
+                rem -= 1;
+                offset += 1;
+                proto_tree_add_item_ret_uint(fec_tree, hf_ldp_tlv_fec_gen_agi_length, tvb, offset,1,ENC_BIG_ENDIAN, &agi_aii_len);
+                rem -= 1;
+                offset += 1;
+                if ( agi_aii_len > 0)
+                {
+                    proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_gen_agi_value, tvb, offset, agi_aii_len , ENC_NA );
+                    rem -= agi_aii_len;
+                    offset += agi_aii_len;
+                }
+                proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_gen_saii_type,tvb, offset, 1, ENC_BIG_ENDIAN);
+                rem -= 1;
+                offset += 1;
+                proto_tree_add_item_ret_uint(fec_tree, hf_ldp_tlv_fec_gen_saii_length, tvb, offset,1,ENC_BIG_ENDIAN, &agi_aii_len);
+                rem -= 1;
+                offset += 1;
+                if ( agi_aii_len > 0)
+                {
+                    proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_gen_saii_value, tvb, offset, agi_aii_len , ENC_NA );
+                    rem -= agi_aii_len;
+                    offset += agi_aii_len;
+                }
+                proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_gen_taii_type,tvb, offset, 1, ENC_BIG_ENDIAN);
+                rem -= 1;
+                offset += 1;
+                proto_tree_add_item_ret_uint(fec_tree, hf_ldp_tlv_fec_gen_taii_length, tvb, offset,1,ENC_BIG_ENDIAN, &agi_aii_len);
+                rem -= 1;
+                offset += 1;
+                if ( agi_aii_len > 0)
+                {
+                    proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_gen_taii_value, tvb, offset, agi_aii_len , ENC_NA );
+                    rem -= agi_aii_len;
+                    offset += agi_aii_len;
+                }
+            }
+            break;
+        }
+
         default:  /* Unknown */
             /* XXX - do all FEC's have a length that's a multiple of 4? */
             /* Hmmm, don't think so. Will check. RJS. */
@@ -4147,6 +4249,30 @@ proto_register_ldp(void)
         { &hf_ldp_tlv_fec_gen_aai_ac_id,
           { "Prefix", "ldp.msg.tlv.fec.gen.aii.acid", FT_UINT32, BASE_DEC,
             NULL, 0x0, "Attachment Individual Identifier AC Id", HFILL}},
+
+        { &hf_ldp_tlv_fec_pw_controlword,
+          { "C-bit", "ldp.msg.tlv.fec.pw.controlword", FT_BOOLEAN, 8,
+            TFS(&fec_vc_cbit), 0x80, "Control Word Present", HFILL }},
+
+        { &hf_ldp_tlv_fec_pw_pwtype,
+          { "PW Type", "ldp.msg.tlv.fec.pw.pwtype", FT_UINT16, BASE_HEX,
+            VALS(fec_vc_types_vals), 0x7FFF, "Virtual Circuit Type", HFILL }},
+
+        { &hf_ldp_tlv_fec_pw_infolength,
+          { "PW Info Length", "ldp.msg.tlv.fec.pw.infolength", FT_UINT8, BASE_DEC,
+            NULL, 0x0, "PW FEC Info Length", HFILL }},
+
+        { &hf_ldp_tlv_fec_pw_groupid,
+          { "Group ID", "ldp.msg.tlv.fec.pw.groupid", FT_UINT32, BASE_DEC,
+            NULL, 0x0, "PW FEC Group ID", HFILL }},
+
+        { &hf_ldp_tlv_fec_pw_pwid,
+          { "PW ID", "ldp.msg.tlv.fec.pw.pwid", FT_UINT32, BASE_DEC,
+            NULL, 0x0, "PW FEC PWID", HFILL }},
+
+        { &hf_ldp_tlv_fec_pw_interface_parameter,
+          { "Interface Parameter", "ldp.msg.tlv.fec.pw.interface_parameter", FT_BYTES, BASE_NONE,
+            NULL, 0x0, "PW FEC Interface Parameter Sub-TLV", HFILL }},
 
         { &hf_ldp_tlv_pw_status_data,
           { "PW Status", "ldp.msg.tlv.pwstatus.code", FT_UINT32, BASE_HEX,
