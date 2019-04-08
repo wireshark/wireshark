@@ -29,6 +29,7 @@
 #include <wsutil/strtoi.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/glib-compat.h>
+#include <wsutil/privileges.h>
 #include <extcap/ssh-base.h>
 #include <writecap/pcapio.h>
 
@@ -519,6 +520,7 @@ static int list_config(char *interface, unsigned int remote_port)
 
 int main(int argc, char **argv)
 {
+	char* init_progfile_dir_error;
 	int result;
 	int option_idx = 0;
 	int i;
@@ -541,6 +543,22 @@ int main(int argc, char **argv)
 
 	attach_parent_console();
 #endif  /* _WIN32 */
+
+	/*
+	 * Get credential information for later use.
+	 */
+	init_process_policies();
+
+	/*
+	 * Attempt to get the pathname of the directory containing the
+	 * executable file.
+	 */
+	init_progfile_dir_error = init_progfile_dir(argv[0], NULL);
+	if (init_progfile_dir_error != NULL) {
+		g_warning("Can't get pathname of directory containing the captype program: %s.",
+			init_progfile_dir_error);
+		g_free(init_progfile_dir_error);
+	}
 
 	help_url = data_file_url("ciscodump.html");
 	extcap_base_set_util_info(extcap_conf, argv[0], CISCODUMP_VERSION_MAJOR, CISCODUMP_VERSION_MINOR,

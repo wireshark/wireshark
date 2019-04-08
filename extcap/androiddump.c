@@ -33,6 +33,7 @@
 #include <wsutil/strtoi.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/cmdarg_err.h>
+#include <wsutil/privileges.h>
 
 #include "ui/failure_message.h"
 
@@ -2681,6 +2682,7 @@ static int capture_android_wifi_tcpdump(char *interface, char *fifo,
 }
 
 int main(int argc, char **argv) {
+    char            *init_progfile_dir_error;
     int              ret = EXIT_CODE_GENERIC;
     int              option_idx = 0;
     int              result;
@@ -2712,6 +2714,22 @@ int main(int argc, char **argv) {
 #endif  /* _WIN32 */
 
     cmdarg_err_init(failure_warning_message, failure_warning_message);
+
+    /*
+     * Get credential information for later use.
+     */
+    init_process_policies();
+
+    /*
+     * Attempt to get the pathname of the directory containing the
+     * executable file.
+     */
+    init_progfile_dir_error = init_progfile_dir(argv[0], NULL);
+    if (init_progfile_dir_error != NULL) {
+        g_warning("Can't get pathname of directory containing the captype program: %s.",
+                  init_progfile_dir_error);
+        g_free(init_progfile_dir_error);
+    }
 
     extcap_conf = g_new0(extcap_parameters, 1);
 
