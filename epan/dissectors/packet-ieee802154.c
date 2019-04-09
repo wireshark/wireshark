@@ -2964,7 +2964,7 @@ dissect_ieee802154_tap_sun_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
  * @param length TLV length
  * @returns the tree created for the Payload IE
  */
-proto_tree*
+static proto_tree*
 ieee802154_create_tap_tlv_tree(proto_tree *tree, tvbuff_t *tvb, gint offset, guint32 *type, guint32 *length)
 {
     proto_tree *subtree = NULL;
