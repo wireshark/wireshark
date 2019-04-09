@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V15.4.0 (2018-12)
+-- 3GPP TS 36.423 V15.5.0 (2019-03)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -71,7 +71,9 @@ id-SgNBActivityNotification										ProcedureCode ::= 42
 id-endcX2Removal												ProcedureCode ::= 43
 id-dataForwardingAddressIndication								ProcedureCode ::= 44
 id-gNBStatusIndication											ProcedureCode ::= 45
-
+id-deactivateTrace												ProcedureCode ::= 46
+id-traceStart													ProcedureCode ::= 47
+id-endcConfigurationTransfer										ProcedureCode ::= 48
 -- **************************************************************
 --
 -- Lists
@@ -377,7 +379,7 @@ id-Target-SgNB-ID															ProtocolIE-ID ::= 239
 id-HandoverRestrictionList													ProtocolIE-ID ::= 240
 id-SCGConfigurationQuery														ProtocolIE-ID ::= 241
 id-SplitSRB																	ProtocolIE-ID ::= 242
-id-UENRMeasurement															ProtocolIE-ID ::= 243
+id-NRUeReport																ProtocolIE-ID ::= 243
 id-InitiatingNodeType-EndcX2Setup											ProtocolIE-ID ::= 244
 id-InitiatingNodeType-EndcConfigUpdate										ProtocolIE-ID ::= 245
 id-RespondingNodeType-EndcX2Setup											ProtocolIE-ID ::= 246
@@ -460,5 +462,13 @@ id-NRCGI																	ProtocolIE-ID ::= 322
 id-MeNBCoordinationAssistanceInformation									ProtocolIE-ID ::= 323
 id-SgNBCoordinationAssistanceInformation									ProtocolIE-ID ::= 324
 id-new-drb-ID-req															ProtocolIE-ID ::= 325
+id-endcSONConfigurationTransfer												ProtocolIE-ID ::= 326
+id-NRNeighbourInfoToAdd														ProtocolIE-ID ::= 327
+id-NRNeighbourInfoToModify													ProtocolIE-ID ::= 328
+id-DesiredActNotificationLevel												ProtocolIE-ID ::= 329
+id-LocationInformationSgNBReporting											ProtocolIE-ID ::= 330
+id-LocationInformationSgNB													ProtocolIE-ID ::= 331
+id-LastNG-RANPLMNIdentity													ProtocolIE-ID ::= 332
+id-EUTRANTraceID															ProtocolIE-ID ::= 333
 
 END

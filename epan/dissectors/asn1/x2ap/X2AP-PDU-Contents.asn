@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V15.4.0 (2018-12)
+-- 3GPP TS 36.423 V15.5.0 (2019-03)
 -- 9.3.4	PDU Definitions
 -- **************************************************************
 --
@@ -137,7 +137,7 @@ IMPORTS
 	GNB-ID,
 	SCGConfigurationQuery,
 	SplitSRB,
-	UENRMeasurement,
+	NRUeReport,
 	EN-DC-ResourceConfiguration,
 	TAC,
 	NRFreqInfo,
@@ -171,7 +171,11 @@ IMPORTS
 	LCID,
 	DuplicationActivation,
 	GNBOverloadInformation,
-	NewDRBIDrequest
+	NewDRBIDrequest,
+	DesiredActNotificationLevel,
+	LocationInformationSgNB,
+	LocationInformationSgNBReporting,
+	EndcSONConfigurationTransfer
 
 
 FROM X2AP-IEs
@@ -357,7 +361,7 @@ FROM X2AP-Containers
 	id-E-RABs-ToBeAdded-SgNBAddReq-Item,
 	id-E-RABs-Admitted-ToBeAdded-SgNBAddReqAckList,
 	id-SgNBtoMeNBContainer,
-	id-AdmittedSplitSRBs	,
+	id-AdmittedSplitSRBs,
 	id-E-RABs-Admitted-ToBeAdded-SgNBAddReqAck-Item,
 	id-ResponseInformationSgNBReconfComp,
 	id-UE-ContextInformation-SgNBModReq,
@@ -392,7 +396,7 @@ FROM X2AP-Containers
 	id-HandoverRestrictionList,
 	id-SCGConfigurationQuery,
 	id-SplitSRB,
-	id-UENRMeasurement,
+	id-NRUeReport,
 	id-InitiatingNodeType-EndcX2Setup,
 	id-InitiatingNodeType-EndcConfigUpdate,
 	id-RespondingNodeType-EndcX2Setup,
@@ -451,6 +455,12 @@ FROM X2AP-Containers
 	id-duplicationActivation,
 	id-GNBOverloadInformation,
 	id-new-drb-ID-req,
+	id-NRNeighbourInfoToModify,
+	id-DesiredActNotificationLevel,
+	id-LocationInformationSgNB,
+	id-LocationInformationSgNBReporting,
+	id-endcSONConfigurationTransfer,
+	id-EUTRANTraceID,
 
 
 	maxCellineNB,
@@ -954,7 +964,8 @@ ServedCellsToModify-Item::= SEQUENCE {
 }
 
 ServedCellsToModify-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
-{ ID id-DeactivationIndication			CRITICALITY ignore	EXTENSION DeactivationIndication				PRESENCE optional },
+	{ ID id-DeactivationIndication			CRITICALITY ignore	EXTENSION DeactivationIndication				PRESENCE optional }|
+	{ ID id-NRNeighbourInfoToModify			CRITICALITY ignore	EXTENSION NRNeighbour-Information				PRESENCE optional },
 	...
 }
 
@@ -1635,7 +1646,7 @@ UE-ContextInformationSeNBModReq ::= SEQUENCE {
 	e-RABs-ToBeAdded				E-RABs-ToBeAdded-List-ModReq													OPTIONAL,
 	e-RABs-ToBeModified				E-RABs-ToBeModified-List-ModReq													OPTIONAL,
 	e-RABs-ToBeReleased				E-RABs-ToBeReleased-List-ModReq													OPTIONAL,
-	iE-Extensions					ProtocolExtensionContainer { {UE-ContextInformationSeNBModReqExtIEs} }	OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {UE-ContextInformationSeNBModReqExtIEs} }		OPTIONAL,
 	...
 }
 
@@ -1675,7 +1686,7 @@ E-RABs-ToBeAdded-ModReqItem-Split-Bearer ::= SEQUENCE {
 	e-RAB-ID						E-RAB-ID,
 	e-RAB-Level-QoS-Parameters		E-RAB-Level-QoS-Parameters,
 	meNB-GTPtunnelEndpoint			GTPtunnelEndpoint,
-	iE-Extensions			ProtocolExtensionContainer { {E-RABs-ToBeAdded-ModReqItem-Split-BearerExtIEs} } OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeAdded-ModReqItem-Split-BearerExtIEs} } OPTIONAL,
 	...
 }
 
@@ -1799,7 +1810,7 @@ E-RABs-Admitted-ToBeAdded-ModAckItem-SCG-Bearer ::= SEQUENCE {
 	s1-DL-GTPtunnelEndpoint					GTPtunnelEndpoint,
 	dL-Forwarding-GTPtunnelEndpoint			GTPtunnelEndpoint																	OPTIONAL,
 	uL-Forwarding-GTPtunnelEndpoint			GTPtunnelEndpoint																	OPTIONAL,
-	iE-Extensions					ProtocolExtensionContainer { {E-RABs-Admitted-ToBeAdded-ModAckItem-SCG-BearerExtIEs} }	OPTIONAL,
+	iE-Extensions							ProtocolExtensionContainer { {E-RABs-Admitted-ToBeAdded-ModAckItem-SCG-BearerExtIEs} }	OPTIONAL,
 	...
 }
 
@@ -2307,7 +2318,7 @@ E-RABs-ToBeSetupRetrieve-Item ::= SEQUENCE {
 
 E-RABs-ToBeSetupRetrieve-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-uL-GTPtunnelEndpoint		CRITICALITY reject	EXTENSION GTPtunnelEndpoint		PRESENCE mandatory}|
-	{ ID id-dL-Forwarding		CRITICALITY ignore	EXTENSION DL-Forwarding		PRESENCE optional },
+	{ ID id-dL-Forwarding				CRITICALITY ignore	EXTENSION DL-Forwarding			PRESENCE optional },
 	...
 }
 
@@ -2357,7 +2368,11 @@ SgNBAdditionRequest-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-MeNBResourceCoordinationInformation		CRITICALITY ignore	TYPE MeNBResourceCoordinationInformation		PRESENCE optional}|
 	{ ID id-SGNB-Addition-Trigger-Ind				CRITICALITY reject	TYPE SGNB-Addition-Trigger-Ind					PRESENCE optional}|
 	{ ID id-SubscriberProfileIDforRFP				CRITICALITY ignore	TYPE SubscriberProfileIDforRFP					PRESENCE optional}|
-	{ ID id-MeNBCell-ID								CRITICALITY reject	TYPE ECGI											PRESENCE mandatory},
+	{ ID id-MeNBCell-ID								CRITICALITY reject	TYPE ECGI											PRESENCE mandatory}|
+	{ ID id-DesiredActNotificationLevel				CRITICALITY ignore	TYPE DesiredActNotificationLevel				PRESENCE optional}|
+	{ ID id-TraceActivation							CRITICALITY ignore	TYPE TraceActivation								PRESENCE optional}|
+	{ ID id-LocationInformationSgNBReporting			CRITICALITY ignore	TYPE LocationInformationSgNBReporting			PRESENCE optional}|
+	{ ID id-Masked-IMEISV							CRITICALITY ignore	TYPE Masked-IMEISV									PRESENCE optional},
 	...
 }
 
@@ -2388,10 +2403,10 @@ E-RABs-ToBeAdded-SgNBAddReq-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 E-RABs-ToBeAdded-SgNBAddReq-Item-SgNBPDCPpresent ::= SEQUENCE {
 	full-E-RAB-Level-QoS-Parameters				E-RAB-Level-QoS-Parameters,
 	max-MCG-admit-E-RAB-Level-QoS-Parameters	GBR-QosInformation															OPTIONAL,
--- This IE shall be present if MCG resource and SCG resources IEs in the the EN-DC Resource Configuration IE are set to “present” and GBR QoS Information IE is present in Full E-RAB Level QoS Parameters IE --
+-- This IE shall be present if MCG resource and SCG resources IEs in the EN-DC Resource Configuration IE are set to “present” and GBR QoS Information IE is present in Full E-RAB Level QoS Parameters IE --
 	dL-Forwarding								DL-Forwarding																		OPTIONAL,
 	meNB-DL-GTP-TEIDatMCG						GTPtunnelEndpoint																	OPTIONAL,
--- This IE shall be present if MCG resource IE in the the EN-DC Resource Configuration IE is set to “present” --
+-- This IE shall be present if MCG resource IE in the EN-DC Resource Configuration IE is set to “present” --
 	s1-UL-GTPtunnelEndpoint						GTPtunnelEndpoint,
 	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeAdded-SgNBAddReq-Item-SgNBPDCPpresentExtIEs} }	OPTIONAL,
 	...
@@ -2408,7 +2423,7 @@ E-RABs-ToBeAdded-SgNBAddReq-Item-SgNBPDCPnotpresent ::= SEQUENCE {
 	secondary-meNB-UL-GTP-TEIDatPDCP				GTPtunnelEndpoint	OPTIONAL,
 	rlc-Mode										RLCMode,
 	uL-Configuration								ULConfiguration	OPTIONAL,
--- This IE shall be present if MCG resource and SCG resources IEs in the the EN-DC Resource Configuration IE are set to “present” --
+-- This IE shall be present if MCG resource and SCG resources IEs in the EN-DC Resource Configuration IE are set to “present” --
 	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeAdded-SgNBAddReq-Item-SgNBPDCPnotpresentExtIEs} }		 OPTIONAL,
 	...
 }
@@ -2416,7 +2431,7 @@ E-RABs-ToBeAdded-SgNBAddReq-Item-SgNBPDCPnotpresent ::= SEQUENCE {
 E-RABs-ToBeAdded-SgNBAddReq-Item-SgNBPDCPnotpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-uLpDCPSnLength							CRITICALITY ignore	EXTENSION PDCPSnLength					PRESENCE optional}|
 	{ ID id-dLPDCPSnLength							CRITICALITY ignore	EXTENSION PDCPSnLength					PRESENCE optional}|
-	{ ID id-duplicationActivation					CRITICALITY ignore	EXTENSION DuplicationActivation	PRESENCE optional},
+	{ ID id-duplicationActivation					CRITICALITY ignore	EXTENSION DuplicationActivation		PRESENCE optional},
 	...
 }
 
@@ -2433,15 +2448,16 @@ SgNBAdditionRequestAcknowledge ::= SEQUENCE {
 
 SgNBAdditionRequestAcknowledge-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-MeNB-UE-X2AP-ID								CRITICALITY reject	TYPE UE-X2AP-ID													PRESENCE mandatory}|
-	{ ID id-SgNB-UE-X2AP-ID								CRITICALITY reject	TYPE SgNB-UE-X2AP-ID												PRESENCE mandatory}|
-	{ ID id-E-RABs-Admitted-ToBeAdded-SgNBAddReqAckList	CRITICALITY ignore	TYPE E-RABs-Admitted-ToBeAdded-SgNBAddReqAckList			PRESENCE mandatory}|
+	{ ID id-SgNB-UE-X2AP-ID								CRITICALITY reject	TYPE SgNB-UE-X2AP-ID											PRESENCE mandatory}|
+	{ ID id-E-RABs-Admitted-ToBeAdded-SgNBAddReqAckList	CRITICALITY ignore	TYPE E-RABs-Admitted-ToBeAdded-SgNBAddReqAckList		PRESENCE mandatory}|
 	{ ID id-E-RABs-NotAdmitted-List						CRITICALITY ignore	TYPE E-RAB-List													PRESENCE optional}|
 	{ ID id-SgNBtoMeNBContainer							CRITICALITY reject	TYPE SgNBtoMeNBContainer										PRESENCE mandatory}|
 	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics									PRESENCE optional}|
 	{ ID id-MeNB-UE-X2AP-ID-Extension					CRITICALITY reject	TYPE UE-X2AP-ID-Extension									PRESENCE optional}|
 	{ ID id-AdmittedSplitSRBs							CRITICALITY reject	TYPE SplitSRBs													PRESENCE optional}|
 	{ ID id-SgNBResourceCoordinationInformation			CRITICALITY ignore	TYPE SgNBResourceCoordinationInformation				PRESENCE optional}|
-	{ ID id-RRCConfigIndication							CRITICALITY reject	TYPE RRC-Config-Ind												PRESENCE optional},
+	{ ID id-RRCConfigIndication							CRITICALITY reject	TYPE RRC-Config-Ind												PRESENCE optional}|
+	{ ID id-LocationInformationSgNB						CRITICALITY ignore	TYPE LocationInformationSgNB								PRESENCE optional},
 	...
 }
 
@@ -2452,7 +2468,7 @@ E-RABs-Admitted-ToBeAdded-SgNBAddReqAck-ItemIEs X2AP-PROTOCOL-IES ::= {
 }
 
 E-RABs-Admitted-ToBeAdded-SgNBAddReqAck-Item ::= SEQUENCE {
-	e-RAB-ID								E-RAB-ID,
+	e-RAB-ID							E-RAB-ID,
 	en-DC-ResourceConfiguration			EN-DC-ResourceConfiguration,
 	resource-configuration				CHOICE {
 		sgNBPDCPpresent						E-RABs-Admitted-ToBeAdded-SgNBAddReqAck-Item-SgNBPDCPpresent,
@@ -2470,15 +2486,15 @@ E-RABs-ToBeAdded-SgNBAddReqAck-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 E-RABs-Admitted-ToBeAdded-SgNBAddReqAck-Item-SgNBPDCPpresent ::= SEQUENCE {
 	s1-DL-GTPtunnelEndpoint					GTPtunnelEndpoint,
 	sgNB-UL-GTP-TEIDatPDCP					GTPtunnelEndpoint																						OPTIONAL,
--- This IE shall be present if MCG resource IE in the the EN-DC Resource Configuration IE is set to “present” --
+-- This IE shall be present if MCG resource IE in the EN-DC Resource Configuration IE is set to “present” --
 	rlc-Mode								RLCMode																									OPTIONAL,
--- This IE shall be present if MCG resource IE in the the EN-DC Resource Configuration IE is set to “present” --
+-- This IE shall be present if MCG resource IE in the EN-DC Resource Configuration IE is set to “present” --
 	dL-Forwarding-GTPtunnelEndpoint			GTPtunnelEndpoint																						OPTIONAL,
 	uL-Forwarding-GTPtunnelEndpoint			GTPtunnelEndpoint																						OPTIONAL,
 	mCG-E-RAB-Level-QoS-Parameters			E-RAB-Level-QoS-Parameters																				OPTIONAL,
--- This IE shall be present if MCG resource and SCG resource IEs in the the EN-DC Resource Configuration IE are set to “present” and the GBR QoS Information IE is present in the Requested MCG E-RAB Level QoS Parameters IE --
+-- This IE shall be present if MCG resource and SCG resource IEs in the EN-DC Resource Configuration IE are set to “present” and the GBR QoS Information IE is present in the Requested MCG E-RAB Level QoS Parameters IE --
 	uL-Configuration							ULConfiguration																							OPTIONAL,
--- This IE shall be present if MCG resource and SCG resources IEs in the the EN-DC Resource Configuration IE are set to “present” --
+-- This IE shall be present if MCG resource and SCG resources IEs in the EN-DC Resource Configuration IE are set to “present” --
 	iE-Extensions							ProtocolExtensionContainer { {E-RABs-Admitted-ToBeAdded-SgNBAddReqAck-Item-SgNBPDCPpresentExtIEs} }			OPTIONAL,
 	...
 }
@@ -2593,7 +2609,9 @@ SgNBModificationRequest-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-MeNB-UE-X2AP-ID-Extension			CRITICALITY reject	TYPE UE-X2AP-ID-Extension						PRESENCE optional}|
 	{ ID id-MeNBResourceCoordinationInformation	CRITICALITY ignore	TYPE MeNBResourceCoordinationInformation	PRESENCE optional}|
 	{ ID id-RequestedSplitSRBs					CRITICALITY ignore	TYPE SplitSRBs									PRESENCE optional}|
-	{ ID id-RequestedSplitSRBsrelease			CRITICALITY ignore	TYPE SplitSRBs									PRESENCE optional},
+	{ ID id-RequestedSplitSRBsrelease			CRITICALITY ignore	TYPE SplitSRBs									PRESENCE optional}|
+	{ ID id-DesiredActNotificationLevel			CRITICALITY ignore	TYPE DesiredActNotificationLevel				PRESENCE optional}|
+	{ ID id-LocationInformationSgNBReporting	CRITICALITY ignore	TYPE LocationInformationSgNBReporting		PRESENCE optional},
 	...
 }
 
@@ -2640,10 +2658,10 @@ E-RABs-ToBeAdded-SgNBModReq-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 E-RABs-ToBeAdded-SgNBModReq-Item-SgNBPDCPpresent ::= SEQUENCE {
 	full-E-RAB-Level-QoS-Parameters			E-RAB-Level-QoS-Parameters,
 	max-MN-admit-E-RAB-Level-QoS-Parameters	GBR-QosInformation															OPTIONAL,
--- This IE shall be present if MCG resource and SCG resources IEs in the the EN-DC Resource Configuration IE are set to “present” and GBR QoS Information IE is present in Full E-RAB Level QoS Parameters IE --
+-- This IE shall be present if MCG resource and SCG resources IEs in the EN-DC Resource Configuration IE are set to “present” and GBR QoS Information IE is present in Full E-RAB Level QoS Parameters IE --
 	dL-Forwarding							DL-Forwarding																		OPTIONAL,
 	meNB-DL-GTP-TEIDatMCG					GTPtunnelEndpoint																	OPTIONAL,
--- This IE shall be present if MCG resource IE in the the EN-DC Resource Configuration IE is set to “present” --
+-- This IE shall be present if MCG resource IE in the EN-DC Resource Configuration IE is set to “present” --
 	s1-UL-GTPtunnelEndpoint					GTPtunnelEndpoint,
 	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeAdded-SgNBModReq-Item-SgNBPDCPpresentExtIEs} }		OPTIONAL,
 	...
@@ -2660,7 +2678,7 @@ E-RABs-ToBeAdded-SgNBModReq-Item-SgNBPDCPnotpresent ::= SEQUENCE {
 	secondary-meNB-UL-GTP-TEIDatPDCP				GTPtunnelEndpoint		OPTIONAL,
 	rlc-Mode										RLCMode,
 	uL-Configuration								ULConfiguration																OPTIONAL,
--- This IE shall be present if MCG resource and SCG resources IEs in the the EN-DC Resource Configuration IE are set to “present” --
+-- This IE shall be present if MCG resource and SCG resources IEs in the EN-DC Resource Configuration IE are set to “present” --
 	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeAdded-SgNBModReq-Item-SgNBPDCPnotpresentExtIEs} } 		OPTIONAL,
 	...
 }
@@ -2699,7 +2717,7 @@ E-RABs-ToBeModified-SgNBModReq-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 
 E-RABs-ToBeModified-SgNBModReq-Item-SgNBPDCPpresent ::= SEQUENCE {
 	full-E-RAB-Level-QoS-Parameters			E-RAB-Level-QoS-Parameters																		OPTIONAL,
-	max-MN-admit-E-RAB-Level-QoS-Parameters	GBR-QosInformation																		OPTIONAL,
+	max-MN-admit-E-RAB-Level-QoS-Parameters	GBR-QosInformation																				OPTIONAL,
 	meNB-DL-GTP-TEIDatMCG					GTPtunnelEndpoint																				OPTIONAL,
 	s1-UL-GTPtunnelEndpoint					GTPtunnelEndpoint																				OPTIONAL,
 	iE-Extensions					ProtocolExtensionContainer { {E-RABs-ToBeModified-SgNBModReq-Item-SgNBPDCPpresentExtIEs} } 	OPTIONAL,
@@ -2722,7 +2740,7 @@ E-RABs-ToBeModified-SgNBModReq-Item-SgNBPDCPnotpresent ::= SEQUENCE {
 E-RABs-ToBeModified-SgNBModReq-Item-SgNBPDCPnotpresentExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-uLpDCPSnLength							CRITICALITY ignore	EXTENSION PDCPSnLength					PRESENCE optional}|
 	{ ID id-dLPDCPSnLength							CRITICALITY ignore	EXTENSION PDCPSnLength					PRESENCE optional}|
-	{ ID id-secondarymeNBULGTPTEIDatPDCP				CRITICALITY ignore	EXTENSION GTPtunnelEndpoint			PRESENCE optional},
+	{ ID id-secondarymeNBULGTPTEIDatPDCP			CRITICALITY ignore	EXTENSION GTPtunnelEndpoint			PRESENCE optional},
 	...
 }
 
@@ -2795,7 +2813,8 @@ SgNBModificationRequestAcknowledge-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-SgNBResourceCoordinationInformation			CRITICALITY ignore	TYPE SgNBResourceCoordinationInformation				PRESENCE optional}|
 	{ ID id-AdmittedSplitSRBs							CRITICALITY ignore	TYPE SplitSRBs													PRESENCE optional}|
 	{ ID id-AdmittedSplitSRBsrelease						CRITICALITY ignore	TYPE SplitSRBs													PRESENCE optional}|
-	{ ID id-RRCConfigIndication							CRITICALITY reject	TYPE RRC-Config-Ind			PRESENCE optional},
+	{ ID id-RRCConfigIndication							CRITICALITY reject	TYPE RRC-Config-Ind												PRESENCE optional}|
+	{ ID id-LocationInformationSgNB						CRITICALITY ignore	TYPE LocationInformationSgNB								PRESENCE optional},
 	...
 }
 
@@ -2824,15 +2843,15 @@ E-RABs-Admitted-ToBeAdded-SgNBModAck-ItemExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 E-RABs-Admitted-ToBeAdded-SgNBModAck-Item-SgNBPDCPpresent ::= SEQUENCE {
 	s1-DL-GTPtunnelEndpoint					GTPtunnelEndpoint,
 	sgNB-UL-GTP-TEIDatPDCP					GTPtunnelEndpoint																					OPTIONAL,
--- This IE shall be present if MCG resource IE in the the EN-DC Resource Configuration IE are set to “present” --
+-- This IE shall be present if MCG resource IE in the EN-DC Resource Configuration IE are set to “present” --
 	rlc-Mode									RLCMode																								OPTIONAL,
--- This IE shall be present if MCG resource IE in the the EN-DC Resource Configuration IE are set to “present” --
+-- This IE shall be present if MCG resource IE in the EN-DC Resource Configuration IE are set to “present” --
 	dL-Forwarding-GTPtunnelEndpoint			GTPtunnelEndpoint																					OPTIONAL,
 	uL-Forwarding-GTPtunnelEndpoint			GTPtunnelEndpoint																					OPTIONAL,
 	mCG-E-RAB-Level-QoS-Parameters			E-RAB-Level-QoS-Parameters																			OPTIONAL,
--- This IE shall be present if MCG resource and SCG resource IEs in the the EN-DC Resource Configuration IE are set to “present” and the GBR QoS Information IE is present in the Requested MCG E-RAB Level QoS Parameters IE --
+-- This IE shall be present if MCG resource and SCG resource IEs in the EN-DC Resource Configuration IE are set to “present” and the GBR QoS Information IE is present in the Requested MCG E-RAB Level QoS Parameters IE --
 	uL-Configuration						ULConfiguration																							OPTIONAL,
--- This IE shall be present if MCG resource and SCG resources IEs in the the EN-DC Resource Configuration IE are set to “present” --
+-- This IE shall be present if MCG resource and SCG resources IEs in the EN-DC Resource Configuration IE are set to “present” --
 	iE-Extensions					ProtocolExtensionContainer { {E-RABs-Admitted-ToBeAdded-SgNBModAck-Item-SgNBPDCPpresentExtIEs} }		OPTIONAL,
 	...
 }
@@ -2979,15 +2998,16 @@ SgNBModificationRequired ::= SEQUENCE {
 
 SgNBModificationRequired-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-MeNB-UE-X2AP-ID							CRITICALITY reject	TYPE UE-X2AP-ID										PRESENCE mandatory}|
-	{ ID id-SgNB-UE-X2AP-ID							CRITICALITY reject	TYPE SgNB-UE-X2AP-ID								PRESENCE mandatory}|
+	{ ID id-SgNB-UE-X2AP-ID							CRITICALITY reject	TYPE SgNB-UE-X2AP-ID									PRESENCE mandatory}|
 	{ ID id-Cause									CRITICALITY ignore	TYPE Cause											PRESENCE mandatory}|
-	{ ID id-PDCPChangeIndication					CRITICALITY ignore	TYPE PDCPChangeIndication							PRESENCE optional}|
+	{ ID id-PDCPChangeIndication						CRITICALITY ignore	TYPE PDCPChangeIndication							PRESENCE optional}|
 	{ ID id-E-RABs-ToBeReleased-SgNBModReqdList		CRITICALITY ignore	TYPE E-RABs-ToBeReleased-SgNBModReqdList		PRESENCE optional}|
-	{ ID id-SgNBtoMeNBContainer						CRITICALITY ignore	TYPE SgNBtoMeNBContainer							PRESENCE optional}|
+	{ ID id-SgNBtoMeNBContainer						CRITICALITY ignore	TYPE SgNBtoMeNBContainer								PRESENCE optional}|
 	{ ID id-MeNB-UE-X2AP-ID-Extension				CRITICALITY reject	TYPE UE-X2AP-ID-Extension							PRESENCE optional}|
 	{ ID id-E-RABs-ToBeModified-SgNBModReqdList		CRITICALITY ignore	TYPE E-RABs-ToBeModified-SgNBModReqdList		PRESENCE optional}|
 	{ ID id-SgNBResourceCoordinationInformation		CRITICALITY ignore	TYPE SgNBResourceCoordinationInformation		PRESENCE optional}|
-	{ ID id-RRCConfigIndication						CRITICALITY reject	TYPE RRC-Config-Ind									PRESENCE optional},
+	{ ID id-RRCConfigIndication						CRITICALITY reject	TYPE RRC-Config-Ind									PRESENCE optional}|
+	{ ID id-LocationInformationSgNB					CRITICALITY ignore	TYPE LocationInformationSgNB						PRESENCE optional},
 	...
 }
 
@@ -3076,13 +3096,13 @@ SgNBModificationConfirm ::= SEQUENCE {
 }
 
 SgNBModificationConfirm-IEs X2AP-PROTOCOL-IES ::= {
-	{ ID id-MeNB-UE-X2AP-ID									CRITICALITY ignore	TYPE UE-X2AP-ID											PRESENCE mandatory}|
-	{ ID id-SgNB-UE-X2AP-ID									CRITICALITY ignore	TYPE SgNB-UE-X2AP-ID									PRESENCE mandatory}|
-	{ ID id-E-RABs-AdmittedToBeModified-SgNBModConfList		CRITICALITY ignore	TYPE E-RABs-AdmittedToBeModified-SgNBModConfList		PRESENCE optional}|
-	{ ID id-MeNBtoSgNBContainer								CRITICALITY ignore	TYPE MeNBtoSgNBContainer							PRESENCE optional}|
-	{ ID id-CriticalityDiagnostics							CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional}|
-	{ ID id-MeNB-UE-X2AP-ID-Extension						CRITICALITY ignore	TYPE UE-X2AP-ID-Extension							PRESENCE optional}|
-	{ ID id-MeNBResourceCoordinationInformation				CRITICALITY ignore	TYPE MeNBResourceCoordinationInformation		PRESENCE optional},
+	{ ID id-MeNB-UE-X2AP-ID								CRITICALITY ignore	TYPE UE-X2AP-ID													PRESENCE mandatory}|
+	{ ID id-SgNB-UE-X2AP-ID								CRITICALITY ignore	TYPE SgNB-UE-X2AP-ID												PRESENCE mandatory}|
+	{ ID id-E-RABs-AdmittedToBeModified-SgNBModConfList	CRITICALITY ignore	TYPE E-RABs-AdmittedToBeModified-SgNBModConfList		PRESENCE optional}|
+	{ ID id-MeNBtoSgNBContainer							CRITICALITY ignore	TYPE MeNBtoSgNBContainer										PRESENCE optional}|
+	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics									PRESENCE optional}|
+	{ ID id-MeNB-UE-X2AP-ID-Extension					CRITICALITY ignore	TYPE UE-X2AP-ID-Extension									PRESENCE optional}|
+	{ ID id-MeNBResourceCoordinationInformation			CRITICALITY ignore	TYPE MeNBResourceCoordinationInformation				PRESENCE optional},
 	...
 }
 
@@ -3292,8 +3312,8 @@ SgNBReleaseRequired-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-MeNB-UE-X2AP-ID							CRITICALITY reject	TYPE UE-X2AP-ID											PRESENCE mandatory}|
 	{ ID id-SgNB-UE-X2AP-ID							CRITICALITY reject	TYPE SgNB-UE-X2AP-ID										PRESENCE mandatory}|
 	{ ID id-Cause									CRITICALITY ignore	TYPE Cause												PRESENCE mandatory}|
-	{ ID id-MeNB-UE-X2AP-ID-Extension				CRITICALITY reject	TYPE UE-X2AP-ID-Extension							PRESENCE optional }|
-	{ ID id-E-RABs-ToBeReleased-SgNBRelReqdList		CRITICALITY ignore	TYPE E-RABs-ToBeReleased-SgNBRelReqdList		PRESENCE optional },
+	{ ID id-MeNB-UE-X2AP-ID-Extension				CRITICALITY reject	TYPE UE-X2AP-ID-Extension								PRESENCE optional }|
+	{ ID id-E-RABs-ToBeReleased-SgNBRelReqdList		CRITICALITY ignore	TYPE E-RABs-ToBeReleased-SgNBRelReqdList			PRESENCE optional },
 	...
 }
 
@@ -3430,7 +3450,7 @@ SgNBChangeRequired ::= SEQUENCE {
 SgNBChangeRequired-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-MeNB-UE-X2AP-ID						CRITICALITY reject	TYPE UE-X2AP-ID					PRESENCE mandatory}|
 	{ ID id-SgNB-UE-X2AP-ID						CRITICALITY reject	TYPE SgNB-UE-X2AP-ID				PRESENCE mandatory}|
-	{ ID id-Target-SgNB-ID						CRITICALITY reject	TYPE GlobalGNB-ID						PRESENCE mandatory}|
+	{ ID id-Target-SgNB-ID						CRITICALITY reject	TYPE GlobalGNB-ID				PRESENCE mandatory}|
 	{ ID id-Cause								CRITICALITY ignore	TYPE Cause						PRESENCE mandatory}|
 	{ ID id-SgNBtoMeNBContainer					CRITICALITY reject	TYPE SgNBtoMeNBContainer			PRESENCE optional}|
 	{ ID id-MeNB-UE-X2AP-ID-Extension			CRITICALITY reject	TYPE UE-X2AP-ID-Extension		PRESENCE optional},
@@ -3515,7 +3535,7 @@ RRCTransfer-IEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-MeNB-UE-X2AP-ID						CRITICALITY reject	TYPE UE-X2AP-ID					PRESENCE mandatory}|
 	{ ID id-SgNB-UE-X2AP-ID						CRITICALITY reject	TYPE SgNB-UE-X2AP-ID				PRESENCE mandatory}|
 	{ ID id-SplitSRB								CRITICALITY reject	TYPE SplitSRB					PRESENCE optional}|
-	{ ID id-UENRMeasurement						CRITICALITY reject	TYPE UENRMeasurement				PRESENCE optional}|
+	{ ID id-NRUeReport							CRITICALITY reject	TYPE NRUeReport					PRESENCE optional}|
 	{ ID id-MeNB-UE-X2AP-ID-Extension			CRITICALITY reject	TYPE UE-X2AP-ID-Extension		PRESENCE optional},
 	...
 }
@@ -4098,7 +4118,7 @@ ENB-EUTRA-NRCellResourceCoordinationReqAckIEs X2AP-PROTOCOL-IES ::= {
 
 En-gNB-EUTRA-NRCellResourceCoordinationReqAckIEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-DataTrafficResourceIndication		CRITICALITY reject	TYPE DataTrafficResourceIndication			PRESENCE mandatory}|
-	{ ID id-SpectrumSharingGroupID				CRITICALITY reject	TYPE SpectrumSharingGroupID					PRESENCE mandatory}|
+	{ ID id-SpectrumSharingGroupID				CRITICALITY reject	TYPE SpectrumSharingGroupID						PRESENCE mandatory}|
 	{ ID id-ListofNRCellsinNRCoordinationResp	CRITICALITY reject	TYPE ListofNRCellsinNRCoordinationResp		PRESENCE mandatory},
 
 
@@ -4240,6 +4260,58 @@ GNBStatusIndication ::= SEQUENCE {
 
 GNBStatusIndicationIEs X2AP-PROTOCOL-IES ::= {
 	{ ID id-GNBOverloadInformation		CRITICALITY ignore	TYPE GNBOverloadInformation		PRESENCE mandatory},
+	...
+}
+
+-- **************************************************************
+--
+-- EN-DC CONFIGURATION TRANSFER
+--
+-- **************************************************************
+
+ENDCConfigurationTransfer ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container	{{ENDCConfigurationTransfer-IEs}},
+	...
+}
+
+ENDCConfigurationTransfer-IEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-endcSONConfigurationTransfer	CRITICALITY ignore	TYPE EndcSONConfigurationTransfer			PRESENCE optional},
+	...
+}
+
+-- **************************************************************
+--
+-- TRACE START
+--
+-- **************************************************************
+
+TraceStart ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {TraceStartIEs} },
+	...
+}
+
+TraceStartIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-MeNB-UE-X2AP-ID			CRITICALITY reject	TYPE UE-X2AP-ID						PRESENCE mandatory	}|
+	{ ID id-SgNB-UE-X2AP-ID			CRITICALITY reject	TYPE SgNB-UE-X2AP-ID				PRESENCE mandatory	}|
+	{ ID id-TraceActivation			CRITICALITY ignore	TYPE TraceActivation				PRESENCE mandatory	},
+	...
+}
+
+-- **************************************************************
+--
+-- DEACTIVATE TRACE
+--
+-- **************************************************************
+
+DeactivateTrace ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ {DeactivateTraceIEs} },
+	...
+}
+
+DeactivateTraceIEs X2AP-PROTOCOL-IES ::= {
+	{ ID id-MeNB-UE-X2AP-ID			CRITICALITY reject	TYPE UE-X2AP-ID						PRESENCE mandatory	}|
+	{ ID id-SgNB-UE-X2AP-ID			CRITICALITY reject	TYPE SgNB-UE-X2AP-ID				PRESENCE mandatory	}|
+	{ ID id-EUTRANTraceID			CRITICALITY ignore	TYPE EUTRANTraceID					PRESENCE mandatory	},
 	...
 }
 

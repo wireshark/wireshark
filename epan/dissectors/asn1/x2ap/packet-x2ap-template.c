@@ -3,7 +3,7 @@
  * X2 Application Protocol (X2AP);
  * 3GPP TS 36.423 packet dissection
  * Copyright 2007-2014, Anders Broman <anders.broman@ericsson.com>
- * Copyright 2016-2018, Pascal Quantin <pascal@wireshark.org>
+ * Copyright 2016-2019, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -12,7 +12,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * Ref:
- * 3GPP TS 36.423 V15.4.0 (2018-12)
+ * 3GPP TS 36.423 V15.5.0 (2019-03)
  */
 
 #include "config.h"
@@ -32,6 +32,7 @@
 #include "packet-ngap.h"
 #include "packet-ranap.h"
 #include "packet-ntp.h"
+#include "packet-s1ap.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
@@ -74,6 +75,8 @@ static int hf_x2ap_eUTRANTraceID_TraceRecordingSessionReference = -1;
 static int hf_x2ap_interfacesToTrace_S1_MME = -1;
 static int hf_x2ap_interfacesToTrace_X2 = -1;
 static int hf_x2ap_interfacesToTrace_Uu = -1;
+static int hf_x2ap_interfacesToTrace_F1_C = -1;
+static int hf_x2ap_interfacesToTrace_E1 = -1;
 static int hf_x2ap_interfacesToTrace_Reserved = -1;
 static int hf_x2ap_traceCollectionEntityIPAddress_IPv4 = -1;
 static int hf_x2ap_traceCollectionEntityIPAddress_IPv6 = -1;
@@ -144,6 +147,7 @@ static int ett_x2ap_NRintegrityProtectionAlgorithms = -1;
 static int ett_x2ap_measurementTimingConfiguration = -1;
 static int ett_x2ap_LastVisitedNGRANCellInformation = -1;
 static int ett_x2ap_LastVisitedUTRANCellInformation = -1;
+static int ett_x2ap_EndcSONConfigurationTransfer = -1;
 #include "packet-x2ap-ett.c"
 
 typedef enum {
@@ -409,6 +413,14 @@ void proto_register_x2ap(void) {
       { "Uu", "x2ap.interfacesToTrace.Uu",
         FT_BOOLEAN, 8, TFS(&x2ap_tfs_interfacesToTrace), 0x20,
         NULL, HFILL }},
+    { &hf_x2ap_interfacesToTrace_F1_C,
+      { "F1-C", "x2ap.interfacesToTrace.F1_C",
+        FT_BOOLEAN, 8, TFS(&x2ap_tfs_interfacesToTrace), 0x10,
+        NULL, HFILL }},
+    { &hf_x2ap_interfacesToTrace_E1,
+      { "E1", "x2ap.interfacesToTrace.E1",
+        FT_BOOLEAN, 8, TFS(&x2ap_tfs_interfacesToTrace), 0x08,
+        NULL, HFILL }},
     { &hf_x2ap_interfacesToTrace_Reserved,
       { "Reserved", "x2ap.interfacesToTrace.Reserved",
         FT_UINT8, BASE_HEX, NULL, 0x1f,
@@ -595,6 +607,7 @@ void proto_register_x2ap(void) {
     &ett_x2ap_measurementTimingConfiguration,
     &ett_x2ap_LastVisitedNGRANCellInformation,
     &ett_x2ap_LastVisitedUTRANCellInformation,
+    &ett_x2ap_EndcSONConfigurationTransfer,
 #include "packet-x2ap-ettarr.c"
   };
 

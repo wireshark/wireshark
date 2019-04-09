@@ -20,6 +20,7 @@ CauseMisc
 Cause
 
 #.EXPORTS
+EN-DCSONConfigurationTransfer_PDU
 ENB-StatusTransfer-TransparentContainer_PDU
 Global-ENB-ID_PDU
 Global-ENB-ID
@@ -36,6 +37,7 @@ TargeteNB-ToSourceeNB-TransparentContainer_PDU
 UE-HistoryInformation_PDU
 
 #.PDU
+EN-DCSONConfigurationTransfer
 ENB-StatusTransfer-TransparentContainer
 LastVisitedEUTRANCellInformation
 LastVisitedGERANCellInformation

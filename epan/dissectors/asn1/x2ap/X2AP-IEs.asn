@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V15.4.0 (2018-12)
+-- 3GPP TS 36.423 V15.5.0 (2019-03)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -15,6 +15,9 @@ DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
 
 IMPORTS
+NRNeighbour-Information
+
+FROM X2AP-PDU-Contents
 
 	id-E-RAB-Item,
 	id-Number-of-Antennaports,
@@ -72,6 +75,8 @@ IMPORTS
 	id-NRCGI,
 	id-MeNBCoordinationAssistanceInformation,
 	id-SgNBCoordinationAssistanceInformation,
+	id-NRNeighbourInfoToAdd,
+	id-LastNG-RANPLMNIdentity,
 
 
 	maxnoofBearers,
@@ -696,6 +701,7 @@ DeliveryStatus-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+DesiredActNotificationLevel	::= ENUMERATED {none, e-rab, ue-level, ...}
 
 DL-ABS-status::= INTEGER (0..100)
 
@@ -758,6 +764,8 @@ ECGI ::= SEQUENCE {
 ECGI-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
+
+EndcSONConfigurationTransfer ::= OCTET STRING
 
 EnhancedRNTP ::= SEQUENCE {
 	enhancedRNTPBitmap			BIT STRING (SIZE(12..8800, ...)),
@@ -1131,7 +1139,8 @@ HandoverRestrictionList ::= SEQUENCE {
 HandoverRestrictionList-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-NRrestrictioninEPSasSecondaryRAT			CRITICALITY ignore	EXTENSION NRrestrictioninEPSasSecondaryRAT			PRESENCE optional}|
 	{ ID id-CNTypeRestrictions						CRITICALITY ignore	EXTENSION CNTypeRestrictions								PRESENCE optional}|
-	{ ID id-NRrestrictionin5GS						CRITICALITY ignore	EXTENSION NRrestrictionin5GS								PRESENCE optional},
+	{ ID id-NRrestrictionin5GS						CRITICALITY ignore	EXTENSION NRrestrictionin5GS								PRESENCE optional}|
+	{ ID id-LastNG-RANPLMNIdentity					CRITICALITY ignore	EXTENSION PLMN-Identity										PRESENCE optional},
 	...
 }
 
@@ -1218,6 +1227,21 @@ LoadIndicator ::= ENUMERATED {
 	mediumLoad,
 	highLoad,
 	overLoad,
+	...
+}
+
+LocationInformationSgNB ::= SEQUENCE {
+	pSCell-id			NRCGI,
+	iE-Extensions		ProtocolExtensionContainer { {LocationInformationSgNB-ExtIEs} } OPTIONAL,
+	...
+}
+
+LocationInformationSgNB-ExtIEs X2AP-PROTOCOL-EXTENSION ::={
+	...
+}
+
+LocationInformationSgNBReporting ::= ENUMERATED {
+	pSCell,
 	...
 }
 
@@ -1466,16 +1490,6 @@ SplitSRB-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-UENRMeasurement ::= SEQUENCE {
-	uENRMeasurements			RRCContainer,
-	iE-Extensions			ProtocolExtensionContainer { {UENRMeasurement-ExtIEs} } OPTIONAL,
-	...
-}
-
-UENRMeasurement-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
-	...
-}
-
 -- N
 
 Neighbour-Information ::= SEQUENCE (SIZE (0..maxnoofNeighbours)) OF SEQUENCE {
@@ -1562,6 +1576,16 @@ NRSCS ::= ENUMERATED { scs15, scs30, scs60, scs120, ...}
 NRS-NSSS-PowerOffset ::= ENUMERATED { minusThree, zero, three, ...}
 
 FiveGS-TAC ::= OCTET STRING (SIZE (3))
+
+NRUeReport ::= SEQUENCE {
+	uENRMeasurements			RRCContainer,
+	iE-Extensions			ProtocolExtensionContainer { { NRUeReport-ExtIEs} } OPTIONAL,
+	...
+}
+
+NRUeReport-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 NRUESecurityCapabilities ::= SEQUENCE {
 	nRencryptionAlgorithms				NRencryptionAlgorithms,
@@ -2007,6 +2031,7 @@ ServedCells ::= SEQUENCE (SIZE (1.. maxCellineNB)) OF SEQUENCE {
 }
 
 ServedCell-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-NRNeighbourInfoToAdd			CRITICALITY ignore	EXTENSION NRNeighbour-Information				PRESENCE optional },
 	...
 }
 
@@ -2318,9 +2343,10 @@ TDD-Info ::= SEQUENCE {
 	iE-Extensions					ProtocolExtensionContainer { {TDD-Info-ExtIEs} } OPTIONAL,
 	...
 }
+
 TDD-Info-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-AdditionalSpecialSubframe-Info	CRITICALITY ignore	EXTENSION AdditionalSpecialSubframe-Info	PRESENCE optional}|
-	{ ID id-eARFCNExtension					CRITICALITY reject	EXTENSION EARFCNExtension						PRESENCE optional}|
+	{ ID id-AdditionalSpecialSubframe-Info			CRITICALITY ignore	EXTENSION AdditionalSpecialSubframe-Info				PRESENCE optional}|
+	{ ID id-eARFCNExtension							CRITICALITY reject	EXTENSION EARFCNExtension									PRESENCE optional}|
 	{ ID id-AdditionalSpecialSubframeExtension-Info	CRITICALITY ignore	EXTENSION AdditionalSpecialSubframeExtension-Info	PRESENCE optional},
 	...
 }

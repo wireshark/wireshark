@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V15.4.0 (2018-12)
+-- 3GPP TS 36.423 V15.5.0 (2019-03)
 -- 9.3.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -116,7 +116,10 @@ FROM X2AP-CommonDataTypes
 	ENDCX2RemovalResponse,
 	ENDCX2RemovalFailure,
 	DataForwardingAddressIndication,
-	GNBStatusIndication
+	GNBStatusIndication,
+	ENDCConfigurationTransfer,
+	DeactivateTrace,
+	TraceStart
 
 
 FROM X2AP-PDU-Contents
@@ -168,7 +171,10 @@ FROM X2AP-PDU-Contents
 	id-SgNBActivityNotification,
 	id-endcX2Removal,
 	id-dataForwardingAddressIndication,
-	id-gNBStatusIndication
+	id-gNBStatusIndication,
+	id-endcConfigurationTransfer,
+	id-deactivateTrace,
+	id-traceStart
 
 
 
@@ -288,7 +294,10 @@ X2AP-ELEMENTARY-PROCEDURES-CLASS-2 X2AP-ELEMENTARY-PROCEDURE ::= {
 	secondaryRATDataUsageReport				|
 	sgNBActivityNotification					|
 	dataForwardingAddressIndication			|
-	gNBStatusIndication,
+	gNBStatusIndication						|
+	endcConfigurationTransfer				|
+	deactivateTrace							|
+	traceStart								,
 	...
 
 }
@@ -621,6 +630,24 @@ dataForwardingAddressIndication	X2AP-ELEMENTARY-PROCEDURE ::= {
 gNBStatusIndication		X2AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		GNBStatusIndication
 	PROCEDURE CODE			id-gNBStatusIndication
+	CRITICALITY				ignore
+}
+
+endcConfigurationTransfer	X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		ENDCConfigurationTransfer
+	PROCEDURE CODE			id-endcConfigurationTransfer
+	CRITICALITY				ignore
+}
+
+deactivateTrace X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		DeactivateTrace
+	PROCEDURE CODE			id-deactivateTrace
+	CRITICALITY				ignore
+}
+
+traceStart X2AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		TraceStart
+	PROCEDURE CODE			id-traceStart
 	CRITICALITY				ignore
 }
 

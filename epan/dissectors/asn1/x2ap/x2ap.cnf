@@ -273,7 +273,7 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
 
   x2ap_data->rrc_container_type = RRC_CONTAINER_TYPE_PDCP_C_PDU;
 
-#.FN_HDR UENRMeasurement/uENRMeasurements
+#.FN_HDR NRUeReport/uENRMeasurements
   struct x2ap_private_data *x2ap_data = x2ap_get_private_data(actx->pinfo);
 
   x2ap_data->rrc_container_type = RRC_CONTAINER_TYPE_NR_UE_MEAS_REPORT;
@@ -286,7 +286,7 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
   if (!parameter_tvb)
     return offset;
   if (x2ap_data->rrc_container_type == RRC_CONTAINER_TYPE_NR_UE_MEAS_REPORT) {
-    subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_SgNBtoMeNBContainer);
+    subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_RRCContainer);
     dissect_nr_rrc_UL_DCCH_Message_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   }
 
@@ -309,6 +309,8 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
       &hf_x2ap_interfacesToTrace_S1_MME,
       &hf_x2ap_interfacesToTrace_X2,
       &hf_x2ap_interfacesToTrace_Uu,
+      &hf_x2ap_interfacesToTrace_F1_C,
+      &hf_x2ap_interfacesToTrace_E1,
       &hf_x2ap_interfacesToTrace_Reserved,
       NULL
     };
@@ -594,6 +596,14 @@ E-RABUsageReport-Item/usageCountDL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&un
     dissect_nr_rrc_MeasurementTimingConfiguration_PDU(param_tvb, actx->pinfo, subtree, NULL);
   }
 
+#.FN_BODY NRNeighbour-Information/_item/measurementTimingConfiguration VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_measurementTimingConfiguration);
+    dissect_nr_rrc_MeasurementTimingConfiguration_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.TYPE_ATTR
 Packet-LossRate DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC(x2ap_Packet_LossRate_fmt)
 
@@ -647,6 +657,15 @@ ScheduledCommunicationTime/timeofDayEnd DISPLAY=BASE_DEC|BASE_UNIT_STRING STRING
   if (parameter_tvb) {
     subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_LastVisitedUTRANCellInformation);
     dissect_ranap_LastVisitedUTRANCell_Item_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY EndcSONConfigurationTransfer VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_TargeteNBtoSource_eNBTransparentContainer);
+    dissect_s1ap_EN_DCSONConfigurationTransfer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   }
 
 #.END
@@ -833,6 +852,12 @@ ScheduledCommunicationTime/timeofDayEnd DISPLAY=BASE_DEC|BASE_UNIT_STRING STRING
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DataForwardingAddressIndication");
 #.FN_HDR GNBStatusIndication
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBStatusIndication");
+#.FN_HDR ENDCConfigurationTransfer
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ENDCConfigurationTransfer");
+#.FN_HDR DeactivateTrace
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "DeactivateTrace");
+#.FN_HDR TraceStart
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "TraceStart");
 
 #.ASSIGN_VALUE_TO_TYPE  # X2AP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
@@ -883,6 +908,9 @@ id-SgNBActivityNotification					ProcedureCode
 id-endcX2Removal						ProcedureCode
 id-dataForwardingAddressIndication				ProcedureCode
 id-gNBStatusIndication						ProcedureCode
+id-deactivateTrace						ProcedureCode
+id-traceStart							ProcedureCode
+id-endcConfigurationTransfer					ProcedureCode
 
 # ProtocolIE-ID
 
@@ -1119,7 +1147,7 @@ id-Target-SgNB-ID						ProtocolIE-ID
 id-HandoverRestrictionList					ProtocolIE-ID
 id-SCGConfigurationQuery					ProtocolIE-ID
 id-SplitSRB							ProtocolIE-ID
-id-UENRMeasurement						ProtocolIE-ID
+id-NRUeReport							ProtocolIE-ID
 id-InitiatingNodeType-EndcX2Setup				ProtocolIE-ID
 id-InitiatingNodeType-EndcConfigUpdate				ProtocolIE-ID
 id-RespondingNodeType-EndcX2Setup				ProtocolIE-ID
@@ -1202,6 +1230,14 @@ id-NRCGI							ProtocolIE-ID
 id-MeNBCoordinationAssistanceInformation			ProtocolIE-ID
 id-SgNBCoordinationAssistanceInformation			ProtocolIE-ID
 id-new-drb-ID-req						ProtocolIE-ID
+id-endcSONConfigurationTransfer					ProtocolIE-ID
+id-NRNeighbourInfoToAdd						ProtocolIE-ID
+id-NRNeighbourInfoToModify					ProtocolIE-ID
+id-DesiredActNotificationLevel					ProtocolIE-ID
+id-LocationInformationSgNBReporting				ProtocolIE-ID
+id-LocationInformationSgNB					ProtocolIE-ID
+id-LastNG-RANPLMNIdentity					ProtocolIE-ID
+id-EUTRANTraceID						ProtocolIE-ID
 
 #.REGISTER
 
@@ -1373,7 +1409,7 @@ GNB-ID								N x2ap.ies id-Target-SgNB-ID
 HandoverRestrictionList						N x2ap.ies id-HandoverRestrictionList
 SCGConfigurationQuery						N x2ap.ies id-SCGConfigurationQuery
 SplitSRB							N x2ap.ies id-SplitSRB
-UENRMeasurement							N x2ap.ies id-UENRMeasurement
+NRUeReport							N x2ap.ies id-NRUeReport
 InitiatingNodeType-EndcX2Setup					N x2ap.ies id-InitiatingNodeType-EndcX2Setup
 InitiatingNodeType-EndcConfigUpdate				N x2ap.ies id-InitiatingNodeType-EndcConfigUpdate
 RespondingNodeType-EndcX2Setup					N x2ap.ies id-RespondingNodeType-EndcX2Setup
@@ -1431,6 +1467,11 @@ E-RABs-Admitted-ToBeReleased-SgNBRelReqAckList			N x2ap.ies id-E-RABs-Admitted-T
 E-RABs-Admitted-ToBeReleased-SgNBRelReqAck-Item			N x2ap.ies id-E-RABs-Admitted-ToBeReleased-SgNBRelReqAck-Item
 E-RABs-ToBeReleased-SgNBRelReqdList				N x2ap.ies id-E-RABs-ToBeReleased-SgNBRelReqdList
 E-RABs-ToBeReleased-SgNBRelReqd-Item				N x2ap.ies id-E-RABs-ToBeReleased-SgNBRelReqd-Item
+EndcSONConfigurationTransfer					N x2ap.ies id-endcSONConfigurationTransfer
+DesiredActNotificationLevel					N x2ap.ies id-DesiredActNotificationLevel
+LocationInformationSgNBReporting				N x2ap.ies id-LocationInformationSgNBReporting
+LocationInformationSgNB						N x2ap.ies id-LocationInformationSgNB
+EUTRANTraceID							N x2ap.ies id-EUTRANTraceID
 
 #X2AP-PROTOCOL-EXTENSION
 Number-of-Antennaports						N x2ap.extension id-Number-of-Antennaports
@@ -1522,6 +1563,9 @@ NRCGI								N x2ap.extension id-NRCGI
 MeNBCoordinationAssistanceInformation				N x2ap.extension id-MeNBCoordinationAssistanceInformation
 SgNBCoordinationAssistanceInformation				N x2ap.extension id-SgNBCoordinationAssistanceInformation
 NewDRBIDrequest							N x2ap.extension id-new-drb-ID-req
+NRNeighbour-Information						N x2ap.extension id-NRNeighbourInfoToAdd
+NRNeighbour-Information						N x2ap.extension id-NRNeighbourInfoToModify
+PLMN-Identity							N x2ap.extension id-LastNG-RANPLMNIdentity
 
 # X2AP-PDU-Descriptions.asn  Interface Elementary Procedures
 #X2AP-ELEMENTARY-PROCEDURE
@@ -1661,4 +1705,10 @@ ENDCX2RemovalFailure				N x2ap.proc.uout id-endcX2Removal
 DataForwardingAddressIndication			N x2ap.proc.imsg id-dataForwardingAddressIndication
 
 GNBStatusIndication				N x2ap.proc.imsg id-gNBStatusIndication
+
+ENDCConfigurationTransfer			N x2ap.proc.imsg id-endcConfigurationTransfer
+
+DeactivateTrace					N x2ap.proc.imsg id-deactivateTrace
+
+TraceStart					N x2ap.proc.imsg id-traceStart
 #.END
