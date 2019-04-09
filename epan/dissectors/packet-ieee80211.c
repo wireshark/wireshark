@@ -3829,7 +3829,10 @@ static int hf_ieee80211_mesh_config_cap_forwarding = -1;
 static int hf_ieee80211_mesh_config_cap_mbca_enabled = -1;
 static int hf_ieee80211_mesh_config_cap_tbtt_adjusting = -1;
 static int hf_ieee80211_mesh_config_cap_power_save_level = -1;
+static int hf_ieee80211_mesh_config_cap_reserved = -1;
+static int hf_ieee80211_mesh_form_info_conn_to_mesh_gate = -1;
 static int hf_ieee80211_mesh_form_info_num_of_peerings = -1;
+static int hf_ieee80211_mesh_form_info_conn_to_as = -1;
 static int hf_ieee80211_mesh_awake_window = -1;
 static int hf_ieee80211_mesh_mic = -1;
 static int hf_ieee80211_mesh_ampe_encrypted_data = -1;
@@ -21108,6 +21111,7 @@ ieee80211_tag_mesh_configuration(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     &hf_ieee80211_mesh_config_cap_mbca_enabled,
     &hf_ieee80211_mesh_config_cap_tbtt_adjusting,
     &hf_ieee80211_mesh_config_cap_power_save_level,
+    &hf_ieee80211_mesh_config_cap_reserved,
     NULL
   };
 
@@ -21118,7 +21122,9 @@ ieee80211_tag_mesh_configuration(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
   proto_tree_add_item(tree, hf_ieee80211_mesh_config_auth_protocol, tvb, offset + 4, 1, ENC_LITTLE_ENDIAN);
   item = proto_tree_add_item(tree, hf_ieee80211_mesh_config_formation_info, tvb, offset + 5, 1, ENC_LITTLE_ENDIAN);
   subtree = proto_item_add_subtree(item, ett_mesh_formation_info_tree);
+  proto_tree_add_item(subtree, hf_ieee80211_mesh_form_info_conn_to_mesh_gate, tvb, offset + 5, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(subtree, hf_ieee80211_mesh_form_info_num_of_peerings, tvb, offset + 5, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree, hf_ieee80211_mesh_form_info_conn_to_as, tvb, offset + 5, 1, ENC_LITTLE_ENDIAN);
 
   proto_tree_add_bitmask_with_flags(tree, tvb, offset + 6, hf_ieee80211_mesh_config_capability,
                                     ett_mesh_config_cap_tree, ieee80211_mesh_config_cap,
@@ -29100,9 +29106,19 @@ proto_register_ieee80211(void)
       FT_UINT8, BASE_HEX, NULL, 0,
       "Mesh Configuration Formation Info", HFILL }},
 
+    {&hf_ieee80211_mesh_form_info_conn_to_mesh_gate,
+     {"Connected to Mesh Gate", "wlan.mesh.formation_info.connect_to_mesh_gate",
+      FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
+      NULL, HFILL }},
+
     {&hf_ieee80211_mesh_form_info_num_of_peerings,
      {"Number of Peerings", "wlan.mesh.config.formation_info.num_peers",
       FT_UINT8, BASE_DEC, NULL, 0x7E,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_mesh_form_info_conn_to_as,
+     {"Connected to AS", "wlan.mesh.formation_info.connect_to_as",
+      FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x80,
       NULL, HFILL }},
 
     {&hf_ieee80211_mesh_config_capability,
@@ -29143,6 +29159,11 @@ proto_register_ieee80211(void)
     {&hf_ieee80211_mesh_config_cap_power_save_level,
      {"Power Save", "wlan.mesh.config.cap.power_save_level",
       FT_BOOLEAN, 8, TFS(&mesh_config_cap_power_save_level_flags), 0x40,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_mesh_config_cap_reserved,
+     {"Reserved", "wlan.mesh.config.cap.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0x80,
       NULL, HFILL }},
 
     {&hf_ieee80211_mesh_id,
