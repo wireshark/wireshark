@@ -310,6 +310,18 @@ static const value_string disk_state_names[] = {
 #define STATE_SUSP_FEN (0x1 << 22)  /* IO suspended because fence peer handler runs*/
 #define STATE_QUORUM (0x1 << 23)
 
+#define UUID_FLAG_DISCARD_MY_DATA 1
+#define UUID_FLAG_CRASHED_PRIMARY 2
+#define UUID_FLAG_INCONSISTENT 4
+#define UUID_FLAG_SKIP_INITIAL_SYNC 8
+#define UUID_FLAG_NEW_DATAGEN 16
+#define UUID_FLAG_STABLE 32
+#define UUID_FLAG_GOT_STABLE 64
+#define UUID_FLAG_RESYNC 128
+#define UUID_FLAG_RECONNECT 256
+#define UUID_FLAG_DISKLESS_PRIMARY 512
+#define UUID_FLAG_PRIMARY_LOST_QUORUM 1024
+
 #define DP_HARDBARRIER        1
 #define DP_RW_SYNC            2
 #define DP_MAY_SET_IN_SYNC    4
@@ -470,7 +482,8 @@ static int hf_drbd_two_primaries = -1;
 static int hf_drbd_integrity_alg = -1;
 static int hf_drbd_current_uuid = -1;
 static int hf_drbd_bitmap_uuid = -1;
-static int hf_drbd_history_uuids = -1;
+static int hf_drbd_history_uuid_list = -1;
+static int hf_drbd_history_uuid = -1;
 static int hf_drbd_dirty_bits = -1;
 static int hf_drbd_uuid_flags = -1;
 static int hf_drbd_node_mask = -1;
@@ -517,6 +530,18 @@ static int hf_drbd_state_susp_nod = -1;
 static int hf_drbd_state_susp_fen = -1;
 static int hf_drbd_state_quorum = -1;
 
+static int hf_drbd_uuid_flag_discard_my_data = -1;
+static int hf_drbd_uuid_flag_crashed_primary = -1;
+static int hf_drbd_uuid_flag_inconsistent = -1;
+static int hf_drbd_uuid_flag_skip_initial_sync = -1;
+static int hf_drbd_uuid_flag_new_datagen = -1;
+static int hf_drbd_uuid_flag_stable = -1;
+static int hf_drbd_uuid_flag_got_stable = -1;
+static int hf_drbd_uuid_flag_resync = -1;
+static int hf_drbd_uuid_flag_reconnect = -1;
+static int hf_drbd_uuid_flag_diskless_primary = -1;
+static int hf_drbd_uuid_flag_primary_lost_quorum = -1;
+
 static int hf_drbd_dp_hardbarrier = -1;
 static int hf_drbd_dp_rw_sync = -1;
 static int hf_drbd_dp_may_set_in_sync = -1;
@@ -531,6 +556,8 @@ static int hf_drbd_dp_zeroes = -1;
 
 static gint ett_drbd = -1;
 static gint ett_drbd_state = -1;
+static gint ett_drbd_uuid_flags = -1;
+static gint ett_drbd_history_uuids = -1;
 static gint ett_drbd_data_flags = -1;
 
 static const int *state_fields[] = {
@@ -546,6 +573,21 @@ static const int *state_fields[] = {
     &hf_drbd_state_susp_nod,
     &hf_drbd_state_susp_fen,
     &hf_drbd_state_quorum,
+    NULL
+};
+
+static const int *uuid_flag_fields[] = {
+    &hf_drbd_uuid_flag_discard_my_data,
+    &hf_drbd_uuid_flag_crashed_primary,
+    &hf_drbd_uuid_flag_inconsistent,
+    &hf_drbd_uuid_flag_skip_initial_sync,
+    &hf_drbd_uuid_flag_new_datagen,
+    &hf_drbd_uuid_flag_stable,
+    &hf_drbd_uuid_flag_got_stable,
+    &hf_drbd_uuid_flag_resync,
+    &hf_drbd_uuid_flag_reconnect,
+    &hf_drbd_uuid_flag_diskless_primary,
+    &hf_drbd_uuid_flag_primary_lost_quorum,
     NULL
 };
 
@@ -838,10 +880,10 @@ static void decode_payload_uuids(tvbuff_t *tvb, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_drbd_current_uuid, tvb, 0, 8, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_bitmap_uuid, tvb, 8, 8, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_drbd_history_uuids, tvb, 16, 8, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_drbd_history_uuids, tvb, 24, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_drbd_history_uuid, tvb, 16, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_drbd_history_uuid, tvb, 24, 8, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_dirty_bits, tvb, 32, 8, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_drbd_uuid_flags, tvb, 40, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(tree, tvb, 40, hf_drbd_uuid_flags, ett_drbd_uuid_flags, uuid_flag_fields, ENC_BIG_ENDIAN);
 }
 
 static void decode_payload_sizes(tvbuff_t *tvb, proto_tree *tree)
@@ -908,7 +950,7 @@ static void decode_payload_uuids110(tvbuff_t *tvb, proto_tree *tree)
 {
     proto_tree_add_item(tree, hf_drbd_current_uuid, tvb, 0, 8, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_dirty_bits, tvb, 8, 8, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_drbd_uuid_flags, tvb, 16, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask(tree, tvb, 16, hf_drbd_uuid_flags, ett_drbd_uuid_flags, uuid_flag_fields, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_drbd_node_mask, tvb, 24, 8, ENC_BIG_ENDIAN);
 
     guint64 bitmap_uuids_mask;
@@ -917,14 +959,18 @@ static void decode_payload_uuids110(tvbuff_t *tvb, proto_tree *tree)
     guint offset = 40;
     for (int i = 0; i < 64; i++) {
         if (is_bit_set_64(bitmap_uuids_mask, i)) {
-            proto_tree_add_item(tree, hf_drbd_bitmap_uuid, tvb, offset, 8, ENC_BIG_ENDIAN);
+            guint64 bitmap_uuid = tvb_get_ntoh64(tvb, offset);
+            proto_tree_add_uint64_format(tree, hf_drbd_bitmap_uuid, tvb, offset, 8, bitmap_uuid,
+                    "Bitmap UUID for node %d: 0x%016" G_GINT64_MODIFIER "x", i, bitmap_uuid);
             offset += 8;
         }
     }
 
+    proto_item *history_uuids = proto_tree_add_item(tree, hf_drbd_history_uuid_list, tvb, offset, -1, ENC_NA);
+    proto_tree *history_tree = proto_item_add_subtree(history_uuids, ett_drbd_history_uuids);
     guint total_length = tvb_reported_length(tvb);
     while (offset < total_length) {
-        proto_tree_add_item(tree, hf_drbd_history_uuids, tvb, offset, 8, ENC_BIG_ENDIAN);
+        proto_tree_add_item(history_tree, hf_drbd_history_uuid, tvb, offset, 8, ENC_BIG_ENDIAN);
         offset += 8;
     }
 }
@@ -1087,13 +1133,14 @@ void proto_register_drbd(void)
         { &hf_drbd_conn_flags, { "conn_flags", "drbd.conn_flags", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_two_primaries, { "two_primaries", "drbd.two_primaries", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_integrity_alg, { "integrity_alg", "drbd.integrity_alg", FT_STRINGZ, STR_ASCII, NULL, 0x0, NULL, HFILL }},
-        { &hf_drbd_current_uuid, { "current_uuid", "drbd.current_uuid", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-        { &hf_drbd_bitmap_uuid, { "bitmap_uuid", "drbd.bitmap_uuid", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-        { &hf_drbd_history_uuids, { "history_uuids", "drbd.history_uuids", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-        { &hf_drbd_dirty_bits, { "dirty_bits", "drbd.dirty_bits", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-        { &hf_drbd_uuid_flags, { "uuid_flags", "drbd.uuid_flags", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-        { &hf_drbd_node_mask, { "node_mask", "drbd.node_mask", FT_UINT64, BASE_CUSTOM, format_node_mask, 0x0, NULL, HFILL }},
-        { &hf_drbd_bitmap_uuids_mask, { "bitmap_uuids_mask", "drbd.bitmap_uuids_mask", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_drbd_current_uuid, { "Current UUID", "drbd.current_uuid", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_drbd_bitmap_uuid, { "Bitmap UUID", "drbd.bitmap_uuid", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_drbd_history_uuid_list, { "History UUIDs", "drbd.history_uuids", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_drbd_history_uuid, { "History UUID", "drbd.history_uuids", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_drbd_dirty_bits, { "Dirty bits", "drbd.dirty_bits", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_drbd_uuid_flags, { "UUID flags", "drbd.uuid_flags", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+        { &hf_drbd_node_mask, { "Nodes", "drbd.node_mask", FT_UINT64, BASE_CUSTOM, format_node_mask, 0x0, NULL, HFILL }},
+        { &hf_drbd_bitmap_uuids_mask, { "Bitmap UUID nodes", "drbd.bitmap_uuids_mask", FT_UINT64, BASE_CUSTOM, format_node_mask, 0x0, NULL, HFILL }},
         { &hf_drbd_uuid, { "uuid", "drbd.uuid", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
         { &hf_drbd_weak_nodes, { "weak_nodes", "drbd.weak_nodes", FT_UINT64, BASE_CUSTOM, format_node_mask, 0x0, NULL, HFILL }},
         { &hf_drbd_physical_block_size, { "physical_block_size", "drbd.physical_block_size", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
@@ -1136,6 +1183,18 @@ void proto_register_drbd(void)
         { &hf_drbd_state_susp_fen, { "susp_fen", "drbd.state.susp_fen", FT_BOOLEAN, 32, NULL, STATE_SUSP_FEN, NULL, HFILL }},
         { &hf_drbd_state_quorum, { "quorum", "drbd.state.quorum", FT_BOOLEAN, 32, NULL, STATE_QUORUM, NULL, HFILL }},
 
+        { &hf_drbd_uuid_flag_discard_my_data, { "discard_my_data", "drbd.uuid_flag.discard_my_data", FT_BOOLEAN, 64, NULL, UUID_FLAG_DISCARD_MY_DATA, NULL, HFILL }},
+        { &hf_drbd_uuid_flag_crashed_primary, { "crashed_primary", "drbd.uuid_flag.crashed_primary", FT_BOOLEAN, 64, NULL, UUID_FLAG_CRASHED_PRIMARY, NULL, HFILL }},
+        { &hf_drbd_uuid_flag_inconsistent, { "inconsistent", "drbd.uuid_flag.inconsistent", FT_BOOLEAN, 64, NULL, UUID_FLAG_INCONSISTENT, NULL, HFILL }},
+        { &hf_drbd_uuid_flag_skip_initial_sync, { "skip_initial_sync", "drbd.uuid_flag.skip_initial_sync", FT_BOOLEAN, 64, NULL, UUID_FLAG_SKIP_INITIAL_SYNC, NULL, HFILL }},
+        { &hf_drbd_uuid_flag_new_datagen, { "new_datagen", "drbd.uuid_flag.new_datagen", FT_BOOLEAN, 64, NULL, UUID_FLAG_NEW_DATAGEN, NULL, HFILL }},
+        { &hf_drbd_uuid_flag_stable, { "stable", "drbd.uuid_flag.stable", FT_BOOLEAN, 64, NULL, UUID_FLAG_STABLE, NULL, HFILL }},
+        { &hf_drbd_uuid_flag_got_stable, { "got_stable", "drbd.uuid_flag.got_stable", FT_BOOLEAN, 64, NULL, UUID_FLAG_GOT_STABLE, NULL, HFILL }},
+        { &hf_drbd_uuid_flag_resync, { "resync", "drbd.uuid_flag.resync", FT_BOOLEAN, 64, NULL, UUID_FLAG_RESYNC, NULL, HFILL }},
+        { &hf_drbd_uuid_flag_reconnect, { "reconnect", "drbd.uuid_flag.reconnect", FT_BOOLEAN, 64, NULL, UUID_FLAG_RECONNECT, NULL, HFILL }},
+        { &hf_drbd_uuid_flag_diskless_primary, { "diskless_primary", "drbd.uuid_flag.diskless_primary", FT_BOOLEAN, 64, NULL, UUID_FLAG_DISKLESS_PRIMARY, NULL, HFILL }},
+        { &hf_drbd_uuid_flag_primary_lost_quorum, { "primary_lost_quorum", "drbd.uuid_flag.primary_lost_quorum", FT_BOOLEAN, 64, NULL, UUID_FLAG_PRIMARY_LOST_QUORUM, NULL, HFILL }},
+
         { &hf_drbd_dp_hardbarrier, { "hardbarrier", "drbd.dp_flag.hardbarrier", FT_BOOLEAN, 32, NULL, DP_HARDBARRIER, NULL, HFILL }},
         { &hf_drbd_dp_rw_sync, { "rw_sync", "drbd.dp_flag.rw_sync", FT_BOOLEAN, 32, NULL, DP_RW_SYNC, NULL, HFILL }},
         { &hf_drbd_dp_may_set_in_sync, { "may_set_in_sync", "drbd.dp_flag.may_set_in_sync", FT_BOOLEAN, 32, NULL, DP_MAY_SET_IN_SYNC, NULL, HFILL }},
@@ -1152,6 +1211,8 @@ void proto_register_drbd(void)
     static gint *ett[] = {
         &ett_drbd,
         &ett_drbd_state,
+        &ett_drbd_uuid_flags,
+        &ett_drbd_history_uuids,
         &ett_drbd_data_flags,
     };
 
