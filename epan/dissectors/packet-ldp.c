@@ -1496,6 +1496,8 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
         case P2MP_FEC:
         case MP2MP_FEC_UP:
         case MP2MP_FEC_DOWN:
+        case HSMP_UPSTREAM:
+        case HSMP_DOWNSTREAM:
         {
             if (rem < 4 ){/*not enough*/
                 proto_item* inv_length;
@@ -2849,6 +2851,10 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tree, i
 
         case TLV_DIFF_SERV:
             dissect_tlv_diffserv(tvb, pinfo, offset +4, tlv_tree, length);
+            break;
+
+        case TLV_HSMP_LSP_CAPA_PARAM:
+            dissect_tlv_upstrm_lbl_ass_cap(tvb, pinfo, offset + 4, tlv_tree, length);
             break;
 
         case TLV_VENDOR_PRIVATE_START:
