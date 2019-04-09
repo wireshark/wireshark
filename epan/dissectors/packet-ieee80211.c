@@ -21230,6 +21230,15 @@ ieee80211_tag_mesh_peering_mgmt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 static int
 ieee80211_tag_mesh_configuration(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
 {
+
+  ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
+  int tag_len = tvb_reported_length(tvb);
+  if (tag_len != 7)
+  {
+    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be = 7", tag_len);
+    return tvb_captured_length(tvb);
+  }
+
   int offset = 0;
   proto_item *item;
   proto_tree *subtree;
