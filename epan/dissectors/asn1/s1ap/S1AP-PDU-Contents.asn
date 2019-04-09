@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V15.4.0 (2018-12)
+-- 3GPP TS 36.413 V15.5.0 (2019-03)
 -- 9.3.3	PDU Definitions
 -- **************************************************************
 --
@@ -180,7 +180,11 @@ IMPORTS
 	AerialUEsubscriptionInformation,
 	PendingDataIndication,
 	WarningAreaCoordinates,
-	Subscription-Based-UE-DifferentiationInfo
+	Subscription-Based-UE-DifferentiationInfo,
+	PSCellInformation,
+	NR-CGI,
+	ConnectedengNBList,
+	EN-DCSONConfigurationTransfer
 
 
 
@@ -431,7 +435,13 @@ FROM S1AP-Containers
 	id-LTE-M-Indication,
 	id-PendingDataIndication,
 	id-WarningAreaCoordinates,
-	id-Subscription-Based-UE-DifferentiationInfo
+	id-Subscription-Based-UE-DifferentiationInfo,
+	id-PSCellInformation,
+	id-ConnectedengNBList,
+	id-ConnectedengNBToAddList,
+	id-ConnectedengNBToRemoveList,
+	id-EN-DCSONConfigurationTransfer-ECT,
+	id-EN-DCSONConfigurationTransfer-MCT
 
 
 
@@ -1852,7 +1862,8 @@ S1SetupRequestIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-DefaultPagingDRX			CRITICALITY ignore	TYPE PagingDRX					PRESENCE mandatory}|
 	{ ID id-CSG-IdList					CRITICALITY reject	TYPE CSG-IdList					PRESENCE optional}|
 	{ ID id-UE-RetentionInformation		CRITICALITY ignore	TYPE UE-RetentionInformation	PRESENCE optional}|
-	{ ID id-NB-IoT-DefaultPagingDRX		CRITICALITY ignore	TYPE NB-IoT-DefaultPagingDRX	PRESENCE optional},
+	{ ID id-NB-IoT-DefaultPagingDRX		CRITICALITY ignore	TYPE NB-IoT-DefaultPagingDRX	PRESENCE optional}|
+	{ ID id-ConnectedengNBList			CRITICALITY ignore	TYPE ConnectedengNBList			PRESENCE optional},
 	...
 }
 
@@ -1919,7 +1930,9 @@ ENBConfigurationUpdateIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-SupportedTAs				CRITICALITY reject	TYPE SupportedTAs				PRESENCE optional}|
 	{ ID id-CSG-IdList					CRITICALITY reject	TYPE CSG-IdList					PRESENCE optional}|
 	{ ID id-DefaultPagingDRX			CRITICALITY ignore	TYPE PagingDRX					PRESENCE optional}|
-	{ ID id-NB-IoT-DefaultPagingDRX		CRITICALITY ignore	TYPE NB-IoT-DefaultPagingDRX	PRESENCE optional},
+	{ ID id-NB-IoT-DefaultPagingDRX		CRITICALITY ignore	TYPE NB-IoT-DefaultPagingDRX	PRESENCE optional}|
+	{ ID id-ConnectedengNBToAddList		CRITICALITY ignore	TYPE ConnectedengNBList			PRESENCE optional}|
+	{ ID id-ConnectedengNBToRemoveList	CRITICALITY ignore	TYPE ConnectedengNBList			PRESENCE optional},
 	...
 }
 
@@ -2306,7 +2319,8 @@ LocationReportIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-eNB-UE-S1AP-ID			CRITICALITY reject	TYPE ENB-UE-S1AP-ID				PRESENCE mandatory	}|
 	{ ID id-EUTRAN-CGI				CRITICALITY ignore	TYPE EUTRAN-CGI					PRESENCE mandatory	}|
 	{ ID id-TAI						CRITICALITY ignore	TYPE TAI						PRESENCE mandatory	}|
-	{ ID id-RequestType				CRITICALITY ignore	TYPE RequestType				PRESENCE mandatory	},
+	{ ID id-RequestType				CRITICALITY ignore	TYPE RequestType				PRESENCE mandatory	}|
+	{ ID id-PSCellInformation		CRITICALITY ignore	TYPE PSCellInformation			PRESENCE optional },
 	...
 }
 
@@ -2466,7 +2480,8 @@ ENBConfigurationTransfer ::= SEQUENCE {
 }
 
 ENBConfigurationTransferIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-SONConfigurationTransferECT		CRITICALITY ignore	TYPE SONConfigurationTransfer	PRESENCE optional	},
+	{ ID id-SONConfigurationTransferECT			CRITICALITY ignore	TYPE SONConfigurationTransfer			PRESENCE optional	}|
+	{ ID id-EN-DCSONConfigurationTransfer-ECT	CRITICALITY ignore	TYPE EN-DCSONConfigurationTransfer	PRESENCE optional	},
 	...
 }
 
@@ -2488,7 +2503,8 @@ MMEConfigurationTransfer ::= SEQUENCE {
 }
 
 MMEConfigurationTransferIEs S1AP-PROTOCOL-IES ::= {
-	{ ID id-SONConfigurationTransferMCT		CRITICALITY ignore	TYPE SONConfigurationTransfer	PRESENCE optional	},
+	{ ID id-SONConfigurationTransferMCT			CRITICALITY ignore	TYPE SONConfigurationTransfer			PRESENCE optional	}|
+	{ ID id-EN-DCSONConfigurationTransfer-MCT	CRITICALITY ignore	TYPE EN-DCSONConfigurationTransfer	PRESENCE optional	},
 	...
 }
 

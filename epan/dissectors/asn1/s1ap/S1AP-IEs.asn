@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V15.4.0 (2018-12)
+-- 3GPP TS 36.413 V15.5.0 (2019-03)
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
 --
@@ -62,10 +62,12 @@ IMPORTS
 	id-UEAppLayerMeasConfig,
 	id-serviceType,
 	id-UnlicensedSpectrumRestriction, 
-	id-CNTypeRestrictions,	id-DownlinkPacketLossRate,
+	id-CNTypeRestrictions,
+	id-DownlinkPacketLossRate,
 	id-UplinkPacketLossRate,
 	id-BluetoothMeasurementConfiguration,
 	id-WLANMeasurementConfiguration,
+	id-LastNG-RANPLMNIdentity,
 	maxnoofCSGs,
 	maxnoofE-RABs,
 	maxnoofErrors,
@@ -105,7 +107,8 @@ IMPORTS
 	maxnoofTAforQMC,
 	maxnoofPLMNforQMC,
 	maxnoofBluetoothName,
-	maxnoofWLANName
+	maxnoofWLANName,
+	maxnoofConnectedengNBs
 
 
 
@@ -564,6 +567,19 @@ ConcurrentWarningMessageIndicator ::= ENUMERATED {
 	true
 }
 
+ConnectedengNBList ::= SEQUENCE (SIZE(1..maxnoofConnectedengNBs)) OF ConnectedengNBItem
+
+ConnectedengNBItem ::= SEQUENCE {
+	en-gNB-ID		En-gNB-ID,
+	supportedTAs	SupportedTAs,
+	iE-Extensions	ProtocolExtensionContainer { {ConnectedengNBItem-ExtIEs} }	OPTIONAL,
+	...
+}
+
+ConnectedengNBItem-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 Correlation-ID		::= OCTET STRING (SIZE (4))
 
 CSFallbackIndicator ::= ENUMERATED { 
@@ -782,6 +798,8 @@ ENB-ID ::= CHOICE {
 	long-macroENB-ID		BIT STRING (SIZE(21))
 }
 
+En-gNB-ID ::= BIT STRING (SIZE(22..32, ...))
+
 GERAN-Cell-ID ::= SEQUENCE {
 	lAI				LAI,
     rAC				RAC, 
@@ -805,6 +823,17 @@ GlobalENB-ID-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+Global-en-gNB-ID ::= SEQUENCE {
+	pLMNidentity			PLMNidentity,
+	en-gNB-ID				En-gNB-ID,
+	iE-Extensions			ProtocolExtensionContainer { {Global-en-gNB-ID-ExtIEs} }		OPTIONAL,
+	...
+}
+
+Global-en-gNB-ID-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 GUMMEIList::= SEQUENCE (SIZE (1.. maxnoofMMECs)) OF GUMMEI
 
 ENB-StatusTransfer-TransparentContainer		::= SEQUENCE {
@@ -823,7 +852,73 @@ ENBname ::= PrintableString (SIZE (1..150,...))
 
 ENBX2TLAs ::= SEQUENCE (SIZE(1.. maxnoofeNBX2TLAs)) OF TransportLayerAddress
 
-EncryptionAlgorithms ::= BIT STRING (SIZE (16,...))
+EncryptionAlgorithms ::= BIT STRING (SIZE (16,...)) 
+
+EN-DCSONConfigurationTransfer ::= SEQUENCE {
+	transfertype				EN-DCSONTransferType,
+	sONInformation					SONInformation,
+	x2TNLConfigInfo					X2TNLConfigurationInfo 	OPTIONAL,
+	-- This IE shall be present if the SON Information IE contains the SON Information Request IE and the SON Information Request IE is set to “X2TNL Configuration Info” --
+	iE-Extensions			ProtocolExtensionContainer { {EN-DCSONConfigurationTransfer-ExtIEs} }			OPTIONAL,
+...
+}
+
+EN-DCSONConfigurationTransfer-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+EN-DCSONTransferType ::= CHOICE {
+	request				EN-DCTransferTypeRequest,
+	reply				EN-DCTransferTypeReply,
+	...
+}
+
+EN-DCTransferTypeRequest ::= SEQUENCE {
+	sourceeNB 				EN-DCSONeNBIdentification,
+	targetengNB				EN-DCSONengNBIdentification,
+	targeteNB				EN-DCSONeNBIdentification													OPTIONAL,
+	associatedTAI			TAI																			OPTIONAL,
+	broadcast5GSTAI			FiveGSTAI																	OPTIONAL,
+	iE-Extensions			ProtocolExtensionContainer { {EN-DCTransferTypeRequest-ExtIEs} }			OPTIONAL,
+...
+}
+
+EN-DCTransferTypeRequest-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+EN-DCTransferTypeReply ::= SEQUENCE {
+	sourceengNB				EN-DCSONengNBIdentification,
+	targeteNB 				EN-DCSONeNBIdentification,
+	iE-Extensions			ProtocolExtensionContainer { {EN-DCTransferTypeReply-ExtIEs} }			OPTIONAL,
+...
+}
+
+EN-DCTransferTypeReply-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+EN-DCSONeNBIdentification ::= SEQUENCE {
+	globaleNBID				Global-ENB-ID,
+	selectedTAI				TAI,
+	iE-Extensions			ProtocolExtensionContainer { {EN-DCSONeNBIdentification-ExtIEs} }			OPTIONAL,
+...
+}
+
+EN-DCSONeNBIdentification-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+EN-DCSONengNBIdentification ::= SEQUENCE {
+	globalengNBID			Global-en-gNB-ID,
+	selectedTAI				TAI,
+	iE-Extensions			ProtocolExtensionContainer { {EN-DCSONengNBIdentification-ExtIEs} }			OPTIONAL,
+...
+}
+
+EN-DCSONengNBIdentification-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 EndIndication ::= ENUMERATED {
 	no-further-data,
@@ -1077,7 +1172,8 @@ GUMMEI-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 GUMMEIType ::= ENUMERATED {
 	native,
 	mapped,
-	...
+	...,
+	mappedFrom5G
 }
 
 GWContextReleaseIndication ::= ENUMERATED {
@@ -1107,7 +1203,8 @@ HandoverRestrictionList-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-NRrestrictioninEPSasSecondaryRAT		CRITICALITY ignore	EXTENSION NRrestrictioninEPSasSecondaryRAT		PRESENCE optional}|
 	{ ID id-UnlicensedSpectrumRestriction		CRITICALITY ignore	EXTENSION UnlicensedSpectrumRestriction	PRESENCE optional}|
 	{ ID id-CNTypeRestrictions		CRITICALITY ignore	EXTENSION CNTypeRestrictions	PRESENCE optional}|
-	{ ID id-NRrestrictionin5GS		CRITICALITY ignore	EXTENSION NRrestrictionin5GS 	PRESENCE optional},
+	{ ID id-NRrestrictionin5GS		CRITICALITY ignore	EXTENSION NRrestrictionin5GS 	PRESENCE optional}|
+	{ ID id-LastNG-RANPLMNIdentity		CRITICALITY ignore	EXTENSION PLMNidentity			PRESENCE optional},
 	...
 }
 
@@ -1495,6 +1592,21 @@ NextPagingAreaScope ::= ENUMERATED {
 	...
 }
 
+
+NRCellIdentity ::= BIT STRING (SIZE(36))
+
+NR-CGI ::= SEQUENCE {
+	pLMNIdentity		PLMNidentity,
+	nRCellIdentity		NRCellIdentity,
+	iE-Extensions		ProtocolExtensionContainer { {NR-CGI-ExtIEs} } OPTIONAL,
+	...
+}
+
+NR-CGI-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
 NRencryptionAlgorithms ::= BIT STRING (SIZE (16,...))
 NRintegrityProtectionAlgorithms ::= BIT STRING (SIZE (16,...))
 
@@ -1680,6 +1792,16 @@ ProSeDirectCommunication ::= ENUMERATED {
 
 PS-ServiceNotAvailable ::= ENUMERATED {
 	ps-service-not-available,
+	...
+}
+
+PSCellInformation ::= SEQUENCE {
+	nCGI						NR-CGI,
+	iE-Extensions				ProtocolExtensionContainer { { PSCellInformation-ExtIEs} }	OPTIONAL,
+	...
+}
+
+PSCellInformation-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 

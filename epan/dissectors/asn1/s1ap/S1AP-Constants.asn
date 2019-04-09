@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V15.4.0 (2018-12)
+-- 3GPP TS 36.413 V15.5.0 (2019-03)
 -- 9.3.6	Constant Definitions
 -- **************************************************************
 --
@@ -154,6 +154,7 @@ maxnoofTAforQMC							INTEGER ::= 8
 maxnoofPLMNforQMC						INTEGER ::= 16
 maxnoofBluetoothName					INTEGER ::= 4
 maxnoofWLANName							INTEGER ::= 4
+maxnoofConnectedengNBs					INTEGER ::= 256
 
 
 
@@ -464,5 +465,14 @@ id-BluetoothMeasurementConfiguration				ProtocolIE-ID ::= 284
 id-WLANMeasurementConfiguration						ProtocolIE-ID ::= 285
 id-WarningAreaCoordinates							ProtocolIE-ID ::= 286
 id-NRrestrictionin5GS								ProtocolIE-ID ::= 287
+id-PSCellInformation								ProtocolIE-ID ::= 288
+--WS extension
+id-Unknown-289									ProtocolIE-ID ::= 289
+id-LastNG-RANPLMNIdentity							ProtocolIE-ID ::= 290
+id-ConnectedengNBList								ProtocolIE-ID ::= 291
+id-ConnectedengNBToAddList							ProtocolIE-ID ::= 292
+id-ConnectedengNBToRemoveList						ProtocolIE-ID ::= 293
+id-EN-DCSONConfigurationTransfer-ECT				ProtocolIE-ID ::= 294
+id-EN-DCSONConfigurationTransfer-MCT				ProtocolIE-ID ::= 295
 
 END

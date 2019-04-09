@@ -10,7 +10,7 @@
  *
  * Based on the RANAP dissector
  *
- * References: 3GPP TS 36.413 V15.4.0 (2018-12)
+ * References: 3GPP TS 36.413 V15.5.0 (2019-03)
  */
 
 #include "config.h"
@@ -71,6 +71,8 @@ static int hf_s1ap_E_UTRAN_Trace_ID_TraceRecordingSessionReference = -1;
 static int hf_s1ap_interfacesToTrace_S1_MME = -1;
 static int hf_s1ap_interfacesToTrace_X2 = -1;
 static int hf_s1ap_interfacesToTrace_Uu = -1;
+static int hf_s1ap_interfacesToTrace_F1_C = -1;
+static int hf_s1ap_interfacesToTrace_E1 = -1;
 static int hf_s1ap_interfacesToTrace_Reserved = -1;
 static int hf_s1ap_encryptionAlgorithms_EEA1 = -1;
 static int hf_s1ap_encryptionAlgorithms_EEA2 = -1;
@@ -518,6 +520,14 @@ void proto_register_s1ap(void) {
     { &hf_s1ap_interfacesToTrace_Uu,
       { "Uu", "s1ap.interfacesToTrace.Uu",
         FT_BOOLEAN, 8, TFS(&s1ap_tfs_interfacesToTrace), 0x20,
+        NULL, HFILL }},
+    { &hf_s1ap_interfacesToTrace_F1_C,
+      { "F1-C", "s1ap.interfacesToTrace.F1_C",
+        FT_BOOLEAN, 8, TFS(&s1ap_tfs_interfacesToTrace), 0x10,
+        NULL, HFILL }},
+    { &hf_s1ap_interfacesToTrace_E1,
+      { "E1", "s1ap.interfacesToTrace.E1",
+        FT_BOOLEAN, 8, TFS(&s1ap_tfs_interfacesToTrace), 0x08,
         NULL, HFILL }},
     { &hf_s1ap_interfacesToTrace_Reserved,
       { "Reserved", "s1ap.interfacesToTrace.Reserved",

@@ -778,6 +778,8 @@ ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC|BASE_EXT_STRING STRINGS 
       &hf_s1ap_interfacesToTrace_S1_MME,
       &hf_s1ap_interfacesToTrace_X2,
       &hf_s1ap_interfacesToTrace_Uu,
+      &hf_s1ap_interfacesToTrace_F1_C,
+      &hf_s1ap_interfacesToTrace_E1,
       &hf_s1ap_interfacesToTrace_Reserved,
       NULL
     };
@@ -1576,6 +1578,13 @@ id-BluetoothMeasurementConfiguration                ProtocolIE-ID
 id-WLANMeasurementConfiguration                     ProtocolIE-ID
 id-WarningAreaCoordinates                           ProtocolIE-ID
 id-NRrestrictionin5GS                               ProtocolIE-ID
+id-PSCellInformation                                ProtocolIE-ID
+id-LastNG-RANPLMNIdentity                           ProtocolIE-ID
+id-ConnectedengNBList                               ProtocolIE-ID
+id-ConnectedengNBToAddList                          ProtocolIE-ID
+id-ConnectedengNBToRemoveList                       ProtocolIE-ID
+id-EN-DCSONConfigurationTransfer-ECT                ProtocolIE-ID
+id-EN-DCSONConfigurationTransfer-MCT                ProtocolIE-ID
 
 #.END
 
@@ -1799,6 +1808,12 @@ LTE-M-Indication                                N s1ap.ies id-LTE-M-Indication
 Subscription-Based-UE-DifferentiationInfo       N s1ap.ies id-Subscription-Based-UE-DifferentiationInfo
 PendingDataIndication                           N s1ap.ies id-PendingDataIndication
 WarningAreaCoordinates                          N s1ap.ies id-WarningAreaCoordinates
+PSCellInformation                               N s1ap.ies id-PSCellInformation
+ConnectedengNBList                              N s1ap.ies id-ConnectedengNBList
+ConnectedengNBList                              N s1ap.ies id-ConnectedengNBToAddList
+ConnectedengNBList                              N s1ap.ies id-ConnectedengNBToRemoveList
+EN-DCSONConfigurationTransfer                   N s1ap.ies id-EN-DCSONConfigurationTransfer-ECT
+EN-DCSONConfigurationTransfer                   N s1ap.ies id-EN-DCSONConfigurationTransfer-MCT
 
 #S1AP-PROTOCOL-IES-PAIR
 #RAB-SetupOrModifyItemFirst             N s1ap.ies.pair.first id-RAB-SetupOrModifyItem
@@ -1856,6 +1871,7 @@ ServiceType                             N s1ap.extension id-serviceType
 BluetoothMeasurementConfiguration       N s1ap.extension id-BluetoothMeasurementConfiguration
 WLANMeasurementConfiguration            N s1ap.extension id-WLANMeasurementConfiguration
 NRrestrictionin5GS                      N s1ap.extension id-NRrestrictionin5GS
+PLMNidentity                            N s1ap.extension id-LastNG-RANPLMNIdentity
 
 #S1AP-ELEMENTARY-PROCEDURE
 HandoverRequired                        N s1ap.proc.imsg id-HandoverPreparation
