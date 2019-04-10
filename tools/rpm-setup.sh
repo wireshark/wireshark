@@ -43,8 +43,6 @@ BASIC_LIST="gcc \
 	flex \
 	bison \
 	perl \
-	lua-devel \
-	lua \
 	desktop-file-utils \
 	git \
 	git-review \
@@ -54,7 +52,6 @@ BASIC_LIST="gcc \
 
 ADDITIONAL_LIST="libnl3-devel \
 	libnghttp2-devel \
-	libcap \
 	libcap-devel \
 	libgcrypt-devel \
 	libssh-devel \
@@ -120,6 +117,15 @@ echo "cmake is unavailable" >&2
 add_package BASIC_LIST glib2 || add_package BASIC_LIST libglib-2_0-0 ||
 echo "glib2 is unavailable" >&2
 
+# lua51, lua51-devel: OpenSUSE Leap 42.3 (lua would be fine too, as it installs lua52), OpenSUSE Leap 15.0 (lua installs lua53, so it wouldn't work)
+# compat-lua, compat-lua-devel: Fedora 28, Fedora 29
+# lua, lua-devel: CentOS 7
+add_package BASIC_LIST lua51-devel || add_package BASIC_LIST compat-lua-devel || add_package BASIC_LIST lua-devel ||
+echo "lua devel is unavailable" >&2
+
+add_package BASIC_LIST lua51 || add_package BASIC_LIST compat-lua || add_package BASIC_LIST lua ||
+echo "lua is unavailable" >&2
+
 add_package BASIC_LIST libpcap || add_package BASIC_LIST libpcap1 ||
 echo "libpcap is unavailable" >&2
 
@@ -147,8 +153,17 @@ echo "Qt5 multimedia is unavailable" >&2
 add_package BASIC_LIST libQt5PrintSupport-devel ||
 echo "Qt5 print support is unavailable" >&2
 
+# This in only required (and available) on OpenSUSE
+add_package BASIC_LIST update-desktop-files ||
+echo "update-desktop-files is unavailable" >&2
+
 add_package BASIC_LIST perl-podlators ||
 echo "perl-podlators unavailable" >&2
+
+# libcap: CentOS 7, Fedora 28, Fedora 29
+# libcap2: OpenSUSE Leap 42.3, OpenSUSE Leap 15.0
+add_package ADDITIONAL_LIST libcap || add_package ADDITIONAL_LIST libcap2 ||
+echo "libcap is unavailable" >&2
 
 add_package ADDITIONAL_LIST nghttp2 || add_package ADDITIONAL_LIST libnghttp2 ||
 echo "nghttp2 is unavailable" >&2

@@ -1,4 +1,11 @@
-.ubuntu: &ubuntu
+.build: &build
+  stage: build
+  after_script:
+    - for builddir in build/packaging/rpm/BUILD/wireshark-*/build build/packaging/rpm/BUILD/wireshark-* build; do [ ! -d "$builddir" ] || break; done
+    - if [ "$CI_JOB_NAME" = "rpm-opensuse-42.3" ]; then export LD_LIBRARY_PATH=$builddir/run; fi
+    - if [ -f $builddir/run/tshark ]; then $builddir/run/tshark --version; fi
+.build-ubuntu: &build-ubuntu
+  <<: *build
   image: crondaemon/wireshark
   retry: 1
   before_script:
@@ -18,13 +25,14 @@
     - export PYTEST_ADDOPTS=--skip-missing-programs=dumpcap,rawshark
     - mkdir build
     - cd build
-.rpm: &rpm
+.build-rpm: &build-rpm
+  <<: *build
   artifacts:
     paths:
       - build/packaging/rpm/RPMS
     expire_in: 3 days
 gcc-4:
-  <<: *ubuntu
+  <<: *build-ubuntu
   script:
     - ../tools/debian-setup.sh --install-optional --install-test-deps gcc-4.9 g++-4.9 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=gcc-4.9 -DCMAKE_CXX_COMPILER=g++-4.9 ..
@@ -33,7 +41,7 @@ gcc-4:
     - chown -R user .
     - su user -c pytest
 gcc-5:
-  <<: *ubuntu
+  <<: *build-ubuntu
   script:
     - ../tools/debian-setup.sh --install-optional --install-test-deps gcc-5 g++-5 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=gcc-5 -DCMAKE_CXX_COMPILER=g++-5 ..
@@ -42,7 +50,7 @@ gcc-5:
     - chown -R user .
     - su user -c pytest
 gcc-6:
-  <<: *ubuntu
+  <<: *build-ubuntu
   script:
     - ../tools/debian-setup.sh --install-optional --install-test-deps gcc-6 g++-6 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=gcc-6 -DCMAKE_CXX_COMPILER=g++-6 ..
@@ -51,7 +59,7 @@ gcc-6:
     - chown -R user .
     - su user -c pytest
 gcc-7:
-  <<: *ubuntu
+  <<: *build-ubuntu
   script:
     - ../tools/debian-setup.sh --install-optional --install-test-deps gcc-7 g++-7 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=gcc-7 -DCMAKE_CXX_COMPILER=g++-7 ..
@@ -60,7 +68,7 @@ gcc-7:
     - chown -R user .
     - su user -c pytest
 gcc-8:
-  <<: *ubuntu
+  <<: *build-ubuntu
   script:
     - ../tools/debian-setup.sh --install-optional --install-test-deps gcc-8 g++-8 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8 ..
@@ -69,7 +77,7 @@ gcc-8:
     - chown -R user .
     - su user -c pytest
 gcc-8-nopcap:
-  <<: *ubuntu
+  <<: *build-ubuntu
   script:
     - ../tools/debian-setup.sh --install-optional --install-test-deps gcc-8 g++-8 -y
     - cmake -GNinja -DENABLE_PCAP=OFF -DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8 ..
@@ -78,7 +86,7 @@ gcc-8-nopcap:
     - chown -R user .
     - su user -c pytest
 clang-5:
-  <<: *ubuntu
+  <<: *build-ubuntu
   script:
     - ../tools/debian-setup.sh --install-optional --install-test-deps clang-5.0 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=clang-5.0 -DCMAKE_CXX_COMPILER=clang++-5.0 -DCMAKE_C_FLAGS=-Wframe-larger-than=20000 ..
@@ -87,7 +95,7 @@ clang-5:
     - chown -R user .
     - su user -c pytest
 clang-6:
-  <<: *ubuntu
+  <<: *build-ubuntu
   script:
     - ../tools/debian-setup.sh --install-optional --install-test-deps clang-6.0 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=clang-6.0 -DCMAKE_CXX_COMPILER=clang++-6.0 -DCMAKE_C_FLAGS=-Wframe-larger-than=20000 ..
@@ -96,7 +104,7 @@ clang-6:
     - chown -R user .
     - su user -c pytest
 clang-7:
-  <<: *ubuntu
+  <<: *build-ubuntu
   script:
      - ../tools/debian-setup.sh --install-optional --install-test-deps clang-7 -y
      - cmake -GNinja -DCMAKE_C_COMPILER=clang-7 -DCMAKE_CXX_COMPILER=clang++-7 -DCMAKE_C_FLAGS=-Wframe-larger-than=20000 ..
@@ -105,7 +113,7 @@ clang-7:
      - chown -R user .
      - su user -c pytest
 clang-7-nopcap:
-  <<: *ubuntu
+  <<: *build-ubuntu
   script:
     - ../tools/debian-setup.sh --install-optional --install-test-deps clang-7 -y
     - cmake -GNinja -DENABLE_PCAP=OFF -DCMAKE_C_COMPILER=clang-7 -DCMAKE_CXX_COMPILER=clang++-7 -DCMAKE_C_FLAGS=-Wframe-larger-than=20000 ..
@@ -113,8 +121,8 @@ clang-7-nopcap:
     - ninja test-programs
     - chown -R user .
     - su user -c pytest
-rpm-centos-7:
-  <<: *rpm
+build:rpm-centos-7:
+  <<: *build-rpm
   image: centos:7
   script:
     - yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
@@ -123,9 +131,19 @@ rpm-centos-7:
     - cd build
     - cmake3 -GNinja ..
     - ninja-build rpm-package
-rpm-opensuse-42.3:
-  <<: *rpm
-  image: opensuse:42.3
+test:rpm-centos-7:
+  stage: test
+  image: centos:7
+  script:
+    - yum -y install https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+    - yum --nogpgcheck localinstall -y build/packaging/rpm/RPMS/x86_64/*.rpm
+    - tshark --version
+  dependencies:
+    - build:rpm-centos-7
+  variables:
+    GIT_STRATEGY: none
+.build-rpm-opensuse: &build-rpm-opensuse
+  <<: *build-rpm
   script:
     - zypper --non-interactive install update-desktop-files
     - tools/rpm-setup.sh --install-optional ruby
@@ -134,9 +152,31 @@ rpm-opensuse-42.3:
     - cd build
     - cmake -GNinja ..
     - ninja rpm-package
-rpm-fedora-28:
-  <<: *rpm
-  image: fedora:28
+.test-rpm-opensuse: &test-rpm-opensuse
+  stage: test
+  script:
+    - zypper --no-gpg-checks install -y build/packaging/rpm/RPMS/x86_64/*.rpm
+    - tshark --version
+  variables:
+    GIT_STRATEGY: none
+build:rpm-opensuse-42.3:
+  <<: *build-rpm-opensuse
+  image: opensuse:42.3
+test:rpm-opensuse-42.3:
+  <<: *test-rpm-opensuse
+  image: opensuse:42.3
+  dependencies:
+    - build:rpm-opensuse-42.3
+build:rpm-opensuse-15.0:
+  <<: *build-rpm-opensuse
+  image: opensuse/leap:15.0
+test:rpm-opensuse-15.0:
+  <<: *test-rpm-opensuse
+  image: opensuse/leap:15.0
+  dependencies:
+    - build:rpm-opensuse-15.0
+.build-rpm-fedora: &build-rpm-fedora
+  <<: *build-rpm
   script:
     - dnf upgrade -y
     - tools/rpm-setup.sh --install-optional -y
@@ -144,7 +184,26 @@ rpm-fedora-28:
     - cd build
     - cmake3 -GNinja ..
     - ninja-build rpm-package
-after_script:
-  - for builddir in build/packaging/rpm/BUILD/wireshark-*/build build/packaging/rpm/BUILD/wireshark-* build; do [ ! -d "$builddir" ] || break; done
-  - if [ "$CI_JOB_NAME" = "rpm-opensuse-42.3" ]; then export LD_LIBRARY_PATH=$builddir/run; fi
-  - if [ -f $builddir/run/tshark ]; then $builddir/run/tshark --version; fi
+.test-rpm-fedora: &test-rpm-fedora
+  stage: test
+  script:
+    - dnf install -y build/packaging/rpm/RPMS/x86_64/*.rpm
+    - tshark --version
+  variables:
+    GIT_STRATEGY: none
+build:rpm-fedora-28:
+  <<: *build-rpm-fedora
+  image: fedora:28
+test:rpm-fedora-28:
+  <<: *test-rpm-fedora
+  image: fedora:28
+  dependencies:
+    - build:rpm-fedora-28
+build:rpm-fedora-29:
+  <<: *build-rpm-fedora
+  image: fedora:29
+test:rpm-fedora-29:
+  <<: *test-rpm-fedora
+  image: fedora:29
+  dependencies:
+    - build:rpm-fedora-29
