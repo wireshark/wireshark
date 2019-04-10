@@ -1,4 +1,4 @@
--- ETSI TS 129 171 V13.2.0 (2016-03)
+-- ETSI TS 129 171 V15.2.0 (2019-03)
 -- 7.5.6	Common Definitions
 
 -- ************************************************************** 
@@ -6,7 +6,7 @@
 -- Common definitions 
 -- 
 -- ************************************************************** 
- 
+
 LCS-AP-CommonDataTypes {
 itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
 eps-Access (21) modules (3) lcs-AP (4) version1 (1) lcs-AP-CommonDataTypes (3)}
@@ -15,17 +15,18 @@ DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
-Criticality			::= ENUMERATED { reject, ignore, notify }
+Criticality		::= ENUMERATED { reject, ignore, notify }
 
-Presence			::= ENUMERATED { optional, conditional, mandatory }
+Presence		::= ENUMERATED { optional, conditional, mandatory }
 
-ProcedureCode		::= INTEGER (0..255)
+ProcedureCode	::= INTEGER (0..255)
 
 ProtocolExtensionID	::= INTEGER (0..65535)
 
-ProtocolIE-ID		::= INTEGER (0..65535)
+ProtocolIE-ID	::= INTEGER (0..65535)
 
 TriggeringMessage	::= ENUMERATED {initiating-message, successful-outcome, unsuccessful-outcome, outcome}
 
 END
+
 

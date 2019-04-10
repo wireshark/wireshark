@@ -1,4 +1,4 @@
--- ETSI TS 129 171 V13.2.0 (2016-03)
+-- ETSI TS 129 171 V15.2.0 (2019-03)
 --
 -- 7.5.4	PDU definitions
 -- ************************************************************** 
@@ -27,15 +27,19 @@ IMPORTS
 	Accuracy-Fulfillment-Indicator, 
 	Barometric-Pressure,
 	Cell-Portion-ID,
+	Ciphering-Data,
+	Ciphering-Data-Ack,
+	Ciphering-Data-Error-Report,
 	Civic-Address,
 	Correlation-ID,
+	Coverage-Level,
 	E-CGI,
 	Geographical-Area,
 	IMSI,
 	IMEI,
 	Include-Velocity,
 	LCS-Cause,
-	LCS-Client-Type, 
+	LCS-Client-Type,
 	LCS-Service-Type-ID,
 	LCS-Priority,
 	LCS-QoS,
@@ -44,6 +48,7 @@ IMPORTS
 	Network-Element,
 	Payload-Type,
 	Positioning-Data,
+	RAT-Type,
 	Return-Error-Type,
 	Return-Error-Cause,
 	UE-Positioning-Capability,
@@ -60,8 +65,12 @@ FROM LCS-AP-Containers
 	id-APDU, 
 	id-Barometric-Pressure,
 	id-Cell-Portion-ID,
+	id-Ciphering-Data,
+	id-Ciphering-Data-Ack,
+	id-Ciphering-Data-Error-Report,
 	id-Civic-Address,
 	id-Correlation-ID,
+	id-Coverage-Level,
 	id-Destination-ID,
 	id-E-UTRAN-Cell-Identifier,
 	id-Include-Velocity,
@@ -70,13 +79,14 @@ FROM LCS-AP-Containers
 	id-LCS-Client-Type,
 	id-LCS-Priority,
 	id-LCS-QOS,
-	id-LCS-Cause, 
+	id-LCS-Cause,
 	id-LCS-Service-Type-ID,
 	id-Location-Estimate,
 	id-Location-Type,
 	id-MultipleAPDUs,
 	id-Payload-Type,
 	id-Positioning-Data,
+	id-RAT-Type,
 	id-Return-Error-Request,
 	id-Return-Error-Cause,
 	id-Source-Identity,
@@ -92,28 +102,30 @@ FROM LCS-AP-Constants;
 -- **************************************************************
 
 Location-Request ::= SEQUENCE {
-	protocolIEs				ProtocolIE-Container      	{ { Location-Request-IEs} },
-	protocolExtensions		ProtocolExtensionContainer	{ { Location-Request-Extensions} } OPTIONAL,
+	protocolIEs		ProtocolIE-Container    	{ { Location-Request-IEs} },
+	protocolExtensions	ProtocolExtensionContainer	{ { Location-Request-Extensions} } OPTIONAL,
 	...
 }
 
 Location-Request-IEs LCS-AP-PROTOCOL-IES ::= {
-	{ ID id-Correlation-ID				CRITICALITY reject	TYPE Correlation-ID				PRESENCE mandatory } |
-	{ ID id-Location-Type				CRITICALITY reject	TYPE Location-Type				PRESENCE mandatory } |
-	{ ID id-E-UTRAN-Cell-Identifier		CRITICALITY ignore	TYPE E-CGI						PRESENCE mandatory  } |
-	{ ID id-LCS-Client-Type				CRITICALITY reject	TYPE LCS-Client-Type			PRESENCE optional  } |
-	{ ID id-LCS-Priority				CRITICALITY reject	TYPE LCS-Priority				PRESENCE optional  } |
-	{ ID id-LCS-QOS						CRITICALITY reject	TYPE LCS-QoS					PRESENCE optional  } |
+	{ ID id-Correlation-ID		CRITICALITY reject	TYPE Correlation-ID		PRESENCE mandatory } |
+	{ ID id-Location-Type		CRITICALITY reject	TYPE Location-Type		PRESENCE mandatory } |
+	{ ID id-E-UTRAN-Cell-Identifier	CRITICALITY ignore	TYPE E-CGI			PRESENCE mandatory  } |
+	{ ID id-LCS-Client-Type		CRITICALITY reject	TYPE LCS-Client-Type		PRESENCE optional  } |
+	{ ID id-LCS-Priority		CRITICALITY reject	TYPE LCS-Priority		PRESENCE optional  } |
+	{ ID id-LCS-QOS			CRITICALITY reject	TYPE LCS-QoS			PRESENCE optional  } |
 	{ ID id-UE-Positioning-Capability	CRITICALITY reject	TYPE UE-Positioning-Capability	PRESENCE optional  } |
-	{ ID id-Include-Velocity			CRITICALITY reject	TYPE Include-Velocity			PRESENCE optional  } |
-	{ ID id-IMSI						CRITICALITY ignore	TYPE IMSI						PRESENCE optional  } |
-	{ ID id-IMEI						CRITICALITY ignore	TYPE IMEI						PRESENCE optional  } |
-	{ ID id-MultipleAPDUs				CRITICALITY reject	TYPE MultipleAPDUs				PRESENCE optional  } ,
+	{ ID id-Include-Velocity		CRITICALITY reject	TYPE Include-Velocity		PRESENCE optional  } |
+	{ ID id-IMSI			CRITICALITY ignore	TYPE IMSI			PRESENCE optional  } |
+	{ ID id-IMEI			CRITICALITY ignore	TYPE IMEI			PRESENCE optional  } |
+	{ ID id-MultipleAPDUs		CRITICALITY reject	TYPE MultipleAPDUs		PRESENCE optional  } |
+	{ ID id-RAT-Type			CRITICALITY ignore	TYPE RAT-Type			PRESENCE optional  } |
+	{ ID id-Coverage-Level		CRITICALITY ignore	TYPE Coverage-Level		PRESENCE optional},
 	...
 }
 
 Location-Request-Extensions LCS-AP-PROTOCOL-EXTENSION ::= {
-	{ ID id-LCS-Service-Type-ID				CRITICALITY ignore 	EXTENSION LCS-Service-Type-ID 			PRESENCE optional  },
+	{ ID id-LCS-Service-Type-ID		CRITICALITY ignore	EXTENSION LCS-Service-Type-ID		PRESENCE optional  },
 	...
 }
 
@@ -125,27 +137,28 @@ Location-Request-Extensions LCS-AP-PROTOCOL-EXTENSION ::= {
 -- **************************************************************
 
 Location-Response ::= SEQUENCE {
-	protocolIEs			ProtocolIE-Container      { {Location-Response-IEs} },
-	protocolExtensions		ProtocolExtensionContainer { {Location-Response-Extensions} } OPTIONAL,
+	protocolIEs		ProtocolIE-Container      { {Location-Response-IEs} },
+	protocolExtensions	ProtocolExtensionContainer { {Location-Response-Extensions} } OPTIONAL,
 	...
 }
 
 Location-Response-IEs LCS-AP-PROTOCOL-IES ::= {
-	{ ID id-Correlation-ID					CRITICALITY reject	TYPE Correlation-ID						PRESENCE mandatory } |
-	{ ID id-Location-Estimate				CRITICALITY reject	TYPE Geographical-Area					PRESENCE optional  } |
-	{ ID id-Positioning-Data				CRITICALITY reject	TYPE Positioning-Data					PRESENCE optional  } |
-	{ ID id-Velocity-Estimate				CRITICALITY reject	TYPE Velocity-Estimate					PRESENCE optional  } |
+	{ ID id-Correlation-ID			CRITICALITY reject	TYPE Correlation-ID			PRESENCE mandatory } |
+	{ ID id-Location-Estimate		CRITICALITY reject	TYPE Geographical-Area			PRESENCE optional  } |
+	{ ID id-Positioning-Data		CRITICALITY reject	TYPE Positioning-Data			PRESENCE optional  } |
+	{ ID id-Velocity-Estimate		CRITICALITY reject	TYPE Velocity-Estimate			PRESENCE optional  } |
 	{ ID id-Accuracy-Fulfillment-Indicator	CRITICALITY reject	TYPE Accuracy-Fulfillment-Indicator	PRESENCE optional  } |
-	{ ID id-LCS-Cause						CRITICALITY ignore	TYPE LCS-Cause							PRESENCE optional  } ,
+	{ ID id-LCS-Cause			CRITICALITY ignore	TYPE LCS-Cause				PRESENCE optional  } ,
 ...
 }
 
 
 Location-Response-Extensions LCS-AP-PROTOCOL-EXTENSION ::= {
-{ ID id-E-UTRAN-Cell-Identifier				CRITICALITY ignore 	EXTENSION E-CGI		PRESENCE optional  },
-{ ID id-Cell-Portion-ID						CRITICALITY ignore 	EXTENSION Cell-Portion-ID			PRESENCE optional  } |
-{ ID id-Civic-Address						CRITICALITY ignore 	EXTENSION Civic-Address			PRESENCE optional  } |
-{ ID id-Barometric-Pressure					CRITICALITY ignore 	EXTENSION Barometric-Pressure	PRESENCE optional  },
+{ ID id-E-UTRAN-Cell-Identifier		CRITICALITY ignore	EXTENSION E-CGI	PRESENCE optional  } |
+{ ID id-Cell-Portion-ID			CRITICALITY ignore	EXTENSION Cell-Portion-ID		PRESENCE optional  } |
+{ ID id-Civic-Address			CRITICALITY ignore	EXTENSION Civic-Address		PRESENCE optional  } |
+{ ID id-Barometric-Pressure			CRITICALITY ignore	EXTENSION Barometric-Pressure	PRESENCE optional  } |
+{ ID id-Coverage-Level			CRITICALITY ignore	EXTENSION Coverage-Level		PRESENCE optional},
 	...
 }
 
@@ -156,14 +169,14 @@ Location-Response-Extensions LCS-AP-PROTOCOL-EXTENSION ::= {
 -- **************************************************************
 
 Location-Abort-Request ::= SEQUENCE {
-	protocolIEs			ProtocolIE-Container      { {Location-Abort-Request-IEs} },
-	protocolExtensions		ProtocolExtensionContainer { {Location-Abort-Request-Extensions} } OPTIONAL,
+	protocolIEs		ProtocolIE-Container      { {Location-Abort-Request-IEs} },
+	protocolExtensions	ProtocolExtensionContainer { {Location-Abort-Request-Extensions} } OPTIONAL,
 	...
 }
 
 Location-Abort-Request-IEs LCS-AP-PROTOCOL-IES ::= {
-	{ ID id-Correlation-ID					CRITICALITY reject	TYPE Correlation-ID		PRESENCE mandatory } |
-	{ ID id-LCS-Cause						CRITICALITY ignore	TYPE LCS-Cause			PRESENCE mandatory } ,
+	{ ID id-Correlation-ID			CRITICALITY reject	TYPE Correlation-ID	PRESENCE mandatory } |
+	{ ID id-LCS-Cause			CRITICALITY ignore	TYPE LCS-Cause		PRESENCE mandatory } ,
 	...
 }
 
@@ -178,15 +191,15 @@ Location-Abort-Request-Extensions LCS-AP-PROTOCOL-EXTENSION ::= {
 -- **************************************************************
 
 Connection-Oriented-Information ::= SEQUENCE {
-	protocolIEs			ProtocolIE-Container      { {Connection-Oriented-Information-IEs} },
-	protocolExtensions		ProtocolExtensionContainer { {Connection-Oriented-Information-Extensions} } OPTIONAL,
+	protocolIEs		ProtocolIE-Container      { {Connection-Oriented-Information-IEs} },
+	protocolExtensions	ProtocolExtensionContainer { {Connection-Oriented-Information-Extensions} } OPTIONAL,
 	...
 }
 
 Connection-Oriented-Information-IEs LCS-AP-PROTOCOL-IES ::= {
-	{ ID id-Correlation-ID		CRITICALITY reject	TYPE Correlation-ID			PRESENCE optional  } |
-	{ ID id-Payload-Type 		CRITICALITY reject	TYPE Payload-Type			PRESENCE optional  } |
-	{ ID id-APDU				CRITICALITY reject	TYPE APDU					PRESENCE optional  } ,
+	{ ID id-Correlation-ID	CRITICALITY reject	TYPE Correlation-ID		PRESENCE optional  } |
+	{ ID id-Payload-Type	CRITICALITY reject	TYPE Payload-Type		PRESENCE optional  } |
+	{ ID id-APDU		CRITICALITY reject	TYPE APDU			PRESENCE optional  } ,
 	...
 }
 
@@ -201,17 +214,17 @@ Connection-Oriented-Information-Extensions LCS-AP-PROTOCOL-EXTENSION ::= {
 -- **************************************************************
 
 Connectionless-Information ::= SEQUENCE {
-	protocolIEs			ProtocolIE-Container      { {Connectionless-Information-IEs} },
-	protocolExtensions		ProtocolExtensionContainer { {Connectionless-Information-Extensions} } OPTIONAL,
+	protocolIEs		ProtocolIE-Container      { {Connectionless-Information-IEs} },
+	protocolExtensions	ProtocolExtensionContainer { {Connectionless-Information-Extensions} } OPTIONAL,
 	...
 }
 
 Connectionless-Information-IEs LCS-AP-PROTOCOL-IES ::= {
-	{ ID id-Source-Identity			CRITICALITY reject	TYPE Network-Element		PRESENCE mandatory } |
-	{ ID id-Destination-ID			CRITICALITY reject	TYPE Network-Element		PRESENCE mandatory } |
-	{ ID id-APDU					CRITICALITY reject	TYPE APDU					PRESENCE mandatory } |
-	{ ID id-Return-Error-Request	CRITICALITY reject	TYPE Return-Error-Type		PRESENCE optional  } |
-	{ ID id-Return-Error-Cause		CRITICALITY ignore	TYPE Return-Error-Cause		PRESENCE optional  } ,
+	{ ID id-Source-Identity		CRITICALITY reject	TYPE Network-Element	PRESENCE mandatory } |
+	{ ID id-Destination-ID		CRITICALITY reject	TYPE Network-Element	PRESENCE mandatory } |
+	{ ID id-APDU			CRITICALITY reject	TYPE APDU			PRESENCE mandatory } |
+	{ ID id-Return-Error-Request	CRITICALITY reject	TYPE Return-Error-Type	PRESENCE optional  } |
+	{ ID id-Return-Error-Cause	CRITICALITY ignore	TYPE Return-Error-Cause	PRESENCE optional  } ,
 	...
 }
 
@@ -227,13 +240,13 @@ Connectionless-Information-Extensions LCS-AP-PROTOCOL-EXTENSION ::= {
 -- **************************************************************
 
 Reset-Request ::= SEQUENCE {
-	protocolIEs				ProtocolIE-Container      	{ {Reset-Request-IEs} },
-	protocolExtensions		ProtocolExtensionContainer	{ {Reset-Request-Extensions} } OPTIONAL,
+	protocolIEs		ProtocolIE-Container    	{ {Reset-Request-IEs} },
+	protocolExtensions	ProtocolExtensionContainer	{ {Reset-Request-Extensions} } OPTIONAL,
 	...
 }
 
 Reset-Request-IEs LCS-AP-PROTOCOL-IES ::= {
-	{ ID id-LCS-Cause	CRITICALITY ignore	TYPE LCS-Cause			PRESENCE mandatory } ,
+	{ ID id-LCS-Cause	CRITICALITY ignore	TYPE LCS-Cause		PRESENCE mandatory } ,
 	...
 }
 
@@ -249,9 +262,9 @@ Reset-Request-Extensions LCS-AP-PROTOCOL-EXTENSION ::= {
 --
 -- **************************************************************
 
-Reset-Acknowledge 			::= SEQUENCE {
-	protocolIEs				ProtocolIE-Container      { { Reset-Acknowledge-IEs} },
-	protocolExtensions		ProtocolExtensionContainer { { Reset-Acknowledge-Extensions} } OPTIONAL,
+Reset-Acknowledge		::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container      { { Reset-Acknowledge-IEs} },
+	protocolExtensions	ProtocolExtensionContainer { { Reset-Acknowledge-Extensions} } OPTIONAL,
 	...
 }
 
@@ -260,6 +273,53 @@ Reset-Acknowledge-IEs LCS-AP-PROTOCOL-IES ::= {
 }
 
 Reset-Acknowledge-Extensions LCS-AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+-- **************************************************************
+--
+-- Ciphering-Key-Data 
+--
+-- **************************************************************
+
+Ciphering-Key-Data ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container    	{ {Ciphering-Key-Data-IEs} },
+	protocolExtensions	ProtocolExtensionContainer	{ {Ciphering-Key-Data-Extensions} } OPTIONAL,
+	...
+}
+
+Ciphering-Key-Data-IEs LCS-AP-PROTOCOL-IES ::= {
+	{ ID id-Ciphering-Data	CRITICALITY reject	TYPE Ciphering-Data		PRESENCE mandatory } ,
+	...
+}
+
+
+Ciphering-Key-Data-Extensions LCS-AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+-- **************************************************************
+--
+-- Ciphering-Key-Data 
+--
+-- **************************************************************
+
+Ciphering-Key-Data-Result ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container    	{ {Ciphering-Key-Data-Result-IEs} },
+	protocolExtensions	ProtocolExtensionContainer	{ {Ciphering-Key-Data-Result-Extensions} } OPTIONAL,
+	...
+}
+
+Ciphering-Key-Data-Result-IEs LCS-AP-PROTOCOL-IES ::= {
+	{ ID id-Ciphering-Data-Ack	CRITICALITY reject	TYPE Ciphering-Data-Ack		PRESENCE conditional } ,
+	{ ID id-Ciphering-Data-Error-Report	CRITICALITY reject	TYPE Ciphering-Data-Error-Report		PRESENCE conditional } ,
+	...
+}
+
+
+Ciphering-Key-Data-Result-Extensions LCS-AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 

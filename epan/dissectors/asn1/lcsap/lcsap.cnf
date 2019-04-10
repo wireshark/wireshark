@@ -19,6 +19,7 @@ ProtocolIE-ID
 
 #.NO_EMIT
 TBCD-STRING
+Coverage-Level
 
 #.OMIT_ASSIGNMENT
 # Get rid of unused code warnings
@@ -262,6 +263,7 @@ id-Connection-Oriented-Information-Transfer    ProcedureCode
 id-Connectionless-Information-Transfer         ProcedureCode
 id-Location-Abort                              ProcedureCode
 id-Reset                                       ProcedureCode
+id-Ciphering-Key-Data                          ProcedureCode
 
 # ProtocolIE-ID
 id-Correlation-ID                   ProtocolIE-ID
@@ -287,10 +289,14 @@ id-Location-Estimate                ProtocolIE-ID
 id-Source-Identity                  ProtocolIE-ID
 id-Destination-ID                   ProtocolIE-ID
 id-LCS-Service-Type-ID              ProtocolIE-ID
-id-Additional-PositioningDataSet    ProtocolIE-ID
-id-Barometric-Pressure              ProtocolIE-ID
 id-Cell-Portion-ID                  ProtocolIE-ID
 id-Civic-Address                    ProtocolIE-ID
+id-Barometric-Pressure              ProtocolIE-ID
+id-Additional-PositioningDataSet    ProtocolIE-ID
+id-RAT-Type                         ProtocolIE-ID
+id-Ciphering-Data                   ProtocolIE-ID
+id-Ciphering-Data-Ack               ProtocolIE-ID
+id-Ciphering-Data-Error-Report      ProtocolIE-ID
 
 #.REGISTER
 
@@ -317,11 +323,16 @@ Return-Error-Cause                      N lcsap.ies id-Return-Error-Cause
 Network-Element                         N lcsap.ies id-Source-Identity
 UE-Positioning-Capability               N lcsap.ies id-UE-Positioning-Capability
 Velocity-Estimate                       N lcsap.ies id-Velocity-Estimate
+Barometric-Pressure                     N lcsap.extension id-Barometric-Pressure
+Additional-PositioningDataSet           N lcsap.extension id-Additional-PositioningDataSet
+RAT-Type                                N lcsap.ies id-RAT-Type
+Ciphering-Data                          N lcsap.ies id-Ciphering-Data
+Ciphering-Data-Ack                      N lcsap.ies id-Ciphering-Data-Ack
+Ciphering-Data-Error-Report             N lcsap.ies id-Ciphering-Data-Error-Report
+
 
 #LCS-AP-PROTOCOL-EXTENSION
 LCS-Service-Type-ID                     N lcsap.extension id-LCS-Service-Type-ID
-Additional-PositioningDataSet           N lcsap.extension id-Additional-PositioningDataSet
-Barometric-Pressure                     N lcsap.extension id-Barometric-Pressure
 Cell-Portion-ID                         N lcsap.extension id-Cell-Portion-ID
 Civic-Address                           N lcsap.extension id-Civic-Address
 E-CGI                                   N lcsap.extension id-E-UTRAN-Cell-Identifier
@@ -341,6 +352,10 @@ Location-Response                       N lcsap.proc.sout id-Location-Abort
 
 Reset-Request                           N lcsap.proc.imsg id-Reset
 Reset-Acknowledge                       N lcsap.proc.sout id-Reset
+
+Ciphering-Key-Data                      N lcsap.proc.imsg id-Ciphering-Key-Data
+Ciphering-Key-Data-Result               N lcsap.proc.sout id-Ciphering-Key-Data
+Ciphering-Key-Data-Result               N lcsap.proc.uout id-Ciphering-Key-Data
 
 
 

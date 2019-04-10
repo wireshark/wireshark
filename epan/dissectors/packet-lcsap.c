@@ -57,6 +57,7 @@ void proto_reg_handoff_lcsap(void);
 #define max_Set                        9
 #define max_GNSS_Set                   9
 #define max_Add_Pos_Set                8
+#define max_Cipher_Set                 16
 #define maxProtocolExtensions          65535
 #define maxProtocolIEs                 65535
 
@@ -65,7 +66,8 @@ typedef enum _ProcedureCode_enum {
   id_Connection_Oriented_Information_Transfer =   1,
   id_Connectionless_Information_Transfer =   2,
   id_Location_Abort =   3,
-  id_Reset     =   4
+  id_Reset     =   4,
+  id_Ciphering_Key_Data =   5
 } ProcedureCode_enum;
 
 typedef enum _ProtocolIE_ID_enum {
@@ -95,7 +97,11 @@ typedef enum _ProtocolIE_ID_enum {
   id_Cell_Portion_ID =  23,
   id_Civic_Address =  24,
   id_Barometric_Pressure =  25,
-  id_Additional_PositioningDataSet =  26
+  id_Additional_PositioningDataSet =  26,
+  id_RAT_Type  =  27,
+  id_Ciphering_Data =  28,
+  id_Ciphering_Data_Ack =  29,
+  id_Ciphering_Data_Error_Report =  30
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-lcsap-val.h ---*/
@@ -117,6 +123,9 @@ static int hf_lcsap_Accuracy_Fulfillment_Indicator_PDU = -1;  /* Accuracy_Fulfil
 static int hf_lcsap_Additional_PositioningDataSet_PDU = -1;  /* Additional_PositioningDataSet */
 static int hf_lcsap_Barometric_Pressure_PDU = -1;  /* Barometric_Pressure */
 static int hf_lcsap_Cell_Portion_ID_PDU = -1;     /* Cell_Portion_ID */
+static int hf_lcsap_Ciphering_Data_PDU = -1;      /* Ciphering_Data */
+static int hf_lcsap_Ciphering_Data_Ack_PDU = -1;  /* Ciphering_Data_Ack */
+static int hf_lcsap_Ciphering_Data_Error_Report_PDU = -1;  /* Ciphering_Data_Error_Report */
 static int hf_lcsap_Civic_Address_PDU = -1;       /* Civic_Address */
 static int hf_lcsap_lcsap_Correlation_ID_PDU = -1;  /* Correlation_ID */
 static int hf_lcsap_E_CGI_PDU = -1;               /* E_CGI */
@@ -134,6 +143,7 @@ static int hf_lcsap_MultipleAPDUs_PDU = -1;       /* MultipleAPDUs */
 static int hf_lcsap_Network_Element_PDU = -1;     /* Network_Element */
 static int hf_lcsap_Payload_Type_PDU = -1;        /* Payload_Type */
 static int hf_lcsap_lcsap_Positioning_Data_PDU = -1;  /* Positioning_Data */
+static int hf_lcsap_RAT_Type_PDU = -1;            /* RAT_Type */
 static int hf_lcsap_Return_Error_Type_PDU = -1;   /* Return_Error_Type */
 static int hf_lcsap_Return_Error_Cause_PDU = -1;  /* Return_Error_Cause */
 static int hf_lcsap_UE_Positioning_Capability_PDU = -1;  /* UE_Positioning_Capability */
@@ -145,6 +155,8 @@ static int hf_lcsap_Connection_Oriented_Information_PDU = -1;  /* Connection_Ori
 static int hf_lcsap_Connectionless_Information_PDU = -1;  /* Connectionless_Information */
 static int hf_lcsap_Reset_Request_PDU = -1;       /* Reset_Request */
 static int hf_lcsap_Reset_Acknowledge_PDU = -1;   /* Reset_Acknowledge */
+static int hf_lcsap_Ciphering_Key_Data_PDU = -1;  /* Ciphering_Key_Data */
+static int hf_lcsap_Ciphering_Key_Data_Result_PDU = -1;  /* Ciphering_Key_Data_Result */
 static int hf_lcsap_LCS_AP_PDU_PDU = -1;          /* LCS_AP_PDU */
 static int hf_lcsap_ProtocolIE_Container_item = -1;  /* ProtocolIE_Field */
 static int hf_lcsap_id = -1;                      /* ProtocolIE_ID */
@@ -156,6 +168,17 @@ static int hf_lcsap_extensionValue = -1;          /* T_extensionValue */
 static int hf_lcsap_Additional_PositioningDataSet_item = -1;  /* Additional_PositioningMethodAndUsage */
 static int hf_lcsap_direction_Of_Altitude = -1;   /* Direction_Of_Altitude */
 static int hf_lcsap_altitude = -1;                /* Altitude */
+static int hf_lcsap_Ciphering_Data_item = -1;     /* Ciphering_Data_Set */
+static int hf_lcsap_Ciphering_Data_Ack_item = -1;  /* Ciphering_Set_ID */
+static int hf_lcsap_Ciphering_Data_Error_Report_item = -1;  /* Ciphering_Data_Error_Report_Contents */
+static int hf_lcsap_ciphering_Set_ID = -1;        /* Ciphering_Set_ID */
+static int hf_lcsap_ciphering_Key = -1;           /* Ciphering_Key */
+static int hf_lcsap_c0 = -1;                      /* C0 */
+static int hf_lcsap_sib_Types = -1;               /* SIB_Types */
+static int hf_lcsap_validity_Start_Time = -1;     /* Validity_Start_Time */
+static int hf_lcsap_validity_Duration = -1;       /* Validity_Duration */
+static int hf_lcsap_tais_List = -1;               /* TAIs_List */
+static int hf_lcsap_storage_Outcome = -1;         /* Storage_Outcome */
 static int hf_lcsap_pLMNidentity = -1;            /* PLMN_ID */
 static int hf_lcsap_cell_ID = -1;                 /* CellIdentity */
 static int hf_lcsap_iE_Extensions = -1;           /* ProtocolExtensionContainer */
@@ -170,6 +193,8 @@ static int hf_lcsap_offset_Angle = -1;            /* Angle */
 static int hf_lcsap_included_Angle = -1;          /* Angle */
 static int hf_lcsap_macro_eNB_ID = -1;            /* Macro_eNB_ID */
 static int hf_lcsap_home_eNB_ID = -1;             /* Home_eNB_ID */
+static int hf_lcsap_short_macro_eNB_ID = -1;      /* Short_Macro_eNB_ID */
+static int hf_lcsap_long_macro_eNB_ID = -1;       /* Long_Macro_eNB_ID */
 static int hf_lcsap_point = -1;                   /* Point */
 static int hf_lcsap_point_With_Uncertainty = -1;  /* Point_With_Uncertainty */
 static int hf_lcsap_ellipsoidPoint_With_Uncertainty_Ellipse = -1;  /* Ellipsoid_Point_With_Uncertainty_Ellipse */
@@ -244,6 +269,11 @@ static gint ett_lcsap_ProtocolExtensionContainer = -1;
 static gint ett_lcsap_ProtocolExtensionField = -1;
 static gint ett_lcsap_Additional_PositioningDataSet = -1;
 static gint ett_lcsap_Altitude_And_Direction = -1;
+static gint ett_lcsap_Ciphering_Data = -1;
+static gint ett_lcsap_Ciphering_Data_Ack = -1;
+static gint ett_lcsap_Ciphering_Data_Error_Report = -1;
+static gint ett_lcsap_Ciphering_Data_Set = -1;
+static gint ett_lcsap_Ciphering_Data_Error_Report_Contents = -1;
 static gint ett_lcsap_E_CGI = -1;
 static gint ett_lcsap_Ellipsoid_Point_With_Uncertainty_Ellipse = -1;
 static gint ett_lcsap_Ellipsoid_Point_With_Altitude = -1;
@@ -280,6 +310,8 @@ static gint ett_lcsap_Connection_Oriented_Information = -1;
 static gint ett_lcsap_Connectionless_Information = -1;
 static gint ett_lcsap_Reset_Request = -1;
 static gint ett_lcsap_Reset_Acknowledge = -1;
+static gint ett_lcsap_Ciphering_Key_Data = -1;
+static gint ett_lcsap_Ciphering_Key_Data_Result = -1;
 static gint ett_lcsap_LCS_AP_PDU = -1;
 static gint ett_lcsap_InitiatingMessage = -1;
 static gint ett_lcsap_SuccessfulOutcome = -1;
@@ -434,6 +466,7 @@ static const value_string lcsap_ProcedureCode_vals[] = {
   { id_Connectionless_Information_Transfer, "id-Connectionless-Information-Transfer" },
   { id_Location_Abort, "id-Location-Abort" },
   { id_Reset, "id-Reset" },
+  { id_Ciphering_Key_Data, "id-Ciphering-Key-Data" },
   { 0, NULL }
 };
 
@@ -443,7 +476,7 @@ dissect_lcsap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 99 "./asn1/lcsap/lcsap.cnf"
+#line 100 "./asn1/lcsap/lcsap.cnf"
 
   {
     guint8 tmp = tvb_get_guint8(tvb, 0);
@@ -502,6 +535,10 @@ static const value_string lcsap_ProtocolIE_ID_vals[] = {
   { id_Civic_Address, "id-Civic-Address" },
   { id_Barometric_Pressure, "id-Barometric-Pressure" },
   { id_Additional_PositioningDataSet, "id-Additional-PositioningDataSet" },
+  { id_RAT_Type, "id-RAT-Type" },
+  { id_Ciphering_Data, "id-Ciphering-Data" },
+  { id_Ciphering_Data_Ack, "id-Ciphering-Data-Ack" },
+  { id_Ciphering_Data_Error_Report, "id-Ciphering-Data-Error-Report" },
   { 0, NULL }
 };
 
@@ -511,7 +548,7 @@ dissect_lcsap_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 65535U, &ProtocolIE_ID, FALSE);
 
-#line 51 "./asn1/lcsap/lcsap.cnf"
+#line 52 "./asn1/lcsap/lcsap.cnf"
   if (tree) {
     proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(lcsap_ProtocolIE_ID_vals), "unknown (%d)"));
   }
@@ -601,7 +638,7 @@ dissect_lcsap_ProtocolExtensionContainer(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static int
 dissect_lcsap_APDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 72 "./asn1/lcsap/lcsap.cnf"
+#line 73 "./asn1/lcsap/lcsap.cnf"
 
   tvbuff_t *parameter_tvb=NULL;
 
@@ -738,6 +775,16 @@ dissect_lcsap_Barometric_Pressure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 
 static int
+dissect_lcsap_C0(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     1, 128, FALSE, NULL, 0, NULL, NULL);
+
+  return offset;
+}
+
+
+
+static int
 dissect_lcsap_CellIdentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      28, 28, FALSE, NULL, 0, NULL, NULL);
@@ -758,8 +805,161 @@ dissect_lcsap_Cell_Portion_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 
 static int
+dissect_lcsap_Ciphering_Set_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 65535U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lcsap_Ciphering_Key(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       16, 16, FALSE, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lcsap_SIB_Types(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       4, 4, FALSE, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lcsap_Validity_Start_Time(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       4, 4, FALSE, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lcsap_Validity_Duration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 65535U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lcsap_TAIs_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       7, 97, FALSE, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t Ciphering_Data_Set_sequence[] = {
+  { &hf_lcsap_ciphering_Set_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_Ciphering_Set_ID },
+  { &hf_lcsap_ciphering_Key , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_Ciphering_Key },
+  { &hf_lcsap_c0            , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_C0 },
+  { &hf_lcsap_sib_Types     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_SIB_Types },
+  { &hf_lcsap_validity_Start_Time, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_Validity_Start_Time },
+  { &hf_lcsap_validity_Duration, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_Validity_Duration },
+  { &hf_lcsap_tais_List     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_TAIs_List },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lcsap_Ciphering_Data_Set(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lcsap_Ciphering_Data_Set, Ciphering_Data_Set_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t Ciphering_Data_sequence_of[1] = {
+  { &hf_lcsap_Ciphering_Data_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lcsap_Ciphering_Data_Set },
+};
+
+static int
+dissect_lcsap_Ciphering_Data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lcsap_Ciphering_Data, Ciphering_Data_sequence_of,
+                                                  1, max_Cipher_Set, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t Ciphering_Data_Ack_sequence_of[1] = {
+  { &hf_lcsap_Ciphering_Data_Ack_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lcsap_Ciphering_Set_ID },
+};
+
+static int
+dissect_lcsap_Ciphering_Data_Ack(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lcsap_Ciphering_Data_Ack, Ciphering_Data_Ack_sequence_of,
+                                                  1, max_Cipher_Set, FALSE);
+
+  return offset;
+}
+
+
+static const value_string lcsap_Storage_Outcome_vals[] = {
+  {   0, "successful" },
+  {   1, "failed" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lcsap_Storage_Outcome(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t Ciphering_Data_Error_Report_Contents_sequence[] = {
+  { &hf_lcsap_ciphering_Set_ID, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_Ciphering_Set_ID },
+  { &hf_lcsap_storage_Outcome, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_Storage_Outcome },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lcsap_Ciphering_Data_Error_Report_Contents(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lcsap_Ciphering_Data_Error_Report_Contents, Ciphering_Data_Error_Report_Contents_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t Ciphering_Data_Error_Report_sequence_of[1] = {
+  { &hf_lcsap_Ciphering_Data_Error_Report_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lcsap_Ciphering_Data_Error_Report_Contents },
+};
+
+static int
+dissect_lcsap_Ciphering_Data_Error_Report(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_lcsap_Ciphering_Data_Error_Report, Ciphering_Data_Error_Report_sequence_of,
+                                                  1, max_Cipher_Set, FALSE);
+
+  return offset;
+}
+
+
+
+static int
 dissect_lcsap_Civic_Address(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 239 "./asn1/lcsap/lcsap.cnf"
+#line 240 "./asn1/lcsap/lcsap.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
     offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -808,7 +1008,7 @@ dissect_lcsap_Correlation_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 static int
 dissect_lcsap_DegreesLatitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 199 "./asn1/lcsap/lcsap.cnf"
+#line 200 "./asn1/lcsap/lcsap.cnf"
   gint32 degrees;
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -825,7 +1025,7 @@ dissect_lcsap_DegreesLatitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 static int
 dissect_lcsap_DegreesLongitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 207 "./asn1/lcsap/lcsap.cnf"
+#line 208 "./asn1/lcsap/lcsap.cnf"
   gint32 degrees;
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -843,7 +1043,7 @@ dissect_lcsap_DegreesLongitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_lcsap_PLMN_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 151 "./asn1/lcsap/lcsap.cnf"
+#line 152 "./asn1/lcsap/lcsap.cnf"
   tvbuff_t *parameter_tvb=NULL;
   proto_tree *subtree;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -875,6 +1075,7 @@ dissect_lcsap_E_CGI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
   return offset;
 }
+
 
 
 static const value_string lcsap_LatitudeSign_vals[] = {
@@ -913,7 +1114,7 @@ dissect_lcsap_Geographical_Coordinates(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static int
 dissect_lcsap_Uncertainty_Code(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 191 "./asn1/lcsap/lcsap.cnf"
+#line 192 "./asn1/lcsap/lcsap.cnf"
   guint32 uncertainty_code;
 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
@@ -1065,15 +1266,39 @@ dissect_lcsap_Home_eNB_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 }
 
 
+
+static int
+dissect_lcsap_Short_Macro_eNB_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     18, 18, FALSE, NULL, 0, NULL, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_lcsap_Long_Macro_eNB_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     21, 21, FALSE, NULL, 0, NULL, NULL);
+
+  return offset;
+}
+
+
 static const value_string lcsap_ENB_ID_vals[] = {
   {   0, "macro-eNB-ID" },
   {   1, "home-eNB-ID" },
+  {   2, "short-macro-eNB-ID" },
+  {   3, "long-macro-eNB-ID" },
   { 0, NULL }
 };
 
 static const per_choice_t ENB_ID_choice[] = {
   {   0, &hf_lcsap_macro_eNB_ID  , ASN1_EXTENSION_ROOT    , dissect_lcsap_Macro_eNB_ID },
   {   1, &hf_lcsap_home_eNB_ID   , ASN1_EXTENSION_ROOT    , dissect_lcsap_Home_eNB_ID },
+  {   2, &hf_lcsap_short_macro_eNB_ID, ASN1_NOT_EXTENSION_ROOT, dissect_lcsap_Short_Macro_eNB_ID },
+  {   3, &hf_lcsap_long_macro_eNB_ID, ASN1_NOT_EXTENSION_ROOT, dissect_lcsap_Long_Macro_eNB_ID },
   { 0, NULL, 0, NULL }
 };
 
@@ -1207,7 +1432,7 @@ dissect_lcsap_Global_eNB_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_lcsap_GNSS_Positioning_Method_And_Usage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 177 "./asn1/lcsap/lcsap.cnf"
+#line 178 "./asn1/lcsap/lcsap.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -1244,7 +1469,7 @@ dissect_lcsap_GNSS_Positioning_Data_Set(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
 static int
 dissect_lcsap_Horizontal_Accuracy(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 225 "./asn1/lcsap/lcsap.cnf"
+#line 226 "./asn1/lcsap/lcsap.cnf"
   guint32 uncertainty_code;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 127U, &uncertainty_code, FALSE);
@@ -1252,7 +1477,7 @@ dissect_lcsap_Horizontal_Accuracy(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 
 
-#line 229 "./asn1/lcsap/lcsap.cnf"
+#line 230 "./asn1/lcsap/lcsap.cnf"
   proto_item_append_text(actx->created_item, " (%.1f m)", 10 * (pow(1.1, (double)uncertainty_code) - 1));
 
 
@@ -1404,7 +1629,7 @@ dissect_lcsap_Horizontal_With_Vertical_Velocity_And_Uncertainty(tvbuff_t *tvb _U
 
 static int
 dissect_lcsap_IMSI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 215 "./asn1/lcsap/lcsap.cnf"
+#line 216 "./asn1/lcsap/lcsap.cnf"
   tvbuff_t *imsi_tvb;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        3, 8, FALSE, &imsi_tvb);
@@ -1451,6 +1676,7 @@ dissect_lcsap_Include_Velocity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static const value_string lcsap_Location_Type_vals[] = {
   {   0, "geographic-Information" },
   {   1, "assistance-Information" },
+  {   2, "last-known-location" },
   { 0, NULL }
 };
 
@@ -1458,7 +1684,7 @@ static const value_string lcsap_Location_Type_vals[] = {
 static int
 dissect_lcsap_Location_Type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, TRUE, 0, NULL);
+                                     2, NULL, TRUE, 1, NULL);
 
   return offset;
 }
@@ -1520,7 +1746,8 @@ static const value_string lcsap_Misc_Cause_vals[] = {
   {   0, "processing-Overload" },
   {   1, "hardware-Failure" },
   {   2, "o-And-M-Intervention" },
-  {   3, "unspecified" },
+  {   3, "ciphering-key-data-lost" },
+  {   4, "unspecified" },
   { 0, NULL }
 };
 
@@ -1528,7 +1755,7 @@ static const value_string lcsap_Misc_Cause_vals[] = {
 static int
 dissect_lcsap_Misc_Cause(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     4, NULL, TRUE, 0, NULL);
+                                     5, NULL, TRUE, 0, NULL);
 
   return offset;
 }
@@ -1611,7 +1838,7 @@ dissect_lcsap_Vertical_Requested(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_lcsap_Vertical_Accuracy(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 232 "./asn1/lcsap/lcsap.cnf"
+#line 233 "./asn1/lcsap/lcsap.cnf"
   guint32 vertical_uncertainty;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 127U, &vertical_uncertainty, FALSE);
@@ -1619,7 +1846,7 @@ dissect_lcsap_Vertical_Accuracy(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 
 
-#line 236 "./asn1/lcsap/lcsap.cnf"
+#line 237 "./asn1/lcsap/lcsap.cnf"
   proto_item_append_text(actx->created_item, " (%.1f m)", 45 * (pow(1.025, (double)vertical_uncertainty) - 1));
 
 
@@ -1725,7 +1952,7 @@ dissect_lcsap_Payload_Type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_lcsap_Positioning_Method_And_Usage(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 165 "./asn1/lcsap/lcsap.cnf"
+#line 166 "./asn1/lcsap/lcsap.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -1770,6 +1997,23 @@ static int
 dissect_lcsap_Positioning_Data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lcsap_Positioning_Data, Positioning_Data_sequence);
+
+  return offset;
+}
+
+
+static const value_string lcsap_RAT_Type_vals[] = {
+  {   0, "lte-wb" },
+  {   1, "nb-iot" },
+  {   2, "lte-m" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lcsap_RAT_Type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     2, NULL, TRUE, 1, NULL);
 
   return offset;
 }
@@ -1927,7 +2171,7 @@ static const per_sequence_t Connectionless_Information_sequence[] = {
 
 static int
 dissect_lcsap_Connectionless_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 68 "./asn1/lcsap/lcsap.cnf"
+#line 69 "./asn1/lcsap/lcsap.cnf"
 
   PayloadType = 1;  /* LPPa */
 
@@ -1964,6 +2208,36 @@ static int
 dissect_lcsap_Reset_Acknowledge(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lcsap_Reset_Acknowledge, Reset_Acknowledge_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t Ciphering_Key_Data_sequence[] = {
+  { &hf_lcsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_ProtocolIE_Container },
+  { &hf_lcsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lcsap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lcsap_Ciphering_Key_Data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lcsap_Ciphering_Key_Data, Ciphering_Key_Data_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t Ciphering_Key_Data_Result_sequence[] = {
+  { &hf_lcsap_protocolIEs   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lcsap_ProtocolIE_Container },
+  { &hf_lcsap_protocolExtensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lcsap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lcsap_Ciphering_Key_Data_Result(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lcsap_Ciphering_Key_Data_Result, Ciphering_Key_Data_Result_sequence);
 
   return offset;
 }
@@ -2109,6 +2383,30 @@ static int dissect_Cell_Portion_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_Ciphering_Data_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_lcsap_Ciphering_Data(tvb, offset, &asn1_ctx, tree, hf_lcsap_Ciphering_Data_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Ciphering_Data_Ack_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_lcsap_Ciphering_Data_Ack(tvb, offset, &asn1_ctx, tree, hf_lcsap_Ciphering_Data_Ack_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Ciphering_Data_Error_Report_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_lcsap_Ciphering_Data_Error_Report(tvb, offset, &asn1_ctx, tree, hf_lcsap_Ciphering_Data_Error_Report_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_Civic_Address_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -2245,6 +2543,14 @@ int dissect_lcsap_Positioning_Data_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_RAT_Type_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_lcsap_RAT_Type(tvb, offset, &asn1_ctx, tree, hf_lcsap_RAT_Type_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_Return_Error_Type_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -2330,6 +2636,22 @@ static int dissect_Reset_Acknowledge_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_lcsap_Reset_Acknowledge(tvb, offset, &asn1_ctx, tree, hf_lcsap_Reset_Acknowledge_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Ciphering_Key_Data_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_lcsap_Ciphering_Key_Data(tvb, offset, &asn1_ctx, tree, hf_lcsap_Ciphering_Key_Data_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Ciphering_Key_Data_Result_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_lcsap_Ciphering_Key_Data_Result(tvb, offset, &asn1_ctx, tree, hf_lcsap_Ciphering_Key_Data_Result_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -2429,9 +2751,13 @@ proto_reg_handoff_lcsap(void)
   dissector_add_uint("lcsap.ies", id_Source_Identity, create_dissector_handle(dissect_Network_Element_PDU, proto_lcsap));
   dissector_add_uint("lcsap.ies", id_UE_Positioning_Capability, create_dissector_handle(dissect_UE_Positioning_Capability_PDU, proto_lcsap));
   dissector_add_uint("lcsap.ies", id_Velocity_Estimate, create_dissector_handle(dissect_Velocity_Estimate_PDU, proto_lcsap));
-  dissector_add_uint("lcsap.extension", id_LCS_Service_Type_ID, create_dissector_handle(dissect_LCS_Service_Type_ID_PDU, proto_lcsap));
-  dissector_add_uint("lcsap.extension", id_Additional_PositioningDataSet, create_dissector_handle(dissect_Additional_PositioningDataSet_PDU, proto_lcsap));
   dissector_add_uint("lcsap.extension", id_Barometric_Pressure, create_dissector_handle(dissect_Barometric_Pressure_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.extension", id_Additional_PositioningDataSet, create_dissector_handle(dissect_Additional_PositioningDataSet_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.ies", id_RAT_Type, create_dissector_handle(dissect_RAT_Type_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.ies", id_Ciphering_Data, create_dissector_handle(dissect_Ciphering_Data_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.ies", id_Ciphering_Data_Ack, create_dissector_handle(dissect_Ciphering_Data_Ack_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.ies", id_Ciphering_Data_Error_Report, create_dissector_handle(dissect_Ciphering_Data_Error_Report_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.extension", id_LCS_Service_Type_ID, create_dissector_handle(dissect_LCS_Service_Type_ID_PDU, proto_lcsap));
   dissector_add_uint("lcsap.extension", id_Cell_Portion_ID, create_dissector_handle(dissect_Cell_Portion_ID_PDU, proto_lcsap));
   dissector_add_uint("lcsap.extension", id_Civic_Address, create_dissector_handle(dissect_Civic_Address_PDU, proto_lcsap));
   dissector_add_uint("lcsap.extension", id_E_UTRAN_Cell_Identifier, create_dissector_handle(dissect_E_CGI_PDU, proto_lcsap));
@@ -2445,6 +2771,9 @@ proto_reg_handoff_lcsap(void)
   dissector_add_uint("lcsap.proc.sout", id_Location_Abort, create_dissector_handle(dissect_Location_Response_PDU, proto_lcsap));
   dissector_add_uint("lcsap.proc.imsg", id_Reset, create_dissector_handle(dissect_Reset_Request_PDU, proto_lcsap));
   dissector_add_uint("lcsap.proc.sout", id_Reset, create_dissector_handle(dissect_Reset_Acknowledge_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.proc.imsg", id_Ciphering_Key_Data, create_dissector_handle(dissect_Ciphering_Key_Data_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.proc.sout", id_Ciphering_Key_Data, create_dissector_handle(dissect_Ciphering_Key_Data_Result_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.proc.uout", id_Ciphering_Key_Data, create_dissector_handle(dissect_Ciphering_Key_Data_Result_PDU, proto_lcsap));
 
 
 /*--- End of included file: packet-lcsap-dis-tab.c ---*/
@@ -2516,6 +2845,18 @@ void proto_register_lcsap(void) {
       { "Cell-Portion-ID", "lcsap.Cell_Portion_ID",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_lcsap_Ciphering_Data_PDU,
+      { "Ciphering-Data", "lcsap.Ciphering_Data",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lcsap_Ciphering_Data_Ack_PDU,
+      { "Ciphering-Data-Ack", "lcsap.Ciphering_Data_Ack",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lcsap_Ciphering_Data_Error_Report_PDU,
+      { "Ciphering-Data-Error-Report", "lcsap.Ciphering_Data_Error_Report",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_lcsap_Civic_Address_PDU,
       { "Civic-Address", "lcsap.Civic_Address",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -2584,6 +2925,10 @@ void proto_register_lcsap(void) {
       { "Positioning-Data", "lcsap.Positioning_Data_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_lcsap_RAT_Type_PDU,
+      { "RAT-Type", "lcsap.RAT_Type",
+        FT_UINT32, BASE_DEC, VALS(lcsap_RAT_Type_vals), 0,
+        NULL, HFILL }},
     { &hf_lcsap_Return_Error_Type_PDU,
       { "Return-Error-Type", "lcsap.Return_Error_Type",
         FT_UINT32, BASE_DEC, VALS(lcsap_Return_Error_Type_vals), 0,
@@ -2626,6 +2971,14 @@ void proto_register_lcsap(void) {
         NULL, HFILL }},
     { &hf_lcsap_Reset_Acknowledge_PDU,
       { "Reset-Acknowledge", "lcsap.Reset_Acknowledge_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lcsap_Ciphering_Key_Data_PDU,
+      { "Ciphering-Key-Data", "lcsap.Ciphering_Key_Data_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lcsap_Ciphering_Key_Data_Result_PDU,
+      { "Ciphering-Key-Data-Result", "lcsap.Ciphering_Key_Data_Result_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_lcsap_LCS_AP_PDU_PDU,
@@ -2671,6 +3024,50 @@ void proto_register_lcsap(void) {
     { &hf_lcsap_altitude,
       { "altitude", "lcsap.altitude",
         FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lcsap_Ciphering_Data_item,
+      { "Ciphering-Data-Set", "lcsap.Ciphering_Data_Set_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lcsap_Ciphering_Data_Ack_item,
+      { "Ciphering-Set-ID", "lcsap.Ciphering_Set_ID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lcsap_Ciphering_Data_Error_Report_item,
+      { "Ciphering-Data-Error-Report-Contents", "lcsap.Ciphering_Data_Error_Report_Contents_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lcsap_ciphering_Set_ID,
+      { "ciphering-Set-ID", "lcsap.ciphering_Set_ID",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lcsap_ciphering_Key,
+      { "ciphering-Key", "lcsap.ciphering_Key",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lcsap_c0,
+      { "c0", "lcsap.c0",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lcsap_sib_Types,
+      { "sib-Types", "lcsap.sib_Types",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lcsap_validity_Start_Time,
+      { "validity-Start-Time", "lcsap.validity_Start_Time",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lcsap_validity_Duration,
+      { "validity-Duration", "lcsap.validity_Duration",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lcsap_tais_List,
+      { "tais-List", "lcsap.tais_List",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lcsap_storage_Outcome,
+      { "storage-Outcome", "lcsap.storage_Outcome",
+        FT_UINT32, BASE_DEC, VALS(lcsap_Storage_Outcome_vals), 0,
         NULL, HFILL }},
     { &hf_lcsap_pLMNidentity,
       { "pLMNidentity", "lcsap.pLMNidentity",
@@ -2726,6 +3123,14 @@ void proto_register_lcsap(void) {
         NULL, HFILL }},
     { &hf_lcsap_home_eNB_ID,
       { "home-eNB-ID", "lcsap.home_eNB_ID",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lcsap_short_macro_eNB_ID,
+      { "short-macro-eNB-ID", "lcsap.short_macro_eNB_ID",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lcsap_long_macro_eNB_ID,
+      { "long-macro-eNB-ID", "lcsap.long_macro_eNB_ID",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_lcsap_point,
@@ -2968,6 +3373,11 @@ void proto_register_lcsap(void) {
     &ett_lcsap_ProtocolExtensionField,
     &ett_lcsap_Additional_PositioningDataSet,
     &ett_lcsap_Altitude_And_Direction,
+    &ett_lcsap_Ciphering_Data,
+    &ett_lcsap_Ciphering_Data_Ack,
+    &ett_lcsap_Ciphering_Data_Error_Report,
+    &ett_lcsap_Ciphering_Data_Set,
+    &ett_lcsap_Ciphering_Data_Error_Report_Contents,
     &ett_lcsap_E_CGI,
     &ett_lcsap_Ellipsoid_Point_With_Uncertainty_Ellipse,
     &ett_lcsap_Ellipsoid_Point_With_Altitude,
@@ -3004,6 +3414,8 @@ void proto_register_lcsap(void) {
     &ett_lcsap_Connectionless_Information,
     &ett_lcsap_Reset_Request,
     &ett_lcsap_Reset_Acknowledge,
+    &ett_lcsap_Ciphering_Key_Data,
+    &ett_lcsap_Ciphering_Key_Data_Result,
     &ett_lcsap_LCS_AP_PDU,
     &ett_lcsap_InitiatingMessage,
     &ett_lcsap_SuccessfulOutcome,
