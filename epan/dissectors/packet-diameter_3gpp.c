@@ -430,6 +430,17 @@ static int hf_diameter_3gpp_optimized_lcs_proc_performed_bit2 = -1;
 static int hf_diameter_3gpp_mo_lr_shortcircuit_indicator_bit1 = -1;
 static int hf_diameter_3gpp_deferred_mt_lr_response_indicator_bit0 = -1;
 
+static int hf_diameter_3gpp_deferred_location_type = -1;
+static int hf_diameter_3gpp_deferred_location_type_spare_bits = -1;
+static int hf_diameter_3gpp_ue_available_bit0 = -1;
+static int hf_diameter_3gpp_entering_into_area_bit1 = -1;
+static int hf_diameter_3gpp_leaving_from_area_bit2 = -1;
+static int hf_diameter_3gpp_being_inside_area_bit3 = -1;
+static int hf_diameter_3gpp_periodic_ldr_bit4 = -1;
+static int hf_diameter_3gpp_motion_event_bit5 = -1;
+static int hf_diameter_3gpp_ldr_activated_bit6 = -1;
+static int hf_diameter_3gpp_maximum_interval_exporation_bit7 = -1;
+
 static gint diameter_3gpp_path_ett = -1;
 static gint diameter_3gpp_feature_list_ett = -1;
 static gint diameter_3gpp_uar_flags_ett = -1;
@@ -472,6 +483,7 @@ static gint diameter_3gpp_v2x_permission_ett = -1;
 static gint diameter_3gpp_core_network_restrictions_ett = -1;
 static gint diameter_3gpp_plr_flags_ett = -1;
 static gint diameter_3gpp_pla_flags_ett = -1;
+static gint diameter_3gpp_deferred_location_type_ett = -1;
 
 static int hf_diameter_3gpp_feature_list1_rx_flags_bit0 = -1;
 static int hf_diameter_3gpp_feature_list1_rx_flags_bit1 = -1;
@@ -2280,6 +2292,27 @@ dissect_diameter_3gpp_eutran_positioning_data(tvbuff_t *tvb, packet_info *pinfo,
     return dissect_lcsap_Positioning_Data_PDU(tvb, pinfo, tree, NULL);
 }
 
+/* AVP Code: 2532 Deferred-Location-Type */
+static int
+dissect_diameter_3gpp_deferred_location_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+{
+    static const int *flags[] = {
+        &hf_diameter_3gpp_deferred_location_type_spare_bits,
+        &hf_diameter_3gpp_ue_available_bit0,
+        &hf_diameter_3gpp_entering_into_area_bit1,
+        &hf_diameter_3gpp_leaving_from_area_bit2,
+        &hf_diameter_3gpp_being_inside_area_bit3,
+        &hf_diameter_3gpp_periodic_ldr_bit4,
+        &hf_diameter_3gpp_motion_event_bit5,
+        &hf_diameter_3gpp_ldr_activated_bit6,
+        &hf_diameter_3gpp_maximum_interval_exporation_bit7,
+        NULL
+    };
+
+        proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_deferred_location_type, diameter_3gpp_deferred_location_type_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+        return 4;
+}
+
 /* AVP Code: 2545 PLR-Flags */
 static int
 dissect_diameter_3gpp_plr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
@@ -2292,7 +2325,7 @@ dissect_diameter_3gpp_plr_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         NULL
     };
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_core_network_restrictions, diameter_3gpp_plr_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_plr_flags, diameter_3gpp_plr_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -2309,7 +2342,7 @@ dissect_diameter_3gpp_pla_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         NULL
     };
 
-    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_core_network_restrictions, diameter_3gpp_pla_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_pla_flags, diameter_3gpp_pla_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
     return 4;
 }
 
@@ -2646,7 +2679,7 @@ proto_reg_handoff_diameter_3gpp(void)
     dissector_add_uint("diameter.3gpp", 1242, create_dissector_handle(dissect_diameter_3gpp_location_estimate, proto_diameter_3gpp));
 
     /* AVP Code: 1304 Secondary-RAT-Type */
-    dissector_add_uint("diameter.3gpp", 1304, create_dissector_handle(dissect_diameter_3gpp_secondary_rat_type, proto_diameter_3gpp));
+	dissector_add_uint("diameter.3gpp", 1304, create_dissector_handle(dissect_diameter_3gpp_secondary_rat_type, proto_diameter_3gpp));
 
     /* AVP Code: 1404 QoS-Subscribed */
     dissector_add_uint("diameter.3gpp", 1404, create_dissector_handle(dissect_diameter_3ggp_qos_susbscribed, proto_diameter_3gpp));
@@ -2741,10 +2774,13 @@ proto_reg_handoff_diameter_3gpp(void)
     /* AVP Code: 2516 EUTRAN-Positioning-Data */
     dissector_add_uint("diameter.3gpp", 2516, create_dissector_handle(dissect_diameter_3gpp_eutran_positioning_data, proto_diameter_3gpp));
 
+    /* AVP Code: 2532 Deferred-Location-Type */
+    dissector_add_uint("diameter.3gpp", 2532, create_dissector_handle(dissect_diameter_3gpp_deferred_location_type, proto_diameter_3gpp));
+
     /* AVP Code: 2545 PLR-Flags */
     dissector_add_uint("diameter.3gpp", 2545, create_dissector_handle(dissect_diameter_3gpp_plr_flags, proto_diameter_3gpp));
 
-    /* AVP Code: 2545 PLA-Flags */
+    /* AVP Code: 2546 PLA-Flags */
     dissector_add_uint("diameter.3gpp", 2546, create_dissector_handle(dissect_diameter_3gpp_pla_flags, proto_diameter_3gpp));
 
     /* AVP Code: 2556 Civic-Address */
@@ -5018,7 +5054,7 @@ proto_register_diameter_3gpp(void)
         },
         { &hf_diameter_3gpp_plr_flags_spare_bits,
         { "Spare", "diameter.3gpp.plr_flags_spare_bits",
-          FT_BOOLEAN, 32, TFS(&tfs_not_allowed_allowed), 0xfffffff8,
+          FT_UINT32, BASE_HEX, NULL, 0xfffffff8,
           NULL, HFILL }
         },
         { &hf_diameter_3gpp_pla_flags,
@@ -5029,27 +5065,78 @@ proto_register_diameter_3gpp(void)
 
         { &hf_diameter_3gpp_deferred_mt_lr_response_indicator_bit0,
         { "Deferred-MT-LR-Response-Indicator", "diameter.3gpp.deferred_mt_lr_response_indicator",
-          FT_BOOLEAN, 32, TFS(&tfs_not_allowed_allowed), 0x00000001,
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000001,
           NULL, HFILL }
         },
         { &hf_diameter_3gpp_mo_lr_shortcircuit_indicator_bit1,
         { "MO-LR-ShortCircuit-Indicator", "diameter.3gpp.mo_lr_shortcircuit_indicator",
-          FT_BOOLEAN, 32, TFS(&tfs_not_allowed_allowed), 0x00000002,
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000002,
           NULL, HFILL }
         },
         { &hf_diameter_3gpp_optimized_lcs_proc_performed_bit2,
         { "Optimized-LCS-Proc-Performed", "diameter.3gpp.optimized_lcs_proc_performed",
-          FT_BOOLEAN, 32, TFS(&tfs_not_allowed_allowed), 0x00000004,
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000004,
           NULL, HFILL }
         },
         { &hf_diameter_3gpp_ue_transiently_not_reachable_indicator_bit3,
         { "UE-Transiently-Not-Reachable-Indicator", "diameter.3gpp.ue_transiently_not_reachable_indicator",
-          FT_BOOLEAN, 32, TFS(&tfs_not_allowed_allowed), 0x00000008,
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000008,
           NULL, HFILL }
         },
         { &hf_diameter_3gpp_pla_flags_spare_bits,
         { "Spare", "diameter.3gpp.pla_flags_spare_bits",
-          FT_BOOLEAN, 32, TFS(&tfs_not_allowed_allowed), 0xfffffff0,
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0xfffffff0,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_deferred_location_type,
+        { "Deferred-Location-Type", "diameter.3gpp.deferred_location_type",
+          FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+        },
+
+        { &hf_diameter_3gpp_ue_available_bit0,
+        { "UE-Available", "diameter.3gpp.ue_avaliable",
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000001,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_entering_into_area_bit1,
+        { "Entering-Into-Area", "diameter.3gpp.entering_into_area",
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000002,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_leaving_from_area_bit2,
+        { "Leaving-From-Area", "diameter.3gpp.leaving_from_area",
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000004,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_being_inside_area_bit3,
+        { "Being-Inside-Area", "diameter.3gpp.being_inside_area",
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000008,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_periodic_ldr_bit4,
+        { "Periodic-LDR", "diameter.3gpp.periodic_ldr",
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000010,
+          NULL, HFILL }
+        },
+         { &hf_diameter_3gpp_motion_event_bit5,
+        { "Motion-Event", "diameter.3gpp.motion_event",
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000020,
+          NULL, HFILL }
+        },
+         { &hf_diameter_3gpp_ldr_activated_bit6,
+        { "LDR-Activated", "diameter.3gpp.ldr_activated",
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000040,
+          NULL, HFILL }
+        },
+         { &hf_diameter_3gpp_maximum_interval_exporation_bit7,
+        { "Maximum-Interval-Expiration", "diameter.3gpp.maximum_interval_exporation",
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000080,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_deferred_location_type_spare_bits,
+        { "Spare", "diameter.3gpp.deferred_location_type_spare",
+          FT_UINT32, BASE_HEX, NULL, 0xffffff00,
           NULL, HFILL }
         },
 };
@@ -5095,7 +5182,8 @@ proto_register_diameter_3gpp(void)
         &diameter_3gpp_v2x_permission_ett,
         &diameter_3gpp_core_network_restrictions_ett,
         &diameter_3gpp_plr_flags_ett,
-        &diameter_3gpp_pla_flags_ett
+        &diameter_3gpp_pla_flags_ett,
+        &diameter_3gpp_deferred_location_type_ett
     };
 
     expert_module_t *expert_diameter_3gpp;

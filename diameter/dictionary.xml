@@ -7058,6 +7058,9 @@
 			<enum name="EMERGENCY_CALL_RELEASE" code="1"/>
 			<enum name="MO_LR" code="2"/>
 			<enum name="EMERGENCY_CALL_HANDOVER" code="3"/>
+			<enum name="DEFERRED_MT_LR_RESPONSE" code="4"/>
+			<enum name="DEFERRED_MO_LR_TTTP_INITIATION" code="5"/>
+			<enum name="DELAYED_LOCATION_REPORTING" code="6"/>
 		</avp>
 		<avp name="Pseudonym-Indicator" code="2519" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
@@ -7083,17 +7086,41 @@
 			<enum name="ASSURED" code="0"/>
 			<enum name="BEST EFFORT" code="1"/>
 		</avp>
-
+		<avp name="GERAN-Positioning-Info" code="2524" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="GERAN-Positioning-Data"/>
+				<gavp name="GERAN-GANSS-Positioning-Data"/>
+			</grouped>
+		</avp>
+		<avp name="GERAN-Positioning-Data" code="2525" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="GERAN-GANSS-Positioning-Data" code="2526" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="UTRAN-Positioning-Info" code="2527" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="UTRAN-Positioning-Data"/>
+				<gavp name="UTRAN-GANSS-Positioning-Data"/>
+				<gavp name="UTRAN-Additional-Positioning-Data"/>
+			</grouped>
+		</avp>
+		<avp name="UTRAN-Positioning-Data" code="2528" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="UTRAN-GANSS-Positioning-Data" code="2529" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="LRR-Flags" code="2530" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="LCS-Reference-Number" code="2531" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Deferred-Location-Type" code="2532" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
 		<!--
-		GERAN-Positioning-Info 2524 7.4.29 Grouped V M No
-		GERAN-Positioning-Data 2525 7.4.30 OctetString V M No
-		GERAN-GANSS-Positioning-Data 2526 7.4.31 OctetString V M No
-		UTRAN-Positioning-Info 2527 7.4.32 Grouped V M No
-		UTRAN-Positioning-Data 2528 7.4.33 OctetString V M No
-		UTRAN-GANSS-Positioning-Data 2529 7.4.34 OctetString V M No
-		LRR-Flags 2530 7.4.35 Unsigned32 V M No
-		LCS-Reference-Number 2531 7.4.37 OctetString V M No
-		Deferred-Location-Type 2532 7.4.36 Unsigned32 V M No
 		Area-Event-Info 2533 7.4.38 Grouped V M No
 		Area-Definition 2534 7.4.39 Grouped V M No
 		Area 2535 7.4.40 Grouped V M No
@@ -7129,9 +7156,10 @@
 		<avp name="Barometric-Pressure" code="2557" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-
+		<avp name="UTRAN-Additional-Positioning-Data" code="2558" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
 		<!--
-		UTRAN-Additional-Positioning-Data 2558 7.4.63 OctetString V M No
 		Note: The AVP codes from 2524 to 2599 are reserved for TS 29.172
 		-->
 
