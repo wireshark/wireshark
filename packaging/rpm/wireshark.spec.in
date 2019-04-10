@@ -67,16 +67,28 @@ BuildRequires:	asciidoctor
 BuildRequires:	glib2-devel >= 2.32.0
 Requires:	glib2
 BuildRequires:	libpcap-devel
+%if 0%{?suse_version}
+Requires:	libpcap1
+%else
 Requires:	libpcap
+%endif
 BuildRequires:	zlib-devel
 Requires:	zlib
 BuildRequires:	libgcrypt-devel
+%if 0%{?suse_version}
+Requires:	libgcrypt20
+%else
 Requires:	libgcrypt
+%endif
 
 %if %{with lz4_and_snappy}
 %if 0%{?suse_version}
 BuildRequires:	liblz4-devel
+%if 0%{?sle_version} >= 150000
 Requires:	liblz4-1
+%else
+Requires:	liblz4-1_4
+%endif
 BuildRequires:	snappy-devel
 Requires:	libsnappy1
 %else
@@ -101,13 +113,27 @@ Requires:	c-ares
 %endif
 
 %if %{with lua}
+%if 0%{?fedora}
+BuildRequires:	compat-lua-devel < 5.3
+Requires:	compat-lua < 5.3
+%else
+%if 0%{?suse_version}
+BuildRequires:	lua51-devel
+Requires:	lua51
+%else
 BuildRequires:	lua-devel < 5.3
 Requires:	lua < 5.3
+%endif
+%endif
 %endif
 
 %if %{with nghttp2}
 BuildRequires:	libnghttp2-devel
+%if 0%{?suse_version}
+Requires:	libnghttp2-14
+%else
 Requires:	libnghttp2
+%endif
 %endif
 
 %if %{with sdjournal}
@@ -129,7 +155,11 @@ Requires:	systemd-libs
 
 %if %{with mmdbresolve}
 BuildRequires:	libmaxminddb-devel
+%if 0%{?suse_version}
+Requires:	libmaxminddb0
+%else
 Requires:	libmaxminddb
+%endif
 %endif
 
 %if %{use_wireshark_group}
