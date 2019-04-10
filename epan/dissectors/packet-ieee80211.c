@@ -5580,7 +5580,7 @@ static int hf_he_multi_tid_aggregation_tx_support = -1;
 static int hf_he_subchannel_selective_trans_support = -1;
 static int hf_he_2_996_tone_ru_support = -1;
 static int hf_he_om_control_ul_mu_data_disable_rx_support = -1;
-static int hf_he_reserved = -1;
+static int hf_he_reserved_bits_45_47 = -1;
 static int hf_he_reserved_bit_18 = -1;
 static int hf_he_reserved_bit_19 = -1;
 static int hf_he_reserved_bit_25 = -1;
@@ -20088,7 +20088,7 @@ static const int *he_mac_headers[] = {
   &hf_he_subchannel_selective_trans_support,       /* 31 */
   &hf_he_2_996_tone_ru_support,                    /* 32 */
   &hf_he_om_control_ul_mu_data_disable_rx_support, /* 33 */
-  &hf_he_reserved,                                 /* 34 */
+  &hf_he_reserved_bits_45_47,                      /* 34 */
   NULL
 };
 
@@ -35726,7 +35726,7 @@ proto_register_ieee80211(void)
 
     {&hf_he_trigger_frame_mac_padding_dur,
      {"Trigger Frame MAC Padding Duration", "wlan.ext_tag.he_mac_cap.trig_frm_mac_padding_dur",
-      FT_UINT40, BASE_DEC, NULL, 0x0000000C00, NULL, HFILL }},
+      FT_UINT48, BASE_DEC, NULL, 0x000000000C00, NULL, HFILL }},
 
     {&hf_he_multi_tid_aggregation_support,
      {"Multi-TID Aggregation Support", "wlan.ext_tag.he_mac_cap.multi_tid_agg_support",
@@ -35862,9 +35862,9 @@ proto_register_ieee80211(void)
       FT_BOOLEAN, 48, TFS(&tfs_supported_not_supported),
       0x100000000000, NULL, HFILL }},
 
-    {&hf_he_reserved,
-     {"Reserved", "wlan.ext_tag.he_mac_cap.reserved_bit_39",
-      FT_UINT48, BASE_HEX, NULL, 0x008000000000, NULL, HFILL }},
+    {&hf_he_reserved_bits_45_47,
+     {"Reserved", "wlan.ext_tag.he_mac_cap.reserved_bit_45_47",
+      FT_UINT48, BASE_HEX, NULL, 0xE00000000000, NULL, HFILL }},
 
     {&hf_he_reserved_bits_5_7,
      {"Reserved", "wlan.ext_tag.he_mac_cap.reserved_bits_5_7",
