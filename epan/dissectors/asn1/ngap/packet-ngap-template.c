@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.413 v15.2.0 (2018-12)
+ * References: 3GPP TS 38.413 v15.3.0 (2019-03)
  */
 
 #include "config.h"
@@ -35,6 +35,7 @@
 #include "packet-ntp.h"
 #include "packet-gsm_a_common.h"
 #include "packet-http.h"
+#include "packet-ngap.h"
 
 #define PNAME  "NG Application Protocol"
 #define PSNAME "NGAP"
@@ -117,6 +118,7 @@ static gint ett_ngap_LastVisitedUTRANCellInformation = -1;
 static gint ett_ngap_LastVisitedGERANCellInformation = -1;
 static gint ett_ngap_NASSecurityParametersFromNGRAN = -1;
 static gint ett_ngap_NASC = -1;
+static gint ett_ngap_EN_DCSONConfigurationTransfer = -1;
 #include "packet-ngap-ett.c"
 
 static expert_field ei_ngap_number_pages_le15 = EI_INIT;
@@ -197,6 +199,7 @@ static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, pro
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 
 static int dissect_InitialUEMessage_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data);
+static int dissect_PDUSessionResourceReleaseResponseTransfer_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 const value_string ngap_serialNumber_gs_vals[] = {
   { 0, "Display mode iamfdiate, cell wide"},
@@ -630,6 +633,7 @@ void proto_register_ngap(void) {
     &ett_ngap_LastVisitedGERANCellInformation,
     &ett_ngap_NASSecurityParametersFromNGRAN,
     &ett_ngap_NASC,
+    &ett_ngap_EN_DCSONConfigurationTransfer,
 #include "packet-ngap-ettarr.c"
   };
 

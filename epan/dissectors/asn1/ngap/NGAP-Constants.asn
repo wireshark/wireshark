@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V15.2.0 (2018-12)
+-- 3GPP TS 38.413 V15.3.0 (2019-03)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -85,6 +85,7 @@ id-UplinkRANConfigurationTransfer			ProcedureCode ::= 48
 id-UplinkRANStatusTransfer					ProcedureCode ::= 49
 id-UplinkUEAssociatedNRPPaTransport			ProcedureCode ::= 50
 id-WriteReplaceWarning						ProcedureCode ::= 51
+id-SecondaryRATDataUsageReport				ProcedureCode ::= 52
 
 -- **************************************************************
 --
@@ -121,7 +122,8 @@ maxProtocolIEs							INTEGER ::= 65535
 	maxnoofE-RABs						INTEGER ::= 256
 	maxnoofErrors						INTEGER ::= 256
 	maxnoofForbTACs						INTEGER ::= 4096
-	maxnoofMultiConnectivities			INTEGER ::= 4
+	maxnoofMultiConnectivity				INTEGER ::= 4
+	maxnoofMultiConnectivityMinusOne	INTEGER ::= 3
 	maxnoofNGConnectionsToReset			INTEGER ::= 65536
 	maxnoofPDUSessions					INTEGER ::= 256
 	maxnoofPLMNs						INTEGER ::= 12
@@ -138,6 +140,7 @@ maxProtocolIEs							INTEGER ::= 65535
 	maxnoofTAIforRestart				INTEGER ::= 2048
 	maxnoofTAIforWarning				INTEGER ::= 65535
 	maxnoofTAIinAoI						INTEGER ::= 16
+	maxnoofTimePeriods					INTEGER ::= 2
 	maxnoofTNLAssociations				INTEGER ::= 32
 	maxnoofXnExtTLAs					INTEGER ::= 2
 	maxnoofXnGTP-TLAs					INTEGER ::= 16
@@ -292,5 +295,22 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-UL-NGU-UP-TNLInformation								ProtocolIE-ID ::= 139
 	id-UL-NGU-UP-TNLModifyList								ProtocolIE-ID ::= 140
 	id-WarningAreaCoordinates								ProtocolIE-ID ::= 141
+	id-PDUSessionResourceSecondaryRATUsageList				ProtocolIE-ID ::= 142
+	id-HandoverFlag											ProtocolIE-ID ::= 143
+	id-SecondaryRATUsageInformation							ProtocolIE-ID ::= 144
+	id-PDUSessionResourceReleaseResponseTransfer			ProtocolIE-ID ::= 145
+	id-RedirectionVoiceFallback								ProtocolIE-ID ::= 146
+	id-UERetentionInformation								ProtocolIE-ID ::= 147
+	id-S-NSSAI												ProtocolIE-ID ::= 148
+	id-PSCellInformation									ProtocolIE-ID ::= 149
+	id-LastEUTRAN-PLMNIdentity								ProtocolIE-ID ::= 150
+	id-MaximumIntegrityProtectedDataRate-DL					ProtocolIE-ID ::= 151
+	id-AdditionalDLForwardingUPTNLInformation				ProtocolIE-ID ::= 152
+	id-AdditionalDLUPTNLInformationForHOList				ProtocolIE-ID ::= 153
+	id-AdditionalNGU-UP-TNLInformation						ProtocolIE-ID ::= 154
+	id-AdditionalDLQosFlowPerTNLInformation					ProtocolIE-ID ::= 155
+	id-SecurityResult										ProtocolIE-ID ::= 156
+	id-ENDC-SONConfigurationTransferDL						ProtocolIE-ID ::= 157
+	id-ENDC-SONConfigurationTransferUL						ProtocolIE-ID ::= 158
 
 END

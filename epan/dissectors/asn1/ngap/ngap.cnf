@@ -694,6 +694,39 @@ PeriodicRegistrationUpdateTimer TYPE=FT_UINT8 DISPLAY=BASE_CUSTOM STRINGS=CF_FUN
     de_nas_5gs_n1_mode_to_s1_mode_nas_transparent_cont(parameter_tvb, subtree, actx->pinfo);
   }
 
+#.FN_BODY EN-DCSONConfigurationTransfer VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+  proto_tree *subtree;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    subtree = proto_item_add_subtree(actx->created_item, ett_ngap_EN_DCSONConfigurationTransfer);
+    dissect_s1ap_EN_DCSONConfigurationTransfer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY VolumeTimedReport-Item/startTimeStamp VAL_PTR = &timestamp_tvb
+  tvbuff_t *timestamp_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR VolumeTimedReport-Item/startTimeStamp
+  if (timestamp_tvb) {
+    proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(timestamp_tvb, 0));
+  }
+
+#.FN_BODY VolumeTimedReport-Item/endTimeStamp VAL_PTR = &timestamp_tvb
+  tvbuff_t *timestamp_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR VolumeTimedReport-Item/endTimeStamp
+  if (timestamp_tvb) {
+    proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(timestamp_tvb, 0));
+  }
+
+#.TYPE_ATTR
+VolumeTimedReport-Item/usageCountUL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_octet_octets
+
+#.TYPE_ATTR
+VolumeTimedReport-Item/usageCountDL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_octet_octets
+
 #.ASSIGN_VALUE_TO_TYPE  # NGAP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
 
@@ -749,6 +782,7 @@ id-UplinkRANConfigurationTransfer        ProcedureCode
 id-UplinkRANStatusTransfer               ProcedureCode
 id-UplinkUEAssociatedNRPPaTransport      ProcedureCode
 id-WriteReplaceWarning                   ProcedureCode
+id-SecondaryRATDataUsageReport           ProcedureCode
 
 # ProtocolIE-ID
 id-AllowedNSSAI                               ProtocolIE-ID
@@ -892,6 +926,23 @@ id-SecurityIndication                         ProtocolIE-ID
 id-UL-NGU-UP-TNLInformation                   ProtocolIE-ID
 id-UL-NGU-UP-TNLModifyList                    ProtocolIE-ID
 id-WarningAreaCoordinates                     ProtocolIE-ID
+id-PDUSessionResourceSecondaryRATUsageList    ProtocolIE-ID
+id-HandoverFlag                               ProtocolIE-ID
+id-SecondaryRATUsageInformation               ProtocolIE-ID
+id-PDUSessionResourceReleaseResponseTransfer  ProtocolIE-ID
+id-RedirectionVoiceFallback                   ProtocolIE-ID
+id-UERetentionInformation                     ProtocolIE-ID
+id-S-NSSAI                                    ProtocolIE-ID
+id-PSCellInformation                          ProtocolIE-ID
+id-LastEUTRAN-PLMNIdentity                    ProtocolIE-ID
+id-MaximumIntegrityProtectedDataRate-DL       ProtocolIE-ID
+id-AdditionalDLForwardingUPTNLInformation     ProtocolIE-ID
+id-AdditionalDLUPTNLInformationForHOList      ProtocolIE-ID
+id-AdditionalNGU-UP-TNLInformation            ProtocolIE-ID
+id-AdditionalDLQosFlowPerTNLInformation       ProtocolIE-ID
+id-SecurityResult                             ProtocolIE-ID
+id-ENDC-SONConfigurationTransferDL            ProtocolIE-ID
+id-ENDC-SONConfigurationTransferUL            ProtocolIE-ID
 #.END
 
 
@@ -1024,7 +1075,7 @@ WarningAreaList                            N ngap.ies id-WarningAreaList
 WarningMessageContents                     N ngap.ies id-WarningMessageContents
 WarningSecurityInfo                        N ngap.ies id-WarningSecurityInfo
 WarningType                                N ngap.ies id-WarningType
-UPTransportLayerInformation                N ngap.ies id-AdditionalUL-NGU-UP-TNLInformation
+UPTransportLayerInformationList            N ngap.ies id-AdditionalUL-NGU-UP-TNLInformation
 DataForwardingNotPossible                  N ngap.ies id-DataForwardingNotPossible
 NetworkInstance                            N ngap.ies id-NetworkInstance
 PDUSessionAggregateMaximumBitRate          N ngap.ies id-PDUSessionAggregateMaximumBitRate
@@ -1034,11 +1085,31 @@ PDUSessionResourceListCxtRelReq            N ngap.ies id-PDUSessionResourceListC
 PDUSessionType                             N ngap.ies id-PDUSessionType
 QosFlowAddOrModifyRequestList              N ngap.ies id-QosFlowAddOrModifyRequestList
 QosFlowSetupRequestList                    N ngap.ies id-QosFlowSetupRequestList
-QosFlowList                                N ngap.ies id-QosFlowToReleaseList
+QosFlowListWithCause                       N ngap.ies id-QosFlowToReleaseList
 SecurityIndication                         N ngap.ies id-SecurityIndication
 UPTransportLayerInformation                N ngap.ies id-UL-NGU-UP-TNLInformation
 UL-NGU-UP-TNLModifyList                    N ngap.ies id-UL-NGU-UP-TNLModifyList
 WarningAreaCoordinates                     N ngap.ies id-WarningAreaCoordinates
+PDUSessionResourceSecondaryRATUsageList    N ngap.ies id-PDUSessionResourceSecondaryRATUsageList
+HandoverFlag                               N ngap.ies id-HandoverFlag
+RedirectionVoiceFallback                   N ngap.ies id-RedirectionVoiceFallback
+UERetentionInformation                     N ngap.ies id-UERetentionInformation
+NGRAN-CGI                                  N ngap.ies id-PSCellInformation
+EN-DCSONConfigurationTransfer              N ngap.ies id-ENDC-SONConfigurationTransferDL
+EN-DCSONConfigurationTransfer              N ngap.ies id-ENDC-SONConfigurationTransferUL
+
+#NGAP-PROTOCOL-EXTENSION
+
+SecondaryRATUsageInformation                           N ngap.extension id-SecondaryRATUsageInformation
+PDUSessionResourceReleaseResponseTransfer-OCTET-STRING N ngap.extension id-PDUSessionResourceReleaseResponseTransfer
+S-NSSAI                                                N ngap.extension id-S-NSSAI
+PLMNIdentity                                           N ngap.extension id-LastEUTRAN-PLMNIdentity
+MaximumIntegrityProtectedDataRate                      N ngap.extension id-MaximumIntegrityProtectedDataRate-DL
+QosFlowPerTNLInformationList                           N ngap.extension id-AdditionalDLForwardingUPTNLInformation
+AdditionalDLUPTNLInformationForHOList                  N ngap.extension id-AdditionalDLUPTNLInformationForHOList
+UPTransportLayerInformationPairList                    N ngap.extension id-AdditionalNGU-UP-TNLInformation
+QosFlowPerTNLInformationList                           N ngap.extension id-AdditionalDLQosFlowPerTNLInformation
+SecurityResult                                         N ngap.extension id-SecurityResult
 
 #NGAP-ELEMENTARY-PROCEDURE
 
@@ -1138,6 +1209,8 @@ RANConfigurationUpdateFailure           N ngap.proc.uout id-RANConfigurationUpda
 RerouteNASRequest                       N ngap.proc.imsg id-RerouteNASRequest
 
 RRCInactiveTransitionReport             N ngap.proc.imsg id-RRCInactiveTransitionReport
+
+SecondaryRATDataUsageReport             N ngap.proc.imsg id-SecondaryRATDataUsageReport
 
 TraceFailureIndication                  N ngap.proc.imsg id-TraceFailureIndication
 
@@ -1351,6 +1424,9 @@ WriteReplaceWarningResponse             N ngap.proc.sout id-WriteReplaceWarning
 
 #.FN_HDR RRCInactiveTransitionReport
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCInactiveTransitionReport");
+
+#.FN_HDR SecondaryRATDataUsageReport
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SecondaryRATDataUsageReport");
 
 #.FN_HDR TraceFailureIndication
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "TraceFailureIndication");

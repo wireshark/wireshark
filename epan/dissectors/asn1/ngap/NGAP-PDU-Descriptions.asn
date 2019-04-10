@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V15.2.0 (2018-12)
+-- 3GPP TS 38.413 V15.3.0 (2019-03)
 -- 9.4.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -85,6 +85,7 @@ FROM NGAP-CommonDataTypes
 	RANConfigurationUpdateFailure,
 	RerouteNASRequest,
 	RRCInactiveTransitionReport,
+	SecondaryRATDataUsageReport,
 	TraceFailureIndication,
 	TraceStart,
 	UEContextModificationFailure,
@@ -144,6 +145,7 @@ FROM NGAP-PDU-Contents
 	id-RANConfigurationUpdate,
 	id-RerouteNASRequest,
 	id-RRCInactiveTransitionReport,
+	id-SecondaryRATDataUsageReport,
 	id-TraceFailureIndication,
 	id-TraceStart,
 	id-UEContextModification,
@@ -270,7 +272,8 @@ NGAP-ELEMENTARY-PROCEDURES-CLASS-2 NGAP-ELEMENTARY-PROCEDURE ::= {
 	pWSFailureIndication						|
 	pWSRestartIndication			|
 	rerouteNASRequest				|
-	rRCInactiveTransitionReport		|
+	rRCInactiveTransitionReport					|
+	secondaryRATDataUsageReport		|
 	traceFailureIndication			|
 	traceStart						|
 	uEContextReleaseRequest			|
@@ -535,6 +538,12 @@ rerouteNASRequest NGAP-ELEMENTARY-PROCEDURE ::= {
 rRCInactiveTransitionReport NGAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		RRCInactiveTransitionReport
 	PROCEDURE CODE			id-RRCInactiveTransitionReport
+	CRITICALITY				ignore
+}
+
+secondaryRATDataUsageReport NGAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		SecondaryRATDataUsageReport
+	PROCEDURE CODE			id-SecondaryRATDataUsageReport
 	CRITICALITY				ignore
 }
 
