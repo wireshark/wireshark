@@ -19,6 +19,7 @@
 %bcond_with	nghttp2
 %bcond_with	sdjournal
 %bcond_with	guides
+%bcond_with	brotli
 
 
 # Set at most one of these two:
@@ -142,6 +143,21 @@ BuildRequires:	systemd-devel
 Requires:	libsystemd0
 %else
 Requires:	systemd-libs
+%endif
+%endif
+
+%if %{with brotli}
+%if 0%{?suse_version}
+BuildRequires:	libbrotli-devel
+# On SUSE libbrotli-devel installs the libbrotlidec.so, libbrotlienc.so
+# and libbrotlicommon.so symlinks, but only installs the libbrotlicommon1 and libbrotlienc1
+# packages, leaving the libbrotlidec.so symlink broken, so we have to include libbrotlidec1
+# as a build-time dependency...
+BuildRequires:	libbrotlidec1
+Requires:	libbrotlidec1
+%else
+BuildRequires:	brotli-devel
+Requires:	brotli
 %endif
 %endif
 
@@ -315,6 +331,11 @@ cmake3 \
 %else
   -DBUILD_sdjournal=OFF \
 %endif
+%if %{with brotli}
+  -DENABLE_BROTLI=ON \
+%else
+  -DENABLE_BROTLI=OFF \
+%endif
   -DDISABLE_WERROR=ON \
 %if %{with ninja}
   -G Ninja \
@@ -476,6 +497,9 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %{_libdir}/pkgconfig/wireshark.pc
 
 %changelog
+* Mon Apr 22 2019 Daniel Bakai
+- Added brotli (as an option, defaulting to not required).
+
 * Fri Sep 28 2018 Gerald Combs
 - Add sdjournal
 

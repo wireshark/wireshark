@@ -907,6 +907,24 @@ WS_DLL_PUBLIC tvbuff_t *tvb_uncompress(tvbuff_t *tvb, const int offset,
 WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress(tvbuff_t *parent, tvbuff_t *tvb,
     const int offset, int comprlen);
 
+/* From tvbuff_brotli.c */
+
+/**
+ * Uncompresses a brotli compressed packet inside a tvbuff at offset with
+ * length comprlen.  Returns an uncompressed tvbuffer if uncompression
+ * succeeded or NULL if uncompression failed.
+ */
+WS_DLL_PUBLIC tvbuff_t *tvb_uncompress_brotli(tvbuff_t *tvb, const int offset,
+    int comprlen);
+
+/**
+ * Uncompresses a brotli compressed packet inside a tvbuff at offset with
+ * length comprlen.  Returns an uncompressed tvbuffer attached to tvb if
+ * uncompression succeeded or NULL if uncompression failed.
+ */
+WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress_brotli(tvbuff_t *parent, tvbuff_t *tvb,
+    const int offset, int comprlen);
+
 /* From tvbuff_base64.c */
 
 /** Return a tvb that contains the binary representation of a base64

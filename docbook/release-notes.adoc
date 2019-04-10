@@ -34,7 +34,7 @@ Features” section below for more details.
 The following features are new (or have been significantly updated)
 since version 3.0.0:
 
-* Watch this space.
+* Brotli decompression support in HTTP/HTTP2 (requires the brotli library).
 
 // === Removed Features and Support
 

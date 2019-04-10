@@ -153,6 +153,13 @@ README.windows for those instructions.
         the capture-file utilities that come in this package, use
         this switch.
 
+    -DENABLE_BROTLI=OFF
+        By default, if 'configure' finds brotli, the wiretap library
+        will be built so that it can read brotli compressed capture
+        files. If you have brotli but do not wish to build it into
+        the wiretap library, used by Wireshark, TShark, and the
+        capture-file utilities that come in this package, use this switch.
+
     -DENABLE_PLUGINS=OFF
         By default, if your system can support run-time loadable modules,
         the packet analyzers are build with support for plugins.

@@ -136,6 +136,9 @@
 /* Define to use zlib library */
 #cmakedefine HAVE_ZLIB 1
 
+/* Define to use brotli library */
+#cmakedefine HAVE_BROTLI 1
+
 /* Define to use lz4 library */
 #cmakedefine HAVE_LZ4 1
 

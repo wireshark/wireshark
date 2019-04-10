@@ -1104,6 +1104,9 @@ ws_find_package(CARES ENABLE_CARES HAVE_C_ARES "1.5.0")
 # Zlib compression
 ws_find_package(ZLIB ENABLE_ZLIB HAVE_ZLIB)
 
+# Brotli compression
+ws_find_package(BROTLI ENABLE_BROTLI HAVE_BROTLI)
+
 # LZ4 compression
 ws_find_package(LZ4 ENABLE_LZ4 HAVE_LZ4)
 
@@ -1809,6 +1812,11 @@ if(WIN32)
 		list (APPEND OPTIONAL_DLLS "${ZLIB_DLL_DIR}/${ZLIB_DLL}")
 		list (APPEND OPTIONAL_PDBS "${ZLIB_DLL_DIR}/${ZLIB_PDB}")
 	endif(ZLIB_FOUND)
+	if (BROTLI_FOUND)
+		foreach( _dll ${BROTLI_DLLS} )
+			list (APPEND OPTIONAL_DLLS "${BROTLI_DLL_DIR}/${_dll}")
+		endforeach(_dll)
+	endif(BROTLI_FOUND)
 
 	# With libs downloaded to c:/wireshark-win64-libs this currently
 	# (early 2018) expands to about 1900 characters.
@@ -2755,6 +2763,9 @@ if(RPMBUILD_EXECUTABLE)
 	endif()
 	if (SYSTEMD_FOUND)
 		list(APPEND _rpmbuild_with_args --with sdjournal)
+	endif()
+	if (BROTLI_FOUND)
+		list(APPEND _rpmbuild_with_args --with brotli)
 	endif()
 
 	execute_process(

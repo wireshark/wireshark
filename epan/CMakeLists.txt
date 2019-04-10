@@ -16,6 +16,7 @@ if (HAVE_HFI_SECTION_INIT)
 endif()
 
 include_directories(
+		${BROTLI_INCLUDE_DIRS}
 		${GLIB2_INCLUDE_DIRS}
 		${CARES_INCLUDE_DIRS}
 		${GCRYPT_INCLUDE_DIRS}
@@ -265,6 +266,7 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	tvbparse.c
 	tvbuff.c
 	tvbuff_base64.c
+	tvbuff_brotli.c
 	tvbuff_composite.c
 	tvbuff_real.c
 	tvbuff_subset.c
@@ -378,6 +380,7 @@ target_link_libraries(epan
 		wsutil
 		${GLIB2_LIBRARIES}
 	PRIVATE
+		${BROTLI_LIBRARIES}
 		${CARES_LIBRARIES}
 		${GCRYPT_LIBRARIES}
 		${GIO2_LIBRARIES}

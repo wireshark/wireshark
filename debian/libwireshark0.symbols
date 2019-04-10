@@ -1680,6 +1680,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tvb_captured_length@Base 1.12.0~rc1
  tvb_captured_length_remaining@Base 1.12.0~rc1
  tvb_child_uncompress@Base 1.12.0~rc1
+ tvb_child_uncompress_brotli@Base 3.1.0
  tvb_clone@Base 1.12.0~rc1
  tvb_clone_offset_len@Base 1.12.0~rc1
  tvb_composite_append@Base 1.9.1
@@ -1801,6 +1802,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  tvb_strnlen@Base 1.9.1
  tvb_strsize@Base 1.9.1
  tvb_uncompress@Base 1.9.1
+ tvb_uncompress_brotli@Base 3.1.0
  tvb_unicode_strsize@Base 1.9.1
  tvb_ws_mempbrk_pattern_guint8@Base 1.99.3
  tvbparse_casestring@Base 1.9.1

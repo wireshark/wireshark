@@ -80,6 +80,10 @@
 #include <nghttp2/nghttp2ver.h>
 #endif
 
+#ifdef HAVE_BROTLI
+#include <brotli/decode.h>
+#endif
+
 #ifdef HAVE_LIBXML2
 #include <libxml/xmlversion.h>
 #include <libxml/parser.h>
@@ -769,6 +773,14 @@ epan_get_compiled_version_info(GString *str)
 	g_string_append(str, "without nghttp2");
 #endif /* HAVE_NGHTTP2 */
 
+	/* brotli */
+	g_string_append(str, ", ");
+#ifdef HAVE_BROTLI
+	g_string_append(str, "with brotli");
+#else
+	g_string_append(str, "without brotli");
+#endif /* HAVE_BROTLI */
+
 	/* LZ4 */
 	g_string_append(str, ", ");
 #ifdef HAVE_LZ4
@@ -808,6 +820,12 @@ epan_get_runtime_version_info(GString *str)
 
 	/* Gcrypt */
 	g_string_append_printf(str, ", with Gcrypt %s", gcry_check_version(NULL));
+
+	/* brotli */
+#ifdef HAVE_BROTLI
+	g_string_append_printf(str, ", with brotli %d.%d.%d", BrotliDecoderVersion() >> 24,
+		(BrotliDecoderVersion() >> 12) & 0xFFF, BrotliDecoderVersion() & 0xFFF);
+#endif
 }
 
 /*

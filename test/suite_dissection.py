@@ -16,6 +16,20 @@ import fixtures
 
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
+class case_dissect_http(subprocesstest.SubprocessTestCase):
+    def test_http_brotli_decompression(self, cmd_tshark, features, dirs, capture_file):
+        '''HTTP brotli decompression'''
+        if not features.have_brotli:
+            self.skipTest('Requires brotli.')
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('http-brotli.pcapng'),
+                '-Y', 'http.response.code==200',
+                '-Tfields', '-etext',
+            ))
+        self.assertTrue(self.grepOutput('This is a test file for testing brotli decompression in Wireshark'))
+
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
 class case_dissect_http2(subprocesstest.SubprocessTestCase):
     def test_http2_data_reassembly(self, cmd_tshark, features, dirs, capture_file):
         '''HTTP2 data reassembly'''
@@ -27,6 +41,18 @@ class case_dissect_http2(subprocesstest.SubprocessTestCase):
                 '-o', 'tls.keylog_file: {}'.format(key_file),
                 '-d', 'tcp.port==8443,tls',
                 '-Y', 'http2.data.data matches "PNG" && http2.data.data matches "END"',
+            ))
+        self.assertTrue(self.grepOutput('DATA'))
+
+    def test_http2_brotli_decompression(self, cmd_tshark, features, dirs, capture_file):
+        '''HTTP2 brotli decompression'''
+        if not features.have_nghttp2:
+            self.skipTest('Requires nghttp2.')
+        if not features.have_brotli:
+            self.skipTest('Requires brotli.')
+        self.assertRun((cmd_tshark,
+                '-r', capture_file('http2-brotli.pcapng'),
+                '-Y', 'http2.data.data matches "This is a test file for testing brotli decompression in Wireshark"',
             ))
         self.assertTrue(self.grepOutput('DATA'))
 

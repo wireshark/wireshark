@@ -237,9 +237,9 @@ static gboolean http_desegment_body = TRUE;
 static gboolean http_dechunk_body = TRUE;
 
 /*
- * Decompression of zlib encoded entities.
+ * Decompression of zlib or brotli encoded entities.
  */
-#ifdef HAVE_ZLIB
+#if defined(HAVE_ZLIB) || defined(HAVE_BROTLI)
 static gboolean http_decompress_body = TRUE;
 #else
 static gboolean http_decompress_body = FALSE;
@@ -1704,6 +1704,7 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			proto_item *e_ti = NULL;
 			proto_tree *e_tree = NULL;
 
+#ifdef HAVE_ZLIB
 			if (http_decompress_body &&
 			    (g_ascii_strcasecmp(headers.content_encoding, "gzip") == 0 ||
 			     g_ascii_strcasecmp(headers.content_encoding, "deflate") == 0 ||
@@ -1713,6 +1714,16 @@ dissect_http_message(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				uncomp_tvb = tvb_child_uncompress(tvb, next_tvb, 0,
 				    tvb_captured_length(next_tvb));
 			}
+#endif
+
+#ifdef HAVE_BROTLI
+			if (http_decompress_body &&
+			    g_ascii_strcasecmp(headers.content_encoding, "br") == 0)
+			{
+				uncomp_tvb = tvb_child_uncompress_brotli(tvb, next_tvb, 0,
+				    tvb_captured_length(next_tvb));
+			}
+#endif
 
 			/*
 			 * Add the encoded entity to the protocol tree
@@ -4017,7 +4028,7 @@ proto_register_http(void)
 	    "Whether to reassemble bodies of entities that are transferred "
 	    "using the \"Transfer-Encoding: chunked\" method",
 	    &http_dechunk_body);
-#ifdef HAVE_ZLIB
+#if defined(HAVE_ZLIB) || defined(HAVE_BROTLI)
 	prefs_register_bool_preference(http_module, "decompress_body",
 	    "Uncompress entity bodies",
 	    "Whether to uncompress entity bodies that are compressed "

@@ -65,6 +65,7 @@ option(ENABLE_PCAP_NG_DEFAULT   "Enable pcapng as default file format" ON)
 
 option(ENABLE_ZLIB       "Build with zlib compression support" ON)
 option(ENABLE_LZ4        "Build with LZ4 compression support" ON)
+option(ENABLE_BROTLI     "Build with brotli compression support" ON)
 option(ENABLE_SNAPPY     "Build with Snappy compression support" ON)
 option(ENABLE_NGHTTP2    "Build with HTTP/2 header decompression support" ON)
 option(ENABLE_LUA        "Build with Lua dissector support" ON)

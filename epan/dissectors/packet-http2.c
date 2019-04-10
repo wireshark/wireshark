@@ -65,9 +65,9 @@ VALUE_STRING_ENUM(http2_header_repr_type);
 VALUE_STRING_ARRAY(http2_header_repr_type);
 
 /*
- * Decompression of zlib encoded entities.
+ * Decompression of zlib or brotli encoded entities.
  */
-#ifdef HAVE_ZLIB
+#if defined(HAVE_ZLIB) || defined(HAVE_BROTLI)
 static gboolean http2_decompress_body = TRUE;
 #else
 static gboolean http2_decompress_body = FALSE;
@@ -1985,18 +1985,36 @@ dissect_frame_prio(tvbuff_t *tvb, proto_tree *http2_tree, guint offset, guint8 f
 }
 
 #ifdef HAVE_NGHTTP2
-static int
-can_uncompress_body(packet_info *pinfo)
+enum body_uncompression {
+    BODY_UNCOMPRESSION_NONE,
+    BODY_UNCOMPRESSION_ZLIB,
+    BODY_UNCOMPRESSION_BROTLI
+};
+
+static enum body_uncompression
+get_body_uncompression_info(packet_info *pinfo)
 {
     http2_data_stream_body_info_t *body_info = get_data_stream_body_info(pinfo);
     gchar *content_encoding = body_info->content_encoding;
 
     /* Check we have a content-encoding header appropriate as well as checking if this is partial content.
      * We can't decompress part of a gzip encoded entity */
-    return http2_decompress_body
-           && body_info->is_partial_content == FALSE
-           && content_encoding != NULL
-           && (strncmp(content_encoding, "gzip", 4) == 0 || strncmp(content_encoding, "deflate", 7) == 0);
+    if (!http2_decompress_body || body_info->is_partial_content == TRUE || content_encoding == NULL) {
+        return BODY_UNCOMPRESSION_NONE;
+    }
+
+#ifdef HAVE_ZLIB
+    if (strncmp(content_encoding, "gzip", 4) == 0 || strncmp(content_encoding, "deflate", 7) == 0) {
+        return BODY_UNCOMPRESSION_ZLIB;
+    }
+#endif
+#ifdef HAVE_BROTLI
+    if (strncmp(content_encoding, "br", 2) == 0) {
+        return BODY_UNCOMPRESSION_BROTLI;
+    }
+#endif
+
+    return BODY_UNCOMPRESSION_NONE;
 }
 
 /* Try to dissect reassembled http2.data.data according to content_type. */
@@ -2027,9 +2045,17 @@ dissect_http2_data_full_body(tvbuff_t *tvb, packet_info *pinfo, proto_tree *http
 
     gint datalen = tvb_reported_length(tvb);
 
-    if (can_uncompress_body(pinfo)) {
+    enum body_uncompression uncompression = get_body_uncompression_info(pinfo);
+    if (uncompression != BODY_UNCOMPRESSION_NONE) {
         proto_item *compressed_proto_item = NULL;
-        tvbuff_t *uncompressed_tvb = tvb_child_uncompress(tvb, tvb, 0, datalen);
+
+        tvbuff_t *uncompressed_tvb = NULL;
+        if (uncompression == BODY_UNCOMPRESSION_ZLIB) {
+            uncompressed_tvb = tvb_child_uncompress(tvb, tvb, 0, datalen);
+        } else if (uncompression == BODY_UNCOMPRESSION_BROTLI) {
+            uncompressed_tvb = tvb_child_uncompress_brotli(tvb, tvb, 0, datalen);
+        }
+
         http2_data_stream_body_info_t *body_info = get_data_stream_body_info(pinfo);
         gchar *compression_method = body_info->content_encoding;
 

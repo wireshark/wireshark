@@ -172,6 +172,7 @@ if [ "$SPANDSP_VERSION" ]; then
 fi
 BCG729_VERSION=1.0.2
 PYTHON3_VERSION=3.7.1
+BROTLI_VERSION=1.0.7
 
 #
 # GNU autotools; they're provided with releases up to Snow Leopard, but
@@ -1711,11 +1712,70 @@ uninstall_python3() {
     fi
 }
 
+install_brotli() {
+    if [ "$BROTLI_VERSION" -a ! -f brotli-$BROTLI_VERSION-done ] ; then
+        echo "Downloading, building, and installing brotli:"
+        [ -f brotli-$BROTLI_VERSION.tar.gz ] || curl -L -o brotli-$BROTLI_VERSION.tar.gz https://github.com/google/brotli/archive/v$BROTLI_VERSION.tar.gz || exit 1
+        $no_build && echo "Skipping installation" && return
+        gzcat brotli-$BROTLI_VERSION.tar.gz | tar xf - || exit 1
+        cd brotli-$BROTLI_VERSION
+        mkdir build_dir
+        cd build_dir
+        MACOSX_DEPLOYMENT_TARGET=$min_osx_target SDKROOT="$SDKPATH" cmake ../ || exit 1
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ../..
+        touch brotli-$BROTLI_VERSION-done
+    fi
+}
+
+uninstall_brotli() {
+    if [ ! -z "$installed_brotli_version" ] ; then
+        echo "Uninstalling brotli:"
+        cd brotli-$installed_brotli_version
+        #
+        # brotli uses cmake on macOS and doesn't support "make uninstall"
+        #
+        # $DO_MAKE_UNINSTALL || exit 1
+        sudo rm -rf /usr/local/bin/brotli
+        sudo rm -rf /usr/local/lib/libbrotli*
+        sudo rm -rf /usr/local/include/brotli
+        sudo rm -rf /usr/local/lib/pkgconfig/libbrotli*
+        #
+        # brotli uses cmake on macOS and doesn't support "make distclean"
+        #
+        # make distclean || exit 1
+        cd ..
+        rm brotli-$installed_brotli_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf brotli-$installed_brotli_version
+            rm -rf brotli-$installed_brotli_version.tar.gz
+        fi
+
+        installed_brotli_version=""
+    fi
+}
+
 install_all() {
     #
     # Check whether the versions we have installed are the versions
     # requested; if not, uninstall the installed versions.
     #
+    if [ ! -z "$installed_brotli_version" -a \
+              "$installed_brotli_version" != "$BROTLI_VERSION" ] ; then
+        echo "Installed brotli version is $installed_brotli_version"
+        if [ -z "$BROTLI_VERSION" ] ; then
+            echo "brotli is not requested"
+        else
+            echo "Requested brotli version is $BROTLI_VERSION"
+        fi
+        uninstall_brotli -r
+    fi
+
     if [ ! -z "$installed_python3_version" -a \
               "$installed_python3_version" != "$PYTHON3_VERSION" ] ; then
         echo "Installed python3 version is $installed_python3_version"
@@ -2188,6 +2248,8 @@ install_all() {
     install_bcg729
 
     install_python3
+
+    install_brotli
 }
 
 uninstall_all() {
@@ -2204,6 +2266,8 @@ uninstall_all() {
         # We also do a "make distclean", so that we don't have leftovers from
         # old configurations.
         #
+        uninstall_brotli
+
         uninstall_python3
 
         uninstall_bcg729
@@ -2406,6 +2470,7 @@ then
     installed_spandsp_version=`ls spandsp-*-done 2>/dev/null | sed 's/spandsp-\(.*\)-done/\1/'`
     installed_bcg729_version=`ls bcg729-*-done 2>/dev/null | sed 's/bcg729-\(.*\)-done/\1/'`
     installed_python3_version=`ls python3-*-done 2>/dev/null | sed 's/python3-\(.*\)-done/\1/'`
+    installed_brotli_version=`ls brotli-*-done 2>/dev/null | sed 's/brotli-\(.*\)-done/\1/'`
 
     cd $topdir
 fi

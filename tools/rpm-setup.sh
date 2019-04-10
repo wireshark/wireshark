@@ -106,6 +106,19 @@ add_package() {
 	eval "${list}=\"\${${list}} \${pkgname}\""
 }
 
+# Adds packages $2-$n to list variable $1 if all the packages are found
+add_packages() {
+	local list="$1" pkgnames="${@:2}"
+
+	# fail if any package is not known
+	for pkgname in $pkgnames; do
+		$PM $PM_SEARCH "$pkgname" &> /dev/null || return 1
+	done
+
+	# all packages are found, append it to list
+	eval "${list}=\"\${${list}} \${pkgnames}\""
+}
+
 # python3: OpenSUSE 43.3, Fedora 26
 # python34: Centos 7
 add_package BASIC_LIST python3 || add_package BASIC_LIST python34 ||
@@ -196,6 +209,9 @@ echo "ninja is unavailable" >&2
 
 add_package ADDITIONAL_LIST libxslt || add_package ADDITIONAL_LIST libxslt1 ||
 echo "xslt is unavailable" >&2
+
+add_package ADDITIONAL_LIST brotli-devel || add_packages ADDITIONAL_LIST libbrotli-devel libbrotlidec1 ||
+echo "brotli is unavailable" >&2
 
 ACTUAL_LIST=$BASIC_LIST
 
