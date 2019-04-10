@@ -198,7 +198,14 @@ gboolean ws_pipe_spawn_sync(gchar *dirname, gchar *command, gint argc, gchar **a
         CloseHandle(processInfo.hThread);
     }
     else
+    {
         status = FALSE;
+
+        CloseHandle(child_stdout_rd);
+        CloseHandle(child_stdout_wr);
+        CloseHandle(child_stderr_rd);
+        CloseHandle(child_stderr_wr);
+    }
 
     g_setenv("PATH", oldpath, TRUE);
 #else
@@ -272,12 +279,16 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
 
     if (!CreatePipe(&child_stdout_rd, &child_stdout_wr, &sa, 0))
     {
+        CloseHandle(child_stdin_rd);
+        CloseHandle(child_stdin_wr);
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create stdout handle");
         return FALSE;
     }
 
     if (!CreatePipe(&child_stderr_rd, &child_stderr_wr, &sa, 0))
     {
+        CloseHandle(child_stdin_rd);
+        CloseHandle(child_stdin_wr);
         CloseHandle(child_stdout_rd);
         CloseHandle(child_stdout_wr);
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create stderr handle");
