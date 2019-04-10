@@ -32,12 +32,12 @@ public:
 
 protected:
     virtual QList<QStandardItem *> valueWalker(ExtcapValueList list, QStringList &defaults);
-    void selectItemsWalker(QStandardItem * item, QStringList defaults);
+    void checkItemsWalker(QStandardItem * item, QStringList defaults);
     virtual QWidget * createEditor(QWidget * parent);
 
 private Q_SLOTS:
 
-    void selectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
+    void itemChanged(QStandardItem *);
 
 private:
 
