@@ -47,15 +47,18 @@ QList<QStandardItem *> ExtArgMultiSelect::valueWalker(ExtcapValueList list, QStr
         QStandardItem * item = new QStandardItem((*iter).value());
         if ( (*iter).enabled() == false )
         {
-            item->setSelectable(false);
+            item->setCheckable(false);
         }
         else
-            item->setSelectable(true);
+        {
+            item->setCheckable(true);
+        }
 
         item->setData((*iter).call(), Qt::UserRole);
         if ((*iter).isDefault())
             defaults << (*iter).call();
 
+        item->setSelectable(false);
         item->setEditable(false);
         QList<QStandardItem *> childs = valueWalker((*iter).children(), defaults);
         if ( childs.length() > 0 )
@@ -68,7 +71,7 @@ QList<QStandardItem *> ExtArgMultiSelect::valueWalker(ExtcapValueList list, QStr
     return items;
 }
 
-void ExtArgMultiSelect::selectItemsWalker(QStandardItem * item, QStringList defaults)
+void ExtArgMultiSelect::checkItemsWalker(QStandardItem * item, QStringList defaults)
 {
     QModelIndexList results;
     QModelIndex index;
@@ -80,7 +83,7 @@ void ExtArgMultiSelect::selectItemsWalker(QStandardItem * item, QStringList defa
             QStandardItem * child = item->child(row);
             if ( child != 0 )
             {
-                selectItemsWalker(child, defaults);
+                checkItemsWalker(child, defaults);
             }
         }
     }
@@ -89,7 +92,7 @@ void ExtArgMultiSelect::selectItemsWalker(QStandardItem * item, QStringList defa
 
     if ( defaults.contains(data) )
     {
-        treeView->selectionModel()->select(item->index(), QItemSelectionModel::Select);
+        item->setCheckState(Qt::Checked);
         index = item->index();
         while ( index.isValid() )
         {
@@ -128,11 +131,11 @@ QWidget * ExtArgMultiSelect::createEditor(QWidget * parent)
     treeView->setEditTriggers(QAbstractItemView::NoEditTriggers);
 
     for (int row = 0; row < viewModel->rowCount(); row++ )
-        selectItemsWalker(((QStandardItemModel*)viewModel)->item(row), defaults);
+        checkItemsWalker(((QStandardItemModel*)viewModel)->item(row), defaults);
 
-    connect ( treeView->selectionModel(),
-            SIGNAL(selectionChanged(const QItemSelection &, const QItemSelection &)),
-            SLOT(selectionChanged(const QItemSelection &, const QItemSelection &)) );
+    connect ( viewModel,
+            SIGNAL(itemChanged(QStandardItem *)),
+            SLOT(itemChanged(QStandardItem *)));
 
     return treeView;
 }
@@ -143,13 +146,12 @@ QString ExtArgMultiSelect::value()
         return QString();
 
     QStringList result;
-    QModelIndexList selected = treeView->selectionModel()->selectedIndexes();
-
-    if ( selected.size() <= 0 )
+    QModelIndexList checked = viewModel->match(viewModel->index(0, 0), Qt::CheckStateRole, Qt::Checked, -1, Qt::MatchExactly | Qt::MatchRecursive);
+    if ( checked.size() <= 0 )
         return QString();
 
-    QModelIndexList::const_iterator iter = selected.constBegin();
-    while ( iter != selected.constEnd() )
+    QModelIndexList::const_iterator iter = checked.constBegin();
+    while ( iter != checked.constEnd() )
     {
         QModelIndex index = (QModelIndex)(*iter);
 
@@ -161,7 +163,7 @@ QString ExtArgMultiSelect::value()
     return result.join(QString(","));
 }
 
-void ExtArgMultiSelect::selectionChanged(const QItemSelection &, const QItemSelection &)
+void ExtArgMultiSelect::itemChanged(QStandardItem *)
 {
     emit valueChanged();
 }
@@ -176,10 +178,8 @@ bool ExtArgMultiSelect::isValid()
             valid = false;
         else
         {
-            QStringList result;
-            QModelIndexList selected = treeView->selectionModel()->selectedIndexes();
-
-            if ( selected.size() <= 0 )
+            QModelIndexList checked = viewModel->match(viewModel->index(0, 0), Qt::CheckStateRole, Qt::Checked, -1, Qt::MatchExactly | Qt::MatchRecursive);
+            if ( checked.size() <= 0 )
                 valid = false;
         }
     }
