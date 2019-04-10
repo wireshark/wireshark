@@ -664,7 +664,7 @@ ScheduledCommunicationTime/timeofDayEnd DISPLAY=BASE_DEC|BASE_UNIT_STRING STRING
   proto_tree *subtree;
 %(DEFAULT_BODY)s
   if (parameter_tvb) {
-    subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_TargeteNBtoSource_eNBTransparentContainer);
+    subtree = proto_item_add_subtree(actx->created_item, ett_x2ap_EndcSONConfigurationTransfer);
     dissect_s1ap_EN_DCSONConfigurationTransfer_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
   }
 
