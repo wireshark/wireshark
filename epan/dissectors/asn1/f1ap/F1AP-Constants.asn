@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V15.4.1 (2019-01)
+-- 3GPP TS 38.473 V15.5.0 (2019-03)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -184,7 +184,7 @@ id-SRBs-ToBeSetupMod-Item							ProtocolIE-ID ::= 75
 id-SRBs-ToBeSetupMod-List							ProtocolIE-ID ::= 76
 id-TimeToWait										ProtocolIE-ID ::= 77
 id-TransactionID									ProtocolIE-ID ::= 78
-id-TransmissionStopIndicator						ProtocolIE-ID ::= 79
+id-TransmissionActionIndicator						ProtocolIE-ID ::= 79
 id-UE-associatedLogicalF1-ConnectionItem 			ProtocolIE-ID ::= 80
 id-UE-associatedLogicalF1-ConnectionListResAck		ProtocolIE-ID ::= 81
 id-gNB-CU-Name										ProtocolIE-ID ::= 82
@@ -311,6 +311,21 @@ id-ExtendedAvailablePLMN-List						ProtocolIE-ID ::= 197
 id-Associated-SCell-List							ProtocolIE-ID ::= 198
 id-latest-RRC-Version-Enhanced						ProtocolIE-ID ::= 199
 id-Associated-SCell-Item							ProtocolIE-ID ::= 200
-
+id-Cell-Direction									ProtocolIE-ID ::= 201
+id-SRBs-Setup-List									ProtocolIE-ID ::= 202
+id-SRBs-Setup-Item									ProtocolIE-ID ::= 203
+id-SRBs-SetupMod-List								ProtocolIE-ID ::= 204
+id-SRBs-SetupMod-Item								ProtocolIE-ID ::= 205
+id-SRBs-Modified-List								ProtocolIE-ID ::= 206
+id-SRBs-Modified-Item								ProtocolIE-ID ::= 207
+id-Ph-InfoSCG										ProtocolIE-ID ::= 208
+id-RequestedBandCombinationIndex					ProtocolIE-ID ::= 209
+id-RequestedFeatureSetEntryIndex					ProtocolIE-ID ::= 210
+id-RequestedP-MaxFR2								ProtocolIE-ID ::= 211
+id-DRX-Config										ProtocolIE-ID ::= 212
+id-IgnoreResourceCoordinationContainer				ProtocolIE-ID ::= 213
+id-UEAssistanceInformation							ProtocolIE-ID ::= 214
+id-NeedforGap										ProtocolIE-ID ::= 215
+id-PagingOrigin										ProtocolIE-ID ::= 216
 
 END

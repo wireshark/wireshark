@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V15.4.1 (2019-01)
+-- 3GPP TS 38.473 V15.5.0 (2019-03)
 -- 9.4.4	PDU Definitions
 -- **************************************************************
 --
@@ -89,9 +89,12 @@ IMPORTS
 	SRBs-ToBeReleased-Item,
 	SRBs-ToBeSetup-Item,
 	SRBs-ToBeSetupMod-Item,
+	SRBs-Modified-Item,
+	SRBs-Setup-Item,
+	SRBs-SetupMod-Item,
 	TimeToWait,
 	TransactionID,
-	TransmissionStopIndicator,
+	TransmissionActionIndicator,
 	UE-associatedLogicalF1-ConnectionItem,
 	DUtoCURRCContainer,
 	PagingCell-Item, 
@@ -130,10 +133,13 @@ IMPORTS
 	RRC-Version,
 	GNBDUOverloadInformation,
 	RRCDeliveryStatusRequest,
+	NeedforGap,
 	RRCDeliveryStatus,
 	ResourceCoordinationTransferInformation,
 	Dedicated-SIDelivery-NeededUE-Item,
-	Associated-SCell-Item
+	Associated-SCell-Item,
+	IgnoreResourceCoordinationContainer,
+	PagingOrigin
 
 FROM F1AP-IEs
 
@@ -249,9 +255,15 @@ FROM F1AP-Containers
 	id-SRBs-ToBeSetup-List,
 	id-SRBs-ToBeSetupMod-Item,
 	id-SRBs-ToBeSetupMod-List,
+	id-SRBs-Modified-Item,
+	id-SRBs-Modified-List,
+	id-SRBs-Setup-Item,
+	id-SRBs-Setup-List,
+	id-SRBs-SetupMod-Item,
+	id-SRBs-SetupMod-List,
 	id-TimeToWait,
 	id-TransactionID,
-	id-TransmissionStopIndicator,
+	id-TransmissionActionIndicator,
 	id-UE-associatedLogicalF1-ConnectionItem,
 	id-UE-associatedLogicalF1-ConnectionListResAck,
 	id-DUtoCURRCContainer,
@@ -306,6 +318,7 @@ FROM F1AP-Containers
 	id-GNB-CU-RRC-Version,
 	id-GNB-DU-RRC-Version,
 	id-GNBDUOverloadInformation,
+	id-NeedforGap,
 	id-RRCDeliveryStatusRequest,
 	id-RRCDeliveryStatus,
 	id-Dedicated-SIDelivery-NeededUE-List,
@@ -313,6 +326,8 @@ FROM F1AP-Containers
 	id-ResourceCoordinationTransferInformation,
 	id-Associated-SCell-List,
 	id-Associated-SCell-Item,
+	id-IgnoreResourceCoordinationContainer,
+	id-PagingOrigin,
 	maxCellingNBDU,
 	maxnoofCandidateSpCells,
 	maxnoofDRBs,
@@ -537,7 +552,8 @@ GNBDUConfigurationUpdateIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-Served-Cells-To-Modify-List		CRITICALITY reject	TYPE Served-Cells-To-Modify-List					PRESENCE optional	}|
 	{ ID id-Served-Cells-To-Delete-List		CRITICALITY reject	TYPE Served-Cells-To-Delete-List					PRESENCE optional	}|
 	{ ID id-Cells-Status-List				CRITICALITY reject	TYPE Cells-Status-List							PRESENCE optional	}|
-	{ ID id-Dedicated-SIDelivery-NeededUE-List	CRITICALITY ignore	TYPE Dedicated-SIDelivery-NeededUE-List				PRESENCE optional	},
+	{ ID id-Dedicated-SIDelivery-NeededUE-List	CRITICALITY ignore	TYPE Dedicated-SIDelivery-NeededUE-List				PRESENCE optional	}|
+	{ ID id-gNB-DU-ID							CRITICALITY reject	TYPE GNB-DU-ID									PRESENCE optional	},
 	...
 } 
 
@@ -588,7 +604,8 @@ GNBDUConfigurationUpdateAcknowledge ::= SEQUENCE {
 GNBDUConfigurationUpdateAcknowledgeIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-TransactionID					CRITICALITY reject	TYPE TransactionID						PRESENCE mandatory	}|
 	{ ID id-Cells-to-be-Activated-List		CRITICALITY reject	TYPE Cells-to-be-Activated-List			PRESENCE optional	}|
-	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional	},
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics				PRESENCE optional	}|
+	{ ID id-Cells-to-be-Deactivated-List		CRITICALITY reject	TYPE Cells-to-be-Deactivated-List			PRESENCE optional	},
 	...
 }
 
@@ -756,7 +773,8 @@ GNBDUResourceCoordinationRequest ::= SEQUENCE {
 GNBDUResourceCoordinationRequest-IEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-TransactionID									CRITICALITY reject	TYPE TransactionID						PRESENCE mandatory	}|
 	{ ID id-RequestType	CRITICALITY reject	TYPE RequestType						PRESENCE mandatory	}|
-	{ ID id-EUTRA-NR-CellResourceCoordinationReq-Container	CRITICALITY reject	TYPE EUTRA-NR-CellResourceCoordinationReq-Container		PRESENCE mandatory},
+	{ ID id-EUTRA-NR-CellResourceCoordinationReq-Container	CRITICALITY reject	TYPE EUTRA-NR-CellResourceCoordinationReq-Container		PRESENCE mandatory}|
+	{ ID id-IgnoreResourceCoordinationContainer	CRITICALITY reject	TYPE IgnoreResourceCoordinationContainer		PRESENCE optional },
 	...
 }
 
@@ -873,17 +891,26 @@ UEContextSetupResponseIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-DRBs-FailedToBeSetup-List				CRITICALITY ignore	TYPE DRBs-FailedToBeSetup-List					PRESENCE optional	}|
 	{ ID id-SCell-FailedtoSetup-List				CRITICALITY ignore	TYPE SCell-FailedtoSetup-List					PRESENCE optional	}|
 	{ ID id-InactivityMonitoringResponse			CRITICALITY reject	TYPE InactivityMonitoringResponse				PRESENCE optional	}|
-	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional	},
+	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional	}|
+	{ ID id-SRBs-Setup-List							CRITICALITY ignore	TYPE SRBs-Setup-List									PRESENCE optional	},
 	...
 }
 
 DRBs-Setup-List ::= SEQUENCE (SIZE(1..maxnoofDRBs)) OF ProtocolIE-SingleContainer { { DRBs-Setup-ItemIEs} }
+
+
 SRBs-FailedToBeSetup-List ::= SEQUENCE (SIZE(1..maxnoofSRBs)) OF ProtocolIE-SingleContainer { { SRBs-FailedToBeSetup-ItemIEs} }
 DRBs-FailedToBeSetup-List ::= SEQUENCE (SIZE(1..maxnoofDRBs)) OF ProtocolIE-SingleContainer { { DRBs-FailedToBeSetup-ItemIEs} }
 SCell-FailedtoSetup-List ::= SEQUENCE (SIZE(1..maxnoofSCells)) OF ProtocolIE-SingleContainer { { SCell-FailedtoSetup-ItemIEs} }
+SRBs-Setup-List ::= SEQUENCE (SIZE(1..maxnoofSRBs)) OF ProtocolIE-SingleContainer { { SRBs-Setup-ItemIEs} }
 
 DRBs-Setup-ItemIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-DRBs-Setup-Item						CRITICALITY ignore	TYPE DRBs-Setup-Item						PRESENCE mandatory},
+	...
+}
+
+SRBs-Setup-ItemIEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-SRBs-Setup-Item						CRITICALITY ignore	TYPE SRBs-Setup-Item						PRESENCE mandatory},
 	...
 }
 
@@ -1028,7 +1055,7 @@ UEContextModificationRequestIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-SpCellULConfigured						CRITICALITY ignore	TYPE CellULConfigured								PRESENCE optional	}|
 	{ ID id-DRXCycle								CRITICALITY ignore	TYPE DRXCycle										PRESENCE optional	}|
 	{ ID id-CUtoDURRCInformation					CRITICALITY reject	TYPE CUtoDURRCInformation							PRESENCE optional	}|
-	{ ID id-TransmissionStopIndicator				CRITICALITY ignore	TYPE TransmissionStopIndicator					PRESENCE optional	}|
+	{ ID id-TransmissionActionIndicator				CRITICALITY ignore	TYPE TransmissionActionIndicator					PRESENCE optional	}|
 	{ ID id-ResourceCoordinationTransferContainer	CRITICALITY ignore	TYPE ResourceCoordinationTransferContainer	PRESENCE optional	}|
 	{ ID id-RRCReconfigurationCompleteIndicator		CRITICALITY ignore	TYPE RRCReconfigurationCompleteIndicator		PRESENCE optional	}|
 	{ ID id-RRCContainer							CRITICALITY reject	TYPE RRCContainer									PRESENCE optional	}|
@@ -1049,7 +1076,8 @@ UEContextModificationRequestIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-ExecuteDuplication						CRITICALITY ignore	TYPE ExecuteDuplication								PRESENCE optional}|
 	{ ID id-RRCDeliveryStatusRequest			CRITICALITY ignore	TYPE RRCDeliveryStatusRequest							PRESENCE optional }|
 	{ ID id-ResourceCoordinationTransferInformation	CRITICALITY ignore	TYPE ResourceCoordinationTransferInformation	PRESENCE optional	}|
-	{ ID id-ServingCellMO						CRITICALITY ignore	TYPE ServingCellMO										PRESENCE optional	},
+	{ ID id-ServingCellMO						CRITICALITY ignore	TYPE ServingCellMO										PRESENCE optional	}|
+	{ ID id-NeedforGap						CRITICALITY ignore	TYPE NeedforGap										PRESENCE optional	},
 	...
 } 
 
@@ -1126,13 +1154,17 @@ UEContextModificationResponseIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-InactivityMonitoringResponse			CRITICALITY reject	TYPE InactivityMonitoringResponse				PRESENCE optional	}|
 	{ ID id-CriticalityDiagnostics					CRITICALITY ignore	TYPE CriticalityDiagnostics						PRESENCE optional	}|
 	{ ID id-C-RNTI									CRITICALITY ignore	TYPE C-RNTI											PRESENCE optional	}|
-	{ ID id-Associated-SCell-List					CRITICALITY ignore  TYPE Associated-SCell-List						PRESENCE optional	},
+	{ ID id-Associated-SCell-List					CRITICALITY ignore  TYPE Associated-SCell-List						PRESENCE optional	}|
+	{ ID id-SRBs-SetupMod-List						CRITICALITY ignore	TYPE SRBs-SetupMod-List								PRESENCE optional	}|
+	{ ID id-SRBs-Modified-List						CRITICALITY ignore	TYPE SRBs-Modified-List								PRESENCE optional	},
 	...
 }
 
 
 DRBs-SetupMod-List ::= SEQUENCE (SIZE(1..maxnoofDRBs)) OF ProtocolIE-SingleContainer { { DRBs-SetupMod-ItemIEs} }
-DRBs-Modified-List::= SEQUENCE (SIZE(1..maxnoofDRBs)) OF ProtocolIE-SingleContainer { { DRBs-Modified-ItemIEs } }
+DRBs-Modified-List::= SEQUENCE (SIZE(1..maxnoofDRBs)) OF ProtocolIE-SingleContainer { { DRBs-Modified-ItemIEs } } 
+SRBs-SetupMod-List ::= SEQUENCE (SIZE(1..maxnoofSRBs)) OF ProtocolIE-SingleContainer { { SRBs-SetupMod-ItemIEs} }
+SRBs-Modified-List ::= SEQUENCE (SIZE(1..maxnoofSRBs)) OF ProtocolIE-SingleContainer { { SRBs-Modified-ItemIEs } }
 DRBs-FailedToBeModified-List ::= SEQUENCE (SIZE(1..maxnoofDRBs)) OF ProtocolIE-SingleContainer { { DRBs-FailedToBeModified-ItemIEs} }
 SRBs-FailedToBeSetupMod-List ::= SEQUENCE (SIZE(1..maxnoofSRBs)) OF ProtocolIE-SingleContainer { { SRBs-FailedToBeSetupMod-ItemIEs} }
 DRBs-FailedToBeSetupMod-List ::= SEQUENCE (SIZE(1..maxnoofDRBs)) OF ProtocolIE-SingleContainer { { DRBs-FailedToBeSetupMod-ItemIEs} }
@@ -1148,6 +1180,17 @@ DRBs-SetupMod-ItemIEs F1AP-PROTOCOL-IES ::= {
 
 DRBs-Modified-ItemIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-DRBs-Modified-Item			CRITICALITY ignore	TYPE DRBs-Modified-Item		PRESENCE mandatory},
+	...
+}
+
+SRBs-SetupMod-ItemIEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-SRBs-SetupMod-Item		CRITICALITY ignore		TYPE SRBs-SetupMod-Item		PRESENCE mandatory},
+	...
+}
+
+
+SRBs-Modified-ItemIEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-SRBs-Modified-Item			CRITICALITY ignore	TYPE SRBs-Modified-Item		PRESENCE mandatory},
 	...
 }
 
@@ -1279,6 +1322,25 @@ DRBs-ModifiedConf-ItemIEs F1AP-PROTOCOL-IES ::= {
 	...
 }
 
+-- **************************************************************
+--
+-- UE CONTEXT MODIFICATION REFUSE
+--
+-- **************************************************************
+
+UEContextModificationRefuse::= SEQUENCE {
+	protocolIEs			ProtocolIE-Container       { { UEContextModificationRefuseIEs} },
+	...
+}
+
+
+UEContextModificationRefuseIEs F1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-UE-F1AP-ID				CRITICALITY reject	TYPE GNB-CU-UE-F1AP-ID				PRESENCE mandatory	}|
+	{ ID id-gNB-DU-UE-F1AP-ID				CRITICALITY reject	TYPE GNB-DU-UE-F1AP-ID				PRESENCE mandatory	}|
+	{ ID id-Cause							CRITICALITY ignore	TYPE Cause							PRESENCE mandatory	}|
+	{ ID id-CriticalityDiagnostics			CRITICALITY ignore	TYPE CriticalityDiagnostics			PRESENCE optional	},
+	...
+}
 
 
 -- ************************************************************** 
@@ -1452,7 +1514,8 @@ InitialULRRCMessageTransferIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-C-RNTI					CRITICALITY reject	TYPE C-RNTI						PRESENCE mandatory	}|
 	{ ID id-RRCContainer				CRITICALITY reject	TYPE RRCContainer				PRESENCE mandatory	}|
 	{ ID id-DUtoCURRCContainer		CRITICALITY reject	TYPE DUtoCURRCContainer			PRESENCE optional	}|
-	{ ID id-SULAccessIndication		CRITICALITY ignore	TYPE SULAccessIndication		PRESENCE optional	},
+	{ ID id-SULAccessIndication		CRITICALITY ignore	TYPE SULAccessIndication		PRESENCE optional	}|
+	{ ID id-TransactionID			CRITICALITY ignore	TYPE TransactionID				PRESENCE mandatory	},
 	...
 }
 
@@ -1574,7 +1637,8 @@ PagingIEs F1AP-PROTOCOL-IES ::= {
 	{ ID id-PagingIdentity			CRITICALITY reject	TYPE PagingIdentity				PRESENCE mandatory	}|
 	{ ID id-PagingDRX				CRITICALITY ignore	TYPE PagingDRX					PRESENCE optional	}|
 	{ ID id-PagingPriority			CRITICALITY ignore	TYPE PagingPriority				PRESENCE optional	}|
-	{ ID id-PagingCell-List			CRITICALITY ignore	TYPE PagingCell-list			PRESENCE mandatory	},
+	{ ID id-PagingCell-List			CRITICALITY ignore	TYPE PagingCell-list			PRESENCE mandatory	}|
+	{ ID id-PagingOrigin			CRITICALITY ignore	TYPE PagingOrigin				PRESENCE optional	},
 	...
 }
 

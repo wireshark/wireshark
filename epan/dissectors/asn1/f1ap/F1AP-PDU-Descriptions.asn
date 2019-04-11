@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V15.4.1 (2019-01)
+-- 3GPP TS 38.473 V15.5.0 (2019-03)
 -- 9.4.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -65,7 +65,8 @@ FROM F1AP-CommonDataTypes
 	PWSRestartIndication,
 	PWSFailureIndication,
 	GNBDUStatusIndication,
-	RRCDeliveryReport
+	RRCDeliveryReport,
+	UEContextModificationRefuse
 
 FROM F1AP-PDU-Contents
 	id-Reset,
@@ -220,7 +221,7 @@ reset F1AP-ELEMENTARY-PROCEDURE ::= {
 f1Setup F1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		F1SetupRequest
 	SUCCESSFUL OUTCOME		F1SetupResponse
-	UNSUCCESSFUL 			OUTCOME	F1SetupFailure
+	UNSUCCESSFUL OUTCOME	F1SetupFailure
 	PROCEDURE CODE			id-F1Setup
 	CRITICALITY				reject
 }
@@ -267,6 +268,7 @@ uEContextModification F1AP-ELEMENTARY-PROCEDURE ::= {
 uEContextModificationRequired F1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		UEContextModificationRequired
 	SUCCESSFUL OUTCOME		UEContextModificationConfirm
+	UNSUCCESSFUL OUTCOME		UEContextModificationRefuse
 	PROCEDURE CODE			id-UEContextModificationRequired
 	CRITICALITY				reject
 }

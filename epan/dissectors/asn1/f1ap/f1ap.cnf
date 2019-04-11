@@ -211,7 +211,7 @@ id-SRBs-ToBeSetupMod-Item                            ProtocolIE-ID
 id-SRBs-ToBeSetupMod-List                            ProtocolIE-ID
 id-TimeToWait                                        ProtocolIE-ID
 id-TransactionID                                     ProtocolIE-ID
-id-TransmissionStopIndicator                         ProtocolIE-ID
+id-TransmissionActionIndicator                       ProtocolIE-ID
 id-UE-associatedLogicalF1-ConnectionItem             ProtocolIE-ID
 id-UE-associatedLogicalF1-ConnectionListResAck       ProtocolIE-ID
 id-gNB-CU-Name                                       ProtocolIE-ID
@@ -326,6 +326,22 @@ id-ExtendedAvailablePLMN-List                        ProtocolIE-ID
 id-Associated-SCell-List                             ProtocolIE-ID
 id-latest-RRC-Version-Enhanced                       ProtocolIE-ID
 id-Associated-SCell-Item                             ProtocolIE-ID
+id-Cell-Direction                                    ProtocolIE-ID
+id-SRBs-Setup-List                                   ProtocolIE-ID
+id-SRBs-Setup-Item                                   ProtocolIE-ID
+id-SRBs-SetupMod-List                                ProtocolIE-ID
+id-SRBs-SetupMod-Item                                ProtocolIE-ID
+id-SRBs-Modified-List                                ProtocolIE-ID
+id-SRBs-Modified-Item                                ProtocolIE-ID
+id-Ph-InfoSCG                                        ProtocolIE-ID
+id-RequestedBandCombinationIndex                     ProtocolIE-ID
+id-RequestedFeatureSetEntryIndex                     ProtocolIE-ID
+id-RequestedP-MaxFR2                                 ProtocolIE-ID
+id-DRX-Config                                        ProtocolIE-ID
+id-IgnoreResourceCoordinationContainer               ProtocolIE-ID
+id-UEAssistanceInformation                           ProtocolIE-ID
+id-NeedforGap                                        ProtocolIE-ID
+id-PagingOrigin                                      ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -406,7 +422,7 @@ SRBs-ToBeSetupMod-Item                            N f1ap.ies id-SRBs-ToBeSetupMo
 SRBs-ToBeSetupMod-List                            N f1ap.ies id-SRBs-ToBeSetupMod-List
 TimeToWait                                        N f1ap.ies id-TimeToWait
 TransactionID                                     N f1ap.ies id-TransactionID
-TransmissionStopIndicator                         N f1ap.ies id-TransmissionStopIndicator
+TransmissionActionIndicator                       N f1ap.ies id-TransmissionActionIndicator
 UE-associatedLogicalF1-ConnectionItem             N f1ap.ies id-UE-associatedLogicalF1-ConnectionItem
 UE-associatedLogicalF1-ConnectionListResAck       N f1ap.ies id-UE-associatedLogicalF1-ConnectionListResAck
 GNB-CU-Name                                       N f1ap.ies id-gNB-CU-Name
@@ -495,6 +511,15 @@ Dedicated-SIDelivery-NeededUE-List                N f1ap.ies id-Dedicated-SIDeli
 Dedicated-SIDelivery-NeededUE-Item                N f1ap.ies id-Dedicated-SIDelivery-NeededUE-Item
 Associated-SCell-List                             N f1ap.ies id-Associated-SCell-List
 Associated-SCell-Item                             N f1ap.ies id-Associated-SCell-Item
+SRBs-Setup-List                                   N f1ap.ies id-SRBs-Setup-List
+SRBs-Setup-Item                                   N f1ap.ies id-SRBs-Setup-Item
+SRBs-SetupMod-List                                N f1ap.ies id-SRBs-SetupMod-List
+SRBs-SetupMod-Item                                N f1ap.ies id-SRBs-SetupMod-Item
+SRBs-Modified-List                                N f1ap.ies id-SRBs-Modified-List
+SRBs-Modified-Item                                N f1ap.ies id-SRBs-Modified-Item
+IgnoreResourceCoordinationContainer               N f1ap.ies id-IgnoreResourceCoordinationContainer
+NeedforGap                                        N f1ap.ies id-NeedforGap
+PagingOrigin                                      N f1ap.ies id-PagingOrigin
 
 #F1AP-PROTOCOL-EXTENSION
 GNB-CUSystemInformation                           N f1ap.extension id-gNB-CUSystemInformation
@@ -523,6 +548,13 @@ ResourceCoordinationTransferInformation           N f1ap.extension id-ResourceCo
 ExtendedServedPLMNs-List                          N f1ap.extension id-ExtendedServedPLMNs-List
 ExtendedAvailablePLMN-List                        N f1ap.extension id-ExtendedAvailablePLMN-List
 Latest-RRC-Version-Enhanced                       N f1ap.extension id-latest-RRC-Version-Enhanced
+Cell-Direction                                    N f1ap.extension id-Cell-Direction
+Ph-InfoSCG                                        N f1ap.extension id-Ph-InfoSCG
+RequestedBandCombinationIndex                     N f1ap.extension id-RequestedBandCombinationIndex
+RequestedFeatureSetEntryIndex                     N f1ap.extension id-RequestedFeatureSetEntryIndex
+RequestedP-MaxFR2                                 N f1ap.extension id-RequestedP-MaxFR2
+DRX-Config                                        N f1ap.extension id-DRX-Config
+UEAssistanceInformation                           N f1ap.extension id-UEAssistanceInformation
 
 #F1AP-ELEMENTARY-PROCEDURE
 Reset                               N f1ap.proc.imsg id-Reset
@@ -553,6 +585,7 @@ UEContextModificationFailure        N f1ap.proc.uout id-UEContextModification
 
 UEContextModificationRequired       N f1ap.proc.imsg id-UEContextModificationRequired
 UEContextModificationConfirm        N f1ap.proc.sout id-UEContextModificationRequired
+UEContextModificationRefuse         N f1ap.proc.uout id-UEContextModificationRequired
 
 WriteReplaceWarningRequest          N f1ap.proc.imsg id-WriteReplaceWarning
 WriteReplaceWarningResponse         N f1ap.proc.sout id-WriteReplaceWarning
@@ -919,6 +952,54 @@ MaximumDataBurstVolume DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_byte_byt
     }
   }
 
+#.FN_BODY DRX-Config VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_DRX_Config);
+    dissect_nr_rrc_DRX_Config_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY Ph-InfoSCG VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_Ph_InfoSCG);
+    dissect_nr_rrc_PH_TypeListSCG_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY RequestedBandCombinationIndex VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_RequestedBandCombinationIndex);
+    dissect_nr_rrc_BandCombinationIndex_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY RequestedFeatureSetEntryIndex VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_RequestedFeatureSetEntryIndex);
+    dissect_nr_rrc_FeatureSetEntryIndex_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY RequestedP-MaxFR2 VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_RequestedP_MaxFR2);
+    dissect_nr_rrc_P_Max_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY UEAssistanceInformation VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_UEAssistanceInformation);
+    dissect_nr_rrc_UEAssistanceInformation_PDU(param_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.FN_HDR Reset
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Reset");
 #.FN_HDR ResetAcknowledge
@@ -961,6 +1042,8 @@ MaximumDataBurstVolume DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_byte_byt
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextModificationRequired");
 #.FN_HDR UEContextModificationConfirm
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextModificationConfirm");
+#.FN_HDR UEContextModificationRefuse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UEContextModificationRefuse");
 #.FN_HDR WriteReplaceWarningRequest
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "WriteReplaceWarningRequest");
 #.FN_HDR WriteReplaceWarningResponse

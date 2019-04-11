@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.473 V15.4.1 (2019-01)
+ * References: 3GPP TS 38.473 V15.5.0 (2019-03)
  */
 
 #include "config.h"
@@ -64,6 +64,12 @@ static gint ett_f1ap_ProtectedEUTRAResourceIndication = -1;
 static gint ett_f1ap_RRCContainer = -1;
 static gint ett_f1ap_sIBmessage = -1;
 static gint ett_f1ap_UplinkTxDirectCurrentListInformation = -1;
+static gint ett_f1ap_DRX_Config = -1;
+static gint ett_f1ap_Ph_InfoSCG = -1;
+static gint ett_f1ap_RequestedBandCombinationIndex = -1;
+static gint ett_f1ap_RequestedFeatureSetEntryIndex = -1;
+static gint ett_f1ap_RequestedP_MaxFR2 = -1;
+static gint ett_f1ap_UEAssistanceInformation = -1;
 #include "packet-f1ap-ett.c"
 
 enum{
@@ -235,6 +241,12 @@ void proto_register_f1ap(void) {
     &ett_f1ap_RRCContainer,
     &ett_f1ap_sIBmessage,
     &ett_f1ap_UplinkTxDirectCurrentListInformation,
+    &ett_f1ap_DRX_Config,
+    &ett_f1ap_Ph_InfoSCG,
+    &ett_f1ap_RequestedBandCombinationIndex,
+    &ett_f1ap_RequestedFeatureSetEntryIndex,
+    &ett_f1ap_RequestedP_MaxFR2,
+    &ett_f1ap_UEAssistanceInformation,
 #include "packet-f1ap-ettarr.c"
   };
 

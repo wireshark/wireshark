@@ -249,9 +249,12 @@ static int proto_nr_rrc = -1;
 static int hf_nr_rrc_nr_rrc_HandoverCommand_PDU = -1;  /* HandoverCommand */
 static int hf_nr_rrc_nr_rrc_HandoverPreparationInformation_PDU = -1;  /* HandoverPreparationInformation */
 static int hf_nr_rrc_nr_rrc_CG_Config_PDU = -1;   /* CG_Config */
+static int hf_nr_rrc_nr_rrc_PH_TypeListSCG_PDU = -1;  /* PH_TypeListSCG */
+static int hf_nr_rrc_nr_rrc_BandCombinationIndex_PDU = -1;  /* BandCombinationIndex */
 static int hf_nr_rrc_nr_rrc_BandCombinationInfoSN_PDU = -1;  /* BandCombinationInfoSN */
 static int hf_nr_rrc_nr_rrc_CG_ConfigInfo_PDU = -1;  /* CG_ConfigInfo */
 static int hf_nr_rrc_nr_rrc_ConfigRestrictInfoSCG_PDU = -1;  /* ConfigRestrictInfoSCG */
+static int hf_nr_rrc_nr_rrc_FeatureSetEntryIndex_PDU = -1;  /* FeatureSetEntryIndex */
 static int hf_nr_rrc_nr_rrc_MeasurementTimingConfiguration_PDU = -1;  /* MeasurementTimingConfiguration */
 static int hf_nr_rrc_UERadioPagingInformation_PDU = -1;  /* UERadioPagingInformation */
 static int hf_nr_rrc_UERadioAccessCapabilityInformation_PDU = -1;  /* UERadioAccessCapabilityInformation */
@@ -267,6 +270,7 @@ static int hf_nr_rrc_nr_rrc_MIB_PDU = -1;         /* MIB */
 static int hf_nr_rrc_nr_rrc_RRCReconfiguration_PDU = -1;  /* RRCReconfiguration */
 static int hf_nr_rrc_nr_rrc_RRCReconfigurationComplete_PDU = -1;  /* RRCReconfigurationComplete */
 static int hf_nr_rrc_nr_rrc_SIB1_PDU = -1;        /* SIB1 */
+static int hf_nr_rrc_nr_rrc_UEAssistanceInformation_PDU = -1;  /* UEAssistanceInformation */
 static int hf_nr_rrc_nr_rrc_SIB2_PDU = -1;        /* SIB2 */
 static int hf_nr_rrc_nr_rrc_SIB3_PDU = -1;        /* SIB3 */
 static int hf_nr_rrc_nr_rrc_SIB4_PDU = -1;        /* SIB4 */
@@ -276,6 +280,7 @@ static int hf_nr_rrc_nr_rrc_SIB7_PDU = -1;        /* SIB7 */
 static int hf_nr_rrc_nr_rrc_SIB8_PDU = -1;        /* SIB8 */
 static int hf_nr_rrc_nr_rrc_SIB9_PDU = -1;        /* SIB9 */
 static int hf_nr_rrc_nr_rrc_CellGroupConfig_PDU = -1;  /* CellGroupConfig */
+static int hf_nr_rrc_nr_rrc_DRX_Config_PDU = -1;  /* DRX_Config */
 static int hf_nr_rrc_nr_rrc_MeasConfig_PDU = -1;  /* MeasConfig */
 static int hf_nr_rrc_nr_rrc_MeasGapConfig_PDU = -1;  /* MeasGapConfig */
 static int hf_nr_rrc_nr_rrc_MeasResultSCG_Failure_PDU = -1;  /* MeasResultSCG_Failure */
@@ -287,7 +292,6 @@ static int hf_nr_rrc_nr_rrc_UE_CapabilityRAT_ContainerList_PDU = -1;  /* UE_Capa
 static int hf_nr_rrc_nr_rrc_UE_CapabilityRequestFilterNR_PDU = -1;  /* UE_CapabilityRequestFilterNR */
 static int hf_nr_rrc_nr_rrc_UE_MRDC_Capability_PDU = -1;  /* UE_MRDC_Capability */
 static int hf_nr_rrc_nr_rrc_UE_NR_Capability_PDU = -1;  /* UE_NR_Capability */
-static int hf_nr_rrc_UEAssistanceInformation_PDU = -1;  /* UEAssistanceInformation */
 static int hf_nr_rrc_MeasResultList2NR_PDU = -1;  /* MeasResultList2NR */
 static int hf_nr_rrc_SystemInformation_PDU = -1;  /* SystemInformation */
 static int hf_nr_rrc_criticalExtensions = -1;     /* T_criticalExtensions */
@@ -4549,7 +4553,6 @@ nr_rrc_SINR_Range_fmt(gchar *s, guint32 v)
 /*--- Included file: packet-nr-rrc-fn.c ---*/
 #line 1 "./asn1/nr-rrc/packet-nr-rrc-fn.c"
 /*--- PDUs declarations ---*/
-static int dissect_UEAssistanceInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_MeasResultList2NR_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_SystemInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
@@ -5464,6 +5467,8 @@ dissect_nr_rrc_ReestablishmentInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 static int
 dissect_nr_rrc_BandCombinationIndex(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  proto_item *prot_ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
+  proto_item_set_hidden(prot_ti);
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             1U, maxBandComb, NULL, FALSE);
 
@@ -5474,6 +5479,8 @@ dissect_nr_rrc_BandCombinationIndex(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 static int
 dissect_nr_rrc_FeatureSetEntryIndex(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  proto_item *prot_ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
+  proto_item_set_hidden(prot_ti);
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             1U, maxFeatureSetsPerBand, NULL, FALSE);
 
@@ -5769,7 +5776,7 @@ dissect_nr_rrc_AS_Context_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 static int
 dissect_nr_rrc_T_ueAssistanceInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
-                                                                NO_BOUND, NO_BOUND, FALSE, dissect_UEAssistanceInformation_PDU);
+                                                                NO_BOUND, NO_BOUND, FALSE, dissect_nr_rrc_UEAssistanceInformation_PDU);
 
   return offset;
 }
@@ -20762,6 +20769,8 @@ static const per_sequence_t UEAssistanceInformation_sequence[] = {
 
 static int
 dissect_nr_rrc_UEAssistanceInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  proto_item *prot_ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
+  proto_item_set_hidden(prot_ti);
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UE Assistance Information");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -41353,6 +41362,26 @@ int dissect_nr_rrc_CG_Config_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, prot
   offset += 7; offset >>= 3;
   return offset;
 }
+int dissect_nr_rrc_PH_TypeListSCG_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  proto_item *prot_ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
+  proto_item_set_hidden(prot_ti);
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_nr_rrc_PH_TypeListSCG(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_nr_rrc_PH_TypeListSCG_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+int dissect_nr_rrc_BandCombinationIndex_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  proto_item *prot_ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
+  proto_item_set_hidden(prot_ti);
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_nr_rrc_BandCombinationIndex(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_nr_rrc_BandCombinationIndex_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 int dissect_nr_rrc_BandCombinationInfoSN_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   proto_item *prot_ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
   proto_item_set_hidden(prot_ti);
@@ -41380,6 +41409,16 @@ int dissect_nr_rrc_ConfigRestrictInfoSCG_PDU(tvbuff_t *tvb _U_, packet_info *pin
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
   offset = dissect_nr_rrc_ConfigRestrictInfoSCG(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_nr_rrc_ConfigRestrictInfoSCG_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+int dissect_nr_rrc_FeatureSetEntryIndex_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  proto_item *prot_ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
+  proto_item_set_hidden(prot_ti);
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_nr_rrc_FeatureSetEntryIndex(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_nr_rrc_FeatureSetEntryIndex_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -41533,6 +41572,16 @@ int dissect_nr_rrc_SIB1_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
   offset += 7; offset >>= 3;
   return offset;
 }
+int dissect_nr_rrc_UEAssistanceInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  proto_item *prot_ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
+  proto_item_set_hidden(prot_ti);
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_nr_rrc_UEAssistanceInformation(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_nr_rrc_UEAssistanceInformation_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 int dissect_nr_rrc_SIB2_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   proto_item *prot_ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
   proto_item_set_hidden(prot_ti);
@@ -41620,6 +41669,16 @@ int dissect_nr_rrc_CellGroupConfig_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
   offset = dissect_nr_rrc_CellGroupConfig(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_nr_rrc_CellGroupConfig_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+int dissect_nr_rrc_DRX_Config_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  proto_item *prot_ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
+  proto_item_set_hidden(prot_ti);
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_nr_rrc_DRX_Config(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_nr_rrc_DRX_Config_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -41733,16 +41792,6 @@ int dissect_nr_rrc_UE_NR_Capability_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
   offset += 7; offset >>= 3;
   return offset;
 }
-static int dissect_UEAssistanceInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
-  proto_item *prot_ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
-  proto_item_set_hidden(prot_ti);
-  int offset = 0;
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
-  offset = dissect_nr_rrc_UEAssistanceInformation(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_UEAssistanceInformation_PDU);
-  offset += 7; offset >>= 3;
-  return offset;
-}
 static int dissect_MeasResultList2NR_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   proto_item *prot_ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
   proto_item_set_hidden(prot_ti);
@@ -41789,6 +41838,14 @@ proto_register_nr_rrc(void) {
       { "CG-Config", "nr-rrc.CG_Config_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_nr_rrc_nr_rrc_PH_TypeListSCG_PDU,
+      { "PH-TypeListSCG", "nr-rrc.PH_TypeListSCG",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_nr_rrc_BandCombinationIndex_PDU,
+      { "BandCombinationIndex", "nr-rrc.BandCombinationIndex",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_nr_rrc_nr_rrc_BandCombinationInfoSN_PDU,
       { "BandCombinationInfoSN", "nr-rrc.BandCombinationInfoSN_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -41800,6 +41857,10 @@ proto_register_nr_rrc(void) {
     { &hf_nr_rrc_nr_rrc_ConfigRestrictInfoSCG_PDU,
       { "ConfigRestrictInfoSCG", "nr-rrc.ConfigRestrictInfoSCG_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_nr_rrc_FeatureSetEntryIndex_PDU,
+      { "FeatureSetEntryIndex", "nr-rrc.FeatureSetEntryIndex",
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_nr_rrc_nr_rrc_MeasurementTimingConfiguration_PDU,
       { "MeasurementTimingConfiguration", "nr-rrc.MeasurementTimingConfiguration_element",
@@ -41861,6 +41922,10 @@ proto_register_nr_rrc(void) {
       { "SIB1", "nr-rrc.SIB1_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_nr_rrc_nr_rrc_UEAssistanceInformation_PDU,
+      { "UEAssistanceInformation", "nr-rrc.UEAssistanceInformation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_nr_rrc_nr_rrc_SIB2_PDU,
       { "SIB2", "nr-rrc.SIB2_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -41895,6 +41960,10 @@ proto_register_nr_rrc(void) {
         NULL, HFILL }},
     { &hf_nr_rrc_nr_rrc_CellGroupConfig_PDU,
       { "CellGroupConfig", "nr-rrc.CellGroupConfig_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_nr_rrc_DRX_Config_PDU,
+      { "DRX-Config", "nr-rrc.DRX_Config_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_nr_rrc_nr_rrc_MeasConfig_PDU,
@@ -41939,10 +42008,6 @@ proto_register_nr_rrc(void) {
         NULL, HFILL }},
     { &hf_nr_rrc_nr_rrc_UE_NR_Capability_PDU,
       { "UE-NR-Capability", "nr-rrc.UE_NR_Capability_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_nr_rrc_UEAssistanceInformation_PDU,
-      { "UEAssistanceInformation", "nr-rrc.UEAssistanceInformation_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_nr_rrc_MeasResultList2NR_PDU,

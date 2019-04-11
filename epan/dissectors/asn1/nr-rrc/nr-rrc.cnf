@@ -40,11 +40,14 @@ T-StatusProhibit
 UL-DataSplitThreshold
 
 #.EXPORTS
+BandCombinationIndex_PDU
 BandCombinationInfoSN_PDU
 CellGroupConfig_PDU
+DRX-Config_PDU
 CG-Config_PDU
 CG-ConfigInfo_PDU
 ConfigRestrictInfoSCG_PDU
+FeatureSetEntryIndex_PDU
 FreqBandList_PDU
 HandoverCommand_PDU
 HandoverPreparationInformation_PDU
@@ -54,6 +57,7 @@ MeasResultSCG-Failure_PDU
 MeasurementTimingConfiguration_PDU
 MIB_PDU
 P-Max_PDU
+PH-TypeListSCG_PDU
 RadioBearerConfig_PDU
 RRCReconfiguration_PDU
 RRCReconfigurationComplete_PDU
@@ -70,10 +74,12 @@ UE-CapabilityRAT-ContainerList_PDU
 UE-CapabilityRequestFilterNR_PDU
 UE-MRDC-Capability_PDU
 UE-NR-Capability_PDU
+UEAssistanceInformation_PDU
 UL-DCCH-Message_PDU
 UplinkTxDirectCurrentList_PDU
 
 #.PDU
+BandCombinationIndex
 BandCombinationInfoSN
 BCCH-BCH-Message                   @bcch.bch
 BCCH-DL-SCH-Message                @bcch.dl.sch
@@ -83,6 +89,8 @@ CG-ConfigInfo
 ConfigRestrictInfoSCG
 DL-CCCH-Message                    @dl.ccch
 DL-DCCH-Message                    @dl.dcch
+DRX-Config
+FeatureSetEntryIndex
 FreqBandList
 HandoverCommand
 HandoverPreparationInformation
@@ -93,6 +101,7 @@ MeasurementTimingConfiguration
 MIB
 P-Max
 PCCH-Message                       @pcch
+PH-TypeListSCG
 RadioBearerConfig
 RRCReconfiguration                 @rrc_reconf
 RRCReconfigurationComplete
@@ -109,6 +118,7 @@ UE-CapabilityRAT-ContainerList
 UE-CapabilityRequestFilterNR
 UE-MRDC-Capability                 @ue_mrdc_cap
 UE-NR-Capability                   @ue_nr_cap
+UEAssistanceInformation
 UERadioAccessCapabilityInformation @ue_radio_access_cap_info
 UERadioPagingInformation           @ue_radio_paging_info
 UL-CCCH-Message                    @ul.ccch

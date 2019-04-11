@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V15.4.1 (2019-01)
+-- 3GPP TS 38.473 V15.5.0 (2019-03)
 -- 9.4.5	Information Element Definitions
 -- **************************************************************
 --
@@ -20,6 +20,7 @@ IMPORTS
 	id-TAISliceSupportList,
 	id-RANAC,
 	id-BearerTypeChange,
+	id-Cell-Direction,
 	id-CellGroupConfig,
 	id-AvailablePLMNList,
 	id-PDUSessionID,
@@ -40,7 +41,13 @@ IMPORTS
 	id-DRX-LongCycleStartOffset,
 	id-SelectedBandCombinationIndex,
 	id-SelectedFeatureSetEntryIndex,
+	id-Ph-InfoSCG,
 	id-latest-RRC-Version-Enhanced,
+	id-RequestedBandCombinationIndex,
+	id-RequestedFeatureSetEntryIndex,
+	id-RequestedP-MaxFR2,
+	id-DRX-Config,
+	id-UEAssistanceInformation,
 	maxNRARFCN,
 	maxnoofErrors,
 	maxnoofBPLMNs,
@@ -188,7 +195,9 @@ CauseRadioNetwork ::= ENUMERATED {
 	cell-not-available,
 	rl-failure-others,
 	ue-rejection,
-	resources-not-available-for-the-slice
+	resources-not-available-for-the-slice,
+	amf-initiated-abnormal-release,
+	release-due-to-pre-emption
 }
 
 CauseTransport ::= ENUMERATED {
@@ -198,6 +207,8 @@ CauseTransport ::= ENUMERATED {
 }
 
 CellGroupConfig ::= OCTET STRING
+
+Cell-Direction ::= ENUMERATED {dl-only, ul-only}
 
 Cells-Failed-to-be-Activated-List-Item ::= SEQUENCE {
 	nRCGI				NRCGI,
@@ -360,9 +371,10 @@ CUtoDURRCInformation ::= SEQUENCE {
 }
 
 CUtoDURRCInformation-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
-{ ID id-HandoverPreparationInformation	CRITICALITY ignore	EXTENSION HandoverPreparationInformation		PRESENCE optional }|
-{ ID id-CellGroupConfig		CRITICALITY ignore	EXTENSION CellGroupConfig		PRESENCE optional }|
-{ ID id-MeasurementTimingConfiguration	CRITICALITY ignore	EXTENSION MeasurementTimingConfiguration		PRESENCE optional },
+	{ ID id-HandoverPreparationInformation	CRITICALITY ignore	EXTENSION HandoverPreparationInformation		PRESENCE optional }|
+	{ ID id-CellGroupConfig		CRITICALITY ignore	EXTENSION CellGroupConfig		PRESENCE optional }|
+	{ ID id-MeasurementTimingConfiguration	CRITICALITY ignore	EXTENSION MeasurementTimingConfiguration		PRESENCE optional }|
+	{ ID id-UEAssistanceInformation		CRITICALITY ignore	EXTENSION UEAssistanceInformation			PRESENCE optional },
 	...
 }
 
@@ -617,6 +629,8 @@ DRXCycle-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+DRX-Config ::= OCTET STRING
+
 DRXConfigurationIndicator	::=	ENUMERATED{	release, ...}
 
 DRX-LongCycleStartOffset ::= INTEGER (0..10239)
@@ -633,8 +647,13 @@ DUtoCURRCInformation ::= SEQUENCE {
 
 DUtoCURRCInformation-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-DRX-LongCycleStartOffset				CRITICALITY ignore	EXTENSION DRX-LongCycleStartOffset		PRESENCE optional }|
-	{ ID id-SelectedBandCombinationIndex		CRITICALITY ignore	EXTENSION SelectedBandCombinationIndex	PRESENCE optional }|
-	{ ID id-SelectedFeatureSetEntryIndex		CRITICALITY ignore	EXTENSION SelectedFeatureSetEntryIndex	PRESENCE optional },
+	{ ID id-SelectedBandCombinationIndex		CRITICALITY ignore	EXTENSION SelectedBandCombinationIndex		PRESENCE optional }|
+	{ ID id-SelectedFeatureSetEntryIndex		CRITICALITY ignore	EXTENSION SelectedFeatureSetEntryIndex		PRESENCE optional }|
+	{ ID id-Ph-InfoSCG								CRITICALITY ignore	EXTENSION Ph-InfoSCG						PRESENCE optional }|
+	{ ID id-RequestedBandCombinationIndex		CRITICALITY ignore	EXTENSION RequestedBandCombinationIndex	PRESENCE optional }|
+	{ ID id-RequestedFeatureSetEntryIndex		CRITICALITY ignore	EXTENSION RequestedFeatureSetEntryIndex	PRESENCE optional }|
+	{ ID id-RequestedP-MaxFR2					CRITICALITY ignore	EXTENSION RequestedP-MaxFR2						PRESENCE optional }|
+	{ ID id-DRX-Config							CRITICALITY ignore	EXTENSION DRX-Config							PRESENCE optional },
 	...
 }
 
@@ -1051,6 +1070,7 @@ GTPTunnel-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 HandoverPreparationInformation ::= OCTET STRING
 
 -- I
+IgnoreResourceCoordinationContainer ::= ENUMERATED { true,...}
 InactivityMonitoringRequest ::= ENUMERATED { true,...}
 InactivityMonitoringResponse ::= ENUMERATED { not-supported,...}
 
@@ -1082,6 +1102,8 @@ MeasGapConfig ::= OCTET STRING
 MeasurementTimingConfiguration ::= OCTET STRING
 
 -- N
+
+NeedforGap::= ENUMERATED {true, ...}
 
 NGRANAllocationAndRetentionPriority ::= SEQUENCE {
 	priorityLevel				PriorityLevel,
@@ -1216,6 +1238,8 @@ PagingIdentity-ExtIEs F1AP-PROTOCOL-IES::= {
 	...
 }
 
+PagingOrigin ::= ENUMERATED { non-3gpp,	...}
+
 PagingPriority ::= ENUMERATED { priolevel1, priolevel2, priolevel3, priolevel4, priolevel5, priolevel6, priolevel7, priolevel8,...} 
 
 PDCP-SN ::= INTEGER (0..4095)
@@ -1223,6 +1247,8 @@ PDCP-SN ::= INTEGER (0..4095)
 PDCPSNLength	::= ENUMERATED { twelve-bits,eighteen-bits,...}
 
 PDUSessionID ::= INTEGER (0..255)
+
+Ph-InfoSCG  ::= OCTET STRING
 
 PLMN-Identity ::= OCTET STRING (SIZE(3))
 
@@ -1354,6 +1380,12 @@ Reestablishment-Indication	::=	ENUMERATED  {
 	...
 }
 
+RequestedBandCombinationIndex ::= OCTET STRING
+
+RequestedFeatureSetEntryIndex ::= OCTET STRING
+
+RequestedP-MaxFR2 ::= OCTET STRING
+
 RequestType	::= ENUMERATED {offer, execution, ...}
 
 ResourceCoordinationEUTRACellInfo ::= SEQUENCE {
@@ -1423,7 +1455,11 @@ RRCDeliveryStatus-ExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 
 RRCDeliveryStatusRequest ::= ENUMERATED {true, ...}
 
-RRCReconfigurationCompleteIndicator	::= ENUMERATED {true, ...}
+RRCReconfigurationCompleteIndicator	::= ENUMERATED {
+	true,
+	 ...,
+	failure
+}
 
 RRC-Version ::= SEQUENCE	{
 	latest-RRC-Version			BIT STRING (SIZE(3)),
@@ -1527,7 +1563,8 @@ Served-Cell-Information ::= SEQUENCE {
 
 Served-Cell-Information-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	{	ID id-RANAC							CRITICALITY ignore EXTENSION RANAC							PRESENCE optional }|
-	{	ID id-ExtendedServedPLMNs-List		CRITICALITY ignore EXTENSION ExtendedServedPLMNs-List		PRESENCE optional },
+	{	ID id-ExtendedServedPLMNs-List		CRITICALITY ignore EXTENSION ExtendedServedPLMNs-List		PRESENCE optional }|
+	{	ID id-Cell-Direction				CRITICALITY ignore EXTENSION Cell-Direction					PRESENCE optional },
 	...
 }
 
@@ -1670,6 +1707,16 @@ SRBs-FailedToBeSetupMod-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+SRBs-Modified-Item ::= SEQUENCE {
+	sRBID							SRBID,
+	lCID							LCID,
+	iE-Extensions	ProtocolExtensionContainer { { SRBs-Modified-ItemExtIEs } }	OPTIONAL,
+	...
+}
+
+SRBs-Modified-ItemExtIEs	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 SRBs-Required-ToBeReleased-Item	::= SEQUENCE {
 	sRBID	SRBID,
@@ -1678,6 +1725,28 @@ SRBs-Required-ToBeReleased-Item	::= SEQUENCE {
 }
 
 SRBs-Required-ToBeReleased-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+SRBs-Setup-Item ::= SEQUENCE {
+	sRBID							SRBID,
+	lCID								LCID,
+	iE-Extensions	ProtocolExtensionContainer { { SRBs-Setup-ItemExtIEs } }	OPTIONAL,
+	...
+}
+
+SRBs-Setup-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+SRBs-SetupMod-Item ::= SEQUENCE {
+	sRBID						SRBID,
+	lCID							LCID,
+	iE-Extensions	ProtocolExtensionContainer { { SRBs-SetupMod-ItemExtIEs } }	OPTIONAL,
+	...
+}
+
+SRBs-SetupMod-ItemExtIEs 	F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -1780,7 +1849,7 @@ Transmission-Bandwidth-ExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-TransmissionStopIndicator ::= ENUMERATED {stop, ..., restart }
+TransmissionActionIndicator ::= ENUMERATED {stop, ..., restart }
 
 TypeOfError ::= ENUMERATED {
 	not-understood,
@@ -1796,6 +1865,8 @@ UE-associatedLogicalF1-ConnectionItem ::= SEQUENCE {
 	iE-Extensions		ProtocolExtensionContainer { { UE-associatedLogicalF1-ConnectionItemExtIEs} } OPTIONAL,
 	...
 }
+
+UEAssistanceInformation ::= OCTET STRING
 
 UE-associatedLogicalF1-ConnectionItemExtIEs F1AP-PROTOCOL-EXTENSION ::= {
 	...
