@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V15.2.0 (2018-12)
+-- 3GPP TS 38.423 V15.3.0 (2019-03)
 -- 9.3.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -38,6 +38,7 @@ FROM XnAP-CommonDataTypes
 	RetrieveUEContextResponse,
 	RetrieveUEContextFailure,
 	XnUAddressIndication,
+	SecondaryRATDataUsageReport,
 	SNodeAdditionRequest,
 	SNodeAdditionRequestAcknowledge,
 	SNodeAdditionRequestReject,
@@ -88,6 +89,7 @@ FROM XnAP-PDU-Contents
 	id-rANPaging,
 	id-xnUAddressIndication,
 	id-uEContextRelease,
+	id-secondaryRATDataUsageReport,
 	id-sNGRANnodeAdditionPreparation,
 	id-sNGRANnodeReconfigurationCompletion,
 	id-mNGRANnodeinitiatedSNGRANnodeModificationPreparation,
@@ -203,7 +205,8 @@ XNAP-ELEMENTARY-PROCEDURES-CLASS-2 XNAP-ELEMENTARY-PROCEDURE ::= {
 	errorIndication							|
 	privateMessage							|
 	notificationControl						|
-	activityNotification					,
+	activityNotification					|
+	secondaryRATDataUsageReport	,
 	...
 
 }
@@ -418,6 +421,12 @@ privateMessage			XNAP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		PrivateMessage
 	PROCEDURE CODE			id-privateMessage
 	CRITICALITY				ignore
+}
+
+secondaryRATDataUsageReport	XNAP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		SecondaryRATDataUsageReport
+	PROCEDURE CODE			id-secondaryRATDataUsageReport
+	CRITICALITY				reject
 }
 
 END

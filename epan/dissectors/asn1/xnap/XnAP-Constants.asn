@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V15.2.0 (2018-12)
+-- 3GPP TS 38.423 V15.3.0 (2019-03)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -51,6 +51,7 @@ id-privateMessage												ProcedureCode ::= 22
 id-notificationControl											ProcedureCode ::= 23
 id-activityNotification											ProcedureCode ::= 24
 id-e-UTRA-NR-CellResourceCoordination							ProcedureCode ::= 25
+id-secondaryRATDataUsageReport									ProcedureCode ::= 26
 
 
 
@@ -76,6 +77,7 @@ maxnoofEUTRABands							INTEGER ::= 16
 maxnoofEPLMNs								INTEGER ::= 15
 maxnoofForbiddenTACs							INTEGER ::= 4096
 maxnoofMBSFNEUTRA							INTEGER ::= 8
+maxnoofMultiConnectivityMinusOne            INTEGER ::= 3
 maxnoofNeighbours							INTEGER ::= 1024
 maxnoofNRCellBands							INTEGER ::= 32
 maxnoofPLMNs								INTEGER ::= 16
@@ -92,6 +94,7 @@ maxnoofsupportedPLMNs						INTEGER ::= 12
 maxnoofsupportedTACs						INTEGER ::= 256
 maxnoofTAI									INTEGER ::= 16
 maxnoofTAIsinAoI 							INTEGER ::= 16
+maxnooftimeperiods							INTEGER ::= 2
 maxnoofTNLAssociations						INTEGER ::= 32
 maxnoofUEContexts							INTEGER ::= 8192
 maxNRARFCN									INTEGER ::= 3279165
@@ -131,7 +134,7 @@ id-MN-to-SN-Container																				ProtocolIE-ID ::= 24
 id-MobilityRestrictionList																			ProtocolIE-ID ::= 25
 id-new-NG-RAN-Cell-Identity																			ProtocolIE-ID ::= 26
 id-newNG-RANnodeUEXnAPID																			ProtocolIE-ID ::= 27
-id-NRUEReportRRCTransfer																			ProtocolIE-ID ::= 28
+id-UEReportRRCTransfer																			ProtocolIE-ID ::= 28
 id-oldNG-RANnodeUEXnAPID																			ProtocolIE-ID ::= 29
 id-OldtoNewNG-RANnodeResumeContainer																ProtocolIE-ID ::= 30
 id-PagingDRX																						ProtocolIE-ID ::= 31
@@ -208,7 +211,18 @@ id-TNLA-To-Remove-List																				ProtocolIE-ID ::= 101
 id-TNLA-Setup-List																					ProtocolIE-ID ::= 102
 id-TNLA-Failed-To-Setup-List																		ProtocolIE-ID ::= 103
 id-PDUSessionToBeReleased-RelReqAck																	ProtocolIE-ID ::= 104
-id-S-NG-RANnodeMaxIPDataRate																		ProtocolIE-ID ::= 105
+id-S-NG-RANnodeMaxIPDataRate-UL																		ProtocolIE-ID ::= 105
 id-PDUSession-List-withDataForwardingRequest														ProtocolIE-ID ::= 106
+id-PDUSessionResourceSecondaryRATUsageList															ProtocolIE-ID ::= 107
+id-Additional-UL-NG-U-TNLatUPF-List																	ProtocolIE-ID ::= 108
+id-SecondarydataForwardingInfoFromTarget-List														ProtocolIE-ID ::= 109
+id-LocationInformationSNReporting																	ProtocolIE-ID ::= 110
+id-LocationInformationSN																			ProtocolIE-ID ::= 111
+id-LastE-UTRANPLMNIdentity																			ProtocolIE-ID ::= 112
+id-S-NG-RANnodeMaxIPDataRate-DL																		ProtocolIE-ID ::= 113
+id-MaxIPrate-DL																						ProtocolIE-ID ::= 114
+id-SecurityResult																					ProtocolIE-ID ::= 115
+id-S-NSSAI																							ProtocolIE-ID ::= 116
+id-MR-DC-ResourceCoordinationInfo																	ProtocolIE-ID ::= 117
 
 END
