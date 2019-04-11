@@ -81,29 +81,30 @@ typedef enum {
   MR_MATCHED,
   MR_ERROR
 } match_result;
+typedef match_result (*ws_match_function)(capture_file *, frame_data *,
+                                          wtap_rec *, Buffer *, void *);
 static match_result match_protocol_tree(capture_file *cf, frame_data *fdata,
-    void *criterion);
+    wtap_rec *, Buffer *, void *criterion);
 static void match_subtree_text(proto_node *node, gpointer data);
 static match_result match_summary_line(capture_file *cf, frame_data *fdata,
-    void *criterion);
+    wtap_rec *, Buffer *, void *criterion);
 static match_result match_narrow_and_wide(capture_file *cf, frame_data *fdata,
-    void *criterion);
+    wtap_rec *, Buffer *, void *criterion);
 static match_result match_narrow(capture_file *cf, frame_data *fdata,
-    void *criterion);
+    wtap_rec *, Buffer *, void *criterion);
 static match_result match_wide(capture_file *cf, frame_data *fdata,
-    void *criterion);
+    wtap_rec *, Buffer *, void *criterion);
 static match_result match_binary(capture_file *cf, frame_data *fdata,
-    void *criterion);
+    wtap_rec *, Buffer *, void *criterion);
 static match_result match_regex(capture_file *cf, frame_data *fdata,
-    void *criterion);
+    wtap_rec *, Buffer *, void *criterion);
 static match_result match_dfilter(capture_file *cf, frame_data *fdata,
-    void *criterion);
+    wtap_rec *, Buffer *, void *criterion);
 static match_result match_marked(capture_file *cf, frame_data *fdata,
-    void *criterion);
+    wtap_rec *, Buffer *, void *criterion);
 static match_result match_time_reference(capture_file *cf, frame_data *fdata,
-    void *criterion);
-static gboolean find_packet(capture_file *cf,
-    match_result (*match_function)(capture_file *, frame_data *, void *),
+    wtap_rec *, Buffer *, void *criterion);
+static gboolean find_packet(capture_file *cf, ws_match_function match_function,
     void *criterion, search_direction dir);
 
 static void cf_rename_failure_alert_box(const char *filename, int err);
@@ -1604,6 +1605,8 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
   /* Rescan packets new packet list */
   guint32     framenum;
   frame_data *fdata;
+  wtap_rec    rec;
+  Buffer      buf;
   progdlg_t  *progbar = NULL;
   GTimer     *prog_timer = g_timer_new();
   int         count;
@@ -1627,6 +1630,9 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
   cf->redissection_queued = RESCAN_NONE;
   g_assert(!cf->read_lock);
   cf->read_lock = TRUE;
+
+  wtap_rec_init(&rec);
+  ws_buffer_init(&buf, 1514);
 
   /* Compile the current display filter.
    * We assume this will not fail since cf->dfilter is only set in
@@ -1832,7 +1838,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
     /* Frame dependencies from the previous dissection/filtering are no longer valid. */
     fdata->dependent_of_displayed = 0;
 
-    if (!cf_read_record(cf, fdata))
+    if (!cf_read_record_r(cf, fdata, &rec, &buf))
       break; /* error reading the frame */
 
     /* If the previous frame is displayed, and we haven't yet seen the
@@ -1844,7 +1850,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
     }
 
     add_packet_to_packet_list(fdata, cf, &edt, dfcode,
-                                    cinfo, &cf->rec, &cf->buf,
+                                    cinfo, &rec, &buf,
                                     add_to_packet_list);
 
     /* If this frame is displayed, and this is the first frame we've
@@ -1868,6 +1874,8 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
   }
 
   epan_dissect_cleanup(&edt);
+  wtap_rec_cleanup(&rec);
+  ws_buffer_free(&buf);
 
   /* We are done redissecting the packet list. */
   cf->redissecting = FALSE;
@@ -3053,13 +3061,14 @@ cf_find_string_protocol_tree(capture_file *cf, proto_tree *tree,  match_data *md
 }
 
 static match_result
-match_protocol_tree(capture_file *cf, frame_data *fdata, void *criterion)
+match_protocol_tree(capture_file *cf, frame_data *fdata,
+                    wtap_rec *rec, Buffer *buf, void *criterion)
 {
   match_data     *mdata = (match_data *)criterion;
   epan_dissect_t  edt;
 
   /* Load the frame's data. */
-  if (!cf_read_record(cf, fdata)) {
+  if (!cf_read_record_r(cf, fdata, rec, buf)) {
     /* Attempt to get the packet failed. */
     return MR_ERROR;
   }
@@ -3067,8 +3076,8 @@ match_protocol_tree(capture_file *cf, frame_data *fdata, void *criterion)
   /* Construct the protocol tree, including the displayed text */
   epan_dissect_init(&edt, cf->epan, TRUE, TRUE);
   /* We don't need the column information */
-  epan_dissect_run(&edt, cf->cd_t, &cf->rec,
-                   frame_tvbuff_new_buffer(&cf->provider, fdata, &cf->buf),
+  epan_dissect_run(&edt, cf->cd_t, rec,
+                   frame_tvbuff_new_buffer(&cf->provider, fdata, buf),
                    fdata, NULL);
 
   /* Iterate through all the nodes, seeing if they have text that matches. */
@@ -3158,7 +3167,8 @@ cf_find_packet_summary_line(capture_file *cf, const char *string,
 }
 
 static match_result
-match_summary_line(capture_file *cf, frame_data *fdata, void *criterion)
+match_summary_line(capture_file *cf, frame_data *fdata,
+                   wtap_rec *rec, Buffer *buf, void *criterion)
 {
   match_data     *mdata      = (match_data *)criterion;
   const gchar    *string     = mdata->string;
@@ -3173,7 +3183,7 @@ match_summary_line(capture_file *cf, frame_data *fdata, void *criterion)
   size_t          c_match    = 0;
 
   /* Load the frame's data. */
-  if (!cf_read_record(cf, fdata)) {
+  if (!cf_read_record_r(cf, fdata, rec, buf)) {
     /* Attempt to get the packet failed. */
     return MR_ERROR;
   }
@@ -3181,8 +3191,8 @@ match_summary_line(capture_file *cf, frame_data *fdata, void *criterion)
   /* Don't bother constructing the protocol tree */
   epan_dissect_init(&edt, cf->epan, FALSE, FALSE);
   /* Get the column information */
-  epan_dissect_run(&edt, cf->cd_t, &cf->rec,
-                   frame_tvbuff_new_buffer(&cf->provider, fdata, &cf->buf),
+  epan_dissect_run(&edt, cf->cd_t, rec,
+                   frame_tvbuff_new_buffer(&cf->provider, fdata, buf),
                    fdata, &cf->cinfo);
 
   /* Find the Info column */
@@ -3269,7 +3279,8 @@ cf_find_packet_data(capture_file *cf, const guint8 *string, size_t string_size,
 }
 
 static match_result
-match_narrow_and_wide(capture_file *cf, frame_data *fdata, void *criterion)
+match_narrow_and_wide(capture_file *cf, frame_data *fdata,
+                      wtap_rec *rec, Buffer *buf, void *criterion)
 {
   cbs_t        *info       = (cbs_t *)criterion;
   const guint8 *ascii_text = info->data;
@@ -3282,14 +3293,14 @@ match_narrow_and_wide(capture_file *cf, frame_data *fdata, void *criterion)
   size_t        c_match    = 0;
 
   /* Load the frame's data. */
-  if (!cf_read_record(cf, fdata)) {
+  if (!cf_read_record_r(cf, fdata, rec, buf)) {
     /* Attempt to get the packet failed. */
     return MR_ERROR;
   }
 
   result = MR_NOTMATCHED;
   buf_len = fdata->cap_len;
-  pd = ws_buffer_start_ptr(&cf->buf);
+  pd = ws_buffer_start_ptr(buf);
   i = 0;
   while (i < buf_len) {
     c_char = pd[i];
@@ -3318,27 +3329,28 @@ match_narrow_and_wide(capture_file *cf, frame_data *fdata, void *criterion)
 }
 
 static match_result
-match_narrow(capture_file *cf, frame_data *fdata, void *criterion)
+match_narrow(capture_file *cf, frame_data *fdata,
+             wtap_rec *rec, Buffer *buf, void *criterion)
 {
-  guint8       *pd;
   cbs_t        *info       = (cbs_t *)criterion;
   const guint8 *ascii_text = info->data;
   size_t        textlen    = info->data_len;
   match_result  result;
   guint32       buf_len;
+  guint8       *pd;
   guint32       i;
   guint8        c_char;
   size_t        c_match    = 0;
 
   /* Load the frame's data. */
-  if (!cf_read_record(cf, fdata)) {
+  if (!cf_read_record_r(cf, fdata, rec, buf)) {
     /* Attempt to get the packet failed. */
     return MR_ERROR;
   }
 
   result = MR_NOTMATCHED;
   buf_len = fdata->cap_len;
-  pd = ws_buffer_start_ptr(&cf->buf);
+  pd = ws_buffer_start_ptr(buf);
   i = 0;
   while (i < buf_len) {
     c_char = pd[i];
@@ -3366,7 +3378,8 @@ match_narrow(capture_file *cf, frame_data *fdata, void *criterion)
 }
 
 static match_result
-match_wide(capture_file *cf, frame_data *fdata, void *criterion)
+match_wide(capture_file *cf, frame_data *fdata,
+           wtap_rec *rec, Buffer *buf, void *criterion)
 {
   cbs_t        *info       = (cbs_t *)criterion;
   const guint8 *ascii_text = info->data;
@@ -3379,14 +3392,14 @@ match_wide(capture_file *cf, frame_data *fdata, void *criterion)
   size_t        c_match    = 0;
 
   /* Load the frame's data. */
-  if (!cf_read_record(cf, fdata)) {
+  if (!cf_read_record_r(cf, fdata, rec, buf)) {
     /* Attempt to get the packet failed. */
     return MR_ERROR;
   }
 
   result = MR_NOTMATCHED;
   buf_len = fdata->cap_len;
-  pd = ws_buffer_start_ptr(&cf->buf);
+  pd = ws_buffer_start_ptr(buf);
   i = 0;
   while (i < buf_len) {
     c_char = pd[i];
@@ -3414,7 +3427,8 @@ match_wide(capture_file *cf, frame_data *fdata, void *criterion)
 }
 
 static match_result
-match_binary(capture_file *cf, frame_data *fdata, void *criterion)
+match_binary(capture_file *cf, frame_data *fdata,
+             wtap_rec *rec, Buffer *buf, void *criterion)
 {
   cbs_t        *info        = (cbs_t *)criterion;
   const guint8 *binary_data = info->data;
@@ -3426,14 +3440,14 @@ match_binary(capture_file *cf, frame_data *fdata, void *criterion)
   size_t        c_match     = 0;
 
   /* Load the frame's data. */
-  if (!cf_read_record(cf, fdata)) {
+  if (!cf_read_record_r(cf, fdata, rec, buf)) {
     /* Attempt to get the packet failed. */
     return MR_ERROR;
   }
 
   result = MR_NOTMATCHED;
   buf_len = fdata->cap_len;
-  pd = ws_buffer_start_ptr(&cf->buf);
+  pd = ws_buffer_start_ptr(buf);
   i = 0;
   while (i < buf_len) {
     if (pd[i] == binary_data[c_match]) {
@@ -3457,18 +3471,19 @@ match_binary(capture_file *cf, frame_data *fdata, void *criterion)
 }
 
 static match_result
-match_regex(capture_file *cf, frame_data *fdata, void *criterion _U_)
+match_regex(capture_file *cf, frame_data *fdata,
+            wtap_rec *rec, Buffer *buf, void *criterion _U_)
 {
     match_result  result = MR_NOTMATCHED;
     GMatchInfo   *match_info = NULL;
 
     /* Load the frame's data. */
-    if (!cf_read_record(cf, fdata)) {
+    if (!cf_read_record_r(cf, fdata, rec, buf)) {
         /* Attempt to get the packet failed. */
         return MR_ERROR;
     }
 
-    if (g_regex_match_full(cf->regex, (const gchar *)ws_buffer_start_ptr(&cf->buf), fdata->cap_len,
+    if (g_regex_match_full(cf->regex, (const gchar *)ws_buffer_start_ptr(buf), fdata->cap_len,
                            0, (GRegexMatchFlags) 0, &match_info, NULL))
     {
         gint start_pos = 0, end_pos = 0;
@@ -3514,22 +3529,23 @@ cf_find_packet_dfilter_string(capture_file *cf, const char *filter,
 }
 
 static match_result
-match_dfilter(capture_file *cf, frame_data *fdata, void *criterion)
+match_dfilter(capture_file *cf, frame_data *fdata,
+              wtap_rec *rec, Buffer *buf, void *criterion)
 {
   dfilter_t      *sfcode = (dfilter_t *)criterion;
   epan_dissect_t  edt;
   match_result    result;
 
   /* Load the frame's data. */
-  if (!cf_read_record(cf, fdata)) {
+  if (!cf_read_record_r(cf, fdata, rec, buf)) {
     /* Attempt to get the packet failed. */
     return MR_ERROR;
   }
 
   epan_dissect_init(&edt, cf->epan, TRUE, FALSE);
   epan_dissect_prime_with_dfilter(&edt, sfcode);
-  epan_dissect_run(&edt, cf->cd_t, &cf->rec,
-                   frame_tvbuff_new_buffer(&cf->provider, fdata, &cf->buf),
+  epan_dissect_run(&edt, cf->cd_t, rec,
+                   frame_tvbuff_new_buffer(&cf->provider, fdata, buf),
                    fdata, NULL);
   result = dfilter_apply_edt(sfcode, &edt) ? MR_MATCHED : MR_NOTMATCHED;
   epan_dissect_cleanup(&edt);
@@ -3543,7 +3559,8 @@ cf_find_packet_marked(capture_file *cf, search_direction dir)
 }
 
 static match_result
-match_marked(capture_file *cf _U_, frame_data *fdata, void *criterion _U_)
+match_marked(capture_file *cf _U_, frame_data *fdata, wtap_rec *rec _U_,
+             Buffer *buf _U_, void *criterion _U_)
 {
   return fdata->marked ? MR_MATCHED : MR_NOTMATCHED;
 }
@@ -3555,30 +3572,35 @@ cf_find_packet_time_reference(capture_file *cf, search_direction dir)
 }
 
 static match_result
-match_time_reference(capture_file *cf _U_, frame_data *fdata, void *criterion _U_)
+match_time_reference(capture_file *cf _U_, frame_data *fdata, wtap_rec *rec _U_,
+                     Buffer *buf _U_, void *criterion _U_)
 {
   return fdata->ref_time ? MR_MATCHED : MR_NOTMATCHED;
 }
 
 static gboolean
-find_packet(capture_file *cf,
-            match_result (*match_function)(capture_file *, frame_data *, void *),
+find_packet(capture_file *cf, ws_match_function match_function,
             void *criterion, search_direction dir)
 {
   frame_data  *start_fd;
   guint32      framenum;
   guint32      prev_framenum;
   frame_data  *fdata;
+  wtap_rec     rec;
+  Buffer       buf;
   frame_data  *new_fd = NULL;
   progdlg_t   *progbar = NULL;
   GTimer      *prog_timer = g_timer_new();
   int          count;
-  gboolean     found;
+  gboolean     succeeded;
   float        progbar_val;
   GTimeVal     start_time;
   gchar        status_str[100];
   const char  *title;
   match_result result;
+
+  wtap_rec_init(&rec);
+  ws_buffer_init(&buf, 1514);
 
   start_fd = cf->current_frame;
   if (start_fd != NULL)  {
@@ -3680,7 +3702,7 @@ find_packet(capture_file *cf,
     /* Is this packet in the display? */
     if (fdata && fdata->passed_dfilter) {
       /* Yes.  Does it match the search criterion? */
-      result = (*match_function)(cf, fdata, criterion);
+      result = (*match_function)(cf, fdata, &rec, &buf, criterion);
       if (result == MR_ERROR) {
         /* Error; our caller has reported the error.  Go back to the frame
            where we started. */
@@ -3707,24 +3729,30 @@ find_packet(capture_file *cf,
   g_timer_destroy(prog_timer);
 
   if (new_fd != NULL) {
-    /* Find and select */
+    /* We found a frame that's displayed and that matches.
+       Try to find and select the packet summary list row for that frame. */
+    gboolean found_row;
+
     cf->search_in_progress = TRUE;
-    found = packet_list_select_row_from_data(new_fd);
+    found_row = packet_list_select_row_from_data(new_fd);
     cf->search_in_progress = FALSE;
     cf->search_pos = 0; /* Reset the position */
     cf->search_len = 0; /* Reset length */
-    if (!found) {
+    if (!found_row) {
       /* We didn't find a row corresponding to this frame.
          This means that the frame isn't being displayed currently,
          so we can't select it. */
       simple_message_box(ESD_TYPE_INFO, NULL,
                          "The capture file is probably not fully dissected.",
                          "End of capture exceeded.");
-      return FALSE;
-    }
-    return TRUE;    /* success */
+      succeeded = FALSE; /* The search succeeded but we didn't find the row */
+    } else
+      succeeded = TRUE; /* The search succeeded and we found the row */
   } else
-    return FALSE;   /* failure */
+    succeeded = FALSE;   /* The search failed */
+  wtap_rec_cleanup(&rec);
+  ws_buffer_free(&buf);
+  return succeeded;
 }
 
 gboolean
