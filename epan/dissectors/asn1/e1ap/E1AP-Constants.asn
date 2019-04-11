@@ -1,10 +1,9 @@
--- 3GPP TS 38.463 V15.2.0 (2018-12)
+-- 3GPP TS 38.463 V15.3.0 (2019-03)
 -- **************************************************************
 --
 -- Constant definitions
 --
 -- **************************************************************
-
 
 E1AP-Constants {
 itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)
@@ -46,6 +45,7 @@ id-dataUsageReport												ProcedureCode ::= 15
 id-gNB-CU-UP-CounterCheck										ProcedureCode ::= 16
 id-gNB-CU-UP-StatusIndication									ProcedureCode ::= 17
 id-uLDataNotification											ProcedureCode ::= 18
+id-mRDC-DataUsageReport											ProcedureCode ::= 19
 
 
 -- **************************************************************
@@ -78,9 +78,9 @@ maxnoofTNLAssociations						INTEGER ::= 32
 
 id-Cause														ProtocolIE-ID ::= 0
 id-CriticalityDiagnostics										ProtocolIE-ID ::= 1
-id-gNB-CU-CP-UE-E1AP-ID 										ProtocolIE-ID ::= 2	
+id-gNB-CU-CP-UE-E1AP-ID 										ProtocolIE-ID ::= 2
 id-gNB-CU-UP-UE-E1AP-ID											ProtocolIE-ID ::= 3
-id-ResetType													ProtocolIE-ID ::= 4	
+id-ResetType													ProtocolIE-ID ::= 4
 id-UE-associatedLogicalE1-ConnectionItem						ProtocolIE-ID ::= 5
 id-UE-associatedLogicalE1-ConnectionListResAck					ProtocolIE-ID ::= 6
 id-gNB-CU-UP-ID													ProtocolIE-ID ::= 7
@@ -88,9 +88,9 @@ id-gNB-CU-UP-Name												ProtocolIE-ID ::= 8
 id-gNB-CU-CP-Name												ProtocolIE-ID ::= 9
 id-CNSupport													ProtocolIE-ID ::= 10
 id-SupportedPLMNs												ProtocolIE-ID ::= 11
-id-TimeToWait													ProtocolIE-ID ::= 12 
-id-SecurityInformation											ProtocolIE-ID ::= 13 
-id-UEDLAggregateMaximumBitRate									ProtocolIE-ID ::= 14 
+id-TimeToWait													ProtocolIE-ID ::= 12
+id-SecurityInformation											ProtocolIE-ID ::= 13
+id-UEDLAggregateMaximumBitRate									ProtocolIE-ID ::= 14
 id-System-BearerContextSetupRequest								ProtocolIE-ID ::= 15
 id-System-BearerContextSetupResponse							ProtocolIE-ID ::= 16
 id-BearerContextStatusChange									ProtocolIE-ID ::= 17
@@ -139,11 +139,13 @@ id-UE-Inactivity-Timer											ProtocolIE-ID ::= 59
 id-System-GNB-CU-UP-CounterCheckRequest							ProtocolIE-ID ::= 60
 id-DRBs-Subject-To-Counter-Check-List-EUTRAN					ProtocolIE-ID ::= 61
 id-DRBs-Subject-To-Counter-Check-List-NG-RAN					ProtocolIE-ID ::= 62
-id-PPI																ProtocolIE-ID ::= 63
-id-gNB-CU-UP-Capacity												ProtocolIE-ID ::= 64
-id-GNB-CU-UP-OverloadInformation									ProtocolIE-ID ::= 65
-id-UEDLMaximumIntegrityProtectedDataRate							ProtocolIE-ID ::= 66
-id-PDU-Session-To-Notify-List										ProtocolIE-ID ::= 67
-
+id-PPI															ProtocolIE-ID ::= 63
+id-gNB-CU-UP-Capacity											ProtocolIE-ID ::= 64
+id-GNB-CU-UP-OverloadInformation								ProtocolIE-ID ::= 65
+id-UEDLMaximumIntegrityProtectedDataRate						ProtocolIE-ID ::= 66
+id-PDU-Session-To-Notify-List									ProtocolIE-ID ::= 67
+id-PDU-Session-Resource-Data-Usage-List							ProtocolIE-ID ::= 68
+id-SNSSAI														ProtocolIE-ID ::= 69
+id-DataDiscardRequired										ProtocolIE-ID ::= 70
 
 END

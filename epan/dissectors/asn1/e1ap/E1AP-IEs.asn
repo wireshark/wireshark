@@ -1,4 +1,4 @@
--- 3GPP TS 38.463 V15.2.0 (2018-12)
+-- 3GPP TS 38.463 V15.3.0 (2019-03)
 -- **************************************************************
 --
 -- Information Element Definitions
@@ -15,6 +15,7 @@ BEGIN
 
 IMPORTS	
 	
+	id-SNSSAI,
 	maxnoofErrors,
 	maxnoofSliceItems,
 	maxnoofEUTRANQOSParameters,
@@ -136,7 +137,10 @@ CauseRadioNetwork ::= ENUMERATED {
 	action-desirable-for-radio-reasons,
 	resources-not-available-for-the-slice,
 	pDCP-configuration-not-supported,
-	...
+	...,
+	ue-dl-max-IP-data-rate-reason,
+	uP-integrity-protection-failure,
+	release-due-to-pre-emption
 }
 
 CauseTransport ::= ENUMERATED {
@@ -259,6 +263,31 @@ Data-Forwarding-Request ::= ENUMERATED	{
 	uL,
 	dL,
 	both,
+	...
+}
+
+Data-Usage-per-PDU-Session-Report ::= SEQUENCE {
+	secondaryRATType			ENUMERATED {nR, e-UTRA, ...},
+	pDU-session-Timed-Report-List			SEQUENCE (SIZE(1..maxnooftimeperiods)) OF MRDC-Data-Usage-Report-Item,
+	iE-Extensions				ProtocolExtensionContainer { { Data-Usage-per-PDU-Session-Report-ExtIEs} } OPTIONAL,
+...
+}
+
+Data-Usage-per-PDU-Session-Report-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+Data-Usage-per-QoS-Flow-List	::= SEQUENCE (SIZE(1..maxnoofQoSFlows)) OF Data-Usage-per-QoS-Flow-Item
+
+Data-Usage-per-QoS-Flow-Item ::= SEQUENCE {
+	qoS-Flow-Identifier		QoS-Flow-Identifier,
+	secondaryRATType			ENUMERATED {nR, e-UTRA, ...},
+	qoS-Flow-Timed-Report-List			SEQUENCE (SIZE(1..maxnooftimeperiods)) OF MRDC-Data-Usage-Report-Item,
+	iE-Extensions				ProtocolExtensionContainer { { Data-Usage-per-QoS-Flow-Item-ExtIEs} } OPTIONAL,
+...
+}
+
+Data-Usage-per-QoS-Flow-Item-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -793,6 +822,11 @@ Dynamic5QIDescriptor-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+DataDiscardRequired	::= 	ENUMERATED {
+	required,
+	...
+}
+
 -- E
 
 EncryptionKey	::=	OCTET STRING
@@ -1014,7 +1048,32 @@ MaxIPrate ::= ENUMERATED {
 
 MaxPacketLossRate ::= INTEGER (0..1000, ...)
 
+MRDC-Data-Usage-Report-Item ::= SEQUENCE {
+	startTimeStamp				OCTET STRING (SIZE(4)),
+	endTimeStamp				OCTET STRING (SIZE(4)),
+	usageCountUL				INTEGER (0..18446744073709551615),
+	usageCountDL				INTEGER (0..18446744073709551615),
+	iE-Extensions				ProtocolExtensionContainer { { MRDC-Data-Usage-Report-Item-ExtIEs} } OPTIONAL,
+...
+}
+
+MRDC-Data-Usage-Report-Item-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+MRDC-Usage-Information ::= SEQUENCE {
+	data-Usage-per-PDU-Session-Report		Data-Usage-per-PDU-Session-Report			OPTIONAL,
+	data-Usage-per-QoS-Flow-List			Data-Usage-per-QoS-Flow-List				OPTIONAL,
+	iE-Extensions				ProtocolExtensionContainer { { MRDC-Usage-Information-ExtIEs} } OPTIONAL,
+...
+}
+
+MRDC-Usage-Information-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 -- N
+
 NetworkInstance ::= INTEGER (1..256, ...)
 
 New-UL-TNL-Information-Required::= 	ENUMERATED {
@@ -1156,6 +1215,20 @@ PDCP-Reestablishment	::=	ENUMERATED	{
 	true,
 	...
 }
+
+PDU-Session-Resource-Data-Usage-List	::= SEQUENCE (SIZE(1.. maxnoofPDUSessionResource)) OF PDU-Session-Resource-Data-Usage-Item
+
+PDU-Session-Resource-Data-Usage-Item	::= SEQUENCE {
+	pDU-Session-ID							PDU-Session-ID,
+	mRDC-Usage-Information						MRDC-Usage-Information,
+	iE-Extensions							ProtocolExtensionContainer	{ { PDU-Session-Resource-Data-Usage-Item-ExtIEs } }	OPTIONAL,
+	...
+}
+
+PDU-Session-Resource-Data-Usage-Item-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 PDCP-SN		::=		INTEGER	(0..262143)
 
 PDCP-SN-Size	::=	ENUMERATED	{
@@ -1271,7 +1344,6 @@ PDU-Session-Resource-Modified-Item	::=	SEQUENCE {
 	dRB-Failed-List-NG-RAN				DRB-Failed-List-NG-RAN				OPTIONAL,
 	dRB-Modified-List-NG-RAN				DRB-Modified-List-NG-RAN				OPTIONAL,
 	dRB-Failed-To-Modify-List-NG-RAN		DRB-Failed-To-Modify-List-NG-RAN		OPTIONAL,
-	dRB-To-Remove-List-NG-RAN				DRB-To-Remove-List-NG-RAN				OPTIONAL,
 	iE-Extensions							ProtocolExtensionContainer	{ { PDU-Session-Resource-Modified-Item-ExtIEs } }	OPTIONAL,
 	...
 }
@@ -1286,6 +1358,7 @@ PDU-Session-Resource-Required-To-Modify-Item	::=	SEQUENCE {
 	pDU-Session-ID							PDU-Session-ID,
 	nG-DL-UP-TNL-Information				UP-TNL-Information						OPTIONAL,
 	dRB-Required-To-Modify-List-NG-RAN		DRB-Required-To-Modify-List-NG-RAN		OPTIONAL,
+	dRB-Required-To-Remove-List-NG-RAN				DRB-Required-To-Remove-List-NG-RAN				OPTIONAL,
 	iE-Extensions							ProtocolExtensionContainer	{ { PDU-Session-Resource-Required-To-Modify-Item-ExtIEs } }	OPTIONAL,
 	...
 }
@@ -1342,12 +1415,13 @@ PDU-Session-Resource-To-Modify-Item	::=	SEQUENCE {
 	networkInstance										NetworkInstance							OPTIONAL,
 	dRB-To-Setup-List-NG-RAN							DRB-To-Setup-List-NG-RAN				OPTIONAL,
 	dRB-To-Modify-List-NG-RAN							DRB-To-Modify-List-NG-RAN				OPTIONAL,
-	dRB-Required-To-Remove-List-NG-RAN					DRB-Required-To-Remove-List-NG-RAN		OPTIONAL,
+	dRB-To-Remove-List-NG-RAN					DRB-To-Remove-List-NG-RAN		OPTIONAL,
 	iE-Extensions										ProtocolExtensionContainer	{ { PDU-Session-Resource-To-Modify-Item-ExtIEs } }	OPTIONAL,
 	...
 }
 
 PDU-Session-Resource-To-Modify-Item-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
+	{ID id-SNSSAI		CRITICALITY reject	EXTENSION SNSSAI		PRESENCE optional},
 	...
 }
 

@@ -79,8 +79,8 @@ ProtocolIE-Field/value ie_field_value
 # #.FN_BODY ProtocolExtensionID  VAL_PTR=&e1ap_data->protocol_extension_id
 #   e1ap_private_data_t *e1ap_data = e1ap_get_private_data(actx->pinfo);
 # %(DEFAULT_BODY)s
-#
-# #.FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
+
+#.FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
 
 #.FN_BODY ProcedureCode  VAL_PTR = &e1ap_data->procedure_code
   e1ap_private_data_t *e1ap_data = e1ap_get_private_data(actx->pinfo);
@@ -138,6 +138,7 @@ id-dataUsageReport                     ProcedureCode
 id-gNB-CU-UP-CounterCheck              ProcedureCode
 id-gNB-CU-UP-StatusIndication          ProcedureCode
 id-uLDataNotification                  ProcedureCode
+id-mRDC-DataUsageReport                ProcedureCode
 
 # ProtocolIE-ID
 id-Cause                                        ProtocolIE-ID
@@ -208,6 +209,9 @@ id-gNB-CU-UP-Capacity                           ProtocolIE-ID
 id-GNB-CU-UP-OverloadInformation                ProtocolIE-ID
 id-UEDLMaximumIntegrityProtectedDataRate        ProtocolIE-ID
 id-PDU-Session-To-Notify-List                   ProtocolIE-ID
+id-PDU-Session-Resource-Data-Usage-List         ProtocolIE-ID
+id-SNSSAI                                       ProtocolIE-ID
+id-DataDiscardRequired                          ProtocolIE-ID
 
 #.END
 
@@ -282,8 +286,11 @@ GNB-CU-UP-Capacity                           N e1ap.ies id-gNB-CU-UP-Capacity
 GNB-CU-UP-OverloadInformation                N e1ap.ies id-GNB-CU-UP-OverloadInformation
 BitRate                                      N e1ap.ies id-UEDLMaximumIntegrityProtectedDataRate
 PDU-Session-To-Notify-List                   N e1ap.ies id-PDU-Session-To-Notify-List
+PDU-Session-Resource-Data-Usage-List         N e1ap.ies id-PDU-Session-Resource-Data-Usage-List
+DataDiscardRequired                          N e1ap.ies id-DataDiscardRequired
 
 #E1AP-PROTOCOL-EXTENSION
+SNSSAI                                       N e1ap.extension id-SNSSAI
 
 #E1AP-ELEMENTARY-PROCEDURE
 Reset                                    N e1ap.proc.imsg id-reset
@@ -339,6 +346,8 @@ GNB-CU-UP-CounterCheckRequest            N e1ap.proc.imsg id-gNB-CU-UP-CounterCh
 GNB-CU-UP-StatusIndication               N e1ap.proc.imsg id-gNB-CU-UP-StatusIndication
 
 PrivateMessage                           N e1ap.proc.imsg id-privateMessage
+
+MRDC-DataUsageReport                     N e1ap.proc.imsg id-mRDC-DataUsageReport
 
 #.FN_BODY PLMN-Identity  VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
@@ -413,6 +422,30 @@ Inactivity-Timer DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
     }
   }
 
+#.FN_BODY MRDC-Data-Usage-Report-Item/startTimeStamp VAL_PTR = &timestamp_tvb
+  tvbuff_t *timestamp_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR MRDC-Data-Usage-Report-Item/startTimeStamp
+  if (timestamp_tvb) {
+    proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(timestamp_tvb, 0));
+  }
+
+#.FN_BODY MRDC-Data-Usage-Report-Item/endTimeStamp VAL_PTR = &timestamp_tvb
+  tvbuff_t *timestamp_tvb = NULL;
+%(DEFAULT_BODY)s
+
+#.FN_FTR MRDC-Data-Usage-Report-Item/endTimeStamp
+  if (timestamp_tvb) {
+    proto_item_append_text(actx->created_item, " (%s)", tvb_ntp_fmt_ts_sec(timestamp_tvb, 0));
+  }
+
+#.TYPE_ATTR
+MRDC-Data-Usage-Report-Item/usageCountUL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_octet_octets
+
+#.TYPE_ATTR
+MRDC-Data-Usage-Report-Item/usageCountDL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_octet_octets
+
 #.FN_HDR Reset
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Reset");
 #.FN_HDR ResetAcknowledge
@@ -483,6 +516,8 @@ Inactivity-Timer DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNB-CU-UP-CounterCheckRequest");
 #.FN_HDR PrivateMessage
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PrivateMessage");
+#.FN_HDR MRDC-DataUsageReport
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "MRDC-DataUsageReport");
 #.END
 
 #

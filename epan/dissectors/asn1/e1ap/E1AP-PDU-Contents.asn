@@ -1,4 +1,4 @@
--- 3GPP TS 38.463 V15.2.0 (2018-12)
+-- 3GPP TS 38.463 V15.3.0 (2019-03)
 -- **************************************************************
 --
 -- PDU definitions for E1AP
@@ -81,7 +81,9 @@ IMPORTS
 	DRBs-Subject-To-Counter-Check-List-NG-RAN,
 	PPI,
 	GNB-CU-UP-Capacity,
-	GNB-CU-UP-OverloadInformation
+	GNB-CU-UP-OverloadInformation,
+	DataDiscardRequired,
+	PDU-Session-Resource-Data-Usage-List
 
 
 FROM E1AP-IEs
@@ -166,6 +168,8 @@ FROM E1AP-Containers
 	id-gNB-CU-UP-Capacity,
 	id-GNB-CU-UP-OverloadInformation,
 	id-UEDLMaximumIntegrityProtectedDataRate,
+	id-DataDiscardRequired,
+	id-PDU-Session-Resource-Data-Usage-List,
 
 	maxnoofErrors,
 	maxnoofSPLMNs,
@@ -726,6 +730,7 @@ BearerContextModificationRequestIEs E1AP-PROTOCOL-IES ::= {
 	{ ID id-BearerContextStatusChange				CRITICALITY reject	TYPE BearerContextStatusChange							PRESENCE optional  }|
 	{ ID id-New-UL-TNL-Information-Required			CRITICALITY reject	TYPE New-UL-TNL-Information-Required					PRESENCE optional  }|
 	{ ID id-UE-Inactivity-Timer						CRITICALITY reject	TYPE Inactivity-Timer										PRESENCE optional  }|
+	{ ID id-DataDiscardRequired					CRITICALITY ignore	TYPE DataDiscardRequired											PRESENCE optional  }|
 	{ ID id-System-BearerContextModificationRequest	CRITICALITY reject	TYPE System-BearerContextModificationRequest		PRESENCE optional  },
 	...
 } 
@@ -1141,7 +1146,23 @@ GNB-CU-UP-StatusIndicationIEs E1AP-PROTOCOL-IES ::= {
 	...
 }
 
+-- **************************************************************
+--
+-- MR-DC DATA USAGE REPORT
+--
+-- **************************************************************
 
+MRDC-DataUsageReport ::= SEQUENCE {
+	protocolIEs		ProtocolIE-Container		{ { MRDC-DataUsageReportIEs } },
+	...
+}
+
+MRDC-DataUsageReportIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-gNB-CU-CP-UE-E1AP-ID					CRITICALITY reject		TYPE GNB-CU-CP-UE-E1AP-ID							PRESENCE mandatory}|
+	{ ID id-gNB-CU-UP-UE-E1AP-ID					CRITICALITY reject		TYPE GNB-CU-UP-UE-E1AP-ID							PRESENCE mandatory}|
+	{ ID id-PDU-Session-Resource-Data-Usage-List	CRITICALITY ignore		TYPE PDU-Session-Resource-Data-Usage-List	PRESENCE mandatory},
+	...
+}
 
 -- **************************************************************
 --

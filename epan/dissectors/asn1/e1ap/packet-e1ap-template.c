@@ -8,7 +8,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * References: 3GPP TS 38.463 V15.2.0 (2018-12)
+ * References: 3GPP TS 38.463 V15.3.0 (2019-03)
  */
 
 #include "config.h"
@@ -57,7 +57,6 @@ typedef struct {
   guint32 message_type;
   guint32 procedure_code;
   guint32 protocol_ie_id;
-  guint32 protocol_extension_id;
   const char *obj_id;
 } e1ap_private_data_t;
 
@@ -79,7 +78,7 @@ static dissector_table_t e1ap_proc_sout_dissector_table;
 static dissector_table_t e1ap_proc_uout_dissector_table;
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
-//static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
+static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_SuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
 static int dissect_UnsuccessfulOutcomeValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *);
@@ -117,23 +116,21 @@ static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto
   e1ap_ctx.message_type        = e1ap_data->message_type;
   e1ap_ctx.ProcedureCode       = e1ap_data->procedure_code;
   e1ap_ctx.ProtocolIE_ID       = e1ap_data->protocol_ie_id;
-  e1ap_ctx.ProtocolExtensionID = e1ap_data->protocol_extension_id;
 
   return (dissector_try_uint_new(e1ap_ies_dissector_table, e1ap_data->protocol_ie_id, tvb, pinfo, tree, FALSE, &e1ap_ctx)) ? tvb_captured_length(tvb) : 0;
 }
 
-//static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
-//{
-//  e1ap_ctx_t e1ap_ctx;
-//  e1ap_private_data_t *e1ap_data = e1ap_get_private_data(pinfo);
-//
-//  e1ap_ctx.message_type        = e1ap_data->message_type;
-//  e1ap_ctx.ProcedureCode       = e1ap_data->procedure_code;
-//  e1ap_ctx.ProtocolIE_ID       = e1ap_data->protocol_ie_id;
-//  e1ap_ctx.ProtocolExtensionID = e1ap_data->protocol_extension_id;
-//
-//  return (dissector_try_uint_new(e1ap_extension_dissector_table, e1ap_data->protocol_extension_id, tvb, pinfo, tree, FALSE, &e1ap_ctx)) ? tvb_captured_length(tvb) : 0;
-//}
+static int dissect_ProtocolExtensionFieldExtensionValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+  e1ap_ctx_t e1ap_ctx;
+  e1ap_private_data_t *e1ap_data = e1ap_get_private_data(pinfo);
+
+  e1ap_ctx.message_type        = e1ap_data->message_type;
+  e1ap_ctx.ProcedureCode       = e1ap_data->procedure_code;
+  e1ap_ctx.ProtocolIE_ID       = e1ap_data->protocol_ie_id;
+
+  return (dissector_try_uint_new(e1ap_extension_dissector_table, e1ap_data->protocol_ie_id, tvb, pinfo, tree, FALSE, &e1ap_ctx)) ? tvb_captured_length(tvb) : 0;
+}
 
 static int dissect_InitiatingMessageValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {

@@ -1,4 +1,4 @@
--- 3GPP TS 38.463 V15.2.0 (2018-12)
+-- 3GPP TS 38.463 V15.3.0 (2019-03)
 -- **************************************************************
 --
 -- Elementary Procedure definitions
@@ -46,7 +46,6 @@ FROM E1AP-CommonDataTypes
 	BearerContextModificationResponse,
 	BearerContextModificationFailure,
 	BearerContextModificationRequired,
-
 	BearerContextModificationConfirm,
 	BearerContextReleaseCommand,
 	BearerContextReleaseComplete,
@@ -59,6 +58,7 @@ FROM E1AP-CommonDataTypes
 	E1ReleaseResponse,
 	GNB-CU-UP-CounterCheckRequest,
 	GNB-CU-UP-StatusIndication,
+	MRDC-DataUsageReport,
 	PrivateMessage
 
 FROM E1AP-PDU-Contents
@@ -80,6 +80,7 @@ FROM E1AP-PDU-Contents
 	id-dataUsageReport,
 	id-gNB-CU-UP-CounterCheck,
 	id-gNB-CU-UP-StatusIndication,
+	id-mRDC-DataUsageReport,
 	id-privateMessage
 
 FROM E1AP-Constants;
@@ -173,6 +174,7 @@ E1AP-ELEMENTARY-PROCEDURES-CLASS-2 E1AP-ELEMENTARY-PROCEDURE ::= {
 	dataUsageReport							|
 	gNB-CU-UP-CounterCheck					|
 	gNB-CU-UP-StatusIndication			|
+	mRDC-DataUsageReport					|
 	privateMessage							,
 	...
 }
@@ -310,6 +312,12 @@ gNB-CU-UP-StatusIndication 	E1AP-ELEMENTARY-PROCEDURE ::= {
 privateMessage E1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		PrivateMessage
 	PROCEDURE CODE			id-privateMessage
+	CRITICALITY				ignore
+}
+
+mRDC-DataUsageReport	E1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		MRDC-DataUsageReport
+	PROCEDURE CODE			id-mRDC-DataUsageReport
 	CRITICALITY				ignore
 }
 
