@@ -115,6 +115,49 @@ close_non_standard_fds_linux(gpointer user_data _U_)
 }
 #endif
 
+#ifdef _WIN32
+static ULONG pipe_serial_number;
+
+/* Alternative for CreatePipe() where read handle is opened with FILE_FLAG_OVERLAPPED */
+static gboolean
+ws_pipe_create_overlapped_read(HANDLE *read_pipe_handle, HANDLE *write_pipe_handle,
+                               SECURITY_ATTRIBUTES *sa, DWORD suggested_buffer_size)
+{
+    HANDLE read_pipe, write_pipe;
+    guchar *name = g_strdup_printf("\\\\.\\Pipe\\WiresharkWsPipe.%08x.%08x",
+                                   GetCurrentProcessId(),
+                                   InterlockedIncrement(&pipe_serial_number));
+    gunichar2 *wname = g_utf8_to_utf16(name, -1, NULL, NULL, NULL);
+
+    g_free(name);
+
+    read_pipe = CreateNamedPipe(wname, PIPE_ACCESS_INBOUND | FILE_FLAG_OVERLAPPED,
+                                PIPE_TYPE_BYTE | PIPE_WAIT, 1,
+                                suggested_buffer_size, suggested_buffer_size,
+                                0, sa);
+    if (!read_pipe)
+    {
+        g_free(wname);
+        return FALSE;
+    }
+
+    write_pipe = CreateFile(wname, GENERIC_WRITE, 0, sa, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if (INVALID_HANDLE_VALUE == write_pipe)
+    {
+        DWORD error = GetLastError();
+        CloseHandle(read_pipe);
+        SetLastError(error);
+        g_free(wname);
+        return FALSE;
+    }
+
+    *read_pipe_handle = read_pipe;
+    *write_pipe_handle = write_pipe;
+    g_free(wname);
+    return(TRUE);
+}
+#endif
+
 gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command, gint argc, gchar **args, gchar **command_output)
 {
     gboolean status = FALSE;
@@ -137,6 +180,9 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
     HANDLE child_stdout_wr = NULL;
     HANDLE child_stderr_rd = NULL;
     HANDLE child_stderr_wr = NULL;
+
+    OVERLAPPED stdout_overlapped;
+    OVERLAPPED stderr_overlapped;
 #else
     gint exit_status = 0;
 #endif
@@ -163,20 +209,43 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
     guint64 start_time = g_get_monotonic_time();
 
 #ifdef _WIN32
+    /* Setup overlapped structures. Create Manual Reset events, initially not signalled */
+    memset(&stdout_overlapped, 0, sizeof(OVERLAPPED));
+    memset(&stderr_overlapped, 0, sizeof(OVERLAPPED));
+    stdout_overlapped.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+    if (!stdout_overlapped.hEvent)
+    {
+        g_free(argv[0]);
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create stdout overlapped event");
+        return FALSE;
+    }
+    stderr_overlapped.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+    if (!stderr_overlapped.hEvent)
+    {
+        CloseHandle(stdout_overlapped.hEvent);
+        g_free(argv[0]);
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create stderr overlapped event");
+        return FALSE;
+    }
 
+    memset(&sa, 0, sizeof(SECURITY_ATTRIBUTES));
     sa.nLength = sizeof(SECURITY_ATTRIBUTES);
     sa.bInheritHandle = TRUE;
     sa.lpSecurityDescriptor = NULL;
 
-    if (!CreatePipe(&child_stdout_rd, &child_stdout_wr, &sa, 0))
+    if (!ws_pipe_create_overlapped_read(&child_stdout_rd, &child_stdout_wr, &sa, 0))
     {
+        CloseHandle(stdout_overlapped.hEvent);
+        CloseHandle(stderr_overlapped.hEvent);
         g_free(argv[0]);
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create stdout handle");
         return FALSE;
     }
 
-    if (!CreatePipe(&child_stderr_rd, &child_stderr_wr, &sa, 0))
+    if (!ws_pipe_create_overlapped_read(&child_stderr_rd, &child_stderr_wr, &sa, 0))
     {
+        CloseHandle(stdout_overlapped.hEvent);
+        CloseHandle(stderr_overlapped.hEvent);
         CloseHandle(child_stdout_rd);
         CloseHandle(child_stdout_wr);
         g_free(argv[0]);
@@ -205,66 +274,134 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
 
     if (win32_create_process(NULL, winargs->str, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &info, &processInfo))
     {
-        gchar* buffer = (gchar*)g_malloc(BUFFER_SIZE);
+        gchar* stdout_buffer = (gchar*)g_malloc(BUFFER_SIZE);
+        gchar* stderr_buffer = (gchar*)g_malloc(BUFFER_SIZE);
         DWORD dw;
         DWORD bytes_read;
-        DWORD bytes_avail;
         GString *output_string = g_string_new(NULL);
+        gboolean process_finished = FALSE;
+        gboolean pending_stdout = TRUE;
+        gboolean pending_stderr = TRUE;
+
+        /* Start asynchronous reads from child process stdout and stderr */
+        if (!ReadFile(child_stdout_rd, stdout_buffer, BUFFER_SIZE, NULL, &stdout_overlapped))
+        {
+            if (GetLastError() != ERROR_IO_PENDING)
+            {
+                g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "ReadFile on child stdout pipe failed. Error %d", GetLastError());
+                pending_stdout = FALSE;
+            }
+        }
+
+        if (!ReadFile(child_stderr_rd, stderr_buffer, BUFFER_SIZE, NULL, &stderr_overlapped))
+        {
+            if (GetLastError() != ERROR_IO_PENDING)
+            {
+                g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "ReadFile on child stderr pipe failed. Error %d", GetLastError());
+                pending_stderr = FALSE;
+            }
+        }
 
         for (;;)
         {
-            /* Keep peeking at pipes every 100 ms. */
-            dw = WaitForSingleObject(processInfo.hProcess, 100000);
-            if (dw == WAIT_OBJECT_0)
+            HANDLE handles[3];
+            DWORD n_handles = 0;
+            if (!process_finished)
             {
-                /* Process finished. Nothing left to do here. */
-                break;
+                handles[n_handles++] = processInfo.hProcess;
             }
-            else if (dw != WAIT_TIMEOUT)
+            if (pending_stdout)
             {
-                g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "WaitForSingleObject returned 0x%08X. Error %d", dw, GetLastError());
+                handles[n_handles++] = stdout_overlapped.hEvent;
+            }
+            if (pending_stderr)
+            {
+                handles[n_handles++] = stderr_overlapped.hEvent;
+            }
+
+            if (!n_handles)
+            {
+                /* No more things to wait */
                 break;
             }
 
-            if (PeekNamedPipe(child_stdout_rd, NULL, 0, NULL, &bytes_avail, NULL))
+            dw = WaitForMultipleObjects(n_handles, handles, FALSE, INFINITE);
+            if (dw < (WAIT_OBJECT_0 + n_handles))
             {
-                if (bytes_avail > 0)
+                int i = dw - WAIT_OBJECT_0;
+                if (handles[i] == processInfo.hProcess)
                 {
-                    bytes_avail = min(bytes_avail, BUFFER_SIZE);
-                    if (ReadFile(child_stdout_rd, &buffer[0], bytes_avail, &bytes_read, NULL))
+                    /* Process finished but there might still be unread data in the pipe.
+                     * Close the write pipes, so ReadFile does not wait indefinitely.
+                     */
+                    CloseHandle(child_stdout_wr);
+                    CloseHandle(child_stderr_wr);
+                    process_finished = TRUE;
+                }
+                else if (handles[i] == stdout_overlapped.hEvent)
+                {
+                    bytes_read = 0;
+                    if (!GetOverlappedResult(child_stdout_rd, &stdout_overlapped, &bytes_read, TRUE))
                     {
-                        g_string_append_len(output_string, buffer, bytes_read);
+                        if (GetLastError() == ERROR_BROKEN_PIPE)
+                        {
+                            pending_stdout = FALSE;
+                            continue;
+                        }
+                        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "GetOverlappedResult on stdout failed. Error %d", GetLastError());
+                    }
+                    if (process_finished && (bytes_read == 0))
+                    {
+                        /* We have drained the pipe and there isn't any process that holds active write handle to the pipe. */
+                        pending_stdout = FALSE;
+                        continue;
+                    }
+                    g_string_append_len(output_string, stdout_buffer, bytes_read);
+                    if (!ReadFile(child_stdout_rd, stdout_buffer, BUFFER_SIZE, NULL, &stdout_overlapped))
+                    {
+                        if (GetLastError() != ERROR_IO_PENDING)
+                        {
+                            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "ReadFile on child stdout pipe failed. Error %d", GetLastError());
+                            pending_stdout = FALSE;
+                        }
+                    }
+                }
+                else if (handles[i] == stderr_overlapped.hEvent)
+                {
+                    /* Discard the stderr data just like non-windows version of this function does. */
+                    bytes_read = 0;
+                    if (!GetOverlappedResult(child_stderr_rd, &stderr_overlapped, &bytes_read, TRUE))
+                    {
+                        if (GetLastError() == ERROR_BROKEN_PIPE)
+                        {
+                            pending_stderr = FALSE;
+                            continue;
+                        }
+                        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "GetOverlappedResult on stderr failed. Error %d", GetLastError());
+                    }
+                    if (process_finished && (bytes_read == 0))
+                    {
+                        pending_stderr = FALSE;
+                        continue;
+                    }
+                    if (!ReadFile(child_stderr_rd, stderr_buffer, BUFFER_SIZE, NULL, &stderr_overlapped))
+                    {
+                        if (GetLastError() != ERROR_IO_PENDING)
+                        {
+                            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "ReadFile on child stderr pipe failed. Error %d", GetLastError());
+                            pending_stderr = FALSE;
+                        }
                     }
                 }
             }
-
-            /* Discard the stderr data just like non-windows version of this function does. */
-            if (PeekNamedPipe(child_stderr_rd, NULL, 0, NULL, &bytes_avail, NULL))
+            else
             {
-                if (bytes_avail > 0)
-                {
-                    bytes_avail = min(bytes_avail, BUFFER_SIZE);
-                    ReadFile(child_stderr_rd, &buffer[0], bytes_avail, &bytes_read, NULL);
-                }
+                g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "WaitForMultipleObjects returned 0x%08X. Error %d", dw, GetLastError());
             }
         }
 
-        /* At this point the process is finished but there might still be unread data in the pipe. */
-        while (PeekNamedPipe(child_stdout_rd, NULL, 0, NULL, &bytes_avail, NULL))
-        {
-            if (bytes_avail == 0)
-            {
-                /* Pipe is drained. */
-                break;
-            }
-            bytes_avail = min(bytes_avail, BUFFER_SIZE);
-            if (ReadFile(child_stdout_rd, &buffer[0], BUFFER_SIZE, &bytes_read, NULL))
-            {
-                g_string_append_len(output_string, buffer, bytes_read);
-            }
-        }
-
-        g_free(buffer);
+        g_free(stdout_buffer);
+        g_free(stderr_buffer);
 
         status = GetExitCodeProcess(processInfo.hProcess, &dw);
         if (status && dw != 0)
@@ -275,9 +412,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
         local_output = g_string_free(output_string, FALSE);
 
         CloseHandle(child_stdout_rd);
-        CloseHandle(child_stdout_wr);
         CloseHandle(child_stderr_rd);
-        CloseHandle(child_stderr_wr);
 
         CloseHandle(processInfo.hProcess);
         CloseHandle(processInfo.hThread);
@@ -291,6 +426,9 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
         CloseHandle(child_stderr_rd);
         CloseHandle(child_stderr_wr);
     }
+
+    CloseHandle(stdout_overlapped.hEvent);
+    CloseHandle(stderr_overlapped.hEvent);
 #else
 
     GSpawnFlags flags = (GSpawnFlags)0;
