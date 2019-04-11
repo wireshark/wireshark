@@ -4019,52 +4019,49 @@ dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto
         offset++;
         len--;
         if (hf_id >= 0) {
+            item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, len, ENC_NA);
+            actx->created_item = item;
             if (named_bits) {
-                gint section_len;
-                if (num_named_bits < 65) {
-                    item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, len, ENC_NA);
-                    actx->created_item = item;
-                    if (ett_id != -1) {
-                        tree = proto_item_add_subtree(item, ett_id);
+                const int named_bits_bytelen = (num_named_bits + 7) / 8;
+                if (show_internal_ber_fields) {
+                    guint zero_bits_omitted = 0;
+                    if (len < named_bits_bytelen) {
+                        zero_bits_omitted = num_named_bits - ((len * 8) - pad);
+                        proto_item_append_text(item, "[ %u zero bits not encoded, but displayed]", zero_bits_omitted);
                     }
-                    section_len = (num_named_bits + 7) / 8;
-                    proto_tree_add_bitmask_list(tree, tvb, offset, section_len, named_bits, ENC_BIG_ENDIAN);
-                    if (section_len < len) {
-                        expert_add_info_format(actx->pinfo, item, &ei_ber_bits_unknown, "Unknown bit(s): 0x%s",
-                                               tvb_bytes_to_str(wmem_packet_scope(), tvb, offset + section_len, len - section_len));
+                }
+                if (ett_id != -1) {
+                    tree = proto_item_add_subtree(item, ett_id);
+                }
+                for (int i = 0; i < named_bits_bytelen; i++) {
+                    // If less data is available than the number of named bits, then
+                    // the trailing (right) bits are assumed to be 0.
+                    guint64 value = 0;
+                    if (i < len) {
+                        value = tvb_get_guint8(tvb, offset + i);
                     }
-                } else {
-                    item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, len, ENC_NA);
-                    actx->created_item = item;
-                    if (ett_id != -1) {
-                        tree = proto_item_add_subtree(item, ett_id);
-                    }
-                    int * flags[65];
-                    int i = 0;
-                    int j = 0;
-                    int bits_to_load = 64;
-                    int temp_offset = offset;
 
-                    section_len = 8;
-                    while (j < num_named_bits){
-                        for (i = 0; i < bits_to_load; i++) {
-                            flags[i] = (int *)named_bits[j];
-                            j++;
-                        }
-                        bits_to_load = num_named_bits - j;
-                        if (bits_to_load > 64) {
-                            bits_to_load = 64;
-                        }
-                        /* TODO: Add pad bits ?*/
-                        flags[i] = NULL;
-                        proto_tree_add_bitmask_list(tree, tvb, temp_offset, section_len, (const int **)flags, ENC_BIG_ENDIAN);
-                        temp_offset += section_len;
-                        section_len = (bits_to_load + 7) / 8;
+                    // Process 8 bits at a time instead of 64, each field masks a
+                    // single byte.
+                    const int bit_offset = 8 * i;
+                    const int** section_named_bits = named_bits + bit_offset;
+                    int* flags[9];
+                    if (num_named_bits - bit_offset > 8) {
+                        memcpy(&flags[0], named_bits + bit_offset, 8 * sizeof(int*));
+                        flags[8] = NULL;
+                        section_named_bits = (const int** )flags;
                     }
-                    if ((temp_offset - offset) < len) {
-                        expert_add_info_format(actx->pinfo, item, &ei_ber_bits_unknown, "Unknown bit(s): 0x%s",
-                                               tvb_bytes_to_str(wmem_packet_scope(), tvb, temp_offset, len - (temp_offset - offset)));
-                    }
+
+                    // TODO should non-zero pad bits be masked from the value?
+                    // When trailing zeroes are not present in the data, mark the
+                    // last byte for the lack of a better alternative.
+                    proto_tree_add_bitmask_list_value(tree, tvb, offset + MIN(i, len - 1), 1, section_named_bits, value);
+                }
+                // If more data is available than the number of named bits, then
+                // either the spec was updated or the packet is malformed.
+                if (named_bits_bytelen < len) {
+                    expert_add_info_format(actx->pinfo, item, &ei_ber_bits_unknown, "Unknown bit(s): 0x%s",
+                        tvb_bytes_to_str(wmem_packet_scope(), tvb, offset + named_bits_bytelen, len - named_bits_bytelen));
                 }
             }
         }
