@@ -49,8 +49,10 @@
 #include <epan/to_str.h>
 #include <epan/arptypes.h>
 #include <wsutil/str_util.h>
+#include <epan/strutil.h>
 #include "packet-tcp.h"
 #include "packet-arp.h"
+#include "packet-dns.h"
 
 void proto_register_dhcpv6(void);
 void proto_reg_handoff_dhcpv6(void);
@@ -144,6 +146,41 @@ static int hf_nai = -1;
 static int hf_pd_exclude_pref_len = -1;
 static int hf_pd_exclude_subnet_id = -1;
 static int hf_option_captive_portal = -1;
+static int hf_option_s46_option_code = -1;
+static int hf_option_failover_binding_status = -1;
+static int hf_option_failover_connect_flags = -1;
+static int hf_option_failover_connect_reserved_flag = -1;
+static int hf_option_failover_connect_f_flag = -1;
+static int hf_option_failover_dns_hostname = -1;
+static int hf_option_failover_dns_zonename = -1;
+static int hf_option_failover_dns_flags = -1;
+static int hf_option_failover_dns_reserved_flag = -1;
+static int hf_option_failover_dns_u_flag = -1;
+static int hf_option_failover_dns_s_flag = -1;
+static int hf_option_failover_dns_r_flag = -1;
+static int hf_option_failover_dns_f_flag = -1;
+static int hf_option_failover_expiration_time = -1;
+static int hf_option_failover_max_unacked_bndupd = -1;
+static int hf_option_failover_mclt = -1;
+static int hf_option_failover_partner_lifetime = -1;
+static int hf_option_failover_partner_lifetime_sent = -1;
+static int hf_option_failover_partner_downtime = -1;
+static int hf_option_failover_partner_raw_clt_time = -1;
+static int hf_option_failover_major_version = -1;
+static int hf_option_failover_minor_version = -1;
+static int hf_option_failover_keepalive_time = -1;
+static int hf_option_failover_reconfigure_time = -1;
+static int hf_option_failover_reconfigure_key = -1;
+static int hf_option_failover_relationship_name = -1;
+static int hf_option_failover_server_flags = -1;
+static int hf_option_failover_server_reserved_flag = -1;
+static int hf_option_failover_server_a_flag = -1;
+static int hf_option_failover_server_s_flag = -1;
+static int hf_option_failover_server_c_flag = -1;
+static int hf_option_failover_server_state = -1;
+static int hf_option_failover_start_time_of_state = -1;
+static int hf_option_failover_state_expiration_time = -1;
+static int hf_option_relay_port = -1;
 static int hf_dhcpv6_hopcount = -1;
 static int hf_dhcpv6_xid = -1;
 static int hf_dhcpv6_peeraddr = -1;
@@ -217,6 +254,9 @@ static gint ett_dhcpv6_nis_domain_name_option = -1;
 static gint ett_dhcpv6_nisp_domain_name_option = -1;
 static gint ett_dhcpv6_bcmcs_servers_domain_search_list_option = -1;
 static gint ett_dhcpv6_s46_rule_flags = -1;
+static gint ett_dhcpv6_failover_connect_flags = -1;
+static gint ett_dhcpv6_failover_dns_flags = -1;
+static gint ett_dhcpv6_failover_server_flags = -1;
 
 static expert_field ei_dhcpv6_bogus_length = EI_INIT;
 static expert_field ei_dhcpv6_malformed_option = EI_INIT;
@@ -376,7 +416,33 @@ static dissector_handle_t dhcpv6_handle;
 #define OPTION_ANI_AP_BSSID          108 /* RFC 7839 */
 #define OPTION_ANI_OPERATOR_ID       109 /* RFC 7839 */
 #define OPTION_ANI_OPERATOR_REALM    110 /* RFC 7839 */
+#define OPTION_S46_PRIORITY          111 /* RFC8026 */
 #define OPTION_MUDURL                112 /* MUDURL */
+#define OPTION_V6_PREFIX64           113 /* RFC8115 */
+#define OPTION_F_BINDING_STATUS      114 /* RFC8156 */
+#define OPTION_F_CONNECT_FLAGS       115 /* RFC8156 */
+#define OPTION_F_DNS_REMOVAL_INFO    116 /* RFC8156 */
+#define OPTION_F_DNS_HOST_NAME       117 /* RFC8156 */
+#define OPTION_F_DNS_ZONE_NAME       118 /* RFC8156 */
+#define OPTION_F_DNS_FLAGS           119 /* RFC8156 */
+#define OPTION_F_EXPIRATION_TIME     120 /* RFC8156 */
+#define OPTION_F_MAX_UNACKED_BNDUPD  121 /* RFC8156 */
+#define OPTION_F_MCLT                122 /* RFC8156 */
+#define OPTION_F_PARTNER_LIFETIME    123 /* RFC8156 */
+#define OPTION_F_PARTNER_LIFETIME_SENT   124 /* RFC8156 */
+#define OPTION_F_PARTNER_DOWN_TIME   125 /* RFC8156 */
+#define OPTION_F_PARTNER_RAW_CLT_TIME    126 /* RFC8156 */
+#define OPTION_F_PROTOCOL_VERSION    127 /* RFC8156 */
+#define OPTION_F_KEEPALIVE_TIME      128 /* RFC8156 */
+#define OPTION_F_RECONFIGURE_DATA    129 /* RFC8156 */
+#define OPTION_F_RELATIONSHIP_NAME   130 /* RFC8156 */
+#define OPTION_F_SERVER_FLAGS        131 /* RFC8156 */
+#define OPTION_F_SERVER_STATE        132 /* RFC8156 */
+#define OPTION_F_START_TIME_OF_STATE 133 /* RFC8156 */
+#define OPTION_F_STATE_EXPIRATION_TIME   134 /* RFC8156 */
+#define OPTION_RELAY_PORT            135 /* RFC8357 */
+#define OPTION_V6_SZTP_REDIRECT      136 /* RFC-ietf-netconf-zerotouch-29 */
+#define OPTION_S46_BIND_IPV6_PREFIX  137 /* RFC8539 */
 #define OPTION_IPv6_ADDRESS_ANDSF    143 /* RFC 6153 */
 
 /* temporary value until defined by IETF */
@@ -523,7 +589,33 @@ static const value_string opttype_vals[] = {
     { OPTION_ANI_AP_BSSID,           "Access Point BSSID" },
     { OPTION_ANI_OPERATOR_ID,        "Access Network Operator ID" },
     { OPTION_ANI_OPERATOR_REALM,     "Access Network Operator Realm" },
+    { OPTION_S46_PRIORITY,           "S46 Priority" },
     { OPTION_MUDURL,                 "Manufacturer Usage Description" },
+    { OPTION_V6_PREFIX64,            "IPv4/IPv6 Multicast Prefixes" },
+    { OPTION_F_BINDING_STATUS,       "Failover Binding Status" },
+    { OPTION_F_CONNECT_FLAGS,        "Failover Connect Flags" },
+    { OPTION_F_DNS_REMOVAL_INFO,     "Failover DNS Removal Info" },
+    { OPTION_F_DNS_HOST_NAME,        "Failover DNS Hostname" },
+    { OPTION_F_DNS_ZONE_NAME,        "Failover DNS Zone Name" },
+    { OPTION_F_DNS_FLAGS,            "Failover DNS Flags" },
+    { OPTION_F_EXPIRATION_TIME,      "Failover Expiration Time" },
+    { OPTION_F_MAX_UNACKED_BNDUPD,   "Failover Maximum Number Unacked BNDUPD Messages" },
+    { OPTION_F_MCLT,                 "Failover Maximum Client Lead Time (MCLT)" },
+    { OPTION_F_PARTNER_LIFETIME,     "Failover Partner Lifetime" },
+    { OPTION_F_PARTNER_LIFETIME_SENT,"Failover Partner Lifetime Sent" },
+    { OPTION_F_PARTNER_DOWN_TIME,    "Failover Partner Down Time" },
+    { OPTION_F_PARTNER_RAW_CLT_TIME, "Failover Partner Raw Client Time" },
+    { OPTION_F_PROTOCOL_VERSION,     "Failover Protocol Version" },
+    { OPTION_F_KEEPALIVE_TIME,       "Failover Keepalive Time" },
+    { OPTION_F_RECONFIGURE_DATA,     "Failover Reconfigure Data" },
+    { OPTION_F_RELATIONSHIP_NAME,    "Failover Relationship Name" },
+    { OPTION_F_SERVER_FLAGS,         "Failover Server Flags" },
+    { OPTION_F_SERVER_STATE,         "Failover Server State" },
+    { OPTION_F_START_TIME_OF_STATE,  "Failover Start Time of State" },
+    { OPTION_F_STATE_EXPIRATION_TIME,"Failover State Expiration Time" },
+    { OPTION_RELAY_PORT,             "Relay Source Port" },
+    { OPTION_V6_SZTP_REDIRECT,       "SZTP Redirect" },
+    { OPTION_S46_BIND_IPV6_PREFIX,   "Softwire Source Binding Prefix Hint" },
     { OPTION_IPv6_ADDRESS_ANDSF,     "ANDSF IPv6 Address" },
     { OPTION_MIP6_HA,                "Mobile IPv6 Home Agent" },
     { OPTION_MIP6_HOA,               "Mobile IPv6 Home Address" },
@@ -821,6 +913,66 @@ static const value_string eue_capabilities_encoding [] = {
     { 0, NULL },
 };
 static value_string_ext eue_capabilities_encoding_ext = VALUE_STRING_EXT_INIT(eue_capabilities_encoding);
+
+static const value_string s46_opt_code_vals[] = {
+    { 64,      "DS-Lite" },
+    { 88,      "DHCPv4 over DHCPv6" },
+    { 94,      "MAP-E" },
+    { 95,      "MAP-T" },
+    { 96,      "Lightweight 4over6" },
+    { 0, NULL },
+};
+
+static const value_string failover_binding_status_vals[] = {
+    { 0,       "reserved" },
+    { 1,       "ACTIVE" },
+    { 2,       "EXPIRED" },
+    { 3,       "RELEASED" },
+    { 4,       "PENDING-FREE" },
+    { 5,       "FREE" },
+    { 6,       "FREE-BACKUP" },
+    { 7,       "ABANDONED" },
+    { 8,       "RESET" },
+    { 0, NULL },
+};
+
+static const value_string failover_server_state_vals[] = {
+    {  0,      "reserved" },
+    {  1,      "Startup state (1)" },
+    {  2,      "Normal state" },
+    {  3,      "Communications interrupted" },
+    {  4,      "Partner down" },
+    {  5,      "Synchronizing" },
+    {  6,      "Recovering bindings from partner" },
+    {  7,      "Waiting out MCLT after RECOVER" },
+    {  8,      "Interlock state prior to NORMAL" },
+    {  9,      "Comm. failed during resolution" },
+    { 10,      "Primary resolved its conflicts" },
+    { 0, NULL },
+};
+
+static const int *dhcpv6_failover_connect_flags_fields[] = {
+    &hf_option_failover_connect_reserved_flag,
+    &hf_option_failover_connect_f_flag,
+    NULL
+};
+
+static const int *dhcpv6_failover_dns_flags_fields[] = {
+    &hf_option_failover_dns_reserved_flag,
+    &hf_option_failover_dns_u_flag,
+    &hf_option_failover_dns_s_flag,
+    &hf_option_failover_dns_r_flag,
+    &hf_option_failover_dns_f_flag,
+    NULL
+};
+
+static const int *dhcpv6_failover_server_flags_fields[] = {
+    &hf_option_failover_server_reserved_flag,
+    &hf_option_failover_server_a_flag,
+    &hf_option_failover_server_s_flag,
+    &hf_option_failover_server_c_flag,
+    NULL
+};
 
 typedef struct hopcount_info_t {
     guint8     hopcount;
@@ -2207,6 +2359,163 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         proto_item_set_url(ti_cp);
         break;
         }
+    case OPTION_S46_PRIORITY:
+        temp_optlen = optlen;
+        while (temp_optlen >= 2) {
+            proto_tree_add_item(subtree, hf_option_s46_option_code, tvb, off, 2, ENC_BIG_ENDIAN);
+            temp_optlen -= 2;
+            off += 2;
+        }
+        break;
+    case OPTION_F_BINDING_STATUS:
+        if (optlen != 1) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "Failover: malformed option");
+            break;
+        }
+        proto_tree_add_item(subtree, hf_option_failover_binding_status, tvb, off, 1, ENC_BIG_ENDIAN);
+        break;
+    case OPTION_F_CONNECT_FLAGS:
+        if (optlen != 2) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "Failover: malformed option");
+            break;
+        }
+        proto_tree_add_bitmask(subtree, tvb, off, hf_option_failover_connect_flags, ett_dhcpv6_failover_connect_flags, dhcpv6_failover_connect_flags_fields, ENC_BIG_ENDIAN);
+        break;
+    case OPTION_F_DNS_HOST_NAME:
+        {
+        const guchar *dns_name;
+        guint dns_name_len;
+
+        get_dns_name(tvb, off, optlen, off, &dns_name, &dns_name_len);
+        proto_tree_add_string(subtree, hf_option_failover_dns_hostname, tvb, off, optlen, format_text(wmem_packet_scope(), dns_name, dns_name_len));
+        break;
+        }
+    case OPTION_F_DNS_ZONE_NAME:
+        {
+        const guchar *dns_name;
+        guint dns_name_len;
+
+        get_dns_name(tvb, off, optlen, off, &dns_name, &dns_name_len);
+        proto_tree_add_string(subtree, hf_option_failover_dns_zonename, tvb, off, optlen, format_text(wmem_packet_scope(), dns_name, dns_name_len));
+        break;
+        }
+    case OPTION_F_DNS_FLAGS:
+        if (optlen != 2) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "Failover: malformed option");
+            break;
+        }
+        proto_tree_add_bitmask(subtree, tvb, off, hf_option_failover_dns_flags, ett_dhcpv6_failover_dns_flags, dhcpv6_failover_dns_flags_fields, ENC_BIG_ENDIAN);
+        break;
+    case OPTION_F_EXPIRATION_TIME:
+        if (optlen != 4) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "Failover: malformed option");
+            break;
+        }
+        proto_tree_add_item(subtree, hf_option_failover_expiration_time, tvb, off, 4, ENC_BIG_ENDIAN);
+        break;
+    case OPTION_F_MAX_UNACKED_BNDUPD:
+        if (optlen != 4) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "Failover: malformed option");
+            break;
+        }
+        proto_tree_add_item(subtree, hf_option_failover_max_unacked_bndupd, tvb, off, 4, ENC_BIG_ENDIAN);
+        break;
+    case OPTION_F_MCLT:
+        if (optlen != 4) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "Failover: malformed option");
+            break;
+        }
+        proto_tree_add_item(subtree, hf_option_failover_mclt, tvb, off, 4, ENC_BIG_ENDIAN);
+        break;
+    case OPTION_F_PARTNER_LIFETIME:
+        if (optlen != 4) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "Failover: malformed option");
+            break;
+        }
+        proto_tree_add_item(subtree, hf_option_failover_partner_lifetime, tvb, off, 4, ENC_BIG_ENDIAN);
+        break;
+    case OPTION_F_PARTNER_LIFETIME_SENT:
+        if (optlen != 4) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "Failover: malformed option");
+            break;
+        }
+        proto_tree_add_item(subtree, hf_option_failover_partner_lifetime_sent, tvb, off, 4, ENC_BIG_ENDIAN);
+        break;
+    case OPTION_F_PARTNER_DOWN_TIME:
+        if (optlen != 4) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "Failover: malformed option");
+            break;
+        }
+        proto_tree_add_item(subtree, hf_option_failover_partner_downtime, tvb, off, 4, ENC_BIG_ENDIAN);
+        break;
+    case OPTION_F_PARTNER_RAW_CLT_TIME:
+        if (optlen != 4) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "Failover: malformed option");
+            break;
+        }
+        proto_tree_add_item(subtree, hf_option_failover_partner_raw_clt_time, tvb, off, 4, ENC_BIG_ENDIAN);
+        break;
+    case OPTION_F_PROTOCOL_VERSION:
+        if (optlen != 4) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "Failover: malformed option");
+            break;
+        }
+        proto_tree_add_item(subtree, hf_option_failover_major_version, tvb, off, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_option_failover_minor_version, tvb, off+2, 2, ENC_BIG_ENDIAN);
+        break;
+    case OPTION_F_KEEPALIVE_TIME:
+        if (optlen != 4) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "Failover: malformed option");
+            break;
+        }
+        proto_tree_add_item(subtree, hf_option_failover_keepalive_time, tvb, off, 4, ENC_BIG_ENDIAN);
+        break;
+    case OPTION_F_RECONFIGURE_DATA:
+        if (optlen < 4) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "Failover: malformed option");
+            break;
+        }
+        proto_tree_add_item(subtree, hf_option_failover_reconfigure_time, tvb, off, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(subtree, hf_option_failover_reconfigure_key, tvb, off+4, optlen-4, ENC_NA);
+        break;
+    case OPTION_F_RELATIONSHIP_NAME:
+        proto_tree_add_item(subtree, hf_option_failover_relationship_name, tvb, off, optlen, ENC_UTF_8|ENC_NA);
+        break;
+    case OPTION_F_SERVER_FLAGS:
+        if (optlen != 1) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "Failover: malformed option");
+            break;
+        }
+        proto_tree_add_bitmask(subtree, tvb, off, hf_option_failover_server_flags, ett_dhcpv6_failover_server_flags, dhcpv6_failover_server_flags_fields, ENC_BIG_ENDIAN);
+        break;
+    case OPTION_F_SERVER_STATE:
+        if (optlen != 1) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "Failover: malformed option");
+            break;
+        }
+        proto_tree_add_item(subtree, hf_option_failover_server_state, tvb, off, 1, ENC_BIG_ENDIAN);
+        break;
+    case OPTION_F_START_TIME_OF_STATE:
+        if (optlen != 4) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "Failover: malformed option");
+            break;
+        }
+        proto_tree_add_item(subtree, hf_option_failover_start_time_of_state, tvb, off, 4, ENC_BIG_ENDIAN);
+        break;
+    case OPTION_F_STATE_EXPIRATION_TIME:
+        if (optlen != 4) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "Failover: malformed option");
+            break;
+        }
+        proto_tree_add_item(subtree, hf_option_failover_state_expiration_time, tvb, off, 4, ENC_BIG_ENDIAN);
+        break;
+    case OPTION_RELAY_PORT:
+        if (optlen != 2) {
+            expert_add_info_format(pinfo, option_item, &ei_dhcpv6_malformed_option, "Relay Port: malformed option");
+            break;
+        }
+        proto_tree_add_item(subtree, hf_option_relay_port, tvb, off, 2, ENC_BIG_ENDIAN);
+        break;
     }
 
     return 4 + optlen;
@@ -2562,6 +2871,76 @@ proto_register_dhcpv6(void)
           { "NTP Multicast Address", "dhcpv6.ntpserver.mc_addr", FT_IPv6, BASE_NONE, NULL, 0x0, NULL, HFILL}},
         { &hf_option_captive_portal,
           { "Captive Portal", "dhcpv6.captive_portal", FT_STRING, BASE_NONE, NULL, 0x0, "The contact URI for the captive portal that the user should connect to", HFILL }},
+        { &hf_option_s46_option_code,
+          { "S46 Option code", "dhcpv6.option_code", FT_UINT16, BASE_HEX, VALS(s46_opt_code_vals), 0x0, NULL, HFILL }},
+        { &hf_option_failover_binding_status,
+          { "Failover Binding Status", "dhcpv6.failover.binding_status", FT_UINT8, BASE_DEC, VALS(failover_binding_status_vals), 0x0, NULL, HFILL }},
+        { &hf_option_failover_connect_flags,
+          { "Flags", "dhcpv6.failover.connect.flags", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+        { &hf_option_failover_connect_reserved_flag,
+          { "Reserved", "dhcpv6.failover.connect.flags.reserved", FT_BOOLEAN, 16, TFS(&tfs_true_false), 0xfffe, NULL, HFILL }},
+        { &hf_option_failover_connect_f_flag,
+          { "Fixed PD Length (F)", "dhcpv6.failover.connect.flags.f", FT_BOOLEAN, 16, TFS(&tfs_true_false), 0x0001, NULL, HFILL }},
+        { &hf_option_failover_dns_hostname,
+          { "DNS Hostname", "dhcpv6.failover.dns_hostname", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_option_failover_dns_zonename,
+          { "DNS Zone Name", "dhcpv6.failover.dns_zonename", FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_option_failover_dns_flags,
+          { "Flags", "dhcpv6.failover.dns.flags", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
+        { &hf_option_failover_dns_reserved_flag,
+          { "Reserved", "dhcpv6.failover.dns.flags.reserved", FT_BOOLEAN, 16, TFS(&tfs_true_false), 0xfff0, NULL, HFILL }},
+        { &hf_option_failover_dns_u_flag,
+          { "Using Requested FQDN (U)", "dhcpv6.failover.dns.flags.u", FT_BOOLEAN, 16, TFS(&tfs_true_false), 0x0008, NULL, HFILL }},
+        { &hf_option_failover_dns_s_flag,
+          { "Synthesized Name (S)", "dhcpv6.failover.dns.flags.s", FT_BOOLEAN, 16, TFS(&tfs_true_false), 0x0004, NULL, HFILL }},
+        { &hf_option_failover_dns_r_flag,
+          { "Rev Uptodate (R)", "dhcpv6.failover.dns.flags.r", FT_BOOLEAN, 16, TFS(&tfs_true_false), 0x0002, NULL, HFILL }},
+        { &hf_option_failover_dns_f_flag,
+          { "Fwd Uptodate (F)", "dhcpv6.failover.dns.flags.f", FT_BOOLEAN, 16, TFS(&tfs_true_false), 0x0001, NULL, HFILL }},
+        { &hf_option_failover_expiration_time,
+          { "Expiration Time", "dhcpv6.failover.expiration_time", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_option_failover_max_unacked_bndupd,
+          { "Max number of unacked BNDUPD messages", "dhcpv6.failover.max_unacked_bndupd", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_option_failover_mclt,
+          { "Maximum Client Lead Time (MCLT)", "dhcpv6.failover.mclt", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_option_failover_partner_lifetime,
+          { "Partner Lifetime", "dhcpv6.failover.partner_lifetime", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_option_failover_partner_lifetime_sent,
+          { "Partner Lifetime Sent", "dhcpv6.failover.partner_lifetime_sent", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_option_failover_partner_downtime,
+          { "Partner Down Time", "dhcpv6.failover.partner_down_time", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_option_failover_partner_raw_clt_time,
+          { "Partner Raw Client Time", "dhcpv6.failover.partner_raw_clt_time", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_option_failover_major_version,
+          { "Protocol Major Version", "dhcpv6.failover.protocol.major_version", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_option_failover_minor_version,
+          { "Protocol Minor Version", "dhcpv6.failover.protocol.minor_version", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_option_failover_keepalive_time,
+          { "Keepalive Time", "dhcpv6.failover.keepalive_time", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_option_failover_reconfigure_time,
+          { "Reconfigure Time", "dhcpv6.failover.reconfigure_time", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_option_failover_reconfigure_key,
+          { "Reconfigure Key", "dhcpv6.failover.reconfigure_key", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+        { &hf_option_failover_relationship_name,
+          { "Relationship Name", "dhcpv6.failover.relationship_name", FT_STRING, STR_UNICODE, NULL, 0, NULL, HFILL }},
+        { &hf_option_failover_server_flags,
+          { "Flags", "dhcpv6.failover.server.flags", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+        { &hf_option_failover_server_reserved_flag,
+          { "Reserved", "dhcpv6.failover.server.flags.reserved", FT_BOOLEAN, 8, TFS(&tfs_true_false), 0xf8, NULL, HFILL }},
+        { &hf_option_failover_server_a_flag,
+          { "Ack Startup (A)", "dhcpv6.failover.server.flags.a", FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x04, NULL, HFILL }},
+        { &hf_option_failover_server_s_flag,
+          { "Startup (S)", "dhcpv6.failover.server.flags.s", FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x02, NULL, HFILL }},
+        { &hf_option_failover_server_c_flag,
+          { "Communicated (C)", "dhcpv6.failover.server.flags.c", FT_BOOLEAN, 8, TFS(&tfs_true_false), 0x01, NULL, HFILL }},
+        { &hf_option_failover_server_state,
+          { "Server State", "dhcpv6.failover.server_state", FT_UINT8, BASE_DEC, VALS(failover_server_state_vals), 0, NULL, HFILL }},
+        { &hf_option_failover_start_time_of_state,
+          { "Start Time of State", "dhcpv6.failover.start_time_of_state", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_option_failover_state_expiration_time,
+          { "State Expiration Time", "dhcpv6.failover.state_expiration_time", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+        { &hf_option_relay_port,
+          { "Downstream Source Port", "dhcpv6.relay_port", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         { &hf_option_ntpserver_fqdn,
           { "NTP Server FQDN", "dhcpv6.ntpserver.fqdn", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_packetcable_ccc_suboption,
@@ -2680,6 +3059,9 @@ proto_register_dhcpv6(void)
         &ett_dhcpv6_nisp_domain_name_option,
         &ett_dhcpv6_bcmcs_servers_domain_search_list_option,
         &ett_dhcpv6_s46_rule_flags,
+        &ett_dhcpv6_failover_connect_flags,
+        &ett_dhcpv6_failover_dns_flags,
+        &ett_dhcpv6_failover_server_flags,
     };
 
     static ei_register_info ei[] = {
