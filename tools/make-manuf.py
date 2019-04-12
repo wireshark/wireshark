@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
 # Wireshark - Network traffic analyzer
@@ -20,17 +20,13 @@ the listing in "oui.txt", "iab.txt", etc, with the entries in
 "manuf.tmpl" taking precedence.
 '''
 
+import codecs
 import csv
 import io
 import os
 import re
 import sys
-
-if sys.version_info[0] >= 3:
-    import urllib.request, urllib.error, urllib.parse
-    import codecs
-else:
-    import urllib2
+import urllib.request, urllib.error, urllib.parse
 
 have_icu = False
 try:
@@ -54,14 +50,9 @@ def open_url(url):
     '''
     req_headers = { 'User-Agent': 'Wireshark make-manuf' }
     try:
-        if sys.version_info[0] >= 3:
-            req = urllib.request.Request(url, headers=req_headers)
-            response = urllib.request.urlopen(req)
-            body = response.read().decode('UTF-8', 'replace')
-        else:
-            req = urllib2.Request(url, headers=req_headers)
-            response = urllib2.urlopen(req)
-            body = response.read()
+        req = urllib.request.Request(url, headers=req_headers)
+        response = urllib.request.urlopen(req)
+        body = response.read().decode('UTF-8', 'replace')
     except:
         exit_msg('Error opening ' + url)
 
@@ -137,6 +128,10 @@ def prefix_to_oui(prefix):
     return '{}/{:d}'.format(oui, int(pfx_len))
 
 def main():
+    if sys.version_info[0] < 3:
+        print("This requires Python 3")
+        sys.exit(2)
+
     this_dir = os.path.dirname(__file__)
     template_path = os.path.join(this_dir, '..', 'manuf.tmpl')
     manuf_path = os.path.join(this_dir, '..', 'manuf')
@@ -190,12 +185,8 @@ def main():
         print('Merging {} data from {}'.format(db, db_url))
         (body, response_d) = open_url(db_url)
         ieee_csv = csv.reader(body.splitlines())
-        if sys.version_info[0] >= 3:
-            ieee_d[db]['last-modified'] = response_d['Last-Modified']
-            ieee_d[db]['length'] = response_d['Content-Length']
-        else:
-            ieee_d[db]['last-modified'] = response_d['last-modified']
-            ieee_d[db]['length'] = response_d['content-length']
+        ieee_d[db]['last-modified'] = response_d['Last-Modified']
+        ieee_d[db]['length'] = response_d['Content-Length']
 
         # Pop the title row.
         next(ieee_csv)
@@ -203,10 +194,7 @@ def main():
             #Registry,Assignment,Organization Name,Organization Address
             #IAB,0050C2DD6,Transas Marine Limited,Datavagen 37 Askim Vastra Gotaland SE 436 32
             oui = prefix_to_oui(ieee_row[1].upper())
-            if sys.version_info[0] >= 3:
-                manuf = ieee_row[2].strip()
-            else:
-                manuf = ieee_row[2].strip().decode('UTF-8')
+            manuf = ieee_row[2].strip()
             if oui in oui_d:
                 print(u'{} - Skipping IEEE "{}" in favor of "{}"'.format(oui, manuf, oui_d[oui]))
                 ieee_d[db]['skipped'] += 1
