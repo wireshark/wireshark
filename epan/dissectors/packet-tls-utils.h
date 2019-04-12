@@ -1920,7 +1920,7 @@ ssl_common_dissect_t name = {   \
     { & name .hf.hs_ext_quictp_parameter_idle_timeout,                  \
       { "idle_timeout", prefix ".quic.parameter.idle_timeout",          \
         FT_UINT64, BASE_DEC, NULL, 0x00,                                \
-        "In seconds", HFILL }                                           \
+        "In milliseconds", HFILL }                                      \
     },                                                                  \
     { & name .hf.hs_ext_quictp_parameter_stateless_reset_token,         \
       { "stateless_reset_token", prefix ".quic.parameter.stateless_reset_token",    \
