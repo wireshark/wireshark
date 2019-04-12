@@ -4027,7 +4027,7 @@ dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, proto
                     guint zero_bits_omitted = 0;
                     if (len < named_bits_bytelen) {
                         zero_bits_omitted = num_named_bits - ((len * 8) - pad);
-                        proto_item_append_text(item, "[ %u zero bits not encoded, but displayed]", zero_bits_omitted);
+                        proto_item_append_text(item, " [%u zero bits not encoded, but displayed]", zero_bits_omitted);
                     }
                 }
                 if (ett_id != -1) {
