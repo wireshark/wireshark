@@ -10,6 +10,12 @@
     - echo "deb http://ppa.launchpad.net/ubuntu-toolchain-r/test/ubuntu xenial main" > /etc/apt/sources.list.d/gcc.list
     - apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 1E9377A2BA9EF27F
     - apt-get update -qq
+    - apt-get install -y python3-pip locales
+    - pip3 install pytest pytest-xdist
+    - useradd user
+    - locale-gen en_US.UTF-8
+    - export LANG=en_US.UTF-8
+    - export PYTEST_ADDOPTS=--skip-missing-programs=dumpcap,rawshark
     - mkdir build
     - cd build
 .rpm: &rpm
@@ -20,63 +26,93 @@
 gcc-4:
   <<: *ubuntu
   script:
-    - ../tools/debian-setup.sh --install-optional gcc-4.9 g++-4.9 -y
+    - ../tools/debian-setup.sh --install-optional --install-test-deps gcc-4.9 g++-4.9 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=gcc-4.9 -DCMAKE_CXX_COMPILER=g++-4.9 ..
     - ninja
+    - ninja test-programs
+    - chown -R user .
+    - su user -c pytest
 gcc-5:
   <<: *ubuntu
   script:
-    - ../tools/debian-setup.sh --install-optional gcc-5 g++-5 -y
+    - ../tools/debian-setup.sh --install-optional --install-test-deps gcc-5 g++-5 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=gcc-5 -DCMAKE_CXX_COMPILER=g++-5 ..
     - ninja
+    - ninja test-programs
+    - chown -R user .
+    - su user -c pytest
 gcc-6:
   <<: *ubuntu
   script:
-    - ../tools/debian-setup.sh --install-optional gcc-6 g++-6 -y
+    - ../tools/debian-setup.sh --install-optional --install-test-deps gcc-6 g++-6 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=gcc-6 -DCMAKE_CXX_COMPILER=g++-6 ..
     - ninja
+    - ninja test-programs
+    - chown -R user .
+    - su user -c pytest
 gcc-7:
   <<: *ubuntu
   script:
-    - ../tools/debian-setup.sh --install-optional gcc-7 g++-7 -y
+    - ../tools/debian-setup.sh --install-optional --install-test-deps gcc-7 g++-7 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=gcc-7 -DCMAKE_CXX_COMPILER=g++-7 ..
     - ninja
+    - ninja test-programs
+    - chown -R user .
+    - su user -c pytest
 gcc-8:
   <<: *ubuntu
   script:
-    - ../tools/debian-setup.sh --install-optional gcc-8 g++-8 -y
+    - ../tools/debian-setup.sh --install-optional --install-test-deps gcc-8 g++-8 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8 ..
     - ninja
+    - ninja test-programs
+    - chown -R user .
+    - su user -c pytest
 gcc-8-nopcap:
   <<: *ubuntu
   script:
-    - ../tools/debian-setup.sh --install-optional gcc-8 g++-8 -y
+    - ../tools/debian-setup.sh --install-optional --install-test-deps gcc-8 g++-8 -y
     - cmake -GNinja -DENABLE_PCAP=OFF -DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8 ..
     - ninja
+    - ninja test-programs
+    - chown -R user .
+    - su user -c pytest
 clang-5:
   <<: *ubuntu
   script:
-    - ../tools/debian-setup.sh --install-optional clang-5.0 -y
+    - ../tools/debian-setup.sh --install-optional --install-test-deps clang-5.0 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=clang-5.0 -DCMAKE_CXX_COMPILER=clang++-5.0 -DCMAKE_C_FLAGS=-Wframe-larger-than=20000 ..
     - ninja
+    - ninja test-programs
+    - chown -R user .
+    - su user -c pytest
 clang-6:
   <<: *ubuntu
   script:
-    - ../tools/debian-setup.sh --install-optional clang-6.0 -y
+    - ../tools/debian-setup.sh --install-optional --install-test-deps clang-6.0 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=clang-6.0 -DCMAKE_CXX_COMPILER=clang++-6.0 -DCMAKE_C_FLAGS=-Wframe-larger-than=20000 ..
     - ninja
+    - ninja test-programs
+    - chown -R user .
+    - su user -c pytest
 clang-7:
   <<: *ubuntu
   script:
-     - ../tools/debian-setup.sh --install-optional clang-7 -y
+     - ../tools/debian-setup.sh --install-optional --install-test-deps clang-7 -y
      - cmake -GNinja -DCMAKE_C_COMPILER=clang-7 -DCMAKE_CXX_COMPILER=clang++-7 -DCMAKE_C_FLAGS=-Wframe-larger-than=20000 ..
      - ninja
+     - ninja test-programs
+     - chown -R user .
+     - su user -c pytest
 clang-7-nopcap:
   <<: *ubuntu
   script:
-    - ../tools/debian-setup.sh --install-optional clang-7 -y
+    - ../tools/debian-setup.sh --install-optional --install-test-deps clang-7 -y
     - cmake -GNinja -DENABLE_PCAP=OFF -DCMAKE_C_COMPILER=clang-7 -DCMAKE_CXX_COMPILER=clang++-7 -DCMAKE_C_FLAGS=-Wframe-larger-than=20000 ..
     - ninja
+    - ninja test-programs
+    - chown -R user .
+    - su user -c pytest
 rpm-centos-7:
   <<: *rpm
   image: centos:7
