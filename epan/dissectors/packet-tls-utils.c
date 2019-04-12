@@ -6631,6 +6631,7 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
      *     opaque value<0..2^16-1>;
      *  } TransportParameter;
      *
+     *  // draft -18 and before
      *  struct {
      *      select (Handshake.msg_type) {
      *          case client_hello:
@@ -6642,6 +6643,9 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
      *      };
      *      TransportParameter parameters<0..2^16-1>;
      *  } TransportParameters;
+     *
+     *  // since draft 19
+     *  TransportParameter TransportParameters<0..2^16-1>;
      *
      *  // draft -17 and before
      *  struct {
@@ -6662,39 +6666,43 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
      *    opaque statelessResetToken[16];
      *  } PreferredAddress;
      */
-    switch (hnd_type) {
-    case SSL_HND_CLIENT_HELLO:
-        proto_tree_add_item(tree, hf->hf.hs_ext_quictp_initial_version,
-                            tvb, offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
-        break;
-    case SSL_HND_ENCRYPTED_EXTENSIONS:
-        proto_tree_add_item(tree, hf->hf.hs_ext_quictp_negotiated_version,
-                            tvb, offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
-        /* QuicVersion supported_versions<4..2^8-4>;*/
-        if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &supported_versions_length,
-                            hf->hf.hs_ext_quictp_supported_versions_len, 4, G_MAXUINT8-3)) {
-            return offset_end;
-        }
-        offset += 1;
-        next_offset = offset + supported_versions_length;
-
-        while (offset < next_offset) {
-            proto_tree_add_item(tree, hf->hf.hs_ext_quictp_supported_versions,
+    // Heuristically detect draft -18 vs draft -19.
+    if (offset_end - offset >= 4 && tvb_get_ntoh24(tvb, offset) == 0xff0000) {
+        // Draft -18 and before start with a (draft) version field.
+        switch (hnd_type) {
+        case SSL_HND_CLIENT_HELLO:
+            proto_tree_add_item(tree, hf->hf.hs_ext_quictp_initial_version,
                                 tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
+            break;
+        case SSL_HND_ENCRYPTED_EXTENSIONS:
+            proto_tree_add_item(tree, hf->hf.hs_ext_quictp_negotiated_version,
+                                tvb, offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            /* QuicVersion supported_versions<4..2^8-4>;*/
+            if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &supported_versions_length,
+                                hf->hf.hs_ext_quictp_supported_versions_len, 4, G_MAXUINT8-3)) {
+                return offset_end;
+            }
+            offset += 1;
+            next_offset = offset + supported_versions_length;
+
+            while (offset < next_offset) {
+                proto_tree_add_item(tree, hf->hf.hs_ext_quictp_supported_versions,
+                                    tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+            }
+            break;
+        case SSL_HND_NEWSESSION_TICKET:
+            break;
+        default:
+            return offset;
         }
-        break;
-    case SSL_HND_NEWSESSION_TICKET:
-        break;
-    default:
-        return offset;
     }
 
-    /* TransportParameter parameters<22..2^16-1>; */
+    /* TransportParameter TransportParameters<0..2^16-1>; */
     if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &quic_length,
-                        hf->hf.hs_ext_quictp_len, 22, G_MAXUINT16)) {
+                        hf->hf.hs_ext_quictp_len, 0, G_MAXUINT16)) {
         return offset_end;
     }
     offset += 2;
@@ -6737,7 +6745,7 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
             case SSL_HND_QUIC_TP_IDLE_TIMEOUT:
                 proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_idle_timeout,
                                                tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
-                proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u secs", value);
+                proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u ms", value);
                 offset += len;
             break;
             case SSL_HND_QUIC_TP_STATELESS_RESET_TOKEN:
