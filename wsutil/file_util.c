@@ -626,29 +626,31 @@ ws_module_open(gchar *module_name, GModuleFlags flags)
  */
 #define WIRESHARK_IS_RUNNING_UUID "9CA78EEA-EA4D-4490-9240-FC01FCEF464B"
 
-static SECURITY_ATTRIBUTES *sec_attributes_;
-
 static HANDLE local_running_mutex = NULL;
 static HANDLE global_running_mutex = NULL;
 
 void create_app_running_mutex() {
-    SECURITY_ATTRIBUTES *sa = NULL;
-
-    if (!sec_attributes_) sec_attributes_ = g_new0(SECURITY_ATTRIBUTES, 1);
-
-    sec_attributes_->nLength = sizeof(SECURITY_ATTRIBUTES);
-    sec_attributes_->lpSecurityDescriptor = g_new0(SECURITY_DESCRIPTOR, 1);
-    sec_attributes_->bInheritHandle = TRUE;
-    if (InitializeSecurityDescriptor(sec_attributes_->lpSecurityDescriptor, SECURITY_DESCRIPTOR_REVISION)) {
-        if (SetSecurityDescriptorDacl(sec_attributes_->lpSecurityDescriptor, TRUE, NULL, FALSE)) {
-            sa = sec_attributes_;
-        }
-    }
-
-    if (!sa) {
-        g_free(sec_attributes_->lpSecurityDescriptor);
-        g_free(sec_attributes_);
-        sec_attributes_ = NULL;
+    SECURITY_DESCRIPTOR sec_descriptor;
+    SECURITY_ATTRIBUTES sec_attributes;
+    SECURITY_ATTRIBUTES *sa;
+    memset(&sec_descriptor, 0, sizeof(SECURITY_DESCRIPTOR));
+    if (!InitializeSecurityDescriptor(&sec_descriptor, SECURITY_DESCRIPTOR_REVISION) ||
+        !SetSecurityDescriptorDacl(&sec_descriptor, TRUE, NULL, FALSE)) {
+        /*
+         * We couldn't set up the security descriptor, so use the default
+         * security attributes when creating the mutexes.
+         */
+        sa = NULL;
+    } else {
+        /*
+         * We could set it up, so set up some attributes that refer
+         * to it.
+         */
+        memset(&sec_attributes, 0, sizeof(SECURITY_ATTRIBUTES));
+        sec_attributes.nLength = sizeof(SECURITY_ATTRIBUTES);
+        sec_attributes.lpSecurityDescriptor = &sec_descriptor;
+        sec_attributes.bInheritHandle = TRUE;
+        sa = &sec_attributes;
     }
     local_running_mutex = CreateMutex(sa, FALSE, _T("Wireshark-is-running-{") _T(WIRESHARK_IS_RUNNING_UUID) _T("}"));
     global_running_mutex = CreateMutex(sa, FALSE, _T("Global\\Wireshark-is-running-{") _T(WIRESHARK_IS_RUNNING_UUID) _T("}"));
