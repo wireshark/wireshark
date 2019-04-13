@@ -111,6 +111,7 @@ this extcap plugin
 def extcap_config(interface, option):
     args = []
     values = []
+    multi_values = []
 
     args.append ( (0, '--delay', 'Time delay', 'Time delay between packages', 'integer', '{range=1,15}{default=5}') )
     args.append ( (1, '--message', 'Message', 'Package message content', 'string', '{required=true}{placeholder=Please enter a message here ...}') )
@@ -148,11 +149,24 @@ def extcap_config(interface, option):
         values.append ( (11, "r1", "Radio1", "false" ) )
         values.append ( (11, "r2", "Radio2", "true" ) )
 
-        values.append ( (12, "m1", "MultiCheck1", "false" ) )
-        values.append ( (12, "m2", "MultiCheck2", "false" ) )
+    if ( len(option) <= 0 ):
+        multi_values.append ( ((12, "m1", "Checkable Parent 1", "false", "true" ), None) )
+        multi_values.append ( ((12, "m1c1", "Checkable Child 1", "false", "true" ), "m1") )
+        multi_values.append ( ((12, "m1c1g1", "Uncheckable Grandchild", "false", "false" ), "m1c1") )
+        multi_values.append ( ((12, "m1c2", "Checkable Child 2", "false", "true" ), "m1") )
+        multi_values.append ( ((12, "m2", "Checkable Parent 2", "false", "true" ), None) )
+        multi_values.append ( ((12, "m2c1", "Checkable Child 1", "false", "true" ), "m2") )
+        multi_values.append ( ((12, "m2c1g1", "Checkable Granchild", "false", "true" ), "m2c1") )
+        multi_values.append ( ((12, "m2c2", "Uncheckable Child 2", "false", "false" ), "m2") )
+        multi_values.append ( ((12, "m2c2g1", "Uncheckable Granchild", "false", "false" ), "m2c2") )
 
     for value in values:
         print ("value {arg=%d}{value=%s}{display=%s}{default=%s}" % value)
+
+    for (value, parent) in multi_values:
+        sentence = "value {arg=%d}{value=%s}{display=%s}{default=%s}{enabled=%s}" % value
+        extra = "{parent=%s}" % parent if parent else ""
+        print ("".join((sentence, extra)))
 
 
 def extcap_version():
