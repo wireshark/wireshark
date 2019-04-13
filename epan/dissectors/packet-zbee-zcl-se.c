@@ -5376,7 +5376,7 @@ VALUE_STRING_ARRAY(zbee_zcl_met_srv_rx_cmd_names);
     XXX(ZBEE_ZCL_CMD_ID_MET_GET_SAMPLED_DATA_RSP,               0x07, "Get Sampled Data Response" ) \
     XXX(ZBEE_ZCL_CMD_ID_MET_CONFIGURE_MIRROR,                   0x08, "Configure Mirror" ) \
     XXX(ZBEE_ZCL_CMD_ID_MET_CONFIGURE_NOTIFICATION_SCHEME,      0x09, "Configure Notification Scheme" ) \
-    XXX(ZBEE_ZCL_CMD_ID_MET_CONFIGURE_NOTIFICATION_FLAG,        0x0A, "Configure Notification Flag" ) \
+    XXX(ZBEE_ZCL_CMD_ID_MET_CONFIGURE_NOTIFICATION_FLAGS,       0x0A, "Configure Notification Flags" ) \
     XXX(ZBEE_ZCL_CMD_ID_MET_GET_NOTIFIED_MESSAGE,               0x0B, "Get Notified Message" ) \
     XXX(ZBEE_ZCL_CMD_ID_MET_SUPPLY_STATUS_RESPONSE,             0x0C, "Supply Status Response" ) \
     XXX(ZBEE_ZCL_CMD_ID_MET_START_SAMPLING_RESPONSE,            0x0D, "Start Sampling Response" )
@@ -5557,6 +5557,8 @@ static void dissect_zcl_met_take_snapshot_response          (tvbuff_t *tvb, prot
 static void dissect_zcl_met_publish_snapshot                (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_met_get_sampled_data_rsp            (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_met_configure_mirror                (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_met_configure_notification_scheme   (tvbuff_t *tvb, proto_tree *tree, guint *offset);
+static void dissect_zcl_met_configure_notification_flags    (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_met_get_notified_msg                (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_met_supply_status_response          (tvbuff_t *tvb, proto_tree *tree, guint *offset);
 static void dissect_zcl_met_start_sampling_response         (tvbuff_t *tvb, proto_tree *tree, guint *offset);
@@ -5732,6 +5734,16 @@ static int hf_zbee_zcl_met_configure_mirror_issuer_event_id = -1;
 static int hf_zbee_zcl_met_configure_mirror_reporting_interval = -1;
 static int hf_zbee_zcl_met_configure_mirror_mirror_notification_reporting = -1;
 static int hf_zbee_zcl_met_configure_mirror_notification_scheme = -1;
+static int hf_zbee_zcl_met_configure_notification_scheme_issuer_event_id = -1;
+static int hf_zbee_zcl_met_configure_notification_scheme_notification_scheme = -1;
+static int hf_zbee_zcl_met_configure_notification_scheme_notification_flag_order = -1;
+static int hf_zbee_zcl_met_configure_notification_flags_issuer_event_id = -1;
+static int hf_zbee_zcl_met_configure_notification_flags_notification_scheme = -1;
+static int hf_zbee_zcl_met_configure_notification_flags_notification_flag_attribute_id = -1;
+static int hf_zbee_zcl_met_configure_notification_flags_bit_field_allocation_cluster_id = -1;
+static int hf_zbee_zcl_met_configure_notification_flags_bit_field_allocation_manufacturer_code = -1;
+static int hf_zbee_zcl_met_configure_notification_flags_bit_field_allocation_no_of_commands = -1;
+static int hf_zbee_zcl_met_configure_notification_flags_bit_field_allocation_command_identifier = -1;
 static int hf_zbee_zcl_met_get_notified_msg_notification_scheme = -1;
 static int hf_zbee_zcl_met_get_notified_msg_notification_flag_attribute_id = -1;
 static int hf_zbee_zcl_met_get_notified_msg_notification_flags = -1;
@@ -5893,6 +5905,7 @@ static gint ett_zbee_zcl_met_snapshot_schedule = -1;
 static gint ett_zbee_zcl_met_schedule_snapshot_response_payload = -1;
 static gint ett_zbee_zcl_met_schedule_snapshot_payload = -1;
 static gint ett_zbee_zcl_met_mirror_noti_flag = -1;
+static gint ett_zbee_zcl_met_bit_field_allocation = -1;
 
 /*************************/
 /* Function Bodies       */
@@ -6142,11 +6155,11 @@ dissect_zbee_zcl_met(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
                     break;
 
                 case ZBEE_ZCL_CMD_ID_MET_CONFIGURE_NOTIFICATION_SCHEME:
-                    /* Add function to dissect payload */
+                    dissect_zcl_met_configure_notification_scheme(tvb, payload_tree, &offset);
                     break;
 
-                case ZBEE_ZCL_CMD_ID_MET_CONFIGURE_NOTIFICATION_FLAG:
-                    /* Add function to dissect payload */
+                case ZBEE_ZCL_CMD_ID_MET_CONFIGURE_NOTIFICATION_FLAGS:
+                    dissect_zcl_met_configure_notification_flags(tvb, payload_tree, &offset);
                     break;
 
                 case ZBEE_ZCL_CMD_ID_MET_GET_NOTIFIED_MESSAGE:
@@ -6840,6 +6853,77 @@ dissect_zcl_met_configure_mirror(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     proto_tree_add_item(tree, hf_zbee_zcl_met_configure_mirror_notification_scheme, tvb, *offset, 1, ENC_NA);
     *offset += 1;
 } /*dissect_zcl_met_configure_mirror*/
+
+/**
+ *This function manages the Configure Notification Scheme payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_met_configure_notification_scheme(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_configure_notification_scheme_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Notification Scheme */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_configure_notification_scheme_notification_scheme, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Notification Flag Order */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_configure_notification_scheme_notification_flag_order, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+} /*dissect_zcl_met_configure_notification_scheme*/
+
+/**
+ *This function manages the Configure Notification Flags payload
+ *
+ *@param tvb pointer to buffer containing raw packet.
+ *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to offset from caller
+*/
+static void
+dissect_zcl_met_configure_notification_flags(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+{
+    proto_tree *bit_field_allocation_tree;
+    gint rem_len;
+
+    /* Issuer Event ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_configure_notification_flags_issuer_event_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+    *offset += 4;
+
+    /* Notification Scheme */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_configure_notification_flags_notification_scheme, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    /* Notification Attribute ID */
+    proto_tree_add_item(tree, hf_zbee_zcl_met_configure_notification_flags_notification_flag_attribute_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    bit_field_allocation_tree = proto_tree_add_subtree(tree, tvb, *offset, -1, ett_zbee_zcl_met_bit_field_allocation, NULL, "Bit Field Allocation");
+
+    /* Cluster ID */
+    proto_tree_add_item(bit_field_allocation_tree, hf_zbee_zcl_met_configure_notification_flags_bit_field_allocation_cluster_id, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* Manufacturer Code */
+    proto_tree_add_item(bit_field_allocation_tree, hf_zbee_zcl_met_configure_notification_flags_bit_field_allocation_manufacturer_code, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+    *offset += 2;
+
+    /* No. of Commands */
+    proto_tree_add_item(bit_field_allocation_tree, hf_zbee_zcl_met_configure_notification_flags_bit_field_allocation_no_of_commands, tvb, *offset, 1, ENC_NA);
+    *offset += 1;
+
+    rem_len = tvb_reported_length_remaining(tvb, *offset);
+    while (rem_len >= 1) {
+        /* Command Identifier */
+        proto_tree_add_item(bit_field_allocation_tree, hf_zbee_zcl_met_configure_notification_flags_bit_field_allocation_command_identifier, tvb, *offset, 1, ENC_NA);
+        *offset += 1;
+        rem_len -= 1;
+    }
+} /*dissect_zcl_met_configure_notification_flags*/
 
 static void
 dissect_zcl_met_notification_flags(tvbuff_t *tvb, proto_tree *tree, guint *offset, guint16 noti_flags_number)
@@ -7606,6 +7690,46 @@ proto_register_zbee_zcl_met(void)
             { "Notification Scheme", "zbee_zcl_se.met.configure_mirror.notification_scheme", FT_UINT8, BASE_DEC, NULL,
             0x00, NULL, HFILL } },
 
+        { &hf_zbee_zcl_met_configure_notification_scheme_issuer_event_id,
+            { "Issuer Event ID", "zbee_zcl_se.met.configure_notification_scheme.issuer_event_id", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_configure_notification_scheme_notification_scheme,
+            { "Notification Scheme", "zbee_zcl_se.met.configure_notification_scheme.notification_scheme", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_configure_notification_scheme_notification_flag_order,
+            { "Notification Flag Order", "zbee_zcl_se.met.configure_notification_scheme.notification_flag_order", FT_UINT32, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_configure_notification_flags_issuer_event_id,
+            { "Issuer Event ID", "zbee_zcl_se.met.configure_notification_flags.issuer_event_id", FT_UINT32, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_configure_notification_flags_notification_scheme,
+            { "Notification Scheme", "zbee_zcl_se.met.configure_notification_flags.notification_scheme", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_configure_notification_flags_notification_flag_attribute_id,
+            { "Notification Flag Attribute ID", "zbee_zcl_se.met.configure_notification_flags.notification_flag_attribute_id", FT_UINT16, BASE_HEX, VALS(zbee_zcl_met_attr_client_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_configure_notification_flags_bit_field_allocation_cluster_id,
+            { "Cluster ID", "zbee_zcl_se.met.configure_notification_flags.bit_field_allocation.cluster_id", FT_UINT16, BASE_HEX | BASE_RANGE_STRING, RVALS(zbee_aps_cid_names),
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_configure_notification_flags_bit_field_allocation_manufacturer_code,
+            { "Manufacturer Code", "zbee_zcl_se.met.configure_notification_flags.bit_field_allocation.manufacturer_code", FT_UINT16, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_configure_notification_flags_bit_field_allocation_no_of_commands,
+            { "No. of Commands", "zbee_zcl_se.met.configure_notification_flags.bit_field_allocation.no_of_commands", FT_UINT8, BASE_DEC, NULL,
+            0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_met_configure_notification_flags_bit_field_allocation_command_identifier,
+            { "Command Identifier", "zbee_zcl_se.met.configure_notification_flags.bit_field_allocation.command_identifier", FT_UINT8, BASE_HEX, NULL,
+            0x00, NULL, HFILL } },
+
         { &hf_zbee_zcl_met_get_notified_msg_notification_scheme,
             { "Notification Scheme", "zbee_zcl_se.met.get_notified_msg.notification_scheme", FT_UINT8, BASE_DEC, NULL,
             0x00, NULL, HFILL } },
@@ -7705,7 +7829,8 @@ proto_register_zbee_zcl_met(void)
         &ett_zbee_zcl_met_snapshot_schedule,
         &ett_zbee_zcl_met_schedule_snapshot_response_payload,
         &ett_zbee_zcl_met_schedule_snapshot_payload,
-        &ett_zbee_zcl_met_mirror_noti_flag
+        &ett_zbee_zcl_met_mirror_noti_flag,
+        &ett_zbee_zcl_met_bit_field_allocation
     };
 
     /* Register the ZigBee ZCL Metering cluster protocol name and description */
