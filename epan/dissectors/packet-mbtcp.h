@@ -97,7 +97,7 @@ typedef struct {
     guint8  function_code;
     guint16 base_address;
     guint16 num_reg;
-    nstime_t time;
+    nstime_t req_time;
 } modbus_request_info_t;
 
 /* List contains request data  */

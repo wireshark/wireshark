@@ -1577,7 +1577,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                 if (captured_length >= 5)
                     pkt_info->num_reg = frame_ptr->num_reg = tvb_get_ntohs(tvb, 3);
             }
-            frame_ptr->time = pinfo->abs_ts;
+            frame_ptr->req_time = pinfo->abs_ts;
 
             wmem_list_prepend(modbus_conv_data->modbus_request_frame_data, frame_ptr);
         }
@@ -1598,7 +1598,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                     pkt_info->num_reg = request_data->num_reg;
                     pkt_info->request_found = TRUE;
                     pkt_info->req_frame_num = req_frame_num;
-                    pkt_info->req_time = request_data->time;
+                    pkt_info->req_time = request_data->req_time;
                 }
                 frame = wmem_list_frame_next(frame);
             }
