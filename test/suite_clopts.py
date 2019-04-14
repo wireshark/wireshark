@@ -286,7 +286,8 @@ class case_tshark_z_expert(subprocesstest.SubprocessTestCase):
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
 class case_tshark_extcap(subprocesstest.SubprocessTestCase):
-    def test_tshark_extcap_interfaces(self, cmd_tshark, program_path):
+    # dumpcap dependency has been added to run this test only with capture support
+    def test_tshark_extcap_interfaces(self, cmd_tshark, cmd_dumpcap, program_path):
         # Script extcaps don't work with the current code on windows.
         # https://www.wireshark.org/docs/wsdg_html_chunked/ChCaptureExtcap.html
         # TODO: skip this test until it will get fixed.
