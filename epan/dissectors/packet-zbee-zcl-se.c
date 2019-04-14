@@ -10740,8 +10740,8 @@ dissect_zcl_energy_management_attr_data(proto_tree *tree, tvbuff_t *tvb, guint *
  *ZigBee ZCL Energy Management cluster dissector for wireshark.
  *
  *@param tvb pointer to buffer containing raw packet.
- *@param pinfo pointer to packet information fields
  *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to buffer offset
 */
 static void
 dissect_zbee_zcl_energy_management_manage_event(tvbuff_t *tvb, proto_tree *tree, guint *offset)
@@ -10771,8 +10771,8 @@ dissect_zbee_zcl_energy_management_manage_event(tvbuff_t *tvb, proto_tree *tree,
  *ZigBee ZCL Energy Management cluster dissector for wireshark.
  *
  *@param tvb pointer to buffer containing raw packet.
- *@param pinfo pointer to packet information fields
  *@param tree pointer to data tree Wireshark uses to display packet.
+ *@param offset pointer to buffer offset
 */
 static void
 dissect_zbee_zcl_energy_management_report_event_status(tvbuff_t *tvb, proto_tree *tree, guint *offset)
