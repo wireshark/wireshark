@@ -34,15 +34,21 @@ products = dict()
 vendors_str="static const value_string usb_vendors_vals[] = {\n"
 products_str="static const value_string usb_products_vals[] = {\n"
 
+# Escape backslashes, quotes, control characters and non-ASCII characters.
+escapes = {}
+for i in range(256):
+    if i in b'\\"':
+        escapes[i] = '\\%c' % i
+    elif i in range(0x20, 0x80) or i in b'\t':
+        escapes[i] = chr(i)
+    else:
+        escapes[i] = '\\%03o' % i
 
 for utf8line in lines:
     # Convert single backslashes to double (escaped) backslashes, escape quotes, etc.
     utf8line = utf8line.rstrip()
-    utf8line = utf8line.replace('\\', '\\\\')
-    utf8line = utf8line.replace('"', '\\"')
     utf8line = re.sub("\?+", "?", utf8line)
-    # Finally, convert non-ASCII UTF-8 sequences to C-style escapes
-    line = utf8line.encode('UTF-8').decode('ascii', 'backslashreplace')
+    line = ''.join(escapes[byte] for byte in utf8line.encode('utf8'))
 
     if line == "# Vendors, devices and interfaces. Please keep sorted.":
         mode = MODE_VENDOR_PRODUCT
