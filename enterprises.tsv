@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2019-04-07)
+# (last updated 2019-04-14)
 
 0	Reserved
 1	NxNetworks
@@ -644,7 +644,7 @@
 634	Santix Software GmbH
 635	Encore Networks, Inc.
 636	Georgia Institute of Technology
-637	Alcatel-Lucent	# formerly 'Alcatel Data Network'
+637	Nokia	# formerly 'Alcatel-Lucent'
 638	GTECH
 639	UNOCAL Corporation
 640	First Pacific Network
@@ -6433,7 +6433,7 @@
 6446	Gaton Technologies LTD
 6447	Synaxia Networks
 6448	DigiVision Tech.
-6449	Comodo CA Ltd
+6449	Sectigo Limited
 6450	Idsec Limited
 6451	Mystical Creations
 6452	Advanced Network Solutions, Inc
@@ -6630,7 +6630,7 @@
 6644	OzAuthors Pty Ltd
 6645	gForce Systems
 6646	Chevron
-6647	Planet
+6647	Sevio Srl
 6648	Intramon Ltd
 6649	NewGrid Technology Inc.
 6650	The Distribution Systems Research Institute
@@ -34146,7 +34146,7 @@
 34310	UBINETSYS.CO., LTD.
 34311	Data Net Solutions Group, Inc.
 34312	Accanto Systems S.r.l.
-34313	iDMS
+34313	iDMS - UMANN
 34314	Datanomic Ltd.
 34315	Broadband United GmbH
 34316	PDSG
@@ -37373,7 +37373,7 @@
 37542	Depelmaan Ltd
 37543	Crowe Horwath LLP
 37544	UM Labs Ltd
-37545	GFI Solutions Group inc.
+37545	ACCEO Solutions inc.	# formerly 'GFI Solutions Group inc.'
 37546	BNP Paribas Fortis group
 37547	Europapier International GmbH
 37548	CenturyLink
@@ -39220,7 +39220,7 @@
 39390	Baycom Technology Co.,Ltd
 39391	H&L Instruments, LLC
 39392	jameskinnaird.ca
-39393	Global Reach Technology Limited
+39393	Global Reach Technology Inc.
 39394	Direccion General de Escuela Nacional Preparatoria
 39395	ELDIS Pardubice, s.r.o.
 39396	Zygma Inc.
@@ -44389,7 +44389,7 @@
 44565	LECKERBEEF.de
 44566	OOO Komandor-holding
 44567	Agencja Rozwoju Przemyslu S.A.
-44568	newnet Marketing	# formerly 'Topik Business Services GmbH'
+44568	Om7Sense GmbH
 44569	Regional Networks, Ltd.
 44570	Lancaster Cancer Center
 44571	Solinea, Inc
@@ -53548,3 +53548,44 @@
 53736	PRIVATE ENTERPRICE NETWORK
 53737	KellemannConsult ApS
 53738	Beijing Tasson Technology Ltd.
+53739	IDRAK TECHNOLOGY TRANSFER
+53740	Magnit Pharma
+53741	Banque de Commerce et de Placements
+53742	Deutsche Gesellschaft für Internationale Zusammenarbeit (GIZ) GmbH
+53743	Domino's Pizza, Inc
+53744	Wejds
+53745	Ideal Concept Holdings
+53746	DBMUD
+53747	Korbix
+53748	TOC PERU SAC
+53749	Dynamics Edge
+53750	SiRcom
+53751	esciris GmbH
+53752	Roadstarter Networks
+53753	ITS-chita
+53754	Groundhog Technologies Inc.
+53755	NOVUS UKRAINE LLC
+53756	National Széchényi Library
+53757	768BIT Ltd
+53758	Tribeca Heavy Industries LLC
+53759	Inscyth, Inc.
+53760	Erich Utsch AG
+53761	Arvato Rus LLC
+53762	Rema Tip Top Holdings UK Ltd
+53763	Vorwerk International Strecker & Co.
+53764	Semple Consulting Services Ltd
+53765	Digicomp Engenharia e Tecnologia Ltda
+53766	Robert Boucneau, Individual
+53767	NEC Energy Solutions
+53768	MA Lighting Technology GmbH
+53769	Cancer Care Associates PC
+53770	Belderbos ICT Consultancy & Beheer
+53771	Centro De Hematologia Y Oncologia Medica Integral
+53772	Agence Technique de la Charente
+53773	Sonion A/S
+53774	WV Communications Inc
+53775	1oT OÜ
+53776	JINR
+53777	sodeac.org
+53778	Veea Inc.
+53779	Linsys Ltd
