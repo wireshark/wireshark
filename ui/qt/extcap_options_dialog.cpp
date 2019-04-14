@@ -443,7 +443,9 @@ bool ExtcapOptionsDialog::saveOptionToCaptureInfo()
             continue;
 
         gchar * call_string = g_strdup(call.toStdString().c_str());
-        gchar * value_string = g_strdup(value.toStdString().c_str());
+        gchar * value_string = NULL;
+        if (value.length() > 0)
+            value_string = g_strdup(value.toStdString().c_str());
 
         g_hash_table_insert(ret_args, call_string, value_string );
     }
