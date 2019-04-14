@@ -2,8 +2,8 @@
 # -*- coding: utf-8 -*-
 #
 # make-usb - Creates a file containing vendor and product ids.
-# It use the databases at
-# http://www.linux-usb.org/usb.ids
+# It use the databases from
+# https://usb-ids.gowdy.us/
 # to create our file epan/dissectors/usb.c
 #
 # It also uses the values culled out of libgphoto2 using usb-ptp-extract-models.pl
@@ -25,7 +25,7 @@ if sys.version_info[0] < 3:
 
 # Grab from linux-usb.org
 req_headers = { 'User-Agent': 'Wireshark make-usb' }
-req = urllib.request.Request('http://www.linux-usb.org/usb.ids', headers=req_headers)
+req = urllib.request.Request('https://usb-ids.gowdy.us/usb.ids', headers=req_headers)
 response = urllib.request.urlopen(req)
 lines = response.read().decode('UTF-8', 'replace').splitlines()
 
