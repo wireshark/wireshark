@@ -524,7 +524,10 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
     /* convert args array into a single string */
     /* XXX - could change sync_pipe_add_arg() instead */
     /* there is a drawback here: the length is internally limited to 1024 bytes */
-    for (tmp = (gchar **)args->pdata, cnt = 0; *tmp && **tmp; ++cnt, ++tmp) {
+    for (tmp = (gchar **)args->pdata, cnt = 0; *tmp; ++cnt, ++tmp) {
+        if (!**tmp) {
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_WARNING, "Empty argument in arguments list");
+        }
         if (cnt != 0) g_string_append_c(spawn_args, ' ');    /* don't prepend a space before the path!!! */
         quoted_arg = protect_arg(*tmp);
         g_string_append(spawn_args, quoted_arg);
@@ -557,7 +560,10 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
     /* convert args array into a single string */
     /* XXX - could change sync_pipe_add_arg() instead */
     /* there is a drawback here: the length is internally limited to 1024 bytes */
-    for (tmp = (gchar **)args->pdata, cnt = 0; *tmp && **tmp; ++cnt, ++tmp) {
+    for (tmp = (gchar **)args->pdata, cnt = 0; *tmp; ++cnt, ++tmp) {
+        if (!**tmp) {
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_WARNING, "Empty argument in arguments list");
+        }
         if (cnt != 0) g_string_append_c(spawn_args, ' ');    /* don't prepend a space before the path!!! */
         quoted_arg = g_shell_quote(*tmp);
         g_string_append(spawn_args, quoted_arg);
