@@ -2706,12 +2706,12 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>Avvia</translation>
     </message>
     <message>
-        <location filename="extcap_options_dialog.cpp" line="344"/>
+        <location filename="extcap_options_dialog.cpp" line="336"/>
         <source>Extcap Help cannot be found</source>
         <translation>Guida Extcap non disponibile</translation>
     </message>
     <message>
-        <location filename="extcap_options_dialog.cpp" line="345"/>
+        <location filename="extcap_options_dialog.cpp" line="337"/>
         <source>The help for the extcap interface %1 cannot be found. Given file: %2</source>
         <translation>La guida per l&apos;interfaccia %1 non è disponibile. File specificato: %2</translation>
     </message>

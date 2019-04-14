@@ -2704,12 +2704,12 @@ NOTE: Une option DOIT être sélectionnée.</translation>
         <translation>Démarrer</translation>
     </message>
     <message>
-        <location filename="extcap_options_dialog.cpp" line="344"/>
+        <location filename="extcap_options_dialog.cpp" line="336"/>
         <source>Extcap Help cannot be found</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <location filename="extcap_options_dialog.cpp" line="345"/>
+        <location filename="extcap_options_dialog.cpp" line="337"/>
         <source>The help for the extcap interface %1 cannot be found. Given file: %2</source>
         <translation type="unfinished"></translation>
     </message>

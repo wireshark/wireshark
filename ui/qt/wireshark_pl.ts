@@ -2708,12 +2708,12 @@ po którym zostanie użyty nowy plik przechwytywania, jeśli zamierzasz używać
         <translation>Start</translation>
     </message>
     <message>
-        <location filename="extcap_options_dialog.cpp" line="344"/>
+        <location filename="extcap_options_dialog.cpp" line="336"/>
         <source>Extcap Help cannot be found</source>
         <translation>Nie odnaleziono pomocy dla modułu Extcap</translation>
     </message>
     <message>
-        <location filename="extcap_options_dialog.cpp" line="345"/>
+        <location filename="extcap_options_dialog.cpp" line="337"/>
         <source>The help for the extcap interface %1 cannot be found. Given file: %2</source>
         <translation>Nie znaleziono pomocy dla interfejsu extcap %1. Plik: %2</translation>
     </message>

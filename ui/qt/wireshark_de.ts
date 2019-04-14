@@ -2706,12 +2706,12 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Start</translation>
     </message>
     <message>
-        <location filename="extcap_options_dialog.cpp" line="344"/>
+        <location filename="extcap_options_dialog.cpp" line="336"/>
         <source>Extcap Help cannot be found</source>
         <translation>Hilfe für Extcap kann nicht gefunden werden</translation>
     </message>
     <message>
-        <location filename="extcap_options_dialog.cpp" line="345"/>
+        <location filename="extcap_options_dialog.cpp" line="337"/>
         <source>The help for the extcap interface %1 cannot be found. Given file: %2</source>
         <translation>Die Hifle für Extcap-Schnittstelle %1 kann nicht gefunden werden. Angegebene Datei: %2</translation>
     </message>

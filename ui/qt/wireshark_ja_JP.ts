@@ -2703,12 +2703,12 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>開始</translation>
     </message>
     <message>
-        <location filename="extcap_options_dialog.cpp" line="344"/>
+        <location filename="extcap_options_dialog.cpp" line="336"/>
         <source>Extcap Help cannot be found</source>
         <translation>Extcap ヘルプを見つけることができません</translation>
     </message>
     <message>
-        <location filename="extcap_options_dialog.cpp" line="345"/>
+        <location filename="extcap_options_dialog.cpp" line="337"/>
         <source>The help for the extcap interface %1 cannot be found. Given file: %2</source>
         <translation>extcap インターフェース %1 に対するヘルプを見つけることができません。与えられたファイル: %2</translation>
     </message>

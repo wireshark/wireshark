@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2019-04-07)
+(last updated 2019-04-14)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -2562,9 +2562,9 @@ Decimal
     George P. Burdell
       gpb&oit.gatech.edu
 637
-  Alcatel-Lucent (formerly 'Alcatel Data Network')
-    Jean Rojnic
-      Jean.Rojnic&alcatel-lucent.fr
+  Nokia (formerly 'Alcatel-Lucent')
+    Mehrab Syed
+      Mehrab.Syed&alcatel-lucent.com
 638
   GTECH
     Brian Ruptash
@@ -25754,9 +25754,9 @@ Decimal
     Jianxin Geng
       frank_gjx&shdv.com
 6449
-  Comodo CA Ltd
+  Sectigo Limited
     Robin Alden
-      robin&comodo.com
+      robin.alden&sectigo.com
 6450
   Idsec Limited
     Stephen Bishop
@@ -26542,7 +26542,7 @@ Decimal
     R. H. (Bob) Beach
       rhbea&chevron.com
 6647
-  Planet
+  Sevio Srl
     Daniele Orlandi
       daniele&orlandi.com
 6648
@@ -57975,8 +57975,8 @@ Decimal
       mali&commvault.com
 14605
   Wesleyan University
-    Vasilios Hoffman
-      vhoffman01&wesleyan.edu
+    Steve Machuga
+      smachuga&wesleyan.edu
 14606
   Hewlett-Ward Inc.
     Stephen Ward
@@ -123239,8 +123239,8 @@ Decimal
       jh_squirrel&yahoo.com
 30922
   Telsasoft
-    Jose Barbe
-      barbe&telsasoft.com
+    Chris Lexvold
+      tech&telsasoft.com
 30923
   Max-Planck-Institute for Mathematics in the Sciences
     Rainer Kleinrensing
@@ -136802,9 +136802,9 @@ Decimal
     Silvani Lucia
       lucia.silvani&accantosystems.com
 34313
-  iDMS
+  iDMS - UMANN
     COUROUBLE Bertrand
-      bcourouble.idms&nordnet.fr
+      b.courouble&umanngroup.com
 34314
   Datanomic Ltd.
     Richard Evans
@@ -149730,9 +149730,9 @@ Decimal
     Peter Cox
       peter&um-labs.com
 37545
-  GFI Solutions Group inc.
+  ACCEO Solutions inc. (formerly 'GFI Solutions Group inc.')
     Christophe Dupre
-      christophe.dupre&gfisolutions.com
+      christophe.dupre&acceo.com
 37546
   BNP Paribas Fortis group
     Patrick GUSTOT
@@ -157122,9 +157122,9 @@ Decimal
     James Kinnaird
       james&jameskinnaird.ca
 39393
-  Global Reach Technology Limited
+  Global Reach Technology Inc.
     Dr Christopher Spencer
-      chris&globalreachtech.com
+      chris.spencer&globalreachtech.com
 39394
   Direccion General de Escuela Nacional Preparatoria
     Gabriela Cancino Ramirez
@@ -157456,7 +157456,7 @@ Decimal
 39476
   Antinea Software
     Sébastien Delmée
-      contact&antinea.net
+      contact&antineasoftware.eu
 39477
   American Bureau of Shipping (ABS)
     Cory Leonardi
@@ -177822,9 +177822,9 @@ Decimal
     Piotr Stokluska
       piotr.stokluska&arp.com.pl
 44568
-  newnet Marketing (formerly 'Topik Business Services GmbH')
+  Om7Sense GmbH
     john read
-      john.read&newnet-marketing.de
+      john.read&om7sense.com
 44569
   Regional Networks, Ltd.
     Konstantin A Savchenko
@@ -184668,7 +184668,7 @@ Decimal
 46279
   Thomas Hellström
     Thomas Hellström
-      thohell&thohell.com
+      rel&xed.se
 46280
   Enterprise Computing 
     Francisco Moreira
@@ -193071,8 +193071,8 @@ Decimal
       devops-support&camelotglobal.com
 48380
   Newbridge Technologies Int. Ltd.
-    Kenny Khoo
-      kenny&newbridgewireless.net
+    Ryan Low
+      admin&newbridgewireless.net
 48381
   BLS AG
     Lorenz Heusser
@@ -212984,7 +212984,7 @@ Decimal
 53358
   Trucking inc
     Denis Carias
-      taame96970116&gmail.com
+      dacarias77&gmail.com
 53359
   Axians ICT Austria GmbH
     Roland Felnhofer
@@ -214505,6 +214505,170 @@ Decimal
   Beijing Tasson Technology Ltd.
     Xian Changming
       xianchangming&tasson.cn
+53739
+  IDRAK TECHNOLOGY TRANSFER
+    Rufat Aliyev
+      idrak.licenses&idrak.az
+53740
+  Magnit Pharma
+    Marat F Sunagatullin
+      admins&siamed.ru
+53741
+  Banque de Commerce et de Placements
+    Jean-Christophe Valiere
+      netsec&bcp-bank.com
+53742
+  Deutsche Gesellschaft für Internationale Zusammenarbeit (GIZ) GmbH
+    Sven Koch
+      oid&giz.de
+53743
+  Domino's Pizza, Inc
+    Chad La Joie
+      chad.lajoie&dominos.com
+53744
+  Wejds
+    David Scott
+      contact&wejds.com
+53745
+  Ideal Concept Holdings
+    Ryan Schreiber
+      ryan.schreiber&idealconcept.ae
+53746
+  DBMUD
+    Marc Michels
+      mm&david-bock.de
+53747
+  Korbix
+    Eric Dey
+      iana-pen-registry&korbix.net
+53748
+  TOC PERU SAC
+    Alexander De Feudis Kockova
+      ad&toc.pe
+53749
+  Dynamics Edge
+    Arden John Barreras
+      arden&dynamicsedge.com
+53750
+  SiRcom
+    Jamie Warner
+      jamie.warner&sircomusa.com
+53751
+  esciris GmbH
+    Fabian Steiger
+      fabian.steiger&esciris.de
+53752
+  Roadstarter Networks
+    Rouell Adriano
+      roadstarter&gmail.com
+53753
+  ITS-chita
+    Hiroyuki Oomiya
+      oomiya&its-chita.com
+53754
+  Groundhog Technologies Inc.
+    Alan Hwang
+      alan.hwang&ghtinc.com
+53755
+  NOVUS UKRAINE LLC
+    Ighor Zamickin
+      infobezpeka&novus.ua
+53756
+  National Széchényi Library
+    Mikael Bak
+      bak.mikael&oszk.hu
+53757
+  768BIT Ltd
+    Craig Smith
+      craig.smith&768bit.com
+53758
+  Tribeca Heavy Industries LLC
+    Michael Smith
+      nic&tribeca.com
+53759
+  Inscyth, Inc.
+    John Martin
+      jmartin&inscyth.com
+53760
+  Erich Utsch AG
+    Christian Nölle
+      christian.noelle&utsch.com
+53761
+  Arvato Rus LLC
+    Dmitry Turkin
+      dmitry.turkin&arvato.ru
+53762
+  Rema Tip Top Holdings UK Ltd
+    Alan Smith
+      it&tip-top.co.uk
+53763
+  Vorwerk International Strecker & Co.
+    Michael Arends
+      michael.arends&vorwerk.de
+53764
+  Semple Consulting Services Ltd
+    Jonathan Semple
+      iana&sempleserve.com
+53765
+  Digicomp Engenharia e Tecnologia Ltda
+    Thiago Torres Alves
+      thiago.torres&digicomp.com.br
+53766
+  Robert Boucneau, Individual
+    Robert Boucneau
+      bobboucneau&gmail.com
+53767
+  NEC Energy Solutions
+    Matthew Bush
+      mbush&neces.com
+53768
+  MA Lighting Technology GmbH
+    Christian Tarne
+      christian.tarne&malighting.de
+53769
+  Cancer Care Associates PC
+    Annalynn Hall
+      lhall&ccapc.com
+53770
+  Belderbos ICT Consultancy & Beheer
+    Jeroen Belderbos
+      jeroen&belderbosict.nl
+53771
+  Centro De Hematologia Y Oncologia Medica Integral
+    Ruth Calcano
+      rnco76&gmail.com 
+53772
+  Agence Technique de la Charente
+    Yann Bogdanovic
+      ybogdanovic&atd16.fr
+53773
+  Sonion A/S
+    Said Jawad
+      sja&sonion.com
+53774
+  WV Communications Inc
+    Uri Yulzari
+      wv-purchasing&wv-comm.com
+53775
+  1oT OÜ
+    Rameez Sultan
+      rameez.sultan&1ot.mobi
+53776
+  JINR
+    Ilya Slepnev
+      islepnev&jinr.ru
+53777
+  sodeac.org
+    Sebastian Palarus
+      s.palarus&googlemail.com
+53778
+  Veea Inc.
+    Frank Zarzuela
+      it&veea.com
+53779
+  Linsys Ltd
+    Dmitry Tatarinov
+      tatarinov&lin-sys.ru
 
 
 End of Document
