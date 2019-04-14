@@ -237,7 +237,6 @@ static int hf_ldp_tlv_fec_pw_pwtype = -1;
 static int hf_ldp_tlv_fec_pw_infolength = -1;
 static int hf_ldp_tlv_fec_pw_groupid = -1;
 static int hf_ldp_tlv_fec_pw_pwid = -1;
-static int hf_ldp_tlv_fec_pw_interface_parameter = -1;
 static int hf_ldp_tlv_pw_status_data = -1;
 static int hf_ldp_tlv_pw_not_forwarding = -1;
 static int hf_ldp_tlv_pw_lac_ingress_recv_fault = -1;
@@ -1551,11 +1550,23 @@ dissect_tlv_fec(tvbuff_t *tvb, packet_info *pinfo, guint offset, proto_tree *tre
                 offset +=4;
 
             }
-            if ( (pwid_len > 4) && ( rem > 4 ) ) { /* there is enough room for interface parameter sub TLV */
-                proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_pw_interface_parameter,tvb, offset, pwid_len - 4, ENC_NA);
-                rem -= (pwid_len - 4);
-                offset += (pwid_len -4);
 
+            while ( (pwid_len > 1) && (rem > 1) ) {   /* enough to include id and length */
+                intparam_len = tvb_get_guint8(tvb, offset+1);
+                if (intparam_len < 2){ /* At least Type and Len, protect against len = 0 */
+                    proto_tree_add_expert(fec_tree, pinfo, &ei_ldp_malformed_interface_parameter, tvb, offset +1, 1);
+                    return;
+                }
+
+                if ( ((guint32)intparam_len > pwid_len) && (rem -intparam_len) <0 ) { /* error condition */
+                    proto_tree_add_expert(fec_tree, pinfo, &ei_ldp_malformed_data, tvb, offset +2, MIN(pwid_len,(guint32)rem));
+                    return;
+                }
+                dissect_subtlv_interface_parameters(tvb, offset, fec_tree, intparam_len, interface_params_header_fields);
+
+                rem -= intparam_len;
+                pwid_len -= intparam_len;
+                offset += intparam_len;
             }
 
             break;
@@ -4275,10 +4286,6 @@ proto_register_ldp(void)
         { &hf_ldp_tlv_fec_pw_pwid,
           { "PW ID", "ldp.msg.tlv.fec.pw.pwid", FT_UINT32, BASE_DEC,
             NULL, 0x0, "PW FEC PWID", HFILL }},
-
-        { &hf_ldp_tlv_fec_pw_interface_parameter,
-          { "Interface Parameter", "ldp.msg.tlv.fec.pw.interface_parameter", FT_BYTES, BASE_NONE,
-            NULL, 0x0, "PW FEC Interface Parameter Sub-TLV", HFILL }},
 
         { &hf_ldp_tlv_pw_status_data,
           { "PW Status", "ldp.msg.tlv.pwstatus.code", FT_UINT32, BASE_HEX,
