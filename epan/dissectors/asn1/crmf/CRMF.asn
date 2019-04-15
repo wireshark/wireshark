@@ -85,7 +85,7 @@ CertRequest ::= SEQUENCE {
 
 CertTemplate ::= SEQUENCE {
  version      [0] Version               OPTIONAL,
- serialNumber [1] INTEGER               OPTIONAL,
+ serialNumber [1] INTEGER(MIN..MAX)     OPTIONAL,   -- Wireshark extension to get 64 bit handling
  signingAlg   [2] AlgorithmIdentifier   OPTIONAL,
  issuer       [3] Name                  OPTIONAL,
  validity     [4] OptionalValidity      OPTIONAL,
@@ -268,7 +268,7 @@ OldCertId ::= CertId
 
 CertId ::= SEQUENCE {
  issuer           GeneralName,
- serialNumber     INTEGER }
+ serialNumber     INTEGER(MIN..MAX) }  -- Wireshark extension to get 64 bit handling
 
 id-regCtrl-protocolEncrKey    OBJECT IDENTIFIER ::= { id-regCtrl 6 }
 --with syntax:

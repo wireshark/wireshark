@@ -61,7 +61,7 @@ static int hf_crmf_certReqId = -1;                /* INTEGER */
 static int hf_crmf_certTemplate = -1;             /* CertTemplate */
 static int hf_crmf_controls = -1;                 /* Controls */
 static int hf_crmf_version = -1;                  /* Version */
-static int hf_crmf_serialNumber = -1;             /* INTEGER */
+static int hf_crmf_serialNumber = -1;             /* INTEGER_MIN_MAX */
 static int hf_crmf_signingAlg = -1;               /* AlgorithmIdentifier */
 static int hf_crmf_template_issuer = -1;          /* Name */
 static int hf_crmf_validity = -1;                 /* OptionalValidity */
@@ -173,6 +173,16 @@ dissect_crmf_INTEGER(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
+
+static int
+dissect_crmf_INTEGER_MIN_MAX(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer64(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
 static const ber_sequence_t OptionalValidity_sequence[] = {
   { &hf_crmf_notBefore      , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pkix1explicit_Time },
   { &hf_crmf_notAfter       , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pkix1explicit_Time },
@@ -190,7 +200,7 @@ dissect_crmf_OptionalValidity(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int 
 
 static const ber_sequence_t CertTemplate_sequence[] = {
   { &hf_crmf_version        , BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pkix1explicit_Version },
-  { &hf_crmf_serialNumber   , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_crmf_INTEGER },
+  { &hf_crmf_serialNumber   , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_crmf_INTEGER_MIN_MAX },
   { &hf_crmf_signingAlg     , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pkix1explicit_AlgorithmIdentifier },
   { &hf_crmf_template_issuer, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_pkix1explicit_Name },
   { &hf_crmf_validity       , BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_crmf_OptionalValidity },
@@ -688,7 +698,7 @@ dissect_crmf_PKIArchiveOptions(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int
 
 static const ber_sequence_t CertId_sequence[] = {
   { &hf_crmf_issuer         , BER_CLASS_CON, -1/*choice*/, BER_FLAGS_NOOWNTAG, dissect_pkix1implicit_GeneralName },
-  { &hf_crmf_serialNumber   , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_crmf_INTEGER },
+  { &hf_crmf_serialNumber   , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_crmf_INTEGER_MIN_MAX },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -984,8 +994,8 @@ void proto_register_crmf(void) {
         NULL, HFILL }},
     { &hf_crmf_serialNumber,
       { "serialNumber", "crmf.serialNumber",
-        FT_INT32, BASE_DEC, NULL, 0,
-        "INTEGER", HFILL }},
+        FT_INT64, BASE_DEC, NULL, 0,
+        "INTEGER_MIN_MAX", HFILL }},
     { &hf_crmf_signingAlg,
       { "signingAlg", "crmf.signingAlg_element",
         FT_NONE, BASE_NONE, NULL, 0,
