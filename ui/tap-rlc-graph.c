@@ -108,17 +108,17 @@ rlc_lte_tap_info *select_rlc_lte_session(capture_file *cf,
         return NULL;
     }
 
-    fdata = cf->current_frame;
-
     /* No real filter yet */
     if (!dfilter_compile("rlc-lte", &sfcode, err_msg)) {
         return NULL;
     }
 
     /* Dissect the data from the current frame. */
-    if (!cf_read_record(cf, fdata)) {
+    if (!cf_read_current_record(cf)) {
         return NULL;  /* error reading the record */
     }
+
+    fdata = cf->current_frame;
 
     /* Set tap listener that will populate th. */
     error_string = register_tap_listener("rlc-lte", &th, NULL, 0, NULL, tap_lte_rlc_packet, NULL, NULL);

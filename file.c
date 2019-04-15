@@ -1568,7 +1568,7 @@ cf_redissect_packets(capture_file *cf)
 }
 
 gboolean
-cf_read_record_r(capture_file *cf, const frame_data *fdata,
+cf_read_record(capture_file *cf, const frame_data *fdata,
                  wtap_rec *rec, Buffer *buf)
 {
   int    err;
@@ -1582,9 +1582,9 @@ cf_read_record_r(capture_file *cf, const frame_data *fdata,
 }
 
 gboolean
-cf_read_record(capture_file *cf, frame_data *fdata)
+cf_read_current_record(capture_file *cf)
 {
-  return cf_read_record_r(cf, fdata, &cf->rec, &cf->buf);
+  return cf_read_record(cf, cf->current_frame, &cf->rec, &cf->buf);
 }
 
 /* Rescan the list of packets, reconstructing the CList.
@@ -1838,7 +1838,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
     /* Frame dependencies from the previous dissection/filtering are no longer valid. */
     fdata->dependent_of_displayed = 0;
 
-    if (!cf_read_record_r(cf, fdata, &rec, &buf))
+    if (!cf_read_record(cf, fdata, &rec, &buf))
       break; /* error reading the frame */
 
     /* If the previous frame is displayed, and we haven't yet seen the
@@ -2180,7 +2180,7 @@ process_specified_records(capture_file *cf, packet_range_t *range,
     }
 
     /* Get the packet */
-    if (!cf_read_record_r(cf, fdata, &rec, &buf)) {
+    if (!cf_read_record(cf, fdata, &rec, &buf)) {
       /* Attempt to get the packet failed. */
       ret = PSP_FAILED;
       break;
@@ -3068,7 +3068,7 @@ match_protocol_tree(capture_file *cf, frame_data *fdata,
   epan_dissect_t  edt;
 
   /* Load the frame's data. */
-  if (!cf_read_record_r(cf, fdata, rec, buf)) {
+  if (!cf_read_record(cf, fdata, rec, buf)) {
     /* Attempt to get the packet failed. */
     return MR_ERROR;
   }
@@ -3183,7 +3183,7 @@ match_summary_line(capture_file *cf, frame_data *fdata,
   size_t          c_match    = 0;
 
   /* Load the frame's data. */
-  if (!cf_read_record_r(cf, fdata, rec, buf)) {
+  if (!cf_read_record(cf, fdata, rec, buf)) {
     /* Attempt to get the packet failed. */
     return MR_ERROR;
   }
@@ -3293,7 +3293,7 @@ match_narrow_and_wide(capture_file *cf, frame_data *fdata,
   size_t        c_match    = 0;
 
   /* Load the frame's data. */
-  if (!cf_read_record_r(cf, fdata, rec, buf)) {
+  if (!cf_read_record(cf, fdata, rec, buf)) {
     /* Attempt to get the packet failed. */
     return MR_ERROR;
   }
@@ -3343,7 +3343,7 @@ match_narrow(capture_file *cf, frame_data *fdata,
   size_t        c_match    = 0;
 
   /* Load the frame's data. */
-  if (!cf_read_record_r(cf, fdata, rec, buf)) {
+  if (!cf_read_record(cf, fdata, rec, buf)) {
     /* Attempt to get the packet failed. */
     return MR_ERROR;
   }
@@ -3392,7 +3392,7 @@ match_wide(capture_file *cf, frame_data *fdata,
   size_t        c_match    = 0;
 
   /* Load the frame's data. */
-  if (!cf_read_record_r(cf, fdata, rec, buf)) {
+  if (!cf_read_record(cf, fdata, rec, buf)) {
     /* Attempt to get the packet failed. */
     return MR_ERROR;
   }
@@ -3440,7 +3440,7 @@ match_binary(capture_file *cf, frame_data *fdata,
   size_t        c_match     = 0;
 
   /* Load the frame's data. */
-  if (!cf_read_record_r(cf, fdata, rec, buf)) {
+  if (!cf_read_record(cf, fdata, rec, buf)) {
     /* Attempt to get the packet failed. */
     return MR_ERROR;
   }
@@ -3478,7 +3478,7 @@ match_regex(capture_file *cf, frame_data *fdata,
     GMatchInfo   *match_info = NULL;
 
     /* Load the frame's data. */
-    if (!cf_read_record_r(cf, fdata, rec, buf)) {
+    if (!cf_read_record(cf, fdata, rec, buf)) {
         /* Attempt to get the packet failed. */
         return MR_ERROR;
     }
@@ -3537,7 +3537,7 @@ match_dfilter(capture_file *cf, frame_data *fdata,
   match_result    result;
 
   /* Load the frame's data. */
-  if (!cf_read_record_r(cf, fdata, rec, buf)) {
+  if (!cf_read_record(cf, fdata, rec, buf)) {
     /* Attempt to get the packet failed. */
     return MR_ERROR;
   }
@@ -3829,7 +3829,7 @@ cf_select_packet(capture_file *cf, int row)
   }
 
   /* Get the data in that frame. */
-  if (!cf_read_record_r(cf, fdata, &cf->rec, &cf->buf)) {
+  if (!cf_read_record(cf, fdata, &cf->rec, &cf->buf)) {
     return;
   }
 
@@ -4019,7 +4019,7 @@ cf_get_packet_comment(capture_file *cf, const frame_data *fd)
     wtap_rec_init(&rec);
     ws_buffer_init(&buf, 1514);
 
-    if (!cf_read_record_r(cf, fd, &rec, &buf))
+    if (!cf_read_record(cf, fd, &rec, &buf))
       { /* XXX, what we can do here? */ }
 
     /* rec.opt_comment is owned by the record, copy it before it is gone. */

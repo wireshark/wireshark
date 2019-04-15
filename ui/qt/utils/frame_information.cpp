@@ -39,7 +39,7 @@ void FrameInformation::loadFrameTree()
     if ( ! fi_ || ! cap_file_ || !cap_file_->capFile())
         return;
 
-    if (!cf_read_record_r(cap_file_->capFile(), fi_, &rec_, &buf_))
+    if (!cf_read_record(cap_file_->capFile(), fi_, &rec_, &buf_))
         return;
 
     /* proto tree, visible. We need a proto tree if there's custom columns */

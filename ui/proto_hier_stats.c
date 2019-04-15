@@ -154,7 +154,7 @@ process_record(capture_file *cf, frame_data *frame, column_info *cinfo,
     double		cur_time;
 
     /* Load the record from the capture file */
-    if (!cf_read_record_r(cf, frame, rec, buf))
+    if (!cf_read_record(cf, frame, rec, buf))
         return FALSE;	/* failure */
 
     /* Dissect the record   tree  not visible */

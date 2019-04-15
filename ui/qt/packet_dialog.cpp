@@ -51,7 +51,7 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
 
     setWindowSubtitle(tr("Packet %1").arg(fdata->num));
 
-    if (!cf_read_record_r(cap_file_.capFile(), fdata, &rec_, &buf_)) {
+    if (!cf_read_record(cap_file_.capFile(), fdata, &rec_, &buf_)) {
         reject();
         return;
     }

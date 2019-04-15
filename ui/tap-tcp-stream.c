@@ -283,8 +283,6 @@ select_tcpip_session(capture_file *cf, struct segment *hdrs)
         return NULL;
     }
 
-    fdata = cf->current_frame;
-
     /* no real filter yet */
     if (!dfilter_compile("tcp", &sfcode, &err_msg)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_msg);
@@ -293,10 +291,11 @@ select_tcpip_session(capture_file *cf, struct segment *hdrs)
     }
 
     /* dissect the current record */
-    if (!cf_read_record(cf, fdata)) {
+    if (!cf_read_current_record(cf)) {
         return NULL;    /* error reading the record */
     }
 
+    fdata = cf->current_frame;
 
     error_string = register_tap_listener("tcp", &th, NULL, 0, NULL, tap_tcpip_packet, NULL, NULL);
     if (error_string) {

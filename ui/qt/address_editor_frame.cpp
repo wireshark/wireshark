@@ -57,7 +57,7 @@ void AddressEditorFrame::editAddresses(CaptureFile &cf, int column)
         return;
     }
 
-    if (!cf_read_record(cap_file_, cap_file_->current_frame)) {
+    if (!cf_read_current_record(cap_file_)) {
         on_buttonBox_rejected();
         return; // error reading the frame
     }

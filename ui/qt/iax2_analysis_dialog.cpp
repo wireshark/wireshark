@@ -309,9 +309,9 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
         return;
     }
 
-    frame_data *fdata = cap_file_.capFile()->current_frame;
+    if (!cf_read_current_record(cap_file_.capFile())) close();
 
-    if (!cf_read_record(cap_file_.capFile(), fdata)) close();
+    frame_data *fdata = cap_file_.capFile()->current_frame;
 
     epan_dissect_t edt;
 

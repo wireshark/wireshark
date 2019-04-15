@@ -150,19 +150,18 @@ cf_read_status_t cf_read(capture_file *cf, gboolean from_save);
  * @param buf a Buffer into which to read the record's raw data
  * @return TRUE if the read succeeded, FALSE if there was an error
  */
-gboolean cf_read_record_r(capture_file *cf, const frame_data *fdata,
+gboolean cf_read_record(capture_file *cf, const frame_data *fdata,
                           wtap_rec *rec, Buffer *buf);
 
 /**
- * Read the metadata and raw data for a record into a
- * capture_file structure's phdr and buf members.
+ * Read the metadata and raw data for the current record into a
+ * capture_file structure's rec and buf for the current record.
  * It will pop up an alert box if there's an error.
  *
  * @param cf the capture file from which to read the record
- * @param fdata the frame_data structure for the record in question
  * @return TRUE if the read succeeded, FALSE if there was an error
  */
-gboolean cf_read_record(capture_file *cf, frame_data *fdata);
+gboolean cf_read_current_record(capture_file *cf);
 
 /**
  * Read packets from the "end" of a capture file.
