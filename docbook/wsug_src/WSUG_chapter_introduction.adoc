@@ -12,22 +12,21 @@ Wireshark is a network packet analyzer. A network packet analyzer will try to
 capture network packets and tries to display that packet data as detailed as
 possible.
 
-You could think of a network packet analyzer as a measuring device used to
-examine what’s going on inside a network cable, just like a voltmeter is used by
-an electrician to examine what’s going on inside an electric cable (but at a
+You could think of a network packet analyzer as a measuring device for
+examining what’s happening inside a network cable, just like an electrician uses
+a voltmeter for examining what’s happening inside an electric cable (but at a
 higher level, of course).
 
 In the past, such tools were either very expensive, proprietary, or both.
-However, with the advent of Wireshark, all that has changed.
-
-Wireshark is perhaps one of the best open source packet analyzers available
-today.
+However, with the advent of Wireshark, that has changed. Wireshark is
+available for free, is open source, and is one of the best packet
+analyzers available today.
 
 [[ChIntroPurposes]]
 
 ==== Some intended purposes
 
-Here are some examples people use Wireshark for:
+Here are some reasons people use Wireshark:
 
 *  Network administrators use it to _troubleshoot network problems_
 
@@ -39,7 +38,7 @@ Here are some examples people use Wireshark for:
 
 *  People use it to _learn network protocol_ internals
 
-Beside these examples Wireshark can be helpful in many other situations too.
+Wireshark can also be helpful in many other situations.
 
 [[ChIntroFeatures]]
 
@@ -51,7 +50,8 @@ The following are some of the many features Wireshark provides:
 
 * _Capture_ live packet data from a network interface.
 
-* _Open_ files containing packet data captured with tcpdump/WinDump, Wireshark, and a number of other packet capture programs.
+* _Open_ files containing packet data captured with tcpdump/WinDump,
+Wireshark, and many other packet capture programs.
 
 * _Import_ packets from text files containing hex dumps of packet data.
 
@@ -82,20 +82,20 @@ image::wsug_graphics/ws-main.png[{screenshot-attrs}]
 
 ==== Live capture from many different network media
 
-Wireshark can capture traffic from many different network media types -
-and despite its name - including wireless LAN as well. Which media types
-are supported, depends on many things like the operating system you are
-using. An overview of the supported media types can be found at
+Wireshark can capture traffic from many different network media types,
+including Ethernet, Wireless LAN, Bluetooth, USB, and more. The specific media
+types supported may be limited by several factors, including your hardware
+and operating system. An overview of the supported media types can be found at
 link:{wireshark-wiki-url}CaptureSetup/NetworkMedia[].
 
 ==== Import files from many other capture programs
 
-Wireshark can open packets captured from a large number of other capture
+Wireshark can open packet captures from a large number of capture
 programs. For a list of input formats see <<ChIOInputFormatsSection>>.
 
 ==== Export files for many other capture programs
 
-Wireshark can save packets captured in a large number of formats of other
+Wireshark can save captured packets in many formats, including those used by other
 capture programs. For a list of output formats see <<ChIOOutputFormatsSection>>.
 
 ==== Many protocol dissectors
@@ -125,7 +125,7 @@ Here are some things Wireshark does not provide:
 
 * Wireshark will not manipulate things on the network, it will only “measure”
   things from it. Wireshark doesn’t send packets on the network or do other
-  active things (except for name resolutions, but even that can be disabled).
+  active things (except domain name resolution, but that can be disabled).
 
 [[ChIntroPlatforms]]
 
@@ -139,17 +139,17 @@ capture files will require more memory and disk space.
 [NOTE]
 .Busy networks mean large captures
 ====
-Working with a busy network can easily produce huge capture files. Capturing on
-a gigabit or even 100 megabit network can produce hundreds of megabytes of
-capture data in a short time. A fast processor, lots of memory and disk
-space is always a good idea.
+A busy network can produce huge capture files. Capturing on
+even a 100 megabit network can produce hundreds of megabytes of
+capture data in a short time. A computer with a fast processor, and lots of
+memory and disk space is always a good idea.
 ====
 
 If Wireshark runs out of memory it will crash. See
 {wireshark-wiki-url}KnownBugs/OutOfMemory for details and workarounds.
 
-Although Wireshark captures packets using a separate process the main interface
-is single-threaded and won’t benefit much from multi-core systems.
+Although Wireshark uses a separate process to capture packets, the packet
+analysis is single-threaded and won’t benefit much from multi-core systems.
 
 ==== Microsoft Windows
 
@@ -199,9 +199,12 @@ party libraries on which we depend or due to necessary features that are only
 present in newer versions of Windows such as hardened security or memory
 management.
 
-Wireshark 1.12 was the last release branch to support Windows Server
-2003. Wireshark 1.10 was the last branch to officially support Windows
-XP. See the link:{wireshark-wiki-url}Development/LifeCycle[Wireshark
+* Wireshark 2.2 was the last release to support Windows Vista and Windows
+Server 2008 (non-R2)
+* Wireshark 1.12 was the last release branch to support Windows Server 2003.
+* Wireshark 1.10 was the last release branch to officially support Windows XP.
+
+See the link:{wireshark-wiki-url}Development/LifeCycle[Wireshark
 release lifecycle] page for more details.
 
 ==== UNIX / Linux
@@ -319,17 +322,16 @@ You gain three benefits by contributing your improvements back to the community:
 
 . Other people who find your contributions useful will appreciate them, and you
   will know that you have helped people in the same way that the developers of
-  Wireshark have helped people.
+  Wireshark have helped you.
 
-. The developers of Wireshark might improve your changes even more, as there’s
-  always room for improvement. Or they may implement some advanced things on top
-  of your code, which can be useful for yourself too.
+. The developers of Wireshark can further improve your changes or implement
+  additional features on top of your code, which may also benefit you.
 
-. The maintainers and developers of Wireshark will maintain your code as well,
+. The maintainers and developers of Wireshark will maintain your code,
   fixing it when API changes or other changes are made, and generally keeping it
-  in tune with what is happening with Wireshark. So if Wireshark is updated
-  (which is done often), you can get a new Wireshark version from the website
-  and your changes will already be included without any effort for you.
+  in tune with what is happening with Wireshark. So when Wireshark is updated
+  (which is often), you can get a new Wireshark version from the website
+  and your changes will already be included without any additional effort from you.
 
 The Wireshark source code and binary kits for some platforms are all
 available on the download page of the Wireshark website:
@@ -340,7 +342,7 @@ available on the download page of the Wireshark website:
 === Reporting problems and getting help
 
 If you have problems or need help with Wireshark there are several places that
-may be of interest to you (well, besides this guide of course).
+may be of interest (besides this guide, of course).
 
 [[ChIntroHomepage]]
 
@@ -356,22 +358,22 @@ You will find lots of useful information on the Wireshark homepage at
 The Wireshark Wiki at {wireshark-wiki-url} provides a
 wide range of information related to Wireshark and packet capture in general.
 You will find a lot of information not part of this user’s guide. For example,
-there is an explanation how to capture on a switched network, an ongoing effort
-to build a protocol reference and a lot more.
+it contains an explanation how to capture on a switched network, an ongoing effort
+to build a protocol reference, protocol-specific information, and much more.
 
 And best of all, if you would like to contribute your knowledge on a specific
-topic (maybe a network protocol you know well) you can edit the wiki pages by
-simply using your web browser.
+topic (maybe a network protocol you know well), you can edit the wiki pages
+with your web browser.
 
 [[ChIntroQA]]
 
 ==== Q&amp;A Site
 
 The Wireshark Q&amp;A site at {wireshark-qa-url} offers a resource where
-questions and answers come together. You have the option to search what
-questions were asked before and what answers were given by people who
-knew about the issue. Answers are graded, so you can pick out the best
-ones easily. If your question hasn’t been discussed before you can post
+questions and answers come together. You can search for
+questions asked before and see what answers were given by people who
+knew about the issue. Answers are ranked, so you can easily pick out the best
+ones. If your question hasn’t been discussed before you can post
 one yourself.
 
 [[ChIntroFAQ]]
@@ -444,7 +446,8 @@ When reporting problems with Wireshark please supply the following information:
   such as Qt or GLib. You can obtain this from Wireshark’s about box or the
   command _wireshark -v_.
 
-. Information about the platform you run Wireshark on.
+. Information about the platform you run Wireshark on
+(Windows, Linux, etc. and 32-bit, 64-bit, etc.).
 
 . A detailed description of your problem.
 
@@ -456,10 +459,9 @@ When reporting problems with Wireshark please supply the following information:
 [NOTE]
 .Don’t send large files
 ====
-Do not send large files (> 1 MB) to the mailing lists. Just place a note that
-further data is available on request. Large files will only annoy a lot of
-people on the list who are not interested in your specific problem. If required
-you will be asked for further data by the persons who really can help you.
+Do not send large files (> 1 MB) to the mailing lists. Instead, provide a
+download link. For bugs and feature requests, you can create an issue on
+link:{wireshark-bugs-url}[Bugzilla] and upload the file there.
 ====
 
 [WARNING]
