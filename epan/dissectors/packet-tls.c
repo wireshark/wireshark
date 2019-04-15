@@ -167,6 +167,11 @@ static int hf_tls_segment_error               = -1;
 static int hf_tls_segment_count               = -1;
 static int hf_tls_segment_data                = -1;
 
+static int hf_tls_handshake_reassembled_in    = -1;
+static int hf_tls_handshake_fragments         = -1;
+static int hf_tls_handshake_fragment          = -1;
+static int hf_tls_handshake_fragment_count    = -1;
+
 static gint hf_tls_heartbeat_message                 = -1;
 static gint hf_tls_heartbeat_message_type            = -1;
 static gint hf_tls_heartbeat_message_payload_length  = -1;
@@ -184,6 +189,8 @@ static gint ett_tls_heartbeat         = -1;
 static gint ett_tls_certs             = -1;
 static gint ett_tls_segments          = -1;
 static gint ett_tls_segment           = -1;
+static gint ett_tls_hs_fragments       = -1;
+static gint ett_tls_hs_fragment        = -1;
 
 static expert_field ei_ssl2_handshake_session_id_len_error = EI_INIT;
 static expert_field ei_ssl3_heartbeat_payload_length = EI_INIT;
@@ -210,6 +217,24 @@ static const fragment_items ssl_segment_items = {
     &hf_tls_reassembled_length,
     &hf_tls_reassembled_data,
     "Segments"
+};
+
+/* Fragmented handshake messages. */
+static const fragment_items tls_hs_fragment_items = {
+    &ett_tls_hs_fragment,
+    &ett_tls_hs_fragments,
+    &hf_tls_handshake_fragments,
+    &hf_tls_handshake_fragment,
+    &hf_tls_segment_overlap,    // Do not care about the errors, should not happen.
+    &hf_tls_segment_overlap_conflict,
+    &hf_tls_segment_multiple_tails,
+    &hf_tls_segment_too_long_fragment,
+    &hf_tls_segment_error,
+    &hf_tls_handshake_fragment_count,
+    NULL,                           /* unused - &hf_tls_handshake_reassembled_in, */
+    NULL,                           /* do not display redundant length */
+    NULL,                           /* do not display redundant data */
+    "Fragments"
 };
 
 static SSL_COMMON_LIST_T(dissect_ssl3_hf);
@@ -268,6 +293,10 @@ void proto_reg_handoff_ssl(void);
 /* table to hold defragmented TLS streams */
 static reassembly_table ssl_reassembly_table;
 
+/* Table to hold fragmented TLS handshake records. */
+static reassembly_table tls_hs_reassembly_table;
+static guint32 hs_reassembly_id_count;
+
 /* initialize/reset per capture state data (ssl sessions cache) */
 static void
 ssl_init(void)
@@ -290,6 +319,9 @@ ssl_init(void)
             prefs_set_preference_obsolete(keys_list_pref);
         }
     }
+
+    /* Reset the identifier for a group of handshake fragments. */
+    hs_reassembly_id_count = 0;
 }
 
 static void
@@ -492,12 +524,20 @@ static void dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
                                guint32 record_length, const SslSession *session);
 
 /* handshake protocol dissector */
-static void dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
-                                   proto_tree *tree, guint32 offset,
-                                   guint32 record_length, gboolean maybe_encrypted,
-                                   SslSession *session, gint is_from_server,
-                                   SslDecryptSession *conv_data,
-                                   const guint8 content_type, const guint16 version);
+static void dissect_tls_handshake(tvbuff_t *tvb, packet_info *pinfo,
+                       proto_tree *tree, guint32 offset,
+                       guint32 offset_end, gboolean maybe_encrypted,
+                       guint record_id, guint8 curr_layer_num_tls,
+                       SslSession *session, gint is_from_server,
+                       SslDecryptSession *ssl,
+                       const guint16 version);
+
+static void dissect_tls_handshake_full(tvbuff_t *tvb, packet_info *pinfo,
+                                  proto_tree *tree, guint32 offset,
+                                  SslSession *session, gint is_from_server,
+                                  SslDecryptSession *conv_data,
+                                  const guint16 version,
+                                  gboolean is_first_msg);
 
 /* heartbeat message dissector */
 static void dissect_ssl3_heartbeat(tvbuff_t *tvb, packet_info *pinfo,
@@ -791,13 +831,17 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
  * For use by QUIC (draft -13).
  */
 static int
-dissect_tls13_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_tls13_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 
     conversation_t    *conversation;
     SslDecryptSession *ssl_session;
     SslSession        *session;
     gint               is_from_server;
+    /**
+     * A value that uniquely identifies this fragment in this frame.
+     */
+    guint              record_id = GPOINTER_TO_UINT(data);
 
     ssl_debug_printf("\n%s enter frame #%u (%s)\n", G_STRFUNC, pinfo->num, (pinfo->fd->visited)?"already visited":"first time");
 
@@ -823,9 +867,9 @@ dissect_tls13_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
                      (void *)conversation, (void *)ssl_session, is_from_server);
 
     /* Directly add handshake message to the tree (without proto_tls item). */
-    dissect_ssl3_handshake(tvb, pinfo, tree, 0,
-                           tvb_reported_length(tvb), FALSE, session,
-                           is_from_server, ssl_session, SSL_ID_HANDSHAKE, TLSV1DOT3_VERSION);
+    dissect_tls_handshake(tvb, pinfo, tree, 0,
+                          tvb_reported_length(tvb), FALSE, record_id, pinfo->curr_layer_num, session,
+                          is_from_server, ssl_session, TLSV1DOT3_VERSION);
 
     ssl_debug_flush();
 
@@ -1949,13 +1993,19 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         break;
     case SSL_ID_HANDSHAKE:
         if (decrypted) {
-            dissect_ssl3_handshake(decrypted, pinfo, ssl_record_tree, 0,
-                                   tvb_reported_length(decrypted), FALSE, session,
-                                   is_from_server, ssl, content_type, version);
+            guint record_id = record->id;
+            dissect_tls_handshake(decrypted, pinfo, ssl_record_tree, 0,
+                                  tvb_reported_length(decrypted), FALSE, record_id, curr_layer_num_ssl, session,
+                                  is_from_server, ssl, version);
         } else {
-            dissect_ssl3_handshake(tvb, pinfo, ssl_record_tree, offset,
-                                   record_length, TRUE, session,
-                                   is_from_server, ssl, content_type, version);
+            // Combine both the offset within this TCP segment and the layer
+            // number in case a record consists of multiple reassembled TCP
+            // segments. The exact value does not matter, but it should be
+            // unique per frame.
+            guint record_id = tvb_raw_offset(tvb) + offset + curr_layer_num_ssl;
+            dissect_tls_handshake(tvb, pinfo, ssl_record_tree, offset,
+                                  offset + record_length, TRUE, record_id, curr_layer_num_ssl, session,
+                                  is_from_server, ssl, version);
         }
         break;
     case SSL_ID_APP_DATA:
@@ -2101,14 +2151,346 @@ dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
 }
 
 
+/**
+ * Checks whether a handshake message seems encrypted and cannot be dissected.
+ */
+static gboolean
+is_encrypted_handshake_message(tvbuff_t *tvb, packet_info *pinfo, guint32 offset, guint32 offset_end,
+                               gboolean maybe_encrypted, SslSession *session, gboolean is_from_server)
+{
+    guint record_length = offset_end - offset;
+
+    if (record_length < 16) {
+        /*
+         * Encrypted data has additional overhead. For TLS 1.0/1.1 with stream
+         * and block ciphers, there is at least a MAC which is at minimum 16
+         * bytes for MD5. In TLS 1.2, AEAD adds an explicit nonce and auth tag.
+         * For AES-GCM/CCM the auth tag is 16 bytes. AES_CCM_8 (RFC 6655) uses 8
+         * byte auth tags, but the explicit nonce is also 8 (sums up to 16).
+         *
+         * So anything smaller than 16 bytes is assumed to be plaintext.
+         */
+        return FALSE;
+    }
+
+    /*
+     * If this is not a decrypted buffer, then perhaps it is still in plaintext.
+     * Heuristics: if the buffer is too small, it is likely not encrypted.
+     * Otherwise assume that the Handshake does not contain two successive
+     * HelloRequest messages (type=0x00 length=0x000000, type=0x00). If this
+     * occurs, then we have possibly found the explicit nonce preceding the
+     * encrypted contents for GCM/CCM cipher suites as used in TLS 1.2.
+     */
+    if (maybe_encrypted) {
+        maybe_encrypted = tvb_get_ntoh40(tvb, offset) == 0;
+        /*
+         * Everything after the ChangeCipherSpec message is encrypted.
+         * TODO handle Finished message after CCS in the same frame and remove the
+         * above nonce-based heuristic.
+         */
+        if (!maybe_encrypted) {
+            guint32 ccs_frame = is_from_server ? session->server_ccs_frame : session->client_ccs_frame;
+            maybe_encrypted = ccs_frame != 0 && pinfo->num > ccs_frame;
+        }
+    }
+
+    if (!maybe_encrypted) {
+        /*
+         * Assume encrypted if the message type makes no sense. If this still
+         * leads to false positives (detecting plaintext while it should mark
+         * stuff as encrypted), some other ideas include:
+         * - Perform additional validation based on the message type.
+         * - Disallow handshake fragmentation except for some common cases like
+         *   Certificate messages (due to large certificates).
+         */
+        guint8 msg_type = tvb_get_guint8(tvb, offset);
+        maybe_encrypted = try_val_to_str(msg_type, ssl_31_handshake_type) == NULL;
+        if (!maybe_encrypted) {
+            guint msg_length = tvb_get_ntoh24(tvb, offset + 1);
+            // Assume handshake messages are below 64K.
+            maybe_encrypted = msg_length >= 0x010000;
+        }
+    }
+    return maybe_encrypted;
+}
+
+static TlsHsFragment *
+save_tls_handshake_fragment(packet_info *pinfo, guint8 curr_layer_num_tls,
+                            guint record_id, guint reassembly_id,
+                            tvbuff_t *tvb, guint32 offset, guint frag_len,
+                            guint frag_offset, guint8 msg_type, gboolean is_last)
+{
+    // Full handshake messages should not be saved.
+    DISSECTOR_ASSERT(!(frag_offset == 0 && is_last));
+    // Fragment data must be non-empty.
+    DISSECTOR_ASSERT(frag_len != 0);
+    // 0 is a special value indicating no reassembly in progress.
+    DISSECTOR_ASSERT(reassembly_id != 0);
+
+    SslPacketInfo *pi = tls_add_packet_info(proto_tls, pinfo, curr_layer_num_tls);
+    TlsHsFragment *frag_info = wmem_new0(wmem_file_scope(), TlsHsFragment);
+    frag_info->record_id = record_id;
+    frag_info->reassembly_id = reassembly_id;
+    frag_info->is_last = is_last;
+    frag_info->offset = frag_offset;
+    frag_info->type = msg_type;
+
+    TlsHsFragment **p = &pi->hs_fragments;
+    while (*p) p = &(*p)->next;
+    *p = frag_info;
+
+    // Add (subset of) record data.
+    fragment_add_check(&tls_hs_reassembly_table, tvb, offset,
+                       pinfo, reassembly_id, NULL, frag_offset, frag_len, !is_last);
+
+    return frag_info;
+}
+
+/**
+ * Populate the Info column and record layer tree item based on the message type.
+ *
+ * @param pinfo Packet info.
+ * @param record_tree The Record layer tree item.
+ * @param version Record version.
+ * @param msg_type The message type (not necessarily the same as the first byte
+ * of the buffer in case of HRR in TLS 1.3).
+ * @param is_first_msg TRUE if this is the first message in this record.
+ * @param complete TRUE if the buffer describes the full (encrypted) message.
+ * @param tvb Buffer that covers the start of this handshake fragment.
+ * @param offset Position within the record data.
+ * @param length Length of the record fragment that is part of the handshake
+ * message. May be smaller than the record length if this is a fragment.
+ */
+static proto_item *
+tls_show_handshake_details(packet_info *pinfo, proto_tree *record_tree, guint version,
+        guint8 msg_type, gboolean is_encrypted, gboolean is_first_msg, gboolean complete,
+        tvbuff_t *tvb, guint32 offset, guint32 length)
+{
+    const char *msg_type_str = "Encrypted Handshake Message";
+    if (!is_encrypted) {
+        msg_type_str = val_to_str_const(msg_type, ssl_31_handshake_type, msg_type_str);
+    }
+
+    /*
+     * Update our info string if this is the first message (possibly a fragment
+     * of a handshake message), or if this is a complete (reassembled) message.
+     */
+    if (complete) {
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, msg_type_str);
+    } else if (is_first_msg) {
+        /*
+         * Only mark the first message to avoid an empty Info column. If another
+         * message came before this one, do not bother mentioning this fragment.
+         */
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "[%s Fragment]", msg_type_str);
+    }
+
+    /* set the label text on the record layer expanding node */
+    if (is_first_msg) {
+        proto_item_set_text(record_tree, "%s Record Layer: Handshake Protocol: %s",
+                val_to_str_const(version, ssl_version_short_names, "TLS"),
+                msg_type_str);
+        if (!complete && !is_encrypted) {
+            proto_item_append_text(record_tree, " (fragment)");
+        }
+    } else {
+        proto_item_set_text(record_tree, "%s Record Layer: Handshake Protocol: %s",
+                val_to_str_const(version, ssl_version_short_names, "TLS"),
+                "Multiple Handshake Messages");
+    }
+
+    proto_item *ti = proto_tree_add_item(record_tree, hf_tls_handshake_protocol,
+            tvb, offset, length, ENC_NA);
+    proto_item_set_text(ti, "Handshake Protocol: %s", msg_type_str);
+    if (!complete && !is_encrypted) {
+        proto_item_append_text(ti, " (fragment)");
+    }
+    return ti;
+}
+
 /* dissects the handshake protocol, filling the tree */
 static void
-dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
-                       proto_tree *tree, guint32 offset,
-                       guint32 record_length, gboolean maybe_encrypted,
-                       SslSession *session, gint is_from_server,
-                       SslDecryptSession *ssl, const guint8 content_type,
-                       const guint16 version)
+dissect_tls_handshake(tvbuff_t *tvb, packet_info *pinfo,
+                      proto_tree *tree, guint32 offset,
+                      guint32 offset_end, gboolean maybe_encrypted,
+                      guint record_id, guint8 curr_layer_num_tls,
+                      SslSession *session, gint is_from_server,
+                      SslDecryptSession *ssl,
+                      const guint16 version)
+{
+    // Handshake fragment processing:
+    // 1. (First pass:) If a previous handshake message needed reasembly, add
+    //    (a subset of) the new data for reassembly.
+    // 2. Did this fragment complete reasembly in the previous step?
+    //    - Yes: dissect message and continue.
+    //    - No: show details and stop.
+    // 3. Not part of a reassembly, so this is a new handshake message. Does it
+    //    look like encrypted data?
+    //    - Yes: show details and stop.
+    // 4. Loop through remaining handshake messages. Is there sufficient data?
+    //    - Yes: dissect message and continue with next message.
+    //    - No (first pass): Add all data for reassembly, show details and stop.
+    //    - No (second pass): Show details and stop.
+
+    fragment_head  *fh = NULL;
+    guint           subset_len;
+    guint32         msg_len = 0;
+    TlsHsFragment  *frag_info = NULL;
+    gboolean        is_first_msg = TRUE;
+    proto_item     *frag_tree_item;
+    guint          *hs_reassembly_id_p = is_from_server ? &session->server_hs_reassembly_id : &session->client_hs_reassembly_id;
+
+    if (!PINFO_FD_VISITED(pinfo)) {
+        // 1. (First pass:) If a previous handshake message needed reasembly.
+        if (*hs_reassembly_id_p) {
+            // Continuation, so a previous fragment *must* exist.
+            fh = fragment_get(&tls_hs_reassembly_table, pinfo, *hs_reassembly_id_p, NULL);
+            DISSECTOR_ASSERT(fh);
+            // We expect that reassembly has not completed yet.
+            DISSECTOR_ASSERT(fh->tvb_data == NULL);
+
+            // Combine all previous segments plus data from the current record
+            // in order to find the length.
+            tvbuff_t *len_tvb = tvb_new_composite();
+            guint frags_len = 0;
+            for (fragment_item *fd = fh->next; fd; fd = fd->next) {
+                if (frags_len < 4) {
+                    tvb_composite_append(len_tvb, fd->tvb_data);
+                }
+                frags_len += tvb_reported_length(fd->tvb_data);
+            }
+            if (frags_len < 4) {
+                tvbuff_t *remaining_tvb = tvb_new_subset_remaining(tvb, offset);
+                tvb_composite_append(len_tvb, remaining_tvb);
+            }
+            tvb_composite_finalize(len_tvb);
+
+            // Extract the actual handshake message length (0 means unknown) and
+            // check whether only a subset of the current record is needed.
+            subset_len = offset_end - offset;
+            if (tvb_reported_length(len_tvb) >= 4) {
+                msg_len = 4 + tvb_get_ntoh24(len_tvb, 1);
+                if (subset_len > msg_len - frags_len) {
+                    subset_len = msg_len - frags_len;
+                }
+            }
+
+            // Check if the handshake message is complete.
+            guint8 msg_type = tvb_get_guint8(len_tvb, 0);
+            gboolean is_last = frags_len + subset_len == msg_len;
+            frag_info = save_tls_handshake_fragment(pinfo, curr_layer_num_tls, record_id, *hs_reassembly_id_p,
+                    tvb, offset, subset_len, frags_len, msg_type, is_last);
+            if (is_last) {
+                // Reassembly finished, next message should not continue this message.
+                *hs_reassembly_id_p = 0;
+            }
+        }
+    } else {
+        // Lookup the reassembled handshake matching this frame (if any).
+        SslPacketInfo *pi = (SslPacketInfo *)p_get_proto_data(wmem_file_scope(), pinfo, proto_tls, curr_layer_num_tls);
+        if (pi) {
+            for (TlsHsFragment *rec = pi->hs_fragments; rec; rec = rec->next) {
+                if (rec->record_id == record_id) {
+                    frag_info = rec;
+                    break;
+                }
+            }
+        }
+    }
+
+    // 2. Did this fragment complete reasembly in the previous step?
+    if (frag_info && frag_info->offset != 0) {
+        fh = fragment_get_reassembled_id(&tls_hs_reassembly_table, pinfo, frag_info->reassembly_id);
+        if (frag_info->is_last) {
+            // This is the last fragment of the handshake message.
+            // Skip a subset of the bytes of this buffer.
+            subset_len = tvb_reported_length_remaining(fh->tvb_data, frag_info->offset);
+
+            // Add a tree item to mark the handshake fragmnet.
+            proto_item *ti = proto_tree_add_item(tree,
+                    hf_tls_handshake_protocol, tvb, offset, subset_len, ENC_NA);
+            offset += subset_len;
+            proto_item_set_text(ti, "Handshake Protocol: %s (last fragment)",
+                    val_to_str_const(frag_info->type, ssl_31_handshake_type,
+                        "Encrypted Handshake Message"));
+
+            // Now display the full, reassembled handshake message.
+            tvbuff_t *next_tvb = tvb_new_chain(tvb, fh->tvb_data);
+            add_new_data_source(pinfo, next_tvb, "Reassembled TLS Handshake");
+            show_fragment_tree(fh, &tls_hs_fragment_items, tree, pinfo, next_tvb, &frag_tree_item);
+            dissect_tls_handshake_full(next_tvb, pinfo, tree, 0, session, is_from_server, ssl, version, TRUE);
+            is_first_msg = FALSE;
+
+            // Skip to the next fragment in case this records ends with another
+            // fragment for which information is presented below.
+            frag_info = frag_info->next;
+            if (frag_info && frag_info->record_id != record_id) {
+                frag_info = NULL;
+            }
+        } else if (frag_info->offset != 0) {
+            // The full TVB is in the middle of a handshake message and needs more data.
+            tls_show_handshake_details(pinfo, tree, version, frag_info->type, FALSE, FALSE, FALSE,
+                    tvb, offset, offset_end - offset);
+            if (fh) {
+                proto_tree_add_uint(tree, hf_tls_handshake_reassembled_in, tvb, 0, 0, fh->reassembled_in);
+            }
+            return;
+        }
+    } else if (!frag_info) {
+        // 3. Not part of a reassembly, so this is a new handshake message. Does it
+        //    look like encrypted data?
+        if (is_encrypted_handshake_message(tvb, pinfo, offset, offset_end, maybe_encrypted, session, is_from_server)) {
+            // Update Info column and record tree.
+            tls_show_handshake_details(pinfo, tree, version, 0, TRUE, TRUE, TRUE,
+                    tvb, offset, offset_end - offset);
+            return;
+        }
+    }
+
+    // 4. Loop through remaining handshake messages.
+    // The previous reassembly has been handled, so at this point, offset should
+    // start a new, valid handshake message.
+    while (offset < offset_end) {
+        msg_len = 0;
+        subset_len = offset_end - offset;
+        if (subset_len >= 4) {
+            msg_len = 4 + tvb_get_ntoh24(tvb, offset + 1);
+        }
+        if (msg_len == 0 || subset_len < msg_len) {
+            // Need more data to find the message length or complete it.
+            if (!PINFO_FD_VISITED(pinfo)) {
+                guint8 msg_type = tvb_get_guint8(tvb, offset);
+                *hs_reassembly_id_p = ++hs_reassembly_id_count;
+                frag_info = save_tls_handshake_fragment(pinfo, curr_layer_num_tls, record_id, *hs_reassembly_id_p,
+                        tvb, offset, subset_len, 0, msg_type, FALSE);
+            } else {
+                // The first pass must have created a new fragment.
+                DISSECTOR_ASSERT(frag_info && frag_info->offset == 0);
+            }
+
+            tls_show_handshake_details(pinfo, tree, version, frag_info->type, FALSE, is_first_msg, FALSE,
+                    tvb, offset, subset_len);
+            fh = fragment_get_reassembled_id(&tls_hs_reassembly_table, pinfo, frag_info->reassembly_id);
+            if (fh) {
+                proto_tree_add_uint(tree, hf_tls_handshake_reassembled_in, tvb, 0, 0, fh->reassembled_in);
+            }
+            break;
+        }
+
+        dissect_tls_handshake_full(tvb, pinfo, tree, offset, session, is_from_server, ssl, version, is_first_msg);
+        offset += msg_len;
+        is_first_msg = FALSE;
+    }
+}
+
+/* Dissects a single (reassembled) Handshake message. */
+static void
+dissect_tls_handshake_full(tvbuff_t *tvb, packet_info *pinfo,
+                           proto_tree *tree, guint32 offset,
+                           SslSession *session, gint is_from_server,
+                           SslDecryptSession *ssl,
+                           const guint16 version,
+                           gboolean is_first_msg)
 {
     /*     struct {
      *         HandshakeType msg_type;
@@ -2134,61 +2516,22 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
     const gchar *msg_type_str;
     guint8       msg_type;
     guint32      length;
-    gboolean     first_iteration = TRUE;
     proto_item  *ti;
 
-    /*
-     * If this is not a decrypted buffer, then perhaps it is still in plaintext.
-     * Heuristics: if the buffer is too small, it is likely not encrypted.
-     * Otherwise assume that the Handshake does not contain two successive
-     * HelloRequest messages (type=0x00 length=0x000000, type=0x00). If this
-     * occurs, then we have possibly found the explicit nonce preceding the
-     * encrypted contents for GCM/CCM cipher suites as used in TLS 1.2.
-     */
-    if (maybe_encrypted) {
-        maybe_encrypted = tvb_bytes_exist(tvb, offset, 5) && tvb_get_ntoh40(tvb, offset) == 0;
-        /*
-         * Everything after the ChangeCipherSpec message is encrypted.
-         * TODO handle Finished message after CCS in the same frame and remove the
-         * above nonce-based heuristic.
-         */
-        if (!maybe_encrypted) {
-            guint32 ccs_frame = is_from_server ? session->server_ccs_frame : session->client_ccs_frame;
-            maybe_encrypted = ccs_frame != 0 && pinfo->num > ccs_frame;
-        }
-    }
-
-    /* just as there can be multiple records per packet, there
-     * can be multiple messages per record as long as they have
-     * the same content type
-     *
-     * we really only care about this for handshake messages
-     */
-
-    /* set record_length to the max offset */
-    record_length += offset;
-    while (offset < record_length)
     {
         guint32 hs_offset = offset;
         gboolean is_hrr = FALSE;
 
         msg_type = tvb_get_guint8(tvb, offset);
         length   = tvb_get_ntoh24(tvb, offset + 1);
+        // The caller should have given us a fully reassembled record.
+        DISSECTOR_ASSERT((guint)tvb_reported_length_remaining(tvb, offset + 4) >= length);
 
-        /* Check the length in the handshake message. Assume it's an
-         * encrypted handshake message if the message would pass
-         * the record_length boundary. This is a workaround for the
-         * situation where the first octet of the encrypted handshake
-         * message is actually a known handshake message type.
-         */
-        if (!maybe_encrypted && offset + length <= record_length)
-            msg_type_str = try_val_to_str(msg_type, ssl_31_handshake_type);
-        else
-            msg_type_str = NULL;
+        msg_type_str = try_val_to_str(msg_type, ssl_31_handshake_type);
 
         ssl_debug_printf("dissect_ssl3_handshake iteration %d type %d offset %d length %d "
-            "bytes, remaining %d \n", first_iteration, msg_type, offset, length, record_length);
-        if (!msg_type_str && !first_iteration)
+            "bytes\n", is_first_msg, msg_type, offset, length);
+        if (!msg_type_str && !is_first_msg)
         {
             /* only dissect / report messages if they're
              * either the first message in this record
@@ -2197,7 +2540,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
             return;
         }
 
-        if (first_iteration && msg_type == SSL_HND_SERVER_HELLO && length > 2) {
+        if (is_first_msg && msg_type == SSL_HND_SERVER_HELLO && length > 2) {
             guint16 server_version;
 
             tls_scan_server_hello(tvb, offset + 4, offset + 4 + length, &server_version, &is_hrr);
@@ -2207,42 +2550,17 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
             }
         }
 
-        /*
-         * Update our info string
-         */
-        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
-                            (msg_type_str != NULL) ? msg_type_str : "Encrypted Handshake Message");
-
-        /* set the label text on the record layer expanding node */
-        if (first_iteration)
-        {
-            proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s",
-                    val_to_str_const(version, ssl_version_short_names, "SSL"),
-                    val_to_str_const(content_type, ssl_31_content_type, "unknown"),
-                    (msg_type_str!=NULL) ? msg_type_str :
-                    "Encrypted Handshake Message");
-        }
-        else
-        {
-            proto_item_set_text(tree, "%s Record Layer: %s Protocol: %s",
-                    val_to_str_const(version, ssl_version_short_names, "SSL"),
-                    val_to_str_const(content_type, ssl_31_content_type, "unknown"),
-                    "Multiple Handshake Messages");
-        }
-
-        /* add a subtree for the handshake protocol */
-        ti = proto_tree_add_item(tree, hf_tls_handshake_protocol, tvb,
-                offset, length + 4, ENC_NA);
-        ssl_hand_tree = proto_item_add_subtree(ti, ett_tls_handshake);
-
-        /* set the text label on the subtree node */
-        proto_item_set_text(ssl_hand_tree, "Handshake Protocol: %s",
-                (msg_type_str != NULL) ? msg_type_str :
-                "Encrypted Handshake Message");
+        /* Populate Info column and set record layer text. */
+        ti = tls_show_handshake_details(pinfo, tree, version,
+                is_hrr ? SSL_HND_HELLO_RETRY_REQUEST : msg_type, FALSE, is_first_msg, TRUE,
+                tvb, offset, length + 4);
 
         /* if we don't have a valid handshake type, just quit dissecting */
         if (!msg_type_str)
             return;
+
+        /* add a subtree for the handshake protocol */
+        ssl_hand_tree = proto_item_add_subtree(ti, ett_tls_handshake);
 
         /* add nodes for the message type and message length */
         proto_tree_add_uint(ssl_hand_tree, hf_tls_handshake_type,
@@ -2418,9 +2736,6 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 dissect_ssl3_hnd_encrypted_exts(tvb, ssl_hand_tree, offset);
                 break;
         }
-
-        offset += length;
-        first_iteration = FALSE; /* set up for next pass, if any */
     }
 }
 
@@ -4059,6 +4374,27 @@ proto_register_tls(void)
             FT_BYTES, BASE_NONE, NULL, 0x00,
             "The payload of a single TLS segment", HFILL }
         },
+
+        { &hf_tls_handshake_fragment_count,
+          { "Handshake Fragment count", "tls.handshake.fragment.count",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_tls_handshake_fragment,
+          { "Handshake Fragment", "tls.handshake.fragment",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_tls_handshake_fragments,
+          { "Reassembled Handshake Fragments", "tls.handshake.fragments",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_tls_handshake_reassembled_in,
+          { "Reassembled Handshake Message in frame", "tls.handshake.reassembled_in",
+            FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+            "The handshake message is fully reassembled in this frame", HFILL }},
+
         SSL_COMMON_HF_LIST(dissect_ssl3_hf, "tls")
     };
 
@@ -4072,6 +4408,8 @@ proto_register_tls(void)
         &ett_tls_certs,
         &ett_tls_segments,
         &ett_tls_segment,
+        &ett_tls_hs_fragments,
+        &ett_tls_hs_fragment,
         SSL_COMMON_ETT_LIST(dissect_ssl3_hf)
     };
 
@@ -4186,6 +4524,8 @@ proto_register_tls(void)
     register_init_routine(ssl_init);
     register_cleanup_routine(ssl_cleanup);
     reassembly_table_register(&ssl_reassembly_table,
+                          &addresses_ports_reassembly_table_functions);
+    reassembly_table_register(&tls_hs_reassembly_table,
                           &addresses_ports_reassembly_table_functions);
     register_decode_as(&ssl_da);
 

@@ -172,3 +172,30 @@ class case_dissect_tcp(subprocesstest.SubprocessTestCase):
             '-Ytls', '-Tfields', '-eframe.number', '-etls.record.length', '-2'))
         output = proc.stdout_str.replace('\r', '')
         self.assertEqual(output, '2\t16\n')
+
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
+class case_dissect_tls(subprocesstest.SubprocessTestCase):
+    def check_tls_handshake_reassembly(self, cmd_tshark, capture_file,
+                                       extraArgs=[]):
+        # Include -zexpert just to be sure that no exception has occurred. It
+        # is not strictly necessary as the extension to be matched is the last
+        # one in the handshake message.
+        proc = self.assertRun([cmd_tshark,
+                               '-r', capture_file('tls-fragmented-handshakes.pcap.gz'),
+                               '-zexpert',
+                               '-Ytls.handshake.extension.data',
+                               '-Tfields', '-etls.handshake.extension.data'] + extraArgs)
+        output = proc.stdout_str.replace('\r', '').replace(',', '\n')
+        # Expected output are lines with 0001, 0002, ..., 03e8
+        expected = ''.join('%04x\n' % i for i in range(1, 1001))
+        self.assertEqual(output, expected)
+
+    def test_tls_handshake_reassembly(self, cmd_tshark, capture_file):
+        '''Verify that TCP and TLS handshake reassembly works.'''
+        self.check_tls_handshake_reassembly(cmd_tshark, capture_file)
+
+    def test_tls_handshake_reassembly_2(self, cmd_tshark, capture_file):
+        '''Verify that TCP and TLS handshake reassembly works (second pass).'''
+        self.check_tls_handshake_reassembly(
+            cmd_tshark, capture_file, extraArgs=['-2'])

@@ -1012,7 +1012,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
                  * after capturing the packets due to processing delay.)
                  * These keys will be loaded in the first HS/0-RTT/1-RTT msg.
                  */
-                call_dissector(tls13_handshake_handle, next_tvb, pinfo, ft_tree);
+                call_dissector_with_data(tls13_handshake_handle, next_tvb, pinfo, ft_tree, GUINT_TO_POINTER(crypto_offset));
                 col_set_writable(pinfo->cinfo, -1, TRUE);
             }
             offset += (guint32)crypto_length;
