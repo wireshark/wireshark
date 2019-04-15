@@ -20,6 +20,8 @@
 #
 
 use strict;
+use Encode;
+use English;
 use Getopt::Long;
 use Text::Balanced qw(extract_bracketed);
 
@@ -1132,8 +1134,9 @@ while ($_ = pop @filelist)
         $line = 1;
         while (<FC>) {
                 $fileContents .= $_;
-                if ($_ =~ m{ [\x80-\xFF] }xo) {
-                        print STDERR "Error: Found non-ASCII characters on line " .$line. " of " .$filename."\n";
+                eval { decode( 'UTF-8', $_, Encode::FB_CROAK ) };
+                if ($EVAL_ERROR) {
+                        print STDERR "Error: Found an invalid UTF-8 sequence on line " .$line. " of " .$filename."\n";
                         $errorCount++;
                 }
                 $line++;
