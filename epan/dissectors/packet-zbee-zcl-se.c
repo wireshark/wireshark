@@ -7643,7 +7643,7 @@ proto_register_zbee_zcl_met(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_met_publish_snapshot_snapshot_payload_type,
-            { "Snapshot Payload Type", "zbee_zcl_se.met.publish_snapshot.payload_type", FT_UINT8, BASE_DEC, NULL,
+            { "Snapshot Payload Type", "zbee_zcl_se.met.publish_snapshot.payload_type", FT_UINT8, BASE_DEC, VALS(zbee_zcl_met_snapshot_payload_type),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_met_publish_snapshot_snapshot_sub_payload,
