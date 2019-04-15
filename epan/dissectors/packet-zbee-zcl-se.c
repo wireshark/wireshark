@@ -5387,7 +5387,7 @@ VALUE_STRING_ARRAY(zbee_zcl_met_srv_tx_cmd_names);
 #define ZBEE_ZCL_MET_NOTIFICATION_SCHEME_A 0x1
 #define ZBEE_ZCL_MET_NOTIFICATION_SCHEME_B 0x2
 
-static const range_string zbee_zcl_met_mirror_rprt_attr_notification_scheme[] = {
+static const range_string zbee_zcl_met_notification_scheme[] = {
     { 0x0, 0x0,   "No Notification Scheme Defined" },
     { ZBEE_ZCL_MET_NOTIFICATION_SCHEME_A, ZBEE_ZCL_MET_NOTIFICATION_SCHEME_A,   "Predefined Notification Scheme A" },
     { ZBEE_ZCL_MET_NOTIFICATION_SCHEME_B, ZBEE_ZCL_MET_NOTIFICATION_SCHEME_B,   "Predefined Notification Scheme B" },
@@ -7475,7 +7475,7 @@ proto_register_zbee_zcl_met(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_met_mirror_report_attribute_response_notification_scheme,
-            { "Notification Scheme", "zbee_zcl_se.met.mirror_report_attribute_response.notification_scheme", FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(zbee_zcl_met_mirror_rprt_attr_notification_scheme),
+            { "Notification Scheme", "zbee_zcl_se.met.mirror_report_attribute_response.notification_scheme", FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(zbee_zcl_met_notification_scheme),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_met_mirror_report_attribute_response_notification_flags_n,
@@ -7687,7 +7687,7 @@ proto_register_zbee_zcl_met(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_met_configure_mirror_notification_scheme,
-            { "Notification Scheme", "zbee_zcl_se.met.configure_mirror.notification_scheme", FT_UINT8, BASE_DEC, NULL,
+            { "Notification Scheme", "zbee_zcl_se.met.configure_mirror.notification_scheme", FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(zbee_zcl_met_notification_scheme),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_met_configure_notification_scheme_issuer_event_id,
@@ -7695,7 +7695,7 @@ proto_register_zbee_zcl_met(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_met_configure_notification_scheme_notification_scheme,
-            { "Notification Scheme", "zbee_zcl_se.met.configure_notification_scheme.notification_scheme", FT_UINT8, BASE_HEX, NULL,
+            { "Notification Scheme", "zbee_zcl_se.met.configure_notification_scheme.notification_scheme", FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(zbee_zcl_met_notification_scheme),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_met_configure_notification_scheme_notification_flag_order,
@@ -7707,7 +7707,7 @@ proto_register_zbee_zcl_met(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_met_configure_notification_flags_notification_scheme,
-            { "Notification Scheme", "zbee_zcl_se.met.configure_notification_flags.notification_scheme", FT_UINT8, BASE_HEX, NULL,
+            { "Notification Scheme", "zbee_zcl_se.met.configure_notification_flags.notification_scheme", FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(zbee_zcl_met_notification_scheme),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_met_configure_notification_flags_notification_flag_attribute_id,
@@ -7731,7 +7731,7 @@ proto_register_zbee_zcl_met(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_met_get_notified_msg_notification_scheme,
-            { "Notification Scheme", "zbee_zcl_se.met.get_notified_msg.notification_scheme", FT_UINT8, BASE_DEC, NULL,
+            { "Notification Scheme", "zbee_zcl_se.met.get_notified_msg.notification_scheme", FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(zbee_zcl_met_notification_scheme),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_met_get_notified_msg_notification_flag_attribute_id,
