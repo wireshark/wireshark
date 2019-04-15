@@ -6,7 +6,7 @@
 #
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-import argparse, os, sys
+import argparse, codecs, os, sys
 
 parser = argparse.ArgumentParser()
 
@@ -39,6 +39,11 @@ def extcap_config():
 
 
 def main():
+    # In Python 3.6 and older, the encoding of stdout depends on the locale.
+    # Do not rely on that and force a sane encoding instead. Python 3.7 has
+    # improved, see https://www.python.org/dev/peps/pep-0540/
+    sys.stdout = codecs.getwriter('utf-8')(sys.stdout.detach())
+
     args = parser.parse_args()
     if args.extcap_interfaces:
         return extcap_interfaces()
