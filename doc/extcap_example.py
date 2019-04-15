@@ -337,8 +337,7 @@ def control_write_defaults(fn_out):
     control_write(fn_out, CTRL_ARG_VERIFY, CTRL_CMD_SET, struct.pack('B', verify))
 
     for i in range(1,16):
-        item = bytearray()
-        item += str(i) + struct.pack('B', 0) + str(i) + " sec"
+        item = '%d\x00%d sec' % (i, i)
         control_write(fn_out, CTRL_ARG_DELAY, CTRL_CMD_ADD, item)
 
     control_write(fn_out, CTRL_ARG_DELAY, CTRL_CMD_REMOVE, str(60))
