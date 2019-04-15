@@ -71,7 +71,6 @@ CHECKAPI(
 	NAME
 	  caputils-base
 	SWITCHES
-	  -g deprecated-gtk
 	SOURCES
 	  ${CAPUTILS_SRC}
 )
@@ -79,7 +78,7 @@ CHECKAPI(
 	NAME
 	  caputils-todo
 	SWITCHES
-	  -M -g deprecated-gtk-todo
+	  -M
 	SOURCES
 	  ${CAPUTILS_SRC}
 )

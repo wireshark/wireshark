@@ -104,7 +104,6 @@ CHECKAPI(
 	NAME
 	  ui-base
 	SWITCHES
-	  -g deprecated-gtk
 	SOURCES
 	  ${NONGENERATED_UI_SRC}
 # Flex files not included due to use of malloc, free etc.
@@ -113,7 +112,7 @@ CHECKAPI(
 	NAME
 	  ui-todo
 	SWITCHES
-	  -M -g deprecated-gtk-todo
+	  -M
 	SOURCES
 	  ${NONGENERATED_UI_SRC}
 # Flex files not included due to use of malloc, free etc.

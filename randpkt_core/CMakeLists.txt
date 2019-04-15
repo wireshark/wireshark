@@ -34,7 +34,6 @@ CHECKAPI(
 	NAME
 	  randpkt_core-base
 	SWITCHES
-	  -g deprecated-gtk
 	SOURCES
 	  ${RANDPKT_CORE_SRC}
 	  ${RANDPKT_CORE_HEADERS}
@@ -43,7 +42,7 @@ CHECKAPI(
 	NAME
 	  randpkt_core-todo
 	SWITCHES
-	  -M -g deprecated-gtk-todo
+	  -M
 	SOURCES
 	  ${RANDPKT_CORE_SRC}
 	  ${RANDPKT_CORE_HEADERS}
