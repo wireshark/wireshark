@@ -12157,7 +12157,6 @@ static int hf_zbee_zcl_daily_schedule_provider_id = -1;
 static int hf_zbee_zcl_daily_schedule_issuer_event_id = -1;
 static int hf_zbee_zcl_daily_schedule_min_issuer_event_id = -1;
 static int hf_zbee_zcl_daily_schedule_number_of_schedules = -1;
-static int hf_zbee_zcl_daily_schedule_total_number_of_commands = -1;
 static int hf_zbee_zcl_daily_schedule_total_number_of_schedule_entries = -1;
 static int hf_zbee_zcl_daily_schedule_schedule_entry_start_time = -1;
 static int hf_zbee_zcl_daily_schedule_schedule_entry_price_tier = -1;
@@ -12546,10 +12545,6 @@ proto_register_zbee_zcl_daily_schedule(void)
 
         { &hf_zbee_zcl_daily_schedule_number_of_schedules,
             { "Number of Schedules", "zbee_zcl_se.daily_schedule.number_of_schedules", FT_UINT8, BASE_DEC, NULL,
-            0x00, NULL, HFILL } },
-
-        { &hf_zbee_zcl_daily_schedule_total_number_of_commands,
-            { "Total Number of Commands", "zbee_zcl_se.daily_schedule.total_number_of_commands", FT_UINT8, BASE_DEC, NULL,
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_daily_schedule_schedule_entry_start_time,
