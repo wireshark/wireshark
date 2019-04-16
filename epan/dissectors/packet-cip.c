@@ -6847,7 +6847,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
          cmd_data_tree = proto_tree_add_subtree( item_tree, tvb, offset, data_len,
                                                  ett_cm_cmd_data, &cmd_item, "Command Specific Data" );
 
-         if( gen_status == CI_GRC_SUCCESS || gen_status == CI_GRC_SERVICE_ERROR )
+         if( gen_status == CI_GRC_SUCCESS )
          {
            /* Success responses */
            switch (service & CIP_SC_MASK)
@@ -7627,7 +7627,7 @@ dissect_cip_cco_data( proto_tree *item_tree, proto_item *ti, tvbuff_t *tvb, int 
          cmd_data_tree = proto_tree_add_subtree( item_tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size,
                                                  ett_cco_cmd_data, NULL, "Command Specific Data" );
 
-         if( gen_status == CI_GRC_SUCCESS || gen_status == CI_GRC_SERVICE_ERROR )
+         if( gen_status == CI_GRC_SUCCESS )
          {
             /* Success responses */
             if (((service & CIP_SC_MASK) == SC_GET_ATT_ALL) &&

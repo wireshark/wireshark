@@ -565,7 +565,7 @@ dissect_cip_s_supervisor_data( proto_tree *item_tree,
          cmd_data_tree = proto_tree_add_subtree( item_tree, tvb, offset+4+add_stat_size,
                          item_length-4-add_stat_size, ett_ssupervisor_cmd_data, NULL, "Command Specific Data" );
 
-         if( gen_status == CI_GRC_SUCCESS || gen_status == CI_GRC_SERVICE_ERROR )
+         if( gen_status == CI_GRC_SUCCESS )
          {
             switch (service & CIP_SC_MASK)
             {
@@ -1126,7 +1126,7 @@ dissect_cip_s_validator_data( proto_tree *item_tree,
          cmd_data_tree = proto_tree_add_subtree( item_tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size,
                                 ett_ssupervisor_cmd_data, &pi, "Command Specific Data" );
 
-         if( gen_status == CI_GRC_SUCCESS || gen_status == CI_GRC_SERVICE_ERROR )
+         if( gen_status == CI_GRC_SUCCESS )
          {
             /* Success responses */
             if (((service & CIP_SC_MASK) == SC_GET_ATT_ALL) &&
