@@ -1849,6 +1849,8 @@ dissect_eip_security_avail_cipher_suites(packet_info *pinfo, proto_tree *tree, p
    }
 
    proto_tree_add_item_ret_uint(tree, hf_eip_security_num_avail_cipher_suites, tvb, offset, 1, ENC_NA, &num_suites);
+   offset++;
+
    for (i = 0; i < num_suites; i++)
    {
       proto_tree_add_item(tree, hf_eip_security_avail_cipher_suite, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1872,6 +1874,8 @@ dissect_eip_security_allow_cipher_suites(packet_info *pinfo, proto_tree *tree, p
    }
 
    proto_tree_add_item_ret_uint(tree, hf_eip_security_num_allow_cipher_suites, tvb, offset, 1, ENC_NA, &num_suites);
+   offset++;
+
    for (i = 0; i < num_suites; i++)
    {
       proto_tree_add_item(tree, hf_eip_security_allow_cipher_suite, tvb, offset, 2, ENC_BIG_ENDIAN);
