@@ -420,6 +420,7 @@ static int hf_nfs4_fattr_xattr_support = -1;
 static int hf_nfs4_fattr_offline = -1;
 static int hf_nfs4_who = -1;
 static int hf_nfs4_server = -1;
+static int hf_nfs4_servers = -1;
 static int hf_nfs4_fslocation = -1;
 static int hf_nfs4_stable_how = -1;
 static int hf_nfs4_dirlist_eof = -1;
@@ -6668,7 +6669,7 @@ dissect_nfs4_fs_location(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	newftree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_nfs4_fs_location, NULL, "fs_location4");
 
-	offset = dissect_rpc_array(tvb, pinfo, newftree, offset, dissect_nfs4_server, hf_nfs4_server);
+	offset = dissect_rpc_array(tvb, pinfo, newftree, offset, dissect_nfs4_server, hf_nfs4_servers);
 	offset = dissect_nfs4_pathname(tvb, offset, newftree);
 
 	return offset;
@@ -12430,8 +12431,12 @@ proto_register_nfs(void)
 			"server", "nfs.server", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
+		{ &hf_nfs4_servers, {
+			"servers", "nfs.servers", FT_NONE, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+
 		{ &hf_nfs4_fslocation, {
-			"fs_location4", "nfs.fattr4.fs_location", FT_STRING, BASE_NONE,
+			"fs_location4", "nfs.fattr4.fs_location", FT_NONE, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs4_fattr_owner, {
