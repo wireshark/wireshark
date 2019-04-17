@@ -25,16 +25,13 @@ Ieee1609Dot2Data
 # Get rid of unused code warnings
 Countersignature
 ExplicitCertificate
-HashedId4
 HashedId10
-HashedId32
 ImplicitCertificate
 KnownLatitude
 KnownLongitude
 LaId
 LinkageSeed
 SequenceOfPsid
-SequenceOfUint3
 Uint3
 UnknownLatitude
 UnknownLongitude
@@ -42,6 +39,31 @@ UnknownLongitude
 #.TYPE_RENAME
 
 #.FIELD_RENAME
+EccP384CurvePoint/uncompressedP384/x eccp384cpX
+EccP384CurvePoint/uncompressedP384/y eccp384cpY
+EccP384CurvePoint/x-only             eccp384cpXOnly
+EccP384CurvePoint/compressed-y-0     eccp384cpCompressed-y-0
+EccP384CurvePoint/compressed-y-1     eccp384cpCompressed-y-1
+
+EcdsaP384Signature/rSig              ecdsap384RSig
+EcdsaP384Signature/sSig              ecdsap384SSig
+
+PsidSsp/psid                         psPsid
+HeaderInfo/psid                      hiPsid
+
+IssuerIdentifier/self                iiSelf
+SignerIdentifier/self                siSelf
+
+SspRange/opaque                      srRange
+RegionAndSubregions/region           rasRegion
+
+ToBeSignedCertificate/encryptionKey  tbscEncryptionKey
+
+SymmRecipientInfo/encKey             sriEncKey
+
+EncryptedDataEncryptionKey/eciesNistP256 edeEciesNistP256
+
+EncryptedDataEncryptionKey/eciesBrainpoolP256r1 edekEciesBrainpoolP256r1
 
 #.FN_HDR Ieee1609Dot2Data
   actx->private_data = (void*)wmem_new0(wmem_packet_scope(), ieee1609_private_data_t);

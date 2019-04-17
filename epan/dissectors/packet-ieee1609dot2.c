@@ -46,6 +46,7 @@ int proto_ieee1609dot2 = -1;
 static int hf_ieee1609dot2_Ieee1609Dot2Data_PDU = -1;  /* Ieee1609Dot2Data */
 static int hf_ieee1609dot2_SequenceOfUint8_item = -1;  /* Uint8 */
 static int hf_ieee1609dot2_SequenceOfUint16_item = -1;  /* Uint16 */
+static int hf_ieee1609dot2_SequenceOfHashedId3_item = -1;  /* HashedId3 */
 static int hf_ieee1609dot2_start = -1;            /* Time32 */
 static int hf_ieee1609dot2_duration = -1;         /* Duration */
 static int hf_ieee1609dot2_microseconds = -1;     /* Uint16 */
@@ -65,8 +66,8 @@ static int hf_ieee1609dot2_northWest = -1;        /* TwoDLocation */
 static int hf_ieee1609dot2_southEast = -1;        /* TwoDLocation */
 static int hf_ieee1609dot2_SequenceOfRectangularRegion_item = -1;  /* RectangularRegion */
 static int hf_ieee1609dot2_PolygonalRegion_item = -1;  /* TwoDLocation */
-static int hf_ieee1609dot2_latitude = -1;         /* Latitude */
-static int hf_ieee1609dot2_longitude = -1;        /* Longitude */
+static int hf_ieee1609dot2_latitude = -1;         /* SecLatitude */
+static int hf_ieee1609dot2_longitude = -1;        /* SecLongitude */
 static int hf_ieee1609dot2_countryOnly = -1;      /* CountryOnly */
 static int hf_ieee1609dot2_countryAndRegions = -1;  /* CountryAndRegions */
 static int hf_ieee1609dot2_countryAndSubregions = -1;  /* CountryAndSubregions */
@@ -74,21 +75,30 @@ static int hf_ieee1609dot2_SequenceOfIdentifiedRegion_item = -1;  /* IdentifiedR
 static int hf_ieee1609dot2_regions = -1;          /* SequenceOfUint8 */
 static int hf_ieee1609dot2_country = -1;          /* CountryOnly */
 static int hf_ieee1609dot2_regionAndSubregions = -1;  /* SequenceOfRegionAndSubregions */
-static int hf_ieee1609dot2_region = -1;           /* Uint8 */
+static int hf_ieee1609dot2_rasRegion = -1;        /* Uint8 */
 static int hf_ieee1609dot2_subregions = -1;       /* SequenceOfUint16 */
 static int hf_ieee1609dot2_SequenceOfRegionAndSubregions_item = -1;  /* RegionAndSubregions */
-static int hf_ieee1609dot2_elevation = -1;        /* Elevation */
+static int hf_ieee1609dot2_elevation = -1;        /* SecElevation */
 static int hf_ieee1609dot2_ecdsaNistP256Signature = -1;  /* EcdsaP256Signature */
 static int hf_ieee1609dot2_ecdsaBrainpoolP256r1Signature = -1;  /* EcdsaP256Signature */
-static int hf_ieee1609dot2_r = -1;                /* EccP256CurvePoint */
-static int hf_ieee1609dot2_s = -1;                /* OCTET_STRING_SIZE_32 */
+static int hf_ieee1609dot2_ecdsaBrainpoolP384r1Signature = -1;  /* EcdsaP384Signature */
+static int hf_ieee1609dot2_rSig = -1;             /* EccP256CurvePoint */
+static int hf_ieee1609dot2_sSig = -1;             /* OCTET_STRING_SIZE_32 */
+static int hf_ieee1609dot2_ecdsap384RSig = -1;    /* EccP384CurvePoint */
+static int hf_ieee1609dot2_ecdsap384SSig = -1;    /* OCTET_STRING_SIZE_48 */
 static int hf_ieee1609dot2_x_only = -1;           /* OCTET_STRING_SIZE_32 */
 static int hf_ieee1609dot2_fill = -1;             /* NULL */
 static int hf_ieee1609dot2_compressed_y_0 = -1;   /* OCTET_STRING_SIZE_32 */
 static int hf_ieee1609dot2_compressed_y_1 = -1;   /* OCTET_STRING_SIZE_32 */
-static int hf_ieee1609dot2_uncompressed = -1;     /* T_uncompressed */
+static int hf_ieee1609dot2_uncompressedP256 = -1;  /* T_uncompressedP256 */
 static int hf_ieee1609dot2_x = -1;                /* OCTET_STRING_SIZE_32 */
 static int hf_ieee1609dot2_y = -1;                /* OCTET_STRING_SIZE_32 */
+static int hf_ieee1609dot2_eccp384cpXOnly = -1;   /* OCTET_STRING_SIZE_48 */
+static int hf_ieee1609dot2_eccp384cpCompressed_y_0 = -1;  /* OCTET_STRING_SIZE_48 */
+static int hf_ieee1609dot2_eccp384cpCompressed_y_1 = -1;  /* OCTET_STRING_SIZE_48 */
+static int hf_ieee1609dot2_uncompressedP384 = -1;  /* T_uncompressedP384 */
+static int hf_ieee1609dot2_eccp384cpX = -1;       /* OCTET_STRING_SIZE_48 */
+static int hf_ieee1609dot2_eccp384cpY = -1;       /* OCTET_STRING_SIZE_48 */
 static int hf_ieee1609dot2_v = -1;                /* EccP256CurvePoint */
 static int hf_ieee1609dot2_c = -1;                /* OCTET_STRING_SIZE_16 */
 static int hf_ieee1609dot2_t = -1;                /* OCTET_STRING_SIZE_16 */
@@ -100,16 +110,21 @@ static int hf_ieee1609dot2_eciesNistP256 = -1;    /* EccP256CurvePoint */
 static int hf_ieee1609dot2_eciesBrainpoolP256r1 = -1;  /* EccP256CurvePoint */
 static int hf_ieee1609dot2_ecdsaNistP256 = -1;    /* EccP256CurvePoint */
 static int hf_ieee1609dot2_ecdsaBrainpoolP256r1 = -1;  /* EccP256CurvePoint */
+static int hf_ieee1609dot2_ecdsaBrainpoolP384r1 = -1;  /* EccP384CurvePoint */
 static int hf_ieee1609dot2_aes128Ccm = -1;        /* OCTET_STRING_SIZE_16 */
-static int hf_ieee1609dot2_psid = -1;             /* T_psid */
+static int hf_ieee1609dot2_psPsid = -1;           /* T_psPsid */
 static int hf_ieee1609dot2_ssp = -1;              /* ServiceSpecificPermissions */
 static int hf_ieee1609dot2_SequenceOfPsidSsp_item = -1;  /* PsidSsp */
 static int hf_ieee1609dot2_opaque = -1;           /* T_opaque */
-static int hf_ieee1609dot2_psid_01 = -1;          /* Psid */
+static int hf_ieee1609dot2_bitmapSsp = -1;        /* BitmapSsp */
+static int hf_ieee1609dot2_psid = -1;             /* Psid */
 static int hf_ieee1609dot2_sspRange = -1;         /* SspRange */
 static int hf_ieee1609dot2_SequenceOfPsidSspRange_item = -1;  /* PsidSspRange */
-static int hf_ieee1609dot2_opaque_01 = -1;        /* SequenceOfOctetString */
+static int hf_ieee1609dot2_srRange = -1;          /* SequenceOfOctetString */
 static int hf_ieee1609dot2_all = -1;              /* NULL */
+static int hf_ieee1609dot2_bitmapSspRange = -1;   /* BitmapSspRange */
+static int hf_ieee1609dot2_sspValue = -1;         /* OCTET_STRING_SIZE_1_32 */
+static int hf_ieee1609dot2_sspBitmask = -1;       /* OCTET_STRING_SIZE_1_32 */
 static int hf_ieee1609dot2_SequenceOfOctetString_item = -1;  /* OCTET_STRING_SIZE_0_MAX */
 static int hf_ieee1609dot2_jValue = -1;           /* OCTET_STRING_SIZE_4 */
 static int hf_ieee1609dot2_value = -1;            /* OCTET_STRING_SIZE_9 */
@@ -127,17 +142,19 @@ static int hf_ieee1609dot2_signer = -1;           /* SignerIdentifier */
 static int hf_ieee1609dot2_signature = -1;        /* Signature */
 static int hf_ieee1609dot2_digest = -1;           /* HashedId8 */
 static int hf_ieee1609dot2_certificate = -1;      /* SequenceOfCertificate */
-static int hf_ieee1609dot2_self = -1;             /* NULL */
+static int hf_ieee1609dot2_siSelf = -1;           /* NULL */
 static int hf_ieee1609dot2_payload = -1;          /* SignedDataPayload */
 static int hf_ieee1609dot2_headerInfo = -1;       /* HeaderInfo */
 static int hf_ieee1609dot2_sha256HashedData = -1;  /* OCTET_STRING_SIZE_32 */
-static int hf_ieee1609dot2_psid_02 = -1;          /* T_psid_01 */
+static int hf_ieee1609dot2_hiPsid = -1;           /* T_hiPsid */
 static int hf_ieee1609dot2_generationTime = -1;   /* Time64 */
 static int hf_ieee1609dot2_expiryTime = -1;       /* Time64 */
 static int hf_ieee1609dot2_generationLocation = -1;  /* ThreeDLocation */
 static int hf_ieee1609dot2_p2pcdLearningRequest = -1;  /* HashedId3 */
 static int hf_ieee1609dot2_missingCrlIdentifier = -1;  /* MissingCrlIdentifier */
 static int hf_ieee1609dot2_encryptionKey = -1;    /* EncryptionKey */
+static int hf_ieee1609dot2_inlineP2pcdRequest = -1;  /* SequenceOfHashedId3 */
+static int hf_ieee1609dot2_requestedCertificate = -1;  /* Certificate */
 static int hf_ieee1609dot2_cracaId = -1;          /* HashedId3 */
 static int hf_ieee1609dot2_crlSeries = -1;        /* CrlSeries */
 static int hf_ieee1609dot2_recipients = -1;       /* SequenceOfRecipientInfo */
@@ -149,10 +166,10 @@ static int hf_ieee1609dot2_signedDataRecipInfo = -1;  /* PKRecipientInfo */
 static int hf_ieee1609dot2_rekRecipInfo = -1;     /* PKRecipientInfo */
 static int hf_ieee1609dot2_SequenceOfRecipientInfo_item = -1;  /* RecipientInfo */
 static int hf_ieee1609dot2_recipientId = -1;      /* HashedId8 */
-static int hf_ieee1609dot2_encKey = -1;           /* SymmetricCiphertext */
-static int hf_ieee1609dot2_encKey_01 = -1;        /* EncryptedDataEncryptionKey */
-static int hf_ieee1609dot2_eciesNistP256_01 = -1;  /* EciesP256EncryptedKey */
-static int hf_ieee1609dot2_eciesBrainpoolP256r1_01 = -1;  /* EciesP256EncryptedKey */
+static int hf_ieee1609dot2_sriEncKey = -1;        /* SymmetricCiphertext */
+static int hf_ieee1609dot2_encKey = -1;           /* EncryptedDataEncryptionKey */
+static int hf_ieee1609dot2_edeEciesNistP256 = -1;  /* EciesP256EncryptedKey */
+static int hf_ieee1609dot2_edekEciesBrainpoolP256r1 = -1;  /* EciesP256EncryptedKey */
 static int hf_ieee1609dot2_aes128ccm = -1;        /* AesCcmCiphertext */
 static int hf_ieee1609dot2_nonce = -1;            /* OCTET_STRING_SIZE_12 */
 static int hf_ieee1609dot2_ccmCiphertext = -1;    /* Opaque */
@@ -162,16 +179,17 @@ static int hf_ieee1609dot2_type = -1;             /* CertificateType */
 static int hf_ieee1609dot2_issuer = -1;           /* IssuerIdentifier */
 static int hf_ieee1609dot2_toBeSigned = -1;       /* ToBeSignedCertificate */
 static int hf_ieee1609dot2_sha256AndDigest = -1;  /* HashedId8 */
-static int hf_ieee1609dot2_self_01 = -1;          /* HashAlgorithm */
+static int hf_ieee1609dot2_iiSelf = -1;           /* HashAlgorithm */
+static int hf_ieee1609dot2_sha384AndDigest = -1;  /* HashedId8 */
 static int hf_ieee1609dot2_id = -1;               /* CertificateId */
 static int hf_ieee1609dot2_validityPeriod = -1;   /* ValidityPeriod */
-static int hf_ieee1609dot2_region_01 = -1;        /* GeographicRegion */
+static int hf_ieee1609dot2_region = -1;           /* GeographicRegion */
 static int hf_ieee1609dot2_assuranceLevel = -1;   /* SubjectAssurance */
 static int hf_ieee1609dot2_appPermissions = -1;   /* SequenceOfPsidSsp */
 static int hf_ieee1609dot2_certIssuePermissions = -1;  /* SequenceOfPsidGroupPermissions */
 static int hf_ieee1609dot2_certRequestPermissions = -1;  /* SequenceOfPsidGroupPermissions */
 static int hf_ieee1609dot2_canRequestRollover = -1;  /* NULL */
-static int hf_ieee1609dot2_encryptionKey_01 = -1;  /* PublicEncryptionKey */
+static int hf_ieee1609dot2_tbscEncryptionKey = -1;  /* PublicEncryptionKey */
 static int hf_ieee1609dot2_verifyKeyIndicator = -1;  /* VerificationKeyIndicator */
 static int hf_ieee1609dot2_linkageData = -1;      /* LinkageData */
 static int hf_ieee1609dot2_name = -1;             /* Hostname */
@@ -180,9 +198,9 @@ static int hf_ieee1609dot2_none = -1;             /* NULL */
 static int hf_ieee1609dot2_iCert = -1;            /* IValue */
 static int hf_ieee1609dot2_linkage_value = -1;    /* LinkageValue */
 static int hf_ieee1609dot2_group_linkage_value = -1;  /* GroupLinkageValue */
-static int hf_ieee1609dot2_appPermissions_01 = -1;  /* SubjectPermissions */
-static int hf_ieee1609dot2_minChainDepth = -1;    /* INTEGER */
-static int hf_ieee1609dot2_chainDepthRange = -1;  /* INTEGER */
+static int hf_ieee1609dot2_subjectPermissions = -1;  /* SubjectPermissions */
+static int hf_ieee1609dot2_minChainLength = -1;   /* INTEGER */
+static int hf_ieee1609dot2_chainLengthRange = -1;  /* INTEGER */
 static int hf_ieee1609dot2_eeType = -1;           /* EndEntityType */
 static int hf_ieee1609dot2_SequenceOfPsidGroupPermissions_item = -1;  /* PsidGroupPermissions */
 static int hf_ieee1609dot2_explicit = -1;         /* SequenceOfPsidSspRange */
@@ -202,6 +220,7 @@ static int ett_ieee1609dot2_ssp = -1;
 #line 1 "./asn1/ieee1609dot2/packet-ieee1609dot2-ett.c"
 static gint ett_ieee1609dot2_SequenceOfUint8 = -1;
 static gint ett_ieee1609dot2_SequenceOfUint16 = -1;
+static gint ett_ieee1609dot2_SequenceOfHashedId3 = -1;
 static gint ett_ieee1609dot2_ValidityPeriod = -1;
 static gint ett_ieee1609dot2_Duration = -1;
 static gint ett_ieee1609dot2_GeographicRegion = -1;
@@ -219,8 +238,11 @@ static gint ett_ieee1609dot2_SequenceOfRegionAndSubregions = -1;
 static gint ett_ieee1609dot2_ThreeDLocation = -1;
 static gint ett_ieee1609dot2_Signature = -1;
 static gint ett_ieee1609dot2_EcdsaP256Signature = -1;
+static gint ett_ieee1609dot2_EcdsaP384Signature = -1;
 static gint ett_ieee1609dot2_EccP256CurvePoint = -1;
-static gint ett_ieee1609dot2_T_uncompressed = -1;
+static gint ett_ieee1609dot2_T_uncompressedP256 = -1;
+static gint ett_ieee1609dot2_EccP384CurvePoint = -1;
+static gint ett_ieee1609dot2_T_uncompressedP384 = -1;
 static gint ett_ieee1609dot2_EciesP256EncryptedKey = -1;
 static gint ett_ieee1609dot2_EncryptionKey = -1;
 static gint ett_ieee1609dot2_PublicEncryptionKey = -1;
@@ -233,6 +255,7 @@ static gint ett_ieee1609dot2_ServiceSpecificPermissions = -1;
 static gint ett_ieee1609dot2_PsidSspRange = -1;
 static gint ett_ieee1609dot2_SequenceOfPsidSspRange = -1;
 static gint ett_ieee1609dot2_SspRange = -1;
+static gint ett_ieee1609dot2_BitmapSspRange = -1;
 static gint ett_ieee1609dot2_SequenceOfOctetString = -1;
 static gint ett_ieee1609dot2_GroupLinkageValue = -1;
 static gint ett_ieee1609dot2_SignedDataPayload = -1;
@@ -387,6 +410,19 @@ dissect_ieee1609dot2_HashedId3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 }
 
 
+static const oer_sequence_t SequenceOfHashedId3_sequence_of[1] = {
+  { &hf_ieee1609dot2_SequenceOfHashedId3_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_HashedId3 },
+};
+
+static int
+dissect_ieee1609dot2_SequenceOfHashedId3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence_of(tvb, offset, actx, tree, hf_index,
+                                      ett_ieee1609dot2_SequenceOfHashedId3, SequenceOfHashedId3_sequence_of);
+
+  return offset;
+}
+
+
 
 static int
 dissect_ieee1609dot2_Time32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -471,7 +507,7 @@ dissect_ieee1609dot2_NinetyDegreeInt(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 
 static int
-dissect_ieee1609dot2_Latitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ieee1609dot2_SecLatitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ieee1609dot2_NinetyDegreeInt(tvb, offset, actx, tree, hf_index);
 
   return offset;
@@ -497,7 +533,7 @@ dissect_ieee1609dot2_OneEightyDegreeInt(tvbuff_t *tvb _U_, int offset _U_, asn1_
 
 
 static int
-dissect_ieee1609dot2_Longitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ieee1609dot2_SecLongitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ieee1609dot2_OneEightyDegreeInt(tvb, offset, actx, tree, hf_index);
 
   return offset;
@@ -505,8 +541,8 @@ dissect_ieee1609dot2_Longitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 
 static const oer_sequence_t TwoDLocation_sequence[] = {
-  { &hf_ieee1609dot2_latitude, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_Latitude },
-  { &hf_ieee1609dot2_longitude, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_Longitude },
+  { &hf_ieee1609dot2_latitude, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_SecLatitude },
+  { &hf_ieee1609dot2_longitude, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_SecLongitude },
   { NULL, 0, 0, NULL }
 };
 
@@ -601,7 +637,7 @@ dissect_ieee1609dot2_CountryAndRegions(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 
 static const oer_sequence_t RegionAndSubregions_sequence[] = {
-  { &hf_ieee1609dot2_region , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_Uint8 },
+  { &hf_ieee1609dot2_rasRegion, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_Uint8 },
   { &hf_ieee1609dot2_subregions, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_SequenceOfUint16 },
   { NULL, 0, 0, NULL }
 };
@@ -717,7 +753,7 @@ dissect_ieee1609dot2_ElevInt(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 
 
 static int
-dissect_ieee1609dot2_Elevation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ieee1609dot2_SecElevation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ieee1609dot2_ElevInt(tvb, offset, actx, tree, hf_index);
 
   return offset;
@@ -725,9 +761,9 @@ dissect_ieee1609dot2_Elevation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 
 static const oer_sequence_t ThreeDLocation_sequence[] = {
-  { &hf_ieee1609dot2_latitude, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_Latitude },
-  { &hf_ieee1609dot2_longitude, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_Longitude },
-  { &hf_ieee1609dot2_elevation, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_Elevation },
+  { &hf_ieee1609dot2_latitude, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_SecLatitude },
+  { &hf_ieee1609dot2_longitude, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_SecLongitude },
+  { &hf_ieee1609dot2_elevation, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_SecElevation },
   { NULL, 0, 0, NULL }
 };
 
@@ -759,16 +795,16 @@ dissect_ieee1609dot2_NULL(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 }
 
 
-static const oer_sequence_t T_uncompressed_sequence[] = {
+static const oer_sequence_t T_uncompressedP256_sequence[] = {
   { &hf_ieee1609dot2_x      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_OCTET_STRING_SIZE_32 },
   { &hf_ieee1609dot2_y      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_OCTET_STRING_SIZE_32 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_ieee1609dot2_T_uncompressed(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_ieee1609dot2_T_uncompressedP256(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_ieee1609dot2_T_uncompressed, T_uncompressed_sequence);
+                                   ett_ieee1609dot2_T_uncompressedP256, T_uncompressedP256_sequence);
 
   return offset;
 }
@@ -779,7 +815,7 @@ static const value_string ieee1609dot2_EccP256CurvePoint_vals[] = {
   {   1, "fill" },
   {   2, "compressed-y-0" },
   {   3, "compressed-y-1" },
-  {   4, "uncompressed" },
+  {   4, "uncompressedP256" },
   { 0, NULL }
 };
 
@@ -788,7 +824,7 @@ static const oer_choice_t EccP256CurvePoint_choice[] = {
   {   1, &hf_ieee1609dot2_fill   , ASN1_NO_EXTENSIONS     , dissect_ieee1609dot2_NULL },
   {   2, &hf_ieee1609dot2_compressed_y_0, ASN1_NO_EXTENSIONS     , dissect_ieee1609dot2_OCTET_STRING_SIZE_32 },
   {   3, &hf_ieee1609dot2_compressed_y_1, ASN1_NO_EXTENSIONS     , dissect_ieee1609dot2_OCTET_STRING_SIZE_32 },
-  {   4, &hf_ieee1609dot2_uncompressed, ASN1_NO_EXTENSIONS     , dissect_ieee1609dot2_T_uncompressed },
+  {   4, &hf_ieee1609dot2_uncompressedP256, ASN1_NO_EXTENSIONS     , dissect_ieee1609dot2_T_uncompressedP256 },
   { 0, NULL, 0, NULL }
 };
 
@@ -803,8 +839,8 @@ dissect_ieee1609dot2_EccP256CurvePoint(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 
 static const oer_sequence_t EcdsaP256Signature_sequence[] = {
-  { &hf_ieee1609dot2_r      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_EccP256CurvePoint },
-  { &hf_ieee1609dot2_s      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_OCTET_STRING_SIZE_32 },
+  { &hf_ieee1609dot2_rSig   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_EccP256CurvePoint },
+  { &hf_ieee1609dot2_sSig   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_OCTET_STRING_SIZE_32 },
   { NULL, 0, 0, NULL }
 };
 
@@ -817,15 +853,85 @@ dissect_ieee1609dot2_EcdsaP256Signature(tvbuff_t *tvb _U_, int offset _U_, asn1_
 }
 
 
+
+static int
+dissect_ieee1609dot2_OCTET_STRING_SIZE_48(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
+                                       48, 48, FALSE, NULL);
+
+  return offset;
+}
+
+
+static const oer_sequence_t T_uncompressedP384_sequence[] = {
+  { &hf_ieee1609dot2_eccp384cpX, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_OCTET_STRING_SIZE_48 },
+  { &hf_ieee1609dot2_eccp384cpY, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_OCTET_STRING_SIZE_48 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ieee1609dot2_T_uncompressedP384(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ieee1609dot2_T_uncompressedP384, T_uncompressedP384_sequence);
+
+  return offset;
+}
+
+
+static const value_string ieee1609dot2_EccP384CurvePoint_vals[] = {
+  {   0, "x-only" },
+  {   1, "fill" },
+  {   2, "compressed-y-0" },
+  {   3, "compressed-y-1" },
+  {   4, "uncompressedP384" },
+  { 0, NULL }
+};
+
+static const oer_choice_t EccP384CurvePoint_choice[] = {
+  {   0, &hf_ieee1609dot2_eccp384cpXOnly, ASN1_NO_EXTENSIONS     , dissect_ieee1609dot2_OCTET_STRING_SIZE_48 },
+  {   1, &hf_ieee1609dot2_fill   , ASN1_NO_EXTENSIONS     , dissect_ieee1609dot2_NULL },
+  {   2, &hf_ieee1609dot2_eccp384cpCompressed_y_0, ASN1_NO_EXTENSIONS     , dissect_ieee1609dot2_OCTET_STRING_SIZE_48 },
+  {   3, &hf_ieee1609dot2_eccp384cpCompressed_y_1, ASN1_NO_EXTENSIONS     , dissect_ieee1609dot2_OCTET_STRING_SIZE_48 },
+  {   4, &hf_ieee1609dot2_uncompressedP384, ASN1_NO_EXTENSIONS     , dissect_ieee1609dot2_T_uncompressedP384 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_ieee1609dot2_EccP384CurvePoint(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_ieee1609dot2_EccP384CurvePoint, EccP384CurvePoint_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const oer_sequence_t EcdsaP384Signature_sequence[] = {
+  { &hf_ieee1609dot2_ecdsap384RSig, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_EccP384CurvePoint },
+  { &hf_ieee1609dot2_ecdsap384SSig, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_OCTET_STRING_SIZE_48 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ieee1609dot2_EcdsaP384Signature(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ieee1609dot2_EcdsaP384Signature, EcdsaP384Signature_sequence);
+
+  return offset;
+}
+
+
 static const value_string ieee1609dot2_Signature_vals[] = {
   {   0, "ecdsaNistP256Signature" },
   {   1, "ecdsaBrainpoolP256r1Signature" },
+  {   2, "ecdsaBrainpoolP384r1Signature" },
   { 0, NULL }
 };
 
 static const oer_choice_t Signature_choice[] = {
   {   0, &hf_ieee1609dot2_ecdsaNistP256Signature, ASN1_EXTENSION_ROOT    , dissect_ieee1609dot2_EcdsaP256Signature },
   {   1, &hf_ieee1609dot2_ecdsaBrainpoolP256r1Signature, ASN1_EXTENSION_ROOT    , dissect_ieee1609dot2_EcdsaP256Signature },
+  {   2, &hf_ieee1609dot2_ecdsaBrainpoolP384r1Signature, ASN1_NOT_EXTENSION_ROOT, dissect_ieee1609dot2_EcdsaP384Signature },
   { 0, NULL, 0, NULL }
 };
 
@@ -856,6 +962,7 @@ dissect_ieee1609dot2_SymmAlgorithm(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 static const value_string ieee1609dot2_HashAlgorithm_vals[] = {
   {   0, "sha256" },
+  {   1, "sha384" },
   { 0, NULL }
 };
 
@@ -863,7 +970,7 @@ static const value_string ieee1609dot2_HashAlgorithm_vals[] = {
 static int
 dissect_ieee1609dot2_HashAlgorithm(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_oer_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, TRUE, 0, NULL);
+                                     1, NULL, TRUE, 1, NULL);
 
   return offset;
 }
@@ -977,12 +1084,14 @@ dissect_ieee1609dot2_EncryptionKey(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 static const value_string ieee1609dot2_PublicVerificationKey_vals[] = {
   {   0, "ecdsaNistP256" },
   {   1, "ecdsaBrainpoolP256r1" },
+  {   2, "ecdsaBrainpoolP384r1" },
   { 0, NULL }
 };
 
 static const oer_choice_t PublicVerificationKey_choice[] = {
   {   0, &hf_ieee1609dot2_ecdsaNistP256, ASN1_EXTENSION_ROOT    , dissect_ieee1609dot2_EccP256CurvePoint },
   {   1, &hf_ieee1609dot2_ecdsaBrainpoolP256r1, ASN1_EXTENSION_ROOT    , dissect_ieee1609dot2_EccP256CurvePoint },
+  {   2, &hf_ieee1609dot2_ecdsaBrainpoolP384r1, ASN1_NOT_EXTENSION_ROOT, dissect_ieee1609dot2_EccP384CurvePoint },
   { 0, NULL, 0, NULL }
 };
 
@@ -1078,8 +1187,8 @@ dissect_ieee1609dot2_Psid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 
 static int
-dissect_ieee1609dot2_T_psid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 84 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
+dissect_ieee1609dot2_T_psPsid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 106 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
   offset = dissect_oer_constrained_integer_64b_no_ub(tvb, offset, actx, tree, hf_index,
                                                0U, NO_BOUND, &((ieee1609_private_data_t*)actx->private_data)->psidssp, FALSE);
 
@@ -1092,7 +1201,7 @@ dissect_ieee1609dot2_T_psid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_ieee1609dot2_T_opaque(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 88 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
+#line 110 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
   tvbuff_t *ssp;
   ieee1609_private_data_t *my_private_data = (ieee1609_private_data_t*)actx->private_data;
 
@@ -1110,13 +1219,25 @@ dissect_ieee1609dot2_T_opaque(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 }
 
 
+
+static int
+dissect_ieee1609dot2_BitmapSsp(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
+                                       0, 31, FALSE, NULL);
+
+  return offset;
+}
+
+
 static const value_string ieee1609dot2_ServiceSpecificPermissions_vals[] = {
   {   0, "opaque" },
+  {   1, "bitmapSsp" },
   { 0, NULL }
 };
 
 static const oer_choice_t ServiceSpecificPermissions_choice[] = {
   {   0, &hf_ieee1609dot2_opaque , ASN1_EXTENSION_ROOT    , dissect_ieee1609dot2_T_opaque },
+  {   1, &hf_ieee1609dot2_bitmapSsp, ASN1_NOT_EXTENSION_ROOT, dissect_ieee1609dot2_BitmapSsp },
   { 0, NULL, 0, NULL }
 };
 
@@ -1131,7 +1252,7 @@ dissect_ieee1609dot2_ServiceSpecificPermissions(tvbuff_t *tvb _U_, int offset _U
 
 
 static const oer_sequence_t PsidSsp_sequence[] = {
-  { &hf_ieee1609dot2_psid   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_T_psid },
+  { &hf_ieee1609dot2_psPsid , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_T_psPsid },
   { &hf_ieee1609dot2_ssp    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ieee1609dot2_ServiceSpecificPermissions },
   { NULL, 0, 0, NULL }
 };
@@ -1182,15 +1303,42 @@ dissect_ieee1609dot2_SequenceOfOctetString(tvbuff_t *tvb _U_, int offset _U_, as
 }
 
 
+
+static int
+dissect_ieee1609dot2_OCTET_STRING_SIZE_1_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
+                                       1, 32, FALSE, NULL);
+
+  return offset;
+}
+
+
+static const oer_sequence_t BitmapSspRange_sequence[] = {
+  { &hf_ieee1609dot2_sspValue, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_OCTET_STRING_SIZE_1_32 },
+  { &hf_ieee1609dot2_sspBitmask, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_OCTET_STRING_SIZE_1_32 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ieee1609dot2_BitmapSspRange(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ieee1609dot2_BitmapSspRange, BitmapSspRange_sequence);
+
+  return offset;
+}
+
+
 static const value_string ieee1609dot2_SspRange_vals[] = {
   {   0, "opaque" },
   {   1, "all" },
+  {   2, "bitmapSspRange" },
   { 0, NULL }
 };
 
 static const oer_choice_t SspRange_choice[] = {
-  {   0, &hf_ieee1609dot2_opaque_01, ASN1_EXTENSION_ROOT    , dissect_ieee1609dot2_SequenceOfOctetString },
+  {   0, &hf_ieee1609dot2_srRange, ASN1_EXTENSION_ROOT    , dissect_ieee1609dot2_SequenceOfOctetString },
   {   1, &hf_ieee1609dot2_all    , ASN1_EXTENSION_ROOT    , dissect_ieee1609dot2_NULL },
+  {   2, &hf_ieee1609dot2_bitmapSspRange, ASN1_NOT_EXTENSION_ROOT, dissect_ieee1609dot2_BitmapSspRange },
   { 0, NULL, 0, NULL }
 };
 
@@ -1205,7 +1353,7 @@ dissect_ieee1609dot2_SspRange(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 
 
 static const oer_sequence_t PsidSspRange_sequence[] = {
-  { &hf_ieee1609dot2_psid_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_Psid },
+  { &hf_ieee1609dot2_psid   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_Psid },
   { &hf_ieee1609dot2_sspRange, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ieee1609dot2_SspRange },
   { NULL, 0, 0, NULL }
 };
@@ -1318,7 +1466,7 @@ dissect_ieee1609dot2_GroupLinkageValue(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static int
 dissect_ieee1609dot2_T_unsecuredData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 51 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
+#line 73 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
   ieee1609_private_data_t *my_private_data = (ieee1609_private_data_t*)actx->private_data;
 
   offset = dissect_oer_octet_string(tvb, offset, actx, tree, hf_index,
@@ -1343,8 +1491,8 @@ dissect_ieee1609dot2_T_unsecuredData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 
 static int
-dissect_ieee1609dot2_T_psid_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 70 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
+dissect_ieee1609dot2_T_hiPsid(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 92 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
   guint64 psid;
   ieee1609_private_data_t *my_private_data = (ieee1609_private_data_t*)actx->private_data;
 
@@ -1377,41 +1525,6 @@ dissect_ieee1609dot2_MissingCrlIdentifier(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
-static const oer_sequence_t HeaderInfo_sequence[] = {
-  { &hf_ieee1609dot2_psid_02, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_T_psid_01 },
-  { &hf_ieee1609dot2_generationTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ieee1609dot2_Time64 },
-  { &hf_ieee1609dot2_expiryTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ieee1609dot2_Time64 },
-  { &hf_ieee1609dot2_generationLocation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ieee1609dot2_ThreeDLocation },
-  { &hf_ieee1609dot2_p2pcdLearningRequest, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ieee1609dot2_HashedId3 },
-  { &hf_ieee1609dot2_missingCrlIdentifier, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ieee1609dot2_MissingCrlIdentifier },
-  { &hf_ieee1609dot2_encryptionKey, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ieee1609dot2_EncryptionKey },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_ieee1609dot2_HeaderInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_ieee1609dot2_HeaderInfo, HeaderInfo_sequence);
-
-  return offset;
-}
-
-
-static const oer_sequence_t ToBeSignedData_sequence[] = {
-  { &hf_ieee1609dot2_payload, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_SignedDataPayload },
-  { &hf_ieee1609dot2_headerInfo, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_HeaderInfo },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_ieee1609dot2_ToBeSignedData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_ieee1609dot2_ToBeSignedData, ToBeSignedData_sequence);
-
-  return offset;
-}
-
-
 static const value_string ieee1609dot2_CertificateType_vals[] = {
   {   0, "explicit" },
   {   1, "implicit" },
@@ -1431,12 +1544,14 @@ dissect_ieee1609dot2_CertificateType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 static const value_string ieee1609dot2_IssuerIdentifier_vals[] = {
   {   0, "sha256AndDigest" },
   {   1, "self" },
+  {   2, "sha384AndDigest" },
   { 0, NULL }
 };
 
 static const oer_choice_t IssuerIdentifier_choice[] = {
   {   0, &hf_ieee1609dot2_sha256AndDigest, ASN1_EXTENSION_ROOT    , dissect_ieee1609dot2_HashedId8 },
-  {   1, &hf_ieee1609dot2_self_01, ASN1_EXTENSION_ROOT    , dissect_ieee1609dot2_HashAlgorithm },
+  {   1, &hf_ieee1609dot2_iiSelf , ASN1_EXTENSION_ROOT    , dissect_ieee1609dot2_HashAlgorithm },
+  {   2, &hf_ieee1609dot2_sha384AndDigest, ASN1_NOT_EXTENSION_ROOT, dissect_ieee1609dot2_HashedId8 },
   { 0, NULL, 0, NULL }
 };
 
@@ -1549,9 +1664,9 @@ dissect_ieee1609dot2_EndEntityType(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 
 static const oer_sequence_t PsidGroupPermissions_sequence[] = {
-  { &hf_ieee1609dot2_appPermissions_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_SubjectPermissions },
-  { &hf_ieee1609dot2_minChainDepth, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ieee1609dot2_INTEGER },
-  { &hf_ieee1609dot2_chainDepthRange, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ieee1609dot2_INTEGER },
+  { &hf_ieee1609dot2_subjectPermissions, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_SubjectPermissions },
+  { &hf_ieee1609dot2_minChainLength, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ieee1609dot2_INTEGER },
+  { &hf_ieee1609dot2_chainLengthRange, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ieee1609dot2_INTEGER },
   { &hf_ieee1609dot2_eeType , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_ieee1609dot2_EndEntityType },
   { NULL, 0, 0, NULL }
 };
@@ -1605,13 +1720,13 @@ static const oer_sequence_t ToBeSignedCertificate_sequence[] = {
   { &hf_ieee1609dot2_cracaId, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_HashedId3 },
   { &hf_ieee1609dot2_crlSeries, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_CrlSeries },
   { &hf_ieee1609dot2_validityPeriod, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_ValidityPeriod },
-  { &hf_ieee1609dot2_region_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ieee1609dot2_GeographicRegion },
+  { &hf_ieee1609dot2_region , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ieee1609dot2_GeographicRegion },
   { &hf_ieee1609dot2_assuranceLevel, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ieee1609dot2_SubjectAssurance },
   { &hf_ieee1609dot2_appPermissions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ieee1609dot2_SequenceOfPsidSsp },
   { &hf_ieee1609dot2_certIssuePermissions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ieee1609dot2_SequenceOfPsidGroupPermissions },
   { &hf_ieee1609dot2_certRequestPermissions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ieee1609dot2_SequenceOfPsidGroupPermissions },
   { &hf_ieee1609dot2_canRequestRollover, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ieee1609dot2_NULL },
-  { &hf_ieee1609dot2_encryptionKey_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ieee1609dot2_PublicEncryptionKey },
+  { &hf_ieee1609dot2_tbscEncryptionKey, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ieee1609dot2_PublicEncryptionKey },
   { &hf_ieee1609dot2_verifyKeyIndicator, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_VerificationKeyIndicator },
   { NULL, 0, 0, NULL }
 };
@@ -1652,6 +1767,43 @@ dissect_ieee1609dot2_Certificate(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 }
 
 
+static const oer_sequence_t HeaderInfo_sequence[] = {
+  { &hf_ieee1609dot2_hiPsid , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_T_hiPsid },
+  { &hf_ieee1609dot2_generationTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ieee1609dot2_Time64 },
+  { &hf_ieee1609dot2_expiryTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ieee1609dot2_Time64 },
+  { &hf_ieee1609dot2_generationLocation, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ieee1609dot2_ThreeDLocation },
+  { &hf_ieee1609dot2_p2pcdLearningRequest, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ieee1609dot2_HashedId3 },
+  { &hf_ieee1609dot2_missingCrlIdentifier, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ieee1609dot2_MissingCrlIdentifier },
+  { &hf_ieee1609dot2_encryptionKey, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_ieee1609dot2_EncryptionKey },
+  { &hf_ieee1609dot2_inlineP2pcdRequest, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ieee1609dot2_SequenceOfHashedId3 },
+  { &hf_ieee1609dot2_requestedCertificate, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_ieee1609dot2_Certificate },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ieee1609dot2_HeaderInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ieee1609dot2_HeaderInfo, HeaderInfo_sequence);
+
+  return offset;
+}
+
+
+static const oer_sequence_t ToBeSignedData_sequence[] = {
+  { &hf_ieee1609dot2_payload, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_SignedDataPayload },
+  { &hf_ieee1609dot2_headerInfo, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_HeaderInfo },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_ieee1609dot2_ToBeSignedData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_ieee1609dot2_ToBeSignedData, ToBeSignedData_sequence);
+
+  return offset;
+}
+
+
 static const oer_sequence_t SequenceOfCertificate_sequence_of[1] = {
   { &hf_ieee1609dot2_SequenceOfCertificate_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_Certificate },
 };
@@ -1675,7 +1827,7 @@ static const value_string ieee1609dot2_SignerIdentifier_vals[] = {
 static const oer_choice_t SignerIdentifier_choice[] = {
   {   0, &hf_ieee1609dot2_digest , ASN1_EXTENSION_ROOT    , dissect_ieee1609dot2_HashedId8 },
   {   1, &hf_ieee1609dot2_certificate, ASN1_EXTENSION_ROOT    , dissect_ieee1609dot2_SequenceOfCertificate },
-  {   2, &hf_ieee1609dot2_self   , ASN1_EXTENSION_ROOT    , dissect_ieee1609dot2_NULL },
+  {   2, &hf_ieee1609dot2_siSelf , ASN1_EXTENSION_ROOT    , dissect_ieee1609dot2_NULL },
   { 0, NULL, 0, NULL }
 };
 
@@ -1762,7 +1914,7 @@ dissect_ieee1609dot2_SymmetricCiphertext(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static const oer_sequence_t SymmRecipientInfo_sequence[] = {
   { &hf_ieee1609dot2_recipientId, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_HashedId8 },
-  { &hf_ieee1609dot2_encKey , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_SymmetricCiphertext },
+  { &hf_ieee1609dot2_sriEncKey, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_SymmetricCiphertext },
   { NULL, 0, 0, NULL }
 };
 
@@ -1782,8 +1934,8 @@ static const value_string ieee1609dot2_EncryptedDataEncryptionKey_vals[] = {
 };
 
 static const oer_choice_t EncryptedDataEncryptionKey_choice[] = {
-  {   0, &hf_ieee1609dot2_eciesNistP256_01, ASN1_EXTENSION_ROOT    , dissect_ieee1609dot2_EciesP256EncryptedKey },
-  {   1, &hf_ieee1609dot2_eciesBrainpoolP256r1_01, ASN1_EXTENSION_ROOT    , dissect_ieee1609dot2_EciesP256EncryptedKey },
+  {   0, &hf_ieee1609dot2_edeEciesNistP256, ASN1_EXTENSION_ROOT    , dissect_ieee1609dot2_EciesP256EncryptedKey },
+  {   1, &hf_ieee1609dot2_edekEciesBrainpoolP256r1, ASN1_EXTENSION_ROOT    , dissect_ieee1609dot2_EciesP256EncryptedKey },
   { 0, NULL, 0, NULL }
 };
 
@@ -1799,7 +1951,7 @@ dissect_ieee1609dot2_EncryptedDataEncryptionKey(tvbuff_t *tvb _U_, int offset _U
 
 static const oer_sequence_t PKRecipientInfo_sequence[] = {
   { &hf_ieee1609dot2_recipientId, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_HashedId8 },
-  { &hf_ieee1609dot2_encKey_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_EncryptedDataEncryptionKey },
+  { &hf_ieee1609dot2_encKey , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_ieee1609dot2_EncryptedDataEncryptionKey },
   { NULL, 0, 0, NULL }
 };
 
@@ -1902,7 +2054,7 @@ static const oer_sequence_t Ieee1609Dot2Data_sequence[] = {
 
 static int
 dissect_ieee1609dot2_Ieee1609Dot2Data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 47 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
+#line 69 "./asn1/ieee1609dot2/ieee1609dot2.cnf"
   actx->private_data = (void*)wmem_new0(wmem_packet_scope(), ieee1609_private_data_t);
 
   offset = dissect_oer_sequence(tvb, offset, actx, tree, hf_index,
@@ -1980,6 +2132,10 @@ void proto_register_ieee1609dot2(void) {
     { &hf_ieee1609dot2_SequenceOfUint16_item,
       { "Uint16", "ieee1609dot2.Uint16",
         FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ieee1609dot2_SequenceOfHashedId3_item,
+      { "HashedId3", "ieee1609dot2.HashedId3",
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_ieee1609dot2_start,
       { "start", "ieee1609dot2.start",
@@ -2060,11 +2216,11 @@ void proto_register_ieee1609dot2(void) {
     { &hf_ieee1609dot2_latitude,
       { "latitude", "ieee1609dot2.latitude",
         FT_INT32, BASE_DEC, VALS(ieee1609dot2_NinetyDegreeInt_vals), 0,
-        NULL, HFILL }},
+        "SecLatitude", HFILL }},
     { &hf_ieee1609dot2_longitude,
       { "longitude", "ieee1609dot2.longitude",
         FT_INT32, BASE_DEC, VALS(ieee1609dot2_OneEightyDegreeInt_vals), 0,
-        NULL, HFILL }},
+        "SecLongitude", HFILL }},
     { &hf_ieee1609dot2_countryOnly,
       { "countryOnly", "ieee1609dot2.countryOnly",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -2093,7 +2249,7 @@ void proto_register_ieee1609dot2(void) {
       { "regionAndSubregions", "ieee1609dot2.regionAndSubregions",
         FT_UINT32, BASE_DEC, NULL, 0,
         "SequenceOfRegionAndSubregions", HFILL }},
-    { &hf_ieee1609dot2_region,
+    { &hf_ieee1609dot2_rasRegion,
       { "region", "ieee1609dot2.region",
         FT_UINT32, BASE_DEC, NULL, 0,
         "Uint8", HFILL }},
@@ -2108,7 +2264,7 @@ void proto_register_ieee1609dot2(void) {
     { &hf_ieee1609dot2_elevation,
       { "elevation", "ieee1609dot2.elevation",
         FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
+        "SecElevation", HFILL }},
     { &hf_ieee1609dot2_ecdsaNistP256Signature,
       { "ecdsaNistP256Signature", "ieee1609dot2.ecdsaNistP256Signature_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2117,14 +2273,26 @@ void proto_register_ieee1609dot2(void) {
       { "ecdsaBrainpoolP256r1Signature", "ieee1609dot2.ecdsaBrainpoolP256r1Signature_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "EcdsaP256Signature", HFILL }},
-    { &hf_ieee1609dot2_r,
-      { "r", "ieee1609dot2.r",
+    { &hf_ieee1609dot2_ecdsaBrainpoolP384r1Signature,
+      { "ecdsaBrainpoolP384r1Signature", "ieee1609dot2.ecdsaBrainpoolP384r1Signature_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "EcdsaP384Signature", HFILL }},
+    { &hf_ieee1609dot2_rSig,
+      { "rSig", "ieee1609dot2.rSig",
         FT_UINT32, BASE_DEC, VALS(ieee1609dot2_EccP256CurvePoint_vals), 0,
         "EccP256CurvePoint", HFILL }},
-    { &hf_ieee1609dot2_s,
-      { "s", "ieee1609dot2.s",
+    { &hf_ieee1609dot2_sSig,
+      { "sSig", "ieee1609dot2.sSig",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING_SIZE_32", HFILL }},
+    { &hf_ieee1609dot2_ecdsap384RSig,
+      { "rSig", "ieee1609dot2.rSig",
+        FT_UINT32, BASE_DEC, VALS(ieee1609dot2_EccP384CurvePoint_vals), 0,
+        "EccP384CurvePoint", HFILL }},
+    { &hf_ieee1609dot2_ecdsap384SSig,
+      { "sSig", "ieee1609dot2.sSig",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_48", HFILL }},
     { &hf_ieee1609dot2_x_only,
       { "x-only", "ieee1609dot2.x_only",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -2141,8 +2309,8 @@ void proto_register_ieee1609dot2(void) {
       { "compressed-y-1", "ieee1609dot2.compressed_y_1",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING_SIZE_32", HFILL }},
-    { &hf_ieee1609dot2_uncompressed,
-      { "uncompressed", "ieee1609dot2.uncompressed_element",
+    { &hf_ieee1609dot2_uncompressedP256,
+      { "uncompressedP256", "ieee1609dot2.uncompressedP256_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_ieee1609dot2_x,
@@ -2153,6 +2321,30 @@ void proto_register_ieee1609dot2(void) {
       { "y", "ieee1609dot2.y",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING_SIZE_32", HFILL }},
+    { &hf_ieee1609dot2_eccp384cpXOnly,
+      { "x-only", "ieee1609dot2.x_only",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_48", HFILL }},
+    { &hf_ieee1609dot2_eccp384cpCompressed_y_0,
+      { "compressed-y-0", "ieee1609dot2.compressed_y_0",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_48", HFILL }},
+    { &hf_ieee1609dot2_eccp384cpCompressed_y_1,
+      { "compressed-y-1", "ieee1609dot2.compressed_y_1",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_48", HFILL }},
+    { &hf_ieee1609dot2_uncompressedP384,
+      { "uncompressedP384", "ieee1609dot2.uncompressedP384_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ieee1609dot2_eccp384cpX,
+      { "x", "ieee1609dot2.x",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_48", HFILL }},
+    { &hf_ieee1609dot2_eccp384cpY,
+      { "y", "ieee1609dot2.y",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_48", HFILL }},
     { &hf_ieee1609dot2_v,
       { "v", "ieee1609dot2.v",
         FT_UINT32, BASE_DEC, VALS(ieee1609dot2_EccP256CurvePoint_vals), 0,
@@ -2197,14 +2389,18 @@ void proto_register_ieee1609dot2(void) {
       { "ecdsaBrainpoolP256r1", "ieee1609dot2.ecdsaBrainpoolP256r1",
         FT_UINT32, BASE_DEC, VALS(ieee1609dot2_EccP256CurvePoint_vals), 0,
         "EccP256CurvePoint", HFILL }},
+    { &hf_ieee1609dot2_ecdsaBrainpoolP384r1,
+      { "ecdsaBrainpoolP384r1", "ieee1609dot2.ecdsaBrainpoolP384r1",
+        FT_UINT32, BASE_DEC, VALS(ieee1609dot2_EccP384CurvePoint_vals), 0,
+        "EccP384CurvePoint", HFILL }},
     { &hf_ieee1609dot2_aes128Ccm,
       { "aes128Ccm", "ieee1609dot2.aes128Ccm",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING_SIZE_16", HFILL }},
-    { &hf_ieee1609dot2_psid,
+    { &hf_ieee1609dot2_psPsid,
       { "psid", "ieee1609dot2.psid",
         FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(ieee1609dot2_Psid_vals), 0,
-        NULL, HFILL }},
+        "T_psPsid", HFILL }},
     { &hf_ieee1609dot2_ssp,
       { "ssp", "ieee1609dot2.ssp",
         FT_UINT32, BASE_DEC, VALS(ieee1609dot2_ServiceSpecificPermissions_vals), 0,
@@ -2217,7 +2413,11 @@ void proto_register_ieee1609dot2(void) {
       { "opaque", "ieee1609dot2.opaque",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_ieee1609dot2_psid_01,
+    { &hf_ieee1609dot2_bitmapSsp,
+      { "bitmapSsp", "ieee1609dot2.bitmapSsp",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ieee1609dot2_psid,
       { "psid", "ieee1609dot2.psid",
         FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(ieee1609dot2_Psid_vals), 0,
         NULL, HFILL }},
@@ -2229,7 +2429,7 @@ void proto_register_ieee1609dot2(void) {
       { "PsidSspRange", "ieee1609dot2.PsidSspRange_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_ieee1609dot2_opaque_01,
+    { &hf_ieee1609dot2_srRange,
       { "opaque", "ieee1609dot2.opaque",
         FT_UINT32, BASE_DEC, NULL, 0,
         "SequenceOfOctetString", HFILL }},
@@ -2237,6 +2437,18 @@ void proto_register_ieee1609dot2(void) {
       { "all", "ieee1609dot2.all_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_ieee1609dot2_bitmapSspRange,
+      { "bitmapSspRange", "ieee1609dot2.bitmapSspRange_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_ieee1609dot2_sspValue,
+      { "sspValue", "ieee1609dot2.sspValue",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_1_32", HFILL }},
+    { &hf_ieee1609dot2_sspBitmask,
+      { "sspBitmask", "ieee1609dot2.sspBitmask",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING_SIZE_1_32", HFILL }},
     { &hf_ieee1609dot2_SequenceOfOctetString_item,
       { "SequenceOfOctetString item", "ieee1609dot2.SequenceOfOctetString_item",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -2305,7 +2517,7 @@ void proto_register_ieee1609dot2(void) {
       { "certificate", "ieee1609dot2.certificate",
         FT_UINT32, BASE_DEC, NULL, 0,
         "SequenceOfCertificate", HFILL }},
-    { &hf_ieee1609dot2_self,
+    { &hf_ieee1609dot2_siSelf,
       { "self", "ieee1609dot2.self_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
@@ -2321,10 +2533,10 @@ void proto_register_ieee1609dot2(void) {
       { "sha256HashedData", "ieee1609dot2.sha256HashedData",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING_SIZE_32", HFILL }},
-    { &hf_ieee1609dot2_psid_02,
+    { &hf_ieee1609dot2_hiPsid,
       { "psid", "ieee1609dot2.psid",
         FT_UINT64, BASE_DEC|BASE_VAL64_STRING, VALS64(ieee1609dot2_Psid_vals), 0,
-        "T_psid_01", HFILL }},
+        "T_hiPsid", HFILL }},
     { &hf_ieee1609dot2_generationTime,
       { "generationTime", "ieee1609dot2.generationTime",
         FT_UINT64, BASE_DEC, NULL, 0,
@@ -2349,6 +2561,14 @@ void proto_register_ieee1609dot2(void) {
       { "encryptionKey", "ieee1609dot2.encryptionKey",
         FT_UINT32, BASE_DEC, VALS(ieee1609dot2_EncryptionKey_vals), 0,
         NULL, HFILL }},
+    { &hf_ieee1609dot2_inlineP2pcdRequest,
+      { "inlineP2pcdRequest", "ieee1609dot2.inlineP2pcdRequest",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SequenceOfHashedId3", HFILL }},
+    { &hf_ieee1609dot2_requestedCertificate,
+      { "requestedCertificate", "ieee1609dot2.requestedCertificate_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "Certificate", HFILL }},
     { &hf_ieee1609dot2_cracaId,
       { "cracaId", "ieee1609dot2.cracaId",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -2393,19 +2613,19 @@ void proto_register_ieee1609dot2(void) {
       { "recipientId", "ieee1609dot2.recipientId",
         FT_BYTES, BASE_NONE, NULL, 0,
         "HashedId8", HFILL }},
-    { &hf_ieee1609dot2_encKey,
+    { &hf_ieee1609dot2_sriEncKey,
       { "encKey", "ieee1609dot2.encKey",
         FT_UINT32, BASE_DEC, VALS(ieee1609dot2_SymmetricCiphertext_vals), 0,
         "SymmetricCiphertext", HFILL }},
-    { &hf_ieee1609dot2_encKey_01,
+    { &hf_ieee1609dot2_encKey,
       { "encKey", "ieee1609dot2.encKey",
         FT_UINT32, BASE_DEC, VALS(ieee1609dot2_EncryptedDataEncryptionKey_vals), 0,
         "EncryptedDataEncryptionKey", HFILL }},
-    { &hf_ieee1609dot2_eciesNistP256_01,
+    { &hf_ieee1609dot2_edeEciesNistP256,
       { "eciesNistP256", "ieee1609dot2.eciesNistP256_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "EciesP256EncryptedKey", HFILL }},
-    { &hf_ieee1609dot2_eciesBrainpoolP256r1_01,
+    { &hf_ieee1609dot2_edekEciesBrainpoolP256r1,
       { "eciesBrainpoolP256r1", "ieee1609dot2.eciesBrainpoolP256r1_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "EciesP256EncryptedKey", HFILL }},
@@ -2445,10 +2665,14 @@ void proto_register_ieee1609dot2(void) {
       { "sha256AndDigest", "ieee1609dot2.sha256AndDigest",
         FT_BYTES, BASE_NONE, NULL, 0,
         "HashedId8", HFILL }},
-    { &hf_ieee1609dot2_self_01,
+    { &hf_ieee1609dot2_iiSelf,
       { "self", "ieee1609dot2.self",
         FT_UINT32, BASE_DEC, VALS(ieee1609dot2_HashAlgorithm_vals), 0,
         "HashAlgorithm", HFILL }},
+    { &hf_ieee1609dot2_sha384AndDigest,
+      { "sha384AndDigest", "ieee1609dot2.sha384AndDigest",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "HashedId8", HFILL }},
     { &hf_ieee1609dot2_id,
       { "id", "ieee1609dot2.id",
         FT_UINT32, BASE_DEC, VALS(ieee1609dot2_CertificateId_vals), 0,
@@ -2457,7 +2681,7 @@ void proto_register_ieee1609dot2(void) {
       { "validityPeriod", "ieee1609dot2.validityPeriod_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_ieee1609dot2_region_01,
+    { &hf_ieee1609dot2_region,
       { "region", "ieee1609dot2.region",
         FT_UINT32, BASE_DEC, VALS(ieee1609dot2_GeographicRegion_vals), 0,
         "GeographicRegion", HFILL }},
@@ -2481,7 +2705,7 @@ void proto_register_ieee1609dot2(void) {
       { "canRequestRollover", "ieee1609dot2.canRequestRollover_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_ieee1609dot2_encryptionKey_01,
+    { &hf_ieee1609dot2_tbscEncryptionKey,
       { "encryptionKey", "ieee1609dot2.encryptionKey_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "PublicEncryptionKey", HFILL }},
@@ -2517,16 +2741,16 @@ void proto_register_ieee1609dot2(void) {
       { "group-linkage-value", "ieee1609dot2.group_linkage_value_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "GroupLinkageValue", HFILL }},
-    { &hf_ieee1609dot2_appPermissions_01,
-      { "appPermissions", "ieee1609dot2.appPermissions",
+    { &hf_ieee1609dot2_subjectPermissions,
+      { "subjectPermissions", "ieee1609dot2.subjectPermissions",
         FT_UINT32, BASE_DEC, VALS(ieee1609dot2_SubjectPermissions_vals), 0,
-        "SubjectPermissions", HFILL }},
-    { &hf_ieee1609dot2_minChainDepth,
-      { "minChainDepth", "ieee1609dot2.minChainDepth",
+        NULL, HFILL }},
+    { &hf_ieee1609dot2_minChainLength,
+      { "minChainLength", "ieee1609dot2.minChainLength",
         FT_INT32, BASE_DEC, NULL, 0,
         "INTEGER", HFILL }},
-    { &hf_ieee1609dot2_chainDepthRange,
-      { "chainDepthRange", "ieee1609dot2.chainDepthRange",
+    { &hf_ieee1609dot2_chainLengthRange,
+      { "chainLengthRange", "ieee1609dot2.chainLengthRange",
         FT_INT32, BASE_DEC, NULL, 0,
         "INTEGER", HFILL }},
     { &hf_ieee1609dot2_eeType,
@@ -2569,6 +2793,7 @@ void proto_register_ieee1609dot2(void) {
 #line 1 "./asn1/ieee1609dot2/packet-ieee1609dot2-ettarr.c"
     &ett_ieee1609dot2_SequenceOfUint8,
     &ett_ieee1609dot2_SequenceOfUint16,
+    &ett_ieee1609dot2_SequenceOfHashedId3,
     &ett_ieee1609dot2_ValidityPeriod,
     &ett_ieee1609dot2_Duration,
     &ett_ieee1609dot2_GeographicRegion,
@@ -2586,8 +2811,11 @@ void proto_register_ieee1609dot2(void) {
     &ett_ieee1609dot2_ThreeDLocation,
     &ett_ieee1609dot2_Signature,
     &ett_ieee1609dot2_EcdsaP256Signature,
+    &ett_ieee1609dot2_EcdsaP384Signature,
     &ett_ieee1609dot2_EccP256CurvePoint,
-    &ett_ieee1609dot2_T_uncompressed,
+    &ett_ieee1609dot2_T_uncompressedP256,
+    &ett_ieee1609dot2_EccP384CurvePoint,
+    &ett_ieee1609dot2_T_uncompressedP384,
     &ett_ieee1609dot2_EciesP256EncryptedKey,
     &ett_ieee1609dot2_EncryptionKey,
     &ett_ieee1609dot2_PublicEncryptionKey,
@@ -2600,6 +2828,7 @@ void proto_register_ieee1609dot2(void) {
     &ett_ieee1609dot2_PsidSspRange,
     &ett_ieee1609dot2_SequenceOfPsidSspRange,
     &ett_ieee1609dot2_SspRange,
+    &ett_ieee1609dot2_BitmapSspRange,
     &ett_ieee1609dot2_SequenceOfOctetString,
     &ett_ieee1609dot2_GroupLinkageValue,
     &ett_ieee1609dot2_SignedDataPayload,
