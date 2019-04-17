@@ -495,9 +495,13 @@ cf_read(capture_file *cf, gboolean reloading)
   gchar               *name_ptr;
   progdlg_t           *volatile progbar = NULL;
   GTimer              *prog_timer = g_timer_new();
+  gint64               size;
   GTimeVal             start_time;
   epan_dissect_t       edt;
+  wtap_rec             rec;
+  Buffer               buf;
   dfilter_t           *dfcode;
+  column_info         *cinfo;
   volatile gboolean    create_proto_tree;
   guint                tap_flags;
   gboolean             compiled;
@@ -563,31 +567,26 @@ cf_read(capture_file *cf, gboolean reloading)
 
   epan_dissect_init(&edt, cf->epan, create_proto_tree, FALSE);
 
+  /* If any tap listeners require the columns, construct them. */
+  cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cf->cinfo : NULL;
+
+  /* Find the size of the file. */
+  size = wtap_file_size(cf->provider.wth, NULL);
+
+  g_timer_start(prog_timer);
+
+  wtap_rec_init(&rec);
+  ws_buffer_init(&buf, 1514);
+
   TRY {
     int     count             = 0;
 
-    gint64  size;
     gint64  file_pos;
     gint64  data_offset;
-
-    wtap_rec rec;
-    Buffer buf;
 
     float   progbar_val;
     gchar   status_str[100];
 
-    column_info *cinfo;
-
-    /* If any tap listeners require the columns, construct them. */
-    cinfo = (tap_flags & TL_REQUIRES_COLUMNS) ? &cf->cinfo : NULL;
-
-    /* Find the size of the file. */
-    size = wtap_file_size(cf->provider.wth, NULL);
-
-    g_timer_start(prog_timer);
-
-    wtap_rec_init(&rec);
-    ws_buffer_init(&buf, 1514);
     while ((wtap_read(cf->provider.wth, &rec, &buf, &err, &err_info,
             &data_offset))) {
       if (size >= 0) {
@@ -646,8 +645,6 @@ cf_read(capture_file *cf, gboolean reloading)
       }
       read_record(cf, &rec, &buf, dfcode, &edt, cinfo, data_offset);
     }
-    wtap_rec_cleanup(&rec);
-    ws_buffer_free(&buf);
   }
   CATCH(OutOfMemoryError) {
     simple_message_box(ESD_TYPE_ERROR, NULL,
@@ -663,6 +660,14 @@ cf_read(capture_file *cf, gboolean reloading)
   }
   ENDTRY;
 
+  /* We're done reading sequentially through the file. */
+  cf->state = FILE_READ_DONE;
+
+  /* Destroy the progress bar if it was created. */
+  if (progbar != NULL)
+    destroy_progress_dlg(progbar);
+  g_timer_destroy(prog_timer);
+
   /* Free the display name */
   g_free(name_ptr);
 
@@ -670,14 +675,8 @@ cf_read(capture_file *cf, gboolean reloading)
   dfilter_free(dfcode);
 
   epan_dissect_cleanup(&edt);
-
-  /* We're done reading the file; destroy the progress bar if it was created. */
-  if (progbar != NULL)
-    destroy_progress_dlg(progbar);
-  g_timer_destroy(prog_timer);
-
-  /* We're done reading sequentially through the file. */
-  cf->state = FILE_READ_DONE;
+  wtap_rec_cleanup(&rec);
+  ws_buffer_free(&buf);
 
   /* Close the sequential I/O side, to free up memory it requires. */
   wtap_sequential_close(cf->provider.wth);
