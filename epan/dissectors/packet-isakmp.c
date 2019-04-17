@@ -1341,44 +1341,85 @@ static const range_string notifmsg_v2_type[] = {
 };
 
 /* 3GPP private error and status types in Notyfy messages
- * 3GPP TS 24.302 V14.2.0 (2016-12)
+ * 3GPP TS 24.302 V16.0.0 (2019-03)
+ * 3GPP TS 24.502 V15.3.0 (2019-03)
  * Note currently all private data types wil be decoded as 3GPP if that's not good enough a preference must be used
  */
 static const range_string notifmsg_v2_3gpp_type[] = {
-  { 8192,8192,        "PDN_CONNECTION_REJECTION" },
-  { 8193,8193,        "MAX_CONNECTION_REACHED" },
-  { 8194,8999,        "Private Use - Errors" },
-  { 9000,9000,        "NON_3GPP_ACCESS_TO_EPC_NOT_ALLOWED" },
-  { 9001,9001,        "USER_UNKNOWN" },
+  /* PRIVATE ERROR TYPES */
+  { 8192,8192,        "PDN_CONNECTION_REJECTION" },                 /* TS 24.302 */
+  { 8193,8193,        "MAX_CONNECTION_REACHED" },                   /* TS 24.302 */
+  { 8194,8240,        "Private Use - Errors" },
+  { 8241,8241,        "SEMANTIC_ERROR_IN_THE_TFT_OPERATION" },      /* TS 24.302 */
+  { 8242,8242,        "SYNTACTICAL_ERROR_IN_THE_TFT_OPERATION" },   /* TS 24.302 */
+  { 8243,8243,        "Private Use - Errors" },
+  { 8244,8244,        "SEMANTIC_ERRORS_IN_PACKET_FILTERS" },        /* TS 24.302 */
+  { 8245,8245,        "SYNTACTICAL_ERRORS_IN_PACKET_FILTERS" },     /* TS 24.302 */
+  { 8246,8999,        "Private Use - Errors" },
+  { 9000,9000,        "NON_3GPP_ACCESS_TO_EPC_NOT_ALLOWED" },       /* TS 24.302 */
+  { 9001,9001,        "USER_UNKNOWN" },                             /* TS 24.302 */
   { 9002,9002,        "NO_APN_SUBSCRIPTION" },
-  { 9003,9003,        "AUTHORIZATION_REJECTED" },
+  { 9003,9003,        "AUTHORIZATION_REJECTED" },                   /* TS 24.302 */
   { 9004,9005,        "Private Use - Errors" },
-  { 9006,9006,        "ILLEGAL_ME" },
+  { 9006,9006,        "ILLEGAL_ME" },                               /* TS 24.302 */
   { 9007,10499,       "Private Use - Errors" },
-  { 10500,10500,      "NETWORK_FAILURE" },
+  { 10500,10500,      "NETWORK_FAILURE" },                          /* TS 24.302 */
   { 10501,11000,      "Private Use - Errors" },
-  { 11001,11001,      "RAT_TYPE_NOT_ALLOWED" },
+  { 11001,11001,      "RAT_TYPE_NOT_ALLOWED" },                     /* TS 24.302 */
   { 11002,11004,      "Private Use - Errors" },
-  { 11005,11005,      "IMEI_NOT_ACCEPTED" },
-  { 9001,9001,        "Private Use - Errors" },
-  { 11011,11011,      "PLMN_NOT_ALLOWED" },
-  { 11012,16383,      "Private Use - Errors" },
-  /* PRIVATE STATUS TYPES*/
+  { 11005,11005,      "IMEI_NOT_ACCEPTED" },                        /* TS 24.302 */
+  { 11006,11010,      "Private Use - Errors" },
+  { 11011,11011,      "PLMN_NOT_ALLOWED" },                         /* TS 24.302 */
+  { 11012,11054,      "Private Use - Errors" },
+  { 11055,11055,      "UNAUTHENTICATED_EMERGENCY_NOT_SUPPORTED" },  /* TS 24.302 */
+  { 11056,15499,      "Private Use - Errors" },
+  { 15500,15500,      "CONGESTION" },                               /* TS 24.502 */
+  { 15501,16383,      "Private Use - Errors" },
+  /* PRIVATE STATUS TYPES */
   { 40960,40960,      "Private Use - STATUS TYPES" },
-  { 40961,40961,      "REACTIVATION_REQUESTED_CAUSE" },
+  { 40961,40961,      "REACTIVATION_REQUESTED_CAUSE" },             /* TS 24.302 */
   { 40962,41040,      "Private Use - STATUS TYPES" },
-  { 41041,41041,      "BACKOFF_TIMER" },
-  { 41042,41100,      "Private Use - STATUS TYPES" },
-  { 41101,41101,      "DEVICE_IDENTITY" },
+  { 41041,41041,      "BACKOFF_TIMER" },                            /* TS 24.302 */
+  { 41042,41049,      "Private Use - STATUS TYPES" },
+  { 41050,41050,      "PDN_TYPE_IPv4_ONLY_ALLOWED" },               /* TS 24.302 */
+  { 41051,41051,      "PDN_TYPE_IPv6_ONLY_ALLOWED" },               /* TS 24.302 */
+  { 41052,41100,      "Private Use - STATUS TYPES" },
+  { 41101,41101,      "DEVICE_IDENTITY" },                          /* TS 24.302 */
   { 41102,41111,      "Private Use - STATUS TYPES" },
-  { 41112,41112,      "EMERGENCY_SUPPORT" },
+  { 41112,41112,      "EMERGENCY_SUPPORT" },                        /* TS 24.302 */
   { 41113,41133,      "Private Use - STATUS TYPES" },
-  { 41134,41134,      "EMERGENCY_CALL_NUMBERS" },
+  { 41134,41134,      "EMERGENCY_CALL_NUMBERS" },                   /* TS 24.302 */
   { 41135,41287,      "Private Use - STATUS TYPES" },
-  { 41288,41288,      "NBIFOM_GENERIC_CONTAINER" },
+  { 41288,41288,      "NBIFOM_GENERIC_CONTAINER" },                 /* TS 24.302 */
   { 41289,41303,      "Private Use - STATUS TYPES" },
-  { 41304,41304,      "PTI" },
-  { 41305,65535,      "Private Use - STATUS TYPES" },
+  { 41304,41304,      "P-CSCF_RESELECTION_SUPPORT" },               /* TS 24.302 */
+  { 41305,41500,      "Private Use - STATUS TYPES" },
+  { 41501,41501,      "PTI" },                                      /* TS 24.302 */
+  { 41502,42010,      "Private Use - STATUS TYPES" },
+  { 42011,42011,      "P-IKEV2_MULTIPLE_BEARER_PDN_CONNECTIVITY" }, /* TS 24.302 */
+  { 42012,42013,      "Private Use - STATUS TYPES" },
+  { 42014,42014,      "P-EPS_QOS" },                                /* TS 24.302 */
+  { 42015,42015,      "P-EXTENDED_EPS_QOS" },                       /* TS 24.302 */
+  { 42016,42016,      "Private Use - STATUS TYPES" },
+  { 42017,42017,      "P-TFT" },                                    /* TS 24.302 */
+  { 42018,42019,      "Private Use - STATUS TYPES" },
+  { 42020,42020,      "P-MODIFIED_BEARER" },                        /* TS 24.302 */
+  { 42021,42093,      "Private Use - STATUS TYPES" },
+  { 42094,42094,      "P-APN_AMBR" },                               /* TS 24.302 */
+  { 42095,42095,      "P-EXTENDED_APN_AMBR" },                      /* TS 24.302 */
+  { 42096,51014,      "Private Use - STATUS TYPES" },
+  { 51015,51015,      "P-N1_MODE_CAPABILITY" },                     /* TS 24.302 */
+  { 51016,51114,      "Private Use - STATUS TYPES" },
+  { 51115,51115,      "P-N1_MODE_INFORMATION" },                    /* TS 24.302 */
+  { 51116,55500,      "Private Use - STATUS TYPES" },
+  { 55501,55501,      "5G_QOS_INFO" },                              /* TS 24.502 */
+  { 55502,55502,      "NAS_IP4_ADDRESS" },                          /* TS 24.502 */
+  { 55503,55503,      "NAS_IP6_ADDRESS" },                          /* TS 24.502 */
+  { 55504,55504,      "UP_IP4_ADDRESS" },                           /* TS 24.502 */
+  { 55505,55505,      "UP_IP6_ADDRESS" },                           /* TS 24.502 */
+  { 55506,55506,      "NAS_TCP_PORT" },                             /* TS 24.502 */
+  { 55507,55507,      "N3GPP_BACKOFF_TIMER" },                      /* TS 24.502 */
+  { 55508,65535,      "Private Use - STATUS TYPES" },
 
   { 0,0,        NULL },
 };
