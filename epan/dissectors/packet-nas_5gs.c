@@ -2924,8 +2924,8 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 {
 
     proto_tree *sub_tree, *sub_tree2, *sub_tree3;
-    proto_item *item;
-    int i = 1, j = 1, k = 1;
+    proto_item *item, *item2;
+    int i = 1, j, k = 1;
     guint32 qos_rule_id, pf_len, pf_type, pfc_len;
     guint32 length, curr_offset, start_offset;
     guint8 num_pkt_flt, rop;
@@ -2980,6 +2980,7 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
         }
 
         /* Packet filter list */
+        j = 1;
         while (num_pkt_flt > 0) {
             sub_tree2 = proto_tree_add_subtree_format(sub_tree, tvb, curr_offset, -1, ett_nas_5gs_sm_qos_rules, &item, "Packet filter %u", j);
             start_offset = curr_offset;
@@ -3003,7 +3004,7 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                 k = 1;
                 /* Packet filter contents */
                 while (pf_len > 0) {
-                    sub_tree3 = proto_tree_add_subtree_format(sub_tree2, tvb, curr_offset, -1, ett_nas_5gs_sm_pkt_filter_components, &item, "Packet filter component %u", k);
+                    sub_tree3 = proto_tree_add_subtree_format(sub_tree2, tvb, curr_offset, -1, ett_nas_5gs_sm_pkt_filter_components, &item2, "Packet filter component %u", k);
                     /* Each packet filter component shall be encoded as a sequence of a one octet packet filter component type identifier
                      * and a fixed length packet filter component value field.
                      * The packet filter component type identifier shall be transmitted first.
@@ -3055,7 +3056,7 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                     }
                     pf_len -= pfc_len;
                     k++;
-                    proto_item_set_len(item, pfc_len);
+                    proto_item_set_len(item2, pfc_len + 1);
                 }
             }
             num_pkt_flt--;
