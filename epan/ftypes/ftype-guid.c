@@ -32,11 +32,12 @@ get_guid(const char *s, e_guid_t *guid)
 {
     size_t i, n;
     const char *p;
-    char digits[9];
+    char digits[3];
     static const char fmt[] = "XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX";
+    const size_t fmtchars = sizeof(fmt) - 1;
 
-    n = strlen(s);
-    if (n != strlen(fmt))
+    n = strnlen(s, fmtchars);
+    if (n != fmtchars)
         return FALSE;
     for (i=0; i<n; i++) {
         if (fmt[i] == 'X') {
@@ -49,14 +50,11 @@ get_guid(const char *s, e_guid_t *guid)
     }
 
     p = s;
-    g_strlcpy(digits, p, 9);
-    guid->data1 = (guint32)strtoul(digits, NULL, 16);
+    guid->data1 = (guint32)strtoul(p, NULL, 16);
     p += 9;
-    g_strlcpy(digits, p, 5);
-    guid->data2 = (guint16)strtoul(digits, NULL, 16);
+    guid->data2 = (guint16)strtoul(p, NULL, 16);
     p += 5;
-    g_strlcpy(digits, p, 5);
-    guid->data3 = (guint16)strtoul(digits, NULL, 16);
+    guid->data3 = (guint16)strtoul(p, NULL, 16);
     p += 5;
     for (i=0; i < sizeof(guid->data4); i++) {
         if (*p == '-') p++;
