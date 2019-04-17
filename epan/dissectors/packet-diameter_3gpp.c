@@ -449,6 +449,13 @@ static gint diameter_3gpp_cms_ett = -1;
 
 static int hf_diameter_3gpp_secondary_rat_type = -1;
 
+static int hf_diameter_3gpp_gcip = -1;
+static int hf_diameter_3gpp_amec = -1;
+static int hf_diameter_3gpp_coame = -1;
+static int hf_diameter_3gpp_acpc = -1;
+static int hf_diameter_3gpp_rir_flags = -1;
+static int hf_diameter_3gpp_rir_spare_b31_b4 = -1;
+
 static gint diameter_3gpp_qos_subscribed_ett = -1;
 static gint diameter_3gpp_ulr_flags_ett = -1;
 static gint diameter_3gpp_ula_flags_ett = -1;
@@ -484,6 +491,7 @@ static gint diameter_3gpp_core_network_restrictions_ett = -1;
 static gint diameter_3gpp_plr_flags_ett = -1;
 static gint diameter_3gpp_pla_flags_ett = -1;
 static gint diameter_3gpp_deferred_location_type_ett = -1;
+static gint diameter_3gpp_rir_flags_ett = -1;
 
 static int hf_diameter_3gpp_feature_list1_rx_flags_bit0 = -1;
 static int hf_diameter_3gpp_feature_list1_rx_flags_bit1 = -1;
@@ -2442,6 +2450,23 @@ dissect_diameter_3gpp_ran_nas_release_cause(tvbuff_t *tvb, packet_info *pinfo _U
     return offset;
 }
 
+/* AVP Code: 3167 RIR-Flags */
+static int
+dissect_diameter_3gpp_rir_flags(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, void* data _U_)
+{
+    static const int* flags[] = {
+        &hf_diameter_3gpp_rir_spare_b31_b4,
+        &hf_diameter_3gpp_acpc,
+        &hf_diameter_3gpp_coame,
+        &hf_diameter_3gpp_amec,
+        &hf_diameter_3gpp_gcip,
+        NULL
+    };
+
+    proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_rir_flags, diameter_3gpp_rir_flags_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    return 4;
+}
+
 /* AVP Code: 3301 SM-RP-UI */
 
 static int
@@ -2788,6 +2813,9 @@ proto_reg_handoff_diameter_3gpp(void)
 
     /* AVP Code: 2819 RAN-NAS-Release-Cause */
     dissector_add_uint("diameter.3gpp", 2819, create_dissector_handle(dissect_diameter_3gpp_ran_nas_release_cause, proto_diameter_3gpp));
+
+    /* AVP Code: 3167 RIR-Flags */
+    dissector_add_uint("diameter.3gpp", 3167, create_dissector_handle(dissect_diameter_3gpp_rir_flags, proto_diameter_3gpp));
 
     /* AVP Code: 3301 SM-RP-UI */
     dissector_add_uint("diameter.3gpp", 3301, create_dissector_handle(dissect_diameter_3gpp_sm_rp_ui, proto_diameter_3gpp));
@@ -5139,6 +5167,36 @@ proto_register_diameter_3gpp(void)
           FT_UINT32, BASE_HEX, NULL, 0xffffff00,
           NULL, HFILL }
         },
+        { &hf_diameter_3gpp_gcip,
+        { "Group-Configuration-In-Progress", "diameter.3gpp.gcip",
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000001,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_amec,
+        { "All-Monitoring-Events-Cancelled", "diameter.3gpp.amec",
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000002,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_coame,
+        { "Change-Of-Authorized-Monitoring-Events", "diameter.3gpp.coame",
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000004,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_acpc,
+        { "All-Communication-Pattern-Cancelled", "diameter.3gpp.acpc",
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000008,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_rir_flags,
+        { "RIR Flags", "diameter.3gpp.rir_flags",
+          FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_rir_spare_b31_b4,
+        { "Spare", "diameter.3gpp.rir_flags.spare",
+          FT_UINT32, BASE_HEX, NULL, 0xffffffF0,
+          NULL, HFILL }
+        },
 };
 
 
@@ -5183,7 +5241,8 @@ proto_register_diameter_3gpp(void)
         &diameter_3gpp_core_network_restrictions_ett,
         &diameter_3gpp_plr_flags_ett,
         &diameter_3gpp_pla_flags_ett,
-        &diameter_3gpp_deferred_location_type_ett
+        &diameter_3gpp_deferred_location_type_ett,
+        &diameter_3gpp_rir_flags_ett
     };
 
     expert_module_t *expert_diameter_3gpp;

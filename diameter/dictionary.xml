@@ -8009,7 +8009,27 @@
 		<avp name="NIR-Flags" code="3174" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-
+		<avp name="Reporting-Time-Stamp" code="3175" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Time"/>
+		</avp>
+		<avp name="NIA-Flags" code="3176" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Group-User-Identifier" code="3177" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="User-Name"/>
+				<gavp name="MSISDN"/>
+				<gavp name="External-Identifier"/>
+			</grouped>
+		</avp>
+		<avp name="MTC-Provider-Info" code="3178" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="MTC-Provider-ID"/>
+			</grouped>
+		</avp>
+		<avp name="MTC-Provider-ID" code="3176" mandatory="mustnot" may-encrypt="no" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="UTF8String"/>
+		</avp>
 		<!--
 		Note: The AVP codes from 3163 to 3199 are reserved for TS 29.336
 		-->
