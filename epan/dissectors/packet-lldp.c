@@ -388,7 +388,7 @@ static int hf_cisco_aci_pod = -1;
 static int hf_cisco_aci_fabricname = -1;
 static int hf_cisco_aci_apiclist = -1;
 static int hf_cisco_aci_apicid = -1;
-static int hf_cisco_aci_apicip = -1;
+static int hf_cisco_aci_apicipv4 = -1;
 static int hf_cisco_aci_apicuuid = -1;
 static int hf_cisco_aci_nodeip = -1;
 static int hf_cisco_aci_unknownd1 = -1;
@@ -397,7 +397,7 @@ static int hf_cisco_aci_fabricvlan = -1;
 static int hf_cisco_aci_serialno = -1;
 static int hf_cisco_aci_model = -1;
 static int hf_cisco_aci_nodename = -1;
-static int hf_cisco_aci_unknownd8 = -1;
+static int hf_cisco_aci_portmode = -1;
 static int hf_cisco_aci_unknownd9 = -1;
 static int hf_cisco_aci_apicmode = -1;
 static int hf_hytec_tlv_subtype = -1;
@@ -749,17 +749,17 @@ static const value_string cisco_subtypes[] = {
 	{ 0xca, "ACI Node Role" },
 	{ 0xcb, "ACI Node ID" },
 	{ 0xcc, "ACI Unknown-CC" },
-	{ 0xcd, "ACI Pod" },
-	{ 0xce, "ACI Fabricname" },
-	{ 0xcf, "ACI APIC List" },
+	{ 0xcd, "ACI Pod ID" },
+	{ 0xce, "ACI Fabric Name" },
+	{ 0xcf, "ACI Appliance Vector" },
 	{ 0xd0, "ACI Node IP" },
 	{ 0xd1, "ACI Unknown-D1" },
-	{ 0xd2, "ACI Version" },
-	{ 0xd3, "ACI Fabric VLAN" },
-	{ 0xd4, "ACI SerialNo" },
+	{ 0xd2, "ACI Firmware Version" },
+	{ 0xd3, "ACI Infra VLAN" },
+	{ 0xd4, "ACI Serial Number" },
 	{ 0xd6, "ACI Model" },
 	{ 0xd7, "ACI Node Name" },
-	{ 0xd8, "ACI Unknown-D8" },
+	{ 0xd8, "ACI Port Mode" },
 	{ 0xd9, "ACI Unknown D9" },
 	{ 0xda, "ACI APIC-Mode" },
 	{ 0xdb, "ACI Unknown-DB" },
@@ -3615,7 +3615,7 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			proto_item_append_text(parent_item, ": ID %s", value_str);
 			offset++;
 			length--;
-			proto_tree_add_item(tree, hf_cisco_aci_apicip, tvb, offset, 4, ENC_NA);
+			proto_tree_add_item(tree, hf_cisco_aci_apicipv4, tvb, offset, 4, ENC_NA);
 			offset += 4;
 			length -= 4;
 			proto_tree_add_item(tree, hf_cisco_aci_apicuuid, tvb, offset, 36, ENC_ASCII|ENC_NA);
@@ -3680,7 +3680,7 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		length -= length;
 		break;
 	case 0xd8:
-		tf = proto_tree_add_item(tree, hf_cisco_aci_unknownd8, tvb, offset, length, ENC_NA);
+		tf = proto_tree_add_item(tree, hf_cisco_aci_portmode, tvb, offset, length, ENC_NA);
 		fi = PITEM_FINFO(tf);
 		value_str = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
 		proto_item_append_text(parent_item, ": %s", value_str);
@@ -5772,19 +5772,18 @@ proto_register_lldp(void)
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_cisco_aci_apiclist,
-			{ "APIC List", "lldp.cisco.apiclist", FT_BYTES, BASE_NONE,
+			{ "Appliance Vector", "lldp.cisco.apiclist", FT_BYTES, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_cisco_aci_apicid,
 			{ "APIC ID", "lldp.cisco.apicid", FT_UINT8, BASE_DEC,
 			NULL, 0x0, NULL, HFILL }
 		},
-		{ &hf_cisco_aci_apicip,
-			{ "APIC IP", "lldp.cisco.apicip", FT_IPv4, BASE_NONE,
+		{ &hf_cisco_aci_apicipv4,
+			{ "APIC IPv4", "lldp.cisco.apicipv4", FT_IPv4, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_cisco_aci_apicuuid,
-			/* FIXME: Why can't I use FT_GUID here (malformed because len != 16)??? */
 			{ "APIC UUID", "lldp.cisco.apicuuid", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
@@ -5816,8 +5815,8 @@ proto_register_lldp(void)
 			{ "Node Name", "lldp.cisco.nodename", FT_STRING, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
-		{ &hf_cisco_aci_unknownd8,
-			{ "Unknown 0xD8", "lldp.cisco.unknownd8", FT_BYTES, BASE_NONE,
+		{ &hf_cisco_aci_portmode,
+			{ "Port Mode", "lldp.cisco.portmode", FT_BYTES, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_cisco_aci_unknownd9,
