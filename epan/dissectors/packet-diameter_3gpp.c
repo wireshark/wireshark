@@ -455,6 +455,16 @@ static int hf_diameter_3gpp_coame = -1;
 static int hf_diameter_3gpp_acpc = -1;
 static int hf_diameter_3gpp_rir_flags = -1;
 static int hf_diameter_3gpp_rir_spare_b31_b4 = -1;
+static int hf_diameter_3gpp_feature_list_s6t_flags = -1;
+static int hf_diameter_3gpp_feature_list_s6t_flags_bit0 = -1;
+static int hf_diameter_3gpp_feature_list_s6t_flags_bit1 = -1;
+static int hf_diameter_3gpp_feature_list_s6t_flags_bit2 = -1;
+static int hf_diameter_3gpp_feature_list_s6t_flags_bit3 = -1;
+static int hf_diameter_3gpp_feature_list_s6t_flags_bit4 = -1;
+static int hf_diameter_3gpp_feature_list_s6t_flags_bit5 = -1;
+static int hf_diameter_3gpp_feature_list_s6t_flags_bit6 = -1;
+static int hf_diameter_3gpp_feature_list_s6t_flags_bit7 = -1;
+static int hf_diameter_3gpp_feature_list_s6t_spare_b31_b8 = -1;
 
 static gint diameter_3gpp_qos_subscribed_ett = -1;
 static gint diameter_3gpp_ulr_flags_ett = -1;
@@ -1079,6 +1089,26 @@ dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_feature_list_sd_flags,
             diameter_3gpp_feature_list_ett, diameter_3gpp_sd_feature_list_fields, ENC_BIG_ENDIAN, BMT_NO_APPEND);
         break;
+    case DIAM_APPID_3GPP_S6T:
+    {
+        const int* flags[] = {
+            &hf_diameter_3gpp_feature_list_s6t_spare_b31_b8,
+            &hf_diameter_3gpp_feature_list_s6t_flags_bit7,
+            &hf_diameter_3gpp_feature_list_s6t_flags_bit6,
+            &hf_diameter_3gpp_feature_list_s6t_flags_bit5,
+            &hf_diameter_3gpp_feature_list_s6t_flags_bit4,
+            &hf_diameter_3gpp_feature_list_s6t_flags_bit3,
+            &hf_diameter_3gpp_feature_list_s6t_flags_bit2,
+            &hf_diameter_3gpp_feature_list_s6t_flags_bit1,
+            &hf_diameter_3gpp_feature_list_s6t_flags_bit0,
+            NULL
+        };
+
+        proto_tree_add_bitmask_with_flags(tree, tvb, 0, hf_diameter_3gpp_feature_list_s6t_flags,
+            diameter_3gpp_feature_list_ett, flags, ENC_BIG_ENDIAN, BMT_NO_APPEND);
+    }
+        break;
+
     default:
         /* In case we end up here */
         proto_item_set_visible(diam_sub_dis_inf->item);
@@ -2455,14 +2485,14 @@ dissect_diameter_3gpp_deferred_location_type(tvbuff_t *tvb, packet_info *pinfo _
 {
     static const int *flags[] = {
         &hf_diameter_3gpp_deferred_location_type_spare_bits,
-        &hf_diameter_3gpp_ue_available_bit0,
-        &hf_diameter_3gpp_entering_into_area_bit1,
-        &hf_diameter_3gpp_leaving_from_area_bit2,
-        &hf_diameter_3gpp_being_inside_area_bit3,
-        &hf_diameter_3gpp_periodic_ldr_bit4,
-        &hf_diameter_3gpp_motion_event_bit5,
-        &hf_diameter_3gpp_ldr_activated_bit6,
         &hf_diameter_3gpp_maximum_interval_exporation_bit7,
+        &hf_diameter_3gpp_ldr_activated_bit6,
+        &hf_diameter_3gpp_motion_event_bit5,
+        &hf_diameter_3gpp_periodic_ldr_bit4,
+        &hf_diameter_3gpp_being_inside_area_bit3,
+        &hf_diameter_3gpp_leaving_from_area_bit2,
+        &hf_diameter_3gpp_entering_into_area_bit1,
+        &hf_diameter_3gpp_ue_available_bit0,
         NULL
     };
 
@@ -5386,6 +5416,57 @@ proto_register_diameter_3gpp(void)
           FT_UINT32, BASE_HEX, NULL, 0xffffffF0,
           NULL, HFILL }
         },
+        { &hf_diameter_3gpp_feature_list_s6t_flags,
+        { "S6t Feature-List Flags", "diameter.3gpp.s6t.feature_list_flags",
+            FT_UINT32, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list_s6t_flags_bit0,
+        { "MONTE", "diameter.3gpp.s6t.b0",
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000001,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list_s6t_flags_bit1,
+        { "AESE-Communication-Pattern", "diameter.3gpp.s6t.b1",
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000002,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list_s6t_flags_bit2,
+        { "NIDD-Authorization", "diameter.3gpp.s6t.b2",
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000004,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list_s6t_flags_bit3,
+        { "Enhanced-Coverage-Restriction-Control", "diameter.3gpp.s6t.b3",
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000008,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list_s6t_flags_bit4,
+        { "NIDD Authorization Update", "diameter.3gpp.s6t.b4",
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000010,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list_s6t_flags_bit5,
+        { "Report-Eff-MONTE", "diameter.3gpp.s6t.b5",
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000020,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list_s6t_flags_bit6,
+        { "Event Cancellation Report", "diameter.3gpp.s6t.b6",
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000040,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list_s6t_flags_bit7,
+        { "Config-Eff-CP", "diameter.3gpp.s6t.b7",
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000080,
+          NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_feature_list_s6t_spare_b31_b8,
+        { "Spare", "diameter.3gpp.s6t.spare",
+          FT_UINT32, BASE_HEX, NULL, 0xffffff00,
+          NULL, HFILL }
+        },
+
 };
 
 
