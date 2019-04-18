@@ -1347,47 +1347,49 @@ static const value_string nas_eps_emm_cs_lcs_vals[] = {
     { 3,    "reserved"},
     { 0, NULL }
 };
+
 static guint16
-de_emm_eps_net_feature_sup(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
+de_emm_eps_net_feature_sup(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo _U_,
                            guint32 offset, guint len _U_,
-                           gchar *add_string _U_, int string_len _U_)
+                           gchar* add_string _U_, int string_len _U_)
 {
-    guint32 curr_offset, bit_offset;
+    guint32 curr_offset;
+
+    static const int* oct3_flags[] = {
+        &hf_nas_eps_emm_cp_ciot,
+        &hf_nas_eps_emm_er_wo_pdn,
+        &hf_nas_eps_emm_esr_ps,
+        &hf_nas_eps_emm_cs_lcs,
+        &hf_nas_eps_emm_epc_lcs,
+        &hf_nas_eps_emm_emc_bs,
+        &hf_nas_eps_emm_ims_vops,
+        NULL
+    };
+
+    static const int* oct4_flags[] = {
+        &hf_nas_eps_emm_15_bearers,
+        &hf_nas_eps_emm_iwkn26,
+        &hf_nas_eps_emm_restrict_dcnr,
+        &hf_nas_eps_emm_restrict_ec,
+        &hf_nas_eps_emm_epco,
+        &hf_nas_eps_emm_hc_cp_ciot,
+        &hf_nas_eps_emm_s1_u_data,
+        &hf_nas_eps_emm_up_ciot,
+        NULL
+    };
 
     curr_offset = offset;
-    bit_offset = curr_offset << 3;
+
     /* CP CIoT  ERw/oPDN    ESR PS  CS-LCS  EPC-LCS EMC BS  IMS VoPS */
-    proto_tree_add_bits_item(tree, hf_nas_eps_emm_cp_ciot, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-    bit_offset += 1;
-    proto_tree_add_bits_item(tree, hf_nas_eps_emm_er_wo_pdn, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-    bit_offset += 1;
-    proto_tree_add_bits_item(tree, hf_nas_eps_emm_esr_ps, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-    bit_offset += 1;
-    proto_tree_add_bits_item(tree, hf_nas_eps_emm_cs_lcs, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
-    bit_offset += 2;
-    proto_tree_add_bits_item(tree, hf_nas_eps_emm_epc_lcs, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-    bit_offset += 1;
-    proto_tree_add_bits_item(tree, hf_nas_eps_emm_emc_bs, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-    bit_offset += 1;
-    proto_tree_add_bits_item(tree, hf_nas_eps_emm_ims_vops, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-    bit_offset += 1;
-    if (len >= 2) {
-        proto_tree_add_bits_item(tree, hf_nas_eps_emm_15_bearers, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-        bit_offset += 1;
-        proto_tree_add_bits_item(tree, hf_nas_eps_emm_iwkn26, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-        bit_offset += 1;
-        proto_tree_add_bits_item(tree, hf_nas_eps_emm_restrict_dcnr, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-        bit_offset += 1;
-        proto_tree_add_bits_item(tree, hf_nas_eps_emm_restrict_ec, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-        bit_offset += 1;
-        proto_tree_add_bits_item(tree, hf_nas_eps_emm_epco, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-        bit_offset += 1;
-        proto_tree_add_bits_item(tree, hf_nas_eps_emm_hc_cp_ciot, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-        bit_offset += 1;
-        proto_tree_add_bits_item(tree, hf_nas_eps_emm_s1_u_data, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-        bit_offset += 1;
-        proto_tree_add_bits_item(tree, hf_nas_eps_emm_up_ciot, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
-    }
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct3_flags, ENC_NA);
+    curr_offset++;
+
+    /* Following octets are optional */
+    if ((curr_offset - offset) >= len)
+        return (len);
+
+    proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct4_flags, ENC_NA);
+    curr_offset++;
 
     return len;
 }
@@ -6742,77 +6744,77 @@ proto_register_nas_eps(void)
     },
     { &hf_nas_eps_emm_cp_ciot,
         { "Control plane CIoT EPS optimization","nas_eps.emm.cp_ciot",
-        FT_BOOLEAN ,BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_er_wo_pdn,
         { "EMM-REGISTERED w/o PDN connectivity","nas_eps.emm.er_wo_pdn",
-        FT_BOOLEAN ,BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_esr_ps,
         { "Support of EXTENDED SERVICE REQUEST for packet services","nas_eps.emm.esr_ps",
-        FT_BOOLEAN ,BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_cs_lcs,
         { "CS-LCS","nas_eps.emm.cs_lcs",
-        FT_UINT8, BASE_DEC, VALS(nas_eps_emm_cs_lcs_vals), 0x0,
+        FT_UINT8, BASE_DEC, VALS(nas_eps_emm_cs_lcs_vals), 0x18,
         "Location services indicator in CS", HFILL }
     },
     { &hf_nas_eps_emm_epc_lcs,
         { "Location services via EPC","nas_eps.emm.epc_lcs",
-        FT_BOOLEAN ,BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_emc_bs,
         { "Emergency bearer services in S1 mode","nas_eps.emm.emc_bs",
-        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_ims_vops,
         { "IMS voice over PS session in S1 mode","nas_eps.emm.ims_vops",
-        FT_BOOLEAN, BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
-        NULL, HFILL }
-    },
-    { &hf_nas_eps_emm_restrict_ec,
-        { "Restriction on enhanced coverage","nas_eps.emm.restrict_ec",
-        FT_BOOLEAN ,BASE_NONE, TFS(&tfs_restricted_not_restricted), 0x0,
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_15_bearers,
         { "Signalling for a maximum number of 15 EPS bearer contexts","nas_eps.emm.15_bearers",
-        FT_BOOLEAN ,BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_iwkn26,
         { "Interworking without N26 interface","nas_eps.emm.iwkn26",
-        FT_BOOLEAN ,BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_restrict_dcnr,
         { "Restriction on the use of dual connectivity with NR","nas_eps.emm.restrict_dcnr",
-        FT_BOOLEAN ,BASE_NONE, TFS(&tfs_restricted_not_restricted), 0x0,
+        FT_BOOLEAN, 8, TFS(&tfs_restricted_not_restricted), 0x20,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_restrict_ec,
+        { "Restriction on enhanced coverage","nas_eps.emm.restrict_ec",
+        FT_BOOLEAN , 8, TFS(&tfs_restricted_not_restricted), 0x10,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_epco,
         { "Extended protocol configuration options","nas_eps.emm.epco",
-        FT_BOOLEAN ,BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_hc_cp_ciot,
         { "Header compression for control plane CIoT EPS optimization","nas_eps.emm.hc_cp_ciot",
-        FT_BOOLEAN ,BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_s1_u_data,
         { "S1-u data transfer","nas_eps.emm.s1_u_data",
-        FT_BOOLEAN ,BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_up_ciot,
         { "User plane CIoT EPS optimization","nas_eps.emm.up_ciot",
-        FT_BOOLEAN ,BASE_NONE, TFS(&tfs_supported_not_supported), 0x0,
+        FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
         NULL, HFILL }
     },
     { &hf_nas_eps_tsc,
