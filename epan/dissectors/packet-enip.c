@@ -247,10 +247,33 @@ static int hf_elink_icontrol_control_bits_auto_neg = -1;
 static int hf_elink_icontrol_control_bits_forced_duplex = -1;
 static int hf_elink_icontrol_control_bits_reserved = -1;
 static int hf_elink_icontrol_forced_speed = -1;
+static int hf_elink_icapability_capability_bits = -1;
+static int hf_elink_icapability_capability_bits_manual = -1;
+static int hf_elink_icapability_capability_bits_auto_neg = -1;
+static int hf_elink_icapability_capability_bits_auto_mdix = -1;
+static int hf_elink_icapability_capability_bits_manual_speed = -1;
+static int hf_elink_icapability_capability_speed_duplex_array_count = -1;
+static int hf_elink_icapability_capability_speed = -1;
+static int hf_elink_icapability_capability_duplex = -1;
 static int hf_elink_interface_type = -1;
 static int hf_elink_interface_state = -1;
 static int hf_elink_admin_state = -1;
 static int hf_elink_interface_label = -1;
+static int hf_elink_hc_icount_in_octets = -1;
+static int hf_elink_hc_icount_in_ucast = -1;
+static int hf_elink_hc_icount_in_mcast = -1;
+static int hf_elink_hc_icount_in_broadcast = -1;
+static int hf_elink_hc_icount_out_octets = -1;
+static int hf_elink_hc_icount_out_ucast = -1;
+static int hf_elink_hc_icount_out_mcast = -1;
+static int hf_elink_hc_icount_out_broadcast = -1;
+
+static int hf_elink_hc_mcount_stats_align_errors = -1;
+static int hf_elink_hc_mcount_stats_fcs_errors = -1;
+static int hf_elink_hc_mcount_stats_internal_mac_transmit_errors = -1;
+static int hf_elink_hc_mcount_stats_frame_too_long = -1;
+static int hf_elink_hc_mcount_stats_internal_mac_receive_errors = -1;
+static int hf_elink_hc_mcount_stats_symbol_errors = -1;
 
 static int hf_qos_8021q_enable = -1;
 static int hf_qos_dscp_ptp_event = -1;
@@ -340,6 +363,7 @@ static gint ett_tcpip_config_cap = -1;
 static gint ett_tcpip_config_control = -1;
 static gint ett_elink_interface_flags = -1;
 static gint ett_elink_icontrol_bits = -1;
+static gint ett_elink_icapability_bits = -1;
 static gint ett_dlr_capability_flags = -1;
 static gint ett_dlr_lnknbrstatus_flags = -1;
 static gint ett_eip_security_capability_flags = -1;
@@ -1641,6 +1665,67 @@ dissect_elink_media_counters(packet_info *pinfo, proto_tree *tree, proto_item *i
 }
 
 static int
+dissect_elink_interface_capability(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+   int offset, int total_len _U_)
+{
+   static const int * bits[] = {
+      &hf_elink_icapability_capability_bits_manual,
+      &hf_elink_icapability_capability_bits_auto_neg,
+      &hf_elink_icapability_capability_bits_auto_mdix,
+      &hf_elink_icapability_capability_bits_manual_speed,
+      NULL
+   };
+
+   proto_tree_add_bitmask(tree, tvb, offset, hf_elink_icapability_capability_bits, ett_elink_icapability_bits, bits, ENC_LITTLE_ENDIAN);
+   offset += 4;
+
+   guint32 array_count;
+   proto_tree_add_item_ret_uint(tree, hf_elink_icapability_capability_speed_duplex_array_count, tvb, offset, 1, ENC_NA, &array_count);
+   offset++;
+
+   for (guint32 i = 0; i < array_count; i++)
+   {
+      proto_tree_add_item(tree, hf_elink_icapability_capability_speed, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      offset += 2;
+
+      proto_tree_add_item(tree, hf_elink_icapability_capability_duplex, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      offset++;
+   }
+
+   return 4 + 1 + array_count * 3;
+}
+
+static int
+dissect_elink_hc_interface_counters(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+   int offset, int total_len _U_)
+{
+   proto_tree_add_item(tree, hf_elink_hc_icount_in_octets, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_elink_hc_icount_in_ucast, tvb, offset + 8, 8, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_elink_hc_icount_in_mcast, tvb, offset + 16, 8, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_elink_hc_icount_in_broadcast, tvb, offset + 24, 8, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_elink_hc_icount_out_octets, tvb, offset + 32, 8, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_elink_hc_icount_out_ucast, tvb, offset + 40, 8, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_elink_hc_icount_out_mcast, tvb, offset + 48, 8, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_elink_hc_icount_out_broadcast, tvb, offset + 56, 8, ENC_LITTLE_ENDIAN);
+
+   return 8 * 8;
+}
+
+static int
+dissect_elink_hc_media_counters(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+   int offset, int total_len _U_)
+{
+   proto_tree_add_item(tree, hf_elink_hc_mcount_stats_align_errors, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_elink_hc_mcount_stats_fcs_errors, tvb, offset + 8, 8, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_elink_hc_mcount_stats_internal_mac_transmit_errors, tvb, offset + 16, 8, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_elink_hc_mcount_stats_frame_too_long, tvb, offset + 24, 8, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_elink_hc_mcount_stats_internal_mac_receive_errors, tvb, offset + 32, 8, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(tree, hf_elink_hc_mcount_stats_symbol_errors, tvb, offset + 40, 8, ENC_LITTLE_ENDIAN);
+
+   return 8 * 6;
+}
+
+static int
 dissect_elink_interface_control(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb,
                                 int offset, int total_len)
 
@@ -2072,7 +2157,7 @@ dissect_eip_cert_ca_cert(packet_info *pinfo, proto_tree *tree, proto_item *item,
 }
 
 
-attribute_info_t enip_attribute_vals[99] = {
+attribute_info_t enip_attribute_vals[] = {
 
     /* TCP/IP Object (class attributes) */
    {0xF5, TRUE, 1, 0, CLASS_ATTRIBUTE_1_NAME, cip_uint, &hf_attr_class_revision, NULL },
@@ -2118,6 +2203,9 @@ attribute_info_t enip_attribute_vals[99] = {
    {0xF6, FALSE,  8, 7, "Interface State",           cip_usint,            &hf_elink_interface_state, NULL},
    {0xF6, FALSE,  9, 8, "Admin State",               cip_usint,            &hf_elink_admin_state,     NULL},
    {0xF6, FALSE, 10, 9, "Interface Label",           cip_short_string,     &hf_elink_interface_label, NULL},
+   {0xF6, FALSE, 11, 10, "Interface Capability",     cip_dissector_func,   NULL, dissect_elink_interface_capability},
+   {0xF6, FALSE, 12, 11, "HC Interface Counters",    cip_dissector_func,   NULL, dissect_elink_hc_interface_counters},
+   {0xF6, FALSE, 13, 12, "HC Media Counters",        cip_dissector_func,   NULL, dissect_elink_hc_media_counters},
 
     /* QoS Object (class attributes) */
    {0x48, TRUE, 1, 0, CLASS_ATTRIBUTE_1_NAME, cip_uint, &hf_attr_class_revision, NULL },
@@ -3983,6 +4071,46 @@ proto_register_enip(void)
           FT_UINT16, BASE_DEC, NULL, 0,
           NULL, HFILL }},
 
+      { &hf_elink_icapability_capability_bits,
+        { "Capability Bits", "cip.elink.icapability.capability_bits",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          NULL, HFILL }},
+
+      { &hf_elink_icapability_capability_bits_manual,
+        { "Manual Setting Requires Reset", "cip.elink.icapability.capability_bits.manual",
+          FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), 0x0001,
+          NULL, HFILL }},
+
+      { &hf_elink_icapability_capability_bits_auto_neg,
+        { "Auto-negotiate", "cip.elink.icapability.capability_bits.auto_neg",
+          FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), 0x0002,
+          NULL, HFILL }},
+
+      { &hf_elink_icapability_capability_bits_auto_mdix,
+        { "Auto-MDIX", "cip.elink.icapability.capability_bits.auto_mdix",
+          FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), 0x0004,
+          NULL, HFILL } },
+
+      { &hf_elink_icapability_capability_bits_manual_speed,
+        { "Manual Speed/Duplex", "cip.elink.icapability.capability_bits.manual_speed",
+          FT_BOOLEAN, 32, TFS(&tfs_enabled_disabled), 0x0008,
+          NULL, HFILL } },
+
+      { &hf_elink_icapability_capability_speed_duplex_array_count,
+        { "Speed/Duplex Array Count", "cip.elink.icapability.array_count",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_elink_icapability_capability_speed,
+        { "Interface Speed", "cip.elink.icapability.speed",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_elink_icapability_capability_duplex,
+        { "Interface Duplex Mode", "cip.elink.icapability.duplex",
+          FT_UINT8, BASE_DEC, VALS(enip_elink_duplex_vals), 0,
+          NULL, HFILL } },
+
       { &hf_elink_interface_type,
         { "Interface Type", "cip.elink.interface_type",
           FT_UINT8, BASE_DEC, VALS(enip_elink_interface_type_vals), 0,
@@ -4003,6 +4131,75 @@ proto_register_enip(void)
           FT_STRING, BASE_NONE, NULL, 0,
           NULL, HFILL }},
 
+      { &hf_elink_hc_icount_in_octets,
+        { "In Octets", "cip.elink.hc_icount.in_octets",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_elink_hc_icount_in_ucast,
+        { "In Ucast Packets", "cip.elink.hc_icount.in_ucast",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_elink_hc_icount_in_mcast,
+        { "In Multicast Packets", "cip.elink.hc_icount.in_mcast",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_elink_hc_icount_in_broadcast,
+        { "In Broadcast", "cip.elink.hc_icount.in_broadcast",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_elink_hc_icount_out_octets,
+        { "Out Octets", "cip.elink.hc_icount.out_octets",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_elink_hc_icount_out_ucast,
+        { "Out Ucast Packets", "cip.elink.hc_icount.out_ucast",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_elink_hc_icount_out_mcast,
+        { "Out Multicast Packets", "cip.elink.hc_icount.out_mcast",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_elink_hc_icount_out_broadcast,
+        { "Out Broadcast Packets", "cip.elink.hc_icount.out_broadcast",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_elink_hc_mcount_stats_align_errors,
+        { "Stats Alignment Errors", "cip.elink.hc_mcount.stats_align_errors",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_elink_hc_mcount_stats_fcs_errors,
+        { "Stats FCS Errors", "cip.elink.hc_mcount.stats_fcs_errors",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_elink_hc_mcount_stats_internal_mac_transmit_errors,
+        { "Stats Internal MAC Transmit Errors", "cip.elink.hc_mcount.internal_mac_transmit_errors",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_elink_hc_mcount_stats_frame_too_long,
+        { "Stats Frame Too Long", "cip.elink.hc_mcount.stats_frame_too_long",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_elink_hc_mcount_stats_internal_mac_receive_errors,
+        { "Stats Internal MAC Receive Errors", "cip.elink.hc_mcount.internal_mac_receive_errors",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
+
+      { &hf_elink_hc_mcount_stats_symbol_errors,
+        { "Stats Symbol Errors", "cip.elink.hc_mcount.stats_symbol_errors",
+          FT_UINT64, BASE_DEC, NULL, 0,
+          NULL, HFILL } },
 
       { &hf_qos_8021q_enable,
         { "802.1Q Tag Enable", "cip.qos.8021q_enable",
@@ -4375,6 +4572,7 @@ proto_register_enip(void)
       &ett_tcpip_config_control,
       &ett_elink_interface_flags,
       &ett_elink_icontrol_bits,
+      &ett_elink_icapability_bits,
       &ett_dlr_capability_flags,
       &ett_dlr_lnknbrstatus_flags,
       &ett_eip_security_capability_flags,
