@@ -1,10 +1,10 @@
 -- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
--- ISO TS 24534-3:2015
+-- ISO TS 24534-3:2015 
 --
 -- This ASN.1 was generateds: 30.08.2016
 --
 -- This document contains only the data element needed for the encoding of an IVI message
--- as defined in ISO TS 19321(2015)
+-- as defined in ISO TS 19321(2015) 
 --
 -- Published version location:
 -- http://standards.iso.org/iso/24534/-3/
@@ -14,10 +14,11 @@
 -- Version 29.4.2015
 
 
-ElectronicRegistrationIdentificationVehicleDataModule {iso(1) standard(0) iso24534 (24534) vehicleData (1) version1 (1)}
+ElectronicRegistrationIdentificationVehicleDataModule {iso(1) standard(0) iso24534 (24534) vehicleData (1) version1 (1)} 
 
 
 DEFINITIONS AUTOMATIC TAGS ::= BEGIN
+IMPORTS;
 
 -- Electronic Registration Identification (ERI)- Vehicle Data
 

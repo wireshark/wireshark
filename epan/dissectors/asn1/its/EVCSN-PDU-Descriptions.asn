@@ -19,7 +19,7 @@ IMPORTS
     DigitalMap, -- PATCH
     ReferencePosition
 FROM ITS-Container {
- itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (102637) cc (0) version (2)
+ itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (102894) cdd (2) version (2)
 };
 
 -- Root Message PDU: EvcsnPdu

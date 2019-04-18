@@ -170,6 +170,7 @@ typedef enum _CauseCodeType_enum {
 /* --- Module DSRC --- --- ---                                                */
 
 #define mapData                        18
+#define rtcmCorrections                28
 #define signalPhaseAndTimingMessage    19
 #define signalRequestMessage           29
 #define signalStatusMessage            30
@@ -266,6 +267,7 @@ enum regext_type_enum {
     Reg_SignalStatusMessage,
     Reg_SignalStatusPackage,
     Reg_SPAT,
+    Reg_RTCMcorrections,
 };
 
 #endif /* __PACKET_ITS_H__ */

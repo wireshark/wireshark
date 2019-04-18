@@ -4,7 +4,7 @@
 -- This ASN.1 was generateds: 30.08.2016
 --
 -- This document contains only the data element needed for the encoding of an IVI message
--- as defined in ISO TS 19321(2015)
+-- as defined in ISO TS 19321(2015) 
 --
 -- Published version location:
 -- http://standards.iso.org/iso/14906
@@ -15,13 +15,16 @@ EfcDsrcApplication { iso(1) standard(0) 14906 application(0) version5(5) }
 DEFINITIONS AUTOMATIC TAGS ::= BEGIN
 EXPORTS ALL;
 IMPORTS
-CountryCode, CS5, IssuerIdentifier
-FROM AVIAEINumberingAndDataStructures {iso(1) standard(0) iso14816(14816) asnm1(1) version1(1)}
+CountryCode, CS5, AVIAEIIssuerIdentifier
+FROM AVIAEINumberingAndDataStructures {iso(1) standard(0) iso14816(14816) asnm1(1) version1(1)} 
 -- defined in ISO 14816 --
 AttributeIdList
-FROM EfcDsrcGeneric {iso(1) standard(0) 14906 generic(1) version5(5)};
+FROM EfcDsrcGeneric {iso(1) standard(0) 14906 generic(1) version5(5)}
 -- NOTE: The following are the definitions of the action and response
 -- parameters
+
+;
+-- End of IMPORTS
 
 AxleWeightLimits ::= SEQUENCE {
 	maxLadenweightOnAxle1 Int2,
@@ -112,7 +115,7 @@ PassengerCapacity ::= SEQUENCE{
 
 Provider ::= SEQUENCE {
     countryCode CountryCode,
-    providerIdentifier IssuerIdentifier
+    providerIdentifier AVIAEIIssuerIdentifier
 }
 
 SoundLevel ::= SEQUENCE{

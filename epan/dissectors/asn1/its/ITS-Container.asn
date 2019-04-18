@@ -6,9 +6,11 @@ DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
+IMPORTS;
+
 ItsPduHeader ::= SEQUENCE {
     protocolVersion INTEGER (0..255),
-    messageID INTEGER{ denm(1), cam(2), poi(3), spatem(4), mapem(5), ivim(6), ev-rsr(7), tistpgtransaction(8), srem(9), ssem(10), evcsn(11), saem(12), rtcmem(13) } (0..255),  -- Mantis #7209, #7005
+    messageID INTEGER{ denm(1), cam(2), poi(3), spatem(4), mapem(5), ivim(6), ev-rsr(7), tistpgtransaction(8), srem(9), ssem(10), evcsn(11), saem(12), rtcmem(13) } (0..255), -- Mantis #7209, #7005
     stationID StationID
 }
 
@@ -32,8 +34,8 @@ Longitude ::= INTEGER {oneMicrodegreeEast (10), oneMicrodegreeWest (-10), unavai
 Latitude ::= INTEGER {oneMicrodegreeNorth (10), oneMicrodegreeSouth (-10), unavailable(900000001)} (-900000000..900000001)
 
 Altitude ::= SEQUENCE {
-    altitudeValue AltitudeValue,
-    altitudeConfidence AltitudeConfidence
+   altitudeValue AltitudeValue,
+   altitudeConfidence AltitudeConfidence
 }
 
 AltitudeValue ::= INTEGER {referenceEllipsoidSurface(0), oneCentimeter(1), unavailable(800001)} (-100000..800001)
@@ -59,7 +61,7 @@ AltitudeConfidence ::= ENUMERATED {
 
 DeltaLongitude ::= INTEGER {oneMicrodegreeEast (10), oneMicrodegreeWest (-10), unavailable(131072)} (-131071..131072)
 
-DeltaLatitude ::= INTEGER {oneMicrodegreeNorth (10), oneMicrodegreeSouth (-10) , unavailable(131072)} (-131071..131072)
+DeltaLatitude ::= INTEGER {oneMicrodegreeNorth (10), oneMicrodegreeSouth (-10) , unavailable(131072)} (-131071..131072) 
 
 DeltaAltitude ::= INTEGER {oneCentimeterUp (1), oneCentimeterDown (-1), unavailable(12800)} (-12700..12800)
 
@@ -95,13 +97,12 @@ AccelerationControl ::= BIT STRING {
     speedLimiterEngaged (6)
 } (SIZE(7))
 
-
 SemiAxisLength ::= INTEGER{oneCentimeter(1), outOfRange(4094), unavailable(4095)} (0..4095)
 
 CauseCode ::= SEQUENCE {
     causeCode CauseCodeType,
     subCauseCode SubCauseCodeType,
-	...
+    ...
 }
 
 CauseCodeType ::= INTEGER {
@@ -109,9 +110,9 @@ CauseCodeType ::= INTEGER {
     trafficCondition (1),
     accident (2),
     roadworks (3),
-	impassability (5),
+    impassability (5),
     adverseWeatherCondition-Adhesion (6),
-	aquaplannning (7),
+    aquaplannning (7),
     hazardousLocation-SurfaceCondition (9),
     hazardousLocation-ObstacleOnTheRoad (10),
     hazardousLocation-AnimalOnTheRoad (11),
@@ -134,7 +135,7 @@ CauseCodeType ::= INTEGER {
     dangerousSituation (99)
 } (0..255)
 
-SubCauseCodeType ::= INTEGER (0..255)
+SubCauseCodeType ::= INTEGER (0..255) 
 
 TrafficConditionSubCauseCode ::= INTEGER {unavailable(0), increasedVolumeOfTraffic(1), trafficJamSlowlyIncreasing(2), trafficJamIncreasing(3), trafficJamStronglyIncreasing(4), trafficStationary(5), trafficJamSlightlyDecreasing(6), trafficJamDecreasing(7), trafficJamStronglyDecreasing(8)} (0..255)
 
@@ -178,18 +179,18 @@ RescueAndRecoveryWorkInProgressSubCauseCode ::= INTEGER {unavailable(0), emergen
 
 DangerousEndOfQueueSubCauseCode ::= INTEGER {unavailable(0), suddenEndOfQueue(1), queueOverHill(2), queueAroundBend(3), queueInTunnel(4)} (0..255)
 
-DangerousSituationSubCauseCode ::= INTEGER {unavailable(0), emergencyElectronicBrakeEngaged(1), preCrashSystemEngaged(2), espEngaged(3), absEngaged(4), aebEngaged(5), brakeWarningEngaged(6), collisionRiskWarningEngaged(7)} (0..255)
+DangerousSituationSubCauseCode ::= INTEGER {unavailable(0), emergencyElectronicBrakeEngaged(1), preCrashSystemEngaged(2), espEngaged(3), absEngaged(4), aebEngaged(5), brakeWarningEngaged(6), collisionRiskWarningEngaged(7)} (0..255) 
 
 VehicleBreakdownSubCauseCode ::= INTEGER {unavailable(0), lackOfFuel (1), lackOfBatteryPower (2), engineProblem(3), transmissionProblem(4), engineCoolingProblem(5), brakingSystemProblem(6), steeringProblem(7), tyrePuncture(8), tyrePressureProblem(9)} (0..255)
 
 PostCrashSubCauseCode ::= INTEGER {unavailable(0), accidentWithoutECallTriggered (1), accidentWithECallManuallyTriggered (2), accidentWithECallAutomaticallyTriggered (3), accidentWithECallTriggeredWithoutAccessToCellularNetwork(4)} (0..255)
 
 Curvature ::= SEQUENCE {
- curvatureValue CurvatureValue,
- curvatureConfidence CurvatureConfidence
+    curvatureValue CurvatureValue,
+    curvatureConfidence CurvatureConfidence
 }
 
-CurvatureValue ::= INTEGER {straight(0),unavailable(1023)} (-1023..1023)
+CurvatureValue ::= INTEGER {straight(0), unavailable(1023)} (-1023..1023)
 
 CurvatureConfidence ::= ENUMERATED {
     onePerMeter-0-00002 (0),
@@ -212,13 +213,11 @@ Heading ::= SEQUENCE {
 HeadingValue ::= INTEGER {wgs84North(0), wgs84East(900), wgs84South(1800), wgs84West(2700), unavailable(3601)} (0..3601)
 
 HeadingConfidence ::= INTEGER {equalOrWithinZeroPointOneDegree (1), equalOrWithinOneDegree (10), outOfRange(126), unavailable(127)} (1..127)
-
-LanePosition::= INTEGER {offTheRoad(-1), hardShoulder(0),
-outermostDrivingLane(1), secondLaneFromOutside(2)} (-1..14)
+LanePosition::= INTEGER {offTheRoad(-1), innerHardShoulder(0), innermostDrivingLane(1), secondLaneFromInside(2), outerHardShoulder(14)} (-1..14)
 
 ClosedLanes ::= SEQUENCE {
     innerhardShoulderStatus HardShoulderStatus OPTIONAL,
-	outerhardShoulderStatus HardShoulderStatus OPTIONAL,
+    outerhardShoulderStatus HardShoulderStatus OPTIONAL,
     drivingLaneStatus DrivingLaneStatus OPTIONAL,
     ...
 }
@@ -226,7 +225,6 @@ ClosedLanes ::= SEQUENCE {
 HardShoulderStatus ::= ENUMERATED {availableForStopping(0), closed(1), availableForDriving(2)}
 
 DrivingLaneStatus ::= BIT STRING (SIZE (1..13))
-
 
 PerformanceClass ::= INTEGER {unavailable(0), performanceClassA(1), performanceClassB(2)} (0..7)
 
@@ -247,7 +245,7 @@ EmbarkationStatus ::= BOOLEAN
 
 LongitudinalAcceleration ::= SEQUENCE {
     longitudinalAccelerationValue LongitudinalAccelerationValue,
-    longitudinalAccelerationConfidence AccelerationConfidence
+    longitudinalAccelerationConfidence AccelerationConfidence 
 }
 
 LongitudinalAccelerationValue ::= INTEGER {pointOneMeterPerSecSquaredForward(1), pointOneMeterPerSecSquaredBackward(-1), unavailable(161)} (-160 .. 161)
@@ -268,18 +266,17 @@ VerticalAcceleration ::= SEQUENCE {
 
 VerticalAccelerationValue ::= INTEGER {pointOneMeterPerSecSquaredUp(1), pointOneMeterPerSecSquaredDown(-1), unavailable(161)} (-160 .. 161)
 
-StationType ::= INTEGER {unknown(0), pedestrian(1), cyclist(2), moped(3), motorcycle(4), passengerCar(5), bus(6),
-lightTruck(7), heavyTruck(8), trailer(9), specialVehicles(10), tram(11), roadSideUnit(15)} (0..255)
+StationType ::= INTEGER {unknown(0), pedestrian(1), cyclist(2), moped(3), motorcycle(4), passengerCar(5), bus(6), lightTruck(7), heavyTruck(8), trailer(9), specialVehicles(10), tram(11), roadSideUnit(15)} (0..255)
 
 ExteriorLights ::= BIT STRING {
-    lowBeamHeadlightsOn      (0),
-    highBeamHeadlightsOn     (1),
-    leftTurnSignalOn         (2),
-    rightTurnSignalOn        (3),
-    daytimeRunningLightsOn   (4),
-    reverseLightOn           (5),
-    fogLightOn               (6),
-    parkingLightsOn          (7)
+    lowBeamHeadlightsOn (0),
+    highBeamHeadlightsOn (1),
+    leftTurnSignalOn (2),
+    rightTurnSignalOn (3),
+    daytimeRunningLightsOn (4),
+    reverseLightOn (5),
+    fogLightOn (6),
+    parkingLightsOn (7)
 } (SIZE(8))
 
 DangerousGoodsBasic::= ENUMERATED {
@@ -314,13 +311,13 @@ DangerousGoodsExtended ::= SEQUENCE {
     emergencyActionCode IA5String (SIZE (1..24)) OPTIONAL,
     phoneNumber PhoneNumber OPTIONAL,
     companyName UTF8String (SIZE (1..24)) OPTIONAL,
-	...
+    ...
 }
 
 SpecialTransportType ::= BIT STRING {heavyLoad(0), excessWidth(1), excessLength(2), excessHeight(3)} (SIZE(4))
 
 LightBarSirenInUse ::= BIT STRING {
-    lightBarActivated (0),
+    lightBarActivated (0), 
     sirenActivated (1)
 } (SIZE(2))
 
@@ -340,8 +337,7 @@ StationarySince ::= ENUMERATED {lessThan1Minute(0), lessThan2Minutes(1), lessTha
 
 Temperature ::= INTEGER {equalOrSmallerThanMinus60Deg (-60), oneDegreeCelsius(1), equalOrGreaterThan67Deg(67)} (-60..67)
 
-TrafficRule ::= ENUMERATED {noPassing(0), noPassingForTrucks(1), passToRight(2), passToLeft(3), ...
-}
+TrafficRule ::= ENUMERATED {noPassing(0), noPassingForTrucks(1), passToRight(2), passToLeft(3), ... }
 
 WheelBaseVehicle ::= INTEGER {tenCentimeters(1), unavailable(127)} (1..127)
 
@@ -369,7 +365,8 @@ PositionOfOccupants ::= BIT STRING {
     row4RightOccupied (16),
     row4MidOccupied (17),
     row4NotDetectable (18),
-    row4NotPresent (19)} (SIZE(20))
+    row4NotPresent (19)
+} (SIZE(20))
 
 PositioningSolutionType ::= ENUMERATED {noPositioningSolution(0), sGNSS(1), dGNSS(2), sGNSSplusDR(3), dGNSSplusDR(4), dR(5), ...}
 
@@ -390,7 +387,7 @@ VehicleLength ::= SEQUENCE {
     vehicleLengthConfidenceIndication VehicleLengthConfidenceIndication
 }
 
-VehicleLengthValue ::= INTEGER {tenCentimeters(1), outOfRange(1022), unavailable(1023)}  (1..1023)
+VehicleLengthValue ::= INTEGER {tenCentimeters(1), outOfRange(1022), unavailable(1023)} (1..1023) 
 
 VehicleLengthConfidenceIndication ::= ENUMERATED {noTrailerPresent(0), trailerPresentWithKnownLength(1), trailerPresentWithUnknownLength(2), trailerPresenceIsUnknown(3), unavailable(4)}
 
@@ -406,7 +403,8 @@ RoadType ::= ENUMERATED {
     urban-NoStructuralSeparationToOppositeLanes(0),
     urban-WithStructuralSeparationToOppositeLanes(1),
     nonUrban-NoStructuralSeparationToOppositeLanes(2),
-    nonUrban-WithStructuralSeparationToOppositeLanes(3)}
+    nonUrban-WithStructuralSeparationToOppositeLanes(3)
+}
 
 SteeringWheelAngle ::= SEQUENCE {
     steeringWheelAngleValue SteeringWheelAngleValue,
@@ -417,9 +415,9 @@ SteeringWheelAngleValue ::= INTEGER {straight(0), onePointFiveDegreesToRight(-1)
 
 SteeringWheelAngleConfidence ::= INTEGER {equalOrWithinOnePointFiveDegree (1), outOfRange(126), unavailable(127)} (1..127)
 
-TimestampIts ::= INTEGER (0..4398046511103) -- {utcStartOf2004(0), oneMillisecAfterUTCStartOf2004(1)} (0..4398046511103) PATCH
+TimestampIts ::= INTEGER {utcStartOf2004(0), oneMillisecAfterUTCStartOf2004(1)} (0..4398046511103)
 
-VehicleRole ::= ENUMERATED {default(0), publicTransport(1), specialTransport(2), dangerousGoods(3), roadWork(4), rescue(5), emergency(6), safetyCar(7), agriculture(8),commercial(9),military(10),roadOperator(11),taxi(12), reserved1(13), reserved2(14), reserved3(15)}
+VehicleRole ::= ENUMERATED {default(0), publicTransport(1), specialTransport(2), dangerousGoods(3), roadWork(4), rescue(5), emergency(6), safetyCar(7), agriculture(8), commercial(9), military(10), roadOperator(11), taxi(12), reserved1(13), reserved2(14), reserved3(15)}
 
 YawRate::= SEQUENCE {
     yawRateValue YawRateValue,
@@ -448,7 +446,7 @@ RelevanceTrafficDirection ::= ENUMERATED {allTrafficDirections(0), upstreamTraff
 
 TransmissionInterval ::= INTEGER {oneMilliSecond(1), tenSeconds(10000)} (1..10000)
 
-ValidityDuration ::=    INTEGER {timeOfDetection(0), oneSecondAfterDetection(1)} (0..86400)
+ValidityDuration ::= INTEGER {timeOfDetection(0), oneSecondAfterDetection(1)} (0..86400)
 
 ActionID ::= SEQUENCE {
     originatingStationID StationID,
@@ -458,20 +456,20 @@ ActionID ::= SEQUENCE {
 ItineraryPath ::= SEQUENCE SIZE(1..40) OF ReferencePosition
 
 ProtectedCommunicationZone ::= SEQUENCE {
-    protectedZoneType       ProtectedZoneType,
+    protectedZoneType ProtectedZoneType, 
     expiryTime TimestampIts OPTIONAL,
-    protectedZoneLatitude   Latitude,
-    protectedZoneLongitude  Longitude,
+    protectedZoneLatitude Latitude,
+    protectedZoneLongitude Longitude,
     protectedZoneRadius ProtectedZoneRadius OPTIONAL,
     protectedZoneID ProtectedZoneID OPTIONAL,
-	...
+    ...
 }
 
 Traces ::= SEQUENCE SIZE(1..7) OF PathHistory
 
 NumberOfOccupants ::= INTEGER {oneOccupant (1), unavailable(127)} (0 .. 127)
 
-SequenceNumber ::=  INTEGER (0..65535)
+SequenceNumber ::= INTEGER (0..65535)
 
 PositionOfPillars ::= SEQUENCE (SIZE(1..3, ...)) OF PosPillar
 
@@ -487,13 +485,11 @@ EventPoint ::= SEQUENCE {
 
 ProtectedCommunicationZonesRSU ::= SEQUENCE (SIZE(1..16)) OF ProtectedCommunicationZone
 
-
-
 CenDsrcTollingZone ::= SEQUENCE {
     protectedZoneLatitude Latitude,
     protectedZoneLongitude Longitude,
     cenDsrcTollingZoneID CenDsrcTollingZoneID OPTIONAL,
-	...
+    ...
 }
 
 ProtectedZoneRadius ::= INTEGER {oneMeter(1)} (1..255,...)
@@ -507,5 +503,4 @@ DigitalMap ::= SEQUENCE (SIZE(1..256)) OF ReferencePosition
 OpeningDaysHours ::= UTF8String
 
 PhoneNumber ::= NumericString (SIZE(1..16))
-
-END
+END 

@@ -52,6 +52,7 @@ enum regext_type_enum {
     Reg_SignalStatusMessage,
     Reg_SignalStatusPackage,
     Reg_SPAT,
+    Reg_RTCMcorrections,
 };
 
 #endif /* __PACKET_ITS_H__ */

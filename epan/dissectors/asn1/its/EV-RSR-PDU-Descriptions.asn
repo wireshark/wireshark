@@ -1,14 +1,14 @@
 EV-RechargingSpotReservation-PDU-Descriptions {
- itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (101556) ev-rsr (4) version (1)
+ itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (101556) ev-rsr (4) version (1) 
 }
 
-DEFINITIONS AUTOMATIC TAGS ::=
+DEFINITIONS AUTOMATIC TAGS ::= 
 
 BEGIN
 
-IMPORTS
+IMPORTS 
    ItsPduHeader FROM ITS-Container {
- itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (102894) cdd (2) version (1)
+ itu-t (0) identified-organization (4) etsi (0) itsDomain (5) wg1 (1) ts (102894) cdd (2) version (2) 
 };
 
 EV-RSR ::= SEQUENCE {
@@ -44,7 +44,7 @@ PreReservationResponseMessage ::= SEQUENCE {
  supportedPaymentTypes 				SupportedPaymentTypes,
  ...
 }
-
+ 
 ReservationRequestMessage ::= SEQUENCE {
  currentTime			TimestampUTC,
  preReservation-ID	PreReservation-ID,
