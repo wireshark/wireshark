@@ -598,7 +598,7 @@ GHashTable *ExtcapOptionsDialog::getArgumentSettings(bool useCallsAsKey)
 
         if (key.length() > 0)
         {
-            gchar * val = g_strdup(value.length() == 0 ? " " : value.toStdString().c_str());
+            gchar * val = g_strdup(value.toStdString().c_str());
 
             g_hash_table_insert(entries, g_strdup(key.toStdString().c_str()), val);
         }
