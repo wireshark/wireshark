@@ -400,6 +400,8 @@ static int hf_diameter_3gpp_acc_res_dat_flags_bit5 = -1;
 static int hf_diameter_3gpp_acc_res_dat_flags_bit6 = -1;
 static int hf_diameter_3gpp_acc_res_dat_flags_bit7 = -1;
 static int hf_diameter_3gpp_acc_res_dat_flags_bit8 = -1;
+static int hf_diameter_3gpp_acc_res_dat_flags_bit9 = -1;
+static int hf_diameter_3gpp_acc_res_dat_flags_bit10 = -1;
 static int hf_diameter_3gpp_acc_res_dat_flags_spare_bits = -1;
 static int hf_diameter_3gpp_ida_flags_spare_bits = -1;
 static int hf_diameter_3gpp_pua_flags_spare_bits = -1;
@@ -1946,6 +1948,8 @@ dissect_diameter_3gpp_acc_res_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 {
     static const int *flags[] = {
         &hf_diameter_3gpp_acc_res_dat_flags_spare_bits,
+        &hf_diameter_3gpp_acc_res_dat_flags_bit10,
+        &hf_diameter_3gpp_acc_res_dat_flags_bit9,
         &hf_diameter_3gpp_acc_res_dat_flags_bit8,
         &hf_diameter_3gpp_acc_res_dat_flags_bit7,
         &hf_diameter_3gpp_acc_res_dat_flags_bit6,
@@ -4351,9 +4355,19 @@ proto_register_diameter_3gpp(void)
             FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000100,
             NULL, HFILL }
         },
+        { &hf_diameter_3gpp_acc_res_dat_flags_bit9,
+        { "Unlicensed Spectrum as Secondary RAT Not Allowed", "diameter.3gpp.acc_res_dat_flags_bit9",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000200,
+            NULL, HFILL }
+        },
+        { &hf_diameter_3gpp_acc_res_dat_flags_bit10,
+        { "NR in 5G Not Allowed", "diameter.3gpp.acc_res_dat_flags_bit10",
+            FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000400,
+            NULL, HFILL }
+        },
         { &hf_diameter_3gpp_acc_res_dat_flags_spare_bits,
         { "Spare", "diameter.3gpp.acc_res_dat_flags_spare",
-            FT_UINT32, BASE_HEX, NULL, 0xFFFFFE00,
+            FT_UINT32, BASE_HEX, NULL, 0xFFFFF800,
             NULL, HFILL }
         },
 

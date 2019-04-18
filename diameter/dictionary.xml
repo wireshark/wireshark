@@ -6214,6 +6214,12 @@
 				<gavp name="RAT-Type"/>
 			</grouped>
 		</avp>
+		<avp name="Interworking-5GS-Indicator" code="1706" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="NOT-SUBSCRIBED" code="0"/>
+			<enum name="SUBSCRIBED" code="1"/>
+		</avp>
+
 		<avp name="SMS-Information" code="2000" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="SMS-Node"/>
