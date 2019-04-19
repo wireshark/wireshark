@@ -491,14 +491,14 @@ void MainWindow::queuedFilterAction(QString action_filter, FilterAction::Action 
 // Capture callbacks
 
 #ifdef HAVE_LIBPCAP
-void MainWindow::captureCapturePrepared(capture_session *) {
+void MainWindow::captureCapturePrepared(capture_session *session) {
     setTitlebarForCaptureInProgress();
 
     setWindowIcon(wsApp->captureIcon());
 
     /* Disable menu items that make no sense if you're currently running
        a capture. */
-    setForCaptureInProgress(true);
+    setForCaptureInProgress(true, session->capture_opts->ifaces);
 //    set_capture_if_dialog_for_capture_in_progress(TRUE);
 
 //    /* Don't set up main window for a capture file. */
