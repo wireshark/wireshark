@@ -4388,6 +4388,28 @@ proto_reg_handoff_dash(void)
   command_handle = create_dissector_handle( dissect_dash_msg_mnauth, hfi_dash->id );
   dissector_add_string("dash.command", "mnauth", command_handle);
 
+  /* To be added - LLMQ messages*/
+  command_handle = create_dissector_handle( dissect_dash_msg_empty, hfi_dash->id );
+  
+  dissector_add_string("dash.command", "qcontrib", command_handle);
+  dissector_add_string("dash.command", "qcomplaint", command_handle);
+  dissector_add_string("dash.command", "qjustify", command_handle);
+  dissector_add_string("dash.command", "qpcommit", command_handle);
+  dissector_add_string("dash.command", "qfcommit", command_handle);
+
+  dissector_add_string("dash.command", "qsigsesann", command_handle);
+  dissector_add_string("dash.command", "qbsigs", command_handle);
+  dissector_add_string("dash.command", "qgetsigs", command_handle);
+  dissector_add_string("dash.command", "qsigsinv", command_handle);
+  dissector_add_string("dash.command", "qsigrec", command_handle);
+
+  dissector_add_string("dash.command", "qwatch", command_handle);
+  dissector_add_string("dash.command", "qdebugstatus", command_handle);
+
+  dissector_add_string("dash.command", "clsig", command_handle);
+  dissector_add_string("dash.command", "islock", command_handle);
+
+
   /* messages with no payload */
   command_handle = create_dissector_handle( dissect_dash_msg_empty, hfi_dash->id );
   dissector_add_string("dash.command", "verack", command_handle);
