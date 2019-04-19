@@ -619,11 +619,8 @@ gboolean
 ws_pipe_wait_for_pipe(HANDLE * pipe_handles, int num_pipe_handles, HANDLE pid)
 {
     PIPEINTS pipeinsts[3];
-    DWORD dw, cbRet;
     HANDLE handles[4];
-    int error_code;
-    int num_waiting_to_connect = 0;
-    int num_handles = num_pipe_handles + 1; // PID handle is also added to list of handles.
+    gboolean result = TRUE;
 
     SecureZeroMemory(pipeinsts, sizeof(pipeinsts));
 
@@ -635,92 +632,116 @@ ws_pipe_wait_for_pipe(HANDLE * pipe_handles, int num_pipe_handles, HANDLE pid)
 
     for (int i = 0; i < num_pipe_handles; ++i)
     {
-        pipeinsts[i].pipeHandle = pipe_handles[i];
-        pipeinsts[i].ol.Pointer = 0;
-        pipeinsts[i].ol.hEvent = CreateEvent(NULL, FALSE, FALSE, NULL);
-        pipeinsts[i].pendingIO = FALSE;
-        handles[i] = pipeinsts[i].ol.hEvent;
-        BOOL connected = ConnectNamedPipe(pipeinsts[i].pipeHandle, &pipeinsts[i].ol);
-        if (connected)
+        pipeinsts[i].ol.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
+        if (!pipeinsts[i].ol.hEvent)
         {
-            error_code = GetLastError();
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "ConnectNamedPipe failed with %d \n.", error_code);
-            return FALSE;
-        }
-
-        switch (GetLastError())
-        {
-        case ERROR_IO_PENDING:
-            num_waiting_to_connect++;
-            pipeinsts[i].pendingIO = TRUE;
-            break;
-
-        case ERROR_PIPE_CONNECTED:
-            if (SetEvent(pipeinsts[i].ol.hEvent))
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create overlapped event");
+            for (int j = 0; j < i; j++)
             {
-                break;
-            } // Fallthrough if this fails.
-
-        default:
-            error_code = GetLastError();
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "ConnectNamedPipe failed with %d \n.", error_code);
+                CloseHandle(pipeinsts[j].ol.hEvent);
+            }
             return FALSE;
         }
     }
 
-    // Store pid of extcap process so it can be monitored in case it fails before the pipes has connceted.
-    handles[num_pipe_handles] = pid;
-
-    while(num_waiting_to_connect > 0)
+    for (int i = 0; i < num_pipe_handles; ++i)
     {
+        pipeinsts[i].pipeHandle = pipe_handles[i];
+        pipeinsts[i].ol.Pointer = 0;
+        pipeinsts[i].pendingIO = FALSE;
+        if (!ConnectNamedPipe(pipeinsts[i].pipeHandle, &pipeinsts[i].ol))
+        {
+            DWORD error = GetLastError();
+            switch (error)
+            {
+            case ERROR_IO_PENDING:
+                pipeinsts[i].pendingIO = TRUE;
+                break;
+
+            case ERROR_PIPE_CONNECTED:
+                SetEvent(pipeinsts[i].ol.hEvent);
+                break;
+
+            default:
+                g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "ConnectNamedPipe failed with %d\n.", error);
+                result = FALSE;
+            }
+        }
+    }
+
+    while (result)
+    {
+        DWORD dw;
+        int num_handles = 0;
+        for (int i = 0; i < num_pipe_handles; ++i)
+        {
+            if (pipeinsts[i].pendingIO)
+            {
+                handles[num_handles] = pipeinsts[i].ol.hEvent;
+                num_handles++;
+            }
+        }
+        if (num_handles == 0)
+        {
+            /* All pipes have been successfully connected */
+            break;
+        }
+        /* Wait for process in case it exits before the pipes have connected */
+        handles[num_handles] = pid;
+
         dw = WaitForMultipleObjects(num_handles, handles, FALSE, 30000);
-        int idx = dw - WAIT_OBJECT_0;
+        int handle_idx = dw - WAIT_OBJECT_0;
         if (dw == WAIT_TIMEOUT)
         {
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "extcap didn't connect to pipe within 30 seconds.");
-            return FALSE;
+            result = FALSE;
+            break;
         }
         // If index points to our handles array
-        else if (idx >= 0 && idx < num_handles)
+        else if (handle_idx >= 0 && handle_idx < num_handles)
         {
-            if (idx < num_pipe_handles)  // Index of pipe handle
+            if (handles[handle_idx] == pid)
             {
-                if (pipeinsts[idx].pendingIO)
+                g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "extcap terminated without connecting to pipe.");
+                result = FALSE;
+            }
+            for (int i = 0; i < num_pipe_handles; ++i)
+            {
+                if (handles[handle_idx] == pipeinsts[i].ol.hEvent)
                 {
+                    DWORD cbRet;
                     BOOL success = GetOverlappedResult(
-                        pipeinsts[idx].pipeHandle, // handle to pipe
-                        &pipeinsts[idx].ol,        // OVERLAPPED structure
+                        pipeinsts[i].pipeHandle, // handle to pipe
+                        &pipeinsts[i].ol,        // OVERLAPPED structure
                         &cbRet,                    // bytes transferred
-                        FALSE);                    // do not wait
-
+                        TRUE);                     // wait
                     if (!success)
                     {
                         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Error %d \n.", GetLastError());
-                        return FALSE;
+                        result = FALSE;
                     }
-                    else
-                    {
-                        pipeinsts[idx].pendingIO = FALSE;
-                        CloseHandle(pipeinsts[idx].ol.hEvent);
-                        num_waiting_to_connect--;
-                    }
+                    pipeinsts[i].pendingIO = FALSE;
                 }
-            }
-            else // Index of PID
-            {
-                // Fail since index of 'pid' indicates that the pid of the extcap process has terminated.
-                g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "extcap terminated without connecting to pipe.");
-                return FALSE;
             }
         }
         else
         {
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "WaitForMultipleObjects returned 0x%08X. Error %d", dw, GetLastError());
-            return FALSE;
+            result = FALSE;
         }
     }
 
-    return TRUE;
+    for (int i = 0; i < num_pipe_handles; ++i)
+    {
+        if (pipeinsts[i].pendingIO)
+        {
+            CancelIoEx(pipeinsts[i].pipeHandle, &pipeinsts[i].ol);
+            WaitForSingleObject(pipeinsts[i].ol.hEvent, INFINITE);
+        }
+        CloseHandle(pipeinsts[i].ol.hEvent);
+    }
+
+    return result;
 }
 #endif
 
