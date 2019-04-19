@@ -1028,46 +1028,45 @@ get_plugins_pers_dir_with_version(void)
 /*
  * Find the directory where the extcap hooks are stored.
  *
+ * If the WIRESHARK_EXTCAP_DIR environment variable is set and we are not
+ * running with special privileges, use that. Otherwise:
+ *
  * On Windows, we use the "extcap" subdirectory of the datafile directory.
  *
- * On UN*X, we use the EXTCAP_DIR value supplied by the configure
- * script, unless we think we're being run from the build directory,
- * in which case we use the "extcap" subdirectory of the datafile directory.
+ * On UN*X:
  *
- * In both cases, we then use the subdirectory of that directory whose
- * name is the version number.
+ *    if we appear to be run from the build directory, we use the
+ *    "extcap" subdirectory of the build directory.
  *
- * XXX - if we think we're being run from the build directory, perhaps we
- * should have the extcap code not look in the version subdirectory
- * of the extcap directory, but look in all of the subdirectories
- * of the extcap directory, so it can just fetch the extcap hooks built
- * as part of the build process.
+ *    otherwise, if we're running from an app bundle in macOS, we
+ *    use the Contents/MacOS/extcap subdirectory of the app bundle;
+ *
+ *    otherwise, we use the EXTCAP_DIR value supplied by CMake.
  */
 static char *extcap_dir = NULL;
 
 static void init_extcap_dir(void) {
-#ifdef _WIN32
-    const char *alt_extcap_path;
-
-    /*
-     * On Windows, the data file directory is the installation
-     * directory; the extcap hooks are stored under it.
-     *
-     * Assume we're running the installed version of Wireshark;
-     * on Windows, the data file directory is the directory
-     * in which the Wireshark binary resides.
-     */
-    alt_extcap_path = g_getenv("WIRESHARK_EXTCAP_DIR");
-    if (alt_extcap_path) {
+    if (g_getenv("WIRESHARK_EXTCAP_DIR") && !started_with_special_privs()) {
         /*
-         * The user specified a different directory for extcap hooks.
+         * The user specified a different directory for extcap hooks
+         * and we aren't running with special privileges.
          */
-        extcap_dir = g_strdup(alt_extcap_path);
-    } else {
+        extcap_dir = g_strdup(g_getenv("WIRESHARK_EXTCAP_DIR"));
+    }
+#ifdef _WIN32
+    else {
+        /*
+         * On Windows, the data file directory is the installation
+         * directory; the extcap hooks are stored under it.
+         *
+         * Assume we're running the installed version of Wireshark;
+         * on Windows, the data file directory is the directory
+         * in which the Wireshark binary resides.
+         */
         extcap_dir = g_build_filename(get_datafile_dir(), "extcap", (gchar *)NULL);
     }
 #else
-    if (running_in_build_directory_flag) {
+    else if (running_in_build_directory_flag) {
         /*
          * We're (probably) being run from the build directory and
          * weren't started with special privileges, so we'll use
@@ -1075,15 +1074,9 @@ static void init_extcap_dir(void) {
          * we're running is (that's the build directory).
          */
         extcap_dir = g_build_filename(get_progfile_dir(), "extcap", (gchar *)NULL);
-    } else {
-        if (g_getenv("WIRESHARK_EXTCAP_DIR") && !started_with_special_privs()) {
-            /*
-             * The user specified a different directory for extcap hooks
-             * and we aren't running with special privileges.
-             */
-            extcap_dir = g_strdup(g_getenv("WIRESHARK_EXTCAP_DIR"));
-        }
+    }
 #ifdef __APPLE__
+    else if (appbundle_dir != NULL) {
         /*
          * If we're running from an app bundle and weren't started
          * with special privileges, use the Contents/MacOS/extcap
@@ -1093,13 +1086,11 @@ static void init_extcap_dir(void) {
          * started with special privileges, so we need only check
          * it; we don't need to call started_with_special_privs().)
          */
-        else if (appbundle_dir != NULL) {
-            extcap_dir = g_build_filename(appbundle_dir, "Contents/MacOS/extcap", (gchar *)NULL);
-        }
+        extcap_dir = g_build_filename(appbundle_dir, "Contents/MacOS/extcap", (gchar *)NULL);
+    }
 #endif
-        else {
-            extcap_dir = g_strdup(EXTCAP_DIR);
-        }
+    else {
+        extcap_dir = g_strdup(EXTCAP_DIR);
     }
 #endif
 }
