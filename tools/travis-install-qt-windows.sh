@@ -24,4 +24,5 @@ echo "Installing..."
     (cat ~/qt-installer-output.txt; exit 1)
 
 printf 'Installation size: '
-du -sm "$QT5_BASE_DIR"
+du -sm "$QT5_BASE_DIR" 2>&1 ||
+    (cat ~/qt-installer-output.txt; exit 1)

@@ -61,7 +61,7 @@ matrix:
       env:
         - PLATFORM: x64
         - WIRESHARK_BASE_DIR: C:/wireshark-libs
-        - QT5_BASE_DIR: C:/Qt/5.12.0/msvc2017_64
+        - QT5_BASE_DIR: C:/Qt/5.12.3/msvc2017_64
       cache:
         directories:
           - travis-cache
@@ -72,7 +72,7 @@ matrix:
       env:
         - PLATFORM: Win32
         - WIRESHARK_BASE_DIR: C:/wireshark-libs
-        - QT5_BASE_DIR: C:/Qt/5.12.0/msvc2017
+        - QT5_BASE_DIR: C:/Qt/5.12.3/msvc2017
       cache:
         directories:
           - travis-cache
