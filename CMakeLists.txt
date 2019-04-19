@@ -2857,21 +2857,23 @@ set(CLEAN_C_FILES
 	${mmdbresolve_FILES}
 )
 
-# Make sure we don't pass /WX to rc.exe. Rc doesn't have a /WX flag,
-# but it does have /W (warn about invalid code pages) and /X (ignore
-# the INCLUDE environment variable).
-# This should apparently be handled for us via CMAKE_RC_FLAG_REGEX
-# in CMakeRCInformation.cmake but that doesn't appear to work.
-if (WIN32)
-	list(FILTER CLEAN_C_FILES EXCLUDE REGEX ".*\\.rc")
-endif (WIN32)
+if(CLEAN_C_FILES)
+	# Make sure we don't pass /WX to rc.exe. Rc doesn't have a /WX flag,
+	# but it does have /W (warn about invalid code pages) and /X (ignore
+	# the INCLUDE environment variable).
+	# This should apparently be handled for us via CMAKE_RC_FLAG_REGEX
+	# in CMakeRCInformation.cmake but that doesn't appear to work.
+	if(WIN32)
+		list(FILTER CLEAN_C_FILES EXCLUDE REGEX ".*\\.rc")
+	endif()
 
-# XXX This also contains object files ($<TARGET_OBJECTS:...>), is that an issue?
-set_source_files_properties(
-	${CLEAN_C_FILES}
-	PROPERTIES
-	COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
-)
+	# XXX This also contains object files ($<TARGET_OBJECTS:...>), is that an issue?
+	set_source_files_properties(
+		${CLEAN_C_FILES}
+		PROPERTIES
+		COMPILE_FLAGS "${WERROR_COMMON_FLAGS}"
+	)
+endif()
 
 install(
 	FILES
