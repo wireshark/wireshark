@@ -10,12 +10,12 @@
 // .\qt-unified-windows-x86-3.0.4-online.exe --verbose --script tools\qt-installer-windows.qs
 
 // Look for Name elements in
-// https://download.qt.io/online/qtsdkrepository/windows_x86/desktop/qt5_5120/Updates.xml
+// https://download.qt.io/online/qtsdkrepository/windows_x86/desktop/qt5_5123/Updates.xml
 // Unfortunately it is not possible to disable deps like qt.tools.qtcreator
 var INSTALL_COMPONENTS = [
     installer.environmentVariable("PLATFORM") == "x64" ?
-    "qt.qt5.5120.win64_msvc2017_64" :
-    "qt.qt5.5120.win32_msvc2017",
+    "qt.qt5.5123.win64_msvc2017_64" :
+    "qt.qt5.5123.win32_msvc2017",
 ];
 
 function Controller() {
