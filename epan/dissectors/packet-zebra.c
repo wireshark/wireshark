@@ -1234,7 +1234,7 @@ zebra_route(proto_tree *tree, gboolean request, tvbuff_t *tvb, int offset,
 				   MIN((unsigned)PSIZE(srcprefixlen),
 				       sizeof srcbuffer6));
 			proto_tree_add_ipv6(tree, hf_zebra_srcprefix6, tvb,
-					    offset, PSIZE(prefixlen),
+					    offset, PSIZE(srcprefixlen),
 					    (ws_in6_addr *)srcbuffer6);
 		} else if (family == ZEBRA_FAMILY_IPV4) {
 			prefix4 = 0;
