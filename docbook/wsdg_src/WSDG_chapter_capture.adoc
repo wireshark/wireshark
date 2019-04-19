@@ -100,7 +100,7 @@ to change behavior depending on the Wireshark version in question.
 .Example call for interface query
 [source,bash]
 ----
-$ extcap_examply.py --extcap-interfaces --extcap-version=3.0
+$ extcap_example.py --extcap-interfaces --extcap-version=3.0
 extcap {version=1.0}{help=Some help url}
 interface {value=example1}{display=Example interface 1 for extcap}
 interface {value=example2}{display=Example interface 2 for extcap}
@@ -122,7 +122,7 @@ The extcap binary is queried for all valid DLTs for all the interfaces returned 
 
 [source,bash]
 ----
-$ extcap_examply.py --extcap-dlts --extcap-interface IFACE
+$ extcap_example.py --extcap-dlts --extcap-interface IFACE
 ----
 
 This call must print the valid DLTs for the interface specified. This call is
@@ -131,7 +131,7 @@ made for all the interfaces and must return 0.
 .Example for the DLT query
 [source,bash]
 ----
-$ extcap_examply.py --extcap-interface IFACE --extcap-dlts
+$ extcap_example.py --extcap-interface IFACE --extcap-dlts
 dlt {number=147}{name=USER1}{display=Demo Implementation for Extcap}
 ----
 
@@ -145,7 +145,7 @@ The extcap binary is asked for the configuration of a specific interface
 
 [source,bash]
 ----
-$ extcap_examply.py --extcap-interface IFACE --extcap-config
+$ extcap_example.py --extcap-interface IFACE --extcap-config
 ----
 
 Each interface can have custom options that are valid for this interface only.
@@ -163,7 +163,7 @@ interface.
 .Example for interface options
 [source,bash]
 ----
-$ extcap_examply.py --extcap-interface IFACE --extcap-config
+$ extcap_example.py --extcap-interface IFACE --extcap-config
 arg {number=0}{call=--delay}{display=Time delay}{tooltip=Time delay between packages}{type=integer}{range=1,15}{required=true}
 arg {number=1}{call=--message}{display=Message}{tooltip=Package message content}{placeholder=Please enter a message here ...}{type=string}
 arg {number=2}{call=--verify}{display=Verify}{tooltip=Verify package content}{type=boolflag}
@@ -190,7 +190,7 @@ Once the interfaces are listed and configuration is customized by the user the c
 
 [source,bash]
 ----
-$ extcap_examply.py --extcap-interface IFACE [params] --capture [--extcap-capture-filter CFILTER]
+$ extcap_example.py --extcap-interface IFACE [params] --capture [--extcap-capture-filter CFILTER]
   --fifo FIFO
 ----
 
