@@ -658,11 +658,6 @@ else() # ! MSVC
 			#
 			-Wredundant-decls
 			#
-			# Some loops are safe, but it's hard to convince the
-			# compiler of that.
-			#
-			-Wunsafe-loop-optimizations
-			#
 			# All the registration functions block these for now.
 			#
 			-Wmissing-prototypes
@@ -695,6 +690,16 @@ else() # ! MSVC
 			#
 			-fno-delete-null-pointer-checks
 		)
+
+		#
+		# Some loops are safe, but it's hard to convince the compiler of
+		# that. Always disable the warning on GCC 7 due to a bug that
+		# cause lots of false positives.
+		# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=81408
+		#
+		if(CMAKE_C_COMPILER_ID STREQUAL "GNU" AND NOT CMAKE_C_COMPILER_VERSION MATCHES "^7\\.")
+			list(APPEND WIRESHARK_COMMON_FLAGS -Wunsafe-loop-optimizations)
+		endif()
 
 		list(APPEND WIRESHARK_C_ONLY_FLAGS
 			# The following are C only, not C++
