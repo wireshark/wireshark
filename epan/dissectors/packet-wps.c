@@ -45,6 +45,8 @@ static expert_field ei_eapwps_packet_too_short = EI_INIT;
 static expert_field ei_eapwps_fmt_warn_too_long = EI_INIT;
 static expert_field ei_eapwps_fmt_length_warn = EI_INIT;
 
+static dissector_handle_t wps_handle;
+
 /* OPCodes */
 #define OPC_WSC_START    0x01   /* WPS OPCODE WSC_Start */
 #define OPC_WSC_ACK      0x02   /* WPS OPCODE WSC_ACK */
@@ -1677,15 +1679,20 @@ dissect_wps_tlvs(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
 
 /********************************************************************** */
 /********************************************************************** */
-void
-dissect_exteap_wps(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
-                   gint size, packet_info *pinfo)
+
+static int
+dissect_wps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   proto_item *pi;
   proto_tree *pt;
   guint8      flags;
+  int         offset;
+  gint        size;
 
-  pi = proto_tree_add_item(eap_tree, hf_eapwps_opcode,     tvb, offset, 1, ENC_BIG_ENDIAN);
+  offset = 0;
+  size = tvb_captured_length(tvb);
+
+  pi = proto_tree_add_item(tree, hf_eapwps_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1; size -= 1;
 
   pi = proto_item_get_parent(pi);
@@ -1694,10 +1701,9 @@ dissect_exteap_wps(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
   if (pinfo != NULL)
     col_append_str(pinfo->cinfo, COL_INFO, ", WPS");
 
-
   /* Flag field, if msg-len flag set, add appropriate field  */
   flags = tvb_get_guint8(tvb,offset);
-  pi = proto_tree_add_item(eap_tree, hf_eapwps_flags,      tvb, offset, 1, ENC_BIG_ENDIAN);
+  pi = proto_tree_add_item(tree, hf_eapwps_flags,      tvb, offset, 1, ENC_BIG_ENDIAN);
   pt = proto_item_add_subtree(pi, ett_eap_wps_flags);
 
   proto_tree_add_item(pt, hf_eapwps_flag_mf,    tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1706,11 +1712,13 @@ dissect_exteap_wps(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
 
   if (flags & MASK_WSC_FLAG_LF) {
     /* length field is present in first eap-packet when msg is fragmented  */
-    proto_tree_add_item(eap_tree, hf_eapwps_msglen, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_eapwps_msglen, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2; size -= 2;
   }
 
-  dissect_wps_tlvs(eap_tree, tvb, offset, size, pinfo);
+  dissect_wps_tlvs(tree, tvb, offset, size, pinfo);
+
+  return size;
 }
 
 /********************************************************************** */
@@ -2539,12 +2547,15 @@ proto_register_wps(void)
   proto_register_subtree_array(ett, array_length(ett));
   expert_wps = expert_register_protocol(proto_wps);
   expert_register_field_array(expert_wps, ei, array_length(ei));
+
+  wps_handle = register_dissector("wps", dissect_wps, proto_wps);
 }
 
 void
 proto_reg_handoff_wps(void)
 {
   dissector_add_uint("wlan.ie.wifi_alliance.subtype", WFA_SUBTYPE_IEEE1905_MULTI_AP, create_dissector_handle(dissect_wps_wfa_ext_via_dt, -1));
+  dissector_add_uint("eap.ext.vendor_id", WFA_VENDOR_ID, wps_handle);
 }
 
 /*

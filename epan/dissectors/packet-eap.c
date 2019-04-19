@@ -98,6 +98,8 @@ static expert_field ei_eap_md5_value_size_overflow = EI_INIT;
 static expert_field ei_eap_dictionary_attacks = EI_INIT;
 static expert_field ei_eap_identity_invalid = EI_INIT;
 
+static dissector_table_t eap_expanded_type_dissector_table;
+
 static dissector_handle_t eap_handle;
 
 static dissector_handle_t tls_handle;
@@ -395,10 +397,6 @@ static const fragment_items eap_tls_frag_items = {
 static int   hf_eap_ext_vendor_id   = -1;
 static int   hf_eap_ext_vendor_type = -1;
 
-/* Vendor-Type and Vendor-id */
-#define WFA_VENDOR_ID         0x00372A
-#define WFA_SIMPLECONFIG_TYPE 0x1
-
 static const value_string eap_ext_vendor_id_vals[] = {
   { WFA_VENDOR_ID, "WFA" },
   { 0, NULL }
@@ -413,17 +411,28 @@ static void
 dissect_exteap(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
                gint size, packet_info* pinfo)
 {
+  tvbuff_t   *next_tvb;
+  guint32    vendor_id;
+  guint32    *vendor_type;
 
-  proto_tree_add_item(eap_tree, hf_eap_ext_vendor_id,   tvb, offset, 3, ENC_BIG_ENDIAN);
+  vendor_type = (guint32 *)g_malloc(sizeof(guint32));
+
+  proto_tree_add_item_ret_uint(eap_tree, hf_eap_ext_vendor_id, tvb, offset, 3, ENC_BIG_ENDIAN, &vendor_id);
   offset += 3;
   size   -= 3;
 
-  proto_tree_add_item(eap_tree, hf_eap_ext_vendor_type, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint(eap_tree, hf_eap_ext_vendor_type, tvb, offset, 4, ENC_BIG_ENDIAN, vendor_type);
   offset += 4;
   size   -= 4;
 
-  /* Generic method to support multiple vendor-defined extended types goes here :-) */
-  dissect_exteap_wps(eap_tree, tvb, offset, size, pinfo);
+  next_tvb = tvb_new_subset_remaining(tvb, offset);
+  if (!dissector_try_uint_new(eap_expanded_type_dissector_table,
+    vendor_id, next_tvb, pinfo, eap_tree,
+    FALSE, vendor_type)) {
+    call_data_dissector(next_tvb, pinfo, eap_tree);
+  }
+
+  g_free(vendor_type);
 }
 /* *********************************************************************
 ********************************************************************* */
@@ -1712,6 +1721,12 @@ proto_register_eap(void)
 
   reassembly_table_register(&eap_tls_reassembly_table,
                         &addresses_reassembly_table_functions);
+
+  eap_expanded_type_dissector_table = register_dissector_table("eap.ext.vendor_id",
+    "EAP-EXT Vendor Id",
+    proto_eap, FT_UINT24,
+    BASE_HEX);
+
 }
 
 void
