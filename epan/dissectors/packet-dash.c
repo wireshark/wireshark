@@ -81,6 +81,16 @@ static const value_string inv_types[] =
   { 17, "MSG_GOVERNANCE_OBJECT" },
   { 18, "MSG_GOVERNANCE_OBJECT_VOTE" },
   { 19, "MSG_MASTERNODE_VERIFY" },
+  { 20, "MSG_CMPCT_BLOCK" },
+  { 21, "MSG_QUORUM_FINAL_COMMITMENT" },
+  { 23, "MSG_QUORUM_CONTRIB" },
+  { 24, "MSG_QUORUM_COMPLAINT" },
+  { 25, "MSG_QUORUM_JUSTIFICATION" },
+  { 26, "MSG_QUORUM_PREMATURE_COMMITMENT" },
+  { 27, "MSG_QUORUM_DEBUG_STATUS" },
+  { 28, "MSG_QUORUM_RECOVERED_SIG" },
+  { 29, "MSG_QUORUM_CLSIG" },
+  { 30, "MSG_QUORUM_ISLOCK" },
   { 0, NULL }
 };
 
@@ -172,6 +182,7 @@ static const value_string private_send_denomination[] =
   { 0x02, "1 DASH" },
   { 0x04, "0.1 DASH" },
   { 0x08, "0.01 DASH" },
+  { 0x10, "0.001 DASH" },
 };
 
 static const value_string pool_message[] =
@@ -229,12 +240,18 @@ static const value_string spork_description[] =
   { 10001, "SPORK_2_INSTANTSEND_ENABLED" },
   { 10002, "SPORK_3_INSTANTSEND_BLOCK_FILTERING" },
   { 10004, "SPORK_5_INSTANTSEND_MAX_VALUE" },
-  { 10007, "SPORK_8_MASTERNODE_PAYMENT_ENFORCEMENT" },
+  { 10007, "DEPRECATED_SPORK_8_MASTERNODE_PAYMENT_ENFORCEMENT" },
   { 10008, "SPORK_9_SUPERBLOCKS_ENABLED" },
-  { 10009, "SPORK_10_MASTERNODE_PAY_UPDATED_NODES" },
+  { 10009, "DEPRECATED_SPORK_10_MASTERNODE_PAY_UPDATED_NODES" },
   { 10011, "SPORK_12_RECONSIDER_BLOCKS" },
-  { 10012, "SPORK_13_OLD_SUPERBLOCK_FLAG" },
-  { 10013, "SPORK_14_REQUIRE_SENTINEL_FLAG" },
+  { 10012, "DEPRECATED_SPORK_13_OLD_SUPERBLOCK_FLAG" },
+  { 10013, "DEPRECATED_SPORK_14_REQUIRE_SENTINEL_FLAG" },
+  { 10014, "SPORK_15_DETERMINISTIC_MNS_ENABLED" },
+  { 10015, "SPORK_16_INSTANTSEND_AUTOLOCKS" },
+  { 10016, "SPORK_17_QUORUM_DKG_ENABLED" },
+  { 10017, "SPORK_18_QUORUM_DEBUG_ENABLED" },
+  { 10018, "SPORK_19_CHAINLOCKS_ENABLED" },
+  { 10019, "SPORK_20_INSTANTSEND_LLMQ_BASED" },
 
 };
 
@@ -288,7 +305,7 @@ static const value_string special_tx_type[] =
   { 3, "Provider Update - Registrar (ProUpRegTx)" },
   { 4, "Provider Update - Key Revocation (ProUpRevTx)" },
   { 5, "Coinbase (CbTx)" },
-  { 6, "RESERVED" },
+  { 6, "Quorum Commitment (QcTx)" },
   { 7, "RESERVED" },
   { 8, "Subscription - Registration (SubTxRegister)" },
   { 9, "Subscription - Topup (SubTxTopup)" },
