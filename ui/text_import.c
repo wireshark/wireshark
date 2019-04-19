@@ -493,7 +493,6 @@ write_current_packet (void)
 
             HDR_TCP.source_port = isOutbound ? g_htons(hdr_dest_port): g_htons(hdr_src_port);
             HDR_TCP.dest_port = isOutbound ? g_htons(hdr_src_port) : g_htons(hdr_dest_port);
-            HDR_TCP.dest_port = g_htons(hdr_dest_port);
             /* set ack number if we have direction */
             if (has_direction) {
                 HDR_TCP.flags = 0x10;
