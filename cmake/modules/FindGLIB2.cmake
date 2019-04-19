@@ -24,19 +24,14 @@ FindWSWinLibs( "glib2-*" "GLIB2_HINTS" )
 
 if (NOT WIN32)
 	find_package(PkgConfig)
-
-	if( GLIB2_MIN_VERSION )
-		pkg_search_module( GLIB2 glib-2.0>=${GLIB2_MIN_VERSION} )
-	else()
-		pkg_search_module( GLIB2 glib-2.0 )
-	endif()
+	pkg_search_module( PC_GLIB2 glib-2.0 )
 endif()
 
 find_path( GLIB2_MAIN_INCLUDE_DIR
 	NAMES
 		glib.h
 	HINTS
-		"${GLIB2_INCLUDEDIR}"
+		"${PC_GLIB2_INCLUDEDIR}"
 		"${GLIB2_HINTS}/include"
 	PATH_SUFFIXES
 		glib-2.0
@@ -54,7 +49,7 @@ find_library( GLIB2_LIBRARY
 		glib-2.0
 		libglib-2.0
 	HINTS
-		"${GLIB2_LIBDIR}"
+		"${PC_GLIB2_LIBDIR}"
 		"${GLIB2_HINTS}/lib"
 	PATHS
 		/opt/gnome/lib64
@@ -83,11 +78,29 @@ find_path( GLIB2_INTERNAL_INCLUDE_DIR
 
 )
 
+if(PC_GLIB2_VERSION)
+	set(GLIB2_VERSION ${PC_GLIB2_VERSION})
+elseif(GLIB2_INTERNAL_INCLUDE_DIR)
+	# On systems without pkg-config (e.g. Windows), search its header
+	# (available since the initial commit of GLib).
+	file(STRINGS ${GLIB2_INTERNAL_INCLUDE_DIR}/glibconfig.h GLIB_MAJOR_VERSION
+		REGEX "#define[ ]+GLIB_MAJOR_VERSION[ ]+[0-9]+")
+	string(REGEX MATCH "[0-9]+" GLIB_MAJOR_VERSION ${GLIB_MAJOR_VERSION})
+	file(STRINGS ${GLIB2_INTERNAL_INCLUDE_DIR}/glibconfig.h GLIB_MINOR_VERSION
+		REGEX "#define[ ]+GLIB_MINOR_VERSION[ ]+[0-9]+")
+	string(REGEX MATCH "[0-9]+" GLIB_MINOR_VERSION ${GLIB_MINOR_VERSION})
+	file(STRINGS ${GLIB2_INTERNAL_INCLUDE_DIR}/glibconfig.h GLIB_MICRO_VERSION
+		REGEX "#define[ ]+GLIB_MICRO_VERSION[ ]+[0-9]+")
+	string(REGEX MATCH "[0-9]+" GLIB_MICRO_VERSION ${GLIB_MICRO_VERSION})
+	set(GLIB2_VERSION ${GLIB_MAJOR_VERSION}.${GLIB_MINOR_VERSION}.${GLIB_MICRO_VERSION})
+else()
+	set(GLIB2_VERSION "")
+endif()
+
 include( FindPackageHandleStandardArgs )
 find_package_handle_standard_args( GLIB2
-	DEFAULT_MSG
-	GLIB2_LIBRARY
-	GLIB2_MAIN_INCLUDE_DIR
+	REQUIRED_VARS   GLIB2_LIBRARY GLIB2_MAIN_INCLUDE_DIR GLIB2_INTERNAL_INCLUDE_DIR
+	VERSION_VAR     GLIB2_VERSION
 )
 
 if( GLIB2_FOUND )
