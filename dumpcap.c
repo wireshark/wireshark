@@ -1348,6 +1348,12 @@ static void *cap_thread_read(void *arg)
         }
         g_mutex_unlock(pcap_src->cap_pipe_read_mtx);
     }
+    /* Post to queue if we didn't read enough data as the main thread waits for the message */
+    g_mutex_lock(pcap_src->cap_pipe_read_mtx);
+    if (pcap_src->cap_pipe_bytes_read < pcap_src->cap_pipe_bytes_to_read) {
+        g_async_queue_push(pcap_src->cap_pipe_done_q, pcap_src->cap_pipe_buf); /* Any non-NULL value will do */
+    }
+    g_mutex_unlock(pcap_src->cap_pipe_read_mtx);
     return NULL;
 }
 #endif
