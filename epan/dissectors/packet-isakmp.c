@@ -369,6 +369,43 @@ static int hf_isakmp_cfg_attr_xauth_answer = -1;
 static int hf_isakmp_cfg_attr_unity_banner = -1;
 static int hf_isakmp_cfg_attr_unity_def_domain = -1;
 
+static int hf_isakmp_sak_protocol = -1;
+static int hf_isakmp_sak_src_id_type = -1;
+static int hf_isakmp_sak_src_id_port = -1;
+static int hf_isakmp_sak_src_id_length = -1;
+static int hf_isakmp_sak_src_id_data = -1;
+static int hf_isakmp_sak_dst_id_type = -1;
+static int hf_isakmp_sak_dst_id_port = -1;
+static int hf_isakmp_sak_dst_id_length = -1;
+static int hf_isakmp_sak_dst_id_data = -1;
+static int hf_isakmp_sak_spi = -1;
+static int hf_isakmp_sak_kek_attributes = -1;
+
+static int hf_isakmp_sat_protocol_id = -1;
+static int hf_isakmp_sat_protocol = -1;
+static int hf_isakmp_sat_src_id_type = -1;
+static int hf_isakmp_sat_src_id_port = -1;
+static int hf_isakmp_sat_src_id_length = -1;
+static int hf_isakmp_sat_src_id_data = -1;
+static int hf_isakmp_sat_dst_id_type = -1;
+static int hf_isakmp_sat_dst_id_port = -1;
+static int hf_isakmp_sat_dst_id_length = -1;
+static int hf_isakmp_sat_dst_id_data = -1;
+static int hf_isakmp_sat_transform_id = -1;
+static int hf_isakmp_sat_spi = -1;
+static int hf_isakmp_sat_sa_attributes = -1;
+static int hf_isakmp_sat_payload = -1;
+
+static int hf_isakmp_kd_num_key_pkt = -1;
+static int hf_isakmp_kd_payload = -1;
+static int hf_isakmp_kdp_type = -1;
+static int hf_isakmp_kdp_length = -1;
+static int hf_isakmp_kdp_spi_size = -1;
+static int hf_isakmp_kdp_spi = -1;
+static int hf_isakmp_kdp_attributes = -1;
+
+static int hf_isakmp_seq_seq = -1;
+
 static int hf_isakmp_enc_decrypted_data = -1;
 static int hf_isakmp_enc_contained_data = -1;
 static int hf_isakmp_enc_pad_length= -1;
@@ -390,6 +427,7 @@ static gint ett_isakmp_notify_data = -1;
 static gint ett_isakmp_notify_data_3gpp_emergency_call_numbers_main = -1;
 static gint ett_isakmp_notify_data_3gpp_emergency_call_numbers_element = -1;
 static gint ett_isakmp_ts = -1;
+static gint ett_isakmp_kd = -1;
 /* For decrypted IKEv2 Encrypted payload*/
 static gint ett_isakmp_decrypted_data = -1;
 static gint ett_isakmp_decrypted_payloads = -1;
@@ -542,8 +580,11 @@ static const fragment_items isakmp_frag_items = {
 #define PLOAD_IKE_D                     12
 #define PLOAD_IKE_VID                   13
 #define PLOAD_IKE_A                     14
-#define PLOAD_IKE_NAT_D48               15
-#define PLOAD_IKE_NAT_OA58              16
+#define PLOAD_IKE_SAK                   15
+#define PLOAD_IKE_SAT                   16
+#define PLOAD_IKE_KD                    17
+#define PLOAD_IKE_SEQ                   18
+#define PLOAD_IKE_POP                   19
 #define PLOAD_IKE_NAT_D                 20
 #define PLOAD_IKE_NAT_OA                21
 #define PLOAD_IKE_GAP                   22
@@ -628,53 +669,56 @@ static const value_string protoid_v2_type[] = {
 };
 
 static const range_string payload_type[] = {
-  { PLOAD_IKE_NONE,PLOAD_IKE_NONE,      "NONE / No Next Payload " },
-  { PLOAD_IKE_SA,PLOAD_IKE_SA,  "Security Association" },
-  { PLOAD_IKE_P,PLOAD_IKE_P,    "Proposal" },
-  { PLOAD_IKE_T,PLOAD_IKE_T,    "Transform" },
-  { PLOAD_IKE_KE,PLOAD_IKE_KE,  "Key Exchange" },
-  { PLOAD_IKE_ID,PLOAD_IKE_ID,  "Identification" },
-  { PLOAD_IKE_CERT,PLOAD_IKE_CERT,      "Certificate" },
-  { PLOAD_IKE_CR,PLOAD_IKE_CR,  "Certificate Request" },
-  { PLOAD_IKE_HASH,PLOAD_IKE_HASH,      "Hash" },
-  { PLOAD_IKE_SIG,PLOAD_IKE_SIG,        "Signature" },
-  { PLOAD_IKE_NONCE,PLOAD_IKE_NONCE,    "Nonce" },
-  { PLOAD_IKE_N,PLOAD_IKE_N,    "Notification" },
-  { PLOAD_IKE_D,PLOAD_IKE_D,    "Delete" },
-  { PLOAD_IKE_VID,PLOAD_IKE_VID,        "Vendor ID" },
-  { PLOAD_IKE_A,PLOAD_IKE_A,    "Attributes" }, /* draft-ietf-ipsec-isakmp-mode-cfg-05.txt */
-  { PLOAD_IKE_NAT_D48,PLOAD_IKE_NAT_D48, "NAT-Discovery" }, /* draft-ietf-ipsec-nat-t-ike-04 to 08 */
-  { PLOAD_IKE_NAT_OA58,PLOAD_IKE_NAT_OA58, "NAT-Original Address"}, /* draft-ietf-ipsec-nat-t-ike-05 to 08*/
-  { PLOAD_IKE_NAT_D,PLOAD_IKE_NAT_D, "NAT-D (RFC 3947)" },
-  { PLOAD_IKE_NAT_OA,PLOAD_IKE_NAT_OA, "NAT-OA (RFC 3947)"},
-  { PLOAD_IKE_GAP,PLOAD_IKE_GAP, "Group Associated Policy"},
-  { PLOAD_IKE2_SA,PLOAD_IKE2_SA, "Security Association"},
-  { PLOAD_IKE2_KE,PLOAD_IKE2_KE, "Key Exchange"},
-  { PLOAD_IKE2_IDI,PLOAD_IKE2_IDI, "Identification - Initiator"},
-  { PLOAD_IKE2_IDR,PLOAD_IKE2_IDR, "Identification - Responder"},
-  { PLOAD_IKE2_CERT,PLOAD_IKE2_CERT, "Certificate"},
-  { PLOAD_IKE2_CERTREQ,PLOAD_IKE2_CERTREQ, "Certificate Request"},
-  { PLOAD_IKE2_AUTH,PLOAD_IKE2_AUTH, "Authentication"},
-  { PLOAD_IKE2_NONCE,PLOAD_IKE2_NONCE, "Nonce"},
-  { PLOAD_IKE2_N,PLOAD_IKE2_N, "Notify"},
-  { PLOAD_IKE2_D,PLOAD_IKE2_D, "Delete"},
-  { PLOAD_IKE2_V,PLOAD_IKE2_V, "Vendor ID"},
-  { PLOAD_IKE2_TSI,PLOAD_IKE2_TSI, "Traffic Selector - Initiator"},
-  { PLOAD_IKE2_TSR,PLOAD_IKE2_TSR, "Traffic Selector - Responder"},
-  { PLOAD_IKE2_SK,PLOAD_IKE2_SK, "Encrypted and Authenticated"},
-  { PLOAD_IKE2_CP,PLOAD_IKE2_CP, "Configuration"},
-  { PLOAD_IKE2_EAP,PLOAD_IKE2_EAP, "Extensible Authentication"},
-  { PLOAD_IKE2_GSPM,PLOAD_IKE2_GSPM, "Generic Secure Password Method"},
-  { PLOAD_IKE2_IDG,PLOAD_IKE2_IDG, "Group Identification"},
-  { PLOAD_IKE2_GSA,PLOAD_IKE2_GSA, "Group Security Association"},
-  { PLOAD_IKE2_KD,PLOAD_IKE2_KD, "Key Download"},
-  { PLOAD_IKE2_SKF,PLOAD_IKE2_SKF, "Encrypted and Authenticated Fragment"},
-  { 54,127,    "Unassigned"     },
-  { 128,129,    "Private Use"   },
-  { PLOAD_IKE_NAT_D13,PLOAD_IKE_NAT_D13, "NAT-D (draft-ietf-ipsec-nat-t-ike-01 to 03)"},
-  { PLOAD_IKE_NAT_OA14,PLOAD_IKE_NAT_OA14, "NAT-OA (draft-ietf-ipsec-nat-t-ike-01 to 03)"},
+  { PLOAD_IKE_NONE,PLOAD_IKE_NONE,             "NONE / No Next Payload " },
+  { PLOAD_IKE_SA,PLOAD_IKE_SA,                 "Security Association" },
+  { PLOAD_IKE_P,PLOAD_IKE_P,                   "Proposal" },
+  { PLOAD_IKE_T,PLOAD_IKE_T,                   "Transform" },
+  { PLOAD_IKE_KE,PLOAD_IKE_KE,                 "Key Exchange" },
+  { PLOAD_IKE_ID,PLOAD_IKE_ID,                 "Identification" },
+  { PLOAD_IKE_CERT,PLOAD_IKE_CERT,             "Certificate" },
+  { PLOAD_IKE_CR,PLOAD_IKE_CR,                 "Certificate Request" },
+  { PLOAD_IKE_HASH,PLOAD_IKE_HASH,             "Hash" },
+  { PLOAD_IKE_SIG,PLOAD_IKE_SIG,               "Signature" },
+  { PLOAD_IKE_NONCE,PLOAD_IKE_NONCE,           "Nonce" },
+  { PLOAD_IKE_N,PLOAD_IKE_N,                   "Notification" },
+  { PLOAD_IKE_D,PLOAD_IKE_D,                   "Delete" },
+  { PLOAD_IKE_VID,PLOAD_IKE_VID,               "Vendor ID" },
+  { PLOAD_IKE_A,PLOAD_IKE_A,                   "Attributes" }, /* draft-ietf-ipsec-isakmp-mode-cfg-05.txt */
+  { PLOAD_IKE_SAK,PLOAD_IKE_SAK,               "SA KEK Payload" }, /* Reassigned with RFC3547; formerly: draft-ietf-ipsec-nat-t-ike-04 to 08 */
+  { PLOAD_IKE_SAT,PLOAD_IKE_SAT,               "SA TEK Payload"}, /* Reassigned with RFC3547; formerly: draft-ietf-ipsec-nat-t-ike-05 to 08*/
+  { PLOAD_IKE_KD,PLOAD_IKE_KD,                 "Key Download" },
+  { PLOAD_IKE_SEQ,PLOAD_IKE_SEQ,               "Sequence Number" },
+  { PLOAD_IKE_POP,PLOAD_IKE_POP,               "Proof of Possession" }, /* According to RFC6407 deprecated */
+  { PLOAD_IKE_NAT_D,PLOAD_IKE_NAT_D,           "NAT-D (RFC 3947)" },
+  { PLOAD_IKE_NAT_OA,PLOAD_IKE_NAT_OA,         "NAT-OA (RFC 3947)"},
+  { PLOAD_IKE_GAP,PLOAD_IKE_GAP,               "Group Associated Policy"},
+  { PLOAD_IKE2_SA,PLOAD_IKE2_SA,               "Security Association"},
+  { PLOAD_IKE2_KE,PLOAD_IKE2_KE,               "Key Exchange"},
+  { PLOAD_IKE2_IDI,PLOAD_IKE2_IDI,             "Identification - Initiator"},
+  { PLOAD_IKE2_IDR,PLOAD_IKE2_IDR,             "Identification - Responder"},
+  { PLOAD_IKE2_CERT,PLOAD_IKE2_CERT,           "Certificate"},
+  { PLOAD_IKE2_CERTREQ,PLOAD_IKE2_CERTREQ,     "Certificate Request"},
+  { PLOAD_IKE2_AUTH,PLOAD_IKE2_AUTH,           "Authentication"},
+  { PLOAD_IKE2_NONCE,PLOAD_IKE2_NONCE,         "Nonce"},
+  { PLOAD_IKE2_N,PLOAD_IKE2_N,                 "Notify"},
+  { PLOAD_IKE2_D,PLOAD_IKE2_D,                 "Delete"},
+  { PLOAD_IKE2_V,PLOAD_IKE2_V,                 "Vendor ID"},
+  { PLOAD_IKE2_TSI,PLOAD_IKE2_TSI,             "Traffic Selector - Initiator"},
+  { PLOAD_IKE2_TSR,PLOAD_IKE2_TSR,             "Traffic Selector - Responder"},
+  { PLOAD_IKE2_SK,PLOAD_IKE2_SK,               "Encrypted and Authenticated"},
+  { PLOAD_IKE2_CP,PLOAD_IKE2_CP,               "Configuration"},
+  { PLOAD_IKE2_EAP,PLOAD_IKE2_EAP,             "Extensible Authentication"},
+  { PLOAD_IKE2_GSPM,PLOAD_IKE2_GSPM,           "Generic Secure Password Method"},
+  { PLOAD_IKE2_IDG,PLOAD_IKE2_IDG,             "Group Identification"},
+  { PLOAD_IKE2_GSA,PLOAD_IKE2_GSA,             "Group Security Association"},
+  { PLOAD_IKE2_KD,PLOAD_IKE2_KD,               "Key Download"},
+  { PLOAD_IKE2_SKF,PLOAD_IKE2_SKF,             "Encrypted and Authenticated Fragment"},
+  { 54,127,                                    "Unassigned"     },
+  { 128,129,                                   "Private Use"   },
+  { PLOAD_IKE_NAT_D13,PLOAD_IKE_NAT_D13,       "NAT-D (draft-ietf-ipsec-nat-t-ike-01 to 03)"},
+  { PLOAD_IKE_NAT_OA14,PLOAD_IKE_NAT_OA14,     "NAT-OA (draft-ietf-ipsec-nat-t-ike-01 to 03)"},
   { PLOAD_IKE_CISCO_FRAG,PLOAD_IKE_CISCO_FRAG, "Cisco-Fragmentation"},
-  { 133,256,    "Private Use"   },
+  { 133,256,                                   "Private Use"   },
   { 0,0,        NULL },
   };
 
@@ -1695,6 +1739,26 @@ static const range_string signature_hash_algorithms[] = {
   {0,0,         NULL },
 };
 
+static const range_string sat_protocol_ids[] = {
+  { 0,0,      "Reserved" },
+  { 1,1,      "GDOI_PROTO_IPSEC_ESP" },
+  { 2,2,      "GDOI_PROTO_IPSEC_AH" },
+  { 3,127,    "Unassigned" },
+  { 128, 255, "Private Use" },
+  { 0,0,      NULL },
+};
+
+static const range_string key_download_types[] = {
+  { 0,0,      "Reserved" },
+  { 1,1,      "TEK" },
+  { 2,2,      "KEK" },
+  { 3,3,      "LKH" },
+  { 4,4,      "SID" },
+  { 5,127,    "Unassigned" },
+  { 128, 255, "Private Use" },
+  { 0,0,      NULL },
+};
+
 static const value_string device_identity_types[] = {
   { 0x01,  "IMEI" },
   { 0x02,  "IMEISV" },
@@ -2305,6 +2369,10 @@ static void dissect_notif(tvbuff_t *, packet_info *, int, int, proto_tree *, int
 static void dissect_delete(tvbuff_t *, int, int, proto_tree *, int);
 static int dissect_vid(tvbuff_t *, int, int, proto_tree *);
 static void dissect_config(tvbuff_t *, packet_info *, int, int, proto_tree *, int, gboolean);
+static void dissect_sa_kek(tvbuff_t *, packet_info *, int, int, proto_tree *);
+static void dissect_sa_tek(tvbuff_t *, packet_info *, int, int, proto_tree *);
+static void dissect_key_download(tvbuff_t *, packet_info *, int, int, proto_tree *, int);
+static void dissect_sequence(tvbuff_t *, packet_info *, int, int, proto_tree *);
 static void dissect_nat_discovery(tvbuff_t *, int, int, proto_tree * );
 static void dissect_nat_original_address(tvbuff_t *, int, int, proto_tree *, int );
 static void dissect_ts_payload(tvbuff_t *, int, int, proto_tree *);
@@ -3078,6 +3146,18 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree,
           case PLOAD_IKE2_CP:
             dissect_config(tvb, pinfo, offset + 4, payload_length - 4, ntree, isakmp_version, is_request);
             break;
+          case PLOAD_IKE_SAK:
+            dissect_sa_kek(tvb, pinfo, offset + 4, payload_length - 4, ntree);
+            break;
+          case PLOAD_IKE_SAT:
+            dissect_sa_tek(tvb, pinfo, offset + 4, payload_length - 4, ntree);
+            break;
+          case PLOAD_IKE_KD:
+            dissect_key_download(tvb, pinfo, offset + 4, payload_length - 4, ntree, isakmp_version);
+            break;
+          case PLOAD_IKE_SEQ:
+            dissect_sequence(tvb, pinfo, offset + 4, payload_length - 4, ntree);
+            break;
           case PLOAD_IKE2_AUTH:
             dissect_auth(tvb, offset + 4, payload_length - 4, ntree);
             break;
@@ -3097,12 +3177,10 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree,
             break;
           case PLOAD_IKE_NAT_D:
           case PLOAD_IKE_NAT_D13:
-          case PLOAD_IKE_NAT_D48:
             dissect_nat_discovery(tvb, offset + 4, payload_length - 4, ntree );
             break;
           case PLOAD_IKE_NAT_OA:
           case PLOAD_IKE_NAT_OA14:
-          case PLOAD_IKE_NAT_OA58:
             dissect_nat_original_address(tvb, offset + 4, payload_length - 4, ntree, isakmp_version );
             break;
           case PLOAD_IKE_CISCO_FRAG:
@@ -5285,6 +5363,145 @@ dissect_config(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_
 }
 
 static void
+dissect_sa_kek(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length, proto_tree *tree)
+{
+  int offset_end = 0;
+  guint32 src_id_length, dst_id_length;
+  offset_end = offset + length;
+
+  proto_tree_add_item(tree, hf_isakmp_sak_protocol, tvb, offset, 1, ENC_BIG_ENDIAN);
+  offset += 1;
+  proto_tree_add_item(tree, hf_isakmp_sak_src_id_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+  offset += 1;
+  proto_tree_add_item(tree, hf_isakmp_sak_src_id_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+  proto_tree_add_item_ret_uint(tree, hf_isakmp_sak_src_id_length, tvb, offset, 1, ENC_BIG_ENDIAN, &src_id_length);
+  offset += 1;
+  if (src_id_length > 0) {
+    proto_tree_add_item(tree, hf_isakmp_sak_src_id_data, tvb, offset, src_id_length, ENC_NA);
+    offset += src_id_length;
+  }
+  proto_tree_add_item(tree, hf_isakmp_sak_dst_id_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+  offset += 1;
+  proto_tree_add_item(tree, hf_isakmp_sak_dst_id_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+  offset += 2;
+  proto_tree_add_item_ret_uint(tree, hf_isakmp_sak_dst_id_length, tvb, offset, 1, ENC_BIG_ENDIAN, &dst_id_length);
+  offset += 1;
+  if (dst_id_length > 0) {
+    proto_tree_add_item(tree, hf_isakmp_sak_dst_id_data, tvb, offset, dst_id_length, ENC_NA);
+    offset += dst_id_length;
+  }
+  proto_tree_add_item(tree, hf_isakmp_sak_spi, tvb, offset, 16, ENC_NA);
+  offset += 16;
+  proto_tree_add_item(tree, hf_isakmp_reserved, tvb, offset, 4, ENC_NA);
+  offset += 4;
+  proto_tree_add_item(tree, hf_isakmp_sak_kek_attributes, tvb, offset, offset_end - offset, ENC_NA);
+  offset += (offset_end - offset);
+}
+
+static void
+dissect_sa_tek(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length, proto_tree *tree)
+{
+  int offset_end = 0;
+  guint32 protocol_id, src_id_length, dst_id_length;
+  offset_end = offset + length;
+
+  proto_tree_add_item_ret_uint(tree, hf_isakmp_sat_protocol_id, tvb, offset, 1, ENC_BIG_ENDIAN, &protocol_id);
+  offset += 1;
+  if (protocol_id == 1 || protocol_id == 2) {
+    proto_tree_add_item(tree, hf_isakmp_sat_protocol, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_isakmp_sat_src_id_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_isakmp_sat_src_id_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item_ret_uint(tree, hf_isakmp_sat_src_id_length, tvb, offset, 1, ENC_BIG_ENDIAN, &src_id_length);
+    offset += 1;
+    if (src_id_length > 0) {
+      proto_tree_add_item(tree, hf_isakmp_sat_src_id_data, tvb, offset, src_id_length, ENC_NA);
+      offset += src_id_length;
+    }
+    proto_tree_add_item(tree, hf_isakmp_sat_dst_id_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_isakmp_sat_dst_id_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item_ret_uint(tree, hf_isakmp_sat_dst_id_length, tvb, offset, 1, ENC_BIG_ENDIAN, &dst_id_length);
+    offset += 1;
+    if (dst_id_length > 0) {
+      proto_tree_add_item(tree, hf_isakmp_sat_dst_id_data, tvb, offset, dst_id_length, ENC_NA);
+      offset += dst_id_length;
+    }
+    proto_tree_add_item(tree, hf_isakmp_sat_transform_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_isakmp_sat_spi, tvb, offset, 4, ENC_NA);
+    offset += 4;
+    proto_tree_add_item(tree, hf_isakmp_sat_sa_attributes, tvb, offset, offset_end - offset, ENC_NA);
+    offset += (offset_end - offset);
+  } else {
+    proto_tree_add_item(tree, hf_isakmp_sat_payload, tvb, offset, offset_end - offset, ENC_NA);
+    offset += (offset_end - offset);
+  }
+
+}
+
+static void
+dissect_key_download(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length, proto_tree *tree, int isakmp_version)
+{
+  int offset_end = 0;
+  guint32 num_key_pkt, kdp_length, kdp_spi_size;
+  offset_end = offset + length;
+  proto_item    *kd_item;
+  proto_tree    *payload_tree;
+
+  if (isakmp_version == 1) {
+
+    proto_tree_add_item_ret_uint(tree, hf_isakmp_kd_num_key_pkt, tvb, offset, 2, ENC_BIG_ENDIAN, &num_key_pkt);
+    offset += 2;
+    proto_tree_add_item(tree, hf_isakmp_reserved, tvb, offset, 2, ENC_NA);
+    offset += 2;
+    while ((num_key_pkt > 0) && (offset_end > offset)) {
+      kd_item = proto_tree_add_item(tree, hf_isakmp_kd_payload, tvb, offset, tvb_get_ntohs(tvb, offset + 2), ENC_NA);
+      payload_tree = proto_item_add_subtree(kd_item, ett_isakmp_kd);
+      proto_tree_add_item(payload_tree, hf_isakmp_kdp_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+      offset += 1;
+      proto_tree_add_item(payload_tree, hf_isakmp_reserved, tvb, offset, 1, ENC_NA);
+      offset += 1;
+      proto_tree_add_item_ret_uint(payload_tree, hf_isakmp_kdp_length, tvb, offset, 2, ENC_BIG_ENDIAN, &kdp_length);
+      offset += 2;
+      proto_tree_add_item_ret_uint(payload_tree, hf_isakmp_kdp_spi_size, tvb, offset, 1, ENC_BIG_ENDIAN, &kdp_spi_size);
+      offset += 1;
+      if (kdp_spi_size > 0) {
+        proto_tree_add_item(payload_tree, hf_isakmp_kdp_spi, tvb, offset, kdp_spi_size, ENC_NA);
+        offset += kdp_spi_size;
+      }
+      if (kdp_length > 0) {
+        proto_tree_add_item(payload_tree, hf_isakmp_kdp_attributes, tvb, offset, kdp_length - 5 - kdp_spi_size, ENC_NA);
+        offset += kdp_length - 5 - kdp_spi_size;
+      }
+      num_key_pkt -= 1;
+    }
+
+  } else if (isakmp_version == 2) {
+    /* TODO: currently only draft status: draft-yeung-g-ikev2-15 */
+    return;
+  } else {
+    /* Skip dissection for unknown IKE versions. */
+    return;
+  }
+}
+
+static void
+dissect_sequence(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree)
+{
+  if (length != 4) {
+    proto_tree_add_expert_format(tree, pinfo, &ei_isakmp_payload_bad_length, tvb, 0, 0,
+                                 "Payload (bogus, length is %u, should be 4", length);
+    return;
+  }
+  proto_tree_add_item(tree, hf_isakmp_seq_seq, tvb, offset, 4, ENC_BIG_ENDIAN);
+}
+
+static void
 dissect_nat_discovery(tvbuff_t *tvb, int offset, int length, proto_tree *tree )
 {
   proto_tree_add_item(tree, hf_isakmp_nat_hash, tvb, offset, length, ENC_NA);
@@ -7274,6 +7491,146 @@ proto_register_isakmp(void)
         FT_STRING, BASE_NONE, NULL, 0x00,
         NULL, HFILL }},
 
+    /* SA KEK Payload */
+    { &hf_isakmp_sak_protocol,
+      { "Protocol ID", "isakmp.sak.protoid",
+        FT_UINT8, BASE_DEC|BASE_EXT_STRING, &ipproto_val_ext, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_sak_src_id_type,
+      { "SRC ID Type", "isakmp.sak.src_id_type",
+        FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(vs_v1_id_type), 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_sak_src_id_port,
+      { "SRC ID Port", "isakmp.sak.src_id_port",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_sak_src_id_length,
+      { "SRC ID Data Length", "isakmp.sak.src_id_length",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_sak_src_id_data,
+      { "SRC ID Data", "isakmp.sak.src_id_data",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_sak_dst_id_type,
+      { "DST ID Type", "isakmp.sak.dst_id_type",
+        FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(vs_v1_id_type), 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_sak_dst_id_port,
+      { "DST ID Port", "isakmp.sak.dst_id_port",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_sak_dst_id_length,
+      { "DST ID Data Length", "isakmp.sak.dst_id_length",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_sak_dst_id_data,
+      { "DST ID Data", "isakmp.sak.dst_id_data",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_sak_spi,
+      { "SPI", "isakmp.sak.spi",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_sak_kek_attributes,
+      { "KEK Attributes", "isakmp.sak.kek_attributes",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    /* SA TEK Payload */
+    { &hf_isakmp_sat_protocol_id,
+      { "Protocol ID", "isakmp.sat.protocol_id",
+         FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(sat_protocol_ids), 0x0,
+         NULL, HFILL }},
+    { &hf_isakmp_sat_protocol,
+      { "Protocol IP ID", "isakmp.sat.ip_proto_id",
+        FT_UINT8, BASE_DEC|BASE_EXT_STRING, &ipproto_val_ext, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_sat_src_id_type,
+      { "SRC ID Type", "isakmp.sat.src_id_type",
+        FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(vs_v1_id_type), 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_sat_src_id_port,
+      { "SRC ID Port", "isakmp.sat.src_id_port",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_sat_src_id_length,
+      { "SRC ID Data Length", "isakmp.sat.src_id_length",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_sat_src_id_data,
+      { "SRC ID Data", "isakmp.sat.src_id_data",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_sat_dst_id_type,
+      { "DST ID Type", "isakmp.sat.dst_id_type",
+        FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(vs_v1_id_type), 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_sat_dst_id_port,
+      { "DST ID Port", "isakmp.sat.dst_id_port",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_sat_dst_id_length,
+      { "DST ID Data Length", "isakmp.sat.dst_id_length",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_sat_dst_id_data,
+      { "DST ID Data", "isakmp.sat.dst_id_data",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_sat_transform_id,
+      { "Transform ID", "isakmp.sat.transform_id",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_sat_spi,
+      { "SPI", "isakmp.sat.spi",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_sat_sa_attributes,
+      { "SA Attributes", "isakmp.sat.sa_attributes",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_sat_payload,
+      { "TEK Payload", "isakmp.sat.payload",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+
+    /* Key Download Payload */
+    { &hf_isakmp_kd_num_key_pkt,
+      { "Number of Key Packets", "isakmp.kd.num_pkt",
+         FT_UINT16, BASE_DEC, NULL, 0x0,
+         NULL, HFILL }},
+    { &hf_isakmp_kd_payload,
+      { "Key Download Paket", "isakmp.kd.payload",
+        FT_NONE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_isakmp_kdp_type,
+      { "Type", "isakmp.kd.payload.type",
+         FT_UINT8, BASE_RANGE_STRING | BASE_DEC, RVALS(key_download_types), 0x0,
+         NULL, HFILL }},
+    { &hf_isakmp_kdp_length,
+      { "Length", "isakmp.kd.payload.length",
+         FT_UINT16, BASE_DEC, NULL, 0x0,
+         NULL, HFILL }},
+    { &hf_isakmp_kdp_spi_size,
+      { "SPI Size", "isakmp.kd.payload.spi_size",
+         FT_UINT8, BASE_DEC, NULL, 0x0,
+         NULL, HFILL }},
+    { &hf_isakmp_kdp_spi,
+      { "SPI", "isakmp.kd.payload.spi",
+         FT_BYTES, BASE_NONE, NULL, 0x0,
+         NULL, HFILL }},
+    { &hf_isakmp_kdp_attributes,
+      { "Key Packet Attributes", "isakmp.kd.payload.kd",
+         FT_BYTES, BASE_NONE, NULL, 0x0,
+         NULL, HFILL }},
+
+    /* Sequence Payload */
+    { &hf_isakmp_seq_seq,
+      { "Sequence Number", "isakmp.seq.seq",
+         FT_UINT32, BASE_DEC, NULL, 0x0,
+         NULL, HFILL }},
+
     { &hf_isakmp_enc_decrypted_data,
       { "Decrypted Data", "isakmp.enc.decrypted",
         FT_NONE, BASE_NONE, NULL, 0x0,
@@ -7380,6 +7737,7 @@ proto_register_isakmp(void)
     &ett_isakmp_notify_data_3gpp_emergency_call_numbers_main,
     &ett_isakmp_notify_data_3gpp_emergency_call_numbers_element,
     &ett_isakmp_ts,
+    &ett_isakmp_kd,
     &ett_isakmp_decrypted_data,
     &ett_isakmp_decrypted_payloads
   };
