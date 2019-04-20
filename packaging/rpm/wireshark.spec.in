@@ -64,8 +64,8 @@ BuildRequires:	bison
 BuildRequires:	asciidoctor
 %endif
 
-BuildRequires:	glib2-devel >= @GLIB2_MIN_VERSION@
-Requires:	glib2 >= @GLIB2_MIN_VERSION@
+BuildRequires:	glib2-devel >= 2.32.0
+Requires:	glib2
 BuildRequires:	libpcap-devel
 Requires:	libpcap
 BuildRequires:	zlib-devel
