@@ -6,15 +6,15 @@
 
 =head1 NAME
 
-wireshark-filter - Wireshark filter syntax and reference
+wireshark-filter - Wireshark display filter syntax and reference
 
 =head1 SYNOPSIS
 
 B<wireshark> [other options]
-S<[ B<-R> "filter expression" ]>
+S<[ B<-Y> "display filter expression" ]>
 
 B<tshark> [other options]
-S<[ B<-R> "filter expression" ]>
+S<[ B<-Y> "display filter expression" ]>
 
 =head1 DESCRIPTION
 
@@ -93,7 +93,7 @@ You can force case sensitivity using
 This is an example of PCRE's B<(?>optionB<)> construct. B<(?-i)> performs a
 case-sensitive pattern match but other options can be specified as well. More
 information can be found in the pcrepattern(3) man page at
-L<http://perldoc.perl.org/perlre.html>).
+L<https://perldoc.perl.org/perlre.html>).
 
 =head2 Functions
 
@@ -462,12 +462,15 @@ The latest version of B<Wireshark> can be found at
 L<https://www.wireshark.org>.
 
 Regular expressions in the "matches" operator are provided by GRegex in GLib.
-See L<http://developer.gnome.org/glib/2.32/glib-regex-syntax.html> or L<http://www.pcre.org/> for more information.
+See L<https://developer.gnome.org/glib/2.32/glib-regex-syntax.html> or L<https://www.pcre.org/> for more information.
 
 This manpage does not describe the capture filter syntax, which is
 different. See the manual page of pcap-filter(7) or, if that doesn't exist,
 tcpdump(8), or, if that doesn't exist, L<https://wiki.wireshark.org/CaptureFilters>
 for a description of capture filters.
+
+Display Filters are also described in the User's Guide:
+L<https://www.wireshark.org/docs/wsug_html_chunked/ChWorkBuildDisplayFilterSection.html>
 
 =head1 SEE ALSO
 
