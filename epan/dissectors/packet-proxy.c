@@ -1,6 +1,7 @@
 /* packet-proxy.c
- * Routines for PROXY(v2) dissection
+ * Routines for HAPROXY PROXY (v1/v2) dissection
  * Copyright 2015, Alexis La Goutte (See AUTHORS)
+ * Copyright 2019 Peter Wu <peter@lekensteyn.nl>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -10,13 +11,23 @@
  */
 
 /*
+ * The PROXY protocol is a single, unfragmented header before the initial client
+ * packet. Following this header, the proxied protocol will take over and
+ * proceed normally.
+ *
  * https://www.haproxy.org/download/1.8/doc/proxy-protocol.txt
+ *
+ * Requires "Try heuristics sub-dissectors first" in TCP protocol preferences.
  */
 
 #include <config.h>
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <wsutil/inet_addr.h>
+#include <wsutil/strtoi.h>
+
+#include <packet-tcp.h>
 
 void proto_reg_handoff_proxy(void);
 void proto_register_proxy(void);
@@ -31,6 +42,11 @@ static int hf_proxy_src_ipv6 = -1;
 static int hf_proxy_dst_ipv6 = -1;
 static int hf_proxy_srcport = -1;
 static int hf_proxy_dstport = -1;
+
+/* V1 */
+static int hf_proxy1_magic = -1;
+static int hf_proxy1_proto = -1;
+static int hf_proxy1_unknown = -1;
 
 /* V2 */
 static int hf_proxy2_magic = -1;
@@ -58,8 +74,10 @@ static int hf_proxy2_tlv_ssl_sig_alg = -1;
 static int hf_proxy2_tlv_ssl_key_alg = -1;
 
 static expert_field ei_proxy_header_length_too_small = EI_INIT;
+static expert_field ei_proxy_bad_format = EI_INIT;
 
 
+static gint ett_proxy1 = -1;
 static gint ett_proxy2 = -1;
 static gint ett_proxy2_fampro = -1;
 static gint ett_proxy2_tlv = -1;
@@ -171,6 +189,219 @@ dissect_proxy_v2_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *proxy_tree, 
 }
 
 
+/* "a 108-byte buffer is always enough to store all the line and a trailing zero" */
+#define PROXY_V1_MAX_LINE_LENGTH 107
+
+static gboolean
+is_proxy_v1(tvbuff_t *tvb, gint *header_length)
+{
+    const int min_header_size = sizeof("PROXY \r\n") - 1;
+    int length = tvb_reported_length(tvb);
+    gint next_offset;
+
+    if (length < min_header_size) {
+        return FALSE;
+    }
+
+    if (tvb_memeql(tvb, 0, "PROXY ", 6) != 0) {
+        return FALSE;
+    }
+
+    length = MIN(length, PROXY_V1_MAX_LINE_LENGTH);
+    if (tvb_find_line_end(tvb, 6, length, &next_offset, FALSE) == -1) {
+        return FALSE;
+    }
+
+    /* The line must end with a CRLF and not just a single CR or LF. */
+    if (tvb_memeql(tvb, next_offset - 2, "\r\n", 2) != 0) {
+        return FALSE;
+    }
+
+    if (header_length) {
+        *header_length = next_offset;
+    }
+    return TRUE;
+}
+
+/**
+ * Scan for the next non-empty token (terminated by a space). If invalid, add
+ * expert info for the remaining part and return FALSE. Otherwise return TRUE
+ * and the token length.
+ */
+static gboolean
+proxy_v1_get_token_length(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int header_length, gchar *token, gint *token_length)
+{
+    gint space_pos = tvb_find_guint8(tvb, offset, header_length - offset, ' ');
+    if (space_pos == -1) {
+        proto_tree_add_expert(tree, pinfo, &ei_proxy_bad_format, tvb, offset, header_length - offset);
+        return FALSE;
+    }
+    gint length = space_pos - offset;
+    if (token && length) {
+        DISSECTOR_ASSERT(length + 1 < PROXY_V1_MAX_LINE_LENGTH);
+        tvb_memcpy(tvb, token, offset, length);
+        token[length] = '\0';
+    }
+    *token_length = length;
+    return length != 0;
+}
+
+static int
+dissect_proxy_v1_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+    proto_item *ti;
+    proto_tree *proxy_tree;
+    guint       offset = 0;
+    gint        header_length = 0;
+    gint        token_length = 0;
+    gint        tcp_ip_version = 0;
+    guint16     port;
+    gchar       buffer[PROXY_V1_MAX_LINE_LENGTH];
+    guint32     addr_ipv4;
+    ws_in6_addr addr_ipv6;
+
+    if (!is_proxy_v1(tvb, &header_length)) {
+        return 0;
+    }
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PROXYv1");
+
+    ti = proto_tree_add_item(tree, proto_proxy, tvb, 0, header_length, ENC_NA);
+    proxy_tree = proto_item_add_subtree(ti, ett_proxy1);
+
+    /* Skip "PROXY" plus a space. */
+    proto_tree_add_item(proxy_tree, hf_proxy1_magic, tvb, offset, 5, ENC_NA);
+    offset += 5 + 1;
+
+    /* Protocol and family */
+    if (!proxy_v1_get_token_length(tvb, pinfo, proxy_tree, offset, header_length, buffer, &token_length)) {
+        return tvb_captured_length(tvb);
+    }
+    proto_tree_add_item(proxy_tree, hf_proxy1_proto, tvb, offset, token_length, ENC_NA|ENC_ASCII);
+    if (token_length == 4) {
+        if (memcmp(buffer, "TCP4", 4) == 0) {
+            tcp_ip_version = 4;
+        } else if (memcmp(buffer, "TCP6", 4) == 0) {
+            tcp_ip_version = 6;
+        }
+    }
+    offset += token_length + 1;
+
+    switch (tcp_ip_version) {
+    case 4:
+        /* IPv4 source address */
+        if (!proxy_v1_get_token_length(tvb, pinfo, proxy_tree, offset, header_length, buffer, &token_length)) {
+            return tvb_captured_length(tvb);
+        }
+        if (!ws_inet_pton4(buffer, &addr_ipv4)) {
+            proto_tree_add_expert_format(proxy_tree, pinfo, &ei_proxy_bad_format, tvb, offset, token_length,
+                    "Unrecognized IPv4 address");
+            return tvb_captured_length(tvb);
+        }
+        proto_tree_add_ipv4(proxy_tree, hf_proxy_src_ipv4, tvb, offset, token_length, addr_ipv4);
+        offset += token_length + 1;
+
+        /* IPv4 destination address */
+        if (!proxy_v1_get_token_length(tvb, pinfo, proxy_tree, offset, header_length, buffer, &token_length)) {
+            return tvb_captured_length(tvb);
+        }
+        if (!ws_inet_pton4(buffer, &addr_ipv4)) {
+            proto_tree_add_expert_format(proxy_tree, pinfo, &ei_proxy_bad_format, tvb, offset, token_length,
+                    "Unrecognized IPv4 address");
+            return tvb_captured_length(tvb);
+        }
+        proto_tree_add_ipv4(proxy_tree, hf_proxy_dst_ipv4, tvb, offset, token_length, addr_ipv4);
+        offset += token_length + 1;
+        break;
+
+    case 6:
+        /* IPv6 source address */
+        if (!proxy_v1_get_token_length(tvb, pinfo, proxy_tree, offset, header_length, buffer, &token_length)) {
+            return tvb_captured_length(tvb);
+        }
+        if (!ws_inet_pton6(buffer, &addr_ipv6)) {
+            proto_tree_add_expert_format(proxy_tree, pinfo, &ei_proxy_bad_format, tvb, offset, token_length,
+                    "Unrecognized IPv6 address");
+            return tvb_captured_length(tvb);
+        }
+        proto_tree_add_ipv6(proxy_tree, hf_proxy_src_ipv6, tvb, offset, token_length, &addr_ipv6);
+        offset += token_length + 1;
+
+        /* IPv6 destination address */
+        if (!proxy_v1_get_token_length(tvb, pinfo, proxy_tree, offset, header_length, buffer, &token_length)) {
+            return tvb_captured_length(tvb);
+        }
+        if (!ws_inet_pton6(buffer, &addr_ipv6)) {
+            proto_tree_add_expert_format(proxy_tree, pinfo, &ei_proxy_bad_format, tvb, offset, token_length,
+                    "Unrecognized IPv6 address");
+            return tvb_captured_length(tvb);
+        }
+        proto_tree_add_ipv6(proxy_tree, hf_proxy_dst_ipv6, tvb, offset, token_length, &addr_ipv6);
+        offset += token_length + 1;
+        break;
+
+    default:
+        proto_tree_add_item(proxy_tree, hf_proxy1_unknown, tvb, offset, header_length - 2 - offset, ENC_NA|ENC_ASCII);
+        return tvb_captured_length(tvb);
+    }
+
+    /* Source port */
+    if (!proxy_v1_get_token_length(tvb, pinfo, proxy_tree, offset, header_length, buffer, &token_length)) {
+        return tvb_captured_length(tvb);
+    }
+    if (!ws_strtou16(buffer, NULL, &port)) {
+        proto_tree_add_expert_format(proxy_tree, pinfo, &ei_proxy_bad_format, tvb, offset, token_length,
+                "Unrecognized port");
+        return tvb_captured_length(tvb);
+    }
+    proto_tree_add_uint(proxy_tree, hf_proxy_srcport, tvb, offset, token_length, port);
+    offset += token_length + 1;
+
+    /* Destination port */
+    token_length = header_length - 2 - offset;
+    if (token_length <= 0) {
+        proto_tree_add_expert(proxy_tree, pinfo, &ei_proxy_bad_format, tvb, offset, token_length);
+        return tvb_captured_length(tvb);
+    }
+    tvb_memcpy(tvb, buffer, offset, token_length);
+    buffer[token_length] = '\0';
+    if (!ws_strtou16(buffer, NULL, &port)) {
+        proto_tree_add_expert_format(proxy_tree, pinfo, &ei_proxy_bad_format, tvb, offset, token_length,
+                "Unrecognized port");
+        return tvb_captured_length(tvb);
+    }
+    proto_tree_add_uint(proxy_tree, hf_proxy_dstport, tvb, offset, token_length, port);
+
+    return header_length;
+}
+
+static int
+dissect_proxy_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    int offset = dissect_proxy_v1_header(tvb, pinfo, tree);
+    if (offset > 0 && tvb_reported_length_remaining(tvb, offset)) {
+        /*
+         * If the PROXY v1 header was successfully parsed with remaining data,
+         * call the next dissector. The port number does not have to be changed
+         * as the PROXY header is just a prefix. This also makes it easier to
+         * use Decode As to replace the next dissector.
+         *
+         * Caveat: if the other dissector uses conversation_set_dissector or
+         * similar, then the second pass will fail to call the PROXY dissector
+         * through heuristics. This affects HTTP.
+         * TODO fix two-pass dissection when coalesced with HTTP, see bug 15714.
+         */
+        tvbuff_t *next_tvb = tvb_new_subset_remaining(tvb, offset);
+        /* Allow subdissector to perform reassembly. */
+        if (pinfo->can_desegment > 0)
+            pinfo->can_desegment++;
+        decode_tcp_ports(next_tvb, 0, pinfo, tree, pinfo->srcport, pinfo->destport,
+                NULL, (struct tcpinfo *)data);
+        offset += tvb_captured_length(next_tvb);
+    }
+    return offset;
+}
+
 static int
 dissect_proxy_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         void *data _U_)
@@ -266,6 +497,9 @@ dissect_proxy_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         // https://www.haproxy.org/download/1.8/doc/proxy-protocol.txt?
         dissect_proxy_v2(tvb, pinfo, tree, data);
         return TRUE;
+    } else if (is_proxy_v1(tvb, NULL)) {
+        dissect_proxy_v1(tvb, pinfo, tree, data);
+        return TRUE;
     }
     return FALSE;
 }
@@ -311,6 +545,22 @@ proto_register_proxy(void)
         { &hf_proxy_dstport,
           { "Destination Port", "proxy.dstport",
             FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
+        { &hf_proxy1_magic,
+          { "PROXY v1 magic", "proxy.v1.magic",
+            FT_NONE, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_proxy1_proto,
+          { "Protocol", "proxy.v1.proto",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            "Proxied protocol and family", HFILL }
+        },
+        { &hf_proxy1_unknown,
+          { "Unknown data", "proxy.v1.unknown",
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
 
@@ -427,6 +677,7 @@ proto_register_proxy(void)
     };
 
     static gint *ett[] = {
+        &ett_proxy1,
         &ett_proxy2,
         &ett_proxy2_fampro,
         &ett_proxy2_tlv,
@@ -434,8 +685,12 @@ proto_register_proxy(void)
 
     static ei_register_info ei[] = {
         { &ei_proxy_header_length_too_small,
-          { "proxy.header.length_too_small",  PI_MALFORMED, PI_WARN,
+          { "proxy.header.length_too_small", PI_MALFORMED, PI_WARN,
             "Header length is too small", EXPFILL }
+        },
+        { &ei_proxy_bad_format,
+          { "proxy.bad_format", PI_MALFORMED, PI_WARN,
+            "Badly formatted PROXY header line", EXPFILL }
         }
     };
 
