@@ -642,7 +642,7 @@ proto_register_btmesh_provisioning(void)
                 NULL, HFILL }
         },
         { &hf_btmesh_provisioning_output_oob_action,
-            { "Static OOB Action", "provisioning.output_oob_action",
+            { "Output OOB Action", "provisioning.output_oob_action",
                 FT_UINT16, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }
         },
