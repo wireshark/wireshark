@@ -3922,6 +3922,7 @@ jaxer-manager	4328/tcp/udp	# Jaxer Manager Command Protocol
 publiqare-sync	4329/tcp	# PubliQare Distributed Environment Synchronisation Engine
 dey-sapi	4330/tcp	# DEY Storage Administration REST API
 ktickets-rest	4331/tcp	# ktickets REST API for event management and ticketing systems (embedded POS devices)
+getty-focus	4332/tcp	# Getty Images FOCUS service
 ahsp		4333/tcp/udp/sctp	# ArrowHead Service Protocol (AHSP)
 netconf-ch-ssh	4334/tcp	# NETCONF Call Home (SSH)
 netconf-ch-tls	4335/tcp	# NETCONF Call Home (TLS)
@@ -5318,6 +5319,7 @@ truecm		8804/tcp/udp
 pfcp		8805/udp	# Destination Port number for PFCP
 hes-clip	8807/udp	# HES-CLIP Interoperability protocol
 ssports-bcast	8808/udp	# STATSports Broadcast Service
+3gpp-monp	8809/udp	# MCPTT Off-Network Protocol (MONP)
 dxspider	8873/tcp/udp	# dxspider linking protocol
 cddbp-alt	8880/tcp/udp	# CDDBP
 galaxy4d	8881/tcp	# Galaxy4D Online Game Engine

@@ -4144,6 +4144,7 @@ Dmitry Lazurkin		<dilaz03[AT]gmail.com>
 Dom Gifford		<Dominic.Gifford[AT]atmel.com>
 Dominic Chen		<d.c.ddcc[AT]gmail.com>
 Doug Brown		<doug[AT]downtowndougbrown.com>
+Dr. Lars Voelker	<lars-github[AT]larsvoelker.de>
 Dr. Lars Voelker	<lars.voelker[AT]bmw.de>
 Dylan Ulis		<daulis0[AT]gmail.com>
 Ebben Aries		<exa[AT]fb.com>
@@ -4664,9 +4665,9 @@ Mattia Cazzola <mattiac[AT]alinet.it> provided a patch to the
 hex dump display routine.
 
 We use the exception module from Kazlib, a C library written by
-Kaz Kylheku <kaz[AT]ashi.footprints.net>. Thanks go to him for
+Kaz Kylheku <kaz[AT]kylheku.com>. Thanks go to him for
 his well-written library. The Kazlib home page can be found at
-http://users.footprints.net/~kaz/kazlib.html
+http://www.kylheku.com/~kaz/kazlib.html
 
 We use Lua BitOp, written by Mike Pall, for bitwise operations
 on numbers in Lua. The Lua BitOp home page can be found at
