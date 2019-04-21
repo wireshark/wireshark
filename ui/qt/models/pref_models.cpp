@@ -513,6 +513,9 @@ bool AdvancedPrefsModel::setData(const QModelIndex &dataindex, const QVariant &v
             prefs_set_color_value(item->getPref(), color, pref_stashed);
             break;
         }
+        case PREF_CUSTOM:
+            prefs_set_custom_value(item->getPref(), value.toString().toStdString().c_str(), pref_stashed);
+            break;
         }
     }
 

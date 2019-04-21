@@ -1060,6 +1060,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  prefs_remove_decode_as_value@Base 2.3.0
  prefs_set_bool_value@Base 2.3.0
  prefs_set_color_value@Base 2.3.0
+ prefs_set_custom_value@Base 3.1.0
  prefs_set_effect_flags@Base 2.5.0
  prefs_set_effect_flags_by_name@Base 2.5.0
  prefs_set_enum_value@Base 2.3.0

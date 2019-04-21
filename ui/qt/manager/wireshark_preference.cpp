@@ -79,6 +79,7 @@ public:
     }
 };
 REGISTER_PREFERENCE_TYPE(PREF_STRING, StringPreference)
+REGISTER_PREFERENCE_TYPE(PREF_CUSTOM, StringPreference)
 
 class UIntPreference : public StringPreference
 {

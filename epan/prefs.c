@@ -1379,6 +1379,18 @@ gboolean prefs_get_enum_radiobuttons(pref_t *pref)
     return pref->info.enum_info.radio_buttons;
 }
 
+/*
+ * For use by UI code that sets preferences.
+ */
+unsigned int
+prefs_set_custom_value(pref_t *pref, const char *value, pref_source_t source _U_)
+{
+    /* XXX - support pref source for custom preferences */
+    unsigned int changed = 0;
+    pref->custom_cbs.set_cb(pref, value, &changed);
+    return changed;
+}
+
 static void
 register_string_like_preference(module_t *module, const char *name,
                                 const char *title, const char *description,

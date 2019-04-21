@@ -237,6 +237,8 @@ WS_DLL_PUBLIC gboolean prefs_get_enum_radiobuttons(pref_t *pref);
 WS_DLL_PUBLIC gboolean prefs_set_color_value(pref_t *pref, color_t value, pref_source_t source);
 WS_DLL_PUBLIC color_t* prefs_get_color_value(pref_t *pref, pref_source_t source);
 
+WS_DLL_PUBLIC unsigned int prefs_set_custom_value(pref_t *pref, const char *value, pref_source_t source);
+
 WS_DLL_PUBLIC unsigned int prefs_set_string_value(pref_t *pref, const char* value, pref_source_t source);
 WS_DLL_PUBLIC char* prefs_get_string_value(pref_t *pref, pref_source_t source);
 
