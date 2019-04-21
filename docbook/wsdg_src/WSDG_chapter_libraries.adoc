@@ -243,7 +243,7 @@ Both are <<ChLibsSetup,automatically downloaded by CMake>>.
 You can download the Npcap Windows packet capture library manually from
 {npcap-main-url}.
 
-[IMPORTANT]
+[WARNING]
 .Npcap has its own license with its own restrictions
 ====
 Insecure.Com LLC, aka “The Nmap Project” has granted the Wireshark
