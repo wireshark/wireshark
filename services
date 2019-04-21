@@ -7829,6 +7829,7 @@ jaxer-manager    4328/udp # Jaxer Manager Command Protocol [Uri_Sarid] [Uri_Sari
 publiqare-sync   4329/tcp # PubliQare Distributed Environment Synchronisation Engine [Tom_Maaswinkel] [Tom_Maaswinkel] 2011-02-07
 dey-sapi         4330/tcp # DEY Storage Administration REST API [DEY_Storage_Systems_Inc] [Garrett_D_Amore] 2013-03-01
 ktickets-rest    4331/tcp # ktickets REST API for event management and ticketing systems (embedded POS devices) [KeyTicket_Solutions] [MANG_Ioan-Alexandru] 2014-04-04
+getty-focus      4332/tcp # Getty Images FOCUS service [Matthew_Margolis] [Bryan_Ramirez] 2019-04-18
 ahsp             4333/tcp # ArrowHead Service Protocol (AHSP) [QuantuMatriX_Technologies] [Matthew_Schultz] 2014-04-10
 ahsp             4333/udp # ArrowHead Service Protocol (AHSP) [QuantuMatriX_Technologies] [Matthew_Schultz] 2014-04-10
 ahsp             4333/sctp # ArrowHead Service Protocol (AHSP) [QuantuMatriX_Technologies] [Matthew_Schultz] 2014-04-10
@@ -10219,6 +10220,7 @@ truecm           8804/udp # truecm [Scott_Kramer] [Scott_Kramer]
 pfcp             8805/udp # Destination Port number for PFCP [Kimmo_Kymalainen] [Kimmo_Kymalainen] 2017-05-08
 hes-clip         8807/udp # HES-CLIP Interoperability protocol [Tim_Schoechle] [Ludo_Bertsch] 2018-09-07
 ssports-bcast    8808/udp # STATSports Broadcast Service [Statsports_International] [Catalin_Caranfil] 2016-12-22
+3gpp-monp        8809/udp # MCPTT Off-Network Protocol (MONP) [ThreeGPP_3] [Frederic_Firmin] 2019-04-15
 dxspider         8873/tcp # dxspider linking protocol [Dirk_Koopman] [Dirk_Koopman] 2005-08
 dxspider         8873/udp # dxspider linking protocol [Dirk_Koopman] [Dirk_Koopman] 2005-08
 cddbp-alt        8880/tcp # CDDBP [Steve_Scherf] [Steve_Scherf]
