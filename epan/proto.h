@@ -850,7 +850,7 @@ typedef proto_node proto_item;
 #define PNODE_POOL(proto_node)   ((proto_node)->tree_data->pinfo->pool)
 
 /** Is this protocol field hidden from the protocol tree display? Used for filtering only.
- * deprecated HIDING PROTOCOL FIELDS IS DEPRECATED. IT'S CONSIDERED TO BE BAD GUI DESIGN!
+ * Use with caution, HIDING PROTOCOL FIELDS IS CONSIDERED TO BE BAD GUI DESIGN!
  * @param ti The item to check. May be NULL.
  * @return TRUE if the item is hidden, FALSE otherwise.
  */
@@ -863,7 +863,7 @@ static inline gboolean proto_item_is_hidden(proto_item *ti) {
 #define PROTO_ITEM_IS_HIDDEN(ti) proto_item_is_hidden((ti))
 
 /** Mark this protocol field to be hidden from the protocol tree display. Used for filtering only.
- * deprecated HIDING PROTOCOL FIELDS IS DEPRECATED. IT'S CONSIDERED TO BE BAD GUI DESIGN!
+ * Use with caution, HIDING PROTOCOL FIELDS IS CONSIDERED TO BE BAD GUI DESIGN!
  * @param ti The item to hide. May be NULL.
  */
 static inline void proto_item_set_hidden(proto_item *ti) {
