@@ -648,16 +648,16 @@ static int hf_ieee802154_frame_end_offset = -1;
 static int hf_ieee802154_asn = -1;
 
 typedef struct _ieee802154_transaction_t {
+    address rqst_src_addr;
+    address rqst_dst_addr;
     guint32 rqst_frame;
     guint32 ack_frame;
     nstime_t rqst_time;
     nstime_t ack_time;
 } ieee802154_transaction_t;
 
-typedef struct _ieee802154_conv_info_t {
-    wmem_tree_t *unmatched_pdus;
-    wmem_tree_t *matched_pdus;
-} ieee802154_conv_info_t;
+static wmem_tree_t *transaction_unmatched_pdus;
+static wmem_tree_t *transaction_matched_pdus;
 
 static ieee802154_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tree, const address *src_addr, const address *dst_addr, guint32 *key);
 static ieee802154_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree, const address *src_addr, const address *dst_addr, guint32 *key);
@@ -1288,21 +1288,9 @@ static conversation_t *_find_or_create_conversation(packet_info *pinfo, const ad
 /* ======================================================================= */
 static ieee802154_transaction_t *transaction_start(packet_info *pinfo, proto_tree *tree, const address *src_addr, const address *dst_addr, guint32 *key)
 {
-    conversation_t              *conversation;
-    ieee802154_conv_info_t      *ieee802154_info;
     ieee802154_transaction_t    *ieee802154_trans;
     wmem_tree_key_t             ieee802154_key[3];
     proto_item                  *it;
-
-    /* Handle the conversation tracking */
-    conversation = _find_or_create_conversation(pinfo, src_addr, dst_addr);
-    ieee802154_info = (ieee802154_conv_info_t *)conversation_get_proto_data(conversation, proto_ieee802154);
-    if (ieee802154_info == NULL) {
-        ieee802154_info = wmem_new(wmem_file_scope(), ieee802154_conv_info_t);
-        ieee802154_info->unmatched_pdus = wmem_tree_new(wmem_file_scope());
-        ieee802154_info->matched_pdus = wmem_tree_new(wmem_file_scope());
-        conversation_add_proto_data(conversation, proto_ieee802154, ieee802154_info);
-    }
 
     if (!PINFO_FD_VISITED(pinfo)) {
         /*
@@ -1315,11 +1303,13 @@ static ieee802154_transaction_t *transaction_start(packet_info *pinfo, proto_tre
         ieee802154_key[1].key = NULL;
 
         ieee802154_trans = wmem_new(wmem_file_scope(), ieee802154_transaction_t);
+        copy_address_wmem(wmem_file_scope(), &ieee802154_trans->rqst_src_addr, src_addr);
+        copy_address_wmem(wmem_file_scope(), &ieee802154_trans->rqst_dst_addr, dst_addr);
         ieee802154_trans->rqst_frame = pinfo->num;
         ieee802154_trans->ack_frame = 0;
         ieee802154_trans->rqst_time = pinfo->abs_ts;
         nstime_set_zero(&ieee802154_trans->ack_time);
-        wmem_tree_insert32_array(ieee802154_info->unmatched_pdus, ieee802154_key, (void *)ieee802154_trans);
+        wmem_tree_insert32_array(transaction_unmatched_pdus, ieee802154_key, (void *)ieee802154_trans);
     } else {
         /* Already visited this frame */
         guint32 frame_num = pinfo->num;
@@ -1331,7 +1321,7 @@ static ieee802154_transaction_t *transaction_start(packet_info *pinfo, proto_tre
         ieee802154_key[2].length = 0;
         ieee802154_key[2].key = NULL;
 
-        ieee802154_trans = (ieee802154_transaction_t *)wmem_tree_lookup32_array(ieee802154_info->matched_pdus, ieee802154_key);
+        ieee802154_trans = (ieee802154_transaction_t *)wmem_tree_lookup32_array(transaction_matched_pdus, ieee802154_key);
     }
 
     if (ieee802154_trans == NULL) {
@@ -1357,37 +1347,32 @@ static ieee802154_transaction_t *transaction_start(packet_info *pinfo, proto_tre
 
 static ieee802154_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree, const address *src_addr, const address *dst_addr, guint32 *key)
 {
-    conversation_t              *conversation;
-    ieee802154_conv_info_t      *ieee802154_info = NULL;
     ieee802154_transaction_t    *ieee802154_trans = NULL;
     wmem_tree_key_t             ieee802154_key[3];
     proto_item                  *it;
     nstime_t                    ns;
     double                      ack_time;
 
-    conversation = find_conversation(pinfo->num, src_addr, dst_addr, ENDPOINT_NONE, 0, 0, 0);
-    if (conversation) {
-        ieee802154_info = (ieee802154_conv_info_t *)conversation_get_proto_data(conversation, proto_ieee802154);
-    }
-
     if (!PINFO_FD_VISITED(pinfo)) {
         guint32 frame_num;
-
-        if (!ieee802154_info) {
-            return NULL;
-        }
 
         ieee802154_key[0].length = 2;
         ieee802154_key[0].key = key;
         ieee802154_key[1].length = 0;
         ieee802154_key[1].key = NULL;
 
-        ieee802154_trans = (ieee802154_transaction_t *)wmem_tree_lookup32_array(ieee802154_info->unmatched_pdus, ieee802154_key);
+        ieee802154_trans = (ieee802154_transaction_t *)wmem_tree_lookup32_array(transaction_unmatched_pdus, ieee802154_key);
         if (ieee802154_trans == NULL)
             return NULL;
 
         /* we have already seen this response, or an identical one */
         if (ieee802154_trans->ack_frame != 0)
+            return NULL;
+
+        /* If addresses are present they must match */
+        if ((src_addr->type != AT_NONE) && addresses_equal(src_addr, &ieee802154_trans->rqst_dst_addr) == FALSE)
+            return NULL;
+        if ((dst_addr->type != AT_NONE) && addresses_equal(dst_addr, &ieee802154_trans->rqst_src_addr) == FALSE)
             return NULL;
 
         ieee802154_trans->ack_frame = pinfo->num;
@@ -1404,24 +1389,23 @@ static ieee802154_transaction_t *transaction_end(packet_info *pinfo, proto_tree 
         ieee802154_key[2].key = NULL;
 
         frame_num = ieee802154_trans->rqst_frame;
-        wmem_tree_insert32_array(ieee802154_info->matched_pdus, ieee802154_key, (void *)ieee802154_trans);
+        wmem_tree_insert32_array(transaction_matched_pdus, ieee802154_key, (void *)ieee802154_trans);
 
         frame_num = ieee802154_trans->ack_frame;
-        wmem_tree_insert32_array(ieee802154_info->matched_pdus, ieee802154_key, (void *)ieee802154_trans);
+        wmem_tree_insert32_array(transaction_matched_pdus, ieee802154_key, (void *)ieee802154_trans);
     } else {
         /* Already visited this frame */
         guint32 frame_num = pinfo->num;
 
-        if (ieee802154_info) {
-            ieee802154_key[0].length = 2;
-            ieee802154_key[0].key = key;
-            ieee802154_key[1].length = 1;
-            ieee802154_key[1].key = &frame_num;
-            ieee802154_key[2].length = 0;
-            ieee802154_key[2].key = NULL;
+        ieee802154_key[0].length = 2;
+        ieee802154_key[0].key = key;
+        ieee802154_key[1].length = 1;
+        ieee802154_key[1].key = &frame_num;
+        ieee802154_key[2].length = 0;
+        ieee802154_key[2].key = NULL;
 
-            ieee802154_trans = (ieee802154_transaction_t *)wmem_tree_lookup32_array(ieee802154_info->matched_pdus, ieee802154_key);
-        }
+        ieee802154_trans = (ieee802154_transaction_t *)wmem_tree_lookup32_array(transaction_matched_pdus, ieee802154_key);
+
         if (!ieee802154_trans) {
             /* No ack request found - add field and expert info */
             it = proto_tree_add_item(tree, hf_ieee802154_no_ack_request, NULL, 0, 0, ENC_NA);
@@ -2091,34 +2075,38 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         }
     }
 
+    address src_addr;
+    address dst_addr;
+    if (packet->src_addr_mode == IEEE802154_FCF_ADDR_NONE) {
+        set_address(&src_addr, AT_NONE, 0, NULL);
+    }
+    else if (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
+        set_address(&src_addr, AT_EUI64, 2, &packet->src16);
+    }
+    else {
+        set_address(&src_addr, AT_EUI64, 8, &packet->src64);
+    }
+
+    if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_NONE) {
+        set_address(&dst_addr, AT_NONE, 0, NULL);
+    }
+    else if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
+        set_address(&dst_addr, AT_EUI64, 2, &packet->dst16);
+    }
+    else {
+        set_address(&dst_addr, AT_EUI64, 8, &packet->dst64);
+    }
+
+    if ((packet->src_addr_mode != IEEE802154_FCF_ADDR_NONE) && (packet->dst_addr_mode != IEEE802154_FCF_ADDR_NONE)) {
+        _find_or_create_conversation(pinfo, &src_addr, &dst_addr);
+    }
+
     if (ieee802154_ack_tracking && fcs_ok && (packet->ack_request || packet->frame_type == IEEE802154_FCF_ACK)) {
-        address src_addr;
-        address dst_addr;
         guint32 key[2] = {0};
 
         key[0] = packet->seqno;
         if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
             key[1] = pinfo->rec->rec_header.packet_header.interface_id;
-        }
-
-        if (packet->src_addr_mode == IEEE802154_FCF_ADDR_NONE) {
-            set_address(&src_addr, AT_NONE, 0, NULL);
-        }
-        else if (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
-            set_address(&src_addr, AT_EUI64, 2, &packet->src16);
-        }
-        else {
-            set_address(&src_addr, AT_EUI64, 8, &packet->src64);
-        }
-
-        if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_NONE) {
-            set_address(&dst_addr, AT_NONE, 0, NULL);
-        }
-        else if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
-            set_address(&dst_addr, AT_EUI64, 2, &packet->dst16);
-        }
-        else {
-            set_address(&dst_addr, AT_EUI64, 8, &packet->dst64);
         }
 
         if (packet->ack_request) {
@@ -6603,6 +6591,10 @@ void proto_register_ieee802154(void)
 
     /* Register a Decode-As handler */
     register_decode_as(&ieee802154_da);
+
+    /* Create trees for transactions */
+    transaction_unmatched_pdus = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    transaction_matched_pdus = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 } /* proto_register_ieee802154 */
 
 
