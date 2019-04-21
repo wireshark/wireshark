@@ -158,19 +158,81 @@ ws_pipe_create_overlapped_read(HANDLE *read_pipe_handle, HANDLE *write_pipe_hand
 }
 #endif
 
+/**
+ * Helper to convert a command and argument list to an NULL-terminated 'argv'
+ * array, suitable for g_spawn_sync and friends. Free with g_strfreev.
+ */
+static gchar **
+convert_to_argv(const char *command, int args_count, char *const *args)
+{
+    gchar **argv = g_new(gchar *, args_count + 2);
+    // The caller does not seem to modify this, but g_spawn_sync uses 'gchar **'
+    // as opposed to 'const gchar **', so just to be sure clone it.
+    argv[0] = g_strdup(command);
+    for (int i = 0; i < args_count; i++) {
+        // Empty arguments may indicate a bug in Wireshark. Extcap for example
+        // omits arguments when their string value is empty. On Windows, empty
+        // arguments would silently be ignored because protect_arg returns an
+        // empty string, therefore we print a warning here.
+        if (!*args[i]) {
+            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_WARNING, "Empty argument %d in arguments list", i);
+        }
+        argv[1 + i] = g_strdup(args[i]);
+    }
+    argv[args_count + 1] = NULL;
+    return argv;
+}
+
+/**
+ * Convert a non-empty NULL-terminated array of command and arguments to a
+ * string for displaying purposes. On Windows, the returned string is properly
+ * escaped and can be executed directly.
+ */
+static gchar *
+convert_to_command_line(gchar **argv)
+{
+    GString *command_line = g_string_sized_new(200);
+#ifdef _WIN32
+    // The first argument must always be quoted even if it does not contain
+    // special characters or else CreateProcess might consider arguments as part
+    // of the executable.
+    gchar *quoted_arg = protect_arg(argv[0]);
+    if (quoted_arg[0] != '"') {
+        g_string_append_c(command_line, '"');
+        g_string_append(command_line, quoted_arg);
+        g_string_append_c(command_line, '"');
+    } else {
+        g_string_append(command_line, quoted_arg);
+    }
+    g_free(quoted_arg);
+
+    for (int i = 1; argv[i]; i++) {
+        quoted_arg = protect_arg(argv[i]);
+        g_string_append_c(command_line, ' ');
+        g_string_append(command_line, quoted_arg);
+        g_free(quoted_arg);
+    }
+#else
+    for (int i = 0; argv[i]; i++) {
+        gchar *quoted_arg = g_shell_quote(argv[i]);
+        if (i != 0) {
+            g_string_append_c(command_line, ' ');
+        }
+        g_string_append(command_line, quoted_arg);
+        g_free(quoted_arg);
+    }
+#endif
+    return g_string_free(command_line, FALSE);
+}
+
 gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command, gint argc, gchar **args, gchar **command_output)
 {
     gboolean status = FALSE;
     gboolean result = FALSE;
-    gchar **argv = NULL;
-    gint cnt = 0;
     gchar *local_output = NULL;
 #ifdef _WIN32
 
 #define BUFFER_SIZE 16384
-
-    GString *winargs = g_string_sized_new(200);
-    gchar *quoted_arg;
 
     STARTUPINFO info;
     PROCESS_INFORMATION processInfo;
@@ -187,24 +249,10 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
     gint exit_status = 0;
 #endif
 
-    argv = (gchar **) g_malloc0(sizeof(gchar *) * (argc + 2));
-    GString *spawn_string = g_string_new("");
+    gchar **argv = convert_to_argv(command, argc, args);
+    gchar *command_line = convert_to_command_line(argv);
 
-#ifdef _WIN32
-    argv[0] = g_strescape(command, NULL);
-#else
-    argv[0] = g_strdup(command);
-#endif
-
-    for (cnt = 0; cnt < argc; cnt++)
-    {
-        argv[cnt + 1] = args[cnt];
-        g_string_append_printf(spawn_string, " %s", args[cnt]);
-    }
-    argv[argc + 1] = NULL;
-
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "spawn params: %s", spawn_string->str);
-    g_string_free(spawn_string, TRUE);
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "spawn_sync: %s", command_line);
 
     guint64 start_time = g_get_monotonic_time();
 
@@ -215,7 +263,8 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
     stdout_overlapped.hEvent = CreateEvent(NULL, TRUE, FALSE, NULL);
     if (!stdout_overlapped.hEvent)
     {
-        g_free(argv[0]);
+        g_free(command_line);
+        g_strfreev(argv);
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create stdout overlapped event");
         return FALSE;
     }
@@ -223,7 +272,8 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
     if (!stderr_overlapped.hEvent)
     {
         CloseHandle(stdout_overlapped.hEvent);
-        g_free(argv[0]);
+        g_free(command_line);
+        g_strfreev(argv);
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create stderr overlapped event");
         return FALSE;
     }
@@ -237,7 +287,8 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
     {
         CloseHandle(stdout_overlapped.hEvent);
         CloseHandle(stderr_overlapped.hEvent);
-        g_free(argv[0]);
+        g_free(command_line);
+        g_strfreev(argv);
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create stdout handle");
         return FALSE;
     }
@@ -248,19 +299,10 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
         CloseHandle(stderr_overlapped.hEvent);
         CloseHandle(child_stdout_rd);
         CloseHandle(child_stdout_wr);
-        g_free(argv[0]);
+        g_free(command_line);
+        g_strfreev(argv);
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create stderr handle");
         return FALSE;
-    }
-
-    /* convert args array into a single string */
-    /* XXX - could change sync_pipe_add_arg() instead */
-    /* there is a drawback here: the length is internally limited to 1024 bytes */
-    for (cnt = 0; argv[cnt] != 0; cnt++) {
-        if (cnt != 0) g_string_append_c(winargs, ' ');    /* don't prepend a space before the path!!! */
-        quoted_arg = protect_arg(argv[cnt]);
-        g_string_append(winargs, quoted_arg);
-        g_free(quoted_arg);
     }
 
     memset(&processInfo, 0, sizeof(PROCESS_INFORMATION));
@@ -272,7 +314,7 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
     info.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
     info.wShowWindow = SW_HIDE;
 
-    if (win32_create_process(NULL, winargs->str, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &info, &processInfo))
+    if (win32_create_process(NULL, command_line, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &info, &processInfo))
     {
         gchar* stdout_buffer = (gchar*)g_malloc(BUFFER_SIZE);
         gchar* stderr_buffer = (gchar*)g_malloc(BUFFER_SIZE);
@@ -457,8 +499,8 @@ gboolean ws_pipe_spawn_sync(const gchar *working_directory, const gchar *command
     }
 
     g_free(local_output);
-    g_free(argv[0]);
-    g_free(argv);
+    g_free(command_line);
+    g_strfreev(argv);
 
     return result;
 }
@@ -473,12 +515,6 @@ void ws_pipe_init(ws_pipe_t *ws_pipe)
 GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
 {
     GPid pid = WS_INVALID_PID;
-    GString *spawn_args;
-    gint cnt = 0;
-    gchar **tmp = NULL;
-
-    gchar *quoted_arg;
-
 #ifdef _WIN32
     STARTUPINFO info;
     PROCESS_INFORMATION processInfo;
@@ -490,13 +526,25 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
     HANDLE child_stdout_wr = NULL;
     HANDLE child_stderr_rd = NULL;
     HANDLE child_stderr_wr = NULL;
+#endif
 
+    // XXX harmonize handling of command arguments for the sync/async functions
+    // and make them const? This array ends with a trailing NULL by the way.
+    gchar **args_array = (gchar **)args->pdata;
+    gchar **argv = convert_to_argv(args_array[0], args->len - 2, args_array + 1);
+    gchar *command_line = convert_to_command_line(argv);
+
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "spawn_async: %s", command_line);
+
+#ifdef _WIN32
     sa.nLength = sizeof(SECURITY_ATTRIBUTES);
     sa.bInheritHandle = TRUE;
     sa.lpSecurityDescriptor = NULL;
 
     if (!CreatePipe(&child_stdin_rd, &child_stdin_wr, &sa, 0))
     {
+        g_free(command_line);
+        g_strfreev(argv);
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create stdin handle");
         return WS_INVALID_PID;
     }
@@ -505,6 +553,8 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
     {
         CloseHandle(child_stdin_rd);
         CloseHandle(child_stdin_wr);
+        g_free(command_line);
+        g_strfreev(argv);
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create stdout handle");
         return WS_INVALID_PID;
     }
@@ -515,23 +565,10 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
         CloseHandle(child_stdin_wr);
         CloseHandle(child_stdout_rd);
         CloseHandle(child_stdout_wr);
+        g_free(command_line);
+        g_strfreev(argv);
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create stderr handle");
         return WS_INVALID_PID;
-    }
-
-    spawn_args = g_string_sized_new(200);
-
-    /* convert args array into a single string */
-    /* XXX - could change sync_pipe_add_arg() instead */
-    /* there is a drawback here: the length is internally limited to 1024 bytes */
-    for (tmp = (gchar **)args->pdata, cnt = 0; *tmp; ++cnt, ++tmp) {
-        if (!**tmp) {
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_WARNING, "Empty argument in arguments list");
-        }
-        if (cnt != 0) g_string_append_c(spawn_args, ' ');    /* don't prepend a space before the path!!! */
-        quoted_arg = protect_arg(*tmp);
-        g_string_append(spawn_args, quoted_arg);
-        g_free(quoted_arg);
     }
 
     memset(&processInfo, 0, sizeof(PROCESS_INFORMATION));
@@ -544,8 +581,7 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
     info.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
     info.wShowWindow = SW_HIDE;
 
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "async spawn params: %s", spawn_args->str);
-    if (win32_create_process(NULL, spawn_args->str, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &info, &processInfo))
+    if (win32_create_process(NULL, command_line, NULL, NULL, TRUE, CREATE_NEW_CONSOLE, NULL, NULL, &info, &processInfo))
     {
         ws_pipe->stdin_fd = _open_osfhandle((intptr_t)(child_stdin_wr), _O_BINARY);
         ws_pipe->stdout_fd = _open_osfhandle((intptr_t)(child_stdout_rd), _O_BINARY);
@@ -555,23 +591,6 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
     }
 #else
 
-    spawn_args = g_string_sized_new(200);
-
-    /* convert args array into a single string */
-    /* XXX - could change sync_pipe_add_arg() instead */
-    /* there is a drawback here: the length is internally limited to 1024 bytes */
-    for (tmp = (gchar **)args->pdata, cnt = 0; *tmp; ++cnt, ++tmp) {
-        if (!**tmp) {
-            g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_WARNING, "Empty argument in arguments list");
-        }
-        if (cnt != 0) g_string_append_c(spawn_args, ' ');    /* don't prepend a space before the path!!! */
-        quoted_arg = g_shell_quote(*tmp);
-        g_string_append(spawn_args, quoted_arg);
-        g_free(quoted_arg);
-    }
-
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "async spawn params: %s", spawn_args->str);
-
     GError *error = NULL;
     GSpawnFlags flags = G_SPAWN_DO_NOT_REAP_CHILD;
     GSpawnChildSetupFunc child_setup = NULL;
@@ -579,7 +598,7 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
     flags = (GSpawnFlags)(flags | G_SPAWN_LEAVE_DESCRIPTORS_OPEN);
     child_setup = close_non_standard_fds_linux;
 #endif
-    gboolean spawned = g_spawn_async_with_pipes(NULL, (gchar **)args->pdata, NULL,
+    gboolean spawned = g_spawn_async_with_pipes(NULL, argv, NULL,
                              flags, child_setup, NULL,
                              &pid, &ws_pipe->stdin_fd, &ws_pipe->stdout_fd, &ws_pipe->stderr_fd, &error);
     if (!spawned) {
@@ -588,7 +607,8 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
     }
 #endif
 
-    g_string_free(spawn_args, TRUE);
+    g_free(command_line);
+    g_strfreev(argv);
 
     ws_pipe->pid = pid;
 
