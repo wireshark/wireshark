@@ -44,9 +44,9 @@ Mattia Cazzola <mattiac[AT]alinet.it> provided a patch to the
 hex dump display routine.
 
 We use the exception module from Kazlib, a C library written by
-Kaz Kylheku <kaz[AT]ashi.footprints.net>. Thanks go to him for
+Kaz Kylheku <kaz[AT]kylheku.com>. Thanks go to him for
 his well-written library. The Kazlib home page can be found at
-http://users.footprints.net/~kaz/kazlib.html
+http://www.kylheku.com/~kaz/kazlib.html
 
 We use Lua BitOp, written by Mike Pall, for bitwise operations
 on numbers in Lua. The Lua BitOp home page can be found at
