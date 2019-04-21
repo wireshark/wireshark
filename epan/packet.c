@@ -794,7 +794,15 @@ call_dissector_work(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo
 		 * tree. Remove it.
 		 */
 		while (wmem_list_count(pinfo->layers) > saved_layers_len) {
-			pinfo->curr_layer_num--;
+			if (len == 0) {
+				/*
+				 * Only reduce the layer number if the dissector
+				 * rejected the data. Since tree can be NULL on
+				 * the first pass, we cannot check it or it will
+				 * break dissectors that rely on a stable value.
+				 */
+				pinfo->curr_layer_num--;
+			}
 			wmem_list_remove_frame(pinfo->layers, wmem_list_tail(pinfo->layers));
 		}
 	}
@@ -2715,7 +2723,15 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors, tvbuff_t *tvb,
 			 * items to the tree so remove it from the list.
 			 */
 			while (wmem_list_count(pinfo->layers) > saved_layers_len) {
-				pinfo->curr_layer_num--;
+				if (len == 0) {
+					/*
+					 * Only reduce the layer number if the dissector
+					 * rejected the data. Since tree can be NULL on
+					 * the first pass, we cannot check it or it will
+					 * break dissectors that rely on a stable value.
+					 */
+					pinfo->curr_layer_num--;
+				}
 				wmem_list_remove_frame(pinfo->layers, wmem_list_tail(pinfo->layers));
 			}
 		}
