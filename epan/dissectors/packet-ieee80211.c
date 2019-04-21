@@ -521,6 +521,7 @@ typedef struct mimo_control
 #define TAG_VHT_TX_PWR_ENVELOPE      195  /* IEEE Std 802.11ac/D5.0 */
 #define TAG_CHANNEL_SWITCH_WRAPPER   196  /* IEEE Std 802.11ac */
 #define TAG_OPERATING_MODE_NOTIFICATION 199  /* IEEE Std 802.11ac */
+#define TAG_FINE_TIME_MEASUREMENT_PARAM 206  /* IEEE Std 802.11-REVmd/D2.0 */
 #define TAG_S1G_OPEN_LOOP_LINK_MARGIN_INDEX 207 /* IEEE Std 802.11ah */
 #define TAG_RPS                      208  /* IEEE Stf 802.11ah */
 #define TAG_PAGE_SLICE               209  /* IEEE Stf 802.11ah */
@@ -720,6 +721,7 @@ static const value_string tag_num_vals[] = {
   { TAG_VHT_TX_PWR_ENVELOPE,                  "VHT Tx Power Envelope" },
   { TAG_CHANNEL_SWITCH_WRAPPER,               "Channel Switch Wrapper" },
   { TAG_OPERATING_MODE_NOTIFICATION,          "Operating Mode Notification" },
+  { TAG_FINE_TIME_MEASUREMENT_PARAM,          "Fine Time Measurement Params" },
   { TAG_S1G_OPEN_LOOP_LINK_MARGIN_INDEX,      "S1G Open-Loop Link Margin Index" },
   { TAG_RPS,                                  "RPS" },
   { TAG_PAGE_SLICE,                           "Page Slice" },
@@ -1283,6 +1285,8 @@ static value_string_ext aruba_mgt_typevals_ext = VALUE_STRING_EXT_INIT(aruba_mgt
 #define PA_LOCATION_TRACK_NOTIFICATION     15
 #define PA_QAB_REQUEST                     16
 #define PA_QAB_RESPONSE                    17
+#define PA_FTM_REQUEST                     32
+#define PA_FTM_RESPONSE                    33
 
 /* Keep in sync with PA_* defines */
 #define PPA_DSE_ENABLEMENT                   1
@@ -2122,6 +2126,8 @@ static const value_string ff_pa_action_codes[] = {
   {PA_LOCATION_TRACK_NOTIFICATION,     "Location Track Notification"},
   {PA_QAB_REQUEST,                     "QAB Request"},
   {PA_QAB_RESPONSE,                    "QAB Response"},
+  {PA_FTM_REQUEST,                     "FTM Request"},
+  {PA_FTM_RESPONSE,                    "FTM Response"},
   {0x00, NULL}
 };
 static value_string_ext ff_pa_action_codes_ext = VALUE_STRING_EXT_INIT(ff_pa_action_codes);
@@ -3462,6 +3468,11 @@ static int hf_ieee80211_ff_status_code = -1;         /* Status code             
 static int hf_ieee80211_ff_category_code = -1;       /* 8 bit Category code */
 static int hf_ieee80211_ff_action_code = -1;         /* 8 bit Action code */
 static int hf_ieee80211_ff_dialog_token = -1;        /* 8 bit Dialog token */
+static int hf_ieee80211_ff_trigger = -1;
+static int hf_ieee80211_ff_ftm_tod = -1;
+static int hf_ieee80211_ff_ftm_toa = -1;
+static int hf_ieee80211_ff_ftm_tod_err = -1;
+static int hf_ieee80211_ff_ftm_toa_err = -1;
 static int hf_ieee80211_ff_followup_dialog_token = -1;
 static int hf_ieee80211_ff_wme_action_code = -1;     /* Management notification action code */
 static int hf_ieee80211_ff_wme_status_code = -1;     /* Management notification setup response status code */
@@ -3709,6 +3720,26 @@ static int hf_ieee80211_ff_mimo_cntrl_codebook_info = -1;
 static int hf_ieee80211_ff_mimo_cntrl_remaining_matrix_segment = -1;
 static int hf_ieee80211_ff_mimo_cntrl_reserved = -1;
 static int hf_ieee80211_ff_mimo_cntrl_sounding_timestamp = -1;
+
+static int hf_ieee80211_ff_ftm_param_delim1 = -1;
+static int hf_ieee80211_ff_ftm_param_status_indication = -1;
+static int hf_ieee80211_ff_ftm_param_value = -1;
+static int hf_ieee80211_ff_ftm_param_reserved1 = -1;
+static int hf_ieee80211_ff_ftm_param_burst_exponent = -1;
+static int hf_ieee80211_ff_ftm_param_burst_duration = -1;
+
+static int hf_ieee80211_ff_ftm_param_delim2 = -1;
+static int hf_ieee80211_ff_ftm_param_min_delta_ftm = -1;
+static int hf_ieee80211_ff_ftm_param_partial_tsf_timer = -1;
+static int hf_ieee80211_ff_ftm_param_partial_tsf_no_pref = -1;
+static int hf_ieee80211_ff_ftm_param_asap_capable = -1;
+static int hf_ieee80211_ff_ftm_param_asap = -1;
+static int hf_ieee80211_ff_ftm_param_ftm_per_burst = -1;
+
+static int hf_ieee80211_ff_ftm_param_delim3 = -1;
+static int hf_ieee80211_ff_ftm_param_reserved2 = -1;
+static int hf_ieee80211_ff_ftm_param_format_and_bw = -1;
+static int hf_ieee80211_ff_ftm_param_burst_period = -1;
 
 static int hf_ieee80211_ff_ant_selection = -1;
 static int hf_ieee80211_ff_ant_selection_0 = -1;
@@ -5914,6 +5945,10 @@ static gint ett_vht_upa = -1;
 static gint ett_ht_info_delimiter1_tree = -1;
 static gint ett_ht_info_delimiter2_tree = -1;
 static gint ett_ht_info_delimiter3_tree = -1;
+
+static gint ett_ff_ftm_param_delim1 = -1;
+static gint ett_ff_ftm_param_delim2 = -1;
+static gint ett_ff_ftm_param_delim3 = -1;
 
 static gint ett_tag_measure_request_mode_tree = -1;
 static gint ett_tag_measure_request_type_tree = -1;
@@ -8935,6 +8970,95 @@ add_ff_action_code(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int 
 }
 
 static guint
+add_ff_trigger(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+  proto_tree_add_item(tree, hf_ieee80211_ff_trigger, tvb, offset, 1,
+                      ENC_LITTLE_ENDIAN);
+  return 1;
+}
+
+static guint
+add_ff_ftm_tod(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+  proto_tree_add_item(tree, hf_ieee80211_ff_ftm_tod, tvb, offset, 6,
+                      ENC_LITTLE_ENDIAN);
+  return 6;
+}
+
+static guint
+add_ff_ftm_toa(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+  proto_tree_add_item(tree, hf_ieee80211_ff_ftm_toa, tvb, offset, 6,
+                      ENC_LITTLE_ENDIAN);
+  return 6;
+}
+
+static guint
+add_ff_ftm_tod_err(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+  proto_tree_add_item(tree, hf_ieee80211_ff_ftm_tod_err, tvb, offset, 2,
+                      ENC_LITTLE_ENDIAN);
+  return 2;
+}
+
+static guint
+add_ff_ftm_toa_err(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
+{
+  proto_tree_add_item(tree, hf_ieee80211_ff_ftm_toa_err, tvb, offset, 2,
+                      ENC_LITTLE_ENDIAN);
+  return 2;
+}
+
+static int
+dissect_ftm_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+{
+  int offset = 0;
+  int len = 0;
+  proto_tree *ftm_param_tree = tree;
+  static const int *ieee80211_ftm_params_fields1[] = {
+    &hf_ieee80211_ff_ftm_param_status_indication,
+    &hf_ieee80211_ff_ftm_param_value,
+    &hf_ieee80211_ff_ftm_param_reserved1,
+    &hf_ieee80211_ff_ftm_param_burst_exponent,
+    &hf_ieee80211_ff_ftm_param_burst_duration,
+    NULL};
+
+  static const int *ieee80211_ftm_params_fields2[] = {
+    &hf_ieee80211_ff_ftm_param_min_delta_ftm,
+    &hf_ieee80211_ff_ftm_param_partial_tsf_timer,
+    &hf_ieee80211_ff_ftm_param_partial_tsf_no_pref,
+    &hf_ieee80211_ff_ftm_param_asap_capable,
+    &hf_ieee80211_ff_ftm_param_asap,
+    &hf_ieee80211_ff_ftm_param_ftm_per_burst,
+    NULL};
+
+  static const int *ieee80211_ftm_params_fields3[] = {
+    &hf_ieee80211_ff_ftm_param_reserved2,
+    &hf_ieee80211_ff_ftm_param_format_and_bw,
+    &hf_ieee80211_ff_ftm_param_burst_period,
+    NULL};
+
+  len = tvb_captured_length(tvb);
+  if (len != 9)
+      return 0;
+
+  proto_tree_add_bitmask_with_flags(ftm_param_tree, tvb, offset, hf_ieee80211_ff_ftm_param_delim1,
+                                    ett_ff_ftm_param_delim1, ieee80211_ftm_params_fields1,
+                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+  offset += 2;
+  proto_tree_add_bitmask_with_flags(ftm_param_tree, tvb, offset, hf_ieee80211_ff_ftm_param_delim2,
+                                    ett_ff_ftm_param_delim2, ieee80211_ftm_params_fields2,
+                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+  offset += 4;
+  proto_tree_add_bitmask_with_flags(ftm_param_tree, tvb, offset, hf_ieee80211_ff_ftm_param_delim3,
+                                    ett_ff_ftm_param_delim3, ieee80211_ftm_params_fields3,
+                                    ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+  offset += 3;
+
+  return 9;
+}
+
+static guint
 add_ff_dialog_token(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo _U_, int offset)
 {
   proto_tree_add_item(tree, hf_ieee80211_ff_dialog_token, tvb, offset, 1,
@@ -9925,6 +10049,17 @@ add_ff_action_public_fields(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
     offset += add_ff_req_ap_addr(tree, tvb, pinfo, offset);
     offset += add_ff_res_ap_addr(tree, tvb, pinfo, offset);
+    break;
+  case PA_FTM_REQUEST:
+    offset += add_ff_trigger(tree, tvb, pinfo, offset);
+    break;
+  case PA_FTM_RESPONSE:
+    offset += add_ff_dialog_token(tree, tvb, pinfo, offset);
+    offset += add_ff_followup_dialog_token(tree, tvb, pinfo, offset);
+    offset += add_ff_ftm_tod(tree, tvb, pinfo, offset);
+    offset += add_ff_ftm_toa(tree, tvb, pinfo, offset);
+    offset += add_ff_ftm_tod_err(tree, tvb, pinfo, offset);
+    offset += add_ff_ftm_toa_err(tree, tvb, pinfo, offset);
     break;
   }
 
@@ -28609,6 +28744,91 @@ proto_register_ieee80211(void)
       FT_UINT32, BASE_HEX, 0, 0,
       NULL, HFILL }},
 
+    {&hf_ieee80211_ff_ftm_param_delim1,
+     {"FTM Params (Subset 1 of 3)", "wlan.fixed.ftm.param.delim1",
+      FT_UINT16, BASE_HEX, 0, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_ftm_param_status_indication,
+     {"Status Indication", "wlan.fixed.ftm.param.status_indication",
+      FT_UINT16, BASE_HEX, 0, 0x0003,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_ftm_param_value,
+     {"Value", "wlan.fixed.ftm.param.value",
+      FT_UINT16, BASE_HEX, 0, 0x007C,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_ftm_param_reserved1,
+     {"Reserved1", "wlan.fixed.ftm.param.reserved1",
+      FT_UINT16, BASE_HEX, 0, 0x0080,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_ftm_param_burst_exponent,
+     {"Number of Burst Exponent", "wlan.fixed.ftm.param.burst_exponent",
+      FT_UINT16, BASE_HEX, 0, 0x0F00,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_ftm_param_burst_duration,
+     {"Burst Duration", "wlan.fixed.ftm.param.burst_duration",
+      FT_UINT16, BASE_HEX, 0, 0xF000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_ftm_param_delim2,
+     {"FTM Params (Subset 2 of 3)", "wlan.fixed.ftm.param.delim2",
+      FT_UINT32, BASE_HEX, 0, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_ftm_param_min_delta_ftm,
+     {"Min Delta FTM", "wlan.fixed.ftm.param.min_delta_ftm",
+      FT_UINT32, BASE_HEX, 0, 0x000000FF,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_ftm_param_partial_tsf_timer,
+     {"Partial TSF timer", "wlan.fixed.ftm.param.partial_tsf_timer",
+      FT_UINT32, BASE_HEX, 0, 0x00FFFF00,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_ftm_param_partial_tsf_no_pref,
+     {"Partial TSF no pref", "wlan.fixed.ftm.param.partial_tsf_no_pref",
+      FT_UINT32, BASE_HEX, 0, 0x01000000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_ftm_param_asap_capable,
+     {"ASAP Capable", "wlan.fixed.ftm.param.asap_capable",
+      FT_UINT32, BASE_HEX, 0, 0x02000000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_ftm_param_asap,
+     {"ASAP", "wlan.fixed.ftm.param.asap",
+      FT_UINT32, BASE_HEX, 0, 0x04000000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_ftm_param_ftm_per_burst,
+     {"FTM per burst", "wlan.fixed.ftm.param.ftm_per_burst",
+      FT_UINT32, BASE_HEX, 0, 0xF8000000,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_ftm_param_delim3,
+     {"FTM Params (Subset 3 of 3)", "wlan.fixed.ftm.param.delim3",
+      FT_UINT24, BASE_HEX, 0, 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_ftm_param_reserved2,
+     {"Reserved2", "wlan.fixed.ftm.param.reserved2",
+      FT_UINT24, BASE_HEX, 0, 0x000003,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_ftm_param_format_and_bw,
+     {"Format and Bandwidth", "wlan.fixed.ftm.param.format_and_bw",
+      FT_UINT24, BASE_HEX, 0, 0x0000FC,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_ftm_param_burst_period,
+     {"Burst Period", "wlan.fixed.ftm.param.burst_period",
+      FT_UINT24, BASE_HEX, 0, 0xFFFF00,
+      NULL, HFILL }},
+
     {&hf_ieee80211_ff_psmp_sta_info,
      {"Power Save Multi-Poll (PSMP) Station Information", "wlan.fixed.psmp.stainfo",
       FT_UINT64, BASE_HEX, 0, 0,
@@ -28912,6 +29132,31 @@ proto_register_ieee80211(void)
      {"Dialog token", "wlan.fixed.dialog_token",
       FT_UINT8, BASE_HEX, NULL, 0,
       "Management action dialog token", HFILL }},
+
+    {&hf_ieee80211_ff_trigger,
+     {"Trigger", "wlan.fixed.trigger",
+      FT_UINT8, BASE_HEX, NULL, 0,
+      "Management action trigger", HFILL }},
+
+    {&hf_ieee80211_ff_ftm_tod,
+     {"FTM TOD", "wlan.fixed.ftm_tod",
+      FT_UINT48, BASE_DEC, NULL, 0,
+      "Management action FTM TOD", HFILL }},
+
+    {&hf_ieee80211_ff_ftm_toa,
+     {"FTM TOA", "wlan.fixed.ftm_toa",
+      FT_UINT48, BASE_DEC, NULL, 0,
+      "Management action FTM TOA", HFILL }},
+
+    {&hf_ieee80211_ff_ftm_tod_err,
+     {"FTM TOD Error", "wlan.fixed.ftm_tod_err",
+      FT_UINT16, BASE_DEC, NULL, 0,
+      "Management action FTM TOD Error", HFILL }},
+
+    {&hf_ieee80211_ff_ftm_toa_err,
+     {"FTM TOA Error", "wlan.fixed.ftm_toa_err",
+      FT_UINT16, BASE_DEC, NULL, 0,
+      "Management action FTM TOA Error", HFILL }},
 
     {&hf_ieee80211_ff_followup_dialog_token,
      {"Followup Dialog token", "wlan.fixed.followup_dialog_token",
@@ -36870,6 +37115,10 @@ proto_register_ieee80211(void)
     &ett_ht_info_delimiter2_tree,
     &ett_ht_info_delimiter3_tree,
 
+    &ett_ff_ftm_param_delim1,
+    &ett_ff_ftm_param_delim2,
+    &ett_ff_ftm_param_delim3,
+
     &ett_tag_measure_request_mode_tree,
     &ett_tag_measure_request_type_tree,
     &ett_tag_measure_report_mode_tree,
@@ -37624,6 +37873,7 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.tag.number", TAG_VHT_TX_PWR_ENVELOPE, create_dissector_handle(dissect_vht_tx_pwr_envelope, -1));
   dissector_add_uint("wlan.tag.number", TAG_CHANNEL_SWITCH_WRAPPER, create_dissector_handle(dissect_channel_switch_wrapper, -1));
   dissector_add_uint("wlan.tag.number", TAG_OPERATING_MODE_NOTIFICATION, create_dissector_handle(dissect_operating_mode_notification, -1));
+  dissector_add_uint("wlan.tag.number", TAG_FINE_TIME_MEASUREMENT_PARAM, create_dissector_handle(dissect_ftm_params, -1));
   /* 7.3.2.26 Vendor Specific information element (221) */
   dissector_add_uint("wlan.tag.number", TAG_VENDOR_SPECIFIC_IE, create_dissector_handle(ieee80211_tag_vendor_specific_ie, -1));
   /* This Cisco proprietary IE seems to mimic 221 */
