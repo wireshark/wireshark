@@ -498,7 +498,7 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
     if (!CreatePipe(&child_stdin_rd, &child_stdin_wr, &sa, 0))
     {
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create stdin handle");
-        return FALSE;
+        return WS_INVALID_PID;
     }
 
     if (!CreatePipe(&child_stdout_rd, &child_stdout_wr, &sa, 0))
@@ -506,7 +506,7 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
         CloseHandle(child_stdin_rd);
         CloseHandle(child_stdin_wr);
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create stdout handle");
-        return FALSE;
+        return WS_INVALID_PID;
     }
 
     if (!CreatePipe(&child_stderr_rd, &child_stderr_wr, &sa, 0))
@@ -516,7 +516,7 @@ GPid ws_pipe_spawn_async(ws_pipe_t *ws_pipe, GPtrArray *args)
         CloseHandle(child_stdout_rd);
         CloseHandle(child_stdout_wr);
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create stderr handle");
-        return FALSE;
+        return WS_INVALID_PID;
     }
 
     spawn_args = g_string_sized_new(200);
