@@ -162,10 +162,10 @@ if registertype == "plugin_codec":
 reg_code += "}\n"
 
 try:
-    print(('Updating ' + final_filename))
     fh = open(final_filename, 'w')
     fh.write(reg_code)
     fh.close()
+    print('Generated {} for {}.'.format(final_filename, os.path.basename(srcdir)))
 except OSError:
     sys.exit('Unable to write ' + final_filename + '.\n')
 
