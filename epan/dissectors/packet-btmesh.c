@@ -21,6 +21,9 @@
 #include <epan/expert.h>
 #include <stdio.h>
 #include <epan/uat.h>
+#include <epan/reassemble.h>
+
+#define BTMESH_NOT_USED 0
 
 void proto_register_btmesh(void);
 
@@ -73,37 +76,66 @@ static int hf_btmesh_obo = -1;
 static int hf_btmesh_seqzero = -1;
 static int hf_btmesh_rfu = -1;
 static int hf_btmesh_blockack = -1;
-static int hf_btmesh_criteria_rfu = -1;
-static int hf_btmesh_padding = -1;
-static int hf_btmesh_fsn = -1;
-static int hf_btmesh_criteria_rssifactor = -1;
-static int hf_btmesh_criteria_receivewindowfactor = -1;
-static int hf_btmesh_criteria_minqueuesizelog = -1;
-static int hf_btmesh_receivedelay = -1;
-static int hf_btmesh_polltimeout = -1;
-static int hf_btmesh_previousaddress = -1;
-static int hf_btmesh_numelements = -1;
-static int hf_btmesh_lpncounter = -1;
-static int hf_btmesh_receivewindow = -1;
-static int hf_btmesh_queuesize = -1;
-static int hf_btmesh_subscriptionlistsize = -1;
-static int hf_btmesh_rssi = -1;
-static int hf_btmesh_friendcounter = -1;
-static int hf_btmesh_lpnaddress = -1;
-static int hf_btmesh_transactionnumber = -1;
+static int hf_btmesh_cntr_criteria_rfu = -1;
+static int hf_btmesh_cntr_padding = -1;
+static int hf_btmesh_cntr_fsn = -1;
+
+static int hf_btmesh_cntr_key_refresh_flag = -1;
+static int hf_btmesh_cntr_iv_update_flag = -1;
+static int hf_btmesh_cntr_flags_rfu = -1;
+static int hf_btmesh_cntr_iv_index = -1;
+static int hf_btmesh_cntr_md = -1;
+
+static int hf_btmesh_cntr_heartbeat_rfu = -1;
+static int hf_btmesh_cntr_init_ttl = -1;
+static int hf_btmesh_cntr_feature_relay = -1;
+static int hf_btmesh_cntr_feature_proxy = -1;
+static int hf_btmesh_cntr_feature_friend = -1;
+static int hf_btmesh_cntr_feature_low_power = -1;
+static int hf_btmesh_cntr_feature_rfu = -1;
+
+static int hf_btmesh_cntr_criteria_rssifactor = -1;
+static int hf_btmesh_cntr_criteria_receivewindowfactor = -1;
+static int hf_btmesh_cntr_criteria_minqueuesizelog = -1;
+static int hf_btmesh_cntr_receivedelay = -1;
+static int hf_btmesh_cntr_polltimeout = -1;
+static int hf_btmesh_cntr_previousaddress = -1;
+static int hf_btmesh_cntr_numelements = -1;
+static int hf_btmesh_cntr_lpncounter = -1;
+static int hf_btmesh_cntr_receivewindow = -1;
+static int hf_btmesh_cntr_queuesize = -1;
+static int hf_btmesh_cntr_subscriptionlistsize = -1;
+static int hf_btmesh_cntr_rssi = -1;
+static int hf_btmesh_cntr_friendcounter = -1;
+static int hf_btmesh_cntr_lpnaddress = -1;
+static int hf_btmesh_cntr_transactionnumber = -1;
 static int hf_btmesh_enc_access_pld = -1;
 static int hf_btmesh_transtmic = -1;
 static int hf_btmesh_szmic = -1;
 static int hf_btmesh_seqzero_data = -1;
 static int hf_btmesh_sego = -1;
 static int hf_btmesh_segn = -1;
+static int hf_btmesh_seg_rfu = -1;
 static int hf_btmesh_segment = -1;
+static int hf_btmesh_cntr_unknown_payload = -1;
+
+static int hf_btmesh_segmented_access_fragments = -1;
+static int hf_btmesh_segmented_access_fragment = -1;
+static int hf_btmesh_segmented_access_fragment_overlap = -1;
+static int hf_btmesh_segmented_access_fragment_overlap_conflict = -1;
+static int hf_btmesh_segmented_access_fragment_multiple_tails = -1;
+static int hf_btmesh_segmented_access_fragment_too_long_fragment = -1;
+static int hf_btmesh_segmented_access_fragment_error = -1;
+static int hf_btmesh_segmented_access_fragment_count = -1;
+static int hf_btmesh_segmented_access_reassembled_length = -1;
 
 static int ett_btmesh = -1;
 static int ett_btmesh_net_pdu = -1;
 static int ett_btmesh_transp_pdu = -1;
 static int ett_btmesh_transp_ctrl_msg = -1;
 static int ett_btmesh_upper_transp_acc_pdu = -1;
+static int ett_btmesh_segmented_access_fragments = -1;
+static int ett_btmesh_segmented_access_fragment = -1;
 
 static expert_field ei_btmesh_not_decoded_yet = EI_INIT;
 
@@ -146,6 +178,24 @@ static const value_string btmesh_ctrl_opcode_vals[] = {
     { 0, NULL }
 };
 
+static const value_string btmesh_cntr_key_refresh_flag_vals[] = {
+    { 0x0, "Not-In-Phase2" },
+    { 0x1, "In-Phase2" },
+    { 0, NULL }
+};
+
+static const value_string btmesh_cntr_iv_update_flag_vals[] = {
+    { 0x0, "Normal operation" },
+    { 0x1, "IV Update active" },
+    { 0, NULL }
+};
+
+static const value_string btmesh_cntr_md_vals[] = {
+    { 0x0, "Friend Queue is empty" },
+    { 0x1, "Friend Queue is not empty" },
+    { 0, NULL }
+};
+
 static const true_false_string  btmesh_obo = {
     "Friend node that is acknowledging this message on behalf of a Low Power node",
     "Node that is directly addressed by the received message"
@@ -179,11 +229,151 @@ static const value_string btmesh_criteria_minqueuesizelog_vals[] = {
     { 0, NULL }
 };
 
-static const value_string  btmesh_szmic_vals[] = {
+static const value_string btmesh_szmic_vals[] = {
 { 0x0, "32-bit" },
 { 0x1, "64-bit" },
 { 0, NULL }
 };
+
+/* Upper Transport Message reassembly */
+
+static reassembly_table upper_transport_reassembly_table;
+
+static const fragment_items btmesh_segmented_access_frag_items = {
+    &ett_btmesh_segmented_access_fragments,
+    &ett_btmesh_segmented_access_fragment,
+
+    &hf_btmesh_segmented_access_fragments,
+    &hf_btmesh_segmented_access_fragment,
+    &hf_btmesh_segmented_access_fragment_overlap,
+    &hf_btmesh_segmented_access_fragment_overlap_conflict,
+    &hf_btmesh_segmented_access_fragment_multiple_tails,
+    &hf_btmesh_segmented_access_fragment_too_long_fragment,
+    &hf_btmesh_segmented_access_fragment_error,
+    &hf_btmesh_segmented_access_fragment_count,
+    NULL,
+    &hf_btmesh_segmented_access_reassembled_length,
+    /* Reassembled data field */
+    NULL,
+    "fragments"
+};
+
+static int hf_btmesh_segmented_control_fragments = -1;
+static int hf_btmesh_segmented_control_fragment = -1;
+static int hf_btmesh_segmented_control_fragment_overlap = -1;
+static int hf_btmesh_segmented_control_fragment_overlap_conflict = -1;
+static int hf_btmesh_segmented_control_fragment_multiple_tails = -1;
+static int hf_btmesh_segmented_control_fragment_too_long_fragment = -1;
+static int hf_btmesh_segmented_control_fragment_error = -1;
+static int hf_btmesh_segmented_control_fragment_count = -1;
+static int hf_btmesh_segmented_control_reassembled_length = -1;
+
+static int ett_btmesh_segmented_control_fragments = -1;
+static int ett_btmesh_segmented_control_fragment = -1;
+
+static const fragment_items btmesh_segmented_control_frag_items = {
+    &ett_btmesh_segmented_control_fragments,
+    &ett_btmesh_segmented_control_fragment,
+
+    &hf_btmesh_segmented_control_fragments,
+    &hf_btmesh_segmented_control_fragment,
+    &hf_btmesh_segmented_control_fragment_overlap,
+    &hf_btmesh_segmented_control_fragment_overlap_conflict,
+    &hf_btmesh_segmented_control_fragment_multiple_tails,
+    &hf_btmesh_segmented_control_fragment_too_long_fragment,
+    &hf_btmesh_segmented_control_fragment_error,
+    &hf_btmesh_segmented_control_fragment_count,
+    NULL,
+    &hf_btmesh_segmented_control_reassembled_length,
+    /* Reassembled data field */
+    NULL,
+    "fragments"
+};
+
+typedef struct _upper_transport_fragment_key {
+    guint16 src;
+    guint16 seq0;
+} upper_transport_fragment_key;
+
+static guint
+upper_transport_fragment_hash(gconstpointer k)
+{
+    const upper_transport_fragment_key* key = (const upper_transport_fragment_key*) k;
+    guint hash_val;
+
+    hash_val = key->src;
+    hash_val += ( ((guint)key->seq0) << 16);
+    return hash_val;
+}
+
+static gint
+upper_transport_fragment_equal(gconstpointer k1, gconstpointer k2)
+{
+    const upper_transport_fragment_key* key1 = (const upper_transport_fragment_key*) k1;
+    const upper_transport_fragment_key* key2 = (const upper_transport_fragment_key*) k2;
+
+    return ((key1->src == key2->src) && (key1->seq0 == key2->seq0)
+            ? TRUE : FALSE);
+}
+
+static void *
+upper_transport_fragment_temporary_key(const packet_info *pinfo _U_, const guint32 id _U_,
+                              const void *data)
+{
+    upper_transport_fragment_key *key = g_slice_new(upper_transport_fragment_key);
+    const upper_transport_fragment_key *pkt = (const upper_transport_fragment_key *)data;
+
+    key->src = pkt->src;
+    key->seq0 = pkt->seq0;
+
+    return key;
+}
+
+static void
+upper_transport_fragment_free_temporary_key(gpointer ptr)
+{
+    upper_transport_fragment_key *key = (upper_transport_fragment_key *)ptr;
+
+    g_slice_free(upper_transport_fragment_key, key);
+}
+
+static void *
+upper_transport_fragment_persistent_key(const packet_info *pinfo _U_, const guint32 id _U_,
+                              const void *data)
+{
+    upper_transport_fragment_key *key = g_slice_new(upper_transport_fragment_key);
+    const upper_transport_fragment_key *pkt = (const upper_transport_fragment_key *)data;
+
+    key->src = pkt->src;
+    key->seq0 = pkt->seq0;
+
+    return key;
+}
+
+static void
+upper_transport_fragment_free_persistent_key(gpointer ptr)
+{
+    upper_transport_fragment_key *key = (upper_transport_fragment_key *)ptr;
+    if (key) {
+        g_slice_free(upper_transport_fragment_key, key);
+    }
+}
+
+static const reassembly_table_functions upper_transport_reassembly_table_functions = {
+    upper_transport_fragment_hash,
+    upper_transport_fragment_equal,
+    upper_transport_fragment_temporary_key,
+    upper_transport_fragment_persistent_key,
+    upper_transport_fragment_free_temporary_key,
+    upper_transport_fragment_free_persistent_key
+};
+
+static void
+upper_transport_init_routine(void)
+{
+    reassembly_table_register(&upper_transport_reassembly_table, &upper_transport_reassembly_table_functions);
+}
+
 
 /* A BT Mesh dissector is not realy useful without decryption as all packets are encrypted. Just leave a stub dissector outside of*/
 #if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
@@ -226,7 +416,6 @@ s1(guint8 *m, size_t mlen, guint8 *salt)
 
     /* Now close the mac handle */
     gcry_mac_close(mac_hd);
-
 
     return TRUE;
 }
@@ -475,9 +664,10 @@ btmesh_deobfuscate(tvbuff_t *tvb, packet_info *pinfo, int offset _U_, uat_btmesh
 }
 
 static void
-dissect_btmesh_transport_constrol_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint32 opcode)
+dissect_btmesh_transport_control_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint32 opcode)
 {
     proto_tree *sub_tree;
+
     sub_tree = proto_tree_add_subtree_format(tree, tvb, offset, -1, ett_btmesh_transp_ctrl_msg, NULL, "Transport Control Message %s",
         val_to_str_const(opcode, btmesh_ctrl_opcode_vals, "Unknown"));
 
@@ -485,101 +675,121 @@ dissect_btmesh_transport_constrol_message(tvbuff_t *tvb, packet_info *pinfo, pro
     case 1:
         /* 3.6.5.1 Friend Poll */
         /* Padding 7 bits */
-        proto_tree_add_item(sub_tree, hf_btmesh_padding, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_padding, tvb, offset, 1, ENC_BIG_ENDIAN);
         /* FSN 1 bit*/
-        proto_tree_add_item(sub_tree, hf_btmesh_fsn, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_fsn, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
     case 2:
         /* 3.6.5.2 Friend Update */
         /* Flags 1 octet */
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_key_refresh_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_iv_update_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_flags_rfu, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
         /* IV Index 4 octets*/
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_iv_index, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset+=4;
         /* MD 1 octet */
-        proto_tree_add_expert(sub_tree, pinfo, &ei_btmesh_not_decoded_yet, tvb, offset, -1);
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_md, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
         break;
     case 3:
         /* Friend Request */
         /* Criteria 1 octet */
         /* RFU 1 bit */
-        proto_tree_add_item(sub_tree, hf_btmesh_criteria_rfu, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_criteria_rfu, tvb, offset, 1, ENC_BIG_ENDIAN);
         /* RSSIFactor 2 bits */
-        proto_tree_add_item(sub_tree, hf_btmesh_criteria_rssifactor, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_criteria_rssifactor, tvb, offset, 1, ENC_BIG_ENDIAN);
         /* ReceiveWindowFactor 2 bits */
-        proto_tree_add_item(sub_tree, hf_btmesh_criteria_receivewindowfactor, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_criteria_receivewindowfactor, tvb, offset, 1, ENC_BIG_ENDIAN);
         /* MinQueueSizeLog 3 bits */
-        proto_tree_add_item(sub_tree, hf_btmesh_criteria_minqueuesizelog, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_criteria_minqueuesizelog, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         /* ReceiveDelay 1 octet */
-        proto_tree_add_item(sub_tree, hf_btmesh_receivedelay, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_receivedelay, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         /* PollTimeout 3 octets */
-        proto_tree_add_item(sub_tree, hf_btmesh_polltimeout, tvb, offset, 3, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_polltimeout, tvb, offset, 3, ENC_BIG_ENDIAN);
         offset+=3;
         /* PreviousAddress 2 octets */
-        proto_tree_add_item(sub_tree, hf_btmesh_previousaddress, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_previousaddress, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset+=2;
         /* NumElements 1 octets */
-        proto_tree_add_item(sub_tree, hf_btmesh_numelements, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_numelements, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
         /* LPNCounter 1 octets */
-        proto_tree_add_item(sub_tree, hf_btmesh_lpncounter, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_lpncounter, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
     case 4:
         /* 3.6.5.4 Friend Offer */
         /* ReceiveWindow 1 octet */
-        proto_tree_add_item(sub_tree, hf_btmesh_receivewindow, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_receivewindow, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         /* QueueSize 1 octet */
-        proto_tree_add_item(sub_tree, hf_btmesh_queuesize, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_queuesize, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         /* SubscriptionListSize 1 octet */
-        proto_tree_add_item(sub_tree, hf_btmesh_subscriptionlistsize, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_subscriptionlistsize, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         /* RSSI 1 octet */
-        proto_tree_add_item(sub_tree, hf_btmesh_rssi, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_rssi, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         /* FriendCounter 2 octets */
-        proto_tree_add_item(sub_tree, hf_btmesh_friendcounter, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_friendcounter, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
     case 5:
         /* 3.6.5.5 Friend Clear */
         /* LPNAddress 2 octets */
-        proto_tree_add_item(sub_tree, hf_btmesh_lpnaddress, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_lpnaddress, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 2;
         /* LPNCounter 2 octets */
-        proto_tree_add_item(sub_tree, hf_btmesh_lpncounter, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_lpncounter, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
     case 6:
         /* 3.6.5.6 Friend Clear Confirm */
         /* LPNAddress 2 octets */
-        proto_tree_add_item(sub_tree, hf_btmesh_lpnaddress, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_lpnaddress, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 2;
         /* LPNCounter 2 octets */
-        proto_tree_add_item(sub_tree, hf_btmesh_lpncounter, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_lpncounter, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         break;
     case 7:
         /* 3.6.5.7 Friend Subscription List Add */
         /* TransactionNumber 1 octet */
-        proto_tree_add_item(sub_tree, hf_btmesh_transactionnumber, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_transactionnumber, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         /* AddressList 2 * N */
         proto_tree_add_expert(sub_tree, pinfo, &ei_btmesh_not_decoded_yet, tvb, offset, -1);
         break;
     case 8:
         /* 3.6.5.8 Friend Subscription List Remove */
-        proto_tree_add_item(sub_tree, hf_btmesh_transactionnumber, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_transactionnumber, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         /* AddressList 2 * N */
         proto_tree_add_expert(sub_tree, pinfo, &ei_btmesh_not_decoded_yet, tvb, offset, -1);
         break;
     case 9:
         /* 3.6.5.9 Friend Subscription List Confirm */
-        proto_tree_add_item(sub_tree, hf_btmesh_transactionnumber, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_transactionnumber, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         break;
     case 10:
         /* 3.6.5.10 Heartbeat */
+        /* RFU & InitTTL */
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_heartbeat_rfu, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_init_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        /* Features */
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_feature_relay, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_feature_proxy, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_feature_friend, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_feature_low_power, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_feature_rfu, tvb, offset, 2, ENC_BIG_ENDIAN);
+        break;
     default:
+        //Payload
+        proto_tree_add_item(sub_tree, hf_btmesh_cntr_unknown_payload, tvb, offset, -1, ENC_NA);
         proto_tree_add_expert(sub_tree, pinfo, &ei_btmesh_not_decoded_yet, tvb, offset, -1);
         break;
     }
@@ -596,28 +806,85 @@ dissect_btmesh_transport_access_message(tvbuff_t *tvb, packet_info *pinfo _U_, p
     proto_tree_add_item(sub_tree, hf_btmesh_enc_access_pld, tvb, offset, length - transmic_size, ENC_NA);
     offset += (length - transmic_size);
 
-    proto_tree_add_item(sub_tree, hf_btmesh_transtmic, tvb, offset, transmic_size, ENC_BIG_ENDIAN);
-
+    proto_tree_add_item(sub_tree, hf_btmesh_transtmic, tvb, offset, transmic_size, ENC_NA);
 }
 
 static void
-dissect_btmesh_transport_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean cntrl)
+dissect_btmesh_transport_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean cntrl, guint32 src)
 {
     proto_tree *sub_tree;
     proto_item *ti;
     int offset = 0;
-    guint32 value, opcode;
+    guint32 seg, opcode, rfu;
+    guint32 seqzero, sego, segn;
 
     /* We receive the full decrypted buffer including DST, skip to opcode */
     offset += 2;
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_btmesh_transp_pdu, &ti, "Lower Transport PDU");
     if (cntrl) {
-        proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_cntr_seg, tvb, offset, 1, ENC_BIG_ENDIAN, &value);
-        if (value) {
+        proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_cntr_seg, tvb, offset, 1, ENC_BIG_ENDIAN, &seg);
+        proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_cntr_opcode, tvb, offset, 1, ENC_BIG_ENDIAN, &opcode);
+        offset++;
+
+        if (seg) {
             /* Segmented */
+            fragment_head *fd_head = NULL;
+
+            /* RFU */
+            proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_seg_rfu, tvb, offset, 3, ENC_BIG_ENDIAN, &rfu);
+            /* SeqZero 13 */
+            proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_seqzero_data, tvb, offset, 3, ENC_BIG_ENDIAN, &seqzero);
+            /* SegO 5 Segment Offset number */
+            proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_sego, tvb, offset, 3, ENC_BIG_ENDIAN, &sego);
+            /* SegN 5 Last Segment number */
+            proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_segn, tvb, offset, 3, ENC_BIG_ENDIAN, &segn);
+            offset += 3;
+
+            /* Segment */
+            proto_tree_add_item(sub_tree, hf_btmesh_segment, tvb, offset, -1, ENC_NA);
+
+            upper_transport_fragment_key frg_key;
+            /* src is 15 bit, seqzero is 13 bit*/
+            frg_key.src = src;
+            frg_key.seq0 = seqzero;
+
+            if (!pinfo->fd->visited) {
+                guint32 total_length = 0;
+                if (segn == sego) {
+                    total_length = segn * 8 + tvb_captured_length_remaining(tvb, offset);
+                }
+
+                /* Last fragment can be delivered out of order, and can be the first one. */
+                fd_head = fragment_get(&upper_transport_reassembly_table, pinfo, BTMESH_NOT_USED, &frg_key);
+
+                if ((fd_head) && (total_length)) {
+                    fragment_set_tot_len(&upper_transport_reassembly_table, pinfo, BTMESH_NOT_USED, &frg_key, total_length);
+                }
+                fd_head = fragment_add(&upper_transport_reassembly_table,
+                            tvb, offset, pinfo,
+                            BTMESH_NOT_USED, &frg_key,
+                            8 * sego,
+                            tvb_captured_length_remaining(tvb, offset),
+                            ( segn == 0 ? FALSE : TRUE) );
+
+                if ((!fd_head) && (total_length)) {
+                    fragment_set_tot_len(&upper_transport_reassembly_table, pinfo, BTMESH_NOT_USED, &frg_key, total_length);
+                }
+            } else {
+                fd_head = fragment_get(&upper_transport_reassembly_table, pinfo, BTMESH_NOT_USED, &frg_key);
+                if (fd_head && (fd_head->flags&FD_DEFRAGMENTED)) {
+                    tvbuff_t *next_tvb;
+                    next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled Control PDU", fd_head, &btmesh_segmented_control_frag_items, NULL, sub_tree);
+                    if (next_tvb) {
+                        col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)");
+                        dissect_btmesh_transport_control_message(next_tvb, pinfo, tree, 0, opcode);
+                    } else {
+                        col_append_fstr(pinfo->cinfo, COL_INFO," (Message fragment %u)", sego);
+                    }
+                }
+            }
+
         } else {
-            proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_cntr_opcode, tvb, offset, 1, ENC_BIG_ENDIAN, &opcode);
-            offset++;
             col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
                 val_to_str_const(opcode, btmesh_ctrl_opcode_vals, "Unknown"));
             if (opcode == 0) {
@@ -632,11 +899,11 @@ dissect_btmesh_transport_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 proto_tree_add_item(sub_tree, hf_btmesh_blockack, tvb, offset, 4, ENC_BIG_ENDIAN);
                 return;
             }
-            dissect_btmesh_transport_constrol_message(tvb, pinfo, tree, offset, opcode);
+            dissect_btmesh_transport_control_message(tvb, pinfo, tree, offset, opcode);
         }
     } else {
         /* Access message */
-        guint32 seg, afk, aid, szmic;
+        guint32 afk, aid, szmic;
         /* Access message */
         proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_acc_seg, tvb, offset, 1, ENC_BIG_ENDIAN, &seg);
         /* AKF 1 Application Key Flag */
@@ -646,17 +913,61 @@ dissect_btmesh_transport_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         offset++;
         if (seg) {
             /* Segmented */
+            fragment_head *fd_head = NULL;
+
             /* SZMIC 1 Size of TransMIC */
             proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_szmic, tvb, offset, 3, ENC_BIG_ENDIAN, &szmic);
             /* SeqZero 13 Least significant bits of SeqAuth */
-            proto_tree_add_item(sub_tree, hf_btmesh_seqzero_data, tvb, offset, 3, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_seqzero_data, tvb, offset, 3, ENC_BIG_ENDIAN, &seqzero);
             /* SegO 5 Segment Offset number */
-            proto_tree_add_item(sub_tree, hf_btmesh_sego, tvb, offset, 3, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_sego, tvb, offset, 3, ENC_BIG_ENDIAN, &sego);
             /* SegN 5 Last Segment number */
-            proto_tree_add_item(sub_tree, hf_btmesh_segn, tvb, offset, 3, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_segn, tvb, offset, 3, ENC_BIG_ENDIAN, &segn);
             offset += 3;
+
             /* Segment m 8 to 96 Segment m of the Upper Transport Access PDU */
             proto_tree_add_item(sub_tree, hf_btmesh_segment, tvb, offset, -1, ENC_NA);
+
+            upper_transport_fragment_key frg_key;
+            /* src is 15 bit, seqzero is 13 bit*/
+            frg_key.src = src;
+            frg_key.seq0 = seqzero;
+
+            if (!pinfo->fd->visited) {
+                guint32 total_length = 0;
+                if (segn == sego) {
+                    total_length = segn * 12 + tvb_captured_length_remaining(tvb, offset);
+                }
+
+                /* Last fragment can be delivered out of order, and can be the first one. */
+                fd_head = fragment_get(&upper_transport_reassembly_table, pinfo, BTMESH_NOT_USED, &frg_key);
+
+                if ((fd_head) && (total_length)) {
+                    fragment_set_tot_len(&upper_transport_reassembly_table, pinfo, BTMESH_NOT_USED, &frg_key, total_length);
+                }
+                fd_head = fragment_add(&upper_transport_reassembly_table,
+                            tvb, offset, pinfo,
+                            BTMESH_NOT_USED, &frg_key,
+                            12 * sego,
+                            tvb_captured_length_remaining(tvb, offset),
+                            ( segn == 0 ? FALSE : TRUE) );
+
+                if ((!fd_head) && (total_length)) {
+                    fragment_set_tot_len(&upper_transport_reassembly_table, pinfo, BTMESH_NOT_USED, &frg_key, total_length);
+                }
+            } else {
+                fd_head = fragment_get(&upper_transport_reassembly_table, pinfo, BTMESH_NOT_USED, &frg_key);
+                if (fd_head && (fd_head->flags&FD_DEFRAGMENTED)) {
+                    tvbuff_t *next_tvb;
+                    next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled Access PDU", fd_head, &btmesh_segmented_access_frag_items, NULL, sub_tree);
+                    if (next_tvb) {
+                        col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)");
+                        dissect_btmesh_transport_access_message(next_tvb, pinfo, tree, 0, (szmic ? 8 : 4 ));
+                    } else {
+                        col_append_fstr(pinfo->cinfo, COL_INFO," (Message fragment %u)", sego);
+                    }
+                }
+            }
         } else {
             proto_item_set_len(ti, 1);
             dissect_btmesh_transport_access_message(tvb, pinfo, tree, offset, 4/*TransMic is 32 bits*/);
@@ -826,7 +1137,7 @@ dissect_btmesh_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         offset += net_mic_size;
 
         if (de_cry_tvb) {
-            dissect_btmesh_transport_pdu(de_cry_tvb, pinfo, netw_tree, cntrl);
+            dissect_btmesh_transport_pdu(de_cry_tvb, pinfo, netw_tree, cntrl, src);
         }
     } else {
         proto_tree_add_item(sub_tree, hf_btmesh_obfuscated, tvb, offset, 6, ENC_NA);
@@ -1128,95 +1439,160 @@ proto_register_btmesh(void)
                 FT_UINT32, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
-        { &hf_btmesh_criteria_rfu,
-            { "RFU", "btmesh.criteria.rfu",
+        { &hf_btmesh_cntr_criteria_rfu,
+            { "RFU", "btmesh.cntr.criteria.rfu",
                 FT_UINT8, BASE_DEC, NULL, 0x80,
                 NULL, HFILL }
         },
-        { &hf_btmesh_padding,
-            { "Padding", "btmesh.padding",
+        { &hf_btmesh_cntr_padding,
+            { "Padding", "btmesh.cntr.padding",
                 FT_UINT8, BASE_DEC, NULL, 0xfe,
                 NULL, HFILL }
         },
-        { &hf_btmesh_fsn,
-            { "Friend Sequence Number(FSN)", "btmesh.fsn",
+        { &hf_btmesh_cntr_fsn,
+            { "Friend Sequence Number(FSN)", "btmesh.cntr.fsn",
                 FT_UINT8, BASE_DEC, NULL, 0x01,
                 NULL, HFILL }
         },
-        { &hf_btmesh_criteria_rssifactor,
-            { "RSSIFactor", "btmesh.criteria.rssifactor",
+        { &hf_btmesh_cntr_key_refresh_flag,
+            { "Key Refresh Flag", "btmesh.cntr.keyrefreshflag",
+                FT_UINT8, BASE_DEC, VALS(btmesh_cntr_key_refresh_flag_vals), 0x01,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_cntr_iv_update_flag,
+            { "IV Update Flag", "btmesh.cntr.ivupdateflag",
+                FT_UINT8, BASE_DEC, VALS(btmesh_cntr_iv_update_flag_vals), 0x02,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_cntr_flags_rfu,
+            { "IV Update Flag", "btmesh.cntr.flagsrfu",
+                FT_UINT8, BASE_DEC, NULL, 0xFC,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_cntr_iv_index,
+            { "IV Index", "btmesh.cntr.ivindex",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_cntr_md,
+            { "MD (More Data)", "btmesh.cntr.md",
+                FT_UINT8, BASE_DEC, VALS(btmesh_cntr_md_vals), 0x0,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_cntr_criteria_rssifactor,
+            { "RSSIFactor", "btmesh.cntr.criteria.rssifactor",
                 FT_UINT8, BASE_DEC, VALS(btmesh_criteria_rssifactor_vals), 0x60,
                 NULL, HFILL }
         },
-        { &hf_btmesh_criteria_receivewindowfactor,
-            { "ReceiveWindowFactor", "btmesh.criteria.receivewindowfactor",
+        { &hf_btmesh_cntr_criteria_receivewindowfactor,
+            { "ReceiveWindowFactor", "btmesh.cntr.criteria.receivewindowfactor",
                 FT_UINT8, BASE_DEC, VALS(btmesh_criteria_receivewindowfactor_vals), 0x18,
                 NULL, HFILL }
         },
-        { &hf_btmesh_criteria_minqueuesizelog,
-            { "MinQueueSizeLog", "btmesh.criteria.minqueuesizelog",
+        { &hf_btmesh_cntr_criteria_minqueuesizelog,
+            { "MinQueueSizeLog", "btmesh.cntr.criteria.minqueuesizelog",
                 FT_UINT8, BASE_DEC, VALS(btmesh_criteria_minqueuesizelog_vals), 0x07,
                 NULL, HFILL }
         },
-        { &hf_btmesh_receivedelay,
-            { "ReceiveDelay", "btmesh.receivedelay",
+        { &hf_btmesh_cntr_receivedelay,
+            { "ReceiveDelay", "btmesh.cntr.receivedelay",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
-        { &hf_btmesh_polltimeout,
-            { "PollTimeout", "btmesh.polltimeout",
+        { &hf_btmesh_cntr_polltimeout,
+            { "PollTimeout", "btmesh.cntr.polltimeout",
                 FT_UINT24, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
-        { &hf_btmesh_previousaddress,
-            { "PreviousAddress", "btmesh.previousaddress",
+        { &hf_btmesh_cntr_previousaddress,
+            { "PreviousAddress", "btmesh.cntr.previousaddress",
                 FT_UINT16, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
-        { &hf_btmesh_numelements,
-            { "NumElements", "btmesh.numelements",
+        { &hf_btmesh_cntr_numelements,
+            { "NumElements", "btmesh.cntr.numelements",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
-        { &hf_btmesh_lpncounter,
-            { "LPNCounter", "btmesh.lpncounter",
+        { &hf_btmesh_cntr_lpncounter,
+            { "LPNCounter", "btmesh.cntr.lpncounter",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
-        { &hf_btmesh_receivewindow,
-            { "ReceiveWindow", "btmesh.receivewindow",
+        { &hf_btmesh_cntr_receivewindow,
+            { "ReceiveWindow", "btmesh.cntr.receivewindow",
                 FT_UINT8, BASE_DEC | BASE_UNIT_STRING, &units_milliseconds, 0x0,
                 NULL, HFILL }
         },
-        { &hf_btmesh_queuesize,
-            { "QueueSize", "btmesh.queuesize",
+        { &hf_btmesh_cntr_queuesize,
+            { "QueueSize", "btmesh.cntr.queuesize",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
-        { &hf_btmesh_subscriptionlistsize,
-            { "SubscriptionListSize", "btmesh.subscriptionlistsize",
+        { &hf_btmesh_cntr_subscriptionlistsize,
+            { "SubscriptionListSize", "btmesh.cntr.subscriptionlistsize",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
-        { &hf_btmesh_rssi,
-            { "RSSI", "btmesh.rssi",
+        { &hf_btmesh_cntr_rssi,
+            { "RSSI", "btmesh.cntr.rssi",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
-        { &hf_btmesh_friendcounter,
-            { "FriendCounter", "btmesh.friendcounter",
+        { &hf_btmesh_cntr_friendcounter,
+            { "FriendCounter", "btmesh.cntr.friendcounter",
                 FT_UINT16, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
-        { &hf_btmesh_lpnaddress,
-            { "LPNAddress", "btmesh.lpnaddress",
+        { &hf_btmesh_cntr_lpnaddress,
+            { "LPNAddress", "btmesh.cntr.lpnaddress",
                 FT_UINT16, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
         },
-        { &hf_btmesh_transactionnumber,
-            { "TransactionNumber", "btmesh.transactionnumber",
+        { &hf_btmesh_cntr_transactionnumber,
+            { "TransactionNumber", "btmesh.cntr.transactionnumber",
                 FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }
+        },
+        { &hf_btmesh_cntr_heartbeat_rfu,
+            { "Reserved for Future Use", "btmesh.cntr.heartbeatrfu",
+                FT_UINT8, BASE_DEC, NULL, 0x80,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_cntr_init_ttl,
+            { "InitTTL", "btmesh.cntr.initttl",
+                FT_UINT8, BASE_DEC, NULL, 0x7F,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_cntr_feature_relay,
+            { "Relay feature in use", "btmesh.cntr.feature.relay",
+                FT_BOOLEAN, 16, TFS(&tfs_true_false), 0x0001,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_cntr_feature_proxy,
+            { "Proxy feature in use", "btmesh.cntr.feature.proxy",
+                FT_BOOLEAN, 16, TFS(&tfs_true_false), 0x0002,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_cntr_feature_friend,
+            { "Friend feature in use", "btmesh.cntr.feature.friend",
+                FT_BOOLEAN, 16, TFS(&tfs_true_false), 0x0004,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_cntr_feature_low_power,
+            { "Low Power feature in use", "btmesh.cntr.feature.lowpower",
+                FT_BOOLEAN, 16, TFS(&tfs_true_false), 0x0008,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_cntr_feature_rfu,
+            { "Reserved for Future Use", "btmesh.cntr.feature.rfu",
+                FT_UINT16, BASE_DEC, NULL, 0xfff0,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_cntr_unknown_payload,
+        { "Unknown Control Message payload", "btmesh.cntr.unknownpayload",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
         },
         { &hf_btmesh_enc_access_pld,
         { "Encrypted Access Payload", "btmesh.enc_access_pld",
@@ -1225,7 +1601,7 @@ proto_register_btmesh(void)
         },
         { &hf_btmesh_transtmic,
         { "TransMIC", "btmesh.transtmic",
-            FT_UINT32, BASE_HEX, NULL, 0x0,
+            FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_btmesh_szmic,
@@ -1235,7 +1611,7 @@ proto_register_btmesh(void)
         },
         { &hf_btmesh_seqzero_data,
         { "SeqZero", "btmesh.seqzero_data",
-            FT_UINT24, BASE_DEC, NULL, 0x3ffc00,
+            FT_UINT24, BASE_DEC, NULL, 0x7ffc00,
             NULL, HFILL }
         },
         { &hf_btmesh_sego,
@@ -1248,10 +1624,107 @@ proto_register_btmesh(void)
             FT_UINT24, BASE_DEC, NULL, 0x00001f,
             NULL, HFILL }
         },
+        { &hf_btmesh_seg_rfu,
+        { "RFU", "btmesh.seg.rfu",
+            FT_UINT24, BASE_DEC, NULL, 0x800000,
+            NULL, HFILL }
+        },
         { &hf_btmesh_segment,
         { "Segment", "btmesh.segment",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
+        },
+        //Access Message Reassembly
+        { &hf_btmesh_segmented_access_fragments,
+            { "Reassembled Segmented Access Message Fragments", "btmesh.segmented.access.fragments",
+                FT_NONE, BASE_NONE, NULL, 0x0,
+                "Segmented Access Message Fragments", HFILL }
+        },
+        { &hf_btmesh_segmented_access_fragment,
+            { "Segmented Access Message Fragment", "btmesh.segmented.access.fragment",
+                FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_segmented_access_fragment_overlap,
+            { "Fragment overlap", "btmesh.segmented.access.fragment.overlap",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "Fragment overlaps with other fragments", HFILL }
+        },
+        { &hf_btmesh_segmented_access_fragment_overlap_conflict,
+            { "Conflicting data in fragment overlap", "btmesh.segmented.access.fragment.overlap.conflict",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "Overlapping fragments contained conflicting data", HFILL }
+        },
+        { &hf_btmesh_segmented_access_fragment_multiple_tails,
+            { "Multiple tail fragments found", "btmesh.segmented.access.fragment.multipletails",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "Several tails were found when defragmenting the packet", HFILL }
+        },
+        { &hf_btmesh_segmented_access_fragment_too_long_fragment,
+            { "Fragment too long", "btmesh.segmented.access.fragment.toolongfragment",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "Fragment contained data past end of packet", HFILL }
+        },
+        { &hf_btmesh_segmented_access_fragment_error,
+            { "Defragmentation error", "btmesh.segmented.access.fragment.error",
+                FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+                "Defragmentation error due to illegal fragments", HFILL }
+        },
+        { &hf_btmesh_segmented_access_fragment_count,
+            { "Fragment count", "btmesh.segmented.access.fragment.count",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_segmented_access_reassembled_length,
+            { "Reassembled Segmented Access Message length", "btmesh.segmented.access.reassembled.length",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                "The total length of the reassembled payload", HFILL }
+        },
+        //Control Message Reassembly
+        { &hf_btmesh_segmented_control_fragments,
+            { "Reassembled Segmented Control Message Fragments", "btmesh.segmented.control.fragments",
+                FT_NONE, BASE_NONE, NULL, 0x0,
+                "Segmented Access Message Fragments", HFILL }
+        },
+        { &hf_btmesh_segmented_control_fragment,
+            { "Segmented Control Message Fragment", "btmesh.segmented.control.fragment",
+                FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_segmented_control_fragment_overlap,
+            { "Fragment overlap", "btmesh.segmented.control.fragment.overlap",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "Fragment overlaps with other fragments", HFILL }
+        },
+        { &hf_btmesh_segmented_control_fragment_overlap_conflict,
+            { "Conflicting data in fragment overlap", "btmesh.segmented.control.fragment.overlap.conflict",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "Overlapping fragments contained conflicting data", HFILL }
+        },
+        { &hf_btmesh_segmented_control_fragment_multiple_tails,
+            { "Multiple tail fragments found", "btmesh.segmented.control.fragment.multipletails",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "Several tails were found when defragmenting the packet", HFILL }
+        },
+        { &hf_btmesh_segmented_control_fragment_too_long_fragment,
+            { "Fragment too long", "btmesh.segmented.control.fragment.toolongfragment",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+                "Fragment contained data past end of packet", HFILL }
+        },
+        { &hf_btmesh_segmented_control_fragment_error,
+            { "Defragmentation error", "btmesh.segmented.control.fragment.error",
+                FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+                "Defragmentation error due to illegal fragments", HFILL }
+        },
+        { &hf_btmesh_segmented_control_fragment_count,
+            { "Fragment count", "btmesh.segmented.control.fragment.count",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_segmented_control_reassembled_length,
+            { "Reassembled Segmented Control Message length", "btmesh.segmented.control.reassembled.length",
+                FT_UINT32, BASE_DEC, NULL, 0x0,
+                "The total length of the reassembled payload", HFILL }
         },
     };
 
@@ -1261,6 +1734,10 @@ proto_register_btmesh(void)
         &ett_btmesh_transp_pdu,
         &ett_btmesh_transp_ctrl_msg,
         &ett_btmesh_upper_transp_acc_pdu,
+        &ett_btmesh_segmented_access_fragments,
+        &ett_btmesh_segmented_access_fragment,
+        &ett_btmesh_segmented_control_fragments,
+        &ett_btmesh_segmented_control_fragment,
     };
 
     static ei_register_info ei[] = {
@@ -1314,6 +1791,8 @@ proto_register_btmesh(void)
         btmesh_uat);
 
     register_dissector("btmesh.msg", dissect_btmesh_msg, proto_btmesh);
+
+    register_init_routine(&upper_transport_init_routine);
 }
 
 /*
