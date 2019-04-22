@@ -588,6 +588,9 @@ static int hf_nfs4_notification_bitmap = -1;
 static int hf_nfs4_lrs_present = -1;
 static int hf_nfs4_nfl_mirrors = -1;
 static int hf_nfs4_nfl_util = -1;
+static int hf_nfs4_nfl_util_stripe_size = -1;
+static int hf_nfs4_nfl_util_commit_thru_mds = -1;
+static int hf_nfs4_nfl_util_dense = -1;
 static int hf_nfs4_nfl_fhs = -1;
 static int hf_nfs4_mirror_eff = -1;
 static int hf_nfs4_nfl_first_stripe_index = -1;
@@ -860,6 +863,7 @@ static gint ett_nfs4_service = -1;
 static gint ett_nfs4_sessionid = -1;
 static gint ett_nfs4_layoutseg = -1;
 static gint ett_nfs4_layoutseg_sub = -1;
+static gint ett_nfs4_nfl_util = -1;
 static gint ett_nfs4_test_stateid = -1;
 static gint ett_nfs4_destroy_clientid = -1;
 static gint ett_nfs4_reclaim_complete = -1;
@@ -9279,11 +9283,14 @@ dissect_nfs4_layoutget(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 {
 	guint	    layout_type;
 	guint	    sub_num;
+	guint	    nfl_util;
 	guint	    lo_seg_count;
 	guint	    i, j, k, lo_seg;
 	proto_tree *newtree;
 	proto_item *sub_fitem;
 	proto_tree *subtree;
+	proto_tree *nfl_item;
+	proto_tree *nfl_tree;
 
 	static const int * layout_flags[] = {
 		&hf_nfs4_ff_layout_flags_no_layoutcommit,
@@ -9314,8 +9321,15 @@ dissect_nfs4_layoutget(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
 
 			offset = dissect_nfs4_deviceid(tvb, offset, newtree);
 
-			offset = dissect_rpc_uint32(tvb, newtree,
-					hf_nfs4_nfl_util, offset);
+			/* Get nfl_util and break it down into its components */
+			nfl_util = tvb_get_ntohl(tvb, offset);
+			nfl_item = proto_tree_add_uint(newtree, hf_nfs4_nfl_util, tvb, offset, 4, nfl_util);
+			nfl_tree = proto_item_add_subtree(nfl_item, ett_nfs4_nfl_util);
+			proto_tree_add_uint(nfl_tree, hf_nfs4_nfl_util_stripe_size, tvb, offset, 4, nfl_util&NFL4_UFLG_STRIPE_UNIT_SIZE_MASK);
+			proto_tree_add_uint(nfl_tree, hf_nfs4_nfl_util_commit_thru_mds, tvb, offset+3, 1, (nfl_util&NFL4_UFLG_COMMIT_THRU_MDS?1:0));
+			proto_tree_add_uint(nfl_tree, hf_nfs4_nfl_util_dense, tvb, offset+3, 1, (nfl_util&NFL4_UFLG_DENSE?1:0));
+			offset += 4;
+
 			offset = dissect_rpc_uint32(tvb, newtree,
 					hf_nfs4_nfl_first_stripe_index, offset);
 			offset = dissect_rpc_uint64(tvb, newtree,
@@ -13235,6 +13249,18 @@ proto_register_nfs(void)
 			"nfl_util", "nfs.nfl_util", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
 
+		{ &hf_nfs4_nfl_util_stripe_size, {
+			"stripe size", "nfs.nfl_util.stripe_size", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_nfl_util_commit_thru_mds, {
+			"commit thru mds", "nfs.nfl_util.commit_thru_mds", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_nfs4_nfl_util_dense, {
+			"dense layout", "nfs.nfl_util.dense", FT_UINT32, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
 		{ &hf_nfs4_nfl_fhs, {
 			"file handles", "nfs.nfl_fhs", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
@@ -14224,6 +14250,7 @@ proto_register_nfs(void)
 		&ett_nfs4_sessionid,
 		&ett_nfs4_layoutseg,
 		&ett_nfs4_layoutseg_sub,
+		&ett_nfs4_nfl_util,
 		&ett_nfs4_cb_request_op,
 		&ett_nfs4_cb_resop,
 		&ett_nfs4_cb_getattr,
