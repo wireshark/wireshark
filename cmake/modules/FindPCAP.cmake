@@ -38,6 +38,16 @@ find_package_handle_standard_args( PCAP DEFAULT_MSG PCAP_LIBRARY PCAP_INCLUDE_DI
 if( PCAP_FOUND )
   set( PCAP_INCLUDE_DIRS ${PCAP_INCLUDE_DIR} )
   set( PCAP_LIBRARIES ${PCAP_LIBRARY} )
+
+  # Include transitive dependencies for static linking.
+  # This requires:
+  # 1) a system with pkg-config installed
+  # 2) libpcap >= 1.9.0 with its .pc files installed
+  if( UNIX AND CMAKE_FIND_LIBRARY_SUFFIXES STREQUAL ".a" )
+    find_package( PkgConfig )
+    pkg_search_module( PC_LIBPCAP libpcap )
+    list( APPEND PCAP_LIBRARIES ${PC_LIBPCAP_LIBRARIES} )
+  endif()
 else()
   set( PCAP_INCLUDE_DIRS )
   set( PCAP_LIBRARIES )
