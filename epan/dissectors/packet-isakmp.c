@@ -5396,7 +5396,6 @@ dissect_sa_kek(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length, pr
   proto_tree_add_item(tree, hf_isakmp_reserved, tvb, offset, 4, ENC_NA);
   offset += 4;
   proto_tree_add_item(tree, hf_isakmp_sak_kek_attributes, tvb, offset, offset_end - offset, ENC_NA);
-  offset += (offset_end - offset);
 }
 
 static void
@@ -5436,10 +5435,8 @@ dissect_sa_tek(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int length, pr
     proto_tree_add_item(tree, hf_isakmp_sat_spi, tvb, offset, 4, ENC_NA);
     offset += 4;
     proto_tree_add_item(tree, hf_isakmp_sat_sa_attributes, tvb, offset, offset_end - offset, ENC_NA);
-    offset += (offset_end - offset);
   } else {
     proto_tree_add_item(tree, hf_isakmp_sat_payload, tvb, offset, offset_end - offset, ENC_NA);
-    offset += (offset_end - offset);
   }
 
 }
