@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Parses the CSV version of the IANA Service Name and Transport Protocol Port Number Registry
 # and generates a services(5) file.
@@ -24,12 +24,8 @@ import csv
 import re
 import collections
 
-python_version = sys.hexversion >> 16
-if python_version < 0x300:
-    import urllib
-else:
-    import urllib.request, urllib.error, urllib.parse
-    import codecs
+import urllib.request, urllib.error, urllib.parse
+import codecs
 
 services_file = 'services'
 
@@ -64,10 +60,7 @@ def parse_rows(svc_fd):
     count = 0
 
     # Header positions as of 2013-08-06
-    if python_version < 0x206:
-        headers = port_reader.next()
-    else:
-        headers = next(port_reader)
+    headers = next(port_reader)
 
     try:
         sn_pos = headers.index('Service Name')
@@ -97,7 +90,7 @@ def parse_rows(svc_fd):
 
         if len(service) < 1 or not port or len(proto) < 1:
             continue
-            
+
         if re.search('|'.join(exclude_services), service):
             continue
 
@@ -160,6 +153,10 @@ def exit_msg(msg=None, status=1):
     sys.exit(status)
 
 def main(argv):
+    if sys.version_info[0] < 3:
+        print("This requires Python 3")
+        sys.exit(2)
+
     try:
         opts, args = getopt.getopt(argv, "h", ["help"])
     except getopt.GetoptError:
@@ -176,8 +173,6 @@ def main(argv):
     try:
         if not svc_url.startswith('http'):
             svc_fd = open(svc_url)
-        elif python_version < 0x300:
-            svc_fd = urllib.urlopen(svc_url)
         else:
             req = urllib.request.urlopen(svc_url)
             svc_fd = codecs.getreader('utf8')(req)
