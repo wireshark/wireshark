@@ -25,6 +25,13 @@ static int proto_proxy = -1;
 
 static int hf_proxy_version = -1;
 
+static int hf_proxy_src_ipv4 = -1;
+static int hf_proxy_dst_ipv4 = -1;
+static int hf_proxy_src_ipv6 = -1;
+static int hf_proxy_dst_ipv6 = -1;
+static int hf_proxy_srcport = -1;
+static int hf_proxy_dstport = -1;
+
 /* V2 */
 static int hf_proxy2_magic = -1;
 static int hf_proxy2_ver = -1;
@@ -33,14 +40,8 @@ static int hf_proxy2_addr_family = -1;
 static int hf_proxy2_protocol = -1;
 static int hf_proxy2_addr_family_protocol = -1;
 static int hf_proxy2_len = -1;
-static int hf_proxy2_src_addr_ipv4 = -1;
-static int hf_proxy2_dst_addr_ipv4 = -1;
-static int hf_proxy2_src_addr_ipv6 = -1;
-static int hf_proxy2_dst_addr_ipv6 = -1;
-static int hf_proxy2_src_port = -1;
-static int hf_proxy2_dst_port = -1;
-static int hf_proxy2_src_addr_unix = -1;
-static int hf_proxy2_dst_addr_unix = -1;
+static int hf_proxy2_src_unix = -1;
+static int hf_proxy2_dst_unix = -1;
 
 static int hf_proxy2_unknown = -1;
 
@@ -208,31 +209,31 @@ dissect_proxy_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     switch (fam_pro){
         case 0x11: /* TCP over IPv4 */
         case 0x12: /* UDP over IPv4 */
-            proto_tree_add_item(proxy_tree, hf_proxy2_src_addr_ipv4, tvb, offset, 4, ENC_NA);
+            proto_tree_add_item(proxy_tree, hf_proxy_src_ipv4, tvb, offset, 4, ENC_NA);
             offset += 4;
-            proto_tree_add_item(proxy_tree, hf_proxy2_dst_addr_ipv4, tvb, offset, 4, ENC_NA);
+            proto_tree_add_item(proxy_tree, hf_proxy_dst_ipv4, tvb, offset, 4, ENC_NA);
             offset += 4;
-            proto_tree_add_item(proxy_tree, hf_proxy2_src_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(proxy_tree, hf_proxy_srcport, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
-            proto_tree_add_item(proxy_tree, hf_proxy2_dst_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(proxy_tree, hf_proxy_dstport, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
         break;
         case 0x21: /* TCP over IPv6 */
         case 0x22: /* UDP over IPv6 */
-            proto_tree_add_item(proxy_tree, hf_proxy2_src_addr_ipv6, tvb, offset, 16, ENC_NA);
+            proto_tree_add_item(proxy_tree, hf_proxy_src_ipv6, tvb, offset, 16, ENC_NA);
             offset += 16;
-            proto_tree_add_item(proxy_tree, hf_proxy2_dst_addr_ipv6, tvb, offset, 16, ENC_NA);
+            proto_tree_add_item(proxy_tree, hf_proxy_dst_ipv6, tvb, offset, 16, ENC_NA);
             offset += 16;
-            proto_tree_add_item(proxy_tree, hf_proxy2_src_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(proxy_tree, hf_proxy_srcport, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
-            proto_tree_add_item(proxy_tree, hf_proxy2_dst_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(proxy_tree, hf_proxy_dstport, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
         break;
         case 0x31: /* UNIX stream */
         case 0x32: /* UNIX datagram */
-            proto_tree_add_item(proxy_tree, hf_proxy2_src_addr_unix, tvb, offset, 108, ENC_NA);
+            proto_tree_add_item(proxy_tree, hf_proxy2_src_unix, tvb, offset, 108, ENC_NA);
             offset += 108;
-            proto_tree_add_item(proxy_tree, hf_proxy2_dst_addr_unix, tvb, offset, 108, ENC_NA);
+            proto_tree_add_item(proxy_tree, hf_proxy2_dst_unix, tvb, offset, 108, ENC_NA);
             offset += 108;
         break;
         default:
@@ -282,6 +283,37 @@ proto_register_proxy(void)
             NULL, HFILL }
         },
 
+        { &hf_proxy_src_ipv4,
+          { "Source Address", "proxy.src.ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_proxy_dst_ipv4,
+          { "Destination Address", "proxy.dst.ipv4",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_proxy_src_ipv6,
+          { "Source Address", "proxy.src.ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_proxy_dst_ipv6,
+          { "Destination Address", "proxy.dst.ipv6",
+            FT_IPv6, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_proxy_srcport,
+          { "Source Port", "proxy.srcport",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_proxy_dstport,
+          { "Destination Port", "proxy.dstport",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+
         { &hf_proxy2_magic,
           { "Magic", "proxy.v2.magic",
             FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -318,45 +350,14 @@ proto_register_proxy(void)
             "Size of addresses and additional properties", HFILL }
         },
 
-        { &hf_proxy2_src_addr_ipv4,
-          { "Source Address (IPv4)", "proxy.v2.src_addr_ipv4",
-            FT_IPv4, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_proxy2_dst_addr_ipv4,
-          { "Destination Address (IPv4)", "proxy.v2.dst_addr_ipv4",
-            FT_IPv4, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_proxy2_src_addr_ipv6,
-          { "Source Address (IPv6)", "proxy.v2.src_addr_ipv6",
-            FT_IPv6, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_proxy2_dst_addr_ipv6,
-          { "Destination Address (IPv6)", "proxy.v2.dst_addr_ipv6",
-            FT_IPv6, BASE_NONE, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_proxy2_src_port,
-          { "Source Port", "proxy.v2.src_port",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
-        { &hf_proxy2_dst_port,
-          { "Destination Port", "proxy.v2.dst_port",
-            FT_UINT16, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
-        },
 
-
-        { &hf_proxy2_src_addr_unix,
-          { "Source Address (UNIX)", "proxy.v2.src_addr_unix",
+        { &hf_proxy2_src_unix,
+          { "Source Address", "proxy.v2.src.unix",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_proxy2_dst_addr_unix,
-          { "Destination Address (UNIX)", "proxy.v2.dst_addr_unix",
+        { &hf_proxy2_dst_unix,
+          { "Destination Address", "proxy.v2.dst.unix",
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
