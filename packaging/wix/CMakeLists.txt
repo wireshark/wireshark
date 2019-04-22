@@ -83,6 +83,9 @@ elseif(MSVC_VERSION GREATER_EQUAL 1900)
 	set (MSVC_CRT_VERSION "VC140")
 endif()
 
+# Starting with Visual Studio 2019 merge modules are deprecated but
+# are available as an individual component.
+# https://docs.microsoft.com/en-us/visualstudio/releases/2019/release-notes#-deprecations
 set(MERGE_MODULE "Microsoft_${MSVC_CRT_VERSION}_CRT_${TARGET_MACHINE}.msm")
 set (PF86_ENV "ProgramFiles(x86)")
 
