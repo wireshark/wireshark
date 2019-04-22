@@ -5478,10 +5478,8 @@ dissect_key_download(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, int leng
       num_key_pkt -= 1;
     }
 
-  } else if (isakmp_version == 2) {
-    /* TODO: currently only draft status: draft-yeung-g-ikev2-15 */
-    return;
   } else {
+    /* TODO: For IKEv2: currently only draft status: draft-yeung-g-ikev2-15 */
     /* Skip dissection for unknown IKE versions. */
     return;
   }
