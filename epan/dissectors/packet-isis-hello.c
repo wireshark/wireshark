@@ -14,6 +14,7 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/nlpid.h>
 #include "packet-osi.h"
 #include "packet-isis.h"
 #include "packet-isis-clv.h"
@@ -110,6 +111,7 @@ static int hf_isis_hello_reverse_metric_flag_w = -1;
 static int hf_isis_hello_reverse_metric_metric = -1;
 static int hf_isis_hello_reverse_metric_sub_length = -1;
 static int hf_isis_hello_reverse_metric_sub_data = -1;
+static int hf_isis_hello_bfd_enabled_nlpid = -1;
 static int hf_isis_hello_neighbor_extended_local_circuit_id = -1;
 static int hf_isis_hello_vlan_flags_port_id = -1;
 static int hf_isis_hello_vlan_flags_nickname = -1;
@@ -160,6 +162,7 @@ static gint ett_isis_hello_clv_mt_port_cap_vlans_appointed = -1;
 static gint ett_isis_hello_clv_trill_neighbor = -1;
 static gint ett_isis_hello_clv_checksum = -1;
 static gint ett_isis_hello_clv_reverse_metric = -1;
+static gint ett_isis_hello_clv_bfd_enabled = -1;
 static gint ett_isis_hello_clv_ipv6_glb_int_addr = -1;
 
 static expert_field ei_isis_hello_short_packet = EI_INIT;
@@ -758,6 +761,38 @@ dissect_hello_reverse_metric_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
 }
 
 /*
+ * Name: dissect_hello_bfd_enabled_clv
+ *
+ * Description:
+ *    Decode for a hello packets BFD enabled clv.
+ *
+ * Input:
+ *    tvbuff_t * : tvbuffer for packet data
+ *    proto_tree * : proto tree to build on (may be null)
+ *    int : current offset into packet data
+ *    int : length of IDs in packet.
+ *    int : length of this clv
+ *
+ * Output:
+ *    void, will modify proto_tree if not null.
+ */
+static void
+dissect_hello_bfd_enabled_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
+        proto_tree *tree, int offset, int id_length _U_, int length) {
+
+    while (length >= 3) {
+        /* mtid */
+        proto_tree_add_item(tree, hf_isis_hello_mtid, tvb, offset, 2, ENC_BIG_ENDIAN);
+        length -= 2;
+        offset += 2;
+        /* nlpid */
+        proto_tree_add_item(tree, hf_isis_hello_bfd_enabled_nlpid, tvb, offset, 1, ENC_NA);
+        length -= 1;
+        offset += 1;
+    };
+}
+
+/*
  * Name: dissect_hello_checksum_clv()
  *
  * Description:
@@ -1078,6 +1113,12 @@ static const isis_clv_handle_t clv_l1_hello_opts[] = {
         dissect_hello_reverse_metric_clv
     },
     {
+        ISIS_CLV_BFD_ENABLED,
+        "BFD Enabled",
+        &ett_isis_hello_clv_bfd_enabled,
+        dissect_hello_bfd_enabled_clv
+    },
+    {
         0,
         "",
         NULL,
@@ -1163,6 +1204,12 @@ static const isis_clv_handle_t clv_l2_hello_opts[] = {
         "IPv6 Global Interface Address",
         &ett_isis_hello_clv_ipv6_glb_int_addr,
         dissect_hello_ipv6_glb_int_addr_clv
+    },
+    {
+        ISIS_CLV_BFD_ENABLED,
+        "BFD Enabled",
+        &ett_isis_hello_clv_bfd_enabled,
+        dissect_hello_bfd_enabled_clv
     },
     {
         0,
@@ -1256,6 +1303,12 @@ static const isis_clv_handle_t clv_ptp_hello_opts[] = {
         "IPv6 Global Interface Address",
         &ett_isis_hello_clv_ipv6_glb_int_addr,
         dissect_hello_ipv6_glb_int_addr_clv
+    },
+    {
+        ISIS_CLV_BFD_ENABLED,
+        "BFD Enabled",
+        &ett_isis_hello_clv_bfd_enabled,
+        dissect_hello_bfd_enabled_clv
     },
     {
         0,
@@ -1527,6 +1580,7 @@ proto_register_isis_hello(void)
       { &hf_isis_hello_reverse_metric_metric, { "Metric", "isis.hello.reverse_metric.metric", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_hello_reverse_metric_sub_length, { "Sub-TLV length", "isis.hello.reverse_metric.sub_length", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
       { &hf_isis_hello_reverse_metric_sub_data, { "Sub-TLV data", "isis.hello.reverse_metric.sub_data", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { &hf_isis_hello_bfd_enabled_nlpid, { "NLPID", "isis.hello.bfd_enabled.nlpid", FT_UINT8, BASE_HEX, VALS(nlpid_vals), 0x0, NULL, HFILL }},
 
       /* rfc6119 */
       { &hf_isis_hello_clv_ipv6_glb_int_addr,
@@ -1562,6 +1616,7 @@ proto_register_isis_hello(void)
         &ett_isis_hello_clv_trill_neighbor,
         &ett_isis_hello_clv_checksum,
         &ett_isis_hello_clv_reverse_metric,
+        &ett_isis_hello_clv_bfd_enabled,
         &ett_isis_hello_clv_ipv6_glb_int_addr /* CLV 233, rfc6119 */
     };
 
