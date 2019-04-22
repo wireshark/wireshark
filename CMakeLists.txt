@@ -185,7 +185,7 @@ set(PROJECT_INSTALL_INCLUDEDIR "${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}")
 set(LIBRARY_INSTALL_RPATH "")
 set(EXECUTABLE_INSTALL_RPATH "")
 set(EXTCAP_INSTALL_RPATH "")
-if(NOT (WIN32 OR APPLE))
+if(NOT (WIN32 OR APPLE OR USE_STATIC))
 	# Try to set a RPATH for installed binaries if the library directory is
 	# not already included in the default search list.
 	list(FIND CMAKE_C_IMPLICIT_LINK_DIRECTORIES "${CMAKE_INSTALL_FULL_LIBDIR}" IS_SYSTEM_DIR)
@@ -325,6 +325,10 @@ if(OSS_FUZZ)
 		message(FATAL_ERROR "Cannot force libFuzzer when using oss-fuzz")
 	endif()
 	# Must not depend on external dependencies so statically link all libs.
+	set(USE_STATIC ON)
+endif()
+
+if(USE_STATIC)
 	set(CMAKE_FIND_LIBRARY_SUFFIXES ".a")
 endif()
 
