@@ -1,9 +1,9 @@
--- 3GPP TS 29.002 V14.3.0 (2017-03)
+-- 3GPP TS 29.002 V15.4.0 (2018-12)
 -- 17.4	MAP Dialogue Information
 
 MAP-DialogueInformation {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-DialogueInformation (3) version17 (17)}
+   gsm-Network (1) modules (3) map-DialogueInformation (3) version18 (18)}
 
 DEFINITIONS
 
@@ -29,12 +29,12 @@ FROM MobileDomainDefinitions {
 	AddressString
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network(1) modules (3) map-CommonDataTypes (18) version17 (17)}
+   gsm-Network(1) modules (3) map-CommonDataTypes (18) version18 (18)}
 
 	ExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version17 (17)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version18 (18)}
 
 
 ;
@@ -46,9 +46,9 @@ map-DialogueAS  OBJECT IDENTIFIER ::=
 	{gsm-NetworkId as-Id map-DialoguePDU (1) version1 (1)}
 
 MAP-DialoguePDU ::= CHOICE {
-	map-open		[0] MAP-OpenInfo,
+	map-open	[0] MAP-OpenInfo,
 	map-accept	[1] MAP-AcceptInfo,
-	map-close		[2] MAP-CloseInfo,
+	map-close	[2] MAP-CloseInfo,
 	map-refuse	[3] MAP-RefuseInfo,
 	map-userAbort	[4] MAP-UserAbortInfo,
 	map-providerAbort	[5] MAP-ProviderAbortInfo}
@@ -56,10 +56,6 @@ MAP-DialoguePDU ::= CHOICE {
 MAP-OpenInfo ::= SEQUENCE {
 	destinationReference	[0] AddressString	OPTIONAL,
 	originationReference	[1] AddressString	OPTIONAL,
--- WS modification: Ericsson proprietary fields
-		callingMsisdn					[2] AddressString OPTIONAL,
-		callingVlrAddress				[3] AddressString OPTIONAL,
--- WS modification: Ericsson proprietary fields
 	...,
 	extensionContainer	ExtensionContainer	OPTIONAL
 	-- extensionContainer must not be used in version 2

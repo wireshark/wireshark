@@ -1,10 +1,10 @@
--- 3GPP TS 29.002 V14.3.0 (2017-03)
+-- 3GPP TS 29.002 V15.4.0 (2018-12)
 --17.6.4	Supplementary service operations
 
 MAP-SupplementaryServiceOperations {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-SupplementaryServiceOperations (8)
-   version17 (17)}
+   version18 (18)}
 
 DEFINITIONS
 
@@ -59,7 +59,7 @@ joint-iso-itu-t remote-operations(4)
 	facilityNotSupported
 FROM MAP-Errors {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-Errors (10) version17 (17)}
+   gsm-Network (1) modules (3) map-Errors (10) version18 (18)}
 
 	RegisterSS-Arg,
 	SS-Info,
@@ -77,222 +77,222 @@ FROM MAP-Errors {
 	EraseCC-EntryRes
 FROM MAP-SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-DataTypes (14) version17 (17)}
+   gsm-Network (1) modules (3) map-SS-DataTypes (14) version18 (18)}
 
 	SS-Code
 FROM MAP-SS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-Code (15) version17 (17)}
+   gsm-Network (1) modules (3) map-SS-Code (15) version18 (18)}
 ;
 
 
 -- supplementary service handling operations
 
-registerSS  OPERATION ::= {				--Timer m
+registerSS  OPERATION ::= {		--Timer m
 	ARGUMENT
-		RegisterSS-Arg
+	RegisterSS-Arg
 	RESULT
-		SS-Info
-		-- optional
+	SS-Info
+	-- optional
 	ERRORS {
-		systemFailure |
-		dataMissing |
-		unexpectedDataValue |
-		bearerServiceNotProvisioned |
-		teleserviceNotProvisioned |
-		callBarred |
-		illegalSS-Operation |
-		ss-ErrorStatus |
-		ss-Incompatibility}
+	systemFailure |
+	dataMissing |
+	unexpectedDataValue |
+	bearerServiceNotProvisioned |
+	teleserviceNotProvisioned |
+	callBarred |
+	illegalSS-Operation |
+	ss-ErrorStatus |
+	ss-Incompatibility}
 	CODE	local:10 }
 
-eraseSS  OPERATION ::= {				--Timer m
+eraseSS  OPERATION ::= {		--Timer m
 	ARGUMENT
-		SS-ForBS-Code
+	SS-ForBS-Code
 	RESULT
-		SS-Info
-		-- optional
+	SS-Info
+	-- optional
 	ERRORS {
-		systemFailure |
-		dataMissing |
-		unexpectedDataValue |
-		bearerServiceNotProvisioned |
-		teleserviceNotProvisioned |
-		callBarred |
-		illegalSS-Operation |
-		ss-ErrorStatus
-		}
+	systemFailure |
+	dataMissing |
+	unexpectedDataValue |
+	bearerServiceNotProvisioned |
+	teleserviceNotProvisioned |
+	callBarred |
+	illegalSS-Operation |
+	ss-ErrorStatus
+	}
 	CODE	local:11 }
 
-activateSS  OPERATION ::= {				--Timer m
+activateSS  OPERATION ::= {		--Timer m
 	ARGUMENT
-		SS-ForBS-Code
+	SS-ForBS-Code
 	RESULT
-		SS-Info
-		-- optional
+	SS-Info
+	-- optional
 	ERRORS {
-		systemFailure |
-		dataMissing |
-		unexpectedDataValue |
-		bearerServiceNotProvisioned |
-		teleserviceNotProvisioned |
-		callBarred |
-		illegalSS-Operation |
-		ss-ErrorStatus |
-		ss-SubscriptionViolation |
-		ss-Incompatibility |
-		negativePW-Check |
-		numberOfPW-AttemptsViolation}
+	systemFailure |
+	dataMissing |
+	unexpectedDataValue |
+	bearerServiceNotProvisioned |
+	teleserviceNotProvisioned |
+	callBarred |
+	illegalSS-Operation |
+	ss-ErrorStatus |
+	ss-SubscriptionViolation |
+	ss-Incompatibility |
+	negativePW-Check |
+	numberOfPW-AttemptsViolation}
 	CODE	local:12 }
 
-deactivateSS  OPERATION ::= {				--Timer m
+deactivateSS  OPERATION ::= {		--Timer m
 	ARGUMENT
-		SS-ForBS-Code
+	SS-ForBS-Code
 	RESULT
-		SS-Info
-		-- optional
+	SS-Info
+	-- optional
 	ERRORS {
-		systemFailure |
-		dataMissing |
-		unexpectedDataValue |
-		bearerServiceNotProvisioned |
-		teleserviceNotProvisioned |
-		callBarred |
-		illegalSS-Operation |
-		ss-ErrorStatus |
-		ss-SubscriptionViolation |
-		negativePW-Check |
-		numberOfPW-AttemptsViolation}
+	systemFailure |
+	dataMissing |
+	unexpectedDataValue |
+	bearerServiceNotProvisioned |
+	teleserviceNotProvisioned |
+	callBarred |
+	illegalSS-Operation |
+	ss-ErrorStatus |
+	ss-SubscriptionViolation |
+	negativePW-Check |
+	numberOfPW-AttemptsViolation}
 	CODE	local:13 }
 
-interrogateSS  OPERATION ::= {				--Timer m
+interrogateSS  OPERATION ::= {		--Timer m
 	ARGUMENT
-		SS-ForBS-Code
+	SS-ForBS-Code
 	RESULT
-		InterrogateSS-Res
+	InterrogateSS-Res
 	ERRORS {
-		systemFailure |
-		dataMissing |
-		unexpectedDataValue |
-		bearerServiceNotProvisioned |
-		teleserviceNotProvisioned |
-		callBarred |
-		illegalSS-Operation |
-		ss-NotAvailable}
+	systemFailure |
+	dataMissing |
+	unexpectedDataValue |
+	bearerServiceNotProvisioned |
+	teleserviceNotProvisioned |
+	callBarred |
+	illegalSS-Operation |
+	ss-NotAvailable}
 	CODE	local:14 }
 
-processUnstructuredSS-Request  OPERATION ::= {				--Timer 10 minutes
+processUnstructuredSS-Request  OPERATION ::= {		--Timer 10 minutes
 	ARGUMENT
-		USSD-Arg
+	USSD-Arg
 	RESULT
-		USSD-Res
+	USSD-Res
 	ERRORS {
-		systemFailure |
-		dataMissing |
-		unexpectedDataValue |
-		unknownAlphabet |
-		callBarred}
+	systemFailure |
+	dataMissing |
+	unexpectedDataValue |
+	unknownAlphabet |
+	callBarred}
 	CODE	local:59 }
 
-unstructuredSS-Request  OPERATION ::= {				--Timer ml
+unstructuredSS-Request  OPERATION ::= {		--Timer ml
 	ARGUMENT
-		USSD-Arg
+	USSD-Arg
 	RESULT
-		USSD-Res
-		-- optional
+	USSD-Res
+	-- optional
 	ERRORS {
-		systemFailure |
-		dataMissing |
-		unexpectedDataValue |
-		absentSubscriber |
-		illegalSubscriber |
-		illegalEquipment |
-		unknownAlphabet |
-		ussd-Busy}
+	systemFailure |
+	dataMissing |
+	unexpectedDataValue |
+	absentSubscriber |
+	illegalSubscriber |
+	illegalEquipment |
+	unknownAlphabet |
+	ussd-Busy}
 	CODE	local:60 }
 
-unstructuredSS-Notify  OPERATION ::= {				--Timer ml
+unstructuredSS-Notify  OPERATION ::= {		--Timer ml
 	ARGUMENT
-		USSD-Arg
+	USSD-Arg
 	RETURN RESULT TRUE
 	ERRORS {
-		systemFailure |
-		dataMissing |
-		unexpectedDataValue |
-		absentSubscriber |
-		illegalSubscriber |
-		illegalEquipment |
-		unknownAlphabet |
-		ussd-Busy}
+	systemFailure |
+	dataMissing |
+	unexpectedDataValue |
+	absentSubscriber |
+	illegalSubscriber |
+	illegalEquipment |
+	unknownAlphabet |
+	ussd-Busy}
 	CODE	local:61 }
 
-registerPassword  OPERATION ::= {				--Timer ml
+registerPassword  OPERATION ::= {		--Timer ml
 	ARGUMENT
-		SS-Code
+	SS-Code
 	RESULT
-		Password
+	Password
 	ERRORS {
-		systemFailure |
-		dataMissing |
-		unexpectedDataValue |
-		callBarred |
-		ss-SubscriptionViolation |
-		pw-RegistrationFailure |
-		negativePW-Check |
-		numberOfPW-AttemptsViolation}
+	systemFailure |
+	dataMissing |
+	unexpectedDataValue |
+	callBarred |
+	ss-SubscriptionViolation |
+	pw-RegistrationFailure |
+	negativePW-Check |
+	numberOfPW-AttemptsViolation}
 	LINKED {
-		getPassword}
+	getPassword}
 	CODE	local:17 }
 
-getPassword  OPERATION ::= {				--Timer m
+getPassword  OPERATION ::= {		--Timer m
 	ARGUMENT
-		GuidanceInfo
+	GuidanceInfo
 	RESULT
-		Password
+	Password
 	CODE	local:18 }
 
-ss-InvocationNotification  OPERATION ::= {				--Timer m
+ss-InvocationNotification  OPERATION ::= {		--Timer m
 	ARGUMENT
-		SS-InvocationNotificationArg
+	SS-InvocationNotificationArg
 	RESULT
-		SS-InvocationNotificationRes
-		-- optional
+	SS-InvocationNotificationRes
+	-- optional
 	ERRORS {
-		dataMissing |
-		unexpectedDataValue |
-		unknownSubscriber}
+	dataMissing |
+	unexpectedDataValue |
+	unknownSubscriber}
 	CODE	local:72 }
 
-registerCC-Entry  OPERATION ::= {				--Timer m
+registerCC-Entry  OPERATION ::= {		--Timer m
 	ARGUMENT
-		RegisterCC-EntryArg
+	RegisterCC-EntryArg
 	RESULT
-		RegisterCC-EntryRes
+	RegisterCC-EntryRes
 	ERRORS {
-		systemFailure |
-		dataMissing |
-		unexpectedDataValue |
-		callBarred |
-		illegalSS-Operation |
-		ss-ErrorStatus |
-		ss-Incompatibility |
-		shortTermDenial |
-		longTermDenial |
-		facilityNotSupported}
+	systemFailure |
+	dataMissing |
+	unexpectedDataValue |
+	callBarred |
+	illegalSS-Operation |
+	ss-ErrorStatus |
+	ss-Incompatibility |
+	shortTermDenial |
+	longTermDenial |
+	facilityNotSupported}
 	CODE	local:76 }
 
-eraseCC-Entry  OPERATION ::= {				--Timer m
+eraseCC-Entry  OPERATION ::= {		--Timer m
 	ARGUMENT
-		EraseCC-EntryArg
+	EraseCC-EntryArg
 	RESULT
-		EraseCC-EntryRes
+	EraseCC-EntryRes
 	ERRORS {
-		systemFailure |
-		dataMissing |
-		unexpectedDataValue |
-		callBarred |
-		illegalSS-Operation |
-		ss-ErrorStatus}
+	systemFailure |
+	dataMissing |
+	unexpectedDataValue |
+	callBarred |
+	illegalSS-Operation |
+	ss-ErrorStatus}
 	CODE	local:77 }
 
 END

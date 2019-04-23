@@ -1,9 +1,9 @@
--- 3GPP TS 29.002 V14.3.0 (2017-03)
+-- 3GPP TS 29.002 V15.4.0 (2018-12)
 -- 17.7.7	Error data types
 
 MAP-ER-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ER-DataTypes (17) version17 (17)}
+   gsm-Network (1) modules (3) map-ER-DataTypes (17) version18 (18)}
 
 DEFINITIONS
 
@@ -71,7 +71,7 @@ IMPORTS
 	SS-Status
 FROM MAP-SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-DataTypes (14) version17 (17)}
+   gsm-Network (1) modules (3) map-SS-DataTypes (14) version18 (18)}
 
 	SignalInfo,
 	BasicServiceCode,
@@ -81,18 +81,18 @@ FROM MAP-SS-DataTypes {
 	Time
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CommonDataTypes (18) version17 (17)}
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version18 (18)}
 
 
 	SS-Code
 FROM MAP-SS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-Code (15) version17 (17)}
+   gsm-Network (1) modules (3) map-SS-Code (15) version18 (18)}
 
 	ExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version17 (17)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version18 (18)}
 ;
 
 RoamingNotAllowedParam ::= SEQUENCE {
@@ -127,8 +127,8 @@ ExtensibleCallBarredParam ::= SEQUENCE {
 	callBarringCause	CallBarringCause	OPTIONAL,
 	extensionContainer	ExtensionContainer	OPTIONAL,
 	... ,
-	unauthorisedMessageOriginator	[1] NULL		OPTIONAL,
-	anonymousCallRejection	[2] NULL		OPTIONAL }
+	unauthorisedMessageOriginator	[1] NULL	OPTIONAL,
+	anonymousCallRejection	[2] NULL	OPTIONAL }
 
 -- unauthorisedMessageOriginator and anonymousCallRejection shall be mutually exclusive. 
 
@@ -145,9 +145,9 @@ CUG-RejectCause ::= ENUMERATED {
 	calledPartySS-InteractionViolation  (7)}
 
 SS-IncompatibilityCause ::= SEQUENCE {
-	ss-Code		[1] SS-Code	OPTIONAL,
+	ss-Code	[1] SS-Code	OPTIONAL,
 	basicService	BasicServiceCode	OPTIONAL,
-	ss-Status		[4] SS-Status	OPTIONAL,
+	ss-Status	[4] SS-Status	OPTIONAL,
 	...}
 
 PW-RegistrationFailureCause ::= ENUMERATED {
@@ -180,11 +180,11 @@ AbsentSubscriberSM-Param ::= SEQUENCE {
 	-- if received, additionalAbsentSubscriberDiagnosticSM 
 	-- is for GPRS and absentSubscriberDiagnosticSM is 
 	-- for non-GPRS
-	imsi			[1] IMSI		OPTIONAL,
+	imsi		[1] IMSI	OPTIONAL,
 	-- when sent from HLR to IP-SM-GW, IMSI shall be present if UNRI is not set 
-	-- to indicate that the absent condition is met for CS and PS but not for IMS.
-	requestedRetransmissionTime	[2] Time		OPTIONAL,
-	userIdentifierAlert	[3] IMSI		OPTIONAL }
+	-- to indicate that the absent condition is met for CS and PS but not for IMS. 
+	requestedRetransmissionTime	[2] Time	OPTIONAL,
+	userIdentifierAlert	[3] IMSI	OPTIONAL }
 
 AbsentSubscriberDiagnosticSM ::= INTEGER (0..255)
 	-- AbsentSubscriberDiagnosticSM values are defined in 3GPP TS 23.040
@@ -216,14 +216,14 @@ DataMissingParam ::= SEQUENCE {
 UnexpectedDataParam ::= SEQUENCE {
 	extensionContainer	ExtensionContainer	OPTIONAL,
 	...,
-	unexpectedSubscriber [0]	NULL			OPTIONAL}
+	unexpectedSubscriber [0]	NULL		OPTIONAL}
 -- the unexpectedSubscriber indication in the unexpectedDataValue error shall not be used
 -- for operations that allow the unidentifiedSubscriber error.
 
 FacilityNotSupParam ::= SEQUENCE {
 	extensionContainer	ExtensionContainer	OPTIONAL,
 	...,
-	shapeOfLocationEstimateNotSupported [0]	NULL		OPTIONAL,
+	shapeOfLocationEstimateNotSupported [0]	NULL	OPTIONAL,
 	neededLcsCapabilityNotSupportedInServingNode [1] NULL	OPTIONAL }
 
 OR-NotAllowedParam ::= SEQUENCE {
@@ -302,8 +302,8 @@ AbsentSubscriberReason ::= ENUMERATED {
 BusySubscriberParam ::= SEQUENCE {
 	extensionContainer	ExtensionContainer	OPTIONAL,
 	...,
-	ccbs-Possible	[0] NULL		OPTIONAL,
-	ccbs-Busy		[1] NULL		OPTIONAL}
+	ccbs-Possible	[0] NULL	OPTIONAL,
+	ccbs-Busy	[1] NULL	OPTIONAL}
 
 NoSubscriberReplyParam ::= SEQUENCE {
 	extensionContainer	ExtensionContainer	OPTIONAL,
@@ -348,7 +348,7 @@ InformationNotAvailableParam ::= SEQUENCE {
 SubBusyForMT-SMS-Param ::= SEQUENCE {
 	extensionContainer	ExtensionContainer	OPTIONAL,
 	... ,
-	gprsConnectionSuspended	NULL			OPTIONAL }
+	gprsConnectionSuspended	NULL		OPTIONAL }
 	-- If GprsConnectionSuspended is not understood it shall 
 	-- be discarded
 
@@ -380,7 +380,7 @@ UnauthorizedRequestingNetwork-Param ::= SEQUENCE {
 
 UnauthorizedLCSClient-Param ::= SEQUENCE {
 	unauthorizedLCSClient-Diagnostic	[0] UnauthorizedLCSClient-Diagnostic	OPTIONAL,
-	extensionContainer	[1] ExtensionContainer			OPTIONAL,
+	extensionContainer	[1] ExtensionContainer		OPTIONAL,
 	... }
 
 UnauthorizedLCSClient-Diagnostic ::= ENUMERATED {
@@ -398,7 +398,7 @@ UnauthorizedLCSClient-Diagnostic ::= ENUMERATED {
 
 PositionMethodFailure-Param ::= SEQUENCE {
 	positionMethodFailure-Diagnostic	[0] PositionMethodFailure-Diagnostic	OPTIONAL,
-	extensionContainer	[1] ExtensionContainer			OPTIONAL,
+	extensionContainer	[1] ExtensionContainer		OPTIONAL,
 	... }
 
 PositionMethodFailure-Diagnostic ::= ENUMERATED {

@@ -1,9 +1,9 @@
--- 3GPP TS 29.002 V14.3.0 (2017-03)
+-- 3GPP TS 29.002 V15.4.0 (2018-12)
 -- 17.7.4	Supplementary service data types
  
 MAP-SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-DataTypes (14) version17 (17)}
+   gsm-Network (1) modules (3) map-SS-DataTypes (14) version18 (18)}
 
 DEFINITIONS
 
@@ -57,50 +57,50 @@ IMPORTS
 	ExternalSignalInfo
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CommonDataTypes (18) version17 (17)}
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version18 (18)}
 
 	ExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version17 (17)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version18 (18)}
 
 	SS-Code
 FROM MAP-SS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-Code (15) version17 (17)}
+   gsm-Network (1) modules (3) map-SS-Code (15) version18 (18)}
 ;
 
 
 RegisterSS-Arg ::= SEQUENCE {
-	ss-Code		SS-Code,
+	ss-Code	SS-Code,
 	basicService	BasicServiceCode	OPTIONAL,
 	forwardedToNumber	[4] AddressString	OPTIONAL,
 	forwardedToSubaddress	[6] ISDN-SubaddressString	OPTIONAL,
 	noReplyConditionTime	[5] NoReplyConditionTime	OPTIONAL,
 	...,
 	defaultPriority	[7] EMLPP-Priority	OPTIONAL,
-	nbrUser		[8] MC-Bearers	OPTIONAL,
-	longFTN-Supported	[9]	NULL		OPTIONAL }
+	nbrUser	[8] MC-Bearers	OPTIONAL,
+	longFTN-Supported	[9]	NULL	OPTIONAL }
 
 NoReplyConditionTime ::= INTEGER (5..30)
 
 SS-Info ::= CHOICE {
 	forwardingInfo	[0] ForwardingInfo,
 	callBarringInfo	[1] CallBarringInfo,
-	ss-Data		[3] SS-Data}
+	ss-Data	[3] SS-Data}
 
 ForwardingInfo ::= SEQUENCE {
-	ss-Code		SS-Code		OPTIONAL,
+	ss-Code	SS-Code	OPTIONAL,
 	forwardingFeatureList	ForwardingFeatureList,
 	...}
 
 ForwardingFeatureList ::= 
 	SEQUENCE SIZE (1..maxNumOfBasicServiceGroups) OF
-				ForwardingFeature
+		ForwardingFeature
 
 ForwardingFeature ::= SEQUENCE {
 	basicService	BasicServiceCode	OPTIONAL,
-	ss-Status		[4] SS-Status	OPTIONAL,
+	ss-Status	[4] SS-Status	OPTIONAL,
 	forwardedToNumber	[5] ISDN-AddressString	OPTIONAL,
 	forwardedToSubaddress	[8] ISDN-SubaddressString	OPTIONAL,
 	forwardingOptions	[6] ForwardingOptions	OPTIONAL,
@@ -112,8 +112,8 @@ SS-Status ::= OCTET STRING (SIZE (1))
 
 	-- bits 8765: 0000 (unused)
 	-- bits 4321: Used to convey the "P bit","R bit","A bit" and "Q bit",
-	--		    representing supplementary service state information
-	--		    as defined in TS 3GPP TS 23.011 [22]
+	--	   representing supplementary service state information
+	--	   as defined in TS 3GPP TS 23.011 [22]
 
 	-- bit 4: "Q bit"
 
@@ -144,16 +144,16 @@ ForwardingOptions ::= OCTET STRING (SIZE (1))
 	--	01  ms busy
 	--	10  no reply
 	--	11  unconditional when used in a SRI Result, 
-	--	    or call deflection when used in a RCH Argument
+	--	   or call deflection when used in a RCH Argument
 	-- bits 21: 00 (unused)
 
 CallBarringInfo ::= SEQUENCE {
-	ss-Code		SS-Code		OPTIONAL,
+	ss-Code	SS-Code	OPTIONAL,
 	callBarringFeatureList	CallBarringFeatureList,
 	...}
 
 CallBarringFeatureList ::= SEQUENCE SIZE (1..maxNumOfBasicServiceGroups) OF
-				CallBarringFeature
+		CallBarringFeature
 
 CallBarringFeature ::= SEQUENCE {
 	basicService	BasicServiceCode	OPTIONAL,
@@ -161,13 +161,13 @@ CallBarringFeature ::= SEQUENCE {
 	...}
 
 SS-Data ::= SEQUENCE {
-	ss-Code		SS-Code		OPTIONAL,
-	ss-Status		[4] SS-Status	OPTIONAL,
+	ss-Code	SS-Code	OPTIONAL,
+	ss-Status	[4] SS-Status	OPTIONAL,
 	ss-SubscriptionOption	SS-SubscriptionOption	OPTIONAL,
 	basicServiceGroupList	BasicServiceGroupList	OPTIONAL,
 	...,
 	defaultPriority	EMLPP-Priority	OPTIONAL,
-	nbrUser		[5] MC-Bearers	OPTIONAL
+	nbrUser	[5] MC-Bearers	OPTIONAL
 	}
 
 SS-SubscriptionOption ::= CHOICE {
@@ -184,10 +184,10 @@ OverrideCategory ::= ENUMERATED {
 	overrideDisabled  (1)}
 
 SS-ForBS-Code ::= SEQUENCE {
-	ss-Code		SS-Code,
+	ss-Code	SS-Code,
 	basicService	BasicServiceCode	OPTIONAL,
 	...,
-	longFTN-Supported	[4]	NULL		OPTIONAL }
+	longFTN-Supported	[4]	NULL	OPTIONAL }
 
 GenericServiceInfo ::= SEQUENCE {
 	ss-Status	SS-Status,
@@ -196,12 +196,12 @@ GenericServiceInfo ::= SEQUENCE {
 	maximumEntitledPriority	[0] EMLPP-Priority	OPTIONAL,
 	defaultPriority	[1] EMLPP-Priority	OPTIONAL,
 	ccbs-FeatureList	[2] CCBS-FeatureList	OPTIONAL,
-	nbrSB		[3] MaxMC-Bearers	OPTIONAL,
-	nbrUser		[4] MC-Bearers	OPTIONAL,
-	nbrSN		[5] MC-Bearers	OPTIONAL }
+	nbrSB	[3] MaxMC-Bearers	OPTIONAL,
+	nbrUser	[4] MC-Bearers	OPTIONAL,
+	nbrSN	[5] MC-Bearers	OPTIONAL }
 
 CCBS-FeatureList ::= SEQUENCE SIZE (1..maxNumOfCCBS-Requests) OF
-				CCBS-Feature
+		CCBS-Feature
 
 maxNumOfCCBS-Requests  INTEGER ::= 5
 
@@ -215,7 +215,7 @@ CCBS-Feature ::= SEQUENCE {
 CCBS-Index  ::= INTEGER (1..maxNumOfCCBS-Requests)
 
 InterrogateSS-Res ::= CHOICE {
-	ss-Status		[0] SS-Status,
+	ss-Status	[0] SS-Status,
 	basicServiceGroupList	[2] BasicServiceGroupList,
 	forwardingFeatureList	[3] ForwardingFeatureList,
 	genericServiceInfo	[4]	GenericServiceInfo }
@@ -225,7 +225,7 @@ USSD-Arg ::= SEQUENCE {
 	ussd-String	USSD-String,
 	... ,
 	alertingPattern	AlertingPattern	OPTIONAL,
-	msisdn		[0] ISDN-AddressString	OPTIONAL }
+	msisdn	[0] ISDN-AddressString	OPTIONAL }
 
 USSD-Res ::= SEQUENCE {
 	ussd-DataCodingScheme	USSD-DataCodingScheme,
@@ -256,27 +256,27 @@ GuidanceInfo ::= ENUMERATED {
 	-- specification.
 
 SS-List ::= SEQUENCE SIZE (1..maxNumOfSS) OF
-				SS-Code
+		SS-Code
 
 maxNumOfSS  INTEGER ::= 30
 
 SS-InfoList ::= SEQUENCE SIZE (1..maxNumOfSS) OF
-				SS-Info
+		SS-Info
 
 BasicServiceGroupList ::= SEQUENCE SIZE (1..maxNumOfBasicServiceGroups) OF
-				BasicServiceCode
+		BasicServiceCode
 
 maxNumOfBasicServiceGroups  INTEGER ::= 13
 
 SS-InvocationNotificationArg ::= SEQUENCE {
-	imsi			[0] IMSI,
-	msisdn		[1] ISDN-AddressString,
-	ss-Event		[2] SS-Code,
+	imsi		[0] IMSI,
+	msisdn	[1] ISDN-AddressString,
+	ss-Event	[2] SS-Code,
 	-- The following SS-Code values are allowed :
-	-- ect		SS-Code ::= '00110001'B
+	-- ect	SS-Code ::= '00110001'B
 	-- multiPTY	SS-Code ::= '01010001'B
-	-- cd		SS-Code ::= '00100100'B
-	-- ccbs		SS-Code ::= '01000100'B
+	-- cd	SS-Code ::= '00100100'B
+	-- ccbs	SS-Code ::= '01000100'B
 	ss-EventSpecification	[3] SS-EventSpecification	OPTIONAL,
 	extensionContainer	[4] ExtensionContainer	OPTIONAL,
 	...,
@@ -300,20 +300,20 @@ SS-InvocationNotificationRes ::= SEQUENCE {
 	}
 
 SS-EventSpecification ::= SEQUENCE SIZE (1..maxEventSpecification) OF
-				AddressString
+		AddressString
 
 maxEventSpecification  INTEGER ::= 2
 
 RegisterCC-EntryArg ::= SEQUENCE {
-	ss-Code		[0]	SS-Code,
-	ccbs-Data		[1]	CCBS-Data	OPTIONAL,
+	ss-Code	[0]	SS-Code,
+	ccbs-Data	[1]	CCBS-Data	OPTIONAL,
 	...}
 
 CCBS-Data ::= SEQUENCE {
 	ccbs-Feature	[0]	CCBS-Feature,
 	translatedB-Number	[1]	ISDN-AddressString,
 	serviceIndicator	[2]	ServiceIndicator	OPTIONAL,
-	callInfo		[3]	ExternalSignalInfo,
+	callInfo	[3]	ExternalSignalInfo,
 	networkSignalInfo	[4]	ExternalSignalInfo,
 	...}
 
@@ -328,13 +328,13 @@ RegisterCC-EntryRes ::= SEQUENCE {
 	...}
 
 EraseCC-EntryArg ::= SEQUENCE {
-	ss-Code		[0]	SS-Code,
+	ss-Code	[0]	SS-Code,
 	ccbs-Index	[1]	CCBS-Index	OPTIONAL,
 	...}
 
 EraseCC-EntryRes ::= SEQUENCE {
-	ss-Code		[0]	SS-Code,
-	ss-Status		[1] SS-Status	OPTIONAL,
+	ss-Code	[0]	SS-Code,
+	ss-Status	[1] SS-Status	OPTIONAL,
 	...}
 
 END

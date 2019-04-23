@@ -1,10 +1,10 @@
--- 3GPP TS 29.002 V14.3.0 (2017-03)
+-- 3GPP TS 29.002 V15.4.0 (2018-12)
 -- 17.6.1	Mobile Service Operations
 
 MAP-MobileServiceOperations {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-MobileServiceOperations (5)
-   version17 (17)}
+   version18 (18)}
 
 DEFINITIONS
 
@@ -113,7 +113,7 @@ joint-iso-itu-t remote-operations(4)
 
 FROM MAP-Errors {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-Errors (10) version17 (17)}
+   gsm-Network (1) modules (3) map-Errors (10) version18 (18)}
 
 	UpdateLocationArg,
 	UpdateLocationRes,
@@ -172,371 +172,372 @@ PrepareSubsequentHO-Res,
 
 FROM MAP-MS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-MS-DataTypes (11) version17 (17)}
+   gsm-Network (1) modules (3) map-MS-DataTypes (11) version18 (18)}
 
 ;
 
 
 -- location registration operations
 
-updateLocation  OPERATION ::= {				--Timer m
+updateLocation  OPERATION ::= {		--Timer m
 	ARGUMENT
-		UpdateLocationArg
+	UpdateLocationArg
 	RESULT
-		UpdateLocationRes
+	UpdateLocationRes
 	ERRORS {
-		systemFailure |
-		dataMissing |
-		unexpectedDataValue |
-		unknownSubscriber |
-		roamingNotAllowed}
+	systemFailure |
+	dataMissing |
+	unexpectedDataValue |
+	unknownSubscriber |
+	roamingNotAllowed}
 	CODE	local:2 }
 
-cancelLocation  OPERATION ::= {				--Timer m
+cancelLocation  OPERATION ::= {		--Timer m
 	ARGUMENT
-		CancelLocationArg
+	CancelLocationArg
 	RESULT
-		CancelLocationRes
-			-- optional
+	CancelLocationRes
+		-- optional
 	ERRORS {
-		dataMissing |
-		unexpectedDataValue}
+	dataMissing |
+	unexpectedDataValue}
 	CODE	local:3 }
 
-purgeMS  OPERATION ::= {				--Timer m
+purgeMS  OPERATION ::= {		--Timer m
 	ARGUMENT
-		PurgeMS-Arg
+	PurgeMS-Arg
 	RESULT
-		PurgeMS-Res
-			-- optional
+	PurgeMS-Res
+		-- optional
 	ERRORS{
-		dataMissing |
-		unexpectedDataValue|
-		unknownSubscriber}
+	dataMissing |
+	unexpectedDataValue|
+	unknownSubscriber}
 	CODE	local:67 }
 
-sendIdentification  OPERATION ::= {				--Timer s
+sendIdentification  OPERATION ::= {		--Timer s
 	ARGUMENT
-		SendIdentificationArg
+	SendIdentificationArg
 	RESULT
-		SendIdentificationRes
+	SendIdentificationRes
 	ERRORS {
-		dataMissing |
-		unidentifiedSubscriber}
+	dataMissing |
+	unidentifiedSubscriber}
 	CODE	local:55 }
 
 -- gprs location registration operations
 
-updateGprsLocation  OPERATION ::= {				--Timer m
+updateGprsLocation  OPERATION ::= {		--Timer m
 	ARGUMENT
-		UpdateGprsLocationArg
+	UpdateGprsLocationArg
 	RESULT
-		UpdateGprsLocationRes
+	UpdateGprsLocationRes
 	ERRORS {
-		systemFailure |
-		unexpectedDataValue |
-		unknownSubscriber |
-		roamingNotAllowed}
+	systemFailure |
+	unexpectedDataValue |
+	unknownSubscriber |
+	roamingNotAllowed}
 	CODE	local:23 }
 
 -- subscriber information enquiry operations
 
-provideSubscriberInfo  OPERATION ::= {				--Timer m
+provideSubscriberInfo  OPERATION ::= {		--Timer m
 	ARGUMENT
-		ProvideSubscriberInfoArg
+	ProvideSubscriberInfoArg
 	RESULT
-		ProvideSubscriberInfoRes
+	ProvideSubscriberInfoRes
 	ERRORS {
-		dataMissing |
-		unexpectedDataValue}
+	dataMissing |
+	unexpectedDataValue}
 	CODE	local:70 }
 
 -- any time information enquiry operations
 
-anyTimeInterrogation  OPERATION ::= {				--Timer m
+anyTimeInterrogation  OPERATION ::= {		--Timer m
 	ARGUMENT
-		AnyTimeInterrogationArg
+	AnyTimeInterrogationArg
 	RESULT
-		AnyTimeInterrogationRes
+	AnyTimeInterrogationRes
 	ERRORS {
-		systemFailure | 
-		ati-NotAllowed |
-		dataMissing |
-		unexpectedDataValue |
-		unknownSubscriber}
+	systemFailure | 
+	ati-NotAllowed |
+	dataMissing |
+	unexpectedDataValue |
+	unknownSubscriber}
 	CODE	local:71 }
 
 -- any time information handling operations
 
-anyTimeSubscriptionInterrogation  OPERATION ::= {			--Timer m
+anyTimeSubscriptionInterrogation  OPERATION ::= {		--Timer m
 	ARGUMENT
-		AnyTimeSubscriptionInterrogationArg
+	AnyTimeSubscriptionInterrogationArg
 	RESULT
-		AnyTimeSubscriptionInterrogationRes
+	AnyTimeSubscriptionInterrogationRes
 	ERRORS {
-		atsi-NotAllowed |
-		dataMissing |
-		unexpectedDataValue |
-		unknownSubscriber |
-		bearerServiceNotProvisioned |
-		teleserviceNotProvisioned |
-		callBarred |
-		illegalSS-Operation |
-		ss-NotAvailable |
-		informationNotAvailable}
+	atsi-NotAllowed |
+	dataMissing |
+	unexpectedDataValue |
+	unknownSubscriber |
+	bearerServiceNotProvisioned |
+	teleserviceNotProvisioned |
+	callBarred |
+	illegalSS-Operation |
+	ss-NotAvailable |
+	informationNotAvailable}
 	CODE	local:62 }
 
-anyTimeModification  OPERATION ::= {				--Timer m
+anyTimeModification  OPERATION ::= {		--Timer m
 	ARGUMENT
-		AnyTimeModificationArg
+	AnyTimeModificationArg
 	RESULT
-		AnyTimeModificationRes
+	AnyTimeModificationRes
 	ERRORS {
-		atm-NotAllowed |
-		dataMissing |
-		unexpectedDataValue |
-		unknownSubscriber |
-		bearerServiceNotProvisioned |
-		teleserviceNotProvisioned |
-		callBarred |
-		illegalSS-Operation |
-		ss-SubscriptionViolation |
-		ss-ErrorStatus |
-		ss-Incompatibility |
-		informationNotAvailable}
+	atm-NotAllowed |
+	dataMissing |
+	unexpectedDataValue |
+	unknownSubscriber |
+	bearerServiceNotProvisioned |
+	teleserviceNotProvisioned |
+	callBarred |
+	illegalSS-Operation |
+	ss-SubscriptionViolation |
+	ss-ErrorStatus |
+	ss-Incompatibility |
+	informationNotAvailable}
 	CODE	local:65 }
 
 -- subscriber data modification notification operations
 
-noteSubscriberDataModified  OPERATION ::= {				--Timer m
+noteSubscriberDataModified  OPERATION ::= {		--Timer m
 	ARGUMENT
-		NoteSubscriberDataModifiedArg
+	NoteSubscriberDataModifiedArg
 	RESULT
-		NoteSubscriberDataModifiedRes
-			-- optional
+	NoteSubscriberDataModifiedRes
+		-- optional
 	ERRORS {
-		dataMissing |
-		unexpectedDataValue |
-		unknownSubscriber}
+	dataMissing |
+	unexpectedDataValue |
+	unknownSubscriber}
 	CODE	local:5 }
 
 -- handover operations
 
-prepareHandover  OPERATION ::= {				--Timer m
+prepareHandover  OPERATION ::= {		--Timer m
 	ARGUMENT
-		PrepareHO-Arg
+	PrepareHO-Arg
 	RESULT
-		PrepareHO-Res
+	PrepareHO-Res
 	ERRORS {
-		systemFailure |
-		dataMissing |
-		unexpectedDataValue |
-		noHandoverNumberAvailable |
-		targetCellOutsideGroupCallArea }
+	systemFailure |
+	dataMissing |
+	unexpectedDataValue |
+	noHandoverNumberAvailable |
+	targetCellOutsideGroupCallArea }
 	CODE	local:68 }
 
-sendEndSignal  OPERATION ::= {				--Timer l
+sendEndSignal  OPERATION ::= {		--Timer l
 	ARGUMENT
-		SendEndSignal-Arg
+	SendEndSignal-Arg
 	RESULT
-		SendEndSignal-Res
+	SendEndSignal-Res
 	CODE	local:29 }
 
-processAccessSignalling  OPERATION ::= {				--Timer s
+processAccessSignalling  OPERATION ::= {		--Timer s
 	ARGUMENT
-		ProcessAccessSignalling-Arg
+	ProcessAccessSignalling-Arg
 	CODE	local:33 }
 
-forwardAccessSignalling  OPERATION ::= {				--Timer s
+forwardAccessSignalling  OPERATION ::= {		--Timer s
 	ARGUMENT
-		ForwardAccessSignalling-Arg
+	ForwardAccessSignalling-Arg
 	CODE	local:34 }
 
-prepareSubsequentHandover  OPERATION ::= {				--Timer m
+prepareSubsequentHandover  OPERATION ::= {		--Timer m
 	ARGUMENT
-		PrepareSubsequentHO-Arg
+	PrepareSubsequentHO-Arg
 	RESULT
-		PrepareSubsequentHO-Res
+	PrepareSubsequentHO-Res
 	ERRORS {
-		unexpectedDataValue |
-		dataMissing |
-		unknownMSC |
-		subsequentHandoverFailure}
+	unexpectedDataValue |
+	dataMissing |
+	unknownMSC |
+	subsequentHandoverFailure}
 	CODE	local:69 }
 
 -- authentication management operations
 
-sendAuthenticationInfo  OPERATION ::= {				--Timer m
+sendAuthenticationInfo  OPERATION ::= {		--Timer m
 	ARGUMENT
-		SendAuthenticationInfoArg
-		-- optional
-		-- within a dialogue sendAuthenticationInfoArg shall not be present in
-		-- subsequent invoke components. If received in a subsequent invoke component
-		-- it shall be discarded.
+	SendAuthenticationInfoArg
+	-- optional
+	-- within a dialogue sendAuthenticationInfoArg shall not be present in
+	-- subsequent invoke components. If received in a subsequent invoke component
+	-- it shall be discarded.
 
 	RESULT
-		SendAuthenticationInfoRes
-		-- optional
+	SendAuthenticationInfoRes
+	-- optional
 	ERRORS {
-		systemFailure |
-		dataMissing |
-		unexpectedDataValue |
-		unknownSubscriber}
+	systemFailure |
+	dataMissing |
+	unexpectedDataValue |
+	unknownSubscriber}
 	CODE	local:56 }
 
-authenticationFailureReport  OPERATION ::= {			--Timer m
+authenticationFailureReport  OPERATION ::= {		--Timer m
 	ARGUMENT
-		AuthenticationFailureReportArg
+	AuthenticationFailureReportArg
 	RESULT
-		AuthenticationFailureReportRes
-		-- optional
+	AuthenticationFailureReportRes
+	-- optional
 	ERRORS {
-		systemFailure |
-		unexpectedDataValue |
-		unknownSubscriber}
+	systemFailure |
+	unexpectedDataValue |
+	unknownSubscriber}
 	CODE	local:15 }
 
 -- IMEI management operations
 
-checkIMEI  OPERATION ::= {				--Timer m
+checkIMEI  OPERATION ::= {		--Timer m
 	ARGUMENT
-		CheckIMEI-Arg
+	CheckIMEI-Arg
 	RESULT
-		CheckIMEI-Res
+	CheckIMEI-Res
 	ERRORS {
-		systemFailure |
-		dataMissing |
-		unknownEquipment}
+	systemFailure |
+	dataMissing |
+	unknownEquipment}
 	CODE	local:43 }
 
 -- subscriber management operations
 
-insertSubscriberData  OPERATION ::= {				--Timer m
+insertSubscriberData  OPERATION ::= {		--Timer m
 	ARGUMENT
-		InsertSubscriberDataArg
+	InsertSubscriberDataArg
 	RESULT
-		InsertSubscriberDataRes
-		-- optional
+	InsertSubscriberDataRes
+	-- optional
 	ERRORS {
-		dataMissing |
-		unexpectedDataValue |
-		unidentifiedSubscriber}
+	dataMissing |
+	unexpectedDataValue |
+	unidentifiedSubscriber}
 	CODE	local:7 }
 
-deleteSubscriberData  OPERATION ::= {				--Timer m
+deleteSubscriberData  OPERATION ::= {		--Timer m
 	ARGUMENT
-		DeleteSubscriberDataArg
+	DeleteSubscriberDataArg
 	RESULT
-		DeleteSubscriberDataRes
-		-- optional
+	DeleteSubscriberDataRes
+	-- optional
 	ERRORS {
-		dataMissing |
-		unexpectedDataValue |
-		unidentifiedSubscriber}
+	dataMissing |
+	unexpectedDataValue |
+	unidentifiedSubscriber}
 	CODE	local:8 }
 
 -- fault recovery operations
 
-reset  OPERATION ::= {				--Timer m
+reset  OPERATION ::= {		--Timer m
 	ARGUMENT
-		ResetArg
+	ResetArg
 	CODE	local:37 }
 
-forwardCheckSS-Indication  OPERATION ::= {			--Timer s
+forwardCheckSS-Indication  OPERATION ::= {		--Timer s
 	CODE	local:38 }
 
-restoreData  OPERATION ::= {				--Timer m
+restoreData  OPERATION ::= {		--Timer m
 	ARGUMENT
-		RestoreDataArg
+	RestoreDataArg
 	RESULT
-		RestoreDataRes
+	RestoreDataRes
 	ERRORS {
-		systemFailure |
-		dataMissing |
-		unexpectedDataValue |
-		unknownSubscriber}
+	systemFailure |
+	dataMissing |
+	unexpectedDataValue |
+	unknownSubscriber}
 	CODE	local:57 }
 
 -- gprs location information retrieval operations
 
-sendRoutingInfoForGprs  OPERATION ::= {				--Timer m
+sendRoutingInfoForGprs  OPERATION ::= {		--Timer m
 	ARGUMENT
-		SendRoutingInfoForGprsArg
+	SendRoutingInfoForGprsArg
 	RESULT
-		SendRoutingInfoForGprsRes
+	SendRoutingInfoForGprsRes
 	ERRORS {
-		absentSubscriber |
-		systemFailure |
-		dataMissing |
-		unexpectedDataValue |
-		unknownSubscriber |
-		callBarred }
+	absentSubscriber |
+	systemFailure |
+	dataMissing |
+	unexpectedDataValue |
+	unknownSubscriber |
+	callBarred }
 	CODE	local:24 }
 
 -- failure reporting operations
 
-failureReport  OPERATION ::= {				--Timer m
+failureReport  OPERATION ::= {		--Timer m
 	ARGUMENT
-		FailureReportArg
+	FailureReportArg
 	RESULT
-		FailureReportRes
-			-- optional
+	FailureReportRes
+		-- optional
 	ERRORS {
-		systemFailure |
-		dataMissing |
-		unexpectedDataValue |
-		unknownSubscriber}
+	systemFailure |
+	dataMissing |
+	unexpectedDataValue |
+	unknownSubscriber}
 	CODE	local:25 }
 
 -- gprs notification operations
 
-noteMsPresentForGprs  OPERATION ::= {				--Timer m
+noteMsPresentForGprs  OPERATION ::= {		--Timer m
 	ARGUMENT
-		NoteMsPresentForGprsArg
+	NoteMsPresentForGprsArg
 	RESULT
-		NoteMsPresentForGprsRes
-			-- optional
+	NoteMsPresentForGprsRes
+		-- optional
 	ERRORS {
-		systemFailure |
-		dataMissing |
-		unexpectedDataValue |
-		unknownSubscriber}
+	systemFailure |
+	dataMissing |
+	unexpectedDataValue |
+	unknownSubscriber}
 	CODE	local:26 }
 
-noteMM-Event  OPERATION ::= {				--Timer m
+noteMM-Event  OPERATION ::= {		--Timer m
 	ARGUMENT
-		NoteMM-EventArg
+	NoteMM-EventArg
 	RESULT
-		NoteMM-EventRes
+	NoteMM-EventRes
 	ERRORS {
-		dataMissing |
-		unexpectedDataValue |
-		unknownSubscriber |
-		mm-EventNotSupported}
+	dataMissing |
+	unexpectedDataValue |
+	unknownSubscriber |
+	mm-EventNotSupported}
 	CODE	local:89 }
 
 -- vcsg location registration operations
 
-updateVcsgLocation  OPERATION ::= {				--Timer m
+updateVcsgLocation  OPERATION ::= {		--Timer m
 	ARGUMENT
-		UpdateVcsgLocationArg
+	UpdateVcsgLocationArg
 	RESULT
-		UpdateVcsgLocationRes
+	UpdateVcsgLocationRes
 	ERRORS {
-		systemFailure |
-		unexpectedDataValue |
-		unknownSubscriber}
+	systemFailure |
+	unexpectedDataValue |
+	unknownSubscriber}
 	CODE	local:53 }
 
-cancelVcsgLocation  OPERATION ::= {				--Timer m
+cancelVcsgLocation  OPERATION ::= {		--Timer m
 	ARGUMENT
-		CancelVcsgLocationArg
+	CancelVcsgLocationArg
 	RESULT
-		CancelVcsgLocationRes
-			-- optional
+	CancelVcsgLocationRes
+		-- optional
 	ERRORS {
-		dataMissing |
-		unexpectedDataValue}
+	dataMissing |
+	unexpectedDataValue}
 	CODE	local:36 }
 
 END
+

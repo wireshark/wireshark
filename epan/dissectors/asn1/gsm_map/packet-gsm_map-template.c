@@ -1570,6 +1570,9 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
   case 89: /*noteMM-Event*/
     offset=dissect_gsm_map_ms_NoteMM_EventArg(FALSE, tvb, offset, actx, tree, -1);
     break;
+  case 108: /*SS-protocol lcs-PeriodicTriggeredInvoke*/
+      offset = dissect_gsm_ss_LCS_PeriodicTriggeredInvokeArg(FALSE, tvb, offset, actx, tree, -1);
+      break;
   case 109: /*SS-protocol lcs-PeriodicLocationCancellation*/
     offset=dissect_gsm_ss_LCS_PeriodicLocationCancellationArg(FALSE, tvb, offset, actx, tree, -1);
     break;
@@ -1888,6 +1891,9 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
   case 89: /*noteMM-Event*/
     offset=dissect_gsm_map_ms_NoteMM_EventRes(FALSE, tvb, offset, actx, tree, -1);
     break;
+  case 108: /*SS-protocol LCS-PeriodicTriggeredInvokeRes*/
+      offset = dissect_gsm_ss_LCS_PeriodicTriggeredInvokeRes(FALSE, tvb, offset, actx, tree, -1);
+      break;
   case 109: /*SS-protocol lcs-PeriodicLocationCancellation*/
     /* No parameter */
     break;

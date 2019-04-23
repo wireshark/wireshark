@@ -1,9 +1,9 @@
--- 3GPP TS 29.002 V14.3.0 (2017-03)
+-- 3GPP TS 29.002 V15.4.0 (2018-12)
 -- 17.7.9	Teleservice Codes
  
 MAP-TS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-TS-Code (19) version17 (17)}
+   gsm-Network (1) modules (3) map-TS-Code (19) version18 (18)}
 
 DEFINITIONS
 
@@ -40,8 +40,8 @@ Ext-TeleserviceCode ::= OCTET STRING (SIZE (1..5))
 allTeleservices	TeleserviceCode ::= '00000000'B
 
 allSpeechTransmissionServices	TeleserviceCode ::= '00010000'B
-telephony			TeleserviceCode ::= '00010001'B
-emergencyCalls		TeleserviceCode ::= '00010010'B
+telephony		TeleserviceCode ::= '00010001'B
+emergencyCalls	TeleserviceCode ::= '00010010'B
 
 allShortMessageServices	TeleserviceCode ::= '00100000'B
 shortMessageMT-PP	TeleserviceCode ::= '00100001'B
@@ -67,7 +67,7 @@ allTeleservices-ExeptSMS	TeleserviceCode ::= '10000000'B
 -- DeleteSubscriberData messages.
 
 allVoiceGroupCallServices	TeleserviceCode ::= '10010000'B
-voiceGroupCall		TeleserviceCode ::= '10010001'B
+voiceGroupCall	TeleserviceCode ::= '10010001'B
 voiceBroadcastCall	TeleserviceCode ::= '10010010'B
 
 allPLMN-specificTS	TeleserviceCode ::= '11010000'B

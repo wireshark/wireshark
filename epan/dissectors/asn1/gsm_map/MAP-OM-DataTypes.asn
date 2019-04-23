@@ -1,9 +1,9 @@
 -- 17.7.2	Operation and maintenance data types
--- 3GPP TS 29.002 V14.3.0 (2017-03)
+-- 3GPP TS 29.002  V15.4.0 (2018-12)
  
 MAP-OM-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-OM-DataTypes (12) version17 (17)}
+   gsm-Network (1) modules (3) map-OM-DataTypes (12) version18 (18)}
 
 DEFINITIONS
 
@@ -33,20 +33,20 @@ IMPORTS
 	PLMN-Id
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CommonDataTypes (18) version17 (17)}
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version18 (18)}
 
 	ExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version17 (17)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version18 (18)}
 
 ;
 
 ActivateTraceModeArg ::= SEQUENCE {
-	imsi			[0] IMSI		OPTIONAL,
+	imsi		[0] IMSI	OPTIONAL,
 	traceReference	[1] TraceReference,
-	traceType		[2] TraceType,
-	omc-Id		[3] AddressString	OPTIONAL,
+	traceType	[2] TraceType,
+	omc-Id	[3] AddressString	OPTIONAL,
 	extensionContainer	[4] ExtensionContainer	OPTIONAL,
 	...,
 	traceReference2	[5] TraceReference2	OPTIONAL,
@@ -59,8 +59,8 @@ ActivateTraceModeArg ::= SEQUENCE {
 	}
 
 MDT-Configuration ::= SEQUENCE {
-	jobType		JobType,
-	areaScope		AreaScope		OPTIONAL,
+	jobType	JobType,
+	areaScope	AreaScope	OPTIONAL,
 	listOfMeasurements	ListOfMeasurements	OPTIONAL,
 	reportingTrigger	[0] ReportingTrigger	OPTIONAL,
 	reportInterval	ReportInterval	OPTIONAL,
@@ -82,7 +82,7 @@ MDT-Configuration ::= SEQUENCE {
 	mdt-Allowed-PLMN-List	[14] MDT-Allowed-PLMNId-List	OPTIONAL }
 
 MDT-Allowed-PLMNId-List ::= SEQUENCE SIZE (1..16) OF
-				PLMN-Id
+		PLMN-Id
 PeriodUMTS ::= ENUMERATED {
 	d250ms (0),
 	d500ms (1),
@@ -128,7 +128,7 @@ JobType ::= ENUMERATED {
 	immediate-MDT-and-trace (3)}
 
 AreaScope ::= SEQUENCE {
-	cgi-List		[0] CGI-List	OPTIONAL,
+	cgi-List	[0] CGI-List	OPTIONAL,
 	e-utran-cgi-List	[1] E-UTRAN-CGI-List	OPTIONAL,
 	routingAreaId-List	[2] RoutingAreaId-List	OPTIONAL,
 	locationAreaId-List	[3] LocationAreaId-List	OPTIONAL,
@@ -137,19 +137,19 @@ AreaScope ::= SEQUENCE {
 	... }
 
 CGI-List ::= SEQUENCE SIZE (1..32) OF
-				GlobalCellId
+		GlobalCellId
 
 E-UTRAN-CGI-List ::= SEQUENCE SIZE (1..32) OF
-				E-UTRAN-CGI
+		E-UTRAN-CGI
 
 RoutingAreaId-List ::= SEQUENCE SIZE (1..8) OF
-				RAIdentity
+		RAIdentity
 
 LocationAreaId-List ::= SEQUENCE SIZE (1..8) OF
-				LAIFixedLength
+		LAIFixedLength
 
 TrackingAreaId-List ::= SEQUENCE SIZE (1..8) OF
-				TA-Id
+		TA-Id
 
 ListOfMeasurements ::= OCTET STRING (SIZE (4))
 	-- Octets are coded as described in 3GPP TS 32.422.
@@ -293,16 +293,16 @@ TraceNE-TypeList ::= BIT STRING {
 
 TraceInterfaceList ::= SEQUENCE {
 	msc-s-List	[0] MSC-S-InterfaceList	OPTIONAL,
-	mgw-List		[1] MGW-InterfaceList	OPTIONAL,
-	sgsn-List		[2] SGSN-InterfaceList	OPTIONAL,
-	ggsn-List		[3] GGSN-InterfaceList	OPTIONAL,
-	rnc-List		[4] RNC-InterfaceList	OPTIONAL,
-	bmsc-List		[5] BMSC-InterfaceList	OPTIONAL,
+	mgw-List	[1] MGW-InterfaceList	OPTIONAL,
+	sgsn-List	[2] SGSN-InterfaceList	OPTIONAL,
+	ggsn-List	[3] GGSN-InterfaceList	OPTIONAL,
+	rnc-List	[4] RNC-InterfaceList	OPTIONAL,
+	bmsc-List	[5] BMSC-InterfaceList	OPTIONAL,
 	...,
-	mme-List		[6] MME-InterfaceList	OPTIONAL,
-	sgw-List		[7] SGW-InterfaceList	OPTIONAL,
-	pgw-List		[8] PGW-InterfaceList	OPTIONAL,
-	eNB-List		[9] ENB-InterfaceList	OPTIONAL}
+	mme-List	[6] MME-InterfaceList	OPTIONAL,
+	sgw-List	[7] SGW-InterfaceList	OPTIONAL,
+	pgw-List	[8] PGW-InterfaceList	OPTIONAL,
+	eNB-List	[9] ENB-InterfaceList	OPTIONAL}
 
 MSC-S-InterfaceList ::= BIT STRING {
 	a (0),
@@ -389,14 +389,14 @@ ENB-InterfaceList ::= BIT STRING {
 
 TraceEventList ::= SEQUENCE {
 	msc-s-List	[0] MSC-S-EventList	OPTIONAL,
-	mgw-List		[1] MGW-EventList	OPTIONAL,
-	sgsn-List		[2] SGSN-EventList	OPTIONAL,
-	ggsn-List		[3] GGSN-EventList	OPTIONAL,
-	bmsc-List		[4] BMSC-EventList	OPTIONAL,
+	mgw-List	[1] MGW-EventList	OPTIONAL,
+	sgsn-List	[2] SGSN-EventList	OPTIONAL,
+	ggsn-List	[3] GGSN-EventList	OPTIONAL,
+	bmsc-List	[4] BMSC-EventList	OPTIONAL,
 	...,
-	mme-List		[5] MME-EventList	OPTIONAL,
-	sgw-List		[6] SGW-EventList	OPTIONAL,
-	pgw-List		[7] PGW-EventList	OPTIONAL}
+	mme-List	[5] MME-EventList	OPTIONAL,
+	sgw-List	[6] SGW-EventList	OPTIONAL,
+	pgw-List	[7] PGW-EventList	OPTIONAL}
 
 MSC-S-EventList ::= BIT STRING {
 	mo-mtCall (0),
@@ -449,7 +449,7 @@ PGW-EventList ::= BIT STRING {
 
 TracePropagationList ::= SEQUENCE {
 	traceReference	[0] TraceReference	OPTIONAL,
-	traceType		[1] TraceType	OPTIONAL,
+	traceType	[1] TraceType	OPTIONAL,
 	traceReference2	[2] TraceReference2	OPTIONAL,
 	traceRecordingSessionReference	[3] TraceRecordingSessionReference OPTIONAL,
 	rnc-TraceDepth	[4] TraceDepth	OPTIONAL,
@@ -474,11 +474,11 @@ TracePropagationList ::= SEQUENCE {
 ActivateTraceModeRes ::= SEQUENCE {
 	extensionContainer	[0] ExtensionContainer	OPTIONAL,
 	...,
-	traceSupportIndicator	[1]	NULL		OPTIONAL
+	traceSupportIndicator	[1]	NULL	OPTIONAL
 	}
 
 DeactivateTraceModeArg ::= SEQUENCE {
-	imsi			[0] IMSI		OPTIONAL,
+	imsi		[0] IMSI	OPTIONAL,
 	traceReference	[1] TraceReference,
 	extensionContainer	[2] ExtensionContainer	OPTIONAL,
 	...,
