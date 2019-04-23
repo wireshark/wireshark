@@ -3042,6 +3042,12 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
                         curr_offset++;
                         pfc_len = 1;
                         break;
+                    case 64:
+                        /* Single local port type */
+                        proto_tree_add_item(sub_tree3, hf_nas_5gs_single_port_type, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+                        curr_offset += 2;
+                        pfc_len = 2;
+                        break;
                     case 80:
                         /* Single remote port type */
                         proto_tree_add_item(sub_tree3, hf_nas_5gs_single_port_type, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
@@ -3068,7 +3074,7 @@ de_nas_5gs_sm_qos_rules(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
          * For the "delete existing QoS rule" operation, the QoS rule precedence value field shall not be included.
          * For the "create new QoS rule" operation, the QoS rule precedence value field shall be included.
          */
-        if (qos_rule_id != 2) { /* Delete existing QoS rule */
+        if (rop != 2) { /* Delete existing QoS rule */
             proto_tree_add_item(sub_tree, hf_nas_5gs_sm_qos_rule_precedence, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
             curr_offset++;
         }
