@@ -5300,17 +5300,17 @@ proto_register_diameter_3gpp(void)
         },
         { &hf_diameter_3gpp_mo_lr_shortcircuit_indicator_bit0,
         { "MO-LR-ShortCircuit-Indicator", "diameter.3gpp.mo_lr_shortcircuit_indicator",
-          FT_BOOLEAN, 32, TFS(&tfs_not_allowed_allowed), 0x00000001,
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000001,
           NULL, HFILL }
         },
         { &hf_diameter_3gpp_optimized_lcs_proc_req_bit1,
         { "Optimized-LCS-Proc-Req", "diameter.3gpp.optimized_lcs_proc_req",
-          FT_BOOLEAN, 32, TFS(&tfs_not_allowed_allowed), 0x00000002,
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000002,
           NULL, HFILL }
         },
         { &hf_diameter_3gpp_delayed_location_reporting_support_indicator_bit2,
         { "Delayed-Location-Reporting-Support-Indicator", "diameter.3gpp.delayed_location_reporting_support_indicator",
-          FT_BOOLEAN, 32, TFS(&tfs_not_allowed_allowed), 0x00000004,
+          FT_BOOLEAN, 32, TFS(&tfs_set_notset), 0x00000004,
           NULL, HFILL }
         },
         { &hf_diameter_3gpp_plr_flags_spare_bits,
