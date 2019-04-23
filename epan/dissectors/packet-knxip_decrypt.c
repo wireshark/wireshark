@@ -620,7 +620,7 @@ void read_knx_keyring_xml_file( const gchar* key_file, const gchar* password, co
         {
           if( g_ascii_isalnum( c ) || c == '_' )
           {
-            if( length < sizeof name + 1 )
+            if( length < sizeof name - 1 )
             {
               name[ length++ ] = (gchar) c;
             }
