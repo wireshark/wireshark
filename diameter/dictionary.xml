@@ -7126,36 +7126,130 @@
 		<avp name="Deferred-Location-Type" code="2532" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<!--
-		Area-Event-Info 2533 7.4.38 Grouped V M No
-		Area-Definition 2534 7.4.39 Grouped V M No
-		Area 2535 7.4.40 Grouped V M No
-		Area-Type 2536 7.4.41 Unsigned32 V M No
-		Area-Identification 2537 7.4.42 Grouped V M No
-		Occurrence-Info 2538 7.4.43 Enumerated V M No
-		Interval-Time 2539 7.4.44 Unsigned32 V M No
-		Periodic-LDR-Information 2540 7.4.45 Grouped V M No
-		Reporting-Amount 2541 7.4.46 Unsigned32 V M No
-		Reporting-Interval 2542 7.4.47 Unsigned32 V M No
-		Reporting-PLMN-List 2543 7.4.48 Grouped V M No
-		PLMN-ID-List 2544 7.4.49 Grouped V M No
-		-->
+		<avp name="Area-Event-Info" code="2533" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Occurrence-Info"/>
+				<gavp name="Interval-Time"/>
+				<gavp name="Maximum-Interval"/>
+				<gavp name="Sampling-Interval"/>
+				<gavp name="Reporting-Duration"/>
+				<gavp name="Reporting-Location-Requirements"/>
+			</grouped>
+		</avp>
+		<avp name="Area-Definition" code="2534" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Area"/>
+				<gavp name="Additional-Area"/>
+			</grouped>
+		</avp>
+		<avp name="Area" code="2535" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Area-Type"/>
+				<gavp name="Area-Identification"/>
+			</grouped>
+		</avp>
+		<avp name="Area-Type" code="2536" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="Country Code" code="0"/>
+			<enum name="PLMN ID" code="1"/>
+			<enum name="Location Area ID" code="2"/>
+			<enum name="Routing Area ID" code="3"/>
+			<enum name="Cell Global ID" code="4"/>
+			<enum name="UTRAN Cell ID" code="5"/>
+			<enum name="Tracking Area ID" code="6"/>
+			<enum name="E-UTRAN Cell Global ID" code="7"/>
+		</avp>
+		<avp name="Area-Identification" code="2537" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Occurrence-Info" code="2538" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="ONE_TIME_EVENT" code="0"/>
+			<enum name="MULTIPLE_TIME_EVENT" code="1"/>
+		</avp>
+		<avp name="Interval-Time" code="2537" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Periodic-LDR-Information" code="2540" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Reporting-Amount"/>
+				<gavp name="Reporting-Interval"/>
+			</grouped>
+		</avp>
+		<avp name="Reporting-Amount" code="2541" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Reporting-Interval" code="2542" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Reporting-PLMN-List" code="2543" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="PLMN-ID-List"/>
+			</grouped>
+		</avp>
+		<avp name="PLMN-ID-List" code="2544" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Visited-PLMN-Id"/>
+				<gavp name="Periodic-Location-Support-Indicator"/>
+			</grouped>
+		</avp>
 		<avp name="PLR-Flags" code="2545" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="PLA-Flags" code="2546" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-		<!--
-		Deferred-MT-LR-Data 2547 7.4.54 Grouped V M No
-		Termination-Cause 2548 7.4.55 Unsigned32 V M No
-		LRA-Flags 2549 7.4.56 Unsigned32 V M No
-		Periodic-Location-Support-Indicator 2550 7.4.50 Enumerated V M No
-		Prioritized-List-Indicator 2551 7.4.51 Enumerated V M No
-		ESMLC-Cell-Info 2552 7.4.57 Grouped V M No
-		Cell-Portion-ID 2553 7.4.58 Unsigned32 V M No
-		1xRTT-RCID 2554 7.4.59 OctetString V M No
-		-->
+		<avp name="Deferred-MT-LR-Data" code="2547" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Deferred-Location-Type"/>
+				<gavp name="Termination-Cause"/>
+				<gavp name="Serving-Node"/>
+			</grouped>
+		</avp>
+		<avp name="Termination-Cause" code="2548" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="Normal" code="0"/>
+			<enum name="Error Undefined" code="1"/>
+			<enum name="Internal Timeout" code="2"/>
+			<enum name="Congestion" code="3"/>
+			<enum name="MT_LR_Restart" code="4"/>
+			<enum name="Privacy Violation" code="5"/>
+			<enum name="Shape of Location Estimate Not Supported" code="6"/>
+			<enum name="Subscriber Termination" code="7"/>
+			<enum name="UE Termination" code="8"/>
+			<enum name="Network Termination" code="9"/>
+		</avp>
+		<avp name="LRA-Flags" code="2549" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Periodic-Location-Support-Indicator" code="2550" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="NOT_SUPPORTED " code="0"/>
+			<enum name="SUPPORTED" code="1"/>
+		</avp>
+		<avp name="Prioritized-List-Indicator" code="2551" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Enumerated"/>
+			<enum name="NOT_PRIORITIZED " code="0"/>
+			<enum name="PRIORITIZED" code="1"/>
+		</avp>
+		<avp name="ESMLC-Cell-Info" code="2552" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="ECGI"/>
+				<gavp name="Cell-Portion-ID"/>
+			</grouped>
+		</avp>
+		<avp name="Cell-Portion-ID" code="2553" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="1xRTT-RCID" code="2554" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="OctetString"/>
+		</avp>
+		<avp name="Delayed-Location-Reporting-Data" code="2555" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Termination-Cause"/>
+				<gavp name="Serving-Node"/>
+			</grouped>
+		</avp>
 		<avp name="Civic-Address" code="2556" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
 		</avp>
@@ -7165,7 +7259,41 @@
 		<avp name="UTRAN-Additional-Positioning-Data" code="2558" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
+		<avp name="Motion-Event-Info" code="2559" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Linear-Distance"/>
+				<gavp name="Occurrence-Info"/>
+				<gavp name="Interval-Time"/>
+				<gavp name="Maximum-Interval"/>
+				<gavp name="Sampling-Interval"/>
+				<gavp name="Reporting-Duration"/>
+				<gavp name="Reporting-Location-Requirements"/>
+			</grouped>
+		</avp>
+		<avp name="Linear-Distance" code="2560" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Maximum-Interval" code="2561" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Sampling-Interval" code="2562" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Reporting-Duration" code="2563" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Reporting-Location-Requirements" code="2564" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Unsigned32"/>
+		</avp>
+		<avp name="Additional-Area" code="2565" vendor-bit="must" vendor-id="TGPP">
+			<grouped>
+				<gavp name="Area-Type"/>
+				<gavp name="Area-Identification"/>
+			</grouped>
+		</avp>
+
 		<!--
+
 		Note: The AVP codes from 2524 to 2599 are reserved for TS 29.172
 		-->
 
