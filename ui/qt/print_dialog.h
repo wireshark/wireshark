@@ -22,7 +22,7 @@
 #include <QPushButton>
 
 namespace Ui {
-class PrintDialog;
+    class PrintDialog;
 }
 
 class PrintDialog : public QDialog
@@ -50,7 +50,9 @@ private:
     QPushButton *print_bt_;
     QFont header_font_;
     QFont packet_font_;
+public:
     capture_file *cap_file_;
+private:
     print_args_t print_args_;
     print_stream_ops_t stream_ops_;
     print_stream_t stream_;
