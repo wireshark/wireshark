@@ -589,11 +589,42 @@
 	<avp name="Retry-Interval" code="541" mandatory="may"  may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 		<type type-name="Unsigned32"/>
 	</avp>
+	<avp name="Sponsoring-Action" code="542" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="Enumerated"/>
+		<enum name="DISABLE_SPONSORING" code="0"/>
+		<enum name="ENABLE_SPONSORING" code="1"/>
+	</avp>
+	<avp name="Max-Supported-Bandwidth-DL" code="543" mandatory="mustnot"  may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Max-Supported-Bandwidth-UL" code="544" mandatory="mustnot"  may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Min-Desired-Bandwidth-DL" code="545" mandatory="mustnot"  may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Min-Desired-Bandwidth-UL" code="546" mandatory="mustnot"  may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="Unsigned32"/>
+	</avp>
 	<avp name="MCPTT-Identifier" code="547" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 		<type type-name="OctetString"/>
 	</avp>
+	<avp name="Service-Authorization-Info" code="548" mandatory="mustnot"  may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Priority-Sharing-Indicator" code="550" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="Enumerated"/>
+		<enum name="PRIORITY_SHARING_ENABLED" code="0"/>
+		<enum name="PRIORITY_SHARING_DISABLED" code="1"/>
+	</avp>
+	<avp name="AF-Requested-Data" code="551" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="Unsigned32"/>
+	</avp>
 	<avp name="Content-Version" code="552" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 		<type type-name="Unsigned64"/>
+	</avp>
+	<avp name="Pre-emption-Control-Info" code="553" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="Unsigned32"/>
 	</avp>
 	<avp name="Extended-Max-Requested-BW-DL" code="554" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 		<type type-name="Unsigned32"/>
