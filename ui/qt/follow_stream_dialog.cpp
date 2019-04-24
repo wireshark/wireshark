@@ -795,11 +795,13 @@ bool FollowStreamDialog::follow(QString previous_filter, bool use_stream_index, 
         return false;
     }
 
-    is_follower = proto_is_frame_protocol(cap_file_.capFile()->edt->pi.layers, proto_get_protocol_filter_name(get_follow_proto_id(follower_)));
-    if (!is_follower) {
-        QMessageBox::warning(this, tr("Error following stream."), tr("Please make sure you have a %1 packet selected.").arg
-                                (proto_get_protocol_short_name(find_protocol_by_id(get_follow_proto_id(follower_)))));
-        return false;
+    if (!use_stream_index) {
+        is_follower = proto_is_frame_protocol(cap_file_.capFile()->edt->pi.layers, proto_get_protocol_filter_name(get_follow_proto_id(follower_)));
+        if (!is_follower) {
+            QMessageBox::warning(this, tr("Error following stream."), tr("Please make sure you have a %1 packet selected.").arg
+                                    (proto_get_protocol_short_name(find_protocol_by_id(get_follow_proto_id(follower_)))));
+            return false;
+        }
     }
 
     if (follow_type_ == FOLLOW_TLS || follow_type_ == FOLLOW_HTTP)
