@@ -307,6 +307,7 @@ const value_string quic_version_vals[] = {
     { 0xff000011, "draft-17" },
     { 0xff000012, "draft-18" },
     { 0xff000013, "draft-19" },
+    { 0xff000014, "draft-20" },
     { 0, NULL }
 };
 
@@ -428,6 +429,7 @@ static const range_string quic_transport_error_code_vals[] = {
     { 0x0009, 0x0009, "VERSION_NEGOTIATION_ERROR" }, // removed in draft -19
     { 0x000A, 0x000A, "PROTOCOL_VIOLATION" },
     { 0x000C, 0x000C, "INVALID_MIGRATION" },
+    { 0x000D, 0x000D, "CRYPTO_BUFFER_EXCEEDED" },
     { 0x0100, 0x01FF, "CRYPTO_ERROR" },
     { 0, 0, NULL }
 };
