@@ -4971,7 +4971,10 @@ dissect_rsvp_ro_subobjects(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_
     /* +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
 
     for (i=1, l = 0; l < obj_length - 4; i++) {
-        type = tvb_get_guint8(tvb, offset + l) & 0x7f;
+        type = tvb_get_guint8(tvb, offset + l);
+        if ((rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE) ||
+            (rsvp_class == RSVP_CLASS_EXCLUDE_ROUTE))
+            type &= 0x7f;
         lbit = tvb_get_guint8(tvb, offset + l) & 0x80;
         dbit = tvb_get_guint8(tvb, offset + l + 2) & 0x80;
         switch(type) {
@@ -5281,11 +5284,6 @@ dissect_rsvp_ro_subobjects(proto_tree *ti, packet_info* pinfo, proto_tree *rsvp_
              * Private Use (see RFC 3936, Section 2.3.1) in case of
              * RECORD_ROUTE (aka RRO).
              */
-            if (rsvp_class == RSVP_CLASS_EXPLICIT_ROUTE)
-                goto defaultsub;
-            else
-                goto privatesub;
-            break;
 
         privatesub: /* Private subobject */
             /*
