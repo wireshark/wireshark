@@ -541,7 +541,7 @@ void ExtcapOptionsDialog::resetValues()
     }
 }
 
-GHashTable *ExtcapOptionsDialog::getArgumentSettings(bool useCallsAsKey)
+GHashTable *ExtcapOptionsDialog::getArgumentSettings(bool useCallsAsKey, bool includeEmptyValues)
 {
     GHashTable * entries = g_hash_table_new(g_str_hash, g_str_equal);
     ExtcapArgumentList::const_iterator iter;
@@ -552,6 +552,7 @@ GHashTable *ExtcapOptionsDialog::getArgumentSettings(bool useCallsAsKey)
     for(iter = extcapArguments.constBegin(); iter != extcapArguments.constEnd(); ++iter)
     {
         ExtcapArgument * argument = (ExtcapArgument *)(*iter);
+        bool isBoolflag = false;
 
         /* The dynamic casts are necessary, because we come here using the Signal/Slot system
          * of Qt, and -in short- Q_OBJECT classes cannot be multiple inherited. Another possibility
@@ -560,6 +561,7 @@ GHashTable *ExtcapOptionsDialog::getArgumentSettings(bool useCallsAsKey)
         if ( dynamic_cast<ExtArgBool *>((*iter)) != NULL)
         {
             value = ((ExtArgBool *)*iter)->prefValue();
+            isBoolflag = true;
         }
         else if ( dynamic_cast<ExtArgRadio *>((*iter)) != NULL)
         {
@@ -596,7 +598,7 @@ GHashTable *ExtcapOptionsDialog::getArgumentSettings(bool useCallsAsKey)
         if ( useCallsAsKey )
             key = argument->call();
 
-        if (key.length() > 0)
+        if ( ( key.length() > 0 ) && ( includeEmptyValues || isBoolflag || value.length() > 0 ) )
         {
             gchar * val = g_strdup(value.toStdString().c_str());
 
@@ -633,7 +635,7 @@ ExtcapValueList ExtcapOptionsDialog::loadValuesFor(int argNum, QString argumentN
     if ( argcall.startsWith("--") )
         argcall = argcall.right(argcall.size()-2);
 
-    GHashTable * entries = getArgumentSettings(true);
+    GHashTable * entries = getArgumentSettings(true, false);
 
     values = extcap_get_if_configuration_values(this->device_name.toStdString().c_str(), argcall.toStdString().c_str(), entries);
 
