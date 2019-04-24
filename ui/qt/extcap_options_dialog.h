@@ -59,7 +59,7 @@ private:
     void loadArguments();
 
     bool saveOptionToCaptureInfo();
-    GHashTable * getArgumentSettings(bool useCallsAsKey = false);
+    GHashTable * getArgumentSettings(bool useCallsAsKey = false, bool includeEmptyValues = true);
     void storeValues();
     void resetValues();
 
