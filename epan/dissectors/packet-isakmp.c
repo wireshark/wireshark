@@ -48,6 +48,7 @@
 #include "packet-x509af.h"
 #include "packet-gsm_a_common.h"
 #include "packet-isakmp.h"
+#include "packet-ber.h"
 
 #include <wsutil/wsgcrypt.h>
 #include <epan/proto_data.h>
@@ -141,6 +142,9 @@ static int hf_isakmp_certreq_authority_v2 = -1;
 static int hf_isakmp_certreq_authority_sig = -1;
 static int hf_isakmp_auth_meth = -1;
 static int hf_isakmp_auth_data = -1;
+static int hf_isakmp_auth_digital_sig_asn1_len = -1;
+static int hf_isakmp_auth_digital_sig_asn1_data = -1;
+static int hf_isakmp_auth_digital_sig_value = -1;
 static int hf_isakmp_notify_doi = -1;
 static int hf_isakmp_notify_protoid_v1 = -1;
 static int hf_isakmp_notify_protoid_v2 = -1;
@@ -418,6 +422,8 @@ static gint ett_isakmp = -1;
 static gint ett_isakmp_version = -1;
 static gint ett_isakmp_flags = -1;
 static gint ett_isakmp_payload = -1;
+static gint ett_isakmp_payload_digital_signature = -1;
+static gint ett_isakmp_payload_digital_signature_asn1_data = -1;
 static gint ett_isakmp_fragment = -1;
 static gint ett_isakmp_fragments = -1;
 static gint ett_isakmp_sa = -1;
@@ -1227,6 +1233,8 @@ static const range_string cert_v2_type[] = {
   { 201,255,    "PRIVATE USE" },
   { 0,0,        NULL },
 };
+
+#define AUTH_METH_DIGITAL_SIGNATURE 14
 
 static const range_string authmeth_v2_type[] = {
   { 0,0,        "RESERVED TO IANA" },
@@ -2361,7 +2369,7 @@ static void dissect_key_exch(tvbuff_t *, int, int, proto_tree *, int, packet_inf
 static void dissect_id(tvbuff_t *, int, int, proto_tree *, int, packet_info *);
 static void dissect_cert(tvbuff_t *, int, int, proto_tree *, int, packet_info *);
 static void dissect_certreq(tvbuff_t *, int, int, proto_tree *, int, packet_info *);
-static void dissect_auth(tvbuff_t *, int, int, proto_tree *);
+static void dissect_auth(tvbuff_t *, packet_info *, int, int, proto_tree *);
 static void dissect_hash(tvbuff_t *, int, int, proto_tree *);
 static void dissect_sig(tvbuff_t *, int, int, proto_tree *);
 static void dissect_nonce(tvbuff_t *, int, int, proto_tree *);
@@ -3159,7 +3167,7 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree,
             dissect_sequence(tvb, pinfo, offset + 4, payload_length - 4, ntree);
             break;
           case PLOAD_IKE2_AUTH:
-            dissect_auth(tvb, offset + 4, payload_length - 4, ntree);
+            dissect_auth(tvb, pinfo, offset + 4, payload_length - 4, ntree);
             break;
           case PLOAD_IKE2_TSI:
           case PLOAD_IKE2_TSR:
@@ -4381,13 +4389,16 @@ dissect_certreq(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isa
   }
 }
 
-
-
 static void
-dissect_auth(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
+dissect_auth(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto_tree *tree)
 {
+  guint32                       auth_meth;
+  guint32                       asn1_len;
+  proto_item *                  ti;
+  proto_tree *                  subtree;
+  proto_tree *                  asn1tree;
 
-  proto_tree_add_item(tree, hf_isakmp_auth_meth, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item_ret_uint(tree, hf_isakmp_auth_meth, tvb, offset, 1, ENC_BIG_ENDIAN, &auth_meth);
   offset += 1;
   length -= 1;
 
@@ -4395,8 +4406,28 @@ dissect_auth(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
   offset += 3;
   length -= 3;
 
-  proto_tree_add_item(tree, hf_isakmp_auth_data, tvb, offset, length, ENC_NA);
+  ti = proto_tree_add_item(tree, hf_isakmp_auth_data, tvb, offset, length, ENC_NA);
 
+  if (auth_meth == AUTH_METH_DIGITAL_SIGNATURE) {
+    subtree = proto_item_add_subtree(ti, ett_isakmp_payload_digital_signature);
+
+    proto_tree_add_item_ret_uint(subtree, hf_isakmp_auth_digital_sig_asn1_len, tvb, offset, 1, ENC_BIG_ENDIAN, &asn1_len);
+    offset += 1;
+    length -= 1;
+
+    /* cast ok, since length was parsed out of one unsigned byte into guint32 */
+    if ( (asn1_len > 0) && ((int)asn1_len < length) ) {
+
+      ti = proto_tree_add_item(subtree, hf_isakmp_auth_digital_sig_asn1_data, tvb, offset, asn1_len, ENC_NA);
+      asn1tree = proto_item_add_subtree(ti, ett_isakmp_payload_digital_signature_asn1_data);
+      dissect_unknown_ber(pinfo, tvb, offset, asn1tree);
+
+      offset += asn1_len;
+      length -= asn1_len;
+
+      proto_tree_add_item(subtree, hf_isakmp_auth_digital_sig_value, tvb, offset, length, ENC_NA);
+    }
+  }
 }
 
 static void
@@ -6551,6 +6582,18 @@ proto_register_isakmp(void)
       { "Authentication Data", "isakmp.auth.data",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         "IKEv2 Authentication Data", HFILL }},
+    { &hf_isakmp_auth_digital_sig_asn1_len,
+      { "ASN.1 Length", "isakmp.auth.data.sig.asn1.len",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        "IKEv2 Authentication Data Digital Signature ASN.1 Length", HFILL } },
+    { &hf_isakmp_auth_digital_sig_asn1_data,
+      { "ASN.1 Data", "isakmp.auth.data.sig.asn1.data",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "IKEv2 Authentication Data Digital Signature ASN.1 Data", HFILL } },
+    { &hf_isakmp_auth_digital_sig_value,
+      { "Signature Value", "isakmp.auth.data.sig.value",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        "IKEv2 Authentication Data Digital Signature Value", HFILL } },
     { &hf_isakmp_notify_doi,
       { "Domain of interpretation", "isakmp.notify.doi",
         FT_UINT32, BASE_DEC, VALS(doi_type), 0x0,
@@ -7723,6 +7766,8 @@ proto_register_isakmp(void)
     &ett_isakmp_version,
     &ett_isakmp_flags,
     &ett_isakmp_payload,
+    &ett_isakmp_payload_digital_signature,
+    &ett_isakmp_payload_digital_signature_asn1_data,
     &ett_isakmp_fragment,
     &ett_isakmp_fragments,
     &ett_isakmp_sa,
