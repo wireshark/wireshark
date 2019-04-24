@@ -317,16 +317,6 @@ void PacketList::colorsChanged()
     QString active_style   = QString();
     QString inactive_style = QString();
 
-    bool style_inactive_selected = true;
-
-#ifdef Q_OS_WIN // && Qt version >= 4.8.6
-    if (QSysInfo::windowsVersion() < QSysInfo::WV_WINDOWS8) {
-        if (IsAppThemed() && IsThemeActive()) {
-            style_inactive_selected = false;
-        }
-    }
-#endif
-
     if (prefs.gui_active_style == COLOR_STYLE_DEFAULT) {
         // ACTIVE = Default
     } else if (prefs.gui_active_style == COLOR_STYLE_FLAT) {
@@ -354,37 +344,6 @@ void PacketList::colorsChanged()
     // INACTIVE style sheet settings
     if (prefs.gui_inactive_style == COLOR_STYLE_DEFAULT) {
         // INACTIVE = Default
-        if (style_inactive_selected) {
-            QPalette inactive_pal = palette();
-            inactive_pal.setCurrentColorGroup(QPalette::Inactive);
-            QColor border = QColor::fromRgb(ColorUtils::alphaBlend(
-                                                    inactive_pal.highlightedText(),
-                                                    inactive_pal.highlight(),
-                                                    0.25));
-            QColor shadow = QColor::fromRgb(ColorUtils::alphaBlend(
-                                                    inactive_pal.highlightedText(),
-                                                    inactive_pal.highlight(),
-                                                    0.07));
-            inactive_style = QString(
-                              "QTreeView::item:selected:first:!active {"
-                              "  border-left: 1px solid %1;"
-                              "}"
-                              "QTreeView::item:selected:last:!active {"
-                              "  border-right: 1px solid %1;"
-                              "}"
-                              "QTreeView::item:selected:!active {"
-                              "  border-top: 1px solid %1;"
-                              "  border-bottom: 1px solid %1;"
-                              "  color: %2;"
-                              // Try to approximate a subtle box shadow.
-                              "  background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1"
-                              "    stop: 0 %4, stop: 0.2 %3, stop: 0.8 %3, stop: 1 %4);"
-                              "}")
-                          .arg(border.name())
-                          .arg(inactive_pal.highlightedText().color().name())
-                          .arg(inactive_pal.highlight().color().name())
-                          .arg(shadow.name());
-        }
     } else if (prefs.gui_inactive_style == COLOR_STYLE_FLAT) {
         // INACTIVE = Flat
         QColor foreground = ColorUtils::fromColorT(prefs.gui_inactive_fg);
