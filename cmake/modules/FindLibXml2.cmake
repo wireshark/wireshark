@@ -106,10 +106,17 @@ FIND_PACKAGE_HANDLE_STANDARD_ARGS(LibXml2
 
 mark_as_advanced(LIBXML2_INCLUDE_DIR LIBXML2_LIBRARY LIBXML2_XMLLINT_EXECUTABLE)
 
-if(LibXml2_FOUND AND NOT TARGET LibXml2::LibXml2)
-   add_library(LibXml2::LibXml2 UNKNOWN IMPORTED)
-   set_target_properties(LibXml2::LibXml2 PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${LIBXML2_INCLUDE_DIRS}")
-   set_property(TARGET LibXml2::LibXml2 APPEND PROPERTY IMPORTED_LOCATION "${LIBXML2_LIBRARY}")
+if(LibXml2_FOUND)
+    # Include transitive dependencies for static linking.
+    if(UNIX AND CMAKE_FIND_LIBRARY_SUFFIXES STREQUAL ".a")
+        list(APPEND LIBXML2_LIBRARIES ${PC_LIBXML_LIBRARIES})
+    endif()
+
+    if (NOT TARGET LibXml2::LibXml2)
+        add_library(LibXml2::LibXml2 UNKNOWN IMPORTED)
+        set_target_properties(LibXml2::LibXml2 PROPERTIES INTERFACE_INCLUDE_DIRECTORIES "${LIBXML2_INCLUDE_DIRS}")
+        set_property(TARGET LibXml2::LibXml2 APPEND PROPERTY IMPORTED_LOCATION "${LIBXML2_LIBRARY}")
+    endif()
 endif()
 
 AddWSWinDLLS(LibXml2 LIBXML2_HINTS "libxml2*" "lzma*")
