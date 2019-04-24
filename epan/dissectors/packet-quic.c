@@ -12,9 +12,9 @@
 
 /*
  * See https://quicwg.org
- * https://tools.ietf.org/html/draft-ietf-quic-transport-18
- * https://tools.ietf.org/html/draft-ietf-quic-tls-18
- * https://tools.ietf.org/html/draft-ietf-quic-invariants-03
+ * https://tools.ietf.org/html/draft-ietf-quic-transport-20
+ * https://tools.ietf.org/html/draft-ietf-quic-tls-20
+ * https://tools.ietf.org/html/draft-ietf-quic-invariants-04
  */
 
 #include <config.h>
