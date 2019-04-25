@@ -578,6 +578,8 @@ static extcap_arg *extcap_parse_arg_sentence(GList *args, extcap_token_sentence 
 
     } else if (sent == EXTCAP_SENTENCE_VALUE) {
         value = extcap_parse_value_sentence(s);
+        if (value == NULL)
+            return NULL;
 
         if ((entry = g_list_find_custom(args, &value->arg_num, glist_find_numbered_arg))
                 == NULL) {
