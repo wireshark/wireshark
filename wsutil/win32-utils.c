@@ -196,7 +196,7 @@ win32strexception(DWORD exception)
 static void win32_kill_child_on_exit(HANDLE child_handle) {
     static HANDLE cjo_handle = NULL;
     if (!cjo_handle) {
-        cjo_handle = CreateJobObject(NULL, _T("Local\\Wireshark child process cleanup"));
+        cjo_handle = CreateJobObject(NULL, NULL);
 
         if (!cjo_handle) {
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "Could not create child cleanup job object: %s",
