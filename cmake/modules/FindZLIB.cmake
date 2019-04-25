@@ -98,7 +98,7 @@ if(ZLIB_FOUND)
     # libz, so that it has inflatePrime().
     #
     IF(WIN32)
-       MESSAGE(STATUS "Zlib might not be built yet; assume it contains inflatePrime")
+        MESSAGE(STATUS "Zlib might not be built yet; assume it contains inflatePrime")
         SET(HAVE_INFLATEPRIME ON)
     ELSE()
         INCLUDE(CMakePushCheckState)
