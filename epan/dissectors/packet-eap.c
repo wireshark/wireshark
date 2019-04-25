@@ -409,7 +409,7 @@ static const value_string eap_ext_vendor_type_vals[] = {
 
 static void
 dissect_exteap(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
-               gint size, packet_info* pinfo, guint8 eap_code, guint8 eap_identifier)
+               gint size _U_, packet_info* pinfo, guint8 eap_code, guint8 eap_identifier)
 {
   tvbuff_t   *next_tvb;
   guint32    vendor_id;
@@ -420,11 +420,9 @@ dissect_exteap(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
 
   proto_tree_add_item_ret_uint(eap_tree, hf_eap_ext_vendor_id, tvb, offset, 3, ENC_BIG_ENDIAN, &vendor_id);
   offset += 3;
-  size   -= 3;
 
   proto_tree_add_item_ret_uint(eap_tree, hf_eap_ext_vendor_type, tvb, offset, 4, ENC_BIG_ENDIAN, &vendor_type);
   offset += 4;
-  size   -= 4;
 
   vendor_context->eap_code = eap_code;
   vendor_context->eap_identifier = eap_identifier;
