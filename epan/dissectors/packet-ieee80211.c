@@ -9055,7 +9055,7 @@ dissect_ftm_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void
                                     ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
   offset += 3;
 
-  return 9;
+  return offset;
 }
 
 static guint
