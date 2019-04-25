@@ -2582,7 +2582,7 @@ de_emm_network_policy(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
  * 9.9.3.53 UE additional security capability
  */
 guint16
-de_emm_ue_add_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_emm_ue_add_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -2652,7 +2652,7 @@ de_emm_ue_add_sec_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
     proto_tree_add_bitmask_list(tree, tvb, curr_offset, 1, oct6_flags, ENC_NA);
     curr_offset++;
 
-    return len;
+    return 4;
 }
 
 /*

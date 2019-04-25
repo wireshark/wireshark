@@ -1,7 +1,7 @@
 /* packet-gtpv2.c
  *
  * Routines for GTPv2 dissection
- * Copyright 2009 - 2017, Anders Broman <anders.broman [at] ericsson.com>
+ * Copyright 2009 - 2019, Anders Broman <anders.broman [at] ericsson.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -147,6 +147,13 @@ static int hf_gtpv2_s11tf = -1;
 static int hf_gtpv2_pnsi = -1;
 static int hf_gtpv2_unaccsi = -1;
 static int hf_gtpv2_wpmsi = -1;
+
+static int hf_gtpv2_5gsnn26 = -1;
+static int hf_gtpv2_reprefi = -1;
+static int hf_gtpv2_5gsiwk = -1;
+static int hf_gtpv2_eevrsi = -1;
+static int hf_gtpv2_ltemui = -1;
+static int hf_gtpv2_ltempi = -1;
 static int hf_gtpv2_enbcrsi = -1;
 static int hf_gtpv2_tspcmi = -1;
 
@@ -236,6 +243,11 @@ static int hf_gtpv2_tra_info_lne_mme = -1;
 static int hf_gtpv2_tra_info_lne_sgw = -1;
 static int hf_gtpv2_tra_info_lne_pdn_gw = -1;
 static int hf_gtpv2_tra_info_lne_enb = -1;
+static int hf_gtpv2_tra_info_lne_amf = -1;
+static int hf_gtpv2_tra_info_lne_smf = -1;
+static int hf_gtpv2_tra_info_lne_pcf = -1;
+static int hf_gtpv2_tra_info_lne_upf = -1;
+static int hf_gtpv2_tra_info_tra_info_ng_ran_node = -1;
 static int hf_gtpv2_tra_info_tdl = -1;
 static int hf_gtpv2_tra_info_lmsc_a = -1;
 static int hf_gtpv2_tra_info_lmsc_lu = -1;
@@ -364,6 +376,8 @@ static int hf_gtpv2_vdp_length = -1;
 static int hf_gtpv2_mm_context_paging_len = -1;
 static int hf_gtpv2_mm_context_ex_access_res_data_len = -1;
 static int hf_gtpv2_mm_context_ue_add_sec_cap_len = -1;
+static int hf_gtpv2_mm_context_ue_nr_sec_cap_len = -1;
+static int hf_gtpv2_mm_context_apn_rte_ctrl_sts_len = -1;
 static int hf_gtpv2_uci_csg_id = -1;
 static int hf_gtpv2_uci_csg_id_spare = -1;
 static int hf_gtpv2_uci_access_mode = -1;
@@ -625,6 +639,123 @@ static int hf_gtpv2_secondary_rat_usage_data_report_usage_data_ul = -1;
 static int hf_gtpv2_csg_info_rep_action_b0 = -1;
 static int hf_gtpv2_csg_info_rep_action_b1 = -1;
 static int hf_gtpv2_csg_info_rep_action_b2 = -1;
+static int hf_gtpv2_gnodeb_id_len = -1;
+static int hf_gtpv2_godeb_id = -1;
+static int hf_gtpv2_5gs_tac = -1;
+static int hf_gtpv2_en_gnb_id_len = -1;
+static int hf_gtpv2_5tac;
+static int hf_gtpv2_etac;
+static int hf_gtpv2_en_gnb_id = -1;
+static int hf_gtpv2_trig_event_len = -1;
+static int hf_gtpv2_ne_list_len = -1;
+static int hf_gtpv2_ses_trs_depth = -1;
+static int hf_gtpv2_list_of_if_len = -1;
+static int hf_gtpv2_trs_coll_ip_addr_len = -1;
+static int hf_gtpv2_trs_coll_ipv4_addr =-1;
+static int hf_gtpv2_trs_coll_ipv6_addr =-1;
+
+static int hf_gtpv2_ext_tra_info_loi_mscs_cap =-1;
+static int hf_gtpv2_ext_tra_info_loi_mscs_map_f = -1;
+static int hf_gtpv2_ext_tra_info_loi_mscs_map_e = -1;
+static int hf_gtpv2_ext_tra_info_loi_mscs_map_b = -1;
+static int hf_gtpv2_ext_tra_info_loi_mscs_map_g = -1;
+static int hf_gtpv2_ext_tra_info_loi_mscs_mc = -1;
+static int hf_gtpv2_ext_tra_info_loi_mscs_iu = -1;
+static int hf_gtpv2_ext_tra_info_loi_mscs_a = -1;
+static int hf_gtpv2_ext_tra_info_loi_mscs_map_c = -1;
+static int hf_gtpv2_ext_tra_info_loi_mscs_map_d = -1;
+static int hf_gtpv2_ext_tra_info_loi_mgw_iuup = -1;
+static int hf_gtpv2_ext_tra_info_loi_mgw_nbup = -1;
+static int hf_gtpv2_ext_tra_info_loi_mgw_mc = -1;
+static int hf_gtpv2_ext_tra_info_loi_sgsn_ge = -1;
+static int hf_gtpv2_ext_tra_info_loi_sgsn_gs = -1;
+static int hf_gtpv2_ext_tra_info_loi_sgsn_map_gf = -1;
+static int hf_gtpv2_ext_tra_info_loi_sgsn_map_gd = -1;
+static int hf_gtpv2_ext_tra_info_loi_sgsn_map_gr = -1;
+static int hf_gtpv2_ext_tra_info_loi_sgsn_gn = -1;
+static int hf_gtpv2_ext_tra_info_loi_sgsn_iu = -1;
+static int hf_gtpv2_ext_tra_info_loi_sgsn_gb = -1;
+static int hf_gtpv2_ext_tra_info_loi_sgsn_s13 = -1;
+static int hf_gtpv2_ext_tra_info_loi_sgsn_s3 = -1;
+static int hf_gtpv2_ext_tra_info_loi_sgsn_s4 = -1;
+static int hf_gtpv2_ext_tra_info_loi_sgsn_s6d = -1;
+static int hf_gtpv2_ext_tra_info_loi_ggsn_gmb = -1;
+static int hf_gtpv2_ext_tra_info_loi_ggsn_gi = -1;
+static int hf_gtpv2_ext_tra_info_loi_ggsn_gn = -1;
+static int hf_gtpv2_ext_tra_info_loi_rnc_uu = -1;
+static int hf_gtpv2_ext_tra_info_loi_rnc_iub = -1;
+static int hf_gtpv2_ext_tra_info_loi_rnc_iur = -1;
+static int hf_gtpv2_ext_tra_info_loi_rnc_iu = -1;
+static int hf_gtpv2_ext_tra_info_loi_bm_sc_gmb = -1;
+static int hf_gtpv2_ext_tra_info_loi_mme_s13 = -1;
+static int hf_gtpv2_ext_tra_info_loi_mme_s11 = -1;
+static int hf_gtpv2_ext_tra_info_loi_mme_s10 = -1;
+static int hf_gtpv2_ext_tra_info_loi_mme_s6a = -1;
+static int hf_gtpv2_ext_tra_info_loi_mme_s3 = -1;
+static int hf_gtpv2_ext_tra_info_loi_mme_s1_mme = -1;
+static int hf_gtpv2_ext_tra_info_loi_sgw_gxc = -1;
+static int hf_gtpv2_ext_tra_info_loi_sgw_s11 = -1;
+static int hf_gtpv2_ext_tra_info_loi_sgw_s8b = -1;
+static int hf_gtpv2_ext_tra_info_loi_sgw_s5 = -1;
+static int hf_gtpv2_ext_tra_info_loi_sgw_s4 = -1;
+static int hf_gtpv2_ext_tra_info_loi_pdn_gw_sgi = -1;
+static int hf_gtpv2_ext_tra_info_loi_pdn_gw_s8b = -1;
+static int hf_gtpv2_ext_tra_info_loi_pdn_gw_gx = -1;
+static int hf_gtpv2_ext_tra_info_loi_pdn_gw_s6b = -1;
+static int hf_gtpv2_ext_tra_info_loi_pdn_gw_s5 = -1;
+static int hf_gtpv2_ext_tra_info_loi_pdn_gw_s2c = -1;
+static int hf_gtpv2_ext_tra_info_loi_pdn_gw_s2b = -1;
+static int hf_gtpv2_ext_tra_info_loi_pdn_gw_s2a = -1;
+static int hf_gtpv2_ext_tra_info_loi_enb_uu = -1;
+static int hf_gtpv2_ext_tra_info_loi_enb_x2 = -1;
+static int hf_gtpv2_ext_tra_info_loi_enb_s1_mme = -1;
+static int hf_gtpv2_ext_tra_info_loi_hss_sh = -1;
+static int hf_gtpv2_ext_tra_info_loi_hss_s6a = -1;
+static int hf_gtpv2_ext_tra_info_loi_hss_s6d = -1;
+static int hf_gtpv2_ext_tra_info_loi_hss_cx = -1;
+static int hf_gtpv2_ext_tra_info_loi_hss_map_gr = -1;
+static int hf_gtpv2_ext_tra_info_loi_hss_map_gc = -1;
+static int hf_gtpv2_ext_tra_info_loi_hss_map_d = -1;
+static int hf_gtpv2_ext_tra_info_loi_hss_map_c = -1;
+static int hf_gtpv2_ext_tra_info_loi_eir_map_gf = -1;
+static int hf_gtpv2_ext_tra_info_loi_eir_s13p = -1;
+static int hf_gtpv2_ext_tra_info_loi_eir_s13 = -1;
+static int hf_gtpv2_ext_tra_info_loi_eir_map_f = -1;
+static int hf_gtpv2_ext_tra_info_loi_amf_n20 = -1;
+static int hf_gtpv2_ext_tra_info_loi_amf_n15 = -1;
+static int hf_gtpv2_ext_tra_info_loi_amf_n14 = -1;
+static int hf_gtpv2_ext_tra_info_loi_amf_n12 = -1;
+static int hf_gtpv2_ext_tra_info_loi_amf_n11 = -1;
+static int hf_gtpv2_ext_tra_info_loi_amf_n8 = -1;
+static int hf_gtpv2_ext_tra_info_loi_amf_n2 = -1;
+static int hf_gtpv2_ext_tra_info_loi_amf_n1 = -1;
+static int hf_gtpv2_ext_tra_info_loi_amf_n22 = -1;
+static int hf_gtpv2_ext_tra_info_loi_amf_n26 = -1;
+static int hf_gtpv2_ext_tra_info_loi_pcf_n15 = -1;
+static int hf_gtpv2_ext_tra_info_loi_pcf_n7 = -1;
+static int hf_gtpv2_ext_tra_info_loi_pcf_n5 = -1;
+static int hf_gtpv2_ext_tra_info_loi_smf_s5_c = -1;
+static int hf_gtpv2_ext_tra_info_loi_smf_n11 = -1;
+static int hf_gtpv2_ext_tra_info_loi_smf_n10 = -1;
+static int hf_gtpv2_ext_tra_info_loi_smf_n7 = -1;
+static int hf_gtpv2_ext_tra_info_loi_smf_n4 = -1;
+static int hf_gtpv2_ext_tra_info_loi_upf_n4 = -1;
+static int hf_gtpv2_ext_tra_info_loi_ng_ran_node_e1_c = -1;
+static int hf_gtpv2_ext_tra_info_loi_ng_ran_node_f1_c = -1;
+static int hf_gtpv2_ext_tra_info_loi_ng_ran_node_Uu = -1;
+static int hf_gtpv2_ext_tra_info_loi_ng_ran_node_xn_c = -1;
+static int hf_gtpv2_ext_tra_info_loi_ng_ran_node_ng_c = -1;
+
+static int hf_gtpv2_nr_dl_pkts_all = -1;
+static int hf_gtpv2_nr_ul_pkts_all = -1;
+static int hf_gtpv2_nr_add_exception_rpts = -1;
+static int hf_apn_rte_cntrl_status_val_time = -1;
+static int hf_gtpv2_max_pkt_loss_rte_ul_flg = -1;
+static int hf_gtpv2_max_pkt_loss_rte_dl_flg = -1;
+static int hf_gtpv2_max_pkt_loss_rte_ul = -1;
+static int hf_gtpv2_max_pkt_loss_rte_dl = -1;
+
+static int hf_gtpv2_spare_b7_b2 = -1;
 
 static gint ett_gtpv2 = -1;
 static gint ett_gtpv2_flags = -1;
@@ -688,6 +819,26 @@ static gint ett_gtpv2_rohc_profile_flags = -1;
 static gint ett_gtpv2_secondary_rat_usage_data_report = -1;
 static gint ett_gtpv2_pres_rep_area_info = -1;
 static gint ett_gtpv2_preaa_ext_menbs = -1;
+static gint ett_gtpv2_ue_nr_sec_cap_len = -1;
+static gint ett_gtpv2_apn_rte_ctrl_sts_len = -1;
+static gint ett_gtpv2_if_mgcs = -1;
+static gint ett_gtpv2_if_mgw = -1;
+static gint ett_gtpv2_if_sgsn = -1;
+static gint ett_gtpv2_if_ggsn = -1;
+static gint ett_gtpv2_if_rnc = -1;
+static gint ett_gtpv2_if_bm_sc = -1;
+static gint ett_gtpv2_if_mme = -1;
+static gint ett_gtpv2_if_sgw = -1;
+static gint ett_gtpv2_if_pdn_gw = -1;
+static gint ett_gtpv2_if_enb = -1;
+static gint ett_gtpv2_if_hss = -1;
+static gint ett_gtpv2_if_eir = -1;
+static gint ett_gtpv2_if_amf = -1;
+static gint ett_gtpv2_if_pcf = -1;
+static gint ett_gtpv2_if_smf = -1;
+static gint ett_gtpv2_if_upf = -1;
+static gint ett_gtpv2_if_ng_ran_node = -1;
+
 
 static expert_field ei_gtpv2_ie_data_not_dissected = EI_INIT;
 static expert_field ei_gtpv2_ie_len_invalid = EI_INIT;
@@ -751,7 +902,7 @@ static expert_field ei_gtpv2_apn_too_long = EI_INIT;
 
 static void dissect_gtpv2_ie_common(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree, gint offset, guint8 message_type, session_args_t * args);
 
-/*Message Types for GTPv2 (Refer Pg19 29.274) (SB)*/
+/* Table 6.1-1: Message types for GTPv2 */
 static const value_string gtpv2_message_type_vals[] = {
     {  0, "Reserved"},
     {  1, "Echo Request"},
@@ -1042,10 +1193,13 @@ static gint ett_gtpv2_ies[NUM_GTPV2_IES];
 #define GTPV2_IE_EXTENDED_PCO               197
 #define GTPV2_IE_SERV_PLMN_RATE_CONTROL     198
 #define GTPV2_IE_COUNTER                    199
-
-/* 200    Mapped UE Usage Type */
+#define GTPV2_IE_MAPPED_UE_USAGE_TYPE                200
 #define GTPV2_IE_SECONDARY_RAT_USAGE_DATA_REPORT     201
-#define GTPV2_IE_UP_FUNC_SEL_INDI_FLG       202
+#define GTPV2_IE_UP_FUNC_SEL_INDI_FLG                202
+#define GTPV2_IE_MAX_PKT_LOSS_RTE                    203
+#define GTPV2_IE_APN_RTE_CNTRL_STATUS                204
+#define GTPV2_IE_EXT_TRS_INF                         205
+
 /*
 203 to 253    Spare. For future use.
 254    Special IE type for IE Type Extension
@@ -1227,7 +1381,10 @@ static const value_string gtpv2_element_type_vals[] = {
     {200, "Mapped UE Usage Type" },                                             /* Extendable / 8.131 */
     {201, "Secondary RAT Usage Data Report" },                                  /* Extendable / 8.132 */
     {202, "UP Function Selection Indication Flags" },                           /* Extendable / 8.133 */
-                                                                                /* 203 to 254    Spare. For future use.    */
+    {203, "Maximum Packet Loss Rate" },                                         /* Extendable / 8.134 */
+    {204, "APN Rate Control Status" },                                          /* Extendable / 8.135 */
+    {205, "Extended Trace Information" },                                       /* Extendable / 8.136 */
+                                                                                /* 206 to 254    Spare. For future use.    */
     {255, "Private Extension"},                                                 /* Variable Length / 8.67 */
     {0, NULL}
 };
@@ -1309,6 +1466,14 @@ gtpv2_sn_equal_unmatched(gconstpointer k1, gconstpointer k2)
 
     return key1->seq_nr == key2->seq_nr;
 }
+
+/* Make this a common function ???*/
+static void
+value_in_tenth_of_percent_fmt(gchar* s, guint32 v)
+{
+    g_snprintf(s, ITEM_LABEL_LENGTH, "%.1f%% (%u)", (float)v / 10, v);
+}
+
 
 /* Code to dissect IE's */
 
@@ -2126,15 +2291,21 @@ static void
 dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
     int offset = 0;
+
+    static const int* oct5_flags[] = {
+        &hf_gtpv2_daf,
+        &hf_gtpv2_dtf,
+        &hf_gtpv2_hi,
+        &hf_gtpv2_dfi,
+        &hf_gtpv2_oi,
+        &hf_gtpv2_isrsi,
+        &hf_gtpv2_israi,
+        &hf_gtpv2_sgwci,
+        NULL
+    };
+
     /* Octet 5 DAF DTF HI DFI OI ISRSI ISRAI SGWCI */
-    proto_tree_add_item(tree, hf_gtpv2_daf,         tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_dtf,         tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_hi,          tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_dfi,         tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_oi,          tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_isrsi,       tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_israi,       tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_sgwci,       tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, oct5_flags, ENC_NA);
 
     if (length == 1) {
         proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_len_invalid, tvb, 0, length, "Older version?, should be 2 octets in 8.0.0");
@@ -2143,86 +2314,120 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
 
     offset += 1;
 
+    static const int* oct6_flags[] = {
+    &hf_gtpv2_sqci,
+    &hf_gtpv2_uimsi,
+    &hf_gtpv2_cfsi,
+    &hf_gtpv2_crsi,
+    &hf_gtpv2_ps,
+    &hf_gtpv2_pt,
+    &hf_gtpv2_si,
+    &hf_gtpv2_msv,
+    NULL
+    };
+
     /* Octet 6 SQCI UIMSI CFSI CRSI P PT SI MSV
      * 3GPP TS 29.274 version 9.4.0 Release 9
      */
-    proto_tree_add_item(tree, hf_gtpv2_sqci,          tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_uimsi,         tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_cfsi,          tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_crsi,          tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    proto_tree_add_item(tree, hf_gtpv2_ps,          tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_pt,          tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_si,          tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_msv,         tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, oct6_flags, ENC_NA);
     offset += 1;
 
     if (length == 2) {
         return;
     }
     /* Only present in version 9 and higher */
+    static const int* oct7_flags[] = {
+        &hf_gtpv2_retloc,
+        &hf_gtpv2_pbic,
+        &hf_gtpv2_srni,
+        &hf_gtpv2_s6af,
+        &hf_gtpv2_s4af,
+        &hf_gtpv2_mbmdt,
+        &hf_gtpv2_israu,
+        &hf_gtpv2_ccrsi,
+        NULL
+    };
+
     /* Octet 7 RetLoc PBIC SRNI S6AF S4AF MBMDT ISRAU CCRSI */
-    proto_tree_add_item(tree, hf_gtpv2_retloc,          tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_pbic,            tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_srni,            tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_s6af,            tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_s4af,            tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_mbmdt,           tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_israu,           tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_ccrsi,           tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, oct7_flags, ENC_NA);
     offset += 1;
 
     if (length == 3) {
         return;
     }
+    static const int* oct8_flags[] = {
+        &hf_gtpv2_cprai,
+        &hf_gtpv2_arrl,
+        &hf_gtpv2_ppof,
+        &hf_gtpv2_ppon_ppei,
+        &hf_gtpv2_ppsi,
+        &hf_gtpv2_csfbi,
+        &hf_gtpv2_clii,
+        &hf_gtpv2_cpsr,
+        NULL
+    };
+
     /* Octet 8 CPRAI ARRL PPOF PPON/PPEI PPSI CSFBI CLII CPSR */
-    proto_tree_add_item(tree, hf_gtpv2_cprai,           tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_arrl,            tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_ppof,            tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_ppon_ppei,       tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_ppsi,            tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_csfbi,           tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_clii,            tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_cpsr,            tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, oct8_flags, ENC_NA);
     offset += 1;
 
     if (length == 4) {
         return;
     }
 
+    static const int* oct9_flags[] = {
+        &hf_gtpv2_nsi,
+        &hf_gtpv2_uasi,
+        &hf_gtpv2_dtci,
+        &hf_gtpv2_bdwi,
+        &hf_gtpv2_psci,
+        &hf_gtpv2_pcri,
+        &hf_gtpv2_aosi,
+        &hf_gtpv2_aopi,
+        NULL
+    };
+
     /* Octet 9 NSI UASI DTCI BDWI PSCI PCRI AOSI AOPI */
-    proto_tree_add_item(tree, hf_gtpv2_nsi,             tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_uasi,            tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_dtci,            tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_bdwi,            tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_psci,            tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_pcri,            tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_aosi,            tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_aopi,            tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, oct9_flags, ENC_NA);
     offset += 1;
 
     if (length == 5) {
         return;
     }
 
+    static const int* oct10_flags[] = {
+        &hf_gtpv2_roaai,
+        &hf_gtpv2_epcosi,
+        &hf_gtpv2_cpopci,
+        &hf_gtpv2_pmtsmi,
+        &hf_gtpv2_s11tf,
+        &hf_gtpv2_pnsi,
+        &hf_gtpv2_unaccsi,
+        &hf_gtpv2_wpmsi,
+        NULL
+    };
     /* Octet 10 ROAAI EPCOSI CPOPCI PMTSMI S11TF PNSI UNACCSI WPMSI */
-    proto_tree_add_item(tree, hf_gtpv2_roaai,           tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_epcosi,          tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_cpopci,          tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_pmtsmi,          tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_s11tf,           tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_pnsi,            tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_unaccsi,         tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_wpmsi,           tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, oct10_flags, ENC_NA);
     offset += 1;
 
     if (length == 6){
         return;
     }
 
-    /*Octet 11 Spare Spare Spare Spare Spare Spare ENBCRSI TSPCMI */
-    proto_tree_add_item(tree, hf_gtpv2_enbcrsi,         tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_tspcmi,          tvb, offset, 1, ENC_BIG_ENDIAN);
+    static const int* oct11_flags[] = {
+        &hf_gtpv2_5gsnn26,
+        &hf_gtpv2_reprefi,
+        &hf_gtpv2_5gsiwk,
+        &hf_gtpv2_eevrsi,
+        &hf_gtpv2_ltemui,
+        &hf_gtpv2_ltempi,
+        &hf_gtpv2_enbcrsi,
+        &hf_gtpv2_tspcmi,
+        NULL
+    };
+    /*Octet 11 5GSNN26 REPREFI 5GSIWK EEVRSI LTEMUI LTEMPI ENBCRSI TSPCMI */
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, oct11_flags, ENC_NA);
     offset += 1;
 
     if (length == 7){
@@ -3268,6 +3473,30 @@ dissect_gtpv2_pdn_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
 /*
  * 8.31 Trace Information
  */
+ /* List of NE Types */
+static const int* trace_ne_types_flags_oct1[] = {
+    &hf_gtpv2_tra_info_lne_sgw,
+    &hf_gtpv2_tra_info_lne_mme,
+    &hf_gtpv2_tra_info_lne_bm_sc,
+    &hf_gtpv2_tra_info_lne_rnc,
+    &hf_gtpv2_tra_info_lne_ggsn,
+    &hf_gtpv2_tra_info_lne_sgsn,
+    &hf_gtpv2_tra_info_lne_mgw,
+    &hf_gtpv2_tra_info_lne_msc_s,
+    NULL
+};
+
+static const int* trace_ne_types_flags_oct2[] = {
+    &hf_gtpv2_tra_info_tra_info_ng_ran_node,
+    &hf_gtpv2_tra_info_lne_upf,
+    &hf_gtpv2_tra_info_lne_pcf,
+    &hf_gtpv2_tra_info_lne_smf,
+    &hf_gtpv2_tra_info_lne_amf,
+    &hf_gtpv2_tra_info_lne_enb,
+    &hf_gtpv2_tra_info_lne_pdn_gw,
+    NULL
+};
+
 static void
 dissect_gtpv2_tra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
@@ -3383,21 +3612,12 @@ dissect_gtpv2_tra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, prot
     /* Create NE Types subtree */
     ne_types_tree = proto_tree_add_subtree(tree, tvb, offset, 2, ett_gtpv2_tra_info_ne_types, NULL, "List of NE Types");
 
-
-    /* List of NE Types */
-    proto_tree_add_item(ne_types_tree, hf_gtpv2_tra_info_lne_msc_s,     tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(ne_types_tree, hf_gtpv2_tra_info_lne_mgw,       tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(ne_types_tree, hf_gtpv2_tra_info_lne_sgsn,      tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(ne_types_tree, hf_gtpv2_tra_info_lne_ggsn,      tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(ne_types_tree, hf_gtpv2_tra_info_lne_rnc,       tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(ne_types_tree, hf_gtpv2_tra_info_lne_bm_sc,     tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(ne_types_tree, hf_gtpv2_tra_info_lne_mme,       tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(ne_types_tree, hf_gtpv2_tra_info_lne_sgw,       tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, trace_ne_types_flags_oct1, ENC_BIG_ENDIAN);
     offset += 1;
-    proto_tree_add_item(ne_types_tree, hf_gtpv2_tra_info_lne_pdn_gw,    tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(ne_types_tree, hf_gtpv2_tra_info_lne_enb,       tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, trace_ne_types_flags_oct2, ENC_BIG_ENDIAN);
     bit_offset = offset << 3;
-    proto_tree_add_bits_item(ne_types_tree, hf_gtpv2_spare_bits,        tvb, bit_offset, 6, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(ne_types_tree, hf_gtpv2_spare_bits,        tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     /* Trace Depth Length */
@@ -4207,7 +4427,7 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     proto_tree *flag_tree, *qua_tree, *qui_tree, *sc_tree;
     gint        offset;
     guint8      tmp, nhi, drxi, nr_qua, nr_qui, uamb_ri, osci, samb_ri, vdp_len;
-    guint32     dword, paging_len, ue_add_sec_cap_len, bit_offset, ex_access_res_data_len;
+    guint32     dword, paging_len, ue_add_sec_cap_len, bit_offset, ex_access_res_data_len, ue_nr_sec_cap_len, apn_rte_ctrl_sts_len;
 
     offset = 0;
 
@@ -4408,12 +4628,39 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     proto_tree_add_item_ret_uint(tree, hf_gtpv2_mm_context_ue_add_sec_cap_len, tvb, offset, 1, ENC_BIG_ENDIAN, &ue_add_sec_cap_len);
     offset += 1;
 
-    /*(v+2) to y UE additional security capability*/
+    /*(v+2) to x UE additional security capability*/
     if(ue_add_sec_cap_len > 0){
         sc_tree = proto_tree_add_subtree(tree, tvb, offset, ue_add_sec_cap_len, ett_gtpv2_mm_context_sc, NULL, "UE additional Security Capability");
         offset += de_emm_ue_add_sec_cap(tvb, sc_tree, NULL, offset, ue_add_sec_cap_len, NULL, 0);
     }
 
+    if (offset == (gint)length) {
+        return;
+    }
+
+    /* x+1 Length of UE NR security capability */
+    proto_tree_add_item_ret_uint(tree, hf_gtpv2_mm_context_ue_nr_sec_cap_len, tvb, offset, 1, ENC_BIG_ENDIAN, &ue_nr_sec_cap_len);
+    offset += 1;
+    /* The UE NR security capability coding is specified in clause 9.8.3.57 of 3GPP TS 24.501.
+     * If Length of UE NR security capability is zero, then the field UE NR security capability in octets
+     "(x+2) to y" shall not be present.
+     */
+    if (ue_nr_sec_cap_len) {
+        /* (x+2) to y UE NR security capability */
+        /* The UE NR security capability coding is specified in clause 9.8.3.57 of 3GPP TS 24.501 */
+        sc_tree = proto_tree_add_subtree(tree, tvb, offset, ue_nr_sec_cap_len, ett_gtpv2_ue_nr_sec_cap_len, NULL, "UE NR security capability");
+        proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, ue_nr_sec_cap_len, "The rest of the IE not dissected yet");
+        offset += ue_nr_sec_cap_len;
+    }
+    /* (y+1) to (y+2) Length of APN Rate Control Statuses */
+    proto_tree_add_item_ret_uint(tree, hf_gtpv2_mm_context_apn_rte_ctrl_sts_len, tvb, offset, 1, ENC_BIG_ENDIAN, &apn_rte_ctrl_sts_len);
+    offset += 1;
+    if (apn_rte_ctrl_sts_len) {
+        /* (y+3) to l APN Rate Control Status [1..z] */
+        sc_tree = proto_tree_add_subtree(tree, tvb, offset, apn_rte_ctrl_sts_len, ett_gtpv2_apn_rte_ctrl_sts_len, NULL, "APN Rate Control Status");
+        proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, apn_rte_ctrl_sts_len, "The rest of the IE not dissected yet");
+        offset += apn_rte_ctrl_sts_len;
+    }
     if (offset < (gint)length){
         proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, length - offset, "The rest of the IE not dissected yet");
     }
@@ -4973,6 +5220,11 @@ static const value_string gtpv2_target_type_vals[] = {
     {1,  "Macro eNodeB ID"},
     {2,  "Cell Identifier"},
     {3,  "Home eNodeB ID"},
+    {4,  "Extended Macro eNodeB ID"},
+    {5,  "gNodeB ID"},
+    {6,  "Macro ng-eNodeB ID"},
+    {7,  "Extended ng-eNodeB ID"},
+    {8,  "en-gNB ID"},
     {0, NULL}
 };
 static value_string_ext gtpv2_target_type_vals_ext = VALUE_STRING_EXT_INIT(gtpv2_target_type_vals);
@@ -5004,18 +5256,45 @@ dissect_gtpv2_home_enodeb_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     return str;
 }
 
+static gchar*
+dissect_gtpv2_gnodeb_id(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int* offset)
+{
+    gchar* str = NULL;
+    gchar* mcc_mnc_str;
+    guint32     gnodeb_id;
+
+    mcc_mnc_str = dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, *offset, E212_NONE, TRUE);
+    *offset += 3;
+
+    /* The gNodeB ID Length field, in bits 1 to 6 of octet 9,
+     * indicates the length of the gNodeB ID in number of bits
+     */
+
+    proto_tree_add_item(tree, hf_gtpv2_gnodeb_id_len, tvb, *offset, 1, ENC_BIG_ENDIAN);
+
+    proto_tree_add_item_ret_uint(tree, hf_gtpv2_godeb_id, tvb, *offset, 4, ENC_BIG_ENDIAN, &gnodeb_id);
+    *offset += 4;
+
+    str = wmem_strdup_printf(wmem_packet_scope(), "%s, gNodeB ID 0x%x",
+        mcc_mnc_str,
+        gnodeb_id);
+
+    return str;
+}
+
 static void
 dissect_gtpv2_target_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_, session_args_t * args _U_)
 {
     tvbuff_t *new_tvb;
     int       offset = 0;
-    guint8    target_type;
+    guint8    target_type, oct;
 
     proto_tree_add_item(tree, hf_gtpv2_target_type, tvb, 0, 1, ENC_BIG_ENDIAN);
     target_type = tvb_get_guint8(tvb, offset);
     offset += 1;
     switch (target_type) {
     case 0:
+        /* 8.51.2 RNC ID*/
         new_tvb = tvb_new_subset_remaining(tvb, offset);
         dissect_e212_mcc_mnc(new_tvb, pinfo, tree, 0, E212_NONE, TRUE);
         offset += 3;
@@ -5062,6 +5341,65 @@ dissect_gtpv2_target_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
 
         /* Octet 13 to 14 Tracking Area Code (TAC) */
         proto_tree_add_item(tree, hf_gtpv2_tac, tvb, offset, 2 , ENC_BIG_ENDIAN);
+        return;
+
+    case 4:
+        /* 8.51.5 Extended Macro eNodeB ID */
+        dissect_gtpv2_ext_macro_enodeb_id(tvb, pinfo, tree, &offset);
+
+        /* Octet 12 to 13 Tracking Area Code (TAC) */
+        proto_tree_add_item(tree, hf_gtpv2_tac, tvb, offset, 2, ENC_BIG_ENDIAN);
+        return;
+
+    case 5:
+        /* gNodeB ID */
+        dissect_gtpv2_gnodeb_id(tvb, pinfo, tree, &offset);
+
+        /* Octet 14 to 16 5GS Tracking Area Code (TAC) */
+        proto_tree_add_item(tree, hf_gtpv2_5gs_tac, tvb, offset, 3, ENC_BIG_ENDIAN);
+        return;
+
+    case 6:
+        /* Macro ng-eNodeB ID */
+        dissect_gtpv2_ext_macro_enodeb_id(tvb, pinfo, tree, &offset);
+        /* Octet 14 to 16 5GS Tracking Area Code (TAC) */
+        proto_tree_add_item(tree, hf_gtpv2_5gs_tac, tvb, offset, 3, ENC_BIG_ENDIAN);
+        return;
+
+    case 7:
+        /* Extended ng-eNodeB ID */
+        dissect_gtpv2_ext_macro_enodeb_id(tvb, pinfo, tree, &offset);
+        /* Octet 12 to 14 5GS Tracking Area Code (TAC) */
+        proto_tree_add_item(tree, hf_gtpv2_5gs_tac, tvb, offset, 3, ENC_BIG_ENDIAN);
+        return;
+
+    case 8:
+        /* en-gNB ID */
+        dissect_e212_mcc_mnc_wmem_packet_str(tvb, pinfo, tree, offset, E212_NONE, TRUE);
+        offset += 3;
+        /* Octet 9 5TAC ETAC en-gNB ID Length */
+        oct = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(tree, hf_gtpv2_5tac, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_gtpv2_etac, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_gtpv2_en_gnb_id_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+
+        /* Octet 10 to 13 en-gNB ID */
+        proto_tree_add_item(tree, hf_gtpv2_en_gnb_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+        offset += 4;
+
+        if ((oct & 0x40) == 0x40) {
+            /* ETAC*/
+            /* p to (p+1 */
+            proto_tree_add_item(tree, hf_gtpv2_tac, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+
+        }
+        if ((oct & 0x80) == 0x80) {
+            /* 5 TAC*/
+            /* q to(q + 2) */
+            proto_tree_add_item(tree, hf_gtpv2_5gs_tac, tvb, offset, 3, ENC_BIG_ENDIAN);
+        }
         return;
 
     default:
@@ -5966,31 +6304,42 @@ dissect_gtpv2_add_mm_cont_for_srvcc(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     elm_len = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_len_ms_classmark2, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    ms_cm_item = proto_tree_add_item(tree, hf_gtpv2_mobile_station_classmark2, tvb, offset, elm_len, ENC_NA);
-    ms_cm_tree = proto_item_add_subtree(ms_cm_item, ett_gtpv2_ms_mark);
-    /* Mobile Station Classmark 2 */
-    de_ms_cm_2(tvb, ms_cm_tree, pinfo, offset, elm_len, NULL, 0);
-    offset += elm_len;
+
+    /* For each of the Mobile Station Classmark 2, Mobile Station Classmark 3 and Supported Codec List parameters,
+     * if they are not available, then the associated length field shall be set to zero, and the particular
+     * parameter field shall not be present.
+     */
+    if(elm_len > 0){
+        ms_cm_item = proto_tree_add_item(tree, hf_gtpv2_mobile_station_classmark2, tvb, offset, elm_len, ENC_NA);
+        ms_cm_tree = proto_item_add_subtree(ms_cm_item, ett_gtpv2_ms_mark);
+        /* Mobile Station Classmark 2 */
+        de_ms_cm_2(tvb, ms_cm_tree, pinfo, offset, elm_len, NULL, 0);
+        offset += elm_len;
+    }
 
     /* Length of Mobile Station Classmark 3 */
     elm_len = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_len_ms_classmark3, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    ms_cm_item = proto_tree_add_item(tree, hf_gtpv2_mobile_station_classmark3, tvb, offset, elm_len, ENC_NA);
-    ms_cm_tree = proto_item_add_subtree(ms_cm_item, ett_gtpv2_ms_mark);
-    /* Mobile Station Classmark 3 */
-    de_ms_cm_3(tvb, ms_cm_tree, pinfo, offset, elm_len, NULL, 0);
-    offset += elm_len;
+    if (elm_len > 0) {
+        ms_cm_item = proto_tree_add_item(tree, hf_gtpv2_mobile_station_classmark3, tvb, offset, elm_len, ENC_NA);
+        ms_cm_tree = proto_item_add_subtree(ms_cm_item, ett_gtpv2_ms_mark);
+        /* Mobile Station Classmark 3 */
+        de_ms_cm_3(tvb, ms_cm_tree, pinfo, offset, elm_len, NULL, 0);
+        offset += elm_len;
+    }
 
     /* Length of Supported Codec List */
     elm_len = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_len_supp_codec_list, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    ms_cm_item = proto_tree_add_item(tree, hf_gtpv2_supported_codec_list, tvb, offset, elm_len, ENC_NA);
-    ms_cm_tree = proto_item_add_subtree(ms_cm_item, ett_gtpv2_supp_codec_list);
-    /* Supported Codec List */
-    de_sup_codec_list(tvb, ms_cm_tree, pinfo, offset, elm_len, NULL, 0);
-    offset += elm_len;
+    if (elm_len > 0) {
+        ms_cm_item = proto_tree_add_item(tree, hf_gtpv2_supported_codec_list, tvb, offset, elm_len, ENC_NA);
+        ms_cm_tree = proto_item_add_subtree(ms_cm_item, ett_gtpv2_supp_codec_list);
+        /* Supported Codec List */
+        de_sup_codec_list(tvb, ms_cm_tree, pinfo, offset, elm_len, NULL, 0);
+        offset += elm_len;
+    }
 
     if (length > offset)
         proto_tree_add_item(tree, hf_gtpv2_spare_bytes, tvb, offset, length-offset, ENC_NA);
@@ -6994,6 +7343,15 @@ dissect_gtpv2_counter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, p
  * 8.131 Mapped UE Usage Type
  */
 
+static void
+dissect_gtpv2_mapped_ue_usage_type(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, proto_item* item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
+{
+    int offset = 0;
+
+    proto_tree_add_expert(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, length);
+
+}
+
 /*
  * 8.132 Secondary RAT Usage Data Report
  */
@@ -7079,6 +7437,392 @@ dissect_gtpv2_up_func_slec_indic_flg(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     proto_tree_add_item(tree, hf_gtpv2_dcnr, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 }
+
+/* 8.134 Maximum Packet Loss Rate */
+static void
+dissect_gtpv2_max_pkt_loss_rte(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, proto_item* item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
+{
+    int offset = 0;
+    guint8 oct;
+
+    static const int* flags_oct1[] = {
+        &hf_gtpv2_spare_b7_b2,
+        &hf_gtpv2_max_pkt_loss_rte_dl_flg,
+        &hf_gtpv2_max_pkt_loss_rte_ul_flg,
+        NULL
+    };
+    /*5 Spare DL UL*/
+    oct = tvb_get_guint8(tvb, offset);
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, flags_oct1, ENC_BIG_ENDIAN);
+    offset++;
+
+    if((oct & 0x01) == 1){
+        /*m to m+1 Maximum Packet Loss Rate UL*/
+        proto_tree_add_item(tree, hf_gtpv2_max_pkt_loss_rte_ul, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+    }
+    if ((oct & 0x02) == 2) {
+        /*o to o+1 Maximum Packet Loss Rate DL*/
+        proto_tree_add_item(tree, hf_gtpv2_max_pkt_loss_rte_dl, tvb, offset, 2, ENC_BIG_ENDIAN);
+    }
+
+
+}
+
+/* 8.135 APN Rate Control Status */
+static void
+dissect_gtpv2_apn_rte_cntrl_status(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, proto_item* item _U_, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
+{
+    int offset = 0;
+
+    /*5 to 8 Number of Uplink packets allowed*/
+    proto_tree_add_item(tree, hf_gtpv2_nr_ul_pkts_all, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    /*9 to 12 Number of additional exception reports*/
+    proto_tree_add_item(tree, hf_gtpv2_nr_add_exception_rpts, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    /*13 to 16 Number of Downlink packets allowed*/
+    proto_tree_add_item(tree, hf_gtpv2_nr_dl_pkts_all, tvb, offset, 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    /*17 to 24 APN Rate Control Status validity Time*/
+    proto_tree_add_item(tree, hf_apn_rte_cntrl_status_val_time, tvb, offset, 8, ENC_TIME_NTP | ENC_BIG_ENDIAN);
+
+}
+/* 3GPP TS 32.422 V15.1.0 (2018-06) 5.5 List of interfaces (O)*/
+
+static const int* ext_tra_info_list_of_if_flags_oct1[] = {
+    &hf_gtpv2_ext_tra_info_loi_mscs_cap,
+    &hf_gtpv2_ext_tra_info_loi_mscs_map_f,
+    &hf_gtpv2_ext_tra_info_loi_mscs_map_e,
+    &hf_gtpv2_ext_tra_info_loi_mscs_map_b,
+    &hf_gtpv2_ext_tra_info_loi_mscs_map_g,
+    &hf_gtpv2_ext_tra_info_loi_mscs_mc,
+    &hf_gtpv2_ext_tra_info_loi_mscs_iu,
+    &hf_gtpv2_ext_tra_info_loi_mscs_a,
+    NULL
+};
+
+static const int* ext_tra_info_list_of_if_flags_oct2[] = {
+    &hf_gtpv2_ext_tra_info_loi_mscs_map_c,
+    &hf_gtpv2_ext_tra_info_loi_mscs_map_d,
+    NULL
+};
+
+static const int* ext_tra_info_list_of_if_flags_oct3[] = {
+    &hf_gtpv2_ext_tra_info_loi_mgw_iuup,
+    &hf_gtpv2_ext_tra_info_loi_mgw_nbup,
+    &hf_gtpv2_ext_tra_info_loi_mgw_mc,
+    NULL
+};
+
+static const int* ext_tra_info_list_of_if_flags_oct4[] = {
+    &hf_gtpv2_ext_tra_info_loi_sgsn_ge,
+    &hf_gtpv2_ext_tra_info_loi_sgsn_gs,
+    &hf_gtpv2_ext_tra_info_loi_sgsn_map_gf,
+    &hf_gtpv2_ext_tra_info_loi_sgsn_map_gd,
+    &hf_gtpv2_ext_tra_info_loi_sgsn_map_gr,
+    &hf_gtpv2_ext_tra_info_loi_sgsn_gn,
+    &hf_gtpv2_ext_tra_info_loi_sgsn_iu,
+    &hf_gtpv2_ext_tra_info_loi_sgsn_gb,
+    NULL
+};
+
+static const int* ext_tra_info_list_of_if_flags_oct5[] = {
+    &hf_gtpv2_ext_tra_info_loi_sgsn_s13,
+    &hf_gtpv2_ext_tra_info_loi_sgsn_s3,
+    &hf_gtpv2_ext_tra_info_loi_sgsn_s4,
+    &hf_gtpv2_ext_tra_info_loi_sgsn_s6d,
+    NULL
+};
+
+static const int* ext_tra_info_list_of_if_flags_oct6[] = {
+    &hf_gtpv2_ext_tra_info_loi_ggsn_gmb,
+    &hf_gtpv2_ext_tra_info_loi_ggsn_gi,
+    &hf_gtpv2_ext_tra_info_loi_ggsn_gn,
+    NULL
+};
+
+static const int* ext_tra_info_list_of_if_flags_oct7[] = {
+    &hf_gtpv2_ext_tra_info_loi_rnc_uu,
+    &hf_gtpv2_ext_tra_info_loi_rnc_iub,
+    &hf_gtpv2_ext_tra_info_loi_rnc_iur,
+    &hf_gtpv2_ext_tra_info_loi_rnc_iu,
+    NULL
+};
+
+static const int* ext_tra_info_list_of_if_flags_oct8[] = {
+    &hf_gtpv2_ext_tra_info_loi_bm_sc_gmb,
+    NULL
+};
+
+static const int* ext_tra_info_list_of_if_flags_oct9[] = {
+    &hf_gtpv2_ext_tra_info_loi_mme_s13,
+    &hf_gtpv2_ext_tra_info_loi_mme_s11,
+    &hf_gtpv2_ext_tra_info_loi_mme_s10,
+    &hf_gtpv2_ext_tra_info_loi_mme_s6a,
+    &hf_gtpv2_ext_tra_info_loi_mme_s3,
+    &hf_gtpv2_ext_tra_info_loi_mme_s1_mme,
+    NULL
+};
+
+static const int* ext_tra_info_list_of_if_flags_oct10[] = {
+    &hf_gtpv2_ext_tra_info_loi_sgw_gxc,
+    &hf_gtpv2_ext_tra_info_loi_sgw_s11,
+    &hf_gtpv2_ext_tra_info_loi_sgw_s8b,
+    &hf_gtpv2_ext_tra_info_loi_sgw_s5,
+    &hf_gtpv2_ext_tra_info_loi_sgw_s4,
+    NULL
+};
+
+static const int* ext_tra_info_list_of_if_flags_oct11[] = {
+    &hf_gtpv2_ext_tra_info_loi_pdn_gw_sgi,
+    &hf_gtpv2_ext_tra_info_loi_pdn_gw_s8b,
+    &hf_gtpv2_ext_tra_info_loi_pdn_gw_gx,
+    &hf_gtpv2_ext_tra_info_loi_pdn_gw_s6b,
+    &hf_gtpv2_ext_tra_info_loi_pdn_gw_s5,
+    &hf_gtpv2_ext_tra_info_loi_pdn_gw_s2c,
+    &hf_gtpv2_ext_tra_info_loi_pdn_gw_s2b,
+    &hf_gtpv2_ext_tra_info_loi_pdn_gw_s2a,
+    NULL
+};
+
+static const int* ext_tra_info_list_of_if_flags_oct12[] = {
+    &hf_gtpv2_ext_tra_info_loi_enb_uu,
+    &hf_gtpv2_ext_tra_info_loi_enb_x2,
+    &hf_gtpv2_ext_tra_info_loi_enb_s1_mme,
+    NULL
+};
+
+static const int* ext_tra_info_list_of_if_flags_oct13[] = {
+    &hf_gtpv2_ext_tra_info_loi_hss_sh,
+    &hf_gtpv2_ext_tra_info_loi_hss_s6a,
+    &hf_gtpv2_ext_tra_info_loi_hss_s6d,
+    &hf_gtpv2_ext_tra_info_loi_hss_cx,
+    &hf_gtpv2_ext_tra_info_loi_hss_map_gr,
+    &hf_gtpv2_ext_tra_info_loi_hss_map_gc,
+    &hf_gtpv2_ext_tra_info_loi_hss_map_d,
+    &hf_gtpv2_ext_tra_info_loi_hss_map_c,
+    NULL
+};
+
+static const int* ext_tra_info_list_of_if_flags_oct14[] = {
+    &hf_gtpv2_ext_tra_info_loi_eir_map_gf,
+    &hf_gtpv2_ext_tra_info_loi_eir_s13p,
+    &hf_gtpv2_ext_tra_info_loi_eir_s13,
+    &hf_gtpv2_ext_tra_info_loi_eir_map_f,
+    NULL
+};
+
+static const int* ext_tra_info_list_of_if_flags_oct15[] = {
+    &hf_gtpv2_ext_tra_info_loi_amf_n20,
+    &hf_gtpv2_ext_tra_info_loi_amf_n15,
+    &hf_gtpv2_ext_tra_info_loi_amf_n14,
+    &hf_gtpv2_ext_tra_info_loi_amf_n12,
+    &hf_gtpv2_ext_tra_info_loi_amf_n11,
+    &hf_gtpv2_ext_tra_info_loi_amf_n8,
+    &hf_gtpv2_ext_tra_info_loi_amf_n2,
+    &hf_gtpv2_ext_tra_info_loi_amf_n1,
+    NULL
+};
+
+static const int* ext_tra_info_list_of_if_flags_oct16[] = {
+    &hf_gtpv2_ext_tra_info_loi_amf_n22,
+    &hf_gtpv2_ext_tra_info_loi_amf_n26,
+    NULL
+};
+
+static const int* ext_tra_info_list_of_if_flags_oct17[] = {
+    &hf_gtpv2_ext_tra_info_loi_pcf_n15,
+    &hf_gtpv2_ext_tra_info_loi_pcf_n7,
+    &hf_gtpv2_ext_tra_info_loi_pcf_n5,
+    NULL
+};
+
+static const int* ext_tra_info_list_of_if_flags_oct18[] = {
+    &hf_gtpv2_ext_tra_info_loi_smf_s5_c,
+    &hf_gtpv2_ext_tra_info_loi_smf_n11,
+    &hf_gtpv2_ext_tra_info_loi_smf_n10,
+    &hf_gtpv2_ext_tra_info_loi_smf_n7,
+    &hf_gtpv2_ext_tra_info_loi_smf_n4,
+    NULL
+};
+
+static const int* ext_tra_info_list_of_if_flags_oct19[] = {
+    &hf_gtpv2_ext_tra_info_loi_upf_n4,
+    NULL
+};
+
+static const int* ext_tra_info_list_of_if_flags_oct20[] = {
+    &hf_gtpv2_ext_tra_info_loi_ng_ran_node_e1_c,
+    &hf_gtpv2_ext_tra_info_loi_ng_ran_node_f1_c,
+    &hf_gtpv2_ext_tra_info_loi_ng_ran_node_Uu,
+    &hf_gtpv2_ext_tra_info_loi_ng_ran_node_xn_c,
+    &hf_gtpv2_ext_tra_info_loi_ng_ran_node_ng_c,
+    NULL
+};
+
+/* 8.136 Extended Trace Information */
+static void
+dissect_gtpv2_ext_trs_inf(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, proto_item* item, guint16 length _U_, guint8 message_type _U_, guint8 instance _U_, session_args_t* args _U_)
+{
+    proto_tree *trigg_tree, *ne_tree, *if_tree;
+    proto_item* ti;
+    int offset = 0;
+    guint32 tid, ev_len;
+
+    dissect_e212_mcc_mnc(tvb, pinfo, tree, 0, E212_NONE, TRUE);
+    offset += 3;
+
+    /* Append Trace ID to main tree */
+    tid = tvb_get_ntohs(tvb, offset);
+
+    proto_tree_add_item_ret_uint(tree, hf_gtpv2_trace_id, tvb, offset, 3, ENC_BIG_ENDIAN, &tid);
+    proto_item_append_text(item, "Trace ID: %d  ", tid);
+
+    offset += 3;
+
+    /* Triggering Events, put all into a new tree called triggering_tree */
+    trigg_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_gtpv2_tra_info_trigg, &ti, "Triggering Events");
+    /* Octet 11 Length of Triggering Events */
+    proto_tree_add_item_ret_uint(trigg_tree, hf_gtpv2_trig_event_len, tvb, offset, 1, ENC_BIG_ENDIAN, &ev_len);
+    offset++;
+
+    proto_item_set_len(ti, ev_len + 1);
+    offset += ev_len;
+
+    ne_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_gtpv2_tra_info_trigg, &ti, "List of NE Types");
+    /* m + 1*/
+    /* Length of List of NE Types */
+    proto_tree_add_item_ret_uint(ne_tree, hf_gtpv2_ne_list_len, tvb, offset, 1, ENC_BIG_ENDIAN, &ev_len);
+    offset++;
+    if (ev_len > 0) {
+        proto_tree_add_bitmask_list(ne_tree, tvb, offset, 1, trace_ne_types_flags_oct1, ENC_BIG_ENDIAN);
+    }
+    if (ev_len > 1) {
+        proto_tree_add_bitmask_list(ne_tree, tvb, offset+1, 1, trace_ne_types_flags_oct2, ENC_BIG_ENDIAN);
+    }
+
+    proto_item_set_len(ti, ev_len + 1);
+    offset += ev_len;
+
+    /* p+1 Session Trace Depth */
+    proto_tree_add_item(tree, hf_gtpv2_ses_trs_depth, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+
+    if_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_gtpv2_tra_info_trigg, &ti, "List of Interfaces");
+    /* p+2 Length of List of Interfaces */
+    proto_tree_add_item_ret_uint(if_tree, hf_gtpv2_list_of_if_len, tvb, offset, 1, ENC_BIG_ENDIAN, &ev_len);
+    offset++;
+
+    if (ev_len > 1) {
+        proto_tree* sub_tree = proto_tree_add_subtree(if_tree, tvb, offset, 2,
+            ett_gtpv2_if_mgcs, NULL, "MSC Server interfaces");
+        proto_tree_add_bitmask_list(sub_tree, tvb, offset, 1, ext_tra_info_list_of_if_flags_oct1, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask_list(sub_tree, tvb, offset + 1, 1, ext_tra_info_list_of_if_flags_oct2, ENC_BIG_ENDIAN);
+    }
+    if (ev_len > 2) {
+        proto_tree* sub_tree = proto_tree_add_subtree(if_tree, tvb, offset + 2, 1,
+            ett_gtpv2_if_mgw, NULL, "MGW interfaces");
+        proto_tree_add_bitmask_list(sub_tree, tvb, offset + 2, 1, ext_tra_info_list_of_if_flags_oct3, ENC_BIG_ENDIAN);
+    }
+
+    if (ev_len > 4) {
+        proto_tree* sub_tree = proto_tree_add_subtree(if_tree, tvb, offset + 3, 2,
+            ett_gtpv2_if_sgsn, NULL, "SGSN interfaces");
+        proto_tree_add_bitmask_list(sub_tree, tvb, offset + 3, 1, ext_tra_info_list_of_if_flags_oct4, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask_list(sub_tree, tvb, offset + 4, 1, ext_tra_info_list_of_if_flags_oct5, ENC_BIG_ENDIAN);
+    }
+
+    if (ev_len > 5) {
+        proto_tree* sub_tree = proto_tree_add_subtree(if_tree, tvb, offset + 5, 1,
+            ett_gtpv2_if_ggsn, NULL, "GGSN interfaces");
+        proto_tree_add_bitmask_list(sub_tree, tvb, offset + 5, 1, ext_tra_info_list_of_if_flags_oct6, ENC_BIG_ENDIAN);
+    }
+    if (ev_len > 6) {
+        proto_tree* sub_tree = proto_tree_add_subtree(if_tree, tvb, offset + 6, 1,
+            ett_gtpv2_if_rnc, NULL, "RNC interfaces");
+        proto_tree_add_bitmask_list(sub_tree, tvb, offset + 6, 1, ext_tra_info_list_of_if_flags_oct7, ENC_BIG_ENDIAN);
+    }
+    if (ev_len > 7) {
+        proto_tree* sub_tree = proto_tree_add_subtree(if_tree, tvb, offset + 7, 1,
+            ett_gtpv2_if_bm_sc, NULL, "BM-SC interfaces");
+        proto_tree_add_bitmask_list(sub_tree, tvb, offset + 7, 1, ext_tra_info_list_of_if_flags_oct8, ENC_BIG_ENDIAN);
+    }
+    if (ev_len > 8) {
+        proto_tree* sub_tree = proto_tree_add_subtree(if_tree, tvb, offset + 8, 1,
+            ett_gtpv2_if_mme, NULL, "MME interfaces");
+        proto_tree_add_bitmask_list(sub_tree, tvb, offset + 8, 1, ext_tra_info_list_of_if_flags_oct9, ENC_BIG_ENDIAN);
+    }
+    if (ev_len > 9) {
+        proto_tree* sub_tree = proto_tree_add_subtree(if_tree, tvb, offset + 9, 1,
+            ett_gtpv2_if_sgw, NULL, "SGW interfaces");
+        proto_tree_add_bitmask_list(sub_tree, tvb, offset + 9, 1, ext_tra_info_list_of_if_flags_oct10, ENC_BIG_ENDIAN);
+    }
+    if (ev_len > 10) {
+        proto_tree* sub_tree = proto_tree_add_subtree(if_tree, tvb, offset + 10, 1,
+            ett_gtpv2_if_pdn_gw, NULL, "PDN GW interfaces");
+        proto_tree_add_bitmask_list(sub_tree, tvb, offset + 10, 1, ext_tra_info_list_of_if_flags_oct11, ENC_BIG_ENDIAN);
+    }
+    if (ev_len > 11) {
+        proto_tree* sub_tree = proto_tree_add_subtree(if_tree, tvb, offset + 11, 1,
+            ett_gtpv2_if_enb, NULL, "eNB interfaces");
+        proto_tree_add_bitmask_list(sub_tree, tvb, offset + 11, 1, ext_tra_info_list_of_if_flags_oct12, ENC_BIG_ENDIAN);
+    }
+    if (ev_len > 12) {
+        proto_tree* sub_tree = proto_tree_add_subtree(if_tree, tvb, offset + 12, 1,
+            ett_gtpv2_if_hss, NULL, "HSS interfaces");
+        proto_tree_add_bitmask_list(sub_tree, tvb, offset + 11, 1, ext_tra_info_list_of_if_flags_oct13, ENC_BIG_ENDIAN);
+    }
+    if (ev_len > 13) {
+        proto_tree* sub_tree = proto_tree_add_subtree(if_tree, tvb, offset + 13, 1,
+            ett_gtpv2_if_eir, NULL, "EIR interfaces");
+        proto_tree_add_bitmask_list(sub_tree, tvb, offset + 11, 1, ext_tra_info_list_of_if_flags_oct14, ENC_BIG_ENDIAN);
+    }
+    if (ev_len > 15) {
+        proto_tree* sub_tree = proto_tree_add_subtree(if_tree, tvb, offset + 14, 2,
+            ett_gtpv2_if_amf, NULL, "AMF interfaces");
+        proto_tree_add_bitmask_list(sub_tree, tvb, offset + 14, 1, ext_tra_info_list_of_if_flags_oct15, ENC_BIG_ENDIAN);
+        proto_tree_add_bitmask_list(sub_tree, tvb, offset + 15, 1, ext_tra_info_list_of_if_flags_oct16, ENC_BIG_ENDIAN);
+    }
+    if (ev_len > 16) {
+        proto_tree* sub_tree = proto_tree_add_subtree(if_tree, tvb, offset + 16, 1,
+            ett_gtpv2_if_pcf, NULL, "PCF interfaces");
+        proto_tree_add_bitmask_list(sub_tree, tvb, offset + 16, 1, ext_tra_info_list_of_if_flags_oct17, ENC_BIG_ENDIAN);
+    }
+    if (ev_len > 17) {
+        proto_tree* sub_tree = proto_tree_add_subtree(if_tree, tvb, offset + 17, 1,
+            ett_gtpv2_if_smf, NULL, "SMF interfaces");
+        proto_tree_add_bitmask_list(sub_tree, tvb, offset + 17, 1, ext_tra_info_list_of_if_flags_oct18, ENC_BIG_ENDIAN);
+    }
+    if (ev_len > 18) {
+        proto_tree* sub_tree = proto_tree_add_subtree(if_tree, tvb, offset + 18, 1,
+            ett_gtpv2_if_upf, NULL, "UPF interfaces");
+        proto_tree_add_bitmask_list(sub_tree, tvb, offset + 18, 1, ext_tra_info_list_of_if_flags_oct19, ENC_BIG_ENDIAN);
+    }
+    if (ev_len > 19) {
+        proto_tree* sub_tree = proto_tree_add_subtree(if_tree, tvb, offset + 19, 1,
+            ett_gtpv2_if_upf, NULL, "NG-RAN node interfaces");
+        proto_tree_add_bitmask_list(sub_tree, tvb, offset + 19, 1, ext_tra_info_list_of_if_flags_oct20, ENC_BIG_ENDIAN);
+    }
+
+    proto_item_set_len(ti, ev_len + 1);
+    offset += ev_len;
+
+    /* q+1 Length of IP Address of Trace Collection Entity */
+    proto_tree_add_item_ret_uint(tree, hf_gtpv2_trs_coll_ip_addr_len, tvb, offset, 1, ENC_BIG_ENDIAN, &ev_len);
+    offset++;
+    /*(q+2) to r IP Address of Trace Collection Entity */
+    if (ev_len == 4) {
+        proto_tree_add_item(tree, hf_gtpv2_trs_coll_ipv4_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+    }
+
+    if (ev_len == 16) {
+        proto_tree_add_item(tree, hf_gtpv2_trs_coll_ipv6_addr, tvb, offset, 16, ENC_NA);
+    }
+}
+
+/* Table 8.1-1: Information Element types for GTPv2 */
 
 typedef struct _gtpv2_ie {
     int ie_type;
@@ -7234,8 +7978,12 @@ static const gtpv2_ie_t gtpv2_ies[] = {
     {GTPV2_IE_EXTENDED_PCO, dissect_gtpv2_pco},                              /* 197, 8.128 Extended Protocol Configuration Options (ePCO) */
     {GTPV2_IE_SERV_PLMN_RATE_CONTROL, dissect_gtpv2_serv_plmn_rate_control}, /* 198, 8.129 Serving PLMN Rate Control */
     {GTPV2_IE_COUNTER, dissect_gtpv2_counter},                               /* 199, 8.130 Counter */
+    {GTPV2_IE_MAPPED_UE_USAGE_TYPE, dissect_gtpv2_mapped_ue_usage_type },    /* 199, 8.131 Mapped UE Usage Type */
     {GTPV2_IE_SECONDARY_RAT_USAGE_DATA_REPORT, dissect_gtpv2_secondary_rat_usage_data_report}, /* 201, 8.132 Secondary RAT Usage Data Report */
-    {GTPV2_IE_UP_FUNC_SEL_INDI_FLG, dissect_gtpv2_up_func_slec_indic_flg },  /* 202, 8.1333 UP Function Selection Indication Flags */
+    {GTPV2_IE_UP_FUNC_SEL_INDI_FLG, dissect_gtpv2_up_func_slec_indic_flg },  /* 202, 8.133 UP Function Selection Indication Flags */
+    {GTPV2_IE_MAX_PKT_LOSS_RTE, dissect_gtpv2_max_pkt_loss_rte },            /* 203, 8.134 Maximum Packet Loss Rate */
+    {GTPV2_IE_APN_RTE_CNTRL_STATUS, dissect_gtpv2_apn_rte_cntrl_status },    /* 204, 8.135 APN Rate Control Status */
+    {GTPV2_IE_EXT_TRS_INF, dissect_gtpv2_ext_trs_inf },                      /* 205, 8.136 Extended Trace Information */
 
     {GTPV2_IE_PRIVATE_EXT, dissect_gtpv2_private_ext},
 
@@ -8218,6 +8966,30 @@ void proto_register_gtpv2(void)
          {"WPMSI (WLCP PDN Connection Modification Support Indication)", "gtpv2.wpmsi",
           FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}
         },
+        {&hf_gtpv2_5gsnn26,
+        { "5GSNN26 (5GS Interworking without N26 Indication)", "gtpv2.5gsnn26",
+         FT_BOOLEAN, 8, NULL, 0x80, NULL, HFILL }
+        },
+        {&hf_gtpv2_reprefi,
+        { "REPREFI (Return Preferred Indication)", "gtpv2.reprefi",
+         FT_BOOLEAN, 8, NULL, 0x40, NULL, HFILL }
+        },
+        {&hf_gtpv2_5gsiwk,
+        { "5GSIWKI (5GS Interworking Indication)", "gtpv2.5gsiwk",
+         FT_BOOLEAN, 8, NULL, 0x20, NULL, HFILL }
+        },
+        {&hf_gtpv2_eevrsi,
+        { "EEVRSI (Extended EBI Value Range Support Indication)", "gtpv2.eevrsi",
+         FT_BOOLEAN, 8, NULL, 0x10, NULL, HFILL }
+        },
+        {&hf_gtpv2_ltemui,
+        { "LTEMUI (LTE-M UE Indication)", "gtpv2.ltemui",
+         FT_BOOLEAN, 8, NULL, 0x08, NULL, HFILL }
+        },
+        {&hf_gtpv2_ltempi,
+        { "LTEMPI (LTE-M RAT Type reporting to PGW Indication)", "gtpv2.ltempi",
+         FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL }
+        },
         {&hf_gtpv2_enbcrsi,
          {"ENBCRSI (eNB Change Reporting Support Indication)", "gtpv2.enbcrsi",
           FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL}
@@ -8370,54 +9142,80 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_tra_info_lne_msc_s,
           {"MSC-S", "gtpv2.tra_info_lne_msc_s",
-           FT_UINT8, BASE_DEC, NULL, 0x01,
-           "List of NE Types", HFILL}
+           FT_BOOLEAN, 8, NULL, 0x01,
+           NULL, HFILL}
         },
         { &hf_gtpv2_tra_info_lne_mgw,
           {"MGW", "gtpv2.tra_info_lne_mgw",
-           FT_UINT8, BASE_DEC, NULL, 0x02,
-           "List of NE Types", HFILL}
+          FT_BOOLEAN, 8, NULL, 0x02,
+           NULL, HFILL}
         },
         { &hf_gtpv2_tra_info_lne_sgsn,
           {"SGSN", "gtpv2.tra_info_lne_sgsn",
-           FT_UINT8, BASE_DEC, NULL, 0x04,
-           "List of NE Types", HFILL}
+           FT_BOOLEAN, 8, NULL, 0x04,
+           NULL, HFILL}
         },
         { &hf_gtpv2_tra_info_lne_ggsn,
           {"GGSN", "gtpv2.tra_info_lne_ggsn",
-           FT_UINT8, BASE_DEC, NULL, 0x08,
-           "List of NE Types", HFILL}
+          FT_BOOLEAN, 8, NULL, 0x08,
+           NULL, HFILL}
         },
         { &hf_gtpv2_tra_info_lne_rnc,
           {"RNC", "gtpv2.tra_info_lne_rnc",
            FT_UINT8, BASE_DEC, NULL, 0x10,
-           "List of NE Types", HFILL}
+           NULL, HFILL}
         },
         { &hf_gtpv2_tra_info_lne_bm_sc,
           {"BM-SC", "gtpv2.tra_info_lne_bm_sc",
-           FT_UINT8, BASE_DEC, NULL, 0x20,
-           "List of NE Types", HFILL}
+           FT_BOOLEAN, 8, NULL, 0x20,
+           NULL, HFILL}
         },
         { &hf_gtpv2_tra_info_lne_mme,
           {"MME", "gtpv2.tra_info_lne_mme",
-           FT_UINT8, BASE_DEC, NULL, 0x40,
-           "List of NE Types", HFILL}
+           FT_BOOLEAN, 8, NULL, 0x40,
+           NULL, HFILL}
         },
         { &hf_gtpv2_tra_info_lne_sgw,
           {"SGW", "gtpv2.tra_info_lne_sgw",
-           FT_UINT8, BASE_DEC, NULL, 0x80,
-           "List of NE Types", HFILL}
+          FT_BOOLEAN, 8, NULL, 0x80,
+           NULL, HFILL}
         },
         { &hf_gtpv2_tra_info_lne_pdn_gw,
           {"PDN GW", "gtpv2.tra_info_lne_pdn_gw",
-           FT_UINT8, BASE_DEC, NULL, 0x01,
-           "List of NE Types", HFILL}
+           FT_BOOLEAN, 8, NULL, 0x01,
+           NULL, HFILL}
         },
         { &hf_gtpv2_tra_info_lne_enb,
           {"eNB", "gtpv2.tra_info_lne_enb",
-           FT_UINT8, BASE_DEC, NULL, 0x02,
-           "List of NE Types", HFILL}
+           FT_BOOLEAN, 8, NULL, 0x02,
+           NULL, HFILL}
         },
+        { &hf_gtpv2_tra_info_lne_amf,
+          {"AMF", "gtpv2.tra_info_lne_amf",
+           FT_BOOLEAN, 8, NULL, 0x04,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_tra_info_lne_smf,
+          {"SMF", "gtpv2.tra_info_lne_smf",
+           FT_BOOLEAN, 8, NULL, 0x08,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_tra_info_lne_pcf,
+          {"PCF", "gtpv2.tra_info_lne_pcf",
+           FT_BOOLEAN, 8, NULL, 0x10,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_tra_info_lne_upf,
+          {"UPF", "gtpv2.tra_info_lne_upf",
+           FT_BOOLEAN, 8, NULL, 0x20,
+           NULL, HFILL}
+        },
+        { &hf_gtpv2_tra_info_tra_info_ng_ran_node,
+          {"NG-RAN node", "gtpv2.tra_info_ng_ran_node",
+           FT_BOOLEAN, 8, NULL, 0x40,
+           NULL, HFILL}
+        },
+
         { &hf_gtpv2_tra_info_tdl,
           {"Trace Depth Length", "gtpv2.tra_info_tdl",
            FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -9160,24 +9958,34 @@ void proto_register_gtpv2(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-        { &hf_gtpv2_mm_context_old_nh,{ "Old NH (Old Next Hop)", "gtpv2.mm_context_old_nh", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_gtpv2_mm_context_old_nh,{ "Old NH (Old Next Hop)", "gtpv2.mm_context.old_nh", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         { &hf_gtpv2_mm_context_vdp_len,
-        { "Length of Voice Domain Preference and UE's Usage Setting", "gtpv2.mm_context_vdp_len",
+        { "Length of Voice Domain Preference and UE's Usage Setting", "gtpv2.mm_context.vdp_len",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_gtpv2_mm_context_paging_len,
-        { "Length of UE Radio Capability for Paging information", "gtpv2.mm_context_paging_len",
+        { "Length of UE Radio Capability for Paging information", "gtpv2.mm_context.paging_len",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_gtpv2_mm_context_ex_access_res_data_len,
-        { "Length of Extended Access Restriction Data", "gtpv2.mm_context_ex_access_res_data_len",
+        { "Length of Extended Access Restriction Data", "gtpv2.mm_context.ex_access_res_data_len",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_gtpv2_mm_context_ue_add_sec_cap_len,
-        { "Length of UE additional security capability", "gtpv2.mm_context_ue_add_sec_cap_len",
+        { "Length of UE additional security capability", "gtpv2.mm_context.ue_add_sec_cap_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_gtpv2_mm_context_ue_nr_sec_cap_len,
+        { "Length of UE NR security capability", "gtpv2.mm_context.ue_nr_sec_cap_len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_gtpv2_mm_context_apn_rte_ctrl_sts_len,
+        { "Length of APN Rate Control Statuses", "gtpv2.mm_context.apn_rte_ctrl_sts_len",
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
@@ -10139,10 +10947,580 @@ void proto_register_gtpv2(void)
           FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
           NULL, HFILL }
       },
+      { &hf_gtpv2_gnodeb_id_len,
+          {"gNodeB ID Length", "gtpv2.gnodeb_id_len",
+          FT_UINT8, BASE_DEC, NULL, 0x3f,
+          NULL, HFILL}
+      },
+      { &hf_gtpv2_godeb_id,
+      { "gNodeB ID", "gtpv2.godeb_id",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_5gs_tac,
+      { "5GS Tracking Area Code (TAC)", "gtpv2.5gs_tac",
+          FT_UINT24, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_en_gnb_id_len,
+          {"en-gNB ID Length", "gtpv2.en_gnb_id_len",
+          FT_UINT8, BASE_DEC, NULL, 0x3f,
+          NULL, HFILL}
+      },
+      { &hf_gtpv2_5tac,
+      { "5TAC", "gtpv2.5tac",
+          FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x80,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_etac,
+      { "ETAC", "gtpv2.etac",
+          FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x40,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_en_gnb_id,
+      { "gNodeB ID", "gtpv2.en_gnb_id",
+          FT_UINT32, BASE_DEC, NULL,0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_trig_event_len,
+      { "Length of Triggering Events", "gtpv2.trig_event_len",
+          FT_UINT8, BASE_DEC, NULL,0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ne_list_len,
+      { "Length of List of NE Types", "gtpv2.ne_list_len",
+          FT_UINT8, BASE_DEC, NULL,0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ses_trs_depth,
+      { "Session Trace Depth", "gtpv2.ses_trs_dept",
+          FT_UINT8, BASE_DEC, NULL,0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_list_of_if_len,
+      { "Length of List of Interfaces", "gtpv2.list_of_if_len",
+          FT_UINT8, BASE_DEC, NULL,0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_trs_coll_ip_addr_len,
+      { "Length of IP Address of Trace Collection Entity", "gtpv2.trs_coll_ip_addr_len",
+          FT_UINT8, BASE_DEC, NULL,0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_trs_coll_ipv4_addr,
+        {"IP Address of Trace Collection Entity", "gtpv2.trs_coll_ipv4_addr",
+         FT_IPv4, BASE_NONE, NULL, 0x0,
+         NULL, HFILL}
+      },
+      { &hf_gtpv2_trs_coll_ipv6_addr,
+        {"IP Address of Trace Collection Entity", "gtpv2.trs_coll_ipv6_addr",
+         FT_IPv6, BASE_NONE, NULL, 0x0,
+         NULL, HFILL}
+      },
+      { &hf_gtpv2_ext_tra_info_loi_mscs_cap,
+      { "CAP", "gtpv2.ext_tra_info_loi.mscs.cap",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_mscs_map_f,
+      { "MAP-F", "gtpv2.ext_tra_info_loi.mscs.map_f",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_mscs_map_e,
+      { "MAP-E", "gtpv2.ext_tra_info_loi.mscs.map_e",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x20,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_mscs_map_b,
+      { "MAP-B", "gtpv2.ext_tra_info_loi.mscs.map_b",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x10,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_mscs_map_g,
+      { "MAP-G", "gtpv2.ext_tra_info_loi.mscs.map_g",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_mscs_mc,
+      { "Mc", "gtpv2.ext_tra_info_loi.mscs.mc",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_mscs_iu,
+      { "Iu", "gtpv2.ext_tra_info_loi.mscs.iu",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_mscs_a,
+      { "A","gtpv2.ext_tra_info_loi.mscs.a",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_mscs_map_c,
+      { "MAP-C", "gtpv2.ext_tra_info_loi.mscs.map_c",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_mscs_map_d,
+      { "MAP-D", "gtpv2.ext_tra_info_loi.mscs.map_d",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_mgw_iuup,
+      { "Iu-UP", "gtpv2.ext_tra_info_loi.mgw.iuup",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_mgw_nbup,
+      { "Nb-UP", "gtpv2.ext_tra_info_loi.mgw.nbup",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_mgw_mc,
+      { "Mc", "gtpv2.ext_tra_info_loi.mgw.mc",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_sgsn_ge,
+      { "Ge", "gtpv2.ext_tra_info_loi.sgsn.ge",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_sgsn_gs,
+      { "Gs", "gtpv2.ext_tra_info_loi.sgsn.gs",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_sgsn_map_gf,
+      { "MAP-Gf", "gtpv2.ext_tra_info_loi.sgsn.map_gf",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x20,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_sgsn_map_gd,
+      { "MAP-Gd", "gtpv2.ext_tra_info_loi.sgsn.map_gd",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x10,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_sgsn_map_gr,
+      { "MAP-Gr", "gtpv2.ext_tra_info_loi.sgsn.map_gr",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_sgsn_gn,
+      { "Gn", "gtpv2.ext_tra_info_loi.sgsn.gn",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_sgsn_iu,
+      { "Iu", "gtpv2.ext_tra_info_loi.sgsn.iu",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_sgsn_gb,
+      { "Gb", "gtpv2.ext_tra_info_loi.sgsn.gb",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_sgsn_s13,
+      { "S13", "gtpv2.ext_tra_info_loi.sgsn.s13",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_sgsn_s3,
+      { "S3", "gtpv2.ext_tra_info_loi.sgsn.s3",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_sgsn_s4,
+      { "S4", "gtpv2.ext_tra_info_loi.sgsn.s4",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_sgsn_s6d,
+      { "S6d", "gtpv2.ext_tra_info_loi.sgsn.s6d",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_ggsn_gmb,
+      { "Gmb", "gtpv2.ext_tra_info_loi.ggsn.gmb",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_ggsn_gi,
+      { "Gi", "gtpv2.ext_tra_info_loi.ggsn.gi",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_ggsn_gn,
+      { "Gn", "gtpv2.ext_tra_info_loi.ggsn.gn",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_rnc_uu,
+      { "Uu", "gtpv2.ext_tra_info_loi.rrc.uu",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_rnc_iub,
+      { "Iub", "gtpv2.ext_tra_info_loi.rrc.iub",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_rnc_iur,
+      { "Iur", "gtpv2.ext_tra_info_loi.rrc.iur",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_rnc_iu,
+      { "Iu", "gtpv2.ext_tra_info_loi.rrc.iu",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_bm_sc_gmb,
+      { "Gmb", "gtpv2.ext_tra_info_loi.bm_sc.gmb",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_mme_s13,
+      { "S13", "gtpv2.ext_tra_info_loi.mme.s13",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x20,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_mme_s11,
+      { "S11", "gtpv2.ext_tra_info_loi.mme.s11",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x10,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_mme_s10,
+      { "S10", "gtpv2.ext_tra_info_loi.mme.s10",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_mme_s6a,
+      { "S6a", "gtpv2.ext_tra_info_loi.mme.s6a",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_mme_s3,
+      { "S3", "gtpv2.ext_tra_info_loi.mme.s3",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_mme_s1_mme,
+      { "S1-mme", "gtpv2.ext_tra_info_loi.mme.s1_mme",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_sgw_gxc,
+      { "Gxc", "gtpv2.ext_tra_info_loi.sgw.gxc",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x10,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_sgw_s11,
+      { "S11", "gtpv2.ext_tra_info_loi.sgw.s11",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_sgw_s8b,
+      { "S8b", "gtpv2.ext_tra_info_loi.sgw.s8b",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_sgw_s5,
+      { "S5", "gtpv2.ext_tra_info_loi.sgw.s5",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_sgw_s4,
+      { "S4", "gtpv2.ext_tra_info_loi.sgw.s4",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_pdn_gw_sgi,
+      { "Sgi", "gtpv2.ext_tra_info_loi.pdn_gw.sgi",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_pdn_gw_s8b,
+      { "S8b", "gtpv2.ext_tra_info_loi.pdn_gw.s8b",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_pdn_gw_gx,
+      { "Gx", "gtpv2.ext_tra_info_loi.pdn_gw.gx",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x20,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_pdn_gw_s6b,
+      { "S6b", "gtpv2.ext_tra_info_loi.pdn_gw.s6b",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x10,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_pdn_gw_s5,
+      { "S5", "gtpv2.ext_tra_info_loi.pdn_gw.s5",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_pdn_gw_s2c,
+      { "S2c", "gtpv2.ext_tra_info_loi.pdn_gw.s2c",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_pdn_gw_s2b,
+      { "S2b", "gtpv2.ext_tra_info_loi.pdn_gw.s2b",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_pdn_gw_s2a,
+      { "S2a", "gtpv2.ext_tra_info_loi.pdn_gw.s2a",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_enb_uu,
+      { "Uu", "gtpv2.ext_tra_info_loi.enb.uu",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_enb_x2,
+      { "X2", "gtpv2.ext_tra_info_loi.enb.x2",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_enb_s1_mme,
+      { "S1-MME", "gtpv2.ext_tra_info_loi.enb.s1_mme",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_hss_sh,
+      { "Sh", "gtpv2.ext_tra_info_loi.hss.Sh",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_hss_s6a,
+      { "S6a", "gtpv2.ext_tra_info_loi.hss.S6a",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_hss_s6d,
+      { "S6d", "gtpv2.ext_tra_info_loi.hss.S6d",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x20,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_hss_cx,
+      { "Cx", "gtpv2.ext_tra_info_loi.hss.cx",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x10,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_hss_map_gr,
+      { "MAP-Gr", "gtpv2.ext_tra_info_loi.hss.map_gr",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_hss_map_gc,
+      { "MAP-Gc", "gtpv2.ext_tra_info_loi.hss.map_gc",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_hss_map_d,
+      { "MAP-D", "gtpv2.ext_tra_info_loi.hss.map_d",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_hss_map_c,
+      { "MAP-C", "gtpv2.ext_tra_info_loi.hss.map_c",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_eir_map_gf,
+      { "MAP-Gf", "gtpv2.ext_tra_info_loi.eir.map_gf",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_eir_s13p,
+      { "S13'", "gtpv2.ext_tra_info_loi.eir.s13p",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_eir_s13,
+      { "S13", "gtpv2.ext_tra_info_loi.eir.s13",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_eir_map_f,
+      { "MAP-F", "gtpv2.ext_tra_info_loi.eir.map_f",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_amf_n20,
+      { "N20", "gtpv2.ext_tra_info_loi.amf.n20",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x80,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_amf_n15,
+      { "N15", "gtpv2.ext_tra_info_loi.amf.n15",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x40,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_amf_n14,
+      { "N14", "gtpv2.ext_tra_info_loi.amf.n14",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x20,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_amf_n12,
+      { "N12", "gtpv2.ext_tra_info_loi.amf.n12",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x10,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_amf_n11,
+      { "N11", "gtpv2.ext_tra_info_loi.amf.n11",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_amf_n8,
+      { "N8", "gtpv2.ext_tra_info_loi.amf.n8",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_amf_n2,
+      { "N2", "gtpv2.ext_tra_info_loi.amf.n2",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_amf_n1,
+      { "N1", "gtpv2.ext_tra_info_loi.amf.n1",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_amf_n22,
+      { "N22", "gtpv2.ext_tra_info_loi.amf.n22",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_amf_n26,
+      { "N26", "gtpv2.ext_tra_info_loi.amf.n26",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_pcf_n15,
+      { "N15", "gtpv2.ext_tra_info_loi.pcf.n25",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_pcf_n7,
+      { "N7", "gtpv2.ext_tra_info_loi.pcf.n7",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_pcf_n5,
+      { "N5", "gtpv2.ext_tra_info_loi.pcf.n5",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_smf_s5_c,
+      { "S5-C", "gtpv2.ext_tra_info_loi.smf.s5_c",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x10,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_smf_n11,
+      { "N11", "gtpv2.ext_tra_info_loi.smf.n11",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_smf_n10,
+      { "N10", "gtpv2.ext_tra_info_loi.smf.n10",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_smf_n7,
+      { "N7", "gtpv2.ext_tra_info_loi.smf.n7",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_smf_n4,
+      { "N4", "gtpv2.ext_tra_info_loi.smf.n4",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_upf_n4,
+      { "N4", "gtpv2.ext_tra_info_loi.upf.n4",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x01,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_ng_ran_node_e1_c,
+      { "E1-C", "gtpv2.ext_tra_info_loi.ng_ran_node.e1_c",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x10,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_ng_ran_node_f1_c,
+      { "F1-C", "gtpv2.ext_tra_info_loi.ng_ran_node.f1_c",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x08,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_ng_ran_node_Uu,
+      { "Uu", "gtpv2.ext_tra_info_loi.ng_ran_node.uu",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x04,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_ng_ran_node_xn_c,
+      { "Xn-C", "gtpv2.ext_tra_info_loi.ng_ran_node.xn_c",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_ext_tra_info_loi_ng_ran_node_ng_c,
+      { "NG-C", "gtpv2.ext_tra_info_loi.ng_ran_node.ng_c",
+          FT_BOOLEAN, 8, TFS(&tfs_set_notset), 0x02,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_nr_add_exception_rpts,
+      { "Number of additional exception reports", "gtpv2.r_add_exception_rpts",
+          FT_UINT32, BASE_DEC, NULL,0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_nr_ul_pkts_all,
+      { "Number of Uplink packets allowed", "gtpv2.nr_ul_pkts_all",
+          FT_UINT32, BASE_DEC, NULL,0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_nr_dl_pkts_all,
+      { "Number of Downlink packets allowed", "gtpv2.nr_dl_pkts_all",
+          FT_UINT32, BASE_DEC, NULL,0x0,
+          NULL, HFILL }
+      },
+      { &hf_apn_rte_cntrl_status_val_time,
+      { "APN Rate Control Status validity Time", "gtpv2.pn_rte_cntrl_status_val_time",
+          FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL,0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_max_pkt_loss_rte_ul_flg,
+      { "UL", "gtpv2.max_pkt_loss_rte_ul_flg",
+          FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_max_pkt_loss_rte_dl_flg,
+      { "DL", "gtpv2.max_pkt_loss_rte_dl_flg",
+          FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_max_pkt_loss_rte_ul,
+      { "Maximum Packet Loss Rate UL", "gtpv2.max_pkt_loss_rte_ul",
+          FT_UINT16, BASE_CUSTOM, CF_FUNC(value_in_tenth_of_percent_fmt), 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_max_pkt_loss_rte_dl,
+      { "Maximum Packet Loss Rate DL", "gtpv2.max_pkt_loss_rte_dl",
+          FT_UINT16, BASE_CUSTOM, CF_FUNC(value_in_tenth_of_percent_fmt), 0x0,
+          NULL, HFILL }
+      },
+      { &hf_gtpv2_spare_b7_b2,
+      { "Spare", "gtpv2.spare.b7_b2",
+          FT_UINT8, BASE_HEX, NULL, 0xfc,
+          NULL, HFILL }
+      },
     };
 
     /* Setup protocol subtree array */
-#define GTPV2_NUM_INDIVIDUAL_ELEMS    62
+#define GTPV2_NUM_INDIVIDUAL_ELEMS    81
     static gint *ett_gtpv2_array[GTPV2_NUM_INDIVIDUAL_ELEMS + NUM_GTPV2_IES];
 
     ett_gtpv2_array[0] = &ett_gtpv2;
@@ -10207,6 +11585,25 @@ void proto_register_gtpv2(void)
     ett_gtpv2_array[59] = &ett_gtpv2_secondary_rat_usage_data_report;
     ett_gtpv2_array[60] = &ett_gtpv2_pres_rep_area_info;
     ett_gtpv2_array[61] = &ett_gtpv2_preaa_ext_menbs;
+    ett_gtpv2_array[62] = &ett_gtpv2_ue_nr_sec_cap_len;
+    ett_gtpv2_array[63] = &ett_gtpv2_apn_rte_ctrl_sts_len;
+    ett_gtpv2_array[64] = &ett_gtpv2_if_mgcs;
+    ett_gtpv2_array[65] = &ett_gtpv2_if_mgw;
+    ett_gtpv2_array[66] = &ett_gtpv2_if_sgsn;
+    ett_gtpv2_array[67] = &ett_gtpv2_if_ggsn;
+    ett_gtpv2_array[68] = &ett_gtpv2_if_rnc;
+    ett_gtpv2_array[69] = &ett_gtpv2_if_bm_sc;
+    ett_gtpv2_array[70] = &ett_gtpv2_if_mme;
+    ett_gtpv2_array[71] = &ett_gtpv2_if_sgw;
+    ett_gtpv2_array[72] = &ett_gtpv2_if_pdn_gw;
+    ett_gtpv2_array[73] = &ett_gtpv2_if_enb;
+    ett_gtpv2_array[74] = &ett_gtpv2_if_hss;
+    ett_gtpv2_array[75] = &ett_gtpv2_if_eir;
+    ett_gtpv2_array[76] = &ett_gtpv2_if_amf;
+    ett_gtpv2_array[77] = &ett_gtpv2_if_pcf;
+    ett_gtpv2_array[78] = &ett_gtpv2_if_smf;
+    ett_gtpv2_array[79] = &ett_gtpv2_if_upf;
+    ett_gtpv2_array[80] = &ett_gtpv2_if_ng_ran_node;
     last_offset = GTPV2_NUM_INDIVIDUAL_ELEMS;
 
     for (i=0; i < NUM_GTPV2_IES; i++, last_offset++)
