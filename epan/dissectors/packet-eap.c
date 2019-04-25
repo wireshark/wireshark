@@ -409,30 +409,34 @@ static const value_string eap_ext_vendor_type_vals[] = {
 
 static void
 dissect_exteap(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
-               gint size, packet_info* pinfo)
+               gint size, packet_info* pinfo, guint8 eap_code, guint8 eap_identifier)
 {
   tvbuff_t   *next_tvb;
   guint32    vendor_id;
-  guint32    *vendor_type;
+  guint32    vendor_type;
+  eap_vendor_context *vendor_context;
 
-  vendor_type = (guint32 *)g_malloc(sizeof(guint32));
+  vendor_context = wmem_new(wmem_packet_scope(), eap_vendor_context);
 
   proto_tree_add_item_ret_uint(eap_tree, hf_eap_ext_vendor_id, tvb, offset, 3, ENC_BIG_ENDIAN, &vendor_id);
   offset += 3;
   size   -= 3;
 
-  proto_tree_add_item_ret_uint(eap_tree, hf_eap_ext_vendor_type, tvb, offset, 4, ENC_BIG_ENDIAN, vendor_type);
+  proto_tree_add_item_ret_uint(eap_tree, hf_eap_ext_vendor_type, tvb, offset, 4, ENC_BIG_ENDIAN, &vendor_type);
   offset += 4;
   size   -= 4;
+
+  vendor_context->eap_code = eap_code;
+  vendor_context->eap_identifier = eap_identifier;
+  vendor_context->vendor_id = vendor_id;
+  vendor_context->vendor_type = vendor_type;
 
   next_tvb = tvb_new_subset_remaining(tvb, offset);
   if (!dissector_try_uint_new(eap_expanded_type_dissector_table,
     vendor_id, next_tvb, pinfo, eap_tree,
-    FALSE, vendor_type)) {
+    FALSE, vendor_context)) {
     call_data_dissector(next_tvb, pinfo, eap_tree);
   }
-
-  g_free(vendor_type);
 }
 /* *********************************************************************
 ********************************************************************* */
@@ -786,6 +790,7 @@ static int
 dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
   guint8          eap_code;
+  guint8          eap_identifier;
   guint16         eap_len;
   guint8          eap_type;
   gint            len;
@@ -803,6 +808,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   col_clear(pinfo->cinfo, COL_INFO);
 
   eap_code = tvb_get_guint8(tvb, 0);
+  eap_identifier = tvb_get_guint8(tvb, 1);
 
   col_add_str(pinfo->cinfo, COL_INFO,
                 val_to_str(eap_code, eap_code_vals, "Unknown code (0x%02X)"));
@@ -1316,7 +1322,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         proto_tree *exptree;
 
         exptree   = proto_tree_add_subtree(eap_tree, tvb, offset, size, ett_eap_exp_attr, NULL, "Expanded Type");
-        dissect_exteap(exptree, tvb, offset, size, pinfo);
+        dissect_exteap(exptree, tvb, offset, size, pinfo, eap_code, eap_identifier);
       }
       break;
 
