@@ -67,6 +67,12 @@ if (NOT ZLIB_INCLUDE_DIR OR NOT ZLIB_LIBRARY)
 endif()
 MARK_AS_ADVANCED(ZLIB_LIBRARY ZLIB_INCLUDE_DIR)
 
+# handle the QUIETLY and REQUIRED arguments and set ZLIB_FOUND to TRUE if
+# all listed variables are TRUE
+INCLUDE(FindPackageHandleStandardArgs)
+FIND_PACKAGE_HANDLE_STANDARD_ARGS(ZLIB REQUIRED_VARS ZLIB_LIBRARY ZLIB_INCLUDE_DIR
+                                       VERSION_VAR ZLIB_VERSION_STRING)
+
 if(ZLIB_FOUND)
     IF(ZLIB_INCLUDE_DIR AND EXISTS "${ZLIB_INCLUDE_DIR}/zlib.h")
         FILE(STRINGS "${ZLIB_INCLUDE_DIR}/zlib.h" ZLIB_H REGEX "^#define ZLIB_VERSION \"[^\"]*\"$")
@@ -126,15 +132,7 @@ if(ZLIB_FOUND)
         # reset
         CMAKE_POP_CHECK_STATE()
     ENDIF()
-ENDIF()
 
-# handle the QUIETLY and REQUIRED arguments and set ZLIB_FOUND to TRUE if
-# all listed variables are TRUE
-INCLUDE(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(ZLIB REQUIRED_VARS ZLIB_LIBRARY ZLIB_INCLUDE_DIR
-                                       VERSION_VAR ZLIB_VERSION_STRING)
-
-IF(ZLIB_FOUND)
     SET(ZLIB_INCLUDE_DIRS ${ZLIB_INCLUDE_DIR})
     SET(ZLIB_LIBRARIES ${ZLIB_LIBRARY})
     #if (WIN32)
