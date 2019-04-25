@@ -69,6 +69,7 @@ static int ett_wsmp_ie_ext = -1;
 static int ett_wsmp_ie = -1;
 
 static expert_field ei_wsmp_length_field_err = EI_INIT;
+static expert_field ei_wsmp_psid_invalid = EI_INIT;
 
 dissector_handle_t IEEE1609dot2_handle;
 
@@ -138,7 +139,8 @@ dissect_wsmp_psid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int o
     *psid = 0;
 
     if ((oct & 0xF0) == 0xF0) {
-        psidLen = 255;
+        proto_tree_add_expert(tree, pinfo, &ei_wsmp_psid_invalid, tvb, offset, 1);
+        return offset + 1;
     } else if ((oct & 0xF0) == 0xE0) {
         psidLen = 4;
     } else if ((oct & 0xE0) == 0xC0) {
@@ -499,6 +501,7 @@ proto_register_wsmp(void)
     static ei_register_info ei[] = {
     { &ei_wsmp_length_field_err, { "wsmp.length_field_err", PI_PROTOCOL, PI_ERROR,
         "Length field wrongly encoded, b6 not 0. The rest of the dissection is suspect", EXPFILL }},
+    { &ei_wsmp_psid_invalid, { "wsmp.psid.invalid", PI_PROTOCOL, PI_ERROR, "Invalid PSID", EXPFILL }},
     };
 
     expert_module_t* expert_wsmp;
