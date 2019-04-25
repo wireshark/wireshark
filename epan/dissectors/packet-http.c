@@ -241,8 +241,6 @@ static gboolean http_dechunk_body = TRUE;
  */
 #if defined(HAVE_ZLIB) || defined(HAVE_BROTLI)
 static gboolean http_decompress_body = TRUE;
-#else
-static gboolean http_decompress_body = FALSE;
 #endif
 
 /* Simple Service Discovery Protocol
