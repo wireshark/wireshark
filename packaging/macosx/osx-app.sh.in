@@ -173,6 +173,11 @@ while $endl; do
 	#    @rpath/libssh.4.dylib, rather than /usr/local/lib/libssh.4.dylib,
 	#    when built by tools/macos-setup.sh;
 	#
+	#    replace "\tlibbrotli" with "\t/usr/local/lib/libbrotli" so that
+	#    it isn't excluded from subsequent filtering.
+	#    libbrotli, for some reason, doesn't have a path prefix in its
+	#    "install name" when built by tools/macos-setup.sh;
+	#
 	#    strip out system libraries, as we don't bundle them with
 	#    Wireshark;
 	#
@@ -184,6 +189,7 @@ while $endl; do
 		| grep -F compatibility \
 		| cut -d\( -f1 \
 		| sed '1,$s;^	@rpath/libssh;	/usr/local/lib/libssh;' \
+		| sed '1,$s;^	libbrotli;	/usr/local/lib/libbrotli;' \
 		| grep -E -v "$exclude_prefixes" \
 		| sort \
 		| uniq \
