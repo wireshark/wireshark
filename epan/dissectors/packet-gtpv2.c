@@ -4953,6 +4953,8 @@ static const value_string gtpv2_container_type_vals[] = {
     {1, "UTRAN transparent container"},
     {2, "BSS container"},
     {3, "E-UTRAN transparent container"},
+    {4, "NBIFOM Container"},
+    {5, "EN-DC Container"},
     {0, NULL}
 };
 
