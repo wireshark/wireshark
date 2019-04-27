@@ -29,12 +29,15 @@
 #include <epan/reassemble.h>
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
+#include <epan/proto_data.h>
 
 #include <wsutil/str_util.h>
 
 #include "packet-per.h"
 #include "packet-gsm_map.h"
 #include "packet-cell_broadcast.h"
+#include "packet-mac-nr.h"
+#include "packet-rlc-nr.h"
 #include "packet-lte-rrc.h"
 #include "packet-nr-rrc.h"
 
@@ -52,6 +55,8 @@ static wmem_map_t *nr_rrc_etws_cmas_dcs_hash = NULL;
 
 static reassembly_table nr_rrc_sib7_reassembly_table;
 static reassembly_table nr_rrc_sib8_reassembly_table;
+
+extern int proto_mac_nr;
 
 /* Include constants */
 
@@ -239,7 +244,7 @@ typedef enum _T_targetRAT_Type_enum {
 } T_targetRAT_Type_enum;
 
 /*--- End of included file: packet-nr-rrc-val.h ---*/
-#line 50 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 55 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_nr_rrc = -1;
@@ -3083,7 +3088,7 @@ static int hf_nr_rrc_overheatingIndicationProhibitTimer = -1;  /* T_overheatingI
 static int dummy_hf_nr_rrc_eag_field = -1; /* never registered */
 
 /*--- End of included file: packet-nr-rrc-hf.c ---*/
-#line 54 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 59 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 static int hf_nr_rrc_serialNumber_gs = -1;
 static int hf_nr_rrc_serialNumber_msg_code = -1;
 static int hf_nr_rrc_serialNumber_upd_nb = -1;
@@ -4286,7 +4291,7 @@ static gint ett_nr_rrc_T_overheatingAssistanceConfig = -1;
 static gint ett_nr_rrc_OverheatingAssistanceConfig = -1;
 
 /*--- End of included file: packet-nr-rrc-ett.c ---*/
-#line 90 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 95 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 static gint ett_nr_rrc_DedicatedNAS_Message = -1;
 static gint ett_rr_rrc_targetRAT_MessageContainer = -1;
 static gint ett_nr_rrc_nas_Container = -1;
@@ -4313,6 +4318,7 @@ typedef struct {
   guint16 message_identifier;
   guint8 warning_message_segment_type;
   guint8 warning_message_segment_number;
+  nr_drb_mapping_t drb_mapping;
 } nr_rrc_private_data_t;
 
 /* Helper function to get or create a struct that will be actx->private_data */
@@ -4324,6 +4330,7 @@ nr_rrc_get_private_data(asn1_ctx_t *actx)
   }
   return (nr_rrc_private_data_t*)actx->private_data;
 }
+
 
 static void
 nr_rrc_call_dissector(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -13877,8 +13884,15 @@ dissect_nr_rrc_CellGroupId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 static int
 dissect_nr_rrc_LogicalChannelIdentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, maxLC_ID, NULL, FALSE);
+                                                            1U, maxLC_ID, &value, FALSE);
+
+  mapping->lcid = (guint8)value;
+  mapping->lcid_present = TRUE;
+
+
 
   return offset;
 }
@@ -14244,8 +14258,14 @@ dissect_nr_rrc_T_cnAssociation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_nr_rrc_DRB_Identity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 32U, NULL, FALSE);
+                                                            1U, 32U, &value, FALSE);
+
+  mapping->drbid = (guint8)value;
+
+
 
   return offset;
 }
@@ -26400,8 +26420,19 @@ static const value_string nr_rrc_SN_FieldLengthAM_vals[] = {
 
 static int
 dissect_nr_rrc_SN_FieldLengthAM(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, FALSE, 0, NULL);
+                                     2, &value, FALSE, 0, NULL);
+
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+  if (mapping->tempDirection == DIRECTION_UPLINK) {
+    mapping->rlcUlSnLength_present = TRUE;
+    mapping->rlcUlSnLength = (value=0) ? 12 : 18;
+  }
+  else {
+    mapping->rlcDlSnLength_present = TRUE;
+    mapping->rlcDlSnLength = (value=0) ? 12 : 18;
+}
 
   return offset;
 }
@@ -26651,6 +26682,10 @@ dissect_nr_rrc_UL_AM_RLC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nr_rrc_UL_AM_RLC, UL_AM_RLC_sequence);
 
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+  mapping->tempDirection = DIRECTION_UPLINK;
+
+
   return offset;
 }
 
@@ -26795,6 +26830,11 @@ dissect_nr_rrc_DL_AM_RLC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nr_rrc_DL_AM_RLC, DL_AM_RLC_sequence);
 
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+  mapping->tempDirection = DIRECTION_DOWNLINK;
+
+
+
   return offset;
 }
 
@@ -26823,8 +26863,21 @@ static const value_string nr_rrc_SN_FieldLengthUM_vals[] = {
 
 static int
 dissect_nr_rrc_SN_FieldLengthUM(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, FALSE, 0, NULL);
+                                     2, &value, FALSE, 0, NULL);
+
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+  if (mapping->tempDirection == DIRECTION_UPLINK) {
+    mapping->rlcUlSnLength_present = TRUE;
+    mapping->rlcUlSnLength = (value=0) ? 6 : 12;
+  }
+  else {
+    mapping->rlcDlSnLength_present = TRUE;
+    mapping->rlcDlSnLength = (value=0) ? 6 : 12;
+  }
+
+
 
   return offset;
 }
@@ -26840,6 +26893,10 @@ dissect_nr_rrc_UL_UM_RLC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nr_rrc_UL_UM_RLC, UL_UM_RLC_sequence);
 
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+  mapping->tempDirection = DIRECTION_UPLINK;
+
+
   return offset;
 }
 
@@ -26854,6 +26911,12 @@ static int
 dissect_nr_rrc_DL_UM_RLC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nr_rrc_DL_UM_RLC, DL_UM_RLC_sequence);
+
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+  mapping->rlcMode_present = TRUE;
+  mapping->rlcMode = RLC_UM_MODE;
+  mapping->tempDirection = DIRECTION_DOWNLINK;
+
 
   return offset;
 }
@@ -26920,9 +26983,16 @@ static const per_choice_t RLC_Config_choice[] = {
 
 static int
 dissect_nr_rrc_RLC_Config(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_nr_rrc_RLC_Config, RLC_Config_choice,
-                                 NULL);
+                                 &value);
+
+  mapping->rlcMode = (value==0) ? RLC_AM_MODE : RLC_UM_MODE;
+  mapping->rlcMode_present = TRUE;
+
+
 
   return offset;
 }
@@ -27135,8 +27205,22 @@ static const per_sequence_t RLC_BearerConfig_sequence[] = {
 
 static int
 dissect_nr_rrc_RLC_BearerConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  struct mac_nr_info *p_mac_nr_info;
+  /* Get the struct and clear it out */
+  nr_drb_mapping_t *drb_mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+  memset(drb_mapping, 0, sizeof(nr_drb_mapping_t));
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nr_rrc_RLC_BearerConfig, RLC_BearerConfig_sequence);
+
+  /* Need UE identifier */
+  p_mac_nr_info = (mac_nr_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_nr, 0);
+  if (p_mac_nr_info) {
+    drb_mapping->ueid = p_mac_nr_info->ueid;
+    /* Tell MAC about this mapping */
+    set_mac_nr_bearer_mapping(drb_mapping);
+  }
+
+
 
   return offset;
 }
@@ -41815,7 +41899,7 @@ static int dissect_SystemInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
 
 
 /*--- End of included file: packet-nr-rrc-fn.c ---*/
-#line 353 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 360 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 
 void
 proto_register_nr_rrc(void) {
@@ -53164,7 +53248,7 @@ proto_register_nr_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-nr-rrc-hfarr.c ---*/
-#line 361 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 368 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 
     { &hf_nr_rrc_serialNumber_gs,
       { "Geographical Scope", "nr-rrc.serialNumber.gs",
@@ -54465,7 +54549,7 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_OverheatingAssistanceConfig,
 
 /*--- End of included file: packet-nr-rrc-ettarr.c ---*/
-#line 495 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 502 "./asn1/nr-rrc/packet-nr-rrc-template.c"
     &ett_nr_rrc_DedicatedNAS_Message,
     &ett_rr_rrc_targetRAT_MessageContainer,
     &ett_nr_rrc_nas_Container,
@@ -54516,7 +54600,7 @@ proto_register_nr_rrc(void) {
 
 
 /*--- End of included file: packet-nr-rrc-dis-reg.c ---*/
-#line 527 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 534 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 
   nr_rrc_etws_cmas_dcs_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(),
                                                      g_direct_hash, g_direct_equal);

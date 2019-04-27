@@ -29,6 +29,8 @@
 #include "packet-rlc-lte.h"
 #include "packet-pdcp-lte.h"
 
+#include "packet-mac-nr.h"
+
 void proto_reg_handoff_catapult_dct2000(void);
 void proto_register_catapult_dct2000(void);
 
@@ -853,6 +855,7 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, gint offset,
     LogicalChannelType  logicalChannelType;
     guint16             cell_id;
     guint8              bcch_transport  = 0;
+    guint32             ueid = 0;
     tvbuff_t           *rrc_tvb;
 
     /* Top-level opcode */
@@ -892,7 +895,7 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, gint offset,
             logicalChannelType = Channel_DCCH;
 
             /* UEId */
-            proto_tree_add_item(tree, hf_catapult_dct2000_ueid, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(tree, hf_catapult_dct2000_ueid, tvb, offset, 2, ENC_BIG_ENDIAN, &ueid);
             offset += 2;
 
             /* Get tag of channel type */
@@ -1099,6 +1102,18 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, gint offset,
 
     /* Send to RRC dissector, if got here, have sub-dissector and some data left */
     if ((protocol_handle != NULL) && (tvb_reported_length_remaining(tvb, offset) > 0)) {
+
+        /* Set MAC-NR info for this PDU.  Needed so that UEId can be found for this frame,
+         * as used by MAC/RLC/PDCP configuration from RRC dissector */
+        if (ueid) {
+            struct mac_nr_info *p_mac_nr_info;
+            p_mac_nr_info = wmem_new0(wmem_file_scope(), struct mac_nr_info);
+            p_mac_nr_info->ueid = ueid;
+            p_mac_nr_info->direction = (isUplink) ? DIRECTION_UPLINK : DIRECTION_DOWNLINK;
+            /* Store info in packet */
+            set_mac_nr_proto_data(pinfo, p_mac_nr_info);
+        }
+
         rrc_tvb = tvb_new_subset_remaining(tvb, offset);
         call_dissector_only(protocol_handle, rrc_tvb, pinfo, tree, NULL);
     }

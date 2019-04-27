@@ -843,3 +843,93 @@ T-Reselection DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
 
 #.TYPE_ATTR
 EUTRA-NS-PmaxValue/additionalPmax DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
+
+
+
+#.FN_BODY RLC-BearerConfig
+  struct mac_nr_info *p_mac_nr_info;
+  /* Get the struct and clear it out */
+  nr_drb_mapping_t *drb_mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+  memset(drb_mapping, 0, sizeof(nr_drb_mapping_t));
+%(DEFAULT_BODY)s
+  /* Need UE identifier */
+  p_mac_nr_info = (mac_nr_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_nr, 0);
+  if (p_mac_nr_info) {
+    drb_mapping->ueid = p_mac_nr_info->ueid;
+    /* Tell MAC about this mapping */
+    set_mac_nr_bearer_mapping(drb_mapping);
+  }
+
+
+#.FN_BODY DRB-Identity VAL_PTR=&value
+  guint32 value;
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+%(DEFAULT_BODY)s
+  mapping->drbid = (guint8)value;
+
+
+#.FN_BODY RLC-Config VAL_PTR=&value
+  guint32 value;
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+%(DEFAULT_BODY)s
+  mapping->rlcMode = (value==0) ? RLC_AM_MODE : RLC_UM_MODE;
+  mapping->rlcMode_present = TRUE;
+
+
+#.FN_BODY LogicalChannelIdentity VAL_PTR=&value
+  guint32 value;
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+%(DEFAULT_BODY)s
+  mapping->lcid = (guint8)value;
+  mapping->lcid_present = TRUE;
+
+
+#.FN_BODY UL-UM-RLC
+%(DEFAULT_BODY)s
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+  mapping->tempDirection = DIRECTION_UPLINK;
+
+#.FN_BODY DL-UM-RLC
+%(DEFAULT_BODY)s
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+  mapping->rlcMode_present = TRUE;
+  mapping->rlcMode = RLC_UM_MODE;
+  mapping->tempDirection = DIRECTION_DOWNLINK;
+
+#.FN_BODY UL-AM-RLC
+%(DEFAULT_BODY)s
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+  mapping->tempDirection = DIRECTION_UPLINK;
+
+#.FN_BODY DL-AM-RLC
+%(DEFAULT_BODY)s
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+  mapping->tempDirection = DIRECTION_DOWNLINK;
+
+
+#.FN_BODY SN-FieldLengthUM  VAL_PTR=&value
+  guint32 value;
+%(DEFAULT_BODY)s
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+  if (mapping->tempDirection == DIRECTION_UPLINK) {
+    mapping->rlcUlSnLength_present = TRUE;
+    mapping->rlcUlSnLength = (value=0) ? 6 : 12;
+  }
+  else {
+    mapping->rlcDlSnLength_present = TRUE;
+    mapping->rlcDlSnLength = (value=0) ? 6 : 12;
+  }
+
+
+#.FN_BODY SN-FieldLengthAM  VAL_PTR=&value
+  guint32 value;
+%(DEFAULT_BODY)s
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+  if (mapping->tempDirection == DIRECTION_UPLINK) {
+    mapping->rlcUlSnLength_present = TRUE;
+    mapping->rlcUlSnLength = (value=0) ? 12 : 18;
+  }
+  else {
+    mapping->rlcDlSnLength_present = TRUE;
+    mapping->rlcDlSnLength = (value=0) ? 12 : 18;
+}

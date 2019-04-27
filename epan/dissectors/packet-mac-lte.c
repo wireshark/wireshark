@@ -4318,7 +4318,7 @@ static void lookup_rlc_channel_from_lcid(guint16 ueid,
         }
     }
     else {
-        /* Look up the mappings for this UE */
+        /* Look up the dynamic mappings for this UE */
         ue_dynamic_drb_mappings_t *ue_mappings = (ue_dynamic_drb_mappings_t *)g_hash_table_lookup(mac_lte_ue_channels_hash, GUINT_TO_POINTER((guint)ueid));
         if (!ue_mappings) {
             return;

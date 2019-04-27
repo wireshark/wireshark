@@ -108,6 +108,32 @@ void set_mac_nr_proto_data(packet_info *pinfo, mac_nr_info *p_mac_nr_info);
    continues until the end of the frame) */
 #define MAC_NR_PAYLOAD_TAG         0x01
 
+
+/* Type to store parameters for configuring LCID->RLC channel settings for DRB */
+/* Some are optional, and may not be seen (e.g. on reestablishment) */
+typedef struct nr_drb_mapping_t
+{
+    guint16    ueid;                /* Mandatory */
+    guint8     drbid;               /* Mandatory */
+    gboolean   lcid_present;
+    guint8     lcid;                /* Part of LogicalChannelConfig - optional */
+    gboolean   rlcMode_present;
+    guint8     rlcMode;             /* Part of RLC config - optional */
+
+    guint8     tempDirection;       /* So know direction of next SN length... */
+
+    gboolean   rlcUlSnLength_present;
+    guint8     rlcUlSnLength;        /* Part of RLC config - optional */
+    gboolean   rlcDlSnLength_present;
+    guint8     rlcDlSnLength;        /* Part of RLC config - optional */
+} nr_drb_mapping_t;
+
+
+/* Set details of an LCID -> drb channel mapping.  To be called from
+   configuration protocol (i.e. RRC) */
+void set_mac_nr_bearer_mapping(nr_drb_mapping_t *drb_mapping);
+
+
 /*
  * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
  *

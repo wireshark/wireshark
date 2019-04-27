@@ -21,12 +21,15 @@
 #include <epan/reassemble.h>
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
+#include <epan/proto_data.h>
 
 #include <wsutil/str_util.h>
 
 #include "packet-per.h"
 #include "packet-gsm_map.h"
 #include "packet-cell_broadcast.h"
+#include "packet-mac-nr.h"
+#include "packet-rlc-nr.h"
 #include "packet-lte-rrc.h"
 #include "packet-nr-rrc.h"
 
@@ -44,6 +47,8 @@ static wmem_map_t *nr_rrc_etws_cmas_dcs_hash = NULL;
 
 static reassembly_table nr_rrc_sib7_reassembly_table;
 static reassembly_table nr_rrc_sib8_reassembly_table;
+
+extern int proto_mac_nr;
 
 /* Include constants */
 #include "packet-nr-rrc-val.h"
@@ -113,6 +118,7 @@ typedef struct {
   guint16 message_identifier;
   guint8 warning_message_segment_type;
   guint8 warning_message_segment_number;
+  nr_drb_mapping_t drb_mapping;
 } nr_rrc_private_data_t;
 
 /* Helper function to get or create a struct that will be actx->private_data */
@@ -124,6 +130,7 @@ nr_rrc_get_private_data(asn1_ctx_t *actx)
   }
   return (nr_rrc_private_data_t*)actx->private_data;
 }
+
 
 static void
 nr_rrc_call_dissector(dissector_handle_t handle, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
