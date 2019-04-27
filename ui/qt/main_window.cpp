@@ -284,9 +284,9 @@ MainWindow::MainWindow(QWidget *parent) :
     capture_filter_valid_(false)
 #ifdef HAVE_LIBPCAP
     , capture_interfaces_dialog_(NULL)
-    , pdlg_(NULL)
     , info_data_()
 #endif
+    , pdlg_(NULL)
     , display_filter_dlg_(NULL)
     , capture_filter_dlg_(NULL)
 #ifdef _WIN32

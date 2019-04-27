@@ -202,9 +202,9 @@ private:
 #ifdef HAVE_LIBPCAP
     capture_session cap_session_;
     CaptureInterfacesDialog *capture_interfaces_dialog_;
-    PrintDialog *pdlg_;
     info_data_t info_data_;
 #endif
+    PrintDialog *pdlg_;
     FilterDialog *display_filter_dlg_;
     FilterDialog *capture_filter_dlg_;
 
