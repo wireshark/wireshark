@@ -925,8 +925,8 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 
 #ifdef HAVE_LIBPCAP
     if (capture_interfaces_dialog_) capture_interfaces_dialog_->close();
-    if (pdlg_) pdlg_->close();
 #endif
+    if (pdlg_) pdlg_->close();
     // Make sure we kill any open dumpcap processes.
     delete welcome_page_;
 
