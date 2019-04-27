@@ -112,6 +112,8 @@ static int hf_cgmr_revision_id                                             = -1;
 static int hf_gmi_manufacturer_id                                          = -1;
 static int hf_gmm_model_id                                                 = -1;
 static int hf_gmr_revision_id                                              = -1;
+static int hf_zpas_network                                                 = -1;
+static int hf_zpas_srv_domain                                              = -1;
 static int hf_indicator[20] = { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1};
 
 static expert_field ei_unknown_command                                = EI_INIT;
@@ -718,6 +720,13 @@ static gboolean check_gsn(gint role, guint16 type) {
 
 static gboolean check_vts(gint role, guint16 type) {
     if (role == ROLE_DTE && (type == TYPE_ACTION || type == TYPE_TEST)) return TRUE;
+    if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
+
+    return FALSE;
+}
+
+static gboolean check_zpas(gint role, guint16 type) {
+    if (role == ROLE_DTE && type == TYPE_READ) return TRUE;
     if (role == ROLE_DCE && type == TYPE_RESPONSE) return TRUE;
 
     return FALSE;
@@ -1626,6 +1635,32 @@ dissect_vts_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 static gboolean
+dissect_zpas_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
+        gint offset, gint role, guint16 type, guint8 *parameter_stream _U_,
+        guint parameter_number, gint parameter_length, void **data _U_)
+{
+    if (!(role == ROLE_DCE && type == TYPE_RESPONSE)) {
+        return FALSE;
+    }
+
+    if (parameter_number > 1) return FALSE;
+
+    /* CME Error might work in 2 modes: Numeric error codes or Verbose error messages */
+    /* if the parameter stream contains anything but digits and whitespaces, assume verbose */
+    switch(parameter_number)
+    {
+        case 0:
+            proto_tree_add_item(tree, hf_zpas_network, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+            break;
+        case 1:
+            proto_tree_add_item(tree, hf_zpas_srv_domain, tvb, offset, parameter_length, ENC_NA | ENC_ASCII);
+            break;
+    }
+
+    return TRUE;
+}
+
+static gboolean
 dissect_no_parameter(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_,
         gint offset _U_, gint role _U_, guint16 type _U_, guint8 *parameter_stream _U_,
         guint parameter_number _U_, gint parameter_length _U_, void **data _U_)
@@ -1669,7 +1704,8 @@ static const at_cmd_t at_cmds[] = {
     { "+GMM",       "Request model identification",                            check_gmm,  dissect_gmm_parameter },
     { "+GMR",       "Request revision identification",                         check_gmr,  dissect_gmr_parameter },
     { "+GSN",       "Request Product Serial Number Identification (ESN/IMEI)", check_gsn,  dissect_no_parameter },
-    { "+VTS",       "DTMF and tone generation",                                check_vts,  dissect_vts_parameter  },
+    { "+VTS",       "DTMF and tone generation",                                check_vts,  dissect_vts_parameter },
+    { "+ZPAS",      "Check Card Status",                                       check_zpas, dissect_zpas_parameter },
     { "ERROR",      "ERROR",                                                   check_only_dce_role, dissect_no_parameter },
     { "RING",       "Incoming Call Indication",                                check_only_dce_role, dissect_no_parameter },
     { "OK",         "OK",                                                      check_only_dce_role, dissect_no_parameter },
@@ -2546,6 +2582,16 @@ proto_register_at_command(void)
         },
         { &hf_gmr_revision_id,
            { "Revision Identification",           "at.gmr.revision_id",
+           FT_STRING, BASE_NONE, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_zpas_network,
+           { "Network type",                      "at.zpas.network",
+           FT_STRING, BASE_NONE, NULL, 0,
+           NULL, HFILL}
+        },
+        { &hf_zpas_srv_domain,
+           { "Service domain",                    "at.zpas.srv_domain",
            FT_STRING, BASE_NONE, NULL, 0,
            NULL, HFILL}
         },
