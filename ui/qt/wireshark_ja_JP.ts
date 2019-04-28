@@ -45,15 +45,15 @@
     </message>
     <message>
         <source>No plugins found.</source>
-        <translation type="unfinished"></translation>
+        <translation>プラグインが見つかりませんでした</translation>
     </message>
     <message>
         <source>Search Plugins</source>
-        <translation type="unfinished"></translation>
+        <translation>プラグインを検索</translation>
     </message>
     <message>
         <source>Filter by type:</source>
-        <translation type="unfinished"></translation>
+        <translation>種類でフィルタ:</translation>
     </message>
     <message>
         <source>Keyboard Shortcuts</source>
@@ -61,11 +61,11 @@
     </message>
     <message>
         <source>Search Shortcuts</source>
-        <translation type="unfinished"></translation>
+        <translation>ショートカットを検索</translation>
     </message>
     <message>
         <source>Acknowledgments</source>
-        <translation type="unfinished"></translation>
+        <translation>確認</translation>
     </message>
     <message>
         <source>License</source>
@@ -73,7 +73,7 @@
     </message>
     <message>
         <source>The directory does not exist</source>
-        <translation type="unfinished"></translation>
+        <translation>ディレクトリがありません</translation>
     </message>
     <message>
         <source>Should the directory %1 be created?</source>
