@@ -303,8 +303,8 @@ namp              167/tcp # NAMP [Marty_Schoffstahl] [Marty_Schoffstahl]
 namp              167/udp # NAMP [Marty_Schoffstahl] [Marty_Schoffstahl]
 rsvd              168/tcp # RSVD [Alan_Sandell] [Alan_Sandell] 2008-05-01
 rsvd              168/udp # RSVD [Alan_Sandell] [Alan_Sandell] 2008-05-01
-send              169/tcp # SEND [William_Oldwin] [William_Oldwin] 2013-06-17
-send              169/udp # SEND [William_Oldwin] [William_Oldwin] 2013-06-17
+send              169/tcp # SEND [William_Oldwin] [William_Oldwin] 2019-04-22
+send              169/udp # SEND [William_Oldwin] [William_Oldwin] 2019-04-22
 print-srv         170/tcp # Network PostScript [Brian_Reid] [Brian_Reid]
 print-srv         170/udp # Network PostScript [Brian_Reid] [Brian_Reid]
 multiplex         171/tcp # Network Innovations Multiplex
@@ -6534,8 +6534,8 @@ dof-eps          3567/tcp # DOF Protocol Stack [OpenDOF] [Bryant_Eastham] 2002-0
 dof-eps          3567/udp # DOF Protocol Stack [OpenDOF] [Bryant_Eastham] 2002-08 2015-04-23
 dof-tunnel-sec   3568/tcp # DOF Secure Tunnel [OpenDOF] [Bryant_Eastham] 2003-01 2015-04-23
 dof-tunnel-sec   3568/udp # DOF Secure Tunnel [OpenDOF] [Bryant_Eastham] 2003-01 2015-04-23
-mbg-ctrl         3569/tcp # Meinberg Control Service [Martin_Burnicki] [Martin_Burnicki] 2002-08
-mbg-ctrl         3569/udp # Meinberg Control Service [Martin_Burnicki] [Martin_Burnicki] 2002-08
+mbg-ctrl         3569/tcp # Meinberg Control Service [Meinberg_Funkuhren_GmbH_Co_KG] [Meinberg_IANA_Registrations] 2002-08 2019-04-23
+mbg-ctrl         3569/udp # Meinberg Control Service [Meinberg_Funkuhren_GmbH_Co_KG] [Meinberg_IANA_Registrations] 2002-08 2019-04-23
 mccwebsvr-port   3570/tcp # MCC Web Server Port
 mccwebsvr-port   3570/udp # MCC Web Server Port
 megardsvr-port   3571/tcp # MegaRAID Server Port
