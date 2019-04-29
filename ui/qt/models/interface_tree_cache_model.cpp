@@ -528,7 +528,7 @@ QModelIndex InterfaceTreeCacheModel::index(int row, int column, const QModelInde
         return createIndex(row, column, (void *)0);
     }
 
-    return sourceModel->index(row, column, parent);
+    return QIdentityProxyModel::index(row, column, parent);
 }
 
 void InterfaceTreeCacheModel::addDevice(const interface_t * newDevice)
