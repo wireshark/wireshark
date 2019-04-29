@@ -503,20 +503,20 @@ pcap_set_rfmon(pcap_t *a, int b)
 int
 pcap_set_timeout(pcap_t *a, int b)
 {
-	g_assert(has_wpcap && pcap_set_timeout != NULL);
+	g_assert(has_wpcap && p_pcap_set_timeout != NULL);
 	return p_pcap_set_timeout(a, b);
 }
 int
 pcap_set_buffer_size(pcap_t *a, int b)
 {
-	g_assert(has_wpcap && pcap_set_timeout != NULL);
+	g_assert(has_wpcap && p_pcap_set_buffer_size != NULL);
 	return p_pcap_set_buffer_size(a, b);
 }
 
 int
 pcap_activate(pcap_t *a)
 {
-	g_assert(has_wpcap && pcap_activate != NULL);
+	g_assert(has_wpcap && p_pcap_activate != NULL);
 	return p_pcap_activate(a);
 
 }
@@ -527,8 +527,8 @@ pcap_statustostr(int a)
     static char ebuf[15 + 10 + 1];
 
     g_assert(has_wpcap);
-    if (pcap_statustostr != NULL) {
-        return pcap_statustostr(a);
+    if (p_pcap_statustostr != NULL) {
+        return p_pcap_statustostr(a);
     }
 
     /* XXX copy routine from pcap.c ??? */
