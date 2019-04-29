@@ -2947,7 +2947,7 @@ dissect_ieee802154_tap_sun_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
  *
  * @param tree the tree to append this item to
  * @param tvb the tv buffer
- * @param offset
+ * @param offset offset into the tvbuff to begin dissection
  * @param type TLV type
  * @param length TLV length
  * @returns the tree created for the Payload IE
