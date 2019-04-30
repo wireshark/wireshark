@@ -6663,8 +6663,11 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
      *  } PreferredAddress;
      */
     // Heuristically detect draft -18 vs draft -19.
-    if (offset_end - offset >= 4 && tvb_get_ntoh24(tvb, offset) == 0xff0000) {
-        // Draft -18 and before start with a (draft) version field.
+    if (offset_end - offset >= 4 && tvb_get_ntohs(tvb, offset) != offset_end - offset - 2) {
+        // Draft -18 and before start with a (draft) version field. For CH, this
+        // can be an arbitrary number that triggers a Version Negotiation
+        // packet. Draft -19 always begins with a vector, so assume that
+        // anything that does not have a vector length is an older draft.
         switch (hnd_type) {
         case SSL_HND_CLIENT_HELLO:
             proto_tree_add_item(tree, hf->hf.hs_ext_quictp_initial_version,
