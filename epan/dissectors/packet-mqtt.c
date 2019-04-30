@@ -1427,7 +1427,7 @@ void proto_register_mqtt(void)
         NULL, HFILL }},
     { &hf_mqtt_pubmsg,
       { "Message", "mqtt.msg",
-        FT_STRING, BASE_NONE, NULL, 0,
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_mqtt_pubmsg_decoded,
       { "Message decoded as", "mqtt.msg_decoded_as",
