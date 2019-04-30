@@ -2735,9 +2735,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
     /* Initialize Windows Socket if we are in a Win32 OS
        This needs to be done before querying the interface for network/netmask */
 #ifdef _WIN32
-    /* XXX - do we really require 1.1 or earlier?
-       Are there any versions that support only 2.0 or higher? */
-    wVersionRequested = MAKEWORD(1, 1);
+    wVersionRequested = MAKEWORD(2, 2);
     err = WSAStartup(wVersionRequested, &wsaData);
     if (err != 0) {
         switch (err) {

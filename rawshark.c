@@ -727,7 +727,7 @@ main(int argc, char *argv[])
 
 #ifdef _WIN32
     /* Start windows sockets */
-    result = WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
+    result = WSAStartup( MAKEWORD( 2, 2 ), &wsaData );
     if (result != 0)
     {
         ret = INIT_ERROR;

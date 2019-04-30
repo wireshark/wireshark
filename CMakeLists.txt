@@ -1255,7 +1255,7 @@ endif()
 #
 if(WIN32)
 	set(WIN_PSAPI_LIBRARY    psapi.lib)
-	set(WIN_WSOCK32_LIBRARY  wsock32.lib)
+	set(WIN_WS2_32_LIBRARY   ws2_32.lib)
 	set(WIN_COMCTL32_LIBRARY comctl32.lib )
 	set(WIN_VERSION_LIBRARY  version.lib)
 endif()
@@ -2176,6 +2176,7 @@ if(BUILD_wireshark AND QT_FOUND)
 		${APPLE_APPKIT_LIBRARY}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
+		${WIN_WS2_32_LIBRARY}
 		${WIN_VERSION_LIBRARY}
 		${WINSPARKLE_LIBRARIES}
 		$<$<BOOL:${WIN32}>:UxTheme.lib>
@@ -2290,6 +2291,7 @@ if(BUILD_tshark)
 		${VERSION_INFO_LIBS}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
+		${WIN_WS2_32_LIBRARY}
 		${M_LIBRARIES}
 	)
 	set(tshark_FILES
@@ -2341,6 +2343,7 @@ if(BUILD_rawshark AND PCAP_FOUND)
 		${VERSION_INFO_LIBS}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
+		${WIN_WS2_32_LIBRARY}
 	)
 	set(rawshark_FILES
 		$<TARGET_OBJECTS:cli_main>
@@ -2364,6 +2367,7 @@ if(BUILD_sharkd)
 		${VERSION_INFO_LIBS}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
+		${WIN_WS2_32_LIBRARY}
 	)
 	set(sharkd_FILES
 		#
@@ -2380,9 +2384,6 @@ if(BUILD_sharkd)
 	add_executable(sharkd ${sharkd_FILES})
 	set_extra_executable_properties(sharkd "Executables")
 	target_link_libraries(sharkd ${sharkd_LIBS})
-	if(WIN32)
-		target_link_libraries(sharkd "ws2_32.lib")
-	endif(WIN32)
 
 	install(TARGETS sharkd RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
@@ -2563,6 +2564,7 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		${ZLIB_LIBRARIES}
 		${APPLE_CORE_FOUNDATION_LIBRARY}
 		${APPLE_SYSTEM_CONFIGURATION_LIBRARY}
+		${WIN_WS2_32_LIBRARY}
 	)
 	set(dumpcap_FILES
 		$<TARGET_OBJECTS:capture_opts>

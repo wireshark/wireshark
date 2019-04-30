@@ -296,7 +296,7 @@ compiler, you'll need:
 . C runtime headers and libraries (e.g. _stdio.h_, _vcruntime140.lib_)
 
 . Windows platform headers and libraries (e.g.
-_windows.h_, _WSock32.lib_)
+_windows.h_, _WS2_32.lib_)
 +
 // Can we drop support for CHM?
 . HTML help headers and libraries (_htmlhelp.h_, _htmlhelp.lib_)

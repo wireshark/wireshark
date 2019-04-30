@@ -61,7 +61,7 @@ socket_init(char *path)
 	WSADATA wsaData;
 	int result;
 
-	result = WSAStartup(MAKEWORD(1, 1), &wsaData);
+	result = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (result != 0) {
 		g_warning("ERROR: WSAStartup failed with error: %d", result);
 		return INVALID_SOCKET;

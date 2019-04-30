@@ -689,7 +689,7 @@ int main(int argc, char *argv[])
 	}
 
 #ifdef _WIN32
-	result = WSAStartup(MAKEWORD(1,1), &wsaData);
+	result = WSAStartup(MAKEWORD(2, 2), &wsaData);
 	if (result != 0) {
 		g_warning("ERROR: WSAStartup failed with error: %d", result);
 		goto end;
