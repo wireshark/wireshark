@@ -146,6 +146,7 @@ if ($Platform -eq "win32") {
 
 $CleanupItems = @(
     "bcg729-1.0.4-win??ws"
+    "brotli-1.0.2-4-win??ws"
     "c-ares-1.9.1-1-win??ws"
     "c-ares-1.1*-win??ws"
     "gnutls-3.?.*-*-win??ws"
@@ -175,6 +176,7 @@ $CleanupItems = @(
     "upx301w"
     "upx303w"
     "user-guide"
+    "vcpkg-export-*-win??ws"
     "zlib-1.2.5"
     "zlib-1.2.8"
     "zlib-1.2.*-ws"
