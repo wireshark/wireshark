@@ -17,6 +17,9 @@
 #include <wiretap/wtap.h>
 #include <epan/expert.h>
 
+#include <packet-flexray.h>
+
+
 void proto_reg_handoff_flexray(void);
 void proto_register_flexray(void);
 
@@ -76,16 +79,6 @@ static dissector_table_t subdissector_table;
 #define FLEXRAY_SYMBOL 0x02
 
 #define FLEXRAY_HEADER_LENGTH 5
-
-/* Structure that gets passed between dissectors (containing of
- frame id, counter cycle and channel).
-*/
-typedef struct flexray_identifier
-{
-	guint16 id;
-	guint8 cc;
-	guint8 ch;
-} flexray_identifier;
 
 static const value_string flexray_type_names[] = {
 	{ FLEXRAY_FRAME, "FRAME" },
