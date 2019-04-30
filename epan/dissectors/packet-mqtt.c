@@ -617,6 +617,12 @@ static gboolean mqtt_message_decode_update_cb(void *record, char **error)
     return FALSE;
   }
 
+  if (u->payload_proto_name == NULL || strlen(u->payload_proto_name) == 0)
+  {
+    *error = g_strdup("Missing payload protocol");
+    return FALSE;
+  }
+
   if (u->match_criteria == MATCH_CRITERIA_REGEX)
   {
     u->topic_regex = g_regex_new(u->topic_pattern, (GRegexCompileFlags) G_REGEX_OPTIMIZE, (GRegexMatchFlags) 0, NULL);
