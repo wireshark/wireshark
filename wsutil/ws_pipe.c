@@ -708,6 +708,7 @@ ws_pipe_wait_for_pipe(HANDLE * pipe_handles, int num_pipe_handles, HANDLE pid)
         }
         /* Wait for process in case it exits before the pipes have connected */
         handles[num_handles] = pid;
+        num_handles++;
 
         dw = WaitForMultipleObjects(num_handles, handles, FALSE, 30000);
         int handle_idx = dw - WAIT_OBJECT_0;
