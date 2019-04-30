@@ -4649,7 +4649,7 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         /* (x+2) to y UE NR security capability */
         /* The UE NR security capability coding is specified in clause 9.8.3.57 of 3GPP TS 24.501 */
         sc_tree = proto_tree_add_subtree(tree, tvb, offset, ue_nr_sec_cap_len, ett_gtpv2_ue_nr_sec_cap_len, NULL, "UE NR security capability");
-        proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, ue_nr_sec_cap_len, "The rest of the IE not dissected yet");
+        proto_tree_add_expert_format(sc_tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, ue_nr_sec_cap_len, "The rest of the IE not dissected yet");
         offset += ue_nr_sec_cap_len;
     }
     /* (y+1) to (y+2) Length of APN Rate Control Statuses */
@@ -4658,7 +4658,7 @@ dissect_gtpv2_mm_context_eps_qq(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     if (apn_rte_ctrl_sts_len) {
         /* (y+3) to l APN Rate Control Status [1..z] */
         sc_tree = proto_tree_add_subtree(tree, tvb, offset, apn_rte_ctrl_sts_len, ett_gtpv2_apn_rte_ctrl_sts_len, NULL, "APN Rate Control Status");
-        proto_tree_add_expert_format(tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, apn_rte_ctrl_sts_len, "The rest of the IE not dissected yet");
+        proto_tree_add_expert_format(sc_tree, pinfo, &ei_gtpv2_ie_data_not_dissected, tvb, offset, apn_rte_ctrl_sts_len, "The rest of the IE not dissected yet");
         offset += apn_rte_ctrl_sts_len;
     }
     if (offset < (gint)length){
