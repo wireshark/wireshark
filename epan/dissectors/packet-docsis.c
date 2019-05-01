@@ -259,15 +259,6 @@ static const value_string unique_no_phs[] = {
   { 0, NULL }
 };
 
-static const true_false_string ig_tfs = {
-  "Group address (multicast/broadcast)",
-  "Individual address (unicast)"
-};
-static const true_false_string lg_tfs = {
-  "Locally administered address (this is NOT the factory default)",
-  "Globally unique address (factory default)"
-};
-
 /* Fragmentation Flags / Sequence */
 static guint8 frag_flags;
 static guint8 frag_seq;
@@ -1178,38 +1169,6 @@ proto_register_docsis (void)
        FT_UINT8, BASE_NONE, VALS(local_proto_checksum_vals), 0x0,
        NULL, HFILL}
     },
-    { &hf_docsis_dst,
-      { "Destination", "docsis.dst_mac",
-        FT_ETHER, BASE_NONE, NULL, 0x0,
-        "Destination Hardware Address", HFILL }
-    },
-    { &hf_docsis_dst_resolved,
-      { "Destination (resolved)", "docsis.dst_mac_resolved",
-        FT_STRING, BASE_NONE, NULL, 0x0,
-        "Destination Hardware Address (resolved)", HFILL }
-    },
-    { &hf_docsis_src,
-      { "Source", "docsis.src_mac",
-        FT_ETHER, BASE_NONE, NULL, 0x0,
-        "Source Hardware Address", HFILL }
-    },
-    { &hf_docsis_src_resolved,
-      { "Source (resolved)", "docsis.src_mac_resolved",
-        FT_STRING, BASE_NONE, NULL, 0x0,
-        "Source Hardware Address (resolved)", HFILL }
-    },
-    { &hf_docsis_lg,
-      { "LG bit", "docsis.mac_lg",
-        FT_BOOLEAN, 24,
-        TFS(&lg_tfs), 0x020000,
-        "Specifies if this is a locally administered or globally unique (IEEE assigned) address", HFILL }},
-
-    { &hf_docsis_ig,
-      { "IG bit", "docsis.mac_ig",
-        FT_BOOLEAN, 24,
-        TFS(&ig_tfs), 0x010000,
-        "Specifies if this is an individual (unicast) or group (broadcast/multicast) address", HFILL }
-    },
     { &hf_docsis_encrypted_payload,
       { "Encrypted Payload", "docsis.encrypted_payload",
         FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -1269,6 +1228,13 @@ void
 proto_reg_handoff_docsis (void)
 {
   dissector_add_uint ("wtap_encap", WTAP_ENCAP_DOCSIS, docsis_handle);
+
+  hf_docsis_dst = proto_registrar_get_id_byname ("eth.dst");
+  hf_docsis_dst_resolved = proto_registrar_get_id_byname ("eth.dst_resolved");
+  hf_docsis_src = proto_registrar_get_id_byname ("eth.src");
+  hf_docsis_src_resolved = proto_registrar_get_id_byname ("eth.src_resolved");
+  hf_docsis_lg = proto_registrar_get_id_byname ("eth.lg");
+  hf_docsis_ig = proto_registrar_get_id_byname ("eth.ig");
 
   docsis_mgmt_handle = find_dissector ("docsis_mgmt");
   eth_withoutfcs_handle = find_dissector_add_dependency("eth_withoutfcs", proto_docsis);
