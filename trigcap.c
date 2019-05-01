@@ -15,7 +15,7 @@
 #include <errno.h>
 #include <getopt.h>
 
-#include <wsutil/wspcap.h>
+#include "wspcap.h"
 
 static int dumping;
 static volatile int keep_going;

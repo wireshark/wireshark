@@ -54,7 +54,7 @@
 #define PCAP_RECORD_HEADER_LENGTH              16
 
 #ifdef ANDROIDDUMP_USE_LIBPCAP
-    #include <wsutil/wspcap.h>
+    #include "wspcap.h"
     #include <pcap-bpf.h>
     #include <pcap/bluetooth.h>
 

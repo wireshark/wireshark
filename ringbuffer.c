@@ -37,7 +37,7 @@
 #include <time.h>
 #include <errno.h>
 
-#include <wsutil/wspcap.h>
+#include "wspcap.h"
 
 #include <glib.h>
 

@@ -16,7 +16,7 @@
 
 #ifdef HAVE_LIBPCAP
 
-#include <wsutil/wspcap.h>
+#include "wspcap.h"
 
 #ifdef __APPLE__
 #include <dlfcn.h>

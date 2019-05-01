@@ -86,7 +86,7 @@ set_target_properties(ui PROPERTIES
 	FOLDER "UI"
 )
 
-target_link_libraries(ui wsutil)
+target_link_libraries(ui wsutil caputils)
 
 if (HTML_HELP_COMPILER)
 	add_definitions(-DHHC_DIR)

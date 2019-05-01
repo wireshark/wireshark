@@ -530,14 +530,14 @@ sub check_included_files($$)
                 }
         }
 
-        # only our wrapper file wsutils/wspcap.h may include pcap.h
+        # only our wrapper file wspcap.h may include pcap.h
         # all other files should include the wrapper
         if ($filename !~ /wspcap\.h/) {
                 foreach (@incFiles) {
                         if ( m#([<"]|/+)pcap\.h[>"]$# ) {
                                 print STDERR "Warning: ".$filename.
                                         " includes pcap.h directly. ".
-                                        "Include wsutil/wspcap.h instead.\n";
+                                        "Include wspcap.h instead.\n";
                                 last;
                         }
                 }

@@ -270,7 +270,6 @@ target_link_libraries(wsutil
 	${GCRYPT_LIBRARIES}
 	${WIN_WS2_32_LIBRARY}
 	${GNUTLS_LIBRARIES}
-	$<$<BOOL:${PCAP_FOUND}>:pcap::pcap>
 )
 
 if(WIN32)
