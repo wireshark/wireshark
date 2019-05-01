@@ -101,6 +101,17 @@ static int hf_ac_if_mu_channelconfig_rsv = -1;
 static int hf_ac_if_mu_channelnames = -1;
 static int hf_ac_if_mu_controls = -1;
 static int hf_ac_if_mu_imixer = -1;
+static int hf_ac_if_clksrc_id = -1;
+static int hf_ac_if_clksrc_attr = -1;
+static int hf_ac_if_clksrc_attr_type = -1;
+static int hf_ac_if_clksrc_attr_d2 = -1;
+static int hf_ac_if_clksrc_attr_rsv = -1;
+static int hf_ac_if_clksrc_controls = -1;
+static int hf_ac_if_clksrc_controls_freq = -1;
+static int hf_ac_if_clksrc_controls_validity = -1;
+static int hf_ac_if_clksrc_controls_rsv = -1;
+static int hf_ac_if_clksrc_assocterminal = -1;
+static int hf_ac_if_clksrc_clocksource = -1;
 static int hf_as_if_desc_subtype = -1;
 static int hf_as_if_gen_term_id = -1;
 static int hf_as_if_gen_delay = -1;
@@ -128,6 +139,8 @@ static gint ett_ac_if_fu_controls0 = -1;
 static gint ett_ac_if_fu_controls1 = -1;
 static gint ett_ac_if_input_channelconfig = -1;
 static gint ett_ac_if_mu_channelconfig = -1;
+static gint ett_ac_if_clksrc_attr = -1;
+static gint ett_ac_if_clksrc_controls = -1;
 
 static dissector_handle_t sysex_handle;
 static dissector_handle_t usb_audio_bulk_handle;
@@ -179,20 +192,34 @@ static const value_string aud_descriptor_type_vals[] = {
 static value_string_ext aud_descriptor_type_vals_ext =
     VALUE_STRING_EXT_INIT(aud_descriptor_type_vals);
 
-#define AC_SUBTYPE_HEADER          0x01
-#define AC_SUBTYPE_INPUT_TERMINAL  0x02
-#define AC_SUBTYPE_OUTPUT_TERMINAL 0x03
-#define AC_SUBTYPE_MIXER_UNIT      0x04
-#define AC_SUBTYPE_SELECTOR_UNIT   0x05
-#define AC_SUBTYPE_FEATURE_UNIT    0x06
+#define AC_SUBTYPE_HEADER                0x01
+#define AC_SUBTYPE_INPUT_TERMINAL        0x02
+#define AC_SUBTYPE_OUTPUT_TERMINAL       0x03
+#define AC_SUBTYPE_MIXER_UNIT            0x04
+#define AC_SUBTYPE_SELECTOR_UNIT         0x05
+#define AC_SUBTYPE_FEATURE_UNIT          0x06
+#define AC_SUBTYPE_EFFECT_UNIT           0x07
+#define AC_SUBTYPE_PROCESSING_UNIT       0x08
+#define AC_SUBTYPE_EXTENSION_UNIT        0x09
+#define AC_SUBTYPE_CLOCK_SOURCE          0x0A
+#define AC_SUBTYPE_CLOCK_SELECTOR        0x0B
+#define AC_SUBTYPE_CLOCK_MULTIPLIER      0x0C
+#define AC_SUBTYPE_SAMPLE_RATE_CONVERTER 0x0D
 
 static const value_string ac_subtype_vals[] = {
-    {AC_SUBTYPE_HEADER,          "Header Descriptor"},
-    {AC_SUBTYPE_INPUT_TERMINAL,  "Input terminal descriptor"},
-    {AC_SUBTYPE_OUTPUT_TERMINAL, "Output terminal descriptor"},
-    {AC_SUBTYPE_MIXER_UNIT,      "Mixer unit descriptor"},
-    {AC_SUBTYPE_SELECTOR_UNIT,   "Selector unit descriptor"},
-    {AC_SUBTYPE_FEATURE_UNIT,    "Feature unit descriptor"},
+    {AC_SUBTYPE_HEADER,                "Header Descriptor"},
+    {AC_SUBTYPE_INPUT_TERMINAL,        "Input terminal descriptor"},
+    {AC_SUBTYPE_OUTPUT_TERMINAL,       "Output terminal descriptor"},
+    {AC_SUBTYPE_MIXER_UNIT,            "Mixer unit descriptor"},
+    {AC_SUBTYPE_SELECTOR_UNIT,         "Selector unit descriptor"},
+    {AC_SUBTYPE_FEATURE_UNIT,          "Feature unit descriptor"},
+    {AC_SUBTYPE_EFFECT_UNIT,           "Effect unit descriptor"},
+    {AC_SUBTYPE_PROCESSING_UNIT,       "Processing unit descriptor"},
+    {AC_SUBTYPE_EXTENSION_UNIT,        "Extension unit descriptor"},
+    {AC_SUBTYPE_CLOCK_SOURCE,          "Clock source descriptor"},
+    {AC_SUBTYPE_CLOCK_SELECTOR,        "Clock selector descriptor"},
+    {AC_SUBTYPE_CLOCK_MULTIPLIER,      "Clock multiplier descriptor"},
+    {AC_SUBTYPE_SAMPLE_RATE_CONVERTER, "Sample rate converter descriptor"},
     {0,NULL}
 };
 static value_string_ext ac_subtype_vals_ext =
@@ -242,6 +269,21 @@ static const value_string controls_capabilities_vals[] = {
 };
 static value_string_ext controls_capabilities_vals_ext =
     VALUE_STRING_EXT_INIT(controls_capabilities_vals);
+
+/* Described in 4.7.2.1 Clock Source Descriptor */
+static const value_string clock_types_vals[] = {
+    {0x00, "External clock"},
+    {0x01, "Internal fixed clock"},
+    {0x02, "Internal variable clock"},
+    {0x03, "Internal programmable clock"},
+    {0,NULL}
+};
+
+static const value_string clock_sync_vals[] = {
+    {0x00, "Free running"},
+    {0x01, "Synchronized to the Start of Frame"},
+    {0,NULL}
+};
 
 /* From http://www.usb.org/developers/docs/devclass_docs/termt10.pdf */
 static const value_string terminal_types_vals[] = {
@@ -735,6 +777,43 @@ dissect_ac_if_mixed_unit(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 }
 
 static gint
+dissect_ac_if_clock_source(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+        proto_tree *tree, usb_conv_info_t *usb_conv_info _U_)
+{
+    gint offset_start;
+    static const int *cs_attributes[] = {
+        &hf_ac_if_clksrc_attr_type,
+        &hf_ac_if_clksrc_attr_d2,
+        &hf_ac_if_clksrc_attr_rsv,
+        NULL
+    };
+    static const int *cs_controls[] = {
+        &hf_ac_if_clksrc_controls_freq,
+        &hf_ac_if_clksrc_controls_validity,
+        &hf_ac_if_clksrc_controls_rsv,
+        NULL
+    };
+    offset_start = offset;
+
+    proto_tree_add_item(tree, hf_ac_if_clksrc_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_bitmask(tree, tvb, offset, hf_ac_if_clksrc_attr, ett_ac_if_clksrc_attr, cs_attributes, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_bitmask(tree, tvb, offset, hf_ac_if_clksrc_controls, ett_ac_if_clksrc_controls, cs_controls, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ac_if_clksrc_assocterminal, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ac_if_clksrc_clocksource, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    return offset-offset_start;
+}
+
+static gint
 dissect_as_if_general_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         proto_tree *tree, usb_conv_info_t *usb_conv_info)
 {
@@ -903,6 +982,9 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
                 break;
             case AC_SUBTYPE_FEATURE_UNIT:
                 bytes_dissected += dissect_ac_if_feature_unit(tvb, offset, pinfo, desc_tree, usb_conv_info, desc_len);
+                break;
+            case AC_SUBTYPE_CLOCK_SOURCE:
+                bytes_dissected += dissect_ac_if_clock_source(tvb, offset, pinfo, desc_tree, usb_conv_info);
                 break;
             default:
                 break;
@@ -1237,6 +1319,39 @@ proto_register_usb_audio(void)
         { &hf_ac_if_mu_imixer,
             { "Mixer", "usbaudio.ac_if_mu.iMixer",
               FT_UINT8, BASE_DEC, NULL, 0x00, "iMixer", HFILL }},
+        { &hf_ac_if_clksrc_id,
+            { "Clock Source Entity", "usbaudio.ac_if_clksrc.bClockID",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "bClockID", HFILL }},
+        { &hf_ac_if_clksrc_attr,
+            { "Attributes", "usbaudio.ac_if_clksrc.bmAttributes",
+              FT_UINT8, BASE_HEX, NULL, 0x00, "bmAttributes", HFILL }},
+        { &hf_ac_if_clksrc_attr_type,
+            { "Type", "usbaudio.ac_if_clksrc.bmAttributes.type", FT_UINT8,
+              BASE_HEX, VALS(clock_types_vals), 0x03, NULL, HFILL }},
+        { &hf_ac_if_clksrc_attr_d2,
+            { "Synchronization", "usbaudio.ac_if_clksrc.bmAttributes.d2", FT_UINT8,
+              BASE_HEX, VALS(clock_sync_vals), 0x04, NULL, HFILL }},
+        { &hf_ac_if_clksrc_attr_rsv,
+            { "Reserved", "usbaudio.ac_if_clksrc.bmAttributes.rsv",
+              FT_UINT8, BASE_HEX, NULL, 0xF8, "Must be zero", HFILL }},
+        { &hf_ac_if_clksrc_controls,
+            { "Controls", "usbaudio.ac_if_clksrc.bmControls",
+              FT_UINT8, BASE_HEX, NULL, 0x00, "bmControls", HFILL }},
+        { &hf_ac_if_clksrc_controls_freq,
+            { "Clock Frequency Control", "usbaudio.ac_if_clksrc.bmControls.freq", FT_UINT8,
+              BASE_HEX|BASE_EXT_STRING, &controls_capabilities_vals_ext, 0x03, NULL, HFILL }},
+        { &hf_ac_if_clksrc_controls_validity,
+            { "Clock Validity Control", "usbaudio.ac_if_clksrc.bmControls.validity", FT_UINT8,
+              BASE_HEX|BASE_EXT_STRING, &controls_capabilities_vals_ext, 0x0C, NULL, HFILL }},
+        { &hf_ac_if_clksrc_controls_rsv,
+            { "Reserved", "usbaudio.ac_if_clksrc.bmControls.rsv",
+              FT_UINT8, BASE_HEX, NULL, 0xF0, "Must be zero", HFILL }},
+        { &hf_ac_if_clksrc_assocterminal,
+            { "Terminal", "usbaudio.ac_if_clksrc.bAssocTerminal",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "bAssocTerminal", HFILL }},
+        { &hf_ac_if_clksrc_clocksource,
+            { "String descriptor index", "usbaudio.ac_if_clksrc.iClockSource",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "iClockSource", HFILL }},
         { &hf_as_if_desc_subtype,
             { "Subtype", "usbaudio.as_if_subtype", FT_UINT8, BASE_HEX|BASE_EXT_STRING,
                 &as_subtype_vals_ext, 0x00, "bDescriptorSubtype", HFILL }},
@@ -1330,7 +1445,9 @@ proto_register_usb_audio(void)
         &ett_ac_if_fu_controls0,
         &ett_ac_if_fu_controls1,
         &ett_ac_if_input_channelconfig,
-        &ett_ac_if_mu_channelconfig
+        &ett_ac_if_mu_channelconfig,
+        &ett_ac_if_clksrc_attr,
+        &ett_ac_if_clksrc_controls
     };
 
     static ei_register_info ei[] = {
