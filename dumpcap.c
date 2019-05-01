@@ -2771,7 +2771,8 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
                        "Couldn't initialize Windows Sockets: error %d", err);
             break;
         }
-        g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len, please_report_bug());
+        g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len, "%s",
+                   please_report_bug());
         return FALSE;
     }
 #endif
