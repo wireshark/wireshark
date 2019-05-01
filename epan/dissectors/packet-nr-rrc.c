@@ -13651,8 +13651,14 @@ static const value_string nr_rrc_T_pdcp_SN_SizeUL_vals[] = {
 
 static int
 dissect_nr_rrc_T_pdcp_SN_SizeUL(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, FALSE, 0, NULL);
+                                     2, &value, FALSE, 0, NULL);
+
+  mapping->pdcpUlSnLength_present = TRUE;
+  mapping->pdcpUlSnLength = (value) ? 18 : 12;
+
 
   return offset;
 }
@@ -13667,8 +13673,13 @@ static const value_string nr_rrc_T_pdcp_SN_SizeDL_vals[] = {
 
 static int
 dissect_nr_rrc_T_pdcp_SN_SizeDL(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  guint32 value;
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     2, NULL, FALSE, 0, NULL);
+                                     2, &value, FALSE, 0, NULL);
+
+  mapping->pdcpDlSnLength_present = TRUE;
+  mapping->pdcpDlSnLength = (value) ? 18 : 12;
 
   return offset;
 }
@@ -14312,8 +14323,21 @@ static const per_sequence_t DRB_ToAddMod_sequence[] = {
 
 static int
 dissect_nr_rrc_DRB_ToAddMod(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+  memset(mapping, 0, sizeof(*mapping));
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nr_rrc_DRB_ToAddMod, DRB_ToAddMod_sequence);
+
+  /* Need UE identifier */
+  mac_nr_info *p_mac_nr_info = (mac_nr_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_nr, 0);
+  if (p_mac_nr_info) {
+    /* Configure PDCP SN length(s) for this DRB */
+    if (mapping->pdcpUlSnLength_present || mapping->pdcpDlSnLength_present) {
+      set_rlc_nr_drb_pdcp_seqnum_length(actx->pinfo, p_mac_nr_info->ueid, mapping->drbid,
+                                        mapping->pdcpUlSnLength, mapping->pdcpDlSnLength);
+    }
+  }
+
 
   return offset;
 }
@@ -26433,6 +26457,8 @@ dissect_nr_rrc_SN_FieldLengthAM(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
     mapping->rlcDlSnLength_present = TRUE;
     mapping->rlcDlSnLength = (value=0) ? 12 : 18;
 }
+
+
 
   return offset;
 }

@@ -933,3 +933,32 @@ EUTRA-NS-PmaxValue/additionalPmax DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&uni
     mapping->rlcDlSnLength_present = TRUE;
     mapping->rlcDlSnLength = (value=0) ? 12 : 18;
 }
+
+
+#.FN_BODY DRB-ToAddMod
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+  memset(mapping, 0, sizeof(*mapping));
+%(DEFAULT_BODY)s
+  /* Need UE identifier */
+  mac_nr_info *p_mac_nr_info = (mac_nr_info *)p_get_proto_data(wmem_file_scope(), actx->pinfo, proto_mac_nr, 0);
+  if (p_mac_nr_info) {
+    /* Configure PDCP SN length(s) for this DRB */
+    if (mapping->pdcpUlSnLength_present || mapping->pdcpDlSnLength_present) {
+      set_rlc_nr_drb_pdcp_seqnum_length(actx->pinfo, p_mac_nr_info->ueid, mapping->drbid,
+                                        mapping->pdcpUlSnLength, mapping->pdcpDlSnLength);
+    }
+  }
+
+#.FN_BODY PDCP-Config/drb/pdcp-SN-SizeUL VAL_PTR=&value
+  guint32 value;
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+%(DEFAULT_BODY)s
+  mapping->pdcpUlSnLength_present = TRUE;
+  mapping->pdcpUlSnLength = (value) ? 18 : 12;
+
+#.FN_BODY PDCP-Config/drb/pdcp-SN-SizeDL VAL_PTR=&value
+  guint32 value;
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+%(DEFAULT_BODY)s
+  mapping->pdcpDlSnLength_present = TRUE;
+  mapping->pdcpDlSnLength = (value) ? 18 : 12;

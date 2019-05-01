@@ -126,6 +126,12 @@ typedef struct nr_drb_mapping_t
     guint8     rlcUlSnLength;        /* Part of RLC config - optional */
     gboolean   rlcDlSnLength_present;
     guint8     rlcDlSnLength;        /* Part of RLC config - optional */
+
+    gboolean   pdcpUlSnLength_present;
+    guint8     pdcpUlSnLength;        /* Part of PDCP config - optional */
+    gboolean   pdcpDlSnLength_present;
+    guint8     pdcpDlSnLength;        /* Part of PDCP config - optional */
+
 } nr_drb_mapping_t;
 
 

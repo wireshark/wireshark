@@ -40,11 +40,12 @@ void proto_reg_handoff_rlc_nr(void);
 /* By default do call PDCP/RRC dissectors for SDU data */
 static gboolean global_rlc_nr_call_pdcp_for_srb = TRUE;
 
-enum pdcp_for_drb { PDCP_drb_off, PDCP_drb_SN_12, PDCP_drb_SN_18};
+enum pdcp_for_drb { PDCP_drb_off, PDCP_drb_SN_12, PDCP_drb_SN_18, PDCP_drb_SN_signalled};
 static const enum_val_t pdcp_drb_col_vals[] = {
     {"pdcp-drb-off",           "Off",                 PDCP_drb_off},
     {"pdcp-drb-sn-12",         "12-bit SN",           PDCP_drb_SN_12},
     {"pdcp-drb-sn-18",         "18-bit SN",           PDCP_drb_SN_18},
+    {"pdcp-drb-sn-signalling", "Use signalled value", PDCP_drb_SN_signalled},
     {NULL, NULL, -1}
 };
 /* Separate config for UL/DL */
@@ -56,6 +57,15 @@ static gboolean global_rlc_nr_call_rrc_for_ccch = TRUE;
 
 /* Preference to expect RLC headers without payloads */
 static gboolean global_rlc_nr_headers_expected = FALSE;
+
+/* Tree storing UE related parameters */
+typedef struct rlc_ue_parameters {
+    guint32 id;
+    guint8 pdcp_sn_bits_ul;
+    guint8 pdcp_sn_bits_dl;
+} rlc_ue_parameters;
+static wmem_tree_t *ue_parameters_tree;
+
 
 /**************************************************/
 /* Initialize the protocol and registered fields. */
@@ -298,6 +308,10 @@ static void show_PDU_in_info(packet_info *pinfo,
 static void show_PDU_in_tree(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, gint offset, gint length,
                              rlc_nr_info *rlc_info, guint32 seg_info _U_)
 {
+    wmem_tree_key_t key[3];
+    guint32 id;
+    rlc_ue_parameters *params;
+
     /* Add raw data (according to mode) */
     proto_tree_add_item(tree, (rlc_info->rlcMode == RLC_AM_MODE) ?
                         hf_rlc_nr_am_data : hf_rlc_nr_um_data,
@@ -351,6 +365,30 @@ static void show_PDU_in_tree(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t 
                         case PDCP_drb_SN_18:
                             p_pdcp_nr_info->seqnum_length = 18;
                             break;
+                        case PDCP_drb_SN_signalled:
+                            /* Use whatever was signalled (i.e. in RRC) */
+                            id = (rlc_info->bearerId << 16) | rlc_info->ueid;
+                            key[0].length = 1;
+                            key[0].key = &id;
+                            key[1].length = 1;
+                            key[1].key = &pinfo->num;
+                            key[2].length = 0;
+                            key[2].key = NULL;
+
+                            params = (rlc_ue_parameters *)wmem_tree_lookup32_array_le(ue_parameters_tree, key);
+                            if (params && (params->id != id)) {
+                                params = NULL;
+                            }
+                            if (params) {
+                                if (p_pdcp_nr_info->direction == DIRECTION_UPLINK) {
+                                    p_pdcp_nr_info->seqnum_length = params->pdcp_sn_bits_ul;
+                                }
+                                else {
+                                    p_pdcp_nr_info->seqnum_length = params->pdcp_sn_bits_dl;
+                                }
+                            }
+                            break;
+
                     }
                     break;
 
@@ -1074,6 +1112,42 @@ static void dissect_rlc_nr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     }
 }
 
+
+/* Configure number of PDCP SN bits to use for DRB channels */
+void set_rlc_nr_drb_pdcp_seqnum_length(packet_info *pinfo, guint16 ueid, guint8 drbid,
+                                       guint8 userplane_seqnum_length_ul,
+                                       guint8 userplane_seqnum_length_dl)
+{
+    wmem_tree_key_t key[3];
+    guint32 id;
+    rlc_ue_parameters *params;
+
+    if (PINFO_FD_VISITED(pinfo)) {
+        return;
+    }
+
+    id = (drbid << 16) | ueid;
+    key[0].length = 1;
+    key[0].key = &id;
+    key[1].length = 1;
+    key[1].key = &pinfo->num;
+    key[2].length = 0;
+    key[2].key = NULL;
+
+    params = (rlc_ue_parameters *)wmem_tree_lookup32_array_le(ue_parameters_tree, key);
+    if (params && (params->id != id)) {
+        params = NULL;
+    }
+    if (params == NULL) {
+        params = (rlc_ue_parameters *)wmem_new(wmem_file_scope(), rlc_ue_parameters);
+        params->id = id;
+        wmem_tree_insert32_array(ue_parameters_tree, key, (void *)params);
+    }
+    params->pdcp_sn_bits_ul = userplane_seqnum_length_ul;
+    params->pdcp_sn_bits_dl = userplane_seqnum_length_dl;
+}
+
+
 void proto_register_rlc_nr(void)
 {
     static hf_register_info hf[] =
@@ -1395,6 +1469,8 @@ void proto_register_rlc_nr(void)
         "When enabled, if data is not present, don't report as an error, but instead "
         "add expert info to indicate that headers were omitted",
         &global_rlc_nr_headers_expected);
+
+    ue_parameters_tree = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 }
 
 void proto_reg_handoff_rlc_nr(void)
