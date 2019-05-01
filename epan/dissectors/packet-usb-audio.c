@@ -112,6 +112,13 @@ static int hf_ac_if_clksrc_controls_validity = -1;
 static int hf_ac_if_clksrc_controls_rsv = -1;
 static int hf_ac_if_clksrc_assocterminal = -1;
 static int hf_ac_if_clksrc_clocksource = -1;
+static int hf_ac_if_clksel_id = -1;
+static int hf_ac_if_clksel_nrpins = -1;
+static int hf_ac_if_clksel_sourceid = -1;
+static int hf_ac_if_clksel_controls = -1;
+static int hf_ac_if_clksel_controls_clksel = -1;
+static int hf_ac_if_clksel_controls_rsv = -1;
+static int hf_ac_if_clksel_clockselector = -1;
 static int hf_as_if_desc_subtype = -1;
 static int hf_as_if_gen_term_id = -1;
 static int hf_as_if_gen_delay = -1;
@@ -141,6 +148,7 @@ static gint ett_ac_if_input_channelconfig = -1;
 static gint ett_ac_if_mu_channelconfig = -1;
 static gint ett_ac_if_clksrc_attr = -1;
 static gint ett_ac_if_clksrc_controls = -1;
+static gint ett_ac_if_clksel_controls = -1;
 
 static dissector_handle_t sysex_handle;
 static dissector_handle_t usb_audio_bulk_handle;
@@ -814,6 +822,41 @@ dissect_ac_if_clock_source(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 }
 
 static gint
+dissect_ac_if_clock_selector(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+        proto_tree *tree, usb_conv_info_t *usb_conv_info _U_)
+{
+    gint   offset_start;
+    guint8 nrinpins;
+    static const int *cs_controls[] = {
+        &hf_ac_if_clksel_controls_clksel,
+        &hf_ac_if_clksel_controls_rsv,
+        NULL
+    };
+    offset_start = offset;
+
+    proto_tree_add_item(tree, hf_ac_if_clksel_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ac_if_clksel_nrpins, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    nrinpins = tvb_get_guint8(tvb, offset);
+    offset += 1;
+
+    while (nrinpins) {
+        proto_tree_add_item(tree, hf_ac_if_clksel_sourceid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        nrinpins--;
+        offset += 1;
+    }
+
+    proto_tree_add_bitmask(tree, tvb, offset, hf_ac_if_clksel_controls, ett_ac_if_clksel_controls, cs_controls, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ac_if_clksel_clockselector, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    return offset-offset_start;
+}
+
+static gint
 dissect_as_if_general_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         proto_tree *tree, usb_conv_info_t *usb_conv_info)
 {
@@ -985,6 +1028,9 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
                 break;
             case AC_SUBTYPE_CLOCK_SOURCE:
                 bytes_dissected += dissect_ac_if_clock_source(tvb, offset, pinfo, desc_tree, usb_conv_info);
+                break;
+            case AC_SUBTYPE_CLOCK_SELECTOR:
+                bytes_dissected += dissect_ac_if_clock_selector(tvb, offset, pinfo, desc_tree, usb_conv_info);
                 break;
             default:
                 break;
@@ -1352,6 +1398,27 @@ proto_register_usb_audio(void)
         { &hf_ac_if_clksrc_clocksource,
             { "String descriptor index", "usbaudio.ac_if_clksrc.iClockSource",
               FT_UINT8, BASE_DEC, NULL, 0x00, "iClockSource", HFILL }},
+        { &hf_ac_if_clksel_id,
+            { "Clock Selector Entity", "usbaudio.ac_if_clksel.bClockID",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "bClockID", HFILL }},
+        { &hf_ac_if_clksel_nrpins,
+            { "Number of Input Pins", "usbaudio.ac_if_clksel.bNrInPins",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "bNrInPins", HFILL }},
+        { &hf_ac_if_clksel_sourceid,
+            { "Connected Clock Entity", "usbaudio.ac_if_clksel.baCSourceID",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "baCSourceID", HFILL }},
+        { &hf_ac_if_clksel_controls,
+            { "Controls", "usbaudio.ac_if_clksel.bmControls",
+              FT_UINT8, BASE_HEX, NULL, 0x00, "bmControls", HFILL }},
+        { &hf_ac_if_clksel_controls_clksel,
+            { "Clock Selector Control", "usbaudio.ac_if_clksel.bmControls.clksel", FT_UINT8,
+              BASE_HEX|BASE_EXT_STRING, &controls_capabilities_vals_ext, 0x03, NULL, HFILL }},
+        { &hf_ac_if_clksel_controls_rsv,
+            { "Reserved", "usbaudio.ac_if_clksel.bmControls.rsv",
+              FT_UINT8, BASE_HEX, NULL, 0xFC, "Must be zero", HFILL }},
+        { &hf_ac_if_clksel_clockselector,
+            { "String descriptor index", "usbaudio.ac_if_clksel.iClockSelector",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "iClockSelector", HFILL }},
         { &hf_as_if_desc_subtype,
             { "Subtype", "usbaudio.as_if_subtype", FT_UINT8, BASE_HEX|BASE_EXT_STRING,
                 &as_subtype_vals_ext, 0x00, "bDescriptorSubtype", HFILL }},
@@ -1447,7 +1514,8 @@ proto_register_usb_audio(void)
         &ett_ac_if_input_channelconfig,
         &ett_ac_if_mu_channelconfig,
         &ett_ac_if_clksrc_attr,
-        &ett_ac_if_clksrc_controls
+        &ett_ac_if_clksrc_controls,
+        &ett_ac_if_clksel_controls
     };
 
     static ei_register_info ei[] = {
