@@ -105,6 +105,7 @@
 /**#define DEBUG_CHILD_DUMPCAP**/
 
 #ifdef _WIN32
+#include "wsutil/win32-utils.h"
 #ifdef DEBUG_DUMPCAP
 #include <conio.h>          /* _getch() */
 #endif
@@ -1422,22 +1423,12 @@ cap_open_socket(char *pipename, capture_src *pcap_src, char *errmsg, size_t errm
     if (((fd = (int)socket(AF_INET, SOCK_STREAM, 0)) < 0) ||
          (connect(fd, (struct sockaddr *)&sa, sizeof(sa)) < 0)) {
 #ifdef _WIN32
-        LPTSTR errorText = NULL;
-        int lastError;
-
-        lastError = WSAGetLastError();
-        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM |
-                      FORMAT_MESSAGE_ALLOCATE_BUFFER |
-                      FORMAT_MESSAGE_IGNORE_INSERTS,
-                      NULL, lastError, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                      (LPTSTR)&errorText, 0, NULL);
+        DWORD lastError = WSAGetLastError();
 #endif
         g_snprintf(errmsg, (gulong)errmsgl,
             "The capture session could not be initiated due to the socket error: \n"
 #ifdef _WIN32
-            "         %d: %s", lastError, errorText ? (char *)errorText : "Unknown");
-        if (errorText)
-            LocalFree(errorText);
+            "         %d: %s", lastError, win32strerror(lastError));
 #else
             "         %d: %s", errno, g_strerror(errno));
 #endif
@@ -2724,58 +2715,7 @@ capture_loop_open_input(capture_options *capture_opts, loop_data *ld,
     interface_options  *interface_opts;
     capture_src        *pcap_src;
     guint               i;
-#ifdef _WIN32
-    int                 err;
-    WORD                wVersionRequested;
-    WSADATA             wsaData;
-#endif
 
-/* XXX - opening Winsock on tshark? */
-
-    /* Initialize Windows Socket if we are in a Win32 OS
-       This needs to be done before querying the interface for network/netmask */
-#ifdef _WIN32
-    wVersionRequested = MAKEWORD(2, 2);
-    err = WSAStartup(wVersionRequested, &wsaData);
-    if (err != 0) {
-        switch (err) {
-
-        case WSASYSNOTREADY:
-            g_snprintf(errmsg, (gulong) errmsg_len,
-                       "Couldn't initialize Windows Sockets: Network system not ready for network communication");
-            break;
-
-        case WSAVERNOTSUPPORTED:
-            g_snprintf(errmsg, (gulong) errmsg_len,
-                       "Couldn't initialize Windows Sockets: Windows Sockets version %u.%u not supported",
-                       LOBYTE(wVersionRequested), HIBYTE(wVersionRequested));
-            break;
-
-        case WSAEINPROGRESS:
-            g_snprintf(errmsg, (gulong) errmsg_len,
-                       "Couldn't initialize Windows Sockets: Blocking operation is in progress");
-            break;
-
-        case WSAEPROCLIM:
-            g_snprintf(errmsg, (gulong) errmsg_len,
-                       "Couldn't initialize Windows Sockets: Limit on the number of tasks supported by this WinSock implementation has been reached");
-            break;
-
-        case WSAEFAULT:
-            g_snprintf(errmsg, (gulong) errmsg_len,
-                       "Couldn't initialize Windows Sockets: Bad pointer passed to WSAStartup");
-            break;
-
-        default:
-            g_snprintf(errmsg, (gulong) errmsg_len,
-                       "Couldn't initialize Windows Sockets: error %d", err);
-            break;
-        }
-        g_snprintf(secondary_errmsg, (gulong) secondary_errmsg_len, "%s",
-                   please_report_bug());
-        return FALSE;
-    }
-#endif
     if ((use_threads == FALSE) &&
         (capture_opts->ifaces->len > 1)) {
         g_snprintf(errmsg, (gulong) errmsg_len,
@@ -3014,11 +2954,6 @@ static void capture_loop_close_input(loop_data *ld)
     }
 
     ld->go = FALSE;
-
-#ifdef _WIN32
-    /* Shut down windows sockets */
-    WSACleanup();
-#endif
 }
 
 
@@ -4706,10 +4641,7 @@ main(int argc, char *argv[])
 
     gboolean          arg_error             = FALSE;
 
-#ifdef _WIN32
-    int               result;
-    WSADATA           wsaData;
-#else
+#ifndef _WIN32
     struct sigaction  action, oldaction;
 #endif
 
@@ -4883,12 +4815,15 @@ main(int argc, char *argv[])
     /* XXX - currently not required, may change later. */
     /*wpcap_packet_load();*/
 
+    DWORD   result;
+    WSADATA wsaData;
+
     /* Start windows sockets */
-    result = WSAStartup( MAKEWORD( 1, 1 ), &wsaData );
+    result = WSAStartup( MAKEWORD(2, 2), &wsaData );
     if (result != 0)
     {
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_ERROR,
-                          "ERROR: WSAStartup failed with error: %d", result);
+                          "ERROR: WSAStartup failed with error %d: %s", result, win32strerror(result));
         exit_main(1);
     }
 
