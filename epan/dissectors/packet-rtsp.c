@@ -844,9 +844,12 @@ dissect_rtspmessage(tvbuff_t *tvb, int offset, packet_info *pinfo,
          * Do header desegmentation if we've been told to,
          * and do body desegmentation if we've been told to and
          * we find a Content-Length header.
+         *
+         * RFC 7826, Section 18.17. requires Content-Length and
+         * assumes zero if missing.
          */
         if (!req_resp_hdrs_do_reassembly(tvb, offset, pinfo,
-            rtsp_desegment_headers, rtsp_desegment_body)) {
+            rtsp_desegment_headers, rtsp_desegment_body, FALSE)) {
             /*
              * More data needed for desegmentation.
              */

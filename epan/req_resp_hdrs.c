@@ -26,7 +26,8 @@
  */
 gboolean
 req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
-    const gboolean desegment_headers, const gboolean desegment_body)
+    const gboolean desegment_headers, const gboolean desegment_body,
+    gboolean desegment_until_fin)
 {
 	gint		next_offset;
 	gint		next_offset_sav;
@@ -37,7 +38,6 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 	gboolean	content_length_found = FALSE;
 	gboolean	content_type_found = FALSE;
 	gboolean	chunked_encoding = FALSE;
-	gboolean	keepalive_found = FALSE;
 	gchar		*line;
 	gchar		*content_type = NULL;
 
@@ -161,17 +161,6 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 					content_type = line+13;
 					while (*content_type == ' ') {
 						content_type++;
-					}
-				} else if (g_ascii_strncasecmp(line, "Connection:", 11) == 0) {
-					/* Check for keep-alive */
-					header_val = line+11;
-					if(header_val){
-						while(*header_val==' '){
-							header_val++;
-						}
-						if(!g_ascii_strncasecmp(header_val, "Keep-Alive", 10)){
-							keepalive_found = TRUE;
-						}
 					}
 				} else if (g_ascii_strncasecmp( line, "Transfer-Encoding:", 18) == 0) {
 					/*
@@ -361,15 +350,16 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 				    content_length - length_remaining;
 				return FALSE;
 			}
-		} else if (content_type_found && pinfo->can_desegment) {
-			/* We found a content-type but no content-length.
-			 * This is probably a HTTP header for a session with
-			 * only one HTTP PDU and where the content spans
-			 * until the end of the tcp session, unless there
-			 * is a keepalive header present in which case we
-			 * assume there is no message body at all and thus
-			 * we won't do any reassembly.
-			 * Set up tcp reassembly until the end of this session.
+		} else if (desegment_until_fin && pinfo->can_desegment) {
+			/*
+			 * No Content-Length nor Transfer-Encoding headers are
+			 * found. For HTTP requests, there is definitely no
+			 * body (case 6 of RFC 7230, Section 3.3.3.). For HTTP
+			 * responses, the message body length runs until the end
+			 * of the connection (case 7).
+			 *
+			 * Protocols like RTSP treat absence of Content-Length
+			 * as 0, so do not request more segments either.
 			 */
 			length_remaining = tvb_captured_length_remaining(tvb, next_offset);
 			reported_length_remaining = tvb_reported_length_remaining(tvb, next_offset);
@@ -377,14 +367,6 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 				/*
 				 * It's a waste of time asking for more
 				 * data, because that data wasn't captured.
-				 */
-				return TRUE;
-			}
-
-			if (keepalive_found) {
-				/* We have a keep-alive but no content-length.
-				 * Assume there is no message body and don't
-				 * do any reassembly.
 				 */
 				return TRUE;
 			}
