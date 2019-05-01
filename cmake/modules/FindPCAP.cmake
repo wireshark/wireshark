@@ -262,3 +262,11 @@ if(PCAP_FOUND)
 
   cmake_pop_check_state()
 endif()
+
+if(PCAP_FOUND AND NOT TARGET pcap::pcap)
+  add_library(pcap::pcap UNKNOWN IMPORTED)
+  set_target_properties(pcap::pcap PROPERTIES
+    IMPORTED_LOCATION "${PCAP_LIBRARIES}"
+    INTERFACE_INCLUDE_DIRECTORIES "${PCAP_INCLUDE_DIRS}"
+  )
+endif()

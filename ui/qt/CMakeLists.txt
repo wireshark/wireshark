@@ -665,6 +665,8 @@ target_include_directories(qtui SYSTEM
 		${WINSPARKLE_INCLUDE_DIRS}
 		${SPEEXDSP_INCLUDE_DIRS}
 	PRIVATE
+		# Can't use imported target, linking object libraries for usage requirements
+		# requires CMake 3.12
 		${PCAP_INCLUDE_DIRS}
 )
 

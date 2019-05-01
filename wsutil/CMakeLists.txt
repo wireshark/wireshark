@@ -267,10 +267,10 @@ target_link_libraries(wsutil
 	${APPLE_CORE_FOUNDATION_LIBRARY}
 	${GMODULE2_LIBRARIES}
 	${GLIB2_LIBRARIES}
-	${PCAP_LIBRARIES}
 	${GCRYPT_LIBRARIES}
 	${WIN_WS2_32_LIBRARY}
 	${GNUTLS_LIBRARIES}
+	$<$<BOOL:${PCAP_FOUND}>:pcap::pcap>
 )
 
 if(WIN32)
@@ -279,7 +279,6 @@ endif(WIN32)
 
 target_include_directories(wsutil SYSTEM
 	PUBLIC
-		${PCAP_INCLUDE_DIRS}
 		${GCRYPT_INCLUDE_DIRS}
 		${GNUTLS_INCLUDE_DIRS}
 )

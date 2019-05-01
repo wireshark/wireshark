@@ -91,8 +91,8 @@ if(BUILD_androiddump)
 			set(androiddump_LIBS
 				ui
 				${GLIB2_LIBRARIES}
-				${PCAP_LIBRARIES}
 				${WIN_WS2_32_LIBRARY}
+				$<$<BOOL:${PCAP_FOUND}>:pcap::pcap>
 			)
 		else()
 			message(FATAL_ERROR "You are trying to build androiddump with libpcap but do not have it")

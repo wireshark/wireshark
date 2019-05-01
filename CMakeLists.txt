@@ -2433,7 +2433,6 @@ if(BUILD_randpkt)
 		wiretap
 		wsutil
 		${M_LIBRARIES}
-		${PCAP_LIBRARIES}
 		${CARES_LIBRARIES}
 		${ZLIB_LIBRARIES}
 	)
@@ -2580,7 +2579,7 @@ if(BUILD_dumpcap AND PCAP_FOUND)
 		wsutil
 		caputils
 		ui
-		${PCAP_LIBRARIES}
+		$<$<BOOL:${PCAP_FOUND}>:pcap::pcap>
 		${CAP_LIBRARIES}
 		${GLIB2_LIBRARIES}
 		${GTHREAD2_LIBRARIES}
