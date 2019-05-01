@@ -34,6 +34,10 @@ static int hf_ac_if_hdr_ver = -1;
 static int hf_ac_if_hdr_total_len = -1;
 static int hf_ac_if_hdr_bInCollection = -1;
 static int hf_ac_if_hdr_if_num = -1;
+static int hf_ac_if_hdr_category = -1;
+static int hf_ac_if_hdr_controls = -1;
+static int hf_ac_if_hdr_controls_latency = -1;
+static int hf_ac_if_hdr_controls_rsv = -1;
 static int hf_ac_if_input_terminalid = -1;
 static int hf_ac_if_input_terminaltype = -1;
 static int hf_ac_if_input_assocterminal = -1;
@@ -118,6 +122,7 @@ static reassembly_table midi_data_reassembly_table;
 static gint ett_usb_audio      = -1;
 static gint ett_usb_audio_desc = -1;
 
+static gint ett_ac_if_hdr_controls = -1;
 static gint ett_ac_if_fu_controls = -1;
 static gint ett_ac_if_fu_controls0 = -1;
 static gint ett_ac_if_fu_controls1 = -1;
@@ -205,6 +210,38 @@ static const value_string as_subtype_vals[] = {
 };
 static value_string_ext as_subtype_vals_ext =
     VALUE_STRING_EXT_INIT(as_subtype_vals);
+
+/* Table A-7: Audio Function Category Codes */
+static const value_string audio_function_categories_vals[] = {
+    {0x00, "Undefinied"},
+    {0x01, "Desktop speaker"},
+    {0x02, "Home theater"},
+    {0x03, "Microphone"},
+    {0x04, "Headset"},
+    {0x05, "Telephone"},
+    {0x06, "Converter"},
+    {0x07, "Voice/Sound recorder"},
+    {0x08, "I/O box"},
+    {0x09, "Musical instrument"},
+    {0x0A, "Pro-audio"},
+    {0x0B, "Audio/Video"},
+    {0x0C, "Control panel"},
+    {0xFF, "Other"},
+    {0,NULL}
+};
+static value_string_ext audio_function_categories_vals_ext =
+    VALUE_STRING_EXT_INIT(audio_function_categories_vals);
+
+/* Described in 4.7.2 Class-Specific AC Interface Descriptor */
+static const value_string controls_capabilities_vals[] = {
+    {0x00, "Not present"},
+    {0x01, "Present, read-only"},
+    {0x02, "Value not allowed"},
+    {0x03, "Host programmable"},
+    {0,NULL}
+};
+static value_string_ext controls_capabilities_vals_ext =
+    VALUE_STRING_EXT_INIT(controls_capabilities_vals);
 
 /* From http://www.usb.org/developers/docs/devclass_docs/termt10.pdf */
 static const value_string terminal_types_vals[] = {
@@ -447,6 +484,11 @@ dissect_ac_if_hdr_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     guint8   if_in_collection, i;
     audio_conv_info_t *audio_conv_info;
 
+    static const int *bm_controls[] = {
+        &hf_ac_if_hdr_controls_latency,
+        &hf_ac_if_hdr_controls_rsv,
+        NULL
+    };
 
     offset_start = offset;
 
@@ -486,6 +528,17 @@ dissect_ac_if_hdr_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
                     tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
         }
+    }
+    else if (ver_major==2) {
+        proto_tree_add_item(tree, hf_ac_if_hdr_category,
+                tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(tree, hf_ac_if_hdr_total_len,
+                tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset += 2;
+        proto_tree_add_bitmask(tree, tvb, offset, hf_ac_if_hdr_controls,
+                ett_ac_if_hdr_controls, bm_controls, ENC_LITTLE_ENDIAN);
+        offset++;
     }
 
     return offset-offset_start;
@@ -795,6 +848,7 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, void *data)
 {
     gint             offset = 0;
+    gint             bytes_dissected;
     usb_conv_info_t *usb_conv_info;
     proto_tree       *desc_tree = NULL;
     proto_item       *desc_tree_item;
@@ -829,31 +883,33 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
             proto_item_append_text(desc_tree_item, ": %s", subtype_str);
         offset++;
 
+        bytes_dissected = offset;
         switch(desc_subtype) {
             case AC_SUBTYPE_HEADER:
                 /* these subfunctions return the number of bytes dissected,
                    this is not necessarily the length of the body
                    as some components are not yet dissected
                    we rely on the descriptor's length byte instead */
-                dissect_ac_if_hdr_body(tvb, offset, pinfo, desc_tree, usb_conv_info);
+                bytes_dissected += dissect_ac_if_hdr_body(tvb, offset, pinfo, desc_tree, usb_conv_info);
                 break;
             case AC_SUBTYPE_INPUT_TERMINAL:
-                dissect_ac_if_input_terminal(tvb, offset, pinfo, desc_tree, usb_conv_info);
+                bytes_dissected += dissect_ac_if_input_terminal(tvb, offset, pinfo, desc_tree, usb_conv_info);
                 break;
             case AC_SUBTYPE_OUTPUT_TERMINAL:
-                dissect_ac_if_output_terminal(tvb, offset, pinfo, desc_tree, usb_conv_info);
+                bytes_dissected += dissect_ac_if_output_terminal(tvb, offset, pinfo, desc_tree, usb_conv_info);
                 break;
             case AC_SUBTYPE_MIXER_UNIT:
-                dissect_ac_if_mixed_unit(tvb, offset, pinfo, desc_tree, usb_conv_info);
+                bytes_dissected += dissect_ac_if_mixed_unit(tvb, offset, pinfo, desc_tree, usb_conv_info);
                 break;
             case AC_SUBTYPE_FEATURE_UNIT:
-                dissect_ac_if_feature_unit(tvb, offset, pinfo, desc_tree, usb_conv_info, desc_len);
+                bytes_dissected += dissect_ac_if_feature_unit(tvb, offset, pinfo, desc_tree, usb_conv_info, desc_len);
                 break;
             default:
-                proto_tree_add_expert(desc_tree, pinfo, &ei_usb_audio_undecoded, tvb, offset-3, desc_len);
                 break;
         }
-
+        if (bytes_dissected < desc_len) {
+            proto_tree_add_expert(desc_tree, pinfo, &ei_usb_audio_undecoded, tvb, bytes_dissected, desc_len-bytes_dissected);
+        }
     }
     else if (desc_type==CS_INTERFACE &&
             usb_conv_info->interfaceSubclass==AUDIO_IF_SUBCLASS_AUDIOSTREAMING) {
@@ -980,6 +1036,18 @@ proto_register_usb_audio(void)
         { &hf_ac_if_hdr_if_num,
             { "Interface number", "usbaudio.ac_if_hdr.baInterfaceNr",
               FT_UINT8, BASE_DEC, NULL, 0x00, "baInterfaceNr", HFILL }},
+        { &hf_ac_if_hdr_category,
+            { "Category", "usbaudio.ac_if_hdr.bCategory",
+              FT_UINT8, BASE_HEX|BASE_EXT_STRING, &audio_function_categories_vals_ext, 0x00, "bCategory", HFILL }},
+        { &hf_ac_if_hdr_controls,
+            { "Controls", "usbaudio.ac_if_hdr.bmControls",
+              FT_UINT8, BASE_HEX, NULL, 0x00, "bmControls", HFILL }},
+        { &hf_ac_if_hdr_controls_latency,
+            { "Latency Control", "usbaudio.ac_if_hdr.bmControls.latency",
+              FT_UINT8, BASE_HEX|BASE_EXT_STRING, &controls_capabilities_vals_ext, 0x03, NULL, HFILL }},
+        { &hf_ac_if_hdr_controls_rsv,
+            { "Reserved", "usbaudio.ac_if_hdr.bmControls.rsv",
+              FT_UINT8, BASE_HEX, NULL, 0xFC, "Must be zero", HFILL }},
         { &hf_ac_if_input_terminalid,
             { "Terminal ID", "usbaudio.ac_if_input.bTerminalID",
               FT_UINT8, BASE_DEC, NULL, 0x00, "bTerminalID", HFILL }},
@@ -1257,6 +1325,7 @@ proto_register_usb_audio(void)
         &ett_usb_audio_desc,
         &ett_sysex_msg_fragment,
         &ett_sysex_msg_fragments,
+        &ett_ac_if_hdr_controls,
         &ett_ac_if_fu_controls,
         &ett_ac_if_fu_controls0,
         &ett_ac_if_fu_controls1,
