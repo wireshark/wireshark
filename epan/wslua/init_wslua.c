@@ -908,6 +908,14 @@ void wslua_init(register_cb cb, gpointer client_data) {
 
     WSLUA_INIT(L);
 
+#if LUA_VERSION_NUM == 501
+    /* table.unpack was introduced with Lua 5.2, alias it to unpack. */
+    lua_getglobal(L, "table");
+    lua_getglobal(L, "unpack");
+    lua_setfield(L, -2, "unpack");
+    lua_pop(L, 1);
+#endif
+
     if (first_time) {
         proto_lua = proto_register_protocol("Lua Dissection", "Lua Dissection", "_ws.lua");
         proto_register_field_array(proto_lua, hf, array_length(hf));
