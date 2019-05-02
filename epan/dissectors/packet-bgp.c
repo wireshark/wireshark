@@ -523,6 +523,7 @@ static dissector_handle_t bgp_handle;
 #define SAFNUM_EVPN            70  /* EVPN RFC */
 #define SAFNUM_BGP_LS          71  /* RFC7752 */
 #define SAFNUM_BGP_LS_VPN      72  /* RFC7752 */
+#define SAFNUM_SR_POLICY       73  /* draft-ietf-idr-segment-routing-te-policy-05 */
 #define SAFNUM_LAB_VPNUNICAST 128  /* Draft-rosen-rfc2547bis-03 */
 #define SAFNUM_LAB_VPNMULCAST 129
 #define SAFNUM_LAB_VPNUNIMULC 130
@@ -1241,6 +1242,7 @@ static const value_string bgpattr_nlri_safi[] = {
     { SAFNUM_VPLS,              "VPLS"},
     { SAFNUM_BGP_LS,            "BGP-LS"},
     { SAFNUM_BGP_LS_VPN,        "BGP-LS-VPN"},
+    { SAFNUM_SR_POLICY,         "SR Policy"},
     { SAFNUM_LAB_VPNUNICAST,    "Labeled VPN Unicast" },        /* draft-rosen-rfc2547bis-03 */
     { SAFNUM_LAB_VPNMULCAST,    "Labeled VPN Multicast" },
     { SAFNUM_LAB_VPNUNIMULC,    "Labeled VPN Unicast+Multicast" },
