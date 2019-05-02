@@ -85,6 +85,10 @@ static int proto_can = -1;
 static int proto_canfd = -1;
 
 static gboolean byte_swap = FALSE;
+static gboolean heuristic_first = FALSE;
+
+static heur_dissector_list_t heur_subdissector_list;
+static heur_dtbl_entry_t *heur_dtbl_entry;
 
 #define LINUX_CAN_STD   0
 #define LINUX_CAN_EXT   1
@@ -402,9 +406,25 @@ dissect_socketcanfd_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	next_tvb = tvb_new_subset_length(tvb, CAN_DATA_OFFSET, frame_len);
 
-	if (!dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, TRUE, &can_id))
+	if(!heuristic_first)
 	{
-		call_data_dissector(next_tvb, pinfo, tree);
+		if (!dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, TRUE, &can_id))
+		{
+			if(!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &heur_dtbl_entry, &can_id))
+			{
+				call_data_dissector(next_tvb, pinfo, tree);
+			}
+		}
+	}
+	else
+	{
+		if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &heur_dtbl_entry, &can_id))
+		{
+			if(!dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, FALSE, &can_id))
+			{
+				call_data_dissector(next_tvb, pinfo, tree);
+			}
+		}
 	}
 
 	if (tvb_captured_length_remaining(tvb, CAN_DATA_OFFSET+frame_len) > 0)
@@ -828,7 +848,15 @@ proto_register_socketcan(void)
 	    "Whether the CAN ID/flags field should be byte-swapped",
 	    &byte_swap);
 
+	prefs_register_bool_preference(can_module, "try_heuristic_first",
+		"Try heuristic sub-dissectors first",
+		"Try to decode a packet using an heuristic sub-dissector"
+		" before using a sub-dissector registered to \"decode as\"",
+		&heuristic_first);
+
 	subdissector_table = register_decode_as_next_proto(proto_can, "Network", "can.subdissector", "CAN next level dissector", NULL);
+
+	heur_subdissector_list = register_heur_dissector_list("can", proto_can);
 }
 
 void
