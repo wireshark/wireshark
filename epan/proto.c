@@ -1395,8 +1395,8 @@ void proto_report_dissector_bug(const char *format, ...)
 
 /* We could probably get away with changing is_error to a minimum length value. */
 static void
-report_type_length_mismatch(proto_tree *tree, const gchar *descr, int length, gboolean is_error) {
-
+report_type_length_mismatch(proto_tree *tree, const gchar *descr, int length, gboolean is_error)
+{
 	if (is_error) {
 		expert_add_info_format(NULL, tree, &ei_type_length_mismatch_error, "Trying to fetch %s with length %d", descr, length);
 	} else {
@@ -10315,28 +10315,8 @@ ws_type_to_elastic(guint type _U_)
 			return "byte";
 		case FT_BOOLEAN:
 			return "boolean";
-		case FT_NONE:
-		case FT_STRING:
-		case FT_ETHER:
-		case FT_GUID:
-		case FT_OID:
-		case FT_STRINGZ:
-		case FT_UINT_STRING:
-		case FT_CHAR:
-		case FT_AX25:
-		case FT_REL_OID:
-		case FT_IEEE_11073_SFLOAT:
-		case FT_IEEE_11073_FLOAT:
-		case FT_STRINGZPAD:
-		case FT_PROTOCOL:
-		case FT_EUI64:
-		case FT_IPXNET:
-		case FT_SYSTEM_ID:
-		case FT_FCWWN:
-		case FT_VINES:
-			return "string";
 		default:
-			DISSECTOR_ASSERT_NOT_REACHED();
+			return NULL;
 	}
 }
 
@@ -10366,6 +10346,7 @@ proto_registrar_dump_elastic(const gchar* filter)
 	gchar* proto;
 	gboolean found;
 	guint j;
+	gchar* type;
 
 	/* We have filtering protocols. Extract them. */
 	if (filter) {
@@ -10456,13 +10437,17 @@ proto_registrar_dump_elastic(const gchar* filter)
 				json_dumper_begin_object(&dumper); // 8.properties
 				open_object = FALSE;
 			}
-			str = g_strdup(hfinfo->abbrev);
-			json_dumper_set_member_name(&dumper, dot_to_underscore(str));
-			g_free(str);
-			json_dumper_begin_object(&dumper); // 9.hfinfo->abbrev
-			json_dumper_set_member_name(&dumper, "type");
-			json_dumper_value_string(&dumper, ws_type_to_elastic(hfinfo->type));
-			json_dumper_end_object(&dumper); // 9.hfinfo->abbrev
+			/* Skip the fields that would map into string. This is the default in elasticsearch. */
+			type = ws_type_to_elastic(hfinfo->type);
+			if (type) {
+				str = g_strdup(hfinfo->abbrev);
+				json_dumper_set_member_name(&dumper, dot_to_underscore(str));
+				g_free(str);
+				json_dumper_begin_object(&dumper); // 9.hfinfo->abbrev
+				json_dumper_set_member_name(&dumper, "type");
+				json_dumper_value_string(&dumper, type);
+				json_dumper_end_object(&dumper); // 9.hfinfo->abbrev
+			}
 		}
 	}
 

@@ -26,9 +26,6 @@
                 "ip_dst" : {
                   "type" : "ip"
                 },
-                "ip_dst_host" : {
-                  "type" : "string"
-                },
                 "ip_geoip_lat" : {
                   "type" : "float"
                 },
