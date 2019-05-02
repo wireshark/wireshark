@@ -133,7 +133,7 @@ static dissector_table_t wtap_encap_dissector_table;
 static dissector_table_t wtap_fts_rec_dissector_table;
 
 /* The number of tree items required to add an exception to the tree */
-#define EXCEPTION_TREE_ITEMS 5
+#define EXCEPTION_TREE_ITEMS 10
 
 static void
 ensure_tree_item(proto_tree *tree, gint count)
