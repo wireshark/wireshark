@@ -48,8 +48,6 @@
 	#include <arpa/inet.h>
 #endif
 
-#endif /* __SOCKET_H__ */
-
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -69,6 +67,8 @@ WS_DLL_PUBLIC void ws_cleanup_sockets(void);
 #ifdef	__cplusplus
 }
 #endif
+
+#endif /* __SOCKET_H__ */
 
 /*
  * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
