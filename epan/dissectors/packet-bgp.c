@@ -548,7 +548,20 @@ static dissector_handle_t bgp_handle;
 /* RFC 5512 Tunnel Types */
 #define TUNNEL_TYPE_L2TP_OVER_IP 1
 #define TUNNEL_TYPE_GRE          2
+#define TUNNEL_TYPE_TTE          3
+#define TUNNEL_TYPE_IPSEC_IN_TM  4
+#define TUNNEL_TYPE_IP_IN_IP_IPSEC 5
+#define TUNNEL_TYPE_MPLS_IN_IP_IPSEC 6
 #define TUNNEL_TYPE_IP_IN_IP     7
+#define TUNNEL_TYPE_VXLAN        8
+#define TUNNEL_TYPE_NVGRE        9
+#define TUNNEL_TYPE_MPLS         10
+#define TUNNEL_TYPE_MPLS_IN_GRE  11
+#define TUNNEL_TYPE_VXLAN_GPE    12
+#define TUNNEL_TYPE_MPLS_IN_UDP  13
+#define TUNNEL_TYPE_IPV6_TUNNEL  14
+#define TUNNEL_TYPE_SR_TE_POLICY 15
+#define TUNNEL_TYPE_BARE         16
 
 /*RFC 6514 PMSI Tunnel Types */
 #define PMSI_TUNNEL_NOPRESENT    0
@@ -571,8 +584,18 @@ static dissector_handle_t bgp_handle;
 /* RFC 5512/5640 Sub-TLV Types */
 #define TUNNEL_SUBTLV_ENCAPSULATION 1
 #define TUNNEL_SUBTLV_PROTO_TYPE    2
+#define TUNNEL_SUBTLV_IPSEC_TA      3
 #define TUNNEL_SUBTLV_COLOR         4
 #define TUNNEL_SUBTLV_LOAD_BALANCE  5
+#define TUNNEL_SUBTLV_REMOTE_ENDPOINT 6
+#define TUNNEL_SUBTLV_IPV4_DS_FIELD 7
+#define TUNNEL_SUBTLV_UDP_DST_PORT  8
+#define TUNNEL_SUBTLV_EMBEDDED_LABEL 9
+#define TUNNEL_SUBTLV_MPLS_LABEL    10
+#define TUNNEL_SUBTLV_PREFIX_SID    11
+#define TUNNEL_SUBTLV_PREFERENCE    12
+#define TUNNEL_SUBTLV_BINDING_SID   13
+#define TUNNEL_SUBTLV_SEGMENT_LIST  128
 
 /* Link-State NLRI types */
 #define LINK_STATE_NODE_NLRI                    1
@@ -978,17 +1001,40 @@ static const value_string pmsi_mldp_fec_opa_extented_type[] = {
 };
 
 static const value_string bgp_attr_tunnel_type[] = {
-    { TUNNEL_TYPE_L2TP_OVER_IP, "L2TP_OVER_IP" },
+    { TUNNEL_TYPE_L2TP_OVER_IP, "L2TPv2 over IP" },
     { TUNNEL_TYPE_GRE,          "GRE" },
-    { TUNNEL_TYPE_IP_IN_IP,     "IP_IN_IP" },
+    { TUNNEL_TYPE_TTE,          "Transmit tunnel endpoint" },
+    { TUNNEL_TYPE_IPSEC_IN_TM,  "IPsec in Tunnel-mode" },
+    { TUNNEL_TYPE_IP_IN_IP_IPSEC, "IP in IP tunnel with IPsec Transport Mode" },
+    { TUNNEL_TYPE_MPLS_IN_IP_IPSEC, "MPLS-in-IP tunnel with IPsec Transport Mode" },
+    { TUNNEL_TYPE_IP_IN_IP,     "IP in IP" },
+    { TUNNEL_TYPE_VXLAN,        "VXLAN Encapsulation" },
+    { TUNNEL_TYPE_NVGRE,        "NVGRE Encapsulation" },
+    { TUNNEL_TYPE_MPLS,         "MPLS Encapsulation" },
+    { TUNNEL_TYPE_MPLS_IN_GRE,  "MPLS in GRE Encapsulation" },
+    { TUNNEL_TYPE_VXLAN_GPE,    "VXLAN GPE Encapsulation" },
+    { TUNNEL_TYPE_MPLS_IN_UDP,  "MPLS in UDP Encapsulation" },
+    { TUNNEL_TYPE_IPV6_TUNNEL,  "IPv6 Tunnel" },
+    { TUNNEL_TYPE_SR_TE_POLICY, "SR TE Policy Type" },
+    { TUNNEL_TYPE_BARE,         "Bare" },
     { 0, NULL }
 };
 
 static const value_string subtlv_type[] = {
     { TUNNEL_SUBTLV_ENCAPSULATION, "ENCAPSULATION" },
     { TUNNEL_SUBTLV_PROTO_TYPE,    "PROTOCOL_TYPE" },
+    { TUNNEL_SUBTLV_IPSEC_TA,      "IPsec Tunnel Authenticator" },
     { TUNNEL_SUBTLV_COLOR,         "COLOR" },
     { TUNNEL_SUBTLV_LOAD_BALANCE,  "LOAD_BALANCE" },
+    { TUNNEL_SUBTLV_REMOTE_ENDPOINT,"Remote Endpoint" },
+    { TUNNEL_SUBTLV_IPV4_DS_FIELD, "IPv4 DS Field" },
+    { TUNNEL_SUBTLV_UDP_DST_PORT,   "UDP Destination Port" },
+    { TUNNEL_SUBTLV_EMBEDDED_LABEL, "Embedded Label Handling" },
+    { TUNNEL_SUBTLV_MPLS_LABEL,     "MPLS Label Stack" },
+    { TUNNEL_SUBTLV_PREFIX_SID,     "Prefix SID" },
+    { TUNNEL_SUBTLV_PREFERENCE,     "Preference" },
+    { TUNNEL_SUBTLV_BINDING_SID,    "Binding SID" },
+    { TUNNEL_SUBTLV_SEGMENT_LIST,   "Segment List" },
     { 0, NULL }
 };
 
