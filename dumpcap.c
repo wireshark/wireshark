@@ -1415,13 +1415,10 @@ cap_open_socket(char *pipename, capture_src *pcap_src, char *errmsg, size_t errm
 
     if (((fd = (int)socket(AF_INET, SOCK_STREAM, 0)) < 0) ||
          (connect(fd, (struct sockaddr *)&sa, sizeof(sa)) < 0)) {
-#ifdef _WIN32
-        DWORD lastError = WSAGetLastError();
-#endif
         g_snprintf(errmsg, (gulong)errmsgl,
             "The capture session could not be initiated due to the socket error: \n"
 #ifdef _WIN32
-            "         %d: %s", lastError, win32strerror(lastError));
+            "         %s", win32strerror(WSAGetLastError()));
 #else
             "         %d: %s", errno, g_strerror(errno));
 #endif
@@ -1504,20 +1501,11 @@ cap_pipe_read_data_bytes(capture_src *pcap_src, char *errmsg, size_t errmsgl)
                     pcap_src->cap_pipe_err = PIPEOF;
                 } else {
 #ifdef _WIN32
-                    LPTSTR errorText = NULL;
-                    int lastError = WSAGetLastError();
+                    DWORD lastError = WSAGetLastError();
                     errno = lastError;
-                    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM |
-                                FORMAT_MESSAGE_ALLOCATE_BUFFER |
-                                FORMAT_MESSAGE_IGNORE_INSERTS,
-                                NULL, lastError, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-                                (LPTSTR)&errorText, 0, NULL);
                     g_snprintf(errmsg, (gulong)errmsgl,
-                               "Error on pipe data during cap_pipe_read: "
-                               "         %d: %s", lastError,
-                               errorText ? (char *)errorText : "Unknown");
-                    if (errorText)
-                        LocalFree(errorText);
+                               "Error on pipe data during cap_pipe_read: %s.",
+                               win32strerror(lastError));
 #else
                     g_snprintf(errmsg, (gulong)errmsgl,
                                "Error on pipe data during cap_pipe_read: %s.",
@@ -1571,7 +1559,6 @@ cap_pipe_open_live(char *pipename,
     struct sockaddr_un sa;
 #else /* _WIN32 */
     char    *pncopy, *pos;
-    wchar_t *err_str;
     char* extcap_pipe_name;
 #endif
     gboolean extcap_pipe = FALSE;
@@ -1729,25 +1716,19 @@ cap_pipe_open_live(char *pipename,
                 break;
 
             if (GetLastError() != ERROR_PIPE_BUSY) {
-                FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
-                              NULL, GetLastError(), 0, (LPTSTR) &err_str, 0, NULL);
                 g_snprintf(errmsg, (gulong)errmsgl,
                            "The capture session on \"%s\" could not be started "
-                           "due to error on pipe open: %s (error %lu).",
-                           pipename, utf_16to8(err_str), GetLastError());
-                LocalFree(err_str);
+                           "due to error on pipe open: %s.",
+                           pipename, win32strerror(GetLastError()));
                 pcap_src->cap_pipe_err = PIPERR;
                 return;
             }
 
             if (!WaitNamedPipe(utf_8to16(pipename), 30 * 1000)) {
-                FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
-                             NULL, GetLastError(), 0, (LPTSTR) &err_str, 0, NULL);
                 g_snprintf(errmsg, (gulong)errmsgl,
                            "The capture session on \"%s\" timed out during "
-                           "pipe open: %s (error %lu).",
-                           pipename, utf_16to8(err_str), GetLastError());
-                LocalFree(err_str);
+                           "pipe open: %s.",
+                           pipename, win32strerror(GetLastError()));
                 pcap_src->cap_pipe_err = PIPERR;
                 return;
             }
@@ -2248,7 +2229,6 @@ pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t er
            PD_ERR } result;
 #ifdef _WIN32
     gpointer  q_status;
-    wchar_t  *err_str;
 #endif
     ssize_t   b;
     guint new_bufsize;
@@ -2452,15 +2432,10 @@ pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t er
         return -1;
 
     case PD_PIPE_ERR:
-#ifdef _WIN32
-        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
-                      NULL, GetLastError(), 0, (LPTSTR) &err_str, 0, NULL);
-        g_snprintf(errmsg, (gulong)errmsgl,
-                   "Error reading from pipe: %s (error %lu)",
-                   utf_16to8(err_str), GetLastError());
-        LocalFree(err_str);
-#else
         g_snprintf(errmsg, (gulong)errmsgl, "Error reading from pipe: %s",
+#ifdef _WIN32
+                   win32strerror(GetLastError()));
+#else
                    g_strerror(errno));
 #endif
         /* Fall through */
@@ -2480,7 +2455,6 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t 
            PD_ERR } result;
 #ifdef _WIN32
     gpointer  q_status;
-    wchar_t  *err_str;
 #endif
     guint new_bufsize;
     struct pcapng_block_header_s *bh = &pcap_src->cap_pipe_info.pcapng.bh;
@@ -2674,15 +2648,10 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t 
         return -1;
 
     case PD_PIPE_ERR:
-#ifdef _WIN32
-        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS,
-                      NULL, GetLastError(), 0, (LPTSTR) &err_str, 0, NULL);
-        g_snprintf(errmsg, (gulong)errmsgl,
-                   "Error reading from pipe: %s (error %lu)",
-                   utf_16to8(err_str), GetLastError());
-        LocalFree(err_str);
-#else
         g_snprintf(errmsg, (gulong)errmsgl, "Error reading from pipe: %s",
+#ifdef _WIN32
+                   win32strerror(GetLastError()));
+#else
                    g_strerror(errno));
 #endif
         /* Fall through */
