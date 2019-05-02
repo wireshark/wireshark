@@ -406,6 +406,10 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
             info->check_address     = FALSE;
             info->firstdata         = TRUE;
             info->direction         = sctp_info->direction;
+            info->instream1         = 0;
+            info->outstream1        = 0;
+            info->instream2         = 0;
+            info->outstream2        = 0;
             info                    = calc_checksum(sctp_info, info);
             info->n_packets         = 1;
             info->error_info_list   = NULL;
@@ -1065,10 +1069,14 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                         }
                         if (datachunk)
                         {
-                            if (info->init == FALSE)
-                                info->outstream1 = tvb_get_ntohs((sctp_info->tvb)[chunk_number], DATA_CHUNK_STREAM_ID_OFFSET)+1;
-                            if (info->initack == FALSE)
-                                info->instream2 = tvb_get_ntohs((sctp_info->tvb)[chunk_number], DATA_CHUNK_STREAM_ID_OFFSET)+1;
+                            if (info->init == FALSE) {
+                                guint16 tmp = tvb_get_ntohs((sctp_info->tvb)[chunk_number], DATA_CHUNK_STREAM_ID_OFFSET)+1;
+                                if (info->outstream1 < tmp) info->outstream1 = tmp;
+                            }
+                            if (info->initack == FALSE) {
+                                guint16 tmp = tvb_get_ntohs((sctp_info->tvb)[chunk_number], DATA_CHUNK_STREAM_ID_OFFSET)+1;
+                                if (info->instream2 < tmp) info->instream2 = tmp;
+                            }
                         }
 
                         g_ptr_array_add(info->sort_tsn1, tsn_s);
@@ -1127,10 +1135,14 @@ packet(void *tapdata _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const voi
                         }
                         if (datachunk)
                         {
-                            if (info->init == FALSE)
-                                info->instream1 = tvb_get_ntohs((sctp_info->tvb)[chunk_number], DATA_CHUNK_STREAM_ID_OFFSET)+1;
-                            if (info->initack == FALSE)
-                                info->outstream2 = tvb_get_ntohs((sctp_info->tvb)[chunk_number], DATA_CHUNK_STREAM_ID_OFFSET)+1;
+                            if (info->init == FALSE) {
+                                guint16 tmp = tvb_get_ntohs((sctp_info->tvb)[chunk_number], DATA_CHUNK_STREAM_ID_OFFSET)+1;
+                                if (info->instream1 < tmp) info->instream1 = tmp;
+                            }
+                            if (info->initack == FALSE) {
+                                guint16 tmp = tvb_get_ntohs((sctp_info->tvb)[chunk_number], DATA_CHUNK_STREAM_ID_OFFSET)+1;
+                                if (info->outstream2 < tmp) info->outstream2 = tmp;
+                            }
                         }
 
                         g_ptr_array_add(info->sort_tsn2, tsn_s);
