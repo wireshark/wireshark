@@ -32,10 +32,12 @@
 #include <ui/cmdarg_err.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
+#include <wsutil/socket.h>
 #ifdef HAVE_PLUGINS
 #include <wsutil/plugins.h>
 #endif
 #include <wsutil/report_message.h>
+#include <wsutil/please_report_bug.h>
 #include <wsutil/unicode-utils.h>
 #include <version_info.h>
 
@@ -383,11 +385,6 @@ int main(int argc, char *qt_argv[])
     int                  ret_val = EXIT_SUCCESS;
     char               **argv = qt_argv;
 
-#ifdef _WIN32
-    int                  result;
-    WSADATA              wsaData;
-#endif  /* _WIN32 */
-
     char                *rf_path;
     int                  rf_open_errno;
 #ifdef HAVE_LIBPCAP
@@ -569,15 +566,15 @@ int main(int argc, char *qt_argv[])
     QString cf_name;
     unsigned int in_file_type = WTAP_TYPE_AUTO;
 
-#ifdef _WIN32
-    /* Start windows sockets */
-    result = WSAStartup( MAKEWORD( 2, 2 ), &wsaData );
-    if (result != 0)
+    err_msg = ws_init_sockets();
+    if (err_msg != NULL)
     {
+        cmdarg_err("%s", err_msg);
+        g_free(err_msg);
+        cmdarg_err_cont("%s", please_report_bug());
         ret_val = INIT_FAILED;
         goto clean_exit;
     }
-#endif  /* _WIN32 */
 
     /* Read the profile dependent (static part) of the recent file. */
     /* Only the static part of it will be read, as we don't have the gui now to fill the */
@@ -940,10 +937,9 @@ int main(int argc, char *qt_argv[])
 
     Dot11DecryptDestroyContext(&dot11decrypt_ctx);
 
-#ifdef _WIN32
-    /* Shutdown windows sockets */
-    WSACleanup();
+    ws_cleanup_sockets();
 
+#ifdef _WIN32
     /* For some unknown reason, the "atexit()" call in "create_console()"
        doesn't arrange that "destroy_console()" be called when we exit,
        so we call it here if a console was created. */

@@ -49,8 +49,10 @@
 #include <ui/cmdarg_err.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
+#include <wsutil/socket.h>
 #include <wsutil/privileges.h>
 #include <wsutil/report_message.h>
+#include <wsutil/please_report_bug.h>
 #include <cli_main.h>
 #include <version_info.h>
 #include <wiretap/wtap_opttypes.h>
@@ -680,7 +682,7 @@ must_do_dissection(dfilter_t *rfcode, dfilter_t *dfcode,
 int
 main(int argc, char *argv[])
 {
-  char                *init_progfile_dir_error;
+  char                *err_msg;
   int                  opt;
   static const struct option long_options[] = {
     {"help", no_argument, NULL, 'h'},
@@ -695,11 +697,6 @@ main(int argc, char *argv[])
     {0, 0, 0, 0 }
   };
   gboolean             arg_error = FALSE;
-
-#ifdef _WIN32
-  int                  result;
-  WSADATA              wsaData;
-#endif  /* _WIN32 */
 
   int                  err;
   volatile process_file_status_t status;
@@ -730,7 +727,6 @@ main(int argc, char *argv[])
 #endif
   dfilter_t           *rfcode = NULL;
   dfilter_t           *dfcode = NULL;
-  gchar               *err_msg;
   e_prefs             *prefs_p;
   int                  log_flags;
   gchar               *output_only = NULL;
@@ -786,14 +782,14 @@ main(int argc, char *argv[])
    * Attempt to get the pathname of the directory containing the
    * executable file.
    */
-  init_progfile_dir_error = init_progfile_dir(argv[0]);
-  if (init_progfile_dir_error != NULL) {
+  err_msg = init_progfile_dir(argv[0]);
+  if (err_msg != NULL) {
     fprintf(stderr,
             "tshark: Can't get pathname of directory containing the tshark program: %s.\n"
             "It won't be possible to capture traffic.\n"
             "Report this to the Wireshark developers.",
-            init_progfile_dir_error);
-    g_free(init_progfile_dir_error);
+            err_msg);
+    g_free(err_msg);
   }
 
   initialize_funnel_ops();
@@ -1784,15 +1780,15 @@ main(int argc, char *argv[])
   }
 #endif
 
-#ifdef _WIN32
-  /* Start windows sockets */
-  result = WSAStartup( MAKEWORD( 2, 2 ), &wsaData );
-  if (result != 0)
+  err_msg = ws_init_sockets();
+  if (err_msg != NULL)
   {
+    cmdarg_err("%s", err_msg);
+    g_free(err_msg);
+    cmdarg_err_cont("%s", please_report_bug());
     exit_status = INIT_FAILED;
     goto clean_exit;
   }
-#endif /* _WIN32 */
 
   /* Notify all registered modules that have had any of their preferences
      changed either from one of the preferences file or from the command

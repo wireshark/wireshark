@@ -23,10 +23,6 @@
 	#include <sys/time.h>
 #endif
 
-#ifdef HAVE_SYS_SOCKET_H
-	#include <sys/socket.h>
-#endif
-
 #ifdef HAVE_NETINET_IN_H
 	#include <netinet/in.h>
 #endif
@@ -38,16 +34,14 @@
 	#include <unistd.h>
 #endif
 
-#ifdef HAVE_ARPA_INET_H
-	#include <arpa/inet.h>
-#endif
-
 #include <writecap/pcapio.h>
 #include <wiretap/wtap.h>
 #include <wsutil/strtoi.h>
 #include <wsutil/inet_addr.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
+#include <wsutil/socket.h>
+#include <wsutil/please_report_bug.h>
 
 #include <cli_main.h>
 
@@ -359,7 +353,7 @@ static void run_listener(const char* fifo, const guint16 port, const char* proto
 
 int main(int argc, char *argv[])
 {
-	char* init_progfile_dir_error;
+	char* err_msg;
 	int option_idx = 0;
 	int result;
 	guint16 port = 0;
@@ -369,9 +363,6 @@ int main(int argc, char *argv[])
 	char* help_header = NULL;
 	char* payload = NULL;
 	char* port_msg = NULL;
-#ifdef _WIN32
-	WSADATA wsaData;
-#endif  /* _WIN32 */
 
 	/*
 	 * Get credential information for later use.
@@ -382,11 +373,11 @@ int main(int argc, char *argv[])
 	 * Attempt to get the pathname of the directory containing the
 	 * executable file.
 	 */
-	init_progfile_dir_error = init_progfile_dir(argv[0]);
-	if (init_progfile_dir_error != NULL) {
+	err_msg = init_progfile_dir(argv[0]);
+	if (err_msg != NULL) {
 		g_warning("Can't get pathname of directory containing the captype program: %s.",
-			init_progfile_dir_error);
-		g_free(init_progfile_dir_error);
+			err_msg);
+		g_free(err_msg);
 	}
 
 	help_url = data_file_url("udpdump.html");
@@ -474,13 +465,13 @@ int main(int argc, char *argv[])
 	if (!payload)
 		payload = g_strdup("data");
 
-#ifdef _WIN32
-	result = WSAStartup(MAKEWORD(2, 2), &wsaData);
-	if (result != 0) {
-		g_warning("Error: WSAStartup failed with error: %d", result);
+	err_msg = ws_init_sockets();
+	if (err_msg != NULL) {
+		g_warning("Error: %s", err_msg);
+		g_free(err_msg);
+		g_warning("%s", please_report_bug());
 		goto end;
 	}
-#endif  /* _WIN32 */
 
 	if (port == 0)
 		port = UDPDUMP_DEFAULT_PORT;

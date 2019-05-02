@@ -18,6 +18,8 @@
 #include <wsutil/strtoi.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/privileges.h>
+#include <wsutil/socket.h>
+#include <wsutil/please_report_bug.h>
 
 #include <cli_main.h>
 
@@ -124,7 +126,7 @@ static int list_config(char *interface)
 
 int main(int argc, char *argv[])
 {
-	char* init_progfile_dir_error;
+	char* err_msg;
 	int option_idx = 0;
 	int result;
 	guint16 maxbytes = 5000;
@@ -137,10 +139,6 @@ int main(int argc, char *argv[])
 	randpkt_example	*example;
 	wtap_dumper* savedump;
 	int ret = EXIT_FAILURE;
-
-#ifdef _WIN32
-	WSADATA wsaData;
-#endif  /* _WIN32 */
 
 	extcap_parameters * extcap_conf = g_new0(extcap_parameters, 1);
 	char* help_url;
@@ -155,11 +153,11 @@ int main(int argc, char *argv[])
 	 * Attempt to get the pathname of the directory containing the
 	 * executable file.
 	 */
-	init_progfile_dir_error = init_progfile_dir(argv[0]);
-	if (init_progfile_dir_error != NULL) {
+	err_msg = init_progfile_dir(argv[0]);
+	if (err_msg != NULL) {
 		g_warning("Can't get pathname of directory containing the captype program: %s.",
-			init_progfile_dir_error);
-		g_free(init_progfile_dir_error);
+			err_msg);
+		g_free(err_msg);
 	}
 
 	help_url = data_file_url("randpktdump.html");
@@ -278,13 +276,13 @@ int main(int argc, char *argv[])
 		type = NULL;
 	}
 
-#ifdef _WIN32
-	result = WSAStartup(MAKEWORD(2, 2), &wsaData);
-	if (result != 0) {
-		g_warning("ERROR: WSAStartup failed with error: %d", result);
+	err_msg = ws_init_sockets();
+	if (err_msg != NULL) {
+		g_warning("ERROR: %s", err_msg);
+		g_free(err_msg);
+		g_warning("%s", please_report_bug());
 		goto end;
 	}
-#endif  /* _WIN32 */
 
 	if (extcap_conf->capture) {
 

@@ -49,9 +49,11 @@
 #include <ui/cmdarg_err.h>
 #include <wsutil/filesystem.h>
 #include <wsutil/file_util.h>
+#include <wsutil/socket.h>
 #include <wsutil/plugins.h>
 #include <wsutil/privileges.h>
 #include <wsutil/report_message.h>
+#include <wsutil/please_report_bug.h>
 #include <ui/clopts_common.h>
 
 #include "globals.h"
@@ -405,15 +407,12 @@ set_link_type(const char *lt_arg) {
 int
 main(int argc, char *argv[])
 {
-    char                *init_progfile_dir_error;
+    char                *err_msg;
     int                  opt, i;
 
-#ifdef _WIN32
-    int                  result;
-    WSADATA              wsaData;
-#else
+#ifndef _WIN32
     struct rlimit limit;
-#endif  /* _WIN32 */
+#endif  /* !_WIN32 */
 
     gchar               *pipe_name = NULL;
     gchar               *rfilters[64];
@@ -470,10 +469,10 @@ main(int argc, char *argv[])
      * Attempt to get the pathname of the directory containing the
      * executable file.
      */
-    init_progfile_dir_error = init_progfile_dir(argv[0]);
-    if (init_progfile_dir_error != NULL) {
+    err_msg = init_progfile_dir(argv[0]);
+    if (err_msg != NULL) {
         fprintf(stderr, "rawshark: Can't get pathname of rawshark program: %s.\n",
-                init_progfile_dir_error);
+                err_msg);
     }
 
     /* nothing more than the standard GLib handler, but without a warning */
@@ -725,15 +724,15 @@ main(int argc, char *argv[])
         goto clean_exit;
     }
 
-#ifdef _WIN32
-    /* Start windows sockets */
-    result = WSAStartup( MAKEWORD( 2, 2 ), &wsaData );
-    if (result != 0)
+    err_msg = ws_init_sockets();
+    if (err_msg != NULL)
     {
+        cmdarg_err("%s", err_msg);
+        g_free(err_msg);
+        cmdarg_err_cont("%s", please_report_bug());
         ret = INIT_ERROR;
         goto clean_exit;
     }
-#endif /* _WIN32 */
 
     /*
      * Enabled and disabled protocols and heuristic dissectors as per
@@ -746,8 +745,6 @@ main(int argc, char *argv[])
 
     if (n_rfilters != 0) {
         for (i = 0; i < n_rfilters; i++) {
-            gchar *err_msg;
-
             if (!dfilter_compile(rfilters[i], &rfcodes[n_rfcodes], &err_msg)) {
                 cmdarg_err("%s", err_msg);
                 g_free(err_msg);

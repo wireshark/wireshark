@@ -30,6 +30,7 @@
 
 #include <wsutil/socket.h>
 #include <wsutil/inet_addr.h>
+#include <wsutil/please_report_bug.h>
 
 #ifndef _WIN32
 #include <sys/un.h>
@@ -56,17 +57,15 @@ static socket_handle_t
 socket_init(char *path)
 {
 	socket_handle_t fd = INVALID_SOCKET;
+	char *err_msg;
 
-#ifdef _WIN32
-	WSADATA wsaData;
-	int result;
-
-	result = WSAStartup(MAKEWORD(2, 2), &wsaData);
-	if (result != 0) {
-		g_warning("ERROR: WSAStartup failed with error: %d", result);
-		return INVALID_SOCKET;
+	err_msg = ws_init_sockets();
+	if (err_msg != NULL) {
+		g_warning("ERROR: %s", err_msg);
+		g_free(err_msg);
+		g_warning("%s", please_report_bug());
+		return fd;
 	}
-#endif
 
 #ifdef SHARKD_UNIX_SUPPORT
 	if (!strncmp(path, "unix:", 5))

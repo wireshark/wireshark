@@ -107,6 +107,7 @@ set(WSUTIL_COMMON_FILES
 	privileges.c
 	rsa.c
 	sober128.c
+	socket.c
 	strnatcmp.c
 	str_util.c
 	strtoi.c

@@ -17,20 +17,12 @@
 
 #include <sys/types.h>
 
-#ifdef HAVE_SYS_SOCKET_H
-#include <sys/socket.h>
-#endif
-
 #ifdef HAVE_NETINET_IN_H
 #include <netinet/in.h>
 #endif
 
 #ifdef HAVE_GETOPT_H
 #include <getopt.h>
-#endif
-
-#ifdef HAVE_ARPA_INET_H
-#include <arpa/inet.h>
 #endif
 
 #if defined(__APPLE__) && defined(__LP64__)
@@ -44,6 +36,8 @@
 #include <wsutil/strtoi.h>
 #include <cli_main.h>
 #include <version_info.h>
+
+#include <wsutil/socket.h>
 
 #ifndef HAVE_GETOPT_LONG
 #include "wsutil/wsgetopt.h"
@@ -1131,10 +1125,9 @@ report_counts_siginfo(int signum _U_)
 static void
 exit_main(int status)
 {
-#ifdef _WIN32
-    /* Shutdown windows sockets */
-    WSACleanup();
+    ws_cleanup_sockets();
 
+#ifdef _WIN32
     /* can be helpful for debugging */
 #ifdef DEBUG_DUMPCAP
     printf("Press any key\n");
@@ -4631,6 +4624,7 @@ get_dumpcap_runtime_info(GString *str)
 int
 main(int argc, char *argv[])
 {
+    char             *err_msg;
     int               opt;
     static const struct option long_options[] = {
         {"help", no_argument, NULL, 'h'},
@@ -4814,19 +4808,20 @@ main(int argc, char *argv[])
     /* ... and also load the packet.dll from wpcap */
     /* XXX - currently not required, may change later. */
     /*wpcap_packet_load();*/
+#endif
 
-    DWORD   result;
-    WSADATA wsaData;
-
-    /* Start windows sockets */
-    result = WSAStartup( MAKEWORD(2, 2), &wsaData );
-    if (result != 0)
+    err_msg = ws_init_sockets();
+    if (err_msg != NULL)
     {
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_ERROR,
-                          "ERROR: WSAStartup failed with error %d: %s", result, win32strerror(result));
+                          "ERROR: %s", err_msg);
+        g_free(err_msg);
+        g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_ERROR,
+                          "%s", please_report_bug());
         exit_main(1);
     }
 
+#ifdef _WIN32
     /* Set handler for Ctrl+C key */
     SetConsoleCtrlHandler(capture_cleanup_handler, TRUE);
 #else

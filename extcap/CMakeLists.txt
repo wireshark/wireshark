@@ -200,6 +200,7 @@ endif()
 
 if(BUILD_udpdump)
 	set(udpdump_LIBS
+		wsutil
 		${GLIB2_LIBRARIES}
 		${CMAKE_DL_LIBS}
 		${WIN_WS2_32_LIBRARY}
@@ -224,6 +225,7 @@ if(BUILD_randpktdump)
 	set(randpktdump_LIBS
 		randpkt_core
 		wiretap
+		wsutil
 		${GLIB2_LIBRARIES}
 		${ZLIB_LIBRARIES}
 		${CMAKE_DL_LIBS}
