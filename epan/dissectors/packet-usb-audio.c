@@ -101,6 +101,14 @@ static int hf_ac_if_output_terminalid = -1;
 static int hf_ac_if_output_terminaltype = -1;
 static int hf_ac_if_output_assocterminal = -1;
 static int hf_ac_if_output_sourceid = -1;
+static int hf_ac_if_output_clk_sourceid = -1;
+static int hf_ac_if_output_controls = -1;
+static int hf_ac_if_output_controls_copy = -1;
+static int hf_ac_if_output_controls_connector = -1;
+static int hf_ac_if_output_controls_overload = -1;
+static int hf_ac_if_output_controls_underflow = -1;
+static int hf_ac_if_output_controls_overflow = -1;
+static int hf_ac_if_output_controls_rsv = -1;
 static int hf_ac_if_output_terminal = -1;
 static int hf_ac_if_fu_unitid = -1;
 static int hf_ac_if_fu_sourceid = -1;
@@ -186,6 +194,7 @@ static gint ett_ac_if_fu_controls1 = -1;
 static gint ett_ac_if_input_wchannelconfig = -1;
 static gint ett_ac_if_input_bmchannelconfig = -1;
 static gint ett_ac_if_input_controls = -1;
+static gint ett_ac_if_output_controls = -1;
 static gint ett_ac_if_mu_channelconfig = -1;
 static gint ett_ac_if_clksrc_attr = -1;
 static gint ett_ac_if_clksrc_controls = -1;
@@ -755,9 +764,30 @@ dissect_ac_if_input_terminal(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 
 static gint
 dissect_ac_if_output_terminal(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-        proto_tree *tree, usb_conv_info_t *usb_conv_info _U_)
+        proto_tree *tree, usb_conv_info_t *usb_conv_info)
 {
-    gint     offset_start;
+    audio_conv_info_t *audio_conv_info;
+    gint               offset_start;
+
+    static const int *controls[] = {
+        &hf_ac_if_output_controls_copy,
+        &hf_ac_if_output_controls_connector,
+        &hf_ac_if_output_controls_overload,
+        &hf_ac_if_output_controls_underflow,
+        &hf_ac_if_output_controls_overflow,
+        &hf_ac_if_output_controls_rsv,
+        NULL
+    };
+
+    /* the caller has already checked that usb_conv_info!=NULL */
+    audio_conv_info = (audio_conv_info_t *)usb_conv_info->class_data;
+    if (!audio_conv_info)
+        return 0;
+
+    /* do not try to dissect unknown versions */
+    if (!((audio_conv_info->ver_major==1) || (audio_conv_info->ver_major==2)))
+        return 0;
+
     offset_start = offset;
 
     proto_tree_add_item(tree, hf_ac_if_output_terminalid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -771,6 +801,14 @@ dissect_ac_if_output_terminal(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_
 
     proto_tree_add_item(tree, hf_ac_if_output_sourceid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
+
+    if (audio_conv_info->ver_major==2) {
+        proto_tree_add_item(tree, hf_ac_if_output_clk_sourceid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_bitmask(tree, tvb, offset, hf_ac_if_output_controls, ett_ac_if_output_controls, controls, ENC_LITTLE_ENDIAN);
+        offset += 2;
+    }
 
     proto_tree_add_item(tree, hf_ac_if_output_terminal, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
@@ -1473,8 +1511,32 @@ proto_register_usb_audio(void)
         { &hf_ac_if_output_sourceid,
             { "Source ID", "usbaudio.ac_if_output.bSourceID",
               FT_UINT8, BASE_DEC, NULL, 0x00, "bSourceID", HFILL }},
+        { &hf_ac_if_output_clk_sourceid,
+            { "Connected Clock Entity", "usbaudio.ac_if_output.bCSourceID",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "bCSourceID", HFILL }},
+        { &hf_ac_if_output_controls,
+            { "Controls", "usbaudio.ac_if_output.bmControls",
+              FT_UINT16, BASE_HEX, NULL, 0x0000, "bmControls", HFILL }},
+        { &hf_ac_if_output_controls_copy,
+            { "Copy Protect Control", "usbaudio.ac_if_output.bmControls.copy", FT_UINT16,
+              BASE_HEX|BASE_EXT_STRING, &controls_capabilities_vals_ext, 0x0003, NULL, HFILL }},
+        { &hf_ac_if_output_controls_connector,
+            { "Connector Control", "usbaudio.ac_if_output.bmControls.connector", FT_UINT16,
+              BASE_HEX|BASE_EXT_STRING, &controls_capabilities_vals_ext, 0x000C, NULL, HFILL }},
+        { &hf_ac_if_output_controls_overload,
+            { "Overload Control", "usbaudio.ac_if_output.bmControls.overload", FT_UINT16,
+              BASE_HEX|BASE_EXT_STRING, &controls_capabilities_vals_ext, 0x0030, NULL, HFILL }},
+        { &hf_ac_if_output_controls_underflow,
+            { "Underflow Control", "usbaudio.ac_if_output.bmControls.underflow", FT_UINT16,
+              BASE_HEX|BASE_EXT_STRING, &controls_capabilities_vals_ext, 0x00C0, NULL, HFILL }},
+        { &hf_ac_if_output_controls_overflow,
+            { "Overflow Control", "usbaudio.ac_if_output.bmControls.overflow", FT_UINT16,
+              BASE_HEX|BASE_EXT_STRING, &controls_capabilities_vals_ext, 0x0300, NULL, HFILL }},
+        { &hf_ac_if_output_controls_rsv,
+            { "Reserved", "usbaudio.ac_if_output.bmControls.rsv",
+              FT_UINT16, BASE_HEX, NULL, 0xFC00, "Must be zero", HFILL }},
         { &hf_ac_if_output_terminal,
-            { "Terminal", "usbaudio.ac_if_output.iTerminal",
+            { "String descriptor index", "usbaudio.ac_if_output.iTerminal",
               FT_UINT8, BASE_DEC, NULL, 0x00, "iTerminal", HFILL }},
         { &hf_ac_if_fu_unitid,
             { "Unit ID", "usbaudio.ac_if_fu.bUnitID",
@@ -1739,6 +1801,7 @@ proto_register_usb_audio(void)
         &ett_ac_if_input_wchannelconfig,
         &ett_ac_if_input_bmchannelconfig,
         &ett_ac_if_input_controls,
+        &ett_ac_if_output_controls,
         &ett_ac_if_mu_channelconfig,
         &ett_ac_if_clksrc_attr,
         &ett_ac_if_clksrc_controls,
