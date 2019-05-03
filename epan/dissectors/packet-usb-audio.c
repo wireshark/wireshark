@@ -167,9 +167,97 @@ static int hf_ac_if_clksel_controls_clksel = -1;
 static int hf_ac_if_clksel_controls_rsv = -1;
 static int hf_ac_if_clksel_clockselector = -1;
 static int hf_as_if_desc_subtype = -1;
-static int hf_as_if_gen_term_id = -1;
+static int hf_as_if_gen_term_link = -1;
 static int hf_as_if_gen_delay = -1;
-static int hf_as_if_gen_format = -1;
+static int hf_as_if_gen_wformattag = -1;
+static int hf_as_if_gen_controls = -1;
+static int hf_as_if_gen_controls_active = -1;
+static int hf_as_if_gen_controls_valid = -1;
+static int hf_as_if_gen_controls_rsv = -1;
+static int hf_as_if_gen_formattype = -1;
+static int hf_as_if_gen_formats = -1;
+static int hf_as_if_gen_formats_i_d0 = -1;
+static int hf_as_if_gen_formats_i_d1 = -1;
+static int hf_as_if_gen_formats_i_d2 = -1;
+static int hf_as_if_gen_formats_i_d3 = -1;
+static int hf_as_if_gen_formats_i_d4 = -1;
+static int hf_as_if_gen_formats_i_rsv = -1;
+static int hf_as_if_gen_formats_i_d31 = -1;
+static int hf_as_if_gen_formats_ii_d0 = -1;
+static int hf_as_if_gen_formats_ii_d1 = -1;
+static int hf_as_if_gen_formats_ii_d2 = -1;
+static int hf_as_if_gen_formats_ii_d3 = -1;
+static int hf_as_if_gen_formats_ii_rsv = -1;
+static int hf_as_if_gen_formats_ii_d31 = -1;
+static int hf_as_if_gen_formats_iii_d0 = -1;
+static int hf_as_if_gen_formats_iii_d1 = -1;
+static int hf_as_if_gen_formats_iii_d2 = -1;
+static int hf_as_if_gen_formats_iii_d3 = -1;
+static int hf_as_if_gen_formats_iii_d4 = -1;
+static int hf_as_if_gen_formats_iii_d5 = -1;
+static int hf_as_if_gen_formats_iii_d6 = -1;
+static int hf_as_if_gen_formats_iii_d7 = -1;
+static int hf_as_if_gen_formats_iii_d8 = -1;
+static int hf_as_if_gen_formats_iii_d9 = -1;
+static int hf_as_if_gen_formats_iii_d10 = -1;
+static int hf_as_if_gen_formats_iii_d11 = -1;
+static int hf_as_if_gen_formats_iii_d12 = -1;
+static int hf_as_if_gen_formats_iii_rsv = -1;
+static int hf_as_if_gen_formats_iv_d0 = -1;
+static int hf_as_if_gen_formats_iv_d1 = -1;
+static int hf_as_if_gen_formats_iv_d2 = -1;
+static int hf_as_if_gen_formats_iv_d3 = -1;
+static int hf_as_if_gen_formats_iv_d4 = -1;
+static int hf_as_if_gen_formats_iv_d5 = -1;
+static int hf_as_if_gen_formats_iv_d6 = -1;
+static int hf_as_if_gen_formats_iv_d7 = -1;
+static int hf_as_if_gen_formats_iv_d8 = -1;
+static int hf_as_if_gen_formats_iv_d9 = -1;
+static int hf_as_if_gen_formats_iv_d10 = -1;
+static int hf_as_if_gen_formats_iv_d11 = -1;
+static int hf_as_if_gen_formats_iv_d12 = -1;
+static int hf_as_if_gen_formats_iv_d13 = -1;
+static int hf_as_if_gen_formats_iv_d14 = -1;
+static int hf_as_if_gen_formats_iv_d15 = -1;
+static int hf_as_if_gen_formats_iv_d16 = -1;
+static int hf_as_if_gen_formats_iv_d17 = -1;
+static int hf_as_if_gen_formats_iv_d18 = -1;
+static int hf_as_if_gen_formats_iv_d19 = -1;
+static int hf_as_if_gen_formats_iv_d20 = -1;
+static int hf_as_if_gen_formats_iv_d21 = -1;
+static int hf_as_if_gen_formats_iv_rsv = -1;
+static int hf_as_if_gen_nrchannels = -1;
+static int hf_as_if_gen_bmchannelconfig = -1;
+static int hf_as_if_gen_bmchannelconfig_d0 = -1;
+static int hf_as_if_gen_bmchannelconfig_d1 = -1;
+static int hf_as_if_gen_bmchannelconfig_d2 = -1;
+static int hf_as_if_gen_bmchannelconfig_d3 = -1;
+static int hf_as_if_gen_bmchannelconfig_d4 = -1;
+static int hf_as_if_gen_bmchannelconfig_d5 = -1;
+static int hf_as_if_gen_bmchannelconfig_d6 = -1;
+static int hf_as_if_gen_bmchannelconfig_d7 = -1;
+static int hf_as_if_gen_bmchannelconfig_d8 = -1;
+static int hf_as_if_gen_bmchannelconfig_d9 = -1;
+static int hf_as_if_gen_bmchannelconfig_d10 = -1;
+static int hf_as_if_gen_bmchannelconfig_d11 = -1;
+static int hf_as_if_gen_bmchannelconfig_d12 = -1;
+static int hf_as_if_gen_bmchannelconfig_d13 = -1;
+static int hf_as_if_gen_bmchannelconfig_d14 = -1;
+static int hf_as_if_gen_bmchannelconfig_d15 = -1;
+static int hf_as_if_gen_bmchannelconfig_d16 = -1;
+static int hf_as_if_gen_bmchannelconfig_d17 = -1;
+static int hf_as_if_gen_bmchannelconfig_d18 = -1;
+static int hf_as_if_gen_bmchannelconfig_d19 = -1;
+static int hf_as_if_gen_bmchannelconfig_d20 = -1;
+static int hf_as_if_gen_bmchannelconfig_d21 = -1;
+static int hf_as_if_gen_bmchannelconfig_d22 = -1;
+static int hf_as_if_gen_bmchannelconfig_d23 = -1;
+static int hf_as_if_gen_bmchannelconfig_d24 = -1;
+static int hf_as_if_gen_bmchannelconfig_d25 = -1;
+static int hf_as_if_gen_bmchannelconfig_d26 = -1;
+static int hf_as_if_gen_bmchannelconfig_rsv = -1;
+static int hf_as_if_gen_bmchannelconfig_d31 = -1;
+static int hf_as_if_gen_channelnames = -1;
 static int hf_as_if_ft_formattype = -1;
 static int hf_as_if_ft_maxbitrate = -1;
 static int hf_as_if_ft_nrchannels = -1;
@@ -199,6 +287,9 @@ static gint ett_ac_if_mu_channelconfig = -1;
 static gint ett_ac_if_clksrc_attr = -1;
 static gint ett_ac_if_clksrc_controls = -1;
 static gint ett_ac_if_clksel_controls = -1;
+static gint ett_as_if_gen_controls = -1;
+static gint ett_as_if_gen_formats = -1;
+static gint ett_as_if_gen_bmchannelconfig = -1;
 
 static dissector_handle_t sysex_handle;
 static dissector_handle_t usb_audio_bulk_handle;
@@ -328,6 +419,17 @@ static const value_string controls_capabilities_vals[] = {
 static value_string_ext controls_capabilities_vals_ext =
     VALUE_STRING_EXT_INIT(controls_capabilities_vals);
 
+/* Described in 4.9.2 Class-Specific AS Interface Descriptor */
+static const value_string controls_capabilities_read_only_vals[] = {
+    {0x00, "Not present"},
+    {0x01, "Present, read-only"},
+    {0x02, "Value not allowed"},
+    {0x03, "Value not allowed"},
+    {0,NULL}
+};
+static value_string_ext controls_capabilities_read_only_vals_ext =
+    VALUE_STRING_EXT_INIT(controls_capabilities_read_only_vals);
+
 /* Described in 4.7.2.1 Clock Source Descriptor */
 static const value_string clock_types_vals[] = {
     {0x00, "External clock"},
@@ -411,6 +513,32 @@ static const value_string terminal_types_vals[] = {
 };
 static value_string_ext terminal_types_vals_ext =
     VALUE_STRING_EXT_INIT(terminal_types_vals);
+
+/* From https://usb.org/sites/default/files/frmts10.pdf */
+static const value_string audio_data_format_tag_vals[] = {
+    /* Audio Data Format Type I Codes */
+    {0x0000, "Type I Undefined"},
+    {0x0001, "PCM"},
+    {0x0002, "PCM8"},
+    {0x0003, "IEEE Float"},
+    {0x0004, "ALAW"},
+    {0x0005, "MULAW"},
+    /* Audio Data Format Type II Codes */
+    {0x1000, "Type II Undefined"},
+    {0x1001, "MPEG"},
+    {0x1002, "AC-3"},
+    /* Audio Data Format Type III Codes */
+    {0x2000, "Type III Undefined"},
+    {0x2001, "IEC1937 AC-3"},
+    {0x2002, "IEC1937 MPEG-1 Layer1"},
+    {0x2003, "IEC1937 MPEG-1 Layer2/3 or IEC1937 MPEG-2 NOEXT"},
+    {0x2004, "IEC1937 MPEG-2 EXT"},
+    {0x2005, "IEC1937 MPEG-2 Layer1 LS"},
+    {0x2006, "IEC1937 MPEG-2 Layer2/3 LS"},
+    {0,NULL}
+};
+static value_string_ext audio_data_format_tag_vals_ext =
+    VALUE_STRING_EXT_INIT(audio_data_format_tag_vals);
 
 typedef struct _audio_conv_info_t {
     /* the major version of the USB audio class specification,
@@ -1009,6 +1137,112 @@ dissect_as_if_general_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     audio_conv_info_t *audio_conv_info;
     gint               offset_start;
 
+    static const int *v2_controls[] = {
+        &hf_as_if_gen_controls_active,
+        &hf_as_if_gen_controls_valid,
+        &hf_as_if_gen_controls_rsv,
+        NULL
+    };
+
+    static const int *v2_formats_type_i[] = {
+        &hf_as_if_gen_formats_i_d0,
+        &hf_as_if_gen_formats_i_d1,
+        &hf_as_if_gen_formats_i_d2,
+        &hf_as_if_gen_formats_i_d3,
+        &hf_as_if_gen_formats_i_d4,
+        &hf_as_if_gen_formats_i_rsv,
+        &hf_as_if_gen_formats_i_d31,
+        NULL
+    };
+
+    static const int *v2_formats_type_ii[] = {
+        &hf_as_if_gen_formats_ii_d0,
+        &hf_as_if_gen_formats_ii_d1,
+        &hf_as_if_gen_formats_ii_d2,
+        &hf_as_if_gen_formats_ii_d3,
+        &hf_as_if_gen_formats_ii_rsv,
+        &hf_as_if_gen_formats_ii_d31,
+        NULL
+    };
+
+    static const int *v2_formats_type_iii[] = {
+        &hf_as_if_gen_formats_iii_d0,
+        &hf_as_if_gen_formats_iii_d1,
+        &hf_as_if_gen_formats_iii_d2,
+        &hf_as_if_gen_formats_iii_d3,
+        &hf_as_if_gen_formats_iii_d4,
+        &hf_as_if_gen_formats_iii_d5,
+        &hf_as_if_gen_formats_iii_d6,
+        &hf_as_if_gen_formats_iii_d7,
+        &hf_as_if_gen_formats_iii_d8,
+        &hf_as_if_gen_formats_iii_d9,
+        &hf_as_if_gen_formats_iii_d10,
+        &hf_as_if_gen_formats_iii_d11,
+        &hf_as_if_gen_formats_iii_d12,
+        &hf_as_if_gen_formats_iii_rsv,
+        NULL
+    };
+
+    static const int *v2_formats_type_iv[] = {
+        &hf_as_if_gen_formats_iv_d0,
+        &hf_as_if_gen_formats_iv_d1,
+        &hf_as_if_gen_formats_iv_d2,
+        &hf_as_if_gen_formats_iv_d3,
+        &hf_as_if_gen_formats_iv_d4,
+        &hf_as_if_gen_formats_iv_d5,
+        &hf_as_if_gen_formats_iv_d6,
+        &hf_as_if_gen_formats_iv_d7,
+        &hf_as_if_gen_formats_iv_d8,
+        &hf_as_if_gen_formats_iv_d9,
+        &hf_as_if_gen_formats_iv_d10,
+        &hf_as_if_gen_formats_iv_d11,
+        &hf_as_if_gen_formats_iv_d12,
+        &hf_as_if_gen_formats_iv_d13,
+        &hf_as_if_gen_formats_iv_d14,
+        &hf_as_if_gen_formats_iv_d15,
+        &hf_as_if_gen_formats_iv_d16,
+        &hf_as_if_gen_formats_iv_d17,
+        &hf_as_if_gen_formats_iv_d18,
+        &hf_as_if_gen_formats_iv_d19,
+        &hf_as_if_gen_formats_iv_d20,
+        &hf_as_if_gen_formats_iv_d21,
+        &hf_as_if_gen_formats_iv_rsv,
+        NULL
+    };
+
+    static const int *v2_channels[] = {
+        &hf_as_if_gen_bmchannelconfig_d0,
+        &hf_as_if_gen_bmchannelconfig_d1,
+        &hf_as_if_gen_bmchannelconfig_d2,
+        &hf_as_if_gen_bmchannelconfig_d3,
+        &hf_as_if_gen_bmchannelconfig_d4,
+        &hf_as_if_gen_bmchannelconfig_d5,
+        &hf_as_if_gen_bmchannelconfig_d6,
+        &hf_as_if_gen_bmchannelconfig_d7,
+        &hf_as_if_gen_bmchannelconfig_d8,
+        &hf_as_if_gen_bmchannelconfig_d9,
+        &hf_as_if_gen_bmchannelconfig_d10,
+        &hf_as_if_gen_bmchannelconfig_d11,
+        &hf_as_if_gen_bmchannelconfig_d12,
+        &hf_as_if_gen_bmchannelconfig_d13,
+        &hf_as_if_gen_bmchannelconfig_d14,
+        &hf_as_if_gen_bmchannelconfig_d15,
+        &hf_as_if_gen_bmchannelconfig_d16,
+        &hf_as_if_gen_bmchannelconfig_d17,
+        &hf_as_if_gen_bmchannelconfig_d18,
+        &hf_as_if_gen_bmchannelconfig_d19,
+        &hf_as_if_gen_bmchannelconfig_d20,
+        &hf_as_if_gen_bmchannelconfig_d21,
+        &hf_as_if_gen_bmchannelconfig_d22,
+        &hf_as_if_gen_bmchannelconfig_d23,
+        &hf_as_if_gen_bmchannelconfig_d24,
+        &hf_as_if_gen_bmchannelconfig_d25,
+        &hf_as_if_gen_bmchannelconfig_d26,
+        &hf_as_if_gen_bmchannelconfig_rsv,
+        &hf_as_if_gen_bmchannelconfig_d31,
+        NULL
+    };
+
     /* the caller has already checked that usb_conv_info!=NULL */
     audio_conv_info = (audio_conv_info_t *)usb_conv_info->class_data;
     if (!audio_conv_info)
@@ -1017,15 +1251,53 @@ dissect_as_if_general_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     offset_start = offset;
 
     if (audio_conv_info->ver_major==1) {
-        proto_tree_add_item(tree, hf_as_if_gen_term_id,
-                tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(tree, hf_as_if_gen_term_link, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
-        proto_tree_add_item(tree, hf_as_if_gen_delay,
-                tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(tree, hf_as_if_gen_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
-        proto_tree_add_item(tree, hf_as_if_gen_format,
-                tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(tree, hf_as_if_gen_wformattag, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
+    } else if (audio_conv_info->ver_major==2) {
+        guint8 format_type;
+        const int **formats_bitmask;
+
+        proto_tree_add_item(tree, hf_as_if_gen_term_link, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_bitmask(tree, tvb, offset, hf_as_if_gen_controls, ett_as_if_gen_controls, v2_controls, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(tree, hf_as_if_gen_formattype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        format_type = tvb_get_guint8(tvb, offset);
+        offset++;
+        switch(format_type)
+        {
+            case 1:
+                formats_bitmask = v2_formats_type_i;
+                break;
+            case 2:
+                formats_bitmask = v2_formats_type_ii;
+                break;
+            case 3:
+                formats_bitmask = v2_formats_type_iii;
+                break;
+            case 4:
+                formats_bitmask = v2_formats_type_iv;
+                break;
+            default:
+                formats_bitmask = NULL;
+                break;
+        }
+        if (formats_bitmask) {
+            proto_tree_add_bitmask(tree, tvb, offset, hf_as_if_gen_formats, ett_as_if_gen_formats, formats_bitmask, ENC_LITTLE_ENDIAN);
+        } else {
+            proto_tree_add_item(tree, hf_as_if_gen_formats, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        }
+        offset += 4;
+        proto_tree_add_item(tree, hf_as_if_gen_nrchannels, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_bitmask(tree, tvb, offset, hf_as_if_gen_bmchannelconfig, ett_as_if_gen_bmchannelconfig, v2_channels, ENC_LITTLE_ENDIAN);
+        offset += 4;
+        proto_tree_add_item(tree, hf_as_if_gen_channelnames, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
     }
 
     return offset-offset_start;
@@ -1712,15 +1984,285 @@ proto_register_usb_audio(void)
         { &hf_as_if_desc_subtype,
             { "Subtype", "usbaudio.as_if_subtype", FT_UINT8, BASE_HEX|BASE_EXT_STRING,
                 &as_subtype_vals_ext, 0x00, "bDescriptorSubtype", HFILL }},
-        { &hf_as_if_gen_term_id,
-            { "Terminal ID", "usbaudio.as_if_gen.bTerminalLink",
+        { &hf_as_if_gen_term_link,
+            { "Connected Terminal ID", "usbaudio.as_if_gen.bTerminalLink",
               FT_UINT8, BASE_DEC, NULL, 0x00, "bTerminalLink", HFILL }},
         { &hf_as_if_gen_delay,
             { "Interface delay in frames", "usbaudio.as_if_gen.bDelay",
               FT_UINT8, BASE_DEC, NULL, 0x00, "bDelay", HFILL }},
-        { &hf_as_if_gen_format,
-            { "Format", "usbaudio.as_if_gen.wFormatTag",
-              FT_UINT16, BASE_HEX, NULL, 0x00, "wFormatTag", HFILL }},
+        { &hf_as_if_gen_wformattag,
+            { "Format", "usbaudio.as_if_gen.wFormatTag", FT_UINT16, BASE_HEX|BASE_EXT_STRING,
+              &audio_data_format_tag_vals_ext, 0x0000, "wFormatTag", HFILL }},
+        { &hf_as_if_gen_controls,
+            { "Controls", "usbaudio.as_if_gen.bmControls",
+              FT_UINT8, BASE_HEX, NULL, 0x00, "bmControls", HFILL }},
+        { &hf_as_if_gen_controls_active,
+            { "Active Alternate Setting Control", "usbaudio.as_if_gen.bmControls.active", FT_UINT8,
+              BASE_HEX|BASE_EXT_STRING, &controls_capabilities_read_only_vals_ext, 0x03, NULL, HFILL }},
+        { &hf_as_if_gen_controls_valid,
+            { "Valid Alternate Settings Control", "usbaudio.as_if_gen.bmControls.valid", FT_UINT8,
+              BASE_HEX|BASE_EXT_STRING, &controls_capabilities_read_only_vals_ext, 0x0C, NULL, HFILL }},
+        { &hf_as_if_gen_controls_rsv,
+            { "Reserved", "usbaudio.as_if_gen.bmControls.rsv",
+              FT_UINT8, BASE_HEX, NULL, 0xF0, "Must be zero", HFILL }},
+        { &hf_as_if_gen_formattype,
+            { "Format Type", "usbaudio.as_if_gen.bFormatType",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "bFormatType", HFILL }},
+        { &hf_as_if_gen_formats,
+            { "Formats", "usbaudio.as_if_gen.bmFormats",
+              FT_UINT32, BASE_HEX, NULL, 0x00000000, "bmFormats", HFILL }},
+
+        { &hf_as_if_gen_formats_i_d0,
+            { "PCM", "usbaudio.as_if_gen.bmFormats.d0",
+              FT_BOOLEAN, 32, NULL, (1u << 0), NULL, HFILL }},
+        { &hf_as_if_gen_formats_i_d1,
+            { "PCM8", "usbaudio.as_if_gen.bmFormats.d1",
+              FT_BOOLEAN, 32, NULL, (1u << 1), NULL, HFILL }},
+        { &hf_as_if_gen_formats_i_d2,
+            { "IEEE Float", "usbaudio.as_if_gen.bmFormats.d2",
+              FT_BOOLEAN, 32, NULL, (1u << 2), NULL, HFILL }},
+        { &hf_as_if_gen_formats_i_d3,
+            { "ALAW", "usbaudio.as_if_gen.bmFormats.d3",
+              FT_BOOLEAN, 32, NULL, (1u << 3), NULL, HFILL }},
+        { &hf_as_if_gen_formats_i_d4,
+            { "MULAW", "usbaudio.as_if_gen.bmFormats.d4",
+              FT_BOOLEAN, 32, NULL, (1u << 4), NULL, HFILL }},
+        { &hf_as_if_gen_formats_i_rsv,
+            { "Reserved", "usbaudio.as_if_gen.bmFormats.rsv",
+              FT_BOOLEAN, 32, NULL, (0x7FFFFFE0u), "Must be zero", HFILL }},
+        { &hf_as_if_gen_formats_i_d31,
+            { "Type I Raw Data", "usbaudio.as_if_gen.bmFormats.d31",
+              FT_BOOLEAN, 32, NULL, (1u << 31), NULL, HFILL }},
+
+        { &hf_as_if_gen_formats_ii_d0,
+            { "MPEG", "usbaudio.as_if_gen.bmFormats.d0",
+              FT_BOOLEAN, 32, NULL, (1u << 0), NULL, HFILL }},
+        { &hf_as_if_gen_formats_ii_d1,
+            { "AC-3", "usbaudio.as_if_gen.bmFormats.d1",
+              FT_BOOLEAN, 32, NULL, (1u << 1), NULL, HFILL }},
+        { &hf_as_if_gen_formats_ii_d2,
+            { "WMA", "usbaudio.as_if_gen.bmFormats.d2",
+              FT_BOOLEAN, 32, NULL, (1u << 2), NULL, HFILL }},
+        { &hf_as_if_gen_formats_ii_d3,
+            { "DTS", "usbaudio.as_if_gen.bmFormats.d3",
+              FT_BOOLEAN, 32, NULL, (1u << 3), NULL, HFILL }},
+        { &hf_as_if_gen_formats_ii_rsv,
+            { "Reserved", "usbaudio.as_if_gen.bmFormats.rsv",
+              FT_BOOLEAN, 32, NULL, (0x7FFFFFF0u), "Must be zero", HFILL }},
+        { &hf_as_if_gen_formats_ii_d31,
+            { "Type II Raw Data", "usbaudio.as_if_gen.bmFormats.d31",
+              FT_BOOLEAN, 32, NULL, (1u << 31), NULL, HFILL }},
+
+        { &hf_as_if_gen_formats_iii_d0,
+            { "IEC61937 AC-3", "usbaudio.as_if_gen.bmFormats.d0",
+              FT_BOOLEAN, 32, NULL, (1u << 0), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iii_d1,
+            { "IEC61937 MPEG-1 Layer1", "usbaudio.as_if_gen.bmFormats.d1",
+              FT_BOOLEAN, 32, NULL, (1u << 1), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iii_d2,
+            { "IEC61937 MPEG-1 Layer2/3 or IEC61937 MPEG-2 NOEXT", "usbaudio.as_if_gen.bmFormats.d2",
+              FT_BOOLEAN, 32, NULL, (1u << 2), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iii_d3,
+            { "IEC61937 MPEG-2 EXT", "usbaudio.as_if_gen.bmFormats.d3",
+              FT_BOOLEAN, 32, NULL, (1u << 3), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iii_d4,
+            { "IEC61937 MPEG-2 AAC ADTS", "usbaudio.as_if_gen.bmFormats.d4",
+              FT_BOOLEAN, 32, NULL, (1u << 4), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iii_d5,
+            { "IEC61937 MPEG-2 Layer1 LS", "usbaudio.as_if_gen.bmFormats.d5",
+              FT_BOOLEAN, 32, NULL, (1u << 5), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iii_d6,
+            { "IEC61937 MPEG-2 Layer2/3 LS", "usbaudio.as_if_gen.bmFormats.d6",
+              FT_BOOLEAN, 32, NULL, (1u << 6), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iii_d7,
+            { "IEC61937 DTS-I", "usbaudio.as_if_gen.bmFormats.d7",
+              FT_BOOLEAN, 32, NULL, (1u << 7), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iii_d8,
+            { "IEC61937 DTS-II", "usbaudio.as_if_gen.bmFormats.d8",
+              FT_BOOLEAN, 32, NULL, (1u << 8), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iii_d9,
+            { "IEC61937 DTS-III", "usbaudio.as_if_gen.bmFormats.d9",
+              FT_BOOLEAN, 32, NULL, (1u << 9), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iii_d10,
+            { "IEC61937 ATRAC", "usbaudio.as_if_gen.bmFormats.d10",
+              FT_BOOLEAN, 32, NULL, (1u << 10), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iii_d11,
+            { "IEC61937 ATRAC2/3", "usbaudio.as_if_gen.bmFormats.d11",
+              FT_BOOLEAN, 32, NULL, (1u << 11), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iii_d12,
+            { "Type III WMA", "usbaudio.as_if_gen.bmFormats.d12",
+              FT_BOOLEAN, 32, NULL, (1u << 12), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iii_rsv,
+            { "Reserved", "usbaudio.as_if_gen.bmFormats.rsv",
+              FT_BOOLEAN, 32, NULL, (0xFFFFE000u), "Must be zero", HFILL }},
+
+        { &hf_as_if_gen_formats_iv_d0,
+            { "PCM", "usbaudio.as_if_gen.bmFormats.d0",
+              FT_BOOLEAN, 32, NULL, (1u << 0), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iv_d1,
+            { "PCM8", "usbaudio.as_if_gen.bmFormats.d1",
+              FT_BOOLEAN, 32, NULL, (1u << 1), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iv_d2,
+            { "IEEE Float", "usbaudio.as_if_gen.bmFormats.d2",
+              FT_BOOLEAN, 32, NULL, (1u << 2), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iv_d3,
+            { "ALAW", "usbaudio.as_if_gen.bmFormats.d3",
+              FT_BOOLEAN, 32, NULL, (1u << 3), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iv_d4,
+            { "MULAW", "usbaudio.as_if_gen.bmFormats.d4",
+              FT_BOOLEAN, 32, NULL, (1u << 4), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iv_d5,
+            { "MPEG", "usbaudio.as_if_gen.bmFormats.d5",
+              FT_BOOLEAN, 32, NULL, (1u << 5), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iv_d6,
+            { "AC-3", "usbaudio.as_if_gen.bmFormats.d6",
+              FT_BOOLEAN, 32, NULL, (1u << 6), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iv_d7,
+            { "WMA", "usbaudio.as_if_gen.bmFormats.d7",
+              FT_BOOLEAN, 32, NULL, (1u << 7), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iv_d8,
+            { "IEC61937 AC-3", "usbaudio.as_if_gen.bmFormats.d8",
+              FT_BOOLEAN, 32, NULL, (1u << 8), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iv_d9,
+            { "IEC61937 MPEG-1 Layer1", "usbaudio.as_if_gen.bmFormats.d9",
+              FT_BOOLEAN, 32, NULL, (1u << 9), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iv_d10,
+            { "IEC61937 MPEG-1 Layer2/3 or IEC61937 MPEG-2 NOEXT", "usbaudio.as_if_gen.bmFormats.d10",
+              FT_BOOLEAN, 32, NULL, (1u << 10), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iv_d11,
+            { "IEC61937 MPEG-2 EXT", "usbaudio.as_if_gen.bmFormats.d11",
+              FT_BOOLEAN, 32, NULL, (1u << 11), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iv_d12,
+            { "IEC61937 MPEG-2 AAC ADTS", "usbaudio.as_if_gen.bmFormats.d12",
+              FT_BOOLEAN, 32, NULL, (1u << 12), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iv_d13,
+            { "IEC61937 MPEG-2 Layer1 LS", "usbaudio.as_if_gen.bmFormats.d13",
+              FT_BOOLEAN, 32, NULL, (1u << 13), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iv_d14,
+            { "IEC61937 MPEG-2 Layer2/3 LS", "usbaudio.as_if_gen.bmFormats.d14",
+              FT_BOOLEAN, 32, NULL, (1u << 14), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iv_d15,
+            { "IEC61937 DTS-I", "usbaudio.as_if_gen.bmFormats.d15",
+              FT_BOOLEAN, 32, NULL, (1u << 15), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iv_d16,
+            { "IEC61937 DTS-II", "usbaudio.as_if_gen.bmFormats.d16",
+              FT_BOOLEAN, 32, NULL, (1u << 16), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iv_d17,
+            { "IEC61937 DTS-III", "usbaudio.as_if_gen.bmFormats.d17",
+              FT_BOOLEAN, 32, NULL, (1u << 17), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iv_d18,
+            { "IEC61937 ATRAC", "usbaudio.as_if_gen.bmFormats.d18",
+              FT_BOOLEAN, 32, NULL, (1u << 18), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iv_d19,
+            { "IEC61937 ATRAC2/3", "usbaudio.as_if_gen.bmFormats.d19",
+              FT_BOOLEAN, 32, NULL, (1u << 19), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iv_d20,
+            { "Type III WMA", "usbaudio.as_if_gen.bmFormats.d20",
+              FT_BOOLEAN, 32, NULL, (1u << 20), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iv_d21,
+            { "IEC60958 PCM", "usbaudio.as_if_gen.bmFormats.d21",
+              FT_BOOLEAN, 32, NULL, (1u << 21), NULL, HFILL }},
+        { &hf_as_if_gen_formats_iv_rsv,
+            { "Reserved", "usbaudio.as_if_gen.bmFormats.rsv",
+              FT_UINT32, BASE_HEX, NULL, (0xFFE00000u), "Must be zero", HFILL }},
+
+        { &hf_as_if_gen_nrchannels,
+            { "Number of channels", "usbaudio.as_if_gen.bNrChannels",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "bNrChannels", HFILL }},
+        { &hf_as_if_gen_bmchannelconfig,
+            { "Channel Config", "usbaudio.as_if_gen.bmChannelConfig",
+              FT_UINT32, BASE_HEX, NULL, 0x00000000, "bmChannelConfig", HFILL }},
+        { &hf_as_if_gen_bmchannelconfig_d0,
+            { "Front Left", "usbaudio.as_if_gen.bmChannelConfig.d0",
+              FT_BOOLEAN, 32, NULL, (1u << 0), NULL, HFILL }},
+        { &hf_as_if_gen_bmchannelconfig_d1,
+            { "Front Right", "usbaudio.as_if_gen.bmChannelConfig.d1",
+              FT_BOOLEAN, 32, NULL, (1u << 1), NULL, HFILL }},
+        { &hf_as_if_gen_bmchannelconfig_d2,
+            { "Front Center", "usbaudio.as_if_gen.bmChannelConfig.d2",
+              FT_BOOLEAN, 32, NULL, (1u << 2), NULL, HFILL }},
+        { &hf_as_if_gen_bmchannelconfig_d3,
+            { "Low Frequency Effects", "usbaudio.as_if_gen.bmChannelConfig.d3",
+              FT_BOOLEAN, 32, NULL, (1u << 3), NULL, HFILL }},
+        { &hf_as_if_gen_bmchannelconfig_d4,
+            { "Back Left", "usbaudio.as_if_gen.bmChannelConfig.d4",
+              FT_BOOLEAN, 32, NULL, (1u << 4), NULL, HFILL }},
+        { &hf_as_if_gen_bmchannelconfig_d5,
+            { "Back Right", "usbaudio.as_if_gen.bmChannelConfig.d5",
+              FT_BOOLEAN, 32, NULL, (1u << 5), NULL, HFILL }},
+        { &hf_as_if_gen_bmchannelconfig_d6,
+            { "Front Left of Center", "usbaudio.as_if_gen.bmChannelConfig.d6",
+              FT_BOOLEAN, 32, NULL, (1u << 6), NULL, HFILL }},
+        { &hf_as_if_gen_bmchannelconfig_d7,
+            { "Front Right of Center", "usbaudio.as_if_gen.bmChannelConfig.d7",
+              FT_BOOLEAN, 32, NULL, (1u << 7), NULL, HFILL }},
+        { &hf_as_if_gen_bmchannelconfig_d8,
+            { "Back Center", "usbaudio.as_if_gen.bmChannelConfig.d8",
+              FT_BOOLEAN, 32, NULL, (1u << 8), NULL, HFILL }},
+        { &hf_as_if_gen_bmchannelconfig_d9,
+            { "Side Left", "usbaudio.as_if_gen.bmChannelConfig.d9",
+              FT_BOOLEAN, 32, NULL, (1u << 9), NULL, HFILL }},
+        { &hf_as_if_gen_bmchannelconfig_d10,
+            { "Side Right", "usbaudio.as_if_gen.bmChannelConfig.d10",
+              FT_BOOLEAN, 32, NULL, (1u << 10), NULL, HFILL }},
+        { &hf_as_if_gen_bmchannelconfig_d11,
+            { "Top Center", "usbaudio.as_if_gen.bmChannelConfig.d11",
+              FT_BOOLEAN, 32, NULL, (1u << 11), NULL, HFILL }},
+        { &hf_as_if_gen_bmchannelconfig_d12,
+            { "Top Front Left", "usbaudio.as_if_gen.bmChannelConfig.d12",
+              FT_BOOLEAN, 32, NULL, (1u << 12), NULL, HFILL }},
+        { &hf_as_if_gen_bmchannelconfig_d13,
+            { "Top Front Center", "usbaudio.as_if_gen.bmChannelConfig.d13",
+              FT_BOOLEAN, 32, NULL, (1u << 13), NULL, HFILL }},
+        { &hf_as_if_gen_bmchannelconfig_d14,
+            { "Top Front Right", "usbaudio.as_if_gen.bmChannelConfig.d14",
+              FT_BOOLEAN, 32, NULL, (1u << 14), NULL, HFILL }},
+        { &hf_as_if_gen_bmchannelconfig_d15,
+            { "Top Back Left", "usbaudio.as_if_gen.bmChannelConfig.d15",
+              FT_BOOLEAN, 32, NULL, (1u << 15), NULL, HFILL }},
+        { &hf_as_if_gen_bmchannelconfig_d16,
+            { "Top Back Center", "usbaudio.as_if_gen.bmChannelConfig.d16",
+              FT_BOOLEAN, 32, NULL, (1u << 16), NULL, HFILL }},
+        { &hf_as_if_gen_bmchannelconfig_d17,
+            { "Top Back Right", "usbaudio.as_if_gen.bmChannelConfig.d17",
+              FT_BOOLEAN, 32, NULL, (1u << 17), NULL, HFILL }},
+        { &hf_as_if_gen_bmchannelconfig_d18,
+            { "Top Front Left of Center", "usbaudio.as_if_gen.bmChannelConfig.d18",
+              FT_BOOLEAN, 32, NULL, (1u << 18), NULL, HFILL }},
+        { &hf_as_if_gen_bmchannelconfig_d19,
+            { "Top Front Right of Center", "usbaudio.as_if_gen.bmChannelConfig.d19",
+              FT_BOOLEAN, 32, NULL, (1u << 19), NULL, HFILL }},
+        { &hf_as_if_gen_bmchannelconfig_d20,
+            { "Left Low Frequency Effects", "usbaudio.as_if_gen.bmChannelConfig.d20",
+              FT_BOOLEAN, 32, NULL, (1u << 20), NULL, HFILL }},
+        { &hf_as_if_gen_bmchannelconfig_d21,
+            { "Right Low Frequency Effects", "usbaudio.as_if_gen.bmChannelConfig.d21",
+              FT_BOOLEAN, 32, NULL, (1u << 21), NULL, HFILL }},
+        { &hf_as_if_gen_bmchannelconfig_d22,
+            { "Top Side Left", "usbaudio.as_if_gen.bmChannelConfig.d22",
+              FT_BOOLEAN, 32, NULL, (1u << 22), NULL, HFILL }},
+        { &hf_as_if_gen_bmchannelconfig_d23,
+            { "Top Side Right", "usbaudio.as_if_gen.bmChannelConfig.d23",
+              FT_BOOLEAN, 32, NULL, (1u << 23), NULL, HFILL }},
+        { &hf_as_if_gen_bmchannelconfig_d24,
+            { "Bottom Center", "usbaudio.as_if_gen.bmChannelConfig.d24",
+              FT_BOOLEAN, 32, NULL, (1u << 24), NULL, HFILL }},
+        { &hf_as_if_gen_bmchannelconfig_d25,
+            { "Back Left of Center", "usbaudio.as_if_gen.bmChannelConfig.d25",
+              FT_BOOLEAN, 32, NULL, (1u << 25), NULL, HFILL }},
+        { &hf_as_if_gen_bmchannelconfig_d26,
+            { "Back Right of Center", "usbaudio.as_if_gen.bmChannelConfig.d26",
+              FT_BOOLEAN, 32, NULL, (1u << 26), NULL, HFILL }},
+        { &hf_as_if_gen_bmchannelconfig_rsv,
+            { "Reserved", "usbaudio.as_if_gen.bmChannelConfig.rsv",
+              FT_BOOLEAN, 32, NULL, (0xFu << 27), NULL, HFILL }},
+        { &hf_as_if_gen_bmchannelconfig_d31,
+            { "Raw Data", "usbaudio.as_if_gen.bmChannelConfig.d31",
+              FT_BOOLEAN, 32, NULL, (1u << 31), NULL, HFILL }},
+        { &hf_as_if_gen_channelnames,
+            { "String descriptor index", "usbaudio.as_if_gen.iChannelNames",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "iChannelNames", HFILL }},
+
         { &hf_as_if_ft_formattype,
             { "FormatType", "usbaudio.as_if_ft.bFormatType",
               FT_UINT8, BASE_DEC, NULL, 0x00, "wFormatType", HFILL }},
@@ -1808,7 +2350,10 @@ proto_register_usb_audio(void)
         &ett_ac_if_mu_channelconfig,
         &ett_ac_if_clksrc_attr,
         &ett_ac_if_clksrc_controls,
-        &ett_ac_if_clksel_controls
+        &ett_ac_if_clksel_controls,
+        &ett_as_if_gen_controls,
+        &ett_as_if_gen_formats,
+        &ett_as_if_gen_bmchannelconfig
     };
 
     static ei_register_info ei[] = {
