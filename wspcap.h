@@ -2,7 +2,7 @@
  *
  * Wrapper around libpcap/WinPcap's pcap.h.
  *
- * If HAVE_PCAP_REMOTE is defined, it force the WinPcap header files to
+ * If HAVE_PCAP_REMOTE is defined, it forces the WinPcap header files to
  * define things required for remote capture.
  *
  * Yes, this is q WinPcap bug; if your project has a public header file
@@ -11,10 +11,12 @@
  * appropriately when that header file is included, before its first use,
  * you have made a mistake.
  *
- * This bug is fixed in the master branch of libpcap, so any libpcap
- * release with remote capture support will not have this problem, and
- * any future WinPcap/Npcap release based on current libpcap code will
- * not have this problem.
+ * This bug is fixed in libpcap 1.9.0 or later, so any libpcap release
+ * with remote capture support will not have this problem.  Newer versions
+ * of Npcap are based on libpcap 1.9.0, but the Npcap SDK, as of SDK version
+ * 1.01, doesn't provide header files from libpcap 1.9.0, so the bug is not
+ * fixed there.  An issue has been filed against Npcap for that; the fix
+ * will fix the bug in question.
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
