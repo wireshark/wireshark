@@ -2850,7 +2850,7 @@ dissect_epl_pres(struct epl_convo *convo, proto_tree *epl_tree, tvbuff_t *tvb, p
 	offset += 1;
 
 	pdoversion = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(epl_tree, hf_epl_pres_pdov, tvb, offset, 1, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(epl_tree, hf_epl_pres_pdov, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* get size of payload */
@@ -5249,7 +5249,7 @@ proto_register_epl(void)
 		},
 		{ &hf_epl_pres_pdov,
 			{ "PDOVersion", "epl.pres.pdov",
-				FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }
+				FT_UINT8, BASE_CUSTOM, CF_FUNC(elp_version), 0x00, NULL, HFILL }
 		},
 		{ &hf_epl_pres_size,
 			{ "Size", "epl.pres.size",
