@@ -62,13 +62,14 @@ macro(set_extcap_executable_properties _executable)
 				set_target_properties(${_executable} PROPERTIES
 					RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/MacOS/extcap
 				)
-				# Add a wrapper script which runs each executable from the
-				# correct location. This adds convenience but makes debugging
-				# more difficult.
-				file(REMOVE ${CMAKE_BINARY_DIR}/run/${_executable})
-				file(WRITE ${CMAKE_BINARY_DIR}/run/${_executable} "#!/bin/sh\n")
-				file(APPEND ${CMAKE_BINARY_DIR}/run/${_executable} "exec ${CMAKE_BINARY_DIR}/run/Wireshark.app/Contents/MacOS/extcap/${_executable} \"\$\@\"\n")
-				execute_process(COMMAND chmod a+x ${CMAKE_BINARY_DIR}/run/${_executable})
+				# Create a convenience link from run/<name> to its respective
+				# target in the application bundle.
+				add_custom_target(${_executable}-symlink
+					COMMAND ln -s -f
+						Wireshark.app/Contents/MacOS/${_executable}
+						${CMAKE_BINARY_DIR}/run/${_executable}
+				)
+				add_dependencies(${_executable} ${_executable}-symlink)
 			endif()
 		endif()
 	endif()
