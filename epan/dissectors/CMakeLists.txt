@@ -1741,6 +1741,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-synphasor.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sysdig-event.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-sysex.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-sysex_digitech.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-syslog.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-t30.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-tacacs.c
