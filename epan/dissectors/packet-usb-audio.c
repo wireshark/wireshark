@@ -1116,7 +1116,7 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, void *data)
 {
     gint             offset = 0;
-    gint             bytes_dissected;
+    gint             bytes_dissected = 0;
     usb_conv_info_t *usb_conv_info;
     proto_tree       *desc_tree = NULL;
     proto_item       *desc_tree_item;
@@ -1181,9 +1181,6 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
             default:
                 break;
         }
-        if (bytes_dissected < desc_len) {
-            proto_tree_add_expert(desc_tree, pinfo, &ei_usb_audio_undecoded, tvb, bytes_dissected, desc_len-bytes_dissected);
-        }
     }
     else if (desc_type==CS_INTERFACE &&
             usb_conv_info->interfaceSubclass==AUDIO_IF_SUBCLASS_AUDIOSTREAMING) {
@@ -1204,17 +1201,17 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
             proto_item_append_text(desc_tree_item, ": %s", subtype_str);
         offset++;
 
+        bytes_dissected = offset;
         switch(desc_subtype) {
             case AS_SUBTYPE_GENERAL:
-                dissect_as_if_general_body(tvb, offset, pinfo,
+                bytes_dissected += dissect_as_if_general_body(tvb, offset, pinfo,
                         desc_tree, usb_conv_info);
                 break;
             case AS_SUBTYPE_FORMAT_TYPE:
-                dissect_as_if_format_type_body(tvb, offset, pinfo,
+                bytes_dissected += dissect_as_if_format_type_body(tvb, offset, pinfo,
                         desc_tree, usb_conv_info);
                 break;
             default:
-                proto_tree_add_expert(desc_tree, pinfo, &ei_usb_audio_undecoded, tvb, offset-3, desc_len);
                 break;
         }
     }
@@ -1232,10 +1229,16 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
 
         proto_tree_add_item(desc_tree, hf_as_ep_desc_subtype,
                 tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+
+        bytes_dissected = offset;
     }
     else
         return 0;
 
+    if (bytes_dissected < desc_len) {
+        proto_tree_add_expert(desc_tree, pinfo, &ei_usb_audio_undecoded, tvb, bytes_dissected, desc_len-bytes_dissected);
+    }
     return desc_len;
 }
 
