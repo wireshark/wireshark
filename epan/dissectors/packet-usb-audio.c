@@ -262,6 +262,7 @@ static int hf_as_if_ft_formattype = -1;
 static int hf_as_if_ft_maxbitrate = -1;
 static int hf_as_if_ft_nrchannels = -1;
 static int hf_as_if_ft_subframesize = -1;
+static int hf_as_if_ft_subslotsize = -1;
 static int hf_as_if_ft_bitresolution = -1;
 static int hf_as_if_ft_samplesperframe = -1;
 static int hf_as_if_ft_samfreqtype = -1;
@@ -1304,18 +1305,12 @@ dissect_as_if_general_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 }
 
 static gint
-dissect_as_if_format_type_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-        proto_tree *tree, usb_conv_info_t *usb_conv_info)
+dissect_as_if_format_type_ver1_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+        proto_tree *tree, audio_conv_info_t *audio_conv_info _U_)
 {
-    audio_conv_info_t *audio_conv_info;
-    gint               offset_start;
+    gint   offset_start;
     guint8 SamFreqType;
     guint8 format_type;
-
-    /* the caller has already checked that usb_conv_info!=NULL */
-    audio_conv_info = (audio_conv_info_t *)usb_conv_info->class_data;
-    if (!audio_conv_info)
-        return 0;
 
     offset_start = offset;
 
@@ -1381,6 +1376,50 @@ dissect_as_if_format_type_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U
     }
 
     return offset-offset_start;
+}
+
+static gint
+dissect_as_if_format_type_ver2_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+        proto_tree *tree, audio_conv_info_t *audio_conv_info _U_)
+{
+    gint   offset_start;
+    guint8 format_type;
+
+    offset_start = offset;
+
+    proto_tree_add_item(tree, hf_as_if_ft_formattype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    format_type = tvb_get_guint8(tvb, offset);
+    offset++;
+
+    if (format_type==1) {
+        proto_tree_add_item(tree, hf_as_if_ft_subslotsize, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+
+        proto_tree_add_item(tree, hf_as_if_ft_bitresolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+    }
+
+    return offset-offset_start;
+}
+
+static gint
+dissect_as_if_format_type_body(tvbuff_t *tvb, gint offset, packet_info *pinfo,
+        proto_tree *tree, usb_conv_info_t *usb_conv_info)
+{
+    audio_conv_info_t *audio_conv_info;
+
+    /* the caller has already checked that usb_conv_info!=NULL */
+    audio_conv_info = (audio_conv_info_t *)usb_conv_info->class_data;
+    if (!audio_conv_info)
+        return 0;
+
+    if (audio_conv_info->ver_major==1) {
+        return dissect_as_if_format_type_ver1_body(tvb, offset, pinfo, tree, audio_conv_info);
+    } else if (audio_conv_info->ver_major==2) {
+        return dissect_as_if_format_type_ver2_body(tvb, offset, pinfo, tree, audio_conv_info);
+    }
+
+    return 0;
 }
 
 static gint
@@ -2275,6 +2314,9 @@ proto_register_usb_audio(void)
         { &hf_as_if_ft_subframesize,
             { "Subframe Size", "usbaudio.as_if_ft.bSubframeSize",
               FT_UINT8, BASE_DEC, NULL, 0x00, "bSubframeSize", HFILL }},
+        { &hf_as_if_ft_subslotsize,
+            { "Subslot Size", "usbaudio.as_if_ft.bSubslotSize",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "bSubslotSize", HFILL }},
         { &hf_as_if_ft_bitresolution,
             { "Bit Resolution", "usbaudio.as_if_ft.bBitResolution",
               FT_UINT8, BASE_DEC, NULL, 0x00, "bBitResolution", HFILL }},
