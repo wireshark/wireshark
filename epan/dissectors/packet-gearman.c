@@ -5,7 +5,7 @@
  *
  * Gearman Protocol
  * ----------------
- * http://gearman.org/index.php?id=protocol
+ * http://gearman.org/protocol/
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -35,7 +35,9 @@ static int hf_gearman_option_name = -1;
 static int hf_gearman_func_name = -1;
 static int hf_gearman_func_namez = -1;
 static int hf_gearman_client_id = -1;
+static int hf_gearman_client_count = -1;
 static int hf_gearman_uniq_id = -1;
+static int hf_gearman_uniq_idz = -1;
 static int hf_gearman_argument = -1;
 static int hf_gearman_job_handle = -1;
 static int hf_gearman_job_handlez = -1;
@@ -47,9 +49,11 @@ static int hf_gearman_submit_job_sched_day_of_month = -1;
 static int hf_gearman_submit_job_sched_month = -1;
 static int hf_gearman_submit_job_sched_day_of_week = -1;
 static int hf_gearman_submit_job_epoch_time = -1;
+static int hf_gearman_reducer = -1;
 static int hf_gearman_result = -1;
 static int hf_gearman_known_status = -1;
 static int hf_gearman_running_status = -1;
+static int hf_gearman_timeout_value = -1;
 static int hf_gearman_echo_text = -1;
 static int hf_gearman_err_code = -1;
 static int hf_gearman_err_text = -1;
@@ -116,47 +120,59 @@ typedef enum
   GEARMAN_COMMAND_SUBMIT_JOB_LOW_BG,
   GEARMAN_COMMAND_SUBMIT_JOB_SCHED,
   GEARMAN_COMMAND_SUBMIT_JOB_EPOCH,
+  GEARMAN_COMMAND_SUBMIT_REDUCE_JOB,      /* C->J: FUNC[0]UNIQ[0]REDUCER[0]UNUSED[0]ARGS */
+  GEARMAN_COMMAND_SUBMIT_REDUCE_JOB_BG,   /* C->J: FUNC[0]UNIQ[0]REDUCER[0]UNUSED[0]ARGS */
+  GEARMAN_COMMAND_GRAB_JOB_ALL,           /* W->J -- */
+  GEARMAN_COMMAND_JOB_ASSIGN_ALL,         /* J->W: HANDLE[0]FUNC[0]UNIQ[0]REDUCER[0]ARGS */
+  GEARMAN_COMMAND_GET_STATUS_UNIQUE,      /* C->J: UNIQUE */
+  GEARMAN_COMMAND_STATUS_RES_UNIQUE,      /* J->C: UNIQUE[0]KNOWN[0]RUNNING[0]NUM[0]DENOM[0]CLIENT_COUNT */
   GEARMAN_COMMAND_MAX /* Always add new commands before this. */
 } gearman_command_t;
 
 static const value_string gearman_command_names[] = {
-  { GEARMAN_COMMAND_TEXT,               "TEXT" },
-  { GEARMAN_COMMAND_CAN_DO,             "CAN_DO" },             /* W->J: FUNC */
-  { GEARMAN_COMMAND_CANT_DO,            "CANT_DO" },            /* W->J: FUNC */
-  { GEARMAN_COMMAND_RESET_ABILITIES,    "RESET_ABILITIES" },    /* W->J: -- */
-  { GEARMAN_COMMAND_PRE_SLEEP,          "PRE_SLEEP" },          /* W->J: -- */
-  { GEARMAN_COMMAND_UNUSED,             "UNUSED" },
-  { GEARMAN_COMMAND_NOOP,               "NOOP" },               /* J->W: -- */
-  { GEARMAN_COMMAND_SUBMIT_JOB,         "SUBMIT_JOB" },         /* C->J: FUNC[0]UNIQ[0]ARGS */
-  { GEARMAN_COMMAND_JOB_CREATED,        "JOB_CREATED" },        /* J->C: HANDLE  */
-  { GEARMAN_COMMAND_GRAB_JOB,           "GRAB_JOB" },           /* W->J: --  */
-  { GEARMAN_COMMAND_NO_JOB,             "NO_JOB" },             /* J->W: -- */
-  { GEARMAN_COMMAND_JOB_ASSIGN,         "JOB_ASSIGN" },         /* J->W: HANDLE[0]FUNC[0]ARG  */
-  { GEARMAN_COMMAND_WORK_STATUS,        "WORK_STATUS" },        /* W->J/C: HANDLE[0]NUMERATOR[0]DENOMINATOR */
-  { GEARMAN_COMMAND_WORK_COMPLETE,      "WORK_COMPLETE" },      /* W->J/C: HANDLE[0]RES */
-  { GEARMAN_COMMAND_WORK_FAIL,          "WORK_FAIL" },          /* W->J/C: HANDLE */
-  { GEARMAN_COMMAND_GET_STATUS,         "GET_STATUS" },         /* C->J: HANDLE */
-  { GEARMAN_COMMAND_ECHO_REQ,           "ECHO_REQ" },           /* ?->J: TEXT */
-  { GEARMAN_COMMAND_ECHO_RES,           "ECHO_RES" },           /* J->?: TEXT */
-  { GEARMAN_COMMAND_SUBMIT_JOB_BG,      "SUBMIT_JOB_BG" },      /* C->J: FUNC[0]UNIQ[0]ARGS  */
-  { GEARMAN_COMMAND_ERROR,              "ERROR" },              /* J->?: ERRCODE[0]ERR_TEXT */
-  { GEARMAN_COMMAND_STATUS_RES,         "STATUS_RES" },         /* C->J: HANDLE[0]KNOWN[0]RUNNING[0]NUM[0]DENOM */
-  { GEARMAN_COMMAND_SUBMIT_JOB_HIGH,    "SUBMIT_JOB_HIGH" },    /* C->J: FUNC[0]UNIQ[0]ARGS  */
-  { GEARMAN_COMMAND_SET_CLIENT_ID,      "SET_CLIENT_ID" },      /* W->J: [RANDOM_STRING_NO_WHITESPACE] */
-  { GEARMAN_COMMAND_CAN_DO_TIMEOUT,     "CAN_DO_TIMEOUT" },     /* W->J: FUNC[0]TIMEOUT */
-  { GEARMAN_COMMAND_ALL_YOURS,          "ALL_YOURS" },
-  { GEARMAN_COMMAND_WORK_EXCEPTION,     "WORK_EXCEPTION" },
-  { GEARMAN_COMMAND_OPTION_REQ,         "OPTION_REQ" },
-  { GEARMAN_COMMAND_OPTION_RES,         "OPTION_RES" },
-  { GEARMAN_COMMAND_WORK_DATA,          "WORK_DATA" },
-  { GEARMAN_COMMAND_WORK_WARNING,       "WORK_WARNING" },
-  { GEARMAN_COMMAND_GRAB_JOB_UNIQ,      "GRAB_JOB_UNIQ" },
-  { GEARMAN_COMMAND_JOB_ASSIGN_UNIQ,    "JOB_ASSIGN_UNIQ" },
-  { GEARMAN_COMMAND_SUBMIT_JOB_HIGH_BG, "SUBMIT_JOB_HIGH_BG" },
-  { GEARMAN_COMMAND_SUBMIT_JOB_LOW,     "SUBMIT_JOB_LOW" },
-  { GEARMAN_COMMAND_SUBMIT_JOB_LOW_BG,  "SUBMIT_JOB_LOW_BG" },
-  { GEARMAN_COMMAND_SUBMIT_JOB_SCHED,   "SUBMIT_JOB_SCHED" },
-  { GEARMAN_COMMAND_SUBMIT_JOB_EPOCH,   "SUBMIT_JOB_EPOCH" },
+  { GEARMAN_COMMAND_TEXT,                 "TEXT" },
+  { GEARMAN_COMMAND_CAN_DO,               "CAN_DO" },             /* W->J: FUNC */
+  { GEARMAN_COMMAND_CANT_DO,              "CANT_DO" },            /* W->J: FUNC */
+  { GEARMAN_COMMAND_RESET_ABILITIES,      "RESET_ABILITIES" },    /* W->J: -- */
+  { GEARMAN_COMMAND_PRE_SLEEP,            "PRE_SLEEP" },          /* W->J: -- */
+  { GEARMAN_COMMAND_UNUSED,               "UNUSED" },
+  { GEARMAN_COMMAND_NOOP,                 "NOOP" },               /* J->W: -- */
+  { GEARMAN_COMMAND_SUBMIT_JOB,           "SUBMIT_JOB" },         /* C->J: FUNC[0]UNIQ[0]ARGS */
+  { GEARMAN_COMMAND_JOB_CREATED,          "JOB_CREATED" },        /* J->C: HANDLE  */
+  { GEARMAN_COMMAND_GRAB_JOB,             "GRAB_JOB" },           /* W->J: --  */
+  { GEARMAN_COMMAND_NO_JOB,               "NO_JOB" },             /* J->W: -- */
+  { GEARMAN_COMMAND_JOB_ASSIGN,           "JOB_ASSIGN" },         /* J->W: HANDLE[0]FUNC[0]ARG  */
+  { GEARMAN_COMMAND_WORK_STATUS,          "WORK_STATUS" },        /* W->J/C: HANDLE[0]NUMERATOR[0]DENOMINATOR */
+  { GEARMAN_COMMAND_WORK_COMPLETE,        "WORK_COMPLETE" },      /* W->J/C: HANDLE[0]RES */
+  { GEARMAN_COMMAND_WORK_FAIL,            "WORK_FAIL" },          /* W->J/C: HANDLE */
+  { GEARMAN_COMMAND_GET_STATUS,           "GET_STATUS" },         /* C->J: HANDLE */
+  { GEARMAN_COMMAND_ECHO_REQ,             "ECHO_REQ" },           /* ?->J: TEXT */
+  { GEARMAN_COMMAND_ECHO_RES,             "ECHO_RES" },           /* J->?: TEXT */
+  { GEARMAN_COMMAND_SUBMIT_JOB_BG,        "SUBMIT_JOB_BG" },      /* C->J: FUNC[0]UNIQ[0]ARGS  */
+  { GEARMAN_COMMAND_ERROR,                "ERROR" },              /* J->?: ERRCODE[0]ERR_TEXT */
+  { GEARMAN_COMMAND_STATUS_RES,           "STATUS_RES" },         /* C->J: HANDLE[0]KNOWN[0]RUNNING[0]NUM[0]DENOM */
+  { GEARMAN_COMMAND_SUBMIT_JOB_HIGH,      "SUBMIT_JOB_HIGH" },    /* C->J: FUNC[0]UNIQ[0]ARGS  */
+  { GEARMAN_COMMAND_SET_CLIENT_ID,        "SET_CLIENT_ID" },      /* W->J: [RANDOM_STRING_NO_WHITESPACE] */
+  { GEARMAN_COMMAND_CAN_DO_TIMEOUT,       "CAN_DO_TIMEOUT" },     /* W->J: FUNC[0]TIMEOUT */
+  { GEARMAN_COMMAND_ALL_YOURS,            "ALL_YOURS" },
+  { GEARMAN_COMMAND_WORK_EXCEPTION,       "WORK_EXCEPTION" },
+  { GEARMAN_COMMAND_OPTION_REQ,           "OPTION_REQ" },
+  { GEARMAN_COMMAND_OPTION_RES,           "OPTION_RES" },
+  { GEARMAN_COMMAND_WORK_DATA,            "WORK_DATA" },
+  { GEARMAN_COMMAND_WORK_WARNING,         "WORK_WARNING" },
+  { GEARMAN_COMMAND_GRAB_JOB_UNIQ,        "GRAB_JOB_UNIQ" },
+  { GEARMAN_COMMAND_JOB_ASSIGN_UNIQ,      "JOB_ASSIGN_UNIQ" },
+  { GEARMAN_COMMAND_SUBMIT_JOB_HIGH_BG,   "SUBMIT_JOB_HIGH_BG" },
+  { GEARMAN_COMMAND_SUBMIT_JOB_LOW,       "SUBMIT_JOB_LOW" },
+  { GEARMAN_COMMAND_SUBMIT_JOB_LOW_BG,    "SUBMIT_JOB_LOW_BG" },
+  { GEARMAN_COMMAND_SUBMIT_JOB_SCHED,     "SUBMIT_JOB_SCHED" },
+  { GEARMAN_COMMAND_SUBMIT_JOB_EPOCH,     "SUBMIT_JOB_EPOCH" },
+  { GEARMAN_COMMAND_SUBMIT_REDUCE_JOB,    "SUBMIT_REDUCE_JOB" },
+  { GEARMAN_COMMAND_SUBMIT_REDUCE_JOB_BG, "SUBMIT_REDUCE_JOB_BG" },
+  { GEARMAN_COMMAND_GRAB_JOB_ALL,         "GRAB_JOB_ALL" },
+  { GEARMAN_COMMAND_JOB_ASSIGN_ALL,       "JOB_ASSIGN_ALL" },
+  { GEARMAN_COMMAND_GET_STATUS_UNIQUE,    "GET_STATUS_UNIQUE" },
+  { GEARMAN_COMMAND_STATUS_RES_UNIQUE,    "STATUS_RES_UNIQUE" },
   { 0, NULL}
 };
 
@@ -169,7 +185,7 @@ get_gearman_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *dat
 static int
 dissect_binary_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-  gint offset, start_offset;
+  gint curr_offset;
   char *magic_code;
   guint32 type, size;
   guint len;
@@ -201,61 +217,120 @@ dissect_binary_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     proto_tree_add_item(command_tree, hf_gearman_pkt_type, tvb, 4, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(command_tree, hf_gearman_data_size, tvb, 8, 4, ENC_BIG_ENDIAN);
 
-    content_item = proto_tree_add_item(command_tree, hf_gearman_data_content, tvb, GEARMAN_COMMAND_HEADER_SIZE, size, ENC_ASCII|ENC_NA);
+    // explicitly set len to 0 if there are no arguments,
+    // else use tvb_strnlen() to find the remaining length of tvb
+    len = ( size > 0 ) ? tvb_strnlen( tvb, GEARMAN_COMMAND_HEADER_SIZE, -1 ) : 0 ;
+    content_item = proto_tree_add_item(command_tree, hf_gearman_data_content, tvb, GEARMAN_COMMAND_HEADER_SIZE, len, ENC_ASCII|ENC_NA);
     content_tree = proto_item_add_subtree(content_item, ett_gearman_content);
+  }
 
-    }
-  offset = GEARMAN_COMMAND_HEADER_SIZE;
+  curr_offset = GEARMAN_COMMAND_HEADER_SIZE;
 
   switch(type)
   {
+
+  //
+  // when determining len for proto_tree_add_item()
+  //
+  // if the command has one argument:
+  //   - use tvb_strnlen()
+  //
+  // if the command has multiple arguments:
+  //   - use tvb_strsize() for the all but the last argument
+  //   - use tvb_strnlen() for the last argument
+  //
+
+  //
+  // commands with a single argument
+  //
+
   case GEARMAN_COMMAND_ECHO_REQ:
   case GEARMAN_COMMAND_ECHO_RES:
     if (!tree) break;
-    proto_tree_add_item(content_tree, hf_gearman_echo_text, tvb,
-               offset, size, ENC_NA|ENC_ASCII);
-    break;
-
-  case GEARMAN_COMMAND_ERROR:
-    if (!tree) break;
-    len = tvb_strsize(tvb, offset);
-    proto_tree_add_item(content_tree, hf_gearman_err_code, tvb, offset, len, ENC_NA|ENC_ASCII);
-    proto_tree_add_item(content_tree, hf_gearman_err_text, tvb, offset+len, size-len, ENC_NA|ENC_ASCII);
+    len = tvb_strnlen( tvb, curr_offset, -1 );
+    proto_tree_add_item(content_tree, hf_gearman_echo_text, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
     break;
 
   case GEARMAN_COMMAND_JOB_CREATED:
   case GEARMAN_COMMAND_WORK_FAIL:
     if (!tree) break;
-    proto_tree_add_item(content_tree, hf_gearman_job_handle, tvb,
-               offset, size, ENC_NA|ENC_ASCII);
+    len = tvb_strnlen( tvb, curr_offset, -1 );
+    proto_tree_add_item(content_tree, hf_gearman_job_handle, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
     break;
-
-  case GEARMAN_COMMAND_STATUS_RES:
-    if (!tree) break;
-    start_offset = offset;
-    len = tvb_strsize(tvb, start_offset);
-    proto_tree_add_item(content_tree, hf_gearman_job_handlez, tvb, start_offset, len, ENC_NA|ENC_ASCII);
-
-    start_offset += len;
-    len = tvb_strsize(tvb, start_offset);
-    proto_tree_add_item(content_tree, hf_gearman_known_status, tvb, start_offset, len, ENC_NA|ENC_ASCII);
-
-    start_offset += len;
-    len = tvb_strsize(tvb, start_offset);
-    proto_tree_add_item(content_tree, hf_gearman_running_status, tvb, start_offset, len, ENC_NA|ENC_ASCII);
-
-    start_offset += len;
-    len = tvb_strsize(tvb, start_offset);
-    proto_tree_add_item(content_tree, hf_gearman_complete_numerator, tvb, start_offset, len, ENC_NA|ENC_ASCII);
-
-    proto_tree_add_item(content_tree, hf_gearman_complete_denominator, tvb, start_offset+len, size-start_offset+GEARMAN_COMMAND_HEADER_SIZE, ENC_NA|ENC_ASCII);
-        break;
 
   case GEARMAN_COMMAND_OPTION_REQ:
   case GEARMAN_COMMAND_OPTION_RES:
     if (!tree) break;
-    proto_tree_add_item(content_tree, hf_gearman_option_name, tvb,
-               offset, size, ENC_NA|ENC_ASCII);
+    len = tvb_strnlen( tvb, curr_offset, -1 );
+    proto_tree_add_item(content_tree, hf_gearman_option_name, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    break;
+
+  case GEARMAN_COMMAND_SET_CLIENT_ID:
+    if (!tree) break;
+    len = tvb_strnlen( tvb, curr_offset, -1 );
+    proto_tree_add_item(content_tree, hf_gearman_client_id, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    break;
+
+  case GEARMAN_COMMAND_GET_STATUS_UNIQUE:
+    if (!tree) break;
+    len = tvb_strnlen( tvb, curr_offset, -1 );
+    proto_tree_add_item(content_tree, hf_gearman_uniq_id, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    break;
+
+  case GEARMAN_COMMAND_CAN_DO:
+  case GEARMAN_COMMAND_CANT_DO:
+    if (!tree) break;
+    len = tvb_strnlen( tvb, curr_offset, -1 );
+    proto_tree_add_item(content_tree, hf_gearman_func_name, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    break;
+
+  //
+  // commands with multiple arguments
+  //
+
+  case GEARMAN_COMMAND_ERROR:
+    if (!tree) break;
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_err_code, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+
+    curr_offset += len;
+    len = tvb_strnlen( tvb, curr_offset, -1 );
+    proto_tree_add_item(content_tree, hf_gearman_err_text, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    break;
+
+  case GEARMAN_COMMAND_WORK_DATA:
+  case GEARMAN_COMMAND_WORK_WARNING:
+  case GEARMAN_COMMAND_WORK_COMPLETE:
+  case GEARMAN_COMMAND_WORK_EXCEPTION:
+    if (!tree) break;
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_job_handlez, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+
+    curr_offset += len;
+    len = tvb_strnlen( tvb, curr_offset, -1 );
+    proto_tree_add_item(content_tree, hf_gearman_result, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    break;
+
+  case GEARMAN_COMMAND_STATUS_RES:
+    if (!tree) break;
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_job_handlez, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+
+    curr_offset += len;
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_known_status, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+
+    curr_offset += len;
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_running_status, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+
+    curr_offset += len;
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_complete_numerator, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+
+    curr_offset += len;
+    len = tvb_strnlen( tvb, curr_offset, -1 );
+    proto_tree_add_item(content_tree, hf_gearman_complete_denominator, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
     break;
 
   case GEARMAN_COMMAND_SUBMIT_JOB:
@@ -265,135 +340,189 @@ dissect_binary_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
   case GEARMAN_COMMAND_SUBMIT_JOB_LOW:
   case GEARMAN_COMMAND_SUBMIT_JOB_LOW_BG:
     if (!tree) break;
-    start_offset = offset;
-    len = tvb_strsize(tvb, start_offset);
-    proto_tree_add_item(content_tree, hf_gearman_func_name, tvb, start_offset, len, ENC_NA|ENC_ASCII);
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_func_namez, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
 
-    start_offset += len;
-    len = tvb_strsize(tvb, start_offset);
-    proto_tree_add_item(content_tree, hf_gearman_uniq_id, tvb, start_offset, len, ENC_NA|ENC_ASCII);
+    curr_offset += len;
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_uniq_idz, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
 
-    proto_tree_add_item(content_tree, hf_gearman_argument, tvb, start_offset+len, size-start_offset+GEARMAN_COMMAND_HEADER_SIZE, ENC_NA|ENC_ASCII);
+    curr_offset += len;
+    len = tvb_strnlen( tvb, curr_offset, -1 );
+    proto_tree_add_item(content_tree, hf_gearman_argument, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    break;
+
+  case GEARMAN_COMMAND_SUBMIT_REDUCE_JOB:
+  case GEARMAN_COMMAND_SUBMIT_REDUCE_JOB_BG:
+    if (!tree) break;
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_func_namez, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+
+    curr_offset += len;
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_uniq_idz, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+
+    curr_offset += len;
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_reducer, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+
+    curr_offset += len;
+    len = tvb_strnlen( tvb, curr_offset, -1 );
+    proto_tree_add_item(content_tree, hf_gearman_argument, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
     break;
 
   case GEARMAN_COMMAND_SUBMIT_JOB_SCHED:
     if (!tree) break;
-    start_offset = offset;
-    len = tvb_strsize(tvb, start_offset);
-    proto_tree_add_item(content_tree, hf_gearman_func_name, tvb, start_offset, len, ENC_NA|ENC_ASCII);
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_func_namez, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
 
-    start_offset += len;
-    len = tvb_strsize(tvb, start_offset);
-    proto_tree_add_item(content_tree, hf_gearman_uniq_id, tvb, start_offset, len, ENC_NA|ENC_ASCII);
+    curr_offset += len;
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_uniq_idz, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
 
-    start_offset += len;
-    len = tvb_strsize(tvb, start_offset);
-    proto_tree_add_item(content_tree, hf_gearman_submit_job_sched_minute, tvb, start_offset, len, ENC_NA|ENC_ASCII);
+    curr_offset += len;
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_submit_job_sched_minute, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
 
-    start_offset += len;
-    len = tvb_strsize(tvb, start_offset);
-    proto_tree_add_item(content_tree, hf_gearman_submit_job_sched_hour, tvb, start_offset, len, ENC_NA|ENC_ASCII);
+    curr_offset += len;
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_submit_job_sched_hour, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
 
-    start_offset += len;
-    len = tvb_strsize(tvb, start_offset);
-    proto_tree_add_item(content_tree, hf_gearman_submit_job_sched_day_of_month, tvb, start_offset, len, ENC_NA|ENC_ASCII);
+    curr_offset += len;
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_submit_job_sched_day_of_month, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
 
-    start_offset += len;
-    len = tvb_strsize(tvb, start_offset);
-    proto_tree_add_item(content_tree, hf_gearman_submit_job_sched_month, tvb, start_offset, len, ENC_NA|ENC_ASCII);
+    curr_offset += len;
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_submit_job_sched_month, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
 
-    start_offset += len;
-    len = tvb_strsize(tvb, start_offset);
-    proto_tree_add_item(content_tree, hf_gearman_submit_job_sched_day_of_week, tvb, start_offset, len, ENC_NA|ENC_ASCII);
+    curr_offset += len;
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_submit_job_sched_day_of_week, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
 
-    proto_tree_add_item(content_tree, hf_gearman_argument, tvb, start_offset+len, size-start_offset+GEARMAN_COMMAND_HEADER_SIZE, ENC_NA|ENC_ASCII);
+    curr_offset += len;
+    len = tvb_strnlen( tvb, curr_offset, -1 );
+    proto_tree_add_item(content_tree, hf_gearman_argument, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
     break;
 
   case GEARMAN_COMMAND_SUBMIT_JOB_EPOCH:
     if (!tree) break;
-    start_offset = offset;
-    len = tvb_strsize(tvb, start_offset);
-    proto_tree_add_item(content_tree, hf_gearman_func_name, tvb, start_offset, len, ENC_NA|ENC_ASCII);
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_func_namez, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
 
-    start_offset += len;
-    len = tvb_strsize(tvb, start_offset);
-    proto_tree_add_item(content_tree, hf_gearman_uniq_id, tvb, start_offset, len, ENC_NA|ENC_ASCII);
+    curr_offset += len;
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_uniq_idz, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
 
-    start_offset += len;
-    len = tvb_strsize(tvb, start_offset);
-    proto_tree_add_item(content_tree, hf_gearman_submit_job_epoch_time, tvb, start_offset, len, ENC_NA|ENC_ASCII);
+    curr_offset += len;
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_submit_job_epoch_time, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
 
-    proto_tree_add_item(content_tree, hf_gearman_argument, tvb, start_offset+len, size-start_offset+GEARMAN_COMMAND_HEADER_SIZE, ENC_NA|ENC_ASCII);
+    curr_offset += len;
+    len = tvb_strnlen( tvb, curr_offset, -1 );
+    proto_tree_add_item(content_tree, hf_gearman_argument, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
     break;
 
   case GEARMAN_COMMAND_JOB_ASSIGN:
-    start_offset = offset;
-    len = tvb_strsize(tvb, start_offset);
-    proto_tree_add_item(content_tree, hf_gearman_job_handlez, tvb, start_offset, len, ENC_NA|ENC_ASCII);
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_job_handlez, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
 
-    start_offset += len;
-    len = tvb_strsize(tvb, start_offset);
-    proto_tree_add_item(content_tree, hf_gearman_func_namez, tvb, start_offset, len, ENC_NA|ENC_ASCII);
+    curr_offset += len;
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_func_namez, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
 
-    proto_tree_add_item(content_tree, hf_gearman_argument, tvb, start_offset+len, size-start_offset+GEARMAN_COMMAND_HEADER_SIZE, ENC_NA|ENC_ASCII);
+    curr_offset += len;
+    len = tvb_strnlen( tvb, curr_offset, -1 );
+    proto_tree_add_item(content_tree, hf_gearman_argument, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
     break;
 
   case GEARMAN_COMMAND_JOB_ASSIGN_UNIQ:
-    start_offset = offset;
-    len = tvb_strsize(tvb, start_offset);
-    proto_tree_add_item(content_tree, hf_gearman_job_handlez, tvb, start_offset, len, ENC_NA|ENC_ASCII);
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_job_handlez, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
 
-    start_offset += len;
-    len = tvb_strsize(tvb, start_offset);
-    proto_tree_add_item(content_tree, hf_gearman_func_namez, tvb, start_offset, len, ENC_NA|ENC_ASCII);
+    curr_offset += len;
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_func_namez, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
 
-    start_offset += len;
-    len = tvb_strsize(tvb, start_offset);
-    proto_tree_add_item(content_tree, hf_gearman_uniq_id, tvb, start_offset, len, ENC_NA|ENC_ASCII);
+    curr_offset += len;
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_uniq_idz, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
 
-    proto_tree_add_item(content_tree, hf_gearman_argument, tvb, start_offset+len, size-start_offset+GEARMAN_COMMAND_HEADER_SIZE, ENC_NA|ENC_ASCII);
+    curr_offset += len;
+    len = tvb_strnlen( tvb, curr_offset, -1 );
+    proto_tree_add_item(content_tree, hf_gearman_argument, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
     break;
 
-  case GEARMAN_COMMAND_CAN_DO:
-  case GEARMAN_COMMAND_CANT_DO:
+  case GEARMAN_COMMAND_JOB_ASSIGN_ALL:
     if (!tree) break;
-    proto_tree_add_item(content_tree, hf_gearman_func_name, tvb,
-               offset, size, ENC_NA|ENC_ASCII);
-    break;
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_job_handlez, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
 
-  case GEARMAN_COMMAND_CAN_DO_TIMEOUT:
-    if (!tree) break;
-    proto_tree_add_item(content_tree, hf_gearman_func_name, tvb,
-               offset, tvb_strsize(tvb, offset), ENC_NA|ENC_ASCII);
-    break;
+    curr_offset += len;
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_func_namez, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
 
-  case GEARMAN_COMMAND_WORK_DATA:
-  case GEARMAN_COMMAND_WORK_WARNING:
-  case GEARMAN_COMMAND_WORK_COMPLETE:
-  case GEARMAN_COMMAND_WORK_EXCEPTION:
-    if (!tree) break;
-    len = tvb_strsize(tvb, offset);
-    proto_tree_add_item(content_tree, hf_gearman_job_handlez, tvb, offset, len, ENC_NA|ENC_ASCII);
-    proto_tree_add_item(content_tree, hf_gearman_result, tvb, offset+len, size-len, ENC_NA|ENC_ASCII);
+    curr_offset += len;
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_uniq_idz, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+
+    curr_offset += len;
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_reducer, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+
+    curr_offset += len;
+    len = tvb_strnlen( tvb, curr_offset, -1 );
+    proto_tree_add_item(content_tree, hf_gearman_argument, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
     break;
 
   case GEARMAN_COMMAND_WORK_STATUS:
     if (!tree) break;
-    start_offset = offset;
-    len = tvb_strsize(tvb, start_offset);
-    proto_tree_add_item(content_tree, hf_gearman_job_handlez, tvb, start_offset, len, ENC_NA|ENC_ASCII);
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_job_handlez, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
 
-    start_offset += len;
-    len = tvb_strsize(tvb, start_offset);
-    proto_tree_add_item(content_tree, hf_gearman_complete_numerator, tvb, start_offset, len, ENC_NA|ENC_ASCII);
+    curr_offset += len;
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_complete_numerator, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
 
-    proto_tree_add_item(content_tree, hf_gearman_complete_denominator, tvb, start_offset+len, size-start_offset+GEARMAN_COMMAND_HEADER_SIZE, ENC_NA|ENC_ASCII);
+    curr_offset += len;
+    len = tvb_strnlen( tvb, curr_offset, -1 );
+    proto_tree_add_item(content_tree, hf_gearman_complete_denominator, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
     break;
 
-  case GEARMAN_COMMAND_SET_CLIENT_ID:
+  case GEARMAN_COMMAND_CAN_DO_TIMEOUT:
     if (!tree) break;
-    proto_tree_add_item(content_tree, hf_gearman_client_id, tvb,
-               offset, size, ENC_NA|ENC_ASCII);
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_func_namez, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+
+    curr_offset += len;
+    len = tvb_strnlen( tvb, curr_offset, -1 );
+    proto_tree_add_item(content_tree, hf_gearman_timeout_value, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+    break;
+
+  case GEARMAN_COMMAND_STATUS_RES_UNIQUE:
+    if (!tree) break;
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_job_handlez, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+
+    curr_offset += len;
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_known_status, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+
+    curr_offset += len;
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_running_status, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+
+    curr_offset += len;
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_complete_numerator, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+
+    curr_offset += len;
+    len = tvb_strsize(tvb, curr_offset);
+    proto_tree_add_item(content_tree, hf_gearman_complete_denominator, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
+
+    curr_offset += len;
+    len = tvb_strnlen( tvb, curr_offset, -1 );
+    proto_tree_add_item(content_tree, hf_gearman_client_count, tvb, curr_offset, len, ENC_NA|ENC_ASCII);
     break;
 
   default:
@@ -484,7 +613,9 @@ proto_register_gearman(void)
     { &hf_gearman_func_name, { "Function Name", "gearman.func.name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
     { &hf_gearman_func_namez, { "Function Name", "gearman.func.name", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL} },
     { &hf_gearman_client_id, { "Client ID", "gearman.client_id", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
-    { &hf_gearman_uniq_id, { "Unique ID", "gearman.uniq_id", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL} },
+    { &hf_gearman_client_count, { "Client Count", "gearman.client_count", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
+    { &hf_gearman_uniq_id, { "Unique ID", "gearman.uniq_id", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
+    { &hf_gearman_uniq_idz, { "Unique ID", "gearman.uniq_id", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL} },
     { &hf_gearman_argument, { "Function Argument", "gearman.func.arg", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
     { &hf_gearman_job_handle, { "Job Handle", "gearman.job.handle", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
     { &hf_gearman_job_handlez, { "Job Handle", "gearman.job.handle", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL} },
@@ -496,9 +627,11 @@ proto_register_gearman(void)
     { &hf_gearman_submit_job_sched_month, { "Month", "gearman.submit_job_sched.month", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
     { &hf_gearman_submit_job_sched_day_of_week, { "Day of Week", "gearman.submit_job_sched.day_of_week", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
     { &hf_gearman_submit_job_epoch_time, { "Epoch Time", "gearman.submit_job.epoch_time", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
+    { &hf_gearman_reducer, { "Reducer", "gearman.reducer", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL} },
     { &hf_gearman_result, { "Function Result", "gearman.func.result", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
     { &hf_gearman_known_status, { "Known job", "gearman.job.known", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL} },
     { &hf_gearman_running_status, { "Running Job", "gearman.job.running", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL} },
+    { &hf_gearman_timeout_value, { "Timeout Value", "gearman.timeout.value", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
     { &hf_gearman_echo_text, { "Echo Text", "gearman.echo_text", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL} },
     { &hf_gearman_err_code, { "Error Code", "gearman.err.code", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL} },
     { &hf_gearman_err_text, { "Error Text", "gearman.err.text", FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL} }
