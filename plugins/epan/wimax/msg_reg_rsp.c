@@ -161,7 +161,7 @@ static int dissect_mac_mgmt_msg_reg_rsp_decoder(tvbuff_t *tvb, packet_info *pinf
 						sub_tlv_type = get_tlv_type(&sub_tlv_info);
 						/* get the TLV length */
 						sub_tlv_len = get_tlv_length(&sub_tlv_info);
-						if (tlv_type == -1 || sub_tlv_len > MAX_TLV_LEN || sub_tlv_len < 1)
+						if (sub_tlv_type == -1 || sub_tlv_len > MAX_TLV_LEN || sub_tlv_len < 1)
 						{	/* invalid tlv info */
 							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "REG-RSP TLV error");
 							proto_tree_add_item(reg_rsp_tree, hf_reg_invalid_tlv, tvb, offset, (tvb_len - offset), ENC_NA);
