@@ -4,18 +4,15 @@
     - for builddir in build/packaging/rpm/BUILD/wireshark-*/build build/packaging/rpm/BUILD/wireshark-* build; do [ ! -d "$builddir" ] || break; done
     - if [ "$CI_JOB_NAME" = "rpm-opensuse-42.3" ]; then export LD_LIBRARY_PATH=$builddir/run; fi
     - if [ -f $builddir/run/tshark ]; then $builddir/run/tshark --version; fi
+
+# The custom Ubuntu image pre-installs dependencies and compilers to speed up the build:
+# https://hub.docker.com/r/wireshark/wireshark-ubuntu-dev
+# https://github.com/wireshark/wireshark-ubuntu-dev-docker
 .build-ubuntu: &build-ubuntu
   <<: *build
-  image: crondaemon/wireshark
+  image: wireshark/wireshark-ubuntu-dev
   retry: 1
   before_script:
-    - rm -rf /etc/apt/sources.list.d/*
-    - echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial main" > /etc/apt/sources.list.d/clang.list
-    - echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-6.0 main" > /etc/apt/sources.list.d/clang6.list
-    - echo "deb http://apt.llvm.org/xenial/ llvm-toolchain-xenial-7 main" > /etc/apt/sources.list.d/clang7.list
-    - apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 15CF4D18AF4F7421
-    - echo "deb http://ppa.launchpad.net/ubuntu-toolchain-r/test/ubuntu xenial main" > /etc/apt/sources.list.d/gcc.list
-    - apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 1E9377A2BA9EF27F
     - apt-get update -qq
     - apt-get install -y python3-pip locales
     - pip3 install pytest pytest-xdist
@@ -23,6 +20,7 @@
     - locale-gen en_US.UTF-8
     - export LANG=en_US.UTF-8
     - export PYTEST_ADDOPTS=--skip-missing-programs=dumpcap,rawshark
+    - ./tools/debian-setup.sh --install-optional --install-test-deps -y
     - mkdir build
     - cd build
 .build-rpm: &build-rpm
@@ -31,19 +29,9 @@
     paths:
       - build/packaging/rpm/RPMS
     expire_in: 3 days
-gcc-4:
-  <<: *build-ubuntu
-  script:
-    - ../tools/debian-setup.sh --install-optional --install-test-deps gcc-4.9 g++-4.9 -y
-    - cmake -GNinja -DCMAKE_C_COMPILER=gcc-4.9 -DCMAKE_CXX_COMPILER=g++-4.9 ..
-    - ninja
-    - ninja test-programs
-    - chown -R user .
-    - su user -c pytest
 gcc-5:
   <<: *build-ubuntu
   script:
-    - ../tools/debian-setup.sh --install-optional --install-test-deps gcc-5 g++-5 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=gcc-5 -DCMAKE_CXX_COMPILER=g++-5 ..
     - ninja
     - ninja test-programs
@@ -52,7 +40,6 @@ gcc-5:
 gcc-6:
   <<: *build-ubuntu
   script:
-    - ../tools/debian-setup.sh --install-optional --install-test-deps gcc-6 g++-6 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=gcc-6 -DCMAKE_CXX_COMPILER=g++-6 ..
     - ninja
     - ninja test-programs
@@ -61,7 +48,6 @@ gcc-6:
 gcc-7:
   <<: *build-ubuntu
   script:
-    - ../tools/debian-setup.sh --install-optional --install-test-deps gcc-7 g++-7 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=gcc-7 -DCMAKE_CXX_COMPILER=g++-7 ..
     - ninja
     - ninja test-programs
@@ -70,7 +56,6 @@ gcc-7:
 gcc-8:
   <<: *build-ubuntu
   script:
-    - ../tools/debian-setup.sh --install-optional --install-test-deps gcc-8 g++-8 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8 ..
     - ninja
     - ninja test-programs
@@ -79,7 +64,6 @@ gcc-8:
 gcc-8-nopcap:
   <<: *build-ubuntu
   script:
-    - ../tools/debian-setup.sh --install-optional --install-test-deps gcc-8 g++-8 -y
     - cmake -GNinja -DENABLE_PCAP=OFF -DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8 ..
     - ninja
     - ninja test-programs
@@ -88,7 +72,6 @@ gcc-8-nopcap:
 clang-5:
   <<: *build-ubuntu
   script:
-    - ../tools/debian-setup.sh --install-optional --install-test-deps clang-5.0 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=clang-5.0 -DCMAKE_CXX_COMPILER=clang++-5.0 -DCMAKE_C_FLAGS=-Wframe-larger-than=20000 ..
     - ninja
     - ninja test-programs
@@ -97,7 +80,6 @@ clang-5:
 clang-6:
   <<: *build-ubuntu
   script:
-    - ../tools/debian-setup.sh --install-optional --install-test-deps clang-6.0 -y
     - cmake -GNinja -DCMAKE_C_COMPILER=clang-6.0 -DCMAKE_CXX_COMPILER=clang++-6.0 -DCMAKE_C_FLAGS=-Wframe-larger-than=20000 ..
     - ninja
     - ninja test-programs
@@ -106,7 +88,6 @@ clang-6:
 clang-7:
   <<: *build-ubuntu
   script:
-     - ../tools/debian-setup.sh --install-optional --install-test-deps clang-7 -y
      - cmake -GNinja -DCMAKE_C_COMPILER=clang-7 -DCMAKE_CXX_COMPILER=clang++-7 -DCMAKE_C_FLAGS=-Wframe-larger-than=20000 ..
      - ninja
      - ninja test-programs
@@ -115,7 +96,6 @@ clang-7:
 clang-7-nopcap:
   <<: *build-ubuntu
   script:
-    - ../tools/debian-setup.sh --install-optional --install-test-deps clang-7 -y
     - cmake -GNinja -DENABLE_PCAP=OFF -DCMAKE_C_COMPILER=clang-7 -DCMAKE_CXX_COMPILER=clang++-7 -DCMAKE_C_FLAGS=-Wframe-larger-than=20000 ..
     - ninja
     - ninja test-programs
