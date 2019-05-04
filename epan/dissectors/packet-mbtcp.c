@@ -258,8 +258,6 @@ classify_mbrtu_packet(packet_info *pinfo, tvbuff_t *tvb, guint port)
 
         case READ_HOLDING_REGS:
         case READ_INPUT_REGS:
-        case WRITE_SINGLE_COIL:
-        case WRITE_SINGLE_REG:
             if (len == 8) {
                 return QUERY_PACKET;
             }
@@ -267,6 +265,11 @@ classify_mbrtu_packet(packet_info *pinfo, tvbuff_t *tvb, guint port)
                 return RESPONSE_PACKET;
             }
             break;
+
+        case WRITE_SINGLE_COIL:
+        case WRITE_SINGLE_REG:
+            /* Normal response is echo of the request */
+            return CANNOT_CLASSIFY;
 
         case WRITE_MULT_REGS:
         case WRITE_MULT_COILS:
@@ -734,11 +737,11 @@ get_mbrtu_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                 case READ_DISCRETE_INPUTS:
                 case READ_HOLDING_REGS:
                 case READ_INPUT_REGS:
-                case WRITE_SINGLE_COIL:
-                case WRITE_SINGLE_REG:
                     return tvb_get_guint8(tvb, 2) + 5;  /* Reported size does not include 2 header, 1 size byte, 2 CRC16 bytes */
                     break;
-                case WRITE_MULT_REGS:  /* Response messages of FC15/16 are always 8 bytes */
+                case WRITE_SINGLE_COIL: /* Response messages of FC5/6/15/16 are always 8 bytes */
+                case WRITE_SINGLE_REG:
+                case WRITE_MULT_REGS:
                 case WRITE_MULT_COILS:
                     return 8;
                     break;
