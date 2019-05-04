@@ -4388,7 +4388,7 @@ proto_register_zbee_zcl_drlc(void)
             FT_UINT8, BASE_HEX | BASE_RANGE_STRING, RVALS(zbee_zcl_drlc_report_event_signature_type), 0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_drlc_report_event_signature,
-            { "Signature", "zbee_zcl_se.drlc.report_event.signature_type",
+            { "Signature", "zbee_zcl_se.drlc.report_event.signature",
             FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_drlc_get_scheduled_events_start_time,
