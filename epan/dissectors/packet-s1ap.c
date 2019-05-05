@@ -4058,7 +4058,7 @@ dissect_s1ap_CauseNas(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      4, &value, TRUE, 1, NULL);
 
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "  [NAS-cause=%s]", val_to_str_const(value, s1ap_CauseNas_vals, "Unknown"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [NAS-cause=%s]", val_to_str_const(value, s1ap_CauseNas_vals, "Unknown"));
 
 
 
@@ -11358,6 +11358,9 @@ static const per_sequence_t ErrorIndication_sequence[] = {
 
 static int
 dissect_s1ap_ErrorIndication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 2113 "./asn1/s1ap/s1ap.cnf"
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ErrorIndication");
+
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_s1ap_ErrorIndication, ErrorIndication_sequence);
 

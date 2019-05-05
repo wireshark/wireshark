@@ -2109,8 +2109,8 @@ SecondaryRATDataUsageReport             N s1ap.proc.imsg id-SecondaryRATDataUsag
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Reset");
 #.FN_HDR ResetAcknowledge
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ResetAcknowledge");
-# FN_HDR ErrorIndication
-#col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ErrorIndication");
+#.FN_HDR ErrorIndication
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "ErrorIndication");
 #.FN_HDR S1SetupRequest
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "S1SetupRequest");
 #.FN_HDR S1SetupResponse
@@ -2236,7 +2236,7 @@ SecondaryRATDataUsageReport             N s1ap.proc.imsg id-SecondaryRATDataUsag
 #.FN_BODY CauseNas VAL_PTR=&value
   guint32 value;
 %(DEFAULT_BODY)s
-  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "  [NAS-cause=%%s]", val_to_str_const(value, s1ap_CauseNas_vals, "Unknown"));
+  col_append_fstr(actx->pinfo->cinfo, COL_INFO, " [NAS-cause=%%s]", val_to_str_const(value, s1ap_CauseNas_vals, "Unknown"));
 
 #.FN_BODY CauseProtocol VAL_PTR=&value
   guint32 value;
