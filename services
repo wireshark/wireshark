@@ -8683,8 +8683,8 @@ stun-behaviors   5349/tcp # STUN Behavior Discovery over TLS [RFC5780]
 stun-behaviors   5349/udp # Reserved for a future enhancement of STUN-BEHAVIOR [RFC5780]
 pcp-multicast    5350/udp # Port Control Protocol Multicast [IESG] [IETF_Chair] [RFC6887]
 pcp              5351/udp # Port Control Protocol [IESG] [IETF_Chair] [RFC6887]
-dns-llq          5352/tcp # DNS Long-Lived Queries [Kiren_Sekar] [Kiren_Sekar] 2005-08
-dns-llq          5352/udp # DNS Long-Lived Queries [Kiren_Sekar] [Kiren_Sekar] 2005-08
+dns-llq          5352/tcp # DNS Long-Lived Queries [Stuart_Cheshire] [Stuart_Cheshire] 2005-08 2019-05-04
+dns-llq          5352/udp # DNS Long-Lived Queries [Stuart_Cheshire] [Stuart_Cheshire] 2005-08 2019-05-04
 mdns             5353/tcp # Multicast DNS [IESG] [IETF_Chair] [RFC6762]
 mdns             5353/udp # Multicast DNS [IESG] [IETF_Chair] [RFC6762]
 mdnsresponder    5354/tcp # Multicast DNS Responder IPC [Stuart_Cheshire_3] [Stuart_Cheshire_3] 2004-06
