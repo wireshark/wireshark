@@ -29,6 +29,7 @@ static int proto_usb_audio = -1;
 static int hf_midi_cable_number = -1;
 static int hf_midi_code_index = -1;
 static int hf_midi_event = -1;
+static int hf_midi_padding = -1;
 static int hf_ac_if_desc_subtype = -1;
 static int hf_ac_if_hdr_ver = -1;
 static int hf_ac_if_hdr_total_len = -1;
@@ -586,6 +587,38 @@ static const fragment_items sysex_msg_frag_items = {
     "Message fragments"
 };
 
+static gint
+get_midi_event_size(guint8 code)
+{
+    switch (code)
+    {
+        case 0x0: /* Miscellaneous function codes. Reserved for future extensions. */
+        case 0x1: /* Cable events. Reserved for future expansion. */
+            /* The Event size can be 1, 2 or 3 bytes. Assume 3. */
+            return 3;
+        case 0x5: /* Single-byte System Common Message or SysEx ends with following single byte. */
+        case 0xF: /* Single Byte */
+            return 1;
+        case 0x2: /* 2 Two-byte System Common messages like MTC, SongSelect, etc. */
+        case 0x6: /* SysEx ends with following two bytes. */
+        case 0xC: /* Program Change */
+        case 0xD: /* Channel Pressure */
+            return 2;
+        case 0x3: /* Three-byte System Common messages like SPP, etc. */
+        case 0x4: /* SysEx starts or continues */
+        case 0x7: /* SysEx ends with following three bytes. */
+        case 0x8: /* Note-off */
+        case 0x9: /* Note-on */
+        case 0xA: /* Poly-KeyPress */
+        case 0xB: /* Control Change */
+        case 0xE: /* PitchBend Change */
+            return 3;
+        default:
+            /* Invalid Code Index Number */
+            return 0;
+    }
+}
+
 static inline gboolean
 is_sysex_code(guint8 code)
 {
@@ -626,8 +659,6 @@ dissect_usb_midi_event(tvbuff_t *tvb, packet_info *pinfo,
     gboolean    save_fragmented;
     proto_tree *tree = NULL;
 
-    col_set_str(pinfo->cinfo, COL_INFO, "USB-MIDI Event Packets");
-
     code = tvb_get_guint8(tvb, offset);
     cable = (code & 0xF0) >> 4;
     code &= 0x0F;
@@ -635,12 +666,26 @@ dissect_usb_midi_event(tvbuff_t *tvb, packet_info *pinfo,
     if (parent_tree)
     {
         proto_item *ti;
+        gint event_size, padding_size;
 
         ti = proto_tree_add_protocol_format(usb_audio_tree, proto_usb_audio, tvb, offset, 4, "USB Midi Event Packet");
         tree = proto_item_add_subtree(ti, ett_usb_audio);
         proto_tree_add_item(tree, hf_midi_cable_number, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_midi_code_index, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(tree, hf_midi_event, tvb, offset+1, 3, ENC_BIG_ENDIAN);
+
+        event_size = get_midi_event_size(code);
+        padding_size = 3 - event_size;
+        if (event_size > 0)
+        {
+            /* TODO: Create MIDI dissector and pass the event data to it */
+            const gchar *event_data = tvb_get_ptr(tvb, offset+1, event_size);
+            proto_tree_add_bytes(tree, hf_midi_event, tvb, offset+1, event_size, event_data);
+        }
+        if (padding_size > 0)
+        {
+            const gchar *padding = tvb_get_ptr(tvb, offset+1+event_size, padding_size);
+            proto_tree_add_bytes(tree, hf_midi_padding, tvb, offset+1+event_size, padding_size, padding);
+        }
     }
 
     save_fragmented = pinfo->fragmented;
@@ -678,7 +723,7 @@ dissect_usb_midi_event(tvbuff_t *tvb, packet_info *pinfo,
         {
             new_tvb = process_reassembled_data(tvb, offset+1, pinfo,
                 "Reassembled Message", frag_sysex_msg, &sysex_msg_frag_items,
-                NULL, usb_audio_tree);
+                NULL, tree);
 
             if (code != 0x04) { /* Reassembled */
                 col_append_str(pinfo->cinfo, COL_INFO,
@@ -1606,8 +1651,11 @@ proto_register_usb_audio(void)
             { "Code Index", "usbaudio.midi.code_index", FT_UINT8, BASE_HEX,
               VALS(code_index_vals), 0x0F, NULL, HFILL }},
         { &hf_midi_event,
-            { "MIDI Event", "usbaudio.midi.event", FT_UINT24, BASE_HEX,
+            { "MIDI Event", "usbaudio.midi.event", FT_BYTES, BASE_NONE,
               NULL, 0, NULL, HFILL }},
+        { &hf_midi_padding,
+            { "Padding", "usbaudio.midi.padding", FT_BYTES, BASE_NONE,
+              NULL, 0, "Must be zero", HFILL }},
 
         { &hf_ac_if_desc_subtype,
             { "Subtype", "usbaudio.ac_if_subtype", FT_UINT8, BASE_HEX|BASE_EXT_STRING,
