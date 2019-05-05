@@ -33,7 +33,7 @@ def gen_array(funcs, name):
 
 def scan_files(infiles, regs):
     for path in infiles:
-        with open(path, 'r') as f:
+        with open(path, 'r', encoding='utf8') as f:
             source = f.read()
             for array, regex in regs:
                 matches = re.findall(regex, source)
