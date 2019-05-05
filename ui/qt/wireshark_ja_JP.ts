@@ -77,32 +77,32 @@
     </message>
     <message>
         <source>Should the directory %1 be created?</source>
-        <translation type="unfinished"></translation>
+        <translation>ディレクトリ %1 を作成されますか？</translation>
     </message>
     <message>
         <source>The directory could not be created</source>
-        <translation type="unfinished"></translation>
+        <translation>ディレクトリを作成できませんでした</translation>
     </message>
     <message>
         <source>The directory %1 could not be created!</source>
-        <translation type="unfinished"></translation>
+        <translation>ディレクトリ %1 を作成出来ませんでした</translation>
     </message>
     <message>
         <source>Show in Finder</source>
-        <translation type="unfinished"></translation>
+        <translation>ファインダーで表示</translation>
     </message>
     <message>
         <source>Show in Folder</source>
-        <translation type="unfinished"></translation>
+        <translation>フォルダで表示</translation>
     </message>
     <message>
         <source>Copy</source>
-        <translation type="unfinished">コピー</translation>
+        <translation>コピー</translation>
     </message>
     <message numerus="yes">
         <source>Copy Row(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>行をコピー</numerusform>
         </translation>
     </message>
 </context>
@@ -134,37 +134,37 @@
     <name>AdvancedPrefsModel</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished">名前</translation>
+        <translation>名前</translation>
     </message>
     <message>
         <source>Status</source>
-        <translation type="unfinished">状態</translation>
+        <translation>状態</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">種別</translation>
+        <translation>種別</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished">値</translation>
+        <translation>値</translation>
     </message>
 </context>
 <context>
     <name>ApplyLineEdit</name>
     <message>
         <source>Apply changes</source>
-        <translation type="unfinished"></translation>
+        <translation>変更を適用</translation>
     </message>
 </context>
 <context>
     <name>AuthorListModel</name>
     <message>
         <source>Name</source>
-        <translation type="unfinished">名前</translation>
+        <translation>名前</translation>
     </message>
     <message>
         <source>Email</source>
-        <translation type="unfinished"></translation>
+        <translation>メール</translation>
     </message>
 </context>
 <context>
@@ -215,15 +215,15 @@
     </message>
     <message>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>行をマーク/マーク解除</translation>
     </message>
     <message>
         <source>CtrlM</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>セルをマーク/マーク解除</translation>
     </message>
     <message>
         <source>Save Table Image</source>
@@ -238,107 +238,107 @@
     <name>BluetoothDeviceDialog</name>
     <message>
         <source>Bluetooth Device</source>
-        <translation type="unfinished"></translation>
+        <translation>Bluetooth機器</translation>
     </message>
     <message>
         <source>BD_ADDR</source>
-        <translation type="unfinished">BD_ADDR</translation>
+        <translation>BD_ADDR</translation>
     </message>
     <message>
         <source>OUI</source>
-        <translation type="unfinished">OUI</translation>
+        <translation>OUI</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">名前</translation>
+        <translation>名前</translation>
     </message>
     <message>
         <source>Class of Device</source>
-        <translation type="unfinished"></translation>
+        <translation>機器のクラス</translation>
     </message>
     <message>
         <source>LMP Version</source>
-        <translation type="unfinished">LMPバージョン</translation>
+        <translation>LMP バージョン</translation>
     </message>
     <message>
         <source>LMP Subverion</source>
-        <translation type="unfinished"></translation>
+        <translation>LMP サブバージョン</translation>
     </message>
     <message>
         <source>Manufacturer</source>
-        <translation type="unfinished">製造元</translation>
+        <translation>製造者</translation>
     </message>
     <message>
         <source>HCI Version</source>
-        <translation type="unfinished">HCIバージョン</translation>
+        <translation>HCI バージョン</translation>
     </message>
     <message>
         <source>HCI Revision</source>
-        <translation type="unfinished">HCIリビジョン</translation>
+        <translation>HCI リビジョン</translation>
     </message>
     <message>
         <source>Scan</source>
-        <translation type="unfinished"></translation>
+        <translation>スキャン</translation>
     </message>
     <message>
         <source>Authentication</source>
-        <translation type="unfinished">認証</translation>
+        <translation>認証</translation>
     </message>
     <message>
         <source>Encryption</source>
-        <translation type="unfinished"></translation>
+        <translation>暗号化</translation>
     </message>
     <message>
         <source>ACL MTU</source>
-        <translation type="unfinished"></translation>
+        <translation>ACL MTU</translation>
     </message>
     <message>
         <source>ACL Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>ACL 全パケット</translation>
     </message>
     <message>
         <source>SCO MTU</source>
-        <translation type="unfinished"></translation>
+        <translation>SCO MTU</translation>
     </message>
     <message>
         <source>SCO Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>SCO 全パケット</translation>
     </message>
     <message>
         <source>LE ACL MTU</source>
-        <translation type="unfinished"></translation>
+        <translation>LE ACL MTU</translation>
     </message>
     <message>
         <source>LE ACL Total Packets</source>
-        <translation type="unfinished"></translation>
+        <translation>LE ACL 全パケット</translation>
     </message>
     <message>
         <source>Inquiry Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>問い合わせモード</translation>
     </message>
     <message>
         <source>Page Timeout</source>
-        <translation type="unfinished"></translation>
+        <translation>ページタイムアウト</translation>
     </message>
     <message>
         <source>Simple Pairing Mode</source>
-        <translation type="unfinished"></translation>
+        <translation>シンプルペアリングモード</translation>
     </message>
     <message>
         <source>Voice Setting</source>
-        <translation type="unfinished"></translation>
+        <translation>音声設定</translation>
     </message>
     <message>
         <source>Value</source>
-        <translation type="unfinished">値</translation>
+        <translation>値</translation>
     </message>
     <message>
         <source>Changes</source>
-        <translation type="unfinished"></translation>
+        <translation>変更</translation>
     </message>
     <message>
         <source>%1 changes</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 変更</translation>
     </message>
     <message>
         <source>Copy Cell</source>
@@ -354,47 +354,47 @@
     </message>
     <message>
         <source>Save as image</source>
-        <translation type="unfinished">画像として保存</translation>
+        <translation>画像として保存</translation>
     </message>
     <message>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>行をマーク/マーク解除</translation>
     </message>
     <message>
         <source>CtrlM</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>セルをマーク/マーク解除</translation>
     </message>
     <message>
         <source>Unknown</source>
-        <translation type="unfinished">不明</translation>
+        <translation>不明</translation>
     </message>
     <message>
         <source>Bluetooth Device - %1%2</source>
-        <translation type="unfinished"></translation>
+        <translation>Bluetooth機器 - %1%2</translation>
     </message>
     <message>
         <source>enabled</source>
-        <translation type="unfinished"></translation>
+        <translation>有効</translation>
     </message>
     <message>
         <source>disabled</source>
-        <translation type="unfinished"></translation>
+        <translation>無効</translation>
     </message>
     <message>
         <source>%1 ms (%2 slots)</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 ミリ秒 (%2 スロット)</translation>
     </message>
     <message>
         <source>Save Table Image</source>
-        <translation type="unfinished"></translation>
+        <translation>テーブル画像を保存</translation>
     </message>
     <message>
         <source>PNG Image (*.png)</source>
-        <translation type="unfinished">PNG画像 (*.png)</translation>
+        <translation>PNG画像 (*.png)</translation>
     </message>
 </context>
 <context>
@@ -449,7 +449,7 @@
     </message>
     <message>
         <source>%1 items; Right click for more option; Double click for device details</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 アイテム; 右クリックしてより多くのオプション; ダブルクリックしてデバイスの詳細</translation>
     </message>
     <message>
         <source>Copy Cell</source>
@@ -469,15 +469,15 @@
     </message>
     <message>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>行をマーク/マーク解除</translation>
     </message>
     <message>
         <source>CtrlM</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>セルをマーク/マーク解除</translation>
     </message>
     <message>
         <source>true</source>
@@ -520,7 +520,7 @@
     </message>
     <message>
         <source>Subevent</source>
-        <translation type="unfinished"></translation>
+        <translation>サブイベント</translation>
     </message>
     <message>
         <source>Status</source>
@@ -628,11 +628,11 @@
     </message>
     <message>
         <source>Results filter:</source>
-        <translation type="unfinished"></translation>
+        <translation>結果フィルタ:</translation>
     </message>
     <message>
         <source>Display filter:</source>
-        <translation type="unfinished">表示フィルタ:</translation>
+        <translation>表示フィルタ:</translation>
     </message>
     <message>
         <source>All Interfaces</source>
@@ -660,15 +660,15 @@
     </message>
     <message>
         <source>Mark/Unmark Row</source>
-        <translation type="unfinished"></translation>
+        <translation>行をマーク/マーク解除</translation>
     </message>
     <message>
         <source>Ctrl+M</source>
-        <translation type="unfinished"></translation>
+        <translation>Ctrl+M</translation>
     </message>
     <message>
         <source>Mark/Unmark Cell</source>
-        <translation type="unfinished"></translation>
+        <translation>セルをマーク/マーク解除</translation>
     </message>
     <message>
         <source>Unknown</source>
@@ -706,11 +706,11 @@
     <name>ByteViewText</name>
     <message>
         <source>Show bytes as hexadecimal</source>
-        <translation type="unfinished"></translation>
+        <translation>16進数でバイト列を表示</translation>
     </message>
     <message>
         <source>Show text based on packet</source>
-        <translation type="unfinished"></translation>
+        <translation>パケットをテキストベースで表示</translation>
     </message>
 </context>
 <context>
@@ -764,11 +764,31 @@
     </message>
     <message>
         <source>Start / elapsed:</source>
-        <translation type="unfinished"></translation>
+        <translation>開始 / 経過:</translation>
     </message>
     <message>
         <source>Automatically detect file type</source>
-        <translation type="unfinished"></translation>
+        <translation>ファイル種別を自動的に検出</translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, error after %Ln packet(s)</source>
+        <oldsource>%1, error after %2 packets</oldsource>
+        <translation type="vanished">
+            <numerusform>%Ln パケットの後に %1, エラー </numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, timed out at %Ln packet(s)</source>
+        <oldsource>%1, timed out at %2 packets</oldsource>
+        <translation type="vanished">
+            <numerusform>%Ln パケットにて %1, タイムアウト</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%1, %Ln packet(s)</source>
+        <translation type="vanished">
+            <numerusform>%1, %Ln パケット</numerusform>
+        </translation>
     </message>
     <message>
         <source>Prepend packets</source>
@@ -845,20 +865,20 @@
     <message numerus="yes">
         <source>%1, error after %Ln data record(s)</source>
         <oldsource>%1, error after %Ln record(s)</oldsource>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln データレコードの後に %1, エラー </numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, timed out at %Ln data record(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%Ln データレコードにて %1, タイムアウト</numerusform>
         </translation>
     </message>
     <message numerus="yes">
         <source>%1, %Ln data record(s)</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
+        <translation>
+            <numerusform>%1, %Ln データレコード</numerusform>
         </translation>
     </message>
     <message>
@@ -910,15 +930,15 @@
     </message>
     <message>
         <source>Hash (SHA256)</source>
-        <translation type="unfinished"></translation>
+        <translation>ハッシュ(SHA256)</translation>
     </message>
     <message>
         <source>Hash (RIPEMD160)</source>
-        <translation type="unfinished"></translation>
+        <translation>ハッシュ (RIPEMD160)</translation>
     </message>
     <message>
         <source>Hash (SHA1)</source>
-        <translation type="unfinished"></translation>
+        <translation>ハッシュ (SHA1)</translation>
     </message>
     <message>
         <source>Format</source>
@@ -1060,29 +1080,31 @@
         <source>Created by Wireshark %1
 
 </source>
-        <translation type="unfinished"></translation>
+        <translation>Wireshark %1 によって作成されました
+
+</translation>
     </message>
 </context>
 <context>
     <name>CaptureFilterCombo</name>
     <message>
         <source>Capture filter selector</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャフィルタ選択</translation>
     </message>
 </context>
 <context>
     <name>CaptureFilterEdit</name>
     <message>
         <source>Capture filter entry</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャフィルタエントリ</translation>
     </message>
     <message>
         <source>Manage saved bookmarks.</source>
-        <translation type="unfinished"></translation>
+        <translation>保存したブックマークを管理</translation>
     </message>
     <message>
         <source>Apply this filter string to the display.</source>
-        <translation type="unfinished"></translation>
+        <translation>このフィルタ文字列を表示に適用</translation>
     </message>
     <message>
         <source>Multiple filters selected. Override them here or leave this blank to preserve them.</source>
@@ -1873,11 +1895,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Manage saved bookmarks.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">保存したブックマークを管理</translation>
     </message>
     <message>
         <source>Apply this filter string to the display.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">このフィルタ文字列を表示に適用</translation>
     </message>
     <message>
         <source>Apply a display filter %1 &lt;%2/&gt;</source>
@@ -4186,7 +4208,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>InterfaceToolbarLineEdit</name>
     <message>
         <source>Apply changes</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">変更を適用</translation>
     </message>
 </context>
 <context>
@@ -12762,11 +12784,11 @@ a:hover {
     </message>
     <message>
         <source>Show in Finder</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">ファインダーで表示</translation>
     </message>
     <message>
         <source>Show in Folder</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">フォルダで表示</translation>
     </message>
     <message>
         <source>All interfaces shown</source>
