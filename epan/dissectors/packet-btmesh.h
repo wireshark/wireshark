@@ -14,8 +14,15 @@
 
 #include <epan/packet.h>
 
-#define MESH_NONCE_TYPE_NETWORK 0x00
-#define MESH_NONCE_TYPE_PROXY   0x03
+#define BTMESH_NONCE_TYPE_NETWORK     0x00
+#define BTMESH_NONCE_TYPE_APPLICATION 0x01
+#define BTMESH_NONCE_TYPE_DEVICE      0x02
+#define BTMESH_NONCE_TYPE_PROXY       0x03
+
+#define BTMESH_ADDRESS_UNASSIGNED     0x00
+#define BTMESH_ADDRESS_UNICAST        0x01
+#define BTMESH_ADDRESS_VIRTUAL        0x02
+#define BTMESH_ADDRESS_GROUP          0x03
 
 typedef enum {
     E_BTMESH_TR_UNKNOWN = 0,
@@ -46,7 +53,27 @@ typedef struct {
     btle_mesh_proxy_side_t proxy_side;
 } btle_mesh_proxy_ctx_t;
 
-tvbuff_t *btmesh_network_find_key_and_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint8 **decrypted_data, int *enc_data_len, guint8 nonce_type);
+typedef struct {
+    /* Network Layer */
+    guint32 src;
+    guint32 seq;
+    guint8 seq_src_buf[5];
+    guint8 ivindex_buf[4];
+    guint8 net_nonce_type;
+    guint32 net_key_iv_index_hash;
+
+    /* Transport layer */
+    guint32 dst;
+    guint8 dst_buf[2];
+    gint32 label_uuid_idx;
+    guint32 seg; /* Segmentation */
+    guint8 aid;
+    guint8 app_nonce_type;
+    guint32 seqzero;
+    int transmic_size;
+} network_decryption_ctx_t;
+
+tvbuff_t *btmesh_network_find_key_and_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint8 **decrypted_data, int *enc_data_len, network_decryption_ctx_t *dec_ctx);
 
 #endif /* __PACKET_BTMESH_H__ */
 

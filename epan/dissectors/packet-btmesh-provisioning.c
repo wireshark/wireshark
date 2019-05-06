@@ -13,8 +13,6 @@
  * https://www.bluetooth.com/specifications/mesh-specifications
  */
 
-#include "tfs.h"
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>

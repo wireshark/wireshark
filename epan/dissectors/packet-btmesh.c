@@ -2,6 +2,7 @@
  * Routines for Bluetooth mesh dissection
  *
  * Copyright 2017, Anders Broman <anders.broman@ericsson.com>
+ * Copyright 2019, Piotr Winiarczyk <wino45@gmail.com>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -24,10 +25,12 @@
 #include <epan/reassemble.h>
 
 #define BTMESH_NOT_USED 0
+#define BTMESH_KEY_ENTRY_VALID 4
+#define BTMESH_DEVICE_KEY_ENTRY_VALID 2
+#define BTMESH_LABEL_UUID_ENTRY_VALID 1
+#define NO_LABEL_UUID_IDX_USED -1
 
 void proto_register_btmesh(void);
-
-gint net_mic_size_chosen = 1;
 
 static int proto_btmesh = -1;
 
@@ -35,11 +38,10 @@ static int proto_btmesh = -1;
  * UAT for BT Mesh
  *-------------------------------------
  */
-
-static uat_t * btmesh_uat = NULL;
+static uat_t *btmesh_uat = NULL;
 static guint num_btmesh_uat = 0;
 
-/* UAT entry structure. */
+/* UAT Network, Application and IVIndex entry structure. */
 typedef struct {
     gchar *network_key_string;
     guint8 *network_key;
@@ -50,9 +52,45 @@ typedef struct {
     guint8 *privacykey;
     guint8 *encryptionkey;
     guint8 nid;
+    gchar *application_key_string;
+    guint8 *application_key;
+    gint application_key_length;
+    guint8 aid;
+    guint8 valid; /* this counter must be equal to BTMESH_KEY_ENTRY_VALID make UAT entry valid */
+    guint32 net_key_iv_index_hash; /* Used to identify net key / IV index pair */
 } uat_btmesh_record_t;
 
 static uat_btmesh_record_t *uat_btmesh_records = NULL;
+
+static uat_t *btmesh_dev_key_uat = NULL;
+static guint num_btmesh_dev_key_uat = 0;
+
+/* UAT Device Key entry structure. */
+typedef struct {
+    gchar *device_key_string;
+    guint8 *device_key;
+    gint device_key_length;
+    gchar *src_string;
+    gint src_length;
+    guint8 *src;
+    guint8 valid; /* this counter must be equal to BTMESH_DEVICE_KEY_ENTRY_VALID make UAT entry valid */
+} uat_btmesh_dev_key_record_t;
+
+static uat_btmesh_dev_key_record_t *uat_btmesh_dev_key_records = NULL;
+
+static uat_t * btmesh_label_uuid_uat = NULL;
+static guint num_btmesh_label_uuid_uat = 0;
+
+/* UAT Label UUID entry structure. */
+typedef struct {
+    gchar *label_uuid_string;
+    guint8 *label_uuid;
+    gint label_uuid_length;
+    guint16 hash;
+    guint8 valid; /* this counter must be equal to BTMESH_LABEL_UUID_ENTRY_VALID make UAT entry valid */
+} uat_btmesh_label_uuid_record_t;
+
+static uat_btmesh_label_uuid_record_t *uat_btmesh_label_uuid_records = NULL;
 
 static int hf_btmesh_ivi = -1;
 static int hf_btmesh_nid = -1;
@@ -129,6 +167,22 @@ static int hf_btmesh_segmented_access_fragment_error = -1;
 static int hf_btmesh_segmented_access_fragment_count = -1;
 static int hf_btmesh_segmented_access_reassembled_length = -1;
 
+static int hf_btmesh_segmented_control_fragments = -1;
+static int hf_btmesh_segmented_control_fragment = -1;
+static int hf_btmesh_segmented_control_fragment_overlap = -1;
+static int hf_btmesh_segmented_control_fragment_overlap_conflict = -1;
+static int hf_btmesh_segmented_control_fragment_multiple_tails = -1;
+static int hf_btmesh_segmented_control_fragment_too_long_fragment = -1;
+static int hf_btmesh_segmented_control_fragment_error = -1;
+static int hf_btmesh_segmented_control_fragment_count = -1;
+static int hf_btmesh_segmented_control_reassembled_length = -1;
+
+static int hf_btmesh_decrypted_access = -1;
+static int hf_btmesh_model_layer_opcode = -1;
+static int hf_btmesh_model_layer_parameters = -1;
+static int hf_btmesh_model_layer_vendor_opcode = -1;
+static int hf_btmesh_model_layer_vendor = -1;
+
 static int ett_btmesh = -1;
 static int ett_btmesh_net_pdu = -1;
 static int ett_btmesh_transp_pdu = -1;
@@ -136,6 +190,10 @@ static int ett_btmesh_transp_ctrl_msg = -1;
 static int ett_btmesh_upper_transp_acc_pdu = -1;
 static int ett_btmesh_segmented_access_fragments = -1;
 static int ett_btmesh_segmented_access_fragment = -1;
+static int ett_btmesh_segmented_control_fragments = -1;
+static int ett_btmesh_segmented_control_fragment = -1;
+static int ett_btmesh_access_pdu = -1;
+static int ett_btmesh_model_layer = -1;
 
 static expert_field ei_btmesh_not_decoded_yet = EI_INIT;
 
@@ -230,9 +288,298 @@ static const value_string btmesh_criteria_minqueuesizelog_vals[] = {
 };
 
 static const value_string btmesh_szmic_vals[] = {
-{ 0x0, "32-bit" },
-{ 0x1, "64-bit" },
-{ 0, NULL }
+    { 0x0, "32-bit" },
+    { 0x1, "64-bit" },
+    { 0, NULL }
+};
+
+static const value_string btmesh_models_opcode_vals[] = {
+    /* Bluetooth Mesh Foundation messages */
+    { 0x00, "Config AppKey Add" },
+    { 0x01, "Config AppKey Update" },
+    { 0x02, "Config Composition Data Status" },
+    { 0x03, "Config Config Model Publication Set" },
+    { 0x04, "Health Current Status" },
+    { 0x05, "Health Fault Status" },
+    { 0x06, "Config Heartbeat Publication Status" },
+    { 0x8000, "Config AppKey Delete" },
+    { 0x8001, "Config AppKey Get" },
+    { 0x8002, "Config AppKey List" },
+    { 0x8003, "Config AppKey Status" },
+    { 0x8004, "Health Attention Get" },
+    { 0x8005, "Health Attention Set" },
+    { 0x8006, "Health Attention Set Unacknowledged" },
+    { 0x8007, "Health Attention Status" },
+    { 0x8008, "Config Composition Data Get" },
+    { 0x8009, "Config Beacon Get" },
+    { 0x800A, "Config Beacon Set" },
+    { 0x800B, "Config Beacon Status" },
+    { 0x800C, "Config Default TTL Get" },
+    { 0x800D, "Config Default TTL Set" },
+    { 0x800E, "Config Default TTL Status" },
+    { 0x800F, "Config Friend Get" },
+    { 0x8010, "Config Friend Set" },
+    { 0x8011, "Config Friend Status" },
+    { 0x8012, "Config GATT Proxy Get" },
+    { 0x8013, "Config GATT Proxy Set" },
+    { 0x8014, "Config GATT Proxy Status" },
+    { 0x8015, "Config Key Refresh Phase Get" },
+    { 0x8016, "Config Key Refresh Phase Set" },
+    { 0x8017, "Config Key Refresh Phase Status" },
+    { 0x8018, "Config Model Publication Get" },
+    { 0x8019, "Config Model Publication Status" },
+    { 0x801A, "Config Model Publication Virtual Address Set" },
+    { 0x801B, "Config Model Subscription Add" },
+    { 0x801C, "Config Model Subscription Delete" },
+    { 0x801D, "Config Model Subscription Delete All" },
+    { 0x801E, "Config Model Subscription Overwrite" },
+    { 0x801F, "Config Model Subscription Status" },
+    { 0x8020, "Config Model Subscription Virtual Address Add" },
+    { 0x8021, "Config Model Subscription Virtual Address Delete" },
+    { 0x8022, "Config Model Subscription Virtual Address Overwrite" },
+    { 0x8023, "Config Network Transmit Get" },
+    { 0x8024, "Config Network Transmit Set" },
+    { 0x8025, "Config Network Transmit Status" },
+    { 0x8026, "Config Relay Get" },
+    { 0x8027, "Config Relay Set" },
+    { 0x8028, "Config Relay Status" },
+    { 0x8029, "Config SIG Model Subscription Get" },
+    { 0x802A, "Config SIG Model Subscription List" },
+    { 0x802B, "Config Vendor Model Subscription Get" },
+    { 0x802C, "Config Vendor Model Subscription List" },
+    { 0x802D, "Config Low Power Node PollTimeout Get" },
+    { 0x802E, "Config Low Power Node PollTimeout Status" },
+    { 0x802F, "Health Fault Clear" },
+    { 0x8030, "Health Fault Clear Unacknowledged" },
+    { 0x8031, "Health Fault Get" },
+    { 0x8032, "Health Fault Test" },
+    { 0x8033, "Health Fault Test Unacknowledged" },
+    { 0x8034, "Health Period Get" },
+    { 0x8035, "Health Period Set" },
+    { 0x8036, "Health Period Set Unacknowledged" },
+    { 0x8037, "Health Period Status" },
+    { 0x8038, "Config Heartbeat Publication Get" },
+    { 0x8039, "Config Heartbeat Publication Set" },
+    { 0x803A, "Config Heartbeat Subscription Get" },
+    { 0x803B, "Config Heartbeat Subscription Set" },
+    { 0x803C, "Config Heartbeat Subscription Status" },
+    { 0x803D, "Config Model App Bind" },
+    { 0x803E, "Config Model App Status" },
+    { 0x803F, "Config Model App Unbind" },
+    { 0x8040, "Config NetKey Add" },
+    { 0x8041, "Config NetKey Delete" },
+    { 0x8042, "Config NetKey Get" },
+    { 0x8043, "Config NetKey List" },
+    { 0x8044, "Config NetKey Status" },
+    { 0x8045, "Config NetKey Update" },
+    { 0x8046, "Config Node Identity Get" },
+    { 0x8047, "Config Node Identity Set" },
+    { 0x8048, "Config Node Identity Status" },
+    { 0x8049, "Config Node Reset" },
+    { 0x804A, "Config Node Reset Status" },
+    { 0x804B, "Config SIG Model App Get" },
+    { 0x804C, "Config SIG Model App List" },
+    { 0x804D, "Config Vendor Model App Get" },
+    { 0x804E, "Config Vendor Model App List" },
+
+    /* Bluetooth Mesh Model messages */
+    { 0x8201, "Generic OnOff Get" },
+    { 0x8202, "Generic OnOff Set" },
+    { 0x8203, "Generic OnOff Set Unacknowledged" },
+    { 0x8204, "Generic OnOff Status" },
+    { 0x8205, "Generic Level Get" },
+    { 0x8206, "Generic Level Set" },
+    { 0x8207, "Generic Level Set Unacknowledged" },
+    { 0x8208, "Generic Level Status" },
+    { 0x8209, "Generic Delta Set" },
+    { 0x820A, "Generic Delta Set Unacknowledged" },
+    { 0x820B, "Generic Move Set" },
+    { 0x820C, "Generic Move Set Unacknowledged" },
+    { 0x820D, "Generic Default Transition Time Get" },
+    { 0x820E, "Generic Default Transition Time Set" },
+    { 0x820F, "Generic Default Transition Time Set Unacknowledged" },
+    { 0x8210, "Generic Default Transition Time Status" },
+    { 0x8211, "Generic OnPowerUp Get" },
+    { 0x8212, "Generic OnPowerUp Status" },
+    { 0x8213, "Generic OnPowerUp Set" },
+    { 0x8214, "Generic OnPowerUp Set Unacknowledged" },
+    { 0x8215, "Generic Power Level Get" },
+    { 0x8216, "Generic Power Level Set" },
+    { 0x8217, "Generic Power Level Set Unacknowledged" },
+    { 0x8218, "Generic Power Level Status" },
+    { 0x8219, "Generic Power Last Get" },
+    { 0x821A, "Generic Power Last Status" },
+    { 0x821B, "Generic Power Default Get" },
+    { 0x821C, "Generic Power Default Status" },
+    { 0x821D, "Generic Power Range Get" },
+    { 0x821E, "Generic Power Range Status" },
+    { 0x821F, "Generic Power Default Set" },
+    { 0x8220, "Generic Power Default Set Unacknowledged" },
+    { 0x8221, "Generic Power Range Set" },
+    { 0x8222, "Generic Power Range Set Unacknowledged" },
+    { 0x8223, "Generic Battery Get" },
+    { 0x8224, "Generic Battery Status" },
+    { 0x8225, "Generic Location Global Get" },
+    { 0x40, "Generic Location Global Status" },
+    { 0x8226, "Generic Location Local Get" },
+    { 0x8227, "Generic Location Local Status" },
+    { 0x41, "Generic Location Global Set" },
+    { 0x42, "Generic Location Global Set Unacknowledged" },
+    { 0x8228, "Generic Location Local Set" },
+    { 0x8229, "Generic Location Local Set Unacknowledged" },
+    { 0x822A, "Generic Manufacturer Properties Get" },
+    { 0x43, "Generic Manufacturer Properties Status" },
+    { 0x822B, "Generic Manufacturer Property Get" },
+    { 0x44, "Generic Manufacturer Property Set" },
+    { 0x45, "Generic Manufacturer Property Set Unacknowledged" },
+    { 0x46, "Generic Manufacturer Property Status" },
+    { 0x822C, "Generic Admin Properties Get" },
+    { 0x47, "Generic Admin Properties Status" },
+    { 0x822D, "Generic Admin Property Get" },
+    { 0x48, "Generic Admin Property Set" },
+    { 0x49, "Generic Admin Property Set Unacknowledged" },
+    { 0x4A, "Generic Admin Property Status" },
+    { 0x822E, "Generic User Properties Get" },
+    { 0x4B, "Generic User Properties Status" },
+    { 0x822F, "Generic User Property Get" },
+    { 0x4C, "Generic User Property Set" },
+    { 0x4D, "Generic User Property Set Unacknowledged" },
+    { 0x4E, "Generic User Property Status" },
+    { 0x4F, "Generic Client Properties Get" },
+    { 0x50, "Generic Client Properties Status" },
+    { 0x8230, "Sensor Descriptor Get" },
+    { 0x51, "Sensor Descriptor Status" },
+    { 0x8231, "Sensor Get" },
+    { 0x52, "Sensor Status" },
+    { 0x8232, "Sensor Column Get" },
+    { 0x53, "Sensor Column Status" },
+    { 0x8233, "Sensor Series Get" },
+    { 0x54, "Sensor Series Status" },
+    { 0x8234, "Sensor Cadence Get" },
+    { 0x55, "Sensor Cadence Set" },
+    { 0x56, "Sensor Cadence Set Unacknowledged" },
+    { 0x57, "Sensor Cadence Status" },
+    { 0x8235, "Sensor Settings Get" },
+    { 0x58, "Sensor Settings Status" },
+    { 0x8236, "Sensor Setting Get" },
+    { 0x59, "Sensor Setting Set" },
+    { 0x5A, "Sensor Setting Set Unacknowledged" },
+    { 0x5B, "Sensor Setting Status" },
+    { 0x8237, "Time Get" },
+    { 0x5C, "Time Set" },
+    { 0x5D, "Time Status" },
+    { 0x8238, "Time Role Get" },
+    { 0x8239, "Time Role Set" },
+    { 0x823A, "Time Role Status" },
+    { 0x823B, "Time Zone Get" },
+    { 0x823C, "Time Zone Set" },
+    { 0x823D, "Time Zone Status" },
+    { 0x823E, "TAI-UTC Delta Get" },
+    { 0x823F, "TAI-UTC Delta Set" },
+    { 0x8240, "TAI-UTC Delta Status" },
+    { 0x8241, "Scene Get" },
+    { 0x8242, "Scene Recall" },
+    { 0x8243, "Scene Recall Unacknowledged" },
+    { 0x5E, "Scene Status" },
+    { 0x8244, "Scene Register Get" },
+    { 0x8245, "Scene Register Status" },
+    { 0x8246, "Scene Store" },
+    { 0x8247, "Scene Store Unacknowledged" },
+    { 0x829E, "Scene Delete" },
+    { 0x829F, "Scene Delete Unacknowledged" },
+    { 0x8248, "Scheduler Action Get" },
+    { 0x5F, "Scheduler Action Status" },
+    { 0x8249, "Scheduler Get" },
+    { 0x824A, "Scheduler Status" },
+    { 0x60, "Scheduler Action Set" },
+    { 0x61, "Scheduler Action Set Unacknowledged" },
+    { 0x824B, "Light Lightness Light Lightness Get" },
+    { 0x824C, "Light Lightness Set" },
+    { 0x824D, "Light Lightness Set Unacknowledged" },
+    { 0x824E, "Light Lightness Status" },
+    { 0x824F, "Light Lightness Linear Get" },
+    { 0x8250, "Light Lightness Linear Set" },
+    { 0x8251, "Light Lightness Linear Set Unacknowledged" },
+    { 0x8252, "Light Lightness Linear Status" },
+    { 0x8253, "Light Lightness Last Get" },
+    { 0x8254, "Light Lightness Last Status" },
+    { 0x8255, "Light Lightness Default Get" },
+    { 0x8256, "Light Lightness Default Status" },
+    { 0x8257, "Light Lightness Range Get" },
+    { 0x8258, "Light Lightness Range Status" },
+    { 0x8259, "Light Lightness Default Set" },
+    { 0x825A, "Light Lightness Default Set Unacknowledged" },
+    { 0x825B, "Light Lightness Range Set" },
+    { 0x825C, "Light Lightness Range Set Unacknowledged" },
+    { 0x825D, "Light CTL Get" },
+    { 0x825E, "Light CTL Set" },
+    { 0x825F, "Light CTL Set Unacknowledged" },
+    { 0x8260, "Light CTL Status" },
+    { 0x8261, "Light CTL Temperature Get" },
+    { 0x8262, "Light CTL Temperature Range Get" },
+    { 0x8263, "Light CTL Temperature Range Status" },
+    { 0x8264, "Light CTL Temperature Set" },
+    { 0x8265, "Light CTL Temperature Set Unacknowledged" },
+    { 0x8266, "Light CTL Temperature Status" },
+    { 0x8267, "Light CTL Default Get" },
+    { 0x8268, "Light CTL Default Status" },
+    { 0x8269, "Light CTL Default Set" },
+    { 0x826A, "Light CTL Default Set Unacknowledged" },
+    { 0x826B, "Light CTL Temperature Range Set" },
+    { 0x826C, "Light CTL Temperature Range Set Unacknowledged" },
+    { 0x826D, "Light HSL Get" },
+    { 0x826E, "Light HSL Hue Get" },
+    { 0x826F, "Light HSL Hue Set" },
+    { 0x8270, "Light HSL Hue Set Unacknowledged" },
+    { 0x8271, "Light HSL Hue Status" },
+    { 0x8272, "Light HSL Saturation Get" },
+    { 0x8273, "Light HSL Saturation Set" },
+    { 0x8274, "Light HSL Saturation Set Unacknowledged" },
+    { 0x8275, "Light HSL Saturation Status" },
+    { 0x8276, "Light HSL Set" },
+    { 0x8277, "Light HSL Set Unacknowledged" },
+    { 0x8278, "Light HSL Status" },
+    { 0x8279, "Light HSL Target Get" },
+    { 0x827A, "Light HSL Target Status" },
+    { 0x827B, "Light HSL Default Get" },
+    { 0x827C, "Light HSL Default Status" },
+    { 0x827D, "Light HSL Range Get" },
+    { 0x827E, "Light HSL Range Status" },
+    { 0x827F, "Light HSL Default Set" },
+    { 0x8280, "Light HSL Default Set Unacknowledged" },
+    { 0x8281, "Light HSL Range Set" },
+    { 0x8282, "Light HSL Range Set Unacknowledged" },
+    { 0x8283, "Light xyL Get" },
+    { 0x8284, "Light xyL Set" },
+    { 0x8285, "Light xyL Set Unacknowledged" },
+    { 0x8286, "Light xyL Status" },
+    { 0x8287, "Light xyL Target Get" },
+    { 0x8288, "Light xyL Target Status" },
+    { 0x8289, "Light xyL Default Get" },
+    { 0x828A, "Light xyL Default Status" },
+    { 0x828B, "Light xyL Range Get" },
+    { 0x828C, "Light xyL Range Status" },
+    { 0x828D, "Light xyL Default Set" },
+    { 0x828E, "Light xyL Default Set Unacknowledged" },
+    { 0x828F, "Light xyL Range Set" },
+    { 0x8290, "Light xyL Range Set Unacknowledged" },
+    { 0x8291, "Light LC Mode Get" },
+    { 0x8292, "Light LC Mode Set" },
+    { 0x8293, "Light LC Mode Set Unacknowledged" },
+    { 0x8294, "Light LC Mode Status" },
+    { 0x8295, "Light LC OM Get" },
+    { 0x8296, "Light LC OM Set" },
+    { 0x8297, "Light LC OM Set Unacknowledged" },
+    { 0x8298, "Light LC OM Status" },
+    { 0x8299, "Light LC Light OnOff Get" },
+    { 0x829A, "Light LC Light OnOff Set" },
+    { 0x829B, "Light LC Light OnOff Set Unacknowledged" },
+    { 0x829C, "Light LC Light OnOff Status" },
+    { 0x829D, "Light LC Property Get" },
+    { 0x62, "Light LC Property Set" },
+    { 0x63, "Light LC Property Set Unacknowledged" },
+    { 0x64, "Light LC Property Status" },
+    { 0, NULL }
 };
 
 /* Upper Transport Message reassembly */
@@ -257,19 +604,6 @@ static const fragment_items btmesh_segmented_access_frag_items = {
     NULL,
     "fragments"
 };
-
-static int hf_btmesh_segmented_control_fragments = -1;
-static int hf_btmesh_segmented_control_fragment = -1;
-static int hf_btmesh_segmented_control_fragment_overlap = -1;
-static int hf_btmesh_segmented_control_fragment_overlap_conflict = -1;
-static int hf_btmesh_segmented_control_fragment_multiple_tails = -1;
-static int hf_btmesh_segmented_control_fragment_too_long_fragment = -1;
-static int hf_btmesh_segmented_control_fragment_error = -1;
-static int hf_btmesh_segmented_control_fragment_count = -1;
-static int hf_btmesh_segmented_control_reassembled_length = -1;
-
-static int ett_btmesh_segmented_control_fragments = -1;
-static int ett_btmesh_segmented_control_fragment = -1;
 
 static const fragment_items btmesh_segmented_control_frag_items = {
     &ett_btmesh_segmented_control_fragments,
@@ -384,7 +718,7 @@ s1(guint8 *m, size_t mlen, guint8 *salt)
 {
 
     gcry_mac_hd_t mac_hd;
-    int gcrypt_err;
+    gcry_error_t gcrypt_err;
     size_t read_digest_length = 16;
     guint8  zero[16] = { 0 };
 
@@ -404,19 +738,78 @@ s1(guint8 *m, size_t mlen, guint8 *salt)
     gcrypt_err = gcry_mac_write(mac_hd, m, mlen);
     if (gcrypt_err != 0) {
         gcry_mac_close(mac_hd);
-        return 0;
+        return FALSE;
     }
 
     /* Read out the digest */
     gcrypt_err = gcry_mac_read(mac_hd, salt, &read_digest_length);
     if (gcrypt_err != 0) {
         gcry_mac_close(mac_hd);
-        return 0;
+        return FALSE;
     }
 
     /* Now close the mac handle */
     gcry_mac_close(mac_hd);
+    return TRUE;
+}
 
+/* BT Mesh Labebl UUID hash function
+ *
+ * SALT = s1 ("vtad")
+ * hash = AES-CMAC(SALT, Label UUID) mod 2(pow)14
+ *
+ */
+static gboolean
+label_uuid_hash(uat_btmesh_label_uuid_record_t *label_uuid_record)
+{
+    gcry_mac_hd_t mac_hd;
+    gcry_error_t gcrypt_err;
+    guint8 vtad[4] = { 'v', 't', 'a', 'd' };
+    size_t mlen = 4;
+    guint8 salt[16];
+    guint8 hash[16];
+    size_t read_digest_length = 16;
+
+    if (label_uuid_record->label_uuid_length != 16) {
+        return FALSE;
+    }
+
+    /* SALT = s1("vtad") */
+    if (s1(vtad, mlen, salt) == FALSE) {
+        return FALSE;
+    }
+
+    /* hash = AES-CMAC(SALT, Label UUID) */
+    /* Open gcrypt handle */
+    gcrypt_err = gcry_mac_open(&mac_hd, GCRY_MAC_CMAC_AES, 0, NULL);
+    if (gcrypt_err != 0) {
+        return FALSE;
+    }
+
+    /* Set the key */
+    gcrypt_err = gcry_mac_setkey(mac_hd, &salt, 16);
+    if (gcrypt_err != 0) {
+        gcry_mac_close(mac_hd);
+        return FALSE;
+    }
+
+    gcrypt_err = gcry_mac_write(mac_hd, label_uuid_record->label_uuid, 16);
+    if (gcrypt_err != 0) {
+        gcry_mac_close(mac_hd);
+        return FALSE;
+    }
+
+    /* Read out the digest */
+    gcrypt_err = gcry_mac_read(mac_hd, hash, &read_digest_length);
+    if (gcrypt_err != 0) {
+        gcry_mac_close(mac_hd);
+        return FALSE;
+    }
+
+    label_uuid_record->hash = hash[15] + ((guint16)(hash[14] & 0x3f) << 8) + 0x8000;
+
+    /* Now close the mac handle */
+    gcry_mac_close(mac_hd);
     return TRUE;
 }
 
@@ -438,8 +831,7 @@ static gboolean
 k2(uat_btmesh_record_t * net_key_set, guint8 *p, size_t plen)
 {
     gcry_mac_hd_t mac_hd;
-    int gcrypt_err;
-
+    gcry_error_t gcrypt_err;
     guint8 smk2[4] = { 's', 'm', 'k', '2' };
     size_t mlen = 4;
     guint8 salt[16];
@@ -452,6 +844,10 @@ k2(uat_btmesh_record_t * net_key_set, guint8 *p, size_t plen)
     size_t read_digest_length = 16;
 
     if (plen > 8) {
+        return FALSE;
+    }
+
+    if (net_key_set->network_key_length != 16) {
         return FALSE;
     }
 
@@ -490,8 +886,10 @@ k2(uat_btmesh_record_t * net_key_set, guint8 *p, size_t plen)
     /* Now close the mac handle */
     gcry_mac_close(mac_hd);
 
-    // T0 = empty string (zero length)
-    // T1 = AES-CMAC_T(T0 || P || 0x01)
+    /*
+     * T0 = empty string (zero length)
+     * T1 = AES-CMAC_T(T0 || P || 0x01)
+     */
     memcpy(p_t1, p, plen);
     p_t1[plen] = 0x01;
 
@@ -521,7 +919,8 @@ k2(uat_btmesh_record_t * net_key_set, guint8 *p, size_t plen)
         return FALSE;
     }
     net_key_set->nid = (t1[15] & 0x7f);
-    /* T2 = AES-CMAC_T(T1 || P || 0x02)
+    /*
+     * T2 = AES-CMAC_T(T1 || P || 0x02)
      * (EncryptionKey)
      */
 
@@ -595,7 +994,107 @@ k2(uat_btmesh_record_t * net_key_set, guint8 *p, size_t plen)
 
     /* Now close the mac handle */
     gcry_mac_close(mac_hd);
+    return TRUE;
+}
 
+/* BT Mesh K4 function
+
+   The inputs to function k4 is:
+   N is 128 bits
+
+   The key (T) is computed as follows:
+   T = AES-CMAC (SALT, N)
+
+   SALT is the 128-bit value computed as follows:
+   SALT = s1("smk4")
+
+   The output of the derivation function k4 is as follows:
+   K4(N) = AES-CMAC (T, "id6" || 0x01 ) mod 2(pow)6
+*/
+
+static gboolean
+k4(uat_btmesh_record_t *key_set)
+{
+    gcry_mac_hd_t mac_hd;
+    gcry_error_t gcrypt_err;
+
+    guint8 smk4[4] = { 's', 'm', 'k', '4' };
+    size_t mlen = 4;
+    guint8 id6[4] = { 'i', 'd', '6', 0x01 };
+    size_t id6len = 4;
+    guint8 salt[16];
+    guint8 t[16];
+    guint8 t1[16];
+
+    size_t read_digest_length = 16;
+
+    if (key_set->application_key_length != 16) {
+        return FALSE;
+    }
+
+    /* SALT = s1("smk4") */
+    if (s1(smk4, mlen, salt) == FALSE) {
+        return FALSE;
+    }
+
+    gcrypt_err = gcry_mac_open(&mac_hd, GCRY_MAC_CMAC_AES, 0, NULL);
+    if (gcrypt_err != 0) {
+        return FALSE;
+    }
+
+    /* Set the key */
+    gcrypt_err = gcry_mac_setkey(mac_hd, &salt, 16);
+    if (gcrypt_err != 0) {
+        gcry_mac_close(mac_hd);
+        return FALSE;
+    }
+
+    gcrypt_err = gcry_mac_write(mac_hd, key_set->application_key, 16);
+    if (gcrypt_err != 0) {
+        gcry_mac_close(mac_hd);
+        return FALSE;
+    }
+
+    /* Read out the digest */
+    gcrypt_err = gcry_mac_read(mac_hd, t, &read_digest_length);
+    if (gcrypt_err != 0) {
+        gcry_mac_close(mac_hd);
+        return FALSE;
+    }
+
+    /* Now close the mac handle */
+    gcry_mac_close(mac_hd);
+
+    /* Open gcrypt handle */
+    gcrypt_err = gcry_mac_open(&mac_hd, GCRY_MAC_CMAC_AES, 0, NULL);
+    if (gcrypt_err != 0) {
+        return FALSE;
+    }
+
+    /* Set the key */
+    gcrypt_err = gcry_mac_setkey(mac_hd, &t, 16);
+    if (gcrypt_err != 0) {
+        gcry_mac_close(mac_hd);
+        return FALSE;
+    }
+
+    gcrypt_err = gcry_mac_write(mac_hd, &id6, id6len);
+    if (gcrypt_err != 0) {
+        gcry_mac_close(mac_hd);
+        return FALSE;
+    }
+
+    /* Read out the digest */
+    gcrypt_err = gcry_mac_read(mac_hd, t1, &read_digest_length);
+    if (gcrypt_err != 0) {
+        gcry_mac_close(mac_hd);
+        return FALSE;
+    }
+
+    key_set->aid = (t1[15] & 0x3f);
+
+    /* Now close the mac handle */
+    gcry_mac_close(mac_hd);
     return TRUE;
 }
 
@@ -605,9 +1104,7 @@ create_master_security_keys(uat_btmesh_record_t * net_key_set)
     guint8 p[1] = { 0 };
     size_t plen = 1;
 
-    k2(net_key_set, p, plen);
-
-    return TRUE;
+    return k2(net_key_set, p, plen);
 }
 
 static tvbuff_t *
@@ -652,7 +1149,7 @@ btmesh_deobfuscate(tvbuff_t *tvb, packet_info *pinfo, int offset _U_, uat_btmesh
         return NULL;
     }
 
-    /* Now close the mac handle */
+    /* Now close the cipher handle */
     gcry_cipher_close(cipher_hd);
 
     for ( i = 0; i < 6; i++) {
@@ -661,6 +1158,50 @@ btmesh_deobfuscate(tvbuff_t *tvb, packet_info *pinfo, int offset _U_, uat_btmesh
 
     de_obf_tvb = tvb_new_child_real_data(tvb, plaintextnetworkheader, 6, 6);
     return de_obf_tvb;
+}
+
+static void
+dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+    proto_tree *sub_tree;
+    guint32 opcode;
+
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_btmesh_model_layer, NULL, "Model Layer");
+
+    opcode = tvb_get_guint8(tvb, offset);
+    if (opcode & 0x80) {
+        if (opcode & 0x40) {
+            /* Vendor opcode */
+            proto_tree_add_item(sub_tree, hf_btmesh_model_layer_vendor_opcode, tvb, offset, 1, ENC_NA);
+            offset++;
+            proto_tree_add_item(sub_tree, hf_btmesh_model_layer_vendor, tvb, offset, 2, ENC_NA);
+            offset+=2;
+        } else {
+        /* Two octet opcode */
+        proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_model_layer_opcode, tvb, offset, 2, ENC_NA, &opcode);
+        col_set_str(pinfo->cinfo, COL_INFO, val_to_str(opcode, btmesh_models_opcode_vals, "Unknown"));
+        offset+=2;
+        }
+    } else {
+        /* One octet opcode */
+        proto_tree_add_item(sub_tree, hf_btmesh_model_layer_opcode, tvb, offset, 1, ENC_NA);
+        col_set_str(pinfo->cinfo, COL_INFO, val_to_str(opcode, btmesh_models_opcode_vals, "Unknown"));
+        offset++;
+    }
+    if (tvb_reported_length_remaining(tvb, offset)) {
+        proto_tree_add_item(sub_tree, hf_btmesh_model_layer_parameters, tvb, offset, -1, ENC_NA);
+    }
+}
+
+static void
+dissect_btmesh_access_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+   proto_tree *sub_tree;
+
+   sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_btmesh_access_pdu, NULL, "Access PDU");
+   proto_tree_add_item(sub_tree, hf_btmesh_decrypted_access, tvb, offset, -1, ENC_NA);
+
+   dissect_btmesh_model_layer(tvb, pinfo, tree, offset);
 }
 
 static void
@@ -788,29 +1329,219 @@ dissect_btmesh_transport_control_message(tvbuff_t *tvb, packet_info *pinfo, prot
         proto_tree_add_item(sub_tree, hf_btmesh_cntr_feature_rfu, tvb, offset, 2, ENC_BIG_ENDIAN);
         break;
     default:
-        //Payload
+        /* Unknown Control Message */
         proto_tree_add_item(sub_tree, hf_btmesh_cntr_unknown_payload, tvb, offset, -1, ENC_NA);
         proto_tree_add_expert(sub_tree, pinfo, &ei_btmesh_not_decoded_yet, tvb, offset, -1);
         break;
     }
 }
 
-static void
-dissect_btmesh_transport_access_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, int transmic_size)
+static gboolean
+try_access_decrypt(tvbuff_t *tvb, int offset, guint8 *decrypted_data, int enc_data_len, guint8 *key, network_decryption_ctx_t *dec_ctx)
 {
-    proto_tree *sub_tree;
-    int length = tvb_reported_length_remaining(tvb, offset);
+    guint8 accessnonce[13];
+    guint32 seq0;
+    gcry_cipher_hd_t cipher_hd;
+    gcry_error_t gcrypt_err;
+    guint64 ccm_lengths[3];
+    guint8 *tag;
 
-    sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_btmesh_upper_transp_acc_pdu, NULL, "Upper Transport Access PDU");
+    accessnonce[0] = dec_ctx->app_nonce_type;
+    accessnonce[1] = (dec_ctx->transmic_size == 4 ? 0x00 : 0x80 );
+    memcpy((guint8 *)&accessnonce + 2, dec_ctx->seq_src_buf, 5);
+    if (dec_ctx->seg) {
+        /* Use 13 Lsbs from seqzero */
+        seq0 = dec_ctx->seq;
+        /* Check for overflow */
+        if ((dec_ctx->seq & 0x1fff) < dec_ctx->seqzero) {
+            seq0 -= 0x2000;
+        }
+        seq0 = seq0 & ~0x1fff;
+        seq0 += dec_ctx->seqzero;
+        accessnonce[2] = (seq0 & 0xff0000 ) >> 16;
+        accessnonce[3] = (seq0 & 0x00ff00 ) >> 8;
+        accessnonce[4] = (seq0 & 0x0000ff ) ;
+    }
+    memcpy((guint8 *)&accessnonce + 7, dec_ctx->dst_buf, 2);
+    memcpy((guint8 *)&accessnonce + 9, dec_ctx->ivindex_buf, 4);
 
-    proto_tree_add_item(sub_tree, hf_btmesh_enc_access_pld, tvb, offset, length - transmic_size, ENC_NA);
-    offset += (length - transmic_size);
+    /* Decrypt packet EXPERIMENTAL CODE */
+    if (gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CCM, 0)) {
+        return FALSE;
+    }
+    /* Set key */
+    gcrypt_err = gcry_cipher_setkey(cipher_hd, key, 16);
+    if (gcrypt_err != 0) {
+        gcry_cipher_close(cipher_hd);
+        return FALSE;
+    }
+   /* Load nonce */
+    gcrypt_err = gcry_cipher_setiv(cipher_hd, &accessnonce, 13);
+    if (gcrypt_err != 0) {
+        gcry_cipher_close(cipher_hd);
+        return FALSE;
+    }
+    ccm_lengths[0] = enc_data_len;
+    ccm_lengths[1] = (dec_ctx->label_uuid_idx == NO_LABEL_UUID_IDX_USED ? 0 : 16);
+    ccm_lengths[2] = dec_ctx->transmic_size;
 
-    proto_tree_add_item(sub_tree, hf_btmesh_transtmic, tvb, offset, transmic_size, ENC_NA);
+    gcrypt_err = gcry_cipher_ctl(cipher_hd, GCRYCTL_SET_CCM_LENGTHS, ccm_lengths, sizeof(ccm_lengths));
+    if (gcrypt_err != 0) {
+        gcry_cipher_close(cipher_hd);
+        return FALSE;
+    }
+
+    if (dec_ctx->label_uuid_idx != NO_LABEL_UUID_IDX_USED) {
+        gcrypt_err = gcry_cipher_authenticate(cipher_hd, uat_btmesh_label_uuid_records[dec_ctx->label_uuid_idx].label_uuid, 16);
+        if (gcrypt_err != 0) {
+            gcry_cipher_close(cipher_hd);
+            return FALSE;
+        }
+    }
+
+    /* Decrypt */
+    gcrypt_err = gcry_cipher_decrypt(cipher_hd, decrypted_data, enc_data_len, tvb_get_ptr(tvb, offset, enc_data_len), enc_data_len);
+    if (gcrypt_err != 0) {
+        gcry_cipher_close(cipher_hd);
+        return FALSE;
+    }
+
+    tag = (guint8 *)wmem_alloc(wmem_packet_scope(), dec_ctx->transmic_size);
+    gcrypt_err = gcry_cipher_gettag(cipher_hd, tag, dec_ctx->transmic_size);
+    gcry_cipher_close(cipher_hd);
+
+    if (gcrypt_err != 0 || memcmp(tag, tvb_get_ptr(tvb, offset + enc_data_len, dec_ctx->transmic_size), dec_ctx->transmic_size)) {
+        /* Tag mismatch or cipher error */
+        return FALSE;
+    }
+    /* Tag authenticated */
+    return TRUE;
+}
+
+static guint
+check_address_type(guint32 btmesh_address)
+{
+    if (btmesh_address & 0x8000 ) {
+        if (btmesh_address & 0x4000) {
+            return BTMESH_ADDRESS_GROUP;
+        }
+        return BTMESH_ADDRESS_VIRTUAL;
+    } else {
+        if (btmesh_address) {
+            return BTMESH_ADDRESS_UNICAST;
+        }
+        return BTMESH_ADDRESS_UNASSIGNED;
+    }
+}
+
+static tvbuff_t *
+btmesh_access_find_key_and_decrypt(tvbuff_t *tvb, packet_info *pinfo, int offset, network_decryption_ctx_t *dec_ctx)
+{
+    guint i, j, dst_address_type;
+    uat_btmesh_record_t *record;
+    uat_btmesh_dev_key_record_t *dev_record;
+    uat_btmesh_label_uuid_record_t *label_record;
+    int enc_data_len;
+    guint8 *decrypted_data;
+
+    enc_data_len = tvb_reported_length_remaining(tvb, offset) - dec_ctx->transmic_size;
+    decrypted_data = (guint8 *)wmem_alloc(pinfo->pool, enc_data_len);
+    dec_ctx->label_uuid_idx = NO_LABEL_UUID_IDX_USED;
+
+    if (enc_data_len <= 0) {
+        return NULL;
+    }
+
+    dst_address_type = check_address_type(dec_ctx->dst);
+
+    /* Application key */
+    if (dec_ctx->app_nonce_type == BTMESH_NONCE_TYPE_APPLICATION) {
+        for (i = 0; i < num_btmesh_uat; i++) {
+            record = &uat_btmesh_records[i];
+            if (record->valid == BTMESH_KEY_ENTRY_VALID) {
+                if (dec_ctx->net_key_iv_index_hash == record->net_key_iv_index_hash && dec_ctx->aid == record->aid) {
+                    /* Try Label UUID */
+                    if (dst_address_type == BTMESH_ADDRESS_VIRTUAL) {
+                        for (j = 0; j < num_btmesh_label_uuid_uat; j++) {
+                            label_record = &uat_btmesh_label_uuid_records[j];
+                            if (label_record->valid == BTMESH_LABEL_UUID_ENTRY_VALID && label_record->hash == dec_ctx->dst){
+                                dec_ctx->label_uuid_idx = j;
+                                if (try_access_decrypt(tvb, offset, decrypted_data, enc_data_len, record->application_key, dec_ctx)) {
+                                    return tvb_new_child_real_data(tvb, decrypted_data, enc_data_len, enc_data_len);
+                                }
+                            }
+                        }
+                    } else {
+                        if (try_access_decrypt(tvb, offset, decrypted_data, enc_data_len, record->application_key, dec_ctx)) {
+                            return tvb_new_child_real_data(tvb, decrypted_data, enc_data_len, enc_data_len);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    /* Device key */
+    if (dec_ctx->app_nonce_type == BTMESH_NONCE_TYPE_DEVICE) {
+        for (i = 0; i < num_btmesh_dev_key_uat; i++) {
+            dev_record = &uat_btmesh_dev_key_records[i];
+            if (dev_record->valid == BTMESH_DEVICE_KEY_ENTRY_VALID) {
+                /* Try Device Key from SRC */
+                if ( !memcmp(dev_record->src, dec_ctx->seq_src_buf + 3, 2) ) {
+                    /* Try Label UUID */
+                    if (dst_address_type == BTMESH_ADDRESS_VIRTUAL) {
+                        for (j = 0; j < num_btmesh_label_uuid_uat; j++) {
+                            label_record = &uat_btmesh_label_uuid_records[j];
+                            if (label_record->valid == BTMESH_LABEL_UUID_ENTRY_VALID && label_record->hash == dec_ctx->dst){
+                                dec_ctx->label_uuid_idx = j;
+                                if (try_access_decrypt(tvb, offset, decrypted_data, enc_data_len, dev_record->device_key, dec_ctx)) {
+                                    return tvb_new_child_real_data(tvb, decrypted_data, enc_data_len, enc_data_len);
+                                }
+                            }
+                        }
+                    } else {
+                        if (try_access_decrypt(tvb, offset, decrypted_data, enc_data_len, dev_record->device_key, dec_ctx)) {
+                            return tvb_new_child_real_data(tvb, decrypted_data, enc_data_len, enc_data_len);
+                        }
+                    }
+                }
+                /* Try Device Key from DST when DST is a unicast address */
+                if (dst_address_type == BTMESH_ADDRESS_UNICAST) {
+                    if ( !memcmp(dev_record->src, dec_ctx->dst_buf, 2) ) {
+                        if (try_access_decrypt(tvb, offset, decrypted_data, enc_data_len, dev_record->device_key, dec_ctx)) {
+                            return tvb_new_child_real_data(tvb, decrypted_data, enc_data_len, enc_data_len);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return NULL;
 }
 
 static void
-dissect_btmesh_transport_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean cntrl, guint32 src)
+dissect_btmesh_transport_access_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, network_decryption_ctx_t *dec_ctx)
+{
+    tvbuff_t *de_acc_tvb;
+    proto_tree *sub_tree;
+
+    int length = tvb_reported_length_remaining(tvb, offset);
+
+    sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_btmesh_upper_transp_acc_pdu, NULL, "Upper Transport Access PDU");
+    de_acc_tvb = btmesh_access_find_key_and_decrypt(tvb, pinfo, offset, dec_ctx);
+
+    proto_tree_add_item(sub_tree, hf_btmesh_enc_access_pld, tvb, offset, length - dec_ctx->transmic_size, ENC_NA);
+    offset += (length - dec_ctx->transmic_size);
+
+    proto_tree_add_item(sub_tree, hf_btmesh_transtmic, tvb, offset, dec_ctx->transmic_size, ENC_NA);
+
+    if (de_acc_tvb) {
+        add_new_data_source(pinfo, de_acc_tvb, "Decrypted access data");
+        dissect_btmesh_access_message(de_acc_tvb, pinfo, tree, 0);
+    }
+}
+
+static void
+dissect_btmesh_transport_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean cntrl, network_decryption_ctx_t *dec_ctx)
 {
     proto_tree *sub_tree;
     proto_item *ti;
@@ -845,7 +1576,7 @@ dissect_btmesh_transport_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
             upper_transport_fragment_key frg_key;
             /* src is 15 bit, seqzero is 13 bit*/
-            frg_key.src = src;
+            frg_key.src = dec_ctx->src;
             frg_key.seq0 = seqzero;
 
             if (!pinfo->fd->visited) {
@@ -876,14 +1607,13 @@ dissect_btmesh_transport_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     tvbuff_t *next_tvb;
                     next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled Control PDU", fd_head, &btmesh_segmented_control_frag_items, NULL, sub_tree);
                     if (next_tvb) {
-                        col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)");
                         dissect_btmesh_transport_control_message(next_tvb, pinfo, tree, 0, opcode);
+                        col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)");
                     } else {
                         col_append_fstr(pinfo->cinfo, COL_INFO," (Message fragment %u)", sego);
                     }
                 }
             }
-
         } else {
             col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
                 val_to_str_const(opcode, btmesh_ctrl_opcode_vals, "Unknown"));
@@ -911,6 +1641,11 @@ dissect_btmesh_transport_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         /* AID 6 Application key identifier */
         proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_acc_aid, tvb, offset, 1, ENC_BIG_ENDIAN, &aid);
         offset++;
+
+        dec_ctx->seg = seg;
+        dec_ctx->aid = aid;
+        dec_ctx->app_nonce_type = (afk ? BTMESH_NONCE_TYPE_APPLICATION : BTMESH_NONCE_TYPE_DEVICE);
+
         if (seg) {
             /* Segmented */
             fragment_head *fd_head = NULL;
@@ -925,12 +1660,14 @@ dissect_btmesh_transport_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_segn, tvb, offset, 3, ENC_BIG_ENDIAN, &segn);
             offset += 3;
 
+            dec_ctx->seqzero = seqzero;
+
             /* Segment m 8 to 96 Segment m of the Upper Transport Access PDU */
             proto_tree_add_item(sub_tree, hf_btmesh_segment, tvb, offset, -1, ENC_NA);
 
             upper_transport_fragment_key frg_key;
             /* src is 15 bit, seqzero is 13 bit*/
-            frg_key.src = src;
+            frg_key.src = dec_ctx->src;
             frg_key.seq0 = seqzero;
 
             if (!pinfo->fd->visited) {
@@ -961,8 +1698,9 @@ dissect_btmesh_transport_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     tvbuff_t *next_tvb;
                     next_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled Access PDU", fd_head, &btmesh_segmented_access_frag_items, NULL, sub_tree);
                     if (next_tvb) {
+                        dec_ctx->transmic_size = (szmic ? 8 : 4 );
+                        dissect_btmesh_transport_access_message(next_tvb, pinfo, tree, 0, dec_ctx);
                         col_append_str(pinfo->cinfo, COL_INFO, " (Message Reassembled)");
-                        dissect_btmesh_transport_access_message(next_tvb, pinfo, tree, 0, (szmic ? 8 : 4 ));
                     } else {
                         col_append_fstr(pinfo->cinfo, COL_INFO," (Message fragment %u)", sego);
                     }
@@ -970,13 +1708,14 @@ dissect_btmesh_transport_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             }
         } else {
             proto_item_set_len(ti, 1);
-            dissect_btmesh_transport_access_message(tvb, pinfo, tree, offset, 4/*TransMic is 32 bits*/);
+            dec_ctx->transmic_size = 4; /*TransMic is 32 bits*/
+            dissect_btmesh_transport_access_message(tvb, pinfo, tree, offset, dec_ctx);
         }
     }
 }
 
 tvbuff_t *
-btmesh_network_find_key_and_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint8 **decrypted_data, int *enc_data_len, guint8 nonce_type) {
+btmesh_network_find_key_and_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint8 **decrypted_data, int *enc_data_len, network_decryption_ctx_t *dec_ctx) {
     guint i;
     guint8 nid;
     int offset = 0;
@@ -985,7 +1724,7 @@ btmesh_network_find_key_and_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint8 **
     uat_btmesh_record_t *record;
     gcry_cipher_hd_t cipher_hd;
     guint32 net_mic_size;
-    gboolean cry_error;
+    gcry_error_t gcrypt_err;
     guint64 ccm_lengths[3];
     int enc_offset;
 
@@ -1008,10 +1747,10 @@ btmesh_network_find_key_and_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint8 **
             enc_offset = offset;
 
             /* Start setting network nounce.*/
-            networknonce[0] = nonce_type; /* Nonce Type */
+            networknonce[0] = dec_ctx->net_nonce_type; /* Nonce Type */
 
             tvb_memcpy(de_obf_tvb, (guint8 *)&networknonce + 1, 0, 6);
-            if (nonce_type == MESH_NONCE_TYPE_PROXY) {
+            if (dec_ctx->net_nonce_type == BTMESH_NONCE_TYPE_PROXY) {
                 networknonce[1] = 0x00;    /*Pad*/
             }
             networknonce[7] = 0x00;    /*Pad*/
@@ -1023,44 +1762,47 @@ btmesh_network_find_key_and_decrypt(tvbuff_t *tvb, packet_info *pinfo, guint8 **
                 return NULL;
             }
 
-            cry_error = gcry_cipher_setkey(cipher_hd, record->encryptionkey, 16);
-            if (cry_error) {
+            gcrypt_err = gcry_cipher_setkey(cipher_hd, record->encryptionkey, 16);
+            if (gcrypt_err != 0) {
                 gcry_cipher_close(cipher_hd);
                 continue;
             }
 
             /* Load nonce */
-            cry_error = gcry_cipher_setiv(cipher_hd, &networknonce, 13);
-            if (cry_error) {
+            gcrypt_err = gcry_cipher_setiv(cipher_hd, &networknonce, 13);
+            if (gcrypt_err != 0) {
                 gcry_cipher_close(cipher_hd);
                 continue;
             }
             /* */
             ccm_lengths[0] = (*enc_data_len);
             ccm_lengths[1] = 0; /* aad */
-            ccm_lengths[2] = net_mic_size; /* icv NOT SURE ABOUT THIS ONE */
+            ccm_lengths[2] = net_mic_size; /* icv */
 
-            cry_error = gcry_cipher_ctl(cipher_hd, GCRYCTL_SET_CCM_LENGTHS, ccm_lengths, sizeof(ccm_lengths));
-            if (cry_error) {
+            gcrypt_err = gcry_cipher_ctl(cipher_hd, GCRYCTL_SET_CCM_LENGTHS, ccm_lengths, sizeof(ccm_lengths));
+            if (gcrypt_err != 0) {
                 gcry_cipher_close(cipher_hd);
                 continue;
             }
 
             (*decrypted_data) = (guint8 *)wmem_alloc(pinfo->pool, *enc_data_len);
             /* Decrypt */
-            cry_error = gcry_cipher_decrypt(cipher_hd, (*decrypted_data), *enc_data_len, tvb_get_ptr(tvb, enc_offset, *enc_data_len), *enc_data_len);
-            if (cry_error) {
+            gcrypt_err = gcry_cipher_decrypt(cipher_hd, (*decrypted_data), *enc_data_len, tvb_get_ptr(tvb, enc_offset, *enc_data_len), *enc_data_len);
+            if (gcrypt_err != 0) {
                 gcry_cipher_close(cipher_hd);
                 continue;
             }
 
             guint8 *tag;
             tag = (guint8 *)wmem_alloc(wmem_packet_scope(), net_mic_size);
-            cry_error = gcry_cipher_gettag(cipher_hd, tag, net_mic_size);
+            gcrypt_err = gcry_cipher_gettag(cipher_hd, tag, net_mic_size);
 
-            if (cry_error == 0 && !memcmp(tag, tvb_get_ptr(tvb, enc_offset + (*enc_data_len), net_mic_size), net_mic_size)) {
+            if (gcrypt_err == 0 && !memcmp(tag, tvb_get_ptr(tvb, enc_offset + (*enc_data_len), net_mic_size), net_mic_size)) {
                 /* Tag authenticated, now close the cypher handle */
                 gcry_cipher_close(cipher_hd);
+                dec_ctx->net_key_iv_index_hash = record->net_key_iv_index_hash;
+                memcpy(dec_ctx->ivindex_buf, record->ivindex, 4);
+
                 return de_obf_tvb;
             }  else {
                 /* Now close the cypher handle */
@@ -1080,12 +1822,13 @@ dissect_btmesh_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     proto_item *item;
     proto_tree *netw_tree, *sub_tree;
     int offset = 0;
-    guint32 net_mic_size, seq, src;
+    guint32 net_mic_size, seq, src, dst;
     int enc_data_len = 0;
     tvbuff_t *de_obf_tvb;
     tvbuff_t *de_cry_tvb;
     int decry_off;
     guint8 *decrypted_data = NULL;
+    network_decryption_ctx_t *dec_ctx;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "BT Mesh");
     col_clear(pinfo->cinfo, COL_INFO);
@@ -1101,7 +1844,10 @@ dissect_btmesh_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     proto_tree_add_item(sub_tree, hf_btmesh_nid, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    de_obf_tvb = btmesh_network_find_key_and_decrypt(tvb, pinfo, &decrypted_data, &enc_data_len, MESH_NONCE_TYPE_NETWORK);
+    dec_ctx = (network_decryption_ctx_t *)wmem_alloc(wmem_packet_scope(), sizeof(network_decryption_ctx_t));
+    dec_ctx->net_nonce_type = BTMESH_NONCE_TYPE_NETWORK;
+
+    de_obf_tvb = btmesh_network_find_key_and_decrypt(tvb, pinfo, &decrypted_data, &enc_data_len, dec_ctx);
 
     if (de_obf_tvb) {
         add_new_data_source(pinfo, de_obf_tvb, "Deobfuscated data");
@@ -1124,10 +1870,10 @@ dissect_btmesh_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         offset += 6;
 
         de_cry_tvb = tvb_new_child_real_data(tvb, decrypted_data, enc_data_len, enc_data_len);
-        add_new_data_source(pinfo, de_cry_tvb, "Decrypted data");
+        add_new_data_source(pinfo, de_cry_tvb, "Decrypted network data");
 
         decry_off = 0;
-        proto_tree_add_item(sub_tree, hf_btmesh_dst, de_cry_tvb, decry_off, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item_ret_uint(sub_tree, hf_btmesh_dst, de_cry_tvb, decry_off, 2, ENC_BIG_ENDIAN, &dst);
         decry_off += 2;
         /* TransportPDU */
         proto_tree_add_item(sub_tree, hf_btmesh_transp_pdu, de_cry_tvb, decry_off, enc_data_len-2, ENC_NA);
@@ -1137,7 +1883,13 @@ dissect_btmesh_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
         offset += net_mic_size;
 
         if (de_cry_tvb) {
-            dissect_btmesh_transport_pdu(de_cry_tvb, pinfo, netw_tree, cntrl, src);
+            dec_ctx->src = src;
+            dec_ctx->seq = seq;
+            dec_ctx->dst = dst;
+            tvb_memcpy(de_obf_tvb, dec_ctx->seq_src_buf, 1, 5);
+            tvb_memcpy(de_cry_tvb, dec_ctx->dst_buf, 0, 2);
+
+            dissect_btmesh_transport_pdu(de_cry_tvb, pinfo, netw_tree, cntrl, dec_ctx);
         }
     } else {
         proto_tree_add_item(sub_tree, hf_btmesh_obfuscated, tvb, offset, 6, ENC_NA);
@@ -1273,7 +2025,6 @@ compute_ascii_key(guchar **ascii_key, const gchar *key)
             *ascii_key = g_strdup(key);
         }
     }
-
     return key_len;
 }
 
@@ -1281,6 +2032,8 @@ static gboolean
 uat_btmesh_record_update_cb(void *r, char **err _U_)
 {
     uat_btmesh_record_t *rec = (uat_btmesh_record_t *)r;
+
+    rec->valid = 0;
 
     /* Compute keys & lengths once and for all */
     if (rec->network_key_string) {
@@ -1290,15 +2043,42 @@ uat_btmesh_record_update_cb(void *r, char **err _U_)
         rec->encryptionkey = (guint8 *)g_malloc(16 * sizeof(guint8));
         g_free(rec->privacykey);
         rec->privacykey = (guint8 *)g_malloc(16 * sizeof(guint8));
-        create_master_security_keys(rec);
-    }
-    else {
+        if (create_master_security_keys(rec)) {
+            rec->valid++;
+        }
+    } else {
         rec->network_key_length = 0;
         rec->network_key = NULL;
+    }
+    if (rec->application_key_string) {
+        g_free(rec->application_key);
+        rec->application_key_length = compute_ascii_key(&rec->application_key, rec->application_key_string);
+        /* compute AID */
+        if (k4(rec)) {
+            rec->valid++;
+        }
+    } else {
+        rec->application_key_length = 0;
+        rec->application_key = NULL;
     }
     if (rec->ivindex_string) {
         g_free(rec->ivindex);
         rec->ivindex_string_length = compute_ascii_key(&rec->ivindex, rec->ivindex_string);
+        if (rec->ivindex_string_length == 4) {
+            rec->valid++;
+        }
+    }
+    if (rec->valid == BTMESH_KEY_ENTRY_VALID - 1) {
+        /* Compute net_key_index_hash */
+        rec->net_key_iv_index_hash =    (guint32) rec->encryptionkey[0];
+        rec->net_key_iv_index_hash +=  ((guint32)(rec->encryptionkey[1]) << 8);
+        rec->net_key_iv_index_hash +=  ((guint32)(rec->encryptionkey[2]) << 16);
+        rec->net_key_iv_index_hash +=  ((guint32)(rec->encryptionkey[3]) << 24);
+        rec->net_key_iv_index_hash +=   (guint32) rec->ivindex[0];
+        rec->net_key_iv_index_hash +=  ((guint32)(rec->ivindex[1]) << 8);
+        rec->net_key_iv_index_hash +=  ((guint32)(rec->ivindex[2]) << 16);
+        rec->net_key_iv_index_hash +=  ((guint32)(rec->ivindex[3]) << 24);
+        rec->valid++;
     }
     return TRUE;
 }
@@ -1309,8 +2089,11 @@ uat_btmesh_record_copy_cb(void *n, const void *o, size_t siz _U_)
     uat_btmesh_record_t *new_rec = (uat_btmesh_record_t *)n;
     const uat_btmesh_record_t* old_rec = (const uat_btmesh_record_t *)o;
 
+    memset(new_rec, 0x00, sizeof(uat_btmesh_record_t));
+
     /* Copy UAT fields */
     new_rec->network_key_string = g_strdup(old_rec->network_key_string);
+    new_rec->application_key_string = g_strdup(old_rec->application_key_string);
     new_rec->ivindex_string = g_strdup(old_rec->ivindex_string);
 
     /* Parse keys as in an update */
@@ -1326,6 +2109,8 @@ uat_btmesh_record_free_cb(void *r)
 
     g_free(rec->network_key_string);
     g_free(rec->network_key);
+    g_free(rec->application_key_string);
+    g_free(rec->application_key);
     g_free(rec->ivindex_string);
     g_free(rec->ivindex);
     g_free(rec->privacykey);
@@ -1333,7 +2118,120 @@ uat_btmesh_record_free_cb(void *r)
 }
 
 UAT_CSTRING_CB_DEF(uat_btmesh_records, network_key_string, uat_btmesh_record_t)
+UAT_CSTRING_CB_DEF(uat_btmesh_records, application_key_string, uat_btmesh_record_t)
 UAT_CSTRING_CB_DEF(uat_btmesh_records, ivindex_string, uat_btmesh_record_t)
+
+static gboolean
+uat_btmesh_dev_key_record_update_cb(void *r, char **err _U_)
+{
+    uat_btmesh_dev_key_record_t *rec = (uat_btmesh_dev_key_record_t *)r;
+
+    rec->valid = 0;
+
+    /* Compute key & lengths once and for all */
+    if (rec->device_key_string) {
+        g_free(rec->device_key);
+        rec->device_key_length = compute_ascii_key(&rec->device_key, rec->device_key_string);
+        if (rec->device_key_length == 16) {
+            rec->valid++;
+        }
+    } else {
+        rec->device_key_length = 0;
+        rec->device_key = NULL;
+    }
+    if (rec->src_string) {
+        g_free(rec->src);
+        rec->src_length = compute_ascii_key(&rec->src, rec->src_string);
+        if (rec->src_length == 2) {
+            rec->valid++;
+        }
+    } else {
+        rec->src_length = 0;
+        rec->src = NULL;
+    }
+    return TRUE;
+}
+
+static void *
+uat_btmesh_dev_key_record_copy_cb(void *n, const void *o, size_t siz _U_)
+{
+    uat_btmesh_dev_key_record_t *new_rec = (uat_btmesh_dev_key_record_t *)n;
+    const uat_btmesh_dev_key_record_t* old_rec = (const uat_btmesh_dev_key_record_t *)o;
+
+    memset(new_rec, 0x00, sizeof(uat_btmesh_dev_key_record_t));
+
+    /* Copy UAT fields */
+    new_rec->device_key_string = g_strdup(old_rec->device_key_string);
+    new_rec->src_string = g_strdup(old_rec->src_string);
+
+    /* Parse key and src as in an update */
+    uat_btmesh_dev_key_record_update_cb(new_rec, NULL);
+
+    return new_rec;
+}
+
+static void
+uat_btmesh_dev_key_record_free_cb(void *r)
+{
+    uat_btmesh_dev_key_record_t *rec = (uat_btmesh_dev_key_record_t *)r;
+
+    g_free(rec->device_key_string);
+    g_free(rec->device_key);
+    g_free(rec->src_string);
+    g_free(rec->src);
+}
+
+UAT_CSTRING_CB_DEF(uat_btmesh_dev_key_records, device_key_string, uat_btmesh_dev_key_record_t)
+UAT_CSTRING_CB_DEF(uat_btmesh_dev_key_records, src_string, uat_btmesh_dev_key_record_t)
+
+static gboolean
+uat_btmesh_label_uuid_record_update_cb(void *r, char **err _U_)
+{
+    uat_btmesh_label_uuid_record_t *rec = (uat_btmesh_label_uuid_record_t *)r;
+
+    rec->valid = 0;
+
+    /* Compute label UUID & lengths */
+    if (rec->label_uuid_string) {
+        g_free(rec->label_uuid);
+        rec->label_uuid_length = compute_ascii_key(&rec->label_uuid, rec->label_uuid_string);
+        if (label_uuid_hash(rec)) {
+            rec->valid++;
+        }
+    } else {
+        rec->label_uuid_length = 0;
+        rec->label_uuid = NULL;
+    }
+    return TRUE;
+}
+
+static void *
+uat_btmesh_label_uuid_record_copy_cb(void *n, const void *o, size_t siz _U_)
+{
+    uat_btmesh_label_uuid_record_t *new_rec = (uat_btmesh_label_uuid_record_t *)n;
+    const uat_btmesh_label_uuid_record_t* old_rec = (const uat_btmesh_label_uuid_record_t *)o;
+
+    memset(new_rec, 0x00, sizeof(uat_btmesh_label_uuid_record_t));
+
+    /* Copy UAT field */
+    new_rec->label_uuid_string = g_strdup(old_rec->label_uuid_string);
+
+    /* Parse Label UUID as in an update */
+    uat_btmesh_label_uuid_record_update_cb(new_rec, NULL);
+
+    return new_rec;
+}
+
+static void
+uat_btmesh_label_uuid_record_free_cb(void *r)
+{
+    uat_btmesh_label_uuid_record_t *rec = (uat_btmesh_label_uuid_record_t *)r;
+
+    g_free(rec->label_uuid_string);
+    g_free(rec->label_uuid);
+}
+
+UAT_CSTRING_CB_DEF(uat_btmesh_label_uuid_records, label_uuid_string, uat_btmesh_label_uuid_record_t)
 
 void
 proto_register_btmesh(void)
@@ -1634,7 +2532,7 @@ proto_register_btmesh(void)
             FT_BYTES, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
-        //Access Message Reassembly
+        /* Access Message Reassembly */
         { &hf_btmesh_segmented_access_fragments,
             { "Reassembled Segmented Access Message Fragments", "btmesh.segmented.access.fragments",
                 FT_NONE, BASE_NONE, NULL, 0x0,
@@ -1680,7 +2578,7 @@ proto_register_btmesh(void)
                 FT_UINT32, BASE_DEC, NULL, 0x0,
                 "The total length of the reassembled payload", HFILL }
         },
-        //Control Message Reassembly
+        /* Control Message Reassembly */
         { &hf_btmesh_segmented_control_fragments,
             { "Reassembled Segmented Control Message Fragments", "btmesh.segmented.control.fragments",
                 FT_NONE, BASE_NONE, NULL, 0x0,
@@ -1726,6 +2624,31 @@ proto_register_btmesh(void)
                 FT_UINT32, BASE_DEC, NULL, 0x0,
                 "The total length of the reassembled payload", HFILL }
         },
+        { &hf_btmesh_decrypted_access,
+            { "Decrypted Accesss", "btmesh.accesss.decrypted",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_model_layer_vendor_opcode,
+            { "Opcode", "btmesh.model.vendor.opcode",
+                FT_UINT8, BASE_DEC, NULL, 0x3f,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_model_layer_vendor,
+            { "Opcode", "btmesh.model.vendor",
+                FT_UINT16, BASE_DEC, NULL, 0x0,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_model_layer_opcode,
+            { "Opcode", "btmesh.model.opcode",
+                FT_UINT16, BASE_HEX, VALS(btmesh_models_opcode_vals), 0x0,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_model_layer_parameters,
+            { "Parameters", "btmesh.model.parameters",
+                FT_BYTES, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }
+        },
     };
 
     static gint *ett[] = {
@@ -1738,6 +2661,8 @@ proto_register_btmesh(void)
         &ett_btmesh_segmented_access_fragment,
         &ett_btmesh_segmented_control_fragments,
         &ett_btmesh_segmented_control_fragment,
+        &ett_btmesh_access_pdu,
+        &ett_btmesh_model_layer,
     };
 
     static ei_register_info ei[] = {
@@ -1748,10 +2673,24 @@ proto_register_btmesh(void)
 
     module_t *btmesh_module;
 
-    /* UAT defenitions */
+    /* UAT Net Key and App Key definitions */
     static uat_field_t btmesh_uat_flds[] = {
         UAT_FLD_CSTRING(uat_btmesh_records, network_key_string, "Network Key", "Network Key"),
+        UAT_FLD_CSTRING(uat_btmesh_records, application_key_string, "Application Key", "Application Key"),
         UAT_FLD_CSTRING(uat_btmesh_records, ivindex_string, "IVindex", "IVindex"),
+        UAT_END_FIELDS
+    };
+
+    /* UAT Device Key definition */
+    static uat_field_t btmesh_dev_key_uat_flds[] = {
+        UAT_FLD_CSTRING(uat_btmesh_dev_key_records, device_key_string, "Device Key", "Device Key"),
+        UAT_FLD_CSTRING(uat_btmesh_dev_key_records, src_string, "SRC Address", "SRC Address"),
+        UAT_END_FIELDS
+    };
+
+    /* UAT Label UUID definition */
+    static uat_field_t btmesh_label_uuid_uat_flds[] = {
+        UAT_FLD_CSTRING(uat_btmesh_label_uuid_records, label_uuid_string, "Label UUID", "Label UUID"),
         UAT_END_FIELDS
     };
 
@@ -1769,7 +2708,7 @@ proto_register_btmesh(void)
             "Bluetooth Mesh Profile v1.0",
             "Version of protocol supported by this dissector.");
 
-    btmesh_uat = uat_new("BTMesh Network keys",
+    btmesh_uat = uat_new("BTMesh Network and Application keys",
         sizeof(uat_btmesh_record_t),    /* record size */
         "btmesh_nw_keys",               /* filename */
         TRUE,                           /* from_profile */
@@ -1785,10 +2724,52 @@ proto_register_btmesh(void)
         btmesh_uat_flds);               /* UAT field definitions */
 
     prefs_register_uat_preference(btmesh_module,
-        "newtwork_key_table",
-        "Network keys",
-        "Preconfigured Network keys",
+        "mesh_keys_table",
+        "Mesh Keys",
+        "Configured Mesh Keys",
         btmesh_uat);
+
+    btmesh_dev_key_uat = uat_new("BTMesh Device keys",
+        sizeof(uat_btmesh_dev_key_record_t),  /* record size */
+        "btmesh_dev_keys",                    /* filename */
+        TRUE,                                 /* from_profile */
+        &uat_btmesh_dev_key_records,          /* data_ptr */
+        &num_btmesh_dev_key_uat,              /* numitems_ptr */
+        UAT_AFFECTS_DISSECTION,               /* affects dissection of packets, but not set of named fields */
+        NULL,                                 /* help */
+        uat_btmesh_dev_key_record_copy_cb,    /* copy callback */
+        uat_btmesh_dev_key_record_update_cb,  /* update callback */
+        uat_btmesh_dev_key_record_free_cb,    /* free callback */
+        NULL,                                 /* post update callback */
+        NULL,                                 /* reset callback */
+        btmesh_dev_key_uat_flds);             /* UAT field definitions */
+
+    prefs_register_uat_preference(btmesh_module,
+        "mesh_dev_key_table",
+        "Device Keys",
+        "Configured Mesh Device Keys",
+        btmesh_dev_key_uat);
+
+    btmesh_label_uuid_uat = uat_new("BTMesh Label UUIDs",
+        sizeof(uat_btmesh_label_uuid_record_t),  /* record size */
+        "btmesh_label_uuids",                    /* filename */
+        TRUE,                                    /* from_profile */
+        &uat_btmesh_label_uuid_records,          /* data_ptr */
+        &num_btmesh_label_uuid_uat,              /* numitems_ptr */
+        UAT_AFFECTS_DISSECTION,                  /* affects dissection of packets, but not set of named fields */
+        NULL,                                    /* help */
+        uat_btmesh_label_uuid_record_copy_cb,    /* copy callback */
+        uat_btmesh_label_uuid_record_update_cb,  /* update callback */
+        uat_btmesh_label_uuid_record_free_cb,    /* free callback */
+        NULL,                                    /* post update callback */
+        NULL,                                    /* reset callback */
+        btmesh_label_uuid_uat_flds);             /* UAT field definitions */
+
+    prefs_register_uat_preference(btmesh_module,
+        "mesh_label_uuid_table",
+        "Label UUIDs",
+        "Configured Mesh Label UUIDs",
+        btmesh_label_uuid_uat);
 
     register_dissector("btmesh.msg", dissect_btmesh_msg, proto_btmesh);
 

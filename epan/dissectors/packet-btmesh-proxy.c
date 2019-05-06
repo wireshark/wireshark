@@ -167,10 +167,14 @@ dissect_btmesh_proxy_configuration_msg(tvbuff_t *tvb, packet_info *pinfo, proto_
     guint32 filter_type, list_size;
     guint32 offset = 0;
     guint32 decry_off = 0;
+    network_decryption_ctx_t *dec_ctx;
 
     proto_tree_add_item(tree, hf_btmesh_proxy_data, tvb, 0, tvb_reported_length(tvb), ENC_NA);
 
-    de_obf_tvb = btmesh_network_find_key_and_decrypt(tvb, pinfo, &decrypted_data, &enc_data_len, MESH_NONCE_TYPE_PROXY);
+    dec_ctx = (network_decryption_ctx_t *)wmem_alloc(wmem_packet_scope(), sizeof(network_decryption_ctx_t));
+    dec_ctx->net_nonce_type = BTMESH_NONCE_TYPE_PROXY;
+
+    de_obf_tvb = btmesh_network_find_key_and_decrypt(tvb, pinfo, &decrypted_data, &enc_data_len, dec_ctx);
     if (de_obf_tvb) {
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_btmesh_proxy_network_pdu, NULL, "Proxy Network PDU");
 
