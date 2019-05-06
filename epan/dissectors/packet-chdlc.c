@@ -117,7 +117,8 @@ capture_chdlc( const guchar *pd, int offset, int len, capture_packet_info_t *cpi
 }
 
 void
-chdlctype(guint16 chdlc_type, tvbuff_t *tvb, int offset_after_chdlctype,
+chdlctype(dissector_handle_t sub_dissector, guint16 chdlc_type,
+          tvbuff_t *tvb, int offset_after_chdlctype,
           packet_info *pinfo, proto_tree *tree, proto_tree *fh_tree,
           int chdlctype_id)
 {
@@ -139,8 +140,10 @@ chdlctype(guint16 chdlc_type, tvbuff_t *tvb, int offset_after_chdlctype,
     next_tvb = tvb_new_subset_remaining(tvb, offset_after_chdlctype);
   }
 
-  /* do lookup with the subdissector table */
-  if (!dissector_try_uint(subdissector_table, chdlc_type, next_tvb, pinfo, tree)) {
+  /* dissect with the handle; if there's no handle, it's just data */
+  if (sub_dissector != NULL) {
+    call_dissector(sub_dissector, next_tvb, pinfo, tree);
+  } else {
     col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "0x%04x", chdlc_type);
     call_data_dissector(next_tvb, pinfo, tree);
   }
@@ -154,6 +157,7 @@ dissect_chdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
   proto_item *ti;
   proto_tree *fh_tree = NULL;
   guint16     proto;
+  dissector_handle_t sub_dissector;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "CHDLC");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -188,7 +192,8 @@ dissect_chdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U
 
   decode_fcs(tvb, pinfo, fh_tree, chdlc_fcs_decode, 2);
 
-  chdlctype(proto, tvb, 4, pinfo, tree, fh_tree, hf_chdlc_proto);
+  sub_dissector = dissector_get_uint_handle(subdissector_table, proto);
+  chdlctype(sub_dissector, proto, tvb, 4, pinfo, tree, fh_tree, hf_chdlc_proto);
   return tvb_captured_length(tvb);
 }
 
