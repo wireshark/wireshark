@@ -25,7 +25,11 @@
  * Quagga 0.99.24 changed to Zebra Protocol version 3.
  * FRRouting version 2 and 3 use Zebra Protocol version 4
  * FRRouting version 4 and 5 use Zebra Protocol version 5
- * FRRouting version 6 uses Zebra Protocol version 6
+ * FRRouting version 4 and 5 have incompatible commands partialy.
+ * This file use commands of FRRRouting version 5.
+ * FRRouting version 6 and 7 use Zebra Protocol version 6
+ * FRRouting version 6 and 7 have incompatible commands partialy.
+ * This file use commands of FRRRouting version 7.
  */
 
 #include "config.h"
@@ -555,7 +559,7 @@ enum {
 	FRR_ZAPI6_IMPORT_ROUTE_REGISTER,
 	FRR_ZAPI6_IMPORT_ROUTE_UNREGISTER,
 	FRR_ZAPI6_IMPORT_CHECK_UPDATE,
-	FRR_ZAPI6_IPV4_ROUTE_IPV6_NEXTHOP_ADD,
+	//FRR_ZAPI6_IPV4_ROUTE_IPV6_NEXTHOP_ADD,
 	FRR_ZAPI6_BFD_DEST_REGISTER,
 	FRR_ZAPI6_BFD_DEST_DEREGISTER,
 	FRR_ZAPI6_BFD_DEST_UPDATE,
@@ -577,6 +581,7 @@ enum {
 	FRR_ZAPI6_MPLS_LABELS_DELETE,
 	FRR_ZAPI6_IPMR_ROUTE_STATS,
 	FRR_ZAPI6_LABEL_MANAGER_CONNECT,
+	FRR_ZAPI6_LABEL_MANAGER_CONNECT_ASYNC,
 	FRR_ZAPI6_GET_LABEL_CHUNK,
 	FRR_ZAPI6_RELEASE_LABEL_CHUNK,
 	FRR_ZAPI6_FEC_REGISTER,
@@ -599,6 +604,7 @@ enum {
 	FRR_ZAPI6_IP_PREFIX_ROUTE_DEL,
 	FRR_ZAPI6_REMOTE_MACIP_ADD,
 	FRR_ZAPI6_REMOTE_MACIP_DEL,
+	FRR_ZAPI6_DUPLICATE_ADDR_DETECTION,
 	FRR_ZAPI6_PW_ADD,
 	FRR_ZAPI6_PW_DELETE,
 	FRR_ZAPI6_PW_SET,
@@ -619,6 +625,7 @@ enum {
 	FRR_ZAPI6_IPTABLE_ADD,
 	FRR_ZAPI6_IPTABLE_DELETE,
 	FRR_ZAPI6_IPTABLE_NOTIFY_OWNER,
+	FRR_ZAPI6_VXLAN_FLOOD_CONTROL,
 };
 
 static const value_string frr_zapi6_messages[] = {
@@ -648,7 +655,7 @@ static const value_string frr_zapi6_messages[] = {
 	{ FRR_ZAPI6_IMPORT_ROUTE_REGISTER,	"Import Route Register" },
 	{ FRR_ZAPI6_IMPORT_ROUTE_UNREGISTER,	"Import Route Unregister" },
 	{ FRR_ZAPI6_IMPORT_CHECK_UPDATE,	"Import Check Update" },
-	{ FRR_ZAPI6_IPV4_ROUTE_IPV6_NEXTHOP_ADD,"Add IPv6 nexthop for IPv4 Route" },
+	//{ FRR_ZAPI6_IPV4_ROUTE_IPV6_NEXTHOP_ADD,"Add IPv6 nexthop for IPv4 Route" },
 	{ FRR_ZAPI6_BFD_DEST_REGISTER,		"BFD Destination Register" },
 	{ FRR_ZAPI6_BFD_DEST_DEREGISTER,	"BFD Destination Deregister" },
 	{ FRR_ZAPI6_BFD_DEST_UPDATE,		"BFD Destination Update" },
@@ -670,6 +677,7 @@ static const value_string frr_zapi6_messages[] = {
 	{ FRR_ZAPI6_MPLS_LABELS_DELETE,		"MPLS Labels Delete" },
 	{ FRR_ZAPI6_IPMR_ROUTE_STATS,		"IPMR Route Statics" },
 	{ FRR_ZAPI6_LABEL_MANAGER_CONNECT,	"Label Manager Connect" },
+	{ FRR_ZAPI6_LABEL_MANAGER_CONNECT_ASYNC,"Label Manager Connect Asynchronous" },
 	{ FRR_ZAPI6_GET_LABEL_CHUNK,		"Get Label Chunk" },
 	{ FRR_ZAPI6_RELEASE_LABEL_CHUNK,	"Release Label Chunk" },
 	{ FRR_ZAPI6_FEC_REGISTER,		"FEC Register" },
@@ -692,6 +700,7 @@ static const value_string frr_zapi6_messages[] = {
 	{ FRR_ZAPI6_IP_PREFIX_ROUTE_DEL,	"IP Prefix Route Delete" },
 	{ FRR_ZAPI6_REMOTE_MACIP_ADD,		"Remote MAC/IP Add" },
 	{ FRR_ZAPI6_REMOTE_MACIP_DEL,		"Remote MAC/IP Delete" },
+	{ FRR_ZAPI6_DUPLICATE_ADDR_DETECTION,   "Duplicate Address Detection" },
 	{ FRR_ZAPI6_PW_ADD,			"PseudoWire Add" },
 	{ FRR_ZAPI6_PW_DELETE,			"PseudoWire Delete" },
 	{ FRR_ZAPI6_PW_SET,			"PseudoWire Set" },
@@ -712,6 +721,7 @@ static const value_string frr_zapi6_messages[] = {
 	{ FRR_ZAPI6_IPTABLE_ADD,		"IPTable Add" },
 	{ FRR_ZAPI6_IPTABLE_DELETE,		"IPTable Delete" },
 	{ FRR_ZAPI6_IPTABLE_NOTIFY_OWNER,	"IPTable Notify Owner" },
+	{ FRR_ZAPI6_VXLAN_FLOOD_CONTROL,	"VXLAN Flood Control" },
 	{ 0,					NULL },
 };
 
@@ -818,6 +828,7 @@ static const value_string routes_v4[] = {
 #define FRR_ZAPI5_ROUTE_SHARP             23
 #define FRR_ZAPI5_ROUTE_PBR               24
 #define FRR_ZAPI6_ROUTE_BFD               25
+#define FRR_ZAPI6_ROUTE_OPENFABRIC        26
 
 static const value_string routes_v5[] = {
 	{ ZEBRA_ROUTE_SYSTEM,			"System Route" },
@@ -846,6 +857,7 @@ static const value_string routes_v5[] = {
 	{ FRR_ZAPI5_ROUTE_SHARP,		"SHARPd Route" },
 	{ FRR_ZAPI5_ROUTE_PBR,			"PBR Route" },
 	{ FRR_ZAPI6_ROUTE_BFD,			"BFD Route" },
+	{ FRR_ZAPI6_ROUTE_OPENFABRIC,		"OpenFabric Route" },
 	{ 0,					NULL },
 };
 
@@ -875,6 +887,14 @@ static const value_string families[] = {
 /* ZAPI v5 (FRRouting v5) message flags */
 #define ZEBRA_FLAG_EVPN_ROUTE            0x400
 #define FRR_FLAG_ALLOW_RECURSION         0x01
+/* ZAPI v6 (FRRouting v7) message flags */
+#define FRR_ZAPI6_FLAG_IBGP              0x04
+#define FRR_ZAPI6_FLAG_SELECTED          0x08
+#define FRR_ZAPI6_FLAG_FIB_OVERRIDE      0x10
+#define FRR_ZAPI6_FLAG_EVPN_ROUTE        0x20
+#define FRR_ZAPI6_FLAG_RR_USE_DISTANCE   0x40
+#define FRR_ZAPI6_FLAG_ONLINk            0x40
+
 
 /* Zebra API message flag. */
 #define ZEBRA_ZAPI_MESSAGE_NEXTHOP       0x01
@@ -1189,7 +1209,8 @@ zebra_route(proto_tree *tree, gboolean request, tvbuff_t *tvb, int offset,
 		proto_tree_add_item(tree, hf_zebra_route_safi_u8, tvb, offset,
 				    1, ENC_BIG_ENDIAN);
 		offset += 1;
-		if (rtflags & ZEBRA_FLAG_EVPN_ROUTE) {
+		if ((version == 5 &&rtflags & ZEBRA_FLAG_EVPN_ROUTE) ||
+		    (version > 5 &&rtflags & FRR_ZAPI6_FLAG_EVPN_ROUTE)) {
 			proto_tree_add_item(tree, hf_zebra_rmac, tvb, offset, 6,
 					    ENC_NA);
 			offset += 6;
@@ -2153,7 +2174,7 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 		case FRR_ZAPI6_IMPORT_ROUTE_REGISTER:
 		case FRR_ZAPI6_IMPORT_ROUTE_UNREGISTER:
 		case FRR_ZAPI6_IMPORT_CHECK_UPDATE:
-		case FRR_ZAPI6_IPV4_ROUTE_IPV6_NEXTHOP_ADD:
+		//case FRR_ZAPI6_IPV4_ROUTE_IPV6_NEXTHOP_ADD:
 		case FRR_ZAPI6_BFD_DEST_REGISTER:
 		case FRR_ZAPI6_BFD_DEST_DEREGISTER:
 		case FRR_ZAPI6_BFD_DEST_UPDATE:
@@ -2182,6 +2203,7 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 		case FRR_ZAPI6_IPMR_ROUTE_STATS:
 			break;
 		case FRR_ZAPI6_LABEL_MANAGER_CONNECT:
+		case FRR_ZAPI6_LABEL_MANAGER_CONNECT_ASYNC:
 			offset = zebra_label_manager_connect(tree, tvb, offset);
 			break;
 		case FRR_ZAPI6_GET_LABEL_CHUNK:
@@ -2229,6 +2251,7 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 		case FRR_ZAPI6_IPTABLE_ADD:
 		case FRR_ZAPI6_IPTABLE_DELETE:
 		case FRR_ZAPI6_IPTABLE_NOTIFY_OWNER:
+		case FRR_ZAPI6_VXLAN_FLOOD_CONTROL:
 			break;
 		}
 	}
