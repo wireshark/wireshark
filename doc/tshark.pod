@@ -616,17 +616,18 @@ this option.
 =item -j  E<lt>protocol match filterE<gt>
 
 Protocol match filter used for ek|json|jsonraw|pdml output file types.
-Parent node containing multiple child nodes is only included,
-if the name is found in the filter.
+Only the protocol's parent node is included. Child nodes are only
+included if explicitly specified in the filter.
 
-Example: B<tshark -j "ip ip.flags text">
+Example: B<tshark -j "ip ip.flags http">
 
 =item -J  E<lt>protocol match filterE<gt>
 
 Protocol top level filter used for ek|json|jsonraw|pdml output file types.
-Parent node containing multiple child nodes is included with all children.
+The protocol's parent node and all child nodes are included.
+Lower-level protocols must be explicitly specified in the filter.
 
-Example: B<tshark -J "http tcp">
+Example: B<tshark -J "tcp http">
 
 =item -K  E<lt>keytabE<gt>
 
@@ -842,7 +843,8 @@ Set the format of the output when viewing decoded packet data.  The
 options are one of:
 
 B<ek> Newline delimited JSON format for bulk import into Elasticsearch.
-It can be used with B<-j> or B<-J> including the JSON filter or with
+It can be used with B<-j> or B<-J> to specify
+which protocols to include or with
 B<-x> to include raw hex-encoded packet data.
 If B<-P> is specified it will print the packet summary only, with both
 B<-P> and B<-V> it will print the packet summary and packet details.
@@ -869,15 +871,15 @@ form specified by the B<-E> option.  For example,
 would generate comma-separated values (CSV) output suitable for importing
 into your favorite spreadsheet program.
 
-B<json> JSON file format.  It can be used with B<-j> or B<-J> including
-the JSON filter or with B<-x> option to include raw hex-encoded packet
-data.  Example of usage:
+B<json> JSON file format.  It can be used with B<-j> or B<-J> to specify
+which protocols to include or with B<-x> option to include
+raw hex-encoded packet data.  Example of usage:
 
   tshark -T json -r file.pcap
   tshark -T json -j "http tcp ip" -x -r file.pcap
 
 B<jsonraw> JSON file format including only raw hex-encoded packet data.
-It can be used with B<-j> including or B<-J> the JSON filter option.
+It can be used with B<-j> or B<-J> to specify which protocols to include.
 Example of usage:
 
   tshark -T jsonraw -r file.pcap
