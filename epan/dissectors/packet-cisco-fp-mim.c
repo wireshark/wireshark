@@ -20,9 +20,13 @@
 #include <epan/etypes.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
+#include <epan/expert.h>
+#include <epan/crc32-tvb.h>
 
 void proto_register_mim(void);
 void proto_reg_handoff_fabricpath(void);
+
+static gboolean fp_check_fcs = FALSE;
 
 static int proto_fp = -1;
 static gint ett_mim = -1;
@@ -40,6 +44,8 @@ static int hf_fp_1ad_etype = -1;
 static int hf_fp_1ad_priority = -1;
 static int hf_fp_1ad_cfi = -1;
 static int hf_fp_1ad_svid = -1;
+static int hf_fp_fcs = -1;
+static int hf_fp_fcs_status = -1;
 
 /* HMAC subtrees */
 static int hf_swid = -1;
@@ -49,6 +55,8 @@ static int hf_lid = -1;
 static int hf_ul = -1;
 static int hf_ig = -1;
 static int hf_ooodl = -1;
+
+static expert_field ei_fp_fcs_bad = EI_INIT;
 
 static const true_false_string ig_tfs = {
   "Group address (multicast/broadcast)",
@@ -63,7 +71,7 @@ static const true_false_string ooodl_tfs = {
   "Deliver in order (If DA) or Learn (If SA)"
 };
 
-static dissector_handle_t eth_maybefcs_dissector;
+static dissector_handle_t eth_withoutfcs_dissector;
 
 #define FP_PROTO_COL_NAME "FabricPath"
 #define FP_PROTO_COL_INFO "Cisco FabricPath MiM Encapsulated Frame"
@@ -204,6 +212,8 @@ dissect_fp_common ( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int hea
   proto_tree   *fp_addr_tree;
   tvbuff_t     *next_tvb;
   int           offset   = 0;
+  int           next_tvb_len = 0;
+  int           fcs_offset = 0;
   guint64       hmac_src;
   guint64       hmac_dst;
   guint16       sswid    = 0;
@@ -318,12 +328,28 @@ dissect_fp_common ( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int hea
   proto_tree_add_item (fp_tree, hf_ftag, tvb, offset, FP_FTAG_LEN, ENC_BIG_ENDIAN);
   proto_tree_add_item (fp_tree, hf_ttl, tvb, offset, FP_FTAG_LEN, ENC_BIG_ENDIAN);
 
-  /* call the eth dissector */
-  next_tvb = tvb_new_subset_remaining( tvb, header_size );
+  /* eval FCS */
+  fcs_offset = tvb_reported_length(tvb) - 4;
+
+  if ( tvb_bytes_exist(tvb, fcs_offset, 4 ) ) {
+    if ( fp_check_fcs ) {
+      guint32 fcs = crc32_802_tvb(tvb, fcs_offset);
+      proto_tree_add_checksum(fp_tree, tvb, fcs_offset, hf_fp_fcs, hf_fp_fcs_status, &ei_fp_fcs_bad, pinfo, fcs, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+    } else {
+      proto_tree_add_checksum(fp_tree, tvb, fcs_offset, hf_fp_fcs, hf_fp_fcs_status, &ei_fp_fcs_bad, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+    }
+    proto_tree_set_appendix(fp_tree, tvb, fcs_offset, 4);
+  }
+
+  /* call the eth dissector w/o the FCS */
+  next_tvb_len = tvb_reported_length_remaining( tvb, header_size ) - 4;
+  next_tvb = tvb_new_subset_length( tvb, header_size, next_tvb_len );
+
   /*
-   * For now, we don't know whether there's an FCS in the captured data.
+   * We've already verified the replaced CFP checksum
+   * Therefore we call the Ethernet dissector without expecting a FCS
    */
-  call_dissector( eth_maybefcs_dissector, next_tvb, pinfo, tree );
+  call_dissector( eth_withoutfcs_dissector, next_tvb, pinfo, tree );
 
   return tvb_captured_length( tvb );
 }
@@ -367,6 +393,14 @@ proto_register_mim(void)
     { &hf_fp_1ad_svid,
       { "ID", "cfp.1ad.id", FT_UINT16, BASE_DEC,
         0, 0x0FFF, "Vlan ID", HFILL }},
+
+    { &hf_fp_fcs,
+      { "Frame check sequence", "cfp.fcs", FT_UINT32, BASE_HEX,
+        NULL, 0x0, "FabricPath checksum", HFILL }},
+
+    { &hf_fp_fcs_status,
+      { "FCS status", "cfp.fcs.status", FT_UINT8, BASE_NONE,
+        VALS(proto_checksum_vals), 0x0, NULL, HFILL }},
 
     { &hf_ftag,
       { "FTAG", "cfp.ftag",
@@ -420,7 +454,12 @@ proto_register_mim(void)
     &ett_hmac
   };
 
+  static ei_register_info ei[] = {
+    { &ei_fp_fcs_bad, { "cfp.fcs_bad", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }}
+  };
+
   module_t *mim_module;
+  expert_module_t *expert_mim;
 
   proto_fp = proto_register_protocol("Cisco FabricPath", "CFP", "cfp");
 
@@ -428,8 +467,16 @@ proto_register_mim(void)
 
   prefs_register_obsolete_preference (mim_module, "enable");
 
+  prefs_register_bool_preference(mim_module, "check_fcs",
+                                 "Validate the FabricPath checksum if possible",
+                                 "Whether to validate the Frame Check Sequence",
+                                 &fp_check_fcs);
+
   proto_register_field_array(proto_fp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
+
+  expert_mim = expert_register_protocol(proto_fp);
+  expert_register_field_array(expert_mim, ei, array_length(ei));
 }
 
 void
@@ -450,12 +497,8 @@ proto_reg_handoff_fabricpath(void)
      * The FCS in FabricPath frames covers the entire FabricPath frame,
      * not the encapsulated Ethernet frame, so we don't want to treat
      * the encapsulated frame as if it had an FCS.
-     *
-     * XXX - we probably need to do similar FCS checks to the ones done
-     * by the Ethernet dissector.  This needs more work, so we leave this
-     * as calling the "eth" dissector as a reminder.
      */
-    eth_maybefcs_dissector = find_dissector_add_dependency( "eth_maybefcs", proto_fp );
+    eth_withoutfcs_dissector = find_dissector_add_dependency( "eth_withoutfcs", proto_fp );
     prefs_initialized = TRUE;
   }
 }
