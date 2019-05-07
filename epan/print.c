@@ -1103,7 +1103,11 @@ static gboolean
 ek_check_protocolfilter(gchar **protocolfilter, const char *str)
 {
     gchar *str_escaped = NULL;
+    gboolean check;
     int i;
+
+    if (check_protocolfilter(protocolfilter, str))
+        return TRUE;
 
     /* to to thread the '.' and '_' equally. The '.' is replace by print_escaped_ek for '_' */
     if (str != NULL && strlen(str) > 0) {
@@ -1118,8 +1122,9 @@ ek_check_protocolfilter(gchar **protocolfilter, const char *str)
         }
     }
 
-    return check_protocolfilter(protocolfilter, str)
-           || check_protocolfilter(protocolfilter, str_escaped);
+    check = check_protocolfilter(protocolfilter, str_escaped);
+    g_free(str_escaped);
+    return check;
 }
 
 /**
