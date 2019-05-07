@@ -1217,12 +1217,12 @@ ek_fill_attr(proto_node *node, GSList **attr_list, GHashTable *attr_table, write
 static void
 ek_write_name(proto_node *pnode, gchar* suffix, write_json_data* pdata)
 {
-    field_info *fi        = PNODE_FINFO(pnode);
-    field_info *fi_parent = PNODE_FINFO(pnode->parent);
+    field_info *fi = PNODE_FINFO(pnode);
     gchar      *str;
 
-    if (fi_parent != NULL) {
-        str = g_strdup_printf("%s_%s%s", fi_parent->hfinfo->abbrev, fi->hfinfo->abbrev, suffix ? suffix : "");
+    if (fi->hfinfo->parent != -1) {
+        header_field_info* parent = proto_registrar_get_nth(fi->hfinfo->parent);
+        str = g_strdup_printf("%s_%s%s", parent->abbrev, fi->hfinfo->abbrev, suffix ? suffix : "");
         json_dumper_set_member_name(pdata->dumper, str);
     } else {
         str = g_strdup_printf("%s%s", fi->hfinfo->abbrev, suffix ? suffix : "");

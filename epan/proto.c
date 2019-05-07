@@ -10440,7 +10440,7 @@ proto_registrar_dump_elastic(const gchar* filter)
 			/* Skip the fields that would map into string. This is the default in elasticsearch. */
 			type = ws_type_to_elastic(hfinfo->type);
 			if (type) {
-				str = g_strdup(hfinfo->abbrev);
+				str = g_strdup_printf("%s_%s", prev_proto, hfinfo->abbrev);
 				json_dumper_set_member_name(&dumper, dot_to_underscore(str));
 				g_free(str);
 				json_dumper_begin_object(&dumper); // 9.hfinfo->abbrev
