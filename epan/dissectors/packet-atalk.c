@@ -1480,7 +1480,7 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
   proto_tree_add_item(ddp_tree, hf_ddp_hopcount,   tvb, 0, 2, ENC_BIG_ENDIAN);
   proto_tree_add_item(ddp_tree, hf_ddp_len,        tvb, 0, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_checksum(ddp_tree, tvb, 0, hf_ddp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
+  proto_tree_add_checksum(ddp_tree, tvb, 2, hf_ddp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
   dst->net = tvb_get_ntohs(tvb, 4);
   proto_tree_add_uint(ddp_tree, hf_ddp_dst_net,    tvb, 4, 2, dst->net);
   src->net = tvb_get_ntohs(tvb, 6);
@@ -1594,7 +1594,7 @@ proto_register_atalk(void)
         NULL, HFILL }},
 
     { &hf_ddp_len,
-      { "Datagram length",      "ddp.len",      FT_UINT16, BASE_DEC, NULL, 0x0300,
+      { "Datagram length",      "ddp.len",      FT_UINT16, BASE_DEC, NULL, 0x03FF,
         NULL, HFILL }},
 
     { &hf_ddp_checksum,
