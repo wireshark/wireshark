@@ -108,6 +108,7 @@ static expert_field ei_fr_frame_relay_xid = EI_INIT;
 
 static dissector_handle_t eth_withfcs_handle;
 static dissector_handle_t gprs_ns_handle;
+static dissector_handle_t lapb_handle;
 static dissector_handle_t data_handle;
 static dissector_handle_t fr_handle;
 
@@ -125,6 +126,7 @@ static dissector_table_t ethertype_subdissector_table;
 #define FRF_3_2         0       /* FRF 3.2 or Cisco HDLC */
 #define GPRS_NS         1       /* GPRS Network Services (3GPP TS 08.16) */
 #define RAW_ETHER       2       /* Raw Ethernet */
+#define LAPB            3       /* T.617a-1994 Annex G encapsuation of LAPB */
 
 static gint fr_encap = FRF_3_2;
 
@@ -689,6 +691,14 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     else
       dissect_lapf(next_tvb, pinfo, tree);
     break;
+
+  case LAPB:
+    next_tvb = tvb_new_subset_remaining(tvb, offset);
+    if (addr != 0)
+      call_dissector(lapb_handle, next_tvb, pinfo, tree);
+    else
+      dissect_lapf(next_tvb, pinfo, tree);
+    break;
   }
 }
 
@@ -1048,6 +1058,7 @@ proto_register_fr(void)
     { "frf-3.2", "FRF 3.2/Cisco HDLC", FRF_3_2 },
     { "gprs-ns", "GPRS Network Service", GPRS_NS },
     { "ethernet", "Raw Ethernet", RAW_ETHER },
+    { "lapb", "LAPB (T1.617a-1994 Annex G)", LAPB },
     { NULL, NULL, 0 },
   };
   module_t *frencap_module;
@@ -1106,6 +1117,7 @@ proto_reg_handoff_fr(void)
 
   eth_withfcs_handle = find_dissector_add_dependency("eth_withfcs", proto_fr);
   gprs_ns_handle = find_dissector_add_dependency("gprs_ns", proto_fr);
+  lapb_handle = find_dissector_add_dependency("lapb", proto_fr);
   data_handle = find_dissector_add_dependency("data", proto_fr);
 
   chdlc_subdissector_table = find_dissector_table("chdlc.protocol");
