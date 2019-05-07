@@ -556,79 +556,83 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
        * See if, were we to treat the two octets after the DLCI as a Cisco
        * HDLC type, we have a dissector for it.
        */
-      fr_type  = tvb_get_ntohs(tvb, offset);
-      sub_dissector = dissector_get_uint_handle(chdlc_subdissector_table,
-                                                fr_type);
-      if (sub_dissector != NULL) {
-        /* We have a dissector, so assume it's Cisco encapsulation. */
-        if (ti != NULL) {
-          /* Include the Cisco HDLC type in the top-level protocol
-             tree item. */
-          proto_item_set_end(ti, tvb, offset+2);
+      if (tvb_bytes_exist(tvb, offset, 2)) {
+        fr_type  = tvb_get_ntohs(tvb, offset);
+        sub_dissector = dissector_get_uint_handle(chdlc_subdissector_table,
+                                                  fr_type);
+        if (sub_dissector != NULL) {
+          /* We have a dissector, so assume it's Cisco encapsulation. */
+          if (ti != NULL) {
+            /* Include the Cisco HDLC type in the top-level protocol
+               tree item. */
+            proto_item_set_end(ti, tvb, offset+2);
+          }
+          chdlctype(sub_dissector, fr_type, tvb, offset+2, pinfo, tree, fr_tree,
+                    hf_fr_chdlctype);
+          return;
         }
-        chdlctype(sub_dissector, fr_type, tvb, offset+2, pinfo, tree, fr_tree,
-                  hf_fr_chdlctype);
-        return;
-      }
 
-      /*
-       * We don't have a dissector; this might be an RFC 2427-encapsulated
-       * See if we have a dissector for the putative NLPID.
-       */
-      nlpid_offset = offset;
-      control = tvb_get_guint8(tvb, nlpid_offset);
-      if (control == 0) {
-        /* Presumably a padding octet; the NLPID would be in the next octet. */
-        nlpid_offset++;
+        /*
+         * We don't have a dissector; this might be an RFC 2427-encapsulated
+         * See if we have a dissector for the putative NLPID.
+         */
+        nlpid_offset = offset;
         control = tvb_get_guint8(tvb, nlpid_offset);
-      }
-      switch (control & 0x03) {
+        if (control == 0) {
+          /* Presumably a padding octet; the NLPID would be in the next octet. */
+          nlpid_offset++;
+          control = tvb_get_guint8(tvb, nlpid_offset);
+        }
+        switch (control & 0x03) {
 
-      case XDLC_S:
-        /*
-         * Supervisory frame.
-         * We assume we're in extended mode, with 2-octet supervisory
-         * control fields.
-         */
-        nlpid_offset += 2;
-        break;
+        case XDLC_S:
+          /*
+           * Supervisory frame.
+           * We assume we're in extended mode, with 2-octet supervisory
+           * control fields.
+           */
+          nlpid_offset += 2;
+          break;
 
-      case XDLC_U:
-        /*
-         * Unnumbered frame.
-         *
-         * XXX - one octet or 2 in extended mode?
-         */
-        nlpid_offset++;
-        break;
+        case XDLC_U:
+          /*
+           * Unnumbered frame.
+           *
+           * XXX - one octet or 2 in extended mode?
+           */
+          nlpid_offset++;
+          break;
 
-      default:
-        /*
-         * Information frame.
-         * We assume we're in extended mode, with 2-octet supervisory
-         * control fields.
-         */
-        nlpid_offset += 2;
-        break;
-      }
-      fr_nlpid = tvb_get_guint8(tvb, nlpid_offset);
-      sub_dissector = dissector_get_uint_handle(fr_osinl_subdissector_table,
-                                                fr_nlpid);
-      if (sub_dissector != NULL)
-        encap_is_frf_3_2 = TRUE;
-      else {
-        sub_dissector = dissector_get_uint_handle(osinl_incl_subdissector_table,
-                                                  fr_nlpid);
-        if (sub_dissector != NULL)
-          encap_is_frf_3_2 = TRUE;
-        else {
-          if (fr_nlpid == NLPID_SNAP)
+        default:
+          /*
+           * Information frame.
+           * We assume we're in extended mode, with 2-octet supervisory
+           * control fields.
+           */
+          nlpid_offset += 2;
+          break;
+        }
+        if (tvb_bytes_exist(tvb, nlpid_offset, 1)) {
+          fr_nlpid = tvb_get_guint8(tvb, nlpid_offset);
+          sub_dissector = dissector_get_uint_handle(fr_osinl_subdissector_table,
+                                                    fr_nlpid);
+          if (sub_dissector != NULL)
             encap_is_frf_3_2 = TRUE;
           else {
-            sub_dissector = dissector_get_uint_handle(fr_subdissector_table,
+            sub_dissector = dissector_get_uint_handle(osinl_incl_subdissector_table,
                                                       fr_nlpid);
             if (sub_dissector != NULL)
               encap_is_frf_3_2 = TRUE;
+            else {
+              if (fr_nlpid == NLPID_SNAP)
+                encap_is_frf_3_2 = TRUE;
+              else {
+                sub_dissector = dissector_get_uint_handle(fr_subdissector_table,
+                                                          fr_nlpid);
+                if (sub_dissector != NULL)
+                  encap_is_frf_3_2 = TRUE;
+              }
+            }
           }
         }
       }
@@ -658,14 +662,16 @@ dissect_fr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
        */
       guint16 type_length;
 
-      next_tvb = tvb_new_subset_remaining(tvb, offset);
-      type_length = tvb_get_ntohs(tvb, offset + 12);
-      if (type_length <= IEEE_802_3_MAX_LEN ||
-          dissector_get_uint_handle(ethertype_subdissector_table, type_length) != NULL) {
+      if (tvb_bytes_exist(tvb, offset + 12, 2) &&
+          ((type_length = tvb_get_ntohs(tvb, offset + 12)) <= IEEE_802_3_MAX_LEN ||
+           dissector_get_uint_handle(ethertype_subdissector_table, type_length) != NULL)) {
         /* It looks like a length or is a known Ethertype; dissect as raw Etheret */
+        next_tvb = tvb_new_subset_remaining(tvb, offset);
         call_dissector(eth_withfcs_handle, next_tvb, pinfo, tree);
+        return;
       } else {
         /* It doesn't - just dissect it as data. */
+        next_tvb = tvb_new_subset_remaining(tvb, offset);
         call_data_dissector(next_tvb, pinfo, tree);
       }
     }
