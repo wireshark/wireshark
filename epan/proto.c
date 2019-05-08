@@ -10286,19 +10286,19 @@ ws_type_to_elastic(guint type _U_)
 		case FT_UINT16:
 		case FT_INT16:
 		case FT_INT32:
-		case FT_UINT32:
 		case FT_UINT24:
-		case FT_FRAMENUM:
-		case FT_UINT48:
-		case FT_INT48:
 		case FT_INT24:
 			return "integer";
 		case FT_INT8:
 		case FT_UINT8:
 			return "short";
+		case FT_FRAMENUM:
+		case FT_UINT32:
 		case FT_UINT40:
+		case FT_UINT48:
 		case FT_UINT56:
-		case FT_UINT64:
+		case FT_UINT64: // Actually it's not handled by 'long' elastic type.
+		case FT_INT48:
 		case FT_INT64:
 			return "long";
 		case FT_FLOAT:
