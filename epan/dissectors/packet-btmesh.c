@@ -2053,10 +2053,12 @@ uat_btmesh_record_update_cb(void *r, char **err _U_)
     if (rec->application_key_string) {
         g_free(rec->application_key);
         rec->application_key_length = compute_ascii_key(&rec->application_key, rec->application_key_string);
+#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
         /* compute AID */
         if (k4(rec)) {
             rec->valid++;
         }
+#endif
     } else {
         rec->application_key_length = 0;
         rec->application_key = NULL;
@@ -2195,9 +2197,11 @@ uat_btmesh_label_uuid_record_update_cb(void *r, char **err _U_)
     if (rec->label_uuid_string) {
         g_free(rec->label_uuid);
         rec->label_uuid_length = compute_ascii_key(&rec->label_uuid, rec->label_uuid_string);
+#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
         if (label_uuid_hash(rec)) {
             rec->valid++;
         }
+#endif
     } else {
         rec->label_uuid_length = 0;
         rec->label_uuid = NULL;
