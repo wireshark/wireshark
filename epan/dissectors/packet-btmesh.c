@@ -708,7 +708,6 @@ upper_transport_init_routine(void)
     reassembly_table_register(&upper_transport_reassembly_table, &upper_transport_reassembly_table_functions);
 }
 
-
 /* A BT Mesh dissector is not realy useful without decryption as all packets are encrypted. Just leave a stub dissector outside of*/
 #if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 
@@ -1907,7 +1906,19 @@ dissect_btmesh_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 static gboolean
 create_master_security_keys(uat_btmesh_record_t * net_key_set _U_)
 {
-    return TRUE;
+    return FALSE;
+}
+
+static gboolean
+k4(uat_btmesh_record_t *key_set)
+{
+    return FALSE;
+}
+
+static gboolean
+label_uuid_hash(uat_btmesh_label_uuid_record_t *label_uuid_record)
+{
+    return FALSE;
 }
 
 /* Stub dissector if decryption not available on build system */
