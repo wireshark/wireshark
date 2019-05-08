@@ -187,7 +187,7 @@ class case_tshark_dump_glossaries(subprocesstest.SubprocessTestCase):
 
     def test_tshark_elastic_mapping(self, cmd_tshark, dirs, base_env):
         def get_ip_props(obj):
-            return obj['mappings']['pcap_file']['properties']['layers']['properties']['ip']['properties']
+            return obj['mappings']['doc']['properties']['layers']['properties']['ip']['properties']
         baseline_file = os.path.join(dirs.baseline_dir, 'elastic-mapping-ip-subset.json')
         with open(baseline_file) as f:
             expected_obj = json.load(f)

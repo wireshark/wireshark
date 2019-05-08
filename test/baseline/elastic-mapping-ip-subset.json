@@ -4,7 +4,7 @@
     "index.mapping.total_fields.limit" : 1000000
   },
   "mappings" : {
-    "pcap_file" : {
+    "doc" : {
       "dynamic" : false,
       "properties" : {
         "timestamp" : {

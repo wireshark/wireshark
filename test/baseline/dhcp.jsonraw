@@ -1,7 +1,7 @@
 [
   {
     "_index": "packets-2004-12-05",
-    "_type": "pcap_file",
+    "_type": "doc",
     "_score": null,
     "_source": {
       "layers": {
@@ -784,7 +784,7 @@
   },
   {
     "_index": "packets-2004-12-05",
-    "_type": "pcap_file",
+    "_type": "doc",
     "_score": null,
     "_source": {
       "layers": {
@@ -1599,7 +1599,7 @@
   },
   {
     "_index": "packets-2004-12-05",
-    "_type": "pcap_file",
+    "_type": "doc",
     "_score": null,
     "_source": {
       "layers": {
@@ -2412,7 +2412,7 @@
   },
   {
     "_index": "packets-2004-12-05",
-    "_type": "pcap_file",
+    "_type": "doc",
     "_score": null,
     "_source": {
       "layers": {

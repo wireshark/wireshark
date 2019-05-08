@@ -10367,9 +10367,9 @@ proto_registrar_dump_elastic(const gchar* filter)
 
 	json_dumper_set_member_name(&dumper, "mappings");
 	json_dumper_begin_object(&dumper); // 2.mappings
-	json_dumper_set_member_name(&dumper, "pcap_file");
+	json_dumper_set_member_name(&dumper, "doc");
 
-	json_dumper_begin_object(&dumper); // 3.pcap_file
+	json_dumper_begin_object(&dumper); // 3.doc
 	json_dumper_set_member_name(&dumper, "dynamic");
 	json_dumper_value_anyf(&dumper, "false");
 
@@ -10459,7 +10459,7 @@ proto_registrar_dump_elastic(const gchar* filter)
 	json_dumper_end_object(&dumper); // 6.properties
 	json_dumper_end_object(&dumper); // 5.layers
 	json_dumper_end_object(&dumper); // 4.properties
-	json_dumper_end_object(&dumper); // 3.pcap_file
+	json_dumper_end_object(&dumper); // 3.doc
 	json_dumper_end_object(&dumper); // 2.mappings
 	json_dumper_end_object(&dumper); // 1.root
 	gboolean ret = json_dumper_finish(&dumper);

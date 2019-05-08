@@ -364,7 +364,7 @@ write_ek_proto_tree(output_fields_t* fields,
     json_dumper_begin_object(&dumper);
     write_json_index(&dumper, edt);
     json_dumper_set_member_name(&dumper, "_type");
-    json_dumper_value_string(&dumper, "pcap_file");
+    json_dumper_value_string(&dumper, "doc");
     json_dumper_end_object(&dumper);
     json_dumper_end_object(&dumper);
     json_dumper_finish(&dumper);
@@ -734,7 +734,7 @@ write_json_proto_tree(output_fields_t* fields,
     json_dumper_begin_object(dumper);
     write_json_index(dumper, edt);
     json_dumper_set_member_name(dumper, "_type");
-    json_dumper_value_string(dumper, "pcap_file");
+    json_dumper_value_string(dumper, "doc");
     json_dumper_set_member_name(dumper, "_score");
     json_dumper_value_string(dumper, NULL);
     json_dumper_set_member_name(dumper, "_source");

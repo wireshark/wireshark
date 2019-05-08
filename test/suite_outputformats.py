@@ -66,7 +66,7 @@ class case_outputformats(subprocesstest.SubprocessTestCase):
         check_outputformat("json", extra_args=['-eframe.number', '-c1'], expected=[
             {
                 "_index": "packets-2004-12-05",
-                "_type": "pcap_file",
+                "_type": "doc",
                 "_score": None,
                 "_source": {
                     "layers": {
@@ -81,6 +81,6 @@ class case_outputformats(subprocesstest.SubprocessTestCase):
     def test_outputformat_ek_select_field(self, check_outputformat):
         '''Checks that the -e option works with -Tek.'''
         check_outputformat("ek", extra_args=['-eframe.number', '-c1'], expected=[
-            {"index": {"_index": "packets-2004-12-05", "_type": "pcap_file"}},
+            {"index": {"_index": "packets-2004-12-05", "_type": "doc"}},
             {"timestamp": "1102274184317", "layers": {"frame_number": ["1"]}}
         ], multiline=True)
