@@ -361,7 +361,9 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissect_nt_64bit_time_ex@Base 1.99.0
  dissect_nt_64bit_time_opt@Base 1.99.1
  dissect_nt_sid@Base 1.9.1
+ dissect_oer_IA5String@Base 3.1.0
  dissect_oer_bit_string@Base 2.9.0
+ dissect_oer_boolean@Base 3.1.0
  dissect_oer_choice@Base 2.9.0
  dissect_oer_constrained_integer@Base 2.9.0
  dissect_oer_constrained_integer_64b@Base 2.9.0
