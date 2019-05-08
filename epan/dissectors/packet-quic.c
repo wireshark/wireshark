@@ -1821,7 +1821,7 @@ dissect_quic_long_header_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *q
     return offset;
 }
 
-/* Retry Packet dissection for draft -13 and newer. */
+/* Retry Packet dissection */
 static int
 dissect_quic_retry_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree,
                           quic_datagram *dgram_info _U_, quic_packet_info_t *quic_packet)
@@ -1833,16 +1833,15 @@ dissect_quic_retry_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     guint       retry_token_len;
 
     proto_tree_add_item(quic_tree, hf_quic_long_packet_type, tvb, offset, 1, ENC_NA);
-    offset += 1;
-    col_set_str(pinfo->cinfo, COL_INFO, "Retry");
-
-    offset = dissect_quic_long_header_common(tvb, pinfo, quic_tree, offset, quic_packet, &version, &dcid, &scid);
-
     proto_tree_add_item_ret_uint(quic_tree, hf_quic_odcil, tvb, offset, 1, ENC_NA, &odcil);
     if (odcil) {
         odcil += 3;
     }
     offset += 1;
+    col_set_str(pinfo->cinfo, COL_INFO, "Retry");
+
+    offset = dissect_quic_long_header_common(tvb, pinfo, quic_tree, offset, quic_packet, &version, &dcid, &scid);
+
     proto_tree_add_item(quic_tree, hf_quic_odcid, tvb, offset, odcil, ENC_NA);
     offset += odcil;
     retry_token_len = tvb_reported_length_remaining(tvb, offset);
