@@ -7,6 +7,9 @@
 # Uncomment this to turn on verbose mode.
 #export DH_VERBOSE=1
 
+# Catch symbol additions.
+export DPKG_GENSYMBOLS_CHECK_LEVEL=4
+
 distrelease  := $(shell lsb_release -cs)
 ifeq ($(distrelease),n/a)
   distrelease     := sid
