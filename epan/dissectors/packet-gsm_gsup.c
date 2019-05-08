@@ -28,6 +28,7 @@
 #include <epan/expert.h>
 #include <epan/conversation.h>
 
+#include "packet-gsm_a_common.h"
 #include "packet-e164.h"
 #include "packet-e212.h"
 #include "packet-dns.h"
@@ -819,8 +820,14 @@ dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 			dissect_name_ie(tvb, pinfo, offset, len, att_tree, ti, tag);
 			break;
 		case OSMO_GSUP_CAUSE_RR_IE:
+			de_rr_cause(tvb, att_tree, pinfo, offset, len, NULL, 0);
+			break;
 		case OSMO_GSUP_CAUSE_BSSAP_IE:
+			bssmap_dissect_cause(tvb, att_tree, pinfo, offset, len, NULL, 0);
+			break;
 		case OSMO_GSUP_CAUSE_SM_IE:
+			de_sm_cause(tvb, att_tree, pinfo, offset, len, NULL, 0);
+			break;
 
 		case OSMO_GSUP_HLR_NUMBER_IE:
 		case OSMO_GSUP_PDP_TYPE_IE:

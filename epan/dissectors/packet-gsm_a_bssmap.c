@@ -1036,8 +1036,9 @@ static const range_string gsm_a_bssap_cause_rvals[] = {
     { 0, 0, NULL },
 };
 
-static guint16
-be_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len)
+/* non-static for packet-gsm_gsup.c */
+guint16
+bssmap_dissect_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len)
 {
     guint8       oct;
     guint32      curr_offset;
@@ -4382,7 +4383,7 @@ guint16 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     be_cic,             /* Circuit Identity Code */
     NULL,               /* Reserved */
     be_res_avail,       /* Resource Available */
-    be_cause,           /* Cause */
+    bssmap_dissect_cause,/* Cause */
     be_cell_id,         /* Cell Identifier */
     be_prio,            /* Priority */
     be_l3_header_info,  /* Layer 3 Header Information */

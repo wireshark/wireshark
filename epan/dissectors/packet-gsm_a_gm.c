@@ -5504,7 +5504,7 @@ static const value_string gsm_a_sm_cause_vals[] = {
 };
 static value_string_ext gsm_a_sm_cause_vals_ext = VALUE_STRING_EXT_INIT(gsm_a_sm_cause_vals);
 
-static guint16
+guint16
 de_sm_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint8       oct;

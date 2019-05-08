@@ -401,7 +401,8 @@ const value_string gsm_rr_rest_octets_elem_strings[] = {
 
 
 /* RR cause value (octet 2) TS 44.018 6.11.0*/
-static const value_string gsm_a_rr_RR_cause_vals[] = {
+/* public symbol for packet-gsm_gsup.c */
+const value_string gsm_a_rr_RR_cause_vals[] = {
     {    0, "Normal event"},
     {    1, "Abnormal release, unspecified"},
     {    2, "Abnormal release, channel unacceptable"},
