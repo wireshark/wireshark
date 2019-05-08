@@ -1910,13 +1910,13 @@ create_master_security_keys(uat_btmesh_record_t * net_key_set _U_)
 }
 
 static gboolean
-k4(uat_btmesh_record_t *key_set)
+k4(uat_btmesh_record_t *key_set _U_)
 {
     return FALSE;
 }
 
 static gboolean
-label_uuid_hash(uat_btmesh_label_uuid_record_t *label_uuid_record)
+label_uuid_hash(uat_btmesh_label_uuid_record_t *label_uuid_record _U_)
 {
     return FALSE;
 }
