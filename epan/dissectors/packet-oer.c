@@ -176,6 +176,22 @@ dissect_oer_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, 
 
 }
 
+/* 9 Encoding of Boolean values */
+guint32 dissect_oer_boolean(tvbuff_t* tvb, guint32 offset, asn1_ctx_t* actx, proto_tree* tree, int hf_index, gboolean* bool_val)
+{
+    guint32 val = 0;
+    DEBUG_ENTRY("dissect_oer_boolean");
+
+    actx->created_item = proto_tree_add_item_ret_uint(tree, hf_index, tvb, offset, 1, ENC_BIG_ENDIAN, &val);
+    offset++;
+
+    if (bool_val) {
+        *bool_val = (gboolean)val;
+    }
+
+    return offset;
+}
+
 /* 10 Encoding of integer values */
 
 guint32
@@ -667,7 +683,32 @@ dissect_oer_choice(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *
     return tvb_reported_length(tvb);
 }
 
-/* 27 Encoding of values of the restricted character string types */
+/* 27 Encoding of values of the restricted character string types
+ * 27.1 The encoding of a restricted character string type depends on whether the type is a known-multiplier character
+ * string type or not. The following types are known-multiplier character string types:
+ *  IA5String, VisibleString, ISO646String, PrintableString, NumericString, BMPString, and UniversalString.
+ */
+
+
+guint32
+dissect_oer_IA5String(tvbuff_t* tvb, guint32 offset, asn1_ctx_t* actx, proto_tree* tree, int hf_index, int min_len, int max_len, gboolean has_extension _U_)
+{
+    guint32 length = 0;
+
+    /* 27.2 For a known-multiplier character string type in which the lower and upper bounds of the effective size constraint
+     * are identical, the encoding shall consist of the series of octets specified in 27.4, with no length determinant.
+     */
+    if ((min_len == max_len) && (min_len != NO_BOUND )){
+        length = min_len;
+    }
+    else {
+        offset = dissect_oer_length_determinant(tvb, offset, actx, tree, hf_oer_length_determinant, &length);
+    }
+    actx->created_item = proto_tree_add_item(tree, hf_index, tvb, offset, length, ENC_ASCII | ENC_NA);
+
+    return offset + length;
+
+}
 
 guint32
 dissect_oer_UTF8String(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len _U_, int max_len _U_, gboolean has_extension _U_)

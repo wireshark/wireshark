@@ -5015,6 +5015,9 @@ class BooleanType (Type):
         elif (ectx.Per()):
             body = ectx.eth_fn_call('dissect_%(ER)s_boolean', ret='offset',
                                     par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s', '%(VAL_PTR)s',),))
+        elif (ectx.Oer()):
+            body = ectx.eth_fn_call('dissect_%(ER)s_boolean', ret='offset',
+                                    par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s', '%(VAL_PTR)s',),))
         else:
             body = '#error Can not decode %s' % (tname)
         return body
@@ -5148,12 +5151,9 @@ class RestrictedCharacterStringType (CharacterStringType):
                                         par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
                                              ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(EXT)s',),))
         elif (ectx.Oer()):
-            if (self.eth_tsname() == 'UTF8String'):
-                body = ectx.eth_fn_call('dissect_%(ER)s_%(STRING_TYPE)s', ret='offset',
-                                        par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
-                                             ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(EXT)s',),))
-            else:
-                body = '#error Can not decode %s' % (tname)
+            body = ectx.eth_fn_call('dissect_%(ER)s_%(STRING_TYPE)s', ret='offset',
+                                    par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(HF_INDEX)s'),
+                                            ('%(MIN_VAL)s', '%(MAX_VAL)s', '%(EXT)s',),))
         else:
             body = '#error Can not decode %s' % (tname)
         return body

@@ -51,7 +51,7 @@ WS_DLL_PUBLIC guint32 dissect_oer_null(tvbuff_t *tvb, guint32 offset, asn1_ctx_t
 
 WS_DLL_PUBLIC guint32 dissect_oer_sequence_of(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *parent_tree, int hf_index, gint ett_index, const oer_sequence_t *seq);
 
-//WS_DLL_PUBLIC guint32 dissect_oer_IA5String(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension);
+WS_DLL_PUBLIC guint32 dissect_oer_IA5String(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension);
 
 //WS_DLL_PUBLIC guint32 dissect_oer_NumericString(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, int min_len, int max_len, gboolean has_extension);
 
@@ -77,7 +77,7 @@ WS_DLL_PUBLIC guint32 dissect_oer_constrained_sequence_of(tvbuff_t *tvb, guint32
 //WS_DLL_PUBLIC guint32 dissect_oer_relative_oid(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, tvbuff_t **value_tvb);
 //WS_DLL_PUBLIC guint32 dissect_oer_relative_oid_str(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, const char **value_stringx);
 
-//WS_DLL_PUBLIC guint32 dissect_oer_boolean(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gboolean *bool_val);
+WS_DLL_PUBLIC guint32 dissect_oer_boolean(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gboolean *bool_val);
 
 WS_DLL_PUBLIC guint32 dissect_oer_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint32 *value);
 
