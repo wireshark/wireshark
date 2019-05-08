@@ -41,6 +41,7 @@
 #include "packet-rtcp.h"
 #include "packet-rtp.h"
 #include "packet-gsm_map.h"
+#include "packet-bicc_mst.h"
 
 void proto_register_gsm_a_bssmap(void);
 void proto_reg_handoff_gsm_a_bssmap(void);
@@ -706,6 +707,7 @@ static dissector_handle_t gsm_bsslap_handle = NULL;
 static dissector_handle_t dtap_handle;
 static dissector_handle_t bssgp_handle;
 static dissector_handle_t rrc_handle;
+static dissector_handle_t bicc_mst_handle;
 static dissector_handle_t bssmap_handle;
 
 static proto_tree *g_tree;
@@ -4248,20 +4250,16 @@ be_reroute_outcome(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 }
 
 /*
- * 3.2.2.115 Global Call Reference
+ * 3.2.2.115 Global Call Reference as per 3GPP TS 29.205 Section B.2.1.9
  */
 static guint16
-be_global_call_ref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+be_global_call_ref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    guint32 curr_offset;
-    curr_offset = offset;
-
-    /* Global Call Reference Identifier */
-    proto_tree_add_expert_format(tree, pinfo, &ei_gsm_a_bssmap_not_decoded_yet, tvb, curr_offset, len, "Field Element not decoded yet");
+    dissect_bicc_mst_lcls_gcr(tvb, tree, offset, len);
 
     return len;
-
 }
+
 /*
  * 3.2.2.116 LCLS-Configuration
  */
@@ -8126,7 +8124,7 @@ proto_reg_handoff_gsm_a_bssmap(void)
     gsm_bsslap_handle = find_dissector_add_dependency("gsm_bsslap", proto_a_bssmap);
     bssgp_handle      = find_dissector_add_dependency("bssgp", proto_a_bssmap);
     rrc_handle        = find_dissector_add_dependency("rrc", proto_a_bssmap);
-
+    bicc_mst_handle   = find_dissector_add_dependency("bicc_mst", proto_a_bssmap);
 }
 
 /*

@@ -262,6 +262,7 @@ set(DISSECTOR_PUBLIC_HEADERS
 	packet-ber.h
 	packet-bfd.h
 	packet-bgp.h
+	packet-bicc_mst.h
 	packet-bluetooth.h
 	packet-bssap.h
 	packet-bssgp.h
@@ -718,6 +719,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bfcp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bfd.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bgp.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-bicc_mst.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bitcoin.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bittorrent.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-bjnp.c
