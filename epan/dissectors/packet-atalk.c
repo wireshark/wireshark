@@ -493,7 +493,8 @@ value_string_ext asp_error_vals_ext = VALUE_STRING_EXT_INIT(asp_error_vals);
 
 /*
  * hf_index must be a FT_UINT_STRING type
- * Are these always in the Mac extended character set?
+ * Are these always in a Mac extended character set?  Should we have a
+ * preference to allow different character sets to be selected?
  */
 static int dissect_pascal_string(tvbuff_t *tvb, int offset, proto_tree *tree,
                                  int hf_index)
@@ -501,7 +502,7 @@ static int dissect_pascal_string(tvbuff_t *tvb, int offset, proto_tree *tree,
   int   len;
 
   len = tvb_get_guint8(tvb, offset);
-  proto_tree_add_item(tree, hf_index, tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
+  proto_tree_add_item(tree, hf_index, tvb, offset, 1, ENC_MAC_ROMAN|ENC_BIG_ENDIAN);
 
   offset += (len+1);
 
@@ -1682,13 +1683,13 @@ proto_register_atalk(void)
       { "Enumerator",           "nbp.enum",     FT_UINT8,  BASE_DEC,
                 NULL, 0x0, NULL, HFILL }},
     { &hf_nbp_node_object,
-      { "Object",               "nbp.object",   FT_UINT_STRING,  BASE_NONE,
+      { "Object",               "nbp.object",   FT_UINT_STRING,  STR_UNICODE,
                 NULL, 0x0, NULL, HFILL }},
     { &hf_nbp_node_type,
-      { "Type",         "nbp.type",     FT_UINT_STRING,  BASE_NONE,
+      { "Type",         "nbp.type",     FT_UINT_STRING,  STR_UNICODE,
                 NULL, 0x0, NULL, HFILL }},
     { &hf_nbp_node_zone,
-      { "Zone",         "nbp.zone",     FT_UINT_STRING,  BASE_NONE,
+      { "Zone",         "nbp.zone",     FT_UINT_STRING,  STR_UNICODE,
                 NULL, 0x0, NULL, HFILL }},
     { &hf_nbp_tid,
       { "Transaction ID",               "nbp.tid",      FT_UINT8,  BASE_DEC,
@@ -1899,11 +1900,11 @@ proto_register_atalk(void)
         NULL, HFILL }},
 
     { &hf_zip_zone_name,
-      { "Zone",         "zip.zone_name", FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+      { "Zone",         "zip.zone_name", FT_UINT_STRING, STR_UNICODE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_zip_default_zone,
-      { "Default zone", "zip.default_zone",FT_UINT_STRING, BASE_NONE, NULL, 0x0,
+      { "Default zone", "zip.default_zone",FT_UINT_STRING, STR_UNICODE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_zip_multicast_length,
@@ -1946,7 +1947,7 @@ proto_register_atalk(void)
         "Sequence number", HFILL }},
 
     { &hf_pap_status,
-      { "Status",       "prap.status",   FT_UINT_STRING,  BASE_NONE, NULL, 0x0,
+      { "Status",       "prap.status",   FT_UINT_STRING,  STR_UNICODE, NULL, 0x0,
                 "Printer status", HFILL }},
 
     { &hf_pap_eof,
