@@ -7203,8 +7203,13 @@ dissect_gtpv2_integer_number(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
         case GTPV2_FORWARD_RELOCATION_REQ:
         case GTPV2_CONTEXT_RESPONSE:
         case GTPV2_IDENTIFICATION_RESPONSE:
+            /* If the UE Usage Type is not available in the old MME/SGSN/AMF, the length field of this IE shall be set to 0. */
             proto_item_append_text(item, "UE Usage Type");
-            proto_tree_add_item(tree, hf_gtpv2_ue_usage_type, tvb, offset, length, ENC_BIG_ENDIAN);
+            if (length > 0) {
+                proto_tree_add_item(tree, hf_gtpv2_ue_usage_type, tvb, offset, length, ENC_BIG_ENDIAN);
+            }else{
+                proto_item_append_text(item, " not available in the old MME/SGSN/AMF");
+            }
             break;
         default:
             proto_tree_add_item(tree, hf_gtpv2_integer_number_val, tvb, offset, length, ENC_BIG_ENDIAN);
