@@ -200,7 +200,7 @@ struct frame2_rec {
  */
 #define FS_FDDI_INVALID		0x10	/* frame indicators are invalid */
 #define FS_FDDI_ERROR		0x20	/* "frame error bit 1" */
-#define FS_FDDI_PCI_VDL		0x01	/* VDL error on frame on PCI adapter */
+#define FS_FDDI_PCI_VDL		0x01	/* VDL (Valid Data Length?) error on frame on PCI adapter */
 #define FS_FDDI_PCI_CRC		0x02	/* CRC error on frame on PCI adapter */
 #define FS_FDDI_ISA_CRC		0x20	/* CRC error on frame on ISA adapter */
 
@@ -502,8 +502,8 @@ static gboolean ngsniffer_seek_read(wtap *wth, gint64 seek_off,
 static int ngsniffer_process_record(wtap *wth, gboolean is_random,
     guint *padding, wtap_rec *rec, Buffer *buf, int *err,
     gchar **err_info);
-static void set_pseudo_header_frame2(wtap *wth,
-    union wtap_pseudo_header *pseudo_header, struct frame2_rec *frame2);
+static void set_metadata_frame2(wtap *wth, wtap_rec *rec,
+    struct frame2_rec *frame2);
 static void set_pseudo_header_frame4(union wtap_pseudo_header *pseudo_header,
     struct frame4_rec *frame4);
 static void set_pseudo_header_frame6(wtap *wth,
@@ -1146,6 +1146,9 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 	rec_type = pletoh16(record_type);
 	rec_length_remaining = pletoh16(record_length);
 
+	/* Initialize - we'll be setting some presence flags below. */
+	rec->presence_flags = 0;
+
 	ngsniffer = (ngsniffer_t *)wth->priv;
 	switch (rec_type) {
 
@@ -1180,7 +1183,7 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 
 		rec_length_remaining -= (guint)sizeof frame2;	/* we already read that much */
 
-		set_pseudo_header_frame2(wth, &rec->rec_header.packet_header.pseudo_header, &frame2);
+		set_metadata_frame2(wth, rec, &frame2);
 		break;
 
 	case REC_FRAME4:
@@ -1302,7 +1305,7 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 	}
 
 	rec->rec_type = REC_TYPE_PACKET;
-	rec->presence_flags = true_size ? WTAP_HAS_TS|WTAP_HAS_CAP_LEN : WTAP_HAS_TS;
+	rec->presence_flags |= true_size ? WTAP_HAS_TS|WTAP_HAS_CAP_LEN : WTAP_HAS_TS;
 	rec->rec_header.packet_header.len = true_size ? true_size : size;
 	rec->rec_header.packet_header.caplen = size;
 
@@ -1352,9 +1355,13 @@ ngsniffer_process_record(wtap *wth, gboolean is_random, guint *padding,
 }
 
 static void
-set_pseudo_header_frame2(wtap *wth, union wtap_pseudo_header *pseudo_header,
-    struct frame2_rec *frame2)
+set_metadata_frame2(wtap *wth, wtap_rec *rec, struct frame2_rec *frame2)
 {
+	ngsniffer_t *ngsniffer;
+	union wtap_pseudo_header *pseudo_header;
+
+	ngsniffer = (ngsniffer_t *)wth->priv;
+
 	/*
 	 * In one PPP "Internetwork analyzer" capture:
 	 *
@@ -1397,6 +1404,36 @@ set_pseudo_header_frame2(wtap *wth, union wtap_pseudo_header *pseudo_header,
 	 *	correlation with anything.  See previous comment
 	 *	about display filters.
 	 */
+	switch (ngsniffer->network) {
+
+	case NETWORK_ENET:
+		rec->presence_flags |= WTAP_HAS_PACK_FLAGS;
+		rec->rec_header.packet_header.pack_flags = 0;
+		if (frame2->fs & FS_ETH_CRC)
+			rec->rec_header.packet_header.pack_flags |= PACK_FLAGS_CRC_ERROR;
+		if (frame2->fs & FS_ETH_ALIGN)
+			rec->rec_header.packet_header.pack_flags |= PACK_FLAGS_UNALIGNED_FRAME;
+		if (frame2->fs & FS_ETH_RUNT)
+			rec->rec_header.packet_header.pack_flags |= PACK_FLAGS_PACKET_TOO_SHORT;;
+		break;
+
+	case NETWORK_FDDI:
+		rec->presence_flags |= WTAP_HAS_PACK_FLAGS;
+		rec->rec_header.packet_header.pack_flags = 0;
+		if (!(frame2->fs & FS_FDDI_INVALID) &&
+		    (frame2->fs & (FS_FDDI_PCI_CRC|FS_FDDI_ISA_CRC)))
+			rec->rec_header.packet_header.pack_flags |= PACK_FLAGS_CRC_ERROR;
+		break;
+
+	case NETWORK_SYNCHRO:
+		rec->presence_flags |= WTAP_HAS_PACK_FLAGS;
+		rec->rec_header.packet_header.pack_flags = 0;
+		if (frame2->fs & FS_SYNC_CRC)
+			rec->rec_header.packet_header.pack_flags |= PACK_FLAGS_CRC_ERROR;
+		break;
+	}
+
+	pseudo_header = &rec->rec_header.packet_header.pseudo_header;
 	switch (wth->file_encap) {
 
 	case WTAP_ENCAP_ETHERNET:
