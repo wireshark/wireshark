@@ -3989,7 +3989,7 @@ BACnetPropertyIdentifier [] = {
     { 180, "cov-period"},
     { 181, "input-reference"},
     { 182, "limit-monitoring-interval"},
-    { 183, "logging-device"},
+    { 183, "logging-object"},
     { 184, "logging-record"},
     { 185, "prescale"},
     { 186, "pulse-rate"},
