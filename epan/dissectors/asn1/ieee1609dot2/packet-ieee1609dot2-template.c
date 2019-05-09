@@ -29,9 +29,11 @@
 #define PFNAME "ieee1609dot2"
 
 void proto_register_ieee1609dot2(void);
+void proto_reg_handoff_ieee1609dot2(void);
 
 /* Initialize the protocol and registered fields */
 int proto_ieee1609dot2 = -1;
+dissector_handle_t proto_ieee1609dot2_handle = NULL;
 #include "packet-ieee1609dot2-hf.c"
 
 /* Initialize the subtree pointers */
@@ -76,11 +78,20 @@ void proto_register_ieee1609dot2(void) {
   proto_register_field_array(proto_ieee1609dot2, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  register_dissector("ieee1609dot2.data", dissect_Ieee1609Dot2Data_PDU, proto_ieee1609dot2);
+  proto_ieee1609dot2_handle = register_dissector("ieee1609dot2.data", dissect_Ieee1609Dot2Data_PDU, proto_ieee1609dot2);
 
   // See TS17419_ITS-AID_AssignedNumbers
   unsecured_data_subdissector_table = register_dissector_table("ieee1609dot2.psid",
         "ATS-AID/PSID based dissector for unsecured/signed data", proto_ieee1609dot2, FT_UINT32, BASE_HEX);
   ssp_subdissector_table = register_dissector_table("ieee1609dot2.ssp",
         "ATS-AID/PSID based dissector for Service Specific Permissions (SSP)", proto_ieee1609dot2, FT_UINT32, BASE_HEX);
+}
+
+void proto_reg_handoff_ieee1609dot2(void) {
+    dissector_add_string("media_type", "application/x-its", proto_ieee1609dot2_handle);
+    dissector_add_string("media_type", "application/x-its-request", proto_ieee1609dot2_handle);
+    dissector_add_string("media_type", "application/x-its-response", proto_ieee1609dot2_handle);
+
+    //dissector_add_uint_range_with_preference("udp.port", "56000,56001", proto_ieee1609dot2_handle);
+
 }
