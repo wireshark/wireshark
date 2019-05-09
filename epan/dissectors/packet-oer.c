@@ -314,7 +314,7 @@ dissect_oer_constrained_integer_64b_no_ub(tvbuff_t *tvb, guint32 offset, asn1_ct
 guint32
 dissect_oer_integer(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, int hf_index, gint32 *value)
 {
-    guint32 val, length;
+    guint32 val = 0, length;
     /* 10.4 e) (the effective value constraint has a lower bound less than -263, no lower bound,
      * an upper bound greater than 2 exp 63-1, or no upper bound) every value of the integer type
      * shall be encoded as a length determinant (see 8.6) followed by a variable-size signed number
