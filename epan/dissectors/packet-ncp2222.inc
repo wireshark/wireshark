@@ -8349,7 +8349,7 @@ dissect_nds_request(tvbuff_t *tvb, packet_info *pinfo,
                 proto_tree_add_item(ncp_tree, hf_ncp_fragment_size, tvb, 12, 4, ENC_LITTLE_ENDIAN);
 
                 proto_tree_add_item(ncp_tree, hf_ncp_message_size, tvb, 16, 4, ENC_LITTLE_ENDIAN);
-
+                nds_prot_flags=tvb_get_letohs(tvb, 22);
                 proto_tree_add_bitmask(ncp_tree, tvb, 22, hf_ncp_nds_flag, ett_ncp, ndsprotflags, ENC_LITTLE_ENDIAN);
 
                 if (nds_version == 0) {
