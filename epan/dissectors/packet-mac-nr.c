@@ -1470,7 +1470,7 @@ static gboolean lookup_rlc_bearer_from_lcid(guint16 ueid,
         }
 
         /* Found, set out params */
-        *rlc_bearer_type = (direction == DIRECTION_DOWNLINK) ?
+        *rlc_bearer_type = (direction == DIRECTION_UPLINK) ?
                            ue_mappings->mapping[lcid].bearer_type_ul :
                            ue_mappings->mapping[lcid].bearer_type_dl;
         *seqnum_length = get_rlc_seqnum_length(*rlc_bearer_type);
@@ -2686,6 +2686,7 @@ static void* lcid_drb_mapping_copy_cb(void* dest, const void* orig, size_t len _
 
 static void set_bearer_type(dynamic_lcid_drb_mapping_t *mapping, guint8 rlcMode, guint8 rlcSnLength, guint8 direction)
 {
+    /* Point to field for appropriate direction */
     rlc_bearer_type_t *type_var = (direction == DIRECTION_UPLINK) ?
                                    &mapping->bearer_type_ul :
                                    &mapping->bearer_type_dl;

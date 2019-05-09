@@ -26456,7 +26456,9 @@ dissect_nr_rrc_SN_FieldLengthAM(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
   else {
     mapping->rlcDlSnLength_present = TRUE;
     mapping->rlcDlSnLength = (value=0) ? 12 : 18;
-}
+  }
+
+
 
 
 
@@ -26705,11 +26707,11 @@ static const per_sequence_t UL_AM_RLC_sequence[] = {
 
 static int
 dissect_nr_rrc_UL_AM_RLC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+  mapping->tempDirection = DIRECTION_UPLINK;
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nr_rrc_UL_AM_RLC, UL_AM_RLC_sequence);
 
-  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
-  mapping->tempDirection = DIRECTION_UPLINK;
 
 
   return offset;
@@ -26853,11 +26855,11 @@ static const per_sequence_t DL_AM_RLC_sequence[] = {
 
 static int
 dissect_nr_rrc_DL_AM_RLC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+  mapping->tempDirection = DIRECTION_DOWNLINK;
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nr_rrc_DL_AM_RLC, DL_AM_RLC_sequence);
 
-  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
-  mapping->tempDirection = DIRECTION_DOWNLINK;
 
 
 
@@ -26905,6 +26907,7 @@ dissect_nr_rrc_SN_FieldLengthUM(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 
 
+
   return offset;
 }
 
@@ -26916,11 +26919,11 @@ static const per_sequence_t UL_UM_RLC_sequence[] = {
 
 static int
 dissect_nr_rrc_UL_UM_RLC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+  mapping->tempDirection = DIRECTION_UPLINK;
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nr_rrc_UL_UM_RLC, UL_UM_RLC_sequence);
 
-  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
-  mapping->tempDirection = DIRECTION_UPLINK;
 
 
   return offset;
@@ -26935,13 +26938,11 @@ static const per_sequence_t DL_UM_RLC_sequence[] = {
 
 static int
 dissect_nr_rrc_DL_UM_RLC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
+  mapping->tempDirection = DIRECTION_DOWNLINK;
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nr_rrc_DL_UM_RLC, DL_UM_RLC_sequence);
 
-  nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
-  mapping->rlcMode_present = TRUE;
-  mapping->rlcMode = RLC_UM_MODE;
-  mapping->tempDirection = DIRECTION_DOWNLINK;
 
 
   return offset;

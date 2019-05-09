@@ -885,26 +885,24 @@ EUTRA-NS-PmaxValue/additionalPmax DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&uni
 
 
 #.FN_BODY UL-UM-RLC
-%(DEFAULT_BODY)s
   nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
   mapping->tempDirection = DIRECTION_UPLINK;
+%(DEFAULT_BODY)s
 
 #.FN_BODY DL-UM-RLC
-%(DEFAULT_BODY)s
   nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
-  mapping->rlcMode_present = TRUE;
-  mapping->rlcMode = RLC_UM_MODE;
   mapping->tempDirection = DIRECTION_DOWNLINK;
+%(DEFAULT_BODY)s
 
 #.FN_BODY UL-AM-RLC
-%(DEFAULT_BODY)s
   nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
   mapping->tempDirection = DIRECTION_UPLINK;
+%(DEFAULT_BODY)s
 
 #.FN_BODY DL-AM-RLC
-%(DEFAULT_BODY)s
   nr_drb_mapping_t *mapping = &nr_rrc_get_private_data(actx)->drb_mapping;
   mapping->tempDirection = DIRECTION_DOWNLINK;
+%(DEFAULT_BODY)s
 
 
 #.FN_BODY SN-FieldLengthUM  VAL_PTR=&value
@@ -921,6 +919,7 @@ EUTRA-NS-PmaxValue/additionalPmax DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&uni
   }
 
 
+
 #.FN_BODY SN-FieldLengthAM  VAL_PTR=&value
   guint32 value;
 %(DEFAULT_BODY)s
@@ -932,7 +931,9 @@ EUTRA-NS-PmaxValue/additionalPmax DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&uni
   else {
     mapping->rlcDlSnLength_present = TRUE;
     mapping->rlcDlSnLength = (value=0) ? 12 : 18;
-}
+  }
+
+
 
 
 #.FN_BODY DRB-ToAddMod
