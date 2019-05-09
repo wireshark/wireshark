@@ -1,7 +1,7 @@
 /* packet-vssmonitoring.c
- * Routines for dissection of VSS-monitoring timestamp and portstamp
+ * Routines for dissection of VSS Monitoring timestamp and portstamp
  *
- * Copyright VSS-Monitoring 2011
+ * Copyright VSS Monitoring 2011
  *
  * 20111205 - First edition by Sake Blok (sake.blok@SYN-bit.nl)
  *
@@ -74,7 +74,7 @@ dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
    *
    * See
    *
-   *    http://www.vssmonitoring.com/portals/application_note/Port%20and%20Time%20Stamping.pdf
+   *    https://web.archive.org/web/20160402091604/http://www.vssmonitoring.com/resources/feature-brief/Port-and-Time-Stamping.pdf
    *
    * (although that speaks of 2-byte port stamps as being for a "future
    * release").
@@ -104,6 +104,13 @@ dissect_vssmonitoring(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
   if ( (trailer_len & 3) == 0 && trailer_len < 8 )
     return 0;
 
+  /*
+   * If we have a time stamp, check it for validity.
+   *
+   * Unfortunately, the port stamp can be zero, so this means that a
+   * one-byte or two-byte all-zero trailer that's just padding can be
+   * misinterpreted as a VSS monitoring trailer.
+   */
   if ( trailer_len >= 8 ) {
     vssmonitoring_time.secs  = tvb_get_ntohl(tvb, offset);
     vssmonitoring_time.nsecs = tvb_get_ntohl(tvb, offset + 4);
@@ -190,17 +197,17 @@ proto_register_vssmonitoring(void)
     { &hf_vssmonitoring_time, {
         "Time Stamp", "vssmonitoring.time",
         FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
-        "VSS-Monitoring Time Stamp", HFILL }},
+        "VSS Monitoring Time Stamp", HFILL }},
 
     { &hf_vssmonitoring_clksrc, {
         "Clock Source", "vssmonitoring.clksrc",
         FT_UINT8, BASE_DEC, VALS(clksrc_vals), 0x0,
-        "VSS-Monitoring Clock Source", HFILL }},
+        "VSS Monitoring Clock Source", HFILL }},
 
     { &hf_vssmonitoring_srcport, {
         "Src Port", "vssmonitoring.srcport",
         FT_UINT16, BASE_DEC, NULL, 0x0,
-        "VSS-Monitoring Source Port", HFILL }}
+        "VSS Monitoring Source Port", HFILL }}
   };
 
   static gint *ett[] = {
@@ -209,7 +216,7 @@ proto_register_vssmonitoring(void)
 
   module_t *vssmonitoring_module;
 
-  proto_vssmonitoring = proto_register_protocol("VSS-Monitoring ethernet trailer", "VSS-Monitoring", "vssmonitoring");
+  proto_vssmonitoring = proto_register_protocol("VSS Monitoring Ethernet trailer", "VSS Monitoring", "vssmonitoring");
   proto_register_field_array(proto_vssmonitoring, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
@@ -221,7 +228,7 @@ proto_register_vssmonitoring(void)
 void
 proto_reg_handoff_vssmonitoring(void)
 {
-  heur_dissector_add("eth.trailer", dissect_vssmonitoring, "VSS-Monitoring ethernet trailer", "vssmonitoring_eth", proto_vssmonitoring, HEURISTIC_ENABLE);
+  heur_dissector_add("eth.trailer", dissect_vssmonitoring, "VSS Monitoring ethernet trailer", "vssmonitoring_eth", proto_vssmonitoring, HEURISTIC_ENABLE);
 }
 
 /*
