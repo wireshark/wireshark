@@ -1252,6 +1252,7 @@ AbortQueueFlag                  = val_string8("abort_q_flag", "Abort Queue Flag"
         [ 0x01, "Do Not Place Spool File, Examine Flags" ],
 ])
 AcceptedMaxSize                 = uint16("accepted_max_size", "Accepted Max Size")
+AcceptedMaxSize64               = uint64("accepted_max_size64", "Accepted Max Size")
 AccessControl                   = val_string8("access_control", "Access Control", [
         [ 0x00, "Open for read by this client" ],
         [ 0x01, "Open for write by this client" ],
@@ -3405,6 +3406,7 @@ PropertyType                    = val_string8("property_type", "Property Type", 
 ])
 PropertyValue                   = fw_string("property_value", "Property Value", 128)
 ProposedMaxSize                 = uint16("proposed_max_size", "Proposed Max Size")
+ProposedMaxSize64               = uint64("proposed_max_size64", "Proposed Max Size")
 protocolFlags                   = uint32("protocol_flags", "Protocol Flags")
 protocolFlags.Display("BASE_HEX")
 PurgeableBlocks                 = uint32("purgeable_blocks", "Purgeable Blocks")
@@ -15528,6 +15530,16 @@ rec( 9, 4, ObjectID ),
             rec( 8, 2, AcceptedMaxSize, ENC_BIG_ENDIAN ),
             rec( 10, 2, EchoSocket, ENC_BIG_ENDIAN ),
             rec( 12, 1, SecurityFlag ),
+    ])
+    pkt.CompletionCodes([0x0000])
+    # 2222/62, 98
+    pkt = NCP(0x62, "Negotiate NDS connection buffer size", 'connection')
+    pkt.Request(15, [
+            rec( 7, 8, ProposedMaxSize64, ENC_BIG_ENDIAN, Info_str=(ProposedMaxSize, "Negotiate NDS connection - %d", ", %d")),
+    ])
+    pkt.Reply(18, [
+            rec( 8, 8, AcceptedMaxSize64, ENC_BIG_ENDIAN ),
+            rec( 16, 2, EchoSocket, ENC_BIG_ENDIAN ),
     ])
     pkt.CompletionCodes([0x0000])
     # 2222/63, 99
