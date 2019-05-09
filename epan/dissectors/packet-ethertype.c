@@ -45,7 +45,7 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_EPL_V1,               "EPL_V1" },
 	{ ETHERTYPE_REVARP,               "RARP" },
 	{ ETHERTYPE_DEC_LB,               "DEC LanBridge" },
-	{ ETHERTYPE_ATALK,                "Appletalk" },
+	{ ETHERTYPE_ATALK,                "AppleTalk LLAP bridging" },
 	{ ETHERTYPE_SNA,                  "SNA-over-Ethernet" },
 	{ ETHERTYPE_DLR,                  "EtherNet/IP Device Level Ring" },
 	{ ETHERTYPE_AARP,                 "AARP" },

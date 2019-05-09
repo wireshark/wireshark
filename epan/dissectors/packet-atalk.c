@@ -19,11 +19,13 @@
 #include <epan/ppptypes.h>
 #include <epan/aftypes.h>
 #include <epan/arcnet_pids.h>
+#include <epan/oui.h>
 #include <epan/conversation.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
 #include <epan/address_types.h>
 #include <epan/to_str.h>
+#include <epan/dissectors/packet-llc.h>
 #include <wiretap/wtap.h>
 #include <epan/capture_dissectors.h>
 #include "packet-atalk.h"
@@ -45,6 +47,18 @@ static int proto_llap = -1;
 static int hf_llap_dst = -1;
 static int hf_llap_src = -1;
 static int hf_llap_type = -1;
+
+static int hf_llc_apple_atalk_pid = -1;
+
+/*
+ * See Inside AppleTalk.
+ */
+#define APPLE_PID_ATALK 0x809B
+
+static const value_string apple_atalk_pid_vals[] = {
+  {APPLE_PID_ATALK, "AppleTalk"},
+  {0, NULL}
+};
 
 static int proto_ddp = -1;
 static int hf_ddp_hopcount = -1;
@@ -1588,6 +1602,13 @@ proto_register_atalk(void)
         NULL, HFILL }},
   };
 
+  static hf_register_info hf_llc[] = {
+    { &hf_llc_apple_atalk_pid,
+      { "PID",                  "llc.apple_atalk_pid", FT_UINT16, BASE_HEX,
+        VALS(apple_atalk_pid_vals), 0x0, "Protocol ID", HFILL }
+    }
+  };
+
   static hf_register_info hf_ddp[] = {
     { &hf_ddp_hopcount,
       { "Hop count",            "ddp.hopcount", FT_UINT16,  BASE_DEC, NULL, 0x3C00,
@@ -1962,6 +1983,12 @@ proto_register_atalk(void)
   };
   module_t *atp_module;
 
+  /*
+   * AppleTalk over LAN (EtherTalk, TokenTalk) uses LLC/SNAP headers with
+   * an OUI of OUI_APPLE_ATALK and a PID of either ETHERTYPE_ATALK.
+   */
+  llc_add_oui(OUI_APPLE_ATALK, "llc.apple_atalk_pid", "LLC Apple AppleTalk OUI PID", hf_llc, -1);
+
   proto_llap = proto_register_protocol("LocalTalk Link Access Protocol", "LLAP", "llap");
   proto_register_field_array(proto_llap, hf_llap, array_length(hf_llap));
 
@@ -2013,7 +2040,7 @@ proto_reg_handoff_atalk(void)
 
   ddp_short_handle = create_dissector_handle(dissect_ddp_short, proto_ddp);
   ddp_handle = create_dissector_handle(dissect_ddp, proto_ddp);
-  dissector_add_uint("ethertype", ETHERTYPE_ATALK, ddp_handle);
+  dissector_add_uint("llc.apple_atalk_pid", APPLE_PID_ATALK, ddp_handle);
   dissector_add_uint("chdlc.protocol", ETHERTYPE_ATALK, ddp_handle);
   dissector_add_uint("ppp.protocol", PPP_AT, ddp_handle);
   dissector_add_uint("null.type", BSD_AF_APPLETALK, ddp_handle);
@@ -2041,6 +2068,13 @@ proto_reg_handoff_atalk(void)
 
   llap_handle = create_dissector_handle(dissect_llap, proto_llap);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_LOCALTALK, llap_handle);
+  /*
+   * This is for Ethernet packets with an Ethertype of ETHERTYPE_ATALK
+   * and LLC/SNAP packets with an OUI of 00:00:00 and a PID of
+   * ETHERTYPE_ATALK; those appear to be gatewayed LLAP packets,
+   * complete with an LLAP header.
+   */
+  dissector_add_uint("ethertype", ETHERTYPE_ATALK, llap_handle);
   llap_cap_handle = create_capture_dissector_handle(capture_llap, proto_llap);
   capture_dissector_add_uint("wtap_encap", WTAP_ENCAP_LOCALTALK, llap_cap_handle);
 

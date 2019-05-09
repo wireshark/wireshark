@@ -253,14 +253,6 @@ capture_snap(const guchar *pd, int offset, int len, capture_packet_info_t *cpinf
 
 	case OUI_ENCAP_ETHER:
 	case OUI_CISCO_90:
-	case OUI_APPLE_ATALK:
-		/* No, I have no idea why Apple used
-		   one of their own OUIs, rather than
-		   OUI_ENCAP_ETHER, and an Ethernet
-		   packet type as protocol ID, for
-		   AppleTalk data packets - but used
-		   OUI_ENCAP_ETHER and an Ethernet
-		   packet type for AARP packets. */
 		return try_capture_dissector("ethertype", etype, pd, offset+5, len, cpinfo, pseudo_header);
 
 	case OUI_CISCO:
@@ -538,14 +530,6 @@ dissect_snap(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 
 	case OUI_ENCAP_ETHER:
 	case OUI_CISCO_90:
-	case OUI_APPLE_ATALK:
-		/* No, I have no idea why Apple used
-		   one of their own OUIs, rather than
-		   OUI_ENCAP_ETHER, and an Ethernet
-		   packet type as protocol ID, for
-		   AppleTalk data packets - but used
-		   OUI_ENCAP_ETHER and an Ethernet
-		   packet type for AARP packets. */
 		if (XDLC_IS_INFORMATION(control)) {
 			if (tree) {
 				proto_tree_add_uint(snap_tree, hf_type,

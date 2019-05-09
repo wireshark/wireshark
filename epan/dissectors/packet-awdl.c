@@ -258,7 +258,7 @@ static int hf_awdl_mcsset_rx_bitmask_8to15 = -1;
 static int hf_awdl_mcsset_rx_bitmask_16to23 = -1;
 static int hf_awdl_mcsset_rx_bitmask_24to31 = -1;
 
-static int hf_llc_apple_pid = -1;
+static int hf_llc_apple_awdl_pid = -1;
 
 static gint ett_awdl_data = -1;
 static gint ett_awdl = -1;
@@ -552,7 +552,7 @@ static const value_string mcsset_tx_max_spatial_streams_flags[] = {
   { 0x00, NULL}
 };
 
-static const value_string apple_pid_vals[] = {
+static const value_string apple_awdl_pid_vals[] = {
   { 0x0800, "AWDL" },
   { 0,      NULL }
 };
@@ -2576,10 +2576,10 @@ void proto_register_awdl(void)
     },
   };
 
-  static hf_register_info hf_pid[] = {
-    { &hf_llc_apple_pid,
-      { "PID", "llc.apple_pid",
-        FT_UINT16, BASE_HEX, VALS(apple_pid_vals), 0x0, "Protocol ID", HFILL }
+  static hf_register_info hf_apple_awdl_pid[] = {
+    { &hf_llc_apple_awdl_pid,
+      { "PID", "llc.apple_awdl_pid",
+        FT_UINT16, BASE_HEX, VALS(apple_awdl_pid_vals), 0x0, "Protocol ID", HFILL }
     }
   };
 
@@ -2642,7 +2642,7 @@ void proto_register_awdl(void)
   proto_register_field_array(proto_awdl_data, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
-  llc_add_oui(OUI_APPLE_AWDL, "llc.apple_pid", "LLC Apple OUI PID", hf_pid, -1);
+  llc_add_oui(OUI_APPLE_AWDL, "llc.apple_awdl_pid", "LLC Apple AWDL OUI PID", hf_apple_awdl_pid, -1);
 }
 
 void proto_reg_handoff_awdl(void) {
@@ -2652,7 +2652,7 @@ void proto_reg_handoff_awdl(void) {
   dissector_add_uint("wlan.action.vendor_specific", OUI_APPLE_AWDL, awdl_action_handle);
 
   awdl_data_handle = create_dissector_handle(dissect_awdl_data, proto_awdl_data);
-  dissector_add_uint("llc.apple_pid", 0x0800, awdl_data_handle);
+  dissector_add_uint("llc.apple_awdl_pid", 0x0800, awdl_data_handle);
 
   ethertype_subdissector_table = find_dissector_table("ethertype");
 }
