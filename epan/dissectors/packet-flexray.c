@@ -23,6 +23,11 @@
 void proto_reg_handoff_flexray(void);
 void proto_register_flexray(void);
 
+static gboolean prefvar_try_heuristic_first = FALSE;
+
+static heur_dissector_list_t heur_subdissector_list;
+static heur_dtbl_entry_t *heur_dtbl_entry;
+
 static int proto_flexray = -1;
 static int hf_flexray_measurement_header_field = -1;
 static int hf_flexray_error_flags_field = -1;
@@ -220,9 +225,19 @@ dissect_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 			next_tvb = tvb_new_subset_length(tvb, 7, flexray_current_payload_length);
 
 			if (call_subdissector) {
-				if (!dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, FALSE, &flexray_id))
-				{
-					call_data_dissector(next_tvb, pinfo, tree);
+				if (!prefvar_try_heuristic_first){
+					if (!dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, FALSE, &flexray_id)) {
+						if(!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &heur_dtbl_entry, &flexray_id)) {
+							call_data_dissector(next_tvb, pinfo, tree);
+						}
+					}
+				}
+				else {
+					if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree, &heur_dtbl_entry, &flexray_id)) {
+						if (!dissector_try_payload_new(subdissector_table, next_tvb, pinfo, tree, FALSE, &flexray_id)) {
+							call_data_dissector(next_tvb, pinfo, tree);
+						}
+					}
 				}
 			}
 			else {
@@ -256,6 +271,7 @@ dissect_flexray(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
 void
 proto_register_flexray(void)
 {
+	module_t *flexray_module;
 	expert_module_t *expert_flexray;
 
 	static hf_register_info hf[] = {
@@ -415,6 +431,8 @@ proto_register_flexray(void)
 		"flexray"
 		);
 
+	flexray_module = prefs_register_protocol(proto_flexray, NULL);
+
 	proto_register_field_array(proto_flexray, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 
@@ -423,7 +441,17 @@ proto_register_flexray(void)
 
 	register_dissector("flexray", dissect_flexray, proto_flexray);
 
+	prefs_register_bool_preference(
+		flexray_module,
+		"try_heuristic_first",
+		"Try heuristic sub-dissectors first",
+		"Try to decode a packet using an heuristic sub-dissector"
+		" before using a sub-dissector registered to \"decode as\"",
+		&prefvar_try_heuristic_first
+		);
+
 	subdissector_table = register_decode_as_next_proto(proto_flexray, "Network", "flexray.subdissector", "FLEXRAY next level dissector", NULL);
+	heur_subdissector_list = register_heur_dissector_list("flexray", proto_flexray);
 }
 
 void
