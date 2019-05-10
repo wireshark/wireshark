@@ -315,12 +315,17 @@ static gboolean running_in_build_directory_flag = FALSE;
  * use realpath() if they want the real thing, but that's also true of
  * something obtained by looking at argv[0].
  */
+#define xx_free free  /* hack so checkAPIs doesn't complain */
 static const char *
 get_executable_path(void)
 {
 #if defined(__APPLE__)
-    char *executable_path;
+    static char *executable_path;
     uint32_t path_buf_size;
+
+    if (executable_path) {
+        return executable_path;
+    }
 
     path_buf_size = PATH_MAX;
     executable_path = (char *)g_malloc(path_buf_size);
@@ -328,6 +333,16 @@ get_executable_path(void)
         executable_path = (char *)g_realloc(executable_path, path_buf_size);
         if (_NSGetExecutablePath(executable_path, &path_buf_size) == -1)
             return NULL;
+    }
+    /*
+     * Resolve our path so that it's possible to symlink the executables
+     * in our application bundle.
+     */
+    char *rp_execpath = realpath(executable_path, NULL);
+    if (rp_execpath) {
+        g_free(executable_path);
+        executable_path = g_strdup(rp_execpath);
+        xx_free(rp_execpath);
     }
     return executable_path;
 #elif defined(__linux__)
