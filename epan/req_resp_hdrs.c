@@ -29,7 +29,7 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
     const gboolean desegment_headers, const gboolean desegment_body,
     gboolean desegment_until_fin)
 {
-	gint		next_offset;
+	gint		next_offset = offset;
 	gint		next_offset_sav;
 	gint		length_remaining, reported_length_remaining;
 	int		linelen;
@@ -79,7 +79,6 @@ req_resp_hdrs_do_reassembly(tvbuff_t *tvb, const int offset, packet_info *pinfo,
 	 * for one).
 	 */
 	if (desegment_headers && pinfo->can_desegment) {
-		next_offset = offset;
 		for (;;) {
 			next_offset_sav = next_offset;
 
