@@ -14,13 +14,11 @@
   retry: 1
   before_script:
     - apt-get update -qq
-    - apt-get install -y python3-pip locales
-    - pip3 install pytest pytest-xdist
+    - ./tools/debian-setup.sh --install-optional --install-test-deps -y
     - useradd user
     - locale-gen en_US.UTF-8
     - export LANG=en_US.UTF-8
     - export PYTEST_ADDOPTS=--skip-missing-programs=dumpcap,rawshark
-    - ./tools/debian-setup.sh --install-optional --install-test-deps -y
     - mkdir build
     - cd build
 .build-rpm: &build-rpm
@@ -36,7 +34,7 @@ gcc-5:
     - ninja
     - ninja test-programs
     - chown -R user .
-    - su user -c pytest
+    - su user -c pytest-3
 gcc-6:
   <<: *build-ubuntu
   script:
@@ -44,7 +42,7 @@ gcc-6:
     - ninja
     - ninja test-programs
     - chown -R user .
-    - su user -c pytest
+    - su user -c pytest-3
 gcc-7:
   <<: *build-ubuntu
   script:
@@ -52,7 +50,7 @@ gcc-7:
     - ninja
     - ninja test-programs
     - chown -R user .
-    - su user -c pytest
+    - su user -c pytest-3
 gcc-8:
   <<: *build-ubuntu
   script:
@@ -60,7 +58,7 @@ gcc-8:
     - ninja
     - ninja test-programs
     - chown -R user .
-    - su user -c pytest
+    - su user -c pytest-3
 gcc-8-nopcap:
   <<: *build-ubuntu
   script:
@@ -68,7 +66,7 @@ gcc-8-nopcap:
     - ninja
     - ninja test-programs
     - chown -R user .
-    - su user -c pytest
+    - su user -c pytest-3
 clang-5:
   <<: *build-ubuntu
   script:
@@ -76,7 +74,7 @@ clang-5:
     - ninja
     - ninja test-programs
     - chown -R user .
-    - su user -c pytest
+    - su user -c pytest-3
 clang-6:
   <<: *build-ubuntu
   script:
@@ -84,7 +82,7 @@ clang-6:
     - ninja
     - ninja test-programs
     - chown -R user .
-    - su user -c pytest
+    - su user -c pytest-3
 clang-7:
   <<: *build-ubuntu
   script:
@@ -92,7 +90,7 @@ clang-7:
      - ninja
      - ninja test-programs
      - chown -R user .
-     - su user -c pytest
+     - su user -c pytest-3
 clang-7-nopcap:
   <<: *build-ubuntu
   script:
@@ -100,7 +98,7 @@ clang-7-nopcap:
     - ninja
     - ninja test-programs
     - chown -R user .
-    - su user -c pytest
+    - su user -c pytest-3
 build:rpm-centos-7:
   <<: *build-rpm
   image: centos:7
