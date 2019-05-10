@@ -419,7 +419,9 @@ peektagged_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     guint32 sliceLength = 0;
     gboolean saw_timestamp_lower = FALSE;
     gboolean saw_timestamp_upper = FALSE;
+    gboolean saw_flags_and_status = FALSE;
     peektagged_utime timestamp;
+    guint32 flags_and_status = 0;
     guint32 ext_flags = 0;
     gboolean saw_data_rate_or_mcs_index = FALSE;
     guint32 data_rate_or_mcs_index = 0;
@@ -488,7 +490,8 @@ peektagged_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
             break;
 
         case TAG_PEEKTAGGED_FLAGS_AND_STATUS:
-            /* XXX - not used yet */
+            saw_flags_and_status = TRUE;
+            flags_and_status = pletoh32(&tag_value[2]);
             break;
 
         case TAG_PEEKTAGGED_CHANNEL:
@@ -720,6 +723,12 @@ peektagged_read_packet(wtap *wth, FILE_T fh, wtap_rec *rec,
     rec->presence_flags = WTAP_HAS_TS|WTAP_HAS_CAP_LEN;
     rec->rec_header.packet_header.len    = length;
     rec->rec_header.packet_header.caplen = sliceLength;
+    if (saw_flags_and_status) {
+        rec->presence_flags |= WTAP_HAS_PACK_FLAGS;
+        rec->rec_header.packet_header.pack_flags = 0;
+        if (flags_and_status & FLAGS_HAS_CRC_ERROR)
+            rec->rec_header.packet_header.pack_flags |= PACK_FLAGS_CRC_ERROR;
+    }
 
     /* calculate and fill in packet time stamp */
     t = (((guint64) timestamp.upper) << 32) + timestamp.lower;
