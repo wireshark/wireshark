@@ -284,6 +284,7 @@ static int hf_rtmp_tuple_net = -1;
 static int hf_rtmp_tuple_range_start = -1;
 static int hf_rtmp_tuple_range_end = -1;
 static int hf_rtmp_tuple_dist = -1;
+static int hf_rtmp_version = -1;
 static int hf_rtmp_function = -1;
 
 static gint ett_atp = -1;
@@ -572,48 +573,74 @@ dissect_rtmp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
                         node);
     offset += 3 + nodelen;
 
+    /*
+     * Peek at what is purportedly the first tuple.  If the net is 0,
+     * this is a version-number indicator for a non-extended network,
+     * not a tuple; the version number field may have the 0x80 bit set,
+     * but it's not a 6-octet tuple.
+     */
+    if (tvb_get_ntohs(tvb, offset) == 0) {
+      proto_tree_add_item(rtmp_tree, hf_rtmp_version, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+      offset += 3;
+    }
+
     i = 1;
     while (tvb_offset_exists(tvb, offset)) {
       proto_tree *tuple_tree;
       guint16 tuple_net;
       guint8 tuple_dist;
       guint16 tuple_range_end;
+      guint8 version;
 
       tuple_net = tvb_get_ntohs(tvb, offset);
       tuple_dist = tvb_get_guint8(tvb, offset+2);
 
       if (tuple_dist & 0x80) {
+        /*
+         * Extended network tuple.
+         */
         tuple_range_end = tvb_get_ntohs(tvb, offset+3);
-        tuple_tree = proto_tree_add_subtree_format(rtmp_tree, tvb, offset, 6,
-                                         ett_rtmp_tuple, NULL,
-                                         "Tuple %d:  Range Start: %u  Dist: %u  Range End: %u",
-                                         i, tuple_net, tuple_dist&0x7F, tuple_range_end);
+        version = tvb_get_guint8(tvb, offset+5);
+        if (i == 1) {
+          /*
+           * For the first tuple, the last octet is a version number.
+           */
+          tuple_tree = proto_tree_add_subtree_format(rtmp_tree, tvb, offset, 6,
+                                           ett_rtmp_tuple, NULL,
+                                           "Tuple %d:  Range Start: %u  Dist: %u  Range End: %u  Version: 0x%02x",
+                                           i, tuple_net, tuple_dist&0x7F,
+                                           tuple_range_end, version);
+        } else {
+          tuple_tree = proto_tree_add_subtree_format(rtmp_tree, tvb, offset, 6,
+                                           ett_rtmp_tuple, NULL,
+                                           "Tuple %d:  Range Start: %u  Dist: %u  Range End: %u",
+                                           i, tuple_net, tuple_dist&0x7F,
+                                           tuple_range_end);
+        }
+        proto_tree_add_uint(tuple_tree, hf_rtmp_tuple_range_start, tvb, offset, 2,
+                            tuple_net);
+        proto_tree_add_uint(tuple_tree, hf_rtmp_tuple_dist, tvb, offset+2, 1,
+                            tuple_dist & 0x7F);
+        proto_tree_add_item(tuple_tree, hf_rtmp_tuple_range_end, tvb, offset+3, 2,
+                            ENC_BIG_ENDIAN);
+
+        if (i == 1)
+          proto_tree_add_uint(tuple_tree, hf_rtmp_version, tvb, offset+5, 1, version);
+        offset += 6;
       } else {
+        /*
+         * Non-extended network tuple.
+         */
         tuple_tree = proto_tree_add_subtree_format(rtmp_tree, tvb, offset, 3,
                                          ett_rtmp_tuple, NULL,
                                          "Tuple %d:  Net: %u  Dist: %u",
                                          i, tuple_net, tuple_dist);
-      }
-
-      if (tuple_dist & 0x80) {
-        proto_tree_add_uint(tuple_tree, hf_rtmp_tuple_range_start, tvb, offset, 2,
-                            tuple_net);
-      } else {
         proto_tree_add_uint(tuple_tree, hf_rtmp_tuple_net, tvb, offset, 2,
                             tuple_net);
-      }
-      proto_tree_add_uint(tuple_tree, hf_rtmp_tuple_dist, tvb, offset+2, 1,
-                          tuple_dist & 0x7F);
-
-      if (tuple_dist & 0x80) {
-        /*
-         * Extended network tuple.
-         */
-        proto_tree_add_item(tuple_tree, hf_rtmp_tuple_range_end, tvb, offset+3, 2,
-                            ENC_BIG_ENDIAN);
-        offset += 6;
-      } else
+        proto_tree_add_uint(tuple_tree, hf_rtmp_tuple_dist, tvb, offset+2, 1,
+                            tuple_dist);
         offset += 3;
+      }
 
       i++;
     }
@@ -1765,6 +1792,9 @@ proto_register_atalk(void)
                 NULL, 0x0, NULL, HFILL }},
     { &hf_rtmp_tuple_dist,
       { "Distance",             "rtmp.tuple.dist",      FT_UINT16,  BASE_DEC,
+                NULL, 0x0, NULL, HFILL }},
+    { &hf_rtmp_version,
+      { "Version",              "rtmp.version",   FT_UINT8,   BASE_HEX,
                 NULL, 0x0, NULL, HFILL }},
     { &hf_rtmp_function,
       { "Function",             "rtmp.function",        FT_UINT8,  BASE_DEC,
