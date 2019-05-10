@@ -25,6 +25,7 @@
 #include <epan/reassemble.h>
 #include <epan/address_types.h>
 #include <epan/to_str.h>
+#include <epan/expert.h>
 #include <epan/dissectors/packet-llc.h>
 #include <wiretap/wtap.h>
 #include <epan/capture_dissectors.h>
@@ -301,6 +302,8 @@ static gint ett_rtmp_tuple = -1;
 static gint ett_ddp = -1;
 static gint ett_llap = -1;
 static gint ett_pstring = -1;
+
+static expert_field ei_ddp_len_invalid = EI_INIT;
 
 static const fragment_items atp_frag_items = {
   &ett_atp_segment,
@@ -1408,7 +1411,7 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
   guint8                 sport;
   guint8                 type;
   proto_tree            *ddp_tree = NULL;
-  proto_item            *ti, *hidden_item;
+  proto_item            *ti, *hidden_item, *len_item;
   struct atalk_ddp_addr *src = wmem_new0(pinfo->pool, struct atalk_ddp_addr),
                         *dst = wmem_new0(pinfo->pool, struct atalk_ddp_addr);
   tvbuff_t              *new_tvb;
@@ -1423,8 +1426,21 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
     ddp_tree = proto_item_add_subtree(ti, ett_ddp);
   }
   len = tvb_get_ntohs(tvb, 0);
-  if (tree)
-    proto_tree_add_uint(ddp_tree, hf_ddp_len, tvb, 0, 2, len);
+  len_item = proto_tree_add_uint(ddp_tree, hf_ddp_len, tvb, 0, 2, len);
+  if (len < DDP_SHORT_HEADER_SIZE) {
+    expert_add_info_format(pinfo, len_item, &ei_ddp_len_invalid,
+                           "Length field is shorter than the DDP header size");
+    len = DDP_SHORT_HEADER_SIZE;
+  } else {
+    /* Length of the payload following the DDP header */
+    guint reported_length = tvb_reported_length(tvb);
+    if (len > reported_length) {
+      expert_add_info_format(pinfo, len_item, &ei_ddp_len_invalid,
+                             "Length field is larger than the remaining packet payload");
+      len = reported_length;
+    }
+  }
+  set_actual_length(tvb, len);
   dport = tvb_get_guint8(tvb, 2);
   if (tree)
     proto_tree_add_uint(ddp_tree, hf_ddp_dst_socket, tvb, 2, 1, dport);
@@ -1471,11 +1487,12 @@ static int
 dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
   proto_tree            *ddp_tree;
-  proto_item            *ti, *hidden_item;
+  proto_item            *ti, *hidden_item, *len_item;
   struct atalk_ddp_addr *src = wmem_new0(pinfo->pool, struct atalk_ddp_addr),
                         *dst = wmem_new0(pinfo->pool, struct atalk_ddp_addr);
   tvbuff_t              *new_tvb;
   guint                 type;
+  guint32               len;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DDP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -1494,7 +1511,21 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   proto_item_set_hidden(hidden_item);
 
   proto_tree_add_item(ddp_tree, hf_ddp_hopcount,   tvb, 0, 2, ENC_BIG_ENDIAN);
-  proto_tree_add_item(ddp_tree, hf_ddp_len,        tvb, 0, 2, ENC_BIG_ENDIAN);
+  len_item = proto_tree_add_item_ret_uint(ddp_tree, hf_ddp_len, tvb, 0, 2, ENC_BIG_ENDIAN, &len);
+  if (len < DDP_HEADER_SIZE) {
+    expert_add_info_format(pinfo, len_item, &ei_ddp_len_invalid,
+                           "Length field is shorter than the DDP header size");
+    len = DDP_HEADER_SIZE;
+  } else {
+    /* Length of the payload following the DDP header */
+    guint reported_length = tvb_reported_length(tvb);
+    if (len > reported_length) {
+      expert_add_info_format(pinfo, len_item, &ei_ddp_len_invalid,
+                             "Length field is larger than the remaining packet payload");
+      len = reported_length;
+    }
+  }
+  set_actual_length(tvb, len);
   proto_tree_add_checksum(ddp_tree, tvb, 2, hf_ddp_checksum, -1, NULL, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
   dst->net = tvb_get_ntohs(tvb, 4);
   proto_tree_add_uint(ddp_tree, hf_ddp_dst_net,    tvb, 4, 2, dst->net);
@@ -1552,6 +1583,7 @@ dissect_llap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   proto_tree *llap_tree;
   proto_item *ti;
   tvbuff_t   *new_tvb;
+  guint       new_reported_length;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "LLAP");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -1574,12 +1606,28 @@ dissect_llap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
 
   switch (type) {
     case 0x01:
-      if (call_dissector_with_data(ddp_short_handle, new_tvb, pinfo, tree, &ddp_node))
+      if (call_dissector_with_data(ddp_short_handle, new_tvb, pinfo, tree, &ddp_node)) {
+        /*
+         * Set our tvbuff's length based on the new tvbuff's length, so
+         * that, if we're called from the Ethernet dissector, it can
+         * report any trailer.
+         *
+         * Add 3 to that length, for the LLAP header.
+         */
+        new_reported_length = tvb_reported_length(new_tvb) + 3;
+        set_actual_length(tvb, new_reported_length);
         return tvb_captured_length(tvb);
+      }
       break;
     case 0x02:
-      if (call_dissector(ddp_handle, new_tvb, pinfo, tree))
+      if (call_dissector(ddp_handle, new_tvb, pinfo, tree)) {
+        /*
+         * As above.
+         */
+        new_reported_length = tvb_reported_length(new_tvb) + 3;
+        set_actual_length(tvb, new_reported_length);
         return tvb_captured_length(tvb);
+      }
       break;
   }
   call_data_dissector(new_tvb, pinfo, tree);
@@ -1960,6 +2008,10 @@ proto_register_atalk(void)
 
   };
 
+  static ei_register_info ei_ddp[] = {
+     { &ei_ddp_len_invalid, { "ddp.len_invalid", PI_PROTOCOL, PI_WARN, "Invalid length", EXPFILL }},
+  };
+
   static gint *ett[] = {
     &ett_llap,
     &ett_ddp,
@@ -1983,6 +2035,7 @@ proto_register_atalk(void)
     &ett_zip_network_list,
   };
   module_t *atp_module;
+  expert_module_t *expert_ddp;
 
   /*
    * AppleTalk over LAN (EtherTalk, TokenTalk) uses LLC/SNAP headers with
@@ -1995,6 +2048,8 @@ proto_register_atalk(void)
 
   proto_ddp = proto_register_protocol("Datagram Delivery Protocol", "DDP", "ddp");
   proto_register_field_array(proto_ddp, hf_ddp, array_length(hf_ddp));
+  expert_ddp = expert_register_protocol(proto_ddp);
+  expert_register_field_array(expert_ddp, ei_ddp, array_length(ei_ddp));
 
   proto_nbp = proto_register_protocol("Name Binding Protocol", "NBP", "nbp");
   proto_register_field_array(proto_nbp, hf_nbp, array_length(hf_nbp));
