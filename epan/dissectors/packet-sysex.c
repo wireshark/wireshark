@@ -121,6 +121,10 @@ static const value_string sysex_manufacturer_id_vals[] = {
     {0x5A, "Internet Corporation"},
     {0x5C, "Seekers Co. Ltd."},
     {0x5F, "SD Card Association"},
+    /* Three special IDs specified in MIDI 1.0 Detailed Specification */
+    {0x7D, "Educational/Non-Commercial Use"},
+    {0x7E, "Non-Real Time Universal System Exlusive"},
+    {0x7F, "Real Time Universal System Exclusive"},
     {0,NULL}
 };
 static value_string_ext sysex_manufacturer_id_vals_ext =
