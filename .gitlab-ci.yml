@@ -172,3 +172,20 @@ test:rpm-fedora-29:
   image: fedora:29
   dependencies:
     - build:rpm-fedora-29
+
+# Job to generate packages for Debian stable
+build:debian-stable:
+  image: debian:stable
+  stage: build
+  before_script:
+    - ./tools/debian-setup.sh --install-optional --install-test-deps -y --install-deb-deps
+  script:
+    # Shared GitLab runners limit the log size to 4M, so reduce verbosity. See
+    # https://gitlab.com/gitlab-com/support-forum/issues/2790
+    - DH_QUIET=1 dpkg-buildpackage -b --no-sign -jauto
+    - mkdir debian-packages
+    - mv ../*.deb debian-packages/
+  artifacts:
+    paths:
+      - debian-packages/*.deb
+    expire_in: 3 days
