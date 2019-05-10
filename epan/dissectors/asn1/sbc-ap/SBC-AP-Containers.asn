@@ -1,6 +1,6 @@
 -- SBC-AP-Containers.asn
 --
--- Taken from 3GPP TS 29.168 V14.2.0 (2017-12)
+-- Taken from 3GPP TS 29.168 V15.1.0 (2018-09)
 -- http://www.3gpp.org/ftp/Specs/archive/29_series/29.168/29168-930.zip
 --
 -- 4.4.8	Container Definitions
@@ -44,16 +44,16 @@ FROM SBC-AP-Constants;
 -- **************************************************************
 
 SBC-AP-PROTOCOL-IES ::= CLASS {
-	&id				ProtocolIE-ID 		UNIQUE,
-	&criticality			Criticality		DEFAULT ignore,
+	&id	ProtocolIE-ID 	UNIQUE,
+	&criticality	Criticality	DEFAULT ignore,
 	&Value,
-	&presence			Presence
+	&presence	Presence
 }
 WITH SYNTAX {
-	ID				&id
-	CRITICALITY			&criticality
-	TYPE				&Value
-	PRESENCE			&presence
+	ID	&id
+	CRITICALITY	&criticality
+	TYPE	&Value
+	PRESENCE	&presence
 }
 
 -- **************************************************************
@@ -63,16 +63,16 @@ WITH SYNTAX {
 -- **************************************************************
 
 SBC-AP-PROTOCOL-EXTENSION ::= CLASS {
-	&id				ProtocolExtensionID 	UNIQUE,
-	&criticality			Criticality		DEFAULT ignore,
+	&id	ProtocolExtensionID 	UNIQUE,
+	&criticality	Criticality	DEFAULT ignore,
 	&Extension,
-	&presence		Presence
+	&presence	Presence
 }
 WITH SYNTAX {
-	ID				&id
-	CRITICALITY			&criticality
-	EXTENSION			&Extension
-	PRESENCE			&presence
+	ID	&id
+	CRITICALITY	&criticality
+	EXTENSION	&Extension
+	PRESENCE	&presence
 }
 
 -- **************************************************************
@@ -86,9 +86,9 @@ ProtocolIE-Container {SBC-AP-PROTOCOL-IES : IEsSetParam} ::=
 	ProtocolIE-Field {{IEsSetParam}}
 
 ProtocolIE-Field {SBC-AP-PROTOCOL-IES : IEsSetParam} ::= SEQUENCE {
-	id				SBC-AP-PROTOCOL-IES.&id				({IEsSetParam}),
-	criticality			SBC-AP-PROTOCOL-IES.&criticality			({IEsSetParam}{@id}),
-	value				SBC-AP-PROTOCOL-IES.&Value	        	({IEsSetParam}{@id})
+	id	SBC-AP-PROTOCOL-IES.&id	({IEsSetParam}),
+	criticality	SBC-AP-PROTOCOL-IES.&criticality	({IEsSetParam}{@id}),
+	value	SBC-AP-PROTOCOL-IES.&Value	        	({IEsSetParam}{@id})
 }
 
 -- **************************************************************
@@ -112,9 +112,9 @@ ProtocolExtensionContainer {SBC-AP-PROTOCOL-EXTENSION : ExtensionSetParam} ::=
 	ProtocolExtensionField {{ExtensionSetParam}}
 
 ProtocolExtensionField {SBC-AP-PROTOCOL-EXTENSION : ExtensionSetParam} ::= SEQUENCE {
-	id				SBC-AP-PROTOCOL-EXTENSION.&id			({ExtensionSetParam}),
-	criticality			SBC-AP-PROTOCOL-EXTENSION.&criticality		({ExtensionSetParam}{@id}),
-	extensionValue			SBC-AP-PROTOCOL-EXTENSION.&Extension		({ExtensionSetParam}{@id})
+	id	SBC-AP-PROTOCOL-EXTENSION.&id	({ExtensionSetParam}),
+	criticality	SBC-AP-PROTOCOL-EXTENSION.&criticality	({ExtensionSetParam}{@id}),
+	extensionValue	SBC-AP-PROTOCOL-EXTENSION.&Extension	({ExtensionSetParam}{@id})
 }
 
 

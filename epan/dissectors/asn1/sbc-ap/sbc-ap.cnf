@@ -23,6 +23,9 @@ TBCD-STRING
 # Get rid of unused code warnings
 ProtocolIE-ContainerList
 Presence
+Unknown-Tracking-Area-List
+NgENB-ID
+List-of-5GS-Cells-for-Failure
 
 #.TYPE_RENAME
 
@@ -158,6 +161,20 @@ id-List-of-TAIs-Restart						ProtocolIE-ID
 id-List-of-EAIs-Restart						ProtocolIE-ID
 id-Failed-Cell-List							ProtocolIE-ID
 
+id-List-of-5GS-TAIs					ProtocolIE-ID
+id-Warning-Area-List-5GS				ProtocolIE-ID
+id-Global-RAN-Node-ID					ProtocolIE-ID
+id-Global-GNB-ID					ProtocolIE-ID
+id-RAT-Selector-5GS					ProtocolIE-ID
+id-Unknown-5GS-Tracking-Area-List			ProtocolIE-ID
+id-Broadcast-Scheduled-Area-List-5GS			ProtocolIE-ID
+id-Broadcast-Cancelled-Area-List-5GS			ProtocolIE-ID
+id-Broadcast-Empty-Area-List-5GS			ProtocolIE-ID
+id-Restarted-Cell-List-NR				ProtocolIE-ID
+id-Failed-Cell-List-NR					ProtocolIE-ID
+id-List-of-5GS-TAI-for-Restart				ProtocolIE-ID
+id-Warning-Area-Coordinates				ProtocolIE-ID
+
 #.REGISTER
 
 #SBC-AP-PROTOCOL-IES
@@ -197,6 +214,19 @@ List-of-TAIs-Restart                    N sbc_ap.ies id-List-of-TAIs-Restart
 List-of-EAIs-Restart                    N sbc_ap.ies id-List-of-EAIs-Restart
 Failed-Cell-List                        N sbc_ap.ies id-Failed-Cell-List
 
+List-of-5GS-TAIs                        N sbc_ap.extension id-List-of-5GS-TAIs
+Warning-Area-List-5GS                   N sbc_ap.extension id-Warning-Area-List-5GS
+Global-RAN-Node-ID                      N sbc_ap.extension id-Global-RAN-Node-ID
+Global-GNB-ID                           N sbc_ap.extension id-Global-GNB-ID
+RAT-Selector-5GS                        N sbc_ap.extension id-RAT-Selector-5GS
+Unknown-5GS-Tracking-Area-List          N sbc_ap.extension id-Unknown-5GS-Tracking-Area-List
+Broadcast-Scheduled-Area-List-5GS       N sbc_ap.extension id-Broadcast-Scheduled-Area-List-5GS
+Broadcast-Cancelled-Area-List-5GS       N sbc_ap.extension id-Broadcast-Cancelled-Area-List-5GS
+Broadcast-Empty-Area-List-5GS           N sbc_ap.extension id-Broadcast-Empty-Area-List-5GS
+Restarted-Cell-List-NR                  N sbc_ap.extension id-Restarted-Cell-List-NR
+Failed-Cell-List-NR                     N sbc_ap.extension id-Failed-Cell-List-NR
+List-of-5GS-TAI-for-Restart             N sbc_ap.extension id-List-of-5GS-TAI-for-Restart
+Warning-Area-Coordinates                N sbc_ap.ies id-Warning-Area-Coordinates
 
 
 #SBC-AP-ELEMENTARY-PROCEDURE

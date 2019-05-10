@@ -1,6 +1,6 @@
 -- SBC-AP-CommonDataTypes.asn
 --
--- Taken from 3GPP TS 29.168 V14.2.0 (2017-12)
+-- Taken from 3GPP TS 29.168 V15.1.0 (2018-09)
 -- http://www.3gpp.org/ftp/Specs/archive/29_series/29.168/29168-930.zip
 --
 -- 4.4.6	Common Definitions
@@ -20,16 +20,16 @@ DEFINITIONS AUTOMATIC TAGS ::=
 
 BEGIN
 
-Criticality		::= ENUMERATED { reject, ignore, notify }
+Criticality	::= ENUMERATED { reject, ignore, notify }
 
-Presence		::= ENUMERATED { optional, conditional, mandatory }
+Presence	::= ENUMERATED { optional, conditional, mandatory }
 
-ProcedureCode		::= INTEGER (0..255)
+ProcedureCode	::= INTEGER (0..255)
 
 ProtocolExtensionID	::= INTEGER (0..65535)
 
-ProtocolIE-ID		::= INTEGER (0..65535)
+ProtocolIE-ID	::= INTEGER (0..65535)
 
-TriggeringMessage		::= ENUMERATED {initiating-message, successful-outcome, unsuccessful-outcome, outcome}
+TriggeringMessage	::= ENUMERATED {initiating-message, successful-outcome, unsuccessful-outcome, outcome}
 
 END

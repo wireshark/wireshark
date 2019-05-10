@@ -64,6 +64,13 @@ static dissector_handle_t sbc_ap_handle=NULL;
 #define maxnoofRestartTAIs             2048
 #define maxnoofRestartEAIs             256
 #define maxnoofFailedCells             256
+#define maxnoof5GSTAIs                 2048
+#define maxnoofCellsingNB              16384
+#define maxnoofCellsin5GS              16776960
+#define maxnoofCellsin5GSTAI           65535
+#define maxnoofRANNodes                65535
+#define maxnoofRestart5GSTAIs          2048
+#define maxnoofCellsforRestartNR       16384
 
 typedef enum _ProcedureCode_enum {
   id_Write_Replace_Warning =   0,
@@ -109,7 +116,20 @@ typedef enum _ProtocolIE_ID_enum {
   id_Restarted_Cell_List =  30,
   id_List_of_TAIs_Restart =  31,
   id_List_of_EAIs_Restart =  32,
-  id_Failed_Cell_List =  33
+  id_Failed_Cell_List =  33,
+  id_List_of_5GS_TAIs =  34,
+  id_Warning_Area_List_5GS =  35,
+  id_Global_RAN_Node_ID =  36,
+  id_Global_GNB_ID =  37,
+  id_RAT_Selector_5GS =  38,
+  id_Unknown_5GS_Tracking_Area_List =  39,
+  id_Broadcast_Scheduled_Area_List_5GS =  40,
+  id_Broadcast_Cancelled_Area_List_5GS =  41,
+  id_Broadcast_Empty_Area_List_5GS =  42,
+  id_Restarted_Cell_List_NR =  43,
+  id_Failed_Cell_List_NR =  44,
+  id_List_of_5GS_TAI_for_Restart =  45,
+  id_Warning_Area_Coordinates =  46
 } ProtocolIE_ID_enum;
 
 /*--- End of included file: packet-sbc-ap-val.h ---*/
@@ -130,31 +150,44 @@ static int hf_sbc_ap_Warning_Message_Contents_decoded_page = -1;
 /*--- Included file: packet-sbc-ap-hf.c ---*/
 #line 1 "./asn1/sbc-ap/packet-sbc-ap-hf.c"
 static int hf_sbc_ap_Broadcast_Scheduled_Area_List_PDU = -1;  /* Broadcast_Scheduled_Area_List */
+static int hf_sbc_ap_Broadcast_Scheduled_Area_List_5GS_PDU = -1;  /* Broadcast_Scheduled_Area_List_5GS */
 static int hf_sbc_ap_Broadcast_Cancelled_Area_List_PDU = -1;  /* Broadcast_Cancelled_Area_List */
+static int hf_sbc_ap_Broadcast_Cancelled_Area_List_5GS_PDU = -1;  /* Broadcast_Cancelled_Area_List_5GS */
 static int hf_sbc_ap_Broadcast_Empty_Area_List_PDU = -1;  /* Broadcast_Empty_Area_List */
+static int hf_sbc_ap_Broadcast_Empty_Area_List_5GS_PDU = -1;  /* Broadcast_Empty_Area_List_5GS */
 static int hf_sbc_ap_Cause_PDU = -1;              /* Cause */
 static int hf_sbc_ap_Concurrent_Warning_Message_Indicator_PDU = -1;  /* Concurrent_Warning_Message_Indicator */
 static int hf_sbc_ap_Criticality_Diagnostics_PDU = -1;  /* Criticality_Diagnostics */
 static int hf_sbc_ap_Data_Coding_Scheme_PDU = -1;  /* Data_Coding_Scheme */
 static int hf_sbc_ap_Extended_Repetition_Period_PDU = -1;  /* Extended_Repetition_Period */
 static int hf_sbc_ap_Failed_Cell_List_PDU = -1;   /* Failed_Cell_List */
+static int hf_sbc_ap_Failed_Cell_List_NR_PDU = -1;  /* Failed_Cell_List_NR */
 static int hf_sbc_ap_Global_ENB_ID_PDU = -1;      /* Global_ENB_ID */
+static int hf_sbc_ap_Global_RAN_Node_ID_PDU = -1;  /* Global_RAN_Node_ID */
+static int hf_sbc_ap_Global_GNB_ID_PDU = -1;      /* Global_GNB_ID */
 static int hf_sbc_ap_List_of_TAIs_PDU = -1;       /* List_of_TAIs */
 static int hf_sbc_ap_List_of_TAIs_Restart_PDU = -1;  /* List_of_TAIs_Restart */
 static int hf_sbc_ap_List_of_EAIs_Restart_PDU = -1;  /* List_of_EAIs_Restart */
+static int hf_sbc_ap_List_of_5GS_TAIs_PDU = -1;   /* List_of_5GS_TAIs */
+static int hf_sbc_ap_List_of_5GS_TAI_for_Restart_PDU = -1;  /* List_of_5GS_TAI_for_Restart */
 static int hf_sbc_ap_Message_Identifier_PDU = -1;  /* Message_Identifier */
 static int hf_sbc_ap_Number_of_Broadcasts_Requested_PDU = -1;  /* Number_of_Broadcasts_Requested */
 static int hf_sbc_ap_Omc_Id_PDU = -1;             /* Omc_Id */
 static int hf_sbc_ap_Repetition_Period_PDU = -1;  /* Repetition_Period */
 static int hf_sbc_ap_Restarted_Cell_List_PDU = -1;  /* Restarted_Cell_List */
+static int hf_sbc_ap_RAT_Selector_5GS_PDU = -1;   /* RAT_Selector_5GS */
+static int hf_sbc_ap_Restarted_Cell_List_NR_PDU = -1;  /* Restarted_Cell_List_NR */
 static int hf_sbc_ap_Send_Write_Replace_Warning_Indication_PDU = -1;  /* Send_Write_Replace_Warning_Indication */
 static int hf_sbc_ap_Send_Stop_Warning_Indication_PDU = -1;  /* Send_Stop_Warning_Indication */
 static int hf_sbc_ap_Serial_Number_PDU = -1;      /* Serial_Number */
 static int hf_sbc_ap_Stop_All_Indicator_PDU = -1;  /* Stop_All_Indicator */
+static int hf_sbc_ap_Unknown_5GS_Tracking_Area_List_PDU = -1;  /* Unknown_5GS_Tracking_Area_List */
 static int hf_sbc_ap_Warning_Area_List_PDU = -1;  /* Warning_Area_List */
 static int hf_sbc_ap_Warning_Message_Content_PDU = -1;  /* Warning_Message_Content */
+static int hf_sbc_ap_Warning_Area_Coordinates_PDU = -1;  /* Warning_Area_Coordinates */
 static int hf_sbc_ap_Warning_Security_Information_PDU = -1;  /* Warning_Security_Information */
 static int hf_sbc_ap_Warning_Type_PDU = -1;       /* Warning_Type */
+static int hf_sbc_ap_Warning_Area_List_5GS_PDU = -1;  /* Warning_Area_List_5GS */
 static int hf_sbc_ap_Write_Replace_Warning_Request_PDU = -1;  /* Write_Replace_Warning_Request */
 static int hf_sbc_ap_Write_Replace_Warning_Response_PDU = -1;  /* Write_Replace_Warning_Response */
 static int hf_sbc_ap_Stop_Warning_Request_PDU = -1;  /* Stop_Warning_Request */
@@ -176,16 +209,25 @@ static int hf_sbc_ap_cellId_Broadcast_List = -1;  /* CellId_Broadcast_List */
 static int hf_sbc_ap_tAI_Broadcast_List = -1;     /* TAI_Broadcast_List */
 static int hf_sbc_ap_emergencyAreaID_Broadcast_List = -1;  /* EmergencyAreaID_Broadcast_List */
 static int hf_sbc_ap_iE_Extensions = -1;          /* ProtocolExtensionContainer */
+static int hf_sbc_ap_cellId_Broadcast_List_5GS = -1;  /* CellId_Broadcast_List_5GS */
+static int hf_sbc_ap_tAI_Broadcast_List_5GS = -1;  /* TAI_Broadcast_List_5GS */
 static int hf_sbc_ap_cellID_Cancelled_List = -1;  /* CellID_Cancelled_List */
 static int hf_sbc_ap_tAI_Cancelled_List = -1;     /* TAI_Cancelled_List */
 static int hf_sbc_ap_emergencyAreaID_Cancelled_List = -1;  /* EmergencyAreaID_Cancelled_List */
+static int hf_sbc_ap_cellID_Cancelled_List_5GS = -1;  /* CellID_Cancelled_List_5GS */
+static int hf_sbc_ap_tAI_Cancelled_List_5GS = -1;  /* TAI_Cancelled_List_5GS */
 static int hf_sbc_ap_Broadcast_Empty_Area_List_item = -1;  /* Global_ENB_ID */
+static int hf_sbc_ap_Broadcast_Empty_Area_List_5GS_item = -1;  /* Global_RAN_Node_ID */
 static int hf_sbc_ap_CancelledCellinEAI_item = -1;  /* CancelledCellinEAI_Item */
 static int hf_sbc_ap_eCGI = -1;                   /* EUTRAN_CGI */
 static int hf_sbc_ap_numberOfBroadcasts = -1;     /* NumberOfBroadcasts */
 static int hf_sbc_ap_CancelledCellinTAI_item = -1;  /* CancelledCellinTAI_Item */
+static int hf_sbc_ap_CancelledCellinTAI_5GS_item = -1;  /* CancelledCellinTAI_5GS_item */
+static int hf_sbc_ap_nR_CGI = -1;                 /* NR_CGI */
 static int hf_sbc_ap_CellId_Broadcast_List_item = -1;  /* CellId_Broadcast_List_Item */
+static int hf_sbc_ap_CellId_Broadcast_List_5GS_item = -1;  /* CellId_Broadcast_List_5GS_item */
 static int hf_sbc_ap_CellID_Cancelled_List_item = -1;  /* CellID_Cancelled_Item */
+static int hf_sbc_ap_CellID_Cancelled_List_5GS_item = -1;  /* CellID_Cancelled_List_5GS_item */
 static int hf_sbc_ap_procedureCode = -1;          /* ProcedureCode */
 static int hf_sbc_ap_triggeringMessage = -1;      /* TriggeringMessage */
 static int hf_sbc_ap_procedureCriticality = -1;   /* Criticality */
@@ -208,24 +250,46 @@ static int hf_sbc_ap_homeENB_ID = -1;             /* BIT_STRING_SIZE_28 */
 static int hf_sbc_ap_short_macroENB_ID = -1;      /* BIT_STRING_SIZE_18 */
 static int hf_sbc_ap_long_macroENB_ID = -1;       /* BIT_STRING_SIZE_21 */
 static int hf_sbc_ap_Failed_Cell_List_item = -1;  /* EUTRAN_CGI */
+static int hf_sbc_ap_Failed_Cell_List_NR_item = -1;  /* NR_CGI */
 static int hf_sbc_ap_eNB_ID = -1;                 /* ENB_ID */
+static int hf_sbc_ap_global_GNB_ID = -1;          /* Global_GNB_ID */
+static int hf_sbc_ap_global_NgENB_ID = -1;        /* Global_NgENB_ID */
+static int hf_sbc_ap_gNB_ID = -1;                 /* GNB_ID */
+static int hf_sbc_ap_gNB_ID_01 = -1;              /* BIT_STRING_SIZE_22_32 */
+static int hf_sbc_ap_ngENB_ID = -1;               /* ENB_ID */
 static int hf_sbc_ap_List_of_TAIs_item = -1;      /* List_of_TAIs_item */
 static int hf_sbc_ap_tai = -1;                    /* TAI */
 static int hf_sbc_ap_List_of_TAIs_Restart_item = -1;  /* List_of_TAIs_Restart_item */
 static int hf_sbc_ap_List_of_EAIs_Restart_item = -1;  /* Emergency_Area_ID */
+static int hf_sbc_ap_List_of_5GS_TAIs_item = -1;  /* TAI_5GS */
+static int hf_sbc_ap_List_of_5GS_TAI_for_Restart_item = -1;  /* TAI_5GS */
+static int hf_sbc_ap_NR_CGIList_item = -1;        /* NR_CGI */
+static int hf_sbc_ap_nRCellIdentity = -1;         /* NRCellIdentity */
 static int hf_sbc_ap_Restarted_Cell_List_item = -1;  /* EUTRAN_CGI */
+static int hf_sbc_ap_Restarted_Cell_List_NR_item = -1;  /* NR_CGI */
 static int hf_sbc_ap_ScheduledCellinEAI_item = -1;  /* ScheduledCellinEAI_Item */
 static int hf_sbc_ap_ScheduledCellinTAI_item = -1;  /* ScheduledCellinTAI_Item */
+static int hf_sbc_ap_ScheduledCellinTAI_5GS_item = -1;  /* ScheduledCellinTAI_5GS_item */
 static int hf_sbc_ap_TAI_Broadcast_List_item = -1;  /* TAI_Broadcast_List_Item */
 static int hf_sbc_ap_tAI = -1;                    /* TAI */
 static int hf_sbc_ap_scheduledCellinTAI = -1;     /* ScheduledCellinTAI */
+static int hf_sbc_ap_TAI_Broadcast_List_5GS_item = -1;  /* TAI_Broadcast_List_5GS_item */
+static int hf_sbc_ap_tAI_5GS = -1;                /* TAI_5GS */
+static int hf_sbc_ap_scheduledCellinTAI_5GS = -1;  /* ScheduledCellinTAI_5GS */
 static int hf_sbc_ap_TAI_Cancelled_List_item = -1;  /* TAI_Cancelled_List_Item */
 static int hf_sbc_ap_cancelledCellinTAI = -1;     /* CancelledCellinTAI */
+static int hf_sbc_ap_TAI_Cancelled_List_5GS_item = -1;  /* TAI_Cancelled_List_5GS_item */
+static int hf_sbc_ap_cancelledCellinTAI_5GS = -1;  /* CancelledCellinTAI_5GS */
 static int hf_sbc_ap_TAI_List_for_Warning_item = -1;  /* TAI */
 static int hf_sbc_ap_tAC = -1;                    /* TAC */
+static int hf_sbc_ap_tAC_5GS = -1;                /* TAC_5GS */
+static int hf_sbc_ap_Unknown_5GS_Tracking_Area_List_item = -1;  /* TAI_5GS */
 static int hf_sbc_ap_cell_ID_List = -1;           /* ECGIList */
 static int hf_sbc_ap_tracking_Area_List_for_Warning = -1;  /* TAI_List_for_Warning */
 static int hf_sbc_ap_emergency_Area_ID_List = -1;  /* Emergency_Area_ID_List */
+static int hf_sbc_ap_nR_CGIList = -1;             /* NR_CGIList */
+static int hf_sbc_ap_tAIList_5GS = -1;            /* TAI_5GS */
+static int hf_sbc_ap_emergencyAreaIDList = -1;    /* Emergency_Area_ID_List */
 static int hf_sbc_ap_protocolIEs = -1;            /* ProtocolIE_Container */
 static int hf_sbc_ap_protocolExtensions = -1;     /* ProtocolExtensionContainer */
 static int hf_sbc_ap_initiatingMessage = -1;      /* InitiatingMessage */
@@ -253,16 +317,25 @@ static gint ett_sbc_ap_ProtocolIE_Field = -1;
 static gint ett_sbc_ap_ProtocolExtensionContainer = -1;
 static gint ett_sbc_ap_ProtocolExtensionField = -1;
 static gint ett_sbc_ap_Broadcast_Scheduled_Area_List = -1;
+static gint ett_sbc_ap_Broadcast_Scheduled_Area_List_5GS = -1;
 static gint ett_sbc_ap_Broadcast_Cancelled_Area_List = -1;
+static gint ett_sbc_ap_Broadcast_Cancelled_Area_List_5GS = -1;
 static gint ett_sbc_ap_Broadcast_Empty_Area_List = -1;
+static gint ett_sbc_ap_Broadcast_Empty_Area_List_5GS = -1;
 static gint ett_sbc_ap_CancelledCellinEAI = -1;
 static gint ett_sbc_ap_CancelledCellinEAI_Item = -1;
 static gint ett_sbc_ap_CancelledCellinTAI = -1;
 static gint ett_sbc_ap_CancelledCellinTAI_Item = -1;
+static gint ett_sbc_ap_CancelledCellinTAI_5GS = -1;
+static gint ett_sbc_ap_CancelledCellinTAI_5GS_item = -1;
 static gint ett_sbc_ap_CellId_Broadcast_List = -1;
 static gint ett_sbc_ap_CellId_Broadcast_List_Item = -1;
+static gint ett_sbc_ap_CellId_Broadcast_List_5GS = -1;
+static gint ett_sbc_ap_CellId_Broadcast_List_5GS_item = -1;
 static gint ett_sbc_ap_CellID_Cancelled_List = -1;
 static gint ett_sbc_ap_CellID_Cancelled_Item = -1;
+static gint ett_sbc_ap_CellID_Cancelled_List_5GS = -1;
+static gint ett_sbc_ap_CellID_Cancelled_List_5GS_item = -1;
 static gint ett_sbc_ap_Criticality_Diagnostics = -1;
 static gint ett_sbc_ap_CriticalityDiagnostics_IE_List = -1;
 static gint ett_sbc_ap_CriticalityDiagnostics_IE_List_item = -1;
@@ -275,24 +348,43 @@ static gint ett_sbc_ap_EmergencyAreaID_Cancelled_Item = -1;
 static gint ett_sbc_ap_EUTRAN_CGI = -1;
 static gint ett_sbc_ap_ENB_ID = -1;
 static gint ett_sbc_ap_Failed_Cell_List = -1;
+static gint ett_sbc_ap_Failed_Cell_List_NR = -1;
 static gint ett_sbc_ap_Global_ENB_ID = -1;
+static gint ett_sbc_ap_Global_RAN_Node_ID = -1;
+static gint ett_sbc_ap_Global_GNB_ID = -1;
+static gint ett_sbc_ap_GNB_ID = -1;
+static gint ett_sbc_ap_Global_NgENB_ID = -1;
 static gint ett_sbc_ap_List_of_TAIs = -1;
 static gint ett_sbc_ap_List_of_TAIs_item = -1;
 static gint ett_sbc_ap_List_of_TAIs_Restart = -1;
 static gint ett_sbc_ap_List_of_TAIs_Restart_item = -1;
 static gint ett_sbc_ap_List_of_EAIs_Restart = -1;
+static gint ett_sbc_ap_List_of_5GS_TAIs = -1;
+static gint ett_sbc_ap_List_of_5GS_TAI_for_Restart = -1;
+static gint ett_sbc_ap_NR_CGIList = -1;
+static gint ett_sbc_ap_NR_CGI = -1;
 static gint ett_sbc_ap_Restarted_Cell_List = -1;
+static gint ett_sbc_ap_Restarted_Cell_List_NR = -1;
 static gint ett_sbc_ap_ScheduledCellinEAI = -1;
 static gint ett_sbc_ap_ScheduledCellinEAI_Item = -1;
 static gint ett_sbc_ap_ScheduledCellinTAI = -1;
 static gint ett_sbc_ap_ScheduledCellinTAI_Item = -1;
+static gint ett_sbc_ap_ScheduledCellinTAI_5GS = -1;
+static gint ett_sbc_ap_ScheduledCellinTAI_5GS_item = -1;
 static gint ett_sbc_ap_TAI_Broadcast_List = -1;
 static gint ett_sbc_ap_TAI_Broadcast_List_Item = -1;
+static gint ett_sbc_ap_TAI_Broadcast_List_5GS = -1;
+static gint ett_sbc_ap_TAI_Broadcast_List_5GS_item = -1;
 static gint ett_sbc_ap_TAI_Cancelled_List = -1;
 static gint ett_sbc_ap_TAI_Cancelled_List_Item = -1;
+static gint ett_sbc_ap_TAI_Cancelled_List_5GS = -1;
+static gint ett_sbc_ap_TAI_Cancelled_List_5GS_item = -1;
 static gint ett_sbc_ap_TAI_List_for_Warning = -1;
 static gint ett_sbc_ap_TAI = -1;
+static gint ett_sbc_ap_TAI_5GS = -1;
+static gint ett_sbc_ap_Unknown_5GS_Tracking_Area_List = -1;
 static gint ett_sbc_ap_Warning_Area_List = -1;
+static gint ett_sbc_ap_Warning_Area_List_5GS = -1;
 static gint ett_sbc_ap_Write_Replace_Warning_Request = -1;
 static gint ett_sbc_ap_Write_Replace_Warning_Response = -1;
 static gint ett_sbc_ap_Stop_Warning_Request = -1;
@@ -389,7 +481,7 @@ dissect_sbc_ap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 62 "./asn1/sbc-ap/sbc-ap.cnf"
+#line 65 "./asn1/sbc-ap/sbc-ap.cnf"
    col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
                    val_to_str(ProcedureCode, sbc_ap_ProcedureCode_vals,
                               "unknown message"));
@@ -443,6 +535,19 @@ static const value_string sbc_ap_ProtocolIE_ID_vals[] = {
   { id_List_of_TAIs_Restart, "id-List-of-TAIs-Restart" },
   { id_List_of_EAIs_Restart, "id-List-of-EAIs-Restart" },
   { id_Failed_Cell_List, "id-Failed-Cell-List" },
+  { id_List_of_5GS_TAIs, "id-List-of-5GS-TAIs" },
+  { id_Warning_Area_List_5GS, "id-Warning-Area-List-5GS" },
+  { id_Global_RAN_Node_ID, "id-Global-RAN-Node-ID" },
+  { id_Global_GNB_ID, "id-Global-GNB-ID" },
+  { id_RAT_Selector_5GS, "id-RAT-Selector-5GS" },
+  { id_Unknown_5GS_Tracking_Area_List, "id-Unknown-5GS-Tracking-Area-List" },
+  { id_Broadcast_Scheduled_Area_List_5GS, "id-Broadcast-Scheduled-Area-List-5GS" },
+  { id_Broadcast_Cancelled_Area_List_5GS, "id-Broadcast-Cancelled-Area-List-5GS" },
+  { id_Broadcast_Empty_Area_List_5GS, "id-Broadcast-Empty-Area-List-5GS" },
+  { id_Restarted_Cell_List_NR, "id-Restarted-Cell-List-NR" },
+  { id_Failed_Cell_List_NR, "id-Failed-Cell-List-NR" },
+  { id_List_of_5GS_TAI_for_Restart, "id-List-of-5GS-TAI-for-Restart" },
+  { id_Warning_Area_Coordinates, "id-Warning-Area-Coordinates" },
   { 0, NULL }
 };
 
@@ -452,7 +557,7 @@ dissect_sbc_ap_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 65535U, &ProtocolIE_ID, FALSE);
 
-#line 45 "./asn1/sbc-ap/sbc-ap.cnf"
+#line 48 "./asn1/sbc-ap/sbc-ap.cnf"
   if (tree) {
     proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(sbc_ap_ProtocolIE_ID_vals), "unknown (%d)"));
   }
@@ -561,7 +666,7 @@ dissect_sbc_ap_ProtocolExtensionContainer(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static int
 dissect_sbc_ap_PLMNidentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 99 "./asn1/sbc-ap/sbc-ap.cnf"
+#line 102 "./asn1/sbc-ap/sbc-ap.cnf"
   tvbuff_t *parameter_tvb=NULL;
 
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
@@ -806,6 +911,163 @@ dissect_sbc_ap_Broadcast_Scheduled_Area_List(tvbuff_t *tvb _U_, int offset _U_, 
 
 
 static int
+dissect_sbc_ap_NRCellIdentity(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     36, 36, FALSE, NULL, 0, NULL, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t NR_CGI_sequence[] = {
+  { &hf_sbc_ap_pLMNidentity , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_sbc_ap_PLMNidentity },
+  { &hf_sbc_ap_nRCellIdentity, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_sbc_ap_NRCellIdentity },
+  { &hf_sbc_ap_iE_Extensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_sbc_ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_sbc_ap_NR_CGI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_sbc_ap_NR_CGI, NR_CGI_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t CellId_Broadcast_List_5GS_item_sequence[] = {
+  { &hf_sbc_ap_nR_CGI       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_sbc_ap_NR_CGI },
+  { &hf_sbc_ap_iE_Extensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_sbc_ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_sbc_ap_CellId_Broadcast_List_5GS_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_sbc_ap_CellId_Broadcast_List_5GS_item, CellId_Broadcast_List_5GS_item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t CellId_Broadcast_List_5GS_sequence_of[1] = {
+  { &hf_sbc_ap_CellId_Broadcast_List_5GS_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_sbc_ap_CellId_Broadcast_List_5GS_item },
+};
+
+static int
+dissect_sbc_ap_CellId_Broadcast_List_5GS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_sbc_ap_CellId_Broadcast_List_5GS, CellId_Broadcast_List_5GS_sequence_of,
+                                                  1, maxnoofCellsin5GS, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_sbc_ap_TAC_5GS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       3, 3, FALSE, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t TAI_5GS_sequence[] = {
+  { &hf_sbc_ap_pLMNidentity , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_sbc_ap_PLMNidentity },
+  { &hf_sbc_ap_tAC_5GS      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_sbc_ap_TAC_5GS },
+  { &hf_sbc_ap_iE_Extensions, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_sbc_ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_sbc_ap_TAI_5GS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_sbc_ap_TAI_5GS, TAI_5GS_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t ScheduledCellinTAI_5GS_item_sequence[] = {
+  { &hf_sbc_ap_nR_CGI       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_sbc_ap_NR_CGI },
+  { &hf_sbc_ap_iE_Extensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_sbc_ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_sbc_ap_ScheduledCellinTAI_5GS_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_sbc_ap_ScheduledCellinTAI_5GS_item, ScheduledCellinTAI_5GS_item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t ScheduledCellinTAI_5GS_sequence_of[1] = {
+  { &hf_sbc_ap_ScheduledCellinTAI_5GS_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_sbc_ap_ScheduledCellinTAI_5GS_item },
+};
+
+static int
+dissect_sbc_ap_ScheduledCellinTAI_5GS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_sbc_ap_ScheduledCellinTAI_5GS, ScheduledCellinTAI_5GS_sequence_of,
+                                                  1, maxnoofCellsin5GSTAI, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t TAI_Broadcast_List_5GS_item_sequence[] = {
+  { &hf_sbc_ap_tAI_5GS      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_sbc_ap_TAI_5GS },
+  { &hf_sbc_ap_scheduledCellinTAI_5GS, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_sbc_ap_ScheduledCellinTAI_5GS },
+  { &hf_sbc_ap_iE_Extensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_sbc_ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_sbc_ap_TAI_Broadcast_List_5GS_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_sbc_ap_TAI_Broadcast_List_5GS_item, TAI_Broadcast_List_5GS_item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t TAI_Broadcast_List_5GS_sequence_of[1] = {
+  { &hf_sbc_ap_TAI_Broadcast_List_5GS_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_sbc_ap_TAI_Broadcast_List_5GS_item },
+};
+
+static int
+dissect_sbc_ap_TAI_Broadcast_List_5GS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_sbc_ap_TAI_Broadcast_List_5GS, TAI_Broadcast_List_5GS_sequence_of,
+                                                  1, maxnoof5GSTAIs, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t Broadcast_Scheduled_Area_List_5GS_sequence[] = {
+  { &hf_sbc_ap_cellId_Broadcast_List_5GS, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_sbc_ap_CellId_Broadcast_List_5GS },
+  { &hf_sbc_ap_tAI_Broadcast_List_5GS, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_sbc_ap_TAI_Broadcast_List_5GS },
+  { &hf_sbc_ap_emergencyAreaID_Broadcast_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_sbc_ap_EmergencyAreaID_Broadcast_List },
+  { &hf_sbc_ap_iE_Extensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_sbc_ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_sbc_ap_Broadcast_Scheduled_Area_List_5GS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_sbc_ap_Broadcast_Scheduled_Area_List_5GS, Broadcast_Scheduled_Area_List_5GS_sequence);
+
+  return offset;
+}
+
+
+
+static int
 dissect_sbc_ap_NumberOfBroadcasts(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 65535U, NULL, FALSE);
@@ -981,6 +1243,113 @@ dissect_sbc_ap_Broadcast_Cancelled_Area_List(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 
+static const per_sequence_t CellID_Cancelled_List_5GS_item_sequence[] = {
+  { &hf_sbc_ap_nR_CGI       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_sbc_ap_NR_CGI },
+  { &hf_sbc_ap_numberOfBroadcasts, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_sbc_ap_NumberOfBroadcasts },
+  { &hf_sbc_ap_iE_Extensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_sbc_ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_sbc_ap_CellID_Cancelled_List_5GS_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_sbc_ap_CellID_Cancelled_List_5GS_item, CellID_Cancelled_List_5GS_item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t CellID_Cancelled_List_5GS_sequence_of[1] = {
+  { &hf_sbc_ap_CellID_Cancelled_List_5GS_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_sbc_ap_CellID_Cancelled_List_5GS_item },
+};
+
+static int
+dissect_sbc_ap_CellID_Cancelled_List_5GS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_sbc_ap_CellID_Cancelled_List_5GS, CellID_Cancelled_List_5GS_sequence_of,
+                                                  1, maxnoofCellsin5GS, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t CancelledCellinTAI_5GS_item_sequence[] = {
+  { &hf_sbc_ap_nR_CGI       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_sbc_ap_NR_CGI },
+  { &hf_sbc_ap_numberOfBroadcasts, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_sbc_ap_NumberOfBroadcasts },
+  { &hf_sbc_ap_iE_Extensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_sbc_ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_sbc_ap_CancelledCellinTAI_5GS_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_sbc_ap_CancelledCellinTAI_5GS_item, CancelledCellinTAI_5GS_item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t CancelledCellinTAI_5GS_sequence_of[1] = {
+  { &hf_sbc_ap_CancelledCellinTAI_5GS_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_sbc_ap_CancelledCellinTAI_5GS_item },
+};
+
+static int
+dissect_sbc_ap_CancelledCellinTAI_5GS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_sbc_ap_CancelledCellinTAI_5GS, CancelledCellinTAI_5GS_sequence_of,
+                                                  1, maxnoofCellsin5GSTAI, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t TAI_Cancelled_List_5GS_item_sequence[] = {
+  { &hf_sbc_ap_tAI_5GS      , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_sbc_ap_TAI_5GS },
+  { &hf_sbc_ap_cancelledCellinTAI_5GS, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_sbc_ap_CancelledCellinTAI_5GS },
+  { &hf_sbc_ap_iE_Extensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_sbc_ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_sbc_ap_TAI_Cancelled_List_5GS_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_sbc_ap_TAI_Cancelled_List_5GS_item, TAI_Cancelled_List_5GS_item_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t TAI_Cancelled_List_5GS_sequence_of[1] = {
+  { &hf_sbc_ap_TAI_Cancelled_List_5GS_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_sbc_ap_TAI_Cancelled_List_5GS_item },
+};
+
+static int
+dissect_sbc_ap_TAI_Cancelled_List_5GS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_sbc_ap_TAI_Cancelled_List_5GS, TAI_Cancelled_List_5GS_sequence_of,
+                                                  1, maxnoof5GSTAIs, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t Broadcast_Cancelled_Area_List_5GS_sequence[] = {
+  { &hf_sbc_ap_cellID_Cancelled_List_5GS, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_sbc_ap_CellID_Cancelled_List_5GS },
+  { &hf_sbc_ap_tAI_Cancelled_List_5GS, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_sbc_ap_TAI_Cancelled_List_5GS },
+  { &hf_sbc_ap_emergencyAreaID_Cancelled_List, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_sbc_ap_EmergencyAreaID_Cancelled_List },
+  { &hf_sbc_ap_iE_Extensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_sbc_ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_sbc_ap_Broadcast_Cancelled_Area_List_5GS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_sbc_ap_Broadcast_Cancelled_Area_List_5GS, Broadcast_Cancelled_Area_List_5GS_sequence);
+
+  return offset;
+}
+
+
 
 static int
 dissect_sbc_ap_BIT_STRING_SIZE_20(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
@@ -1072,6 +1441,104 @@ dissect_sbc_ap_Broadcast_Empty_Area_List(tvbuff_t *tvb _U_, int offset _U_, asn1
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_sbc_ap_Broadcast_Empty_Area_List, Broadcast_Empty_Area_List_sequence_of,
                                                   1, maxnoofeNBIds, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_sbc_ap_BIT_STRING_SIZE_22_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     22, 32, FALSE, NULL, 0, NULL, NULL);
+
+  return offset;
+}
+
+
+static const value_string sbc_ap_GNB_ID_vals[] = {
+  {   0, "gNB-ID" },
+  { 0, NULL }
+};
+
+static const per_choice_t GNB_ID_choice[] = {
+  {   0, &hf_sbc_ap_gNB_ID_01    , ASN1_EXTENSION_ROOT    , dissect_sbc_ap_BIT_STRING_SIZE_22_32 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_sbc_ap_GNB_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_sbc_ap_GNB_ID, GNB_ID_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t Global_GNB_ID_sequence[] = {
+  { &hf_sbc_ap_pLMNidentity , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_sbc_ap_PLMNidentity },
+  { &hf_sbc_ap_gNB_ID       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_sbc_ap_GNB_ID },
+  { &hf_sbc_ap_iE_Extensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_sbc_ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_sbc_ap_Global_GNB_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_sbc_ap_Global_GNB_ID, Global_GNB_ID_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t Global_NgENB_ID_sequence[] = {
+  { &hf_sbc_ap_pLMNidentity , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_sbc_ap_PLMNidentity },
+  { &hf_sbc_ap_ngENB_ID     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_sbc_ap_ENB_ID },
+  { &hf_sbc_ap_iE_Extensions, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_sbc_ap_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_sbc_ap_Global_NgENB_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_sbc_ap_Global_NgENB_ID, Global_NgENB_ID_sequence);
+
+  return offset;
+}
+
+
+static const value_string sbc_ap_Global_RAN_Node_ID_vals[] = {
+  {   0, "global-GNB-ID" },
+  {   1, "global-NgENB-ID" },
+  { 0, NULL }
+};
+
+static const per_choice_t Global_RAN_Node_ID_choice[] = {
+  {   0, &hf_sbc_ap_global_GNB_ID, ASN1_EXTENSION_ROOT    , dissect_sbc_ap_Global_GNB_ID },
+  {   1, &hf_sbc_ap_global_NgENB_ID, ASN1_EXTENSION_ROOT    , dissect_sbc_ap_Global_NgENB_ID },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_sbc_ap_Global_RAN_Node_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_sbc_ap_Global_RAN_Node_ID, Global_RAN_Node_ID_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t Broadcast_Empty_Area_List_5GS_sequence_of[1] = {
+  { &hf_sbc_ap_Broadcast_Empty_Area_List_5GS_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_sbc_ap_Global_RAN_Node_ID },
+};
+
+static int
+dissect_sbc_ap_Broadcast_Empty_Area_List_5GS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_sbc_ap_Broadcast_Empty_Area_List_5GS, Broadcast_Empty_Area_List_5GS_sequence_of,
+                                                  1, maxnoofRANNodes, FALSE);
 
   return offset;
 }
@@ -1193,7 +1660,7 @@ dissect_sbc_ap_Criticality_Diagnostics(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static int
 dissect_sbc_ap_Data_Coding_Scheme(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 268 "./asn1/sbc-ap/sbc-ap.cnf"
+#line 298 "./asn1/sbc-ap/sbc-ap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      8, 8, FALSE, NULL, 0, &parameter_tvb, NULL);
@@ -1259,6 +1726,20 @@ dissect_sbc_ap_Failed_Cell_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_sbc_ap_Failed_Cell_List, Failed_Cell_List_sequence_of,
                                                   1, maxnoofFailedCells, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t Failed_Cell_List_NR_sequence_of[1] = {
+  { &hf_sbc_ap_Failed_Cell_List_NR_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_sbc_ap_NR_CGI },
+};
+
+static int
+dissect_sbc_ap_Failed_Cell_List_NR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_sbc_ap_Failed_Cell_List_NR, Failed_Cell_List_NR_sequence_of,
+                                                  1, maxnoofCellsingNB, FALSE);
 
   return offset;
 }
@@ -1334,10 +1815,38 @@ dissect_sbc_ap_List_of_EAIs_Restart(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
+static const per_sequence_t List_of_5GS_TAIs_sequence_of[1] = {
+  { &hf_sbc_ap_List_of_5GS_TAIs_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_sbc_ap_TAI_5GS },
+};
+
+static int
+dissect_sbc_ap_List_of_5GS_TAIs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_sbc_ap_List_of_5GS_TAIs, List_of_5GS_TAIs_sequence_of,
+                                                  1, maxnoof5GSTAIs, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t List_of_5GS_TAI_for_Restart_sequence_of[1] = {
+  { &hf_sbc_ap_List_of_5GS_TAI_for_Restart_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_sbc_ap_TAI_5GS },
+};
+
+static int
+dissect_sbc_ap_List_of_5GS_TAI_for_Restart(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_sbc_ap_List_of_5GS_TAI_for_Restart, List_of_5GS_TAI_for_Restart_sequence_of,
+                                                  1, maxnoofRestart5GSTAIs, FALSE);
+
+  return offset;
+}
+
+
 
 static int
 dissect_sbc_ap_Message_Identifier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 234 "./asn1/sbc-ap/sbc-ap.cnf"
+#line 264 "./asn1/sbc-ap/sbc-ap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, -1,
                                      16, 16, FALSE, NULL, 0, &parameter_tvb, NULL);
@@ -1357,6 +1866,20 @@ static int
 dissect_sbc_ap_Number_of_Broadcasts_Requested(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 65535U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t NR_CGIList_sequence_of[1] = {
+  { &hf_sbc_ap_NR_CGIList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_sbc_ap_NR_CGI },
+};
+
+static int
+dissect_sbc_ap_NR_CGIList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_sbc_ap_NR_CGIList, NR_CGIList_sequence_of,
+                                                  1, maxnoofCellsingNB, FALSE);
 
   return offset;
 }
@@ -1396,6 +1919,35 @@ dissect_sbc_ap_Restarted_Cell_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 }
 
 
+static const value_string sbc_ap_RAT_Selector_5GS_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_sbc_ap_RAT_Selector_5GS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t Restarted_Cell_List_NR_sequence_of[1] = {
+  { &hf_sbc_ap_Restarted_Cell_List_NR_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_sbc_ap_NR_CGI },
+};
+
+static int
+dissect_sbc_ap_Restarted_Cell_List_NR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_sbc_ap_Restarted_Cell_List_NR, Restarted_Cell_List_NR_sequence_of,
+                                                  1, maxnoofCellsforRestartNR, FALSE);
+
+  return offset;
+}
+
+
 static const value_string sbc_ap_Send_Write_Replace_Warning_Indication_vals[] = {
   {   0, "true" },
   { 0, NULL }
@@ -1429,7 +1981,7 @@ dissect_sbc_ap_Send_Stop_Warning_Indication(tvbuff_t *tvb _U_, int offset _U_, a
 
 static int
 dissect_sbc_ap_Serial_Number(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 241 "./asn1/sbc-ap/sbc-ap.cnf"
+#line 271 "./asn1/sbc-ap/sbc-ap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
                                      16, 16, FALSE, NULL, 0, &parameter_tvb, NULL);
@@ -1476,6 +2028,20 @@ dissect_sbc_ap_TAI_List_for_Warning(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
+static const per_sequence_t Unknown_5GS_Tracking_Area_List_sequence_of[1] = {
+  { &hf_sbc_ap_Unknown_5GS_Tracking_Area_List_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_sbc_ap_TAI_5GS },
+};
+
+static int
+dissect_sbc_ap_Unknown_5GS_Tracking_Area_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_sbc_ap_Unknown_5GS_Tracking_Area_List, Unknown_5GS_Tracking_Area_List_sequence_of,
+                                                  1, maxnoof5GSTAIs, FALSE);
+
+  return offset;
+}
+
+
 static const value_string sbc_ap_Warning_Area_List_vals[] = {
   {   0, "cell-ID-List" },
   {   1, "tracking-Area-List-for-Warning" },
@@ -1503,7 +2069,7 @@ dissect_sbc_ap_Warning_Area_List(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 
 static int
 dissect_sbc_ap_Warning_Message_Content(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 279 "./asn1/sbc-ap/sbc-ap.cnf"
+#line 309 "./asn1/sbc-ap/sbc-ap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        1, 9600, FALSE, &parameter_tvb);
@@ -1523,6 +2089,16 @@ dissect_sbc_ap_Warning_Message_Content(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 
 static int
+dissect_sbc_ap_Warning_Area_Coordinates(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       1, 1024, FALSE, NULL);
+
+  return offset;
+}
+
+
+
+static int
 dissect_sbc_ap_Warning_Security_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        50, 50, FALSE, NULL);
@@ -1534,7 +2110,7 @@ dissect_sbc_ap_Warning_Security_Information(tvbuff_t *tvb _U_, int offset _U_, a
 
 static int
 dissect_sbc_ap_Warning_Type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 257 "./asn1/sbc-ap/sbc-ap.cnf"
+#line 287 "./asn1/sbc-ap/sbc-ap.cnf"
   tvbuff_t *parameter_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        2, 2, FALSE, &parameter_tvb);
@@ -1548,6 +2124,32 @@ dissect_sbc_ap_Warning_Type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 
 
+
+  return offset;
+}
+
+
+static const value_string sbc_ap_Warning_Area_List_5GS_vals[] = {
+  {   0, "cell-ID-List" },
+  {   1, "nR-CGIList" },
+  {   2, "tAIList-5GS" },
+  {   3, "emergencyAreaIDList" },
+  { 0, NULL }
+};
+
+static const per_choice_t Warning_Area_List_5GS_choice[] = {
+  {   0, &hf_sbc_ap_cell_ID_List , ASN1_EXTENSION_ROOT    , dissect_sbc_ap_ECGIList },
+  {   1, &hf_sbc_ap_nR_CGIList   , ASN1_EXTENSION_ROOT    , dissect_sbc_ap_NR_CGIList },
+  {   2, &hf_sbc_ap_tAIList_5GS  , ASN1_EXTENSION_ROOT    , dissect_sbc_ap_TAI_5GS },
+  {   3, &hf_sbc_ap_emergencyAreaIDList, ASN1_EXTENSION_ROOT    , dissect_sbc_ap_Emergency_Area_ID_List },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_sbc_ap_Warning_Area_List_5GS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_sbc_ap_Warning_Area_List_5GS, Warning_Area_List_5GS_choice,
+                                 NULL);
 
   return offset;
 }
@@ -1621,7 +2223,7 @@ static const per_sequence_t Write_Replace_Warning_Indication_sequence[] = {
 
 static int
 dissect_sbc_ap_Write_Replace_Warning_Indication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 225 "./asn1/sbc-ap/sbc-ap.cnf"
+#line 255 "./asn1/sbc-ap/sbc-ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Write-Replace-Warning-Indication");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -1639,7 +2241,7 @@ static const per_sequence_t Stop_Warning_Indication_sequence[] = {
 
 static int
 dissect_sbc_ap_Stop_Warning_Indication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 227 "./asn1/sbc-ap/sbc-ap.cnf"
+#line 257 "./asn1/sbc-ap/sbc-ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Stop-Warning-Indication");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -1657,7 +2259,7 @@ static const per_sequence_t PWS_Restart_Indication_sequence[] = {
 
 static int
 dissect_sbc_ap_PWS_Restart_Indication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 229 "./asn1/sbc-ap/sbc-ap.cnf"
+#line 259 "./asn1/sbc-ap/sbc-ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PWS-Restart-Indication");
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
@@ -1675,7 +2277,7 @@ static const per_sequence_t PWS_Failure_Indication_sequence[] = {
 
 static int
 dissect_sbc_ap_PWS_Failure_Indication(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 231 "./asn1/sbc-ap/sbc-ap.cnf"
+#line 261 "./asn1/sbc-ap/sbc-ap.cnf"
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PWS-Failure-Indication");
 
 
@@ -1808,6 +2410,14 @@ static int dissect_Broadcast_Scheduled_Area_List_PDU(tvbuff_t *tvb _U_, packet_i
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_Broadcast_Scheduled_Area_List_5GS_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_sbc_ap_Broadcast_Scheduled_Area_List_5GS(tvb, offset, &asn1_ctx, tree, hf_sbc_ap_Broadcast_Scheduled_Area_List_5GS_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_Broadcast_Cancelled_Area_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -1816,11 +2426,27 @@ static int dissect_Broadcast_Cancelled_Area_List_PDU(tvbuff_t *tvb _U_, packet_i
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_Broadcast_Cancelled_Area_List_5GS_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_sbc_ap_Broadcast_Cancelled_Area_List_5GS(tvb, offset, &asn1_ctx, tree, hf_sbc_ap_Broadcast_Cancelled_Area_List_5GS_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_Broadcast_Empty_Area_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_sbc_ap_Broadcast_Empty_Area_List(tvb, offset, &asn1_ctx, tree, hf_sbc_ap_Broadcast_Empty_Area_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Broadcast_Empty_Area_List_5GS_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_sbc_ap_Broadcast_Empty_Area_List_5GS(tvb, offset, &asn1_ctx, tree, hf_sbc_ap_Broadcast_Empty_Area_List_5GS_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -1872,11 +2498,35 @@ static int dissect_Failed_Cell_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_Failed_Cell_List_NR_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_sbc_ap_Failed_Cell_List_NR(tvb, offset, &asn1_ctx, tree, hf_sbc_ap_Failed_Cell_List_NR_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_Global_ENB_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_sbc_ap_Global_ENB_ID(tvb, offset, &asn1_ctx, tree, hf_sbc_ap_Global_ENB_ID_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Global_RAN_Node_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_sbc_ap_Global_RAN_Node_ID(tvb, offset, &asn1_ctx, tree, hf_sbc_ap_Global_RAN_Node_ID_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Global_GNB_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_sbc_ap_Global_GNB_ID(tvb, offset, &asn1_ctx, tree, hf_sbc_ap_Global_GNB_ID_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -1901,6 +2551,22 @@ static int dissect_List_of_EAIs_Restart_PDU(tvbuff_t *tvb _U_, packet_info *pinf
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_sbc_ap_List_of_EAIs_Restart(tvb, offset, &asn1_ctx, tree, hf_sbc_ap_List_of_EAIs_Restart_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_List_of_5GS_TAIs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_sbc_ap_List_of_5GS_TAIs(tvb, offset, &asn1_ctx, tree, hf_sbc_ap_List_of_5GS_TAIs_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_List_of_5GS_TAI_for_Restart_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_sbc_ap_List_of_5GS_TAI_for_Restart(tvb, offset, &asn1_ctx, tree, hf_sbc_ap_List_of_5GS_TAI_for_Restart_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -1944,6 +2610,22 @@ static int dissect_Restarted_Cell_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_RAT_Selector_5GS_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_sbc_ap_RAT_Selector_5GS(tvb, offset, &asn1_ctx, tree, hf_sbc_ap_RAT_Selector_5GS_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Restarted_Cell_List_NR_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_sbc_ap_Restarted_Cell_List_NR(tvb, offset, &asn1_ctx, tree, hf_sbc_ap_Restarted_Cell_List_NR_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_Send_Write_Replace_Warning_Indication_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -1976,6 +2658,14 @@ static int dissect_Stop_All_Indicator_PDU(tvbuff_t *tvb _U_, packet_info *pinfo 
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_Unknown_5GS_Tracking_Area_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_sbc_ap_Unknown_5GS_Tracking_Area_List(tvb, offset, &asn1_ctx, tree, hf_sbc_ap_Unknown_5GS_Tracking_Area_List_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_Warning_Area_List_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -1992,6 +2682,14 @@ static int dissect_Warning_Message_Content_PDU(tvbuff_t *tvb _U_, packet_info *p
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_Warning_Area_Coordinates_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_sbc_ap_Warning_Area_Coordinates(tvb, offset, &asn1_ctx, tree, hf_sbc_ap_Warning_Area_Coordinates_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 static int dissect_Warning_Security_Information_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
@@ -2005,6 +2703,14 @@ static int dissect_Warning_Type_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, p
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
   offset = dissect_sbc_ap_Warning_Type(tvb, offset, &asn1_ctx, tree, hf_sbc_ap_Warning_Type_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
+static int dissect_Warning_Area_List_5GS_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+  offset = dissect_sbc_ap_Warning_Area_List_5GS(tvb, offset, &asn1_ctx, tree, hf_sbc_ap_Warning_Area_List_5GS_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -2192,12 +2898,24 @@ void proto_register_sbc_ap(void) {
       { "Broadcast-Scheduled-Area-List", "sbc-ap.Broadcast_Scheduled_Area_List_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_sbc_ap_Broadcast_Scheduled_Area_List_5GS_PDU,
+      { "Broadcast-Scheduled-Area-List-5GS", "sbc-ap.Broadcast_Scheduled_Area_List_5GS_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_sbc_ap_Broadcast_Cancelled_Area_List_PDU,
       { "Broadcast-Cancelled-Area-List", "sbc-ap.Broadcast_Cancelled_Area_List_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_sbc_ap_Broadcast_Cancelled_Area_List_5GS_PDU,
+      { "Broadcast-Cancelled-Area-List-5GS", "sbc-ap.Broadcast_Cancelled_Area_List_5GS_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_sbc_ap_Broadcast_Empty_Area_List_PDU,
       { "Broadcast-Empty-Area-List", "sbc-ap.Broadcast_Empty_Area_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sbc_ap_Broadcast_Empty_Area_List_5GS_PDU,
+      { "Broadcast-Empty-Area-List-5GS", "sbc-ap.Broadcast_Empty_Area_List_5GS",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_sbc_ap_Cause_PDU,
@@ -2224,8 +2942,20 @@ void proto_register_sbc_ap(void) {
       { "Failed-Cell-List", "sbc-ap.Failed_Cell_List",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_sbc_ap_Failed_Cell_List_NR_PDU,
+      { "Failed-Cell-List-NR", "sbc-ap.Failed_Cell_List_NR",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_sbc_ap_Global_ENB_ID_PDU,
       { "Global-ENB-ID", "sbc-ap.Global_ENB_ID_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sbc_ap_Global_RAN_Node_ID_PDU,
+      { "Global-RAN-Node-ID", "sbc-ap.Global_RAN_Node_ID",
+        FT_UINT32, BASE_DEC, VALS(sbc_ap_Global_RAN_Node_ID_vals), 0,
+        NULL, HFILL }},
+    { &hf_sbc_ap_Global_GNB_ID_PDU,
+      { "Global-GNB-ID", "sbc-ap.Global_GNB_ID_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_sbc_ap_List_of_TAIs_PDU,
@@ -2238,6 +2968,14 @@ void proto_register_sbc_ap(void) {
         NULL, HFILL }},
     { &hf_sbc_ap_List_of_EAIs_Restart_PDU,
       { "List-of-EAIs-Restart", "sbc-ap.List_of_EAIs_Restart",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sbc_ap_List_of_5GS_TAIs_PDU,
+      { "List-of-5GS-TAIs", "sbc-ap.List_of_5GS_TAIs",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sbc_ap_List_of_5GS_TAI_for_Restart_PDU,
+      { "List-of-5GS-TAI-for-Restart", "sbc-ap.List_of_5GS_TAI_for_Restart",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_sbc_ap_Message_Identifier_PDU,
@@ -2260,6 +2998,14 @@ void proto_register_sbc_ap(void) {
       { "Restarted-Cell-List", "sbc-ap.Restarted_Cell_List",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_sbc_ap_RAT_Selector_5GS_PDU,
+      { "RAT-Selector-5GS", "sbc-ap.RAT_Selector_5GS",
+        FT_UINT32, BASE_DEC, VALS(sbc_ap_RAT_Selector_5GS_vals), 0,
+        NULL, HFILL }},
+    { &hf_sbc_ap_Restarted_Cell_List_NR_PDU,
+      { "Restarted-Cell-List-NR", "sbc-ap.Restarted_Cell_List_NR",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_sbc_ap_Send_Write_Replace_Warning_Indication_PDU,
       { "Send-Write-Replace-Warning-Indication", "sbc-ap.Send_Write_Replace_Warning_Indication",
         FT_UINT32, BASE_DEC, VALS(sbc_ap_Send_Write_Replace_Warning_Indication_vals), 0,
@@ -2276,12 +3022,20 @@ void proto_register_sbc_ap(void) {
       { "Stop-All-Indicator", "sbc-ap.Stop_All_Indicator",
         FT_UINT32, BASE_DEC, VALS(sbc_ap_Stop_All_Indicator_vals), 0,
         NULL, HFILL }},
+    { &hf_sbc_ap_Unknown_5GS_Tracking_Area_List_PDU,
+      { "Unknown-5GS-Tracking-Area-List", "sbc-ap.Unknown_5GS_Tracking_Area_List",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_sbc_ap_Warning_Area_List_PDU,
       { "Warning-Area-List", "sbc-ap.Warning_Area_List",
         FT_UINT32, BASE_DEC, VALS(sbc_ap_Warning_Area_List_vals), 0,
         NULL, HFILL }},
     { &hf_sbc_ap_Warning_Message_Content_PDU,
       { "Warning-Message-Content", "sbc-ap.Warning_Message_Content",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sbc_ap_Warning_Area_Coordinates_PDU,
+      { "Warning-Area-Coordinates", "sbc-ap.Warning_Area_Coordinates",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_sbc_ap_Warning_Security_Information_PDU,
@@ -2291,6 +3045,10 @@ void proto_register_sbc_ap(void) {
     { &hf_sbc_ap_Warning_Type_PDU,
       { "Warning-Type", "sbc-ap.Warning_Type",
         FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sbc_ap_Warning_Area_List_5GS_PDU,
+      { "Warning-Area-List-5GS", "sbc-ap.Warning_Area_List_5GS",
+        FT_UINT32, BASE_DEC, VALS(sbc_ap_Warning_Area_List_5GS_vals), 0,
         NULL, HFILL }},
     { &hf_sbc_ap_Write_Replace_Warning_Request_PDU,
       { "Write-Replace-Warning-Request", "sbc-ap.Write_Replace_Warning_Request_element",
@@ -2376,6 +3134,14 @@ void proto_register_sbc_ap(void) {
       { "iE-Extensions", "sbc-ap.iE_Extensions",
         FT_UINT32, BASE_DEC, NULL, 0,
         "ProtocolExtensionContainer", HFILL }},
+    { &hf_sbc_ap_cellId_Broadcast_List_5GS,
+      { "cellId-Broadcast-List-5GS", "sbc-ap.cellId_Broadcast_List_5GS",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sbc_ap_tAI_Broadcast_List_5GS,
+      { "tAI-Broadcast-List-5GS", "sbc-ap.tAI_Broadcast_List_5GS",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_sbc_ap_cellID_Cancelled_List,
       { "cellID-Cancelled-List", "sbc-ap.cellID_Cancelled_List",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -2388,9 +3154,21 @@ void proto_register_sbc_ap(void) {
       { "emergencyAreaID-Cancelled-List", "sbc-ap.emergencyAreaID_Cancelled_List",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_sbc_ap_cellID_Cancelled_List_5GS,
+      { "cellID-Cancelled-List-5GS", "sbc-ap.cellID_Cancelled_List_5GS",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sbc_ap_tAI_Cancelled_List_5GS,
+      { "tAI-Cancelled-List-5GS", "sbc-ap.tAI_Cancelled_List_5GS",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_sbc_ap_Broadcast_Empty_Area_List_item,
       { "Global-ENB-ID", "sbc-ap.Global_ENB_ID_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sbc_ap_Broadcast_Empty_Area_List_5GS_item,
+      { "Global-RAN-Node-ID", "sbc-ap.Global_RAN_Node_ID",
+        FT_UINT32, BASE_DEC, VALS(sbc_ap_Global_RAN_Node_ID_vals), 0,
         NULL, HFILL }},
     { &hf_sbc_ap_CancelledCellinEAI_item,
       { "CancelledCellinEAI-Item", "sbc-ap.CancelledCellinEAI_Item_element",
@@ -2408,12 +3186,28 @@ void proto_register_sbc_ap(void) {
       { "CancelledCellinTAI-Item", "sbc-ap.CancelledCellinTAI_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_sbc_ap_CancelledCellinTAI_5GS_item,
+      { "CancelledCellinTAI-5GS item", "sbc-ap.CancelledCellinTAI_5GS_item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sbc_ap_nR_CGI,
+      { "nR-CGI", "sbc-ap.nR_CGI_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_sbc_ap_CellId_Broadcast_List_item,
       { "CellId-Broadcast-List-Item", "sbc-ap.CellId_Broadcast_List_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_sbc_ap_CellId_Broadcast_List_5GS_item,
+      { "CellId-Broadcast-List-5GS item", "sbc-ap.CellId_Broadcast_List_5GS_item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_sbc_ap_CellID_Cancelled_List_item,
       { "CellID-Cancelled-Item", "sbc-ap.CellID_Cancelled_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sbc_ap_CellID_Cancelled_List_5GS_item,
+      { "CellID-Cancelled-List-5GS item", "sbc-ap.CellID_Cancelled_List_5GS_item_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_sbc_ap_procedureCode,
@@ -2504,10 +3298,34 @@ void proto_register_sbc_ap(void) {
       { "EUTRAN-CGI", "sbc-ap.EUTRAN_CGI_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_sbc_ap_Failed_Cell_List_NR_item,
+      { "NR-CGI", "sbc-ap.NR_CGI_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_sbc_ap_eNB_ID,
       { "eNB-ID", "sbc-ap.eNB_ID",
         FT_UINT32, BASE_DEC, VALS(sbc_ap_ENB_ID_vals), 0,
         NULL, HFILL }},
+    { &hf_sbc_ap_global_GNB_ID,
+      { "global-GNB-ID", "sbc-ap.global_GNB_ID_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sbc_ap_global_NgENB_ID,
+      { "global-NgENB-ID", "sbc-ap.global_NgENB_ID_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sbc_ap_gNB_ID,
+      { "gNB-ID", "sbc-ap.gNB_ID",
+        FT_UINT32, BASE_DEC, VALS(sbc_ap_GNB_ID_vals), 0,
+        NULL, HFILL }},
+    { &hf_sbc_ap_gNB_ID_01,
+      { "gNB-ID", "sbc-ap.gNB_ID",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_22_32", HFILL }},
+    { &hf_sbc_ap_ngENB_ID,
+      { "ngENB-ID", "sbc-ap.ngENB_ID",
+        FT_UINT32, BASE_DEC, VALS(sbc_ap_ENB_ID_vals), 0,
+        "ENB_ID", HFILL }},
     { &hf_sbc_ap_List_of_TAIs_item,
       { "List-of-TAIs item", "sbc-ap.List_of_TAIs_item_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -2524,8 +3342,28 @@ void proto_register_sbc_ap(void) {
       { "Emergency-Area-ID", "sbc-ap.Emergency_Area_ID",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_sbc_ap_List_of_5GS_TAIs_item,
+      { "TAI-5GS", "sbc-ap.TAI_5GS_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sbc_ap_List_of_5GS_TAI_for_Restart_item,
+      { "TAI-5GS", "sbc-ap.TAI_5GS_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sbc_ap_NR_CGIList_item,
+      { "NR-CGI", "sbc-ap.NR_CGI_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sbc_ap_nRCellIdentity,
+      { "nRCellIdentity", "sbc-ap.nRCellIdentity",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_sbc_ap_Restarted_Cell_List_item,
       { "EUTRAN-CGI", "sbc-ap.EUTRAN_CGI_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sbc_ap_Restarted_Cell_List_NR_item,
+      { "NR-CGI", "sbc-ap.NR_CGI_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_sbc_ap_ScheduledCellinEAI_item,
@@ -2534,6 +3372,10 @@ void proto_register_sbc_ap(void) {
         NULL, HFILL }},
     { &hf_sbc_ap_ScheduledCellinTAI_item,
       { "ScheduledCellinTAI-Item", "sbc-ap.ScheduledCellinTAI_Item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sbc_ap_ScheduledCellinTAI_5GS_item,
+      { "ScheduledCellinTAI-5GS item", "sbc-ap.ScheduledCellinTAI_5GS_item_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_sbc_ap_TAI_Broadcast_List_item,
@@ -2548,12 +3390,32 @@ void proto_register_sbc_ap(void) {
       { "scheduledCellinTAI", "sbc-ap.scheduledCellinTAI",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_sbc_ap_TAI_Broadcast_List_5GS_item,
+      { "TAI-Broadcast-List-5GS item", "sbc-ap.TAI_Broadcast_List_5GS_item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sbc_ap_tAI_5GS,
+      { "tAI-5GS", "sbc-ap.tAI_5GS_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sbc_ap_scheduledCellinTAI_5GS,
+      { "scheduledCellinTAI-5GS", "sbc-ap.scheduledCellinTAI_5GS",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_sbc_ap_TAI_Cancelled_List_item,
       { "TAI-Cancelled-List-Item", "sbc-ap.TAI_Cancelled_List_Item_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_sbc_ap_cancelledCellinTAI,
       { "cancelledCellinTAI", "sbc-ap.cancelledCellinTAI",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sbc_ap_TAI_Cancelled_List_5GS_item,
+      { "TAI-Cancelled-List-5GS item", "sbc-ap.TAI_Cancelled_List_5GS_item_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sbc_ap_cancelledCellinTAI_5GS,
+      { "cancelledCellinTAI-5GS", "sbc-ap.cancelledCellinTAI_5GS",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_sbc_ap_TAI_List_for_Warning_item,
@@ -2563,6 +3425,14 @@ void proto_register_sbc_ap(void) {
     { &hf_sbc_ap_tAC,
       { "tAC", "sbc-ap.tAC",
         FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sbc_ap_tAC_5GS,
+      { "tAC-5GS", "sbc-ap.tAC_5GS",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sbc_ap_Unknown_5GS_Tracking_Area_List_item,
+      { "TAI-5GS", "sbc-ap.TAI_5GS_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_sbc_ap_cell_ID_List,
       { "cell-ID-List", "sbc-ap.cell_ID_List",
@@ -2576,6 +3446,18 @@ void proto_register_sbc_ap(void) {
       { "emergency-Area-ID-List", "sbc-ap.emergency_Area_ID_List",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_sbc_ap_nR_CGIList,
+      { "nR-CGIList", "sbc-ap.nR_CGIList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_sbc_ap_tAIList_5GS,
+      { "tAIList-5GS", "sbc-ap.tAIList_5GS_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "TAI_5GS", HFILL }},
+    { &hf_sbc_ap_emergencyAreaIDList,
+      { "emergencyAreaIDList", "sbc-ap.emergencyAreaIDList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "Emergency_Area_ID_List", HFILL }},
     { &hf_sbc_ap_protocolIEs,
       { "protocolIEs", "sbc-ap.protocolIEs",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -2628,16 +3510,25 @@ void proto_register_sbc_ap(void) {
     &ett_sbc_ap_ProtocolExtensionContainer,
     &ett_sbc_ap_ProtocolExtensionField,
     &ett_sbc_ap_Broadcast_Scheduled_Area_List,
+    &ett_sbc_ap_Broadcast_Scheduled_Area_List_5GS,
     &ett_sbc_ap_Broadcast_Cancelled_Area_List,
+    &ett_sbc_ap_Broadcast_Cancelled_Area_List_5GS,
     &ett_sbc_ap_Broadcast_Empty_Area_List,
+    &ett_sbc_ap_Broadcast_Empty_Area_List_5GS,
     &ett_sbc_ap_CancelledCellinEAI,
     &ett_sbc_ap_CancelledCellinEAI_Item,
     &ett_sbc_ap_CancelledCellinTAI,
     &ett_sbc_ap_CancelledCellinTAI_Item,
+    &ett_sbc_ap_CancelledCellinTAI_5GS,
+    &ett_sbc_ap_CancelledCellinTAI_5GS_item,
     &ett_sbc_ap_CellId_Broadcast_List,
     &ett_sbc_ap_CellId_Broadcast_List_Item,
+    &ett_sbc_ap_CellId_Broadcast_List_5GS,
+    &ett_sbc_ap_CellId_Broadcast_List_5GS_item,
     &ett_sbc_ap_CellID_Cancelled_List,
     &ett_sbc_ap_CellID_Cancelled_Item,
+    &ett_sbc_ap_CellID_Cancelled_List_5GS,
+    &ett_sbc_ap_CellID_Cancelled_List_5GS_item,
     &ett_sbc_ap_Criticality_Diagnostics,
     &ett_sbc_ap_CriticalityDiagnostics_IE_List,
     &ett_sbc_ap_CriticalityDiagnostics_IE_List_item,
@@ -2650,24 +3541,43 @@ void proto_register_sbc_ap(void) {
     &ett_sbc_ap_EUTRAN_CGI,
     &ett_sbc_ap_ENB_ID,
     &ett_sbc_ap_Failed_Cell_List,
+    &ett_sbc_ap_Failed_Cell_List_NR,
     &ett_sbc_ap_Global_ENB_ID,
+    &ett_sbc_ap_Global_RAN_Node_ID,
+    &ett_sbc_ap_Global_GNB_ID,
+    &ett_sbc_ap_GNB_ID,
+    &ett_sbc_ap_Global_NgENB_ID,
     &ett_sbc_ap_List_of_TAIs,
     &ett_sbc_ap_List_of_TAIs_item,
     &ett_sbc_ap_List_of_TAIs_Restart,
     &ett_sbc_ap_List_of_TAIs_Restart_item,
     &ett_sbc_ap_List_of_EAIs_Restart,
+    &ett_sbc_ap_List_of_5GS_TAIs,
+    &ett_sbc_ap_List_of_5GS_TAI_for_Restart,
+    &ett_sbc_ap_NR_CGIList,
+    &ett_sbc_ap_NR_CGI,
     &ett_sbc_ap_Restarted_Cell_List,
+    &ett_sbc_ap_Restarted_Cell_List_NR,
     &ett_sbc_ap_ScheduledCellinEAI,
     &ett_sbc_ap_ScheduledCellinEAI_Item,
     &ett_sbc_ap_ScheduledCellinTAI,
     &ett_sbc_ap_ScheduledCellinTAI_Item,
+    &ett_sbc_ap_ScheduledCellinTAI_5GS,
+    &ett_sbc_ap_ScheduledCellinTAI_5GS_item,
     &ett_sbc_ap_TAI_Broadcast_List,
     &ett_sbc_ap_TAI_Broadcast_List_Item,
+    &ett_sbc_ap_TAI_Broadcast_List_5GS,
+    &ett_sbc_ap_TAI_Broadcast_List_5GS_item,
     &ett_sbc_ap_TAI_Cancelled_List,
     &ett_sbc_ap_TAI_Cancelled_List_Item,
+    &ett_sbc_ap_TAI_Cancelled_List_5GS,
+    &ett_sbc_ap_TAI_Cancelled_List_5GS_item,
     &ett_sbc_ap_TAI_List_for_Warning,
     &ett_sbc_ap_TAI,
+    &ett_sbc_ap_TAI_5GS,
+    &ett_sbc_ap_Unknown_5GS_Tracking_Area_List,
     &ett_sbc_ap_Warning_Area_List,
+    &ett_sbc_ap_Warning_Area_List_5GS,
     &ett_sbc_ap_Write_Replace_Warning_Request,
     &ett_sbc_ap_Write_Replace_Warning_Response,
     &ett_sbc_ap_Stop_Warning_Request,
@@ -2746,6 +3656,19 @@ proto_reg_handoff_sbc_ap(void)
   dissector_add_uint("sbc_ap.ies", id_List_of_TAIs_Restart, create_dissector_handle(dissect_List_of_TAIs_Restart_PDU, proto_sbc_ap));
   dissector_add_uint("sbc_ap.ies", id_List_of_EAIs_Restart, create_dissector_handle(dissect_List_of_EAIs_Restart_PDU, proto_sbc_ap));
   dissector_add_uint("sbc_ap.ies", id_Failed_Cell_List, create_dissector_handle(dissect_Failed_Cell_List_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.extension", id_List_of_5GS_TAIs, create_dissector_handle(dissect_List_of_5GS_TAIs_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.extension", id_Warning_Area_List_5GS, create_dissector_handle(dissect_Warning_Area_List_5GS_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.extension", id_Global_RAN_Node_ID, create_dissector_handle(dissect_Global_RAN_Node_ID_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.extension", id_Global_GNB_ID, create_dissector_handle(dissect_Global_GNB_ID_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.extension", id_RAT_Selector_5GS, create_dissector_handle(dissect_RAT_Selector_5GS_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.extension", id_Unknown_5GS_Tracking_Area_List, create_dissector_handle(dissect_Unknown_5GS_Tracking_Area_List_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.extension", id_Broadcast_Scheduled_Area_List_5GS, create_dissector_handle(dissect_Broadcast_Scheduled_Area_List_5GS_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.extension", id_Broadcast_Cancelled_Area_List_5GS, create_dissector_handle(dissect_Broadcast_Cancelled_Area_List_5GS_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.extension", id_Broadcast_Empty_Area_List_5GS, create_dissector_handle(dissect_Broadcast_Empty_Area_List_5GS_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.extension", id_Restarted_Cell_List_NR, create_dissector_handle(dissect_Restarted_Cell_List_NR_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.extension", id_Failed_Cell_List_NR, create_dissector_handle(dissect_Failed_Cell_List_NR_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.extension", id_List_of_5GS_TAI_for_Restart, create_dissector_handle(dissect_List_of_5GS_TAI_for_Restart_PDU, proto_sbc_ap));
+  dissector_add_uint("sbc_ap.ies", id_Warning_Area_Coordinates, create_dissector_handle(dissect_Warning_Area_Coordinates_PDU, proto_sbc_ap));
   dissector_add_uint("sbc_ap.proc.imsg", id_Write_Replace_Warning, create_dissector_handle(dissect_Write_Replace_Warning_Request_PDU, proto_sbc_ap));
   dissector_add_uint("sbc_ap.proc.sout", id_Write_Replace_Warning, create_dissector_handle(dissect_Write_Replace_Warning_Response_PDU, proto_sbc_ap));
   dissector_add_uint("sbc_ap.proc.imsg", id_Stop_Warning, create_dissector_handle(dissect_Stop_Warning_Request_PDU, proto_sbc_ap));
