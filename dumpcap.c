@@ -3127,23 +3127,17 @@ capture_loop_init_output(capture_options *capture_opts, loop_data *ld, char *err
     if (ld->pdh == NULL) {
         /* We couldn't set up to write to the capture file. */
         /* XXX - use cf_open_error_message from tshark instead? */
-        switch (err) {
-
-        default:
-            if (err < 0) {
-                g_snprintf(errmsg, errmsg_len,
-                           "The file to which the capture would be"
-                           " saved (\"%s\") could not be opened: Error %d.",
-                           capture_opts->save_file, err);
-            } else {
-                g_snprintf(errmsg, errmsg_len,
-                           "The file to which the capture would be"
-                           " saved (\"%s\") could not be opened: %s.",
-                           capture_opts->save_file, g_strerror(err));
-            }
-            break;
+        if (err < 0) {
+            g_snprintf(errmsg, errmsg_len,
+                       "The file to which the capture would be"
+                       " saved (\"%s\") could not be opened: Error %d.",
+                       capture_opts->save_file, err);
+        } else {
+            g_snprintf(errmsg, errmsg_len,
+                       "The file to which the capture would be"
+                       " saved (\"%s\") could not be opened: %s.",
+                       capture_opts->save_file, g_strerror(err));
         }
-
         return FALSE;
     }
 
