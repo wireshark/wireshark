@@ -324,7 +324,7 @@ wtap_dump_params_init(wtap_dump_params *params, wtap *wth)
 	/* Assume that the input handle remains open until the dumper is closed.
 	 * Refer to the DSBs from the input file, wtap_dump will then copy DSBs
 	 * as they become available. */
-	params->dsbs_growing = wth ? wth->dsbs : NULL;
+	params->dsbs_growing = wth->dsbs;
 }
 
 void
