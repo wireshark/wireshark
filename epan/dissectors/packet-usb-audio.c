@@ -271,6 +271,8 @@ static int hf_as_if_ft_lowersamfreq = -1;
 static int hf_as_if_ft_uppersamfreq = -1;
 static int hf_as_if_ft_samfreq = -1;
 static int hf_as_ep_desc_subtype = -1;
+static int hf_ms_if_desc_subtype = -1;
+static int hf_ms_ep_desc_subtype = -1;
 
 static reassembly_table midi_data_reassembly_table;
 
@@ -388,6 +390,26 @@ static const value_string as_subtype_vals[] = {
 };
 static value_string_ext as_subtype_vals_ext =
     VALUE_STRING_EXT_INIT(as_subtype_vals);
+
+#define MS_IF_SUBTYPE_HEADER        0x01
+#define MS_IF_SUBTYPE_MIDI_IN_JACK  0x02
+#define MS_IF_SUBTYPE_MIDI_OUT_JACK 0x03
+#define MS_IF_SUBTYPE_ELEMENT       0x04
+static const value_string ms_if_subtype_vals[] = {
+    {MS_IF_SUBTYPE_HEADER,        "Header Descriptor"},
+    {MS_IF_SUBTYPE_MIDI_IN_JACK,  "MIDI IN Jack descriptor"},
+    {MS_IF_SUBTYPE_MIDI_OUT_JACK, "MIDI OUT Jack descriptor"},
+    {MS_IF_SUBTYPE_ELEMENT,       "MIDI Element descriptor"},
+    {0,NULL}
+};
+static value_string_ext ms_if_subtype_vals_ext =
+    VALUE_STRING_EXT_INIT(ms_if_subtype_vals);
+
+#define MS_EP_SUBTYPE_GENERAL       0x01
+static const value_string ms_ep_subtype_vals[] = {
+    {MS_EP_SUBTYPE_GENERAL,       "General Descriptor"},
+    {0,NULL}
+};
 
 /* Table A-7: Audio Function Category Codes */
 static const value_string audio_function_categories_vals[] = {
@@ -1589,6 +1611,42 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
 
         bytes_dissected = offset;
     }
+    else if (desc_type==CS_INTERFACE &&
+            usb_conv_info->interfaceSubclass==AUDIO_IF_SUBCLASS_MIDISTREAMING) {
+        desc_tree = proto_tree_add_subtree(tree, tvb, offset, desc_len,
+                ett_usb_audio_desc, &desc_tree_item,
+                "Class-specific MIDI Streaming Interface Descriptor");
+
+        dissect_usb_descriptor_header(desc_tree, tvb, offset,
+            &aud_descriptor_type_vals_ext);
+        offset += 2;
+
+        desc_subtype = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(desc_tree, hf_ms_if_desc_subtype,
+                tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        subtype_str = try_val_to_str_ext(desc_subtype, &ms_if_subtype_vals_ext);
+        if (subtype_str)
+            proto_item_append_text(desc_tree_item, ": %s", subtype_str);
+        offset++;
+
+        bytes_dissected = offset;
+    }
+    else if (desc_type==CS_ENDPOINT &&
+            usb_conv_info->interfaceSubclass==AUDIO_IF_SUBCLASS_MIDISTREAMING) {
+        desc_tree = proto_tree_add_subtree(tree, tvb, offset, desc_len,
+                ett_usb_audio_desc, &desc_tree_item,
+                "Class-specific MIDI Streaming Endpoint Descriptor");
+
+        dissect_usb_descriptor_header(desc_tree, tvb, offset,
+            &aud_descriptor_type_vals_ext);
+        offset += 2;
+
+        proto_tree_add_item(desc_tree, hf_ms_ep_desc_subtype,
+                tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+
+        bytes_dissected = offset;
+    }
     else
         return 0;
 
@@ -2386,6 +2444,13 @@ proto_register_usb_audio(void)
         { &hf_as_ep_desc_subtype,
             { "Subtype", "usbaudio.as_ep_subtype", FT_UINT8,
                 BASE_HEX, NULL, 0x00, "bDescriptorSubtype", HFILL }},
+
+        { &hf_ms_if_desc_subtype,
+            { "Subtype", "usbaudio.ms_if_subtype", FT_UINT8, BASE_HEX|BASE_EXT_STRING,
+              &ms_if_subtype_vals_ext, 0x00, "bDescriptorSubtype", HFILL }},
+        { &hf_ms_ep_desc_subtype,
+            { "Subtype", "usbaudio.ms_ep_subtype", FT_UINT8,
+              BASE_HEX, VALS(ms_ep_subtype_vals), 0x00, "bDescriptorSubtype", HFILL }},
 
         { &hf_sysex_msg_fragments,
             { "Message fragments", "usbaudio.sysex.fragments",
