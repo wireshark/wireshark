@@ -713,7 +713,8 @@ dissect_usb_midi_event(tvbuff_t *tvb, packet_info *pinfo,
         proto_item *ti;
         gint event_size, padding_size;
 
-        ti = proto_tree_add_protocol_format(usb_audio_tree, proto_usb_audio, tvb, offset, 4, "USB Midi Event Packet");
+        ti = proto_tree_add_protocol_format(usb_audio_tree, proto_usb_audio, tvb, offset, 4, "USB Midi Event Packet: %s",
+                 try_val_to_str(code, code_index_vals));
         tree = proto_item_add_subtree(ti, ett_usb_audio);
         proto_tree_add_item(tree, hf_midi_cable_number, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_midi_code_index, tvb, offset, 1, ENC_BIG_ENDIAN);
