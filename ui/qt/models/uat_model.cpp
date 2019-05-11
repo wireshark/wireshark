@@ -281,7 +281,9 @@ bool UatModel::setData(const QModelIndex &index, const QVariant &value, int role
     }
 
     if (record_errors[row].isEmpty()) {
-        // If all fields are valid, invoke the update callback
+        // If all individual fields are valid, invoke the update callback. This
+        // might detect additional issues in either individual fields, or the
+        // combination of them.
         if (uat_->update_cb) {
             char *err = NULL;
             if (!uat_->update_cb(rec, &err)) {
@@ -290,10 +292,8 @@ bool UatModel::setData(const QModelIndex &index, const QVariant &value, int role
                 g_free(err);
             }
         }
-        uat_update_record(uat_, rec, TRUE);
-    } else {
-        uat_update_record(uat_, rec, FALSE);
     }
+    uat_update_record(uat_, rec, record_errors[row].isEmpty());
     dirty_records[row] = true;
     uat_->changed = TRUE;
 
