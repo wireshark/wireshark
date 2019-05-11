@@ -170,7 +170,7 @@ static gboolean               rem_vlan                  = FALSE;
 static gboolean               dup_detect                = FALSE;
 static gboolean               dup_detect_by_time        = FALSE;
 static gboolean               skip_radiotap             = FALSE;
-static gboolean               remove_all_secrets        = FALSE;
+static gboolean               discard_all_secrets       = FALSE;
 
 static int                    do_strict_time_adjustment = FALSE;
 static struct time_adjustment strict_time_adj           = {NSTIME_INIT_ZERO, 0}; /* strict time adjustment */
@@ -1018,7 +1018,7 @@ main(int argc, char *argv[])
 #define LONGOPT_SKIP_RADIOTAP_HEADER 0x8101
 #define LONGOPT_SEED                 0x8102
 #define LONGOPT_INJECT_SECRETS       0x8103
-#define LONGOPT_DISCARD_ALL_SECRETS   0x8104
+#define LONGOPT_DISCARD_ALL_SECRETS  0x8104
     static const struct option long_options[] = {
         {"novlan", no_argument, NULL, LONGOPT_NO_VLAN},
         {"skip-radiotap-header", no_argument, NULL, LONGOPT_SKIP_RADIOTAP_HEADER},
@@ -1158,7 +1158,7 @@ main(int argc, char *argv[])
 
         case LONGOPT_DISCARD_ALL_SECRETS:
         {
-            remove_all_secrets = TRUE;
+            discard_all_secrets = TRUE;
             break;
         }
 
@@ -1485,7 +1485,7 @@ main(int argc, char *argv[])
     /*
      * Discard any secrets we read in while opening the file.
      */
-    if (remove_all_secrets) {
+    if (discard_all_secrets) {
         wtap_dump_params_discard_decryption_secrets(&params);
     }
 
@@ -2002,7 +2002,7 @@ main(int argc, char *argv[])
                 }
             }
 
-            if (remove_all_secrets) {
+            if (discard_all_secrets) {
                 /*
                  * Discard any secrets we've read since the last packet
                  * we wrote.
