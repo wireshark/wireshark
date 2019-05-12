@@ -81,7 +81,8 @@ ADDITIONAL_LIST="libnl-3-dev \
 	git \
 	ninja-build \
 	doxygen \
-	xsltproc"
+	xsltproc \
+	libspeexdsp-dev"
 
 DEBDEPS_LIST="debhelper \
 	dh-python \
