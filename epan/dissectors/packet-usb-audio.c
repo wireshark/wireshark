@@ -278,6 +278,12 @@ static int hf_ms_if_hdr_total_len = -1;
 static int hf_ms_if_midi_in_bjacktype = -1;
 static int hf_ms_if_midi_in_bjackid = -1;
 static int hf_ms_if_midi_in_ijack = -1;
+static int hf_ms_if_midi_out_bjacktype = -1;
+static int hf_ms_if_midi_out_bjackid = -1;
+static int hf_ms_if_midi_out_bnrinputpins = -1;
+static int hf_ms_if_midi_out_basourceid = -1;
+static int hf_ms_if_midi_out_basourcepin = -1;
+static int hf_ms_if_midi_out_ijack = -1;
 static int hf_ms_ep_desc_subtype = -1;
 
 static reassembly_table midi_data_reassembly_table;
@@ -1568,6 +1574,36 @@ dissect_ms_if_midi_in_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 }
 
 static gint
+dissect_ms_if_midi_out_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+        proto_tree *tree, usb_conv_info_t *usb_conv_info _U_)
+{
+    gint     offset_start = offset;
+    guint8   nrinputpins;
+
+    proto_tree_add_item(tree, hf_ms_if_midi_out_bjacktype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_ms_if_midi_out_bjackid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_ms_if_midi_out_bnrinputpins, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    nrinputpins = tvb_get_guint8(tvb, offset);
+    offset += 1;
+    while (nrinputpins)
+    {
+        proto_tree_add_item(tree, hf_ms_if_midi_out_basourceid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+        proto_tree_add_item(tree, hf_ms_if_midi_out_basourcepin, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+        nrinputpins--;
+    }
+
+    proto_tree_add_item(tree, hf_ms_if_midi_out_ijack, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    return offset-offset_start;
+}
+
+static gint
 dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, void *data)
 {
@@ -1715,6 +1751,10 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
                 break;
             case MS_IF_SUBTYPE_MIDI_IN_JACK:
                 bytes_dissected += dissect_ms_if_midi_in_body(tvb, offset, pinfo,
+                        desc_tree, usb_conv_info);
+                break;
+            case MS_IF_SUBTYPE_MIDI_OUT_JACK:
+                bytes_dissected += dissect_ms_if_midi_out_body(tvb, offset, pinfo,
                         desc_tree, usb_conv_info);
                 break;
             default:
@@ -2552,6 +2592,24 @@ proto_register_usb_audio(void)
               FT_UINT8, BASE_DEC, NULL, 0x00, "bJackID", HFILL }},
         { &hf_ms_if_midi_in_ijack,
             { "String descriptor index", "usbaudio.ms_if_midi_in.iJack",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "iJack", HFILL }},
+        { &hf_ms_if_midi_out_bjacktype,
+            { "Jack Type", "usbaudio.ms_if_midi_out.bJackType",
+              FT_UINT8, BASE_HEX, VALS(ms_midi_jack_type_vals), 0x00, "bJackType", HFILL }},
+        { &hf_ms_if_midi_out_bjackid,
+            { "Jack ID", "usbaudio.ms_if_midi_out.bJackID",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "bJackID", HFILL }},
+       { &hf_ms_if_midi_out_bnrinputpins,
+            { "Number of Input Pins", "usbaudio.ms_if_midi_out.bNrInputPins",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "bNrInputPins", HFILL }},
+        { &hf_ms_if_midi_out_basourceid,
+            { "Connected MIDI Entity", "usbaudio.ms_if_midi_out.baSourceID",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "baSourceID", HFILL }},
+        { &hf_ms_if_midi_out_basourcepin,
+            { "Entity Output Pin", "usbaudio.ms_if_midi_out.BaSourcePin",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "BaSourcePin", HFILL }},
+        { &hf_ms_if_midi_out_ijack,
+            { "String descriptor index", "usbaudio.ms_if_midi_out.iJack",
               FT_UINT8, BASE_DEC, NULL, 0x00, "iJack", HFILL }},
 
         { &hf_ms_ep_desc_subtype,
