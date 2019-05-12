@@ -21,84 +21,70 @@
     - export PYTEST_ADDOPTS=--skip-missing-programs=dumpcap,rawshark
     - mkdir build
     - cd build
+  script:
+    - cmake -GNinja $CMAKE_ARGS ..
+    - ninja
+    - ninja test-programs
+    - chown -R user .
+    - su user -c pytest-3
+
 .build-rpm: &build-rpm
   <<: *build
   artifacts:
     paths:
       - build/packaging/rpm/RPMS
     expire_in: 3 days
+
 gcc-5:
   <<: *build-ubuntu
-  script:
-    - cmake -GNinja -DCMAKE_C_COMPILER=gcc-5 -DCMAKE_CXX_COMPILER=g++-5 ..
-    - ninja
-    - ninja test-programs
-    - chown -R user .
-    - su user -c pytest-3
+  variables:
+    CC: gcc-5
+    CXX: g++-5
 gcc-6:
   <<: *build-ubuntu
-  script:
-    - cmake -GNinja -DCMAKE_C_COMPILER=gcc-6 -DCMAKE_CXX_COMPILER=g++-6 ..
-    - ninja
-    - ninja test-programs
-    - chown -R user .
-    - su user -c pytest-3
+  variables:
+    CC: gcc-6
+    CXX: g++-6
 gcc-7:
   <<: *build-ubuntu
-  script:
-    - cmake -GNinja -DCMAKE_C_COMPILER=gcc-7 -DCMAKE_CXX_COMPILER=g++-7 ..
-    - ninja
-    - ninja test-programs
-    - chown -R user .
-    - su user -c pytest-3
+  variables:
+    CC: gcc-7
+    CXX: g++-7
 gcc-8:
   <<: *build-ubuntu
-  script:
-    - cmake -GNinja -DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8 ..
-    - ninja
-    - ninja test-programs
-    - chown -R user .
-    - su user -c pytest-3
+  variables:
+    CC: gcc-8
+    CXX: g++-8
 gcc-8-nopcap:
   <<: *build-ubuntu
-  script:
-    - cmake -GNinja -DENABLE_PCAP=OFF -DCMAKE_C_COMPILER=gcc-8 -DCMAKE_CXX_COMPILER=g++-8 ..
-    - ninja
-    - ninja test-programs
-    - chown -R user .
-    - su user -c pytest-3
+  variables:
+    CMAKE_ARGS: -DENABLE_PCAP=NO
+    CC: gcc-8
+    CXX: g++-8
 clang-5:
   <<: *build-ubuntu
-  script:
-    - cmake -GNinja -DCMAKE_C_COMPILER=clang-5.0 -DCMAKE_CXX_COMPILER=clang++-5.0 -DCMAKE_C_FLAGS=-Wframe-larger-than=20000 ..
-    - ninja
-    - ninja test-programs
-    - chown -R user .
-    - su user -c pytest-3
+  variables:
+    CMAKE_ARGS: -DCMAKE_C_FLAGS=-Wframe-larger-than=20000
+    CC: clang-5.0
+    CXX: clang++-5.0
 clang-6:
   <<: *build-ubuntu
-  script:
-    - cmake -GNinja -DCMAKE_C_COMPILER=clang-6.0 -DCMAKE_CXX_COMPILER=clang++-6.0 -DCMAKE_C_FLAGS=-Wframe-larger-than=20000 ..
-    - ninja
-    - ninja test-programs
-    - chown -R user .
-    - su user -c pytest-3
+  variables:
+    CMAKE_ARGS: -DCMAKE_C_FLAGS=-Wframe-larger-than=20000
+    CC: clang-6.0
+    CXX: clang++-6.0
 clang-7:
   <<: *build-ubuntu
-  script:
-     - cmake -GNinja -DCMAKE_C_COMPILER=clang-7 -DCMAKE_CXX_COMPILER=clang++-7 -DCMAKE_C_FLAGS=-Wframe-larger-than=20000 ..
-     - ninja
-     - ninja test-programs
-     - chown -R user .
-     - su user -c pytest-3
+  variables:
+    CMAKE_ARGS: -DCMAKE_C_FLAGS=-Wframe-larger-than=20000
+    CC: clang-7
+    CXX: clang++-7
 clang-7-nopcap:
   <<: *build-ubuntu
-  script:
-    - cmake -GNinja -DENABLE_PCAP=OFF -DCMAKE_C_COMPILER=clang-7 -DCMAKE_CXX_COMPILER=clang++-7 -DCMAKE_C_FLAGS=-Wframe-larger-than=20000 ..
-    - ninja
-    - ninja test-programs
-    - chown -R user .
-    - su user -c pytest-3
+  variables:
+    CMAKE_ARGS: -DENABLE_PCAP=NO -DCMAKE_C_FLAGS=-Wframe-larger-than=20000
+    CC: clang-7
+    CXX: clang++-7
 build:rpm-centos-7:
   <<: *build-rpm
   image: centos:7
