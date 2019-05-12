@@ -275,6 +275,9 @@ static int hf_as_ep_desc_subtype = -1;
 static int hf_ms_if_desc_subtype = -1;
 static int hf_ms_if_hdr_ver = -1;
 static int hf_ms_if_hdr_total_len = -1;
+static int hf_ms_if_midi_in_bjacktype = -1;
+static int hf_ms_if_midi_in_bjackid = -1;
+static int hf_ms_if_midi_in_ijack = -1;
 static int hf_ms_ep_desc_subtype = -1;
 
 static reassembly_table midi_data_reassembly_table;
@@ -407,6 +410,14 @@ static const value_string ms_if_subtype_vals[] = {
 };
 static value_string_ext ms_if_subtype_vals_ext =
     VALUE_STRING_EXT_INIT(ms_if_subtype_vals);
+
+#define MS_MIDI_JACK_TYPE_EMBEDDED  0x01
+#define MS_MIDI_JACK_TYPE_EXTERNAL  0x02
+static const value_string ms_midi_jack_type_vals[] = {
+    {MS_MIDI_JACK_TYPE_EMBEDDED, "Embedded"},
+    {MS_MIDI_JACK_TYPE_EXTERNAL, "External"},
+    {0,NULL}
+};
 
 #define MS_EP_SUBTYPE_GENERAL       0x01
 static const value_string ms_ep_subtype_vals[] = {
@@ -1541,6 +1552,22 @@ dissect_ms_if_hdr_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 }
 
 static gint
+dissect_ms_if_midi_in_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+        proto_tree *tree, usb_conv_info_t *usb_conv_info _U_)
+{
+    gint     offset_start = offset;
+
+    proto_tree_add_item(tree, hf_ms_if_midi_in_bjacktype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_ms_if_midi_in_bjackid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_ms_if_midi_in_ijack, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    return offset-offset_start;
+}
+
+static gint
 dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, void *data)
 {
@@ -1684,6 +1711,10 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
         switch(desc_subtype) {
             case MS_IF_SUBTYPE_HEADER:
                 bytes_dissected += dissect_ms_if_hdr_body(tvb, offset, pinfo,
+                        desc_tree, usb_conv_info);
+                break;
+            case MS_IF_SUBTYPE_MIDI_IN_JACK:
+                bytes_dissected += dissect_ms_if_midi_in_body(tvb, offset, pinfo,
                         desc_tree, usb_conv_info);
                 break;
             default:
@@ -2513,6 +2544,15 @@ proto_register_usb_audio(void)
         { &hf_ms_if_hdr_total_len,
             { "Total length", "usbaudio.ms_if_hdr.wTotalLength",
               FT_UINT16, BASE_DEC, NULL, 0x00, "wTotalLength", HFILL }},
+        { &hf_ms_if_midi_in_bjacktype,
+            { "Jack Type", "usbaudio.ms_if_midi_in.bJackType",
+              FT_UINT8, BASE_HEX, VALS(ms_midi_jack_type_vals), 0x00, "bJackType", HFILL }},
+        { &hf_ms_if_midi_in_bjackid,
+            { "Jack ID", "usbaudio.ms_if_midi_in.bJackID",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "bJackID", HFILL }},
+        { &hf_ms_if_midi_in_ijack,
+            { "String descriptor index", "usbaudio.ms_if_midi_in.iJack",
+              FT_UINT8, BASE_DEC, NULL, 0x00, "iJack", HFILL }},
 
         { &hf_ms_ep_desc_subtype,
             { "Subtype", "usbaudio.ms_ep_subtype", FT_UINT8,
