@@ -284,6 +284,8 @@ static int hf_ms_if_midi_out_bnrinputpins = -1;
 static int hf_ms_if_midi_out_basourceid = -1;
 static int hf_ms_if_midi_out_basourcepin = -1;
 static int hf_ms_if_midi_out_ijack = -1;
+static int hf_ms_ep_gen_numjacks = -1;
+static int hf_ms_ep_gen_baassocjackid = -1;
 static int hf_ms_ep_desc_subtype = -1;
 
 static reassembly_table midi_data_reassembly_table;
@@ -1605,6 +1607,26 @@ dissect_ms_if_midi_out_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 }
 
 static gint
+dissect_ms_ep_general_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+        proto_tree *tree, usb_conv_info_t *usb_conv_info _U_)
+{
+    gint     offset_start = offset;
+    guint8   numjacks;
+
+    proto_tree_add_item(tree, hf_ms_ep_gen_numjacks, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    numjacks = tvb_get_guint8(tvb, offset);
+    offset += 1;
+    while (numjacks)
+    {
+        proto_tree_add_item(tree, hf_ms_ep_gen_baassocjackid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset += 1;
+        numjacks--;
+    }
+
+    return offset-offset_start;
+}
+
+static gint
 dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
         proto_tree *tree, void *data)
 {
@@ -1772,11 +1794,20 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
             &aud_descriptor_type_vals_ext);
         offset += 2;
 
+        desc_subtype = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(desc_tree, hf_ms_ep_desc_subtype,
                 tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
 
         bytes_dissected = offset;
+        switch(desc_subtype) {
+            case MS_EP_SUBTYPE_GENERAL:
+                bytes_dissected += dissect_ms_ep_general_body(tvb, offset, pinfo,
+                        desc_tree, usb_conv_info);
+                break;
+            default:
+                break;
+        }
     }
     else
         return 0;
@@ -2611,6 +2642,12 @@ proto_register_usb_audio(void)
         { &hf_ms_ep_desc_subtype,
             { "Subtype", "usbaudio.ms_ep_subtype", FT_UINT8,
               BASE_HEX, VALS(ms_ep_subtype_vals), 0x00, "bDescriptorSubtype", HFILL }},
+        { &hf_ms_ep_gen_numjacks,
+            { "Number of Embedded MIDI Jacks", "usbaudio.ms_ep_gen.bNumEmbMIDIJack", FT_UINT8,
+              BASE_DEC, NULL, 0x00, "bNumEmbMIDIJack", HFILL }},
+        { &hf_ms_ep_gen_baassocjackid,
+            { "Associated Embedded Jack ID", "usbaudio.ms_ep_gen.baAssocJackID", FT_UINT8,
+              BASE_DEC, NULL, 0x00, "baAssocJackID", HFILL }},
 
         { &hf_sysex_msg_fragments,
             { "Message fragments", "usbaudio.sysex.fragments",
