@@ -10442,6 +10442,7 @@ secure-ts        9318/tcp # PKIX TimeStamp over TLS [Niklas_Weiss] [Niklas_Weiss
 secure-ts        9318/udp # PKIX TimeStamp over TLS [Niklas_Weiss] [Niklas_Weiss] 2004-11
 guibase          9321/tcp # guibase [Yutaka_Ono] [Yutaka_Ono]
 guibase          9321/udp # guibase [Yutaka_Ono] [Yutaka_Ono]
+gnmi-gnoi        9339/tcp # gRPC Network Mgmt/Operations Interface [Google_Netops] [gNxi_Maintainers] 2019-05-09
 mpidcmgr         9343/tcp # MpIdcMgr [Yutaka_Ono] [Yutaka_Ono]
 mpidcmgr         9343/udp # MpIdcMgr [Yutaka_Ono] [Yutaka_Ono]
 mphlpdmc         9344/tcp # Mphlpdmc [Yutaka_Ono] [Yutaka_Ono]
