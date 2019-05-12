@@ -549,7 +549,7 @@ isis_dissect_clvs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offse
                     code, length);
             proto_tree_add_item(clv_tree, tree_type, tvb, offset - 2, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(clv_tree, tree_length, tvb, offset - 1, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_expert_format(clv_tree, pinfo, &ei_unknown, tvb, offset, length -2, "Dissector for IS-IS CLV (%d)"
+            proto_tree_add_expert_format(clv_tree, pinfo, &ei_unknown, tvb, offset, length, "Dissector for IS-IS CLV (%d)"
               " code not implemented, Contact Wireshark developers if you want this supported", code);
         }
         offset += length;
