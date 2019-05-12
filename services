@@ -5450,6 +5450,7 @@ sphinxql	9306/tcp	# Sphinx search server (MySQL listener)
 sphinxapi	9312/tcp	# Sphinx search server
 secure-ts	9318/tcp/udp	# PKIX TimeStamp over TLS
 guibase		9321/tcp/udp
+gnmi-gnoi	9339/tcp	# gRPC Network Mgmt/Operations Interface
 mpidcmgr	9343/tcp/udp	# MpIdcMgr
 mphlpdmc	9344/tcp/udp	# Mphlpdmc
 rancher		9345/tcp	# Rancher Agent
