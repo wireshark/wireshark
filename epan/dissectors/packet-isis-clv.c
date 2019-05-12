@@ -481,7 +481,7 @@ isis_dissect_nlpid_clv(tvbuff_t *tvb, proto_tree *tree, int hf_nlpid, int offset
  */
 void
 isis_dissect_clvs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
-    const isis_clv_handle_t *opts, expert_field* expert_short_len, int len, int id_length,
+    const isis_clv_handle_t *opts, expert_field* expert_short_len, guint len, int id_length,
     int unknown_tree_id _U_, int tree_type, int tree_length, expert_field ei_unknown)
 {
     guint8 code;
@@ -489,7 +489,7 @@ isis_dissect_clvs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offse
     int q;
     proto_tree    *clv_tree;
 
-    while ( len > 0 ) {
+    while ( len != 0 ) {
         code = tvb_get_guint8(tvb, offset);
         offset += 1;
         len -= 1;

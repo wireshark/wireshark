@@ -86,7 +86,6 @@ osi_calc_checksum( tvbuff_t *tvb, int offset, guint len, guint32* c0, guint32* c
 
 gboolean
 osi_check_and_get_checksum( tvbuff_t *tvb, int offset, guint len, int offset_check, guint16* result) {
-  guint         available_len;
   const guint8 *p;
   guint8        discard         = 0;
   guint32       c0, c1, factor;
@@ -94,10 +93,17 @@ osi_check_and_get_checksum( tvbuff_t *tvb, int offset, guint len, int offset_che
   guint         i;
   int           block, x, y;
 
-  available_len = tvb_captured_length_remaining( tvb, offset );
-  offset_check -= offset;
-  if ( ( available_len < len ) || ( offset_check < 0 ) || ( (guint)(offset_check+2) > len ) )
+  /* Make sure the checksum is part of the data being checksummed. */
+  DISSECTOR_ASSERT(offset_check >= offset);
+  DISSECTOR_ASSERT((guint)offset_check + 2 <= (guint)offset + len);
+
+  /*
+   * If we don't have all the data to be checksummed, report that and don't
+   * try checksumming.
+   */
+  if (!tvb_bytes_exist(tvb, offset, len))
     return FALSE;
+  offset_check -= offset;
 
   p = tvb_get_ptr( tvb, offset, len );
   block  = offset_check / 5803;

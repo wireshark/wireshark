@@ -87,7 +87,7 @@ typedef struct {
  * are only valid from with isis decodes.
  */
 extern void isis_dissect_clvs(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
-        const isis_clv_handle_t *opts, expert_field* expert_short_len, int len, int id_length,
+        const isis_clv_handle_t *opts, expert_field* expert_short_len, guint len, int id_length,
         int unknown_tree_id,  int tree_type, int tree_length, expert_field ei_unknown);
 
 extern void isis_dissect_nlpid_clv(tvbuff_t *tvb, proto_tree *tree,

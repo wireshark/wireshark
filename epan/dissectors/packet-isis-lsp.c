@@ -531,11 +531,13 @@ static gint ett_isis_lsp_clv_srv6_loc_flags = -1;
 static gint ett_isis_lsp_clv_srv6_loc_sub_tlv = -1;
 static gint ett_isis_lsp_clv_srv6_endx_sid_flags = -1;
 
-static expert_field ie_isis_lsp_checksum_bad = EI_INIT;
-static expert_field ei_isis_lsp_short_packet = EI_INIT;
-static expert_field ei_isis_lsp_long_packet = EI_INIT;
+static expert_field ei_isis_lsp_short_pdu = EI_INIT;
+static expert_field ei_isis_lsp_long_pdu = EI_INIT;
+static expert_field ei_isis_lsp_bad_checksum = EI_INIT;
 static expert_field ei_isis_lsp_subtlv = EI_INIT;
 static expert_field ei_isis_lsp_authentication = EI_INIT;
+static expert_field ei_isis_lsp_short_clv = EI_INIT;
+static expert_field ei_isis_lsp_long_clv = EI_INIT;
 static expert_field ei_isis_lsp_clv_mt = EI_INIT;
 static expert_field ei_isis_lsp_clv_unknown = EI_INIT;
 static expert_field ei_isis_lsp_malformed_subtlv = EI_INIT;
@@ -835,7 +837,7 @@ dissect_lsp_ip_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *t
 
     while ( length > 0 ) {
         if (length<12) {
-            proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_packet, tvb, offset, -1,
+            proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_clv, tvb, offset, -1,
                 "short IP reachability (%d vs 12)", length );
             return;
         }
@@ -1123,7 +1125,7 @@ dissect_lsp_ext_ip_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tre
         bit_length = ctrl_info & 0x3f;
         byte_length = tvb_get_ipv4_addr_with_prefix_len(tvb, offset+5, prefix.addr_bytes, bit_length);
         if (byte_length == -1) {
-            proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_packet, tvb, offset, -1,
+            proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_clv, tvb, offset, -1,
                  "IPv4 prefix has an invalid length: %d bits", bit_length );
                 return;
             }
@@ -1760,7 +1762,7 @@ dissect_isis_rt_capable_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
         offset += 2;
 
         if (subtlvlen > length) {
-            proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_packet, tvb, offset-2, -1,
+            proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_clv, tvb, offset-2, -1,
                                   "Short type %d TLV (%d vs %d)", subtype, subtlvlen, length);
             return;
         }
@@ -1818,7 +1820,7 @@ dissect_lsp_ipv6_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree 
         bit_length = tvb_get_guint8(tvb, offset+5);
         byte_length = tvb_get_ipv6_addr_with_prefix_len(tvb, offset+6, &prefix, bit_length);
         if (byte_length == -1) {
-            proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_packet, tvb, offset, -1,
+            proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_clv, tvb, offset, -1,
                 "IPv6 prefix has an invalid length: %d bits", bit_length );
                 return;
             }
@@ -2017,7 +2019,7 @@ static void
 dissect_lsp_te_router_id_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
     int id_length _U_, int length)
 {
-    isis_dissect_te_router_id_clv(tree, pinfo, tvb, &ei_isis_lsp_short_packet, offset, length,
+    isis_dissect_te_router_id_clv(tree, pinfo, tvb, &ei_isis_lsp_short_clv, offset, length,
         hf_isis_lsp_clv_te_router_id );
 }
 
@@ -2043,7 +2045,7 @@ static void
 dissect_lsp_ip_int_addr_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
     int id_length _U_, int length)
 {
-    isis_dissect_ip_int_clv(tree, pinfo, tvb, &ei_isis_lsp_short_packet, offset, length,
+    isis_dissect_ip_int_clv(tree, pinfo, tvb, &ei_isis_lsp_short_clv, offset, length,
         hf_isis_lsp_clv_ipv4_int_addr );
 }
 
@@ -2068,7 +2070,7 @@ static void
 dissect_lsp_ipv6_int_addr_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
     int id_length _U_, int length)
 {
-    isis_dissect_ipv6_int_clv(tree, pinfo, tvb, &ei_isis_lsp_short_packet, offset, length,
+    isis_dissect_ipv6_int_clv(tree, pinfo, tvb, &ei_isis_lsp_short_clv, offset, length,
         hf_isis_lsp_clv_ipv6_int_addr );
 }
 
@@ -2099,7 +2101,7 @@ dissect_isis_lsp_clv_mt_cap_spb_instance(tvbuff_t *tvb, packet_info *pinfo,
     };
 
     if (sublen < FIXED_LEN) {
-        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_packet, tvb, offset, -1,
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_clv, tvb, offset, -1,
                               "Short SPB Digest subTLV (%d vs %d)", sublen, FIXED_LEN);
         return;
     }
@@ -2129,12 +2131,12 @@ dissect_isis_lsp_clv_mt_cap_spb_instance(tvbuff_t *tvb, packet_info *pinfo,
 
         /*************************/
         if (sublen != (num_trees * VLAN_ID_TUPLE_LEN)) {
-            proto_tree_add_expert_format( subtree, pinfo, &ei_isis_lsp_short_packet, tvb, subofs, 0, "SubTLV length doesn't match number of trees");
+            proto_tree_add_expert_format( subtree, pinfo, &ei_isis_lsp_short_clv, tvb, subofs, 0, "SubTLV length doesn't match number of trees");
             return;
         }
         while (sublen > 0 && num_trees > 0) {
             if (sublen < VLAN_ID_TUPLE_LEN) {
-                proto_tree_add_expert_format(subtree, pinfo, &ei_isis_lsp_short_packet, tvb, offset, -1,
+                proto_tree_add_expert_format(subtree, pinfo, &ei_isis_lsp_short_clv, tvb, offset, -1,
                                       "Short VLAN_ID entry (%d vs %d)", sublen, VLAN_ID_TUPLE_LEN);
                 return;
             }
@@ -2153,7 +2155,7 @@ dissect_isis_lsp_clv_mt_cap_spb_instance(tvbuff_t *tvb, packet_info *pinfo,
             }
         }
         if (num_trees) {
-            proto_tree_add_expert_format(subtree, pinfo, &ei_isis_lsp_short_packet, tvb, offset, -1,
+            proto_tree_add_expert_format(subtree, pinfo, &ei_isis_lsp_short_clv, tvb, offset, -1,
                                   "Short subTLV (%d vs %d)", sublen, num_trees * VLAN_ID_TUPLE_LEN);
             return;
         }
@@ -2190,7 +2192,7 @@ dissect_isis_lsp_clv_mt_cap_spbm_service_identifier(tvbuff_t *tvb, packet_info *
     };
 
     if (sublen < FIXED_LEN) {
-        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_packet, tvb, offset, -1,
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_clv, tvb, offset, -1,
                               "Short SPBM Service Identifier and Unicast Address subTLV (%d vs %d)", sublen, FIXED_LEN);
         return;
     }
@@ -2212,7 +2214,7 @@ dissect_isis_lsp_clv_mt_cap_spbm_service_identifier(tvbuff_t *tvb, packet_info *
         /*************************/
         while (sublen > 0) {
             if (sublen < ISID_LEN) {
-                proto_tree_add_expert_format(subtree, pinfo, &ei_isis_lsp_short_packet, tvb, offset, -1,
+                proto_tree_add_expert_format(subtree, pinfo, &ei_isis_lsp_short_clv, tvb, offset, -1,
                                       "Short ISID entry (%d vs %d)", sublen, 4);
                 return;
             }
@@ -2242,7 +2244,7 @@ dissect_isis_lsp_clv_mt_cap_spbv_mac_address(tvbuff_t *tvb, packet_info *pinfo,
 
 
     if (sublen < 2) {
-        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_packet, tvb, offset, -1,
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_clv, tvb, offset, -1,
                               "Short SPBV Mac Address subTLV (%d vs %d)", sublen, 2);
         return;
     }
@@ -2265,7 +2267,7 @@ dissect_isis_lsp_clv_mt_cap_spbv_mac_address(tvbuff_t *tvb, packet_info *pinfo,
         /*************************/
         while (sublen > 0) {
             if (sublen < 7) {
-                proto_tree_add_expert_format(subtree, pinfo, &ei_isis_lsp_short_packet, tvb, offset, -1,
+                proto_tree_add_expert_format(subtree, pinfo, &ei_isis_lsp_short_clv, tvb, offset, -1,
                                       "Short MAC Address entry (%d vs %d)", sublen, 7);
                 return;
             }
@@ -2317,7 +2319,7 @@ dissect_isis_lsp_clv_mt_cap(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree,
             length -= 2;
             offset += 2;
             if (subtlvlen > length) {
-                proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_packet, tvb, offset-2, -1,
+                proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_clv, tvb, offset-2, -1,
                                       "Short type %d TLV (%d vs %d)", subtype, subtlvlen, length);
                 return;
             }
@@ -2550,7 +2552,7 @@ static void
 dissect_lsp_area_address_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
     int id_length _U_, int length)
 {
-    isis_dissect_area_address_clv(tree, pinfo, tvb, &ei_isis_lsp_short_packet, hf_isis_lsp_area_address, offset, length);
+    isis_dissect_area_address_clv(tree, pinfo, tvb, &ei_isis_lsp_short_clv, hf_isis_lsp_area_address, offset, length);
 }
 
 /*
@@ -2602,7 +2604,7 @@ dissect_lsp_eis_neighbors_clv_inner(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
     while ( length > 0 ) {
         if (length<tlen) {
-            proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_packet, tvb, offset, -1,
+            proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_clv, tvb, offset, -1,
                 "short E/IS reachability (%d vs %d)", length, tlen );
             return;
         }
@@ -2737,7 +2739,7 @@ static void
 dissect_lsp_instance_identifier_clv(tvbuff_t *tvb, packet_info* pinfo _U_,
     proto_tree *tree, int offset, int id_length _U_, int length)
 {
-    isis_dissect_instance_identifier_clv(tree, pinfo, tvb, &ei_isis_lsp_short_packet, hf_isis_lsp_instance_identifier, hf_isis_lsp_supported_itid, offset, length);
+    isis_dissect_instance_identifier_clv(tree, pinfo, tvb, &ei_isis_lsp_short_clv, hf_isis_lsp_instance_identifier, hf_isis_lsp_supported_itid, offset, length);
 }
 
 /*
@@ -2976,7 +2978,7 @@ dissect_subclv_spb_link_metric(tvbuff_t *tvb, packet_info *pinfo,
     const int SUBLEN     = 6;
 
     if (sublen != SUBLEN) {
-        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_packet, tvb, offset, -1,
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_clv, tvb, offset, -1,
                               "Short SPB Link Metric sub-TLV (%d vs %d)", sublen, SUBLEN);
         return;
     }
@@ -3281,7 +3283,7 @@ dissect_lsp_mt_reachable_IPv4_prefx_clv(tvbuff_t *tvb, packet_info* pinfo,
         proto_tree *tree, int offset, int id_length _U_, int length)
 {
     if (length < 2) {
-        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_packet, tvb, offset, -1,
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_clv, tvb, offset, -1,
                 "short lsp multi-topology reachable IPv4 prefixes(%d vs %d)", length, 2 );
         return;
     }
@@ -3310,7 +3312,7 @@ dissect_lsp_mt_reachable_IPv6_prefx_clv(tvbuff_t *tvb, packet_info* pinfo,
         proto_tree *tree, int offset, int id_length _U_, int length)
 {
     if (length < 2) {
-        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_packet, tvb, offset, -1,
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_clv, tvb, offset, -1,
                 "short lsp multi-topology reachable IPv6 prefixes(%d vs %d)", length, 2 );
         return;
     }
@@ -3341,7 +3343,7 @@ dissect_lsp_mt_is_reachability_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree
     int id_length _U_, int length)
 {
     if (length < 2) {
-        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_packet, tvb, offset, -1,
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_clv, tvb, offset, -1,
                 "short lsp reachability(%d vs %d)", length, 2 );
         return;
     }
@@ -3380,7 +3382,7 @@ dissect_lsp_ori_buffersize_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tr
     int id_length, int length)
 {
     if ( length != 2 ) {
-        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_packet, tvb, offset, -1,
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_clv, tvb, offset, -1,
                 "short lsp partition DIS(%d vs %d)", length, id_length );
         return;
     }
@@ -3414,7 +3416,7 @@ dissect_lsp_partition_dis_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tre
     int id_length, int length)
 {
     if ( length < id_length ) {
-        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_packet, tvb, offset, -1,
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_clv, tvb, offset, -1,
                 "short lsp partition DIS(%d vs %d)", length, id_length );
         return;
     }
@@ -3426,7 +3428,7 @@ dissect_lsp_partition_dis_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tre
     length -= id_length;
     offset += id_length;
     if ( length > 0 ) {
-        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_long_packet, tvb, offset, -1,
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_long_clv, tvb, offset, -1,
                 "Long lsp partition DIS, %d left over", length );
         return;
     }
@@ -3458,7 +3460,7 @@ dissect_lsp_prefix_neighbors_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *
     int mylen;
 
     if ( length < 4 ) {
-        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_packet, tvb, offset, -1,
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_clv, tvb, offset, -1,
             "Short lsp prefix neighbors (%d vs 4)", length );
         return;
     }
@@ -3481,12 +3483,12 @@ dissect_lsp_prefix_neighbors_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *
         mylen = tvb_get_guint8(tvb, offset);
         length--;
         if (length<=0) {
-            proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_packet, tvb, offset, -1,
+            proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_clv, tvb, offset, -1,
                 "Zero payload space after length in prefix neighbor" );
             return;
         }
         if ( mylen > length*2) {
-            proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_long_packet, tvb, offset, -1,
+            proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_long_clv, tvb, offset, -1,
                 "Integral length of prefix neighbor too long (%d vs %d)", mylen, length*2 );
             return;
         }
@@ -3525,7 +3527,7 @@ static void
 dissect_lsp_ipv6_te_router_id_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset,
     int id_length _U_, int length)
 {
-    isis_dissect_ipv6_int_clv(tree, pinfo, tvb, &ei_isis_lsp_short_packet, offset, length,
+    isis_dissect_ipv6_int_clv(tree, pinfo, tvb, &ei_isis_lsp_short_clv, offset, length,
         hf_isis_lsp_clv_ipv6_te_router_id );
 }
 
@@ -3602,7 +3604,7 @@ dissect_lsp_srv6_locator_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree
     proto_tree *subtree = NULL;
 
     if (length < min_tlv_len) {
-        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_packet, tvb, offset, length,
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_clv, tvb, offset, length,
                                      "Short LSP SRv6 locator (%d vs %d)",
                                      length, min_tlv_len);
         return;
@@ -3643,7 +3645,7 @@ dissect_lsp_srv6_locator_clv(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree
         return;
     }
     if (length < byte_length + 1) { /* including Sub-tlv-len */
-        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_packet, tvb, offset, length,
+        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_short_clv, tvb, offset, length,
                                      "Invalid locator length %u (%d bytes left)",
                                      byte_length, length);
         return;
@@ -4061,9 +4063,11 @@ dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
     proto_item    *ti;
     proto_tree    *lsp_tree, *info_tree;
     guint16        pdu_length, lifetime, checksum, cacl_checksum=0;
-    guint8        lsp_info;
-    int        len, offset_checksum;
-    char* system_id;
+    gboolean       pdu_length_too_short = FALSE;
+    gboolean       pdu_length_too_long = FALSE;
+    guint8         lsp_info;
+    int            offset_checksum;
+    char          *system_id;
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "ISIS LSP");
 
@@ -4071,8 +4075,15 @@ dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
     lsp_tree = proto_item_add_subtree(ti, ett_isis_lsp);
 
     pdu_length = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_uint(lsp_tree, hf_isis_lsp_pdu_length, tvb,
+    ti = proto_tree_add_uint(lsp_tree, hf_isis_lsp_pdu_length, tvb,
             offset, 2, pdu_length);
+    if (pdu_length < header_length) {
+        expert_add_info(pinfo, ti, &ei_isis_lsp_short_pdu);
+        pdu_length_too_short = TRUE;
+    } else if (pdu_length > tvb_reported_length(tvb) + header_length) {
+        expert_add_info(pinfo, ti, &ei_isis_lsp_long_pdu);
+        pdu_length_too_long = TRUE;
+    }
     offset += 2;
 
     proto_tree_add_item(lsp_tree, hf_isis_lsp_remaining_life,
@@ -4100,20 +4111,20 @@ dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
     checksum = lifetime ? tvb_get_ntohs(tvb, offset) : 0;
     if (checksum == 0) {
         /* No checksum present */
-        proto_tree_add_checksum(lsp_tree, tvb, offset, hf_isis_lsp_checksum, hf_isis_lsp_checksum_status, &ie_isis_lsp_checksum_bad, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
+        proto_tree_add_checksum(lsp_tree, tvb, offset, hf_isis_lsp_checksum, hf_isis_lsp_checksum_status, &ei_isis_lsp_bad_checksum, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NOT_PRESENT);
+    } else if (pdu_length_too_short || pdu_length_too_long) {
+        /* Length bogus, so we can't check the checksum */
+        proto_tree_add_checksum(lsp_tree, tvb, offset, hf_isis_lsp_checksum, hf_isis_lsp_checksum_status, &ei_isis_lsp_bad_checksum, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
     } else {
         if (osi_check_and_get_checksum(tvb, offset_checksum, pdu_length-12, offset, &cacl_checksum)) {
             /* Successfully processed checksum, verify it */
-            proto_tree_add_checksum(lsp_tree, tvb, offset, hf_isis_lsp_checksum, hf_isis_lsp_checksum_status, &ie_isis_lsp_checksum_bad, pinfo, cacl_checksum, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
+            proto_tree_add_checksum(lsp_tree, tvb, offset, hf_isis_lsp_checksum, hf_isis_lsp_checksum_status, &ei_isis_lsp_bad_checksum, pinfo, cacl_checksum, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
             if (cacl_checksum != checksum) {
                 col_append_str(pinfo->cinfo, COL_INFO, " [ISIS CHECKSUM INCORRECT]");
             }
-
         } else {
-            proto_tree_add_checksum(lsp_tree, tvb, offset, hf_isis_lsp_checksum, hf_isis_lsp_checksum_status, &ie_isis_lsp_checksum_bad, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
-            proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_long_packet, tvb, offset, -1,
-                    "Packet length %d went beyond packet",
-                     tvb_reported_length_remaining(tvb, offset_checksum));
+            /* We didn't capture the entire packet, so we can't verify it */
+            proto_tree_add_checksum(lsp_tree, tvb, offset, hf_isis_lsp_checksum, hf_isis_lsp_checksum_status, &ei_isis_lsp_bad_checksum, pinfo, 0, ENC_BIG_ENDIAN, PROTO_CHECKSUM_NO_FLAGS);
         }
     }
     offset += 2;
@@ -4148,11 +4159,7 @@ dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
     }
     offset += 1;
 
-    len = pdu_length - header_length;
-    if (len < 0) {
-        proto_tree_add_expert_format(tree, pinfo, &ei_isis_lsp_long_packet, tvb, offset, -1,
-            "packet header length %d went beyond packet",
-             header_length );
+    if (pdu_length_too_short) {
         return;
     }
     /*
@@ -4160,7 +4167,8 @@ dissect_isis_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset
      * our list of valid ones!
      */
     isis_dissect_clvs(tvb, pinfo, lsp_tree, offset,
-            opts, &ei_isis_lsp_short_packet, len, id_length, ett_isis_lsp_clv_unknown, hf_isis_lsp_clv_type, hf_isis_lsp_clv_length, ei_isis_lsp_clv_unknown);
+            opts, &ei_isis_lsp_short_clv, pdu_length - header_length,
+            id_length, ett_isis_lsp_clv_unknown, hf_isis_lsp_clv_type, hf_isis_lsp_clv_length, ei_isis_lsp_clv_unknown);
 }
 
 static int
@@ -5824,11 +5832,13 @@ proto_register_isis_lsp(void)
     };
 
     static ei_register_info ei[] = {
-        { &ie_isis_lsp_checksum_bad, { "isis.lsp.checksum_bad.expert", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
-        { &ei_isis_lsp_short_packet, { "isis.lsp.short_packet", PI_MALFORMED, PI_ERROR, "Short packet", EXPFILL }},
-        { &ei_isis_lsp_long_packet, { "isis.lsp.long_packet", PI_MALFORMED, PI_ERROR, "Long packet", EXPFILL }},
+        { &ei_isis_lsp_short_pdu, { "isis.lsp.short_pdu", PI_MALFORMED, PI_ERROR, "PDU length less than header length", EXPFILL }},
+        { &ei_isis_lsp_long_pdu, { "isis.lsp.long_pdu", PI_MALFORMED, PI_ERROR, "PDU length greater than packet length", EXPFILL }},
+        { &ei_isis_lsp_bad_checksum, { "isis.lsp.bad_checksum", PI_CHECKSUM, PI_ERROR, "Bad checksum", EXPFILL }},
         { &ei_isis_lsp_subtlv, { "isis.lsp.subtlv.unknown", PI_PROTOCOL, PI_WARN, "Unknown SubTLV", EXPFILL }},
         { &ei_isis_lsp_authentication, { "isis.lsp.authentication.unknown", PI_PROTOCOL, PI_WARN, "Unknown authentication type", EXPFILL }},
+        { &ei_isis_lsp_short_clv, { "isis.lsp.short_clv", PI_MALFORMED, PI_ERROR, "Short CLV", EXPFILL }},
+        { &ei_isis_lsp_long_clv, { "isis.lsp.long_clv", PI_MALFORMED, PI_ERROR, "Long CLV", EXPFILL }},
         { &ei_isis_lsp_clv_mt, { "isis.lsp.clv_mt.malformed", PI_MALFORMED, PI_ERROR, "malformed MT-ID", EXPFILL }},
         { &ei_isis_lsp_clv_unknown, { "isis.lsp.clv.unknown", PI_UNDECODED, PI_NOTE, "Unknown option", EXPFILL }},
         { &ei_isis_lsp_malformed_subtlv, { "isis.lsp.subtlv.malformed", PI_MALFORMED, PI_ERROR, "malformed SubTLV", EXPFILL }},
