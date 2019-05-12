@@ -1451,7 +1451,7 @@ static void dissect_range( tvbuff_t *tvb, packet_info *pinfo, proto_item *node, 
 static void dissect_prop_descr( tvbuff_t* tvb, packet_info* pinfo, proto_item* cemi_node, proto_tree* cemi_list, gint* p_offset, gint size, guint8* p_error )
 {
   gint offset = *p_offset;
-  column_info* cinfo = pinfo ? pinfo->cinfo : NULL;
+  column_info* cinfo = pinfo->cinfo;
   guint8 error = 0;
 
   /* 4 bytes Property Description */
@@ -1532,7 +1532,7 @@ static void dissect_prop_descr( tvbuff_t* tvb, packet_info* pinfo, proto_item* c
 static void dissect_pid_ext( tvbuff_t *tvb, packet_info *pinfo, proto_item *cemi_node, proto_tree *cemi_list, gint *p_offset, gint size, guint8 *p_error )
 {
   gint offset = *p_offset;
-  column_info* cinfo = pinfo ? pinfo->cinfo : NULL;
+  column_info* cinfo = pinfo->cinfo;
   guint8 error = 0;
 
   /* 2 bytes Object Type */
