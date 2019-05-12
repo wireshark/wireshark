@@ -187,6 +187,7 @@ static int ett_iso14443_ats_tc1 = -1;
 static int ett_iso14443_attr_p1 = -1;
 static int ett_iso14443_attr_p2 = -1;
 static int ett_iso14443_attr_p3 = -1;
+static int ett_iso14443_attr_p4 = -1;
 static int ett_iso14443_pcb = -1;
 static int ett_iso14443_inf = -1;
 static int ett_iso14443_frag = -1;
@@ -835,9 +836,9 @@ static int dissect_iso14443_attrib(tvbuff_t *tvb, gint offset,
         packet_info *pinfo, proto_tree *tree, gboolean crc_dropped)
 {
     proto_item *ti = proto_tree_get_parent(tree);
-    proto_item *p1_it, *p2_it, *p3_it, *pi;
-    proto_tree *p1_tree, *p2_tree, *p3_tree;
-    guint8 max_frame_size_code;
+    proto_item *p1_it, *p2_it, *p3_it, *p4_it, *pi;
+    proto_tree *p1_tree, *p2_tree, *p3_tree, *p4_tree;
+    guint8 max_frame_size_code, cid;
     gint hl_inf_len;
 
     col_set_str(pinfo->cinfo, COL_INFO, "Attrib");
@@ -890,10 +891,15 @@ static int dissect_iso14443_attrib(tvbuff_t *tvb, gint offset,
     proto_tree_add_item(p3_tree, hf_iso14443_4_compl_atqb,
             tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    /* XXX - subtree, details for each parameter */
-    proto_tree_add_item(tree, hf_iso14443_param4,
+
+    p4_it = proto_tree_add_item(tree, hf_iso14443_param4,
             tvb, offset, 1, ENC_BIG_ENDIAN);
+    p4_tree = proto_item_add_subtree(p4_it, ett_iso14443_attr_p4);
+    cid = tvb_get_guint8(tvb, offset) & 0x0F;
+    proto_tree_add_uint_bits_format_value(p4_tree, hf_iso14443_cid,
+            tvb, offset*8+4, 4, cid, "%d", cid);
     offset++;
+
     hl_inf_len = crc_dropped ?
         tvb_reported_length_remaining(tvb, offset) :
         tvb_reported_length_remaining(tvb, offset) - CRC_LEN;
@@ -1849,6 +1855,7 @@ proto_register_iso14443(void)
         &ett_iso14443_attr_p1,
         &ett_iso14443_attr_p2,
         &ett_iso14443_attr_p3,
+        &ett_iso14443_attr_p4,
         &ett_iso14443_pcb,
         &ett_iso14443_inf,
         &ett_iso14443_frag,
