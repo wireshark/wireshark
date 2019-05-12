@@ -7,8 +7,9 @@
  */
 
 /* the parsing of audio-specific descriptors is based on
+   USB Audio Device Class Specification for Basic Audio Devices, Release 1.0,
    USB Device Class Definition for Audio Devices, Release 2.0 and
-   USB Audio Device Class Specification for Basic Audio Devices, Release 1.0 */
+   USB Device Class Definition for MIDI Devices, Release 1.0 */
 
 #include "config.h"
 
@@ -272,6 +273,8 @@ static int hf_as_if_ft_uppersamfreq = -1;
 static int hf_as_if_ft_samfreq = -1;
 static int hf_as_ep_desc_subtype = -1;
 static int hf_ms_if_desc_subtype = -1;
+static int hf_ms_if_hdr_ver = -1;
+static int hf_ms_if_hdr_total_len = -1;
 static int hf_ms_ep_desc_subtype = -1;
 
 static reassembly_table midi_data_reassembly_table;
@@ -567,7 +570,10 @@ static value_string_ext audio_data_format_tag_vals_ext =
 typedef struct _audio_conv_info_t {
     /* the major version of the USB audio class specification,
        taken from the AC header descriptor */
-    guint8 ver_major;
+    guint8 audio_ver_major;
+    /* the major version of the USB Device Class Definition for
+       MIDI Devices, taken from the MS header descriptor */
+    guint8 midi_ver_major;
 } audio_conv_info_t;
 
 static int hf_sysex_msg_fragments = -1;
@@ -765,6 +771,14 @@ dissect_usb_midi_event(tvbuff_t *tvb, packet_info *pinfo,
     pinfo->fragmented = save_fragmented;
 }
 
+static audio_conv_info_t*
+allocate_audio_conv_info(void)
+{
+    audio_conv_info_t *info = wmem_new(wmem_file_scope(), audio_conv_info_t);
+    info->audio_ver_major = 0;
+    info->midi_ver_major = 0;
+    return info;
+}
 
 /* dissect the body of an AC interface header descriptor
    return the number of bytes dissected (which may be smaller than the
@@ -796,7 +810,7 @@ dissect_ac_if_hdr_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
             tvb, offset, 2, ver, "%2.2f", ver);
     audio_conv_info = (audio_conv_info_t *)usb_conv_info->class_data;
     if(!audio_conv_info) {
-        audio_conv_info = wmem_new(wmem_file_scope(), audio_conv_info_t);
+        audio_conv_info = allocate_audio_conv_info();
         usb_conv_info->class_data = audio_conv_info;
         usb_conv_info->class_data_type = USB_CONV_AUDIO;
         /* XXX - set reasonable default values for all components
@@ -805,7 +819,7 @@ dissect_ac_if_hdr_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         /* Don't dissect if another USB type is in the conversation */
         return 0;
     }
-    audio_conv_info->ver_major = ver_major;
+    audio_conv_info->audio_ver_major = ver_major;
     offset += 2;
 
     /* version 1 refers to the Basic Audio Device specification,
@@ -914,7 +928,7 @@ dissect_ac_if_input_terminal(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         return 0;
 
     /* do not try to dissect unknown versions */
-    if (!((audio_conv_info->ver_major==1) || (audio_conv_info->ver_major==2)))
+    if (!((audio_conv_info->audio_ver_major==1) || (audio_conv_info->audio_ver_major==2)))
         return 0;
 
     offset_start = offset;
@@ -928,7 +942,7 @@ dissect_ac_if_input_terminal(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     proto_tree_add_item(tree, hf_ac_if_input_assocterminal, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
-    if (audio_conv_info->ver_major == 2) {
+    if (audio_conv_info->audio_ver_major == 2) {
         proto_tree_add_item(tree, hf_ac_if_input_csourceid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset += 1;
     }
@@ -936,10 +950,10 @@ dissect_ac_if_input_terminal(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     proto_tree_add_item(tree, hf_ac_if_input_nrchannels, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
-    if (audio_conv_info->ver_major==1) {
+    if (audio_conv_info->audio_ver_major==1) {
         proto_tree_add_bitmask(tree, tvb, offset, hf_ac_if_input_wchannelconfig, ett_ac_if_input_wchannelconfig, input_wchannelconfig, ENC_LITTLE_ENDIAN);
         offset += 2;
-    } else if (audio_conv_info->ver_major==2) {
+    } else if (audio_conv_info->audio_ver_major==2) {
         proto_tree_add_bitmask(tree, tvb, offset, hf_ac_if_input_bmchannelconfig, ett_ac_if_input_bmchannelconfig, input_bmchannelconfig, ENC_LITTLE_ENDIAN);
         offset += 4;
     }
@@ -947,7 +961,7 @@ dissect_ac_if_input_terminal(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     proto_tree_add_item(tree, hf_ac_if_input_channelnames, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
-    if (audio_conv_info->ver_major==2) {
+    if (audio_conv_info->audio_ver_major==2) {
         proto_tree_add_bitmask(tree, tvb, offset, hf_ac_if_input_controls, ett_ac_if_input_controls, controls, ENC_LITTLE_ENDIAN);
         offset += 2;
     }
@@ -981,7 +995,7 @@ dissect_ac_if_output_terminal(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_
         return 0;
 
     /* do not try to dissect unknown versions */
-    if (!((audio_conv_info->ver_major==1) || (audio_conv_info->ver_major==2)))
+    if (!((audio_conv_info->audio_ver_major==1) || (audio_conv_info->audio_ver_major==2)))
         return 0;
 
     offset_start = offset;
@@ -998,7 +1012,7 @@ dissect_ac_if_output_terminal(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_
     proto_tree_add_item(tree, hf_ac_if_output_sourceid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
-    if (audio_conv_info->ver_major==2) {
+    if (audio_conv_info->audio_ver_major==2) {
         proto_tree_add_item(tree, hf_ac_if_output_clk_sourceid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset += 1;
 
@@ -1318,14 +1332,14 @@ dissect_as_if_general_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 
     offset_start = offset;
 
-    if (audio_conv_info->ver_major==1) {
+    if (audio_conv_info->audio_ver_major==1) {
         proto_tree_add_item(tree, hf_as_if_gen_term_link, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
         proto_tree_add_item(tree, hf_as_if_gen_delay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
         proto_tree_add_item(tree, hf_as_if_gen_wformattag, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
-    } else if (audio_conv_info->ver_major==2) {
+    } else if (audio_conv_info->audio_ver_major==2) {
         guint8 format_type;
         const int **formats_bitmask;
 
@@ -1480,13 +1494,50 @@ dissect_as_if_format_type_body(tvbuff_t *tvb, gint offset, packet_info *pinfo,
     if (!audio_conv_info)
         return 0;
 
-    if (audio_conv_info->ver_major==1) {
+    if (audio_conv_info->audio_ver_major==1) {
         return dissect_as_if_format_type_ver1_body(tvb, offset, pinfo, tree, audio_conv_info);
-    } else if (audio_conv_info->ver_major==2) {
+    } else if (audio_conv_info->audio_ver_major==2) {
         return dissect_as_if_format_type_ver2_body(tvb, offset, pinfo, tree, audio_conv_info);
     }
 
     return 0;
+}
+
+static gint
+dissect_ms_if_hdr_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+        proto_tree *tree, usb_conv_info_t *usb_conv_info)
+{
+    gint     offset_start;
+    guint16  bcdADC;
+    guint8   ver_major;
+    double   ver;
+    audio_conv_info_t *audio_conv_info;
+
+    offset_start = offset;
+
+    bcdADC = tvb_get_letohs(tvb, offset);
+    ver_major = USB_AUDIO_BCD44_TO_DEC(bcdADC>>8);
+    ver = ver_major + USB_AUDIO_BCD44_TO_DEC(bcdADC&0xFF) / 100.0;
+
+    proto_tree_add_double_format_value(tree, hf_ms_if_hdr_ver,
+            tvb, offset, 2, ver, "%2.2f", ver);
+    audio_conv_info = (audio_conv_info_t *)usb_conv_info->class_data;
+    if(!audio_conv_info) {
+        audio_conv_info = allocate_audio_conv_info();
+        usb_conv_info->class_data = audio_conv_info;
+        usb_conv_info->class_data_type = USB_CONV_AUDIO;
+    } else if (usb_conv_info->class_data_type != USB_CONV_AUDIO) {
+        /* Don't dissect if another USB type is in the conversation */
+        return 0;
+    }
+    audio_conv_info->midi_ver_major = ver_major;
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_ms_if_hdr_total_len,
+                tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    return offset-offset_start;
 }
 
 static gint
@@ -1630,6 +1681,14 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
         offset++;
 
         bytes_dissected = offset;
+        switch(desc_subtype) {
+            case MS_IF_SUBTYPE_HEADER:
+                bytes_dissected += dissect_ms_if_hdr_body(tvb, offset, pinfo,
+                        desc_tree, usb_conv_info);
+                break;
+            default:
+                break;
+        }
     }
     else if (desc_type==CS_ENDPOINT &&
             usb_conv_info->interfaceSubclass==AUDIO_IF_SUBCLASS_MIDISTREAMING) {
@@ -2448,6 +2507,13 @@ proto_register_usb_audio(void)
         { &hf_ms_if_desc_subtype,
             { "Subtype", "usbaudio.ms_if_subtype", FT_UINT8, BASE_HEX|BASE_EXT_STRING,
               &ms_if_subtype_vals_ext, 0x00, "bDescriptorSubtype", HFILL }},
+        { &hf_ms_if_hdr_ver,
+            { "Version", "usbaudio.ms_if_hdr.bcdADC",
+              FT_DOUBLE, BASE_NONE, NULL, 0, "bcdADC", HFILL }},
+        { &hf_ms_if_hdr_total_len,
+            { "Total length", "usbaudio.ms_if_hdr.wTotalLength",
+              FT_UINT16, BASE_DEC, NULL, 0x00, "wTotalLength", HFILL }},
+
         { &hf_ms_ep_desc_subtype,
             { "Subtype", "usbaudio.ms_ep_subtype", FT_UINT8,
               BASE_HEX, VALS(ms_ep_subtype_vals), 0x00, "bDescriptorSubtype", HFILL }},
