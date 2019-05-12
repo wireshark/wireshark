@@ -272,6 +272,18 @@ static int hf_as_if_ft_lowersamfreq = -1;
 static int hf_as_if_ft_uppersamfreq = -1;
 static int hf_as_if_ft_samfreq = -1;
 static int hf_as_ep_desc_subtype = -1;
+static int hf_as_ep_gen_bmattributes = -1;
+static int hf_as_ep_gen_bmattributes_d0 = -1;
+static int hf_as_ep_gen_bmattributes_d1 = -1;
+static int hf_as_ep_gen_bmattributes_rsv = -1;
+static int hf_as_ep_gen_bmattributes_d7 = -1;
+static int hf_as_ep_gen_controls = -1;
+static int hf_as_ep_gen_controls_pitch = -1;
+static int hf_as_ep_gen_controls_data_overrun = -1;
+static int hf_as_ep_gen_controls_data_underrun = -1;
+static int hf_as_ep_gen_controls_rsv = -1;
+static int hf_as_ep_gen_lockdelayunits = -1;
+static int hf_as_ep_gen_lockdelay = -1;
 static int hf_ms_if_desc_subtype = -1;
 static int hf_ms_if_hdr_ver = -1;
 static int hf_ms_if_hdr_total_len = -1;
@@ -308,6 +320,8 @@ static gint ett_ac_if_clksel_controls = -1;
 static gint ett_as_if_gen_controls = -1;
 static gint ett_as_if_gen_formats = -1;
 static gint ett_as_if_gen_bmchannelconfig = -1;
+static gint ett_as_ep_gen_attributes = -1;
+static gint ett_as_ep_gen_controls = -1;
 
 static dissector_handle_t sysex_handle;
 static dissector_handle_t usb_audio_bulk_handle;
@@ -405,6 +419,12 @@ static const value_string as_subtype_vals[] = {
 static value_string_ext as_subtype_vals_ext =
     VALUE_STRING_EXT_INIT(as_subtype_vals);
 
+#define AS_EP_SUBTYPE_GENERAL       0x01
+static const value_string as_ep_subtype_vals[] = {
+    {AS_EP_SUBTYPE_GENERAL,       "General Descriptor"},
+    {0,NULL}
+};
+
 #define MS_IF_SUBTYPE_HEADER        0x01
 #define MS_IF_SUBTYPE_MIDI_IN_JACK  0x02
 #define MS_IF_SUBTYPE_MIDI_OUT_JACK 0x03
@@ -488,6 +508,13 @@ static const value_string clock_types_vals[] = {
 static const value_string clock_sync_vals[] = {
     {0x00, "Free running"},
     {0x01, "Synchronized to the Start of Frame"},
+    {0,NULL}
+};
+
+static const value_string lock_delay_unit_vals[] = {
+    {0, "Undefined"},
+    {1, "Milliseconds"},
+    {2, "Decoded PCM samples"},
     {0,NULL}
 };
 
@@ -1524,6 +1551,59 @@ dissect_as_if_format_type_body(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 }
 
 static gint
+dissect_as_ep_general_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+        proto_tree *tree, usb_conv_info_t *usb_conv_info)
+{
+    audio_conv_info_t *audio_conv_info;
+    gint               offset_start = offset;
+
+    static const int *v1_attributes[] = {
+        &hf_as_ep_gen_bmattributes_d0,
+        &hf_as_ep_gen_bmattributes_d1,
+        &hf_as_ep_gen_bmattributes_rsv,
+        &hf_as_ep_gen_bmattributes_d7,
+        NULL
+    };
+    static const int *v2_attributes[] = {
+        &hf_as_ep_gen_bmattributes_d7,
+        NULL
+    };
+    static const int *controls[] = {
+        &hf_as_ep_gen_controls_pitch,
+        &hf_as_ep_gen_controls_data_overrun,
+        &hf_as_ep_gen_controls_data_underrun,
+        &hf_as_ep_gen_controls_rsv,
+        NULL
+    };
+
+    /* the caller has already checked that usb_conv_info!=NULL */
+    audio_conv_info = (audio_conv_info_t *)usb_conv_info->class_data;
+    if (!audio_conv_info)
+        return 0;
+
+    /* do not try to dissect unknown versions */
+    if (!((audio_conv_info->audio_ver_major==1) || (audio_conv_info->audio_ver_major==2)))
+        return 0;
+
+    if (audio_conv_info->audio_ver_major==1) {
+        proto_tree_add_bitmask(tree, tvb, offset, hf_as_ep_gen_bmattributes, ett_as_ep_gen_attributes, v1_attributes, ENC_LITTLE_ENDIAN);
+        offset++;
+    } else if (audio_conv_info->audio_ver_major==2) {
+        proto_tree_add_bitmask(tree, tvb, offset, hf_as_ep_gen_bmattributes, ett_as_ep_gen_attributes, v2_attributes, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_bitmask(tree, tvb, offset, hf_as_ep_gen_controls, ett_as_ep_gen_controls, controls, ENC_LITTLE_ENDIAN);
+        offset++;
+    }
+
+    proto_tree_add_item(tree, hf_as_ep_gen_lockdelayunits, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(tree, hf_as_ep_gen_lockdelay, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    return offset-offset_start;
+}
+
+static gint
 dissect_ms_if_hdr_body(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
         proto_tree *tree, usb_conv_info_t *usb_conv_info)
 {
@@ -1742,11 +1822,20 @@ dissect_usb_audio_descriptor(tvbuff_t *tvb, packet_info *pinfo,
             &aud_descriptor_type_vals_ext);
         offset += 2;
 
+        desc_subtype = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(desc_tree, hf_as_ep_desc_subtype,
                 tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset++;
 
         bytes_dissected = offset;
+        switch(desc_subtype) {
+            case AS_EP_SUBTYPE_GENERAL:
+                bytes_dissected += dissect_as_ep_general_body(tvb, offset, pinfo,
+                        desc_tree, usb_conv_info);
+                break;
+            default:
+                break;
+        }
     }
     else if (desc_type==CS_INTERFACE &&
             usb_conv_info->interfaceSubclass==AUDIO_IF_SUBCLASS_MIDISTREAMING) {
@@ -2600,7 +2689,43 @@ proto_register_usb_audio(void)
               FT_UINT24, BASE_DEC, NULL, 0x00, "tSamFreq", HFILL }},
         { &hf_as_ep_desc_subtype,
             { "Subtype", "usbaudio.as_ep_subtype", FT_UINT8,
-                BASE_HEX, NULL, 0x00, "bDescriptorSubtype", HFILL }},
+                BASE_HEX, VALS(as_ep_subtype_vals), 0x00, "bDescriptorSubtype", HFILL }},
+        { &hf_as_ep_gen_bmattributes,
+            { "Attributes", "usbaudio.as_ep_gen.bmAttributes", FT_UINT8,
+              BASE_HEX, NULL, 0x00, "bmAttributes", HFILL }},
+        { &hf_as_ep_gen_bmattributes_d0,
+            { "Sampling Frequency Control", "usbaudio.as_ep_gen.bmAttributes.d0", FT_BOOLEAN,
+              8, NULL, (1u << 0), NULL, HFILL }},
+        { &hf_as_ep_gen_bmattributes_d1,
+            { "Pitch Control", "usbaudio.as_ep_gen.bmAttributes.d1", FT_BOOLEAN,
+              8, NULL, (1u << 1), NULL, HFILL }},
+        { &hf_as_ep_gen_bmattributes_rsv,
+            { "Reserved", "usbaudio.as_ep_gen.bmAttributes.rsv", FT_UINT8,
+              BASE_HEX, NULL, 0x7C, NULL, HFILL }},
+        { &hf_as_ep_gen_bmattributes_d7,
+            { "MaxPacketsOnly", "usbaudio.as_ep_gen.bmAttributes.d7", FT_BOOLEAN,
+              8, NULL, (1u << 7), NULL, HFILL }},
+        { &hf_as_ep_gen_controls,
+            { "Controls", "usbaudio.as_ep_gen.bmControls",
+              FT_UINT8, BASE_HEX, NULL, 0x00, "bmControls", HFILL }},
+        { &hf_as_ep_gen_controls_pitch,
+            { "Pitch Control", "usbaudio.as_ep_gen.bmControls.pitch", FT_UINT8,
+              BASE_HEX|BASE_EXT_STRING, &controls_capabilities_read_only_vals_ext, 0x03, NULL, HFILL }},
+        { &hf_as_ep_gen_controls_data_overrun,
+            { "Data Overrun Control", "usbaudio.as_ep_gen.bmControls.overrun", FT_UINT8,
+              BASE_HEX|BASE_EXT_STRING, &controls_capabilities_read_only_vals_ext, 0x0C, NULL, HFILL }},
+        { &hf_as_ep_gen_controls_data_underrun,
+            { "Valid Alternate Settings Control", "usbaudio.as_ep_gen.bmControls.underrun", FT_UINT8,
+              BASE_HEX|BASE_EXT_STRING, &controls_capabilities_read_only_vals_ext, 0x30, NULL, HFILL }},
+        { &hf_as_ep_gen_controls_rsv,
+            { "Reserved", "usbaudio.as_ep_gen.bmControls.bmControls.rsv",
+              FT_UINT8, BASE_HEX, NULL, 0xC0, "Must be zero", HFILL }},
+        { &hf_as_ep_gen_lockdelayunits,
+            { "Lock Delay Units", "usbaudio.as_ep_gen.bLockDelayUnits",
+              FT_UINT8, BASE_DEC, VALS(lock_delay_unit_vals), 0x00, NULL, HFILL }},
+        { &hf_as_ep_gen_lockdelay,
+            { "Lock Delay", "usbaudio.as_ep_gen.wLockDelay",
+              FT_UINT16, BASE_DEC, NULL, 0x0000, NULL, HFILL }},
 
         { &hf_ms_if_desc_subtype,
             { "Subtype", "usbaudio.ms_if_subtype", FT_UINT8, BASE_HEX|BASE_EXT_STRING,
@@ -2705,7 +2830,9 @@ proto_register_usb_audio(void)
         &ett_ac_if_clksel_controls,
         &ett_as_if_gen_controls,
         &ett_as_if_gen_formats,
-        &ett_as_if_gen_bmchannelconfig
+        &ett_as_if_gen_bmchannelconfig,
+        &ett_as_ep_gen_attributes,
+        &ett_as_ep_gen_controls
     };
 
     static ei_register_info ei[] = {
