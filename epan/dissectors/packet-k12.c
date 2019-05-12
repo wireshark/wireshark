@@ -307,8 +307,8 @@ k12_update_cb(void* r, char** err)
 		if ( ! (h->handles[i] = find_dissector(protos[i])) ) {
 			h->handles[i] = data_handle;
 			h->handles[i+1] = NULL;
-			g_strfreev(protos);
 			*err = g_strdup_printf("Could not find dissector for: '%s'",protos[i]);
+			g_strfreev(protos);
 			return FALSE;
 		}
 	}
