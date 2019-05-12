@@ -217,6 +217,7 @@ static int hf_usb_bAlternateSetting = -1;
 static int hf_usb_bNumEndpoints = -1;
 static int hf_usb_bInterfaceClass = -1;
 static int hf_usb_bInterfaceSubClass = -1;
+static int hf_usb_bInterfaceSubClass_audio = -1;
 static int hf_usb_bInterfaceSubClass_cdc = -1;
 static int hf_usb_bInterfaceSubClass_hid = -1;
 static int hf_usb_bInterfaceSubClass_misc = -1;
@@ -859,6 +860,7 @@ static const value_string usb_endpoint_direction_vals[] = {
 
 extern value_string_ext ext_usb_vendors_vals;
 extern value_string_ext ext_usb_products_vals;
+extern value_string_ext ext_usb_audio_subclass_vals;
 extern value_string_ext ext_usb_com_subclass_vals;
 extern value_string_ext linux_negative_errno_vals_ext;
 
@@ -2275,6 +2277,9 @@ dissect_usb_interface_descriptor(packet_info *pinfo, proto_tree *parent_tree,
 
     /* bInterfaceSubClass */
     switch (usb_conv_info->interfaceClass) {
+    case IF_CLASS_AUDIO:
+        proto_tree_add_item(tree, hf_usb_bInterfaceSubClass_audio, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        break;
     case IF_CLASS_COMMUNICATIONS:
         proto_tree_add_item(tree, hf_usb_bInterfaceSubClass_cdc, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         break;
@@ -5932,6 +5937,11 @@ proto_register_usb(void)
         { &hf_usb_bInterfaceSubClass,
           { "bInterfaceSubClass", "usb.bInterfaceSubClass",
             FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }},
+
+        { &hf_usb_bInterfaceSubClass_audio,
+          { "bInterfaceSubClass", "usb.bInterfaceSubClass",
+            FT_UINT8, BASE_HEX | BASE_EXT_STRING, &ext_usb_audio_subclass_vals, 0x0,
             NULL, HFILL }},
 
         { &hf_usb_bInterfaceSubClass_cdc,

@@ -331,15 +331,15 @@ static dissector_handle_t usb_audio_bulk_handle;
 #define AUDIO_IF_SUBCLASS_AUDIOSTREAMING   0x02
 #define AUDIO_IF_SUBCLASS_MIDISTREAMING    0x03
 
-#if 0
 static const value_string usb_audio_subclass_vals[] = {
-    {AUDIO_IF_SUBCLASS_UNDEFINED,          "SUBCLASS_UNDEFINED"},
-    {AUDIO_IF_SUBCLASS_AUDIOCONTROL,       "AUDIOCONSTROL"},
-    {AUDIO_IF_SUBCLASS_AUDIOSTREAMING,     "AUDIOSTREAMING"},
-    {AUDIO_IF_SUBCLASS_MIDISTREAMING,      "MIDISTREAMING"},
-    {0, NULL}
+    {AUDIO_IF_SUBCLASS_UNDEFINED,      "Undefined"},
+    {AUDIO_IF_SUBCLASS_AUDIOCONTROL,   "Audio Control"},
+    {AUDIO_IF_SUBCLASS_AUDIOSTREAMING, "Audio Streaming"},
+    {AUDIO_IF_SUBCLASS_MIDISTREAMING,  "MIDI Streaming"},
+    {0,NULL}
 };
-#endif
+value_string_ext ext_usb_audio_subclass_vals =
+    VALUE_STRING_EXT_INIT(usb_audio_subclass_vals);
 
 static const value_string code_index_vals[] = {
     { 0x0, "Miscellaneous (Reserved)" },
