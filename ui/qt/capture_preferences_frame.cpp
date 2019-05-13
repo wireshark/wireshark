@@ -69,7 +69,8 @@ void CapturePreferencesFrame::updateWidgets()
         default_device_string = prefs_get_string_value(pref_device_, pref_stashed);
     }
     ui->defaultInterfaceComboBox->clear();
-    if (global_capture_opts.all_ifaces->len == 0 && !pref_no_interface_load_) {
+    if ((global_capture_opts.all_ifaces->len == 0) &&
+        (prefs_get_bool_value(pref_no_interface_load_, pref_stashed) == FALSE)) {
         /*
          * No interfaces - try refreshing the local interfaces, to
          * see whether any have showed up (or privileges have changed
