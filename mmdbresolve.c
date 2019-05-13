@@ -99,12 +99,16 @@ main(int argc, char *argv[])
         exit_err();
     }
 
-    while (!feof(stdin)) {
+    int in_items = 0;
+    while (in_items != EOF) {
         int gai_err;
 
-        if (fscanf(stdin, "%" MMDBR_STRINGIFY(MAX_ADDR_LEN) "s", addr_str) < 1) {
+        in_items = fscanf(stdin, "%" MMDBR_STRINGIFY(MAX_ADDR_LEN) "s", addr_str);
+
+        if (in_items < 1) {
             continue;
         }
+
         fprintf(stdout, "[%s]\n", addr_str);
 
         for (size_t mmdb_idx = 0; mmdb_idx < mmdb_count; mmdb_idx++) {
