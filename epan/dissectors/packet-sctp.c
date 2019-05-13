@@ -4647,7 +4647,8 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
   sctp_info.checksum_zero = (checksum == 0);
 
   /* Only try to checksum the packet if we have all of it */
-  if (captured_length == reported_length) {
+  if ((captured_length == reported_length) &&
+     (captured_length >= COMMON_HEADER_LENGTH)) {
 
     switch(sctp_checksum) {
     case SCTP_CHECKSUM_NONE:
