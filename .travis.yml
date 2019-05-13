@@ -129,7 +129,7 @@ script:
   - cmake --build . --config RelWithDebInfo
   - cmake --build . --config RelWithDebInfo --target test-programs
   - if [ "$PCAP" = "OFF" ]; then export PYTEST_ADDOPTS=--skip-missing-programs=dumpcap,rawshark; fi
-  - if [ "$TRAVIS_OS_NAME" == "linux" -a "$PCAP" = "ON" ]; then sudo setcap "CAP_NET_RAW+eip CAP_NET_ADMIN+eip" run/dumpcap; fi
+  - if [ "$TRAVIS_OS_NAME" == "linux" -a "$PCAP" = "ON" ]; then sudo setcap cap_net_raw,cap_net_admin+eip run/dumpcap; fi
   - pytest
 after_script:
   - if [ -f run/tshark ]; then run/tshark --version; fi
