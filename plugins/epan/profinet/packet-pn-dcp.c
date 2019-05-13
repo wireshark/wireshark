@@ -908,23 +908,24 @@ dissect_PNDCP_Suboption_DHCP(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
         offset += 1;//SuboptionDHCP
         offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_dhcp_parameter_length, &dhcpparameterlength);
-        offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_dhcp_parameter_data, &dhcpparameterdata);
-
-        if (dhcpparameterlength == 1) {
-            if (dhcpparameterdata == 1) {
-                proto_item_append_text(block_item, ", Client-ID: MAC Address");
+        if (dhcpparameterlength > 0) {
+            offset = dissect_pn_uint8(tvb, offset, pinfo, tree, hf_pn_dcp_suboption_dhcp_parameter_data, &dhcpparameterdata);
+            if (dhcpparameterlength == 1) {
+                if (dhcpparameterdata == 1) {
+                    proto_item_append_text(block_item, ", Client-ID: MAC Address");
+                }
+                else {
+                    proto_item_append_text(block_item, ", Client-ID: Name of Station");
+                }
             }
             else {
-                proto_item_append_text(block_item, ", Client-ID: Name of Station");
+                proto_item_append_text(block_item, ", Client-ID: Arbitrary");
+                arbitraryclientID = (char *)wmem_alloc(wmem_packet_scope(), dhcpparameterlength);
+                tvb_memcpy(tvb, (guint8 *)arbitraryclientID, offset, dhcpparameterlength - 1);
+                arbitraryclientID[dhcpparameterlength - 1] = '\0';
+                proto_tree_add_string(tree, hf_pn_dcp_suboption_dhcp_arbitrary_client_id, tvb, offset, dhcpparameterlength - 1, arbitraryclientID);
+                offset += dhcpparameterlength;
             }
-        }
-        else {
-            proto_item_append_text(block_item, ", Client-ID: Arbitrary");
-            arbitraryclientID = (char *)wmem_alloc(wmem_packet_scope(), dhcpparameterlength);
-            tvb_memcpy(tvb, (guint8 *)arbitraryclientID, offset, 5);
-            arbitraryclientID[dhcpparameterlength - 1] = '\0';
-            proto_tree_add_string(tree, hf_pn_dcp_suboption_dhcp_arbitrary_client_id, tvb, offset, dhcpparameterlength - 1, arbitraryclientID);
-            offset += dhcpparameterlength;
         }
         break;
     case PNDCP_SUBOPTION_DHCP_CONTROL_FOR_ADDRESS_RES:
