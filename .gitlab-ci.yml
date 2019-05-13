@@ -26,6 +26,7 @@
     - ninja
     - ninja test-programs
     - chown -R user .
+    - if [ -f run/dumpcap ]; then setcap cap_net_raw,cap_net_admin+eip run/dumpcap; fi
     - su user -c pytest-3
 
 .build-rpm: &build-rpm
