@@ -968,7 +968,7 @@ smb2stat_packet(void *pss, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 
 /* Structure for SessionID <=> SessionKey mapping for decryption. */
 typedef struct _smb2_seskey_field_t {
-	guchar *id;
+	guchar *id;		/* *little-endian* - not necessarily host-endian! */
 	guint id_len;
 	guchar *key;
 	guint key_len;
@@ -1028,10 +1028,27 @@ static void seskey_list_free_cb(void *r)
 static gboolean seskey_find_sid_key(guint64 sesid, guint8 *out_key)
 {
 	guint i;
+	guint64 sesid_le;
+
+	/*
+	 * The session IDs in the UAT are octet arrays, in little-endian
+	 * byte order (as it appears on the wire); they have been
+	 * checked to make sure they're 8 bytes (SMB_SESSION_ID_SIZE)
+	 * long.  They're *probably* aligned on an appropriate boundary,
+	 * but let's not assume that - let's just use memcmp().
+	 *
+	 * The session ID passed to us, however, is in *host* byte order.
+	 * This is *NOT* necessarily little-endian; it's big-endian on,
+	 * for example, System/390 and z/Architecture ("s390" and "s390x"
+	 * in Linuxland), SPARC, and most PowerPC systems.  We must,
+	 * therefore, put it into little-endian byte order before
+	 * comparing it with the IDs in the UAT values.
+	 */
+	sesid_le = GUINT64_TO_LE(sesid);
 
 	for (i = 0; i < num_seskey_list; i++) {
 		const smb2_seskey_field_t *p = &seskey_list[i];
-		if (memcmp(&sesid, p->id, SMB_SESSION_ID_SIZE) == 0) {
+		if (memcmp(&sesid_le, p->id, SMB_SESSION_ID_SIZE) == 0) {
 			memset(out_key, 0, NTLMSSP_KEY_LEN);
 			memcpy(out_key, p->key, p->key_len);
 			return TRUE;
