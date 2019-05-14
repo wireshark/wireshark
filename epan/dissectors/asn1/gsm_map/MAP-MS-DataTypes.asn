@@ -17,6 +17,8 @@ EXPORTS
 
 -- WS modification: for Ericsson proprietary extensions
 	RequestedEquipmentInfo,
+	TripletList,
+	QuintupletList,
 -- End WS modification
 	-- location registration types
 	UpdateLocationArg,

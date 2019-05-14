@@ -1771,9 +1771,11 @@ static int hf_gsm_old_msc_Number = -1;            /* ISDN_AddressString */
 static int hf_gsm_old_subscriberId = -1;          /* SubscriberIdentity */
 static int hf_gsm_old_requestParameterList = -1;  /* RequestParameterList */
 static int hf_gsm_old_RequestParameterList_item = -1;  /* RequestParameter */
-static int hf_gsm_old_authenticationSet = -1;     /* AuthenticationSetList */
+static int hf_gsm_old_authenticationSet = -1;     /* AuthenticationSetListOld */
 static int hf_gsm_old_subscriberData = -1;        /* SubscriberData */
 static int hf_gsm_old_ki = -1;                    /* Ki */
+static int hf_gsm_old_tripletList_01 = -1;        /* TripletList */
+static int hf_gsm_old_quintupletList = -1;        /* QuintupletList */
 static int hf_gsm_old_SentParameterList_item = -1;  /* SentParameter */
 
 /* --- Module SS-DataTypes --- --- ---                                        */
@@ -2660,6 +2662,7 @@ static gint ett_gsm_old_LocationInfo = -1;
 static gint ett_gsm_old_SendParametersArg = -1;
 static gint ett_gsm_old_RequestParameterList = -1;
 static gint ett_gsm_old_SentParameter = -1;
+static gint ett_gsm_old_AuthenticationSetListOld = -1;
 static gint ett_gsm_old_SentParameterList = -1;
 
 /* --- Module SS-DataTypes --- --- ---                                        */
@@ -19157,6 +19160,28 @@ dissect_gsm_old_SendParametersArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, 
 }
 
 
+static const value_string gsm_old_AuthenticationSetListOld_vals[] = {
+  {   0, "tripletList" },
+  {   1, "quintupletList" },
+  { 0, NULL }
+};
+
+static const ber_choice_t gsm_old_AuthenticationSetListOld_choice[] = {
+  {   0, &hf_gsm_old_tripletList_01, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_TripletList },
+  {   1, &hf_gsm_old_quintupletList, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_QuintupletList },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gsm_old_AuthenticationSetListOld(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 gsm_old_AuthenticationSetListOld_choice, hf_index, ett_gsm_old_AuthenticationSetListOld,
+                                 NULL);
+
+  return offset;
+}
+
+
 static const value_string gsm_old_SentParameter_vals[] = {
   {   0, "imsi" },
   {   1, "authenticationSet" },
@@ -19167,7 +19192,7 @@ static const value_string gsm_old_SentParameter_vals[] = {
 
 static const ber_choice_t gsm_old_SentParameter_choice[] = {
   {   0, &hf_gsm_old_imsi        , BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_gsm_map_IMSI },
-  {   1, &hf_gsm_old_authenticationSet, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_AuthenticationSetList },
+  {   1, &hf_gsm_old_authenticationSet, BER_CLASS_CON, 1, BER_FLAGS_IMPLTAG, dissect_gsm_old_AuthenticationSetListOld },
   {   2, &hf_gsm_old_subscriberData, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_SubscriberData },
   {   4, &hf_gsm_old_ki          , BER_CLASS_CON, 4, BER_FLAGS_IMPLTAG, dissect_gsm_old_Ki },
   { 0, NULL, 0, 0, 0, NULL }
@@ -31023,9 +31048,9 @@ void proto_register_gsm_map(void) {
         FT_UINT32, BASE_DEC, VALS(gsm_old_RequestParameter_vals), 0,
         NULL, HFILL }},
     { &hf_gsm_old_authenticationSet,
-      { "authenticationSet", "gsm_old.authenticationSet_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "AuthenticationSetList", HFILL }},
+      { "authenticationSet", "gsm_old.authenticationSet",
+        FT_UINT32, BASE_DEC, VALS(gsm_old_AuthenticationSetListOld_vals), 0,
+        "AuthenticationSetListOld", HFILL }},
     { &hf_gsm_old_subscriberData,
       { "subscriberData", "gsm_old.subscriberData_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -31033,6 +31058,14 @@ void proto_register_gsm_map(void) {
     { &hf_gsm_old_ki,
       { "ki", "gsm_old.ki",
         FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_old_tripletList_01,
+      { "tripletList", "gsm_old.tripletList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_gsm_old_quintupletList,
+      { "quintupletList", "gsm_old.quintupletList",
+        FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_gsm_old_SentParameterList_item,
       { "SentParameter", "gsm_old.SentParameter",
@@ -32640,6 +32673,7 @@ void proto_register_gsm_map(void) {
     &ett_gsm_old_SendParametersArg,
     &ett_gsm_old_RequestParameterList,
     &ett_gsm_old_SentParameter,
+    &ett_gsm_old_AuthenticationSetListOld,
     &ett_gsm_old_SentParameterList,
 
 /* --- Module SS-DataTypes --- --- ---                                        */
