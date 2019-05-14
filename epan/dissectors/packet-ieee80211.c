@@ -32419,18 +32419,18 @@ proto_register_ieee80211(void)
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_report_mode_late,
-     {"Measurement Report Mode Field", "wlan.measure.rep.repmode.late",
-      FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01,
+     {"Late", "wlan.measure.rep.repmode.late",
+      FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_report_mode_incapable,
-     {"Measurement Reports", "wlan.measure.rep.repmode.incapable",
-      FT_BOOLEAN, 8, TFS(&tfs_accepted_not_accepted), 0x02,
+     {"Incapable", "wlan.measure.rep.repmode.incapable",
+      FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x02,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_report_mode_refused,
-     {"Autonomous Measurement Reports", "wlan.measure.rep.repmode.refused",
-      FT_BOOLEAN, 8, TFS(&tfs_accepted_not_accepted), 0x04,
+     {"Refused", "wlan.measure.rep.repmode.refused",
+      FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x04,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_measure_report_mode_reserved,
