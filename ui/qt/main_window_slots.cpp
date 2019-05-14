@@ -3762,9 +3762,10 @@ void MainWindow::extcap_options_finished(int result)
 void MainWindow::showExtcapOptionsDialog(QString &device_name)
 {
     ExtcapOptionsDialog * extcap_options_dialog = ExtcapOptionsDialog::createForDevice(device_name, this);
-    extcap_options_dialog->setModal(true);
     /* The dialog returns null, if the given device name is not a valid extcap device */
     if (extcap_options_dialog) {
+        extcap_options_dialog->setModal(true);
+        extcap_options_dialog->setAttribute(Qt::WA_DeleteOnClose);
         connect(extcap_options_dialog, SIGNAL(finished(int)),
                 this, SLOT(extcap_options_finished(int)));
         extcap_options_dialog->show();
