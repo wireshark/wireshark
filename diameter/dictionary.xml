@@ -7202,11 +7202,11 @@
 		<avp name="Deferred-MT-LR-Data" code="2547" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="Deferred-Location-Type"/>
-				<gavp name="Termination-Cause"/>
+				<gavp name="Termination-Cause-3GPP"/>
 				<gavp name="Serving-Node"/>
 			</grouped>
 		</avp>
-		<avp name="Termination-Cause" code="2548" vendor-bit="must" vendor-id="TGPP">
+		<avp name="Termination-Cause-3GPP" code="2548" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Enumerated"/>
 			<enum name="Normal" code="0"/>
 			<enum name="Error Undefined" code="1"/>
@@ -7241,12 +7241,12 @@
 		<avp name="Cell-Portion-ID" code="2553" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
-		<avp name="1xRTT-RCID" code="2554" vendor-bit="must" vendor-id="TGPP">
+		<avp name="OnexRTT-RCID" code="2554" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Delayed-Location-Reporting-Data" code="2555" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
-				<gavp name="Termination-Cause"/>
+				<gavp name="Termination-Cause-3GPP"/>
 				<gavp name="Serving-Node"/>
 			</grouped>
 		</avp>
