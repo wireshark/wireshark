@@ -7489,6 +7489,7 @@
 				<gavp name="Presence-Reporting-Area-Identifier"/>
 				<gavp name="Presence-Reporting-Area-Status"/>
 				<gavp name="Presence-Reporting-Area-Elements-List"/>
+				<gavp name="Presence-Reporting-Area-Node"/>
 			</grouped>
 		</avp>
 		<avp name="Presence-Reporting-Area-Status" code="2823" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
@@ -7617,7 +7618,20 @@
 		<avp name="Extended-GBR-UL" code="2851" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
-
+		<avp name="Max-PLR-DL" code="2852" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Float32"/>
+		</avp>
+		<avp name="Max-PLR-UL" code="2853" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Float32"/>
+		</avp>
+		<avp name="UE-Status" code="2854" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+			<type type-name="Float32"/>
+		</avp>
+		<avp name="Presence-Reporting-Area-Node" code="2855" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
+			<type type-name="Enumerated"/>
+			<enum name="OCS" code="0"/>
+			<enum name="PCRF" code="1"/>
+		</avp>
 		<!--
 		Note: The AVP codes from 2829 to 2899 are reserved for TS 29.212
 		-->
