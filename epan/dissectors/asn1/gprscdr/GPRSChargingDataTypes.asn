@@ -15,9 +15,11 @@ CallDuration,
 CallingNumber,
 CauseForRecClosing,
 CellId, 
+ChargingID,
 CivicAddressInformation,
 Diagnostics, 
-DiameterIdentity, 
+DiameterIdentity,
+DynamicAddressFlag, 
 EnhancedDiagnostics,
 -- GSNAddress,
 IPAddress,
@@ -33,7 +35,11 @@ MBMSInformation,
 MessageReference, 
 MSISDN,
 MSTimeZone,
+NodeID,
+PDPAddress,
+PLMN-Id,
 PositioningData,
+RATType,
 RecordingEntity,
 RecordType,
 RoutingAreaCode,
@@ -1007,11 +1013,6 @@ ChangeLocation	::= SEQUENCE
 
 ChargingCharacteristics	::= OCTET STRING (SIZE(2))
 
-ChargingID	::= INTEGER (0..4294967295)
---
--- Generated in P-GW, part of IP-CAN bearer
--- 0..4294967295 is equivalent to 0..2**32-1
---
 
 ChargingPerIPCANSessionIndicator	::= ENUMERATED
 {
@@ -1072,7 +1073,6 @@ DataVolumeMBMS ::= INTEGER
 -- The volume of data transferred in octets.
 --
 
-DynamicAddressFlag	::= BOOLEAN
 
 EPCQoSInformation	::= SEQUENCE
 --
@@ -1177,17 +1177,7 @@ NetworkInitiatedPDPContext		::= BOOLEAN
 -- Set to true if PDP context was initiated from network side
 --
 
-NodeID		::= IA5String (SIZE(1..20))
-
 NumberOfDPEncountered  ::= INTEGER
-
-PDPAddress		::= CHOICE
-{
-	iPAddress				[0] IPAddress
---	eTSIAddress				[1] ETSIAddress
---								has only been used in earlier releases for X.121 format
-}
-
 PDPType		::= OCTET STRING (SIZE(2))
 --
 -- OCTET 1: PDP Type Organization
@@ -1201,11 +1191,6 @@ PDPPDNTypeExtension	::= INTEGER
 -- This integer is 1:1 copy of the PDP type value as defined in TS 29.061 [215].
 --
 
-PLMN-Id		::= OCTET STRING (SIZE (3))
---
---	This is in the same format as octets 2,3,and 4 of the Routing Area Identity (RAI) IE specified
---	in TS 29.060 [215]
---
 
 PresenceReportingAreaElementsList ::= OCTET STRING
 --
@@ -1220,13 +1205,16 @@ PresenceReportingAreaInfo	::= SEQUENCE
 	presenceReportingAreaElementsList[2] PresenceReportingAreaElementsList OPTIONAL,
 	presenceReportingAreaNode		 [3] PresenceReportingAreaNode OPTIONAL
 }
-PresenceReportingAreaNode ::= ENUMERATED 
+
+PresenceReportingAreaNode ::= BIT STRING 
 {
 	oCS   		 (0),
-	pCRF  		 (1),
-	oCSandPCRF 	 (2)
-
+	pCRF  		 (1)
 }
+--
+--	This bit mask has the same format as Presence-Reporting-Area-Node AVP in TS 29.212 [220]
+--
+
 
 PresenceReportingAreaStatus ::= ENUMERATED 
 {
@@ -1273,11 +1261,6 @@ RatingGroupId		::= INTEGER
 -- 
 -- IP service flow identity (DCCA), range of 4 byte (0... 4294967295)
 -- see Rating-Group AVP as used in TS 32.299 [50]
---
-
-RATType		::= INTEGER (0..255)
---
--- Ihis integer is 1:1 copy of the RAT type value as defined in TS 29.061 [215].
 --
 
 RelatedChangeOfCharCondition	::= SEQUENCE

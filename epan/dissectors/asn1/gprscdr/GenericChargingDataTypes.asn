@@ -265,14 +265,15 @@ CauseForTerm			::= INTEGER
 	unknownOrUnreachableLCSClient		(58)
 }
 
+ChargingID	::= INTEGER (0..4294967295)
+--
+-- Generated in P-GW, part of IP-CAN bearer
+-- 0..4294967295 is equivalent to 0..2**32-1
+--
+
 CivicAddressInformation		::= OCTET STRING
 --
 -- as defined in subclause 3.1 of IETF RFC 4776 [409] excluding the first 3 octets.
---
-
-DataVolumeOctets		::= INTEGER
---
--- The volume of data transferred in octets.
 --
 
 CNIPMulticastDistribution		::= ENUMERATED
@@ -280,6 +281,14 @@ CNIPMulticastDistribution		::= ENUMERATED
 	nO-IP-MULTICAST				(0),	
 	iP-MULTICAST				(1)
 }
+
+DataVolumeOctets		::= INTEGER
+--
+-- The volume of data transferred in octets.
+--
+
+DynamicAddressFlag	::= BOOLEAN
+
 
 Diagnostics						::= CHOICE
 {
@@ -312,6 +321,14 @@ EnhancedDiagnostics					::= SEQUENCE
 }
 
 GSNAddress	::= IPAddress
+
+InvolvedParty ::= CHOICE 
+{
+	sIP-URI		[0] GraphicString, -- refer to rfc3261 [401]
+	tEL-URI		[1] GraphicString,	-- refer to rfc3966 [402]
+	uRN			[2] GraphicString,	-- refer to rfc5031 [407]
+	iSDN-E164 	[3] GraphicString	-- refer to ITU-T Recommendation E.164[308]
+}
 
 IPAddress	::= CHOICE
 {
@@ -451,6 +468,14 @@ MCC-MNC		::= OCTET STRING (SIZE(3))
 -- See TS 24.008 [208]
 --
 
+MessageClass		::= ENUMERATED
+{
+	personal			(0), 
+	advertisement		(1), 
+	information-service	(2),
+	auto				(3)
+}
+
 MessageReference		::= OCTET STRING
 
 MSCAddress		::= AddressString
@@ -470,6 +495,8 @@ MSTimeZone	::= OCTET STRING (SIZE (2))
 -- 1.Octet: Time Zone and 2. Octet: Daylight saving time, see TS 29.060 [215]
 --
 
+NodeID		::= IA5String (SIZE(1..20))
+
 NodeAddress ::= CHOICE 
 {
 	iPAddress 	[0] IPAddress,
@@ -482,14 +509,39 @@ PDPAddressPrefixLength		::=INTEGER (1..64)
 -- and the default value is 64 bits.
 --
 
+PDPAddress		::= CHOICE
+{
+	iPAddress				[0] IPAddress
+--	eTSIAddress				[1] ETSIAddress
+--								has only been used in earlier releases for X.121 format
+}
+
+PLMN-Id		::= OCTET STRING (SIZE (3))
+--
+--	This is in the same format as octets 2,3,and 4 of the Routing Area Identity (RAI) IE specified
+--	in TS 29.060 [215]
+--
+
 PositioningData	::= OCTET STRING (SIZE(1..33))
 --
 -- See Positioning Data IE (octet 3..n), TS 49.031 [227]
 --
 
+PriorityType	::= ENUMERATED
+{
+	low			(0),
+	normal		(1),
+	high		(2)
+}
+
 RANNASCause				::=	OCTET STRING
 -- This octet string is a 1:1 copy of the contents (i.e. starting with octet 5)
 -- of the "RAN/NAS Cause" information element specified in TS 29.274 [223].
+
+RATType		::= INTEGER (0..255)
+--
+--This integer is 1:1 copy of the RAT type value as defined in TS 29.061 [215].
+--
 
 RecordingEntity 		::= AddressString 
 
@@ -698,6 +750,10 @@ SCSASAddress		::= SET
 	sCSRealm		[2] DiameterIdentity
 }
 
+Session-Id	::= GraphicString
+--
+-- rfc3261 [401]: example for SIP CALL-ID: f81d4fae-7dec-11d0-a765-00a0c91e6bf6@foo.bar.com
+--
 
 ServiceContextID		::= UTF8String
 
