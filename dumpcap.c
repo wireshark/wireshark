@@ -2055,7 +2055,7 @@ pcapng_read_shb(capture_src *pcap_src,
          * privileges if you're capturing from a pipe?  We should not
          * only have given up all additional privileges if we're reading
          * from a pipe, we should give them up in such a fashion that
-         * we can reclaim them.
+         * we can't reclaim them.
          */
 #if G_BYTE_ORDER == G_BIG_ENDIAN
 #define OUR_ENDIAN "big"
