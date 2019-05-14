@@ -2032,9 +2032,30 @@ pcapng_read_shb(capture_src *pcap_src,
     case PCAPNG_SWAPPED_MAGIC:
         g_log(LOG_DOMAIN_CAPTURE_CHILD, G_LOG_LEVEL_DEBUG, "pcapng SHB SWAPPED MAGIC");
         /*
-         * pcapng sources can contain all sorts of block types. Rather than add a bunch of
-         * complexity to this code (which is often privileged), punt and tell the user to
-         * swap bytes elsewhere.
+         * pcapng sources can contain all sorts of block types.
+         * Rather than add a bunch of complexity to this code (which is
+         * often privileged), punt and tell the user to swap bytes
+         * elsewhere.
+         *
+         * XXX - punting means that the Wireshark test suite must be
+         * modified to:
+         *
+         *  1) have both little-endian and big-endian versions of
+         *     all pcapng files piped to dumpcap;
+         *
+         *  2) pipe the appropriate file to dumpcap, depending on
+         *     the byte order of the host on which the tests are
+         *     being run;
+         *
+         * as per comments in bug 15772 and 15754.
+         *
+         * Are we *really* certain that the complexity added would be
+         * significant enough to make adding it a security risk?  And
+         * why would this code even be running with any elevated
+         * privileges if you're capturing from a pipe?  We should not
+         * only have given up all additional privileges if we're reading
+         * from a pipe, we should give them up in such a fashion that
+         * we can reclaim them.
          */
 #if G_BYTE_ORDER == G_BIG_ENDIAN
 #define OUR_ENDIAN "big"
