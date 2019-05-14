@@ -250,6 +250,7 @@ static int hf_pfcp_report_type_b0_dldr = -1;
 
 static int hf_pfcp_offending_ie = -1;
 
+static int hf_pfcp_up_function_features_o6_b6_pfde = -1;
 static int hf_pfcp_up_function_features_o6_b5_frrt = -1;
 static int hf_pfcp_up_function_features_o6_b4_trace = -1;
 static int hf_pfcp_up_function_features_o6_b3_quoac = -1;
@@ -338,6 +339,10 @@ static int hf_pfcp_pfcpsrrsp_flags = -1;
 static int hf_pfcp_pfcpsrrsp_flags_b0_drobu = -1;
 
 static int hf_pfcp_pfd_contents_flags = -1;
+static int hf_pfcp_pfd_contents_flags_b7_adnp = -1;
+static int hf_pfcp_pfd_contents_flags_b6_aurl = -1;
+static int hf_pfcp_pfd_contents_flags_b5_afd = -1;
+static int hf_pfcp_pfd_contents_flags_b4_dnp = -1;
 static int hf_pfcp_pfd_contents_flags_b3_cp = -1;
 static int hf_pfcp_pfd_contents_flags_b2_dn = -1;
 static int hf_pfcp_pfd_contents_flags_b1_url = -1;
@@ -349,6 +354,11 @@ static int hf_pfcp_dn_len = -1;
 static int hf_pfcp_dn = -1;
 static int hf_pfcp_cp_len = -1;
 static int hf_pfcp_cp = -1;
+static int hf_pfcp_dnp_len = -1;
+static int hf_pfcp_dnp = -1;
+static int hf_pfcp_afd_len = -1;
+static int hf_pfcp_aurl_len = -1;
+static int hf_pfcp_adnp_len = -1;
 static int hf_pfcp_header_type = -1;
 static int hf_pfcp_hf_len = -1;
 static int hf_pfcp_hf_name = -1;
@@ -550,6 +560,9 @@ static int ett_pfcp_proxying = -1;
 static int ett_pfcp_ethernet_filter_properties = -1;
 static int ett_pfcp_user_id = -1;
 static int ett_pfcp_ethernet_pdu_session_information = -1;
+static int ett_pfcp_adf = -1;
+static int ett_pfcp_aurl = -1;
+static int ett_pfcp_adnp = -1;
 
 
 static expert_field ei_pfcp_ie_reserved = EI_INIT;
@@ -805,7 +818,7 @@ static const value_string pfcp_ie_type[] = {
     { 53, "Metric" },                                               /* Fixed Length / Subclause 8.2.34 */
     { 54, "Overload Control Information" },                         /* Extendable / Table 7.5.3.4-1 */
     { 55, "Timer" },                                                /* Extendable / Subclause 8.2 35 */
-    { 56, "Packet Detection Rule ID" },                             /* Extendable / Subclause 8.2 36 */
+    { 56, "PDR ID" },                                               /* Extendable / Subclause 8.2 36 */
     { 57, "F-SEID" },                                               /* Extendable / Subclause 8.2 37 */
     { 58, "Application ID's PFDs" },                                /* Extendable / Table 7.4.3.1-2 */
     { 59, "PFD context" },                                          /* Extendable / Table 7.4.3.1-3 */
@@ -827,7 +840,7 @@ static const value_string pfcp_ie_type[] = {
     { 75, "Start Time" },                                           /* Extendable / Subclause 8.2.52 */
     { 76, "End Time" },                                             /* Extendable / Subclause 8.2.53 */
     { 77, "Query URR" },                                            /* Extendable / Table 7.5.4.10-1 */
-    { 78, "Usage Report (in Session Modification Response)" },      /* Extendable / Table 7.5.5.2-1 */
+    { 78, "Usage Report (Session Modification Response)" },         /* Extendable / Table 7.5.5.2-1 */
     { 79, "Usage Report (Session Deletion Response)" },             /* Extendable / Table 7.5.7.2-1 */
     { 80, "Usage Report (Session Report Request)" },                /* Extendable / Table 7.5.8.3-1 */
     { 81, "URR ID" },                                               /* Extendable / Subclause 8.2.54 */
@@ -2140,8 +2153,17 @@ dissect_pfcp_up_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         &hf_pfcp_up_function_features_o5_b0_bucp,
         NULL
     };
+    /* Octet 5  TREU    HEEU    PFDM    FTUP    TRST    DLBD    DDND    BUCP */
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_up_function_features_o5_flags, ENC_BIG_ENDIAN);
+    offset++;
+
+    if (offset == length) {
+        return;
+    }
+
     static const int * pfcp_up_function_features_o6_flags[] = {
-        &hf_pfcp_spare_b7_b6,
+        &hf_pfcp_spare_b7,
+        &hf_pfcp_up_function_features_o6_b6_pfde,
         &hf_pfcp_up_function_features_o6_b5_frrt,
         &hf_pfcp_up_function_features_o6_b4_trace,
         &hf_pfcp_up_function_features_o6_b3_quoac,
@@ -2150,10 +2172,7 @@ dissect_pfcp_up_function_features(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
         &hf_pfcp_up_function_features_o6_b0_empu,
         NULL
     };
-    /* Octet 5  TREU    HEEU    PFDM    FTUP    TRST    DLBD    DDND    BUCP */
-    /* Octet 6  Spare   Spare   FRRT    TRACE   QUOAC   UDBC    PDIU    EMPU */
-    proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_up_function_features_o5_flags, ENC_BIG_ENDIAN);
-    offset++;
+    /* Octet 6  Spare   PFDE   FRRT    TRACE   QUOAC   UDBC    PDIU    EMPU */
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_up_function_features_o6_flags, ENC_BIG_ENDIAN);
     offset++;
 
@@ -2456,7 +2475,7 @@ dissect_pfcp_timer(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, prot
 }
 
 /*
- * 8.2.36   Packet Detection Rule ID (PDR ID)
+ * 8.2.36   PDR ID
  */
 static int
 decode_pfcp_pdr_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item, gint offset)
@@ -2644,17 +2663,21 @@ dissect_pfcp_pfd_contents(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
 {
     int offset = 0;
     guint64 flags;
-    guint32 len;
+    guint32 len, len_addition;
+    proto_tree *afd_tree, *aurl_tree, *adnp_tree;
 
     static const int * pfcp_pfd_contents_flags[] = {
-        &hf_pfcp_spare_b7_b4,
+        &hf_pfcp_pfd_contents_flags_b7_adnp,
+        &hf_pfcp_pfd_contents_flags_b6_aurl,
+        &hf_pfcp_pfd_contents_flags_b5_afd,
+        &hf_pfcp_pfd_contents_flags_b4_dnp,
         &hf_pfcp_pfd_contents_flags_b3_cp,
         &hf_pfcp_pfd_contents_flags_b2_dn,
         &hf_pfcp_pfd_contents_flags_b1_url,
         &hf_pfcp_pfd_contents_flags_b0_fd,
         NULL
     };
-    /* Octet 5  Spare   CP  DN  URL FD */
+    /* Octet 5  ADNP   AURL   AFD   DNP   CP   DN   URL   FD */
     proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_pfd_contents_flags,
         ett_pfcp_measurement_method_flags, pfcp_pfd_contents_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT, &flags);
     offset += 1;
@@ -2662,7 +2685,7 @@ dissect_pfcp_pfd_contents(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
     /* Bit 1 - FD (Flow Description): If this bit is set to "1", then the Length of Flow Description
      * and the Flow Description fields shall be present
      */
-    if ((flags & 0x1) == 1) {
+    if (flags & 0x1) {
         /* The Flow Description field, when present, shall be encoded as an OctetString
         * as specified in subclause 6.4.3.7 of 3GPP TS 29.251
         */
@@ -2675,40 +2698,137 @@ dissect_pfcp_pfd_contents(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, p
         offset += len;
     }
 
-
-    /* Bit 2 - URL (URL): If this bit is set to "1", then the Length of URL and the URL fields shall be present */
-    if ((flags & 0x2) == 2) {
+    /* Bit 2 - URL (URL): The URL field, when present,
+     * shall be encoded as an OctetString as specified in subclause 6.4.3.8 of 3GPP TS 29.251 [21].
+    */
+    if (flags & 0x2) {
         /* q to (q+1)   Length of URL */
         proto_tree_add_item_ret_uint(tree, hf_pfcp_url_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
         offset += 2;
+
         /* (q+2) to r   URL */
-        proto_tree_add_item(tree, hf_pfcp_url, tvb, offset, len, ENC_NA);
+        proto_tree_add_item(tree, hf_pfcp_url, tvb, offset, len, ENC_ASCII|ENC_NA);
         offset += len;
 
     }
 
-    /* Bit 3 - DN (Domain Name): If this bit is set to "1", then the Length of Domain Name and
-    * the Domain Name fields shall be present
-    */
-    if ((flags & 0x4) == 4) {
+    /* Bit 3 - DN (Domain Name): The Domain Name field, when present,
+     * shall be encoded as an OctetString as specified in subclause 6.4.3.9 of 3GPP TS 29.251 [21].
+     */
+    if (flags & 0x4) {
         /* s to (s+1)   Length of Domain Name */
         proto_tree_add_item_ret_uint(tree, hf_pfcp_dn_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
         offset += 2;
+
         /* (s+2) to t   Domain Name */
-        proto_tree_add_item(tree, hf_pfcp_dn, tvb, offset, len, ENC_NA);
+        proto_tree_add_item(tree, hf_pfcp_dn, tvb, offset, len, ENC_ASCII|ENC_NA);
         offset += len;
     }
 
     /* Bit 4 - CP (Custom PFD Content): If this bit is set to "1", then the Length of Custom PFD Content and
      * the Custom PFD Content fields shall be present
      */
-    if ((flags & 0x8) == 8) {
+    if (flags & 0x8) {
         /* u to (u+1)   Length of Custom PFD Content */
         proto_tree_add_item_ret_uint(tree, hf_pfcp_cp_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
         offset += 2;
+
         /* (u+2) to v   Custom PFD Content */
         proto_tree_add_item(tree, hf_pfcp_cp, tvb, offset, len, ENC_NA);
         offset += len;
+    }
+
+    /* Bit 5 - DNP (Domain Name Protocol): If this bit is set to "1", then the Length of Domain Name Protocol and
+     * the Domain Name Protocol shall be present, otherwise they shall not be present; and if this bit is set to "1",
+     * the Length of Domain Name and the Domain Name fields shall also be present.
+     */
+    if (flags & 0x10) {
+        /* The Domain Name Protocol field, when present, shall be encoded as an OctetString
+         * as specified in subclause 6.4.3.x of 3GPP TS 29.251 [21].
+        */
+        /* w to (w+1)   Length of Domain Name Protocol */
+        proto_tree_add_item_ret_uint(tree, hf_pfcp_dnp_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+        offset += 2;
+
+        /* (w+2) to x   Domain Name Protocol */
+        proto_tree_add_item(tree, hf_pfcp_dnp, tvb, offset, len, ENC_ASCII|ENC_NA);
+        offset += len;
+    }
+
+
+    /* Bit 6 - AFD (Additional Flow Description): If this bit is set to "1",
+     * the Length of Additional Flow Description and the Additional Flow Description field shall be present,
+     * otherwise they shall not be present.
+    */
+    if (flags & 0x20) {
+        /* y to (y+1)   Length of Additional Flow Description */
+        proto_tree_add_item_ret_uint(tree, hf_pfcp_afd_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+        offset += 2;
+
+        /* (y+2) to z   Additional Flow Description */
+        afd_tree = proto_item_add_subtree(item, ett_pfcp_adf);
+        while (offset < (int)len) {
+            /* (y+2) to (y+3)   Length of Flow Description */
+            proto_tree_add_item_ret_uint(afd_tree, hf_pfcp_flow_desc_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len_addition);
+            offset += 2;
+
+            /* (y+4) to i   Flow Description */
+            proto_tree_add_item(afd_tree, hf_pfcp_flow_desc, tvb, offset, len_addition, ENC_ASCII|ENC_NA);
+            offset += len_addition;
+        }
+    }
+
+    /* Bit 7 - AURL (Additional URL): If this bit is set to "1",
+     * the Length of Additional URL and the Additional URL field shall be present,
+     * otherwise they shall not be present.
+     */
+    if (flags & 0x40) {
+        /* a to (a+1)   Length of Additional URL */
+        proto_tree_add_item_ret_uint(tree, hf_pfcp_aurl_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+        offset += 2;
+
+        /* (a+2) to b   Additional URL */
+        aurl_tree = proto_item_add_subtree(item, ett_pfcp_aurl);
+        while (offset < (int)len) {
+            /* (a+2) to (a+3)   Length of URL */
+            proto_tree_add_item_ret_uint(aurl_tree, hf_pfcp_url_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len_addition);
+            offset += 2;
+
+            /* (a+4) to o   URL */
+            proto_tree_add_item(aurl_tree, hf_pfcp_url, tvb, offset, len_addition, ENC_ASCII|ENC_NA);
+            offset += len_addition;
+        }
+    }
+
+    /* Bit 8 - ADNP (Additional Domain Name and Domain Name Protocol): If this bit is set to "1",
+     * the Length of Additional Domain Name and Domain Name Protocol, and the Additional Domain Name and
+     * Domain Name Protocol field shall be present, otherwise they shall not be present.
+     */
+    if (flags & 0x80) {
+        /* c to (c+1)   Length of Additional Domain Name and Domain Name Protocol */
+        proto_tree_add_item_ret_uint(tree, hf_pfcp_adnp_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len);
+        offset += 2;
+
+        /* (c+2) to d   Additional Domain Name and Domain Name Protocol */
+        adnp_tree = proto_item_add_subtree(item, ett_pfcp_adnp);
+        while (offset < (int)len) {
+
+            /* (c+2) to (c+3)   Length of Domain Name */
+            proto_tree_add_item_ret_uint(adnp_tree, hf_pfcp_dn_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len_addition);
+            offset += 2;
+
+            /* (c+4) to pd   Domain Name */
+            proto_tree_add_item(adnp_tree, hf_pfcp_dn, tvb, offset, len_addition, ENC_ASCII|ENC_NA);
+            offset += len_addition;
+
+            /* (pe) to (pe+1)   Length of Domain Name Protocol */
+            proto_tree_add_item_ret_uint(adnp_tree, hf_pfcp_dnp_len, tvb, offset, 2, ENC_BIG_ENDIAN, &len_addition);
+            offset += 2;
+
+            /* (pe+2) to ph   Domain Name Protocol */
+            proto_tree_add_item(adnp_tree, hf_pfcp_dnp, tvb, offset, len_addition, ENC_ASCII|ENC_NA);
+            offset += len_addition;
+        }
     }
 
     if (offset < length) {
@@ -5118,7 +5238,7 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*     53 */    { dissect_pfcp_metric },                                        /* Metric                                          Fixed Length / Subclause 8.2.34 */
 /*     54 */    { dissect_pfcp_overload_control_information },                  /* Overload Control Information                    Extendable / Table 7.5.3.4-1 */
 /*     55 */    { dissect_pfcp_timer },                                         /* Timer                                           Extendable / Subclause 8.2 35 */
-/*     56 */    { dissect_pfcp_pdr_id },                                        /* Packet Detection Rule ID                        Extendable / Subclause 8.2 36 */
+/*     56 */    { dissect_pfcp_pdr_id },                                        /* PDR ID                                          Extendable / Subclause 8.2 36 */
 /*     57 */    { dissect_pfcp_f_seid },                                        /* F-SEID                                          Extendable / Subclause 8.2 37 */
 /*     58 */    { dissect_pfcp_application_ids_pfds },                          /* Application ID's PFDs                           Extendable / Table 7.4.3.1-2 */
 /*     59 */    { dissect_pfcp_pfd_context },                                   /* PFD context                                     Extendable / Table 7.4.3.1-3 */
@@ -5140,7 +5260,7 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*     75 */    { dissect_pfcp_start_time },                                    /* Start Time                                      Extendable / Subclause 8.2.52 */
 /*     76 */    { dissect_pfcp_end_time },                                      /* End Time                                        Extendable / Subclause 8.2.53 */
 /*     77 */    { dissect_pfcp_pfcp_query_urr },                                /* Query URR                                       Extendable / Table 7.5.4.10-1 */
-/*     78 */    { dissect_pfcp_usage_report_smr },                              /* Usage Report (in Session Modification Response) Extendable / Table 7.5.5.2-1 */
+/*     78 */    { dissect_pfcp_usage_report_smr },                              /* Usage Report (Session Modification Response) Extendable / Table 7.5.5.2-1 */
 /*     79 */    { dissect_pfcp_usage_report_sdr },                              /* Usage Report (Session Deletion Response)        Extendable / Table 7.5.7.2-1 */
 /*     80 */    { dissect_pfcp_usage_report_srr },                              /* Usage Report (Session Report Request)           Extendable / Table 7.5.8.3-1 */
 /*     81 */    { dissect_pfcp_urr_id },                                        /* URR ID                                          Extendable / Subclause 8.2.54 */
@@ -7083,7 +7203,7 @@ proto_register_pfcp(void)
         { &hf_pfcp_up_function_features_o6_b3_quoac,
         { "QUOAC", "pfcp.up_function_features.quoac",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
-            "The UP function supports being provisioned with the Quota Action to apply when reaching quotas.", HFILL }
+            "The UP function supports being provisioned with the Quota Action to apply when reaching quotas", HFILL }
         },
         { &hf_pfcp_up_function_features_o6_b4_trace,
         { "TRACE", "pfcp.up_function_features.trace",
@@ -7094,6 +7214,11 @@ proto_register_pfcp(void)
         { "FRRT", "pfcp.up_function_features.frrt",
             FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
             "The UP function supports Framed Routing", HFILL }
+        },
+        { &hf_pfcp_up_function_features_o6_b6_pfde,
+        { "PFDE", "pfcp.up_function_features.pfde",
+            FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+            "The UP function supports a PFD Contents including a property with multiple values", HFILL }
         },
         { &hf_pfcp_sequence_number,
         { "Sequence Number", "pfcp.sequence_number",
@@ -7345,6 +7470,26 @@ proto_register_pfcp(void)
             FT_BOOLEAN, 8, NULL, 0x08,
             NULL, HFILL }
         },
+        { &hf_pfcp_pfd_contents_flags_b4_dnp,
+        { "DNP (Domain Name Protocol)", "pfcp.pfd_contents_flags.dnp",
+            FT_BOOLEAN, 8, NULL, 0x10,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_pfd_contents_flags_b5_afd,
+        { "AFD (Additional Flow Description)", "pfcp.pfd_contents_flags.afd",
+            FT_BOOLEAN, 8, NULL, 0x20,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_pfd_contents_flags_b6_aurl,
+        { "AURL (Additional URL)", "pfcp.pfd_contents_flags.aurl",
+            FT_BOOLEAN, 8, NULL, 0x40,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_pfd_contents_flags_b7_adnp,
+        { "ADNP (Additional Domain Name and Domain Name Protocol)", "pfcp.pfd_contents_flags.adnp",
+            FT_BOOLEAN, 8, NULL, 0x80,
+            NULL, HFILL }
+        },
         { &hf_pfcp_url_len,
         { "Length of URL", "pfcp.url_len",
             FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -7352,7 +7497,7 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_url,
         { "URL", "pfcp.url",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_dn_len,
@@ -7362,7 +7507,7 @@ proto_register_pfcp(void)
         },
         { &hf_pfcp_dn,
         { "Domain Name", "pfcp.dn",
-            FT_BYTES, BASE_NONE, NULL, 0x0,
+            FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_cp_len,
@@ -7373,6 +7518,31 @@ proto_register_pfcp(void)
         { &hf_pfcp_cp,
         { "Custom PFD Content", "pfcp.cp",
             FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_dnp_len,
+        { "Length of Domain Name Protocol", "pfcp.dnp_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_dnp,
+        { "Domain Name Protocol", "pfcp.dn",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_afd_len,
+        { "Length of Additional Flow Description", "pfcp.adf_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_aurl_len,
+        { "Length of Additional URL", "pfcp.aurl_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_adnp_len,
+        { "Length of Additional Domain Name and Domain Name Protocol", "pfcp.adnp_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pfcp_header_type,
@@ -8000,7 +8170,7 @@ proto_register_pfcp(void)
     };
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS_PFCP    49
+#define NUM_INDIVIDUAL_ELEMS_PFCP    52
     gint *ett[NUM_INDIVIDUAL_ELEMS_PFCP +
         (NUM_PFCP_IES - 1)];
 
@@ -8053,6 +8223,9 @@ proto_register_pfcp(void)
     ett[46] = &ett_pfcp_user_id;
     ett[47] = &ett_pfcp_ethernet_pdu_session_information;
     ett[48] = &ett_pfcp_sdf_filter_id;
+    ett[49] = &ett_pfcp_adf;
+    ett[50] = &ett_pfcp_aurl;
+    ett[51] = &ett_pfcp_adnp;
 
 
     static ei_register_info ei[] = {
