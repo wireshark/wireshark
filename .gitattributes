@@ -5,3 +5,4 @@
 .gitattributes              export-ignore
 .gitignore                  export-ignore
 .gitreview                  export-ignore
+tools/make-version.pl       export-subst

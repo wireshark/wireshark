@@ -80,10 +80,27 @@ sub read_repo_info {
 	my $do_hack = 1;
 	my $info_source = "Unknown";
 	my $is_git_repo = 0;
+	my $git_abbrev_length = 12;
 	my $git_cdir;
 	my $vcs_tag;
 	my $repo_branch = "unknown";
 	my $info_cmd = "";
+
+	# Tarball produced by 'git archive' will have the $Format string
+	# substituted due to the use of 'export-subst' in .gitattributes.
+	my $git_archive_commit = '$Format:%H$';
+	my @git_refs = split(/, /, '$Format:%D$');
+	if (substr($git_archive_commit, 0, 1) eq '$') {
+		# If $Format is still present, then this is not a git archive.
+		$git_archive_commit = undef;
+	} else {
+		foreach my $git_ref (@git_refs) {
+			if ($git_ref =~ /^tag: (v[1-9].+)/) {
+				$vcs_tag = $1;
+				$is_tagged = 1;
+			}
+		}
+	}
 
 	$package_string = $untagged_version_extra;
 
@@ -91,6 +108,8 @@ sub read_repo_info {
 	# versioning information that was provided at tarball creation time.
 	if ($git_description) {
 		$info_source = "Forced via command line flag";
+	} elsif ($git_archive_commit) {
+		$info_source = "git archive";
 	} elsif (-e "$src_dir/.git" && ! -d "$src_dir/.git/svn") {
 		$info_source = "Command line (git)";
 		$git_client = 1;
@@ -148,6 +167,10 @@ sub read_repo_info {
 		$do_hack = 0;
 		# Assume format like v2.3.0rc0-1342-g7bdcf75
 		$commit_id = ($git_description =~ /([0-9a-f]+)$/)[0];
+	} elsif ($git_archive_commit) {
+		$do_hack = 0;
+		# Assume a full commit hash, abbreviate it.
+		$commit_id = substr($git_archive_commit, 0, $git_abbrev_length);
 	} elsif ($git_client) {
 		eval {
 			use warnings "all";
@@ -159,7 +182,7 @@ sub read_repo_info {
 			}
 
 			# Commits since last annotated tag.
-			chomp($line = qx{git --git-dir="$src_dir"/.git describe --abbrev=8 --long --always --match "v[1-9]*"});
+			chomp($line = qx{git --git-dir="$src_dir"/.git describe --abbrev=$git_abbrev_length --long --always --match "v[1-9]*"});
 			if ($? == 0 && length($line) > 1) {
 				my @parts = split(/-/, $line);
 				$git_description = $line;
@@ -575,6 +598,10 @@ sub new_version_h
 			$version_micro,
 			);
 		return "#define VCSVERSION \"$line-$vcs_name-$num_commits\"\n";
+	}
+
+	if ($commit_id) {
+		return "#define VCSVERSION \"$vcs_name commit $commit_id\"\n";
 	}
 
 	return "#define VCSVERSION \"$vcs_name Rev Unknown from unknown\"\n";
