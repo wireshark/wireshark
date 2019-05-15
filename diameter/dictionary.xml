@@ -7625,7 +7625,7 @@
 			<type type-name="Float32"/>
 		</avp>
 		<avp name="UE-Status" code="2854" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="Float32"/>
+			<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="Presence-Reporting-Area-Node" code="2855" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
 			<type type-name="Enumerated"/>
