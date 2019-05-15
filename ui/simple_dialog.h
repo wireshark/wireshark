@@ -96,6 +96,10 @@ extern gpointer simple_dialog(ESD_TYPE_E type, gint btn_mask,
     const gchar *msg_format, ...)
     G_GNUC_PRINTF(3, 4);
 
+extern gpointer simple_dialog_async(ESD_TYPE_E type, gint btn_mask,
+    const gchar *msg_format, ...)
+    G_GNUC_PRINTF(3, 4);
+
 /** Surround the primary dialog message text by
  *  simple_dialog_primary_start() and simple_dialog_primary_end().
  */

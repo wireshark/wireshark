@@ -38,6 +38,7 @@ public:
     void setDetailedText(QString text) { detailed_text_ = text; }
     void setCheckBox(QCheckBox *cb) { check_box_ = cb; }
     int exec();
+    void show();
 
 private:
     const MessagePair splitMessage(QString &message) const;

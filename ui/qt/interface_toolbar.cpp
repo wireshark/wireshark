@@ -550,15 +550,15 @@ void InterfaceToolbar::controlReceived(QString ifname, int num, int command, QBy
             break;
 
         case commandInformationMessage:
-            simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, "%s", payload.data());
+            simple_dialog_async(ESD_TYPE_INFO, ESD_BTN_OK, "%s", payload.data());
             break;
 
         case commandWarningMessage:
-            simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK, "%s", payload.data());
+            simple_dialog_async(ESD_TYPE_WARN, ESD_BTN_OK, "%s", payload.data());
             break;
 
         case commandErrorMessage:
-            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", payload.data());
+            simple_dialog_async(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", payload.data());
             break;
 
         default:
@@ -598,9 +598,9 @@ void InterfaceToolbar::controlSend(QString ifname, int num, int command, const Q
 
     if (ws_write(interface_[ifname].out_fd, ba.data(), ba.length()) != ba.length())
     {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-                      "Unable to send control message:\n%s.",
-                      g_strerror(errno));
+        simple_dialog_async(ESD_TYPE_ERROR, ESD_BTN_OK,
+                            "Unable to send control message:\n%s.",
+                            g_strerror(errno));
     }
 }
 

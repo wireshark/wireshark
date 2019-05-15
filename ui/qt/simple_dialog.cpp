@@ -73,6 +73,19 @@ simple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, ...)
     return NULL;
 }
 
+gpointer
+simple_dialog_async(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, ...)
+{
+    va_list ap;
+
+    va_start(ap, msg_format);
+    SimpleDialog sd(wsApp->mainWindow(), type, btn_mask, msg_format, ap);
+    va_end(ap);
+
+    sd.show();
+    return NULL;
+}
+
 /*
  * Alert box, with optional "don't show this message again" variable
  * and checkbox, and optional secondary text.
@@ -331,6 +344,23 @@ int SimpleDialog::exec()
     default:
         return ESD_BTN_CANCEL;
     }
+}
+
+void SimpleDialog::show()
+{
+    if (!message_box_) {
+        return;
+    }
+
+    message_box_->setDetailedText(detailed_text_);
+    message_box_->setCheckBox(check_box_);
+
+    message_box_->setModal(Qt::WindowModal);
+    message_box_->setAttribute(Qt::WA_DeleteOnClose);
+    message_box_->show();
+
+    /* Message box was shown and will be deleted once user closes it */
+    message_box_ = 0;
 }
 
 const MessagePair SimpleDialog::splitMessage(QString &message) const
