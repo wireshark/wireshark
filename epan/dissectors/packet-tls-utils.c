@@ -1358,6 +1358,7 @@ static const ssl_alpn_prefix_match_protocol_t ssl_alpn_prefix_match_protocols[] 
 const value_string compress_certificate_algorithm_vals[] = {
     { 1, "zlib" },
     { 2, "brotli" },
+    { 3, "zstd" },
     { 0, NULL }
 };
 
