@@ -972,7 +972,10 @@ tls_save_decrypted_record(packet_info *pinfo, gint record_id, SslDecryptSession 
         }
         content_type = data[--datalen];
         if (datalen == 0) {
-            /* XXX should we remember that the decrypted contents was zero-length? */
+            /*
+             * XXX zero-length Handshake fragments are forbidden by RFC 8446,
+             * Section 5.1. Empty Application Data fragments are allowed though.
+             */
             return;
         }
     }
@@ -1872,7 +1875,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
      * handshake records in the same frame).
      * In TLS 1.3, only "Application Data" records are encrypted.
      */
-    if (ssl && (session->version != TLSV1DOT3_VERSION || content_type == SSL_ID_APP_DATA)) {
+    if (ssl && record_length && (session->version != TLSV1DOT3_VERSION || content_type == SSL_ID_APP_DATA)) {
         gboolean    decrypt_ok = FALSE;
 
         /* Try to decrypt TLS 1.3 early data first */
@@ -1910,7 +1913,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             PROTO_ITEM_SET_GENERATED(ti);
         }
     }
-    ssl_check_record_length(&dissect_ssl3_hf, pinfo, record_length, length_pi, version, decrypted);
+    ssl_check_record_length(&dissect_ssl3_hf, pinfo, (ContentType)content_type, record_length, length_pi, version, decrypted);
 
     switch ((ContentType) content_type) {
     case SSL_ID_CHG_CIPHER_SPEC:

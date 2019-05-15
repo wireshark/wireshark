@@ -775,7 +775,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
   if (decrypted) {
     add_new_data_source(pinfo, decrypted, "Decrypted DTLS");
   }
-  ssl_check_record_length(&dissect_dtls_hf, pinfo, record_length, length_pi, session->version, decrypted);
+  ssl_check_record_length(&dissect_dtls_hf, pinfo, (ContentType)content_type, record_length, length_pi, session->version, decrypted);
 
 
   switch ((ContentType) content_type) {

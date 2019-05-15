@@ -7540,6 +7540,7 @@ ssl_try_set_version(SslSession *session, SslDecryptSession *ssl,
 
 void
 ssl_check_record_length(ssl_common_dissect_t *hf, packet_info *pinfo,
+                        ContentType content_type,
                         guint record_length, proto_item *length_pi,
                         guint16 version, tvbuff_t *decrypted_tvb)
 {
@@ -7550,6 +7551,22 @@ ssl_check_record_length(ssl_common_dissect_t *hf, packet_info *pinfo,
     } else {
         /* RFC 5246, Section 6.2.3: TLSCiphertext.fragment length MUST NOT exceed 2^14 + 2048 */
         max_expansion = 2048;
+    }
+    /*
+     * RFC 5246 (TLS 1.2), Section 6.2.1 forbids zero-length Handshake, Alert
+     * and ChangeCipherSpec.
+     * RFC 6520 (Heartbeats) does not mention zero-length Heartbeat fragments,
+     * so assume it is permitted.
+     * RFC 6347 (DTLS 1.2) does not mention zero-length fragments either, so
+     * assume TLS 1.2 requirements.
+     */
+    if (record_length == 0 &&
+            (content_type == SSL_ID_CHG_CIPHER_SPEC ||
+             content_type == SSL_ID_ALERT ||
+             content_type == SSL_ID_HANDSHAKE)) {
+        expert_add_info_format(pinfo, length_pi, &hf->ei.record_length_invalid,
+                               "Zero-length %s fragments are not allowed",
+                               val_to_str_const(content_type, ssl_31_content_type, "unknown"));
     }
     if (record_length > TLS_MAX_RECORD_LENGTH + max_expansion) {
         expert_add_info_format(pinfo, length_pi, &hf->ei.record_length_invalid,
