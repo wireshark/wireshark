@@ -3887,7 +3887,9 @@ Only set a valued with col_set_str() if it does not yet exist.
 */
 void col_set_str_conditional(column_info *cinfo, const gint el, const gchar* str)
 {
-    if (!g_str_has_prefix(col_get_text(cinfo, el), str))
+    const char *col_string = col_get_text(cinfo, el);
+
+    if (col_string == NULL || !g_str_has_prefix(col_string, str))
     {
         col_add_str(cinfo, el, str);
     }
@@ -3898,7 +3900,9 @@ CSV add a value to a column, if it does not exist yet
 */
 void col_append_str_conditional(column_info *cinfo, const gint el, const gchar* str)
 {
-    if (!g_strrstr(col_get_text(cinfo, el), str))
+    const char *col_string = col_get_text(cinfo, el);
+
+    if (col_string == NULL || !g_strrstr(col_string, str))
     {
         col_append_fstr(cinfo, el, ", %s", str);
     }
