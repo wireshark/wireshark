@@ -591,7 +591,6 @@ else() # ! MSVC
 		# variables.  The autoconf script checked for that; we
 		# don't.
 		-Wshadow
-		-Wno-pointer-sign
 		-Wold-style-definition
 		-Wstrict-prototypes
 		#
@@ -716,6 +715,20 @@ else() # ! MSVC
 		)
 
 		list(APPEND WIRESHARK_CXX_ONLY_FLAGS
+		)
+	else()
+		#
+		# -Wpointer-sign is a default test we get with -Wall and
+		# -W, but for some reason we were suppressing it -
+		# unconditionally.  Suppress it only without the extra
+		# warnings, so we can at least see how much we get.
+		# (This would have caught at least one error - the one
+		# in change https://code.wireshark.org/review/33234,
+		# which would have suggested that the wrong
+		# proto_tree_add_ret_ call was being used.)
+		#
+		list(APPEND WIRESHARK_C_ONLY_FLAGS
+			-Wno-pointer-sign
 		)
 	endif()
 
