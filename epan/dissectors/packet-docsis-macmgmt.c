@@ -494,23 +494,38 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define SPACING_25KHZ 0
 #define SPACING_50KHZ 1
 
-#define SEC_CH_MDD_TIMEOUT      1
-#define QAM_FEC_LOCK_FAILURE    2
-#define SEQ_OUT_OF_RANGE        3
-#define SEC_CH_MDD_RECOVERY     4
-#define QAM_FEC_LOCK_RECOVERY   5
-#define T4_TIMEOUT              6
-#define T3_RETRIES_EXCEEDED     7
+#define SEC_CH_MDD_TIMEOUT 1
+#define QAM_FEC_LOCK_FAILURE 2
+#define SEQ_OUT_OF_RANGE 3
+#define SEC_CH_MDD_RECOVERY 4
+#define QAM_FEC_LOCK_RECOVERY 5
+#define T4_TIMEOUT 6
+#define T3_RETRIES_EXCEEDED 7
 #define SUCCESS_RANGING_AFTER_T3_RETRIES_EXCEEDED 8
-#define CM_ON_BATTERY           9
-#define CM_ON_AC_POWER         10
+#define CM_ON_BATTERY 9
+#define CM_ON_AC_POWER 10
+#define MAC_REMOVAL_EVENT 11
+#define DS_OFDM_PROFILE_FAILURE 16
+#define PRIMARY_DOWNSTREAM_CHANGE 17
+#define DPD_MISMATCH 18
+#define NCP_PROFILE_FAILURE 20
+#define PLC_FAILURE 21
+#define NCP_PROFILE_RECOVERY 22
+#define PLC_RECOVERY 23
+#define OFDM_PROFILE_RECOVERY 24
+#define OFDMA_PROFILE_FAILURE 25
+#define MAP_STORAGE_OVERFLOW_INDICATOR 26
+#define MAP_STORAGE_ALMOST_FULL_INDICATOR 27
 
-#define STATUS_EVENT            1
+#define STATUS_EVENT 1
 
-#define EVENT_DESCR             2
-#define EVENT_DS_CH_ID          4
-#define EVENT_US_CH_ID          5
-#define EVENT_DSID              6
+#define EVENT_DESCR 2
+#define EVENT_DS_CH_ID 4
+#define EVENT_US_CH_ID 5
+#define EVENT_DSID 6
+#define EVENT_MAC_ADDRESS 7
+#define EVENT_DS_OFDM_PROFILE_ID 8
+#define EVENT_US_OFDMA_PROFILE_ID 9
 
 #define CM_CTRL_MUTE 1
 #define CM_CTRL_MUTE_TIMEOUT 2
@@ -1023,9 +1038,25 @@ static int hf_docsis_cmstatus_e_t_t3_e = -1;
 static int hf_docsis_cmstatus_e_t_rng_s = -1;
 static int hf_docsis_cmstatus_e_t_cm_b = -1;
 static int hf_docsis_cmstatus_e_t_cm_a = -1;
+static int hf_docsis_cmstatus_e_t_mac_removal = -1;
+static int hf_docsis_cmstatus_e_t_ds_ofdm_profile_failure = -1;
+static int hf_docsis_cmstatus_e_t_prim_ds_change = -1;
+static int hf_docsis_cmstatus_e_t_dpd_mismatch = -1;
+static int hf_docsis_cmstatus_e_t_ncp_profile_failure = -1;
+static int hf_docsis_cmstatus_e_t_plc_failure = -1;
+static int hf_docsis_cmstatus_e_t_ncp_profile_recovery =-1;
+static int hf_docsis_cmstatus_e_t_plc_recovery = -1;
+static int hf_docsis_cmstatus_e_t_ofdm_profile_recovery = -1;
+static int hf_docsis_cmstatus_e_t_ofdma_profile_failure = -1;
+static int hf_docsis_cmstatus_e_t_map_storage_overflow_indicator = -1;
+static int hf_docsis_cmstatus_e_t_map_storage_almost_full_indicator = -1;
+static int hf_docsis_cmstatus_e_t_unknown = -1;
 static int hf_docsis_cmstatus_status_event_ds_ch_id = -1;
 static int hf_docsis_cmstatus_status_event_us_ch_id = -1;
 static int hf_docsis_cmstatus_status_event_dsid = -1;
+static int hf_docsis_cmstatus_status_event_mac_address = -1;
+static int hf_docsis_cmstatus_status_event_ds_ofdm_profile_id = -1;
+static int hf_docsis_cmstatus_status_event_us_ofdma_profile_id = -1;
 static int hf_docsis_cmstatus_status_event_descr = -1;
 static int hf_docsis_cmstatus_tlv_data = -1;
 static int hf_docsis_cmstatus_type = -1;
@@ -2033,6 +2064,9 @@ static const value_string cmstatus_status_event_tlv_vals[] = {
   {EVENT_US_CH_ID, "Upstream Channel ID"},
   {EVENT_DSID, "DSID"},
   {EVENT_DESCR, "Description"},
+  {EVENT_MAC_ADDRESS, "MAC Address"},
+  {EVENT_DS_OFDM_PROFILE_ID, "Downstream OFDM Profile ID"},
+  {EVENT_US_OFDMA_PROFILE_ID, "Upstream OFDMA Profile ID"},
   {0, NULL}
 };
 
@@ -5702,6 +5736,39 @@ dissect_cmstatus_status_event_tlv (tvbuff_t * tvb, packet_info* pinfo, proto_tre
       }
       break;
 
+    case EVENT_MAC_ADDRESS:
+      if (length == 6)
+      {
+        proto_tree_add_item (tlvtlv_tree, hf_docsis_cmstatus_status_event_mac_address, tvb, pos, 6, ENC_NA);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+
+    case EVENT_DS_OFDM_PROFILE_ID:
+      if (length == 1)
+      {
+        proto_tree_add_item (tlvtlv_tree, hf_docsis_cmstatus_status_event_ds_ofdm_profile_id, tvb, pos, 1, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+
+    case EVENT_US_OFDMA_PROFILE_ID:
+      if (length == 1)
+      {
+        proto_tree_add_item (tlvtlv_tree, hf_docsis_cmstatus_status_event_us_ofdma_profile_id, tvb, pos, 1, ENC_BIG_ENDIAN);
+      }
+      else
+      {
+        expert_add_info_format(pinfo, tlv_len_item, &ei_docsis_mgmt_tlvlen_bad, "Wrong TLV length: %u", length);
+      }
+      break;
+
     case EVENT_DESCR:
       if (length >= 1 && length <= 80)
       {
@@ -5791,7 +5858,7 @@ dissect_cmstatus_common (tvbuff_t * tvb, proto_tree * tree)
     proto_tree_add_item (tree, hf_docsis_cmstatus_e_t_t3_e, tvb, 2, 1, ENC_BIG_ENDIAN);
     break;
 
-   case SUCCESS_RANGING_AFTER_T3_RETRIES_EXCEEDED:
+  case SUCCESS_RANGING_AFTER_T3_RETRIES_EXCEEDED:
     proto_tree_add_item (tree, hf_docsis_cmstatus_e_t_rng_s, tvb, 2, 1, ENC_BIG_ENDIAN);
     break;
 
@@ -5801,6 +5868,58 @@ dissect_cmstatus_common (tvbuff_t * tvb, proto_tree * tree)
 
   case CM_ON_AC_POWER:
     proto_tree_add_item (tree, hf_docsis_cmstatus_e_t_cm_a, tvb, 2, 1, ENC_BIG_ENDIAN);
+    break;
+
+  case MAC_REMOVAL_EVENT:
+    proto_tree_add_item (tree, hf_docsis_cmstatus_e_t_mac_removal, tvb, 2, 1, ENC_BIG_ENDIAN);
+    break;
+
+  case DS_OFDM_PROFILE_FAILURE:
+    proto_tree_add_item (tree, hf_docsis_cmstatus_e_t_ds_ofdm_profile_failure, tvb, 2, 1, ENC_BIG_ENDIAN);
+    break;
+
+  case PRIMARY_DOWNSTREAM_CHANGE:
+    proto_tree_add_item (tree, hf_docsis_cmstatus_e_t_prim_ds_change, tvb, 2, 1, ENC_BIG_ENDIAN);
+    break;
+
+  case DPD_MISMATCH:
+    proto_tree_add_item (tree, hf_docsis_cmstatus_e_t_dpd_mismatch, tvb, 2, 1, ENC_BIG_ENDIAN);
+    break;
+
+  case NCP_PROFILE_FAILURE:
+    proto_tree_add_item (tree, hf_docsis_cmstatus_e_t_ncp_profile_failure, tvb, 2, 1, ENC_BIG_ENDIAN);
+    break;
+
+  case PLC_FAILURE:
+    proto_tree_add_item (tree, hf_docsis_cmstatus_e_t_plc_failure, tvb, 2, 1, ENC_BIG_ENDIAN);
+    break;
+
+  case NCP_PROFILE_RECOVERY:
+    proto_tree_add_item (tree, hf_docsis_cmstatus_e_t_ncp_profile_recovery, tvb, 2, 1, ENC_BIG_ENDIAN);
+    break;
+
+  case PLC_RECOVERY:
+    proto_tree_add_item (tree, hf_docsis_cmstatus_e_t_plc_recovery, tvb, 2, 1, ENC_BIG_ENDIAN);
+    break;
+
+  case OFDM_PROFILE_RECOVERY:
+    proto_tree_add_item (tree, hf_docsis_cmstatus_e_t_ofdm_profile_recovery, tvb, 2, 1, ENC_BIG_ENDIAN);
+    break;
+
+  case OFDMA_PROFILE_FAILURE:
+    proto_tree_add_item (tree, hf_docsis_cmstatus_e_t_ofdma_profile_failure, tvb, 2, 1, ENC_BIG_ENDIAN);
+    break;
+
+  case MAP_STORAGE_OVERFLOW_INDICATOR:
+    proto_tree_add_item (tree, hf_docsis_cmstatus_e_t_map_storage_overflow_indicator, tvb, 2, 1, ENC_BIG_ENDIAN);
+    break;
+
+  case MAP_STORAGE_ALMOST_FULL_INDICATOR:
+    proto_tree_add_item (tree, hf_docsis_cmstatus_e_t_map_storage_almost_full_indicator, tvb, 2, 1, ENC_BIG_ENDIAN);
+    break;
+
+  default:
+    proto_tree_add_item (tree, hf_docsis_cmstatus_e_t_unknown, tvb, 2, 1, ENC_BIG_ENDIAN);
     break;
   } /* switch */
   return;
@@ -9116,34 +9235,73 @@ proto_register_docsis_mgmt (void)
     },
     /* CM Status */
     {&hf_docsis_cmstatus_e_t_mdd_t,
-     {"Secondary Channel MDD timeout", "docsis_cmstatus.mdd_timeout", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+     {"Event Type: Secondary Channel MDD timeout", "docsis_cmstatus.mdd_timeout", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
     {&hf_docsis_cmstatus_e_t_qfl_f,
-     {"QAM/FEC lock failure", "docsis_cmstatus.qam_fec_lock_failure", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+     {"Event Type: QAM/FEC lock failure", "docsis_cmstatus.qam_fec_lock_failure", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
     {&hf_docsis_cmstatus_e_t_s_o,
-     {"Sequence out-of-range", "docsis_cmstatus.sequence_out_of_range", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+     {"Event Type: Sequence out-of-range", "docsis_cmstatus.sequence_out_of_range", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
     {&hf_docsis_cmstatus_e_t_mdd_r,
-     {"Secondary Channel MDD Recovery", "docsis_cmstatus.mdd_recovery", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+     {"Event Type: Secondary Channel MDD Recovery", "docsis_cmstatus.mdd_recovery", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
     {&hf_docsis_cmstatus_e_t_qfl_r,
-     {"QAM/FEC Lock Recovery", "docsis_cmstatus.qam_fec_lock_recovery", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+     {"Event Type: QAM/FEC Lock Recovery", "docsis_cmstatus.qam_fec_lock_recovery", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
     {&hf_docsis_cmstatus_e_t_t4_t,
-     {"T4 timeout", "docsis_cmstatus.t4_timeout", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+     {"Event Type: T4 timeout", "docsis_cmstatus.t4_timeout", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
     {&hf_docsis_cmstatus_e_t_t3_e,
-     {"T3 retries exceeded", "docsis_cmstatus.t3_retries_exceeded", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+     {"Event Type: T3 retries exceeded", "docsis_cmstatus.t3_retries_exceeded", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
     {&hf_docsis_cmstatus_e_t_rng_s,
-     {"Successful ranging after T3 retries exceeded", "docsis_cmstatus.successful_ranging_after_t3_retries_exceeded", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+     {"Event Type: Successful ranging after T3 retries exceeded", "docsis_cmstatus.successful_ranging_after_t3_retries_exceeded", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
     {&hf_docsis_cmstatus_e_t_cm_b,
-     {"CM operating on battery backup", "docsis_cmstatus.cm_on_battery", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+     {"Event Type: CM operating on battery backup", "docsis_cmstatus.cm_on_battery", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
     {&hf_docsis_cmstatus_e_t_cm_a,
-     {"CM returned to A/C power", "docsis_cmstatus.cm_on_ac_power", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+     {"Event Type: CM returned to A/C power", "docsis_cmstatus.cm_on_ac_power", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_cmstatus_e_t_mac_removal,
+     {"Event Type: MAC Removal event", "docsis_cmstatus.mac_removal", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_cmstatus_e_t_ds_ofdm_profile_failure,
+     {"Event Type: DS OFDM profile failure", "docsis_cmstatus.ds_ofdm_profile_failure", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_cmstatus_e_t_prim_ds_change,
+     {"Event Type: Primary Downstream Change", "docsis_cmstatus.primary_downstream_change", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_cmstatus_e_t_dpd_mismatch,
+     {"Event Type: DPD Mismatch", "docsis_cmstatus.dpd_mismatch", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_cmstatus_e_t_ncp_profile_failure,
+     {"Event Type: NCP Profile failure", "docsis_cmstatus.ncp_profile_failure", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_cmstatus_e_t_plc_failure,
+     {"Event Type: PLC failure", "docsis_cmstatus.plc_failure", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_cmstatus_e_t_ncp_profile_recovery,
+     {"Event Type: NCP profile recovery", "docsis_cmstatus.ncp_profile_recovery", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_cmstatus_e_t_plc_recovery,
+     {"Event Type: PLC recovery", "docsis_cmstatus.plc_recovery", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_cmstatus_e_t_ofdm_profile_recovery,
+     {"Event Type: OFDM profile recovery", "docsis_cmstatus.ofdm_profile_recovery", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_cmstatus_e_t_ofdma_profile_failure,
+     {"Event Type: OFDMA profile failure", "docsis_cmstatus.ofdma_profile_failure", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_cmstatus_e_t_map_storage_overflow_indicator,
+     {"Event Type: MAP Storage overflow indicator", "docsis_cmstatus.map_storage_overflow_indicator", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_cmstatus_e_t_map_storage_almost_full_indicator,
+     {"Event Type: MAP Storage almost full indicator", "docsis_cmstatus.map_storage_almost_full_indicator", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_cmstatus_e_t_unknown,
+     {"Unknown Event Type", "docsis_cmstatus.unknown_event_type", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
     {&hf_docsis_cmstatus_status_event_descr,
      {"Description", "docsis_cmstatus.status_event.description",FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
@@ -9156,6 +9314,15 @@ proto_register_docsis_mgmt (void)
     },
     {&hf_docsis_cmstatus_status_event_dsid,
      {"DSID", "docsis_cmstatus.status_event.dsid", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_cmstatus_status_event_mac_address,
+     {"MAC Address", "docsis_cmstatus.status_event.mac_address", FT_ETHER, BASE_NONE, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_cmstatus_status_event_ds_ofdm_profile_id,
+     {"Downstream OFDM Profile ID", "docsis_cmstatus.status_event.ds_ofdm_profile_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
+    },
+    {&hf_docsis_cmstatus_status_event_us_ofdma_profile_id,
+     {"US OFDMA Profile ID", "docsis_cmstatus.status_event.us_ofdma_profile_id", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
     {&hf_docsis_cmstatus_tlv_data,
      {"TLV Data", "docsis_cmstatus.tlv_data", FT_BYTES, BASE_NO_DISPLAY_VALUE, NULL, 0x0, NULL, HFILL}
