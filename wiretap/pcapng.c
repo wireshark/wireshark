@@ -2774,7 +2774,7 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
         if (bh.block_type != BLOCK_TYPE_IDB) {
             break;  /* No more IDB:s */
         }
-        if (pcapng_read_block(wth, wth->fh, &pn, &wblock, err, err_info) != PCAPNG_BLOCK_OK) {
+        if (pcapng_read_block(wth, wth->fh, pcapng, &wblock, err, err_info) != PCAPNG_BLOCK_OK) {
             wtap_block_free(wblock.block);
             if (*err == 0) {
                 pcapng_debug("No more IDBs available...");
