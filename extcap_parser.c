@@ -281,24 +281,34 @@ void extcap_free_arg(extcap_arg *a) {
     g_free(a);
 }
 
-static void extcap_free_toolbar_value(iface_toolbar_value *v) {
-    if (v == NULL)
+static void extcap_free_toolbar_value(iface_toolbar_value *value)
+{
+    if (value == NULL)
+    {
         return;
+    }
 
-    g_free(v->value);
-    g_free(v->display);
-    g_free(v);
+    g_free(value->value);
+    g_free(value->display);
+    g_free(value);
 }
 
-static void extcap_free_toolbar_control(iface_toolbar_control *c) {
-    if (c == NULL)
+void extcap_free_toolbar_control(iface_toolbar_control *control)
+{
+    if (control == NULL)
+    {
         return;
+    }
 
-    g_free(c->display);
-    g_free(c->validation);
-    g_free(c->tooltip);
-    g_free(c->placeholder);
-    g_free(c);
+    g_free(control->display);
+    g_free(control->validation);
+    g_free(control->tooltip);
+    g_free(control->placeholder);
+    if (control->ctrl_type == INTERFACE_TYPE_STRING) {
+        g_free(control->default_value.string);
+    }
+    g_list_free_full(control->values, (GDestroyNotify)extcap_free_toolbar_value);
+    g_free(control);
 }
 
 void extcap_free_arg_list(GList *a) {

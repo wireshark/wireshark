@@ -15,6 +15,7 @@
 #include <string.h>
 
 #include <config.h>
+#include "ui/iface_toolbar.h"
 
 typedef enum {
     EXTCAP_SENTENCE_UNKNOWN,
@@ -183,6 +184,9 @@ gboolean extcap_compare_is_default(extcap_arg *element, extcap_complex *test);
 
 /* Free a single argument */
 void extcap_free_arg(extcap_arg *a);
+
+/* Free entire toolbar control structure */
+void extcap_free_toolbar_control(iface_toolbar_control *control);
 
 /* Free an entire arg list */
 void extcap_free_arg_list(GList *a);

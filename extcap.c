@@ -287,37 +287,6 @@ extcap_find_interface_for_ifname(const gchar *ifname)
 }
 
 static void
-extcap_free_toolbar_value(iface_toolbar_value *value)
-{
-    if (!value)
-    {
-        return;
-    }
-
-    g_free(value->value);
-    g_free(value->display);
-    g_free(value);
-}
-
-static void
-extcap_free_toolbar_control(iface_toolbar_control *control)
-{
-    if (!control)
-    {
-        return;
-    }
-
-    g_free(control->display);
-    g_free(control->validation);
-    g_free(control->tooltip);
-    if (control->ctrl_type == INTERFACE_TYPE_STRING) {
-        g_free(control->default_value.string);
-    }
-    g_list_free_full(control->values, (GDestroyNotify)extcap_free_toolbar_value);
-    g_free(control);
-}
-
-static void
 extcap_free_toolbar(gpointer data)
 {
     if (!data)
