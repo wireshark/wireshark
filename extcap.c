@@ -147,9 +147,7 @@ thread_pool_wait(thread_pool_t *pool)
     while (pool->count != 0) {
         g_cond_wait(&pool->cond, &pool->data_mutex);
     }
-    g_cond_clear(&pool->cond);
     g_mutex_unlock(&pool->data_mutex);
-    g_mutex_clear(&pool->data_mutex);
 }
 
 static GHashTable *
@@ -513,6 +511,9 @@ extcap_run_all(const char *argv[], extcap_run_cb_t output_cb, gsize data_size, g
 
     /* Wait for all (sub)tasks to complete. */
     thread_pool_wait(&pool);
+
+    g_mutex_clear(&pool.data_mutex);
+    g_cond_clear(&pool.cond);
     g_thread_pool_free(pool.pool, FALSE, TRUE);
 
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "extcap: completed discovery of %d tools in %.3fms",
