@@ -9,46 +9,70 @@
 
 === Introduction
 
-Wireshark has an embedded Lua interpreter. Lua is a powerful light-weight
-programming language designed for extending applications. Lua is designed and
-implemented by a team at PUC-Rio, the Pontifical Catholic University of Rio de
-Janeiro in Brazil. Lua was born and raised at Tecgraf, the Computer Graphics
-Technology Group of PUC-Rio, and is now housed at
-link:http://www.lua.org[Lua.org]. Both Tecgraf and Lua.org are laboratories of
-the Department of Computer Science.
-
-In Wireshark Lua can be used to write dissectors, taps, and capture file readers
+Lua is a powerful light-weight programming language designed for extending
+applications. Wireshark contains an embedded Lua 5.2 interpreter which
+can be used to write dissectors, taps, and capture file readers
 and writers.
 
-Wireshark’s Lua interpreter starts by loading a file named `init.lua` in
-Wireshark's global configuration directory. It is enabled by default. To
-disable Lua the line variable _$$enable_lua$$_ should be set to _false_
-in _init.lua_. Wireshark 2.6 and earlier enabled and disabled Lua using
-the variable _$$disable_lua$$_. It is still supported, but is deprecated
-and support may be removed in a future release. _$$enable_lua$$_ takes
-precedence over _$$disable_lua$$_.
+Wireshark’s Lua interpreter starts by loading a file named `init.lua` from
+Wireshark's link:{wireshark-users-guide-url}wsug_html_chunked/ChAppFilesConfigurationSection.html[_global configuration directory_].
+The _global configuration directory_'s `init.lua` controls whether or not Lua
+scripts are enabled via the
+_$$enable_lua$$_ variable. Lua scripts are enabled by
+default. To disable Lua scripts, set the _$$enable_lua$$_ variable to _false_.
+Wireshark 2.6 and earlier enabled or disabled Lua scripts using
+the variable _$$disable_lua$$_ (deprecated). If both _$$enable_lua$$_ and
+_$$disable_lua$$_ are present, _$$disable_lua$$_ is ignored.
 
-If Lua is enabled Wireshark will then try to load a file named _init.lua_
-in the user’s personal configuration directory. Wireshark will also load
-all files with a _.lua_ suffix from both the global and the personal
-plugins directory.
+If Lua is enabled, Wireshark will try to load a file named `init.lua`
+from the user’s
+link:{wireshark-users-guide-url}wsug_html_chunked/ChAppFilesConfigurationSection.html[_personal configuration directory_]
+and all files ending with _.lua_ in the global and the personal
+link:{wireshark-users-guide-url}wsug_html_chunked/ChPluginFolders.html[_plugins directory_].
 
-The command line option _$$-X lua_script:$$++file.lua++_ can be used to load
-Lua scripts as well.
+The command line option _$$-X lua_script:$$++file.lua++_ can also be used to load
+specific Lua scripts.
 
-The Lua code will be executed once after all the protocol dissectors have been
+The Lua code is executed after all protocol dissectors are
 initialized and before reading any file.
 
-Lua 5.2 is the current supported version, future releases might use Lua 5.3.
-
 Wireshark for Windows uses a modified Lua runtime
-(link:https://github.com/Lekensteyn/lua-unicode[lua-unicode]) in order to
+(link:https://github.com/Lekensteyn/lua-unicode[lua-unicode]) to
 support Unicode (UTF-8) filesystem paths. This brings consistency with other
 platforms (for example, Linux and macOS).
 
+[[wslua_menu_example]]
+
+=== Example: Creating a Menu with Lua
+
+The code below adds a menu "Lua Dialog Test" under the Tools menu.
+When selected, it opens a dialog prompting the user for input
+and then opens a text window with the output.
+
+[source,lua]
+----
+if gui_enabled() then
+   local splash = TextWindow.new("Hello!");
+   splash:set("This time wireshark has been enhanced with a useless feature.\n")
+   splash:append("Go to 'Tools->Lua Dialog Test' and check it out!")
+end
+
+local function dialog_menu()
+    local function dialog_func(person,eyes,hair)
+        local window = TextWindow.new("Person Info");
+        local message = string.format("Person %s with %s eyes and %s hair.", person, eyes, hair);
+        window:set(message);
+    end
+
+    new_dialog("Dialog Test",dialog_func,"A Person","Eyes","Hair")
+end
+
+register_menu("Lua Dialog Test",dialog_menu,MENU_TOOLS_UNSORTED)
+----
+
 [[wslua_dissector_example]]
 
-=== Example of Dissector written in Lua
+=== Example: Dissector written in Lua
 
 [source,lua]
 ----
@@ -119,7 +143,7 @@ udp_encap_table:add(7555, p_multi)
 
 [[wslua_tap_example]]
 
-=== Example of Listener written in Lua
+=== Example: Listener written in Lua
 
 [source,lua]
 ----
