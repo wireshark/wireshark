@@ -195,6 +195,7 @@ typedef struct interface_info_s {
     guint32 snap_len;
     guint64 time_units_per_second;
     int tsprecision;
+    int fcslen;
 } interface_info_t;
 
 typedef struct {
@@ -203,7 +204,6 @@ typedef struct {
     guint16 version_major;
     guint16 version_minor;
     GArray *interfaces;          /**< Interfaces found in the capture file. */
-    gint8 if_fcslen;
     wtap_new_ipv4_callback_t add_new_ipv4;
     wtap_new_ipv6_callback_t add_new_ipv6;
 } pcapng_t;
@@ -935,8 +935,7 @@ pcapng_read_if_descr_block(wtap *wth, FILE_T fh, pcapng_block_header_t *bh,
                 if (oh.option_length == 1) {
                     /* Fails with multiple options; we silently ignore the failure */
                     wtap_block_add_uint8_option(wblock->block, oh.option_code, option_content[0]);
-                    pn->if_fcslen = option_content[0];
-                    pcapng_debug("pcapng_read_if_descr_block: if_fcslen %u", pn->if_fcslen);
+                    pcapng_debug("pcapng_read_if_descr_block: if_fcslen %u", option_content[0]);
                     /* XXX - add sanity check */
                 } else {
                     pcapng_debug("pcapng_read_if_descr_block: if_fcslen length %u not 1 as expected", oh.option_length);
@@ -1261,7 +1260,7 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
     wblock->rec->rec_header.packet_header.pack_flags  = 0;
 
     /* FCS length default */
-    fcslen = pn->if_fcslen;
+    fcslen = iface_info.fcslen;
 
     /* Options
      * opt_comment    1
@@ -1538,7 +1537,7 @@ pcapng_read_simple_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *
 
     pcap_read_post_process(WTAP_FILE_TYPE_SUBTYPE_PCAPNG, iface_info.wtap_encap,
                            wblock->rec, ws_buffer_start_ptr(wblock->frame_buffer),
-                           pn->byte_swapped, pn->if_fcslen);
+                           pn->byte_swapped, iface_info.fcslen);
 
     /*
      * We return these to the caller in pcapng_read().
@@ -2455,6 +2454,7 @@ pcapng_process_idb(wtap *wth, pcapng_t *pcapng, wtapng_block_t *wblock)
     interface_info_t iface_info;
     wtapng_if_descr_mandatory_t *if_descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(int_data),
                                 *wblock_if_descr_mand = (wtapng_if_descr_mandatory_t*)wtap_block_get_mandatory_data(wblock->block);
+    guint8 if_fcslen;
 
     wtap_block_copy(int_data, wblock->block);
 
@@ -2469,6 +2469,12 @@ pcapng_process_idb(wtap *wth, pcapng_t *pcapng, wtapng_block_t *wblock)
     iface_info.snap_len = wblock_if_descr_mand->snap_len;
     iface_info.time_units_per_second = wblock_if_descr_mand->time_units_per_second;
     iface_info.tsprecision = wblock_if_descr_mand->tsprecision;
+
+    if (wtap_block_get_uint8_option_value(wblock->block, OPT_IDB_FCSLEN,
+        &if_fcslen) == WTAP_OPTTYPE_SUCCESS)
+        iface_info.fcslen = if_fcslen;
+    else
+        iface_info.fcslen = -1;
 
     g_array_append_val(pcapng->interfaces, iface_info);
 }
@@ -2486,7 +2492,6 @@ pcapng_open(wtap *wth, int *err, gchar **err_info)
     pn.shb_read = FALSE;
     /* we don't know the byte swapping of the file yet */
     pn.byte_swapped = FALSE;
-    pn.if_fcslen = -1;
     pn.version_major = -1;
     pn.version_minor = -1;
     pn.interfaces = NULL;
