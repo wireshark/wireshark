@@ -189,7 +189,8 @@ extcap_get_descriptions(plugin_description_callback callback, void *callback_dat
     GPtrArray *tools_array = g_ptr_array_new();
 
     if (tools && g_hash_table_size(tools) > 0) {
-        GList * walker = g_list_first(g_hash_table_get_keys(tools));
+        GList * keys = g_hash_table_get_keys(tools);
+        GList * walker = g_list_first(keys);
         while (walker && walker->data) {
             extcap_info * tool = (extcap_info *)g_hash_table_lookup(tools, walker->data);
             if (tool) {
@@ -197,6 +198,7 @@ extcap_get_descriptions(plugin_description_callback callback, void *callback_dat
             }
             walker = g_list_next(walker);
         }
+        g_list_free(keys);
     }
 
     g_ptr_array_sort(tools_array, compare_tools);
