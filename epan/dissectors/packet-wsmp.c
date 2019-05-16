@@ -215,7 +215,7 @@ dissect_wsmp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 oct)
     proto_tree *sub_tree, *n_tree, *t_tree, *data_tree;
     proto_item *item;
     int offset = 0, ie_start, len_to_set;
-    guint8 header_opt_ind = oct & 0x08 >> 3;
+    guint8 header_opt_ind = (oct & 0x08) >> 3;
     guint8 ie;
     guint16 count, ie_len, wsm_len;
     guint32 tpid, psid = 0;
