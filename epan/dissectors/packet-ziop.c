@@ -176,7 +176,7 @@ get_ziop_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _
   guint message_size;
   gboolean stream_is_big_endian;
 
-  if ( tvb_memeql(tvb, 0, ZIOP_MAGIC, 4) != 0)
+  if ( tvb_memeql(tvb, 0, (const guint8 *)ZIOP_MAGIC, 4) != 0)
     return 0;
 
   flags = tvb_get_guint8(tvb, offset + 6);
@@ -194,7 +194,7 @@ get_ziop_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _
 static int
 dissect_ziop_tcp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data)
 {
-  if ( tvb_memeql(tvb, 0, ZIOP_MAGIC, 4) != 0)
+  if ( tvb_memeql(tvb, 0, (const guint8 *)ZIOP_MAGIC, 4) != 0)
     {
       if (tvb_get_ntohl(tvb, 0) == GIOP_MAGIC_NUMBER)
         {
@@ -226,7 +226,7 @@ dissect_ziop_heur (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void 
          to interpret it as GIOP. */
       return FALSE;
     }
-  if ( tvb_memeql(tvb, 0, ZIOP_MAGIC, 4) != 0)
+  if ( tvb_memeql(tvb, 0, (const guint8 *)ZIOP_MAGIC, 4) != 0)
     {
       return FALSE;
     }

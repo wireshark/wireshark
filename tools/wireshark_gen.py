@@ -1830,7 +1830,7 @@ class wireshark_gen_C:
         self.st.out(self.template_get_CDR_sequence_length, seqname=pn)
         self.st.out(self.template_get_CDR_sequence_octet, seqname=pn)
         self.addvar(self.c_i_lim + pn + ";")
-        self.addvar("const gchar * binary_seq_" + pn + ";")
+        self.addvar("const guint8 * binary_seq_" + pn + ";")
         self.addvar("gchar * text_seq_" + pn + ";")
 
 

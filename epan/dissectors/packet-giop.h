@@ -347,7 +347,7 @@ WS_DLL_PUBLIC guint8 get_CDR_octet(tvbuff_t *tvb, int *offset);
  * This function also increments offset by len.
  */
 
-WS_DLL_PUBLIC void get_CDR_octet_seq(tvbuff_t *tvb, const gchar **seq, int *offset, guint32 len);
+WS_DLL_PUBLIC void get_CDR_octet_seq(tvbuff_t *tvb, const guint8 **seq, int *offset, guint32 len);
 
 /* Copy a 2 octet sequence from the tvbuff
  * which represents a signed short value, and convert
@@ -521,7 +521,7 @@ WS_DLL_PUBLIC guint32 get_CDR_encap_info(tvbuff_t *tvb, proto_tree *tree, gint *
 			   gboolean old_stream_is_big_endian, guint32 old_boundary,
 			   gboolean *new_stream_is_big_endian_ptr, guint32 *new_boundary_ptr );
 
-/* Take in an array of char and create a new ephemeral string.
+/* Take in an array of guint8 and create a new ephemeral string.
  * Replace non-printable characters with periods.
  *
  * The array may contain \0's so don't use strdup
@@ -529,7 +529,7 @@ WS_DLL_PUBLIC guint32 get_CDR_encap_info(tvbuff_t *tvb, proto_tree *tree, gint *
  * the initial sequence.
  */
 
-WS_DLL_PUBLIC gchar * make_printable_string (const gchar *in, guint32 len);
+WS_DLL_PUBLIC gchar * make_printable_string (const guint8 *in, guint32 len);
 
 /*
  * Enums for TCkind

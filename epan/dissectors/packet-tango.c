@@ -2796,7 +2796,7 @@ decode_Tango_DevEncoded_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree
 
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4_loop_Tango_DevEncoded_encoded_data;
-    const gchar * binary_seq_Tango_DevEncoded_encoded_data;
+    const guint8 * binary_seq_Tango_DevEncoded_encoded_data;
     gchar * text_seq_Tango_DevEncoded_encoded_data;
     /* Operation specific Variable declarations End */
 
@@ -4132,7 +4132,7 @@ decode_Tango_ZmqCallInfo_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tre
 
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4_loop_Tango_ZmqCallInfo_oid;
-    const gchar * binary_seq_Tango_ZmqCallInfo_oid;
+    const guint8 * binary_seq_Tango_ZmqCallInfo_oid;
     gchar * text_seq_Tango_ZmqCallInfo_oid;
     /* Operation specific Variable declarations End */
 
@@ -4221,7 +4221,7 @@ decode_Tango_AttrValUnion_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
     guint32   u_octet4_loop_Tango_AttrValUnion_double_att_value;
     guint32   i_Tango_AttrValUnion_double_att_value;
     guint32   u_octet4_loop_Tango_AttrValUnion_uchar_att_value;
-    const gchar * binary_seq_Tango_AttrValUnion_uchar_att_value;
+    const guint8 * binary_seq_Tango_AttrValUnion_uchar_att_value;
     gchar * text_seq_Tango_AttrValUnion_uchar_att_value;
     guint32   u_octet4_loop_Tango_AttrValUnion_ushort_att_value;
     guint32   i_Tango_AttrValUnion_ushort_att_value;

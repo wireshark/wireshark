@@ -5448,7 +5448,7 @@ decode_UCO_CompressedImage_st(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_t
 
     /* Operation specific Variable declarations Begin */
     guint32   u_octet4_loop_UCO_CompressedImage_data;
-    const gchar * binary_seq_UCO_CompressedImage_data;
+    const guint8 * binary_seq_UCO_CompressedImage_data;
     gchar * text_seq_UCO_CompressedImage_data;
     /* Operation specific Variable declarations End */
 
@@ -6163,7 +6163,7 @@ decode_UCO_Buffer_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
     guint32   u_octet4;
     gint32    disc_s_Buffer;
     guint32   u_octet4_loop_UCO_Buffer_octet_buffer;
-    const gchar * binary_seq_UCO_Buffer_octet_buffer;
+    const guint8 * binary_seq_UCO_Buffer_octet_buffer;
     gchar * text_seq_UCO_Buffer_octet_buffer;
     guint32   u_octet4_loop_UCO_Buffer_char_buffer;
     guint32   i_UCO_Buffer_char_buffer;
@@ -6380,7 +6380,7 @@ decode_GIAS_Domain_un(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tre
     guint32   u_octet4_loop_GIAS_Domain_gs;
     guint32   i_GIAS_Domain_gs;
     guint32   u_octet4_loop_GIAS_Domain_bd;
-    const gchar * binary_seq_GIAS_Domain_bd;
+    const guint8 * binary_seq_GIAS_Domain_bd;
     gchar * text_seq_GIAS_Domain_bd;
     /* Operation specific Variable declarations End */
 
