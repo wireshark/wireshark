@@ -1055,6 +1055,21 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 		 */
 		prev_pos = curr_pos;
 		ms = 0;
+		curr_pos = strstr(curr_pos, "changeTime");
+		/* Check if we have the tag or if we pased the end of the current message */
+		if ((curr_pos) && (curr_pos < next_msg_pos)) {
+			curr_pos = curr_pos + 12;
+			scan_found = sscanf(curr_pos, "%u.%u", &second, &ms);
+
+			if ((scan_found == 2) && (start_time.secs != 0)) {
+				start_time.secs = start_time.secs + second;
+				start_time.nsecs = start_time.nsecs + (ms * 1000000);
+			}
+		}
+		else {
+			curr_pos = prev_pos;
+		}
+
 		/* See if we have a "name" */
 		curr_pos = strstr(curr_pos, "name=");
 		if ((curr_pos) && (curr_pos < next_msg_pos)) {
@@ -1073,19 +1088,6 @@ create_temp_pcapng_file(wtap *wth, int *err, gchar **err_info, nettrace_3gpp_32_
 
 		}
 		else {
-			curr_pos = prev_pos;
-		}
-		curr_pos = strstr(curr_pos, "changeTime");
-		/* Check if we have the tag or if we pased the end of the current message */
-		if ((curr_pos)&&(curr_pos < next_msg_pos)){
-			curr_pos = curr_pos + 12;
-			scan_found = sscanf(curr_pos, "%u.%u",&second, &ms);
-
-			if ((scan_found == 2) && (start_time.secs != 0)) {
-				start_time.secs = start_time.secs + second;
-				start_time.nsecs = start_time.nsecs + (ms * 1000000);
-			}
-		} else {
 			curr_pos = prev_pos;
 		}
 		/* Check if we have "<initiator>"
