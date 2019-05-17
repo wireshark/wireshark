@@ -2698,15 +2698,10 @@ static int dissect_aeron_heartbeat(tvbuff_t * tvb, int offset, packet_info * pin
     guint32 stream_id;
     guint32 term_id;
 
-    int rounded_length = 0;
+    int rounded_length = 24;
     aeron_packet_info_t pktinfo;
 
     frame_length = tvb_get_letohl(tvb, offset + O_AERON_HEAERTBEAT_FRAME_LENGTH);
-    if (frame_length != 0)
-    {
-       return 0;
-    }
-
     term_offset = tvb_get_letohl(tvb, offset + O_AERON_HEAERTBEAT_TERM_OFFSET);
     session_id = tvb_get_letohl(tvb, offset + O_AERON_HEAERTBEAT_SESSION_ID);
     transport = aeron_transport_add(cinfo, session_id, pinfo->num);
@@ -2742,7 +2737,7 @@ static int dissect_aeron_heartbeat(tvbuff_t * tvb, int offset, packet_info * pin
     aeron_sequence_report(tvb, pinfo, subtree, transport, &pktinfo, finfo);
     aeron_stream_report(tvb, pinfo, subtree, transport, finfo);
     proto_item_set_len(data_item, rounded_length);
-    if ((frame_length != 0) && (frame_length < L_AERON_HEAERTBEAT_MIN))
+    if (frame_length != 0)
     {
         expert_add_info(pinfo, frame_length_item, &ei_aeron_analysis_invalid_data_length);
         return (-rounded_length);
@@ -2934,6 +2929,12 @@ static int dissect_aeron(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     while (length_remaining > 0)
     {
         aeron_frame_info_t * finfo = NULL;
+
+        /* Make sure superfluous padding is not identified as aeron frame */
+        if (tvb_skip_guint8(tvb, offset, tvb_captured_length_remaining(tvb, offset), 0) == (int)tvb_captured_length(tvb))
+        {
+            break;
+        }
 
         if (aeron_sequence_analysis)
         {
