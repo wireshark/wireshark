@@ -176,7 +176,7 @@ static int wait_until_data(ssh_channel channel, const guint32 count)
 	return EXIT_SUCCESS;
 }
 
-static int parse_line(char* packet, unsigned* offset, char* line, int status)
+static int parse_line(guint8* packet, unsigned* offset, char* line, int status)
 {
 	char** parts;
 	char** part;
@@ -227,7 +227,7 @@ static void ssh_loop_read(ssh_channel channel, FILE* fp, const guint32 count)
 	char chr;
 	unsigned offset = 0;
 	unsigned packet_size = 0;
-	char* packet;
+	guint8* packet;
 	time_t curtime = time(NULL);
 	int err;
 	guint64 bytes_written;
@@ -235,7 +235,7 @@ static void ssh_loop_read(ssh_channel channel, FILE* fp, const guint32 count)
 	int status = CISCODUMP_PARSER_STARTING;
 
 	/* This is big enough to put on the heap */
-	packet = (char*)g_malloc(PACKET_MAX_SIZE);
+	packet = (guint8*)g_malloc(PACKET_MAX_SIZE);
 
 	do {
 		if (ssh_channel_read_timeout(channel, &chr, 1, FALSE, SSH_READ_TIMEOUT) == SSH_ERROR) {

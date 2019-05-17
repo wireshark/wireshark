@@ -183,7 +183,7 @@ static int setup_dumpfile(const char* fifo, FILE** fp)
 	return EXIT_SUCCESS;
 }
 
-static void add_proto_name(char* mbuf, guint* offset, const char* proto_name)
+static void add_proto_name(guint8* mbuf, guint* offset, const char* proto_name)
 {
 	size_t proto_str_len = strlen(proto_name);
 	guint16 proto_name_len = (guint16)((proto_str_len + 3) & 0xfffffffc);
@@ -199,7 +199,7 @@ static void add_proto_name(char* mbuf, guint* offset, const char* proto_name)
 	*offset += proto_name_len;
 }
 
-static void add_ip_source_address(char* mbuf, guint* offset, uint32_t source_address)
+static void add_ip_source_address(guint8* mbuf, guint* offset, uint32_t source_address)
 {
 	mbuf[*offset] = 0x00;
 	mbuf[*offset+1] = EXP_PDU_TAG_IPV4_SRC;
@@ -210,7 +210,7 @@ static void add_ip_source_address(char* mbuf, guint* offset, uint32_t source_add
 	*offset += 4;
 }
 
-static void add_ip_dest_address(char* mbuf, guint* offset, uint32_t dest_address)
+static void add_ip_dest_address(guint8* mbuf, guint* offset, uint32_t dest_address)
 {
 	mbuf[*offset] = 0;
 	mbuf[*offset+1] = EXP_PDU_TAG_IPV4_DST;
@@ -221,7 +221,7 @@ static void add_ip_dest_address(char* mbuf, guint* offset, uint32_t dest_address
 	*offset += 4;
 }
 
-static void add_udp_source_port(char* mbuf, guint* offset, uint16_t src_port)
+static void add_udp_source_port(guint8* mbuf, guint* offset, uint16_t src_port)
 {
 	uint32_t port = htonl(src_port);
 
@@ -234,7 +234,7 @@ static void add_udp_source_port(char* mbuf, guint* offset, uint16_t src_port)
 	*offset += 4;
 }
 
-static void add_udp_dst_port(char* mbuf, guint* offset, uint16_t dst_port)
+static void add_udp_dst_port(guint8* mbuf, guint* offset, uint16_t dst_port)
 {
 	uint32_t port = htonl(dst_port);
 
@@ -247,7 +247,7 @@ static void add_udp_dst_port(char* mbuf, guint* offset, uint16_t dst_port)
 	*offset += 4;
 }
 
-static void add_end_options(char* mbuf, guint* offset)
+static void add_end_options(guint8* mbuf, guint* offset)
 {
 	memset(mbuf + *offset, 0x0, 4);
 	*offset += 4;
@@ -256,7 +256,7 @@ static void add_end_options(char* mbuf, guint* offset)
 static int dump_packet(const char* proto_name, const guint16 listenport, const char* buf,
 		const ssize_t buflen, const struct sockaddr_in clientaddr, FILE* fp)
 {
-	char* mbuf;
+	guint8* mbuf;
 	guint offset = 0;
 	time_t curtime = time(NULL);
 	guint64 bytes_written = 0;
@@ -264,7 +264,7 @@ static int dump_packet(const char* proto_name, const guint16 listenport, const c
 	int ret = EXIT_SUCCESS;
 
 	/* The space we need is the standard header + variable lengths */
-	mbuf = (char*)g_malloc0(UDPDUMP_EXPORT_HEADER_LEN + ((strlen(proto_name) + 3) & 0xfffffffc) + buflen);
+	mbuf = (guint8*)g_malloc0(UDPDUMP_EXPORT_HEADER_LEN + ((strlen(proto_name) + 3) & 0xfffffffc) + buflen);
 
 	add_proto_name(mbuf, &offset, proto_name);
 	add_ip_source_address(mbuf, &offset, clientaddr.sin_addr.s_addr);
@@ -290,7 +290,7 @@ static int dump_packet(const char* proto_name, const guint16 listenport, const c
 static void run_listener(const char* fifo, const guint16 port, const char* proto_name)
 {
 	struct sockaddr_in clientaddr;
-	int clientlen = sizeof(clientaddr);
+	socklen_t clientlen = sizeof(clientaddr);
 	socket_handle_t sock;
 	char* buf;
 	ssize_t buflen;
