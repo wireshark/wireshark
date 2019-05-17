@@ -9,6 +9,7 @@
 
 #include "simple_dialog.h"
 
+#include "log.h"
 #include "file.h"
 
 #include "epan/strutil.h"
@@ -23,6 +24,7 @@
 
 #include <QCheckBox>
 #include <QMessageBox>
+#include <QMutex>
 #include <QRegExp>
 #include <QTextCodec>
 
@@ -43,6 +45,31 @@ QList<MessagePair> message_queue_;
 ESD_TYPE_E max_severity_ = ESD_TYPE_INFO;
 
 const char *primary_delimiter_ = "__CB754A38-94A2-4E59-922D-DD87EDC80E22__";
+
+struct VisibleAsyncMessage
+{
+    QMessageBox *box;
+    int counter;
+
+    VisibleAsyncMessage(QMessageBox *box) : box(box), counter(0) {};
+};
+
+static QList<VisibleAsyncMessage> visible_messages;
+static QMutex visible_messages_mutex;
+
+static void visible_message_finished(QMessageBox *box, int result _U_)
+{
+    visible_messages_mutex.lock();
+    for (int i = 0; i < visible_messages.size(); i++) {
+        if (visible_messages[i].box == box) {
+            g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_WARNING, "%d duplicates of \"%s\" were suppressed",
+                visible_messages[i].counter, box->text().toStdString().c_str());
+            visible_messages.removeAt(i);
+            break;
+        }
+    }
+    visible_messages_mutex.unlock();
+}
 
 const char *
 simple_dialog_primary_start(void) {
@@ -135,7 +162,7 @@ vsimple_error_message_box(const char *msg_format, va_list ap)
 #endif
 
     SimpleDialog sd(wsApp->mainWindow(), ESD_TYPE_ERROR, ESD_BTN_OK, msg_format, ap);
-    sd.exec();
+    sd.show();
 }
 
 /*
@@ -152,7 +179,7 @@ vsimple_warning_message_box(const char *msg_format, va_list ap)
 #endif
 
     SimpleDialog sd(wsApp->mainWindow(), ESD_TYPE_WARN, ESD_BTN_OK, msg_format, ap);
-    sd.exec();
+    sd.show();
 }
 
 /*
@@ -355,9 +382,39 @@ void SimpleDialog::show()
     message_box_->setDetailedText(detailed_text_);
     message_box_->setCheckBox(check_box_);
 
-    message_box_->setModal(Qt::WindowModal);
-    message_box_->setAttribute(Qt::WA_DeleteOnClose);
-    message_box_->show();
+    visible_messages_mutex.lock();
+    bool found = false;
+    for (int i = 0; i < visible_messages.size(); i++) {
+        VisibleAsyncMessage &msg = visible_messages[i];
+        if ((msg.box->icon() == message_box_->icon()) &&
+            (msg.box->checkBox() == message_box_->checkBox()) &&
+            (msg.box->text() == message_box_->text()) &&
+            (msg.box->informativeText() == message_box_->informativeText()) &&
+            (msg.box->detailedText() == message_box_->detailedText()))
+        {
+            /* Message box of same type with same text is already visible. */
+            msg.counter++;
+            found = true;
+            break;
+        }
+    }
+    if (!found) {
+        visible_messages.append(VisibleAsyncMessage(message_box_));
+    }
+    visible_messages_mutex.unlock();
+
+    if (found)
+    {
+        delete message_box_;
+    }
+    else
+    {
+        QObject::connect(message_box_, &QMessageBox::finished,
+            std::bind(visible_message_finished,message_box_,std::placeholders::_1));
+        message_box_->setModal(Qt::WindowModal);
+        message_box_->setAttribute(Qt::WA_DeleteOnClose);
+        message_box_->show();
+    }
 
     /* Message box was shown and will be deleted once user closes it */
     message_box_ = 0;
