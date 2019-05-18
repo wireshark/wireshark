@@ -287,7 +287,7 @@ def control_read(fn):
         header = fn.read(6)
         sp, _, length, arg, typ = struct.unpack('>sBHBB', header)
         if length > 2:
-            payload = fn.read(length - 2)
+            payload = fn.read(length - 2).decode('utf-8', 'replace')
         else:
             payload = ''
         return arg, typ, payload
