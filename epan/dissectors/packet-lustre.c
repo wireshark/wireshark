@@ -2003,7 +2003,7 @@ dissect_struct_llog_rec_hdr(tvbuff_t *tvb, int offset, proto_tree *parent_tree, 
     proto_tree_add_item(tree, hf_lustre_llog_rec_hdr_lrh_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
-    proto_item_append_text(parent_tree, " [%02d]: %s", ind, val_to_str(type, llog_op_types, "Unkown(%x)"));
+    proto_item_append_text(parent_tree, " [%02d]: %s", ind, val_to_str(type, llog_op_types, "Unknown(%x)"));
 
     return offset;
 }
