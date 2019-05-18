@@ -50,10 +50,6 @@
 
 #include "version_info.h"
 
-#ifdef _WIN32
-static HANDLE pipe_h = INVALID_HANDLE_VALUE;
-#endif
-
 static void extcap_child_watch_cb(GPid pid, gint status, gpointer user_data);
 
 /* internal container, for all the extcap executables that have been found.
@@ -1475,6 +1471,85 @@ static void ptr_array_free(gpointer data, gpointer user_data _U_)
     g_free(data);
 }
 
+#ifdef _WIN32
+static gboolean extcap_create_pipe(const gchar *ifname, gchar **fifo, HANDLE *handle_out, const gchar *pipe_prefix)
+{
+    gchar timestr[ 14 + 1 ];
+    time_t current_time;
+    gchar *pipename = NULL;
+    SECURITY_ATTRIBUTES security;
+
+    /* create pipename */
+    current_time = time(NULL);
+    /*
+     * XXX - we trust Windows not to return a time before the Epoch here,
+     * so we won't get a null pointer back from localtime().
+     */
+    strftime(timestr, sizeof(timestr), "%Y%m%d%H%M%S", localtime(&current_time));
+    pipename = g_strconcat("\\\\.\\pipe\\", pipe_prefix, "_", ifname, "_", timestr, NULL);
+
+    /* Security struct to enable Inheritable HANDLE */
+    memset(&security, 0, sizeof(SECURITY_ATTRIBUTES));
+    security.nLength = sizeof(SECURITY_ATTRIBUTES);
+    security.bInheritHandle = TRUE;
+    security.lpSecurityDescriptor = NULL;
+
+    /* create a namedPipe */
+    *handle_out = CreateNamedPipe(
+                 utf_8to16(pipename),
+                 PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,
+                 PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT,
+                 1, 65536, 65536,
+                 300,
+                 &security);
+
+    if (*handle_out == INVALID_HANDLE_VALUE)
+    {
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "\nError creating pipe => (%d)", GetLastError());
+        g_free (pipename);
+        return FALSE;
+    }
+    else
+    {
+        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "\nWireshark Created pipe =>(%s)", pipename);
+        *fifo = g_strdup(pipename);
+    }
+
+    return TRUE;
+}
+#else
+static gboolean extcap_create_pipe(const gchar *ifname, gchar **fifo, const gchar *pipe_prefix)
+{
+    gchar *temp_name = NULL;
+    int fd = 0;
+
+    gchar *pfx = g_strconcat(pipe_prefix, "_", ifname, NULL);
+    if ((fd = create_tempfile(&temp_name, pfx, NULL)) < 0)
+    {
+        g_free(pfx);
+        return FALSE;
+    }
+    g_free(pfx);
+
+    ws_close(fd);
+
+    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
+          "Extcap - Creating fifo: %s", temp_name);
+
+    if (file_exists(temp_name))
+    {
+        ws_unlink(temp_name);
+    }
+
+    if (mkfifo(temp_name, 0600) == 0)
+    {
+        *fifo = g_strdup(temp_name);
+    }
+
+    return TRUE;
+}
+#endif
+
 /* call mkfifo for each extcap,
  * returns FALSE if there's an error creating a FIFO */
 gboolean
@@ -1501,26 +1576,27 @@ extcap_init_interfaces(capture_options *capture_opts)
         if (extcap_has_toolbar(interface_opts->name))
         {
             extcap_create_pipe(interface_opts->name, &interface_opts->extcap_control_in,
+#ifdef _WIN32
+                               &interface_opts->extcap_control_in_h,
+#endif
                                EXTCAP_CONTROL_IN_PREFIX);
-#ifdef _WIN32
-            interface_opts->extcap_control_in_h = pipe_h;
-#endif
             extcap_create_pipe(interface_opts->name, &interface_opts->extcap_control_out,
-                               EXTCAP_CONTROL_OUT_PREFIX);
 #ifdef _WIN32
-            interface_opts->extcap_control_out_h = pipe_h;
+                               &interface_opts->extcap_control_out_h,
 #endif
+                               EXTCAP_CONTROL_OUT_PREFIX);
         }
 
         /* create pipe for fifo */
         if (!extcap_create_pipe(interface_opts->name, &interface_opts->extcap_fifo,
+#ifdef _WIN32
+                                &interface_opts->extcap_pipe_h,
+#endif
                                 EXTCAP_PIPE_PREFIX))
         {
             return FALSE;
         }
-#ifdef _WIN32
-        interface_opts->extcap_pipe_h = pipe_h;
-#endif
+
 
         /* Create extcap call */
         args = extcap_prepare_arguments(interface_opts);
@@ -1574,85 +1650,6 @@ extcap_init_interfaces(capture_options *capture_opts)
 
     return TRUE;
 }
-
-#ifdef _WIN32
-gboolean extcap_create_pipe(const gchar *ifname, gchar **fifo, const gchar *pipe_prefix)
-{
-    gchar timestr[ 14 + 1 ];
-    time_t current_time;
-    gchar *pipename = NULL;
-    SECURITY_ATTRIBUTES security;
-
-    /* create pipename */
-    current_time = time(NULL);
-    /*
-     * XXX - we trust Windows not to return a time before the Epoch here,
-     * so we won't get a null pointer back from localtime().
-     */
-    strftime(timestr, sizeof(timestr), "%Y%m%d%H%M%S", localtime(&current_time));
-    pipename = g_strconcat("\\\\.\\pipe\\", pipe_prefix, "_", ifname, "_", timestr, NULL);
-
-    /* Security struct to enable Inheritable HANDLE */
-    memset(&security, 0, sizeof(SECURITY_ATTRIBUTES));
-    security.nLength = sizeof(SECURITY_ATTRIBUTES);
-    security.bInheritHandle = TRUE;
-    security.lpSecurityDescriptor = NULL;
-
-    /* create a namedPipe */
-    pipe_h = CreateNamedPipe(
-                 utf_8to16(pipename),
-                 PIPE_ACCESS_DUPLEX | FILE_FLAG_OVERLAPPED,
-                 PIPE_TYPE_BYTE | PIPE_READMODE_BYTE | PIPE_WAIT,
-                 1, 65536, 65536,
-                 300,
-                 &security);
-
-    if (pipe_h == INVALID_HANDLE_VALUE)
-    {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "\nError creating pipe => (%d)", GetLastError());
-        g_free (pipename);
-        return FALSE;
-    }
-    else
-    {
-        g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "\nWireshark Created pipe =>(%s)", pipename);
-        *fifo = g_strdup(pipename);
-    }
-
-    return TRUE;
-}
-#else
-gboolean extcap_create_pipe(const gchar *ifname, gchar **fifo, const gchar *pipe_prefix)
-{
-    gchar *temp_name = NULL;
-    int fd = 0;
-
-    gchar *pfx = g_strconcat(pipe_prefix, "_", ifname, NULL);
-    if ((fd = create_tempfile(&temp_name, pfx, NULL)) < 0)
-    {
-        g_free(pfx);
-        return FALSE;
-    }
-    g_free(pfx);
-
-    ws_close(fd);
-
-    g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG,
-          "Extcap - Creating fifo: %s", temp_name);
-
-    if (file_exists(temp_name))
-    {
-        ws_unlink(temp_name);
-    }
-
-    if (mkfifo(temp_name, 0600) == 0)
-    {
-        *fifo = g_strdup(temp_name);
-    }
-
-    return TRUE;
-}
-#endif
 
 /************* EXTCAP LOAD INTERFACE LIST ***************
  *
