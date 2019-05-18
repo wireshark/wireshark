@@ -1151,12 +1151,14 @@ extcap_has_toolbar(const char *ifname)
     for (GList *walker = toolbar_list; walker; walker = walker->next)
     {
         iface_toolbar *toolbar = (iface_toolbar *) walker->data;
-        if (g_list_find_custom(toolbar->ifnames, ifname, (GCompareFunc) strcmp))
+        if (g_list_find_custom(toolbar->ifnames, ifname, (GCompareFunc) g_strcmp0))
         {
+            g_list_free(toolbar_list);
             return TRUE;
         }
     }
 
+    g_list_free(toolbar_list);
     return FALSE;
 }
 
