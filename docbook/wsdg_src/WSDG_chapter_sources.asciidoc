@@ -751,7 +751,7 @@ Some tips that will make the merging of your changes into Git much more likely
 
 * _Don't put unrelated things into one large patch._ A few smaller patches are
   usually easier to apply (but also don't put every changed line into a separate
-  patch.
+  patch).
 
 In general, making it easier to understand and apply your patch by one of the
 maintainers will make it much more likely (and faster) that it will actually be
@@ -763,6 +763,62 @@ applied.
 Wireshark is a volunteer effort. You aren't paying to have your code reviewed
 and integrated.
 ====
+
+[[ChSrcGoodCommitMessage]]
+
+==== Writing a Good Commit Message
+
+When running git commit, you will be prompted to describe the change. Here are
+some guidelines on how to make that message actually useful to other people (and
+to scripts that may try to parse it):
+
+* _Provide a very brief description (under 60 characters) of the change in the first line._
+If the change is specific to a single protocol, start this line with the abbreviated name
+of the protocol and a colon. If the change is not complete yet prefix the line with [WIP]
+to inform this change not to be submitted yet. This can later be removed.
+
+* _Insert a single blank line after the first line._
+
+* _Provide a detailed description of the change in the following lines_, breaking paragraphs
+where needed. Limit each line to 80 characters. You can also add metadata at the bottom of
+the commit message which will be used by Gerrit for searching and triggering Bugzilla
+integration. Each line of the footer is of the form Label: value. There can be no extra
+line-breaks between footer lines.
+
+Wireshark currently supports the following metadata tags:
+
+.Commit message tags
+[options="header"]
+|===============
+|Tag|Meaning
+|`Change-id`|A unique hash describing the change, which is generated automatically by
+the git commit-msg hook which you installed during setup. This should not be changed,
+even when rebasing or amending a commit following code review. If you pass --no-verify
+to git commit you will have to add this line yourself.
+|`Bug`|Make Gerrit automatically add a comment and close the given bug number when the
+commit is merged. For use when the change does fully fix the issue.
+|`Ping-Bug`|Make Gerrit just add a comment to the referenced bug. For use when the change
+is related but does not fully fix the issue.
+|===============
+
+[NOTE]
+====
+The `Bug` and `Ping-Bug` tags are particularly useful if a capture file has been provided
+via a Bugzilla entry in parallel with the change. All non-trivial fixes to dissectors
+should try to do this.
+====
+
+Putting all that together, we get the following example:
+
+[source]
+----
+MIPv6: fix dissection of Service Selection Identifier
+
+APN field is not encoded as a dotted string so the first character is not a length
+
+Bug: 10323
+Change-Id: Ia62137c785d505e9d0f1536a333b421a85480741
+----
 
 [[ChSrcCodeRequirements]]
 
