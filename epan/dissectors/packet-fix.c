@@ -45,7 +45,7 @@ static gboolean fix_desegment = TRUE;
 
 /* Initialize the subtree pointers */
 static gint ett_fix = -1;
-static gint ett_unknow = -1;
+static gint ett_unknown = -1;
 static gint ett_badfield = -1;
 static gint ett_checksum = -1;
 
@@ -379,7 +379,7 @@ dissect_fix_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
           proto_tree *field_tree;
 
           /* XXX - it could be -1 if the tag isn't a number */
-          field_tree = proto_tree_add_subtree_format(fix_tree, tvb, field_offset, tag->field_len, ett_unknow, NULL,
+          field_tree = proto_tree_add_subtree_format(fix_tree, tvb, field_offset, tag->field_len, ett_unknown, NULL,
               "%i: %s", tag_value, value);
           proto_tree_add_uint(field_tree, hf_fix_field_tag, tvb, field_offset, tag->tag_len, tag_value);
           proto_tree_add_item(field_tree, hf_fix_field_value, tvb, tag->value_offset, tag->value_len, ENC_ASCII|ENC_NA);
@@ -493,7 +493,7 @@ proto_register_fix(void)
 /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_fix,
-        &ett_unknow,
+        &ett_unknown,
         &ett_badfield,
         &ett_checksum,
     };
