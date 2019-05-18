@@ -995,13 +995,15 @@ extcap_get_if_configuration_values(const char * ifname, const char * argname, GH
         if ( arguments )
         {
             GList * keys = g_hash_table_get_keys(arguments);
-            while ( keys )
+            GList * walker = g_list_first(keys);
+            while ( walker )
             {
-                const gchar * key_data = (const gchar *)keys->data;
+                const gchar * key_data = (const gchar *)walker->data;
                 args = g_list_append(args, g_strdup(key_data));
                 args = g_list_append(args, g_strdup((const gchar *)g_hash_table_lookup(arguments, key_data)));
-                keys = g_list_next(keys);
+                walker = g_list_next(walker);
             }
+            g_list_free(keys);
         }
 
         extcap_run_one(interface, args, cb_reload_preference, &ret, NULL);
