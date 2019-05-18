@@ -1296,6 +1296,12 @@ ek_write_field_value(field_info *fi, write_json_data* pdata)
         case FT_NONE:
             json_dumper_value_string(pdata->dumper, NULL);
             break;
+        case FT_BOOLEAN:
+            if (fi->value.value.uinteger64)
+                json_dumper_value_anyf(pdata->dumper, "true");
+            else
+                json_dumper_value_anyf(pdata->dumper, "false");
+            break;
         default:
             dfilter_string = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
             if (dfilter_string != NULL) {
