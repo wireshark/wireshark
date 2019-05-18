@@ -2663,6 +2663,7 @@ static int
 dissect_negprot_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, proto_tree *smb_tree _U_, smb_info_t *si)
 {
 	proto_tree *tr = NULL;
+	proto_item *ti;
 	guint16     bc;
 	guint8      wc;
 	struct negprot_dialects *dialects = NULL;
@@ -2673,7 +2674,7 @@ dissect_negprot_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 
 	BYTE_COUNT;
 
-	tr = proto_tree_add_subtree(tree, tvb, offset, bc, ett_smb_dialects, NULL, "Requested Dialects");
+	tr = proto_tree_add_subtree(tree, tvb, offset, -1, ett_smb_dialects, &ti, "Requested Dialects");
 
 	if (!pinfo->fd->visited && si->sip) {
 		dialects = wmem_new(wmem_file_scope(), struct negprot_dialects);
@@ -2713,7 +2714,7 @@ dissect_negprot_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 			dialects->name[dialects->num++] = wmem_strdup(wmem_file_scope(), str);
 		}
 	}
-
+	proto_item_set_len(ti, bc);
 
 	END_OF_SMB
 
