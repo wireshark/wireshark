@@ -18427,11 +18427,11 @@ proto_register_smb(void)
 		VALS(buffer_format_vals), 0x0, "Buffer Format, type of buffer", HFILL }},
 
 	{ &hf_smb_dialect,
-		{ "Dialect", "smb.dialect", FT_STRING, BASE_NONE,
+		{ "Dialect", "smb.dialect", FT_STRING, STR_UNICODE,
 		NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_smb_dialect_name,
-		{ "Name", "smb.dialect.name", FT_STRING, BASE_NONE,
+		{ "Name", "smb.dialect.name", FT_STRING, STR_UNICODE,
 		NULL, 0, "Name of dialect", HFILL }},
 
 	{ &hf_smb_dialect_index,
@@ -18467,11 +18467,11 @@ proto_register_smb(void)
 		NULL, 0, "Challenge Data (for LM2.1 dialect)", HFILL }},
 
 	{ &hf_smb_primary_domain,
-		{ "Primary Domain", "smb.primary_domain", FT_STRING, BASE_NONE,
+		{ "Primary Domain", "smb.primary_domain", FT_STRING, STR_UNICODE,
 		NULL, 0, "The server's primary domain", HFILL }},
 
 	{ &hf_smb_server,
-		{ "Server", "smb.server", FT_STRING, BASE_NONE,
+		{ "Server", "smb.server", FT_STRING, STR_UNICODE,
 		NULL, 0, "The name of the DC/server", HFILL }},
 
 	{ &hf_smb_max_raw_buf_size,
@@ -18641,7 +18641,7 @@ proto_register_smb(void)
 		NULL, 0, "Unknown Data. Should be implemented by someone", HFILL }},
 
 	{ &hf_smb_dir_name,
-		{ "Directory", "smb.dir_name", FT_STRING, BASE_NONE,
+		{ "Directory", "smb.dir_name", FT_STRING, STR_UNICODE,
 		NULL, 0, "SMB Directory Name", HFILL }},
 
 	{ &hf_smb_echo_count,
@@ -18661,11 +18661,11 @@ proto_register_smb(void)
 		NULL, 0, "Max client buffer size", HFILL }},
 
 	{ &hf_smb_path,
-		{ "Path", "smb.path", FT_STRING, BASE_NONE,
+		{ "Path", "smb.path", FT_STRING, STR_UNICODE,
 		NULL, 0, "Path. Server name and share name", HFILL }},
 
 	{ &hf_smb_service,
-		{ "Service", "smb.service", FT_STRING, BASE_NONE,
+		{ "Service", "smb.service", FT_STRING, STR_UNICODE,
 		NULL, 0, "Service name", HFILL }},
 
 	{ &hf_smb_password,
@@ -18745,7 +18745,7 @@ proto_register_smb(void)
 		NULL, 0, "Count number of items/bytes, High 16 bits", HFILL }},
 
 	{ &hf_smb_file_name,
-		{ "File Name", "smb.file", FT_STRING, BASE_NONE,
+		{ "File Name", "smb.file", FT_STRING, STR_UNICODE,
 		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_open_function,
@@ -19003,7 +19003,7 @@ proto_register_smb(void)
 		NULL, 0, "Last Write Time, SMB_TIME format", HFILL }},
 
 	{ &hf_smb_old_file_name,
-		{ "Old File Name", "smb.old_file", FT_STRING, BASE_NONE,
+		{ "Old File Name", "smb.old_file", FT_STRING, STR_UNICODE,
 		NULL, 0, "Old File Name (When renaming a file)", HFILL }},
 
 	{ &hf_smb_offset,
@@ -19301,15 +19301,15 @@ proto_register_smb(void)
 		NULL, 0, "Length of Unicode password", HFILL }},
 
 	{ &hf_smb_account,
-		{ "Account", "smb.account", FT_STRING, BASE_NONE,
+		{ "Account", "smb.account", FT_STRING, STR_UNICODE,
 		NULL, 0, "Account, username", HFILL }},
 
 	{ &hf_smb_os,
-		{ "Native OS", "smb.native_os", FT_STRING, BASE_NONE,
+		{ "Native OS", "smb.native_os", FT_STRING, STR_UNICODE,
 		NULL, 0, "Which OS we are running", HFILL }},
 
 	{ &hf_smb_lanman,
-		{ "Native LAN Manager", "smb.native_lanman", FT_STRING, BASE_NONE,
+		{ "Native LAN Manager", "smb.native_lanman", FT_STRING, STR_UNICODE,
 		NULL, 0, "Which LANMAN protocol we are running", HFILL }},
 
 	{ &hf_smb_setup_action,
@@ -19321,7 +19321,7 @@ proto_register_smb(void)
 		TFS(&tfs_setup_action_guest), 0x0001, "Client logged in as GUEST?", HFILL }},
 
 	{ &hf_smb_fs,
-		{ "Native File System", "smb.native_fs", FT_STRING, BASE_NONE,
+		{ "Native File System", "smb.native_fs", FT_STRING, STR_UNICODE,
 		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_connect_flags,
@@ -19542,7 +19542,7 @@ proto_register_smb(void)
 		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_ea_name,
-		{ "EA Name", "smb.ea.name", FT_STRING, BASE_NONE,
+		{ "EA Name", "smb.ea.name", FT_STRING, STR_UNICODE,
 		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_ea_data,
@@ -19902,7 +19902,7 @@ proto_register_smb(void)
 		NULL, 0, "Length of target file name", HFILL }},
 
 	{ &hf_smb_target_name,
-		{ "Target name", "smb.target_name", FT_STRING, BASE_NONE,
+		{ "Target name", "smb.target_name", FT_STRING, STR_UNICODE,
 		NULL, 0, "Target file name", HFILL }},
 
 	{ &hf_smb_device_type,
@@ -19930,7 +19930,7 @@ proto_register_smb(void)
 		VALS(print_mode_vals), 0, "Text or Graphics mode", HFILL }},
 
 	{ &hf_smb_print_identifier,
-		{ "Identifier", "smb.print.identifier", FT_STRING, BASE_NONE,
+		{ "Identifier", "smb.print.identifier", FT_STRING, STR_UNICODE,
 		NULL, 0, "Identifier string for this print job", HFILL }},
 
 	{ &hf_smb_restart_index,
@@ -19982,7 +19982,7 @@ proto_register_smb(void)
 		NULL, 0, "Length of message", HFILL }},
 
 	{ &hf_smb_message,
-		{ "Message", "smb.message", FT_STRING, BASE_NONE,
+		{ "Message", "smb.message", FT_STRING, STR_UNICODE,
 		NULL, 0, "Message text", HFILL }},
 
 	{ &hf_smb_mgid,
@@ -20002,7 +20002,7 @@ proto_register_smb(void)
 		NULL, 0, "This packet is a cancellation of the packet in this frame", HFILL }},
 
 	{ &hf_smb_trans_name,
-		{ "Transaction Name", "smb.trans_name", FT_STRING, BASE_NONE,
+		{ "Transaction Name", "smb.trans_name", FT_STRING, STR_UNICODE,
 		NULL, 0, "Name of transaction", HFILL }},
 
 	{ &hf_smb_transaction_flags,
@@ -20022,7 +20022,7 @@ proto_register_smb(void)
 		NULL, 0, "Maximum number of search entries to return", HFILL }},
 
 	{ &hf_smb_search_pattern,
-		{ "Search Pattern", "smb.search_pattern", FT_STRING, BASE_NONE,
+		{ "Search Pattern", "smb.search_pattern", FT_STRING, STR_UNICODE,
 		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_ff2,
@@ -20138,7 +20138,7 @@ proto_register_smb(void)
 		NULL, 0, "Size of the stream in number of bytes", HFILL }},
 
 	{ &hf_smb_t2_stream_name,
-		{ "Stream Name", "smb.stream_name", FT_STRING, BASE_NONE,
+		{ "Stream Name", "smb.stream_name", FT_STRING, STR_UNICODE,
 		NULL, 0, "Name of the stream", HFILL }},
 
 	{ &hf_smb_t2_compressed_file_size,
@@ -20214,7 +20214,7 @@ proto_register_smb(void)
 		NULL, 0, "Offset of name of entity to visit next", HFILL }},
 
 	{ &hf_smb_dfs_referral_node,
-		{ "Node", "smb.dfs.referral.node", FT_STRING, BASE_NONE,
+		{ "Node", "smb.dfs.referral.node", FT_STRING, STR_UNICODE,
 		NULL, 0, "Name of entity to visit next", HFILL }},
 
 	{ &hf_smb_dfs_referral_proximity,
@@ -20230,7 +20230,7 @@ proto_register_smb(void)
 		NULL, 0, "Offset of Dfs Path that matched pathconsumed", HFILL }},
 
 	{ &hf_smb_dfs_referral_path,
-		{ "Path", "smb.dfs.referral.path", FT_STRING, BASE_NONE,
+		{ "Path", "smb.dfs.referral.path", FT_STRING, STR_UNICODE,
 		NULL, 0, "Dfs Path that matched pathconsumed", HFILL }},
 
 	{ &hf_smb_dfs_referral_alt_path_offset,
@@ -20238,7 +20238,7 @@ proto_register_smb(void)
 		NULL, 0, "Offset of alternative(8.3) Path that matched pathconsumed", HFILL }},
 
 	{ &hf_smb_dfs_referral_alt_path,
-		{ "Alt Path", "smb.dfs.referral.alt_path", FT_STRING, BASE_NONE,
+		{ "Alt Path", "smb.dfs.referral.alt_path", FT_STRING, STR_UNICODE,
 		NULL, 0, "Alternative(8.3) Path that matched pathconsumed", HFILL }},
 
 	{ &hf_smb_dfs_referral_domain_offset,
@@ -20254,11 +20254,11 @@ proto_register_smb(void)
 		NULL, 0, "Offset of Dfs Path that matched pathconsumed", HFILL }},
 
 	{ &hf_smb_dfs_referral_domain_name,
-		{ "Domain Name", "smb.dfs.referral.domain_name", FT_STRING, BASE_NONE,
+		{ "Domain Name", "smb.dfs.referral.domain_name", FT_STRING, STR_UNICODE,
 		NULL, 0, "Dfs referral domain name", HFILL }},
 
 	{ &hf_smb_dfs_referral_expname,
-		{ "Expanded Name", "smb.dfs.referral.expname", FT_STRING, BASE_NONE,
+		{ "Expanded Name", "smb.dfs.referral.expname", FT_STRING, STR_UNICODE,
 		NULL, 0, "Dfs expanded name", HFILL }},
 
 	{ &hf_smb_dfs_referral_server_guid,
@@ -20290,7 +20290,7 @@ proto_register_smb(void)
 		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_short_file_name,
-		{ "Short File Name", "smb.short_file", FT_STRING, BASE_NONE,
+		{ "Short File Name", "smb.short_file", FT_STRING, STR_UNICODE,
 		NULL, 0, "Short (8.3) File Name", HFILL }},
 
 	{ &hf_smb_short_file_name_len,
@@ -20326,7 +20326,7 @@ proto_register_smb(void)
 		NULL, 0, "Length of volume label", HFILL }},
 
 	{ &hf_smb_volume_label,
-		{ "Label", "smb.volume.label", FT_STRING, BASE_NONE,
+		{ "Label", "smb.volume.label", FT_STRING, STR_UNICODE,
 		NULL, 0, "Volume label", HFILL }},
 
 	{ &hf_smb_free_alloc_units64,
@@ -20362,7 +20362,7 @@ proto_register_smb(void)
 		NULL, 0, "Length of filesystem name in bytes", HFILL }},
 
 	{ &hf_smb_fs_name,
-		{ "FS Name", "smb.fs_name", FT_STRING, BASE_NONE,
+		{ "FS Name", "smb.fs_name", FT_STRING, STR_UNICODE,
 		NULL, 0, "Name of filesystem", HFILL }},
 
 	{ &hf_smb_device_char,
