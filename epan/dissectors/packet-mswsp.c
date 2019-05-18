@@ -6101,7 +6101,7 @@ static int dissect_CPMGetRowsetNotify(tvbuff_t *tvb, packet_info *pinfo, proto_t
 		proto_tree_add_item(tree, hf_mswsp_msg_cpmgetrowsetnotify_rowseteventdata1, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		offset += 8;
 		proto_tree_add_item(tree, hf_mswsp_msg_cpmgetrowsetnotify_rowseteventdata2, tvb, offset, 8, ENC_LITTLE_ENDIAN);
-		/* it seems there is an extra unknow 8 bytes following */
+		/* it seems there is an extra unknown 8 bytes following */
 	}
 	return tvb_reported_length(tvb);
 }
