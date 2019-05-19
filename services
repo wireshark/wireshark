@@ -5656,6 +5656,7 @@ lanschool-mpt	11796/udp	# Lanschool Multipoint
 xoraya		11876/tcp/udp	# X2E Xoraya Multichannel protocol
 x2e-disc	11877/udp	# X2E service discovery protocol
 sysinfo-sp	11967/tcp/udp	# SysInfo Service Protocol
+tibsd		11971/tcp	# TiBS Service
 wmereceiving	11997/sctp	# WorldMailExpress
 wmedistribution	11998/sctp	# WorldMailExpress
 wmereporting	11999/sctp	# WorldMailExpress
