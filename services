@@ -10783,6 +10783,7 @@ xoraya          11876/udp # X2E Xoraya Multichannel protocol [Hannes_K] [Hannes_
 x2e-disc        11877/udp # X2E service discovery protocol [Hannes_K] [Hannes_K] 2010-09-13
 sysinfo-sp      11967/tcp # SysInfo Service Protocol [Mike_Cooper] [Mike_Cooper] 2003-03
 sysinfo-sp      11967/udp # SysInfo Service Protocol [Mike_Cooper] [Mike_Cooper] 2003-03
+tibsd           11971/tcp # TiBS Service [Teradactyl_LLC] [Kristen_Webb] 2019-05-17
 wmereceiving    11997/sctp # WorldMailExpress [Greg_Foutz] [Greg_Foutz] 2006-03
 wmedistribution 11998/sctp # WorldMailExpress [Greg_Foutz] [Greg_Foutz] 2006-03
 wmereporting    11999/sctp # WorldMailExpress [Greg_Foutz] [Greg_Foutz] 2006-03
