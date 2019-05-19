@@ -38,20 +38,19 @@ do
 	fi
 done
 
-BASIC_LIST="gcc \
+BASIC_LIST="cmake \
+	gcc \
 	gcc-c++ \
 	flex \
 	bison \
 	perl \
 	desktop-file-utils \
 	git \
-	git-review \
 	glib2-devel \
 	libpcap-devel \
 	zlib-devel"
 
 ADDITIONAL_LIST="libnl3-devel \
-	libnghttp2-devel \
 	libcap-devel \
 	libgcrypt-devel \
 	libssh-devel \
@@ -178,7 +177,7 @@ echo "perl-podlators unavailable" >&2
 add_package ADDITIONAL_LIST libcap || add_package ADDITIONAL_LIST libcap2 ||
 echo "libcap is unavailable" >&2
 
-add_package ADDITIONAL_LIST nghttp2 || add_package ADDITIONAL_LIST libnghttp2 ||
+add_package ADDITIONAL_LIST nghttp2-devel || add_package ADDITIONAL_LIST libnghttp2-devel ||
 echo "nghttp2 is unavailable" >&2
 
 add_package ADDITIONAL_LIST snappy || add_package ADDITIONAL_LIST libsnappy1 ||
@@ -212,6 +211,9 @@ echo "xslt is unavailable" >&2
 
 add_package ADDITIONAL_LIST brotli-devel || add_packages ADDITIONAL_LIST libbrotli-devel libbrotlidec1 ||
 echo "brotli is unavailable" >&2
+
+add_package ADDITIONAL_LIST git-review ||
+echo "git-review is unavailabe" >&2
 
 ACTUAL_LIST=$BASIC_LIST
 
