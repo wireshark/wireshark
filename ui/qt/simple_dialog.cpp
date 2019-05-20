@@ -51,7 +51,7 @@ struct VisibleAsyncMessage
     QMessageBox *box;
     int counter;
 
-    VisibleAsyncMessage(QMessageBox *box) : box(box), counter(0) {};
+    VisibleAsyncMessage(QMessageBox *box) : box(box), counter(0) {}
 };
 
 static QList<VisibleAsyncMessage> visible_messages;
