@@ -71,7 +71,6 @@ static int hf_a21_msg_tran_ctrl_3GXLogicalChannel = -1;
 static int hf_a21_msg_tran_ctrl_protocol_revision = -1;
 static int hf_a21_1x_lac_en_pdu = -1;
 static int hf_a21_pilot_list_num_of_pilots = -1;
-static int hf_a21_pilot_list_value = -1;
 static int hf_a21_cause_value = -1;
 static int hf_a21_mscid_market_id = -1;
 static int hf_a21_mscid_switch_number = -1;
@@ -95,6 +94,14 @@ static int hf_a21_ch_pilot_pn_phase = -1;
 static int hf_a21_ch_pilot_strength = -1;
 static int hf_a21_ch_pilot_ow_delay_flag = -1;
 static int hf_a21_ch_pilot_ow_delay = -1;
+static int hf_a21_sc0 = -1;
+static int hf_a21_sc1 = -1;
+static int hf_a21_sc2 = -1;
+static int hf_a21_sc3 = -1;
+static int hf_a21_sc4 = -1;
+static int hf_a21_sc5 = -1;
+static int hf_a21_sc6 = -1;
+static int hf_a21_sc7 = -1;
 
 static gint ett_a21 = -1;
 static gint ett_a21_ie = -1;
@@ -102,6 +109,7 @@ static gint ett_a21_corr_id = -1;
 static gint ett_a21_record_content = -1;
 static gint ett_a21_pilot_list = -1;
 static gint ett_a21_cr = -1;
+static gint ett_a21_band_class = -1;
 
 static expert_field ei_a21_ie_data_not_dissected_yet = EI_INIT;
 
@@ -437,7 +445,7 @@ dissect_a21_authentication_challenge_parameter(tvbuff_t *tvb, packet_info *pinfo
 
 }
 
-/* 5.2.4.14 A21 Mobile Subscription Information */
+/* A.S0008-C_v1.0_070801 5.2.4.14 A21 Mobile Subscription Information */
 
 static const value_string a21_record_identifier_vals[] = {
 	{0x00, "Band Class/Band Subclass Record"},
@@ -445,14 +453,29 @@ static const value_string a21_record_identifier_vals[] = {
 	{0,    NULL}
 };
 
+
 static void
 dissect_a21_mobile_subscription_information(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
 {
-	int offset = 0;
-	int i = 0;
-	guint8 record_id;
+	int offset = 0, start_offset, rec_end_offset;
+	int i = 0, j = 0;
+	guint8 record_id, band_class;
 	guint16 record_len = 0;
-	proto_tree *record_tree;
+	proto_tree *record_tree, *band_tree;
+	proto_item* ti;
+	guint32 rec_len, sub_cls_len;
+
+	static const int* flags[] = {
+	    &hf_a21_sc7,
+	    &hf_a21_sc6,
+	    &hf_a21_sc5,
+	    &hf_a21_sc4,
+	    &hf_a21_sc3,
+	    &hf_a21_sc2,
+	    &hf_a21_sc1,
+	    &hf_a21_sc0,
+	    NULL
+	};
 
 	if (tree == NULL)
 		return;
@@ -466,18 +489,40 @@ dissect_a21_mobile_subscription_information(tvbuff_t *tvb, packet_info *pinfo _U
 		proto_tree_add_item(record_tree, hf_a21_mob_sub_info_record_id, tvb, offset,  1, ENC_BIG_ENDIAN);
 		offset++;
 
-		proto_tree_add_item(record_tree, hf_a21_mob_sub_info_record_length, tvb, offset,  1, ENC_BIG_ENDIAN);
+		proto_tree_add_item_ret_uint(record_tree, hf_a21_mob_sub_info_record_length, tvb, offset,  1, ENC_BIG_ENDIAN, &rec_len);
 		offset++;
+		rec_end_offset = offset + rec_len;
 
 		if (record_id == 0) {
+			/* All Band Classes Included*/
 			proto_tree_add_item(record_tree, hf_a21_mob_sub_info_re_con_all_band_inc, tvb, offset,  1, ENC_BIG_ENDIAN);
+			/* Current Band Subclass */
 			proto_tree_add_item(record_tree, hf_a21_mob_sub_info_re_con_curr_band_sub, tvb, offset,  1, ENC_BIG_ENDIAN);
 			offset++;
-			proto_tree_add_item(record_tree, hf_a21_mob_sub_info_re_band_class, tvb, offset,  1, ENC_BIG_ENDIAN);
-			offset++;
-			proto_tree_add_item(record_tree, hf_a21_mob_sub_info_re_con_all_sub_band_inc, tvb, offset,  1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(record_tree, hf_a21_mob_sub_info_re_sub_cls_len, tvb, offset,  1, ENC_BIG_ENDIAN);
-			offset += record_len-2;
+			while (offset < rec_end_offset) {
+				j++;
+				start_offset = offset;
+				band_class = tvb_get_guint8(tvb, offset);
+				band_tree = proto_tree_add_subtree_format(record_tree, tvb, offset, -1,
+					ett_a21_band_class, &ti, "Band Class %u - %s(%u)",
+					j,
+					val_to_str_const(band_class, a21_band_class_values, "Unknown"),
+					band_class
+				);
+
+				/* Band Class */
+				proto_tree_add_item(band_tree, hf_a21_mob_sub_info_re_band_class, tvb, offset, 1, ENC_BIG_ENDIAN);
+				offset++;
+				/* All Band Subclasses Included | Reserved |Band Class 1 Subclass Length Octet 7 */
+				proto_tree_add_item(band_tree, hf_a21_mob_sub_info_re_con_all_sub_band_inc, tvb, offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item_ret_uint(band_tree, hf_a21_mob_sub_info_re_sub_cls_len, tvb, offset, 1, ENC_BIG_ENDIAN, &sub_cls_len);
+				offset++;
+				if (sub_cls_len > 0) {
+					proto_tree_add_bitmask_list(band_tree, tvb, offset, 1, flags, ENC_BIG_ENDIAN);
+				}
+				offset += sub_cls_len;
+				proto_item_set_len(ti, offset - start_offset);
+			}
 		} else {
 			proto_tree_add_item(record_tree, hf_a21_mob_sub_info_record_content, tvb, offset,  record_len, ENC_NA);
 			offset += record_len;
@@ -919,11 +964,6 @@ void proto_register_a21(void)
 			  FT_UINT8, BASE_DEC, NULL, 0x0,
 			  NULL, HFILL }
 		  },
-		  { &hf_a21_pilot_list_value,
-			 {"Pilot List Value", "a21.pilot_list_value",
-			  FT_BYTES, BASE_NONE, NULL, 0x0,
-			  NULL, HFILL }
-		  },
 		  { &hf_a21_cause_value,
 			 {"A21 Cause Value", "a21.cause_value",
 			  FT_UINT8, BASE_DEC, VALS(a21_cause_vals), 0x0,
@@ -1152,6 +1192,46 @@ void proto_register_a21(void)
 		      FT_UINT16, BASE_DEC, NULL, 0x0,
 		      NULL, HFILL }
 		  },
+		  { &hf_a21_sc0,
+		  { "SC0",   "a21.sc0",
+		      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
+		      NULL, HFILL }
+		  },
+		  { &hf_a21_sc1,
+		  { "SC1",   "a21.sc1",
+		      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
+		      NULL, HFILL }
+		  },
+		  { &hf_a21_sc2,
+		  { "SC2",   "a21.sc2",
+		      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
+		      NULL, HFILL }
+		  },
+		  { &hf_a21_sc3,
+		  { "SC3",   "a21.sc3",
+		      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
+		      NULL, HFILL }
+		  },
+		  { &hf_a21_sc4,
+		  { "SC4",   "a21.sc4",
+		      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
+		      NULL, HFILL }
+		  },
+		  { &hf_a21_sc5,
+		  { "SC5",   "a21.sc5",
+		      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
+		      NULL, HFILL }
+		  },
+		  { &hf_a21_sc6,
+		  { "SC6",   "a21.sc6",
+		      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
+		      NULL, HFILL }
+		  },
+		  { &hf_a21_sc7,
+		  { "SC7",   "a21.sc7",
+		      FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
+		      NULL, HFILL }
+		  },
 
 	};
 	/* Setup protocol subtree array */
@@ -1161,7 +1241,8 @@ void proto_register_a21(void)
 		&ett_a21_ie,
 		&ett_a21_record_content,
 		&ett_a21_pilot_list,
-		& ett_a21_cr
+		&ett_a21_cr,
+		&ett_a21_band_class
 	};
 
 	expert_module_t *expert_a21;
