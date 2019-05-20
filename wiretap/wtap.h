@@ -607,6 +607,8 @@ struct p2p_phdr {
 #define PHDR_802_11_PHY_11N            7 /* 802.11n */
 #define PHDR_802_11_PHY_11AC           8 /* 802.11ac */
 #define PHDR_802_11_PHY_11AD           9 /* 802.11ad */
+#define PHDR_802_11_PHY_11AH          10 /* 802.11ah */
+#define PHDR_802_11_PHY_11AX          11 /* 802.11ax */
 
 /*
  * PHY-specific information.
