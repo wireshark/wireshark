@@ -306,8 +306,8 @@ static int Pinfo_get_match(lua_State *L) {
     return 1;
 }
 
-/* WSLUA_ATTRIBUTE Pinfo_columns RO Accesss to the packet list columns. */
-/* WSLUA_ATTRIBUTE Pinfo_cols RO Accesss to the packet list columns (equivalent to pinfo.columns). */
+/* WSLUA_ATTRIBUTE Pinfo_columns RO Access to the packet list columns. */
+/* WSLUA_ATTRIBUTE Pinfo_cols RO Access to the packet list columns (equivalent to pinfo.columns). */
 static int Pinfo_get_columns(lua_State *L) {
     Columns cols = NULL;
     Pinfo pinfo = checkPinfo(L,1);
