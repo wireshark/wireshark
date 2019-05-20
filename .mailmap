@@ -1,13 +1,3 @@
-Andreas Karlsson <se.nakarlsson@gmail.com> nakarlsson <se.nakarlsson@gmail.com>
-Jonathan Fleming <jonathan@optigo.net> Jonathan Fleming <jonathanfleming135@gmail.com>
-Christophe Guerber <christophe.guerber@gmail.com Christophe GUERBER <christophe.guerber@gmail.com>
-Kirill Chernyshov <nideff.ru@gmail.com> kanidef <nideff.ru@gmail.com>
-Başak Kalfa <basakkalfa@gmail.com> <basakkalfa@gmail.com>
-Ross Jacobs <rossbjacobs@gmail.com> Ross <rossbjacobs@gmail.com>
-Ross Jacobs <rossbjacobs@gmail.com> Ross <whim42+github@gmail.com>
-Thomas d'Otreppe <tdotreppe@aircrack-ng.org> Mister X <tdotreppe@aircrack-ng.org>
-Dana Sy <dana.hayden.sy@gmail.com> Dana Sy <dhs@exegin.com>
-Alex Sirr <alexsirruw@gmail.com> alexsirr <alexsirruw@gmail.com>
 Adrian Simionov <daniel.simionov@gmail.com> <daniel.simionov@gmail.com>
 Ahmad Fatoum <ahmad@a3f.at> Ahmad Fatoum <ahmad.fatoum@siemens.com>
 Alan Partis <alpartis@thundernet.com> alpartis <alpartis@thundernet.com>
@@ -15,10 +5,12 @@ Alexander Gärtner <sphinxs1988@googlemail.com> alage <sphinxs1988@googlemail.co
 Alexander Wetzel <alexander.wetzel@web.de> deagol
 Alexandr Savca <alexandr.savca89@gmail.com> Alexandr Savca <s.alex08@mail.ru>
 Alexandr Savca <alexandr.savca89@gmail.com> chinarulezzz <s.alex08@mail.ru>
+Alex Sirr <alexsirruw@gmail.com> alexsirr <alexsirruw@gmail.com>
 Anders Broman <anders.broman@ericsson.com> <a.broman58@gmail.com>
 Anders Broman <anders.broman@ericsson.com> <a.broman@bredband.net>
 Anders Broman <anders.broman@ericsson.com> Anders <anders.broman@ericsson.com>
 Anders Broman <anders.broman@ericsson.com> AndersBroman <anders.broman@ericsson.com>
+Andreas Karlsson <se.nakarlsson@gmail.com> nakarlsson <se.nakarlsson@gmail.com>
 Andreas Schultz <andreas.schultz@travelping.com> Andreas Schultz <aschultz@warp10.net>
 Andrey Tverd <andr.tverd@gmail.com> Andrey <andr.tverd@gmail.com>
 Andy Ling <andy.ling@s-a-m.com> AndyL <andy.ling@s-a-m.com>
@@ -29,6 +21,7 @@ Balint Reczey <balint@balintreczey.hu> Balint Reczey <balint.reczey@canonical.co
 Balint Reczey <balint@balintreczey.hu> <balint.reczey@ericsson.com>
 Bartolo Otrit <bartolootrit@gmail.com> bartolootrit <bartolootrit@code.wireshark.org>
 Başak Kalfa <basakkalfa@gmail.com> basakkal <basakkalfa@gmail.com>
+Başak Kalfa <basakkalfa@gmail.com> <basakkalfa@gmail.com>
 Boris Bochkarev <Boris-Bochkaryov@yandex.ru> boris.bochkarev <Boris-Bochkaryov@yandex.ru>
 Brian Whitney <brian.m.whitney@outlook.com> bwhitn <brian.m.whitney@outlook.com>
 Cal Turney <cturney@charter.net> Cal Turney <cal.turney@emc.com>
@@ -42,9 +35,11 @@ Chris Brandson <chris.brandson@gmail.com> Chris Brandson <cjb@exegin.com>
 Chris Dunlop <chris.dunlop3@gmail.com> cjdunlop
 Chris Maynard <Christopher.Maynard@GTECH.COM> <Christopher.Maynard@igt.com>
 Christian M. Amsüss <chrysn@fsfe.org> chrysn <chrysn@fsfe.org>
+Christophe Guerber <christophe.guerber@gmail.com Christophe GUERBER <christophe.guerber@gmail.com>
 Christoph Jähnigen <nuabaranda@web.de> desolat <nuabaranda@web.de>
 Christoph Schlosser <christoph@schlosser.xyz> Christoph Schlosser <christoph.schlosser@br-automation.com>
 Claudius Zingerli <czingerl@gmail.com> zeuz <czingerl@gmail.com>
+Dana Sy <dana.hayden.sy@gmail.com> Dana Sy <dhs@exegin.com>
 Daniel Mouscher <dmouscher[AT]gmail.com> Mouscher, Daniel [Intern] <dmouscher@gmail.com>
 Daniel Tan <BACdaBASpert@optigo.net> BACdaBASpert <BACdaBASpert@optigo.net>
 Daniël van Eeden <wireshark@myname.nl> Daniel van Eeden
@@ -58,6 +53,7 @@ David Bastiani <daveb64@yahoo.com>Dave B <daveb64@yahoo.com>
 David Zoller <zollerd@gmail.com> dz-msfc <zollerd@gmail.com>
 Deep Datta <ddatta@ixiacom.com> Deep Datta <deepdatta2010@yahoo.co.in>
 Denis Janssen <janssend@gmail.com> janssend <janssend@gmail.com>
+Dennis Lanov <dennis.lanov@gmail.com> dennis.lanov <dennis.lanov@gmail.com>
 Dhiru Kholia <kholia@kth.se> Dhiru Kholia <dhiru.kholia@gmail.com>
 Didier Gautheron <dgautheron@magic.fr> didier <dgautheron@magic.fr>
 Dirk Jagdmann <doj@cubic.org> Dirk <doj@cubic.org>
@@ -65,6 +61,7 @@ Dirk Römmen <dirk.roemmen@cslab.de> Dirk Römmen <dro@cslab.de>
 Disha Daniel <ddaniel@empirix.com> dishadaniel <ddaniel@empirix.com>
 Dmitry Bazhenov <dima_b@pigeonpoint.com> U-beauty\bdn <dima_b@pigeonpoint.com>
 Dmitry Lazurkin <dilaz03@gmail.com> Dmitry Lazurkin <dmitry.lazurkin@synesis.ru>
+Dr. Lars Voelker <lars-github@larsvoelker.de> Dr. Lars Voelker <lars.voelker@bmw.de>
 Dylan Ulis  <daulis0@gmail.com> D. Ulis <daulis0@gmail.com>
 Ed Beroset <beroset@ieee.org> Ed Beroset <beroset@mindspring.com>
 Edwin Groothuis <edwin@mavetju.org> <wireshark@mavetju.org>
@@ -100,12 +97,14 @@ Jakub Zawadzki <darkjames-ws@darkjames.pl> <darkjames@darkjames.pl>
 Jeff Morriss <jeff.morriss.ws@gmail.com> <jeff.morriss@netscout.com>
 Jeff Morriss <jeff.morriss.ws@gmail.com> <jeff.morriss@ulticom.com>
 Jeff Morriss <jeff.morriss.ws@gmail.com> <morriss@ulticom.com>
+Jeff Oconnell <jeffo@rulez.com> jeff oconnell <jeffo@rulez.com>
 Jeroen Sack <jeroen@jeroensack.nl> Jeroen Sack <jsack@lely.com>
 Jim Schaettle <jimschaettle@gmail.com> Nick <jimschaettle@gmail.com>
 Jiří Engelthaler <engycz@gmail.com> Jiri Engelthaler <engycz@gmail.com>
 João Valverde <joao.valverde@tecnico.ulisboa.pt> João Valverde <j@v6e.pt>
 Joeri de Ruiter <joeri@cypherpunk.nl> Joeri <joeri@cypherpunk.nl>
 John Miner <optommp@gmail.com> John <optommp@gmail.com>
+Jonathan Fleming <jonathan@optigo.net> Jonathan Fleming <jonathanfleming135@gmail.com>
 Jonathan Muñoz <jonathan.munoz@inria.fr> Jonathan Munoz <jonathan.munoz@inria.fr>
 Jorge Power <jpower@rsscorp.org> jorge power
 Jörg Mayer <jmayer@loplof.de> Joerg Mayer <jmayer@loplof.de>
@@ -116,6 +115,7 @@ Juan Jose Martin Carrascosa <juanjo@rti.com> Juanjo <juanjo@rti.com>
 Juan Pablo Mendoza <jpablo@gmail.com> jpmendoza <jpablo@gmail.com>
 Kary Rogers <kary.rogers@gmail.com> karyrogers <kary.rogers@gmail.com>
 Kasper Deng <kasper.deng@ericsson.com> KasperDeng <kasper.deng@ericsson.com>
+Kirill Chernyshov <nideff.ru@gmail.com> kanidef <nideff.ru@gmail.com>
 Krishna Chaitanya <chaitanya.mgit@gmail.com> tkc <chaitanya.mgit@gmail.com>
 Lukas Emersberger <lukas.emersberger@gmail.com> <lukas.emersberger@br-automation.co.at>
 Lukas Emersberger <lukas.emersberger@gmail.com> <lukas.emersberger@br-automation.com>
@@ -146,6 +146,7 @@ Michal Prívozník <mprivozn@redhat.com> <mprivozn@redhat.com>
 Mikael Kanstrup <mikael.kanstrup@gmail.com> Mikael Kanstrup <mikael.kanstrup@sony.com>
 Mikael Kanstrup <mikael.kanstrup@gmail.com> Mikael Kanstrup <mikael.kanstrup@sonymobile.com>
 Mikhail Koreshkov <drkor@hotbox.ru> unknown <drkor@hotbox.ru>
+Milos Jovanovic <jeyem815@gmail.com> LoSmX <jeyem815@gmail.com>
 Moraney Jalil <moraney.jalil@outlook.com> moraney.jalil
 Moshe Kaplan <me@moshekaplan.com> moshekaplan <me@moshekaplan.com>
 Moshe Kaplan <me@moshekaplan.com> Your Name <you@example.com>
@@ -173,6 +174,8 @@ Robert Cragie <robert.cragie@gmail.com> Robert Cragie <robert.cragie@arm.com>
 Robert Grange <robionekenobi@bluewin.ch> robioneknobi
 Ronen Boazi <ronen.boazi@intel.com> Boazi <ronen.boazi@intel.com>
 Ronnie Sahlberg <ronniesahlberg@gmail.com> <ronnie_sahlberg@ozemail.com.au>
+Ross Jacobs <rossbjacobs@gmail.com> Ross <rossbjacobs@gmail.com>
+Ross Jacobs <rossbjacobs@gmail.com> Ross <whim42+github@gmail.com>
 Rudra Rugge  <rrugge@juniper.net> Rudra Rugge <rudrarugge@gmail.com>
 Rui ZHANG <rzhang@grandstream.cn> ZHANG Rui <rzhang@grandstream.cn>
 Russel Howe <russel@appliedinvention.com> Russel <russel@appliedinvention.com>
@@ -197,6 +200,7 @@ Stephen Fisher <stephenfisher@centurylink.net> <steve@stephen-fisher.com>
 Sumit Kumar Jha <sjha3@ncsu.edu> sjha3 <sjha3@ncsu.edu>
 Tengfei Chang <tengfei.chang@inria.fr> tchang <tengfei.chang@inria.fr>
 Thies Moeller <thies.moeller[AT]baslerweb.com> <thies.moeller@baslerweb.com>
+Thomas d'Otreppe <tdotreppe@aircrack-ng.org> Mister X <tdotreppe@aircrack-ng.org>
 Thomas Portassau <thomas.portassau@hotmail.fr> Thomas PORTASSAU <thomas.portassau@hotmail.fr>
 Uli Heilmeier <uh@heilmeier.eu> Uli Heilmeier <openid@heilmeier.eu>
 Vadim Fedorenko <vadimjunk@gmail.com> Vadim Fedorenko <junk@yandex-team.ru>
@@ -215,4 +219,5 @@ Yaniv Kaul <mykaul@gmail.com> <yaniv.kaul@emc.com>
 Yasuyuki Tanaka <yasuyuki.tanaka@inria.fr> Yasuyuki Tanaka <yatch1.tanaka@toshiba.co.jp>
 Yasuyuki Tanaka <yasuyuki.tanaka@inria.fr> Yasuyuki Tanaka <yatch@isl.rdc.toshiba.co.jp>
 Yasuyuki Tanaka <yasuyuki.tanaka@inria.fr> <yatch@isl.rdc.toshiba.co.jp>
+Zachary Holcomb <zholcomb2017[AT]my.fit.edu> Zachary <zholcomb2017@my.fit.edu>
 Zhao Lin <zlbinghamton@gmail.com> linzhao115 <zlbinghamton@gmail.com>
