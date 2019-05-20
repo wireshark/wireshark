@@ -130,18 +130,18 @@ prefs_store_ext_multiple(const char * module, GHashTable * pref_values)
     if ( ! keys )
         return pref_changed;
 
-    while ( keys != NULL )
+    for ( GList * key = keys; key != NULL; key = g_list_next(key) )
     {
-        gchar * pref_name = (gchar *)keys->data;
-        gchar * pref_value = (gchar *) g_hash_table_lookup(pref_values, keys->data);
+        gchar * pref_name = (gchar *)key->data;
+        gchar * pref_value = (gchar *) g_hash_table_lookup(pref_values, key->data);
 
         if ( pref_name && pref_value )
         {
             if ( prefs_store_ext_helper(module, pref_name, pref_value) )
                 pref_changed = TRUE;
         }
-        keys = g_list_next(keys);
     }
+    g_list_free(keys);
 
     if ( pref_changed )
     {
