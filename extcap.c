@@ -1978,6 +1978,7 @@ extcap_load_interface_list(void)
             iface_toolbar *toolbar = (iface_toolbar *) walker->data;
             iface_toolbar_remove(toolbar->menu_title);
         }
+        g_list_free(toolbar_list);
         g_hash_table_remove_all(_toolbars);
     } else {
         _toolbars = g_hash_table_new_full(g_str_hash, g_str_equal, g_free, extcap_free_toolbar);
