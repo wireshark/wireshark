@@ -713,7 +713,7 @@ static gint hf_cops_pcmm_request_transmission_policy_sf_data_for_data = -1;
 static gint hf_cops_pcmm_request_transmission_policy_sf_piggyback = -1;
 static gint hf_cops_pcmm_request_transmission_policy_sf_concatenate = -1;
 static gint hf_cops_pcmm_request_transmission_policy_sf_fragment = -1;
-static gint hf_cops_pcmm_request_transmission_policy_sf_supress = -1;
+static gint hf_cops_pcmm_request_transmission_policy_sf_suppress = -1;
 static gint hf_cops_pcmm_request_transmission_policy_sf_drop_packets = -1;
 static gint hf_cops_pcmm_max_sustained_traffic_rate = -1;
 static gint hf_cops_pcmm_max_traffic_burst = -1;
@@ -2582,8 +2582,8 @@ void proto_register_cops(void)
             FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0040,
             NULL, HFILL }
         },
-        { &hf_cops_pcmm_request_transmission_policy_sf_supress,
-          { "The Service Flow MUST NOT suppress payload headers", "cops.pc_mm_rtp.sf.supress",
+        { &hf_cops_pcmm_request_transmission_policy_sf_suppress,
+          { "The Service Flow MUST NOT suppress payload headers", "cops.pc_mm_rtp.sf.suppress",
             FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x0080,
             NULL, HFILL }
         },
@@ -6023,7 +6023,7 @@ decode_docsis_request_transmission_policy(tvbuff_t *tvb, guint32 offset, proto_t
       &hf_cops_pcmm_request_transmission_policy_sf_piggyback,
       &hf_cops_pcmm_request_transmission_policy_sf_concatenate,
       &hf_cops_pcmm_request_transmission_policy_sf_fragment,
-      &hf_cops_pcmm_request_transmission_policy_sf_supress,
+      &hf_cops_pcmm_request_transmission_policy_sf_suppress,
       &hf_cops_pcmm_request_transmission_policy_sf_drop_packets,
       NULL
     };

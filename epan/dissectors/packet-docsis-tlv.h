@@ -284,7 +284,7 @@
 #define SFW_ERR_MSG 3
 
 
-/* Define Payload Header Supression subtypes
+/* Define Payload Header Suppression subtypes
  * These are subtypes of TLV_PHS (26)
  */
 #define PHS_CLSFR_REF 1

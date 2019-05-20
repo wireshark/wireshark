@@ -4319,7 +4319,7 @@ proto_register_capwap_control(void)
               NULL, HFILL }
         },
         { &hf_capwap_msg_element_type_ieee80211_add_wlan_suppress_ssid,
-            { "Suppress SSID", "capwap.control.message_element.ieee80211_add_wlan.supress_ssid",
+            { "Suppress SSID", "capwap.control.message_element.ieee80211_add_wlan.suppress_ssid",
               FT_BOOLEAN, 8, TFS(&tfs_yes_no), 0x01,
               NULL, HFILL }
         },

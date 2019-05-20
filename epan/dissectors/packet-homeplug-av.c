@@ -2379,7 +2379,7 @@ static const value_string homeplug_av_st_iotecha_test_status_vals[] = {
     { 0, NULL }
 };
 
-static const value_string homeplug_av_st_iotecha_supress_data_vals[] = {
+static const value_string homeplug_av_st_iotecha_suppress_data_vals[] = {
     { 0x00, "Disabled"},
     { 0x01, "Enabled"},
     { 0, NULL }
@@ -8296,8 +8296,8 @@ proto_register_homeplug_av(void)
             FT_UINT8, BASE_HEX, VALS(homeplug_av_st_iotecha_test_status_vals), 0x00, NULL, HFILL }
         },
         { &hf_homeplug_av_st_iotecha_suppress_data,
-          { "Supress data", "homeplug_av.st_iotecha.suppress_data",
-            FT_UINT8, BASE_DEC, VALS(homeplug_av_st_iotecha_supress_data_vals), 0x00, NULL, HFILL }
+          { "Suppress data", "homeplug_av.st_iotecha.suppress_data",
+            FT_UINT8, BASE_DEC, VALS(homeplug_av_st_iotecha_suppress_data_vals), 0x00, NULL, HFILL }
         },
         { &hf_homeplug_av_st_iotecha_sound_remain,
           { "Counter of sound remain", "homeplug_av.st_iotecha.sound_remain",
