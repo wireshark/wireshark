@@ -4694,13 +4694,6 @@ ssl_common_init(ssl_master_key_map_t *mk_map,
     mk_map->tls13_exporter = g_hash_table_new(ssl_hash, ssl_equal);
     ssl_data_alloc(decrypted_data, 32);
     ssl_data_alloc(compressed_data, 32);
-
-    /* QUIC keys. */
-    mk_map->quic_client_early = g_hash_table_new(ssl_hash, ssl_equal);
-    mk_map->quic_client_handshake = g_hash_table_new(ssl_hash, ssl_equal);
-    mk_map->quic_server_handshake = g_hash_table_new(ssl_hash, ssl_equal);
-    mk_map->quic_client_appdata = g_hash_table_new(ssl_hash, ssl_equal);
-    mk_map->quic_server_appdata = g_hash_table_new(ssl_hash, ssl_equal);
 }
 
 void
@@ -4722,13 +4715,6 @@ ssl_common_cleanup(ssl_master_key_map_t *mk_map, FILE **ssl_keylog_file,
 
     g_free(decrypted_data->data);
     g_free(compressed_data->data);
-
-    /* QUIC keys */
-    g_hash_table_destroy(mk_map->quic_client_early);
-    g_hash_table_destroy(mk_map->quic_client_handshake);
-    g_hash_table_destroy(mk_map->quic_server_handshake);
-    g_hash_table_destroy(mk_map->quic_client_appdata);
-    g_hash_table_destroy(mk_map->quic_server_appdata);
 
     /* close the previous keylog file now that the cache are cleared, this
      * allows the cache to be filled with the full keylog file contents. */
@@ -5148,20 +5134,15 @@ ssl_compile_keyfile_regex(void)
         ")(?<master_secret>" OCTET "{" G_STRINGIFY(SSL_MASTER_SECRET_LENGTH) "})"
         "|(?"
         /* TLS 1.3 Client Random to Derived Secrets mapping. */
-        ":CLIENT_EARLY_TRAFFIC_SECRET (?<client_early>" OCTET "{32})"
-        "|CLIENT_HANDSHAKE_TRAFFIC_SECRET (?<client_handshake>" OCTET "{32})"
-        "|SERVER_HANDSHAKE_TRAFFIC_SECRET (?<server_handshake>" OCTET "{32})"
-        "|CLIENT_TRAFFIC_SECRET_0 (?<client_appdata>" OCTET "{32})"
-        "|SERVER_TRAFFIC_SECRET_0 (?<server_appdata>" OCTET "{32})"
+        /* Since draft-ietf-quic-tls-17 keys are the same as TLS 1.3.
+         * TODO remove this old format. */
+        ":(?:QUIC_)?CLIENT_EARLY_TRAFFIC_SECRET (?<client_early>" OCTET "{32})"
+        "|(?:QUIC_)?CLIENT_HANDSHAKE_TRAFFIC_SECRET (?<client_handshake>" OCTET "{32})"
+        "|(?:QUIC_)?SERVER_HANDSHAKE_TRAFFIC_SECRET (?<server_handshake>" OCTET "{32})"
+        "|(?:QUIC_)?CLIENT_TRAFFIC_SECRET_0 (?<client_appdata>" OCTET "{32})"
+        "|(?:QUIC_)?SERVER_TRAFFIC_SECRET_0 (?<server_appdata>" OCTET "{32})"
         "|EARLY_EXPORTER_SECRET (?<early_exporter>" OCTET "{32})"
         "|EXPORTER_SECRET (?<exporter>" OCTET "{32})"
-        /* QUIC (draft >= -13) Client Random to Derived Secrets mapping.
-         * EXPERIMENTAL, subject to change based on QUIC changes! */
-        "|QUIC_CLIENT_EARLY_TRAFFIC_SECRET (?<quic_client_early>" OCTET "{32})"
-        "|QUIC_CLIENT_HANDSHAKE_TRAFFIC_SECRET (?<quic_client_handshake>" OCTET "{32})"
-        "|QUIC_SERVER_HANDSHAKE_TRAFFIC_SECRET (?<quic_server_handshake>" OCTET "{32})"
-        "|QUIC_CLIENT_TRAFFIC_SECRET_0 (?<quic_client_appdata>" OCTET "{32})"
-        "|QUIC_SERVER_TRAFFIC_SECRET_0 (?<quic_server_appdata>" OCTET "{32})"
         ") (?<derived_secret>" OCTET "+)";
 #undef OCTET
     static GRegex *regex = NULL;
@@ -5223,12 +5204,6 @@ tls_keylog_process_lines(const ssl_master_key_map_t *mk_map, const guint8 *data,
         { "server_appdata",     mk_map->tls13_server_appdata },
         { "early_exporter",     mk_map->tls13_early_exporter },
         { "exporter",           mk_map->tls13_exporter },
-        /* QUIC map from Client Random to derived secret. */
-        { "quic_client_early",      mk_map->quic_client_early },
-        { "quic_client_handshake",  mk_map->quic_client_handshake },
-        { "quic_server_handshake",  mk_map->quic_server_handshake },
-        { "quic_client_appdata",    mk_map->quic_client_appdata },
-        { "quic_server_appdata",    mk_map->quic_server_appdata },
     };
 
     /* The format of the file is a series of records with one of the following formats:

@@ -3829,24 +3829,24 @@ tls13_get_quic_secret(packet_info *pinfo, gboolean is_from_server, int type, gui
     case TLS_SECRET_0RTT_APP:
         DISSECTOR_ASSERT(!is_from_server);
         label = "CLIENT_EARLY_TRAFFIC_SECRET";
-        key_map = ssl_master_key_map.quic_client_early;
+        key_map = ssl_master_key_map.tls13_client_early;
         break;
     case TLS_SECRET_HANDSHAKE:
         if (is_from_server) {
             label = "SERVER_HANDSHAKE_TRAFFIC_SECRET";
-            key_map = ssl_master_key_map.quic_server_handshake;
+            key_map = ssl_master_key_map.tls13_server_handshake;
         } else {
             label = "CLIENT_HANDSHAKE_TRAFFIC_SECRET";
-            key_map = ssl_master_key_map.quic_client_handshake;
+            key_map = ssl_master_key_map.tls13_client_handshake;
         }
         break;
     case TLS_SECRET_APP:
         if (is_from_server) {
             label = "SERVER_TRAFFIC_SECRET_0";
-            key_map = ssl_master_key_map.quic_server_appdata;
+            key_map = ssl_master_key_map.tls13_server_appdata;
         } else {
             label = "CLIENT_TRAFFIC_SECRET_0";
-            key_map = ssl_master_key_map.quic_client_appdata;
+            key_map = ssl_master_key_map.tls13_client_appdata;
         }
         break;
     default:
@@ -3855,7 +3855,7 @@ tls13_get_quic_secret(packet_info *pinfo, gboolean is_from_server, int type, gui
 
     StringInfo *secret = (StringInfo *)g_hash_table_lookup(key_map, &ssl->client_random);
     if (!secret || secret->data_len != secret_len) {
-        ssl_debug_printf("%s Cannot QUIC_%s of size %d, found bad size %d!\n",
+        ssl_debug_printf("%s Cannot find QUIC %s of size %d, found bad size %d!\n",
                          G_STRFUNC, label, secret_len, secret ? secret->data_len : 0);
         return FALSE;
     }

@@ -495,13 +495,6 @@ typedef struct {
     GHashTable *tls13_server_appdata;
     GHashTable *tls13_early_exporter;
     GHashTable *tls13_exporter;
-
-    /* For QUIC: maps Client Random to derived secret. */
-    GHashTable *quic_client_early;
-    GHashTable *quic_client_handshake;
-    GHashTable *quic_server_handshake;
-    GHashTable *quic_client_appdata;
-    GHashTable *quic_server_appdata;
 } ssl_master_key_map_t;
 
 gint ssl_get_keyex_alg(gint cipher);
