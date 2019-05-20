@@ -22,6 +22,11 @@
 #include "sync_pipe.h"
 #include "wsutil/file_util.h"
 
+#include "log.h"
+#ifdef _WIN32
+#include <wsutil/win32-utils.h>
+#endif
+
 #include <QCheckBox>
 #include <QComboBox>
 #include <QDesktopServices>
@@ -746,7 +751,22 @@ void InterfaceToolbar::startCapture(GArray *ifaces)
         // Open control out channel
 #ifdef _WIN32
         startReaderThread(ifname, interface_opts->extcap_control_in_h);
-        interface_[ifname].out_fd = _open_osfhandle((intptr_t)interface_opts->extcap_control_out_h, O_APPEND | O_BINARY);
+        // Duplicate control out handle and pass the duplicate handle to _open_osfhandle().
+        // This allows the C run-time file descriptor (out_fd) and the extcap_control_out_h to be closed independently.
+        // The duplicated handle will get closed at the same time the file descriptor is closed.
+        // The control out pipe will close when both out_fd and extcap_control_out_h are closed.
+        HANDLE duplicate_out_handle = INVALID_HANDLE_VALUE;
+        if (!DuplicateHandle(GetCurrentProcess(), interface_opts->extcap_control_out_h,
+                             GetCurrentProcess(), &duplicate_out_handle, 0, TRUE, DUPLICATE_SAME_ACCESS))
+        {
+            simple_dialog_async(ESD_TYPE_ERROR, ESD_BTN_OK,
+                                "Failed to duplicate extcap control out handle: %s\n.",
+                                win32strerror(GetLastError()));
+        }
+        else
+        {
+            interface_[ifname].out_fd = _open_osfhandle((intptr_t)duplicate_out_handle, O_APPEND | O_BINARY);
+        }
 #else
         startReaderThread(ifname, interface_opts->extcap_control_in);
         interface_[ifname].out_fd = ws_open(interface_opts->extcap_control_out, O_WRONLY | O_BINARY, 0);
@@ -780,9 +800,7 @@ void InterfaceToolbar::stopCapture()
 
         if (interface_[ifname].out_fd != -1)
         {
-#ifndef _WIN32
             ws_close (interface_[ifname].out_fd);
-#endif
             interface_[ifname].out_fd = -1;
         }
 
