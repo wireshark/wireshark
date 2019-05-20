@@ -1,4 +1,4 @@
-/* packet-tlv.h
+/* packet-docsis-tlv.h
  * Contains Definitions for Configuration types
  * Copyright 2002, Anand V. Narwani <anand[AT]narwani.org>
  *

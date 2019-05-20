@@ -1,4 +1,4 @@
-/* packet-tlv.c
+/* packet-docsis-tlv.c
  *
  * Routines to Dissect Appendix C TLV's
  * Copyright 2015, Adrian Simionov <daniel.simionov@gmail.com>
