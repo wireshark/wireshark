@@ -310,7 +310,7 @@ static const value_string a21_band_class_values[] = {
 value_string_ext a21_band_class_values_ext = VALUE_STRING_EXT_INIT(a21_band_class_values);
 
 static void
-dissect_a21_pilot_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_)
+dissect_a21_pilot_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 message_type _U_)
 {
 	proto_tree *sub_tree, *cr_tree;
 	proto_item* ti;
