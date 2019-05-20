@@ -519,6 +519,7 @@ static int hf_mqtt_username = -1;
 static int hf_mqtt_passwd_len = -1;
 static int hf_mqtt_passwd = -1;
 static int hf_mqtt_pubmsg = -1;
+static int hf_mqtt_pubmsg_text = -1;
 static int hf_mqtt_pubmsg_decoded = -1;
 static int hf_mqtt_proto_len = -1;
 static int hf_mqtt_proto_name = -1;
@@ -580,6 +581,9 @@ static gint ett_mqtt_subscription_flags = -1;
 
 /* Reassemble SMPP TCP segments */
 static gboolean reassemble_mqtt_over_tcp = TRUE;
+
+/* Show Publish Message as text */
+static gboolean show_msg_as_text;
 
 static guint get_mqtt_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb,
                               int offset, void *data _U_)
@@ -1104,7 +1108,14 @@ static int dissect_mqtt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
       }
 
       mqtt_payload_len = tvb_reported_length(tvb) - offset;
-      proto_tree_add_item(mqtt_tree, hf_mqtt_pubmsg, tvb, offset, mqtt_payload_len, ENC_UTF_8|ENC_NA);
+      if (show_msg_as_text)
+      {
+        proto_tree_add_item(mqtt_tree, hf_mqtt_pubmsg_text, tvb, offset, mqtt_payload_len, ENC_UTF_8|ENC_NA);
+      }
+      else
+      {
+        proto_tree_add_item(mqtt_tree, hf_mqtt_pubmsg, tvb, offset, mqtt_payload_len, ENC_NA);
+      }
 
       if (num_mqtt_message_decodes > 0)
       {
@@ -1427,6 +1438,10 @@ void proto_register_mqtt(void)
       { "Message", "mqtt.msg",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_mqtt_pubmsg_text,
+      { "Message", "mqtt.msg",
+        FT_STRING, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_mqtt_pubmsg_decoded,
       { "Message decoded as", "mqtt.msg_decoded_as",
         FT_STRING, BASE_NONE, NULL, 0,
@@ -1658,6 +1673,12 @@ void proto_register_mqtt(void)
                                 "Message Decoding",
                                 "A table that enumerates custom message decodes to be used for a certain topic",
                                 message_uat);
+
+  prefs_register_bool_preference(mqtt_module, "show_msg_as_text",
+                                 "Show Message as text",
+                                 "Show Publish Message as text",
+                                 &show_msg_as_text);
+
 }
 
 /*
