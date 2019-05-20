@@ -67,8 +67,8 @@ static int hf_ranap_transportLayerAddress_nsap = -1;
 
 /* Initialize the subtree pointers */
 static int ett_ranap = -1;
-static int ett_ranap_TransportLayerAddress = -1;
-static int ett_ranap_TransportLayerAddress_nsap = -1;
+static int ett_ranap_transportLayerAddress = -1;
+static int ett_ranap_transportLayerAddress_nsap = -1;
 
 #include "packet-ranap-ett.c"
 
@@ -412,8 +412,8 @@ void proto_register_ranap(void) {
   /* List of subtrees */
   static gint *ett[] = {
     &ett_ranap,
-    &ett_ranap_TransportLayerAddress,
-    &ett_ranap_TransportLayerAddress_nsap,
+    &ett_ranap_transportLayerAddress,
+    &ett_ranap_transportLayerAddress_nsap,
 #include "packet-ranap-ettarr.c"
   };
 
