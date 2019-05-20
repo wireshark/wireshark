@@ -3652,7 +3652,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         offset = dissect_rsl_ie_sys_info_type(tvb, pinfo, tree, offset, TRUE, &sys_info_type);
         /*  Full BCCH Info (SYS INFO) 9.3.39 O 1) TLV 25 */
         if (tvb_reported_length_remaining(tvb, offset) > 0)
-            offset = dissect_rsl_ie_full_bcch_inf(tvb, pinfo, tree, offset, TRUE);
+            offset = dissect_rsl_ie_full_bcch_inf(tvb, pinfo, tree, offset, FALSE);
         /*  Starting Time           9.3.23  O 2) TV 3 */
         if (tvb_reported_length_remaining(tvb, offset) > 0)
             offset = dissect_rsl_ie_starting_time(tvb, pinfo, tree, offset, FALSE);
@@ -3748,13 +3748,13 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
             offset = dissect_rsl_ie_message_id(tvb, pinfo, tree, offset, FALSE);
         /* Channel Number           9.3.1   O 2) TV 2 */
         if (tvb_reported_length_remaining(tvb, offset) > 0)
-            offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset, TRUE);
+            offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset, FALSE);
         /* Link identifier          9.3.2   O 3) TV 2 */
         if (tvb_reported_length_remaining(tvb, offset) > 0)
-            offset = dissect_rsl_ie_link_id(tvb, pinfo, tree, offset, TRUE);
+            offset = dissect_rsl_ie_link_id(tvb, pinfo, tree, offset, FALSE);
         /* Erroneous Message        9.3.38  O 4) TLV >=3 */
         if (tvb_reported_length_remaining(tvb, offset) > 0)
-            offset = dissect_rsl_ie_err_msg(tvb, pinfo, tree, offset, TRUE);
+            offset = dissect_rsl_ie_err_msg(tvb, pinfo, tree, offset, FALSE);
         break;
     /* 8.5.8 SMS BROADCAST COMMAND */
     case RSL_MSG_SMS_BC_CMD:    /*  29   8.5.8 */
@@ -4035,7 +4035,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset, TRUE);
         /* Access Delay             9.3.17  O 1) TV 2 */
         if (tvb_reported_length_remaining(tvb, offset) > 0)
-                offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset, TRUE);
+                offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset, FALSE);
         break;
     /* 8.4.22 LISTENER DETECTION */
     case RSL_MSG_LISTENER_DET:      /*  54  8.4.22 */
@@ -4043,7 +4043,7 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset, TRUE);
         /* Access Delay             9.3.17  O 1) TV 2 */
         if (tvb_reported_length_remaining(tvb, offset) > 0)
-                offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset, TRUE);
+                offset = dissect_rsl_ie_ch_no(tvb, pinfo, tree, offset, FALSE);
         break;
     /* 8.4.23 REMOTE CODEC CONFIGURATION REPORT */
     case RSL_MSG_REMOTE_CODEC_CONF_REP:/*   55  8.4.23 */
