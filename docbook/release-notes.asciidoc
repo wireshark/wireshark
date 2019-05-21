@@ -15,8 +15,8 @@ used for troubleshooting, analysis, development and education.
 The following vulnerabilities have been fixed:
 
 * wssalink:2019-19[]
-A dissector went awry.
-// wsbuglink:XXXXX[].
+Wireshark dissection engine crash.
+wsbuglink:15778[].
 // cveidlink:2019-XXXXX[].
 // Fixed in master: XXXXX
 // Fixed in master-3.0: XXXXX
@@ -30,6 +30,10 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark keeps leaving voicemails advertising timeshare condominiums in Fresno. (wsbuglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.4.15rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* Help file doesn't display for extcap interfaces. wsbuglink:15592[].
+
+* Wrong NTP timestamp for RTCP XR RR packets (hf_rtcp_xr_timestamp field). wsbuglink:15687[].
 
 === New and Updated Features
 
@@ -46,13 +50,17 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
+DDP
+IS-IS CLV
+RTCP XR RR
 --sort-and-group--
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
-// --sort-and-group--
-// --sort-and-group--
+// There is no new or updated capture file support in this release.
+--sort-and-group--
+pcapng
+--sort-and-group--
 
 === New and Updated Capture Interfaces support
 
