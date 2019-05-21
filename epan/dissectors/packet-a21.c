@@ -29,7 +29,6 @@ static dissector_handle_t gcsna_handle = NULL;
 static int proto_a21 = -1;
 
 static int hf_a21_message_type = -1;
-static int hf_a21_corr_id = -1;
 static int hf_a21_element_identifier = -1;
 static int hf_a21_element_length = -1;
 static int hf_a21_corr_id_corr_value = -1;
@@ -150,18 +149,17 @@ dissect_a21_correlation_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	int offset = 0;
 	proto_item *tc;
 	proto_tree *corr_tree;
+	guint32 corr_id;
 
-	if (tree == NULL)
-		return;
-	tc = proto_tree_add_item(tree, hf_a21_corr_id, tvb, offset,  6, ENC_BIG_ENDIAN);
-	corr_tree = proto_item_add_subtree(tc,ett_a21_corr_id);
+	corr_tree = proto_tree_add_subtree(tree, tvb, offset, 6, ett_a21_corr_id, &tc, "A21 Correlation ID");
 
 	proto_tree_add_item(corr_tree, hf_a21_element_identifier, tvb, offset,  1, ENC_BIG_ENDIAN);
 	offset++;
 	proto_tree_add_item(corr_tree, hf_a21_element_length, tvb, offset,  1, ENC_BIG_ENDIAN);
 	offset++;
 
-	proto_tree_add_item(corr_tree, hf_a21_corr_id_corr_value, tvb, offset,  4, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(corr_tree, hf_a21_corr_id_corr_value, tvb, offset,  4, ENC_BIG_ENDIAN, &corr_id);
+	proto_item_append_text(tc, " %u", corr_id);
 	/* offset += 4; */
 
 }
@@ -834,6 +832,7 @@ dissect_a21(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	int offset = 0;
 	proto_item *ti, *tc;
 	proto_tree *a21_tree, *corr_tree;
+	guint32 corr_id;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "A21");
 	col_clear(pinfo->cinfo, COL_INFO);
@@ -855,15 +854,15 @@ dissect_a21(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 	proto_tree_add_item(a21_tree, hf_a21_message_type, tvb, offset,  1, ENC_BIG_ENDIAN);
 	offset++;
 	/* Correlation Identifier in Octets 2-7 */
-	tc = proto_tree_add_item(a21_tree, hf_a21_corr_id, tvb, offset,  6, ENC_BIG_ENDIAN);
-	corr_tree = proto_item_add_subtree(tc,ett_a21_corr_id);
+	corr_tree = proto_tree_add_subtree(a21_tree, tvb, offset, 6, ett_a21_corr_id, &tc, "A21 Correlation ID");
 
 	proto_tree_add_item(corr_tree, hf_a21_element_identifier, tvb, offset,  1, ENC_BIG_ENDIAN);
 	offset++;
 	proto_tree_add_item(corr_tree, hf_a21_element_length, tvb, offset,  1, ENC_BIG_ENDIAN);
 	offset++;
 
-	proto_tree_add_item(corr_tree, hf_a21_corr_id_corr_value, tvb, offset,  4, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(corr_tree, hf_a21_corr_id_corr_value, tvb, offset, 4, ENC_BIG_ENDIAN, &corr_id);
+	proto_item_append_text(tc, " %u", corr_id);
 	offset += 4;
 
 	dissect_a21_ie_common(tvb, pinfo, tree, a21_tree, offset,  message_type);
@@ -877,11 +876,6 @@ void proto_register_a21(void)
 		  { &hf_a21_message_type,
 			 {"Message Type", "a21.message_type",
 			  FT_UINT8, BASE_DEC, VALS(a21_message_type_vals), 0x0,
-			  NULL, HFILL }
-		  },
-		  { &hf_a21_corr_id,
-			 {"A21 Correlation ID", "a21.correlation_id",
-			  FT_UINT64, BASE_DEC, NULL, 0x0,
 			  NULL, HFILL }
 		  },
 		  { &hf_a21_element_identifier,
