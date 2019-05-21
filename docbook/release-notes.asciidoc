@@ -26,8 +26,8 @@ used for troubleshooting, analysis, development and education.
 The following vulnerabilities have been fixed:
 
 * wssalink:2019-19[]
-A dissector went awry.
-// wsbuglink:XXXXX[].
+Wireshark dissection engine crash.
+wsbuglink:15778[].
 // cveidlink:2019-XXXXX[].
 // Fixed in master: XXXXX
 // Fixed in master-3.0: XXXXX
@@ -40,7 +40,53 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark slowly leaked water under the kitchen sink over the course of several months, causing a big mess.
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v3.0.2rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v3.0.3rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
+
+* Add (IETF) QUIC Dissector. wsbuglink:13881[].
+
+* Wireshark Hangs on startup initializing external capture plugins. wsbuglink:14657[].
+
+* [oss-fuzz] ERROR: Adding ospf.v3.prefix.options.nu would put more than 1000000 items in the tree -- possible infinite loop. wsbuglink:14978[].
+
+* Wireshark can call extcap with empty multicheck argument. wsbuglink:15065[].
+
+* CMPv2 KUR message disection gives unexpected value for serialNumber under OldCertId fields. wsbuglink:15154[].
+
+* "(Git Rev Unknown from unknown)" in version string for official tarball. wsbuglink:15544[].
+
+* External extcap does not get all arguments sometimes. wsbuglink:15586[].
+
+* Help file doesn't display for extcap interfaces. wsbuglink:15592[].
+
+* Buildbot crash output: randpkt-2019-03-14-4670.pcap. wsbuglink:15604[].
+
+* Building only libraries on windows fails due to CLEAN_C_FILES empty. wsbuglink:15662[].
+
+* Statistics->Conversations->TCP->Follow Stream - incorrect behavior. wsbuglink:15672[].
+
+* Wrong NTP timestamp for RTCP XR RR packets (hf_rtcp_xr_timestamp field). wsbuglink:15687[].
+
+* ws_pipe: leaks pipe handles on errors. wsbuglink:15689[].
+
+* Build issue in Wireshark - 3.0.1 on RHEL6. wsbuglink:15706[].
+
+* ISAKMP: Segmentation fault with non-hex string for IKEv1 Decryption Table Initiator Cookie. wsbuglink:15709[].
+
+* Incorrectly interpreted format of MQTT PUBLISH payload data. wsbuglink:15738[].
+
+* print.c: Memory leak in ek_check_protocolfilter. wsbuglink:15758[].
+
+* IETF QUIC dissector incorrectly parses retry packet. wsbuglink:15764[].
+
+* Bacnet(app): fix wrong value for id 183 (logging-device -> logging-object). wsbuglink:15767[].
+
+* The SMB2 code to look up decryption keys by session ID assumes it's running on a little-endian machine. wsbuglink:15772[].
+
+* `tshark -G folders` leaves mmdbresolve process behind. wsbuglink:15777[].
+
+* Dissector bug, protocol TLS - failed assertion "data". wsbuglink:15780[].
+
+* WSMP : header_opt_ind field is not correctly set. wsbuglink:15786[].
 
 === New and Updated Features
 
@@ -63,15 +109,35 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
+BACapp
+DDP
+EPL
+Frame
+IEEE 802.11
+IS-IS CLV
+ISAKMP
+K12
+KNXIP
+MQTT
+PNIO
+QUIC
+RTCP XR RR
+SCTP
+SMB2
+TDS
+TLS
+WSMP
+ZEBRA
 --
 
 === New and Updated Capture File Support
 
-There is no new or updated capture file support in this release.
+// There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-// [commaize]
-// --
-// --
+[commaize]
+--
+pcapng
+--
 
 === New and Updated Capture Interfaces support
 
