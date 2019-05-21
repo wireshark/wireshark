@@ -39,6 +39,8 @@ since version 3.0.0:
 * Brotli decompression support in HTTP/HTTP2 (requires the brotli library).
 * The build system now checks for a SpeexDSP system library installation. The
   bundled Speex resampler code is still provided as a fallback.
+* WireGuard decryption can now be enabled through keys embedded in a pcapng in
+  addition to the existing key log preference (wsbuglink:15571[]).
 
 // === Removed Features and Support
 

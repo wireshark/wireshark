@@ -180,7 +180,8 @@ static const struct {
     const char *str;
     guint32     id;
 } secrets_types[] = {
-    { "tls", SECRETS_TYPE_TLS },
+    { "tls",    SECRETS_TYPE_TLS },
+    { "wg",     SECRETS_TYPE_WIREGUARD },
 };
 
 static int find_dct2000_real_data(guint8 *buf);

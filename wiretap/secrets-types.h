@@ -15,5 +15,6 @@
  * Type describing the format of the opaque secrets value in a pcapng DSB.
  */
 #define SECRETS_TYPE_TLS        0x544c534b /* TLS Key Log */
+#define SECRETS_TYPE_WIREGUARD  0x57474b4c /* WireGuard Key Log */
 
 #endif /* __SECRETS_TYPES_H__ */

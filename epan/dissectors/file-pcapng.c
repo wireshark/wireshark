@@ -537,7 +537,8 @@ static const value_string flags_reception_type_vals[] = {
 };
 
 static const value_string dsb_secrets_types_vals[] = {
-    { SECRETS_TYPE_TLS, "TLS Key Log" },
+    { SECRETS_TYPE_TLS,         "TLS Key Log" },
+    { SECRETS_TYPE_WIREGUARD,   "WireGuard Key Log" },
     { 0, NULL }
 };
 

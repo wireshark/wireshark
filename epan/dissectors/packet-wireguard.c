@@ -28,6 +28,8 @@
 #include <wsutil/file_util.h>
 #include <wsutil/wsgcrypt.h>
 #include <wsutil/curve25519.h>
+#include <epan/secrets.h>
+#include <wiretap/secrets-types.h>
 
 #if GCRYPT_VERSION_NUMBER >= 0x010800 /* 1.8.0 */
 /* Decryption requires Curve25519, ChaCha20-Poly1305 (1.7) and Blake2s (1.8). */
@@ -649,6 +651,8 @@ wg_keylog_reset(void)
     }
 }
 
+static void wg_keylog_process_lines(const void *data, guint datalen);
+
 static void
 wg_keylog_read(void)
 {
@@ -695,43 +699,67 @@ wg_keylog_read(void)
             break;
         }
 
-        gsize bytes_read = strlen(buf);
-        /* fgets includes the \n at the end of the line. */
-        if (bytes_read > 0 && buf[bytes_read - 1] == '\n') {
-            buf[bytes_read - 1] = 0;
-            bytes_read--;
+        wg_keylog_process_lines((const guint8 *)buf, (guint)strlen(buf));
+    }
+}
+
+static void
+wg_keylog_process_lines(const void *data, guint datalen)
+{
+    const char *next_line = (const char *)data;
+    const char *line_end = next_line + datalen;
+    while (next_line && next_line < line_end) {
+        /* Note: line is NOT nul-terminated. */
+        const char *line = next_line;
+        next_line = (const char *)memchr(line, '\n', line_end - line);
+        gssize linelen;
+
+        if (next_line) {
+            linelen = next_line - line;
+            next_line++;    /* drop LF */
+        } else {
+            linelen = (gssize)(line_end - line);
         }
-        if (bytes_read > 0 && buf[bytes_read - 1] == '\r') {
-            buf[bytes_read - 1] = 0;
-            bytes_read--;
+        if (linelen > 0 && line[linelen - 1] == '\r') {
+            linelen--;      /* drop CR */
         }
 
-        g_debug("Read key log line: %s", buf);
+        g_debug("Read WG key log line: %.*s", (int)linelen, line);
 
         /* Strip leading spaces. */
-        char *p = buf;
-        while (*p == ' ') {
+        const char *p = line;
+        while (p < line_end && *p == ' ') {
             ++p;
         }
-        const char *key_type = p;
-        const char *key_value = NULL;
-        p = strchr(p, '=');
-        if (p && key_type != p) {
-            key_value = p + 1;
-            /* Strip '=' and spaces before it (after key type). */
-            do {
-                *p = '\0';
-                --p;
-            } while (*p == ' ');
-            /* Strip spaces after '=' (before key value) */
-            while (*key_value == ' ') {
-                ++key_value;
+        char key_type[sizeof("LOCAL_EPHEMERAL_PRIVATE_KEY")];
+        char key_value[45] = { 0 };
+        const char *p0 = p;
+        p = (const char *)memchr(p0, '=', line_end - p);
+        if (p && p0 != p) {
+            /* Extract "key-type" from "key-type = key-value" */
+            gsize key_type_len = p - p0;
+            while (key_type_len && p0[key_type_len - 1] == ' ') {
+                --key_type_len;
+            }
+            if (key_type_len && key_type_len < sizeof(key_type)) {
+                memcpy(key_type, p0, key_type_len);
+                key_type[key_type_len] = '\0';
+
+                /* Skip '=' and any spaces. */
+                p = p + 1;
+                while (p < line_end && *p == ' ') {
+                    ++p;
+                }
+                gsize key_value_len = (line + linelen) - p;
+                if (key_value_len && key_value_len < sizeof(key_value)) {
+                    memcpy(key_value, p, key_value_len);
+                }
             }
         }
 
         wg_qqword key;
-        if (!key_value || !decode_base64_key(&key, key_value)) {
-            g_debug("Unrecognized key log line: %s", buf);
+        if (!key_value[0] || !decode_base64_key(&key, key_value)) {
+            g_debug("Unrecognized key log line: %.*s", (int)linelen, line);
             continue;
         }
 
@@ -750,7 +778,7 @@ wg_keylog_read(void)
                 g_debug("Ignored PSK as no new ephemeral key was found");
             }
         } else {
-            g_debug("Unrecognized key log line: %s", buf);
+            g_debug("Unrecognized key log line: %.*s", (int)linelen, line);
         }
     }
 }
@@ -1856,6 +1884,8 @@ proto_register_wg(void)
     if (!wg_decrypt_init()) {
         g_warning("%s: decryption will not be possible due to lack of algorithms support", G_STRFUNC);
     }
+
+    secrets_register_type(SECRETS_TYPE_WIREGUARD, wg_keylog_process_lines);
 
     wg_ephemeral_keys = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_int_hash, wg_pubkey_equal);
 #endif /* WG_DECRYPTION_SUPPORTED */
