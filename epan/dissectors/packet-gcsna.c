@@ -107,6 +107,12 @@ static const value_string gcsna_option_values[] = {
     { 0, NULL },
 };
 
+static const value_string gcsna_tru_false_values[] = {
+    { 0, "False" },
+    { 1, "True" },
+    { 0, NULL },
+};
+
 /* Decoder for all the information elements of A21 Message Type */
 static void
 gcsna_message_decode(proto_item *item, tvbuff_t *tvb, proto_tree *tree, guint *offset, proto_tree *mainTree, guint16 *noerror, packet_info *pinfo)
@@ -161,53 +167,53 @@ gcsna_message_GCSNA1xCircuitService(proto_item *item, tvbuff_t *tvb, packet_info
     bit_offset += 3;
 
     alt_gcsna_incl = tvb_get_bits8(tvb, bit_offset, 1);
-    proto_tree_add_bits_item(subtree, hf_gcsna_altGCSNAOptionIncluded, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(tree, hf_gcsna_altGCSNAOptionIncluded, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset += 1;
     if (alt_gcsna_incl)
     {
         num_alt_gcsna_opt = tvb_get_bits8(tvb, bit_offset, 8);
-        proto_tree_add_bits_item(subtree, hf_gcsna_NumaltGCSNAOption, tvb, bit_offset, 8, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(tree, hf_gcsna_NumaltGCSNAOption, tvb, bit_offset, 8, ENC_BIG_ENDIAN);
         bit_offset += 8;
 
         while (num_alt_gcsna_opt != 0)
         {
-            proto_tree_add_bits_item(subtree, hf_gcsna_altGCSNAOption, tvb, bit_offset, 8, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(tree, hf_gcsna_altGCSNAOption, tvb, bit_offset, 8, ENC_BIG_ENDIAN);
             bit_offset += 8;
             num_alt_gcsna_opt--;
         }
     }
 
     iws_incl = tvb_get_bits8(tvb, bit_offset, 1);
-    proto_tree_add_bits_item(subtree, hf_gcsna_iwsidIncluded, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(tree, hf_gcsna_iwsidIncluded, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset++;
 
     if (iws_incl)
     {
-        proto_tree_add_bits_item(subtree, hf_gcsna_iwsidValue, tvb, bit_offset, 16, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(tree, hf_gcsna_iwsidValue, tvb, bit_offset, 16, ENC_BIG_ENDIAN);
         bit_offset += 16;
     }
 
-    proto_tree_add_bits_item(subtree, hf_gcsna_ackRequired, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(tree, hf_gcsna_ackRequired, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset++;
-    proto_tree_add_bits_item(subtree, hf_gcsna_stopDupDetect, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(tree, hf_gcsna_stopDupDetect, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
     bit_offset++;
-    proto_tree_add_bits_item(subtree, hf_gcsna_msgSequence, tvb, bit_offset, 6, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(tree, hf_gcsna_msgSequence, tvb, bit_offset, 6, ENC_BIG_ENDIAN);
     bit_offset += 6;
 
-    proto_tree_add_bits_item(subtree, hf_gcsna_NumTLACEncapsulated1xL3PDU, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(tree, hf_gcsna_NumTLACEncapsulated1xL3PDU, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
     bit_offset += 2;
 
     /* The sender shall include reserved bits to make this message integral number of octets up to TLACEncapsulated1xL3PDU field.
-     * The sender 5 shall set all bits in this field to '0'. The receiver shall ignore this field.
+     * The sender shall set all bits in this field to '0'. The receiver shall ignore this field.
      */
 
      /* calculate number of reserved bits */
     num_res = 8 - (bit_offset & 0x3);
-    proto_tree_add_bits_item(subtree, hf_gcsna_tlacReserved, tvb, bit_offset, num_res, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(tree, hf_gcsna_tlacReserved, tvb, bit_offset, num_res, ENC_BIG_ENDIAN);
     bit_offset = bit_offset + num_res;
     *offset = bit_offset >> 3;
 
-    proto_tree_add_item(subtree, hf_gcsna_tlacEncapsulated, tvb, *offset, -1, ENC_NA);
+    proto_tree_add_item(tree, hf_gcsna_tlacEncapsulated, tvb, *offset, -1, ENC_NA);
 
     if (cdma2k_handle) {
         new_tvb = tvb_new_subset_length_caplen(tvb, *offset, -1, -1);
@@ -376,9 +382,9 @@ proto_register_gcsna(void)
             { &hf_gcsna_stopDupDetect,
             { "Stop Dup Detect", "gcsna.stopDupDetect", FT_UINT8, BASE_HEX_DEC,NULL, 0x0, NULL, HFILL } },
             { &hf_gcsna_ackRequired,
-            { "Ack Required", "gcsna.ackRequired", FT_UINT8, BASE_HEX_DEC,NULL, 0x0, NULL, HFILL } },
+            { "Ack Required", "gcsna.ackRequired", FT_UINT8, BASE_DEC,VALS(gcsna_tru_false_values), 0x0, NULL, HFILL } },
             { &hf_gcsna_altGCSNAOptionIncluded,
-            { "AlternativeGCSNAOption_INCL", "gcsna.altGCSNAOptionIncluded", FT_UINT8, BASE_HEX_DEC,NULL, 0x0, NULL, HFILL } },
+            { "AlternativeGCSNAOption_INCL", "gcsna.altGCSNAOptionIncluded", FT_UINT8, BASE_DEC,VALS(gcsna_tru_false_values), 0x0, NULL, HFILL } },
             { &hf_gcsna_altGCSNAOption,
             { "Alternate GCSNA Option", "gcsna.altGCSNAOption", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
             { &hf_gcsna_gcsna_option,
@@ -388,7 +394,7 @@ proto_register_gcsna(void)
             { &hf_gcsna_iwsidValue,
             { "IWS_ID", "gcsna.iwsidValue", FT_UINT16, BASE_HEX_DEC,NULL, 0x0, NULL, HFILL } },
             { &hf_gcsna_iwsidIncluded,
-            { "IWSIDIncl", "gcsna.iwsidIncluded", FT_UINT8, BASE_HEX_DEC,NULL, 0x0, NULL, HFILL } },
+            { "IWSIDIncl", "gcsna.iwsidIncluded", FT_UINT8, BASE_DEC,VALS(gcsna_tru_false_values), 0x0, NULL, HFILL } },
             { &hf_gcsna_gcsnaClassRev,
             { "GCSNA Class revision", "gcsna.ClassRev", FT_UINT8, BASE_HEX_DEC,NULL, 0x0, NULL, HFILL } },
             { &hf_gcsna_gcsnaClass,
