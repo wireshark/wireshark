@@ -67,6 +67,9 @@ static int hf_cdma2k_tlac_Header_Record_MsId_Type = -1;
 static int hf_cdma2k_tlac_Header_Record_Ext_MsId_Type = -1;
 static int hf_cdma2k_tlac_Header_Record_MsId_Length = -1;
 static int hf_cdma2k_tlac_Header_Record_Imsi_M_S1 = -1;
+static int hf_cdma2k_tlac_Header_Record_Imsi_M_S1_sec_3_dig = -1;
+static int hf_cdma2k_tlac_Header_Record_Imsi_M_S1_thousand_dig = -1;
+static int hf_cdma2k_tlac_Header_Record_Imsi_M_S1_last_3_dig = -1;
 static int hf_cdma2k_tlac_Header_Record_Imsi_M_S2 = -1;
 static int hf_cdma2k_tlac_Header_Record_Esn = -1;
 static int hf_cdma2k_tlac_Header_Record_Imsi_Class = -1;
@@ -520,6 +523,7 @@ static gint ett_cdma2k_msghdr = -1;
 static gint ett_cdma2k_subtree = -1;
 static gint ett_cdma2k_subtree1 = -1;
 static gint ett_cdma2k_subtree2 = -1;
+static guint ett_cdma2k_m_s1 = -1;
 
 
 #define CDMA2KRegIndMsg       0x01
@@ -671,31 +675,93 @@ static const value_string Chari_Parm_Types[] = {
 /* CDMA2K Page Req Service Option Types */
 static const value_string Page_Req_Service_Option_Types[] = {
     { 0x0000, "INVALID" },
-    { 0x0001, "VOICE" },
-    { 0x0002, "LOOPBACK" },
-    { 0x0003, "ENHANCED_VOICE" },
-    { 0x0004, "ASYNC_DATA" },
-    { 0x0005, "GROUP3_FAX" },
-    { 0x0006, "SMS" },
-    { 0x0008, "CDPD_PPP" },
-    { 0x0009, "144LOOPBACK" },
-    { 0x000c, "144ASYNC_DATA" },
-    { 0x000d, "144GROUP3_FAX" },
-    { 0x000e, "SMS_RATESET2" },
-    { 0x0011, "IS733_13K" },
-    { 0x0012, "OTAPA1" },
-    { 0x0013, "OTAPA2" },
-    { 0x0014, "ANALOG_FAX_IS707" },
-    { 0x0015, "144ANALOG_FAX_IS707" },
-    { 0x0021, "PACKET_PPP" },
-    { 0x0023, "LSE_RATESET1" },
-    { 0x0024, "LSE_RATESET2" },
-    { 0x0038, "SMV" },
-    { 0x0044, "EVRCB" },
-    { 0x0049, "EVRC_NB" },
-    { 0x004a, "EMARKOV" },
-    { 0x1004, "ASYNC_DATA_IS707" },
-    { 0x1005, "GROUP3_FAX_IS707" },
+    { 1, "Basic Variable Rate Voice Service (8 kbps)" },
+    { 2, "Mobile Station Loopback (8 kbps)" },
+    { 3, "Enhanced Variable Rate Voice Service (8 kbps)" },
+    { 4, "Asynchronous Data Service (9.6 kbps)" },
+    { 5, "Group 3 Facsimile (9.6 kbps)" },
+    { 6, "Short Message Services (Rate Set 1)" },
+    { 7, "Packet Data Service: Internet or ISO Protocol Stack (9.6 kbps)" },
+    { 8, "Packet Data Service: CDPD Protocol Stack (9.6 kbps)" },
+    { 9, "Mobile Station Loopback (13 kbps)" },
+    {10, "None STU-III Transparent Service" },
+    {11, "None STU-III Non-Transparent Service" },
+    {12, "Asynchronous Data Service (14.4 or 9.6 kbps)" },
+    {13, "Group 3 Facsimile (14.4 or 9.6 kbps)" },
+    {14, "Short Message Services (Rate Set 2)" },
+    {15, "Packet Data Service: Internet or ISO Protocol Stack (14.4 kbps)" },
+    {16, "Packet Data Service: CDPD Protocol Stack (14.4 kbps)" },
+    {17, "High Rate Voice Service (13 kbps)" },
+    {18, "Over-the-Air Parameter Administration (Rate Set 1)" },
+    {19, "Over-the-Air Parameter Administration (Rate Set 2)" },
+    {20, "Group 3 Analog Facsimile (Rate Set 1)" },
+    {21, "Group 3 Analog Facsimile (Rate Set 2) " },
+    {22, "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS1 forward, RS1 reverse)" },
+    {23, "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS1 forward, RS2 reverse)" },
+
+    // page 3-3 (19)
+    {24, "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS2 forward, RS1 reverse)" },
+    {25, "High Speed Packet Data Service: Internet or ISO Protocol Stack (RS2 forward, RS2 reverse)" },
+    {26, "High Speed Packet Data Service: CDPD Protocol Stack (RS1 forward, RS1 reverse)" },
+    {27, "High Speed Packet Data Service: CDPD Protocol Stack (RS1 forward, RS2 reverse)" },
+    {28, "High Speed Packet Data Service: CDPD Protocol Stack (RS2 forward, RS1 reverse)" },
+    {29, "High Speed Packet Data Service: CDPD Protocol Stack (RS2 forward, RS2 reverse)" },
+    {30, "Supplemental Channel Loopback Test for Rate Set 1" },
+    {31, "Supplemental Channel Loopback Test for Rate Set 2" },
+    {32, "Test Data Service Option (TDSO)" },
+    {33, "cdma2000 High Speed Packet Data Service, Internet or ISO Protocol Stack" },
+    {34, "cdma2000 High Speed Packet Data Service, CDPD Protocol Stack" },
+    {35, "Location Services, Rate Set 1 (9.6 kbps)" },
+    {36, "Location Services, Rate Set 2 (14.4 kbps)" },
+    {37, "ISDN Interworking Service (64 kbps)" },
+    {38, "GSM Voice" },
+    {39, "GSM Circuit Data" },
+    {40, "GSM Packet Data" },
+    {41, "GSM Short Message Service" },
+    //42 - 53 None Reserved for MC-MAP standard service options" },
+    {54, "Markov Service Option (MSO)" },
+    {55, "Loopback Service Option (LSO)" },
+    {56, "Selectable Mode Vocoder" },
+
+    // page 3-4 (20)
+    {57, "32 kbps Circuit Video Conferencing" },
+    {58, "64 kbps Circuit Video Conferencing" },
+    {59, "HRPD Packet Data Service" },
+    {60, "Link Layer Assisted Robust Header Compression (LLA ROHC) - Header Removal" },
+    {61, "Link Layer Assisted Robust Header Compression (LLA ROHC) - Header Compression" },
+    {62, "Source-Controlled Variable-Rate Multimode Wideband Speech Codec (VMR-WB) Rate Set 2" },
+    {63, "Source-Controlled Variable-Rate Multimode Wideband Speech Codec (VMR-WB) Rate Set 1" },
+    {64, "HRPD auxiliary Packet Data Service instance" },
+    {65, "cdma2000/GPRS Inter-working" },
+    {66, "cdma2000 High Speed Packet Data Service,Internet or ISO Protocol Stack" },
+    {67, "HRPD Packet Data IP Service where Higher Layer Protocol is IP or ROHC" },
+    {68, "Enhanced Variable Rate Voice Service (EVRC-B)" },
+    {69, "HRPD Packet Data Service, which when used in paging over the 1x air interface, a page response is required" },
+    {70, "Enhanced Variable Rate Voice Service (EVRC-WB)" },
+    {71, "HRPD Packet Data Service for altPPP" },
+    {72, "HRPD auxiliary Packet Data IP Service with PDN multiplexing header" },
+
+    // page 3-5 (21)
+    {73, "Enhanced Variable Rate Voice Service (EVRC-NW:EVRC-WB with NB capacity operating points and DTX)" },
+    {74, "Flexible Markov Service Option" },
+    {75, "Enhanced Loopback Service Option" },
+    //76 - 4099 None Reserved for standard service options.
+    {4100, "Asynchronous Data Service, Revision 1 (9.6 or 14.4 kbps)" },
+    {4101, "Group 3 Facsimile, Revision 1 (9.6 or 14.4 kbps)" },
+    //4102 None Reserved for standard service options.
+   {4103, "Packet Data Service: Internet or ISO Protocol Stack, Revision 1 (9.6 or 14.4 kbps)" },
+   {4104, "Packet Data Service: CDPD Protocol Stack, Revision 1 (9.6 or 14.4 kbps)" },
+
+
+   // page 3-6 (22)
+   {32760, "Identifies service reference identifier 0" },
+   {32761, "Identifies service reference identifier 1" },
+   {32762, "Identifies service reference identifier 2" },
+   {32763, "Identifies service reference identifier 3" },
+   {32764, "Identifies service reference identifier 4" },
+   {32765, "Identifies service reference identifier 5" },
+   {32766, "Identifies service reference identifier 6" },
+   {32767, "Identifies service reference identifier 7" },
     { 0x8000, "QCOMM_13KVOICE" },
     { 0x8001, "QCOMM_IS96VOICE" },
     { 0x8003, "QCOMM_DATA_SERVICES" },
@@ -1076,6 +1142,34 @@ static const value_string Cadence_Types[] = {
     { 2, "Device Other Than Acoustic Earpiece / Similar Device(Ex : Ringer)" },
     { 3, "Reserved" },
     { 0, NULL },
+};
+
+static const value_string l3dpu_ORM_PRM_req_mode_values[] = {
+    { /* 000 */ 0x00, "Reserved" },
+    { /* 001 */ 0x01, "CDMA only" },
+    { /* 010 */ 0x02, "Reserved (Previously: Wide analog only)" },
+    { /* 011 */ 0x03, "Reserved (Previously: Either wide analog or CDMA only)" },
+    { /* 100 */ 0x04, "Reserved (Previously: Narrow analog only)" },
+    { /* 101 */ 0x05, "Reserved (Previously: Either narrow analog or CDMA only)" },
+    { /* 110 */ 0x06, "Reserved (Previously: Either narrow analog or wide analog only)" },
+    { /* 111 */ 0x07, "Reserved (Previously: Narrow analog or wide analog or CDMA)" },
+
+    {0x00, NULL }
+};
+
+// Table 2.7.1.3.2.4-5. Encryption Algorithms Supported , page 858 (2-738)
+static const value_string l3dpu_ORM_encryption_algo_values[] = {
+    {/*0000*/ 0x00, "Basic encryption supported" },
+    {/*0001*/ 0x01, "Basic and Enhanced encryption supported" },
+    {0x00, NULL }
+};
+
+static const value_string l3dpu_ORM_ch_ind_values[] = {
+    {/*00*/ 0x00, "Refer to EXT_CH_IND" },
+    {/*01*/ 0x01, "Fundamental Channel" },
+    {/*10*/ 0x02, "Dedicated Control Channel" },
+    {/*11*/ 0x03, "Fundamental Channel and Dedicated Control Channel" },
+    {0x00, NULL }
 };
 
 /* Decoder for all the information elements of CDMA2K Message Type */
@@ -4148,74 +4242,82 @@ static void cdma2k_message_AUTH_FIELDS(proto_item *item,tvbuff_t *tvb,proto_tree
 
 
 /* Helper function to decode Addressing Field Parameters */
-static void cdma2k_message_ADDR_FIELDS(proto_item *item,tvbuff_t *tvb,proto_tree *subtree,guint16 *l_offset, guint16 headerRecLen)
+static void cdma2k_message_ADDR_FIELDS(proto_item *item,tvbuff_t *tvb,proto_tree *tree,guint16 *l_offset, guint16 headerRecLen)
 {
+    proto_item* ti;
+    proto_tree *sub_tree;
     guint16 msIdType = -1, extMsIdType = -1, msIdLen = -1, endOffset = -1;
 
     endOffset = *l_offset + (headerRecLen*8);
-    proto_tree_add_bits_item(subtree, hf_cdma2k_tlac_Header_Record_MsId_Type, tvb, *l_offset, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(tree, hf_cdma2k_tlac_Header_Record_MsId_Type, tvb, *l_offset, 3, ENC_BIG_ENDIAN);
     msIdType = tvb_get_bits8(tvb,*l_offset, 3);
     *l_offset+=3;
 
     if(msIdType == 4)
     {
-        proto_tree_add_bits_item(subtree, hf_cdma2k_tlac_Header_Record_Ext_MsId_Type, tvb, *l_offset, 3, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(tree, hf_cdma2k_tlac_Header_Record_Ext_MsId_Type, tvb, *l_offset, 3, ENC_BIG_ENDIAN);
         extMsIdType = tvb_get_bits8(tvb,*l_offset, 3);
         *l_offset+=3;
     }
 
-    proto_tree_add_bits_item(subtree, hf_cdma2k_tlac_Header_Record_MsId_Length, tvb, *l_offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(tree, hf_cdma2k_tlac_Header_Record_MsId_Length, tvb, *l_offset, 4, ENC_BIG_ENDIAN);
     msIdLen = tvb_get_bits8(tvb,*l_offset, 4);
     *l_offset+=4;
 
     switch(msIdType)
     {
         case 0:
-            proto_tree_add_bits_item(subtree, hf_cdma2k_tlac_Header_Record_Imsi_M_S1, tvb, *l_offset, 24, ENC_BIG_ENDIAN);
-            *l_offset+=24;
-            proto_tree_add_bits_item(subtree, hf_cdma2k_tlac_Header_Record_Imsi_M_S2, tvb, *l_offset, 10, ENC_BIG_ENDIAN);
+            ti = proto_tree_add_bits_item(tree, hf_cdma2k_tlac_Header_Record_Imsi_M_S1, tvb, *l_offset, 24, ENC_BIG_ENDIAN);
+            sub_tree = proto_item_add_subtree(ti, ett_cdma2k_m_s1);
+            proto_tree_add_bits_item(sub_tree, hf_cdma2k_tlac_Header_Record_Imsi_M_S1_sec_3_dig, tvb, *l_offset, 10, ENC_BIG_ENDIAN);
+            *l_offset += 10;
+            proto_tree_add_bits_item(sub_tree, hf_cdma2k_tlac_Header_Record_Imsi_M_S1_thousand_dig, tvb, *l_offset, 4, ENC_BIG_ENDIAN);
+            *l_offset+=4;
+            proto_tree_add_bits_item(sub_tree, hf_cdma2k_tlac_Header_Record_Imsi_M_S1_last_3_dig, tvb, *l_offset, 10, ENC_BIG_ENDIAN);
+            *l_offset += 10;
+            proto_tree_add_bits_item(tree, hf_cdma2k_tlac_Header_Record_Imsi_M_S2, tvb, *l_offset, 10, ENC_BIG_ENDIAN);
             *l_offset+=10;
-            proto_tree_add_bits_item(subtree, hf_cdma2k_tlac_Header_Record_Esn, tvb, *l_offset, 32, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(tree, hf_cdma2k_tlac_Header_Record_Esn, tvb, *l_offset, 32, ENC_BIG_ENDIAN);
             *l_offset+=32;
-            proto_tree_add_bits_item(subtree, hf_cdma2k_tlac_Header_Record_Reserved, tvb, *l_offset, 6, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(tree, hf_cdma2k_tlac_Header_Record_Reserved, tvb, *l_offset, 6, ENC_BIG_ENDIAN);
             *l_offset+=6;
             break;
 
         case 1:
-            proto_tree_add_bits_item(subtree, hf_cdma2k_tlac_Header_Record_Esn, tvb, *l_offset, 32, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(tree, hf_cdma2k_tlac_Header_Record_Esn, tvb, *l_offset, 32, ENC_BIG_ENDIAN);
             *l_offset+=32;
             break;
 
         case 2:
-            cdma2k_message_IMSI_CLASS_SUBFIELDS(item, tvb, subtree,l_offset);
+            cdma2k_message_IMSI_CLASS_SUBFIELDS(item, tvb, tree,l_offset);
             break;
 
         case 3:
-            proto_tree_add_bits_item(subtree, hf_cdma2k_tlac_Header_Record_Esn, tvb, *l_offset, 32, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(tree, hf_cdma2k_tlac_Header_Record_Esn, tvb, *l_offset, 32, ENC_BIG_ENDIAN);
             *l_offset+=32;
-            cdma2k_message_IMSI_CLASS_SUBFIELDS(item, tvb, subtree,l_offset);
+            cdma2k_message_IMSI_CLASS_SUBFIELDS(item, tvb, tree,l_offset);
             break;
 
         case 4:
             switch (extMsIdType)
             {
                 case 0:
-                    proto_tree_add_bits_item(subtree, hf_cdma2k_tlac_Header_Record_Ext_MsId_MeId, tvb, *l_offset, 56, ENC_BIG_ENDIAN);
+                    proto_tree_add_bits_item(tree, hf_cdma2k_tlac_Header_Record_Ext_MsId_MeId, tvb, *l_offset, 56, ENC_BIG_ENDIAN);
                     *l_offset+=56;
                     break;
 
                 case 1:
-                    proto_tree_add_bits_item(subtree, hf_cdma2k_tlac_Header_Record_Ext_MsId_MeId, tvb, *l_offset, 56, ENC_BIG_ENDIAN);
+                    proto_tree_add_bits_item(tree, hf_cdma2k_tlac_Header_Record_Ext_MsId_MeId, tvb, *l_offset, 56, ENC_BIG_ENDIAN);
                     *l_offset+=56;
-                    cdma2k_message_IMSI_CLASS_SUBFIELDS(item, tvb, subtree,l_offset);
+                    cdma2k_message_IMSI_CLASS_SUBFIELDS(item, tvb, tree,l_offset);
                     break;
 
                 case 2:
-                    proto_tree_add_bits_item(subtree, hf_cdma2k_tlac_Header_Record_Esn, tvb, *l_offset, 32, ENC_BIG_ENDIAN);
+                    proto_tree_add_bits_item(tree, hf_cdma2k_tlac_Header_Record_Esn, tvb, *l_offset, 32, ENC_BIG_ENDIAN);
                     *l_offset+=32;
-                    proto_tree_add_bits_item(subtree, hf_cdma2k_tlac_Header_Record_Ext_MsId_MeId, tvb, *l_offset, 56, ENC_BIG_ENDIAN);
+                    proto_tree_add_bits_item(tree, hf_cdma2k_tlac_Header_Record_Ext_MsId_MeId, tvb, *l_offset, 56, ENC_BIG_ENDIAN);
                     *l_offset+=56;
-                    cdma2k_message_IMSI_CLASS_SUBFIELDS(item, tvb, subtree,l_offset);
+                    cdma2k_message_IMSI_CLASS_SUBFIELDS(item, tvb, tree,l_offset);
                     break;
 
                 default:
@@ -4227,14 +4329,14 @@ static void cdma2k_message_ADDR_FIELDS(proto_item *item,tvbuff_t *tvb,proto_tree
         case 5:
             if(msIdLen > 4)
             {
-                proto_tree_add_bits_item(subtree, hf_cdma2k_tlac_Header_Record_Tmsi_Zone, tvb, *l_offset, (msIdLen-4)*8, ENC_BIG_ENDIAN);
+                proto_tree_add_bits_item(tree, hf_cdma2k_tlac_Header_Record_Tmsi_Zone, tvb, *l_offset, (msIdLen-4)*8, ENC_BIG_ENDIAN);
                 *l_offset+=((msIdLen-4)*8);
-                proto_tree_add_bits_item(subtree, hf_cdma2k_tlac_Header_Record_Tmsi_Code_Addr, tvb, *l_offset, 32, ENC_BIG_ENDIAN);
+                proto_tree_add_bits_item(tree, hf_cdma2k_tlac_Header_Record_Tmsi_Code_Addr, tvb, *l_offset, 32, ENC_BIG_ENDIAN);
                 *l_offset+=32;
             }
             else
             {
-                proto_tree_add_bits_item(subtree, hf_cdma2k_tlac_Header_Record_Tmsi_Code_Addr, tvb, *l_offset, msIdLen*8, ENC_BIG_ENDIAN);
+                proto_tree_add_bits_item(tree, hf_cdma2k_tlac_Header_Record_Tmsi_Code_Addr, tvb, *l_offset, msIdLen*8, ENC_BIG_ENDIAN);
                 *l_offset+=(msIdLen*8);
             }
             break;
@@ -4247,7 +4349,7 @@ static void cdma2k_message_ADDR_FIELDS(proto_item *item,tvbuff_t *tvb,proto_tree
     /*Skip bits till Header Record Length*/
     if(*l_offset < endOffset)
     {
-        proto_tree_add_bits_item(subtree, hf_cdma2k_tlac_Header_Record_Reserved, tvb, *l_offset, (endOffset-*l_offset), ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(tree, hf_cdma2k_tlac_Header_Record_Reserved, tvb, *l_offset, (endOffset-*l_offset), ENC_BIG_ENDIAN);
         *l_offset+=(endOffset-*l_offset);
     }
     else if(*l_offset > endOffset)
@@ -4436,7 +4538,13 @@ void proto_register_cdma2k(void)
             { &hf_cdma2k_tlac_Header_Record_MsId_Length,
             { "MsId Length", "cdma2k.tlacHeaderRecordMsIdLength", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
             { &hf_cdma2k_tlac_Header_Record_Imsi_M_S1,
-            { "Imsi M S1", "cdma2k.tlacHeaderRecordImsiMS1", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
+            { "Imsi M S1", "cdma2k.tlacHeaderRecordImsiMS1", FT_UINT24, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
+            { &hf_cdma2k_tlac_Header_Record_Imsi_M_S1_sec_3_dig,
+            { "Second 3 digits", "cdma2k.tlacHeaderRecordImsiMS1sec_3_dig", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+            { &hf_cdma2k_tlac_Header_Record_Imsi_M_S1_thousand_dig,
+            { "Thousands Digit", "cdma2k.tlacHeaderRecordImsiMS1thousand_dig", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+            { &hf_cdma2k_tlac_Header_Record_Imsi_M_S1_last_3_dig,
+            { "Last 3 digits", "cdma2k.tlacHeaderRecordImsiMS1last_3_dig", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL } },
             { &hf_cdma2k_tlac_Header_Record_Imsi_M_S2,
             { "Imsi M S2", "cdma2k.tlacHeaderRecordImsiMS2", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
             { &hf_cdma2k_tlac_Header_Record_Esn,
@@ -4450,7 +4558,7 @@ void proto_register_cdma2k(void)
             { &hf_cdma2k_tlac_Header_Record_Imsi_S2,
             { "Imsi S2", "cdma2k.tlacHeaderRecordImsiS2", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
             { &hf_cdma2k_tlac_Header_Record_Imsi_S1,
-            { "Imsi S1", "cdma2k.tlacHeaderRecordImsiS1", FT_UINT32, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
+            { "Imsi S1", "cdma2k.tlacHeaderRecordImsiS1", FT_UINT24, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
             { &hf_cdma2k_tlac_Header_Record_Imsi_11_12,
             { "Imsi 11 12", "cdma2k.tlacHeaderRecordImsi1112", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
             { &hf_cdma2k_tlac_Header_Record_MCC,
@@ -4812,7 +4920,7 @@ void proto_register_cdma2k(void)
             { &hf_cdma2k_Pc_Action_Time,
             { "Pwr Cntl Action Time", "cdma2k.Pc_Action_Time", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
             { &hf_cdma2k_Ch_Ind,
-            { "Channel Indicator", "cdma2k.Ch_Ind", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
+            { "Channel Indicator", "cdma2k.Ch_Ind", FT_UINT8, BASE_HEX_DEC, VALS(l3dpu_ORM_ch_ind_values), 0x0, NULL, HFILL } },
             { &hf_cdma2k_Active_Set_Rec_Len,
             { "Active Set Rec Length", "cdma2k.Active_Set_Rec_Len", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
             { &hf_cdma2k_Active_Set_Rec_Fields,
@@ -5122,7 +5230,7 @@ void proto_register_cdma2k(void)
             { &hf_cdma2k_Call_Waiting_Ind,
             { "Call Waiting Ind", "cdma2k.Call_Waiting_Ind", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
             { &hf_cdma2k_Request_Mode,
-            { "Request Mode", "cdma2k.Request_Mode", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
+            { "Request Mode", "cdma2k.Request_Mode", FT_UINT8, BASE_DEC, VALS(l3dpu_ORM_PRM_req_mode_values), 0x0, NULL, HFILL } },
             { &hf_cdma2k_Special_Service,
             { "Special Service", "cdma2k.Special_Service", FT_BOOLEAN, 8, NULL, 0x0, NULL, HFILL } },
             { &hf_cdma2k_pm,
@@ -5138,13 +5246,13 @@ void proto_register_cdma2k(void)
             {  &hf_cdma2k_More_Records,
             { "More Records", "cdma2k.More_Records", FT_BOOLEAN, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
             {  &hf_cdma2k_encryption_supported,
-            { "Encryption Supported", "cdma2k.Encryption_Supported", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
+            { "Encryption Supported", "cdma2k.Encryption_Supported", FT_UINT8, BASE_DEC, VALS(l3dpu_ORM_encryption_algo_values), 0x0, NULL, HFILL } },
             {  &hf_cdma2k_Paca_Supported,
             { "Paca Supported", "cdma2k.Paca_Supported", FT_BOOLEAN, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
             {  &hf_cdma2k_num_alt_so,
             { "NUM ALT SO", "cdma2k.NUM_ALT_SO", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
             {  &hf_cdma2k_Alt_So,
-            { "Alt So", "cdma2k.Alt_So", FT_UINT16, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
+            { "Alt So", "cdma2k.Alt_So", FT_UINT16, BASE_HEX_DEC, VALS(Page_Req_Service_Option_Types), 0x0, NULL, HFILL } },
             {  &hf_cdma2k_DRS,
             { "Data ready to send", "cdma2k.DRS", FT_BOOLEAN, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
             {  &hf_cdma2k_SR_ID,
@@ -5263,7 +5371,8 @@ void proto_register_cdma2k(void)
         &ett_cdma2k_msghdr,
             &ett_cdma2k_subtree,
             &ett_cdma2k_subtree1,
-            &ett_cdma2k_subtree2
+            &ett_cdma2k_subtree2,
+            &ett_cdma2k_m_s1
     };
 
     static ei_register_info ei[] = {
