@@ -685,7 +685,7 @@ format_uri(wmem_allocator_t* allocator, const GByteArray *bytes, const gchar *re
     static const guchar *reserved_def = ":/?#[]@!$&'()*+,;= ";
     const guchar *reserved = reserved_def;
     guint8 c;
-    guint column, i;
+    guint byte_index, column, i;
     gboolean is_reserved = FALSE;
 
     if (! bytes)
@@ -694,7 +694,8 @@ format_uri(wmem_allocator_t* allocator, const GByteArray *bytes, const gchar *re
     if (reserved_chars)
         reserved = reserved_chars;
 
-    for (column = 0; column < bytes->len; column++) {
+    column = 0;
+    for (byte_index = 0; byte_index < bytes->len; byte_index++) {
         /*
          * Is there enough room for this character, if it expands to
          * a percent plus 2 hex digits (which is the most it can
@@ -710,25 +711,28 @@ format_uri(wmem_allocator_t* allocator, const GByteArray *bytes, const gchar *re
             fmtbuf_len *= 2;
             fmtbuf = (gchar *)wmem_realloc(allocator, fmtbuf, fmtbuf_len);
         }
-        c = bytes->data[column];
+        c = bytes->data[byte_index];
 
+        is_reserved = FALSE;
         if (!g_ascii_isprint(c) || c == '%') {
             is_reserved = TRUE;
-        }
-
-        for (i = 0; reserved[i]; i++) {
-            if (c == reserved[i])
-                is_reserved = TRUE;
+        } else {
+            for (i = 0; reserved[i]; i++) {
+                if (c == reserved[i])
+                    is_reserved = TRUE;
+            }
         }
 
         if (!is_reserved) {
             fmtbuf[column] = c;
+            column++;
         } else {
             fmtbuf[column] = '%';
             column++;
             fmtbuf[column] = hex[c >> 4];
             column++;
             fmtbuf[column] = hex[c & 0xF];
+            column++;
         }
     }
     fmtbuf[column] = '\0';
