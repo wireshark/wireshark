@@ -351,8 +351,8 @@ public:
         WlanStationTreeWidgetItem* receiver_ws_ti = NULL;
         foreach (QTreeWidgetItem *cur_ti, stations_) {
             WlanStationTreeWidgetItem *cur_ws_ti = dynamic_cast<WlanStationTreeWidgetItem *>(cur_ti);
-            if (cur_ws_ti->isMatch(&wlan_hdr->src)) sender_ws_ti = cur_ws_ti;
-            if (cur_ws_ti->isMatch(&wlan_hdr->dst)) receiver_ws_ti = cur_ws_ti;
+            if (cur_ws_ti && (cur_ws_ti->isMatch(&wlan_hdr->src))) sender_ws_ti = cur_ws_ti;
+            if (cur_ws_ti && (cur_ws_ti->isMatch(&wlan_hdr->dst))) receiver_ws_ti = cur_ws_ti;
             if (sender_ws_ti && receiver_ws_ti) break;
         }
         if (!sender_ws_ti) {
