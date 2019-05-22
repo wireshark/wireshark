@@ -109,6 +109,7 @@ static int hf_cdma2k_GenPageReqMsg = -1;
 static int hf_cdma2k_AlertWithInfoMsg = -1;
 static int hf_cdma2k_UhdmMsg = -1;
 static int hf_cdma2k_MeIdUhdmMsg = -1;
+static int hf_cdma2k_ext_scm_ind = -1;
 
 /* Registration Msg Parms */
 static int hf_cdma2k_Reg_Type = -1;
@@ -116,7 +117,6 @@ static int hf_cdma2k_Slot_Cycle_Index = -1;
 static int hf_cdma2k_Mob_P_Rev = -1;
 static int hf_cdma2k_Ext_Scm = -1;
 static int hf_cdma2k_Sloted_Mode = -1;
-static int hf_cdma2k_Scm = -1;
 static int hf_cdma2k_Mob_Term = -1;
 static int hf_cdma2k_Return_Cause = -1;
 static int hf_cdma2k_Qpch_Supported = -1;
@@ -516,6 +516,13 @@ static int hf_cdma2k_Cmea = -1;
 static int hf_cdma2k_Ecmea = -1;
 static int hf_cdma2k_Rea = -1;
 
+static int hf_cdma2k_scm_dual_mode = -1;
+static int hf_cdma2k_scm_slotted_class = -1;
+static int hf_cdma2k_scm_meid_sup = -1;
+static int hf_cdma2k_scm_25mhz_bw = -1;
+static int hf_cdma2k_scm_trans = -1;
+static int hf_cdma2k_scm_pow_class = -1;
+
 static expert_field ei_cdma2k_error = EI_INIT;
 
 /* Toggle sub-tree items */
@@ -524,7 +531,7 @@ static gint ett_cdma2k_subtree = -1;
 static gint ett_cdma2k_subtree1 = -1;
 static gint ett_cdma2k_subtree2 = -1;
 static guint ett_cdma2k_m_s1 = -1;
-
+static guint ett_cdma2000_scm = -1;
 
 #define CDMA2KRegIndMsg       0x01
 #define CDMA2KOrderIndMsg     0x02
@@ -1326,6 +1333,67 @@ static void cdma2k_message_decode(proto_item *item _U_, tvbuff_t *tvb,proto_tree
 
 }
 
+/* 3GPP2 C.S0005-E v3.0 Table 2.3.3-1. Station Class Mark */
+
+/* SCM Fields values */
+static const value_string l3dpu_SCM_field_values7[] = {
+    { 0x00, "Other bands" },
+    { 0x01, "Band Classes 1,4,14" },
+    { 0x00, NULL }
+};
+
+const value_string l3dpu_SCM_field_values6[] = {
+    { 0x00, "CDMA Only" },
+    { 0x01, "?" },
+    { 0x00, NULL }
+};
+
+const value_string l3dpu_SCM_field_values5[] = {
+    { 0x00, "Non-Slotted" },
+    { 0x01, "Slotted" },
+    { 0x00, NULL }
+};
+
+const value_string l3dpu_SCM_field_values4[] = {
+    { 0x00, "MEID not configured" },
+    { 0x01, "MEID configured" },
+    { 0x00, NULL }
+};
+
+
+const value_string l3dpu_SCM_field_values2[] = {
+    { 0x00, "Continuous" },
+    { 0x01, "Discontinuous" },
+    { 0x00, NULL }
+};
+
+static void
+dissect_cdma2000_scm(tvbuff_t* tvb, proto_tree* tree, guint bit_offset)
+{
+    proto_tree *sub_tree = proto_tree_add_subtree(tree, tvb, bit_offset >> 3, 2, ett_cdma2000_scm, NULL, "SCM - Station Class Mark");
+
+    /* Extended SCM Indicator bit 7 */
+    proto_tree_add_bits_item(sub_tree, hf_cdma2k_ext_scm_ind, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset++;
+    /* Dual Mode Bit 6 */
+    proto_tree_add_bits_item(sub_tree, hf_cdma2k_scm_dual_mode, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset++;
+    /* Slotted Class Bit 5*/
+    proto_tree_add_bits_item(sub_tree, hf_cdma2k_scm_slotted_class, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset++;
+    /* MEID support indicator bit 4 */
+    proto_tree_add_bits_item(sub_tree, hf_cdma2k_scm_meid_sup, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset++;
+    /* 25 MHz Bandwidth Bit 3 */
+    proto_tree_add_bits_item(sub_tree, hf_cdma2k_scm_25mhz_bw, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset++;
+    /* Transmission Bit 2 */
+    proto_tree_add_bits_item(sub_tree, hf_cdma2k_scm_trans, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
+    bit_offset++;
+    /* Power Class for Band Class 0 Analog Operation Bit 1 - 0 */
+    proto_tree_add_bits_item(sub_tree, hf_cdma2k_scm_pow_class, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
+
+}
 
 static void cdma2k_message_REGISTRATION(proto_item *item, tvbuff_t *tvb, proto_tree *tree, guint *offset, guint16 oneXPrev)
 {
@@ -1357,7 +1425,7 @@ static void cdma2k_message_REGISTRATION(proto_item *item, tvbuff_t *tvb, proto_t
     }
     else
     {
-        proto_tree_add_bits_item(subtree, hf_cdma2k_Scm, tvb, *offset*8 + 7,8, ENC_BIG_ENDIAN);
+        dissect_cdma2000_scm(tvb, subtree, *offset * 8 + 7);
         *offset+=1;
     }
 
@@ -2106,7 +2174,7 @@ static void cdma2k_message_ORIGINATION(proto_item *item,tvbuff_t *tvb,proto_tree
     }
     else
     {
-        proto_tree_add_bits_item(subtree, hf_cdma2k_Scm, tvb, l_offset, 8, ENC_BIG_ENDIAN);
+        dissect_cdma2000_scm(tvb, subtree, l_offset);
         l_offset +=8;
     }
 
@@ -2634,7 +2702,7 @@ static void cdma2k_message_PAGE_RESPONSE(proto_item *item, tvbuff_t *tvb,proto_t
 
     prevInUse = ((oneXPrev >= mob_P_Rev_Rx) ? mob_P_Rev_Rx : oneXPrev);
 
-    proto_tree_add_bits_item(subtree, hf_cdma2k_Scm, tvb, l_offset, 8, ENC_BIG_ENDIAN);
+    dissect_cdma2000_scm(tvb, subtree, l_offset);
     l_offset+=8;
 
     proto_tree_add_bits_item(subtree, hf_cdma2k_Request_Mode, tvb, l_offset, 3, ENC_BIG_ENDIAN);
@@ -4625,8 +4693,6 @@ void proto_register_cdma2k(void)
             { "Ext Scm", "cdma2k.Ext_Scm", FT_UINT8, BASE_HEX_DEC,NULL, 0x0, NULL, HFILL } },
             { &hf_cdma2k_Sloted_Mode,
             { "Slotted Mode", "cdma2k.Slotted_Mode", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
-            { &hf_cdma2k_Scm,
-            { "Scm", "cdma2k.Scm", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
             { &hf_cdma2k_Mob_Term,
             { "Mob Term", "cdma2k.Mob_Term", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
             { &hf_cdma2k_Return_Cause,
@@ -5354,7 +5420,7 @@ void proto_register_cdma2k(void)
         {  &hf_cdma2k_Rea,
                 { "Rijndael Encry Alg", "cdma2k.Rea", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
 
-            { &hf_cdma2k_Reserved,
+        { &hf_cdma2k_Reserved,
             { "Reserved", "cdma2k.Reserved", FT_UINT8, BASE_HEX_DEC, NULL, 0x0, NULL, HFILL } },
 
         {  &hf_cdma2k_AlertWithInfoMsg,
@@ -5364,7 +5430,21 @@ void proto_register_cdma2k(void)
         {  &hf_cdma2k_MeIdUhdmMsg,
             { "MeIdUhdmMsg", "cdma2k.MeIdUhdmMsg", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
         {  &hf_cdma2k_UhdmMsg,
-            { "UhdmMsg", "cdma2k.UhdmMsg", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } }
+            { "UhdmMsg", "cdma2k.UhdmMsg", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
+        { &hf_cdma2k_ext_scm_ind,
+            { "Extended SCM Indicator", "cdma2k.ext_scm_ind", FT_UINT8, BASE_DEC, VALS(l3dpu_SCM_field_values7), 0x0, NULL, HFILL } },
+        { &hf_cdma2k_scm_dual_mode,
+            { "Dual Mode", "cdma2k.scm.dual_mode", FT_UINT8, BASE_DEC, VALS(l3dpu_SCM_field_values6), 0x0, NULL, HFILL } },
+        { &hf_cdma2k_scm_slotted_class,
+            { "Slotted Class", "cdma2k.scm.slotted_class", FT_UINT8, BASE_DEC, VALS(l3dpu_SCM_field_values5), 0x0, NULL, HFILL } },
+        { &hf_cdma2k_scm_meid_sup,
+            { "MEID support indicator", "cdma2k.scm.meid_sup", FT_UINT8, BASE_DEC, VALS(l3dpu_SCM_field_values4), 0x0, NULL, HFILL } },
+        { &hf_cdma2k_scm_25mhz_bw,
+            { "25 MHz Bandwidth", "cdma2k.scm.25mhz_bw", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+        { &hf_cdma2k_scm_trans,
+            { "Transmission", "cdma2k.scm.trans", FT_UINT8, BASE_DEC, VALS(l3dpu_SCM_field_values2), 0x0, NULL, HFILL } },
+        { &hf_cdma2k_scm_pow_class,
+            { "Power Class for Band Class 0 Analog Operation", "cdma2k.scm.pow_class", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     };
 
     static gint *ett[] = {
@@ -5372,7 +5452,8 @@ void proto_register_cdma2k(void)
             &ett_cdma2k_subtree,
             &ett_cdma2k_subtree1,
             &ett_cdma2k_subtree2,
-            &ett_cdma2k_m_s1
+            &ett_cdma2k_m_s1,
+            &ett_cdma2000_scm
     };
 
     static ei_register_info ei[] = {
