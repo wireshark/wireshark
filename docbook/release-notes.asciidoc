@@ -29,10 +29,10 @@ The following vulnerabilities have been fixed:
 Wireshark dissection engine crash.
 wsbuglink:15778[].
 // cveidlink:2019-XXXXX[].
-// Fixed in master: XXXXX
-// Fixed in master-3.0: XXXXX
-// Fixed in master-2.6: XXXXX
-// Fixed in master-2.4: XXXXX
+// Fixed in master: be9bdfda02
+// Fixed in master-3.0: dd336961e5
+// Fixed in master-2.6: 9d5f0411bd
+// Fixed in master-2.4: 7b6e197da4
 
 The following bugs have been fixed:
 
@@ -71,6 +71,8 @@ The following bugs have been fixed:
 * Build issue in Wireshark - 3.0.1 on RHEL6. wsbuglink:15706[].
 
 * ISAKMP: Segmentation fault with non-hex string for IKEv1 Decryption Table Initiator Cookie. wsbuglink:15709[].
+
+* extcap: non-boolean call arguments can be appended without value on selector Reload. wsbuglink:15725[].
 
 * Incorrectly interpreted format of MQTT PUBLISH payload data. wsbuglink:15738[].
 
