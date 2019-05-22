@@ -243,7 +243,7 @@ add_library(epan ${LINK_MODE_LIB}
 
 add_dependencies(epan version)
 
-set(FULL_SO_VERSION "10.1.15")
+set(FULL_SO_VERSION "10.1.16")
 
 set_target_properties(epan PROPERTIES COMPILE_DEFINITIONS "WS_BUILD_DLL")
 set_target_properties(epan PROPERTIES COMPILE_OPTIONS "${WS_WARNINGS_C_FLAGS}")

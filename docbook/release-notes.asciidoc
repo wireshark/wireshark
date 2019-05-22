@@ -14,9 +14,9 @@ used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed:
 
-* wssalink:2019-19[]
-Wireshark dissection engine crash.
-wsbuglink:15778[].
+* wssalink:2019-20[]
+A dissector went awry.
+// wsbuglink:XXXXX[].
 // cveidlink:2019-XXXXX[].
 // Fixed in master: XXXXX
 // Fixed in master-3.0: XXXXX
