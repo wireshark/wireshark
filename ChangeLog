@@ -1,0 +1,319 @@
+commit 7b6e197da4
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue May 21 10:41:41 2019 -0700
+
+    Add dissection recursion checks.
+    
+    Enforce a maximum layer limit in call_dissector_work and
+    dissector_try_heuristic.
+    
+    Bug: 15778
+    Change-Id: I691868e980384b76a64f88de4db5bb7340a7c4aa
+    Reviewed-on: https://code.wireshark.org/review/33301
+    Petri-Dish: Gerald Combs <gerald@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Dario Lombardo <lomato@gmail.com>
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+    (cherry picked from commit be9bdfda02a2498c6f65122d80e3a8b4235dc7f5)
+    Reviewed-on: https://code.wireshark.org/review/33310
+
+commit 436ef9307c
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue May 21 15:46:47 2019 -0700
+
+    Prep for 2.4.15.
+    
+    Change-Id: I82adc5f80e1451aa218b22b7e8dd8bc0456ad7be
+    Reviewed-on: https://code.wireshark.org/review/33305
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 3bbd40c218
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon May 20 23:02:39 2019 -0700
+
+    Fix format_uri().
+    
+    It was using the same index into the input and output strings, which
+    means that if it escaped any character, it would skip the next two
+    characters in the input sring.
+    
+    It was also not clearing is_reserved before testing whether a character
+    was reserved, so once it saw a character that neede dto be escaped, it
+    would escape all subsequent characters.
+    
+    It was only used in get_key_string(), which was never used, so it was
+    dead code, but let's at least fix it, even if we end up removing that
+    code, so that if we bring it back, we bring back a non-broken version,
+    and so that if anybody *else* uses it, it's not broken.
+    
+    Change-Id: I36588efad36908e012023bcfbd813c749a6a254f
+    Reviewed-on: https://code.wireshark.org/review/33287
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit a409987eeaded5d7f6c7379530fbe856e9a97c7b)
+    Reviewed-on: https://code.wireshark.org/review/33294
+
+commit 56deb2f98e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 19 08:57:07 2019 +0000
+
+    [Automatic update for 2019-05-19]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: If57908687e46488f854f02b4f7df604f1045809f
+    Reviewed-on: https://code.wireshark.org/review/33259
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 05bfcae04b
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Thu May 16 10:50:03 2019 -0700
+
+    In pcapng_open(), don't use the local pcapng_t once we know it's a pcapng file.
+    
+    Use the local one *only* while we're trying to determine whether we have
+    a pcapng file or not; once we know we have a pcapng file, and have
+    allocated a pcapng_t and attached it to the wtap structure, pass *that*
+    one to pcapng_read_block(), so if it changes anything in the pcapng_t,
+    it changes the one we're using.
+    
+    Change-Id: I53b32595276be97957a0b6056171471878fa40c4
+    Reviewed-on: https://code.wireshark.org/review/33226
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 576f33fffd4384d869ae516aa3f346d2ce0b4c6b)
+    Reviewed-on: https://code.wireshark.org/review/33229
+
+commit b8b7f50f22
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed May 15 18:25:42 2019 -0700
+
+    Keep and use per-interface, not per-file, FCS length information.
+    
+    There is no FCS length information for a pcapng file; there's FCS length
+    information for each interface.
+    
+    Change-Id: I3abb1a35b28475aa3ad6f126060140d0a524bbca
+    Reviewed-on: https://code.wireshark.org/review/33215
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit f8ac57a2c4d3b0bab160dc5da925c1bb83e39444)
+    Reviewed-on: https://code.wireshark.org/review/33219
+
+commit 54a0ca60c3
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun May 12 11:20:30 2019 -0700
+
+    Fix the length of the item added for the value field of undissected CLVs.
+    
+    The length variable is the length of the value, not the length of the
+    entire CLV, so there's no need to subtract the length of the C and the
+    L from the length - it covers just the V.
+    
+    Change-Id: I711657e4e0b76e2aac9d58efd88f45201b9c2c5b
+    Reviewed-on: https://code.wireshark.org/review/33174
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit beed21b038683377efb7b5c13b36a3a35fa720a2)
+    Reviewed-on: https://code.wireshark.org/review/33177
+
+commit 967b925777
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 12 09:11:35 2019 +0000
+
+    [Automatic update for 2019-05-12]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I9578c6a4f0b7e73a5b72ad0b43fb2f711bf418e8
+    Reviewed-on: https://code.wireshark.org/review/33165
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit edbacdaa61
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon May 6 20:31:49 2019 -0700
+
+    Fix dissection of DDP length and checksum fields.
+    
+    The DDP length is 10 bits long, not 2 bits long; it includes the bottom
+    2 bits of the first octet *and* all 8 bits of the second octet.
+    
+    The checksum is at an offset of 2, not 0, from the beginning of the header.
+    
+    Change-Id: I7e2b8eff4d023f80a894f1e1eec7b71d08510f7e
+    Reviewed-on: https://code.wireshark.org/review/33094
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 9f9e69411b02c1a7e669b39928798403e2dc8fff)
+    Reviewed-on: https://code.wireshark.org/review/33097
+
+commit 1988f33b9b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 5 09:07:03 2019 +0000
+
+    [Automatic update for 2019-05-05]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I422e7244e77d6e553f14343c7c831b1c9d8fbfdb
+    Reviewed-on: https://code.wireshark.org/review/33084
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 2cca6f8c32
+Author: Tomasz Moń <desowin@gmail.com>
+Date:   Mon Apr 29 14:52:17 2019 +0200
+
+    caputils: Fix endless recursive loop on Windows
+    
+    The functions loaded from dll are prefixed with "p_".
+    Use the dll functions where appropriate.
+    
+    Change-Id: I7cf2c7dc0d04502fa7f922ca2822808bdc02f324
+    Reviewed-on: https://code.wireshark.org/review/33010
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 7a6b6631c853412f5405fe6ca571790e23a4025c)
+    Reviewed-on: https://code.wireshark.org/review/33013
+
+commit 8bbfd581c6
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 28 09:06:24 2019 +0000
+
+    [Automatic update for 2019-04-28]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I1093252c6a7fddcca6e4b822ccf030b726387a3f
+    Reviewed-on: https://code.wireshark.org/review/33005
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit ec549f3f4e
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Mon Apr 22 14:40:01 2019 +0100
+
+    gitlab-ci: disable broken gcc-4 builds
+    
+    The gcc:4 images are no longer supported by their maintainers and have a
+    broken apt configuration referencing jessie-updates (which was moved to
+    a different mirror). In master, the gcc-4 builds use Ubuntu, but that
+    would require more changes. Remove gcc-4 as a workaround to fix builds.
+    
+    Change-Id: I2b8ebc8252847d64daff5a0d53876d3e73dbd7ef
+    Reviewed-on: https://code.wireshark.org/review/32941
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+
+commit 8be9990d2c
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed Apr 24 19:19:12 2019 -0700
+
+    Do FIND_PACKAGE_HANDLE_STANDARD_ARGS() before checking ZLIB_FOUND.
+    
+    It's what sets {package}_FOUND.
+    
+    Combine two "do this if zlib was found" blocks.
+    
+    Change-Id: I55062a11c7ae7e6f32886615a0201df55f700d1e
+    Reviewed-on: https://code.wireshark.org/review/32974
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 5ae6a9bea6ba943e6c674799a7b906b3dffed157)
+    Reviewed-on: https://code.wireshark.org/review/32982
+
+commit c0bca6ac5d
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed Apr 24 18:33:26 2019 -0700
+
+    Don't look for zlib stuff if we didn't find zlib.
+    
+    If we didn't find zlib, don't look for its version number in zlib.h, and
+    don't look for inflate() or inflatePrime() in the library.
+    
+    Trim off some trailing blank lines while we're at it.
+    
+    Change-Id: I834a9a76928a00cf5e182bd4224ebc91d36d69a4
+    Reviewed-on: https://code.wireshark.org/review/32973
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit c66994215b4f0344d7ec6f9340ed79e647053018)
+    Reviewed-on: https://code.wireshark.org/review/32978
+
+commit 2b0414222e
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 21 09:00:53 2019 +0000
+
+    [Automatic update for 2019-04-21]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: Iab8bb0e99d25de86cb5f694cdf90e995674d7b01
+    Reviewed-on: https://code.wireshark.org/review/32929
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit e88023e181
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Apr 14 09:10:46 2019 +0000
+
+    [Automatic update for 2019-04-14]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I19dc5d4fcac6fafc78f3e01fbb6ab5e9420e41bb
+    Reviewed-on: https://code.wireshark.org/review/32847
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit a5371d1edc
+Author: Aymeric Moizard <amoizard@gmail.com>
+Date:   Wed Apr 10 11:21:15 2019 +0200
+
+    RTCP XR RR: fix dissection of timestamp field.
+    
+    The current dissector doesn't display correctly the
+    hf_rtcp_xr_timestamp field. ENC_TIME_NTP seems to be
+    missing.
+    
+    Bug: 15687
+    Change-Id: Ie417e8a11e05e5fb842a4fb0ad5437da1f916130
+    Reviewed-on: https://code.wireshark.org/review/32809
+    Petri-Dish: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 4bebe9807a1761171204ad01f9d0726018cfdfb9)
+    Reviewed-on: https://code.wireshark.org/review/32830
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+
+commit c26e2af2a2
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Sun Apr 7 19:11:55 2019 +0200
+
+    Qt: use toLocalFile() instead of path() to check for existence.
+    
+    path() incorrectly gives paths as /C:/Program Files/Wireshark/udpdump.html
+    under windows. The leading slash gives a wrong test on the file. Instead
+    toLocalFile() handles it correctly. isLocalFile() has been used to get if
+    we have a local file or a network URL. The reported bug occurred under Windows
+    only, but the change is compatible with Linux paths as well.
+    
+    Accidentally when the test on the file was successful, nothing got called.
+    The routine has been reworked to open an existing local file.
+    
+    Bug: 15592
+    Change-Id: Id6e3a91dfb4c9d20ae8cb0735eabab64caeff47f
+    Reviewed-on: https://code.wireshark.org/review/32772
+    Petri-Dish: Dario Lombardo <lomato@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    Reviewed-by: Alexis La Goutte <alexis.lagoutte@gmail.com>
+    (cherry picked from commit 4dda4bac178debe04eac081aa23a951e807f6d31)
+    Reviewed-on: https://code.wireshark.org/review/32807
+
+commit b6a0ec953f
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Mon Apr 8 13:45:03 2019 -0700
+
+    2.4.14 → 2.4.15.
+    
+    Change-Id: I3df686bcc12014fd44b5eddfa5f6ebde04970138
+    Reviewed-on: https://code.wireshark.org/review/32793
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
