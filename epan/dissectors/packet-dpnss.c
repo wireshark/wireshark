@@ -764,7 +764,7 @@ dissect_dpnss_sic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int o
          * Synch/Asynchronous Information
          */
         octet = tvb_get_guint8(tvb,offset);
-        type_of_data = octet&0x3;
+        type_of_data = octet&0x7;
         proto_tree_add_item(tree, hf_dpnss_ext_bit_notall, tvb, offset, 1, ENC_BIG_ENDIAN);
         switch (type_of_data) {
         case 3:
