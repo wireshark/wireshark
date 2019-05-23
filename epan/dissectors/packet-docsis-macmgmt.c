@@ -2147,7 +2147,7 @@ static const value_string docsis_ocd_prim_cap_ind_str[] = {
 
 static const value_string ocd_tlv_vals[] = {
   {DISCRETE_FOURIER_TRANSFORM_SIZE, "Discrete Fourier Transform Size"},
-  {CYCLIC_PREFIX, "Cylic Prefix"},
+  {CYCLIC_PREFIX, "Cyclic Prefix"},
   {ROLL_OFF, "Roll Off"},
   {OFDM_SPECTRUM_LOCATION, "OFDM Spectrum Location"},
   {TIME_INTERLEAVING_DEPTH, "Time Interleaving Depth"},
@@ -9482,7 +9482,7 @@ proto_register_docsis_mgmt (void)
       {"Discrete Fourier Transform Size", "docsis_ocd.tlv.four_trans_size", FT_UINT8, BASE_DEC, VALS (docsis_ocd_four_trans_size), 0x0, NULL, HFILL}
     },
     {&hf_docsis_ocd_tlv_cycl_pref,
-      {"Cylic Prefix", "docsis_ocd.tlv.cyc_pref", FT_UINT8, BASE_DEC, VALS (docsis_ocd_cyc_prefix), 0x0, NULL, HFILL}
+      {"Cyclic Prefix", "docsis_ocd.tlv.cyc_pref", FT_UINT8, BASE_DEC, VALS (docsis_ocd_cyc_prefix), 0x0, NULL, HFILL}
     },
     {&hf_docsis_ocd_tlv_roll_off,
       {"Roll Off", "docsis_ocd.tlv.roll_off", FT_UINT8, BASE_DEC, VALS (docsis_ocd_roll_off), 0x0, NULL, HFILL}
