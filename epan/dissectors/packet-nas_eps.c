@@ -3649,7 +3649,7 @@ de_esm_user_data_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
     if (g_nas_eps_user_data_container_as_ip) {
         proto_tree *subtree;
         tvbuff_t *user_data_cont_tvb;
-        dissector_handle_t handle;
+        volatile dissector_handle_t handle;
         guint8 first_byte;
 
         subtree = proto_item_add_subtree(it, ett_nas_eps_esm_user_data_cont);
