@@ -40,6 +40,30 @@ Known traps are:
 
 ====
 
+[[ChSetupChocolatey]]
+
+==== Recommended: Install Chocolatey
+
+https://chocolatey.org/[Chocolatey] is a native package manager for
+Windows. There are https://chocolatey.org/packages[packages] for most of
+the software listed below. Along with traditional Windows packages it
+supports the Python Package Index.
+
+Chocolatey tends to install packages into its own path (%ChocolateyInstall%),
+although packages are free to use their own preferences (Python for example is
+installed to `C:\Python37`). You can install Chocolatey packages using the
+command `choco install` (or its shorthand, `cinst`), e.g.
+
+[source,cmd]
+----
+> rem Flex and Bison are required.
+> choco install -y winflexbison
+> rem Git, CMake, Perl, Python, etc are also required, but can be installed
+> rem via their respective installation packages.
+> choco install -y git cmake strawberryperl python3
+----
+
+
 [[ChSetupMSVC]]
 
 ==== Install Microsoft C compiler and SDK
@@ -111,29 +135,6 @@ directory, e.g. _C:\Qt{backslash}{qt-lts-version}.5\msvc2017_64_
 
 The Qt maintenance tool (_C:\Qt\MaintenanceTool.exe_) can be used to
 upgrade Qt to newer versions.
-
-[[ChSetupChocolatey]]
-
-==== Recommended: Install Chocolatey
-
-https://chocolatey.org/[Chocolatey] is a native package manager for
-Windows. There are https://chocolatey.org/packages[packages] for most of
-the software listed below. Along with traditional Windows packages it
-supports the Python Package Index.
-
-Chocolatey tends to install packages into its own path (%ChocolateyInstall%),
-although packages are free to use their own preferences (Python for example is
-installed to `C:\Python37`). You can install Chocolatey packages using the
-command `choco install` (or its shorthand, `cinst`).
-
-[source,cmd]
-----
-> rem Flex and Bison are required.
-> choco install -y winflexbison
-> rem Git, CMake, Perl, Python, etc are also required, but can be installed
-> rem via their respective installation packages.
-> choco install -y git cmake strawberryperl python3
-----
 
 [[ChSetupPython]]
 
@@ -246,6 +247,20 @@ PS$>choco install -y asciidoctorj xsltproc docbook-bundle
 
 Chocolatey ensures that asciidoctorj.exe and xsltproc.exe is on your
 path and that xsltproc uses the DocBook catalog.
+
+==== Install winflexbison
+
+Get the winFlexBison installer from https://sourceforge.net/projects/winflexbison/
+and install into the default location. Ensure the directory containing win_flex.exe
+and win_bison.exe is on your path.
+
+Alternatively you can install Winflexbison using Chocolatey:
+
+----
+PS$>choco install -y winflexbison
+----
+
+Chocolatey ensures win_flex.exe and win_bison.exe are on your path.
 
 ==== Install and Prepare Sources
 
