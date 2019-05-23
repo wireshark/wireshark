@@ -3644,30 +3644,34 @@ de_esm_user_data_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
                       guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
     proto_item *it;
-    proto_tree *subtree;
-    tvbuff_t *user_data_cont_tvb;
 
     it = proto_tree_add_item(tree, hf_nas_eps_esm_user_data_cont, tvb, offset, len, ENC_NA);
     if (g_nas_eps_user_data_container_as_ip) {
+        proto_tree *subtree;
+        tvbuff_t *user_data_cont_tvb;
+        dissector_handle_t handle;
+        guint8 first_byte;
+
         subtree = proto_item_add_subtree(it, ett_nas_eps_esm_user_data_cont);
         user_data_cont_tvb = tvb_new_subset_length_caplen(tvb, offset, len, len);
-        switch (tvb_get_guint8(user_data_cont_tvb, 0) & 0xf0) {
-            case 0x40:
-                col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
-                col_set_fence(pinfo->cinfo, COL_PROTOCOL);
-                col_append_str(pinfo->cinfo, COL_INFO, ", ");
-                col_set_fence(pinfo->cinfo, COL_INFO);
-                call_dissector_only(ipv4_handle, user_data_cont_tvb, pinfo, subtree, NULL);
-                break;
-            case 0x60:
-                col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
-                col_set_fence(pinfo->cinfo, COL_PROTOCOL);
-                col_append_str(pinfo->cinfo, COL_INFO, ", ");
-                col_set_fence(pinfo->cinfo, COL_INFO);
-                call_dissector_only(ipv6_handle, user_data_cont_tvb, pinfo, subtree, NULL);
-                break;
-            default:
-                break;
+        first_byte = tvb_get_guint8(user_data_cont_tvb, 0);
+        if (first_byte >= 0x45 && first_byte <= 0x4f && len > 20)
+            handle = ipv4_handle;
+        else if ((first_byte & 0xf0) == 0x60 && len > 40)
+            handle = ipv6_handle;
+        else
+            handle = NULL;
+        if (handle) {
+            col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
+            col_set_fence(pinfo->cinfo, COL_PROTOCOL);
+            col_append_str(pinfo->cinfo, COL_INFO, ", ");
+            col_set_fence(pinfo->cinfo, COL_INFO);
+            TRY {
+                call_dissector_only(handle, user_data_cont_tvb, pinfo, subtree, NULL);
+            } CATCH_BOUNDS_ERRORS {
+                /* Dissection exception: message was probably non IP and heuristic was too weak */
+                show_exception(user_data_cont_tvb, pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
+            } ENDTRY
         }
     }
 
