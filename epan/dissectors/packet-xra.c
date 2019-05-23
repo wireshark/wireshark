@@ -751,11 +751,13 @@ dissect_message_channel_mb(tvbuff_t * tvb, packet_info * pinfo, proto_tree* tree
   /*If not present, this contains stuff from other packet. We can't do much in this case*/
   if(packet_start_pointer_field_present) {
     guint16 docsis_start = 3 + packet_start_pointer;
-    if(docsis_start +6 < remaining_length) {
+    while (docsis_start + 6 < remaining_length) {
       /*DOCSIS header in packet*/
       guint8 fc = tvb_get_guint8(tvb,docsis_start + 0);
       if (fc == 0xFF) {
-        return;
+        //skip fill bytes
+        docsis_start += 1;
+        continue;
       }
       guint16 docsis_length = 256*tvb_get_guint8(tvb,docsis_start + 2) + tvb_get_guint8(tvb,docsis_start + 3);
       if (docsis_start + 6 + docsis_length <= remaining_length) {
@@ -765,8 +767,11 @@ dissect_message_channel_mb(tvbuff_t * tvb, packet_info * pinfo, proto_tree* tree
         docsis_tvb = tvb_new_subset_length(tvb, docsis_start, docsis_length + 6);
         if (docsis_handle) {
           call_dissector (docsis_handle, docsis_tvb, pinfo, tree);
+          col_append_str(pinfo->cinfo, COL_INFO, "; ");
+          col_set_fence(pinfo->cinfo,COL_INFO);
         }
       }
+      docsis_start += 6 + docsis_length;
     }
   }
 }
