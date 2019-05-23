@@ -52,6 +52,16 @@ static gint column_info_selection = DEFAULT_COLUMN_INFO;
 void proto_register_lldp(void);
 void proto_reg_handoff_lldp(void);
 
+static int hf_ex_avaya_tlv_subtype = -1;
+static int hf_ex_avaya_hmac_shi = -1;
+static int hf_ex_avaya_element_type = -1;
+static int hf_ex_avaya_state = -1;
+static int hf_ex_avaya_vlan = -1;
+static int hf_ex_avaya_mgnt_vlan = -1;
+static int hf_ex_avaya_rsvd = -1;
+static int hf_ex_avaya_system_id = -1;
+static int hf_ex_avaya_status = -1;
+static int hf_ex_avaya_i_sid = -1;
 /* Sub Dissector Tables */
 static dissector_table_t oui_unique_code_table;
 
@@ -486,6 +496,8 @@ static gint ett_org_spc_media_9 = -1;
 static gint ett_org_spc_media_10 = -1;
 static gint ett_org_spc_media_11 = -1;
 
+static gint ett_ex_avayaSubTypes_11 = -1;
+static gint ett_ex_avayaSubTypes_12 = -1;
 static gint ett_org_spc_ProfinetSubTypes_1 = -1;
 static gint ett_org_spc_ProfinetSubTypes_2 = -1;
 static gint ett_org_spc_ProfinetSubTypes_3 = -1;
@@ -717,6 +729,14 @@ static const value_string profinet_subtypes[] = {
 	{ 4, "MRP Port Status" },
 	{ 5, "Chassis MAC" },
 	{ 6, "PTCP Status" },
+	{ 0, NULL }
+};
+/* extreme avaya ap subtypes */
+#define EX_AVAYA_SUBTYPE_ELEMENT_TLV 11
+#define EX_AVAYA_SUBTYPE_ASSIGNMENT_TLV 12
+static const value_string ex_avaya_subtypes[] = {
+	{ EX_AVAYA_SUBTYPE_ELEMENT_TLV, "Extreme Fabric Attach Element TLV" },
+	{ EX_AVAYA_SUBTYPE_ASSIGNMENT_TLV, "Extreme Fabric Attach Assignment TLV" },
 	{ 0, NULL }
 };
 
@@ -2553,6 +2573,67 @@ dissect_ieee_802_1qbg_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 }
 
 
+/* Dissect extreme avaya ap tlv*/
+static int
+dissect_extreme_avaya_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint32 offset, guint16 dataLen)
+{
+	guint8 subType;
+	guint32 i, loopCount;
+
+	/*
+	Element TLV:
+	___________________________________________________________________________________________________________________________
+	| TLV Type | TLV Length | Avaya OUI | Subtype | HMAC-SHA Digest | Element Type | State  | Mgmt. VLAN | Rsvd    | System ID |
+	----------------------------------------------------------------------------------------------------------------------------
+	| 7 bits   | 9 bits     | 3 octets  | 1 octet | 32 octets       | 6 bits       | 6 bits | 12 bits    | 1 octet | 10 octets |
+	----------------------------------------------------------------------------------------------------------------------------
+
+	Assignment TLV:
+	__________________________________________________________________________________________________________
+	| TLV Type | TLV Length | Avaya OUI | Subtype | HMAC-SHA Digest | Assignment Status |  VLAN   | I-SID    |
+	----------------------------------------------------------------------------------------------------------
+	| 7 bits   | 9 bits     | 3 octets  | 1 octet | 32 octets       | 4 bits            | 12 bits | 3 octets |
+	----------------------------------------------------------------------------------------------------------
+	*/
+
+	/* Get subtype */
+	subType = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(tree, hf_ex_avaya_tlv_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
+	offset++;
+	switch (subType)
+	{
+	case EX_AVAYA_SUBTYPE_ELEMENT_TLV:  /* Element TLV */
+	{
+		proto_tree_add_item(tree, hf_ex_avaya_hmac_shi, tvb, offset, 32, ENC_NA);
+		offset+=32;
+		proto_tree_add_item(tree, hf_ex_avaya_element_type, tvb, offset, 3, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_ex_avaya_state, tvb, offset, 3, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_ex_avaya_mgnt_vlan, tvb, offset, 3, ENC_BIG_ENDIAN);
+		offset+=3;
+		proto_tree_add_item(tree, hf_ex_avaya_rsvd, tvb, offset, 1, ENC_BIG_ENDIAN);
+		offset+=1;
+		proto_tree_add_item(tree, hf_ex_avaya_system_id, tvb, offset, 10, ENC_NA);
+		offset+=10;
+		break;
+	}
+	case EX_AVAYA_SUBTYPE_ASSIGNMENT_TLV: /* Assignment TLV */
+	{
+		loopCount = (dataLen - 36) / 5;
+		proto_tree_add_item(tree, hf_ex_avaya_hmac_shi, tvb, offset, 32, ENC_NA);
+		offset+=32;
+		for ( i=0; i < loopCount; i++)
+		{
+			proto_tree_add_item(tree, hf_ex_avaya_status, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_ex_avaya_vlan, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset+=2;
+			proto_tree_add_item(tree, hf_ex_avaya_i_sid, tvb, offset, 3, ENC_BIG_ENDIAN);
+			offset+=3;
+		}
+		break;
+	}
+	}
+	return offset;
+}
 /* Dissect IEEE 802.3 TLVs */
 static int
 dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
@@ -4160,6 +4241,16 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	case OUI_IEEE_802_1QBG:
 		subTypeStr = val_to_str(subType, ieee_802_1qbg_subtypes, "Unknown subtype 0x%x");
 		break;
+	case OUI_AVAYA_EXTREME:
+		subTypeStr = val_to_str(subType, ex_avaya_subtypes, "Unknown subtype 0x%x");
+		switch(subType)
+		{
+		case EX_AVAYA_SUBTYPE_ELEMENT_TLV: tempTree = ett_ex_avayaSubTypes_11;
+			break;
+		case EX_AVAYA_SUBTYPE_ASSIGNMENT_TLV: tempTree = ett_ex_avayaSubTypes_12;
+			break;
+		}
+		break;
 	case OUI_HYTEC_GER:
 		subTypeStr = val_to_str(subType, hytec_subtypes, "Unknown subtype (0x%x)");
 		switch(subType)
@@ -4230,7 +4321,9 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	case OUI_IANA:
 		dissect_iana_tlv(vendor_tvb, pinfo, org_tlv_tree);
 		break;
-
+	case OUI_AVAYA_EXTREME:
+		dissect_extreme_avaya_tlv(tvb, pinfo, org_tlv_tree, (offset + 5),dataLen );
+		break;
 	default:
 		dissect_oui_default_tlv(vendor_tvb, pinfo, org_tlv_tree);
 	}
@@ -5903,6 +5996,46 @@ proto_register_lldp(void)
 			{ "Subtype Unknown Trailing Bytes","lldp.subtype.content_remaining", FT_BYTES, BASE_NONE,
 			NULL, 0x0, NULL, HFILL }
 		},
+		{ &hf_ex_avaya_tlv_subtype,
+			{ "Subtype", "lldp.extreme_avaya_ap.subtype", FT_UINT8, BASE_DEC,
+			VALS(ex_avaya_subtypes), 0x0, NULL, HFILL }
+		},
+		{ &hf_ex_avaya_hmac_shi,
+			{ "HMAC-SHA Digest", "lldp.extreme_avaya_ap.hmac_sha_digest", FT_BYTES, BASE_NONE,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_ex_avaya_element_type,
+			{ "Element Type", "lldp.extreme_avaya_ap.element_type", FT_UINT24, BASE_DEC,
+			NULL, 0xfc0000, NULL, HFILL }
+		},
+		{ &hf_ex_avaya_state,
+			{ "State", "lldp.extreme_avaya_ap.state", FT_UINT24, BASE_DEC,
+			NULL, 0x03f000, NULL, HFILL }
+		},
+		{ &hf_ex_avaya_mgnt_vlan,
+			{ "Mgmt VLAN", "lldp.extreme_avaya_ap.mgnt_vlan", FT_UINT24, BASE_DEC,
+			NULL, 0xfff, NULL, HFILL }
+		},
+		{ &hf_ex_avaya_vlan,
+			{ "VLAN", "lldp.extreme_avaya_ap.mgnt_vlan", FT_UINT16, BASE_DEC,
+			NULL, 0xfff, NULL, HFILL }
+		},
+		{ &hf_ex_avaya_rsvd,
+			{ "Reserved", "lldp.extreme_avaya_ap.rsvd", FT_UINT8, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_ex_avaya_system_id,
+			{ "System ID", "lldp.extreme_avaya_ap.system_id", FT_BYTES, SEP_COLON,
+			NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_ex_avaya_status,
+			{ "Assignment Status", "lldp.extreme_avaya_ap.status", FT_UINT16, BASE_DEC,
+			NULL, 0xf000, NULL, HFILL }
+		},
+		{ &hf_ex_avaya_i_sid,
+			{ "I-SID", "lldp.extreme_avaya_ap.i_sid", FT_UINT24, BASE_DEC,
+			NULL, 0x0, NULL, HFILL }
+		},
 	};
 
 	/* Setup protocol subtree array */
@@ -5982,7 +6115,9 @@ proto_register_lldp(void)
 		&ett_org_spc_hytec_subtype_transceiver,
 		&ett_org_spc_hytec_subtype_trace,
 		&ett_org_spc_hytec_trace_request,
-		&ett_org_spc_hytec_trace_reply
+		&ett_org_spc_hytec_trace_reply,
+		&ett_ex_avayaSubTypes_11,
+		&ett_ex_avayaSubTypes_12
 	};
 
 	static ei_register_info ei[] = {
