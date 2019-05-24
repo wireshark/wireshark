@@ -85,6 +85,11 @@
 #define PROTOCOL_BINARY_RESPONSE_ETMPFAIL           0x86
 #define PROTOCOL_BINARY_RESPONSE_XATTR_EINVAL       0x87
 #define PROTOCOL_BINARY_RESPONSE_UNKNOWN_COLLECTION         0x88
+#define PROTOCOL_BINARY_RESPONSE_DURABILITY_INVALID_LEVEL         0xa0
+#define PROTOCOL_BINARY_RESPONSE_DURABILITY_IMPOSSIBLE            0xa1
+#define PROTOCOL_BINARY_RESPONSE_SYNC_WRITE_IN_PROGRESS           0xa2
+#define PROTOCOL_BINARY_RESPONSE_SYNC_WRITE_AMBIGUOUS             0xa3
+#define PROTOCOL_BINARY_RESPONSE_SYNC_WRITE_RECOMMIT_IN_PROGRESS  0xa4
 #define PROTOCOL_BINARY_RESPONSE_SUBDOC_PATH_ENOENT         0xc0
 #define PROTOCOL_BINARY_RESPONSE_SUBDOC_PATH_MISMATCH       0xc1
 #define PROTOCOL_BINARY_RESPONSE_SUBDOC_PATH_EINVAL         0xc2
@@ -384,8 +389,6 @@ static int hf_extras_initial = -1;
 static int hf_extras_unknown = -1;
 static int hf_extras_by_seqno = -1;
 static int hf_extras_rev_seqno = -1;
-static int hf_extras_by_seqno_mem = -1;
-static int hf_extras_by_seqno_disk = -1;
 static int hf_extras_prepared_seqno = -1;
 static int hf_extras_commit_seqno = -1;
 static int hf_extras_abort_seqno = -1;
@@ -586,6 +589,16 @@ static const value_string status_vals[] = {
     "There is something wrong with the syntax of the provided XATTR."},
   { PROTOCOL_BINARY_RESPONSE_UNKNOWN_COLLECTION,
     "Operation attempted with an unknown collection."},
+  { PROTOCOL_BINARY_RESPONSE_DURABILITY_INVALID_LEVEL,
+    "The specified durability level is invalid" },
+  { PROTOCOL_BINARY_RESPONSE_DURABILITY_IMPOSSIBLE,
+    "The specified durability requirements are not currently possible" },
+  { PROTOCOL_BINARY_RESPONSE_SYNC_WRITE_IN_PROGRESS,
+    "A SyncWrite is already in progress on the specified key"},
+  { PROTOCOL_BINARY_RESPONSE_SYNC_WRITE_AMBIGUOUS,
+    "The SyncWrite request has not completed in the specified time and has ambiguous result"},
+  { PROTOCOL_BINARY_RESPONSE_SYNC_WRITE_RECOMMIT_IN_PROGRESS,
+    "The SyncWrite is being re-committed after a change in active node"},
   { PROTOCOL_BINARY_RESPONSE_SUBDOC_PATH_ENOENT,
     "Subdoc: Path not does not exist"},
   { PROTOCOL_BINARY_RESPONSE_SUBDOC_PATH_MISMATCH,
@@ -1452,9 +1465,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case PROTOCOL_BINARY_DCP_SEQNO_ACK: {
     if (extlen) {
       if (request) {
-        proto_tree_add_item(extras_tree, hf_extras_by_seqno_mem, tvb, offset, 8, ENC_BIG_ENDIAN);
-        offset += 8;
-        proto_tree_add_item(extras_tree, hf_extras_by_seqno_disk, tvb, offset, 8, ENC_BIG_ENDIAN);
+        proto_tree_add_item(extras_tree, hf_extras_by_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
         offset += 8;
       } else {
         illegal = TRUE;
@@ -1468,9 +1479,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case PROTOCOL_BINARY_DCP_COMMIT: {
     if (extlen) {
       if (request) {
-        proto_tree_add_item(extras_tree, hf_extras_prepared_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
-        offset += 8;
-        proto_tree_add_item(extras_tree, hf_extras_commit_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+        proto_tree_add_item(extras_tree, hf_extras_by_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
         offset += 8;
       } else {
         illegal = TRUE;
@@ -1484,9 +1493,7 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case PROTOCOL_BINARY_DCP_ABORT: {
     if (extlen) {
       if (request) {
-        proto_tree_add_item(extras_tree, hf_extras_prepared_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
-        offset += 8;
-        proto_tree_add_item(extras_tree, hf_extras_abort_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+        proto_tree_add_item(extras_tree, hf_extras_by_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
         offset += 8;
       } else {
         illegal = TRUE;
@@ -2851,8 +2858,6 @@ proto_register_couchbase(void)
     { &hf_extras_snap_start_seqno, { "Snapshot Start Sequence Number", "couchbase.extras.snap_start_seqno", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_snap_end_seqno, { "Snapshot End Sequence Number", "couchbase.extras.snap_start_seqno", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_by_seqno, { "by_seqno", "couchbase.extras.by_seqno", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-    { &hf_extras_by_seqno_mem, { "by_seqno (memory)", "couchbase.extras.by_seqno_mem", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
-    { &hf_extras_by_seqno_disk, { "by_seqno (disk)", "couchbase.extras.by_seqno_disk", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_prepared_seqno, { "by_seqno (prepared)", "couchbase.extras.by_seqno_prepared", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_commit_seqno, { "by_seqno (commit)", "couchbase.extras.by_seqno_commit", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_abort_seqno, { "by_seqno (abort)", "couchbase.extras.by_seqno_abort", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
