@@ -1664,11 +1664,7 @@ get_uint_string_value(wmem_allocator_t *scope, proto_tree *tree,
 	const guint8 *value;
 
 	/* I believe it's ok if this is called with a NULL tree */
-	if (encoding & ENC_ZIGBEE) {
-		n = get_uint_value(tree, tvb, start, length, encoding);
-	} else {
-		n = get_uint_value(tree, tvb, start, length, encoding & ~ENC_CHARENCODING_MASK);
-	}
+	n = get_uint_value(tree, tvb, start, length, encoding & ~ENC_CHARENCODING_MASK);
 	value = tvb_get_string_enc(scope, tvb, start + length, n, encoding);
 	length += n;
 	*ret_length = length;
@@ -5608,11 +5604,7 @@ get_full_length(header_field_info *hfinfo, tvbuff_t *tvb, const gint start,
 		break;
 
 	case FT_UINT_STRING:
-		if (encoding & ENC_ZIGBEE) {
-			n = get_uint_value(NULL, tvb, start, length, encoding);
-		} else {
-			n = get_uint_value(NULL, tvb, start, length, encoding & ~ENC_CHARENCODING_MASK);
-		}
+		n = get_uint_value(NULL, tvb, start, length, encoding & ~ENC_CHARENCODING_MASK);
 		item_length += n;
 		break;
 

@@ -415,6 +415,16 @@ void proto_report_dissector_bug(const char *format, ...)
 #define ENC_TIME_MSEC_NTP      0x00000022
 
 /*
+ * This is a modifier for FT_UINT_STRING and FT_UINT_BYTES values;
+ * it indicates that the length field should be interpreted as per
+ * sections 2.5.2.11 Octet String through 2.5.2.14 Long Character
+ * String of the ZigBee Cluster Library Specification, where if all
+ * bits are set in the length field, the string has an invalid value,
+ * and the number of octets in the value is 0.
+ */
+#define ENC_ZIGBEE               0x40000000
+
+/*
  * Historically, the only place the representation mattered for strings
  * was with FT_UINT_STRINGs, where we had FALSE for the string length
  * being big-endian and TRUE for it being little-endian.
@@ -440,8 +450,10 @@ void proto_report_dissector_bug(const char *format, ...)
  * For display, perhaps we should also map control characters to the
  * Unicode glyphs showing the name of the control character in small
  * caps, diagonally.  (Unfortunately, those only exist for C0, not C1.)
+ *
+ * *DO NOT* add anything to this set that is not a character encoding!
  */
-#define ENC_CHARENCODING_MASK    0x7FFFFFFE  /* mask out byte-order bits */
+#define ENC_CHARENCODING_MASK    0x3FFFFFFE  /* mask out byte-order bits and Zigbee bits */
 #define ENC_ASCII                0x00000000
 #define ENC_UTF_8                0x00000002
 #define ENC_UTF_16               0x00000004
@@ -471,7 +483,7 @@ void proto_report_dissector_bug(const char *format, ...)
 #define ENC_ASCII_7BITS          0x00000034
 #define ENC_T61                  0x00000036
 #define ENC_EBCDIC_CP037         0x00000038
-#define ENC_ZIGBEE               0x0000003A
+/* reserved                      0x0000003A */
 #define ENC_WINDOWS_1251         0x0000003C
 #define ENC_CP855                0x0000003E
 #define ENC_CP866                0x00000040
