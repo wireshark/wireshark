@@ -5477,7 +5477,7 @@ proto_register_gprscdr(void)
         "T_userLocationInformation_04", HFILL }},
     { &hf_gprscdr_ratingGroup,
       { "ratingGroup", "gprscdr.ratingGroup",
-        FT_INT32, BASE_DEC, NULL, 0,
+        FT_UINT32, BASE_DEC, NULL, 0,
         "RatingGroupId", HFILL }},
     { &hf_gprscdr_chargingRuleBaseName,
       { "chargingRuleBaseName", "gprscdr.chargingRuleBaseName",
