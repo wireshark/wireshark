@@ -1071,9 +1071,6 @@ dissect_iso14443_cmd_type_block(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     if (inf_len > 0) {
-        fragment_head *frag_msg;
-        tvbuff_t *payload_tvb;
-
         inf_ti = proto_tree_add_item(tree, hf_iso14443_inf,
                 tvb, offset, inf_len, ENC_NA);
         if (block_type == S_BLOCK_TYPE) {
@@ -1089,10 +1086,16 @@ dissect_iso14443_cmd_type_block(tvbuff_t *tvb, packet_info *pinfo,
         }
 
         if (block_type == I_BLOCK_TYPE) {
-            frag_msg = fragment_add_seq_next(&i_block_reassembly_table,
-                    tvb, offset, pinfo, 0, NULL, inf_len, (pcb & 0x10) ? 1 : 0);
+            fragment_head *frag_msg;
+            tvbuff_t *inf_tvb, *payload_tvb;
 
-            payload_tvb = process_reassembled_data(tvb, offset, pinfo,
+            /* see the comment in dissect_dvbci_tpdu (packet-dvbci.c) */
+            inf_tvb = tvb_new_subset_length(tvb, offset, inf_len);
+            frag_msg = fragment_add_seq_next(&i_block_reassembly_table,
+                    inf_tvb, 0, pinfo, 0, NULL, inf_len,
+                    (pcb & 0x10) ? 1 : 0);
+
+            payload_tvb = process_reassembled_data(inf_tvb, 0, pinfo,
                     "Reassembled APDU", frag_msg,
                     &i_block_frag_items, NULL, tree);
 
