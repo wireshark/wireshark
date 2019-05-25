@@ -34,6 +34,7 @@ extern const value_string btatt_ips_uncertainty_update_time_vals[];
 extern const value_string btatt_ips_uncertainty_precision_vals[];
 extern const value_string btatt_ips_uncertainty_coordinate_system[];
 extern const value_string tds_organization_id_vals[];
+extern const value_string characteristic_presentation_namespace_description_btsig_vals[];
 
 WS_DLL_PUBLIC gboolean bluetooth_gatt_has_no_parameter(guint8 opcode);
 WS_DLL_PUBLIC expert_field ei_btatt_invalid_usage;

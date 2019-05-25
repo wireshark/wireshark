@@ -13,8 +13,10 @@
  * Ref: Mesh Profile v1.0
  */
 
-#include "config.h"
+#include "packet-bluetooth.h"
+#include "packet-btatt.h"
 #include "packet-btmesh.h"
+#include "config.h"
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
@@ -29,6 +31,93 @@
 #define BTMESH_DEVICE_KEY_ENTRY_VALID 2
 #define BTMESH_LABEL_UUID_ENTRY_VALID 1
 #define NO_LABEL_UUID_IDX_USED -1
+
+#define CONFIG_APPKEY_ADD                                        0x0000
+#define CONFIG_APPKEY_UPDATE                                     0x0001
+#define CONFIG_COMPOSITION_DATA_STATUS                           0x0002
+#define CONFIG_MODEL_PUBLICATION_SET                             0x0003
+#define HEALTH_CURRENT_STATUS                                    0x0004
+#define HEALTH_FAULT_STATUS                                      0x0005
+#define CONFIG_HEARTBEAT_PUBLICATION_STATUS                      0x0006
+#define CONFIG_APPKEY_DELETE                                     0x8000
+#define CONFIG_APPKEY_GET                                        0x8001
+#define CONFIG_APPKEY_LIST                                       0x8002
+#define CONFIG_APPKEY_STATUS                                     0x8003
+#define HEALTH_ATTENTION_GET                                     0x8004
+#define HEALTH_ATTENTION_SET                                     0x8005
+#define HEALTH_ATTENTION_SET_UNACKNOWLEDGED                      0x8006
+#define HEALTH_ATTENTION_STATUS                                  0x8007
+#define CONFIG_COMPOSITION_DATA_GET                              0x8008
+#define CONFIG_BEACON_GET                                        0x8009
+#define CONFIG_BEACON_SET                                        0x800a
+#define CONFIG_BEACON_STATUS                                     0x800b
+#define CONFIG_DEFAULT_TTL_GET                                   0x800c
+#define CONFIG_DEFAULT_TTL_SET                                   0x800d
+#define CONFIG_DEFAULT_TTL_STATUS                                0x800e
+#define CONFIG_FRIEND_GET                                        0x800f
+#define CONFIG_FRIEND_SET                                        0x8010
+#define CONFIG_FRIEND_STATUS                                     0x8011
+#define CONFIG_GATT_PROXY_GET                                    0x8012
+#define CONFIG_GATT_PROXY_SET                                    0x8013
+#define CONFIG_GATT_PROXY_STATUS                                 0x8014
+#define CONFIG_KEY_REFRESH_PHASE_GET                             0x8015
+#define CONFIG_KEY_REFRESH_PHASE_SET                             0x8016
+#define CONFIG_KEY_REFRESH_PHASE_STATUS                          0x8017
+#define CONFIG_MODEL_PUBLICATION_GET                             0x8018
+#define CONFIG_MODEL_PUBLICATION_STATUS                          0x8019
+#define CONFIG_MODEL_PUBLICATION_VIRTUAL_ADDRESS_SET             0x801a
+#define CONFIG_MODEL_SUBSCRIPTION_ADD                            0x801b
+#define CONFIG_MODEL_SUBSCRIPTION_DELETE                         0x801c
+#define CONFIG_MODEL_SUBSCRIPTION_DELETE_ALL                     0x801d
+#define CONFIG_MODEL_SUBSCRIPTION_OVERWRITE                      0x801e
+#define CONFIG_MODEL_SUBSCRIPTION_STATUS                         0x801f
+#define CONFIG_MODEL_SUBSCRIPTION_VIRTUAL_ADDRESS_ADD            0x8020
+#define CONFIG_MODEL_SUBSCRIPTION_VIRTUAL_ADDRESS_DELETE         0x8021
+#define CONFIG_MODEL_SUBSCRIPTION_VIRTUAL_ADDRESS_OVERWRITE      0x8022
+#define CONFIG_NETWORK_TRANSMIT_GET                              0x8023
+#define CONFIG_NETWORK_TRANSMIT_SET                              0x8024
+#define CONFIG_NETWORK_TRANSMIT_STATUS                           0x8025
+#define CONFIG_RELAY_GET                                         0x8026
+#define CONFIG_RELAY_SET                                         0x8027
+#define CONFIG_RELAY_STATUS                                      0x8028
+#define CONFIG_SIG_MODEL_SUBSCRIPTION_GET                        0x8029
+#define CONFIG_SIG_MODEL_SUBSCRIPTION_LIST                       0x802a
+#define CONFIG_VENDOR_MODEL_SUBSCRIPTION_GET                     0x802b
+#define CONFIG_VENDOR_MODEL_SUBSCRIPTION_LIST                    0x802c
+#define CONFIG_LOW_POWER_NODE_POLLTIMEOUT_GET                    0x802d
+#define CONFIG_LOW_POWER_NODE_POLLTIMEOUT_STATUS                 0x802e
+#define HEALTH_FAULT_CLEAR                                       0x802f
+#define HEALTH_FAULT_CLEAR_UNACKNOWLEDGED                        0x8030
+#define HEALTH_FAULT_GET                                         0x8031
+#define HEALTH_FAULT_TEST                                        0x8032
+#define HEALTH_FAULT_TEST_UNACKNOWLEDGED                         0x8033
+#define HEALTH_PERIOD_GET                                        0x8034
+#define HEALTH_PERIOD_SET                                        0x8035
+#define HEALTH_PERIOD_SET_UNACKNOWLEDGED                         0x8036
+#define HEALTH_PERIOD_STATUS                                     0x8037
+#define CONFIG_HEARTBEAT_PUBLICATION_GET                         0x8038
+#define CONFIG_HEARTBEAT_PUBLICATION_SET                         0x8039
+#define CONFIG_HEARTBEAT_SUBSCRIPTION_GET                        0x803a
+#define CONFIG_HEARTBEAT_SUBSCRIPTION_SET                        0x803b
+#define CONFIG_HEARTBEAT_SUBSCRIPTION_STATUS                     0x803c
+#define CONFIG_MODEL_APP_BIND                                    0x803d
+#define CONFIG_MODEL_APP_STATUS                                  0x803e
+#define CONFIG_MODEL_APP_UNBIND                                  0x803f
+#define CONFIG_NETKEY_ADD                                        0x8040
+#define CONFIG_NETKEY_DELETE                                     0x8041
+#define CONFIG_NETKEY_GET                                        0x8042
+#define CONFIG_NETKEY_LIST                                       0x8043
+#define CONFIG_NETKEY_STATUS                                     0x8044
+#define CONFIG_NETKEY_UPDATE                                     0x8045
+#define CONFIG_NODE_IDENTITY_GET                                 0x8046
+#define CONFIG_NODE_IDENTITY_SET                                 0x8047
+#define CONFIG_NODE_IDENTITY_STATUS                              0x8048
+#define CONFIG_NODE_RESET                                        0x8049
+#define CONFIG_NODE_RESET_STATUS                                 0x804a
+#define CONFIG_SIG_MODEL_APP_GET                                 0x804b
+#define CONFIG_SIG_MODEL_APP_LIST                                0x804c
+#define CONFIG_VENDOR_MODEL_APP_GET                              0x804d
+#define CONFIG_VENDOR_MODEL_APP_LIST                             0x804e
 
 void proto_register_btmesh(void);
 
@@ -183,6 +272,296 @@ static int hf_btmesh_model_layer_parameters = -1;
 static int hf_btmesh_model_layer_vendor_opcode = -1;
 static int hf_btmesh_model_layer_vendor = -1;
 
+static int hf_btmesh_config_appkey_add_netkeyindexandappkeyindex = -1;
+static int hf_btmesh_config_appkey_add_netkeyindexandappkeyindex_net = -1;
+static int hf_btmesh_config_appkey_add_netkeyindexandappkeyindex_app = -1;
+static int hf_btmesh_config_appkey_add_appkey = -1;
+static int hf_btmesh_config_appkey_update_netkeyindexandappkeyindex = -1;
+static int hf_btmesh_config_appkey_update_netkeyindexandappkeyindex_net = -1;
+static int hf_btmesh_config_appkey_update_netkeyindexandappkeyindex_app = -1;
+static int hf_btmesh_config_appkey_update_appkey = -1;
+static int hf_btmesh_config_composition_data_status_page = -1;
+static int hf_btmesh_config_composition_data_status_cid = -1;
+static int hf_btmesh_config_composition_data_status_pid = -1;
+static int hf_btmesh_config_composition_data_status_vid = -1;
+static int hf_btmesh_config_composition_data_status_crpl = -1;
+static int hf_btmesh_config_composition_data_status_features_relay = -1;
+static int hf_btmesh_config_composition_data_status_features_proxy = -1;
+static int hf_btmesh_config_composition_data_status_features_friend = -1;
+static int hf_btmesh_config_composition_data_status_features_low_power = -1;
+static int hf_btmesh_config_composition_data_status_features_rfu = -1;
+static int hf_btmesh_config_composition_data_status_features = -1;
+static int hf_btmesh_config_composition_data_status_loc = -1;
+static int hf_btmesh_config_composition_data_status_nums = -1;
+static int hf_btmesh_config_composition_data_status_numv = -1;
+static int hf_btmesh_config_composition_data_status_sig_model = -1;
+static int hf_btmesh_config_composition_data_status_vendor_model = -1;
+static int hf_btmesh_config_model_publication_set_elementaddress = -1;
+static int hf_btmesh_config_model_publication_set_publishaddress = -1;
+static int hf_btmesh_config_model_publication_set_appkey = -1;
+static int hf_btmesh_config_model_publication_set_appkeyindex = -1;
+static int hf_btmesh_config_model_publication_set_credentialflag = -1;
+static int hf_btmesh_config_model_publication_set_rfu = -1;
+static int hf_btmesh_config_model_publication_set_publishttl = -1;
+static int hf_btmesh_config_model_publication_set_publishperiod = -1;
+static int hf_btmesh_config_model_publication_set_publishperiod_resolution = -1;
+static int hf_btmesh_config_model_publication_set_publishperiod_steps = -1;
+static int hf_btmesh_config_model_publication_set_publishretransmit = -1;
+static int hf_btmesh_config_model_publication_set_publishretransmit_count = -1;
+static int hf_btmesh_config_model_publication_set_publishretransmit_intervalsteps = -1;
+static int hf_btmesh_config_model_publication_set_modelidentifier = -1;
+static int hf_btmesh_config_model_publication_set_vendormodelidentifier = -1;
+static int hf_btmesh_health_current_status_test_id = -1;
+static int hf_btmesh_health_current_status_company_id = -1;
+static int hf_btmesh_health_current_status_fault = -1;
+static int hf_btmesh_health_fault_status_test_id = -1;
+static int hf_btmesh_health_fault_status_company_id = -1;
+static int hf_btmesh_health_fault_status_fault = -1;
+static int hf_btmesh_config_heartbeat_publication_status_status = -1;
+static int hf_btmesh_config_heartbeat_publication_status_destination = -1;
+static int hf_btmesh_config_heartbeat_publication_status_countlog = -1;
+static int hf_btmesh_config_heartbeat_publication_status_periodlog = -1;
+static int hf_btmesh_config_heartbeat_publication_status_ttl = -1;
+static int hf_btmesh_config_heartbeat_publication_status_features_relay = -1;
+static int hf_btmesh_config_heartbeat_publication_status_features_proxy = -1;
+static int hf_btmesh_config_heartbeat_publication_status_features_friend = -1;
+static int hf_btmesh_config_heartbeat_publication_status_features_low_power = -1;
+static int hf_btmesh_config_heartbeat_publication_status_features_rfu = -1;
+static int hf_btmesh_config_heartbeat_publication_status_features = -1;
+static int hf_btmesh_config_heartbeat_publication_status_netkeyindex = -1;
+static int hf_btmesh_config_heartbeat_publication_status_netkeyindex_idx = -1;
+static int hf_btmesh_config_heartbeat_publication_status_netkeyindex_rfu = -1;
+static int hf_btmesh_config_appkey_delete_netkeyindexandappkeyindex = -1;
+static int hf_btmesh_config_appkey_delete_netkeyindexandappkeyindex_net = -1;
+static int hf_btmesh_config_appkey_delete_netkeyindexandappkeyindex_app = -1;
+static int hf_btmesh_config_appkey_get_netkeyindex = -1;
+static int hf_btmesh_config_appkey_get_netkeyindex_idx = -1;
+static int hf_btmesh_config_appkey_get_netkeyindex_rfu = -1;
+static int hf_btmesh_config_appkey_list_status = -1;
+static int hf_btmesh_config_appkey_list_netkeyindex = -1;
+static int hf_btmesh_config_appkey_list_netkeyindex_idx = -1;
+static int hf_btmesh_config_appkey_list_netkeyindex_rfu = -1;
+static int hf_btmesh_config_appkey_list_appkeyindex = -1;
+static int hf_btmesh_config_appkey_list_appkeyindex_rfu = -1;
+static int hf_btmesh_config_appkey_status_status = -1;
+static int hf_btmesh_config_appkey_status_netkeyindexandappkeyindex = -1;
+static int hf_btmesh_config_appkey_status_netkeyindexandappkeyindex_net = -1;
+static int hf_btmesh_config_appkey_status_netkeyindexandappkeyindex_app = -1;
+static int hf_btmesh_health_attention_set_attention = -1;
+static int hf_btmesh_health_attention_set_unacknowledged_attention = -1;
+static int hf_btmesh_health_attention_status_attention = -1;
+static int hf_btmesh_config_composition_data_get_page = -1;
+static int hf_btmesh_config_beacon_set_beacon = -1;
+static int hf_btmesh_config_beacon_status_beacon = -1;
+static int hf_btmesh_config_default_ttl_set_ttl = -1;
+static int hf_btmesh_config_default_ttl_status_ttl = -1;
+static int hf_btmesh_config_friend_set_friend = -1;
+static int hf_btmesh_config_friend_status_friend = -1;
+static int hf_btmesh_config_gatt_proxy_set_gattproxy = -1;
+static int hf_btmesh_config_gatt_proxy_status_gattproxy = -1;
+static int hf_btmesh_config_key_refresh_phase_get_netkeyindex = -1;
+static int hf_btmesh_config_key_refresh_phase_get_netkeyindex_idx = -1;
+static int hf_btmesh_config_key_refresh_phase_get_netkeyindex_rfu = -1;
+static int hf_btmesh_config_key_refresh_phase_set_netkeyindex = -1;
+static int hf_btmesh_config_key_refresh_phase_set_netkeyindex_idx = -1;
+static int hf_btmesh_config_key_refresh_phase_set_netkeyindex_rfu = -1;
+static int hf_btmesh_config_key_refresh_phase_set_transition = -1;
+static int hf_btmesh_config_key_refresh_phase_status_status = -1;
+static int hf_btmesh_config_key_refresh_phase_status_netkeyindex = -1;
+static int hf_btmesh_config_key_refresh_phase_status_netkeyindex_idx = -1;
+static int hf_btmesh_config_key_refresh_phase_status_netkeyindex_rfu = -1;
+static int hf_btmesh_config_key_refresh_phase_status_phase = -1;
+static int hf_btmesh_config_model_publication_get_elementaddress = -1;
+static int hf_btmesh_config_model_publication_get_modelidentifier = -1;
+static int hf_btmesh_config_model_publication_get_vendormodelidentifier = -1;
+static int hf_btmesh_config_model_publication_status_status = -1;
+static int hf_btmesh_config_model_publication_status_elementaddress = -1;
+static int hf_btmesh_config_model_publication_status_publishaddress = -1;
+static int hf_btmesh_config_model_publication_status_appkey = -1;
+static int hf_btmesh_config_model_publication_status_appkeyindex = -1;
+static int hf_btmesh_config_model_publication_status_credentialflag = -1;
+static int hf_btmesh_config_model_publication_status_rfu = -1;
+static int hf_btmesh_config_model_publication_status_publishttl = -1;
+static int hf_btmesh_config_model_publication_status_publishperiod = -1;
+static int hf_btmesh_config_model_publication_status_publishperiod_resolution = -1;
+static int hf_btmesh_config_model_publication_status_publishperiod_steps = -1;
+static int hf_btmesh_config_model_publication_status_publishretransmit = -1;
+static int hf_btmesh_config_model_publication_status_publishretransmit_count = -1;
+static int hf_btmesh_config_model_publication_status_publishretransmit_intervalsteps = -1;
+static int hf_btmesh_config_model_publication_status_modelidentifier = -1;
+static int hf_btmesh_config_model_publication_status_vendormodelidentifier = -1;
+static int hf_btmesh_config_model_publication_virtual_address_set_elementaddress = -1;
+static int hf_btmesh_config_model_publication_virtual_address_set_publishaddress = -1;
+static int hf_btmesh_config_model_publication_virtual_address_set_appkey = -1;
+static int hf_btmesh_config_model_publication_virtual_address_set_appkeyindex = -1;
+static int hf_btmesh_config_model_publication_virtual_address_set_credentialflag = -1;
+static int hf_btmesh_config_model_publication_virtual_address_set_rfu = -1;
+static int hf_btmesh_config_model_publication_virtual_address_set_publishttl = -1;
+static int hf_btmesh_config_model_publication_virtual_address_set_publishperiod = -1;
+static int hf_btmesh_config_model_publication_virtual_address_set_publishperiod_resolution = -1;
+static int hf_btmesh_config_model_publication_virtual_address_set_publishperiod_steps = -1;
+static int hf_btmesh_config_model_publication_virtual_address_set_publishretransmit = -1;
+static int hf_btmesh_config_model_publication_virtual_address_set_publishretransmit_count = -1;
+static int hf_btmesh_config_model_publication_virtual_address_set_publishretransmit_intervalsteps = -1;
+static int hf_btmesh_config_model_publication_virtual_address_set_modelidentifier = -1;
+static int hf_btmesh_config_model_publication_virtual_address_set_vendormodelidentifier = -1;
+static int hf_btmesh_config_model_subscription_add_elementaddress = -1;
+static int hf_btmesh_config_model_subscription_add_address = -1;
+static int hf_btmesh_config_model_subscription_add_modelidentifier = -1;
+static int hf_btmesh_config_model_subscription_add_vendormodelidentifier = -1;
+static int hf_btmesh_config_model_subscription_delete_elementaddress = -1;
+static int hf_btmesh_config_model_subscription_delete_address = -1;
+static int hf_btmesh_config_model_subscription_delete_modelidentifier = -1;
+static int hf_btmesh_config_model_subscription_delete_vendormodelidentifier = -1;
+static int hf_btmesh_config_model_subscription_delete_all_elementaddress = -1;
+static int hf_btmesh_config_model_subscription_delete_all_modelidentifier = -1;
+static int hf_btmesh_config_model_subscription_delete_all_vendormodelidentifier = -1;
+static int hf_btmesh_config_model_subscription_overwrite_elementaddress = -1;
+static int hf_btmesh_config_model_subscription_overwrite_address = -1;
+static int hf_btmesh_config_model_subscription_overwrite_modelidentifier = -1;
+static int hf_btmesh_config_model_subscription_overwrite_vendormodelidentifier = -1;
+static int hf_btmesh_config_model_subscription_status_status = -1;
+static int hf_btmesh_config_model_subscription_status_elementaddress = -1;
+static int hf_btmesh_config_model_subscription_status_address = -1;
+static int hf_btmesh_config_model_subscription_status_modelidentifier = -1;
+static int hf_btmesh_config_model_subscription_status_vendormodelidentifier = -1;
+static int hf_btmesh_config_model_subscription_virtual_address_add_elementaddress = -1;
+static int hf_btmesh_config_model_subscription_virtual_address_add_label = -1;
+static int hf_btmesh_config_model_subscription_virtual_address_add_modelidentifier = -1;
+static int hf_btmesh_config_model_subscription_virtual_address_add_vendormodelidentifier = -1;
+static int hf_btmesh_config_model_subscription_virtual_address_delete_elementaddress = -1;
+static int hf_btmesh_config_model_subscription_virtual_address_delete_label = -1;
+static int hf_btmesh_config_model_subscription_virtual_address_delete_modelidentifier = -1;
+static int hf_btmesh_config_model_subscription_virtual_address_delete_vendormodelidentifier = -1;
+static int hf_btmesh_config_model_subscription_virtual_address_overwrite_elementaddress = -1;
+static int hf_btmesh_config_model_subscription_virtual_address_overwrite_label = -1;
+static int hf_btmesh_config_model_subscription_virtual_address_overwrite_modelidentifier = -1;
+static int hf_btmesh_config_model_subscription_virtual_address_overwrite_vendormodelidentifier = -1;
+static int hf_btmesh_config_network_transmit_set_networktransmit = -1;
+static int hf_btmesh_config_network_transmit_set_networktransmit_count = -1;
+static int hf_btmesh_config_network_transmit_set_networktransmit_intervalsteps = -1;
+static int hf_btmesh_config_network_transmit_status_networktransmit = -1;
+static int hf_btmesh_config_network_transmit_status_networktransmit_count = -1;
+static int hf_btmesh_config_network_transmit_status_networktransmit_intervalsteps = -1;
+static int hf_btmesh_config_relay_set_relay = -1;
+static int hf_btmesh_config_relay_set_relayretransmit = -1;
+static int hf_btmesh_config_relay_set_relayretransmit_count = -1;
+static int hf_btmesh_config_relay_set_relayretransmit_intervalsteps = -1;
+static int hf_btmesh_config_relay_status_relay = -1;
+static int hf_btmesh_config_relay_status_relayretransmit = -1;
+static int hf_btmesh_config_relay_status_relayretransmit_count = -1;
+static int hf_btmesh_config_relay_status_relayretransmit_intervalsteps = -1;
+static int hf_btmesh_config_sig_model_subscription_get_elementaddress = -1;
+static int hf_btmesh_config_sig_model_subscription_get_modelidentifier = -1;
+static int hf_btmesh_config_sig_model_subscription_list_status = -1;
+static int hf_btmesh_config_sig_model_subscription_list_elementaddress = -1;
+static int hf_btmesh_config_sig_model_subscription_list_modelidentifier = -1;
+static int hf_btmesh_config_sig_model_subscription_list_address = -1;
+static int hf_btmesh_config_vendor_model_subscription_get_elementaddress = -1;
+static int hf_btmesh_config_vendor_model_subscription_get_modelidentifier = -1;
+static int hf_btmesh_config_vendor_model_subscription_list_status = -1;
+static int hf_btmesh_config_vendor_model_subscription_list_elementaddress = -1;
+static int hf_btmesh_config_vendor_model_subscription_list_modelidentifier = -1;
+static int hf_btmesh_config_vendor_model_subscription_list_address = -1;
+static int hf_btmesh_config_low_power_node_polltimeout_get_lpnaddress = -1;
+static int hf_btmesh_config_low_power_node_polltimeout_status_lpnaddress = -1;
+static int hf_btmesh_config_low_power_node_polltimeout_status_polltimeout = -1;
+static int hf_btmesh_health_fault_clear_company_id = -1;
+static int hf_btmesh_health_fault_clear_unacknowledged_company_id = -1;
+static int hf_btmesh_health_fault_get_company_id = -1;
+static int hf_btmesh_health_fault_test_test_id = -1;
+static int hf_btmesh_health_fault_test_company_id = -1;
+static int hf_btmesh_health_fault_test_unacknowledged_test_id = -1;
+static int hf_btmesh_health_fault_test_unacknowledged_company_id = -1;
+static int hf_btmesh_health_period_set_fastperioddivisor = -1;
+static int hf_btmesh_health_period_set_unacknowledged_fastperioddivisor = -1;
+static int hf_btmesh_health_period_status_fastperioddivisor = -1;
+static int hf_btmesh_config_heartbeat_publication_set_destination = -1;
+static int hf_btmesh_config_heartbeat_publication_set_countlog = -1;
+static int hf_btmesh_config_heartbeat_publication_set_periodlog = -1;
+static int hf_btmesh_config_heartbeat_publication_set_ttl = -1;
+static int hf_btmesh_config_heartbeat_publication_set_features_relay = -1;
+static int hf_btmesh_config_heartbeat_publication_set_features_proxy = -1;
+static int hf_btmesh_config_heartbeat_publication_set_features_friend = -1;
+static int hf_btmesh_config_heartbeat_publication_set_features_low_power = -1;
+static int hf_btmesh_config_heartbeat_publication_set_features_rfu = -1;
+static int hf_btmesh_config_heartbeat_publication_set_features = -1;
+static int hf_btmesh_config_heartbeat_publication_set_netkeyindex = -1;
+static int hf_btmesh_config_heartbeat_publication_set_netkeyindex_idx = -1;
+static int hf_btmesh_config_heartbeat_publication_set_netkeyindex_rfu = -1;
+static int hf_btmesh_config_heartbeat_subscription_set_source = -1;
+static int hf_btmesh_config_heartbeat_subscription_set_destination = -1;
+static int hf_btmesh_config_heartbeat_subscription_set_periodlog = -1;
+static int hf_btmesh_config_heartbeat_subscription_status_status = -1;
+static int hf_btmesh_config_heartbeat_subscription_status_source = -1;
+static int hf_btmesh_config_heartbeat_subscription_status_destination = -1;
+static int hf_btmesh_config_heartbeat_subscription_status_periodlog = -1;
+static int hf_btmesh_config_heartbeat_subscription_status_countlog = -1;
+static int hf_btmesh_config_heartbeat_subscription_status_minhops = -1;
+static int hf_btmesh_config_heartbeat_subscription_status_maxhops = -1;
+static int hf_btmesh_config_model_app_bind_elementaddress = -1;
+static int hf_btmesh_config_model_app_bind_appkeyindex = -1;
+static int hf_btmesh_config_model_app_bind_appkeyindex_idx = -1;
+static int hf_btmesh_config_model_app_bind_appkeyindex_rfu = -1;
+static int hf_btmesh_config_model_app_bind_modelidentifier = -1;
+static int hf_btmesh_config_model_app_bind_vendormodelidentifier = -1;
+static int hf_btmesh_config_model_app_status_status = -1;
+static int hf_btmesh_config_model_app_status_elementaddress = -1;
+static int hf_btmesh_config_model_app_status_appkeyindex = -1;
+static int hf_btmesh_config_model_app_status_appkeyindex_idx = -1;
+static int hf_btmesh_config_model_app_status_appkeyindex_rfu = -1;
+static int hf_btmesh_config_model_app_status_modelidentifier = -1;
+static int hf_btmesh_config_model_app_status_vendormodelidentifier = -1;
+static int hf_btmesh_config_model_app_unbind_elementaddress = -1;
+static int hf_btmesh_config_model_app_unbind_appkeyindex = -1;
+static int hf_btmesh_config_model_app_unbind_appkeyindex_idx = -1;
+static int hf_btmesh_config_model_app_unbind_appkeyindex_rfu = -1;
+static int hf_btmesh_config_model_app_unbind_modelidentifier = -1;
+static int hf_btmesh_config_model_app_unbind_vendormodelidentifier = -1;
+static int hf_btmesh_config_netkey_add_netkeyindex = -1;
+static int hf_btmesh_config_netkey_add_netkeyindex_idx = -1;
+static int hf_btmesh_config_netkey_add_netkeyindex_rfu = -1;
+static int hf_btmesh_config_netkey_add_netkey = -1;
+static int hf_btmesh_config_netkey_delete_netkeyindex = -1;
+static int hf_btmesh_config_netkey_delete_netkeyindex_idx = -1;
+static int hf_btmesh_config_netkey_delete_netkeyindex_rfu = -1;
+static int hf_btmesh_config_netkey_list_netkeyindex = -1;
+static int hf_btmesh_config_netkey_list_netkeyindex_rfu = -1;
+static int hf_btmesh_config_netkey_status_status = -1;
+static int hf_btmesh_config_netkey_status_netkeyindex = -1;
+static int hf_btmesh_config_netkey_status_netkeyindex_idx = -1;
+static int hf_btmesh_config_netkey_status_netkeyindex_rfu = -1;
+static int hf_btmesh_config_netkey_update_netkeyindex = -1;
+static int hf_btmesh_config_netkey_update_netkeyindex_idx = -1;
+static int hf_btmesh_config_netkey_update_netkeyindex_rfu = -1;
+static int hf_btmesh_config_netkey_update_netkey = -1;
+static int hf_btmesh_config_node_identity_get_netkeyindex = -1;
+static int hf_btmesh_config_node_identity_get_netkeyindex_idx = -1;
+static int hf_btmesh_config_node_identity_get_netkeyindex_rfu = -1;
+static int hf_btmesh_config_node_identity_set_netkeyindex = -1;
+static int hf_btmesh_config_node_identity_set_netkeyindex_idx = -1;
+static int hf_btmesh_config_node_identity_set_netkeyindex_rfu = -1;
+static int hf_btmesh_config_node_identity_set_identity = -1;
+static int hf_btmesh_config_node_identity_status_status = -1;
+static int hf_btmesh_config_node_identity_status_netkeyindex = -1;
+static int hf_btmesh_config_node_identity_status_netkeyindex_idx = -1;
+static int hf_btmesh_config_node_identity_status_netkeyindex_rfu = -1;
+static int hf_btmesh_config_node_identity_status_identity = -1;
+static int hf_btmesh_config_sig_model_app_get_elementaddress = -1;
+static int hf_btmesh_config_sig_model_app_get_modelidentifier = -1;
+static int hf_btmesh_config_sig_model_app_list_status = -1;
+static int hf_btmesh_config_sig_model_app_list_elementaddress = -1;
+static int hf_btmesh_config_sig_model_app_list_modelidentifier = -1;
+static int hf_btmesh_config_sig_model_app_list_appkeyindex = -1;
+static int hf_btmesh_config_sig_model_app_list_appkeyindex_rfu = -1;
+static int hf_btmesh_config_vendor_model_app_get_elementaddress = -1;
+static int hf_btmesh_config_vendor_model_app_get_modelidentifier = -1;
+static int hf_btmesh_config_vendor_model_app_list_status = -1;
+static int hf_btmesh_config_vendor_model_app_list_elementaddress = -1;
+static int hf_btmesh_config_vendor_model_app_list_modelidentifier = -1;
+static int hf_btmesh_config_vendor_model_app_list_appkeyindex = -1;
+static int hf_btmesh_config_vendor_model_app_list_appkeyindex_rfu = -1;
+
 static int ett_btmesh = -1;
 static int ett_btmesh_net_pdu = -1;
 static int ett_btmesh_transp_pdu = -1;
@@ -195,7 +574,27 @@ static int ett_btmesh_segmented_control_fragment = -1;
 static int ett_btmesh_access_pdu = -1;
 static int ett_btmesh_model_layer = -1;
 
+static int ett_btmesh_config_model_netapp_index = -1;
+static int ett_btmesh_config_model_publishperiod = -1;
+static int ett_btmesh_config_model_publishretransmit = -1;
+static int ett_btmesh_config_model_relayretransmit = -1;
+static int ett_btmesh_config_model_network_transmit = -1;
+static int ett_btmesh_config_model_element = -1;
+static int ett_btmesh_config_model_model = -1;
+static int ett_btmesh_config_model_vendor = -1;
+static int ett_btmesh_config_composition_data_status_features = -1;
+static int ett_btmesh_config_model_pub_app_index = -1;
+static int ett_btmesh_config_model_addresses = -1;
+static int ett_btmesh_config_model_netkey_list = -1;
+static int ett_btmesh_config_model_appkey_list = -1;
+static int ett_btmesh_config_model_net_index = -1;
+static int ett_btmesh_config_model_app_index = -1;
+static int ett_btmesh_config_heartbeat_publication_set_features = -1;
+static int ett_btmesh_config_heartbeat_publication_status_features = -1;
+static int ett_btmesh_config_model_fault_array = -1;
+
 static expert_field ei_btmesh_not_decoded_yet = EI_INIT;
+static expert_field ei_btmesh_unknown_payload = EI_INIT;
 
 static const value_string btmesh_ctl_vals[] = {
     { 0, "Access Message" },
@@ -581,6 +980,227 @@ static const value_string btmesh_models_opcode_vals[] = {
     { 0x64, "Light LC Property Status" },
     { 0, NULL }
 };
+
+static const value_string btmesh_beacon_broadcast_vals[] = {
+    { 0x00, "Not broadcasting a Secure Network beacon" },
+    { 0x01, "Broadcasting a Secure Network beacon" },
+    { 0, NULL }
+};
+
+static const value_string btmesh_gatt_proxy_vals[] = {
+    { 0x00, "Proxy feature is supported and disabled" },
+    { 0x01, "Proxy feature is supported and enabled" },
+    { 0x02, "Proxy feature is not supported" },
+    { 0, NULL }
+};
+
+static const value_string btmesh_relay_vals[] = {
+    { 0x00, "Relay feature is supported and disabled" },
+    { 0x01, "Relay feature is supported and enabled" },
+    { 0x02, "Relay feature is not supported" },
+    { 0, NULL }
+};
+
+static const value_string btmesh_friend_vals[] = {
+    { 0x00, "Friend feature is supported and disabled" },
+    { 0x01, "Friend feature is supported and enabled" },
+    { 0x02, "Friend feature is not supported" },
+    { 0, NULL }
+};
+
+static const value_string btmesh_publishperiod_resolution_vals[] = {
+    { 0x00, "100 milliseconds" },
+    { 0x01, "1 second" },
+    { 0x02, "10 seconds" },
+    { 0x03, "10 minutes" },
+    { 0, NULL }
+};
+
+static const value_string btmesh_friendship_credentials_flag_vals[] = {
+    { 0x00, "Master security material is used" },
+    { 0x01, "Friendship security material is used" },
+    { 0, NULL }
+};
+
+static const value_string btmesh_phase_vals[] = {
+    { 0x00, "Normal operation" },
+    { 0x01, "First phase of Key Refresh procedure" },
+    { 0x02, "Second phase of Key Refresh procedure" },
+    { 0, NULL }
+};
+
+static const range_string btmesh_transition_vals[] = {
+    { 0x00, 0x01, "Prohibited" },
+    { 0x02, 0x02, "Transition 2" },
+    { 0x03, 0x03, "Transition 3" },
+    { 0x04, 0xFF, "Prohibited" },
+    { 0, 0, NULL }
+};
+
+static const value_string btmesh_fault_array_vals[] = {
+    { 0x00, "No Fault" },
+    { 0x01, "Battery Low Warning" },
+    { 0x02, "Battery Low Error" },
+    { 0x03, "Supply Voltage Too Low Warning" },
+    { 0x04, "Supply Voltage Too Low Error" },
+    { 0x05, "Supply Voltage Too High Warning" },
+    { 0x06, "Supply Voltage Too High Error" },
+    { 0x07, "Power Supply Interrupted Warning" },
+    { 0x08, "Power Supply Interrupted Error" },
+    { 0x09, "No Load Warning" },
+    { 0x0A, "No Load Error" },
+    { 0x0B, "Overload Warning" },
+    { 0x0C, "Overload Error" },
+    { 0x0D, "Overheat Warning" },
+    { 0x0E, "Overheat Error" },
+    { 0x0F, "Condensation Warning" },
+    { 0x10, "Condensation Error" },
+    { 0x11, "Vibration Warning" },
+    { 0x12, "Vibration Error" },
+    { 0x13, "Configuration Warning" },
+    { 0x14, "Configuration Error" },
+    { 0x15, "Element Not Calibrated Warning" },
+    { 0x16, "Element Not Calibrated Error" },
+    { 0x17, "Memory Warning" },
+    { 0x18, "Memory Error" },
+    { 0x19, "Self-Test Warning" },
+    { 0x1A, "Self-Test Error" },
+    { 0x1B, "Input Too Low Warning" },
+    { 0x1C, "Input Too Low Error" },
+    { 0x1D, "Input Too High Warning" },
+    { 0x1E, "Input Too High Error" },
+    { 0x1F, "Input No Change Warning" },
+    { 0x20, "Input No Change Error" },
+    { 0x21, "Actuator Blocked Warning" },
+    { 0x22, "Actuator Blocked Error" },
+    { 0x23, "Housing Opened Warning" },
+    { 0x24, "Housing Opened Error" },
+    { 0x25, "Tamper Warning" },
+    { 0x26, "Tamper Error" },
+    { 0x27, "Device Moved Warning" },
+    { 0x28, "Device Moved Error" },
+    { 0x29, "Device Dropped Warning" },
+    { 0x2A, "Device Dropped Error" },
+    { 0x2B, "Overflow Warning" },
+    { 0x2C, "Overflow Error" },
+    { 0x2D, "Empty Warning" },
+    { 0x2E, "Empty Error" },
+    { 0x2F, "Internal Bus Warning" },
+    { 0x30, "Internal Bus Error" },
+    { 0x31, "Mechanism Jammed Warning" },
+    { 0x32, "Mechanism Jammed Error" },
+    { 0, NULL }
+};
+
+static const int *config_composition_data_status_features_headers[] = {
+  &hf_btmesh_config_composition_data_status_features_relay,
+  &hf_btmesh_config_composition_data_status_features_proxy,
+  &hf_btmesh_config_composition_data_status_features_friend,
+  &hf_btmesh_config_composition_data_status_features_low_power,
+  &hf_btmesh_config_composition_data_status_features_rfu,
+ NULL
+};
+
+static const int *config_heartbeat_publication_set_features_headers[] = {
+  &hf_btmesh_config_heartbeat_publication_set_features_relay,
+  &hf_btmesh_config_heartbeat_publication_set_features_proxy,
+  &hf_btmesh_config_heartbeat_publication_set_features_friend,
+  &hf_btmesh_config_heartbeat_publication_set_features_low_power,
+  &hf_btmesh_config_heartbeat_publication_set_features_rfu,
+ NULL
+};
+
+static const int *config_heartbeat_publication_status_features_headers[] = {
+  &hf_btmesh_config_heartbeat_publication_status_features_relay,
+  &hf_btmesh_config_heartbeat_publication_status_features_proxy,
+  &hf_btmesh_config_heartbeat_publication_status_features_friend,
+  &hf_btmesh_config_heartbeat_publication_status_features_low_power,
+  &hf_btmesh_config_heartbeat_publication_status_features_rfu,
+ NULL
+};
+
+static const value_string btmesh_status_code_vals[] = {
+    { 0x00, "Success" },
+    { 0x01, "Invalid Address" },
+    { 0x02, "Invalid Model" },
+    { 0x03, "Invalid AppKey Index" },
+    { 0x04, "Invalid NetKey Index" },
+    { 0x05, "Insufficient Resources" },
+    { 0x06, "Key Index Already Stored" },
+    { 0x07, "Invalid Publish Parameters" },
+    { 0x08, "Not a Subscribe Model" },
+    { 0x09, "Storage Failure" },
+    { 0x0A, "Feature Not Supported" },
+    { 0x0B, "Cannot Update" },
+    { 0x0C, "Cannot Remove" },
+    { 0x0D, "Cannot Bind" },
+    { 0x0E, "Temporarily Unable to Change State" },
+    { 0x0F, "Cannot Set" },
+    { 0x10, "Unspecified Error" },
+    { 0x11, "Invalid Binding" },
+    { 0, NULL }
+};
+
+static const value_string btmesh_model_vals[] = {
+    { 0x0000, "Configuration Server" },
+    { 0x0001, "Configuration Client" },
+    { 0x0002, "Health Server" },
+    { 0x0003, "Health Client" },
+    { 0x1000, "Generic OnOff Server" },
+    { 0x1001, "Generic OnOff Client" },
+    { 0x1002, "Generic Level Server" },
+    { 0x1003, "Generic Level Client" },
+    { 0x1004, "Generic Default Transition Time Server" },
+    { 0x1005, "Generic Default Transition Time Client" },
+    { 0x1006, "Generic Power OnOff Server" },
+    { 0x1007, "Generic Power OnOff Setup Server" },
+    { 0x1008, "Generic Power OnOff Client" },
+    { 0x1009, "Generic Power Level Server" },
+    { 0x100A, "Generic Power Level Setup Server" },
+    { 0x100B, "Generic Power Level Client" },
+    { 0x100C, "Generic Battery Server" },
+    { 0x100D, "Generic Battery Client" },
+    { 0x100E, "Generic Location Server" },
+    { 0x100F, "Generic Location Setup Server" },
+    { 0x1010, "Generic Location Client" },
+    { 0x1011, "Generic Admin Property Server" },
+    { 0x1012, "Generic Manufacturer Property Server" },
+    { 0x1013, "Generic User Property Server" },
+    { 0x1014, "Generic Client Property Server" },
+    { 0x1015, "Generic Property Clien" },
+    { 0x1100, "Sensors Sensor Server" },
+    { 0x1101, "Sensor Setup Server" },
+    { 0x1102, "Sensor Client" },
+    { 0x1200, "Time Server" },
+    { 0x1201, "Time Setup Server" },
+    { 0x1202, "Time Client" },
+    { 0x1203, "Scene Server" },
+    { 0x1204, "Scene Setup Server" },
+    { 0x1205, "Scene Client" },
+    { 0x1206, "Scheduler Server" },
+    { 0x1207, "Scheduler Setup Server" },
+    { 0x1208, "Scheduler Client" },
+    { 0x1300, "Light Lightness Server" },
+    { 0x1301, "Light Lightness Setup Server" },
+    { 0x1302, "Light Lightness Client" },
+    { 0x1303, "Light CTL Server" },
+    { 0x1304, "Light CTL Setup Server" },
+    { 0x1305, "Light CTL Client" },
+    { 0x1306, "Light CTL Temperature Server" },
+    { 0x1307, "Light HSL Server" },
+    { 0x1308, "Light HSL Setup Server" },
+    { 0x1309, "Light HSL Client" },
+    { 0x130A, "Light HSL Hue Server" },
+    { 0x130B, "Light HSL Saturation Server" },
+    { 0x130C, "Light xyL Server" },
+    { 0x130D, "Light xyL Setup Server" },
+    { 0x130E, "Light xyL Client" },
+    { 0x130F, "Light LC Server" },
+    { 0x1310, "Light LC Setup Server" },
+    { 0x1311, "Light LC Client" },
+    { 0, NULL }
+};
+
 
 /* Upper Transport Message reassembly */
 
@@ -1159,11 +1779,97 @@ btmesh_deobfuscate(tvbuff_t *tvb, packet_info *pinfo, int offset _U_, uat_btmesh
     return de_obf_tvb;
 }
 
+static const gchar *period_interval_unit[] = {"ms", "s", "s", "min"};
+static const guint32 period_interval_multiplier[] = {100, 1, 10, 10};
+
+static void
+format_publish_period(gchar *buf, guint32 value) {
+    guint32 idx = (value & 0xC0 ) >> 5;
+    guint32 val = (value & 0x3F ) * period_interval_multiplier[idx];
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u %s", val, period_interval_unit[idx]);
+}
+
+static void
+format_transmit(gchar *buf, guint32 value) {
+    guint32 prd = (((value & 0xF8 ) >> 3 ) + 1 ) * 10;
+    guint32 ctr = (value & 0x07 );
+    switch (ctr) {
+    case 0:
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "One transmissions");
+        break;
+
+    default:
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "%u transmissions at interval of %u ms", ctr, prd);
+    }
+}
+
+static void
+format_retransmit(gchar *buf, guint32 value) {
+    guint32 prd = (((value & 0xF8 ) >> 3 ) + 1 ) * 10;
+    guint32 ctr = (value & 0x07 );
+    switch (ctr) {
+    case 0:
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "No retransmissions");
+        break;
+
+    case 1:
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "One retransmission after %u ms", prd);
+        break;
+
+    default:
+        g_snprintf(buf, ITEM_LABEL_LENGTH, "%u retransmissions at interval of %u ms", ctr, prd);
+    }
+}
+
+static void
+format_interval_steps(gchar *buf, guint32 value) {
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u ms (%u)", (value + 1) * 10, value);
+}
+
+static void
+format_key_index(gchar *buf, guint32 value) {
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u (0x%03x)", value & 0xFFF, value & 0xFFF);
+}
+
+static void
+format_key_index_rfu(gchar *buf, guint32 value) {
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "0x%1x", (value & 0xF000) >> 12);
+}
+
+static void
+format_dual_key_index(gchar *buf, guint32 value) {
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u (0x%03x), %u (0x%03x)", value & 0xFFF, value & 0xFFF, ( value & 0xFFF000 ) >> 12, ( value & 0xFFF000 ) >> 12);
+}
+
+static void
+format_vendor_model(gchar *buf, guint32 value) {
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "0x%04x of %s", value >> 16, val_to_str_ext_const(value & 0xFFFF, &bluetooth_company_id_vals_ext, "Unknown"));
+}
+
+static void
+format_publish_appkeyindex_model(gchar *buf, guint32 value) {
+    g_snprintf(buf, ITEM_LABEL_LENGTH, "%u (0x%03x) using %s security material", value & 0x0FFF, value & 0x0FFF, (value & 0x1000 ? "Friendship" : "Master"));
+}
+
 static void
 dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
     proto_tree *sub_tree;
     guint32 opcode;
+    proto_item *netapp_index_item, *app_index_item, *pub_app_index_item, *net_index_item;
+    proto_item *relayretransmit_index, *transmit_index;
+    proto_item *publishperiod_item, *publishretransmit_item;
+
+    proto_tree *netapp_index_sub_tree, *app_index_sub_tree, *pub_app_index_sub_tree, *net_index_sub_tree;
+    proto_tree *relayretransmit_sub_tree, *transmit_sub_tree, *subscriptionlist_tree;
+    proto_tree *publishperiod_sub_tree, *publishretransmit_sub_tree;
+    proto_tree *element_sub_tree, *model_sub_tree, *vendor_sub_tree;
+    proto_tree *netkeylist_tree, *appkeylist_tree;
+    proto_tree *fault_array_tree;
+
+    guint32 netkeyindexes, appkeyindexes;
+    guint32 nums, numv, element;
+    guint i;
 
     sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_btmesh_model_layer, NULL, "Model Layer");
 
@@ -1187,8 +1893,827 @@ dissect_btmesh_model_layer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         col_set_str(pinfo->cinfo, COL_INFO, val_to_str(opcode, btmesh_models_opcode_vals, "Unknown"));
         offset++;
     }
+
+    switch (opcode) {
+    case CONFIG_APPKEY_ADD:
+        netapp_index_item = proto_tree_add_item(sub_tree, hf_btmesh_config_appkey_add_netkeyindexandappkeyindex, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+        netapp_index_sub_tree = proto_item_add_subtree(netapp_index_item, ett_btmesh_config_model_netapp_index);
+        proto_tree_add_item(netapp_index_sub_tree, hf_btmesh_config_appkey_add_netkeyindexandappkeyindex_net, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(netapp_index_sub_tree, hf_btmesh_config_appkey_add_netkeyindexandappkeyindex_app, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+        offset+=3;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_appkey_add_appkey, tvb, offset, 16, ENC_NA);
+        offset+=16;
+        break;
+    case CONFIG_APPKEY_UPDATE:
+        netapp_index_item = proto_tree_add_item(sub_tree, hf_btmesh_config_appkey_update_netkeyindexandappkeyindex, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+        netapp_index_sub_tree = proto_item_add_subtree(netapp_index_item, ett_btmesh_config_model_netapp_index);
+        proto_tree_add_item(netapp_index_sub_tree, hf_btmesh_config_appkey_update_netkeyindexandappkeyindex_net, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(netapp_index_sub_tree, hf_btmesh_config_appkey_update_netkeyindexandappkeyindex_app, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+        offset+=3;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_appkey_update_appkey, tvb, offset, 16, ENC_NA);
+        offset+=16;
+        break;
+    case CONFIG_COMPOSITION_DATA_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_composition_data_status_page, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_composition_data_status_cid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_composition_data_status_pid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_composition_data_status_vid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_composition_data_status_crpl, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_bitmask_with_flags(sub_tree, tvb, offset,
+            hf_btmesh_config_composition_data_status_features,
+            ett_btmesh_config_composition_data_status_features,
+            config_composition_data_status_features_headers,
+            ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+        offset+=2;
+        /* Elements */
+        element = 1;
+        while (tvb_reported_length_remaining(tvb, offset) > 2) {
+            nums = tvb_get_guint8(tvb, offset + 2 );
+            numv = tvb_get_guint8(tvb, offset + 2 + 1);
+            element_sub_tree = proto_tree_add_subtree_format(sub_tree, tvb, offset, 4 + nums * 2 + numv * 4, ett_btmesh_config_model_element, NULL, "Element #%u", element);
+            proto_tree_add_item(element_sub_tree, hf_btmesh_config_composition_data_status_loc, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+            proto_tree_add_item(element_sub_tree, hf_btmesh_config_composition_data_status_nums, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            proto_tree_add_item(element_sub_tree, hf_btmesh_config_composition_data_status_numv, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+            if (nums > 0 ) {
+                model_sub_tree = proto_tree_add_subtree(element_sub_tree, tvb, offset, nums * 2, ett_btmesh_config_model_model, NULL, "SIG Models");
+                for (i = 0; i < nums; i++) {
+                    proto_tree_add_item(model_sub_tree, hf_btmesh_config_composition_data_status_sig_model, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+                    offset+=2;
+                }
+            }
+            if (numv > 0 ) {
+                vendor_sub_tree = proto_tree_add_subtree(element_sub_tree, tvb, offset, numv * 4, ett_btmesh_config_model_vendor, NULL, "Vendor Models");
+                for (i = 0; i < numv; i++) {
+                    proto_tree_add_item(vendor_sub_tree, hf_btmesh_config_composition_data_status_vendor_model, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                    offset+=4;
+                }
+            }
+            element++;
+        }
+        break;
+    case CONFIG_MODEL_PUBLICATION_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_model_publication_set_elementaddress, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_model_publication_set_publishaddress, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        pub_app_index_item = proto_tree_add_item(sub_tree, hf_btmesh_config_model_publication_set_appkey, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        pub_app_index_sub_tree= proto_item_add_subtree(pub_app_index_item, ett_btmesh_config_model_pub_app_index);
+        proto_tree_add_item(pub_app_index_sub_tree, hf_btmesh_config_model_publication_set_appkeyindex, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(pub_app_index_sub_tree, hf_btmesh_config_model_publication_set_credentialflag, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(pub_app_index_sub_tree, hf_btmesh_config_model_publication_set_rfu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_model_publication_set_publishttl, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_config_model_publication_set_publishperiod, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+        proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_config_model_publication_set_publishperiod_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_config_model_publication_set_publishperiod_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        publishretransmit_item = proto_tree_add_item(sub_tree, hf_btmesh_config_model_publication_set_publishretransmit, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        publishretransmit_sub_tree = proto_item_add_subtree(publishretransmit_item, ett_btmesh_config_model_publishretransmit);
+        proto_tree_add_item(publishretransmit_sub_tree, hf_btmesh_config_model_publication_set_publishretransmit_count, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(publishretransmit_sub_tree, hf_btmesh_config_model_publication_set_publishretransmit_intervalsteps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        if (tvb_reported_length_remaining(tvb, offset) > 2) {
+            proto_tree_add_item(sub_tree, hf_btmesh_config_model_publication_set_vendormodelidentifier, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset+=4;
+        } else {
+            proto_tree_add_item(sub_tree, hf_btmesh_config_model_publication_set_modelidentifier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+        }
+        break;
+    case HEALTH_CURRENT_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_health_current_status_test_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_health_current_status_company_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        fault_array_tree = proto_tree_add_subtree(sub_tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), ett_btmesh_config_model_fault_array, NULL, "FaultArray");
+        while (tvb_reported_length_remaining(tvb, offset) > 0) {
+            proto_tree_add_item(fault_array_tree, hf_btmesh_health_current_status_fault, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case HEALTH_FAULT_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_health_fault_status_test_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_health_fault_status_company_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        fault_array_tree = proto_tree_add_subtree(sub_tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), ett_btmesh_config_model_fault_array, NULL, "FaultArray");
+        while (tvb_reported_length_remaining(tvb, offset) > 0) {
+            proto_tree_add_item(fault_array_tree, hf_btmesh_health_fault_status_fault, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            offset++;
+        }
+        break;
+    case CONFIG_HEARTBEAT_PUBLICATION_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_heartbeat_publication_status_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_heartbeat_publication_status_destination, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_heartbeat_publication_status_countlog, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_heartbeat_publication_status_periodlog, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_heartbeat_publication_status_ttl, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_bitmask_with_flags(sub_tree, tvb, offset,
+            hf_btmesh_config_heartbeat_publication_status_features,
+            ett_btmesh_config_heartbeat_publication_status_features,
+            config_heartbeat_publication_status_features_headers,
+            ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+        offset+=2;
+        net_index_item = proto_tree_add_item(sub_tree, hf_btmesh_config_heartbeat_publication_status_netkeyindex, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        net_index_sub_tree = proto_item_add_subtree(net_index_item, ett_btmesh_config_model_net_index);
+        proto_tree_add_item(net_index_sub_tree, hf_btmesh_config_heartbeat_publication_status_netkeyindex_idx, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(net_index_sub_tree, hf_btmesh_config_heartbeat_publication_status_netkeyindex_rfu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case CONFIG_APPKEY_DELETE:
+        netapp_index_item = proto_tree_add_item(sub_tree, hf_btmesh_config_appkey_delete_netkeyindexandappkeyindex, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+        netapp_index_sub_tree = proto_item_add_subtree(netapp_index_item, ett_btmesh_config_model_netapp_index);
+        proto_tree_add_item(netapp_index_sub_tree, hf_btmesh_config_appkey_delete_netkeyindexandappkeyindex_net, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(netapp_index_sub_tree, hf_btmesh_config_appkey_delete_netkeyindexandappkeyindex_app, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+        offset+=3;
+        break;
+    case CONFIG_APPKEY_GET:
+        net_index_item = proto_tree_add_item(sub_tree, hf_btmesh_config_appkey_get_netkeyindex, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        net_index_sub_tree = proto_item_add_subtree(net_index_item, ett_btmesh_config_model_net_index);
+        proto_tree_add_item(net_index_sub_tree, hf_btmesh_config_appkey_get_netkeyindex_idx, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(net_index_sub_tree, hf_btmesh_config_appkey_get_netkeyindex_rfu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case CONFIG_APPKEY_LIST:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_appkey_list_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        net_index_item = proto_tree_add_item(sub_tree, hf_btmesh_config_appkey_list_netkeyindex, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        net_index_sub_tree = proto_item_add_subtree(net_index_item, ett_btmesh_config_model_net_index);
+        proto_tree_add_item(net_index_sub_tree, hf_btmesh_config_appkey_list_netkeyindex_idx, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(net_index_sub_tree, hf_btmesh_config_appkey_list_netkeyindex_rfu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        appkeylist_tree = proto_tree_add_subtree(sub_tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), ett_btmesh_config_model_appkey_list, NULL, "AppKeyIndexes");
+        while (tvb_reported_length_remaining(tvb, offset) >= 2) {
+            if (tvb_reported_length_remaining(tvb, offset) >= 3) {
+                appkeyindexes = tvb_get_guint24(tvb, offset, ENC_LITTLE_ENDIAN);
+                proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_appkey_list_appkeyindex, tvb, offset, 2, appkeyindexes & 0x000FFF);
+                proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_appkey_list_appkeyindex, tvb, offset +1 , 2, (appkeyindexes >> 12 ) & 0x000FFF);
+                offset+=3;
+            } else {
+                appkeyindexes = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+                proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_appkey_list_appkeyindex, tvb, offset, 2, appkeyindexes & 0x0FFF);
+                proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_appkey_list_appkeyindex_rfu, tvb, offset, 2, (appkeyindexes >> 12 ) & 0xF);
+                offset+=2;
+            }
+        }
+        break;
+    case CONFIG_APPKEY_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_appkey_status_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        netapp_index_item = proto_tree_add_item(sub_tree, hf_btmesh_config_appkey_status_netkeyindexandappkeyindex, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+        netapp_index_sub_tree = proto_item_add_subtree(netapp_index_item, ett_btmesh_config_model_netapp_index);
+        proto_tree_add_item(netapp_index_sub_tree, hf_btmesh_config_appkey_status_netkeyindexandappkeyindex_net, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(netapp_index_sub_tree, hf_btmesh_config_appkey_status_netkeyindexandappkeyindex_app, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+        offset+=3;
+        break;
+    case HEALTH_ATTENTION_GET:
+        break;
+    case HEALTH_ATTENTION_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_health_attention_set_attention, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case HEALTH_ATTENTION_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_health_attention_set_unacknowledged_attention, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case HEALTH_ATTENTION_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_health_attention_status_attention, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case CONFIG_COMPOSITION_DATA_GET:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_composition_data_get_page, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case CONFIG_BEACON_GET:
+        break;
+    case CONFIG_BEACON_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_beacon_set_beacon, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case CONFIG_BEACON_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_beacon_status_beacon, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case CONFIG_DEFAULT_TTL_GET:
+        break;
+    case CONFIG_DEFAULT_TTL_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_default_ttl_set_ttl, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case CONFIG_DEFAULT_TTL_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_default_ttl_status_ttl, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case CONFIG_FRIEND_GET:
+        break;
+    case CONFIG_FRIEND_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_friend_set_friend, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case CONFIG_FRIEND_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_friend_status_friend, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case CONFIG_GATT_PROXY_GET:
+        break;
+    case CONFIG_GATT_PROXY_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_gatt_proxy_set_gattproxy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case CONFIG_GATT_PROXY_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_gatt_proxy_status_gattproxy, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case CONFIG_KEY_REFRESH_PHASE_GET:
+        net_index_item = proto_tree_add_item(sub_tree, hf_btmesh_config_key_refresh_phase_get_netkeyindex, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        net_index_sub_tree = proto_item_add_subtree(net_index_item, ett_btmesh_config_model_net_index);
+        proto_tree_add_item(net_index_sub_tree, hf_btmesh_config_key_refresh_phase_get_netkeyindex_idx, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(net_index_sub_tree, hf_btmesh_config_key_refresh_phase_get_netkeyindex_rfu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case CONFIG_KEY_REFRESH_PHASE_SET:
+        net_index_item = proto_tree_add_item(sub_tree, hf_btmesh_config_key_refresh_phase_set_netkeyindex, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        net_index_sub_tree = proto_item_add_subtree(net_index_item, ett_btmesh_config_model_net_index);
+        proto_tree_add_item(net_index_sub_tree, hf_btmesh_config_key_refresh_phase_set_netkeyindex_idx, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(net_index_sub_tree, hf_btmesh_config_key_refresh_phase_set_netkeyindex_rfu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_key_refresh_phase_set_transition, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case CONFIG_KEY_REFRESH_PHASE_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_key_refresh_phase_status_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        net_index_item = proto_tree_add_item(sub_tree, hf_btmesh_config_key_refresh_phase_status_netkeyindex, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        net_index_sub_tree = proto_item_add_subtree(net_index_item, ett_btmesh_config_model_net_index);
+        proto_tree_add_item(net_index_sub_tree, hf_btmesh_config_key_refresh_phase_status_netkeyindex_idx, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(net_index_sub_tree, hf_btmesh_config_key_refresh_phase_status_netkeyindex_rfu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_key_refresh_phase_status_phase, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case CONFIG_MODEL_PUBLICATION_GET:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_model_publication_get_elementaddress, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        if (tvb_reported_length_remaining(tvb, offset) > 2) {
+            proto_tree_add_item(sub_tree, hf_btmesh_config_model_publication_get_vendormodelidentifier, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset+=4;
+        } else {
+            proto_tree_add_item(sub_tree, hf_btmesh_config_model_publication_get_modelidentifier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+        }
+        break;
+    case CONFIG_MODEL_PUBLICATION_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_model_publication_status_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_model_publication_status_elementaddress, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_model_publication_status_publishaddress, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        pub_app_index_item = proto_tree_add_item(sub_tree, hf_btmesh_config_model_publication_status_appkey, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        pub_app_index_sub_tree= proto_item_add_subtree(pub_app_index_item, ett_btmesh_config_model_pub_app_index);
+        proto_tree_add_item(pub_app_index_sub_tree, hf_btmesh_config_model_publication_status_appkeyindex, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(pub_app_index_sub_tree, hf_btmesh_config_model_publication_status_credentialflag, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(pub_app_index_sub_tree, hf_btmesh_config_model_publication_status_rfu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_model_publication_status_publishttl, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_config_model_publication_status_publishperiod, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+        proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_config_model_publication_status_publishperiod_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_config_model_publication_status_publishperiod_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        publishretransmit_item = proto_tree_add_item(sub_tree, hf_btmesh_config_model_publication_status_publishretransmit, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        publishretransmit_sub_tree = proto_item_add_subtree(publishretransmit_item, ett_btmesh_config_model_publishretransmit);
+        proto_tree_add_item(publishretransmit_sub_tree, hf_btmesh_config_model_publication_status_publishretransmit_count, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(publishretransmit_sub_tree, hf_btmesh_config_model_publication_status_publishretransmit_intervalsteps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        if (tvb_reported_length_remaining(tvb, offset) > 2) {
+            proto_tree_add_item(sub_tree, hf_btmesh_config_model_publication_status_vendormodelidentifier, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset+=4;
+        } else {
+            proto_tree_add_item(sub_tree, hf_btmesh_config_model_publication_status_modelidentifier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+        }
+        break;
+    case CONFIG_MODEL_PUBLICATION_VIRTUAL_ADDRESS_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_model_publication_virtual_address_set_elementaddress, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_model_publication_virtual_address_set_publishaddress, tvb, offset, 16, ENC_NA);
+        offset+=16;
+        pub_app_index_item = proto_tree_add_item(sub_tree, hf_btmesh_config_model_publication_virtual_address_set_appkey, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        pub_app_index_sub_tree= proto_item_add_subtree(pub_app_index_item, ett_btmesh_config_model_pub_app_index);
+        proto_tree_add_item(pub_app_index_sub_tree, hf_btmesh_config_model_publication_virtual_address_set_appkeyindex, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(pub_app_index_sub_tree, hf_btmesh_config_model_publication_virtual_address_set_credentialflag, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(pub_app_index_sub_tree, hf_btmesh_config_model_publication_virtual_address_set_rfu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_model_publication_virtual_address_set_publishttl, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        publishperiod_item = proto_tree_add_item(sub_tree, hf_btmesh_config_model_publication_virtual_address_set_publishperiod, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        publishperiod_sub_tree = proto_item_add_subtree(publishperiod_item, ett_btmesh_config_model_publishperiod);
+        proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_config_model_publication_virtual_address_set_publishperiod_steps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(publishperiod_sub_tree, hf_btmesh_config_model_publication_virtual_address_set_publishperiod_resolution, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        publishretransmit_item = proto_tree_add_item(sub_tree, hf_btmesh_config_model_publication_virtual_address_set_publishretransmit, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        publishretransmit_sub_tree = proto_item_add_subtree(publishretransmit_item, ett_btmesh_config_model_publishretransmit);
+        proto_tree_add_item(publishretransmit_sub_tree, hf_btmesh_config_model_publication_virtual_address_set_publishretransmit_count, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(publishretransmit_sub_tree, hf_btmesh_config_model_publication_virtual_address_set_publishretransmit_intervalsteps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        if (tvb_reported_length_remaining(tvb, offset) > 2) {
+            proto_tree_add_item(sub_tree, hf_btmesh_config_model_publication_virtual_address_set_vendormodelidentifier, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset+=4;
+        } else {
+            proto_tree_add_item(sub_tree, hf_btmesh_config_model_publication_virtual_address_set_modelidentifier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+        }
+        break;
+    case CONFIG_MODEL_SUBSCRIPTION_ADD:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_add_elementaddress, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_add_address, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        if (tvb_reported_length_remaining(tvb, offset) > 2) {
+            proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_add_vendormodelidentifier, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset+=4;
+        } else {
+            proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_add_modelidentifier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+        }
+        break;
+    case CONFIG_MODEL_SUBSCRIPTION_DELETE:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_delete_elementaddress, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_delete_address, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        if (tvb_reported_length_remaining(tvb, offset) > 2) {
+            proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_delete_vendormodelidentifier, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset+=4;
+        } else {
+            proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_delete_modelidentifier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+        }
+        break;
+    case CONFIG_MODEL_SUBSCRIPTION_DELETE_ALL:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_delete_all_elementaddress, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        if (tvb_reported_length_remaining(tvb, offset) > 2) {
+            proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_delete_all_vendormodelidentifier, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset+=4;
+        } else {
+            proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_delete_all_modelidentifier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+        }
+        break;
+    case CONFIG_MODEL_SUBSCRIPTION_OVERWRITE:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_overwrite_elementaddress, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_overwrite_address, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        if (tvb_reported_length_remaining(tvb, offset) > 2) {
+            proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_overwrite_vendormodelidentifier, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset+=4;
+        } else {
+            proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_overwrite_modelidentifier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+        }
+        break;
+    case CONFIG_MODEL_SUBSCRIPTION_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_status_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_status_elementaddress, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_status_address, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        if (tvb_reported_length_remaining(tvb, offset) > 2) {
+            proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_status_vendormodelidentifier, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset+=4;
+        } else {
+            proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_status_modelidentifier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+        }
+        break;
+    case CONFIG_MODEL_SUBSCRIPTION_VIRTUAL_ADDRESS_ADD:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_virtual_address_add_elementaddress, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_virtual_address_add_label, tvb, offset, 16, ENC_NA);
+        offset+=16;
+        if (tvb_reported_length_remaining(tvb, offset) > 2) {
+            proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_virtual_address_add_vendormodelidentifier, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset+=4;
+        } else {
+            proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_virtual_address_add_modelidentifier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+        }
+        break;
+    case CONFIG_MODEL_SUBSCRIPTION_VIRTUAL_ADDRESS_DELETE:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_virtual_address_delete_elementaddress, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_virtual_address_delete_label, tvb, offset, 16, ENC_NA);
+        offset+=16;
+        if (tvb_reported_length_remaining(tvb, offset) > 2) {
+            proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_virtual_address_delete_vendormodelidentifier, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset+=4;
+        } else {
+            proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_virtual_address_delete_modelidentifier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+        }
+        break;
+    case CONFIG_MODEL_SUBSCRIPTION_VIRTUAL_ADDRESS_OVERWRITE:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_virtual_address_overwrite_elementaddress, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_virtual_address_overwrite_label, tvb, offset, 16, ENC_NA);
+        offset+=16;
+        if (tvb_reported_length_remaining(tvb, offset) > 2) {
+            proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_virtual_address_overwrite_vendormodelidentifier, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset+=4;
+        } else {
+            proto_tree_add_item(sub_tree, hf_btmesh_config_model_subscription_virtual_address_overwrite_modelidentifier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+        }
+        break;
+    case CONFIG_NETWORK_TRANSMIT_GET:
+        break;
+    case CONFIG_NETWORK_TRANSMIT_SET:
+        transmit_index = proto_tree_add_item(sub_tree, hf_btmesh_config_network_transmit_set_networktransmit, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        transmit_sub_tree = proto_item_add_subtree(transmit_index, ett_btmesh_config_model_network_transmit);
+        proto_tree_add_item(transmit_sub_tree, hf_btmesh_config_network_transmit_set_networktransmit_count, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(transmit_sub_tree, hf_btmesh_config_network_transmit_set_networktransmit_intervalsteps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case CONFIG_NETWORK_TRANSMIT_STATUS:
+        transmit_index = proto_tree_add_item(sub_tree, hf_btmesh_config_network_transmit_status_networktransmit, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        transmit_sub_tree = proto_item_add_subtree(transmit_index, ett_btmesh_config_model_network_transmit);
+        proto_tree_add_item(transmit_sub_tree, hf_btmesh_config_network_transmit_status_networktransmit_count, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(transmit_sub_tree, hf_btmesh_config_network_transmit_status_networktransmit_intervalsteps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case CONFIG_RELAY_GET:
+        break;
+    case CONFIG_RELAY_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_relay_set_relay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        relayretransmit_index = proto_tree_add_item(sub_tree, hf_btmesh_config_relay_set_relayretransmit, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        relayretransmit_sub_tree = proto_item_add_subtree(relayretransmit_index, ett_btmesh_config_model_relayretransmit);
+        proto_tree_add_item(relayretransmit_sub_tree, hf_btmesh_config_relay_set_relayretransmit_count, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(relayretransmit_sub_tree, hf_btmesh_config_relay_set_relayretransmit_intervalsteps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case CONFIG_RELAY_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_relay_status_relay, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        relayretransmit_index = proto_tree_add_item(sub_tree, hf_btmesh_config_relay_status_relayretransmit, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        relayretransmit_sub_tree = proto_item_add_subtree(relayretransmit_index, ett_btmesh_config_model_relayretransmit);
+        proto_tree_add_item(relayretransmit_sub_tree, hf_btmesh_config_relay_status_relayretransmit_count, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(relayretransmit_sub_tree, hf_btmesh_config_relay_status_relayretransmit_intervalsteps, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case CONFIG_SIG_MODEL_SUBSCRIPTION_GET:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_sig_model_subscription_get_elementaddress, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_sig_model_subscription_get_modelidentifier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case CONFIG_SIG_MODEL_SUBSCRIPTION_LIST:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_sig_model_subscription_list_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_sig_model_subscription_list_elementaddress, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_sig_model_subscription_list_modelidentifier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        subscriptionlist_tree = proto_tree_add_subtree(sub_tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), ett_btmesh_config_model_addresses, NULL, "Addresses");
+        while (tvb_reported_length_remaining(tvb, offset) > 1) {
+            proto_tree_add_item(subscriptionlist_tree, hf_btmesh_config_sig_model_subscription_list_address, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+        }
+        break;
+    case CONFIG_VENDOR_MODEL_SUBSCRIPTION_GET:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_vendor_model_subscription_get_elementaddress, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_vendor_model_subscription_get_modelidentifier, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset+=4;
+        break;
+    case CONFIG_VENDOR_MODEL_SUBSCRIPTION_LIST:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_vendor_model_subscription_list_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_vendor_model_subscription_list_elementaddress, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_vendor_model_subscription_list_modelidentifier, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+        offset+=4;
+        subscriptionlist_tree = proto_tree_add_subtree(sub_tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), ett_btmesh_config_model_addresses, NULL, "Addresses");
+        while (tvb_reported_length_remaining(tvb, offset) > 1) {
+            proto_tree_add_item(subscriptionlist_tree, hf_btmesh_config_vendor_model_subscription_list_address, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+        }
+        break;
+    case CONFIG_LOW_POWER_NODE_POLLTIMEOUT_GET:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_low_power_node_polltimeout_get_lpnaddress, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case CONFIG_LOW_POWER_NODE_POLLTIMEOUT_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_low_power_node_polltimeout_status_lpnaddress, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_low_power_node_polltimeout_status_polltimeout, tvb, offset, 3, ENC_LITTLE_ENDIAN);
+        offset+=3;
+        break;
+    case HEALTH_FAULT_CLEAR:
+        proto_tree_add_item(sub_tree, hf_btmesh_health_fault_clear_company_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case HEALTH_FAULT_CLEAR_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_health_fault_clear_unacknowledged_company_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case HEALTH_FAULT_GET:
+        proto_tree_add_item(sub_tree, hf_btmesh_health_fault_get_company_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case HEALTH_FAULT_TEST:
+        proto_tree_add_item(sub_tree, hf_btmesh_health_fault_test_test_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_health_fault_test_company_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case HEALTH_FAULT_TEST_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_health_fault_test_unacknowledged_test_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_health_fault_test_unacknowledged_company_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case HEALTH_PERIOD_GET:
+        break;
+    case HEALTH_PERIOD_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_health_period_set_fastperioddivisor, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case HEALTH_PERIOD_SET_UNACKNOWLEDGED:
+        proto_tree_add_item(sub_tree, hf_btmesh_health_period_set_unacknowledged_fastperioddivisor, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case HEALTH_PERIOD_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_health_period_status_fastperioddivisor, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case CONFIG_HEARTBEAT_PUBLICATION_GET:
+        break;
+    case CONFIG_HEARTBEAT_PUBLICATION_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_heartbeat_publication_set_destination, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_heartbeat_publication_set_countlog, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_heartbeat_publication_set_periodlog, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_heartbeat_publication_set_ttl, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_bitmask_with_flags(sub_tree, tvb, offset,
+            hf_btmesh_config_heartbeat_publication_set_features,
+            ett_btmesh_config_heartbeat_publication_set_features,
+            config_heartbeat_publication_set_features_headers,
+            ENC_LITTLE_ENDIAN, BMT_NO_APPEND);
+        offset+=2;
+        net_index_item = proto_tree_add_item(sub_tree, hf_btmesh_config_heartbeat_publication_set_netkeyindex, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        net_index_sub_tree = proto_item_add_subtree(net_index_item, ett_btmesh_config_model_net_index);
+        proto_tree_add_item(net_index_sub_tree, hf_btmesh_config_heartbeat_publication_set_netkeyindex_idx, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(net_index_sub_tree, hf_btmesh_config_heartbeat_publication_set_netkeyindex_rfu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case CONFIG_HEARTBEAT_SUBSCRIPTION_GET:
+        break;
+    case CONFIG_HEARTBEAT_SUBSCRIPTION_SET:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_heartbeat_subscription_set_source, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_heartbeat_subscription_set_destination, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_heartbeat_subscription_set_periodlog, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case CONFIG_HEARTBEAT_SUBSCRIPTION_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_heartbeat_subscription_status_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_heartbeat_subscription_status_source, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_heartbeat_subscription_status_destination, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_heartbeat_subscription_status_periodlog, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_heartbeat_subscription_status_countlog, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_heartbeat_subscription_status_minhops, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_heartbeat_subscription_status_maxhops, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case CONFIG_MODEL_APP_BIND:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_model_app_bind_elementaddress, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        app_index_item = proto_tree_add_item(sub_tree, hf_btmesh_config_model_app_bind_appkeyindex, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        app_index_sub_tree = proto_item_add_subtree(app_index_item, ett_btmesh_config_model_app_index);
+        proto_tree_add_item(app_index_sub_tree, hf_btmesh_config_model_app_bind_appkeyindex_idx, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(app_index_sub_tree, hf_btmesh_config_model_app_bind_appkeyindex_rfu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        if (tvb_reported_length_remaining(tvb, offset) > 2) {
+            proto_tree_add_item(sub_tree, hf_btmesh_config_model_app_bind_vendormodelidentifier, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset+=4;
+        } else {
+            proto_tree_add_item(sub_tree, hf_btmesh_config_model_app_bind_modelidentifier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+        }
+        break;
+    case CONFIG_MODEL_APP_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_model_app_status_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_model_app_status_elementaddress, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        app_index_item = proto_tree_add_item(sub_tree, hf_btmesh_config_model_app_status_appkeyindex, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        app_index_sub_tree = proto_item_add_subtree(app_index_item, ett_btmesh_config_model_app_index);
+        proto_tree_add_item(app_index_sub_tree, hf_btmesh_config_model_app_status_appkeyindex_idx, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(app_index_sub_tree, hf_btmesh_config_model_app_status_appkeyindex_rfu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        if (tvb_reported_length_remaining(tvb, offset) > 2) {
+            proto_tree_add_item(sub_tree, hf_btmesh_config_model_app_status_vendormodelidentifier, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset+=4;
+        } else {
+            proto_tree_add_item(sub_tree, hf_btmesh_config_model_app_status_modelidentifier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+        }
+        break;
+    case CONFIG_MODEL_APP_UNBIND:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_model_app_unbind_elementaddress, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        app_index_item = proto_tree_add_item(sub_tree, hf_btmesh_config_model_app_unbind_appkeyindex, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        app_index_sub_tree = proto_item_add_subtree(app_index_item, ett_btmesh_config_model_app_index);
+        proto_tree_add_item(app_index_sub_tree, hf_btmesh_config_model_app_unbind_appkeyindex_idx, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(app_index_sub_tree, hf_btmesh_config_model_app_unbind_appkeyindex_rfu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        if (tvb_reported_length_remaining(tvb, offset) > 2) {
+            proto_tree_add_item(sub_tree, hf_btmesh_config_model_app_unbind_vendormodelidentifier, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+            offset+=4;
+        } else {
+            proto_tree_add_item(sub_tree, hf_btmesh_config_model_app_unbind_modelidentifier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            offset+=2;
+        }
+        break;
+    case CONFIG_NETKEY_ADD:
+        net_index_item = proto_tree_add_item(sub_tree, hf_btmesh_config_netkey_add_netkeyindex, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        net_index_sub_tree = proto_item_add_subtree(net_index_item, ett_btmesh_config_model_net_index);
+        proto_tree_add_item(net_index_sub_tree, hf_btmesh_config_netkey_add_netkeyindex_idx, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(net_index_sub_tree, hf_btmesh_config_netkey_add_netkeyindex_rfu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_netkey_add_netkey, tvb, offset, 16, ENC_NA);
+        offset+=16;
+        break;
+    case CONFIG_NETKEY_DELETE:
+        net_index_item = proto_tree_add_item(sub_tree, hf_btmesh_config_netkey_delete_netkeyindex, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        net_index_sub_tree = proto_item_add_subtree(net_index_item, ett_btmesh_config_model_net_index);
+        proto_tree_add_item(net_index_sub_tree, hf_btmesh_config_netkey_delete_netkeyindex_idx, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(net_index_sub_tree, hf_btmesh_config_netkey_delete_netkeyindex_rfu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case CONFIG_NETKEY_GET:
+        break;
+    case CONFIG_NETKEY_LIST:
+        netkeylist_tree = proto_tree_add_subtree(sub_tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), ett_btmesh_config_model_netkey_list, NULL, "NetKeyIndexes");
+        while (tvb_reported_length_remaining(tvb, offset) >= 2) {
+            if (tvb_reported_length_remaining(tvb, offset) >= 3) {
+                netkeyindexes = tvb_get_guint24(tvb, offset, ENC_LITTLE_ENDIAN);
+                proto_tree_add_uint(netkeylist_tree, hf_btmesh_config_netkey_list_netkeyindex, tvb, offset, 2, netkeyindexes & 0x000FFF);
+                proto_tree_add_uint(netkeylist_tree, hf_btmesh_config_netkey_list_netkeyindex, tvb, offset + 1, 2, (netkeyindexes >> 12 ) & 0x000FFF);
+                offset+=3;
+            } else {
+                netkeyindexes = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+                proto_tree_add_uint(netkeylist_tree, hf_btmesh_config_netkey_list_netkeyindex, tvb, offset, 2, netkeyindexes & 0x0FFF);
+                proto_tree_add_uint(netkeylist_tree, hf_btmesh_config_netkey_list_netkeyindex_rfu, tvb, offset, 2, (netkeyindexes >> 12 ) & 0xF);
+                offset+=2;
+            }
+        }
+        break;
+    case CONFIG_NETKEY_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_netkey_status_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        net_index_item = proto_tree_add_item(sub_tree, hf_btmesh_config_netkey_status_netkeyindex, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        net_index_sub_tree = proto_item_add_subtree(net_index_item, ett_btmesh_config_model_net_index);
+        proto_tree_add_item(net_index_sub_tree, hf_btmesh_config_netkey_status_netkeyindex_idx, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(net_index_sub_tree, hf_btmesh_config_netkey_status_netkeyindex_rfu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case CONFIG_NETKEY_UPDATE:
+        net_index_item = proto_tree_add_item(sub_tree, hf_btmesh_config_netkey_update_netkeyindex, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        net_index_sub_tree = proto_item_add_subtree(net_index_item, ett_btmesh_config_model_net_index);
+        proto_tree_add_item(net_index_sub_tree, hf_btmesh_config_netkey_update_netkeyindex_idx, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(net_index_sub_tree, hf_btmesh_config_netkey_update_netkeyindex_rfu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_netkey_update_netkey, tvb, offset, 16, ENC_NA);
+        offset+=16;
+        break;
+    case CONFIG_NODE_IDENTITY_GET:
+        net_index_item = proto_tree_add_item(sub_tree, hf_btmesh_config_node_identity_get_netkeyindex, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        net_index_sub_tree = proto_item_add_subtree(net_index_item, ett_btmesh_config_model_net_index);
+        proto_tree_add_item(net_index_sub_tree, hf_btmesh_config_node_identity_get_netkeyindex_idx, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(net_index_sub_tree, hf_btmesh_config_node_identity_get_netkeyindex_rfu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case CONFIG_NODE_IDENTITY_SET:
+        net_index_item = proto_tree_add_item(sub_tree, hf_btmesh_config_node_identity_set_netkeyindex, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        net_index_sub_tree = proto_item_add_subtree(net_index_item, ett_btmesh_config_model_net_index);
+        proto_tree_add_item(net_index_sub_tree, hf_btmesh_config_node_identity_set_netkeyindex_idx, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(net_index_sub_tree, hf_btmesh_config_node_identity_set_netkeyindex_rfu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_node_identity_set_identity, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case CONFIG_NODE_IDENTITY_STATUS:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_node_identity_status_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        net_index_item = proto_tree_add_item(sub_tree, hf_btmesh_config_node_identity_status_netkeyindex, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        net_index_sub_tree = proto_item_add_subtree(net_index_item, ett_btmesh_config_model_net_index);
+        proto_tree_add_item(net_index_sub_tree, hf_btmesh_config_node_identity_status_netkeyindex_idx, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(net_index_sub_tree, hf_btmesh_config_node_identity_status_netkeyindex_rfu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_node_identity_status_identity, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        break;
+    case CONFIG_NODE_RESET:
+        break;
+    case CONFIG_NODE_RESET_STATUS:
+        break;
+    case CONFIG_SIG_MODEL_APP_GET:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_sig_model_app_get_elementaddress, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_sig_model_app_get_modelidentifier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        break;
+    case CONFIG_SIG_MODEL_APP_LIST:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_sig_model_app_list_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_sig_model_app_list_elementaddress, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_sig_model_app_list_modelidentifier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        appkeylist_tree = proto_tree_add_subtree(sub_tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), ett_btmesh_config_model_appkey_list, NULL, "AppKeyIndexes");
+        while (tvb_reported_length_remaining(tvb, offset) >= 2) {
+            if (tvb_reported_length_remaining(tvb, offset) >= 3) {
+                appkeyindexes = tvb_get_guint24(tvb, offset, ENC_LITTLE_ENDIAN);
+                proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_sig_model_app_list_appkeyindex, tvb, offset, 2, appkeyindexes & 0x000FFF);
+                proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_sig_model_app_list_appkeyindex, tvb, offset +1 , 2, (appkeyindexes >> 12 ) & 0x000FFF);
+                offset+=3;
+            } else {
+                appkeyindexes = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+                proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_sig_model_app_list_appkeyindex, tvb, offset, 2, appkeyindexes & 0x0FFF);
+                proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_sig_model_app_list_appkeyindex_rfu, tvb, offset, 2, (appkeyindexes >> 12 ) & 0xF);
+                offset+=2;
+            }
+        }
+        break;
+    case CONFIG_VENDOR_MODEL_APP_GET:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_vendor_model_app_get_elementaddress, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_vendor_model_app_get_modelidentifier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=4;
+        break;
+    case CONFIG_VENDOR_MODEL_APP_LIST:
+        proto_tree_add_item(sub_tree, hf_btmesh_config_vendor_model_app_list_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_vendor_model_app_list_elementaddress, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=2;
+        proto_tree_add_item(sub_tree, hf_btmesh_config_vendor_model_app_list_modelidentifier, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        offset+=4;
+        appkeylist_tree = proto_tree_add_subtree(sub_tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), ett_btmesh_config_model_appkey_list, NULL, "AppKeyIndexes");
+        while (tvb_reported_length_remaining(tvb, offset) >= 2) {
+            if (tvb_reported_length_remaining(tvb, offset) >= 3) {
+                appkeyindexes = tvb_get_guint24(tvb, offset, ENC_LITTLE_ENDIAN);
+                proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_vendor_model_app_list_appkeyindex, tvb, offset, 2, appkeyindexes & 0x000FFF);
+                proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_vendor_model_app_list_appkeyindex, tvb, offset +1 , 2, (appkeyindexes >> 12 ) & 0x000FFF);
+                offset+=3;
+            } else {
+                appkeyindexes = tvb_get_guint16(tvb, offset, ENC_LITTLE_ENDIAN);
+                proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_vendor_model_app_list_appkeyindex, tvb, offset, 2, appkeyindexes & 0x0FFF);
+                proto_tree_add_uint(appkeylist_tree, hf_btmesh_config_vendor_model_app_list_appkeyindex_rfu, tvb, offset, 2, (appkeyindexes >> 12 ) & 0xF);
+                offset+=2;
+            }
+        }
+        break;
+    default:
+        if (tvb_reported_length_remaining(tvb, offset)) {
+            proto_tree_add_item(sub_tree, hf_btmesh_model_layer_parameters, tvb, offset, -1, ENC_NA);
+            offset+=tvb_reported_length_remaining(tvb, offset);
+        }
+    }
+    /* Still some octets left */
     if (tvb_reported_length_remaining(tvb, offset)) {
-        proto_tree_add_item(sub_tree, hf_btmesh_model_layer_parameters, tvb, offset, -1, ENC_NA);
+        proto_tree_add_expert(sub_tree, pinfo, &ei_btmesh_unknown_payload, tvb, offset, -1);
     }
 }
 
@@ -2052,6 +3577,7 @@ uat_btmesh_record_update_cb(void *r, char **err _U_)
         rec->network_key_length = compute_ascii_key(&rec->network_key, rec->network_key_string);
         g_free(rec->encryptionkey);
         rec->encryptionkey = (guint8 *)g_malloc(16 * sizeof(guint8));
+        memset(rec->encryptionkey, 0, 16 * sizeof(guint8));
         g_free(rec->privacykey);
         rec->privacykey = (guint8 *)g_malloc(16 * sizeof(guint8));
         if (create_master_security_keys(rec)) {
@@ -2660,7 +4186,1453 @@ proto_register_btmesh(void)
                 FT_BYTES, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }
         },
-    };
+        /* Config Model opcodes parameters */
+        { &hf_btmesh_config_appkey_add_netkeyindexandappkeyindex,
+            { "NetKeyIndexAndAppKeyIndex", "btmesh.model.config_appkey_add.netkeyindexandappkeyindex",
+            FT_UINT24, BASE_CUSTOM, CF_FUNC(format_dual_key_index), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_appkey_add_netkeyindexandappkeyindex_net,
+            { "NetKeyIndex", "btmesh.model.config_appkey_add.netkeyindexandappkeyindex.net",
+            FT_UINT24, BASE_CUSTOM, CF_FUNC(format_key_index), 0xFFF,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_appkey_add_netkeyindexandappkeyindex_app,
+            { "AppKeyIndex", "btmesh.model.config_appkey_add.netkeyindexandappkeyindex.app",
+            FT_UINT24, BASE_CUSTOM, CF_FUNC(format_key_index), 0xFFF000,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_appkey_add_appkey,
+            { "AppKey", "btmesh.model.config_appkey_add.appkey",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_appkey_update_netkeyindexandappkeyindex,
+            { "NetKeyIndexAndAppKeyIndex", "btmesh.model.config_appkey_update.netkeyindexandappkeyindex",
+            FT_UINT24, BASE_CUSTOM, CF_FUNC(format_dual_key_index), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_appkey_update_netkeyindexandappkeyindex_net,
+            { "NetKeyIndex", "btmesh.model.config_appkey_update.netkeyindexandappkeyindex.net",
+            FT_UINT24, BASE_CUSTOM, CF_FUNC(format_key_index), 0xFFF,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_appkey_update_netkeyindexandappkeyindex_app,
+            { "AppKeyIndex", "btmesh.model.config_appkey_update.netkeyindexandappkeyindex.app",
+            FT_UINT24, BASE_CUSTOM, CF_FUNC(format_key_index), 0xFFF000,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_appkey_update_appkey,
+            { "AppKey", "btmesh.model.config_appkey_update.appkey",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_composition_data_status_page,
+            { "Page", "btmesh.model.config_composition_data_status.page",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_composition_data_status_cid,
+            { "CID", "btmesh.model.config_composition_data_status.cid",
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bluetooth_company_id_vals_ext, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_composition_data_status_pid,
+            { "PID", "btmesh.model.config_composition_data_status.pid",
+            FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_composition_data_status_vid,
+            { "VID", "btmesh.model.config_composition_data_status.vid",
+            FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_composition_data_status_crpl,
+            { "CRPL", "btmesh.model.config_composition_data_status.crpl",
+            FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_composition_data_status_features_relay,
+            { "Relay feature", "btmesh.model.config_composition_data_status.features.relay",
+            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0001,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_composition_data_status_features_proxy,
+            { "Proxy feature", "btmesh.model.config_composition_data_status.features.proxy",
+            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0002,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_composition_data_status_features_friend,
+            { "Friend feature", "btmesh.model.config_composition_data_status.features.friend",
+            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0004,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_composition_data_status_features_low_power,
+            { "Low Power feature", "btmesh.model.config_composition_data_status.features.low_power",
+            FT_BOOLEAN, 16, TFS(&tfs_supported_not_supported), 0x0008,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_composition_data_status_features_rfu,
+            { "RFU", "btmesh.model.config_composition_data_status.features.rfu",
+            FT_UINT16, BASE_HEX, NULL, 0xFFF0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_composition_data_status_features,
+            { "Features", "btmesh.model.config_composition_data_status.features",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_composition_data_status_loc,
+            { "Loc", "btmesh.model.config_composition_data_status.loc",
+            FT_UINT16, BASE_HEX, VALS(characteristic_presentation_namespace_description_btsig_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_composition_data_status_nums,
+            { "NumS", "btmesh.model.config_composition_data_status.nums",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_composition_data_status_numv,
+            { "NumV", "btmesh.model.config_composition_data_status.numv",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_composition_data_status_sig_model,
+            { "SIG Model", "btmesh.model.config_composition_data_status.sig_model",
+            FT_UINT16, BASE_HEX, VALS(btmesh_model_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_composition_data_status_vendor_model,
+            { "Vendor Model", "btmesh.model.config_composition_data_status.vendor_model",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_vendor_model), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_set_elementaddress,
+            { "ElementAddress", "btmesh.model.config_model_publication_set.elementaddress",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_set_publishaddress,
+            { "PublishAddress", "btmesh.model.config_model_publication_set.publishaddress",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_set_appkey,
+            { "AppKeyIndex", "btmesh.model.config_model_publication_set.appkey",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_publish_appkeyindex_model), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_set_appkeyindex,
+            { "AppKeyIndex", "btmesh.model.config_model_publication_set.appkeyindex",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0FFF,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_set_credentialflag,
+            { "CredentialFlag", "btmesh.model.config_model_publication_set.credentialflag",
+            FT_UINT16, BASE_DEC, VALS(btmesh_friendship_credentials_flag_vals), 0x1000,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_set_rfu,
+            { "RFU", "btmesh.model.config_model_publication_set.rfu",
+            FT_UINT16, BASE_DEC, VALS(btmesh_friendship_credentials_flag_vals), 0xE000,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_set_publishttl,
+            { "PublishTTL", "btmesh.model.config_model_publication_set.publishttl",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_set_publishperiod,
+            { "PublishPeriod", "btmesh.model.config_model_publication_set.publishperiod",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_set_publishperiod_resolution,
+            { "Step Resolution", "btmesh.model.config_model_publication_set.publishperiod.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_set_publishperiod_steps,
+            { "Number of Steps", "btmesh.model.config_model_publication_set.publishperiod.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_set_publishretransmit,
+            { "PublishRetransmit", "btmesh.model.config_model_publication_set.publishretransmit",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_retransmit), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_set_publishretransmit_count,
+            { "PublishRetransmitCount", "btmesh.model.config_model_publication_set.publishretransmit.count",
+            FT_UINT8, BASE_DEC, NULL, 0x07,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_set_publishretransmit_intervalsteps,
+            { "PublishRetransmitIntervalSteps", "btmesh.model.config_model_publication_set.publishretransmit.intervalsteps",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_interval_steps), 0xF8,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_set_modelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_model_publication_set.modelidentifier",
+            FT_UINT16, BASE_HEX, VALS(btmesh_model_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_set_vendormodelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_model_publication_set.vendormodelidentifier",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_vendor_model), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_health_current_status_test_id,
+            { "Test ID", "btmesh.model.health_current_status.test_id",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_health_current_status_company_id,
+            { "Company ID", "btmesh.model.health_current_status.company_id",
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bluetooth_company_id_vals_ext, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_health_current_status_fault,
+            { "Fault", "btmesh.model.health_current_status.fault",
+            FT_UINT8, BASE_DEC, VALS(btmesh_fault_array_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_health_fault_status_test_id,
+            { "Test ID", "btmesh.model.health_fault_status.test_id",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_health_fault_status_company_id,
+            { "Company ID", "btmesh.model.health_fault_status.company_id",
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bluetooth_company_id_vals_ext, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_health_fault_status_fault,
+            { "Fault", "btmesh.model.health_fault_status.fault",
+            FT_UINT8, BASE_DEC, VALS(btmesh_fault_array_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_publication_status_status,
+            { "Status", "btmesh.model.config_heartbeat_publication_status.status",
+            FT_UINT8, BASE_DEC, VALS(btmesh_status_code_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_publication_status_destination,
+            { "Destination", "btmesh.model.config_heartbeat_publication_status.destination",
+            FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_publication_status_countlog,
+            { "CountLog", "btmesh.model.config_heartbeat_publication_status.countlog",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_publication_status_periodlog,
+            { "PeriodLog", "btmesh.model.config_heartbeat_publication_status.periodlog",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_publication_status_ttl,
+            { "TTL", "btmesh.model.config_heartbeat_publication_status.ttl",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_publication_status_features_relay,
+            { "Relay feature change triggers a Heartbeat message", "btmesh.model.config_heartbeat_publication_status.features.relay",
+            FT_BOOLEAN, 16, TFS(&tfs_true_false), 0x0001,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_publication_status_features_proxy,
+            { "Proxy feature change triggers a Heartbeat message", "btmesh.model.config_heartbeat_publication_status.features.proxy",
+            FT_BOOLEAN, 16, TFS(&tfs_true_false), 0x0002,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_publication_status_features_friend,
+            { "Friend feature change triggers a Heartbeat message", "btmesh.model.config_heartbeat_publication_status.features.friend",
+            FT_BOOLEAN, 16, TFS(&tfs_true_false), 0x0004,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_publication_status_features_low_power,
+            { "Low Power feature change triggers a Heartbeat message", "btmesh.model.config_heartbeat_publication_status.features.low_power",
+            FT_BOOLEAN, 16, TFS(&tfs_true_false), 0x0008,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_publication_status_features_rfu,
+            { "RFU", "btmesh.model.config_heartbeat_publication_status.features.rfu",
+            FT_UINT16, BASE_HEX, NULL, 0xFFF0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_publication_status_features,
+            { "Features", "btmesh.model.config_heartbeat_publication_status.features",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_publication_status_netkeyindex,
+            { "NetKeyIndex", "btmesh.model.config_heartbeat_publication_status.netkeyindex",
+                FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_publication_status_netkeyindex_idx,
+            { "NetKeyIndex", "btmesh.model.config_heartbeat_publication_status.netkeyindex.idx",
+                FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0FFF,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_publication_status_netkeyindex_rfu,
+            { "RFU", "btmesh.model.config_heartbeat_publication_status.netkeyindex.rfu",
+                FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index_rfu), 0xF000,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_config_appkey_delete_netkeyindexandappkeyindex,
+            { "NetKeyIndexAndAppKeyIndex", "btmesh.model.config_appkey_delete.netkeyindexandappkeyindex",
+            FT_UINT24, BASE_CUSTOM, CF_FUNC(format_dual_key_index), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_appkey_delete_netkeyindexandappkeyindex_net,
+            { "NetKeyIndex", "btmesh.model.config_appkey_delete.netkeyindexandappkeyindex.net",
+            FT_UINT24, BASE_CUSTOM, CF_FUNC(format_key_index), 0xFFF,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_appkey_delete_netkeyindexandappkeyindex_app,
+            { "AppKeyIndex", "btmesh.model.config_appkey_delete.netkeyindexandappkeyindex.app",
+            FT_UINT24, BASE_CUSTOM, CF_FUNC(format_key_index), 0xFFF000,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_appkey_get_netkeyindex,
+            { "NetKeyIndex", "btmesh.model.config_appkey_get.netkeyindex",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_appkey_get_netkeyindex_idx,
+            { "NetKeyIndex", "btmesh.model.config_appkey_get.netkeyindex.idx",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0FFF,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_appkey_get_netkeyindex_rfu,
+            { "RFU", "btmesh.model.config_appkey_get.netkeyindex.rfu",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index_rfu), 0xF000,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_appkey_list_status,
+            { "Status", "btmesh.model.config_appkey_list.status",
+            FT_UINT8, BASE_DEC, VALS(btmesh_status_code_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_appkey_list_netkeyindex,
+            { "NetKeyIndex", "btmesh.model.config_appkey_list.netkeyindex",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_appkey_list_netkeyindex_idx,
+            { "NetKeyIndex", "btmesh.model.config_appkey_list.netkeyindex.idx",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0FFF,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_appkey_list_netkeyindex_rfu,
+            { "RFU", "btmesh.model.config_appkey_list.netkeyindex.rfu",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index_rfu), 0xF000,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_appkey_list_appkeyindex,
+            { "AppKeyIndex", "btmesh.model.config_appkey_list.appkeyindex",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_appkey_list_appkeyindex_rfu,
+            { "RFU", "btmesh.model.config_appkey_list.appkeyindex.rfu",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index_rfu), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_appkey_status_status,
+            { "Status", "btmesh.model.config_appkey_status.status",
+            FT_UINT8, BASE_DEC, VALS(btmesh_status_code_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_appkey_status_netkeyindexandappkeyindex,
+            { "NetKeyIndexAndAppKeyIndex", "btmesh.model.config_appkey_status.netkeyindexandappkeyindex",
+            FT_UINT24, BASE_CUSTOM, CF_FUNC(format_dual_key_index), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_appkey_status_netkeyindexandappkeyindex_net,
+            { "NetKeyIndex", "btmesh.model.config_appkey_status.netkeyindexandappkeyindex.net",
+            FT_UINT24, BASE_CUSTOM, CF_FUNC(format_key_index), 0xFFF,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_appkey_status_netkeyindexandappkeyindex_app,
+            { "AppKeyIndex", "btmesh.model.config_appkey_status.netkeyindexandappkeyindex.app",
+            FT_UINT24, BASE_CUSTOM, CF_FUNC(format_key_index), 0xFFF000,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_health_attention_set_attention,
+            { "Attention", "btmesh.model.health_attention_set.attention",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_health_attention_set_unacknowledged_attention,
+            { "Attention", "btmesh.model.health_attention_set_unacknowledged.attention",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_health_attention_status_attention,
+            { "Attention", "btmesh.model.health_attention_status.attention",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_composition_data_get_page,
+            { "Page", "btmesh.model.config_composition_data_get.page",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_beacon_set_beacon,
+            { "Beacon", "btmesh.model.config_beacon_set.beacon",
+            FT_UINT8, BASE_DEC, VALS(btmesh_beacon_broadcast_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_beacon_status_beacon,
+            { "Beacon", "btmesh.model.config_beacon_status.beacon",
+            FT_UINT8, BASE_DEC, VALS(btmesh_beacon_broadcast_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_default_ttl_set_ttl,
+            { "TTL", "btmesh.model.config_default_ttl_set.ttl",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_default_ttl_status_ttl,
+            { "TTL", "btmesh.model.config_default_ttl_status.ttl",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_friend_set_friend,
+            { "Friend", "btmesh.model.config_friend_set.friend",
+            FT_UINT8, BASE_DEC, VALS(btmesh_friend_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_friend_status_friend,
+            { "Friend", "btmesh.model.config_friend_status.friend",
+            FT_UINT8, BASE_DEC, VALS(btmesh_friend_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_gatt_proxy_set_gattproxy,
+            { "GATTProxy", "btmesh.model.config_gatt_proxy_set.gattproxy",
+            FT_UINT8, BASE_HEX, VALS(btmesh_gatt_proxy_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_gatt_proxy_status_gattproxy,
+            { "GATTProxy", "btmesh.model.config_gatt_proxy_status.gattproxy",
+            FT_UINT8, BASE_HEX, VALS(btmesh_gatt_proxy_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_key_refresh_phase_get_netkeyindex,
+            { "NetKeyIndex", "btmesh.model.config_key_refresh_phase_get.netkeyindex",
+                FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_config_key_refresh_phase_get_netkeyindex_idx,
+            { "NetKeyIndex", "btmesh.model.config_key_refresh_phase_get.netkeyindex.idx",
+                FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0FFF,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_config_key_refresh_phase_get_netkeyindex_rfu,
+            { "RFU", "btmesh.model.config_key_refresh_phase_get.netkeyindex.rfu",
+                FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index_rfu), 0xF000,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_config_key_refresh_phase_set_netkeyindex,
+            { "NetKeyIndex", "btmesh.model.config_key_refresh_phase_set.netkeyindex",
+                FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_config_key_refresh_phase_set_netkeyindex_idx,
+            { "NetKeyIndex", "btmesh.model.config_key_refresh_phase_set.netkeyindex.idx",
+                FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0FFF,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_config_key_refresh_phase_set_netkeyindex_rfu,
+            { "RFU", "btmesh.model.config_key_refresh_phase_set.netkeyindex.rfu",
+                FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index_rfu), 0xF000,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_config_key_refresh_phase_set_transition,
+            { "Transition", "btmesh.model.config_key_refresh_phase_set.transition",
+            FT_UINT8, BASE_DEC | BASE_RANGE_STRING, RVALS(btmesh_transition_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_key_refresh_phase_status_status,
+            { "Status", "btmesh.model.config_key_refresh_phase_status.status",
+            FT_UINT8, BASE_DEC, VALS(btmesh_status_code_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_key_refresh_phase_status_netkeyindex,
+            { "NetKeyIndex", "btmesh.model.config_key_refresh_phase_status.netkeyindex",
+                FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_config_key_refresh_phase_status_netkeyindex_idx,
+            { "NetKeyIndex", "btmesh.model.config_key_refresh_phase_status.netkeyindex.idx",
+                FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0FFF,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_config_key_refresh_phase_status_netkeyindex_rfu,
+            { "RFU", "btmesh.model.config_key_refresh_phase_status.netkeyindex.rfu",
+                FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index_rfu), 0xF000,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_config_key_refresh_phase_status_phase,
+            { "Phase", "btmesh.model.config_key_refresh_phase_status.phase",
+            FT_UINT8, BASE_DEC, VALS(btmesh_phase_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_get_elementaddress,
+            { "ElementAddress", "btmesh.model.config_model_publication_get.elementaddress",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_get_modelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_model_publication_get.modelidentifier",
+            FT_UINT16, BASE_HEX, VALS(btmesh_model_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_get_vendormodelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_model_publication_get.vendormodelidentifier",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_vendor_model), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_status_status,
+            { "Status", "btmesh.model.config_model_publication_status.status",
+            FT_UINT8, BASE_DEC, VALS(btmesh_status_code_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_status_elementaddress,
+            { "ElementAddress", "btmesh.model.config_model_publication_status.elementaddress",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_status_publishaddress,
+            { "PublishAddress", "btmesh.model.config_model_publication_status.publishaddress",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_status_appkey,
+            { "AppKeyIndex", "btmesh.model.config_model_publication_status.appkey",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_publish_appkeyindex_model), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_status_appkeyindex,
+            { "AppKeyIndex", "btmesh.model.config_model_publication_status.appkeyindex",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0FFF,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_status_credentialflag,
+            { "CredentialFlag", "btmesh.model.config_model_publication_status.credentialflag",
+            FT_UINT16, BASE_DEC, VALS(btmesh_friendship_credentials_flag_vals), 0x1000,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_status_rfu,
+            { "RFU", "btmesh.model.config_model_publication_status.rfu",
+            FT_UINT16, BASE_HEX, NULL, 0xE000,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_status_publishttl,
+            { "PublishTTL", "btmesh.model.config_model_publication_status.publishttl",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_status_publishperiod,
+            { "PublishPeriod", "btmesh.model.config_model_publication_status.publishperiod",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_status_publishperiod_resolution,
+            { "Step Resolution", "btmesh.model.config_model_publication_status.publishperiod.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_status_publishperiod_steps,
+            { "Number of Steps", "btmesh.model.config_model_publication_status.publishperiod.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_status_publishretransmit,
+            { "PublishRetransmit", "btmesh.model.config_model_publication_status.publishretransmit",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_retransmit), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_status_publishretransmit_count,
+            { "PublishRetransmitCount", "btmesh.model.config_model_publication_status.publishretransmit.count",
+            FT_UINT8, BASE_DEC, NULL, 0x07,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_status_publishretransmit_intervalsteps,
+            { "PublishRetransmitIntervalSteps", "btmesh.model.config_model_publication_status.publishretransmit.intervalsteps",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_interval_steps), 0xF8,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_status_modelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_model_publication_status.modelidentifier",
+            FT_UINT16, BASE_HEX, VALS(btmesh_model_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_status_vendormodelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_model_publication_status.vendormodelidentifier",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_vendor_model), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_virtual_address_set_elementaddress,
+            { "ElementAddress", "btmesh.model.config_model_publication_virtual_address_set.elementaddress",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_virtual_address_set_publishaddress,
+            { "PublishAddress", "btmesh.model.config_model_publication_virtual_address_set.publishaddress",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_virtual_address_set_appkey,
+            { "AppKeyIndex", "btmesh.model.config_model_publication_virtual_address_set.appkey",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_publish_appkeyindex_model), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_virtual_address_set_appkeyindex,
+            { "AppKeyIndex", "btmesh.model.config_model_publication_virtual_address_set.appkeyindex",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0FFF,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_virtual_address_set_credentialflag,
+            { "CredentialFlag", "btmesh.model.config_model_publication_virtual_address_set.credentialflag",
+            FT_UINT16, BASE_DEC, VALS(btmesh_friendship_credentials_flag_vals), 0x1000,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_virtual_address_set_rfu,
+            { "RFU", "btmesh.model.config_model_publication_virtual_address_set.rfu",
+            FT_UINT16, BASE_HEX, NULL, 0xE000,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_virtual_address_set_publishttl,
+            { "PublishTTL", "btmesh.model.config_model_publication_virtual_address_set.publishttl",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_virtual_address_set_publishperiod,
+            { "PublishPeriod", "btmesh.model.config_model_publication_virtual_address_set.publishperiod",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_publish_period), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_virtual_address_set_publishperiod_resolution,
+            { "Step Resolution", "btmesh.model.config_model_publication_virtual_address_set.publishperiod.resolution",
+            FT_UINT8, BASE_DEC, VALS(btmesh_publishperiod_resolution_vals), 0xC0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_virtual_address_set_publishperiod_steps,
+            { "Number of Steps", "btmesh.model.config_model_publication_virtual_address_set.publishperiod.steps",
+            FT_UINT8, BASE_DEC, NULL, 0x3F,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_virtual_address_set_publishretransmit,
+            { "PublishRetransmit", "btmesh.model.config_model_publication_virtual_address_set.publishretransmit",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_retransmit), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_virtual_address_set_publishretransmit_count,
+            { "PublishRetransmitCount", "btmesh.model.config_model_publication_virtual_address_set.publishretransmit.count",
+            FT_UINT8, BASE_DEC, NULL, 0x07,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_virtual_address_set_publishretransmit_intervalsteps,
+            { "PublishRetransmitIntervalSteps", "btmesh.model.config_model_publication_virtual_address_set.publishretransmit.intervalsteps",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_interval_steps), 0xF8,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_virtual_address_set_vendormodelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_model_publication_virtual_address_set.vendormodelidentifier",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_vendor_model), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_publication_virtual_address_set_modelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_model_publication_virtual_address_set.modelidentifier",
+            FT_UINT16, BASE_HEX, VALS(btmesh_model_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_add_elementaddress,
+            { "ElementAddress", "btmesh.model.config_model_subscription_add.elementaddress",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_add_address,
+            { "Address", "btmesh.model.config_model_subscription_add.address",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_add_modelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_model_subscription_add.modelidentifier",
+            FT_UINT16, BASE_HEX, VALS(btmesh_model_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_add_vendormodelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_model_subscription_add.vendormodelidentifier",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_vendor_model), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_delete_elementaddress,
+            { "ElementAddress", "btmesh.model.config_model_subscription_delete.elementaddress",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_delete_address,
+            { "Address", "btmesh.model.config_model_subscription_delete.address",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_delete_modelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_model_subscription_delete.modelidentifier",
+            FT_UINT16, BASE_HEX, VALS(btmesh_model_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_delete_vendormodelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_model_subscription_delete.vendormodelidentifier",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_vendor_model), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_delete_all_elementaddress,
+            { "ElementAddress", "btmesh.model.config_model_subscription_delete_all.elementaddress",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_delete_all_modelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_model_subscription_delete_all.modelidentifier",
+            FT_UINT16, BASE_HEX, VALS(btmesh_model_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_delete_all_vendormodelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_model_subscription_delete_all.vendormodelidentifier",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_vendor_model), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_overwrite_elementaddress,
+            { "ElementAddress", "btmesh.model.config_model_subscription_overwrite.elementaddress",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_overwrite_address,
+            { "Address", "btmesh.model.config_model_subscription_overwrite.address",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_overwrite_modelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_model_subscription_overwrite.modelidentifier",
+            FT_UINT16, BASE_HEX, VALS(btmesh_model_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_overwrite_vendormodelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_model_subscription_overwrite.vendormodelidentifier",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_vendor_model), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_status_status,
+            { "Status", "btmesh.model.config_model_subscription_status.status",
+            FT_UINT8, BASE_DEC, VALS(btmesh_status_code_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_status_elementaddress,
+            { "ElementAddress", "btmesh.model.config_model_subscription_status.elementaddress",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_status_address,
+            { "Address", "btmesh.model.config_model_subscription_status.address",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_status_modelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_model_subscription_status.modelidentifier",
+            FT_UINT16, BASE_HEX, VALS(btmesh_model_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_status_vendormodelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_model_subscription_status.vendormodelidentifier",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_vendor_model), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_virtual_address_add_elementaddress,
+            { "ElementAddress", "btmesh.model.config_model_subscription_virtual_address_add.elementaddress",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_virtual_address_add_label,
+            { "Label", "btmesh.model.config_model_subscription_virtual_address_add.label",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_virtual_address_add_modelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_model_subscription_virtual_address_add.modelidentifier",
+            FT_UINT16, BASE_HEX, VALS(btmesh_model_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_virtual_address_add_vendormodelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_model_subscription_virtual_address_add.vendormodelidentifier",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_vendor_model), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_virtual_address_delete_elementaddress,
+            { "ElementAddress", "btmesh.model.config_model_subscription_virtual_address_delete.elementaddress",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_virtual_address_delete_label,
+            { "Label", "btmesh.model.config_model_subscription_virtual_address_delete.label",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_virtual_address_delete_modelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_model_subscription_virtual_address_delete.modelidentifier",
+            FT_UINT16, BASE_HEX, VALS(btmesh_model_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_virtual_address_delete_vendormodelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_model_subscription_virtual_address_delete.vendormodelidentifier",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_vendor_model), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_virtual_address_overwrite_elementaddress,
+            { "ElementAddress", "btmesh.model.config_model_subscription_virtual_address_overwrite.elementaddress",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_virtual_address_overwrite_label,
+            { "Label", "btmesh.model.config_model_subscription_virtual_address_overwrite.label",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_virtual_address_overwrite_modelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_model_subscription_virtual_address_overwrite.modelidentifier",
+            FT_UINT16, BASE_HEX, VALS(btmesh_model_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_subscription_virtual_address_overwrite_vendormodelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_model_subscription_virtual_address_overwrite.vendormodelidentifier",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_vendor_model), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_network_transmit_set_networktransmit,
+            { "NetworkTransmitCount", "btmesh.model.config_network_transmit_set.networktransmit",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_transmit), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_network_transmit_set_networktransmit_count,
+            { "NetworkTransmitCount", "btmesh.model.config_network_transmit_set.networktransmit.count",
+            FT_UINT8, BASE_DEC, NULL, 0x07,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_network_transmit_set_networktransmit_intervalsteps,
+            { "NetworkTransmitIntervalSteps", "btmesh.model.config_network_transmit_set.networktransmitinterval.steps",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_interval_steps), 0xF8,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_network_transmit_status_networktransmit,
+            { "NetworkTransmitCount", "btmesh.model.config_network_transmit_status.networktransmit",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_transmit), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_network_transmit_status_networktransmit_count,
+            { "NetworkTransmitCount", "btmesh.model.config_network_transmit_status.networktransmit.count",
+            FT_UINT8, BASE_DEC, NULL, 0x07,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_network_transmit_status_networktransmit_intervalsteps,
+            { "NetworkTransmitIntervalSteps", "btmesh.model.config_network_transmit_status.networktransmit.intervalsteps",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_interval_steps), 0xF8,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_relay_set_relay,
+            { "Relay", "btmesh.model.config_relay_set.relay",
+            FT_UINT8, BASE_DEC, VALS(btmesh_relay_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_relay_set_relayretransmit,
+            { "RelayRetransmitCount", "btmesh.model.config_relay_set.relayretransmit",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_retransmit), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_relay_set_relayretransmit_count,
+            { "RelayRetransmitCount", "btmesh.model.config_relay_set.relayretransmit.count",
+            FT_UINT8, BASE_DEC, NULL, 0x07,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_relay_set_relayretransmit_intervalsteps,
+            { "RelayRetransmitIntervalSteps", "btmesh.model.config_relay_set.relayretransmit.intervalsteps",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_interval_steps), 0xF8,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_relay_status_relay,
+            { "Relay", "btmesh.model.config_relay_status.relay",
+            FT_UINT8, BASE_DEC, VALS(btmesh_relay_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_relay_status_relayretransmit,
+            { "RelayRetransmit", "btmesh.model.config_relay_status.relayretransmit",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_retransmit), 0x00,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_relay_status_relayretransmit_count,
+            { "RelayRetransmitCount", "btmesh.model.config_relay_status.relayretransmit.count",
+            FT_UINT8, BASE_DEC, NULL, 0x07,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_relay_status_relayretransmit_intervalsteps,
+            { "RelayRetransmitIntervalSteps", "btmesh.model.config_relay_status.relayretransmit.intervalsteps",
+            FT_UINT8, BASE_CUSTOM, CF_FUNC(format_interval_steps), 0xF8,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_sig_model_subscription_get_elementaddress,
+            { "ElementAddress", "btmesh.model.config_sig_model_subscription_get.elementaddress",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_sig_model_subscription_get_modelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_sig_model_subscription_get.modelidentifier",
+            FT_UINT16, BASE_HEX, VALS(btmesh_model_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_sig_model_subscription_list_status,
+            { "Status", "btmesh.model.config_sig_model_subscription_list.status",
+            FT_UINT8, BASE_DEC, VALS(btmesh_status_code_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_sig_model_subscription_list_elementaddress,
+            { "ElementAddress", "btmesh.model.config_sig_model_subscription_list.elementaddress",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_sig_model_subscription_list_modelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_sig_model_subscription_list.modelidentifier",
+            FT_UINT16, BASE_HEX, VALS(btmesh_model_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_sig_model_subscription_list_address,
+            { "Address", "btmesh.model.config_sig_model_subscription_list.address",
+            FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_vendor_model_subscription_get_elementaddress,
+            { "ElementAddress", "btmesh.model.config_vendor_model_subscription_get.elementaddress",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_vendor_model_subscription_get_modelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_vendor_model_subscription_get.modelidentifier",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_vendor_model), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_vendor_model_subscription_list_status,
+            { "Status", "btmesh.model.config_vendor_model_subscription_list.status",
+            FT_UINT8, BASE_DEC, VALS(btmesh_status_code_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_vendor_model_subscription_list_elementaddress,
+            { "ElementAddress", "btmesh.model.config_vendor_model_subscription_list.elementaddress",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_vendor_model_subscription_list_modelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_vendor_model_subscription_list.modelidentifier",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_vendor_model), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_vendor_model_subscription_list_address,
+            { "Address", "btmesh.model.config_vendor_model_subscription_list.address",
+            FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_low_power_node_polltimeout_get_lpnaddress,
+            { "LPNAddress", "btmesh.model.config_low_power_node_polltimeout_get.lpnaddress",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_low_power_node_polltimeout_status_lpnaddress,
+            { "LPNAddress", "btmesh.model.config_low_power_node_polltimeout_status.lpnaddress",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_low_power_node_polltimeout_status_polltimeout,
+            { "PollTimeout", "btmesh.model.config_low_power_node_polltimeout_status.polltimeout",
+            FT_UINT24, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_health_fault_clear_company_id,
+            { "Company ID", "btmesh.model.health_fault_clear.company_id",
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bluetooth_company_id_vals_ext, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_health_fault_clear_unacknowledged_company_id,
+            { "Company ID", "btmesh.model.health_fault_clear_unacknowledged.company_id",
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bluetooth_company_id_vals_ext, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_health_fault_get_company_id,
+            { "Company ID", "btmesh.model.health_fault_get.company_id",
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bluetooth_company_id_vals_ext, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_health_fault_test_test_id,
+            { "Test ID", "btmesh.model.health_fault_test.test_id",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_health_fault_test_company_id,
+            { "Company ID", "btmesh.model.health_fault_test.company_id",
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bluetooth_company_id_vals_ext, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_health_fault_test_unacknowledged_test_id,
+            { "Test ID", "btmesh.model.health_fault_test_unacknowledged.test_id",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_health_fault_test_unacknowledged_company_id,
+            { "Company ID", "btmesh.model.health_fault_test_unacknowledged.company_id",
+            FT_UINT16, BASE_HEX | BASE_EXT_STRING, &bluetooth_company_id_vals_ext, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_health_period_set_fastperioddivisor,
+            { "FastPeriodDivisor", "btmesh.model.health_period_set.fastperioddivisor",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_health_period_set_unacknowledged_fastperioddivisor,
+            { "FastPeriodDivisor", "btmesh.model.health_period_set_unacknowledged.fastperioddivisor",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_health_period_status_fastperioddivisor,
+            { "FastPeriodDivisor", "btmesh.model.health_period_status.fastperioddivisor",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_publication_set_destination,
+            { "Destination", "btmesh.model.config_heartbeat_publication_set.destination",
+            FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_publication_set_countlog,
+            { "CountLog", "btmesh.model.config_heartbeat_publication_set.countlog",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_publication_set_periodlog,
+            { "PeriodLog", "btmesh.model.config_heartbeat_publication_set.periodlog",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_publication_set_ttl,
+            { "TTL", "btmesh.model.config_heartbeat_publication_set.ttl",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_publication_set_features_relay,
+            { "Relay feature change triggers a Heartbeat message", "btmesh.model.config_heartbeat_publication_set.features.relay",
+            FT_BOOLEAN, 16, TFS(&tfs_true_false), 0x0001,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_publication_set_features_proxy,
+            { "Proxy feature change triggers a Heartbeat message", "btmesh.model.config_heartbeat_publication_set.features.proxy",
+            FT_BOOLEAN, 16, TFS(&tfs_true_false), 0x0002,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_publication_set_features_friend,
+            { "Friend feature change triggers a Heartbeat message", "btmesh.model.config_heartbeat_publication_set.features.friend",
+            FT_BOOLEAN, 16, TFS(&tfs_true_false), 0x0004,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_publication_set_features_low_power,
+            { "Low Power feature change triggers a Heartbeat message", "btmesh.model.config_heartbeat_publication_set.features.low_power",
+            FT_BOOLEAN, 16, TFS(&tfs_true_false), 0x0008,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_publication_set_features_rfu,
+            { "RFU", "btmesh.model.config_heartbeat_publication_set.features.rfu",
+            FT_UINT16, BASE_HEX, NULL, 0xFFF0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_publication_set_features,
+            { "Features", "btmesh.model.config_heartbeat_publication_set.features",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_publication_set_netkeyindex,
+            { "NetKeyIndex", "btmesh.model.config_heartbeat_publication_set.netkeyindex",
+                FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_publication_set_netkeyindex_idx,
+            { "NetKeyIndex", "btmesh.model.config_heartbeat_publication_set.netkeyindex.idx",
+                FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0FFF,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_publication_set_netkeyindex_rfu,
+            { "RFU", "btmesh.model.config_heartbeat_publication_set.netkeyindex.rfu",
+                FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index_rfu), 0xF000,
+                NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_subscription_set_source,
+            { "Source", "btmesh.model.config_heartbeat_subscription_set.source",
+            FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_subscription_set_destination,
+            { "Destination", "btmesh.model.config_heartbeat_subscription_set.destination",
+            FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_subscription_set_periodlog,
+            { "PeriodLog", "btmesh.model.config_heartbeat_subscription_set.periodlog",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_subscription_status_status,
+            { "Status", "btmesh.model.config_heartbeat_subscription_status.status",
+            FT_UINT8, BASE_DEC, VALS(btmesh_status_code_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_subscription_status_source,
+            { "Source", "btmesh.model.config_heartbeat_subscription_status.source",
+            FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_subscription_status_destination,
+            { "Destination", "btmesh.model.config_heartbeat_subscription_status.destination",
+            FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_subscription_status_periodlog,
+            { "PeriodLog", "btmesh.model.config_heartbeat_subscription_status.periodlog",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_subscription_status_countlog,
+            { "CountLog", "btmesh.model.config_heartbeat_subscription_status.countlog",
+            FT_UINT8, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_subscription_status_minhops,
+            { "MinHops", "btmesh.model.config_heartbeat_subscription_status.minhops",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_heartbeat_subscription_status_maxhops,
+            { "MaxHops", "btmesh.model.config_heartbeat_subscription_status.maxhops",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_app_bind_elementaddress,
+            { "ElementAddress", "btmesh.model.config_model_app_bind.elementaddress",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_app_bind_appkeyindex,
+            { "AppKeyIndex", "btmesh.model.config_model_app_bind.appkeyindex",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_app_bind_appkeyindex_idx,
+            { "AppKeyIndex", "btmesh.model.config_model_app_bind.appkeyindex.idx",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0FFF,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_app_bind_appkeyindex_rfu,
+            { "RFU", "btmesh.model.config_model_app_bind.appkeyindex.rfu",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index_rfu), 0xF000,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_app_bind_modelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_model_app_bind.modelidentifier",
+            FT_UINT16, BASE_HEX, VALS(btmesh_model_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_app_bind_vendormodelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_model_app_bind.vendormodelidentifier",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_vendor_model), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_app_status_status,
+            { "Status", "btmesh.model.config_model_app_status.status",
+            FT_UINT8, BASE_DEC, VALS(btmesh_status_code_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_app_status_elementaddress,
+            { "ElementAddress", "btmesh.model.config_model_app_status.elementaddress",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_app_status_appkeyindex,
+            { "AppKeyIndex", "btmesh.model.config_model_app_status.appkeyindex",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_app_status_appkeyindex_idx,
+            { "AppKeyIndex", "btmesh.model.config_model_app_status.appkeyindex.idx",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0FFF,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_app_status_appkeyindex_rfu,
+            { "RFU", "btmesh.model.config_model_app_status.appkeyindex.rfu",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index_rfu), 0xF000,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_app_status_modelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_model_app_status.modelidentifier",
+            FT_UINT16, BASE_HEX, VALS(btmesh_model_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_app_status_vendormodelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_model_app_status.vendormodelidentifier",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_vendor_model), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_app_unbind_elementaddress,
+            { "ElementAddress", "btmesh.model.config_model_app_unbind.elementaddress",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_app_unbind_appkeyindex,
+            { "AppKeyIndex", "btmesh.model.config_model_app_unbind.appkeyindex",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_app_unbind_appkeyindex_idx,
+            { "AppKeyIndex", "btmesh.model.config_model_app_unbind.appkeyindex.idx",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0FFF,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_app_unbind_appkeyindex_rfu,
+            { "AppKeyIndex", "btmesh.model.config_model_app_unbind.appkeyindex.rfu",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index_rfu), 0xF000,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_app_unbind_modelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_model_app_unbind.modelidentifier",
+            FT_UINT16, BASE_HEX, VALS(btmesh_model_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_model_app_unbind_vendormodelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_model_app_unbind.vendormodelidentifier",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_vendor_model), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_netkey_add_netkeyindex,
+            { "NetKeyIndex", "btmesh.model.config_netkey_add.netkeyindex",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_netkey_add_netkeyindex_idx,
+            { "NetKeyIndex", "btmesh.model.config_netkey_add.netkeyindex.idx",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0FFF,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_netkey_add_netkeyindex_rfu,
+            { "RFU", "btmesh.model.config_netkey_add.netkeyindex.rfu",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index_rfu), 0xF000,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_netkey_add_netkey,
+            { "NetKey", "btmesh.model.config_netkey_add.netkey",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_netkey_delete_netkeyindex,
+            { "NetKeyIndex", "btmesh.model.config_netkey_delete.netkeyindex",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_netkey_delete_netkeyindex_idx,
+            { "NetKeyIndex", "btmesh.model.config_netkey_delete.netkeyindex.idx",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0FFF,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_netkey_delete_netkeyindex_rfu,
+            { "RFU", "btmesh.model.config_netkey_delete.netkeyindex.rfu",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index_rfu), 0xF000,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_netkey_list_netkeyindex,
+            { "NetKeyIndex", "btmesh.model.config_netkey_list.netkeyindex",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_netkey_list_netkeyindex_rfu,
+            { "NetKeyIndex RFU", "btmesh.model.config_netkey_list.netkeyindex.rfu",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index_rfu), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_netkey_status_status,
+            { "Status", "btmesh.model.config_netkey_status.status",
+            FT_UINT8, BASE_DEC, VALS(btmesh_status_code_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_netkey_status_netkeyindex,
+            { "NetKeyIndex", "btmesh.model.config_netkey_status.netkeyindex",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_netkey_status_netkeyindex_idx,
+            { "NetKeyIndex", "btmesh.model.config_netkey_status.netkeyindex.idx",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0FFF,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_netkey_status_netkeyindex_rfu,
+            { "RFU", "btmesh.model.config_netkey_status.netkeyindex.rfu",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index_rfu), 0xF000,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_netkey_update_netkeyindex,
+            { "NetKeyIndex", "btmesh.model.config_netkey_update.netkeyindex",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_netkey_update_netkeyindex_idx,
+            { "NetKeyIndex", "btmesh.model.config_netkey_update.netkeyindex.idx",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0FFF,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_netkey_update_netkeyindex_rfu,
+            { "RFU", "btmesh.model.config_netkey_update.netkeyindex.rfu",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index_rfu), 0xF000,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_netkey_update_netkey,
+            { "NetKey", "btmesh.model.config_netkey_update.netkey",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_node_identity_get_netkeyindex,
+            { "NetKeyIndex", "btmesh.model.config_node_identity_get.netkeyindex",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_node_identity_get_netkeyindex_idx,
+            { "NetKeyIndex", "btmesh.model.config_node_identity_get.netkeyindex.idx",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0FFF,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_node_identity_get_netkeyindex_rfu,
+            { "RFU", "btmesh.model.config_node_identity_get.netkeyindex.rfu",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index_rfu), 0xF000,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_node_identity_set_netkeyindex,
+            { "NetKeyIndex", "btmesh.model.config_node_identity_set.netkeyindex",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_node_identity_set_netkeyindex_idx,
+            { "NetKeyIndex", "btmesh.model.config_node_identity_set.netkeyindex.idx",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0FFF,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_node_identity_set_netkeyindex_rfu,
+            { "RFU", "btmesh.model.config_node_identity_set.netkeyindex.rfu",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index_rfu), 0xF000,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_node_identity_set_identity,
+            { "Identity", "btmesh.model.config_node_identity_set.identity",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_node_identity_status_status,
+            { "Status", "btmesh.model.config_node_identity_status.status",
+            FT_UINT8, BASE_DEC, VALS(btmesh_status_code_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_node_identity_status_netkeyindex,
+            { "NetKeyIndex", "btmesh.model.config_node_identity_status.netkeyindex",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_node_identity_status_netkeyindex_idx,
+            { "NetKeyIndex", "btmesh.model.config_node_identity_status.netkeyindex.idx",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0FFF,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_node_identity_status_netkeyindex_rfu,
+            { "RFU", "btmesh.model.config_node_identity_status.netkeyindex.rfu",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index_rfu), 0xF000,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_node_identity_status_identity,
+            { "Identity", "btmesh.model.config_node_identity_status.identity",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_sig_model_app_get_elementaddress,
+            { "ElementAddress", "btmesh.model.config_sig_model_app_get.elementaddress",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_sig_model_app_get_modelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_sig_model_app_get.modelidentifier",
+            FT_UINT16, BASE_HEX, VALS(btmesh_model_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_sig_model_app_list_status,
+            { "Status", "btmesh.model.config_sig_model_app_list.status",
+            FT_UINT8, BASE_DEC, VALS(btmesh_status_code_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_sig_model_app_list_elementaddress,
+            { "ElementAddress", "btmesh.model.config_sig_model_app_list.elementaddress",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_sig_model_app_list_modelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_sig_model_app_list.modelidentifier",
+            FT_UINT16, BASE_HEX, VALS(btmesh_model_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_sig_model_app_list_appkeyindex,
+            { "AppKeyIndex", "btmesh.model.config_sig_model_app_list.appkeyindex",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_sig_model_app_list_appkeyindex_rfu,
+            { "RFU", "btmesh.model.config_sig_model_app_list.appkeyindex.rfu",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index_rfu), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_vendor_model_app_get_elementaddress,
+            { "ElementAddress", "btmesh.model.config_vendor_model_app_get.elementaddress",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_vendor_model_app_get_modelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_vendor_model_app_get.modelidentifier",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_vendor_model), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_vendor_model_app_list_status,
+            { "Status", "btmesh.model.config_vendor_model_app_list.status",
+            FT_UINT8, BASE_DEC, VALS(btmesh_status_code_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_vendor_model_app_list_elementaddress,
+            { "ElementAddress", "btmesh.model.config_vendor_model_app_list.elementaddress",
+            FT_UINT16, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_vendor_model_app_list_modelidentifier,
+            { "ModelIdentifier", "btmesh.model.config_vendor_model_app_list.modelidentifier",
+            FT_UINT32, BASE_CUSTOM, CF_FUNC(format_vendor_model), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_vendor_model_app_list_appkeyindex,
+            { "AppKeyIndex", "btmesh.model.config_vendor_model_app_list.appkeyindex",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_btmesh_config_vendor_model_app_list_appkeyindex_rfu,
+            { "RFU", "btmesh.model.config_vendor_model_app_list.appkeyindex.rfu",
+            FT_UINT16, BASE_CUSTOM, CF_FUNC(format_key_index_rfu), 0x0,
+            NULL, HFILL }
+        },
+};
 
     static gint *ett[] = {
         &ett_btmesh,
@@ -2674,10 +5646,29 @@ proto_register_btmesh(void)
         &ett_btmesh_segmented_control_fragment,
         &ett_btmesh_access_pdu,
         &ett_btmesh_model_layer,
+        &ett_btmesh_config_model_netapp_index,
+        &ett_btmesh_config_model_publishperiod,
+        &ett_btmesh_config_model_publishretransmit,
+        &ett_btmesh_config_model_relayretransmit,
+        &ett_btmesh_config_model_network_transmit,
+        &ett_btmesh_config_model_element,
+        &ett_btmesh_config_model_model,
+        &ett_btmesh_config_model_vendor,
+        &ett_btmesh_config_composition_data_status_features,
+        &ett_btmesh_config_model_pub_app_index,
+        &ett_btmesh_config_model_addresses,
+        &ett_btmesh_config_model_netkey_list,
+        &ett_btmesh_config_model_appkey_list,
+        &ett_btmesh_config_model_net_index,
+        &ett_btmesh_config_model_app_index,
+        &ett_btmesh_config_heartbeat_publication_set_features,
+        &ett_btmesh_config_heartbeat_publication_status_features,
+        &ett_btmesh_config_model_fault_array,
     };
 
     static ei_register_info ei[] = {
         { &ei_btmesh_not_decoded_yet,{ "btmesh.not_decoded_yet", PI_PROTOCOL, PI_NOTE, "Not decoded yet", EXPFILL } },
+        { &ei_btmesh_unknown_payload,{ "btmesh.unknown_payload", PI_PROTOCOL, PI_ERROR, "Unknown Payload", EXPFILL } },
     };
 
     expert_module_t* expert_btmesh;

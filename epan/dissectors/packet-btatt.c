@@ -2442,7 +2442,7 @@ static const value_string characteristic_presentation_namespace_vals[] = {
     {0x0, NULL}
 };
 
-static const value_string characteristic_presentation_namespace_description_btsig_vals[] = {
+const value_string characteristic_presentation_namespace_description_btsig_vals[] = {
     {0x0000, "unknown"},
     {0x0001, "first"},
     {0x0002, "second"},
