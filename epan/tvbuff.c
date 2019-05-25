@@ -2850,6 +2850,10 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 		strptr = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_cp1251);
 		break;
 
+	case ENC_WINDOWS_1252:
+		strptr = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_cp1252);
+		break;
+
 	case ENC_MAC_ROMAN:
 		strptr = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_mac_roman);
 		break;
@@ -3206,6 +3210,14 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, g
 
 	case ENC_WINDOWS_1250:
 		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_cp1250);
+		break;
+
+	case ENC_WINDOWS_1251:
+		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_cp1251);
+		break;
+
+	case ENC_WINDOWS_1252:
+		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_cp1252);
 		break;
 
 	case ENC_MAC_ROMAN:

@@ -483,7 +483,7 @@ void proto_report_dissector_bug(const char *format, ...)
 #define ENC_ASCII_7BITS          0x00000034
 #define ENC_T61                  0x00000036
 #define ENC_EBCDIC_CP037         0x00000038
-/* reserved                      0x0000003A */
+#define ENC_WINDOWS_1252         0x0000003A
 #define ENC_WINDOWS_1251         0x0000003C
 #define ENC_CP855                0x0000003E
 #define ENC_CP866                0x00000040
