@@ -329,7 +329,7 @@ static expert_field ei_iso14443_uid_inval_size = EI_INIT;
 
 static reassembly_table i_block_reassembly_table;
 
-static const fragment_items i_block_frag_items _U_ = {
+static const fragment_items i_block_frag_items = {
     &ett_iso14443_frag,
     &ett_iso14443_frags,
 
