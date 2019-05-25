@@ -671,6 +671,11 @@ static proto_item* edonkey_tree_add_metatag_name(proto_tree *tree, tvbuff_t *tvb
                                                  gint start, gint length, guint8 special_tagtype)
 {
     const gchar *tag_name;
+
+    /*
+     * XXX - what, in the *protocol*, distinguishes integral from string
+     * tag names?  Name length > 1 means "string"?  Something else?
+     */
     tag_name = try_val_to_str(special_tagtype, edonkey_special_tags);
     if (tag_name == NULL) {
         return proto_tree_add_item(tree, hf_edonkey_metatag_name, tvb, start, length, ENC_ASCII|ENC_NA);
