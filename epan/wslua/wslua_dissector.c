@@ -640,6 +640,11 @@ WSLUA_METAMETHOD DissectorTable__tostring(lua_State* L) {
             g_string_append_printf(s,"%s Integer(%i):\n",dt->name,base);
             break;
         }
+        case FT_NONE:
+        {
+            g_string_append_printf(s,"%s only for Decode As:\n",dt->name);
+            break;
+        }
         default:
             luaL_error(L,"Strange table type");
     }
