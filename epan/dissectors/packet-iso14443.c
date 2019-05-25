@@ -1789,45 +1789,45 @@ proto_register_iso14443(void)
                 FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }
         },
         { &hf_iso14443_frags,
-          { "Tpdu fragments", "iso14443.tpdu_fragments",
+          { "Apdu fragments", "iso14443.apdu_fragments",
            FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }
         },
         { &hf_iso14443_frag,
-          { "Tpdu fragment", "iso14443.tpdu_fragment",
+          { "Apdu fragment", "iso14443.apdu_fragment",
            FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
         },
         { &hf_iso14443_frag_overlap,
-          { "Tpdu fragment overlap", "iso14443.tpdu_fragment.overlap",
+          { "Apdu fragment overlap", "iso14443.apdu_fragment.overlap",
            FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
         },
         { &hf_iso14443_frag_overlap_conflicts,
-          { "Tpdu fragment overlapping with conflicting data",
-           "iso14443.tpdu_fragment.overlap.conflicts",
+          { "Apdu fragment overlapping with conflicting data",
+           "iso14443.apdu_fragment.overlap.conflicts",
            FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
         },
         { &hf_iso14443_frag_multiple_tails,
-          { "Tpdu has multiple tail fragments",
-           "iso14443.tpdu_fragment.multiple_tails",
+          { "Apdu has multiple tail fragments",
+           "iso14443.apdu_fragment.multiple_tails",
           FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
         },
         { &hf_iso14443_frag_too_long_frag,
-          { "Tpdu fragment too long", "iso14443.tpdu_fragment.too_long_fragment",
+          { "Apdu fragment too long", "iso14443.apdu_fragment.too_long_fragment",
            FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL }
         },
         { &hf_iso14443_frag_err,
-          { "Tpdu defragmentation error", "iso14443.tpdu_fragment.error",
+          { "Apdu defragmentation error", "iso14443.apdu_fragment.error",
            FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
         },
         { &hf_iso14443_frag_cnt,
-          { "Tpdu fragment count", "iso14443.tpdu_fragment.count",
+          { "Apdu fragment count", "iso14443.apdu_fragment.count",
            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
         },
         { &hf_iso14443_reass_in,
-          { "Tpdu reassembled in", "iso14443.tpdu_reassembled.in",
+          { "Apdu reassembled in", "iso14443.apdu_reassembled.in",
            FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL }
         },
         { &hf_iso14443_reass_len,
-          { "Reassembled tpdu length", "iso14443.tpdu_reassembled.length",
+          { "Reassembled apdu length", "iso14443.apdu_reassembled.length",
            FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL }
         },
         { &hf_iso14443_crc,
