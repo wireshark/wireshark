@@ -1395,7 +1395,7 @@ dissect_ftpdata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data 
     }
 
     /* Check the first few chars to see whether it looks like a text file or output */
-    check_chars = MIN(10, data_length);
+    check_chars = MIN(20, data_length);
     for (i=0; i < check_chars; i++) {
         guint8 c = tvb_get_guint8(tvb, i);
         if (c!='\r' && c!='\n' && !g_ascii_isprint(c)) {
