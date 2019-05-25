@@ -541,7 +541,7 @@ WSLUA_METHOD DissectorTable_try (lua_State *L) {
                 handled = TRUE;
             }
         } else {
-            luaL_error(L,"No such type of dissector_table");
+            error = "No such type of dissector table";
         }
 
         if (!handled) {
