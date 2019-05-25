@@ -694,7 +694,7 @@ proto_register_tnef(void)
       { "Version", "tnef.version", FT_UINT32,  BASE_HEX, NULL, 0x0,
         NULL, HFILL }},
     { &hf_tnef_oem_codepage,
-      { "OEM Codepage", "tnef.oem_codepage", FT_UINT64,  BASE_HEX, NULL, 0x0,
+      { "OEM Codepage", "tnef.oem_codepage", FT_UINT64,  BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
     { &hf_tnef_message_class,
       { "Message Class", "tnef.message_class", FT_STRING,  BASE_NONE, NULL, 0x0,
