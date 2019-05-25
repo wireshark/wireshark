@@ -419,7 +419,7 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         offset = dissect_counted_values(tvb, offset, hf_tnef_PropValue_bin, pinfo, prop_tree, TRUE, ENC_NA);
         break;
       case PT_UNICODE:
-        offset = dissect_counted_values (tvb, offset, hf_tnef_PropValue_lpszW, pinfo, prop_tree, TRUE, ENC_UTF_16|ENC_NA);
+        offset = dissect_counted_values (tvb, offset, hf_tnef_PropValue_lpszW, pinfo, prop_tree, TRUE, ENC_UTF_16|ENC_LITTLE_ENDIAN);
         break;
       case PT_CLSID:
         offset = nspi_dissect_struct_MAPIUID(tvb, offset, pinfo, prop_tree, &di, drep, hf_tnef_PropValue_lpguid, 0);
