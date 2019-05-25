@@ -315,7 +315,7 @@ static void dissect_DTR(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 }
 
 
-static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint oem_encoding)
 {
   proto_item *item, *prop_item;
   proto_tree *prop_tree, *tag_tree;
@@ -412,8 +412,7 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         offset = PIDL_dissect_uint16(tvb, offset, pinfo, prop_tree, &di, drep, hf_tnef_PropValue_b, 0);
         break;
       case PT_STRING8:
-        /* XXX - code page? */
-        offset = dissect_counted_values(tvb, offset, hf_tnef_PropValue_lpszA, pinfo, prop_tree, TRUE, ENC_ASCII|ENC_NA);
+        offset = dissect_counted_values(tvb, offset, hf_tnef_PropValue_lpszA, pinfo, prop_tree, TRUE, oem_encoding);
         break;
       case PT_BINARY:
         offset = dissect_counted_values(tvb, offset, hf_tnef_PropValue_bin, pinfo, prop_tree, TRUE, ENC_NA);
@@ -481,6 +480,8 @@ static int dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
   guint32     tag, length, signature;
   gint        offset, start_offset;
   tvbuff_t   *next_tvb;
+  guint64     oem_code_page;
+  guint       oem_encoding = ENC_ASCII|ENC_NA;
 
   if(tree){
     item = proto_tree_add_item(tree, proto_tnef, tvb, 0, -1, ENC_NA);
@@ -540,7 +541,25 @@ static int dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     switch(tag) {
     case ATT_OEM_CODEPAGE:
-      proto_tree_add_item(attr_tree, hf_tnef_oem_codepage, tvb, offset, length, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item_ret_uint64(attr_tree, hf_tnef_oem_codepage, tvb, offset, length, ENC_LITTLE_ENDIAN, &oem_code_page);
+      switch (oem_code_page) {
+
+      case 1250:
+        oem_encoding = ENC_WINDOWS_1250|ENC_NA;
+        break;
+
+      case 1251:
+        oem_encoding = ENC_WINDOWS_1251|ENC_NA;
+        break;
+
+      case 1252:
+        oem_encoding = ENC_WINDOWS_1252|ENC_NA;
+        break;
+
+      default:
+        oem_encoding = ENC_ASCII|ENC_NA; /* XXX - support more code pages */
+        break;
+      }
       break;
     case ATT_TNEF_VERSION:
       proto_tree_add_item(attr_tree, hf_tnef_version, tvb, offset, length, ENC_LITTLE_ENDIAN);
@@ -557,7 +576,7 @@ static int dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
       next_tvb = tvb_new_subset_length(tvb, offset, length);
 
-      dissect_mapiprops(next_tvb, pinfo, props_tree);
+      dissect_mapiprops(next_tvb, pinfo, props_tree, oem_encoding);
 
       break;
     case ATT_OWNER:
@@ -585,7 +604,7 @@ static int dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
       case ATP_STRING:
         {
         const guint8* atp;
-        proto_tree_add_item_ret_string(attr_tree, hf_tnef_attribute_string, tvb, offset, length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &atp);
+        proto_tree_add_item_ret_string(attr_tree, hf_tnef_attribute_string, tvb, offset, length, oem_encoding, wmem_packet_scope(), &atp);
         proto_item_append_text(attr_item, " %s", atp);
         }
         break;
