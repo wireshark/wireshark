@@ -347,12 +347,6 @@ Set the following environment variables, using paths and values suitable for you
 > set WIRESHARK_VERSION_EXTRA=-YourExtraVersionInfo
 ----
 
-If you are using a version of Visual Studio earlier than VS2017 then you must set an additional env var,
-e.g. for VS2019 set the following:
-----
-> set VisualStudioVersion=10.0
-----
-
 Setting these variables could be added to a batch file to be run after you open
 the Visual Studio Tools Command Prompt.
 
