@@ -1540,7 +1540,7 @@ proto_register_gsm_sim(void)
 			  "ISO 7816-4 APDU CLA (Class) Byte", HFILL }
 		},
 		{ &hf_apdu_cla_secure_messaging_ind_ext,
-			{ "Secure Messaging Indication", "gsm_sim.apdu.cla.secure_messaging_ind",
+			{ "Secure Messaging Indication", "gsm_sim.apdu.cla.secure_messaging_ind.ext",
 			  FT_BOOLEAN, 8, TFS(&apdu_cla_secure_messaging_ind_ext_val), 0x20,
 			  "ISO 7816-4 APDU CLA (Class) Byte", HFILL }
 		},
