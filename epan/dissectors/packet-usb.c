@@ -1924,7 +1924,6 @@ proto_item * dissect_usb_descriptor_header(proto_tree *tree,
 {
     guint8      desc_type;
     proto_item *length_item;
-    proto_item *type_item;
 
 
     length_item = proto_tree_add_item(tree, hf_usb_bLength,
@@ -1932,14 +1931,14 @@ proto_item * dissect_usb_descriptor_header(proto_tree *tree,
     offset++;
 
     desc_type = tvb_get_guint8(tvb, offset);
-    type_item = proto_tree_add_item(tree, hf_usb_bDescriptorType,
-          tvb, offset, 1, ENC_LITTLE_ENDIAN);
     /* if the caller provided no class specific value string, we're
      * using the standard descriptor types */
     if (!type_val_str)
-          type_val_str = &std_descriptor_type_vals_ext;
-    proto_item_append_text(type_item, " (%s)",
-             val_to_str_ext(desc_type, type_val_str, "unknown"));
+        type_val_str = &std_descriptor_type_vals_ext;
+
+    proto_tree_add_uint_format_value(tree, hf_usb_bDescriptorType,
+        tvb, offset, 1, desc_type, "0x%02x (%s)", desc_type,
+        val_to_str_ext(desc_type, type_val_str, "unknown"));
 
     return length_item;
 }
@@ -5912,7 +5911,7 @@ proto_register_usb(void)
 
         { &hf_usb_bDescriptorType,
           { "bDescriptorType", "usb.bDescriptorType",
-            FT_UINT8, BASE_HEX, NULL, 0x0,
+            FT_UINT8, BASE_HEX|BASE_EXT_STRING, &std_descriptor_type_vals_ext, 0x0,
             NULL, HFILL }},
 
         /* Only used when descriptor type cannot be determined */
