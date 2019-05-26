@@ -362,7 +362,7 @@ dissect_rfc7468(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data 
 #define MAX_EXPLANATORY_TEXT_LINES     20
 
 static gboolean
-dissect_rfc7468_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_rfc7468_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     int offset;
     int linelen;
