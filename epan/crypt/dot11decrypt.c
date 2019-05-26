@@ -1680,7 +1680,7 @@ Dot11DecryptRsna4WHandshake(
 
                     if (key_version == 0) {
                         /* PTK derivation is based on Authentication Key Management Type */
-                        int _U_ group_cipher = -1;
+                        int group_cipher = -1;
                         Dot11DecryptGetRsne((const EAPOL_RSN_KEY *)(data + offset - 1),
                                             tot_len - (offset - 1),
                                             &group_cipher, &cipher, &akm);
