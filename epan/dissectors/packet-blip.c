@@ -185,7 +185,7 @@ is_first_frame_in_msg(blip_conversation_entry_t *conversation_entry_ptr, packet_
 }
 
 static int
-handle_ack_message(tvbuff_t *tvb, _U_ packet_info *pinfo, _U_ proto_tree *blip_tree, _U_ gint offset, _U_ guint64 value_frame_flags)
+handle_ack_message(tvbuff_t *tvb, _U_ packet_info *pinfo, proto_tree *blip_tree, gint offset, _U_ guint64 value_frame_flags)
 {
 	// This gets the number of ack bytes received  as a var int in order to find out how much to bump
 	// the offset for the next proto_tree item
@@ -274,7 +274,7 @@ decompress(packet_info* pinfo, tvbuff_t* tvb, gint offset, gint length)
 #endif /* HAVE_ZLIB */
 
 static int
-dissect_blip(tvbuff_t *tvb, _U_ packet_info *pinfo, proto_tree *tree, _U_ void *data)
+dissect_blip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, _U_ void *data)
 {
 
 	proto_tree *blip_tree;
