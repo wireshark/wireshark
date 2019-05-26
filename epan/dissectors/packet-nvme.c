@@ -103,6 +103,7 @@ static int hf_nvme_identify_ctrl_sgls = -1;
 static int hf_nvme_identify_ctrl_subnqn = -1;
 static int hf_nvme_identify_ctrl_ioccsz = -1;
 static int hf_nvme_identify_ctrl_iorcsz = -1;
+static int hf_nvme_identify_nslist_nsid = -1;
 
 /* NVMe CQE fields */
 static int hf_nvme_cqe_sts = -1;
@@ -153,6 +154,7 @@ static gint ett_data = -1;
 
 #define NVME_IDENTIFY_CNS_IDENTIFY_NS       0x0
 #define NVME_IDENTIFY_CNS_IDENTIFY_CTRL     0x1
+#define NVME_IDENTIFY_CNS_IDENTIFY_NSLIST   0x2
 
 
 #define NVME_CQE_SCT_GENERIC     0x0
@@ -640,6 +642,24 @@ static void dissect_nvme_identify_ns_resp(tvbuff_t *cmd_tvb,
 
 }
 
+static void dissect_nvme_identify_nslist_resp(tvbuff_t *cmd_tvb,
+                                              proto_tree *cmd_tree)
+{
+    guint32 nsid;
+    int off;
+    proto_item *item;
+
+    for (off = 0; off < 4096; off += 4) {
+        nsid = tvb_get_guint32(cmd_tvb, off, ENC_LITTLE_ENDIAN);
+        if (nsid == 0)
+            break;
+
+        item = proto_tree_add_item(cmd_tree, hf_nvme_identify_nslist_nsid,
+                                   cmd_tvb, off, 4, ENC_LITTLE_ENDIAN);
+        proto_item_set_text(item, "nsid[%d]: %d", off / 4, nsid);
+    }
+}
+
 static void dissect_nvme_identify_ctrl_resp(tvbuff_t *cmd_tvb,
                                             proto_tree *cmd_tree)
 {
@@ -703,6 +723,9 @@ static void dissect_nvme_identify_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tree,
         break;
     case NVME_IDENTIFY_CNS_IDENTIFY_CTRL:
         dissect_nvme_identify_ctrl_resp(cmd_tvb, cmd_tree);
+        break;
+    case NVME_IDENTIFY_CNS_IDENTIFY_NSLIST:
+        dissect_nvme_identify_nslist_resp(cmd_tvb, cmd_tree);
         break;
     default:
         break;
@@ -1213,6 +1236,11 @@ proto_register_nvme(void)
                FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
 
+        /* Identify nslist response */
+        { &hf_nvme_identify_nslist_nsid,
+            { "Namespace list element", "nvme.cmd.identify.nslist.nsid",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
 
         /* NVMe Response fields */
         { &hf_nvme_cqe_sts,
