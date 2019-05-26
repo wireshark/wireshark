@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2019-05-18)
+(last updated 2019-05-25)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -2067,8 +2067,8 @@ Decimal
       sr&teculx.tecsiel.it
 513
   Bayerische Motoren Werke (BMW) AG
-    Josef Albrecht
-      Josef.Albrecht&bmw.de
+    Ronny Ehrlich
+      Ronny.Ehrlich&bmwgroup.com
 514
   CNET Technologies
     Nelson Su
@@ -21243,7 +21243,7 @@ Decimal
       troypayne&mediaone.net
 5318
   Robert Bosch GmbH
-    Dr. Philipp Schott
+    Daniel Zendler
       oid&de.bosch.com
 5319
   EarthWatch Inc.
@@ -60702,9 +60702,9 @@ Decimal
     Joachim Bauch
       mail&joachim-bauch.de
 15288
-  REGISTER.IT S.p.a.
-    Marco Piarulli
-      marco.piarulli&register.it
+  Register SpA
+    Claudio Corbetta
+      serena.giugni&register.it
 15289
   Advanced Broadband Communications Center (CCABA-UPC)
     Jordi Domingo Pascual
@@ -81046,9 +81046,9 @@ Decimal
     Gregory Kuhn
       gkuhn&ctch.net
 20374
-  AVAL NAGASAKI CORPORATION
+  TOKYO ELECTRON DEVICE NAGASAKI LIMITED
     Hironobu Kanegae
-      h_kanegae&avalngsk.co.jp
+      h_kanegae&ngs.teldevice.co.jp
 20375
   ATT - AudioText Telecom AG
     Manfred Bacher
@@ -103943,8 +103943,8 @@ Decimal
       ken&lomax.gen.nz
 26098
   King County
-    Jon Grissom
-      jon.grissom&metrokc.gov
+    Selena Tonti
+      stonti&kingcounty.gov
 26099
   Shanghai Engineering Research Center for Broadband Technologies & Applications(B-STAR) Co., Ltd.
     Gao Yihe
@@ -114816,7 +114816,7 @@ Decimal
 28816
   Supplee Technologies
     John R. Supplee
-      online&supplee.com
+      info&supplee.com
 28817
   Exploreos, Inc.
     Christian Clay Campbell
@@ -120374,7 +120374,7 @@ Decimal
     René Korthaus
       rene.korthaus&rohde-schwarz.com
 30206
-  Invisible Software Ltd
+  Invisible Software 2.0 Ltd
     Charles Lecklider
       iana-pen&invis.net
 30207
@@ -163387,8 +163387,8 @@ Decimal
       andre.esser&geneity.co.uk
 40959
   Optical Zonu Corporation
-    Iftah Bratspiess
-      iftah&web-silicon.com
+    Meir Bartur
+      meir&opticalzonu.com
 40960
   Witelcom AS
     Fredrik Eriksen
@@ -195623,8 +195623,8 @@ Decimal
       greg&yukoo.co.uk
 49018
   Assmann Télécom
-    Mathieu Van Westerlaak
-      vanwes_m&assmanntelecom.fr
+    Dubus Philippe
+      contact&groupe-assmann.fr
 49019
   ExaScaler Inc.
     Yuki Yamaura
@@ -214514,7 +214514,7 @@ Decimal
     Marat F Sunagatullin
       admins&siamed.ru
 53741
-  Banque de Commerce et de Placements
+  Banque de Commerce et de Placements SA
     Jean-Christophe Valiere
       netsec&bcp-bank.com
 53742
@@ -215340,7 +215340,219 @@ Decimal
 53947
   Sweroam
     Mikael Brostrom
-      mikael.brostrom&sweroam.se
+      iana.pen&sweroam.se
+53948
+  Norealp
+    FERNANDES Jorge
+      admin-nord&norealp.com
+53949
+  Capio CFR A/S
+    Jens-Peter Vraa Jensen
+      it-afdelingen&capiocfr.dk
+53950
+  Klebl GmbH
+    Florian Heßlinger
+      florian.hesslinger&klebl.de
+53951
+  Arizona Blood and Cancer Specialists, PLLC
+    Evelyn Brantley
+      Evelyn.Brantley&oneoncology.com
+53952
+  LEGAL SERVICES SOCIETY
+    Lloyd Dean
+      helpdesk.computer&lss.bc.ca
+53953
+  SUN Behavioral Health Inc.
+    Jeremy Smith
+      jsmith&sunbehavioral.com
+53954
+  DECIMAL PLATFORM - LDA
+    Manuel Oliveira
+      webmaster&appx.pt
+53955
+  Treetown Tech LLC
+    Kris Schilling
+      kris.schilling&treetowntech.com
+53956
+  Alexei Voyageman Global Cyber Verifying Service
+    Alexei Voyageman
+      alexeivoyageman&protonmail.com
+53957
+  Easterseals Bay Area
+    Aza Rainey
+      IT_Noc&esba.org
+53958
+  Adaptive Energy LLC
+    Tom Westrich
+      tom.westrich&adaptiveenergyllc.com
+53959
+  SunPower Corporation
+    Christopher Fox
+      chris.fox&sunpower.com
+53960
+  Gateview Technologies
+    Matthew Bush
+      mbush&gateview.com
+53961
+  WaferPath Inc.
+    James McCartney
+      jmccartney&waferpath.com
+53962
+  Cannonia
+    Joshua Cannon
+      joshua.cannon+iana&me.com
+53963
+  Jundo Online, LLC
+    Li, Bo
+      li.bo&jundo.net.cn
+53964
+  T&T sistemi R&D
+    Simone Chiesi
+      technologies&tetsistemi.com
+53965
+  Julian Kotysch
+    Julian Kotysch
+      julian&kotysch.de
+53966
+  jamaillia.net
+    Martin Rimmele
+      martin&jamaillia.net
+53967
+  Sollatek UK
+    Carlos Sainz Martinez
+      carlos.martinez&sollatek.com
+53968
+  Infotek
+    Thomas Ritou
+      watom&ritou.me
+53969
+  Schneider Electric Software Netherlands
+    Cees Kruijf
+      cees.kruijf&aveva.com
+53970
+  ICT Concept B.V.
+    Richard Huveneers
+      RHuveneers&ict-concept.nl
+53971
+  Office of Public Works
+    Martin Malone
+      martin.malone&opw.ie
+53972
+  Celitech Inc.
+    Ahmad Al Fares
+      afares&celitech.com
+53973
+  ABB Power Protection SA
+    Paolo Pezzino
+      paolo.pezzino&ch.abb.com
+53974
+  SOGECAP
+    Paul Narbonneau
+      paul.narbonneau&socgen.com
+53975
+  UGuard Technology Co. LTD
+    IANA-PEN-ManagementTeam
+      pen-reg&uguard.com.tw
+53976
+  Trilobit
+    Vitor Gomes
+      vitor.gomes&trilobitglobal.com
+53977
+  LaserNet
+    Robert Calay
+      appdevelopr&lasernet.com
+53978
+  West Air Gas & Equipment
+    Graham Howe
+      ghowe&westairgases.com
+53979
+  Seti Seguranca E Tecnologia Na Internet Ltda. Me
+    Fábio Depin
+      fabio&setinet.com.br
+53980
+  Motech Solutions Ltd
+    Michael Moane
+      michael.moane&motechsolutions.co.uk
+53981
+  Socket Ltd.
+    Damir Franusic
+      damir.franusic&socket.hr
+53982
+  OZON
+    Thierry Fournier
+      thierry.fournier&ozon.io
+53983
+  Centro de Hematología y Oncología del Sur, CSP
+    Lorraine Feliciano  Martinez
+      lorrainefeliciano&yahoo.com
+53984
+  Havs- och vattenmyndigheten
+    Christer Mägi
+      christer.magi&havochvatten.se
+53985
+  CirrusPoint Solutions Inc.
+    Kevin Martin
+      admin&cirruspoint.com
+53986
+  Mast Bazaar
+    Madhu Ramanujam
+      madhu&mastbazaar.com
+53987
+  mpDev
+    Per Schratz
+      mpdevbinero&gmail.com
+53988
+  P-X Systems
+    Derk Bell
+      derk&p-x.systems
+53989
+  Vyera Pharmaceuticals
+    Michael Kolias
+      systems&vyera.com
+53990
+  Strategic Digital Defense, LLC
+    david t. klein
+      david&strategicdigitaldefense.com
+53991
+  tecnint hte
+    Mario Sangalli
+      msangalli&tecnint.it
+53992
+  Rausch Sturm
+    IT Admin
+      itadmin&rsieh.com
+53993
+  Ifinet srl
+    Federico Vincenzi
+      networking&ifinet.it
+53994
+  Schaeffer-AG
+    Tobias Florek
+      tf&schaeffer-ag.de
+53995
+  ZeeVee, Inc.
+    Jeremy Greene
+      jeremy&zeevee.com
+53996
+  King's College
+    James O'Meara
+      help&kings.edu
+53997
+  ZampleWorks
+    Anders Runesson
+      anders&runesson.info
+53998
+  Documo Inc
+    Matthew Herrera
+      matt&documo.com
+53999
+  Cathworks Ltd.
+    Ben Bloom
+      ben&cath.works
+54000
+  Springfield College
+    Nadim El-Khoury
+      nel-khoury&springfield.edu
 
 
 End of Document
