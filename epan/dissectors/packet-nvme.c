@@ -69,6 +69,26 @@ static int hf_nvme_cmd_rsvd3 = -1;
 static int hf_nvme_identify_cntid = -1;
 static int hf_nvme_identify_rsvd = -1;
 static int hf_nvme_identify_cns = -1;
+static int hf_nvme_identify_ctrl_vid = -1;
+static int hf_nvme_identify_ctrl_ssvid = -1;
+static int hf_nvme_identify_ctrl_sn = -1;
+static int hf_nvme_identify_ctrl_mn = -1;
+static int hf_nvme_identify_ctrl_mdts = -1;
+static int hf_nvme_identify_ctrl_ver = -1;
+static int hf_nvme_identify_ctrl_oaes = -1;
+static int hf_nvme_identify_ctrl_oacs = -1;
+static int hf_nvme_identify_ctrl_acl = -1;
+static int hf_nvme_identify_ctrl_aerl = -1;
+static int hf_nvme_identify_ctrl_kas = -1;
+static int hf_nvme_identify_ctrl_sqes = -1;
+static int hf_nvme_identify_ctrl_cqes = -1;
+static int hf_nvme_identify_ctrl_maxcmd = -1;
+static int hf_nvme_identify_ctrl_nn = -1;
+static int hf_nvme_identify_ctrl_oncs = -1;
+static int hf_nvme_identify_ctrl_sgls = -1;
+static int hf_nvme_identify_ctrl_subnqn = -1;
+static int hf_nvme_identify_ctrl_ioccsz = -1;
+static int hf_nvme_identify_ctrl_iorcsz = -1;
 
 /* NVMe CQE fields */
 static int hf_nvme_cqe_sts = -1;
@@ -116,6 +136,9 @@ static gint ett_data = -1;
 #define NVME_IOQ_OPC_RESV_REPORT            0xe
 #define NVME_IOQ_OPC_RESV_ACQUIRE           0x11
 #define NVME_IOQ_OPC_RESV_RELEASE           0x15
+
+#define NVME_IDENTIFY_CNS_IDENTIFY_CTRL     0x1
+
 
 #define NVME_CQE_SCT_GENERIC     0x0
 #define NVME_CQE_SCT_SPECIFIC    0x1
@@ -544,6 +567,72 @@ dissect_nvme_rwc_common_word_10_11_12_14_15(tvbuff_t *cmd_tvb, proto_tree *cmd_t
                         62, 2, ENC_LITTLE_ENDIAN);
 }
 
+static void dissect_nvme_identify_ctrl_resp(tvbuff_t *cmd_tvb,
+                                            proto_tree *cmd_tree)
+{
+    char *sn, *mn;
+
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_vid, cmd_tvb,
+                        0, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_ssvid, cmd_tvb,
+                        2, 2, ENC_LITTLE_ENDIAN);
+
+    sn = (char *)tvb_memcpy(cmd_tvb, wmem_alloc(wmem_packet_scope(), 21), 4, 20);
+    sn[21] = '\0';
+    proto_tree_add_string(cmd_tree, hf_nvme_identify_ctrl_sn, cmd_tvb,
+                          4, 20, sn);
+
+    mn = (char *)tvb_memcpy(cmd_tvb, wmem_alloc(wmem_packet_scope(), 41), 24, 40);
+    sn[41] = '\0';
+    proto_tree_add_string(cmd_tree, hf_nvme_identify_ctrl_mn, cmd_tvb,
+                          24, 40, mn);
+
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_mdts, cmd_tvb,
+                        77, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_ver, cmd_tvb,
+                        80, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_oaes, cmd_tvb,
+                        92, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_oacs, cmd_tvb,
+                        256, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_acl, cmd_tvb,
+                        258, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_aerl, cmd_tvb,
+                        259, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_kas, cmd_tvb,
+                        320, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_sqes, cmd_tvb,
+                        512, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_cqes, cmd_tvb,
+                        513, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_maxcmd, cmd_tvb,
+                        514, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_nn, cmd_tvb,
+                        516, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_oncs, cmd_tvb,
+                        520, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_sgls, cmd_tvb,
+                        536, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_subnqn, cmd_tvb,
+                        768, 256, ENC_ASCII | ENC_NA);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_ioccsz, cmd_tvb,
+                        1792, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(cmd_tree, hf_nvme_identify_ctrl_iorcsz, cmd_tvb,
+                        1796, 4, ENC_LITTLE_ENDIAN);
+}
+
+static void dissect_nvme_identify_resp(tvbuff_t *cmd_tvb, proto_tree *cmd_tree,
+                                       struct nvme_cmd_ctx *cmd_ctx)
+{
+    switch(cmd_ctx->resp_type) {
+    case NVME_IDENTIFY_CNS_IDENTIFY_CTRL:
+        dissect_nvme_identify_ctrl_resp(cmd_tvb, cmd_tree);
+        break;
+    default:
+        break;
+    }
+}
+
 static void dissect_nvme_identify_cmd(tvbuff_t *cmd_tvb, proto_tree *cmd_tree,
                                       struct nvme_cmd_ctx *cmd_ctx)
 {
@@ -615,6 +704,10 @@ dissect_nvme_data_response(tvbuff_t *nvme_tvb, packet_info *pinfo, proto_tree *r
         str_opcode = val_to_str(cmd_ctx->opcode, aq_opc_tbl,
                                 "Unknown AQ Opcode");
         switch (cmd_ctx->opcode) {
+        case NVME_AQ_OPC_IDENTIFY:
+            dissect_nvme_identify_resp(nvme_tvb, cmd_tree, cmd_ctx);
+            break;
+
         default:
             proto_tree_add_bytes_format_value(cmd_tree, hf_nvme_gen_data,
                                               nvme_tvb, 0, len, NULL,
@@ -903,6 +996,89 @@ proto_register_nvme(void)
             { "Controller or Namespace Structure (CNS)", "nvme.cmd.identify.cns",
                FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
         },
+
+        /* Identify Ctrl response */
+        { &hf_nvme_identify_ctrl_vid,
+            { "PCI Vendor ID (VID)", "nvme.cmd.identify.ctrl.vid",
+               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_ssvid,
+            { "PCI Subsystem Vendor ID (SSVID)", "nvme.cmd.identify.ctrl.ssvid",
+               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_sn,
+            { "Serial Number (SN)", "nvme.cmd.identify.ctrl.sn",
+               FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_mn,
+            { "Model Number (MN)", "nvme.cmd.identify.ctrl.mn",
+               FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_mdts,
+            { "Maximum Data Transfer Size (MDTS)", "nvme.cmd.identify.ctrl.mdts",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_ver,
+            { "Version (VER)", "nvme.cmd.identify.ctrl.ver",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_oaes,
+            { "Optional Asynchronous Events Supported (OAES)", "nvme.cmd.identify.ctrl.oaes",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_oacs,
+            { "Optional Admin Command Support (OACS)", "nvme.cmd.identify.ctrl.oacs",
+               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_acl,
+            { "Abort Command Limit (ACL)", "nvme.cmd.identify.ctrl.acl",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_aerl,
+            { "Asynchronous Event Request Limit (AERL)", "nvme.cmd.identify.ctrl.aerl",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_kas,
+            { "Keep Alive Support (KAS)", "nvme.cmd.identify.ctrl.kas",
+               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_sqes,
+            { "Submission Queue Entry Size (SQES)", "nvme.cmd.identify.ctrl.sqes",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_cqes,
+            { "Completion Queue Entry Size (CQES)", "nvme.cmd.identify.ctrl.cqes",
+               FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_maxcmd,
+            { "Maximum Outstanding Commands (MAXCMD)", "nvme.cmd.identify.ctrl.maxcmd",
+               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_nn,
+            { "Number of Namespaces (NN)", "nvme.cmd.identify.ctrl.nn",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_oncs,
+            { "Optional NVM Command Support (ONCS)", "nvme.cmd.identify.ctrl.oncs",
+               FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_sgls,
+            { "SGL Support (SGLS)", "nvme.cmd.identify.ctrl.sgls",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_subnqn,
+            { "NVM Subsystem NVMe Qualified Name (SUBNQN)", "nvme.cmd.identify.ctrl.subnqn",
+               FT_STRINGZ, BASE_NONE, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_ioccsz,
+            { "I/O Queue Command Capsule Supported Size (IOCCSZ)", "nvme.cmd.identify.ctrl.ioccsz",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+        { &hf_nvme_identify_ctrl_iorcsz,
+            { "I/O Queue Response Capsule Supported Size (IORCSZ)", "nvme.cmd.identify.ctrl.iorcsz",
+               FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL}
+        },
+
 
         /* NVMe Response fields */
         { &hf_nvme_cqe_sts,
