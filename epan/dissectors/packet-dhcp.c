@@ -3077,7 +3077,7 @@ dissect_dhcpopt_forcerenew_nonce(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 }
 
 static int
-dissect_dhcpopt_rdnss(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_dhcpopt_rdnss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	int offset = 0;
 	const guchar *dns_name;
@@ -3113,7 +3113,7 @@ dissect_dhcpopt_dhcp_captive_portal(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 }
 
 static int
-dissect_dhcpopt_bulk_lease_query_start(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_dhcpopt_bulk_lease_query_start(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	if (tvb_reported_length(tvb) != 4) {
 		expert_add_info_format(pinfo, tree, &ei_dhcp_bad_length, "length must be 4");
@@ -3137,7 +3137,7 @@ dissect_dhcpopt_bulk_lease_query_end(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 }
 
 static int
-dissect_dhcpopt_bulk_lease_base_time(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_dhcpopt_bulk_lease_base_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	if (tvb_reported_length(tvb) != 4) {
 		expert_add_info_format(pinfo, tree, &ei_dhcp_bad_length, "length must be 4");
@@ -3149,7 +3149,7 @@ dissect_dhcpopt_bulk_lease_base_time(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 }
 
 static int
-dissect_dhcpopt_bulk_lease_status_code(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_dhcpopt_bulk_lease_status_code(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	if (tvb_reported_length(tvb) < 1) {
 		expert_add_info_format(pinfo, tree, &ei_dhcp_bad_length, "length must >= 1");
@@ -3164,7 +3164,7 @@ dissect_dhcpopt_bulk_lease_status_code(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 }
 
 static int
-dissect_dhcpopt_pcp_server(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_dhcpopt_pcp_server(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	proto_tree *tree_pcp;
 	int offset = 0;
@@ -3195,7 +3195,7 @@ dissect_dhcpopt_pcp_server(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 }
 
 static int
-dissect_dhcpopt_portparams(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
+dissect_dhcpopt_portparams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
 	if (tvb_reported_length(tvb) != 4) {
 		expert_add_info_format(pinfo, tree, &ei_dhcp_bad_length, "length must be 4");
