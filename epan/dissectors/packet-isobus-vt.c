@@ -1107,7 +1107,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             firstTwoBytesString = tvb_get_letohs(tvb,offset);
             if(firstTwoBytesString == 0xFEFF)
             {
-                encoding = ENC_UCS_2;
+                encoding = ENC_UCS_2|ENC_BIG_ENDIAN;
                 bomOffset = 2;
             }
 
@@ -2701,7 +2701,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
             firstTwoBytesString = tvb_get_letohs(tvb,offset);
             if(firstTwoBytesString == 0xFEFF)
             {
-                encoding = ENC_UCS_2;
+                encoding = ENC_UCS_2|ENC_BIG_ENDIAN;
                 bomOffset = 2;
             }
 
@@ -3214,7 +3214,7 @@ dissect_vt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, enum vt_directio
                 firstTwoBytesString = tvb_get_letohs(tvb,offset);
                 if(firstTwoBytesString == 0xFEFF)
                 {
-                    encoding = ENC_UCS_2;
+                    encoding = ENC_UCS_2|ENC_BIG_ENDIAN;
                     bomOffset = 2;
                 }
 
