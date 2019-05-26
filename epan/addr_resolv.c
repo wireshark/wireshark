@@ -247,6 +247,16 @@ static hashether_t *add_eth_name(const guint8 *addr, const gchar *name);
 static void add_serv_port_cb(const guint32 port, gpointer ptr);
 
 
+static gboolean check_file_exists(const char * filename){
+    /* try to open file to read */
+    FILE *file;
+    if ((file = ws_fopen(filename, "r"))){
+        fclose(file);
+        return TRUE;
+        }
+    return FALSE;
+}
+
 /* http://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx#existing
  * One-at-a-Time hash
  */
@@ -2109,9 +2119,14 @@ initialize_vlans(void)
     /* Set g_pvlan_path here, but don't actually do anything
      * with it. It's used in get_vlannamebyid()
      */
-    if (g_pvlan_path == NULL)
-        g_pvlan_path = get_persconffile_path(ENAME_VLANS, FALSE);
-
+    if (g_pvlan_path == NULL) {
+        /* Check profile directory before personal configuration */
+        g_pvlan_path = get_persconffile_path(ENAME_VLANS, TRUE);
+        if (!check_file_exists(g_pvlan_path)) {
+            g_free(g_pvlan_path);
+            g_pvlan_path = get_persconffile_path(ENAME_VLANS, FALSE);
+        }
+    }
 } /* initialize_vlans */
 
 static void
@@ -3047,6 +3062,8 @@ void host_name_lookup_reset(void)
 {
     host_name_lookup_cleanup();
     host_name_lookup_init();
+    vlan_name_lookup_cleanup();
+    initialize_vlans();
 }
 
 void
