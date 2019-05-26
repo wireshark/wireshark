@@ -134,7 +134,7 @@ void get_rbm_integer(tvbuff_t* tvb, guint offset, gint32* value, guint* len)
 	}
 }
 
-static void dissect_rbm_integer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree _U_, guint* offset, gchar** value_str)
+static void dissect_rbm_integer(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, guint* offset, gchar** value_str)
 {
 	gint32 value = 0;
 	gint len = 0;
@@ -369,7 +369,7 @@ static void dissect_rbm_struct(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tr
 	dissect_rbm_hash(tvb, pinfo, tree, offset, NULL);
 }
 
-static void dissect_rbm_drb(tvbuff_t* tvb _U_, packet_info* pinfo _U_, proto_tree* tree _U_, gint* offset _U_)
+static void dissect_rbm_drb(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset)
 {
 	gint offset_start = *offset;
 	proto_tree* drb_tree = proto_tree_add_subtree(tree, tvb, *offset, 0, ett_variable, NULL, "Objects");
@@ -509,7 +509,7 @@ static void dissect_rbm_object(tvbuff_t* tvb, packet_info* pinfo, proto_tree* pt
 		*value = value_local;
 }
 
-static gboolean dissect_rbm_header(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tree, gint* offset)
+static gboolean dissect_rbm_header(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, gint* offset)
 {
 	guint8 major;
 	guint8 minor;
