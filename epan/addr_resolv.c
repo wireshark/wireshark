@@ -246,17 +246,6 @@ static GPtrArray* extra_hosts_files = NULL;
 static hashether_t *add_eth_name(const guint8 *addr, const gchar *name);
 static void add_serv_port_cb(const guint32 port, gpointer ptr);
 
-
-static gboolean check_file_exists(const char * filename){
-    /* try to open file to read */
-    FILE *file;
-    if ((file = ws_fopen(filename, "r"))){
-        fclose(file);
-        return TRUE;
-        }
-    return FALSE;
-}
-
 /* http://eternallyconfuzzled.com/tuts/algorithms/jsw_tut_hashing.aspx#existing
  * One-at-a-Time hash
  */
@@ -2122,7 +2111,7 @@ initialize_vlans(void)
     if (g_pvlan_path == NULL) {
         /* Check profile directory before personal configuration */
         g_pvlan_path = get_persconffile_path(ENAME_VLANS, TRUE);
-        if (!check_file_exists(g_pvlan_path)) {
+        if (!file_exists(g_pvlan_path)) {
             g_free(g_pvlan_path);
             g_pvlan_path = get_persconffile_path(ENAME_VLANS, FALSE);
         }
