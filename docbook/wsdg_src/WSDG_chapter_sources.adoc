@@ -932,7 +932,10 @@ $ git review -f
 You can push using any Git client. Many clients have support for Gerrit, either
 built in or via an additional module.
 
-// XXX - Talk about Gerrit change IDs
+The Change-Id is very relevant in the review process, since it's the key used
+to identify one change. See the
+https://gerrit-review.googlesource.com/Documentation/user-changeid.html[Gerrit manual]
+for more details.
 
 You might get one of the following responses to your patch request:
 
