@@ -239,6 +239,10 @@ static int hf_usb_wMaxPacketSize = -1;
 static int hf_usb_wMaxPacketSize_size = -1;
 static int hf_usb_wMaxPacketSize_slots = -1;
 static int hf_usb_bInterval = -1;
+static int hf_usb_bMaxBurst = -1;
+static int hf_usb_bSSEndpointAttributeBulkMaxStreams = -1;
+static int hf_usb_bSSEndpointAttributeIsoMult = -1;
+static int hf_usb_wBytesPerInterval = -1;
 static int hf_usb_wTotalLength = -1;
 static int hf_usb_bNumInterfaces = -1;
 static int hf_usb_bConfigurationValue = -1;
@@ -356,10 +360,12 @@ static gint ett_usbport_urb = -1;
 static gint ett_usbport_keyword = -1;
 static gint ett_transfer_flags = -1;
 
+static expert_field ei_usb_undecoded = EI_INIT;
 static expert_field ei_usb_bLength_even = EI_INIT;
 static expert_field ei_usb_bLength_too_short = EI_INIT;
 static expert_field ei_usb_desc_length_invalid = EI_INIT;
 static expert_field ei_usb_invalid_setup = EI_INIT;
+static expert_field ei_usb_ss_ep_companion_before_ep = EI_INIT;
 static expert_field ei_usb_usbpcap_unknown_urb = EI_INIT;
 
 static expert_field ei_usbport_invalid_path_depth = EI_INIT;
@@ -886,6 +892,12 @@ extern value_string_ext linux_negative_errno_vals_ext;
 #define USB_DT_OTG                             9
 #define USB_DT_DEBUG                          10
 #define USB_DT_INTERFACE_ASSOCIATION          11
+/* these are from usb 3.0 specification */
+#define USB_DT_BOS                          0x0F
+#define USB_DT_DEVICE_CAPABILITY            0x10
+#define USB_DT_SUPERSPEED_EP_COMPANION      0x30
+/* these are from usb 3.1 specification */
+#define USB_DT_SUPERSPEED_ISO_EP_COMPANION  0x31
 
 /* There are only Standard Descriptor Types, Class-specific types are
    provided by "usb.descriptor" descriptors table*/
@@ -901,10 +913,10 @@ static const value_string std_descriptor_type_vals[] = {
     {USB_DT_OTG,                            "OTG"},
     {USB_DT_DEBUG,                          "DEBUG"},
     {USB_DT_INTERFACE_ASSOCIATION,          "INTERFACE ASSOCIATION"},
-    { 0x0F,                                 "BOS"},
-    { 0x10,                                 "DEVICE CAPABILITY"},
-    { 0x30,                                 "SUPERSPEED USB ENDPOINT COMPANION"},
-    { 0x31,                                 "SUPERSPEED PLUS ISOCHRONOUS ENDPOINT COMPANION"},
+    {USB_DT_BOS,                            "BOS"},
+    {USB_DT_DEVICE_CAPABILITY,              "DEVICE CAPABILITY"},
+    {USB_DT_SUPERSPEED_EP_COMPANION,        "SUPERSPEED USB ENDPOINT COMPANION"},
+    {USB_DT_SUPERSPEED_ISO_EP_COMPANION,    "SUPERSPEED PLUS ISOCHRONOUS ENDPOINT COMPANION"},
     {0,NULL}
 };
 static value_string_ext std_descriptor_type_vals_ext =
@@ -2379,7 +2391,8 @@ void dissect_usb_endpoint_address(proto_tree *tree, tvbuff_t *tvb, int offset)
 int
 dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
                                 tvbuff_t *tvb, int offset,
-                                usb_conv_info_t  *usb_conv_info)
+                                usb_conv_info_t  *usb_conv_info,
+                                guint8 *out_ep_type)
 {
     proto_item       *item;
     proto_tree       *tree;
@@ -2439,6 +2452,9 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
 
     /* bmAttributes */
     ep_type = ENDPOINT_TYPE(tvb_get_guint8(tvb, offset));
+    if (out_ep_type) {
+        *out_ep_type = ep_type;
+    }
 
     ep_attrib_item = proto_tree_add_item(tree, hf_usb_bmAttributes, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     ep_attrib_tree = proto_item_add_subtree(ep_attrib_item, ett_endpoint_bmAttributes);
@@ -2490,7 +2506,67 @@ dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     proto_item_set_len(item, len);
 
     if (offset < old_offset+len) {
-        /* skip unknown records */
+        /* mark unknown records as undecoded */
+        proto_tree_add_expert(tree, pinfo, &ei_usb_undecoded, tvb, offset, old_offset + len - offset);
+        offset = old_offset + len;
+    }
+
+    return offset;
+}
+
+static int
+dissect_usb_endpoint_companion_descriptor(packet_info *pinfo, proto_tree *parent_tree,
+                                          tvbuff_t *tvb, int offset,
+                                          usb_conv_info_t *usb_conv_info _U_,
+                                          guint8 ep_type)
+{
+    proto_item       *item;
+    proto_tree       *tree;
+    proto_item       *ep_attrib_item;
+    proto_tree       *ep_attrib_tree;
+    int               old_offset = offset;
+    guint8            len;
+
+    tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_descriptor_device, &item, "SUPERSPEED ENDPOINT COMPANION DESCRIPTOR");
+
+    len = tvb_get_guint8(tvb, offset);
+    dissect_usb_descriptor_header(tree, tvb, offset, NULL);
+    offset += 2;
+
+    /* bMaxBurst */
+    proto_tree_add_item(tree, hf_usb_bMaxBurst, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset += 1;
+
+    /* bmAttributes */
+    ep_attrib_item = proto_tree_add_item(tree, hf_usb_bmAttributes, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    switch (ep_type) {
+    case ENDPOINT_TYPE_CONTROL:
+        break;
+    case ENDPOINT_TYPE_ISOCHRONOUS:
+        ep_attrib_tree = proto_item_add_subtree(ep_attrib_item, ett_endpoint_bmAttributes);
+        proto_tree_add_item(ep_attrib_tree, hf_usb_bSSEndpointAttributeIsoMult, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        break;
+    case ENDPOINT_TYPE_BULK:
+        ep_attrib_tree = proto_item_add_subtree(ep_attrib_item, ett_endpoint_bmAttributes);
+        proto_tree_add_item(ep_attrib_tree, hf_usb_bSSEndpointAttributeBulkMaxStreams, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        break;
+    case ENDPOINT_TYPE_INTERRUPT:
+        break;
+    default:
+        expert_add_info(pinfo, ep_attrib_item, &ei_usb_ss_ep_companion_before_ep);
+        break;
+    }
+    offset += 1;
+
+    /* wBytesPerInterval */
+    proto_tree_add_item(tree, hf_usb_wBytesPerInterval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+
+    proto_item_set_len(item, len);
+
+    if (offset < old_offset + len) {
+        /* mark unknown records as undecoded */
+        proto_tree_add_expert(tree, pinfo, &ei_usb_undecoded, tvb, offset, old_offset + len - offset);
         offset = old_offset + len;
     }
 
@@ -2586,6 +2662,7 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
     proto_item *flags_item;
     proto_tree *flags_tree;
     guint8      flags;
+    guint8      last_ep_type = ENDPOINT_TYPE_NOT_SET;
     proto_item *power_item;
     guint8      power;
     gboolean    truncation_expected;
@@ -2673,10 +2750,13 @@ dissect_usb_configuration_descriptor(packet_info *pinfo _U_, proto_tree *parent_
             offset = dissect_usb_interface_descriptor(pinfo, parent_tree, tvb, offset, usb_conv_info);
             break;
         case USB_DT_ENDPOINT:
-            offset = dissect_usb_endpoint_descriptor(pinfo, parent_tree, tvb, offset, usb_conv_info);
+            offset = dissect_usb_endpoint_descriptor(pinfo, parent_tree, tvb, offset, usb_conv_info, &last_ep_type);
             break;
         case USB_DT_INTERFACE_ASSOCIATION:
             offset = dissect_usb_interface_assn_descriptor(pinfo, parent_tree, tvb, offset, usb_conv_info);
+            break;
+        case USB_DT_SUPERSPEED_EP_COMPANION:
+            offset = dissect_usb_endpoint_companion_descriptor(pinfo, parent_tree, tvb, offset, usb_conv_info, last_ep_type);
             break;
         default:
             next_tvb = tvb_new_subset_length(tvb, offset, next_len);
@@ -6060,6 +6140,26 @@ proto_register_usb(void)
             FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
+        { &hf_usb_bMaxBurst,
+          { "bMaxBurst", "usb.bMaxBurst",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            "Valid values are from 0 to 15. For control endpoints this value shall be 0.", HFILL }},
+
+        { &hf_usb_bSSEndpointAttributeBulkMaxStreams,
+          { "MaxStreams", "usb.bmAttributes.MaxStreams",
+            FT_UINT8, BASE_DEC, NULL, 0x0F,
+            "Number of streams = 2 to the power MaxStreams", HFILL }},
+
+        { &hf_usb_bSSEndpointAttributeIsoMult,
+          { "Mult", "usb.bmAttributes.Mult",
+            FT_UINT8, BASE_DEC, NULL, 0x03,
+            "Maximum number of packets = bMaxBurst * (Mult + 1)", HFILL } },
+
+        { &hf_usb_wBytesPerInterval,
+          { "wBytesPerInterval", "usb.wBytesPerInterval",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL } },
+
         { &hf_usb_wTotalLength,
           { "wTotalLength", "usb.wTotalLength",
             FT_UINT16, BASE_DEC, NULL, 0x0,
@@ -6443,10 +6543,12 @@ proto_register_usb(void)
     };
 
     static ei_register_info ei[] = {
+        { &ei_usb_undecoded, { "usb.undecoded", PI_UNDECODED, PI_WARN, "Not dissected yet (report to wireshark.org)", EXPFILL }},
         { &ei_usb_bLength_even, { "usb.bLength.even", PI_PROTOCOL, PI_WARN, "Invalid STRING DESCRIPTOR Length (must be even)", EXPFILL }},
         { &ei_usb_bLength_too_short, { "usb.bLength.too_short", PI_MALFORMED, PI_ERROR, "Invalid STRING DESCRIPTOR Length (must be 2 or larger)", EXPFILL }},
         { &ei_usb_desc_length_invalid, { "usb.desc_length.invalid", PI_MALFORMED, PI_ERROR, "Invalid descriptor length", EXPFILL }},
         { &ei_usb_invalid_setup, { "usb.setup.invalid", PI_MALFORMED, PI_ERROR, "Only control URBs may contain a setup packet", EXPFILL }},
+        { &ei_usb_ss_ep_companion_before_ep, { "usb.bmAttributes.invalid_order", PI_MALFORMED, PI_ERROR, "SuperSpeed Endpoint Companion must come after Endpoint Descriptor", EXPFILL }},
         { &ei_usb_usbpcap_unknown_urb, { "usb.usbpcap.unknown_urb", PI_MALFORMED, PI_ERROR, "USBPcap did not recognize URB Function code (report to desowin.org/USBPcap)", EXPFILL }}
     };
     static ei_register_info ei_usbport[] = {

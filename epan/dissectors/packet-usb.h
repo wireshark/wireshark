@@ -202,6 +202,7 @@ typedef struct _usb_tap_data_t {
 #define ENDPOINT_TYPE_ISOCHRONOUS       1
 #define ENDPOINT_TYPE_BULK              2
 #define ENDPOINT_TYPE_INTERRUPT         3
+#define ENDPOINT_TYPE_NOT_SET         255
 
 
 #define USB_SETUP_GET_STATUS             0
@@ -260,7 +261,8 @@ void dissect_usb_endpoint_address(proto_tree *tree, tvbuff_t *tvb, int offset);
 int
 dissect_usb_endpoint_descriptor(packet_info *pinfo, proto_tree *parent_tree,
                                 tvbuff_t *tvb, int offset,
-                                usb_conv_info_t  *usb_conv_info);
+                                usb_conv_info_t  *usb_conv_info,
+                                guint8 *out_ep_type);
 
 int
 dissect_usb_unknown_descriptor(packet_info *pinfo _U_, proto_tree *parent_tree,
