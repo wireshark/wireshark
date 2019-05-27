@@ -431,8 +431,7 @@ be translated to a name, and never written by Wireshark.
 _vlans_::
 Wireshark uses the _vlans_ file to translate VLAN tag IDs into names.
 +
-At program start, if there is a _vlans_ file in the personal
-configuration folder, it is read.
+If there is a _vlans_ file in the currently active profile folder, it is used. Otherwise the _vlans_ file in the personal configuration folder is used.
 +
 --
 Each line in this file consists of one VLAN tag ID and a describing name separated by whitespace or tab.
@@ -443,8 +442,8 @@ An example is:
 2049    HR-Client-LAN
 ----
 
-The settings from this file are read in at program start and never written by
-Wireshark.
+The settings from this file are read in at program start or when changing
+the active profile and are never written by Wireshark.
 --
 
 _ss7pcs_::
