@@ -43,8 +43,8 @@
     </description>
     <url type="homepage">https://www.wireshark.org</url>
     <screenshots>
-	<screenshot type="default">http://www.wireshark.org/~morriss/Screenshot-Wireshark2.0-Http-cap.png</screenshot>
-	<screenshot>http://www.wireshark.org/~morriss/Screenshot-Wireshark2.0-Stevens-graph.png</screenshot>
+	<screenshot type="default">https://www.wireshark.org/~morriss/Screenshot-Wireshark2.0-Http-cap.png</screenshot>
+	<screenshot>https://www.wireshark.org/~morriss/Screenshot-Wireshark2.0-Stevens-graph.png</screenshot>
     </screenshots>
     <updatecontact>wireshark-dev_at_wireshark.org</updatecontact>
 </application>

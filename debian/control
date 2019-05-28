@@ -22,7 +22,7 @@ Build-Depends: lsb-release,
 Build-Conflicts: libsnmp4.2-dev, libsnmp-dev
 Vcs-Svn: svn://svn.debian.org/svn/collab-maint/ext-maint/wireshark/trunk
 Vcs-Browser: http://svn.debian.org/wsvn/collab-maint/ext-maint/wireshark/trunk/
-Homepage: http://www.wireshark.org/
+Homepage: https://www.wireshark.org/
 
 Package: wireshark-common
 Architecture: any

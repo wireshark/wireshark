@@ -302,7 +302,7 @@ AboutDialog::AboutDialog(QWidget *parent) :
     message += "<p>" + html_escape(runtime_info_str) + "</p>\n\n";
     message += "<p>Wireshark is Open Source Software released under the GNU General Public License.</p>\n\n";
     message += "<p>Check the man page and ";
-    message += "<a href=http://www.wireshark.org>http://www.wireshark.org</a> ";
+    message += "<a href=https://www.wireshark.org>https://www.wireshark.org</a> ";
     message += "for more information.</p>\n\n";
 
     ui->pte_wireshark->setFrameStyle(QFrame::NoFrame);
