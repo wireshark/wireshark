@@ -261,7 +261,7 @@ get_quoted_string(tvbuff_t *tvb, gint offset, gint *next_offset, guint *len)
         if (o != -1) {
             offset++;
             l = o - offset;
-            s = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, l, ENC_ASCII);
+            s = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, l, ENC_UTF_8);
             offset = o + 1;
         }
     }
@@ -282,7 +282,7 @@ get_unquoted_string(tvbuff_t *tvb, gint offset, gint *next_offset, guint *len)
     o = tvb_ws_mempbrk_pattern_guint8(tvb, offset, -1, &pbrk_whitespace, NULL);
     if (o != -1) {
         l = o - offset;
-        s = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, l, ENC_ASCII);
+        s = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, l, ENC_UTF_8);
         offset = o;
     }
 
@@ -359,16 +359,16 @@ proto_register_cups(void)
             { "State",    "cups.state", FT_UINT8, BASE_HEX,
                 VALS(cups_state_values), 0x0, NULL, HFILL }},
         { &hf_cups_uri,
-            { "URI",    "cups.uri", FT_STRING, BASE_NONE,
+            { "URI",    "cups.uri", FT_STRING, STR_UNICODE,
                 NULL, 0x0, NULL, HFILL }},
         { &hf_cups_location,
-            { "Location",    "cups.location", FT_STRING, BASE_NONE,
+            { "Location",    "cups.location", FT_STRING, STR_UNICODE,
                 NULL, 0x0, NULL, HFILL }},
         { &hf_cups_information,
-            { "Information",    "cups.information", FT_STRING, BASE_NONE,
+            { "Information",    "cups.information", FT_STRING, STR_UNICODE,
                 NULL, 0x0, NULL, HFILL }},
         { &hf_cups_make_model,
-            { "Make and model", "cups.make_model", FT_STRING, BASE_NONE,
+            { "Make and model", "cups.make_model", FT_STRING, STR_UNICODE,
                 NULL, 0x0, NULL, HFILL }},
     };
 
