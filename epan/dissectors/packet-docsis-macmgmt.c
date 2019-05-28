@@ -746,6 +746,9 @@ static int hf_docsis_map_start_subc = -1;
 static int hf_docsis_map_subc_skip = -1;
 
 
+static int hf_docsis_rngreq_sid_field_bit15 = -1;
+static int hf_docsis_rngreq_sid_field_bit14 = -1;
+static int hf_docsis_rngreq_sid_field_bit15_14 = -1;
 static int hf_docsis_rngreq_sid = -1;
 static int hf_docsis_rngreq_pend_compl = -1;
 
@@ -1171,6 +1174,8 @@ static int hf_docsis_mgt_src_addr = -1;
 static int hf_docsis_mgt_msg_len = -1;
 static int hf_docsis_mgt_dsap = -1;
 static int hf_docsis_mgt_ssap = -1;
+static int hf_docsis_mgt_30_transmit_power = -1;
+static int hf_docsis_mgt_31_transmit_power = -1;
 static int hf_docsis_mgt_control = -1;
 static int hf_docsis_mgt_version = -1;
 static int hf_docsis_mgt_type = -1;
@@ -2352,6 +2357,14 @@ static const value_string optrsp_tlv_rxmer_snr_margin_vals [] = {
   {0, NULL}
 };
 
+static const value_string sid_field_bit15_14_vals [] = {
+  {0, "No error condition"},
+  {1, "Power Adjustment not applied"},
+  {2, "The current value for Pr is more than 3dB below the top of the dynamic range window for all channels"},
+  {3, "Maximum Scheduled Codes Unnecessary"},
+  {0, NULL}
+};
+
 
 /* Windows does not allow data copy between dlls */
 static const true_false_string mdd_tfs_on_off = { "On", "Off" };
@@ -2364,6 +2377,16 @@ const true_false_string type35ucd_tfs_present_not_present = { "UCD35 is present 
                                                               "UCD35 is not present for this UCID" };
 
 static const true_false_string req_not_req_tfs = {"Requested", "Not Requested"};
+
+static const true_false_string sid_field_bit15_tfs = {
+  "The commanded power level P1.6r_n is higher than the value corresponding to the top of the DRW.",
+  "The commanded power level P1.6r_n is not higher than the value corresponding to the top of the DRW."
+};
+
+static const true_false_string sid_field_bit14_tfs = {
+  "The commanded power level P1.6r_n is in excess of 6 dB below the value corresponding to the top of the DRW.",
+  "The commanded power level P1.6r_n is not in excess of 6 dB below the value corresponding to the top of the DRW."
+};
 
 static const value_string unique_unlimited[] = {
   { 0, "Unlimited" },
@@ -2385,7 +2408,7 @@ ofdma_ir_pow_ctrl_step_size(char *buf, guint32 value)
 }
 
 static void
-mer_fourth_db(char *buf, guint32 value)
+fourth_db(char *buf, guint32 value)
 {
     g_snprintf(buf, ITEM_LABEL_LENGTH, "%f dB", value/4.0);
 }
@@ -3200,9 +3223,20 @@ dissect_rngreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   proto_item *it;
   proto_tree *rngreq_tree;
   guint32 sid;
+  guint8 version;
 
   it = proto_tree_add_item(tree, proto_docsis_rngreq, tvb, 0, -1, ENC_NA);
   rngreq_tree = proto_item_add_subtree (it, ett_docsis_rngreq);
+
+  version = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_docsis_mgmt, KEY_MGMT_VERSION));
+  if (version == 1) {
+    proto_tree_add_item (rngreq_tree, hf_docsis_rngreq_sid_field_bit15_14, tvb, 0, 1, ENC_BIG_ENDIAN);
+  }
+  if (version == 5) {
+    //RNG-REQ sent to 3.1 CMTS
+    proto_tree_add_item (rngreq_tree, hf_docsis_rngreq_sid_field_bit15, tvb, 0, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item (rngreq_tree, hf_docsis_rngreq_sid_field_bit14, tvb, 0, 1, ENC_BIG_ENDIAN);
+  }
   proto_tree_add_item_ret_uint (rngreq_tree, hf_docsis_rngreq_sid, tvb, 0, 2, ENC_BIG_ENDIAN, &sid);
 
   if (sid > 0)
@@ -6938,7 +6972,7 @@ dissect_optack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
 static int
 dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
 {
-  guint32 type, version, msg_len;
+  guint32 type, version, dsap, ssap, msg_len;
   proto_item *mgt_hdr_it;
   proto_tree *mgt_hdr_tree;
   tvbuff_t *payload_tvb;
@@ -6959,16 +6993,36 @@ dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* d
     NULL
   };
 
+  //We need version and type for decoding of ssap and dsap field: in case of RNG-REQ, these fields can contain the Transmit Power Level.
+  version = tvb_get_guint8 (tvb, 17);
+  type = tvb_get_guint8 (tvb, 18);
+  dsap = tvb_get_guint8 (tvb, 14);
+  ssap = tvb_get_guint8 (tvb, 15);
+
   mgt_hdr_it = proto_tree_add_item (tree, proto_docsis_mgmt, tvb, 0, 20, ENC_NA);
   mgt_hdr_tree = proto_item_add_subtree (mgt_hdr_it, ett_docsis_mgmt);
   proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_dst_addr, tvb, 0, 6, ENC_NA);
   proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_src_addr, tvb, 6, 6, ENC_NA);
   proto_tree_add_item_ret_uint (mgt_hdr_tree, hf_docsis_mgt_msg_len, tvb, 12, 2, ENC_BIG_ENDIAN, &msg_len);
-  proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_dsap, tvb, 14, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_ssap, tvb, 15, 1, ENC_BIG_ENDIAN);
+
+  if ( ((type == MGT_RNG_REQ) || type == MGT_B_INIT_RNG_REQ)
+       && version == 5
+       && !(ssap==0 && dsap == 0) ) {
+    //RNG_REQ or BONDED_INIT_RNG_REQ with upstream transmit power reporting, sent to 3.1 CMTS
+    proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_31_transmit_power, tvb, 14, 2, ENC_BIG_ENDIAN);
+  } else if ( ((type == MGT_RNG_REQ && version == 1) || (type == MGT_B_INIT_RNG_REQ && version == 4))
+       && ssap != 0 ) {
+    //RNG_REQ or BONDED_INIT_RNG_REQ with upstream transmit power reporting, sent to 3.0 CMTS
+    proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_dsap, tvb, 14, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_30_transmit_power, tvb, 15, 1, ENC_BIG_ENDIAN);
+  } else {
+    proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_dsap, tvb, 14, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_ssap, tvb, 15, 1, ENC_BIG_ENDIAN);
+  }
+
   proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_control, tvb, 16, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item_ret_uint (mgt_hdr_tree, hf_docsis_mgt_version, tvb, 17, 1, ENC_BIG_ENDIAN, &version);
-  proto_tree_add_item_ret_uint (mgt_hdr_tree, hf_docsis_mgt_type, tvb, 18, 1, ENC_BIG_ENDIAN, &type);
+  proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_version, tvb, 17, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_type, tvb, 18, 1, ENC_BIG_ENDIAN);
 
   p_add_proto_data(pinfo->pool, pinfo, proto_docsis_mgmt, KEY_MGMT_VERSION, GUINT_TO_POINTER(version));
 
@@ -7584,9 +7638,24 @@ proto_register_docsis_mgmt (void)
     },
 
     /* RNG-REQ */
+    {&hf_docsis_rngreq_sid_field_bit15,
+     {"SID field bit 15", "docsis_rngreq.sid_field_bit15",
+      FT_BOOLEAN, 8, TFS(&sid_field_bit15_tfs), 0x80,
+      NULL, HFILL}
+    },
+    {&hf_docsis_rngreq_sid_field_bit14,
+     {"SID field bit 14", "docsis_rngreq.sid_field_bit14",
+      FT_BOOLEAN, 8, TFS(&sid_field_bit14_tfs), 0x40,
+      NULL, HFILL}
+    },
+    {&hf_docsis_rngreq_sid_field_bit15_14,
+     {"SID field bit 15 to 14", "docsis_rngreq.sid_field_bit15_14",
+      FT_UINT8, BASE_HEX, VALS(sid_field_bit15_14_vals), 0xC0,
+      NULL, HFILL}
+    },
     {&hf_docsis_rngreq_sid,
      {"Service Identifier", "docsis_rngreq.sid",
-      FT_UINT16, BASE_DEC, NULL, 0x0,
+      FT_UINT16, BASE_DEC, NULL, 0x3FFF,
       NULL, HFILL}
     },
     {&hf_docsis_rngreq_pend_compl,
@@ -8324,7 +8393,7 @@ proto_register_docsis_mgmt (void)
     /* INIT_RNG_REQ */
     {&hf_docsis_intrngreq_sid,
      {"Service Identifier", "docsis_intrngreq.sid",
-      FT_UINT16, BASE_DEC, NULL, 0x0,
+      FT_UINT16, BASE_DEC, NULL, 0x3FFF,
       NULL, HFILL}
     },
     /* DCD */
@@ -9664,7 +9733,7 @@ proto_register_docsis_mgmt (void)
      {"Length", "docsis_optrsp.rxmer_snr_margin.length",FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL}
     },
     {&hf_docsis_optrsp_tlv_xrmer_snr_margin_data_rxmer_subc,
-     {"RxMER", "docsis_optrsp.rxmer_snr_margin.rxmer_per_subc", FT_UINT8, BASE_CUSTOM, CF_FUNC(mer_fourth_db), 0x0, NULL, HFILL}
+     {"RxMER", "docsis_optrsp.rxmer_snr_margin.rxmer_per_subc", FT_UINT8, BASE_CUSTOM, CF_FUNC(fourth_db), 0x0, NULL, HFILL}
     },
     {&hf_docsis_optrsp_tlv_rxmer_snr_margin_data_snr_margin,
      {"SNR Margin", "docsis_optrsp.rxmer_snr_margin.snr_margin", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL}
@@ -9718,6 +9787,16 @@ proto_register_docsis_mgmt (void)
      {"SSAP", "docsis_mgmt.ssap",
       FT_UINT8, BASE_HEX, NULL, 0x0,
       "Source SAP", HFILL}
+    },
+    {&hf_docsis_mgt_30_transmit_power,
+     {"Upstream Transmit Power, sent to 3.0 CMTS", "docsis_mgmt.30_transmit_power",
+      FT_UINT8, BASE_CUSTOM, CF_FUNC(fourth_db), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_mgt_31_transmit_power,
+     {"Upstream Transmit Power, sent to 3.1 CMTS", "docsis_mgmt.31_transmit_power",
+      FT_UINT16, BASE_CUSTOM, CF_FUNC(fourth_db), 0x1FF,
+      NULL, HFILL}
     },
     {&hf_docsis_mgt_control,
      {"Control", "docsis_mgmt.control",
