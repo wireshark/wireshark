@@ -1,6 +1,6 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: Wireshark
-Source: http://www.wireshark.org/
+Source: https://www.wireshark.org/
 Files-Excluded: debian
 
 Files: *
