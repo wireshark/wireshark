@@ -28,8 +28,38 @@
    increase each time the file is reloaded).
 */
 
+/*
+ * On page 86 of
+ *
+ *   https://www.novell.com/documentation/developer/smscomp/pdfdoc/sms_docs/sms_docs.pdf
+ *
+ * it says:
+ *
+ * The following table lists the wild cards options that can be used in
+ * the terminal path node.
+ *
+ *    Value  Option     Description
+ *    0x2A   ASTERISK   Regular asterisk
+ *    0x3F   QUESTION   Regular question mark
+ *    0xAE   SPERIOD    Special Period-the most significant bit set
+ *    0xAA   SASTERISK. Special Asterisk-the most significant bit set.
+ *    0xBF   SQUESTION  Special Question-with the most significant bit set.
+ *
+ * ASTERISK is '*', and QUESTION is '?'; the "special" versions correspond
+ * to the corresponding ASCII character, but with the upper bit set.
+ *
+ * They do not indicate what "special" means here.  During the painful
+ * process at NetApp of reverse-engineering SMB server wildcard matching;
+ * it turned out that "traditional 8.3 name" matching and "long name"
+ * matching behave differently, and there were separate code points for
+ * "traditional 8.3 name" wildcards and period and "long name" wildcards
+ * and period, so that might be what's involved here.
+ *
+ * How should we display them?  Show the character in question plus a
+ * Unicode COMBINING OVERLINE (U+0305), so they show up as {period,
+ * asterisk, question mark} with an overline, for example?
+ */
 #include "config.h"
-
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
