@@ -25,7 +25,7 @@ BindResponse/_untag/matchedDN bindResponse_matchedDN
 IntermediateResponse/_untag/responseValue intermediateResponse_responseValue
 
 #.TYPE_ATTR
-LDAPString TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
+LDAPString TYPE = FT_STRING  DISPLAY = STR_UNICODE  STRINGS = NULL
 LDAPURL TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
 LDAPOID  TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
 Mechanism  TYPE = FT_STRING  DISPLAY = BASE_NONE  STRINGS = NULL
@@ -302,7 +302,8 @@ ldap_conv_info_t *ldap_info;
   const char *ldapstring = NULL;
   gchar *sc = NULL; /* semi-colon pointer */
 
-%(DEFAULT_BODY)s
+  offset = dissect_ber_octet_string_with_encoding(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       &parameter_tvb, ENC_UTF_8|ENC_NA);
 
   if (parameter_tvb || (hf_index == hf_ldap_baseObject)) {
 
@@ -470,7 +471,7 @@ ldap_conv_info_t *ldap_info;
   %(DEFAULT_BODY)s
 
     if(tvb_ascii_isprint(next_tvb, 0, tvb_reported_length(next_tvb))) {
-      string = tvb_get_string_enc(wmem_packet_scope(), next_tvb, 0, tvb_reported_length_remaining(next_tvb, 0), ENC_ASCII|ENC_NA);
+      string = tvb_get_string_enc(wmem_packet_scope(), next_tvb, 0, tvb_reported_length_remaining(next_tvb, 0), ENC_UTF_8|ENC_NA);
       proto_item_set_text(actx->created_item, "AttributeValue: %%s", string);
     }
   }

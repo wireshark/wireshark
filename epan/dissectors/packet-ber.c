@@ -1434,7 +1434,7 @@ proto_tree_add_debug_text("dissect BER length %d, offset %d (remaining %d)\n", t
 static reassembly_table octet_segment_reassembly_table;
 
 static int
-dissect_ber_constrained_octet_string_impl(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint32 min_len, gint32 max_len, gint hf_id, tvbuff_t **out_tvb, guint nest_level);
+dissect_ber_constrained_octet_string_impl(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint32 min_len, gint32 max_len, gint hf_id, tvbuff_t **out_tvb, guint nest_level, guint encoding);
 
 static int
 reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, gint hf_id, tvbuff_t *tvb, int offset, guint32 con_len, gboolean ind, tvbuff_t **out_tvb, guint nest_level)
@@ -1466,7 +1466,7 @@ reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, gint hf_id, tvbuff_t
     while(!fd_head) {
 
         offset = dissect_ber_constrained_octet_string_impl(FALSE, actx, NULL,
-                tvb, offset, NO_BOUND, NO_BOUND, hf_id, &next_tvb, nest_level + 1);
+                tvb, offset, NO_BOUND, NO_BOUND, hf_id, &next_tvb, nest_level + 1, 0);
 
         if (next_tvb == NULL) {
             /* Assume that we have a malformed packet. */
@@ -1542,11 +1542,11 @@ reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, gint hf_id, tvbuff_t
 /* 8.7 Encoding of an octetstring value */
 int
 dissect_ber_constrained_octet_string(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint32 min_len, gint32 max_len, gint hf_id, tvbuff_t **out_tvb) {
-  return dissect_ber_constrained_octet_string_impl(implicit_tag, actx, tree, tvb, offset, min_len, max_len, hf_id, out_tvb, 0);
+  return dissect_ber_constrained_octet_string_impl(implicit_tag, actx, tree, tvb, offset, min_len, max_len, hf_id, out_tvb, 0, 0);
 }
 
 static int
-dissect_ber_constrained_octet_string_impl(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint32 min_len, gint32 max_len, gint hf_id, tvbuff_t **out_tvb, guint nest_level) {
+dissect_ber_constrained_octet_string_impl(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint32 min_len, gint32 max_len, gint hf_id, tvbuff_t **out_tvb, guint nest_level, guint encoding) {
     gint8       ber_class;
     gboolean    pc, ind;
     gint32      tag;
@@ -1556,7 +1556,6 @@ dissect_ber_constrained_octet_string_impl(gboolean implicit_tag, asn1_ctx_t *act
     tvbuff_t   *len_tvb;
     int         len_offset;
     int         len_len;
-    guint       encoding;
     int         hoffset;
     int         end_offset;
     proto_item *it, *cause;
@@ -1696,73 +1695,82 @@ proto_tree_add_debug_text(tree, "OCTET STRING dissect_ber_octet_string(%s) enter
              *     http://kikaku.itscj.ipsj.or.jp/ISO-IR/overview.htm
              *
              * for that registry.
+             *
+             * If we've been provided with a non-zero encoding, use
+             * that; otherwise, calculate it based on the tag.  (A
+             * zero encoding is ENC_ASCII|ENC_NA/ENC_BIG_ENDIAN, which
+             * is the default, so it's OK to use here; this is for
+             * protcols such as LDAP that use OCTET STRING for UTF-8
+             * strings.)
              */
-            switch (tag) {
+            if (encoding == 0) {
+                switch (tag) {
 
-            case BER_UNI_TAG_UTF8String:
-                /*
-                 * UTF-8, obviously.
-                 */
-                encoding = ENC_UTF_8|ENC_NA;
-                break;
+                case BER_UNI_TAG_UTF8String:
+                    /*
+                     * UTF-8, obviously.
+                     */
+                    encoding = ENC_UTF_8|ENC_NA;
+                    break;
 
-            case BER_UNI_TAG_NumericString:
-            case BER_UNI_TAG_PrintableString:
-            case BER_UNI_TAG_VisibleString:
-            case BER_UNI_TAG_IA5String:
-                /*
-                 * (Subsets of) Boring Old ASCII, with no(?) ISO 2022
-                 * escape sequences.
-                 */
-                encoding = ENC_ASCII|ENC_NA;
-                break;
+                case BER_UNI_TAG_NumericString:
+                case BER_UNI_TAG_PrintableString:
+                case BER_UNI_TAG_VisibleString:
+                case BER_UNI_TAG_IA5String:
+                    /*
+                     * (Subsets of) Boring Old ASCII, with no(?) ISO 2022
+                     * escape sequences.
+                     */
+                    encoding = ENC_ASCII|ENC_NA;
+                    break;
 
-            case BER_UNI_TAG_TeletexString:
-                encoding = ENC_T61|ENC_NA;
-                break;
+                case BER_UNI_TAG_TeletexString:
+                    encoding = ENC_T61|ENC_NA;
+                    break;
 
-            case BER_UNI_TAG_VideotexString:
-                encoding = ENC_T61|ENC_NA;
-                break;
+                case BER_UNI_TAG_VideotexString:
+                    encoding = ENC_T61|ENC_NA;
+                    break;
 
-            case BER_UNI_TAG_GraphicString:
-            case BER_UNI_TAG_GeneralString:
-                /*
-                 * One of the types defined in terms of character sets
-                 * in the ISO International Register of Character Sets,
-                 * with the BER encoding being ISO 2022-based.
-                 *
-                 * XXX - treat as ASCII for now.
-                 */
-                encoding = ENC_ASCII|ENC_NA;
-                break;
+                case BER_UNI_TAG_GraphicString:
+                case BER_UNI_TAG_GeneralString:
+                    /*
+                     * One of the types defined in terms of character sets
+                     * in the ISO International Register of Character Sets,
+                     * with the BER encoding being ISO 2022-based.
+                     *
+                     * XXX - treat as ASCII for now.
+                     */
+                    encoding = ENC_ASCII|ENC_NA;
+                    break;
 
-            case BER_UNI_TAG_UniversalString:
-                /*
-                 * UCS-4.
-                 */
-                encoding = ENC_UCS_4|ENC_BIG_ENDIAN;
-                break;
+                case BER_UNI_TAG_UniversalString:
+                    /*
+                     * UCS-4.
+                     */
+                    encoding = ENC_UCS_4|ENC_BIG_ENDIAN;
+                    break;
 
-            case BER_UNI_TAG_CHARACTERSTRING:
-                /*
-                 * XXX - what's the transfer syntax?
-                 * Treat as ASCII for now.
-                 */
-                encoding = ENC_ASCII|ENC_NA;
-                break;
+                case BER_UNI_TAG_CHARACTERSTRING:
+                    /*
+                     * XXX - what's the transfer syntax?
+                     * Treat as ASCII for now.
+                     */
+                    encoding = ENC_ASCII|ENC_NA;
+                    break;
 
-            case BER_UNI_TAG_BMPString:
-                /*
-                 * UCS-2, not UTF-16; as it says, BMP, as in Basic
-                 * Multilingual Plane.
-                 */
-                encoding = ENC_UCS_2|ENC_BIG_ENDIAN;
-                break;
+                case BER_UNI_TAG_BMPString:
+                    /*
+                     * UCS-2, not UTF-16; as it says, BMP, as in Basic
+                     * Multilingual Plane.
+                     */
+                    encoding = ENC_UCS_2|ENC_BIG_ENDIAN;
+                    break;
 
-            default:
-                 encoding = ENC_BIG_ENDIAN;
-                 break;
+                default:
+                     encoding = ENC_BIG_ENDIAN;
+                     break;
+                }
             }
             it = ber_proto_tree_add_item(actx->pinfo, tree, hf_id, tvb, offset, length_remaining, encoding);
             actx->created_item = it;
@@ -1781,7 +1789,12 @@ proto_tree_add_debug_text(tree, "OCTET STRING dissect_ber_octet_string(%s) enter
 
 int
 dissect_ber_octet_string(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, tvbuff_t **out_tvb) {
-  return dissect_ber_constrained_octet_string(implicit_tag, actx, tree, tvb, offset, NO_BOUND, NO_BOUND, hf_id, out_tvb);
+  return dissect_ber_constrained_octet_string_impl(implicit_tag, actx, tree, tvb, offset, NO_BOUND, NO_BOUND, hf_id, out_tvb, 0, 0);
+}
+
+int
+dissect_ber_octet_string_with_encoding(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, tvbuff_t *tvb, int offset, gint hf_id, tvbuff_t **out_tvb, guint encoding) {
+  return dissect_ber_constrained_octet_string_impl(implicit_tag, actx, tree, tvb, offset, NO_BOUND, NO_BOUND, hf_id, out_tvb, 0, encoding);
 }
 
 int
