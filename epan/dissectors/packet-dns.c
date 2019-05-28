@@ -2192,7 +2192,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         proto_tree_add_item(rr_tree, hf_dns_txt_length, tvb, txt_offset, 1, ENC_BIG_ENDIAN);
         txt_offset += 1;
         rr_len     -= 1;
-        proto_tree_add_item(rr_tree, hf_dns_txt, tvb, txt_offset, txt_len, ENC_ASCII|ENC_NA);
+        proto_tree_add_item(rr_tree, hf_dns_txt, tvb, txt_offset, txt_len, is_mdns ? ENC_UTF_8|ENC_NA : ENC_ASCII|ENC_NA);
         txt_offset +=  txt_len;
         rr_len     -= txt_len;
       }
@@ -4690,7 +4690,7 @@ proto_register_dns(void)
 
     { &hf_dns_txt,
       { "TXT", "dns.txt",
-        FT_STRING, BASE_NONE, NULL, 0x0,
+        FT_STRING, STR_UNICODE, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_dns_openpgpkey,
