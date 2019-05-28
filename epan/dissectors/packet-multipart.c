@@ -709,7 +709,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                             }
                         }
                         break;
-                        case POS_CONTENT_TRANSFER_ENCODING:
+                    case POS_CONTENT_TRANSFER_ENCODING:
                         {
                             /* The Content-Transferring starts at colon_offset + 1 */
                             char *crp = strchr(value_str, '\r');
@@ -721,7 +721,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
                             content_encoding_str = wmem_ascii_strdown(wmem_packet_scope(), value_str, -1);
                         }
                         break;
-                        case POS_CONTENT_DISPOSITION:
+                    case POS_CONTENT_DISPOSITION:
                         {
                             /* find the "filename" parameter */
                             tmp = ws_find_media_type_parameter(value_str, "filename");
