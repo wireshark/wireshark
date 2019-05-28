@@ -3408,7 +3408,8 @@ is_usb_standard_setup_request(usb_trans_info_t *usb_trans_info)
 
 static gint
 try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pinfo,
-        usb_conv_info_t *usb_conv_info, guint8 urb_type, proto_tree *urb_tree)
+        usb_conv_info_t *usb_conv_info, guint8 urb_type, proto_tree *urb_tree,
+        proto_tree *setup_tree)
 {
     int                      ret;
     wmem_tree_key_t          key[4];
@@ -3427,6 +3428,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
        this is the (device or interface) class we're using */
     guint32                  usb_class;
     guint8                   transfer_type;
+    gboolean                 use_setup_tree = FALSE;
 
     if (!usb_conv_info) {
         /*
@@ -3508,6 +3510,11 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
             if (is_usb_standard_setup_request(usb_trans_info))
                 break;
 
+            /* When dissecting requests, and Setup Data tree is created,
+               pass it to next dissector instead of parent. */
+            if (usb_conv_info->is_request && setup_tree)
+                use_setup_tree = TRUE;
+
             ctrl_recip = USB_RECIPIENT(usb_trans_info->setup.requesttype);
 
             if (ctrl_recip == RQT_SETUP_RECIPIENT_INTERFACE) {
@@ -3573,7 +3580,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
 
     if (try_heuristics && heur_subdissector_list) {
         ret = dissector_try_heuristic(heur_subdissector_list,
-                next_tvb, pinfo, tree, &hdtbl_entry, usb_conv_info);
+                next_tvb, pinfo, use_setup_tree ? setup_tree : tree, &hdtbl_entry, usb_conv_info);
         if (ret)
             return tvb_captured_length(next_tvb);
     }
@@ -3590,7 +3597,7 @@ try_dissect_next_protocol(proto_tree *tree, tvbuff_t *next_tvb, packet_info *pin
         }
 
         ret = dissector_try_uint_new(usb_dissector_table, usb_class,
-                next_tvb, pinfo, tree, TRUE, usb_conv_info);
+                next_tvb, pinfo, use_setup_tree ? setup_tree : tree, TRUE, usb_conv_info);
         if (ret)
             return tvb_captured_length(next_tvb);
     }
@@ -3616,7 +3623,7 @@ dissect_usb_setup_response(packet_info *pinfo, proto_tree *tree,
         }
         else {
             next_tvb = tvb_new_subset_remaining(tvb, offset);
-            offset += try_dissect_next_protocol(parent, next_tvb, pinfo, usb_conv_info, urb_type, tree);
+            offset += try_dissect_next_protocol(parent, next_tvb, pinfo, usb_conv_info, urb_type, tree, NULL);
 
             length_remaining = tvb_reported_length_remaining(tvb, offset);
             if (length_remaining > 0) {
@@ -3703,7 +3710,7 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
 
     parent = proto_tree_get_parent_tree(tree);
 
-    setup_tree = proto_tree_add_subtree(parent, tvb, offset, 8, ett_usb_setup_hdr, NULL, "URB setup");
+    setup_tree = proto_tree_add_subtree(parent, tvb, offset, 8, ett_usb_setup_hdr, NULL, "Setup Data");
 
     req_type = USB_TYPE(tvb_get_guint8(tvb, offset));
     usb_trans_info->setup.requesttype = tvb_get_guint8(tvb, offset);
@@ -3764,7 +3771,7 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
     else {
         /* no standard request - pass it on to class-specific dissectors */
         ret = try_dissect_next_protocol(
-                parent, next_tvb, pinfo, usb_conv_info, urb_type, tree);
+                parent, next_tvb, pinfo, usb_conv_info, urb_type, tree, setup_tree);
         if (ret <= 0) {
             /* no class-specific dissector could handle it,
                dissect it as generic setup request */
@@ -4505,7 +4512,7 @@ dissect_usb_payload(tvbuff_t *tvb, packet_info *pinfo,
 
     if (tvb_captured_length_remaining(tvb, offset) > 0) {
         next_tvb = tvb_new_subset_remaining(tvb, offset);
-        offset += try_dissect_next_protocol(parent, next_tvb, pinfo, usb_conv_info, urb_type, tree);
+        offset += try_dissect_next_protocol(parent, next_tvb, pinfo, usb_conv_info, urb_type, tree, NULL);
     }
 
     if (tvb_captured_length_remaining(tvb, offset) > 0) {
