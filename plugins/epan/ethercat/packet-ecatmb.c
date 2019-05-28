@@ -108,6 +108,7 @@ static int hf_ecat_mailbox_coe_sdoccsus_toggle = -1;
 static int hf_ecat_mailbox_coe_sdoccsiu = -1;
 /* static int hf_ecat_mailbox_coe_sdoccsiu_complete = -1; */
 static int hf_ecat_mailbox_coe_sdoidx = -1;
+static int hf_ecat_mailbox_coe_sdoabortcode = -1;
 static int hf_ecat_mailbox_coe_sdosub = -1;
 static int hf_ecat_mailbox_coe_sdodata = -1;
 static int hf_ecat_mailbox_coe_sdodata1 = -1;
@@ -592,7 +593,7 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
                   proto_tree_add_item(ecat_coe_sdoccs_tree, hf_ecat_mailbox_coe_sdoccsus_toggle, tvb, offset, 1, ENC_LITTLE_ENDIAN);
                   break;
                case SDO_CCS_ABORT_TRANSFER:
-                  proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoidx, tvb, offset+4, 4, ENC_LITTLE_ENDIAN);
+                  proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoabortcode, tvb, offset+4, 4, ENC_LITTLE_ENDIAN);
                   break;
                }
             }
@@ -1591,10 +1592,14 @@ void proto_register_ecat_mailbox(void)
       FT_BOOLEAN, 8, TFS(&flags_set_truth), 0x00000010,
       NULL, HFILL }
       },
-
       { &hf_ecat_mailbox_coe_sdoidx,
       { "Index", "ecat_mailbox.coe.sdoidx",
       FT_UINT16, BASE_HEX, NULL, 0x0,
+      NULL, HFILL }
+      },
+      { &hf_ecat_mailbox_coe_sdoabortcode,
+      { "Abort code", "ecat_mailbox.coe.abortcode",
+      FT_UINT32, BASE_HEX, NULL, 0x0,
       NULL, HFILL }
       },
       { &hf_ecat_mailbox_coe_sdosub,

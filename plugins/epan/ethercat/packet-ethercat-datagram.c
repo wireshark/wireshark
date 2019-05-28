@@ -1632,7 +1632,7 @@ static int dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
          guint dataLength = len;
 
          if ( len >= ETHERCAT_MBOX_HEADER_LEN &&
-           ((ecHdr.cmd==EC_CMD_TYPE_FPWR || ecHdr.cmd == EC_CMD_TYPE_APWR) || ((ecHdr.cmd==EC_CMD_TYPE_FPRD  || ecHdr.cmd==EC_CMD_TYPE_APRD) && cnt==1) ) &&
+           ((ecHdr.cmd==EC_CMD_TYPE_FPWR || ecHdr.cmd == EC_CMD_TYPE_APWR || ecHdr.cmd == EC_CMD_TYPE_APRW || ecHdr.cmd == EC_CMD_TYPE_FPRW) || ((ecHdr.cmd==EC_CMD_TYPE_FPRD  || ecHdr.cmd==EC_CMD_TYPE_APRD) && cnt==1) ) &&
            ecHdr.anAddrUnion.a.ado>=0x1000
          )
          {
