@@ -44,7 +44,6 @@
 
 #include "config.h"
 
-
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/media_params.h>
@@ -614,12 +613,10 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
         } else {
             gint hf_index;
 
-            /* Split header name from header value */
-            header_str[colon_offset] = '\0';
             hf_index = is_known_multipart_header(header_str, colon_offset);
 
             if (hf_index == -1) {
-                if(isprint_string(hdr_str)) {
+                if(isprint_string(header_str)) {
                     proto_tree_add_format_text(subtree, tvb, offset, next_offset - offset);
                 } else {
                     /* if the header name is unkown and not printable, break and add complete line to the body */
