@@ -115,13 +115,6 @@ import tempfile
 
 class wireshark_gen_C:
 
-
-    #
-    # Turn DEBUG stuff on/off
-    #
-
-    DEBUG = 0
-
     #
     # Some string constants for our templates
     #
@@ -147,7 +140,9 @@ class wireshark_gen_C:
     # Constructor
     #
 
-    def __init__(self, st, protocol_name, dissector_name ,description):
+    def __init__(self, st, protocol_name, dissector_name ,description, debug=False):
+        self.DEBUG = debug
+
         self.st = output.Stream(tempfile.TemporaryFile(),4) # for first pass only
 
         self.st_save = st               # where 2nd pass should go

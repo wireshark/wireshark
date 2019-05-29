@@ -57,9 +57,8 @@ from wireshark_gen import wireshark_gen_C
 
 class WiresharkVisitor:
 
-    DEBUG = 0                           # debug flag
-
-    def __init__(self, st):
+    def __init__(self, st, debug=False):
+        self.DEBUG = debug
         self.st = st
         self.oplist = []                # list of operation nodes
         self.enlist = []                # list of enum nodes
@@ -258,8 +257,10 @@ class WiresharkVisitor:
 
 def run(tree, args):
 
+    DEBUG = "debug" in args
+
     st = output.Stream(sys.stdout, 4)   # set indent for stream
-    ev = WiresharkVisitor(st)            # create visitor object
+    ev = WiresharkVisitor(st, DEBUG)            # create visitor object
 
     ev.visitAST(tree)                   # go find some operations
 
@@ -273,7 +274,7 @@ def run(tree, args):
     nl = string.split(fname,".")[0]       # split name of main IDL file using "." as separator
                                           # and grab first field (eg: CosNaming)
 
-    if ev.DEBUG:
+    if DEBUG:
         for i in ev.oplist:
             print "XXX - Operation node ", i, " repoId() = ", i.repoId()
         for i in ev.atlist:
@@ -290,7 +291,7 @@ def run(tree, args):
     # and generate some C code
 
 
-    eg = wireshark_gen_C(ev.st, string.upper(nl), string.lower(nl), string.capitalize(nl) + " Dissector Using GIOP API") 
+    eg = wireshark_gen_C(ev.st, string.upper(nl), string.lower(nl), string.capitalize(nl) + " Dissector Using GIOP API", debug=DEBUG) 
     eg.genCode(ev.oplist, ev.atlist, ev.enlist, ev.stlist, ev.unlist)    # pass them onto the C generator
 
 #
