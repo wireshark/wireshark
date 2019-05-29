@@ -68,16 +68,22 @@ static gint hf_xra_tlv_grant_size = -1;
 static gint hf_xra_tlv_segment_header_present = -1;
 static gint hf_xra_tlv_ncp_trunc = -1;
 static gint hf_xra_tlv_ncp_symbolid = -1;
+
+/*
+ * Minislot Info
+ */
+static gint hf_xra_tlv_start_minislot_id_abs = -1;
+static gint hf_xra_tlv_start_minislot_id_rel = -1;
+static gint hf_xra_tlv_stop_minislot_id_rel = -1;
+
 /*
  *Ranging TLV
- */
-static gint hf_xra_tlv_ranging_start_minislot_id_abs = -1;
-static gint hf_xra_tlv_ranging_start_minislot_id_rel = -1;
-static gint hf_xra_tlv_ranging_stop_minislot_id_rel = -1;
+*/
 static gint hf_xra_tlv_ranging_number_ofdma_frames = -1;
-static gint hf_xra_tlv_ranging_mer = -1;
 static gint hf_xra_tlv_ranging_timing_adjust = -1;
-static gint hf_xra_tlv_ranging_power_level = -1;
+
+static gint hf_xra_tlv_power_level = -1;
+static gint hf_xra_tlv_mer = -1;
 static gint hf_xra_tlv_subslot_id =-1;
 static gint hf_xra_tlv_control_word = -1;
 
@@ -374,18 +380,6 @@ static const value_string control_word_vals[] = {
   { 0, NULL}
 };
 
-static void
-mer_fourth_db(char *buf, guint32 value)
-{
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%f dB", value/4.0);
-}
-
-static void
-mer_tenth_db_signed(char *buf, guint32 value)
-{
-    g_snprintf(buf, ITEM_LABEL_LENGTH, "%f dB", ((gint32) value)/10.0);
-}
-
 static int
 dissect_xra(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_) {
   proto_item *it;
@@ -544,13 +538,13 @@ dissect_xra_tlv_ms_info(tvbuff_t * tvb, proto_tree * tree, void* data _U_, guint
     ++tlv_index;
     switch (type) {
       case XRA_TLV_MINISLOT_INFO_START_MINISLOT_ID:
-        proto_tree_add_item (xra_tlv_ms_info_tree, hf_xra_tlv_ranging_start_minislot_id_abs, tvb, tlv_index, length, ENC_BIG_ENDIAN);
+        proto_tree_add_item (xra_tlv_ms_info_tree, hf_xra_tlv_start_minislot_id_abs, tvb, tlv_index, length, ENC_BIG_ENDIAN);
         break;
       case XRA_TLV_MINISLOT_INFO_REL_START_MINISLOT:
-        proto_tree_add_item (xra_tlv_ms_info_tree, hf_xra_tlv_ranging_start_minislot_id_rel, tvb, tlv_index, length, ENC_BIG_ENDIAN);
+        proto_tree_add_item (xra_tlv_ms_info_tree, hf_xra_tlv_start_minislot_id_rel, tvb, tlv_index, length, ENC_BIG_ENDIAN);
         break;
       case XRA_TLV_MINISLOT_INFO_REL_STOP_MINISLOT:
-        proto_tree_add_item (xra_tlv_ms_info_tree, hf_xra_tlv_ranging_stop_minislot_id_rel, tvb, tlv_index, length, ENC_BIG_ENDIAN);
+        proto_tree_add_item (xra_tlv_ms_info_tree, hf_xra_tlv_stop_minislot_id_rel, tvb, tlv_index, length, ENC_BIG_ENDIAN);
         break;
       default:
         proto_tree_add_item (xra_tlv_ms_info_tree, hf_xra_unknown, tvb, tlv_index, length, ENC_NA);
@@ -605,6 +599,7 @@ dissect_xra_tlv(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
   proto_item *it;
   proto_tree *xra_tlv_tree;
   guint symbol_id;
+  double mer, power_level;
 
   it = proto_tree_add_item (tree, hf_xra_tlv, tvb, 0, tlv_length, ENC_NA);
   xra_tlv_tree = proto_item_add_subtree (it, ett_xra_tlv);
@@ -645,7 +640,8 @@ dissect_xra_tlv(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
         col_append_fstr(pinfo->cinfo, COL_INFO, ": (SymbolId: %u):", symbol_id);
         break;
       case XRA_MER:
-        proto_tree_add_item (xra_tlv_tree, hf_xra_tlv_ranging_mer, tvb, tlv_index, length, ENC_BIG_ENDIAN);
+        mer = tvb_get_guint8(tvb, tlv_index)/4.0;
+        proto_tree_add_double_format_value(xra_tlv_tree, hf_xra_tlv_mer, tvb, tlv_index, length, mer, "%.2f dB", mer);
         break;
       case XRA_US_CHANNEL_ID:
         proto_tree_add_item (xra_tlv_tree, hf_xra_tlv_us_channel_id, tvb, tlv_index, length, ENC_BIG_ENDIAN);
@@ -683,7 +679,8 @@ dissect_xra_tlv(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
         proto_tree_add_item (xra_tlv_tree, hf_xra_tlv_ranging_timing_adjust, tvb, tlv_index, length, ENC_BIG_ENDIAN);
         break;
       case XRA_ESTIMATED_POWER_LEVEL:
-        proto_tree_add_item (xra_tlv_tree, hf_xra_tlv_ranging_power_level, tvb, tlv_index, length, ENC_BIG_ENDIAN);
+        power_level = ((gint16) (256*tvb_get_guint8(tvb, tlv_index) + tvb_get_guint8(tvb, tlv_index+1)) )/10.0;
+        proto_tree_add_double_format_value(xra_tlv_tree, hf_xra_tlv_power_level, tvb, tlv_index, length, power_level, "%.1f dB", power_level);
         break;
       case XRA_SUBSLOT_ID:
         proto_tree_add_item (xra_tlv_tree, hf_xra_tlv_subslot_id, tvb, tlv_index, length, ENC_BIG_ENDIAN);
@@ -1056,30 +1053,25 @@ proto_register_xra (void)
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL}
     },
-    /*Ranging*/
-    {&hf_xra_tlv_ranging_start_minislot_id_abs,
-      {"Start Minislot ID (absolute)", "xra.tlv.ranging.start_minislot_id_abs",
+    {&hf_xra_tlv_start_minislot_id_abs,
+      {"Start Minislot ID (absolute)", "xra.tlv.ms_info.start_minislot_id_abs",
         FT_UINT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL}
     },
-    {&hf_xra_tlv_ranging_start_minislot_id_rel,
-      {"Start Minislot ID (relative)", "xra.tlv.ranging.start_minislot_id_rel",
+    {&hf_xra_tlv_start_minislot_id_rel,
+      {"Start Minislot ID (relative)", "xra.tlv.ms_info.start_minislot_id_rel",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL}
     },
-    {&hf_xra_tlv_ranging_stop_minislot_id_rel,
-      {"Stop Minislot ID (relative)", "xra.tlv.ranging.stop_minislot_id_rel",
+    {&hf_xra_tlv_stop_minislot_id_rel,
+      {"Stop Minislot ID (relative)", "xra.tlv.ms_info.stop_minislot_id_rel",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL}
     },
+    /*Ranging*/
     {&hf_xra_tlv_ranging_number_ofdma_frames,
       {"Number of OFDMA frames", "xra.tlv.ranging.number_ofdma_frames",
         FT_UINT16, BASE_DEC, NULL, 0x0,
-        NULL, HFILL}
-    },
-    {&hf_xra_tlv_ranging_mer,
-      {"MER", "xra.tlv.ranging.mer",
-        FT_UINT8, BASE_CUSTOM, CF_FUNC(mer_fourth_db), 0x0,
         NULL, HFILL}
     },
     {&hf_xra_tlv_ranging_timing_adjust,
@@ -1087,9 +1079,14 @@ proto_register_xra (void)
         FT_INT32, BASE_DEC, NULL, 0x0,
         NULL, HFILL}
     },
-    {&hf_xra_tlv_ranging_power_level,
-      {"Estimated Power Level (0.10 dB units, signed)", "xra.tlv.ranging.power_level",
-        FT_INT16, BASE_CUSTOM, CF_FUNC(mer_tenth_db_signed), 0x0,
+    {&hf_xra_tlv_power_level,
+      {"Estimated Power Level", "xra.tlv.power_level",
+        FT_DOUBLE, BASE_NONE, NULL, 0x0,
+        NULL, HFILL}
+    },
+    {&hf_xra_tlv_mer,
+      {"MER", "xra.tlv.mer",
+        FT_DOUBLE, BASE_NONE, NULL, 0x0,
         NULL, HFILL}
     },
     {&hf_xra_tlv_subslot_id,
