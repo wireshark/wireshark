@@ -140,8 +140,9 @@ class wireshark_gen_C:
     # Constructor
     #
 
-    def __init__(self, st, protocol_name, dissector_name ,description, debug=False):
+    def __init__(self, st, protocol_name, dissector_name ,description, debug=False, aggressive=False):
         self.DEBUG = debug
+        self.AGGRESSIVE = aggressive
 
         self.st = output.Stream(tempfile.TemporaryFile(),4) # for first pass only
 
@@ -308,7 +309,7 @@ class wireshark_gen_C:
                 #self.get_CDR_alias(rt, rt.name() )
                 if (rt.unalias().kind() == idltype.tk_sequence):
                     self.st.out(self.template_hf, name=sname + "_return_loop")
-                    if (self.isSeqNativeType(rt.unalias().seqType())):
+                    if (self.isSeqNativeType(rt.unalias().seqType())) or self.AGGRESSIVE:
                         self.st.out(self.template_hf, name=sname + "_return")
                 elif ((rt.unalias().kind() != idltype.tk_struct) and \
                       (rt.unalias().kind() != idltype.tk_objref) and \
@@ -324,7 +325,7 @@ class wireshark_gen_C:
         for p in op.parameters():
             if (p.paramType().unalias().kind() == idltype.tk_sequence):
                 self.st.out(self.template_hf, name=sname + "_" + p.identifier() + "_loop")
-                if (self.isSeqNativeType(p.paramType().unalias().seqType())):
+                if (self.isSeqNativeType(p.paramType().unalias().seqType())) or self.AGGRESSIVE:
                     self.st.out(self.template_hf, name=sname + "_" + p.identifier())
             elif ((p.paramType().unalias().kind() != idltype.tk_any) and \
                   (p.paramType().unalias().kind() != idltype.tk_struct) and \
@@ -373,7 +374,7 @@ class wireshark_gen_C:
                 for decl in m.declarators():
                     if (m.memberType().unalias().kind() == idltype.tk_sequence):
                         self.st.out(self.template_hf, name=sname + "_" + decl.identifier() + "_loop")
-                        if (self.isSeqNativeType(m.memberType().unalias().seqType())):
+                        if (self.isSeqNativeType(m.memberType().unalias().seqType())) or self.AGGRESSIVE:
                             self.st.out(self.template_hf, name=sname + "_" + decl.identifier())
                     else:
                         if (m.memberType().unalias().kind() == idltype.tk_wchar):
@@ -1541,6 +1542,8 @@ class wireshark_gen_C:
                             un_need_item = 1
                     else:
                         un_need_item = 1
+        if self.AGGRESSIVE:
+            un_need_item = 1
 
         sname = self.namespace(un, "_")
         self.curr_sname = sname         # update current opnode/exnode/stnode/unnode scoped name

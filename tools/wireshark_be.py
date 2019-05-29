@@ -258,6 +258,7 @@ class WiresharkVisitor:
 def run(tree, args):
 
     DEBUG = "debug" in args
+    AGGRESSIVE = "aggressive" in args
 
     st = output.Stream(sys.stdout, 4)   # set indent for stream
     ev = WiresharkVisitor(st, DEBUG)            # create visitor object
@@ -291,7 +292,7 @@ def run(tree, args):
     # and generate some C code
 
 
-    eg = wireshark_gen_C(ev.st, string.upper(nl), string.lower(nl), string.capitalize(nl) + " Dissector Using GIOP API", debug=DEBUG) 
+    eg = wireshark_gen_C(ev.st, string.upper(nl), string.lower(nl), string.capitalize(nl) + " Dissector Using GIOP API", debug=DEBUG, aggressive=AGGRESSIVE) 
     eg.genCode(ev.oplist, ev.atlist, ev.enlist, ev.stlist, ev.unlist)    # pass them onto the C generator
 
 #
