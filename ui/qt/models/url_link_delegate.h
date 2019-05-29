@@ -29,7 +29,7 @@ public:
     void setColCheck(int column, QString &pattern);
 
 protected:
-    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
+    virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
 
 private:
     int re_col_;

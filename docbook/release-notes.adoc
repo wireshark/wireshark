@@ -41,6 +41,9 @@ since version 3.0.0:
   bundled Speex resampler code is still provided as a fallback.
 * WireGuard decryption can now be enabled through keys embedded in a pcapng in
   addition to the existing key log preference (wsbuglink:15571[]).
+* A new tap for extracting credentials from the capture file has been added.
+  It can be accessed through the "-z credentials" option in tshark or from the
+  "tools" menu in Wireshark.
 
 // === Removed Features and Support
 

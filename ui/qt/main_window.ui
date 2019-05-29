@@ -679,6 +679,7 @@
      <string>&amp;Tools</string>
     </property>
     <addaction name="actionToolsFirewallAclRules"/>
+    <addaction name="actionToolsCredentials"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -2971,6 +2972,11 @@
    </property>
    <property name="text">
     <string>&amp;Full Screen</string>
+   </property>
+  </action>
+  <action name="actionToolsCredentials">
+   <property name="text">
+    <string>Credentials</string>
    </property>
   </action>
  </widget>

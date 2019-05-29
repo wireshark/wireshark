@@ -1583,6 +1583,13 @@ on those calls that match that filter.
 Example: B<-z "mgcp,rtd,ip.addr==1.2.3.4"> will only collect stats for
 MGCP packets exchanged by the host at IP address 1.2.3.4 .
 
+=item B<-z> credentials
+
+Collect credentials (username/passwords) from packets. The report includes
+the packet number, the protocol that had that credential, the username and
+the password. For protocols just using one sigle field as authentication,
+this is provided as a password and a placeholder in place of the user.
+
 =item B<-z> proto,colinfo,I<filter>,I<field>
 
 Append all I<field> values for the packet to the Info column of the

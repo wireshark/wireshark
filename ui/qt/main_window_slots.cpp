@@ -129,6 +129,7 @@ DIAG_ON(frame-larger-than=)
 #include "packet_comment_dialog.h"
 #include "packet_dialog.h"
 #include "packet_list.h"
+#include "credentials_dialog.h"
 #include "preferences_dialog.h"
 #include "print_dialog.h"
 #include "profile_dialog.h"
@@ -3363,6 +3364,11 @@ void MainWindow::on_actionToolsFirewallAclRules_triggered()
     firewall_rules_dialog->show();
 }
 
+void MainWindow::on_actionToolsCredentials_triggered()
+{
+    CredentialsDialog *credentials_dialog = new CredentialsDialog(*this, capture_file_, packet_list_);
+    credentials_dialog->show();
+}
 
 // Help Menu
 void MainWindow::on_actionHelpContents_triggered() {

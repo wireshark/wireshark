@@ -24,8 +24,13 @@
 #include <epan/addr_resolv.h>
 #include <epan/proto_data.h>
 
+#include <tap.h>
+#include <ui/tap-credentials.h>
+
 void proto_register_ftp(void);
 void proto_reg_handoff_ftp(void);
+
+static int credentials_tap = -1;
 
 static int proto_ftp = -1;
 static int proto_ftp_data = -1;
@@ -184,6 +189,8 @@ typedef struct ftp_conversation_t
     wmem_strbuf_t *current_working_directory;
     ftp_data_conversation_t *current_data_conv;  /* Current data conversation (during first pass) */
     guint32     current_data_setup_frame;
+    gchar *username;
+    guint username_pkt_num;
 } ftp_conversation_t;
 
 /* For a given packet, retrieve or initialise a new conversation, and return it */
@@ -937,6 +944,23 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
              */
             else if (strncmp(line, "EPRT", tokenlen) == 0)
                 is_eprt_request = TRUE;
+            else if (strncmp(line, "USER", tokenlen) == 0) {
+                if (p_ftp_conv) {
+                    p_ftp_conv->username = wmem_strndup(wmem_file_scope(), line + tokenlen + 1, linelen - tokenlen - 1);
+                    p_ftp_conv->username_pkt_num = pinfo->num;
+                }
+            } else if (strncmp(line, "PASS", tokenlen) == 0) {
+                if (p_ftp_conv && p_ftp_conv->username) {
+                    tap_credential_t* auth = wmem_new0(wmem_file_scope(), tap_credential_t);
+                    auth->num = pinfo->num;
+                    auth->proto = "FTP";
+                    auth->password_hf_id = hf_ftp_request_arg;
+                    auth->username = p_ftp_conv->username;
+                    auth->username_num = p_ftp_conv->username_pkt_num;
+                    auth->info = wmem_strdup_printf(wmem_file_scope(), "Username in packet: %u", p_ftp_conv->username_pkt_num);
+                    tap_queue_packet(credentials_tap, pinfo, auth);
+                }
+            }
         }
 
         /* If there is an ftp data conversation that doesn't have a
@@ -1628,6 +1652,8 @@ proto_register_ftp(void)
 
     register_init_routine(&ftp_init_protocol);
     register_cleanup_routine(&ftp_cleanup_protocol);
+
+    credentials_tap = register_tap("credentials");
 }
 
 void

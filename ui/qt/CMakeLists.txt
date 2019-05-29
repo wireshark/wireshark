@@ -83,6 +83,7 @@ set(WIRESHARK_MODEL_HEADERS
 	models/packet_list_model.h
 	models/packet_list_record.h
 	models/path_chooser_delegate.h
+	models/credentials_model.h
 	models/percent_bar_delegate.h
 	models/pref_delegate.h
 	models/pref_models.h
@@ -177,6 +178,7 @@ set(WIRESHARK_QT_HEADERS
 	packet_format_group_box.h
 	packet_list.h
 	packet_range_group_box.h
+	credentials_dialog.h
 	preference_editor_frame.h
 	preferences_dialog.h
 	print_dialog.h
@@ -303,6 +305,7 @@ set(WIRESHARK_MODEL_SRCS
 	models/numeric_value_chooser_delegate.cpp
 	models/packet_list_model.cpp
 	models/packet_list_record.cpp
+	models/credentials_model.cpp
 	models/path_chooser_delegate.cpp
 	models/percent_bar_delegate.cpp
 	models/pref_delegate.cpp
@@ -390,6 +393,7 @@ set(WIRESHARK_QT_SRC
 	packet_format_group_box.cpp
 	packet_list.cpp
 	packet_range_group_box.cpp
+	credentials_dialog.cpp
 	preference_editor_frame.cpp
 	preferences_dialog.cpp
 	print_dialog.cpp
@@ -520,6 +524,7 @@ set(WIRESHARK_QT_UI
 	packet_dialog.ui
 	packet_format_group_box.ui
 	packet_range_group_box.ui
+	credentials_dialog.ui
 	preference_editor_frame.ui
 	preferences_dialog.ui
 	print_dialog.ui

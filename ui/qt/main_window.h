@@ -673,6 +673,7 @@ private slots:
     void on_actionBluetoothHCI_Summary_triggered();
 
     void on_actionToolsFirewallAclRules_triggered();
+    void on_actionToolsCredentials_triggered();
 
     void externalMenuItem_triggered();
 

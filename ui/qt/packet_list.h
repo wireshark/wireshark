@@ -143,8 +143,7 @@ public slots:
     void goPreviousPacket();
     void goFirstPacket(bool user_selected = true);
     void goLastPacket();
-    void goToPacket(int packet);
-    void goToPacket(int packet, int hf_id);
+    void goToPacket(int packet, int hf_id = -1);
     void goNextHistoryPacket();
     void goPreviousHistoryPacket();
     void markFrame();

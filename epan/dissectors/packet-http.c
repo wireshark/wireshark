@@ -38,6 +38,8 @@
 #include "packet-tcp.h"
 #include "packet-tls.h"
 
+#include <ui/tap-credentials.h>
+
 void proto_register_http(void);
 void proto_reg_handoff_http(void);
 void proto_register_message_http(void);
@@ -46,6 +48,7 @@ void proto_reg_handoff_message_http(void);
 static int http_tap = -1;
 static int http_eo_tap = -1;
 static int http_follow_tap = -1;
+static int credentials_tap = -1;
 
 static int proto_http = -1;
 static int proto_http2 = -1;
@@ -316,7 +319,7 @@ static gint find_header_hf_value(tvbuff_t *tvb, int offset, guint header_len);
 static gboolean check_auth_ntlmssp(proto_item *hdr_item, tvbuff_t *tvb,
 				   packet_info *pinfo, gchar *value);
 static gboolean check_auth_basic(proto_item *hdr_item, tvbuff_t *tvb,
-				 gchar *value);
+				 packet_info *pinfo, gchar *value);
 static gboolean check_auth_citrixbasic(proto_item *hdr_item, tvbuff_t *tvb,
 				 gchar *value, int offset);
 static gboolean check_auth_kerberos(proto_item *hdr_item, tvbuff_t *tvb,
@@ -2976,6 +2979,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 	proto_item *hdr_item, *it;
 	int i;
 	int* hf_id;
+	tap_credential_t* auth;
 
 	len = next_offset - offset;
 	line_end_offset = offset + linelen;
@@ -3156,11 +3160,18 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 		case HDR_AUTHORIZATION:
 			if (check_auth_ntlmssp(hdr_item, tvb, pinfo, value))
 				break;	/* dissected NTLMSSP */
-			if (check_auth_basic(hdr_item, tvb, value))
+			if (check_auth_basic(hdr_item, tvb, pinfo, value))
 				break; /* dissected basic auth */
 			if (check_auth_citrixbasic(hdr_item, tvb, value, offset))
 				break; /* dissected citrix basic auth */
-			check_auth_kerberos(hdr_item, tvb, pinfo, value);
+			if (check_auth_kerberos(hdr_item, tvb, pinfo, value))
+				break;
+			auth = wmem_new0(wmem_file_scope(), tap_credential_t);
+			auth->num = pinfo->num;
+			auth->password_hf_id = *headers[hf_index].hf;
+			auth->proto = wmem_strdup(wmem_file_scope(), "HTTP header auth");
+			auth->username = wmem_strdup(wmem_file_scope(), TAP_CREDENTIALS_PLACEHOLDER);
+			tap_queue_packet(credentials_tap, pinfo, auth);
 			break;
 
 		case HDR_AUTHENTICATE:
@@ -3372,11 +3383,27 @@ check_auth_ntlmssp(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo, gcha
 	return FALSE;
 }
 
+static tap_credential_t*
+basic_auth_credentials(gchar* str)
+{
+	gchar **tokens = g_strsplit(str, ":", -1);
+
+	if (!tokens || !tokens[0] || !tokens[1])
+		return NULL;
+
+	tap_credential_t* auth = wmem_new0(wmem_file_scope(), tap_credential_t);
+
+	auth->username = tokens[0];
+	auth->proto = "HTTP basic auth";
+
+	return auth;
+}
+
 /*
  * Dissect HTTP Basic authorization.
  */
 static gboolean
-check_auth_basic(proto_item *hdr_item, tvbuff_t *tvb, gchar *value)
+check_auth_basic(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo, gchar *value)
 {
 	static const char *basic_headers[] = {
 		"Basic ",
@@ -3403,6 +3430,10 @@ check_auth_basic(proto_item *hdr_item, tvbuff_t *tvb, gchar *value)
 			}
 			proto_tree_add_string(hdr_tree, hf_http_basic, tvb,
 			    0, 0, value);
+			tap_credential_t* auth = basic_auth_credentials(value);
+			auth->num = auth->username_num = pinfo->num;
+			auth->password_hf_id = hf_http_basic;
+			tap_queue_packet(credentials_tap, pinfo, auth);
 
 			return TRUE;
 		}
@@ -4159,6 +4190,7 @@ proto_register_http(void)
 	 */
 	http_tap = register_tap("http"); /* HTTP statistics tap */
 	http_follow_tap = register_tap("http_follow"); /* HTTP Follow tap */
+	credentials_tap = register_tap("credentials"); /* credentials tap */
 
 	register_follow_stream(proto_http, "http_follow", tcp_follow_conv_filter, tcp_follow_index_filter, tcp_follow_address_filter,
 							tcp_port_to_display, follow_tvb_tap_listener);
