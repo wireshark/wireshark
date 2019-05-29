@@ -133,7 +133,7 @@ http_init_hash(httpstat_t *sp)
 
 	sp->hash_responses = g_hash_table_new(g_direct_hash, g_direct_equal);
 
-	for (i=0; vals_status_code[i].strptr; i++ )
+	for (i=0; vals_status_code[i].strptr; i++)
 	{
 		http_response_code_t *sc = g_new (http_response_code_t, 1);
 		sc->packets = 0;
@@ -145,7 +145,7 @@ http_init_hash(httpstat_t *sp)
 	sp->hash_requests = g_hash_table_new(g_str_hash, g_str_equal);
 }
 static void
-http_draw_hash_requests(gchar *key _U_ , http_request_methode_t *data, gchar *format)
+http_draw_hash_requests(gchar *key _U_, http_request_methode_t *data, gchar *format)
 {
 	if (data->packets == 0)
 		return;
@@ -153,7 +153,7 @@ http_draw_hash_requests(gchar *key _U_ , http_request_methode_t *data, gchar *fo
 }
 
 static void
-http_draw_hash_responses(gint * key _U_ , http_response_code_t *data, char *format)
+http_draw_hash_responses(gint * key _U_, http_response_code_t *data, char *format)
 {
 	if (data == NULL) {
 		g_warning("No data available, key=%d\n", *key);
@@ -162,33 +162,31 @@ http_draw_hash_responses(gint * key _U_ , http_response_code_t *data, char *form
 	if (data->packets == 0)
 		return;
 	/* "     HTTP %3d %-35s %9d packets", */
-	printf(format,  data->response_code, data->name, data->packets );
+	printf(format, data->response_code, data->name, data->packets);
 }
-
-
 
 /* NOT USED at this moment */
 /*
 static void
-http_free_hash(gpointer key, gpointer value, gpointer user_data _U_ )
+http_free_hash(gpointer key, gpointer value, gpointer user_data _U_)
 {
 	g_free(key);
 	g_free(value);
 }
 */
 static void
-http_reset_hash_responses(gchar *key _U_ , http_response_code_t *data, gpointer ptr _U_ )
+http_reset_hash_responses(gchar *key _U_, http_response_code_t *data, gpointer ptr _U_)
 {
 	data->packets = 0;
 }
 static void
-http_reset_hash_requests(gchar *key _U_ , http_request_methode_t *data, gpointer ptr _U_ )
+http_reset_hash_requests(gchar *key _U_, http_request_methode_t *data, gpointer ptr _U_)
 {
 	data->packets = 0;
 }
 
 static void
-httpstat_reset(void *psp  )
+httpstat_reset(void *psp)
 {
 	httpstat_t *sp = (httpstat_t *)psp;
 
@@ -198,10 +196,10 @@ httpstat_reset(void *psp  )
 }
 
 static tap_packet_status
-httpstat_packet(void *psp , packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri)
+httpstat_packet(void *psp, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri)
 {
 	const http_info_value_t *value = (const http_info_value_t *)pri;
-	httpstat_t *sp = (httpstat_t *) psp;
+	httpstat_t *sp = (httpstat_t *)psp;
 
 	/* We are only interested in reply packets with a status code */
 	/* Request or reply packets ? */
@@ -251,7 +249,7 @@ httpstat_packet(void *psp , packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
 				value->request_method);
 		if (sc == NULL) {
 			sc = g_new(http_request_methode_t, 1);
-			sc->response = g_strdup(value->request_method );
+			sc->response = g_strdup(value->request_method);
 			sc->packets = 1;
 			sc->sp = sp;
 			g_hash_table_insert(sp->hash_requests, sc->response, sc);
@@ -266,7 +264,7 @@ httpstat_packet(void *psp , packet_info *pinfo _U_, epan_dissect_t *edt _U_, con
 
 
 static void
-httpstat_draw(void *psp  )
+httpstat_draw(void *psp)
 {
 	httpstat_t *sp = (httpstat_t *)psp;
 	printf("\n");
@@ -294,7 +292,7 @@ httpstat_init(const char *opt_arg, void *userdata _U_)
 {
 	httpstat_t *sp;
 	const char *filter = NULL;
-	GString	   *error_string;
+	GString	*error_string;
 
 	if (!strncmp (opt_arg, "http,stat,", 10)) {
 		filter = opt_arg+10;
