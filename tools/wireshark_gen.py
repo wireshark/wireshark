@@ -2987,27 +2987,27 @@ decode_@sname@_at(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U
     #
 
     template_union_code_save_discriminant_enum = """\
-disc_s_@discname@ = (gint32) u_octet4;     /* save Enum Value  discriminant and cast to gint32 */
+disc_s_@discname@ = (gint32) get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary);     /* save Enum Value  discriminant and cast to gint32 */
 """
     template_union_code_save_discriminant_long = """\
-disc_s_@discname@ = (gint32) s_octet4;     /* save gint32 discriminant and cast to gint32 */
+disc_s_@discname@ = (gint32) get_CDR_long(tvb,offset,stream_is_big_endian, boundary);     /* save gint32 discriminant and cast to gint32 */
 """
 
     template_union_code_save_discriminant_ulong = """\
-disc_s_@discname@ = (gint32) u_octet4;     /* save guint32 discriminant and cast to gint32 */
+disc_s_@discname@ = (gint32) get_CDR_ulong(tvb,offset,stream_is_big_endian, boundary);     /* save guint32 discriminant and cast to gint32 */
 """
     template_union_code_save_discriminant_short = """\
-disc_s_@discname@ = (gint32) s_octet2;     /* save gint16 discriminant and cast to gint32 */
+disc_s_@discname@ = (gint32) get_CDR_short(tvb,offset,stream_is_big_endian, boundary);     /* save gint16 discriminant and cast to gint32 */
 """
 
     template_union_code_save_discriminant_ushort = """\
-disc_s_@discname@ = (gint32) u_octet2;     /* save guint16 discriminant and cast to gint32 */
+disc_s_@discname@ = (gint32) get_CDR_ushort(tvb,offset,stream_is_big_endian, boundary);     /* save guint16 discriminant and cast to gint32 */
 """
     template_union_code_save_discriminant_char = """\
-disc_s_@discname@ = (gint32) u_octet1;     /* save guint1 discriminant and cast to gint32 */
+disc_s_@discname@ = (gint32) get_CDR_char(tvb,offset,stream_is_big_endian, boundary);     /* save guint1 discriminant and cast to gint32 */
 """
     template_union_code_save_discriminant_boolean = """\
-disc_s_@discname@ = (gint32) u_octet1;     /* save guint1 discriminant and cast to gint32 */
+disc_s_@discname@ = (gint32) get_CDR_boolean(tvb,offset,stream_is_big_endian, boundary);     /* save guint1 discriminant and cast to gint32 */
 """
     template_comment_union_code_label_compare_start = """\
 if (disc_s_@discname@ == @labelval@) {
