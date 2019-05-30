@@ -681,7 +681,14 @@ find_assoc_index(assoc_info_t* tmpinfo, gboolean visited)
             break;
           case BACKWARD_ADD_BACKWARD_VTAG:
             info->verification_tag2 = tmpinfo->verification_tag1;
-            break;
+            info->direction = 1;
+            inf.assoc_index = info->assoc_index;
+            inf.direction = 2;
+            return inf;
+          case BACKWARD_STREAM:
+            inf.assoc_index = info->assoc_index;
+            inf.direction = 2;
+            return inf;
         }
         if (cmp == FORWARD_STREAM || cmp == FORWARD_ADD_FORWARD_VTAG) {
           info->direction = 1;
