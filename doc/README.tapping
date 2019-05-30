@@ -4,8 +4,8 @@ In order to use the tapping system, very little knowledge of Wireshark
 internals are required.
 
 As examples on how to use the tap system see the implementation of
-tap-rpcstat.c     	(tshark version)
-ui/qt/rpc_service_response_time_dialog.cpp	(wireshark version)
+tap-rpcprogs.c (tshark version)
+ui/qt/rpc_service_response_time_dialog.cpp (wireshark version)
 
 If all you need is to keep some counters, there's the stats_tree API,
 which offers a simple way to make a GUI and tshark tap-listener; see
@@ -18,10 +18,7 @@ protocol dissector, and
 2, event driven code in an extension such as tap-rpcstat.c that registers
 a tap listener and processes received data.
 
-
-
 So you want to hack together a tap application?
-
 
 TAP
 ===
@@ -55,10 +52,9 @@ need.
 
 TAP LISTENER
 ============
-(see tap-rpcstat.c as an example)
+(see tap-rpcprogs.c as an example)
 Interfacing your application is not that much harder either.
 Only 4 callbacks and two functions.
-
 
 The two functions to start or stop tapping are
 
@@ -69,14 +65,14 @@ register_tap_listener(const char *tapname, void *tapdata, const char *fstring,
 	void (*draw)(void *tapdata),
 	void (*finish)(void *tapdata));
 
+This function is used to register an instance of a tap application
+to the tap system.
+
 remove_tap_listener(void *tapdata);
 
-
-remove_tap_listener(void *tapdata)
 This function is used to deregister and stop a tap listener.
 
-register_tap_listener() is used to register an instance of a tap application
-to the tap system.
+The parameters have the following meanings:
 
 *tapname
 is the name of the tap we want to listen to. I.e. the name used in
@@ -239,8 +235,5 @@ Well, try this :
 	Let struct contain a command line and make (*packet) execute it?
 	The possibilities are rather large.
 
-
-
-See tap-rpcstat.c for an example
 See tap.c as well. It contains lots of comments and descriptions on the tap
 system.
