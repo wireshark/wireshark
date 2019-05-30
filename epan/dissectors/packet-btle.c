@@ -1084,8 +1084,8 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             break;
         case 0x02: /* Start of an L2CAP message or a complete L2CAP message with no fragmentation */
             if (length > 0) {
-                guint le_frame_len = tvb_get_letohs(tvb, offset);
-                if (le_frame_len > length) {
+                guint l2cap_len = tvb_get_letohs(tvb, offset);
+                if (l2cap_len + 4 > length) { /* L2CAP PDU Length excludes the 4 octets header */
                     pinfo->fragmented = TRUE;
                     if (connection_info && !retransmit) {
                         if (!pinfo->fd->visited) {
@@ -1093,7 +1093,7 @@ dissect_btle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
                             /* The first two octets in the L2CAP PDU contain the length of the entire
                              * L2CAP PDU in octets, excluding the Length and CID fields(4 octets).
                              */
-                            connection_info->direction_info[direction].segment_len_rem = le_frame_len + 4 - length;
+                            connection_info->direction_info[direction].segment_len_rem = l2cap_len + 4 - length;
                             connection_info->direction_info[direction].l2cap_index = l2cap_index;
                             btle_frame_info->more_fragments = 1;
                             btle_frame_info->l2cap_index = l2cap_index;
