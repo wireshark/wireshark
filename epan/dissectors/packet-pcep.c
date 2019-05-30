@@ -637,6 +637,9 @@ static int hf_pcep_lsp_state_db_version_number = -1;
 static int hf_pcep_speaker_entity_id = -1;
 static int hf_pcep_path_setup_type_reserved24 = -1;
 static int hf_pcep_path_setup_type = -1;
+static int hf_pcep_path_setup_type_capability_reserved24 = -1;
+static int hf_pcep_path_setup_type_capability_psts = -1;
+static int hf_pcep_path_setup_type_capability_pst = -1;
 static int hf_pcep_sr_pce_capability_reserved = -1;
 static int hf_pcep_sr_pce_capability_flags = -1;
 static int hf_pcep_sr_pce_capability_flags_l = -1;
@@ -1035,27 +1038,28 @@ static const value_string pcep_notification_values2_vals[] = {
 
 /* PCEP TLVs */
 static const value_string pcep_tlvs_vals[] = {
-    {1,  "NO-PATH-VECTOR TLV"       },
-    {2,  "OVERLOAD-DURATION TLV"    },
-    {3,  "REQ-MISSING TLV"          },
-    {4,  "OF-list TLV"              },
-    {5,  "Order TLV"                },
-    {6,  "P2MP Capable"             },
-    {7,  "VENDOR-INFORMATION-TLV"   },
-    {16, "STATEFUL-PCE-CAPABILITY"  },
-    {17, "SYMBOLIC-PATH-NAME"       },
-    {18, "IPV4-LSP-IDENTIFIERS"     },
-    {19, "IPV6-LSP-IDENTIFIERS"     },
-    {20, "LSP-ERROR-CODE"           },
-    {21, "RSVP-ERROR-SPEC"          },
-    {23, "LSP-DB-VERSION"           },
-    {24, "SPEAKER-ENTITY-ID"        },
-    {26, "SR-PCE-CAPABILITY"        },
-    {27, "PATH-SETUP-TYPE"          },
-    {28, "PATH-SETUP-TYPE"          },
-    {98, "GLOBAL-ASSOCIATION-SOURCE"},
-    {99, "EXTENDED-ASSOCIATION-ID"  },
-    {0, NULL                        }
+    {1,  "NO-PATH-VECTOR TLV"         },
+    {2,  "OVERLOAD-DURATION TLV"      },
+    {3,  "REQ-MISSING TLV"            },
+    {4,  "OF-list TLV"                },
+    {5,  "Order TLV"                  },
+    {6,  "P2MP Capable"               },
+    {7,  "VENDOR-INFORMATION-TLV"     },
+    {16, "STATEFUL-PCE-CAPABILITY"    },
+    {17, "SYMBOLIC-PATH-NAME"         },
+    {18, "IPV4-LSP-IDENTIFIERS"       },
+    {19, "IPV6-LSP-IDENTIFIERS"       },
+    {20, "LSP-ERROR-CODE"             },
+    {21, "RSVP-ERROR-SPEC"            },
+    {23, "LSP-DB-VERSION"             },
+    {24, "SPEAKER-ENTITY-ID"          },
+    {26, "SR-PCE-CAPABILITY"          },
+    {27, "PATH-SETUP-TYPE"            },
+    {28, "PATH-SETUP-TYPE"            },
+    {34, "PATH-SETUP-TYPE-CAPABILITY" },
+    {98, "GLOBAL-ASSOCIATION-SOURCE"  },
+    {99, "EXTENDED-ASSOCIATION-ID"    },
+    {0, NULL                          }
 };
 
 
@@ -1454,6 +1458,25 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
             case 28:    /* PATH-SETUP-TYPE TLV (FF: IANA code point) */
                 proto_tree_add_item(tlv, hf_pcep_path_setup_type_reserved24, tvb, offset + 4 + j, 3, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv, hf_pcep_path_setup_type, tvb, offset + 4 + j + 3, 1, ENC_NA);
+                break;
+
+            case 34:    /* PATH-SETUP-TYPE-CAPABILITY TLV */
+                {
+                    guint32 psts;
+
+                    proto_tree_add_item(tlv, hf_pcep_path_setup_type_capability_reserved24, tvb, offset + 4 + j, 3, ENC_BIG_ENDIAN);
+                    proto_tree_add_item_ret_uint(tlv, hf_pcep_path_setup_type_capability_psts, tvb, offset + 4 + j + 3, 1, ENC_NA, &psts);
+                    for (i = 0; i < (int)psts; i++) {
+                        proto_tree_add_item(tlv, hf_pcep_path_setup_type_capability_pst, tvb, offset + 4 + j + 4 + i, 1, ENC_NA);
+                    }
+
+                    padding = (4 - (psts % 4)) % 4;
+                    if (padding != 0) {
+                        proto_tree_add_item(tlv, hf_pcep_tlv_padding, tvb, offset+4+j+psts, padding, ENC_NA);
+                    }
+
+                    /* TODO: implement subTLV dissection */
+                }
                 break;
 
             case 98:    /* GLOBAL-ASSOCIATION-SOURCE TLV (TODO temp to be adjusted) */
@@ -4640,6 +4663,22 @@ proto_register_pcep(void)
             FT_UINT8, BASE_DEC, VALS(pcep_pst_vals), 0x0,
             NULL, HFILL }
         },
+        { &hf_pcep_path_setup_type_capability_reserved24,
+          { "Reserved", "pcep.pst_capability.reserved",
+            FT_UINT24, BASE_HEX, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_path_setup_type_capability_psts,
+          { "Path Setup Types", "pcep.pst_capability.psts",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_path_setup_type_capability_pst,
+          { "Path Setup Type", "pcep.pst_capability.pst",
+            FT_UINT8, BASE_DEC, VALS(pcep_pst_vals), 0x0,
+            NULL, HFILL }
+        },
+
         { &hf_PCEPF_SUBOBJ_SR,
           { "SR", "pcep.subobj.sr",
             FT_NONE, BASE_NONE, NULL, 0x0,
