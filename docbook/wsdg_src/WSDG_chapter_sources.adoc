@@ -203,15 +203,15 @@ $ git config --global user.email henry.perry@example.com
 ----
 --
 
-. Next, clone the Wireshark master:
+. Next, clone the Wireshark repository:
 +
 --
 ----
 $ git clone ssh://henry.perry@code.wireshark.org:29418/wireshark
 ----
-The checkout only has to be done once. This will copy all the sources
-of the latest version (including directories) from the server to
-your machine. This may take some time depending on the speed of your
+The clone only has to be done once. This will copy all the sources
+(including directories) from the server to your machine and check out
+the latest version. This may take some time depending on the speed of your
 internet connection.
 --
 
