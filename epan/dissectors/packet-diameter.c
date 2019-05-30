@@ -24,6 +24,9 @@
  *     Application" (now RFC 4006)
  * draft-ietf-aaa-diameter-sip-app-01, "Diameter Session Initiation
  *     Protocol (SIP) Application" (now RFC 4740)
+ * RFC 5779, "Diameter Proxy Mobile IPv6: Mobile Access Gateway and
+ *     Local Mobility Anchor Interaction with Diameter Server"
+ * 3GPP TS 29.273, V15.2.0
  * http://www.ietf.org/html.charters/aaa-charter.html
  * http://www.iana.org/assignments/radius-types
  * http://www.iana.org/assignments/address-family-numbers
@@ -267,6 +270,17 @@ static int hf_framed_ipv6_prefix_bytes = -1;
 static int hf_framed_ipv6_prefix_ipv6 = -1;
 static int hf_diameter_3gpp2_exp_res = -1;
 static int hf_diameter_other_vendor_exp_res = -1;
+static int hf_diameter_mip6_feature_vector = -1;
+static int hf_diameter_mip6_feature_vector_mip6_integrated = -1;
+static int hf_diameter_mip6_feature_vector_local_home_agent_assignment = -1;
+static int hf_diameter_mip6_feature_vector_pmip6_supported = -1;
+static int hf_diameter_mip6_feature_vector_ip4_hoa_supported = -1;
+static int hf_diameter_mip6_feature_vector_local_mag_routing_supported = -1;
+static int hf_diameter_3gpp_mip6_feature_vector = -1;
+static int hf_diameter_3gpp_mip6_feature_vector_assign_local_ip = -1;
+static int hf_diameter_3gpp_mip6_feature_vector_mip4_supported = -1;
+static int hf_diameter_3gpp_mip6_feature_vector_optimized_idle_mode_mobility = -1;
+static int hf_diameter_3gpp_mip6_feature_vector_gtpv2_supported = -1;
 
 static gint ett_diameter = -1;
 static gint ett_diameter_flags = -1;
@@ -274,7 +288,8 @@ static gint ett_diameter_avp_flags = -1;
 static gint ett_diameter_avpinfo = -1;
 static gint ett_unknown = -1;
 static gint ett_err = -1;
-
+static gint ett_diameter_mip6_feature_vector = -1;
+static gint ett_diameter_3gpp_mip6_feature_vector = -1;
 
 static expert_field ei_diameter_reserved_bit_set = EI_INIT;
 static expert_field ei_diameter_avp_len = EI_INIT;
@@ -546,6 +561,55 @@ dissect_diameter_user_name(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	}
 
 	return 0;
+}
+
+/* AVP Code: 124 MIP6-Feature-Vector */
+/* RFC 5447, 5779 */
+/* 3GPP TS 29.273, V15.2.0 */
+static int
+dissect_diameter_mip6_feature_vector(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data)
+{
+	const int *flags_rfc[] = {
+		&hf_diameter_mip6_feature_vector_mip6_integrated,
+		&hf_diameter_mip6_feature_vector_local_home_agent_assignment,
+		&hf_diameter_mip6_feature_vector_pmip6_supported,
+		&hf_diameter_mip6_feature_vector_ip4_hoa_supported,
+		&hf_diameter_mip6_feature_vector_local_mag_routing_supported,
+		NULL
+	};
+
+	const int *flags_3gpp[] = {
+	&hf_diameter_3gpp_mip6_feature_vector_assign_local_ip,
+	    &hf_diameter_3gpp_mip6_feature_vector_mip4_supported,
+	    &hf_diameter_3gpp_mip6_feature_vector_optimized_idle_mode_mobility,
+	    &hf_diameter_3gpp_mip6_feature_vector_gtpv2_supported,
+	    NULL
+	};
+
+	guint32 application_id = 0;
+	diam_sub_dis_t *diam_sub_dis_inf = (diam_sub_dis_t*)data;
+
+	if(diam_sub_dis_inf) {
+		application_id = diam_sub_dis_inf->application_id;
+	}
+
+	/* Hide the item created in packet-diameter.c and only show the one created here */
+	proto_item_set_hidden(diam_sub_dis_inf->item);
+
+	/* Dissect values defined in RFC 5447, 5779 */
+	proto_tree_add_bitmask(tree, tvb, 0, hf_diameter_mip6_feature_vector, ett_diameter_mip6_feature_vector, flags_rfc, ENC_BIG_ENDIAN);
+
+	switch (application_id) {
+	case DIAM_APPID_3GPP_STA:
+	case DIAM_APPID_3GPP_SWM:
+	case DIAM_APPID_3GPP_SWX:
+	case DIAM_APPID_3GPP_S6B:
+		/* Dissect values defined in TGPP TS 29.273, V15.2.0 */
+		proto_tree_add_bitmask(tree, tvb, 0, hf_diameter_3gpp_mip6_feature_vector, ett_diameter_3gpp_mip6_feature_vector, flags_3gpp, ENC_BIG_ENDIAN);
+		break;
+	}
+
+	return 8;
 }
 
 /* AVP Code: 443 Subscription-Id */
@@ -2241,7 +2305,40 @@ real_register_diameter_fields(void)
 		FT_UINT32, BASE_DEC, VALS(diameter_3gpp2_exp_res_vals), 0x0,	NULL, HFILL }},
 	{ &hf_diameter_other_vendor_exp_res,
 		{ "Experimental-Result-Code", "diameter.other_vendor.Experimental-Result-Code",
-		FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }}
+		FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+	{ &hf_diameter_mip6_feature_vector,
+		{ "MIP6-Feature-Vector", "diameter.mip6_feature_vector",
+		 FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+	{ &hf_diameter_mip6_feature_vector_mip6_integrated,
+		{ "MIP6_INTEGRATED", "diameter.mip6_feature_vector.mip6_integrated.mip6_integrated",
+		FT_BOOLEAN, 64, TFS(&tfs_set_notset), 0x0000000000000001, NULL, HFILL }},
+	{ &hf_diameter_mip6_feature_vector_local_home_agent_assignment,
+		{ "LOCAL_HOME_AGENT_ASSIGNMENT", "diameter.mip6_feature_vector.local_home_agent_assignment",
+		FT_BOOLEAN, 64, TFS(&tfs_set_notset), 0x0000000000000002, NULL, HFILL }},
+	{ &hf_diameter_mip6_feature_vector_pmip6_supported,
+		{ "PMIP6_SUPPORTED", "diameter.mip6_feature_vector.pmip6_supported",
+		FT_BOOLEAN, 64, TFS(&tfs_set_notset), 0x0000010000000000, NULL, HFILL }},
+	{ &hf_diameter_mip6_feature_vector_ip4_hoa_supported,
+		{ "IP4_HOA_SUPPORTED", "diameter.mip6_feature_vector.ip4_hoa_supported",
+		FT_BOOLEAN, 64, TFS(&tfs_set_notset), 0x0000020000000000, NULL, HFILL }},
+	{ &hf_diameter_mip6_feature_vector_local_mag_routing_supported,
+		{ "LOCAL_MAG_ROUTING_SUPPORTED", "diameter.mip6_feature_vector.local_mag_routing_supported",
+		FT_BOOLEAN, 64, TFS(&tfs_set_notset), 0x0000040000000000,NULL, HFILL }},
+	{ &hf_diameter_3gpp_mip6_feature_vector,
+		{ "MIP6-Feature-Vector [3GPP]", "diameter.3gpp.mip6_feature_vector",
+		FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+	{ &hf_diameter_3gpp_mip6_feature_vector_assign_local_ip,
+		{ "MIP6_INTEGRATED", "diameter.3gpp.mip6_feature_vector.assign_local_ip",
+		FT_BOOLEAN, 64, TFS(&tfs_set_notset), 0x0000080000000000, NULL, HFILL }},
+	{ &hf_diameter_3gpp_mip6_feature_vector_mip4_supported,
+		{ "PMIP6_SUPPORTED", "diameter.3gpp.mip6_feature_vector.mip4_supported",
+		FT_BOOLEAN, 64, TFS(&tfs_set_notset), 0x0000100000000000, NULL, HFILL }},
+	{ &hf_diameter_3gpp_mip6_feature_vector_optimized_idle_mode_mobility,
+		{ "OPTIMIZED_IDLE_MODE_MOBILITY", "diameter.3gpp.mip6_feature_vector.optimized_idle_mode_mobility",
+		FT_BOOLEAN, 64, TFS(&tfs_set_notset), 0x0000200000000000, NULL, HFILL }},
+	{ &hf_diameter_3gpp_mip6_feature_vector_gtpv2_supported,
+		{ "GTPv2_SUPPORTED", "diameter.3gpp.mip6_feature_vector.gtpv2_supported",
+		FT_BOOLEAN, 64, TFS(&tfs_set_notset), 0x0000400000000000, NULL, HFILL }}
 	};
 
 	gint *ett_base[] = {
@@ -2251,6 +2348,8 @@ real_register_diameter_fields(void)
 		&ett_diameter_avpinfo,
 		&ett_unknown,
 		&ett_err,
+		&ett_diameter_mip6_feature_vector,
+	    &ett_diameter_3gpp_mip6_feature_vector,
 		&(unknown_avp.ett)
 	};
 
@@ -2381,6 +2480,9 @@ proto_reg_handoff_diameter(void)
 
 		/* AVP Code: 97 Framed-IPv6-Address */
 		dissector_add_uint("diameter.base", 97, create_dissector_handle(dissect_diameter_base_framed_ipv6_prefix, proto_diameter));
+
+		/* AVP Code: 124 MIP6-Feature-Vector */
+		dissector_add_uint("diameter.base", 124, create_dissector_handle(dissect_diameter_mip6_feature_vector, proto_diameter));
 
 		/* AVP Code: 265 Supported-Vendor-Id */
 		dissector_add_uint("diameter.base", 265, create_dissector_handle(dissect_diameter_vendor_id, proto_diameter));
