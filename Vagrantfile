@@ -22,7 +22,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
 
   # Install and build the various things (including wireshark!)
   config.vm.define "ubuntu", autostart: false do |deb|
-    deb.vm.box = "ubuntu/xenial64"
+    deb.vm.box = "ubuntu/bionic64"
 
     deb.vm.provision "shell" do |s|
       s.path = 'tools/debian-setup.sh'
