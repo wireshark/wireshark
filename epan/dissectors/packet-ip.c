@@ -1869,7 +1869,6 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
       &hf_ip_flags_rf,
       &hf_ip_flags_df,
       &hf_ip_flags_mf,
-      &hf_ip_frag_offset,
       NULL
   };
   /* XXX do we realy want decoding of an april fools joke? */
@@ -1877,7 +1876,6 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
       &hf_ip_flags_sf,
       &hf_ip_flags_df,
       &hf_ip_flags_mf,
-      &hf_ip_frag_offset,
       NULL
   };
 
@@ -2041,6 +2039,9 @@ dissect_ip_v4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
     proto_tree_add_bitmask_with_flags(ip_tree, tvb, offset + 6, hf_ip_flags,
         ett_ip_off, ip_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_TFS | BMT_NO_INT);
   }
+
+  proto_tree_add_uint(ip_tree, hf_ip_frag_offset, tvb, offset + 6, 2, (iph->ip_off & IP_OFFSET)*8);
+
 
   iph->ip_ttl = tvb_get_guint8(tvb, offset + 8);
   if (tree) {

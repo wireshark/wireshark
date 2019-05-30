@@ -53,9 +53,9 @@
           "ip.flags_tree": {
             "ip.flags.rb": "0",
             "ip.flags.df": "0",
-            "ip.flags.mf": "0",
-            "ip.frag_offset": "0"
+            "ip.flags.mf": "0"
           },
+          "ip.frag_offset": "0",
           "ip.ttl": "250",
           "ip.proto": "17",
           "ip.checksum": "0x0000178b",
@@ -195,9 +195,9 @@
           "ip.flags_tree": {
             "ip.flags.rb": "0",
             "ip.flags.df": "0",
-            "ip.flags.mf": "0",
-            "ip.frag_offset": "0"
+            "ip.flags.mf": "0"
           },
+          "ip.frag_offset": "0",
           "ip.ttl": "128",
           "ip.proto": "17",
           "ip.checksum": "0x00000000",
@@ -345,9 +345,9 @@
           "ip.flags_tree": {
             "ip.flags.rb": "0",
             "ip.flags.df": "0",
-            "ip.flags.mf": "0",
-            "ip.frag_offset": "0"
+            "ip.flags.mf": "0"
           },
+          "ip.frag_offset": "0",
           "ip.ttl": "250",
           "ip.proto": "17",
           "ip.checksum": "0x0000178a",
@@ -493,9 +493,9 @@
           "ip.flags_tree": {
             "ip.flags.rb": "0",
             "ip.flags.df": "0",
-            "ip.flags.mf": "0",
-            "ip.frag_offset": "0"
+            "ip.flags.mf": "0"
           },
+          "ip.frag_offset": "0",
           "ip.ttl": "128",
           "ip.proto": "17",
           "ip.checksum": "0x00000000",
