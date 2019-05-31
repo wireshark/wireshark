@@ -6,7 +6,7 @@
 # https://developer.apple.com/documentation/security/notarizing_your_app_before_distribution
 # https://developer.apple.com/documentation/security/notarizing_your_app_before_distribution/customizing_the_notarization_workflow
 
-bundle_id="org.wireshark.dmg.$( printf "%x" $RANDOM )"
+bundle_id="org.wireshark.dmg.$( printf "%04x" $RANDOM )"
 
 # Parse command line arguments
 while getopts u: OPTCHAR
@@ -73,7 +73,7 @@ eval_info_cmd=(xcrun altool \
 	--password "@keychain:${generic_pw_service}" \
 	)
 
-for try in {1..40} ; do
+for try in {1..80} ; do
 	printf "\\nWaiting 15s \xe2\x80\xa6 "
 	sleep 15
 	echo "done. Checking status ($try of 40)"
