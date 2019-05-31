@@ -166,6 +166,7 @@ static int ett_rsl = -1;
 static int ett_ie_link_id = -1;
 static int ett_ie_act_type = -1;
 static int ett_ie_bs_power = -1;
+static int ett_ie_bs_power_params = -1;
 static int ett_ie_ch_id = -1;
 static int ett_ie_ch_mode = -1;
 static int ett_ie_enc_inf = -1;
@@ -176,6 +177,7 @@ static int ett_ie_l1_inf = -1;
 static int ett_ie_L3_inf = -1;
 static int ett_ie_ms_id = -1;
 static int ett_ie_ms_pow = -1;
+static int ett_ie_ms_pow_params = -1;
 static int ett_ie_phy_ctx = -1;
 static int ett_ie_paging_grp = -1;
 static int ett_ie_paging_load = -1;
@@ -2321,6 +2323,70 @@ dissect_rsl_ie_sys_info_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 }
 
 /*
+ * 9.3.31 MS Power Parameters
+ */
+static int
+dissect_rsl_ie_ms_pow_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean is_mandatory)
+{
+    proto_item *ti;
+    proto_tree *ie_tree;
+    guint8      ie_id;
+
+    guint       length;
+
+    if (is_mandatory == FALSE) {
+        ie_id = tvb_get_guint8(tvb, offset);
+        if (ie_id != RSL_IE_MS_POWER_PARAM)
+            return offset;
+    }
+
+    ie_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_ie_ms_pow_params, &ti, "MS Power Parameters IE");
+
+    /* Element identifier */
+    proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    /* Length */
+    length = tvb_get_guint8(tvb, offset);
+    proto_item_set_len(ti, length+2);
+    proto_tree_add_item(ie_tree, hf_rsl_ie_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    return offset+length;
+}
+
+/*
+ * 9.3.32 BS Power Parameters
+ */
+static int
+dissect_rsl_ie_bs_power_params(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean is_mandatory)
+{
+    proto_item *ti;
+    proto_tree *ie_tree;
+    guint8      ie_id;
+
+    guint       length;
+
+    if (is_mandatory == FALSE) {
+        ie_id = tvb_get_guint8(tvb, offset);
+        if (ie_id != RSL_IE_BS_POWER_PARAM)
+            return offset;
+    }
+
+    ie_tree = proto_tree_add_subtree(tree, tvb, offset, 0, ett_ie_bs_power_params, &ti, "BS Power Parameters IE");
+
+    /* Element identifier */
+    proto_tree_add_item(ie_tree, hf_rsl_ie_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    /* Length */
+    length = tvb_get_guint8(tvb, offset);
+    proto_item_set_len(ti, length+2);
+    proto_tree_add_item(ie_tree, hf_rsl_ie_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    return offset+length;
+}
+
+/*
  * 9.3.35 Full Immediate Assign Info TLV 25
  */
 static int
@@ -3923,7 +3989,11 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         if (tvb_reported_length_remaining(tvb, offset) > 0)
             offset = dissect_rsl_ie_timing_adv(tvb, pinfo, tree, offset, FALSE);
         /* BS Power Parameters      9.3.32  O 5) TLV >=2    */
+        if (tvb_reported_length_remaining(tvb, offset) > 0)
+            offset = dissect_rsl_ie_bs_power_params(tvb, pinfo, tree, offset, FALSE);
         /* MS Power Parameters      9.3.31  O 5) TLV >=2    */
+        if (tvb_reported_length_remaining(tvb, offset) > 0)
+            offset = dissect_rsl_ie_ms_pow_params(tvb, pinfo, tree, offset, FALSE);
         /* Physical Context         9.3.16  O 6) TLV >=2    */
         if (tvb_reported_length_remaining(tvb, offset) > 0)
             offset = dissect_rsl_ie_phy_ctx(tvb, pinfo, tree, offset, FALSE);
@@ -4089,6 +4159,8 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         if (tvb_reported_length_remaining(tvb, offset) > 0)
             offset = dissect_rsl_ie_ms_pow(tvb, pinfo, tree, offset, FALSE);
         /* MS Power Parameters      9.3.31  O 1) TLV >=2 */
+        if (tvb_reported_length_remaining(tvb, offset) > 0)
+            offset = dissect_rsl_ie_ms_pow_params(tvb, pinfo, tree, offset, FALSE);
         break;
     /* 8.4.16 BS POWER CONTROL */
     case RSL_MSG_BS_POWER_CONTROL:  /*  48  8.4.16 */
@@ -4097,6 +4169,8 @@ dissct_rsl_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
         /* BS Power                 9.3.4 M TV 2 */
         offset = dissect_rsl_ie_bs_power(tvb, pinfo, tree, offset, TRUE);
         /* BS Power Parameters      9.3.32 O 1) TLV >=2 */
+        if (tvb_reported_length_remaining(tvb, offset) > 0)
+            offset = dissect_rsl_ie_bs_power_params(tvb, pinfo, tree, offset, FALSE);
         break;
     /* 8.4.17 PREPROCESS CONFIGURE */
     case RSL_MSG_PREPROC_CONFIG:        /*  49  8.4.17 */
@@ -4944,6 +5018,7 @@ void proto_register_rsl(void)
         &ett_ie_link_id,
         &ett_ie_act_type,
         &ett_ie_bs_power,
+        &ett_ie_bs_power_params,
         &ett_ie_ch_id,
         &ett_ie_ch_mode,
         &ett_ie_enc_inf,
@@ -4954,6 +5029,7 @@ void proto_register_rsl(void)
         &ett_ie_L3_inf,
         &ett_ie_ms_id,
         &ett_ie_ms_pow,
+        &ett_ie_ms_pow_params,
         &ett_ie_phy_ctx,
         &ett_ie_paging_grp,
         &ett_ie_paging_load,
