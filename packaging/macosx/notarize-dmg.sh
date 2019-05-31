@@ -76,7 +76,7 @@ eval_info_cmd=(xcrun altool \
 for try in {1..80} ; do
 	printf "\\nWaiting 15s \xe2\x80\xa6 "
 	sleep 15
-	echo "done. Checking status ($try of 40)"
+	echo "done. Checking status ($try of 80)"
  	"${eval_info_cmd[@]}" 2>&1 | tee "$altool_out"
 	grep "Status: in progress" "$altool_out" > /dev/null 2>&1 || break
 done
