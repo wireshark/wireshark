@@ -5192,6 +5192,7 @@ sac		8097/tcp/udp	# SAC Port Id
 xprint-server	8100/tcp/udp	# Xprint Server
 ldoms-migr	8101/tcp	# Logical Domains Migration
 kz-migr		8102/tcp	# Oracle Kernel zones migration server
+skynetflow	8111/udp	# Skynetflow network services
 mtl8000-matrix	8115/tcp/udp	# MTL8000 Matrix
 cp-cluster	8116/tcp/udp	# Check Point Clustering
 purityrpc	8117/tcp	# Purity replication clustering and remote management
