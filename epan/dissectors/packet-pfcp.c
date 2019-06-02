@@ -135,6 +135,7 @@ static int hf_pfcp_flow_label = -1;
 static int hf_pfcp_sdf_filter_id = -1;
 
 static int hf_pfcp_out_hdr_desc = -1;
+static int hf_pfcp_gtpu_ext_hdr_del_b0_pdu_sess_cont = -1;
 static int hf_pfcp_far_id_flg = -1;
 static int hf_pfcp_far_id = -1;
 static int hf_pfcp_urr_id_flg = -1;
@@ -3707,13 +3708,21 @@ dissect_pfcp_outer_hdr_rem(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 {
     int offset = 0;
     guint32 value;
-    /* Octet 5 to (n+4) Application Identifier
-    * The Application Identifier shall be encoded as an OctetString (see 3GPP TS 29.212)
-    */
+
+    static const int * pfcp_gtpu_ext_hdr_del_flags[] = {
+        &hf_pfcp_gtpu_ext_hdr_del_b0_pdu_sess_cont,
+        NULL
+    };
+
     proto_tree_add_item_ret_uint(tree, hf_pfcp_out_hdr_desc, tvb, offset, 1, ENC_BIG_ENDIAN, &value);
     offset++;
-
     proto_item_append_text(item, "%s", val_to_str_const(value, pfcp_out_hdr_desc_vals, "Unknown"));
+
+    /* Octet 6  GTP-U Extension Header Deletion */
+    if (offset < length) {
+        proto_tree_add_bitmask_list(tree, tvb, offset, 1, pfcp_gtpu_ext_hdr_del_flags, ENC_BIG_ENDIAN);
+        offset++;
+    }
 
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
@@ -6547,6 +6556,11 @@ proto_register_pfcp(void)
         { &hf_pfcp_out_hdr_desc,
         { "Outer Header Removal Description", "pfcp.out_hdr_desc",
             FT_UINT8, BASE_DEC, VALS(pfcp_out_hdr_desc_vals), 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_gtpu_ext_hdr_del_b0_pdu_sess_cont,
+        { "PDU Session Container to be deleted", "pfcp.gtpu_ext_hdr_del.pdu_sess_cont",
+            FT_BOOLEAN, 8, NULL, 0x01,
             NULL, HFILL }
         },
         { &hf_pfcp_far_id_flg,
