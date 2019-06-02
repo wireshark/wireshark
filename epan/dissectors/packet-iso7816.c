@@ -140,7 +140,7 @@ static const value_string iso7816_ins[] = {
     { INS_GET_CHALLENGE,  "Get challenge" },
     { INS_SELECT_FILE,    "Select file" },
     { INS_READ_BIN,       "Read binary" },
-    { INS_READ_REC,       "Read records" },
+    { INS_READ_REC,       "Read record" },
     { INS_GET_RESP,       "Get response" },
     { INS_ENVELOPE,       "Envelope" },
     { INS_GET_DATA,       "Get data" },
