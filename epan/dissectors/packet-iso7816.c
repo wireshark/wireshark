@@ -208,9 +208,9 @@ static const range_string iso7816_sw1[] = {
 static const range_string iso7816_class_rvals[] = {
     {0x00, 0x0F, "structure and coding according to ISO/IEC 7816" },
     {0x10, 0x7F, "reserved for future use" },
-    {0x80, 0x8F, "structure and coding according to ISO/IEC 7816" },
+    {0x80, 0x9F, "structure according to ISO/IEC 7816, coding is proprietary" },
     {0xA0, 0xAF, "structure and coding according to ISO/IEC 7816 unless specified otherwise by the application context" },
-    {0xB0, 0xCF, "structure and coding according to ISO/IEC 7816" },
+    {0xB0, 0xCF, "structure according to ISO/IEC 7816" },
     {0xD0, 0xFE, "proprietary structure and coding" },
     {0xFF, 0xFF, "reserved for Protocol Type Selection" },
     {0, 0,   NULL}
