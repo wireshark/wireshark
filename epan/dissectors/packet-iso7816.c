@@ -77,6 +77,8 @@ static int hf_iso7816_sw2 = -1;
 static int hf_iso7816_sel_file_ctrl = -1;
 static int hf_iso7816_sel_file_fci_req = -1;
 static int hf_iso7816_sel_file_occ = -1;
+static int hf_iso7816_read_rec_ef = -1;
+static int hf_iso7816_read_rec_usage = -1;
 static int hf_iso7816_get_resp = -1;
 static int hf_iso7816_offset_first_byte = -1;
 static int hf_iso7816_rfu = -1;
@@ -185,6 +187,14 @@ static const value_string iso7816_sel_file_occ[] = {
 };
 static value_string_ext ext_iso7816_sel_file_occ =
     VALUE_STRING_EXT_INIT(iso7816_sel_file_occ);
+
+static const value_string iso7816_read_rec_usage[] = {
+    { 0x04, "Read record P1" },
+    { 0x05, "Read all records from P1 up to the last" },
+    { 0, NULL }
+};
+static value_string_ext ext_iso7816_read_rec_usage =
+    VALUE_STRING_EXT_INIT(iso7816_read_rec_usage);
 
 static const range_string iso7816_sw1[] = {
   { 0x61, 0x61, "Normal processing" },
@@ -511,6 +521,15 @@ dissect_iso7816_params(guint8 ins, tvbuff_t *tvb, gint offset,
                 col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
                         "offset %d", P1P2);
             }
+            break;
+        case INS_READ_REC:
+            proto_item_append_text(p1_it, " (record number)");
+            proto_item_append_text(p2_it, " (reference control)");
+            p2_tree = proto_item_add_subtree(p2_it, ett_iso7816_p2);
+            proto_tree_add_item(p2_tree, hf_iso7816_read_rec_ef,
+                    tvb, p2_offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(p2_tree, hf_iso7816_read_rec_usage,
+                    tvb, p2_offset, 1, ENC_BIG_ENDIAN);
             break;
         case INS_GET_RESP:
             p1_p2_it = proto_tree_add_uint_format(params_tree, hf_iso7816_get_resp,
@@ -874,6 +893,15 @@ proto_register_iso7816(void)
             { "Occurrence", "iso7816.apdu.select_file.occurrence",
                 FT_UINT8, BASE_HEX | BASE_EXT_STRING,
                 &ext_iso7816_sel_file_occ, 0x03, NULL, HFILL }
+        },
+        { &hf_iso7816_read_rec_ef,
+            { "Short EF identifier", "iso7816.apdu.read_rec.ef",
+                FT_UINT8, BASE_HEX, NULL, 0xF8, NULL, HFILL }
+        },
+        { &hf_iso7816_read_rec_usage,
+            { "Usage", "iso7816.apdu.read_rec.usage",
+                FT_UINT8, BASE_HEX | BASE_EXT_STRING,
+                &ext_iso7816_read_rec_usage, 0x07, NULL, HFILL }
         },
         { &hf_iso7816_offset_first_byte,
             { "Offset of the first byte to read", "iso7816.offset_first_byte",
