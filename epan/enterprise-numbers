@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2019-05-25)
+(last updated 2019-06-01)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -4367,8 +4367,8 @@ Decimal
       arao&cranel.com
 1088
   Telstra Corp
-    Jessica Elliott
-      jessica.elliott&team.telstra.com
+    Craig Bateman
+      Craig.Bateman&team.telstra.com
 1089
   Net X, Inc.
     Sridhar Kodela
@@ -18656,7 +18656,7 @@ Decimal
 4666
   Itchigo Communications GmbH
     Bodo Rueskamp
-      oid-4666&spamtrap.pinda.de
+      spam&pinda.de
 4667
   Telperion Network Systems
     Hayoung OH
@@ -32671,8 +32671,8 @@ Decimal
       eigel&justis.de
 8179
   Communications Laboratories Telekommunikations Dienstleistungs-Ges.m.b.H.
-    Bodo Rüskamp
-      bodo.rueskamp&communications-laboratories.com
+    Bodo Rueskamp
+      spam&pinda.de
 8180
   Spirea
     Kim Laraqui
@@ -87898,9 +87898,9 @@ Decimal
     Paul Poeltner
       paul.poeltner&emp.co.at
 22087
-  Bodo Rueskamp
+  Invelica GmbH (formerly 'Bodo Rueskamp')
     Bodo Rueskamp
-      oid-22087&spamtrap.pinda.de
+      spam&pinda.de
 22088
   Alpine-Energie Holding AG
     Silvia Schmid
@@ -116642,7 +116642,7 @@ Decimal
     Allan G. Schrum
       aschrum&biopop.com
 29273
-  GCS Software & Consulting KEG
+  GCS Software & Consulting e.U.
     gerhard castellitz
       gerhard.castellitz&utanet.at
 29274
@@ -124036,7 +124036,7 @@ Decimal
 31121
   Techfirm, Inc.
     Katsuya Matsumoto
-      unyo-news&techfirm.co.jp
+      infra-reg&techfirm.co.jp
 31122
   VoIPFuture Ltd.
     Thomas Koehn
@@ -159080,7 +159080,7 @@ Decimal
 39882
   Greater Pittsburgh Glass & Door
     Steven L Buzonas Jr
-      steve&slbmeh.com
+      steve&fancyguy.com
 39883
   Sysacom
     Steve Légaré
@@ -214788,7 +214788,7 @@ Decimal
 53809
   RUN Polito
     Corrado Mulas
-      areait&runpolito.ml
+      areait&runpolito.it
 53810
   City of Portland, Oregon
     David Carter
@@ -215553,6 +215553,158 @@ Decimal
   Springfield College
     Nadim El-Khoury
       nel-khoury&springfield.edu
+54001
+  Hangzhou Vcard Technology Co.,LTD
+    Wulei Li
+      cooli&163.com
+54002
+  Westfalen AG
+    Dimitri Schlee
+      admin&westfalen.com
+54003
+  Vodafone Idea Limited
+    Tarun Kumar Sikri
+      tarunkumar.sikri&vodafoneidea.com
+54004
+  Seminole Electric Cooperative, Inc
+    William Simmons
+      wsimmons&seminole-electric.com
+54005
+  Newland Medical Associates
+    Danielle Coleman
+      Dcoleman&newlandmedical.com
+54006
+  Cetrtapot
+    Ziga Zvan
+      domene&cetrtapot.si
+54007
+  Skalio GmbH
+    System Department
+      iana&skalio.com
+54008
+  Datora Mobile Telecomunicacoes SA 
+    Samy Uziel
+      samy.uziel&datora.net
+54009
+  Rtek Software
+    John Reynolds
+      support&rteksoft.uk
+54010
+  FansWiFi
+    Sam Yeung
+      admin&fanswifi.com
+54011
+  Dr. Bhavesh Patel
+    Kellie Lulas
+      klulas&drgarg.net
+54012
+  Network Lubbock, Inc.
+    Dennis Wisdom
+      iana&networklubbock.com
+54013
+  Fink Telecom Services
+    Andreas Fink
+      afink&fink-telecom.com
+54014
+  Zoox
+    Benjamin Pappas
+      bpappas&zoox.com
+54015
+  SUPERSYSTEMS
+    Pushpender Sangwan
+      ps&supersystems.co.in
+54016
+  TodoAsap
+    Marek Zakrzewski
+      marek&todoasap.com
+54017
+  Implenia Ltd.
+    Alexander Bösch
+      alexander.boesch&implenia.com
+54018
+  LLC MasterPlast
+    Aleksandr S. Chirva
+      admin&wplast.ru
+54019
+  AMSORT Sp. z o.o.
+    Jakub Hołdys
+      jakub.holdys&amsort.com
+54020
+  Joint Stock Company "Scientific research institute "Rubin"
+    Shivrin Aleksandr
+      inforubin&rubin-spb.ru
+54021
+  Ubirch GmbH
+    Waldemar Gruenwald
+      waldemar.gruenwald&ubirch.com
+54022
+  Eram Data Center Infrastructure
+    Amir Esmaeel Hassanpour
+      hassanpour&eramco.ir
+54023
+  Drivio LTD
+    Dmitry Sigitov
+      ops&driv.io
+54024
+  Planzer IT
+    Kevin Stumpp
+      kstumpp&planzer.ch
+54025
+  SpeedFI Inc
+    Dalton Gilmore
+      support&speedfi.ca
+54026
+  QSJ
+    Michael Hafner
+      a725.170131&gmail.com
+54027
+  Refinitiv
+    Joe OHalloran
+      joe.ohalloran&refinitiv.com
+54028
+  RPM ECO
+    Cédrik Dumoulin
+      cdumoulin&rpm.eco
+54029
+  Les Entreprises Dominic Payette
+    Cédrik Dumoulin
+      cdumoulin&edpco.ca
+54030
+  NekomimiSwitch.com
+    Huanjie Zhu
+      iana-pen&public.swineson.me
+54031
+  Bloom Energy
+    James Collins
+      DLIanaNotices&bloomenergy.com
+54032
+  Hatco Corporation
+    IS Department
+      admin&hatcocorp.com
+54033
+  Retriever Services, LLC
+    Josh Wilson
+      josh&retrieversvc.com
+54034
+  PKIIFY, LLC
+    Josh Wilson
+      josh&pkiify.com
+54035
+  The Knot Worldwide Inc
+    Michael Snyder
+      msnyder&theknotww.com
+54036
+  ANA Technology Partner
+    Alan Baugher
+      alan.baugher&anapartner.com
+54037
+  American Litho Inc
+    Noah Liveris
+      noahl&alitho.com
+54038
+  TrueSpeed Communications Ltd
+    Richard Smith
+      richards&truespeed.com
 
 
 End of Document
