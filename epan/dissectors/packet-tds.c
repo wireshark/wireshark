@@ -2106,6 +2106,12 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
             if(plp_length == TDS_UNKNOWN_PLP_LEN)
                 proto_item_append_text(length_item, " (UNKNOWN_PLP_LEN)");
             while(TRUE) {
+                /*
+                 * XXX - this needs to reassemble the chunks, making sure
+                 * the total length of all the chunks isn't greater than
+                 * the item length.  The result of the reassembly is the data
+                 * to dissect.
+                 */
                 length_item = proto_tree_add_item_ret_uint(sub_tree, hf_tds_type_varbyte_plp_chunk_len, tvb, *offset, 4, ENC_LITTLE_ENDIAN, &length);
                 *offset += 4;
                 if(length == TDS_PLP_TERMINATOR) {
@@ -6732,7 +6738,26 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             len = tvb_reported_length_remaining(tvb, offset);
             /*
              * XXX - I've seen captures that start with a login
-             * packet with a sequence number of 2.
+             * packet with a sequence number of 2.  In one, there's
+             * a TDS7 pre-login message with a packet number of 0,
+             * to which the response has a packet number of 1, and
+             * then a TDS4/5 login message with a packet number of 2
+             * and "end of message" not set, followed by a TDS4/5 login
+             * message with a packet number of 3 and "end of message",
+             * to which there's a response with a packet number of 1.
+             *
+             * The TCP sequence numbers do *not* indicate that any
+             * data is missing, so the TDS4/5 login was sent with a
+             * packet number of 2, immediately after the TDS7 pre-login
+             * message with a packet number of 0.
+             *
+             * Given that we are running atop a reliable transport,
+             * we could try doing some form of reassembly that just
+             * accumulates packets until we get an EOM, just checking
+             * to make sure that each packet added to the reassembly
+             * process has a sequence number that - modulo 256! - has
+             * is one greater than the sequence number of the previous
+             * packet added to the reassembly.
              */
 
             last_buffer = ((status & STATUS_LAST_BUFFER) == STATUS_LAST_BUFFER);
