@@ -351,8 +351,12 @@ class wireshark_gen_C:
             sname = self.namespace(decl, "_")
 
             self.st.out(self.template_hf, name="get" + "_" + sname + "_" + decl.identifier())
+            if self.AGGRESSIVE:
+                self.st.out(self.template_hf, name="get" + "_" + sname + "_" + decl.identifier()+"_loop")
             if not at.readonly():
                 self.st.out(self.template_hf, name="set" + "_" + sname + "_" + decl.identifier())
+                if self.AGGRESSIVE:
+                    self.st.out(self.template_hf, name="set" + "_" + sname + "_" + decl.identifier()+"_loop")
 
     #
     # genStDeclares()
