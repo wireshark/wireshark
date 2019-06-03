@@ -1512,7 +1512,8 @@ class wireshark_gen_C:
                 print "XXX get_CDR_alias_hf, type = " ,type , " pn = " , pn
                 print "XXX get_CDR_alias_hf, type.decl() = " ,type.decl()
 
-            self.getCDR_hf(type, desc, filter, decl.identifier() )
+            #self.getCDR_hf(type.unalias(), desc, filter, decl.identifier() )
+            self.getCDR_hf(type.unalias(), desc, filter, pn )
 
 
     #
@@ -1714,7 +1715,7 @@ class wireshark_gen_C:
 
         else:                           # a simple typdef
 
-            self.getCDR(type, pn )
+            self.getCDR(type.unalias(), pn )
 
 
 
