@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Telefonica vendor-specific AVPs. Added by Ajit Kuchekar (akuchekar[at]empirix.com) on 05-June-2019 -->
+
+<vendor vendor-id="Telefonica_Moviles_Espa_S.A." code="27640" name="Telefonica OAMA">
+
+	<avp name="CS-Additional-Calling-Party-Number" code="1" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="CS-Announcement" code="2" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<grouped>
+			<gavp name="CS-Announcement-Type"/>
+			<gavp name="CS-Announcement-Logic"/>
+			<gavp name="CS-Announcement-Code"/>
+			<gavp name="CS-Announcement-Data"/>
+			<gavp name="CS-Warning-Period"/>
+		</grouped>
+	</avp>
+	<avp name="CS-Announcement-Code" code="3" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="CS-Announcement-Data" code="4" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<grouped>
+			<gavp name="CS-Announcement-Data-Type"/>
+			<gavp name="CS-Announcement-Data-Value"/>
+		</grouped>
+	</avp>
+	<avp name="CS-Announcement-Data-Type" code="5" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="Enumerated"/>
+		<enum name="Integer32" code="1"/>
+		<enum name="OctetString" code="2"/>
+		<enum name="Time" code="3"/>
+	</avp>
+	<avp name="CS-Announcement-Data-Value" code="6" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="CS-Bearer-Capability" code="7" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="CS-Call-Reference-Number" code="8" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="CS-Called-Party-Number" code="9" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="OctetString"/>
+	</avp>
+		<avp name="CS-Calling-Partys-Category" code="10" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="CS-Calling-Party-Number" code="11" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="CS-Event-Type-BCSM" code="12" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="Enumerated"/>
+		<enum name="collectedInfo" code="2"/>
+		<enum name="analyzedInformation" code="3"/>
+		<enum name="routeSelectFailure" code="4"/>
+		<enum name="oCalledPartyBusy" code="5"/>
+		<enum name="oNoAnswer" code="6"/>
+		<enum name="oAnswer" code="7"/>
+		<enum name="oDisconnect" code="9"/>
+		<enum name="oAbandon" code="10"/>
+		<enum name="termAttemptAuthorized" code="12"/>
+		<enum name="tBusy" code="13"/>
+		<enum name="tNoAnswer" code="14"/>
+		<enum name="tAnswer" code="15"/>
+		<enum name="tDisconnect" code="17"/>
+		<enum name="tAbandon" code="18"/>
+	</avp>
+	<avp name="CS-First-Call-Indication" code="13" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="Enumerated"/>
+		<enum name="FIRST_CALL_FALSE" code="0"/>
+		<enum name="FIRST_CALL_TRUE" code="1"/>
+	</avp>
+	<avp name="CS-Free-Format-Data" code="14" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="CS-Furnish-Charging-Information" code="15" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<grouped>
+			<gavp name="CS-Free-Format-Data"/>
+			<gavp name="CS-Party-To-Charge"/>
+		</grouped>
+	</avp>
+	<avp name="CS-High-Layer-Compatibility" code="16" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="CS-Information" code="17" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<grouped>
+			<gavp name="CS-Traffic-Case"/>
+			<gavp name="CS-Service-Key"/>
+			<gavp name="CS-Service-Id"/>
+			<gavp name="CS-Event-Type-BCSM"/>
+			<gavp name="CS-Calling-Party-Number"/>
+		</grouped>
+	</avp>
+	<avp name="CS-Location-Information" code="18" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<grouped>
+			<gavp name="CS-Terminating-VLR-Number"/>
+			<gavp name="CS-Originating-Location-Number"/>
+			<gavp name="3GPP-User-Location-Info"/>
+		</grouped>
+	</avp>
+	<avp name="CS-MSC-Address" code="19" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="CS-Original-Called-Party-ID" code="20" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="CS-Originating-Location-Number" code="21" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="CS-Party-To-Charge" code="22" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="CS-Redirecting-Party-Number" code="23" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="CS-Redirection-Information" code="24" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="CS-Release-Cause-Code" code="25" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="Integer32"/>
+	</avp>
+	<avp name="CS-Rerouting-Number" code="26" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="CS-Service-Key" code="27" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="Integer32"/>
+	</avp>
+	<avp name="CS-Terminating-VLR-Number" code="28" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="CS-Warning-Period" code="29" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="CS-Accumulated-Time" code="30" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="CS-Announcement-Logic" code="31" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="Enumerated"/>
+		<enum name="NOT_TO_BE_PLAYED" code="0"/>
+		<enum name="PLAYED_TO_CALLING_PARTY" code="1"/>
+		<enum name="PLAYED_TO_CALLED_PARTY" code="2"/>
+		<enum name="PLAYED_TO_BOTH_PARTIES" code="3"/>
+	</avp>
+	<avp name="CS-Announcement-Type" code="32" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="Enumerated"/>
+		<enum name="IMMEDIATE_ANNOUNCEMENT" code="0"/>
+		<enum name="MIDCALL_ANNOUNCEMENT" code="1"/>
+		<enum name="ENDCALL_ANNOUNCEMENT" code="2"/>
+	</avp>
+	<avp name="CS-Balance-TopUp-Data" code="33" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="CS-Call-SetUp-Result-Code" code="34" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="CS-Customer-Data" code="35" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="CS-Dialogue-Handling" code="36" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="Enumerated"/>
+		<enum name="NORMAL" code="0"/>
+		<enum name="OPTIMIZED" code="1"/>
+	</avp>
+	<avp name="CS-ISUP-Release-Cause-Code" code="37" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="CS-Max-Call-Duration" code="38" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="CS-Result-Code" code="39" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="CS-Start-Of-Charging" code="40" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="Time"/>
+	</avp>
+	<avp name="CS-Teleservice-Code" code="41" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="CS-Traffic-Case" code="42" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="CS-AoC-Info" code="43" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<grouped>
+			<gavp name="Tariff-Time-Change"/>
+			<gavp name="CS-AoC-Info-e1"/>
+			<gavp name="CS-AoC-Info-e2"/>
+			<gavp name="CS-AoC-Info-e3"/>
+			<gavp name="CS-AoC-Info-e4"/>
+			<gavp name="CS-AoC-Info-e5"/>
+			<gavp name="CS-AoC-Info-e6"/>
+			<gavp name="CS-AoC-Info-e7"/>
+		</grouped>
+	</avp>
+	<avp name="CS-AoC-Info-e1" code="44" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="CS-AoC-Info-e2" code="45" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="CS-AoC-Info-e3" code="46" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="CS-AoC-Info-e4" code="47" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="CS-AoC-Info-e5" code="48" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="CS-AoC-Info-e6" code="49" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="CS-AoC-Info-e7" code="50" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="CS-Called-Party-BCD-Number" code="51" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="CS-Conference-Id" code="52" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="CS-MultiParty-Call-Indication" code="53" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<grouped>
+			<gavp name="CS-Conference-Id"/>
+			<gavp name="Number-Of-Participants"/>
+		</grouped>
+	</avp>
+	<avp name="CS-Network-Type" code="54" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="CS-Service-Id" code="55" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="OCS-Account-Management-Op" code="56" vendor-id="Telefonica_Moviles_Espa_S.A." mandatory="must" vendor-bit="must">
+		<type type-name="UTF8String"/>
+	</avp>
+</vendor>

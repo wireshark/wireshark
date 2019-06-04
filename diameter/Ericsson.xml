@@ -17,6 +17,23 @@
 		<enum name="Audio Conference" code="0"/>
 		<enum name="Video Conference" code="1"/>
 	</avp>
+	<avp name="SSO-Status" code="280" vendor-id="Ericsson" mandatory="must" vendor-bit="must" may-encrypt="no" protected="mustnot">
+		<type type-name="Enumerated"/>
+		<enum name="NON-VALID" code="0"/>
+		<enum name="NON-TRUSTED" code="1"/>
+	</avp>
+	<avp name="IMS-Service-Identification" code="284" vendor-id="Ericsson" mandatory="must" vendor-bit="must" may-encrypt="no" protected="mustnot">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Ericsson_Service_Information" code="285" vendor-id="Ericsson" mandatory="must" vendor-bit="must">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="Activity-Information" code="288" vendor-id="Ericsson" mandatory="must" vendor-bit="must" may-encrypt="no" protected="mustnot">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="Feature-Tag" code="289" vendor-id="Ericsson" mandatory="must" vendor-bit="must" may-encrypt="no" protected="mustnot">
+		<type type-name="UTF8String"/>
+	</avp>
 	<avp name="Rule-Space-Suggestion" code="290" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
 		<type type-name="UTF8String"/>
 	</avp>
@@ -25,6 +42,17 @@
 	</avp>
 	<avp name="Bearer-Control-Options" code="292" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
 		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="GPRS-Roaming-Status" code="333" vendor-id="Ericsson" mandatory="must" vendor-bit="must" may-encrypt="no" protected="mustnot">
+		<type type-name="Enumerated"/>
+		<enum name="HOME" code="0"/>
+		<enum name="VISITED" code="1"/>
+	</avp>
+	<avp name="Ericsson-Wildcarded-Public-Identity" code="334" vendor-id="Ericsson" mandatory="must" vendor-bit="must" may-encrypt="no" protected="mustnot">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="SIP-Ringing-Timestamp" code="338" vendor-id="Ericsson" mandatory="must" vendor-bit="must" may-encrypt="no" protected="mustnot">
+		<type type-name="Time"/>
 	</avp>
 
 	<!-- ************************** SCAP AVPS, see 155 19-FAY 112 51/2 rev B ********************* -->
@@ -166,6 +194,16 @@
 	</avp>
 	<!-- ************************ END SCAP AVPS ******************* -->
 
+	<avp name="S-CSCF-Name-Originating" code="1008" vendor-id="None" mandatory="must"  may-encrypt="no">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="S-CSCF-Name-Terminating" code="1009" vendor-id="None" mandatory="must"  may-encrypt="no">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="SIP-Server-Name" code="1012" vendor-id="None" mandatory="must"  may-encrypt="no">
+		<type type-name="OctetString"/>
+	</avp>
+
 
 	<avp name="Charging-Rule-Authorization" code="1055" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
 		<grouped>
@@ -201,6 +239,9 @@
 	<avp name="Gx-Capability-List" code="1060" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
 		<type type-name="Unsigned32"/>
 	</avp>
+	<avp name="MMT-Information" code="1061" vendor-id="Ericsson" mandatory="must" vendor-bit="must">
+		<type type-name="OctetString"/>
+	</avp>
 	<avp name="Result-Code-Extension" code="1067" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
 		<type type-name="Unsigned32"/>
 	</avp>
@@ -231,7 +272,119 @@
 		<enum name="END_USER_NAI" code="3"/>
 		<enum name="END_USER_PRIVATE" code="4"/>
 	</avp>
+	<avp name="Related-ICID" code="1128" vendor-id="Ericsson" mandatory="must" vendor-bit="must" may-encrypt="no" protected="mustnot">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Supplementary-Service-Information" code="1129" vendor-id="Ericsson" mandatory="must" vendor-bit="must">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="Supplementary-Service-Identity" code="1130" vendor-id="Ericsson" mandatory="must" vendor-bit="must" may-encrypt="no" protected="mustnot">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Supplementary-Service-Action" code="1131" vendor-id="Ericsson" mandatory="must" vendor-bit="must" may-encrypt="no" protected="mustnot">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Redirecting-Party-Address" code="1133" vendor-id="Ericsson" mandatory="must" vendor-bit="must" may-encrypt="no" protected="mustnot">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Calling-Party-Address-Presentation-Status" code="1141" vendor-id="Ericsson" mandatory="must" vendor-bit="must">
+		<type type-name="Enumerated"/>
+		<enum name="PRESENTATION_ALLOWED" code="0"/>
+		<enum name="PRESENTATION_RESTRICTED" code="1"/>
+		<enum name="UNKNOWN" code="2"/>
+	</avp>
+	<avp name="Called-Asserted-Identity-Presentation-Status" code="1142" vendor-id="Ericsson" mandatory="must" vendor-bit="must">
+		<type type-name="Enumerated"/>
+		<enum name="PRESENTATION_ALLOWED" code="0"/>
+		<enum name="PRESENTATION_RESTRICTED" code="1"/>
+	</avp>
 	<avp name="Ericsson-Customer-Id" code="1146" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="From-Header" code="1153" vendor-id="Ericsson" mandatory="must" vendor-bit="must" may-encrypt="no" protected="mustnot">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Secondary-Digest-HA1" code="1192" vendor-id="Ericsson" mandatory="must" vendor-bit="must" may-encrypt="no" protected="mustnot">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="SIP-Ringing-Timestamp-Fraction" code="1256" vendor-id="Ericsson" mandatory="must" vendor-bit="must" may-encrypt="no" protected="mustnot">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Authentication_Method" code="1261" vendor-id="Ericsson" mandatory="must" vendor-bit="must">
+		<type type-name="Enumerated"/>
+		<enum name="NoAuthentication" code="0"/>
+		<enum name="AkaAuthentication" code="1"/>
+		<enum name="NassBundledAuthentication" code="2"/>
+		<enum name="DigestAuthentication" code="3"/>
+		<enum name="SsoAuthentication" code="4"/>
+	</avp>
+	<avp name="From-Header-Presentation-Status" code="1262" vendor-id="Ericsson" mandatory="must" vendor-bit="must">
+		<type type-name="Enumerated"/>
+		<enum name="PRESENTATION_ALLOWED" code="0"/>
+		<enum name="PRESENTATION_RESTRICTED" code="1"/>
+		<enum name="UNKNOWN" code="2"/>
+	</avp>
+	<avp name="Transaction_Info" code="1264" vendor-id="Ericsson" mandatory="must" vendor-bit="must">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="Transaction-Type" code="1265" vendor-id="Ericsson" mandatory="must" vendor-bit="must">
+		<type type-name="Enumerated"/>
+		<enum name="SIP_REQUEST" code="0"/>
+		<enum name="SIP_RESPONSE" code="1"/>
+		<enum name="DIAMETER_REQUEST" code="2"/>
+		<enum name="DIAMETER_ANSWER" code="3"/>
+	</avp>
+	<avp name="Transaction-Data-Name" code="1266" vendor-id="Ericsson" mandatory="must" vendor-bit="must">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Transaction-Data-Value" code="1267" vendor-id="Ericsson" mandatory="must" vendor-bit="must">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Charging-Profile-Id" code="1268" vendor-id="Ericsson" mandatory="must" vendor-bit="must">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Service-Number-Type" code="1307" vendor-id="Ericsson" mandatory="must" vendor-bit="must">
+		<type type-name="Enumerated"/>
+		<enum name="OSN" code="0"/>
+		<enum name="NSN" code="1"/>
+		<enum name="NON_SERVICE_E164" code="2"/>
+		<enum name="UNKNOWN" code="3"/>
+	</avp>
+	<avp name="SCC_Service_Identity" code="1314" vendor-id="Ericsson" mandatory="must" vendor-bit="must">
+		<type type-name="Enumerated"/>
+		<enum name="T_ADS" code="0"/>
+		<enum name="SDS" code="100"/>
+		<enum name="SRVCC" code="200"/>
+	</avp>
+	<avp name="SDD-TADS-Decision" code="1315" vendor-id="Ericsson" mandatory="must" vendor-bit="must">
+		<type type-name="Enumerated"/>
+		<enum name="NO_SELECTION" code="0"/>
+		<enum name="NO_SELECTION_AND_REJECT" code="1"/>
+		<enum name="VoLTE_UE_on_PS" code="2"/>
+		<enum name="VoLTE_UE_on_CS" code="3"/>
+		<enum name="VoLTE_UE_on_PS_or_PS" code="4"/>
+		<enum name="BREAKOUT_to_CS" code="5"/>
+		<enum name="FIXED_UE_on_PS_and_BREAKOUT_to_CS" code="6"/>
+	</avp>
+	<avp name="Served_User" code="1330" vendor-id="Ericsson" mandatory="must" vendor-bit="must">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Tenant" code="1380" vendor-id="Ericsson" mandatory="must" vendor-bit="must">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="UHTZ-Offset" code="1388" vendor-id="Ericsson" mandatory="must" vendor-bit="must">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="AS-Type" code="1433" vendor-id="Ericsson" mandatory="must" vendor-bit="must">
+		<type type-name="Enumerated"/>
+		<enum name="MMTEL_AS" code="0"/>
+		<enum name="REDIRECTION_AS" code="1"/>
+		<enum name="SCHEDULED_CONFERENCE_AS" code="2"/>
+		<enum name="SCC_AS" code="3"/>
+		<enum name="PARLAY_X_AS" code="4"/>
+		<enum name="ST_AS" code="5"/>
+	</avp>
+	<avp name="Transaction-SIP-Message" code="1460" vendor-id="Ericsson" mandatory="must" vendor-bit="must">
 		<type type-name="UTF8String"/>
 	</avp>
 </vendor>

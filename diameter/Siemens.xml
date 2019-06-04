@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Siemens vendor-specific AVPs. Added by Ajit Kuchekar (akuchekar[at]empirix.com) on 06-June-2019 -->
+
+<vendor vendor-id="Siemens_AG" code="4329" name="Siemens_AG">
+
+	<avp name="Siemens-IMSI" code="1106" vendor-id="Siemens_AG" mandatory="must" vendor-bit="must">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Siemens-MSIDN" code="1107" vendor-id="Siemens_AG" mandatory="must" vendor-bit="must">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Siemens-Server-Name" code="1110" vendor-id="Siemens_AG" mandatory="must" vendor-bit="must">
+	<type type-name="UTF8String"/>
+	</avp>
+</vendor>

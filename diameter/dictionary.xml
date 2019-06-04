@@ -30,6 +30,8 @@
 	<!ENTITY Inovar			SYSTEM "Inovar.xml">
 	<!ENTITY Huawei			SYSTEM "Huawei.xml">
 	<!ENTITY VerizonWireless	SYSTEM "VerizonWireless.xml">
+	<!ENTITY Telefonica		SYSTEM "Telefonica.xml">
+	<!ENTITY Siemens		SYSTEM "Siemens.xml">
 	<!ENTITY Custom			SYSTEM "Custom.xml">
 ]>
 <dictionary>
@@ -8835,5 +8837,7 @@
 	&Inovar;
 	&Huawei;
 	&VerizonWireless;
+	&Telefonica;
+	&Siemens;
 	&Custom;
 </dictionary>
