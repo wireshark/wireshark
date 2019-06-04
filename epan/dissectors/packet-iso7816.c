@@ -422,13 +422,14 @@ dissect_iso7816_atr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     return offset;
 }
 
-/* return 1 if the class byte says that the APDU is in ISO7816 format
-    or -1 if the APDU is in proprietary format */
+/* Dissect the class byte. Return 1 if the APDU's structure and coding
+   adhere to ISO 7816. In this case, we can dissect the rest of the
+   APDU. Otherwise, return -1. We may then pass the APDU to other
+   dissectors. */
 static gint
 dissect_iso7816_class(tvbuff_t *tvb, gint offset,
         packet_info *pinfo _U_, proto_tree *tree)
 {
-    gint        ret_fct = 1;
     proto_item *class_item;
     proto_tree *class_tree;
     guint8      dev_class;
@@ -440,23 +441,41 @@ dissect_iso7816_class(tvbuff_t *tvb, gint offset,
     dev_class = tvb_get_guint8(tvb, offset);
 
     if (dev_class>=0x10 && dev_class<=0x7F) {
-    }
-    else if (dev_class>=0xD0 && dev_class<=0xFE) {
-        ret_fct = -1;
-    }
-    else if (dev_class==0xFF) {
-    }
-    else {
-        if (dev_class<=0x0F || (dev_class>=0x80 && dev_class<=0xAF)) {
-            proto_tree_add_item(class_tree, hf_iso7816_cla_sm,
-                    tvb, offset, 1, ENC_BIG_ENDIAN);
-
-            proto_tree_add_item(class_tree, hf_iso7816_cla_channel,
-                    tvb, offset, 1, ENC_BIG_ENDIAN);
-        }
+        /* these values are RFU. */
+        return -1;
     }
 
-    return ret_fct;
+    if (dev_class>=0xD0 && dev_class<=0xFE) {
+        /* proprietary structure and coding */
+        return -1;
+    }
+
+    if (dev_class==0xFF) {
+        /* reserved for Protocol Type Selection */
+        return -1;
+    }
+
+    /* If we made it this far, the structrue of the APDU is compliant
+       with ISO 7816. */
+
+    proto_tree_add_item(class_tree, hf_iso7816_cla_sm,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    proto_tree_add_item(class_tree, hf_iso7816_cla_channel,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+
+    if (dev_class>=0x80 && dev_class<=0x9F) {
+        /* structure according to ISO 7816, coding is proprietary */
+        return -1;
+    }
+
+    if (dev_class>=0xB0 && dev_class<=0xCF) {
+        /* structure according to ISO 7816 */
+        return -1;
+    }
+
+    /* both structure and coding according to ISO 7816 */
+    return 1;
 }
 
 /* dissect the parameters p1 and p2
