@@ -2756,20 +2756,35 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 	switch(wc) {
 	case 1:
 		if (dialect == 0xffff) {
+			/*
+			 * Server doesn't support any of the dialects the
+			 * client listed.
+			 */
 			proto_tree_add_uint_format_value(tree, hf_smb_dialect_index,
 				tvb, offset, 2, dialect,
 				"-1, PC NETWORK PROGRAM 1.0 chosen");
 		} else {
+			/*
+			 * A dialect was selected; this should be
+			 * Core Protocol.
+			 */
 			proto_tree_add_uint(tree, hf_smb_dialect_index,
 				tvb, offset, 2, dialect);
 		}
 		break;
 	case 13:
+		/*
+		 * Server selected a dialect from LAN Manager 1.0 through
+		 * LAN Manager 2.1.
+		 */
 		proto_tree_add_uint_format_value(tree, hf_smb_dialect_index,
 			tvb, offset, 2, dialect,
 			"%u, Greater than CORE PROTOCOL and up to LANMAN2.1", dialect);
 		break;
 	case 17:
+		/*
+		 * Server selected NT LAN Manager.
+		 */
 		proto_tree_add_uint_format_value(tree, hf_smb_dialect_index,
 			tvb, offset, 2, dialect,
 			"%u: %s", dialect, dialect_name);
@@ -2783,6 +2798,11 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
 	switch(wc) {
 	case 13:
+		/*
+		 * Server selected a dialect from LAN Manager 1.0 through
+		 * LAN Manager 2.1.
+		 */
+
 		/* Security Mode */
 		offset = dissect_negprot_security_mode(tvb, tree, offset, wc);
 
@@ -2830,6 +2850,10 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 		break;
 
 	case 17:
+		/*
+		 * Server selected NT LAN Manager.
+		 */
+
 		/* Security Mode */
 		offset = dissect_negprot_security_mode(tvb, tree, offset, wc);
 
@@ -2886,6 +2910,11 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
 	switch(wc) {
 	case 13:
+		/*
+		 * Server selected a dialect from LAN Manager 1.0 through
+		 * LAN Manager 2.1.
+		 */
+
 		/* encrypted challenge/response data */
 		if (chl) {
 			CHECK_BYTE_COUNT(chl);
@@ -2917,6 +2946,9 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 		break;
 
 	case 17:
+		/*
+		 * Server selected NT LAN Manager.
+		 */
 		if (!(caps & SERVER_CAP_EXTENDED_SECURITY)) {
 			/* encrypted challenge/response data */
 			/* XXX - is this aligned on an even boundary? */
