@@ -1092,6 +1092,8 @@ static const value_string btmesh_fault_array_vals[] = {
     { 0, NULL }
 };
 
+#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
+
 static const int *config_composition_data_status_features_headers[] = {
   &hf_btmesh_config_composition_data_status_features_relay,
   &hf_btmesh_config_composition_data_status_features_proxy,
@@ -1118,6 +1120,8 @@ static const int *config_heartbeat_publication_status_features_headers[] = {
   &hf_btmesh_config_heartbeat_publication_status_features_rfu,
  NULL
 };
+
+#endif
 
 static const value_string btmesh_status_code_vals[] = {
     { 0x00, "Success" },
@@ -3427,6 +3431,51 @@ dissect_btmesh_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
 }
 
 #else /* GCRYPT_VERSION_NUMBER >= 0x010600 */
+
+static void
+format_transmit(gchar *buf _U_, guint32 value _U_)
+{
+}
+
+static void
+format_key_index_rfu(gchar *buf _U_, guint32 value _U_)
+{
+}
+
+static void
+format_interval_steps(gchar *buf _U_, guint32 value _U_)
+{
+}
+
+static void
+format_retransmit(gchar *buf _U_, guint32 value _U_)
+{
+}
+
+static void
+format_publish_period(gchar *buf _U_, guint32 value _U_)
+{
+}
+
+static void
+format_publish_appkeyindex_model(gchar *buf _U_, guint32 value _U_)
+{
+}
+
+static void
+format_vendor_model(gchar *buf _U_, guint32 value _U_)
+{
+}
+
+static void
+format_key_index(gchar *buf _U_, guint32 value _U_)
+{
+}
+
+static void
+format_dual_key_index(gchar *buf _U_, guint32 value _U_)
+{
+}
 
 static gboolean
 create_master_security_keys(uat_btmesh_record_t * net_key_set _U_)
