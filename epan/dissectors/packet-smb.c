@@ -2838,7 +2838,12 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 		proto_tree_add_int_format_value(tree, hf_smb_server_timezone, tvb, offset, 2, tz, "%d min from UTC", tz);
 		offset += 2;
 
-		/* challenge length */
+		/*
+		 * The LAN Manager 1 and 2.0 specs say these are the
+		 * first 2 of 4 reserved bytes; the LAN Manager 2.1
+		 * spec says it's a 2-byte encryption key (challenge)
+		 * length.
+		 */
 		chl = tvb_get_letohs(tvb, offset);
 		proto_tree_add_uint(tree, hf_smb_challenge_length, tvb, offset, 2, chl);
 		offset += 2;
