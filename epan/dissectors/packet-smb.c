@@ -2960,16 +2960,66 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 			}
 
 			/* domain */
-			/* this string is special, unicode is flagged in caps */
-			/* This string is NOT padded to be 16bit aligned.
-			   (seen in actual capture)
-			   XXX - I've seen a capture where it appears to be
-			   so aligned, but I've also seen captures where
-			   it is.  The captures where it appeared to be
-			   aligned may have been from buggy servers. */
-			/* However, don't get rid of existing setting */
+			/*
+			 * This string is special; at least in some captures,
+			 * it's in Unicode, even if "Unicode strings" isn't
+			 * set in the flags2 field.  If the "Unicode support"
+			 * flag is set in the server capabilities field,
+			 * that seems to indicate that it's in Unicode for
+			 * those captures.
+			 *
+			 * So fetch it in Unicode either if it's set in the
+			 * flags2 field *or* in the capabilities field.
+			 *
+			 * XXX - I've seen captures where "Unicode strings"
+			 * isn't set, "Unicode support" is set in the server
+			 * capabilities field, and the primary domain string
+			 * is in the local code page; that may just have
+			 * a buggy server, though.
+			 *
+			 * Clients tend, at least according to the
+			 * footnote in MS-CIFS for the DomainName field
+			 * in the Negotiate response, to ignore that
+			 * field, so maybe servers put extra bytes in
+			 * there without clients noticing.
+			 */
 			si->unicode = (caps & SERVER_CAP_UNICODE) || si->unicode;
 
+			/*
+			 * If we're fetching Unicode strings:
+			 *
+			 *   This string is NOT padded to be 16-bit
+			 *   aligned; it's unaligned in some captures.
+			 *
+			 *   However, it sometimes has an extra byte
+			 *   before it.  If the byte count is not a
+			 *   multiple of 2, there must be an extra byte
+			 *   somewhere; it appears to be the byte just
+			 *   before this string, so check for an odd
+			 *   byte count, and skip that byte.
+			 *
+			 * If we're fetching local code page strings:
+			 *
+			 *   In some cases there appears to be an extra
+			 *   byte before it.  It's not clear what
+			 *   indicates its presence, if anything.
+			 *
+			 *   However, at least one of those cases
+			 *   was one of the "the server set the
+			 *   Unicode support flag in capabilities,
+			 *   but sent the domain name in the local
+			 *   code page" captures mentioned above,
+			 *   so maybe it was just a buggy server.
+			 *
+			 * Again, as noted above, clients may just
+			 * ignore that field, leaving servers "free"
+			 * to mess it up.
+			 */
+			if (si->unicode && (bc % 2) != 0) {
+				/* Skip the padding */
+				CHECK_BYTE_COUNT(1);
+				COUNT_BYTES(1);
+			}
 			dn = get_unicode_or_ascii_string(tvb,
 				&offset, si->unicode, &dn_len, TRUE, FALSE,
 				&bc);
