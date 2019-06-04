@@ -5983,7 +5983,7 @@ dissect_search_dir_info(tvbuff_t *tvb, packet_info *pinfo,
 
 	DISSECTOR_ASSERT(si);
 
-	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 46,
+	tree = proto_tree_add_subtree(parent_tree, tvb, offset, 43,
 			ett_smb_search_dir_info, NULL, "Directory Information");
 
 	/* resume key */
