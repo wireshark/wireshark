@@ -278,8 +278,6 @@ PacketList::PacketList(QWidget *parent) :
             this, SIGNAL(showProtocolPreferences(QString)));
     connect(&proto_prefs_menu_, SIGNAL(editProtocolPreference(preference*,pref_module*)),
             this, SIGNAL(editProtocolPreference(preference*,pref_module*)));
-
-    setSelectionMode(ExtendedSelection);
 }
 
 void PacketList::colorsChanged()
@@ -1611,39 +1609,32 @@ void PacketList::copySummary()
     int copy_type = ca->data().toInt(&ok);
     if (!ok) return;
 
-    QString copy_text;
-    QModelIndexList selectedRows = selectionModel()->selectedRows();
-    qSort(selectedRows);
-
-    foreach(QModelIndex index, selectedRows) {
-        QStringList col_parts;
-        int row = index.row();
-        for (int col = 0; col < packet_list_model_->columnCount(); col++) {
-            if (get_column_visible(col)) {
-                col_parts << packet_list_model_->data(packet_list_model_->index(row, col), Qt::DisplayRole).toString();
-            }
-        }
-        switch (copy_type) {
-        case copy_summary_csv_:
-            copy_text += "\"";
-            copy_text += col_parts.join("\",\"");
-            copy_text += "\"";
-            copy_text += "\n";
-            break;
-        case copy_summary_yaml_:
-            copy_text += "----\n";
-            copy_text += QString("# Packet %1 from %2\n").arg(row).arg(cap_file_->filename);
-            copy_text += "- ";
-            copy_text += col_parts.join("\n- ");
-            copy_text += "\n";
-            break;
-        case copy_summary_text_:
-        default:
-            copy_text += col_parts.join("\t");
-            copy_text += "\n";
+    QStringList col_parts;
+    int row = currentIndex().row();
+    for (int col = 0; col < packet_list_model_->columnCount(); col++) {
+        if (get_column_visible(col)) {
+            col_parts << packet_list_model_->data(packet_list_model_->index(row, col), Qt::DisplayRole).toString();
         }
     }
 
+    QString copy_text;
+    switch (copy_type) {
+    case copy_summary_csv_:
+        copy_text = "\"";
+        copy_text += col_parts.join("\",\"");
+        copy_text += "\"";
+        break;
+    case copy_summary_yaml_:
+        copy_text = "----\n";
+        copy_text += QString("# Packet %1 from %2\n").arg(row).arg(cap_file_->filename);
+        copy_text += "- ";
+        copy_text += col_parts.join("\n- ");
+        copy_text += "\n";
+        break;
+    case copy_summary_text_:
+    default:
+        copy_text = col_parts.join("\t");
+    }
     wsApp->clipboard()->setText(copy_text);
 }
 
