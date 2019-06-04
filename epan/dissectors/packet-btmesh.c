@@ -1095,30 +1095,30 @@ static const value_string btmesh_fault_array_vals[] = {
 #if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 
 static const int *config_composition_data_status_features_headers[] = {
-  &hf_btmesh_config_composition_data_status_features_relay,
-  &hf_btmesh_config_composition_data_status_features_proxy,
-  &hf_btmesh_config_composition_data_status_features_friend,
-  &hf_btmesh_config_composition_data_status_features_low_power,
-  &hf_btmesh_config_composition_data_status_features_rfu,
- NULL
+    &hf_btmesh_config_composition_data_status_features_relay,
+    &hf_btmesh_config_composition_data_status_features_proxy,
+    &hf_btmesh_config_composition_data_status_features_friend,
+    &hf_btmesh_config_composition_data_status_features_low_power,
+    &hf_btmesh_config_composition_data_status_features_rfu,
+    NULL
 };
 
 static const int *config_heartbeat_publication_set_features_headers[] = {
-  &hf_btmesh_config_heartbeat_publication_set_features_relay,
-  &hf_btmesh_config_heartbeat_publication_set_features_proxy,
-  &hf_btmesh_config_heartbeat_publication_set_features_friend,
-  &hf_btmesh_config_heartbeat_publication_set_features_low_power,
-  &hf_btmesh_config_heartbeat_publication_set_features_rfu,
- NULL
+    &hf_btmesh_config_heartbeat_publication_set_features_relay,
+    &hf_btmesh_config_heartbeat_publication_set_features_proxy,
+    &hf_btmesh_config_heartbeat_publication_set_features_friend,
+    &hf_btmesh_config_heartbeat_publication_set_features_low_power,
+    &hf_btmesh_config_heartbeat_publication_set_features_rfu,
+    NULL
 };
 
 static const int *config_heartbeat_publication_status_features_headers[] = {
-  &hf_btmesh_config_heartbeat_publication_status_features_relay,
-  &hf_btmesh_config_heartbeat_publication_status_features_proxy,
-  &hf_btmesh_config_heartbeat_publication_status_features_friend,
-  &hf_btmesh_config_heartbeat_publication_status_features_low_power,
-  &hf_btmesh_config_heartbeat_publication_status_features_rfu,
- NULL
+    &hf_btmesh_config_heartbeat_publication_status_features_relay,
+    &hf_btmesh_config_heartbeat_publication_status_features_proxy,
+    &hf_btmesh_config_heartbeat_publication_status_features_friend,
+    &hf_btmesh_config_heartbeat_publication_status_features_low_power,
+    &hf_btmesh_config_heartbeat_publication_status_features_rfu,
+    NULL
 };
 
 #endif
@@ -1332,7 +1332,7 @@ upper_transport_init_routine(void)
     reassembly_table_register(&upper_transport_reassembly_table, &upper_transport_reassembly_table_functions);
 }
 
-/* A BT Mesh dissector is not realy useful without decryption as all packets are encrypted. Just leave a stub dissector outside of*/
+/* A BT Mesh dissector is not realy useful without decryption as all packets are encrypted. Just leave a stub dissector outside of */
 #if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 
 /* BT Mesh s1 function */
