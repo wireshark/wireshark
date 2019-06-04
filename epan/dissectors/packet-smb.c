@@ -863,6 +863,7 @@ static gint ett_smb_posix_ace = -1;
 static gint ett_smb_posix_ace_perms = -1;
 static gint ett_smb_info2_file_flags = -1;
 
+static expert_field ei_smb_missing_word_parameters = EI_INIT;
 static expert_field ei_smb_mal_information_level = EI_INIT;
 static expert_field ei_smb_not_implemented = EI_INIT;
 static expert_field ei_smb_nt_transaction_setup = EI_INIT;
@@ -10337,7 +10338,7 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	guint8      wc, cmd      = 0xff;
 	guint16     andxoffset   = 0;
 	guint16     bc;
-	int         fn_len;
+	int         fn_len       = -1;
 	const char *fn;
 	guint32     create_flags = 0, access_mask = 0, file_attributes = 0;
 	guint32     share_access = 0, create_options = 0, create_disposition = 0;
@@ -10416,6 +10417,16 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	BYTE_COUNT;
 
 	/* file name */
+	if (fn_len == -1) {
+		/*
+		 * We never set the file name length, perhaps because
+		 * the word count was zero.  This is not a valid
+		 * packet.
+		 */
+		proto_tree_add_expert(tree, pinfo, &ei_smb_missing_word_parameters,
+		    tvb, 0, 0);
+		goto endofcommand;
+	}
 	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, FALSE, FALSE, &bc);
 	if (fn == NULL)
 		goto endofcommand;
