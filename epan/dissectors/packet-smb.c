@@ -5061,7 +5061,12 @@ dissect_create_temporary_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
-	/* directory name */
+	/*
+	 * Directory name.
+	 *
+	 * MS-CIFS says this is a "null-terminated string", without saying
+	 * it's always ASCII, so we honor the "Unicode strings" flag.
+	 */
 	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len,
 		FALSE, FALSE, &bc);
 	if (fn == NULL)
@@ -5097,14 +5102,14 @@ dissect_create_temporary_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 	BYTE_COUNT;
 
-	/* buffer format */
-	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-	COUNT_BYTES(1);
-
-	/* file name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len,
-		FALSE, FALSE, &bc);
+	/*
+	 * File name.
+	 *
+	 * MS-CIFS says "The string SHOULD be a null-terminated array of
+	 * ASCII characters.", so we ignore the "Unicode strings" flag.
+	 */
+	fn = get_unicode_or_ascii_string(tvb, &offset, FALSE, &fn_len,
+		TRUE, FALSE, &bc);
 	if (fn == NULL)
 		goto endofcommand;
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
