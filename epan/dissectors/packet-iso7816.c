@@ -22,6 +22,8 @@
 
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/decode_as.h>
+
 void proto_register_iso7816(void);
 void proto_reg_handoff_iso7816(void);
 
@@ -32,6 +34,8 @@ static dissector_handle_t iso7816_handle;
 static dissector_handle_t iso7816_atr_handle;
 
 static wmem_tree_t *transactions = NULL;
+
+static dissector_table_t iso7816_apdu_pld_table;
 
 static int ett_iso7816 = -1;
 static int ett_iso7816_class = -1;
@@ -623,10 +627,17 @@ dissect_iso7816_cmd_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (ret==-1) {
         /* the class byte says that the remaining APDU is not
             in ISO7816 format */
-        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
-                "Command APDU using proprietary format");
 
-        return 1; /* we only dissected the class byte */
+        ret = dissector_try_payload_new(iso7816_apdu_pld_table,
+                tvb, pinfo, tree, TRUE, NULL);
+
+        if (ret == 0) {
+            col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
+                    "Command APDU using proprietary format");
+            return 1; /* we only dissected the class byte */
+        }
+
+        return ret;
     }
     offset += ret;
 
@@ -969,6 +980,12 @@ proto_register_iso7816(void)
 
     proto_iso7816_atr = proto_register_protocol_in_name_only("ISO/IEC 7816-3", "ISO 7816-3", "iso7816.atr", proto_iso7816, FT_PROTOCOL);
     iso7816_atr_handle = register_dissector("iso7816.atr", dissect_iso7816_atr, proto_iso7816_atr);
+
+    iso7816_apdu_pld_table =
+        register_decode_as_next_proto(proto_iso7816,
+                "ISO7816 proprietary APDU dissector",
+                "iso7816.apdu_payload",
+                "ISO7816 proprietary APDU dissector", NULL);
 }
 
 
