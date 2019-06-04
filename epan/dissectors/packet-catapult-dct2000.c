@@ -85,6 +85,7 @@ static int hf_catapult_dct2000_rlc_channel_type = -1;
 static int hf_catapult_dct2000_rlc_mui = -1;
 static int hf_catapult_dct2000_rlc_cnf = -1;
 static int hf_catapult_dct2000_rlc_discard_req = -1;
+static int hf_catapult_dct2000_carrier_type = -1;
 
 static int hf_catapult_dct2000_lte_ccpri_opcode = -1;
 static int hf_catapult_dct2000_lte_ccpri_status = -1;
@@ -283,6 +284,12 @@ static const value_string nas_s1ap_opcode_vals[] = {
 enum LTE_or_NR {
     LTE,
     NR
+};
+
+static const value_string carrier_type_vals[] = {
+    { 1,        "LTE"},
+    { 2,        "NR"},
+    { 0,     NULL}
 };
 
 
@@ -888,9 +895,8 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, gint offset,
         {
             /* Dedicated channel info */
 
-            /* Length will fit in one byte here */
-            guint len = tvb_get_guint8(tvb, offset++);
-            guint len_offset = offset;
+            /* Skip length */
+            offset++;
 
             logicalChannelType = Channel_DCCH;
 
@@ -922,13 +928,6 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, gint offset,
                 default:
                     /* Unexpected channel type */
                     return;
-            }
-
-            /* Optional Carrier Type */
-            if (((offset-len_offset) < len) && tvb_get_guint8(tvb, offset)==0x20) {
-                offset++;
-                /* TODO: could show in tree, but for now skip */
-                offset += (1+tvb_get_guint8(tvb, offset));
             }
 
             break;
@@ -991,6 +990,15 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, gint offset,
             /* Unexpected tag */
             return;
     }
+
+    /* Optional Carrier Type */
+    if (tvb_get_guint8(tvb, offset)==0x20) {
+        offset++;
+        proto_tree_add_item(tree, hf_catapult_dct2000_carrier_type,
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += (1+tvb_get_guint8(tvb, offset));
+    }
+
 
     if (opcode == 0x07) {
         /* Data_Ind_UE_SM - 1 byte MAC */
@@ -2717,7 +2725,8 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
                  (strcmp(protocol_name, "rrc_r11_lte") == 0) ||
                  (strcmp(protocol_name, "rrc_r12_lte") == 0) ||
                  (strcmp(protocol_name, "rrc_r13_lte") == 0) ||
-                 (strcmp(protocol_name, "rrc_r15_lte") == 0))) {
+                 (strcmp(protocol_name, "rrc_r15_lte") == 0) ||
+                 (strcmp(protocol_name, "rrcpdcpprim_r15_lte") == 0))) {
 
                 dissect_rrc_lte_nr(tvb, offset, pinfo, tree, LTE);
                 return tvb_captured_length(tvb);
@@ -3357,6 +3366,12 @@ void proto_register_catapult_dct2000(void)
             { "Discard Req",
               "dct2000.rlc-discard-req", FT_BOOLEAN, BASE_NONE, TFS(&tfs_yes_no), 0x0,
               "RLC Discard Req", HFILL
+            }
+        },
+        { &hf_catapult_dct2000_carrier_type,
+            { "Carrier Type",
+              "dct2000.carrier-type", FT_UINT8, BASE_NONE, VALS(carrier_type_vals), 0x0,
+              NULL, HFILL
             }
         },
 
