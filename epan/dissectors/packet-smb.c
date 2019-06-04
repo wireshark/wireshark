@@ -14586,13 +14586,9 @@ dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	fn_len = tvb_get_guint8(tvb, offset);
 	proto_tree_add_uint(tree, hf_smb_file_name_len, tvb, offset, 1, fn_len);
 	COUNT_BYTES_SUBR(1);
-	if (si->unicode)
-		fn_len += 2;	/* include terminating '\0' */
-	else
-		fn_len++;	/* include terminating '\0' */
 
 	/* file name */
-	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, FALSE, TRUE, bcp);
+	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, TRUE, TRUE, bcp);
 	CHECK_STRING_SUBR(fn);
 	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
 		fn);
@@ -14602,6 +14598,23 @@ dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		    format_text(wmem_packet_scope(), fn, strlen(fn)));
 
 	proto_item_append_text(item, " File: %s", format_text(wmem_packet_scope(), fn, strlen(fn)));
+
+	/*
+	 * To quote the footnote for FileName in Section 2.2.8.1.2:
+	 *
+	 *  Windows NT servers always append a single NULL padding byte
+	 *  to the FileName field. The length of this additional byte
+	 *  is not included in the value of the FileNameLength field.
+	 *
+	 * That's "single byte", not "UTF-16 null character".
+	 *
+	 * XXX - what about other servers?  Do we need to somehow
+	 * determine whether the server is a "Windows NT server" or
+	 * not?
+	 */
+	CHECK_BYTE_COUNT_SUBR(1);
+	COUNT_BYTES_SUBR(1);
+
 	proto_item_set_len(item, offset-old_offset);
 
 	*trunc = FALSE;
