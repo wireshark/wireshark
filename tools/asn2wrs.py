@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 #
 # asn2wrs.py
@@ -2020,10 +2020,10 @@ class EthCtx:
             for a in self.assign_ord:
                 v = ' '
                 if (self.assign[a]['virt']): v = '*'
-                print(v, a)
+                print('{} {}'.format(v, a))
             print("\n# Value assignments")
             for a in self.vassign_ord:
-                print(' ', a)
+                print(' {}'.format(a))
             print("\n# Information object assignments")
             for a in self.oassign_ord:
                 print(" %-12s (%s)" % (a, self.oassign[a].cls))
@@ -8038,10 +8038,14 @@ def eth_main():
 
 # Python compiler
 def main():
+    if sys.version_info[0] < 3:
+        print("This requires Python 3")
+        sys.exit(2)
+
     testfn = testyacc
     if len (sys.argv) == 1:
         while True:
-            s = input ('Query: ')
+            s = eval(input ('Query: '))
             if len (s) == 0:
                 break
             testfn (s, 'console', {})

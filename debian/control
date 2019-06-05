@@ -84,7 +84,7 @@ Package: wireshark-dev
 Architecture: any
 Section: devel
 Depends: ${misc:Depends}, omniidl (>= 4.0.1-2), libpcap0.8-dev, libtool,
- libglib2.0-dev, ${python3:Depends}, python3-ply, snacc, debhelper,
+ libglib2.0-dev, python3:any, python3-ply, snacc, debhelper,
  cdbs, libwireshark-dev, libwiretap-dev
 Replaces: ethereal-dev (<< 1.0.0-3)
 Conflicts: ethereal-dev (<< 1.0.0-3)
