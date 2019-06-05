@@ -72,8 +72,8 @@ static reassembly_table netricity_reassembly_table;
 #define WISUN_CHANNEL_EXCLUDE_MASK      2
 
 #define WISUN_CH_PLAN_EXPLICIT_FREQ     0x00ffffff
-#define WISUN_CH_PLAN_EXPLICIT_RESERVED 0x0f000000
-#define WISUN_CH_PLAN_EXPLICIT_SPACING  0xf0000000
+#define WISUN_CH_PLAN_EXPLICIT_RESERVED 0xf0000000
+#define WISUN_CH_PLAN_EXPLICIT_SPACING  0x0f000000
 
 #define WISUN_EAPOL_RELAY_UDP_PORT 10253
 
@@ -634,8 +634,8 @@ dissect_wisun_schedule_common(tvbuff_t *tvb, packet_info *pinfo, guint offset, p
 
     static const int * fields_usie_channel_plan_explicit[] = {
             &hf_wisun_usie_explicit_frequency,
-            &hf_wisun_usie_explicit_reserved,
             &hf_wisun_usie_explicit_spacing,
+            &hf_wisun_usie_explicit_reserved,
             NULL
     };
     gint count;
@@ -666,7 +666,7 @@ dissect_wisun_schedule_common(tvbuff_t *tvb, packet_info *pinfo, guint offset, p
             ti = proto_tree_add_bitmask(tree, tvb, offset, hf_wisun_usie_explicit, ett_wisun_usie_explicit,
                                         fields_usie_channel_plan_explicit, ENC_LITTLE_ENDIAN);
             offset += 3;
-            if (tvb_get_guint8(tvb, offset) & 0x0f) {
+            if (tvb_get_guint8(tvb, offset) & 0xf0) {
                 expert_add_info(pinfo, ti, &ei_wisun_usie_explicit_reserved_bits_not_zero);
             }
             offset++;
