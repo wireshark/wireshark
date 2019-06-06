@@ -1585,7 +1585,7 @@ static const value_string nas_5gs_mm_pld_cont_type_vals[] = {
     { 0x04, "SOR transparent container" },
     { 0x05, "UE policy container" },
     { 0x06, "UE parameters update transparent container" },
-    { 0x07, "Multiple payloads" },
+    { 0x0f, "Multiple payloads" },
     {    0, NULL } };
 
 static guint16
@@ -3863,10 +3863,10 @@ nas_5gs_mm_registration_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     /*C-    Non-current native NAS KSI    NAS key set identifier 9.11.3.32    O    TV    1*/
     ELEM_OPT_TV_SHORT(0xc0, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_NAS_KEY_SET_ID, " - native KSI");
 
-    /*10    5GMM capability    5GMM capability 9.11.3.1    O    TLV    4-15*/
+    /*10    5GMM capability    5GMM capability 9.11.3.1    O    TLV    3-15*/
     ELEM_OPT_TLV(0x10, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_5GMM_CAP, NULL);
 
-    /*2E    UE security capability    UE security capability 9.11.3.54    O    TLV    4-6*/
+    /*2E    UE security capability    UE security capability 9.11.3.54    O    TLV    4-10*/
     ELEM_OPT_TLV(0x2e, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_UE_SEC_CAP, NULL);
 
     /*2F    Requested NSSAI    NSSAI 9.11.3.37    O    TLV    4-74*/
@@ -3907,6 +3907,9 @@ nas_5gs_mm_registration_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
 
     /* 74    LADN indication    LADN indication 9.11.3.29    O    TLV-E    3-811 */
     ELEM_OPT_TLV_E(0x74, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_LADN_INF, NULL);
+
+    /* 8-    Payload container type    Payload container type 9.11.3.40    O    TV    1 */
+    ELEM_OPT_TV_SHORT(0x80, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_PLD_CONT_TYPE, NULL);
 
     /* 7B    Payload container     Payload container 9.11.3.39    O    TLV-E    4-65538 */
     ELEM_OPT_TLV_E(0x7B, NAS_5GS_PDU_TYPE_MM, DE_NAS_5GS_MM_PLD_CONT, NULL);
