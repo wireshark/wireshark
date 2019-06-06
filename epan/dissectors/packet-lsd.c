@@ -49,7 +49,7 @@ parse_string_field(proto_tree *tree, int hf, packet_info *pinfo, tvbuff_t *tvb, 
   str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, *linelen, ENC_ASCII);
   if (g_ascii_strncasecmp(str, hf_info->name, strlen(hf_info->name)) == 0)
   {
-      field_and_value = wmem_strsplit(wmem_packet_scope(), str, ":", 1);
+      field_and_value = wmem_strsplit(wmem_packet_scope(), str, ":", 2);
       p = field_and_value[1];
       if (p) {
         while(g_ascii_isspace(*p))
@@ -99,7 +99,7 @@ dissect_lsd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   str = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, linelen, ENC_ASCII);
   if (g_ascii_strncasecmp(str, "Port", strlen("Port")) == 0)
   {
-    field_and_value = wmem_strsplit(wmem_packet_scope(), str, ":", 1);
+    field_and_value = wmem_strsplit(wmem_packet_scope(), str, ":", 2);
     valid = ws_strtou16(field_and_value[1], NULL, &port);
     ti = proto_tree_add_uint(lsd_tree, hf_lsd_port, tvb, offset, linelen, port);
     if (!valid)
