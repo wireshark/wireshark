@@ -29,7 +29,7 @@ static guint16 ver_provideclassinfo = 0;
 static gint ett_provideclassinfo = -1;
 static int proto_provideclassinfo = -1;
 
-int dissect_IProvideClassInfo_GetClassInfo_rqst(tvbuff_t *tvb, int offset,
+static int dissect_IProvideClassInfo_GetClassInfo_rqst(tvbuff_t *tvb, int offset,
                                             packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
     offset = dissect_dcom_this(tvb, offset, pinfo, tree, di, drep);
@@ -37,7 +37,7 @@ int dissect_IProvideClassInfo_GetClassInfo_rqst(tvbuff_t *tvb, int offset,
     return offset;
 }
 
-int dissect_IProvideClassInfo_GetClassInfo_resp(tvbuff_t *tvb, int offset,
+static int dissect_IProvideClassInfo_GetClassInfo_resp(tvbuff_t *tvb, int offset,
                                             packet_info *pinfo, proto_tree *tree, dcerpc_info *di, guint8 *drep)
 {
     guint32 u32HResult;
