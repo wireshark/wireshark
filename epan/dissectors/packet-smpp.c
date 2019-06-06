@@ -46,6 +46,7 @@
 #include <wsutil/time_util.h>
 #include "packet-tcp.h"
 #include "packet-smpp.h"
+#include <epan/strutil.h>
 
 #define SMPP_FIXED_HEADER_LENGTH  16
 #define SMPP_MIN_LENGTH SMPP_FIXED_HEADER_LENGTH
@@ -105,6 +106,7 @@ static int hf_smpp_data_coding                        = -1;
 static int hf_smpp_sm_default_msg_id                  = -1;
 static int hf_smpp_sm_length                          = -1;
 static int hf_smpp_short_message                      = -1;
+static int hf_smpp_short_message_bin                  = -1;
 static int hf_smpp_message_id                         = -1;
 static int hf_smpp_dlist                              = -1;
 static int hf_smpp_dlist_resp                         = -1;
@@ -250,6 +252,19 @@ static dissector_handle_t smpp_handle;
 
 /* Reassemble SMPP TCP segments */
 static gboolean reassemble_over_tcp = TRUE;
+
+typedef enum {
+  DECODE_AS_ASCII      = 0,
+  DECODE_AS_IA5        = 1,
+  DECODE_AS_ISO_8859_1 = 3,
+  DECODE_AS_ISO_8859_5 = 6,
+  DECODE_AS_ISO_8859_8 = 7,
+  DECODE_AS_UCS2       = 8,
+  DO_NOT_DECODE        = 255
+} SMPP_DCS_Type;
+
+/* Default preference whether to decode the SMS over SMPP when DCS = 0 */
+static gint smpp_decode_dcs_0_sms = DO_NOT_DECODE;
 
 /* Tap */
 static int smpp_tap             = -1;
@@ -1757,7 +1772,7 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
 }
 
 void
-smpp_handle_dcs(proto_tree *tree, tvbuff_t *tvb, int *offset)
+smpp_handle_dcs(proto_tree *tree, tvbuff_t *tvb, int *offset, guint8 *dataCoding)
 {
     guint32     val;
     int         off     = *offset;
@@ -1765,6 +1780,7 @@ smpp_handle_dcs(proto_tree *tree, tvbuff_t *tvb, int *offset)
     proto_item *pi;
 
     pi = proto_tree_add_item_ret_uint(tree, hf_smpp_data_coding, tvb, off, 1, ENC_NA, &val);
+    *dataCoding = val;
     subtree = proto_item_add_subtree(pi, ett_dcs);
     /* SMPP Data Coding Scheme */
     proto_tree_add_uint(subtree, hf_smpp_dcs, tvb, off, 1, val);
@@ -1863,6 +1879,55 @@ smpp_handle_dcs(proto_tree *tree, tvbuff_t *tvb, int *offset)
     (*offset)++;
 }
 
+static void
+smpp_handle_msg(proto_tree *tree, tvbuff_t *tvb, int offset, int length, guint8 dataCoding)
+{
+    guint8 *msg = NULL;
+    unsigned char *src = NULL;
+
+    if (dataCoding == 0)
+    {
+        dataCoding = smpp_decode_dcs_0_sms;
+    }
+    switch (dataCoding)
+    {
+    case DECODE_AS_ASCII:
+        msg = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ASCII|ENC_NA);
+        break;
+    case DECODE_AS_IA5:
+        src = tvb_get_ascii_7bits_string(wmem_packet_scope(), tvb, (offset << 3), length);
+        msg = (unsigned char*)wmem_alloc(wmem_packet_scope(), length+1);
+        IA5_7BIT_decode(msg, src, length);
+        break;
+    case DECODE_AS_ISO_8859_1:
+        msg = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ISO_8859_1|ENC_NA);
+        break;
+    case DECODE_AS_ISO_8859_5:
+        msg = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ISO_8859_5|ENC_NA);
+        break;
+    case DECODE_AS_ISO_8859_8:
+        msg = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_ISO_8859_8|ENC_NA);
+        break;
+    case DECODE_AS_UCS2:
+        msg = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, length, ENC_UCS_2|ENC_BIG_ENDIAN);
+        break;
+    default:
+        break;
+    }
+
+    if (msg)
+    {
+        proto_tree_add_string(tree,hf_smpp_short_message,
+                              tvb, offset, length, msg);
+    }
+    else
+    {
+        proto_tree_add_item(tree, hf_smpp_short_message_bin,
+                            tvb, offset, length, ENC_NA);
+    }
+
+}
+
 /*!
  * The next set of routines handle the different operations, associated
  * with SMPP.
@@ -1905,7 +1970,7 @@ submit_sm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
                 proto_tree *top_tree, int offset)
 {
     tvbuff_t *tvb_msg;
-    guint8    udhi;
+    guint8    udhi, dataCoding;
     guint32   length;
     const char *src_str = NULL;
     const char *dst_str = NULL;
@@ -1949,14 +2014,13 @@ submit_sm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     offset++;
     proto_tree_add_item(tree, hf_smpp_replace_if_present_flag, tvb, offset, 1, ENC_NA);
     offset += 1;
-    smpp_handle_dcs(tree, tvb, &offset);
+    smpp_handle_dcs(tree, tvb, &offset, &dataCoding);
     proto_tree_add_item(tree, hf_smpp_sm_default_msg_id, tvb, offset, 1, ENC_NA);
     offset += 1;
     proto_tree_add_item_ret_uint(tree, hf_smpp_sm_length, tvb, offset++, 1, ENC_NA, &length);
     if (length)
     {
-        proto_tree_add_item(tree, hf_smpp_short_message,
-                            tvb, offset, length, ENC_NA);
+        smpp_handle_msg(tree, tvb, offset, length, dataCoding);
         if (udhi) /* UDHI indicator present */
         {
             /* Save original addresses */
@@ -2008,8 +2072,7 @@ replace_sm(proto_tree *tree, tvbuff_t *tvb, int offset)
     offset += 1;
     proto_tree_add_item_ret_uint(tree, hf_smpp_sm_length, tvb, offset++, 1, ENC_NA, &length);
     if (length)
-        proto_tree_add_item(tree, hf_smpp_short_message,
-                            tvb, offset, length, ENC_NA);
+        smpp_handle_msg(tree, tvb, offset, length, 0);
 }
 
 static void
@@ -2034,6 +2097,7 @@ submit_multi(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
     guint32      length;
     nstime_t     zero_time = NSTIME_INIT_ZERO;
+    guint8       dataCoding;
 
     smpp_handle_string_z(tree, tvb, hf_smpp_service_type, &offset, "(Default)");
     proto_tree_add_item(tree, hf_smpp_source_addr_ton, tvb, offset, 1, ENC_NA);
@@ -2065,13 +2129,12 @@ submit_multi(proto_tree *tree, tvbuff_t *tvb, int offset)
     offset++;
     proto_tree_add_item(tree, hf_smpp_replace_if_present_flag, tvb, offset, 1, ENC_NA);
     offset += 1;
-    smpp_handle_dcs(tree, tvb, &offset);
+    smpp_handle_dcs(tree, tvb, &offset, &dataCoding);
     proto_tree_add_item(tree, hf_smpp_sm_default_msg_id, tvb, offset, 1, ENC_NA);
     offset += 1;
     proto_tree_add_item_ret_uint(tree, hf_smpp_sm_length, tvb, offset++, 1, ENC_NA, &length);
     if (length)
-        proto_tree_add_item(tree, hf_smpp_short_message,
-                tvb, offset, length, ENC_NA);
+        smpp_handle_msg(tree, tvb, offset, length, dataCoding);
     offset += length;
     smpp_handle_tlv(tree, tvb, &offset);
 }
@@ -2095,6 +2158,8 @@ alert_notification(proto_tree *tree, tvbuff_t *tvb, int offset)
 static void
 data_sm(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
+    guint8 dataCoding;
+
     smpp_handle_string_z(tree, tvb, hf_smpp_service_type, &offset, "(Default)");
     proto_tree_add_item(tree, hf_smpp_source_addr_ton, tvb, offset, 1, ENC_NA);
     offset += 1;
@@ -2110,7 +2175,7 @@ data_sm(proto_tree *tree, tvbuff_t *tvb, int offset)
     offset++;
     proto_tree_add_bitmask_list(tree, tvb, offset, 1, regdel_fields, ENC_NA);
     offset++;
-    smpp_handle_dcs(tree, tvb, &offset);
+    smpp_handle_dcs(tree, tvb, &offset, &dataCoding);
     smpp_handle_tlv(tree, tvb, &offset);
 }
 
@@ -2121,6 +2186,7 @@ static void
 broadcast_sm(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
     nstime_t     zero_time = NSTIME_INIT_ZERO;
+    guint8 dataCoding;
 
     smpp_handle_string_z(tree, tvb, hf_smpp_service_type, &offset, "(Default)");
     proto_tree_add_item(tree, hf_smpp_source_addr_ton, tvb, offset, 1, ENC_NA);
@@ -2144,7 +2210,7 @@ broadcast_sm(proto_tree *tree, tvbuff_t *tvb, int offset)
     }
     proto_tree_add_item(tree, hf_smpp_replace_if_present_flag, tvb, offset, 1, ENC_NA);
     offset += 1;
-    smpp_handle_dcs(tree, tvb, &offset);
+    smpp_handle_dcs(tree, tvb, &offset, &dataCoding);
     proto_tree_add_item(tree, hf_smpp_sm_default_msg_id, tvb, offset, 1, ENC_NA);
     offset += 1;
     smpp_handle_tlv(tree, tvb, &offset);
@@ -2862,9 +2928,16 @@ proto_register_smpp(void)
             }
         },
         {   &hf_smpp_short_message,
-            {   "Message", "smpp.message",
-                FT_BYTES, BASE_NONE, NULL, 0x00,
+            {   "Message", "smpp.message_text",
+                FT_STRING, STR_UNICODE, NULL, 0x00,
                 "The actual message or data.",
+                HFILL
+            }
+        },
+        {   &hf_smpp_short_message_bin,
+            {   "Message bytes", "smpp.message",
+                FT_BYTES, BASE_NONE, NULL, 0x00,
+                "The actual message bytes.",
                 HFILL
             }
         },
@@ -3643,6 +3716,18 @@ proto_register_smpp(void)
         &ett_dcs_gsm_cbs,
     };
 
+    /* Encoding used to decode the SMS over SMPP when DCS is 0 */
+    static const enum_val_t smpp_dcs_0_sms_decode_options[] = {
+        { "none",        "None",       DO_NOT_DECODE },
+        { "ascii",       "ASCII",      DECODE_AS_ASCII },
+        { "ia5",         "IA5",        DECODE_AS_IA5 },
+        { "iso-8859-1",  "ISO-8859-1", DECODE_AS_ISO_8859_1 },
+        { "iso-8859-5",  "ISO-8859-5", DECODE_AS_ISO_8859_5 },
+        { "iso-8859-8",  "ISO-8859-8", DECODE_AS_ISO_8859_8 },
+        { "ucs2",        "UCS2",       DECODE_AS_UCS2 },
+        { NULL, NULL, 0 }
+    };
+
     /* Register the protocol name and description */
     proto_smpp = proto_register_protocol("Short Message Peer to Peer",
                                          "SMPP", "smpp");
@@ -3666,6 +3751,10 @@ proto_register_smpp(void)
             " To use this option, you must also enable "
             "\"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
             &reassemble_over_tcp);
+    prefs_register_enum_preference(smpp_module, "decode_sms_over_smpp",
+                         "Decode DCS 0 SMS as",
+                         "Whether to decode the SMS contents when DCS is equal to 0 (zero).",
+                         &smpp_decode_dcs_0_sms, smpp_dcs_0_sms_decode_options, FALSE);
 }
 
 void
