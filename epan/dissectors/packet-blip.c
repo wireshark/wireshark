@@ -199,8 +199,6 @@ handle_ack_message(tvbuff_t *tvb, _U_ packet_info *pinfo, proto_tree *blip_tree,
 
 	proto_tree_add_item(blip_tree, hf_blip_ack_size, tvb, offset, varint_ack_size_length, ENC_VARINT_PROTOBUF);
 
-	offset += varint_ack_size_length;
-
 	return tvb_captured_length(tvb);
 }
 
