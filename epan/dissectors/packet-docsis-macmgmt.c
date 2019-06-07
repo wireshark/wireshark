@@ -2427,6 +2427,7 @@ multipart_number_of_fragments(char *buf, guint32 value)
 
 static reassembly_table docsis_tlv_reassembly_table;
 static reassembly_table docsis_opt_tlv_reassembly_table;
+static reassembly_table docsis_rngrsp_tlv_reassembly_table;
 
 static const fragment_items docsis_tlv_frag_items = {
   &ett_docsis_tlv_fragment,
@@ -3252,14 +3253,14 @@ dissect_rngreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
 }
 
 static void
-dissect_rngrsp_transmit_equalization_encodings(tvbuff_t * tvb, proto_tree * tree, guint8 start, guint16 len)
+dissect_rngrsp_transmit_equalization_encodings(tvbuff_t * tvb, proto_tree * tree, guint start, guint16 len)
 {
   guint16 i;
   proto_item *it;
   proto_tree *transmit_equalization_encodings_tree, *coef_tree;
   guint lowest_subc;
 
-  it = proto_tree_add_item(tree, hf_docsis_rngrsp_trans_eq_data, tvb, start-2, len+2, ENC_NA);
+  it = proto_tree_add_item(tree, hf_docsis_rngrsp_trans_eq_data, tvb, start, len, ENC_NA);
   transmit_equalization_encodings_tree = proto_item_add_subtree (it, ett_docsis_rngrsp_tlv_transmit_equalization_encodings);
 
   proto_tree_add_item_ret_uint (transmit_equalization_encodings_tree, hf_docsis_rngrsp_trans_eq_enc_lowest_subc, tvb, start, 3, ENC_BIG_ENDIAN, &lowest_subc);
@@ -3330,36 +3331,16 @@ dissect_rngrsp_commanded_power(tvbuff_t * tvb, proto_tree * tree, guint8 start, 
   }
 }
 
-
-
-
-static int
-dissect_rngrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
+static void
+dissect_rngrsp_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * rngrsp_tree)
 {
-  proto_item *it;
-  proto_tree *rngrsp_tree;
   proto_item *rngrsptlv_item;
   proto_tree *rngrsptlv_tree;
-  guint8 tlvtype;
-  int pos;
+  guint pos = 0;
   guint tlvlen;
-  guint32 sid, upchid;
+  guint8 tlvtype;
 
-  it = proto_tree_add_item(tree, proto_docsis_rngrsp, tvb, 0, -1, ENC_NA);
-  rngrsp_tree = proto_item_add_subtree (it, ett_docsis_rngrsp);
 
-  proto_tree_add_item_ret_uint (rngrsp_tree, hf_docsis_rngrsp_sid, tvb, 0, 2, ENC_BIG_ENDIAN, &sid);
-  proto_tree_add_item_ret_uint (rngrsp_tree, hf_docsis_mgt_upstream_chid, tvb, 2, 1, ENC_BIG_ENDIAN, &upchid);
-
-  if (upchid > 0)
-    col_add_fstr (pinfo->cinfo, COL_INFO,
-                  "Ranging Response: SID = %u, Upstream Channel = %u (U%u)",
-                  sid, upchid, upchid - 1);
-  else
-    col_add_fstr (pinfo->cinfo, COL_INFO,
-                  "Ranging Response: SID = %u, Telephony Return", sid);
-
-  pos = 3;
   while (tvb_reported_length_remaining(tvb, pos) > 0)
   {
     tlvtype = tvb_get_guint8 (tvb, pos);
@@ -3450,6 +3431,79 @@ dissect_rngrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
     }                   /* switch(tlvtype) */
     pos += tlvlen;
   }                       /* while (tvb_reported_length_remaining(tvb, pos) > 0) */
+}
+
+static int
+dissect_rngrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _U_)
+{
+  proto_item *it;
+  proto_tree *rngrsp_tree;
+  tvbuff_t *tlv_tvb = NULL;
+  guint32 sid, upchid;
+  address save_src, save_dst;
+  guint version, multipart, number_of_fragments, fragment_sequence_number;
+
+
+  it = proto_tree_add_item(tree, proto_docsis_rngrsp, tvb, 0, -1, ENC_NA);
+  rngrsp_tree = proto_item_add_subtree (it, ett_docsis_rngrsp);
+
+  proto_tree_add_item_ret_uint (rngrsp_tree, hf_docsis_rngrsp_sid, tvb, 0, 2, ENC_BIG_ENDIAN, &sid);
+  proto_tree_add_item_ret_uint (rngrsp_tree, hf_docsis_mgt_upstream_chid, tvb, 2, 1, ENC_BIG_ENDIAN, &upchid);
+
+  if (upchid > 0)
+    col_add_fstr (pinfo->cinfo, COL_INFO,
+                  "Ranging Response: SID = %u, Upstream Channel = %u (U%u)",
+                  sid, upchid, upchid - 1);
+  else
+    col_add_fstr (pinfo->cinfo, COL_INFO,
+                  "Ranging Response: SID = %u, Telephony Return", sid);
+
+
+  version = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_docsis_mgmt, KEY_MGMT_VERSION));
+  if (version > 4) {
+    multipart = GPOINTER_TO_UINT(p_get_proto_data(pinfo->pool, pinfo, proto_docsis_mgmt, KEY_MGMT_MULTIPART));
+  } else {
+    multipart = 0;
+  }
+
+  /* Reassemble TLV's */
+  if (tvb_reported_length_remaining(tvb, 3) > 0) {
+    if (version > 4 && multipart) {
+      /*Fragmented data*/
+      number_of_fragments = (multipart >> 4);
+      fragment_sequence_number = (multipart & 0x0F);
+
+      /*DOCSIS mac management messages do not have network (ip)  address. Use link (mac)  address instead. Same workflow as in wimax.*/
+      /* Save address pointers. */
+      copy_address_shallow(&save_src, &pinfo->src);
+      copy_address_shallow(&save_dst, &pinfo->dst);
+      /* Use dl_src and dl_dst in defragmentation. */
+      copy_address_shallow(&pinfo->src, &pinfo->dl_src);
+      copy_address_shallow(&pinfo->dst, &pinfo->dl_dst);
+
+      fragment_head* fh = fragment_add_seq_check(&docsis_rngrsp_tlv_reassembly_table, tvb, 3, pinfo, sid, NULL,
+                                                fragment_sequence_number,
+                                                tvb_reported_length_remaining(tvb, 3),
+                                                (fragment_sequence_number != number_of_fragments));
+
+      /* Restore address pointers. */
+      copy_address_shallow(&pinfo->src, &save_src);
+      copy_address_shallow(&pinfo->dst, &save_dst);
+
+      if (fh) {
+        tlv_tvb = process_reassembled_data(tvb, 3, pinfo, "Reassembled RNGRSP TLV", fh, &docsis_tlv_frag_items,
+                                           NULL, rngrsp_tree);
+
+        if (tlv_tvb && tvb_reported_length(tlv_tvb) > 0) {
+          dissect_rngrsp_tlv(tlv_tvb, pinfo, rngrsp_tree);
+        }
+      }
+    } else { /*version > 4 && multipart*/
+      tlv_tvb = tvb_new_subset_remaining (tvb, 3);
+      dissect_rngrsp_tlv(tlv_tvb, pinfo, rngrsp_tree);
+    }
+  }
+
   return tvb_captured_length(tvb);
 }
 
@@ -10138,6 +10192,7 @@ proto_reg_handoff_docsis_mgmt (void)
 
   reassembly_table_register(&docsis_tlv_reassembly_table, &addresses_reassembly_table_functions);
   reassembly_table_register(&docsis_opt_tlv_reassembly_table, &addresses_reassembly_table_functions);
+  reassembly_table_register(&docsis_rngrsp_tlv_reassembly_table, &addresses_reassembly_table_functions);
 
 }
 
