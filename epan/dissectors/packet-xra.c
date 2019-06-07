@@ -422,42 +422,42 @@ dissect_xra(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _
     case XRA_PACKETTYPE_DS_SCQAM_DOCSIS_MACFRAME:
     case XRA_PACKETTYPE_OFDM_DOCSIS:
       /*Calling docsis dissector*/
-      docsis_tvb = tvb_new_subset_length(tvb, xra_length, tvb_captured_length_remaining(tvb, xra_length));
+      docsis_tvb = tvb_new_subset_remaining(tvb, xra_length);
       if (docsis_handle) {
         call_dissector (docsis_handle, docsis_tvb, pinfo, tree);
       }
       break;
     case XRA_PACKETTYPE_OFDM_PLC:
-      plc_tvb = tvb_new_subset_length(tvb, xra_length, tvb_captured_length_remaining(tvb, xra_length));
+      plc_tvb = tvb_new_subset_remaining(tvb, xra_length);
       return dissect_plc(plc_tvb , pinfo, tree, data);
     case XRA_PACKETTYPE_OFDM_NCP:
-      ncp_tvb = tvb_new_subset_length(tvb, xra_length, tvb_captured_length_remaining(tvb, xra_length));
+      ncp_tvb = tvb_new_subset_remaining(tvb, xra_length);
       return dissect_ncp(ncp_tvb, tree, data);
     case XRA_PACKETTYPE_TDMA_BURST:
     case XRA_PACKETTYPE_OFDMA_DATA_BURST:
       if(segment_header_present) {
         col_append_str(pinfo->cinfo, COL_INFO, ": Segment");
-        segment_tvb = tvb_new_subset_length(tvb, xra_length, tvb_captured_length_remaining(tvb, xra_length));
+        segment_tvb = tvb_new_subset_remaining(tvb, xra_length);
         return dissect_ofdma_segment(segment_tvb, pinfo, tree, data);
       }
       break;
     case XRA_PACKETTYPE_OFDMA_REQ:
     case XRA_PACKETTYPE_US_DOCSIS_MACFRAME:
       /*Calling docsis dissector*/
-      docsis_tvb = tvb_new_subset_length(tvb, xra_length, tvb_captured_length_remaining(tvb, xra_length));
+      docsis_tvb = tvb_new_subset_remaining(tvb, xra_length);
       if (docsis_handle) {
         call_dissector (docsis_handle, docsis_tvb, pinfo, tree);
       }
       break;
     case XRA_PACKETTTYPE_OFDMA_FINE_RANGING:
       /*Calling docsis dissector*/
-      docsis_tvb = tvb_new_subset_length(tvb, xra_length, tvb_captured_length_remaining(tvb, xra_length));
+      docsis_tvb = tvb_new_subset_remaining(tvb, xra_length);
       if (docsis_handle) {
         call_dissector (docsis_handle, docsis_tvb, pinfo, tree);
       }
       break;
     case XRA_PACKETTTYPE_OFDMA_INITIAL_RANGING:
-      init_ranging_tvb = tvb_new_subset_length(tvb, xra_length, tvb_captured_length_remaining(tvb, xra_length));
+      init_ranging_tvb = tvb_new_subset_remaining(tvb, xra_length);
       return dissect_init_ranging(init_ranging_tvb, tree, data);
     default:
       proto_tree_add_item (xra_tree, hf_xra_unknown, tvb, 1, 1, ENC_NA);
@@ -858,7 +858,7 @@ dissect_plc(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _
         break;
       case PLC_MESSAGE_CHANNEL_MB:
         last_mb = 1;
-        mb_length = tvb_captured_length_remaining(tvb, offset);
+        mb_length = tvb_reported_length_remaining(tvb, offset);
         col_append_str(pinfo->cinfo, COL_INFO, "MC-MB");
         break;
       case PLC_TRIGGER_MB:
@@ -871,7 +871,7 @@ dissect_plc(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _
         col_append_str(pinfo->cinfo, COL_INFO, "FUT-MB, ");
         break;
     }
-    mb_tvb = tvb_new_subset_length(tvb, offset, tvb_captured_length_remaining(tvb, offset));
+    mb_tvb = tvb_new_subset_remaining(tvb, offset);
     dissect_message_block(mb_tvb,pinfo, plc_tree, mb_type, mb_length);
 
     if (last_mb) {
@@ -943,7 +943,7 @@ dissect_ofdma_segment(tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, voi
   guint16 fcs = g_ntohs(crc16_ccitt_tvb(tvb, 6));
   proto_tree_add_checksum(segment_tree, tvb, 6, hf_docsis_segment_hcs, hf_docsis_segment_hcs_status, &ei_docsis_segment_hcs_bad, pinfo, fcs, ENC_BIG_ENDIAN, PROTO_CHECKSUM_VERIFY);
 
-  proto_tree_add_item (segment_tree, hf_docsis_segment_data, tvb, 8, tvb_captured_length_remaining(tvb, 8), ENC_NA);
+  proto_tree_add_item (segment_tree, hf_docsis_segment_data, tvb, 8, tvb_reported_length_remaining(tvb, 8), ENC_NA);
 
   return tvb_captured_length(tvb);
 }
