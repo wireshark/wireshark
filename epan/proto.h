@@ -615,15 +615,22 @@ typedef enum {
 
 /* Following constants have to be ORed with a field_display_e when dissector
  * want to use specials value-string MACROs for a header_field_info */
-#define BASE_RANGE_STRING     0x0100  /**< Use the supplied range string to convert the field to text */
-#define BASE_EXT_STRING       0x0200
-#define BASE_VAL64_STRING     0x0400
-#define BASE_ALLOW_ZERO       0x0800  /**< Display <none> instead of <MISSING> for zero sized byte array */
-#define BASE_UNIT_STRING      0x1000  /**< Add unit text to the field value */
-#define BASE_NO_DISPLAY_VALUE 0x2000  /**< Just display the field name with no value.  Intended for
-                                           byte arrays or header fields above a subtree */
-#define BASE_PROTOCOL_INFO    0x4000  /**< protocol_t in [FIELDCONVERT].  Internal use only. */
-#define BASE_SPECIAL_VALS     0x8000  /**< field will not display "Unknown" if value_string match is not found */
+#define BASE_RANGE_STRING         0x00000100  /**< Use the supplied range string to convert the field to text */
+#define BASE_EXT_STRING           0x00000200
+#define BASE_VAL64_STRING         0x00000400
+
+#define BASE_ALLOW_ZERO           0x00000800  /**< Display <none> instead of <MISSING> for zero sized byte array */
+
+#define BASE_UNIT_STRING          0x00001000  /**< Add unit text to the field value */
+
+#define BASE_NO_DISPLAY_VALUE     0x00002000  /**< Just display the field name with no value.  Intended for
+                                                   byte arrays or header fields above a subtree */
+
+#define BASE_PROTOCOL_INFO        0x00004000  /**< protocol_t in [FIELDCONVERT].  Internal use only. */
+
+#define BASE_SPECIAL_VALS         0x00008000  /**< field will not display "Unknown" if value_string match is not found */
+
+#define BASE_SHOW_ASCII_PRINTABLE 0x00010000 /**< show byte array as ASCII if it's all printable characters */
 
 /** BASE_ values that cause the field value to be displayed twice */
 #define IS_BASE_DUAL(b) ((b)==BASE_DEC_HEX||(b)==BASE_HEX_DEC)
@@ -3095,6 +3102,27 @@ proto_custom_set(proto_tree* tree, GSList *field_id,
                              gint occurrence,
                              gchar *result,
                              gchar *expr, const int size );
+
+/*
+ * We're exporting some formatting functions here to handle
+ * dissectors that want to append string or byte array values to
+ * a column or a higher-level protocol tree item.
+ *
+ * This should really be done with an internal-to-libwireshark routine
+ * to write that value to a string, snprintf-style (with a pointer to
+ * the buffer and and the buffer size, which could be a pointer into
+ * a buffer and the remaining amount of space in the buffer), and
+ * column and protocol-tree routines to append to columns and
+ * protocol-tree item representations, respectively.
+ *
+ * But we should probably try to make that append routine useful
+ * for appending to *all* protocol-tree item representations, and
+ * not have, for example, the XXX_value_format_display(),
+ * XXX_value_format(), and XXX_vals_format() routines - what the
+ * heck is going on there?
+ */
+WS_DLL_PUBLIC char *proto_string_item_get_display_string(wmem_allocator_t *scope, proto_item *pi);
+WS_DLL_PUBLIC char *proto_bytes_item_get_display_string(wmem_allocator_t *scope, proto_item *pi);
 
 /* #define HAVE_HFI_SECTION_INIT */
 

@@ -2684,10 +2684,8 @@ dissect_smb2_file_full_ea_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	}
 
 	while (1) {
-		int length;
 		const char *name = "";
 		const char *data = "";
-		guint16 bc;
 		int start_offset = offset;
 		proto_item *ea_item;
 		proto_tree *ea_tree;
@@ -2714,31 +2712,26 @@ dissect_smb2_file_full_ea_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		offset += 2;
 
 		/* ea name */
-		length = ea_name_len;
-		if (length) {
-			bc = tvb_captured_length_remaining(tvb, offset);
-			name = get_unicode_or_ascii_string(tvb, &offset,
-				FALSE, &length, TRUE, TRUE, &bc);
-			if (name) {
-				proto_tree_add_string(ea_tree, hf_smb2_ea_name, tvb,
-					offset, length + 1, name);
-			}
+		if (ea_name_len) {
+			proto_item *name_item;
+
+			name_item = proto_tree_add_item(ea_tree, hf_smb2_ea_name, tvb,
+				offset, ea_name_len, ENC_ASCII|ENC_NA);
+			name = proto_string_item_get_display_string(wmem_packet_scope(),
+				name_item);
 		}
 
 		/* The name is terminated with a NULL */
 		offset += ea_name_len + 1;
 
 		/* ea data */
-		length = ea_data_len;
-		if (length) {
-			bc = tvb_captured_length_remaining(tvb, offset);
-			data = get_unicode_or_ascii_string(tvb, &offset,
-				FALSE, &length, TRUE, TRUE, &bc);
-			/*
-			 * We put the data here ...
-			 */
-			proto_tree_add_item(ea_tree, hf_smb2_ea_data, tvb,
-					offset, length, ENC_NA);
+		if (ea_data_len) {
+			proto_item *data_item;
+
+			data_item = proto_tree_add_item(ea_tree, hf_smb2_ea_data,
+				tvb, offset, ea_data_len, ENC_NA);
+			data = proto_bytes_item_get_display_string(wmem_packet_scope(),
+				data_item);
 		}
 		offset += ea_data_len;
 
@@ -10763,7 +10756,7 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_ea_data,
-			{ "EA Data", "smb2.ea.data", FT_BYTES, BASE_NONE,
+			{ "EA Data", "smb2.ea.data", FT_BYTES, BASE_NONE|BASE_SHOW_ASCII_PRINTABLE,
 			NULL, 0, NULL, HFILL }
 		},
 

@@ -114,8 +114,8 @@ FIELDDISPLAY    --For FT_UINT{8,16,24,32,40,48,56,64} and
                   BASE_DEC, BASE_HEX, BASE_OCT, BASE_DEC_HEX, BASE_HEX_DEC,
                   BASE_CUSTOM, or BASE_NONE, possibly ORed with
                   BASE_RANGE_STRING, BASE_EXT_STRING, BASE_VAL64_STRING,
-                  BASE_ALLOW_ZERO, BASE_UNIT_STRING, BASE_SPECIAL_VALS or
-                  BASE_NO_DISPLAY_VALUE
+                  BASE_ALLOW_ZERO, BASE_UNIT_STRING, BASE_SPECIAL_VALS,
+                  BASE_NO_DISPLAY_VALUE, or BASE_SHOW_ASCII_PRINTABLE
 
                   BASE_NONE may be used with a non-NULL FIELDCONVERT when the
                   numeric value of the field itself is not of significance to
@@ -125,9 +125,9 @@ FIELDDISPLAY    --For FT_UINT{8,16,24,32,40,48,56,64} and
                   filters for the field in question.
 
                   BASE_NO_DISPLAY_VALUE will just display the field name with
-                  no value.  It is intended for byte arrays (FT_BYTES) or
-                  header fields above a subtree.  The value will still be
-                  filterable, just not displayed.
+                  no value.  It is intended for byte arrays (FT_BYTES or
+                  FT_UINT_BYTES) or header fields above a subtree.  The
+                  value will still be filterable, just not displayed.
 
                 --For FT_UINT16:
 
@@ -161,12 +161,20 @@ FIELDDISPLAY    --For FT_UINT{8,16,24,32,40,48,56,64} and
 
                   STR_ASCII or STR_UNICODE
 
-                --For FT_BYTES:
+                --For FT_BYTES and FT_UINT_BYTES:
 
                   SEP_DOT, SEP_DASH, SEP_COLON, or SEP_SPACE to provide
-                  a separator between bytes.
-                  BASE_NONE has no separator between bytes
-                  BASE_ALLOW_ZERO displays <none> instead of <MISSING> for zero sized byte array
+                  a separator between bytes; BASE_NONE has no separator
+                  between bytes.  These can be ORed with BASE_ALLOW_ZERO
+                  and BASE_SHOW_ASCII_PRINTABLE.
+
+                  BASE_ALLOW_ZERO displays <none> instead of <MISSING>
+                  for a zero-sized byte array.
+                  BASE_SHOW_ASCII_PRINTABLE will check whether the
+                  field's value consists entirely of printable ASCII
+                  characters and, if so, will display the field's value
+                  as a string, in quotes.  The value will still be
+                  filterable as a byte value.
 
                 --For FT_IPv4:
 

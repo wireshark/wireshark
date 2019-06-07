@@ -12275,10 +12275,9 @@ dissect_4_2_16_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	COUNT_BYTES_SUBR(4);
 
 	while (*bcp > 0) {
-		proto_item *item;
+		proto_item *item, *ti;
 		proto_tree *subtree;
 		int start_offset = offset;
-		guint8 *name;
 
 		subtree = proto_tree_add_subtree(
 			tree, tvb, offset, 0, ett_smb_ea, &item, "Extended Attribute");
@@ -12310,13 +12309,12 @@ dissect_4_2_16_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 		/* EA name */
 
-		name = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, name_len, ENC_ASCII);
-		proto_item_append_text(item, ": %s", format_text(wmem_packet_scope(), name, strlen(name)));
-
 		CHECK_BYTE_COUNT_SUBR(name_len + 1);
-		proto_tree_add_item(
+		ti = proto_tree_add_item(
 			subtree, hf_smb_ea_name, tvb, offset, name_len + 1,
 			ENC_ASCII|ENC_NA);
+		proto_item_append_text(item, ": %s",
+			proto_string_item_get_display_string(wmem_packet_scope(), ti));
 		COUNT_BYTES_SUBR(name_len + 1);
 
 		/* EA data */
@@ -19664,7 +19662,7 @@ proto_register_smb(void)
 		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_ea_data,
-		{ "EA Data", "smb.ea.data", FT_BYTES, BASE_NONE,
+		{ "EA Data", "smb.ea.data", FT_BYTES, BASE_NONE|BASE_SHOW_ASCII_PRINTABLE,
 		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_file_name_len,

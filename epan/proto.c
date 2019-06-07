@@ -5734,21 +5734,93 @@ proto_tree_set_representation(proto_item *pi, const char *format, va_list ap)
 }
 
 static char *
-hfinfo_format_text(const header_field_info *hfinfo, const guchar *string)
+hfinfo_format_text(wmem_allocator_t *scope, const header_field_info *hfinfo,
+    const guchar *string)
 {
 	switch (hfinfo->display) {
 		case STR_ASCII:
-			return format_text(NULL, string, strlen(string));
+			return format_text(scope, string, strlen(string));
 /*
 		case STR_ASCII_WSP
 			return format_text_wsp(string, strlen(string));
  */
 		case STR_UNICODE:
 			/* XXX, format_unicode_text() */
-			return wmem_strdup(NULL, string);
+			return wmem_strdup(scope, string);
 	}
 
-	return format_text(NULL, string, strlen(string));
+	return format_text(scope, string, strlen(string));
+}
+
+static char *
+hfinfo_format_bytes(wmem_allocator_t *scope, const header_field_info *hfinfo,
+    guint8 *bytes, guint length)
+{
+	char *str = NULL;
+	guint8 *p;
+	gboolean is_printable;
+
+	if (bytes) {
+		if (hfinfo->display & BASE_SHOW_ASCII_PRINTABLE) {
+			/*
+			 * Check whether all bytes are printable.
+			 */
+			is_printable = TRUE;
+			for (p = bytes; p < bytes+length; p++) {
+				if (!g_ascii_isprint(*p)) {
+					/* Not printable. */
+					is_printable = FALSE;
+					break;
+				}
+			}
+
+			/*
+			 * If all bytes are printable ASCII, show the bytes
+			 * as a string - in quotes to indicate that it's
+			 * a string.
+			 */
+			if (is_printable) {
+				str = wmem_strdup_printf(scope, "\"%.*s\"",
+				    (int)length, bytes);
+				return str;
+			}
+		}
+
+		/*
+		 * Either it's not printable ASCII, or we don't care whether
+		 * it's printable ASCII; show it as hex bytes.
+		 */
+		switch (FIELD_DISPLAY(hfinfo->display)) {
+		case SEP_DOT:
+			str = bytestring_to_str(scope, bytes, length, '.');
+			break;
+		case SEP_DASH:
+			str = bytestring_to_str(scope, bytes, length, '-');
+			break;
+		case SEP_COLON:
+			str = bytestring_to_str(scope, bytes, length, ':');
+			break;
+		case SEP_SPACE:
+			str = bytestring_to_str(scope, bytes, length, ' ');
+			break;
+		case BASE_NONE:
+		default:
+			if (prefs.display_byte_fields_with_spaces) {
+				str = bytestring_to_str(scope, bytes, length, ' ');
+			} else {
+				str = bytes_to_str(scope, bytes, length);
+			}
+			break;
+		}
+	}
+	else {
+		if (hfinfo->display & BASE_ALLOW_ZERO) {
+			str = wmem_strdup(scope, "<none>");
+		} else {
+			str = wmem_strdup(scope, "<MISSING>");
+		}
+	}
+	return str;
 }
 
 static int
@@ -5900,40 +5972,12 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 
 					case FT_UINT_BYTES:
 					case FT_BYTES:
-						bytes = (guint8 *)fvalue_get(&finfo->value);
-						if (bytes) {
-							switch (hfinfo->display) {
-							case SEP_DOT:
-								str = bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), '.');
-								break;
-							case SEP_DASH:
-								str = bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), '-');
-								break;
-							case SEP_COLON:
-								str = bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), ':');
-								break;
-							case SEP_SPACE:
-								str = bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), ' ');
-								break;
-							case BASE_NONE:
-							default:
-								if (prefs.display_byte_fields_with_spaces) {
-									str = bytestring_to_str(NULL, bytes, fvalue_length(&finfo->value), ' ');
-								} else {
-									str = bytes_to_str(NULL, bytes, fvalue_length(&finfo->value));
-								}
-								break;
-							}
-							offset_r += protoo_strlcpy(result+offset_r, str, size-offset_r);
-							wmem_free(NULL, str);
-						}
-						else {
-							if (hfinfo->display & BASE_ALLOW_ZERO) {
-								offset_r += protoo_strlcpy(result+offset_r, "<none>", size-offset_r);
-							} else {
-								offset_r += protoo_strlcpy(result+offset_r, "<MISSING>", size-offset_r);
-							}
-						}
+						tmpbuf = hfinfo_format_bytes(NULL,
+						    hfinfo,
+						    (guint8 *)fvalue_get(&finfo->value),
+						    fvalue_length(&finfo->value));
+						offset_r += protoo_strlcpy(result+offset_r, tmpbuf, size-offset_r);
+						wmem_free(NULL, tmpbuf);
 						break;
 
 					case FT_ABSOLUTE_TIME:
@@ -6210,7 +6254,7 @@ proto_custom_set(proto_tree* tree, GSList *field_ids, gint occurrence,
 					case FT_UINT_STRING:
 					case FT_STRINGZPAD:
 						bytes = (guint8 *)fvalue_get(&finfo->value);
-						str = hfinfo_format_text(hfinfo, bytes);
+						str = hfinfo_format_text(NULL, hfinfo, bytes);
 						offset_r += protoo_strlcpy(result+offset_r,
 								str, size-offset_r);
 						wmem_free(NULL, str);
@@ -8368,40 +8412,11 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 
 		case FT_BYTES:
 		case FT_UINT_BYTES:
-			bytes = (guint8 *)fvalue_get(&fi->value);
-			if (bytes) {
-				char* str = NULL;
-				switch (hfinfo->display) {
-				case SEP_DOT:
-					str = bytestring_to_str(NULL, bytes, fvalue_length(&fi->value), '.');
-					break;
-				case SEP_DASH:
-					str = bytestring_to_str(NULL, bytes, fvalue_length(&fi->value), '-');
-					break;
-				case SEP_COLON:
-					str = bytestring_to_str(NULL, bytes, fvalue_length(&fi->value), ':');
-					break;
-				case SEP_SPACE:
-					str = bytestring_to_str(NULL, bytes, fvalue_length(&fi->value), ' ');
-					break;
-				case BASE_NONE:
-				default:
-					if (prefs.display_byte_fields_with_spaces) {
-						str = bytestring_to_str(NULL, bytes, fvalue_length(&fi->value), ' ');
-					} else {
-						str = bytes_to_str(NULL, bytes, fvalue_length(&fi->value));
-					}
-					break;
-				}
-				label_fill(label_str, 0, hfinfo, str);
-				wmem_free(NULL, str);
-			} else {
-				if (hfinfo->display & BASE_ALLOW_ZERO) {
-					label_fill(label_str, 0, hfinfo, "<none>");
-				} else {
-					label_fill(label_str, 0, hfinfo, "<MISSING>");
-				}
-			}
+			tmp = hfinfo_format_bytes(NULL, hfinfo,
+			    (guint8 *)fvalue_get(&fi->value),
+			    fvalue_length(&fi->value));
+			label_fill(label_str, 0, hfinfo, tmp);
+			wmem_free(NULL, tmp);
 			break;
 
 		case FT_CHAR:
@@ -8665,7 +8680,7 @@ proto_item_fill_label(field_info *fi, gchar *label_str)
 		case FT_UINT_STRING:
 		case FT_STRINGZPAD:
 			bytes = (guint8 *)fvalue_get(&fi->value);
-			tmp = hfinfo_format_text(hfinfo, bytes);
+			tmp = hfinfo_format_text(NULL, hfinfo, bytes);
 			label_fill(label_str, 0, hfinfo, tmp);
 			wmem_free(NULL, tmp);
 			break;
@@ -12322,6 +12337,32 @@ proto_tree_add_checksum(proto_tree *tree, tvbuff_t *tvb, const guint offset,
 	}
 
 	return ti;
+}
+
+char *
+proto_string_item_get_display_string(wmem_allocator_t *scope, proto_item *pi)
+{
+	field_info *fi = pi->finfo;
+	header_field_info *hfinfo = fi->hfinfo;
+
+	DISSECTOR_ASSERT(hfinfo->type == FT_STRING ||
+	                 hfinfo->type == FT_STRINGZ ||
+	                 hfinfo->type == FT_UINT_STRING ||
+	                 hfinfo->type == FT_STRINGZPAD);
+	return hfinfo_format_text(scope, hfinfo,
+	    (guint8 *)fvalue_get(&fi->value));
+}
+
+char *
+proto_bytes_item_get_display_string(wmem_allocator_t *scope, proto_item *pi)
+{
+	field_info *fi = pi->finfo;
+	header_field_info *hfinfo = fi->hfinfo;
+
+	DISSECTOR_ASSERT(hfinfo->type == FT_BYTES ||
+	                 hfinfo->type == FT_UINT_BYTES);
+	return hfinfo_format_bytes(scope, hfinfo,
+	    (guint8 *)fvalue_get(&fi->value), fvalue_length(&fi->value));
 }
 
 guchar
