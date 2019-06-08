@@ -1683,6 +1683,7 @@ get_usb_conv_info(conversation_t *conversation)
         usb_conv_info->interfaceProtocol = IF_PROTOCOL_UNKNOWN;
         usb_conv_info->deviceVendor      = DEV_VENDOR_UNKNOWN;
         usb_conv_info->deviceProduct     = DEV_PRODUCT_UNKNOWN;
+        usb_conv_info->deviceVersion     = DEV_VERSION_UNKNOWN;
         usb_conv_info->alt_settings      = wmem_array_new(wmem_file_scope(), sizeof(usb_alt_setting_t));
         usb_conv_info->transactions      = wmem_tree_new(wmem_file_scope());
         usb_conv_info->descriptor_transfer_type = URB_UNKNOWN;
@@ -2130,6 +2131,7 @@ dissect_usb_device_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     }
 
     /* bcdDevice */
+    usb_conv_info->deviceVersion = tvb_get_letohs(tvb, offset);
     proto_tree_add_item(tree, hf_usb_bcdDevice, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
@@ -2142,6 +2144,7 @@ dissect_usb_device_descriptor(packet_info *pinfo, proto_tree *parent_tree,
     offset += 1;
 
     /* iSerialNumber */
+    usb_conv_info->iSerialNumber = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_usb_iSerialNumber, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
