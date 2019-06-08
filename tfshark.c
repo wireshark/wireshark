@@ -800,7 +800,7 @@ main(int argc, char *argv[])
      line arguments, treat them as the tokens of a display filter. */
   if (optind < argc) {
     if (dfilter != NULL) {
-      cmdarg_err("Display filters were specified both with \"-d\" "
+      cmdarg_err("Display filters were specified both with \"-Y\" "
           "and with additional command-line arguments.");
       exit_status = INVALID_OPTION;
       goto clean_exit;
