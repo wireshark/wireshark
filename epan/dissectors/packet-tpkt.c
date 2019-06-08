@@ -21,6 +21,7 @@
 #include <epan/prefs.h>
 #include <epan/show_exception.h>
 
+#include "packet-tls.h"
 #include "packet-tpkt.h"
 
 void proto_register_tpkt(void);
@@ -668,6 +669,8 @@ proto_reg_handoff_tpkt(void)
 
     port_range = range_copy(wmem_epan_scope(), tpkt_tcp_port_range);
     dissector_add_uint_range("tcp.port", port_range, tpkt_handle);
+
+    ssl_dissector_add(3389, tpkt_handle);
 
     /*
     tpkt_ascii_handle = create_dissector_handle(dissect_ascii_tpkt, proto_tpkt);
