@@ -1494,7 +1494,7 @@ main(int argc, char *argv[])
   if (optind < argc) {
     if (cf_name != NULL) {
       if (dfilter != NULL) {
-        cmdarg_err("Display filters were specified both with \"-d\" "
+        cmdarg_err("Display filters were specified both with \"-Y\" "
             "and with additional command-line arguments.");
         exit_status = INVALID_OPTION;
         goto clean_exit;
