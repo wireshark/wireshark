@@ -4,8 +4,9 @@
  *
  * For documentation of this protocol, see:
  *
+ * https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-smb2/
+ * https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-fscc/
  * https://wiki.wireshark.org/SMB2
- * https://msdn.microsoft.com/en-us/library/cc246482.aspx
  *
  * If you edit this file, keep the wiki updated as well.
  *
@@ -27,6 +28,7 @@
 #include <epan/srt_table.h>
 #include <epan/aftypes.h>
 #include <epan/to_str.h>
+#include <epan/strutil.h>
 #include <epan/asn1.h>
 #include <epan/reassemble.h>
 #include <epan/uat.h>
@@ -35,14 +37,13 @@
 #include "packet-ntlmssp.h"
 #include "packet-kerberos.h"
 #include "packet-windows-common.h"
-#include "packet-smb-common.h"
 #include "packet-dcerpc-nt.h"
 
 #include "read_keytab_file.h"
 
 #include <wsutil/wsgcrypt.h>
 
-#define NT_STATUS_PENDING	0x00000103
+#define NT_STATUS_PENDING		0x00000103
 #define NT_STATUS_BUFFER_TOO_SMALL	0xC0000023
 #define NT_STATUS_STOPPED_ON_SYMLINK	0x8000002D
 #define NT_STATUS_BAD_NETWORK_NAME	0xC00000CC
@@ -289,10 +290,10 @@ static int hf_smb2_ioctl_network_interface_capabilities = -1;
 static int hf_smb2_ioctl_network_interface_capability_rss = -1;
 static int hf_smb2_ioctl_network_interface_capability_rdma = -1;
 static int hf_smb2_ioctl_network_interface_link_speed = -1;
-static int hf_smb2_ioctl_shadow_copy_num_volumes = -1;
-static int hf_smb2_ioctl_shadow_copy_num_labels = -1;
-static int hf_smb2_ioctl_shadow_copy_count = -1;
-static int hf_smb2_ioctl_shadow_copy_label = -1;
+static int hf_smb2_ioctl_enumerate_snapshots_num_snapshots = -1;
+static int hf_smb2_ioctl_enumerate_snapshots_num_snapshots_returned = -1;
+static int hf_smb2_ioctl_enumerate_snapshots_snapshot_array_size = -1;
+static int hf_smb2_ioctl_enumerate_snapshots_snapshot = -1;
 static int hf_smb2_compression_format = -1;
 static int hf_smb2_checksum_algorithm = -1;
 static int hf_smb2_integrity_reserved = -1;
@@ -1526,29 +1527,25 @@ dissect_smb2_olb_length_offset(tvbuff_t *tvb, int offset, offset_length_buffer_t
 
 #define OLB_TYPE_UNICODE_STRING		0x01
 #define OLB_TYPE_ASCII_STRING		0x02
-static const char *
+static const guint8 *
 dissect_smb2_olb_off_string(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, offset_length_buffer_t *olb, int base, int type)
 {
-	int         len, off;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-	const char *name = NULL;
-	guint16     bc;
-	int         offset;
+	int           len, off;
+	proto_item   *item = NULL;
+	proto_tree   *tree = NULL;
+	const guint8 *name = NULL;
 
 	olb->off += base;
 
-	offset = olb->off;
 	len = olb->len;
 	off = olb->off;
-	bc = tvb_captured_length_remaining(tvb, offset);
 
 
 	/* sanity check */
 	tvb_ensure_bytes_exist(tvb, off, len);
 	if (((off+len)<off)
 	|| ((off+len)>(off+tvb_reported_length_remaining(tvb, off)))) {
-		proto_tree_add_expert_format(tree, pinfo, &ei_smb2_invalid_length, tvb, offset, -1,
+		proto_tree_add_expert_format(tree, pinfo, &ei_smb2_invalid_length, tvb, off, -1,
 				    "Invalid offset/length. Malformed packet");
 
 		col_append_str(pinfo->cinfo, COL_INFO, " [Malformed packet]");
@@ -1559,26 +1556,16 @@ dissect_smb2_olb_off_string(packet_info *pinfo, proto_tree *parent_tree, tvbuff_
 
 	switch (type) {
 	case OLB_TYPE_UNICODE_STRING:
-		name = get_unicode_or_ascii_string(tvb, &off,
-			TRUE, &len, TRUE, TRUE, &bc);
-		if (!name) {
-			name = "";
-		}
-		if (parent_tree) {
-			item = proto_tree_add_string(parent_tree, olb->hfindex, tvb, offset, len, name);
-			tree = proto_item_add_subtree(item, ett_smb2_olb);
-		}
+		item = proto_tree_add_item_ret_string(parent_tree,
+		    olb->hfindex, tvb, off, len, ENC_UTF_16|ENC_LITTLE_ENDIAN,
+		    wmem_packet_scope(), &name);
+		tree = proto_item_add_subtree(item, ett_smb2_olb);
 		break;
 	case OLB_TYPE_ASCII_STRING:
-		name = get_unicode_or_ascii_string(tvb, &off,
-			FALSE, &len, TRUE, TRUE, &bc);
-		if (!name) {
-			name = "";
-		}
-		if (parent_tree) {
-			item = proto_tree_add_string(parent_tree, olb->hfindex, tvb, offset, len, name);
-			tree = proto_item_add_subtree(item, ett_smb2_olb);
-		}
+		item = proto_tree_add_item_ret_string(parent_tree,
+		    olb->hfindex, tvb, off, len, ENC_ASCII|ENC_NA,
+		    wmem_packet_scope(), &name);
+		tree = proto_item_add_subtree(item, ett_smb2_olb);
 		break;
 	}
 
@@ -1604,7 +1591,7 @@ dissect_smb2_olb_off_string(packet_info *pinfo, proto_tree *parent_tree, tvbuff_
 	return name;
 }
 
-static const char *
+static const guint8 *
 dissect_smb2_olb_string(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, offset_length_buffer_t *olb, int type)
 {
 	return dissect_smb2_olb_off_string(pinfo, parent_tree, tvb, olb, 0, type);
@@ -2228,8 +2215,6 @@ dissect_smb2_file_all_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pa
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int         length;
-	const char *name = "";
-	guint16     bc;
 	static const int *mode_fields[] = {
 		&hf_smb2_mode_file_write_through,
 		&hf_smb2_mode_file_sequential_only,
@@ -2317,16 +2302,10 @@ dissect_smb2_file_all_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *pa
 
 	/* file name */
 	if (length) {
-		bc = tvb_captured_length_remaining(tvb, offset);
-		name = get_unicode_or_ascii_string(tvb, &offset,
-			TRUE, &length, TRUE, TRUE, &bc);
-		if (name) {
-			proto_tree_add_string(tree, hf_smb2_filename, tvb,
-				offset, length, name);
-		}
-
+		proto_tree_add_item(tree, hf_smb2_filename,
+		    tvb, offset, length, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+		offset += length;
 	}
-	offset += length;
 
 	return offset;
 }
@@ -2763,8 +2742,6 @@ dissect_smb2_file_rename_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 	proto_item *item = NULL;
 	proto_tree *tree = NULL;
 	int         length;
-	const char *name = "";
-	guint16     bc;
 
 
 	if (parent_tree) {
@@ -2791,17 +2768,14 @@ dissect_smb2_file_rename_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 
 	/* file name */
 	if (length) {
-		bc = tvb_captured_length_remaining(tvb, offset);
-		name = get_unicode_or_ascii_string(tvb, &offset,
-			TRUE, &length, TRUE, TRUE, &bc);
-		if (name) {
-			proto_tree_add_string(tree, hf_smb2_filename, tvb,
-				offset, length, name);
-		}
+		proto_item *filename_item;
 
-		col_append_fstr(pinfo->cinfo, COL_INFO, " NewName:%s", name);
+		filename_item = proto_tree_add_item(tree, hf_smb2_filename,
+		    tvb, offset, length, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " NewName:%s",
+		    proto_string_item_get_display_string(wmem_packet_scope(), filename_item));
+		offset += length;
 	}
-	offset += length;
 
 	return offset;
 }
@@ -3628,7 +3602,7 @@ static int
 dissect_smb2_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si _U_)
 {
 	offset_length_buffer_t olb;
-	const char *buf;
+	const guint8 *buf;
 
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
@@ -3654,7 +3628,8 @@ dissect_smb2_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		g_snprintf((char *)si->saved->extra_info,olb.len+1,"%s",buf);
 	}
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, " Tree: %s", buf);
+	col_append_fstr(pinfo->cinfo, COL_INFO, " Tree: %s",
+	    format_text(wmem_packet_scope(), buf, strlen(buf)));
 
 	return offset;
 }
@@ -3884,18 +3859,8 @@ dissect_smb2_notify_data_out(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 		/* file name */
 		if (length) {
-			const guchar *name = "";
-			guint16     bc;
-
-			bc = tvb_reported_length_remaining(tvb, offset);
-			name = get_unicode_or_ascii_string(tvb, &offset,
-					TRUE, &length, TRUE, TRUE, &bc);
-			if (name) {
-				proto_tree_add_string(tree, hf_smb2_filename,
-						      tvb, offset, length,
-						      name);
-			}
-
+			proto_tree_add_item(tree, hf_smb2_filename,
+			    tvb, offset, length, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 			offset += length;
 		}
 
@@ -3941,7 +3906,7 @@ static int
 dissect_smb2_find_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	offset_length_buffer_t olb;
-	const char *buf;
+	const guint8 *buf;
 	guint8      il;
 	static const int *f_fields[] = {
 		&hf_smb2_find_flags_restart_scans,
@@ -4004,8 +3969,6 @@ static void dissect_smb2_file_directory_info(tvbuff_t *tvb, packet_info *pinfo _
 	int         offset = 0;
 	proto_item *item   = NULL;
 	proto_tree *tree   = NULL;
-	const char *name   = NULL;
-	guint16     bc;
 
 	while (tvb_reported_length_remaining(tvb, offset) > 4) {
 		int old_offset = offset;
@@ -4056,15 +4019,13 @@ static void dissect_smb2_file_directory_info(tvbuff_t *tvb, packet_info *pinfo _
 
 		/* file name */
 		if (file_name_len) {
-			bc = file_name_len;
-			name = get_unicode_or_ascii_string(tvb, &offset,
-				TRUE, &file_name_len, TRUE, TRUE, &bc);
-			if (name) {
-				proto_tree_add_string(tree, hf_smb2_filename, tvb,
-					offset, file_name_len, name);
-				proto_item_append_text(item, ": %s", name);
+			proto_item *filename_item;
 
-			}
+			filename_item = proto_tree_add_item(tree, hf_smb2_filename,
+			    tvb, offset, file_name_len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+			proto_item_append_text(item, ": %s",
+			    proto_string_item_get_display_string(wmem_packet_scope(), filename_item));
+			offset += file_name_len;
 		}
 
 		proto_item_set_len(item, offset-old_offset);
@@ -4087,8 +4048,6 @@ static void dissect_smb2_full_directory_info(tvbuff_t *tvb, packet_info *pinfo _
 	int         offset = 0;
 	proto_item *item   = NULL;
 	proto_tree *tree   = NULL;
-	const char *name   = NULL;
-	guint16     bc;
 
 	while (tvb_reported_length_remaining(tvb, offset) > 4) {
 		int old_offset = offset;
@@ -4143,15 +4102,13 @@ static void dissect_smb2_full_directory_info(tvbuff_t *tvb, packet_info *pinfo _
 
 		/* file name */
 		if (file_name_len) {
-			bc = file_name_len;
-			name = get_unicode_or_ascii_string(tvb, &offset,
-				TRUE, &file_name_len, TRUE, TRUE, &bc);
-			if (name) {
-				proto_tree_add_string(tree, hf_smb2_filename, tvb,
-					offset, file_name_len, name);
-				proto_item_append_text(item, ": %s", name);
+			proto_item *filename_item;
 
-			}
+			filename_item = proto_tree_add_item(tree, hf_smb2_filename,
+			    tvb, offset, file_name_len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+			proto_item_append_text(item, ": %s",
+			    proto_string_item_get_display_string(wmem_packet_scope(), filename_item));
+			offset += file_name_len;
 		}
 
 		proto_item_set_len(item, offset-old_offset);
@@ -4174,8 +4131,6 @@ static void dissect_smb2_both_directory_info(tvbuff_t *tvb, packet_info *pinfo _
 	int         offset = 0;
 	proto_item *item   = NULL;
 	proto_tree *tree   = NULL;
-	const char *name   = NULL;
-	guint16     bc;
 
 	while (tvb_reported_length_remaining(tvb, offset) > 4) {
 		int old_offset = offset;
@@ -4240,27 +4195,20 @@ static void dissect_smb2_both_directory_info(tvbuff_t *tvb, packet_info *pinfo _
 
 		/* short name */
 		if (short_name_len) {
-			bc = short_name_len;
-			name = get_unicode_or_ascii_string(tvb, &offset,
-				TRUE, &short_name_len, TRUE, TRUE, &bc);
-			if (name) {
-				proto_tree_add_string(tree, hf_smb2_short_name, tvb,
-					offset, short_name_len, name);
-			}
+			proto_tree_add_item(tree, hf_smb2_short_name,
+			    tvb, offset, short_name_len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 		}
 		offset += 24;
 
 		/* file name */
 		if (file_name_len) {
-			bc = file_name_len;
-			name = get_unicode_or_ascii_string(tvb, &offset,
-				TRUE, &file_name_len, TRUE, TRUE, &bc);
-			if (name) {
-				proto_tree_add_string(tree, hf_smb2_filename, tvb,
-					offset, file_name_len, name);
-				proto_item_append_text(item, ": %s", name);
+			proto_item *filename_item;
 
-			}
+			filename_item = proto_tree_add_item(tree, hf_smb2_filename,
+			    tvb, offset, file_name_len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+			proto_item_append_text(item, ": %s",
+			    proto_string_item_get_display_string(wmem_packet_scope(), filename_item));
+			offset += file_name_len;
 		}
 
 		proto_item_set_len(item, offset-old_offset);
@@ -4283,8 +4231,6 @@ static void dissect_smb2_file_name_info(tvbuff_t *tvb, packet_info *pinfo _U_, p
 	int         offset = 0;
 	proto_item *item   = NULL;
 	proto_tree *tree   = NULL;
-	const char *name   = NULL;
-	guint16     bc;
 
 	while (tvb_reported_length_remaining(tvb, offset) > 4) {
 		int old_offset = offset;
@@ -4312,15 +4258,13 @@ static void dissect_smb2_file_name_info(tvbuff_t *tvb, packet_info *pinfo _U_, p
 
 		/* file name */
 		if (file_name_len) {
-			bc = file_name_len;
-			name = get_unicode_or_ascii_string(tvb, &offset,
-				TRUE, &file_name_len, TRUE, TRUE, &bc);
-			if (name) {
-				proto_tree_add_string(tree, hf_smb2_filename, tvb,
-					offset, file_name_len, name);
-				proto_item_append_text(item, ": %s", name);
+			proto_item *filename_item;
 
-			}
+			filename_item = proto_tree_add_item(tree, hf_smb2_filename,
+			    tvb, offset, file_name_len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+			proto_item_append_text(item, ": %s",
+			    proto_string_item_get_display_string(wmem_packet_scope(), filename_item));
+			offset += file_name_len;
 		}
 
 		proto_item_set_len(item, offset-old_offset);
@@ -4343,8 +4287,6 @@ static void dissect_smb2_id_both_directory_info(tvbuff_t *tvb, packet_info *pinf
 	int         offset = 0;
 	proto_item *item   = NULL;
 	proto_tree *tree   = NULL;
-	const char *name   = NULL;
-	guint16     bc;
 
 	while (tvb_reported_length_remaining(tvb, offset) > 4) {
 		int old_offset = offset;
@@ -4409,13 +4351,8 @@ static void dissect_smb2_id_both_directory_info(tvbuff_t *tvb, packet_info *pinf
 
 		/* short name */
 		if (short_name_len) {
-			bc = short_name_len;
-			name = get_unicode_or_ascii_string(tvb, &offset,
-				TRUE, &short_name_len, TRUE, TRUE, &bc);
-			if (name) {
-				proto_tree_add_string(tree, hf_smb2_short_name, tvb,
-					offset, short_name_len, name);
-			}
+			proto_tree_add_item(tree, hf_smb2_short_name,
+			    tvb, offset, short_name_len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 		}
 		offset += 24;
 
@@ -4429,15 +4366,13 @@ static void dissect_smb2_id_both_directory_info(tvbuff_t *tvb, packet_info *pinf
 
 		/* file name */
 		if (file_name_len) {
-			bc = file_name_len;
-			name = get_unicode_or_ascii_string(tvb, &offset,
-				TRUE, &file_name_len, TRUE, TRUE, &bc);
-			if (name) {
-				proto_tree_add_string(tree, hf_smb2_filename, tvb,
-					offset, file_name_len, name);
-				proto_item_append_text(item, ": %s", name);
+			proto_item *filename_item;
 
-			}
+			filename_item = proto_tree_add_item(tree, hf_smb2_filename,
+			    tvb, offset, file_name_len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+			proto_item_append_text(item, ": %s",
+			    proto_string_item_get_display_string(wmem_packet_scope(), filename_item));
+			offset += file_name_len;
 		}
 
 		proto_item_set_len(item, offset-old_offset);
@@ -4461,8 +4396,6 @@ static void dissect_smb2_id_full_directory_info(tvbuff_t *tvb, packet_info *pinf
 	int         offset = 0;
 	proto_item *item   = NULL;
 	proto_tree *tree   = NULL;
-	const char *name   = NULL;
-	guint16     bc;
 
 	while (tvb_reported_length_remaining(tvb, offset) > 4) {
 		int old_offset = offset;
@@ -4525,15 +4458,13 @@ static void dissect_smb2_id_full_directory_info(tvbuff_t *tvb, packet_info *pinf
 
 		/* file name */
 		if (file_name_len) {
-			bc = file_name_len;
-			name = get_unicode_or_ascii_string(tvb, &offset,
-				TRUE, &file_name_len, TRUE, TRUE, &bc);
-			if (name) {
-				proto_tree_add_string(tree, hf_smb2_filename, tvb,
-					offset, file_name_len, name);
-				proto_item_append_text(item, ": %s", name);
+			proto_item *filename_item;
 
-			}
+			filename_item = proto_tree_add_item(tree, hf_smb2_filename,
+			    tvb, offset, file_name_len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+			proto_item_append_text(item, ": %s",
+			    proto_string_item_get_display_string(wmem_packet_scope(), filename_item));
+			offset += file_name_len;
 		}
 
 		proto_item_set_len(item, offset-old_offset);
@@ -6109,29 +6040,37 @@ dissect_smb2_FSCTL_PIPE_TRANSCEIVE(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 static void
 dissect_smb2_FSCTL_PIPE_WAIT(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, int offset, proto_tree *top_tree, gboolean data_in _U_)
 {
-	guint8 timeout_specified = tvb_get_guint8(tvb, offset + 12);
-	guint32 name_len = tvb_get_letohs(tvb, offset + 8);
-	const gchar *name;
-	int off = offset + 14;
-	guint16 bc = tvb_captured_length_remaining(tvb, off);
-	int len = name_len;
+	int timeout_offset;
+	guint32 name_len;
+	guint8 timeout_specified;
+	proto_item *pipe_wait_name_item;
 
-	/* sanity check */
-	tvb_ensure_bytes_exist(tvb, off, name_len);
+	/* Timeout */
+	timeout_offset = offset;
+	offset += 8;
 
-	name = get_unicode_or_ascii_string(tvb, &off, TRUE, &len, TRUE, TRUE, &bc);
-	if (name == NULL) {
-		name = "";
+	/* Name length */
+	/* XXX - put the name length into the tree */
+	name_len = tvb_get_letohl(tvb, offset);
+	offset += 4;
+
+	/* Timeout specified */
+	timeout_specified = tvb_get_guint8(tvb, offset);
+	if (timeout_specified) {
+		proto_tree_add_item(top_tree, hf_smb2_fsctl_pipe_wait_timeout,
+		    tvb, timeout_offset, 8, ENC_LITTLE_ENDIAN);
 	}
+	offset += 1;
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, " Pipe: %s", name);
+	/* Padding */
+	offset += 1;
 
-	if (top_tree) {
-		proto_tree_add_string(top_tree, hf_smb2_fsctl_pipe_wait_name, tvb, offset + 14, name_len, name);
-		if (timeout_specified) {
-			proto_tree_add_item(top_tree, hf_smb2_fsctl_pipe_wait_timeout, tvb, 0, 8, ENC_LITTLE_ENDIAN);
-		}
-	}
+	/* Name */
+	pipe_wait_name_item = proto_tree_add_item(top_tree, hf_smb2_fsctl_pipe_wait_name,
+	    tvb, offset, name_len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+
+	col_append_fstr(pinfo->cinfo, COL_INFO, " Pipe: %s",
+	    proto_string_item_get_display_string(wmem_packet_scope(), pipe_wait_name_item));
 }
 
 static int
@@ -6687,42 +6626,33 @@ dissect_smb2_FSCTL_VALIDATE_NEGOTIATE_INFO(tvbuff_t *tvb, packet_info *pinfo _U_
 static void
 dissect_smb2_FSCTL_SRV_ENUMERATE_SNAPSHOTS(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, gboolean data_in)
 {
-	guint32 num_volumes;
+	guint32 num_snapshots;
 
 	/* There is no in data */
 	if (data_in) {
 		return;
 	}
 
-	/* num volumes */
-	num_volumes = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(tree, hf_smb2_ioctl_shadow_copy_num_volumes, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	/* NumberOfSnapShots */
+	proto_tree_add_item(tree, hf_smb2_ioctl_enumerate_snapshots_num_snapshots, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
-	/* num labels */
-	proto_tree_add_item(tree, hf_smb2_ioctl_shadow_copy_num_labels, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	/* NumberOfSnapshotsReturned */
+	proto_tree_add_item_ret_uint(tree, hf_smb2_ioctl_enumerate_snapshots_num_snapshots_returned, tvb, offset, 4, ENC_LITTLE_ENDIAN, &num_snapshots);
 	offset += 4;
 
-	/* count */
-	proto_tree_add_item(tree, hf_smb2_ioctl_shadow_copy_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	/* SnapShotArraySize */
+	proto_tree_add_item(tree, hf_smb2_ioctl_enumerate_snapshots_snapshot_array_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
-	while (num_volumes--) {
-		const char *name;
-		guint16 bc;
-		int len = 0;
+	while (num_snapshots--) {
+		gint len;
 		int old_offset = offset;
 
-		bc = tvb_captured_length_remaining(tvb, offset);
-		name = get_unicode_or_ascii_string(tvb, &offset,
-			TRUE, &len, TRUE, FALSE, &bc);
-		proto_tree_add_string(tree, hf_smb2_ioctl_shadow_copy_label, tvb, old_offset, len, name);
+		proto_tree_add_item_ret_length(tree, hf_smb2_ioctl_enumerate_snapshots_snapshot,
+			tvb, offset, -1, ENC_UTF_16|ENC_LITTLE_ENDIAN, &len);
 
 		offset = old_offset+len;
-
-		if (!len) {
-			break;
-		}
 	}
 }
 
@@ -6943,13 +6873,10 @@ dissect_smb2_reparse_nfs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 {
 	guint64 type;
 	int symlink_length;
-	const gchar *symlink_target;
-	guint16 bytes_left;
 
 	type = tvb_get_letoh64(tvb, offset);
 	proto_tree_add_item(tree, hf_smb2_nfs_type, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	offset += 8;
-	bytes_left = length;
 
 	switch (type) {
 	case NFS_SPECFILE_LNK:
@@ -6962,11 +6889,8 @@ dissect_smb2_reparse_nfs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 			THROW(ReportedBoundsError);
 		}
 		symlink_length = length - 8;
-		symlink_target = get_unicode_or_ascii_string(tvb, &offset, TRUE,
-							     &symlink_length, TRUE,
-							     TRUE, &bytes_left);
-		proto_tree_add_string(tree, hf_smb2_nfs_symlink_target, tvb, offset,
-				      symlink_length, symlink_target);
+		proto_tree_add_item(tree, hf_smb2_nfs_symlink_target, tvb, offset,
+				      symlink_length, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 		break;
 	case NFS_SPECFILE_CHR:
 		proto_tree_add_item(tree, hf_smb2_nfs_chr_major, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -8258,7 +8182,7 @@ dissect_smb2_create_extra_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 {
 	offset_length_buffer_t  tag_olb;
 	offset_length_buffer_t  data_olb;
-	const char *tag;
+	const guint8 *tag;
 	guint16     chain_offset;
 	int         offset      = 0;
 	int         len         = -1;
@@ -8337,7 +8261,7 @@ static int
 dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, smb2_info_t *si)
 {
 	offset_length_buffer_t  f_olb, e_olb;
-	const char             *fname;
+	const guint8           *fname;
 
 	/* buffer code */
 	offset = dissect_smb2_buffercode(tree, tvb, offset, NULL);
@@ -8384,7 +8308,8 @@ dissect_smb2_create_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* filename string */
 	fname = dissect_smb2_olb_string(pinfo, tree, tvb, &f_olb, OLB_TYPE_UNICODE_STRING);
-	col_append_fstr(pinfo->cinfo, COL_INFO, " File: %s", fname);
+	col_append_fstr(pinfo->cinfo, COL_INFO, " File: %s",
+	    format_text(wmem_packet_scope(), fname, strlen(fname)));
 
 	/* save the name if it looks sane */
 	if (!pinfo->fd->visited) {
@@ -10047,12 +9972,12 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_tree,
-			{ "Tree", "smb2.tree", FT_STRING, BASE_NONE,
+			{ "Tree", "smb2.tree", FT_STRING, STR_UNICODE,
 			NULL, 0, "Name of the Tree/Share", HFILL }
 		},
 
 		{ &hf_smb2_filename,
-			{ "Filename", "smb2.filename", FT_STRING, BASE_NONE,
+			{ "Filename", "smb2.filename", FT_STRING, STR_UNICODE,
 			NULL, 0, NULL, HFILL }
 		},
 
@@ -10081,7 +10006,7 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_find_pattern,
-			{ "Search Pattern", "smb2.find.pattern", FT_STRING, BASE_NONE,
+			{ "Search Pattern", "smb2.find.pattern", FT_STRING, STR_UNICODE,
 			NULL, 0, "Find pattern", HFILL }
 		},
 
@@ -10761,7 +10686,7 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_ea_name,
-			{ "EA Name", "smb2.ea.name", FT_STRING, BASE_NONE,
+			{ "EA Name", "smb2.ea.name", FT_STRING, STR_UNICODE,
 			NULL, 0, NULL, HFILL }
 		},
 
@@ -10801,7 +10726,7 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_fsctl_pipe_wait_name,
-			{ "Name", "smb2.fsctl.wait.name", FT_STRING, BASE_NONE,
+			{ "Name", "smb2.fsctl.wait.name", FT_STRING, STR_UNICODE,
 			NULL, 0, "Pipe name", HFILL }
 		},
 
@@ -10946,12 +10871,12 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_ioctl_sqos_initiator_name,
-			{ "InitiatorName", "smb2.ioctl.sqos.initiator_name", FT_STRING, BASE_NONE,
+			{ "InitiatorName", "smb2.ioctl.sqos.initiator_name", FT_STRING, STR_UNICODE,
 			NULL, 0x0, NULL, HFILL }
 		},
 
 		{ &hf_smb2_ioctl_sqos_initiator_node_name,
-			{ "InitiatorNodeName", "smb2.ioctl.sqos.initiator_node_name", FT_STRING, BASE_NONE,
+			{ "InitiatorNodeName", "smb2.ioctl.sqos.initiator_node_name", FT_STRING, STR_UNICODE,
 			NULL, 0x0, NULL, HFILL }
 		},
 
@@ -11086,19 +11011,24 @@ proto_register_smb2(void)
 			NULL, 0, "The link speed of the interface", HFILL }
 		},
 
-		{ &hf_smb2_ioctl_shadow_copy_num_volumes,
-			{ "Num Volumes", "smb2.ioctl.shadow_copy.num_volumes", FT_UINT32, BASE_DEC,
-			NULL, 0, "Number of shadow copy volumes", HFILL }
+		{ &hf_smb2_ioctl_enumerate_snapshots_num_snapshots,
+			{ "Number of snapshots", "smb2.ioctl.enumerate_snapshots.num_snapshots", FT_UINT32, BASE_DEC,
+			NULL, 0, "Number of previous versions associated with the volume", HFILL }
 		},
 
-		{ &hf_smb2_ioctl_shadow_copy_num_labels,
-			{ "Num Labels", "smb2.ioctl.shadow_copy.num_labels", FT_UINT32, BASE_DEC,
-			NULL, 0, "Number of shadow copy labels", HFILL }
+		{ &hf_smb2_ioctl_enumerate_snapshots_num_snapshots_returned,
+			{ "Number of snapshots returned", "smb2.ioctl.enumerate_snapshots.num_snapshots_returned", FT_UINT32, BASE_DEC,
+			NULL, 0, "Number of previous version time stamps returned", HFILL }
 		},
 
-		{ &hf_smb2_ioctl_shadow_copy_label,
-			{ "Label", "smb2.ioctl.shadow_copy.label", FT_STRING, BASE_NONE,
-			NULL, 0, "Shadow copy label", HFILL }
+		{ &hf_smb2_ioctl_enumerate_snapshots_snapshot_array_size,
+			{ "Array size", "smb2.ioctl.enumerate_snapshots.array_size", FT_UINT32, BASE_DEC,
+			NULL, 0, "Number of bytes for snapshot time stamp strings", HFILL }
+		},
+
+		{ &hf_smb2_ioctl_enumerate_snapshots_snapshot,
+			{ "Snapshot", "smb2.ioctl.enumerate_snapshots.snapshot", FT_STRINGZ, STR_UNICODE,
+			NULL, 0, "Time stamp of previous version", HFILL }
 		},
 
 		{ &hf_smb2_compression_format,
@@ -11181,11 +11111,6 @@ proto_register_smb2(void)
 			NULL, 0, NULL, HFILL }
 		},
 
-		{ &hf_smb2_ioctl_shadow_copy_count,
-			{ "Count", "smb2.ioctl.shadow_copy.count", FT_UINT32, BASE_DEC,
-			NULL, 0, "Number of bytes for shadow copy label strings", HFILL }
-		},
-
 		{ &hf_smb2_auth_frame,
 			{ "Authenticated in Frame", "smb2.auth_frame", FT_UINT32, BASE_DEC,
 			NULL, 0, "Which frame this user was authenticated in", HFILL }
@@ -11197,22 +11122,22 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_tag,
-			{ "Tag", "smb2.tag", FT_STRING, BASE_NONE,
+			{ "Tag", "smb2.tag", FT_STRING, STR_UNICODE,
 			NULL, 0, "Tag of chain entry", HFILL }
 		},
 
 		{ &hf_smb2_acct_name,
-			{ "Account", "smb2.acct", FT_STRING, BASE_NONE,
+			{ "Account", "smb2.acct", FT_STRING, STR_UNICODE,
 			NULL, 0, "Account Name", HFILL }
 		},
 
 		{ &hf_smb2_domain_name,
-			{ "Domain", "smb2.domain", FT_STRING, BASE_NONE,
+			{ "Domain", "smb2.domain", FT_STRING, STR_UNICODE,
 			NULL, 0, "Domain Name", HFILL }
 		},
 
 		{ &hf_smb2_host_name,
-			{ "Host", "smb2.host", FT_STRING, BASE_NONE,
+			{ "Host", "smb2.host", FT_STRING, STR_UNICODE,
 			NULL, 0, "Host Name", HFILL }
 		},
 
@@ -11557,7 +11482,7 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_short_name,
-			{ "Short Name", "smb2.shortname", FT_STRING, BASE_NONE,
+			{ "Short Name", "smb2.shortname", FT_STRING, STR_UNICODE,
 			NULL, 0, NULL, HFILL }
 		},
 
@@ -11672,7 +11597,7 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_error_redir_res_name,
-			{ "Resourse Name", "smb2.error.share_redirect.res_name", FT_STRING, BASE_NONE,
+			{ "Resourse Name", "smb2.error.share_redirect.res_name", FT_STRING, STR_UNICODE,
 			NULL, 0, NULL, HFILL }
 		},
 
@@ -11777,7 +11702,7 @@ proto_register_smb2(void)
 		},
 
 		{ &hf_smb2_svhdx_open_device_context_initiator_host_name,
-			{ "HostName", "smb2.svhdx_open_device_context.host_name", FT_STRING, BASE_NONE,
+			{ "HostName", "smb2.svhdx_open_device_context.host_name", FT_STRING, STR_UNICODE,
 			 NULL, 0, NULL, HFILL }
 		},
 
@@ -12112,7 +12037,7 @@ proto_register_smb2(void)
 		},
 		{ &hf_smb2_nfs_symlink_target,
 			{ "Symlink Target", "smb2.nfs.symlink.target", FT_STRING,
-			BASE_NONE, NULL, 0x0, NULL, HFILL }
+			STR_UNICODE, NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_smb2_nfs_chr_major,
 			{ "Major", "smb2.nfs.char.major", FT_UINT32,
@@ -12147,11 +12072,11 @@ proto_register_smb2(void)
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_smb2_symlink_substitute_name,
-			{ "Substitute Name", "smb2.symlink.substitute_name", FT_STRING, BASE_NONE,
+			{ "Substitute Name", "smb2.symlink.substitute_name", FT_STRING, STR_UNICODE,
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_smb2_symlink_print_name,
-			{ "Print Name", "smb2.symlink.print_name", FT_STRING, BASE_NONE,
+			{ "Print Name", "smb2.symlink.print_name", FT_STRING, STR_UNICODE,
 			NULL, 0x0, NULL, HFILL }
 		},
 		{ &hf_smb2_symlink_flags,
