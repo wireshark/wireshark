@@ -1273,6 +1273,55 @@ proto_tree_add_item_ret_string(proto_tree *tree, int hfindex, tvbuff_t *tvb,
     const gint start, gint length, const guint encoding,
     wmem_allocator_t *scope, const guint8 **retval);
 
+/** Add an string or byte array item to a proto_tree, using the
+text label registered to that item.
+
+This provides a string that is a display representation of the value,
+and the length of the item, similar to what
+proto_tree_add_item_ret_string_and_length() does.
+
+@param scope the wmem scope to use to allocate the string
+@param tree the tree to append this item to
+@param hfindex field
+@param tvb the tv buffer of the current data
+@param start start of data in tvb (cannot be negative)
+@param length length of data in tvb (for strings can be -1 for remaining)
+@param encoding data encoding (e.g, ENC_ASCII, ENC_UTF_8, etc.)
+@param[out] retval points to a guint8 * that will be set to point to the
+string value
+@param[out] lenretval points to a gint that will be set to the item length
+@return the newly created item, *retval is set to the display string,
+and *lenretval is set to the item length
+*/
+WS_DLL_PUBLIC proto_item *
+proto_tree_add_item_ret_display_string_and_length(proto_tree *tree, int hfindex,
+    tvbuff_t *tvb,
+    const gint start, gint length, const guint encoding,
+    wmem_allocator_t *scope, char **retval, gint *lenretval);
+
+/** Add an string or byte array item to a proto_tree, using the
+text label registered to that item.
+
+This provides a string that is a display representation of the value,
+similar to what proto_tree_add_item_ret_string() does.
+
+@param scope the wmem scope to use to allocate the string
+@param tree the tree to append this item to
+@param hfindex field
+@param tvb the tv buffer of the current data
+@param start start of data in tvb (cannot be negative)
+@param length length of data in tvb (for strings can be -1 for remaining)
+@param encoding data encoding (e.g, ENC_ASCII, ENC_UTF_8, etc.)
+@param[out] retval points to a guint8 * that will be set to point to the
+string value
+@return the newly created item, *retval is set to the display string
+*/
+WS_DLL_PUBLIC proto_item *
+proto_tree_add_item_ret_display_string(proto_tree *tree, int hfindex,
+    tvbuff_t *tvb,
+    const gint start, gint length, const guint encoding,
+    wmem_allocator_t *scope, char **retval);
+
 /** (INTERNAL USE ONLY) Add a text-only node to a proto_tree.
  @param tree the tree to append this item to
  @param tvb the tv buffer of the current data
@@ -3102,27 +3151,6 @@ proto_custom_set(proto_tree* tree, GSList *field_id,
                              gint occurrence,
                              gchar *result,
                              gchar *expr, const int size );
-
-/*
- * We're exporting some formatting functions here to handle
- * dissectors that want to append string or byte array values to
- * a column or a higher-level protocol tree item.
- *
- * This should really be done with an internal-to-libwireshark routine
- * to write that value to a string, snprintf-style (with a pointer to
- * the buffer and and the buffer size, which could be a pointer into
- * a buffer and the remaining amount of space in the buffer), and
- * column and protocol-tree routines to append to columns and
- * protocol-tree item representations, respectively.
- *
- * But we should probably try to make that append routine useful
- * for appending to *all* protocol-tree item representations, and
- * not have, for example, the XXX_value_format_display(),
- * XXX_value_format(), and XXX_vals_format() routines - what the
- * heck is going on there?
- */
-WS_DLL_PUBLIC char *proto_string_item_get_display_string(wmem_allocator_t *scope, proto_item *pi);
-WS_DLL_PUBLIC char *proto_bytes_item_get_display_string(wmem_allocator_t *scope, proto_item *pi);
 
 /* #define HAVE_HFI_SECTION_INIT */
 

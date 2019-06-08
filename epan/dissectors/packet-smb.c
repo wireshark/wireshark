@@ -12275,8 +12275,9 @@ dissect_4_2_16_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	COUNT_BYTES_SUBR(4);
 
 	while (*bcp > 0) {
-		proto_item *item, *ti;
+		proto_item *item;
 		proto_tree *subtree;
+		char *display_string;
 		int start_offset = offset;
 
 		subtree = proto_tree_add_subtree(
@@ -12310,11 +12311,11 @@ dissect_4_2_16_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		/* EA name */
 
 		CHECK_BYTE_COUNT_SUBR(name_len + 1);
-		ti = proto_tree_add_item(
+		proto_tree_add_item_ret_display_string(
 			subtree, hf_smb_ea_name, tvb, offset, name_len + 1,
-			ENC_ASCII|ENC_NA);
-		proto_item_append_text(item, ": %s",
-			proto_string_item_get_display_string(wmem_packet_scope(), ti));
+			ENC_ASCII|ENC_NA,
+			wmem_packet_scope(), &display_string);
+		proto_item_append_text(item, ": %s", display_string);
 		COUNT_BYTES_SUBR(name_len + 1);
 
 		/* EA data */
@@ -20078,7 +20079,7 @@ proto_register_smb(void)
 		NULL, 0, "Number of bytes in spool file", HFILL }},
 
 	{ &hf_smb_print_spool_file_name,
-		{ "Name", "smb.print.spool.name", FT_STRINGZ, BASE_NONE,
+		{ "Name", "smb.print.spool.name", FT_STRINGZ, STR_UNICODE,
 		NULL, 0, "Name of client that submitted this job", HFILL }},
 
 	{ &hf_smb_start_index,
@@ -20086,11 +20087,11 @@ proto_register_smb(void)
 		NULL, 0, "First queue entry to return", HFILL }},
 
 	{ &hf_smb_originator_name,
-		{ "Originator Name", "smb.originator_name", FT_STRINGZ, BASE_NONE,
+		{ "Originator Name", "smb.originator_name", FT_STRINGZ, STR_UNICODE,
 		NULL, 0, "Name of sender of message", HFILL }},
 
 	{ &hf_smb_destination_name,
-		{ "Destination Name", "smb.destination_name", FT_STRINGZ, BASE_NONE,
+		{ "Destination Name", "smb.destination_name", FT_STRINGZ, STR_UNICODE,
 		NULL, 0, "Name of recipient of message", HFILL }},
 
 	{ &hf_smb_message_len,
@@ -20106,11 +20107,11 @@ proto_register_smb(void)
 		NULL, 0, "Message group ID for multi-block messages", HFILL }},
 
 	{ &hf_smb_forwarded_name,
-		{ "Forwarded Name", "smb.forwarded_name", FT_STRINGZ, BASE_NONE,
+		{ "Forwarded Name", "smb.forwarded_name", FT_STRINGZ, STR_UNICODE,
 		NULL, 0, "Recipient name being forwarded", HFILL }},
 
 	{ &hf_smb_machine_name,
-		{ "Machine Name", "smb.machine_name", FT_STRINGZ, BASE_NONE,
+		{ "Machine Name", "smb.machine_name", FT_STRINGZ, STR_UNICODE,
 		NULL, 0, "Name of target machine", HFILL }},
 
 	{ &hf_smb_cancel_to,
@@ -20939,7 +20940,7 @@ proto_register_smb(void)
 
 	{ &hf_smb_unix_file_name,
 	  { "File name", "smb.unix.file.name", FT_STRING,
-	    BASE_NONE, NULL, 0, NULL, HFILL }},
+	    STR_UNICODE, NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb_unix_find_file_nextoffset,
 	  { "Next entry offset", "smb.unix.find_file.next_offset", FT_UINT32, BASE_DEC,
