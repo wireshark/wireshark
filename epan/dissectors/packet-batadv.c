@@ -633,6 +633,7 @@ static int hf_batadv_unicast_frag_flags_largetail = -1;
 static int hf_batadv_iv_ogm_flags_not_best_next_hop = -1;
 static int hf_batadv_iv_ogm_flags_primaries_first_hop = -1;
 static int hf_batadv_iv_ogm_flags_directlink = -1;
+static int hf_batadv_tvlv_mcast_flags = -1;
 static int hf_batadv_tvlv_mcast_flags_unsnoopables = -1;
 static int hf_batadv_tvlv_mcast_flags_ipv4 = -1;
 static int hf_batadv_tvlv_mcast_flags_ipv6 = -1;
@@ -3998,7 +3999,7 @@ static void dissect_batadv_tvlv_v15_mcast(tvbuff_t *tvb, packet_info *pinfo,
 		return;
 	}
 
-	proto_tree_add_bitmask(tree, tvb, offset, hf_batadv_iv_ogm_flags,
+	proto_tree_add_bitmask(tree, tvb, offset, hf_batadv_tvlv_mcast_flags,
 			       ett_batadv_tvlv_mcast_flags, flags, ENC_NA);
 
 	/* 3 byte of padding. */
@@ -4907,6 +4908,11 @@ void proto_register_batadv(void)
 		{ &hf_batadv_tvlv_len,
 		  { "Length", "batadv.tvlv.len",
 		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_batadv_tvlv_mcast_flags,
+		  { "Flags", "batadv.tvlv.mcast.flags",
+		    FT_UINT8, BASE_HEX, NULL, 0x0,
 		    NULL, HFILL }
 		},
 		{ &hf_batadv_tvlv_mcast_flags_unsnoopables,
