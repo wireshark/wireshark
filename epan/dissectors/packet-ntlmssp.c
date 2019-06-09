@@ -41,6 +41,15 @@
 
 #include "packet-ntlmssp.h"
 
+/*
+ * See
+ *
+ *   https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-nlmp/
+ *
+ * for Microsoft's MS-NLMP, NT LAN Manager (NTLM) Authentication Protocol
+ * Specification.
+ */
+
 void proto_register_ntlmssp(void);
 void proto_reg_handoff_ntlmssp(void);
 
@@ -85,10 +94,7 @@ static GHashTable* hash_packet = NULL;
  * "Request Non-NT Session Key", rather than those values shifted
  * right one having those interpretations.
  *
- * UPDATE: Further information obtained from [MS-NLMP] 2.2.2.5:
- * NT LAN Manager (NTLM) Authentication Protocol Specification
- * http://msdn2.microsoft.com/en-us/library/cc236621.aspx
- *
+ * UPDATE: Further information obtained from [MS-NLMP] 2.2.2.5
  */
 #define NTLMSSP_NEGOTIATE_UNICODE                  0x00000001
 #define NTLMSSP_NEGOTIATE_OEM                      0x00000002
