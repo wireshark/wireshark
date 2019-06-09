@@ -532,6 +532,7 @@ static int hf_batadv_unicast_frag_flags = -1;
 static int hf_batadv_unicast_frag_orig = -1;
 static int hf_batadv_unicast_frag_seqno = -1;
 static int hf_batadv_unicast_frag_no = -1;
+static int hf_batadv_unicast_frag_priority = -1;
 static int hf_batadv_unicast_frag_total_size = -1;
 
 static int hf_batadv_unicast_tvlv_version = -1;
@@ -2942,6 +2943,10 @@ static void dissect_batadv_unicast_frag_v15(tvbuff_t *tvb, packet_info *pinfo,
 	unicast_frag_packeth->no = tvb_get_guint8(tvb, offset);
 	proto_tree_add_item(batadv_unicast_frag_tree, hf_batadv_unicast_frag_no,
 			    tvb, offset, 1, ENC_BIG_ENDIAN);
+
+	proto_tree_add_item(batadv_unicast_frag_tree,
+			    hf_batadv_unicast_frag_priority,
+			    tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	set_address_tvb(&unicast_frag_packeth->dest, AT_ETHER, 6, tvb, offset);
@@ -4591,6 +4596,11 @@ void proto_register_batadv(void)
 		{ &hf_batadv_unicast_frag_no,
 		  { "Fragment number", "batadv.unicast_frag.no",
 		    FT_UINT8, BASE_DEC, NULL, 0xF0,
+		    NULL, HFILL }
+		},
+		{ &hf_batadv_unicast_frag_priority,
+		  { "Priority", "batadv.unicast_frag.priority",
+		    FT_UINT8, BASE_DEC, NULL, 0xE,
 		    NULL, HFILL }
 		},
 		{ &hf_batadv_unicast_frag_total_size,
