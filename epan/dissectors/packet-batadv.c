@@ -37,6 +37,7 @@
 #define BATADV_IV_OGM_V15        0x00
 #define BATADV_BCAST_V15         0x01
 #define BATADV_CODED_V15         0x02
+#define BATADV_ELP_V15           0x03
 #define BATADV_UNICAST_V15       0x40
 #define BATADV_UNICAST_FRAG_V15  0x41
 #define BATADV_UNICAST_4ADDR_V15 0x42
@@ -182,6 +183,15 @@ struct iv_ogm_packet_v15 {
 	guint16 tvlv_len;
 };
 #define IV_OGM_PACKET_V15_SIZE 24
+
+struct elp_packet_v15 {
+	guint8  packet_type;
+	guint8  version;
+	address orig;
+	guint32 seqno;
+	guint32 interval;
+};
+#define ELP_PACKET_V15_SIZE 16
 
 struct icmp_packet_v6 {
 	guint8  packet_type;
@@ -438,6 +448,7 @@ static gint ett_batadv_batman_gwflags = -1;
 static gint ett_batadv_batman_tt = -1;
 static gint ett_batadv_iv_ogm = -1;
 static gint ett_batadv_iv_ogm_flags = -1;
+static gint ett_batadv_elp = -1;
 static gint ett_batadv_bcast = -1;
 static gint ett_batadv_icmp = -1;
 static gint ett_batadv_icmp_rr = -1;
@@ -494,6 +505,11 @@ static int hf_batadv_iv_ogm_orig = -1;
 static int hf_batadv_iv_ogm_prev_sender = -1;
 static int hf_batadv_iv_ogm_tq = -1;
 static int hf_batadv_iv_ogm_tvlv_len = -1;
+
+static int hf_batadv_elp_version = -1;
+static int hf_batadv_elp_orig = -1;
+static int hf_batadv_elp_seqno = -1;
+static int hf_batadv_elp_interval = -1;
 
 static int hf_batadv_bcast_version = -1;
 static int hf_batadv_bcast_orig = -1;
@@ -770,6 +786,9 @@ static int dissect_batadv_batman_v14(tvbuff_t *tvb, int offset, packet_info *pin
 static void dissect_batadv_iv_ogm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static int dissect_batadv_iv_ogm_v15(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree);
 
+static void dissect_batadv_elp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static void dissect_batadv_elp_v15(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+
 static void dissect_batadv_bcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_batadv_bcast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void dissect_batadv_bcast_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
@@ -924,6 +943,9 @@ static void dissect_batadv_v15(tvbuff_t *tvb, packet_info *pinfo,
 		break;
 	case BATADV_CODED_V15:
 		dissect_batadv_coded(tvb, pinfo, tree);
+		break;
+	case BATADV_ELP_V15:
+		dissect_batadv_elp(tvb, pinfo, tree);
 		break;
 	case BATADV_UNICAST_V15:
 		dissect_batadv_unicast(tvb, pinfo, tree);
@@ -3756,6 +3778,97 @@ static void dissect_batadv_coded_v15(tvbuff_t *tvb, packet_info *pinfo,
 	}
 }
 
+static void dissect_batadv_elp(tvbuff_t *tvb, packet_info *pinfo,
+			       proto_tree *tree)
+{
+	guint8 version;
+
+	/* set protocol name */
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BATADV_ELP");
+
+	version = tvb_get_guint8(tvb, 1);
+	switch (version) {
+	case 15:
+		dissect_batadv_elp_v15(tvb, pinfo, tree);
+		break;
+	default:
+		col_add_fstr(pinfo->cinfo, COL_INFO, "Unsupported Version %d",
+			     version);
+		call_data_dissector(tvb, pinfo, tree);
+		break;
+	}
+}
+
+static void dissect_batadv_elp_v15(tvbuff_t *tvb, packet_info *pinfo,
+				   proto_tree *tree)
+{
+	struct elp_packet_v15 *elp_packeth;
+	proto_tree *batadv_elp_tree = NULL;
+
+	tvbuff_t *next_tvb;
+	gint length_remaining;
+	int offset = 0;
+
+	elp_packeth = (struct elp_packet_v15 *)wmem_alloc(wmem_packet_scope(),
+							  sizeof(struct elp_packet_v15));
+
+	/* Set tree info */
+	if (tree) {
+		proto_item *ti;
+
+		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin,
+						    tvb, 0,
+						    ELP_PACKET_V15_SIZE,
+						    "B.A.T.M.A.N. ELP");
+		batadv_elp_tree = proto_item_add_subtree(ti, ett_batadv_elp);
+	}
+
+	/* items */
+	elp_packeth->packet_type = tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint_format_value(batadv_elp_tree,
+					 hf_batadv_packet_type,
+					 tvb, offset, 1,
+					 elp_packeth->packet_type,
+					 "%s (%u)", "BATADV_ELP",
+					 elp_packeth->packet_type);
+	offset += 1;
+
+	elp_packeth->version = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(batadv_elp_tree, hf_batadv_elp_version, tvb,
+			    offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+
+	set_address_tvb(&elp_packeth->orig, AT_ETHER, 6, tvb, offset);
+	set_address_tvb(&pinfo->dl_src, AT_ETHER, 6, tvb, offset);
+	set_address_tvb(&pinfo->src, AT_ETHER, 6, tvb, offset);
+	proto_tree_add_item(batadv_elp_tree, hf_batadv_elp_orig, tvb,
+			    offset, 6, ENC_NA);
+	offset += 6;
+
+	elp_packeth->seqno = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_item(batadv_elp_tree, hf_batadv_elp_seqno, tvb,
+			    offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	elp_packeth->interval = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_item(batadv_elp_tree, hf_batadv_elp_interval, tvb,
+			    offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	tap_queue_packet(batadv_tap, pinfo, elp_packeth);
+
+	length_remaining = tvb_reported_length_remaining(tvb, offset);
+	if (length_remaining > 0) {
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
+
+		if (have_tap_listener(batadv_follow_tap)) {
+			tap_queue_packet(batadv_follow_tap, pinfo, next_tvb);
+		}
+
+		call_data_dissector(next_tvb, pinfo, tree);
+	}
+}
+
 static void dissect_batadv_unicast_tvlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8 version;
@@ -4428,6 +4541,26 @@ void proto_register_batadv(void)
 		    FT_ETHER, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }
 		},
+		{ &hf_batadv_elp_version,
+		  { "Version", "batadv.elp.version",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_batadv_elp_orig,
+		  { "Originator", "batadv.elp.orig",
+		    FT_ETHER, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_batadv_elp_seqno,
+		  { "Sequence number", "batadv.elp.seq",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
+		{ &hf_batadv_elp_interval,
+		  { "ELP Interval", "batadv.elp.interval",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL }
+		},
 		{ &hf_batadv_bcast_version,
 		  { "Version", "batadv.bcast.version",
 		    FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -5061,6 +5194,7 @@ void proto_register_batadv(void)
 		&ett_batadv_batman_gwflags,
 		&ett_batadv_iv_ogm,
 		&ett_batadv_iv_ogm_flags,
+		&ett_batadv_elp,
 		&ett_batadv_bcast,
 		&ett_batadv_icmp,
 		&ett_batadv_icmp_rr,
