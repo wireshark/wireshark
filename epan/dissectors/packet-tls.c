@@ -2230,6 +2230,13 @@ save_tls_handshake_fragment(packet_info *pinfo, guint8 curr_layer_num_tls,
     // 0 is a special value indicating no reassembly in progress.
     DISSECTOR_ASSERT(reassembly_id != 0);
 
+    if (tvb_reported_length(tvb) > tvb_captured_length(tvb)) {
+        // The reassembly API will refuse to add fragments when not all
+        // available data has been captured. Since we were given a tvb with at
+        // least 'frag_len' data, we must always succeed in obtaining a subset.
+        tvb = tvb_new_subset_length(tvb, 0, offset + frag_len);
+    }
+
     SslPacketInfo *pi = tls_add_packet_info(proto_tls, pinfo, curr_layer_num_tls);
     TlsHsFragment *frag_info = wmem_new0(wmem_file_scope(), TlsHsFragment);
     frag_info->record_id = record_id;
@@ -2378,14 +2385,21 @@ dissect_tls_handshake(tvbuff_t *tvb, packet_info *pinfo,
                 }
             }
 
-            // Check if the handshake message is complete.
-            guint8 msg_type = tvb_get_guint8(len_tvb, 0);
-            gboolean is_last = frags_len + subset_len == msg_len;
-            frag_info = save_tls_handshake_fragment(pinfo, curr_layer_num_tls, record_id, *hs_reassembly_id_p,
-                    tvb, offset, subset_len, frags_len, msg_type, is_last);
-            if (is_last) {
-                // Reassembly finished, next message should not continue this message.
+            if (tvb_captured_length(tvb) < offset + subset_len) {
+                // Not all data has been captured. As we are missing data, the
+                // reassembly cannot be completed nor do we know the boundary
+                // where the next handshake message starts. Stop reassembly.
                 *hs_reassembly_id_p = 0;
+            } else {
+                // Check if the handshake message is complete.
+                guint8 msg_type = tvb_get_guint8(len_tvb, 0);
+                gboolean is_last = frags_len + subset_len == msg_len;
+                frag_info = save_tls_handshake_fragment(pinfo, curr_layer_num_tls, record_id, *hs_reassembly_id_p,
+                        tvb, offset, subset_len, frags_len, msg_type, is_last);
+                if (is_last) {
+                    // Reassembly finished, next message should not continue this message.
+                    *hs_reassembly_id_p = 0;
+                }
             }
         }
     } else {
@@ -2409,7 +2423,7 @@ dissect_tls_handshake(tvbuff_t *tvb, packet_info *pinfo,
             // Skip a subset of the bytes of this buffer.
             subset_len = tvb_reported_length_remaining(fh->tvb_data, frag_info->offset);
 
-            // Add a tree item to mark the handshake fragmnet.
+            // Add a tree item to mark the handshake fragment.
             proto_item *ti = proto_tree_add_item(tree,
                     hf_tls_handshake_protocol, tvb, offset, subset_len, ENC_NA);
             offset += subset_len;
