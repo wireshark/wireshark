@@ -279,7 +279,7 @@ typedef struct _ntlmssp_blob {
 /* Used in the conversation function */
 typedef struct _ntlmssp_info {
   guint32          flags;
-  int              is_auth_ntlm_v2;
+  gboolean         is_auth_ntlm_v2;
   gcry_cipher_hd_t rc4_handle_client;
   gcry_cipher_hd_t rc4_handle_server;
   guint8           sign_key_client[NTLMSSP_KEY_LEN];
@@ -287,7 +287,7 @@ typedef struct _ntlmssp_info {
   guint32          server_dest_port;
   unsigned char    server_challenge[8];
   unsigned char    client_challenge[8];
-  int              rc4_state_initialized;
+  gboolean         rc4_state_initialized;
   ntlmssp_blob     ntlm_response;
   ntlmssp_blob     lm_response;
 } ntlmssp_info;
@@ -1510,7 +1510,7 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
     conv_ntlmssp_info->flags = negotiate_flags;
     /* Insert the RC4 state information into the conversation */
     tvb_memcpy(tvb, conv_ntlmssp_info->server_challenge, offset, 8);
-    conv_ntlmssp_info->is_auth_ntlm_v2 = 0;
+    conv_ntlmssp_info->is_auth_ntlm_v2 = FALSE;
     /* Between the challenge and the user provided password, we can build the
        NTLMSSP key and initialize the cipher if we are not in EXTENDED SECURITY
        in this case we need the client challenge as well*/
@@ -1519,7 +1519,7 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
      * NEGOTIATE NT ONLY is not set and NEGOSIATE EXTENDED SECURITY is not set as well*/
     if (!(conv_ntlmssp_info->flags & NTLMSSP_NEGOTIATE_EXTENDED_SECURITY))
     {
-      conv_ntlmssp_info->rc4_state_initialized = 0;
+      conv_ntlmssp_info->rc4_state_initialized = FALSE;
       /* XXX - Make sure there is 24 bytes for the key */
       conv_ntlmssp_info->ntlm_response.contents = (guint8 *)wmem_alloc0(wmem_file_scope(), 24);
       conv_ntlmssp_info->lm_response.contents = (guint8 *)wmem_alloc0(wmem_file_scope(), 24);
@@ -1541,7 +1541,7 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
         }
         if (conv_ntlmssp_info->rc4_handle_client && conv_ntlmssp_info->rc4_handle_server) {
           conv_ntlmssp_info->server_dest_port = pinfo->destport;
-          conv_ntlmssp_info->rc4_state_initialized = 1;
+          conv_ntlmssp_info->rc4_state_initialized = TRUE;
         }
       }
     }
@@ -1640,6 +1640,8 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
    *      - has the NEGOTIATE & CHALLENGE messages in one TCP connection;
    *      - has the AUTHENTICATE message in a second TCP connection;
    *        (The authentication aparently succeeded).
+   *      For that case, we'd somehow have to manage NTLMSSP exchanges
+   *      that cross TCP connection boundaries.
    */
   conv_ntlmssp_info = (ntlmssp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ntlmssp, NTLMSSP_CONV_INFO_KEY);
   if (conv_ntlmssp_info == NULL) {
@@ -1717,7 +1719,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
   {
     if (conv_ntlmssp_info->ntlm_response.length > 24)
     {
-      conv_ntlmssp_info->is_auth_ntlm_v2 = 1;
+      conv_ntlmssp_info->is_auth_ntlm_v2 = TRUE;
       /*
        * XXX - at least according to 2.2.2.7 "NTLM v2: NTLMv2_CLIENT_CHALLENGE"
        * in [MS-NLMP], the client challenge is at an offset of 16 bytes,
@@ -1737,7 +1739,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
     }
     else
     {
-      conv_ntlmssp_info->is_auth_ntlm_v2 = 0;
+      conv_ntlmssp_info->is_auth_ntlm_v2 = FALSE;
     }
   }
 
@@ -1822,7 +1824,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
       /* If we are in EXTENDED SECURITY then we can now initialize cipher */
       if ((conv_ntlmssp_info->flags & NTLMSSP_NEGOTIATE_EXTENDED_SECURITY))
       {
-        conv_ntlmssp_info->rc4_state_initialized = 0;
+        conv_ntlmssp_info->rc4_state_initialized = FALSE;
         if (conv_ntlmssp_info->is_auth_ntlm_v2) {
           create_ntlmssp_v2_key(gbl_nt_password, conv_ntlmssp_info->server_challenge, conv_ntlmssp_info->client_challenge, sspkey, encryptedsessionkey, conv_ntlmssp_info->flags, &conv_ntlmssp_info->ntlm_response, &conv_ntlmssp_info->lm_response, ntlmssph);
         }
@@ -1853,7 +1855,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
           }
           if (conv_ntlmssp_info->rc4_handle_server && conv_ntlmssp_info->rc4_handle_client) {
             conv_ntlmssp_info->server_dest_port = pinfo->destport;
-            conv_ntlmssp_info->rc4_state_initialized = 1;
+            conv_ntlmssp_info->rc4_state_initialized = TRUE;
           }
         }
       }
@@ -2043,7 +2045,7 @@ decrypt_data_payload(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
       /* There is no NTLMSSP state tied to the conversation */
       return NULL;
     }
-    if (conv_ntlmssp_info->rc4_state_initialized != 1) {
+    if (!conv_ntlmssp_info->rc4_state_initialized) {
       /* The crypto sybsystem is not initialized.  This means that either
          the conversation did not include a challenge, or that we do not have the right password */
       return NULL;
@@ -2259,7 +2261,7 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
   }
   else {
     if (!packet_ntlmssp_info->verifier_decrypted) {
-      if (conv_ntlmssp_info->rc4_state_initialized != 1) {
+      if (!conv_ntlmssp_info->rc4_state_initialized) {
         /* The crypto sybsystem is not initialized.  This means that either
            the conversation did not include a challenge, or we are doing
            something other than NTLMSSP v1 */
