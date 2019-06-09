@@ -711,14 +711,26 @@ quic_connection_find(packet_info *pinfo, guint8 long_packet_type,
     gboolean is_long_packet = long_packet_type != QUIC_SHORT_PACKET;
     quic_info_data_t *conn = NULL;
 
-    if ((long_packet_type == QUIC_LPT_INITIAL || long_packet_type == QUIC_LPT_0RTT) && dcid->len > 0) {
+    if (long_packet_type == QUIC_LPT_0RTT && dcid->len > 0) {
+        // The 0-RTT packet always matches the SCID/DCID of the Client Initial
         conn = (quic_info_data_t *) wmem_map_lookup(quic_initial_connections, dcid);
-        // Both the client and server can send Initial (since draft -13).
-        if (!conn && long_packet_type == QUIC_LPT_INITIAL) {
-            conn = quic_connection_find_dcid(pinfo, dcid, from_server);
-        }
+        *from_server = FALSE;
     } else {
+        // Find a connection for Handshake and Server Initial packets by
+        // matching their DCID against the SCIDs of the original Initial packets
+        // from the peer. For Client Initial packets, match DCID of the first
+        // Client Initial (these may contain ACK frames).
         conn = quic_connection_find_dcid(pinfo, dcid, from_server);
+        if (long_packet_type == QUIC_LPT_INITIAL && conn && !*from_server && dcid->len > 0 &&
+            memcmp(dcid, &conn->client_dcid_initial, sizeof(quic_cid_t)) &&
+            !quic_cids_has_match(&conn->server_cids, dcid)) {
+            // If the Initial Packet is from the client, it must either match
+            // the DCID from the first Client Initial, or the DCID that was
+            // assigned by the server. Otherwise this must be considered a fresh
+            // Client Initial, for example after the Version Negotiation packet,
+            // and the connection must be cleared to avoid decryption failure.
+            conn = NULL;
+        }
     }
 
     if (!is_long_packet && !conn) {
