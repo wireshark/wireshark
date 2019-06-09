@@ -56,6 +56,7 @@
 #define DESTINATION_UNREACHABLE 3
 #define ECHO_REQUEST 8
 #define TTL_EXCEEDED 11
+#define BATADV_TP 15
 
 #define TT_TYPE_MASK    0x3
 #define TT_REQUEST      0
@@ -255,6 +256,21 @@ struct icmp_packet_v15 {
 	guint16 seqno;
 };
 #define ICMP_PACKET_V15_SIZE 20
+
+struct icmp_tp_packet_v15 {
+	guint8  packet_type;
+	guint8  version;  /* batman version field */
+	guint8  ttl;
+	guint8  msg_type; /* see ICMP message types above */
+	address dst;
+	address orig;
+	guint8  uid;
+	guint8  subtype;
+	guint16 session;
+	guint32 seqno;
+	guint32 timestamp;
+};
+#define ICMP_TP_PACKET_V15_SIZE 28
 
 struct unicast_packet_v6 {
 	guint8  packet_type;
@@ -551,6 +567,11 @@ static int hf_batadv_icmp_seqno = -1;
 static int hf_batadv_icmp_rr_pointer = -1;
 static int hf_batadv_icmp_rr_ether = -1;
 
+static int hf_batadv_icmp_tp_subtype = -1;
+static int hf_batadv_icmp_tp_session = -1;
+static int hf_batadv_icmp_tp_seqno = -1;
+static int hf_batadv_icmp_tp_timestamp = -1;
+
 static int hf_batadv_unicast_version = -1;
 static int hf_batadv_unicast_dst = -1;
 static int hf_batadv_unicast_ttl = -1;
@@ -705,6 +726,13 @@ static const value_string icmp_packettypenames[] = {
 	{ DESTINATION_UNREACHABLE, "DESTINATION UNREACHABLE" },
 	{ ECHO_REQUEST, "ECHO_REQUEST" },
 	{ TTL_EXCEEDED, "TTL exceeded" },
+	{ BATADV_TP, "Throughput Meter" },
+	{ 0, NULL }
+};
+
+static const value_string icmp_tp_packettypenames[] = {
+	{ 0, "Message" },
+	{ 1, "Acknowledgement" },
 	{ 0, NULL }
 };
 
@@ -2315,8 +2343,111 @@ static void dissect_batadv_icmp_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	}
 }
 
-static void dissect_batadv_icmp_v15(tvbuff_t *tvb, packet_info *pinfo,
-				    proto_tree *tree)
+static void dissect_batadv_icmp_tp_v15(tvbuff_t *tvb, packet_info *pinfo,
+				       proto_tree *tree)
+{
+	struct icmp_tp_packet_v15 *icmp_packeth;
+	proto_item *ti;
+	proto_tree *batadv_icmp_tree = NULL;
+
+	tvbuff_t *next_tvb;
+	gint length_remaining;
+	guint32 msg_type;
+	int offset = 0;
+
+	icmp_packeth = (struct icmp_tp_packet_v15 *)wmem_alloc(wmem_packet_scope(),
+							       sizeof(struct icmp_tp_packet_v15));
+
+	/* Set info column */
+	col_clear(pinfo->cinfo, COL_INFO);
+
+	/* Set tree info */
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin,
+					    tvb, 0, ICMP_PACKET_V14_SIZE,
+					    "B.A.T.M.A.N. ICMP TP, Orig: %s, Dst: %s",
+					    tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, 10),
+					    tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, 4));
+	batadv_icmp_tree = proto_item_add_subtree(ti, ett_batadv_icmp);
+
+	/* items */
+	icmp_packeth->packet_type = tvb_get_guint8(tvb, offset);
+	proto_tree_add_uint_format_value(batadv_icmp_tree,
+					 hf_batadv_packet_type, tvb,
+					 offset, 1, icmp_packeth->packet_type,
+					 "%s (%u)", "BATADV_ICMP",
+					 icmp_packeth->packet_type);
+	offset += 1;
+
+	icmp_packeth->version = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_version, tvb,
+			    offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+
+	icmp_packeth->ttl = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_ttl, tvb, offset,
+			    1, ENC_BIG_ENDIAN);
+	offset += 1;
+
+	icmp_packeth->msg_type = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item_ret_uint(batadv_icmp_tree, hf_batadv_icmp_msg_type,
+				     tvb, offset, 1, ENC_BIG_ENDIAN, &msg_type);
+	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s]",
+		     val_to_str(msg_type, icmp_packettypenames,
+				"Unknown (0x%02x)"));
+	offset += 1;
+
+	set_address_tvb(&icmp_packeth->dst, AT_ETHER, 6, tvb, offset);
+	copy_address_shallow(&pinfo->dl_dst, &icmp_packeth->dst);
+	copy_address_shallow(&pinfo->dst, &icmp_packeth->dst);
+
+	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_dst, tvb, offset,
+			    6, ENC_NA);
+	offset += 6;
+
+	set_address_tvb(&icmp_packeth->orig, AT_ETHER, 6, tvb, offset);
+	copy_address_shallow(&pinfo->dl_src, &icmp_packeth->orig);
+	copy_address_shallow(&pinfo->src, &icmp_packeth->orig);
+	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_orig, tvb, offset,
+			    6, ENC_NA);
+	offset += 6;
+
+	icmp_packeth->uid = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_uid, tvb, offset,
+			    1, ENC_BIG_ENDIAN);
+	offset += 1;
+
+	icmp_packeth->subtype = tvb_get_guint8(tvb, offset);
+	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_tp_subtype, tvb,
+			    offset, 1, ENC_BIG_ENDIAN);
+	offset += 1;
+
+	icmp_packeth->session = tvb_get_ntohs(tvb, offset);
+	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_tp_session, tvb,
+			    offset, 2, ENC_BIG_ENDIAN);
+	offset += 2;
+
+	proto_tree_add_item_ret_uint(batadv_icmp_tree, hf_batadv_icmp_tp_seqno,
+				     tvb, offset, 4, ENC_BIG_ENDIAN,
+				     &icmp_packeth->seqno);
+	col_append_fstr(pinfo->cinfo, COL_INFO, " Seq=%u", icmp_packeth->seqno);
+	offset += 4;
+
+	icmp_packeth->timestamp = tvb_get_ntohl(tvb, offset);
+	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_tp_timestamp, tvb,
+			    offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
+
+	tap_queue_packet(batadv_tap, pinfo, icmp_packeth);
+
+	length_remaining = tvb_reported_length_remaining(tvb, offset);
+	if (length_remaining > 0) {
+		next_tvb = tvb_new_subset_remaining(tvb, offset);
+		call_data_dissector(next_tvb, pinfo, tree);
+	}
+}
+
+static void dissect_batadv_icmp_simple_v15(tvbuff_t *tvb, packet_info *pinfo,
+					   proto_tree *tree)
 {
 	struct icmp_packet_v15 *icmp_packeth;
 	proto_item *ti;
@@ -2414,6 +2545,22 @@ static void dissect_batadv_icmp_v15(tvbuff_t *tvb, packet_info *pinfo,
 	if (length_remaining > 0) {
 		next_tvb = tvb_new_subset_remaining(tvb, offset);
 		call_data_dissector(next_tvb, pinfo, tree);
+	}
+}
+
+static void dissect_batadv_icmp_v15(tvbuff_t *tvb, packet_info *pinfo,
+				    proto_tree *tree)
+{
+	guint8 msg_type;
+
+	msg_type = tvb_get_guint8(tvb, 3);
+	switch (msg_type) {
+	case BATADV_TP:
+		dissect_batadv_icmp_tp_v15(tvb, pinfo, tree);
+		break;
+	default:
+		dissect_batadv_icmp_simple_v15(tvb, pinfo, tree);
+		break;
 	}
 }
 
@@ -4723,6 +4870,26 @@ void proto_register_batadv(void)
 		{ &hf_batadv_icmp_rr_ether,
 		  { "RR MAC", "batadv.icmp.rr_ether",
 		    FT_ETHER, BASE_NONE, NULL, 0x0,
+		    NULL, HFILL}
+		},
+		{ &hf_batadv_icmp_tp_subtype,
+		  { "Subtype", "batadv.icmp.tp.subtype",
+		    FT_UINT8, BASE_DEC, VALS(icmp_tp_packettypenames), 0x0,
+		    NULL, HFILL}
+		},
+		{ &hf_batadv_icmp_tp_session,
+		  { "Session", "batadv.icmp.tp.session",
+		    FT_UINT16, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL}
+		},
+		{ &hf_batadv_icmp_tp_seqno,
+		  { "Sequence number", "batadv.icmp.tp.seqno",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
+		    NULL, HFILL}
+		},
+		{ &hf_batadv_icmp_tp_timestamp,
+		  { "Timestamp", "batadv.icmp.tp.timestamp",
+		    FT_UINT32, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL}
 		},
 		{ &hf_batadv_unicast_version,
