@@ -71,6 +71,12 @@ IMPORTANT: *Windows Users* Because of restrictions directly calling the script m
 In such a case, a batch file may be provided, which then in turn executes the script.
 Please refer to <<ChCaptureExtcapWindowsShell>> for more information.
 
+When Wireshark launches an extcap, it automatically adds its installation path
+(c:\Program Files\Wireshark\) to the DLL search path so that the extcap library dependencies
+can be found (it is not designed to be launched by hand).  This is done on purpose. There should
+only be extcap programs (executable, python scripts, ...) in the extcap folder to reduce the startup
+time and not have Wireshark trying to execute other file types.
+
 [[ChCaptureExtcapProcess]]
 
 ==== Extcap command line interface
