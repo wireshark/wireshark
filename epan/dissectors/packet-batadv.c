@@ -1083,8 +1083,8 @@ static void dissect_batadv_gwflags(tvbuff_t *tvb, guint8 gwflags, int offset, pr
 
 static int dissect_batadv_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *tgw;
-	proto_tree *batadv_batman_tree = NULL;
+	proto_item *ti, *tgw;
+	proto_tree *batadv_batman_tree;
 	guint8 type;
 	struct batman_packet_v5 *batman_packeth;
 	gint i;
@@ -1118,14 +1118,10 @@ static int dissect_batadv_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinf
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", batman_packeth->seqno);
 
 	/* Set tree info */
-	if (tree) {
-		proto_item *ti;
-
-		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, offset, BATMAN_PACKET_V5_SIZE,
-							    "B.A.T.M.A.N., Orig: %s",
-							    address_with_resolution_to_str(wmem_packet_scope(), &batman_packeth->orig));
-		batadv_batman_tree = proto_item_add_subtree(ti, ett_batadv_batman);
-	}
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, offset, BATMAN_PACKET_V5_SIZE,
+						    "B.A.T.M.A.N., Orig: %s",
+						    address_with_resolution_to_str(wmem_packet_scope(), &batman_packeth->orig));
+	batadv_batman_tree = proto_item_add_subtree(ti, ett_batadv_batman);
 
 	/* items */
 	proto_tree_add_uint_format(batadv_batman_tree, hf_batadv_packet_type, tvb, offset, 1, BATADV_PACKET_V5,
@@ -1182,7 +1178,8 @@ static int dissect_batadv_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinf
 
 static int dissect_batadv_batman_v7(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree *batadv_batman_tree = NULL;
+	proto_tree *batadv_batman_tree;
+	proto_item *ti;
 	guint8 type;
 	struct batman_packet_v7 *batman_packeth;
 	gint i;
@@ -1213,14 +1210,10 @@ static int dissect_batadv_batman_v7(tvbuff_t *tvb, int offset, packet_info *pinf
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", batman_packeth->seqno);
 
 	/* Set tree info */
-	if (tree) {
-		proto_item *ti;
-
-		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, offset, BATMAN_PACKET_V7_SIZE,
-							    "B.A.T.M.A.N., Orig: %s",
-							    address_with_resolution_to_str(wmem_packet_scope(), &batman_packeth->orig));
-		batadv_batman_tree = proto_item_add_subtree(ti, ett_batadv_batman);
-	}
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, offset, BATMAN_PACKET_V7_SIZE,
+						    "B.A.T.M.A.N., Orig: %s",
+						    address_with_resolution_to_str(wmem_packet_scope(), &batman_packeth->orig));
+	batadv_batman_tree = proto_item_add_subtree(ti, ett_batadv_batman);
 
 	/* items */
 	proto_tree_add_uint_format(batadv_batman_tree, hf_batadv_packet_type, tvb, offset, 1, BATADV_PACKET_V5,
@@ -1270,8 +1263,8 @@ static int dissect_batadv_batman_v7(tvbuff_t *tvb, int offset, packet_info *pinf
 
 static int dissect_batadv_batman_v9(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *tgw;
-	proto_tree *batadv_batman_tree = NULL;
+	proto_item *ti, *tgw;
+	proto_tree *batadv_batman_tree;
 	guint8 type;
 	struct batman_packet_v9 *batman_packeth;
 	gint i;
@@ -1303,14 +1296,10 @@ static int dissect_batadv_batman_v9(tvbuff_t *tvb, int offset, packet_info *pinf
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", batman_packeth->seqno);
 
 	/* Set tree info */
-	if (tree) {
-		proto_item *ti;
-
-		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, offset, BATMAN_PACKET_V9_SIZE,
-							    "B.A.T.M.A.N., Orig: %s",
-							    address_with_resolution_to_str(wmem_packet_scope(), &batman_packeth->orig));
-		batadv_batman_tree = proto_item_add_subtree(ti, ett_batadv_batman);
-	}
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, offset, BATMAN_PACKET_V9_SIZE,
+						    "B.A.T.M.A.N., Orig: %s",
+						    address_with_resolution_to_str(wmem_packet_scope(), &batman_packeth->orig));
+	batadv_batman_tree = proto_item_add_subtree(ti, ett_batadv_batman);
 
 	/* items */
 	proto_tree_add_uint_format(batadv_batman_tree, hf_batadv_packet_type, tvb, offset, 1, BATADV_PACKET_V5,
@@ -1367,8 +1356,8 @@ static int dissect_batadv_batman_v9(tvbuff_t *tvb, int offset, packet_info *pinf
 
 static int dissect_batadv_batman_v10(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *tgw;
-	proto_tree *batadv_batman_tree = NULL;
+	proto_item *ti, *tgw;
+	proto_tree *batadv_batman_tree;
 	guint8 type;
 	struct batman_packet_v10 *batman_packeth;
 	gint i;
@@ -1400,14 +1389,10 @@ static int dissect_batadv_batman_v10(tvbuff_t *tvb, int offset, packet_info *pin
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", batman_packeth->seqno);
 
 	/* Set tree info */
-	if (tree) {
-		proto_item *ti;
-
-		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, offset, BATMAN_PACKET_V10_SIZE,
-							    "B.A.T.M.A.N., Orig: %s",
-							    address_with_resolution_to_str(wmem_packet_scope(), &batman_packeth->orig));
-		batadv_batman_tree = proto_item_add_subtree(ti, ett_batadv_batman);
-	}
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, offset, BATMAN_PACKET_V10_SIZE,
+						    "B.A.T.M.A.N., Orig: %s",
+						    address_with_resolution_to_str(wmem_packet_scope(), &batman_packeth->orig));
+	batadv_batman_tree = proto_item_add_subtree(ti, ett_batadv_batman);
 
 	/* items */
 	proto_tree_add_uint_format(batadv_batman_tree, hf_batadv_packet_type, tvb, offset, 1, BATADV_PACKET_V5,
@@ -1464,7 +1449,8 @@ static int dissect_batadv_batman_v10(tvbuff_t *tvb, int offset, packet_info *pin
 
 static int dissect_batadv_batman_v11(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree *batadv_batman_tree = NULL;
+	proto_tree *batadv_batman_tree;
+	proto_item *ti;
 	guint8 type;
 	struct batman_packet_v11 *batman_packeth;
 	gint i;
@@ -1495,14 +1481,10 @@ static int dissect_batadv_batman_v11(tvbuff_t *tvb, int offset, packet_info *pin
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", batman_packeth->seqno);
 
 	/* Set tree info */
-	if (tree) {
-		proto_item *ti;
-
-		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, offset, BATMAN_PACKET_V11_SIZE,
-							    "B.A.T.M.A.N., Orig: %s",
-							    address_with_resolution_to_str(wmem_packet_scope(), &batman_packeth->orig));
-		batadv_batman_tree = proto_item_add_subtree(ti, ett_batadv_batman);
-	}
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, offset, BATMAN_PACKET_V11_SIZE,
+						    "B.A.T.M.A.N., Orig: %s",
+						    address_with_resolution_to_str(wmem_packet_scope(), &batman_packeth->orig));
+	batadv_batman_tree = proto_item_add_subtree(ti, ett_batadv_batman);
 
 	/* items */
 	proto_tree_add_uint_format(batadv_batman_tree, hf_batadv_packet_type, tvb, offset, 1, BATADV_PACKET_V5,
@@ -1552,8 +1534,8 @@ static int dissect_batadv_batman_v11(tvbuff_t *tvb, int offset, packet_info *pin
 
 static int dissect_batadv_batman_v14(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-	proto_item *tgw;
-	proto_tree *batadv_batman_tree = NULL;
+	proto_item *ti, *tgw;
+	proto_tree *batadv_batman_tree;
 	guint8 type;
 	struct batman_packet_v14 *batman_packeth;
 	gint i;
@@ -1588,14 +1570,10 @@ static int dissect_batadv_batman_v14(tvbuff_t *tvb, int offset, packet_info *pin
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", batman_packeth->seqno);
 
 	/* Set tree info */
-	if (tree) {
-		proto_item *ti;
-
-		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, offset, BATMAN_PACKET_V14_SIZE,
-							    "B.A.T.M.A.N., Orig: %s",
-							    address_with_resolution_to_str(wmem_packet_scope(), &batman_packeth->orig));
-		batadv_batman_tree = proto_item_add_subtree(ti, ett_batadv_batman);
-	}
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, offset, BATMAN_PACKET_V14_SIZE,
+						    "B.A.T.M.A.N., Orig: %s",
+						    address_with_resolution_to_str(wmem_packet_scope(), &batman_packeth->orig));
+	batadv_batman_tree = proto_item_add_subtree(ti, ett_batadv_batman);
 
 	/* items */
 	proto_tree_add_uint_format(batadv_batman_tree, hf_batadv_packet_type, tvb, offset, 1, BATADV_PACKET_V5,
@@ -1685,7 +1663,8 @@ static void dissect_batadv_iv_ogm(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 static int dissect_batadv_iv_ogm_v15(tvbuff_t *tvb, int offset,
 				     packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree *batadv_iv_ogm_tree = NULL;
+	proto_tree *batadv_iv_ogm_tree;
+	proto_item *ti;
 	guint8 type, version;
 	struct iv_ogm_packet_v15 *iv_ogm_packeth;
 	tvbuff_t *next_tvb;
@@ -1710,16 +1689,12 @@ static int dissect_batadv_iv_ogm_v15(tvbuff_t *tvb, int offset,
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", iv_ogm_packeth->seqno);
 
 	/* Set tree info */
-	if (tree) {
-		proto_item *ti;
-
-		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin,
-						    tvb, offset,
-						    IV_OGM_PACKET_V15_SIZE + iv_ogm_packeth->tvlv_len,
-						    "B.A.T.M.A.N. IV OGM, Orig: %s",
-						    tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, offset + 8));
-		batadv_iv_ogm_tree = proto_item_add_subtree(ti, ett_batadv_iv_ogm);
-	}
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin,
+					    tvb, offset,
+					    IV_OGM_PACKET_V15_SIZE + iv_ogm_packeth->tvlv_len,
+					    "B.A.T.M.A.N. IV OGM, Orig: %s",
+					    tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, offset + 8));
+	batadv_iv_ogm_tree = proto_item_add_subtree(ti, ett_batadv_iv_ogm);
 
 	/* items */
 	iv_ogm_packeth->packet_type = tvb_get_guint8(tvb, offset);
@@ -1847,7 +1822,8 @@ static void dissect_batadv_bcast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	tvbuff_t *next_tvb;
 	gint length_remaining;
 	int offset = 0;
-	proto_tree *batadv_bcast_tree = NULL;
+	proto_tree *batadv_bcast_tree;
+	proto_item *ti;
 
 	bcast_packeth = (struct bcast_packet_v6 *)wmem_alloc(wmem_packet_scope(), sizeof(struct bcast_packet_v6));
 
@@ -1861,14 +1837,10 @@ static void dissect_batadv_bcast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", bcast_packeth->seqno);
 
 	/* Set tree info */
-	if (tree) {
-		proto_item *ti;
-
-		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, BCAST_PACKET_V6_SIZE,
-							    "B.A.T.M.A.N. Bcast, Orig: %s",
-							    address_with_resolution_to_str(wmem_packet_scope(), &bcast_packeth->orig));
-		batadv_bcast_tree = proto_item_add_subtree(ti, ett_batadv_bcast);
-	}
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, BCAST_PACKET_V6_SIZE,
+						    "B.A.T.M.A.N. Bcast, Orig: %s",
+						    address_with_resolution_to_str(wmem_packet_scope(), &bcast_packeth->orig));
+	batadv_bcast_tree = proto_item_add_subtree(ti, ett_batadv_bcast);
 
 	/* items */
 	proto_tree_add_uint_format(batadv_bcast_tree, hf_batadv_packet_type, tvb, offset, 1, BATADV_BCAST_V5,
@@ -1904,7 +1876,8 @@ static void dissect_batadv_bcast_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	tvbuff_t *next_tvb;
 	gint length_remaining;
 	int offset = 0;
-	proto_tree *batadv_bcast_tree = NULL;
+	proto_tree *batadv_bcast_tree;
+	proto_item *ti;
 
 	bcast_packeth = (struct bcast_packet_v10 *)wmem_alloc(wmem_packet_scope(), sizeof(struct bcast_packet_v10));
 
@@ -1919,14 +1892,10 @@ static void dissect_batadv_bcast_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", bcast_packeth->seqno);
 
 	/* Set tree info */
-	if (tree) {
-		proto_item *ti;
-
-		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, BCAST_PACKET_V10_SIZE,
-							    "B.A.T.M.A.N. Bcast, Orig: %s",
-							    address_with_resolution_to_str(wmem_packet_scope(), &bcast_packeth->orig));
-		batadv_bcast_tree = proto_item_add_subtree(ti, ett_batadv_bcast);
-	}
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, BCAST_PACKET_V10_SIZE,
+						    "B.A.T.M.A.N. Bcast, Orig: %s",
+						    address_with_resolution_to_str(wmem_packet_scope(), &bcast_packeth->orig));
+	batadv_bcast_tree = proto_item_add_subtree(ti, ett_batadv_bcast);
 
 	/* items */
 	proto_tree_add_uint_format(batadv_bcast_tree, hf_batadv_packet_type, tvb, offset, 1, BATADV_BCAST_V5,
@@ -1966,7 +1935,8 @@ static void dissect_batadv_bcast_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	tvbuff_t *next_tvb;
 	gint length_remaining;
 	int offset = 0;
-	proto_tree *batadv_bcast_tree = NULL;
+	proto_tree *batadv_bcast_tree;
+	proto_item *ti;
 
 	bcast_packeth = (struct bcast_packet_v14 *)wmem_alloc(wmem_packet_scope(), sizeof(struct bcast_packet_v14));
 
@@ -1983,14 +1953,10 @@ static void dissect_batadv_bcast_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", bcast_packeth->seqno);
 
 	/* Set tree info */
-	if (tree) {
-		proto_item *ti;
-
-		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, BCAST_PACKET_V14_SIZE,
-							    "B.A.T.M.A.N. Bcast, Orig: %s",
-							    address_with_resolution_to_str(wmem_packet_scope(), &bcast_packeth->orig));
-		batadv_bcast_tree = proto_item_add_subtree(ti, ett_batadv_bcast);
-	}
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, BCAST_PACKET_V14_SIZE,
+						    "B.A.T.M.A.N. Bcast, Orig: %s",
+						    address_with_resolution_to_str(wmem_packet_scope(), &bcast_packeth->orig));
+	batadv_bcast_tree = proto_item_add_subtree(ti, ett_batadv_bcast);
 
 	/* items */
 	proto_tree_add_uint_format_value(batadv_bcast_tree,
@@ -2069,7 +2035,8 @@ static void dissect_batadv_icmp_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	tvbuff_t *next_tvb;
 	gint length_remaining;
 	int offset = 0;
-	proto_tree *batadv_icmp_tree = NULL;
+	proto_tree *batadv_icmp_tree;
+	proto_item *ti;
 
 	icmp_packeth = (struct icmp_packet_v6 *)wmem_alloc(wmem_packet_scope(), sizeof(struct icmp_packet_v6));
 
@@ -2092,15 +2059,11 @@ static void dissect_batadv_icmp_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		     val_to_str(icmp_packeth->msg_type, icmp_packettypenames, "Unknown (0x%02x)"),
 		     icmp_packeth->seqno);
 	/* Set tree info */
-	if (tree) {
-		proto_item *ti;
-
-		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, ICMP_PACKET_V6_SIZE,
-							    "B.A.T.M.A.N. ICMP, Orig: %s, Dst: %s",
-							    address_with_resolution_to_str(wmem_packet_scope(), &icmp_packeth->orig),
-							    address_with_resolution_to_str(wmem_packet_scope(), &icmp_packeth->dst));
-		batadv_icmp_tree = proto_item_add_subtree(ti, ett_batadv_icmp);
-	}
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, ICMP_PACKET_V6_SIZE,
+						    "B.A.T.M.A.N. ICMP, Orig: %s, Dst: %s",
+						    address_with_resolution_to_str(wmem_packet_scope(), &icmp_packeth->orig),
+						    address_with_resolution_to_str(wmem_packet_scope(), &icmp_packeth->dst));
+	batadv_icmp_tree = proto_item_add_subtree(ti, ett_batadv_icmp);
 
 	/* items */
 	proto_tree_add_uint_format(batadv_icmp_tree, hf_batadv_packet_type, tvb, offset, 1, BATADV_ICMP_V5,
@@ -2192,7 +2155,7 @@ static void dissect_batadv_icmp_v7(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 {
 	struct icmp_packet_v7 *icmp_packeth;
 	proto_item *ti;
-	proto_tree *batadv_icmp_tree = NULL;
+	proto_tree *batadv_icmp_tree;
 
 	tvbuff_t *next_tvb;
 	gint length_remaining;
@@ -2220,13 +2183,11 @@ static void dissect_batadv_icmp_v7(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		     icmp_packeth->seqno);
 
 	/* Set tree info */
-	if (tree) {
-		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, ICMP_PACKET_V7_SIZE,
-								"B.A.T.M.A.N. ICMP, Orig: %s, Dst: %s",
-								address_with_resolution_to_str(wmem_packet_scope(), &icmp_packeth->orig),
-								address_with_resolution_to_str(wmem_packet_scope(), &icmp_packeth->dst));
-		batadv_icmp_tree = proto_item_add_subtree(ti, ett_batadv_icmp);
-	}
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, ICMP_PACKET_V7_SIZE,
+							"B.A.T.M.A.N. ICMP, Orig: %s, Dst: %s",
+							address_with_resolution_to_str(wmem_packet_scope(), &icmp_packeth->orig),
+							address_with_resolution_to_str(wmem_packet_scope(), &icmp_packeth->dst));
+	batadv_icmp_tree = proto_item_add_subtree(ti, ett_batadv_icmp);
 
 	/* items */
 	proto_tree_add_uint_format(batadv_icmp_tree, hf_batadv_packet_type, tvb, offset, 1, BATADV_ICMP_V5,
@@ -2274,7 +2235,7 @@ static void dissect_batadv_icmp_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 {
 	struct icmp_packet_v14 *icmp_packeth;
 	proto_item *ti;
-	proto_tree *batadv_icmp_tree = NULL;
+	proto_tree *batadv_icmp_tree;
 
 	tvbuff_t *next_tvb;
 	gint length_remaining;
@@ -2303,13 +2264,11 @@ static void dissect_batadv_icmp_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		     icmp_packeth->seqno);
 
 	/* Set tree info */
-	if (tree) {
-		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, ICMP_PACKET_V14_SIZE,
-								"B.A.T.M.A.N. ICMP, Orig: %s, Dst: %s",
-								address_with_resolution_to_str(wmem_packet_scope(), &icmp_packeth->orig),
-								address_with_resolution_to_str(wmem_packet_scope(), &icmp_packeth->dst));
-		batadv_icmp_tree = proto_item_add_subtree(ti, ett_batadv_icmp);
-	}
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, ICMP_PACKET_V14_SIZE,
+							"B.A.T.M.A.N. ICMP, Orig: %s, Dst: %s",
+							address_with_resolution_to_str(wmem_packet_scope(), &icmp_packeth->orig),
+							address_with_resolution_to_str(wmem_packet_scope(), &icmp_packeth->dst));
+	batadv_icmp_tree = proto_item_add_subtree(ti, ett_batadv_icmp);
 
 	/* items */
 	proto_tree_add_uint_format(batadv_icmp_tree, hf_batadv_packet_type, tvb, offset, 1, BATADV_ICMP_V5,
@@ -2361,7 +2320,7 @@ static void dissect_batadv_icmp_v15(tvbuff_t *tvb, packet_info *pinfo,
 {
 	struct icmp_packet_v15 *icmp_packeth;
 	proto_item *ti;
-	proto_tree *batadv_icmp_tree = NULL;
+	proto_tree *batadv_icmp_tree;
 
 	tvbuff_t *next_tvb;
 	gint length_remaining;
@@ -2376,14 +2335,12 @@ static void dissect_batadv_icmp_v15(tvbuff_t *tvb, packet_info *pinfo,
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* Set tree info */
-	if (tree) {
-		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin,
-						    tvb, 0, ICMP_PACKET_V14_SIZE,
-						    "B.A.T.M.A.N. ICMP, Orig: %s, Dst: %s",
-						    tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, 10),
-						    tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, 4));
-		batadv_icmp_tree = proto_item_add_subtree(ti, ett_batadv_icmp);
-	}
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin,
+					    tvb, 0, ICMP_PACKET_V14_SIZE,
+					    "B.A.T.M.A.N. ICMP, Orig: %s, Dst: %s",
+					    tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, 10),
+					    tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, 4));
+	batadv_icmp_tree = proto_item_add_subtree(ti, ett_batadv_icmp);
 
 	/* items */
 	icmp_packeth->packet_type = tvb_get_guint8(tvb, offset);
@@ -2497,7 +2454,8 @@ static void dissect_batadv_unicast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	tvbuff_t *next_tvb;
 	gint length_remaining;
 	int offset = 0;
-	proto_tree *batadv_unicast_tree = NULL;
+	proto_tree *batadv_unicast_tree;
+	proto_item *ti;
 
 	unicast_packeth = (struct unicast_packet_v6 *)wmem_alloc(wmem_packet_scope(), sizeof(struct unicast_packet_v6));
 
@@ -2512,14 +2470,10 @@ static void dissect_batadv_unicast_v6(tvbuff_t *tvb, packet_info *pinfo, proto_t
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* Set tree info */
-	if (tree) {
-		proto_item *ti;
-
-		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, UNICAST_PACKET_V6_SIZE,
-							    "B.A.T.M.A.N. Unicast, Dst: %s",
-							    address_with_resolution_to_str(wmem_packet_scope(), &unicast_packeth->dest));
-		batadv_unicast_tree = proto_item_add_subtree(ti, ett_batadv_unicast);
-	}
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, UNICAST_PACKET_V6_SIZE,
+						    "B.A.T.M.A.N. Unicast, Dst: %s",
+						    address_with_resolution_to_str(wmem_packet_scope(), &unicast_packeth->dest));
+	batadv_unicast_tree = proto_item_add_subtree(ti, ett_batadv_unicast);
 
 	/* items */
 	proto_tree_add_uint_format(batadv_unicast_tree, hf_batadv_packet_type, tvb, offset, 1, BATADV_UNICAST_V5,
@@ -2556,7 +2510,8 @@ static void dissect_batadv_unicast_v14(tvbuff_t *tvb, packet_info *pinfo, proto_
 	tvbuff_t *next_tvb;
 	gint length_remaining;
 	int offset = 0;
-	proto_tree *batadv_unicast_tree = NULL;
+	proto_tree *batadv_unicast_tree;
+	proto_item *ti;
 
 	unicast_packeth = (struct unicast_packet_v14 *)wmem_alloc(wmem_packet_scope(), sizeof(struct unicast_packet_v14));
 
@@ -2572,14 +2527,10 @@ static void dissect_batadv_unicast_v14(tvbuff_t *tvb, packet_info *pinfo, proto_
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* Set tree info */
-	if (tree) {
-		proto_item *ti;
-
-		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, UNICAST_PACKET_V14_SIZE,
-							    "B.A.T.M.A.N. Unicast, Dst: %s",
-							    address_with_resolution_to_str(wmem_packet_scope(), &unicast_packeth->dest));
-		batadv_unicast_tree = proto_item_add_subtree(ti, ett_batadv_unicast);
-	}
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, UNICAST_PACKET_V14_SIZE,
+						    "B.A.T.M.A.N. Unicast, Dst: %s",
+						    address_with_resolution_to_str(wmem_packet_scope(), &unicast_packeth->dest));
+	batadv_unicast_tree = proto_item_add_subtree(ti, ett_batadv_unicast);
 
 	/* items */
 	proto_tree_add_uint_format_value(batadv_unicast_tree,
@@ -2643,7 +2594,8 @@ static void dissect_batadv_unicast_4addr_v14(tvbuff_t *tvb, packet_info *pinfo, 
 	tvbuff_t *next_tvb;
 	gint length_remaining;
 	int offset = 0;
-	proto_tree *batadv_unicast_4addr_tree = NULL;
+	proto_tree *batadv_unicast_4addr_tree;
+	proto_item *ti;
 
 	unicast_4addr_packeth = (struct unicast_4addr_packet_v14 *)wmem_alloc(wmem_packet_scope(), sizeof(struct unicast_4addr_packet_v14));
 
@@ -2666,14 +2618,10 @@ static void dissect_batadv_unicast_4addr_v14(tvbuff_t *tvb, packet_info *pinfo, 
 		     val_to_str(unicast_4addr_packeth->subtype, unicast_4addr_typenames, "Unknown (0x%02x)"));
 
 	/* Set tree info */
-	if (tree) {
-		proto_item *ti;
-
-		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, UNICAST_4ADDR_PACKET_V14_SIZE,
-							    "B.A.T.M.A.N. Unicast 4Addr, Dst: %s",
-							    address_with_resolution_to_str(wmem_packet_scope(), &unicast_4addr_packeth->dest));
-		batadv_unicast_4addr_tree = proto_item_add_subtree(ti, ett_batadv_unicast_4addr);
-	}
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, UNICAST_4ADDR_PACKET_V14_SIZE,
+							"B.A.T.M.A.N. Unicast 4Addr, Dst: %s",
+							address_with_resolution_to_str(wmem_packet_scope(), &unicast_4addr_packeth->dest));
+	batadv_unicast_4addr_tree = proto_item_add_subtree(ti, ett_batadv_unicast_4addr);
 
 	/* items */
 	proto_tree_add_uint_format_value(batadv_unicast_4addr_tree,
@@ -2749,7 +2697,8 @@ static void dissect_batadv_unicast_frag_v12(tvbuff_t *tvb, packet_info *pinfo, p
 	struct unicast_frag_packet_v12 *unicast_frag_packeth;
 	gboolean save_fragmented;
 	fragment_head *frag_msg = NULL;
-	proto_tree *batadv_unicast_frag_tree = NULL;
+	proto_tree *batadv_unicast_frag_tree;
+	proto_item *ti;
 
 	tvbuff_t *new_tvb;
 	int offset = 0;
@@ -2776,14 +2725,10 @@ static void dissect_batadv_unicast_frag_v12(tvbuff_t *tvb, packet_info *pinfo, p
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* Set tree info */
-	if (tree) {
-		proto_item *ti;
-
-		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, UNICAST_FRAG_PACKET_V12_SIZE,
-							    "B.A.T.M.A.N. Unicast Fragment, Dst: %s",
-							    address_with_resolution_to_str(wmem_packet_scope(), &unicast_frag_packeth->dest));
-		batadv_unicast_frag_tree = proto_item_add_subtree(ti, ett_batadv_unicast_frag);
-	}
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, UNICAST_FRAG_PACKET_V12_SIZE,
+						    "B.A.T.M.A.N. Unicast Fragment, Dst: %s",
+						    address_with_resolution_to_str(wmem_packet_scope(), &unicast_frag_packeth->dest));
+	batadv_unicast_frag_tree = proto_item_add_subtree(ti, ett_batadv_unicast_frag);
 
 	/* items */
 	proto_tree_add_uint_format(batadv_unicast_frag_tree, hf_batadv_packet_type, tvb, offset, 1, BATADV_UNICAST_FRAG_V12,
@@ -2841,7 +2786,8 @@ static void dissect_batadv_unicast_frag_v14(tvbuff_t *tvb, packet_info *pinfo, p
 	struct unicast_frag_packet_v14 *unicast_frag_packeth;
 	gboolean save_fragmented;
 	fragment_head *frag_msg = NULL;
-	proto_tree *batadv_unicast_frag_tree = NULL;
+	proto_tree *batadv_unicast_frag_tree;
+	proto_item *ti;
 
 	tvbuff_t *new_tvb;
 	int offset = 0;
@@ -2870,14 +2816,10 @@ static void dissect_batadv_unicast_frag_v14(tvbuff_t *tvb, packet_info *pinfo, p
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* Set tree info */
-	if (tree) {
-		proto_item *ti;
-
-		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, UNICAST_FRAG_PACKET_V14_SIZE,
-							    "B.A.T.M.A.N. Unicast Fragment, Dst: %s",
-							    address_with_resolution_to_str(wmem_packet_scope(), &unicast_frag_packeth->dest));
-		batadv_unicast_frag_tree = proto_item_add_subtree(ti, ett_batadv_unicast_frag);
-	}
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, UNICAST_FRAG_PACKET_V14_SIZE,
+						    "B.A.T.M.A.N. Unicast Fragment, Dst: %s",
+						    address_with_resolution_to_str(wmem_packet_scope(), &unicast_frag_packeth->dest));
+	batadv_unicast_frag_tree = proto_item_add_subtree(ti, ett_batadv_unicast_frag);
 
 	/* items */
 	proto_tree_add_uint_format(batadv_unicast_frag_tree, hf_batadv_packet_type, tvb, offset, 1, BATADV_UNICAST_FRAG_V12,
@@ -2942,7 +2884,8 @@ static void dissect_batadv_unicast_frag_v15(tvbuff_t *tvb, packet_info *pinfo,
 	struct unicast_frag_packet_v15 *unicast_frag_packeth;
 	gboolean save_fragmented;
 	fragment_head *frag_msg = NULL;
-	proto_tree *batadv_unicast_frag_tree = NULL;
+	proto_tree *batadv_unicast_frag_tree;
+	proto_item *ti;
 
 	tvbuff_t *new_tvb;
 	int offset = 0;
@@ -2959,17 +2902,13 @@ static void dissect_batadv_unicast_frag_v15(tvbuff_t *tvb, packet_info *pinfo,
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* Set tree info */
-	if (tree) {
-		proto_item *ti;
-
-		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin,
-						    tvb, 0,
-						    UNICAST_FRAG_PACKET_V15_SIZE,
-						    "B.A.T.M.A.N. Unicast Fragment, Dst: %s",
-						    tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, 4));
-		batadv_unicast_frag_tree = proto_item_add_subtree(ti,
-								  ett_batadv_unicast_frag);
-	}
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin,
+					    tvb, 0,
+					    UNICAST_FRAG_PACKET_V15_SIZE,
+					    "B.A.T.M.A.N. Unicast Fragment, Dst: %s",
+					    tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, 4));
+	batadv_unicast_frag_tree = proto_item_add_subtree(ti,
+							  ett_batadv_unicast_frag);
 
 	/* items */
 	unicast_frag_packeth->packet_type = tvb_get_guint8(tvb, offset);
@@ -3094,7 +3033,8 @@ static void dissect_batadv_vis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static void dissect_batadv_vis_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	struct vis_packet_v6 *vis_packeth;
-	proto_tree *batadv_vis_tree = NULL;
+	proto_tree *batadv_vis_tree;
+	proto_item *ti;
 
 	tvbuff_t *next_tvb;
 	guint entry_size;
@@ -3123,14 +3063,10 @@ static void dissect_batadv_vis_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		     val_to_str(vis_packeth->vis_type, vis_packettypenames, "Unknown (0x%02x)"),
 		     vis_packeth->seqno);
 	/* Set tree info */
-	if (tree) {
-		proto_item *ti;
-
-		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, VIS_PACKET_V6_SIZE,
-							    "B.A.T.M.A.N. Vis, Orig: %s",
-							    address_with_resolution_to_str(wmem_packet_scope(), &vis_packeth->vis_orig));
-		batadv_vis_tree = proto_item_add_subtree(ti, ett_batadv_vis);
-	}
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, VIS_PACKET_V6_SIZE,
+						    "B.A.T.M.A.N. Vis, Orig: %s",
+						    address_with_resolution_to_str(wmem_packet_scope(), &vis_packeth->vis_orig));
+	batadv_vis_tree = proto_item_add_subtree(ti, ett_batadv_vis);
 
 	/* items */
 	proto_tree_add_uint_format(batadv_vis_tree, hf_batadv_packet_type, tvb, offset, 1, BATADV_VIS_V5,
@@ -3214,7 +3150,8 @@ static void dissect_batadv_vis_v6(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 static void dissect_batadv_vis_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	struct vis_packet_v10 *vis_packeth;
-	proto_tree *batadv_vis_tree = NULL;
+	proto_tree *batadv_vis_tree;
+	proto_item *ti;
 
 	tvbuff_t *next_tvb;
 	gint length_remaining;
@@ -3243,14 +3180,10 @@ static void dissect_batadv_vis_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		     vis_packeth->seqno);
 
 	/* Set tree info */
-	if (tree) {
-		proto_item *ti;
-
-		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, VIS_PACKET_V10_SIZE,
-							    "B.A.T.M.A.N. Vis, Orig: %s",
-							    address_with_resolution_to_str(wmem_packet_scope(), &vis_packeth->vis_orig));
-		batadv_vis_tree = proto_item_add_subtree(ti, ett_batadv_vis);
-	}
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, VIS_PACKET_V10_SIZE,
+						    "B.A.T.M.A.N. Vis, Orig: %s",
+						    address_with_resolution_to_str(wmem_packet_scope(), &vis_packeth->vis_orig));
+	batadv_vis_tree = proto_item_add_subtree(ti, ett_batadv_vis);
 
 	/* items */
 	proto_tree_add_uint_format(batadv_vis_tree, hf_batadv_packet_type, tvb, offset, 1, BATADV_VIS_V5,
@@ -3309,7 +3242,8 @@ static void dissect_batadv_vis_v10(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 static void dissect_batadv_vis_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	struct vis_packet_v14 *vis_packeth;
-	proto_tree *batadv_vis_tree = NULL;
+	proto_tree *batadv_vis_tree;
+	proto_item *ti;
 
 	tvbuff_t *next_tvb;
 	gint length_remaining;
@@ -3338,14 +3272,10 @@ static void dissect_batadv_vis_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		     vis_packeth->seqno);
 
 	/* Set tree info */
-	if (tree) {
-		proto_item *ti;
-
-		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, VIS_PACKET_V14_SIZE,
-							    "B.A.T.M.A.N. Vis, Orig: %s",
-							    address_with_resolution_to_str(wmem_packet_scope(), &vis_packeth->vis_orig));
-		batadv_vis_tree = proto_item_add_subtree(ti, ett_batadv_vis);
-	}
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, VIS_PACKET_V14_SIZE,
+						    "B.A.T.M.A.N. Vis, Orig: %s",
+						    address_with_resolution_to_str(wmem_packet_scope(), &vis_packeth->vis_orig));
+	batadv_vis_tree = proto_item_add_subtree(ti, ett_batadv_vis);
 
 	/* items */
 	proto_tree_add_uint_format(batadv_vis_tree, hf_batadv_packet_type, tvb, offset, 1, BATADV_VIS_V5,
@@ -3455,7 +3385,8 @@ static void dissect_batadv_tt_query(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 static void dissect_batadv_tt_query_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	struct tt_query_packet_v14 *tt_query_packeth;
-	proto_tree *batadv_tt_query_tree = NULL;
+	proto_tree *batadv_tt_query_tree;
+	proto_item *ti;
 
 	tvbuff_t *next_tvb;
 	gint length_remaining;
@@ -3495,14 +3426,10 @@ static void dissect_batadv_tt_query_v14(tvbuff_t *tvb, packet_info *pinfo, proto
 	}
 
 	/* Set tree info */
-	if (tree) {
-		proto_item *ti;
-
-		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, TT_QUERY_PACKET_V14_SIZE,
-							    "B.A.T.M.A.N. TT Query, Dst: %s",
-							    address_with_resolution_to_str(wmem_packet_scope(), &tt_query_packeth->dst));
-		batadv_tt_query_tree = proto_item_add_subtree(ti, ett_batadv_tt_query);
-	}
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, TT_QUERY_PACKET_V14_SIZE,
+						    "B.A.T.M.A.N. TT Query, Dst: %s",
+						    address_with_resolution_to_str(wmem_packet_scope(), &tt_query_packeth->dst));
+	batadv_tt_query_tree = proto_item_add_subtree(ti, ett_batadv_tt_query);
 
 	/* items */
 	proto_tree_add_uint_format(batadv_tt_query_tree, hf_batadv_packet_type, tvb, offset, 1, BATADV_TT_QUERY_V14,
@@ -3604,7 +3531,8 @@ static void dissect_batadv_roam_adv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 static void dissect_batadv_roam_adv_v14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	struct roam_adv_packet_v14 *roam_adv_packeth;
-	proto_tree *batadv_roam_adv_tree = NULL;
+	proto_tree *batadv_roam_adv_tree;
+	proto_item *ti;
 
 	tvbuff_t *next_tvb;
 	gint length_remaining;
@@ -3626,14 +3554,10 @@ static void dissect_batadv_roam_adv_v14(tvbuff_t *tvb, packet_info *pinfo, proto
 	col_add_fstr(pinfo->cinfo, COL_INFO, "Client %s", address_with_resolution_to_str(wmem_packet_scope(), &roam_adv_packeth->client));
 
 	/* Set tree info */
-	if (tree) {
-		proto_item *ti;
-
-		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, ROAM_ADV_PACKET_V14_SIZE,
-							    "B.A.T.M.A.N. Roam: %s",
-							    address_with_resolution_to_str(wmem_packet_scope(), &roam_adv_packeth->client));
-		batadv_roam_adv_tree = proto_item_add_subtree(ti, ett_batadv_roam_adv);
-	}
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin, tvb, 0, ROAM_ADV_PACKET_V14_SIZE,
+						    "B.A.T.M.A.N. Roam: %s",
+						    address_with_resolution_to_str(wmem_packet_scope(), &roam_adv_packeth->client));
+	batadv_roam_adv_tree = proto_item_add_subtree(ti, ett_batadv_roam_adv);
 
 	/* items */
 	proto_tree_add_uint_format(batadv_roam_adv_tree, hf_batadv_packet_type, tvb, offset, 1, BATADV_ROAM_ADV_V14,
@@ -3695,7 +3619,8 @@ static void dissect_batadv_coded_v15(tvbuff_t *tvb, packet_info *pinfo,
 				     proto_tree *tree)
 {
 	struct coded_packet_v15 *coded_packeth;
-	proto_tree *batadv_coded_tree = NULL;
+	proto_tree *batadv_coded_tree;
+	proto_item *ti;
 
 	tvbuff_t *next_tvb;
 	gint length_remaining;
@@ -3705,15 +3630,11 @@ static void dissect_batadv_coded_v15(tvbuff_t *tvb, packet_info *pinfo,
 							      sizeof(struct coded_packet_v15));
 
 	/* Set tree info */
-	if (tree) {
-		proto_item *ti;
-
-		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin,
-						    tvb, 0,
-						    CODED_PACKET_V15_SIZE,
-						    "B.A.T.M.A.N. Coded");
-		batadv_coded_tree = proto_item_add_subtree(ti, ett_batadv_coded);
-	}
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin,
+					    tvb, 0,
+					    CODED_PACKET_V15_SIZE,
+					    "B.A.T.M.A.N. Coded");
+	batadv_coded_tree = proto_item_add_subtree(ti, ett_batadv_coded);
 
 	/* items */
 	coded_packeth->packet_type = tvb_get_guint8(tvb, offset);
@@ -3833,7 +3754,8 @@ static void dissect_batadv_elp_v15(tvbuff_t *tvb, packet_info *pinfo,
 				   proto_tree *tree)
 {
 	struct elp_packet_v15 *elp_packeth;
-	proto_tree *batadv_elp_tree = NULL;
+	proto_tree *batadv_elp_tree;
+	proto_item *ti;
 
 	tvbuff_t *next_tvb;
 	gint length_remaining;
@@ -3843,15 +3765,11 @@ static void dissect_batadv_elp_v15(tvbuff_t *tvb, packet_info *pinfo,
 							  sizeof(struct elp_packet_v15));
 
 	/* Set tree info */
-	if (tree) {
-		proto_item *ti;
-
-		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin,
-						    tvb, 0,
-						    ELP_PACKET_V15_SIZE,
-						    "B.A.T.M.A.N. ELP");
-		batadv_elp_tree = proto_item_add_subtree(ti, ett_batadv_elp);
-	}
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin,
+					    tvb, 0,
+					    ELP_PACKET_V15_SIZE,
+					    "B.A.T.M.A.N. ELP");
+	batadv_elp_tree = proto_item_add_subtree(ti, ett_batadv_elp);
 
 	/* items */
 	elp_packeth->packet_type = tvb_get_guint8(tvb, offset);
@@ -3925,8 +3843,8 @@ static void dissect_batadv_ogm2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 static int dissect_batadv_ogm2_v15(tvbuff_t *tvb, int offset,
 				   packet_info *pinfo, proto_tree *tree)
 {
-	proto_tree *batadv_ogm2_tree = NULL;
-	proto_item *throughput_item;
+	proto_tree *batadv_ogm2_tree;
+	proto_item *ti, *throughput_item;
 	guint8 type, version;
 	struct ogm2_packet_v15 *ogm2_packeth;
 	tvbuff_t *next_tvb;
@@ -3945,17 +3863,13 @@ static int dissect_batadv_ogm2_v15(tvbuff_t *tvb, int offset,
 							    sizeof(struct ogm2_packet_v15));
 
 	/* Set tree info */
-	if (tree) {
-		proto_item *ti;
-
-		ogm2_packeth->tvlv_len = tvb_get_ntohs(tvb, 16);
-		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin,
-						    tvb, offset,
-						    OGM2_PACKET_V15_SIZE + ogm2_packeth->tvlv_len,
-						    "B.A.T.M.A.N. OGM2, Orig: %s",
-						    tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, offset + 8));
-		batadv_ogm2_tree = proto_item_add_subtree(ti, ett_batadv_ogm2);
-	}
+	ogm2_packeth->tvlv_len = tvb_get_ntohs(tvb, 16);
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin,
+					    tvb, offset,
+					    OGM2_PACKET_V15_SIZE + ogm2_packeth->tvlv_len,
+					    "B.A.T.M.A.N. OGM2, Orig: %s",
+					    tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, offset + 8));
+	batadv_ogm2_tree = proto_item_add_subtree(ti, ett_batadv_ogm2);
 
 	/* items */
 	ogm2_packeth->packet_type = tvb_get_guint8(tvb, offset);
@@ -4053,7 +3967,8 @@ static void dissect_batadv_unicast_tvlv_v15(tvbuff_t *tvb, packet_info *pinfo,
 
 	tvbuff_t *next_tvb;
 	int offset = 0;
-	proto_tree *batadv_unicast_tvlv_tree = NULL;
+	proto_tree *batadv_unicast_tvlv_tree;
+	proto_item *ti;
 
 	unicast_tvlv_packeth = (struct unicast_tvlv_packet_v15 *)wmem_alloc(wmem_packet_scope(),
 									    sizeof(struct unicast_tvlv_packet_v15));
@@ -4062,18 +3977,14 @@ static void dissect_batadv_unicast_tvlv_v15(tvbuff_t *tvb, packet_info *pinfo,
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* Set tree info */
-	if (tree) {
-		proto_item *ti;
-
-		unicast_tvlv_packeth->tvlv_len = tvb_get_ntohs(tvb, 16);
-		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin,
-						    tvb, 0,
-						    UNICAST_TVLV_PACKET_V15_SIZE + unicast_tvlv_packeth->tvlv_len,
-						    "B.A.T.M.A.N. Unicast TVLV, Src: %s Dst: %s",
-						    tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, 10),
-						    tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, 4));
-		batadv_unicast_tvlv_tree = proto_item_add_subtree(ti, ett_batadv_unicast_tvlv);
-	}
+	unicast_tvlv_packeth->tvlv_len = tvb_get_ntohs(tvb, 16);
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin,
+					    tvb, 0,
+					    UNICAST_TVLV_PACKET_V15_SIZE + unicast_tvlv_packeth->tvlv_len,
+					    "B.A.T.M.A.N. Unicast TVLV, Src: %s Dst: %s",
+					    tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, 10),
+					    tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, 4));
+	batadv_unicast_tvlv_tree = proto_item_add_subtree(ti, ett_batadv_unicast_tvlv);
 
 	/* items */
 	unicast_tvlv_packeth->packet_type = tvb_get_guint8(tvb, offset);
@@ -4145,7 +4056,8 @@ static void dissect_batadv_tvlv_v15(tvbuff_t *tvb, packet_info *pinfo,
 	guint16 length;
 	int offset = 0;
 	tvbuff_t *next_tvb;
-	proto_tree *batadv_tvlv_tree = NULL;
+	proto_tree *batadv_tvlv_tree;
+	proto_item *ti;
 
 	while (offset != -1 && tvb_reported_length_remaining(tvb, offset) >= 4) {
 
@@ -4155,18 +4067,14 @@ static void dissect_batadv_tvlv_v15(tvbuff_t *tvb, packet_info *pinfo,
 		next_tvb = tvb_new_subset_length(tvb, offset, length);
 
 		/* Set tree info */
-		if (tree) {
-			proto_item *ti;
-
-			ti = proto_tree_add_protocol_format(tree,
-							    proto_batadv_plugin,
-							    next_tvb, 0, length,
-							    "TVLV, %s",
-							    val_to_str(type,
-								       tvlv_v15_typenames,
-								       "Unknown (0x%02x)"));
-			batadv_tvlv_tree = proto_item_add_subtree(ti, ett_batadv_tvlv);
-		}
+		ti = proto_tree_add_protocol_format(tree,
+						    proto_batadv_plugin,
+						    next_tvb, 0, length,
+						    "TVLV, %s",
+						    val_to_str(type,
+							       tvlv_v15_typenames,
+							       "Unknown (0x%02x)"));
+		batadv_tvlv_tree = proto_item_add_subtree(ti, ett_batadv_tvlv);
 
 		dissect_batadv_tvlv_v15_header(next_tvb, pinfo,
 					       batadv_tvlv_tree, type);
@@ -4459,13 +4367,10 @@ static int dissect_batadv_tvlv_v15_tt_vlan(tvbuff_t *tvb,
 	vid = tvb_get_ntohs(tvb, offset + 4);
 
 	/* Set tree info */
-	if (tree) {
-
-		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin,
-						    tvb, offset, 8,
-						    "VLAN, %04x", vid);
-		vlan_tree = proto_item_add_subtree(ti, ett_batadv_tvlv_tt_vlan);
-	}
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin,
+					    tvb, offset, 8,
+					    "VLAN, %04x", vid);
+	vlan_tree = proto_item_add_subtree(ti, ett_batadv_tvlv_tt_vlan);
 
 	dissect_batadv_tvlv_v15_tt_vlan_checksum(tvb, ti, pinfo, vlan_tree, vid,
 						 offset, tt_flags,
@@ -4487,7 +4392,8 @@ static int dissect_batadv_tvlv_v15_tt_change(tvbuff_t *tvb,
 					     packet_info *pinfo _U_,
 					     proto_tree *tree, int offset)
 {
-	proto_tree *change_tree = NULL;
+	proto_tree *change_tree;
+	proto_item *ti;
 	static const int * flags[] = {
 		&hf_batadv_tvlv_tt_change_flags_del,
 		&hf_batadv_tvlv_tt_change_flags_roam,
@@ -4502,15 +4408,11 @@ static int dissect_batadv_tvlv_v15_tt_change(tvbuff_t *tvb,
 	};
 
 	/* Set tree info */
-	if (tree) {
-		proto_item *ti;
-
-		ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin,
-						    tvb, offset, 12,
-						    "Entry, %s",
-						    tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, offset + 4));
-		change_tree = proto_item_add_subtree(ti, ett_batadv_tvlv_tt_change);
-	}
+	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin,
+					    tvb, offset, 12,
+					    "Entry, %s",
+					    tvb_address_with_resolution_to_str(wmem_packet_scope(), tvb, AT_ETHER, offset + 4));
+	change_tree = proto_item_add_subtree(ti, ett_batadv_tvlv_tt_change);
 
 	proto_tree_add_bitmask(change_tree, tvb, offset,
 			       hf_batadv_tvlv_tt_change_flags,
