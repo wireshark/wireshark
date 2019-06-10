@@ -2365,18 +2365,15 @@ static void dissect_batadv_icmp_v15(tvbuff_t *tvb, packet_info *pinfo,
 
 	tvbuff_t *next_tvb;
 	gint length_remaining;
+	guint32 msg_type;
 	int offset = 0;
+	guint32 seqno;
 
 	icmp_packeth = (struct icmp_packet_v15 *)wmem_alloc(wmem_packet_scope(),
 							    sizeof(struct icmp_packet_v15));
 
-	icmp_packeth->msg_type = tvb_get_guint8(tvb, offset + 3);
-
 	/* Set info column */
-	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] Seq=%u",
-		     val_to_str(icmp_packeth->msg_type, icmp_packettypenames,
-				"Unknown (0x%02x)"),
-		     icmp_packeth->seqno);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* Set tree info */
 	if (tree) {
@@ -2408,8 +2405,11 @@ static void dissect_batadv_icmp_v15(tvbuff_t *tvb, packet_info *pinfo,
 	offset += 1;
 
 	icmp_packeth->msg_type = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_msg_type, tvb,
-			    offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(batadv_icmp_tree, hf_batadv_icmp_msg_type,
+				     tvb, offset, 1, ENC_BIG_ENDIAN, &msg_type);
+	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s]",
+		     val_to_str(msg_type, icmp_packettypenames,
+				"Unknown (0x%02x)"));
 	offset += 1;
 
 	set_address_tvb(&icmp_packeth->dst, AT_ETHER, 6, tvb, offset);
@@ -2438,8 +2438,9 @@ static void dissect_batadv_icmp_v15(tvbuff_t *tvb, packet_info *pinfo,
 	offset += 1;
 
 	icmp_packeth->seqno = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_item(batadv_icmp_tree, hf_batadv_icmp_seqno, tvb, offset,
-			    2, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(batadv_icmp_tree, hf_batadv_icmp_seqno,
+				     tvb, offset, 2, ENC_BIG_ENDIAN, &seqno);
+	col_append_fstr(pinfo->cinfo, COL_INFO, " Seq=%u", seqno);
 	offset += 2;
 
 	/* rr data available? */
