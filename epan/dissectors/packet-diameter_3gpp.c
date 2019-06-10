@@ -888,11 +888,12 @@ dissect_diameter_3gpp_feature_list(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     guint32 application_id = 0, feature_list_id = 0;
     diam_sub_dis_t *diam_sub_dis_inf = (diam_sub_dis_t*)data;
 
-    if(diam_sub_dis_inf) {
-        application_id = diam_sub_dis_inf->application_id;
-        feature_list_id = diam_sub_dis_inf->feature_list_id;
+    if(!diam_sub_dis_inf) {
+        return 4;
     }
 
+    application_id = diam_sub_dis_inf->application_id;
+    feature_list_id = diam_sub_dis_inf->feature_list_id;
     /* Hide the item created in packet-diameter.c and only show the one created here */
     proto_item_set_hidden(diam_sub_dis_inf->item);
 
