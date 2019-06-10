@@ -2370,7 +2370,7 @@ static void dissect_batadv_icmp_v15(tvbuff_t *tvb, packet_info *pinfo,
 	icmp_packeth = (struct icmp_packet_v15 *)wmem_alloc(wmem_packet_scope(),
 							    sizeof(struct icmp_packet_v15));
 
-	icmp_packeth->msg_type = tvb_get_guint8(tvb, offset + 4);
+	icmp_packeth->msg_type = tvb_get_guint8(tvb, offset + 3);
 
 	/* Set info column */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] Seq=%u",
