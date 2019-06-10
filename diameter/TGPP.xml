@@ -653,6 +653,15 @@
 	<avp name="MCVideo-Identifier" code="562" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 		<type type-name="OctetString"/>
 	</avp>
+	<avp name="IMS-Content-Identifier" code="563" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="OctetString"/>
+	</avp>
+	<avp name="IMS-Content-Type" code="564" mandatory="mustnot" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
+		<type type-name="Enumerated"/>
+		<enum name="NO_CONTENT_DETAIL" code="0"/>
+		<enum name="CAT" code="1"/>
+		<enum name="CONFERENCE" code="2"/>
+	</avp>
 </application>	<!-- 3GPP Rx -->
 
 <!-- The AVP codes from 600 to 699 are reserved for TS 29.229. -->
