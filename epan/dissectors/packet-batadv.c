@@ -1714,7 +1714,7 @@ static int dissect_batadv_iv_ogm_v15(tvbuff_t *tvb, int offset,
 								sizeof(struct iv_ogm_packet_v15));
 
 	/* Set info column */
-	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", iv_ogm_packeth->seqno);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* Set tree info */
 	ti = proto_tree_add_protocol_format(tree, proto_batadv_plugin,
@@ -1749,9 +1749,10 @@ static int dissect_batadv_iv_ogm_v15(tvbuff_t *tvb, int offset,
 			       flags, ENC_NA);
 	offset += 1;
 
-	iv_ogm_packeth->seqno = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_item(batadv_iv_ogm_tree, hf_batadv_iv_ogm_seqno, tvb,
-			    offset, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item_ret_uint(batadv_iv_ogm_tree, hf_batadv_iv_ogm_seqno,
+				     tvb, offset, 4, ENC_BIG_ENDIAN,
+				     &iv_ogm_packeth->seqno);
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Seq=%u", iv_ogm_packeth->seqno);
 	offset += 4;
 
 	set_address_tvb(&iv_ogm_packeth->orig, AT_ETHER, 6, tvb, offset);
