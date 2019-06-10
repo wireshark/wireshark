@@ -175,45 +175,50 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
     const gchar* ui_name = (const gchar*)luaL_optstring(L,WSLUA_OPTARG_DissectorTable_new_UINAME,name);
     enum ftenum type = (enum ftenum)luaL_optinteger(L,WSLUA_OPTARG_DissectorTable_new_TYPE,FT_UINT32);
     unsigned base = (unsigned)luaL_optinteger(L,WSLUA_OPTARG_DissectorTable_new_BASE,BASE_DEC);
+    DissectorTable dt;
 
     switch(type) {
         case FT_STRING:
             base = BASE_NONE;
-            /* fallthrough */
+            break;
+
         case FT_NONE:
-            /* fallthrough */
+            break;
+
         case FT_UINT8:
         case FT_UINT16:
         case FT_UINT24:
         case FT_UINT32:
-        {
-            DissectorTable dt = (DissectorTable)g_malloc(sizeof(struct _wslua_distbl_t));
+            break;
 
-            name = g_strdup(name);
-            ui_name = g_strdup(ui_name);
-
-            /* XXX - can't determine dependencies of Lua protocols if they don't provide protocol name */
-            dt->table = (type == FT_NONE) ?
-                register_decode_as_next_proto(-1, name, ui_name, NULL) :
-                register_dissector_table(name, ui_name, -1, type, base);
-            dt->name = name;
-            dt->ui_name = ui_name;
-            dt->created = TRUE;
-            dt->expired = FALSE;
-
-            lua_rawgeti(L, LUA_REGISTRYINDEX, dissectortable_table_ref);
-            lua_pushstring(L, name);
-            pushDissectorTable(L, dt);
-            lua_settable(L, -3);
-
-            pushDissectorTable(L, dt);
-        }
-            WSLUA_RETURN(1); /* The newly created DissectorTable. */
         default:
-            WSLUA_OPTARG_ERROR(DissectorTable_new,TYPE,"must be ftypes.UINT{8,16,24,32}, ftypes.STRING or ftypes.NONE");
+            /* Calling WSLUA_OPTARG_ERROR raises a Lua error and
+               returns from this function. */
+            WSLUA_OPTARG_ERROR(
+                    DissectorTable_new, TYPE,
+                    "must be ftypes.UINT{8,16,24,32}, ftypes.STRING or ftypes.NONE");
             break;
     }
-    return 0;
+
+    dt = (DissectorTable)g_malloc(sizeof(struct _wslua_distbl_t));
+
+    /* XXX - can't determine dependencies of Lua protocols
+       if they don't provide protocol name */
+    dt->table = (type == FT_NONE) ?
+        register_decode_as_next_proto(-1, name, ui_name, NULL) :
+        register_dissector_table(name, ui_name, -1, type, base);
+    dt->name = g_strdup(name);
+    dt->ui_name = g_strdup(ui_name);
+    dt->created = TRUE;
+    dt->expired = FALSE;
+
+    lua_rawgeti(L, LUA_REGISTRYINDEX, dissectortable_table_ref);
+    lua_pushstring(L, name);
+    pushDissectorTable(L, dt);
+    lua_settable(L, -3);
+
+    pushDissectorTable(L, dt);
+    WSLUA_RETURN(1); /* The newly created DissectorTable. */
 }
 
 /* this struct is used for passing ourselves user_data through dissector_all_tables_foreach_table(). */
