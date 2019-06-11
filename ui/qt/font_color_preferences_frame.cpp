@@ -149,9 +149,9 @@ void FontColorPreferencesFrame::updateWidgets()
     ui->activeSampleLineEdit->setFont(cur_font_);
     ui->activeStyleComboBox->setCurrentIndex(prefs_get_enum_value(pref_active_style_, pref_stashed));
 
-    // Enable or disable the widgets
-    ui->activeFGPushButton->setEnabled(colorstyle != COLOR_STYLE_DEFAULT);
-    ui->activeBGPushButton->setEnabled(colorstyle != COLOR_STYLE_DEFAULT);
+    // Show or hide the widgets
+    ui->activeFGPushButton->setVisible(colorstyle != COLOR_STYLE_DEFAULT);
+    ui->activeBGPushButton->setVisible(colorstyle != COLOR_STYLE_DEFAULT);
 
     //
     // Sample inactive selected item
@@ -192,9 +192,9 @@ void FontColorPreferencesFrame::updateWidgets()
     ui->inactiveSampleLineEdit->setFont(cur_font_);
     ui->inactiveStyleComboBox->setCurrentIndex(prefs_get_enum_value(pref_inactive_style_, pref_stashed));
 
-    // Enable or disable the widgets
-    ui->inactiveFGPushButton->setEnabled(colorstyle != COLOR_STYLE_DEFAULT);
-    ui->inactiveBGPushButton->setEnabled(colorstyle != COLOR_STYLE_DEFAULT);
+    // Show or hide the widgets
+    ui->inactiveFGPushButton->setVisible(colorstyle != COLOR_STYLE_DEFAULT);
+    ui->inactiveBGPushButton->setVisible(colorstyle != COLOR_STYLE_DEFAULT);
 
     //
     // Sample marked packet text

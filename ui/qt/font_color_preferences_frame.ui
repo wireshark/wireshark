@@ -122,12 +122,12 @@
         <widget class="QComboBox" name="activeStyleComboBox">
          <item>
           <property name="text">
-           <string>Default</string>
+           <string>System Default</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Flat</string>
+           <string>Solid</string>
           </property>
          </item>
          <item>
@@ -182,12 +182,12 @@
         <widget class="QComboBox" name="inactiveStyleComboBox">
          <item>
           <property name="text">
-           <string>Default</string>
+           <string>System Default</string>
           </property>
          </item>
          <item>
           <property name="text">
-           <string>Flat</string>
+           <string>Solid</string>
           </property>
          </item>
          <item>
