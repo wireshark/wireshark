@@ -580,10 +580,19 @@ void DisplayFilterEdit::dropEvent(QDropEvent *event)
             event->setDropAction(Qt::CopyAction);
             event->accept();
 
+            QString filterText;
             if ((QApplication::keyboardModifiers() & Qt::AltModifier))
-                setText(data->field());
+                filterText = data->field();
             else
-                setText(data->filter());
+                filterText = data->filter();
+
+            if ( text().length() > 0 && QApplication::keyboardModifiers() & Qt::MetaModifier)
+            {
+                createFilterTextDropMenu(event, filterText);
+                return;
+            }
+
+            setText(filterText);
 
             // Holding down the Shift key will only prepare filter.
             if (!(QApplication::keyboardModifiers() & Qt::ShiftModifier)) {
@@ -596,6 +605,54 @@ void DisplayFilterEdit::dropEvent(QDropEvent *event)
 
     } else {
         event->ignore();
+    }
+}
+
+void DisplayFilterEdit::createFilterTextDropMenu(QDropEvent *event, QString filterText)
+{
+    if ( filterText.isEmpty() )
+        return;
+
+    QMenu applyMenu(this);
+
+    QAction * andAction = new QAction(tr("...and selected"));
+    andAction->setData(QString("&& %1").arg(filterText));
+    connect(andAction, &QAction::triggered, this, &DisplayFilterEdit::dropActionMenuEvent);
+
+    QAction * orAction = new QAction(tr("...or selected"));
+    orAction->setData(QString("|| %1").arg(filterText));
+    connect(orAction, &QAction::triggered, this, &DisplayFilterEdit::dropActionMenuEvent);
+
+    QAction * andNotAction = new QAction(tr("...and not selected"));
+    andNotAction->setData(QString("&& !(%1)").arg(filterText));
+    connect(andNotAction, &QAction::triggered, this, &DisplayFilterEdit::dropActionMenuEvent);
+
+    QAction * orNotAction = new QAction(tr("...or not selected"));
+    orNotAction->setData(QString("|| !(%1)").arg(filterText));
+    connect(orNotAction, &QAction::triggered, this, &DisplayFilterEdit::dropActionMenuEvent);
+
+    applyMenu.addAction(andAction);
+    applyMenu.addAction(orAction);
+    applyMenu.addAction(andNotAction);
+    applyMenu.addAction(orNotAction);
+    applyMenu.exec(this->mapToGlobal(event->pos()));
+
+}
+
+void DisplayFilterEdit::dropActionMenuEvent()
+{
+    QAction * sendAction = qobject_cast<QAction *>(sender());
+    if ( ! sendAction )
+        return;
+
+    QString value = sendAction->data().toString();
+
+    QString filterText = QString("((%1) %2)").arg(this->text()).arg(value);
+    setText(filterText);
+
+    // Holding down the Shift key will only prepare filter.
+    if (!(QApplication::keyboardModifiers() & Qt::ShiftModifier)) {
+        applyDisplayFilter();
     }
 }
 

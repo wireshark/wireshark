@@ -69,11 +69,18 @@ private:
     void setDefaultPlaceholderText();
     void buildCompletionList(const QString& field_word);
 
+    void createFilterTextDropMenu(QDropEvent *event, QString filterText = QString());
+
 signals:
     void pushFilterSyntaxStatus(const QString&);
     void popFilterSyntaxStatus();
     void filterPackets(QString new_filter, bool force);
     void showPreferencesDialog(QString pane_name);
+
+private slots:
+
+    void dropActionMenuEvent();
+
 };
 
 #endif // DISPLAYFILTEREDIT_H
