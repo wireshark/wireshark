@@ -630,6 +630,10 @@ extern "C" {
 #define ETHERTYPE_AVSP			0xD28B /* Ethernet type for Arista vendor specific packet frames */
 #endif
 
+#ifndef ETHERTYPE_CABLELABS
+#define ETHERTYPE_CABLELABS		0xB4E3 /* Ethernet type for CableLabs layer-3 protocol */
+#endif
+
 WS_DLL_PUBLIC const value_string etype_vals[];
 
 #ifdef __cplusplus

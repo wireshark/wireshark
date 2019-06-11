@@ -182,6 +182,7 @@ const value_string etype_vals[] = {
 	{ ETHERTYPE_6LOWPAN,              "6LoWPAN" },
 	{ ETHERTYPE_AVSP,                 "Arista Timestamp" },
 	{ ETHERTYPE_ECPRI,                "eCPRI" },
+	{ ETHERTYPE_CABLELABS,            "CableLabs Layer-3 Protocol" },
 	{ 0, NULL }
 };
 

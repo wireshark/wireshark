@@ -59,6 +59,8 @@ GSM/3GPP CBSP (Cell Broadcast Service Protocol)
 NVM Express over Fabrics for TCP (nvme-tcp)
 Graylog Extended Log Format over UDP (GELF)
 FTDI FT USB Bridging Devices (FTDI FT)
+CableLabs Layer-3 Protocol IEEE EtherType 0xb4e3 (CL3)
+Dual Channel Wi-Fi (CL3DCW)
 --
 
 === Updated Protocol Support
