@@ -3523,19 +3523,19 @@ proto_register_ipv6(void)
     static build_valid_func ipv6_da_build_value[1] = {ipv6_value};
     static decode_as_value_t ipv6_da_values = {ipv6_prompt, 1, ipv6_da_build_value};
 
-    static decode_as_t ipv6_da = {"ipv6", "Network", "ip.proto", 1, 0, &ipv6_da_values, NULL, NULL,
+    static decode_as_t ipv6_da = {"ipv6", "ip.proto", 1, 0, &ipv6_da_values, NULL, NULL,
                                   decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
-    static decode_as_t ipv6_hopopts_da = {"ipv6.hopopts", "Network", "ip.proto", 1, 0, &ipv6_da_values, NULL, NULL,
+    static decode_as_t ipv6_hopopts_da = {"ipv6.hopopts", "ip.proto", 1, 0, &ipv6_da_values, NULL, NULL,
                                   decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
-    static decode_as_t ipv6_routing_da = {"ipv6.routing", "Network", "ip.proto", 1, 0, &ipv6_da_values, NULL, NULL,
+    static decode_as_t ipv6_routing_da = {"ipv6.routing", "ip.proto", 1, 0, &ipv6_da_values, NULL, NULL,
                                   decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
-    static decode_as_t ipv6_fraghdr_da = {"ipv6.fraghdr", "Network", "ip.proto", 1, 0, &ipv6_da_values, NULL, NULL,
+    static decode_as_t ipv6_fraghdr_da = {"ipv6.fraghdr", "ip.proto", 1, 0, &ipv6_da_values, NULL, NULL,
                                   decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
-    static decode_as_t ipv6_dstopts_da = {"ipv6.dstopts", "Network", "ip.proto", 1, 0, &ipv6_da_values, NULL, NULL,
+    static decode_as_t ipv6_dstopts_da = {"ipv6.dstopts", "ip.proto", 1, 0, &ipv6_da_values, NULL, NULL,
                                   decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
     module_t *ipv6_module;

@@ -3159,7 +3159,7 @@ proto_register_rtp(void)
     /* Decode As handling */
     static build_valid_func rtp_da_build_value[1] = {rtp_value};
     static decode_as_value_t rtp_da_values = {rtp_prompt, 1, rtp_da_build_value};
-    static decode_as_t rtp_da = {"rtp", "RTP payload type", "rtp.pt", 1, 0, &rtp_da_values, NULL, NULL,
+    static decode_as_t rtp_da = {"rtp", "rtp.pt", 1, 0, &rtp_da_values, NULL, NULL,
                                 decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
     module_t *rtp_module;

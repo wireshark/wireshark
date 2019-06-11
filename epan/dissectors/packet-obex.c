@@ -3782,12 +3782,12 @@ proto_register_obex(void)
     /* Decode As handling */
     static build_valid_func obex_profile_da_build_value[1] = {obex_profile_value};
     static decode_as_value_t obex_profile_da_values = {obex_profile_prompt, 1, obex_profile_da_build_value};
-    static decode_as_t obex_profile_da = {"obex", "OBEX Profile", "obex.profile", 1, 0, &obex_profile_da_values, NULL, NULL,
+    static decode_as_t obex_profile_da = {"obex", "obex.profile", 1, 0, &obex_profile_da_values, NULL, NULL,
             decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
     static build_valid_func media_type_da_build_value[1] = {media_type_value};
     static decode_as_value_t media_type_da_values = {media_type_prompt, 1, media_type_da_build_value};
-    static decode_as_t media_type_da = {"obex", "Media Type", "media_type",
+    static decode_as_t media_type_da = {"obex", "media_type",
             1, 0, &media_type_da_values, NULL, NULL,
             decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 

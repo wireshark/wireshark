@@ -1646,7 +1646,7 @@ usb_protocol_value(packet_info *pinfo)
 static build_valid_func   usb_product_da_build_value[1] = {usb_product_value};
 static decode_as_value_t  usb_product_da_values         = {usb_product_prompt, 1, usb_product_da_build_value};
 static decode_as_t        usb_product_da = {
-        "usb", "USB Product", "usb.product",
+        "usb", "usb.product",
         1, 0, &usb_product_da_values, NULL, NULL,
         decode_as_default_populate_list, decode_as_default_reset,
         decode_as_default_change, NULL};
@@ -1654,7 +1654,7 @@ static decode_as_t        usb_product_da = {
 static build_valid_func   usb_device_da_build_value[1] = {usb_device_value};
 static decode_as_value_t  usb_device_da_values         = {usb_device_prompt, 1, usb_device_da_build_value};
 static decode_as_t        usb_device_da = {
-        "usb", "USB Device", "usb.device",
+        "usb", "usb.device",
         1, 0, &usb_device_da_values, NULL, NULL,
         decode_as_default_populate_list, decode_as_default_reset,
         decode_as_default_change, NULL};
@@ -1662,7 +1662,7 @@ static decode_as_t        usb_device_da = {
 static build_valid_func   usb_protocol_da_build_value[1] = {usb_protocol_value};
 static decode_as_value_t  usb_protocol_da_values         = {usb_protocol_prompt, 1, usb_protocol_da_build_value};
 static decode_as_t        usb_protocol_da = {
-        "usb", "USB Device Protocol", "usb.protocol",
+        "usb", "usb.protocol",
         1, 0, &usb_protocol_da_values, NULL, NULL,
         decode_as_default_populate_list, decode_as_default_reset,
         decode_as_default_change, NULL};

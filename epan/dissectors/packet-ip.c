@@ -2923,7 +2923,7 @@ proto_register_ip(void)
   /* Decode As handling */
   static build_valid_func ip_da_build_value[1] = {ip_value};
   static decode_as_value_t ip_da_values = {ip_prompt, 1, ip_da_build_value};
-  static decode_as_t ip_da = {"ip", "Network", "ip.proto", 1, 0, &ip_da_values, NULL, NULL,
+  static decode_as_t ip_da = {"ip", "ip.proto", 1, 0, &ip_da_values, NULL, NULL,
                               decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
   module_t *ip_module;

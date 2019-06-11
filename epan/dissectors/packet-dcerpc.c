@@ -7034,7 +7034,7 @@ proto_register_dcerpc(void)
     /* Decode As handling */
     static build_valid_func dcerpc_da_build_value[1] = {dcerpc_value};
     static decode_as_value_t dcerpc_da_values = {dcerpc_prompt, 1, dcerpc_da_build_value};
-    static decode_as_t dcerpc_da = {"dcerpc", "DCE-RPC", "dcerpc.uuid",
+    static decode_as_t dcerpc_da = {"dcerpc", "dcerpc.uuid",
                                     1, 0, &dcerpc_da_values, NULL, NULL,
                                     dcerpc_populate_list, decode_dcerpc_binding_reset, dcerpc_decode_as_change, dcerpc_decode_as_free};
 

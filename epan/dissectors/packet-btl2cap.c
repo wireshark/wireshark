@@ -3355,12 +3355,12 @@ proto_register_btl2cap(void)
     /* Decode As handling */
     static build_valid_func btl2cap_cid_da_build_value[1] = {btl2cap_cid_value};
     static decode_as_value_t btl2cap_cid_da_values = {btl2cap_cid_prompt, 1, btl2cap_cid_da_build_value};
-    static decode_as_t btl2cap_cid_da = {"btl2cap", "L2CAP CID", "btl2cap.cid", 1, 0, &btl2cap_cid_da_values, NULL, NULL,
+    static decode_as_t btl2cap_cid_da = {"btl2cap", "btl2cap.cid", 1, 0, &btl2cap_cid_da_values, NULL, NULL,
                                  decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
     static build_valid_func btl2cap_psm_da_build_value[1] = {btl2cap_psm_value};
     static decode_as_value_t btl2cap_psm_da_values = {btl2cap_psm_prompt, 1, btl2cap_psm_da_build_value};
-    static decode_as_t btl2cap_psm_da = {"btl2cap", "L2CAP PSM", "btl2cap.psm", 1, 0, &btl2cap_psm_da_values, NULL, NULL,
+    static decode_as_t btl2cap_psm_da = {"btl2cap", "btl2cap.psm", 1, 0, &btl2cap_psm_da_values, NULL, NULL,
                                  decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
     /* Register the protocol name and description */

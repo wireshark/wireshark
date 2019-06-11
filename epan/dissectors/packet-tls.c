@@ -4445,7 +4445,7 @@ proto_register_tls(void)
     static build_valid_func ssl_da_dst_values[1] = {ssl_dst_value};
     static build_valid_func ssl_da_both_values[2] = {ssl_src_value, ssl_dst_value};
     static decode_as_value_t ssl_da_values[3] = {{ssl_src_prompt, 1, ssl_da_src_values}, {ssl_dst_prompt, 1, ssl_da_dst_values}, {ssl_both_prompt, 2, ssl_da_both_values}};
-    static decode_as_t ssl_da = {"tls", "Transport", "tls.port", 3, 2, ssl_da_values, "TCP", "port(s) as",
+    static decode_as_t ssl_da = {"tls", "tls.port", 3, 2, ssl_da_values, "TCP", "port(s) as",
                                  decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL};
 
     expert_module_t* expert_ssl;

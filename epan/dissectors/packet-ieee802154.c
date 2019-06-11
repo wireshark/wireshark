@@ -6460,7 +6460,7 @@ void proto_register_ieee802154(void)
     static build_valid_func     ieee802154_da_build_value[1] = {ieee802154_da_value};
     static decode_as_value_t    ieee802154_da_values = {ieee802154_da_prompt, 1, ieee802154_da_build_value};
     static decode_as_t          ieee802154_da = {
-        IEEE802154_PROTOABBREV_WPAN, "PAN", IEEE802154_PROTOABBREV_WPAN_PANID,
+        IEEE802154_PROTOABBREV_WPAN, IEEE802154_PROTOABBREV_WPAN_PANID,
         1, 0, &ieee802154_da_values, NULL, NULL,
         decode_as_default_populate_list, decode_as_default_reset, decode_as_default_change, NULL
     };
