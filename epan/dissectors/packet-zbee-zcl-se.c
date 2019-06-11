@@ -1328,6 +1328,62 @@ VALUE_STRING_ARRAY(zbee_zcl_price_srv_rx_cmd_names);
 VALUE_STRING_ENUM(zbee_zcl_price_srv_tx_cmd_names);
 VALUE_STRING_ARRAY(zbee_zcl_price_srv_tx_cmd_names);
 
+/* Block Period Control Field BitMap - Price Acknowledgement */
+#define zbee_zcl_price_block_period_control_price_acknowledgement_names_VALUE_STRING_LIST(XXX)  \
+    XXX(ZBEE_ZCL_PRICE_BLOCK_PERIOD_CONTROL_PRICE_ACKNOLEDGEMENT_NOT_REQUIRED,  0x0, "Price Acknowledgement not required" ) \
+    XXX(ZBEE_ZCL_PRICE_BLOCK_PERIOD_CONTROL_PRICE_ACKNOLEDGEMENT_REQUIRED,      0x1, "Price Acknowledgement required" )
+
+VALUE_STRING_ARRAY(zbee_zcl_price_block_period_control_price_acknowledgement_names);
+
+/* Block Period Control Field BitMap - Repeating Block */
+#define zbee_zcl_price_block_period_control_repeating_block_names_VALUE_STRING_LIST(XXX)  \
+    XXX(ZBEE_ZCL_PRICE_BLOCK_PERIOD_CONTROL_REPEATING_BLOCK_NON_REPEATING,      0x0, "Non Repeating Block" ) \
+    XXX(ZBEE_ZCL_PRICE_BLOCK_PERIOD_CONTROL_REPEATING_BLOCK_REPEATING,          0x1, "Repeating Block" )
+
+VALUE_STRING_ARRAY(zbee_zcl_price_block_period_control_repeating_block_names);
+
+/* Block Period DurationTimebase Enumeration */
+#define zbee_zcl_price_block_period_duration_timebase_names_VALUE_STRING_LIST(XXX)  \
+    XXX(ZBEE_ZCL_PRICE_BLOCK_PERIOD_DURATION_TIMEBASE_MINUTE,                   0x0, "Minutes" ) \
+    XXX(ZBEE_ZCL_PRICE_BLOCK_PERIOD_DURATION_TIMEBASE_DAY,                      0x1, "Days" ) \
+    XXX(ZBEE_ZCL_PRICE_BLOCK_PERIOD_DURATION_TIMEBASE_WEEK,                     0x2, "Weeks" ) \
+    XXX(ZBEE_ZCL_PRICE_BLOCK_PERIOD_DURATION_TIMEBASE_MONTH,                    0x3, "Months" )
+
+VALUE_STRING_ARRAY(zbee_zcl_price_block_period_duration_timebase_names);
+
+/* Block Period Duration Control Enumeration */
+#define zbee_zcl_price_block_period_duration_control_names_VALUE_STRING_LIST(XXX)  \
+    XXX(ZBEE_ZCL_PRICE_BLOCK_PERIOD_DURATION_CONTROL_START_OF_TIMEBASE,         0x0, "Start of Timebase" ) \
+    XXX(ZBEE_ZCL_PRICE_BLOCK_PERIOD_DURATION_CONTROL_END_OF_TIMEBASE,           0x1, "End of Timebase" ) \
+    XXX(ZBEE_ZCL_PRICE_BLOCK_PERIOD_DURATION_CONTROL_NOT_SPECIFIED,             0x2, "Not Specified" )
+
+VALUE_STRING_ARRAY(zbee_zcl_price_block_period_duration_control_names);
+
+/* Tariff Type Enumeration */
+#define zbee_zcl_price_tariff_type_names_VALUE_STRING_LIST(XXX)  \
+    XXX(ZBEE_ZCL_PRICE_TARIFF_TYPE_DELIVERED_TARIFF,                            0x0, "Delivered Tariff" ) \
+    XXX(ZBEE_ZCL_PRICE_TARIFF_TYPE_RECEIVED_TARIFF,                             0x1, "Received Tariff" ) \
+    XXX(ZBEE_ZCL_PRICE_TARIFF_TYPE_DELIVERED_AND_RECEIVED_TARIFF,               0x2, "delivered and Received Tariff" )
+
+VALUE_STRING_ARRAY(zbee_zcl_price_tariff_type_names);
+
+/* Tariff Resolution Period Enumeration */
+#define zbee_zcl_price_tariff_resolution_period_names_VALUE_STRING_LIST(XXX)  \
+   XXX(ZBEE_ZCL_PRICE_TARIFF_RESOLUTION_PERIOD_NOT_DEFINED,                     0x00, "Not Defined" ) \
+   XXX(ZBEE_ZCL_PRICE_TARIFF_RESOLUTION_PERIOD_BLOCK_PERIOD,                    0x01, "Block Period" ) \
+   XXX(ZBEE_ZCL_PRICE_TARIFF_RESOLUTION_PERIOD_1_DAY,                           0x02, "1 Day" )
+
+VALUE_STRING_ARRAY(zbee_zcl_price_tariff_resolution_period_names);
+
+/* Tariff Charging Scheme Enumeration */
+#define zbee_zcl_price_tariff_charging_scheme_names_VALUE_STRING_LIST(XXX)  \
+    XXX(ZBEE_ZCL_PRICE_TARIFF_CHARGING_SCHEME_TOU_TARIFF,                       0x0, "TOU Tariff" ) \
+    XXX(ZBEE_ZCL_PRICE_TARIFF_CHARGING_SCHEME_BLOCK_TARIFF,                     0x1, "Block Tariff" ) \
+    XXX(ZBEE_ZCL_PRICE_TARIFF_CHARGING_SCHEME_BLOCK_TOU_WITH_COMMON_THRES,      0x2, "Block/TOU Tariff with common thresholds" ) \
+    XXX(ZBEE_ZCL_PRICE_TARIFF_CHARGING_SCHEME_BLOCK_TOU_WITH_INDIV_TRHES,       0x3, "Block/TOU Tariff with individual thresholds per tier" )
+
+VALUE_STRING_ARRAY(zbee_zcl_price_tariff_charging_scheme_names);
+
 /* Tariff Type */
 #define ZBEE_ZCL_PRICE_TARIFF_TYPE 0x0F
 
@@ -1345,6 +1401,10 @@ VALUE_STRING_ARRAY(zbee_zcl_price_srv_tx_cmd_names);
 /* Block Period Duration Type */
 #define ZBEE_ZCL_PRICE_BLOCK_PERIOD_DURATION_TIMEBASE  0x0F
 #define ZBEE_ZCL_PRICE_BLOCK_PERIOD_DURATION_CONTROL   0xF0
+
+/* Block Period Control Field BitMap */
+#define ZBEE_ZCL_PRICE_BLOCK_PERIOD_CONTROL_PRICE_ACKNOWLEDGEMENT   0x01
+#define ZBEE_ZCL_PRICE_BLOCK_PERIOD_CONTROL_REPEATING_BLOCK         0x02
 
 /* Conversion Factor Trailing Digit */
 #define ZBEE_ZCL_PRICE_CONVERSION_FACTOR_TRAILING_DIGIT      0xF0
@@ -1371,7 +1431,7 @@ VALUE_STRING_ARRAY(zbee_zcl_price_srv_tx_cmd_names);
 #define ZBEE_ZCL_PRICE_CO2_VALUE_TRAILING_DIGIT      0xF0
 
 /* Billing Period Duration Type */
-#define ZBEE_ZCL_PRICE_BILLING_PERIOD_DURATION_TIME_BASE      0x0F
+#define ZBEE_ZCL_PRICE_BILLING_PERIOD_DURATION_TIMEBASE     0x0F
 #define ZBEE_ZCL_PRICE_BILLING_PERIOD_DURATION_CONTROL      0xF0
 
 /* Billign Period Tariff Type */
@@ -1485,6 +1545,8 @@ static int hf_zbee_zcl_price_block_period_duration_type = -1;
 static int hf_zbee_zcl_price_block_period_duration_timebase = -1;
 static int hf_zbee_zcl_price_block_period_duration_control = -1;
 static int hf_zbee_zcl_price_block_period_control = -1;
+static int hf_zbee_zcl_price_block_period_control_price_acknowledgement = -1;
+static int hf_zbee_zcl_price_block_period_control_repeating_block = -1;
 static int hf_zbee_zcl_price_conversion_factor = -1;
 static int hf_zbee_zcl_price_conversion_factor_trailing_digit_mask = -1;
 static int hf_zbee_zcl_price_conversion_factor_trailing_digit = -1;
@@ -1525,7 +1587,7 @@ static int hf_zbee_zcl_price_tier_labels_tier_label = -1;
 static int hf_zbee_zcl_price_billing_period_start_time = -1;
 static int hf_zbee_zcl_price_billing_period_duration = -1;
 static int hf_zbee_zcl_price_billing_period_duration_type = -1;
-static int hf_zbee_zcl_price_billing_period_duration_time_base = -1;
+static int hf_zbee_zcl_price_billing_period_duration_timebase = -1;
 static int hf_zbee_zcl_price_billing_period_duration_control = -1;
 static int hf_zbee_zcl_price_consolidated_bill = -1;
 static int hf_zbee_zcl_price_consolidated_bill_trailing_digit_mask = -1;
@@ -1546,6 +1608,7 @@ static gint ett_zbee_zcl_price_tariff_type = -1;
 static gint ett_zbee_zcl_price_trailing_digit_and_price_tier = -1;
 static gint ett_zbee_zcl_price_number_of_price_tiers_and_register_tier = -1;
 static gint ett_zbee_zcl_price_alternate_cost_trailing_digit = -1;
+static gint ett_zbee_zcl_price_block_period_control = -1;
 static gint ett_zbee_zcl_price_block_period_duration_type = -1;
 static gint ett_zbee_zcl_price_conversion_factor_trailing_digit = -1;
 static gint ett_zbee_zcl_price_calorific_value_trailing_digit = -1;
@@ -1557,7 +1620,25 @@ static gint ett_zbee_zcl_price_co2_value_trailing_digit = -1;
 static gint ett_zbee_zcl_price_billing_period_duration_type = -1;
 static gint ett_zbee_zcl_price_consolidated_bill_trailing_digit = -1;
 
-static const int * ett_zbee_zcl_price_tariff_type_mask[] = {
+static const int * zbee_zcl_price_billing_period_duration_type[] = {
+    &hf_zbee_zcl_price_billing_period_duration_timebase,
+    &hf_zbee_zcl_price_billing_period_duration_control,
+    NULL
+};
+
+static const int * zbee_zcl_price_block_period_duration_type[] = {
+    &hf_zbee_zcl_price_block_period_duration_timebase,
+    &hf_zbee_zcl_price_block_period_duration_control,
+    NULL
+};
+
+static const int * zbee_zcl_price_block_period_control[] = {
+    &hf_zbee_zcl_price_block_period_control_price_acknowledgement,
+    &hf_zbee_zcl_price_block_period_control_repeating_block,
+    NULL
+};
+
+static const int * zbee_zcl_price_tariff_type_mask[] = {
     &hf_zbee_zcl_price_tariff_type,
     NULL
 };
@@ -2327,12 +2408,6 @@ dissect_zcl_price_publish_block_period(tvbuff_t *tvb, proto_tree *tree, guint *o
 {
     nstime_t block_period_start_time;
 
-    static const int * duration_type[] = {
-        &hf_zbee_zcl_price_block_period_duration_timebase,
-        &hf_zbee_zcl_price_block_period_duration_control,
-        NULL
-    };
-
     /* Provider ID */
     proto_tree_add_item(tree, hf_zbee_zcl_price_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
@@ -2352,15 +2427,15 @@ dissect_zcl_price_publish_block_period(tvbuff_t *tvb, proto_tree *tree, guint *o
     *offset += 3;
 
     /* Block Period Control */
-    proto_tree_add_item(tree, hf_zbee_zcl_price_block_period_control, tvb, *offset, 1, ENC_NA);
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_block_period_control, ett_zbee_zcl_price_block_period_control, zbee_zcl_price_block_period_control, ENC_LITTLE_ENDIAN);
     *offset += 1;
 
     /* Block Period Duration Type */
-    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_block_period_duration_type, ett_zbee_zcl_price_block_period_duration_type, duration_type, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_block_period_duration_type, ett_zbee_zcl_price_block_period_duration_type, zbee_zcl_price_block_period_duration_type, ENC_LITTLE_ENDIAN);
     *offset += 1;
 
     /* Tariff Type */
-    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_tariff_type_mask, ett_zbee_zcl_price_tariff_type, ett_zbee_zcl_price_tariff_type_mask, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_tariff_type_mask, ett_zbee_zcl_price_tariff_type, zbee_zcl_price_tariff_type_mask, ENC_LITTLE_ENDIAN);
     *offset += 1;
 
     /* Tariff Resolution Period */
@@ -2701,7 +2776,7 @@ dissect_zcl_price_publish_co2_value(tvbuff_t *tvb, proto_tree *tree, guint *offs
     *offset += 4;
 
     /* Tariff Type */
-    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_tariff_type_mask, ett_zbee_zcl_price_tariff_type, ett_zbee_zcl_price_tariff_type_mask, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_tariff_type_mask, ett_zbee_zcl_price_tariff_type, zbee_zcl_price_tariff_type_mask, ENC_LITTLE_ENDIAN);
     *offset += 1;
 
     /* CO2 Value */
@@ -2778,12 +2853,6 @@ dissect_zcl_price_publish_billing_period(tvbuff_t *tvb, proto_tree *tree, guint 
 {
     nstime_t start_time;
 
-    static const int * duration_type[] = {
-        &hf_zbee_zcl_price_billing_period_duration_time_base,
-        &hf_zbee_zcl_price_billing_period_duration_control,
-        NULL
-    };
-
     /* Provider ID */
     proto_tree_add_item(tree, hf_zbee_zcl_price_provider_id, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
     *offset += 4;
@@ -2803,11 +2872,11 @@ dissect_zcl_price_publish_billing_period(tvbuff_t *tvb, proto_tree *tree, guint 
     *offset += 3;
 
     /* Billing Period Duration Type */
-    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_billing_period_duration_type, ett_zbee_zcl_price_billing_period_duration_type, duration_type, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_billing_period_duration_type, ett_zbee_zcl_price_billing_period_duration_type, zbee_zcl_price_billing_period_duration_type, ENC_LITTLE_ENDIAN);
     *offset += 1;
 
     /* Tariff Type */
-    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_tariff_type_mask, ett_zbee_zcl_price_tariff_type, ett_zbee_zcl_price_tariff_type_mask, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_tariff_type_mask, ett_zbee_zcl_price_tariff_type, zbee_zcl_price_tariff_type_mask, ENC_LITTLE_ENDIAN);
     *offset += 1;
 } /*dissect_zcl_price_publish_billing_period*/
 
@@ -2825,12 +2894,6 @@ dissect_zcl_price_publish_consolidated_bill(tvbuff_t *tvb, proto_tree *tree, gui
 
     static const int * bill_trailing_digit[] = {
         &hf_zbee_zcl_price_consolidated_bill_trailing_digit,
-        NULL
-    };
-
-    static const int * duration_type[] = {
-        &hf_zbee_zcl_price_billing_period_duration_time_base,
-        &hf_zbee_zcl_price_billing_period_duration_control,
         NULL
     };
 
@@ -2853,11 +2916,11 @@ dissect_zcl_price_publish_consolidated_bill(tvbuff_t *tvb, proto_tree *tree, gui
     *offset += 3;
 
     /* Billing Period Duration Type */
-    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_billing_period_duration_type, ett_zbee_zcl_price_billing_period_duration_type, duration_type, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_billing_period_duration_type, ett_zbee_zcl_price_billing_period_duration_type, zbee_zcl_price_billing_period_duration_type, ENC_LITTLE_ENDIAN);
     *offset += 1;
 
     /* Tariff Type */
-    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_tariff_type_mask, ett_zbee_zcl_price_tariff_type, ett_zbee_zcl_price_tariff_type_mask, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_tariff_type_mask, ett_zbee_zcl_price_tariff_type, zbee_zcl_price_tariff_type_mask, ENC_LITTLE_ENDIAN);
     *offset += 1;
 
     /* Consolidated Bill */
@@ -2903,7 +2966,7 @@ dissect_zcl_price_publish_cpp_event(tvbuff_t *tvb, proto_tree *tree, guint *offs
     *offset += 2;
 
     /* Tariff Type */
-    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_tariff_type_mask, ett_zbee_zcl_price_tariff_type, ett_zbee_zcl_price_tariff_type_mask, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_tariff_type_mask, ett_zbee_zcl_price_tariff_type, zbee_zcl_price_tariff_type_mask, ENC_LITTLE_ENDIAN);
     *offset += 1;
 
     /* CPP Price Tier */
@@ -3038,7 +3101,7 @@ dissect_zcl_price_publish_cancel_tariff(tvbuff_t *tvb, proto_tree *tree, guint *
     *offset += 4;
 
     /* Tariff Type */
-    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_tariff_type_mask, ett_zbee_zcl_price_tariff_type, ett_zbee_zcl_price_tariff_type_mask, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_price_tariff_type_mask, ett_zbee_zcl_price_tariff_type, zbee_zcl_price_tariff_type_mask, ENC_LITTLE_ENDIAN);
     *offset += 1;
 } /*dissect_zcl_price_publish_cancel_tariff*/
 
@@ -3127,18 +3190,18 @@ proto_register_zbee_zcl_price(void)
             { "Price Control", "zbee_zcl_se.price.control", FT_UINT8, BASE_HEX, NULL,
             0x00, NULL, HFILL } },
 
-        /* start Tariff Information Type/Charging Scheme fields */
+        /* start Tariff Type fields */
         { &hf_zbee_zcl_price_tariff_type_mask,
-            { "Tariff Type", "zbee_zcl_se.price.tariff.type", FT_UINT8, BASE_HEX, NULL,
+            { "Tariff Type", "zbee_zcl_se.price.tariff_type_mask", FT_UINT8, BASE_HEX, NULL,
             0x00, NULL, HFILL } },
 
          { &hf_zbee_zcl_price_tariff_type,
-            { "Tariff Type", "zbee_zcl_se.price.tariff.type", FT_UINT8, BASE_DEC, NULL,
+            { "Tariff Type", "zbee_zcl_se.price.tariff_type", FT_UINT8, BASE_HEX, VALS(zbee_zcl_price_tariff_type_names),
             ZBEE_ZCL_PRICE_TARIFF_TYPE, NULL, HFILL } },
-         /* end Tariff Information Type/Charging Scheme fields */
+         /* end Tariff Type fields */
 
         { &hf_zbee_zcl_price_tariff_resolution_period,
-            { "Tariff Resolution Period", "zbee_zcl_se.price.tariff.resolution_period", FT_UINT8, BASE_HEX, NULL,
+            { "Tariff Resolution Period", "zbee_zcl_se.price.tariff.resolution_period", FT_UINT8, BASE_HEX, VALS(zbee_zcl_price_tariff_resolution_period_names),
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_price_cpp_price_tier,
@@ -3271,9 +3334,19 @@ proto_register_zbee_zcl_price(void)
             { "Block Period Duration", "zbee_zcl_se.price.block_period.duration", FT_UINT24, BASE_DEC, NULL,
             0x00, NULL, HFILL } },
 
+        /* start Block Period Control */
         { &hf_zbee_zcl_price_block_period_control,
             { "Block Period Control", "zbee_zcl_se.price.block_period.control", FT_UINT8, BASE_HEX, NULL,
             0x00, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_block_period_control_price_acknowledgement,
+            { "Price Acknowledgement", "zbee_zcl_se.price.block_period.control.price_acknowledgement", FT_UINT8, BASE_DEC, VALS(zbee_zcl_price_block_period_control_price_acknowledgement_names),
+            ZBEE_ZCL_PRICE_BLOCK_PERIOD_CONTROL_PRICE_ACKNOWLEDGEMENT, NULL, HFILL } },
+
+        { &hf_zbee_zcl_price_block_period_control_repeating_block,
+            { "Repeating Block", "zbee_zcl_se.price.block_period.control.repeating_block", FT_UINT8, BASE_DEC, VALS(zbee_zcl_price_block_period_control_repeating_block_names),
+            ZBEE_ZCL_PRICE_BLOCK_PERIOD_CONTROL_REPEATING_BLOCK, NULL, HFILL } },
+        /* end Block Period Control */
 
         /* start Block Period Duration Type fields */
         { &hf_zbee_zcl_price_block_period_duration_type,
@@ -3281,11 +3354,11 @@ proto_register_zbee_zcl_price(void)
             0x00, NULL, HFILL } },
 
         { &hf_zbee_zcl_price_block_period_duration_timebase,
-            { "Duration Timebase", "zbee_zcl_se.price.block_period.duration.timebase", FT_UINT8, BASE_HEX, NULL,
+            { "Duration Timebase", "zbee_zcl_se.price.block_period.duration.timebase", FT_UINT8, BASE_HEX, VALS(zbee_zcl_price_block_period_duration_timebase_names),
             ZBEE_ZCL_PRICE_BLOCK_PERIOD_DURATION_TIMEBASE, NULL, HFILL } },
 
         { &hf_zbee_zcl_price_block_period_duration_control,
-            { "Duration Control", "zbee_zcl_se.price.block_period.duration.control", FT_UINT8, BASE_HEX, NULL,
+            { "Duration Control", "zbee_zcl_se.price.block_period.duration.control", FT_UINT8, BASE_HEX, VALS(zbee_zcl_price_block_period_duration_control_names),
             ZBEE_ZCL_PRICE_BLOCK_PERIOD_DURATION_CONTROL, NULL, HFILL } },
         /* end Block Period Duration Type fields */
 
@@ -3323,15 +3396,15 @@ proto_register_zbee_zcl_price(void)
 
         /* start Tariff Information Type/Charging Scheme fields */
         { &hf_zbee_zcl_price_tariff_information_type_and_charging_scheme,
-            { "Tariff Type/Charging Scheme", "zbee_zcl_se.price.tariff_information.type_and_charging_scheme", FT_UINT8, BASE_DEC, NULL,
+            { "Tariff Type/Charging Scheme", "zbee_zcl_se.price.tariff_information.type_and_charging_scheme", FT_UINT8, BASE_HEX, NULL,
             0x00, NULL, HFILL } },
 
          { &hf_zbee_zcl_price_tariff_information_type,
-            { "Tariff Type", "zbee_zcl_se.price.tariff_information.type", FT_UINT8, BASE_DEC, NULL,
+            { "Tariff Type", "zbee_zcl_se.price.tariff_information.type", FT_UINT8, BASE_HEX, VALS(zbee_zcl_price_tariff_type_names),
             ZBEE_ZCL_PRICE_TARIFF_INFORMATION_TYPE, NULL, HFILL } },
 
          { &hf_zbee_zcl_price_tariff_information_charging_scheme,
-            { "Charging Scheme", "zbee_zcl_se.price.tariff_information.charging_scheme", FT_UINT8, BASE_DEC, NULL,
+            { "Charging Scheme", "zbee_zcl_se.price.tariff_information.charging_scheme", FT_UINT8, BASE_HEX, VALS(zbee_zcl_price_tariff_charging_scheme_names),
             ZBEE_ZCL_PRICE_TARIFF_INFORMATION_CHARGING_SCHEME, NULL, HFILL } },
          /* end Tariff Information Type/Charging Scheme fields */
 
@@ -3464,12 +3537,12 @@ proto_register_zbee_zcl_price(void)
             { "Billing Period Duration Type", "zbee_zcl_se.price.billing_period.duration.type", FT_UINT8, BASE_HEX, NULL,
             0x00, NULL, HFILL } },
 
-        { &hf_zbee_zcl_price_billing_period_duration_time_base,
-            { "Duration Timebase", "zbee_zcl_se.price.billing_period.duration.time_base", FT_UINT8, BASE_HEX, NULL,
-            ZBEE_ZCL_PRICE_BILLING_PERIOD_DURATION_TIME_BASE, NULL, HFILL } },
+        { &hf_zbee_zcl_price_billing_period_duration_timebase,
+            { "Duration Timebase", "zbee_zcl_se.price.billing_period.duration.timebase", FT_UINT8, BASE_HEX, VALS(zbee_zcl_price_block_period_duration_timebase_names),
+            ZBEE_ZCL_PRICE_BILLING_PERIOD_DURATION_TIMEBASE, NULL, HFILL } },
 
         { &hf_zbee_zcl_price_billing_period_duration_control,
-            { "Duration Control", "zbee_zcl_se.price.billing_period.duration.control", FT_UINT8, BASE_HEX, NULL,
+            { "Duration Control", "zbee_zcl_se.price.billing_period.duration.control", FT_UINT8, BASE_HEX, VALS(zbee_zcl_price_block_period_duration_control_names),
             ZBEE_ZCL_PRICE_BILLING_PERIOD_DURATION_CONTROL, NULL, HFILL } },
         /* end Billing Period Duration Type fields */
 
@@ -3531,6 +3604,7 @@ proto_register_zbee_zcl_price(void)
         &ett_zbee_zcl_price_trailing_digit_and_price_tier,
         &ett_zbee_zcl_price_number_of_price_tiers_and_register_tier,
         &ett_zbee_zcl_price_alternate_cost_trailing_digit,
+        &ett_zbee_zcl_price_block_period_control,
         &ett_zbee_zcl_price_block_period_duration_type,
         &ett_zbee_zcl_price_conversion_factor_trailing_digit,
         &ett_zbee_zcl_price_calorific_value_trailing_digit,
@@ -13135,14 +13209,6 @@ VALUE_STRING_ARRAY(zbee_zcl_device_management_password_types);
 VALUE_STRING_ENUM(zbee_zcl_device_management_event_configuration_log_types);
 VALUE_STRING_ARRAY(zbee_zcl_device_management_event_configuration_log_types);
 
-#define zbee_zcl_device_management_tariff_types_VALUE_STRING_LIST(XXX)   \
-    XXX(ZBEE_ZCL_DEVICE_MANAGEMENT_TARIFF_TYPE_DELIVERED_TARIFF, 0x0, "Delivered Tariff")   \
-    XXX(ZBEE_ZCL_DEVICE_MANAGEMENT_TARIFF_TYPE_RECEIVED_TARIFF, 0x1, "Received Tariff")     \
-    XXX(ZBEE_ZCL_DEVICE_MANAGEMENT_TARIFF_TYPE_DELIVERED_AND_RECEIVED_TARIFF, 0x2, "Delivered and Received Tariff")
-
-VALUE_STRING_ENUM(zbee_zcl_device_management_tariff_types);
-VALUE_STRING_ARRAY(zbee_zcl_device_management_tariff_types);
-
 #define zbee_zcl_device_management_contactor_states_VALUE_STRING_LIST(XXX)  \
     XXX(ZBEE_ZCL_DEVICE_MANAGEMENT_SUPPLY_OFF,       0x0, "Supply OFF")         \
     XXX(ZBEE_ZCL_DEVICE_MANAGEMENT_SUPPLY_OFF_ARMED, 0x1, "Supply OFF / ARMED") \
@@ -13836,7 +13902,7 @@ proto_register_zbee_zcl_device_management(void)
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_device_management_publish_change_of_tenancy_tariff_type,
-            { "Tariff Type", "zbee_zcl_se.device_management.publish_change_of_tenancy.tariff_type", FT_UINT8, BASE_HEX, VALS(zbee_zcl_device_management_tariff_types),
+            { "Tariff Type", "zbee_zcl_se.device_management.publish_change_of_tenancy.tariff_type", FT_UINT8, BASE_HEX, VALS(zbee_zcl_price_tariff_type_names),
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_device_management_publish_change_of_tenancy_implementation_date,
@@ -13916,7 +13982,7 @@ proto_register_zbee_zcl_device_management(void)
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_device_management_publish_change_of_supplier_tariff_type,
-            { "Tariff Type", "zbee_zcl_se.device_management.publish_change_of_supplier.tariff_type", FT_UINT8, BASE_HEX, VALS(zbee_zcl_device_management_tariff_types),
+            { "Tariff Type", "zbee_zcl_se.device_management.publish_change_of_supplier.tariff_type", FT_UINT8, BASE_HEX, VALS(zbee_zcl_price_tariff_type_names),
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_device_management_publish_change_of_supplier_proposed_provider_id,
