@@ -48,6 +48,13 @@
  *
  * for Microsoft's MS-NLMP, NT LAN Manager (NTLM) Authentication Protocol
  * Specification.
+ *
+ * See also
+ *
+ *      http://davenport.sourceforge.net/ntlm.html
+ *
+ * which indicates that, in practice, some fields specified by MS-NLMP
+ * may be absent; this has been seen in some captures.
  */
 
 void proto_register_ntlmssp(void);
@@ -79,10 +86,7 @@ static GHashTable* hash_packet = NULL;
  * NTLMSSP negotiation flags
  * Taken from Samba
  *
- * See also
- *
- *      http://davenport.sourceforge.net/ntlm.html
- *
+ * See also the davenport.sourceforge.net document cited above,
  * although that document says that:
  *
  *      0x00010000 is "Target Type Domain";
@@ -279,6 +283,7 @@ typedef struct _ntlmssp_blob {
 /* Used in the conversation function */
 typedef struct _ntlmssp_info {
   guint32          flags;
+  gboolean         saw_challenge;
   gboolean         is_auth_ntlm_v2;
   gcry_cipher_hd_t rc4_handle_client;
   gcry_cipher_hd_t rc4_handle_server;
@@ -1142,9 +1147,9 @@ dissect_ntlmssp_version(tvbuff_t *tvb, int offset,
 
 /* Attribute types */
 /*
- * XXX - the davenport document says that a type of 5 has been seen,
- * "apparently containing the 'parent' DNS domain for servers in
- * subdomains".
+ * XXX - the davenport.sourceforge.net document cited above says that a
+ * type of 5 has been seen, "apparently containing the 'parent' DNS
+ * domain for servers in subdomains".
  * XXX: MS-NLMP info is newer than Davenport info;
  *      The attribute type list and the attribute names below are
  *      based upon MS-NLMP.
@@ -1452,7 +1457,7 @@ static int
 dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
                            proto_tree *ntlmssp_tree, ntlmssp_header_t *ntlmssph _U_)
 {
-  guint32         negotiate_flags;
+  guint32         negotiate_flags = 0;
   int             item_start, item_end;
   int             data_start, data_end;       /* MIN and MAX seen */
   guint8          clientkey[NTLMSSP_KEY_LEN]; /* NTLMSSP cipher key for client */
@@ -1464,10 +1469,18 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
   guint8          sspkey[NTLMSSP_KEY_LEN]; /* NTLMSSP cipher key */
   int             ssp_key_len;  /* Either 8 or 16 (40 bit or 128) */
 
-  /* need to find unicode flag */
-  negotiate_flags = tvb_get_letohl (tvb, offset+8);
-  if (negotiate_flags & NTLMSSP_NEGOTIATE_UNICODE)
-    unicode_strings = TRUE;
+  /*
+   * Use the negotiate flags in this message, if they're present
+   * in the capture, to determine whether strings are Unicode or
+   * not.
+   *
+   * offset points at TargetNameFields; skip pats it.
+   */
+  if (tvb_bytes_exist(tvb, offset+8, 4)) {
+    negotiate_flags = tvb_get_letohl (tvb, offset+8);
+    if (negotiate_flags & NTLMSSP_NEGOTIATE_UNICODE)
+      unicode_strings = TRUE;
+  }
 
   /* Target name */
   /*
@@ -1508,6 +1521,7 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
     wmem_register_callback(wmem_file_scope(), ntlmssp_sessions_destroy_cb, conv_ntlmssp_info);
     /* Insert the flags into the conversation */
     conv_ntlmssp_info->flags = negotiate_flags;
+    conv_ntlmssp_info->saw_challenge = TRUE;
     /* Insert the RC4 state information into the conversation */
     tvb_memcpy(tvb, conv_ntlmssp_info->server_challenge, offset, 8);
     conv_ntlmssp_info->is_auth_ntlm_v2 = FALSE;
@@ -1607,6 +1621,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
 {
   int             item_start, item_end;
   int             data_start, data_end = 0;
+  gboolean        have_negotiate_flags = FALSE;
   guint32         negotiate_flags;
   guint8          sspkey[NTLMSSP_KEY_LEN];    /* exported session key */
   guint8          clientkey[NTLMSSP_KEY_LEN]; /* NTLMSSP cipher key for client */
@@ -1618,31 +1633,6 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
   conversation_t *conversation;
   int             ssp_key_len;
 
-  /*
-   * Get flag info from the original negotiate message, if any.
-   * This is because the flag information is sometimes missing from
-   * the AUTHENTICATE message, so we can't figure out whether
-   * strings are Unicode or not by looking at *our* flags.
-   * XXX it seems it's more from the CHALLENGE message, which is more clever in fact
-   * because the server can change some flags.
-   * But according to MS NTLMSSP doc it's not that simple.
-   * In case of Conection less mode AUTHENTICATE flags should be used because they
-   * reprensent the choice of the client after having been informed of options of the
-   * server in the CHALLENGE message.
-   * In Connection mode then the CHALLENGE flags should (must ?) be used
-   * XXX: MS-NLMP says the flag field in the AUTHENTICATE message "contains the set of bit
-   *   flags (section 2.2.2.5) negotiated in the previous messages."
-   *   I read that to mean that the flags for in connection-mode AUTHENTICATE also represent
-   *   the choice of the client (for the flags which are negotiated).
-   * XXX: In the absence of CHALLENGE flags, as a last resort we'll use the flags
-   *      (if available) from this AUTHENTICATE message.
-   *      I've seen a capture which does an HTTP CONNECT which:
-   *      - has the NEGOTIATE & CHALLENGE messages in one TCP connection;
-   *      - has the AUTHENTICATE message in a second TCP connection;
-   *        (The authentication aparently succeeded).
-   *      For that case, we'd somehow have to manage NTLMSSP exchanges
-   *      that cross TCP connection boundaries.
-   */
   conv_ntlmssp_info = (ntlmssp_info *)p_get_proto_data(wmem_file_scope(), pinfo, proto_ntlmssp, NTLMSSP_CONV_INFO_KEY);
   if (conv_ntlmssp_info == NULL) {
     /*
@@ -1666,9 +1656,139 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
     p_add_proto_data(wmem_file_scope(), pinfo, proto_ntlmssp, NTLMSSP_CONV_INFO_KEY, conv_ntlmssp_info);
   }
 
-  if (conv_ntlmssp_info != NULL) {
-    if (conv_ntlmssp_info->flags & NTLMSSP_NEGOTIATE_UNICODE)
-      unicode_strings = TRUE;
+  /*
+   * Get flag info from the original negotiate message, if any.
+   * This is because the flag information is sometimes missing from
+   * the AUTHENTICATE message, so we can't figure out whether
+   * strings are Unicode or not by looking at *our* flags.
+   *
+   * MS-NLMP says:
+   *
+   * In 2.2.1.1 NEGOTIATE_MESSAGE:
+   *
+   *    NegotiateFlags (4 bytes): A NEGOTIATE structure that contains a set
+   *    of flags, as defined in section 2.2.2.5. The client sets flags to
+   *    indicate options it supports.
+   *
+   * In 2.2.1.2 CHALLENGE_MESSAGE:
+   *
+   *    NegotiateFlags (4 bytes): A NEGOTIATE structure that contains a set
+   *    of flags, as defined by section 2.2.2.5. The server sets flags to
+   *    indicate options it supports or, if there has been a NEGOTIATE_MESSAGE
+   *    (section 2.2.1.1), the choices it has made from the options offered
+   *    by the client.
+   *
+   * In 2.2.1.3 AUTHENTICATE_MESSAGE:
+   *
+   *    NegotiateFlags (4 bytes): In connectionless mode, a NEGOTIATE
+   *    structure that contains a set of flags (section 2.2.2.5) and
+   *    represents the conclusion of negotiation--the choices the client
+   *    has made from the options the server offered in the CHALLENGE_MESSAGE.
+   *    In connection-oriented mode, a NEGOTIATE structure that contains the
+   *    set of bit flags (section 2.2.2.5) negotiated in the previous messages.
+   *
+   * As 1.3.1 NTLM Authentication Call Flow indicates, in connectionless
+   * mode, there's no NEGOTIATE_MESSAGE, just a CHALLENGE_MESSAGE and
+   * an AUTHENTICATE_MESSAGE.
+   *
+   * So, for connectionless mode, with no NEGOTIATE_MESSAGE, the flags
+   * that are the result of negotiation are in the AUTHENTICATE_MESSAGE;
+   * only at the time the AUTHENTICATE_MESSAGE is sent does the client
+   * know what the server is offering, so, at that point, it can indicate
+   * to the server which of those it supports, with the final result
+   * specifying the capabilities offered by the server that are also
+   * supported by the client.
+   *
+   * For connection-oriented mode, at the time of the CHALLENGE_MESSAGE,
+   * the server knows what capabilities the client supports, as those
+   * we specified in the NEGOTIATE_MESSAGE, so it returns the set of
+   * capabilities, from the set that the client supports, that it also
+   * supports, so the CHALLENGE_MESSAGE contains the final result.  The
+   * AUTHENTICATE_MESSAGE "contains the set of bit flags ... negotiated
+   * in the previous messages", so it should contain the same set of
+   * bit flags that were in the CHALLENGE_MESSAGE.
+   *
+   * So we use the flags in this message, the AUTHENTICATE_MESSAGE, if
+   * they're present; if this is connectionless mode, the flags in the
+   * CHALLENGE_MESSAGE aren't sufficient, as they don't indicate what
+   * the client supports, and if this is connection-oriented mode, the
+   * flags here should match what's in the CHALLENGE_MESSAGE.
+   *
+   * The flags might be missing from this message; the message could
+   * have been cut short by the snapshot length, and even if it's not,
+   * some older protocol implementations omit it.  If they're missing,
+   * we fall back on what's in the CHALLENGE_MESSAGE.
+   *
+   * XXX: I've seen a capture which does an HTTP CONNECT which:
+   *      - has the NEGOTIATE & CHALLENGE messages in one TCP connection;
+   *      - has the AUTHENTICATE message in a second TCP connection;
+   *        (The authentication aparently succeeded).
+   *      For that case, in order to get the flags from the CHALLENGE_MESSAGE,
+   *      we'd somehow have to manage NTLMSSP exchanges that cross TCP
+   *      connection boundaries.
+   *
+   * offset points at LmChallengeResponseFields; skip past
+   * LmChallengeResponseFields, NtChallengeResponseFields,
+   * DomainNameFields, UserNameFields, WorkstationFields,
+   * and EncryptedRandomSessionKeyFields.
+   */
+  if (tvb_bytes_exist(tvb, offset+8+8+8+8+8+8, 4)) {
+    /*
+     * See where the Lan Manager response's blob begins;
+     * the data area starts at, or before, that location.
+     */
+    data_start = tvb_get_letohl(tvb, offset+4);
+
+    /*
+     * See where the NTLM response's blob begins; the data area
+     * starts at, or before, that location.
+     */
+    item_start = tvb_get_letohl(tvb, offset+8+4);
+    data_start = MIN(data_start, item_start);
+
+    /*
+     * See where the domain name's blob begins; the data area
+     * starts at, or before, that location.
+     */
+    item_start = tvb_get_letohl(tvb, offset+8+8+4);
+    data_start = MIN(data_start, item_start);
+
+    /*
+     * See where the user name's blob begins; the data area
+     * starts at, or before, that location.
+     */
+    item_start = tvb_get_letohl(tvb, offset+8+8+8+4);
+    data_start = MIN(data_start, item_start);
+
+    /*
+     * See where the host name's blob begins; the data area
+     * starts at, or before, that location.
+     */
+    item_start = tvb_get_letohl(tvb, offset+8+8+8+8+4);
+    data_start = MIN(data_start, item_start);
+
+    /*
+     * See if we have a session key and flags.
+     */
+    if (offset+8+8+8+8+8 < data_start) {
+      /*
+       * We have a session key and flags.
+       */
+      negotiate_flags = tvb_get_letohl (tvb, offset+8+8+8+8+8+8);
+      have_negotiate_flags = TRUE;
+      if (negotiate_flags & NTLMSSP_NEGOTIATE_UNICODE)
+        unicode_strings = TRUE;
+    }
+  }
+  if (!have_negotiate_flags) {
+    /*
+     * The flags from this message aren't present; if we have the
+     * flags from the CHALLENGE message, use them.
+     */
+    if (conv_ntlmssp_info != NULL && conv_ntlmssp_info->saw_challenge) {
+      if (conv_ntlmssp_info->flags & NTLMSSP_NEGOTIATE_UNICODE)
+        unicode_strings = TRUE;
+    }
   }
 
   /*
