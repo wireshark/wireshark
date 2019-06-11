@@ -108,14 +108,44 @@
     <!-- codecs -->
     <Fragment>
         <DirectoryRef Id="dirPluginsVersionCodecs">
+            <Component Id="cmpG711_dll" Guid="*">
+                <File Id="filG711_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\codecs\g711.dll" />
+            </Component>
+            <Component Id="cmpG722_dll" Guid="*">
+                <File Id="filG722_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\codecs\g722.dll" />
+            </Component>
+            <Component Id="cmpG726_dll" Guid="*">
+                <File Id="filG726_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\codecs\g726.dll" />
+            </Component>
+            <Component Id="cmpG729_dll" Guid="*">
+                <File Id="filG729_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\codecs\g729.dll" />
+            </Component>
             <Component Id="cmpL16mono_dll" Guid="*">
                 <File Id="filL16mono_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\codecs\l16mono.dll" />
+            </Component>
+            <Component Id="cmpSBC_dll" Guid="*">
+                <File Id="filSBC_dll" KeyPath="yes" Source="$(var.Plugins.Dir)\$(var.WiresharkMajorVersion).$(var.WiresharkMinorVersion)\codecs\sbc.dll" />
             </Component>
         </DirectoryRef>
     </Fragment>
     <Fragment>
+        <ComponentGroup Id="CG.Plugins.G711">
+            <ComponentRef Id="cmpG711_dll" />
+        </ComponentGroup>
+        <ComponentGroup Id="CG.Plugins.G722">
+            <ComponentRef Id="cmpG722_dll" />
+        </ComponentGroup>
+        <ComponentGroup Id="CG.Plugins.G726">
+            <ComponentRef Id="cmpG726_dll" />
+        </ComponentGroup>
+        <ComponentGroup Id="CG.Plugins.G729">
+            <ComponentRef Id="cmpG729_dll" />
+        </ComponentGroup>
         <ComponentGroup Id="CG.Plugins.L16mono">
             <ComponentRef Id="cmpL16mono_dll" />
+        </ComponentGroup>
+        <ComponentGroup Id="CG.Plugins.SBC">
+            <ComponentRef Id="cmpSBC_dll" />
         </ComponentGroup>
     </Fragment>
 
