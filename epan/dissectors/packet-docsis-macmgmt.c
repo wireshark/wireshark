@@ -412,6 +412,7 @@ void proto_reg_handoff_docsis_mgmt(void);
 /*Receive Channel Profile Reporting Control*/
 #define RCP_CENTER_FREQUENCY_SPACING 1
 #define VERBOSE_RCP_REPORTING 2
+#define FRAGMENTED_RCP_TRANSMISSION 3
 
 /*Frequency spacing*/
 #define ASSUME_6MHZ_CENTER_FREQUENCY_SPACING 0
@@ -438,6 +439,10 @@ void proto_reg_handoff_docsis_mgmt(void);
 /*Upstream Active Channel List*/
 #define UPSTREAM_ACTIVE_CHANNEL_LIST_UPSTREAM_CHANNEL_ID 1
 #define UPSTREAM_ACTIVE_CHANNEL_LIST_CM_STATUS_EVENT_ENABLE_BITMASK 2
+#define UPSTREAM_ACTIVE_CHANNEL_LIST_UPSTREAM_CHANNEL_PRIORITY 3
+#define UPSTREAM_ACTIVE_CHANNEL_LIST_DSCHIDS_MAPS_UCDS 4
+#define UPSTREAM_ACTIVE_CHANNEL_LIST_FDX_UPSTREAM_CHANNEL 5
+#define UPSTREAM_ACTIVE_CHANNEL_LIST_FDX_SUBBAND_ID 6
 
 /*Upstream Frequency Range*/
 #define STANDARD_UPSTREAM_FREQUENCY_RANGE 0
@@ -951,14 +956,20 @@ static int hf_docsis_mdd_length = -1;
 static int hf_docsis_mdd_downstream_ambiguity_resolution_frequency = -1;
 static int hf_docsis_mdd_channel_profile_reporting_control_subtype = -1;
 static int hf_docsis_mdd_channel_profile_reporting_control_length = -1;
-static int hf_docsis_mdd_rpc_center_frequency_spacing = -1;
+static int hf_docsis_mdd_rcp_center_frequency_spacing = -1;
 static int hf_docsis_mdd_verbose_rcp_reporting = -1;
+static int hf_docsis_mdd_fragmented_rcp_transmission = -1;
 static int hf_docsis_mdd_ip_init_param_subtype = -1;
 static int hf_docsis_mdd_ip_init_param_length = -1;
 static int hf_docsis_mdd_ip_provisioning_mode = -1;
 static int hf_docsis_mdd_pre_registration_dsid = -1;
 static int hf_docsis_mdd_early_authentication_and_encryption = -1;
 static int hf_docsis_mdd_upstream_active_channel_list_upstream_channel_id = -1;
+static int hf_docsis_mdd_upstream_active_channel_list_upstream_channel_priority = -1;
+static int hf_docsis_mdd_upstream_active_channel_list_dschids_maps_ucds = -1;
+static int hf_docsis_mdd_upstream_active_channel_list_dschids_maps_ucds_dschid = -1;
+static int hf_docsis_mdd_upstream_active_channel_list_fdx_upstream_channel = -1;
+static int hf_docsis_mdd_upstream_active_channel_list_fdx_subband_id = -1;
 static int hf_docsis_mdd_upstream_ambiguity_resolution_channel_list_channel_id = -1;
 static int hf_docsis_mdd_upstream_frequency_range = -1;
 static int hf_docsis_mdd_symbol_clock_locking_indicator = -1;
@@ -1278,6 +1289,7 @@ static gint ett_docsis_mdd_ds_service_group = -1;
 static gint ett_docsis_mdd_channel_profile_reporting_control = -1;
 static gint ett_docsis_mdd_ip_init_param = -1;
 static gint ett_docsis_mdd_up_active_channel_list = -1;
+static gint ett_docsis_mdd_upstream_active_channel_list_dschids_maps_ucds_dschids = -1;
 static gint ett_docsis_mdd_cm_status_event_control = -1;
 static gint ett_docsis_mdd_dsg_da_to_dsid = -1;
 static gint ett_docsis_mdd_diplexer_band_edge = -1;
@@ -1762,26 +1774,26 @@ static const value_string map_ucd_transport_indicator_vals[] = {
 };
 
 static const value_string tukey_raised_cosine_vals[] = {
-  {TUKEY_0TS,   "0 microseconds (0 * Ts)"},
-  {TUKEY_64TS,  "0.3125 microseconds (64 * Ts)"},
-  {TUKEY_128TS, "0.625 microseconds (128 * Ts)"},
-  {TUKEY_192TS, "0.9375 microseconds (192 * Ts)"},
-  {TUKEY_256TS, "1.25 microseconds (256 * Ts)"},
+  {TUKEY_0TS,   "0 "UTF8_MICRO_SIGN"s (0 * Ts)"},
+  {TUKEY_64TS,  "0.3125 "UTF8_MICRO_SIGN"s (64 * Ts)"},
+  {TUKEY_128TS, "0.625 "UTF8_MICRO_SIGN"s (128 * Ts)"},
+  {TUKEY_192TS, "0.9375 "UTF8_MICRO_SIGN"s (192 * Ts)"},
+  {TUKEY_256TS, "1.25 "UTF8_MICRO_SIGN"s (256 * Ts)"},
   {0, NULL}
 };
 
 static const value_string cyclic_prefix_vals[] = {
-  {CYCLIC_PREFIX_192_TS,  "0.9375 microseconds (192 * Ts)"},
-  {CYCLIC_PREFIX_256_TS,  "1.25 microseconds (256 * Ts)"},
-  {CYCLIC_PREFIX_512_TS,  "2.5 microseconds (512 * Ts) 3"},
-  {CYCLIC_PREFIX_768_TS,  "3.75 microseconds (768 * Ts)"},
-  {CYCLIC_PREFIX_1024_TS, "5 microseconds (1024 * Ts)"},
+  {CYCLIC_PREFIX_192_TS,  "0.9375 "UTF8_MICRO_SIGN"s (192 * Ts)"},
+  {CYCLIC_PREFIX_256_TS,  "1.25 "UTF8_MICRO_SIGN"s (256 * Ts)"},
+  {CYCLIC_PREFIX_512_TS,  "2.5 "UTF8_MICRO_SIGN"s (512 * Ts) 3"},
+  {CYCLIC_PREFIX_768_TS,  "3.75 "UTF8_MICRO_SIGN"s (768 * Ts)"},
+  {CYCLIC_PREFIX_1024_TS, "5 "UTF8_MICRO_SIGN"s (1024 * Ts)"},
   {0, NULL}
 };
 
 static const value_string spacing_vals[] = {
-  {SPACING_25KHZ, "25Khz"},
-  {SPACING_50KHZ, "50Khz"},
+  {SPACING_25KHZ, "25kHz"},
+  {SPACING_50KHZ, "50kHz"},
   {0, NULL}
 };
 
@@ -1873,15 +1885,20 @@ static const value_string mdd_tlv_vals[] = {
 };
 
 
-static const value_string rpc_center_frequency_spacing_vals[] = {
+static const value_string rcp_center_frequency_spacing_vals[] = {
   {ASSUME_6MHZ_CENTER_FREQUENCY_SPACING  , "CM MUST report only Receive Channel Profiles assuming 6 MHz center frequency spacing"},
   {ASSUME_8MHZ_CENTER_FREQUENCY_SPACING  , "CM MUST report only Receive Channel Profiles assuming 8 MHz center frequency spacing"},
   {0, NULL}
 };
 
-static const value_string verbose_rpc_reporting_vals[] = {
+static const value_string verbose_rcp_reporting_vals[] = {
   {RCP_NO_VERBOSE_REPORTING  , "CM MUST NOT provide verbose reporting of all its Receive Channel Profile(s) (both standard profiles and manufacturers profiles)."},
   {RCP_VERBOSE_REPORTING  ,    "CM MUST provide verbose reporting of Receive Channel Profile(s) (both standard profiles and manufacturers profiles)."},
+  {0, NULL}
+};
+
+static const value_string fragmented_rcp_transmission_vals[] = {
+  {1, "CM optionally transmits Receive Channel Profile (s) requiring fragmentation (RCPs in excess of 255 bytes) in addition to those that do not."},
   {0, NULL}
 };
 
@@ -1963,8 +1980,9 @@ static const value_string mdd_ds_service_group_vals[] = {
 };
 
 static const value_string mdd_channel_profile_reporting_control_vals[] = {
-  {RCP_CENTER_FREQUENCY_SPACING, "RPC Center Frequency Spacing"},
+  {RCP_CENTER_FREQUENCY_SPACING, "RCP Center Frequency Spacing"},
   {VERBOSE_RCP_REPORTING,       "Verbose RCP reporting"},
+  {FRAGMENTED_RCP_TRANSMISSION, "Fragmented RCP transmission"},
   {0, NULL}
 };
 
@@ -1977,6 +1995,10 @@ static const value_string mdd_ip_init_param_vals[] = {
 static const value_string mdd_up_active_channel_list_vals[] = {
   {UPSTREAM_ACTIVE_CHANNEL_LIST_UPSTREAM_CHANNEL_ID, "Upstream Channel Id"},
   {UPSTREAM_ACTIVE_CHANNEL_LIST_CM_STATUS_EVENT_ENABLE_BITMASK, "CM-STATUS Event Enable Bitmask"},
+  {UPSTREAM_ACTIVE_CHANNEL_LIST_UPSTREAM_CHANNEL_PRIORITY, "Upstream Channel Priority"},
+  {UPSTREAM_ACTIVE_CHANNEL_LIST_DSCHIDS_MAPS_UCDS, "Downstream Channel(s) on which MAPs and UCDs for this Upstream Channel are sent"},
+  {UPSTREAM_ACTIVE_CHANNEL_LIST_FDX_UPSTREAM_CHANNEL, "FDX Upstream Channel"},
+  {UPSTREAM_ACTIVE_CHANNEL_LIST_FDX_SUBBAND_ID, "FDX Sub-band ID"},
   {0, NULL}
 };
 
@@ -5096,10 +5118,13 @@ dissect_mdd_channel_profile_reporting_control(tvbuff_t * tvb, packet_info* pinfo
     switch(type)
     {
     case RCP_CENTER_FREQUENCY_SPACING:
-      proto_tree_add_item (mdd_tree, hf_docsis_mdd_rpc_center_frequency_spacing, tvb, pos, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item (mdd_tree, hf_docsis_mdd_rcp_center_frequency_spacing, tvb, pos, 1, ENC_BIG_ENDIAN);
       break;
     case VERBOSE_RCP_REPORTING:
       proto_tree_add_item (mdd_tree, hf_docsis_mdd_verbose_rcp_reporting, tvb, pos, 1, ENC_BIG_ENDIAN);
+      break;
+    case FRAGMENTED_RCP_TRANSMISSION:
+      proto_tree_add_item (mdd_tree, hf_docsis_mdd_fragmented_rcp_transmission, tvb, pos, 1, ENC_BIG_ENDIAN);
       break;
     }
 
@@ -5145,6 +5170,22 @@ dissect_mdd_ip_init_param(tvbuff_t * tvb, packet_info* pinfo _U_, proto_tree * t
 }
 
 static void
+dissect_mdd_upstream_active_channel_list_dschids_maps_ucds(tvbuff_t * tvb, proto_tree * tree, guint start, guint16 len)
+{
+  guint16 i;
+  proto_item *it;
+  proto_tree *dschid_tree;
+
+  it = proto_tree_add_item (tree, hf_docsis_mdd_upstream_active_channel_list_dschids_maps_ucds, tvb, start, len, ENC_NA);
+  dschid_tree = proto_item_add_subtree (it, ett_docsis_mdd_upstream_active_channel_list_dschids_maps_ucds_dschids);
+
+  for(i = 0; i< len; ++i)
+  {
+    proto_tree_add_item (dschid_tree, hf_docsis_mdd_upstream_active_channel_list_dschids_maps_ucds_dschid, tvb, start + i, 1, ENC_BIG_ENDIAN);
+  }
+}
+
+static void
 dissect_mdd_upstream_active_channel_list(tvbuff_t * tvb, packet_info* pinfo _U_, proto_tree * tree, int start, guint16 len)
 {
   guint8 type;
@@ -5180,6 +5221,18 @@ dissect_mdd_upstream_active_channel_list(tvbuff_t * tvb, packet_info* pinfo _U_,
       break;
     case UPSTREAM_ACTIVE_CHANNEL_LIST_CM_STATUS_EVENT_ENABLE_BITMASK:
       proto_tree_add_bitmask(mdd_tree, tvb, pos, hf_docsis_mdd_cm_status_event_enable_bitmask, ett_sub_tlv, cm_status_event, ENC_BIG_ENDIAN);
+      break;
+    case UPSTREAM_ACTIVE_CHANNEL_LIST_UPSTREAM_CHANNEL_PRIORITY:
+      proto_tree_add_item (mdd_tree, hf_docsis_mdd_upstream_active_channel_list_upstream_channel_priority, tvb, pos, 1, ENC_BIG_ENDIAN);
+      break;
+    case UPSTREAM_ACTIVE_CHANNEL_LIST_DSCHIDS_MAPS_UCDS:
+      dissect_mdd_upstream_active_channel_list_dschids_maps_ucds(tvb, mdd_tree, pos, length);
+      break;
+    case UPSTREAM_ACTIVE_CHANNEL_LIST_FDX_UPSTREAM_CHANNEL:
+      proto_tree_add_item (mdd_tree, hf_docsis_mdd_upstream_active_channel_list_fdx_upstream_channel, tvb, pos, 1, ENC_BIG_ENDIAN);
+      break;
+    case UPSTREAM_ACTIVE_CHANNEL_LIST_FDX_SUBBAND_ID:
+      proto_tree_add_item (mdd_tree, hf_docsis_mdd_upstream_active_channel_list_fdx_subband_id, tvb, pos, 1, ENC_BIG_ENDIAN);
       break;
     }
 
@@ -8996,15 +9049,20 @@ proto_register_docsis_mgmt (void)
       FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL, HFILL}
     },
-    {&hf_docsis_mdd_rpc_center_frequency_spacing,
-     {"RPC Center Frequency Spacing", "docsis_mdd.rpc_center_frequency_spacing",
-      FT_UINT8, BASE_DEC, VALS(rpc_center_frequency_spacing_vals), 0x0,
-      "Mdd RPC Center Frequency Spacing", HFILL}
+    {&hf_docsis_mdd_rcp_center_frequency_spacing,
+     {"RCP Center Frequency Spacing", "docsis_mdd.rcp_center_frequency_spacing",
+      FT_UINT8, BASE_DEC, VALS(rcp_center_frequency_spacing_vals), 0x0,
+      "Mdd RCP Center Frequency Spacing", HFILL}
     },
     {&hf_docsis_mdd_verbose_rcp_reporting,
-     {"Verbose RCP reporting", "docsis_mdd.verbose_rpc_reporting",
-      FT_UINT8, BASE_DEC, VALS(verbose_rpc_reporting_vals), 0x0,
-      "Mdd Verbose RPC Reporting", HFILL}
+     {"Verbose RCP reporting", "docsis_mdd.verbose_rcp_reporting",
+      FT_UINT8, BASE_DEC, VALS(verbose_rcp_reporting_vals), 0x0,
+      "Mdd Verbose RCP Reporting", HFILL}
+    },
+    {&hf_docsis_mdd_fragmented_rcp_transmission,
+     {"Fragmented RCP transmission", "docsis_mdd.fragmented_rcp_transmission",
+      FT_UINT8, BASE_DEC, VALS(fragmented_rcp_transmission_vals), 0x0,
+      "Mdd Fragmented RCP transmission", HFILL}
     },
     {&hf_docsis_mdd_ip_init_param_subtype,
      {"Type", "docsis_mdd.ip_init_param_type",
@@ -9034,7 +9092,32 @@ proto_register_docsis_mgmt (void)
     {&hf_docsis_mdd_upstream_active_channel_list_upstream_channel_id,
      {"Upstream Channel Id", "docsis_mdd.upstream_active_channel_list_upstream_channel_id",
       FT_UINT8, BASE_DEC, NULL, 0x0,
-      "Mdd Upstream Active Channel List Upstream Channel Id", HFILL}
+      "Mdd Upstream Active Channel List - Upstream Channel Id", HFILL}
+    },
+    {&hf_docsis_mdd_upstream_active_channel_list_upstream_channel_priority,
+     {"Upstream Channel Priority", "docsis_mdd.upstream_active_channel_list_upstream_channel_priority",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Mdd Upstream Active Channel List - Upstream Channel Priority", HFILL}
+    },
+    {&hf_docsis_mdd_upstream_active_channel_list_dschids_maps_ucds,
+     {"Downstream Channel(s) on which MAPs and UCDs for this Upstream Channel are sent", "docsis_mdd.upstream_active_channel_list_dschids_maps_ucds",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Mdd Upstream Active Channel List - Downstream Channel(s) on which MAPs and UCDs for this Upstream Channel are sent", HFILL}
+    },
+    {&hf_docsis_mdd_upstream_active_channel_list_dschids_maps_ucds_dschid,
+     {"Downstream Channel ID", "docsis_mdd.upstream_active_channel_list_dschids_maps_ucds.dschid",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Mdd Upstream Active Channel List - ID of Downstream Channel on which MAPs and UCDs for this Upstream Channel are sent", HFILL}
+    },
+    {&hf_docsis_mdd_upstream_active_channel_list_fdx_upstream_channel,
+     {"FDX Upstream Channel", "docsis_mdd.upstream_active_channel_list_fdx_upstream_channel",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Mdd Upstream Active Channel List - FDX Upstream Channel", HFILL}
+    },
+    {&hf_docsis_mdd_upstream_active_channel_list_fdx_subband_id,
+     {"FDX Sub-band ID", "docsis_mdd.upstream_active_channel_list_fdx_subband_id",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      "Mdd Upstream Active Channel List - FDX Sub-band ID", HFILL}
     },
     {&hf_docsis_mdd_upstream_ambiguity_resolution_channel_list_channel_id,
      {"Channel Id", "docsis_mdd.upstream_ambiguity_resolution_channel_list_channel_id",
@@ -10013,6 +10096,7 @@ proto_register_docsis_mgmt (void)
     &ett_docsis_mdd_channel_profile_reporting_control,
     &ett_docsis_mdd_ip_init_param,
     &ett_docsis_mdd_up_active_channel_list,
+    &ett_docsis_mdd_upstream_active_channel_list_dschids_maps_ucds_dschids,
     &ett_docsis_mdd_cm_status_event_control,
     &ett_docsis_mdd_dsg_da_to_dsid,
     &ett_docsis_mdd_diplexer_band_edge,
