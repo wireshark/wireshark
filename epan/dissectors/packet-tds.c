@@ -1406,6 +1406,9 @@ static const enum_val_t tds_protocol_type_options[] = {
 #define TDS_PROTO_LESS_THAN_TDS7(tds_info) \
             (TDS_PROTO_PREF_NOT_SPECIFIED ? ((tds_info)->tds_version <= TDS_PROTOCOL_7_0) \
                                           : (tds_protocol_type <= TDS_PROTOCOL_7_0))
+#define TDS_PROTO_TDS5(tds_info) \
+            (TDS_PROTO_PREF_NOT_SPECIFIED ? ((tds_info)->tds_version == TDS_PROTOCOL_5) \
+                                          : (tds_protocol_type == TDS_PROTOCOL_5))
 #define TDS_PROTO_TDS7(tds_info) \
             (TDS_PROTO_PREF_NOT_SPECIFIED ? ((tds_info)->tds_version >= TDS_PROTOCOL_7_0) && \
                                             ((tds_info)->tds_version <= TDS_PROTOCOL_7_4) \
@@ -2552,38 +2555,84 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
 
             if(length > 0) {
 
-                if (TDS_PROTO_TDS7(tds_info)) {
-                    proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_sign, tvb, *offset, 1, ENC_NA);
+                if (TDS_PROTO_TDS5(tds_info)) {
+                    /* Sybase rules:
+                     * Data are big-endian.
+                     * The size appears to be variable governed on the Precision specification.
+                     * Sign of TRUE indicates negative.
+                     */
+                    gboolean sign = FALSE;
+
+                    proto_tree_add_item_ret_boolean(sub_tree, hf_tds_type_varbyte_data_sign, tvb, *offset, 1, ENC_NA, &sign);
+                    *offset += 1;
                     length -= 1;
+
+                    numericitem = proto_tree_add_item(sub_tree,
+                        hf_tds_type_varbyte_data_bytes, tvb, *offset, length,
+                        ENC_NA);
+                    if (length <= 8) {
+                        guint8 data_array[8];
+                        guint j;
+                        gint64 int64_value = 0;
+
+                        (void) tvb_memcpy(tvb, data_array, *offset, length);
+                        for (j = 0; j < length; j++) {
+                            int64_value = (int64_value << 8) | data_array[j];
+                        }
+                        proto_item_append_text(numericitem,
+                            " (%" G_GINT64_MODIFIER "d)",
+                            (sign ? -int64_value : int64_value));
+                        if(scale != 0) {
+                            proto_item_append_text(numericitem, " x 10^-%u", scale);
+                        }
+                    }
+                    *offset += length;
                 }
+                else {
+                    /*
+                     *  Microsoft apparently allowed NUMERIC/DECIMAL while they
+                     *  still were negotiating TDS 4.x. Sybase did not, so
+                     *  assume any NUMERIC that's not TDS 5.0 is Microsoft's.
+                     *
+                     * Microsoft rules:
+                     * Data are little-endian.
+                     * The data size is documented as being 4, 8, 12, or 16 bytes,
+                     * but this code does not rely on that.
+                     * Sign of TRUE indicates positive.
+                     */
+                    gboolean sign = TRUE;
 
-                switch(length)
-                {
-                    case 4:
-                    {
-                        numericitem = proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int4,
-                                          tvb, *offset + 1, 4, tds_get_int4_encoding(tds_info));
+                    numericitem = proto_tree_add_item_ret_boolean(sub_tree,
+                        hf_tds_type_varbyte_data_sign, tvb, *offset, 1,
+                        ENC_NA, &sign);
+                    length -= 1;
+                    *offset += 1;
 
-                        if(scale != 0)
-                            proto_item_append_text(numericitem, " x 10^%u", scale);
-                        break;
-                    }
-                    case 8:
-                    {
-                        numericitem = proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int8, tvb, *offset + 1, 8, ENC_LITTLE_ENDIAN);
+                    numericitem = proto_tree_add_item(sub_tree,
+                        hf_tds_type_varbyte_data_bytes, tvb, *offset, length,
+                        ENC_NA);
+                    if (length <= 8) {
+                        guint8 data_array[8];
+                        gint j;
+                        gint64 int64_value = 0;
 
-                        if(scale != 0)
-                            proto_item_append_text(numericitem, " x 10^%u", scale);
-                        break;
+                        (void) tvb_memcpy(tvb, data_array, *offset, length);
+                        for (j = length - 1; j >= 0; j--) {
+                            int64_value = (int64_value << 8) | data_array[j];
+                        }
+                        proto_item_append_text(numericitem,
+                            " (%" G_GINT64_MODIFIER "d)",
+                            (sign ? int64_value : -int64_value));
+                        if(scale != 0) {
+                            proto_item_append_text(numericitem, " x 10^-%u", scale);
+                        }
                     }
-                    case 12:
-                    case 16:
-                    {
-                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_bytes, tvb, *offset + 1, length, ENC_NA);
-                        break;
-                    }
+                    *offset += length;
                 }
-                *offset += length;
+            }
+            else {
+                proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset,
+                    0, ENC_NA);
             }
             break;
         }
