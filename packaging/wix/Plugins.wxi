@@ -100,7 +100,7 @@
         </DirectoryRef>
     </Fragment>
     <Fragment>
-        <ComponentGroup Id="CG.Plugins.Usbdump">
+        <ComponentGroup Id="CG.Plugins.Wiretap">
             <ComponentRef Id="cmpUsbdump_dll" />
         </ComponentGroup>
     </Fragment>
@@ -129,22 +129,12 @@
         </DirectoryRef>
     </Fragment>
     <Fragment>
-        <ComponentGroup Id="CG.Plugins.G711">
+        <ComponentGroup Id="CG.Plugins.Codecs">
             <ComponentRef Id="cmpG711_dll" />
-        </ComponentGroup>
-        <ComponentGroup Id="CG.Plugins.G722">
             <ComponentRef Id="cmpG722_dll" />
-        </ComponentGroup>
-        <ComponentGroup Id="CG.Plugins.G726">
             <ComponentRef Id="cmpG726_dll" />
-        </ComponentGroup>
-        <ComponentGroup Id="CG.Plugins.G729">
             <ComponentRef Id="cmpG729_dll" />
-        </ComponentGroup>
-        <ComponentGroup Id="CG.Plugins.L16mono">
             <ComponentRef Id="cmpL16mono_dll" />
-        </ComponentGroup>
-        <ComponentGroup Id="CG.Plugins.SBC">
             <ComponentRef Id="cmpSBC_dll" />
         </ComponentGroup>
     </Fragment>

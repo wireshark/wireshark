@@ -37,6 +37,15 @@
       <Feature Id="Fe.Plugins.Mate" Title="Mate - Meta Analysis and Tracing Engine" Level="1" AllowAdvertise="yes" Display="expand" Description="Plugin - Meta Analysis and Tracing Engine (Experimental).">
         <ComponentGroupRef Id="CG.Plugins.Mate" />
       </Feature>
+      <Feature Id="Fe.Plugins.Transum" Title="TRANSUM - Network and application performance analysis" Level="1" AllowAdvertise="yes" Display="expand" Description="Plugin - Network and application performance analysis (Experimental).">
+        <ComponentGroupRef Id="CG.Plugins.Transum" />
+      </Feature>
+      <Feature Id="Fe.Plugins.Wiretap" Title="Wiretap Plugins" Level="1" AllowAdvertise="yes" Display="expand" Description="Additional file formats support.">
+        <ComponentGroupRef Id="CG.Plugins.Wiretap" />
+      </Feature>
+      <Feature Id="Fe.Plugins.Codecs" Title="Codec Plugins" Level="1" AllowAdvertise="yes" Display="expand" Description="Codecs playback support.">
+        <ComponentGroupRef Id="CG.Plugins.Codecs" />
+      </Feature>
       <Feature Id="Fe.Plugins.ConfigurationProfiles" Title="Configuration Profiles" Level="1" AllowAdvertise="yes" Display="expand" Description="Configuration Profiles">
         <!-- XXX - Cleanup configuration profiles directory on uninstall  -->
         <ComponentGroupRef Id="CG.Plugins.ConfigurationProfiles" />
