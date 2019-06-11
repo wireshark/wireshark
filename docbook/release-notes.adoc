@@ -58,6 +58,7 @@ Distributed Replicated Block Device (DRBD)
 GSM/3GPP CBSP (Cell Broadcast Service Protocol)
 NVM Express over Fabrics for TCP (nvme-tcp)
 Graylog Extended Log Format over UDP (GELF)
+FTDI FT USB Bridging Devices (FTDI FT)
 --
 
 === Updated Protocol Support
