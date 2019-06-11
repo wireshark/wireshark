@@ -663,7 +663,7 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
         }
         else
         {
-            if (tvb_captured_length_remaining(tvb, offset) > 0)
+            if (tvb_reported_length_remaining(tvb, offset) > 0)
             {
                 /* TODO: Dissect control data phase (GetModemStat, GetLatTimer) */
                 proto_tree_add_expert(main_tree, pinfo, &ei_undecoded, tvb, offset, -1);
@@ -717,11 +717,11 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             col_add_fstr(pinfo->cinfo, COL_INFO, "INTERFACE %s TX", interface_str);
             payload_hf = tx_hf;
         }
-        bytes = tvb_captured_length_remaining(tvb, offset);
+        bytes = tvb_reported_length_remaining(tvb, offset);
         if (bytes > 0)
         {
             col_append_fstr(pinfo->cinfo, COL_INFO, " %d bytes", bytes);
-            proto_tree_add_item(main_tree, payload_hf, tvb, offset, -1, ENC_NA);
+            proto_tree_add_item(main_tree, payload_hf, tvb, offset, bytes, ENC_NA);
             offset += bytes;
         }
     }
