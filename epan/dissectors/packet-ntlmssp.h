@@ -29,9 +29,9 @@ dissect_ntlmv2_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ntlmssp_t
 /* the ntlmssp data passed to tap listeners */
 typedef struct _ntlmssp_header_t {
 	guint32		type;
-	const char 	*domain_name;
-	const char 	*acct_name;
-	const char 	*host_name;
+	const guint8	*domain_name;
+	const guint8	*acct_name;
+	const guint8	*host_name;
 	guint8		session_key[NTLMSSP_KEY_LEN];
 } ntlmssp_header_t;
 

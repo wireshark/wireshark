@@ -18,7 +18,9 @@
 
 #include <epan/conversation.h>
 #include <epan/packet.h>
+#if 0
 #include "packet-smb-common.h"
+#endif
 #include "packet-windows-common.h"
 #include "packet-scsi.h"
 
@@ -701,16 +703,7 @@ dissect_RSVD2_META_OPERATION_START(tvbuff_t *tvb, proto_tree *parent_tree, int o
             offset += 4;
 
             if (length) {
-                const char *name = "";
-                guint16 bc;
-
-                bc = tvb_captured_length_remaining(tvb, offset);
-                name = get_unicode_or_ascii_string(tvb, &offset,
-                    TRUE, &length, TRUE, TRUE, &bc);
-                if (name) {
-                    proto_tree_add_string(gfi_sub_tree, hf_svhdx_tunnel_convert_dst_vhdset_name, tvb,
-                        offset, length, name);
-                }
+                proto_tree_add_item(gfi_sub_tree, hf_svhdx_tunnel_convert_dst_vhdset_name, tvb, offset, length, ENC_UTF_16|ENC_LITTLE_ENDIAN);
             }
             break;
 

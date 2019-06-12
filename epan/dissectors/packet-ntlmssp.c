@@ -32,7 +32,6 @@
 #include <wsutil/str_util.h>
 
 #include "packet-windows-common.h"
-#include "packet-smb-common.h"
 #include "packet-kerberos.h"
 #include "packet-dcerpc.h"
 #include "packet-gssapi.h"
@@ -917,16 +916,13 @@ dissect_ntlmssp_string (tvbuff_t *tvb, int offset,
                         proto_tree *ntlmssp_tree,
                         gboolean unicode_strings,
                         int string_hf, int *start, int *end,
-                        const char **stringp)
+                        const guint8 **stringp)
 {
   proto_tree *tree          = NULL;
   proto_item *tf            = NULL;
   gint16      string_length = tvb_get_letohs(tvb, offset);
   gint16      string_maxlen = tvb_get_letohs(tvb, offset+2);
   gint32      string_offset = tvb_get_letohl(tvb, offset+4);
-  const char *string_text   = NULL;
-  int         result_length;
-  guint16     bc;
 
   *start = (string_offset > offset+8 ? string_offset : (signed)tvb_reported_length(tvb));
   if (0 == string_length) {
@@ -939,22 +935,16 @@ dissect_ntlmssp_string (tvbuff_t *tvb, int offset,
     return offset+8;
   }
 
-  bc = result_length = string_length;
-  string_text = get_unicode_or_ascii_string(tvb, &string_offset,
-                                            unicode_strings, &result_length,
-                                            FALSE, TRUE, &bc);
-
-  if (stringp != NULL) {
-    if (!string_text) string_text = ""; /* Make sure we don't blow up later */
-
-    *stringp = string_text;
+  if (unicode_strings) {
+    /* UTF-16 string; must be 2-byte aligned */
+    if ((string_offset & 1) != 0)
+      string_offset++;
   }
-
-  if (ntlmssp_tree) {
-    tf = proto_tree_add_string(ntlmssp_tree, string_hf, tvb,
-                               string_offset, result_length, string_text);
-    tree = proto_item_add_subtree(tf, ett_ntlmssp_string);
-  }
+  tf = proto_tree_add_item_ret_string(ntlmssp_tree, string_hf, tvb,
+                           string_offset, string_length,
+                           unicode_strings ? ENC_UTF_16|ENC_LITTLE_ENDIAN : ENC_ASCII|ENC_NA,
+                           wmem_packet_scope(), stringp);
+  tree = proto_item_add_subtree(tf, ett_ntlmssp_string);
   proto_tree_add_uint(tree, hf_ntlmssp_string_len,
                       tvb, offset, 2, string_length);
   offset += 2;

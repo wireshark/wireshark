@@ -92,7 +92,6 @@
 #include "packet-ntlmssp.h"
 #include "packet-tls.h"
 #include "packet-tls-utils.h"
-#include "packet-smb-common.h"
 #include "packet-gssapi.h"
 
 #include "packet-ber.h"
@@ -154,8 +153,11 @@ static int hf_mscldap_domain_guid = -1;
 static int hf_mscldap_forest = -1;
 static int hf_mscldap_domain = -1;
 static int hf_mscldap_hostname = -1;
+static int hf_mscldap_nb_domain_z = -1;
 static int hf_mscldap_nb_domain = -1;
+static int hf_mscldap_nb_hostname_z = -1;
 static int hf_mscldap_nb_hostname = -1;
+static int hf_mscldap_username_z = -1;
 static int hf_mscldap_username = -1;
 static int hf_mscldap_sitename = -1;
 static int hf_mscldap_clientsitename = -1;
@@ -1408,9 +1410,7 @@ static int dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
   guint16 itype;
   guint16 len;
   guint32 version;
-  const char *fn;
   int fn_len;
-  guint16 bc;
   proto_item *item;
 
   ldm_tree = NULL;
@@ -1431,20 +1431,25 @@ static int dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
   switch(itype){
 
     case LOGON_SAM_LOGON_RESPONSE:
-      bc = tvb_reported_length_remaining(tvb, offset);
-      /* logon server name */
-      fn = get_unicode_or_ascii_string(tvb,&offset,TRUE,&fn_len,FALSE,FALSE,&bc);
-      proto_tree_add_string(tree, hf_mscldap_nb_hostname, tvb,offset, fn_len, fn);
+      /* logon server name; must be aligned on a 2-byte boundary */
+      if ((offset & 1) != 0) {
+        offset++;
+      }
+      proto_tree_add_item_ret_length(tree, hf_mscldap_nb_hostname_z, tvb,offset, -1, ENC_UTF_16|ENC_LITTLE_ENDIAN, &fn_len);
       offset +=fn_len;
 
-      /* username */
-      fn = get_unicode_or_ascii_string(tvb,&offset,TRUE,&fn_len,FALSE,FALSE,&bc);
-      proto_tree_add_string(tree, hf_mscldap_username, tvb,offset, fn_len, fn);
+      /* username; must be aligned on a 2-byte boundary */
+      if ((offset & 1) != 0) {
+        offset++;
+      }
+      proto_tree_add_item_ret_length(tree, hf_mscldap_username_z, tvb,offset, -1, ENC_UTF_16|ENC_LITTLE_ENDIAN, &fn_len);
       offset +=fn_len;
 
-      /* domain name */
-      fn = get_unicode_or_ascii_string(tvb,&offset,TRUE,&fn_len,FALSE,FALSE,&bc);
-      proto_tree_add_string(tree, hf_mscldap_nb_domain, tvb,offset, fn_len, fn);
+      /* domain name; must be aligned on a 2-byte boundary */
+      if ((offset & 1) != 0) {
+        offset++;
+      }
+      proto_tree_add_item_ret_length(tree, hf_mscldap_nb_domain_z, tvb,offset, -1, ENC_UTF_16|ENC_LITTLE_ENDIAN, &fn_len);
       offset +=fn_len;
 
       /* get the version number from the end of the buffer, as the
@@ -1958,15 +1963,30 @@ void proto_register_ldap(void) {
         FT_STRING, BASE_NONE, NULL, 0x0,
         "DNS name of server", HFILL }},
 
+    { &hf_mscldap_nb_domain_z,
+      { "NetBIOS Domain", "mscldap.nb_domain",
+        FT_STRINGZ, BASE_NONE, NULL, 0x0,
+        "NetBIOS name of the NC", HFILL }},
+
     { &hf_mscldap_nb_domain,
       { "NetBIOS Domain", "mscldap.nb_domain",
         FT_STRING, BASE_NONE, NULL, 0x0,
         "NetBIOS name of the NC", HFILL }},
 
+    { &hf_mscldap_nb_hostname_z,
+      { "NetBIOS Hostname", "mscldap.nb_hostname",
+        FT_STRINGZ, BASE_NONE, NULL, 0x0,
+        "NetBIOS name of the server", HFILL }},
+
     { &hf_mscldap_nb_hostname,
       { "NetBIOS Hostname", "mscldap.nb_hostname",
         FT_STRING, BASE_NONE, NULL, 0x0,
         "NetBIOS name of the server", HFILL }},
+
+    { &hf_mscldap_username_z,
+      { "Username", "mscldap.username",
+        FT_STRINGZ, BASE_NONE, NULL, 0x0,
+        "User specified in client's request", HFILL }},
 
     { &hf_mscldap_username,
       { "Username", "mscldap.username",

@@ -100,7 +100,6 @@
 #include "packet-ntlmssp.h"
 #include "packet-tls.h"
 #include "packet-tls-utils.h"
-#include "packet-smb-common.h"
 #include "packet-gssapi.h"
 
 #include "packet-ber.h"
@@ -162,8 +161,11 @@ static int hf_mscldap_domain_guid = -1;
 static int hf_mscldap_forest = -1;
 static int hf_mscldap_domain = -1;
 static int hf_mscldap_hostname = -1;
+static int hf_mscldap_nb_domain_z = -1;
 static int hf_mscldap_nb_domain = -1;
+static int hf_mscldap_nb_hostname_z = -1;
 static int hf_mscldap_nb_hostname = -1;
+static int hf_mscldap_username_z = -1;
 static int hf_mscldap_username = -1;
 static int hf_mscldap_sitename = -1;
 static int hf_mscldap_clientsitename = -1;
@@ -333,7 +335,7 @@ static int hf_ldap_graceAuthNsRemaining = -1;     /* INTEGER_0_maxInt */
 static int hf_ldap_error = -1;                    /* T_error */
 
 /*--- End of included file: packet-ldap-hf.c ---*/
-#line 183 "./asn1/ldap/packet-ldap-template.c"
+#line 185 "./asn1/ldap/packet-ldap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ldap = -1;
@@ -405,7 +407,7 @@ static gint ett_ldap_PasswordPolicyResponseValue = -1;
 static gint ett_ldap_T_warning = -1;
 
 /*--- End of included file: packet-ldap-ett.c ---*/
-#line 195 "./asn1/ldap/packet-ldap-template.c"
+#line 197 "./asn1/ldap/packet-ldap-template.c"
 
 static expert_field ei_ldap_exceeded_filter_length = EI_INIT;
 static expert_field ei_ldap_too_many_filter_elements = EI_INIT;
@@ -3812,7 +3814,7 @@ static int dissect_PasswordPolicyResponseValue_PDU(tvbuff_t *tvb _U_, packet_inf
 
 
 /*--- End of included file: packet-ldap-fn.c ---*/
-#line 906 "./asn1/ldap/packet-ldap-template.c"
+#line 908 "./asn1/ldap/packet-ldap-template.c"
 static int dissect_LDAPMessage_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, ldap_conv_info_t *ldap_info) {
 
   int offset = 0;
@@ -4318,9 +4320,7 @@ static int dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
   guint16 itype;
   guint16 len;
   guint32 version;
-  const char *fn;
   int fn_len;
-  guint16 bc;
   proto_item *item;
 
   ldm_tree = NULL;
@@ -4341,20 +4341,25 @@ static int dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
   switch(itype){
 
     case LOGON_SAM_LOGON_RESPONSE:
-      bc = tvb_reported_length_remaining(tvb, offset);
-      /* logon server name */
-      fn = get_unicode_or_ascii_string(tvb,&offset,TRUE,&fn_len,FALSE,FALSE,&bc);
-      proto_tree_add_string(tree, hf_mscldap_nb_hostname, tvb,offset, fn_len, fn);
+      /* logon server name; must be aligned on a 2-byte boundary */
+      if ((offset & 1) != 0) {
+        offset++;
+      }
+      proto_tree_add_item_ret_length(tree, hf_mscldap_nb_hostname_z, tvb,offset, -1, ENC_UTF_16|ENC_LITTLE_ENDIAN, &fn_len);
       offset +=fn_len;
 
-      /* username */
-      fn = get_unicode_or_ascii_string(tvb,&offset,TRUE,&fn_len,FALSE,FALSE,&bc);
-      proto_tree_add_string(tree, hf_mscldap_username, tvb,offset, fn_len, fn);
+      /* username; must be aligned on a 2-byte boundary */
+      if ((offset & 1) != 0) {
+        offset++;
+      }
+      proto_tree_add_item_ret_length(tree, hf_mscldap_username_z, tvb,offset, -1, ENC_UTF_16|ENC_LITTLE_ENDIAN, &fn_len);
       offset +=fn_len;
 
-      /* domain name */
-      fn = get_unicode_or_ascii_string(tvb,&offset,TRUE,&fn_len,FALSE,FALSE,&bc);
-      proto_tree_add_string(tree, hf_mscldap_nb_domain, tvb,offset, fn_len, fn);
+      /* domain name; must be aligned on a 2-byte boundary */
+      if ((offset & 1) != 0) {
+        offset++;
+      }
+      proto_tree_add_item_ret_length(tree, hf_mscldap_nb_domain_z, tvb,offset, -1, ENC_UTF_16|ENC_LITTLE_ENDIAN, &fn_len);
       offset +=fn_len;
 
       /* get the version number from the end of the buffer, as the
@@ -4868,15 +4873,30 @@ void proto_register_ldap(void) {
         FT_STRING, BASE_NONE, NULL, 0x0,
         "DNS name of server", HFILL }},
 
+    { &hf_mscldap_nb_domain_z,
+      { "NetBIOS Domain", "mscldap.nb_domain",
+        FT_STRINGZ, BASE_NONE, NULL, 0x0,
+        "NetBIOS name of the NC", HFILL }},
+
     { &hf_mscldap_nb_domain,
       { "NetBIOS Domain", "mscldap.nb_domain",
         FT_STRING, BASE_NONE, NULL, 0x0,
         "NetBIOS name of the NC", HFILL }},
 
+    { &hf_mscldap_nb_hostname_z,
+      { "NetBIOS Hostname", "mscldap.nb_hostname",
+        FT_STRINGZ, BASE_NONE, NULL, 0x0,
+        "NetBIOS name of the server", HFILL }},
+
     { &hf_mscldap_nb_hostname,
       { "NetBIOS Hostname", "mscldap.nb_hostname",
         FT_STRING, BASE_NONE, NULL, 0x0,
         "NetBIOS name of the server", HFILL }},
+
+    { &hf_mscldap_username_z,
+      { "Username", "mscldap.username",
+        FT_STRINGZ, BASE_NONE, NULL, 0x0,
+        "User specified in client's request", HFILL }},
 
     { &hf_mscldap_username,
       { "Username", "mscldap.username",
@@ -5622,7 +5642,7 @@ void proto_register_ldap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 2147 "./asn1/ldap/packet-ldap-template.c"
+#line 2167 "./asn1/ldap/packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -5696,7 +5716,7 @@ void proto_register_ldap(void) {
     &ett_ldap_T_warning,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 2161 "./asn1/ldap/packet-ldap-template.c"
+#line 2181 "./asn1/ldap/packet-ldap-template.c"
   };
   /* UAT for header fields */
   static uat_field_t custom_attribute_types_uat_fields[] = {
@@ -5885,7 +5905,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 2333 "./asn1/ldap/packet-ldap-template.c"
+#line 2353 "./asn1/ldap/packet-ldap-template.c"
 
  dissector_add_uint_range_with_preference("tcp.port", TCP_PORT_RANGE_LDAP, ldap_handle);
 }

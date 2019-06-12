@@ -68,7 +68,6 @@
 #include "packet-dcerpc.h"
 
 #include "packet-gssapi.h"
-#include "packet-smb-common.h"
 #include "packet-x509af.h"
 
 void proto_register_kerberos(void);
@@ -1689,9 +1688,6 @@ dissect_krb5_PAC_UPN_DNS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset
 	proto_tree *tree;
 	guint16 dns_offset, dns_len;
 	guint16 upn_offset, upn_len;
-	const char *dn;
-	int dn_len;
-	guint16 bc;
 
 	item = proto_tree_add_item(parent_tree, hf_krb_pac_upn_dns_info, tvb, offset, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_krb_pac_upn_dns_info);
@@ -1717,17 +1713,11 @@ dissect_krb5_PAC_UPN_DNS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset
 
 	/* upn */
 	offset = upn_offset;
-	dn_len = upn_len;
-	bc = tvb_reported_length_remaining(tvb, offset);
-	dn = get_unicode_or_ascii_string(tvb, &offset, TRUE, &dn_len, TRUE, TRUE, &bc);
-	proto_tree_add_string(tree, hf_krb_pac_upn_upn_name, tvb, upn_offset, upn_len, dn);
+	proto_tree_add_item(tree, hf_krb_pac_upn_upn_name, tvb, upn_offset, upn_len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 
 	/* dns */
 	offset = dns_offset;
-	dn_len = dns_len;
-	bc = tvb_reported_length_remaining(tvb, offset);
-	dn = get_unicode_or_ascii_string(tvb, &offset, TRUE, &dn_len, TRUE, TRUE, &bc);
-	proto_tree_add_string(tree, hf_krb_pac_upn_dns_name, tvb, dns_offset, dns_len, dn);
+	proto_tree_add_item(tree, hf_krb_pac_upn_dns_name, tvb, dns_offset, dns_len, ENC_UTF_16|ENC_LITTLE_ENDIAN);
 
 	return offset;
 }

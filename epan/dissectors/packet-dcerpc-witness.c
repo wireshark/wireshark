@@ -215,7 +215,6 @@ static int witness_dissect_element_RegisterEx_client_computer_name(tvbuff_t *tvb
 static int witness_dissect_element_RegisterEx_client_computer_name_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int witness_dissect_element_RegisterEx_flags(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
 static int witness_dissect_element_RegisterEx_timeout(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, dcerpc_info* di _U_, guint8 *drep _U_);
- #include "packet-smb-common.h"
  #include "to_str.h"
 static int
 witness_dissect_notifyResponse_message(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, dcerpc_info* di _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);
@@ -298,17 +297,57 @@ witness_dissect_struct_IPaddrInfoList(tvbuff_t *tvb _U_, int offset _U_, packet_
 static int
 witness_dissect_element_interfaceInfo_group_name(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *parent_tree, dcerpc_info *di _U_, guint8 *drep _U_)
 {
-	const gchar *str;
-	int len = 260;
-	guint16 bc = tvb_captured_length_remaining(tvb, offset);
-	str = get_unicode_or_ascii_string(tvb, &offset, TRUE, &len, TRUE, TRUE, &bc);
-	if (str) {
-		proto_item *pi;
-		pi = proto_tree_add_string(parent_tree, hf_witness_witness_interfaceInfo_group_name, tvb, offset, 2*260, str);
-		proto_item_append_text(pi, " [%d]", len);
-		proto_item_append_text(parent_tree, ": %s", str);
-	} else {
+	int totlen, stringlen;
+	char *str;
+	proto_item *pi;
+	/*
+	 * XXX - this is described as
+	 *
+	 *    [charset(UTF16),to_null] uint16 group_name[260];
+	 *
+	 * I haven't found any documentation for what "to_null" means
+	 * in PIDL; is this a null-padded 260*2-byte array, so that
+	 * strings can be up to 260 16-bit units in length, or is
+	 * it a null-*terminated* string, so that it can be up to 259
+	 * 16-bit units in length?
+	 *
+	 * We assume it's null-padded, for now, and scan for a 2-byte
+	 * null terminator within the 260 2-byte units, and use
+	 * that as the length, with the length being 2*260 if there
+	 * isn't one.
+	 *
+	 * This will result in totlen being the total length, in
+	 * bytes, of the string, including the null terminator, if
+	 * present, and stringlen being the total length, in bytes.
+	 * not counting any null terminator.
+	 */
+	totlen = 0;
+	stringlen = 0;
+	while (totlen < 2*260) {
+		/*
+		 * These 2 bytes are either part of the string
+		 * or part of the null terminator, so count
+		 * them.
+		 */
+		totlen += 2;
+		if (tvb_get_letohs(tvb, offset + stringlen) == 0)
+			break;
+		/*
+		 * Those 2 bytes are part of the string, so
+		 * count them.
+		 */
+		stringlen += 2;
 	}
+	pi = proto_tree_add_item_ret_display_string(parent_tree,
+	    hf_witness_witness_interfaceInfo_group_name, tvb, offset, stringlen,
+	    ENC_UTF_16|ENC_LITTLE_ENDIAN,
+	    wmem_packet_scope(), &str);
+	proto_item_append_text(pi, " [%d]", totlen);
+	proto_item_append_text(parent_tree, ": %s", str);
+	/*
+	 * All 260 16-bit units are part of the field, as they're always
+	 * there even if they don't need to be.
+	 */
 	return offset + 2*260;
 }
 static int
