@@ -20,6 +20,7 @@
  */
 
 #include "config.h"
+#include <stdio.h>
 
 #include <epan/packet.h>
 
@@ -62,7 +63,7 @@ static dissector_handle_t nr_rrc_ue_radio_paging_info_handle;
 static dissector_handle_t nr_rrc_ue_radio_access_cap_info_handle;
 static dissector_handle_t lte_rrc_ue_radio_paging_info_handle;
 
-static dissector_table_t ngap_n2_sm_dissector_table;
+static int proto_json = -1;
 
 
 /*--- Included file: packet-ngap-val.h ---*/
@@ -345,7 +346,7 @@ typedef enum _HandoverType_enum {
 } HandoverType_enum;
 
 /*--- End of included file: packet-ngap-val.h ---*/
-#line 60 "./asn1/ngap/packet-ngap-template.c"
+#line 61 "./asn1/ngap/packet-ngap-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_ngap = -1;
@@ -1108,7 +1109,7 @@ static int hf_ngap_successfulOutcome_value = -1;  /* SuccessfulOutcome_value */
 static int hf_ngap_unsuccessfulOutcome_value = -1;  /* UnsuccessfulOutcome_value */
 
 /*--- End of included file: packet-ngap-hf.c ---*/
-#line 95 "./asn1/ngap/packet-ngap-template.c"
+#line 96 "./asn1/ngap/packet-ngap-template.c"
 
 /* Initialize the subtree pointers */
 static gint ett_ngap = -1;
@@ -1568,7 +1569,7 @@ static gint ett_ngap_SuccessfulOutcome = -1;
 static gint ett_ngap_UnsuccessfulOutcome = -1;
 
 /*--- End of included file: packet-ngap-ett.c ---*/
-#line 123 "./asn1/ngap/packet-ngap-template.c"
+#line 124 "./asn1/ngap/packet-ngap-template.c"
 
 static expert_field ei_ngap_number_pages_le15 = EI_INIT;
 
@@ -14107,7 +14108,7 @@ static int dissect_PDUSessionResourceReleaseCommandTransfer_PDU(tvbuff_t *tvb _U
 
 
 /*--- End of included file: packet-ngap-fn.c ---*/
-#line 328 "./asn1/ngap/packet-ngap-template.c"
+#line 329 "./asn1/ngap/packet-ngap-template.c"
 
 static int dissect_ProtocolIEFieldValue(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -14210,20 +14211,45 @@ dissect_ngap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
   return dissect_NGAP_PDU_PDU(tvb, pinfo, ngap_tree, NULL);
 }
 
+/* 3GPP TS 29.502 */
 /*
  * 6.1.6.4.3 N2 SM Information
  * N2 SM Information shall encode NG Application Protocol (NGAP) IEs, as specified in subclause 9.3 of 3GPP TS 38.413 [9] (ASN.1 encoded),
  * using the vnd.3gpp.ngap content-type.
  */
 static int
-dissect_ngap_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+dissect_ngap_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
-    http_message_info_t *message_info = (http_message_info_t *)data;
+    guint protocol_ie_id;
+    tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(pinfo->pool, pinfo, proto_json, 0);
 
-    if (! message_info->content_id)
+    if (!json_tvb) {
         return 0;
+    }
+    /*See if we can find the key"ngapMessageType" in the jason buffer*/
+    const guint8* start_pos, * curr_pos;
+    int pos, buf_len = tvb_captured_length(json_tvb);
 
-    return (dissector_try_string(ngap_n2_sm_dissector_table, message_info->content_id, tvb, pinfo, tree, NULL)) ? tvb_captured_length(tvb) : 0;
+    start_pos = tvb_get_ptr(json_tvb, 0, buf_len);
+    curr_pos = strstr(start_pos, "ngapMessageType");
+
+    if(!curr_pos) {
+        return 0;
+    }
+
+    curr_pos += 17;
+    /* Make sure we have enough room*/
+    pos = (int)(curr_pos - start_pos);
+    if (buf_len < pos + 2) {
+        return 0;
+    }
+
+    if (sscanf(curr_pos, "%u", &protocol_ie_id) != 1) {
+        return 0;
+    }
+
+
+    return (dissector_try_uint_new(ngap_ies_dissector_table, protocol_ie_id, tvb, pinfo, tree, FALSE, NULL)) ? tvb_captured_length(tvb) : 0;
 }
 
 /*--- proto_reg_handoff_ngap ---------------------------------------*/
@@ -14483,8 +14509,7 @@ proto_reg_handoff_ngap(void)
 
 
 /*--- End of included file: packet-ngap-dis-tab.c ---*/
-#line 462 "./asn1/ngap/packet-ngap-template.c"
-    dissector_add_string("ngap.n2.sm", "PduSessionResourceReleaseCommandTransfer", create_dissector_handle(dissect_PDUSessionResourceReleaseCommandTransfer_PDU, proto_ngap));
+#line 488 "./asn1/ngap/packet-ngap-template.c"
 
     dissector_add_string("media_type", "application/vnd.3gpp.ngap", ngap_media_type_handle);
   } else {
@@ -14492,6 +14517,8 @@ proto_reg_handoff_ngap(void)
       dissector_delete_uint("sctp.port", SctpPort, ngap_handle);
     }
   }
+
+  proto_json = proto_get_id_by_filter_name("json");
 
   SctpPort=gbl_ngapSctpPort;
   if (SctpPort != 0) {
@@ -17526,7 +17553,7 @@ void proto_register_ngap(void) {
         "UnsuccessfulOutcome_value", HFILL }},
 
 /*--- End of included file: packet-ngap-hfarr.c ---*/
-#line 608 "./asn1/ngap/packet-ngap-template.c"
+#line 635 "./asn1/ngap/packet-ngap-template.c"
   };
 
   /* List of subtrees */
@@ -17988,7 +18015,7 @@ void proto_register_ngap(void) {
     &ett_ngap_UnsuccessfulOutcome,
 
 /*--- End of included file: packet-ngap-ettarr.c ---*/
-#line 638 "./asn1/ngap/packet-ngap-template.c"
+#line 665 "./asn1/ngap/packet-ngap-template.c"
   };
 
   static ei_register_info ei[] = {
@@ -18018,9 +18045,6 @@ void proto_register_ngap(void) {
   ngap_proc_imsg_dissector_table = register_dissector_table("ngap.proc.imsg", "NGAP-ELEMENTARY-PROCEDURE InitiatingMessage", proto_ngap, FT_UINT32, BASE_DEC);
   ngap_proc_sout_dissector_table = register_dissector_table("ngap.proc.sout", "NGAP-ELEMENTARY-PROCEDURE SuccessfulOutcome", proto_ngap, FT_UINT32, BASE_DEC);
   ngap_proc_uout_dissector_table = register_dissector_table("ngap.proc.uout", "NGAP-ELEMENTARY-PROCEDURE UnsuccessfulOutcome", proto_ngap, FT_UINT32, BASE_DEC);
-
-  /* 3GPP TS 29.502 */
-  ngap_n2_sm_dissector_table = register_dissector_table("ngap.n2.sm", "NGAP N2 SM Information table", proto_ngap, FT_STRING, BASE_NONE);
 
 
   /* Register configuration options for ports */
