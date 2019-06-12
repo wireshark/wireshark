@@ -75,6 +75,11 @@ QModelIndex PrefModuleTreeView::findModule(QModelIndex& parent, const QString& n
             findIndex = modelIndex;
             break;
         }
+        if (model()->rowCount(modelIndex) > 0) {
+            findIndex = findModule(modelIndex, name);
+            if (findIndex.isValid())
+                break;
+        }
     }
 
     return findIndex;
