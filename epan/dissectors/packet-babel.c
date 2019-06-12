@@ -42,7 +42,7 @@ static int hf_babel_message_hopcount = -1;
 
 static gint ett_subtree = -1;
 
-#define UDP_PORT_RANGE_BABEL "6696-6697" /* 6697 Not IANA registered, 6696 is */
+#define UDP_PORT_RANGE_BABEL "6696"
 
 #define MESSAGE_PAD1        0
 #define MESSAGE_PADN        1
