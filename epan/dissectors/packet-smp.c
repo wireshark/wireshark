@@ -232,7 +232,7 @@ proto_register_smp(void)
     proto_register_subtree_array(ett, array_length(ett));
     register_dissector("smp_tds", dissect_smp_tds, proto_smp);
 
-    smp_payload_table = register_decode_as_next_proto(proto_smp, "SMP Payload", "smp.payload", "SMP Payload", smp_prompt);
+    smp_payload_table = register_decode_as_next_proto(proto_smp, "smp.payload", "SMP Payload", smp_prompt);
 
     smp_module = prefs_register_protocol(proto_smp, NULL);
     prefs_register_bool_preference(smp_module, "desegment",

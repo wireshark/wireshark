@@ -446,7 +446,7 @@ proto_register_aruba_erm(void)
 
     register_dissector("aruba_erm", dissect_aruba_erm, proto_aruba_erm);
 
-    aruba_erm_subdissector_table = register_decode_as_next_proto(proto_aruba_erm, "Aruba ERM Type", "aruba_erm.type",
+    aruba_erm_subdissector_table = register_decode_as_next_proto(proto_aruba_erm, "aruba_erm.type",
                                                                 "Aruba ERM Type", aruba_erm_prompt);
 }
 

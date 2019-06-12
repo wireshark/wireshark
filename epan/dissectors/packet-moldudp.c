@@ -241,7 +241,7 @@ proto_register_moldudp(void)
     expert_moldudp = expert_register_protocol(proto_moldudp);
     expert_register_field_array(expert_moldudp, ei, array_length(ei));
 
-    moldudp_payload_table = register_decode_as_next_proto(proto_moldudp, "MoldUDP Payload", "moldudp.payload", "MoldUDP Payload", moldudp_prompt);
+    moldudp_payload_table = register_decode_as_next_proto(proto_moldudp, "moldudp.payload", "MoldUDP Payload", moldudp_prompt);
 }
 
 

@@ -277,7 +277,7 @@ proto_register_i2c(void)
 	m = prefs_register_protocol(proto_i2c, NULL);
 	prefs_register_obsolete_preference(m, "type");
 
-	subdissector_table = register_decode_as_next_proto(proto_i2c, "I2C Message", "i2c.message", "I2C messages dissector", i2c_prompt);
+	subdissector_table = register_decode_as_next_proto(proto_i2c, "i2c.message", "I2C messages dissector", i2c_prompt);
 }
 
 void

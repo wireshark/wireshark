@@ -254,7 +254,7 @@ proto_register_moldudp64(void)
     expert_moldudp64 = expert_register_protocol(proto_moldudp64);
     expert_register_field_array(expert_moldudp64, ei, array_length(ei));
 
-    moldudp64_payload_table = register_decode_as_next_proto(proto_moldudp64, "MoldUDP64 Payload", "moldudp64.payload",
+    moldudp64_payload_table = register_decode_as_next_proto(proto_moldudp64, "moldudp64.payload",
                                                             "MoldUDP64 Payload", moldudp64_prompt);
 }
 

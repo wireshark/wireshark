@@ -233,7 +233,7 @@ proto_register_pcli(void)
         "Whether the PCLI summary line should be shown in the protocol tree",
         &pcli_summary_in_tree);
 
-    pcli_subdissector_table = register_decode_as_next_proto(proto_pcli, "PCLI payload", "pcli.payload",
+    pcli_subdissector_table = register_decode_as_next_proto(proto_pcli, "pcli.payload",
                                                              "PCLI payload dissector", pcli_prompt);
 }
 

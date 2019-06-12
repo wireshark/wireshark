@@ -82,7 +82,6 @@ struct dissector_table;
  *  be kept internal to epan.
  *
  * @param proto The protocol ID to create the dissector table.
- * @param title The table name in which this dissector is found.
  * @param table_name The table name in which this dissector is found.
  * @param ui_name UI name for created dissector table.
  * @param label_func Pointer to optional function to generate prompt text
@@ -90,7 +89,7 @@ struct dissector_table;
  *
  * @return Created dissector table with Decode As support
 */
-WS_DLL_PUBLIC struct dissector_table* register_decode_as_next_proto(int proto, const gchar *title _U_, const gchar *table_name, const gchar *ui_name, build_label_func label_func);
+WS_DLL_PUBLIC struct dissector_table* register_decode_as_next_proto(int proto, const gchar *table_name, const gchar *ui_name, build_label_func label_func);
 
 /* Walk though the dissector table and provide dissector_handle_t for each item in the table */
 WS_DLL_PUBLIC void decode_as_default_populate_list(const gchar *table_name, decode_as_add_to_list_func add_to_list, gpointer ui_element);

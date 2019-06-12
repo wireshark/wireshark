@@ -4900,7 +4900,7 @@ proto_register_enip(void)
 
    register_conversation_filter("enip", "CIP Connection", cip_connection_conv_valid, cip_connection_conv_filter);
 
-   subdissector_decode_as_io_table = register_decode_as_next_proto(proto_enip, "CIP I/O", "cip.io", "CIP I/O Payload", enip_prompt);
+   subdissector_decode_as_io_table = register_decode_as_next_proto(proto_enip, "cip.io", "CIP I/O Payload", enip_prompt);
 } /* end of proto_register_enip() */
 
 

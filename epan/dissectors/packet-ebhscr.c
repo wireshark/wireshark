@@ -395,7 +395,7 @@ proto_register_ebhscr(void)
 	expert_register_field_array(expert_ebhscr, ei, array_length(ei));
 
 	register_dissector("ebhscr", dissect_ebhscr, proto_ebhscr);
-	subdissector_table = register_decode_as_next_proto(proto_ebhscr, "Network", "ebhscr.subdissector", "ebhscr next level dissector", NULL);
+	subdissector_table = register_decode_as_next_proto(proto_ebhscr, "ebhscr.subdissector", "ebhscr next level dissector", NULL);
 }
 
 void

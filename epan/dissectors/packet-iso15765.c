@@ -570,7 +570,7 @@ proto_register_iso15765(void)
     reassembly_table_register(&iso15765_reassembly_table,
                           &addresses_reassembly_table_functions);
 
-    subdissector_table = register_decode_as_next_proto(proto_iso15765, "Transport", "iso15765.subdissector", "ISO15765 next level dissector", NULL);
+    subdissector_table = register_decode_as_next_proto(proto_iso15765, "iso15765.subdissector", "ISO15765 next level dissector", NULL);
 }
 
 void

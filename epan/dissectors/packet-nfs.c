@@ -14377,7 +14377,7 @@ proto_register_nfs(void)
 	register_init_routine(nfs_name_snoop_init);
 	register_cleanup_routine(nfs_name_snoop_cleanup);
 
-	nfs_fhandle_table = register_decode_as_next_proto(proto_nfs, "NFS File Handle", "nfs_fhandle.type",
+	nfs_fhandle_table = register_decode_as_next_proto(proto_nfs, "nfs_fhandle.type",
 								"NFS File Handle types", nfs_prompt);
 }
 

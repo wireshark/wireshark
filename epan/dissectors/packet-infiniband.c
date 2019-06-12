@@ -8729,7 +8729,7 @@ void proto_register_infiniband(void)
     CM_context_table = g_hash_table_new_full(g_int64_hash, g_int64_equal,
                                              table_destroy_notify, table_destroy_notify);
 
-    subdissector_table = register_decode_as_next_proto(proto_infiniband, "Network", "infiniband", "Infiniband Payload",
+    subdissector_table = register_decode_as_next_proto(proto_infiniband, "infiniband", "Infiniband Payload",
                                                        infiniband_payload_prompt);
 
     register_shutdown_routine(infiniband_shutdown);

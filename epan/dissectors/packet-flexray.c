@@ -450,7 +450,7 @@ proto_register_flexray(void)
 		&prefvar_try_heuristic_first
 		);
 
-	subdissector_table = register_decode_as_next_proto(proto_flexray, "Network", "flexray.subdissector", "FLEXRAY next level dissector", NULL);
+	subdissector_table = register_decode_as_next_proto(proto_flexray, "flexray.subdissector", "FLEXRAY next level dissector", NULL);
 	heur_subdissector_list = register_heur_dissector_list("flexray", proto_flexray);
 }
 

@@ -1902,8 +1902,7 @@ proto_register_iso14443(void)
 
     iso14443_subdissector_table =
         register_decode_as_next_proto(proto_iso14443,
-                "Payload", "iso14443.subdissector",
-                "ISO14443 payload subdissector", NULL);
+                "iso14443.subdissector", "ISO14443 payload subdissector", NULL);
 }
 
 

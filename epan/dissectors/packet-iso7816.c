@@ -983,7 +983,6 @@ proto_register_iso7816(void)
 
     iso7816_apdu_pld_table =
         register_decode_as_next_proto(proto_iso7816,
-                "ISO7816 proprietary APDU dissector",
                 "iso7816.apdu_payload",
                 "ISO7816 proprietary APDU dissector", NULL);
 }

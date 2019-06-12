@@ -854,7 +854,7 @@ proto_register_socketcan(void)
 		" before using a sub-dissector registered to \"decode as\"",
 		&heuristic_first);
 
-	subdissector_table = register_decode_as_next_proto(proto_can, "Network", "can.subdissector", "CAN next level dissector", NULL);
+	subdissector_table = register_decode_as_next_proto(proto_can, "can.subdissector", "CAN next level dissector", NULL);
 
 	heur_subdissector_list = register_heur_dissector_list("can", proto_can);
 }
