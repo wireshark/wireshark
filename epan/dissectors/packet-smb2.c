@@ -3625,8 +3625,10 @@ dissect_smb2_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		g_snprintf((char *)si->saved->extra_info,olb.len+1,"%s",buf);
 	}
 
-	col_append_fstr(pinfo->cinfo, COL_INFO, " Tree: %s",
-	    format_text(wmem_packet_scope(), buf, strlen(buf)));
+	if (buf) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, " Tree: %s",
+		    format_text(wmem_packet_scope(), buf, strlen(buf)));
+	}
 
 	return offset;
 }
