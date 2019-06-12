@@ -19,6 +19,7 @@
 
 #include "wslua.h"
 
+#include <epan/decode_as.h>
 #include <epan/exceptions.h>
 #include <epan/show_exception.h>
 
@@ -179,6 +180,8 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
         case FT_STRING:
             base = BASE_NONE;
             /* fallthrough */
+        case FT_NONE:
+            /* fallthrough */
         case FT_UINT8:
         case FT_UINT16:
         case FT_UINT24:
@@ -190,7 +193,9 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
             ui_name = g_strdup(ui_name);
 
             /* XXX - can't determine dependencies of Lua protocols if they don't provide protocol name */
-            dt->table = register_dissector_table(name, ui_name, -1, type, base);
+            dt->table = (type == FT_NONE) ?
+                register_decode_as_next_proto(-1, name, ui_name, NULL) :
+                register_dissector_table(name, ui_name, -1, type, base);
             dt->name = name;
             dt->ui_name = ui_name;
             dt->created = TRUE;
@@ -205,7 +210,7 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
         }
             WSLUA_RETURN(1); /* The newly created DissectorTable. */
         default:
-            WSLUA_OPTARG_ERROR(DissectorTable_new,TYPE,"must be ftypes.UINT{8,16,24,32} or ftypes.STRING");
+            WSLUA_OPTARG_ERROR(DissectorTable_new,TYPE,"must be ftypes.UINT{8,16,24,32}, ftypes.STRING or ftypes.NONE");
             break;
     }
     return 0;
