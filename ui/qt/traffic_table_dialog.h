@@ -124,7 +124,6 @@ protected:
     Ui::TrafficTableDialog *ui;
 
     CaptureFile &cap_file_;
-    bool file_closed_;
     QString filter_;
     QMenu traffic_type_menu_;
     QPushButton *copy_bt_;
