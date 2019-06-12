@@ -3448,15 +3448,13 @@ proto_tree_add_item_ret_display_string_and_length(proto_tree *tree, int hfindex,
 	case FT_BYTES:
 		value = tvb_get_ptr(tvb, start, length);
 		*retval = hfinfo_format_bytes(scope, hfinfo, value, length);
-		if (lenretval)
-			*lenretval = length;
+		*lenretval = length;
 		break;
 	case FT_UINT_BYTES:
 		n = get_uint_value(tree, tvb, start, length, encoding);
 		value = tvb_get_ptr(tvb, start + length, n);
 		*retval = hfinfo_format_bytes(scope, hfinfo, value, n);
-		if (lenretval)
-			*lenretval = length + n;
+		*lenretval = length + n;
 		break;
 	default:
 		REPORT_DISSECTOR_BUG("field %s is not of type FT_STRING, FT_STRINGZ, FT_UINT_STRING, FT_STRINGZPAD, FT_BYTES, or FT_UINT_BYTES",
