@@ -47,6 +47,7 @@ protected slots:
     void doResolveNames();
     void resizeToContent();
     void removeColumn();
+    void resizeToWidth();
 
 signals:
     void resetColumnWidth(int col);

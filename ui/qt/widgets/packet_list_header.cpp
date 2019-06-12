@@ -11,6 +11,8 @@
 #include <QMimeData>
 #include <QToolTip>
 #include <QAction>
+#include <QInputDialog>
+
 #include <packet_list.h>
 
 #include <wireshark_application.h>
@@ -181,6 +183,8 @@ void PacketListHeader::contextMenuEvent(QContextMenuEvent *event)
     connect(action, &QAction::triggered, this, &PacketListHeader::doEditColumn);
     action = contextMenu->addAction(tr("Resize to Contents"));
     connect(action, &QAction::triggered, this, &PacketListHeader::resizeToContent);
+    action = contextMenu->addAction(tr("Resize Column to Width ..."));
+    connect(action, &QAction::triggered, this, &PacketListHeader::resizeToWidth);
 
     action = contextMenu->addAction(tr("Resolve Names"));
     bool canResolve = resolve_column(sectionIdx, cap_file_);
@@ -308,6 +312,23 @@ void PacketListHeader::removeColumn()
         emit columnsChanged();
         prefs_main_write();
     }
+}
+
+void PacketListHeader::resizeToWidth()
+{
+    QAction * action = qobject_cast<QAction *>(sender());
+    QMenu * menu = qobject_cast<QMenu *>(action->parent());
+    if (! action || ! menu)
+        return;
+
+    bool ok = false;
+    int width = -1;
+    int section = menu->property("column").toInt();
+    QString headerName = model()->headerData(section, orientation()).toString();
+    width = QInputDialog::getInt(this, tr("Column %1").arg(headerName), tr("Width:"),
+                                 sectionSize(section), 0, 1000, 1, &ok);
+    if (ok)
+        resizeSection(section, width);
 }
 
 /*
