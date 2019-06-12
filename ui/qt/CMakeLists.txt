@@ -34,6 +34,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/label_stack.h
 	widgets/overlay_scroll_bar.h
 	widgets/pref_module_view.h
+	widgets/packet_list_header.h
 	widgets/qcustomplot.h
 	widgets/range_syntax_lineedit.h
 	widgets/stock_icon_tool_button.h
@@ -256,6 +257,7 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/interface_toolbar_lineedit.cpp
 	widgets/label_stack.cpp
 	widgets/overlay_scroll_bar.cpp
+	widgets/packet_list_header.cpp
 	widgets/pref_module_view.cpp
 	widgets/qcustomplot.cpp
 	widgets/range_syntax_lineedit.cpp

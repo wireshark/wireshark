@@ -48,6 +48,7 @@
 #include <ui/qt/utils/frame_information.h>
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/models/pref_models.h>
+#include <ui/qt/widgets/packet_list_header.h>
 
 #include <QAction>
 #include <QActionGroup>
@@ -242,6 +243,8 @@ PacketList::PacketList(QWidget *parent) :
     setSortingEnabled(true);
     setUniformRowHeights(true);
     setAccessibleName("Packet list");
+
+    setHeader(new PacketListHeader(header()->orientation()));
 
     // Shrink down to a small but nonzero size in the main splitter.
     int one_em = fontMetrics().height();

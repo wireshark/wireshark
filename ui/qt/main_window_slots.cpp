@@ -2631,16 +2631,9 @@ void MainWindow::on_actionAnalyzeDisplayFilterMacros_triggered()
 
 void MainWindow::on_actionAnalyzeCreateAColumn_triggered()
 {
-    gint colnr = 0;
-
     if (capture_file_.capFile() != 0 && capture_file_.capFile()->finfo_selected != 0) {
-        colnr = column_prefs_add_custom(COL_CUSTOM, capture_file_.capFile()->finfo_selected->hfinfo->name,
-                    capture_file_.capFile()->finfo_selected->hfinfo->abbrev, 0);
-
-        packet_list_->columnsChanged();
-        packet_list_->resizeColumnToContents(colnr);
-
-        prefs_main_write();
+        insertColumn(QString(capture_file_.capFile()->finfo_selected->hfinfo->name),
+                     QString(capture_file_.capFile()->finfo_selected->hfinfo->abbrev));
     }
 }
 
@@ -3769,6 +3762,18 @@ void MainWindow::showExtcapOptionsDialog(QString &device_name)
         connect(extcap_options_dialog, SIGNAL(finished(int)),
                 this, SLOT(extcap_options_finished(int)));
         extcap_options_dialog->show();
+    }
+}
+
+void MainWindow::insertColumn(QString name, QString abbrev, unsigned int pos)
+{
+    gint colnr = 0;
+    if ( name.length() > 0 && abbrev.length() > 0 )
+    {
+        colnr = column_prefs_add_custom_with_position(COL_CUSTOM, name.toStdString().c_str(), abbrev.toStdString().c_str(), 0, pos);
+        packet_list_->columnsChanged();
+        packet_list_->resizeColumnToContents(colnr);
+        prefs_main_write();
     }
 }
 

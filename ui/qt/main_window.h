@@ -129,6 +129,8 @@ public:
     QString getMwFileName();
     void setMwFileName(QString fileName);
 
+    void insertColumn(QString name, QString abbrev, unsigned int pos = 0);
+
 protected:
     virtual bool eventFilter(QObject *obj, QEvent *event);
     virtual void keyPressEvent(QKeyEvent *event);

@@ -71,6 +71,22 @@ gint column_prefs_add_custom(gint fmt, const gchar *title,
                              const gchar *custom_field,
                              gint custom_occurrence);
 
+/** Add a custom column at the given position
+ *
+ * @param fmt column format
+ * @param title column title
+ * @param custom_field column custom field
+ * @param custom_occurrence custom occurrence
+ * @param position the intended position of the insert
+ *
+ * @return The index of the inserted column
+ */
+gint
+column_prefs_add_custom_with_position(gint fmt, const gchar *title,
+                                      const gchar *custom_fields,
+                                      gint custom_occurrence,
+                                      guint position);
+
 /** Remove a column.
  *
  * @param col_link Column list entry
