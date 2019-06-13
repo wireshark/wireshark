@@ -10,14 +10,22 @@
 #ifndef UI_QT_WIDGETS_PACKET_LIST_HEADER_H_
 #define UI_QT_WIDGETS_PACKET_LIST_HEADER_H_
 
+#include <cfile.h>
+
 #include <QHeaderView>
 #include <QDrag>
+#include <QMenu>
+
 class QEvent;
 
 class PacketListHeader : public QHeaderView
 {
+    Q_OBJECT
+
 public:
-    PacketListHeader(Qt::Orientation orientation, QWidget *parent = nullptr);
+    PacketListHeader(Qt::Orientation orientation, capture_file * cap_file, QWidget *parent = nullptr);
+
+    void setCaptureFile(capture_file * cap_file);
 
 protected:
     virtual void dropEvent(QDropEvent *event) override;
@@ -27,11 +35,34 @@ protected:
     virtual void mouseMoveEvent(QMouseEvent *e) override;
     virtual void mousePressEvent(QMouseEvent *e) override;
 
+    virtual void contextMenuEvent(QContextMenuEvent *event) override;
+
+protected slots:
+    void columnVisibilityTriggered();
+
+    void setAlignment(QAction *);
+
+    void showColumnPrefs();
+    void doEditColumn();
+    void doResolveNames();
+    void resizeToContent();
+    void removeColumn();
+
+signals:
+    void resetColumnWidth(int col);
+    void updatePackets(bool redraw);
+    void showColumnPreferences(QString pane_name);
+    void editColumn(int column);
+
+    void columnsChanged();
+
 private:
 
+    capture_file * cap_file_;
     int sectionIdx;
     int lastSize;
 
+    void setSectionVisibility();
 };
 
 #endif

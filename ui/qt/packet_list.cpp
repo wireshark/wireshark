@@ -212,8 +212,6 @@ packet_list_recent_write_all(FILE *rf) {
 
 #define MIN_COL_WIDTH_STR "MMMMMM"
 
-Q_DECLARE_METATYPE(PacketList::ColumnActions)
-
 enum copy_summary_type {
     copy_summary_text_,
     copy_summary_csv_,
@@ -244,7 +242,13 @@ PacketList::PacketList(QWidget *parent) :
     setUniformRowHeights(true);
     setAccessibleName("Packet list");
 
-    setHeader(new PacketListHeader(header()->orientation()));
+    packet_list_header_ = new PacketListHeader(header()->orientation(), cap_file_);
+    connect(packet_list_header_, &PacketListHeader::resetColumnWidth, this, &PacketList::setRecentColumnWidth);
+    connect(packet_list_header_, &PacketListHeader::updatePackets, this, &PacketList::updatePackets);
+    connect(packet_list_header_, &PacketListHeader::showColumnPreferences, this, &PacketList::showProtocolPreferences);
+    connect(packet_list_header_, &PacketListHeader::editColumn, this, &PacketList::editColumn);
+    connect(packet_list_header_, &PacketListHeader::columnsChanged, this, &PacketList::columnsChanged);
+    setHeader(packet_list_header_);
 
     // Shrink down to a small but nonzero size in the main splitter.
     int one_em = fontMetrics().height();
@@ -257,8 +261,6 @@ PacketList::PacketList(QWidget *parent) :
     setModel(packet_list_model_);
     sortByColumn(-1, Qt::AscendingOrder);
 
-    initHeaderContextMenu();
-
     g_assert(gbl_cur_packet_list == NULL);
     gbl_cur_packet_list = this;
 
@@ -267,9 +269,6 @@ PacketList::PacketList(QWidget *parent) :
     connect(wsApp, SIGNAL(addressResolutionChanged()), this, SLOT(redrawVisiblePacketsDontSelectCurrent()));
     connect(wsApp, SIGNAL(columnDataChanged()), this, SLOT(redrawVisiblePacketsDontSelectCurrent()));
 
-    header()->setContextMenuPolicy(Qt::CustomContextMenu);
-    connect(header(), SIGNAL(customContextMenuRequested(QPoint)),
-            this, SLOT(showHeaderMenu(QPoint)));
     connect(header(), SIGNAL(sectionResized(int,int,int)),
             this, SLOT(sectionResized(int,int,int)));
     connect(header(), SIGNAL(sectionMoved(int,int,int)),
@@ -468,146 +467,6 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
     }
 }
 
-void PacketList::contextMenuEvent(QContextMenuEvent *event)
-{
-    const char *module_name = NULL;
-    if (cap_file_ && cap_file_->edt && cap_file_->edt->tree) {
-        GPtrArray          *finfo_array = proto_all_finfos(cap_file_->edt->tree);
-
-        for (guint i = finfo_array->len - 1; i > 0 ; i --) {
-            field_info *fi = (field_info *)g_ptr_array_index (finfo_array, i);
-            header_field_info *hfinfo =  fi->hfinfo;
-
-            if (!g_str_has_prefix(hfinfo->abbrev, "text") &&
-                !g_str_has_prefix(hfinfo->abbrev, "_ws.expert") &&
-                !g_str_has_prefix(hfinfo->abbrev, "_ws.lua") &&
-                !g_str_has_prefix(hfinfo->abbrev, "_ws.malformed")) {
-
-                if (hfinfo->parent == -1) {
-                    module_name = hfinfo->abbrev;
-                } else {
-                    module_name = proto_registrar_get_abbrev(hfinfo->parent);
-                }
-                break;
-            }
-        }
-        g_ptr_array_free(finfo_array, TRUE);
-    }
-    proto_prefs_menu_.setModule(module_name);
-
-    QModelIndex ctxIndex = indexAt(event->pos());
-    // frameData will be owned by one of the submenus, see below.
-    FrameInformation * frameData =
-            new FrameInformation(new CaptureFile(this, cap_file_), packet_list_model_->getRowFdata(ctxIndex.row()));
-
-    ctx_menu_.clear();
-    // XXX We might want to reimplement setParent() and fill in the context
-    // menu there.
-    ctx_menu_.addAction(window()->findChild<QAction *>("actionEditMarkPacket"));
-    ctx_menu_.addAction(window()->findChild<QAction *>("actionEditIgnorePacket"));
-    ctx_menu_.addAction(window()->findChild<QAction *>("actionEditSetTimeReference"));
-    ctx_menu_.addAction(window()->findChild<QAction *>("actionEditTimeShift"));
-    ctx_menu_.addAction(window()->findChild<QAction *>("actionEditPacketComment"));
-
-    ctx_menu_.addSeparator();
-
-    ctx_menu_.addAction(window()->findChild<QAction *>("actionViewEditResolvedName"));
-    ctx_menu_.addSeparator();
-
-    QMenu *main_menu_item = window()->findChild<QMenu *>("menuApplyAsFilter");
-    QMenu *submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
-    ctx_menu_.addMenu(submenu);
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFNotSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFAndSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFOrSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFAndNotSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFOrNotSelected"));
-
-    main_menu_item = window()->findChild<QMenu *>("menuPrepareAFilter");
-    submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
-    ctx_menu_.addMenu(submenu);
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFNotSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFAndSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFOrSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFAndNotSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFOrNotSelected"));
-
-    const char *conv_menu_name = "menuConversationFilter";
-    main_menu_item = window()->findChild<QMenu *>(conv_menu_name);
-    conv_menu_.setTitle(main_menu_item->title());
-    conv_menu_.setObjectName(conv_menu_name);
-    ctx_menu_.addMenu(&conv_menu_);
-
-    const char *colorize_menu_name = "menuColorizeConversation";
-    main_menu_item = window()->findChild<QMenu *>(colorize_menu_name);
-    colorize_menu_.setTitle(main_menu_item->title());
-    colorize_menu_.setObjectName(colorize_menu_name);
-    ctx_menu_.addMenu(&colorize_menu_);
-
-    main_menu_item = window()->findChild<QMenu *>("menuSCTP");
-    submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
-    ctx_menu_.addMenu(submenu);
-    submenu->addAction(window()->findChild<QAction *>("actionSCTPAnalyseThisAssociation"));
-    submenu->addAction(window()->findChild<QAction *>("actionSCTPShowAllAssociations"));
-    submenu->addAction(window()->findChild<QAction *>("actionSCTPFilterThisAssociation"));
-
-    main_menu_item = window()->findChild<QMenu *>("menuFollow");
-    submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
-    ctx_menu_.addMenu(submenu);
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowTCPStream"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowUDPStream"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowTLSStream"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowHTTPStream"));
-
-    ctx_menu_.addSeparator();
-
-    main_menu_item = window()->findChild<QMenu *>("menuEditCopy");
-    submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
-    ctx_menu_.addMenu(submenu);
-
-    QAction * action = submenu->addAction(tr("Summary as Text"));
-    action->setData(copy_summary_text_);
-    connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
-    action = submenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as CSV"));
-    action->setData(copy_summary_csv_);
-    connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
-    action = submenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as YAML"));
-    action->setData(copy_summary_yaml_);
-    connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
-    submenu->addSeparator();
-
-    submenu->addAction(window()->findChild<QAction *>("actionEditCopyAsFilter"));
-    submenu->addSeparator();
-
-    QActionGroup * copyEntries = DataPrinter::copyActions(this, frameData);
-    submenu->addActions(copyEntries->actions());
-    copyEntries->setParent(submenu);
-    frameData->setParent(submenu);
-
-    ctx_menu_.addSeparator();
-    ctx_menu_.addMenu(&proto_prefs_menu_);
-    decode_as_ = window()->findChild<QAction *>("actionAnalyzeDecodeAs");
-    ctx_menu_.addAction(decode_as_);
-    // "Print" not ported intentionally
-    action = window()->findChild<QAction *>("actionViewShowPacketInNewWindow");
-    ctx_menu_.addAction(action);
-
-    decode_as_->setData(QVariant::fromValue(true));
-    ctx_column_ = columnAt(event->x());
-
-    // Set menu sensitivity for the current column and set action data.
-    if ( frameData )
-        emit frameSelected(frameData->frameNum());
-    else
-        emit frameSelected(-1);
-
-    ctx_menu_.exec(event->globalPos());
-    ctx_column_ = -1;
-    decode_as_->setData(QVariant());
-}
-
 // Auto scroll if:
 // - We're not at the end
 // - We are capturing
@@ -704,42 +563,6 @@ void PacketList::setRecentColumnWidth(int col)
     }
 
     setColumnWidth(col, col_width);
-}
-
-void PacketList::initHeaderContextMenu()
-{
-    header_ctx_menu_.clear();
-    header_actions_.clear();
-
-    // Leave these out for now since Qt doesn't have a "no sort" option
-    // and the user can sort by left-clicking on the header.
-//    header_actions_[] = header_ctx_menu_.addAction(tr("Sort Ascending"));
-//    header_actions_[] = header_ctx_menu_.addAction(tr("Sort Descending"));
-//    header_actions_[] = header_ctx_menu_.addAction(tr("Do Not Sort"));
-//    header_ctx_menu_.addSeparator();
-    header_actions_[caAlignLeft] = header_ctx_menu_.addAction(tr("Align Left"));
-    header_actions_[caAlignCenter] = header_ctx_menu_.addAction(tr("Align Center"));
-    header_actions_[caAlignRight] = header_ctx_menu_.addAction(tr("Align Right"));
-    header_ctx_menu_.addSeparator();
-    header_actions_[caColumnPreferences] = header_ctx_menu_.addAction(tr("Column Preferences" UTF8_HORIZONTAL_ELLIPSIS));
-    header_actions_[caEditColumn] = header_ctx_menu_.addAction(tr("Edit Column")); // XXX Create frame instead of dialog
-    header_actions_[caResizeToContents] = header_ctx_menu_.addAction(tr("Resize To Contents"));
-    header_actions_[caResolveNames] = header_ctx_menu_.addAction(tr("Resolve Names"));
-    header_ctx_menu_.addSeparator();
-//    header_actions_[caDisplayedColumns] = header_ctx_menu_.addAction(tr("Displayed Columns"));
-    show_hide_separator_ = header_ctx_menu_.addSeparator();
-//    header_actions_[caHideColumn] = header_ctx_menu_.addAction(tr("Hide This Column"));
-    header_actions_[caRemoveColumn] = header_ctx_menu_.addAction(tr("Remove This Column"));
-
-    foreach (ColumnActions ca, header_actions_.keys()) {
-        header_actions_[ca]->setData(QVariant::fromValue(ca));
-        connect(header_actions_[ca], SIGNAL(triggered()), this, SLOT(headerMenuTriggered()));
-    }
-
-    checkable_actions_ = QList<ColumnActions>() << caAlignLeft << caAlignCenter << caAlignRight << caResolveNames;
-    foreach (ColumnActions ca, checkable_actions_) {
-        header_actions_[ca]->setCheckable(true);
-    }
 }
 
 void PacketList::drawCurrentPacket()
@@ -1015,11 +838,6 @@ void PacketList::writeRecent(FILE *rf) {
     fprintf (rf, "\n");
 }
 
-bool PacketList::contextMenuActive()
-{
-    return ctx_column_ >= 0 ? true : false;
-}
-
 QString PacketList::getFilterFromRowAndColumn()
 {
     frame_data *fdata;
@@ -1212,6 +1030,7 @@ void PacketList::setCaptureFile(capture_file *cf)
         }
     }
     packet_list_model_->setCaptureFile(cf);
+    packet_list_header_->setCaptureFile(cf);
     create_near_overlay_ = true;
     sortByColumn(-1, Qt::AscendingOrder);
 }
@@ -1377,105 +1196,8 @@ void PacketList::applyTimeShift()
     // XXX emit packetDissectionChanged(); ?
 }
 
-void PacketList::showHeaderMenu(QPoint pos)
+void PacketList::updatePackets(bool redraw)
 {
-    header_ctx_column_ = header()->logicalIndexAt(pos);
-    foreach (ColumnActions ca, checkable_actions_) {
-        header_actions_[ca]->setChecked(false);
-    }
-
-    switch (recent_get_column_xalign(header_ctx_column_)) {
-    case COLUMN_XALIGN_LEFT:
-        header_actions_[caAlignLeft]->setChecked(true);
-        break;
-    case COLUMN_XALIGN_CENTER:
-        header_actions_[caAlignCenter]->setChecked(true);
-        break;
-    case COLUMN_XALIGN_RIGHT:
-        header_actions_[caAlignRight]->setChecked(true);
-        break;
-    default:
-        break;
-    }
-
-    bool can_resolve = resolve_column(header_ctx_column_, cap_file_);
-    header_actions_[caResolveNames]->setChecked(can_resolve && get_column_resolved(header_ctx_column_));
-    header_actions_[caResolveNames]->setEnabled(can_resolve);
-
-    header_actions_[caRemoveColumn]->setEnabled(header_ctx_column_ >= 0 && header()->count() > 2);
-
-    foreach (QAction *action, show_hide_actions_) {
-        header_ctx_menu_.removeAction(action);
-        delete action;
-    }
-    show_hide_actions_.clear();
-    for (int i = 0; i < prefs.num_cols; i++) {
-        QAction *action = new QAction(get_column_title(i), &header_ctx_menu_);
-        action->setCheckable(true);
-        action->setChecked(get_column_visible(i));
-        action->setData(QVariant::fromValue(i));
-        connect(action, SIGNAL(triggered()), this, SLOT(columnVisibilityTriggered()));
-        header_ctx_menu_.insertAction(show_hide_separator_, action);
-        show_hide_actions_ << action;
-    }
-
-    header_ctx_menu_.popup(header()->viewport()->mapToGlobal(pos));
-}
-
-void PacketList::headerMenuTriggered()
-{
-    QAction *ha = qobject_cast<QAction*>(sender());
-    if (!ha) return;
-
-    bool checked = ha->isChecked();
-    bool redraw = false;
-
-    switch(ha->data().value<ColumnActions>()) {
-    case caAlignLeft:
-        recent_set_column_xalign(header_ctx_column_, checked ? COLUMN_XALIGN_LEFT : COLUMN_XALIGN_DEFAULT);
-        break;
-    case caAlignCenter:
-        recent_set_column_xalign(header_ctx_column_, checked ? COLUMN_XALIGN_CENTER : COLUMN_XALIGN_DEFAULT);
-        break;
-    case caAlignRight:
-        recent_set_column_xalign(header_ctx_column_, checked ? COLUMN_XALIGN_RIGHT : COLUMN_XALIGN_DEFAULT);
-        break;
-    case caColumnPreferences:
-        emit showColumnPreferences(PrefsModel::COLUMNS_PREFERENCE_TREE_NAME);
-        break;
-    case caEditColumn:
-        emit editColumn(header_ctx_column_);
-        break;
-    case caResolveNames:
-        set_column_resolved(header_ctx_column_, checked);
-        packet_list_model_->resetColumns();
-        prefs_main_write();
-        redraw = true;
-        break;
-    case caResizeToContents:
-        resizeColumnToContents(header_ctx_column_);
-        break;
-    case caDisplayedColumns:
-        // No-op
-        break;
-    case caHideColumn:
-        set_column_visible(header_ctx_column_, FALSE);
-        hideColumn(header_ctx_column_);
-        prefs_main_write();
-        break;
-    case caRemoveColumn:
-    {
-        if (header()->count() > 2) {
-            column_prefs_remove_nth(header_ctx_column_);
-            columnsChanged();
-            prefs_main_write();
-        }
-        break;
-    }
-    default:
-        break;
-    }
-
     if (redraw) {
         redrawVisiblePackets();
     } else {
