@@ -76,8 +76,8 @@ ICONS="
     zoom-out
     "
 
-if [ -n "$@" ] ; then
-    ICONS="$@"
+if [ -n "$*" ] ; then
+    ICONS="$*"
 fi
 
 QRC_FILES=""
