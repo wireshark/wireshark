@@ -54,6 +54,7 @@ static dissector_handle_t nas_5gs_handle;
 static dissector_handle_t nr_rrc_ue_radio_paging_info_handle;
 static dissector_handle_t nr_rrc_ue_radio_access_cap_info_handle;
 static dissector_handle_t lte_rrc_ue_radio_paging_info_handle;
+static dissector_handle_t nrppa_handle;
 
 static int proto_json = -1;
 
@@ -553,6 +554,7 @@ proto_reg_handoff_ngap(void)
     }
   }
 
+  nrppa_handle = find_dissector_add_dependency("nrppa", proto_ngap);
   proto_json = proto_get_id_by_filter_name("json");
 
   SctpPort=gbl_ngapSctpPort;

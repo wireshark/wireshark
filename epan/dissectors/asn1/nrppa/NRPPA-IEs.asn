@@ -1,0 +1,685 @@
+-- 3GPP TS 38.455 V15.2.1 (2019-01-14)
+-- 9.3.5	Information Element definitions
+-- **************************************************************
+--
+-- Information Element Definitions
+--
+-- **************************************************************
+
+NRPPA-IEs {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+ngran-access (22) modules (3) nrppa (4) version1 (1) nrppa-IEs (2) }
+
+DEFINITIONS AUTOMATIC TAGS ::= 
+
+BEGIN
+
+IMPORTS	
+	
+	id-MeasurementQuantities-Item,
+	maxCellinRANnode,
+	maxCellReport,
+	maxNrOfErrors,
+	maxNoMeas,
+	maxnoOTDOAtypes,
+	maxServCell,
+	id-OtherRATMeasurementQuantities-Item,
+	id-WLANMeasurementQuantities-Item,
+	maxGERANMeas,
+	maxUTRANMeas,
+	maxWLANchannels,
+	maxnoFreqHoppingBandsMinusOne,
+	id-TDD-Config-EUTRA-Item
+
+
+FROM NRPPA-Constants
+
+	Criticality,
+	NRPPATransactionID,
+	ProcedureCode,
+	ProtocolIE-ID,
+	TriggeringMessage
+
+FROM NRPPA-CommonDataTypes
+
+	ProtocolExtensionContainer{},
+	ProtocolIE-Single-Container{},
+	
+	NRPPA-PROTOCOL-EXTENSION,
+	NRPPA-PROTOCOL-IES
+
+FROM NRPPA-Containers;
+
+-- A
+
+-- B
+
+BCCH ::= INTEGER (0..1023, ...)
+
+BSSID ::= OCTET STRING (SIZE(6))
+
+-- C
+
+Cause ::= CHOICE {
+	radioNetwork		CauseRadioNetwork,
+	protocol			CauseProtocol,
+	misc				CauseMisc,
+	cause-Extension	ProtocolIE-Single-Container {{ Cause-ExtensionIE }}
+}
+
+Cause-ExtensionIE NRPPA-PROTOCOL-IES ::= {
+	...
+}
+
+CauseMisc ::= ENUMERATED {
+	unspecified,
+	...
+}
+
+CauseProtocol ::= ENUMERATED {
+	transfer-syntax-error,
+	abstract-syntax-error-reject,
+	abstract-syntax-error-ignore-and-notify,
+	message-not-compatible-with-receiver-state,
+	semantic-error,
+	unspecified,
+	abstract-syntax-error-falsely-constructed-message,
+	...
+}
+
+CauseRadioNetwork ::= ENUMERATED {
+	unspecified,
+	requested-item-not-supported,
+	requested-item-temporarily-not-available,
+	...
+
+}
+
+Cell-Portion-ID ::= INTEGER (0..4095,...)
+
+CGI-EUTRA ::= SEQUENCE {
+	pLMN-Identity				PLMN-Identity,
+	eUTRAcellIdentifier			EUTRACellIdentifier,
+	iE-Extensions				ProtocolExtensionContainer { {CGI-EUTRA-ExtIEs} } OPTIONAL,
+	...
+}
+
+CGI-EUTRA-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CPLength-EUTRA ::= ENUMERATED {
+	normal,
+	extended,
+	...
+}
+
+CriticalityDiagnostics ::= SEQUENCE {
+	procedureCode					ProcedureCode					OPTIONAL,
+	triggeringMessage				TriggeringMessage				OPTIONAL,
+	procedureCriticality			Criticality					OPTIONAL,
+	nrppatransactionID				NRPPATransactionID				OPTIONAL,
+	iEsCriticalityDiagnostics		CriticalityDiagnostics-IE-List	OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {CriticalityDiagnostics-ExtIEs} }	OPTIONAL,
+	...
+}
+
+
+CriticalityDiagnostics-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+CriticalityDiagnostics-IE-List ::= SEQUENCE (SIZE (1..maxNrOfErrors)) OF
+	SEQUENCE {
+		iECriticality			Criticality,
+		iE-ID					ProtocolIE-ID,
+		typeOfError			TypeOfError,
+		iE-Extensions			ProtocolExtensionContainer { {CriticalityDiagnostics-IE-List-ExtIEs} } OPTIONAL,
+		...
+}
+
+CriticalityDiagnostics-IE-List-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+
+-- D
+
+DL-Bandwidth-EUTRA ::= ENUMERATED {
+	bw6,
+	bw15,
+	bw25,
+	bw50,
+	bw75,
+	bw100,
+	...
+}
+
+-- E
+
+E-CID-MeasurementResult ::= SEQUENCE {
+	servingCell-ID					NG-RAN-CGI,
+	servingCellTAC					TAC,
+	nG-RANAccessPointPosition		NG-RANAccessPointPosition	OPTIONAL,
+	measuredResults					MeasuredResults				OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { { E-CID-MeasurementResult-ExtIEs} } OPTIONAL,
+	...
+}
+
+E-CID-MeasurementResult-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+EUTRACellIdentifier ::= BIT STRING (SIZE (28))
+
+EARFCN ::= INTEGER (0..262143, ...)
+
+-- F
+
+-- G
+
+-- H
+
+HESSID ::= OCTET STRING (SIZE(6))
+
+-- I
+
+-- J
+
+-- K
+
+-- L
+
+-- M
+
+Measurement-ID ::= INTEGER (1..15, ...)
+
+MeasurementPeriodicity ::= ENUMERATED {
+	ms120,
+	ms240,
+	ms480,
+	ms640,
+	ms1024,
+	ms2048,
+	ms5120,
+	ms10240,
+	min1,
+	min6,
+	min12,
+	min30,
+	min60,
+	...
+}
+
+MeasurementQuantities ::= SEQUENCE (SIZE (1.. maxNoMeas)) OF ProtocolIE-Single-Container { {MeasurementQuantities-ItemIEs} }
+
+MeasurementQuantities-ItemIEs NRPPA-PROTOCOL-IES ::= {
+	{ ID id-MeasurementQuantities-Item	CRITICALITY reject	TYPE MeasurementQuantities-Item		PRESENCE mandatory}
+}
+
+MeasurementQuantities-Item ::= SEQUENCE {
+	measurementQuantitiesValue					MeasurementQuantitiesValue,
+	iE-Extensions								ProtocolExtensionContainer { { MeasurementQuantitiesValue-ExtIEs} } OPTIONAL,
+	...
+}
+
+MeasurementQuantitiesValue-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+MeasurementQuantitiesValue ::= ENUMERATED {
+	cell-ID,
+	angleOfArrival,
+	timingAdvanceType1,
+	timingAdvanceType2,
+	rSRP,
+	rSRQ,
+	...
+}
+
+MeasuredResults ::= SEQUENCE (SIZE (1.. maxNoMeas)) OF MeasuredResultsValue
+
+MeasuredResultsValue ::= CHOICE { 
+	valueAngleOfArrival-EUTRA				INTEGER (0..719),
+	valueTimingAdvanceType1-EUTRA			INTEGER (0..7690),
+	valueTimingAdvanceType2-EUTRA			INTEGER (0..7690),
+	resultRSRP-EUTRA						ResultRSRP-EUTRA,
+	resultRSRQ-EUTRA						ResultRSRQ-EUTRA,
+	measuredResultsValue-Extension			ProtocolIE-Single-Container {{ MeasuredResultsValue-ExtensionIE }}
+}
+
+MeasuredResultsValue-ExtensionIE NRPPA-PROTOCOL-IES ::= {
+	...
+}
+
+-- N
+
+NarrowBandIndex ::= INTEGER (0..15,...)
+
+NG-RANAccessPointPosition ::= SEQUENCE {
+	latitudeSign				ENUMERATED {north, south},
+	latitude					INTEGER (0..8388607),
+	longitude					INTEGER (-8388608..8388607),
+	directionOfAltitude			ENUMERATED {height, depth},
+	altitude					INTEGER (0..32767),
+	uncertaintySemi-major		INTEGER (0..127),
+	uncertaintySemi-minor		INTEGER (0..127),
+	orientationOfMajorAxis		INTEGER (0..179),
+	uncertaintyAltitude			INTEGER (0..127),
+	confidence					INTEGER (0..100),
+	iE-Extensions				ProtocolExtensionContainer { { NG-RANAccessPointPosition-ExtIEs} } OPTIONAL,
+	...
+}
+
+NG-RANAccessPointPosition-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+NG-RAN-CGI ::= SEQUENCE {
+	pLMN-Identity				PLMN-Identity,
+	nG-RANcell		NG-RANCell,
+	iE-Extensions				ProtocolExtensionContainer { {NG-RAN-CGI-ExtIEs} } OPTIONAL,
+	...
+}
+
+NG-RAN-CGI-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+NG-RANCell ::= CHOICE {
+	eUTRA-CellID	EUTRACellIdentifier,
+	nR-CellID		NRCellIdentifier,
+	nG-RANCell-Extension			ProtocolIE-Single-Container {{ NG-RANCell-ExtensionIE }}
+}
+
+NG-RANCell-ExtensionIE NRPPA-PROTOCOL-IES ::= {
+	...
+}
+
+NRCellIdentifier ::= BIT STRING (SIZE (36))
+
+NumberOfAntennaPorts-EUTRA ::= ENUMERATED {
+		n1-or-n2,
+		n4,
+		...
+}
+
+NumberOfDlFrames-EUTRA ::= ENUMERATED {
+		sf1,
+		sf2,
+		sf4,
+		sf6,
+		...
+}
+
+NumberOfDlFrames-Extended-EUTRA ::= INTEGER (1..160,...)
+
+NumberOfFrequencyHoppingBands ::= ENUMERATED {
+	twobands,
+	fourbands,
+	...
+}
+
+-- O
+
+OTDOACells ::= SEQUENCE (SIZE (1.. maxCellinRANnode)) OF SEQUENCE {
+	oTDOACellInfo					OTDOACell-Information,
+	iE-Extensions					ProtocolExtensionContainer { {OTDOACells-ExtIEs} } OPTIONAL,
+	...
+}
+
+OTDOACells-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+OTDOACell-Information ::= SEQUENCE (SIZE (1..maxnoOTDOAtypes)) OF OTDOACell-Information-Item
+
+OTDOACell-Information-Item ::= CHOICE {
+	pCI-EUTRA									PCI-EUTRA,
+	cGI-EUTRA									CGI-EUTRA,
+	tAC											TAC,
+	eARFCN										EARFCN,
+	pRS-Bandwidth-EUTRA							PRS-Bandwidth-EUTRA,
+	pRS-ConfigurationIndex-EUTRA				PRS-ConfigurationIndex-EUTRA, 
+	cPLength-EUTRA								CPLength-EUTRA,
+	numberOfDlFrames-EUTRA						NumberOfDlFrames-EUTRA,
+	numberOfAntennaPorts-EUTRA					NumberOfAntennaPorts-EUTRA,
+	sFNInitialisationTime-EUTRA					SFNInitialisationTime-EUTRA,
+	nG-RANAccessPointPosition					NG-RANAccessPointPosition,
+	pRSMutingConfiguration-EUTRA				PRSMutingConfiguration-EUTRA,
+	prsid-EUTRA									PRS-ID-EUTRA,
+	tpid-EUTRA									TP-ID-EUTRA,
+	tpType-EUTRA								TP-Type-EUTRA,
+	numberOfDlFrames-Extended-EUTRA				NumberOfDlFrames-Extended-EUTRA,
+	crsCPlength-EUTRA							CPLength-EUTRA,
+	dL-Bandwidth-EUTRA							DL-Bandwidth-EUTRA,
+	pRSOccasionGroup-EUTRA						PRSOccasionGroup-EUTRA,
+	pRSFrequencyHoppingConfiguration-EUTRA		PRSFrequencyHoppingConfiguration-EUTRA,
+	oTDOACell-Information-Item-Extension		ProtocolIE-Single-Container {{ OTDOACell-Information-Item-ExtensionIE }}
+}
+
+OTDOACell-Information-Item-ExtensionIE NRPPA-PROTOCOL-IES ::= {
+	{ ID id-TDD-Config-EUTRA-Item		CRITICALITY 	ignore	TYPE 	TDD-Config-EUTRA-Item		PRESENCE 	optional },
+	...
+}
+
+OTDOA-Information-Item ::= ENUMERATED {
+		pci,
+		cGI,
+		tac,
+		earfcn,
+		prsBandwidth,
+		prsConfigIndex,
+		cpLength,
+		noDlFrames,
+		noAntennaPorts,
+		sFNInitTime,
+		nG-RANAccessPointPosition,
+		prsmutingconfiguration,
+		prsid,
+		tpid,
+		tpType,
+		crsCPlength,
+		dlBandwidth, 
+		multipleprsConfigurationsperCell,
+		prsOccasionGroup,
+		prsFrequencyHoppingConfiguration,
+		...,
+		tddConfig
+}
+
+OtherRATMeasurementQuantities ::= SEQUENCE (SIZE (0.. maxNoMeas)) OF ProtocolIE-Single-Container { {OtherRATMeasurementQuantities-ItemIEs} }
+
+OtherRATMeasurementQuantities-ItemIEs NRPPA-PROTOCOL-IES ::= {
+	{ ID id-OtherRATMeasurementQuantities-Item	CRITICALITY reject	TYPE OtherRATMeasurementQuantities-Item PRESENCE mandatory}}
+
+OtherRATMeasurementQuantities-Item ::= SEQUENCE {
+	otherRATMeasurementQuantitiesValue			OtherRATMeasurementQuantitiesValue,
+	iE-Extensions								ProtocolExtensionContainer { { OtherRATMeasurementQuantitiesValue-ExtIEs} } OPTIONAL,
+	...
+}
+
+OtherRATMeasurementQuantitiesValue-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+OtherRATMeasurementQuantitiesValue ::= ENUMERATED {
+	geran,
+	utran,
+	...
+}
+
+OtherRATMeasurementResult ::= SEQUENCE (SIZE (1.. maxNoMeas)) OF OtherRATMeasuredResultsValue
+
+OtherRATMeasuredResultsValue ::= CHOICE {
+	resultGERAN									ResultGERAN,
+	resultUTRAN									ResultUTRAN,
+	otherRATMeasuredResultsValue-Extension		ProtocolIE-Single-Container {{ OtherRATMeasuredResultsValue-ExtensionIE }}
+}
+
+
+OtherRATMeasuredResultsValue-ExtensionIE NRPPA-PROTOCOL-IES ::= {
+	...
+}
+
+-- P
+
+PCI-EUTRA ::= INTEGER (0..503, ...)
+
+PhysCellIDGERAN ::= INTEGER (0..63, ...)
+
+PhysCellIDUTRA-FDD ::= INTEGER (0..511, ...)
+
+PhysCellIDUTRA-TDD ::= INTEGER (0..127, ...)
+
+PLMN-Identity ::= OCTET STRING (SIZE(3))
+
+PRS-Bandwidth-EUTRA ::= ENUMERATED {
+		bw6,
+		bw15,
+		bw25,
+		bw50,
+		bw75,
+		bw100,
+		...
+}
+
+PRS-ConfigurationIndex-EUTRA ::= INTEGER (0..4095, ...)
+
+PRS-ID-EUTRA	::= INTEGER (0..4095, ...)
+
+PRSMutingConfiguration-EUTRA ::= CHOICE {
+	two 												BIT STRING (SIZE (2)),
+	four 												BIT STRING (SIZE (4)),
+	eight 												BIT STRING (SIZE (8)),
+	sixteen 											BIT STRING (SIZE (16)),
+	thirty-two											BIT STRING (SIZE (32)),
+	sixty-four											BIT STRING (SIZE (64)),
+	one-hundred-and-twenty-eight						BIT STRING (SIZE (128)),
+	two-hundred-and-fifty-six							BIT STRING (SIZE (256)),
+	five-hundred-and-twelve								BIT STRING (SIZE (512)),
+	one-thousand-and-twenty-four						BIT STRING (SIZE (1024)),
+	pRSMutingConfiguration-EUTRA-Extension			ProtocolIE-Single-Container {{ PRSMutingConfiguration-EUTRA-ExtensionIE }}
+}
+
+PRSMutingConfiguration-EUTRA-ExtensionIE NRPPA-PROTOCOL-IES ::= {
+	...
+}
+
+PRSOccasionGroup-EUTRA ::= ENUMERATED {
+	og2,
+	og4,
+	og8,
+	og16,
+	og32,
+	og64,
+	og128,
+	...
+}
+
+PRSFrequencyHoppingConfiguration-EUTRA ::= SEQUENCE {
+	noOfFreqHoppingBands		NumberOfFrequencyHoppingBands,
+	bandPositions				SEQUENCE(SIZE (1..maxnoFreqHoppingBandsMinusOne)) OF NarrowBandIndex,
+	iE-Extensions				ProtocolExtensionContainer { { PRSFrequencyHoppingConfiguration-EUTRA-Item-IEs} } OPTIONAL,
+	...
+}
+
+PRSFrequencyHoppingConfiguration-EUTRA-Item-IEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+-- Q
+
+-- R
+
+ReportCharacteristics ::= ENUMERATED {
+	onDemand,
+	periodic,
+	...
+}
+
+RequestedSRSTransmissionCharacteristics ::= SEQUENCE {
+	numberOfTransmissions	INTEGER (0..500, ...),
+	bandwidth				INTEGER (1..100, ...),
+	iE-Extensions			ProtocolExtensionContainer { { RequestedSRSTransmissionCharacteristics-ExtIEs} } OPTIONAL,
+	...
+}
+
+RequestedSRSTransmissionCharacteristics-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ResultRSRP-EUTRA ::= SEQUENCE (SIZE (1.. maxCellReport)) OF ResultRSRP-EUTRA-Item
+
+ResultRSRP-EUTRA-Item ::= SEQUENCE {
+	pCI-EUTRA			PCI-EUTRA,
+	eARFCN				EARFCN,
+	cGI-EUTRA			CGI-EUTRA OPTIONAL,
+	valueRSRP-EUTRA		ValueRSRP-EUTRA,
+	iE-Extensions		ProtocolExtensionContainer { { ResultRSRP-EUTRA-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+ResultRSRP-EUTRA-Item-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ResultRSRQ-EUTRA ::= SEQUENCE (SIZE (1.. maxCellReport)) OF ResultRSRQ-EUTRA-Item
+
+ResultRSRQ-EUTRA-Item ::= SEQUENCE {
+	pCI-EUTRA			PCI-EUTRA,
+	eARFCN				EARFCN,
+	cGI-UTRA			CGI-EUTRA OPTIONAL,
+	valueRSRQ-EUTRA		ValueRSRQ-EUTRA,
+	iE-Extensions		ProtocolExtensionContainer { { ResultRSRQ-EUTRA-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+ResultRSRQ-EUTRA-Item-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ResultGERAN ::= SEQUENCE (SIZE (1.. maxGERANMeas)) OF ResultGERAN-Item
+
+ResultGERAN-Item ::= SEQUENCE {
+	bCCH				BCCH,
+	physCellIDGERAN		PhysCellIDGERAN,
+	rSSI				RSSI,
+	iE-Extensions		ProtocolExtensionContainer { { ResultGERAN-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+ResultGERAN-Item-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+ResultUTRAN ::= SEQUENCE (SIZE (1.. maxUTRANMeas)) OF ResultUTRAN-Item
+
+ResultUTRAN-Item ::= SEQUENCE {
+	uARFCN				UARFCN,
+	physCellIDUTRAN		CHOICE {
+		physCellIDUTRA-FDD		PhysCellIDUTRA-FDD,
+		physCellIDUTRA-TDD		PhysCellIDUTRA-TDD
+	},
+	uTRA-RSCP			UTRA-RSCP OPTIONAL,
+	uTRA-EcN0			UTRA-EcN0 OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { { ResultUTRAN-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+ResultUTRAN-Item-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+RSSI ::= INTEGER (0..63, ...)
+
+-- S
+
+SFNInitialisationTime-EUTRA ::= BIT STRING (SIZE (64))
+
+SSID ::= OCTET STRING (SIZE(1..32))
+
+-- T
+
+TAC ::= OCTET STRING (SIZE(3))
+
+TDD-Config-EUTRA-Item ::= SEQUENCE {
+	subframeAssignment			ENUMERATED { sa0, sa1, sa2, sa3, sa4, sa5, sa6, ... },
+	iE-Extensions				ProtocolExtensionContainer { { TDD-Config-EUTRA-Item-Item-ExtIEs } } OPTIONAL,
+	...
+}
+
+TDD-Config-EUTRA-Item-Item-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+TP-ID-EUTRA ::= INTEGER (0..4095, ...)
+
+TP-Type-EUTRA ::= ENUMERATED { prs-only-tp, ... }
+
+TypeOfError ::= ENUMERATED {
+	not-understood,
+	missing,
+	...
+}
+
+-- U
+
+UARFCN ::= INTEGER (0..16383, ...)
+
+UTRA-EcN0 ::= INTEGER (0..49, ...)
+
+UTRA-RSCP ::= INTEGER (-5..91, ...)
+
+-- V
+
+ValueRSRP-EUTRA ::= INTEGER (0..97, ...)
+
+ValueRSRQ-EUTRA ::= INTEGER (0..34, ...)
+
+-- W
+
+WLANMeasurementQuantities ::= SEQUENCE (SIZE (0.. maxNoMeas)) OF ProtocolIE-Single-Container { {WLANMeasurementQuantities-ItemIEs} }
+
+WLANMeasurementQuantities-ItemIEs NRPPA-PROTOCOL-IES ::= {
+	{ ID id-WLANMeasurementQuantities-Item	CRITICALITY reject	TYPE WLANMeasurementQuantities-Item PRESENCE mandatory}}
+
+WLANMeasurementQuantities-Item ::= SEQUENCE {
+	wLANMeasurementQuantitiesValue			WLANMeasurementQuantitiesValue,
+	iE-Extensions							ProtocolExtensionContainer { { WLANMeasurementQuantitiesValue-ExtIEs} } OPTIONAL,
+	...
+}
+
+WLANMeasurementQuantitiesValue-ExtIEs NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+WLANMeasurementQuantitiesValue ::= ENUMERATED {
+	wlan,
+	...
+}
+
+WLANMeasurementResult ::= SEQUENCE (SIZE (1..maxNoMeas)) OF WLANMeasurementResult-Item
+
+WLANMeasurementResult-Item ::= SEQUENCE {
+	wLAN-RSSI			WLAN-RSSI,
+	sSID				SSID					OPTIONAL,
+	bSSID				BSSID					OPTIONAL,
+	hESSID				HESSID					OPTIONAL,
+	operatingClass		WLANOperatingClass		OPTIONAL,
+	countryCode			WLANCountryCode			OPTIONAL,
+	wLANChannelList		WLANChannelList			OPTIONAL,
+	wLANBand			WLANBand				OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { { WLANMeasurementResult-Item-ExtIEs } }	OPTIONAL,
+	...
+}
+
+WLANMeasurementResult-Item-ExtIEs	NRPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+WLAN-RSSI ::= INTEGER (0..141, ...)
+
+WLANBand ::= ENUMERATED {band2dot4, band5, ...}
+
+WLANChannelList ::= SEQUENCE (SIZE (1..maxWLANchannels)) OF WLANChannel
+
+WLANChannel ::= INTEGER (0..255)
+
+WLANCountryCode ::= ENUMERATED {
+	unitedStates,
+	europe,
+	japan,
+	global,
+	...
+}
+
+WLANOperatingClass ::= INTEGER (0..255)
+
+-- X
+
+-- Y
+
+-- Z
+
+END
