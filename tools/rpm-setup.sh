@@ -215,6 +215,9 @@ echo "brotli is unavailable" >&2
 add_package ADDITIONAL_LIST git-review ||
 echo "git-review is unavailabe" >&2
 
+add_package ADDITIONAL_LIST speexdsp-devel || add_package ADDITIONAL_LIST speex-devel ||
+echo "speex is unavailable" >&2
+
 ACTUAL_LIST=$BASIC_LIST
 
 # Now arrange for optional support libraries
