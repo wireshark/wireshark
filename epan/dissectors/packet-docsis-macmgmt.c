@@ -214,6 +214,7 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define RNGRSP_RANGING_STATUS 5
 #define RNGRSP_DOWN_FREQ_OVER 6
 #define RNGRSP_UP_CHID_OVER 7
+#define RNGRSP_TRANSMIT_EQ_SET 9
 #define RNGRSP_T4_TIMEOUT_MULTIPLIER 13
 #define RNGRSP_DYNAMIC_RANGE_WINDOW_UPPER_EDGE 14
 #define RNGRSP_TRANSMIT_EQ_ADJUST_OFDMA_CHANNELS 15
@@ -767,10 +768,15 @@ static int hf_docsis_rngrsp_xmit_eq_adj = -1;
 static int hf_docsis_rngrsp_ranging_status = -1;
 static int hf_docsis_rngrsp_down_freq_over = -1;
 static int hf_docsis_rngrsp_upstream_ch_over = -1;
+static int hf_docsis_rngrsp_xmit_eq_set = -1;
 static int hf_docsis_rngrsp_rngrsp_t4_timeout_multiplier = -1;
 static int hf_docsis_rngrsp_dynamic_range_window_upper_edge = -1;
 static int hf_docsis_rngrsp_tlv_unknown = -1;
 static int hf_docsis_rngrsp_trans_eq_data = -1;
+static int hf_docsis_rngrsp_trans_eq_enc_scdma_tdma_main_tap_location = -1;
+static int hf_docsis_rngrsp_trans_eq_enc_scdma_tdma_number_of_forward_taps_per_symbol = -1;
+static int hf_docsis_rngrsp_trans_eq_enc_scdma_tdma_number_of_forward_taps_n = -1;
+static int hf_docsis_rngrsp_trans_eq_enc_scdma_tdma_reserved = -1;
 static int hf_docsis_rngrsp_trans_eq_enc_lowest_subc = -1;
 static int hf_docsis_rngrsp_trans_eq_enc_highest_subc = -1;
 static int hf_docsis_rngrsp_trans_eq_enc_coef_real = -1;
@@ -1577,10 +1583,11 @@ static const value_string rngrsp_tlv_vals[] = {
   {RNGRSP_TIMING,            "Timing Adjust (6.25us/64)"},
   {RNGRSP_PWR_LEVEL_ADJ,     "Power Level Adjust (0.25dB units)"},
   {RNGRSP_OFFSET_FREQ_ADJ,   "Offset Freq Adjust (Hz)"},
-  {RNGRSP_TRANSMIT_EQ_ADJ,   "Transmit Equalisation Adjust"},
+  {RNGRSP_TRANSMIT_EQ_ADJ,   "Transmit Equalization Adjust"},
   {RNGRSP_RANGING_STATUS,    "Ranging Status"},
   {RNGRSP_DOWN_FREQ_OVER,    "Downstream Frequency Override (Hz)"},
   {RNGRSP_UP_CHID_OVER,      "Upstream Channel ID Override"},
+  {RNGRSP_TRANSMIT_EQ_SET,   "Transmit Equalization Set"},
   {RNGRSP_T4_TIMEOUT_MULTIPLIER, "T4 Timeout Multiplier"},
   {RNGRSP_DYNAMIC_RANGE_WINDOW_UPPER_EDGE, "Dynamic Range Window Upper Edge"},
   {RNGRSP_TRANSMIT_EQ_ADJUST_OFDMA_CHANNELS, "Transmit Equalization Adjust for OFDMA Channels"},
@@ -3275,7 +3282,29 @@ dissect_rngreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
 }
 
 static void
-dissect_rngrsp_transmit_equalization_encodings(tvbuff_t * tvb, proto_tree * tree, guint start, guint16 len)
+dissect_rngrsp_transmit_equalization_encodings_scdma_tdma(tvbuff_t * tvb, proto_item * it, guint start, guint16 len)
+{
+  guint16 i;
+  proto_tree *transmit_equalization_encodings_tree, *coef_tree;
+
+  transmit_equalization_encodings_tree = proto_item_add_subtree (it, ett_docsis_rngrsp_tlv_transmit_equalization_encodings);
+
+  proto_tree_add_item (transmit_equalization_encodings_tree, hf_docsis_rngrsp_trans_eq_enc_scdma_tdma_main_tap_location, tvb, start, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item (transmit_equalization_encodings_tree, hf_docsis_rngrsp_trans_eq_enc_scdma_tdma_number_of_forward_taps_per_symbol, tvb, start + 1, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item (transmit_equalization_encodings_tree, hf_docsis_rngrsp_trans_eq_enc_scdma_tdma_number_of_forward_taps_n, tvb, start + 2, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item (transmit_equalization_encodings_tree, hf_docsis_rngrsp_trans_eq_enc_scdma_tdma_reserved, tvb, start + 3, 1, ENC_BIG_ENDIAN);
+
+  for(i=4; i < len; i+=4) {
+    gint real, imag;
+    coef_tree = proto_tree_add_subtree_format (transmit_equalization_encodings_tree, tvb, start + i, 4, ett_docsis_rngrsp_tlv_transmit_equalization_encodings_coef, NULL, "Tap %d: ", i/4);
+    proto_tree_add_item_ret_int (coef_tree, hf_docsis_rngrsp_trans_eq_enc_coef_real, tvb, start + i, 2, ENC_BIG_ENDIAN, &real);
+    proto_tree_add_item_ret_int (coef_tree, hf_docsis_rngrsp_trans_eq_enc_coef_imag, tvb, start + i + 2, 2, ENC_BIG_ENDIAN, &imag);
+    proto_item_append_text(coef_tree, "real: %f, imag: %f", (gint16) real/16384.0, (gint16) imag/16384.0);
+  }
+}
+
+static void
+dissect_rngrsp_transmit_equalization_encodings_ofdma(tvbuff_t * tvb, proto_tree * tree, guint start, guint16 len)
 {
   guint16 i;
   proto_item *it;
@@ -3356,7 +3385,7 @@ dissect_rngrsp_commanded_power(tvbuff_t * tvb, proto_tree * tree, guint8 start, 
 static void
 dissect_rngrsp_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * rngrsp_tree)
 {
-  proto_item *rngrsptlv_item;
+  proto_item *rngrsptlv_item, *it;
   proto_tree *rngrsptlv_tree;
   guint pos = 0;
   guint tlvlen;
@@ -3402,7 +3431,8 @@ dissect_rngrsp_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * rngrsp_tre
       }
       break;
     case RNGRSP_TRANSMIT_EQ_ADJ:
-      proto_tree_add_item (rngrsptlv_tree, hf_docsis_rngrsp_xmit_eq_adj, tvb, pos, tlvlen, ENC_NA);
+      it = proto_tree_add_item (rngrsptlv_tree, hf_docsis_rngrsp_xmit_eq_adj, tvb, pos, tlvlen, ENC_NA);
+      dissect_rngrsp_transmit_equalization_encodings_scdma_tdma(tvb, it, pos, tlvlen);
       break;
     case RNGRSP_RANGING_STATUS:
       if (tlvlen == 1)
@@ -3422,6 +3452,10 @@ dissect_rngrsp_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * rngrsp_tre
         proto_tree_add_item (rngrsptlv_tree, hf_docsis_rngrsp_upstream_ch_over, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
       }
       break;
+    case RNGRSP_TRANSMIT_EQ_SET:
+      it = proto_tree_add_item (rngrsptlv_tree, hf_docsis_rngrsp_xmit_eq_set, tvb, pos, tlvlen, ENC_NA);
+      dissect_rngrsp_transmit_equalization_encodings_scdma_tdma(tvb, it, pos, tlvlen);
+      break;
     case RNGRSP_T4_TIMEOUT_MULTIPLIER:
       if (tlvlen == 1)
         proto_tree_add_item (rngrsptlv_tree, hf_docsis_rngrsp_rngrsp_t4_timeout_multiplier, tvb, pos, tlvlen, ENC_BIG_ENDIAN);
@@ -3439,10 +3473,10 @@ dissect_rngrsp_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * rngrsp_tre
       }
       break;
     case RNGRSP_TRANSMIT_EQ_ADJUST_OFDMA_CHANNELS:
-      dissect_rngrsp_transmit_equalization_encodings(tvb, rngrsptlv_tree, pos, tlvlen);
+      dissect_rngrsp_transmit_equalization_encodings_ofdma(tvb, rngrsptlv_tree, pos, tlvlen);
       break;
     case RNGRSP_TRANSMIT_EQ_SET_OFDMA_CHANNELS:
-      dissect_rngrsp_transmit_equalization_encodings(tvb, rngrsptlv_tree, pos, tlvlen);
+      dissect_rngrsp_transmit_equalization_encodings_ofdma(tvb, rngrsptlv_tree, pos, tlvlen);
       break;
     case RNGRSP_COMMANDED_POWER:
       dissect_rngrsp_commanded_power(tvb, rngrsptlv_tree, pos, tlvlen);
@@ -7802,9 +7836,9 @@ proto_register_docsis_mgmt (void)
       "Frequency Adjust", HFILL}
      },
     {&hf_docsis_rngrsp_xmit_eq_adj,
-     {"Transmit Equalisation Adjust", "docsis_rngrsp.xmit_eq_adj",
+     {"Transmit Equalization Adjust", "docsis_rngrsp.xmit_eq_adj",
       FT_BYTES, BASE_NONE, NULL, 0x0,
-      "Timing Equalisation Adjust", HFILL}
+      NULL, HFILL}
      },
     {&hf_docsis_rngrsp_ranging_status,
      {"Ranging Status", "docsis_rngrsp.rng_stat",
@@ -7821,6 +7855,11 @@ proto_register_docsis_mgmt (void)
       FT_UINT8, BASE_DEC, NULL, 0x0,
       NULL, HFILL}
      },
+    {&hf_docsis_rngrsp_xmit_eq_set,
+     {"Transmit Equalization Set", "docsis_rngrsp.xmit_eq_set",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
+     },
     {&hf_docsis_rngrsp_rngrsp_t4_timeout_multiplier,
      {"Multiplier of the default T4 Timeout (the valid range is 1-10)", "docsis_rngrsp.t4_timeout_multiplier",
       FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -7835,6 +7874,26 @@ proto_register_docsis_mgmt (void)
      {"Unknown TLV", "docsis_rngrsp.tlv.unknown",
       FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL}
+    },
+    {&hf_docsis_rngrsp_trans_eq_enc_scdma_tdma_main_tap_location,
+      {"Main Tap Location", "docsis_rngrsp.tlv.trans_eq_enc_scdma_tdma.main_tap_location",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL}
+    },
+    {&hf_docsis_rngrsp_trans_eq_enc_scdma_tdma_number_of_forward_taps_per_symbol,
+      {"Number of Forward Taps per Symbol", "docsis_rngrsp.tlv.trans_eq_enc_scdma_tdma.nr_of_forward_taps_per_symbol",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL}
+    },
+    {&hf_docsis_rngrsp_trans_eq_enc_scdma_tdma_number_of_forward_taps_n,
+      {"Number of Forward Taps (N)", "docsis_rngrsp.tlv.trans_eq_enc_scdma_tdma.nr_of_forward_taps_n",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL}
+    },
+    {&hf_docsis_rngrsp_trans_eq_enc_scdma_tdma_reserved,
+      {"Reserved", "docsis_rngrsp.tlv.trans_eq_enc_scdma_tdma.reserved",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL}
     },
     {&hf_docsis_rngrsp_trans_eq_data,
      {"Transmit equalization data", "docsis_rngrsp.tlv.trans_eq_data",
@@ -9891,7 +9950,7 @@ proto_register_docsis_mgmt (void)
       NULL, HFILL}
     },
     {&hf_docsis_mgt_down_chid,
-     {"Downstream Channel ID", "docsis_ucd.downchid",
+     {"Downstream Channel ID", "docsis_mgmt.downchid",
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Management Message", HFILL}
     },
