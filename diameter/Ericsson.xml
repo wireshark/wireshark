@@ -72,7 +72,7 @@
 		<type type-name="Enumerated"/>
 		<enum name="End User MSISDN" code="0"/>
 		<enum name="End User IMSI" code="1"/>
-		<enum name="End User SIP URL" code="2"/>
+		<enum name="End User SIP URI" code="2"/>
 		<enum name="End User NAI" code="3"/>
 		<enum name="End User PRIVATE (operator defined)" code="4"/>
 	</avp>
@@ -260,6 +260,8 @@
 		<enum name="UNKNOWN" code="0"/>
 		<enum name="INTERNATIONAL" code="1"/>
 		<enum name="NATIONAL" code="2"/>
+		<enum name="SUBSCRIBER NUMBER" code="4"/>
+		<enum name="ALPHANUMERIC" code="5"/>
 	</avp>
 	<avp name="Other-Party-Id-Data" code="1077" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
 		<type type-name="UTF8String"/>
@@ -268,9 +270,15 @@
 		<type type-name="Enumerated"/>
 		<enum name="END_USER_MSISDN" code="0"/>
 		<enum name="END_USER_IMSI" code="1"/>
-		<enum name="END_USER_SIP_URL" code="2"/>
+		<enum name="END_USER_SIP_URI" code="2"/>
 		<enum name="END_USER_NAI" code="3"/>
 		<enum name="END_USER_PRIVATE" code="4"/>
+	</avp>
+	<avp name="Service-Provider-Id" code="1081" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Traffic-Case" code="1082" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+		<type type-name="Integer32"/>
 	</avp>
 	<avp name="Related-ICID" code="1128" vendor-id="Ericsson" mandatory="must" vendor-bit="must" may-encrypt="no" protected="mustnot">
 		<type type-name="UTF8String"/>
