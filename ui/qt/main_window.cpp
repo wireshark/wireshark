@@ -877,6 +877,19 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
     return QMainWindow::eventFilter(obj, event);
 }
 
+bool MainWindow::event(QEvent *event)
+{
+    switch (event->type()) {
+    case QEvent::PaletteChange:
+        initMainToolbarIcons();
+        break;
+    default:
+        break;
+
+    }
+    return QMainWindow::event(event);
+}
+
 void MainWindow::keyPressEvent(QKeyEvent *event) {
 
     // Explicitly focus on the display filter combo.

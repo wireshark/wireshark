@@ -133,6 +133,7 @@ public:
 
 protected:
     virtual bool eventFilter(QObject *obj, QEvent *event);
+    virtual bool event(QEvent *event);
     virtual void keyPressEvent(QKeyEvent *event);
     virtual void closeEvent(QCloseEvent *event);
     virtual void dragEnterEvent(QDragEnterEvent *event);

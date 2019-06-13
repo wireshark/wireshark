@@ -29,7 +29,8 @@
 // http://msdn.microsoft.com/en-us/library/ms246582.aspx
 
 // To do:
-// - 32x32, 48x48, 64x64, and unscaled (.svg) icons
+// - Respond to dark mode changes via QEvent::PaletteChange.
+// - 32x32, 48x48, 64x64, and unscaled (.svg) icons.
 // - Indent find & go actions when those panes are open.
 // - Replace or remove:
 //   WIRESHARK_STOCK_CAPTURE_FILTER x-capture-filter
@@ -75,7 +76,39 @@ StockIcon::StockIcon(const QString icon_name) :
 
     // Is this one of our locally sourced, cage-free, organic icons?
     QStringList types = QStringList() << "14x14" << "16x16" << "24x14" << "24x24";
+    QList<QPalette::ColorGroup> color_groups  = QList<QPalette::ColorGroup>()
+            << QPalette::Disabled
+            << QPalette::Active
+            << QPalette::Inactive
+            << QPalette::Normal;
     foreach (QString type, types) {
+        // First, check for a template (mask) icon
+        // Templates should be monochrome as described at
+        // https://developer.apple.com/design/human-interface-guidelines/macos/icons-and-images/custom-icons/
+        // Transparency is supported.
+        QString icon_path_template = path_pfx_ + QString("%1/%2.template.png").arg(type).arg(icon_name);
+        if (QFile::exists(icon_path_template)) {
+            QIcon mask_icon = QIcon();
+            mask_icon.addFile(icon_path_template);
+
+            foreach(QSize sz, mask_icon.availableSizes()) {
+                QPixmap mask_pm = mask_icon.pixmap(sz);
+                foreach (QPalette::ColorGroup cg, color_groups) {
+                    QImage mode_img(sz, QImage::Format_ARGB32);
+                    mode_img.setDevicePixelRatio(mask_pm.devicePixelRatioF());
+                    QPainter painter(&mode_img);
+                    QBrush br(wsApp->palette().color(cg, QPalette::WindowText));
+                    painter.fillRect(0, 0, sz.width(), sz.height(), br);
+                    painter.setCompositionMode(QPainter::CompositionMode_DestinationIn);
+                    painter.drawPixmap(0, 0, mask_pm);
+                    addPixmap(QPixmap::fromImage(mode_img));
+                }
+            }
+
+            continue;
+        }
+
+        // Regular full-color icons
         QString icon_path = path_pfx_ + QString("%1/%2.png").arg(type).arg(icon_name);
         if (QFile::exists(icon_path)) {
             addFile(icon_path);
