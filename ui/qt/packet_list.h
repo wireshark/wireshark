@@ -54,6 +54,7 @@ public:
     void thaw(bool restore_selection = false);
     void clear();
     void writeRecent(FILE *rf);
+    bool contextMenuActive();
     QString getFilterFromRowAndColumn();
     void resetColorized();
     QString packetComment();
@@ -69,6 +70,7 @@ public:
 
 protected:
     void selectionChanged(const QItemSelection & selected, const QItemSelection & deselected);
+    void contextMenuEvent(QContextMenuEvent *event);
     void timerEvent(QTimerEvent *event);
     void paintEvent(QPaintEvent *event);
     virtual void mousePressEvent (QMouseEvent *event);

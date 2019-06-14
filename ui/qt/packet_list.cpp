@@ -467,6 +467,146 @@ void PacketList::selectionChanged (const QItemSelection & selected, const QItemS
     }
 }
 
+void PacketList::contextMenuEvent(QContextMenuEvent *event)
+{
+    const char *module_name = NULL;
+    if (cap_file_ && cap_file_->edt && cap_file_->edt->tree) {
+        GPtrArray          *finfo_array = proto_all_finfos(cap_file_->edt->tree);
+
+        for (guint i = finfo_array->len - 1; i > 0 ; i --) {
+            field_info *fi = (field_info *)g_ptr_array_index (finfo_array, i);
+            header_field_info *hfinfo =  fi->hfinfo;
+
+            if (!g_str_has_prefix(hfinfo->abbrev, "text") &&
+                !g_str_has_prefix(hfinfo->abbrev, "_ws.expert") &&
+                !g_str_has_prefix(hfinfo->abbrev, "_ws.lua") &&
+                !g_str_has_prefix(hfinfo->abbrev, "_ws.malformed")) {
+
+                if (hfinfo->parent == -1) {
+                    module_name = hfinfo->abbrev;
+                } else {
+                    module_name = proto_registrar_get_abbrev(hfinfo->parent);
+                }
+                break;
+            }
+        }
+        g_ptr_array_free(finfo_array, TRUE);
+    }
+    proto_prefs_menu_.setModule(module_name);
+
+    QModelIndex ctxIndex = indexAt(event->pos());
+    // frameData will be owned by one of the submenus, see below.
+    FrameInformation * frameData =
+            new FrameInformation(new CaptureFile(this, cap_file_), packet_list_model_->getRowFdata(ctxIndex.row()));
+
+    ctx_menu_.clear();
+    // XXX We might want to reimplement setParent() and fill in the context
+    // menu there.
+    ctx_menu_.addAction(window()->findChild<QAction *>("actionEditMarkPacket"));
+    ctx_menu_.addAction(window()->findChild<QAction *>("actionEditIgnorePacket"));
+    ctx_menu_.addAction(window()->findChild<QAction *>("actionEditSetTimeReference"));
+    ctx_menu_.addAction(window()->findChild<QAction *>("actionEditTimeShift"));
+    ctx_menu_.addAction(window()->findChild<QAction *>("actionEditPacketComment"));
+
+    ctx_menu_.addSeparator();
+
+    ctx_menu_.addAction(window()->findChild<QAction *>("actionViewEditResolvedName"));
+    ctx_menu_.addSeparator();
+
+    QMenu *main_menu_item = window()->findChild<QMenu *>("menuApplyAsFilter");
+    QMenu *submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
+    ctx_menu_.addMenu(submenu);
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFNotSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFAndSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFOrSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFAndNotSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFOrNotSelected"));
+
+    main_menu_item = window()->findChild<QMenu *>("menuPrepareAFilter");
+    submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
+    ctx_menu_.addMenu(submenu);
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFNotSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFAndSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFOrSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFAndNotSelected"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFOrNotSelected"));
+
+    const char *conv_menu_name = "menuConversationFilter";
+    main_menu_item = window()->findChild<QMenu *>(conv_menu_name);
+    conv_menu_.setTitle(main_menu_item->title());
+    conv_menu_.setObjectName(conv_menu_name);
+    ctx_menu_.addMenu(&conv_menu_);
+
+    const char *colorize_menu_name = "menuColorizeConversation";
+    main_menu_item = window()->findChild<QMenu *>(colorize_menu_name);
+    colorize_menu_.setTitle(main_menu_item->title());
+    colorize_menu_.setObjectName(colorize_menu_name);
+    ctx_menu_.addMenu(&colorize_menu_);
+
+    main_menu_item = window()->findChild<QMenu *>("menuSCTP");
+    submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
+    ctx_menu_.addMenu(submenu);
+    submenu->addAction(window()->findChild<QAction *>("actionSCTPAnalyseThisAssociation"));
+    submenu->addAction(window()->findChild<QAction *>("actionSCTPShowAllAssociations"));
+    submenu->addAction(window()->findChild<QAction *>("actionSCTPFilterThisAssociation"));
+
+    main_menu_item = window()->findChild<QMenu *>("menuFollow");
+    submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
+    ctx_menu_.addMenu(submenu);
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowTCPStream"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowUDPStream"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowTLSStream"));
+    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeFollowHTTPStream"));
+
+    ctx_menu_.addSeparator();
+
+    main_menu_item = window()->findChild<QMenu *>("menuEditCopy");
+    submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
+    ctx_menu_.addMenu(submenu);
+
+    QAction * action = submenu->addAction(tr("Summary as Text"));
+    action->setData(copy_summary_text_);
+    connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
+    action = submenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as CSV"));
+    action->setData(copy_summary_csv_);
+    connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
+    action = submenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "as YAML"));
+    action->setData(copy_summary_yaml_);
+    connect(action, SIGNAL(triggered()), this, SLOT(copySummary()));
+    submenu->addSeparator();
+
+    submenu->addAction(window()->findChild<QAction *>("actionEditCopyAsFilter"));
+    submenu->addSeparator();
+
+    QActionGroup * copyEntries = DataPrinter::copyActions(this, frameData);
+    submenu->addActions(copyEntries->actions());
+    copyEntries->setParent(submenu);
+    frameData->setParent(submenu);
+
+    ctx_menu_.addSeparator();
+    ctx_menu_.addMenu(&proto_prefs_menu_);
+    decode_as_ = window()->findChild<QAction *>("actionAnalyzeDecodeAs");
+    ctx_menu_.addAction(decode_as_);
+    // "Print" not ported intentionally
+    action = window()->findChild<QAction *>("actionViewShowPacketInNewWindow");
+    ctx_menu_.addAction(action);
+
+    decode_as_->setData(QVariant::fromValue(true));
+    ctx_column_ = columnAt(event->x());
+
+    // Set menu sensitivity for the current column and set action data.
+    if ( frameData )
+        emit frameSelected(frameData->frameNum());
+    else
+        emit frameSelected(-1);
+
+    ctx_menu_.exec(event->globalPos());
+    ctx_column_ = -1;
+    decode_as_->setData(QVariant());
+}
+
 // Auto scroll if:
 // - We're not at the end
 // - We are capturing
@@ -836,6 +976,11 @@ void PacketList::writeRecent(FILE *rf) {
         }
     }
     fprintf (rf, "\n");
+}
+
+bool PacketList::contextMenuActive()
+{
+    return ctx_column_ >= 0 ? true : false;
 }
 
 QString PacketList::getFilterFromRowAndColumn()
