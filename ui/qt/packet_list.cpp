@@ -49,6 +49,8 @@
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/models/pref_models.h>
 #include <ui/qt/widgets/packet_list_header.h>
+#include <ui/qt/utils/wireshark_mime_data.h>
+#include <ui/qt/widgets/drag_label.h>
 
 #include <QAction>
 #include <QActionGroup>
@@ -66,6 +68,7 @@
 #include <QTextEdit>
 #include <QTimerEvent>
 #include <QTreeWidget>
+#include <QWindow>
 
 #ifdef Q_OS_WIN
 #include "wsutil/file_util.h"
@@ -648,6 +651,30 @@ void PacketList::mousePressEvent (QMouseEvent *event)
     setAutoScroll(false);
     QTreeView::mousePressEvent(event);
     setAutoScroll(true);
+
+    QModelIndex curIndex = indexAt(event->pos());
+    ctx_column_ = curIndex.column();
+    QString filter = getFilterFromRowAndColumn();
+    if ( ! filter.isEmpty() )
+    {
+        QString abbrev = filter.left(filter.indexOf(' '));
+        QString name = model()->headerData(ctx_column_, header()->orientation()).toString();
+
+        DisplayFilterMimeData * dfmd =
+                new DisplayFilterMimeData(name, abbrev, filter);
+        QDrag * drag = new QDrag(this);
+        drag->setMimeData(dfmd);
+
+        DragLabel * content = new DragLabel(dfmd->labelText(), this);
+        qreal dpr = window()->windowHandle()->devicePixelRatio();
+        QPixmap pixmap(content->size() * dpr);
+        pixmap.setDevicePixelRatio(dpr);
+        content->render(&pixmap);
+        drag->setPixmap(pixmap);
+
+        drag->exec(Qt::CopyAction);
+    }
+
 }
 
 void PacketList::resizeEvent(QResizeEvent *event)
