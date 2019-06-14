@@ -171,11 +171,14 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
 #define WSLUA_OPTARG_DissectorTable_new_BASE 4 /* Either `base.NONE`, `base.DEC`, `base.HEX`,
                                                   `base.OCT`, `base.DEC_HEX` or `base.HEX_DEC`
                                                   (defaults to `base.DEC`). */
+#define WSLUA_OPTARG_DissectorTable_new_PROTO 5 /* The protocol that uses this dissector table
+                                                   (a Proto object). */
     const gchar* name = (const gchar*)luaL_checkstring(L,WSLUA_ARG_DissectorTable_new_TABLENAME);
     const gchar* ui_name = (const gchar*)luaL_optstring(L,WSLUA_OPTARG_DissectorTable_new_UINAME,name);
     enum ftenum type = (enum ftenum)luaL_optinteger(L,WSLUA_OPTARG_DissectorTable_new_TYPE,FT_UINT32);
     unsigned base = (unsigned)luaL_optinteger(L,WSLUA_OPTARG_DissectorTable_new_BASE,BASE_DEC);
     DissectorTable dt;
+    int proto_id = -1;
 
     switch(type) {
         case FT_STRING:
@@ -202,11 +205,14 @@ WSLUA_CONSTRUCTOR DissectorTable_new (lua_State *L) {
 
     dt = (DissectorTable)g_malloc(sizeof(struct _wslua_distbl_t));
 
-    /* XXX - can't determine dependencies of Lua protocols
-       if they don't provide protocol name */
+    if (isProto(L, WSLUA_OPTARG_DissectorTable_new_PROTO)) {
+        Proto proto = checkProto(L, WSLUA_OPTARG_DissectorTable_new_PROTO);
+        proto_id = proto_get_id_by_short_name(proto->name);
+    }
+
     dt->table = (type == FT_NONE) ?
-        register_decode_as_next_proto(-1, name, ui_name, NULL) :
-        register_dissector_table(name, ui_name, -1, type, base);
+        register_decode_as_next_proto(proto_id, name, ui_name, NULL) :
+        register_dissector_table(name, ui_name, proto_id, type, base);
     dt->name = g_strdup(name);
     dt->ui_name = g_strdup(ui_name);
     dt->created = TRUE;
