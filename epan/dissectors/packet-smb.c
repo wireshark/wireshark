@@ -1800,7 +1800,7 @@ unicode_to_str(tvbuff_t *tvb, int offset, int *us_lenp, gboolean exactlen,
  * bc: pointer to variable with amount of data left in the byte parameters
  *   region
  */
-const gchar *
+static const gchar *
 get_unicode_or_ascii_string(tvbuff_t *tvb, int *offsetp,
 			    gboolean useunicode, int *len, gboolean nopad, gboolean exactlen,
 			    guint16 *bcp)
