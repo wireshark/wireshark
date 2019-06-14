@@ -51,6 +51,7 @@ static gint hf_setup_hindex_xon_xoff = -1;
 static gint hf_setup_hindex_baud_high = -1;
 static gint hf_setup_hindex_baud_clock_divide = -1;
 static gint hf_setup_wlength = -1;
+static gint hf_response_lat_timer = -1;
 static gint hf_modem_status = -1;
 static gint hf_modem_status_fs_max_packet = -1;
 static gint hf_modem_status_hs_max_packet = -1;
@@ -87,6 +88,14 @@ static gint ett_line_status = -1;
 static expert_field ei_undecoded = EI_INIT;
 
 static dissector_handle_t ftdi_ft_handle;
+
+static wmem_tree_t *request_info = NULL;
+
+typedef struct _request_data {
+    guint32  bus_id;
+    guint32  device_address;
+    guint8   request;
+} request_data_t;
 
 #define REQUEST_RESET           0x00
 #define REQUEST_MODEM_CTRL      0x01
@@ -537,6 +546,17 @@ dissect_request_get_lat_timer(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset
 }
 
 static gint
+dissect_response_get_lat_timer(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, proto_tree *tree)
+{
+    gint offset_start = offset;
+
+    proto_tree_add_item(tree, hf_response_lat_timer, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    return offset - offset_start;
+}
+
+static gint
 dissect_modem_status_bytes(tvbuff_t *tvb, packet_info *pinfo _U_, gint offset, proto_tree *tree)
 {
     static const int *modem_status_bits[] = {
@@ -576,6 +596,10 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_tree       *main_tree;
     gint              offset = 0;
     usb_conv_info_t  *usb_conv_info = (usb_conv_info_t *)data;
+    request_data_t   *request_data = NULL;
+    wmem_tree_key_t   key[4];
+    guint32           k_bus_id;
+    guint32           k_device_address;
 
     if (!usb_conv_info)
     {
@@ -584,12 +608,25 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
     if (usb_conv_info->is_setup)
     {
-        /* This dissector can only process Vendor specific setup data */
-        if (usb_conv_info->setup_requesttype != 0x40)
+        /* This dissector can only process device Vendor specific setup data */
+        if ((USB_TYPE(usb_conv_info->setup_requesttype) != RQT_SETUP_TYPE_VENDOR) ||
+            (USB_RECIPIENT(usb_conv_info->setup_requesttype) != RQT_SETUP_RECIPIENT_DEVICE))
         {
             return offset;
         }
     }
+
+    k_bus_id = usb_conv_info->bus_id;
+    k_device_address = usb_conv_info->device_address;
+
+    key[0].length = 1;
+    key[0].key = &k_bus_id;
+    key[1].length = 1;
+    key[1].key = &k_device_address;
+    key[2].length = 1;
+    key[2].key = &pinfo->num;
+    key[3].length = 0;
+    key[3].key = NULL;
 
     main_item = proto_tree_add_item(tree, proto_ftdi_ft, tvb, offset, -1, ENC_NA);
     main_tree = proto_item_add_subtree(main_item, ett_ftdi_ft);
@@ -660,12 +697,43 @@ dissect_ftdi_ft(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             proto_tree_add_item(main_tree, hf_setup_wlength, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 2;
+
+            /* Record the request type so we can find it when dissecting response */
+            request_data = wmem_new(wmem_file_scope(), request_data_t);
+            request_data->bus_id = usb_conv_info->bus_id;
+            request_data->device_address = usb_conv_info->device_address;
+            request_data->request = brequest;
+            wmem_tree_insert32_array(request_info, key, request_data);
         }
         else
         {
+            /* Retrieve request type */
+            request_data = (request_data_t *)wmem_tree_lookup32_array_le(request_info, key);
+            if (request_data && request_data->bus_id == k_bus_id && request_data->device_address == k_device_address)
+            {
+                col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+                    val_to_str_ext_const(request_data->request, &request_vals_ext, "Unknown"));
+
+                switch (request_data->request)
+                {
+                case REQUEST_GET_MODEM_STAT:
+                    offset += dissect_modem_status_bytes(tvb, pinfo, offset, main_tree);
+                    break;
+                case REQUEST_GET_LAT_TIMER:
+                    offset += dissect_response_get_lat_timer(tvb, pinfo, offset, main_tree);
+                    break;
+                default:
+                    break;
+                }
+            }
+            else
+            {
+                col_append_str(pinfo->cinfo, COL_INFO, ": Unknown");
+            }
+
+            /* Report any potentially undissected response data */
             if (tvb_reported_length_remaining(tvb, offset) > 0)
             {
-                /* TODO: Dissect control data phase (GetModemStat, GetLatTimer) */
                 proto_tree_add_expert(main_tree, pinfo, &ei_undecoded, tvb, offset, -1);
             }
         }
@@ -788,7 +856,7 @@ proto_register_ftdi_ft(void)
         { &hf_setup_lvalue_latency_time,
           { "Latency Time", "ftdift.lValue",
             FT_UINT8, BASE_DEC, NULL, 0x0,
-            NULL, HFILL }
+            "Latency time in milliseconds", HFILL }
         },
         { &hf_setup_hvalue,
           { "hValue", "ftdift.hValue",
@@ -894,6 +962,11 @@ proto_register_ftdi_ft(void)
           { "wLength", "ftdift.wLength",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
+        },
+        { &hf_response_lat_timer,
+          { "Latency Time", "ftdift.latency_time",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            "Latency time in milliseconds", HFILL }
         },
         { &hf_modem_status,
           { "Modem Status", "ftdift.modem_status",
@@ -1022,6 +1095,8 @@ proto_register_ftdi_ft(void)
         &ett_modem_status,
         &ett_line_status,
     };
+
+    request_info = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
 
     proto_ftdi_ft = proto_register_protocol("FTDI FT USB", "FTDI FT", "ftdift");
     proto_register_field_array(proto_ftdi_ft, hf, array_length(hf));
