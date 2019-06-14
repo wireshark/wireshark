@@ -478,7 +478,6 @@ static int hf_smb2_transform_signature = -1;
 static int hf_smb2_transform_nonce = -1;
 static int hf_smb2_transform_msg_size = -1;
 static int hf_smb2_transform_reserved = -1;
-static int hf_smb2_encryption_aes128_ccm = -1;
 static int hf_smb2_transform_enc_alg = -1;
 static int hf_smb2_transform_encrypted_data = -1;
 static int hf_smb2_server_component_smb2 = -1;
@@ -609,7 +608,6 @@ static gint ett_smb2_full_directory_info = -1;
 static gint ett_smb2_file_name_info = -1;
 static gint ett_smb2_lock_info = -1;
 static gint ett_smb2_lock_flags = -1;
-static gint ett_smb2_transform_enc_alg = -1;
 static gint ett_smb2_buffercode = -1;
 static gint ett_smb2_ioctl_network_interface_capabilities = -1;
 static gint ett_qfr_entry = -1;
@@ -4608,6 +4606,11 @@ dissect_smb2_negotiate_context(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 			for (i = 0; i < cipher_count; i ++)
 			{
+				/* in SMB3.1.1 the first cipher returned by the server session encryption algorithm */
+				if (i == 0 && si && si->conv && (si->flags & SMB2_FLAGS_RESPONSE)) {
+					guint16 first_cipher = tvb_get_letohs(tvb, offset);
+					si->conv->enc_alg = first_cipher;
+				}
 				proto_tree_add_item(sub_tree, hf_smb2_cipher_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				offset += 2;
 			}
@@ -9226,7 +9229,137 @@ static smb2_function smb2_dissector[256] = {
 };
 
 
-#define ENC_ALG_aes128_ccm	0x0001
+#define SMB3_AES128CCM_NONCE	11
+#define SMB3_AES128GCM_NONCE	12
+
+static guint8*
+decrypt_smb_payload(packet_info *pinfo,
+		    tvbuff_t *tvb, int offset,
+		    int offset_aad,
+		    smb2_transform_info_t *sti)
+{
+	gcry_error_t err;
+	gcry_cipher_hd_t cipher_hd = NULL;
+	const guint8 *aad = NULL;
+	guint8 *data = NULL;
+	guint8 *key = NULL;
+	int mode;
+	int iv_size;
+	int aad_size;
+	guint64 lengths[3];
+
+	/* AAD is the rest of transform header after the ProtocolID and Signature */
+	aad_size = 32;
+
+	if ((unsigned)tvb_captured_length_remaining(tvb, offset) < sti->size)
+		return NULL;
+
+	if (tvb_captured_length_remaining(tvb, offset_aad) < aad_size)
+		return NULL;
+
+	if (pinfo->destport == sti->session->server_port)
+		key = sti->session->server_decryption_key;
+	else
+		key = sti->session->client_decryption_key;
+
+	if (memcmp(key, zeros, NTLMSSP_KEY_LEN) == 0)
+		key = NULL;
+
+	if (!key)
+		return NULL;
+
+	/*
+	 * In SMB3.0 the transform header had a Algorithm field to
+	 * know which type of encryption was used but only CCM was
+	 * supported.
+	 *
+	 * SMB3.1.1 turned that field into a generic "Encrypted" flag
+	 * which cannot be used to determine the encryption
+	 * type. Instead the type is decided in the NegProt response,
+	 * within the Encryption Capability context which should only
+	 * have one element. That element is saved in the conversation
+	 * struct (si->conv) and checked here.
+	 */
+
+	/* g_warning("dialect 0x%x alg 0x%x conv alg 0x%x", sti->conv->dialect, sti->alg, sti->conv->enc_alg); */
+
+	if (sti->conv->dialect == 0x300) {
+		/* If we are decrypting in SMB3.0, it must be CCM */
+		sti->conv->enc_alg = SMB2_CIPHER_AES_128_CCM;
+	}
+
+	switch (sti->conv->enc_alg) {
+	case SMB2_CIPHER_AES_128_CCM:
+#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
+		mode = GCRY_CIPHER_MODE_CCM;
+		iv_size = SMB3_AES128CCM_NONCE;
+#else
+		/* g_warning("GCRY: CCM decryption requires gcrypt >= 1.6.0"); */
+		return NULL;
+#endif
+		break;
+	case SMB2_CIPHER_AES_128_GCM:
+		mode = GCRY_CIPHER_MODE_GCM;
+		iv_size = SMB3_AES128GCM_NONCE;
+		break;
+	default:
+		return NULL;
+	}
+
+	/* Open the cipher */
+	if ((err = gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, mode, 0))) {
+		/* g_warning("GCRY: open %s/%s\n", gcry_strsource(err), gcry_strerror(err)); */
+		return NULL;
+	}
+
+	/* Set the key */
+	if ((err = gcry_cipher_setkey(cipher_hd, key, NTLMSSP_KEY_LEN))) {
+		/* g_warning("GCRY: setkey %s/%s\n", gcry_strsource(err), gcry_strerror(err)); */
+		gcry_cipher_close(cipher_hd);
+		return NULL;
+	}
+
+	/* Set the initial value */
+	if ((err = gcry_cipher_setiv(cipher_hd, sti->nonce, iv_size))) {
+		/* g_warning("GCRY: setiv %s/%s\n", gcry_strsource(err), gcry_strerror(err)); */
+		gcry_cipher_close(cipher_hd);
+		return NULL;
+	}
+
+	aad = tvb_get_ptr(tvb, offset_aad, aad_size);
+
+	lengths[0] = sti->size; /* encrypted length */
+	lengths[1] = aad_size; /* AAD length */
+	lengths[2] = 16; /* tag length (signature size) */
+
+#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
+	if (mode == GCRY_CIPHER_MODE_CCM) {
+		if ((err = gcry_cipher_ctl(cipher_hd, GCRYCTL_SET_CCM_LENGTHS, lengths, sizeof(lengths)))) {
+			/* g_warning("GCRY: ctl %s/%s\n", gcry_strsource(err), gcry_strerror(err)); */
+			gcry_cipher_close(cipher_hd);
+			return NULL;
+		}
+	}
+#endif
+
+	if ((err = gcry_cipher_authenticate(cipher_hd, aad, aad_size))) {
+		/* g_warning("GCRY: auth %s/%s\n", gcry_strsource(err), gcry_strerror(err)); */
+		gcry_cipher_close(cipher_hd);
+		return NULL;
+	}
+
+	data = (guint8 *)tvb_memdup(pinfo->pool, tvb, offset, sti->size);
+
+	if ((err = gcry_cipher_decrypt(cipher_hd, data, sti->size, NULL, 0))) {
+		/* g_warning("GCRY: decrypt %s/%s\n", gcry_strsource(err), gcry_strerror(err)); */
+		gcry_cipher_close(cipher_hd);
+		return NULL;
+	}
+
+	/* Done with the cipher */
+	gcry_cipher_close(cipher_hd);
+	return data;
+}
 
 static int
 dissect_smb2_transform_header(packet_info *pinfo, proto_tree *tree,
@@ -9238,12 +9371,7 @@ dissect_smb2_transform_header(packet_info *pinfo, proto_tree *tree,
 	proto_tree        *sesid_tree     = NULL;
 	int                sesid_offset;
 	guint8            *plain_data     = NULL;
-	guint8            *decryption_key = NULL;
-
-	static const int *sf_fields[] = {
-		&hf_smb2_encryption_aes128_ccm,
-		NULL
-	};
+	int                offset_aad;
 
 	*enc_tvb = NULL;
 	*plain_tvb = NULL;
@@ -9251,6 +9379,8 @@ dissect_smb2_transform_header(packet_info *pinfo, proto_tree *tree,
 	/* signature */
 	proto_tree_add_item(tree, hf_smb2_transform_signature, tvb, offset, 16, ENC_NA);
 	offset += 16;
+
+	offset_aad = offset;
 
 	/* nonce */
 	proto_tree_add_item(tree, hf_smb2_transform_nonce, tvb, offset, 16, ENC_NA);
@@ -9267,7 +9397,7 @@ dissect_smb2_transform_header(packet_info *pinfo, proto_tree *tree,
 	offset += 2;
 
 	/* enc algorithm */
-	proto_tree_add_bitmask(tree, tvb, offset, hf_smb2_transform_enc_alg, ett_smb2_transform_enc_alg, sf_fields, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_smb2_transform_enc_alg, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	sti->alg = tvb_get_letohs(tvb, offset);
 	offset += 2;
 
@@ -9282,61 +9412,7 @@ dissect_smb2_transform_header(packet_info *pinfo, proto_tree *tree,
 	sti->session = smb2_get_session(sti->conv, sti->sesid, NULL, NULL);
 	smb2_add_session_info(sesid_tree, tvb, sesid_offset, sti->session);
 
-	if (sti->alg == ENC_ALG_aes128_ccm) {
-		if (pinfo->destport == sti->session->server_port) {
-			decryption_key = sti->session->server_decryption_key;
-		} else {
-			decryption_key = sti->session->client_decryption_key;
-		}
-
-		if (memcmp(decryption_key, zeros, NTLMSSP_KEY_LEN) == 0) {
-			decryption_key = NULL;
-		}
-	}
-
-	if (decryption_key != NULL) {
-		gcry_cipher_hd_t cipher_hd = NULL;
-		guint8 A_1[NTLMSSP_KEY_LEN] = {
-			3, 0, 0, 0, 0, 0, 0, 0,
-			0, 0, 0, 0, 0, 0, 0, 1
-		};
-
-		memcpy(&A_1[1], sti->nonce, 15 - 4);
-
-		plain_data = (guint8 *)tvb_memdup(pinfo->pool, tvb, offset, sti->size);
-
-		/* Open the cipher. */
-		if (gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CTR, 0)) {
-			wmem_free(pinfo->pool, plain_data);
-			plain_data = NULL;
-			goto done_decryption;
-		}
-
-		/* Set the key and initial value. */
-		if (gcry_cipher_setkey(cipher_hd, decryption_key, NTLMSSP_KEY_LEN)) {
-			gcry_cipher_close(cipher_hd);
-			wmem_free(pinfo->pool, plain_data);
-			plain_data = NULL;
-			goto done_decryption;
-		}
-		if (gcry_cipher_setctr(cipher_hd, A_1, NTLMSSP_KEY_LEN)) {
-			gcry_cipher_close(cipher_hd);
-			wmem_free(pinfo->pool, plain_data);
-			plain_data = NULL;
-			goto done_decryption;
-		}
-
-		if (gcry_cipher_encrypt(cipher_hd, plain_data, sti->size, NULL, 0)) {
-			gcry_cipher_close(cipher_hd);
-			wmem_free(pinfo->pool, plain_data);
-			plain_data = NULL;
-			goto done_decryption;
-		}
-
-		/* Done with the cipher. */
-		gcry_cipher_close(cipher_hd);
-	}
-done_decryption:
+	plain_data = decrypt_smb_payload(pinfo, tvb, offset, offset_aad, sti);
 	*enc_tvb = tvb_new_subset_length(tvb, offset, sti->size);
 
 	if (plain_data != NULL) {
@@ -11889,12 +11965,7 @@ proto_register_smb2(void)
 
 		{ &hf_smb2_transform_enc_alg,
 			{ "Encryption ALG", "smb2.header.transform.encryption_alg", FT_UINT16, BASE_HEX,
-			NULL, 0, NULL, HFILL }
-		},
-
-		{ &hf_smb2_encryption_aes128_ccm,
-			{ "SMB2_ENCRYPTION_AES128_CCM", "smb2.header.transform.enc_aes128_ccm", FT_BOOLEAN, 16,
-			NULL, ENC_ALG_aes128_ccm, NULL, HFILL }
+			  VALS(smb2_cipher_types), 0, NULL, HFILL }
 		},
 
 		{ &hf_smb2_transform_encrypted_data,
@@ -12170,7 +12241,6 @@ proto_register_smb2(void)
 		&ett_smb2_aapl_create_context_response,
 		&ett_smb2_aapl_server_query_volume_caps,
 		&ett_smb2_integrity_flags,
-		&ett_smb2_transform_enc_alg,
 		&ett_smb2_buffercode,
 		&ett_smb2_ioctl_network_interface_capabilities,
 		&ett_qfr_entry,

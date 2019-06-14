@@ -103,6 +103,7 @@ typedef struct _smb2_conv_info_t {
 	/* table to store some infos for smb export object */
 	GHashTable *files;
 	guint16 dialect;
+	guint16 enc_alg;
 
 	/* preauth hash before session setup */
 	guint8 *preauth_hash_current;

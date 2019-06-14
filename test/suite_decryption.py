@@ -1107,3 +1107,17 @@ class case_decrypt_smb2(subprocesstest.SubprocessTestCase):
                 '-Y', 'smb2.tree == "{}"'.format(tree.replace('\\', '\\\\')),
         ))
         self.assertEqual(tree, proc.stdout_str.strip())
+
+    def test_smb311_aes128gcm(self, cmd_tshark, capture_file):
+        '''Check SMB 3.1.1 AES128GCM decryption.'''
+        sesid = '3900000000400000'
+        seskey = 'e79161ded03bda1449b2c8e58f753953'
+        tree = r'\\dfsroot1.foo.test\IPC$'
+        proc = self.assertRun((cmd_tshark,
+                '-r', capture_file('smb311-aes-128-gcm.pcap.gz'),
+                '-o', 'uat:smb2_seskey_list:{},{}'.format(sesid, seskey),
+                '-Tfields',
+                '-e', 'smb2.tree',
+                '-Y', 'smb2.tree == "{}"'.format(tree.replace('\\', '\\\\')),
+        ))
+        self.assertEqual(tree, proc.stdout_str.strip())
