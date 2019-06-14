@@ -520,6 +520,7 @@ static int hf_smb_nt_qsd_dacl = -1;
 static int hf_smb_nt_qsd_sacl = -1;
 static int hf_smb_extended_attributes = -1;
 static int hf_smb_oplock_level = -1;
+static int hf_smb_response_type = -1;
 static int hf_smb_create_action = -1;
 static int hf_smb_file_id = -1;
 static int hf_smb_file_id_64bit = -1;
@@ -8656,6 +8657,12 @@ static const value_string oplock_level_vals[] = {
 	{0, NULL}
 };
 
+static const value_string response_type_vals[] = {
+	{0x00,	"Non-extended response"},
+	{0x01,	"Extended response"},
+	{0, NULL}
+};
+
 static const value_string device_type_vals[] = {
 	{0x00000001,	"Beep"},
 	{0x00000002,	"CDROM"},
@@ -9724,9 +9731,9 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 	        proto_tree_add_item(tree, hf_smb_oplock_level, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
-		/* reserved byte */
+		/* response type, as per MS-SMB 2.2.7.1.2 */
 		ext_resp = tvb_get_guint8(tvb, offset);
-	        proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, ENC_NA);
+	        proto_tree_add_item(tree, hf_smb_response_type, tvb, offset, 1, ENC_NA);
 		offset += 1;
 
 		/* fid */
@@ -20142,6 +20149,10 @@ proto_register_smb(void)
 	{ &hf_smb_oplock_level,
 		{ "Oplock level", "smb.oplock.level", FT_UINT8, BASE_DEC,
 		VALS(oplock_level_vals), 0, "Level of oplock granted", HFILL }},
+
+	{ &hf_smb_response_type,
+		{ "Response type", "smb.response_type", FT_UINT8, BASE_HEX,
+		VALS(response_type_vals), 0, "NT Transaction Create response type", HFILL }},
 
 	{ &hf_smb_create_action,
 		{ "Create action", "smb.create.action", FT_UINT32, BASE_DEC,
