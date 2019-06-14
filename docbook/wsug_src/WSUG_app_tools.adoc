@@ -9,9 +9,9 @@
 
 === Introduction
 
-Along with the main application, Wireshark comes with an array of
-command line tools which can be helpful for specialized tasks. Some of
-these tools will be described in this chapter. You can find more
+Wireshark comes with an array of
+command line tools which can be helpful for packet analysis. Some of
+these tools are described in this chapter. You can find more
 information about all of Wireshark’s command line tools on
 link:{wireshark-man-page-url}[the web site].
 
@@ -43,7 +43,7 @@ Older versions of `tcpdump` truncate packets to 68 or 96 bytes. If this is the c
 use `-s` to capture full-sized packets:
 
 ----
-$ tcpdump -i <interface> -s 65535 -w <some-file>
+$ tcpdump -i <interface> -s 65535 -w <file>
 ----
 
 You will have to specify the correct _interface_ and the name of a _file_ to
@@ -63,8 +63,8 @@ Dumpcap is a network traffic dump tool. It captures packet data from a live
 network and writes the packets to a file. Dumpcap’s native capture file format
 is pcapng, which is also the format used by Wireshark.
 
-Without any options set it will use the pcap library to capture traffic
-from the first available network interface and write the received raw
+By default, Dumpcap uses the pcap library to capture traffic
+from the first available network interface and writes the received raw
 packet data, along with the packets’ time stamps into a pcapng file. The
 capture filter syntax follows the rules of the pcap library. For more
 information on `dumpcap` consult your local manual page (`man dumpcap`)
@@ -144,7 +144,7 @@ include::editcap-T.txt[]
 === __mergecap__: Merging multiple capture files into one
 
 Mergecap is a program that combines multiple saved capture files into a single
-output file specified by the `-w` argument. Mergecap knows how to read libpcap
+output file specified by the `-w` argument. Mergecap can read libpcap
 capture files, including those of tcpdump. In addition, Mergecap can read
 capture files from snoop (including Shomiti) and atmsnoop, LanAlyzer, Sniffer
 (compressed or uncompressed), Microsoft Network Monitor, AIX’s iptrace, NetXray,
@@ -155,9 +155,9 @@ type by itself. Mergecap is also capable of reading any of these file formats if
 they are compressed using `gzip`. Mergecap recognizes this directly from the
 file; the “.gz” extension is not required for this purpose.
 
-By default, it writes the capture file in pcapng format, and writes all of the
-packets in the input capture files to the output file. The `-F` flag can be used
-to specify the format in which to write the capture file; it can write the file
+By default, Mergecap writes all of the packets in the input capture files to a
+pcapng file. The `-F` flag can be used
+to specify the capture file's output format ; it can write the file
 in libpcap format (standard libpcap format, a modified format used by some
 patched versions of libpcap, the format used by Red Hat Linux 6.1, or the format
 used by SuSE Linux 6.3), snoop format, uncompressed Sniffer format, Microsoft

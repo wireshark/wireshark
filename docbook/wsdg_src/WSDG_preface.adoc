@@ -71,9 +71,8 @@ It is written in AsciiDoc.
 
 === Where to get the latest copy of this document?
 
-The latest copy of this documentation can always be found at:
-{wireshark-developers-guide-url} in A4 PDF, US letter PDF, single HTML,
-and chunked HTML.
+The latest copy of this documentation can always be found at
+{wireshark-developers-guide-url}.
 
 [[PreFeedback]]
 

@@ -36,8 +36,8 @@ These statistics range from general information about the loaded capture file
 [NOTE]
 ====
 The protocol specific statistics require detailed knowledge about the specific
-protocol. Unless you are familiar with that protocol, statistics about it will
-be pretty hard to understand.
+protocol. Unless you are familiar with that protocol, statistics about it may
+be difficult to understand.
 ====
 
 Wireshark has many other statistics windows that display detailed
@@ -388,12 +388,12 @@ different) compared to the following description.
 The service response time of DCE-RPC is the time between the request and the
 corresponding response.
 
-First of all, you have to select the DCE-RPC interface:
+First, you have to select the DCE-RPC interface:
 
 .The “Compute DCE-RPC statistics” window
 image::wsug_graphics/ws-stats-srt-dcerpc-filter.png[{screenshot-attrs}]
 
-You can optionally set a display filter, to reduce the amount of packets.
+You can optionally set a display filter to reduce the number of packets.
 
 .The “DCE-RPC Statistic for ...” window
 image::wsug_graphics/ws-stats-srt-dcerpc.png[{screenshot-attrs}]

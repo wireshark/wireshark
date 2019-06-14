@@ -15,7 +15,7 @@ can be used to write dissectors, taps, and capture file readers
 and writers.
 
 Wireshark’s Lua interpreter starts by loading a file named `init.lua` from
-Wireshark's link:{wireshark-users-guide-url}wsug_html_chunked/ChAppFilesConfigurationSection.html[_global configuration directory_].
+Wireshark's link:{wireshark-users-guide-url}ChAppFilesConfigurationSection.html[_global configuration directory_].
 The _global configuration directory_'s `init.lua` controls whether or not Lua
 scripts are enabled via the
 _$$enable_lua$$_ variable. Lua scripts are enabled by
@@ -26,9 +26,9 @@ _$$disable_lua$$_ are present, _$$disable_lua$$_ is ignored.
 
 If Lua is enabled, Wireshark will try to load a file named `init.lua`
 from the user’s
-link:{wireshark-users-guide-url}wsug_html_chunked/ChAppFilesConfigurationSection.html[_personal configuration directory_]
+link:{wireshark-users-guide-url}ChAppFilesConfigurationSection.html[_personal configuration directory_]
 and all files ending with _.lua_ in the global and the personal
-link:{wireshark-users-guide-url}wsug_html_chunked/ChPluginFolders.html[_plugins directory_].
+link:{wireshark-users-guide-url}ChPluginFolders.html[_plugins directory_].
 
 The command line option _$$-X lua_script:$$++file.lua++_ can also be used to load
 specific Lua scripts.

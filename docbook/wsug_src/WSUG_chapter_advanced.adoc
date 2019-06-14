@@ -15,7 +15,7 @@ This chapter will describe some of Wireshark’s advanced features.
 
 === [[ChAdvFollowTCPSection]]Following Protocol Streams [[ChAdvFollowStreamSection]]
 
-It can be very helpful to see protocol in the way that the application
+It can be very helpful to see a protocol in the way that the application
 layer sees it. Perhaps you are looking for passwords in a Telnet stream,
 or you are trying to make sense of a data stream. Maybe you just need a
 display filter to show only the packets in a TLS or SSL stream. If so,

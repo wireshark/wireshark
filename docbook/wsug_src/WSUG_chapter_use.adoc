@@ -8,7 +8,7 @@
 
 === Introduction
 
-By now you have installed Wireshark and are most likely keen to get started
+By now you have installed Wireshark and are likely keen to get started
 capturing your first packets. In the next chapters we will explore:
 
 * How the Wireshark user interface works
@@ -55,8 +55,8 @@ other GUI programs.
 . The _menu_ (see <<ChUseMenuSection>>) is used to start actions.
 . The _main toolbar_ (see <<ChUseMainToolbarSection>>) provides quick access to
   frequently used items from the menu.
-. The _filter toolbar_ (see <<ChUseFilterToolbarSection>>) provides a way to
-  directly manipulate the currently used display filter (see
+. The _filter toolbar_ (see <<ChUseFilterToolbarSection>>) allows users to
+  set _display filters_ to filter which packets are displayed (see
   <<ChWorkDisplayFilterSection>>).
 . The _packet list pane_ (see <<ChUsePacketListPaneSection>>) displays a summary
   of each packet captured. By clicking on packets in this pane you control what is
@@ -169,7 +169,7 @@ including a media analysis, flow diagrams, display protocol hierarchy statistics
 and much more. See <<ChUseTelephonyMenuSection>>.
 
 menu:Wireless[]::
-The items in this menu show Bluetooth and IEEE 802.11 wireless statistics.
+This menu contains items to display Bluetooth and IEEE 802.11 wireless statistics.
 
 menu:Tools[]::
 This menu contains various tools available in Wireshark, such as creating
@@ -537,7 +537,7 @@ image::wsug_graphics/ws-analyze-menu.png[{screenshot-attrs}]
 [options="header",cols="3,2,5"]
 |===============
 |Menu Item|Accelerator|Description
-|menu:Display Filters...[]          ||This menu item brings up a dialog box that allows you to create and edit display filters. You can name filters, and you can save them for future use. More detail on this subject is provided in <<ChWorkDefineFilterSection>>
+|menu:Display Filters...[]          ||This menu item displays a dialog box that allows you to create and edit display filters. You can name filters, and you can save them for future use. More detail on this subject is provided in <<ChWorkDefineFilterSection>>
 |menu:Display Filter Macros...[]    ||This menu item brings up a dialog box that allows you to create and edit display filter macros. You can name filter macros, and you can save them for future use. More detail on this subject is provided in <<ChWorkDefineFilterMacrosSection>>
 |menu:Apply as Column[]             ||This menu item adds the selected protocol item in the packet details pane as a column to the packet list.
 |menu:Apply as Filter[...]          ||These menu items will change the current display filter and apply the changed filter immediately. Depending on the chosen menu item, the current display filter string will be replaced or appended to by the selected protocol field in the packet details pane.

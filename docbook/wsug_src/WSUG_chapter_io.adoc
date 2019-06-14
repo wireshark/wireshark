@@ -129,7 +129,7 @@ Specific for this dialog:
 
 The following file formats from other capture tools can be opened by Wireshark:
 
-* pcapng. A flexible, etensible successor to the libpcap format. Wireshark 1.8 and later
+* pcapng. A flexible, extensible successor to the libpcap format. Wireshark 1.8 and later
   save files as pcapng by default. Versions prior to 1.8 used libpcap.
 
 * libpcap. The default format used by the _libpcap_ packet capture library. Used
@@ -307,7 +307,7 @@ time stamp accuracy; see the <<ChAdvTimestamps>> for details.
 
 The following file formats can be saved by Wireshark (with the known file extensions):
 
-* pcapng ({asterisk}.pcapng). A flexible, etensible successor to the
+* pcapng ({asterisk}.pcapng). A flexible, extensible successor to the
   libpcap format. Wireshark 1.8 and later save files as pcapng by
   default. Versions prior to 1.8 used libpcap.
 

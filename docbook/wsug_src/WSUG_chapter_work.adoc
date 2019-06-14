@@ -1008,7 +1008,7 @@ with black background, regardless of the coloring rules set. Marking a packet
 can be useful to find it later while analyzing in a large capture file.
 
 The packet marks are not stored in the capture file or anywhere else. All
-packet marks will be lost when you close the capture file.
+packet marks will be lost when the capture file is closed.
 
 You can use packet marking to control the output of packets when saving,
 exporting, or printing. To do so, an option in the packet range is available,

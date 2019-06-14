@@ -67,7 +67,7 @@ The following methods can be used to start capturing packets with Wireshark:
   btn:[Start] button.
 
 * You can immediately start a capture using your current settings by selecting
-  menu:Capture[Start] or by cliking the first toolbar button.
+  menu:Capture[Start] or by clicking the first toolbar button.
 
 * If you already know the name of the capture interface you can start Wireshark
   from the command line:
@@ -399,7 +399,7 @@ captured for each packet, and is sometimes referred to as the _snaplen_. If
 disabled the value is set to the maximum 65535 which will be sufficient for
 most protocols. Some rules of thumb:
 
-* If you are unsure just keep the default value.
+* If you are unsure, keep the default value.
 
 * If you don’t need or don’t want all of the data in a packet - for example, if
   you only need the link-layer, IP, and TCP headers - you might want to choose a
@@ -430,7 +430,9 @@ associated to.
 ====
 
 _Capture Filter_::
-This field allows you to specify a capture filter. Capture filters are discussed
+This field allows you to specify a capture filter. Capture filters can be
+used to limit which packets are captured from the interface(s).
+Capture filters are discussed
 in more details in <<ChCapCaptureFilterSection>>. It defaults to empty, or no
 filter.
 +
@@ -660,7 +662,7 @@ one of the “Multiple files” options. This will spread the captured packets o
 several smaller files which can be much more pleasant to work with.
 ====
 
-Using Multiple files may cut context related information. Wireshark keeps
+Using the “Multiple files” option may cut context related information. Wireshark keeps
 context information of the loaded packet data, so it can report context related
 problems (like a stream error) and keeps information about context related
 protocols (e.g. where data is exchanged at the establishing phase and only
@@ -710,7 +712,7 @@ _Multiple files, ring buffer_::
 
 === Link-layer header type
 
-In most cases you won’t have to modify link-layer header type. Some exceaptions
+In most cases you won’t have to modify link-layer header type. Some exceptions
 are as follows:
 
 If you are capturing on an Ethernet device you might be offered a choice of
@@ -740,10 +742,12 @@ to be read by an application that doesn’t support SunATM headers, select “RF
 
 === Filtering while capturing
 
-Wireshark uses the libpcap filter language for capture filters. A brief
-overview of the syntax follows. Complete documentation can be found in
+Wireshark supports limiting the packet capture to packets that match a
+_capture filter_. Wireshark capture filters are written in
+libpcap filter language. Below is a brief overview of the libpcap filter
+language's syntax. Complete documentation can be found at
 the link:{pcap-filter-man-page-url}[pcap-filter man page]. You can find
-a lot of Capture Filter examples at {wireshark-wiki-url}CaptureFilters.
+many Capture Filter examples at {wireshark-wiki-url}CaptureFilters.
 
 You enter the capture filter into the “Filter” field of the Wireshark
 “Capture Options” dialog box, as shown in <<ChCapCaptureOptionsDialog>>.

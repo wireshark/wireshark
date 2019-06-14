@@ -488,7 +488,7 @@ backtrace
 
 If you do not have _gdb_ available, you will have to check out your operating system’s debugger.
 
-Mail _backtrace.txt_ to mailto:{wireshark-dev-list-email}[].
+Email _backtrace.txt_ to mailto:{wireshark-dev-list-email}[].
 
 ==== Reporting Crashes on Windows platforms
 

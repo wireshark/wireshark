@@ -157,7 +157,7 @@ discarded so a new file can be written.
 +
 If the optional <command>duration</command> is specified, Wireshark will also
 switch to the next file when the specified number of seconds has elapsed even
-if the current file is not completely fills up.
+if the current file is not completely filled up.
 +
 --
     duration</command>:value::
@@ -565,7 +565,7 @@ Disabling a protocol will prevent information about higher-layer protocols from
 being displayed. For example, suppose you disabled the IP protocol and selected
 a packet containing Ethernet, IP, TCP, and HTTP information. The Ethernet
 information would be displayed, but the IP, TCP and HTTP information would not -
-disabling IP would prevent it and the other protocols from being displayed.
+disabling IP would prevent it and the higher-layer protocols from being displayed.
 ====
 
 To enable or disable protocols select menu:Analyze[Enabled Protocols...].
@@ -953,7 +953,7 @@ certain pieces of information. In many cases, they are used in an extension
 mechanism so that new object identifiers (and associated values) may be defined
 without needing to change the base standard.
 
-Whilst Wireshark has knowledge about many of the OIDs and the syntax of their
+While Wireshark has knowledge about many of the OIDs and the syntax of their
 associated values, the extensibility means that other values may be encountered.
 
 Wireshark uses this table to allow the user to define the name and syntax of

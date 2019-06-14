@@ -15,19 +15,19 @@ and skip the rest of this chapter.
 
 If you are running another operating system such as Linux or FreeBSD you might
 want to install from source. Several Linux distributions offer Wireshark
-packages but they commonly ship out-of-date versions. No other versions of UNIX
+packages but they commonly provide out-of-date versions. No other versions of UNIX
 ship Wireshark so far. For that reason, you will need to know where to get the
 latest version of Wireshark and how to install it.
 
 This chapter shows you how to obtain source and binary packages and how to
 build Wireshark from source should you choose to do so.
 
-The following are the general steps you would use:
+The general steps are the following:
 
 . Download the relevant package for your needs, e.g. source or binary
   distribution.
 
-. Compile the source into a binary if needed.
+. For source distributions, compile the source into a binary.
   This may involve building and/or installing other necessary packages.
 
 . Install the binaries into their final destinations.
@@ -44,14 +44,12 @@ select the desired binary or source package.
 .Download all required files
 ====
 If you are building Wireshark from source you will
-In general, unless you have already downloaded Wireshark before, you will most
-likely need to download several source packages if you are building Wireshark
-from source. This is covered in more detail below.
+likely need to download several other dependencies.
+This is covered in detail below.
 
 // Make a ref
 ====
 
-Once you have downloaded the relevant files, you can go on to the next step.
 
 //
 // Windows
@@ -182,24 +180,20 @@ Running the installer without any parameters shows the normal interactive instal
 
 ==== Manual Npcap Installation
 
-As mentioned above, the Wireshark installer takes care of installing Npcap.
-The following is only necessary if you want to use a different version than the
-one included in the Wireshark installer, e.g. because a new Npcap version was
-released.
-
-Additional Npcap versions (including newer alpha or beta releases) can
-be downloaded from the main Npcap site at {npcap-main-url}. The
-_Installer for Windows_ supports modern Windows operating systems.
+As mentioned above, the Wireshark installer also installs Npcap.
+If you prefer to install Npcap manually or want to use a different version than the
+one included in the Wireshark installer, you can download Npcap from
+the main Npcap site at {npcap-main-url}.
 
 [[ChBuildInstallWinWiresharkUpdate]]
 
 ==== Update Wireshark
 
-By default the offical Windows package will check for new versions and notify
+The offical Wireshark Windows package will check for new versions and notify
 you when they are available. If you have the _Check for updates_ preference
 disabled or if you run Wireshark in an isolated environment you should subcribe
-to the _wireshark-announce_ mailing list. See <<ChIntroMailingLists>> for
-details on subscribing to this list.
+to the _wireshark-announce_ mailing list to be notified of new versions.
+See <<ChIntroMailingLists>> for details on subscribing to this list.
 
 New versions of Wireshark are usually released every four to six weeks. Updating
 Wireshark is done the same way as installing it. Simply download and start the
@@ -210,7 +204,8 @@ remain unchanged.
 
 ==== Update Npcap
 
-New versions of Npcap. You will find Npcap update instructions the Npcap web
+Wireshark updates may also include a new version of Npcap.
+Manual Npcap updates instructions can be found on the Npcap web
 site at {npcap-main-url}. You may have to reboot your machine after installing
 a new Npcap version.
 
@@ -222,8 +217,8 @@ You can uninstall Wireshark using the _Programs and Features_ control panel.
 Select the “Wireshark” entry to start the uninstallation procedure.
 
 The Wireshark uninstaller provides several options for removal. The default is
-to remove the core components but keep your personal settings.
-Npcap is left installed by default in case other programs need it.
+to remove the core components but keep your personal settings and Npcap.
+Npcap is kept in case other programs need it.
 
 [[ChBuildInstallNpcapUninstall]]
 
@@ -232,6 +227,20 @@ Npcap is left installed by default in case other programs need it.
 You can uninstall Npcap independently of Wireshark using the _Npcap_ entry
 in the _Programs and Features_ control panel. Remember that if you uninstall
 Npcap you won’t be able to capture anything with Wireshark.
+
+[[ChBuildInstallWinBuild]]
+
+=== Building from source under Windows
+
+We strongly recommended using the binary installer for Windows unless you
+want to start developing Wireshark on the Windows platform.
+
+For further information how to build Wireshark for Windows from the sources
+see the Developer’s Guide at {wireshark-developers-guide-url}.
+
+You may also want to have a look at the Development Wiki
+({wireshark-wiki-url}Development) for the latest available development
+documentation.
 
 //
 // macOS
@@ -417,20 +426,6 @@ If you cannot determine what the problems are, send an email to the
 _wireshark-dev_ mailing list explaining your problem. Include the output from
 `cmake` and anything else you think is relevant such as a trace of the
 `make` stage.
-
-[[ChBuildInstallWinBuild]]
-
-=== Building from source under Windows
-
-We strongly recommended that you use the binary installer for Windows unless you
-want to start developing Wireshark on the Windows platform.
-
-For further information how to build Wireshark for Windows from the sources
-see the Developer’s Guide at {wireshark-developers-guide-url}.
-
-You may also want to have a look at the Development Wiki
-({wireshark-wiki-url}Development) for the latest available development
-documentation.
 
 // End of WSUG Chapter 2
 
