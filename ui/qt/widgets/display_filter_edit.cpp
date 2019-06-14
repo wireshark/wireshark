@@ -615,19 +615,19 @@ void DisplayFilterEdit::createFilterTextDropMenu(QDropEvent *event, QString filt
 
     QMenu applyMenu(this);
 
-    QAction * andAction = new QAction(tr("...and selected"));
+    QAction * andAction = new QAction(tr("...and selected"), this);
     andAction->setData(QString("&& %1").arg(filterText));
     connect(andAction, &QAction::triggered, this, &DisplayFilterEdit::dropActionMenuEvent);
 
-    QAction * orAction = new QAction(tr("...or selected"));
+    QAction * orAction = new QAction(tr("...or selected"), this);
     orAction->setData(QString("|| %1").arg(filterText));
     connect(orAction, &QAction::triggered, this, &DisplayFilterEdit::dropActionMenuEvent);
 
-    QAction * andNotAction = new QAction(tr("...and not selected"));
+    QAction * andNotAction = new QAction(tr("...and not selected"), this);
     andNotAction->setData(QString("&& !(%1)").arg(filterText));
     connect(andNotAction, &QAction::triggered, this, &DisplayFilterEdit::dropActionMenuEvent);
 
-    QAction * orNotAction = new QAction(tr("...or not selected"));
+    QAction * orNotAction = new QAction(tr("...or not selected"), this);
     orNotAction->setData(QString("|| !(%1)").arg(filterText));
     connect(orNotAction, &QAction::triggered, this, &DisplayFilterEdit::dropActionMenuEvent);
 
