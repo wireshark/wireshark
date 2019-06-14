@@ -5092,9 +5092,14 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                 /* Check if this is status stage */
                 if ((usb_conv_info->usb_trans_info) &&
                     (usbpcap_control_stage == USB_CONTROL_STAGE_STATUS)) {
-                    col_add_fstr(pinfo->cinfo, COL_INFO, "%s Status",
-                        val_to_str_ext(usb_conv_info->usb_trans_info->setup.request,
-                            &setup_request_names_vals_ext, "Unknown type %x"));
+                    const gchar *description;
+                    if (USB_TYPE(usb_conv_info->usb_trans_info->setup.requesttype) == RQT_SETUP_TYPE_STANDARD) {
+                        description = val_to_str_ext(usb_conv_info->usb_trans_info->setup.request,
+                            &setup_request_names_vals_ext, "Unknown type %x") ;
+                    } else {
+                        description = "URB_CONTROL";
+                    }
+                    col_add_fstr(pinfo->cinfo, COL_INFO, "%s status", description);
                     /* There is no data to dissect */
                     return;
                 }
