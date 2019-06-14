@@ -5669,12 +5669,12 @@ dissect_bintrngreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void
 {
   proto_item *bintrngreq_item;
   proto_tree *bintrngreq_tree;
-  guint16 md_ds_sg_id;
+  guint8 md_ds_sg_id;
   guint16 offset = 0;
 
-  md_ds_sg_id = tvb_get_ntohs (tvb, 0);
+  md_ds_sg_id = tvb_get_guint8 (tvb, 1);
 
-  col_add_fstr (pinfo->cinfo, COL_INFO, "Bonded Ranging Request: MD-DS-SG-ID = %u (0x%X)",
+  col_add_fstr (pinfo->cinfo, COL_INFO, "Bonded Initial Ranging Request: MD-DS-SG-ID = %u (0x%X)",
                 md_ds_sg_id, md_ds_sg_id );
 
   bintrngreq_item = proto_tree_add_item(tree, proto_docsis_bintrngreq, tvb, offset, -1, ENC_NA);
