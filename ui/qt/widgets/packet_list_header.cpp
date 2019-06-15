@@ -183,7 +183,7 @@ void PacketListHeader::contextMenuEvent(QContextMenuEvent *event)
     connect(action, &QAction::triggered, this, &PacketListHeader::doEditColumn);
     action = contextMenu->addAction(tr("Resize to Contents"));
     connect(action, &QAction::triggered, this, &PacketListHeader::resizeToContent);
-    action = contextMenu->addAction(tr("Resize Column to Width ..."));
+    action = contextMenu->addAction(tr("Resize Column to Width" UTF8_HORIZONTAL_ELLIPSIS));
     connect(action, &QAction::triggered, this, &PacketListHeader::resizeToWidth);
 
     action = contextMenu->addAction(tr("Resolve Names"));

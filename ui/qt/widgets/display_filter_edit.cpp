@@ -615,19 +615,19 @@ void DisplayFilterEdit::createFilterTextDropMenu(QDropEvent *event, QString filt
 
     QMenu applyMenu(this);
 
-    QAction * andAction = new QAction(tr("...and selected"), this);
+    QAction * andAction = new QAction(tr(UTF8_HORIZONTAL_ELLIPSIS "and Selected"), this);
     andAction->setData(QString("&& %1").arg(filterText));
     connect(andAction, &QAction::triggered, this, &DisplayFilterEdit::dropActionMenuEvent);
 
-    QAction * orAction = new QAction(tr("...or selected"), this);
+    QAction * orAction = new QAction(tr(UTF8_HORIZONTAL_ELLIPSIS "or Selected"), this);
     orAction->setData(QString("|| %1").arg(filterText));
     connect(orAction, &QAction::triggered, this, &DisplayFilterEdit::dropActionMenuEvent);
 
-    QAction * andNotAction = new QAction(tr("...and not selected"), this);
+    QAction * andNotAction = new QAction(tr(UTF8_HORIZONTAL_ELLIPSIS "and not Selected"), this);
     andNotAction->setData(QString("&& !(%1)").arg(filterText));
     connect(andNotAction, &QAction::triggered, this, &DisplayFilterEdit::dropActionMenuEvent);
 
-    QAction * orNotAction = new QAction(tr("...or not selected"), this);
+    QAction * orNotAction = new QAction(tr(UTF8_HORIZONTAL_ELLIPSIS "or not Selected"), this);
     orNotAction->setData(QString("|| !(%1)").arg(filterText));
     connect(orNotAction, &QAction::triggered, this, &DisplayFilterEdit::dropActionMenuEvent);
 
