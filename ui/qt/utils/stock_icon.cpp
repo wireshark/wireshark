@@ -95,7 +95,7 @@ StockIcon::StockIcon(const QString icon_name) :
                 QPixmap mask_pm = mask_icon.pixmap(sz);
                 foreach (QPalette::ColorGroup cg, color_groups) {
                     QImage mode_img(sz, QImage::Format_ARGB32);
-                    mode_img.setDevicePixelRatio(mask_pm.devicePixelRatioF());
+                    mode_img.setDevicePixelRatio(mask_pm.devicePixelRatio());
                     QPainter painter(&mode_img);
                     QBrush br(wsApp->palette().color(cg, QPalette::WindowText));
                     painter.fillRect(0, 0, sz.width(), sz.height(), br);
