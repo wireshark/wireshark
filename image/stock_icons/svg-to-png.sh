@@ -71,9 +71,9 @@ ICONS="
     x-filter-matching-bookmark.selected
     x-resize-columns
     x-stay-last
-    zoom-in
-    zoom-original
-    zoom-out
+    zoom-in.template
+    zoom-original.template
+    zoom-out.template
     "
 
 if [ -n "$*" ] ; then
@@ -98,11 +98,14 @@ for SIZE in 14x14 16x16 24x14 24x24 ; do
 
     for ICON in $ICONS ; do
         echo "Converting $ICON"
-        if [ -n "$SVGCLEANER" ] ; then
-            mv "$ICON.svg" "$ICON.dirty.svg"
-            $SVGCLEANER "$ICON.dirty.svg" "$ICON.svg"
-            rm "$ICON.dirty.svg"
-        fi
+
+        # XXX This seems to modify the SVG too much. Need to
+        # investigate.
+        #if [ -n "$SVGCLEANER" ] ; then
+        #    mv "$ICON.svg" "$ICON.dirty.svg"
+        #    $SVGCLEANER "$ICON.dirty.svg" "$ICON.svg"
+        #    rm "$ICON.dirty.svg"
+        #fi
 
         set_source_svgs "$ICON"
 

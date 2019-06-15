@@ -91,12 +91,12 @@
         <file>stock_icons/16x16/x-resize-columns@2x.png</file>
         <file>stock_icons/16x16/x-stay-last.png</file>
         <file>stock_icons/16x16/x-stay-last@2x.png</file>
-        <file>stock_icons/16x16/zoom-in.png</file>
-        <file>stock_icons/16x16/zoom-in@2x.png</file>
-        <file>stock_icons/16x16/zoom-original.png</file>
-        <file>stock_icons/16x16/zoom-original@2x.png</file>
-        <file>stock_icons/16x16/zoom-out.png</file>
-        <file>stock_icons/16x16/zoom-out@2x.png</file>
+        <file>stock_icons/16x16/zoom-in.template.png</file>
+        <file>stock_icons/16x16/zoom-in.template@2x.png</file>
+        <file>stock_icons/16x16/zoom-original.template.png</file>
+        <file>stock_icons/16x16/zoom-original.template@2x.png</file>
+        <file>stock_icons/16x16/zoom-out.template.png</file>
+        <file>stock_icons/16x16/zoom-out.template@2x.png</file>
         <file>stock_icons/24x14/x-filter-apply.png</file>
         <file>stock_icons/24x14/x-filter-apply@2x.png</file>
         <file>stock_icons/24x14/x-filter-apply.active.png</file>
@@ -133,12 +133,12 @@
         <file>stock_icons/24x24/x-resize-columns@2x.png</file>
         <file>stock_icons/24x24/x-stay-last.png</file>
         <file>stock_icons/24x24/x-stay-last@2x.png</file>
-        <file>stock_icons/24x24/zoom-in.png</file>
-        <file>stock_icons/24x24/zoom-in@2x.png</file>
-        <file>stock_icons/24x24/zoom-original.png</file>
-        <file>stock_icons/24x24/zoom-original@2x.png</file>
-        <file>stock_icons/24x24/zoom-out.png</file>
-        <file>stock_icons/24x24/zoom-out@2x.png</file>
+        <file>stock_icons/24x24/zoom-in.template.png</file>
+        <file>stock_icons/24x24/zoom-in.template@2x.png</file>
+        <file>stock_icons/24x24/zoom-original.template.png</file>
+        <file>stock_icons/24x24/zoom-original.template@2x.png</file>
+        <file>stock_icons/24x24/zoom-out.template.png</file>
+        <file>stock_icons/24x24/zoom-out.template@2x.png</file>
         <file>stock_icons/24x24/x-capture-file-close.png</file>
         <file>stock_icons/24x24/x-capture-file-close@2x.png</file>
         <file>stock_icons/24x24/x-capture-file-save.png</file>
