@@ -195,7 +195,7 @@ void PacketListHeader::contextMenuEvent(QContextMenuEvent *event)
     contextMenu->addSeparator();
 
     for (int cnt = 0; cnt < prefs.num_cols; cnt++) {
-        QAction *action = new QAction(get_column_title(cnt));
+        QAction *action = new QAction(get_column_title(cnt), this);
         action->setCheckable(true);
         action->setChecked(get_column_visible(cnt));
         action->setData(QVariant::fromValue(cnt));
