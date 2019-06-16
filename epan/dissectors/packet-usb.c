@@ -399,6 +399,7 @@ static heur_dissector_list_t heur_interrupt_subdissector_list;
 
 static wmem_tree_t *device_to_protocol_table = NULL;
 static wmem_tree_t *device_to_product_table  = NULL;
+static wmem_tree_t *usbpcap_setup_data       = NULL;
 
 static dissector_table_t device_to_dissector;
 static dissector_table_t protocol_to_dissector;
@@ -423,6 +424,11 @@ typedef struct _usb_alt_setting_t {
     guint8 interfaceSubclass;
     guint8 interfaceProtocol;
 } usb_alt_setting_t;
+
+typedef struct {
+    guint64 usb_id;
+    guint8 setup_data[8];
+} usbpcap_setup_data_t;
 
 /* http://www.usb.org/developers/docs/USB_LANGIDs.pdf */
 static const value_string usb_langid_vals[] = {
@@ -3679,17 +3685,20 @@ dissect_usb_setup_response(packet_info *pinfo, proto_tree *tree,
 
 
 static int
-dissect_usb_bmrequesttype(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
+dissect_usb_bmrequesttype(proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 *byte)
 {
-    proto_item *item;
-    proto_tree *tree;
+    guint64 val;
 
-    item = proto_tree_add_item(parent_tree, hf_usb_bmRequestType, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    tree = proto_item_add_subtree(item, ett_usb_setup_bmrequesttype);
+    static const int *bmRequestType_bits[] = {
+        &hf_usb_bmRequestType_direction,
+        &hf_usb_bmRequestType_type,
+        &hf_usb_bmRequestType_recipient,
+        NULL
+    };
 
-    proto_tree_add_item(tree, hf_usb_bmRequestType_direction, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(tree, hf_usb_bmRequestType_type,      tvb, offset, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(tree, hf_usb_bmRequestType_recipient, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_bitmask_with_flags_ret_uint64(parent_tree, tvb, offset, hf_usb_bmRequestType, ett_usb_setup_bmrequesttype,
+                                                 bmRequestType_bits, ENC_LITTLE_ENDIAN, BMT_NO_APPEND, &val);
+    *byte = (guint8) val;
 
     return ++offset;
 }
@@ -3724,7 +3733,7 @@ static int
 dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
                           tvbuff_t *tvb, int offset,
                           guint8 urb_type, usb_conv_info_t *usb_conv_info,
-                          usb_header_t header_type)
+                          usb_header_t header_type, guint64 usb_id)
 {
     gint              setup_offset;
     gint              req_type;
@@ -3732,6 +3741,7 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
     proto_tree       *parent, *setup_tree;
     usb_trans_info_t *usb_trans_info, trans_info;
     tvbuff_t         *next_tvb, *data_tvb = NULL;
+    guint8            bm_request_type;
 
     /* we should do the NULL check in all non-static functions */
     if (usb_conv_info)
@@ -3751,7 +3761,7 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
             usb_tap_queue_packet(pinfo, urb_type, usb_conv_info);
     }
 
-    offset = dissect_usb_bmrequesttype(setup_tree, tvb, offset);
+    offset = dissect_usb_bmrequesttype(setup_tree, tvb, offset, &bm_request_type);
 
     /* as we're going through the data, we build a next_tvb that
        contains the the setup packet without the request type
@@ -3770,6 +3780,29 @@ dissect_usb_setup_request(packet_info *pinfo, proto_tree *tree,
 
     if (header_type == USB_HEADER_LINUX_64_BYTES) {
         offset = dissect_linux_usb_pseudo_header_ext(tvb, offset, pinfo, tree);
+    } else if (header_type == USB_HEADER_USBPCAP) {
+        if ((bm_request_type & 0x80) == 0 &&
+            usb_trans_info->setup.wLength > 0 &&
+            tvb_reported_length_remaining(tvb, offset) == 0) {
+            /* UPBPcap older than 1.5.0.0 packet, save setup data
+               and do not call subdissector */
+            if (!PINFO_FD_VISITED(pinfo)) {
+                wmem_tree_key_t key[3];
+                usbpcap_setup_data_t *setup_data = wmem_new(wmem_file_scope(), usbpcap_setup_data_t);
+                setup_data->usb_id = usb_id;
+                tvb_memcpy(tvb, setup_data->setup_data, setup_offset-1, 8);
+                key[0].length = 2;
+                key[0].key = (guint32 *)&usb_id;
+                key[1].length = 1;
+                key[1].key = &pinfo->num;
+                key[2].length = 0;
+                key[2].key = NULL;
+                wmem_tree_insert32_array(usbpcap_setup_data, key, setup_data);
+            }
+            proto_tree_add_item(setup_tree, hf_usb_request_unknown_class, tvb, setup_offset, 1, ENC_LITTLE_ENDIAN);
+            dissect_usb_setup_generic(pinfo, setup_tree, tvb, setup_offset+1, usb_conv_info);
+            return offset;
+        }
     }
 
 
@@ -3947,6 +3980,11 @@ dissect_usbpcap_buffer_packet_header(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     item = proto_tree_add_item(tree, hf_usb_win32_transfer_type, tvb, 22, 1, ENC_LITTLE_ENDIAN);
     if (transfer_type == URB_UNKNOWN) {
         expert_add_info(pinfo, item, &ei_usb_usbpcap_unknown_urb);
+    }
+
+    /* Workaround bug in captures created with USBPcap earlier than 1.3.0.0 */
+    if ((endpoint_byte == 0x00) && (transfer_type == URB_CONTROL) && (tvb_get_guint8(tvb, 27) == USB_CONTROL_STAGE_DATA)) {
+        usb_conv_info->is_request = TRUE;
     }
 
     if (transfer_type != USBPCAP_URB_IRP_INFO) {
@@ -4936,7 +4974,13 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
     case USB_HEADER_USBPCAP:
         urb_type = tvb_get_guint8(tvb, 16) & 0x01 ? URB_COMPLETE : URB_SUBMIT;
         device_address = tvb_get_letohs(tvb, 19);
-        endpoint = tvb_get_guint8(tvb, 21) & 0x7F;
+        endpoint = tvb_get_guint8(tvb, 21);
+        if ((endpoint == 0x00) && (tvb_get_guint8(tvb, 22) == URB_CONTROL) &&
+            (tvb_get_guint8(tvb, 27) == USB_CONTROL_STAGE_DATA)) {
+            /* USBPcap before 1.3.0.0 DATA OUT packet (the info at offset 16 is wrong) */
+            urb_type = URB_SUBMIT;
+        }
+        endpoint &= 0x7F; /* Clear the direction flag */
         bus_id = tvb_get_letohs(tvb, 17);
         break;
 
@@ -5072,16 +5116,37 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         if (header_type == USB_HEADER_USBPCAP) {
             proto_tree_add_item(tree, hf_usb_win32_control_stage, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             usbpcap_control_stage = tvb_get_guint8(tvb, offset);
-            if (usbpcap_control_stage == USB_CONTROL_STAGE_SETUP)
-                usb_conv_info->is_setup = TRUE;
             offset++;
             proto_item_set_len(urb_tree_ti, offset);
+            if (usbpcap_control_stage == USB_CONTROL_STAGE_SETUP) {
+                usb_conv_info->is_setup = TRUE;
+            } else if (usbpcap_control_stage == USB_CONTROL_STAGE_DATA && urb_type == URB_SUBMIT) {
+                /* USBPcap before 1.5.0.0 */
+                wmem_tree_key_t key[3];
+                key[0].length = 2;
+                key[0].key = (guint32 *)&usb_id;
+                key[1].length = 1;
+                key[1].key = &pinfo->num;
+                key[2].length = 0;
+                key[2].key = NULL;
+                usbpcap_setup_data_t *setup_data = (usbpcap_setup_data_t *)wmem_tree_lookup32_array_le(usbpcap_setup_data, key);
+                if (setup_data && setup_data->usb_id == usb_id) {
+                    tvbuff_t *reassembled_tvb = tvb_new_composite();
+                    tvb_composite_append(reassembled_tvb, tvb_new_child_real_data(tvb, setup_data->setup_data, 8, 8));
+                    tvb_composite_append(reassembled_tvb, tvb_new_subset_remaining(tvb, offset));
+                    tvb_composite_finalize(reassembled_tvb);
+                    add_new_data_source(pinfo, reassembled_tvb, "USBPcap reassembled setup");
+                    usb_conv_info->is_setup = TRUE;
+                    tvb = reassembled_tvb;
+                    offset = 0;
+                }
+            }
         }
 
         if (usb_conv_info->is_request) {
             if (usb_conv_info->is_setup) {
-                offset = dissect_usb_setup_request(pinfo, tree, tvb, offset,
-                                                   urb_type, usb_conv_info, header_type);
+                offset = dissect_usb_setup_request(pinfo, tree, tvb, offset, urb_type,
+                                                   usb_conv_info, header_type, usb_id);
 
             } else {
                 switch (header_type) {
@@ -6626,6 +6691,7 @@ proto_register_usb(void)
 
     device_to_product_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     device_to_protocol_table = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+    usbpcap_setup_data = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     device_to_dissector = register_dissector_table("usb.device",     "USB device",   proto_usb, FT_UINT32, BASE_HEX);
     protocol_to_dissector = register_dissector_table("usb.protocol", "USB protocol", proto_usb, FT_UINT32, BASE_HEX);
     product_to_dissector = register_dissector_table("usb.product",   "USB product",  proto_usb, FT_UINT32, BASE_HEX);
