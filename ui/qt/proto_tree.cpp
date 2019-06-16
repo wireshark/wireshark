@@ -601,6 +601,8 @@ bool ProtoTree::eventFilter(QObject * obj, QEvent * event)
                 {
                     DisplayFilterMimeData * dfmd =
                             new DisplayFilterMimeData(QString(finfo.headerInfo().name), QString(finfo.headerInfo().abbreviation), filter);
+                    dfmd->setText(toString(idx));
+
                     QDrag * drag = new QDrag(this);
                     drag->setMimeData(dfmd);
 
