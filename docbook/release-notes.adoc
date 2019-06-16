@@ -17,8 +17,8 @@ used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-Many user interface improvements have been made. See the “New and Updated
-Features” section below for more details.
+Many improvements have been made. See the “New and Updated Features”
+section below for more details.
 
 // === Bug Fixes
 
@@ -34,6 +34,8 @@ Features” section below for more details.
 The following features are new (or have been significantly updated)
 since version 3.0.0:
 
+* Dark mode support on macOS and dark theme support on other platforms
+  has been improved.
 * Brotli decompression support in HTTP/HTTP2 (requires the brotli library).
 * The build system now checks for a SpeexDSP system library installation. The
   bundled Speex resampler code is still provided as a fallback.

@@ -2953,16 +2953,6 @@
    </property>
   </action>
   <action name="actionNewDisplayFilterExpression">
-   <property name="icon">
-    <iconset resource="../../image/stock_icons.qrc">
-     <normaloff>:/stock/plus-8.png</normaloff>:/stock/plus-8.png</iconset>
-   </property>
-   <property name="text">
-    <string>Add a filter button</string>
-   </property>
-   <property name="iconText">
-    <string>Expression…</string>
-   </property>
    <property name="toolTip">
     <string>Add a display filter button.</string>
    </property>

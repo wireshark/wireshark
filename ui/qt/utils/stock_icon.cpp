@@ -75,7 +75,7 @@ StockIcon::StockIcon(const QString icon_name) :
     }
 
     // Is this one of our locally sourced, cage-free, organic icons?
-    QStringList types = QStringList() << "14x14" << "16x16" << "24x14" << "24x24";
+    QStringList types = QStringList() << "8x8" << "14x14" << "16x16" << "24x14" << "24x24";
     QList<QPalette::ColorGroup> color_groups  = QList<QPalette::ColorGroup>()
             << QPalette::Disabled
             << QPalette::Active

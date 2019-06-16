@@ -20,6 +20,9 @@ class FilterExpressionToolBar : public DragDropToolBar
 public:
     explicit FilterExpressionToolBar(QWidget * parent = Q_NULLPTR);
 
+protected:
+    virtual bool event(QEvent *event);
+
 public slots:
     void filterExpressionsChanged();
 
@@ -41,6 +44,7 @@ private slots:
    void toolBarShowPreferences();
 
 private:
+   void updateStyleSheet();
    int uatRowIndexForFilter(QString label, QString expression);
 
    static gboolean filter_expression_add_action(const void *key, void *value, void *user_data);

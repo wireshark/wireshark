@@ -2012,6 +2012,8 @@ void MainWindow::initMainToolbarIcons()
     main_ui_->actionViewZoomOut->setIcon(StockIcon("zoom-out"));
     main_ui_->actionViewNormalSize->setIcon(StockIcon("zoom-original"));
     main_ui_->actionViewResizeColumns->setIcon(StockIcon("x-resize-columns"));
+
+    main_ui_->actionNewDisplayFilterExpression->setIcon(StockIcon("list-add"));
 }
 
 void MainWindow::initShowHideMainWidgets()

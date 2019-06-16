@@ -34,18 +34,7 @@ struct filter_expression_data
 FilterExpressionToolBar::FilterExpressionToolBar(QWidget * parent) :
     DragDropToolBar(parent)
 {
-    // Try to draw 1-pixel-wide separator lines from the button label
-    // ascent to its baseline.
-    int sep_margin = (fontMetrics().height() * 0.5) - 1;
-    QColor sep_color = ColorUtils::alphaBlend(palette().text(), palette().base(), 0.3);
-    setStyleSheet(QString(
-                "QToolBar { background: none; border: none; spacing: 1px; }"
-                "QFrame {"
-                "  min-width: 1px; max-width: 1px;"
-                "  margin: %1px 0 %2px 0; padding: 0;"
-                "  background-color: %3;"
-                "}"
-                ).arg(sep_margin).arg(sep_margin - 1).arg(sep_color.name()));
+    updateStyleSheet();
 
     setContextMenuPolicy(Qt::CustomContextMenu);
 
@@ -58,6 +47,19 @@ FilterExpressionToolBar::FilterExpressionToolBar(QWidget * parent) :
     connect(wsApp, &WiresharkApplication::filterExpressionsChanged,
             this, &FilterExpressionToolBar::filterExpressionsChanged);
 
+}
+
+bool FilterExpressionToolBar::event(QEvent *event)
+{
+    switch (event->type()) {
+    case QEvent::PaletteChange:
+        updateStyleSheet();
+        break;
+    default:
+        break;
+
+    }
+    return DragDropToolBar::event(event);
 }
 
 void FilterExpressionToolBar::onCustomMenuHandler(const QPoint& pos)
@@ -198,6 +200,22 @@ void FilterExpressionToolBar::onFilterDropped(QString description, QString filte
 void FilterExpressionToolBar::toolBarShowPreferences()
 {
     emit filterPreferences();
+}
+
+void FilterExpressionToolBar::updateStyleSheet()
+{
+    // Try to draw 1-pixel-wide separator lines from the button label
+    // ascent to its baseline.
+    int sep_margin = (fontMetrics().height() * 0.5) - 1;
+    QColor sep_color = ColorUtils::alphaBlend(palette().text(), palette().base(), 0.3);
+    setStyleSheet(QString(
+                "QToolBar { background: none; border: none; spacing: 1px; }"
+                "QFrame {"
+                "  min-width: 1px; max-width: 1px;"
+                "  margin: %1px 0 %2px 0; padding: 0;"
+                "  background-color: %3;"
+                "}"
+                ).arg(sep_margin).arg(sep_margin - 1).arg(sep_color.name()));
 }
 
 int FilterExpressionToolBar::uatRowIndexForFilter(QString label, QString expression)
