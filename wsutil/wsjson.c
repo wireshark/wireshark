@@ -15,6 +15,7 @@
 #include "wsjson.h"
 
 #include <string.h>
+#include <errno.h>
 #include <wsutil/jsmn.h>
 #include <wsutil/str_util.h>
 #include <wsutil/unicode-utils.h>
@@ -67,6 +68,76 @@ json_parse(const char *buf, jsmntok_t *tokens, unsigned int max_tokens)
 
     jsmn_init(&p);
     return jsmn_parse(&p, buf, strlen(buf), tokens, max_tokens);
+}
+
+static
+jsmntok_t *json_get_next_object(jsmntok_t *cur)
+{
+    int i;
+    jsmntok_t *next = cur+1;
+
+    for (i = 0; i < cur->size; i++) {
+        next = json_get_next_object(next);
+    }
+    return next;
+}
+
+jsmntok_t *json_get_object(const char *buf, jsmntok_t *parent, const gchar* name)
+{
+    int i;
+    jsmntok_t *cur = parent+1;
+
+    for (i = 0; i < parent->size; i++) {
+        if (cur->type == JSMN_STRING &&
+            !strncmp(&buf[cur->start], name, cur->end - cur->start)
+            && strlen(name) == (size_t)(cur->end - cur->start) &&
+            cur->size == 1 && (cur+1)->type == JSMN_OBJECT) {
+            return cur+1;
+        }
+        cur = json_get_next_object(cur);
+    }
+    return NULL;
+}
+
+char *json_get_string(char *buf, jsmntok_t *parent, const gchar* name)
+{
+    int i;
+    jsmntok_t *cur = parent+1;
+
+    for (i = 0; i < parent->size; i++) {
+        if (cur->type == JSMN_STRING &&
+            !strncmp(&buf[cur->start], name, cur->end - cur->start)
+            && strlen(name) == (size_t)(cur->end - cur->start) &&
+            cur->size == 1 && (cur+1)->type == JSMN_STRING) {
+            buf[(cur+1)->end] = '\0';
+            if (!json_decode_string_inplace(&buf[(cur+1)->start]))
+                return NULL;
+            return &buf[(cur+1)->start];
+        }
+        cur = json_get_next_object(cur);
+    }
+    return NULL;
+}
+
+gboolean json_get_double(char *buf, jsmntok_t *parent, const gchar* name, gdouble *val)
+{
+    int i;
+    jsmntok_t *cur = parent+1;
+
+    for (i = 0; i < parent->size; i++) {
+        if (cur->type == JSMN_STRING &&
+            !strncmp(&buf[cur->start], name, cur->end - cur->start)
+            && strlen(name) == (size_t)(cur->end - cur->start) &&
+            cur->size == 1 && (cur+1)->type == JSMN_PRIMITIVE) {
+            buf[(cur+1)->end] = '\0';
+            *val = g_ascii_strtod(&buf[(cur+1)->start], NULL);
+            if (errno != 0)
+                return FALSE;
+            return TRUE;
+        }
+        cur = json_get_next_object(cur);
+    }
+    return FALSE;
 }
 
 gboolean

@@ -30,6 +30,25 @@ WS_DLL_PUBLIC gboolean json_validate(const guint8 *buf, const size_t len);
 WS_DLL_PUBLIC int json_parse(const char *buf, jsmntok_t *tokens, unsigned int max_tokens);
 
 /**
+ * Get the pointer to an object belonging to parent object and named as the name variable.
+ * Returns NULL if not found.
+ */
+WS_DLL_PUBLIC jsmntok_t *json_get_object(const char *buf, jsmntok_t *parent, const gchar* name);
+
+/**
+ * Get the unescaped value of a string object belonging to parent object and named as the name variable.
+ * Returns NULL if not found. Caution: it modifies input buffer.
+ */
+WS_DLL_PUBLIC char *json_get_string(char *buf, jsmntok_t *parent, const gchar* name);
+
+/**
+ * Get the value of a number object belonging to parent object and named as the name variable.
+ * Returns FALSE if not found. Caution: it modifies input buffer.
+ * Scientific notation not supported yet.
+ */
+WS_DLL_PUBLIC gboolean json_get_double(char *buf, jsmntok_t *parent, const gchar* name, gdouble *val);
+
+/**
  * Decode the contents of a JSON string value by overwriting the input data.
  * Returns TRUE on success and FALSE if invalid characters were encountered.
  */

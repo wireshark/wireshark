@@ -1246,7 +1246,18 @@ UplinkUEAssociatedNRPPaTransport        N ngap.proc.imsg id-UplinkUEAssociatedNR
 WriteReplaceWarningRequest              N ngap.proc.imsg id-WriteReplaceWarning
 WriteReplaceWarningResponse             N ngap.proc.sout id-WriteReplaceWarning
 
-
+PDUSessionResourceSetupRequest      S ngap.n2_ie_type "PDU_RES_SETUP_REQ"
+PDUSessionResourceReleaseCommand    S ngap.n2_ie_type "PDU_RES_REL_CMD"
+PDUSessionResourceModifyRequest     S ngap.n2_ie_type "PDU_RES_MOD_REQ"
+HandoverCommand                     S ngap.n2_ie_type "HANDOVER_CMD"
+HandoverRequired                    S ngap.n2_ie_type "HANDOVER_REQUIRED"
+HandoverPreparationFailure          S ngap.n2_ie_type "HANDOVER_PREP_FAIL"
+SourceToTarget-TransparentContainer S ngap.n2_ie_type "SRC_TO_TAR_CONTAINER"
+TargetToSource-TransparentContainer S ngap.n2_ie_type "TAR_TO_SRC_CONTAINER"
+#S ngap.n2_ie_type "RAN_STATUS_TRANS_CONTAINER"
+SONConfigurationTransfer            S ngap.n2_ie_type "SON_CONFIG_TRANSFER"
+NRPPa-PDU                           S ngap.n2_ie_type "NRPPA_PDU"
+UERadioCapability                   S ngap.n2_ie_type "UE_RADIO_CAPABILITY"
 
 #.FN_HDR AMFConfigurationUpdate
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "AMFConfigurationUpdate");
