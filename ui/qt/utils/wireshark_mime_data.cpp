@@ -14,7 +14,9 @@ QMimeData(),
 description_(description),
 filter_(filter),
 field_(field)
-{}
+{
+    setText(filter);
+}
 
 QString DisplayFilterMimeData::description() const
 {

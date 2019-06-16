@@ -69,7 +69,7 @@ private:
     void setDefaultPlaceholderText();
     void buildCompletionList(const QString& field_word);
 
-    void createFilterTextDropMenu(QDropEvent *event, QString filterText = QString());
+    void createFilterTextDropMenu(QDropEvent *event, bool prepare, QString filterText = QString());
 
 signals:
     void pushFilterSyntaxStatus(const QString&);

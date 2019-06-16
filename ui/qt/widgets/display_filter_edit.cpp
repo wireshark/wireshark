@@ -586,16 +586,18 @@ void DisplayFilterEdit::dropEvent(QDropEvent *event)
             else
                 filterText = data->filter();
 
-            if ( text().length() > 0 && QApplication::keyboardModifiers() & Qt::MetaModifier)
+            bool prepare = QApplication::keyboardModifiers() & Qt::ShiftModifier;
+
+            if ( text().length() > 0 || QApplication::keyboardModifiers() & Qt::MetaModifier)
             {
-                createFilterTextDropMenu(event, filterText);
+                createFilterTextDropMenu(event, prepare, filterText);
                 return;
             }
 
             setText(filterText);
 
             // Holding down the Shift key will only prepare filter.
-            if (!(QApplication::keyboardModifiers() & Qt::ShiftModifier)) {
+            if ( ! prepare ) {
                 applyDisplayFilter();
             }
 
@@ -608,33 +610,45 @@ void DisplayFilterEdit::dropEvent(QDropEvent *event)
     }
 }
 
-void DisplayFilterEdit::createFilterTextDropMenu(QDropEvent *event, QString filterText)
+void DisplayFilterEdit::createFilterTextDropMenu(QDropEvent *event, bool prepare, QString filterText)
 {
     if ( filterText.isEmpty() )
         return;
 
     QMenu applyMenu(this);
 
-    QAction * andAction = new QAction(tr(UTF8_HORIZONTAL_ELLIPSIS "and Selected"), this);
-    andAction->setData(QString("&& %1").arg(filterText));
-    connect(andAction, &QAction::triggered, this, &DisplayFilterEdit::dropActionMenuEvent);
+    QAction * selAction = applyMenu.addAction(tr("Selected"));
+    selAction->setData(QString("%1").arg(filterText));
+    selAction->setProperty("clear", qVariantFromValue(true));
+    connect(selAction, &QAction::triggered, this, &DisplayFilterEdit::dropActionMenuEvent);
 
-    QAction * orAction = new QAction(tr(UTF8_HORIZONTAL_ELLIPSIS "or Selected"), this);
-    orAction->setData(QString("|| %1").arg(filterText));
-    connect(orAction, &QAction::triggered, this, &DisplayFilterEdit::dropActionMenuEvent);
+    QAction * notSelAction = applyMenu.addAction(tr("Not Selected"));
+    notSelAction->setData(QString("!(%1)").arg(filterText));
+    notSelAction->setProperty("clear", qVariantFromValue(true));
+    connect(notSelAction, &QAction::triggered, this, &DisplayFilterEdit::dropActionMenuEvent);
 
-    QAction * andNotAction = new QAction(tr(UTF8_HORIZONTAL_ELLIPSIS "and not Selected"), this);
-    andNotAction->setData(QString("&& !(%1)").arg(filterText));
-    connect(andNotAction, &QAction::triggered, this, &DisplayFilterEdit::dropActionMenuEvent);
+    if ( this->text().length() > 0 )
+    {
+        QAction * andAction = applyMenu.addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "and Selected"));
+        andAction->setData(QString("&& %1").arg(filterText));
+        connect(andAction, &QAction::triggered, this, &DisplayFilterEdit::dropActionMenuEvent);
 
-    QAction * orNotAction = new QAction(tr(UTF8_HORIZONTAL_ELLIPSIS "or not Selected"), this);
-    orNotAction->setData(QString("|| !(%1)").arg(filterText));
-    connect(orNotAction, &QAction::triggered, this, &DisplayFilterEdit::dropActionMenuEvent);
+        QAction * orAction = applyMenu.addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "or Selected"));
+        orAction->setData(QString("|| %1").arg(filterText));
+        connect(orAction, &QAction::triggered, this, &DisplayFilterEdit::dropActionMenuEvent);
 
-    applyMenu.addAction(andAction);
-    applyMenu.addAction(orAction);
-    applyMenu.addAction(andNotAction);
-    applyMenu.addAction(orNotAction);
+        QAction * andNotAction = applyMenu.addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "and not Selected"));
+        andNotAction->setData(QString("&& !(%1)").arg(filterText));
+        connect(andNotAction, &QAction::triggered, this, &DisplayFilterEdit::dropActionMenuEvent);
+
+        QAction * orNotAction = applyMenu.addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "or not Selected"));
+        orNotAction->setData(QString("|| !(%1)").arg(filterText));
+        connect(orNotAction, &QAction::triggered, this, &DisplayFilterEdit::dropActionMenuEvent);
+    }
+
+    foreach ( QAction * action, applyMenu.actions() )
+        action->setProperty("prepare", qVariantFromValue(prepare));
+
     applyMenu.exec(this->mapToGlobal(event->pos()));
 
 }
@@ -646,14 +660,18 @@ void DisplayFilterEdit::dropActionMenuEvent()
         return;
 
     QString value = sendAction->data().toString();
+    bool prepare = sendAction->property("prepare").toBool();
 
-    QString filterText = QString("((%1) %2)").arg(this->text()).arg(value);
+    QString filterText;
+    if ( sendAction->property("clear").toBool() )
+        filterText = value;
+    else
+        filterText = QString("((%1) %2)").arg(this->text()).arg(value);
     setText(filterText);
 
     // Holding down the Shift key will only prepare filter.
-    if (!(QApplication::keyboardModifiers() & Qt::ShiftModifier)) {
+    if ( ! prepare )
         applyDisplayFilter();
-    }
 }
 
 /*

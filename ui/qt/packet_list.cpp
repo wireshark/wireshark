@@ -651,30 +651,35 @@ void PacketList::mousePressEvent (QMouseEvent *event)
     setAutoScroll(false);
     QTreeView::mousePressEvent(event);
     setAutoScroll(true);
+}
 
-    QModelIndex curIndex = indexAt(event->pos());
-    ctx_column_ = curIndex.column();
-    QString filter = getFilterFromRowAndColumn();
-    if ( ! filter.isEmpty() )
+void PacketList::mouseMoveEvent (QMouseEvent *event)
+{
+    if ( event->buttons() & Qt::LeftButton )
     {
-        QString abbrev = filter.left(filter.indexOf(' '));
-        QString name = model()->headerData(ctx_column_, header()->orientation()).toString();
+        QModelIndex curIndex = indexAt(event->pos());
+        ctx_column_ = curIndex.column();
+        QString filter = getFilterFromRowAndColumn();
+        if ( ! filter.isEmpty() )
+        {
+            QString abbrev = filter.left(filter.indexOf(' '));
+            QString name = model()->headerData(ctx_column_, header()->orientation()).toString();
 
-        DisplayFilterMimeData * dfmd =
-                new DisplayFilterMimeData(name, abbrev, filter);
-        QDrag * drag = new QDrag(this);
-        drag->setMimeData(dfmd);
+            DisplayFilterMimeData * dfmd =
+                    new DisplayFilterMimeData(name, abbrev, filter);
+            QDrag * drag = new QDrag(this);
+            drag->setMimeData(dfmd);
 
-        DragLabel * content = new DragLabel(dfmd->labelText(), this);
-        qreal dpr = window()->windowHandle()->devicePixelRatio();
-        QPixmap pixmap(content->size() * dpr);
-        pixmap.setDevicePixelRatio(dpr);
-        content->render(&pixmap);
-        drag->setPixmap(pixmap);
+            DragLabel * content = new DragLabel(dfmd->labelText(), this);
+            qreal dpr = window()->windowHandle()->devicePixelRatio();
+            QPixmap pixmap(content->size() * dpr);
+            pixmap.setDevicePixelRatio(dpr);
+            content->render(&pixmap);
+            drag->setPixmap(pixmap);
 
-        drag->exec(Qt::CopyAction);
+            drag->exec(Qt::CopyAction);
+        }
     }
-
 }
 
 void PacketList::resizeEvent(QResizeEvent *event)

@@ -41,7 +41,7 @@ void PacketListHeader::dragEnterEvent(QDragEnterEvent *event)
     if ( ! event )
         return;
 
-    if (qobject_cast<const DisplayFilterMimeData *>(event->mimeData()))
+    if ( qobject_cast<const DisplayFilterMimeData *>(event->mimeData()) && event->source() != this->parent() )
     {
         if ( event->source() != this )
         {
