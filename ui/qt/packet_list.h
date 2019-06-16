@@ -74,6 +74,7 @@ protected:
     void timerEvent(QTimerEvent *event);
     void paintEvent(QPaintEvent *event);
     virtual void mousePressEvent (QMouseEvent *event);
+    virtual void mouseReleaseEvent (QMouseEvent *event);
     virtual void mouseMoveEvent (QMouseEvent *event);
     virtual void resizeEvent(QResizeEvent *event);
 
@@ -98,6 +99,8 @@ private:
     bool create_near_overlay_;
     bool create_far_overlay_;
     QVector<QRgb> overlay_colors_;
+
+    QModelIndex mouse_pressed_at_;
 
     RelatedPacketDelegate related_packet_delegate_;
     QAction *show_hide_separator_;

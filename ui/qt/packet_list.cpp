@@ -230,6 +230,7 @@ PacketList::PacketList(QWidget *parent) :
     overlay_timer_id_(0),
     create_near_overlay_(true),
     create_far_overlay_(true),
+    mouse_pressed_at_(QModelIndex()),
     capture_in_progress_(false),
     tail_timer_id_(0),
     rows_inserted_(false),
@@ -651,14 +652,22 @@ void PacketList::mousePressEvent (QMouseEvent *event)
     setAutoScroll(false);
     QTreeView::mousePressEvent(event);
     setAutoScroll(true);
+
+    QModelIndex curIndex = indexAt(event->pos());
+    mouse_pressed_at_ = curIndex;
+}
+
+void PacketList::mouseReleaseEvent(QMouseEvent *event) {
+    QTreeView::mouseReleaseEvent(event);
+
+    mouse_pressed_at_ = QModelIndex();
 }
 
 void PacketList::mouseMoveEvent (QMouseEvent *event)
 {
-    if ( event->buttons() & Qt::LeftButton )
+    QModelIndex curIndex = indexAt(event->pos());
+    if ( event->buttons() & Qt::LeftButton && curIndex == mouse_pressed_at_ )
     {
-        QModelIndex curIndex = indexAt(event->pos());
-
         ctx_column_ = curIndex.column();
         QMimeData * mimeData = nullptr;
         QWidget * content = nullptr;
