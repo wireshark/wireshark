@@ -283,6 +283,7 @@ static int hf_nas_5gs_mm_supi_fmt = -1;
 static int hf_nas_5gs_mm_routing_indicator = -1;
 static int hf_nas_5gs_mm_prot_scheme_id = -1;
 static int hf_nas_5gs_mm_pki = -1;
+static int hf_nas_5gs_mm_supi_null_scheme = -1;
 static int hf_nas_5gs_mm_scheme_output = -1;
 static int hf_nas_5gs_mm_suci_nai = -1;
 static int hf_nas_5gs_mm_imei = -1;
@@ -603,6 +604,7 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     gchar *add_string _U_, int string_len _U_)
 {
     guint8 oct, type_id, supi_fmt;
+    guint32 scheme_id;
     tvbuff_t * new_tvb;
     const char *digit_str, *route_id_str;
 
@@ -647,13 +649,19 @@ de_nas_5gs_mm_5gs_mobile_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             proto_tree_add_string(tree, hf_nas_5gs_mm_routing_indicator, new_tvb, 0, -1, route_id_str);
             offset += 2;
             /* Protection scheme id octet 10 */
-            proto_tree_add_item(tree, hf_nas_5gs_mm_prot_scheme_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(tree, hf_nas_5gs_mm_prot_scheme_id, tvb, offset, 1, ENC_BIG_ENDIAN, &scheme_id);
             offset += 1;
             /* Home network public key identifier octet 11 */
             proto_tree_add_item(tree, hf_nas_5gs_mm_pki, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 1;
             /* Scheme output octet 12-x */
-            proto_tree_add_item(tree, hf_nas_5gs_mm_scheme_output, tvb, offset, len - 8, ENC_NA);
+            if (scheme_id == 0) {
+              new_tvb = tvb_new_subset_length(tvb, offset, len - 8);
+              digit_str = tvb_bcd_dig_to_wmem_packet_str(new_tvb, 0, -1, NULL, FALSE);
+              proto_tree_add_string(tree, hf_nas_5gs_mm_supi_null_scheme, new_tvb, 0, -1, digit_str);
+            } else {
+              proto_tree_add_item(tree, hf_nas_5gs_mm_scheme_output, tvb, offset, len - 8, ENC_NA);
+            }
         } else if (supi_fmt == 1) {
             /* NAI */
             proto_tree_add_item(tree, hf_nas_5gs_mm_suci_nai, tvb, offset, len - 1, ENC_UTF_8 | ENC_NA);
@@ -6639,6 +6647,11 @@ proto_register_nas_5gs(void)
         { &hf_nas_5gs_mm_pki,
         { "Home network public key identifier",   "nas_5gs.mm.suci.pki",
             FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_mm_supi_null_scheme,
+        { "Scheme output", "nas_5gs.mm.suci.supi_null_scheme",
+            FT_STRING, BASE_NONE, NULL, 0,
             NULL, HFILL }
         },
         { &hf_nas_5gs_mm_scheme_output,
