@@ -152,11 +152,12 @@ static int hf_usb_info = -1;
 static int hf_usb_usbpcap_info_reserved = -1;
 static int hf_usb_usbpcap_info_direction = -1;
 static int hf_usb_win32_device_address = -1;
+static int hf_usb_win32_transfer_type = -1;
 /* hf_usb_bus_id, hf_usb_endpoint_address, hf_usb_endpoint_direction,
- * hf_usb_endpoint_number, hf_usb_transfer_type are common with
+ * hf_usb_endpoint_number are common with
  * FreeBSD and Linux pseudoheaders */
 static int hf_usb_win32_data_len = -1;
-static int hf_usb_control_stage = -1;
+static int hf_usb_win32_control_stage = -1;
 static int hf_usb_win32_iso_start_frame = -1;
 static int hf_usb_win32_iso_num_packets = -1;
 static int hf_usb_win32_iso_error_count = -1;
@@ -1007,14 +1008,42 @@ static const value_string usb_wMaxPacketSize_slots_vals[]  = {
     {0, NULL}
 };
 
-#define USB_CONTROL_STAGE_SETUP  0x00
-#define USB_CONTROL_STAGE_DATA   0x01
-#define USB_CONTROL_STAGE_STATUS 0x02
+/* USBPcap versions up to 1.4.1.0 captures USB control as 2 or 3 packets:
+ *   * SETUP with 8 bytes of Setup data
+ *   * DATA with optional data (either OUT or IN)
+ *   * STATUS without any USB payload, only the pseudoheader
+ *
+ * USBPcap versions 1.5.0.0 and up captures USB control as 2 packets:
+ *   * SETUP with 8 bytes of Setup data and optional DATA OUT
+ *   * COMPLETE with optional DATA IN
+ *
+ * The SETUP/COMPLETE matches the way control transfers are captured by
+ * usbmon on Linux.
+ */
+#define USB_CONTROL_STAGE_SETUP    0x00
+#define USB_CONTROL_STAGE_DATA     0x01
+#define USB_CONTROL_STAGE_STATUS   0x02
+#define USB_CONTROL_STAGE_COMPLETE 0x03
 
 static const value_string usb_control_stage_vals[] = {
-    {USB_CONTROL_STAGE_SETUP,  "Setup"},
-    {USB_CONTROL_STAGE_DATA,   "Data"},
-    {USB_CONTROL_STAGE_STATUS, "Status"},
+    {USB_CONTROL_STAGE_SETUP,    "Setup"},
+    {USB_CONTROL_STAGE_DATA,     "Data"},
+    {USB_CONTROL_STAGE_STATUS,   "Status"},
+    {USB_CONTROL_STAGE_COMPLETE, "Complete"},
+    {0, NULL}
+};
+
+/* Extra URB code to indicate relevant USB IRPs that don't directly
+ * have any matching USB transfer.
+ */
+#define USBPCAP_URB_IRP_INFO 0xFE
+
+static const value_string win32_usb_transfer_type_vals[] = {
+    {URB_CONTROL,                       "URB_CONTROL"},
+    {URB_ISOCHRONOUS,                   "URB_ISOCHRONOUS"},
+    {URB_INTERRUPT,                     "URB_INTERRUPT"},
+    {URB_BULK,                          "URB_BULK"},
+    {USBPCAP_URB_IRP_INFO,              "USB IRP Info"},
     {0, NULL}
 };
 
@@ -3881,6 +3910,7 @@ dissect_usbpcap_buffer_packet_header(tvbuff_t *tvb, packet_info *pinfo, proto_tr
         usb_conv_info_t *usb_conv_info, guint32 *win32_data_len, guint64 *irp_id)
 {
     proto_item *item;
+    guint32  function_code;
     guint8   transfer_type;
     guint8   endpoint_byte;
     guint8   transfer_type_and_direction;
@@ -3890,7 +3920,7 @@ dissect_usbpcap_buffer_packet_header(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     *irp_id = tvb_get_guint64(tvb, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_uint64(tree, hf_usb_irp_id, tvb, 2, 8, *irp_id);
     proto_tree_add_item(tree, hf_usb_usbd_status, tvb, 10, 4, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item(tree, hf_usb_function, tvb, 14, 2, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_usb_function, tvb, 14, 2, ENC_LITTLE_ENDIAN, &function_code);
 
     proto_tree_add_bitmask(tree, tvb, 16, hf_usb_info, ett_usb_usbpcap_info, usb_usbpcap_info_fields, ENC_LITTLE_ENDIAN);
     tmp_val8 = tvb_get_guint8(tvb, 16);
@@ -3914,14 +3944,19 @@ dissect_usbpcap_buffer_packet_header(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
     transfer_type = tvb_get_guint8(tvb, 22);
     usb_conv_info->transfer_type = transfer_type;
-    item = proto_tree_add_item(tree, hf_usb_linux_transfer_type, tvb, 22, 1, ENC_LITTLE_ENDIAN);
+    item = proto_tree_add_item(tree, hf_usb_win32_transfer_type, tvb, 22, 1, ENC_LITTLE_ENDIAN);
     if (transfer_type == URB_UNKNOWN) {
         expert_add_info(pinfo, item, &ei_usb_usbpcap_unknown_urb);
     }
 
-    transfer_type_and_direction = (transfer_type & 0x7F) | (endpoint_byte & 0x80);
-    col_append_str(pinfo->cinfo, COL_INFO,
-                   val_to_str(transfer_type_and_direction, usb_transfer_type_and_direction_vals, "Unknown type %x"));
+    if (transfer_type != USBPCAP_URB_IRP_INFO) {
+        transfer_type_and_direction = (transfer_type & 0x7F) | (endpoint_byte & 0x80);
+        col_append_str(pinfo->cinfo, COL_INFO,
+            val_to_str(transfer_type_and_direction, usb_transfer_type_and_direction_vals, "Unknown type %x"));
+    } else {
+        col_append_str(pinfo->cinfo, COL_INFO,
+            val_to_str_ext(function_code, &win32_urb_function_vals_ext, "Unknown function %x"));
+    }
 
     *win32_data_len = tvb_get_letohl(tvb, 23);
     proto_tree_add_item(tree, hf_usb_win32_data_len, tvb, 23, 4, ENC_LITTLE_ENDIAN);
@@ -5035,7 +5070,7 @@ dissect_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
     case URB_CONTROL:
         if (header_type == USB_HEADER_USBPCAP) {
-            proto_tree_add_item(tree, hf_usb_control_stage, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(tree, hf_usb_win32_control_stage, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             usbpcap_control_stage = tvb_get_guint8(tvb, offset);
             if (usbpcap_control_stage == USB_CONTROL_STAGE_SETUP)
                 usb_conv_info->is_setup = TRUE;
@@ -5660,12 +5695,17 @@ proto_register_usb(void)
             FT_UINT16, BASE_DEC, NULL, 0x0,
             "Windows USB device address", HFILL }},
 
+        { &hf_usb_win32_transfer_type,
+          { "URB transfer type", "usb.transfer_type",
+            FT_UINT8, BASE_HEX, VALS(win32_usb_transfer_type_vals), 0x0,
+            NULL, HFILL } },
+
         { &hf_usb_win32_data_len,
           { "Packet Data Length", "usb.data_len",
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }},
 
-        { &hf_usb_control_stage,
+        { &hf_usb_win32_control_stage,
           { "Control transfer stage", "usb.control_stage",
             FT_UINT8, BASE_DEC, VALS(usb_control_stage_vals), 0x0,
             NULL, HFILL }},
