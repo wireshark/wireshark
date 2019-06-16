@@ -5633,7 +5633,7 @@ de_nas_5gs_s1_mode_to_n1_mode_nas_transparent_cont(tvbuff_t *tvb, proto_tree *tr
 
 /* 3GPP TS 29.518 chapter 6.1.6.4.2 */
 static int
-dissect_nas_5gs_media_type(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void* data)
+dissect_nas_5gs_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     int ret;
     char *json_data;
