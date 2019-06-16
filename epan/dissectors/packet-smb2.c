@@ -3860,7 +3860,6 @@ dissect_smb2_notify_data_out(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		if (length) {
 			proto_tree_add_item(tree, hf_smb2_filename,
 			    tvb, offset, length, ENC_UTF_16|ENC_LITTLE_ENDIAN);
-			offset += length;
 		}
 
 		if (!next_offset) {
@@ -6895,13 +6894,11 @@ dissect_smb2_reparse_nfs(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 		proto_tree_add_item(tree, hf_smb2_nfs_chr_major, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 		proto_tree_add_item(tree, hf_smb2_nfs_chr_minor, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		offset += 4;
 		break;
 	case NFS_SPECFILE_BLK:
 		proto_tree_add_item(tree, hf_smb2_nfs_blk_major, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 		proto_tree_add_item(tree, hf_smb2_nfs_blk_minor, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-		offset += 4;
 		break;
 	case NFS_SPECFILE_FIFO:
 	case NFS_SPECFILE_SOCK:
