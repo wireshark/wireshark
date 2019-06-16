@@ -658,24 +658,53 @@ void PacketList::mouseMoveEvent (QMouseEvent *event)
     if ( event->buttons() & Qt::LeftButton )
     {
         QModelIndex curIndex = indexAt(event->pos());
+
         ctx_column_ = curIndex.column();
+        QMimeData * mimeData = nullptr;
+        QWidget * content = nullptr;
+
         QString filter = getFilterFromRowAndColumn();
-        if ( ! filter.isEmpty() )
+        if ( ! filter.isEmpty() || get_column_format(curIndex.column()) == COL_PROTOCOL)
         {
-            QString abbrev = filter.left(filter.indexOf(' '));
+            QString abbrev;
             QString name = model()->headerData(ctx_column_, header()->orientation()).toString();
 
-            DisplayFilterMimeData * dfmd =
-                    new DisplayFilterMimeData(name, abbrev, filter);
-            QDrag * drag = new QDrag(this);
-            drag->setMimeData(dfmd);
+            if ( ! filter.isEmpty() )
+            {
+                abbrev = filter.left(filter.indexOf(' '));
+            }
+            else
+            {
+                filter = model()->data(curIndex).toString().toLower();
+                abbrev = filter;
+            }
 
-            DragLabel * content = new DragLabel(dfmd->labelText(), this);
-            qreal dpr = window()->windowHandle()->devicePixelRatio();
-            QPixmap pixmap(content->size() * dpr);
-            pixmap.setDevicePixelRatio(dpr);
-            content->render(&pixmap);
-            drag->setPixmap(pixmap);
+            mimeData = new DisplayFilterMimeData(name, abbrev, filter);
+            ((DisplayFilterMimeData *)mimeData)->allowPlainText();
+            content = new DragLabel(((DisplayFilterMimeData *)mimeData)->labelText(), this);
+        }
+        else
+        {
+            QString text = model()->data(curIndex).toString();
+            if ( ! text.isEmpty() )
+            {
+                mimeData = new QMimeData();
+                mimeData->setText(text);
+            }
+        }
+
+        if ( mimeData )
+        {
+            QDrag * drag = new QDrag(this);
+            drag->setMimeData(mimeData);
+            if ( content )
+            {
+                qreal dpr = window()->windowHandle()->devicePixelRatio();
+                QPixmap pixmap= QPixmap(content->size() * dpr);
+                pixmap.setDevicePixelRatio(dpr);
+                content->render(&pixmap);
+                drag->setPixmap(pixmap);
+            }
 
             drag->exec(Qt::CopyAction);
         }

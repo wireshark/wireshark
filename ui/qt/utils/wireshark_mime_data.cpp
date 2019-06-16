@@ -9,14 +9,17 @@
 
 #include <utils/wireshark_mime_data.h>
 
-DisplayFilterMimeData::DisplayFilterMimeData(QString description, QString field, QString filter) :
-QMimeData(),
-description_(description),
-filter_(filter),
-field_(field)
+void WiresharkMimeData::allowPlainText()
 {
-    setText(filter);
+    setText(labelText());
 }
+
+DisplayFilterMimeData::DisplayFilterMimeData(QString description, QString field, QString filter) :
+    WiresharkMimeData(),
+    description_(description),
+    filter_(filter),
+    field_(field)
+{}
 
 QString DisplayFilterMimeData::description() const
 {
@@ -38,8 +41,13 @@ QString DisplayFilterMimeData::labelText() const
     return QString("%1\n%2").arg(description_, filter_);
 }
 
+void DisplayFilterMimeData::allowPlainText()
+{
+    setText(filter_);
+}
+
 ToolbarEntryMimeData::ToolbarEntryMimeData(QString element, int pos) :
-    QMimeData(),
+    WiresharkMimeData(),
     element_(element),
     pos_(pos)
 {}
