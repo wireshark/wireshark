@@ -8718,14 +8718,6 @@ static const value_string is_directory_vals[] = {
 	{0, NULL}
 };
 
-typedef struct _nt_trans_data {
-	int     subcmd;
-	guint32 sd_len;
-	guint32 ea_len;
-} nt_trans_data;
-
-
-
 static int
 dissect_nt_security_flags(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 {
@@ -9013,7 +9005,7 @@ dissect_nt_get_user_quota(tvbuff_t *tvb, proto_tree *tree, int offset, guint32 *
 
 
 static int
-dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int bc, nt_trans_data *ntd, smb_nt_transact_info_t *nti, smb_info_t *si)
+dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int bc, smb_nt_transact_info_t *nti, smb_info_t *si, int subcmd, guint32 sd_len, guint32 ea_len)
 {
 	proto_tree              *tree;
 	int                      old_offset = offset;
@@ -9025,21 +9017,21 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 
 	tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, -1,
 				ett_smb_nt_trans_data, NULL, "%s Data",
-				val_to_str_ext(ntd->subcmd, &nt_cmd_vals_ext, "Unknown NT transaction (%u)"));
+				val_to_str_ext(subcmd, &nt_cmd_vals_ext, "Unknown NT transaction (%u)"));
 
-	switch(ntd->subcmd) {
+	switch(subcmd) {
 	case NT_TRANS_CREATE:
 		/* security descriptor */
-		if (ntd->sd_len) {
+		if (sd_len) {
 		        offset = dissect_nt_sec_desc(
 				tvb, offset, pinfo, tree, NULL, TRUE,
-				ntd->sd_len, NULL);
+				sd_len, NULL);
 		}
 
 		/* extended attributes */
-		if (ntd->ea_len) {
-			proto_tree_add_item(tree, hf_smb_extended_attributes, tvb, offset, ntd->ea_len, ENC_NA);
-			offset += ntd->ea_len;
+		if (ea_len) {
+			proto_tree_add_item(tree, hf_smb_extended_attributes, tvb, offset, ea_len, ENC_NA);
+			offset += ea_len;
 		}
 
 		break;
@@ -9108,7 +9100,7 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 }
 
 static int
-dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int len, nt_trans_data *ntd, guint16 bc, smb_nt_transact_info_t *nti, smb_info_t *si)
+dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int len, guint16 bc, smb_nt_transact_info_t *nti, smb_info_t *si, int subcmd, guint32 *sd_len, guint32 *ea_len)
 {
 	proto_tree *tree;
 	guint32     fn_len, create_flags, access_mask, share_access, create_options;
@@ -9118,9 +9110,9 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 
 	tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, len,
 				ett_smb_nt_trans_param, NULL, "%s Parameters",
-				val_to_str_ext(ntd->subcmd, &nt_cmd_vals_ext, "Unknown NT transaction (%u)"));
+				val_to_str_ext(subcmd, &nt_cmd_vals_ext, "Unknown NT transaction (%u)"));
 
-	switch(ntd->subcmd) {
+	switch(subcmd) {
 	case NT_TRANS_CREATE:
 		/* Create flags */
 		create_flags = tvb_get_letohl(tvb, offset);
@@ -9159,13 +9151,11 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		bc -= 4;
 
 		/* sd length */
-		ntd->sd_len = tvb_get_letohl(tvb, offset);
-		proto_tree_add_uint(tree, hf_smb_sd_length, tvb, offset, 4, ntd->sd_len);
+		proto_tree_add_item_ret_uint(tree, hf_smb_sd_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, sd_len);
 		COUNT_BYTES(4);
 
 		/* ea length */
-		ntd->ea_len = tvb_get_letohl(tvb, offset);
-		proto_tree_add_uint(tree, hf_smb_ea_list_length, tvb, offset, 4, ntd->ea_len);
+		proto_tree_add_item_ret_uint(tree, hf_smb_ea_list_length, tvb, offset, 4, ENC_LITTLE_ENDIAN, ea_len);
 		COUNT_BYTES(4);
 
 		/* file name len */
@@ -9264,7 +9254,7 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 }
 
 static int
-dissect_nt_trans_setup_request(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int len, nt_trans_data *ntd, smb_info_t *si)
+dissect_nt_trans_setup_request(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *parent_tree, int len, smb_info_t *si, int subcmd)
 {
 	proto_tree             *tree;
 	smb_nt_transact_info_t *nti  = NULL;
@@ -9278,9 +9268,9 @@ dissect_nt_trans_setup_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 
 	tree = proto_tree_add_subtree_format(parent_tree, tvb, offset, len,
 				ett_smb_nt_trans_setup, NULL, "%s Setup",
-				val_to_str_ext(ntd->subcmd, &nt_cmd_vals_ext, "Unknown NT transaction (%u)"));
+				val_to_str_ext(subcmd, &nt_cmd_vals_ext, "Unknown NT transaction (%u)"));
 
-	switch(ntd->subcmd) {
+	switch(subcmd) {
 	case NT_TRANS_CREATE:
 		offset += len;
 		break;
@@ -9356,7 +9346,7 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	guint32                 td     = 0, tp = 0;
 	smb_saved_info_t       *sip;
 	int                     subcmd;
-	nt_trans_data           ntd;
+	guint32                 sd_len, ea_len;
 	guint16                 bc;
 	guint32                 padcnt;
 	smb_nt_transact_info_t *nti    = NULL;
@@ -9366,7 +9356,9 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	save_fragmented = pinfo->fragmented;
 
-	ntd.subcmd = ntd.sd_len = ntd.ea_len = 0;
+	subcmd = 0;
+	sd_len = 0;
+	ea_len = 0;
 
 	DISSECTOR_ASSERT(si);
 	sip = si->sip;
@@ -9470,7 +9462,6 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 				val_to_str_ext_const(subcmd, &nt_cmd_vals_ext, "<unknown>"));
 
-		ntd.subcmd = subcmd;
 		if (!si->unidir && sip) {
 			if (!pinfo->fd->visited) {
 				/*
@@ -9505,7 +9496,7 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	/* if there were any setup bytes, decode them */
 	if (sc) {
-		dissect_nt_trans_setup_request(tvb, pinfo, offset, tree, sc*2, &ntd, si);
+		dissect_nt_trans_setup_request(tvb, pinfo, offset, tree, sc*2, si, subcmd);
 		offset += sc*2;
 	}
 
@@ -9556,8 +9547,10 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	if (pd_tvb) {
 	  /* we have reassembled data, grab param and data from there */
 	  dissect_nt_trans_param_request(pd_tvb, pinfo, 0, tree, tp,
-					  &ntd, (guint16) tvb_reported_length(pd_tvb), nti, si);
-	  dissect_nt_trans_data_request(pd_tvb, pinfo, tp, tree, td, &ntd, nti, si);
+					 (guint16) tvb_reported_length(pd_tvb),
+					 nti, si, subcmd, &sd_len, &ea_len);
+	  dissect_nt_trans_data_request(pd_tvb, pinfo, tp, tree, td, nti, si,
+					subcmd, sd_len, ea_len);
 	  COUNT_BYTES(bc); /* We are done */
 	} else {
 	  /* we do not have reassembled data, just use what we have in the
@@ -9575,7 +9568,8 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	  }
 	  if (pc) {
 		CHECK_BYTE_COUNT(pc);
-		dissect_nt_trans_param_request(tvb, pinfo, offset, tree, pc, &ntd, bc, nti, si);
+		dissect_nt_trans_param_request(tvb, pinfo, offset, tree, pc, bc,
+					       nti, si, subcmd, &sd_len, &ea_len);
 		COUNT_BYTES(pc);
 	  }
 
@@ -9591,8 +9585,8 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	  }
 	  if (dc) {
 		CHECK_BYTE_COUNT(dc);
-		dissect_nt_trans_data_request(
-			tvb, pinfo, offset, tree, dc, &ntd, nti, si);
+		dissect_nt_trans_data_request(tvb, pinfo, offset, tree, dc,
+					      nti, si, subcmd, sd_len, ea_len);
 		COUNT_BYTES(dc);
 	  }
 	}
@@ -9608,7 +9602,6 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static int
 dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo,
 			       int offset, proto_tree *parent_tree, int len,
-			       nt_trans_data *ntd _U_,
 			       smb_nt_transact_info_t *nti, smb_info_t *si)
 {
 	proto_tree              *tree = NULL;
@@ -9684,7 +9677,7 @@ dissect_nt_trans_data_response(tvbuff_t *tvb, packet_info *pinfo,
 static int
 dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 				int offset, proto_tree *parent_tree,
-				int len, nt_trans_data *ntd _U_, guint16 bc, smb_info_t *si)
+				int len, guint16 bc, smb_info_t *si)
 {
 	proto_tree             *tree     = NULL;
 	guint32                 fn_len;
@@ -9926,7 +9919,7 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 static int
 dissect_nt_trans_setup_response(tvbuff_t *tvb, packet_info *pinfo,
 				int offset, proto_tree *parent_tree,
-				int len, nt_trans_data *ntd _U_, smb_info_t *si)
+				int len, smb_info_t *si)
 {
 	smb_nt_transact_info_t *nti;
 
@@ -9987,7 +9980,6 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	guint32                 pc     = 0, po = 0, pd = 0, dc = 0, od = 0, dd = 0;
 	guint32                 td     = 0, tp = 0;
 	smb_nt_transact_info_t *nti    = NULL;
-	static nt_trans_data    ntd;
 	guint16                 bc;
 	gint32                  padcnt;
 	fragment_head          *r_fd   = NULL;
@@ -10065,7 +10057,7 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	/* setup data */
 	if (sc) {
-		dissect_nt_trans_setup_response(tvb, pinfo, offset, tree, sc*2, &ntd, si);
+		dissect_nt_trans_setup_response(tvb, pinfo, offset, tree, sc*2, si);
 		offset += sc*2;
 	}
 
@@ -10112,8 +10104,8 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	if (pd_tvb) {
 	  /* we have reassembled data, grab param and data from there */
 	  dissect_nt_trans_param_response(pd_tvb, pinfo, 0, tree, tp,
-					  &ntd, (guint16) tvb_reported_length(pd_tvb), si);
-	  dissect_nt_trans_data_response(pd_tvb, pinfo, tp, tree, td, &ntd, nti, si);
+					  (guint16) tvb_reported_length(pd_tvb), si);
+	  dissect_nt_trans_data_response(pd_tvb, pinfo, tp, tree, td, nti, si);
 	  COUNT_BYTES(bc); /* We are done */
 	} else {
 	  /* we do not have reassembled data, just use what we have in the
@@ -10131,7 +10123,7 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	  }
 	  if (pc) {
 	    CHECK_BYTE_COUNT(pc);
-	    dissect_nt_trans_param_response(tvb, pinfo, offset, tree, pc, &ntd, bc, si);
+	    dissect_nt_trans_param_response(tvb, pinfo, offset, tree, pc, bc, si);
 	    COUNT_BYTES(pc);
 	  }
 
@@ -10147,7 +10139,7 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	  }
 	  if (dc) {
 	    CHECK_BYTE_COUNT(dc);
-	    dissect_nt_trans_data_response(tvb, pinfo, offset, tree, dc, &ntd, nti, si);
+	    dissect_nt_trans_data_response(tvb, pinfo, offset, tree, dc, nti, si);
 	    COUNT_BYTES(dc);
 	  }
 	}
