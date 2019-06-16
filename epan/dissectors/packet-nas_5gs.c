@@ -19,9 +19,11 @@
 #include <epan/proto_data.h>
 
 #include <wsutil/pow2.h>
+#include <wsutil/wsjson.h>
 
 #include "packet-gsm_a_common.h"
 #include "packet-e212.h"
+#include "packet-http.h"
 
 void proto_register_nas_5gs(void);
 void proto_reg_handoff_nas_5gs(void);
@@ -36,10 +38,13 @@ static dissector_handle_t nas_5gs_handle = NULL;
 static dissector_handle_t eap_handle = NULL;
 static dissector_handle_t nas_eps_handle = NULL;
 static dissector_handle_t nas_eps_plain_handle = NULL;
+static dissector_handle_t lpp_handle = NULL;
 
 #define PNAME  "Non-Access-Stratum 5GS (NAS)PDU"
 #define PSNAME "NAS-5GS"
 #define PFNAME "nas-5gs"
+
+static int proto_json = -1;
 
 static int proto_nas_5gs = -1;
 
@@ -5626,6 +5631,63 @@ de_nas_5gs_s1_mode_to_n1_mode_nas_transparent_cont(tvbuff_t *tvb, proto_tree *tr
     }
 }
 
+/* 3GPP TS 29.518 chapter 6.1.6.4.2 */
+static int
+dissect_nas_5gs_media_type(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void* data)
+{
+    int ret;
+    char *json_data;
+    const char *n1_msg_class, *str;
+    jsmntok_t *tokens, *cur_tok;
+    dissector_handle_t subdissector;
+    tvbuff_t* json_tvb = (tvbuff_t*)p_get_proto_data(pinfo->pool, pinfo, proto_json, 0);
+    http_message_info_t *message_info = (http_message_info_t *)data;
+
+    if (!json_tvb || !message_info || !message_info->content_id)
+        return 0;
+
+    json_data = tvb_get_string_enc(wmem_packet_scope(), json_tvb, 0, tvb_reported_length(json_tvb), ENC_UTF_8|ENC_NA);
+    ret = json_parse(json_data, NULL, 0);
+    if (ret < 0)
+        return 0;
+    tokens = wmem_alloc_array(wmem_packet_scope(), jsmntok_t, ret);
+    if (json_parse(json_data, tokens, ret) < 0)
+        return 0;
+    cur_tok = json_get_object(json_data, tokens, "n1MessageContainer");
+    if (!cur_tok)
+        return 0;
+    n1_msg_class = json_get_string(json_data, cur_tok, "n1MessageClass");
+    if (!n1_msg_class)
+        return 0;
+    cur_tok = json_get_object(json_data, cur_tok, "n1MessageContent");
+    if (!cur_tok)
+        return 0;
+    str = json_get_string(json_data, cur_tok, "contentId");
+    if (!str || strcmp(str, message_info->content_id))
+        return 0;
+    if (!strcmp(n1_msg_class, "5GMM") ||
+        !strcmp(n1_msg_class, "SM")) {
+        subdissector = nas_5gs_handle;
+    } else if (!strcmp(n1_msg_class, "LPP")) {
+        subdissector = lpp_handle;
+    } else if (!strcmp(n1_msg_class, "SMS")) {
+        /* how to know the direction? */
+        subdissector = NULL;
+    } else if (!strcmp(n1_msg_class, "UPDP")) {
+        /* UD policy delivery service not dissected yet */
+        subdissector = NULL;
+    } else {
+        subdissector = NULL;
+    }
+
+    if (subdissector) {
+        call_dissector_with_data(subdissector, tvb, pinfo, tree, NULL);
+        return tvb_captured_length(tvb);
+  } else {
+        return 0;
+  }
+}
+
 void
 proto_register_nas_5gs(void)
 {
@@ -7016,7 +7078,9 @@ proto_reg_handoff_nas_5gs(void)
     eap_handle = find_dissector("eap");
     nas_eps_handle = find_dissector("nas-eps");
     nas_eps_plain_handle = find_dissector("nas-eps_plain");
-    dissector_add_string("media_type", "application/vnd.3gpp.5gnas", nas_5gs_handle);
+    lpp_handle = find_dissector("lpp");
+    dissector_add_string("media_type", "application/vnd.3gpp.5gnas", create_dissector_handle(dissect_nas_5gs_media_type, proto_nas_5gs));
+    proto_json = proto_get_id_by_filter_name("json");
 }
 
 /*
