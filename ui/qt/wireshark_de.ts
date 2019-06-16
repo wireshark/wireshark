@@ -3009,6 +3009,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Farben:</translation>
     </message>
     <message>
+        <source>Solid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Sample ignored packet text</source>
         <translation>Beispieltext für ignorierte Pakete</translation>
     </message>
@@ -3025,12 +3029,13 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Stil:</translation>
     </message>
     <message>
-        <source>Default</source>
-        <translation>Standard</translation>
+        <source>System Default</source>
+        <oldsource>Default</oldsource>
+        <translation type="unfinished">Standard</translation>
     </message>
     <message>
         <source>Flat</source>
-        <translation>Flach</translation>
+        <translation type="vanished">Flach</translation>
     </message>
     <message>
         <source>Gradient</source>
@@ -3643,6 +3648,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Save Graph As</source>
         <translation>Graph speichern als</translation>
+    </message>
+    <message>
+        <source>5 ms</source>
+        <translation type="unfinished">100 ms {5 ?}</translation>
     </message>
 </context>
 <context>
@@ -8209,35 +8218,35 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Align Left</source>
-        <translation>Links ausrichten</translation>
+        <translation type="vanished">Links ausrichten</translation>
     </message>
     <message>
         <source>Align Center</source>
-        <translation>Zentriert ausrichten</translation>
+        <translation type="vanished">Zentriert ausrichten</translation>
     </message>
     <message>
         <source>Align Right</source>
-        <translation>Rechts ausrichten</translation>
+        <translation type="vanished">Rechts ausrichten</translation>
     </message>
     <message>
         <source>Column Preferences</source>
-        <translation>Spalteneigenschaft</translation>
+        <translation type="vanished">Spalteneigenschaft</translation>
     </message>
     <message>
         <source>Edit Column</source>
-        <translation>Spalte editieren</translation>
+        <translation type="vanished">Spalte editieren</translation>
     </message>
     <message>
         <source>Resize To Contents</source>
-        <translation>Größe an Inhalt anpassen</translation>
+        <translation type="vanished">Größe an Inhalt anpassen</translation>
     </message>
     <message>
         <source>Resolve Names</source>
-        <translation>Namen auflösen</translation>
+        <translation type="vanished">Namen auflösen</translation>
     </message>
     <message>
         <source>Remove This Column</source>
-        <translation>Spalte entfernen</translation>
+        <translation type="vanished">Spalte entfernen</translation>
     </message>
     <message>
         <source>Frame %1: %2
@@ -8250,6 +8259,53 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ Kommentartext überschreitet %1. Anhalten der Verarbeitung. ]</translation>
+    </message>
+</context>
+<context>
+    <name>PacketListHeader</name>
+    <message>
+        <source>Align Left</source>
+        <translation type="unfinished">Links ausrichten</translation>
+    </message>
+    <message>
+        <source>Align Center</source>
+        <translation type="unfinished">Zentriert ausrichten</translation>
+    </message>
+    <message>
+        <source>Align Right</source>
+        <translation type="unfinished">Rechts ausrichten</translation>
+    </message>
+    <message>
+        <source>Column Preferences</source>
+        <translation type="unfinished">Spalteneigenschaft</translation>
+    </message>
+    <message>
+        <source>Edit Column</source>
+        <translation type="unfinished">Spalte editieren</translation>
+    </message>
+    <message>
+        <source>Resize to Contents</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resize Column to Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resolve Names</source>
+        <translation type="unfinished">Namen auflösen</translation>
+    </message>
+    <message>
+        <source>Remove this Column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Column %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Width:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

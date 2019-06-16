@@ -2994,6 +2994,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Кольори:</translation>
     </message>
     <message>
+        <source>Solid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Sample ignored packet text</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3010,11 +3014,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Default</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Flat</source>
+        <source>System Default</source>
+        <oldsource>Default</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3599,6 +3600,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Save Graph As</source>
         <translation>Зберегти Графік Як</translation>
+    </message>
+    <message>
+        <source>5 ms</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8135,6 +8140,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Frame %1: %2
+
+</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>[ Comment text exceeds %1. Stopping. ]</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
+    <name>PacketListHeader</name>
+    <message>
         <source>Align Left</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8155,7 +8173,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Resize To Contents</source>
+        <source>Resize to Contents</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resize Column to Width</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8163,17 +8185,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Remove This Column</source>
+        <source>Remove this Column</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Frame %1: %2
-
-</source>
+        <source>Column %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>[ Comment text exceeds %1. Stopping. ]</source>
+        <source>Width:</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

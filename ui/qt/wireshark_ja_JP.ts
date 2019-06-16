@@ -2992,6 +2992,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>色:</translation>
     </message>
     <message>
+        <source>Solid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Sample ignored packet text</source>
         <translation>無視されたパケットテキストのサンプル</translation>
     </message>
@@ -3008,11 +3012,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Default</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Flat</source>
+        <source>System Default</source>
+        <oldsource>Default</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3626,6 +3627,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Save Graph As</source>
         <translation>としてグラフを保存</translation>
+    </message>
+    <message>
+        <source>5 ms</source>
+        <translation type="unfinished">100ミリ秒 {5 ?}</translation>
     </message>
 </context>
 <context>
@@ -8191,35 +8196,35 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Align Left</source>
-        <translation>左揃え</translation>
+        <translation type="vanished">左揃え</translation>
     </message>
     <message>
         <source>Align Center</source>
-        <translation>中央揃え</translation>
+        <translation type="vanished">中央揃え</translation>
     </message>
     <message>
         <source>Align Right</source>
-        <translation>右揃え</translation>
+        <translation type="vanished">右揃え</translation>
     </message>
     <message>
         <source>Column Preferences</source>
-        <translation>列の設定</translation>
+        <translation type="vanished">列の設定</translation>
     </message>
     <message>
         <source>Edit Column</source>
-        <translation>列の編集</translation>
+        <translation type="vanished">列の編集</translation>
     </message>
     <message>
         <source>Resize To Contents</source>
-        <translation>内容にあわせて列幅を揃える</translation>
+        <translation type="vanished">内容にあわせて列幅を揃える</translation>
     </message>
     <message>
         <source>Resolve Names</source>
-        <translation>名前を解決</translation>
+        <translation type="vanished">名前を解決</translation>
     </message>
     <message>
         <source>Remove This Column</source>
-        <translation>この列を削除</translation>
+        <translation type="vanished">この列を削除</translation>
     </message>
     <message>
         <source>Frame %1: %2
@@ -8232,6 +8237,53 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ コメントテキスト超過 %1 停止中 ]</translation>
+    </message>
+</context>
+<context>
+    <name>PacketListHeader</name>
+    <message>
+        <source>Align Left</source>
+        <translation type="unfinished">左揃え</translation>
+    </message>
+    <message>
+        <source>Align Center</source>
+        <translation type="unfinished">中央揃え</translation>
+    </message>
+    <message>
+        <source>Align Right</source>
+        <translation type="unfinished">右揃え</translation>
+    </message>
+    <message>
+        <source>Column Preferences</source>
+        <translation type="unfinished">列の設定</translation>
+    </message>
+    <message>
+        <source>Edit Column</source>
+        <translation type="unfinished">列の編集</translation>
+    </message>
+    <message>
+        <source>Resize to Contents</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resize Column to Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resolve Names</source>
+        <translation type="unfinished">名前を解決</translation>
+    </message>
+    <message>
+        <source>Remove this Column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Column %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Width:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

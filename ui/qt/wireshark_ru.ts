@@ -3023,6 +3023,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Цвета:</translation>
     </message>
     <message>
+        <source>Solid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Sample ignored packet text</source>
         <translation>Образец проигнорированного текста пакета</translation>
     </message>
@@ -3039,12 +3043,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Стиль:</translation>
     </message>
     <message>
-        <source>Default</source>
-        <translation>По умолчанию</translation>
+        <source>System Default</source>
+        <oldsource>Default</oldsource>
+        <translation type="unfinished">По умолчанию</translation>
     </message>
     <message>
         <source>Flat</source>
-        <translation>Плоский</translation>
+        <translation type="vanished">Плоский</translation>
     </message>
     <message>
         <source>Gradient</source>
@@ -3657,6 +3662,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Save Graph As</source>
         <translation>Сохранить График Как</translation>
+    </message>
+    <message>
+        <source>5 ms</source>
+        <translation type="unfinished">100 мс {5 ?}</translation>
     </message>
 </context>
 <context>
@@ -8228,35 +8237,35 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Align Left</source>
-        <translation>Выровнять по Левой Стороне</translation>
+        <translation type="vanished">Выровнять по Левой Стороне</translation>
     </message>
     <message>
         <source>Align Center</source>
-        <translation>Выровнять по Центру</translation>
+        <translation type="vanished">Выровнять по Центру</translation>
     </message>
     <message>
         <source>Align Right</source>
-        <translation>Выровнять по Правой Стороне</translation>
+        <translation type="vanished">Выровнять по Правой Стороне</translation>
     </message>
     <message>
         <source>Column Preferences</source>
-        <translation>Параметры Столбца</translation>
+        <translation type="vanished">Параметры Столбца</translation>
     </message>
     <message>
         <source>Edit Column</source>
-        <translation>Редактировать Столбец</translation>
+        <translation type="vanished">Редактировать Столбец</translation>
     </message>
     <message>
         <source>Resize To Contents</source>
-        <translation>Изменить Размер В Соответствии с Содержимым</translation>
+        <translation type="vanished">Изменить Размер В Соответствии с Содержимым</translation>
     </message>
     <message>
         <source>Resolve Names</source>
-        <translation>Разрешить Имена</translation>
+        <translation type="vanished">Разрешить Имена</translation>
     </message>
     <message>
         <source>Remove This Column</source>
-        <translation>Удалить Этот Столбец</translation>
+        <translation type="vanished">Удалить Этот Столбец</translation>
     </message>
     <message>
         <source>Frame %1: %2
@@ -8269,6 +8278,53 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ Текст комментария превышает %1. Остановка. ]</translation>
+    </message>
+</context>
+<context>
+    <name>PacketListHeader</name>
+    <message>
+        <source>Align Left</source>
+        <translation type="unfinished">Выровнять по Левой Стороне</translation>
+    </message>
+    <message>
+        <source>Align Center</source>
+        <translation type="unfinished">Выровнять по Центру</translation>
+    </message>
+    <message>
+        <source>Align Right</source>
+        <translation type="unfinished">Выровнять по Правой Стороне</translation>
+    </message>
+    <message>
+        <source>Column Preferences</source>
+        <translation type="unfinished">Параметры Столбца</translation>
+    </message>
+    <message>
+        <source>Edit Column</source>
+        <translation type="unfinished">Редактировать Столбец</translation>
+    </message>
+    <message>
+        <source>Resize to Contents</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resize Column to Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resolve Names</source>
+        <translation type="unfinished">Разрешить Имена</translation>
+    </message>
+    <message>
+        <source>Remove this Column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Column %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Width:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

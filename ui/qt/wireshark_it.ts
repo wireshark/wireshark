@@ -3009,6 +3009,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Colori:</translation>
     </message>
     <message>
+        <source>Solid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Sample ignored packet text</source>
         <translation>Esempio di testo per pacchetto ignorato</translation>
     </message>
@@ -3025,12 +3029,13 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Stile</translation>
     </message>
     <message>
-        <source>Default</source>
-        <translation>Predefinito</translation>
+        <source>System Default</source>
+        <oldsource>Default</oldsource>
+        <translation type="unfinished">Predefinito</translation>
     </message>
     <message>
         <source>Flat</source>
-        <translation>Piatto</translation>
+        <translation type="vanished">Piatto</translation>
     </message>
     <message>
         <source>Gradient</source>
@@ -3643,6 +3648,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Save Graph As</source>
         <translation>Salva i grafici come</translation>
+    </message>
+    <message>
+        <source>5 ms</source>
+        <translation type="unfinished">100 ms {5 ?}</translation>
     </message>
 </context>
 <context>
@@ -8209,35 +8218,35 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>Align Left</source>
-        <translation>Allinea a sinistra</translation>
+        <translation type="vanished">Allinea a sinistra</translation>
     </message>
     <message>
         <source>Align Center</source>
-        <translation>Allinea al centro</translation>
+        <translation type="vanished">Allinea al centro</translation>
     </message>
     <message>
         <source>Align Right</source>
-        <translation>Allinea a destra</translation>
+        <translation type="vanished">Allinea a destra</translation>
     </message>
     <message>
         <source>Column Preferences</source>
-        <translation>Preferenze delle colonne</translation>
+        <translation type="vanished">Preferenze delle colonne</translation>
     </message>
     <message>
         <source>Edit Column</source>
-        <translation>Modifica colonna</translation>
+        <translation type="vanished">Modifica colonna</translation>
     </message>
     <message>
         <source>Resize To Contents</source>
-        <translation>Ridimensiona come il contenuto</translation>
+        <translation type="vanished">Ridimensiona come il contenuto</translation>
     </message>
     <message>
         <source>Resolve Names</source>
-        <translation>Risolvi i nomi</translation>
+        <translation type="vanished">Risolvi i nomi</translation>
     </message>
     <message>
         <source>Remove This Column</source>
-        <translation>Rimuovi questa colonna</translation>
+        <translation type="vanished">Rimuovi questa colonna</translation>
     </message>
     <message>
         <source>Frame %1: %2
@@ -8250,6 +8259,53 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ Il testo del commento supera %1. Interruzione. ]</translation>
+    </message>
+</context>
+<context>
+    <name>PacketListHeader</name>
+    <message>
+        <source>Align Left</source>
+        <translation type="unfinished">Allinea a sinistra</translation>
+    </message>
+    <message>
+        <source>Align Center</source>
+        <translation type="unfinished">Allinea al centro</translation>
+    </message>
+    <message>
+        <source>Align Right</source>
+        <translation type="unfinished">Allinea a destra</translation>
+    </message>
+    <message>
+        <source>Column Preferences</source>
+        <translation type="unfinished">Preferenze delle colonne</translation>
+    </message>
+    <message>
+        <source>Edit Column</source>
+        <translation type="unfinished">Modifica colonna</translation>
+    </message>
+    <message>
+        <source>Resize to Contents</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resize Column to Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resolve Names</source>
+        <translation type="unfinished">Risolvi i nomi</translation>
+    </message>
+    <message>
+        <source>Remove this Column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Column %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Width:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

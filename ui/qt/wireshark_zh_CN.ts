@@ -2990,6 +2990,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>颜色:</translation>
     </message>
     <message>
+        <source>Solid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Sample ignored packet text</source>
         <translation>忽略的分组</translation>
     </message>
@@ -3006,12 +3010,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>样式：</translation>
     </message>
     <message>
-        <source>Default</source>
-        <translation>默认</translation>
+        <source>System Default</source>
+        <oldsource>Default</oldsource>
+        <translation type="unfinished">默认</translation>
     </message>
     <message>
         <source>Flat</source>
-        <translation>扁平</translation>
+        <translation type="vanished">扁平</translation>
     </message>
     <message>
         <source>Gradient</source>
@@ -3624,6 +3629,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Save Graph As</source>
         <translation>图形保存为</translation>
+    </message>
+    <message>
+        <source>5 ms</source>
+        <translation type="unfinished">100毫秒 {5 ?}</translation>
     </message>
 </context>
 <context>
@@ -8185,35 +8194,35 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Align Left</source>
-        <translation>左对齐</translation>
+        <translation type="vanished">左对齐</translation>
     </message>
     <message>
         <source>Align Center</source>
-        <translation>居中对齐</translation>
+        <translation type="vanished">居中对齐</translation>
     </message>
     <message>
         <source>Align Right</source>
-        <translation>右对齐</translation>
+        <translation type="vanished">右对齐</translation>
     </message>
     <message>
         <source>Column Preferences</source>
-        <translation>列首选项</translation>
+        <translation type="vanished">列首选项</translation>
     </message>
     <message>
         <source>Edit Column</source>
-        <translation>编辑列</translation>
+        <translation type="vanished">编辑列</translation>
     </message>
     <message>
         <source>Resize To Contents</source>
-        <translation>适应内容</translation>
+        <translation type="vanished">适应内容</translation>
     </message>
     <message>
         <source>Resolve Names</source>
-        <translation>名称解析</translation>
+        <translation type="vanished">名称解析</translation>
     </message>
     <message>
         <source>Remove This Column</source>
-        <translation>删除此列</translation>
+        <translation type="vanished">删除此列</translation>
     </message>
     <message>
         <source>Frame %1: %2
@@ -8225,6 +8234,53 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ 注释文本超过 %1。正在停止。 ]</translation>
+    </message>
+</context>
+<context>
+    <name>PacketListHeader</name>
+    <message>
+        <source>Align Left</source>
+        <translation type="unfinished">左对齐</translation>
+    </message>
+    <message>
+        <source>Align Center</source>
+        <translation type="unfinished">居中对齐</translation>
+    </message>
+    <message>
+        <source>Align Right</source>
+        <translation type="unfinished">右对齐</translation>
+    </message>
+    <message>
+        <source>Column Preferences</source>
+        <translation type="unfinished">列首选项</translation>
+    </message>
+    <message>
+        <source>Edit Column</source>
+        <translation type="unfinished">编辑列</translation>
+    </message>
+    <message>
+        <source>Resize to Contents</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resize Column to Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resolve Names</source>
+        <translation type="unfinished">名称解析</translation>
+    </message>
+    <message>
+        <source>Remove this Column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Column %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Width:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

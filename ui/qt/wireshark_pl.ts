@@ -3020,6 +3020,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Kolory:</translation>
     </message>
     <message>
+        <source>Solid</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Sample ignored packet text</source>
         <translation>Przykładowy ignorowany pakiet</translation>
     </message>
@@ -3036,11 +3040,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Default</source>
-        <translation type="unfinished">Domyślnie</translation>
-    </message>
-    <message>
-        <source>Flat</source>
+        <source>System Default</source>
+        <oldsource>Default</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3647,6 +3648,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Save Graph As</source>
         <translation>Zapisz wykres jako</translation>
+    </message>
+    <message>
+        <source>5 ms</source>
+        <translation type="unfinished">100 ms {5 ?}</translation>
     </message>
 </context>
 <context>
@@ -8218,35 +8223,35 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Align Left</source>
-        <translation>Wyrównaj do lewej</translation>
+        <translation type="vanished">Wyrównaj do lewej</translation>
     </message>
     <message>
         <source>Align Center</source>
-        <translation>Wyrównaj do środka</translation>
+        <translation type="vanished">Wyrównaj do środka</translation>
     </message>
     <message>
         <source>Align Right</source>
-        <translation>Wyrównaj do prawej</translation>
+        <translation type="vanished">Wyrównaj do prawej</translation>
     </message>
     <message>
         <source>Column Preferences</source>
-        <translation>Ustawienia kolumny</translation>
+        <translation type="vanished">Ustawienia kolumny</translation>
     </message>
     <message>
         <source>Edit Column</source>
-        <translation>Edytuj kolumnę</translation>
+        <translation type="vanished">Edytuj kolumnę</translation>
     </message>
     <message>
         <source>Resize To Contents</source>
-        <translation>Dopasuj szerokość do zawartości</translation>
+        <translation type="vanished">Dopasuj szerokość do zawartości</translation>
     </message>
     <message>
         <source>Resolve Names</source>
-        <translation>Rozwiązuj nazwy</translation>
+        <translation type="vanished">Rozwiązuj nazwy</translation>
     </message>
     <message>
         <source>Remove This Column</source>
-        <translation>Usuń tę kolumnę</translation>
+        <translation type="vanished">Usuń tę kolumnę</translation>
     </message>
     <message>
         <source>Frame %1: %2
@@ -8258,6 +8263,53 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>[ Comment text exceeds %1. Stopping. ]</source>
         <translation>[ Długość komentarza przekracza %1. Wstrzymano. ]</translation>
+    </message>
+</context>
+<context>
+    <name>PacketListHeader</name>
+    <message>
+        <source>Align Left</source>
+        <translation type="unfinished">Wyrównaj do lewej</translation>
+    </message>
+    <message>
+        <source>Align Center</source>
+        <translation type="unfinished">Wyrównaj do środka</translation>
+    </message>
+    <message>
+        <source>Align Right</source>
+        <translation type="unfinished">Wyrównaj do prawej</translation>
+    </message>
+    <message>
+        <source>Column Preferences</source>
+        <translation type="unfinished">Ustawienia kolumny</translation>
+    </message>
+    <message>
+        <source>Edit Column</source>
+        <translation type="unfinished">Edytuj kolumnę</translation>
+    </message>
+    <message>
+        <source>Resize to Contents</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resize Column to Width</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resolve Names</source>
+        <translation type="unfinished">Rozwiązuj nazwy</translation>
+    </message>
+    <message>
+        <source>Remove this Column</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Column %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Width:</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
