@@ -318,7 +318,7 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
     emit pushProgressStatus(tr("Dissecting"), true, true, &stop_flag);
     int row_num = 0;
     foreach (PacketListRecord *row, physical_rows_) {
-        row->columnString(sort_cap_file_, column);
+        row->ensureDissection(sort_cap_file_, column);
         row_num++;
         if (busy_timer_.elapsed() > busy_timeout_) {
             if (stop_flag) {
@@ -458,7 +458,7 @@ bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
         // Column comes directly from frame data
         cmp_val = frame_data_compare(sort_cap_file_->epan, r1->frameData(), r2->frameData(), sort_cap_file_->cinfo.columns[sort_column_].col_fmt);
     } else  {
-        if (r1->columnString(sort_cap_file_, sort_column_).constData() == r2->columnString(sort_cap_file_, sort_column_).constData()) {
+        if (r1->columnString(sort_cap_file_, sort_column_).compare(r2->columnString(sort_cap_file_, sort_column_)) == 0) {
             cmp_val = 0;
         } else if (sort_column_is_numeric_) {
             // Custom column with numeric data (or something like a port number).
@@ -478,7 +478,7 @@ bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
                 cmp_val = 1;
             }
         } else {
-            cmp_val = strcmp(r1->columnString(sort_cap_file_, sort_column_).constData(), r2->columnString(sort_cap_file_, sort_column_).constData());
+            cmp_val = r1->columnString(sort_cap_file_, sort_column_).compare(r2->columnString(sort_cap_file_, sort_column_));
         }
 
         if (cmp_val == 0) {
@@ -595,7 +595,7 @@ QVariant PacketListModel::data(const QModelIndex &d_index, int role) const
     case Qt::DisplayRole:
     {
         int column = d_index.column();
-        QByteArray column_string = record->columnString(cap_file_, column, true);
+        QString column_string = record->columnString(cap_file_, column, true);
         // We don't know an item's sizeHint until we fetch its text here.
         // Assume each line count is 1. If the line count changes, emit
         // itemHeightChanged which triggers another redraw (including a
@@ -741,7 +741,7 @@ void PacketListModel::ensureRowColorized(int row)
     if (!record)
         return;
     if (!record->colorized()) {
-        record->columnString(cap_file_, 1, true);
+        record->ensureDissection(cap_file_, 1, true);
     }
 }
 
