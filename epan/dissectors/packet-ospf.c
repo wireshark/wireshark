@@ -255,6 +255,7 @@ static const value_string grace_tlv_type_vals[] = {
 #define OPAQUE_TLV_SLR              9
 #define OPAQUE_TLV_NAT              10
 #define OPAQUE_TLV_SBD              11
+#define OPAQUE_TLV_NODE_MSD         12
 #define OPAQUE_TLV_SRLB             13
 #define OPAQUE_TLV_SRMS_PREF        14
 
@@ -271,6 +272,7 @@ static const value_string ri_tlv_type_vals[] = {
     {OPAQUE_TLV_SLR,                "SID/Label Range "                   },
     {OPAQUE_TLV_NAT,                "Node Admin Tag "                    },
     {OPAQUE_TLV_SBD,                "S-BFD Discriminator"                },
+    {OPAQUE_TLV_NODE_MSD,           "Node MSD"                           },
     {OPAQUE_TLV_SRLB,               "SR Local Block"                     },
     {OPAQUE_TLV_SRMS_PREF,          "SRMS Preference"                    },
     {0, NULL}
@@ -280,6 +282,26 @@ static const value_string ri_lsa_sa_tlv_type_vals[] = {
     {0,                             "Shortest Path First"                },
     {1,                             "Strict Shortest Path First"         },
     {0, NULL}
+};
+
+/* IGP MSD Type (rfc8491) */
+#define IGP_MSD_TYPE_RESERVED           0
+#define IGP_MSD_TYPE_MPLS               1
+#define IGP_MSD_TYPE_SEGMENT_LEFT       41
+#define IGP_MSD_TYPE_END_POP            42
+#define IGP_MSD_TYPE_T_INSERT           43
+#define IGP_MSD_TYPE_T_ENCAP            44
+#define IGP_MSD_TYPE_END_D              45
+
+static const value_string ospf_igp_msd_types[] = {
+    { IGP_MSD_TYPE_RESERVED,            "Reserved" },
+    { IGP_MSD_TYPE_MPLS,                "Base MPLS Imposition" },
+    { IGP_MSD_TYPE_SEGMENT_LEFT,        "Maximum Segments Left" },
+    { IGP_MSD_TYPE_END_POP,             "Maximum End Pop" },
+    { IGP_MSD_TYPE_T_INSERT,            "Maximum T.Insert" },
+    { IGP_MSD_TYPE_T_ENCAP,             "Maximum T.Encaps" },
+    { IGP_MSD_TYPE_END_D,               "Maximum End D" },
+    { 0, NULL }
 };
 
 static const value_string ls_type_vals[] = {
@@ -498,9 +520,10 @@ static const value_string ext_link_tlv_type_vals[] = {
     {0, NULL}
 };
 
-/* OSPF Externded Link Sub-TLV Registry */
+/* OSPF Extended Link Sub-TLV Registry */
 #define SR_STLV_ADJSID                    2
 #define SR_STLV_LAN_ADJSID                3
+#define SR_STLV_LINK_MSD                  6
 
 #define SR_STLV_ADJSID_FLAG_B             0x80
 #define SR_STLV_ADJSID_FLAG_V             0x40
@@ -513,6 +536,7 @@ static const value_string ext_link_stlv_type_vals[] = {
     {SR_STLV_SID_LABEL,                   "SID/Label"                    },
     {SR_STLV_ADJSID,                      "Adj-SID"                      },
     {SR_STLV_LAN_ADJSID,                  "LAN Adj-SID"                  },
+    {SR_STLV_LINK_MSD,                    "Link MSD"                     },
     {0, NULL}
 };
 
@@ -574,6 +598,7 @@ static gint ett_ospf_lsa_sa_tlv = -1;
 static gint ett_ospf_lsa_slr_tlv = -1;
 static gint ett_ospf_lsa_slr_stlv = -1;
 static gint ett_ospf_lsa_srms_tlv = -1;
+static gint ett_ospf_lsa_node_msd_tlv = -1;
 static gint ett_ospf_lsa_elink = -1;
 static gint ett_ospf_lsa_epfx = -1;
 static gint ett_ospf_lsa_elink_tlv = -1;
@@ -807,6 +832,8 @@ static int hf_ospf_ls_slr_stlv = -1;
 static int hf_ospf_ls_range_size = -1;
 static int hf_ospf_ls_sid_label = -1;
 static int hf_ospf_ls_preference = -1;
+static int hf_ospf_ls_igp_msd_type = -1;
+static int hf_ospf_ls_igp_msd_value = -1;
 static int hf_ospf_unknown_tlv = -1;
 static int hf_ospf_v2_grace_tlv = -1;
 static int hf_ospf_v2_grace_period = -1;
@@ -2637,7 +2664,7 @@ dissect_ospf_lsa_opaque_ri(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_
 
     int tlv_type;
     guint tlv_length;
-    int tlv_end_offset;
+    int tlv_offset, tlv_end_offset;
     guint16 stlv_type;
     guint16 stlv_length;
     int stlv_offset;
@@ -2722,6 +2749,7 @@ dissect_ospf_lsa_opaque_ri(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_
                     stlv_tree = proto_tree_add_subtree_format(tlv_tree, tvb, stlv_offset, stlv_length + 4,
                                                               ett_ospf_lsa_slr_stlv, &ti_tree,
                                                               "%s Sub-TLV", stlv_name);
+                    proto_tree_add_item(stlv_tree, hf_ospf_ls_slr_stlv, tvb, stlv_offset, 2, ENC_BIG_ENDIAN);
                     ti = proto_tree_add_item(stlv_tree, hf_ospf_tlv_length, tvb, stlv_offset + 2, 2, ENC_BIG_ENDIAN);
                     if (stlv_length == 3) {
                         sid_label = tvb_get_ntoh24(tvb, stlv_offset + 4);
@@ -2733,7 +2761,6 @@ dissect_ospf_lsa_opaque_ri(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_
                         proto_tree_add_item(stlv_tree, hf_ospf_tlv_value, tvb, stlv_offset + 4, stlv_length, ENC_NA);
                         break;
                     }
-                    proto_tree_add_item(stlv_tree, hf_ospf_ls_slr_stlv, tvb, stlv_offset, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(stlv_tree, hf_ospf_ls_sid_label, tvb, stlv_offset + 4, stlv_length, ENC_BIG_ENDIAN);
                     proto_item_append_text(ti_tree, "  (SID/Label: %u)", sid_label);
                     break;
@@ -2760,6 +2787,20 @@ dissect_ospf_lsa_opaque_ri(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_
             ti = proto_tree_add_item(tlv_tree, hf_ospf_header_reserved, tvb, offset + 5, 3, ENC_NA);
             if (reserved != 0) {
                 expert_add_info(pinfo, ti, &ei_ospf_header_reserved);
+            }
+            break;
+
+        case OPAQUE_TLV_NODE_MSD:
+            /* Node MSD (rfc8476) */
+            tlv_offset = offset + 4;
+            tlv_tree = proto_tree_add_subtree_format(ri_tree, tvb, offset, tlv_length + 4,
+                                                     ett_ospf_lsa_node_msd_tlv, &ti_tree, "%s", tlv_name);
+            proto_tree_add_item(tlv_tree, hf_ospf_tlv_type_opaque, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tlv_tree, hf_ospf_tlv_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+            while (tlv_offset + 2 <= tlv_end_offset) {
+                proto_tree_add_item(tlv_tree, hf_ospf_ls_igp_msd_type, tvb, tlv_offset, 1, ENC_NA);
+                proto_tree_add_item(tlv_tree, hf_ospf_ls_igp_msd_value, tvb, tlv_offset+1, 1, ENC_NA);
+                tlv_offset += 2;
             }
             break;
 
@@ -2974,6 +3015,8 @@ dissect_ospf_lsa_ext_link(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_t
     guint8 link_type;
     guint32 sid_label;
     guint32 reserved;
+    int local_offset;
+    guint16 local_length;
 
     el_tree = proto_tree_add_subtree(tree, tvb, offset, length,
                                      ett_ospf_lsa_elink, NULL, "OSPFv2 Extended Link Opaque LSA");
@@ -3010,18 +3053,18 @@ dissect_ospf_lsa_ext_link(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_t
             stlv_offset = offset + 16;
 
             /* Walk down the sub-TLVs in Extended Link TLV */
-            while (stlv_offset < tlv_end_offset) {
+            while (stlv_offset + 4 <= tlv_end_offset) {
                 stlv_type = tvb_get_ntohs(tvb, stlv_offset);
                 stlv_length = tvb_get_ntohs(tvb, stlv_offset + 2);
                 stlv_name = val_to_str_const(stlv_type, ext_link_stlv_type_vals, "Unknown");
 
+                stlv_tree = proto_tree_add_subtree_format(tlv_tree, tvb, stlv_offset, stlv_length + 4,
+                                                          ett_ospf_lsa_elink_stlv, &ti_tree,
+                                                          "%s Sub-TLV", stlv_name);
+                proto_tree_add_item(stlv_tree, hf_ospf_ls_elink_stlv, tvb, stlv_offset, 2, ENC_BIG_ENDIAN);
+                ti = proto_tree_add_item(stlv_tree, hf_ospf_tlv_length, tvb, stlv_offset + 2, 2, ENC_BIG_ENDIAN);
                 switch (stlv_type) {
                 case SR_STLV_ADJSID:
-                    stlv_tree = proto_tree_add_subtree_format(tlv_tree, tvb, stlv_offset, stlv_length + 4,
-                                                              ett_ospf_lsa_elink_stlv, &ti_tree,
-                                                              "%s Sub-TLV", stlv_name);
-                    proto_tree_add_item(stlv_tree, hf_ospf_ls_elink_stlv, tvb, stlv_offset, 2, ENC_BIG_ENDIAN);
-                    ti = proto_tree_add_item(stlv_tree, hf_ospf_tlv_length, tvb, stlv_offset + 2, 2, ENC_BIG_ENDIAN);
                     if (stlv_length == 7) {
                         sid_label = tvb_get_ntoh24(tvb, stlv_offset + 8);
                     } else if (stlv_length == 8) {
@@ -3045,11 +3088,6 @@ dissect_ospf_lsa_ext_link(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_t
                     break;
 
                 case SR_STLV_LAN_ADJSID:
-                    stlv_tree = proto_tree_add_subtree_format(tlv_tree, tvb, stlv_offset, stlv_length + 4,
-                                                              ett_ospf_lsa_elink_stlv, &ti_tree,
-                                                              "%s Sub-TLV", stlv_name);
-                    proto_tree_add_item(stlv_tree, hf_ospf_ls_elink_stlv, tvb, stlv_offset, 2, ENC_BIG_ENDIAN);
-                    ti = proto_tree_add_item(stlv_tree, hf_ospf_tlv_length, tvb, stlv_offset + 2, 2, ENC_BIG_ENDIAN);
                     if (stlv_length == 11) {
                         sid_label = tvb_get_ntoh24(tvb, stlv_offset + 12);
                     } else if (stlv_length == 12) {
@@ -3074,11 +3112,19 @@ dissect_ospf_lsa_ext_link(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_t
                                            sid_label, tvb_ip_to_str(tvb, stlv_offset + 8));
                     break;
 
+                case SR_STLV_LINK_MSD:
+                    /* Link MSD Sub-TLV (rfc8476) */
+                    local_length = stlv_length;
+                    local_offset = stlv_offset + 4;
+                    while (local_length >= 2) {
+                        proto_tree_add_item(stlv_tree, hf_ospf_ls_igp_msd_type, tvb, local_offset, 1, ENC_NA);
+                        proto_tree_add_item(stlv_tree, hf_ospf_ls_igp_msd_value, tvb, local_offset+1, 1, ENC_NA);
+                        local_offset += 2;
+                        local_length -= 2;
+                    }
+                    break;
+
                 default:
-                    stlv_tree = proto_tree_add_subtree_format(tlv_tree, tvb, stlv_offset, stlv_length + 4,
-                                                              ett_ospf_lsa_elink_stlv, NULL,
-                                                              "%s Sub-TLV: %u - Unknown", stlv_name, stlv_type);
-                    proto_tree_add_item(stlv_tree, hf_ospf_tlv_length, tvb, stlv_offset + 2, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(stlv_tree, hf_ospf_tlv_value, tvb, stlv_offset + 4, stlv_length, ENC_NA);
                     break;
                 }
@@ -4314,6 +4360,10 @@ proto_register_ospf(void)
          { "SID/Label", "ospf.tlv.sid_label", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
         {&hf_ospf_ls_preference,
          { "Preference", "ospf.tlv.preference", FT_UINT24, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        {&hf_ospf_ls_igp_msd_type,
+         { "MSD Type", "ospf.tlv.igp_msd_type", FT_UINT8, BASE_DEC, VALS(ospf_igp_msd_types), 0x0, NULL, HFILL }},
+        {&hf_ospf_ls_igp_msd_value,
+         { "MSD Value", "ospf.tlv.igp_msd_value", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
         /* the Unknown TLV of the Opaque RI LSA */
         {&hf_ospf_unknown_tlv,
@@ -4582,6 +4632,7 @@ proto_register_ospf(void)
         &ett_ospf_lsa_slr_tlv,
         &ett_ospf_lsa_slr_stlv,
         &ett_ospf_lsa_srms_tlv,
+        &ett_ospf_lsa_node_msd_tlv,
         &ett_ospf_lsa_unknown_tlv,
         &ett_ospf_lsa_epfx,
         &ett_ospf_lsa_elink,
