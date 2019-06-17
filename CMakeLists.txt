@@ -41,6 +41,11 @@ set(PROJECT_VERSION "${PROJECT_MAJOR_VERSION}.${PROJECT_MINOR_VERSION}.${PROJECT
 
 set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION}")
 
+# We require minimum C++11
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 message(STATUS "Generating build using CMake ${CMAKE_VERSION}")
 
 #Where to find local cmake scripts
