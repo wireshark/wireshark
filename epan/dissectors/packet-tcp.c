@@ -382,6 +382,8 @@ static expert_field ei_tcp_analysis_tfo_syn = EI_INIT;
 static expert_field ei_tcp_scps_capable = EI_INIT;
 static expert_field ei_tcp_option_snack_sequence = EI_INIT;
 static expert_field ei_tcp_option_wscale_shift_invalid = EI_INIT;
+static expert_field ei_tcp_option_mss_absent = EI_INIT;
+static expert_field ei_tcp_option_mss_present = EI_INIT;
 static expert_field ei_tcp_short_segment = EI_INIT;
 static expert_field ei_tcp_ack_nonzero = EI_INIT;
 static expert_field ei_tcp_connection_sack = EI_INIT;
@@ -4008,16 +4010,22 @@ dissect_tcpopt_sack_perm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, vo
 }
 
 static int
-dissect_tcpopt_mss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
+dissect_tcpopt_mss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     proto_item *item;
     proto_tree *exp_tree;
     proto_item *length_item;
     int offset = 0;
+    struct tcpheader *tcph = (struct tcpheader *)data;
     guint32 mss;
 
     item = proto_tree_add_item(tree, proto_tcp_option_mss, tvb, offset, -1, ENC_NA);
     exp_tree = proto_item_add_subtree(item, ett_tcp_option_mss);
+
+    if (!(tcph->th_flags & TH_SYN))
+    {
+        expert_add_info(pinfo, item, &ei_tcp_option_mss_present);
+    }
 
     proto_tree_add_item(exp_tree, hf_tcp_option_kind, tvb, offset, 1, ENC_BIG_ENDIAN);
     length_item = proto_tree_add_item(exp_tree, hf_tcp_option_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
@@ -5580,6 +5588,8 @@ tcp_dissect_options(tvbuff_t *tvb, int offset, guint length, int eol,
     const char       *name;
     dissector_handle_t option_dissector;
     tvbuff_t         *next_tvb;
+    struct tcpheader *tcph = (struct tcpheader *)data;
+    gboolean          mss_seen = FALSE;
 
     while (length > 0) {
         opt = tvb_get_guint8(tvb, offset);
@@ -5652,6 +5662,11 @@ tcp_dissect_options(tvbuff_t *tvb, int offset, guint length, int eol,
                 return;
             }
 
+            if (opt == TCPOPT_MSS)
+            {
+                mss_seen = TRUE;
+            }
+
             next_tvb = tvb_new_subset_length(tvb, offset, optlen);
             call_dissector_with_data(option_dissector, next_tvb, pinfo, opt_tree/* tree */, data);
             proto_item_append_text(proto_tree_get_parent(opt_tree), ", %s", name);
@@ -5662,6 +5677,11 @@ tcp_dissect_options(tvbuff_t *tvb, int offset, guint length, int eol,
 
         if (opt == eol)
             break;
+    }
+
+    if ((tcph->th_flags & TH_SYN) && (mss_seen != TRUE))
+    {
+        expert_add_info(pinfo, opt_item, &ei_tcp_option_mss_absent);
     }
 }
 
@@ -7570,6 +7590,8 @@ proto_register_tcp(void)
         { &ei_tcp_scps_capable, { "tcp.analysis.zero_window_probe_ack", PI_SEQUENCE, PI_NOTE, "Connection establish request (SYN-ACK): SCPS Capabilities Negotiated", EXPFILL }},
         { &ei_tcp_option_snack_sequence, { "tcp.options.snack.sequence", PI_SEQUENCE, PI_NOTE, "SNACK Sequence", EXPFILL }},
         { &ei_tcp_option_wscale_shift_invalid, { "tcp.options.wscale.shift.invalid", PI_PROTOCOL, PI_WARN, "Window scale shift exceeds 14", EXPFILL }},
+        { &ei_tcp_option_mss_absent, { "tcp.options.mss.absent", PI_PROTOCOL, PI_NOTE, "The SYN packet does not contain a MSS option", EXPFILL }},
+        { &ei_tcp_option_mss_present, { "tcp.options.mss.present", PI_PROTOCOL, PI_WARN, "The non-SYN packet does contain a MSS option", EXPFILL }},
         { &ei_tcp_short_segment, { "tcp.short_segment", PI_MALFORMED, PI_WARN, "Short segment", EXPFILL }},
         { &ei_tcp_ack_nonzero, { "tcp.ack.nonzero", PI_PROTOCOL, PI_NOTE, "The acknowledgment number field is nonzero while the ACK flag is not set", EXPFILL }},
         { &ei_tcp_connection_sack, { "tcp.connection.sack", PI_SEQUENCE, PI_CHAT, "Connection establish acknowledge (SYN+ACK)", EXPFILL }},
