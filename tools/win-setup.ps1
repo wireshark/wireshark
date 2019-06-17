@@ -69,8 +69,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2019-06-06"
-$Win32CurrentTag = "2019-06-06"
+$Win64CurrentTag = "2019-06-17"
+$Win32CurrentTag = "2019-06-17"
 
 # Archive file / SHA256
 $Win64Archives = @{
@@ -125,13 +125,13 @@ $ArchivesSubDirectory = @{
 # Plain file downloads
 
 $Win32Files = @{
-    "npcap-0.995.exe" = "e0274413bf2178c66680a4ee69c4fa871bf7296ea1d9d9a6d19af32a3878c205";
-    "USBPcapSetup-1.4.1.0.exe" = "2a6f9605efb4b58b7b0fabfa9b6a50783f8b129f7ca22ed5617eb083c0d90dcc";
+    "npcap-0.996.exe" = "1493e5cdefb5d7f9bac8c38f0b1dc33af02f3f54f8c536e5713acdaeeda0dafd";
+    "USBPcapSetup-1.5.0.0.exe" = "d978279cfd8df982cc3a3fc5f1cdc79935374e47817b1b06b106a8ce72d4ce48";
 }
 
 $Win64Files = @{
-    "npcap-0.995.exe" = "e0274413bf2178c66680a4ee69c4fa871bf7296ea1d9d9a6d19af32a3878c205";
-    "USBPcapSetup-1.4.1.0.exe" = "2a6f9605efb4b58b7b0fabfa9b6a50783f8b129f7ca22ed5617eb083c0d90dcc";
+    "npcap-0.996.exe" = "1493e5cdefb5d7f9bac8c38f0b1dc33af02f3f54f8c536e5713acdaeeda0dafd";
+    "USBPcapSetup-1.5.0.0.exe" = "d978279cfd8df982cc3a3fc5f1cdc79935374e47817b1b06b106a8ce72d4ce48";
 }
 
 $Archives = $Win64Archives;
