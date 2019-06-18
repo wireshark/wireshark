@@ -113,7 +113,6 @@ before_script:
   - if [ "$TRAVIS_OS_NAME" != "windows" ]; then cmake -GNinja -DENABLE_PCAP=${PCAP} ..; fi
   - if [ "$TRAVIS_OS_NAME" == "windows" ]; then cmake -A $PLATFORM ..; fi
 script:
-  - set -e
   # Enable parallelism for msbuild too (since CMake 3.12; ninja does not need it)
   - export CMAKE_BUILD_PARALLEL_LEVEL=0
   - if [ "$TRAVIS_OS_NAME" == "windows" ]; then cmake() { ../tools/filter-msbuild.py cmake "$@"; }; fi
