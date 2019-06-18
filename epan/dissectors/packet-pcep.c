@@ -656,6 +656,11 @@ static int hf_pcep_association_id_extended = -1;
 static int hf_pcep_unreach_destination_obj_ipv4_address = -1;
 static int hf_pcep_unreach_destination_obj_ipv6_address = -1;
 
+static int hf_pcep_op_conf_assoc_range_reserved = -1;
+static int hf_pcep_op_conf_assoc_range_assoc_type = -1;
+static int hf_pcep_op_conf_assoc_range_start_assoc = -1;
+static int hf_pcep_op_conf_assoc_range_range = -1;
+
 static int hf_pcep_enterprise_number = -1;
 static int hf_pcep_enterprise_specific_info = -1;
 static int hf_pcep_tlv_enterprise_number = -1;
@@ -1056,6 +1061,7 @@ static const value_string pcep_tlvs_vals[] = {
     {26, "SR-PCE-CAPABILITY"          },
     {27, "PATH-SETUP-TYPE"            },
     {28, "PATH-SETUP-TYPE"            },
+    {29, "OP-CONF-ASSOC-RANGE"        },
     {30, "GLOBAL-ASSOCIATION-SOURCE"  },
     {31, "EXTENDED-ASSOCIATION-ID"    },
     {34, "PATH-SETUP-TYPE-CAPABILITY" },
@@ -1458,6 +1464,24 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
             case 28:    /* PATH-SETUP-TYPE TLV (FF: IANA code point) */
                 proto_tree_add_item(tlv, hf_pcep_path_setup_type_reserved24, tvb, offset + 4 + j, 3, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv, hf_pcep_path_setup_type, tvb, offset + 4 + j + 3, 1, ENC_NA);
+                break;
+
+            case 29:    /* OP-CONF-ASSOC-RANGE */
+                offset += 4 + j;
+                while(tlv_length > 0) {
+                    proto_tree_add_item(tlv, hf_pcep_op_conf_assoc_range_reserved, tvb, offset, 2, ENC_NA);
+                    offset += 2;
+                    tlv_length -= 2;
+                    proto_tree_add_item(tlv, hf_pcep_op_conf_assoc_range_assoc_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
+                    tlv_length -= 2;
+                    proto_tree_add_item(tlv, hf_pcep_op_conf_assoc_range_start_assoc, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
+                    tlv_length -= 2;
+                    proto_tree_add_item(tlv, hf_pcep_op_conf_assoc_range_range, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    offset += 2;
+                    tlv_length -= 2;
+                }
                 break;
 
             case 30:    /* GLOBAL-ASSOCIATION-SOURCE */
@@ -5599,6 +5623,26 @@ proto_register_pcep(void)
         { &hf_pcep_association_id_extended,
           { "Extended Association ID", "pcep.association.id.extended",
             FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_op_conf_assoc_range_reserved,
+          { "Reserved", "pcep.op_conf_assoc_range.reserved",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_op_conf_assoc_range_assoc_type,
+          { "Assoc-Type", "pcep.op_conf_assoc_range.assoc_type",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_op_conf_assoc_range_start_assoc,
+          { "Start-Assoc", "pcep.op_conf_assoc_range.start_assoc",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_op_conf_assoc_range_range,
+          { "Range", "pcep.op_conf_assoc_range.range",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pcep_enterprise_number,
