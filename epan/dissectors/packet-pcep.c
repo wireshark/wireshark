@@ -97,7 +97,7 @@ void proto_reg_handoff_pcep(void);
 #define PCEP_OBJ_SRP                    33
 #define PCEP_OBJ_VENDOR_INFORMATION     34 /* RFC 7470 */
 #define PCEP_OBJ_BU                     35 /* draft-ietf-pce-pcep-service-aware */
-#define PCEP_ASSOCIATION_OBJ           255 /* TODO temp to be adjusted */
+#define PCEP_ASSOCIATION_OBJ            40 /* draft-ietf-pce-association-group */
 
 /*Subobjects of EXPLICIT ROUTE Object*/
 #define PCEP_SUB_IPv4                    1
@@ -1056,9 +1056,9 @@ static const value_string pcep_tlvs_vals[] = {
     {26, "SR-PCE-CAPABILITY"          },
     {27, "PATH-SETUP-TYPE"            },
     {28, "PATH-SETUP-TYPE"            },
+    {30, "GLOBAL-ASSOCIATION-SOURCE"  },
+    {31, "EXTENDED-ASSOCIATION-ID"    },
     {34, "PATH-SETUP-TYPE-CAPABILITY" },
-    {98, "GLOBAL-ASSOCIATION-SOURCE"  },
-    {99, "EXTENDED-ASSOCIATION-ID"    },
     {0, NULL                          }
 };
 
@@ -1460,6 +1460,14 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
                 proto_tree_add_item(tlv, hf_pcep_path_setup_type, tvb, offset + 4 + j + 3, 1, ENC_NA);
                 break;
 
+            case 30:    /* GLOBAL-ASSOCIATION-SOURCE */
+                proto_tree_add_item(tlv, hf_pcep_association_source_global, tvb, offset + 4 + j, 4, ENC_BIG_ENDIAN);
+                break;
+
+            case 31:    /* EXTENDED-ASSOCIATION-ID TLV */
+                proto_tree_add_item(tlv, hf_pcep_association_id_extended, tvb, offset + 4 + j, tlv_length, ENC_NA);
+                break;
+
             case 34:    /* PATH-SETUP-TYPE-CAPABILITY TLV */
                 {
                     guint32 psts;
@@ -1477,14 +1485,6 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
 
                     /* TODO: implement subTLV dissection */
                 }
-                break;
-
-            case 98:    /* GLOBAL-ASSOCIATION-SOURCE TLV (TODO temp to be adjusted) */
-                proto_tree_add_item(tlv, hf_pcep_association_source_global, tvb, offset + 4 + j, 4, ENC_BIG_ENDIAN);
-                break;
-
-            case 99:    /* EXTENDED-ASSOCIATION-ID TLV (TODO temp to be adjusted) */
-                proto_tree_add_item(tlv, hf_pcep_association_id_extended, tvb, offset + 4 + j, tlv_length, ENC_NA);
                 break;
 
             default:
