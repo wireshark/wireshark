@@ -5063,7 +5063,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                 offset += 4;
                 if (total_frag > 1) {
                     frag_data = fragment_add_seq_check(&mbim_reassembly_table, tvb, offset, pinfo,
-                                                       trans_id, NULL, current_frag,
+                                                       trans_id, mbim_conv, current_frag,
                                                        tvb_reported_length_remaining(tvb, offset),
                                                        (current_frag != (total_frag-1)));
                     frag_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled MBIM control message",
@@ -5923,7 +5923,7 @@ dissect_mbim_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
                 offset += 4;
                 if (total_frag > 1) {
                     frag_data = fragment_add_seq_check(&mbim_reassembly_table, tvb, offset, pinfo,
-                                                       trans_id, NULL, current_frag,
+                                                       trans_id, mbim_conv, current_frag,
                                                        tvb_reported_length_remaining(tvb, offset),
                                                        (current_frag != (total_frag-1)));
                     frag_tvb = process_reassembled_data(tvb, offset, pinfo, "Reassembled MBIM control message",
