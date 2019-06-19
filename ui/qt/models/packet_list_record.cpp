@@ -23,10 +23,21 @@
 
 #include <QStringList>
 
+class ColumnTextList : public QList<const char *> {
+public:
+    // Allocate our records using wmem.
+    static void *operator new(size_t size) {
+        return wmem_alloc(wmem_file_scope(), size);
+    }
+
+    static void operator delete(void *) {}
+};
+
 QMap<int, int> PacketListRecord::cinfo_column_;
 unsigned PacketListRecord::col_data_ver_ = 1;
 
 PacketListRecord::PacketListRecord(frame_data *frameData, struct _GStringChunk *string_cache_pool) :
+    col_text_(0),
     fdata_(frameData),
     lines_(1),
     line_count_changed_(false),
@@ -44,30 +55,21 @@ void *PacketListRecord::operator new(size_t size)
 
 // We might want to return a const char * instead. This would keep us from
 // creating excessive QByteArrays, e.g. in PacketListModel::recordLessThan.
-const QString PacketListRecord::columnString(capture_file *cap_file, int column, bool colorized)
-{
-    if ( ensureDissection(cap_file, column, colorized) )
-        return col_text_.at(column);
-
-    return QString();
-}
-
-bool PacketListRecord::ensureDissection(capture_file *cap_file, int column, bool colorized)
+const QByteArray PacketListRecord::columnString(capture_file *cap_file, int column, bool colorized)
 {
     // packet_list_store.c:packet_list_get_value
-    Q_ASSERT(fdata_);
+    g_assert(fdata_);
 
     if (!cap_file || column < 0 || column > cap_file->cinfo.num_cols) {
-        return false;
+        return QByteArray();
     }
 
     bool dissect_color = colorized && !colorized_;
-    if (col_text_.isEmpty() || column >= col_text_.size() || data_ver_ != col_data_ver_ || dissect_color) {
+    if (!col_text_ || column >= col_text_->size() || !col_text_->at(column) || data_ver_ != col_data_ver_ || dissect_color) {
         dissect(cap_file, dissect_color);
     }
 
-    return true;
-
+    return col_text_->value(column, QByteArray());
 }
 
 void PacketListRecord::resetColumns(column_info *cinfo)
@@ -102,7 +104,8 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_color)
     wtap_rec rec; /* Record metadata */
     Buffer buf;   /* Record data */
 
-    gboolean dissect_columns = col_text_.isEmpty() || data_ver_ != col_data_ver_;
+    if (!col_text_) col_text_ = new ColumnTextList;
+    gboolean dissect_columns = col_text_->isEmpty() || data_ver_ != col_data_ver_;
 
     if (!cap_file) {
         return;
@@ -203,8 +206,11 @@ void PacketListRecord::cacheColumnStrings(column_info *cinfo)
         return;
     }
 
-    col_text_.clear();
-
+    if (col_text_) {
+        col_text_->clear();
+    } else {
+        col_text_ = new ColumnTextList;
+    }
     lines_ = 1;
     line_count_changed_ = false;
 
@@ -217,7 +223,7 @@ void PacketListRecord::cacheColumnStrings(column_info *cinfo)
         /* Column based on frame_data or it already contains a value */
         if (text_col < 0) {
             col_fill_in_frame_data(fdata_, cinfo, column, FALSE);
-            col_text_.append(cinfo->columns[column].col_data);
+            col_text_->append(cinfo->columns[column].col_data);
             continue;
         }
 
@@ -234,7 +240,7 @@ void PacketListRecord::cacheColumnStrings(column_info *cinfo)
                 // XXX - ui/gtk/packet_list_store.c uses G_MAXUSHORT. We don't do proper UTF8
                 // truncation in either case.
                 int col_text_len = MIN(qstrlen(cinfo->col_data[column]) + 1, COL_MAX_INFO_LEN);
-                col_text_.append(QByteArray::fromRawData(cinfo->columns[column].col_data, col_text_len));
+                col_text_->append(QByteArray::fromRawData(cinfo->columns[column].col_data, col_text_len));
                 break;
             }
             /* !! FALL-THROUGH!! */
@@ -261,9 +267,9 @@ void PacketListRecord::cacheColumnStrings(column_info *cinfo)
             if (!get_column_resolved(column) && cinfo->col_expr.col_expr_val[column]) {
                 /* Use the unresolved value in col_expr_val */
                 // XXX Use QContiguousCache?
-                col_text_.append(cinfo->col_expr.col_expr_val[column]);
+                col_text_->append(cinfo->col_expr.col_expr_val[column]);
             } else {
-                col_text_.append(cinfo->columns[column].col_data);
+                col_text_->append(cinfo->columns[column].col_data);
             }
             break;
         }
@@ -285,7 +291,7 @@ void PacketListRecord::cacheColumnStrings(column_info *cinfo)
         // https://git.gnome.org/browse/glib/tree/glib/gstringchunk.c
         // We might be better off adding the equivalent functionality to
         // wmem_tree.
-        col_text_.append(g_string_chunk_insert_const(string_cache_pool_, col_str));
+        col_text_->append(g_string_chunk_insert_const(string_cache_pool_, col_str));
         for (int i = 0; col_str[i]; i++) {
             if (col_str[i] == '\n') col_lines++;
         }
