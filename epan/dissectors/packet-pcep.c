@@ -662,6 +662,10 @@ static int hf_pcep_op_conf_assoc_range_assoc_type = -1;
 static int hf_pcep_op_conf_assoc_range_start_assoc = -1;
 static int hf_pcep_op_conf_assoc_range_range = -1;
 
+static int hf_pcep_srcpag_info_color = -1;
+static int hf_pcep_srcpag_info_destination_endpoint = -1;
+static int hf_pcep_srcpag_info_preference = -1;
+
 static int hf_pcep_enterprise_number = -1;
 static int hf_pcep_enterprise_specific_info = -1;
 static int hf_pcep_tlv_enterprise_number = -1;
@@ -1066,6 +1070,7 @@ static const value_string pcep_tlvs_vals[] = {
     {30, "GLOBAL-ASSOCIATION-SOURCE"  },
     {31, "EXTENDED-ASSOCIATION-ID"    },
     {34, "PATH-SETUP-TYPE-CAPABILITY" },
+    {40, "SRCPAG-INFO"                }, /* Not yet register */
     {0, NULL                          }
 };
 
@@ -1523,6 +1528,12 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
 
                     /* TODO: implement subTLV dissection */
                 }
+                break;
+
+            case 40:    /* SRCPAG-INFO TLV */
+                proto_tree_add_item(tlv, hf_pcep_srcpag_info_color, tvb, offset + 4 + j, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tlv, hf_pcep_srcpag_info_destination_endpoint, tvb, offset + 4 + j + 4, 4, ENC_NA);
+                proto_tree_add_item(tlv, hf_pcep_srcpag_info_preference, tvb, offset + 4 + j + 8, 4, ENC_NA);
                 break;
 
             default:
@@ -5660,6 +5671,21 @@ proto_register_pcep(void)
         { &hf_pcep_op_conf_assoc_range_range,
           { "Range", "pcep.op_conf_assoc_range.range",
             FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_srcpag_info_color,
+          { "Color", "pcep.srcpag_info.color",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_srcpag_info_destination_endpoint,
+          { "Destination End-point", "pcep.srcpag_info.destination_endpoint",
+            FT_IPv4, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pcep_srcpag_info_preference,
+          { "Preference", "pcep.srcpag_info.preference",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_pcep_enterprise_number,
