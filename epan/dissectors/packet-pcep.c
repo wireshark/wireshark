@@ -159,6 +159,7 @@ void proto_reg_handoff_pcep(void);
 #define INVALID_PATH_SETUP_TYPE         21
 #define BAD_PARAMETER_VALUE             23
 #define LSP_INSTANTIATION_ERROR         24
+#define ASSOCIATION_ERROR               26
 
 /*Different values of Reason in the CLOSE object */
 #define NO_EXP_PROV                      1
@@ -1118,6 +1119,7 @@ static const value_string pcep_error_types_obj_vals[] = {
     {LSP_STATE_SYNCHRONIZATION_ERROR,   "LSP State synchronization error"               },
     {BAD_PARAMETER_VALUE,               "Bad parameter value"                           },
     {LSP_INSTANTIATION_ERROR,           "LSP instantiation error"                       },
+    {ASSOCIATION_ERROR,                 "Association instantiation error"               },
     {0, NULL }
 };
 static value_string_ext pcep_error_types_obj_vals_ext = VALUE_STRING_EXT_INIT(pcep_error_types_obj_vals);
@@ -1286,6 +1288,18 @@ static const value_string pcep_error_value_24_vals[] = {
     {1, "Unacceptable instantiation parameters"},   /* draft-ietf-pce-pce-initiated-lsp */
     {2, "Internal error"},                          /* draft-ietf-pce-pce-initiated-lsp */
     {3, "Signaling error"},                         /* draft-ietf-pce-pce-initiated-lsp */
+    {0, NULL}
+};
+
+/*Error values for error type 26*/
+static const value_string pcep_error_value_26_vals[] = {
+    {1, "Association-type is not supported"},                       /* draft-ietf-pce-association-group */
+    {2, "Too many LSPs in the association group"},                  /* draft-ietf-pce-association-group */
+    {3, "Too many association groups"},                             /* draft-ietf-pce-association-group */
+    {4, "Association unknown"},                                     /* draft-ietf-pce-association-group */
+    {5, "Operator-configured association information mismatch "},   /* draft-ietf-pce-association-group */
+    {6, "Association information mismatch"},                        /* draft-ietf-pce-association-group */
+    {7, "Cannot join the association group"},                       /* draft-ietf-pce-association-group */
     {0, NULL}
 };
 
@@ -2735,6 +2749,9 @@ dissect_pcep_error_obj(proto_tree *pcep_object_tree, packet_info *pinfo, tvbuff_
             break;
         case LSP_INSTANTIATION_ERROR:
             err_str = val_to_str_const(error_value, pcep_error_value_24_vals, "Unknown");
+            break;
+        case ASSOCIATION_ERROR:
+            err_str = val_to_str_const(error_value, pcep_error_value_26_vals, "Unknown");
             break;
         default:
             proto_item_append_text(type_item, " (%u Non defined Error-Value)", error_type);
