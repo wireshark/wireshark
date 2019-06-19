@@ -40,7 +40,8 @@ Description: network traffic analyzer - common files
  packets off the wire. Wireshark can decode too many protocols to list
  here.
  .
- This package provides files common to both wireshark and tshark (the console version).
+ This package provides files common to both wireshark and tshark (the
+ console version).
 
 Package: wireshark
 Architecture: any
@@ -97,7 +98,6 @@ Description: network traffic analyzer - development tools
  new packet dissectors.
 
 Package: wireshark-dbg
-Priority: extra
 Architecture: any
 Section: debug
 Depends: ${misc:Depends}, wireshark-common (= ${binary:Version}) | wireshark (= ${binary:Version}) | tshark (= ${binary:Version})
@@ -110,7 +110,6 @@ Description: network traffic analyzer - debug symbols
  programs and libraries.
 
 Package: wireshark-doc
-Priority: extra
 Architecture: all
 Multi-Arch: foreign
 Section: doc
