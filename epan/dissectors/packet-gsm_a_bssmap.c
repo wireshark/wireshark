@@ -337,6 +337,99 @@ static const value_string gsm_bssmap_elem_strings[] = {
     { BE_CS_TO_PS_SRVCC_IND,             "CS to PS SRVCC Indication" },                                  /* 3.2.2.124    */
     { BE_CN_TO_MS_TRANSP,                "CN to MS transparent information" },                           /* 3.2.2.125    */
     { BE_SELECTED_PLMN_ID,               "Selected PLMN ID" },                                           /* 3.2.2.126    */
+    { BE_UDEF_149,                       "Undefined" },
+    { BE_UDEF_150,                       "Undefined" },
+    { BE_UDEF_151,                       "Undefined" },
+    { BE_UDEF_152,                       "Undefined" },
+    { BE_UDEF_153,                       "Undefined" },
+    { BE_UDEF_154,                       "Undefined" },
+    { BE_UDEF_155,                       "Undefined" },
+    { BE_UDEF_156,                       "Undefined" },
+    { BE_UDEF_157,                       "Undefined" },
+    { BE_UDEF_158,                       "Undefined" },
+    { BE_UDEF_159,                       "Undefined" },
+    { BE_UDEF_160,                       "Undefined" },
+    { BE_UDEF_161,                       "Undefined" },
+    { BE_UDEF_162,                       "Undefined" },
+    { BE_UDEF_163,                       "Undefined" },
+    { BE_UDEF_164,                       "Undefined" },
+    { BE_UDEF_165,                       "Undefined" },
+    { BE_UDEF_166,                       "Undefined" },
+    { BE_UDEF_167,                       "Undefined" },
+    { BE_UDEF_168,                       "Undefined" },
+    { BE_UDEF_169,                       "Undefined" },
+    { BE_UDEF_170,                       "Undefined" },
+    { BE_UDEF_171,                       "Undefined" },
+    { BE_UDEF_172,                       "Undefined" },
+    { BE_UDEF_173,                       "Undefined" },
+    { BE_UDEF_174,                       "Undefined" },
+    { BE_UDEF_175,                       "Undefined" },
+    { BE_UDEF_176,                       "Undefined" },
+    { BE_UDEF_177,                       "Undefined" },
+    { BE_UDEF_178,                       "Undefined" },
+    { BE_UDEF_179,                       "Undefined" },
+    { BE_UDEF_180,                       "Undefined" },
+    { BE_UDEF_181,                       "Undefined" },
+    { BE_UDEF_182,                       "Undefined" },
+    { BE_UDEF_183,                       "Undefined" },
+    { BE_UDEF_184,                       "Undefined" },
+    { BE_UDEF_185,                       "Undefined" },
+    { BE_UDEF_186,                       "Undefined" },
+    { BE_UDEF_187,                       "Undefined" },
+    { BE_UDEF_188,                       "Undefined" },
+    { BE_UDEF_189,                       "Undefined" },
+    { BE_UDEF_190,                       "Undefined" },
+    { BE_UDEF_191,                       "Undefined" },
+    { BE_UDEF_192,                       "Undefined" },
+    { BE_UDEF_193,                       "Undefined" },
+    { BE_UDEF_194,                       "Undefined" },
+    { BE_UDEF_195,                       "Undefined" },
+    { BE_UDEF_196,                       "Undefined" },
+    { BE_UDEF_197,                       "Undefined" },
+    { BE_UDEF_198,                       "Undefined" },
+    { BE_UDEF_199,                       "Undefined" },
+    { BE_UDEF_200,                       "Undefined" },
+    { BE_UDEF_201,                       "Undefined" },
+    { BE_UDEF_202,                       "Undefined" },
+    { BE_UDEF_203,                       "Undefined" },
+    { BE_UDEF_204,                       "Undefined" },
+    { BE_UDEF_205,                       "Undefined" },
+    { BE_UDEF_206,                       "Undefined" },
+    { BE_UDEF_207,                       "Undefined" },
+    { BE_UDEF_208,                       "Undefined" },
+    { BE_UDEF_209,                       "Undefined" },
+    { BE_UDEF_210,                       "Undefined" },
+    { BE_UDEF_211,                       "Undefined" },
+    { BE_UDEF_212,                       "Undefined" },
+    { BE_UDEF_213,                       "Undefined" },
+    { BE_UDEF_214,                       "Undefined" },
+    { BE_UDEF_215,                       "Undefined" },
+    { BE_UDEF_216,                       "Undefined" },
+    { BE_UDEF_217,                       "Undefined" },
+    { BE_UDEF_218,                       "Undefined" },
+    { BE_UDEF_219,                       "Undefined" },
+    { BE_UDEF_220,                       "Undefined" },
+    { BE_UDEF_221,                       "Undefined" },
+    { BE_UDEF_222,                       "Undefined" },
+    { BE_UDEF_223,                       "Undefined" },
+    { BE_UDEF_224,                       "Undefined" },
+    { BE_UDEF_225,                       "Undefined" },
+    { BE_UDEF_226,                       "Undefined" },
+    { BE_UDEF_227,                       "Undefined" },
+    { BE_UDEF_228,                       "Undefined" },
+    { BE_UDEF_229,                       "Undefined" },
+    { BE_UDEF_230,                       "Undefined" },
+    { BE_UDEF_231,                       "Undefined" },
+    { BE_UDEF_232,                       "Undefined" },
+    { BE_UDEF_233,                       "Undefined" },
+    { BE_UDEF_234,                       "Undefined" },
+    { BE_UDEF_235,                       "Undefined" },
+    { BE_UDEF_236,                       "Undefined" },
+    { BE_UDEF_237,                       "Undefined" },
+    { BE_UDEF_238,                       "Undefined" },
+    { BE_UDEF_239,                       "Undefined" },
+    { BE_OSMOCOM_OSMUX_SUPPORT,          "Osmocom extension: Osmux Support" },
+    { BE_OSMOCOM_OSMUX_CID,              "Osmocom extension: Osmux CID" },
     { 0, NULL }
 };
 value_string_ext gsm_bssmap_elem_strings_ext = VALUE_STRING_EXT_INIT(gsm_bssmap_elem_strings);
@@ -638,6 +731,7 @@ static int hf_gsm_a_bssmap_lcls_conf = -1;
 static int hf_gsm_a_bssmap_lcls_con_status_control = -1;
 static int hf_gsm_a_bssmap_lcls_bss_status = -1;
 static int hf_gsm_a_bssmap_selected_plmn_id = -1;
+static int hf_gsm_a_bssmap_osmocom_osmux_cid = -1;
 
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_gsm_a_bssmap_message_elements = -1;
@@ -4373,6 +4467,14 @@ be_selected_plmn_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
 
 }
 
+/* Osmocom extension: Osmux CID */
+static guint16
+be_osmocom_osmux_cid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+{
+    proto_tree_add_item(tree, hf_gsm_a_bssmap_osmocom_osmux_cid, tvb, offset, 1, ENC_NA);
+    return 1;
+}
+
 
 guint16 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string, int string_len) = {
     NULL,               /* Undefined */
@@ -4524,6 +4626,99 @@ guint16 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     NULL,                               /* CS to PS SRVCC Indication            3.2.2.124    */
     NULL,                               /* CN to MS transparent information     3.2.2.125    */
     be_selected_plmn_id,                /* Selected PLMN ID                     3.2.2.126    */
+    NULL,                               /* 0x95 */
+    NULL,                               /* 0x96 */
+    NULL,                               /* 0x97 */
+    NULL,                               /* 0x98 */
+    NULL,                               /* 0x99 */
+    NULL,                               /* 0x9a */
+    NULL,                               /* 0x9b */
+    NULL,                               /* 0x9c */
+    NULL,                               /* 0x9d */
+    NULL,                               /* 0x9e */
+    NULL,                               /* 0x9f */
+    NULL,                               /* 0xa0 */
+    NULL,                               /* 0xa1 */
+    NULL,                               /* 0xa2 */
+    NULL,                               /* 0xa3 */
+    NULL,                               /* 0xa4 */
+    NULL,                               /* 0xa5 */
+    NULL,                               /* 0xa6 */
+    NULL,                               /* 0xa7 */
+    NULL,                               /* 0xa8 */
+    NULL,                               /* 0xa9 */
+    NULL,                               /* 0xaa */
+    NULL,                               /* 0xab */
+    NULL,                               /* 0xac */
+    NULL,                               /* 0xad */
+    NULL,                               /* 0xae */
+    NULL,                               /* 0xaf */
+    NULL,                               /* 0xb0 */
+    NULL,                               /* 0xb1 */
+    NULL,                               /* 0xb2 */
+    NULL,                               /* 0xb3 */
+    NULL,                               /* 0xb4 */
+    NULL,                               /* 0xb5 */
+    NULL,                               /* 0xb6 */
+    NULL,                               /* 0xb7 */
+    NULL,                               /* 0xb8 */
+    NULL,                               /* 0xb9 */
+    NULL,                               /* 0xba */
+    NULL,                               /* 0xbb */
+    NULL,                               /* 0xbc */
+    NULL,                               /* 0xbd */
+    NULL,                               /* 0xbe */
+    NULL,                               /* 0xbf */
+    NULL,                               /* 0xc0 */
+    NULL,                               /* 0xc1 */
+    NULL,                               /* 0xc2 */
+    NULL,                               /* 0xc3 */
+    NULL,                               /* 0xc4 */
+    NULL,                               /* 0xc5 */
+    NULL,                               /* 0xc6 */
+    NULL,                               /* 0xc7 */
+    NULL,                               /* 0xc8 */
+    NULL,                               /* 0xc9 */
+    NULL,                               /* 0xca */
+    NULL,                               /* 0xcb */
+    NULL,                               /* 0xcc */
+    NULL,                               /* 0xcd */
+    NULL,                               /* 0xce */
+    NULL,                               /* 0xcf */
+    NULL,                               /* 0xd0 */
+    NULL,                               /* 0xd1 */
+    NULL,                               /* 0xd2 */
+    NULL,                               /* 0xd3 */
+    NULL,                               /* 0xd4 */
+    NULL,                               /* 0xd5 */
+    NULL,                               /* 0xd6 */
+    NULL,                               /* 0xd7 */
+    NULL,                               /* 0xd8 */
+    NULL,                               /* 0xd9 */
+    NULL,                               /* 0xda */
+    NULL,                               /* 0xdb */
+    NULL,                               /* 0xdc */
+    NULL,                               /* 0xdd */
+    NULL,                               /* 0xde */
+    NULL,                               /* 0xdf */
+    NULL,                               /* 0xe0 */
+    NULL,                               /* 0xe1 */
+    NULL,                               /* 0xe2 */
+    NULL,                               /* 0xe3 */
+    NULL,                               /* 0xe4 */
+    NULL,                               /* 0xe5 */
+    NULL,                               /* 0xe6 */
+    NULL,                               /* 0xe7 */
+    NULL,                               /* 0xe8 */
+    NULL,                               /* 0xe9 */
+    NULL,                               /* 0xea */
+    NULL,                               /* 0xeb */
+    NULL,                               /* 0xec */
+    NULL,                               /* 0xed */
+    NULL,                               /* 0xee */
+    NULL,                               /* 0xef */
+    NULL,                               /* Osmocom extension: Osmux Support */
+    be_osmocom_osmux_cid,               /* Osmocom extension: Osmux CID */
     NULL                                /* NONE */
 
 };
@@ -4869,7 +5064,8 @@ bssmap_ass_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
     /* LCLS-Correlation-Not-Needed    3.2.2.118    MSC-BSS    O (note 18)    1*/
     ELEM_OPT_T(BE_LCLS_CORR_NOT_NEEDED, GSM_A_PDU_TYPE_BSSMAP, BE_LCLS_CORR_NOT_NEEDED, NULL);
     /* CS to PS SRVCC    3.2.2.122    MSC-BSS    O (note 19)    1*/
-
+    /* Osmocom extension: Osmux CID */
+    ELEM_OPT_TV(BE_OSMOCOM_OSMUX_CID, GSM_A_PDU_TYPE_BSSMAP, BE_OSMOCOM_OSMUX_CID, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 }
@@ -4913,6 +5109,8 @@ bssmap_ass_complete(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
     ELEM_OPT_TLV(BE_SPEECH_CODEC_LST, GSM_A_PDU_TYPE_BSSMAP, BE_SPEECH_CODEC_LST, "(BSS Supported)");
     /* LCLS-BSS-Status    3.2.2.119    BSS-MSC    O (note 12)    2 */
     ELEM_OPT_TV(BE_LCLS_BSS_STATUS, GSM_A_PDU_TYPE_BSSMAP, BE_LCLS_BSS_STATUS, NULL);
+    /* Osmocom extension: Osmux CID */
+    ELEM_OPT_TV(BE_OSMOCOM_OSMUX_CID, GSM_A_PDU_TYPE_BSSMAP, BE_OSMOCOM_OSMUX_CID, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 }
@@ -5509,6 +5707,8 @@ bssmap_reset(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset
     ELEM_MAND_TLV(BE_CAUSE, GSM_A_PDU_TYPE_BSSMAP, BE_CAUSE, NULL, ei_gsm_a_bssmap_missing_mandatory_element);
     /* A-Interface Selector for RESET  3.2.2.107   Both O 2 */
     ELEM_OPT_TV(BE_A_ITF_SEL_FOR_RESET, GSM_A_PDU_TYPE_BSSMAP, BE_A_ITF_SEL_FOR_RESET, NULL);
+    /*Osmocom extension: Osmux Support */
+    ELEM_OPT_T(BE_OSMOCOM_OSMUX_SUPPORT, GSM_A_PDU_TYPE_BSSMAP, BE_OSMOCOM_OSMUX_SUPPORT, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 }
@@ -5528,6 +5728,8 @@ bssmap_reset_ack(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
     /* A-Interface Selector for RESET  3.2.2.107   Both O 2 */
     ELEM_OPT_TV(BE_A_ITF_SEL_FOR_RESET, GSM_A_PDU_TYPE_BSSMAP, BE_A_ITF_SEL_FOR_RESET, NULL);
+    /*Osmocom extension: Osmux Support */
+    ELEM_OPT_T(BE_OSMOCOM_OSMUX_SUPPORT, GSM_A_PDU_TYPE_BSSMAP, BE_OSMOCOM_OSMUX_SUPPORT, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0, pinfo, &ei_gsm_a_bssmap_extraneous_data);
 }
@@ -8007,6 +8209,11 @@ proto_register_gsm_a_bssmap(void)
     { &hf_gsm_a_bssmap_selected_plmn_id,
         { "Selected PLMN ID", "gsm_a.bssmap.selected_plmn_id",
             FT_STRING, BASE_NONE, NULL, 0,
+            NULL, HFILL }
+    },
+    { &hf_gsm_a_bssmap_osmocom_osmux_cid,
+        { "Osmux CID", "gsm_a.bssmap.osmocom_osmux_cid",
+            FT_UINT8, BASE_DEC, NULL, 0,
             NULL, HFILL }
     },
 
