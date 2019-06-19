@@ -22,6 +22,7 @@ S<[ B<--remote-password>=E<lt>passwordE<gt> ]>
 S<[ B<--sshkey>=E<lt>public key path<gt> ]>
 S<[ B<--remote-interface>=E<lt>interfaceE<gt> ]>
 S<[ B<--remote-capture-command>=E<lt>capture commandE<gt> ]>
+S<[ B<--remote-sudo> ]>
 
 B<sshdump>
 S<B<--extcap-interfaces>>
