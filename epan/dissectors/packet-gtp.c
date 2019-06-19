@@ -9471,7 +9471,7 @@ dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
                         offset += ext_hdr_length*4 - 2;
 
                         next_hdr = tvb_get_guint8(tvb, offset);
-                        proto_tree_add_uint(ext_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, next_hdr);
+                        hdr_ext_item = proto_tree_add_uint(ext_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, next_hdr);
                         offset++;
                     }
                 } else
