@@ -332,12 +332,10 @@ static const value_string gsm_bssmap_elem_strings[] = {
     { BE_LCLS_BSS_STATUS,                "LCLS-BSS-Status" },                                            /* 3.2.2.119    */
     { BE_LCLS_BREAK_REQ,                 "LCLS-Break-Request" },                                         /* 3.2.2.120    */
     { BE_CSFB_IND,                       "CSFB Indication" },                                            /* 3.2.2.121    */
-#if 0
     { BE_CS_TO_PS_SRVCC,                 "CS to PS SRVCC" },                                             /* 3.2.2.122    */
-    { BE_SRC_ENB_2_TGT_ENB_TRANSP_INF,   "Source eNB to target eNB transparent information (E-UTRAN)" }, /*3.2.2.123     */
+    { BE_SRC_ENB_2_TGT_ENB_TRANSP_INF,   "Source eNB to target eNB transparent information (E-UTRAN)" }, /* 3.2.2.123    */
     { BE_CS_TO_PS_SRVCC_IND,             "CS to PS SRVCC Indication" },                                  /* 3.2.2.124    */
     { BE_CN_TO_MS_TRANSP,                "CN to MS transparent information" },                           /* 3.2.2.125    */
-#endif
     { BE_SELECTED_PLMN_ID,               "Selected PLMN ID" },                                           /* 3.2.2.126    */
     { 0, NULL }
 };
@@ -4521,12 +4519,10 @@ guint16 (*bssmap_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
     be_lcls_bss_status,                 /* LCLS-BSS-Status                      3.2.2.119    */
     NULL,                               /* LCLS-Break-Request                   3.2.2.120    No data */
     NULL,                               /* CSFB Indication                      3.2.2.121    No data */
-#if 0
-    BE_CS_TO_PS_SRVCC,                  /* CS to PS SRVCC                       3.2.2.122    */
-    BE_SRC_ENB_2_TGT_ENB_TRANSP_INF,    /* Source eNB to target eNB transparent information (E-UTRAN)" 3.2.2.123    */
-    BE_CS_TO_PS_SRVCC_IND,              /* CS to PS SRVCC Indication            3.2.2.124    */
-    BE_CN_TO_MS_TRANSP,                 /* CN to MS transparent information     3.2.2.125    */
-#endif
+    NULL,                               /* CS to PS SRVCC                       3.2.2.122    */
+    NULL,                               /* Source eNB to target eNB transparent information (E-UTRAN)" 3.2.2.123    */
+    NULL,                               /* CS to PS SRVCC Indication            3.2.2.124    */
+    NULL,                               /* CN to MS transparent information     3.2.2.125    */
     be_selected_plmn_id,                /* Selected PLMN ID                     3.2.2.126    */
     NULL                                /* NONE */
 
