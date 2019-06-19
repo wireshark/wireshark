@@ -58,7 +58,7 @@ static struct option longopts[] = {
 	{ "version", no_argument, NULL, OPT_VERSION},
 	SSH_BASE_OPTIONS,
 	{ "remote-capture-command", required_argument, NULL, OPT_REMOTE_CAPTURE_COMMAND},
-	{ "remote-sudo", required_argument, NULL, OPT_REMOTE_SUDO },
+	{ "remote-sudo", no_argument, NULL, OPT_REMOTE_SUDO },
 	{ "remote-noprom", no_argument, NULL, OPT_REMOTE_NOPROM },
 	{ 0, 0, 0, 0}
 };
@@ -399,7 +399,7 @@ int main(int argc, char *argv[])
 	extcap_help_add_option(extcap_conf, "--proxycommand <proxy command>", "the command to use as proxy the the ssh connection");
 	extcap_help_add_option(extcap_conf, "--remote-interface <iface>", "the remote capture interface");
 	extcap_help_add_option(extcap_conf, "--remote-capture-command <capture command>", "the remote capture command");
-	extcap_help_add_option(extcap_conf, "--remote-sudo yes", "use sudo on the remote machine to capture");
+	extcap_help_add_option(extcap_conf, "--remote-sudo", "use sudo on the remote machine to capture");
 	extcap_help_add_option(extcap_conf, "--remote-noprom", "don't use promiscuous mode on the remote machine");
 	extcap_help_add_option(extcap_conf, "--remote-filter <filter>", "a filter for remote capture (default: don't "
 		"listen on local interfaces IPs)");
