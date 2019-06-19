@@ -1,4 +1,4 @@
--- 3GPP TS 36.455 V15.0.0 (2018-06)
+-- 3GPP TS 36.455 V15.2.1 (2019-04)
 --
 
 -- **************************************************************
@@ -390,7 +390,9 @@ NPRSSubframePartB ::=			SEQUENCE {
 	periodicityofNPRS			ENUMERATED {sf160, sf320, sf640, sf1280, ..., sf2560},
 	startingsubframeoffset		ENUMERATED {zero, one-Eighth, two-Eighths, three-Eighths, four-Eighths, five-Eighths, six-Eighths, seven-Eighths, ...},
 	nPRSMutingConfiguration		NPRSMutingConfiguration 		OPTIONAL,
-	...
+	...,
+	sIB1-NB-Subframe-TDD			ENUMERATED {	sf0, sf4, sf0and5, ...} 		OPTIONAL	
+
 }
 
 NumberOfAntennaPorts ::= ENUMERATED {
@@ -492,8 +494,9 @@ OTDOACell-Information-Item ::= CHOICE {
 	pRSOccasionGroup			PRSOccasionGroup,
 	pRSFreqHoppingConfig		PRSFrequencyHoppingConfiguration,
 	repetitionNumberofSIB1-NB	RepetitionNumberofSIB1-NB,
-	nPRSSequenceInfo			NPRSSequenceInfo
-
+	nPRSSequenceInfo			NPRSSequenceInfo,
+	nPRSType2					NPRSConfiguration,
+	tddConfiguration			TDDConfiguration
 }
 
 OTDOA-Information-Item ::= ENUMERATED {
@@ -518,13 +521,15 @@ OTDOA-Information-Item ::= ENUMERATED {
 		nPRSConfiguration,
 		offsetNBChannelNumbertoEARFCN,
 		operationModeInfo,
-		nPRS-ID, 
-		dlBandwidth, 
+		nPRS-ID,
+		dlBandwidth,
 		multipleprsConfigurationsperCell,
 		prsOccasionGroup,
 		prsFrequencyHoppingConfiguration,
 		repetitionNumberofSIB1-NB,
-		nPRSSequenceInfo
+		nPRSSequenceInfo,
+		nPRSType2,
+		tddConfig
 }
 
 Outcome ::= ENUMERATED {
@@ -784,6 +789,17 @@ SystemInformation-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
 -- T
 
 TAC ::= OCTET STRING (SIZE(2))
+
+TDDConfiguration ::= SEQUENCE {
+	subframeAssignment				ENUMERATED { sa0, sa1, sa2, sa3, sa4, sa5, sa6, ... },
+	iE-Extensions					ProtocolExtensionContainer { { TDDConfiguration-ExtIEs} }	OPTIONAL,
+	...
+}
+
+TDDConfiguration-ExtIEs LPPA-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 
 TP-ID ::= INTEGER (0..4095, ...)
 

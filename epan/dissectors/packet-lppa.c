@@ -8,7 +8,7 @@
 #line 1 "./asn1/lppa/packet-lppa-template.c"
 /* packet-lppa.c
  * Routines for 3GPP LTE Positioning Protocol A (LLPa) packet dissection
- * Copyright 2011-2018, Pascal Quantin <pascal@wireshark.org>
+ * Copyright 2011-2019, Pascal Quantin <pascal@wireshark.org>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -16,7 +16,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 36.455 version 15.0.0 Release 15
+ * Ref 3GPP TS 36.455 version 15.2.1 Release 15
  * http://www.3gpp.org
  */
 
@@ -170,6 +170,7 @@ static int hf_lppa_nPRSMutingConfiguration = -1;  /* NPRSMutingConfiguration */
 static int hf_lppa_numberofNPRSOneOccasion = -1;  /* T_numberofNPRSOneOccasion */
 static int hf_lppa_periodicityofNPRS = -1;        /* T_periodicityofNPRS */
 static int hf_lppa_startingsubframeoffset = -1;   /* T_startingsubframeoffset */
+static int hf_lppa_sIB1_NB_Subframe_TDD = -1;     /* T_sIB1_NB_Subframe_TDD */
 static int hf_lppa_OTDOACells_item = -1;          /* OTDOACells_item */
 static int hf_lppa_oTDOACellInfo = -1;            /* OTDOACell_Information */
 static int hf_lppa_OTDOACell_Information_item = -1;  /* OTDOACell_Information_Item */
@@ -199,6 +200,8 @@ static int hf_lppa_pRSOccasionGroup = -1;         /* PRSOccasionGroup */
 static int hf_lppa_pRSFreqHoppingConfig = -1;     /* PRSFrequencyHoppingConfiguration */
 static int hf_lppa_repetitionNumberofSIB1_NB = -1;  /* RepetitionNumberofSIB1_NB */
 static int hf_lppa_nPRSSequenceInfo = -1;         /* NPRSSequenceInfo */
+static int hf_lppa_nPRSType2 = -1;                /* NPRSConfiguration */
+static int hf_lppa_tddConfiguration = -1;         /* TDDConfiguration */
 static int hf_lppa_PosSIBs_item = -1;             /* PosSIBs_item */
 static int hf_lppa_posSIB_Segments = -1;          /* PosSIB_Segments */
 static int hf_lppa_assistanceInformationMetaData = -1;  /* AssistanceInformationMetaData */
@@ -254,6 +257,7 @@ static int hf_lppa_fourFrames = -1;               /* BIT_STRING_SIZE_24 */
 static int hf_lppa_SystemInformation_item = -1;   /* SystemInformation_item */
 static int hf_lppa_broadcastPeriodicity = -1;     /* BroadcastPeriodicity */
 static int hf_lppa_posSIBs = -1;                  /* PosSIBs */
+static int hf_lppa_subframeAssignment = -1;       /* T_subframeAssignment */
 static int hf_lppa_timingAdvanceType1 = -1;       /* INTEGER_0_7690 */
 static int hf_lppa_timingAdvanceType2 = -1;       /* INTEGER_0_7690 */
 static int hf_lppa_srsConfiguration = -1;         /* SRSConfigurationForAllCells */
@@ -348,6 +352,7 @@ static gint ett_lppa_SRSConfigurationForOneCell = -1;
 static gint ett_lppa_Subframeallocation = -1;
 static gint ett_lppa_SystemInformation = -1;
 static gint ett_lppa_SystemInformation_item = -1;
+static gint ett_lppa_TDDConfiguration = -1;
 static gint ett_lppa_ULConfiguration = -1;
 static gint ett_lppa_WLANMeasurementQuantities = -1;
 static gint ett_lppa_WLANMeasurementQuantities_Item = -1;
@@ -1565,11 +1570,29 @@ dissect_lppa_T_startingsubframeoffset(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 }
 
 
+static const value_string lppa_T_sIB1_NB_Subframe_TDD_vals[] = {
+  {   0, "sf0" },
+  {   1, "sf4" },
+  {   2, "sf0and5" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lppa_T_sIB1_NB_Subframe_TDD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     3, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
 static const per_sequence_t NPRSSubframePartB_sequence[] = {
   { &hf_lppa_numberofNPRSOneOccasion, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppa_T_numberofNPRSOneOccasion },
   { &hf_lppa_periodicityofNPRS, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppa_T_periodicityofNPRS },
   { &hf_lppa_startingsubframeoffset, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppa_T_startingsubframeoffset },
   { &hf_lppa_nPRSMutingConfiguration, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_NPRSMutingConfiguration },
+  { &hf_lppa_sIB1_NB_Subframe_TDD, ASN1_NOT_EXTENSION_ROOT, ASN1_OPTIONAL    , dissect_lppa_T_sIB1_NB_Subframe_TDD },
   { NULL, 0, 0, NULL }
 };
 
@@ -1783,6 +1806,42 @@ dissect_lppa_NPRSSequenceInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 }
 
 
+static const value_string lppa_T_subframeAssignment_vals[] = {
+  {   0, "sa0" },
+  {   1, "sa1" },
+  {   2, "sa2" },
+  {   3, "sa3" },
+  {   4, "sa4" },
+  {   5, "sa5" },
+  {   6, "sa6" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_lppa_T_subframeAssignment(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     7, NULL, TRUE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t TDDConfiguration_sequence[] = {
+  { &hf_lppa_subframeAssignment, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_lppa_T_subframeAssignment },
+  { &hf_lppa_iE_Extensions  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_lppa_ProtocolExtensionContainer },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_lppa_TDDConfiguration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_lppa_TDDConfiguration, TDDConfiguration_sequence);
+
+  return offset;
+}
+
+
 static const value_string lppa_OTDOACell_Information_Item_vals[] = {
   {   0, "pCI" },
   {   1, "cellId" },
@@ -1811,6 +1870,8 @@ static const value_string lppa_OTDOACell_Information_Item_vals[] = {
   {  24, "pRSFreqHoppingConfig" },
   {  25, "repetitionNumberofSIB1-NB" },
   {  26, "nPRSSequenceInfo" },
+  {  27, "nPRSType2" },
+  {  28, "tddConfiguration" },
   { 0, NULL }
 };
 
@@ -1842,6 +1903,8 @@ static const per_choice_t OTDOACell_Information_Item_choice[] = {
   {  24, &hf_lppa_pRSFreqHoppingConfig, ASN1_NOT_EXTENSION_ROOT, dissect_lppa_PRSFrequencyHoppingConfiguration },
   {  25, &hf_lppa_repetitionNumberofSIB1_NB, ASN1_NOT_EXTENSION_ROOT, dissect_lppa_RepetitionNumberofSIB1_NB },
   {  26, &hf_lppa_nPRSSequenceInfo, ASN1_NOT_EXTENSION_ROOT, dissect_lppa_NPRSSequenceInfo },
+  {  27, &hf_lppa_nPRSType2      , ASN1_NOT_EXTENSION_ROOT, dissect_lppa_NPRSConfiguration },
+  {  28, &hf_lppa_tddConfiguration, ASN1_NOT_EXTENSION_ROOT, dissect_lppa_TDDConfiguration },
   { 0, NULL, 0, NULL }
 };
 
@@ -2956,6 +3019,8 @@ static const value_string lppa_OTDOA_Information_Item_vals[] = {
   {  24, "prsFrequencyHoppingConfiguration" },
   {  25, "repetitionNumberofSIB1-NB" },
   {  26, "nPRSSequenceInfo" },
+  {  27, "nPRSType2" },
+  {  28, "tddConfig" },
   { 0, NULL }
 };
 
@@ -2963,7 +3028,7 @@ static const value_string lppa_OTDOA_Information_Item_vals[] = {
 static int
 dissect_lppa_OTDOA_Information_Item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     10, NULL, TRUE, 17, NULL);
+                                     10, NULL, TRUE, 19, NULL);
 
   return offset;
 }
@@ -4589,6 +4654,10 @@ void proto_register_lppa(void) {
       { "startingsubframeoffset", "lppa.startingsubframeoffset",
         FT_UINT32, BASE_DEC, VALS(lppa_T_startingsubframeoffset_vals), 0,
         NULL, HFILL }},
+    { &hf_lppa_sIB1_NB_Subframe_TDD,
+      { "sIB1-NB-Subframe-TDD", "lppa.sIB1_NB_Subframe_TDD",
+        FT_UINT32, BASE_DEC, VALS(lppa_T_sIB1_NB_Subframe_TDD_vals), 0,
+        NULL, HFILL }},
     { &hf_lppa_OTDOACells_item,
       { "OTDOACells item", "lppa.OTDOACells_item_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -4704,6 +4773,14 @@ void proto_register_lppa(void) {
     { &hf_lppa_nPRSSequenceInfo,
       { "nPRSSequenceInfo", "lppa.nPRSSequenceInfo",
         FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_lppa_nPRSType2,
+      { "nPRSType2", "lppa.nPRSType2_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "NPRSConfiguration", HFILL }},
+    { &hf_lppa_tddConfiguration,
+      { "tddConfiguration", "lppa.tddConfiguration_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_lppa_PosSIBs_item,
       { "PosSIBs item", "lppa.PosSIBs_item_element",
@@ -4925,6 +5002,10 @@ void proto_register_lppa(void) {
       { "posSIBs", "lppa.posSIBs",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_lppa_subframeAssignment,
+      { "subframeAssignment", "lppa.subframeAssignment",
+        FT_UINT32, BASE_DEC, VALS(lppa_T_subframeAssignment_vals), 0,
+        NULL, HFILL }},
     { &hf_lppa_timingAdvanceType1,
       { "timingAdvanceType1", "lppa.timingAdvanceType1",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -5078,6 +5159,7 @@ void proto_register_lppa(void) {
     &ett_lppa_Subframeallocation,
     &ett_lppa_SystemInformation,
     &ett_lppa_SystemInformation_item,
+    &ett_lppa_TDDConfiguration,
     &ett_lppa_ULConfiguration,
     &ett_lppa_WLANMeasurementQuantities,
     &ett_lppa_WLANMeasurementQuantities_Item,
