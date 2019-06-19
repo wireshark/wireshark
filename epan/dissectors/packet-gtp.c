@@ -8852,7 +8852,7 @@ track_gtp_session(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, gtp_hd
     }
 }
 
-/* TS 38.425 15.2.0*/
+/* TS 38.425 5.5.2.1*/
 static void
 addRANContParameter(tvbuff_t *tvb, proto_tree *ran_cont_tree, gint offset)
 {
@@ -10074,7 +10074,7 @@ proto_register_gtp(void)
            NULL, HFILL}
         },
         {&hf_gtp_ext_hdr_nr_ran_cont_high_tx_nr_pdcp_sn,
-         { "Highest Transmitted NR PdCP SN Ind", "gtp.ext_hdr.nr_ran_cont.high_tx_nr_pdcp_sn",
+         { "Highest transmitted NR PDCP SN", "gtp.ext_hdr.nr_ran_cont.high_tx_nr_pdcp_sn",
            FT_UINT24, BASE_DEC, NULL, 0,
            NULL, HFILL}
         },
