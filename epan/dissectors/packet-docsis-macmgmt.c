@@ -357,6 +357,11 @@ void proto_reg_handoff_docsis_mgmt(void);
 #define DCD_CFG_TDSG4 5
 #define DCD_CFG_VENDOR_SPEC 43
 
+/* EM TLVs
+ *
+ */
+#define EM_HOLDOFF_TIMER 1
+
 #define DOWNSTREAM_ACTIVE_CHANNEL_LIST 1
 #define MAC_DOMAIN_DOWNSTREAM_SERVICE_GROUP 2
 #define DOWNSTREAM_AMBIGUITY_RESOLUTION_FREQUENCY_LIST 3
@@ -625,6 +630,8 @@ static int proto_docsis_cmctrlreq = -1;
 static int proto_docsis_cmctrlrsp = -1;
 static int proto_docsis_regreqmp = -1;
 static int proto_docsis_regrspmp = -1;
+static int proto_docsis_emreq = -1;
+static int proto_docsis_emrsp = -1;
 static int proto_docsis_ocd = -1;
 static int proto_docsis_dpd = -1;
 static int proto_docsis_type51ucd = -1;
@@ -1112,6 +1119,16 @@ static int hf_docsis_regrspmp_response = -1;
 static int hf_docsis_regrspmp_number_of_fragments = -1;
 static int hf_docsis_regrspmp_fragment_sequence_number = -1;
 
+static int hf_docsis_emrsp_tlv_data = -1;
+static int hf_docsis_emrsp_tlv_type = -1;
+static int hf_docsis_emrsp_tlv_length = -1;
+static int hf_docsis_emrsp_tlv_holdoff_timer = -1;
+static int hf_docsis_emreq_req_power_mode = -1;
+static int hf_docsis_emreq_reserved = -1;
+static int hf_docsis_emrsp_rsp_code = -1;
+static int hf_docsis_emrsp_reserved = -1;
+static int hf_docsis_emrsp_tlv_unknown = -1;
+
 static int hf_docsis_ocd_tlv_unknown = -1;
 static int hf_docsis_ocd_ccc = -1;
 static int hf_docsis_ocd_tlv_four_trans_size = -1;
@@ -1238,6 +1255,11 @@ static gint ett_docsis_rngrsp_tlv_commanded_power = -1;
 
 static gint ett_docsis_regreq = -1;
 static gint ett_docsis_regrsp = -1;
+
+static gint ett_docsis_emreq = -1;
+static gint ett_docsis_emrsp = -1;
+static gint ett_docsis_emrsp_tlv = -1;
+static gint ett_docsis_emrsp_tlvtlv = -1;
 
 static gint ett_docsis_uccreq = -1;
 static gint ett_docsis_uccrsp = -1;
@@ -2127,6 +2149,26 @@ static const value_string cmctrlreq_ds_tlv_vals[] = {
   {0, NULL}
 };
 
+static const value_string emrsp_tlv_vals[] = {
+  {EM_HOLDOFF_TIMER, "Hold-Off Timer"},
+  {0, NULL}
+};
+
+static const value_string emreq_req_power_mode_vals[] = {
+  {0, "Normal Operation"},
+  {1, "Energy Management 1x1 Mode"},
+  {2, "DOCSIS Light Sleep Mode"},
+  {0, NULL}
+};
+
+static const value_string emrsp_rsp_code_vals[] = {
+  {0, "OK"},
+  {1, "Reject Temporary"},
+  {2, "Reject Permanent, Requested Low Power Mode(s) Not Supported"},
+  {3, "Reject Permanent, Requested Low Power Mode(s) Disabled"},
+  {4, "Reject Permanent, Other"},
+  {0, NULL}
+};
 
 static const value_string docsis_ocd_subc_assign_type_str[] = {
   {0, "range, continuous"},
@@ -6467,6 +6509,94 @@ dissect_regrspmp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* 
 }
 
 static void
+dissect_emrsp_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
+{
+  proto_item *it, *tlv_item;
+  proto_tree *tlv_tree, *tlvtlv_tree;
+  guint pos = 0;
+  guint length;
+  guint8 type;
+
+  it = proto_tree_add_item(tree, hf_docsis_emrsp_tlv_data, tvb, 0, tvb_reported_length(tvb), ENC_NA);
+  tlv_tree = proto_item_add_subtree (it, ett_docsis_emrsp_tlv);
+
+  while (tvb_reported_length_remaining(tvb, pos) > 0)
+  {
+    type = tvb_get_guint8 (tvb, pos);
+    length = tvb_get_guint8 (tvb, pos + 1);
+    tlvtlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, length + 2,
+                                            ett_docsis_emrsp_tlvtlv, &tlv_item,
+                                            val_to_str(type, emrsp_tlv_vals,
+                                                       "Unknown TLV (%u)"));
+    proto_tree_add_item (tlvtlv_tree, hf_docsis_emrsp_tlv_type, tvb, pos, 1, ENC_BIG_ENDIAN);
+    pos++;
+    proto_tree_add_item (tlvtlv_tree, hf_docsis_emrsp_tlv_length, tvb, pos, 1, ENC_BIG_ENDIAN);
+    pos++;
+
+
+    switch (type)
+    {
+    case EM_HOLDOFF_TIMER:
+      proto_tree_add_item (tlvtlv_tree, hf_docsis_emrsp_tlv_holdoff_timer, tvb, pos, length, ENC_BIG_ENDIAN);
+      break;
+    default:
+      proto_tree_add_item (tlvtlv_tree, hf_docsis_emrsp_tlv_unknown, tvb, pos - 2, length+2, ENC_NA);
+      expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown TLV: %u", type);
+      break;
+    } /* switch */
+    pos += length;
+  } /* while */
+}
+
+static int
+dissect_emreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data  _U_)
+{
+  proto_item *it;
+  proto_tree *em_tree;
+
+  guint32 trans_id, req_power_mode;
+
+  it = proto_tree_add_item(tree, proto_docsis_emreq, tvb, 0, -1, ENC_NA);
+  em_tree = proto_item_add_subtree (it, ett_docsis_emreq);
+  proto_tree_add_item_ret_uint (em_tree, hf_docsis_mgt_tranid, tvb, 0, 2, ENC_BIG_ENDIAN, &trans_id);
+  proto_tree_add_item_ret_uint (em_tree, hf_docsis_emreq_req_power_mode, tvb, 2, 1, ENC_BIG_ENDIAN, &req_power_mode);
+  proto_tree_add_item (em_tree, hf_docsis_emreq_reserved, tvb, 3, 1, ENC_BIG_ENDIAN);
+
+  col_add_fstr (pinfo->cinfo, COL_INFO, "EM-REQ: Transaction ID: %u, Requested Power Mode: %s (%u)", trans_id,
+                              val_to_str(req_power_mode, emreq_req_power_mode_vals, "Unknown Requested Power Mode (%u)"), req_power_mode);
+
+  return tvb_captured_length(tvb);
+}
+
+static int
+dissect_emrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data  _U_)
+{
+  proto_item *it;
+  proto_tree *em_tree;
+  tvbuff_t *next_tvb;
+
+  guint32 trans_id, rsp_code;
+
+  it = proto_tree_add_item(tree, proto_docsis_emrsp, tvb, 0, -1, ENC_NA);
+  em_tree = proto_item_add_subtree (it, ett_docsis_emrsp);
+  proto_tree_add_item_ret_uint (em_tree, hf_docsis_mgt_tranid, tvb, 0, 2, ENC_BIG_ENDIAN, &trans_id);
+  proto_tree_add_item_ret_uint (em_tree, hf_docsis_emrsp_rsp_code, tvb, 2, 1, ENC_BIG_ENDIAN, &rsp_code);
+  proto_tree_add_item (em_tree, hf_docsis_emrsp_reserved, tvb, 3, 1, ENC_BIG_ENDIAN);
+
+  col_add_fstr (pinfo->cinfo, COL_INFO, "EM-RSP: Transaction ID: %u, Response Code: %s (%u)", trans_id,
+                              val_to_str(rsp_code, emrsp_rsp_code_vals, "Unknown Response Code (%u)"), rsp_code);
+
+  /* Call Dissector TLV's */
+  if(tvb_reported_length_remaining(tvb, 4) > 0 )
+  {
+    next_tvb = tvb_new_subset_remaining(tvb, 4);
+    dissect_emrsp_tlv(next_tvb, pinfo, em_tree);
+  }
+
+  return tvb_captured_length(tvb);
+}
+
+static void
 dissect_subcarrier_assignment_range_list(tvbuff_t * tvb, packet_info* pinfo, proto_tree * tree, guint16 pos, guint32 len)
 {
   proto_item* type_item;
@@ -9736,6 +9866,52 @@ proto_register_docsis_mgmt (void)
       FT_UINT8, BASE_DEC, NULL, 0x0,
       "Reg-Rsp-Mp Fragment Sequence Number", HFILL}
     },
+    /* EM */
+    {&hf_docsis_emrsp_tlv_data,
+     {"Energy Management TLV data", "docsis_emrsp.tlv_data",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_emrsp_tlv_type,
+     {"Energy Management TLV Type", "docsis_emrsp.tlv.type",
+      FT_UINT8, BASE_DEC, VALS(emrsp_tlv_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_emrsp_tlv_length,
+     {"Energy Management TLV Length", "docsis_emrsp.tlv.length",
+      FT_UINT8, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_emrsp_tlv_holdoff_timer,
+     {"Hold-Off Timer", "docsis_emrsp.tlv.holdoff_timer",
+      FT_UINT16, BASE_DEC, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_emreq_req_power_mode,
+     {"Requested Power Mode", "docsis_emreq.req_power_mode",
+      FT_UINT8, BASE_DEC, VALS(emreq_req_power_mode_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_emreq_reserved,
+     {"Reserved", "docsis_emreq.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_emrsp_rsp_code,
+     {"Response Code", "docsis_emrsp.resp_code",
+      FT_UINT8, BASE_DEC, VALS(emrsp_rsp_code_vals), 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_emrsp_reserved,
+     {"Reserved", "docsis_emrsp.reserved",
+      FT_UINT8, BASE_HEX, NULL, 0x0,
+      NULL, HFILL}
+    },
+    {&hf_docsis_emrsp_tlv_unknown,
+      {"Unknown TLV", "docsis_emrsp.unknown_tlv",
+       FT_BYTES, BASE_NONE, NULL, 0x0,
+       NULL, HFILL}
+    },
     /* OCD */
     {&hf_docsis_ocd_tlv_unknown,
       {"Unknown TLV", "docsis_ocd.unknown_tlv", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL}
@@ -10181,6 +10357,10 @@ proto_register_docsis_mgmt (void)
     &ett_docsis_cmctrlrsp,
     &ett_docsis_regreqmp,
     &ett_docsis_regrspmp,
+    &ett_docsis_emreq,
+    &ett_docsis_emrsp,
+    &ett_docsis_emrsp_tlv,
+    &ett_docsis_emrsp_tlvtlv,
     &ett_docsis_ocd,
     &ett_docsis_ocd_tlv,
     &ett_docsis_ocd_tlvtlv,
@@ -10268,6 +10448,8 @@ proto_register_docsis_mgmt (void)
   proto_docsis_cmctrlrsp = proto_register_protocol_in_name_only("DOCSIS CM Control Response", "DOCSIS CM-CTRL-RSP", "docsis_cmctrlrsp", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_regreqmp = proto_register_protocol_in_name_only("DOCSIS Registration Request Multipart", "DOCSIS Reg-Req-Mp", "docsis_regreqmp", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_regrspmp = proto_register_protocol_in_name_only("DOCSIS Registration Response Multipart", "DOCSIS Reg-Rsp-Mp", "docsis_regrspmp", proto_docsis_mgmt, FT_BYTES);
+  proto_docsis_emreq = proto_register_protocol_in_name_only("DOCSIS Energy Management Request", "DOCSIS EM-REQ", "docsis_emreq", proto_docsis_mgmt, FT_BYTES);
+  proto_docsis_emrsp = proto_register_protocol_in_name_only("DOCSIS Energy Management Response", "DOCSIS EM-RSP", "docsis_emrsp", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_ocd = proto_register_protocol_in_name_only("DOCSIS OFDM Channel Descriptor", "DOCSIS OCD", "docsis_ocd", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_dpd = proto_register_protocol_in_name_only("DOCSIS Downstream Profile Descriptor", "DOCSIS DPD", "docsis_dpd", proto_docsis_mgmt, FT_BYTES);
   proto_docsis_type51ucd = proto_register_protocol_in_name_only("DOCSIS Upstream Channel Descriptor Type 51", "DOCSIS type51ucd", "docsis_type51ucd", proto_docsis_mgmt, FT_BYTES);
@@ -10324,6 +10506,8 @@ proto_reg_handoff_docsis_mgmt (void)
   dissector_add_uint ("docsis_mgmt", MGT_CM_CTRL_RSP, create_dissector_handle( dissect_cmctrlrsp, proto_docsis_cmctrlrsp ));
   dissector_add_uint ("docsis_mgmt", MGT_REG_REQ_MP, create_dissector_handle( dissect_regreqmp, proto_docsis_regreqmp ));
   dissector_add_uint ("docsis_mgmt", MGT_REG_RSP_MP, create_dissector_handle( dissect_regrspmp, proto_docsis_regrspmp ));
+  dissector_add_uint ("docsis_mgmt", MGT_EM_REQ, create_dissector_handle( dissect_emreq, proto_docsis_emreq ));
+  dissector_add_uint ("docsis_mgmt", MGT_EM_RSP, create_dissector_handle( dissect_emrsp, proto_docsis_emrsp ));
   dissector_add_uint ("docsis_mgmt", MGT_OCD, create_dissector_handle( dissect_ocd, proto_docsis_ocd ));
   dissector_add_uint ("docsis_mgmt", MGT_DPD, create_dissector_handle( dissect_dpd, proto_docsis_dpd ));
   dissector_add_uint ("docsis_mgmt", MGT_TYPE51UCD, create_dissector_handle( dissect_type51ucd, proto_docsis_type51ucd ));
