@@ -524,6 +524,9 @@ static const value_string ext_link_tlv_type_vals[] = {
 #define SR_STLV_ADJSID                    2
 #define SR_STLV_LAN_ADJSID                3
 #define SR_STLV_LINK_MSD                  6
+#define SR_STLV_GRACEFUL_LINK_SHUTDOWN    7
+#define SR_STLV_REMOTE_IPV4_ADDRESS       8
+#define SR_STLV_LOCAL_REMOTE_INTERFACE_ID 9
 
 #define SR_STLV_ADJSID_FLAG_B             0x80
 #define SR_STLV_ADJSID_FLAG_V             0x40
@@ -537,6 +540,9 @@ static const value_string ext_link_stlv_type_vals[] = {
     {SR_STLV_ADJSID,                      "Adj-SID"                      },
     {SR_STLV_LAN_ADJSID,                  "LAN Adj-SID"                  },
     {SR_STLV_LINK_MSD,                    "Link MSD"                     },
+    {SR_STLV_GRACEFUL_LINK_SHUTDOWN,      "Graceful Link Shutdown"       },
+    {SR_STLV_REMOTE_IPV4_ADDRESS,         "Remote IPv4 Address"          },
+    {SR_STLV_LOCAL_REMOTE_INTERFACE_ID,   "Local/Remote Interface ID"    },
     {0, NULL}
 };
 
@@ -834,6 +840,9 @@ static int hf_ospf_ls_sid_label = -1;
 static int hf_ospf_ls_preference = -1;
 static int hf_ospf_ls_igp_msd_type = -1;
 static int hf_ospf_ls_igp_msd_value = -1;
+static int hf_ospf_ls_remote_ipv4_addr = -1;
+static int hf_ospf_ls_local_interface_id = -1;
+static int hf_ospf_ls_remote_interface_id = -1;
 static int hf_ospf_unknown_tlv = -1;
 static int hf_ospf_v2_grace_tlv = -1;
 static int hf_ospf_v2_grace_period = -1;
@@ -3017,6 +3026,7 @@ dissect_ospf_lsa_ext_link(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_t
     guint32 reserved;
     int local_offset;
     guint16 local_length;
+    guint32 local_id = 0, remote_id = 0;
 
     el_tree = proto_tree_add_subtree(tree, tvb, offset, length,
                                      ett_ospf_lsa_elink, NULL, "OSPFv2 Extended Link Opaque LSA");
@@ -3122,6 +3132,19 @@ dissect_ospf_lsa_ext_link(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_t
                         local_offset += 2;
                         local_length -= 2;
                     }
+                    break;
+
+                case SR_STLV_REMOTE_IPV4_ADDRESS:
+                    /* Remote IPv4 Address Sub-TLV (rfc8379) */
+                    proto_tree_add_item(stlv_tree, hf_ospf_ls_remote_ipv4_addr, tvb, stlv_offset + 4, 4, ENC_BIG_ENDIAN);
+                    proto_item_append_text(ti_tree, "  (%s)", tvb_ip_to_str(tvb, stlv_offset + 4));
+                    break;
+
+                case SR_STLV_LOCAL_REMOTE_INTERFACE_ID:
+                    /* Local/Remote Interface ID Sub-TLV (rfc8379) */
+                    proto_tree_add_item_ret_uint(stlv_tree, hf_ospf_ls_local_interface_id, tvb, stlv_offset + 4, 4, ENC_BIG_ENDIAN, &local_id);
+                    proto_tree_add_item_ret_uint(stlv_tree, hf_ospf_ls_remote_interface_id, tvb, stlv_offset + 8, 4, ENC_BIG_ENDIAN, &remote_id);
+                    proto_item_append_text(ti_tree, "  (Local: %u, Remote: %u)", local_id, remote_id);
                     break;
 
                 default:
@@ -4364,6 +4387,15 @@ proto_register_ospf(void)
          { "MSD Type", "ospf.tlv.igp_msd_type", FT_UINT8, BASE_DEC, VALS(ospf_igp_msd_types), 0x0, NULL, HFILL }},
         {&hf_ospf_ls_igp_msd_value,
          { "MSD Value", "ospf.tlv.igp_msd_value", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+        {&hf_ospf_ls_remote_ipv4_addr,
+         { "Remote IPv4 Address", "ospf.tlv.remote_ipv4_address", FT_IPv4, BASE_NONE,
+           NULL, 0x0, NULL, HFILL }},
+        {&hf_ospf_ls_local_interface_id,
+         { "Local Interface ID", "ospf.tlv.local_interface_id", FT_UINT32, BASE_DEC,
+           NULL, 0x0, NULL, HFILL }},
+        {&hf_ospf_ls_remote_interface_id,
+         { "Remote Interface ID", "ospf.tlv.remote_interface_id", FT_UINT32, BASE_DEC,
+           NULL, 0x0, NULL, HFILL }},
 
         /* the Unknown TLV of the Opaque RI LSA */
         {&hf_ospf_unknown_tlv,
