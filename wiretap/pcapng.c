@@ -613,7 +613,7 @@ pcapng_read_section_header_block(FILE_T fh, pcapng_block_header_t *bh,
     if (version_major != 1 || version_minor > 0) {
         *err = WTAP_ERR_UNSUPPORTED;
         *err_info = g_strdup_printf("pcapng_read_section_header_block: unknown SHB version %u.%u",
-                                    pn->version_major, pn->version_minor);
+                                    version_major, version_minor);
         return PCAPNG_BLOCK_ERROR;
     }
 
