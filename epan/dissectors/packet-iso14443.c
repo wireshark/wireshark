@@ -91,6 +91,7 @@ typedef struct _iso14443_transaction_t {
 typedef enum _iso14443_type_t {
     ISO14443_A,
     ISO14443_B,
+    ISO14443_UNKNOWN
 } iso14443_type_t;
 
 static const value_string iso14443_short_frame[] = {
@@ -1111,21 +1112,29 @@ dissect_iso14443_cmd_type_block(tvbuff_t *tvb, packet_info *pinfo,
     }
 
     if (!crc_dropped) {
-        iso14443_type_t t;
+        iso14443_type_t t = ISO14443_UNKNOWN;
         conversation_t *conv;
+        guint32 computed_checksum = 0;
+        guint flags = PROTO_CHECKSUM_NO_FLAGS;
 
         conv = find_conversation_by_id(pinfo->num, ENDPOINT_ISO14443, ISO14443_CIRCUIT_ID, 0);
-        if (conv) {
+        if (conv)
             t = (iso14443_type_t)GPOINTER_TO_UINT(conversation_get_proto_data(conv, proto_iso14443));
 
-            proto_tree_add_checksum(tree, tvb, offset,
-                    hf_iso14443_crc, hf_iso14443_crc_status, &ei_iso14443_wrong_crc, pinfo,
-                    (t == ISO14443_A) ?
-                    crc16_iso14443a_tvb_offset(tvb, 0, offset) :
-                    crc16_ccitt_tvb_offset(tvb, 0, offset),
-                    ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
-            offset += CRC_LEN;
+        if (t == ISO14443_A) {
+            computed_checksum = crc16_iso14443a_tvb_offset(tvb, 0, offset);
+            flags |= PROTO_CHECKSUM_VERIFY;
         }
+        else if (t == ISO14443_B) {
+            computed_checksum = crc16_ccitt_tvb_offset(tvb, 0, offset);
+            flags |= PROTO_CHECKSUM_VERIFY;
+        }
+
+        proto_tree_add_checksum(tree, tvb, offset,
+                    hf_iso14443_crc, hf_iso14443_crc_status,
+                    &ei_iso14443_wrong_crc, pinfo, computed_checksum,
+                    ENC_LITTLE_ENDIAN, flags);
+        offset += CRC_LEN;
     }
 
     return offset;
