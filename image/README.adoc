@@ -1,0 +1,47 @@
+= Introduction
+
+This directory contains a set of images and icons for the Wireshark
+suite of applications.  Of particular note for people creating packages
+for distribution are the files wireshark.ico, wiresharkdoc.ico,
+wsicon*.png, and WiresharkDoc-*.png
+
+File descriptions:
+
+wsicon.svg::
+Old vector source for the wireshark icon.
+
+wsiconcap.svg::
+Old vector source for the "capture" icon.
+
+wsicondoc.svg::
+Old vector source for the "document" icon.
+
+wsicon16.png ... wsicon1024.png::
+Wireshark application icons in various sizes
+
+wsiconcap16.png ... wsiconcap1024.png::
+“Capture in progress” application icon in various sizes
+
+wsiconinst16.png ... wsiconinst1024.png::
+Wireshark installer icons in various sizes
+
+WiresharkDoc-16.png ... WiresharkDoc-256.png
+Capture document icon in various sizes
+
+wireshark.ico::
+Windows application icon file with 16 and 32 pixel 3D logo icons, high and low color.
+
+wiresharkdoc.ico::
+Windows document icon file with 16 and 32 pixel 3D logo icons, high and low color.
+
+*.rc.in::
+MSVC++ resource templates
+
+stock_icons::
+Various stock icons. Names _mostly_ conform to the freedesktop.org
+https://standards.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html[Icon Naming Specification].
+For example, the INS specifies “list-add” and “list-remove”. and we've added “list-copy”, “list-move-up“, “list-move-down”, and “list-clear”.
+
+The Wireshark application icon, document icon, and several toolbar icons were created by Elliott Aldrich.
+The list-add and list-remove images were created by by Peter Hosey and released under CC-PD.
+The list-clear images were created by Freepik, http://www.freepik.com from https://www.flaticon.com.

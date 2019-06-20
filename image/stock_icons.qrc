@@ -4,18 +4,26 @@
         <file>wsicon-ask.png</file>
     </qresource>
     <qresource prefix="/stock">
-        <file>minus-8.png</file>
         <file alias="plus-8.png">stock_icons/8x8/list-add.template.png</file>
-        <file>copy-8.png</file>
-        <file>delete_list.png</file>
-        <file>delete_list@2x.png</file>
-        <file>arrow_up.png</file>
-        <file>arrow_up@2x.png</file>
-        <file>arrow_down.png</file>
-        <file>arrow_down@2x.png</file>
+        <file alias="minus-8.png">stock_icons/8x8/list-remove.template.png</file>
+        <file alias="copy-8.png">stock_icons/8x8/list-copy.template.png</file>
+        <file alias="delete_list.png">stock_icons/8x8/list-clear.template.png</file>
+        <file alias="delete_list@2x.png">stock_icons/8x8/list-clear.template@2x.png</file>
+        <file alias="arrow_up.png">stock_icons/8x8/list-move-up.template.png</file>
+        <file alias="arrow_up@2x.png">stock_icons/8x8/list-move-up.template@2x.png</file>
+        <file alias="arrow_down.png">stock_icons/8x8/list-move-down.template.png</file>
+        <file alias="arrow_down@2x.png">stock_icons/8x8/list-move-down.template@2x.png</file>
     </qresource>
     <qresource prefix="">
         <file>stock_icons/8x8/list-add.template.png</file>
+        <file>stock_icons/8x8/list-remove.template.png</file>
+        <file>stock_icons/8x8/list-copy.template.png</file>
+        <file>stock_icons/8x8/list-clear.template.png</file>
+        <file>stock_icons/8x8/list-clear.template@2x.png</file>
+        <file>stock_icons/8x8/list-move-up.template.png</file>
+        <file>stock_icons/8x8/list-move-up.template@2x.png</file>
+        <file>stock_icons/8x8/list-move-down.template.png</file>
+        <file>stock_icons/8x8/list-move-down.template@2x.png</file>
         <file>stock_icons/14x14/x-capture-comment-update.png</file>
         <file>stock_icons/14x14/x-capture-comment-update@2x.png</file>
         <file>stock_icons/14x14/x-capture-filter-bookmark.png</file>
