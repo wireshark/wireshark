@@ -3949,8 +3949,12 @@ dissect_regack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
                 val_to_str_ext (response, &docsis_conf_code_ext, "%d"));
 
   /* Call Dissector for Appendix C TLV's */
-  next_tvb = tvb_new_subset_remaining (tvb, 3);
-  call_dissector (docsis_tlv_handle, next_tvb, pinfo, regack_tree);
+  if(tvb_reported_length_remaining(tvb, 3) > 0 )
+  {
+    next_tvb = tvb_new_subset_remaining (tvb, 3);
+    call_dissector (docsis_tlv_handle, next_tvb, pinfo, regack_tree);
+  }
+
   return tvb_captured_length(tvb);
 }
 
