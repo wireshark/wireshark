@@ -300,6 +300,7 @@ typedef enum {
     TF_NETSCALER,
     TF_BARRACUDA,
     TF_GIGAMON,
+    TF_CISCO,
     TF_NO_VENDOR_INFO
 } v9_v10_tmplt_fields_type_t;
 #define TF_NUM 2
@@ -1766,6 +1767,49 @@ static const value_string v10_template_types_barracuda[] = {
 };
 static value_string_ext v10_template_types_barracuda_ext = VALUE_STRING_EXT_INIT(v10_template_types_barracuda);
 
+/* Cisco IPFIX */
+static const value_string v10_template_types_cisco[] = {
+    {  4251, "Transport packets lost counter" },
+    {  4254, "Transport RTP SSRC" },
+    {  4257, "Transport RTP jitter maximum" },
+    {  4273, "Transport RTP payload type" },
+    {  4325, "Transport RTP jitter mean sum" },
+    {  8233, "C3PL class cce-id" },
+    {  8234, "C3PL class name" },
+    {  8235, "C3PL class type" },
+    {  8236, "C3PL policy cce-id" },
+    {  8237, "C3PL policy name" },
+    {  8238, "C3PL policy type" },
+    {  9252, "Services WAAS segment" },
+    {  9253, "Services WAAS passthrough reason" },
+    {  9268, "Connection client counter packets retransmitted" },
+    {  9272, "Connection transaction counter complete" },
+    {  9273, "Connection transaction duration sum" },
+    {  9292, "Connection server counter responses" },
+    {  9300, "Connection delay response to-server histogram late" },
+    {  9303, "Connection delay response to-server sum" },
+    {  9306, "Connection delay application sum" },
+    {  9307, "Connection delay application max" },
+    {  9309, "Connection delay response client-to-server sum" },
+    {  9313, "Connection delay network client-to-server sum" },
+    {  9316, "Connection delay network to-client sum" },
+    {  9319, "Connection delay network to-server sum" },
+    {  9357, "Application HTTP URI statistics" },
+    { 12232, "Application category name" },
+    { 12233, "Application sub category name" },
+    { 12234, "Application group name" },
+    { 12235, "Application HTTP host" },
+    { 12236, "Connection client IPv4 address" },
+    { 12237, "Connection server IPv4 address" },
+    { 12240, "Connection client transport port" },
+    { 12241, "Connection server transport port" },
+    { 12242, "Connection id" },
+    { 12243, "Application traffic class" },
+    { 12244, "Application business relevance" },
+    { 0, NULL }
+};
+static value_string_ext v10_template_types_cisco_ext = VALUE_STRING_EXT_INIT(v10_template_types_cisco);
+
 static const value_string v10_barracuda_logop[] = {
     { 0, "Unknown" },
     { 1, "Allow" },
@@ -1805,6 +1849,54 @@ static const value_string v10_barracuda_traffictype[] = {
     { 2, "Local Out" },
     { 3, "Loopback" },
     { 0, NULL }
+};
+
+static const value_string v10_cisco_waas_segment[] = {
+    {  0, "Unknown" },
+    {  1, "Client Unoptimized" },
+    {  2, "Server Optimized" },
+    {  4, "Client Optimized" },
+    {  8, "Server Unoptimized" },
+    { 16, "Pass-Through" },
+    {  0, NULL }
+};
+
+static const value_string v10_cisco_waas_passthrough_reason[] = {
+    {  0, "Unknown" },
+    {  1, "PT_NO_PEER" },
+    {  2, "PT_RJCT_CAP" },
+    {  3, "PT_RJCT_RSRCS" },
+    {  4, "PT_RJCT_NO_LICENSE" },
+    {  5, "PT_APP_CONFIG" },
+    {  6, "PT_GLB_CONFIG" },
+    {  7, "PT_ASYMMETRIC" },
+    {  8, "PT_IN_PROGRESS" },
+    {  9, "PT_INTERMEDIATE" },
+    { 10, "PT_OVERLOAD" },
+    { 11, "PT_INT_ERROR" },
+    { 12, "PT_APP_OVERRIDE" },
+    { 13, "PT_SVR_BLACKLIST" },
+    { 14, "PT_AD_VER_MISMTCH" },
+    { 15, "PT_AD_AO_INCOMPAT" },
+    { 16, "PT_AD_AOIM_PROGRESS" },
+    { 17, "PT_DIRM_VER_MISMTCH" },
+    { 18, "PT_PEER_OVERRIDE" },
+    { 19, "PT_AD_OPT_PARSE_FAIL" },
+    { 20, "PT_AD_PT_SERIAL_MODE" },
+    { 21, "PT_SN_INTERCEPTION_ACL" },
+    { 22, "PT_IP_FRAG_UNSUPP_PEER" },
+    { 23, "PT_CLUSTER_MEMBER_INDX" },
+    { 24, "PT_FLOW_QUERY_FAIL_INDX" },
+    { 25, "PT_FLOWSW_INT_ACL_DENY_INX" },
+    { 26, "PT_UNKNOWN_INDX" },
+    { 27, "PT_FLOWSW_PLCY_INDX" },
+    { 28, "PT_SNG_OVERLOAD_INDX" },
+    { 29, "PT_CLUSTER_DEGRADE_INDX" },
+    { 30, "PT_FLOW_LEARN_FAIL_INDX" },
+    { 31, "PT_OVERALL_INDX" },
+    { 32, "PT_ZBFW" },
+    { 33, "PT_RTSP_ALG" },
+    {  0, NULL }
 };
 
 static const value_string v9_scope_field_types[] = {
@@ -2054,6 +2146,7 @@ static int      hf_cflow_template_ixia_field_type                   = -1;
 static int      hf_cflow_template_netscaler_field_type              = -1;
 static int      hf_cflow_template_barracuda_field_type              = -1;
 static int      hf_cflow_template_gigamon_field_type                = -1;
+static int      hf_cflow_template_cisco_field_type                  = -1;
 
 
 /*
@@ -3191,6 +3284,48 @@ static int      hf_pie_gigamon_dnsadditionalttl                  = -1;
 static int      hf_pie_gigamon_dnsadditionalrdlength             = -1;
 static int      hf_pie_gigamon_dnsadditionalrdata                = -1;
 
+static int      hf_pie_cisco                                                     = -1;
+static int      hf_pie_cisco_transport_packets_lost_counter                      = -1;
+static int      hf_pie_cisco_transport_rtp_ssrc                                  = -1;
+static int      hf_pie_cisco_transport_rtp_jitter_maximum                        = -1;
+static int      hf_pie_cisco_transport_rtp_payload_type                          = -1;
+static int      hf_pie_cisco_transport_rtp_jitter_mean_sum                       = -1;
+static int      hf_pie_cisco_c3pl_class_cce_id                                   = -1;
+static int      hf_pie_cisco_c3pl_class_name                                     = -1;
+static int      hf_pie_cisco_c3pl_class_type                                     = -1;
+static int      hf_pie_cisco_c3pl_policy_cce_id                                  = -1;
+static int      hf_pie_cisco_c3pl_policy_name                                    = -1;
+static int      hf_pie_cisco_c3pl_policy_type                                    = -1;
+static int      hf_pie_cisco_connection_server_counter_responses                 = -1;
+static int      hf_pie_cisco_connection_client_counter_packets_retransmitted     = -1;
+static int      hf_pie_cisco_connection_transaction_counter_complete             = -1;
+static int      hf_pie_cisco_connection_transaction_duration_sum                 = -1;
+static int      hf_pie_cisco_connection_delay_response_to_server_histogram_late  = -1;
+static int      hf_pie_cisco_connection_delay_response_to_server_sum             = -1;
+static int      hf_pie_cisco_connection_delay_application_sum                    = -1;
+static int      hf_pie_cisco_connection_delay_application_max                    = -1;
+static int      hf_pie_cisco_connection_delay_response_client_to_server_sum      = -1;
+static int      hf_pie_cisco_connection_delay_network_client_to_server_sum       = -1;
+static int      hf_pie_cisco_connection_delay_network_to_client_sum              = -1;
+static int      hf_pie_cisco_connection_delay_network_to_server_sum              = -1;
+static int      hf_pie_cisco_services_waas_segment                               = -1;
+static int      hf_pie_cisco_services_waas_passthrough_reason                    = -1;
+static int      hf_pie_cisco_application_http_uri_statistics                     = -1;
+static int      hf_pie_cisco_application_http_uri_statistics_count               = -1;
+static int      hf_pie_cisco_application_category_name                           = -1;
+static int      hf_pie_cisco_application_sub_category_name                       = -1;
+static int      hf_pie_cisco_application_group_name                              = -1;
+static int      hf_pie_cisco_application_http_host                               = -1;
+static int      hf_pie_cisco_application_http_host_app_id                        = -1;
+static int      hf_pie_cisco_application_http_host_sub_app_id                    = -1;
+static int      hf_pie_cisco_connection_client_ipv4_address                      = -1;
+static int      hf_pie_cisco_connection_server_ipv4_address                      = -1;
+static int      hf_pie_cisco_connection_client_transport_port                    = -1;
+static int      hf_pie_cisco_connection_server_transport_port                    = -1;
+static int      hf_pie_cisco_connection_id                                       = -1;
+static int      hf_pie_cisco_application_traffic_class                           = -1;
+static int      hf_pie_cisco_application_business_relevance                      = -1;
+
 static int      hf_string_len_short = -1;
 static int      hf_string_len_long  = -1;
 
@@ -3401,6 +3536,8 @@ pen_to_type_hf_list(guint32 pen) {
         return TF_BARRACUDA;
     case VENDOR_GIGAMON:
         return TF_GIGAMON;
+    case VENDOR_CISCO:
+        return TF_CISCO;
     default:
         return TF_NO_VENDOR_INFO;
     }
@@ -4362,6 +4499,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
     int                   gen_str_offset = 0;
 
     proto_item           *ti;
+    proto_item           *cti;
     guint16               count;
     v9_v10_tmplt_entry_t *entries_p;
     proto_tree           *fwdstattree;
@@ -4372,7 +4510,8 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                          ixia_pie_seen = FALSE,
                          netscaler_pie_seen = FALSE,
                          barracuda_pie_seen = FALSE,
-                         gigamon_pie_seen = FALSE;
+                         gigamon_pie_seen = FALSE,
+                         cisco_pie_seen = FALSE;
 
 
     guint8       ip_protocol = 0;
@@ -4504,6 +4643,13 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                     proto_item *pie_gigamon_ti = proto_tree_add_item(pdutree, hf_pie_gigamon, tvb, 0, 0, ENC_NA);
                     proto_item_set_hidden(pie_gigamon_ti);
                     gigamon_pie_seen = TRUE;
+                }
+                break;
+            case VENDOR_CISCO:
+                if (!cisco_pie_seen) {
+                    proto_item *pie_cisco_ti = proto_tree_add_item(pdutree, hf_pie_cisco, tvb, 0, 0, ENC_NA);
+                    proto_item_set_hidden(pie_cisco_ti);
+                    cisco_pie_seen = TRUE;
                 }
                 break;
 
@@ -10291,6 +10437,170 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
             /* END Gigamon */
 
+            /* Start Cisco Communications */
+        case ((VENDOR_CISCO << 16) | 4251):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_transport_packets_lost_counter,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 4254):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_transport_rtp_ssrc,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 4257):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_transport_rtp_jitter_maximum,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 4273):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_transport_rtp_payload_type,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 4325):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_transport_rtp_jitter_mean_sum,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 8233):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_c3pl_class_cce_id,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 8234):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_c3pl_class_name,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_CISCO << 16) | 8235):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_c3pl_class_type,
+                                     tvb, offset, length, ENC_NA);
+            break;
+        case ((VENDOR_CISCO << 16) | 8236):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_c3pl_policy_cce_id,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 8237):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_c3pl_policy_name,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_CISCO << 16) | 8238):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_c3pl_policy_type,
+                                     tvb, offset, length, ENC_NA);
+            break;
+        case ((VENDOR_CISCO << 16) | 9292):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_server_counter_responses,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 9268):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_client_counter_packets_retransmitted,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 9272):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_transaction_counter_complete,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 9273):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_transaction_duration_sum,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 9300):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_delay_response_to_server_histogram_late,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 9303):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_delay_response_to_server_sum,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 9306):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_delay_application_sum,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 9307):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_delay_application_max,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 9309):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_delay_response_client_to_server_sum,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 9313):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_delay_network_client_to_server_sum,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 9316):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_delay_network_to_client_sum,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 9319):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_delay_network_to_server_sum,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 9252):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_services_waas_segment,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 9253):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_services_waas_passthrough_reason,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 9357):
+            cti = proto_tree_add_item(pdutree, hf_pie_cisco_application_http_uri_statistics,
+                                     tvb, offset, length - 3, ENC_UTF_8|ENC_NA);
+            string_tree = proto_item_add_subtree(cti, ett_str_len);
+            proto_tree_add_item(string_tree, hf_pie_cisco_application_http_uri_statistics_count,
+                                     tvb, offset + (length - 2), 2, ENC_BIG_ENDIAN);
+            proto_tree_add_uint(string_tree, hf_string_len_short, tvb,
+                                gen_str_offset-vstr_len, 1, string_len_short);
+            break;
+        case ((VENDOR_CISCO << 16) | 12232):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_application_category_name,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_CISCO << 16) | 12233):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_application_sub_category_name,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_CISCO << 16) | 12234):
+             ti = proto_tree_add_item(pdutree, hf_pie_cisco_application_group_name,
+                                     tvb, offset, length, ENC_UTF_8|ENC_NA);
+            break;
+        case ((VENDOR_CISCO << 16) | 12235):
+            cti = proto_tree_add_item(pdutree, hf_pie_cisco_application_http_host,
+                                     tvb, offset + 6 , length - 6, ENC_ASCII|ENC_NA);
+            string_tree = proto_item_add_subtree(cti, ett_str_len);
+            proto_tree_add_item(string_tree, hf_pie_cisco_application_http_host_app_id,
+                                     tvb, offset, 4, ENC_NA);
+            proto_tree_add_item(string_tree, hf_pie_cisco_application_http_host_sub_app_id,
+                                     tvb, offset + 4, 2, ENC_NA);
+            proto_tree_add_uint(string_tree, hf_string_len_short, tvb,
+                                gen_str_offset-vstr_len, 1, string_len_short);
+            break;
+        case ((VENDOR_CISCO << 16) | 12236):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_client_ipv4_address,
+                                     tvb, offset, length, ENC_NA);
+            break;
+        case ((VENDOR_CISCO << 16) | 12237):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_server_ipv4_address,
+                                     tvb, offset, length, ENC_NA);
+            break;
+        case ((VENDOR_CISCO << 16) | 12240):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_client_transport_port,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 12241):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_server_transport_port,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 12242):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_connection_id,
+                                     tvb, offset, length, ENC_BIG_ENDIAN);
+            break;
+        case ((VENDOR_CISCO << 16) | 12243):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_application_traffic_class,
+                                     tvb, offset, length, ENC_NA);
+            break;
+        case ((VENDOR_CISCO << 16) | 12244):
+            ti = proto_tree_add_item(pdutree, hf_pie_cisco_application_business_relevance,
+                                     tvb, offset, length, ENC_NA);
+            break;
+            /* End Cisco */
+
+
         default:  /* Unknown Field ID */
             if ((hdrinfo_p->vspec == 9) || (pen == REVPEN)) {
                 ti = proto_tree_add_bytes_format_value(pdutree, hf_cflow_unknown_field_type,
@@ -10383,6 +10693,7 @@ static const int *v10_template_type_hf_list[TF_NUM_EXT] = {
     &hf_cflow_template_netscaler_field_type,
     &hf_cflow_template_barracuda_field_type,
     &hf_cflow_template_gigamon_field_type,
+    &hf_cflow_template_cisco_field_type,
     NULL};
 
 static value_string_ext *v9_template_type_vse_list[TF_NUM] = {
@@ -10397,6 +10708,7 @@ static value_string_ext *v10_template_type_vse_list[TF_NUM_EXT] = {
     &v10_template_types_netscaler_ext,
     &v10_template_types_barracuda_ext,
     &v10_template_types_gigamon_ext,
+    &v10_template_types_cisco_ext,
     NULL};
 
 static int
@@ -13463,6 +13775,11 @@ proto_register_netflow(void)
         {&hf_cflow_template_gigamon_field_type,
          {"Type", "cflow.template_gigamon_field_type",
           FT_UINT16, BASE_DEC|BASE_EXT_STRING, &v10_template_types_gigamon_ext, 0x7FFF,
+          "Template field type", HFILL}
+        },
+        {&hf_cflow_template_cisco_field_type,
+         {"Type", "cflow.template_cisco_field_type",
+          FT_UINT16, BASE_DEC|BASE_EXT_STRING, &v10_template_types_cisco_ext, 0x7FFF,
           "Template field type", HFILL}
         },
         {&hf_cflow_template_ipfix_field_type_enterprise,
@@ -17285,6 +17602,254 @@ proto_register_netflow(void)
           FT_STRING, STR_UNICODE, NULL, 0x0,
           NULL, HFILL}
         },
+
+        /* Cisco root (a hidden item to allow filtering) */
+        {&hf_pie_cisco,
+         {"Cisco", "cflow.pie.cisco",
+          FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 4251 */
+        {&hf_pie_cisco_transport_packets_lost_counter,
+         {"Transport Packets Lost Counter", "cflow.pie.cisco.transport_packets_lost_counter",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 4254 */
+        {&hf_pie_cisco_transport_rtp_ssrc,
+         {"Transport RTP SSRC", "cflow.pie.cisco.transport_rtp_ssrc",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 4257 */
+        {&hf_pie_cisco_transport_rtp_jitter_maximum,
+         {"Transport RTP Jitter Maximum", "cflow.pie.cisco.transport_rtp_jitter_maximum",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 4273 */
+        {&hf_pie_cisco_transport_rtp_payload_type,
+         {"Transport RTP Payload-type", "cflow.pie.cisco.transport_rtp_payload_type",
+          FT_UINT8, BASE_HEX, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 4325 */
+        {&hf_pie_cisco_transport_rtp_jitter_mean_sum,
+         {"Transport RTP Jitter Mean Sum", "cflow.pie.cisco.transport_rtp_jitter_mean_sum",
+          FT_UINT64, BASE_HEX, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 8233 */
+        {&hf_pie_cisco_c3pl_class_cce_id,
+         {"C3PL Class Cce-id", "cflow.pie.cisco.c3pl_class_cce_id",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 8234 */
+        {&hf_pie_cisco_c3pl_class_name,
+         {"C3PL Class Name", "cflow.pie.cisco.c3pl_class_name",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 8235 */
+        {&hf_pie_cisco_c3pl_class_type,
+         {"C3PL Class Type", "cflow.pie.cisco.c3pl_class_type",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 8236 */
+        {&hf_pie_cisco_c3pl_policy_cce_id,
+         {"C3PL Policy Cce-id", "cflow.pie.cisco.c3pl_policy_cce_id",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 8237 */
+        {&hf_pie_cisco_c3pl_policy_name,
+         {"C3PL Policy Name", "cflow.pie.cisco.c3pl_policy_name",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 8238 */
+        {&hf_pie_cisco_c3pl_policy_type,
+         {"C3PL Policy Type", "cflow.pie.cisco.c3pl_policy_type",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 9292 */
+        {&hf_pie_cisco_connection_server_counter_responses,
+         {"Connection Server Counter Responses", "cflow.pie.ciso.connection_server_counter_responses",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 9268 */
+        {&hf_pie_cisco_connection_client_counter_packets_retransmitted,
+         {"Connection Client Counter Packets Retransmitted", "cflow.pie.ciso.connection_client_counter_packets_retransmitted",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 9272 */
+        {&hf_pie_cisco_connection_transaction_counter_complete,
+         {"Connection Transaction Counter Complete", "cflow.pie.ciso.connection_transaction_counter_complete",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 9273 */
+        {&hf_pie_cisco_connection_transaction_duration_sum,
+         {"Connection Transaction Duration Sum", "cflow.pie.cisco.connection_transaction_duration_sum",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "connection transaction duration sum (ms)", HFILL}
+        },
+        /* Cisco, 9 / 9300 */
+        {&hf_pie_cisco_connection_delay_response_to_server_histogram_late,
+         {"Connection Delay Response to-Server Histogram Late", "cflow.pie.ciso.connection_delay_response_to_server_histogram_late",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 9303 */
+        {&hf_pie_cisco_connection_delay_response_to_server_sum,
+         {"Connection Delay Response to-Server Sum", "cflow.pie.cisco.connection_delay_response_to_server_sum",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "Connection delay response to-server time sum (ms)", HFILL}
+        },
+        /* Cisco, 9 / 9306 */
+        {&hf_pie_cisco_connection_delay_application_sum,
+         {"Connection Delay Application Sum", "cflow.pie.cisco.connection_delay_application_sum",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "connection delay application sum (ms)", HFILL}
+        },
+        /* Cisco, 9 / 9307 */
+        {&hf_pie_cisco_connection_delay_application_max,
+         {"Connection Delay Application Max", "cflow.pie.cisco.connection_delay_application_max",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "connection delay application max (ms)", HFILL}
+        },
+        /* Cisco, 9 / 9309 */
+        {&hf_pie_cisco_connection_delay_response_client_to_server_sum,
+         {"Connection Delay Response Client-to-Server Sum", "cflow.pie.cisco.connection_delay_response_client-to_server_sum",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "connection delay response client-to-server sum (ms)", HFILL}
+        },
+        /* Cisco, 9 / 9313 */
+        {&hf_pie_cisco_connection_delay_network_client_to_server_sum,
+         {"Connection Delay Network Client-to-Server Sum", "cflow.pie.cisco.connection_delay_network_client-to_server_sum",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "connection delay network client-to-server sum (ms)", HFILL}
+        },
+        /* Cisco, 9 / 9316 */
+        {&hf_pie_cisco_connection_delay_network_to_client_sum,
+         {"Connection Delay Network to-Client Sum", "cflow.pie.cisco.connection_delay_network_to-client_sum",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "connection delay network to-client sum (ms)", HFILL}
+        },
+        /* Cisco, 9 / 9319 */
+        {&hf_pie_cisco_connection_delay_network_to_server_sum,
+         {"Connection Delay Network to-Server Sum", "cflow.pie.cisco.connection_delay_network_to_server_sum",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          "connection delay network to-server sum (ms)", HFILL}
+        },
+        /* Cisco, 9 / 9252 */
+        {&hf_pie_cisco_services_waas_segment,
+         {"Services WAAS Segment", "cflow.pie.cisco.services_waas_segment",
+          FT_UINT8, BASE_DEC, VALS(v10_cisco_waas_segment), 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 9253 */
+        {&hf_pie_cisco_services_waas_passthrough_reason,
+         {"Services WAAS Passthrough-reason", "cflow.pie.cisco.services_waas_passthrough-reason",
+          FT_UINT8, BASE_DEC, VALS(v10_cisco_waas_passthrough_reason), 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 9357 */
+        {&hf_pie_cisco_application_http_uri_statistics,
+         {"Application HTTP URI Statistics", "cflow.pie.cisco.application_http_uri_statistics",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 9357 */
+        {&hf_pie_cisco_application_http_uri_statistics_count,
+         {"Count", "cflow.pie.cisco.application_http_uri_statistics_count",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 12232 */
+        {&hf_pie_cisco_application_category_name,
+         {"Application Category Name", "cflow.pie.cisco.application_category_name",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 12233 */
+        {&hf_pie_cisco_application_sub_category_name,
+         {"Application Sub Category Name", "cflow.pie.cisco.application_sub_category_name",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 12234 */
+        {&hf_pie_cisco_application_group_name,
+         {"Application Group Name", "cflow.pie.cisco.application_group_name",
+          FT_STRING, STR_UNICODE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 12235 */
+        {&hf_pie_cisco_application_http_host,
+         {"Application HTTP Host", "cflow.pie.cisco.application_http_host",
+          FT_STRING, STR_ASCII, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 12235 */
+        {&hf_pie_cisco_application_http_host_app_id,
+         {"NBAR App ID", "cflow.pie.cisco.application_http_host_app_id",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 12235 */
+        {&hf_pie_cisco_application_http_host_sub_app_id,
+         {"Sub App ID", "cflow.pie.cisco.application_http_host_sub_app_id",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 12236 */
+        {&hf_pie_cisco_connection_client_ipv4_address,
+         {"Connection Client IPv4 Address", "cflow.pie.cisco.connection_client_ipv4_address",
+          FT_IPv4, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 12237 */
+        {&hf_pie_cisco_connection_server_ipv4_address,
+         {"Connection Server IPv4 Address", "cflow.pie.cisco.connection_server_ipv4_address",
+          FT_IPv4, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 12240 */
+        {&hf_pie_cisco_connection_client_transport_port,
+         {"Connection Client Transport Port", "cflow.pie.cisco.connection_client_transport_port",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 12241 */
+        {&hf_pie_cisco_connection_server_transport_port,
+         {"Connection Server Transport Port", "cflow.pie.cisco.connection_server_transport_port",
+          FT_UINT16, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 12242 */
+        {&hf_pie_cisco_connection_id,
+         {"Connection Id", "cflow.pie.cisco.connection_id",
+          FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 12243 */
+        {&hf_pie_cisco_application_traffic_class,
+         {"Application Traffic-class", "cflow.pie.cisco.application_traffic_class",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+        /* Cisco, 9 / 12244 */
+        {&hf_pie_cisco_application_business_relevance,
+         {"Application Business-relevance", "cflow.pie.cisco.application_business-relevance",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL}
+        },
+
 
         {&hf_string_len_short,
          {"String_len_short", "cflow.string_len_short",
