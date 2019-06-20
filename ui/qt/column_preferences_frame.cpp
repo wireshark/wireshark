@@ -60,6 +60,9 @@ ColumnPreferencesFrame::ColumnPreferencesFrame(QWidget *parent) :
     ui->columnTreeWidget->setDropIndicatorShown(true);
     ui->columnTreeWidget->setDragDropMode(QAbstractItemView::InternalMove);
 
+    ui->newToolButton->setStockIcon("list-add");
+    ui->deleteToolButton->setStockIcon("list-remove");
+
     for (GList *cur = g_list_first(prefs.col_list); cur != NULL && cur->data != NULL; cur = cur->next) {
         fmt_data *cfmt = (fmt_data *) cur->data;
         addColumn(cfmt->visible, cfmt->title, cfmt->fmt, cfmt->custom_fields, cfmt->custom_occurrence);

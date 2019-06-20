@@ -53,6 +53,10 @@ FilterDialog::FilterDialog(QWidget *parent, FilterType filter_type, const QStrin
     if (parent) loadGeometry(parent->width() * 2 / 3, parent->height() * 2 / 3);
     setWindowIcon(wsApp->normalIcon());
 
+    ui->newToolButton->setStockIcon("list-add");
+    ui->deleteToolButton->setStockIcon("list-remove");
+    ui->copyToolButton->setStockIcon("list-copy");
+
 #ifdef Q_OS_MAC
     ui->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->deleteToolButton->setAttribute(Qt::WA_MacSmallSize, true);

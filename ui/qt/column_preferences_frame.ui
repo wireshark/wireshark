@@ -55,20 +55,10 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QToolButton" name="newToolButton">
-       <property name="icon">
-        <iconset resource="../../image/stock_icons.qrc">
-         <normaloff>:/stock/plus-8.png</normaloff>:/stock/plus-8.png</iconset>
-       </property>
-      </widget>
+      <widget class="StockIconToolButton" name="newToolButton"/>
      </item>
      <item>
-      <widget class="QToolButton" name="deleteToolButton">
-       <property name="icon">
-        <iconset resource="../../image/stock_icons.qrc">
-         <normaloff>:/stock/minus-8.png</normaloff>:/stock/minus-8.png</iconset>
-       </property>
-      </widget>
+      <widget class="StockIconToolButton" name="deleteToolButton"/>
      </item>
      <item>
       <spacer name="horizontalSpacer">
@@ -87,8 +77,13 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../../image/stock_icons.qrc"/>
- </resources>
+ <customwidgets>
+  <customwidget>
+   <class>StockIconToolButton</class>
+   <extends>QToolButton</extends>
+   <header>widgets/stock_icon_tool_button.h</header>
+  </customwidget>
+ </customwidgets>
+ <resources/>
  <connections/>
 </ui>

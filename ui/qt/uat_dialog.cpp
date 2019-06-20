@@ -17,7 +17,6 @@
 #include <wsutil/report_message.h>
 
 #include <ui/qt/widgets/copy_from_profile_menu.h>
-#include <ui/qt/widgets/stock_icon_tool_button.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 
 #include <QDesktopServices>

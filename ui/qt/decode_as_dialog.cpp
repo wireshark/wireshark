@@ -49,6 +49,11 @@ DecodeAsDialog::DecodeAsDialog(QWidget *parent, capture_file *cf, bool create_ne
     ui->decodeAsTreeView->setModel(model_);
     ui->decodeAsTreeView->setItemDelegate(delegate_);
 
+    ui->newToolButton->setStockIcon("list-add");
+    ui->deleteToolButton->setStockIcon("list-remove");
+    ui->copyToolButton->setStockIcon("list-copy");
+    ui->clearToolButton->setStockIcon("list-clear");
+
 #ifdef Q_OS_MAC
     ui->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->deleteToolButton->setAttribute(Qt::WA_MacSmallSize, true);

@@ -50,6 +50,9 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
     // XXX - Use NSImageNameAddTemplate and NSImageNameRemoveTemplate to set stock
     // icons on macOS.
     // Are there equivalent stock icons on Windows?
+    pd_ui_->newToolButton->setStockIcon("list-add");
+    pd_ui_->deleteToolButton->setStockIcon("list-remove");
+    pd_ui_->copyToolButton->setStockIcon("list-copy");
 #ifdef Q_OS_MAC
     pd_ui_->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     pd_ui_->deleteToolButton->setAttribute(Qt::WA_MacSmallSize, true);

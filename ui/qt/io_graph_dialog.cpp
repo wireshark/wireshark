@@ -308,6 +308,18 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf) :
     setAttribute(Qt::WA_DeleteOnClose, true);
     QCustomPlot *iop = ui->ioPlot;
 
+    ui->newToolButton->setStockIcon("list-add");
+    ui->deleteToolButton->setStockIcon("list-remove");
+    ui->copyToolButton->setStockIcon("list-copy");
+    ui->clearToolButton->setStockIcon("list-clear");
+
+#ifdef Q_OS_MAC
+    ui->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);
+    ui->deleteToolButton->setAttribute(Qt::WA_MacSmallSize, true);
+    ui->copyToolButton->setAttribute(Qt::WA_MacSmallSize, true);
+    ui->clearToolButton->setAttribute(Qt::WA_MacSmallSize, true);
+#endif
+
     QPushButton *save_bt = ui->buttonBox->button(QDialogButtonBox::Save);
     save_bt->setText(tr("Save As" UTF8_HORIZONTAL_ELLIPSIS));
 

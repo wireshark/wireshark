@@ -3,17 +3,6 @@
         <file>wsicon16.png</file>
         <file>wsicon-ask.png</file>
     </qresource>
-    <qresource prefix="/stock">
-        <file alias="plus-8.png">stock_icons/8x8/list-add.template.png</file>
-        <file alias="minus-8.png">stock_icons/8x8/list-remove.template.png</file>
-        <file alias="copy-8.png">stock_icons/8x8/list-copy.template.png</file>
-        <file alias="delete_list.png">stock_icons/8x8/list-clear.template.png</file>
-        <file alias="delete_list@2x.png">stock_icons/8x8/list-clear.template@2x.png</file>
-        <file alias="arrow_up.png">stock_icons/8x8/list-move-up.template.png</file>
-        <file alias="arrow_up@2x.png">stock_icons/8x8/list-move-up.template@2x.png</file>
-        <file alias="arrow_down.png">stock_icons/8x8/list-move-down.template.png</file>
-        <file alias="arrow_down@2x.png">stock_icons/8x8/list-move-down.template@2x.png</file>
-    </qresource>
     <qresource prefix="">
         <file>stock_icons/8x8/list-add.template.png</file>
         <file>stock_icons/8x8/list-remove.template.png</file>

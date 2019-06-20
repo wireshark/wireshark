@@ -59,6 +59,11 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter) :
         ui->coloringRulesTreeView->resizeColumnToContents(i);
     }
 
+    ui->newToolButton->setStockIcon("list-add");
+    ui->deleteToolButton->setStockIcon("list-remove");
+    ui->copyToolButton->setStockIcon("list-copy");
+    ui->clearToolButton->setStockIcon("list-clear");
+
 #ifdef Q_OS_MAC
     ui->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     ui->deleteToolButton->setAttribute(Qt::WA_MacSmallSize, true);
