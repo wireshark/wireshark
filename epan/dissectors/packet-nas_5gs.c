@@ -51,6 +51,7 @@ static int proto_nas_5gs = -1;
 int hf_nas_5gs_common_elem_id = -1;
 int hf_nas_5gs_mm_elem_id = -1;
 int hf_nas_5gs_sm_elem_id = -1;
+int hf_nas_5gs_updp_elem_id = -1;
 
 static int hf_nas_5gs_epd = -1;
 static int hf_nas_5gs_spare_b7 = -1;
@@ -68,6 +69,7 @@ static int hf_nas_5gs_msg_auth_code = -1;
 static int hf_nas_5gs_seq_no = -1;
 static int hf_nas_5gs_mm_msg_type = -1;
 static int hf_nas_5gs_sm_msg_type = -1;
+static int hf_nas_5gs_updp_msg_type = -1;
 static int hf_nas_5gs_proc_trans_id = -1;
 static int hf_nas_5gs_spare_half_octet = -1;
 static int hf_nas_5gs_pdu_session_id = -1;
@@ -345,6 +347,7 @@ static expert_field ei_nas_5gs_extraneous_data = EI_INIT;
 static expert_field ei_nas_5gs_unknown_pd = EI_INIT;
 static expert_field ei_nas_5gs_mm_unknown_msg_type = EI_INIT;
 static expert_field ei_nas_5gs_sm_unknown_msg_type = EI_INIT;
+static expert_field ei_nas_5gs_updp_unknown_msg_type = EI_INIT;
 static expert_field ei_nas_5gs_msg_not_dis = EI_INIT;
 static expert_field ei_nas_5gs_ie_not_dis = EI_INIT;
 static expert_field ei_nas_5gs_missing_mandatory_elemen = EI_INIT;
@@ -5064,6 +5067,87 @@ nas_5gs_sm_5gsm_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
 
 }
 
+/* D.5.1 Manage UE policy command */
+/*
+    Direction:        network to UE
+    UE policy section management list    UE policy section management list     D.6.2    M    LV-E    11-65537
+*/
+
+/* D.5.2 Manage UE policy complete */
+/*
+Direction:        UE to network
+ No data
+*/
+/* D.5.3 Manage UE policy command reject*/
+/*
+    Direction:        UE to network
+    UE policy section management result    UE policy section management result D.6.3    M    LV-E    11-65537
+
+*/
+
+/* D.5.4 UE state indication */
+/*
+    Direction:        UE to network
+    UPSI list    UPSI list     D.6.4    M    LV-E    9-65537
+    UE policy classmark    UE policy classmark     D.6.5    M    LV    2-4
+    UE OS Id    OS Id     D.6.6    O    TLV    18-242
+
+*/
+
+/* D.6.2 UE policy section management list */
+static guint16
+de_nas_5gs_updp_ue_policy_section_mgm_lst(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
+    guint32 offset, guint len,
+    gchar* add_string _U_, int string_len _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+
+    return len;
+}
+
+/* D.6.3 UE policy section management result */
+static guint16
+de_nas_5gs_updp_ue_policy_section_mgm_res(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
+    guint32 offset, guint len,
+    gchar* add_string _U_, int string_len _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+
+    return len;
+}
+
+/* D.6.4 UPSI list */
+static guint16
+de_nas_5gs_updp_upsi_list(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
+    guint32 offset, guint len,
+    gchar* add_string _U_, int string_len _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+
+    return len;
+}
+
+/* D.6.5 UE policy classmark */
+static guint16
+de_nas_5gs_updp_ue_policy_cm(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
+    guint32 offset, guint len,
+    gchar* add_string _U_, int string_len _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+
+    return len;
+}
+
+/* D.6.6 UE OS Id */
+static guint16
+de_nas_5gs_updp_ue_os_id(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
+    guint32 offset, guint len,
+    gchar* add_string _U_, int string_len _U_)
+{
+    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+
+    return len;
+}
 
 /* 9.7  Message type */
 
@@ -5247,7 +5331,69 @@ static void(*nas_5gs_sm_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info 
 
 };
 
+/* D.6 Information elements coding */
+typedef enum
+{
+    DE_NAS_5GS_UPDP_UE_POLICY_SECTION_MGM_LST,          /* D.6.2 UE policy section management list */
+    DE_NAS_5GS_UPDP_UE_POLICY_SECTION_MGM_RES,          /* D.6.3 UE policy section management result */
+    DE_NAS_5GS_UPDP_UPSI_LIST,                          /* D.6.4 UPSI list */
+    DE_NAS_5GS_UPDP_UE_policy_CM,                       /* D.6.5 UE policy classmark */
+    DE_NAS_5GS_UPDP_UE_OS_Id,                           /* D.6.6 UE OS Id */
+    DE_NAS_5GS_UPDP_NONE                                /* NONE */
+}
+nas_5gs_updp_elem_idx_t;
 
+static const value_string nas_5gs_updp_elem_strings[] = {
+    { DE_NAS_5GS_UPDP_UE_POLICY_SECTION_MGM_LST, "UE policy section management list" },                  /* D.6.2 UE policy section management list */
+    { DE_NAS_5GS_UPDP_UE_POLICY_SECTION_MGM_RES, "UE policy section management result" },                /* D.6.3 UE policy section management result */
+    { DE_NAS_5GS_UPDP_UPSI_LIST,                 "UPSI list" },                                          /* D.6.4 UPSI list */
+    { DE_NAS_5GS_UPDP_UE_policy_CM,              "UE policy classmark" },                                /* D.6.5 UE policy classmark */
+    { DE_NAS_5GS_UPDP_UE_OS_Id,                  "UE OS Id" },                                           /* D.6.6 UE OS Id */
+
+    { 0, NULL }
+};
+value_string_ext nas_5gs_updp_elem_strings_ext = VALUE_STRING_EXT_INIT(nas_5gs_updp_elem_strings);
+
+#define NUM_NAS_5GS_UPDP_ELEM (sizeof(nas_5gs_updp_elem_strings)/sizeof(value_string))
+gint ett_nas_5gs_updp_elem[NUM_NAS_5GS_UPDP_ELEM];
+
+guint16(*nas_5gs_updp_elem_fcn[])(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
+    guint32 offset, guint len,
+    gchar* add_string, int string_len) = {
+        /*  5GS session management (5GSM) information elements */
+        de_nas_5gs_updp_ue_policy_section_mgm_lst,          /* D.6.2 UE policy section management list */
+        de_nas_5gs_updp_ue_policy_section_mgm_res,          /* D.6.3 UE policy section management result */
+        de_nas_5gs_updp_upsi_list,                          /* D.6.4 UPSI list */
+        de_nas_5gs_updp_ue_policy_cm,                       /* D.6.5 UE policy classmark */
+        de_nas_5gs_updp_ue_os_id,                           /* D.6.6 UE OS Id */
+        NULL,   /* NONE */
+};
+
+
+/* Table D.6.1.1: UE policy delivery service message type */
+static const value_string nas_5gs_updp_msg_strings[] = {
+    { 0x0,    "Reserved"},
+    { 0x1,    "MANAGE UE POLICY COMMAND"},
+    { 0x2,    "MANAGE UE POLICY COMPLETE"},
+    { 0x3,    "MANAGE UE POLICY COMMAND REJECT"},
+    { 0x4,    "UE STATE INDICATION"},
+    { 0,    NULL }
+};
+static value_string_ext nas_5gs_updp_msg_strings_ext = VALUE_STRING_EXT_INIT(nas_5gs_updp_msg_strings);
+
+#define NUM_NAS_5GS_UPDP_MSG (sizeof(nas_5gs_updp_msg_strings)/sizeof(value_string))
+static gint ett_nas_5gs_updp_msg[NUM_NAS_5GS_UPDP_MSG];
+
+static void(*nas_5gs_updp_msg_fcn[])(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, guint32 offset, guint len) = {
+    nas_5gs_exp_not_dissected_yet,         /* 0x0     Reserved */
+    nas_5gs_exp_not_dissected_yet,         /* 0x1     MANAGE UE POLICY COMMAND */
+    nas_5gs_exp_not_dissected_yet,         /* 0x2     MANAGE UE POLICY COMPLETE */
+    nas_5gs_exp_not_dissected_yet,         /* 0x3     MANAGE UE POLICY COMMAND REJECT */
+    nas_5gs_exp_not_dissected_yet,         /* 0x4     UE STATE INDICATION */
+
+    NULL,   /* NONE */
+
+};
 
 static void
 get_nas_5gsmm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *hf_idx, msg_fcn *msg_fcn_p)
@@ -5278,6 +5424,22 @@ get_nas_5gssm_msg_params(guint8 oct, const gchar **msg_str, int *ett_tree, int *
 
     return;
 }
+
+static void
+get_nas_5gs_updp_msg_params(guint8 oct, const gchar** msg_str, int* ett_tree, int* hf_idx, msg_fcn* msg_fcn_p)
+{
+    gint            idx;
+
+    *msg_str = try_val_to_str_idx_ext((guint32)(oct & 0xff), &nas_5gs_updp_msg_strings_ext, &idx);
+    *hf_idx = hf_nas_5gs_updp_msg_type;
+    if (*msg_str != NULL) {
+        *ett_tree = ett_nas_5gs_updp_msg[idx];
+        *msg_fcn_p = nas_5gs_updp_msg_fcn[idx];
+    }
+
+    return;
+}
+
 static void
 dissect_nas_5gs_sm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 {
@@ -5380,6 +5542,74 @@ disect_nas_5gs_mm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
     }
 
 }
+
+/* UPDP */
+/* D.6.1 UE policy delivery service message type */
+
+static void
+disect_nas_5gs_updp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int offset)
+{
+
+    const gchar* msg_str;
+    guint32      len;
+    gint         ett_tree;
+    int          hf_idx;
+    void(*msg_fcn_p)(tvbuff_t * tvb, proto_tree * tree, packet_info * pinfo, guint32 offset, guint len);
+    guint8       oct;
+
+    len = tvb_reported_length(tvb);
+
+    /* PTI    Procedure transaction identity 9.6    M    V    1 */
+    /* MANAGE UE POLICY COMMAND message identity    UE policy delivery service message type D.6.1    M    V    1*/
+    /* ... IEs*/
+
+    /* 9.6  Procedure transaction identity
+    * Bits 1 to 8 of the third octet of every 5GSM message contain the procedure transaction identity.
+    * The procedure transaction identity and its use are defined in 3GPP TS 24.007
+    * XXX Only 5GSM ?
+    */
+    proto_tree_add_item(tree, hf_nas_5gs_proc_trans_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    /* Message type IE*/
+    oct = tvb_get_guint8(tvb, offset);
+    msg_fcn_p = NULL;
+    ett_tree = -1;
+    hf_idx = -1;
+    msg_str = NULL;
+
+    get_nas_5gs_updp_msg_params(oct, &msg_str, &ett_tree, &hf_idx, &msg_fcn_p);
+
+    if (msg_str) {
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, msg_str);
+    }
+    else {
+        proto_tree_add_expert_format(tree, pinfo, &ei_nas_5gs_updp_unknown_msg_type, tvb, offset, 1, "Unknown Message Type 0x%02x", oct);
+        return;
+    }
+
+    /*
+    * Add PDCP message name
+    */
+    proto_tree_add_item(tree, hf_idx, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    /*
+    * decode elements
+    */
+    if (msg_fcn_p == NULL)
+    {
+        if (tvb_reported_length_remaining(tvb, offset)) {
+            proto_tree_add_item(tree, hf_nas_5gs_msg_elems, tvb, offset, len - offset, ENC_NA);
+        }
+    }
+    else
+    {
+        (*msg_fcn_p)(tvb, tree, pinfo, offset, len - offset);
+    }
+
+}
+
 
 const value_string nas_5gs_pdu_session_id_vals[] = {
     { 0x00, "No PDU session identity assigned" },
@@ -5674,8 +5904,9 @@ dissect_nas_5gs_media_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         /* how to know the direction? */
         subdissector = NULL;
     } else if (!strcmp(n1_msg_class, "UPDP")) {
-        /* UD policy delivery service not dissected yet */
-        subdissector = NULL;
+        /* UD policy delivery service */
+        disect_nas_5gs_updp(tvb, pinfo, tree, 0);
+        return tvb_captured_length(tvb);;
     } else {
         subdissector = NULL;
     }
@@ -5776,6 +6007,11 @@ proto_register_nas_5gs(void)
         FT_UINT8, BASE_HEX | BASE_EXT_STRING, &nas_5gs_sm_msg_strings_ext, 0x0,
             NULL, HFILL }
         },
+        { &hf_nas_5gs_updp_msg_type,
+        { "Message type",   "nas_5gs.updp.message_type",
+        FT_UINT8, BASE_HEX | BASE_EXT_STRING, &nas_5gs_updp_msg_strings_ext, 0x0,
+            NULL, HFILL }
+        },
         { &hf_nas_5gs_common_elem_id,
             { "Element ID", "nas_5gs.common.elem_id",
             FT_UINT8, BASE_HEX, NULL, 0,
@@ -5788,6 +6024,11 @@ proto_register_nas_5gs(void)
         },
         { &hf_nas_5gs_sm_elem_id,
             { "Element ID", "nas_5gs.sm.elem_id",
+            FT_UINT8, BASE_HEX, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_updp_elem_id,
+            { "Element ID", "nas_5gs.updp.elem_id",
             FT_UINT8, BASE_HEX, NULL, 0,
             NULL, HFILL }
         },
@@ -6981,7 +7222,8 @@ proto_register_nas_5gs(void)
     gint *ett[NUM_INDIVIDUAL_ELEMS +
         NUM_NAS_5GS_COMMON_ELEM +
         NUM_NAS_5GS_MM_MSG + NUM_NAS_5GS_MM_ELEM +
-        NUM_NAS_5GS_SM_MSG + NUM_NAS_5GS_SM_ELEM
+        NUM_NAS_5GS_SM_MSG + NUM_NAS_5GS_SM_ELEM +
+        NUM_NAS_5GS_UPDP_MSG + NUM_NAS_5GS_UPDP_ELEM
     ];
 
     ett[0] = &ett_nas_5gs;
@@ -7033,11 +7275,24 @@ proto_register_nas_5gs(void)
         ett[last_offset] = &ett_nas_5gs_sm_elem[i];
     }
 
+    for (i = 0; i < NUM_NAS_5GS_UPDP_MSG; i++, last_offset++)
+    {
+        ett_nas_5gs_updp_msg[i] = -1;
+        ett[last_offset] = &ett_nas_5gs_updp_msg[i];
+    }
+
+    for (i = 0; i < NUM_NAS_5GS_UPDP_ELEM; i++, last_offset++)
+    {
+        ett_nas_5gs_updp_elem[i] = -1;
+        ett[last_offset] = &ett_nas_5gs_updp_elem[i];
+    }
+
     static ei_register_info ei[] = {
     { &ei_nas_5gs_extraneous_data, { "nas_5gs.extraneous_data", PI_PROTOCOL, PI_NOTE, "Extraneous Data, dissector bug or later version spec(report to wireshark.org)", EXPFILL }},
     { &ei_nas_5gs_unknown_pd,{ "nas_5gs.unknown_pd", PI_PROTOCOL, PI_ERROR, "Unknown protocol discriminator", EXPFILL } },
     { &ei_nas_5gs_mm_unknown_msg_type,{ "nas_5gs.mm.unknown_msg_type", PI_PROTOCOL, PI_WARN, "Unknown Message Type", EXPFILL } },
     { &ei_nas_5gs_sm_unknown_msg_type,{ "nas_5gs.sm.unknown_msg_type", PI_PROTOCOL, PI_WARN, "Unknown Message Type", EXPFILL } },
+    { &ei_nas_5gs_updp_unknown_msg_type,{ "nas_5gs.updp.unknown_msg_type", PI_PROTOCOL, PI_WARN, "Unknown Message Type", EXPFILL } },
     { &ei_nas_5gs_msg_not_dis,{ "nas_5gs.msg_not_dis", PI_PROTOCOL, PI_WARN, "MSG IEs not dissected yet", EXPFILL } },
     { &ei_nas_5gs_ie_not_dis,{ "nas_5gs.ie_not_dis", PI_PROTOCOL, PI_WARN, "IE not dissected yet", EXPFILL } },
     { &ei_nas_5gs_missing_mandatory_elemen,{ "nas_5gs.missing_mandatory_element", PI_PROTOCOL, PI_ERROR, "Missing Mandatory element, rest of dissection is suspect", EXPFILL } },

@@ -181,6 +181,11 @@ extern gint ett_nas_5gs_sm_elem[];
 extern elem_fcn nas_5gs_sm_elem_fcn[];
 extern int hf_nas_5gs_sm_elem_id;
 
+extern value_string_ext nas_5gs_updp_elem_strings_ext;
+extern gint ett_nas_5gs_updp_elem[];
+extern elem_fcn nas_5gs_updp_elem_fcn[];
+extern int hf_nas_5gs_updp_elem_id;
+
 extern sccp_assoc_info_t* sccp_assoc;
 
 extern int gsm_a_tap;
@@ -224,6 +229,7 @@ extern int hf_gsm_a_lac;
 #define NAS_5GS_PDU_TYPE_COMMON     16
 #define NAS_5GS_PDU_TYPE_MM         17
 #define NAS_5GS_PDU_TYPE_SM         18
+#define NAS_5GS_PDU_TYPE_UPDP       19
 
 extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
 
@@ -346,6 +352,11 @@ extern const char* get_gsm_a_msg_string(int pdu_type, int idx);
         SEV_elem_names_ext = nas_5gs_sm_elem_strings_ext; \
         SEV_elem_ett = ett_nas_5gs_sm_elem; \
         SEV_elem_funcs = nas_5gs_sm_elem_fcn; \
+        break; \
+    case NAS_5GS_PDU_TYPE_UPDP: \
+        SEV_elem_names_ext = nas_5gs_updp_elem_strings_ext; \
+        SEV_elem_ett = ett_nas_5gs_updp_elem; \
+        SEV_elem_funcs = nas_5gs_updp_elem_fcn; \
         break; \
     default: \
         proto_tree_add_expert_format(tree, pinfo, ei_unknown, \

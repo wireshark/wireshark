@@ -1197,6 +1197,9 @@ const char* get_gsm_a_msg_string(int pdu_type, int idx)
     case NAS_5GS_PDU_TYPE_SM:
         msg_string = val_to_str_ext(idx, &nas_5gs_sm_elem_strings_ext, "NAS_5GS_PDU_TYPE_SM (%u)");
         break;
+    case NAS_5GS_PDU_TYPE_UPDP:
+        msg_string = val_to_str_ext(idx, &nas_5gs_updp_elem_strings_ext, "NAS_5GS_PDU_TYPE_UPDP (%u)");
+        break;
     default:
         DISSECTOR_ASSERT_NOT_REACHED();
     }
@@ -1260,6 +1263,9 @@ static int get_hf_elem_id(int pdu_type)
         break;
     case NAS_5GS_PDU_TYPE_SM:
         hf_elem_id = hf_nas_5gs_sm_elem_id;
+        break;
+    case NAS_5GS_PDU_TYPE_UPDP:
+        hf_elem_id = hf_nas_5gs_updp_elem_id;
         break;
     default:
         DISSECTOR_ASSERT_NOT_REACHED();
