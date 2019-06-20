@@ -3506,7 +3506,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Час (сек)</translation>
     </message>
     <message>
-        <source>IO Graphs</source>
+        <source>I/O Graphs</source>
         <translation>Графіки Вводу/Виводу</translation>
     </message>
     <message>
@@ -3534,7 +3534,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Wireshark IO Graphs: %1</source>
+        <source>Wireshark I/O Graphs: %1</source>
         <translation>Графіки В/В у Wireshark: %1</translation>
     </message>
     <message>

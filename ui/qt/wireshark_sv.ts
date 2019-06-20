@@ -3554,7 +3554,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Tid (s)</translation>
     </message>
     <message>
-        <source>IO Graphs</source>
+        <source>I/O Graphs</source>
         <translation>IO-grafer</translation>
     </message>
     <message>
@@ -3582,7 +3582,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>100 ms</translation>
     </message>
     <message>
-        <source>Wireshark IO Graphs: %1</source>
+        <source>Wireshark I/O Graphs: %1</source>
         <translation>Wireshark IO-grafer: %1</translation>
     </message>
     <message>

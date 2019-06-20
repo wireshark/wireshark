@@ -589,7 +589,7 @@ All menu items will bring up a new window showing specific statistical informati
 |menu:Conversations[]|| Display a list of conversations (traffic between two endpoints), see <<ChStatConversationsWindow>>.
 |menu:Endpoints[]|| Display a list of endpoints (traffic to/from an address), see <<ChStatEndpointsWindow>>.
 |menu:Packet Lengths[]||See <<ChStatPacketLengths>>
-|menu:IO Graphs[]|| Display user specified graphs (e.g. the number of packets in the course of time), see <<ChStatIOGraphs>>.
+|menu:I/O Graphs[]|| Display user specified graphs (e.g. the number of packets in the course of time), see <<ChStatIOGraphs>>.
 |menu:Service Response Time[]|| Display the time between a request and the corresponding response, see <<ChStatSRT>>.
 |menu:DHCP (BOOTP)[]||See <<ChStatDHCPBOOTP>>
 |menu:ONC-RPC Programs[]||See <<ChStatONCRPC>>

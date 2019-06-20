@@ -3554,8 +3554,8 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Tempo (s)</translation>
     </message>
     <message>
-        <source>IO Graphs</source>
-        <translation>Grafici IO</translation>
+        <source>I/O Graphs</source>
+        <translation>Grafici I/O</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -3582,8 +3582,8 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>100 ms</translation>
     </message>
     <message>
-        <source>Wireshark IO Graphs: %1</source>
-        <translation>Grafici di IO di Wireshark: %1</translation>
+        <source>Wireshark I/O Graphs: %1</source>
+        <translation>Grafici di I/O di Wireshark: %1</translation>
     </message>
     <message>
         <source>All packets</source>

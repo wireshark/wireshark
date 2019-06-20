@@ -25,7 +25,7 @@ These statistics range from general information about the loaded capture file
 
   - *Endpoints* e.g. traffic to and from an IP addresses.
 
-  - *IO Graphs* visualizing the number of packets (or similar) in time.
+  - *I/O Graphs* visualizing the number of packets (or similar) in time.
 
 * Protocol specific statistics:
 
@@ -307,7 +307,7 @@ User configurable graph of the captured network packets.
 
 You can define up to five differently colored graphs.
 
-.The “IO Graphs” window
+.The “I/O Graphs” window
 image::wsug_graphics/ws-stats-iographs.png[{screenshot-attrs}]
 
 The user can configure the following things:

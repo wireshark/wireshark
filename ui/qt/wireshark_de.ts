@@ -3554,8 +3554,8 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Zeit (Sek)</translation>
     </message>
     <message>
-        <source>IO Graphs</source>
-        <translation>IO Graphen</translation>
+        <source>I/O Graphs</source>
+        <translation>I/O Graphen</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -3582,8 +3582,8 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>100 ms</translation>
     </message>
     <message>
-        <source>Wireshark IO Graphs: %1</source>
-        <translation>Wireshark IO Graphen: %1</translation>
+        <source>Wireshark I/O Graphs: %1</source>
+        <translation>Wireshark I/O Graphen: %1</translation>
     </message>
     <message>
         <source>All packets</source>

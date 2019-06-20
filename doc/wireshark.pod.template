@@ -1514,7 +1514,7 @@ List of End Point Addresses by protocol with packets/bytes/.... counts.
 
 Grouped counts of packet lengths (0-19 bytes, 20-39 bytes, ...)
 
-=item Statistics:IO Graphs
+=item Statistics:I/O Graphs
 
 Open a window where up to 5 graphs in different colors can be displayed
 to indicate number of packets or number of bytes per second for all packets

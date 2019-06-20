@@ -3526,8 +3526,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Temps (s)</translation>
     </message>
     <message>
-        <source>IO Graphs</source>
-        <translation>Graphiques IO</translation>
+        <source>I/O Graphs</source>
+        <translation>Graphiques I/O</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -3554,8 +3554,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Wireshark IO Graphs: %1</source>
-        <translation>Wireshark IO Graphiques : %1</translation>
+        <source>Wireshark I/O Graphs: %1</source>
+        <translation>Wireshark I/O Graphiques : %1</translation>
     </message>
     <message>
         <source>All packets</source>

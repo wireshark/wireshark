@@ -3533,7 +3533,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>時間(秒)</translation>
     </message>
     <message>
-        <source>IO Graphs</source>
+        <source>I/O Graphs</source>
         <translation>入出力グラフ</translation>
     </message>
     <message>
@@ -3561,7 +3561,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>100ミリ秒</translation>
     </message>
     <message>
-        <source>Wireshark IO Graphs: %1</source>
+        <source>Wireshark I/O Graphs: %1</source>
         <translation>Wireshark入出力グラフ: %1</translation>
     </message>
     <message>

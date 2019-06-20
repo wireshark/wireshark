@@ -2571,7 +2571,7 @@ Stig Bjørlykke		<stig[AT]bjorlykke.org> {
 	BJNP, DropBox, Memcache, nat-pmp, PacketLogger, rpcap
 	Improved dissectors using ASN.1 (BER).
 	Lua functions and improvements.
-	Statistics improvements (Protocol Hierarchy, Conversations, IO Graph)
+	Statistics improvements (Protocol Hierarchy, Conversations, I/O Graph)
 	Column handling functions (right-click column headers)
 	Enhancements and fixes in the new packet list
 	Various User Guide updates
