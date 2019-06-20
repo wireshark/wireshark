@@ -743,10 +743,11 @@ dissect_message_channel_mb(tvbuff_t * tvb, packet_info * pinfo, proto_tree* tree
   guint packet_start_pointer_field_present, packet_start_pointer;
 
   proto_tree_add_item_ret_uint (tree, hf_plc_mb_mc_pspf_present, tvb, 0, 1, FALSE, &packet_start_pointer_field_present);
-  proto_tree_add_item_ret_uint (tree, hf_plc_mb_mc_psp, tvb, 1, 2, FALSE, &packet_start_pointer);
 
   /*If not present, this contains stuff from other packet. We can't do much in this case*/
   if(packet_start_pointer_field_present) {
+    proto_tree_add_item_ret_uint (tree, hf_plc_mb_mc_psp, tvb, 1, 2, FALSE, &packet_start_pointer);
+
     guint16 docsis_start = 3 + packet_start_pointer;
     while (docsis_start + 6 < remaining_length) {
       /*DOCSIS header in packet*/
