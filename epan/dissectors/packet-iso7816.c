@@ -192,9 +192,11 @@ static const value_string iso7816_sel_file_occ[] = {
 static value_string_ext ext_iso7816_sel_file_occ =
     VALUE_STRING_EXT_INIT(iso7816_sel_file_occ);
 
+#define READ_REC_USAGE_SINGLE 0x04
+#define READ_REC_USAGE_START  0x05
 static const value_string iso7816_read_rec_usage[] = {
-    { 0x04, "Read record P1" },
-    { 0x05, "Read all records from P1 up to the last" },
+    { READ_REC_USAGE_SINGLE, "Read record P1" },
+    { READ_REC_USAGE_START,  "Read all records from P1 up to the last" },
     { 0, NULL }
 };
 static value_string_ext ext_iso7816_read_rec_usage =
@@ -495,6 +497,7 @@ dissect_iso7816_params(guint8 ins, tvbuff_t *tvb, gint offset,
     proto_tree *p1_tree = NULL, *p2_tree = NULL;
     proto_item *p1_p2_it = NULL;
     guint16     P1P2;
+    guint32     ef, read_rec_usage;
 
     offset_start = offset;
 
@@ -549,10 +552,15 @@ dissect_iso7816_params(guint8 ins, tvbuff_t *tvb, gint offset,
             proto_item_append_text(p1_it, " (record number)");
             proto_item_append_text(p2_it, " (reference control)");
             p2_tree = proto_item_add_subtree(p2_it, ett_iso7816_p2);
-            proto_tree_add_item(p2_tree, hf_iso7816_read_rec_ef,
-                    tvb, p2_offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(p2_tree, hf_iso7816_read_rec_usage,
-                    tvb, p2_offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item_ret_uint(p2_tree, hf_iso7816_read_rec_ef,
+                    tvb, p2_offset, 1, ENC_BIG_ENDIAN, &ef);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "EF %d", ef);
+            proto_tree_add_item_ret_uint(p2_tree, hf_iso7816_read_rec_usage,
+                    tvb, p2_offset, 1, ENC_BIG_ENDIAN, &read_rec_usage);
+            if (read_rec_usage == READ_REC_USAGE_SINGLE) {
+                col_append_sep_fstr(
+                        pinfo->cinfo, COL_INFO, NULL, "record %d", p1);
+            }
             break;
         case INS_GET_RESP:
             p1_p2_it = proto_tree_add_uint_format(params_tree, hf_iso7816_get_resp,
