@@ -64,7 +64,8 @@ ICONS="
     x-filter-clear.active
     x-filter-clear.selected
     x-filter-deprecated
-    x-filter-dropdown
+    x-filter-dropdown.dark
+    x-filter-dropdown.light
     x-filter-invalid
     x-filter-matching-bookmark
     x-filter-matching-bookmark.active

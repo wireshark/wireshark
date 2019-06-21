@@ -31,9 +31,11 @@ signals:
     void captureFilterSyntaxChanged(bool valid);
     void startCapture();
 
-public slots:
+protected:
+    virtual bool event(QEvent *event);
 
 private:
+    void updateStyleSheet();
     CaptureFilterEdit *cf_edit_;
 
 private slots:
