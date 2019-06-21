@@ -2602,7 +2602,11 @@ static void rtps_util_add_product_version(proto_tree *tree, tvbuff_t *tvb, gint 
 
   proto_tree *subtree;
   guint8 major, minor, release, revision;
+  gint release_offset;
+  gint revision_offset;
 
+  release_offset = 2;
+  revision_offset = 3;
   major = tvb_get_guint8(tvb, offset);
   minor = tvb_get_guint8(tvb, offset+1);
   release = tvb_get_guint8(tvb, offset+2);
@@ -2620,24 +2624,41 @@ static void rtps_util_add_product_version(proto_tree *tree, tvbuff_t *tvb, gint 
               "Product version: %d.%d.%d.%d", major, minor, release, revision);
     }
   } else if (vendor_id == RTPS_VENDOR_RTI_DDS_MICRO) {
-    subtree = proto_tree_add_subtree_format(tree, tvb, offset, 4, ett_rtps_product_version, NULL,
-        "Product version: %d.%d.%d", major, minor, revision);
+    /* In Micro < 3.0.0 release and revision numbers are switched */
+    if (major < 3) {
+      revision = revision ^ release;
+      release = revision ^ release;
+      revision = revision ^ release;
+
+      revision_offset = revision_offset ^ release_offset;
+      release_offset = revision_offset ^ release_offset;
+      revision_offset = revision_offset ^ release_offset;
+    }
+    if (revision != 0) {
+      subtree = proto_tree_add_subtree_format(tree, tvb, offset, 4, ett_rtps_product_version, NULL,
+        "Product version: %d.%d.%d.%d", major, minor, release, revision);
+    } else {
+      subtree = proto_tree_add_subtree_format(tree, tvb, offset, 4, ett_rtps_product_version, NULL,
+        "Product version: %d.%d.%d", major, minor, release);
+    }
   } else {
       return;
   }
+
   proto_tree_add_item(subtree, hf_rtps_param_product_version_major,
       tvb, offset, 1, ENC_NA);
   proto_tree_add_item(subtree, hf_rtps_param_product_version_minor,
       tvb, offset+1, 1, ENC_NA);
-  if (vendor_id == RTPS_VENDOR_RTI_DDS && major < 5) { /* If major revision is smaller than 5, release interpreted as char */
+  /* If major revision is smaller than 5, release interpreted as char */
+  if (vendor_id == RTPS_VENDOR_RTI_DDS && major < 5) {
     proto_tree_add_item(subtree, hf_rtps_param_product_version_release_as_char,
-        tvb, offset+2, 1, ENC_ASCII|ENC_NA);
+        tvb, offset + release_offset, 1, ENC_ASCII|ENC_NA);
   } else {
     proto_tree_add_item(subtree, hf_rtps_param_product_version_release,
-        tvb, offset+2, 1, ENC_NA);
+        tvb, offset + release_offset, 1, ENC_NA);
   }
   proto_tree_add_item(subtree, hf_rtps_param_product_version_revision,
-      tvb, offset+3, 1, ENC_NA);
+      tvb, offset + revision_offset, 1, ENC_NA);
 }
 
 /* ------------------------------------------------------------------------- */
