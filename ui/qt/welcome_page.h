@@ -37,6 +37,7 @@ public slots:
     void interfaceSelected();
 
 protected:
+    virtual bool event(QEvent *event);
     virtual void resizeEvent(QResizeEvent *event);
     virtual void changeEvent(QEvent* event);
 
@@ -46,6 +47,8 @@ protected slots:
     void on_helpLabel_clicked();
 
 private:
+    void updateStyleSheets();
+
     Ui::WelcomePage *welcome_ui_;
     QString flavor_;
     QString show_in_str_;

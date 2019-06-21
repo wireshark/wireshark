@@ -52,7 +52,7 @@ FilterExpressionToolBar::FilterExpressionToolBar(QWidget * parent) :
 bool FilterExpressionToolBar::event(QEvent *event)
 {
     switch (event->type()) {
-    case QEvent::PaletteChange:
+    case QEvent::ApplicationPaletteChange:
         updateStyleSheet();
         break;
     default:

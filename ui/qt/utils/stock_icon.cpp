@@ -29,7 +29,6 @@
 // http://msdn.microsoft.com/en-us/library/ms246582.aspx
 
 // To do:
-// - Respond to dark mode changes via QEvent::PaletteChange.
 // - 32x32, 48x48, 64x64, and unscaled (.svg) icons.
 // - Indent find & go actions when those panes are open.
 // - Replace or remove:

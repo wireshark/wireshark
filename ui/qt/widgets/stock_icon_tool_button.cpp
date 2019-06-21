@@ -95,7 +95,7 @@ bool StockIconToolButton::event(QEvent *event)
         }
         break;
     }
-    case QEvent::PaletteChange:
+    case QEvent::ApplicationPaletteChange:
         setStockIcon();
         break;
     default:

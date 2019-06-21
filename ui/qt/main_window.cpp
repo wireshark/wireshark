@@ -880,7 +880,7 @@ bool MainWindow::eventFilter(QObject *obj, QEvent *event) {
 bool MainWindow::event(QEvent *event)
 {
     switch (event->type()) {
-    case QEvent::PaletteChange:
+    case QEvent::ApplicationPaletteChange:
         initMainToolbarIcons();
         break;
     default:
