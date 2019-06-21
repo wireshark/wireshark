@@ -9,6 +9,8 @@
 
 #include <ui/qt/widgets/elided_label.h>
 
+#include <ui/qt/utils/color_utils.h>
+
 #include <QFontMetrics>
 #include <QResizeEvent>
 
@@ -26,6 +28,19 @@ void ElidedLabel::setUrl(const QString &url)
     updateText();
 }
 
+bool ElidedLabel::event(QEvent *event)
+{
+    switch (event->type()) {
+    case QEvent::ApplicationPaletteChange:
+        updateText();
+        break;
+    default:
+        break;
+
+    }
+    return QLabel::event(event);
+}
+
 void ElidedLabel::resizeEvent(QResizeEvent *)
 {
     updateText();
@@ -40,6 +55,7 @@ void ElidedLabel::updateText()
     QString label_text = small_text_ ? "<small><i>" : "<i>";
 
     if (url_.length() > 0) {
+        label_text.prepend(ColorUtils::themeLinkStyle());
         label_text.append(QString("<a href=\"%1\">%2</a>")
                 .arg(url_)
                 .arg(elided_text)

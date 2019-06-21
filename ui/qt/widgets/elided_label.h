@@ -21,7 +21,8 @@ public:
     void setSmallText(bool small_text = true) { small_text_ = small_text; }
 
 protected:
-    void resizeEvent(QResizeEvent *);
+    virtual bool event(QEvent *event);
+    virtual void resizeEvent(QResizeEvent *);
 
 private:
     bool small_text_;

@@ -52,6 +52,8 @@ public:
      * @return true if we're running in dark mode, false otherwise.
      */
     static bool themeIsDark();
+    static QBrush themeLinkBrush();
+    static QString themeLinkStyle();
 
 signals:
 

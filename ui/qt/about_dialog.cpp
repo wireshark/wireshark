@@ -44,8 +44,10 @@
 
 #include "extcap.h"
 
+#include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/utils/variant_pointer.h>
+
 #include <ui/qt/models/astringlist_list_model.h>
 #include <ui/qt/models/url_link_delegate.h>
 
@@ -268,14 +270,6 @@ AboutDialog::AboutDialog(QWidget *parent) :
     ui->setupUi(this);
     setAttribute(Qt::WA_DeleteOnClose, true);
     QFile f_license;
-    QString message;
-
-    QString vcs_version_info_str = get_ws_vcs_version_info();
-    QString copyright_info_str = get_copyright_info();
-    QString comp_info_str = gstring_free_to_qbytearray(get_compiled_version_info(get_wireshark_qt_compiled_info,
-                                              get_gui_compiled_info));
-    QString runtime_info_str = gstring_free_to_qbytearray(get_runtime_version_info(get_wireshark_runtime_info));
-
 
     AuthorListModel * authorModel = new AuthorListModel(this);
     AStringListListSortFilterProxyModel * proxyAuthorModel = new AStringListListSortFilterProxyModel(this);
@@ -294,20 +288,10 @@ AboutDialog::AboutDialog(QWidget *parent) :
     connect(ui->searchAuthors, SIGNAL(textChanged(QString)), proxyAuthorModel, SLOT(setFilter(QString)));
 
     /* Wireshark tab */
-
-    /* Construct the message string */
-    message = "<p>Version " + html_escape(vcs_version_info_str) + "</p>\n\n";
-    message += "<p>" + html_escape(copyright_info_str) + "</p>\n\n";
-    message += "<p>" + html_escape(comp_info_str) + "</p>\n\n";
-    message += "<p>" + html_escape(runtime_info_str) + "</p>\n\n";
-    message += "<p>Wireshark is Open Source Software released under the GNU General Public License.</p>\n\n";
-    message += "<p>Check the man page and ";
-    message += "<a href=https://www.wireshark.org>https://www.wireshark.org</a> ";
-    message += "for more information.</p>\n\n";
+    updateWiresharkText();
 
     ui->pte_wireshark->setFrameStyle(QFrame::NoFrame);
     ui->pte_wireshark->viewport()->setAutoFillBackground(false);
-    ui->pte_wireshark->setHtml(message);
 
 /* Check if it is a dev release... (VERSION_MINOR is odd in dev release) */
 #if VERSION_MINOR & 1
@@ -397,6 +381,19 @@ AboutDialog::~AboutDialog()
     delete ui;
 }
 
+bool AboutDialog::event(QEvent *event)
+{
+    switch (event->type()) {
+    case QEvent::ApplicationPaletteChange:
+        updateWiresharkText();
+        break;
+    default:
+        break;
+
+    }
+    return QDialog::event(event);
+}
+
 void AboutDialog::showEvent(QShowEvent * event)
 {
     int one_em = fontMetrics().height();
@@ -427,6 +424,28 @@ void AboutDialog::showEvent(QShowEvent * event)
     ui->tblShortcuts->resizeColumnToContents(2);
 
     QDialog::showEvent(event);
+}
+
+void AboutDialog::updateWiresharkText()
+{
+    QString vcs_version_info_str = get_ws_vcs_version_info();
+    QString copyright_info_str = get_copyright_info();
+    QString comp_info_str = gstring_free_to_qbytearray(get_compiled_version_info(get_wireshark_qt_compiled_info,
+                                              get_gui_compiled_info));
+    QString runtime_info_str = gstring_free_to_qbytearray(get_runtime_version_info(get_wireshark_runtime_info));
+
+    QString message = ColorUtils::themeLinkStyle();
+
+    /* Construct the message string */
+    message += "<p>Version " + html_escape(vcs_version_info_str) + "</p>\n\n";
+    message += "<p>" + html_escape(copyright_info_str) + "</p>\n\n";
+    message += "<p>" + html_escape(comp_info_str) + "</p>\n\n";
+    message += "<p>" + html_escape(runtime_info_str) + "</p>\n\n";
+    message += "<p>Wireshark is Open Source Software released under the GNU General Public License.</p>\n\n";
+    message += "<p>Check the man page and ";
+    message += "<a href=https://www.wireshark.org>https://www.wireshark.org</a> ";
+    message += "for more information.</p>\n\n";
+    ui->pte_wireshark->setHtml(message);
 }
 
 void AboutDialog::urlDoubleClicked(const QModelIndex &idx)

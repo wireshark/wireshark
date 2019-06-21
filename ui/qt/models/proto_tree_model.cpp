@@ -123,7 +123,7 @@ QVariant ProtoTreeModel::data(const QModelIndex &index, int role) const
             return ColorUtils::expert_color_foreground;
         }
         if (finfo.isLink()) {
-            return QApplication::palette().link();
+            return ColorUtils::themeLinkBrush();
         }
         if(finfo.headerInfo().type == FT_PROTOCOL) {
             return QApplication::palette().windowText();

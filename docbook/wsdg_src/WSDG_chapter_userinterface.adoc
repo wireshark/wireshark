@@ -223,7 +223,7 @@ code through the following steps:
 - push and commit on Gerrit
 - push ts on Transifex
 
-===== Colors
+===== Colors And Themes
 
 Qt provides a number of colors via the http://doc.qt.io/qt-5/qpalette.html[QPalette]
 class. Use this class when you need a standard color provided by the
@@ -235,6 +235,20 @@ for many interface elements that require custom colors. This includes the
 I/O graphs, sequence diagrams, and RTP streams. Please use this palette
 (defined in `tango_colors.h` and the *ColorUtils* class) if *QPalette*
 doesn't meet your needs.
+
+Wireshark supports dark themes (aka “dark mode”) on some platforms. We
+leverage Qt's dark theme support when possible, but have implemented our
+own support and workarounds in some cases. You can ensure that your code
+includes proper dark theme support by doing the following:
+
+* You can use a macOS-style template icon by creating a monochrome SVG
+document with “.template” appended to the name, e.g.
+`image/stock_icons/24x24/edit-find.template.svg`.
+* Qt draws unvisited links *Qt::blue* no matter what. You can work
+around this by using `ColorUtils::themeLinkBrush()` and
+`ColorUtils::themeLinkStyle()`.
+* You can catch dark and light mode changes by handling
+`QEvent::ApplicationPaletteChange`.
 
 ==== Other Issues and Information
 

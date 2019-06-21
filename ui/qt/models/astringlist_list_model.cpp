@@ -15,6 +15,8 @@
 
 #include <ui/qt/models/astringlist_list_model.h>
 
+#include <ui/qt/utils/color_utils.h>
+
 AStringListListModel::AStringListListModel(QObject * parent):
 QAbstractTableModel(parent)
 {}
@@ -187,7 +189,7 @@ QVariant AStringListListUrlProxyModel::data(const QModelIndex &index, int role) 
             if ( result.canConvert(QVariant::Brush) )
             {
                 QBrush selected = result.value<QBrush>();
-                selected.setColor(QApplication::palette().link().color());
+                selected.setColor(ColorUtils::themeLinkBrush().color());
                 return selected;
             }
         } else if ( role == Qt::TextColorRole ) {

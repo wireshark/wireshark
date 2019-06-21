@@ -87,9 +87,12 @@ public:
     ~AboutDialog();
 
 protected:
+    virtual bool event(QEvent *event);
     virtual void showEvent(QShowEvent *);
 
 private:
+    void updateWiresharkText();
+
     Ui::AboutDialog *ui;
     QString script_pattern;
 
