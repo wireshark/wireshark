@@ -3739,20 +3739,23 @@ ssl_looks_like_valid_v2_handshake(tvbuff_t *tvb, const guint32 offset,
 }
 
 gboolean
-tls_get_cipher_info(packet_info *pinfo, int *cipher_algo, int *cipher_mode, int *hash_algo)
+tls_get_cipher_info(packet_info *pinfo, guint16 cipher_suite, int *cipher_algo, int *cipher_mode, int *hash_algo)
 {
-    conversation_t *conv = find_conversation_pinfo(pinfo, 0);
-    if (!conv) {
-        return FALSE;
-    }
+    if (cipher_suite == 0) {
+        conversation_t *conv = find_conversation_pinfo(pinfo, 0);
+        if (!conv) {
+            return FALSE;
+        }
 
-    void *conv_data = conversation_get_proto_data(conv, proto_tls);
-    if (conv_data == NULL) {
-        return FALSE;
-    }
+        void *conv_data = conversation_get_proto_data(conv, proto_tls);
+        if (conv_data == NULL) {
+            return FALSE;
+        }
 
-    SslDecryptSession *ssl_session = (SslDecryptSession *)conv_data;
-    const SslCipherSuite *suite = ssl_find_cipher(ssl_session->session.cipher);
+        SslDecryptSession *ssl_session = (SslDecryptSession *)conv_data;
+        cipher_suite = ssl_session->session.cipher;
+    }
+    const SslCipherSuite *suite = ssl_find_cipher(cipher_suite);
     if (!suite) {
         return FALSE;
     }
@@ -3805,34 +3808,34 @@ tls_get_cipher_info(packet_info *pinfo, int *cipher_algo, int *cipher_mode, int 
 
 /**
  * Load the QUIC traffic secret from the keylog file.
- * Returns TRUE and the secret into 'secret' if a secret was found of length
- * 'secret_size' and FALSE otherwise.
+ * Returns the secret length (at most 'secret_size') and the secret into
+ * 'secret' if a secret was found, or zero otherwise.
  */
-gboolean
+gint
 tls13_get_quic_secret(packet_info *pinfo, gboolean is_from_server, int type, guint secret_len, guint8 *secret_out)
 {
     GHashTable *key_map;
     const char *label;
     conversation_t *conv = find_conversation_pinfo(pinfo, 0);
     if (!conv) {
-        return FALSE;
+        return 0;
     }
 
     SslDecryptSession *ssl = (SslDecryptSession *)conversation_get_proto_data(conv, proto_tls);
     if (ssl == NULL) {
-        return FALSE;
+        return 0;
     }
 
     gboolean is_quic = !!(ssl->state & SSL_QUIC_RECORD_LAYER);
     ssl_debug_printf("%s frame %d is_quic=%d\n", G_STRFUNC, pinfo->num, is_quic);
     if (!is_quic) {
-        return FALSE;
+        return 0;
     }
 
     if (ssl->client_random.data_len == 0) {
         /* May happen if Hello message is missing and Finished is found. */
         ssl_debug_printf("%s missing Client Random\n", G_STRFUNC);
-        return FALSE;
+        return 0;
     }
 
     // Not strictly necessary as QUIC CRYPTO frames have just been processed
@@ -3871,14 +3874,18 @@ tls13_get_quic_secret(packet_info *pinfo, gboolean is_from_server, int type, gui
     if (!secret || secret->data_len != secret_len) {
         ssl_debug_printf("%s Cannot find QUIC %s of size %d, found bad size %d!\n",
                          G_STRFUNC, label, secret_len, secret ? secret->data_len : 0);
-        return FALSE;
+        return 0;
     }
 
     ssl_debug_printf("%s Retrieved QUIC traffic secret.\n", G_STRFUNC);
     ssl_print_string("Client Random", &ssl->client_random);
     ssl_print_string(label, secret);
-    memcpy(secret_out, secret->data, secret_len);
-    return TRUE;
+    if (secret->data_len > secret_len) {
+        ssl_debug_printf("%s Output buffer size is too small!\n", G_STRFUNC);
+        return 0;
+    }
+    memcpy(secret_out, secret->data, secret->data_len);
+    return secret->data_len;
 }
 
 /* TLS Exporters {{{ */
@@ -3945,7 +3952,7 @@ tls13_exporter(packet_info *pinfo, gboolean is_early,
     GHashTable *key_map;
     const StringInfo *secret;
 
-    if (!tls_get_cipher_info(pinfo, NULL, NULL, &hash_algo)) {
+    if (!tls_get_cipher_info(pinfo, 0, NULL, NULL, &hash_algo)) {
         return FALSE;
     }
 

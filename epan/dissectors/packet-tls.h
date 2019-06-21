@@ -30,9 +30,11 @@ WS_DLL_PUBLIC void ssl_set_master_secret(guint32 frame_num, address *addr_srv, a
 /**
  * Retrieves Libgcrypt identifiers for the current TLS cipher. Only valid after
  * the Server Hello has been processed and if the current conversation has TLS.
+ * Alternatively, this conversation lookup can be skipped if the current cipher
+ * ('cipher_suite') is provided (non-zero).
  */
 extern gboolean
-tls_get_cipher_info(packet_info *pinfo, int *cipher_algo, int *cipher_mode, int *hash_algo);
+tls_get_cipher_info(packet_info *pinfo, guint16 cipher_suite, int *cipher_algo, int *cipher_mode, int *hash_algo);
 
 /**
  * Computes the TLS 1.3 "TLS-Exporter(label, context_value, key_length)" value.
@@ -43,7 +45,7 @@ tls13_exporter(packet_info *pinfo, gboolean is_early,
                const char *label, guint8 *context,
                guint context_length, guint key_length, guchar **out);
 
-gboolean
+gint
 tls13_get_quic_secret(packet_info *pinfo, gboolean is_from_server, int type, guint secret_len, guint8 *secret_out);
 
 #endif  /* __PACKET_TLS_H__ */

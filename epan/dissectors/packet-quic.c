@@ -140,7 +140,6 @@ static dissector_handle_t tls13_handshake_handle;
  *
  * Long packet types always use a single cipher depending on packet type.
  * Short packet types always use 1-RTT secrets for packet protection (pp).
- * TODO 0-RTT decryption requires another (client) cipher.
  *
  * Considerations:
  * - QUIC packets might appear out-of-order (short packets before handshake
@@ -169,10 +168,6 @@ static dissector_handle_t tls13_handshake_handle;
  * - 3 packet number spaces: Initial, Handshake, 0/1-RTT (appdata).
  * - 4 header protection ciphers: initial, 0-RTT, HS, 1-RTT.
  * - 5 payload protection ciphers: initial, 0-RTT, HS, 1-RTT (KP0), 1-RTT (KP1).
- *
- * to-do list:
- * DONE key update via KEY_PHASE bit (untested)
- * TODO 0-RTT decryption
  */
 
 typedef struct quic_decrypt_result {
@@ -229,6 +224,7 @@ typedef struct quic_info_data {
     int             cipher_mode;    /**< Cipher mode for packet encryption. */
     quic_cipher     client_initial_cipher;
     quic_cipher     server_initial_cipher;
+    quic_cipher     client_0rtt_cipher;
     quic_cipher     client_handshake_cipher;
     quic_cipher     server_handshake_cipher;
     quic_pp_state_t client_pp;
@@ -1480,11 +1476,39 @@ quic_create_initial_decoders(const quic_cid_t *cid, const gchar **error, quic_in
 }
 
 static gboolean
+quic_create_0rtt_decoder(guint i, gchar *early_data_secret, guint early_data_secret_len,
+                         quic_cipher *cipher, int *cipher_algo)
+{
+    static const guint16 tls13_ciphers[] = {
+        0x1301, /* TLS_AES_128_GCM_SHA256 */
+        0x1302, /* TLS_AES_256_GCM_SHA384 */
+        0x1303, /* TLS_CHACHA20_POLY1305_SHA256 */
+        0x1304, /* TLS_AES_128_CCM_SHA256 */
+        0x1305, /* TLS_AES_128_CCM_8_SHA256 */
+    };
+    if (i >= G_N_ELEMENTS(tls13_ciphers)) {
+        // end of list
+        return FALSE;
+    }
+    int cipher_mode = 0, hash_algo = 0;
+    const char *error_ignored = NULL;
+    if (tls_get_cipher_info(NULL, tls13_ciphers[i], cipher_algo, &cipher_mode, &hash_algo)) {
+        guint hash_len = gcry_md_get_algo_dlen(hash_algo);
+        if (hash_len == early_data_secret_len && quic_cipher_prepare(cipher, hash_algo, *cipher_algo, cipher_mode, early_data_secret, &error_ignored)) {
+            return TRUE;
+        }
+    }
+    /* This cipher failed, but there are more to try. */
+    quic_cipher_reset(cipher);
+    return TRUE;
+}
+
+static gboolean
 quic_create_decoders(packet_info *pinfo, quic_info_data_t *quic_info, quic_cipher *cipher,
                      gboolean from_server, TLSRecordType type, const char **error)
 {
     if (!quic_info->hash_algo) {
-        if (!tls_get_cipher_info(pinfo, &quic_info->cipher_algo, &quic_info->cipher_mode, &quic_info->hash_algo)) {
+        if (!tls_get_cipher_info(pinfo, 0, &quic_info->cipher_algo, &quic_info->cipher_mode, &quic_info->hash_algo)) {
             *error = "Unable to retrieve cipher information";
             return FALSE;
         }
@@ -1580,7 +1604,7 @@ quic_get_1rtt_hp_cipher(packet_info *pinfo, quic_info_data_t *quic_info, gboolea
     /* Try to lookup secrets if not available. */
     if (!quic_info->client_pp.next_secret) {
         /* Query TLS for the cipher suite. */
-        if (!tls_get_cipher_info(pinfo, &quic_info->cipher_algo, &quic_info->cipher_mode, &quic_info->hash_algo)) {
+        if (!tls_get_cipher_info(pinfo, 0, &quic_info->cipher_algo, &quic_info->cipher_mode, &quic_info->hash_algo)) {
             /* No previous TLS handshake found or unsupported ciphers, fail. */
             quic_info->skip_decryption = TRUE;
             return NULL;
@@ -1849,18 +1873,28 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
     if (conn) {
         if (long_packet_type == QUIC_LPT_INITIAL) {
             cipher = !from_server ? &conn->client_initial_cipher : &conn->server_initial_cipher;
+        } else if (long_packet_type == QUIC_LPT_0RTT && !from_server) {
+            cipher = &conn->client_0rtt_cipher;
         } else if (long_packet_type == QUIC_LPT_HANDSHAKE) {
             cipher = !from_server ? &conn->client_handshake_cipher : &conn->server_handshake_cipher;
         }
     }
     /* Prepare the Initial/Handshake cipher for header/payload decryption. */
     if (!PINFO_FD_VISITED(pinfo) && conn && cipher) {
+#define DIGEST_MAX_SIZE 48  /* SHA384 */
         const gchar *error = NULL;
+        gchar early_data_secret[DIGEST_MAX_SIZE];
+        guint early_data_secret_len = 0;
         if (long_packet_type == QUIC_LPT_INITIAL && !from_server &&
             !memcmp(&dcid, &conn->client_dcid_initial, sizeof(quic_cid_t))) {
             /* Create new decryption context based on the Client Connection
              * ID from the *very first* Client Initial packet. */
             quic_create_initial_decoders(&dcid, &error, conn);
+        } else if (long_packet_type == QUIC_LPT_0RTT) {
+            early_data_secret_len = tls13_get_quic_secret(pinfo, FALSE, TLS_SECRET_0RTT_APP, DIGEST_MAX_SIZE, early_data_secret);
+            if (early_data_secret_len == 0) {
+                error = "Secrets are not available";
+            }
         } else if (long_packet_type == QUIC_LPT_HANDSHAKE) {
             if (!cipher->hp_cipher) {
                 quic_create_decoders(pinfo, conn, cipher, from_server, TLS_SECRET_HANDSHAKE, &error);
@@ -1875,11 +1909,25 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
                 pn_offset += (guint)token_length;
             }
             pn_offset += tvb_get_varint(tvb, pn_offset, 8, &payload_length, ENC_VARINT_QUIC);
-            if (quic_decrypt_header(tvb, pn_offset, cipher->hp_cipher, hp_cipher_algo, &first_byte, &pkn32)) {
+
+            // Assume failure unless proven otherwise.
+            error = "Header deprotection failed";
+            if (long_packet_type != QUIC_LPT_0RTT) {
+                if (quic_decrypt_header(tvb, pn_offset, cipher->hp_cipher, hp_cipher_algo, &first_byte, &pkn32)) {
+                    error = NULL;
+                }
+            } else {
+                // Cipher is not stored with 0-RTT data or key, perform trial decryption.
+                for (guint i = 0; quic_create_0rtt_decoder(i, early_data_secret, early_data_secret_len, cipher, &hp_cipher_algo); i++) {
+                    if (cipher->hp_cipher && quic_decrypt_header(tvb, pn_offset, cipher->hp_cipher, hp_cipher_algo, &first_byte, &pkn32)) {
+                        error = NULL;
+                        break;
+                    }
+                }
+            }
+            if (!error) {
                 quic_set_full_packet_number(conn, quic_packet, from_server, first_byte, pkn32);
                 quic_packet->first_byte = first_byte;
-            } else {
-                error = "Header deprotection failed";
             }
         }
         if (error) {
