@@ -1640,7 +1640,7 @@ set(INSTALL_DIRS
 # added to an install() command with build systems supporting multiple
 # configurations in the build tree (e.g.: Visual Studio).
 if(NOT WIN32)
-	list(APPEND INSTALL_DIRS help)
+	list(APPEND INSTALL_DIRS "${DATAFILE_DIR}/help")
 endif()
 
 
