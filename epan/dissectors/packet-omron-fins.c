@@ -2,6 +2,9 @@
  * Routines for OMRON FINS UDP dissection
  * Copyright Sourcefire, Inc. 2008-2009, Matthew Watchinski <mwatchinski@sourcefire.com>
  *
+ * Omron FINS/TCP Support
+ * Copyright 2019 Kevin Herron <kevinherron@gmail.com>
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
@@ -16,16 +19,20 @@
 
 
 #include "config.h"
+#include "packet-tcp.h"
 
 #include <epan/packet.h>
 #include <epan/expert.h>
 void proto_register_omron_fins(void);
 void proto_reg_handoff_omron_fins(void);
 
+#define OMRON_FINS_TCP_PORT 9600 /* Not IANA registered */
 #define OMRON_FINS_UDP_PORT 9600 /* Not IANA registered */
+#define OMRON_FINS_TCP_MAGIC_BYTES 0x46494e53 /* ASCII 'FINS' */
 
 static int proto_omron_fins = -1;
 static gint ett_omron = -1;
+static gint ett_omron_tcp_header = -1;
 static gint ett_omron_header = -1;
 static gint ett_omron_icf_fields = -1;
 static gint ett_omron_command_data = -1;
@@ -52,6 +59,14 @@ static gint ett_omron_data_link_status_tree = -1;
 #if 0
 static gboolean gPREF_HEX = FALSE;
 #endif
+
+/* TCP Header fields */
+static int hf_omron_tcp_magic = -1;
+static int hf_omron_tcp_length = -1;
+static int hf_omron_tcp_command = -1;
+static int hf_omron_tcp_error_code = -1;
+static int hf_omron_tcp_client_node_address = -1;
+static int hf_omron_tcp_server_node_address = -1;
 
 /* Omron-FINS Header fields */
 static int hf_omron_icf = -1;
@@ -414,6 +429,12 @@ static expert_field ei_oomron_command_memory_area_code = EI_INIT;
 
 
 /* Defines */
+#define TCP_CMD_NODE_ADDRESS_DATA_SEND_CLIENT   0x00
+#define TCP_CMD_NODE_ADDRESS_DATA_SEND_SERVER   0x01
+#define TCP_CMD_FRAME_SEND                      0x02
+#define TCP_CMD_FRAME_SEND_ERROR_NOTIFICATION   0x03
+#define TCP_CMD_CONNECTION_CONFIRMATION         0x06
+
 #define ICF_GW_MASK  0x80
 #define ICF_GW_DUSE  0x00
 #define ICF_GW_USE   0x01
@@ -547,6 +568,29 @@ static const range_string omron_error_reset_range[] = {
     { 0x8100, 0x8115, "CPU bus error" },
     { 0xC101, 0xC2FF, "FALS(007) executed" },
     { 0,0, NULL }
+};
+
+static const value_string tcp_command_cv[] = {
+    { TCP_CMD_NODE_ADDRESS_DATA_SEND_CLIENT, "Node Address Data Send (Client to Server)" },
+    { TCP_CMD_NODE_ADDRESS_DATA_SEND_SERVER, "Node Address Data Send (Server to Client)" },
+    { TCP_CMD_FRAME_SEND, "Frame Send" },
+    { TCP_CMD_FRAME_SEND_ERROR_NOTIFICATION, "Frame Send Error Notification" },
+    { TCP_CMD_CONNECTION_CONFIRMATION, "Connection Confirmation" },
+    { 0, NULL }
+};
+
+static const value_string tcp_error_code_cv[] = {
+    { 0x00000000, "Normal" },
+    { 0x00000001, "The header is not 'FINS' (ASCII code)" },
+    { 0x00000002, "The data length is too long" },
+    { 0x00000003, "The command is not supported" },
+    { 0x00000020, "All connections are in use" },
+    { 0x00000021, "The specified node is already connected" },
+    { 0x00000022, "Attempt to access a protected node from an unspecified IP address" },
+    { 0x00000023, "The client FINS node address is out of range" },
+    { 0x00000024, "The same FINS node address is being used by the client and server" },
+    { 0x00000025, "All the node addresses available for allocation have been used" },
+    { 0, NULL }
 };
 
 static const value_string command_code_cv[] = {
@@ -1165,46 +1209,30 @@ static const true_false_string boolean_member_polling = {
     "Unit responds to polling"
 };
 
-
 /* CODE */
 
 static int
-dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_omron_fins_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *omron_tree)
 {
     proto_item  *ti = NULL;
-    proto_tree  *omron_tree = NULL;
     proto_tree  *omron_header_tree, *field_tree, *command_tree, *area_data_tree, *cpu_bus_tree;
     proto_tree  *io_data_tree, *error_log_tree, *omron_disk_data_tree, *omron_file_data_tree;
     proto_tree  *omron_block_record_tree, *omron_status_tree;
     const gchar *cmd_str;
-    gint     cmd_str_idx;
+    gint     cmd_str_idx = -1;
     gint     reported_length_remaining;
-    int      offset = 0;
+    guint    offset = 0;
     guint8   icf_flags;
     guint8   omron_byte;
     gboolean is_response = FALSE;
     gboolean is_command  = FALSE;
-    guint16  command_code;
-
-    /* Make sure we have enough actual data to do the heuristics checks */
-    if(tvb_captured_length(tvb) < 12 ) {
-        return 0;
-    }
-    /* Check some bytes to see if it's OMRON */
-    omron_byte = tvb_get_guint8(tvb, 1);
-    if(omron_byte != 0x00) {
-        return 0;
-    }
-    omron_byte = tvb_get_guint8(tvb, 2);
-    if(omron_byte != 0x02) {
-        return 0;
-    }
-    /* get the command code: we need it later */
-    command_code = tvb_get_ntohs(tvb,10);
+    guint16  command_code = 0;
 
     /* Set the protocol column */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "OMRON");
 
+    /* get the command code: we need it later */
+    command_code = tvb_get_ntohs(tvb, offset + 10);
 
     cmd_str = try_val_to_str_idx(command_code, command_code_cv, &cmd_str_idx);
     if (cmd_str_idx == -1)
@@ -1215,33 +1243,28 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     if (icf_flags & 0x40) {
         is_response = TRUE;
         col_add_fstr(pinfo->cinfo, COL_INFO, "Response : %s", cmd_str);
-    }
-    else
-    {
+    } else {
         is_command = TRUE;
         col_add_fstr(pinfo->cinfo, COL_INFO, "Command  : %s", cmd_str);
     }
 
     /* Show address info for single memory area read */
-    if(is_command && command_code == 0x0101 && tvb_captured_length(tvb) >= 15) {
+    if (is_command && command_code == 0x0101 && tvb_captured_length(tvb) >= 15) {
         const gchar *mem_area_str;
         gint mem_area_str_idx;
         guint8 mem_area;
         guint16 mem_address;
 
-        mem_area = tvb_get_guint8(tvb, 12);
+        mem_area = tvb_get_guint8(tvb, offset + 12);
         mem_area_str = try_val_to_str_idx(mem_area, memory_area_code_prefix, &mem_area_str_idx);
-        if(mem_area_str_idx >= 0) {
-            mem_address = tvb_get_ntohs(tvb, 13);
+        if (mem_area_str_idx >= 0) {
+            mem_address = tvb_get_ntohs(tvb, offset + 13);
             col_append_fstr(pinfo->cinfo, COL_INFO, " (%s%u)", mem_area_str, mem_address);
         }
     }
 
-    if (tree) { /* we are being asked for details */
-        ti = proto_tree_add_item(tree, proto_omron_fins, tvb, 0, -1, ENC_NA);
-        omron_tree = proto_item_add_subtree(ti, ett_omron);
-
-        omron_header_tree = proto_tree_add_subtree(omron_tree, tvb, 0, 12, ett_omron_header, &ti, "Omron Header");
+    if (omron_tree) { /* we are being asked for details */
+        omron_header_tree = proto_tree_add_subtree(omron_tree, tvb, offset, 12, ett_omron_header, &ti, "FINS Header");
 
         proto_tree_add_bitmask(omron_header_tree, tvb, offset, hf_omron_icf,
                                ett_omron_icf_fields, omron_icf_fields, ENC_BIG_ENDIAN);
@@ -3316,14 +3339,14 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
                     proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(command_tree, hf_omron_name_data, tvb, offset, -1, ENC_ASCII|ENC_NA);
                     offset = offset + reported_length_remaining;
-               }
+                }
             }
         }
         break;
 
         default:
         { /* invalid command ?? */
-            ;/* ??? dissector_bug ??*/
+            /* ??? dissector_bug ??*/
         }
         break;
 
@@ -3338,6 +3361,117 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *da
     return tvb_captured_length(tvb);
 }
 
+static guint
+get_omron_fins_tcp_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data _U_)
+{
+    guint32 length = tvb_get_ntohl(tvb, offset + 4);
+
+    // length field does not include magic or length fields
+    return 8 + length;
+}
+
+static int
+dissect_omron_fins_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    proto_item *ti = NULL;
+    proto_tree *omron_tree = NULL;
+    proto_tree *omron_tcp_header_tree = NULL;
+
+    gint fins_pdu_offset = 0;
+    guint32 tcp_command = tvb_get_ntohl(tvb, 8);
+
+    switch (tcp_command) {
+        case TCP_CMD_NODE_ADDRESS_DATA_SEND_CLIENT:
+            fins_pdu_offset = 20;
+            break;
+        case TCP_CMD_NODE_ADDRESS_DATA_SEND_SERVER:
+            fins_pdu_offset = 24;
+            break;
+        case TCP_CMD_FRAME_SEND:
+        case TCP_CMD_FRAME_SEND_ERROR_NOTIFICATION:
+        case TCP_CMD_CONNECTION_CONFIRMATION:
+            fins_pdu_offset = 16;
+            break;
+        default:
+            return 0;
+    }
+
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "OMRON");
+
+    col_add_fstr(pinfo->cinfo, COL_INFO, "FINS/TCP : %s",
+                 val_to_str(tcp_command, tcp_command_cv, "Unknown (%d)"));
+
+    if (tree) {
+        ti = proto_tree_add_item(tree, proto_omron_fins, tvb, 0, -1, ENC_NA);
+        omron_tree = proto_item_add_subtree(ti, ett_omron);
+
+        omron_tcp_header_tree = proto_tree_add_subtree(
+            omron_tree, tvb, 0, fins_pdu_offset, ett_omron_tcp_header, &ti, "FINS/TCP Header");
+
+        proto_tree_add_item(omron_tcp_header_tree, hf_omron_tcp_magic, tvb, 0, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(omron_tcp_header_tree, hf_omron_tcp_length, tvb, 4, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(omron_tcp_header_tree, hf_omron_tcp_command, tvb, 8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(omron_tcp_header_tree, hf_omron_tcp_error_code, tvb, 12, 4, ENC_BIG_ENDIAN);
+
+        if (tcp_command == TCP_CMD_NODE_ADDRESS_DATA_SEND_CLIENT) {
+            proto_tree_add_item(omron_tcp_header_tree, hf_omron_tcp_client_node_address, tvb, 16, 4, ENC_BIG_ENDIAN);
+        } else if (tcp_command == TCP_CMD_NODE_ADDRESS_DATA_SEND_SERVER) {
+            proto_tree_add_item(omron_tcp_header_tree, hf_omron_tcp_client_node_address, tvb, 16, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(omron_tcp_header_tree, hf_omron_tcp_server_node_address, tvb, 20, 4, ENC_BIG_ENDIAN);
+        }
+    }
+
+    if (tcp_command == TCP_CMD_FRAME_SEND) {
+        tvbuff_t *slice = tvb_new_subset_remaining(tvb, fins_pdu_offset);
+
+        dissect_omron_fins_common(slice, pinfo, omron_tree);
+    }
+
+    return tvb_reported_length(tvb);
+}
+
+static int
+dissect_omron_fins_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+{
+    if (tvb_get_ntohl(tvb, 0) != OMRON_FINS_TCP_MAGIC_BYTES) {
+        return 0;
+    }
+
+    tcp_dissect_pdus(tvb, pinfo, tree, TRUE, 8,
+                     get_omron_fins_tcp_pdu_len, dissect_omron_fins_tcp_pdu, data);
+
+    return tvb_reported_length(tvb);
+}
+
+static int
+dissect_omron_fins_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+    guint8 omron_byte;
+    proto_item *ti = NULL;
+    proto_tree *omron_tree = NULL;
+
+    /* Make sure we have enough actual data to do the heuristics checks */
+    if (tvb_captured_length(tvb) < 12) {
+        return 0;
+    }
+    /* Check some bytes to see if it's OMRON */
+    omron_byte = tvb_get_guint8(tvb, 1);
+    if (omron_byte != 0x00) {
+        return 0;
+    }
+    omron_byte = tvb_get_guint8(tvb, 2);
+    if (omron_byte != 0x02) {
+        return 0;
+    }
+
+    if (tree) {
+        ti = proto_tree_add_item(tree, proto_omron_fins, tvb, 0, -1, ENC_NA);
+        omron_tree = proto_item_add_subtree(ti, ett_omron);
+    }
+
+    return dissect_omron_fins_common(tvb, pinfo, omron_tree);
+}
+
 void
 proto_register_omron_fins(void)
 {
@@ -3348,6 +3482,24 @@ proto_register_omron_fins(void)
     /* Setup list of header fields */
 
     static hf_register_info hf[] = {
+        { &hf_omron_tcp_magic,
+        { "Magic Bytes", "omron.tcp.magic", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_omron_tcp_length,
+        { "Length", "omron.tcp.length", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_omron_tcp_command,
+        { "Command", "omron.tcp.command", FT_UINT32, BASE_HEX, VALS(tcp_command_cv), 0x0, NULL, HFILL }},
+
+        { &hf_omron_tcp_error_code,
+        { "Error Code", "omron.tcp.error_code", FT_UINT32, BASE_HEX, VALS(tcp_error_code_cv), 0x0, NULL, HFILL }},
+
+        { &hf_omron_tcp_client_node_address,
+        { "Client Node Address", "omron.tcp.client_node_address", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
+
+        { &hf_omron_tcp_server_node_address,
+        { "Server Node Address", "omron.tcp.server_node_address", FT_UINT32, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
+
         { &hf_omron_icf,
         { "OMRON ICF Field", "omron.icf", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
@@ -4025,6 +4177,7 @@ proto_register_omron_fins(void)
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_omron,
+        &ett_omron_tcp_header,
         &ett_omron_header,
         &ett_omron_icf_fields,
         &ett_omron_command_data,
@@ -4060,7 +4213,7 @@ proto_register_omron_fins(void)
     /* Register the protocol name and description */
     proto_omron_fins = proto_register_protocol (
             "OMRON FINS Protocol", /* name       */
-            "OMRON-FINS",          /* short name */
+            "OMRON FINS",          /* short name */
             "omron"                /* abbrev     */
             );
 
@@ -4085,10 +4238,14 @@ proto_register_omron_fins(void)
 void
 proto_reg_handoff_omron_fins(void)
 {
-    dissector_handle_t omron_fins_handle;
+    dissector_handle_t omron_fins_tcp_handle;
+    dissector_handle_t omron_fins_udp_handle;
 
-    omron_fins_handle = create_dissector_handle(dissect_omron_fins, proto_omron_fins);
-    dissector_add_uint_with_preference("udp.port", OMRON_FINS_UDP_PORT, omron_fins_handle);
+    omron_fins_tcp_handle = create_dissector_handle(dissect_omron_fins_tcp, proto_omron_fins);
+    dissector_add_uint_with_preference("tcp.port", OMRON_FINS_TCP_PORT, omron_fins_tcp_handle);
+
+    omron_fins_udp_handle = create_dissector_handle(dissect_omron_fins_udp, proto_omron_fins);
+    dissector_add_uint_with_preference("udp.port", OMRON_FINS_UDP_PORT, omron_fins_udp_handle);
 }
 
 /*
