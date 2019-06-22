@@ -47,8 +47,14 @@ import time
 import getopt
 import traceback
 
-import lex
-import yacc
+try:
+    from ply import lex
+    from ply import yacc
+except ImportError:
+    # Fallback: use lex.py and yacc from the tools directory within the
+    # Wireshark source tree if python-ply is not installed.
+    import lex
+    import yacc
 
 if sys.version_info[0] < 3:
     from string import maketrans
