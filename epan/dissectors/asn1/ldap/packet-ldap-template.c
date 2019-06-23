@@ -1569,7 +1569,7 @@ static int dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         old_offset = offset + 4;
         item = proto_tree_add_item(tree, hf_mscldap_netlogon_ipaddress, tvb, old_offset, 4, ENC_BIG_ENDIAN);
 
-        if (tree){
+        if (tree) {
           proto_tree *subtree;
 
           subtree = proto_item_add_subtree(item, ett_mscldap_ipdetails);
@@ -1584,21 +1584,16 @@ static int dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
           /* get IP address */
           proto_tree_add_item(subtree, hf_mscldap_netlogon_ipaddress_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
-          offset +=4;
-
-          /* skip the 8 bytes of zeros in the sockaddr structure */
-          offset += 8;
         }
-
       }
 
       break;
   }
 
 
- /* complete the decode with the version and token details */
+  /* complete the decode with the version and token details */
 
-  offset = len-8;
+  offset = len - 8;
 
   /* NETLOGON_NT_VERISON Options (MS-ADTS 7.3.1.1) */
   offset = dissect_mscldap_ntver_flags(tree, tvb, offset);
