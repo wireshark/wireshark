@@ -1917,6 +1917,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Manage Filter Expressions</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Selected</source>
+        <translation type="unfinished">Sélectionné</translation>
+    </message>
+    <message>
+        <source>Not Selected</source>
+        <translation type="unfinished">Non Sélectionné</translation>
+    </message>
 </context>
 <context>
     <name>DisplayFilterExpressionDialog</name>
@@ -2983,6 +2991,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Couleurs:</translation>
     </message>
     <message>
+        <source>System Default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Solid</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3000,11 +3012,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Style:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>System Default</source>
-        <oldsource>Default</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3527,7 +3534,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>I/O Graphs</source>
-        <translation>Graphiques I/O</translation>
+        <oldsource>IO Graphs</oldsource>
+        <translation type="unfinished">Graphiques IO</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -3546,6 +3554,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>5 ms</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>10 ms</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3554,8 +3566,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Wireshark IO Graphs: %1</source>
+        <translation type="vanished">Wireshark IO Graphiques : %1</translation>
+    </message>
+    <message>
         <source>Wireshark I/O Graphs: %1</source>
-        <translation>Wireshark I/O Graphiques : %1</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All packets</source>
@@ -3620,10 +3636,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Save Graph As</source>
         <translation>Sauvegarder le Graphique Sous</translation>
-    </message>
-    <message>
-        <source>5 ms</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6816,7 +6828,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Add a filter button</source>
-        <translation>Ajouter un bouton filtre</translation>
+        <translation type="vanished">Ajouter un bouton filtre</translation>
     </message>
     <message>
         <source>Add a display filter button.</source>
@@ -8183,38 +8195,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Résumé en Texte</translation>
     </message>
     <message>
-        <source>Align Left</source>
-        <translation type="vanished">Aligner à gauche</translation>
-    </message>
-    <message>
-        <source>Align Center</source>
-        <translation type="vanished">Aligner au centre</translation>
-    </message>
-    <message>
-        <source>Align Right</source>
-        <translation type="vanished">Aligner à droite</translation>
-    </message>
-    <message>
-        <source>Column Preferences</source>
-        <translation type="vanished">Préferences de la colonne</translation>
-    </message>
-    <message>
-        <source>Edit Column</source>
-        <translation type="vanished">Éditer la colonne</translation>
-    </message>
-    <message>
-        <source>Resize To Contents</source>
-        <translation type="vanished">Ajuster la taille au contenu</translation>
-    </message>
-    <message>
-        <source>Resolve Names</source>
-        <translation type="vanished">Résoudre les noms</translation>
-    </message>
-    <message>
-        <source>Remove This Column</source>
-        <translation type="vanished">Supprimer cette colonne</translation>
-    </message>
-    <message>
         <source>Frame %1: %2
 
 </source>
@@ -8231,23 +8211,23 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <name>PacketListHeader</name>
     <message>
         <source>Align Left</source>
-        <translation type="unfinished">Aligner à gauche</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Align Center</source>
-        <translation type="unfinished">Aligner au centre</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Align Right</source>
-        <translation type="unfinished">Aligner à droite</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Column Preferences</source>
-        <translation type="unfinished">Préferences de la colonne</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Edit Column</source>
-        <translation type="unfinished">Éditer la colonne</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Resize to Contents</source>
@@ -8259,7 +8239,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Resolve Names</source>
-        <translation type="unfinished">Résoudre les noms</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Remove this Column</source>

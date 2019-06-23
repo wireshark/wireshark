@@ -1941,6 +1941,14 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <source>Manage Filter Expressions</source>
         <translation>Filterausdrücke verwalten</translation>
     </message>
+    <message>
+        <source>Selected</source>
+        <translation type="unfinished">Ausgewählt</translation>
+    </message>
+    <message>
+        <source>Not Selected</source>
+        <translation type="unfinished">nicht das Ausgewählte</translation>
+    </message>
 </context>
 <context>
     <name>DisplayFilterExpressionDialog</name>
@@ -3009,6 +3017,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Farben:</translation>
     </message>
     <message>
+        <source>System Default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Solid</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3027,15 +3039,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Style:</source>
         <translation>Stil:</translation>
-    </message>
-    <message>
-        <source>System Default</source>
-        <oldsource>Default</oldsource>
-        <translation type="unfinished">Standard</translation>
-    </message>
-    <message>
-        <source>Flat</source>
-        <translation type="vanished">Flach</translation>
     </message>
     <message>
         <source>Gradient</source>
@@ -3555,7 +3558,8 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>I/O Graphs</source>
-        <translation>I/O Graphen</translation>
+        <oldsource>IO Graphs</oldsource>
+        <translation type="unfinished">IO Graphen</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -3574,6 +3578,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>1 ms</translation>
     </message>
     <message>
+        <source>5 ms</source>
+        <translation type="unfinished">100 ms {5 ?}</translation>
+    </message>
+    <message>
         <source>10 ms</source>
         <translation>10 ms</translation>
     </message>
@@ -3582,8 +3590,12 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>100 ms</translation>
     </message>
     <message>
+        <source>Wireshark IO Graphs: %1</source>
+        <translation type="vanished">Wireshark IO Graphen: %1</translation>
+    </message>
+    <message>
         <source>Wireshark I/O Graphs: %1</source>
-        <translation>Wireshark I/O Graphen: %1</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All packets</source>
@@ -3648,10 +3660,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Save Graph As</source>
         <translation>Graph speichern als</translation>
-    </message>
-    <message>
-        <source>5 ms</source>
-        <translation type="unfinished">100 ms {5 ?}</translation>
     </message>
 </context>
 <context>
@@ -6844,7 +6852,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Add a filter button</source>
-        <translation>Filterknopf hinzufügen</translation>
+        <translation type="vanished">Filterknopf hinzufügen</translation>
     </message>
     <message>
         <source>Add a display filter button.</source>
@@ -8217,38 +8225,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Zusammenfassung als Text</translation>
     </message>
     <message>
-        <source>Align Left</source>
-        <translation type="vanished">Links ausrichten</translation>
-    </message>
-    <message>
-        <source>Align Center</source>
-        <translation type="vanished">Zentriert ausrichten</translation>
-    </message>
-    <message>
-        <source>Align Right</source>
-        <translation type="vanished">Rechts ausrichten</translation>
-    </message>
-    <message>
-        <source>Column Preferences</source>
-        <translation type="vanished">Spalteneigenschaft</translation>
-    </message>
-    <message>
-        <source>Edit Column</source>
-        <translation type="vanished">Spalte editieren</translation>
-    </message>
-    <message>
-        <source>Resize To Contents</source>
-        <translation type="vanished">Größe an Inhalt anpassen</translation>
-    </message>
-    <message>
-        <source>Resolve Names</source>
-        <translation type="vanished">Namen auflösen</translation>
-    </message>
-    <message>
-        <source>Remove This Column</source>
-        <translation type="vanished">Spalte entfernen</translation>
-    </message>
-    <message>
         <source>Frame %1: %2
 
 </source>
@@ -8265,23 +8241,23 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>PacketListHeader</name>
     <message>
         <source>Align Left</source>
-        <translation type="unfinished">Links ausrichten</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Align Center</source>
-        <translation type="unfinished">Zentriert ausrichten</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Align Right</source>
-        <translation type="unfinished">Rechts ausrichten</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Column Preferences</source>
-        <translation type="unfinished">Spalteneigenschaft</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Edit Column</source>
-        <translation type="unfinished">Spalte editieren</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Resize to Contents</source>
@@ -8293,7 +8269,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Resolve Names</source>
-        <translation type="unfinished">Namen auflösen</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Remove this Column</source>

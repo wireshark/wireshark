@@ -1933,6 +1933,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Manage Filter Expressions</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Selected</source>
+        <translation type="unfinished">選択済み</translation>
+    </message>
+    <message>
+        <source>Not Selected</source>
+        <translation type="unfinished">選択されていません</translation>
+    </message>
 </context>
 <context>
     <name>DisplayFilterExpressionDialog</name>
@@ -2992,6 +3000,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>色:</translation>
     </message>
     <message>
+        <source>System Default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Solid</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3009,11 +3021,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Style:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>System Default</source>
-        <oldsource>Default</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3534,7 +3541,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>I/O Graphs</source>
-        <translation>入出力グラフ</translation>
+        <oldsource>IO Graphs</oldsource>
+        <translation type="unfinished">入出力グラフ</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -3553,6 +3561,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>1ミリ秒</translation>
     </message>
     <message>
+        <source>5 ms</source>
+        <translation type="unfinished">100ミリ秒 {5 ?}</translation>
+    </message>
+    <message>
         <source>10 ms</source>
         <translation>10ミリ秒</translation>
     </message>
@@ -3561,8 +3573,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>100ミリ秒</translation>
     </message>
     <message>
+        <source>Wireshark IO Graphs: %1</source>
+        <translation type="vanished">Wireshark入出力グラフ: %1</translation>
+    </message>
+    <message>
         <source>Wireshark I/O Graphs: %1</source>
-        <translation>Wireshark入出力グラフ: %1</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All packets</source>
@@ -3627,10 +3643,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Save Graph As</source>
         <translation>としてグラフを保存</translation>
-    </message>
-    <message>
-        <source>5 ms</source>
-        <translation type="unfinished">100ミリ秒 {5 ?}</translation>
     </message>
 </context>
 <context>
@@ -6824,7 +6836,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Add a filter button</source>
-        <translation>フィルタボタンを追加</translation>
+        <translation type="vanished">フィルタボタンを追加</translation>
     </message>
     <message>
         <source>Add a display filter button.</source>
@@ -8195,38 +8207,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>テキストとしての概要</translation>
     </message>
     <message>
-        <source>Align Left</source>
-        <translation type="vanished">左揃え</translation>
-    </message>
-    <message>
-        <source>Align Center</source>
-        <translation type="vanished">中央揃え</translation>
-    </message>
-    <message>
-        <source>Align Right</source>
-        <translation type="vanished">右揃え</translation>
-    </message>
-    <message>
-        <source>Column Preferences</source>
-        <translation type="vanished">列の設定</translation>
-    </message>
-    <message>
-        <source>Edit Column</source>
-        <translation type="vanished">列の編集</translation>
-    </message>
-    <message>
-        <source>Resize To Contents</source>
-        <translation type="vanished">内容にあわせて列幅を揃える</translation>
-    </message>
-    <message>
-        <source>Resolve Names</source>
-        <translation type="vanished">名前を解決</translation>
-    </message>
-    <message>
-        <source>Remove This Column</source>
-        <translation type="vanished">この列を削除</translation>
-    </message>
-    <message>
         <source>Frame %1: %2
 
 </source>
@@ -8243,23 +8223,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>PacketListHeader</name>
     <message>
         <source>Align Left</source>
-        <translation type="unfinished">左揃え</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Align Center</source>
-        <translation type="unfinished">中央揃え</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Align Right</source>
-        <translation type="unfinished">右揃え</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Column Preferences</source>
-        <translation type="unfinished">列の設定</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Edit Column</source>
-        <translation type="unfinished">列の編集</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Resize to Contents</source>
@@ -8271,7 +8251,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Resolve Names</source>
-        <translation type="unfinished">名前を解決</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Remove this Column</source>

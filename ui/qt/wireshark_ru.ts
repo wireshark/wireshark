@@ -1948,6 +1948,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Manage Filter Expressions</source>
         <translation>Управлять Выражениями Фильтра</translation>
     </message>
+    <message>
+        <source>Selected</source>
+        <translation type="unfinished">Выбрано</translation>
+    </message>
+    <message>
+        <source>Not Selected</source>
+        <translation type="unfinished">Не Выбрано</translation>
+    </message>
 </context>
 <context>
     <name>DisplayFilterExpressionDialog</name>
@@ -3023,6 +3031,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Цвета:</translation>
     </message>
     <message>
+        <source>System Default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Solid</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3041,15 +3053,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Style:</source>
         <translation>Стиль:</translation>
-    </message>
-    <message>
-        <source>System Default</source>
-        <oldsource>Default</oldsource>
-        <translation type="unfinished">По умолчанию</translation>
-    </message>
-    <message>
-        <source>Flat</source>
-        <translation type="vanished">Плоский</translation>
     </message>
     <message>
         <source>Gradient</source>
@@ -3569,7 +3572,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>I/O Graphs</source>
-        <translation>Графики Ввода/Вывода</translation>
+        <oldsource>IO Graphs</oldsource>
+        <translation type="unfinished">Графики Ввода/Вывода</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -3588,6 +3592,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>1 мс</translation>
     </message>
     <message>
+        <source>5 ms</source>
+        <translation type="unfinished">100 мс {5 ?}</translation>
+    </message>
+    <message>
         <source>10 ms</source>
         <translation>10 мс</translation>
     </message>
@@ -3596,8 +3604,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>100 мс</translation>
     </message>
     <message>
+        <source>Wireshark IO Graphs: %1</source>
+        <translation type="vanished">Графики Ввода/Вывода Wireshark: %1</translation>
+    </message>
+    <message>
         <source>Wireshark I/O Graphs: %1</source>
-        <translation>Графики Ввода/Вывода Wireshark: %1</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All packets</source>
@@ -3662,10 +3674,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Save Graph As</source>
         <translation>Сохранить График Как</translation>
-    </message>
-    <message>
-        <source>5 ms</source>
-        <translation type="unfinished">100 мс {5 ?}</translation>
     </message>
 </context>
 <context>
@@ -6861,7 +6869,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Add a filter button</source>
-        <translation>Добавить кнопку фильтра</translation>
+        <translation type="vanished">Добавить кнопку фильтра</translation>
     </message>
     <message>
         <source>Add a display filter button.</source>
@@ -8236,38 +8244,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Итоги как Текст</translation>
     </message>
     <message>
-        <source>Align Left</source>
-        <translation type="vanished">Выровнять по Левой Стороне</translation>
-    </message>
-    <message>
-        <source>Align Center</source>
-        <translation type="vanished">Выровнять по Центру</translation>
-    </message>
-    <message>
-        <source>Align Right</source>
-        <translation type="vanished">Выровнять по Правой Стороне</translation>
-    </message>
-    <message>
-        <source>Column Preferences</source>
-        <translation type="vanished">Параметры Столбца</translation>
-    </message>
-    <message>
-        <source>Edit Column</source>
-        <translation type="vanished">Редактировать Столбец</translation>
-    </message>
-    <message>
-        <source>Resize To Contents</source>
-        <translation type="vanished">Изменить Размер В Соответствии с Содержимым</translation>
-    </message>
-    <message>
-        <source>Resolve Names</source>
-        <translation type="vanished">Разрешить Имена</translation>
-    </message>
-    <message>
-        <source>Remove This Column</source>
-        <translation type="vanished">Удалить Этот Столбец</translation>
-    </message>
-    <message>
         <source>Frame %1: %2
 
 </source>
@@ -8284,23 +8260,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>PacketListHeader</name>
     <message>
         <source>Align Left</source>
-        <translation type="unfinished">Выровнять по Левой Стороне</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Align Center</source>
-        <translation type="unfinished">Выровнять по Центру</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Align Right</source>
-        <translation type="unfinished">Выровнять по Правой Стороне</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Column Preferences</source>
-        <translation type="unfinished">Параметры Столбца</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Edit Column</source>
-        <translation type="unfinished">Редактировать Столбец</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Resize to Contents</source>
@@ -8312,7 +8288,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Resolve Names</source>
-        <translation type="unfinished">Разрешить Имена</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Remove this Column</source>

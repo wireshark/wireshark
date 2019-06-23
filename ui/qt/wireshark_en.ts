@@ -1938,6 +1938,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Manage Filter Expressions</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not Selected</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>DisplayFilterExpressionDialog</name>
@@ -6776,10 +6784,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Show IEEE 802.11 wireless LAN statistics.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add a filter button</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

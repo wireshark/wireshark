@@ -10,13 +10,16 @@ Wireshark 3.1.0 Release Notes
 
  What’s New
 
-  Many user interface improvements have been made. See the “New and
-  Updated Features” section below for more details.
+  Many improvements have been made. See the “New and Updated Features”
+  section below for more details.
 
   New and Updated Features
 
    The following features are new (or have been significantly updated)
    since version 3.0.0:
+
+     • Dark mode support on macOS and dark theme support on other
+       platforms has been improved.
 
      • Brotli decompression support in HTTP/HTTP2 (requires the brotli
        library).
@@ -25,14 +28,18 @@ Wireshark 3.1.0 Release Notes
        installation. The bundled Speex resampler code is still provided
        as a fallback.
 
+     • WireGuard decryption can now be enabled through keys embedded in
+       a pcapng in addition to the existing key log preference (Bug
+       15571[1]).
+
   New Protocol Support
 
    CableLabs Layer-3 Protocol IEEE EtherType 0xb4e3 (CL3), Distributed
    Replicated Block Device (DRBD), Dual Channel Wi-Fi (CL3DCW), evolved
    Common Public Radio Interface (eCPRI), FTDI FT USB Bridging Devices
    (FTDI FT), Graylog Extended Log Format over UDP (GELF), GSM/3GPP CBSP
-   (Cell Broadcast Service Protocol), and NVM Express over Fabrics for
-   TCP (nvme-tcp)
+   (Cell Broadcast Service Protocol), NR Positioning Protocol A (NRPPa)
+   TS 38.455, and NVM Express over Fabrics for TCP (nvme-tcp)
 
   Updated Protocol Support
 
@@ -43,14 +50,14 @@ Wireshark 3.1.0 Release Notes
  Getting Wireshark
 
   Wireshark source code and installation packages are available from
-  https://www.wireshark.org/download.html[1].
+  https://www.wireshark.org/download.html[2].
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[2] on the Wireshark web site.
+   be found on the download page[3] on the Wireshark web site.
 
  File Locations
 
@@ -62,30 +69,31 @@ Wireshark 3.1.0 Release Notes
  Getting Help
 
   The User’s Guide, manual pages and various other documentation can be
-  found at https://www.wireshark.org/docs/[3]
+  found at https://www.wireshark.org/docs/[4]
 
-  Community support is available on Wireshark’s Q&A site[4] and on the
+  Community support is available on Wireshark’s Q&A site[5] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[5].
+  for all of Wireshark’s mailing lists can be found on the web site[6].
 
-  Bugs and feature requests can be reported on the bug tracker[6].
+  Bugs and feature requests can be reported on the bug tracker[7].
 
   Official Wireshark training and certification are available from
-  Wireshark University[7].
+  Wireshark University[8].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[8].
+  A complete FAQ is available on the Wireshark web site[9].
 
-  Last updated 2019-06-16 08:08:24 UTC
+  Last updated 2019-06-23 08:07:35 UTC
 
  References
 
-   1. https://www.wireshark.org/download.html
-   2. https://www.wireshark.org/download.html#thirdparty
-   3. https://www.wireshark.org/docs/
-   4. https://ask.wireshark.org/
-   5. https://www.wireshark.org/lists/
-   6. https://bugs.wireshark.org/
-   7. http://www.wiresharktraining.com/
-   8. https://www.wireshark.org/faq.html
+   1. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15571
+   2. https://www.wireshark.org/download.html
+   3. https://www.wireshark.org/download.html#thirdparty
+   4. https://www.wireshark.org/docs/
+   5. https://ask.wireshark.org/
+   6. https://www.wireshark.org/lists/
+   7. https://bugs.wireshark.org/
+   8. http://www.wiresharktraining.com/
+   9. https://www.wireshark.org/faq.html

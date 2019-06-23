@@ -1921,6 +1921,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Manage Filter Expressions</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Selected</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Not Selected</source>
+        <translation type="unfinished">Не Вибрані</translation>
+    </message>
 </context>
 <context>
     <name>DisplayFilterExpressionDialog</name>
@@ -2994,6 +3002,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Кольори:</translation>
     </message>
     <message>
+        <source>System Default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Solid</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3011,11 +3023,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Style:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>System Default</source>
-        <oldsource>Default</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3507,7 +3514,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>I/O Graphs</source>
-        <translation>Графіки Вводу/Виводу</translation>
+        <oldsource>IO Graphs</oldsource>
+        <translation type="unfinished">Графіки Вводу/Виводу</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -3526,6 +3534,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>5 ms</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>10 ms</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3534,8 +3546,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Wireshark IO Graphs: %1</source>
+        <translation type="vanished">Графіки В/В у Wireshark: %1</translation>
+    </message>
+    <message>
         <source>Wireshark I/O Graphs: %1</source>
-        <translation>Графіки В/В у Wireshark: %1</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All packets</source>
@@ -3600,10 +3616,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Save Graph As</source>
         <translation>Зберегти Графік Як</translation>
-    </message>
-    <message>
-        <source>5 ms</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -6770,10 +6782,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Show IEEE 802.11 wireless LAN statistics.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Add a filter button</source>
         <translation type="unfinished"></translation>
     </message>
     <message>

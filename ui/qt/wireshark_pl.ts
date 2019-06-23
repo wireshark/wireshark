@@ -1945,6 +1945,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Manage Filter Expressions</source>
         <translation>Zarządzaj wyrażeniami filtrów</translation>
     </message>
+    <message>
+        <source>Selected</source>
+        <translation type="unfinished">Wybrany</translation>
+    </message>
+    <message>
+        <source>Not Selected</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>DisplayFilterExpressionDialog</name>
@@ -3020,6 +3028,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Kolory:</translation>
     </message>
     <message>
+        <source>System Default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Solid</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3037,11 +3049,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Style:</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>System Default</source>
-        <oldsource>Default</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -3555,7 +3562,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>I/O Graphs</source>
-        <translation>Wykres</translation>
+        <oldsource>IO Graphs</oldsource>
+        <translation type="unfinished">Wykres</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -3574,6 +3582,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>1 ms</translation>
     </message>
     <message>
+        <source>5 ms</source>
+        <translation type="unfinished">100 ms {5 ?}</translation>
+    </message>
+    <message>
         <source>10 ms</source>
         <translation>10 ms</translation>
     </message>
@@ -3582,8 +3594,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>100 ms</translation>
     </message>
     <message>
+        <source>Wireshark IO Graphs: %1</source>
+        <translation type="vanished">Wireshark Wykres: %1</translation>
+    </message>
+    <message>
         <source>Wireshark I/O Graphs: %1</source>
-        <translation>Wireshark Wykres: %1</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All packets</source>
@@ -3648,10 +3664,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Save Graph As</source>
         <translation>Zapisz wykres jako</translation>
-    </message>
-    <message>
-        <source>5 ms</source>
-        <translation type="unfinished">100 ms {5 ?}</translation>
     </message>
 </context>
 <context>
@@ -6847,7 +6859,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Add a filter button</source>
-        <translation>Dodaj przycisk filtrowania</translation>
+        <translation type="vanished">Dodaj przycisk filtrowania</translation>
     </message>
     <message>
         <source>Add a display filter button.</source>
@@ -8222,38 +8234,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Podsumowanie jako tekst</translation>
     </message>
     <message>
-        <source>Align Left</source>
-        <translation type="vanished">Wyrównaj do lewej</translation>
-    </message>
-    <message>
-        <source>Align Center</source>
-        <translation type="vanished">Wyrównaj do środka</translation>
-    </message>
-    <message>
-        <source>Align Right</source>
-        <translation type="vanished">Wyrównaj do prawej</translation>
-    </message>
-    <message>
-        <source>Column Preferences</source>
-        <translation type="vanished">Ustawienia kolumny</translation>
-    </message>
-    <message>
-        <source>Edit Column</source>
-        <translation type="vanished">Edytuj kolumnę</translation>
-    </message>
-    <message>
-        <source>Resize To Contents</source>
-        <translation type="vanished">Dopasuj szerokość do zawartości</translation>
-    </message>
-    <message>
-        <source>Resolve Names</source>
-        <translation type="vanished">Rozwiązuj nazwy</translation>
-    </message>
-    <message>
-        <source>Remove This Column</source>
-        <translation type="vanished">Usuń tę kolumnę</translation>
-    </message>
-    <message>
         <source>Frame %1: %2
 
 </source>
@@ -8269,23 +8249,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>PacketListHeader</name>
     <message>
         <source>Align Left</source>
-        <translation type="unfinished">Wyrównaj do lewej</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Align Center</source>
-        <translation type="unfinished">Wyrównaj do środka</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Align Right</source>
-        <translation type="unfinished">Wyrównaj do prawej</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Column Preferences</source>
-        <translation type="unfinished">Ustawienia kolumny</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Edit Column</source>
-        <translation type="unfinished">Edytuj kolumnę</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Resize to Contents</source>
@@ -8297,7 +8277,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Resolve Names</source>
-        <translation type="unfinished">Rozwiązuj nazwy</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Remove this Column</source>

@@ -1931,6 +1931,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Manage Filter Expressions</source>
         <translation>管理过滤器表达式</translation>
     </message>
+    <message>
+        <source>Selected</source>
+        <translation type="unfinished">选中</translation>
+    </message>
+    <message>
+        <source>Not Selected</source>
+        <translation type="unfinished">非选中</translation>
+    </message>
 </context>
 <context>
     <name>DisplayFilterExpressionDialog</name>
@@ -2990,6 +2998,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>颜色:</translation>
     </message>
     <message>
+        <source>System Default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Solid</source>
         <translation type="unfinished"></translation>
     </message>
@@ -3008,15 +3020,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Style:</source>
         <translation>样式：</translation>
-    </message>
-    <message>
-        <source>System Default</source>
-        <oldsource>Default</oldsource>
-        <translation type="unfinished">默认</translation>
-    </message>
-    <message>
-        <source>Flat</source>
-        <translation type="vanished">扁平</translation>
     </message>
     <message>
         <source>Gradient</source>
@@ -3536,7 +3539,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>I/O Graphs</source>
-        <translation>IO 图表</translation>
+        <oldsource>IO Graphs</oldsource>
+        <translation type="unfinished">IO 图表</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -3555,6 +3559,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>1毫秒</translation>
     </message>
     <message>
+        <source>5 ms</source>
+        <translation type="unfinished">100毫秒 {5 ?}</translation>
+    </message>
+    <message>
         <source>10 ms</source>
         <translation>10毫秒</translation>
     </message>
@@ -3563,8 +3571,12 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>100毫秒</translation>
     </message>
     <message>
+        <source>Wireshark IO Graphs: %1</source>
+        <translation type="vanished">Wireshark IO 图表: %1</translation>
+    </message>
+    <message>
         <source>Wireshark I/O Graphs: %1</source>
-        <translation>Wireshark I/O 图表: %1</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>All packets</source>
@@ -3629,10 +3641,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Save Graph As</source>
         <translation>图形保存为</translation>
-    </message>
-    <message>
-        <source>5 ms</source>
-        <translation type="unfinished">100毫秒 {5 ?}</translation>
     </message>
 </context>
 <context>
@@ -6822,7 +6830,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Add a filter button</source>
-        <translation>添加一个过滤器按钮</translation>
+        <translation type="vanished">添加一个过滤器按钮</translation>
     </message>
     <message>
         <source>Add a display filter button.</source>
@@ -8193,38 +8201,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>摘要为文本</translation>
     </message>
     <message>
-        <source>Align Left</source>
-        <translation type="vanished">左对齐</translation>
-    </message>
-    <message>
-        <source>Align Center</source>
-        <translation type="vanished">居中对齐</translation>
-    </message>
-    <message>
-        <source>Align Right</source>
-        <translation type="vanished">右对齐</translation>
-    </message>
-    <message>
-        <source>Column Preferences</source>
-        <translation type="vanished">列首选项</translation>
-    </message>
-    <message>
-        <source>Edit Column</source>
-        <translation type="vanished">编辑列</translation>
-    </message>
-    <message>
-        <source>Resize To Contents</source>
-        <translation type="vanished">适应内容</translation>
-    </message>
-    <message>
-        <source>Resolve Names</source>
-        <translation type="vanished">名称解析</translation>
-    </message>
-    <message>
-        <source>Remove This Column</source>
-        <translation type="vanished">删除此列</translation>
-    </message>
-    <message>
         <source>Frame %1: %2
 
 </source>
@@ -8240,23 +8216,23 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>PacketListHeader</name>
     <message>
         <source>Align Left</source>
-        <translation type="unfinished">左对齐</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Align Center</source>
-        <translation type="unfinished">居中对齐</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Align Right</source>
-        <translation type="unfinished">右对齐</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Column Preferences</source>
-        <translation type="unfinished">列首选项</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Edit Column</source>
-        <translation type="unfinished">编辑列</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Resize to Contents</source>
@@ -8268,7 +8244,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Resolve Names</source>
-        <translation type="unfinished">名称解析</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Remove this Column</source>
