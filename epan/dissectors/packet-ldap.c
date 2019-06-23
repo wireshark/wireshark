@@ -4398,8 +4398,7 @@ static int dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
         offset += 4;
 
         /* Flags */
-        offset = dissect_mscldap_netlogon_flags(tree, tvb, offset);
-
+        dissect_mscldap_netlogon_flags(tree, tvb, offset);
       }
 
       break;
