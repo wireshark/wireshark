@@ -106,9 +106,7 @@ sub read_repo_info {
 
 	# For tarball releases, do not invoke git at all and instead rely on
 	# versioning information that was provided at tarball creation time.
-	if ($git_description) {
-		$info_source = "Forced via command line flag";
-	} elsif ($git_archive_commit) {
+	if ($git_archive_commit) {
 		$info_source = "git archive";
 	} elsif (-e "$src_dir/.git" && ! -d "$src_dir/.git/svn") {
 		$info_source = "Command line (git)";
@@ -163,11 +161,7 @@ sub read_repo_info {
 	# Refs: git ls-remote code.wireshark.org:wireshark
 	# ea19c7f952ce9fc53fe4c223f1d9d6797346258b (r48972, changed version to 1.11.0)
 
-	if ($git_description) {
-		$do_hack = 0;
-		# Assume format like v2.3.0rc0-1342-g7bdcf75
-		$commit_id = ($git_description =~ /([0-9a-f]+)$/)[0];
-	} elsif ($git_archive_commit) {
+	if ($git_archive_commit) {
 		$do_hack = 0;
 		# Assume a full commit hash, abbreviate it.
 		$commit_id = substr($git_archive_commit, 0, $git_abbrev_length);
@@ -678,7 +672,6 @@ sub get_config {
 		   "tagged-version-extra|t=s", \$tagged_version_extra,
 		   "untagged-version-extra|u=s", \$untagged_version_extra,
 		   "force-extra|f=s", \$force_extra,
-		   "git-description|d", \$git_description,
 		   "get-vcs|g", \$get_vcs,
 		   "set-vcs|s", \$set_vcs,
 		   "print-vcs", \$print_vcs,
@@ -765,11 +758,6 @@ Extra version information format to use when no tag is found. The format
 =item --force-extra=<tagged,untagged>, -f <tagged,untagged>
 
 Force either the tagged or untagged format to be used.
-
-=item --git-description, -d
-
-Force a git description from which to derive extra version information,
-e.g. "v3.4.5-123-ga1b2c3d4". Unset by default.
 
 =item --get-vcs, -g
 
