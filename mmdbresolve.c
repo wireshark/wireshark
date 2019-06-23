@@ -68,6 +68,10 @@ main(int argc, char *argv[])
     int mmdb_err;
 
     char *out_buf = (char *) malloc(OUT_BUF_SIZE);
+    if (out_buf == NULL) {
+        fprintf(stdout, "ERROR: malloc failed\n");
+        return 1;
+    }
     setvbuf(stdout, out_buf, _IOFBF, OUT_BUF_SIZE);
 
     fprintf(stdout, "[init]\n");
