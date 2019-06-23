@@ -5352,7 +5352,7 @@ ssl_load_keyfile(const gchar *tls_keylog_filename, FILE **keylog_file,
     }
 
     for (;;) {
-        char buf[512], *line;
+        char buf[1110], *line;
         line = fgets(buf, sizeof(buf), *keylog_file);
         if (!line) {
             if (feof(*keylog_file)) {
