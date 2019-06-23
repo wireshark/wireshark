@@ -1763,8 +1763,15 @@ void dissector_add_custom_table_handle(const char *name, void *pattern, dissecto
 	dtbl_entry_t      *dtbl_entry;
 
 	/*
-	 * Make sure the dissector table exists.
+	 * Make sure the handle and the dissector table exist.
 	 */
+	if (handle == NULL) {
+		fprintf(stderr, "OOPS: handle to register \"%s\" to doesn't exist\n",
+		    name);
+		if (getenv("WIRESHARK_ABORT_ON_DISSECTOR_BUG") != NULL)
+			abort();
+		return;
+	}
 	if (sub_dissectors == NULL) {
 		fprintf(stderr, "OOPS: dissector table \"%s\" doesn't exist\n",
 		    name);
