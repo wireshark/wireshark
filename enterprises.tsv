@@ -5,7 +5,7 @@
 # The format used here is: <NUMERICAL_ID><SPACE><NAME>
 # Where SPACE can be any sequence of spaces and tabs.
 #
-# (last updated 2019-06-15)
+# (last updated 2019-06-22)
 
 0	Reserved
 1	NxNetworks
@@ -27084,7 +27084,7 @@
 27239	USC-Satunama
 27240	Headnet aps
 27241	IDC Informatica s.r.l.
-27242	Bilfinger Berger AG
+27242	Bilfinger SE	# formerly 'Bilfinger Berger AG'
 27243	Signal Networks Pvt. Ltd.
 27244	IronGate S.L.
 27245	Maltacom plc
@@ -31156,7 +31156,7 @@
 31316	Seed Linux
 31317	ADTelecom S.L.
 31318	Southern Symentech & Solutions Private Limited
-31319	Portugal Telecom, SA
+31319	MEO	# formerly 'Portugal Telecom, SA'
 31320	Disig, a.s.
 31321	Munisense BV
 31322	Sierra Wireless, Inc.
@@ -46200,7 +46200,7 @@
 46378	Centre Hospitalier Mémorial Saint-Lô
 46379	LunaticIsland.net
 46380	Enghouse Interactive AB
-46381	Imterra
+46381	Arcapola Shipwrights	# formerly 'Imterra'
 46382	Berolina-autolacke
 46383	Ministry Division, Church of England
 46384	DUCA Financial Services Credit Union Ltd.
@@ -53637,7 +53637,7 @@
 53826	Revera
 53827	Japan Registry Services Co., Ltd.
 53828	Institut Nicolau Copernic
-53829	LGE
+53829	LG Electronics
 53830	Tadeu Organics
 53831	Partei der Humanisten
 53832	skynetflow.com
@@ -53926,3 +53926,31 @@
 54115	Nebulon Inc
 54116	BHP INNOVATION PTY LTD
 54117	Packetworx
+54118	Victorian Funds Management Corporation
+54119	AZL N.V.
+54120	visionvera information technology Co., Ltd.
+54121	Deadlogic Desenvolvimento e  Tecnologia LTDA
+54122	fwgx
+54123	Ravnik IT
+54124	MSG Mechatronic Systems GmbH
+54125	Kreativität trifft Technik e.V.
+54126	Hitachi Advanced Systems Corporation.
+54127	Poynting Antennas (Pty) Ltd
+54128	LuaDex Solutions (Pty) Ltd
+54129	Université Gustave Eiffel
+54130	DCC Energi Center A/S
+54131	YPSI SAS
+54132	Wendav IT Solutions
+54133	SCA IT Solutions Ltd.
+54134	David L Crowder MD
+54135	Bohdan Khmelnytsky National University of Cherkasy
+54136	NOTARchiv Kft.
+54137	eLiam
+54138	Opaq
+54139	Corix Infrastructure Inc.
+54140	Pivotal Commware
+54141	Energovat d.o.o.
+54142	ZZ Vermoegensverwaltung Gesellschaft m.b.H.
+54143	Ixsson Systems Kft.
+54144	Evangelisches Christophoruswerk e.V.
+54145	«SevenTest R&D Centre» Co. Ltd
