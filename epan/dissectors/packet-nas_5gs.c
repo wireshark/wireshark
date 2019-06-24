@@ -284,6 +284,8 @@ static int ett_nas_5gs_enc = -1;
 static int ett_nas_5gs_mm_ladn_indic = -1;
 static int ett_nas_5gs_mm_sor = -1;
 static int ett_nas_5gs_sm_pkt_filter_components = -1;
+static int ett_nas_5gs_updp_ue_policy_section_mgm_lst = -1;
+static int ett_nas_5gs_updp_ue_policy_section_mgm_sublst = -1;
 
 static int hf_nas_5gs_mm_abba = -1;
 static int hf_nas_5gs_mm_supi_fmt = -1;
@@ -341,7 +343,12 @@ static int hf_nas_5gs_acces_tech_o2_b4 = -1;
 static int hf_nas_5gs_acces_tech_o2_b3 = -1;
 static int hf_nas_5gs_acces_tech_o2_b2 = -1;
 static int hf_nas_5gs_single_port_type = -1;
-
+static int hf_nas_5gs_updp_ue_pol_sect_sublst_len = -1;
+static int hf_nas_5gs_updp_instr_len = -1;
+static int hf_nas_5gs_updp_upsc = -1;
+static int hf_nas_5gs_updp_policy_len = -1;
+static int hf_nas_5gs_updp_ue_policy_part_type = -1;
+static int hf_nas_5gs_updp_ue_policy_part_cont = -1;
 
 static expert_field ei_nas_5gs_extraneous_data = EI_INIT;
 static expert_field ei_nas_5gs_unknown_pd = EI_INIT;
@@ -5069,12 +5076,73 @@ nas_5gs_sm_5gsm_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
 
 
 /* D.6.2 UE policy section management list */
+
+static const value_string nas_5gs_updp_ue_policy_part_type_vals[] = {
+    { 0x0,    "Reserved"},
+    { 0x1,    "URSP"},
+    { 0x2,    "ANDSP"},
+    { 0,    NULL }
+};
+
 static guint16
 de_nas_5gs_updp_ue_policy_section_mgm_lst(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
     guint32 offset, guint len,
     gchar* add_string _U_, int string_len _U_)
 {
-    proto_tree_add_expert(tree, pinfo, &ei_nas_5gs_ie_not_dis, tvb, offset, len);
+    proto_tree *sub_tree, *sub_tree2, *sub_tree3;
+    proto_item* item;
+    guint32 curr_offset = offset;
+    guint32 sub_list_len, instr_len, policy_len;
+
+    /* UE policy section management list contents Octet 4 - Octet z*/
+    while ((curr_offset - offset) < len) {
+        int i = 0;
+        /* UE policy section management sublist (PLMN X) */
+        i++;
+        sub_tree = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_updp_ue_policy_section_mgm_lst, &item,
+            "UE policy section management sublist (PLMN %u)", i);
+        /* Length of UE policy section management sublist */
+        proto_tree_add_item_ret_uint(sub_tree, hf_nas_5gs_updp_ue_pol_sect_sublst_len, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &sub_list_len);
+        proto_item_set_len(item, sub_list_len + 5);
+        curr_offset += 2;
+        /* MCC digit 2    MCC digit 1
+         * MNC digit 3    MCC digit 3
+         * MNC digit 2    MNC digit 1
+         */
+        curr_offset = dissect_e212_mcc_mnc(tvb, pinfo, tree, curr_offset, E212_NONE, TRUE);
+        /* UE policy section management sublist contents*/
+        /* Instruction X */
+        while (sub_list_len > 0){
+            int j = 0;
+            sub_tree2 = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_updp_ue_policy_section_mgm_sublst, &item,
+                "Instruction %u", j);
+            /* Instruction contents length */
+            proto_tree_add_item_ret_uint(sub_tree2, hf_nas_5gs_updp_instr_len, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &instr_len);
+            curr_offset += 2;
+            /* UPSC */
+            proto_tree_add_item(sub_tree2, hf_nas_5gs_updp_upsc, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
+            curr_offset += 2;
+            proto_item_set_len(item, instr_len + 4);
+            /* UE policy section contents */
+            while (instr_len > 0) {
+                int k = 0;
+                sub_tree3 = proto_tree_add_subtree_format(tree, tvb, curr_offset, -1, ett_nas_5gs_updp_ue_policy_section_mgm_sublst, &item,
+                    "UE policy part %u", k);
+                /* UE policy part contents length */
+                proto_tree_add_item_ret_uint(sub_tree3, hf_nas_5gs_updp_policy_len, tvb, curr_offset, 2, ENC_BIG_ENDIAN, &policy_len);
+                curr_offset += 2;
+                proto_item_set_len(item, policy_len + 3);
+                /* UE policy part type */
+                proto_tree_add_item(sub_tree3, hf_nas_5gs_updp_ue_policy_part_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+                offset++;
+                /* UE policy part contents, This field contains a UE policy part encoded as specified in 3GPP TS 24.526 */
+                proto_tree_add_item(sub_tree3, hf_nas_5gs_updp_ue_policy_part_cont, tvb, curr_offset, policy_len, ENC_NA);
+                curr_offset += policy_len;
+                instr_len = instr_len - (policy_len + 3);
+            }
+            sub_list_len = sub_list_len - instr_len - 4;
+        }
+    }
 
     return len;
 }
@@ -7257,13 +7325,43 @@ proto_register_nas_5gs(void)
             FT_UINT16, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_nas_5gs_updp_ue_pol_sect_sublst_len,
+        { "Length", "nas_5gs.updp.ue_pol_sect_sublst_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_updp_instr_len,
+        { "Length", "nas_5gs.updp.instr_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_updp_upsc,
+        { "Length", "nas_5gs.updp.upsc",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_updp_policy_len,
+        { "Length", "nas_5gs.updp.policy_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_updp_ue_policy_part_type,
+        { "UE policy part type", "nas_5gs.updp.ue_policy_part_type",
+            FT_UINT8, BASE_DEC, VALS(nas_5gs_updp_ue_policy_part_type_vals), 0x0f,
+            NULL, HFILL }
+        },
+        { &hf_nas_5gs_updp_ue_policy_part_cont,
+        { "UE policy part contents", "nas_5gs.updp.ue_policy_part_cont",
+            FT_BYTES, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
     };
 
     guint     i;
     guint     last_offset;
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    15
+#define NUM_INDIVIDUAL_ELEMS    17
     gint *ett[NUM_INDIVIDUAL_ELEMS +
         NUM_NAS_5GS_COMMON_ELEM +
         NUM_NAS_5GS_MM_MSG + NUM_NAS_5GS_MM_ELEM +
@@ -7286,6 +7384,8 @@ proto_register_nas_5gs(void)
     ett[12] = &ett_nas_5gs_mm_ladn_indic;
     ett[13] = &ett_nas_5gs_mm_sor;
     ett[14] = &ett_nas_5gs_sm_pkt_filter_components;
+    ett[15] = &ett_nas_5gs_updp_ue_policy_section_mgm_lst;
+    ett[16] = &ett_nas_5gs_updp_ue_policy_section_mgm_sublst;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
