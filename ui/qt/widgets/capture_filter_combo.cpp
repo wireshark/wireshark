@@ -69,7 +69,7 @@ void CaptureFilterCombo::writeRecent(FILE *rf)
 bool CaptureFilterCombo::event(QEvent *event)
 {
     switch (event->type()) {
-    case QEvent::PaletteChange:
+    case QEvent::ApplicationPaletteChange:
         updateStyleSheet();
         break;
     default:

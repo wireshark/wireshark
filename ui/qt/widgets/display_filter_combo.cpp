@@ -78,7 +78,7 @@ bool DisplayFilterCombo::event(QEvent *event)
         }
         break;
     }
-    case QEvent::PaletteChange:
+    case QEvent::ApplicationPaletteChange:
         updateStyleSheet();
         break;
     default:
