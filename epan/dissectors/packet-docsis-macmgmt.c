@@ -6913,7 +6913,7 @@ static void
 dissect_optreq_tlv_rxmer_thresholding_parameters (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
   proto_item *it, *tlv_item, *tlv_len_item;
-  proto_tree *tlv_tree;
+  proto_tree *tlv_tree, *tlvtlv_tree;
   guint pos = 0;
   guint length;
   guint8 type;
@@ -6924,13 +6924,14 @@ dissect_optreq_tlv_rxmer_thresholding_parameters (tvbuff_t * tvb, packet_info * 
   while (tvb_reported_length_remaining(tvb, pos) > 0)
   {
     type = tvb_get_guint8 (tvb, pos);
-    tlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, -1,
+    length = tvb_get_guint8 (tvb, pos + 1);
+    tlvtlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, length + 2,
                                             ett_docsis_optreq_tlv_rxmer_thresh_params_tlv, &tlv_item,
                                             val_to_str(type, optreq_tlv_rxmer_thresh_params_vals,
                                                        "Unknown TLV (%u)"));
-    proto_tree_add_uint (tlv_tree, hf_docsis_optreq_xmer_thresh_params_type, tvb, pos, 1, type);
+    proto_tree_add_uint (tlvtlv_tree, hf_docsis_optreq_xmer_thresh_params_type, tvb, pos, 1, type);
     pos++;
-    tlv_len_item = proto_tree_add_item_ret_uint (tlv_tree, hf_docsis_optreq_xmer_thresh_params_length, tvb, pos, 1, ENC_NA, &length);
+    tlv_len_item = proto_tree_add_item (tlvtlv_tree, hf_docsis_optreq_xmer_thresh_params_length, tvb, pos, 1, ENC_NA);
     pos++;
 
 
@@ -6939,7 +6940,7 @@ dissect_optreq_tlv_rxmer_thresholding_parameters (tvbuff_t * tvb, packet_info * 
     case OPT_REQ_RXMER_THRESH_PARAMS_MODULATION_ORDER:
       if (length == 1)
       {
-        proto_tree_add_item(tree, hf_docsis_optreq_tlv_xrmer_thresh_data_mod_order, tvb, pos, length, ENC_NA);
+        proto_tree_add_item(tlvtlv_tree, hf_docsis_optreq_tlv_xrmer_thresh_data_mod_order, tvb, pos, length, ENC_NA);
       }
       else
       {
@@ -6947,7 +6948,7 @@ dissect_optreq_tlv_rxmer_thresholding_parameters (tvbuff_t * tvb, packet_info * 
       }
       break;
     default:
-      proto_tree_add_item (tlv_tree, hf_docsis_optreq_tlv_unknown, tvb, pos - 2, length+2, ENC_NA);
+      proto_tree_add_item (tlvtlv_tree, hf_docsis_optreq_tlv_unknown, tvb, pos - 2, length+2, ENC_NA);
       expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown TLV: %u", type);
       break;
     } /* switch */
@@ -6959,7 +6960,7 @@ static void
 dissect_optreq_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
   proto_item *it, *tlv_item, *tlv_len_item;
-  proto_tree *tlv_tree;
+  proto_tree *tlv_tree, *tlvtlv_tree;
   guint pos = 0;
   guint length;
   guint8 type;
@@ -6971,13 +6972,14 @@ dissect_optreq_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   while (tvb_reported_length_remaining(tvb, pos) > 0)
   {
     type = tvb_get_guint8 (tvb, pos);
-    tlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, -1,
+    length = tvb_get_guint8 (tvb, pos + 1);
+    tlvtlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, length + 2,
                                             ett_docsis_optreq_tlvtlv, &tlv_item,
                                             val_to_str(type, optreq_tlv_vals,
                                                        "Unknown TLV (%u)"));
-    proto_tree_add_uint (tlv_tree, hf_docsis_optreq_type, tvb, pos, 1, type);
+    proto_tree_add_uint (tlvtlv_tree, hf_docsis_optreq_type, tvb, pos, 1, type);
     pos++;
-    tlv_len_item = proto_tree_add_item_ret_uint (tlv_tree, hf_docsis_optreq_length, tvb, pos, 1, ENC_NA, &length);
+    tlv_len_item = proto_tree_add_item (tlvtlv_tree, hf_docsis_optreq_length, tvb, pos, 1, ENC_NA);
     pos++;
 
 
@@ -6999,7 +7001,7 @@ dissect_optreq_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
            NULL
          };
 
-         proto_tree_add_bitmask_list(tlv_tree, tvb, pos, length, req_stat, ENC_BIG_ENDIAN);
+         proto_tree_add_bitmask_list(tlvtlv_tree, tvb, pos, length, req_stat, ENC_BIG_ENDIAN);
       }
       else
       {
@@ -7008,10 +7010,10 @@ dissect_optreq_tlv (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       break;
     case OPT_REQ_RXMER_THRESH_PARAMS:
       next_tvb = tvb_new_subset_length(tvb, pos, length);
-      dissect_optreq_tlv_rxmer_thresholding_parameters(next_tvb, pinfo, tlv_tree);
+      dissect_optreq_tlv_rxmer_thresholding_parameters(next_tvb, pinfo, tlvtlv_tree);
       break;
     default:
-      proto_tree_add_item (tlv_tree, hf_docsis_optreq_tlv_unknown, tvb, pos - 2, length+2, ENC_NA);
+      proto_tree_add_item (tlvtlv_tree, hf_docsis_optreq_tlv_unknown, tvb, pos - 2, length+2, ENC_NA);
       expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown TLV: %u", type);
       break;
     } /* switch */
@@ -7053,7 +7055,7 @@ static void
 dissect_optrsp_tlv_rxmer_and_snr_margin_data (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
   proto_item *it, *tlv_item, *tlv_len_item;
-  proto_tree *tlv_tree;
+  proto_tree *tlv_tree, *tlvtlv_tree;
   guint pos = 0;
   guint length;
   guint8 type;
@@ -7066,13 +7068,14 @@ dissect_optrsp_tlv_rxmer_and_snr_margin_data (tvbuff_t * tvb, packet_info * pinf
   while (tvb_reported_length_remaining(tvb, pos) > 0)
   {
     type = tvb_get_guint8 (tvb, pos);
-    tlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, -1,
+    length = tvb_get_ntohs ( tvb, pos + 1);
+    tlvtlv_tree = proto_tree_add_subtree(tlv_tree, tvb, pos, length + 2,
                                             ett_docsis_optrsp_tlv_rxmer_snr_margin_tlv, &tlv_item,
                                             val_to_str(type, optrsp_tlv_rxmer_snr_margin_vals,
                                                        "Unknown TLV (%u)"));
-    proto_tree_add_uint (tlv_tree, hf_docsis_optrsp_xmer_snr_margin_type, tvb, pos, 1, type);
+    proto_tree_add_uint (tlvtlv_tree, hf_docsis_optrsp_xmer_snr_margin_type, tvb, pos, 1, type);
     pos++;
-    tlv_len_item = proto_tree_add_item_ret_uint (tlv_tree, hf_docsis_optrsp_xmer_snr_margin_length, tvb, pos, 2, ENC_NA, &length);
+    tlv_len_item = proto_tree_add_item (tlvtlv_tree, hf_docsis_optrsp_xmer_snr_margin_length, tvb, pos, 2, ENC_NA);
     pos+=2;
 
 
@@ -7087,13 +7090,13 @@ dissect_optrsp_tlv_rxmer_and_snr_margin_data (tvbuff_t * tvb, packet_info * pinf
       }
       for(i=0; i < number_of_subcarriers;++i)
       {
-        proto_tree_add_item(tlv_tree, hf_docsis_optrsp_tlv_xrmer_snr_margin_data_rxmer_subc, tvb, pos+i, 1, ENC_NA);
+        proto_tree_add_item(tlvtlv_tree, hf_docsis_optrsp_tlv_xrmer_snr_margin_data_rxmer_subc, tvb, pos+i, 1, ENC_NA);
       }
       break;
     case OPT_RSP_SNR_MARGIN:
       if (length == 1)
       {
-        proto_tree_add_item(tree, hf_docsis_optrsp_tlv_rxmer_snr_margin_data_snr_margin, tvb, pos, length, ENC_NA);
+        proto_tree_add_item(tlvtlv_tree, hf_docsis_optrsp_tlv_rxmer_snr_margin_data_snr_margin, tvb, pos, length, ENC_NA);
       }
       else
       {
@@ -7101,7 +7104,7 @@ dissect_optrsp_tlv_rxmer_and_snr_margin_data (tvbuff_t * tvb, packet_info * pinf
       }
       break;
     default:
-      proto_tree_add_item (tlv_tree, hf_docsis_optrsp_tlv_unknown, tvb, pos - 2, length+2, ENC_NA);
+      proto_tree_add_item (tlvtlv_tree, hf_docsis_optrsp_tlv_unknown, tvb, pos - 2, length+2, ENC_NA);
       expert_add_info_format(pinfo, tlv_item, &ei_docsis_mgmt_tlvtype_unknown, "Unknown TLV: %u", type);
       break;
     } /* switch */
