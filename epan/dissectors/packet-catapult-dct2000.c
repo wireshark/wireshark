@@ -86,6 +86,7 @@ static int hf_catapult_dct2000_rlc_mui = -1;
 static int hf_catapult_dct2000_rlc_cnf = -1;
 static int hf_catapult_dct2000_rlc_discard_req = -1;
 static int hf_catapult_dct2000_carrier_type = -1;
+static int hf_catapult_dct2000_carrier_id = -1;
 
 static int hf_catapult_dct2000_lte_ccpri_opcode = -1;
 static int hf_catapult_dct2000_lte_ccpri_status = -1;
@@ -990,6 +991,15 @@ static void dissect_rrc_lte_nr(tvbuff_t *tvb, gint offset,
             /* Unexpected tag */
             return;
     }
+
+    /* Optional Carrier Id */
+    if (tvb_get_guint8(tvb, offset)==0x1e) {
+        offset += 2;  /* tag + len of 1 */
+        proto_tree_add_item(tree, hf_catapult_dct2000_carrier_id,
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+    }
+
 
     /* Optional Carrier Type */
     if (tvb_get_guint8(tvb, offset)==0x20) {
@@ -3371,6 +3381,12 @@ void proto_register_catapult_dct2000(void)
         { &hf_catapult_dct2000_carrier_type,
             { "Carrier Type",
               "dct2000.carrier-type", FT_UINT8, BASE_NONE, VALS(carrier_type_vals), 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_catapult_dct2000_carrier_id,
+            { "Carrier Id",
+              "dct2000.carrier-id", FT_UINT8, BASE_DEC, NULL, 0x0,
               NULL, HFILL
             }
         },
