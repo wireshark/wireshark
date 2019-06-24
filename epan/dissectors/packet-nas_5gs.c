@@ -5067,32 +5067,6 @@ nas_5gs_sm_5gsm_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, 
 
 }
 
-/* D.5.1 Manage UE policy command */
-/*
-    Direction:        network to UE
-    UE policy section management list    UE policy section management list     D.6.2    M    LV-E    11-65537
-*/
-
-/* D.5.2 Manage UE policy complete */
-/*
-Direction:        UE to network
- No data
-*/
-/* D.5.3 Manage UE policy command reject*/
-/*
-    Direction:        UE to network
-    UE policy section management result    UE policy section management result D.6.3    M    LV-E    11-65537
-
-*/
-
-/* D.5.4 UE state indication */
-/*
-    Direction:        UE to network
-    UPSI list    UPSI list     D.6.4    M    LV-E    9-65537
-    UE policy classmark    UE policy classmark     D.6.5    M    LV    2-4
-    UE OS Id    OS Id     D.6.6    O    TLV    18-242
-
-*/
 
 /* D.6.2 UE policy section management list */
 static guint16
@@ -5148,6 +5122,118 @@ de_nas_5gs_updp_ue_os_id(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
 
     return len;
 }
+
+/* D.6 Information elements coding */
+typedef enum
+{
+    DE_NAS_5GS_UPDP_UE_POLICY_SECTION_MGM_LST,          /* D.6.2 UE policy section management list */
+    DE_NAS_5GS_UPDP_UE_POLICY_SECTION_MGM_RES,          /* D.6.3 UE policy section management result */
+    DE_NAS_5GS_UPDP_UPSI_LIST,                          /* D.6.4 UPSI list */
+    DE_NAS_5GS_UPDP_UE_POLICY_CM,                       /* D.6.5 UE policy classmark */
+    DE_NAS_5GS_UPDP_UE_OS_ID,                           /* D.6.6 UE OS Id */
+    DE_NAS_5GS_UPDP_NONE                                /* NONE */
+}
+nas_5gs_updp_elem_idx_t;
+
+static const value_string nas_5gs_updp_elem_strings[] = {
+    { DE_NAS_5GS_UPDP_UE_POLICY_SECTION_MGM_LST, "UE policy section management list" },                  /* D.6.2 UE policy section management list */
+    { DE_NAS_5GS_UPDP_UE_POLICY_SECTION_MGM_RES, "UE policy section management result" },                /* D.6.3 UE policy section management result */
+    { DE_NAS_5GS_UPDP_UPSI_LIST,                 "UPSI list" },                                          /* D.6.4 UPSI list */
+    { DE_NAS_5GS_UPDP_UE_POLICY_CM,              "UE policy classmark" },                                /* D.6.5 UE policy classmark */
+    { DE_NAS_5GS_UPDP_UE_OS_ID,                  "UE OS Id" },                                           /* D.6.6 UE OS Id */
+
+    { 0, NULL }
+};
+value_string_ext nas_5gs_updp_elem_strings_ext = VALUE_STRING_EXT_INIT(nas_5gs_updp_elem_strings);
+
+#define NUM_NAS_5GS_UPDP_ELEM (sizeof(nas_5gs_updp_elem_strings)/sizeof(value_string))
+gint ett_nas_5gs_updp_elem[NUM_NAS_5GS_UPDP_ELEM];
+
+guint16(*nas_5gs_updp_elem_fcn[])(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
+    guint32 offset, guint len,
+    gchar* add_string, int string_len) = {
+        /*  5GS session management (5GSM) information elements */
+        de_nas_5gs_updp_ue_policy_section_mgm_lst,          /* D.6.2 UE policy section management list */
+        de_nas_5gs_updp_ue_policy_section_mgm_res,          /* D.6.3 UE policy section management result */
+        de_nas_5gs_updp_upsi_list,                          /* D.6.4 UPSI list */
+        de_nas_5gs_updp_ue_policy_cm,                       /* D.6.5 UE policy classmark */
+        de_nas_5gs_updp_ue_os_id,                           /* D.6.6 UE OS Id */
+        NULL,   /* NONE */
+};
+
+
+/* D.5.1 Manage UE policy command */
+static void
+nas_5gs_updp_manage_ue_policy_cmd(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    /* Direction: network to UE */
+    pinfo->link_dir = P2P_DIR_DL;
+
+    /* UE policy section management list    UE policy section management list     D.6.2    M    LV-E    11-65537 */
+    ELEM_MAND_LV_E(NAS_5GS_PDU_TYPE_UPDP, DE_NAS_5GS_UPDP_UE_POLICY_SECTION_MGM_LST, NULL, ei_nas_5gs_missing_mandatory_elemen);
+
+}
+
+/* D.5.2 Manage UE policy complete */
+/*
+Direction:        UE to network
+ No data
+*/
+
+/* D.5.3 Manage UE policy command reject*/
+static void
+nas_5gs_updp_manage_ue_policy_cmd_rej(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    /*  Direction: UE to network */
+    pinfo->link_dir = P2P_DIR_UL;
+
+    /* UE policy section management result    UE policy section management result D.6.3    M    LV-E    11-65537 */
+    ELEM_MAND_LV_E(NAS_5GS_PDU_TYPE_UPDP, DE_NAS_5GS_UPDP_UE_POLICY_SECTION_MGM_RES, NULL, ei_nas_5gs_missing_mandatory_elemen);
+
+}
+
+
+/* D.5.4 UE state indication */
+static void
+nas_5gs_updp_ue_state_indication(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, guint32 offset, guint len)
+{
+    guint32 curr_offset;
+    guint32 consumed;
+    guint   curr_len;
+
+    curr_offset = offset;
+    curr_len = len;
+
+    /* Direction: UE to network */
+    pinfo->link_dir = P2P_DIR_UL;
+
+    /* UPSI list    UPSI list     D.6.4    M    LV-E    9-65537*/
+    ELEM_MAND_LV_E(NAS_5GS_PDU_TYPE_UPDP, DE_NAS_5GS_UPDP_UPSI_LIST, NULL, ei_nas_5gs_missing_mandatory_elemen);
+    /* UE policy classmark    UE policy classmark     D.6.5    M    LV    2 - 4*/
+    ELEM_MAND_LV(NAS_5GS_PDU_TYPE_UPDP, DE_NAS_5GS_UPDP_UE_POLICY_CM, NULL, ei_nas_5gs_missing_mandatory_elemen);
+
+    /* XX UE OS Id    OS Id     D.6.6    O    TLV    18 - 242*/
+    /*ELEM_OPT_TLV(0xff, NAS_5GS_PDU_TYPE_UPDP, DE_NAS_5GS_UPDP_UE_OS_ID, NULL);*/
+
+    /* UE policy section management result    UE policy section management result D.6.3    M    LV-E    11-65537 */
+    ELEM_MAND_LV_E(NAS_5GS_PDU_TYPE_UPDP, DE_NAS_5GS_UPDP_UE_POLICY_SECTION_MGM_RES, NULL, ei_nas_5gs_missing_mandatory_elemen);
+
+}
+
 
 /* 9.7  Message type */
 
@@ -5331,43 +5417,6 @@ static void(*nas_5gs_sm_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info 
 
 };
 
-/* D.6 Information elements coding */
-typedef enum
-{
-    DE_NAS_5GS_UPDP_UE_POLICY_SECTION_MGM_LST,          /* D.6.2 UE policy section management list */
-    DE_NAS_5GS_UPDP_UE_POLICY_SECTION_MGM_RES,          /* D.6.3 UE policy section management result */
-    DE_NAS_5GS_UPDP_UPSI_LIST,                          /* D.6.4 UPSI list */
-    DE_NAS_5GS_UPDP_UE_policy_CM,                       /* D.6.5 UE policy classmark */
-    DE_NAS_5GS_UPDP_UE_OS_Id,                           /* D.6.6 UE OS Id */
-    DE_NAS_5GS_UPDP_NONE                                /* NONE */
-}
-nas_5gs_updp_elem_idx_t;
-
-static const value_string nas_5gs_updp_elem_strings[] = {
-    { DE_NAS_5GS_UPDP_UE_POLICY_SECTION_MGM_LST, "UE policy section management list" },                  /* D.6.2 UE policy section management list */
-    { DE_NAS_5GS_UPDP_UE_POLICY_SECTION_MGM_RES, "UE policy section management result" },                /* D.6.3 UE policy section management result */
-    { DE_NAS_5GS_UPDP_UPSI_LIST,                 "UPSI list" },                                          /* D.6.4 UPSI list */
-    { DE_NAS_5GS_UPDP_UE_policy_CM,              "UE policy classmark" },                                /* D.6.5 UE policy classmark */
-    { DE_NAS_5GS_UPDP_UE_OS_Id,                  "UE OS Id" },                                           /* D.6.6 UE OS Id */
-
-    { 0, NULL }
-};
-value_string_ext nas_5gs_updp_elem_strings_ext = VALUE_STRING_EXT_INIT(nas_5gs_updp_elem_strings);
-
-#define NUM_NAS_5GS_UPDP_ELEM (sizeof(nas_5gs_updp_elem_strings)/sizeof(value_string))
-gint ett_nas_5gs_updp_elem[NUM_NAS_5GS_UPDP_ELEM];
-
-guint16(*nas_5gs_updp_elem_fcn[])(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo,
-    guint32 offset, guint len,
-    gchar* add_string, int string_len) = {
-        /*  5GS session management (5GSM) information elements */
-        de_nas_5gs_updp_ue_policy_section_mgm_lst,          /* D.6.2 UE policy section management list */
-        de_nas_5gs_updp_ue_policy_section_mgm_res,          /* D.6.3 UE policy section management result */
-        de_nas_5gs_updp_upsi_list,                          /* D.6.4 UPSI list */
-        de_nas_5gs_updp_ue_policy_cm,                       /* D.6.5 UE policy classmark */
-        de_nas_5gs_updp_ue_os_id,                           /* D.6.6 UE OS Id */
-        NULL,   /* NONE */
-};
 
 
 /* Table D.6.1.1: UE policy delivery service message type */
@@ -5386,10 +5435,10 @@ static gint ett_nas_5gs_updp_msg[NUM_NAS_5GS_UPDP_MSG];
 
 static void(*nas_5gs_updp_msg_fcn[])(tvbuff_t* tvb, proto_tree* tree, packet_info* pinfo, guint32 offset, guint len) = {
     nas_5gs_exp_not_dissected_yet,         /* 0x0     Reserved */
-    nas_5gs_exp_not_dissected_yet,         /* 0x1     MANAGE UE POLICY COMMAND */
+    nas_5gs_updp_manage_ue_policy_cmd,     /* 0x1     MANAGE UE POLICY COMMAND */
     nas_5gs_exp_not_dissected_yet,         /* 0x2     MANAGE UE POLICY COMPLETE */
-    nas_5gs_exp_not_dissected_yet,         /* 0x3     MANAGE UE POLICY COMMAND REJECT */
-    nas_5gs_exp_not_dissected_yet,         /* 0x4     UE STATE INDICATION */
+    nas_5gs_updp_manage_ue_policy_cmd_rej, /* 0x3     MANAGE UE POLICY COMMAND REJECT */
+    nas_5gs_updp_ue_state_indication,      /* 0x4     UE STATE INDICATION */
 
     NULL,   /* NONE */
 
@@ -5558,10 +5607,6 @@ disect_nas_5gs_updp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, int off
     guint8       oct;
 
     len = tvb_reported_length(tvb);
-
-    /* PTI    Procedure transaction identity 9.6    M    V    1 */
-    /* MANAGE UE POLICY COMMAND message identity    UE policy delivery service message type D.6.1    M    V    1*/
-    /* ... IEs*/
 
     /* 9.6  Procedure transaction identity
     * Bits 1 to 8 of the third octet of every 5GSM message contain the procedure transaction identity.
