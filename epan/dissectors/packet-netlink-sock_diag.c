@@ -682,7 +682,18 @@ dissect_sock_diag_inet_sockid(tvbuff_t *tvb, netlink_sock_diag_info_t *info, pro
 static header_field_info hfi_netlink_sock_diag_inet_proto NETLINK_SOCK_DIAG_HFI_INIT =
 	{ "Protocol", "netlink-sock_diag.inet_protocol", FT_UINT8, BASE_DEC | BASE_EXT_STRING,
 	  &ipproto_val_ext, 0x00, NULL, HFILL };
-	  /* XXX Linux has also IPPROTO_RAW - 255 */
+
+static header_field_info hfi_netlink_sock_diag_inet_extended NETLINK_SOCK_DIAG_HFI_INIT =
+	{ "Requested info", "netlink-sock_diag.inet_extended", FT_UINT8, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_sock_diag_inet_padding NETLINK_SOCK_DIAG_HFI_INIT =
+	{ "v2 Padding or v1 info", "netlink-sock_diag.inet_padding", FT_UINT8, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
+
+static header_field_info hfi_netlink_sock_diag_inet_states NETLINK_SOCK_DIAG_HFI_INIT =
+	{ "State filter", "netlink-sock_diag.inet_states", FT_UINT32, BASE_DEC,
+	  NULL, 0x00, NULL, HFILL };
 
 static int
 dissect_sock_diag_inet_reply(tvbuff_t *tvb, netlink_sock_diag_info_t *info, proto_tree *tree, int offset)
@@ -734,12 +745,17 @@ dissect_sock_diag_inet_request(tvbuff_t *tvb, netlink_sock_diag_info_t *info, pr
 	offset += 1;
 
 	/* XXX ext: INET_DIAG_MEMINFO, INET_DIAG_INFO, ... */
+
+	proto_tree_add_item(tree, &hfi_netlink_sock_diag_inet_extended, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
+	/* padding for backwards compatibility */
 	_dissect_padding(tree, tvb, offset, 1);
+	proto_tree_add_item(tree, &hfi_netlink_sock_diag_inet_padding, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
 	/* XXX states (bit of sk_state) */
+	proto_tree_add_item(tree, &hfi_netlink_sock_diag_inet_states, tvb, offset, 4, ENC_NA);
 	offset += 4;
 
 	offset = dissect_sock_diag_inet_sockid(tvb, info, tree, offset, af_family);
@@ -1166,7 +1182,11 @@ proto_register_netlink_sock_diag(void)
 
 	/* AF_INET */
 		&hfi_netlink_sock_diag_inet_proto,
+		&hfi_netlink_sock_diag_inet_extended,
+		&hfi_netlink_sock_diag_inet_padding,
+		&hfi_netlink_sock_diag_inet_states,
 		&hfi_netlink_sock_diag_inet_attr,
+
 	/* AF_INET sockid */
 		&hfi_netlink_sock_diag_inet_sport,
 		&hfi_netlink_sock_diag_inet_dport,
