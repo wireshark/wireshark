@@ -566,10 +566,7 @@ typedef struct _rtps_dissector_data {
 #define TOPIC_INFO_ADD_GUID                      (0x01)
 #define TOPIC_INFO_ADD_TYPE_NAME                 (0x02)
 #define TOPIC_INFO_ADD_TOPIC_NAME                (0x04)
-#define TOPIC_INFO_ADD_RELIABILITY               (0x08)
-#define TOPIC_INFO_ADD_DURABILITY                (0x10)
-#define TOPIC_INFO_ADD_OWNERSHIP                 (0x20)
-#define TOPIC_INFO_ALL_SET                       (0x3f)
+#define TOPIC_INFO_ALL_SET                       (0x07)
 
 #define NOT_A_FRAGMENT                           (-1)
 
