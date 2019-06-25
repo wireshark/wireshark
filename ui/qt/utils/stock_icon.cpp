@@ -75,11 +75,10 @@ StockIcon::StockIcon(const QString icon_name) :
 
     // Is this one of our locally sourced, cage-free, organic icons?
     QStringList types = QStringList() << "8x8" << "14x14" << "16x16" << "24x14" << "24x24";
-    QList<QPalette::ColorGroup> color_groups  = QList<QPalette::ColorGroup>()
-            << QPalette::Disabled
+    QList<QPalette::ColorGroup> color_groups = QList<QPalette::ColorGroup>()
             << QPalette::Active
-            << QPalette::Inactive
-            << QPalette::Normal;
+            << QPalette::Disabled
+            << QPalette::Inactive;
     foreach (QString type, types) {
         // First, check for a template (mask) icon
         // Templates should be monochrome as described at
@@ -100,7 +99,26 @@ StockIcon::StockIcon(const QString icon_name) :
                     painter.fillRect(0, 0, sz.width(), sz.height(), br);
                     painter.setCompositionMode(QPainter::CompositionMode_DestinationIn);
                     painter.drawPixmap(0, 0, mask_pm);
-                    addPixmap(QPixmap::fromImage(mode_img));
+                    // There isn't a 1:1 mapping between color groups and icon modes,
+                    // but this appears to be correct.
+                    switch (cg) {
+                    case QPalette::Active:
+                        addPixmap(QPixmap::fromImage(mode_img), QIcon::Active, QIcon::On);
+                        addPixmap(QPixmap::fromImage(mode_img), QIcon::Active, QIcon::Off);
+                        addPixmap(QPixmap::fromImage(mode_img), QIcon::Normal, QIcon::On);
+                        addPixmap(QPixmap::fromImage(mode_img), QIcon::Normal, QIcon::Off);
+                        break;
+                    case QPalette::Disabled:
+                        addPixmap(QPixmap::fromImage(mode_img), QIcon::Disabled, QIcon::On);
+                        addPixmap(QPixmap::fromImage(mode_img), QIcon::Disabled, QIcon::Off);
+                        break;
+                    case QPalette::Inactive:
+                        addPixmap(QPixmap::fromImage(mode_img), QIcon::Selected, QIcon::On);
+                        addPixmap(QPixmap::fromImage(mode_img), QIcon::Selected, QIcon::Off);
+                        break;
+                    default:
+                        break;
+                    }
                 }
             }
 
