@@ -48,6 +48,7 @@
 #include "packet-rtps.h"
 #include <epan/addr_resolv.h>
 #include <epan/reassemble.h>
+#include "zlib.h"
 
 void proto_register_rtps(void);
 void proto_reg_handoff_rtps(void);
@@ -570,7 +571,8 @@ static gint ett_rtps_data_tag_seq                               = -1;
 static gint ett_rtps_data_tag_item                              = -1;
 static gint ett_rtps_fragment                                   = -1;
 static gint ett_rtps_fragments                                  = -1;
-static gint ett_rtps_data_representation                         = -1;
+static gint ett_rtps_data_representation                        = -1;
+static gint ett_rtps_decompressed_type_object                   = -1;
 
 static expert_field ei_rtps_sm_octets_to_next_header_error = EI_INIT;
 static expert_field ei_rtps_port_invalid = EI_INIT;
@@ -1211,10 +1213,10 @@ static const value_string ndds_transport_class_id_vals[] = {
 };
 
 const value_string class_id_enum_names[] = {
-  { 0, "RTI_OSAPI_COMPRESSION_CLASS_ID_NONE" },
-  { 1, "RTI_OSAPI_COMPRESSION_CLASS_ID_ZLIB" },
-  { 2, "RTI_OSAPI_COMPRESSION_CLASS_ID_BZIP2" },
-  { G_MAXUINT32, "RTI_OSAPI_COMPRESSION_CLASS_ID_AUTO" },
+  { RTI_OSAPI_COMPRESSION_CLASS_ID_NONE,  "NONE" },
+  { RTI_OSAPI_COMPRESSION_CLASS_ID_ZLIB,  "ZLIB" },
+  { RTI_OSAPI_COMPRESSION_CLASS_ID_BZIP2, "BZIP2" },
+  { RTI_OSAPI_COMPRESSION_CLASS_ID_AUTO,  "AUTO"},
   { 0, NULL}
 };
 
@@ -3774,6 +3776,30 @@ static void rtps_util_add_typeobject(proto_tree *tree, packet_info * pinfo,
 
 }
 
+
+static void rtps_add_zlib_compressed_typeobject(proto_tree *tree _U_, packet_info * pinfo _U_,
+  tvbuff_t * tvb _U_, gint offset _U_, const guint encoding _U_, guint compressed_size _U_, guint decompressed_size _U_) {
+
+#ifdef HAVE_ZLIB
+  tvbuff_t *decompressed_data_child_tvb;
+  tvbuff_t *compressed_type_object_subset;
+  proto_tree *decompressed_type_object_subtree;
+
+  compressed_type_object_subset = tvb_new_subset_length(tvb, offset, decompressed_size);
+  decompressed_data_child_tvb = tvb_child_uncompress(tvb, compressed_type_object_subset, 0, compressed_size);
+  if (decompressed_data_child_tvb) {
+    decompressed_type_object_subtree = proto_tree_add_subtree(tree, decompressed_data_child_tvb,
+      0, 0, ett_rtps_decompressed_type_object, NULL, "[Uncompressed type object]");
+    rtps_util_add_typeobject(decompressed_type_object_subtree, pinfo,
+      decompressed_data_child_tvb, 0, encoding, decompressed_size);
+  }
+  else {
+    decompressed_type_object_subtree = proto_tree_add_subtree(tree, compressed_type_object_subset,
+      0, 0, ett_rtps_decompressed_type_object, NULL, "[Failed to decompress type object]");
+  }
+#endif
+}
+
 /* ------------------------------------------------------------------------- */
 /* Insert in the protocol tree the next bytes interpreted as Sequence of
  * Octects.
@@ -4489,12 +4515,40 @@ static gboolean dissect_parameter_sequence_rti_dds(proto_tree *rtps_parameter_tr
    *  value(-1) RTI_OSAPI_COMPRESSION_CLASS_ID_AUTO
    */
     case PID_TYPE_OBJECT_LB: {
+      guint compressed_size;
+      guint decompressed_size;
+      guint compression_plugin_class;
+      tvbuff_t *compressed_type_object_subset;
+
       ENSURE_LENGTH(8);
       proto_tree_add_item(rtps_parameter_tree, hf_rtps_compression_plugin_class_id, tvb, offset, 4, encoding);
-      offset += 4;
-      proto_tree_add_item(rtps_parameter_tree, hf_rtps_uncompressed_serialized_length, tvb, offset, 4, encoding);
-      offset += 8;
-      proto_tree_add_item(rtps_parameter_tree, hf_rtps_compressed_serialized_type_object, tvb, offset, param_length - 8, encoding);
+      proto_tree_add_item(rtps_parameter_tree, hf_rtps_uncompressed_serialized_length, tvb, offset + 4, 4, encoding);
+
+      compression_plugin_class = tvb_get_guint32(tvb, offset, encoding);
+      decompressed_size = tvb_get_guint32(tvb, offset + 4, encoding);
+      /* Get the numer of bytes (elements) in the sequence */
+      compressed_size = tvb_get_guint32(tvb, offset + 8, encoding);
+
+      switch(compression_plugin_class)  {
+        case RTI_OSAPI_COMPRESSION_CLASS_ID_ZLIB: {
+          /* + 12 Because First 4 bytes of the sequence are the number of elements in the sequence */
+          proto_tree_add_item(rtps_parameter_tree, hf_rtps_compressed_serialized_type_object, tvb, offset + 12, param_length - 8, encoding);
+          compressed_type_object_subset = tvb_new_subset_length(tvb, offset + 12, decompressed_size);
+          rtps_add_zlib_compressed_typeobject(rtps_parameter_tree, pinfo, compressed_type_object_subset,
+            0, encoding, compressed_size, decompressed_size);
+          break;
+        }
+        case RTI_OSAPI_COMPRESSION_CLASS_ID_NONE: {
+          compressed_type_object_subset = tvb_new_subset_length(tvb, offset + 12, decompressed_size);
+          rtps_util_add_typeobject(rtps_parameter_tree, pinfo,
+            compressed_type_object_subset, 0, encoding, decompressed_size);
+          break;
+        }
+        default: {
+          /* + 12 Because First 4 bytes of the sequence are the number of elements in the sequence */
+          proto_tree_add_item(rtps_parameter_tree, hf_rtps_compressed_serialized_type_object, tvb, offset + 12, param_length - 8, encoding);
+        }
+      }
       break;
     }
 
@@ -12642,7 +12696,8 @@ void proto_register_rtps(void) {
     &ett_rtps_data_tag_item,
     &ett_rtps_fragment,
     &ett_rtps_fragments,
-    &ett_rtps_data_representation
+    &ett_rtps_data_representation,
+    &ett_rtps_decompressed_type_object
   };
 
   static ei_register_info ei[] = {
