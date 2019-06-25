@@ -13,7 +13,7 @@
 
 COMMON_ARGS="--export-area-page"
 
-SVGCLEANER=$( type -p svgcleaner )
+#SVGCLEANER=$( type -p svgcleaner )
 
 set_source_svgs() {
     local out_icon=$1
