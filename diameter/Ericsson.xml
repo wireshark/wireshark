@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<application id="19302"		name="Ericsson SCAP"			uri="http://www.ericsson.com/"/>
+<application id="19310"		name="Ericsson SRAP"			uri="http://www.ericsson.com/"/>
 <application id="16777227"	name="Ericsson MSI"			uri="none"/>
 <application id="16777228"	name="Ericsson Zx"			uri="none"/>
 <application id="16777232"	name="Ericsson Charging-CIP"		uri="none"/>
@@ -42,6 +44,60 @@
 	</avp>
 	<avp name="Bearer-Control-Options" code="292" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
 		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="PDP-context-type" code="321" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+		<type type-name="Enumerated"/>
+		<enum name="PRIMARY" code="0"/>
+		<enum name="SECONDARY" code="1"/>
+	</avp>
+	<avp name="Active-Time-Reporting" code="322" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+		<type type-name="Enumerated"/>
+		<enum name="NO_REPORTING" code="0"/>
+		<enum name="REPORT_TIMESTAMP" code="1"/>
+		<enum name="REPORT_TIME_STAMP_VOLUME" code="2"/>
+	</avp>
+	<avp name="Active-Time-Report" code="323" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+		<grouped>
+			<gavp name="Active-Time-Report-Start-Time"/>
+			<gavp name="Active-Time-Report-End-Time"/>
+			<gavp name="CC-Total-Octets"/>
+			<gavp name="CC-Input-Octets"/>
+			<gavp name="CC-Output-Octets"/>
+		</grouped>
+	</avp>
+	<avp name="Active-Time-Report-Start-Time" code="324" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+		<type type-name="Time"/>
+	</avp>
+	<avp name="Active-Time-Report-End-Time" code="325" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+		<type type-name="Time"/>
+	</avp>
+	<avp name="Time-Quota-Measurement" code="326" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+		<grouped>
+			<gavp name="Time-Quota-Method"/>
+			<gavp name="Time-Quota-Resolution"/>
+			<gavp name="Time-Quota-Inactivity-Time"/>
+		</grouped>
+	</avp>
+	<avp name="Time-Quota-Method" code="327" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+		<type type-name="Enumerated"/>
+		<enum name="DURATION" code="1"/>
+		<enum name="INACTIVITY_INCLUDED" code="2"/>
+		<enum name="INACTIVITY" code="3"/>
+		<enum name="ACTIVE_PERIODS" code="4"/>
+	</avp>
+	<avp name="Time-Quota-Resolution" code="328" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="Time-Quota-Inactivity-Time" code="329" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+		<type type-name="Unsigned32"/>
+	</avp>
+	<avp name="User-Redirected" code="330" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+		<type type-name="Enumerated"/>
+		<enum name="APPEND_URL" code="1"/>
+	</avp>
+	<avp name="URL-Modifier" code="332" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+		<type type-name="Enumerated"/>
+		<enum name="APPEND_URL" code="1"/>
 	</avp>
 	<avp name="GPRS-Roaming-Status" code="333" vendor-id="Ericsson" mandatory="must" vendor-bit="must" may-encrypt="no" protected="mustnot">
 		<type type-name="Enumerated"/>
@@ -194,6 +250,9 @@
 	</avp>
 	<!-- ************************ END SCAP AVPS ******************* -->
 
+	<avp name="Requested-Service" code="701" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no">
+		<type type-name="UTF8String"/>
+	</avp>
 	<avp name="S-CSCF-Name-Originating" code="1008" vendor-id="None" mandatory="must"  may-encrypt="no">
 		<type type-name="OctetString"/>
 	</avp>
@@ -305,6 +364,21 @@
 		<type type-name="Enumerated"/>
 		<enum name="PRESENTATION_ALLOWED" code="0"/>
 		<enum name="PRESENTATION_RESTRICTED" code="1"/>
+	</avp>
+	<avp name="Credit-Instance-Id" code="1143" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+		<type type-name="UTF8String"/>
+	</avp>
+	<avp name="Service-Start-Timestamp" code="1144" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+		<type type-name="Time"/>
+	</avp>
+	<avp name="Cumulative-Used-Service-Unit" code="1145" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
+		<grouped>
+			<gavp name="CC-Input-Octets"/>
+			<gavp name="CC-Output-Octets"/>
+			<gavp name="CC-Service-Specific-Units"/>
+			<gavp name="CC-Time"/>
+			<gavp name="CC-Total-Octets"/>
+		</grouped>
 	</avp>
 	<avp name="Ericsson-Customer-Id" code="1146" mandatory="must" vendor-bit="must" vendor-id="Ericsson" may-encrypt="no" protected="mustnot">
 		<type type-name="UTF8String"/>
