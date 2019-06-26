@@ -1817,8 +1817,19 @@ main(int argc, char *argv[])
                 }
 
                 /*
+                 * If an encapsulation type was specified, override the
+                 * encapsulation type of the packet.
+                 * Copy and change rather than modify returned rec.
+                 */
+                if (out_frame_type != -2) {
+                    temp_rec = *rec;
+                    temp_rec.rec_header.packet_header.pkt_encap = out_frame_type;
+                    rec = &temp_rec;
+                }
+
+                /*
                  * CHOP
-                 * Copy and change rather than modify returned phdr.
+                 * Copy and change rather than modify returned rec.
                  */
                 temp_rec = *rec;
                 handle_chopping(chop, &temp_rec.rec_header.packet_header,
