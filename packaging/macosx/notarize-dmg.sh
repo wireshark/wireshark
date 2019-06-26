@@ -52,6 +52,18 @@ if ! altool_out=$( mktemp /tmp/notarize-dmg.out.XXXXX ) ; then
 fi
 # trap 'rm -f "$altool_out"' EXIT
 
+max_upload_wait=$(( 5 * 60))
+start=$SECONDS
+while ls "$HOME"/Library/Caches/com.apple.amp.itmstransporter/UploadTokens/ > /dev/null 2>&1 ; do
+	echo "Another upload in progress. Waiting 5s\xe2\x80\xa6"
+	sleep 5
+	elapsed=$(( SECONDS - start ))
+	if [[ $elapsed -gt $max_upload_wait ]] ; then
+		echo "Timed out after ${max_upload_wait}s"
+		exit 1
+	fi
+done
+
 xcrun altool \
 	--notarize-app \
 	--type osx \
@@ -73,12 +85,19 @@ eval_info_cmd=(xcrun altool \
 	--password "@keychain:${generic_pw_service}" \
 	)
 
-for try in {1..80} ; do
+max_upload_wait=300
+start=$SECONDS
+
+max_status_wait=$(( 20 * 60))
+start=$SECONDS
+while true ; do
 	printf "\\nWaiting 15s \xe2\x80\xa6 "
 	sleep 15
-	echo "done. Checking status ($try of 80)"
+	elapsed=$(( SECONDS - start ))
+	echo "done. Checking status after ${elapsed}s"
  	"${eval_info_cmd[@]}" 2>&1 | tee "$altool_out"
 	grep "Status: in progress" "$altool_out" > /dev/null 2>&1 || break
+	if [[ $elapsed -gt $max_status_wait ]] ; then break ; fi
 done
 
 staple_cmd=(xcrun stapler staple "$dmg_file")
