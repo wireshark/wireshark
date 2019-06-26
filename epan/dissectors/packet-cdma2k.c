@@ -1342,26 +1342,26 @@ static const value_string l3dpu_SCM_field_values7[] = {
     { 0x00, NULL }
 };
 
-const value_string l3dpu_SCM_field_values6[] = {
+static const value_string l3dpu_SCM_field_values6[] = {
     { 0x00, "CDMA Only" },
     { 0x01, "?" },
     { 0x00, NULL }
 };
 
-const value_string l3dpu_SCM_field_values5[] = {
+static const value_string l3dpu_SCM_field_values5[] = {
     { 0x00, "Non-Slotted" },
     { 0x01, "Slotted" },
     { 0x00, NULL }
 };
 
-const value_string l3dpu_SCM_field_values4[] = {
+static const value_string l3dpu_SCM_field_values4[] = {
     { 0x00, "MEID not configured" },
     { 0x01, "MEID configured" },
     { 0x00, NULL }
 };
 
 
-const value_string l3dpu_SCM_field_values2[] = {
+static const value_string l3dpu_SCM_field_values2[] = {
     { 0x00, "Continuous" },
     { 0x01, "Discontinuous" },
     { 0x00, NULL }
