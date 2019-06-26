@@ -1550,7 +1550,21 @@ real_main(int argc, char *argv[])
                     }
                 }
 
-                /* CHOP */
+                /*
+                 * If an encapsulation type was specified, override the
+                 * encapsulation type of the packet.
+                 * Copy and change rather than modify returned phdr.
+                 */
+                if (out_frame_type != -2) {
+                    temp_phdr = *phdr;
+                    temp_phdr.pkt_encap = out_frame_type;
+                    phdr = &temp_phdr;
+                }
+
+                /*
+                 * CHOP
+                 * Copy and change rather than modify returned phdr.
+                 */
                 temp_phdr = *phdr;
                 handle_chopping(chop, &temp_phdr, phdr, &buf, adjlen);
                 phdr = &temp_phdr;
