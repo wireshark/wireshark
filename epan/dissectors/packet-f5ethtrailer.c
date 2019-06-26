@@ -256,6 +256,9 @@ static gint hf_data = -1;
 static gint hf_dpt_unknown = -1;
 /* Low */
 static gint hf_low_id = -1;
+static gint hf_flags = -1;
+static gint hf_flags_ingress = -1;
+static gint hf_flags_hwaction = -1;
 static gint hf_ingress = -1;
 static gint hf_slot0 = -1;
 static gint hf_slot1 = -1;
@@ -317,11 +320,12 @@ static expert_field ei_f5eth_flowreuse = EI_INIT;
 static expert_field ei_f5eth_badlen = EI_INIT;
 
 /* These are the ids of the subtrees that we may be creating */
-static gint ett_f5ethtrailer          = -1;
-static gint ett_f5ethtrailer_unknown  = -1;
-static gint ett_f5ethtrailer_low      = -1;
-static gint ett_f5ethtrailer_med      = -1;
-static gint ett_f5ethtrailer_high     = -1;
+static gint ett_f5ethtrailer = -1;
+static gint ett_f5ethtrailer_unknown = -1;
+static gint ett_f5ethtrailer_low = -1;
+static gint ett_f5ethtrailer_low_flags = -1;
+static gint ett_f5ethtrailer_med = -1;
+static gint ett_f5ethtrailer_high = -1;
 static gint ett_f5ethtrailer_rstcause = -1;
 
 /* For fileinformation */
@@ -353,6 +357,28 @@ static gint tap_tcp_enabled;
  * used in field definition, but rather used to display via a format call
  * and in the info column information.) */
 static const true_false_string f5tfs_ing = { "IN", "OUT" };
+
+static const value_string f5_flags_ingress_vs[] = {
+	{ 0, "Out" },
+	{ 1, "In" },
+	{ 0, NULL }
+};
+
+/** Strings for decoding the hardware action */
+static const value_string f5_flags_hwaction_vs[] = {
+	{ 0, "Not set" },
+	{ 1, "Challenge" },
+	{ 2, "Drop" },
+	{ 3, "Forward" },
+	{ 0, NULL }
+};
+
+static const int *hf_flags__fields[] = {
+	&hf_flags_ingress,
+	&hf_flags_hwaction,
+	NULL,
+};
+
 
 /** Table containing subdissectors for different providers */
 static dissector_table_t provider_subdissector_table;
@@ -1094,6 +1120,8 @@ static const guint8 fileinfomagic1[] = {
 #define F5_MIN_SANE 7
 #define F5_MAX_SANE 140
 
+#define F5_LOW_FLAGS_INGRESS_MASK     0x01
+#define F5_LOW_FLAGS_HWACTION_MASK    0x06
 
 #define F5_HIV0_LEN                   42
 
@@ -2351,6 +2379,8 @@ dissect_dpt_trailer_noise_low(
 	void *data
 ) {
 	proto_item *pi;
+	proto_item *pi_ingress;
+	guint       flags;
 	guint       ingress;
 	gint        o;
 	int         vipnamelen;
@@ -2366,7 +2396,7 @@ dissect_dpt_trailer_noise_low(
 	ver = tvb_get_ntohs(tvb, F5_DPT_V1_TLV_VERSION_OFF);
 
 	/* Unknown version, cannot do anything */
-	if(ver != 2) {
+	if(ver < 2 || ver > 3) {
 		return(0);
 	}
 
@@ -2378,7 +2408,12 @@ dissect_dpt_trailer_noise_low(
 	o = F5_DPT_V1_TLV_HDR_LEN;
 
 	/* Direction */
-	ingress = tvb_get_guint8(tvb, o);
+	flags = tvb_get_guint8(tvb, o);
+	if(ver == 2) {
+		ingress = flags;
+	} else {
+		ingress = flags & F5_LOW_FLAGS_INGRESS_MASK;
+	}
 	tdata->ingress = ingress == 0 ? 0 : 1;
 	/* Slot */
 	slot_display = tvb_get_guint8(tvb, o + 1) + 1;
@@ -2416,10 +2451,19 @@ dissect_dpt_trailer_noise_low(
 	/* Use special formatting here so that users do not have to filter on "IN"
 	 * and "OUT", but rather can continue to use typical boolean values.  "IN"
 	 * and "OUT" are provided as convenience. */
-	proto_tree_add_boolean_format_value(tree, hf_ingress, tvb,
+	pi_ingress = proto_tree_add_boolean_format_value(tree, hf_ingress, tvb,
 			o, 1, ingress, "%s (%s)",
 			ingress ? tfs_true_false.true_string : tfs_true_false.false_string,
 			ingress ? f5tfs_ing.true_string : f5tfs_ing.false_string);
+	if(ver > 2) {
+		/* The old ingress field is now a flag field.  Leave the old ingress field
+		 * for backward compatability for users that are accustomed to using
+		 * "f5ethtrailer.ingress" but mark it as generated to indicate that that
+		 * field no longer really exists. */
+		PROTO_ITEM_SET_GENERATED(pi_ingress);
+		proto_tree_add_bitmask(tree, tvb, o, hf_flags, ett_f5ethtrailer_low_flags,
+			hf_flags__fields, ENC_BIG_ENDIAN);
+	}
 	o++;
 
 	proto_tree_add_uint(tree, hf_slot1, tvb, o, 1, slot_display);
@@ -2918,6 +2962,17 @@ void proto_register_f5ethtrailer (void)
 		  { "Low Details", "f5ethtrailer.low", FT_NONE, BASE_NONE, NULL,
 		    0x0, NULL, HFILL }
 		},
+		{ &hf_flags,
+		  { "Flags", "f5ethtrailer.flags", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }
+		},
+		{ &hf_flags_ingress,
+		  { "Ingress", "f5ethtrailer.flags.ingress", FT_UINT8, BASE_DEC,
+		    VALS(f5_flags_ingress_vs), F5_LOW_FLAGS_INGRESS_MASK, NULL, HFILL }
+		},
+		{ &hf_flags_hwaction,
+		  { "Hardware Action", "f5ethtrailer.flags.hwaction", FT_UINT8, BASE_DEC,
+		    VALS(f5_flags_hwaction_vs), F5_LOW_FLAGS_HWACTION_MASK, NULL, HFILL }
+		},
 		{ &hf_ingress,
 		  { "Ingress", "f5ethtrailer.ingress", FT_BOOLEAN, BASE_NONE, NULL,
 		    0x0, NULL, HFILL }
@@ -3108,6 +3163,7 @@ void proto_register_f5ethtrailer (void)
 		&ett_f5ethtrailer,
 		&ett_f5ethtrailer_unknown,
 		&ett_f5ethtrailer_low,
+		&ett_f5ethtrailer_low_flags,
 		&ett_f5ethtrailer_med,
 		&ett_f5ethtrailer_high,
 		&ett_f5ethtrailer_rstcause
