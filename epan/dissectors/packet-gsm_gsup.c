@@ -607,7 +607,7 @@ static void dissect_sm_rp_ui_ie(tvbuff_t *tvb, packet_info *pinfo, guint offset,
 static void dissect_imei_ie(tvbuff_t *tvb, packet_info *pinfo, guint offset,
 			    guint ie_len, proto_tree *tree)
 {
-	tvbuff_t *ss_tvb = tvb_new_subset_length(tvb, offset-1, ie_len);
+	tvbuff_t *ss_tvb = tvb_new_subset_length(tvb, offset-1, ie_len+1);
 	if(bssap_imei_handle)
 		call_dissector(bssap_imei_handle, ss_tvb, pinfo, tree);
 }
