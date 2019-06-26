@@ -54,8 +54,8 @@ fi
 
 max_upload_wait=$(( 5 * 60))
 start=$SECONDS
-while ls "$HOME"/Library/Caches/com.apple.amp.itmstransporter/UploadTokens/ > /dev/null 2>&1 ; do
-	echo "Another upload in progress. Waiting 5s\xe2\x80\xa6"
+while ls "$HOME"/Library/Caches/com.apple.amp.itmstransporter/UploadTokens/*.token > /dev/null 2>&1 ; do
+	echo -e "Another upload in progress. Waiting 5s\xe2\x80\xa6"
 	sleep 5
 	elapsed=$(( SECONDS - start ))
 	if [[ $elapsed -gt $max_upload_wait ]] ; then
