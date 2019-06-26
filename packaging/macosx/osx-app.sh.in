@@ -134,7 +134,8 @@ pkgplugin="$bundle/Contents/PlugIns/wireshark/@PLUGIN_PATH_ID@"
 # binaries.
 #
 secondary_binary_list=$( find $pkgexec \! -name Wireshark -type f -perm -0555 -print | sort )
-bundle_binary_list="Wireshark $secondary_binary_list"
+plugin_library_list=$( find $pkgplugin -name "*.so" -type f -perm -0555 -print | sort )
+bundle_binary_list="Wireshark $secondary_binary_list $plugin_library_list"
 
 echo -e "\\nFixing up $bundle..."
 
@@ -195,7 +196,7 @@ while $endl; do
 		| uniq \
 		)"
 	# shellcheck disable=SC2086
-	cp -vn $libs "$pkglib"
+	install -m 644 -C -v $libs "$pkglib"
 	(( a++ ))
 	# shellcheck disable=SC2012
 	nnfiles=$( ls "$pkglib" | wc -l )
