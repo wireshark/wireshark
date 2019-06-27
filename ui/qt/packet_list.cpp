@@ -673,7 +673,7 @@ void PacketList::mouseMoveEvent (QMouseEvent *event)
         QWidget * content = nullptr;
 
         QString filter = getFilterFromRowAndColumn();
-        if ( ! filter.isEmpty() || get_column_format(curIndex.column()) == COL_PROTOCOL)
+        if ( ! filter.isEmpty() )
         {
             QString abbrev;
             QString name = model()->headerData(ctx_column_, header()->orientation()).toString();
