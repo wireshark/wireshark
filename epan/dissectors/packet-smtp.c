@@ -24,6 +24,9 @@
 #include <epan/reassemble.h>
 #include <epan/proto_data.h>
 
+#include <ui/tap-credentials.h>
+#include <tap.h>
+
 #include <wsutil/str_util.h>
 #include "packet-tls.h"
 #include "packet-tls-utils.h"
@@ -39,6 +42,8 @@ void proto_register_smtp(void);
 void proto_reg_handoff_smtp(void);
 
 static int proto_smtp = -1;
+
+static int credentials_tap = -1;
 
 static int hf_smtp_req = -1;
 static int hf_smtp_rsp = -1;
@@ -158,6 +163,7 @@ struct smtp_session_state {
   guint32  username_frame;      /* Frame containing client username */
   guint32  password_frame;      /* Frame containing client password */
   guint32  last_auth_frame;     /* Last frame involving authentication. */
+  guint8*  username;            /* The username in the authentication. */
   gboolean crlf_seen;           /* Have we seen a CRLF on the end of a packet */
   gboolean data_seen;           /* Have we seen a DATA command yet */
   guint32  msg_read_len;        /* Length of BDAT message read so far */
@@ -319,13 +325,14 @@ decode_plain_auth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     returncode = (gint)len;
     if (returncode) {
+      gchar* username;
       length_user1 = (gint)strlen(decrypt);
       if (returncode >= (length_user1 + 1)) {
         length_user2 = (gint)strlen(decrypt + length_user1 + 1);
         proto_tree_add_string(tree, hf_smtp_username, tvb,
                               a_offset, a_linelen, decrypt + length_user1 + 1);
-        col_append_fstr(pinfo->cinfo, COL_INFO, "User: %s",
-                        format_text(wmem_packet_scope(), decrypt + length_user1 + 1, length_user2));
+        username = format_text(wmem_packet_scope(), decrypt + length_user1 + 1, length_user2);
+        col_append_fstr(pinfo->cinfo, COL_INFO, "User: %s", username);
 
         if (returncode >= (length_user1 + 1 + length_user2 + 1)) {
           length_pass = (gint)strlen(decrypt + length_user1 + length_user2 + 2);
@@ -334,6 +341,14 @@ decode_plain_auth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
           col_append_str(pinfo->cinfo, COL_INFO, " ");
           col_append_fstr(pinfo->cinfo, COL_INFO, " Pass: %s",
                           format_text(wmem_packet_scope(), decrypt + length_user1 + length_user2 + 2, length_pass));
+
+          tap_credential_t* auth = wmem_new0(wmem_packet_scope(), tap_credential_t);
+          auth->num = pinfo->num;
+          auth->username_num = pinfo->num;
+          auth->password_hf_id = hf_smtp_password;
+          auth->username = username;
+          auth->proto = "SMTP";
+          tap_queue_packet(credentials_tap, pinfo, auth);
         }
       }
     }
@@ -839,6 +854,9 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
               }
             }
           }
+
+          if (!session_state->username)
+            session_state->username = wmem_strdup(wmem_file_scope(), decrypt);
           proto_tree_add_string(smtp_tree, hf_smtp_username, tvb,
                                 loffset, linelen, decrypt);
           col_append_fstr(pinfo->cinfo, COL_INFO, "User: %s", format_text(wmem_packet_scope(), decrypt, decrypt_len));
@@ -864,6 +882,15 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
           proto_tree_add_string(smtp_tree, hf_smtp_password, tvb,
                                 loffset, linelen, decrypt);
           col_append_fstr(pinfo->cinfo, COL_INFO, "Pass: %s", format_text(wmem_packet_scope(), decrypt, decrypt_len));
+
+          tap_credential_t* auth = wmem_new0(wmem_packet_scope(), tap_credential_t);
+          auth->num = pinfo->num;
+          auth->username_num = session_state->username_frame;
+          auth->password_hf_id = hf_smtp_password;
+          auth->username = session_state->username;
+          auth->proto = "SMTP";
+          auth->info = wmem_strdup_printf(wmem_packet_scope(), "Username in packet %u", auth->username_num);
+          tap_queue_packet(credentials_tap, pinfo, auth);
         } else if (session_state->ntlm_rsp_frame == pinfo->num) {
           decrypt = tvb_get_string_enc(wmem_packet_scope(), tvb, loffset, linelen, ENC_ASCII);
           decrypt_len = linelen;
@@ -1329,6 +1356,8 @@ proto_register_smtp(void)
                                  "Decode Base64 encoded AUTH parameters",
                                  "Whether the SMTP dissector should decode Base64 encoded AUTH parameters",
                                  &smtp_auth_parameter_decoding_enabled);
+
+  credentials_tap = register_tap("credentials"); /* credentials tap */
 }
 
 /* The registration hand-off routine */
