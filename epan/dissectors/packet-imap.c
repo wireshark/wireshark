@@ -357,255 +357,253 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
     return tvb_captured_length(tvb);
   }
 
-  {
-    ti = proto_tree_add_item(tree, proto_imap, tvb, offset, -1, ENC_NA);
-    imap_tree = proto_item_add_subtree(ti, ett_imap);
+  ti = proto_tree_add_item(tree, proto_imap, tvb, offset, -1, ENC_NA);
+  imap_tree = proto_item_add_subtree(ti, ett_imap);
 
-    hidden_item = proto_tree_add_boolean(imap_tree, hf_imap_isrequest, tvb, 0, 0, is_request);
-    proto_item_set_hidden(hidden_item);
+  hidden_item = proto_tree_add_boolean(imap_tree, hf_imap_isrequest, tvb, 0, 0, is_request);
+  proto_item_set_hidden(hidden_item);
 
-    while(tvb_offset_exists(tvb, offset)) {
+  while(tvb_offset_exists(tvb, offset)) {
 
-      commandlen = 0;
-      folder_offset = 0;
-      folder_tokenlen = 0;
+    commandlen = 0;
+    folder_offset = 0;
+    folder_tokenlen = 0;
 
-      /*
-       * Find the end of each line
-       *
-       * Note that "tvb_find_line_end()" will return a value that is
-       * not longer than what's in the buffer, so the "tvb_get_ptr()"
-       * call won't throw an exception.
-       */
-      linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, TRUE);
-      if (linelen == -1)
-      {
-        pinfo->desegment_offset = offset;
-        pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
-        return tvb_captured_length(tvb);
-      }
-
-      /*
-       * Check that the line doesn't begin with '*', because that's a continuation line.
-       * Otherwise if a tag is present then extract tokens.
-       */
-      if (tvb_get_guint8(tvb, offset) == '*') {
-        gboolean show_line = TRUE;
-
-        //find up to NUM_LOOKAHEAD_TOKENS tokens
-        int start_offset;
-        int next_pattern = offset, token_count = 0;
-        struct simple_token_info tokens[NUM_LOOKAHEAD_TOKENS];
-        do
-        {
-          start_offset = next_pattern+1;
-          next_pattern = tvb_ws_mempbrk_pattern_guint8(tvb, start_offset, next_offset - start_offset, &pbrk_whitespace, NULL);
-          if (next_pattern > start_offset)
-          {
-            tokens[token_count].token = tvb_get_string_enc(wmem_packet_scope(), tvb, start_offset, next_pattern-start_offset, ENC_ASCII);
-            tokens[token_count].token_start_offset = start_offset;
-            tokens[token_count].token_end_offset = next_pattern;
-            token_count++;
-          }
-        } while ((next_pattern != -1) && (token_count < NUM_LOOKAHEAD_TOKENS));
-
-        if (token_count >= 2)
-        {
-          gboolean need_more = FALSE;
-          for (int token = 0; token < token_count; token++)
-          {
-            if (!tvb_strncaseeql(tvb, tokens[token].token_start_offset, "FETCH", tokens[token].token_end_offset - tokens[token].token_start_offset))
-            {
-              //FETCH command.  Presume we need more data until we find a complete command
-              need_more = dissect_imap_fetch(tvb, pinfo, tree, imap_tree, &reqresp_tree,
-                                             tokens[token].token_end_offset, offset, &next_offset, &first_line);
-              if (!need_more)
-              {
-                show_line = FALSE;
-              }
-              break;
-            }
-          }
-
-          if (need_more)
-          {
-            pinfo->desegment_offset = offset;
-            pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
-            return tvb_captured_length(tvb);
-          }
-        }
-
-        if (show_line)
-          proto_tree_add_item(imap_tree, hf_imap_line, tvb, offset, next_offset - offset, ENC_ASCII | ENC_NA);
-
-      } else {
-
-        if (first_line) {
-          col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s", is_request ? "Request" : "Response", tvb_format_text(tvb, offset, linelen));
-          first_line = FALSE;
-        }
-
-        // Put the line into the protocol tree.
-        ti = proto_tree_add_item(imap_tree, hf_imap_line, tvb, offset, next_offset - offset, ENC_ASCII | ENC_NA);
-        reqresp_tree = proto_item_add_subtree(ti, ett_imap_reqresp);
-
-        /*
-         * Show each line as tags + requests or replies.
-         */
-
-        /*
-         * Extract the first token, and, if there is a first
-         * token, add it as the request or reply tag.
-         */
-        tokenlen = tvb_get_token_len(tvb, offset, linelen, &next_token, FALSE);
-        if (tokenlen != 0) {
-          guint8* tag = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_ASCII);
-          request_key.tag = wmem_ascii_strdown(wmem_packet_scope(), tag, strlen(tag));
-
-          proto_tree_add_string(reqresp_tree, (is_request) ? hf_imap_request_tag : hf_imap_response_tag, tvb, offset, tokenlen, tag);
-          hidden_item = proto_tree_add_string(reqresp_tree, hf_imap_tag, tvb, offset, tokenlen, tag);
-          proto_item_set_hidden(hidden_item);
-
-          linelen -= (next_token-offset);
-          offset = next_token;
-        }
-
-        /*
-         * Extract second token, and, if there is a second
-         * token, and it's not uid, add it as the request or reply command.
-         */
-        tokenlen = tvb_get_token_len(tvb, offset, linelen, &next_token, FALSE);
-        if (tokenlen != 0) {
-
-          tokenbuf = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_ASCII);
-          tokenbuf = wmem_ascii_strdown(wmem_packet_scope(), tokenbuf, tokenlen);
-
-          if (is_request && !tvb_strncaseeql(tvb, offset, "UID", tokenlen)) {
-            proto_tree_add_item(reqresp_tree, hf_imap_request_uid, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
-            /*
-             * UID is a precursor to a command, if following the tag,
-             * so move to next token to grab the actual command.
-             */
-            uidlen = linelen - (next_token - offset);
-            uid_offset = next_token;
-            uid_tokenlen = tvb_get_token_len(tvb, next_token, uidlen, &uid_next_token, FALSE);
-            if (tokenlen != 0) {
-              proto_tree_add_item(reqresp_tree, hf_imap_request_command, tvb, uid_offset, uid_tokenlen, ENC_ASCII|ENC_NA);
-              hidden_item = proto_tree_add_item(reqresp_tree, hf_imap_command, tvb, offset, tokenlen, ENC_ASCII | ENC_NA);
-              proto_item_set_hidden(hidden_item);
-
-              /*
-               * Save command string to do specialized processing.
-               */
-              commandlen = uid_tokenlen;
-              command_token = tvb_get_string_enc(wmem_packet_scope(), tvb, next_token, commandlen, ENC_ASCII);
-              command_token = wmem_ascii_strdown(wmem_packet_scope(), command_token, commandlen);
-
-              folderlen = linelen - (uid_next_token - offset);
-              folder_offset = uid_next_token;
-              folder_tokenlen = tvb_get_token_len(tvb, uid_next_token, folderlen, &folder_next_token, FALSE);
-            }
-          } else {
-            /*
-             * Not a UID request so perform normal parsing.
-             */
-            proto_tree_add_item(reqresp_tree, (is_request) ? hf_imap_request_command : hf_imap_response_status, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
-            if (is_request) {
-              hidden_item = proto_tree_add_item(reqresp_tree, hf_imap_command, tvb, offset, tokenlen, ENC_ASCII | ENC_NA);
-              proto_item_set_hidden(hidden_item);
-
-              /*
-               * Save command string to do specialized processing.
-               */
-              commandlen = tokenlen;
-              command_token = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, commandlen, ENC_ASCII);
-              command_token = wmem_ascii_strdown(wmem_packet_scope(), command_token, commandlen);
-
-              folderlen = linelen - (next_token - offset);
-              folder_offset = next_token;
-              folder_tokenlen = tvb_get_token_len(tvb, next_token, folderlen, &folder_next_token, FALSE);
-            }
-          }
-
-          if (commandlen > 0) { // implies is_request (i.e. can be true only if is_request but is not equivalent)
-            if (strncmp(command_token, "select", commandlen) == 0 ||
-                strncmp(command_token, "examine", commandlen) == 0 ||
-                strncmp(command_token, "create", commandlen) == 0 ||
-                strncmp(command_token, "delete", commandlen) == 0 ||
-                strncmp(command_token, "rename", commandlen) == 0 ||
-                strncmp(command_token, "subscribe", commandlen) == 0 ||
-                strncmp(command_token, "unsubscribe", commandlen) == 0 ||
-                strncmp(command_token, "status", commandlen) == 0 ||
-                strncmp(command_token, "append", commandlen) == 0 ||
-                strncmp(command_token, "search", commandlen) == 0) {
-
-              /*
-               * These commands support folder as an argument,
-               * so parse out the folder name.
-               */
-              if (folder_tokenlen != 0)
-                proto_tree_add_item(reqresp_tree, hf_imap_request_folder, tvb, folder_offset, folder_tokenlen, ENC_ASCII | ENC_NA);
-            }
-            else if ((linelen > 0) && strncmp(command_token, "copy", commandlen) == 0) {
-              /*
-               * Handle the copy command separately since folder
-               * is the second argument for this command.
-               */
-              folderlen = linelen - (folder_next_token - offset);
-              folder_offset = folder_next_token;
-              folder_tokenlen = tvb_get_token_len(tvb, folder_offset, folderlen, &folder_next_token, FALSE);
-
-              if (folder_tokenlen != 0)
-                proto_tree_add_item(reqresp_tree, hf_imap_request_folder, tvb, folder_offset, folder_tokenlen, ENC_ASCII | ENC_NA);
-            }
-            else if (strncmp(command_token, "starttls", commandlen) == 0) {
-              /* If next response is OK, then TLS should be commenced. */
-              session_state->ssl_requested = TRUE;
-            }
-          }
-
-          if (!is_request) {
-            //See if there is the response command
-            int command_next_token;
-            int command_offset = next_token;
-            commandlen = linelen - (next_token-offset);
-            commandlen = tvb_get_token_len(tvb, next_token, commandlen, &command_next_token, FALSE);
-            if (commandlen > 0) {
-              proto_tree_add_item(reqresp_tree, hf_imap_response_command, tvb, command_offset, commandlen, ENC_ASCII | ENC_NA);
-              hidden_item = proto_tree_add_item(reqresp_tree, hf_imap_command, tvb, command_offset, commandlen, ENC_ASCII | ENC_NA);
-              proto_item_set_hidden(hidden_item);
-            }
-          }
-
-          /* If not yet switched to TLS, check for STARTTLS. */
-          if (session_state->ssl_requested) {
-            if (!is_request && (tokenbuf != NULL) && strncmp(tokenbuf, "ok", tokenlen) == 0) {
-              /* STARTTLS accepted, next reply will be TLS. */
-              ssl_starttls_ack(tls_handle, pinfo, imap_handle);
-              if (session_state->ssl_heur_tries_left > 0) {
-                session_state->ssl_heur_tries_left = 0;
-              }
-            }
-            session_state->ssl_requested = FALSE;
-          }
-        }
-
-        /*
-         * Add the rest of the line as request or reply data.
-         */
-        if (linelen != 0) {
-          proto_tree_add_item(reqresp_tree, (is_request) ? hf_imap_request : hf_imap_response, tvb, offset, linelen, ENC_ASCII|ENC_NA);
-        }
-
-        /* Add request/response statistics */
-        if (request_key.tag != NULL)
-        {
-          imap_match_request(pinfo, reqresp_tree, &request_key, is_request);
-        }
-      }
-
-      offset = next_offset; /* Skip over last line and \r\n at the end of it */
+    /*
+     * Find the end of each line
+     *
+     * Note that "tvb_find_line_end()" will return a value that is
+     * not longer than what's in the buffer, so the "tvb_get_ptr()"
+     * call won't throw an exception.
+     */
+    linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, TRUE);
+    if (linelen == -1)
+    {
+      pinfo->desegment_offset = offset;
+      pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+      return tvb_captured_length(tvb);
     }
+
+    /*
+     * Check that the line doesn't begin with '*', because that's a continuation line.
+     * Otherwise if a tag is present then extract tokens.
+     */
+    if (tvb_get_guint8(tvb, offset) == '*') {
+      gboolean show_line = TRUE;
+
+      //find up to NUM_LOOKAHEAD_TOKENS tokens
+      int start_offset;
+      int next_pattern = offset, token_count = 0;
+      struct simple_token_info tokens[NUM_LOOKAHEAD_TOKENS];
+      do
+      {
+        start_offset = next_pattern+1;
+        next_pattern = tvb_ws_mempbrk_pattern_guint8(tvb, start_offset, next_offset - start_offset, &pbrk_whitespace, NULL);
+        if (next_pattern > start_offset)
+        {
+          tokens[token_count].token = tvb_get_string_enc(wmem_packet_scope(), tvb, start_offset, next_pattern-start_offset, ENC_ASCII);
+          tokens[token_count].token_start_offset = start_offset;
+          tokens[token_count].token_end_offset = next_pattern;
+          token_count++;
+        }
+      } while ((next_pattern != -1) && (token_count < NUM_LOOKAHEAD_TOKENS));
+
+      if (token_count >= 2)
+      {
+        gboolean need_more = FALSE;
+        for (int token = 0; token < token_count; token++)
+        {
+          if (!tvb_strncaseeql(tvb, tokens[token].token_start_offset, "FETCH", tokens[token].token_end_offset - tokens[token].token_start_offset))
+          {
+            //FETCH command.  Presume we need more data until we find a complete command
+            need_more = dissect_imap_fetch(tvb, pinfo, tree, imap_tree, &reqresp_tree,
+                                           tokens[token].token_end_offset, offset, &next_offset, &first_line);
+            if (!need_more)
+            {
+              show_line = FALSE;
+            }
+            break;
+          }
+        }
+
+        if (need_more)
+        {
+          pinfo->desegment_offset = offset;
+          pinfo->desegment_len = DESEGMENT_ONE_MORE_SEGMENT;
+          return tvb_captured_length(tvb);
+        }
+      }
+
+      if (show_line)
+        proto_tree_add_item(imap_tree, hf_imap_line, tvb, offset, next_offset - offset, ENC_ASCII | ENC_NA);
+
+    } else {
+
+      if (first_line) {
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s", is_request ? "Request" : "Response", tvb_format_text(tvb, offset, linelen));
+        first_line = FALSE;
+      }
+
+      // Put the line into the protocol tree.
+      ti = proto_tree_add_item(imap_tree, hf_imap_line, tvb, offset, next_offset - offset, ENC_ASCII | ENC_NA);
+      reqresp_tree = proto_item_add_subtree(ti, ett_imap_reqresp);
+
+      /*
+       * Show each line as tags + requests or replies.
+       */
+
+      /*
+       * Extract the first token, and, if there is a first
+       * token, add it as the request or reply tag.
+       */
+      tokenlen = tvb_get_token_len(tvb, offset, linelen, &next_token, FALSE);
+      if (tokenlen != 0) {
+        guint8* tag = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_ASCII);
+        request_key.tag = wmem_ascii_strdown(wmem_packet_scope(), tag, strlen(tag));
+
+        proto_tree_add_string(reqresp_tree, (is_request) ? hf_imap_request_tag : hf_imap_response_tag, tvb, offset, tokenlen, tag);
+        hidden_item = proto_tree_add_string(reqresp_tree, hf_imap_tag, tvb, offset, tokenlen, tag);
+        proto_item_set_hidden(hidden_item);
+
+        linelen -= (next_token-offset);
+        offset = next_token;
+      }
+
+      /*
+       * Extract second token, and, if there is a second
+       * token, and it's not uid, add it as the request or reply command.
+       */
+      tokenlen = tvb_get_token_len(tvb, offset, linelen, &next_token, FALSE);
+      if (tokenlen != 0) {
+
+        tokenbuf = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tokenlen, ENC_ASCII);
+        tokenbuf = wmem_ascii_strdown(wmem_packet_scope(), tokenbuf, tokenlen);
+
+        if (is_request && !tvb_strncaseeql(tvb, offset, "UID", tokenlen)) {
+          proto_tree_add_item(reqresp_tree, hf_imap_request_uid, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+          /*
+           * UID is a precursor to a command, if following the tag,
+           * so move to next token to grab the actual command.
+           */
+          uidlen = linelen - (next_token - offset);
+          uid_offset = next_token;
+          uid_tokenlen = tvb_get_token_len(tvb, next_token, uidlen, &uid_next_token, FALSE);
+          if (tokenlen != 0) {
+            proto_tree_add_item(reqresp_tree, hf_imap_request_command, tvb, uid_offset, uid_tokenlen, ENC_ASCII|ENC_NA);
+            hidden_item = proto_tree_add_item(reqresp_tree, hf_imap_command, tvb, offset, tokenlen, ENC_ASCII | ENC_NA);
+            proto_item_set_hidden(hidden_item);
+
+            /*
+             * Save command string to do specialized processing.
+             */
+            commandlen = uid_tokenlen;
+            command_token = tvb_get_string_enc(wmem_packet_scope(), tvb, next_token, commandlen, ENC_ASCII);
+            command_token = wmem_ascii_strdown(wmem_packet_scope(), command_token, commandlen);
+
+            folderlen = linelen - (uid_next_token - offset);
+            folder_offset = uid_next_token;
+            folder_tokenlen = tvb_get_token_len(tvb, uid_next_token, folderlen, &folder_next_token, FALSE);
+          }
+        } else {
+          /*
+           * Not a UID request so perform normal parsing.
+           */
+          proto_tree_add_item(reqresp_tree, (is_request) ? hf_imap_request_command : hf_imap_response_status, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
+          if (is_request) {
+            hidden_item = proto_tree_add_item(reqresp_tree, hf_imap_command, tvb, offset, tokenlen, ENC_ASCII | ENC_NA);
+            proto_item_set_hidden(hidden_item);
+
+            /*
+             * Save command string to do specialized processing.
+             */
+            commandlen = tokenlen;
+            command_token = tvb_get_string_enc(wmem_packet_scope(), tvb, offset, commandlen, ENC_ASCII);
+            command_token = wmem_ascii_strdown(wmem_packet_scope(), command_token, commandlen);
+
+            folderlen = linelen - (next_token - offset);
+            folder_offset = next_token;
+            folder_tokenlen = tvb_get_token_len(tvb, next_token, folderlen, &folder_next_token, FALSE);
+          }
+        }
+
+        if (commandlen > 0) { // implies is_request (i.e. can be true only if is_request but is not equivalent)
+          if (strncmp(command_token, "select", commandlen) == 0 ||
+              strncmp(command_token, "examine", commandlen) == 0 ||
+              strncmp(command_token, "create", commandlen) == 0 ||
+              strncmp(command_token, "delete", commandlen) == 0 ||
+              strncmp(command_token, "rename", commandlen) == 0 ||
+              strncmp(command_token, "subscribe", commandlen) == 0 ||
+              strncmp(command_token, "unsubscribe", commandlen) == 0 ||
+              strncmp(command_token, "status", commandlen) == 0 ||
+              strncmp(command_token, "append", commandlen) == 0 ||
+              strncmp(command_token, "search", commandlen) == 0) {
+
+            /*
+             * These commands support folder as an argument,
+             * so parse out the folder name.
+             */
+            if (folder_tokenlen != 0)
+              proto_tree_add_item(reqresp_tree, hf_imap_request_folder, tvb, folder_offset, folder_tokenlen, ENC_ASCII | ENC_NA);
+          }
+          else if ((linelen > 0) && strncmp(command_token, "copy", commandlen) == 0) {
+            /*
+             * Handle the copy command separately since folder
+             * is the second argument for this command.
+             */
+            folderlen = linelen - (folder_next_token - offset);
+            folder_offset = folder_next_token;
+            folder_tokenlen = tvb_get_token_len(tvb, folder_offset, folderlen, &folder_next_token, FALSE);
+
+            if (folder_tokenlen != 0)
+              proto_tree_add_item(reqresp_tree, hf_imap_request_folder, tvb, folder_offset, folder_tokenlen, ENC_ASCII | ENC_NA);
+          }
+          else if (strncmp(command_token, "starttls", commandlen) == 0) {
+            /* If next response is OK, then TLS should be commenced. */
+            session_state->ssl_requested = TRUE;
+          }
+        }
+
+        if (!is_request) {
+          //See if there is the response command
+          int command_next_token;
+          int command_offset = next_token;
+          commandlen = linelen - (next_token-offset);
+          commandlen = tvb_get_token_len(tvb, next_token, commandlen, &command_next_token, FALSE);
+          if (commandlen > 0) {
+            proto_tree_add_item(reqresp_tree, hf_imap_response_command, tvb, command_offset, commandlen, ENC_ASCII | ENC_NA);
+            hidden_item = proto_tree_add_item(reqresp_tree, hf_imap_command, tvb, command_offset, commandlen, ENC_ASCII | ENC_NA);
+            proto_item_set_hidden(hidden_item);
+          }
+        }
+
+        /* If not yet switched to TLS, check for STARTTLS. */
+        if (session_state->ssl_requested) {
+          if (!is_request && (tokenbuf != NULL) && strncmp(tokenbuf, "ok", tokenlen) == 0) {
+            /* STARTTLS accepted, next reply will be TLS. */
+            ssl_starttls_ack(tls_handle, pinfo, imap_handle);
+            if (session_state->ssl_heur_tries_left > 0) {
+              session_state->ssl_heur_tries_left = 0;
+            }
+          }
+          session_state->ssl_requested = FALSE;
+        }
+      }
+
+      /*
+       * Add the rest of the line as request or reply data.
+       */
+      if (linelen != 0) {
+        proto_tree_add_item(reqresp_tree, (is_request) ? hf_imap_request : hf_imap_response, tvb, offset, linelen, ENC_ASCII|ENC_NA);
+      }
+
+      /* Add request/response statistics */
+      if (request_key.tag != NULL)
+      {
+        imap_match_request(pinfo, reqresp_tree, &request_key, is_request);
+      }
+    }
+
+    offset = next_offset; /* Skip over last line and \r\n at the end of it */
   }
 
   // If there is only lines that begin with *, at least show the first one
