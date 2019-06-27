@@ -449,8 +449,15 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
       reqresp_tree = proto_item_add_subtree(ti, ett_imap_reqresp);
 
       /*
-       * Show each line as tags + requests or replies.
+       * Show each line as requests or replies + tags.
        */
+
+      /*
+       * Add the line as request or reply data.
+       */
+      if (linelen != 0) {
+        proto_tree_add_item(reqresp_tree, (is_request) ? hf_imap_request : hf_imap_response, tvb, offset, linelen, ENC_ASCII|ENC_NA);
+      }
 
       /*
        * Extract the first token, and, if there is a first
@@ -587,13 +594,6 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
           }
           session_state->ssl_requested = FALSE;
         }
-      }
-
-      /*
-       * Add the rest of the line as request or reply data.
-       */
-      if (linelen != 0) {
-        proto_tree_add_item(reqresp_tree, (is_request) ? hf_imap_request : hf_imap_response, tvb, offset, linelen, ENC_ASCII|ENC_NA);
       }
 
       /* Add request/response statistics */
