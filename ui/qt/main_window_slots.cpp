@@ -3776,7 +3776,7 @@ void MainWindow::insertColumn(QString name, QString abbrev, gint pos)
     gint colnr = 0;
     if ( name.length() > 0 && abbrev.length() > 0 )
     {
-        colnr = column_prefs_add_custom_with_position(COL_CUSTOM, name.toStdString().c_str(), abbrev.toStdString().c_str(), 0, pos);
+        colnr = column_prefs_add_custom(COL_CUSTOM, name.toStdString().c_str(), abbrev.toStdString().c_str(), pos);
         packet_list_->columnsChanged();
         packet_list_->resizeColumnToContents(colnr);
         prefs_main_write();
