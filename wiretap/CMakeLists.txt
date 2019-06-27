@@ -24,6 +24,7 @@ set(WIRETAP_NONGENERATED_FILES
 	atm.c
 	ber.c
 	btsnoop.c
+	busmaster.c
 	camins.c
 	candump.c
 	capsa.c
@@ -89,6 +90,7 @@ set(WIRETAP_FILES ${WIRETAP_NONGENERATED_FILES})
 
 add_lex_files(LEX_FILES WIRETAP_FILES
 	ascend_scanner.l
+	busmaster_scanner.l
 	candump_scanner.l
 	k12text.l
 )
@@ -98,6 +100,7 @@ add_yacc_files(YACC_FILES WIRETAP_FILES
 )
 
 add_lemon_files(LEMON_FILES WIRETAP_FILES
+	busmaster_parser.lemon
 	candump_parser.lemon
 )
 
@@ -160,6 +163,7 @@ CHECKAPI(
 # LEX files commented out due to use of malloc, free etc.
 #	  ${LEX_FILES}
 	  ${YACC_FILES}
+	  ${LEMON_FILES}
 )
 
 #
