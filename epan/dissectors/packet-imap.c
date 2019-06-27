@@ -36,6 +36,8 @@ static int hf_imap_tag = -1;
 static int hf_imap_command = -1;
 static int hf_imap_response_status = -1;
 static int hf_imap_request_folder = -1;
+static int hf_imap_request_username = -1;
+static int hf_imap_request_password = -1;
 static int hf_imap_request_uid = -1;
 static int hf_imap_response_in = -1;
 static int hf_imap_response_to = -1;
@@ -568,6 +570,20 @@ dissect_imap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_
             /* If next response is OK, then TLS should be commenced. */
             session_state->ssl_requested = TRUE;
           }
+          else if (strncmp(command_token, "login", commandlen) == 0) {
+            int usernamelen = linelen - (next_token - offset);
+            int username_offset = next_token;
+            int username_next_token;
+            int username_tokenlen = tvb_get_token_len(tvb, next_token, usernamelen, &username_next_token, FALSE);
+            guint8* username = tvb_get_string_enc(wmem_packet_scope(), tvb, username_offset + 1, username_tokenlen - 2, ENC_ASCII | ENC_NA);
+            proto_tree_add_string(reqresp_tree, hf_imap_request_username, tvb, username_offset, username_tokenlen, username);
+
+            int passwordlen = linelen - (username_next_token - offset);
+            int password_offset = username_next_token;
+            int password_tokenlen = tvb_get_token_len(tvb, username_next_token, passwordlen, NULL, FALSE);
+            guint8* password = tvb_get_string_enc(wmem_packet_scope(), tvb, password_offset + 1, password_tokenlen - 2, ENC_ASCII | ENC_NA);
+            proto_tree_add_string(reqresp_tree, hf_imap_request_password, tvb, password_offset, password_tokenlen, password);
+          }
         }
 
         if (!is_request) {
@@ -683,6 +699,16 @@ proto_register_imap(void)
       { "Request isUID", "imap.request.command.uid",
       FT_BOOLEAN, BASE_NONE, NULL, 0x0,
       "Request command uid", HFILL }
+    },
+    { &hf_imap_request_username,
+      { "Request Username", "imap.request.username",
+      FT_STRINGZ, BASE_NONE, NULL, 0x0,
+      "Request command username", HFILL }
+    },
+    { &hf_imap_request_password,
+      { "Request Password", "imap.request.password",
+      FT_STRINGZ, BASE_NONE, NULL, 0x0,
+      "Request command password", HFILL }
     },
 
     /* Request/Response Matching */
