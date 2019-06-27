@@ -156,11 +156,11 @@ prefs_store_ext_multiple(const char * module, GHashTable * pref_values)
 gint
 column_prefs_add_custom(gint fmt, const gchar *title, const gchar *custom_fields, gint custom_occurrence)
 {
-    return column_prefs_add_custom_with_position(fmt, title, custom_fields, custom_occurrence, 0);
+    return column_prefs_add_custom_with_position(fmt, title, custom_fields, custom_occurrence, -1);
 }
 
 gint
-column_prefs_add_custom_with_position(gint fmt, const gchar *title, const gchar *custom_fields, gint custom_occurrence, guint position)
+column_prefs_add_custom_with_position(gint fmt, const gchar *title, const gchar *custom_fields, gint custom_occurrence, gint position)
 {
     GList *clp;
     fmt_data *cfmt, *last_cfmt;
@@ -184,7 +184,7 @@ column_prefs_add_custom_with_position(gint fmt, const gchar *title, const gchar 
         cfmt->visible = TRUE;
         clp = g_list_last(prefs.col_list);
         last_cfmt = (fmt_data *) clp->data;
-        if (position <= (guint) colnr) {
+        if (position > 0 && position <= colnr) {
             /* Custom fields may be added at any position, depending on the given argument */
             prefs.col_list = g_list_insert(prefs.col_list, cfmt, position);
         } else if (last_cfmt->fmt == COL_INFO) {

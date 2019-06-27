@@ -129,7 +129,7 @@ public:
     QString getMwFileName();
     void setMwFileName(QString fileName);
 
-    void insertColumn(QString name, QString abbrev, unsigned int pos = 0);
+    void insertColumn(QString name, QString abbrev, gint pos = -1);
 
 protected:
     virtual bool eventFilter(QObject *obj, QEvent *event);

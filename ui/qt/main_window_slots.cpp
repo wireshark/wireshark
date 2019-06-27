@@ -3771,7 +3771,7 @@ void MainWindow::showExtcapOptionsDialog(QString &device_name)
     }
 }
 
-void MainWindow::insertColumn(QString name, QString abbrev, unsigned int pos)
+void MainWindow::insertColumn(QString name, QString abbrev, gint pos)
 {
     gint colnr = 0;
     if ( name.length() > 0 && abbrev.length() > 0 )

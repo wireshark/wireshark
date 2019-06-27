@@ -85,7 +85,7 @@ gint
 column_prefs_add_custom_with_position(gint fmt, const gchar *title,
                                       const gchar *custom_fields,
                                       gint custom_occurrence,
-                                      guint position);
+                                      gint position);
 
 /** Remove a column.
  *
