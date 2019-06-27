@@ -45,6 +45,7 @@
 #include <QMap>
 #include <QPainter>
 #include <QStyle>
+#include <QStyleOption>
 
 static const QString path_pfx_ = ":/stock_icons/";
 
@@ -75,10 +76,10 @@ StockIcon::StockIcon(const QString icon_name) :
 
     // Is this one of our locally sourced, cage-free, organic icons?
     QStringList types = QStringList() << "8x8" << "14x14" << "16x16" << "24x14" << "24x24";
-    QList<QPalette::ColorGroup> color_groups = QList<QPalette::ColorGroup>()
-            << QPalette::Active
-            << QPalette::Disabled
-            << QPalette::Inactive;
+    QList<QIcon::Mode> icon_modes = QList<QIcon::Mode>()
+            << QIcon::Disabled
+            << QIcon::Active
+            << QIcon::Selected;
     foreach (QString type, types) {
         // First, check for a template (mask) icon
         // Templates should be monochrome as described at
@@ -91,37 +92,26 @@ StockIcon::StockIcon(const QString icon_name) :
 
             foreach(QSize sz, mask_icon.availableSizes()) {
                 QPixmap mask_pm = mask_icon.pixmap(sz);
-                foreach (QPalette::ColorGroup cg, color_groups) {
-                    QImage mode_img(sz, QImage::Format_ARGB32);
-                    mode_img.setDevicePixelRatio(mask_pm.devicePixelRatio());
-                    QPainter painter(&mode_img);
-                    QBrush br(wsApp->palette().color(cg, QPalette::WindowText));
-                    painter.fillRect(0, 0, sz.width(), sz.height(), br);
-                    painter.setCompositionMode(QPainter::CompositionMode_DestinationIn);
-                    painter.drawPixmap(0, 0, mask_pm);
-                    // There isn't a 1:1 mapping between color groups and icon modes,
-                    // but this appears to be correct.
-                    switch (cg) {
-                    case QPalette::Active:
-                        addPixmap(QPixmap::fromImage(mode_img), QIcon::Active, QIcon::On);
-                        addPixmap(QPixmap::fromImage(mode_img), QIcon::Active, QIcon::Off);
-                        addPixmap(QPixmap::fromImage(mode_img), QIcon::Normal, QIcon::On);
-                        addPixmap(QPixmap::fromImage(mode_img), QIcon::Normal, QIcon::Off);
-                        break;
-                    case QPalette::Disabled:
-                        addPixmap(QPixmap::fromImage(mode_img), QIcon::Disabled, QIcon::On);
-                        addPixmap(QPixmap::fromImage(mode_img), QIcon::Disabled, QIcon::Off);
-                        break;
-                    case QPalette::Inactive:
-                        addPixmap(QPixmap::fromImage(mode_img), QIcon::Selected, QIcon::On);
-                        addPixmap(QPixmap::fromImage(mode_img), QIcon::Selected, QIcon::Off);
-                        break;
-                    default:
-                        break;
-                    }
+                QImage normal_img(sz, QImage::Format_ARGB32);
+                normal_img.setDevicePixelRatio(mask_pm.devicePixelRatio());
+                QPainter painter(&normal_img);
+                QBrush br(wsApp->palette().color(QPalette::Active, QPalette::WindowText));
+                painter.fillRect(0, 0, sz.width(), sz.height(), br);
+                painter.setCompositionMode(QPainter::CompositionMode_DestinationIn);
+                painter.drawPixmap(0, 0, mask_pm);
+
+                QPixmap normal_pm = QPixmap::fromImage(normal_img);
+                addPixmap(normal_pm, QIcon::Normal, QIcon::On);
+                addPixmap(normal_pm, QIcon::Normal, QIcon::Off);
+
+                QStyleOption opt = {};
+                opt.palette = wsApp->palette();
+                foreach (QIcon::Mode icon_mode, icon_modes) {
+                    QPixmap mode_pm = wsApp->style()->generatedIconPixmap(icon_mode, normal_pm, &opt);
+                    addPixmap(mode_pm, icon_mode, QIcon::On);
+                    addPixmap(mode_pm, icon_mode, QIcon::Off);
                 }
             }
-
             continue;
         }
 
