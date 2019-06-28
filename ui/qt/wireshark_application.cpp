@@ -349,9 +349,11 @@ void WiresharkApplication::setMonospaceFont(const char *font_string) {
 
 int WiresharkApplication::monospaceTextSize(const char *str)
 {
-    QFontMetrics fm(mono_font_);
-
-    return fm.width(str);
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
+    return QFontMetrics(mono_font_).horizontalAdvance(str);
+#else
+    return QFontMetrics(mono_font_).width(str);
+#endif
 }
 
 void WiresharkApplication::setConfigurationProfile(const gchar *profile_name, bool write_recent)

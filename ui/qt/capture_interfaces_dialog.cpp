@@ -166,7 +166,7 @@ public:
             palette.setCurrentColorGroup(QPalette::Disabled);
             setText(column, UTF8_EM_DASH);
         }
-        setTextColor(column, palette.text().color());
+        setForeground(column, palette.text().color());
     }
 
 };

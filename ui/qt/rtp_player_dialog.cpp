@@ -387,7 +387,9 @@ void RtpPlayerDialog::addRtpStream(rtpstream_info_t *rtpstream)
         ti->setData(stream_data_col_, Qt::UserRole, QVariant::fromValue(audio_stream));
 
         for (int col = 0; col < ui->streamTreeWidget->columnCount(); col++) {
-            ti->setTextColor(col, audio_stream->color());
+            QBrush fgBrush = ti->foreground(col);
+            fgBrush.setColor(audio_stream->color());
+            ti->setForeground(col, fgBrush);
         }
 
         connect(ui->playButton, SIGNAL(clicked(bool)), audio_stream, SLOT(startPlaying()));

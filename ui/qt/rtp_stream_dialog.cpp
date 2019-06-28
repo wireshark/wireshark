@@ -110,9 +110,15 @@ public:
         if (calc.problem) {
             setText(status_col_, UTF8_BULLET);
             setTextAlignment(status_col_, Qt::AlignCenter);
+            QColor bgColor(ws_css_warn_background);
+            QColor textColor(ws_css_warn_text);
             for (int i = 0; i < columnCount(); i++) {
-                setBackgroundColor(i, ws_css_warn_background);
-                setTextColor(i, ws_css_warn_text);
+                QBrush bgBrush = background(i);
+                bgBrush.setColor(bgColor);
+                setBackground(i, bgBrush);
+                QBrush fgBrush = foreground(i);
+                fgBrush.setColor(textColor);
+                setForeground(i, fgBrush);
             }
         }
 

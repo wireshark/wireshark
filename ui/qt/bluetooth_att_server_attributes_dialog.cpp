@@ -375,7 +375,7 @@ void BluetoothAttServerAttributesDialog::on_actionSave_as_image_triggered()
 
     if (fileName.isEmpty()) return;
 
-    image = QPixmap::grabWidget(ui->tableTreeWidget);
+    image = ui->tableTreeWidget->grab();
     image.save(fileName, "PNG");
 }
 

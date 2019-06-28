@@ -671,12 +671,19 @@ void PacketList::setRecentColumnWidth(int col)
         const char *long_str = get_column_width_string(fmt, col);
 
         QFontMetrics fm = QFontMetrics(wsApp->monospaceFont());
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 11, 0))
+        if (long_str) {
+            col_width = fm.horizontalAdvance(long_str);
+        } else {
+            col_width = fm.horizontalAdvance(MIN_COL_WIDTH_STR);
+        }
+#else
         if (long_str) {
             col_width = fm.width(long_str);
         } else {
             col_width = fm.width(MIN_COL_WIDTH_STR);
         }
-
+#endif
         // Custom delegate padding
         if (itemDelegateForColumn(col)) {
             col_width += itemDelegateForColumn(col)->sizeHint(viewOptions(), QModelIndex()).width();
