@@ -26,8 +26,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QTextCursor>
-
-#include <QDebug>
+#include <QSortFilterProxyModel>
 
 class CredentialsUrlDelegate : public UrlLinkDelegate
 {
@@ -55,7 +54,10 @@ CredentialsDialog::CredentialsDialog(QWidget &parent, CaptureFile &cf, PacketLis
     packet_list_ = packet_list;
 
     CredentialsModel* model = new CredentialsModel(this, cf);
-    ui->auths->setModel(model);
+    QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
+
+    proxyModel->setSourceModel(model);
+    ui->auths->setModel(proxyModel);
 
     setWindowSubtitle(tr("Credentials"));
 
@@ -68,6 +70,7 @@ CredentialsDialog::CredentialsDialog(QWidget &parent, CaptureFile &cf, PacketLis
     ui->auths->resizeColumnToContents(CredentialsModel::COL_USERNAME);
 
     ui->auths->setSortingEnabled(true);
+    ui->auths->sortByColumn(CredentialsModel::COL_NUM, Qt::AscendingOrder);
 
     connect(ui->auths, SIGNAL(clicked(const QModelIndex&)), this, SLOT(actionGoToPacket(const QModelIndex&)));
 }
