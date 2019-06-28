@@ -24,6 +24,8 @@
 #include <epan/expert.h>
 #include <epan/conversation.h>
 #include <epan/proto_data.h>
+#include <epan/exceptions.h>
+#include <epan/show_exception.h>
 
 #include "packet-ber.h"
 #include "packet-per.h"

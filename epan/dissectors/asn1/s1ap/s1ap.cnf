@@ -555,14 +555,34 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
         /* 9.2.1.7 Source eNB to Target eNB Transparent Container */
         if ((s1ap_is_nbiot_ue(actx->pinfo) && (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_AUTOMATIC)) ||
             (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_NBIOT)) {
-          dissect_lte_rrc_HandoverPreparationInformation_NB_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+          TRY {
+              dissect_lte_rrc_HandoverPreparationInformation_NB_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+          }
+          CATCH_BOUNDS_ERRORS {
+              show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
+         }
+         ENDTRY;
+
         } else {
-          dissect_lte_rrc_HandoverPreparationInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+          TRY {
+              dissect_lte_rrc_HandoverPreparationInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+          }
+          CATCH_BOUNDS_ERRORS {
+              show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
+         }
+         ENDTRY;
         }
         break;
       case SUCCESSFUL_OUTCOME:
         /* 9.2.1.8 Target eNB to Source eNB Transparent Container */
-        dissect_lte_rrc_HandoverCommand_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+          TRY {
+              dissect_lte_rrc_HandoverCommand_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+          }
+          CATCH_BOUNDS_ERRORS {
+              show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
+         }
+         ENDTRY;
+
         break;
       default:
         break;
@@ -579,7 +599,14 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
 
   if (g_s1ap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UE_HistoryInformationFromTheUE);
-    dissect_lte_rrc_VisitedCellInfoList_r12_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+   TRY {
+        dissect_lte_rrc_VisitedCellInfoList_r12_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      }
+      CATCH_BOUNDS_ERRORS {
+        show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
+      }
+      ENDTRY;
+
   }
 
 #.FN_BODY UERadioCapability VAL_PTR = &parameter_tvb
@@ -600,7 +627,13 @@ Port-Number TYPE = FT_UINT16 DISPLAY = BASE_DEC
       handle = lte_rrc_ue_radio_access_cap_info_handle;
     }
     if (handle) {
-      call_dissector(handle, parameter_tvb, actx->pinfo, subtree);
+      TRY {
+        call_dissector(handle, parameter_tvb, actx->pinfo, subtree);
+      }
+      CATCH_BOUNDS_ERRORS {
+        show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
+      }
+      ENDTRY;
     }
   }
 
@@ -682,7 +715,13 @@ if (gcsna_handle) {
       handle = lte_rrc_ue_radio_paging_info_handle;
     }
     if (handle) {
-      call_dissector(handle, parameter_tvb, actx->pinfo, subtree);
+      TRY {
+        call_dissector(handle, parameter_tvb, actx->pinfo, subtree);
+      }
+      CATCH_BOUNDS_ERRORS {
+        show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
+      }
+      ENDTRY;
     }
   }
 
@@ -699,9 +738,21 @@ if (gcsna_handle) {
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_CELevel);
     if ((s1ap_is_nbiot_ue(actx->pinfo) && (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_AUTOMATIC)) ||
         (g_s1ap_dissect_lte_container_as == S1AP_LTE_CONTAINER_NBIOT)) {
-      dissect_lte_rrc_UEPagingCoverageInformation_NB_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      TRY {
+        dissect_lte_rrc_UEPagingCoverageInformation_NB_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      }
+      CATCH_BOUNDS_ERRORS {
+        show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
+      }
+      ENDTRY;
     } else {
-      dissect_lte_rrc_UEPagingCoverageInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      TRY {
+        dissect_lte_rrc_UEPagingCoverageInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      }
+      CATCH_BOUNDS_ERRORS {
+        show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
+      }
+      ENDTRY;
     }
   }
 
@@ -716,7 +767,13 @@ if (gcsna_handle) {
 
   if (g_s1ap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UE_RLF_Report_Container);
-    dissect_lte_rrc_RLF_Report_r9_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      TRY {
+        dissect_lte_rrc_RLF_Report_r9_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      }
+      CATCH_BOUNDS_ERRORS {
+        show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
+      }
+      ENDTRY;
   }
 
 #.FN_BODY UE-RLF-Report-Container-for-extended-bands VAL_PTR = &parameter_tvb
@@ -744,7 +801,13 @@ if (gcsna_handle) {
 
   if (g_s1ap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_UE_RLF_Report_Container);
-    dissect_lte_rrc_RLF_Report_r9_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      TRY {
+        dissect_lte_rrc_RLF_Report_r9_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      }
+      CATCH_BOUNDS_ERRORS {
+        show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
+      }
+      ENDTRY;
   }
 
 #.TYPE_ATTR
@@ -855,7 +918,13 @@ Time-UE-StayedInCell-EnhancedGranularity DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC
 
   if (g_s1ap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_LastVisitedNGRANCellInformation);
-    dissect_ngap_LastVisitedNGRANCellInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+    TRY {
+        dissect_ngap_LastVisitedNGRANCellInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      }
+      CATCH_BOUNDS_ERRORS {
+        show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
+      }
+      ENDTRY;
   }
 
 #.FN_BODY LastVisitedUTRANCellInformation VAL_PTR = &parameter_tvb
@@ -867,7 +936,14 @@ Time-UE-StayedInCell-EnhancedGranularity DISPLAY = BASE_CUSTOM STRINGS = CF_FUNC
 
   if (g_s1ap_dissect_container) {
     subtree = proto_item_add_subtree(actx->created_item, ett_s1ap_LastVisitedUTRANCellInformation);
-    dissect_ranap_LastVisitedUTRANCell_Item_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+    TRY {
+        dissect_ranap_LastVisitedUTRANCell_Item_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+      }
+      CATCH_BOUNDS_ERRORS {
+        show_exception(parameter_tvb, actx->pinfo, subtree, EXCEPT_CODE, GET_MESSAGE);
+      }
+      ENDTRY;
+
   }
 
 #.TYPE_ATTR
