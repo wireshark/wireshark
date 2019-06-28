@@ -55,7 +55,7 @@ public:
     void clear();
     void writeRecent(FILE *rf);
     bool contextMenuActive();
-    QString getFilterFromRowAndColumn();
+    QString getFilterFromRowAndColumn(QModelIndex idx);
     void resetColorized();
     QString packetComment();
     void setPacketComment(QString new_comment);

@@ -1178,7 +1178,7 @@ void MainWindow::setMenusForSelectedPacket()
         }
     }
 
-    have_filter_expr = !packet_list_->getFilterFromRowAndColumn().isEmpty();
+    have_filter_expr = !packet_list_->getFilterFromRowAndColumn(packet_list_->currentIndex()).isEmpty();
 
     main_ui_->actionEditMarkPacket->setEnabled(frame_selected);
     main_ui_->actionEditMarkAllDisplayed->setEnabled(have_frames);
@@ -2588,7 +2588,7 @@ void MainWindow::matchFieldFilter(FilterAction::Action action, FilterAction::Act
     QString field_filter;
 
     if (packet_list_->contextMenuActive() || packet_list_->hasFocus()) {
-        field_filter = packet_list_->getFilterFromRowAndColumn();
+        field_filter = packet_list_->getFilterFromRowAndColumn(packet_list_->currentIndex());
     } else if (capture_file_.capFile() && capture_file_.capFile()->finfo_selected) {
         char *tmp_field = proto_construct_match_selected_string(capture_file_.capFile()->finfo_selected,
                                                                 capture_file_.capFile()->edt);

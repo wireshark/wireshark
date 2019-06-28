@@ -598,7 +598,6 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     ctx_menu_.addAction(action);
 
     decode_as_->setData(QVariant::fromValue(true));
-    ctx_column_ = columnAt(event->x());
 
     // Set menu sensitivity for the current column and set action data.
     if ( frameData )
@@ -607,7 +606,6 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
         emit frameSelected(-1);
 
     ctx_menu_.exec(event->globalPos());
-    ctx_column_ = -1;
     decode_as_->setData(QVariant());
 }
 
@@ -672,11 +670,11 @@ void PacketList::mouseMoveEvent (QMouseEvent *event)
         QMimeData * mimeData = nullptr;
         QWidget * content = nullptr;
 
-        QString filter = getFilterFromRowAndColumn();
+        QString filter = getFilterFromRowAndColumn(curIndex);
         if ( ! filter.isEmpty() )
         {
             QString abbrev;
-            QString name = model()->headerData(ctx_column_, header()->orientation()).toString();
+            QString name = model()->headerData(curIndex.column(), header()->orientation()).toString();
 
             if ( ! filter.isEmpty() )
             {
@@ -1060,13 +1058,19 @@ bool PacketList::contextMenuActive()
     return ctx_column_ >= 0 ? true : false;
 }
 
-QString PacketList::getFilterFromRowAndColumn()
+QString PacketList::getFilterFromRowAndColumn(QModelIndex idx)
 {
     frame_data *fdata;
     QString filter;
-    int row = currentIndex().row();
 
-    if (!cap_file_ || !packet_list_model_ || ctx_column_ < 0 || ctx_column_ >= cap_file_->cinfo.num_cols) return filter;
+    if ( ! idx.isValid() )
+        return filter;
+
+    int row = idx.row();
+    int column = idx.column();
+
+    if (!cap_file_ || !packet_list_model_ || column < 0 || column >= cap_file_->cinfo.num_cols)
+        return filter;
 
     fdata = packet_list_model_->getRowFdata(row);
 
@@ -1091,8 +1095,8 @@ QString PacketList::getFilterFromRowAndColumn()
                          fdata, &cap_file_->cinfo);
         epan_dissect_fill_in_columns(&edt, TRUE, TRUE);
 
-        if ((cap_file_->cinfo.columns[ctx_column_].col_custom_occurrence) ||
-            (strchr (cap_file_->cinfo.col_expr.col_expr_val[ctx_column_], ',') == NULL))
+        if ((cap_file_->cinfo.columns[column].col_custom_occurrence) ||
+            (strchr (cap_file_->cinfo.col_expr.col_expr_val[column], ',') == NULL))
         {
             /* Only construct the filter when a single occurrence is displayed
              * otherwise we might end up with a filter like "ip.proto==1,6".
@@ -1101,20 +1105,20 @@ QString PacketList::getFilterFromRowAndColumn()
              * the filter might be calculated as "ip.proto==1 && ip.proto==6"
              * instead?
              */
-            if (strlen(cap_file_->cinfo.col_expr.col_expr[ctx_column_]) != 0 &&
-                strlen(cap_file_->cinfo.col_expr.col_expr_val[ctx_column_]) != 0) {
+            if (strlen(cap_file_->cinfo.col_expr.col_expr[column]) != 0 &&
+                strlen(cap_file_->cinfo.col_expr.col_expr_val[column]) != 0) {
                 gboolean is_string_value = FALSE;
-                if (cap_file_->cinfo.columns[ctx_column_].col_fmt == COL_CUSTOM) {
-                    header_field_info *hfi = proto_registrar_get_byname(cap_file_->cinfo.columns[ctx_column_].col_custom_fields);
+                if (cap_file_->cinfo.columns[column].col_fmt == COL_CUSTOM) {
+                    header_field_info *hfi = proto_registrar_get_byname(cap_file_->cinfo.columns[column].col_custom_fields);
                     if (hfi && hfi->parent == -1) {
                         /* Protocol only */
-                        filter.append(cap_file_->cinfo.col_expr.col_expr[ctx_column_]);
+                        filter.append(cap_file_->cinfo.col_expr.col_expr[column]);
                     } else if (hfi && hfi->type == FT_STRING) {
                         /* Custom string, add quotes */
                         is_string_value = TRUE;
                     }
                 } else {
-                    header_field_info *hfi = proto_registrar_get_byname(cap_file_->cinfo.col_expr.col_expr[ctx_column_]);
+                    header_field_info *hfi = proto_registrar_get_byname(cap_file_->cinfo.col_expr.col_expr[column]);
                     if (hfi && hfi->type == FT_STRING) {
                         /* Could be an address type such as usb.src which must be quoted. */
                         is_string_value = TRUE;
@@ -1124,12 +1128,12 @@ QString PacketList::getFilterFromRowAndColumn()
                 if (filter.isEmpty()) {
                     if (is_string_value) {
                         filter.append(QString("%1 == \"%2\"")
-                                      .arg(cap_file_->cinfo.col_expr.col_expr[ctx_column_])
-                                      .arg(cap_file_->cinfo.col_expr.col_expr_val[ctx_column_]));
+                                      .arg(cap_file_->cinfo.col_expr.col_expr[column])
+                                      .arg(cap_file_->cinfo.col_expr.col_expr_val[column]));
                     } else {
                         filter.append(QString("%1 == %2")
-                                      .arg(cap_file_->cinfo.col_expr.col_expr[ctx_column_])
-                                      .arg(cap_file_->cinfo.col_expr.col_expr_val[ctx_column_]));
+                                      .arg(cap_file_->cinfo.col_expr.col_expr[column])
+                                      .arg(cap_file_->cinfo.col_expr.col_expr_val[column]));
                     }
                 }
             }
