@@ -669,7 +669,7 @@ void BluetoothDeviceDialog::on_actionSave_as_image_triggered()
 
     if (fileName.isEmpty()) return;
 
-    image = QPixmap::grabWidget(ui->tableWidget);
+    image = ui->tableWidget->grab();
     image.save(fileName, "PNG");
 }
 

@@ -179,7 +179,6 @@ ResolvedAddressesDialog::ResolvedAddressesDialog(QWidget *parent, CaptureFile *c
     ui->plainTextEdit->setFont(wsApp->monospaceFont());
     ui->plainTextEdit->setReadOnly(true);
     ui->plainTextEdit->setWordWrapMode(QTextOption::NoWrap);
-    ui->plainTextEdit->setTabStopWidth(ui->plainTextEdit->fontMetrics().averageCharWidth() * 8);
 
     if (capture_file->isValid()) {
         wtap* wth = capture_file->capFile()->provider.wth;

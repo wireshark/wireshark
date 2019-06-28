@@ -302,7 +302,7 @@ void WelcomePage::updateRecentCaptures() {
         rfItem->setFlags(ri->accessible ? Qt::ItemIsSelectable | Qt::ItemIsEnabled : Qt::NoItemFlags);
         rfItem->setFont(rfFont);
         if (ri->filename == selectedFilename) {
-            recent_files_->setItemSelected(rfItem, true);
+            rfItem->setSelected(true);
         }
         rfRow++;
     }
