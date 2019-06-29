@@ -154,7 +154,7 @@ DIAG_ON(frame-larger-than=)
 #include "voip_calls_dialog.h"
 #include "wireshark_application.h"
 #include "wlan_statistics_dialog.h"
-#include "wireless_timeline.h"
+#include <ui/qt/widgets/wireless_timeline.h>
 
 #include <QClipboard>
 #include <QFileInfo>

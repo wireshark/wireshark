@@ -3031,7 +3031,7 @@
   <customwidget>
    <class>WirelessTimeline</class>
    <extends>QWidget</extends>
-   <header>wireless_timeline.h</header>
+   <header>widgets/wireless_timeline.h</header>
    <container>1</container>
   </customwidget>
  </customwidgets>

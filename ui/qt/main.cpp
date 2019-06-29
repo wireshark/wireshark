@@ -90,7 +90,7 @@
 #include "ui/qt/service_response_time_dialog.h"
 #include "ui/qt/simple_dialog.h"
 #include "ui/qt/simple_statistics_dialog.h"
-#include "ui/qt/splash_overlay.h"
+#include <ui/qt/widgets/splash_overlay.h>
 #include "ui/qt/wireshark_application.h"
 
 #include "caputils/capture-pcap-util.h"

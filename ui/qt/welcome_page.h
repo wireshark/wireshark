@@ -16,7 +16,7 @@ class QListWidget;
 class QListWidgetItem;
 class QMenu;
 
-#include "splash_overlay.h"
+#include <ui/qt/widgets/splash_overlay.h>
 #include "interface_frame.h"
 
 namespace Ui {
