@@ -374,8 +374,13 @@ void SyntaxLineEdit::paintEvent(QPaintEvent *event)
     initStyleOption(&opt);
     QRect cr = style()->subElementRect(QStyle::SE_LineEditContents, &opt, this);
     QRect sir = QRect(0, 0, 14, 14); // QIcon::paint scales, which is not what we want.
+    int textWidth = fontMetrics().boundingRect(text()).width();
+    // Qt always adds a margin of 6px between the border and text, see
+    // QLineEditPrivate::effectiveLeftTextMargin and
+    // QLineEditPrivate::sideWidgetParameters.
+    int margin = 2 * 6 + 1;
 
-    if (fontMetrics().width(text()) + cr.height() > cr.width() || cr.height() < sir.height()) {
+    if (cr.width() - margin - textWidth < sir.width() || cr.height() < sir.height()) {
         // No space to draw
         return;
     }

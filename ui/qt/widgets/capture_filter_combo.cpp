@@ -29,7 +29,7 @@ CaptureFilterCombo::CaptureFilterCombo(QWidget *parent, bool plain) :
     // Enabling autocompletion here gives us two simultaneous completions:
     // Inline (highlighted text) for entire filters, handled here and popup
     // completion for fields handled by CaptureFilterEdit.
-    setAutoCompletion(false);
+    setCompleter(0);
     setLineEdit(cf_edit_);
     // Default is Preferred.
     setSizePolicy(QSizePolicy::MinimumExpanding, sizePolicy().verticalPolicy());

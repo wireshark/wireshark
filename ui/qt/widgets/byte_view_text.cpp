@@ -343,7 +343,7 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
     if (show_offset_) {
         line = QString(" %1 ").arg(offset, offsetChars(false), 16, QChar('0'));
         if (build_x_pos) {
-            x_pos_to_column_.fill(-1, fontMetrics().width(line));
+            x_pos_to_column_.fill(-1, fontMetrics().boundingRect(line).width());
         }
     }
 
@@ -378,19 +378,19 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
                 break;
             }
             if (build_x_pos) {
-                x_pos_to_column_ += QVector<int>().fill(tvb_pos - offset, fontMetrics().width(line) - x_pos_to_column_.size() + slop);
+                x_pos_to_column_ += QVector<int>().fill(tvb_pos - offset, fontMetrics().boundingRect(line).width() - x_pos_to_column_.size() + slop);
             }
             if (tvb_pos == hovered_byte_offset_ || tvb_pos == marked_byte_offset_) {
                 int ho_len = recent.gui_bytes_view == BYTES_HEX ? 2 : 8;
                 QRect ho_rect = painter->boundingRect(QRect(), Qt::AlignHCenter|Qt::AlignVCenter, line.right(ho_len));
-                ho_rect.moveRight(fontMetrics().width(line));
+                ho_rect.moveRight(fontMetrics().boundingRect(line).width());
                 ho_rect.moveTop(row_y);
                 hover_outlines_.append(ho_rect);
             }
         }
         line += QString(ascii_start - line.length(), ' ');
         if (build_x_pos) {
-            x_pos_to_column_ += QVector<int>().fill(-1, fontMetrics().width(line) - x_pos_to_column_.size());
+            x_pos_to_column_ += QVector<int>().fill(-1, fontMetrics().boundingRect(line).width() - x_pos_to_column_.size());
         }
 
         addHexFormatRange(fmt_list, proto_start_, proto_len_, offset, max_tvb_pos, ModeProtocol);
@@ -439,11 +439,11 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
                 }
             }
             if (build_x_pos) {
-                x_pos_to_column_ += QVector<int>().fill(tvb_pos - offset, fontMetrics().width(line) - x_pos_to_column_.size());
+                x_pos_to_column_ += QVector<int>().fill(tvb_pos - offset, fontMetrics().boundingRect(line).width() - x_pos_to_column_.size());
             }
             if (tvb_pos == hovered_byte_offset_ || tvb_pos == marked_byte_offset_) {
                 QRect ho_rect = painter->boundingRect(QRect(), 0, line.right(1));
-                ho_rect.moveRight(fontMetrics().width(line));
+                ho_rect.moveRight(fontMetrics().boundingRect(line).width());
                 ho_rect.moveTop(row_y);
                 hover_outlines_.append(ho_rect);
             }
@@ -462,9 +462,17 @@ void ByteViewText::drawLine(QPainter *painter, const int offset, const int row_y
     addFormatRange(fmt_list, 0, offsetChars(), offset_mode);
 
     layout_->clearLayout();
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
+    layout_->clearFormats();
+#else
     layout_->clearAdditionalFormats();
+#endif
     layout_->setText(line);
+#if QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)
+    layout_->setFormats(fmt_list.toVector());
+#else
     layout_->setAdditionalFormats(fmt_list);
+#endif
     layout_->beginLayout();
     QTextLine tl = layout_->createLine();
     tl.setLineWidth(totalPixels());
@@ -567,7 +575,7 @@ int ByteViewText::offsetPixels()
     if (show_offset_) {
         // One pad space before and after
         QString zeroes = QString(offsetChars(), '0');
-        return fontMetrics().width(zeroes);
+        return fontMetrics().boundingRect(zeroes).width();
     }
     return 0;
 }
@@ -578,7 +586,7 @@ int ByteViewText::hexPixels()
     if (show_hex_) {
         // One pad space before and after
         QString zeroes = QString(DataPrinter::hexChars() + 2, '0');
-        return fontMetrics().width(zeroes);
+        return fontMetrics().boundingRect(zeroes).width();
     }
     return 0;
 }
@@ -589,7 +597,7 @@ int ByteViewText::asciiPixels()
         // Two pad spaces before, one after
         int ascii_chars = (row_width_ + ((row_width_ - 1) / separator_interval_));
         QString zeroes = QString(ascii_chars + 3, '0');
-        return fontMetrics().width(zeroes);
+        return fontMetrics().boundingRect(zeroes).width();
     }
     return 0;
 }
