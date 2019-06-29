@@ -32,7 +32,7 @@ DisplayFilterCombo::DisplayFilterCombo(QWidget *parent) :
     // Enabling autocompletion here gives us two simultaneous completions:
     // Inline (highlighted text) for entire filters, handled here and popup
     // completion for fields handled by DisplayFilterEdit.
-    setAutoCompletion(false);
+    setCompleter(0);
     setLineEdit(new DisplayFilterEdit(this, DisplayFilterToApply));
     // Default is Preferred.
     setSizePolicy(QSizePolicy::MinimumExpanding, sizePolicy().verticalPolicy());

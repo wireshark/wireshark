@@ -565,7 +565,7 @@ void AdvancedPrefsModel::setFirstColumnSpanned(QTreeView* tree, const QModelInde
             if (childCount > 0) {
                 tree->setFirstColumnSpanned(mIndex.row(), mIndex.parent(), true);
                 for (row = 0; row < childCount; row++) {
-                    setFirstColumnSpanned(tree, mIndex.child(row, 0));
+                    setFirstColumnSpanned(tree, index(row, 0, mIndex));
                 }
             }
         }
