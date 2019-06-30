@@ -3952,24 +3952,29 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
         pcap_src = g_array_index(global_ld.pcaps, capture_src *, i);
         if (pcap_src->pcap_err) {
             /* On Linux, if an interface goes down while you're capturing on it,
-               you'll get a "recvfrom: Network is down" or
-               "The interface went down" error (ENETDOWN).
+               you'll get "recvfrom: Network is down".
                (At least you will if g_strerror() doesn't show a local translation
                of the error.)
 
                On FreeBSD, DragonFly BSD, and macOS, if a network adapter
-               disappears while you're capturing on it, you'll get a
+               disappears while you're capturing on it, you'll get
                "read: Device not configured" error (ENXIO).  (See previous
                parenthetical note.)
 
                On OpenBSD, you get "read: I/O error" (EIO) in the same case.
 
+               With WinPcap and Npcap, you'll get
+               "read error: PacketReceivePacket failed".
+
+               Newer versions of libpcap map some or all of those to just
+               "The interface went down".
+
                These should *not* be reported to the Wireshark developers. */
             char *cap_err_str;
 
             cap_err_str = pcap_geterr(pcap_src->pcap_h);
-            if (strcmp(cap_err_str, "recvfrom: Network is down") == 0 ||
-                strcmp(cap_err_str, "The interface went down") == 0 ||
+            if (strcmp(cap_err_str, "The interface went down") == 0 ||
+                strcmp(cap_err_str, "recvfrom: Network is down") == 0 ||
                 strcmp(cap_err_str, "read: Device not configured") == 0 ||
                 strcmp(cap_err_str, "read: I/O error") == 0 ||
                 strcmp(cap_err_str, "read error: PacketReceivePacket failed") == 0) {
