@@ -246,6 +246,20 @@ HorizontalWithVerticalVelocityAndUncertainty/horizontalUncertaintySpeed DISPLAY=
 #.TYPE_ATTR
 HorizontalWithVerticalVelocityAndUncertainty/verticalUncertaintySpeed DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_kmh
 
+#.FN_BODY UpdateCapabilities-r15 VAL_PTR = &upd_cap_r15_tvb LEN_PTR = &len
+  tvbuff_t *upd_cap_r15_tvb = NULL;
+  int len;
+
+%(DEFAULT_BODY)s
+  if(upd_cap_r15_tvb){
+    proto_tree *subtree;
+
+    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
+    if (len >= 1) {
+      proto_tree_add_item(subtree, hf_lpp_UpdateCapabilities_r15_primaryCellID_r15, upd_cap_r15_tvb, 0, 1, ENC_BIG_ENDIAN);
+    }
+  }
+
 #.TYPE_ATTR
 PolygonPoints/degreesLatitude DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_degreesLatitude_fmt)
 

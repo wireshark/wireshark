@@ -1,4 +1,4 @@
--- 3GPP TS 36.355 V15.2.0 (2018-12)
+-- 3GPP TS 36.355 V15.4.0 (2019-06)
 --
 
 LPP-PDU-Definitions {
@@ -478,7 +478,10 @@ NCGI-r15 ::= SEQUENCE {
 
 PeriodicAssistanceDataControlParameters-r15 ::= SEQUENCE {
 	periodicSessionID-r15			PeriodicSessionID-r15,
-	...
+	...,
+	[[
+		updateCapabilities-r15		UpdateCapabilities-r15		OPTIONAL
+	]]
 }
 
 PeriodicSessionID-r15 ::= SEQUENCE {
@@ -486,6 +489,8 @@ PeriodicSessionID-r15 ::= SEQUENCE {
 	periodicSessionNumber-r15		INTEGER (0..255),
 	...
 }
+
+UpdateCapabilities-r15 ::= BIT STRING {primaryCellID-r15	(0)} (SIZE(1..8))
 
 
 Polygon ::= SEQUENCE (SIZE (3..15)) OF PolygonPoints
