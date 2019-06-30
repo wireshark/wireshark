@@ -10,17 +10,16 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+/*
+ * Callers MUST check GCRYPT_VERSION_NUMBER >= 0x010700 before using this API.
+ */
+
 #ifndef __CURVE25519_H__
 #define __CURVE25519_H__
 
 #include "ws_symbol_export.h"
 #include "wsgcrypt.h"
 
-#if GCRYPT_VERSION_NUMBER >= 0x010700 /* 1.7.0 */
-#define HAVE_X25519
-#endif
-
-#ifdef HAVE_X25519
 /*
  * Computes Q = X25519(n, P). In other words, given the secret key n, the public
  * key P, compute the shared secret Q. Each key is 32 bytes long.
@@ -36,6 +35,5 @@ int crypto_scalarmult_curve25519(unsigned char *q, const unsigned char *n,
  */
 WS_DLL_PUBLIC
 int crypto_scalarmult_curve25519_base(unsigned char *q, const unsigned char *n);
-#endif /* HAVE_X25519 */
 
 #endif /* __CURVE25519_H__ */
