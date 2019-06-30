@@ -672,7 +672,7 @@ static const value_string userdata_lastdataunit_names[] = {
 static const value_string userdata_functiongroup_names[] = {
     { S7COMM_UD_FUNCGROUP_MODETRANS,        "Mode-transition" },
     { S7COMM_UD_FUNCGROUP_PROG,             "Programmer commands" },
-    { S7COMM_UD_FUNCGROUP_CYCLIC,           "Cyclic data" },        /* to read data from plc without a request */
+    { S7COMM_UD_FUNCGROUP_CYCLIC,           "Cyclic services" },    /* to read data from plc without a request */
     { S7COMM_UD_FUNCGROUP_BLOCK,            "Block functions" },
     { S7COMM_UD_FUNCGROUP_CPU,              "CPU functions" },
     { S7COMM_UD_FUNCGROUP_SEC,              "Security" },
@@ -770,14 +770,26 @@ static const value_string userdata_prog_subfunc_names[] = {
 /**************************************************************************
  * Names of userdata subfunctions in group 2 (cyclic data)
  */
-#define S7COMM_UD_SUBF_CYCLIC_MEM           0x01
+#define S7COMM_UD_SUBF_CYCLIC_TRANSF        0x01
 #define S7COMM_UD_SUBF_CYCLIC_UNSUBSCRIBE   0x04
-#define S7COMM_UD_SUBF_CYCLIC_MEM2          0x05
+#define S7COMM_UD_SUBF_CYCLIC_CHANGE        0x05
+#define S7COMM_UD_SUBF_CYCLIC_CHANGE_MOD    0x07
 
 static const value_string userdata_cyclic_subfunc_names[] = {
-    { S7COMM_UD_SUBF_CYCLIC_MEM,            "Memory" },                         /* read data from memory (DB/M/etc.) */
-    { S7COMM_UD_SUBF_CYCLIC_UNSUBSCRIBE,    "Unsubscribe" },                    /* Unsubscribe (disable) cyclic data */
-    { S7COMM_UD_SUBF_CYCLIC_MEM2,           "Memory2" },                        /* same as 0x01, but only S7-400 */
+    { S7COMM_UD_SUBF_CYCLIC_TRANSF,         "Cyclic transfer" },
+    { S7COMM_UD_SUBF_CYCLIC_UNSUBSCRIBE,    "Unsubscribe" },
+    { S7COMM_UD_SUBF_CYCLIC_CHANGE,         "Change driven transfer" },
+    { S7COMM_UD_SUBF_CYCLIC_CHANGE_MOD,     "Change driven transfer modify" },
+    { 0,                                    NULL }
+};
+
+/**************************************************************************
+ * Timebase for cyclic services
+ */
+static const value_string cycl_interval_timebase_names[] = {
+    { 0,                                    "100 milliseconds" },
+    { 1,                                    "1 second" },
+    { 2,                                    "10 seconds" },
     { 0,                                    NULL }
 };
 
@@ -1490,9 +1502,11 @@ static gint hf_s7comm_vartab_req_repetition_factor = -1;    /* Repetition factor
 static gint hf_s7comm_vartab_req_db_number = -1;            /* DB number, 2 bytes as int */
 static gint hf_s7comm_vartab_req_startaddress = -1;         /* Startaddress, 2 bytes as int */
 
-/* cyclic data */
+/* cyclic services */
 static gint hf_s7comm_cycl_interval_timebase = -1;          /* Interval timebase, 1 byte, int */
 static gint hf_s7comm_cycl_interval_time = -1;              /* Interval time, 1 byte, int */
+static gint hf_s7comm_cycl_function = -1;
+static gint hf_s7comm_cycl_jobid = -1;
 
 /* PBC, Programmable Block Functions */
 static gint hf_s7comm_pbc_unknown = -1;                     /* unknown, 1 byte */
@@ -4606,11 +4620,13 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
 
 /*******************************************************************************************************
  *
- * PDU Type: User Data -> Function group 2 -> cyclic data
+ * PDU Type: User Data -> Function group 2 -> cyclic services
  *
  *******************************************************************************************************/
 static guint32
 s7comm_decode_ud_cyclic_subfunc(tvbuff_t *tvb,
+                                packet_info *pinfo,
+                                guint8 seq_num,
                                 proto_tree *data_tree,
                                 guint8 type,                /* Type of data (request/response) */
                                 guint8 subfunc,             /* Subfunction */
@@ -4622,20 +4638,25 @@ s7comm_decode_ud_cyclic_subfunc(tvbuff_t *tvb,
     guint32 len_item;
     guint8 item_count;
     guint8 i;
+    guint8 job_id;
 
     switch (subfunc)
     {
-        case S7COMM_UD_SUBF_CYCLIC_MEM:
-        case S7COMM_UD_SUBF_CYCLIC_MEM2:
+        case S7COMM_UD_SUBF_CYCLIC_CHANGE_MOD:
+            if (type == S7COMM_UD_TYPE_REQ) {
+                col_append_fstr(pinfo->cinfo, COL_INFO, " JobID=%d", seq_num);
+            }
+            /* fall through */
+        case S7COMM_UD_SUBF_CYCLIC_TRANSF:
+        case S7COMM_UD_SUBF_CYCLIC_CHANGE:
             item_count = tvb_get_guint8(tvb, offset + 1);     /* first byte reserved??? */
             proto_tree_add_uint(data_tree, hf_s7comm_param_itemcount, tvb, offset, 2, item_count);
             offset += 2;
-            if (type == S7COMM_UD_TYPE_REQ) {                   /* Request to PLC to send cyclic data */
+            if (type == S7COMM_UD_TYPE_REQ) {
                 proto_tree_add_item(data_tree, hf_s7comm_cycl_interval_timebase, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
                 proto_tree_add_item(data_tree, hf_s7comm_cycl_interval_time, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1;
-                /* parse item data */
                 for (i = 0; i < item_count; i++) {
                     offset_old = offset;
                     offset = s7comm_decode_param_item(tvb, offset, data_tree, i);
@@ -4645,12 +4666,24 @@ s7comm_decode_ud_cyclic_subfunc(tvbuff_t *tvb,
                         offset += 1;
                     }
                 }
-
-            } else if (type == S7COMM_UD_TYPE_RES || type == S7COMM_UD_TYPE_PUSH) {   /* Response from PLC with the requested data */
-                /* parse item data */
+            } else if (type == S7COMM_UD_TYPE_RES || type == S7COMM_UD_TYPE_PUSH) {
+                col_append_fstr(pinfo->cinfo, COL_INFO, " JobID=%d", seq_num);
                 offset = s7comm_decode_response_read_data(tvb, data_tree, item_count, offset);
             }
             know_data = TRUE;
+            break;
+        case S7COMM_UD_SUBF_CYCLIC_UNSUBSCRIBE:
+            if (type == S7COMM_UD_TYPE_REQ) {
+                proto_tree_add_item(data_tree, hf_s7comm_cycl_function, tvb, offset, 1, ENC_BIG_ENDIAN);
+                offset += 1;
+                proto_tree_add_item(data_tree, hf_s7comm_cycl_jobid, tvb, offset, 1, ENC_BIG_ENDIAN);
+                job_id = tvb_get_guint8(tvb, offset);
+                col_append_fstr(pinfo->cinfo, COL_INFO, " JobID=%d", job_id);
+                offset += 1;
+                know_data = TRUE;
+            } else if (type == S7COMM_UD_TYPE_RES) {
+                col_append_fstr(pinfo->cinfo, COL_INFO, " JobID=%d", seq_num);
+            }
             break;
     }
 
@@ -4782,6 +4815,7 @@ s7comm_decode_ud(tvbuff_t *tvb,
     guint8 subfunc;
     guint8 data_unit_ref = 0;
     guint8 last_data_unit = 0;
+    guint8 seq_num;
 
     /* Add parameter tree */
     item = proto_tree_add_item(tree, hf_s7comm_param, tvb, offset, plength, ENC_NA);
@@ -4879,6 +4913,7 @@ s7comm_decode_ud(tvbuff_t *tvb,
     }
     offset_temp += 1;
     /* 1 Byte sequence number  */
+    seq_num = tvb_get_guint8(tvb, offset_temp);
     proto_tree_add_item(param_tree, hf_s7comm_userdata_param_seq_num, tvb, offset_temp, 1, ENC_BIG_ENDIAN);
     offset_temp += 1;
     if (plength >= 12) {
@@ -4929,7 +4964,7 @@ s7comm_decode_ud(tvbuff_t *tvb,
                     offset = s7comm_decode_ud_prog_subfunc(tvb, data_tree, type, subfunc, dlength, offset);
                     break;
                 case S7COMM_UD_FUNCGROUP_CYCLIC:
-                    offset = s7comm_decode_ud_cyclic_subfunc(tvb, data_tree, type, subfunc, dlength, offset);
+                    offset = s7comm_decode_ud_cyclic_subfunc(tvb, pinfo, seq_num, data_tree, type, subfunc, dlength, offset);
                     break;
                 case S7COMM_UD_FUNCGROUP_BLOCK:
                     offset = s7comm_decode_ud_block_subfunc(tvb, pinfo, data_tree, type, subfunc, ret_val, tsize, len, dlength, offset);
@@ -6022,12 +6057,18 @@ proto_register_s7comm (void)
         { "Startaddress", "s7comm.vartab.req.startaddress", FT_UINT16, BASE_DEC, NULL, 0x0,
           "Startaddress / byteoffset", HFILL }},
 
-        /* cyclic data */
+        /* cyclic services */
         { &hf_s7comm_cycl_interval_timebase,
-        { "Interval timebase", "s7comm.cyclic.interval_timebase", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Interval timebase", "s7comm.cyclic.interval_timebase", FT_UINT8, BASE_DEC, VALS(cycl_interval_timebase_names), 0x0,
           NULL, HFILL }},
         { &hf_s7comm_cycl_interval_time,
-        { "Interval time", "s7comm.cyclic.interval_time", FT_UINT8, BASE_DEC, NULL, 0x0,
+        { "Interval time factor", "s7comm.cyclic.interval_time", FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cycl_function,
+        { "Function", "s7comm.cyclic.function", FT_UINT8, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_cycl_jobid,
+        { "Job-ID", "s7comm.cyclic.job_id", FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }},
 
         /* PBC, Programmable Block Functions */
