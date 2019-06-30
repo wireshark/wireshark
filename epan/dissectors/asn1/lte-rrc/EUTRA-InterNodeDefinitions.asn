@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V15.5.0 (2019-03)
+-- 3GPP TS 36.331 V15.6.0 (2019-06)
 --
 EUTRA-InterNodeDefinitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -264,7 +264,8 @@ SCG-ConfigInfo-r12-IEs ::=			SEQUENCE {
 }
 
 SCG-ConfigInfo-v1310-IEs ::=		SEQUENCE {
-	measResultSSTD-r13				MeasResultSSTD-r13					OPTIONAL,	sCellToAddModListMCG-Ext-r13		SCellToAddModListExt-r13			OPTIONAL,
+	measResultSSTD-r13				MeasResultSSTD-r13					OPTIONAL,
+	sCellToAddModListMCG-Ext-r13		SCellToAddModListExt-r13			OPTIONAL,
 	measResultServCellListSCG-Ext-r13	MeasResultServCellListSCG-Ext-r13	OPTIONAL,
 	sCellToAddModListSCG-Ext-r13		SCellToAddModListSCG-Ext-r13			OPTIONAL,
 	sCellToReleaseListSCG-Ext-r13	SCellToReleaseListExt-r13			OPTIONAL,

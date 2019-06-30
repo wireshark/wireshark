@@ -1,4 +1,4 @@
--- 3GPP TS 36.331 V15.5.0 (2019-03)
+-- 3GPP TS 36.331 V15.6.0 (2019-06)
 --
 EUTRA-RRC-Definitions DEFINITIONS AUTOMATIC TAGS ::=
 
@@ -1149,13 +1149,7 @@ RRCConnectionReconfiguration-v1510-IEs ::= SEQUENCE {
 	sk-Counter-r15					INTEGER (0.. 65535)					OPTIONAL,	-- Need ON
 	nr-RadioBearerConfig1-r15		OCTET STRING						OPTIONAL,	-- Need ON
 	nr-RadioBearerConfig2-r15		OCTET STRING						OPTIONAL,	-- Need ON
-	tdm-PatternConfig-r15			CHOICE {
-		release							NULL,
-		setup							SEQUENCE {
-			subframeAssignment-r15			SubframeAssignment-r15,
-			harq-Offset-r15					INTEGER (0.. 9)
-		}
-	}																	OPTIONAL,	-- Cond FDD-PCell
+	tdm-PatternConfig-r15			TDM-PatternConfig-r15			OPTIONAL,	-- Cond FDD-PCell
 	nonCriticalExtension			RRCConnectionReconfiguration-v1530-IEs		OPTIONAL
 }
 
@@ -1338,6 +1332,11 @@ SCG-ConfigPartSCG-r12 ::=			SEQUENCE {
 	]],
 	[[	sCellGroupToReleaseListSCG-r15	SCellGroupToReleaseList-r15	OPTIONAL,	-- Need ON
 		sCellGroupToAddModListSCG-r15	SCellGroupToAddModList-r15	OPTIONAL	-- Need ON
+	]],
+	[[	-- NE-DC addition for setup/ modification and release SN configured measurements
+		measConfigSN-r15				MeasConfig						OPTIONAL,	-- Need ON
+		-- NE-DC additions concerning DRBs/ SRBs are within RadioResourceConfigDedicatedSCG
+		tdm-PatternConfigNE-DC-r15		TDM-PatternConfig-r15			OPTIONAL	-- Need ON
 	]]
 }
 
@@ -1384,6 +1383,14 @@ SecurityConfigHO-v1530 ::=		SEQUENCE {
 		}
 	},
 	...
+}
+
+TDM-PatternConfig-r15 ::=			CHOICE {
+	release							NULL,
+	setup							SEQUENCE {
+		subframeAssignment-r15			SubframeAssignment-r15,
+		harq-Offset-r15					INTEGER (0.. 9)
+	}
 }
 
 
@@ -2961,6 +2968,11 @@ UECapabilityEnquiry-v1530-IEs ::=	SEQUENCE {
 
 UECapabilityEnquiry-v1550-IEs ::=	SEQUENCE {
 	requestedCapabilityNR-r15			OCTET STRING						OPTIONAL,
+	nonCriticalExtension				UECapabilityEnquiry-v1560-IEs		OPTIONAL
+}
+
+UECapabilityEnquiry-v1560-IEs ::=	SEQUENCE {
+	requestedCapabilityCommon-r15		OCTET STRING						OPTIONAL,
 	nonCriticalExtension				SEQUENCE {}							OPTIONAL
 }
 
@@ -6303,12 +6315,12 @@ PhysicalConfigDedicated ::=		SEQUENCE {
 	]],
 	[[	csi-RS-Config-v1480					CSI-RS-Config-v1480			OPTIONAL		-- Need ON
 	]],
-	[[	physicalConfigDedicatedSTTI-r15		PhysicalConfigDedicatedSTTI-r15	OPTIONAL, -- Need ON
-		pdsch-ConfigDedicated-v1530			PDSCH-ConfigDedicated-v1530		OPTIONAL, -- Need ON
-		pusch-ConfigDedicated-v1530		PUSCH-ConfigDedicated-v1530		OPTIONAL,	-- Need ON
-		dummy				CQI-ReportConfig-v1530			OPTIONAL,-- Need ON
+	[[	physicalConfigDedicatedSTTI-r15		PhysicalConfigDedicatedSTTI-r15	OPTIONAL,-- Need ON
+		pdsch-ConfigDedicated-v1530			PDSCH-ConfigDedicated-v1530		OPTIONAL,-- Need ON
+		pusch-ConfigDedicated-v1530			PUSCH-ConfigDedicated-v1530		OPTIONAL,-- Need ON
+		cqi-ReportConfig-v1530				CQI-ReportConfig-v1530			OPTIONAL,-- Need ON
 		antennaInfo-v1530					AntennaInfoDedicated-v1530		OPTIONAL,-- Need ON
-		csi-RS-Config-v1530				CSI-RS-Config-v1530				OPTIONAL,		-- Need ON
+		csi-RS-Config-v1530					CSI-RS-Config-v1530				OPTIONAL,-- Need ON
 		uplinkPowerControlDedicated-v1530
 									UplinkPowerControlDedicated-v1530	OPTIONAL,		-- Need ON
 		semiStaticCFI-Config-r15		CHOICE{
@@ -6463,12 +6475,12 @@ PhysicalConfigDedicatedSCell-r10 ::=		SEQUENCE {
 	]],
 	[[	csi-RS-Config-v1480					CSI-RS-Config-v1480				OPTIONAL	-- Need ON
 	]],
-	[[	physicalConfigDedicatedSTTI-r15		PhysicalConfigDedicatedSTTI-r15	OPTIONAL, 	-- Need ON
-		pdsch-ConfigDedicated-v1530		PDSCH-ConfigDedicated-v1530		OPTIONAL,	-- Need ON
-		cqi-ReportConfig-v1530			CQI-ReportConfig-v1530			OPTIONAL,	-- Need ON
+	[[	physicalConfigDedicatedSTTI-r15		PhysicalConfigDedicatedSTTI-r15	OPTIONAL,	-- Need ON
+		pdsch-ConfigDedicated-v1530			PDSCH-ConfigDedicated-v1530		OPTIONAL,	-- Need ON
+		dummy								CQI-ReportConfig-v1530			OPTIONAL,	-- Need ON
 		cqi-ReportConfigSCell-r15			CQI-ReportConfigSCell-r15		OPTIONAL,	-- Need ON
 		cqi-ShortConfigSCell-r15			CQI-ShortConfigSCell-r15		OPTIONAL,	-- Need ON
-		csi-RS-Config-v1530				CSI-RS-Config-v1530				OPTIONAL,		-- Need ON
+		csi-RS-Config-v1530					CSI-RS-Config-v1530				OPTIONAL,	-- Need ON
 	uplinkPowerControlDedicatedSCell-v1530
 									UplinkPowerControlDedicated-v1530	OPTIONAL,		-- Need ON
 		laa-SCellConfiguration-v1530		LAA-SCellConfiguration-v1530	OPTIONAL,	-- Need ON
@@ -7252,6 +7264,8 @@ RadioResourceConfigCommonSIB ::=	SEQUENCE {
 		highSpeedConfig-v1530			HighSpeedConfig-v1530				OPTIONAL	-- Need OR
 	]],
 	[[	uplinkPowerControlCommon-v1540	UplinkPowerControlCommon-v1530		OPTIONAL	-- Need OR
+	]],
+	[[	wus-Config-v1560				WUS-Config-v1560					OPTIONAL	-- Need OR
 	]]
 }
 
@@ -7489,8 +7503,8 @@ RadioResourceConfigDedicated ::=		SEQUENCE {
 	]],
 	[[	sps-Config-v1430				SPS-Config-v1430					OPTIONAL	-- Cond SPS
 	]],
-	[[	srb-ToAddModExtList-r15			SRB-ToAddModExtList-r15				OPTIONAL,	-- Need ON
-		srb-ToReleaseExtList-r15		INTEGER (4)							OPTIONAL,	-- Need ON
+	[[	srb-ToAddModListExt-r15			SRB-ToAddModListExt-r15				OPTIONAL,	-- Need ON
+		srb-ToReleaseListExt-r15		INTEGER (4)							OPTIONAL,	-- Need ON
 
 		sps-Config-v1530				SPS-Config-v1530					OPTIONAL,	-- Need ON
 
@@ -7552,6 +7566,9 @@ RadioResourceConfigDedicatedSCG-r12 ::=		SEQUENCE {
 	]],
 	[[	srb-ToAddModListSCG-r15			SRB-ToAddModList					OPTIONAL,	-- Need ON
 		srb-ToReleaseListSCG-r15			SRB-ToReleaseList-r15				OPTIONAL	-- Need ON
+	]],
+	[[	-- NE-DC additions for release of RLC bearer config for DRBs
+		drb-ToReleaseListSCG-r15		DRB-ToReleaseList-r15		OPTIONAL		-- Need ON
 	]]
 }
 
@@ -7579,7 +7596,7 @@ RadioResourceConfigDedicatedSCell-v13c0 ::=	SEQUENCE {
 
 SRB-ToAddModList ::=				SEQUENCE (SIZE (1..2)) OF SRB-ToAddMod
 
-SRB-ToAddModExtList-r15 ::=				SEQUENCE (SIZE (1)) OF SRB-ToAddMod
+SRB-ToAddModListExt-r15 ::=				SEQUENCE (SIZE (1)) OF SRB-ToAddMod
 
 SRB-ToAddMod ::=	SEQUENCE {
 	srb-Identity						INTEGER (1..2),
@@ -7596,6 +7613,8 @@ SRB-ToAddMod ::=	SEQUENCE {
 		rlc-Config-v1530				RLC-Config-v1530		OPTIONAL,			-- Need ON
 		rlc-BearerConfigSecondary-r15	RLC-BearerConfig-r15	OPTIONAL,			-- Need ON
 		srb-Identity-v1530				INTEGER (4)				OPTIONAL			-- Need ON
+	]],
+	[[	rlc-Config-v1560					RLC-Config-v1510		OPTIONAL		-- Need ON
 	]]
 }
 
@@ -7653,6 +7672,8 @@ DRB-ToAddModSCG-r12 ::=	SEQUENCE {
 	[[	logicalChannelIdentitySCG-r15		INTEGER (32..38)	OPTIONAL,			-- Need ON
 		rlc-Config-v1530					RLC-Config-v1530		OPTIONAL, 		-- Need ON
 		rlc-BearerConfigSecondary-r15		RLC-BearerConfig-r15	OPTIONAL		-- Need ON
+	]],
+	[[	rlc-Config-v1560					RLC-Config-v1510		OPTIONAL		-- Need ON
 	]]
 }
 
@@ -8851,6 +8872,10 @@ WUS-Config-r15 ::=				SEQUENCE {
 	timeOffset-eDRX-Long-r15		ENUMERATED {ms1000, ms2000}		OPTIONAL	-- Need OP
 }
 
+WUS-Config-v1560 ::=			SEQUENCE {
+	powerBoost-r15					ENUMERATED {dB0, dB1dot8, dB3, dB4dot8}
+}
+
 
 NextHopChainingCount ::=					INTEGER (0..7)
 
@@ -9390,6 +9415,9 @@ LogMeasResultWLAN-r15 ::=	SEQUENCE {
 	rtt-WLAN-r15					WLAN-RTT-r15 					OPTIONAL,
 	...
 }
+
+
+MaxRS-IndexCellQualNR-r15::=				INTEGER (1..maxRS-IndexCellQual-r15)
 
 
 MBSFN-RSRQ-Range-r12 ::=				INTEGER(0..31)
@@ -10264,6 +10292,21 @@ MeasResultCellSFTD-r15 ::=				SEQUENCE {
 }
 
 
+MeasResultSCG-FailureMRDC-r15 ::=	SEQUENCE {
+	measResultFreqListEUTRA-r15		MeasResultList3EUTRA-r15,
+	...
+}
+
+MeasResultList3EUTRA-r15 ::=		SEQUENCE (SIZE (1..maxFreq)) OF MeasResult3EUTRA-r15
+
+MeasResult3EUTRA-r15 ::=			SEQUENCE {
+	carrierFreq-r15						ARFCN-ValueEUTRA-r9,
+	measResultServingCell-r15			MeasResultEUTRA					OPTIONAL,
+	measResultNeighCellList-r15		MeasResultListEUTRA				OPTIONAL,
+	...
+}
+
+
 MeasResultSSTD-r13 ::=						SEQUENCE {
 	sfn-OffsetResult-r13						INTEGER (0..1023),
 	frameBoundaryOffsetResult-r13				INTEGER (-5..4),
@@ -10621,8 +10664,6 @@ ReportInterval ::=					ENUMERATED {
 
 
 RS-IndexNR-r15 ::=			INTEGER (0.. maxRS-Index-1-r15)
-
-MaxRS-IndexCellQualNR-r15::=				INTEGER (1..maxRS-IndexCellQual-r15)
 
 
 RSRP-Range ::=						INTEGER(0..97)
@@ -11101,9 +11142,14 @@ UE-EUTRA-Capability-v1390-IEs ::= SEQUENCE {
 }
 
 UE-EUTRA-Capability-v13x0-IEs ::= SEQUENCE {
-	-- Following field is only to be used for late REL-13 extensions
-	lateNonCriticalExtension			OCTET STRING							OPTIONAL,
+	lateNonCriticalExtension			OCTET STRING (CONTAINING UE-EUTRA-Capability-v13e0-IEs)							OPTIONAL,
 	nonCriticalExtension				UE-EUTRA-Capability-v1470-IEs			OPTIONAL
+}
+
+UE-EUTRA-Capability-v13e0-IEs ::= SEQUENCE {
+	phyLayerParameters-v13e0			PhyLayerParameters-v13e0,
+	-- Following field is only to be used for late REL-13 extensions
+	nonCriticalExtension				SEQUENCE {}								OPTIONAL
 }
 
 UE-EUTRA-Capability-v1470-IEs ::= SEQUENCE {
@@ -11116,7 +11162,12 @@ UE-EUTRA-Capability-v1470-IEs ::= SEQUENCE {
 UE-EUTRA-Capability-v14a0-IEs ::= SEQUENCE {
 	phyLayerParameters-v14a0				PhyLayerParameters-v14a0,
 	-- Following field is only to be used for late REL-14 extensions
-	nonCriticalExtension					SEQUENCE {}								OPTIONAL
+	nonCriticalExtension					UE-EUTRA-Capability-v14b0-IEs			OPTIONAL
+}
+
+UE-EUTRA-Capability-v14b0-IEs ::= SEQUENCE {
+	rf-Parameters-v14b0				RF-Parameters-v14b0				OPTIONAL,
+	nonCriticalExtension				SEQUENCE {}					OPTIONAL
 }
 
 -- Regular non critical extensions
@@ -11133,8 +11184,7 @@ UE-EUTRA-Capability-v920-IEs ::=		SEQUENCE {
 }
 
 UE-EUTRA-Capability-v940-IEs ::=	SEQUENCE {
-	lateNonCriticalExtension			OCTET STRING (CONTAINING UE-EUTRA-Capability-v9a0-IEs)
-																				OPTIONAL,
+	lateNonCriticalExtension			OCTET STRING (CONTAINING UE-EUTRA-Capability-v9a0-IEs)			OPTIONAL,
 	nonCriticalExtension				UE-EUTRA-Capability-v1020-IEs			OPTIONAL
 }
 
@@ -11380,6 +11430,15 @@ UE-EUTRA-Capability-v1550-IEs ::= SEQUENCE {
 	mac-Parameters-v1550					MAC-Parameters-v1550,
 	fdd-Add-UE-EUTRA-Capabilities-v1550		UE-EUTRA-CapabilityAddXDD-Mode-v1550,
 	tdd-Add-UE-EUTRA-Capabilities-v1550		UE-EUTRA-CapabilityAddXDD-Mode-v1550,
+	nonCriticalExtension					UE-EUTRA-Capability-v1560-IEs	OPTIONAL
+}
+
+UE-EUTRA-Capability-v1560-IEs ::= SEQUENCE {
+	pdcp-ParametersNR-v1560				PDCP-ParametersNR-v1560,
+	irat-ParametersNR-v1560				IRAT-ParametersNR-v1560,
+	appliedCapabilityFilterCommon-r15		OCTET STRING							OPTIONAL,
+	fdd-Add-UE-EUTRA-Capabilities-v1560	UE-EUTRA-CapabilityAddXDD-Mode-v1560,
+	tdd-Add-UE-EUTRA-Capabilities-v1560	UE-EUTRA-CapabilityAddXDD-Mode-v1560,
 	nonCriticalExtension					SEQUENCE {}								OPTIONAL
 }
 
@@ -11458,6 +11517,10 @@ UE-EUTRA-CapabilityAddXDD-Mode-v1540 ::=	SEQUENCE {
 
 UE-EUTRA-CapabilityAddXDD-Mode-v1550 ::=	SEQUENCE {
 	neighCellSI-AcquisitionParameters-v1550	NeighCellSI-AcquisitionParameters-v1550	OPTIONAL
+}
+
+UE-EUTRA-CapabilityAddXDD-Mode-v1560 ::=	SEQUENCE {
+	pdcp-ParametersNR-v1560					PDCP-ParametersNR-v1560
 }
 
 AccessStratumRelease ::=			ENUMERATED {
@@ -11679,6 +11742,10 @@ PhyLayerParameters-v1330 ::=			SEQUENCE {
 	crs-InterfMitigationTM1toTM9-r13		INTEGER (1.. maxServCell-r13)	OPTIONAL
 }
 
+PhyLayerParameters-v13e0 ::=			SEQUENCE {
+	mimo-UE-Parameters-v13e0				MIMO-UE-Parameters-v13e0	
+}
+
 PhyLayerParameters-v1430 ::=			SEQUENCE {
 	ce-PUSCH-NB-MaxTBS-r14					ENUMERATED {supported}			OPTIONAL,
 	ce-PDSCH-PUSCH-MaxBandwidth-r14			ENUMERATED {bw5, bw20}			OPTIONAL,
@@ -11810,6 +11877,10 @@ MIMO-UE-Parameters-r13 ::=				SEQUENCE {
 	interferenceMeasRestriction-r13			ENUMERATED {supported}			OPTIONAL
 }
 
+MIMO-UE-Parameters-v13e0 ::=			SEQUENCE {
+	mimo-WeightedLayersCapabilities-r13		MIMO-WeightedLayersCapabilities-r13	OPTIONAL
+}
+
 MIMO-UE-Parameters-v1430 ::=			SEQUENCE {
 	parametersTM9-v1430						MIMO-UE-ParametersPerTM-v1430	OPTIONAL,
 	parametersTM10-v1430					MIMO-UE-ParametersPerTM-v1430	OPTIONAL
@@ -11910,7 +11981,14 @@ MIMO-BeamformedCapabilityList-r13 ::=		SEQUENCE (SIZE (1..maxCSI-Proc-r11)) OF M
 MIMO-BeamformedCapabilities-r13 ::=		SEQUENCE {
 	k-Max-r13								INTEGER (1..8),
 	n-MaxList-r13							BIT STRING (SIZE (1..7))		OPTIONAL
- }
+}
+
+MIMO-WeightedLayersCapabilities-r13 ::=		SEQUENCE {
+	relWeightTwoLayers-r13	ENUMERATED {v1, v1dot25, v1dot5, v1dot75, v2, v2dot5, v3, v4},
+	relWeightFourLayers-r13	ENUMERATED {v1, v1dot25, v1dot5, v1dot75, v2, v2dot5, v3, v4}	OPTIONAL,
+	relWeightEightLayers-r13	ENUMERATED {v1, v1dot25, v1dot5, v1dot75, v2, v2dot5, v3, v4}	OPTIONAL,
+	totalWeightedLayers-r13	INTEGER (2..128)
+}
 
 NonContiguousUL-RA-WithinCC-List-r10 ::= SEQUENCE (SIZE (1..maxBands)) OF NonContiguousUL-RA-WithinCC-r10
 
@@ -12035,6 +12113,12 @@ RF-Parameters-v1470 ::=				SEQUENCE {
 	supportedBandCombinationReduced-v1470	SupportedBandCombinationReduced-v1470	OPTIONAL
 }
 
+RF-Parameters-v14b0 ::=				SEQUENCE {
+	supportedBandCombination-v14b0			SupportedBandCombination-v14b0			OPTIONAL,
+	supportedBandCombinationAdd-v14b0		SupportedBandCombinationAdd-v14b0		OPTIONAL,
+	supportedBandCombinationReduced-v14b0	SupportedBandCombinationReduced-v14b0	OPTIONAL
+}
+
 RF-Parameters-v1530 ::=				SEQUENCE {
 	sTTI-SPT-Supported-r15					ENUMERATED {supported} 					OPTIONAL,
 	supportedBandCombination-v1530			SupportedBandCombination-v1530			OPTIONAL,
@@ -12112,6 +12196,8 @@ SupportedBandCombination-v1450 ::= SEQUENCE (SIZE (1..maxBandComb-r10)) OF BandC
 
 SupportedBandCombination-v1470 ::= SEQUENCE (SIZE (1..maxBandComb-r10)) OF BandCombinationParameters-v1470
 
+SupportedBandCombination-v14b0 ::= SEQUENCE (SIZE (1..maxBandComb-r10)) OF BandCombinationParameters-v14b0
+
 SupportedBandCombination-v1530 ::= SEQUENCE (SIZE (1..maxBandComb-r10)) OF BandCombinationParameters-v1530
 
 SupportedBandCombinationAdd-r11 ::= SEQUENCE (SIZE (1..maxBandComb-r11)) OF BandCombinationParameters-r11
@@ -12134,6 +12220,8 @@ SupportedBandCombinationAdd-v1450 ::= SEQUENCE (SIZE (1..maxBandComb-r11)) OF Ba
 
 SupportedBandCombinationAdd-v1470 ::= SEQUENCE (SIZE (1..maxBandComb-r11)) OF BandCombinationParameters-v1470
 
+SupportedBandCombinationAdd-v14b0 ::= SEQUENCE (SIZE (1..maxBandComb-r11)) OF BandCombinationParameters-v14b0
+
 SupportedBandCombinationAdd-v1530 ::= SEQUENCE (SIZE (1..maxBandComb-r11)) OF BandCombinationParameters-v1530
 
 SupportedBandCombinationReduced-r13 ::=	SEQUENCE (SIZE (1..maxBandComb-r13)) OF BandCombinationParameters-r13
@@ -12149,6 +12237,8 @@ SupportedBandCombinationReduced-v1430 ::=	SEQUENCE (SIZE (1..maxBandComb-r13)) O
 SupportedBandCombinationReduced-v1450 ::=	SEQUENCE (SIZE (1..maxBandComb-r13)) OF BandCombinationParameters-v1450
 
 SupportedBandCombinationReduced-v1470 ::=	SEQUENCE (SIZE (1..maxBandComb-r13)) OF BandCombinationParameters-v1470
+
+SupportedBandCombinationReduced-v14b0 ::=	SEQUENCE (SIZE (1..maxBandComb-r13)) OF BandCombinationParameters-v14b0
 
 SupportedBandCombinationReduced-v1530 ::=	SEQUENCE (SIZE (1..maxBandComb-r13)) OF BandCombinationParameters-v1530
 
@@ -12253,11 +12343,17 @@ BandCombinationParameters-v1470 ::= SEQUENCE {
 	srs-MaxSimultaneousCCs-r14	INTEGER (1..31)				OPTIONAL
 }
 
+BandCombinationParameters-v14b0 ::= SEQUENCE {
+	bandParameterList-v14b0			SEQUENCE (SIZE (1..maxSimultaneousBands-r10)) OF
+			BandParameters-v14b0		OPTIONAL
+}
+
 BandCombinationParameters-v1530 ::= SEQUENCE {
 	bandParameterList-v1530 		SEQUENCE (SIZE (1..maxSimultaneousBands-r10)) OF 							BandParameters-v1530		OPTIONAL,
 	spt-Parameters-r15				SPT-Parameters-r15				OPTIONAL
 }
--- If an additional band combination parameter is defined, which are supported for EN-DC, it shall be defined in the IE CA-ParametersEUTRA in TS 38.331 [82].
+-- If an additional band combination parameter is defined, which is supported for MR-DC,
+--  it shall be defined in the IE CA-ParametersEUTRA in TS 38.331 [82].
 
 SupportedBandwidthCombinationSet-r10 ::=	BIT STRING (SIZE (1..maxBandwidthCombSet-r10))
 
@@ -12311,8 +12407,8 @@ BandParameters-v1430 ::= SEQUENCE {
 	bandParametersDL-v1430			MIMO-CA-ParametersPerBoBC-v1430	OPTIONAL,
 	ul-256QAM-r14						ENUMERATED {supported}		OPTIONAL,
 	ul-256QAM-perCC-InfoList-r14		SEQUENCE (SIZE (2..maxServCell-r13)) OF UL-256QAM-perCC-Info-r14		OPTIONAL,
-	retuningTimeInfoBandList-r14		SEQUENCE (SIZE (1..maxSimultaneousBands-r10)) OF
-			RetuningTimeInfo-r14	OPTIONAL
+	srs-CapabilityPerBandPairList-r14		SEQUENCE (SIZE (1..maxSimultaneousBands-r10)) OF
+			SRS-CapabilityPerBandPair-r14	OPTIONAL
 }
 
 BandParameters-v1450 ::= SEQUENCE {
@@ -12321,6 +12417,10 @@ BandParameters-v1450 ::= SEQUENCE {
 
 BandParameters-v1470 ::= SEQUENCE {
 	bandParametersDL-v1470			MIMO-CA-ParametersPerBoBC-v1470	OPTIONAL
+}
+
+BandParameters-v14b0 ::= SEQUENCE {
+	srs-CapabilityPerBandPairList-v14b0		SEQUENCE (SIZE (1..maxSimultaneousBands-r10)) OF		SRS-CapabilityPerBandPair-v14b0		OPTIONAL
 }
 
 BandParameters-v1530 ::= 	SEQUENCE {
@@ -12533,7 +12633,7 @@ MeasParameters-v1430 ::=			SEQUENCE {
 }
 
 MeasParameters-v1520 ::=			SEQUENCE {
-	measGapPatterns-v1520					BIT STRING (SIZE (8))		OPTIONAL
+	measGapPatterns-r15					BIT STRING (SIZE (8))		OPTIONAL
 }
 
 MeasParameters-v1530 ::=			SEQUENCE {
@@ -12587,6 +12687,10 @@ IRAT-ParametersNR-v1540 ::=		SEQUENCE {
 	supportedBandListNR-SA-r15			SupportedBandListNR-r15				OPTIONAL
 }
 
+IRAT-ParametersNR-v1560 ::=		SEQUENCE {
+	ng-EN-DC-r15 							ENUMERATED {supported}				OPTIONAL
+}
+
 EUTRA-5GC-Parameters-r15 ::=		SEQUENCE {
 	eutra-5GC-r15								ENUMERATED {supported}			OPTIONAL,
 	eutra-EPC-HO-EUTRA-5GC-r15				ENUMERATED {supported}			OPTIONAL,
@@ -12611,6 +12715,10 @@ PDCP-ParametersNR-r15 ::=		SEQUENCE {
 	sn-SizeLo-r15						ENUMERATED {supported}				OPTIONAL,
 	ims-VoiceOverNR-PDCP-MCG-Bearer-r15	ENUMERATED {supported}				OPTIONAL,
 	ims-VoiceOverNR-PDCP-SCG-Bearer-r15	ENUMERATED {supported}				OPTIONAL
+}
+
+PDCP-ParametersNR-v1560 ::=		SEQUENCE {
+	ims-VoNR-PDCP-SCG-NGENDC-r15			ENUMERATED {supported}				OPTIONAL
 }
 
 ROHC-ProfileSupportList-r15 ::=	SEQUENCE {
@@ -13049,7 +13157,7 @@ MMTEL-Parameters-r14 ::=			SEQUENCE {
 	recommendedBitRateQuery-r14					ENUMERATED {supported}		OPTIONAL
 }
 
-RetuningTimeInfo-r14 ::= SEQUENCE {
+SRS-CapabilityPerBandPair-r14 ::= SEQUENCE {
 	retuningInfo				SEQUENCE {
 		rf-RetuningTimeDL-r14			ENUMERATED {n0, n0dot5, n1, n1dot5, n2, n2dot5, n3,
 													n3dot5, n4, n4dot5, n5, n5dot5, n6, n6dot5,
@@ -13058,6 +13166,11 @@ RetuningTimeInfo-r14 ::= SEQUENCE {
 													n3dot5, n4, n4dot5, n5, n5dot5, n6, n6dot5,
 													n7, spare1}		OPTIONAL
 	}
+}
+
+SRS-CapabilityPerBandPair-v14b0 ::= SEQUENCE {
+	srs-FlexibleTiming-r14				ENUMERATED {supported}		OPTIONAL,
+	srs-HARQ-ReferenceConfig-r14			ENUMERATED {supported}		OPTIONAL
 }
 
 HighSpeedEnhParameters-r14 ::= SEQUENCE {

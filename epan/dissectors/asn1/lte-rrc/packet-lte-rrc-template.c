@@ -1,7 +1,7 @@
 /* packet-lte-rrc-template.c
  * Routines for Evolved Universal Terrestrial Radio Access (E-UTRA);
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 36.331 V15.5.0 Release 15) packet dissection
+ * (3GPP TS 36.331 V15.6.0 Release 15) packet dissection
  * Copyright 2008, Vincent Helfre
  * Copyright 2009-2019, Pascal Quantin
  *
@@ -256,14 +256,14 @@ static int hf_lte_rrc_sib12_fragment_count = -1;
 static int hf_lte_rrc_sib12_reassembled_in = -1;
 static int hf_lte_rrc_sib12_reassembled_length = -1;
 static int hf_lte_rrc_sib12_reassembled_data = -1;
-static int hf_lte_rrc_measGapPatterns_v1520_bit1 = -1;
-static int hf_lte_rrc_measGapPatterns_v1520_bit2 = -1;
-static int hf_lte_rrc_measGapPatterns_v1520_bit3 = -1;
-static int hf_lte_rrc_measGapPatterns_v1520_bit4 = -1;
-static int hf_lte_rrc_measGapPatterns_v1520_bit5 = -1;
-static int hf_lte_rrc_measGapPatterns_v1520_bit6 = -1;
-static int hf_lte_rrc_measGapPatterns_v1520_bit7 = -1;
-static int hf_lte_rrc_measGapPatterns_v1520_bit8 = -1;
+static int hf_lte_rrc_measGapPatterns_r15_bit1 = -1;
+static int hf_lte_rrc_measGapPatterns_r15_bit2 = -1;
+static int hf_lte_rrc_measGapPatterns_r15_bit3 = -1;
+static int hf_lte_rrc_measGapPatterns_r15_bit4 = -1;
+static int hf_lte_rrc_measGapPatterns_r15_bit5 = -1;
+static int hf_lte_rrc_measGapPatterns_r15_bit6 = -1;
+static int hf_lte_rrc_measGapPatterns_r15_bit7 = -1;
+static int hf_lte_rrc_measGapPatterns_r15_bit8 = -1;
 
 /* Initialize the subtree pointers */
 static int ett_lte_rrc = -1;
@@ -305,7 +305,7 @@ static gint ett_lte_rrc_sourceRB_ConfigSN_NR_r15 = -1;
 static gint ett_lte_rrc_sourceOtherConfigSN_NR_r15 = -1;
 static gint ett_lte_rrc_sourceContextEN_DC_r15 = -1;
 static gint ett_lte_rrc_requestedFreqBandsNR_MRDC_r15 = -1;
-static gint ett_lte_rrc_measGapPatterns_v1520 = -1;
+static gint ett_lte_rrc_measGapPatterns_r15 = -1;
 static gint ett_lte_rrc_nas_Container_r15 = -1;
 static gint ett_lte_rrc_sourceRB_ConfigIntra5GC_r15 = -1;
 static gint ett_lte_rrc_selectedbandCombinationInfoEN_DC_v1540 = -1;
@@ -4268,36 +4268,36 @@ void proto_register_lte_rrc(void) {
       { "Reassembled Data", "lte-rrc.warningMessageSegment_r9.reassembled_data",
          FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_lte_rrc_measGapPatterns_v1520_bit1,
-      { "Gap Pattern 4", "lte-rrc.measGapPatterns_v1520.bit1",
+    { &hf_lte_rrc_measGapPatterns_r15_bit1,
+      { "Gap Pattern 4", "lte-rrc.measGapPatterns_r15.bit1",
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x80,
         NULL, HFILL }},
-    { &hf_lte_rrc_measGapPatterns_v1520_bit2,
-      { "Gap Pattern 5", "lte-rrc.measGapPatterns_v1520.bit2",
+    { &hf_lte_rrc_measGapPatterns_r15_bit2,
+      { "Gap Pattern 5", "lte-rrc.measGapPatterns_r15.bit2",
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x40,
         NULL, HFILL }},
-    { &hf_lte_rrc_measGapPatterns_v1520_bit3,
-      { "Gap Pattern 6", "lte-rrc.measGapPatterns_v1520.bit3",
+    { &hf_lte_rrc_measGapPatterns_r15_bit3,
+      { "Gap Pattern 6", "lte-rrc.measGapPatterns_r15.bit3",
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x20,
         NULL, HFILL }},
-    { &hf_lte_rrc_measGapPatterns_v1520_bit4,
-      { "Gap Pattern 7", "lte-rrc.measGapPatterns_v1520.bit4",
+    { &hf_lte_rrc_measGapPatterns_r15_bit4,
+      { "Gap Pattern 7", "lte-rrc.measGapPatterns_r15.bit4",
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x10,
         NULL, HFILL }},
-    { &hf_lte_rrc_measGapPatterns_v1520_bit5,
-      { "Gap Pattern 8", "lte-rrc.measGapPatterns_v1520.bit5",
+    { &hf_lte_rrc_measGapPatterns_r15_bit5,
+      { "Gap Pattern 8", "lte-rrc.measGapPatterns_r15.bit5",
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x08,
         NULL, HFILL }},
-    { &hf_lte_rrc_measGapPatterns_v1520_bit6,
-      { "Gap Pattern 9", "lte-rrc.measGapPatterns_v1520.bit6",
+    { &hf_lte_rrc_measGapPatterns_r15_bit6,
+      { "Gap Pattern 9", "lte-rrc.measGapPatterns_r15.bit6",
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x04,
         NULL, HFILL }},
-    { &hf_lte_rrc_measGapPatterns_v1520_bit7,
-      { "Gap Pattern 10", "lte-rrc.measGapPatterns_v1520.bit7",
+    { &hf_lte_rrc_measGapPatterns_r15_bit7,
+      { "Gap Pattern 10", "lte-rrc.measGapPatterns_r15.bit7",
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x02,
         NULL, HFILL }},
-    { &hf_lte_rrc_measGapPatterns_v1520_bit8,
-      { "Gap Pattern 11", "lte-rrc.measGapPatterns_v1520.bit8",
+    { &hf_lte_rrc_measGapPatterns_r15_bit8,
+      { "Gap Pattern 11", "lte-rrc.measGapPatterns_r15.bit8",
         FT_BOOLEAN, 8, TFS(&tfs_supported_not_supported), 0x01,
         NULL, HFILL }}
   };
@@ -4342,7 +4342,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_sourceOtherConfigSN_NR_r15,
     &ett_lte_rrc_sourceContextEN_DC_r15,
     &ett_lte_rrc_requestedFreqBandsNR_MRDC_r15,
-    &ett_lte_rrc_measGapPatterns_v1520,
+    &ett_lte_rrc_measGapPatterns_r15,
     &ett_lte_rrc_nas_Container_r15,
     &ett_lte_rrc_sourceRB_ConfigIntra5GC_r15,
     &ett_lte_rrc_selectedbandCombinationInfoEN_DC_v1540
