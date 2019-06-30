@@ -62,7 +62,7 @@ ProtoTree::ProtoTree(QWidget *parent, epan_dissect_t *edt_fixed) :
         "QTreeView:item:hover {"
         "  background-color: %1;"
         "  color: palette(text);"
-        "}").arg(hover_color.name()));
+        "}").arg(hover_color.name(QColor::HexArgb)));
 #endif
 
     // Shrink down to a small but nonzero size in the main splitter.

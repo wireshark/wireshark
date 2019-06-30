@@ -317,7 +317,7 @@ void PacketList::colorsChanged()
         "QTreeView:item:hover {"
         "  background-color: %1;"
         "  color: palette(text);"
-        "}").arg(hover_color.name());
+        "}").arg(hover_color.name(QColor::HexArgb));
 #endif
 
     QString active_style   = QString();
