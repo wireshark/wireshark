@@ -485,7 +485,7 @@ run_ascend_parser(FILE_T fh, wtap_rec *rec, guint8 *pd,
   parser_state->pseudo_header->call_num[0] = '\0';
 
   status = yyparse(scanner, parser_state, fh);
-  ascendlex_destroy(&scanner);
+  ascendlex_destroy(scanner);
 
   *err = parser_state->err;
   *err_info = parser_state->err_info;
