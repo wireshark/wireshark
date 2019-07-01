@@ -3388,13 +3388,17 @@ basic_auth_credentials(gchar* str)
 {
 	gchar **tokens = g_strsplit(str, ":", -1);
 
-	if (!tokens || !tokens[0] || !tokens[1])
+	if (!tokens || !tokens[0] || !tokens[1]) {
+		g_strfreev(tokens);
 		return NULL;
+	}
 
 	tap_credential_t* auth = wmem_new0(wmem_file_scope(), tap_credential_t);
 
 	auth->username = tokens[0];
 	auth->proto = "HTTP basic auth";
+
+	g_strfreev(tokens);
 
 	return auth;
 }
