@@ -3956,6 +3956,9 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                (At least you will if g_strerror() doesn't show a local translation
                of the error.)
 
+               Newer versions of libpcap maps that to just
+               "The interface went down".
+
                On FreeBSD, DragonFly BSD, and macOS, if a network adapter
                disappears while you're capturing on it, you'll get
                "read: Device not configured" error (ENXIO).  (See previous
@@ -3967,20 +3970,23 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                "read error: PacketReceivePacket failed".
 
                Newer versions of libpcap map some or all of those to just
-               "The interface went down" or "The interface disappeared".
+               "The interface disappeared".
 
                These should *not* be reported to the Wireshark developers. */
             char *cap_err_str;
 
             cap_err_str = pcap_geterr(pcap_src->pcap_h);
             if (strcmp(cap_err_str, "The interface went down") == 0 ||
-                strcmp(cap_err_str, "The interface disappeared") == 0 ||
-                strcmp(cap_err_str, "recvfrom: Network is down") == 0 ||
-                strcmp(cap_err_str, "read: Device not configured") == 0 ||
-                strcmp(cap_err_str, "read: I/O error") == 0 ||
-                strcmp(cap_err_str, "read error: PacketReceivePacket failed") == 0) {
+                strcmp(cap_err_str, "recvfrom: Network is down") == 0) {
                 report_capture_error("The network adapter on which the capture was being done "
                                      "is no longer running; the capture has stopped.",
+                                     "");
+            } else if (strcmp(cap_err_str, "The interface disappeared") == 0 ||
+                       strcmp(cap_err_str, "read: Device not configured") == 0 ||
+                       strcmp(cap_err_str, "read: I/O error") == 0 ||
+                       strcmp(cap_err_str, "read error: PacketReceivePacket failed") == 0) {
+                report_capture_error("The network adapter on which the capture was being done "
+                                     "is no longer attached; the capture has stopped.",
                                      "");
             } else {
                 g_snprintf(errmsg, sizeof(errmsg), "Error while capturing packets: %s",
