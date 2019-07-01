@@ -1,7 +1,7 @@
 /* packet-nr-rrc-template.c
  * NR;
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 38.331 V15.5.0 Release 15) packet dissection
+ * (3GPP TS 38.331 V15.6.0 Release 15) packet dissection
  * Copyright 2018-2019, Pascal Quantin
  *
  * Wireshark - Network traffic analyzer
@@ -42,6 +42,8 @@ void proto_reg_handoff_nr_rrc(void);
 
 static dissector_handle_t nas_5gs_handle = NULL;
 static dissector_handle_t lte_rrc_conn_reconf_handle = NULL;
+static dissector_handle_t lte_rrc_conn_reconf_compl_handle = NULL;
+static dissector_handle_t lte_rrc_ul_dcch_handle = NULL;
 
 static wmem_map_t *nr_rrc_etws_cmas_dcs_hash = NULL;
 
@@ -105,6 +107,17 @@ static gint ett_nr_rrc_sib8_fragments = -1;
 static gint ett_nr_rrc_warningMessageSegment = -1;
 static gint ett_nr_rrc_timeInfo = -1;
 static gint ett_nr_rrc_capabilityRequestFilter = -1;
+static gint ett_nr_rrc_sourceSCG_EUTRA_Config = -1;
+static gint ett_nr_rrc_scg_CellGroupConfigEUTRA = -1;
+static gint ett_nr_rrc_candidateCellInfoListSN_EUTRA = -1;
+static gint ett_nr_rrc_candidateCellInfoListMN_EUTRA = -1;
+static gint ett_nr_rrc_sourceConfigSCG_EUTRA = -1;
+static gint ett_nr_rrc_eutra_SCG = -1;
+static gint ett_nr_rrc_nr_SCG_Response = -1;
+static gint ett_nr_rrc_eutra_SCG_Response = -1;
+static gint ett_nr_rrc_measResultSCG_FailureMRDC = -1;
+static gint ett_nr_rrc_ul_DCCH_MessageNR = -1;
+static gint ett_nr_rrc_ul_DCCH_MessageEUTRA = -1;
 
 static expert_field ei_nr_rrc_number_pages_le15 = EI_INIT;
 
@@ -511,7 +524,18 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_sib8_fragments,
     &ett_nr_rrc_warningMessageSegment,
     &ett_nr_rrc_timeInfo,
-    &ett_nr_rrc_capabilityRequestFilter
+    &ett_nr_rrc_capabilityRequestFilter,
+    &ett_nr_rrc_sourceSCG_EUTRA_Config,
+    &ett_nr_rrc_scg_CellGroupConfigEUTRA,
+    &ett_nr_rrc_candidateCellInfoListSN_EUTRA,
+    &ett_nr_rrc_candidateCellInfoListMN_EUTRA,
+    &ett_nr_rrc_sourceConfigSCG_EUTRA,
+    &ett_nr_rrc_eutra_SCG,
+    &ett_nr_rrc_nr_SCG_Response,
+    &ett_nr_rrc_eutra_SCG_Response,
+    &ett_nr_rrc_measResultSCG_FailureMRDC,
+    &ett_nr_rrc_ul_DCCH_MessageNR,
+    &ett_nr_rrc_ul_DCCH_MessageEUTRA
   };
 
   static ei_register_info ei[] = {
@@ -546,4 +570,6 @@ proto_reg_handoff_nr_rrc(void)
 {
   nas_5gs_handle = find_dissector("nas-5gs");
   lte_rrc_conn_reconf_handle = find_dissector("lte-rrc.rrc_conn_reconf");
+  lte_rrc_conn_reconf_compl_handle = find_dissector("lte-rrc.rrc_conn_reconf_compl");
+  lte_rrc_ul_dcch_handle = find_dissector("lte-rrc.ul.dcch");
 }

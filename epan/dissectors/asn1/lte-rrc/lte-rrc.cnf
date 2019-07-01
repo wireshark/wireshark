@@ -45,6 +45,8 @@ WLAN-backhaulRate-r12
 HandoverCommand_PDU
 HandoverPreparationInformation_PDU
 HandoverPreparationInformation-NB_PDU
+MeasResultSCG-FailureMRDC-r15_PDU
+MeasResultList3EUTRA-r15_PDU
 MeasurementReport_PDU
 RLF-Report-r9_PDU
 RLF-Report-v9e0_PDU
@@ -62,11 +64,13 @@ VisitedCellInfoList-r12_PDU
 HandoverCommand
 HandoverPreparationInformation
 HandoverPreparationInformation-NB
+MeasResultSCG-FailureMRDC-r15
+MeasResultList3EUTRA-r15
 MeasurementReport
 RLF-Report-r9
 RLF-Report-v9e0
 RRCConnectionReconfiguration @rrc_conn_reconf
-RRCConnectionReconfigurationComplete
+RRCConnectionReconfigurationComplete @rrc_conn_reconf_compl
 SCG-Config-r12
 SCG-ConfigInfo-r12
 UEPagingCoverageInformation
@@ -109,9 +113,6 @@ BCCH-DL-SCH-Message-MBMS     @bcch.dl.sch.mbms
 CellsTriggeredList
 CSI-RS-TriggeredList-r12
 LogMeasInfoList2-r10
-MeasResult3EUTRA-r15
-MeasResultList3EUTRA-r15
-MeasResultSCG-FailureMRDC-r15
 RSRP-RangeSL3-r12
 SL-CBR-PPPP-TxPreconfigList-r14
 SL-CBR-PPPP-TxPreconfigList-v1530

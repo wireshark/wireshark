@@ -350,6 +350,69 @@ RAT-Type TYPE_PREFIX
 #.FN_HDR FailureInformation
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Failure Information");
 
+#.FN_HDR ULInformationTransferMRDC
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UL Information Transfer MRDC");
+
+#.FN_HDR SCGFailureInformation
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SCG Failure Information");
+
+#.FN_HDR SCGFailureInformationEUTRA
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SCG Failure Information EUTRA");
+
+#.FN_BODY MRDC-SecondaryCellGroupConfig/mrdc-SecondaryCellGroup/eutra-SCG VAL_PTR = &eutra_scg_tvb
+  tvbuff_t *eutra_scg_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (eutra_scg_tvb && lte_rrc_conn_reconf_handle) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_eutra_SCG);
+    nr_rrc_call_dissector(lte_rrc_conn_reconf_handle, eutra_scg_tvb, actx->pinfo, subtree);
+  }
+
+#.FN_BODY RRCReconfigurationComplete-v1560-IEs/scg-Response/nr-SCG-Response VAL_PTR = &nr_scg_response_tvb
+  tvbuff_t *nr_scg_response_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (nr_scg_response_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_nr_SCG_Response);
+    dissect_nr_rrc_RRCReconfigurationComplete_PDU(nr_scg_response_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY RRCReconfigurationComplete-v1560-IEs/scg-Response/eutra-SCG-Response VAL_PTR = &eutra_scg_response_tvb
+  tvbuff_t *eutra_scg_response_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (eutra_scg_response_tvb && lte_rrc_conn_reconf_compl_handle) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_eutra_SCG_Response);
+    nr_rrc_call_dissector(lte_rrc_conn_reconf_compl_handle, eutra_scg_response_tvb, actx->pinfo, subtree);
+  }
+
+#.FN_BODY FailureReportSCG-EUTRA/measResultSCG-FailureMRDC VAL_PTR = &meas_result_scg_fail_mrdc_tvb
+  tvbuff_t *meas_result_scg_fail_mrdc_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (meas_result_scg_fail_mrdc_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_measResultSCG_FailureMRDC);
+    dissect_lte_rrc_MeasResultSCG_FailureMRDC_r15_PDU(meas_result_scg_fail_mrdc_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY ULInformationTransferMRDC-IEs/ul-DCCH-MessageNR VAL_PTR = &ul_dcch_msg_nr_tvb
+  tvbuff_t *ul_dcch_msg_nr_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (ul_dcch_msg_nr_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_ul_DCCH_MessageNR);
+    dissect_nr_rrc_UL_DCCH_Message_PDU(ul_dcch_msg_nr_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY ULInformationTransferMRDC-IEs/ul-DCCH-MessageEUTRA VAL_PTR = &ul_dcch_msg_eutra_tvb
+  tvbuff_t *ul_dcch_msg_eutra_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (ul_dcch_msg_eutra_tvb && lte_rrc_ul_dcch_handle) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_ul_DCCH_MessageEUTRA);
+    nr_rrc_call_dissector(lte_rrc_ul_dcch_handle, ul_dcch_msg_eutra_tvb, actx->pinfo, subtree);
+  }
+
 #.FN_BODY DedicatedNAS-Message VAL_PTR = &nas_5gs_tvb
   tvbuff_t *nas_5gs_tvb = NULL;
   proto_tree *subtree;
@@ -963,3 +1026,57 @@ EUTRA-NS-PmaxValue/additionalPmax DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&uni
 %(DEFAULT_BODY)s
   mapping->pdcpDlSnLength_present = TRUE;
   mapping->pdcpDlSnLength = (value) ? 18 : 12;
+
+#.FN_BODY AS-Config/eag_1/sourceSCG-EUTRA-Config VAL_PTR = &src_scg_eutra_config_tvb
+  tvbuff_t *src_scg_eutra_config_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (src_scg_eutra_config_tvb && lte_rrc_conn_reconf_handle) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_rr_rrc_targetRAT_MessageContainer);
+    nr_rrc_call_dissector(lte_rrc_conn_reconf_handle, src_scg_eutra_config_tvb, actx->pinfo, subtree);
+  }
+
+#.FN_BODY CG-Config-v1560-IEs/scg-CellGroupConfigEUTRA VAL_PTR = &scg_cell_group_config_eutra_tvb
+  tvbuff_t *scg_cell_group_config_eutra_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (scg_cell_group_config_eutra_tvb && lte_rrc_conn_reconf_handle) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_scg_CellGroupConfigEUTRA);
+    nr_rrc_call_dissector(lte_rrc_conn_reconf_handle, scg_cell_group_config_eutra_tvb, actx->pinfo, subtree);
+  }
+
+#.FN_BODY CG-Config-v1560-IEs/candidateCellInfoListSN-EUTRA VAL_PTR = &cand_cell_info_list_sn_eutra_tvb
+  tvbuff_t *cand_cell_info_list_sn_eutra_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (cand_cell_info_list_sn_eutra_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_candidateCellInfoListSN_EUTRA);
+    dissect_lte_rrc_MeasResultList3EUTRA_r15_PDU(cand_cell_info_list_sn_eutra_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY CG-ConfigInfo-v1560-IEs/candidateCellInfoListMN-EUTRA VAL_PTR = &cand_cell_info_list_mn_eutra_tvb
+  tvbuff_t *cand_cell_info_list_mn_eutra_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (cand_cell_info_list_mn_eutra_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_candidateCellInfoListMN_EUTRA);
+    dissect_lte_rrc_MeasResultList3EUTRA_r15_PDU(cand_cell_info_list_mn_eutra_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY CG-ConfigInfo-v1560-IEs/candidateCellInfoListSN-EUTRA VAL_PTR = &cand_cell_info_list_sn_eutra_tvb
+  tvbuff_t *cand_cell_info_list_sn_eutra_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (cand_cell_info_list_sn_eutra_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_candidateCellInfoListSN_EUTRA);
+    dissect_lte_rrc_MeasResultList3EUTRA_r15_PDU(cand_cell_info_list_sn_eutra_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY CG-ConfigInfo-v1560-IEs/sourceConfigSCG-EUTRA VAL_PTR = &source_config_scg_eutra_tvb
+  tvbuff_t *source_config_scg_eutra_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (source_config_scg_eutra_tvb && lte_rrc_conn_reconf_handle) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_sourceConfigSCG_EUTRA);
+    nr_rrc_call_dissector(lte_rrc_conn_reconf_handle, source_config_scg_eutra_tvb, actx->pinfo, subtree);
+  }

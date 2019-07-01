@@ -9,7 +9,7 @@
 /* packet-nr-rrc-template.c
  * NR;
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 38.331 V15.5.0 Release 15) packet dissection
+ * (3GPP TS 38.331 V15.6.0 Release 15) packet dissection
  * Copyright 2018-2019, Pascal Quantin
  *
  * Wireshark - Network traffic analyzer
@@ -50,6 +50,8 @@ void proto_reg_handoff_nr_rrc(void);
 
 static dissector_handle_t nas_5gs_handle = NULL;
 static dissector_handle_t lte_rrc_conn_reconf_handle = NULL;
+static dissector_handle_t lte_rrc_conn_reconf_compl_handle = NULL;
+static dissector_handle_t lte_rrc_ul_dcch_handle = NULL;
 
 static wmem_map_t *nr_rrc_etws_cmas_dcs_hash = NULL;
 
@@ -179,7 +181,6 @@ extern int proto_mac_nr;
 #define maxDRB                         29
 #define maxFreq                        8
 #define maxFreqIDC_MRDC                32
-#define maxNrofCSI_RS                  64
 #define maxNrofCandidateBeams          16
 #define maxNrofPCIsPerSMTC             64
 #define maxNrofQFIs                    64
@@ -189,7 +190,6 @@ extern int proto_mac_nr;
 #define maxNrofSpatialRelationInfos    8
 #define maxNrofIndexesToReport         32
 #define maxNrofIndexesToReport2        64
-#define maxNrofSSBs                    64
 #define maxNrofSSBs_1                  63
 #define maxNrofS_NSSAI                 8
 #define maxNrofTCI_StatesPDCCH         64
@@ -244,7 +244,7 @@ typedef enum _T_targetRAT_Type_enum {
 } T_targetRAT_Type_enum;
 
 /*--- End of included file: packet-nr-rrc-val.h ---*/
-#line 55 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 57 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_nr_rrc = -1;
@@ -299,6 +299,7 @@ static int hf_nr_rrc_nr_rrc_UE_MRDC_Capability_PDU = -1;  /* UE_MRDC_Capability 
 static int hf_nr_rrc_nr_rrc_UE_NR_Capability_PDU = -1;  /* UE_NR_Capability */
 static int hf_nr_rrc_MeasResultList2NR_PDU = -1;  /* MeasResultList2NR */
 static int hf_nr_rrc_SystemInformation_PDU = -1;  /* SystemInformation */
+static int hf_nr_rrc_UECapabilityEnquiry_v1560_IEs_PDU = -1;  /* UECapabilityEnquiry_v1560_IEs */
 static int hf_nr_rrc_criticalExtensions = -1;     /* T_criticalExtensions */
 static int hf_nr_rrc_c1 = -1;                     /* T_c1 */
 static int hf_nr_rrc_handoverCommand = -1;        /* HandoverCommand_IEs */
@@ -318,10 +319,14 @@ static int hf_nr_rrc_rrm_Config = -1;             /* RRM_Config */
 static int hf_nr_rrc_as_Context = -1;             /* AS_Context */
 static int hf_nr_rrc_nonCriticalExtension_01 = -1;  /* T_nonCriticalExtension_01 */
 static int hf_nr_rrc_rrcReconfiguration = -1;     /* T_rrcReconfiguration */
+static int hf_nr_rrc_sourceRB_SN_Config = -1;     /* T_sourceRB_SN_Config */
+static int hf_nr_rrc_sourceSCG_NR_Config = -1;    /* T_sourceSCG_NR_Config */
+static int hf_nr_rrc_sourceSCG_EUTRA_Config = -1;  /* T_sourceSCG_EUTRA_Config */
 static int hf_nr_rrc_reestablishmentInfo = -1;    /* ReestablishmentInfo */
 static int hf_nr_rrc_configRestrictInfo = -1;     /* ConfigRestrictInfoSCG */
 static int hf_nr_rrc_ran_NotificationAreaInfo = -1;  /* RAN_NotificationAreaInfo */
 static int hf_nr_rrc_ueAssistanceInformation = -1;  /* T_ueAssistanceInformation */
+static int hf_nr_rrc_selectedBandCombinationSN = -1;  /* BandCombinationInfoSN */
 static int hf_nr_rrc_sourcePhysCellId = -1;       /* PhysCellId */
 static int hf_nr_rrc_targetCellShortMAC_I = -1;   /* ShortMAC_I */
 static int hf_nr_rrc_additionalReestabInfoList = -1;  /* ReestabNCellInfoList */
@@ -331,6 +336,7 @@ static int hf_nr_rrc_key_gNodeB_Star = -1;        /* BIT_STRING_SIZE_256 */
 static int hf_nr_rrc_shortMAC_I = -1;             /* ShortMAC_I */
 static int hf_nr_rrc_ue_InactiveTime = -1;        /* T_ue_InactiveTime */
 static int hf_nr_rrc_candidateCellInfoList = -1;  /* MeasResultList2NR */
+static int hf_nr_rrc_candidateCellInfoListSN_EUTRA = -1;  /* MeasResultServFreqListEUTRA_SCG */
 static int hf_nr_rrc_criticalExtensions_02 = -1;  /* T_criticalExtensions_02 */
 static int hf_nr_rrc_c1_02 = -1;                  /* T_c1_02 */
 static int hf_nr_rrc_cg_Config = -1;              /* CG_Config_IEs */
@@ -341,17 +347,28 @@ static int hf_nr_rrc_configRestrictModReq = -1;   /* ConfigRestrictModReqSCG */
 static int hf_nr_rrc_drx_InfoSCG = -1;            /* DRX_Info */
 static int hf_nr_rrc_candidateCellInfoListSN = -1;  /* T_candidateCellInfoListSN */
 static int hf_nr_rrc_measConfigSN = -1;           /* MeasConfigSN */
-static int hf_nr_rrc_selectedBandCombinationNR = -1;  /* BandCombinationInfoSN */
+static int hf_nr_rrc_selectedBandCombination = -1;  /* BandCombinationInfoSN */
 static int hf_nr_rrc_fr_InfoListSCG = -1;         /* FR_InfoList */
 static int hf_nr_rrc_candidateServingFreqListNR = -1;  /* CandidateServingFreqListNR */
 static int hf_nr_rrc_nonCriticalExtension_02 = -1;  /* CG_Config_v1540_IEs */
 static int hf_nr_rrc_pSCellFrequency = -1;        /* ARFCN_ValueNR */
-static int hf_nr_rrc_reportCGI_Request = -1;      /* T_reportCGI_Request */
+static int hf_nr_rrc_reportCGI_RequestNR = -1;    /* T_reportCGI_RequestNR */
 static int hf_nr_rrc_requestedCellInfo = -1;      /* T_requestedCellInfo */
 static int hf_nr_rrc_ssbFrequency = -1;           /* ARFCN_ValueNR */
 static int hf_nr_rrc_cellForWhichToReportCGI = -1;  /* PhysCellId */
 static int hf_nr_rrc_ph_InfoSCG = -1;             /* PH_TypeListSCG */
-static int hf_nr_rrc_nonCriticalExtension_03 = -1;  /* T_nonCriticalExtension_02 */
+static int hf_nr_rrc_nonCriticalExtension_03 = -1;  /* CG_Config_v1560_IEs */
+static int hf_nr_rrc_pSCellFrequencyEUTRA = -1;   /* ARFCN_ValueEUTRA */
+static int hf_nr_rrc_scg_CellGroupConfigEUTRA = -1;  /* T_scg_CellGroupConfigEUTRA */
+static int hf_nr_rrc_candidateCellInfoListSN_EUTRA_01 = -1;  /* T_candidateCellInfoListSN_EUTRA */
+static int hf_nr_rrc_candidateServingFreqListEUTRA = -1;  /* CandidateServingFreqListEUTRA */
+static int hf_nr_rrc_needForGaps = -1;            /* T_needForGaps */
+static int hf_nr_rrc_drx_ConfigSCG = -1;          /* DRX_Config */
+static int hf_nr_rrc_reportCGI_RequestEUTRA = -1;  /* T_reportCGI_RequestEUTRA */
+static int hf_nr_rrc_requestedCellInfoEUTRA = -1;  /* T_requestedCellInfoEUTRA */
+static int hf_nr_rrc_eutraFrequency = -1;         /* ARFCN_ValueEUTRA */
+static int hf_nr_rrc_cellForWhichToReportCGI_EUTRA = -1;  /* EUTRA_PhysCellId */
+static int hf_nr_rrc_nonCriticalExtension_04 = -1;  /* T_nonCriticalExtension_02 */
 static int hf_nr_rrc_PH_TypeListSCG_item = -1;    /* PH_InfoSCG */
 static int hf_nr_rrc_servCellIndex = -1;          /* ServCellIndex */
 static int hf_nr_rrc_ph_Uplink = -1;              /* PH_UplinkCarrierSCG */
@@ -362,11 +379,14 @@ static int hf_nr_rrc_measuredFrequenciesSN_item = -1;  /* NR_FreqInfo */
 static int hf_nr_rrc_measuredFrequency = -1;      /* ARFCN_ValueNR */
 static int hf_nr_rrc_requestedBC_MRDC = -1;       /* BandCombinationInfoSN */
 static int hf_nr_rrc_requestedP_MaxFR1 = -1;      /* P_Max */
+static int hf_nr_rrc_requestedPDCCH_BlindDetectionSCG = -1;  /* INTEGER_1_15 */
+static int hf_nr_rrc_requestedP_MaxEUTRA = -1;    /* P_Max */
 static int hf_nr_rrc_bandCombinationIndex = -1;   /* BandCombinationIndex */
 static int hf_nr_rrc_requestedFeatureSets = -1;   /* FeatureSetEntryIndex */
 static int hf_nr_rrc_FR_InfoList_item = -1;       /* FR_Info */
 static int hf_nr_rrc_fr_Type = -1;                /* T_fr_Type */
 static int hf_nr_rrc_CandidateServingFreqListNR_item = -1;  /* ARFCN_ValueNR */
+static int hf_nr_rrc_CandidateServingFreqListEUTRA_item = -1;  /* ARFCN_ValueEUTRA */
 static int hf_nr_rrc_criticalExtensions_03 = -1;  /* T_criticalExtensions_03 */
 static int hf_nr_rrc_c1_03 = -1;                  /* T_c1_03 */
 static int hf_nr_rrc_cg_ConfigInfo = -1;          /* CG_ConfigInfo_IEs */
@@ -374,7 +394,7 @@ static int hf_nr_rrc_criticalExtensionsFuture_03 = -1;  /* T_criticalExtensionsF
 static int hf_nr_rrc_ue_CapabilityInfo = -1;      /* T_ue_CapabilityInfo */
 static int hf_nr_rrc_candidateCellInfoListMN = -1;  /* MeasResultList2NR */
 static int hf_nr_rrc_candidateCellInfoListSN_01 = -1;  /* T_candidateCellInfoListSN_01 */
-static int hf_nr_rrc_measResultCellListSFTD = -1;  /* MeasResultCellListSFTD */
+static int hf_nr_rrc_measResultCellListSFTD_NR = -1;  /* MeasResultCellListSFTD_NR */
 static int hf_nr_rrc_scgFailureInfo = -1;         /* T_scgFailureInfo */
 static int hf_nr_rrc_failureType = -1;            /* T_failureType */
 static int hf_nr_rrc_measResultSCG = -1;          /* T_measResultSCG */
@@ -384,11 +404,23 @@ static int hf_nr_rrc_sourceConfigSCG = -1;        /* T_sourceConfigSCG */
 static int hf_nr_rrc_scg_RB_Config_01 = -1;       /* T_scg_RB_Config_01 */
 static int hf_nr_rrc_mcg_RB_Config = -1;          /* T_mcg_RB_Config */
 static int hf_nr_rrc_mrdc_AssistanceInfo = -1;    /* MRDC_AssistanceInfo */
-static int hf_nr_rrc_nonCriticalExtension_04 = -1;  /* CG_ConfigInfo_v1540_IEs */
+static int hf_nr_rrc_nonCriticalExtension_05 = -1;  /* CG_ConfigInfo_v1540_IEs */
 static int hf_nr_rrc_ph_InfoMCG = -1;             /* PH_TypeListMCG */
 static int hf_nr_rrc_measResultReportCGI = -1;    /* T_measResultReportCGI */
-static int hf_nr_rrc_cgi_Info = -1;               /* CGI_Info */
-static int hf_nr_rrc_nonCriticalExtension_05 = -1;  /* T_nonCriticalExtension_03 */
+static int hf_nr_rrc_cgi_Info = -1;               /* CGI_InfoNR */
+static int hf_nr_rrc_nonCriticalExtension_06 = -1;  /* CG_ConfigInfo_v1560_IEs */
+static int hf_nr_rrc_candidateCellInfoListMN_EUTRA = -1;  /* T_candidateCellInfoListMN_EUTRA */
+static int hf_nr_rrc_candidateCellInfoListSN_EUTRA_02 = -1;  /* T_candidateCellInfoListSN_EUTRA_01 */
+static int hf_nr_rrc_sourceConfigSCG_EUTRA = -1;  /* T_sourceConfigSCG_EUTRA */
+static int hf_nr_rrc_scgFailureInfoEUTRA = -1;    /* T_scgFailureInfoEUTRA */
+static int hf_nr_rrc_failureTypeEUTRA = -1;       /* T_failureTypeEUTRA */
+static int hf_nr_rrc_measResultSCG_EUTRA = -1;    /* OCTET_STRING */
+static int hf_nr_rrc_drx_ConfigMCG = -1;          /* DRX_Config */
+static int hf_nr_rrc_measResultReportCGI_EUTRA = -1;  /* T_measResultReportCGI_EUTRA */
+static int hf_nr_rrc_cgi_InfoEUTRA = -1;          /* CGI_InfoEUTRA */
+static int hf_nr_rrc_measResultCellListSFTD_EUTRA = -1;  /* MeasResultCellListSFTD_EUTRA */
+static int hf_nr_rrc_fr_InfoListMCG = -1;         /* FR_InfoList */
+static int hf_nr_rrc_nonCriticalExtension_07 = -1;  /* T_nonCriticalExtension_03 */
 static int hf_nr_rrc_allowedBC_ListMRDC = -1;     /* BandCombinationInfoList */
 static int hf_nr_rrc_powerCoordination_FR1 = -1;  /* T_powerCoordination_FR1 */
 static int hf_nr_rrc_p_maxNR_FR1 = -1;            /* P_Max */
@@ -397,8 +429,12 @@ static int hf_nr_rrc_p_maxUE_FR1 = -1;            /* P_Max */
 static int hf_nr_rrc_servCellIndexRangeSCG = -1;  /* T_servCellIndexRangeSCG */
 static int hf_nr_rrc_lowBound = -1;               /* ServCellIndex */
 static int hf_nr_rrc_upBound = -1;                /* ServCellIndex */
-static int hf_nr_rrc_maxMeasFreqsSCG_NR = -1;     /* INTEGER_1_maxMeasFreqsMN */
+static int hf_nr_rrc_maxMeasFreqsSCG = -1;        /* INTEGER_1_maxMeasFreqsMN */
 static int hf_nr_rrc_maxMeasIdentitiesSCG_NR = -1;  /* INTEGER_1_maxMeasIdentitiesMN */
+static int hf_nr_rrc_selectedBandEntriesMN = -1;  /* SEQUENCE_SIZE_1_maxSimultaneousBands_OF_BandEntryIndex */
+static int hf_nr_rrc_selectedBandEntriesMN_item = -1;  /* BandEntryIndex */
+static int hf_nr_rrc_pdcch_BlindDetectionSCG = -1;  /* INTEGER_1_15 */
+static int hf_nr_rrc_maxNumberROHC_ContextSessionsSN = -1;  /* INTEGER_0_16384 */
 static int hf_nr_rrc_PH_TypeListMCG_item = -1;    /* PH_InfoMCG */
 static int hf_nr_rrc_ph_Uplink_01 = -1;           /* PH_UplinkCarrierMCG */
 static int hf_nr_rrc_ph_SupplementaryUplink_01 = -1;  /* PH_UplinkCarrierMCG */
@@ -436,6 +472,7 @@ static int hf_nr_rrc_measGapConfig = -1;          /* T_measGapConfig */
 static int hf_nr_rrc_release = -1;                /* NULL */
 static int hf_nr_rrc_setup = -1;                  /* GapConfig */
 static int hf_nr_rrc_gapPurpose = -1;             /* T_gapPurpose */
+static int hf_nr_rrc_measGapConfigFR2 = -1;       /* T_measGapConfigFR2 */
 static int hf_nr_rrc_affectedCarrierFreqCombInfoListMRDC = -1;  /* SEQUENCE_SIZE_1_maxNrofCombIDC_OF_AffectedCarrierFreqCombInfoMRDC */
 static int hf_nr_rrc_affectedCarrierFreqCombInfoListMRDC_item = -1;  /* AffectedCarrierFreqCombInfoMRDC */
 static int hf_nr_rrc_victimSystemType = -1;       /* VictimSystemType */
@@ -456,10 +493,10 @@ static int hf_nr_rrc_c1_04 = -1;                  /* T_c1_04 */
 static int hf_nr_rrc_measTimingConf = -1;         /* MeasurementTimingConfiguration_IEs */
 static int hf_nr_rrc_criticalExtensionsFuture_04 = -1;  /* T_criticalExtensionsFuture_04 */
 static int hf_nr_rrc_measTiming = -1;             /* MeasTimingList */
-static int hf_nr_rrc_nonCriticalExtension_06 = -1;  /* MeasurementTimingConfiguration_v1550_IEs */
+static int hf_nr_rrc_nonCriticalExtension_08 = -1;  /* MeasurementTimingConfiguration_v1550_IEs */
 static int hf_nr_rrc_campOnFirstSSB = -1;         /* BOOLEAN */
 static int hf_nr_rrc_psCellOnlyOnFirstSSB = -1;   /* BOOLEAN */
-static int hf_nr_rrc_nonCriticalExtension_07 = -1;  /* T_nonCriticalExtension_04 */
+static int hf_nr_rrc_nonCriticalExtension_09 = -1;  /* T_nonCriticalExtension_04 */
 static int hf_nr_rrc_MeasTimingList_item = -1;    /* MeasTiming */
 static int hf_nr_rrc_frequencyAndTiming = -1;     /* T_frequencyAndTiming */
 static int hf_nr_rrc_carrierFreq = -1;            /* ARFCN_ValueNR */
@@ -478,13 +515,13 @@ static int hf_nr_rrc_spare4 = -1;                 /* NULL */
 static int hf_nr_rrc_criticalExtensionsFuture_05 = -1;  /* T_criticalExtensionsFuture_05 */
 static int hf_nr_rrc_supportedBandListNRForPaging = -1;  /* SEQUENCE_SIZE_1_maxBands_OF_FreqBandIndicatorNR */
 static int hf_nr_rrc_supportedBandListNRForPaging_item = -1;  /* FreqBandIndicatorNR */
-static int hf_nr_rrc_nonCriticalExtension_08 = -1;  /* T_nonCriticalExtension_05 */
+static int hf_nr_rrc_nonCriticalExtension_10 = -1;  /* T_nonCriticalExtension_05 */
 static int hf_nr_rrc_criticalExtensions_06 = -1;  /* T_criticalExtensions_06 */
 static int hf_nr_rrc_c1_06 = -1;                  /* T_c1_06 */
 static int hf_nr_rrc_ueRadioAccessCapabilityInformation = -1;  /* UERadioAccessCapabilityInformation_IEs */
 static int hf_nr_rrc_criticalExtensionsFuture_06 = -1;  /* T_criticalExtensionsFuture_06 */
 static int hf_nr_rrc_ue_RadioAccessCapabilityInfo = -1;  /* T_ue_RadioAccessCapabilityInfo */
-static int hf_nr_rrc_nonCriticalExtension_09 = -1;  /* T_nonCriticalExtension_06 */
+static int hf_nr_rrc_nonCriticalExtension_11 = -1;  /* T_nonCriticalExtension_06 */
 static int hf_nr_rrc_message = -1;                /* BCCH_BCH_MessageType */
 static int hf_nr_rrc_mib = -1;                    /* MIB */
 static int hf_nr_rrc_messageClassExtension = -1;  /* T_messageClassExtension */
@@ -540,6 +577,9 @@ static int hf_nr_rrc_ueCapabilityInformation = -1;  /* UECapabilityInformation *
 static int hf_nr_rrc_counterCheckResponse = -1;   /* CounterCheckResponse */
 static int hf_nr_rrc_ueAssistanceInformation_01 = -1;  /* UEAssistanceInformation */
 static int hf_nr_rrc_failureInformation = -1;     /* FailureInformation */
+static int hf_nr_rrc_ulInformationTransferMRDC = -1;  /* ULInformationTransferMRDC */
+static int hf_nr_rrc_scgFailureInformation = -1;  /* SCGFailureInformation */
+static int hf_nr_rrc_scgFailureInformationEUTRA = -1;  /* SCGFailureInformationEUTRA */
 static int hf_nr_rrc_messageClassExtension_07 = -1;  /* T_messageClassExtension_07 */
 static int hf_nr_rrc_rrc_TransactionIdentifier = -1;  /* RRC_TransactionIdentifier */
 static int hf_nr_rrc_criticalExtensions_07 = -1;  /* T_criticalExtensions_07 */
@@ -547,7 +587,7 @@ static int hf_nr_rrc_counterCheck_01 = -1;        /* CounterCheck_IEs */
 static int hf_nr_rrc_criticalExtensionsFuture_07 = -1;  /* T_criticalExtensionsFuture_07 */
 static int hf_nr_rrc_drb_CountMSB_InfoList = -1;  /* DRB_CountMSB_InfoList */
 static int hf_nr_rrc_lateNonCriticalExtension = -1;  /* OCTET_STRING */
-static int hf_nr_rrc_nonCriticalExtension_10 = -1;  /* T_nonCriticalExtension_07 */
+static int hf_nr_rrc_nonCriticalExtension_12 = -1;  /* T_nonCriticalExtension_07 */
 static int hf_nr_rrc_DRB_CountMSB_InfoList_item = -1;  /* DRB_CountMSB_Info */
 static int hf_nr_rrc_drb_Identity = -1;           /* DRB_Identity */
 static int hf_nr_rrc_countMSB_Uplink = -1;        /* INTEGER_0_33554431 */
@@ -556,7 +596,7 @@ static int hf_nr_rrc_criticalExtensions_08 = -1;  /* T_criticalExtensions_08 */
 static int hf_nr_rrc_counterCheckResponse_01 = -1;  /* CounterCheckResponse_IEs */
 static int hf_nr_rrc_criticalExtensionsFuture_08 = -1;  /* T_criticalExtensionsFuture_08 */
 static int hf_nr_rrc_drb_CountInfoList = -1;      /* DRB_CountInfoList */
-static int hf_nr_rrc_nonCriticalExtension_11 = -1;  /* T_nonCriticalExtension_08 */
+static int hf_nr_rrc_nonCriticalExtension_13 = -1;  /* T_nonCriticalExtension_08 */
 static int hf_nr_rrc_DRB_CountInfoList_item = -1;  /* DRB_CountInfo */
 static int hf_nr_rrc_count_Uplink = -1;           /* INTEGER_0_4294967295 */
 static int hf_nr_rrc_count_Downlink = -1;         /* INTEGER_0_4294967295 */
@@ -564,12 +604,12 @@ static int hf_nr_rrc_criticalExtensions_09 = -1;  /* T_criticalExtensions_09 */
 static int hf_nr_rrc_dlInformationTransfer_01 = -1;  /* DLInformationTransfer_IEs */
 static int hf_nr_rrc_criticalExtensionsFuture_09 = -1;  /* T_criticalExtensionsFuture_09 */
 static int hf_nr_rrc_dedicatedNAS_Message = -1;   /* DedicatedNAS_Message */
-static int hf_nr_rrc_nonCriticalExtension_12 = -1;  /* T_nonCriticalExtension_09 */
+static int hf_nr_rrc_nonCriticalExtension_14 = -1;  /* T_nonCriticalExtension_09 */
 static int hf_nr_rrc_criticalExtensions_10 = -1;  /* T_criticalExtensions_10 */
 static int hf_nr_rrc_failureInformation_01 = -1;  /* FailureInformation_IEs */
 static int hf_nr_rrc_criticalExtensionsFuture_10 = -1;  /* T_criticalExtensionsFuture_10 */
 static int hf_nr_rrc_failureInfoRLC_Bearer = -1;  /* FailureInfoRLC_Bearer */
-static int hf_nr_rrc_nonCriticalExtension_13 = -1;  /* T_nonCriticalExtension_10 */
+static int hf_nr_rrc_nonCriticalExtension_15 = -1;  /* T_nonCriticalExtension_10 */
 static int hf_nr_rrc_cellGroupId = -1;            /* CellGroupId */
 static int hf_nr_rrc_logicalChannelIdentity = -1;  /* LogicalChannelIdentity */
 static int hf_nr_rrc_failureType_01 = -1;         /* T_failureType_01 */
@@ -578,7 +618,12 @@ static int hf_nr_rrc_locationMeasurementIndication_01 = -1;  /* LocationMeasurem
 static int hf_nr_rrc_criticalExtensionsFuture_11 = -1;  /* T_criticalExtensionsFuture_11 */
 static int hf_nr_rrc_measurementIndication = -1;  /* T_measurementIndication */
 static int hf_nr_rrc_setup_01 = -1;               /* LocationMeasurementInfo */
-static int hf_nr_rrc_nonCriticalExtension_14 = -1;  /* T_nonCriticalExtension_11 */
+static int hf_nr_rrc_nonCriticalExtension_16 = -1;  /* T_nonCriticalExtension_11 */
+static int hf_nr_rrc_criticalExtensions_12 = -1;  /* T_criticalExtensions_12 */
+static int hf_nr_rrc_measurementReport_01 = -1;   /* MeasurementReport_IEs */
+static int hf_nr_rrc_criticalExtensionsFuture_12 = -1;  /* T_criticalExtensionsFuture_12 */
+static int hf_nr_rrc_measResults = -1;            /* MeasResults */
+static int hf_nr_rrc_nonCriticalExtension_17 = -1;  /* T_nonCriticalExtension_12 */
 static int hf_nr_rrc_systemFrameNumber = -1;      /* BIT_STRING_SIZE_6 */
 static int hf_nr_rrc_subCarrierSpacingCommon = -1;  /* T_subCarrierSpacingCommon */
 static int hf_nr_rrc_ssb_SubcarrierOffset = -1;   /* INTEGER_0_15 */
@@ -587,20 +632,15 @@ static int hf_nr_rrc_pdcch_ConfigSIB1 = -1;       /* PDCCH_ConfigSIB1 */
 static int hf_nr_rrc_cellBarred = -1;             /* T_cellBarred */
 static int hf_nr_rrc_intraFreqReselection = -1;   /* T_intraFreqReselection */
 static int hf_nr_rrc_spare = -1;                  /* BIT_STRING_SIZE_1 */
-static int hf_nr_rrc_criticalExtensions_12 = -1;  /* T_criticalExtensions_12 */
-static int hf_nr_rrc_measurementReport_01 = -1;   /* MeasurementReport_IEs */
-static int hf_nr_rrc_criticalExtensionsFuture_12 = -1;  /* T_criticalExtensionsFuture_12 */
-static int hf_nr_rrc_measResults = -1;            /* MeasResults */
-static int hf_nr_rrc_nonCriticalExtension_15 = -1;  /* T_nonCriticalExtension_12 */
 static int hf_nr_rrc_criticalExtensions_13 = -1;  /* T_criticalExtensions_13 */
 static int hf_nr_rrc_mobilityFromNRCommand_01 = -1;  /* MobilityFromNRCommand_IEs */
 static int hf_nr_rrc_criticalExtensionsFuture_13 = -1;  /* T_criticalExtensionsFuture_13 */
 static int hf_nr_rrc_targetRAT_Type = -1;         /* T_targetRAT_Type */
 static int hf_nr_rrc_targetRAT_MessageContainer = -1;  /* T_targetRAT_MessageContainer */
 static int hf_nr_rrc_nas_SecurityParamFromNR = -1;  /* OCTET_STRING */
-static int hf_nr_rrc_nonCriticalExtension_16 = -1;  /* T_nonCriticalExtension_13 */
+static int hf_nr_rrc_nonCriticalExtension_18 = -1;  /* T_nonCriticalExtension_13 */
 static int hf_nr_rrc_pagingRecordList = -1;       /* PagingRecordList */
-static int hf_nr_rrc_nonCriticalExtension_17 = -1;  /* T_nonCriticalExtension_14 */
+static int hf_nr_rrc_nonCriticalExtension_19 = -1;  /* T_nonCriticalExtension_14 */
 static int hf_nr_rrc_PagingRecordList_item = -1;  /* PagingRecord */
 static int hf_nr_rrc_ue_Identity = -1;            /* PagingUE_Identity */
 static int hf_nr_rrc_accessType = -1;             /* T_accessType */
@@ -610,11 +650,11 @@ static int hf_nr_rrc_criticalExtensions_14 = -1;  /* T_criticalExtensions_14 */
 static int hf_nr_rrc_rrcReestablishment_01 = -1;  /* RRCReestablishment_IEs */
 static int hf_nr_rrc_criticalExtensionsFuture_14 = -1;  /* T_criticalExtensionsFuture_14 */
 static int hf_nr_rrc_nextHopChainingCount = -1;   /* NextHopChainingCount */
-static int hf_nr_rrc_nonCriticalExtension_18 = -1;  /* T_nonCriticalExtension_15 */
+static int hf_nr_rrc_nonCriticalExtension_20 = -1;  /* T_nonCriticalExtension_15 */
 static int hf_nr_rrc_criticalExtensions_15 = -1;  /* T_criticalExtensions_15 */
 static int hf_nr_rrc_rrcReestablishmentComplete_01 = -1;  /* RRCReestablishmentComplete_IEs */
 static int hf_nr_rrc_criticalExtensionsFuture_15 = -1;  /* T_criticalExtensionsFuture_15 */
-static int hf_nr_rrc_nonCriticalExtension_19 = -1;  /* T_nonCriticalExtension_16 */
+static int hf_nr_rrc_nonCriticalExtension_21 = -1;  /* T_nonCriticalExtension_16 */
 static int hf_nr_rrc_rrcReestablishmentRequest_01 = -1;  /* RRCReestablishmentRequest_IEs */
 static int hf_nr_rrc_ue_Identity_01 = -1;         /* ReestabUE_Identity */
 static int hf_nr_rrc_reestablishmentCause = -1;   /* ReestablishmentCause */
@@ -625,7 +665,7 @@ static int hf_nr_rrc_criticalExtensionsFuture_16 = -1;  /* T_criticalExtensionsF
 static int hf_nr_rrc_radioBearerConfig = -1;      /* RadioBearerConfig */
 static int hf_nr_rrc_secondaryCellGroup = -1;     /* T_secondaryCellGroup */
 static int hf_nr_rrc_measConfig = -1;             /* MeasConfig */
-static int hf_nr_rrc_nonCriticalExtension_20 = -1;  /* RRCReconfiguration_v1530_IEs */
+static int hf_nr_rrc_nonCriticalExtension_22 = -1;  /* RRCReconfiguration_v1530_IEs */
 static int hf_nr_rrc_masterCellGroup = -1;        /* T_masterCellGroup */
 static int hf_nr_rrc_fullConfig = -1;             /* T_fullConfig */
 static int hf_nr_rrc_dedicatedNAS_MessageList = -1;  /* SEQUENCE_SIZE_1_maxDRB_OF_DedicatedNAS_Message */
@@ -634,22 +674,35 @@ static int hf_nr_rrc_masterKeyUpdate = -1;        /* MasterKeyUpdate */
 static int hf_nr_rrc_dedicatedSIB1_Delivery = -1;  /* T_dedicatedSIB1_Delivery */
 static int hf_nr_rrc_dedicatedSystemInformationDelivery = -1;  /* T_dedicatedSystemInformationDelivery */
 static int hf_nr_rrc_otherConfig = -1;            /* OtherConfig */
-static int hf_nr_rrc_nonCriticalExtension_21 = -1;  /* RRCReconfiguration_v1540_IEs */
+static int hf_nr_rrc_nonCriticalExtension_23 = -1;  /* RRCReconfiguration_v1540_IEs */
 static int hf_nr_rrc_otherConfig_v1540 = -1;      /* OtherConfig_v1540 */
-static int hf_nr_rrc_nonCriticalExtension_22 = -1;  /* T_nonCriticalExtension_17 */
+static int hf_nr_rrc_nonCriticalExtension_24 = -1;  /* RRCReconfiguration_v1560_IEs */
+static int hf_nr_rrc_mrdc_SecondaryCellGroupConfig = -1;  /* T_mrdc_SecondaryCellGroupConfig */
+static int hf_nr_rrc_setup_02 = -1;               /* MRDC_SecondaryCellGroupConfig */
+static int hf_nr_rrc_radioBearerConfig2 = -1;     /* T_radioBearerConfig2 */
+static int hf_nr_rrc_sk_Counter = -1;             /* SK_Counter */
+static int hf_nr_rrc_nonCriticalExtension_25 = -1;  /* T_nonCriticalExtension_17 */
+static int hf_nr_rrc_mrdc_ReleaseAndAdd = -1;     /* T_mrdc_ReleaseAndAdd */
+static int hf_nr_rrc_mrdc_SecondaryCellGroup = -1;  /* T_mrdc_SecondaryCellGroup */
+static int hf_nr_rrc_nr_SCG = -1;                 /* T_nr_SCG */
+static int hf_nr_rrc_eutra_SCG = -1;              /* T_eutra_SCG */
 static int hf_nr_rrc_keySetChangeIndicator = -1;  /* BOOLEAN */
 static int hf_nr_rrc_nas_Container = -1;          /* T_nas_Container */
 static int hf_nr_rrc_criticalExtensions_17 = -1;  /* T_criticalExtensions_17 */
 static int hf_nr_rrc_rrcReconfigurationComplete_01 = -1;  /* RRCReconfigurationComplete_IEs */
 static int hf_nr_rrc_criticalExtensionsFuture_17 = -1;  /* T_criticalExtensionsFuture_17 */
-static int hf_nr_rrc_nonCriticalExtension_23 = -1;  /* RRCReconfigurationComplete_v1530_IEs */
+static int hf_nr_rrc_nonCriticalExtension_26 = -1;  /* RRCReconfigurationComplete_v1530_IEs */
 static int hf_nr_rrc_uplinkTxDirectCurrentList = -1;  /* UplinkTxDirectCurrentList */
-static int hf_nr_rrc_nonCriticalExtension_24 = -1;  /* T_nonCriticalExtension_18 */
+static int hf_nr_rrc_nonCriticalExtension_27 = -1;  /* RRCReconfigurationComplete_v1560_IEs */
+static int hf_nr_rrc_scg_Response = -1;           /* T_scg_Response */
+static int hf_nr_rrc_nr_SCG_Response = -1;        /* T_nr_SCG_Response */
+static int hf_nr_rrc_eutra_SCG_Response = -1;     /* T_eutra_SCG_Response */
+static int hf_nr_rrc_nonCriticalExtension_28 = -1;  /* T_nonCriticalExtension_18 */
 static int hf_nr_rrc_criticalExtensions_18 = -1;  /* T_criticalExtensions_18 */
 static int hf_nr_rrc_rrcReject_01 = -1;           /* RRCReject_IEs */
 static int hf_nr_rrc_criticalExtensionsFuture_18 = -1;  /* T_criticalExtensionsFuture_18 */
 static int hf_nr_rrc_waitTime = -1;               /* RejectWaitTime */
-static int hf_nr_rrc_nonCriticalExtension_25 = -1;  /* T_nonCriticalExtension_19 */
+static int hf_nr_rrc_nonCriticalExtension_29 = -1;  /* T_nonCriticalExtension_19 */
 static int hf_nr_rrc_criticalExtensions_19 = -1;  /* T_criticalExtensions_19 */
 static int hf_nr_rrc_rrcRelease_01 = -1;          /* RRCRelease_IEs */
 static int hf_nr_rrc_criticalExtensionsFuture_19 = -1;  /* T_criticalExtensionsFuture_19 */
@@ -659,11 +712,10 @@ static int hf_nr_rrc_suspendConfig = -1;          /* SuspendConfig */
 static int hf_nr_rrc_deprioritisationReq = -1;    /* T_deprioritisationReq */
 static int hf_nr_rrc_deprioritisationType = -1;   /* T_deprioritisationType */
 static int hf_nr_rrc_deprioritisationTimer = -1;  /* T_deprioritisationTimer */
-static int hf_nr_rrc_nonCriticalExtension_26 = -1;  /* RRCRelease_v1540_IEs */
-static int hf_nr_rrc_nonCriticalExtension_27 = -1;  /* T_nonCriticalExtension_20 */
+static int hf_nr_rrc_nonCriticalExtension_30 = -1;  /* RRCRelease_v1540_IEs */
+static int hf_nr_rrc_nonCriticalExtension_31 = -1;  /* T_nonCriticalExtension_20 */
 static int hf_nr_rrc_nr = -1;                     /* CarrierInfoNR */
 static int hf_nr_rrc_eutra = -1;                  /* RedirectedCarrierInfo_EUTRA */
-static int hf_nr_rrc_eutraFrequency = -1;         /* ARFCN_ValueEUTRA */
 static int hf_nr_rrc_cnType = -1;                 /* T_cnType */
 static int hf_nr_rrc_smtc = -1;                   /* SSB_MTC */
 static int hf_nr_rrc_shortI_RNTI = -1;            /* ShortI_RNTI_Value */
@@ -694,12 +746,14 @@ static int hf_nr_rrc_rrcResume_01 = -1;           /* RRCResume_IEs */
 static int hf_nr_rrc_criticalExtensionsFuture_20 = -1;  /* T_criticalExtensionsFuture_20 */
 static int hf_nr_rrc_masterCellGroup_01 = -1;     /* T_masterCellGroup_01 */
 static int hf_nr_rrc_fullConfig_01 = -1;          /* T_fullConfig_01 */
-static int hf_nr_rrc_nonCriticalExtension_28 = -1;  /* T_nonCriticalExtension_21 */
+static int hf_nr_rrc_nonCriticalExtension_32 = -1;  /* RRCResume_v1560_IEs */
+static int hf_nr_rrc_radioBearerConfig2_01 = -1;  /* T_radioBearerConfig2_01 */
+static int hf_nr_rrc_nonCriticalExtension_33 = -1;  /* T_nonCriticalExtension_21 */
 static int hf_nr_rrc_criticalExtensions_21 = -1;  /* T_criticalExtensions_21 */
 static int hf_nr_rrc_rrcResumeComplete_01 = -1;   /* RRCResumeComplete_IEs */
 static int hf_nr_rrc_criticalExtensionsFuture_21 = -1;  /* T_criticalExtensionsFuture_21 */
 static int hf_nr_rrc_selectedPLMN_Identity = -1;  /* INTEGER_1_maxPLMN */
-static int hf_nr_rrc_nonCriticalExtension_29 = -1;  /* T_nonCriticalExtension_22 */
+static int hf_nr_rrc_nonCriticalExtension_34 = -1;  /* T_nonCriticalExtension_22 */
 static int hf_nr_rrc_rrcResumeRequest_01 = -1;    /* RRCResumeRequest_IEs */
 static int hf_nr_rrc_resumeIdentity = -1;         /* ShortI_RNTI_Value */
 static int hf_nr_rrc_resumeMAC_I = -1;            /* BIT_STRING_SIZE_16 */
@@ -710,7 +764,7 @@ static int hf_nr_rrc_criticalExtensions_22 = -1;  /* T_criticalExtensions_22 */
 static int hf_nr_rrc_rrcSetup_01 = -1;            /* RRCSetup_IEs */
 static int hf_nr_rrc_criticalExtensionsFuture_22 = -1;  /* T_criticalExtensionsFuture_22 */
 static int hf_nr_rrc_masterCellGroup_02 = -1;     /* T_masterCellGroup_02 */
-static int hf_nr_rrc_nonCriticalExtension_30 = -1;  /* T_nonCriticalExtension_23 */
+static int hf_nr_rrc_nonCriticalExtension_35 = -1;  /* T_nonCriticalExtension_23 */
 static int hf_nr_rrc_criticalExtensions_23 = -1;  /* T_criticalExtensions_23 */
 static int hf_nr_rrc_rrcSetupComplete_01 = -1;    /* RRCSetupComplete_IEs */
 static int hf_nr_rrc_criticalExtensionsFuture_23 = -1;  /* T_criticalExtensionsFuture_23 */
@@ -720,7 +774,7 @@ static int hf_nr_rrc_s_NSSAI_List = -1;           /* SEQUENCE_SIZE_1_maxNrofS_NS
 static int hf_nr_rrc_s_NSSAI_List_item = -1;      /* S_NSSAI */
 static int hf_nr_rrc_ng_5G_S_TMSI_Value = -1;     /* T_ng_5G_S_TMSI_Value */
 static int hf_nr_rrc_ng_5G_S_TMSI_Part2 = -1;     /* BIT_STRING_SIZE_9 */
-static int hf_nr_rrc_nonCriticalExtension_31 = -1;  /* T_nonCriticalExtension_24 */
+static int hf_nr_rrc_nonCriticalExtension_36 = -1;  /* T_nonCriticalExtension_24 */
 static int hf_nr_rrc_amf_Identifier = -1;         /* AMF_Identifier */
 static int hf_nr_rrc_rrcSetupRequest_01 = -1;     /* RRCSetupRequest_IEs */
 static int hf_nr_rrc_ue_Identity_02 = -1;         /* InitialUE_Identity */
@@ -733,19 +787,37 @@ static int hf_nr_rrc_criticalExtensionsFuture_24 = -1;  /* T_criticalExtensionsF
 static int hf_nr_rrc_requested_SI_List = -1;      /* BIT_STRING_SIZE_maxSI_Message */
 static int hf_nr_rrc_spare_01 = -1;               /* BIT_STRING_SIZE_12 */
 static int hf_nr_rrc_criticalExtensions_25 = -1;  /* T_criticalExtensions_25 */
-static int hf_nr_rrc_securityModeCommand_01 = -1;  /* SecurityModeCommand_IEs */
+static int hf_nr_rrc_scgFailureInformation_01 = -1;  /* SCGFailureInformation_IEs */
 static int hf_nr_rrc_criticalExtensionsFuture_25 = -1;  /* T_criticalExtensionsFuture_25 */
-static int hf_nr_rrc_securityConfigSMC = -1;      /* SecurityConfigSMC */
-static int hf_nr_rrc_nonCriticalExtension_32 = -1;  /* T_nonCriticalExtension_25 */
-static int hf_nr_rrc_securityAlgorithmConfig = -1;  /* SecurityAlgorithmConfig */
+static int hf_nr_rrc_failureReportSCG = -1;       /* FailureReportSCG */
+static int hf_nr_rrc_nonCriticalExtension_37 = -1;  /* T_nonCriticalExtension_25 */
+static int hf_nr_rrc_failureType_02 = -1;         /* T_failureType_02 */
+static int hf_nr_rrc_measResultFreqList = -1;     /* MeasResultFreqList */
+static int hf_nr_rrc_measResultSCG_Failure = -1;  /* T_measResultSCG_Failure */
+static int hf_nr_rrc_MeasResultFreqList_item = -1;  /* MeasResult2NR */
 static int hf_nr_rrc_criticalExtensions_26 = -1;  /* T_criticalExtensions_26 */
-static int hf_nr_rrc_securityModeComplete_01 = -1;  /* SecurityModeComplete_IEs */
+static int hf_nr_rrc_scgFailureInformationEUTRA_01 = -1;  /* SCGFailureInformationEUTRA_IEs */
 static int hf_nr_rrc_criticalExtensionsFuture_26 = -1;  /* T_criticalExtensionsFuture_26 */
-static int hf_nr_rrc_nonCriticalExtension_33 = -1;  /* T_nonCriticalExtension_26 */
+static int hf_nr_rrc_failureReportSCG_EUTRA = -1;  /* FailureReportSCG_EUTRA */
+static int hf_nr_rrc_nonCriticalExtension_38 = -1;  /* T_nonCriticalExtension_26 */
+static int hf_nr_rrc_failureType_03 = -1;         /* T_failureType_03 */
+static int hf_nr_rrc_measResultFreqListMRDC = -1;  /* MeasResultFreqListFailMRDC */
+static int hf_nr_rrc_measResultSCG_FailureMRDC = -1;  /* T_measResultSCG_FailureMRDC */
+static int hf_nr_rrc_MeasResultFreqListFailMRDC_item = -1;  /* MeasResult2EUTRA */
 static int hf_nr_rrc_criticalExtensions_27 = -1;  /* T_criticalExtensions_27 */
-static int hf_nr_rrc_securityModeFailure_01 = -1;  /* SecurityModeFailure_IEs */
+static int hf_nr_rrc_securityModeCommand_01 = -1;  /* SecurityModeCommand_IEs */
 static int hf_nr_rrc_criticalExtensionsFuture_27 = -1;  /* T_criticalExtensionsFuture_27 */
-static int hf_nr_rrc_nonCriticalExtension_34 = -1;  /* T_nonCriticalExtension_27 */
+static int hf_nr_rrc_securityConfigSMC = -1;      /* SecurityConfigSMC */
+static int hf_nr_rrc_nonCriticalExtension_39 = -1;  /* T_nonCriticalExtension_27 */
+static int hf_nr_rrc_securityAlgorithmConfig = -1;  /* SecurityAlgorithmConfig */
+static int hf_nr_rrc_criticalExtensions_28 = -1;  /* T_criticalExtensions_28 */
+static int hf_nr_rrc_securityModeComplete_01 = -1;  /* SecurityModeComplete_IEs */
+static int hf_nr_rrc_criticalExtensionsFuture_28 = -1;  /* T_criticalExtensionsFuture_28 */
+static int hf_nr_rrc_nonCriticalExtension_40 = -1;  /* T_nonCriticalExtension_28 */
+static int hf_nr_rrc_criticalExtensions_29 = -1;  /* T_criticalExtensions_29 */
+static int hf_nr_rrc_securityModeFailure_01 = -1;  /* SecurityModeFailure_IEs */
+static int hf_nr_rrc_criticalExtensionsFuture_29 = -1;  /* T_criticalExtensionsFuture_29 */
+static int hf_nr_rrc_nonCriticalExtension_41 = -1;  /* T_nonCriticalExtension_29 */
 static int hf_nr_rrc_cellSelectionInfo = -1;      /* T_cellSelectionInfo */
 static int hf_nr_rrc_q_RxLevMin = -1;             /* Q_RxLevMin */
 static int hf_nr_rrc_q_RxLevMinOffset = -1;       /* INTEGER_1_8 */
@@ -768,10 +840,10 @@ static int hf_nr_rrc_plmnCommon = -1;             /* UAC_AccessCategory1_Selecti
 static int hf_nr_rrc_individualPLMNList = -1;     /* SEQUENCE_SIZE_2_maxPLMN_OF_UAC_AccessCategory1_SelectionAssistanceInfo */
 static int hf_nr_rrc_individualPLMNList_item = -1;  /* UAC_AccessCategory1_SelectionAssistanceInfo */
 static int hf_nr_rrc_useFullResumeID = -1;        /* T_useFullResumeID */
-static int hf_nr_rrc_nonCriticalExtension_35 = -1;  /* T_nonCriticalExtension_28 */
-static int hf_nr_rrc_criticalExtensions_28 = -1;  /* T_criticalExtensions_28 */
-static int hf_nr_rrc_systemInformation_r15 = -1;  /* SystemInformation_IEs */
-static int hf_nr_rrc_criticalExtensionsFuture_28 = -1;  /* T_criticalExtensionsFuture_28 */
+static int hf_nr_rrc_nonCriticalExtension_42 = -1;  /* T_nonCriticalExtension_30 */
+static int hf_nr_rrc_criticalExtensions_30 = -1;  /* T_criticalExtensions_30 */
+static int hf_nr_rrc_systemInformation_01 = -1;   /* SystemInformation_IEs */
+static int hf_nr_rrc_criticalExtensionsFuture_30 = -1;  /* T_criticalExtensionsFuture_30 */
 static int hf_nr_rrc_sib_TypeAndInfo = -1;        /* T_sib_TypeAndInfo */
 static int hf_nr_rrc_sib_TypeAndInfo_item = -1;   /* T_sib_TypeAndInfo_item */
 static int hf_nr_rrc_sib2 = -1;                   /* SIB2 */
@@ -782,15 +854,15 @@ static int hf_nr_rrc_sib6 = -1;                   /* SIB6 */
 static int hf_nr_rrc_sib7 = -1;                   /* SIB7 */
 static int hf_nr_rrc_sib8 = -1;                   /* SIB8 */
 static int hf_nr_rrc_sib9 = -1;                   /* SIB9 */
-static int hf_nr_rrc_nonCriticalExtension_36 = -1;  /* T_nonCriticalExtension_29 */
-static int hf_nr_rrc_criticalExtensions_29 = -1;  /* T_criticalExtensions_29 */
+static int hf_nr_rrc_nonCriticalExtension_43 = -1;  /* T_nonCriticalExtension_31 */
+static int hf_nr_rrc_criticalExtensions_31 = -1;  /* T_criticalExtensions_31 */
 static int hf_nr_rrc_ueAssistanceInformation_02 = -1;  /* UEAssistanceInformation_IEs */
-static int hf_nr_rrc_criticalExtensionsFuture_29 = -1;  /* T_criticalExtensionsFuture_29 */
+static int hf_nr_rrc_criticalExtensionsFuture_31 = -1;  /* T_criticalExtensionsFuture_31 */
 static int hf_nr_rrc_delayBudgetReport = -1;      /* DelayBudgetReport */
-static int hf_nr_rrc_nonCriticalExtension_37 = -1;  /* UEAssistanceInformation_v1540_IEs */
+static int hf_nr_rrc_nonCriticalExtension_44 = -1;  /* UEAssistanceInformation_v1540_IEs */
 static int hf_nr_rrc_type1 = -1;                  /* T_type1 */
 static int hf_nr_rrc_overheatingAssistance = -1;  /* OverheatingAssistance */
-static int hf_nr_rrc_nonCriticalExtension_38 = -1;  /* T_nonCriticalExtension_30 */
+static int hf_nr_rrc_nonCriticalExtension_45 = -1;  /* T_nonCriticalExtension_32 */
 static int hf_nr_rrc_reducedMaxCCs = -1;          /* T_reducedMaxCCs */
 static int hf_nr_rrc_reducedCCsDL = -1;           /* INTEGER_0_31 */
 static int hf_nr_rrc_reducedCCsUL = -1;           /* INTEGER_0_31 */
@@ -806,20 +878,29 @@ static int hf_nr_rrc_reducedMIMO_LayersFR1_UL = -1;  /* MIMO_LayersUL */
 static int hf_nr_rrc_reducedMaxMIMO_LayersFR2 = -1;  /* T_reducedMaxMIMO_LayersFR2 */
 static int hf_nr_rrc_reducedMIMO_LayersFR2_DL = -1;  /* MIMO_LayersDL */
 static int hf_nr_rrc_reducedMIMO_LayersFR2_UL = -1;  /* MIMO_LayersUL */
-static int hf_nr_rrc_criticalExtensions_30 = -1;  /* T_criticalExtensions_30 */
-static int hf_nr_rrc_ueCapabilityEnquiry_01 = -1;  /* UECapabilityEnquiry_IEs */
-static int hf_nr_rrc_criticalExtensionsFuture_30 = -1;  /* T_criticalExtensionsFuture_30 */
-static int hf_nr_rrc_ue_CapabilityRAT_RequestList = -1;  /* UE_CapabilityRAT_RequestList */
-static int hf_nr_rrc_nonCriticalExtension_39 = -1;  /* T_nonCriticalExtension_31 */
-static int hf_nr_rrc_criticalExtensions_31 = -1;  /* T_criticalExtensions_31 */
-static int hf_nr_rrc_ueCapabilityInformation_01 = -1;  /* UECapabilityInformation_IEs */
-static int hf_nr_rrc_criticalExtensionsFuture_31 = -1;  /* T_criticalExtensionsFuture_31 */
-static int hf_nr_rrc_ue_CapabilityRAT_ContainerList = -1;  /* UE_CapabilityRAT_ContainerList */
-static int hf_nr_rrc_nonCriticalExtension_40 = -1;  /* T_nonCriticalExtension_32 */
 static int hf_nr_rrc_criticalExtensions_32 = -1;  /* T_criticalExtensions_32 */
-static int hf_nr_rrc_ulInformationTransfer_01 = -1;  /* ULInformationTransfer_IEs */
+static int hf_nr_rrc_ueCapabilityEnquiry_01 = -1;  /* UECapabilityEnquiry_IEs */
 static int hf_nr_rrc_criticalExtensionsFuture_32 = -1;  /* T_criticalExtensionsFuture_32 */
-static int hf_nr_rrc_nonCriticalExtension_41 = -1;  /* T_nonCriticalExtension_33 */
+static int hf_nr_rrc_ue_CapabilityRAT_RequestList = -1;  /* UE_CapabilityRAT_RequestList */
+static int hf_nr_rrc_ue_CapabilityEnquiryExt = -1;  /* T_ue_CapabilityEnquiryExt */
+static int hf_nr_rrc_capabilityRequestFilterCommon = -1;  /* UE_CapabilityRequestFilterCommon */
+static int hf_nr_rrc_nonCriticalExtension_46 = -1;  /* T_nonCriticalExtension_33 */
+static int hf_nr_rrc_criticalExtensions_33 = -1;  /* T_criticalExtensions_33 */
+static int hf_nr_rrc_ueCapabilityInformation_01 = -1;  /* UECapabilityInformation_IEs */
+static int hf_nr_rrc_criticalExtensionsFuture_33 = -1;  /* T_criticalExtensionsFuture_33 */
+static int hf_nr_rrc_ue_CapabilityRAT_ContainerList = -1;  /* UE_CapabilityRAT_ContainerList */
+static int hf_nr_rrc_nonCriticalExtension_47 = -1;  /* T_nonCriticalExtension_34 */
+static int hf_nr_rrc_criticalExtensions_34 = -1;  /* T_criticalExtensions_34 */
+static int hf_nr_rrc_ulInformationTransfer_01 = -1;  /* ULInformationTransfer_IEs */
+static int hf_nr_rrc_criticalExtensionsFuture_34 = -1;  /* T_criticalExtensionsFuture_34 */
+static int hf_nr_rrc_nonCriticalExtension_48 = -1;  /* T_nonCriticalExtension_35 */
+static int hf_nr_rrc_criticalExtensions_35 = -1;  /* T_criticalExtensions_35 */
+static int hf_nr_rrc_c1_14 = -1;                  /* T_c1_14 */
+static int hf_nr_rrc_ulInformationTransferMRDC_01 = -1;  /* ULInformationTransferMRDC_IEs */
+static int hf_nr_rrc_criticalExtensionsFuture_35 = -1;  /* T_criticalExtensionsFuture_35 */
+static int hf_nr_rrc_ul_DCCH_MessageNR = -1;      /* T_ul_DCCH_MessageNR */
+static int hf_nr_rrc_ul_DCCH_MessageEUTRA = -1;   /* T_ul_DCCH_MessageEUTRA */
+static int hf_nr_rrc_nonCriticalExtension_49 = -1;  /* T_nonCriticalExtension_36 */
 static int hf_nr_rrc_cellReselectionInfoCommon = -1;  /* T_cellReselectionInfoCommon */
 static int hf_nr_rrc_nrofSS_BlocksToAverage = -1;  /* INTEGER_2_maxNrofSS_BlocksToAverage */
 static int hf_nr_rrc_absThreshSS_BlocksConsolidation = -1;  /* ThresholdNR */
@@ -884,7 +965,7 @@ static int hf_nr_rrc_threshX_Q_01 = -1;           /* T_threshX_Q_01 */
 static int hf_nr_rrc_EUTRA_FreqBlackCellList_item = -1;  /* EUTRA_PhysCellIdRange */
 static int hf_nr_rrc_EUTRA_FreqNeighCellList_item = -1;  /* EUTRA_FreqNeighCellInfo */
 static int hf_nr_rrc_physCellId_01 = -1;          /* EUTRA_PhysCellId */
-static int hf_nr_rrc_q_OffsetCell_01 = -1;        /* EUTRA_Q_OffsetRange */
+static int hf_nr_rrc_dummy = -1;                  /* EUTRA_Q_OffsetRange */
 static int hf_nr_rrc_messageIdentifier = -1;      /* T_messageIdentifier */
 static int hf_nr_rrc_serialNumber = -1;           /* T_serialNumber */
 static int hf_nr_rrc_warningType = -1;            /* T_warningType */
@@ -935,35 +1016,35 @@ static int hf_nr_rrc_bwp_Common = -1;             /* BWP_DownlinkCommon */
 static int hf_nr_rrc_bwp_Dedicated = -1;          /* BWP_DownlinkDedicated */
 static int hf_nr_rrc_genericParameters = -1;      /* BWP */
 static int hf_nr_rrc_pdcch_ConfigCommon = -1;     /* T_pdcch_ConfigCommon */
-static int hf_nr_rrc_setup_02 = -1;               /* PDCCH_ConfigCommon */
+static int hf_nr_rrc_setup_03 = -1;               /* PDCCH_ConfigCommon */
 static int hf_nr_rrc_pdsch_ConfigCommon = -1;     /* T_pdsch_ConfigCommon */
-static int hf_nr_rrc_setup_03 = -1;               /* PDSCH_ConfigCommon */
+static int hf_nr_rrc_setup_04 = -1;               /* PDSCH_ConfigCommon */
 static int hf_nr_rrc_pdcch_Config = -1;           /* T_pdcch_Config */
-static int hf_nr_rrc_setup_04 = -1;               /* PDCCH_Config */
+static int hf_nr_rrc_setup_05 = -1;               /* PDCCH_Config */
 static int hf_nr_rrc_pdsch_Config = -1;           /* T_pdsch_Config */
-static int hf_nr_rrc_setup_05 = -1;               /* PDSCH_Config */
+static int hf_nr_rrc_setup_06 = -1;               /* PDSCH_Config */
 static int hf_nr_rrc_sps_Config = -1;             /* T_sps_Config */
-static int hf_nr_rrc_setup_06 = -1;               /* SPS_Config */
+static int hf_nr_rrc_setup_07 = -1;               /* SPS_Config */
 static int hf_nr_rrc_radioLinkMonitoringConfig = -1;  /* T_radioLinkMonitoringConfig */
-static int hf_nr_rrc_setup_07 = -1;               /* RadioLinkMonitoringConfig */
+static int hf_nr_rrc_setup_08 = -1;               /* RadioLinkMonitoringConfig */
 static int hf_nr_rrc_bwp_Common_01 = -1;          /* BWP_UplinkCommon */
 static int hf_nr_rrc_bwp_Dedicated_01 = -1;       /* BWP_UplinkDedicated */
 static int hf_nr_rrc_rach_ConfigCommon = -1;      /* T_rach_ConfigCommon */
-static int hf_nr_rrc_setup_08 = -1;               /* RACH_ConfigCommon */
+static int hf_nr_rrc_setup_09 = -1;               /* RACH_ConfigCommon */
 static int hf_nr_rrc_pusch_ConfigCommon = -1;     /* T_pusch_ConfigCommon */
-static int hf_nr_rrc_setup_09 = -1;               /* PUSCH_ConfigCommon */
+static int hf_nr_rrc_setup_10 = -1;               /* PUSCH_ConfigCommon */
 static int hf_nr_rrc_pucch_ConfigCommon = -1;     /* T_pucch_ConfigCommon */
-static int hf_nr_rrc_setup_10 = -1;               /* PUCCH_ConfigCommon */
+static int hf_nr_rrc_setup_11 = -1;               /* PUCCH_ConfigCommon */
 static int hf_nr_rrc_pucch_Config = -1;           /* T_pucch_Config */
-static int hf_nr_rrc_setup_11 = -1;               /* PUCCH_Config */
+static int hf_nr_rrc_setup_12 = -1;               /* PUCCH_Config */
 static int hf_nr_rrc_pusch_Config = -1;           /* T_pusch_Config */
-static int hf_nr_rrc_setup_12 = -1;               /* PUSCH_Config */
+static int hf_nr_rrc_setup_13 = -1;               /* PUSCH_Config */
 static int hf_nr_rrc_configuredGrantConfig = -1;  /* T_configuredGrantConfig */
-static int hf_nr_rrc_setup_13 = -1;               /* ConfiguredGrantConfig */
+static int hf_nr_rrc_setup_14 = -1;               /* ConfiguredGrantConfig */
 static int hf_nr_rrc_srs_Config = -1;             /* T_srs_Config */
-static int hf_nr_rrc_setup_14 = -1;               /* SRS_Config */
+static int hf_nr_rrc_setup_15 = -1;               /* SRS_Config */
 static int hf_nr_rrc_beamFailureRecoveryConfig = -1;  /* T_beamFailureRecoveryConfig */
-static int hf_nr_rrc_setup_15 = -1;               /* BeamFailureRecoveryConfig */
+static int hf_nr_rrc_setup_16 = -1;               /* BeamFailureRecoveryConfig */
 static int hf_nr_rrc_plmn_IdentityList = -1;      /* PLMN_IdentityInfoList */
 static int hf_nr_rrc_cellReservedForOtherUse = -1;  /* T_cellReservedForOtherUse */
 static int hf_nr_rrc_plmn_IdentityList_eutra_5gc = -1;  /* PLMN_IdentityList_EUTRA_5GC */
@@ -993,7 +1074,7 @@ static int hf_nr_rrc_sCellToReleaseList_item = -1;  /* SCellIndex */
 static int hf_nr_rrc_reportUplinkTxDirectCurrent_v1530 = -1;  /* T_reportUplinkTxDirectCurrent_v1530 */
 static int hf_nr_rrc_reconfigurationWithSync = -1;  /* ReconfigurationWithSync */
 static int hf_nr_rrc_rlf_TimersAndConstants = -1;  /* T_rlf_TimersAndConstants */
-static int hf_nr_rrc_setup_16 = -1;               /* RLF_TimersAndConstants */
+static int hf_nr_rrc_setup_17 = -1;               /* RLF_TimersAndConstants */
 static int hf_nr_rrc_rlmInSyncOutOfSyncThreshold = -1;  /* T_rlmInSyncOutOfSyncThreshold */
 static int hf_nr_rrc_spCellConfigDedicated = -1;  /* ServingCellConfig */
 static int hf_nr_rrc_spCellConfigCommon = -1;     /* ServingCellConfigCommon */
@@ -1005,6 +1086,15 @@ static int hf_nr_rrc_supplementaryUplink = -1;    /* RACH_ConfigDedicated */
 static int hf_nr_rrc_sCellIndex = -1;             /* SCellIndex */
 static int hf_nr_rrc_sCellConfigCommon = -1;      /* ServingCellConfigCommon */
 static int hf_nr_rrc_sCellConfigDedicated = -1;   /* ServingCellConfig */
+static int hf_nr_rrc_cgi_info_EPC = -1;           /* T_cgi_info_EPC */
+static int hf_nr_rrc_cgi_info_EPC_legacy = -1;    /* CellAccessRelatedInfo_EUTRA_EPC */
+static int hf_nr_rrc_cgi_info_EPC_list = -1;      /* SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_EPC */
+static int hf_nr_rrc_cgi_info_EPC_list_item = -1;  /* CellAccessRelatedInfo_EUTRA_EPC */
+static int hf_nr_rrc_cgi_info_5GC = -1;           /* SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_5GC */
+static int hf_nr_rrc_cgi_info_5GC_item = -1;      /* CellAccessRelatedInfo_EUTRA_5GC */
+static int hf_nr_rrc_freqBandIndicator = -1;      /* FreqBandIndicatorEUTRA */
+static int hf_nr_rrc_multiBandInfoList = -1;      /* MultiBandInfoListEUTRA */
+static int hf_nr_rrc_freqBandIndicatorPriority = -1;  /* T_freqBandIndicatorPriority */
 static int hf_nr_rrc_plmn_IdentityInfoList = -1;  /* PLMN_IdentityInfoList */
 static int hf_nr_rrc_frequencyBandList_01 = -1;   /* MultiFrequencyBandListNR */
 static int hf_nr_rrc_noSIB1 = -1;                 /* T_noSIB1 */
@@ -1073,7 +1163,7 @@ static int hf_nr_rrc_cg_DMRS_Configuration = -1;  /* DMRS_UplinkConfig */
 static int hf_nr_rrc_mcs_Table = -1;              /* T_mcs_Table */
 static int hf_nr_rrc_mcs_TableTransformPrecoder = -1;  /* T_mcs_TableTransformPrecoder */
 static int hf_nr_rrc_uci_OnPUSCH = -1;            /* T_uci_OnPUSCH */
-static int hf_nr_rrc_setup_17 = -1;               /* CG_UCI_OnPUSCH */
+static int hf_nr_rrc_setup_18 = -1;               /* CG_UCI_OnPUSCH */
 static int hf_nr_rrc_resourceAllocation = -1;     /* T_resourceAllocation */
 static int hf_nr_rrc_rbg_Size = -1;               /* T_rbg_Size */
 static int hf_nr_rrc_powerControlLoopToUse = -1;  /* T_powerControlLoopToUse */
@@ -1168,8 +1258,8 @@ static int hf_nr_rrc_csi_IM_ResourceSetToReleaseList = -1;  /* SEQUENCE_SIZE_1_m
 static int hf_nr_rrc_csi_IM_ResourceSetToReleaseList_item = -1;  /* CSI_IM_ResourceSetId */
 static int hf_nr_rrc_csi_SSB_ResourceSetToAddModList = -1;  /* SEQUENCE_SIZE_1_maxNrofCSI_SSB_ResourceSets_OF_CSI_SSB_ResourceSet */
 static int hf_nr_rrc_csi_SSB_ResourceSetToAddModList_item = -1;  /* CSI_SSB_ResourceSet */
-static int hf_nr_rrc_csi_SSB_ResourceSetToAddReleaseList = -1;  /* SEQUENCE_SIZE_1_maxNrofCSI_SSB_ResourceSets_OF_CSI_SSB_ResourceSetId */
-static int hf_nr_rrc_csi_SSB_ResourceSetToAddReleaseList_item = -1;  /* CSI_SSB_ResourceSetId */
+static int hf_nr_rrc_csi_SSB_ResourceSetToReleaseList = -1;  /* SEQUENCE_SIZE_1_maxNrofCSI_SSB_ResourceSets_OF_CSI_SSB_ResourceSetId */
+static int hf_nr_rrc_csi_SSB_ResourceSetToReleaseList_item = -1;  /* CSI_SSB_ResourceSetId */
 static int hf_nr_rrc_csi_ResourceConfigToAddModList = -1;  /* SEQUENCE_SIZE_1_maxNrofCSI_ResourceConfigurations_OF_CSI_ResourceConfig */
 static int hf_nr_rrc_csi_ResourceConfigToAddModList_item = -1;  /* CSI_ResourceConfig */
 static int hf_nr_rrc_csi_ResourceConfigToReleaseList = -1;  /* SEQUENCE_SIZE_1_maxNrofCSI_ResourceConfigurations_OF_CSI_ResourceConfigId */
@@ -1180,9 +1270,9 @@ static int hf_nr_rrc_csi_ReportConfigToReleaseList = -1;  /* SEQUENCE_SIZE_1_max
 static int hf_nr_rrc_csi_ReportConfigToReleaseList_item = -1;  /* CSI_ReportConfigId */
 static int hf_nr_rrc_reportTriggerSize = -1;      /* INTEGER_0_6 */
 static int hf_nr_rrc_aperiodicTriggerStateList = -1;  /* T_aperiodicTriggerStateList */
-static int hf_nr_rrc_setup_18 = -1;               /* CSI_AperiodicTriggerStateList */
+static int hf_nr_rrc_setup_19 = -1;               /* CSI_AperiodicTriggerStateList */
 static int hf_nr_rrc_semiPersistentOnPUSCH_TriggerStateList = -1;  /* T_semiPersistentOnPUSCH_TriggerStateList */
-static int hf_nr_rrc_setup_19 = -1;               /* CSI_SemiPersistentOnPUSCH_TriggerStateList */
+static int hf_nr_rrc_setup_20 = -1;               /* CSI_SemiPersistentOnPUSCH_TriggerStateList */
 static int hf_nr_rrc_carrier = -1;                /* ServCellIndex */
 static int hf_nr_rrc_resourcesForChannelMeasurement = -1;  /* CSI_ResourceConfigId */
 static int hf_nr_rrc_csi_IM_ResourcesForInterference_01 = -1;  /* CSI_ResourceConfigId */
@@ -1234,7 +1324,7 @@ static int hf_nr_rrc_subbands19_v1530 = -1;       /* BIT_STRING_SIZE_19 */
 static int hf_nr_rrc_timeRestrictionForChannelMeasurements = -1;  /* T_timeRestrictionForChannelMeasurements */
 static int hf_nr_rrc_timeRestrictionForInterferenceMeasurements = -1;  /* T_timeRestrictionForInterferenceMeasurements */
 static int hf_nr_rrc_codebookConfig = -1;         /* CodebookConfig */
-static int hf_nr_rrc_dummy = -1;                  /* T_dummy */
+static int hf_nr_rrc_dummy_01 = -1;               /* T_dummy */
 static int hf_nr_rrc_groupBasedBeamReporting = -1;  /* T_groupBasedBeamReporting */
 static int hf_nr_rrc_enabled = -1;                /* NULL */
 static int hf_nr_rrc_disabled = -1;               /* T_disabled */
@@ -1346,11 +1436,11 @@ static int hf_nr_rrc_maxLength = -1;              /* T_maxLength */
 static int hf_nr_rrc_scramblingID0 = -1;          /* INTEGER_0_65535 */
 static int hf_nr_rrc_scramblingID1 = -1;          /* INTEGER_0_65535 */
 static int hf_nr_rrc_phaseTrackingRS = -1;        /* T_phaseTrackingRS */
-static int hf_nr_rrc_setup_20 = -1;               /* PTRS_DownlinkConfig */
+static int hf_nr_rrc_setup_21 = -1;               /* PTRS_DownlinkConfig */
 static int hf_nr_rrc_dmrs_Type_01 = -1;           /* T_dmrs_Type_01 */
 static int hf_nr_rrc_dmrs_AdditionalPosition_01 = -1;  /* T_dmrs_AdditionalPosition_01 */
 static int hf_nr_rrc_phaseTrackingRS_01 = -1;     /* T_phaseTrackingRS_01 */
-static int hf_nr_rrc_setup_21 = -1;               /* PTRS_UplinkConfig */
+static int hf_nr_rrc_setup_22 = -1;               /* PTRS_UplinkConfig */
 static int hf_nr_rrc_maxLength_01 = -1;           /* T_maxLength_01 */
 static int hf_nr_rrc_transformPrecodingDisabled = -1;  /* T_transformPrecodingDisabled */
 static int hf_nr_rrc_transformPrecodingEnabled = -1;  /* T_transformPrecodingEnabled */
@@ -1435,16 +1525,16 @@ static int hf_nr_rrc_logicalChannelSR_Mask = -1;  /* BOOLEAN */
 static int hf_nr_rrc_logicalChannelSR_DelayTimerApplied = -1;  /* BOOLEAN */
 static int hf_nr_rrc_bitRateQueryProhibitTimer = -1;  /* T_bitRateQueryProhibitTimer */
 static int hf_nr_rrc_drx_Config = -1;             /* T_drx_Config */
-static int hf_nr_rrc_setup_22 = -1;               /* DRX_Config */
+static int hf_nr_rrc_setup_23 = -1;               /* DRX_Config */
 static int hf_nr_rrc_schedulingRequestConfig = -1;  /* SchedulingRequestConfig */
 static int hf_nr_rrc_bsr_Config = -1;             /* BSR_Config */
 static int hf_nr_rrc_tag_Config = -1;             /* TAG_Config */
 static int hf_nr_rrc_phr_Config = -1;             /* T_phr_Config */
-static int hf_nr_rrc_setup_23 = -1;               /* PHR_Config */
+static int hf_nr_rrc_setup_24 = -1;               /* PHR_Config */
 static int hf_nr_rrc_skipUplinkTxDynamic = -1;    /* BOOLEAN */
-static int hf_nr_rrc_csi_Mask_v1530 = -1;         /* BOOLEAN */
-static int hf_nr_rrc_dataInactivityTimer_v1530 = -1;  /* T_dataInactivityTimer_v1530 */
-static int hf_nr_rrc_setup_24 = -1;               /* DataInactivityTimer */
+static int hf_nr_rrc_csi_Mask = -1;               /* BOOLEAN */
+static int hf_nr_rrc_dataInactivityTimer = -1;    /* T_dataInactivityTimer */
+static int hf_nr_rrc_setup_25 = -1;               /* DataInactivityTimer */
 static int hf_nr_rrc_measObjectToRemoveList = -1;  /* MeasObjectToRemoveList */
 static int hf_nr_rrc_measObjectToAddModList = -1;  /* MeasObjectToAddModList */
 static int hf_nr_rrc_reportConfigToRemoveList = -1;  /* ReportConfigToRemoveList */
@@ -1467,8 +1557,9 @@ static int hf_nr_rrc_gapOffset = -1;              /* INTEGER_0_159 */
 static int hf_nr_rrc_mgl = -1;                    /* T_mgl */
 static int hf_nr_rrc_mgrp = -1;                   /* T_mgrp */
 static int hf_nr_rrc_mgta = -1;                   /* T_mgta */
+static int hf_nr_rrc_refServCellIndicator = -1;   /* T_refServCellIndicator */
 static int hf_nr_rrc_gapSharingFR2 = -1;          /* T_gapSharingFR2 */
-static int hf_nr_rrc_setup_25 = -1;               /* MeasGapSharingScheme */
+static int hf_nr_rrc_setup_26 = -1;               /* MeasGapSharingScheme */
 static int hf_nr_rrc_gapSharingFR1 = -1;          /* T_gapSharingFR1 */
 static int hf_nr_rrc_gapSharingUE = -1;           /* T_gapSharingUE */
 static int hf_nr_rrc_MeasIdToAddModList_item = -1;  /* MeasIdToAddMod */
@@ -1508,9 +1599,9 @@ static int hf_nr_rrc_freqBandIndicatorNR_v1530 = -1;  /* FreqBandIndicatorNR */
 static int hf_nr_rrc_measCycleSCell_v1530 = -1;   /* T_measCycleSCell_v1530 */
 static int hf_nr_rrc_ssb_ConfigMobility = -1;     /* SSB_ConfigMobility */
 static int hf_nr_rrc_csi_rs_ResourceConfigMobility = -1;  /* T_csi_rs_ResourceConfigMobility */
-static int hf_nr_rrc_setup_26 = -1;               /* CSI_RS_ResourceConfigMobility */
+static int hf_nr_rrc_setup_27 = -1;               /* CSI_RS_ResourceConfigMobility */
 static int hf_nr_rrc_ssb_ToMeasure_01 = -1;       /* T_ssb_ToMeasure */
-static int hf_nr_rrc_setup_27 = -1;               /* SSB_ToMeasure */
+static int hf_nr_rrc_setup_28 = -1;               /* SSB_ToMeasure */
 static int hf_nr_rrc_rsrpOffsetSSB = -1;          /* Q_OffsetRange */
 static int hf_nr_rrc_rsrqOffsetSSB = -1;          /* Q_OffsetRange */
 static int hf_nr_rrc_sinrOffsetSSB = -1;          /* Q_OffsetRange */
@@ -1526,14 +1617,20 @@ static int hf_nr_rrc_MeasObjectToAddModList_item = -1;  /* MeasObjectToAddMod */
 static int hf_nr_rrc_measObject = -1;             /* T_measObject */
 static int hf_nr_rrc_measObjectNR = -1;           /* MeasObjectNR */
 static int hf_nr_rrc_measObjectEUTRA = -1;        /* MeasObjectEUTRA */
-static int hf_nr_rrc_MeasResultCellListSFTD_item = -1;  /* MeasResultCellSFTD */
+static int hf_nr_rrc_MeasResultCellListSFTD_NR_item = -1;  /* MeasResultCellSFTD_NR */
 static int hf_nr_rrc_sfn_OffsetResult = -1;       /* INTEGER_0_1023 */
 static int hf_nr_rrc_frameBoundaryOffsetResult = -1;  /* INTEGER_M30720_30719 */
 static int hf_nr_rrc_rsrp_Result = -1;            /* RSRP_Range */
+static int hf_nr_rrc_MeasResultCellListSFTD_EUTRA_item = -1;  /* MeasResultSFTD_EUTRA */
+static int hf_nr_rrc_eutra_PhysCellId = -1;       /* EUTRA_PhysCellId */
 static int hf_nr_rrc_measResultServingMOList = -1;  /* MeasResultServMOList */
 static int hf_nr_rrc_measResultNeighCells = -1;   /* T_measResultNeighCells */
 static int hf_nr_rrc_measResultListNR = -1;       /* MeasResultListNR */
 static int hf_nr_rrc_measResultListEUTRA = -1;    /* MeasResultListEUTRA */
+static int hf_nr_rrc_measResultServFreqListEUTRA_SCG = -1;  /* MeasResultServFreqListEUTRA_SCG */
+static int hf_nr_rrc_measResultServFreqListNR_SCG = -1;  /* MeasResultServFreqListNR_SCG */
+static int hf_nr_rrc_measResultSFTD_EUTRA = -1;   /* MeasResultSFTD_EUTRA */
+static int hf_nr_rrc_measResultSFTD_NR = -1;      /* MeasResultCellSFTD_NR */
 static int hf_nr_rrc_MeasResultServMOList_item = -1;  /* MeasResultServMO */
 static int hf_nr_rrc_servCellId = -1;             /* ServCellIndex */
 static int hf_nr_rrc_measResultServingCell = -1;  /* MeasResultNR */
@@ -1547,18 +1644,9 @@ static int hf_nr_rrc_rsIndexResults = -1;         /* T_rsIndexResults */
 static int hf_nr_rrc_resultsSSB_Indexes = -1;     /* ResultsPerSSB_IndexList */
 static int hf_nr_rrc_resultsCSI_RS_Indexes = -1;  /* ResultsPerCSI_RS_IndexList */
 static int hf_nr_rrc_MeasResultListEUTRA_item = -1;  /* MeasResultEUTRA */
-static int hf_nr_rrc_eutra_PhysCellId = -1;       /* PhysCellId */
+static int hf_nr_rrc_eutra_PhysCellId_01 = -1;    /* PhysCellId */
 static int hf_nr_rrc_measResult_01 = -1;          /* MeasQuantityResultsEUTRA */
-static int hf_nr_rrc_cgi_Info_01 = -1;            /* T_cgi_Info */
-static int hf_nr_rrc_cgi_info_EPC = -1;           /* T_cgi_info_EPC */
-static int hf_nr_rrc_cgi_info_EPC_legacy = -1;    /* CellAccessRelatedInfo_EUTRA_EPC */
-static int hf_nr_rrc_cgi_info_EPC_list = -1;      /* SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_EPC */
-static int hf_nr_rrc_cgi_info_EPC_list_item = -1;  /* CellAccessRelatedInfo_EUTRA_EPC */
-static int hf_nr_rrc_cgi_info_5GC = -1;           /* SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_5GC */
-static int hf_nr_rrc_cgi_info_5GC_item = -1;      /* CellAccessRelatedInfo_EUTRA_5GC */
-static int hf_nr_rrc_freqBandIndicator = -1;      /* FreqBandIndicatorEUTRA */
-static int hf_nr_rrc_multiBandInfoList = -1;      /* MultiBandInfoListEUTRA */
-static int hf_nr_rrc_freqBandIndicatorPriority = -1;  /* T_freqBandIndicatorPriority */
+static int hf_nr_rrc_cgi_Info_01 = -1;            /* CGI_InfoEUTRA */
 static int hf_nr_rrc_MultiBandInfoListEUTRA_item = -1;  /* FreqBandIndicatorEUTRA */
 static int hf_nr_rrc_rsrp = -1;                   /* RSRP_Range */
 static int hf_nr_rrc_rsrq = -1;                   /* RSRQ_Range */
@@ -1570,9 +1658,13 @@ static int hf_nr_rrc_ResultsPerSSB_IndexList_item = -1;  /* ResultsPerSSB_Index 
 static int hf_nr_rrc_ssb_Results = -1;            /* MeasQuantityResults */
 static int hf_nr_rrc_ResultsPerCSI_RS_IndexList_item = -1;  /* ResultsPerCSI_RS_Index */
 static int hf_nr_rrc_csi_RS_Results = -1;         /* MeasQuantityResults */
+static int hf_nr_rrc_MeasResultServFreqListEUTRA_SCG_item = -1;  /* MeasResult2EUTRA */
+static int hf_nr_rrc_MeasResultServFreqListNR_SCG_item = -1;  /* MeasResult2NR */
+static int hf_nr_rrc_measResultServingCell_01 = -1;  /* MeasResultEUTRA */
+static int hf_nr_rrc_measResultBestNeighCell_01 = -1;  /* MeasResultEUTRA */
+static int hf_nr_rrc_measResultNeighCellListNR = -1;  /* MeasResultListNR */
 static int hf_nr_rrc_measResultPerMOList = -1;    /* MeasResultList2NR */
 static int hf_nr_rrc_MeasResultList2NR_item = -1;  /* MeasResult2NR */
-static int hf_nr_rrc_measResultNeighCellListNR = -1;  /* MeasResultListNR */
 static int hf_nr_rrc_t_Evaluation = -1;           /* T_t_Evaluation */
 static int hf_nr_rrc_t_HystNormal = -1;           /* T_t_HystNormal */
 static int hf_nr_rrc_n_CellChangeMedium = -1;     /* INTEGER_1_16 */
@@ -1610,13 +1702,13 @@ static int hf_nr_rrc_searchSpacesToAddModList_item = -1;  /* SearchSpace */
 static int hf_nr_rrc_searchSpacesToReleaseList = -1;  /* SEQUENCE_SIZE_1_10_OF_SearchSpaceId */
 static int hf_nr_rrc_searchSpacesToReleaseList_item = -1;  /* SearchSpaceId */
 static int hf_nr_rrc_downlinkPreemption = -1;     /* T_downlinkPreemption */
-static int hf_nr_rrc_setup_28 = -1;               /* DownlinkPreemption */
+static int hf_nr_rrc_setup_29 = -1;               /* DownlinkPreemption */
 static int hf_nr_rrc_tpc_PUSCH = -1;              /* T_tpc_PUSCH */
-static int hf_nr_rrc_setup_29 = -1;               /* PUSCH_TPC_CommandConfig */
+static int hf_nr_rrc_setup_30 = -1;               /* PUSCH_TPC_CommandConfig */
 static int hf_nr_rrc_tpc_PUCCH = -1;              /* T_tpc_PUCCH */
-static int hf_nr_rrc_setup_30 = -1;               /* PUCCH_TPC_CommandConfig */
+static int hf_nr_rrc_setup_31 = -1;               /* PUCCH_TPC_CommandConfig */
 static int hf_nr_rrc_tpc_SRS = -1;                /* T_tpc_SRS */
-static int hf_nr_rrc_setup_31 = -1;               /* SRS_TPC_CommandConfig */
+static int hf_nr_rrc_setup_32 = -1;               /* SRS_TPC_CommandConfig */
 static int hf_nr_rrc_controlResourceSetZero = -1;  /* ControlResourceSetZero */
 static int hf_nr_rrc_commonControlResourceSet = -1;  /* ControlResourceSet */
 static int hf_nr_rrc_searchSpaceZero = -1;        /* SearchSpaceZero */
@@ -1636,7 +1728,7 @@ static int hf_nr_rrc_sCS120KHZquarterT_SCS60KHZoneEighthT_SCS30KHZoneSixteenthT_
 static int hf_nr_rrc_sCS120KHZoneEighthT_SCS60KHZoneSixteenthT_01 = -1;  /* T_sCS120KHZoneEighthT_SCS60KHZoneSixteenthT_01 */
 static int hf_nr_rrc_sCS120KHZoneSixteenthT_01 = -1;  /* T_sCS120KHZoneSixteenthT_01 */
 static int hf_nr_rrc_slotFormatIndicator = -1;    /* T_slotFormatIndicator */
-static int hf_nr_rrc_setup_32 = -1;               /* SlotFormatIndicator */
+static int hf_nr_rrc_setup_33 = -1;               /* SlotFormatIndicator */
 static int hf_nr_rrc_drb = -1;                    /* T_drb */
 static int hf_nr_rrc_discardTimer = -1;           /* T_discardTimer */
 static int hf_nr_rrc_pdcp_SN_SizeUL = -1;         /* T_pdcp_SN_SizeUL */
@@ -1672,7 +1764,7 @@ static int hf_nr_rrc_t_Reordering = -1;           /* T_t_Reordering */
 static int hf_nr_rrc_cipheringDisabled = -1;      /* T_cipheringDisabled */
 static int hf_nr_rrc_dataScramblingIdentityPDSCH = -1;  /* INTEGER_0_1023 */
 static int hf_nr_rrc_dmrs_DownlinkForPDSCH_MappingTypeA = -1;  /* T_dmrs_DownlinkForPDSCH_MappingTypeA */
-static int hf_nr_rrc_setup_33 = -1;               /* DMRS_DownlinkConfig */
+static int hf_nr_rrc_setup_34 = -1;               /* DMRS_DownlinkConfig */
 static int hf_nr_rrc_dmrs_DownlinkForPDSCH_MappingTypeB = -1;  /* T_dmrs_DownlinkForPDSCH_MappingTypeB */
 static int hf_nr_rrc_tci_StatesToAddModList = -1;  /* SEQUENCE_SIZE_1_maxNrofTCI_States_OF_TCI_State */
 static int hf_nr_rrc_tci_StatesToAddModList_item = -1;  /* TCI_State */
@@ -1681,7 +1773,7 @@ static int hf_nr_rrc_tci_StatesToReleaseList_item = -1;  /* TCI_StateId */
 static int hf_nr_rrc_vrb_ToPRB_Interleaver = -1;  /* T_vrb_ToPRB_Interleaver */
 static int hf_nr_rrc_resourceAllocation_01 = -1;  /* T_resourceAllocation_01 */
 static int hf_nr_rrc_pdsch_TimeDomainAllocationList = -1;  /* T_pdsch_TimeDomainAllocationList */
-static int hf_nr_rrc_setup_34 = -1;               /* PDSCH_TimeDomainResourceAllocationList */
+static int hf_nr_rrc_setup_35 = -1;               /* PDSCH_TimeDomainResourceAllocationList */
 static int hf_nr_rrc_pdsch_AggregationFactor = -1;  /* T_pdsch_AggregationFactor */
 static int hf_nr_rrc_rateMatchPatternToAddModList = -1;  /* SEQUENCE_SIZE_1_maxNrofRateMatchPatterns_OF_RateMatchPattern */
 static int hf_nr_rrc_rateMatchPatternToAddModList_item = -1;  /* RateMatchPattern */
@@ -1711,13 +1803,13 @@ static int hf_nr_rrc_sp_ZP_CSI_RS_ResourceSetsToAddModList_item = -1;  /* ZP_CSI
 static int hf_nr_rrc_sp_ZP_CSI_RS_ResourceSetsToReleaseList = -1;  /* SEQUENCE_SIZE_1_maxNrofZP_CSI_RS_ResourceSets_OF_ZP_CSI_RS_ResourceSetId */
 static int hf_nr_rrc_sp_ZP_CSI_RS_ResourceSetsToReleaseList_item = -1;  /* ZP_CSI_RS_ResourceSetId */
 static int hf_nr_rrc_p_ZP_CSI_RS_ResourceSet = -1;  /* T_p_ZP_CSI_RS_ResourceSet */
-static int hf_nr_rrc_setup_35 = -1;               /* ZP_CSI_RS_ResourceSet */
+static int hf_nr_rrc_setup_36 = -1;               /* ZP_CSI_RS_ResourceSet */
 static int hf_nr_rrc_RateMatchPatternGroup_item = -1;  /* RateMatchPatternGroup_item */
 static int hf_nr_rrc_cellLevel = -1;              /* RateMatchPatternId */
 static int hf_nr_rrc_bwpLevel = -1;               /* RateMatchPatternId */
 static int hf_nr_rrc_pdsch_TimeDomainAllocationList_01 = -1;  /* PDSCH_TimeDomainResourceAllocationList */
 static int hf_nr_rrc_codeBlockGroupTransmission = -1;  /* T_codeBlockGroupTransmission */
-static int hf_nr_rrc_setup_36 = -1;               /* PDSCH_CodeBlockGroupTransmission */
+static int hf_nr_rrc_setup_37 = -1;               /* PDSCH_CodeBlockGroupTransmission */
 static int hf_nr_rrc_xOverhead = -1;              /* T_xOverhead */
 static int hf_nr_rrc_nrofHARQ_ProcessesForPDSCH = -1;  /* T_nrofHARQ_ProcessesForPDSCH */
 static int hf_nr_rrc_pucch_Cell = -1;             /* ServCellIndex */
@@ -1733,7 +1825,7 @@ static int hf_nr_rrc_phr_PeriodicTimer = -1;      /* T_phr_PeriodicTimer */
 static int hf_nr_rrc_phr_ProhibitTimer = -1;      /* T_phr_ProhibitTimer */
 static int hf_nr_rrc_phr_Tx_PowerFactorChange = -1;  /* T_phr_Tx_PowerFactorChange */
 static int hf_nr_rrc_multiplePHR = -1;            /* BOOLEAN */
-static int hf_nr_rrc_dummy_01 = -1;               /* BOOLEAN */
+static int hf_nr_rrc_dummy_02 = -1;               /* BOOLEAN */
 static int hf_nr_rrc_phr_Type2OtherCell = -1;     /* BOOLEAN */
 static int hf_nr_rrc_phr_ModeOtherCG = -1;        /* T_phr_ModeOtherCG */
 static int hf_nr_rrc_harq_ACK_SpatialBundlingPUCCH = -1;  /* T_harq_ACK_SpatialBundlingPUCCH */
@@ -1745,10 +1837,12 @@ static int hf_nr_rrc_tpc_PUCCH_RNTI = -1;         /* RNTI_Value */
 static int hf_nr_rrc_tpc_PUSCH_RNTI = -1;         /* RNTI_Value */
 static int hf_nr_rrc_sp_CSI_RNTI = -1;            /* RNTI_Value */
 static int hf_nr_rrc_cs_RNTI = -1;                /* T_cs_RNTI */
-static int hf_nr_rrc_setup_37 = -1;               /* RNTI_Value */
+static int hf_nr_rrc_setup_38 = -1;               /* RNTI_Value */
 static int hf_nr_rrc_mcs_C_RNTI = -1;             /* RNTI_Value */
 static int hf_nr_rrc_p_UE_FR1 = -1;               /* P_Max */
 static int hf_nr_rrc_xScale = -1;                 /* T_xScale */
+static int hf_nr_rrc_pdcch_BlindDetection = -1;   /* T_pdcch_BlindDetection */
+static int hf_nr_rrc_setup_39 = -1;               /* PDCCH_BlindDetection */
 static int hf_nr_rrc_mcc = -1;                    /* MCC */
 static int hf_nr_rrc_mnc = -1;                    /* MNC */
 static int hf_nr_rrc_MCC_item = -1;               /* MCC_MNC_Digit */
@@ -1783,7 +1877,7 @@ static int hf_nr_rrc_resourceToAddModList_item = -1;  /* PUCCH_Resource */
 static int hf_nr_rrc_resourceToReleaseList = -1;  /* SEQUENCE_SIZE_1_maxNrofPUCCH_Resources_OF_PUCCH_ResourceId */
 static int hf_nr_rrc_resourceToReleaseList_item = -1;  /* PUCCH_ResourceId */
 static int hf_nr_rrc_format1 = -1;                /* T_format1 */
-static int hf_nr_rrc_setup_38 = -1;               /* PUCCH_FormatConfig */
+static int hf_nr_rrc_setup_40 = -1;               /* PUCCH_FormatConfig */
 static int hf_nr_rrc_format2 = -1;                /* T_format2 */
 static int hf_nr_rrc_format3 = -1;                /* T_format3 */
 static int hf_nr_rrc_format4 = -1;                /* T_format4 */
@@ -1859,7 +1953,7 @@ static int hf_nr_rrc_tpc_IndexPUCCH_SCell = -1;   /* INTEGER_1_15 */
 static int hf_nr_rrc_dataScramblingIdentityPUSCH = -1;  /* INTEGER_0_1023 */
 static int hf_nr_rrc_txConfig = -1;               /* T_txConfig */
 static int hf_nr_rrc_dmrs_UplinkForPUSCH_MappingTypeA = -1;  /* T_dmrs_UplinkForPUSCH_MappingTypeA */
-static int hf_nr_rrc_setup_39 = -1;               /* DMRS_UplinkConfig */
+static int hf_nr_rrc_setup_41 = -1;               /* DMRS_UplinkConfig */
 static int hf_nr_rrc_dmrs_UplinkForPUSCH_MappingTypeB = -1;  /* T_dmrs_UplinkForPUSCH_MappingTypeB */
 static int hf_nr_rrc_pusch_PowerControl = -1;     /* PUSCH_PowerControl */
 static int hf_nr_rrc_frequencyHopping_01 = -1;    /* T_frequencyHopping_01 */
@@ -1867,7 +1961,7 @@ static int hf_nr_rrc_frequencyHoppingOffsetLists = -1;  /* T_frequencyHoppingOff
 static int hf_nr_rrc_frequencyHoppingOffsetLists_item = -1;  /* INTEGER_1_maxNrofPhysicalResourceBlocks_1 */
 static int hf_nr_rrc_resourceAllocation_02 = -1;  /* T_resourceAllocation_02 */
 static int hf_nr_rrc_pusch_TimeDomainAllocationList = -1;  /* T_pusch_TimeDomainAllocationList */
-static int hf_nr_rrc_setup_40 = -1;               /* PUSCH_TimeDomainResourceAllocationList */
+static int hf_nr_rrc_setup_42 = -1;               /* PUSCH_TimeDomainResourceAllocationList */
 static int hf_nr_rrc_pusch_AggregationFactor = -1;  /* T_pusch_AggregationFactor */
 static int hf_nr_rrc_mcs_Table_02 = -1;           /* T_mcs_Table_02 */
 static int hf_nr_rrc_mcs_TableTransformPrecoder_01 = -1;  /* T_mcs_TableTransformPrecoder_01 */
@@ -1876,7 +1970,7 @@ static int hf_nr_rrc_codebookSubset = -1;         /* T_codebookSubset */
 static int hf_nr_rrc_maxRank = -1;                /* INTEGER_1_4 */
 static int hf_nr_rrc_rbg_Size_02 = -1;            /* T_rbg_Size_02 */
 static int hf_nr_rrc_uci_OnPUSCH_01 = -1;         /* T_uci_OnPUSCH_01 */
-static int hf_nr_rrc_setup_41 = -1;               /* UCI_OnPUSCH */
+static int hf_nr_rrc_setup_43 = -1;               /* UCI_OnPUSCH */
 static int hf_nr_rrc_tp_pi2BPSK = -1;             /* T_tp_pi2BPSK */
 static int hf_nr_rrc_betaOffsets = -1;            /* T_betaOffsets */
 static int hf_nr_rrc_dynamic_01 = -1;             /* SEQUENCE_SIZE_4_OF_BetaOffsets */
@@ -1917,7 +2011,7 @@ static int hf_nr_rrc_betaOffsetCSI_Part1_Index2 = -1;  /* INTEGER_0_31 */
 static int hf_nr_rrc_betaOffsetCSI_Part2_Index1 = -1;  /* INTEGER_0_31 */
 static int hf_nr_rrc_betaOffsetCSI_Part2_Index2 = -1;  /* INTEGER_0_31 */
 static int hf_nr_rrc_codeBlockGroupTransmission_01 = -1;  /* T_codeBlockGroupTransmission_01 */
-static int hf_nr_rrc_setup_42 = -1;               /* PUSCH_CodeBlockGroupTransmission */
+static int hf_nr_rrc_setup_44 = -1;               /* PUSCH_CodeBlockGroupTransmission */
 static int hf_nr_rrc_rateMatching = -1;           /* T_rateMatching */
 static int hf_nr_rrc_xOverhead_01 = -1;           /* T_xOverhead_01 */
 static int hf_nr_rrc_maxMIMO_Layers_01 = -1;      /* INTEGER_1_4 */
@@ -2028,7 +2122,7 @@ static int hf_nr_rrc_n10 = -1;                    /* BIT_STRING_SIZE_10 */
 static int hf_nr_rrc_n20 = -1;                    /* BIT_STRING_SIZE_20 */
 static int hf_nr_rrc_n40 = -1;                    /* BIT_STRING_SIZE_40 */
 static int hf_nr_rrc_controlResourceSet = -1;     /* ControlResourceSetId */
-static int hf_nr_rrc_dummy_02 = -1;               /* T_dummy_01 */
+static int hf_nr_rrc_dummy_03 = -1;               /* T_dummy_01 */
 static int hf_nr_rrc_carrierFreqDL = -1;          /* INTEGER_0_16383 */
 static int hf_nr_rrc_carrierBandwidthDL = -1;     /* T_carrierBandwidthDL */
 static int hf_nr_rrc_mbsfn_SubframeConfigList = -1;  /* EUTRA_MBSFN_SubframeConfigList */
@@ -2038,7 +2132,10 @@ static int hf_nr_rrc_reportType = -1;             /* T_reportType */
 static int hf_nr_rrc_periodical = -1;             /* PeriodicalReportConfigInterRAT */
 static int hf_nr_rrc_eventTriggered = -1;         /* EventTriggerConfigInterRAT */
 static int hf_nr_rrc_reportCGI = -1;              /* ReportCGI_EUTRA */
+static int hf_nr_rrc_reportSFTD = -1;             /* ReportSFTD_EUTRA */
 static int hf_nr_rrc_cellForWhichToReportCGI_01 = -1;  /* EUTRA_PhysCellId */
+static int hf_nr_rrc_reportSFTD_Meas = -1;        /* BOOLEAN */
+static int hf_nr_rrc_reportRSRP = -1;             /* BOOLEAN */
 static int hf_nr_rrc_eventId = -1;                /* T_eventId */
 static int hf_nr_rrc_eventB1 = -1;                /* T_eventB1 */
 static int hf_nr_rrc_b1_ThresholdEUTRA = -1;      /* MeasTriggerQuantityEUTRA */
@@ -2058,6 +2155,7 @@ static int hf_nr_rrc_reportType_01 = -1;          /* T_reportType_01 */
 static int hf_nr_rrc_periodical_01 = -1;          /* PeriodicalReportConfig */
 static int hf_nr_rrc_eventTriggered_01 = -1;      /* EventTriggerConfig */
 static int hf_nr_rrc_reportCGI_01 = -1;           /* ReportCGI */
+static int hf_nr_rrc_reportSFTD_01 = -1;          /* ReportSFTD_NR */
 static int hf_nr_rrc_eventId_01 = -1;             /* T_eventId_01 */
 static int hf_nr_rrc_eventA1 = -1;                /* T_eventA1 */
 static int hf_nr_rrc_a1_Threshold = -1;           /* MeasTriggerQuantity */
@@ -2193,19 +2291,19 @@ static int hf_nr_rrc_defaultDownlinkBWP_Id = -1;  /* BWP_Id */
 static int hf_nr_rrc_uplinkConfig = -1;           /* UplinkConfig */
 static int hf_nr_rrc_supplementaryUplink_01 = -1;  /* UplinkConfig */
 static int hf_nr_rrc_pdcch_ServingCellConfig = -1;  /* T_pdcch_ServingCellConfig */
-static int hf_nr_rrc_setup_43 = -1;               /* PDCCH_ServingCellConfig */
+static int hf_nr_rrc_setup_45 = -1;               /* PDCCH_ServingCellConfig */
 static int hf_nr_rrc_pdsch_ServingCellConfig = -1;  /* T_pdsch_ServingCellConfig */
-static int hf_nr_rrc_setup_44 = -1;               /* PDSCH_ServingCellConfig */
+static int hf_nr_rrc_setup_46 = -1;               /* PDSCH_ServingCellConfig */
 static int hf_nr_rrc_csi_MeasConfig = -1;         /* T_csi_MeasConfig */
-static int hf_nr_rrc_setup_45 = -1;               /* CSI_MeasConfig */
+static int hf_nr_rrc_setup_47 = -1;               /* CSI_MeasConfig */
 static int hf_nr_rrc_sCellDeactivationTimer = -1;  /* T_sCellDeactivationTimer */
 static int hf_nr_rrc_crossCarrierSchedulingConfig = -1;  /* CrossCarrierSchedulingConfig */
 static int hf_nr_rrc_tag_Id = -1;                 /* TAG_Id */
-static int hf_nr_rrc_dummy_03 = -1;               /* T_dummy_02 */
+static int hf_nr_rrc_dummy_04 = -1;               /* T_dummy_02 */
 static int hf_nr_rrc_pathlossReferenceLinking = -1;  /* T_pathlossReferenceLinking */
 static int hf_nr_rrc_servingCellMO = -1;          /* MeasObjectId */
 static int hf_nr_rrc_lte_CRS_ToMatchAround = -1;  /* T_lte_CRS_ToMatchAround */
-static int hf_nr_rrc_setup_46 = -1;               /* RateMatchPatternLTE_CRS */
+static int hf_nr_rrc_setup_48 = -1;               /* RateMatchPatternLTE_CRS */
 static int hf_nr_rrc_downlinkChannelBW_PerSCS_List = -1;  /* SEQUENCE_SIZE_1_maxSCSs_OF_SCS_SpecificCarrier */
 static int hf_nr_rrc_downlinkChannelBW_PerSCS_List_item = -1;  /* SCS_SpecificCarrier */
 static int hf_nr_rrc_initialUplinkBWP = -1;       /* BWP_UplinkDedicated */
@@ -2215,9 +2313,9 @@ static int hf_nr_rrc_uplinkBWP_ToAddModList = -1;  /* SEQUENCE_SIZE_1_maxNrofBWP
 static int hf_nr_rrc_uplinkBWP_ToAddModList_item = -1;  /* BWP_Uplink */
 static int hf_nr_rrc_firstActiveUplinkBWP_Id = -1;  /* BWP_Id */
 static int hf_nr_rrc_pusch_ServingCellConfig = -1;  /* T_pusch_ServingCellConfig */
-static int hf_nr_rrc_setup_47 = -1;               /* PUSCH_ServingCellConfig */
+static int hf_nr_rrc_setup_49 = -1;               /* PUSCH_ServingCellConfig */
 static int hf_nr_rrc_carrierSwitching = -1;       /* T_carrierSwitching */
-static int hf_nr_rrc_setup_48 = -1;               /* SRS_CarrierSwitching */
+static int hf_nr_rrc_setup_50 = -1;               /* SRS_CarrierSwitching */
 static int hf_nr_rrc_powerBoostPi2BPSK = -1;      /* BOOLEAN */
 static int hf_nr_rrc_uplinkChannelBW_PerSCS_List = -1;  /* SEQUENCE_SIZE_1_maxSCSs_OF_SCS_SpecificCarrier */
 static int hf_nr_rrc_uplinkChannelBW_PerSCS_List_item = -1;  /* SCS_SpecificCarrier */
@@ -2280,8 +2378,6 @@ static int hf_nr_rrc_sst = -1;                    /* BIT_STRING_SIZE_8 */
 static int hf_nr_rrc_sst_SD = -1;                 /* BIT_STRING_SIZE_32 */
 static int hf_nr_rrc_sf_Medium_01 = -1;           /* T_sf_Medium_01 */
 static int hf_nr_rrc_sf_High_01 = -1;             /* T_sf_High_01 */
-static int hf_nr_rrc_measurementSlots = -1;       /* BIT_STRING_SIZE_1_80 */
-static int hf_nr_rrc_endSymbol = -1;              /* INTEGER_0_3 */
 static int hf_nr_rrc_periodicity_01 = -1;         /* T_periodicity_01 */
 static int hf_nr_rrc_nrofHARQ_Processes_01 = -1;  /* INTEGER_1_8 */
 static int hf_nr_rrc_n1PUCCH_AN = -1;             /* PUCCH_ResourceId */
@@ -2371,6 +2467,8 @@ static int hf_nr_rrc_duration_02 = -1;            /* T_duration */
 static int hf_nr_rrc_pci_List = -1;               /* SEQUENCE_SIZE_1_maxNrofPCIsPerSMTC_OF_PhysCellId */
 static int hf_nr_rrc_pci_List_item = -1;          /* PhysCellId */
 static int hf_nr_rrc_periodicity_02 = -1;         /* T_periodicity_02 */
+static int hf_nr_rrc_measurementSlots = -1;       /* BIT_STRING_SIZE_1_80 */
+static int hf_nr_rrc_endSymbol = -1;              /* INTEGER_0_3 */
 static int hf_nr_rrc_tag_ToReleaseList = -1;      /* SEQUENCE_SIZE_1_maxNrofTAGs_OF_TAG_Id */
 static int hf_nr_rrc_tag_ToReleaseList_item = -1;  /* TAG_Id */
 static int hf_nr_rrc_tag_ToAddModList = -1;       /* SEQUENCE_SIZE_1_maxNrofTAGs_OF_TAG */
@@ -2425,12 +2523,14 @@ static int hf_nr_rrc_n311_01 = -1;                /* T_n311_01 */
 static int hf_nr_rrc_t319 = -1;                   /* T_t319 */
 static int hf_nr_rrc_frequencyInfoUL = -1;        /* FrequencyInfoUL */
 static int hf_nr_rrc_initialUplinkBWP_01 = -1;    /* BWP_UplinkCommon */
-static int hf_nr_rrc_dummy_04 = -1;               /* TimeAlignmentTimer */
+static int hf_nr_rrc_dummy_05 = -1;               /* TimeAlignmentTimer */
 static int hf_nr_rrc_frequencyInfoUL_01 = -1;     /* FrequencyInfoUL_SIB */
 static int hf_nr_rrc_timeAlignmentTimerCommon = -1;  /* TimeAlignmentTimer */
 static int hf_nr_rrc_UplinkTxDirectCurrentList_item = -1;  /* UplinkTxDirectCurrentCell */
 static int hf_nr_rrc_uplinkDirectCurrentBWP = -1;  /* SEQUENCE_SIZE_1_maxNrofBWPs_OF_UplinkTxDirectCurrentBWP */
 static int hf_nr_rrc_uplinkDirectCurrentBWP_item = -1;  /* UplinkTxDirectCurrentBWP */
+static int hf_nr_rrc_uplinkDirectCurrentBWP_SUL = -1;  /* SEQUENCE_SIZE_1_maxNrofBWPs_OF_UplinkTxDirectCurrentBWP */
+static int hf_nr_rrc_uplinkDirectCurrentBWP_SUL_item = -1;  /* UplinkTxDirectCurrentBWP */
 static int hf_nr_rrc_shift7dot5kHz = -1;          /* BOOLEAN */
 static int hf_nr_rrc_txDirectCurrentLocation = -1;  /* INTEGER_0_3301 */
 static int hf_nr_rrc_zp_CSI_RS_ResourceId = -1;   /* ZP_CSI_RS_ResourceId */
@@ -2440,6 +2540,7 @@ static int hf_nr_rrc_zp_CSI_RS_ResourceIdList_item = -1;  /* ZP_CSI_RS_ResourceI
 static int hf_nr_rrc_BandCombinationList_item = -1;  /* BandCombination */
 static int hf_nr_rrc_BandCombinationList_v1540_item = -1;  /* BandCombination_v1540 */
 static int hf_nr_rrc_BandCombinationList_v1550_item = -1;  /* BandCombination_v1550 */
+static int hf_nr_rrc_BandCombinationList_v1560_item = -1;  /* BandCombination_v1560 */
 static int hf_nr_rrc_bandList = -1;               /* SEQUENCE_SIZE_1_maxSimultaneousBands_OF_BandParameters */
 static int hf_nr_rrc_bandList_item = -1;          /* BandParameters */
 static int hf_nr_rrc_featureSetCombination = -1;  /* FeatureSetCombinationId */
@@ -2452,6 +2553,10 @@ static int hf_nr_rrc_bandList_v1540 = -1;         /* SEQUENCE_SIZE_1_maxSimultan
 static int hf_nr_rrc_bandList_v1540_item = -1;    /* BandParameters_v1540 */
 static int hf_nr_rrc_ca_ParametersNR_v1540 = -1;  /* CA_ParametersNR_v1540 */
 static int hf_nr_rrc_ca_ParametersNR_v1550 = -1;  /* CA_ParametersNR_v1550 */
+static int hf_nr_rrc_ne_DC_BC = -1;               /* T_ne_DC_BC */
+static int hf_nr_rrc_ca_ParametersNRDC = -1;      /* CA_ParametersNRDC */
+static int hf_nr_rrc_ca_ParametersEUTRA_v1560 = -1;  /* CA_ParametersEUTRA_v1560 */
+static int hf_nr_rrc_ca_ParametersNR_v1560 = -1;  /* CA_ParametersNR_v1560 */
 static int hf_nr_rrc_eutra_01 = -1;               /* T_eutra */
 static int hf_nr_rrc_bandEUTRA = -1;              /* FreqBandIndicatorEUTRA */
 static int hf_nr_rrc_ca_BandwidthClassDL_EUTRA = -1;  /* CA_BandwidthClassEUTRA */
@@ -2467,7 +2572,7 @@ static int hf_nr_rrc_srs_SwitchingTimesListNR_item = -1;  /* SRS_SwitchingTimeNR
 static int hf_nr_rrc_eutra_02 = -1;               /* T_eutra_01 */
 static int hf_nr_rrc_srs_SwitchingTimesListEUTRA = -1;  /* SEQUENCE_SIZE_1_maxSimultaneousBands_OF_SRS_SwitchingTimeEUTRA */
 static int hf_nr_rrc_srs_SwitchingTimesListEUTRA_item = -1;  /* SRS_SwitchingTimeEUTRA */
-static int hf_nr_rrc_srs_TxSwitch_v1540 = -1;     /* T_srs_TxSwitch_v1540 */
+static int hf_nr_rrc_srs_TxSwitch = -1;           /* T_srs_TxSwitch */
 static int hf_nr_rrc_supportedSRS_TxPortSwitch = -1;  /* T_supportedSRS_TxPortSwitch */
 static int hf_nr_rrc_txSwitchImpactToRx = -1;     /* INTEGER_1_32 */
 static int hf_nr_rrc_txSwitchWithAnotherBand = -1;  /* INTEGER_1_32 */
@@ -2477,13 +2582,14 @@ static int hf_nr_rrc_supportedNAICS_2CRS_AP = -1;  /* BIT_STRING_SIZE_1_8 */
 static int hf_nr_rrc_additionalRx_Tx_PerformanceReq = -1;  /* T_additionalRx_Tx_PerformanceReq */
 static int hf_nr_rrc_ue_CA_PowerClass_N = -1;     /* T_ue_CA_PowerClass_N */
 static int hf_nr_rrc_supportedBandwidthCombinationSetEUTRA_v1530 = -1;  /* BIT_STRING_SIZE_1_32 */
-static int hf_nr_rrc_multipleTimingAdvances = -1;  /* T_multipleTimingAdvances */
+static int hf_nr_rrc_totalWeightedLayers = -1;    /* INTEGER_2_128 */
+static int hf_nr_rrc_dummy_06 = -1;               /* T_dummy_03 */
 static int hf_nr_rrc_parallelTxSRS_PUCCH_PUSCH = -1;  /* T_parallelTxSRS_PUCCH_PUSCH */
 static int hf_nr_rrc_parallelTxPRACH_SRS_PUCCH_PUSCH = -1;  /* T_parallelTxPRACH_SRS_PUCCH_PUSCH */
 static int hf_nr_rrc_simultaneousRxTxInterBandCA = -1;  /* T_simultaneousRxTxInterBandCA */
 static int hf_nr_rrc_simultaneousRxTxSUL = -1;    /* T_simultaneousRxTxSUL */
 static int hf_nr_rrc_diffNumerologyAcrossPUCCH_Group = -1;  /* T_diffNumerologyAcrossPUCCH_Group */
-static int hf_nr_rrc_diffNumerologyWithinPUCCH_Group = -1;  /* T_diffNumerologyWithinPUCCH_Group */
+static int hf_nr_rrc_diffNumerologyWithinPUCCH_GroupSmallerSCS = -1;  /* T_diffNumerologyWithinPUCCH_GroupSmallerSCS */
 static int hf_nr_rrc_supportedNumberTAG = -1;     /* T_supportedNumberTAG */
 static int hf_nr_rrc_simultaneousSRS_AssocCSI_RS_AllCC = -1;  /* INTEGER_5_32 */
 static int hf_nr_rrc_csi_RS_IM_ReceptionForFeedbackPerBandComb = -1;  /* T_csi_RS_IM_ReceptionForFeedbackPerBandComb */
@@ -2491,7 +2597,13 @@ static int hf_nr_rrc_maxNumberSimultaneousNZP_CSI_RS_ActBWP_AllCC = -1;  /* INTE
 static int hf_nr_rrc_totalNumberPortsSimultaneousNZP_CSI_RS_ActBWP_AllCC = -1;  /* INTEGER_2_256 */
 static int hf_nr_rrc_simultaneousCSI_ReportsAllCC = -1;  /* INTEGER_5_32 */
 static int hf_nr_rrc_dualPA_Architecture = -1;    /* T_dualPA_Architecture */
-static int hf_nr_rrc_aperiodic_CSI_diffSCS = -1;  /* T_aperiodic_CSI_diffSCS */
+static int hf_nr_rrc_dummy_07 = -1;               /* T_dummy_04 */
+static int hf_nr_rrc_diffNumerologyWithinPUCCH_GroupLargerSCS = -1;  /* T_diffNumerologyWithinPUCCH_GroupLargerSCS */
+static int hf_nr_rrc_ca_ParametersNR_ForDC = -1;  /* CA_ParametersNR */
+static int hf_nr_rrc_ca_ParametersNR_ForDC_v1540 = -1;  /* CA_ParametersNR_v1540 */
+static int hf_nr_rrc_ca_ParametersNR_ForDC_v1550 = -1;  /* CA_ParametersNR_v1550 */
+static int hf_nr_rrc_ca_ParametersNR_ForDC_v1560 = -1;  /* CA_ParametersNR_v1560 */
+static int hf_nr_rrc_featureSetCombinationDC = -1;  /* FeatureSetCombinationId */
 static int hf_nr_rrc_type1_02 = -1;               /* T_type1_02 */
 static int hf_nr_rrc_singlePanel = -1;            /* T_singlePanel */
 static int hf_nr_rrc_supportedCSI_RS_ResourceList = -1;  /* SEQUENCE_SIZE_1_maxNrofCSI_RS_Resources_OF_SupportedCSI_RS_Resource */
@@ -2627,8 +2739,8 @@ static int hf_nr_rrc_maxNumberAperiodicSRS_PerBWP = -1;  /* T_maxNumberAperiodic
 static int hf_nr_rrc_maxNumberAperiodicSRS_PerBWP_PerSlot = -1;  /* INTEGER_1_6 */
 static int hf_nr_rrc_maxNumberPeriodicSRS_PerBWP = -1;  /* T_maxNumberPeriodicSRS_PerBWP */
 static int hf_nr_rrc_maxNumberPeriodicSRS_PerBWP_PerSlot = -1;  /* INTEGER_1_6 */
-static int hf_nr_rrc_maxNumberSemiPersitentSRS_PerBWP = -1;  /* T_maxNumberSemiPersitentSRS_PerBWP */
-static int hf_nr_rrc_maxNumberSP_SRS_PerBWP_PerSlot = -1;  /* INTEGER_1_6 */
+static int hf_nr_rrc_maxNumberSemiPersistentSRS_PerBWP = -1;  /* T_maxNumberSemiPersistentSRS_PerBWP */
+static int hf_nr_rrc_maxNumberSemiPersistentSRS_PerBWP_PerSlot = -1;  /* INTEGER_1_6 */
 static int hf_nr_rrc_maxNumberSRS_Ports_PerResource = -1;  /* T_maxNumberSRS_Ports_PerResource */
 static int hf_nr_rrc_maxNumberPeriodicCSI_ReportPerBWP = -1;  /* INTEGER_1_4 */
 static int hf_nr_rrc_maxNumberAperiodicCSI_ReportPerBWP = -1;  /* INTEGER_1_4 */
@@ -2654,6 +2766,7 @@ static int hf_nr_rrc_maxCarriersRequestedUL = -1;  /* INTEGER_1_maxNrofServingCe
 static int hf_nr_rrc_ims_ParametersCommon = -1;   /* IMS_ParametersCommon */
 static int hf_nr_rrc_ims_ParametersFRX_Diff = -1;  /* IMS_ParametersFRX_Diff */
 static int hf_nr_rrc_voiceOverEUTRA_5GC = -1;     /* T_voiceOverEUTRA_5GC */
+static int hf_nr_rrc_voiceOverSCG_BearerEUTRA_5GC = -1;  /* T_voiceOverSCG_BearerEUTRA_5GC */
 static int hf_nr_rrc_voiceOverNR = -1;            /* T_voiceOverNR */
 static int hf_nr_rrc_eutra_04 = -1;               /* EUTRA_Parameters */
 static int hf_nr_rrc_supportedBandListEUTRA = -1;  /* SEQUENCE_SIZE_1_maxBandsEUTRA_OF_FreqBandIndicatorEUTRA */
@@ -2664,11 +2777,12 @@ static int hf_nr_rrc_mfbi_EUTRA = -1;             /* T_mfbi_EUTRA */
 static int hf_nr_rrc_modifiedMPR_BehaviorEUTRA = -1;  /* BIT_STRING_SIZE_32 */
 static int hf_nr_rrc_multiNS_Pmax_EUTRA = -1;     /* T_multiNS_Pmax_EUTRA */
 static int hf_nr_rrc_rs_SINR_MeasEUTRA = -1;      /* T_rs_SINR_MeasEUTRA */
+static int hf_nr_rrc_ne_DC = -1;                  /* T_ne_DC */
 static int hf_nr_rrc_rsrqMeasWidebandEUTRA = -1;  /* T_rsrqMeasWidebandEUTRA */
 static int hf_nr_rrc_mac_ParametersCommon = -1;   /* MAC_ParametersCommon */
 static int hf_nr_rrc_mac_ParametersXDD_Diff = -1;  /* MAC_ParametersXDD_Diff */
 static int hf_nr_rrc_lcp_Restriction = -1;        /* T_lcp_Restriction */
-static int hf_nr_rrc_dummy_05 = -1;               /* T_dummy_03 */
+static int hf_nr_rrc_dummy_08 = -1;               /* T_dummy_05 */
 static int hf_nr_rrc_lch_ToSCellRestriction = -1;  /* T_lch_ToSCellRestriction */
 static int hf_nr_rrc_recommendedBitRate = -1;     /* T_recommendedBitRate */
 static int hf_nr_rrc_recommendedBitRateQuery = -1;  /* T_recommendedBitRateQuery */
@@ -2696,24 +2810,26 @@ static int hf_nr_rrc_nr_CGI_Reporting_ENDC = -1;  /* T_nr_CGI_Reporting_ENDC */
 static int hf_nr_rrc_intraAndInterF_MeasAndReport = -1;  /* T_intraAndInterF_MeasAndReport */
 static int hf_nr_rrc_eventA_MeasAndReport = -1;   /* T_eventA_MeasAndReport */
 static int hf_nr_rrc_handoverInterF = -1;         /* T_handoverInterF */
-static int hf_nr_rrc_handoverLTE = -1;            /* T_handoverLTE */
-static int hf_nr_rrc_handover_eLTE = -1;          /* T_handover_eLTE */
+static int hf_nr_rrc_handoverLTE_EPC = -1;        /* T_handoverLTE_EPC */
+static int hf_nr_rrc_handoverLTE_5GC = -1;        /* T_handoverLTE_5GC */
 static int hf_nr_rrc_ss_SINR_Meas = -1;           /* T_ss_SINR_Meas */
 static int hf_nr_rrc_csi_RSRP_AndRSRQ_MeasWithSSB = -1;  /* T_csi_RSRP_AndRSRQ_MeasWithSSB */
 static int hf_nr_rrc_csi_RSRP_AndRSRQ_MeasWithoutSSB = -1;  /* T_csi_RSRP_AndRSRQ_MeasWithoutSSB */
 static int hf_nr_rrc_csi_SINR_Meas = -1;          /* T_csi_SINR_Meas */
 static int hf_nr_rrc_csi_RS_RLM = -1;             /* T_csi_RS_RLM */
 static int hf_nr_rrc_handoverInterF_01 = -1;      /* T_handoverInterF_01 */
-static int hf_nr_rrc_handoverLTE_01 = -1;         /* T_handoverLTE_01 */
-static int hf_nr_rrc_handover_eLTE_01 = -1;       /* T_handover_eLTE_01 */
+static int hf_nr_rrc_handoverLTE_EPC_01 = -1;     /* T_handoverLTE_EPC_01 */
+static int hf_nr_rrc_handoverLTE_5GC_01 = -1;     /* T_handoverLTE_5GC_01 */
 static int hf_nr_rrc_maxNumberResource_CSI_RS_RLM = -1;  /* T_maxNumberResource_CSI_RS_RLM */
 static int hf_nr_rrc_simultaneousRxDataSSB_DiffNumerology = -1;  /* T_simultaneousRxDataSSB_DiffNumerology */
 static int hf_nr_rrc_measAndMobParametersMRDC_Common = -1;  /* MeasAndMobParametersMRDC_Common */
 static int hf_nr_rrc_measAndMobParametersMRDC_XDD_Diff = -1;  /* MeasAndMobParametersMRDC_XDD_Diff */
 static int hf_nr_rrc_measAndMobParametersMRDC_FRX_Diff = -1;  /* MeasAndMobParametersMRDC_FRX_Diff */
+static int hf_nr_rrc_measAndMobParametersMRDC_XDD_Diff_v1560 = -1;  /* MeasAndMobParametersMRDC_XDD_Diff_v1560 */
 static int hf_nr_rrc_independentGapConfig_01 = -1;  /* T_independentGapConfig_01 */
 static int hf_nr_rrc_sftd_MeasPSCell = -1;        /* T_sftd_MeasPSCell */
 static int hf_nr_rrc_sftd_MeasNR_Cell = -1;       /* T_sftd_MeasNR_Cell */
+static int hf_nr_rrc_sftd_MeasPSCell_NEDC = -1;   /* T_sftd_MeasPSCell_NEDC */
 static int hf_nr_rrc_simultaneousRxDataSSB_DiffNumerology_01 = -1;  /* T_simultaneousRxDataSSB_DiffNumerology_01 */
 static int hf_nr_rrc_tci_StatePDSCH = -1;         /* T_tci_StatePDSCH */
 static int hf_nr_rrc_maxNumberConfiguredTCIstatesPerCC = -1;  /* T_maxNumberConfiguredTCIstatesPerCC */
@@ -2762,7 +2878,7 @@ static int hf_nr_rrc_scs_60kHz_08 = -1;           /* PTRS_DensityRecommendationU
 static int hf_nr_rrc_scs_120kHz_07 = -1;          /* PTRS_DensityRecommendationUL */
 static int hf_nr_rrc_dummy4_01 = -1;              /* DummyH */
 static int hf_nr_rrc_aperiodicTRS = -1;           /* T_aperiodicTRS */
-static int hf_nr_rrc_beamCorrespondenceCA = -1;   /* T_beamCorrespondenceCA */
+static int hf_nr_rrc_dummy6_01 = -1;              /* T_dummy6 */
 static int hf_nr_rrc_beamManagementSSB_CSI_RS = -1;  /* BeamManagementSSB_CSI_RS */
 static int hf_nr_rrc_beamSwitchTiming = -1;       /* T_beamSwitchTiming */
 static int hf_nr_rrc_scs_60kHz_09 = -1;           /* T_scs_60kHz_06 */
@@ -2832,6 +2948,13 @@ static int hf_nr_rrc_asyncIntraBandENDC = -1;     /* T_asyncIntraBandENDC */
 static int hf_nr_rrc_dualPA_Architecture_01 = -1;  /* T_dualPA_Architecture_01 */
 static int hf_nr_rrc_intraBandENDC_Support_v1540 = -1;  /* T_intraBandENDC_Support_v1540 */
 static int hf_nr_rrc_ul_TimingAlignmentEUTRA_NR = -1;  /* T_ul_TimingAlignmentEUTRA_NR */
+static int hf_nr_rrc_measAndMobParametersNRDC = -1;  /* MeasAndMobParametersMRDC */
+static int hf_nr_rrc_generalParametersNRDC = -1;  /* GeneralParametersMRDC_XDD_Diff */
+static int hf_nr_rrc_fdd_Add_UE_NRDC_Capabilities = -1;  /* UE_MRDC_CapabilityAddXDD_Mode */
+static int hf_nr_rrc_tdd_Add_UE_NRDC_Capabilities = -1;  /* UE_MRDC_CapabilityAddXDD_Mode */
+static int hf_nr_rrc_fr1_Add_UE_NRDC_Capabilities = -1;  /* UE_MRDC_CapabilityAddFRX_Mode */
+static int hf_nr_rrc_fr2_Add_UE_NRDC_Capabilities = -1;  /* UE_MRDC_CapabilityAddFRX_Mode */
+static int hf_nr_rrc_nonCriticalExtension_50 = -1;  /* T_nonCriticalExtension_37 */
 static int hf_nr_rrc_supportedROHC_Profiles = -1;  /* T_supportedROHC_Profiles */
 static int hf_nr_rrc_profile0x0000 = -1;          /* BOOLEAN */
 static int hf_nr_rrc_maxNumberROHC_ContextSessions = -1;  /* T_maxNumberROHC_ContextSessions */
@@ -2882,7 +3005,7 @@ static int hf_nr_rrc_dynamicHARQ_ACK_CodeB_CBG_Retx_DL = -1;  /* T_dynamicHARQ_A
 static int hf_nr_rrc_rateMatchingResrcSetSemi_Static = -1;  /* T_rateMatchingResrcSetSemi_Static */
 static int hf_nr_rrc_rateMatchingResrcSetDynamic = -1;  /* T_rateMatchingResrcSetDynamic */
 static int hf_nr_rrc_bwp_SwitchingDelay = -1;     /* T_bwp_SwitchingDelay */
-static int hf_nr_rrc_dummy_06 = -1;               /* T_dummy_04 */
+static int hf_nr_rrc_dummy_09 = -1;               /* T_dummy_06 */
 static int hf_nr_rrc_maxNumberSearchSpaces = -1;  /* T_maxNumberSearchSpaces */
 static int hf_nr_rrc_rateMatchingCtrlResrcSetDynamic = -1;  /* T_rateMatchingCtrlResrcSetDynamic */
 static int hf_nr_rrc_maxLayersMIMO_Indication = -1;  /* T_maxLayersMIMO_Indication */
@@ -2944,12 +3067,16 @@ static int hf_nr_rrc_cqi_TableAlt = -1;           /* T_cqi_TableAlt */
 static int hf_nr_rrc_oneFL_DMRS_TwoAdditionalDMRS_UL = -1;  /* T_oneFL_DMRS_TwoAdditionalDMRS_UL */
 static int hf_nr_rrc_twoFL_DMRS_TwoAdditionalDMRS_UL = -1;  /* T_twoFL_DMRS_TwoAdditionalDMRS_UL */
 static int hf_nr_rrc_oneFL_DMRS_ThreeAdditionalDMRS_UL = -1;  /* T_oneFL_DMRS_ThreeAdditionalDMRS_UL */
-static int hf_nr_rrc_pdcchMonitoringSingleOccasion = -1;  /* T_pdcchMonitoringSingleOccasion */
+static int hf_nr_rrc_pdcch_BlindDetectionNRDC = -1;  /* T_pdcch_BlindDetectionNRDC */
+static int hf_nr_rrc_pdcch_BlindDetectionMCG_UE = -1;  /* INTEGER_1_15 */
+static int hf_nr_rrc_pdcch_BlindDetectionSCG_UE = -1;  /* INTEGER_1_15 */
+static int hf_nr_rrc_mux_HARQ_ACK_PUSCH_DiffSymbol = -1;  /* T_mux_HARQ_ACK_PUSCH_DiffSymbol */
+static int hf_nr_rrc_pdcch_MonitoringSingleOccasion = -1;  /* T_pdcch_MonitoringSingleOccasion */
 static int hf_nr_rrc_scs_60kHz_10 = -1;           /* T_scs_60kHz_07 */
 static int hf_nr_rrc_pdsch_256QAM_FR1 = -1;       /* T_pdsch_256QAM_FR1 */
 static int hf_nr_rrc_pdsch_RE_MappingFR1_PerSymbol = -1;  /* T_pdsch_RE_MappingFR1_PerSymbol */
 static int hf_nr_rrc_pdsch_RE_MappingFR1_PerSlot = -1;  /* T_pdsch_RE_MappingFR1_PerSlot */
-static int hf_nr_rrc_dummy_07 = -1;               /* T_dummy_05 */
+static int hf_nr_rrc_dummy_10 = -1;               /* T_dummy_07 */
 static int hf_nr_rrc_pdsch_RE_MappingFR2_PerSymbol = -1;  /* T_pdsch_RE_MappingFR2_PerSymbol */
 static int hf_nr_rrc_pCell_FR2 = -1;              /* T_pCell_FR2 */
 static int hf_nr_rrc_pdsch_RE_MappingFR2_PerSlot = -1;  /* T_pdsch_RE_MappingFR2_PerSlot */
@@ -2970,6 +3097,7 @@ static int hf_nr_rrc_appliedFreqBandListFilter = -1;  /* FreqBandList */
 static int hf_nr_rrc_supportedBandCombinationList_v1540 = -1;  /* BandCombinationList_v1540 */
 static int hf_nr_rrc_srs_SwitchingTimeRequested = -1;  /* T_srs_SwitchingTimeRequested */
 static int hf_nr_rrc_supportedBandCombinationList_v1550 = -1;  /* BandCombinationList_v1550 */
+static int hf_nr_rrc_supportedBandCombinationList_v1560 = -1;  /* BandCombinationList_v1560 */
 static int hf_nr_rrc_modifiedMPR_Behaviour = -1;  /* BIT_STRING_SIZE_8 */
 static int hf_nr_rrc_mimo_ParametersPerBand = -1;  /* MIMO_ParametersPerBand */
 static int hf_nr_rrc_extendedCP = -1;             /* T_extendedCP */
@@ -2996,7 +3124,9 @@ static int hf_nr_rrc_fr2_01 = -1;                 /* T_fr2_01 */
 static int hf_nr_rrc_maxUplinkDutyCycle_PC2_FR1 = -1;  /* T_maxUplinkDutyCycle_PC2_FR1 */
 static int hf_nr_rrc_pucch_SpatialRelInfoMAC_CE = -1;  /* T_pucch_SpatialRelInfoMAC_CE */
 static int hf_nr_rrc_powerBoosting_pi2BPSK = -1;  /* T_powerBoosting_pi2BPSK */
+static int hf_nr_rrc_maxUplinkDutyCycle_FR2 = -1;  /* T_maxUplinkDutyCycle_FR2 */
 static int hf_nr_rrc_srs_SwitchingTimeRequested_01 = -1;  /* T_srs_SwitchingTimeRequested_01 */
+static int hf_nr_rrc_supportedBandCombinationListNEDC_Only = -1;  /* BandCombinationList */
 static int hf_nr_rrc_am_WithShortSN = -1;         /* T_am_WithShortSN */
 static int hf_nr_rrc_um_WithShortSN = -1;         /* T_um_WithShortSN */
 static int hf_nr_rrc_um_WithLongSN = -1;          /* T_um_WithLongSN */
@@ -3012,10 +3142,14 @@ static int hf_nr_rrc_rat_Type = -1;               /* RAT_Type */
 static int hf_nr_rrc_ue_CapabilityRAT_Container = -1;  /* T_ue_CapabilityRAT_Container */
 static int hf_nr_rrc_UE_CapabilityRAT_RequestList_item = -1;  /* UE_CapabilityRAT_Request */
 static int hf_nr_rrc_capabilityRequestFilter = -1;  /* T_capabilityRequestFilter */
+static int hf_nr_rrc_mrdc_Request = -1;           /* T_mrdc_Request */
+static int hf_nr_rrc_omitEN_DC = -1;              /* T_omitEN_DC */
+static int hf_nr_rrc_includeNR_DC = -1;           /* T_includeNR_DC */
+static int hf_nr_rrc_includeNE_DC = -1;           /* T_includeNE_DC */
 static int hf_nr_rrc_frequencyBandListFilter = -1;  /* FreqBandList */
-static int hf_nr_rrc_nonCriticalExtension_42 = -1;  /* UE_CapabilityRequestFilterNR_v1540 */
+static int hf_nr_rrc_nonCriticalExtension_51 = -1;  /* UE_CapabilityRequestFilterNR_v1540 */
 static int hf_nr_rrc_srs_SwitchingTimeRequest = -1;  /* T_srs_SwitchingTimeRequest */
-static int hf_nr_rrc_nonCriticalExtension_43 = -1;  /* T_nonCriticalExtension_34 */
+static int hf_nr_rrc_nonCriticalExtension_52 = -1;  /* T_nonCriticalExtension_38 */
 static int hf_nr_rrc_measAndMobParametersMRDC = -1;  /* MeasAndMobParametersMRDC */
 static int hf_nr_rrc_phy_ParametersMRDC_v1530 = -1;  /* Phy_ParametersMRDC */
 static int hf_nr_rrc_rf_ParametersMRDC = -1;      /* RF_ParametersMRDC */
@@ -3027,12 +3161,17 @@ static int hf_nr_rrc_fr2_Add_UE_MRDC_Capabilities = -1;  /* UE_MRDC_CapabilityAd
 static int hf_nr_rrc_featureSetCombinations = -1;  /* SEQUENCE_SIZE_1_maxFeatureSetCombinations_OF_FeatureSetCombination */
 static int hf_nr_rrc_featureSetCombinations_item = -1;  /* FeatureSetCombination */
 static int hf_nr_rrc_pdcp_ParametersMRDC_v1530 = -1;  /* PDCP_ParametersMRDC */
-static int hf_nr_rrc_nonCriticalExtension_44 = -1;  /* T_nonCriticalExtension_35 */
+static int hf_nr_rrc_nonCriticalExtension_53 = -1;  /* UE_MRDC_Capability_v1560 */
+static int hf_nr_rrc_receivedFilters = -1;        /* T_receivedFilters */
+static int hf_nr_rrc_measAndMobParametersMRDC_v1560 = -1;  /* MeasAndMobParametersMRDC_v1560 */
+static int hf_nr_rrc_fdd_Add_UE_MRDC_Capabilities_v1560 = -1;  /* UE_MRDC_CapabilityAddXDD_Mode_v1560 */
+static int hf_nr_rrc_tdd_Add_UE_MRDC_Capabilities_v1560 = -1;  /* UE_MRDC_CapabilityAddXDD_Mode_v1560 */
+static int hf_nr_rrc_nonCriticalExtension_54 = -1;  /* T_nonCriticalExtension_39 */
 static int hf_nr_rrc_generalParametersMRDC_XDD_Diff = -1;  /* GeneralParametersMRDC_XDD_Diff */
 static int hf_nr_rrc_splitSRB_WithOneUL_Path = -1;  /* T_splitSRB_WithOneUL_Path */
 static int hf_nr_rrc_splitDRB_withUL_Both_MCG_SCG = -1;  /* T_splitDRB_withUL_Both_MCG_SCG */
 static int hf_nr_rrc_srb3 = -1;                   /* T_srb3 */
-static int hf_nr_rrc_v2x_EUTRA_v1530 = -1;        /* T_v2x_EUTRA_v1530 */
+static int hf_nr_rrc_v2x_EUTRA = -1;              /* T_v2x_EUTRA */
 static int hf_nr_rrc_accessStratumRelease = -1;   /* AccessStratumRelease */
 static int hf_nr_rrc_pdcp_Parameters = -1;        /* PDCP_Parameters */
 static int hf_nr_rrc_rlc_Parameters = -1;         /* RLC_Parameters */
@@ -3045,23 +3184,26 @@ static int hf_nr_rrc_tdd_Add_UE_NR_Capabilities = -1;  /* UE_NR_CapabilityAddXDD
 static int hf_nr_rrc_fr1_Add_UE_NR_Capabilities = -1;  /* UE_NR_CapabilityAddFRX_Mode */
 static int hf_nr_rrc_fr2_Add_UE_NR_Capabilities = -1;  /* UE_NR_CapabilityAddFRX_Mode */
 static int hf_nr_rrc_featureSets = -1;            /* FeatureSets */
-static int hf_nr_rrc_nonCriticalExtension_45 = -1;  /* UE_NR_Capability_v1530 */
+static int hf_nr_rrc_nonCriticalExtension_55 = -1;  /* UE_NR_Capability_v1530 */
 static int hf_nr_rrc_fdd_Add_UE_NR_Capabilities_v1530 = -1;  /* UE_NR_CapabilityAddXDD_Mode_v1530 */
 static int hf_nr_rrc_tdd_Add_UE_NR_Capabilities_v1530 = -1;  /* UE_NR_CapabilityAddXDD_Mode_v1530 */
-static int hf_nr_rrc_dummy_08 = -1;               /* T_dummy_06 */
+static int hf_nr_rrc_dummy_11 = -1;               /* T_dummy_08 */
 static int hf_nr_rrc_interRAT_Parameters = -1;    /* InterRAT_Parameters */
 static int hf_nr_rrc_inactiveState = -1;          /* T_inactiveState */
 static int hf_nr_rrc_delayBudgetReporting = -1;   /* T_delayBudgetReporting */
-static int hf_nr_rrc_nonCriticalExtension_46 = -1;  /* UE_NR_Capability_v1540 */
+static int hf_nr_rrc_nonCriticalExtension_56 = -1;  /* UE_NR_Capability_v1540 */
 static int hf_nr_rrc_sdap_Parameters = -1;        /* SDAP_Parameters */
 static int hf_nr_rrc_overheatingInd = -1;         /* T_overheatingInd */
 static int hf_nr_rrc_ims_Parameters = -1;         /* IMS_Parameters */
 static int hf_nr_rrc_fr1_Add_UE_NR_Capabilities_v1540 = -1;  /* UE_NR_CapabilityAddFRX_Mode_v1540 */
 static int hf_nr_rrc_fr2_Add_UE_NR_Capabilities_v1540 = -1;  /* UE_NR_CapabilityAddFRX_Mode_v1540 */
 static int hf_nr_rrc_fr1_fr2_Add_UE_NR_Capabilities = -1;  /* UE_NR_CapabilityAddFRX_Mode */
-static int hf_nr_rrc_nonCriticalExtension_47 = -1;  /* UE_NR_Capability_v1550 */
+static int hf_nr_rrc_nonCriticalExtension_57 = -1;  /* UE_NR_Capability_v1550 */
 static int hf_nr_rrc_reducedCP_Latency = -1;      /* T_reducedCP_Latency */
-static int hf_nr_rrc_nonCriticalExtension_48 = -1;  /* T_nonCriticalExtension_36 */
+static int hf_nr_rrc_nonCriticalExtension_58 = -1;  /* UE_NR_Capability_v1560 */
+static int hf_nr_rrc_nrdc_Parameters = -1;        /* NRDC_Parameters */
+static int hf_nr_rrc_receivedFilters_01 = -1;     /* T_receivedFilters_01 */
+static int hf_nr_rrc_nonCriticalExtension_59 = -1;  /* T_nonCriticalExtension_40 */
 static int hf_nr_rrc_EUTRA_MBSFN_SubframeConfigList_item = -1;  /* EUTRA_MBSFN_SubframeConfig */
 static int hf_nr_rrc_radioframeAllocationPeriod = -1;  /* T_radioframeAllocationPeriod */
 static int hf_nr_rrc_radioframeAllocationOffset = -1;  /* INTEGER_0_7 */
@@ -3080,15 +3222,15 @@ static int hf_nr_rrc_additionalSpectrumEmission_01 = -1;  /* INTEGER_1_288 */
 static int hf_nr_rrc_start_01 = -1;               /* EUTRA_PhysCellId */
 static int hf_nr_rrc_range_01 = -1;               /* T_range_01 */
 static int hf_nr_rrc_delayBudgetReportingConfig = -1;  /* T_delayBudgetReportingConfig */
-static int hf_nr_rrc_setup_49 = -1;               /* T_setup */
+static int hf_nr_rrc_setup_51 = -1;               /* T_setup */
 static int hf_nr_rrc_delayBudgetReportingProhibitTimer = -1;  /* T_delayBudgetReportingProhibitTimer */
 static int hf_nr_rrc_overheatingAssistanceConfig = -1;  /* T_overheatingAssistanceConfig */
-static int hf_nr_rrc_setup_50 = -1;               /* OverheatingAssistanceConfig */
+static int hf_nr_rrc_setup_52 = -1;               /* OverheatingAssistanceConfig */
 static int hf_nr_rrc_overheatingIndicationProhibitTimer = -1;  /* T_overheatingIndicationProhibitTimer */
 static int dummy_hf_nr_rrc_eag_field = -1; /* never registered */
 
 /*--- End of included file: packet-nr-rrc-hf.c ---*/
-#line 59 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 61 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 static int hf_nr_rrc_serialNumber_gs = -1;
 static int hf_nr_rrc_serialNumber_msg_code = -1;
 static int hf_nr_rrc_serialNumber_upd_nb = -1;
@@ -3151,8 +3293,11 @@ static gint ett_nr_rrc_T_c1_02 = -1;
 static gint ett_nr_rrc_T_criticalExtensionsFuture_02 = -1;
 static gint ett_nr_rrc_CG_Config_IEs = -1;
 static gint ett_nr_rrc_CG_Config_v1540_IEs = -1;
-static gint ett_nr_rrc_T_reportCGI_Request = -1;
+static gint ett_nr_rrc_T_reportCGI_RequestNR = -1;
 static gint ett_nr_rrc_T_requestedCellInfo = -1;
+static gint ett_nr_rrc_CG_Config_v1560_IEs = -1;
+static gint ett_nr_rrc_T_reportCGI_RequestEUTRA = -1;
+static gint ett_nr_rrc_T_requestedCellInfoEUTRA = -1;
 static gint ett_nr_rrc_T_nonCriticalExtension_02 = -1;
 static gint ett_nr_rrc_PH_TypeListSCG = -1;
 static gint ett_nr_rrc_PH_InfoSCG = -1;
@@ -3165,6 +3310,7 @@ static gint ett_nr_rrc_BandCombinationInfoSN = -1;
 static gint ett_nr_rrc_FR_InfoList = -1;
 static gint ett_nr_rrc_FR_Info = -1;
 static gint ett_nr_rrc_CandidateServingFreqListNR = -1;
+static gint ett_nr_rrc_CandidateServingFreqListEUTRA = -1;
 static gint ett_nr_rrc_CG_ConfigInfo = -1;
 static gint ett_nr_rrc_T_criticalExtensions_03 = -1;
 static gint ett_nr_rrc_T_c1_03 = -1;
@@ -3173,10 +3319,14 @@ static gint ett_nr_rrc_CG_ConfigInfo_IEs = -1;
 static gint ett_nr_rrc_T_scgFailureInfo = -1;
 static gint ett_nr_rrc_CG_ConfigInfo_v1540_IEs = -1;
 static gint ett_nr_rrc_T_measResultReportCGI = -1;
+static gint ett_nr_rrc_CG_ConfigInfo_v1560_IEs = -1;
+static gint ett_nr_rrc_T_scgFailureInfoEUTRA = -1;
+static gint ett_nr_rrc_T_measResultReportCGI_EUTRA = -1;
 static gint ett_nr_rrc_T_nonCriticalExtension_03 = -1;
 static gint ett_nr_rrc_ConfigRestrictInfoSCG = -1;
 static gint ett_nr_rrc_T_powerCoordination_FR1 = -1;
 static gint ett_nr_rrc_T_servCellIndexRangeSCG = -1;
+static gint ett_nr_rrc_SEQUENCE_SIZE_1_maxSimultaneousBands_OF_BandEntryIndex = -1;
 static gint ett_nr_rrc_PH_TypeListMCG = -1;
 static gint ett_nr_rrc_PH_InfoMCG = -1;
 static gint ett_nr_rrc_PH_UplinkCarrierMCG = -1;
@@ -3189,6 +3339,7 @@ static gint ett_nr_rrc_T_shortDRX = -1;
 static gint ett_nr_rrc_MeasConfigMN = -1;
 static gint ett_nr_rrc_SEQUENCE_SIZE_1_maxMeasFreqsMN_OF_NR_FreqInfo = -1;
 static gint ett_nr_rrc_T_measGapConfig = -1;
+static gint ett_nr_rrc_T_measGapConfigFR2 = -1;
 static gint ett_nr_rrc_MRDC_AssistanceInfo = -1;
 static gint ett_nr_rrc_SEQUENCE_SIZE_1_maxNrofCombIDC_OF_AffectedCarrierFreqCombInfoMRDC = -1;
 static gint ett_nr_rrc_AffectedCarrierFreqCombInfoMRDC = -1;
@@ -3281,12 +3432,12 @@ static gint ett_nr_rrc_T_criticalExtensionsFuture_11 = -1;
 static gint ett_nr_rrc_LocationMeasurementIndication_IEs = -1;
 static gint ett_nr_rrc_T_measurementIndication = -1;
 static gint ett_nr_rrc_T_nonCriticalExtension_11 = -1;
-static gint ett_nr_rrc_MIB = -1;
 static gint ett_nr_rrc_MeasurementReport = -1;
 static gint ett_nr_rrc_T_criticalExtensions_12 = -1;
 static gint ett_nr_rrc_T_criticalExtensionsFuture_12 = -1;
 static gint ett_nr_rrc_MeasurementReport_IEs = -1;
 static gint ett_nr_rrc_T_nonCriticalExtension_12 = -1;
+static gint ett_nr_rrc_MIB = -1;
 static gint ett_nr_rrc_MobilityFromNRCommand = -1;
 static gint ett_nr_rrc_T_criticalExtensions_13 = -1;
 static gint ett_nr_rrc_T_criticalExtensionsFuture_13 = -1;
@@ -3317,13 +3468,19 @@ static gint ett_nr_rrc_RRCReconfiguration_IEs = -1;
 static gint ett_nr_rrc_RRCReconfiguration_v1530_IEs = -1;
 static gint ett_nr_rrc_SEQUENCE_SIZE_1_maxDRB_OF_DedicatedNAS_Message = -1;
 static gint ett_nr_rrc_RRCReconfiguration_v1540_IEs = -1;
+static gint ett_nr_rrc_RRCReconfiguration_v1560_IEs = -1;
+static gint ett_nr_rrc_T_mrdc_SecondaryCellGroupConfig = -1;
 static gint ett_nr_rrc_T_nonCriticalExtension_17 = -1;
+static gint ett_nr_rrc_MRDC_SecondaryCellGroupConfig = -1;
+static gint ett_nr_rrc_T_mrdc_SecondaryCellGroup = -1;
 static gint ett_nr_rrc_MasterKeyUpdate = -1;
 static gint ett_nr_rrc_RRCReconfigurationComplete = -1;
 static gint ett_nr_rrc_T_criticalExtensions_17 = -1;
 static gint ett_nr_rrc_T_criticalExtensionsFuture_17 = -1;
 static gint ett_nr_rrc_RRCReconfigurationComplete_IEs = -1;
 static gint ett_nr_rrc_RRCReconfigurationComplete_v1530_IEs = -1;
+static gint ett_nr_rrc_RRCReconfigurationComplete_v1560_IEs = -1;
+static gint ett_nr_rrc_T_scg_Response = -1;
 static gint ett_nr_rrc_T_nonCriticalExtension_18 = -1;
 static gint ett_nr_rrc_RRCReject = -1;
 static gint ett_nr_rrc_T_criticalExtensions_18 = -1;
@@ -3359,6 +3516,7 @@ static gint ett_nr_rrc_RRCResume = -1;
 static gint ett_nr_rrc_T_criticalExtensions_20 = -1;
 static gint ett_nr_rrc_T_criticalExtensionsFuture_20 = -1;
 static gint ett_nr_rrc_RRCResume_IEs = -1;
+static gint ett_nr_rrc_RRCResume_v1560_IEs = -1;
 static gint ett_nr_rrc_T_nonCriticalExtension_21 = -1;
 static gint ett_nr_rrc_RRCResumeComplete = -1;
 static gint ett_nr_rrc_T_criticalExtensions_21 = -1;
@@ -3389,42 +3547,56 @@ static gint ett_nr_rrc_RRCSystemInfoRequest = -1;
 static gint ett_nr_rrc_T_criticalExtensions_24 = -1;
 static gint ett_nr_rrc_T_criticalExtensionsFuture_24 = -1;
 static gint ett_nr_rrc_RRCSystemInfoRequest_r15_IEs = -1;
-static gint ett_nr_rrc_SecurityModeCommand = -1;
+static gint ett_nr_rrc_SCGFailureInformation = -1;
 static gint ett_nr_rrc_T_criticalExtensions_25 = -1;
 static gint ett_nr_rrc_T_criticalExtensionsFuture_25 = -1;
-static gint ett_nr_rrc_SecurityModeCommand_IEs = -1;
+static gint ett_nr_rrc_SCGFailureInformation_IEs = -1;
 static gint ett_nr_rrc_T_nonCriticalExtension_25 = -1;
-static gint ett_nr_rrc_SecurityConfigSMC = -1;
-static gint ett_nr_rrc_SecurityModeComplete = -1;
+static gint ett_nr_rrc_FailureReportSCG = -1;
+static gint ett_nr_rrc_MeasResultFreqList = -1;
+static gint ett_nr_rrc_SCGFailureInformationEUTRA = -1;
 static gint ett_nr_rrc_T_criticalExtensions_26 = -1;
 static gint ett_nr_rrc_T_criticalExtensionsFuture_26 = -1;
-static gint ett_nr_rrc_SecurityModeComplete_IEs = -1;
+static gint ett_nr_rrc_SCGFailureInformationEUTRA_IEs = -1;
 static gint ett_nr_rrc_T_nonCriticalExtension_26 = -1;
-static gint ett_nr_rrc_SecurityModeFailure = -1;
+static gint ett_nr_rrc_FailureReportSCG_EUTRA = -1;
+static gint ett_nr_rrc_MeasResultFreqListFailMRDC = -1;
+static gint ett_nr_rrc_SecurityModeCommand = -1;
 static gint ett_nr_rrc_T_criticalExtensions_27 = -1;
 static gint ett_nr_rrc_T_criticalExtensionsFuture_27 = -1;
-static gint ett_nr_rrc_SecurityModeFailure_IEs = -1;
+static gint ett_nr_rrc_SecurityModeCommand_IEs = -1;
 static gint ett_nr_rrc_T_nonCriticalExtension_27 = -1;
+static gint ett_nr_rrc_SecurityConfigSMC = -1;
+static gint ett_nr_rrc_SecurityModeComplete = -1;
+static gint ett_nr_rrc_T_criticalExtensions_28 = -1;
+static gint ett_nr_rrc_T_criticalExtensionsFuture_28 = -1;
+static gint ett_nr_rrc_SecurityModeComplete_IEs = -1;
+static gint ett_nr_rrc_T_nonCriticalExtension_28 = -1;
+static gint ett_nr_rrc_SecurityModeFailure = -1;
+static gint ett_nr_rrc_T_criticalExtensions_29 = -1;
+static gint ett_nr_rrc_T_criticalExtensionsFuture_29 = -1;
+static gint ett_nr_rrc_SecurityModeFailure_IEs = -1;
+static gint ett_nr_rrc_T_nonCriticalExtension_29 = -1;
 static gint ett_nr_rrc_SIB1 = -1;
 static gint ett_nr_rrc_T_cellSelectionInfo = -1;
 static gint ett_nr_rrc_T_uac_BarringInfo = -1;
 static gint ett_nr_rrc_T_uac_AccessCategory1_SelectionAssistanceInfo = -1;
 static gint ett_nr_rrc_SEQUENCE_SIZE_2_maxPLMN_OF_UAC_AccessCategory1_SelectionAssistanceInfo = -1;
-static gint ett_nr_rrc_T_nonCriticalExtension_28 = -1;
+static gint ett_nr_rrc_T_nonCriticalExtension_30 = -1;
 static gint ett_nr_rrc_SystemInformation = -1;
-static gint ett_nr_rrc_T_criticalExtensions_28 = -1;
-static gint ett_nr_rrc_T_criticalExtensionsFuture_28 = -1;
+static gint ett_nr_rrc_T_criticalExtensions_30 = -1;
+static gint ett_nr_rrc_T_criticalExtensionsFuture_30 = -1;
 static gint ett_nr_rrc_SystemInformation_IEs = -1;
 static gint ett_nr_rrc_T_sib_TypeAndInfo = -1;
 static gint ett_nr_rrc_T_sib_TypeAndInfo_item = -1;
-static gint ett_nr_rrc_T_nonCriticalExtension_29 = -1;
+static gint ett_nr_rrc_T_nonCriticalExtension_31 = -1;
 static gint ett_nr_rrc_UEAssistanceInformation = -1;
-static gint ett_nr_rrc_T_criticalExtensions_29 = -1;
-static gint ett_nr_rrc_T_criticalExtensionsFuture_29 = -1;
+static gint ett_nr_rrc_T_criticalExtensions_31 = -1;
+static gint ett_nr_rrc_T_criticalExtensionsFuture_31 = -1;
 static gint ett_nr_rrc_UEAssistanceInformation_IEs = -1;
 static gint ett_nr_rrc_DelayBudgetReport = -1;
 static gint ett_nr_rrc_UEAssistanceInformation_v1540_IEs = -1;
-static gint ett_nr_rrc_T_nonCriticalExtension_30 = -1;
+static gint ett_nr_rrc_T_nonCriticalExtension_32 = -1;
 static gint ett_nr_rrc_OverheatingAssistance = -1;
 static gint ett_nr_rrc_T_reducedMaxCCs = -1;
 static gint ett_nr_rrc_T_reducedMaxBW_FR1 = -1;
@@ -3432,20 +3604,27 @@ static gint ett_nr_rrc_T_reducedMaxBW_FR2 = -1;
 static gint ett_nr_rrc_T_reducedMaxMIMO_LayersFR1 = -1;
 static gint ett_nr_rrc_T_reducedMaxMIMO_LayersFR2 = -1;
 static gint ett_nr_rrc_UECapabilityEnquiry = -1;
-static gint ett_nr_rrc_T_criticalExtensions_30 = -1;
-static gint ett_nr_rrc_T_criticalExtensionsFuture_30 = -1;
-static gint ett_nr_rrc_UECapabilityEnquiry_IEs = -1;
-static gint ett_nr_rrc_T_nonCriticalExtension_31 = -1;
-static gint ett_nr_rrc_UECapabilityInformation = -1;
-static gint ett_nr_rrc_T_criticalExtensions_31 = -1;
-static gint ett_nr_rrc_T_criticalExtensionsFuture_31 = -1;
-static gint ett_nr_rrc_UECapabilityInformation_IEs = -1;
-static gint ett_nr_rrc_T_nonCriticalExtension_32 = -1;
-static gint ett_nr_rrc_ULInformationTransfer = -1;
 static gint ett_nr_rrc_T_criticalExtensions_32 = -1;
 static gint ett_nr_rrc_T_criticalExtensionsFuture_32 = -1;
-static gint ett_nr_rrc_ULInformationTransfer_IEs = -1;
+static gint ett_nr_rrc_UECapabilityEnquiry_IEs = -1;
+static gint ett_nr_rrc_UECapabilityEnquiry_v1560_IEs = -1;
 static gint ett_nr_rrc_T_nonCriticalExtension_33 = -1;
+static gint ett_nr_rrc_UECapabilityInformation = -1;
+static gint ett_nr_rrc_T_criticalExtensions_33 = -1;
+static gint ett_nr_rrc_T_criticalExtensionsFuture_33 = -1;
+static gint ett_nr_rrc_UECapabilityInformation_IEs = -1;
+static gint ett_nr_rrc_T_nonCriticalExtension_34 = -1;
+static gint ett_nr_rrc_ULInformationTransfer = -1;
+static gint ett_nr_rrc_T_criticalExtensions_34 = -1;
+static gint ett_nr_rrc_T_criticalExtensionsFuture_34 = -1;
+static gint ett_nr_rrc_ULInformationTransfer_IEs = -1;
+static gint ett_nr_rrc_T_nonCriticalExtension_35 = -1;
+static gint ett_nr_rrc_ULInformationTransferMRDC = -1;
+static gint ett_nr_rrc_T_criticalExtensions_35 = -1;
+static gint ett_nr_rrc_T_c1_14 = -1;
+static gint ett_nr_rrc_T_criticalExtensionsFuture_35 = -1;
+static gint ett_nr_rrc_ULInformationTransferMRDC_IEs = -1;
+static gint ett_nr_rrc_T_nonCriticalExtension_36 = -1;
 static gint ett_nr_rrc_SIB2 = -1;
 static gint ett_nr_rrc_T_cellReselectionInfoCommon = -1;
 static gint ett_nr_rrc_T_speedStateReselectionPars = -1;
@@ -3520,7 +3699,11 @@ static gint ett_nr_rrc_T_rlf_TimersAndConstants = -1;
 static gint ett_nr_rrc_ReconfigurationWithSync = -1;
 static gint ett_nr_rrc_T_rach_ConfigDedicated = -1;
 static gint ett_nr_rrc_SCellConfig = -1;
-static gint ett_nr_rrc_CGI_Info = -1;
+static gint ett_nr_rrc_CGI_InfoEUTRA = -1;
+static gint ett_nr_rrc_T_cgi_info_EPC = -1;
+static gint ett_nr_rrc_SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_EPC = -1;
+static gint ett_nr_rrc_SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_5GC = -1;
+static gint ett_nr_rrc_CGI_InfoNR = -1;
 static gint ett_nr_rrc_T_noSIB1 = -1;
 static gint ett_nr_rrc_CodebookConfig = -1;
 static gint ett_nr_rrc_T_codebookType = -1;
@@ -3682,7 +3865,7 @@ static gint ett_nr_rrc_SEQUENCE_SIZE_1_maxSCSs_OF_SubcarrierSpacing = -1;
 static gint ett_nr_rrc_MAC_CellGroupConfig = -1;
 static gint ett_nr_rrc_T_drx_Config = -1;
 static gint ett_nr_rrc_T_phr_Config = -1;
-static gint ett_nr_rrc_T_dataInactivityTimer_v1530 = -1;
+static gint ett_nr_rrc_T_dataInactivityTimer = -1;
 static gint ett_nr_rrc_MeasConfig = -1;
 static gint ett_nr_rrc_T_s_MeasureConfig = -1;
 static gint ett_nr_rrc_MeasObjectToRemoveList = -1;
@@ -3718,8 +3901,10 @@ static gint ett_nr_rrc_CellsToAddMod = -1;
 static gint ett_nr_rrc_MeasObjectToAddModList = -1;
 static gint ett_nr_rrc_MeasObjectToAddMod = -1;
 static gint ett_nr_rrc_T_measObject = -1;
-static gint ett_nr_rrc_MeasResultCellListSFTD = -1;
-static gint ett_nr_rrc_MeasResultCellSFTD = -1;
+static gint ett_nr_rrc_MeasResultCellListSFTD_NR = -1;
+static gint ett_nr_rrc_MeasResultCellSFTD_NR = -1;
+static gint ett_nr_rrc_MeasResultCellListSFTD_EUTRA = -1;
+static gint ett_nr_rrc_MeasResultSFTD_EUTRA = -1;
 static gint ett_nr_rrc_MeasResults = -1;
 static gint ett_nr_rrc_T_measResultNeighCells = -1;
 static gint ett_nr_rrc_MeasResultServMOList = -1;
@@ -3731,10 +3916,6 @@ static gint ett_nr_rrc_T_cellResults = -1;
 static gint ett_nr_rrc_T_rsIndexResults = -1;
 static gint ett_nr_rrc_MeasResultListEUTRA = -1;
 static gint ett_nr_rrc_MeasResultEUTRA = -1;
-static gint ett_nr_rrc_T_cgi_Info = -1;
-static gint ett_nr_rrc_T_cgi_info_EPC = -1;
-static gint ett_nr_rrc_SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_EPC = -1;
-static gint ett_nr_rrc_SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_5GC = -1;
 static gint ett_nr_rrc_MultiBandInfoListEUTRA = -1;
 static gint ett_nr_rrc_MeasQuantityResults = -1;
 static gint ett_nr_rrc_MeasQuantityResultsEUTRA = -1;
@@ -3742,9 +3923,12 @@ static gint ett_nr_rrc_ResultsPerSSB_IndexList = -1;
 static gint ett_nr_rrc_ResultsPerSSB_Index = -1;
 static gint ett_nr_rrc_ResultsPerCSI_RS_IndexList = -1;
 static gint ett_nr_rrc_ResultsPerCSI_RS_Index = -1;
+static gint ett_nr_rrc_MeasResultServFreqListEUTRA_SCG = -1;
+static gint ett_nr_rrc_MeasResultServFreqListNR_SCG = -1;
+static gint ett_nr_rrc_MeasResult2EUTRA = -1;
+static gint ett_nr_rrc_MeasResult2NR = -1;
 static gint ett_nr_rrc_MeasResultSCG_Failure = -1;
 static gint ett_nr_rrc_MeasResultList2NR = -1;
-static gint ett_nr_rrc_MeasResult2NR = -1;
 static gint ett_nr_rrc_MobilityStateParameters = -1;
 static gint ett_nr_rrc_MultiFrequencyBandListNR = -1;
 static gint ett_nr_rrc_MultiFrequencyBandListNR_SIB = -1;
@@ -3817,6 +4001,7 @@ static gint ett_nr_rrc_PDSCH_TimeDomainResourceAllocation = -1;
 static gint ett_nr_rrc_PHR_Config = -1;
 static gint ett_nr_rrc_PhysicalCellGroupConfig = -1;
 static gint ett_nr_rrc_T_cs_RNTI = -1;
+static gint ett_nr_rrc_T_pdcch_BlindDetection = -1;
 static gint ett_nr_rrc_PLMN_Identity = -1;
 static gint ett_nr_rrc_MCC = -1;
 static gint ett_nr_rrc_MNC = -1;
@@ -3939,6 +4124,7 @@ static gint ett_nr_rrc_RateMatchPatternLTE_CRS = -1;
 static gint ett_nr_rrc_ReportConfigInterRAT = -1;
 static gint ett_nr_rrc_T_reportType = -1;
 static gint ett_nr_rrc_ReportCGI_EUTRA = -1;
+static gint ett_nr_rrc_ReportSFTD_EUTRA = -1;
 static gint ett_nr_rrc_EventTriggerConfigInterRAT = -1;
 static gint ett_nr_rrc_T_eventId = -1;
 static gint ett_nr_rrc_T_eventB1 = -1;
@@ -3948,6 +4134,7 @@ static gint ett_nr_rrc_MeasTriggerQuantityEUTRA = -1;
 static gint ett_nr_rrc_ReportConfigNR = -1;
 static gint ett_nr_rrc_T_reportType_01 = -1;
 static gint ett_nr_rrc_ReportCGI = -1;
+static gint ett_nr_rrc_ReportSFTD_NR = -1;
 static gint ett_nr_rrc_EventTriggerConfig = -1;
 static gint ett_nr_rrc_T_eventId_01 = -1;
 static gint ett_nr_rrc_T_eventA1 = -1;
@@ -4031,7 +4218,6 @@ static gint ett_nr_rrc_SEQUENCE_SIZE_1_maxNrofAggregatedCellsPerCellGroup_OF_Slo
 static gint ett_nr_rrc_SEQUENCE_SIZE_1_maxNrofAggregatedCellsPerCellGroup_OF_ServCellIndex = -1;
 static gint ett_nr_rrc_S_NSSAI = -1;
 static gint ett_nr_rrc_SpeedStateScaleFactors = -1;
-static gint ett_nr_rrc_SS_RSSI_Measurement = -1;
 static gint ett_nr_rrc_SPS_Config = -1;
 static gint ett_nr_rrc_SRS_CarrierSwitching = -1;
 static gint ett_nr_rrc_T_srs_TPC_PDCCH_Group = -1;
@@ -4073,6 +4259,7 @@ static gint ett_nr_rrc_T_periodicityAndOffset_01 = -1;
 static gint ett_nr_rrc_SSB_MTC2 = -1;
 static gint ett_nr_rrc_SEQUENCE_SIZE_1_maxNrofPCIsPerSMTC_OF_PhysCellId = -1;
 static gint ett_nr_rrc_SSB_ToMeasure = -1;
+static gint ett_nr_rrc_SS_RSSI_Measurement = -1;
 static gint ett_nr_rrc_TAG_Config = -1;
 static gint ett_nr_rrc_SEQUENCE_SIZE_1_maxNrofTAGs_OF_TAG_Id = -1;
 static gint ett_nr_rrc_SEQUENCE_SIZE_1_maxNrofTAGs_OF_TAG = -1;
@@ -4109,11 +4296,13 @@ static gint ett_nr_rrc_SEQUENCE_SIZE_1_maxNrofZP_CSI_RS_ResourcesPerSet_OF_ZP_CS
 static gint ett_nr_rrc_BandCombinationList = -1;
 static gint ett_nr_rrc_BandCombinationList_v1540 = -1;
 static gint ett_nr_rrc_BandCombinationList_v1550 = -1;
+static gint ett_nr_rrc_BandCombinationList_v1560 = -1;
 static gint ett_nr_rrc_BandCombination = -1;
 static gint ett_nr_rrc_SEQUENCE_SIZE_1_maxSimultaneousBands_OF_BandParameters = -1;
 static gint ett_nr_rrc_BandCombination_v1540 = -1;
 static gint ett_nr_rrc_SEQUENCE_SIZE_1_maxSimultaneousBands_OF_BandParameters_v1540 = -1;
 static gint ett_nr_rrc_BandCombination_v1550 = -1;
+static gint ett_nr_rrc_BandCombination_v1560 = -1;
 static gint ett_nr_rrc_BandParameters = -1;
 static gint ett_nr_rrc_T_eutra = -1;
 static gint ett_nr_rrc_T_nr = -1;
@@ -4123,12 +4312,15 @@ static gint ett_nr_rrc_T_nr_01 = -1;
 static gint ett_nr_rrc_SEQUENCE_SIZE_1_maxSimultaneousBands_OF_SRS_SwitchingTimeNR = -1;
 static gint ett_nr_rrc_T_eutra_01 = -1;
 static gint ett_nr_rrc_SEQUENCE_SIZE_1_maxSimultaneousBands_OF_SRS_SwitchingTimeEUTRA = -1;
-static gint ett_nr_rrc_T_srs_TxSwitch_v1540 = -1;
+static gint ett_nr_rrc_T_srs_TxSwitch = -1;
 static gint ett_nr_rrc_CA_ParametersEUTRA = -1;
+static gint ett_nr_rrc_CA_ParametersEUTRA_v1560 = -1;
 static gint ett_nr_rrc_CA_ParametersNR = -1;
 static gint ett_nr_rrc_CA_ParametersNR_v1540 = -1;
 static gint ett_nr_rrc_T_csi_RS_IM_ReceptionForFeedbackPerBandComb = -1;
 static gint ett_nr_rrc_CA_ParametersNR_v1550 = -1;
+static gint ett_nr_rrc_CA_ParametersNR_v1560 = -1;
+static gint ett_nr_rrc_CA_ParametersNRDC = -1;
 static gint ett_nr_rrc_CodebookParameters = -1;
 static gint ett_nr_rrc_T_type1_02 = -1;
 static gint ett_nr_rrc_T_singlePanel = -1;
@@ -4199,8 +4391,10 @@ static gint ett_nr_rrc_MeasAndMobParametersCommon = -1;
 static gint ett_nr_rrc_MeasAndMobParametersXDD_Diff = -1;
 static gint ett_nr_rrc_MeasAndMobParametersFRX_Diff = -1;
 static gint ett_nr_rrc_MeasAndMobParametersMRDC = -1;
+static gint ett_nr_rrc_MeasAndMobParametersMRDC_v1560 = -1;
 static gint ett_nr_rrc_MeasAndMobParametersMRDC_Common = -1;
 static gint ett_nr_rrc_MeasAndMobParametersMRDC_XDD_Diff = -1;
+static gint ett_nr_rrc_MeasAndMobParametersMRDC_XDD_Diff_v1560 = -1;
 static gint ett_nr_rrc_MeasAndMobParametersMRDC_FRX_Diff = -1;
 static gint ett_nr_rrc_MIMO_ParametersPerBand = -1;
 static gint ett_nr_rrc_T_tci_StatePDSCH = -1;
@@ -4222,6 +4416,8 @@ static gint ett_nr_rrc_PTRS_DensityRecommendationUL = -1;
 static gint ett_nr_rrc_SpatialRelations = -1;
 static gint ett_nr_rrc_DummyI = -1;
 static gint ett_nr_rrc_MRDC_Parameters = -1;
+static gint ett_nr_rrc_NRDC_Parameters = -1;
+static gint ett_nr_rrc_T_nonCriticalExtension_37 = -1;
 static gint ett_nr_rrc_PDCP_Parameters = -1;
 static gint ett_nr_rrc_T_supportedROHC_Profiles = -1;
 static gint ett_nr_rrc_PDCP_ParametersMRDC = -1;
@@ -4230,6 +4426,7 @@ static gint ett_nr_rrc_Phy_ParametersCommon = -1;
 static gint ett_nr_rrc_Phy_ParametersXDD_Diff = -1;
 static gint ett_nr_rrc_Phy_ParametersFRX_Diff = -1;
 static gint ett_nr_rrc_T_mux_SR_HARQ_ACK_CSI_PUCCH_OncePerSlot = -1;
+static gint ett_nr_rrc_T_pdcch_BlindDetectionNRDC = -1;
 static gint ett_nr_rrc_Phy_ParametersFR1 = -1;
 static gint ett_nr_rrc_Phy_ParametersFR2 = -1;
 static gint ett_nr_rrc_Phy_ParametersMRDC = -1;
@@ -4256,20 +4453,25 @@ static gint ett_nr_rrc_UE_CapabilityRAT_ContainerList = -1;
 static gint ett_nr_rrc_UE_CapabilityRAT_Container = -1;
 static gint ett_nr_rrc_UE_CapabilityRAT_RequestList = -1;
 static gint ett_nr_rrc_UE_CapabilityRAT_Request = -1;
+static gint ett_nr_rrc_UE_CapabilityRequestFilterCommon = -1;
+static gint ett_nr_rrc_T_mrdc_Request = -1;
 static gint ett_nr_rrc_UE_CapabilityRequestFilterNR = -1;
 static gint ett_nr_rrc_UE_CapabilityRequestFilterNR_v1540 = -1;
-static gint ett_nr_rrc_T_nonCriticalExtension_34 = -1;
+static gint ett_nr_rrc_T_nonCriticalExtension_38 = -1;
 static gint ett_nr_rrc_UE_MRDC_Capability = -1;
 static gint ett_nr_rrc_SEQUENCE_SIZE_1_maxFeatureSetCombinations_OF_FeatureSetCombination = -1;
-static gint ett_nr_rrc_T_nonCriticalExtension_35 = -1;
+static gint ett_nr_rrc_UE_MRDC_Capability_v1560 = -1;
+static gint ett_nr_rrc_T_nonCriticalExtension_39 = -1;
 static gint ett_nr_rrc_UE_MRDC_CapabilityAddXDD_Mode = -1;
+static gint ett_nr_rrc_UE_MRDC_CapabilityAddXDD_Mode_v1560 = -1;
 static gint ett_nr_rrc_UE_MRDC_CapabilityAddFRX_Mode = -1;
 static gint ett_nr_rrc_GeneralParametersMRDC_XDD_Diff = -1;
 static gint ett_nr_rrc_UE_NR_Capability = -1;
 static gint ett_nr_rrc_UE_NR_Capability_v1530 = -1;
 static gint ett_nr_rrc_UE_NR_Capability_v1540 = -1;
 static gint ett_nr_rrc_UE_NR_Capability_v1550 = -1;
-static gint ett_nr_rrc_T_nonCriticalExtension_36 = -1;
+static gint ett_nr_rrc_UE_NR_Capability_v1560 = -1;
+static gint ett_nr_rrc_T_nonCriticalExtension_40 = -1;
 static gint ett_nr_rrc_UE_NR_CapabilityAddXDD_Mode = -1;
 static gint ett_nr_rrc_UE_NR_CapabilityAddXDD_Mode_v1530 = -1;
 static gint ett_nr_rrc_UE_NR_CapabilityAddFRX_Mode = -1;
@@ -4291,7 +4493,7 @@ static gint ett_nr_rrc_T_overheatingAssistanceConfig = -1;
 static gint ett_nr_rrc_OverheatingAssistanceConfig = -1;
 
 /*--- End of included file: packet-nr-rrc-ett.c ---*/
-#line 95 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 97 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 static gint ett_nr_rrc_DedicatedNAS_Message = -1;
 static gint ett_rr_rrc_targetRAT_MessageContainer = -1;
 static gint ett_nr_rrc_nas_Container = -1;
@@ -4305,6 +4507,17 @@ static gint ett_nr_rrc_sib8_fragments = -1;
 static gint ett_nr_rrc_warningMessageSegment = -1;
 static gint ett_nr_rrc_timeInfo = -1;
 static gint ett_nr_rrc_capabilityRequestFilter = -1;
+static gint ett_nr_rrc_sourceSCG_EUTRA_Config = -1;
+static gint ett_nr_rrc_scg_CellGroupConfigEUTRA = -1;
+static gint ett_nr_rrc_candidateCellInfoListSN_EUTRA = -1;
+static gint ett_nr_rrc_candidateCellInfoListMN_EUTRA = -1;
+static gint ett_nr_rrc_sourceConfigSCG_EUTRA = -1;
+static gint ett_nr_rrc_eutra_SCG = -1;
+static gint ett_nr_rrc_nr_SCG_Response = -1;
+static gint ett_nr_rrc_eutra_SCG_Response = -1;
+static gint ett_nr_rrc_measResultSCG_FailureMRDC = -1;
+static gint ett_nr_rrc_ul_DCCH_MessageNR = -1;
+static gint ett_nr_rrc_ul_DCCH_MessageEUTRA = -1;
 
 static expert_field ei_nr_rrc_number_pages_le15 = EI_INIT;
 
@@ -4562,6 +4775,7 @@ nr_rrc_SINR_Range_fmt(gchar *s, guint32 v)
 /*--- PDUs declarations ---*/
 static int dissect_MeasResultList2NR_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 static int dissect_SystemInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
+static int dissect_UECapabilityEnquiry_v1560_IEs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_);
 
 
 
@@ -4788,8 +5002,62 @@ dissect_nr_rrc_T_rrcReconfiguration(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
+
+static int
+dissect_nr_rrc_T_sourceRB_SN_Config(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
+                                                                NO_BOUND, NO_BOUND, FALSE, dissect_nr_rrc_RadioBearerConfig_PDU);
+
+  return offset;
+}
+
+
+
+static int
+dissect_nr_rrc_T_sourceSCG_NR_Config(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
+                                                                NO_BOUND, NO_BOUND, FALSE, dissect_nr_rrc_RRCReconfiguration_PDU);
+
+  return offset;
+}
+
+
+
+static int
+dissect_nr_rrc_T_sourceSCG_EUTRA_Config(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *src_scg_eutra_config_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, &src_scg_eutra_config_tvb);
+
+  if (src_scg_eutra_config_tvb && lte_rrc_conn_reconf_handle) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_rr_rrc_targetRAT_MessageContainer);
+    nr_rrc_call_dissector(lte_rrc_conn_reconf_handle, src_scg_eutra_config_tvb, actx->pinfo, subtree);
+  }
+
+
+  return offset;
+}
+
+
+static const per_sequence_t AS_Config_eag_1_sequence[] = {
+  { &hf_nr_rrc_sourceRB_SN_Config, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_sourceRB_SN_Config },
+  { &hf_nr_rrc_sourceSCG_NR_Config, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_sourceSCG_NR_Config },
+  { &hf_nr_rrc_sourceSCG_EUTRA_Config, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_sourceSCG_EUTRA_Config },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_AS_Config_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, AS_Config_eag_1_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t AS_Config_sequence[] = {
   { &hf_nr_rrc_rrcReconfiguration, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_rrcReconfiguration },
+  { &dummy_hf_nr_rrc_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_nr_rrc_AS_Config_eag_1 },
   { NULL, 0, 0, NULL }
 };
 
@@ -5300,7 +5568,7 @@ dissect_nr_rrc_T_noSIB1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_,
 }
 
 
-static const per_sequence_t CGI_Info_sequence[] = {
+static const per_sequence_t CGI_InfoNR_sequence[] = {
   { &hf_nr_rrc_plmn_IdentityInfoList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_PLMN_IdentityInfoList },
   { &hf_nr_rrc_frequencyBandList_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_MultiFrequencyBandListNR },
   { &hf_nr_rrc_noSIB1       , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_noSIB1 },
@@ -5308,16 +5576,16 @@ static const per_sequence_t CGI_Info_sequence[] = {
 };
 
 static int
-dissect_nr_rrc_CGI_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_CGI_InfoNR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_CGI_Info, CGI_Info_sequence);
+                                   ett_nr_rrc_CGI_InfoNR, CGI_InfoNR_sequence);
 
   return offset;
 }
 
 
 static const per_sequence_t MeasResultNR_eag_1_sequence[] = {
-  { &hf_nr_rrc_cgi_Info     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_CGI_Info },
+  { &hf_nr_rrc_cgi_Info     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_CGI_InfoNR },
   { NULL, 0, 0, NULL }
 };
 
@@ -5390,9 +5658,360 @@ dissect_nr_rrc_MeasResultList2NR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 }
 
 
+
+static int
+dissect_nr_rrc_ARFCN_ValueEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, maxEARFCN, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_nr_rrc_RSRP_RangeEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 97U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_nr_rrc_RSRQ_RangeEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 34U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_nr_rrc_SINR_RangeEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 127U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t MeasQuantityResultsEUTRA_sequence[] = {
+  { &hf_nr_rrc_rsrp_01      , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_RSRP_RangeEUTRA },
+  { &hf_nr_rrc_rsrq_01      , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_RSRQ_RangeEUTRA },
+  { &hf_nr_rrc_sinr_01      , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_SINR_RangeEUTRA },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_MeasQuantityResultsEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_MeasQuantityResultsEUTRA, MeasQuantityResultsEUTRA_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t PLMN_IdentityList_EUTRA_EPC_sequence_of[1] = {
+  { &hf_nr_rrc_PLMN_IdentityList_EUTRA_EPC_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_PLMN_Identity },
+};
+
+static int
+dissect_nr_rrc_PLMN_IdentityList_EUTRA_EPC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_nr_rrc_PLMN_IdentityList_EUTRA_EPC, PLMN_IdentityList_EUTRA_EPC_sequence_of,
+                                                  1, maxPLMN, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_nr_rrc_BIT_STRING_SIZE_16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     16, 16, FALSE, NULL, 0, NULL, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_nr_rrc_BIT_STRING_SIZE_28(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
+                                     28, 28, FALSE, NULL, 0, NULL, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t CellAccessRelatedInfo_EUTRA_EPC_sequence[] = {
+  { &hf_nr_rrc_plmn_IdentityList_eutra_epc, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_PLMN_IdentityList_EUTRA_EPC },
+  { &hf_nr_rrc_trackingAreaCode_eutra_epc, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_BIT_STRING_SIZE_16 },
+  { &hf_nr_rrc_cellIdentity_eutra_epc, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_BIT_STRING_SIZE_28 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_CellAccessRelatedInfo_EUTRA_EPC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_CellAccessRelatedInfo_EUTRA_EPC, CellAccessRelatedInfo_EUTRA_EPC_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_EPC_sequence_of[1] = {
+  { &hf_nr_rrc_cgi_info_EPC_list_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_CellAccessRelatedInfo_EUTRA_EPC },
+};
+
+static int
+dissect_nr_rrc_SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_EPC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_nr_rrc_SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_EPC, SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_EPC_sequence_of,
+                                                  1, maxPLMN, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_cgi_info_EPC_sequence[] = {
+  { &hf_nr_rrc_cgi_info_EPC_legacy, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_CellAccessRelatedInfo_EUTRA_EPC },
+  { &hf_nr_rrc_cgi_info_EPC_list, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_EPC },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_cgi_info_EPC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_T_cgi_info_EPC, T_cgi_info_EPC_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_nr_rrc_INTEGER_1_maxPLMN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, maxPLMN, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_PLMN_Identity_EUTRA_5GC_vals[] = {
+  {   0, "plmn-Identity-EUTRA-5GC" },
+  {   1, "plmn-index" },
+  { 0, NULL }
+};
+
+static const per_choice_t PLMN_Identity_EUTRA_5GC_choice[] = {
+  {   0, &hf_nr_rrc_plmn_Identity_EUTRA_5GC, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PLMN_Identity },
+  {   1, &hf_nr_rrc_plmn_index   , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_1_maxPLMN },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_PLMN_Identity_EUTRA_5GC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_nr_rrc_PLMN_Identity_EUTRA_5GC, PLMN_Identity_EUTRA_5GC_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t PLMN_IdentityList_EUTRA_5GC_sequence_of[1] = {
+  { &hf_nr_rrc_PLMN_IdentityList_EUTRA_5GC_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_PLMN_Identity_EUTRA_5GC },
+};
+
+static int
+dissect_nr_rrc_PLMN_IdentityList_EUTRA_5GC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_nr_rrc_PLMN_IdentityList_EUTRA_5GC, PLMN_IdentityList_EUTRA_5GC_sequence_of,
+                                                  1, maxPLMN, FALSE);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_CellIdentity_EUTRA_5GC_vals[] = {
+  {   0, "cellIdentity-EUTRA" },
+  {   1, "cellId-index" },
+  { 0, NULL }
+};
+
+static const per_choice_t CellIdentity_EUTRA_5GC_choice[] = {
+  {   0, &hf_nr_rrc_cellIdentity_EUTRA, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_BIT_STRING_SIZE_28 },
+  {   1, &hf_nr_rrc_cellId_index , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_1_maxPLMN },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_CellIdentity_EUTRA_5GC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_nr_rrc_CellIdentity_EUTRA_5GC, CellIdentity_EUTRA_5GC_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t CellAccessRelatedInfo_EUTRA_5GC_sequence[] = {
+  { &hf_nr_rrc_plmn_IdentityList_eutra_5gc, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_PLMN_IdentityList_EUTRA_5GC },
+  { &hf_nr_rrc_trackingAreaCode_eutra_5gc, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_TrackingAreaCode },
+  { &hf_nr_rrc_ranac_5gc    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_RAN_AreaCode },
+  { &hf_nr_rrc_cellIdentity_eutra_5gc, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_CellIdentity_EUTRA_5GC },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_CellAccessRelatedInfo_EUTRA_5GC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_CellAccessRelatedInfo_EUTRA_5GC, CellAccessRelatedInfo_EUTRA_5GC_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_5GC_sequence_of[1] = {
+  { &hf_nr_rrc_cgi_info_5GC_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_CellAccessRelatedInfo_EUTRA_5GC },
+};
+
+static int
+dissect_nr_rrc_SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_5GC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_nr_rrc_SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_5GC, SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_5GC_sequence_of,
+                                                  1, maxPLMN, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_nr_rrc_FreqBandIndicatorEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, maxBandsEUTRA, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t MultiBandInfoListEUTRA_sequence_of[1] = {
+  { &hf_nr_rrc_MultiBandInfoListEUTRA_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_FreqBandIndicatorEUTRA },
+};
+
+static int
+dissect_nr_rrc_MultiBandInfoListEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_nr_rrc_MultiBandInfoListEUTRA, MultiBandInfoListEUTRA_sequence_of,
+                                                  1, maxMultiBands, FALSE);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_freqBandIndicatorPriority_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_nr_rrc_T_freqBandIndicatorPriority(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t CGI_InfoEUTRA_sequence[] = {
+  { &hf_nr_rrc_cgi_info_EPC , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_cgi_info_EPC },
+  { &hf_nr_rrc_cgi_info_5GC , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_5GC },
+  { &hf_nr_rrc_freqBandIndicator, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_FreqBandIndicatorEUTRA },
+  { &hf_nr_rrc_multiBandInfoList, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_MultiBandInfoListEUTRA },
+  { &hf_nr_rrc_freqBandIndicatorPriority, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_freqBandIndicatorPriority },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_CGI_InfoEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_CGI_InfoEUTRA, CGI_InfoEUTRA_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t MeasResultEUTRA_sequence[] = {
+  { &hf_nr_rrc_eutra_PhysCellId_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_PhysCellId },
+  { &hf_nr_rrc_measResult_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_MeasQuantityResultsEUTRA },
+  { &hf_nr_rrc_cgi_Info_01  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_CGI_InfoEUTRA },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_MeasResultEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_MeasResultEUTRA, MeasResultEUTRA_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t MeasResult2EUTRA_sequence[] = {
+  { &hf_nr_rrc_carrierFreq_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_ARFCN_ValueEUTRA },
+  { &hf_nr_rrc_measResultServingCell_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_MeasResultEUTRA },
+  { &hf_nr_rrc_measResultBestNeighCell_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_MeasResultEUTRA },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_MeasResult2EUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_MeasResult2EUTRA, MeasResult2EUTRA_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t MeasResultServFreqListEUTRA_SCG_sequence_of[1] = {
+  { &hf_nr_rrc_MeasResultServFreqListEUTRA_SCG_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_MeasResult2EUTRA },
+};
+
+static int
+dissect_nr_rrc_MeasResultServFreqListEUTRA_SCG(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_nr_rrc_MeasResultServFreqListEUTRA_SCG, MeasResultServFreqListEUTRA_SCG_sequence_of,
+                                                  1, maxNrofServingCellsEUTRA, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t RRM_Config_eag_1_sequence[] = {
+  { &hf_nr_rrc_candidateCellInfoListSN_EUTRA, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_MeasResultServFreqListEUTRA_SCG },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_RRM_Config_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, RRM_Config_eag_1_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t RRM_Config_sequence[] = {
   { &hf_nr_rrc_ue_InactiveTime, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_ue_InactiveTime },
   { &hf_nr_rrc_candidateCellInfoList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_MeasResultList2NR },
+  { &dummy_hf_nr_rrc_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_nr_rrc_RRM_Config_eag_1 },
   { NULL, 0, 0, NULL }
 };
 
@@ -5609,12 +6228,72 @@ dissect_nr_rrc_INTEGER_1_maxMeasIdentitiesMN(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 
+
+static int
+dissect_nr_rrc_BandEntryIndex(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, maxNrofServingCells, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t SEQUENCE_SIZE_1_maxSimultaneousBands_OF_BandEntryIndex_sequence_of[1] = {
+  { &hf_nr_rrc_selectedBandEntriesMN_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_BandEntryIndex },
+};
+
+static int
+dissect_nr_rrc_SEQUENCE_SIZE_1_maxSimultaneousBands_OF_BandEntryIndex(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_nr_rrc_SEQUENCE_SIZE_1_maxSimultaneousBands_OF_BandEntryIndex, SEQUENCE_SIZE_1_maxSimultaneousBands_OF_BandEntryIndex_sequence_of,
+                                                  1, maxSimultaneousBands, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_nr_rrc_INTEGER_1_15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 15U, NULL, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_nr_rrc_INTEGER_0_16384(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 16384U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t ConfigRestrictInfoSCG_eag_1_sequence[] = {
+  { &hf_nr_rrc_selectedBandEntriesMN, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_SEQUENCE_SIZE_1_maxSimultaneousBands_OF_BandEntryIndex },
+  { &hf_nr_rrc_pdcch_BlindDetectionSCG, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_INTEGER_1_15 },
+  { &hf_nr_rrc_maxNumberROHC_ContextSessionsSN, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_INTEGER_0_16384 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_ConfigRestrictInfoSCG_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, ConfigRestrictInfoSCG_eag_1_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t ConfigRestrictInfoSCG_sequence[] = {
   { &hf_nr_rrc_allowedBC_ListMRDC, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_BandCombinationInfoList },
   { &hf_nr_rrc_powerCoordination_FR1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_powerCoordination_FR1 },
   { &hf_nr_rrc_servCellIndexRangeSCG, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_servCellIndexRangeSCG },
-  { &hf_nr_rrc_maxMeasFreqsSCG_NR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_INTEGER_1_maxMeasFreqsMN },
+  { &hf_nr_rrc_maxMeasFreqsSCG, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_INTEGER_1_maxMeasFreqsMN },
   { &hf_nr_rrc_maxMeasIdentitiesSCG_NR, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_INTEGER_1_maxMeasIdentitiesMN },
+  { &dummy_hf_nr_rrc_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_nr_rrc_ConfigRestrictInfoSCG_eag_1 },
   { NULL, 0, 0, NULL }
 };
 
@@ -5802,11 +6481,42 @@ dissect_nr_rrc_AS_Context_eag_2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 }
 
 
+static const per_sequence_t BandCombinationInfoSN_sequence[] = {
+  { &hf_nr_rrc_bandCombinationIndex, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_BandCombinationIndex },
+  { &hf_nr_rrc_requestedFeatureSets, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_FeatureSetEntryIndex },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_BandCombinationInfoSN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  proto_item *prot_ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
+  proto_item_set_hidden(prot_ti);
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_BandCombinationInfoSN, BandCombinationInfoSN_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t AS_Context_eag_3_sequence[] = {
+  { &hf_nr_rrc_selectedBandCombinationSN, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_BandCombinationInfoSN },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_AS_Context_eag_3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, AS_Context_eag_3_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t AS_Context_sequence[] = {
   { &hf_nr_rrc_reestablishmentInfo, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_ReestablishmentInfo },
   { &hf_nr_rrc_configRestrictInfo, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_ConfigRestrictInfoSCG },
   { &dummy_hf_nr_rrc_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_nr_rrc_AS_Context_eag_1 },
   { &dummy_hf_nr_rrc_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_nr_rrc_AS_Context_eag_2 },
+  { &dummy_hf_nr_rrc_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_nr_rrc_AS_Context_eag_3 },
   { NULL, 0, 0, NULL }
 };
 
@@ -5947,18 +6657,15 @@ dissect_nr_rrc_T_scg_RB_Config(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 }
 
 
-static const per_sequence_t BandCombinationInfoSN_sequence[] = {
-  { &hf_nr_rrc_bandCombinationIndex, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_BandCombinationIndex },
-  { &hf_nr_rrc_requestedFeatureSets, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_FeatureSetEntryIndex },
+static const per_sequence_t ConfigRestrictModReqSCG_eag_1_sequence[] = {
+  { &hf_nr_rrc_requestedPDCCH_BlindDetectionSCG, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_INTEGER_1_15 },
+  { &hf_nr_rrc_requestedP_MaxEUTRA, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_P_Max },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_BandCombinationInfoSN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  proto_item *prot_ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
-  proto_item_set_hidden(prot_ti);
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_BandCombinationInfoSN, BandCombinationInfoSN_sequence);
+dissect_nr_rrc_ConfigRestrictModReqSCG_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, ConfigRestrictModReqSCG_eag_1_sequence);
 
   return offset;
 }
@@ -5967,6 +6674,7 @@ dissect_nr_rrc_BandCombinationInfoSN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 static const per_sequence_t ConfigRestrictModReqSCG_sequence[] = {
   { &hf_nr_rrc_requestedBC_MRDC, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_BandCombinationInfoSN },
   { &hf_nr_rrc_requestedP_MaxFR1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_P_Max },
+  { &dummy_hf_nr_rrc_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_nr_rrc_ConfigRestrictModReqSCG_eag_1 },
   { NULL, 0, 0, NULL }
 };
 
@@ -6453,15 +7161,15 @@ dissect_nr_rrc_T_requestedCellInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 }
 
 
-static const per_sequence_t T_reportCGI_Request_sequence[] = {
+static const per_sequence_t T_reportCGI_RequestNR_sequence[] = {
   { &hf_nr_rrc_requestedCellInfo, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_requestedCellInfo },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_reportCGI_Request(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_reportCGI_RequestNR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_reportCGI_Request, T_reportCGI_Request_sequence);
+                                   ett_nr_rrc_T_reportCGI_RequestNR, T_reportCGI_RequestNR_sequence);
 
   return offset;
 }
@@ -6527,6 +7235,489 @@ dissect_nr_rrc_PH_TypeListSCG(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 }
 
 
+
+static int
+dissect_nr_rrc_T_scg_CellGroupConfigEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *scg_cell_group_config_eutra_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, &scg_cell_group_config_eutra_tvb);
+
+  if (scg_cell_group_config_eutra_tvb && lte_rrc_conn_reconf_handle) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_scg_CellGroupConfigEUTRA);
+    nr_rrc_call_dissector(lte_rrc_conn_reconf_handle, scg_cell_group_config_eutra_tvb, actx->pinfo, subtree);
+  }
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_nr_rrc_T_candidateCellInfoListSN_EUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *cand_cell_info_list_sn_eutra_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, &cand_cell_info_list_sn_eutra_tvb);
+
+  if (cand_cell_info_list_sn_eutra_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_candidateCellInfoListSN_EUTRA);
+    dissect_lte_rrc_MeasResultList3EUTRA_r15_PDU(cand_cell_info_list_sn_eutra_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+static const per_sequence_t CandidateServingFreqListEUTRA_sequence_of[1] = {
+  { &hf_nr_rrc_CandidateServingFreqListEUTRA_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_ARFCN_ValueEUTRA },
+};
+
+static int
+dissect_nr_rrc_CandidateServingFreqListEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_nr_rrc_CandidateServingFreqListEUTRA, CandidateServingFreqListEUTRA_sequence_of,
+                                                  1, maxFreqIDC_MRDC, FALSE);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_needForGaps_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_nr_rrc_T_needForGaps(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_nr_rrc_INTEGER_1_31(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 31U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_milliSeconds_vals[] = {
+  {   0, "ms1" },
+  {   1, "ms2" },
+  {   2, "ms3" },
+  {   3, "ms4" },
+  {   4, "ms5" },
+  {   5, "ms6" },
+  {   6, "ms8" },
+  {   7, "ms10" },
+  {   8, "ms20" },
+  {   9, "ms30" },
+  {  10, "ms40" },
+  {  11, "ms50" },
+  {  12, "ms60" },
+  {  13, "ms80" },
+  {  14, "ms100" },
+  {  15, "ms200" },
+  {  16, "ms300" },
+  {  17, "ms400" },
+  {  18, "ms500" },
+  {  19, "ms600" },
+  {  20, "ms800" },
+  {  21, "ms1000" },
+  {  22, "ms1200" },
+  {  23, "ms1600" },
+  {  24, "spare8" },
+  {  25, "spare7" },
+  {  26, "spare6" },
+  {  27, "spare5" },
+  {  28, "spare4" },
+  {  29, "spare3" },
+  {  30, "spare2" },
+  {  31, "spare1" },
+  { 0, NULL }
+};
+
+static value_string_ext nr_rrc_T_milliSeconds_vals_ext = VALUE_STRING_EXT_INIT(nr_rrc_T_milliSeconds_vals);
+
+
+static int
+dissect_nr_rrc_T_milliSeconds(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     32, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_drx_onDurationTimer_vals[] = {
+  {   0, "subMilliSeconds" },
+  {   1, "milliSeconds" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_drx_onDurationTimer_choice[] = {
+  {   0, &hf_nr_rrc_subMilliSeconds, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_1_31 },
+  {   1, &hf_nr_rrc_milliSeconds , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_milliSeconds },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_drx_onDurationTimer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_nr_rrc_T_drx_onDurationTimer, T_drx_onDurationTimer_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_drx_InactivityTimer_vals[] = {
+  {   0, "ms0" },
+  {   1, "ms1" },
+  {   2, "ms2" },
+  {   3, "ms3" },
+  {   4, "ms4" },
+  {   5, "ms5" },
+  {   6, "ms6" },
+  {   7, "ms8" },
+  {   8, "ms10" },
+  {   9, "ms20" },
+  {  10, "ms30" },
+  {  11, "ms40" },
+  {  12, "ms50" },
+  {  13, "ms60" },
+  {  14, "ms80" },
+  {  15, "ms100" },
+  {  16, "ms200" },
+  {  17, "ms300" },
+  {  18, "ms500" },
+  {  19, "ms750" },
+  {  20, "ms1280" },
+  {  21, "ms1920" },
+  {  22, "ms2560" },
+  {  23, "spare9" },
+  {  24, "spare8" },
+  {  25, "spare7" },
+  {  26, "spare6" },
+  {  27, "spare5" },
+  {  28, "spare4" },
+  {  29, "spare3" },
+  {  30, "spare2" },
+  {  31, "spare1" },
+  { 0, NULL }
+};
+
+static value_string_ext nr_rrc_T_drx_InactivityTimer_vals_ext = VALUE_STRING_EXT_INIT(nr_rrc_T_drx_InactivityTimer_vals);
+
+
+static int
+dissect_nr_rrc_T_drx_InactivityTimer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     32, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_nr_rrc_INTEGER_0_56(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 56U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_drx_RetransmissionTimerDL_vals[] = {
+  {   0, "sl0" },
+  {   1, "sl1" },
+  {   2, "sl2" },
+  {   3, "sl4" },
+  {   4, "sl6" },
+  {   5, "sl8" },
+  {   6, "sl16" },
+  {   7, "sl24" },
+  {   8, "sl33" },
+  {   9, "sl40" },
+  {  10, "sl64" },
+  {  11, "sl80" },
+  {  12, "sl96" },
+  {  13, "sl112" },
+  {  14, "sl128" },
+  {  15, "sl160" },
+  {  16, "sl320" },
+  {  17, "spare15" },
+  {  18, "spare14" },
+  {  19, "spare13" },
+  {  20, "spare12" },
+  {  21, "spare11" },
+  {  22, "spare10" },
+  {  23, "spare9" },
+  {  24, "spare8" },
+  {  25, "spare7" },
+  {  26, "spare6" },
+  {  27, "spare5" },
+  {  28, "spare4" },
+  {  29, "spare3" },
+  {  30, "spare2" },
+  {  31, "spare1" },
+  { 0, NULL }
+};
+
+static value_string_ext nr_rrc_T_drx_RetransmissionTimerDL_vals_ext = VALUE_STRING_EXT_INIT(nr_rrc_T_drx_RetransmissionTimerDL_vals);
+
+
+static int
+dissect_nr_rrc_T_drx_RetransmissionTimerDL(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     32, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_drx_RetransmissionTimerUL_vals[] = {
+  {   0, "sl0" },
+  {   1, "sl1" },
+  {   2, "sl2" },
+  {   3, "sl4" },
+  {   4, "sl6" },
+  {   5, "sl8" },
+  {   6, "sl16" },
+  {   7, "sl24" },
+  {   8, "sl33" },
+  {   9, "sl40" },
+  {  10, "sl64" },
+  {  11, "sl80" },
+  {  12, "sl96" },
+  {  13, "sl112" },
+  {  14, "sl128" },
+  {  15, "sl160" },
+  {  16, "sl320" },
+  {  17, "spare15" },
+  {  18, "spare14" },
+  {  19, "spare13" },
+  {  20, "spare12" },
+  {  21, "spare11" },
+  {  22, "spare10" },
+  {  23, "spare9" },
+  {  24, "spare8" },
+  {  25, "spare7" },
+  {  26, "spare6" },
+  {  27, "spare5" },
+  {  28, "spare4" },
+  {  29, "spare3" },
+  {  30, "spare2" },
+  {  31, "spare1" },
+  { 0, NULL }
+};
+
+static value_string_ext nr_rrc_T_drx_RetransmissionTimerUL_vals_ext = VALUE_STRING_EXT_INIT(nr_rrc_T_drx_RetransmissionTimerUL_vals);
+
+
+static int
+dissect_nr_rrc_T_drx_RetransmissionTimerUL(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     32, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_drx_LongCycleStartOffset_01_vals[] = {
+  {   0, "ms10" },
+  {   1, "ms20" },
+  {   2, "ms32" },
+  {   3, "ms40" },
+  {   4, "ms60" },
+  {   5, "ms64" },
+  {   6, "ms70" },
+  {   7, "ms80" },
+  {   8, "ms128" },
+  {   9, "ms160" },
+  {  10, "ms256" },
+  {  11, "ms320" },
+  {  12, "ms512" },
+  {  13, "ms640" },
+  {  14, "ms1024" },
+  {  15, "ms1280" },
+  {  16, "ms2048" },
+  {  17, "ms2560" },
+  {  18, "ms5120" },
+  {  19, "ms10240" },
+  { 0, NULL }
+};
+
+static value_string_ext nr_rrc_T_drx_LongCycleStartOffset_01_vals_ext = VALUE_STRING_EXT_INIT(nr_rrc_T_drx_LongCycleStartOffset_01_vals);
+
+static const per_choice_t T_drx_LongCycleStartOffset_01_choice[] = {
+  {   0, &hf_nr_rrc_ms10         , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_9 },
+  {   1, &hf_nr_rrc_ms20         , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_19 },
+  {   2, &hf_nr_rrc_ms32         , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_31 },
+  {   3, &hf_nr_rrc_ms40         , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_39 },
+  {   4, &hf_nr_rrc_ms60         , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_59 },
+  {   5, &hf_nr_rrc_ms64         , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_63 },
+  {   6, &hf_nr_rrc_ms70         , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_69 },
+  {   7, &hf_nr_rrc_ms80         , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_79 },
+  {   8, &hf_nr_rrc_ms128        , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_127 },
+  {   9, &hf_nr_rrc_ms160        , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_159 },
+  {  10, &hf_nr_rrc_ms256        , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_255 },
+  {  11, &hf_nr_rrc_ms320        , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_319 },
+  {  12, &hf_nr_rrc_ms512        , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_511 },
+  {  13, &hf_nr_rrc_ms640        , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_639 },
+  {  14, &hf_nr_rrc_ms1024       , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_1023 },
+  {  15, &hf_nr_rrc_ms1280       , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_1279 },
+  {  16, &hf_nr_rrc_ms2048       , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_2047 },
+  {  17, &hf_nr_rrc_ms2560       , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_2559 },
+  {  18, &hf_nr_rrc_ms5120       , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_5119 },
+  {  19, &hf_nr_rrc_ms10240      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_10239 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_drx_LongCycleStartOffset_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_nr_rrc_T_drx_LongCycleStartOffset_01, T_drx_LongCycleStartOffset_01_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_drx_ShortCycle_01_vals[] = {
+  {   0, "ms2" },
+  {   1, "ms3" },
+  {   2, "ms4" },
+  {   3, "ms5" },
+  {   4, "ms6" },
+  {   5, "ms7" },
+  {   6, "ms8" },
+  {   7, "ms10" },
+  {   8, "ms14" },
+  {   9, "ms16" },
+  {  10, "ms20" },
+  {  11, "ms30" },
+  {  12, "ms32" },
+  {  13, "ms35" },
+  {  14, "ms40" },
+  {  15, "ms64" },
+  {  16, "ms80" },
+  {  17, "ms128" },
+  {  18, "ms160" },
+  {  19, "ms256" },
+  {  20, "ms320" },
+  {  21, "ms512" },
+  {  22, "ms640" },
+  {  23, "spare9" },
+  {  24, "spare8" },
+  {  25, "spare7" },
+  {  26, "spare6" },
+  {  27, "spare5" },
+  {  28, "spare4" },
+  {  29, "spare3" },
+  {  30, "spare2" },
+  {  31, "spare1" },
+  { 0, NULL }
+};
+
+static value_string_ext nr_rrc_T_drx_ShortCycle_01_vals_ext = VALUE_STRING_EXT_INIT(nr_rrc_T_drx_ShortCycle_01_vals);
+
+
+static int
+dissect_nr_rrc_T_drx_ShortCycle_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     32, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_shortDRX_01_sequence[] = {
+  { &hf_nr_rrc_drx_ShortCycle_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_drx_ShortCycle_01 },
+  { &hf_nr_rrc_drx_ShortCycleTimer, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_INTEGER_1_16 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_shortDRX_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_T_shortDRX_01, T_shortDRX_01_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t DRX_Config_sequence[] = {
+  { &hf_nr_rrc_drx_onDurationTimer, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_drx_onDurationTimer },
+  { &hf_nr_rrc_drx_InactivityTimer, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_drx_InactivityTimer },
+  { &hf_nr_rrc_drx_HARQ_RTT_TimerDL, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_INTEGER_0_56 },
+  { &hf_nr_rrc_drx_HARQ_RTT_TimerUL, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_INTEGER_0_56 },
+  { &hf_nr_rrc_drx_RetransmissionTimerDL, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_drx_RetransmissionTimerDL },
+  { &hf_nr_rrc_drx_RetransmissionTimerUL, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_drx_RetransmissionTimerUL },
+  { &hf_nr_rrc_drx_LongCycleStartOffset_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_drx_LongCycleStartOffset_01 },
+  { &hf_nr_rrc_shortDRX_01  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_shortDRX_01 },
+  { &hf_nr_rrc_drx_SlotOffset, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_INTEGER_0_31 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_DRX_Config(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_DRX_Config, DRX_Config_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_nr_rrc_EUTRA_PhysCellId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 503U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_requestedCellInfoEUTRA_sequence[] = {
+  { &hf_nr_rrc_eutraFrequency, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_ARFCN_ValueEUTRA },
+  { &hf_nr_rrc_cellForWhichToReportCGI_EUTRA, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_EUTRA_PhysCellId },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_requestedCellInfoEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_T_requestedCellInfoEUTRA, T_requestedCellInfoEUTRA_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_reportCGI_RequestEUTRA_sequence[] = {
+  { &hf_nr_rrc_requestedCellInfoEUTRA, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_requestedCellInfoEUTRA },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_reportCGI_RequestEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_T_reportCGI_RequestEUTRA, T_reportCGI_RequestEUTRA_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t T_nonCriticalExtension_02_sequence[] = {
   { NULL, 0, 0, NULL }
 };
@@ -6540,11 +7731,32 @@ dissect_nr_rrc_T_nonCriticalExtension_02(tvbuff_t *tvb _U_, int offset _U_, asn1
 }
 
 
+static const per_sequence_t CG_Config_v1560_IEs_sequence[] = {
+  { &hf_nr_rrc_pSCellFrequencyEUTRA, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_ARFCN_ValueEUTRA },
+  { &hf_nr_rrc_scg_CellGroupConfigEUTRA, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_scg_CellGroupConfigEUTRA },
+  { &hf_nr_rrc_candidateCellInfoListSN_EUTRA_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_candidateCellInfoListSN_EUTRA },
+  { &hf_nr_rrc_candidateServingFreqListEUTRA, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_CandidateServingFreqListEUTRA },
+  { &hf_nr_rrc_needForGaps  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_needForGaps },
+  { &hf_nr_rrc_drx_ConfigSCG, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_DRX_Config },
+  { &hf_nr_rrc_reportCGI_RequestEUTRA, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_reportCGI_RequestEUTRA },
+  { &hf_nr_rrc_nonCriticalExtension_04, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_02 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_CG_Config_v1560_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_CG_Config_v1560_IEs, CG_Config_v1560_IEs_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t CG_Config_v1540_IEs_sequence[] = {
   { &hf_nr_rrc_pSCellFrequency, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_ARFCN_ValueNR },
-  { &hf_nr_rrc_reportCGI_Request, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_reportCGI_Request },
+  { &hf_nr_rrc_reportCGI_RequestNR, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_reportCGI_RequestNR },
   { &hf_nr_rrc_ph_InfoSCG   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_PH_TypeListSCG },
-  { &hf_nr_rrc_nonCriticalExtension_03, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_02 },
+  { &hf_nr_rrc_nonCriticalExtension_03, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_CG_Config_v1560_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -6564,7 +7776,7 @@ static const per_sequence_t CG_Config_IEs_sequence[] = {
   { &hf_nr_rrc_drx_InfoSCG  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_DRX_Info },
   { &hf_nr_rrc_candidateCellInfoListSN, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_candidateCellInfoListSN },
   { &hf_nr_rrc_measConfigSN , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_MeasConfigSN },
-  { &hf_nr_rrc_selectedBandCombinationNR, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_BandCombinationInfoSN },
+  { &hf_nr_rrc_selectedBandCombination, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_BandCombinationInfoSN },
   { &hf_nr_rrc_fr_InfoListSCG, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_FR_InfoList },
   { &hf_nr_rrc_candidateServingFreqListNR, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_CandidateServingFreqListNR },
   { &hf_nr_rrc_nonCriticalExtension_02, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_CG_Config_v1540_IEs },
@@ -6685,7 +7897,7 @@ dissect_nr_rrc_INTEGER_M30720_30719(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
-static const per_sequence_t MeasResultCellSFTD_sequence[] = {
+static const per_sequence_t MeasResultCellSFTD_NR_sequence[] = {
   { &hf_nr_rrc_physCellId   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_PhysCellId },
   { &hf_nr_rrc_sfn_OffsetResult, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_INTEGER_0_1023 },
   { &hf_nr_rrc_frameBoundaryOffsetResult, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_INTEGER_M30720_30719 },
@@ -6694,22 +7906,22 @@ static const per_sequence_t MeasResultCellSFTD_sequence[] = {
 };
 
 static int
-dissect_nr_rrc_MeasResultCellSFTD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_MeasResultCellSFTD_NR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_MeasResultCellSFTD, MeasResultCellSFTD_sequence);
+                                   ett_nr_rrc_MeasResultCellSFTD_NR, MeasResultCellSFTD_NR_sequence);
 
   return offset;
 }
 
 
-static const per_sequence_t MeasResultCellListSFTD_sequence_of[1] = {
-  { &hf_nr_rrc_MeasResultCellListSFTD_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_MeasResultCellSFTD },
+static const per_sequence_t MeasResultCellListSFTD_NR_sequence_of[1] = {
+  { &hf_nr_rrc_MeasResultCellListSFTD_NR_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_MeasResultCellSFTD_NR },
 };
 
 static int
-dissect_nr_rrc_MeasResultCellListSFTD(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_MeasResultCellListSFTD_NR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_nr_rrc_MeasResultCellListSFTD, MeasResultCellListSFTD_sequence_of,
+                                                  ett_nr_rrc_MeasResultCellListSFTD_NR, MeasResultCellListSFTD_NR_sequence_of,
                                                   1, maxCellSFTD, FALSE);
 
   return offset;
@@ -6830,11 +8042,42 @@ dissect_nr_rrc_T_mgta(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, p
 }
 
 
+static const value_string nr_rrc_T_refServCellIndicator_vals[] = {
+  {   0, "pCell" },
+  {   1, "pSCell" },
+  {   2, "mcg-FR2" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_nr_rrc_T_refServCellIndicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     3, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t GapConfig_eag_1_sequence[] = {
+  { &hf_nr_rrc_refServCellIndicator, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_refServCellIndicator },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_GapConfig_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, GapConfig_eag_1_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t GapConfig_sequence[] = {
   { &hf_nr_rrc_gapOffset    , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_INTEGER_0_159 },
   { &hf_nr_rrc_mgl          , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_mgl },
   { &hf_nr_rrc_mgrp         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_mgrp },
   { &hf_nr_rrc_mgta         , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_mgta },
+  { &dummy_hf_nr_rrc_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_nr_rrc_GapConfig_eag_1 },
   { NULL, 0, 0, NULL }
 };
 
@@ -6885,10 +8128,46 @@ dissect_nr_rrc_T_gapPurpose(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 }
 
 
+static const value_string nr_rrc_T_measGapConfigFR2_vals[] = {
+  {   0, "release" },
+  {   1, "setup" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_measGapConfigFR2_choice[] = {
+  {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
+  {   1, &hf_nr_rrc_setup        , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_GapConfig },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_measGapConfigFR2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_nr_rrc_T_measGapConfigFR2, T_measGapConfigFR2_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t MeasConfigMN_eag_1_sequence[] = {
+  { &hf_nr_rrc_measGapConfigFR2, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_measGapConfigFR2 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_MeasConfigMN_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, MeasConfigMN_eag_1_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t MeasConfigMN_sequence[] = {
   { &hf_nr_rrc_measuredFrequenciesMN, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_SEQUENCE_SIZE_1_maxMeasFreqsMN_OF_NR_FreqInfo },
   { &hf_nr_rrc_measGapConfig, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_measGapConfig },
   { &hf_nr_rrc_gapPurpose   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_gapPurpose },
+  { &dummy_hf_nr_rrc_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_nr_rrc_MeasConfigMN_eag_1 },
   { NULL, 0, 0, NULL }
 };
 
@@ -7062,16 +8341,6 @@ dissect_nr_rrc_T_interferenceDirectionMRDC(tvbuff_t *tvb _U_, int offset _U_, as
 }
 
 
-
-static int
-dissect_nr_rrc_ARFCN_ValueEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, maxEARFCN, NULL, FALSE);
-
-  return offset;
-}
-
-
 static const per_sequence_t AffectedCarrierFreqCombEUTRA_sequence_of[1] = {
   { &hf_nr_rrc_AffectedCarrierFreqCombEUTRA_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_ARFCN_ValueEUTRA },
 };
@@ -7222,7 +8491,7 @@ dissect_nr_rrc_PH_TypeListMCG(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 static const per_sequence_t T_measResultReportCGI_sequence[] = {
   { &hf_nr_rrc_ssbFrequency , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_ARFCN_ValueNR },
   { &hf_nr_rrc_cellForWhichToReportCGI, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_PhysCellId },
-  { &hf_nr_rrc_cgi_Info     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_CGI_Info },
+  { &hf_nr_rrc_cgi_Info     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_CGI_InfoNR },
   { NULL, 0, 0, NULL }
 };
 
@@ -7230,6 +8499,149 @@ static int
 dissect_nr_rrc_T_measResultReportCGI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nr_rrc_T_measResultReportCGI, T_measResultReportCGI_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_nr_rrc_T_candidateCellInfoListMN_EUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *cand_cell_info_list_mn_eutra_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, &cand_cell_info_list_mn_eutra_tvb);
+
+  if (cand_cell_info_list_mn_eutra_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_candidateCellInfoListMN_EUTRA);
+    dissect_lte_rrc_MeasResultList3EUTRA_r15_PDU(cand_cell_info_list_mn_eutra_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_nr_rrc_T_candidateCellInfoListSN_EUTRA_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *cand_cell_info_list_sn_eutra_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, &cand_cell_info_list_sn_eutra_tvb);
+
+  if (cand_cell_info_list_sn_eutra_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_candidateCellInfoListSN_EUTRA);
+    dissect_lte_rrc_MeasResultList3EUTRA_r15_PDU(cand_cell_info_list_sn_eutra_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_nr_rrc_T_sourceConfigSCG_EUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *source_config_scg_eutra_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, &source_config_scg_eutra_tvb);
+
+  if (source_config_scg_eutra_tvb && lte_rrc_conn_reconf_handle) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_sourceConfigSCG_EUTRA);
+    nr_rrc_call_dissector(lte_rrc_conn_reconf_handle, source_config_scg_eutra_tvb, actx->pinfo, subtree);
+  }
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_failureTypeEUTRA_vals[] = {
+  {   0, "t313-Expiry" },
+  {   1, "randomAccessProblem" },
+  {   2, "rlc-MaxNumRetx" },
+  {   3, "scg-ChangeFailure" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_nr_rrc_T_failureTypeEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     4, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_nr_rrc_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_scgFailureInfoEUTRA_sequence[] = {
+  { &hf_nr_rrc_failureTypeEUTRA, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_failureTypeEUTRA },
+  { &hf_nr_rrc_measResultSCG_EUTRA, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_OCTET_STRING },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_scgFailureInfoEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_T_scgFailureInfoEUTRA, T_scgFailureInfoEUTRA_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_measResultReportCGI_EUTRA_sequence[] = {
+  { &hf_nr_rrc_eutraFrequency, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_ARFCN_ValueEUTRA },
+  { &hf_nr_rrc_cellForWhichToReportCGI_EUTRA, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_EUTRA_PhysCellId },
+  { &hf_nr_rrc_cgi_InfoEUTRA, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_CGI_InfoEUTRA },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_measResultReportCGI_EUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_T_measResultReportCGI_EUTRA, T_measResultReportCGI_EUTRA_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t MeasResultSFTD_EUTRA_sequence[] = {
+  { &hf_nr_rrc_eutra_PhysCellId, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_EUTRA_PhysCellId },
+  { &hf_nr_rrc_sfn_OffsetResult, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_INTEGER_0_1023 },
+  { &hf_nr_rrc_frameBoundaryOffsetResult, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_INTEGER_M30720_30719 },
+  { &hf_nr_rrc_rsrp_Result  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_RSRP_Range },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_MeasResultSFTD_EUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_MeasResultSFTD_EUTRA, MeasResultSFTD_EUTRA_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t MeasResultCellListSFTD_EUTRA_sequence_of[1] = {
+  { &hf_nr_rrc_MeasResultCellListSFTD_EUTRA_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_MeasResultSFTD_EUTRA },
+};
+
+static int
+dissect_nr_rrc_MeasResultCellListSFTD_EUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_nr_rrc_MeasResultCellListSFTD_EUTRA, MeasResultCellListSFTD_EUTRA_sequence_of,
+                                                  1, maxCellSFTD, FALSE);
 
   return offset;
 }
@@ -7248,10 +8660,32 @@ dissect_nr_rrc_T_nonCriticalExtension_03(tvbuff_t *tvb _U_, int offset _U_, asn1
 }
 
 
+static const per_sequence_t CG_ConfigInfo_v1560_IEs_sequence[] = {
+  { &hf_nr_rrc_candidateCellInfoListMN_EUTRA, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_candidateCellInfoListMN_EUTRA },
+  { &hf_nr_rrc_candidateCellInfoListSN_EUTRA_02, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_candidateCellInfoListSN_EUTRA_01 },
+  { &hf_nr_rrc_sourceConfigSCG_EUTRA, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_sourceConfigSCG_EUTRA },
+  { &hf_nr_rrc_scgFailureInfoEUTRA, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_scgFailureInfoEUTRA },
+  { &hf_nr_rrc_drx_ConfigMCG, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_DRX_Config },
+  { &hf_nr_rrc_measResultReportCGI_EUTRA, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_measResultReportCGI_EUTRA },
+  { &hf_nr_rrc_measResultCellListSFTD_EUTRA, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_MeasResultCellListSFTD_EUTRA },
+  { &hf_nr_rrc_fr_InfoListMCG, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_FR_InfoList },
+  { &hf_nr_rrc_nonCriticalExtension_07, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_03 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_CG_ConfigInfo_v1560_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_CG_ConfigInfo_v1560_IEs, CG_ConfigInfo_v1560_IEs_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t CG_ConfigInfo_v1540_IEs_sequence[] = {
   { &hf_nr_rrc_ph_InfoMCG   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_PH_TypeListMCG },
   { &hf_nr_rrc_measResultReportCGI, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_measResultReportCGI },
-  { &hf_nr_rrc_nonCriticalExtension_05, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_03 },
+  { &hf_nr_rrc_nonCriticalExtension_06, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_CG_ConfigInfo_v1560_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -7268,7 +8702,7 @@ static const per_sequence_t CG_ConfigInfo_IEs_sequence[] = {
   { &hf_nr_rrc_ue_CapabilityInfo, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_ue_CapabilityInfo },
   { &hf_nr_rrc_candidateCellInfoListMN, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_MeasResultList2NR },
   { &hf_nr_rrc_candidateCellInfoListSN_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_candidateCellInfoListSN_01 },
-  { &hf_nr_rrc_measResultCellListSFTD, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_MeasResultCellListSFTD },
+  { &hf_nr_rrc_measResultCellListSFTD_NR, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_MeasResultCellListSFTD_NR },
   { &hf_nr_rrc_scgFailureInfo, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_scgFailureInfo },
   { &hf_nr_rrc_configRestrictInfo, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_ConfigRestrictInfoSCG },
   { &hf_nr_rrc_drx_InfoMCG  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_DRX_Info },
@@ -7277,7 +8711,7 @@ static const per_sequence_t CG_ConfigInfo_IEs_sequence[] = {
   { &hf_nr_rrc_scg_RB_Config_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_scg_RB_Config_01 },
   { &hf_nr_rrc_mcg_RB_Config, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_mcg_RB_Config },
   { &hf_nr_rrc_mrdc_AssistanceInfo, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_MRDC_AssistanceInfo },
-  { &hf_nr_rrc_nonCriticalExtension_04, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_CG_ConfigInfo_v1540_IEs },
+  { &hf_nr_rrc_nonCriticalExtension_05, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_CG_ConfigInfo_v1540_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -7635,7 +9069,7 @@ dissect_nr_rrc_T_nonCriticalExtension_04(tvbuff_t *tvb _U_, int offset _U_, asn1
 static const per_sequence_t MeasurementTimingConfiguration_v1550_IEs_sequence[] = {
   { &hf_nr_rrc_campOnFirstSSB, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_BOOLEAN },
   { &hf_nr_rrc_psCellOnlyOnFirstSSB, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_BOOLEAN },
-  { &hf_nr_rrc_nonCriticalExtension_07, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_04 },
+  { &hf_nr_rrc_nonCriticalExtension_09, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_04 },
   { NULL, 0, 0, NULL }
 };
 
@@ -7650,7 +9084,7 @@ dissect_nr_rrc_MeasurementTimingConfiguration_v1550_IEs(tvbuff_t *tvb _U_, int o
 
 static const per_sequence_t MeasurementTimingConfiguration_IEs_sequence[] = {
   { &hf_nr_rrc_measTiming   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_MeasTimingList },
-  { &hf_nr_rrc_nonCriticalExtension_06, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_MeasurementTimingConfiguration_v1550_IEs },
+  { &hf_nr_rrc_nonCriticalExtension_08, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_MeasurementTimingConfiguration_v1550_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -7769,7 +9203,7 @@ dissect_nr_rrc_T_nonCriticalExtension_05(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static const per_sequence_t UERadioPagingInformation_IEs_sequence[] = {
   { &hf_nr_rrc_supportedBandListNRForPaging, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_SEQUENCE_SIZE_1_maxBands_OF_FreqBandIndicatorNR },
-  { &hf_nr_rrc_nonCriticalExtension_08, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_05 },
+  { &hf_nr_rrc_nonCriticalExtension_10, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_05 },
   { NULL, 0, 0, NULL }
 };
 
@@ -7892,7 +9326,7 @@ dissect_nr_rrc_T_nonCriticalExtension_06(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static const per_sequence_t UERadioAccessCapabilityInformation_IEs_sequence[] = {
   { &hf_nr_rrc_ue_RadioAccessCapabilityInfo, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_ue_RadioAccessCapabilityInfo },
-  { &hf_nr_rrc_nonCriticalExtension_09, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_06 },
+  { &hf_nr_rrc_nonCriticalExtension_11, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_06 },
   { NULL, 0, 0, NULL }
 };
 
@@ -8790,16 +10224,6 @@ dissect_nr_rrc_IntraFreqBlackCellList(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 }
 
 
-
-static int
-dissect_nr_rrc_OCTET_STRING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
-
-  return offset;
-}
-
-
 static const per_sequence_t SIB3_sequence[] = {
   { &hf_nr_rrc_intraFreqNeighCellList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_IntraFreqNeighCellList },
   { &hf_nr_rrc_intraFreqBlackCellList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_IntraFreqBlackCellList },
@@ -8953,16 +10377,6 @@ dissect_nr_rrc_SIB4(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pro
 
 
 static int
-dissect_nr_rrc_FreqBandIndicatorEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, maxBandsEUTRA, NULL, FALSE);
-
-  return offset;
-}
-
-
-
-static int
 dissect_nr_rrc_INTEGER_M30_33(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             -30, 33U, NULL, FALSE);
@@ -9039,16 +10453,6 @@ dissect_nr_rrc_EUTRA_MultiBandInfoList(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 }
 
 
-
-static int
-dissect_nr_rrc_EUTRA_PhysCellId(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 503U, NULL, FALSE);
-
-  return offset;
-}
-
-
 static const value_string nr_rrc_EUTRA_Q_OffsetRange_vals[] = {
   {   0, "dB-24" },
   {   1, "dB-22" },
@@ -9098,7 +10502,7 @@ dissect_nr_rrc_EUTRA_Q_OffsetRange(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 static const per_sequence_t EUTRA_FreqNeighCellInfo_sequence[] = {
   { &hf_nr_rrc_physCellId_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_EUTRA_PhysCellId },
-  { &hf_nr_rrc_q_OffsetCell_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_EUTRA_Q_OffsetRange },
+  { &hf_nr_rrc_dummy        , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_EUTRA_Q_OffsetRange },
   { &hf_nr_rrc_q_RxLevMinOffsetCell, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_INTEGER_1_8 },
   { &hf_nr_rrc_q_QualMinOffsetCell, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_INTEGER_1_8 },
   { NULL, 0, 0, NULL }
@@ -9851,14 +11255,14 @@ dissect_nr_rrc_T_sib_TypeAndInfo(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 }
 
 
-static const per_sequence_t T_nonCriticalExtension_29_sequence[] = {
+static const per_sequence_t T_nonCriticalExtension_31_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_nonCriticalExtension_29(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_nonCriticalExtension_31(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_nonCriticalExtension_29, T_nonCriticalExtension_29_sequence);
+                                   ett_nr_rrc_T_nonCriticalExtension_31, T_nonCriticalExtension_31_sequence);
 
   return offset;
 }
@@ -9867,7 +11271,7 @@ dissect_nr_rrc_T_nonCriticalExtension_29(tvbuff_t *tvb _U_, int offset _U_, asn1
 static const per_sequence_t SystemInformation_IEs_sequence[] = {
   { &hf_nr_rrc_sib_TypeAndInfo, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_sib_TypeAndInfo },
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_36, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_29 },
+  { &hf_nr_rrc_nonCriticalExtension_43, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_31 },
   { NULL, 0, 0, NULL }
 };
 
@@ -9880,35 +11284,35 @@ dissect_nr_rrc_SystemInformation_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 }
 
 
-static const per_sequence_t T_criticalExtensionsFuture_28_sequence[] = {
+static const per_sequence_t T_criticalExtensionsFuture_30_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_criticalExtensionsFuture_28(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_criticalExtensionsFuture_30(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_criticalExtensionsFuture_28, T_criticalExtensionsFuture_28_sequence);
+                                   ett_nr_rrc_T_criticalExtensionsFuture_30, T_criticalExtensionsFuture_30_sequence);
 
   return offset;
 }
 
 
-static const value_string nr_rrc_T_criticalExtensions_28_vals[] = {
-  {   0, "systemInformation-r15" },
+static const value_string nr_rrc_T_criticalExtensions_30_vals[] = {
+  {   0, "systemInformation" },
   {   1, "criticalExtensionsFuture" },
   { 0, NULL }
 };
 
-static const per_choice_t T_criticalExtensions_28_choice[] = {
-  {   0, &hf_nr_rrc_systemInformation_r15, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_SystemInformation_IEs },
-  {   1, &hf_nr_rrc_criticalExtensionsFuture_28, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture_28 },
+static const per_choice_t T_criticalExtensions_30_choice[] = {
+  {   0, &hf_nr_rrc_systemInformation_01, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_SystemInformation_IEs },
+  {   1, &hf_nr_rrc_criticalExtensionsFuture_30, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture_30 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_criticalExtensions_28(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_criticalExtensions_30(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_nr_rrc_T_criticalExtensions_28, T_criticalExtensions_28_choice,
+                                 ett_nr_rrc_T_criticalExtensions_30, T_criticalExtensions_30_choice,
                                  NULL);
 
   return offset;
@@ -9916,7 +11320,7 @@ dissect_nr_rrc_T_criticalExtensions_28(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 
 static const per_sequence_t SystemInformation_sequence[] = {
-  { &hf_nr_rrc_criticalExtensions_28, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions_28 },
+  { &hf_nr_rrc_criticalExtensions_30, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions_30 },
   { NULL, 0, 0, NULL }
 };
 
@@ -11582,7 +12986,7 @@ static const value_string nr_rrc_T_pdcch_ConfigCommon_vals[] = {
 
 static const per_choice_t T_pdcch_ConfigCommon_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_02     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PDCCH_ConfigCommon },
+  {   1, &hf_nr_rrc_setup_03     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PDCCH_ConfigCommon },
   { 0, NULL, 0, NULL }
 };
 
@@ -11674,7 +13078,7 @@ static const value_string nr_rrc_T_pdsch_ConfigCommon_vals[] = {
 
 static const per_choice_t T_pdsch_ConfigCommon_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_03     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PDSCH_ConfigCommon },
+  {   1, &hf_nr_rrc_setup_04     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PDSCH_ConfigCommon },
   { 0, NULL, 0, NULL }
 };
 
@@ -12414,7 +13818,7 @@ static const value_string nr_rrc_T_rach_ConfigCommon_vals[] = {
 
 static const per_choice_t T_rach_ConfigCommon_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_08     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_RACH_ConfigCommon },
+  {   1, &hf_nr_rrc_setup_09     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_RACH_ConfigCommon },
   { 0, NULL, 0, NULL }
 };
 
@@ -12534,7 +13938,7 @@ static const value_string nr_rrc_T_pusch_ConfigCommon_vals[] = {
 
 static const per_choice_t T_pusch_ConfigCommon_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_09     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PUSCH_ConfigCommon },
+  {   1, &hf_nr_rrc_setup_10     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PUSCH_ConfigCommon },
   { 0, NULL, 0, NULL }
 };
 
@@ -12590,7 +13994,7 @@ static const value_string nr_rrc_T_pucch_ConfigCommon_vals[] = {
 
 static const per_choice_t T_pucch_ConfigCommon_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_10     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PUCCH_ConfigCommon },
+  {   1, &hf_nr_rrc_setup_11     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PUCCH_ConfigCommon },
   { 0, NULL, 0, NULL }
 };
 
@@ -13099,16 +14503,6 @@ dissect_nr_rrc_UAC_BarringPerCatList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 }
 
 
-
-static int
-dissect_nr_rrc_INTEGER_1_maxPLMN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, maxPLMN, NULL, FALSE);
-
-  return offset;
-}
-
-
 static const per_sequence_t SEQUENCE_SIZE_maxAccessCat_1_OF_UAC_BarringInfoSetIndex_sequence_of[1] = {
   { &hf_nr_rrc_uac_ImplicitACBarringList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_UAC_BarringInfoSetIndex },
 };
@@ -13351,14 +14745,14 @@ dissect_nr_rrc_T_useFullResumeID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 }
 
 
-static const per_sequence_t T_nonCriticalExtension_28_sequence[] = {
+static const per_sequence_t T_nonCriticalExtension_30_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_nonCriticalExtension_28(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_nonCriticalExtension_30(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_nonCriticalExtension_28, T_nonCriticalExtension_28_sequence);
+                                   ett_nr_rrc_T_nonCriticalExtension_30, T_nonCriticalExtension_30_sequence);
 
   return offset;
 }
@@ -13376,7 +14770,7 @@ static const per_sequence_t SIB1_sequence[] = {
   { &hf_nr_rrc_uac_BarringInfo, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_uac_BarringInfo },
   { &hf_nr_rrc_useFullResumeID, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_useFullResumeID },
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_35, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_28 },
+  { &hf_nr_rrc_nonCriticalExtension_42, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_30 },
   { NULL, 0, 0, NULL }
 };
 
@@ -13498,7 +14892,7 @@ dissect_nr_rrc_T_nonCriticalExtension_19(tvbuff_t *tvb _U_, int offset _U_, asn1
 static const per_sequence_t RRCReject_IEs_sequence[] = {
   { &hf_nr_rrc_waitTime     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_RejectWaitTime },
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_25, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_19 },
+  { &hf_nr_rrc_nonCriticalExtension_29, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_19 },
   { NULL, 0, 0, NULL }
 };
 
@@ -13680,6 +15074,7 @@ dissect_nr_rrc_T_pdcp_SN_SizeDL(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
   mapping->pdcpDlSnLength_present = TRUE;
   mapping->pdcpDlSnLength = (value) ? 18 : 12;
+
 
   return offset;
 }
@@ -14508,7 +15903,7 @@ static const per_sequence_t RRCSetup_IEs_sequence[] = {
   { &hf_nr_rrc_radioBearerConfig, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_RadioBearerConfig },
   { &hf_nr_rrc_masterCellGroup_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_masterCellGroup_02 },
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_30, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_23 },
+  { &hf_nr_rrc_nonCriticalExtension_35, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_23 },
   { NULL, 0, 0, NULL }
 };
 
@@ -14751,7 +16146,7 @@ static const value_string nr_rrc_T_ssb_ToMeasure_vals[] = {
 
 static const per_choice_t T_ssb_ToMeasure_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_27     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_SSB_ToMeasure },
+  {   1, &hf_nr_rrc_setup_28     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_SSB_ToMeasure },
   { 0, NULL, 0, NULL }
 };
 
@@ -15027,7 +16422,7 @@ static const value_string nr_rrc_T_csi_rs_ResourceConfigMobility_vals[] = {
 
 static const per_choice_t T_csi_rs_ResourceConfigMobility_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_26     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_CSI_RS_ResourceConfigMobility },
+  {   1, &hf_nr_rrc_setup_27     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_CSI_RS_ResourceConfigMobility },
   { 0, NULL, 0, NULL }
 };
 
@@ -15871,10 +17266,26 @@ dissect_nr_rrc_ReportCGI(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 }
 
 
+static const per_sequence_t ReportSFTD_NR_sequence[] = {
+  { &hf_nr_rrc_reportSFTD_Meas, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_BOOLEAN },
+  { &hf_nr_rrc_reportRSRP   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_BOOLEAN },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_ReportSFTD_NR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_ReportSFTD_NR, ReportSFTD_NR_sequence);
+
+  return offset;
+}
+
+
 static const value_string nr_rrc_T_reportType_01_vals[] = {
   {   0, "periodical" },
   {   1, "eventTriggered" },
   {   2, "reportCGI" },
+  {   3, "reportSFTD" },
   { 0, NULL }
 };
 
@@ -15882,6 +17293,7 @@ static const per_choice_t T_reportType_01_choice[] = {
   {   0, &hf_nr_rrc_periodical_01, ASN1_EXTENSION_ROOT    , dissect_nr_rrc_PeriodicalReportConfig },
   {   1, &hf_nr_rrc_eventTriggered_01, ASN1_EXTENSION_ROOT    , dissect_nr_rrc_EventTriggerConfig },
   {   2, &hf_nr_rrc_reportCGI_01 , ASN1_NOT_EXTENSION_ROOT, dissect_nr_rrc_ReportCGI },
+  {   3, &hf_nr_rrc_reportSFTD_01, ASN1_NOT_EXTENSION_ROOT, dissect_nr_rrc_ReportSFTD_NR },
   { 0, NULL, 0, NULL }
 };
 
@@ -15943,36 +17355,6 @@ static int
 dissect_nr_rrc_PeriodicalReportConfigInterRAT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nr_rrc_PeriodicalReportConfigInterRAT, PeriodicalReportConfigInterRAT_sequence);
-
-  return offset;
-}
-
-
-
-static int
-dissect_nr_rrc_RSRP_RangeEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 97U, NULL, FALSE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_nr_rrc_RSRQ_RangeEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 34U, NULL, FALSE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_nr_rrc_SINR_RangeEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 127U, NULL, FALSE);
 
   return offset;
 }
@@ -16114,10 +17496,26 @@ dissect_nr_rrc_ReportCGI_EUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 }
 
 
+static const per_sequence_t ReportSFTD_EUTRA_sequence[] = {
+  { &hf_nr_rrc_reportSFTD_Meas, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_BOOLEAN },
+  { &hf_nr_rrc_reportRSRP   , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_BOOLEAN },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_ReportSFTD_EUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_ReportSFTD_EUTRA, ReportSFTD_EUTRA_sequence);
+
+  return offset;
+}
+
+
 static const value_string nr_rrc_T_reportType_vals[] = {
   {   0, "periodical" },
   {   1, "eventTriggered" },
   {   2, "reportCGI" },
+  {   3, "reportSFTD" },
   { 0, NULL }
 };
 
@@ -16125,6 +17523,7 @@ static const per_choice_t T_reportType_choice[] = {
   {   0, &hf_nr_rrc_periodical   , ASN1_EXTENSION_ROOT    , dissect_nr_rrc_PeriodicalReportConfigInterRAT },
   {   1, &hf_nr_rrc_eventTriggered, ASN1_EXTENSION_ROOT    , dissect_nr_rrc_EventTriggerConfigInterRAT },
   {   2, &hf_nr_rrc_reportCGI    , ASN1_EXTENSION_ROOT    , dissect_nr_rrc_ReportCGI_EUTRA },
+  {   3, &hf_nr_rrc_reportSFTD   , ASN1_NOT_EXTENSION_ROOT, dissect_nr_rrc_ReportSFTD_EUTRA },
   { 0, NULL, 0, NULL }
 };
 
@@ -16520,7 +17919,7 @@ static const value_string nr_rrc_T_gapSharingFR2_vals[] = {
 
 static const per_choice_t T_gapSharingFR2_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_25     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_MeasGapSharingScheme },
+  {   1, &hf_nr_rrc_setup_26     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_MeasGapSharingScheme },
   { 0, NULL, 0, NULL }
 };
 
@@ -16542,7 +17941,7 @@ static const value_string nr_rrc_T_gapSharingFR1_vals[] = {
 
 static const per_choice_t T_gapSharingFR1_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_25     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_MeasGapSharingScheme },
+  {   1, &hf_nr_rrc_setup_26     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_MeasGapSharingScheme },
   { 0, NULL, 0, NULL }
 };
 
@@ -16564,7 +17963,7 @@ static const value_string nr_rrc_T_gapSharingUE_vals[] = {
 
 static const per_choice_t T_gapSharingUE_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_25     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_MeasGapSharingScheme },
+  {   1, &hf_nr_rrc_setup_26     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_MeasGapSharingScheme },
   { 0, NULL, 0, NULL }
 };
 
@@ -16797,7 +18196,7 @@ static const value_string nr_rrc_T_delayBudgetReportingConfig_vals[] = {
 
 static const per_choice_t T_delayBudgetReportingConfig_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_49     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_setup },
+  {   1, &hf_nr_rrc_setup_51     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_setup },
   { 0, NULL, 0, NULL }
 };
 
@@ -16877,7 +18276,7 @@ static const value_string nr_rrc_T_overheatingAssistanceConfig_vals[] = {
 
 static const per_choice_t T_overheatingAssistanceConfig_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_50     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_OverheatingAssistanceConfig },
+  {   1, &hf_nr_rrc_setup_52     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_OverheatingAssistanceConfig },
   { 0, NULL, 0, NULL }
 };
 
@@ -16905,6 +18304,128 @@ dissect_nr_rrc_OtherConfig_v1540(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 }
 
 
+static const value_string nr_rrc_T_mrdc_ReleaseAndAdd_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_nr_rrc_T_mrdc_ReleaseAndAdd(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_nr_rrc_T_nr_SCG(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
+                                                                NO_BOUND, NO_BOUND, FALSE, dissect_nr_rrc_RRCReconfiguration_PDU);
+
+  return offset;
+}
+
+
+
+static int
+dissect_nr_rrc_T_eutra_SCG(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *eutra_scg_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, &eutra_scg_tvb);
+
+  if (eutra_scg_tvb && lte_rrc_conn_reconf_handle) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_eutra_SCG);
+    nr_rrc_call_dissector(lte_rrc_conn_reconf_handle, eutra_scg_tvb, actx->pinfo, subtree);
+  }
+
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_mrdc_SecondaryCellGroup_vals[] = {
+  {   0, "nr-SCG" },
+  {   1, "eutra-SCG" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_mrdc_SecondaryCellGroup_choice[] = {
+  {   0, &hf_nr_rrc_nr_SCG       , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_nr_SCG },
+  {   1, &hf_nr_rrc_eutra_SCG    , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_eutra_SCG },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_mrdc_SecondaryCellGroup(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_nr_rrc_T_mrdc_SecondaryCellGroup, T_mrdc_SecondaryCellGroup_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t MRDC_SecondaryCellGroupConfig_sequence[] = {
+  { &hf_nr_rrc_mrdc_ReleaseAndAdd, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_mrdc_ReleaseAndAdd },
+  { &hf_nr_rrc_mrdc_SecondaryCellGroup, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_mrdc_SecondaryCellGroup },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_MRDC_SecondaryCellGroupConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_MRDC_SecondaryCellGroupConfig, MRDC_SecondaryCellGroupConfig_sequence);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_mrdc_SecondaryCellGroupConfig_vals[] = {
+  {   0, "release" },
+  {   1, "setup" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_mrdc_SecondaryCellGroupConfig_choice[] = {
+  {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
+  {   1, &hf_nr_rrc_setup_02     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_MRDC_SecondaryCellGroupConfig },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_mrdc_SecondaryCellGroupConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_nr_rrc_T_mrdc_SecondaryCellGroupConfig, T_mrdc_SecondaryCellGroupConfig_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+
+static int
+dissect_nr_rrc_T_radioBearerConfig2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
+                                                                NO_BOUND, NO_BOUND, FALSE, dissect_nr_rrc_RadioBearerConfig_PDU);
+
+  return offset;
+}
+
+
+
+static int
+dissect_nr_rrc_SK_Counter(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            0U, 65535U, NULL, FALSE);
+
+  return offset;
+}
+
+
 static const per_sequence_t T_nonCriticalExtension_17_sequence[] = {
   { NULL, 0, 0, NULL }
 };
@@ -16918,9 +18439,26 @@ dissect_nr_rrc_T_nonCriticalExtension_17(tvbuff_t *tvb _U_, int offset _U_, asn1
 }
 
 
+static const per_sequence_t RRCReconfiguration_v1560_IEs_sequence[] = {
+  { &hf_nr_rrc_mrdc_SecondaryCellGroupConfig, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_mrdc_SecondaryCellGroupConfig },
+  { &hf_nr_rrc_radioBearerConfig2, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_radioBearerConfig2 },
+  { &hf_nr_rrc_sk_Counter   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_SK_Counter },
+  { &hf_nr_rrc_nonCriticalExtension_25, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_17 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_RRCReconfiguration_v1560_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_RRCReconfiguration_v1560_IEs, RRCReconfiguration_v1560_IEs_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t RRCReconfiguration_v1540_IEs_sequence[] = {
   { &hf_nr_rrc_otherConfig_v1540, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OtherConfig_v1540 },
-  { &hf_nr_rrc_nonCriticalExtension_22, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_17 },
+  { &hf_nr_rrc_nonCriticalExtension_24, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_RRCReconfiguration_v1560_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -16941,7 +18479,7 @@ static const per_sequence_t RRCReconfiguration_v1530_IEs_sequence[] = {
   { &hf_nr_rrc_dedicatedSIB1_Delivery, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_dedicatedSIB1_Delivery },
   { &hf_nr_rrc_dedicatedSystemInformationDelivery, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_dedicatedSystemInformationDelivery },
   { &hf_nr_rrc_otherConfig  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OtherConfig },
-  { &hf_nr_rrc_nonCriticalExtension_21, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_RRCReconfiguration_v1540_IEs },
+  { &hf_nr_rrc_nonCriticalExtension_23, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_RRCReconfiguration_v1540_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -16959,7 +18497,7 @@ static const per_sequence_t RRCReconfiguration_IEs_sequence[] = {
   { &hf_nr_rrc_secondaryCellGroup, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_secondaryCellGroup },
   { &hf_nr_rrc_measConfig   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_MeasConfig },
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_20, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_RRCReconfiguration_v1530_IEs },
+  { &hf_nr_rrc_nonCriticalExtension_22, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_RRCReconfiguration_v1530_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -17051,6 +18589,16 @@ dissect_nr_rrc_T_fullConfig_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 }
 
 
+
+static int
+dissect_nr_rrc_T_radioBearerConfig2_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
+                                                                NO_BOUND, NO_BOUND, FALSE, dissect_nr_rrc_RadioBearerConfig_PDU);
+
+  return offset;
+}
+
+
 static const per_sequence_t T_nonCriticalExtension_21_sequence[] = {
   { NULL, 0, 0, NULL }
 };
@@ -17064,13 +18612,29 @@ dissect_nr_rrc_T_nonCriticalExtension_21(tvbuff_t *tvb _U_, int offset _U_, asn1
 }
 
 
+static const per_sequence_t RRCResume_v1560_IEs_sequence[] = {
+  { &hf_nr_rrc_radioBearerConfig2_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_radioBearerConfig2_01 },
+  { &hf_nr_rrc_sk_Counter   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_SK_Counter },
+  { &hf_nr_rrc_nonCriticalExtension_33, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_21 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_RRCResume_v1560_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_RRCResume_v1560_IEs, RRCResume_v1560_IEs_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t RRCResume_IEs_sequence[] = {
   { &hf_nr_rrc_radioBearerConfig, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_RadioBearerConfig },
   { &hf_nr_rrc_masterCellGroup_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_masterCellGroup_01 },
   { &hf_nr_rrc_measConfig   , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_MeasConfig },
   { &hf_nr_rrc_fullConfig_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_fullConfig_01 },
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_28, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_21 },
+  { &hf_nr_rrc_nonCriticalExtension_32, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_RRCResume_v1560_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -17427,7 +18991,7 @@ dissect_nr_rrc_T_nonCriticalExtension_20(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static const per_sequence_t RRCRelease_v1540_IEs_sequence[] = {
   { &hf_nr_rrc_waitTime     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_RejectWaitTime },
-  { &hf_nr_rrc_nonCriticalExtension_27, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_20 },
+  { &hf_nr_rrc_nonCriticalExtension_31, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_20 },
   { NULL, 0, 0, NULL }
 };
 
@@ -17446,7 +19010,7 @@ static const per_sequence_t RRCRelease_IEs_sequence[] = {
   { &hf_nr_rrc_suspendConfig, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_SuspendConfig },
   { &hf_nr_rrc_deprioritisationReq, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_deprioritisationReq },
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_26, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_RRCRelease_v1540_IEs },
+  { &hf_nr_rrc_nonCriticalExtension_30, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_RRCRelease_v1540_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -17527,7 +19091,7 @@ dissect_nr_rrc_T_nonCriticalExtension_15(tvbuff_t *tvb _U_, int offset _U_, asn1
 static const per_sequence_t RRCReestablishment_IEs_sequence[] = {
   { &hf_nr_rrc_nextHopChainingCount, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_NextHopChainingCount },
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_18, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_15 },
+  { &hf_nr_rrc_nonCriticalExtension_20, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_15 },
   { NULL, 0, 0, NULL }
 };
 
@@ -17606,14 +19170,14 @@ dissect_nr_rrc_SecurityConfigSMC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 }
 
 
-static const per_sequence_t T_nonCriticalExtension_25_sequence[] = {
+static const per_sequence_t T_nonCriticalExtension_27_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_nonCriticalExtension_25(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_nonCriticalExtension_27(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_nonCriticalExtension_25, T_nonCriticalExtension_25_sequence);
+                                   ett_nr_rrc_T_nonCriticalExtension_27, T_nonCriticalExtension_27_sequence);
 
   return offset;
 }
@@ -17622,7 +19186,7 @@ dissect_nr_rrc_T_nonCriticalExtension_25(tvbuff_t *tvb _U_, int offset _U_, asn1
 static const per_sequence_t SecurityModeCommand_IEs_sequence[] = {
   { &hf_nr_rrc_securityConfigSMC, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_SecurityConfigSMC },
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_32, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_25 },
+  { &hf_nr_rrc_nonCriticalExtension_39, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_27 },
   { NULL, 0, 0, NULL }
 };
 
@@ -17635,35 +19199,35 @@ dissect_nr_rrc_SecurityModeCommand_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 }
 
 
-static const per_sequence_t T_criticalExtensionsFuture_25_sequence[] = {
+static const per_sequence_t T_criticalExtensionsFuture_27_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_criticalExtensionsFuture_25(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_criticalExtensionsFuture_27(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_criticalExtensionsFuture_25, T_criticalExtensionsFuture_25_sequence);
+                                   ett_nr_rrc_T_criticalExtensionsFuture_27, T_criticalExtensionsFuture_27_sequence);
 
   return offset;
 }
 
 
-static const value_string nr_rrc_T_criticalExtensions_25_vals[] = {
+static const value_string nr_rrc_T_criticalExtensions_27_vals[] = {
   {   0, "securityModeCommand" },
   {   1, "criticalExtensionsFuture" },
   { 0, NULL }
 };
 
-static const per_choice_t T_criticalExtensions_25_choice[] = {
+static const per_choice_t T_criticalExtensions_27_choice[] = {
   {   0, &hf_nr_rrc_securityModeCommand_01, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_SecurityModeCommand_IEs },
-  {   1, &hf_nr_rrc_criticalExtensionsFuture_25, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture_25 },
+  {   1, &hf_nr_rrc_criticalExtensionsFuture_27, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture_27 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_criticalExtensions_25(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_criticalExtensions_27(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_nr_rrc_T_criticalExtensions_25, T_criticalExtensions_25_choice,
+                                 ett_nr_rrc_T_criticalExtensions_27, T_criticalExtensions_27_choice,
                                  NULL);
 
   return offset;
@@ -17672,7 +19236,7 @@ dissect_nr_rrc_T_criticalExtensions_25(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static const per_sequence_t SecurityModeCommand_sequence[] = {
   { &hf_nr_rrc_rrc_TransactionIdentifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_RRC_TransactionIdentifier },
-  { &hf_nr_rrc_criticalExtensions_25, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions_25 },
+  { &hf_nr_rrc_criticalExtensions_27, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions_27 },
   { NULL, 0, 0, NULL }
 };
 
@@ -17703,7 +19267,7 @@ dissect_nr_rrc_T_nonCriticalExtension_09(tvbuff_t *tvb _U_, int offset _U_, asn1
 static const per_sequence_t DLInformationTransfer_IEs_sequence[] = {
   { &hf_nr_rrc_dedicatedNAS_Message, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_DedicatedNAS_Message },
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_09 },
+  { &hf_nr_rrc_nonCriticalExtension_14, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_09 },
   { NULL, 0, 0, NULL }
 };
 
@@ -17829,14 +19393,11 @@ dissect_nr_rrc_UE_CapabilityRAT_RequestList(tvbuff_t *tvb _U_, int offset _U_, a
 }
 
 
-static const per_sequence_t T_nonCriticalExtension_31_sequence[] = {
-  { NULL, 0, 0, NULL }
-};
 
 static int
-dissect_nr_rrc_T_nonCriticalExtension_31(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_nonCriticalExtension_31, T_nonCriticalExtension_31_sequence);
+dissect_nr_rrc_T_ue_CapabilityEnquiryExt(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
+                                                                NO_BOUND, NO_BOUND, FALSE, dissect_UECapabilityEnquiry_v1560_IEs_PDU);
 
   return offset;
 }
@@ -17845,7 +19406,7 @@ dissect_nr_rrc_T_nonCriticalExtension_31(tvbuff_t *tvb _U_, int offset _U_, asn1
 static const per_sequence_t UECapabilityEnquiry_IEs_sequence[] = {
   { &hf_nr_rrc_ue_CapabilityRAT_RequestList, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_UE_CapabilityRAT_RequestList },
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_39, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_31 },
+  { &hf_nr_rrc_ue_CapabilityEnquiryExt, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_ue_CapabilityEnquiryExt },
   { NULL, 0, 0, NULL }
 };
 
@@ -17858,35 +19419,35 @@ dissect_nr_rrc_UECapabilityEnquiry_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 }
 
 
-static const per_sequence_t T_criticalExtensionsFuture_30_sequence[] = {
+static const per_sequence_t T_criticalExtensionsFuture_32_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_criticalExtensionsFuture_30(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_criticalExtensionsFuture_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_criticalExtensionsFuture_30, T_criticalExtensionsFuture_30_sequence);
+                                   ett_nr_rrc_T_criticalExtensionsFuture_32, T_criticalExtensionsFuture_32_sequence);
 
   return offset;
 }
 
 
-static const value_string nr_rrc_T_criticalExtensions_30_vals[] = {
+static const value_string nr_rrc_T_criticalExtensions_32_vals[] = {
   {   0, "ueCapabilityEnquiry" },
   {   1, "criticalExtensionsFuture" },
   { 0, NULL }
 };
 
-static const per_choice_t T_criticalExtensions_30_choice[] = {
+static const per_choice_t T_criticalExtensions_32_choice[] = {
   {   0, &hf_nr_rrc_ueCapabilityEnquiry_01, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_UECapabilityEnquiry_IEs },
-  {   1, &hf_nr_rrc_criticalExtensionsFuture_30, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture_30 },
+  {   1, &hf_nr_rrc_criticalExtensionsFuture_32, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture_32 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_criticalExtensions_30(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_criticalExtensions_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_nr_rrc_T_criticalExtensions_30, T_criticalExtensions_30_choice,
+                                 ett_nr_rrc_T_criticalExtensions_32, T_criticalExtensions_32_choice,
                                  NULL);
 
   return offset;
@@ -17895,7 +19456,7 @@ dissect_nr_rrc_T_criticalExtensions_30(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static const per_sequence_t UECapabilityEnquiry_sequence[] = {
   { &hf_nr_rrc_rrc_TransactionIdentifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_RRC_TransactionIdentifier },
-  { &hf_nr_rrc_criticalExtensions_30, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions_30 },
+  { &hf_nr_rrc_criticalExtensions_32, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions_32 },
   { NULL, 0, 0, NULL }
 };
 
@@ -17966,7 +19527,7 @@ dissect_nr_rrc_T_nonCriticalExtension_07(tvbuff_t *tvb _U_, int offset _U_, asn1
 static const per_sequence_t CounterCheck_IEs_sequence[] = {
   { &hf_nr_rrc_drb_CountMSB_InfoList, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_DRB_CountMSB_InfoList },
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_10, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_07 },
+  { &hf_nr_rrc_nonCriticalExtension_12, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_07 },
   { NULL, 0, 0, NULL }
 };
 
@@ -18099,7 +19660,7 @@ static const per_sequence_t MobilityFromNRCommand_IEs_sequence[] = {
   { &hf_nr_rrc_targetRAT_MessageContainer, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_targetRAT_MessageContainer },
   { &hf_nr_rrc_nas_SecurityParamFromNR, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_16, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_13 },
+  { &hf_nr_rrc_nonCriticalExtension_18, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_13 },
   { NULL, 0, 0, NULL }
 };
 
@@ -18365,7 +19926,7 @@ dissect_nr_rrc_T_nonCriticalExtension_14(tvbuff_t *tvb _U_, int offset _U_, asn1
 static const per_sequence_t Paging_sequence[] = {
   { &hf_nr_rrc_pagingRecordList, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_PagingRecordList },
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_14 },
+  { &hf_nr_rrc_nonCriticalExtension_19, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_14 },
   { NULL, 0, 0, NULL }
 };
 
@@ -18548,16 +20109,6 @@ dissect_nr_rrc_RRCSetupRequest(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nr_rrc_RRCSetupRequest, RRCSetupRequest_sequence);
-
-  return offset;
-}
-
-
-
-static int
-dissect_nr_rrc_BIT_STRING_SIZE_16(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     16, 16, FALSE, NULL, 0, NULL, NULL);
 
   return offset;
 }
@@ -19011,243 +20562,6 @@ dissect_nr_rrc_MeasResultServMOList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
-static const per_sequence_t MeasQuantityResultsEUTRA_sequence[] = {
-  { &hf_nr_rrc_rsrp_01      , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_RSRP_RangeEUTRA },
-  { &hf_nr_rrc_rsrq_01      , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_RSRQ_RangeEUTRA },
-  { &hf_nr_rrc_sinr_01      , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_SINR_RangeEUTRA },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_nr_rrc_MeasQuantityResultsEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_MeasQuantityResultsEUTRA, MeasQuantityResultsEUTRA_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t PLMN_IdentityList_EUTRA_EPC_sequence_of[1] = {
-  { &hf_nr_rrc_PLMN_IdentityList_EUTRA_EPC_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_PLMN_Identity },
-};
-
-static int
-dissect_nr_rrc_PLMN_IdentityList_EUTRA_EPC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_nr_rrc_PLMN_IdentityList_EUTRA_EPC, PLMN_IdentityList_EUTRA_EPC_sequence_of,
-                                                  1, maxPLMN, FALSE);
-
-  return offset;
-}
-
-
-
-static int
-dissect_nr_rrc_BIT_STRING_SIZE_28(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     28, 28, FALSE, NULL, 0, NULL, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t CellAccessRelatedInfo_EUTRA_EPC_sequence[] = {
-  { &hf_nr_rrc_plmn_IdentityList_eutra_epc, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_PLMN_IdentityList_EUTRA_EPC },
-  { &hf_nr_rrc_trackingAreaCode_eutra_epc, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_BIT_STRING_SIZE_16 },
-  { &hf_nr_rrc_cellIdentity_eutra_epc, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_BIT_STRING_SIZE_28 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_nr_rrc_CellAccessRelatedInfo_EUTRA_EPC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_CellAccessRelatedInfo_EUTRA_EPC, CellAccessRelatedInfo_EUTRA_EPC_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_EPC_sequence_of[1] = {
-  { &hf_nr_rrc_cgi_info_EPC_list_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_CellAccessRelatedInfo_EUTRA_EPC },
-};
-
-static int
-dissect_nr_rrc_SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_EPC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_nr_rrc_SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_EPC, SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_EPC_sequence_of,
-                                                  1, maxPLMN, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t T_cgi_info_EPC_sequence[] = {
-  { &hf_nr_rrc_cgi_info_EPC_legacy, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_CellAccessRelatedInfo_EUTRA_EPC },
-  { &hf_nr_rrc_cgi_info_EPC_list, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_EPC },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_nr_rrc_T_cgi_info_EPC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_cgi_info_EPC, T_cgi_info_EPC_sequence);
-
-  return offset;
-}
-
-
-static const value_string nr_rrc_PLMN_Identity_EUTRA_5GC_vals[] = {
-  {   0, "plmn-Identity-EUTRA-5GC" },
-  {   1, "plmn-index" },
-  { 0, NULL }
-};
-
-static const per_choice_t PLMN_Identity_EUTRA_5GC_choice[] = {
-  {   0, &hf_nr_rrc_plmn_Identity_EUTRA_5GC, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PLMN_Identity },
-  {   1, &hf_nr_rrc_plmn_index   , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_1_maxPLMN },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_nr_rrc_PLMN_Identity_EUTRA_5GC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_nr_rrc_PLMN_Identity_EUTRA_5GC, PLMN_Identity_EUTRA_5GC_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t PLMN_IdentityList_EUTRA_5GC_sequence_of[1] = {
-  { &hf_nr_rrc_PLMN_IdentityList_EUTRA_5GC_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_PLMN_Identity_EUTRA_5GC },
-};
-
-static int
-dissect_nr_rrc_PLMN_IdentityList_EUTRA_5GC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_nr_rrc_PLMN_IdentityList_EUTRA_5GC, PLMN_IdentityList_EUTRA_5GC_sequence_of,
-                                                  1, maxPLMN, FALSE);
-
-  return offset;
-}
-
-
-static const value_string nr_rrc_CellIdentity_EUTRA_5GC_vals[] = {
-  {   0, "cellIdentity-EUTRA" },
-  {   1, "cellId-index" },
-  { 0, NULL }
-};
-
-static const per_choice_t CellIdentity_EUTRA_5GC_choice[] = {
-  {   0, &hf_nr_rrc_cellIdentity_EUTRA, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_BIT_STRING_SIZE_28 },
-  {   1, &hf_nr_rrc_cellId_index , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_1_maxPLMN },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_nr_rrc_CellIdentity_EUTRA_5GC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_nr_rrc_CellIdentity_EUTRA_5GC, CellIdentity_EUTRA_5GC_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t CellAccessRelatedInfo_EUTRA_5GC_sequence[] = {
-  { &hf_nr_rrc_plmn_IdentityList_eutra_5gc, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_PLMN_IdentityList_EUTRA_5GC },
-  { &hf_nr_rrc_trackingAreaCode_eutra_5gc, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_TrackingAreaCode },
-  { &hf_nr_rrc_ranac_5gc    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_RAN_AreaCode },
-  { &hf_nr_rrc_cellIdentity_eutra_5gc, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_CellIdentity_EUTRA_5GC },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_nr_rrc_CellAccessRelatedInfo_EUTRA_5GC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_CellAccessRelatedInfo_EUTRA_5GC, CellAccessRelatedInfo_EUTRA_5GC_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_5GC_sequence_of[1] = {
-  { &hf_nr_rrc_cgi_info_5GC_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_CellAccessRelatedInfo_EUTRA_5GC },
-};
-
-static int
-dissect_nr_rrc_SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_5GC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_nr_rrc_SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_5GC, SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_5GC_sequence_of,
-                                                  1, maxPLMN, FALSE);
-
-  return offset;
-}
-
-
-static const per_sequence_t MultiBandInfoListEUTRA_sequence_of[1] = {
-  { &hf_nr_rrc_MultiBandInfoListEUTRA_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_FreqBandIndicatorEUTRA },
-};
-
-static int
-dissect_nr_rrc_MultiBandInfoListEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
-                                                  ett_nr_rrc_MultiBandInfoListEUTRA, MultiBandInfoListEUTRA_sequence_of,
-                                                  1, maxMultiBands, FALSE);
-
-  return offset;
-}
-
-
-static const value_string nr_rrc_T_freqBandIndicatorPriority_vals[] = {
-  {   0, "true" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_nr_rrc_T_freqBandIndicatorPriority(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, FALSE, 0, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t T_cgi_Info_sequence[] = {
-  { &hf_nr_rrc_cgi_info_EPC , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_cgi_info_EPC },
-  { &hf_nr_rrc_cgi_info_5GC , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_5GC },
-  { &hf_nr_rrc_freqBandIndicator, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_FreqBandIndicatorEUTRA },
-  { &hf_nr_rrc_multiBandInfoList, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_MultiBandInfoListEUTRA },
-  { &hf_nr_rrc_freqBandIndicatorPriority, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_freqBandIndicatorPriority },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_nr_rrc_T_cgi_Info(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_cgi_Info, T_cgi_Info_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t MeasResultEUTRA_sequence[] = {
-  { &hf_nr_rrc_eutra_PhysCellId, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_PhysCellId },
-  { &hf_nr_rrc_measResult_01, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_MeasQuantityResultsEUTRA },
-  { &hf_nr_rrc_cgi_Info_01  , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_cgi_Info },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_nr_rrc_MeasResultEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_MeasResultEUTRA, MeasResultEUTRA_sequence);
-
-  return offset;
-}
-
-
 static const per_sequence_t MeasResultListEUTRA_sequence_of[1] = {
   { &hf_nr_rrc_MeasResultListEUTRA_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_MeasResultEUTRA },
 };
@@ -19284,10 +20598,41 @@ dissect_nr_rrc_T_measResultNeighCells(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 }
 
 
+static const per_sequence_t MeasResultServFreqListNR_SCG_sequence_of[1] = {
+  { &hf_nr_rrc_MeasResultServFreqListNR_SCG_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_MeasResult2NR },
+};
+
+static int
+dissect_nr_rrc_MeasResultServFreqListNR_SCG(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_nr_rrc_MeasResultServFreqListNR_SCG, MeasResultServFreqListNR_SCG_sequence_of,
+                                                  1, maxNrofServingCells, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t MeasResults_eag_1_sequence[] = {
+  { &hf_nr_rrc_measResultServFreqListEUTRA_SCG, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_MeasResultServFreqListEUTRA_SCG },
+  { &hf_nr_rrc_measResultServFreqListNR_SCG, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_MeasResultServFreqListNR_SCG },
+  { &hf_nr_rrc_measResultSFTD_EUTRA, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_MeasResultSFTD_EUTRA },
+  { &hf_nr_rrc_measResultSFTD_NR, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_MeasResultCellSFTD_NR },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_MeasResults_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, MeasResults_eag_1_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t MeasResults_sequence[] = {
   { &hf_nr_rrc_measId       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_MeasId },
   { &hf_nr_rrc_measResultServingMOList, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_MeasResultServMOList },
   { &hf_nr_rrc_measResultNeighCells, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_measResultNeighCells },
+  { &dummy_hf_nr_rrc_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_nr_rrc_MeasResults_eag_1 },
   { NULL, 0, 0, NULL }
 };
 
@@ -19316,7 +20661,7 @@ dissect_nr_rrc_T_nonCriticalExtension_12(tvbuff_t *tvb _U_, int offset _U_, asn1
 static const per_sequence_t MeasurementReport_IEs_sequence[] = {
   { &hf_nr_rrc_measResults  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_MeasResults },
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_15, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_12 },
+  { &hf_nr_rrc_nonCriticalExtension_17, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_12 },
   { NULL, 0, 0, NULL }
 };
 
@@ -19430,9 +20775,23 @@ dissect_nr_rrc_SEQUENCE_SIZE_1_maxNrofBWPs_OF_UplinkTxDirectCurrentBWP(tvbuff_t 
 }
 
 
+static const per_sequence_t UplinkTxDirectCurrentCell_eag_1_sequence[] = {
+  { &hf_nr_rrc_uplinkDirectCurrentBWP_SUL, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_SEQUENCE_SIZE_1_maxNrofBWPs_OF_UplinkTxDirectCurrentBWP },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_UplinkTxDirectCurrentCell_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, UplinkTxDirectCurrentCell_eag_1_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t UplinkTxDirectCurrentCell_sequence[] = {
   { &hf_nr_rrc_servCellIndex, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_ServCellIndex },
   { &hf_nr_rrc_uplinkDirectCurrentBWP, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_SEQUENCE_SIZE_1_maxNrofBWPs_OF_UplinkTxDirectCurrentBWP },
+  { &dummy_hf_nr_rrc_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_nr_rrc_UplinkTxDirectCurrentCell_eag_1 },
   { NULL, 0, 0, NULL }
 };
 
@@ -19461,6 +20820,64 @@ dissect_nr_rrc_UplinkTxDirectCurrentList(tvbuff_t *tvb _U_, int offset _U_, asn1
 }
 
 
+
+static int
+dissect_nr_rrc_T_nr_SCG_Response(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *nr_scg_response_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, &nr_scg_response_tvb);
+
+  if (nr_scg_response_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_nr_SCG_Response);
+    dissect_nr_rrc_RRCReconfigurationComplete_PDU(nr_scg_response_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_nr_rrc_T_eutra_SCG_Response(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *eutra_scg_response_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, &eutra_scg_response_tvb);
+
+  if (eutra_scg_response_tvb && lte_rrc_conn_reconf_compl_handle) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_eutra_SCG_Response);
+    nr_rrc_call_dissector(lte_rrc_conn_reconf_compl_handle, eutra_scg_response_tvb, actx->pinfo, subtree);
+  }
+
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_scg_Response_vals[] = {
+  {   0, "nr-SCG-Response" },
+  {   1, "eutra-SCG-Response" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_scg_Response_choice[] = {
+  {   0, &hf_nr_rrc_nr_SCG_Response, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_nr_SCG_Response },
+  {   1, &hf_nr_rrc_eutra_SCG_Response, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_eutra_SCG_Response },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_scg_Response(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_nr_rrc_T_scg_Response, T_scg_Response_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
 static const per_sequence_t T_nonCriticalExtension_18_sequence[] = {
   { NULL, 0, 0, NULL }
 };
@@ -19474,9 +20891,24 @@ dissect_nr_rrc_T_nonCriticalExtension_18(tvbuff_t *tvb _U_, int offset _U_, asn1
 }
 
 
+static const per_sequence_t RRCReconfigurationComplete_v1560_IEs_sequence[] = {
+  { &hf_nr_rrc_scg_Response , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_scg_Response },
+  { &hf_nr_rrc_nonCriticalExtension_28, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_18 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_RRCReconfigurationComplete_v1560_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_RRCReconfigurationComplete_v1560_IEs, RRCReconfigurationComplete_v1560_IEs_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t RRCReconfigurationComplete_v1530_IEs_sequence[] = {
   { &hf_nr_rrc_uplinkTxDirectCurrentList, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_UplinkTxDirectCurrentList },
-  { &hf_nr_rrc_nonCriticalExtension_24, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_18 },
+  { &hf_nr_rrc_nonCriticalExtension_27, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_RRCReconfigurationComplete_v1560_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -19491,7 +20923,7 @@ dissect_nr_rrc_RRCReconfigurationComplete_v1530_IEs(tvbuff_t *tvb _U_, int offse
 
 static const per_sequence_t RRCReconfigurationComplete_IEs_sequence[] = {
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_23, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_RRCReconfigurationComplete_v1530_IEs },
+  { &hf_nr_rrc_nonCriticalExtension_26, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_RRCReconfigurationComplete_v1530_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -19698,7 +21130,7 @@ static const per_sequence_t RRCSetupComplete_IEs_sequence[] = {
   { &hf_nr_rrc_dedicatedNAS_Message, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_DedicatedNAS_Message },
   { &hf_nr_rrc_ng_5G_S_TMSI_Value, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_ng_5G_S_TMSI_Value },
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_31, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_24 },
+  { &hf_nr_rrc_nonCriticalExtension_36, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_24 },
   { NULL, 0, 0, NULL }
 };
 
@@ -19778,7 +21210,7 @@ dissect_nr_rrc_T_nonCriticalExtension_16(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static const per_sequence_t RRCReestablishmentComplete_IEs_sequence[] = {
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_19, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_16 },
+  { &hf_nr_rrc_nonCriticalExtension_21, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_16 },
   { NULL, 0, 0, NULL }
 };
 
@@ -19861,7 +21293,7 @@ static const per_sequence_t RRCResumeComplete_IEs_sequence[] = {
   { &hf_nr_rrc_selectedPLMN_Identity, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_INTEGER_1_maxPLMN },
   { &hf_nr_rrc_uplinkTxDirectCurrentList, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_UplinkTxDirectCurrentList },
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_29, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_22 },
+  { &hf_nr_rrc_nonCriticalExtension_34, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_22 },
   { NULL, 0, 0, NULL }
 };
 
@@ -19926,14 +21358,14 @@ dissect_nr_rrc_RRCResumeComplete(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 }
 
 
-static const per_sequence_t T_nonCriticalExtension_26_sequence[] = {
+static const per_sequence_t T_nonCriticalExtension_28_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_nonCriticalExtension_26(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_nonCriticalExtension_28(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_nonCriticalExtension_26, T_nonCriticalExtension_26_sequence);
+                                   ett_nr_rrc_T_nonCriticalExtension_28, T_nonCriticalExtension_28_sequence);
 
   return offset;
 }
@@ -19941,7 +21373,7 @@ dissect_nr_rrc_T_nonCriticalExtension_26(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static const per_sequence_t SecurityModeComplete_IEs_sequence[] = {
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_33, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_26 },
+  { &hf_nr_rrc_nonCriticalExtension_40, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_28 },
   { NULL, 0, 0, NULL }
 };
 
@@ -19954,35 +21386,35 @@ dissect_nr_rrc_SecurityModeComplete_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_
 }
 
 
-static const per_sequence_t T_criticalExtensionsFuture_26_sequence[] = {
+static const per_sequence_t T_criticalExtensionsFuture_28_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_criticalExtensionsFuture_26(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_criticalExtensionsFuture_28(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_criticalExtensionsFuture_26, T_criticalExtensionsFuture_26_sequence);
+                                   ett_nr_rrc_T_criticalExtensionsFuture_28, T_criticalExtensionsFuture_28_sequence);
 
   return offset;
 }
 
 
-static const value_string nr_rrc_T_criticalExtensions_26_vals[] = {
+static const value_string nr_rrc_T_criticalExtensions_28_vals[] = {
   {   0, "securityModeComplete" },
   {   1, "criticalExtensionsFuture" },
   { 0, NULL }
 };
 
-static const per_choice_t T_criticalExtensions_26_choice[] = {
+static const per_choice_t T_criticalExtensions_28_choice[] = {
   {   0, &hf_nr_rrc_securityModeComplete_01, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_SecurityModeComplete_IEs },
-  {   1, &hf_nr_rrc_criticalExtensionsFuture_26, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture_26 },
+  {   1, &hf_nr_rrc_criticalExtensionsFuture_28, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture_28 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_criticalExtensions_26(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_criticalExtensions_28(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_nr_rrc_T_criticalExtensions_26, T_criticalExtensions_26_choice,
+                                 ett_nr_rrc_T_criticalExtensions_28, T_criticalExtensions_28_choice,
                                  NULL);
 
   return offset;
@@ -19991,7 +21423,7 @@ dissect_nr_rrc_T_criticalExtensions_26(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static const per_sequence_t SecurityModeComplete_sequence[] = {
   { &hf_nr_rrc_rrc_TransactionIdentifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_RRC_TransactionIdentifier },
-  { &hf_nr_rrc_criticalExtensions_26, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions_26 },
+  { &hf_nr_rrc_criticalExtensions_28, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions_28 },
   { NULL, 0, 0, NULL }
 };
 
@@ -20006,14 +21438,14 @@ dissect_nr_rrc_SecurityModeComplete(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
-static const per_sequence_t T_nonCriticalExtension_27_sequence[] = {
+static const per_sequence_t T_nonCriticalExtension_29_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_nonCriticalExtension_27(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_nonCriticalExtension_29(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_nonCriticalExtension_27, T_nonCriticalExtension_27_sequence);
+                                   ett_nr_rrc_T_nonCriticalExtension_29, T_nonCriticalExtension_29_sequence);
 
   return offset;
 }
@@ -20021,7 +21453,7 @@ dissect_nr_rrc_T_nonCriticalExtension_27(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static const per_sequence_t SecurityModeFailure_IEs_sequence[] = {
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_34, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_27 },
+  { &hf_nr_rrc_nonCriticalExtension_41, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_29 },
   { NULL, 0, 0, NULL }
 };
 
@@ -20034,35 +21466,35 @@ dissect_nr_rrc_SecurityModeFailure_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 }
 
 
-static const per_sequence_t T_criticalExtensionsFuture_27_sequence[] = {
+static const per_sequence_t T_criticalExtensionsFuture_29_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_criticalExtensionsFuture_27(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_criticalExtensionsFuture_29(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_criticalExtensionsFuture_27, T_criticalExtensionsFuture_27_sequence);
+                                   ett_nr_rrc_T_criticalExtensionsFuture_29, T_criticalExtensionsFuture_29_sequence);
 
   return offset;
 }
 
 
-static const value_string nr_rrc_T_criticalExtensions_27_vals[] = {
+static const value_string nr_rrc_T_criticalExtensions_29_vals[] = {
   {   0, "securityModeFailure" },
   {   1, "criticalExtensionsFuture" },
   { 0, NULL }
 };
 
-static const per_choice_t T_criticalExtensions_27_choice[] = {
+static const per_choice_t T_criticalExtensions_29_choice[] = {
   {   0, &hf_nr_rrc_securityModeFailure_01, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_SecurityModeFailure_IEs },
-  {   1, &hf_nr_rrc_criticalExtensionsFuture_27, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture_27 },
+  {   1, &hf_nr_rrc_criticalExtensionsFuture_29, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture_29 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_criticalExtensions_27(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_criticalExtensions_29(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_nr_rrc_T_criticalExtensions_27, T_criticalExtensions_27_choice,
+                                 ett_nr_rrc_T_criticalExtensions_29, T_criticalExtensions_29_choice,
                                  NULL);
 
   return offset;
@@ -20071,7 +21503,7 @@ dissect_nr_rrc_T_criticalExtensions_27(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static const per_sequence_t SecurityModeFailure_sequence[] = {
   { &hf_nr_rrc_rrc_TransactionIdentifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_RRC_TransactionIdentifier },
-  { &hf_nr_rrc_criticalExtensions_27, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions_27 },
+  { &hf_nr_rrc_criticalExtensions_29, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions_29 },
   { NULL, 0, 0, NULL }
 };
 
@@ -20086,14 +21518,14 @@ dissect_nr_rrc_SecurityModeFailure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 }
 
 
-static const per_sequence_t T_nonCriticalExtension_33_sequence[] = {
+static const per_sequence_t T_nonCriticalExtension_35_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_nonCriticalExtension_33(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_nonCriticalExtension_35(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_nonCriticalExtension_33, T_nonCriticalExtension_33_sequence);
+                                   ett_nr_rrc_T_nonCriticalExtension_35, T_nonCriticalExtension_35_sequence);
 
   return offset;
 }
@@ -20102,7 +21534,7 @@ dissect_nr_rrc_T_nonCriticalExtension_33(tvbuff_t *tvb _U_, int offset _U_, asn1
 static const per_sequence_t ULInformationTransfer_IEs_sequence[] = {
   { &hf_nr_rrc_dedicatedNAS_Message, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_DedicatedNAS_Message },
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_41, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_33 },
+  { &hf_nr_rrc_nonCriticalExtension_48, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_35 },
   { NULL, 0, 0, NULL }
 };
 
@@ -20115,35 +21547,35 @@ dissect_nr_rrc_ULInformationTransfer_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1
 }
 
 
-static const per_sequence_t T_criticalExtensionsFuture_32_sequence[] = {
+static const per_sequence_t T_criticalExtensionsFuture_34_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_criticalExtensionsFuture_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_criticalExtensionsFuture_34(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_criticalExtensionsFuture_32, T_criticalExtensionsFuture_32_sequence);
+                                   ett_nr_rrc_T_criticalExtensionsFuture_34, T_criticalExtensionsFuture_34_sequence);
 
   return offset;
 }
 
 
-static const value_string nr_rrc_T_criticalExtensions_32_vals[] = {
+static const value_string nr_rrc_T_criticalExtensions_34_vals[] = {
   {   0, "ulInformationTransfer" },
   {   1, "criticalExtensionsFuture" },
   { 0, NULL }
 };
 
-static const per_choice_t T_criticalExtensions_32_choice[] = {
+static const per_choice_t T_criticalExtensions_34_choice[] = {
   {   0, &hf_nr_rrc_ulInformationTransfer_01, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_ULInformationTransfer_IEs },
-  {   1, &hf_nr_rrc_criticalExtensionsFuture_32, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture_32 },
+  {   1, &hf_nr_rrc_criticalExtensionsFuture_34, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture_34 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_criticalExtensions_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_criticalExtensions_34(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_nr_rrc_T_criticalExtensions_32, T_criticalExtensions_32_choice,
+                                 ett_nr_rrc_T_criticalExtensions_34, T_criticalExtensions_34_choice,
                                  NULL);
 
   return offset;
@@ -20151,7 +21583,7 @@ dissect_nr_rrc_T_criticalExtensions_32(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 
 static const per_sequence_t ULInformationTransfer_sequence[] = {
-  { &hf_nr_rrc_criticalExtensions_32, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions_32 },
+  { &hf_nr_rrc_criticalExtensions_34, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions_34 },
   { NULL, 0, 0, NULL }
 };
 
@@ -20255,7 +21687,7 @@ dissect_nr_rrc_T_nonCriticalExtension_11(tvbuff_t *tvb _U_, int offset _U_, asn1
 static const per_sequence_t LocationMeasurementIndication_IEs_sequence[] = {
   { &hf_nr_rrc_measurementIndication, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_measurementIndication },
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_14, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_11 },
+  { &hf_nr_rrc_nonCriticalExtension_16, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_11 },
   { NULL, 0, 0, NULL }
 };
 
@@ -20319,14 +21751,14 @@ dissect_nr_rrc_LocationMeasurementIndication(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 
-static const per_sequence_t T_nonCriticalExtension_32_sequence[] = {
+static const per_sequence_t T_nonCriticalExtension_34_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_nonCriticalExtension_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_nonCriticalExtension_34(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_nonCriticalExtension_32, T_nonCriticalExtension_32_sequence);
+                                   ett_nr_rrc_T_nonCriticalExtension_34, T_nonCriticalExtension_34_sequence);
 
   return offset;
 }
@@ -20335,7 +21767,7 @@ dissect_nr_rrc_T_nonCriticalExtension_32(tvbuff_t *tvb _U_, int offset _U_, asn1
 static const per_sequence_t UECapabilityInformation_IEs_sequence[] = {
   { &hf_nr_rrc_ue_CapabilityRAT_ContainerList, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_UE_CapabilityRAT_ContainerList },
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_40, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_32 },
+  { &hf_nr_rrc_nonCriticalExtension_47, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_34 },
   { NULL, 0, 0, NULL }
 };
 
@@ -20348,35 +21780,35 @@ dissect_nr_rrc_UECapabilityInformation_IEs(tvbuff_t *tvb _U_, int offset _U_, as
 }
 
 
-static const per_sequence_t T_criticalExtensionsFuture_31_sequence[] = {
+static const per_sequence_t T_criticalExtensionsFuture_33_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_criticalExtensionsFuture_31(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_criticalExtensionsFuture_33(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_criticalExtensionsFuture_31, T_criticalExtensionsFuture_31_sequence);
+                                   ett_nr_rrc_T_criticalExtensionsFuture_33, T_criticalExtensionsFuture_33_sequence);
 
   return offset;
 }
 
 
-static const value_string nr_rrc_T_criticalExtensions_31_vals[] = {
+static const value_string nr_rrc_T_criticalExtensions_33_vals[] = {
   {   0, "ueCapabilityInformation" },
   {   1, "criticalExtensionsFuture" },
   { 0, NULL }
 };
 
-static const per_choice_t T_criticalExtensions_31_choice[] = {
+static const per_choice_t T_criticalExtensions_33_choice[] = {
   {   0, &hf_nr_rrc_ueCapabilityInformation_01, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_UECapabilityInformation_IEs },
-  {   1, &hf_nr_rrc_criticalExtensionsFuture_31, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture_31 },
+  {   1, &hf_nr_rrc_criticalExtensionsFuture_33, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture_33 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_criticalExtensions_31(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_criticalExtensions_33(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_nr_rrc_T_criticalExtensions_31, T_criticalExtensions_31_choice,
+                                 ett_nr_rrc_T_criticalExtensions_33, T_criticalExtensions_33_choice,
                                  NULL);
 
   return offset;
@@ -20385,7 +21817,7 @@ dissect_nr_rrc_T_criticalExtensions_31(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 static const per_sequence_t UECapabilityInformation_sequence[] = {
   { &hf_nr_rrc_rrc_TransactionIdentifier, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_RRC_TransactionIdentifier },
-  { &hf_nr_rrc_criticalExtensions_31, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions_31 },
+  { &hf_nr_rrc_criticalExtensions_33, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions_33 },
   { NULL, 0, 0, NULL }
 };
 
@@ -20456,7 +21888,7 @@ dissect_nr_rrc_T_nonCriticalExtension_08(tvbuff_t *tvb _U_, int offset _U_, asn1
 static const per_sequence_t CounterCheckResponse_IEs_sequence[] = {
   { &hf_nr_rrc_drb_CountInfoList, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_DRB_CountInfoList },
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_11, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_08 },
+  { &hf_nr_rrc_nonCriticalExtension_13, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_08 },
   { NULL, 0, 0, NULL }
 };
 
@@ -20727,14 +22159,14 @@ dissect_nr_rrc_OverheatingAssistance(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 }
 
 
-static const per_sequence_t T_nonCriticalExtension_30_sequence[] = {
+static const per_sequence_t T_nonCriticalExtension_32_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_nonCriticalExtension_30(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_nonCriticalExtension_32(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_nonCriticalExtension_30, T_nonCriticalExtension_30_sequence);
+                                   ett_nr_rrc_T_nonCriticalExtension_32, T_nonCriticalExtension_32_sequence);
 
   return offset;
 }
@@ -20742,7 +22174,7 @@ dissect_nr_rrc_T_nonCriticalExtension_30(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static const per_sequence_t UEAssistanceInformation_v1540_IEs_sequence[] = {
   { &hf_nr_rrc_overheatingAssistance, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OverheatingAssistance },
-  { &hf_nr_rrc_nonCriticalExtension_38, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_30 },
+  { &hf_nr_rrc_nonCriticalExtension_45, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_32 },
   { NULL, 0, 0, NULL }
 };
 
@@ -20758,7 +22190,7 @@ dissect_nr_rrc_UEAssistanceInformation_v1540_IEs(tvbuff_t *tvb _U_, int offset _
 static const per_sequence_t UEAssistanceInformation_IEs_sequence[] = {
   { &hf_nr_rrc_delayBudgetReport, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_DelayBudgetReport },
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_37, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_UEAssistanceInformation_v1540_IEs },
+  { &hf_nr_rrc_nonCriticalExtension_44, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_UEAssistanceInformation_v1540_IEs },
   { NULL, 0, 0, NULL }
 };
 
@@ -20771,35 +22203,35 @@ dissect_nr_rrc_UEAssistanceInformation_IEs(tvbuff_t *tvb _U_, int offset _U_, as
 }
 
 
-static const per_sequence_t T_criticalExtensionsFuture_29_sequence[] = {
+static const per_sequence_t T_criticalExtensionsFuture_31_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_criticalExtensionsFuture_29(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_criticalExtensionsFuture_31(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_criticalExtensionsFuture_29, T_criticalExtensionsFuture_29_sequence);
+                                   ett_nr_rrc_T_criticalExtensionsFuture_31, T_criticalExtensionsFuture_31_sequence);
 
   return offset;
 }
 
 
-static const value_string nr_rrc_T_criticalExtensions_29_vals[] = {
+static const value_string nr_rrc_T_criticalExtensions_31_vals[] = {
   {   0, "ueAssistanceInformation" },
   {   1, "criticalExtensionsFuture" },
   { 0, NULL }
 };
 
-static const per_choice_t T_criticalExtensions_29_choice[] = {
+static const per_choice_t T_criticalExtensions_31_choice[] = {
   {   0, &hf_nr_rrc_ueAssistanceInformation_02, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_UEAssistanceInformation_IEs },
-  {   1, &hf_nr_rrc_criticalExtensionsFuture_29, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture_29 },
+  {   1, &hf_nr_rrc_criticalExtensionsFuture_31, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture_31 },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_criticalExtensions_29(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_criticalExtensions_31(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_nr_rrc_T_criticalExtensions_29, T_criticalExtensions_29_choice,
+                                 ett_nr_rrc_T_criticalExtensions_31, T_criticalExtensions_31_choice,
                                  NULL);
 
   return offset;
@@ -20807,7 +22239,7 @@ dissect_nr_rrc_T_criticalExtensions_29(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 
 static const per_sequence_t UEAssistanceInformation_sequence[] = {
-  { &hf_nr_rrc_criticalExtensions_29, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions_29 },
+  { &hf_nr_rrc_criticalExtensions_31, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions_31 },
   { NULL, 0, 0, NULL }
 };
 
@@ -20874,7 +22306,7 @@ dissect_nr_rrc_T_nonCriticalExtension_10(tvbuff_t *tvb _U_, int offset _U_, asn1
 static const per_sequence_t FailureInformation_IEs_sequence[] = {
   { &hf_nr_rrc_failureInfoRLC_Bearer, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_FailureInfoRLC_Bearer },
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_13, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_10 },
+  { &hf_nr_rrc_nonCriticalExtension_15, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_10 },
   { NULL, 0, 0, NULL }
 };
 
@@ -20938,6 +22370,439 @@ dissect_nr_rrc_FailureInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 }
 
 
+
+static int
+dissect_nr_rrc_T_ul_DCCH_MessageNR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *ul_dcch_msg_nr_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, &ul_dcch_msg_nr_tvb);
+
+  if (ul_dcch_msg_nr_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_ul_DCCH_MessageNR);
+    dissect_nr_rrc_UL_DCCH_Message_PDU(ul_dcch_msg_nr_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_nr_rrc_T_ul_DCCH_MessageEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *ul_dcch_msg_eutra_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, &ul_dcch_msg_eutra_tvb);
+
+  if (ul_dcch_msg_eutra_tvb && lte_rrc_ul_dcch_handle) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_ul_DCCH_MessageEUTRA);
+    nr_rrc_call_dissector(lte_rrc_ul_dcch_handle, ul_dcch_msg_eutra_tvb, actx->pinfo, subtree);
+  }
+
+
+  return offset;
+}
+
+
+static const per_sequence_t T_nonCriticalExtension_36_sequence[] = {
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_nonCriticalExtension_36(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_T_nonCriticalExtension_36, T_nonCriticalExtension_36_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t ULInformationTransferMRDC_IEs_sequence[] = {
+  { &hf_nr_rrc_ul_DCCH_MessageNR, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_ul_DCCH_MessageNR },
+  { &hf_nr_rrc_ul_DCCH_MessageEUTRA, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_ul_DCCH_MessageEUTRA },
+  { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
+  { &hf_nr_rrc_nonCriticalExtension_49, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_36 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_ULInformationTransferMRDC_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_ULInformationTransferMRDC_IEs, ULInformationTransferMRDC_IEs_sequence);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_c1_14_vals[] = {
+  {   0, "ulInformationTransferMRDC" },
+  {   1, "spare3" },
+  {   2, "spare2" },
+  {   3, "spare1" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_c1_14_choice[] = {
+  {   0, &hf_nr_rrc_ulInformationTransferMRDC_01, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_ULInformationTransferMRDC_IEs },
+  {   1, &hf_nr_rrc_spare3       , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
+  {   2, &hf_nr_rrc_spare2       , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
+  {   3, &hf_nr_rrc_spare1       , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_c1_14(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_nr_rrc_T_c1_14, T_c1_14_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_criticalExtensionsFuture_35_sequence[] = {
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_criticalExtensionsFuture_35(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_T_criticalExtensionsFuture_35, T_criticalExtensionsFuture_35_sequence);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_criticalExtensions_35_vals[] = {
+  {   0, "c1" },
+  {   1, "criticalExtensionsFuture" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_criticalExtensions_35_choice[] = {
+  {   0, &hf_nr_rrc_c1_14        , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_c1_14 },
+  {   1, &hf_nr_rrc_criticalExtensionsFuture_35, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture_35 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_criticalExtensions_35(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_nr_rrc_T_criticalExtensions_35, T_criticalExtensions_35_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t ULInformationTransferMRDC_sequence[] = {
+  { &hf_nr_rrc_criticalExtensions_35, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions_35 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_ULInformationTransferMRDC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "UL Information Transfer MRDC");
+
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_ULInformationTransferMRDC, ULInformationTransferMRDC_sequence);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_failureType_02_vals[] = {
+  {   0, "t310-Expiry" },
+  {   1, "randomAccessProblem" },
+  {   2, "rlc-MaxNumRetx" },
+  {   3, "synchReconfigFailureSCG" },
+  {   4, "scg-ReconfigFailure" },
+  {   5, "srb3-IntegrityFailure" },
+  {   6, "spare2" },
+  {   7, "spare1" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_nr_rrc_T_failureType_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     8, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t MeasResultFreqList_sequence_of[1] = {
+  { &hf_nr_rrc_MeasResultFreqList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_MeasResult2NR },
+};
+
+static int
+dissect_nr_rrc_MeasResultFreqList(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_nr_rrc_MeasResultFreqList, MeasResultFreqList_sequence_of,
+                                                  1, maxFreq, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_nr_rrc_T_measResultSCG_Failure(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
+                                                                NO_BOUND, NO_BOUND, FALSE, dissect_nr_rrc_MeasResultSCG_Failure_PDU);
+
+  return offset;
+}
+
+
+static const per_sequence_t FailureReportSCG_sequence[] = {
+  { &hf_nr_rrc_failureType_02, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_failureType_02 },
+  { &hf_nr_rrc_measResultFreqList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_MeasResultFreqList },
+  { &hf_nr_rrc_measResultSCG_Failure, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_measResultSCG_Failure },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_FailureReportSCG(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_FailureReportSCG, FailureReportSCG_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_nonCriticalExtension_25_sequence[] = {
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_nonCriticalExtension_25(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_T_nonCriticalExtension_25, T_nonCriticalExtension_25_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SCGFailureInformation_IEs_sequence[] = {
+  { &hf_nr_rrc_failureReportSCG, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_FailureReportSCG },
+  { &hf_nr_rrc_nonCriticalExtension_37, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_25 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_SCGFailureInformation_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_SCGFailureInformation_IEs, SCGFailureInformation_IEs_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_criticalExtensionsFuture_25_sequence[] = {
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_criticalExtensionsFuture_25(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_T_criticalExtensionsFuture_25, T_criticalExtensionsFuture_25_sequence);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_criticalExtensions_25_vals[] = {
+  {   0, "scgFailureInformation" },
+  {   1, "criticalExtensionsFuture" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_criticalExtensions_25_choice[] = {
+  {   0, &hf_nr_rrc_scgFailureInformation_01, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_SCGFailureInformation_IEs },
+  {   1, &hf_nr_rrc_criticalExtensionsFuture_25, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture_25 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_criticalExtensions_25(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_nr_rrc_T_criticalExtensions_25, T_criticalExtensions_25_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t SCGFailureInformation_sequence[] = {
+  { &hf_nr_rrc_criticalExtensions_25, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions_25 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_SCGFailureInformation(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SCG Failure Information");
+
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_SCGFailureInformation, SCGFailureInformation_sequence);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_failureType_03_vals[] = {
+  {   0, "t313-Expiry" },
+  {   1, "randomAccessProblem" },
+  {   2, "rlc-MaxNumRetx" },
+  {   3, "scg-ChangeFailure" },
+  {   4, "spare4" },
+  {   5, "spare3" },
+  {   6, "spare2" },
+  {   7, "spare1" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_nr_rrc_T_failureType_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     8, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t MeasResultFreqListFailMRDC_sequence_of[1] = {
+  { &hf_nr_rrc_MeasResultFreqListFailMRDC_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_MeasResult2EUTRA },
+};
+
+static int
+dissect_nr_rrc_MeasResultFreqListFailMRDC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_nr_rrc_MeasResultFreqListFailMRDC, MeasResultFreqListFailMRDC_sequence_of,
+                                                  1, maxFreq, FALSE);
+
+  return offset;
+}
+
+
+
+static int
+dissect_nr_rrc_T_measResultSCG_FailureMRDC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *meas_result_scg_fail_mrdc_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, &meas_result_scg_fail_mrdc_tvb);
+
+  if (meas_result_scg_fail_mrdc_tvb) {
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_nr_rrc_measResultSCG_FailureMRDC);
+    dissect_lte_rrc_MeasResultSCG_FailureMRDC_r15_PDU(meas_result_scg_fail_mrdc_tvb, actx->pinfo, subtree, NULL);
+  }
+
+
+  return offset;
+}
+
+
+static const per_sequence_t FailureReportSCG_EUTRA_sequence[] = {
+  { &hf_nr_rrc_failureType_03, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_failureType_03 },
+  { &hf_nr_rrc_measResultFreqListMRDC, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_MeasResultFreqListFailMRDC },
+  { &hf_nr_rrc_measResultSCG_FailureMRDC, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_measResultSCG_FailureMRDC },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_FailureReportSCG_EUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_FailureReportSCG_EUTRA, FailureReportSCG_EUTRA_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_nonCriticalExtension_26_sequence[] = {
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_nonCriticalExtension_26(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_T_nonCriticalExtension_26, T_nonCriticalExtension_26_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t SCGFailureInformationEUTRA_IEs_sequence[] = {
+  { &hf_nr_rrc_failureReportSCG_EUTRA, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_FailureReportSCG_EUTRA },
+  { &hf_nr_rrc_nonCriticalExtension_38, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_26 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_SCGFailureInformationEUTRA_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_SCGFailureInformationEUTRA_IEs, SCGFailureInformationEUTRA_IEs_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_criticalExtensionsFuture_26_sequence[] = {
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_criticalExtensionsFuture_26(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_T_criticalExtensionsFuture_26, T_criticalExtensionsFuture_26_sequence);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_criticalExtensions_26_vals[] = {
+  {   0, "scgFailureInformationEUTRA" },
+  {   1, "criticalExtensionsFuture" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_criticalExtensions_26_choice[] = {
+  {   0, &hf_nr_rrc_scgFailureInformationEUTRA_01, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_SCGFailureInformationEUTRA_IEs },
+  {   1, &hf_nr_rrc_criticalExtensionsFuture_26, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_criticalExtensionsFuture_26 },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_criticalExtensions_26(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_nr_rrc_T_criticalExtensions_26, T_criticalExtensions_26_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t SCGFailureInformationEUTRA_sequence[] = {
+  { &hf_nr_rrc_criticalExtensions_26, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_criticalExtensions_26 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_SCGFailureInformationEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "SCG Failure Information EUTRA");
+
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_SCGFailureInformationEUTRA, SCGFailureInformationEUTRA_sequence);
+
+  return offset;
+}
+
+
 static const value_string nr_rrc_T_c1_13_vals[] = {
   {   0, "measurementReport" },
   {   1, "rrcReconfigurationComplete" },
@@ -20952,9 +22817,9 @@ static const value_string nr_rrc_T_c1_13_vals[] = {
   {  10, "counterCheckResponse" },
   {  11, "ueAssistanceInformation" },
   {  12, "failureInformation" },
-  {  13, "spare3" },
-  {  14, "spare2" },
-  {  15, "spare1" },
+  {  13, "ulInformationTransferMRDC" },
+  {  14, "scgFailureInformation" },
+  {  15, "scgFailureInformationEUTRA" },
   { 0, NULL }
 };
 
@@ -20972,9 +22837,9 @@ static const per_choice_t T_c1_13_choice[] = {
   {  10, &hf_nr_rrc_counterCheckResponse, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_CounterCheckResponse },
   {  11, &hf_nr_rrc_ueAssistanceInformation_01, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_UEAssistanceInformation },
   {  12, &hf_nr_rrc_failureInformation, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_FailureInformation },
-  {  13, &hf_nr_rrc_spare3       , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {  14, &hf_nr_rrc_spare2       , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {  15, &hf_nr_rrc_spare1       , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
+  {  13, &hf_nr_rrc_ulInformationTransferMRDC, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_ULInformationTransferMRDC },
+  {  14, &hf_nr_rrc_scgFailureInformation, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_SCGFailureInformation },
+  {  15, &hf_nr_rrc_scgFailureInformationEUTRA, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_SCGFailureInformationEUTRA },
   { 0, NULL, 0, NULL }
 };
 
@@ -21042,6 +22907,109 @@ dissect_nr_rrc_UL_DCCH_Message(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nr_rrc_UL_DCCH_Message, UL_DCCH_Message_sequence);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_omitEN_DC_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_nr_rrc_T_omitEN_DC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_includeNR_DC_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_nr_rrc_T_includeNR_DC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_includeNE_DC_vals[] = {
+  {   0, "true" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_nr_rrc_T_includeNE_DC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_mrdc_Request_sequence[] = {
+  { &hf_nr_rrc_omitEN_DC    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_omitEN_DC },
+  { &hf_nr_rrc_includeNR_DC , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_includeNR_DC },
+  { &hf_nr_rrc_includeNE_DC , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_includeNE_DC },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_mrdc_Request(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_T_mrdc_Request, T_mrdc_Request_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t UE_CapabilityRequestFilterCommon_sequence[] = {
+  { &hf_nr_rrc_mrdc_Request , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_mrdc_Request },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_UE_CapabilityRequestFilterCommon(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_UE_CapabilityRequestFilterCommon, UE_CapabilityRequestFilterCommon_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_nonCriticalExtension_33_sequence[] = {
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_nonCriticalExtension_33(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_T_nonCriticalExtension_33, T_nonCriticalExtension_33_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t UECapabilityEnquiry_v1560_IEs_sequence[] = {
+  { &hf_nr_rrc_capabilityRequestFilterCommon, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_UE_CapabilityRequestFilterCommon },
+  { &hf_nr_rrc_nonCriticalExtension_46, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_33 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_UECapabilityEnquiry_v1560_IEs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_UECapabilityEnquiry_v1560_IEs, UECapabilityEnquiry_v1560_IEs_sequence);
 
   return offset;
 }
@@ -21545,7 +23513,7 @@ static const value_string nr_rrc_T_downlinkPreemption_vals[] = {
 
 static const per_choice_t T_downlinkPreemption_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_28     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_DownlinkPreemption },
+  {   1, &hf_nr_rrc_setup_29     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_DownlinkPreemption },
   { 0, NULL, 0, NULL }
 };
 
@@ -21554,16 +23522,6 @@ dissect_nr_rrc_T_downlinkPreemption(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_nr_rrc_T_downlinkPreemption, T_downlinkPreemption_choice,
                                  NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_nr_rrc_INTEGER_1_15(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 15U, NULL, FALSE);
 
   return offset;
 }
@@ -21593,7 +23551,7 @@ static const value_string nr_rrc_T_tpc_PUSCH_vals[] = {
 
 static const per_choice_t T_tpc_PUSCH_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_29     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PUSCH_TPC_CommandConfig },
+  {   1, &hf_nr_rrc_setup_30     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PUSCH_TPC_CommandConfig },
   { 0, NULL, 0, NULL }
 };
 
@@ -21630,7 +23588,7 @@ static const value_string nr_rrc_T_tpc_PUCCH_vals[] = {
 
 static const per_choice_t T_tpc_PUCCH_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_30     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PUCCH_TPC_CommandConfig },
+  {   1, &hf_nr_rrc_setup_31     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PUCCH_TPC_CommandConfig },
   { 0, NULL, 0, NULL }
 };
 
@@ -21639,16 +23597,6 @@ dissect_nr_rrc_T_tpc_PUCCH(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_nr_rrc_T_tpc_PUCCH, T_tpc_PUCCH_choice,
                                  NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_nr_rrc_INTEGER_1_31(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            1U, 31U, NULL, FALSE);
 
   return offset;
 }
@@ -21691,7 +23639,7 @@ static const value_string nr_rrc_T_tpc_SRS_vals[] = {
 
 static const per_choice_t T_tpc_SRS_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_31     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_SRS_TPC_CommandConfig },
+  {   1, &hf_nr_rrc_setup_32     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_SRS_TPC_CommandConfig },
   { 0, NULL, 0, NULL }
 };
 
@@ -21734,7 +23682,7 @@ static const value_string nr_rrc_T_pdcch_Config_vals[] = {
 
 static const per_choice_t T_pdcch_Config_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_04     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PDCCH_Config },
+  {   1, &hf_nr_rrc_setup_05     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PDCCH_Config },
   { 0, NULL, 0, NULL }
 };
 
@@ -21885,7 +23833,7 @@ static const value_string nr_rrc_T_phaseTrackingRS_vals[] = {
 
 static const per_choice_t T_phaseTrackingRS_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_20     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PTRS_DownlinkConfig },
+  {   1, &hf_nr_rrc_setup_21     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PTRS_DownlinkConfig },
   { 0, NULL, 0, NULL }
 };
 
@@ -21926,7 +23874,7 @@ static const value_string nr_rrc_T_dmrs_DownlinkForPDSCH_MappingTypeA_vals[] = {
 
 static const per_choice_t T_dmrs_DownlinkForPDSCH_MappingTypeA_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_33     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_DMRS_DownlinkConfig },
+  {   1, &hf_nr_rrc_setup_34     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_DMRS_DownlinkConfig },
   { 0, NULL, 0, NULL }
 };
 
@@ -21948,7 +23896,7 @@ static const value_string nr_rrc_T_dmrs_DownlinkForPDSCH_MappingTypeB_vals[] = {
 
 static const per_choice_t T_dmrs_DownlinkForPDSCH_MappingTypeB_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_33     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_DMRS_DownlinkConfig },
+  {   1, &hf_nr_rrc_setup_34     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_DMRS_DownlinkConfig },
   { 0, NULL, 0, NULL }
 };
 
@@ -22104,7 +24052,7 @@ static const value_string nr_rrc_T_pdsch_TimeDomainAllocationList_vals[] = {
 
 static const per_choice_t T_pdsch_TimeDomainAllocationList_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_34     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PDSCH_TimeDomainResourceAllocationList },
+  {   1, &hf_nr_rrc_setup_35     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PDSCH_TimeDomainResourceAllocationList },
   { 0, NULL, 0, NULL }
 };
 
@@ -22317,7 +24265,7 @@ static const per_sequence_t RateMatchPattern_sequence[] = {
   { &hf_nr_rrc_rateMatchPatternId, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_RateMatchPatternId },
   { &hf_nr_rrc_patternType  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_patternType },
   { &hf_nr_rrc_subcarrierSpacing, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_SubcarrierSpacing },
-  { &hf_nr_rrc_dummy_02     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_dummy_01 },
+  { &hf_nr_rrc_dummy_03     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_dummy_01 },
   { NULL, 0, 0, NULL }
 };
 
@@ -22889,7 +24837,7 @@ static const value_string nr_rrc_T_p_ZP_CSI_RS_ResourceSet_vals[] = {
 
 static const per_choice_t T_p_ZP_CSI_RS_ResourceSet_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_35     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_ZP_CSI_RS_ResourceSet },
+  {   1, &hf_nr_rrc_setup_36     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_ZP_CSI_RS_ResourceSet },
   { 0, NULL, 0, NULL }
 };
 
@@ -22948,7 +24896,7 @@ static const value_string nr_rrc_T_pdsch_Config_vals[] = {
 
 static const per_choice_t T_pdsch_Config_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_05     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PDSCH_Config },
+  {   1, &hf_nr_rrc_setup_06     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PDSCH_Config },
   { 0, NULL, 0, NULL }
 };
 
@@ -23044,7 +24992,7 @@ static const value_string nr_rrc_T_sps_Config_vals[] = {
 
 static const per_choice_t T_sps_Config_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_06     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_SPS_Config },
+  {   1, &hf_nr_rrc_setup_07     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_SPS_Config },
   { 0, NULL, 0, NULL }
 };
 
@@ -23220,7 +25168,7 @@ static const value_string nr_rrc_T_radioLinkMonitoringConfig_vals[] = {
 
 static const per_choice_t T_radioLinkMonitoringConfig_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_07     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_RadioLinkMonitoringConfig },
+  {   1, &hf_nr_rrc_setup_08     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_RadioLinkMonitoringConfig },
   { 0, NULL, 0, NULL }
 };
 
@@ -23735,7 +25683,7 @@ static const value_string nr_rrc_T_format1_vals[] = {
 
 static const per_choice_t T_format1_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_38     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PUCCH_FormatConfig },
+  {   1, &hf_nr_rrc_setup_40     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PUCCH_FormatConfig },
   { 0, NULL, 0, NULL }
 };
 
@@ -23757,7 +25705,7 @@ static const value_string nr_rrc_T_format2_vals[] = {
 
 static const per_choice_t T_format2_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_38     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PUCCH_FormatConfig },
+  {   1, &hf_nr_rrc_setup_40     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PUCCH_FormatConfig },
   { 0, NULL, 0, NULL }
 };
 
@@ -23779,7 +25727,7 @@ static const value_string nr_rrc_T_format3_vals[] = {
 
 static const per_choice_t T_format3_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_38     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PUCCH_FormatConfig },
+  {   1, &hf_nr_rrc_setup_40     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PUCCH_FormatConfig },
   { 0, NULL, 0, NULL }
 };
 
@@ -23801,7 +25749,7 @@ static const value_string nr_rrc_T_format4_vals[] = {
 
 static const per_choice_t T_format4_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_38     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PUCCH_FormatConfig },
+  {   1, &hf_nr_rrc_setup_40     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PUCCH_FormatConfig },
   { 0, NULL, 0, NULL }
 };
 
@@ -24260,7 +26208,7 @@ static const value_string nr_rrc_T_pucch_Config_vals[] = {
 
 static const per_choice_t T_pucch_Config_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_11     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PUCCH_Config },
+  {   1, &hf_nr_rrc_setup_12     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PUCCH_Config },
   { 0, NULL, 0, NULL }
 };
 
@@ -24486,7 +26434,7 @@ static const value_string nr_rrc_T_phaseTrackingRS_01_vals[] = {
 
 static const per_choice_t T_phaseTrackingRS_01_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_21     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PTRS_UplinkConfig },
+  {   1, &hf_nr_rrc_setup_22     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PTRS_UplinkConfig },
   { 0, NULL, 0, NULL }
 };
 
@@ -24613,7 +26561,7 @@ static const value_string nr_rrc_T_dmrs_UplinkForPUSCH_MappingTypeA_vals[] = {
 
 static const per_choice_t T_dmrs_UplinkForPUSCH_MappingTypeA_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_39     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_DMRS_UplinkConfig },
+  {   1, &hf_nr_rrc_setup_41     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_DMRS_UplinkConfig },
   { 0, NULL, 0, NULL }
 };
 
@@ -24635,7 +26583,7 @@ static const value_string nr_rrc_T_dmrs_UplinkForPUSCH_MappingTypeB_vals[] = {
 
 static const per_choice_t T_dmrs_UplinkForPUSCH_MappingTypeB_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_39     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_DMRS_UplinkConfig },
+  {   1, &hf_nr_rrc_setup_41     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_DMRS_UplinkConfig },
   { 0, NULL, 0, NULL }
 };
 
@@ -24968,7 +26916,7 @@ static const value_string nr_rrc_T_pusch_TimeDomainAllocationList_vals[] = {
 
 static const per_choice_t T_pusch_TimeDomainAllocationList_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_40     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PUSCH_TimeDomainResourceAllocationList },
+  {   1, &hf_nr_rrc_setup_42     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PUSCH_TimeDomainResourceAllocationList },
   { 0, NULL, 0, NULL }
 };
 
@@ -25176,7 +27124,7 @@ static const value_string nr_rrc_T_uci_OnPUSCH_01_vals[] = {
 
 static const per_choice_t T_uci_OnPUSCH_01_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_41     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_UCI_OnPUSCH },
+  {   1, &hf_nr_rrc_setup_43     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_UCI_OnPUSCH },
   { 0, NULL, 0, NULL }
 };
 
@@ -25244,7 +27192,7 @@ static const value_string nr_rrc_T_pusch_Config_vals[] = {
 
 static const per_choice_t T_pusch_Config_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_12     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PUSCH_Config },
+  {   1, &hf_nr_rrc_setup_13     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PUSCH_Config },
   { 0, NULL, 0, NULL }
 };
 
@@ -25350,7 +27298,7 @@ static const value_string nr_rrc_T_uci_OnPUSCH_vals[] = {
 
 static const per_choice_t T_uci_OnPUSCH_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_17     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_CG_UCI_OnPUSCH },
+  {   1, &hf_nr_rrc_setup_18     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_CG_UCI_OnPUSCH },
   { 0, NULL, 0, NULL }
 };
 
@@ -25604,7 +27552,7 @@ static const value_string nr_rrc_T_configuredGrantConfig_vals[] = {
 
 static const per_choice_t T_configuredGrantConfig_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_13     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_ConfiguredGrantConfig },
+  {   1, &hf_nr_rrc_setup_14     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_ConfiguredGrantConfig },
   { 0, NULL, 0, NULL }
 };
 
@@ -26328,7 +28276,7 @@ static const value_string nr_rrc_T_srs_Config_vals[] = {
 
 static const per_choice_t T_srs_Config_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_14     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_SRS_Config },
+  {   1, &hf_nr_rrc_setup_15     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_SRS_Config },
   { 0, NULL, 0, NULL }
 };
 
@@ -26350,7 +28298,7 @@ static const value_string nr_rrc_T_beamFailureRecoveryConfig_vals[] = {
 
 static const per_choice_t T_beamFailureRecoveryConfig_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_15     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_BeamFailureRecoveryConfig },
+  {   1, &hf_nr_rrc_setup_16     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_BeamFailureRecoveryConfig },
   { 0, NULL, 0, NULL }
 };
 
@@ -27281,375 +29229,6 @@ dissect_nr_rrc_SEQUENCE_SIZE_1_maxLC_ID_OF_LogicalChannelIdentity(tvbuff_t *tvb 
 }
 
 
-static const value_string nr_rrc_T_milliSeconds_vals[] = {
-  {   0, "ms1" },
-  {   1, "ms2" },
-  {   2, "ms3" },
-  {   3, "ms4" },
-  {   4, "ms5" },
-  {   5, "ms6" },
-  {   6, "ms8" },
-  {   7, "ms10" },
-  {   8, "ms20" },
-  {   9, "ms30" },
-  {  10, "ms40" },
-  {  11, "ms50" },
-  {  12, "ms60" },
-  {  13, "ms80" },
-  {  14, "ms100" },
-  {  15, "ms200" },
-  {  16, "ms300" },
-  {  17, "ms400" },
-  {  18, "ms500" },
-  {  19, "ms600" },
-  {  20, "ms800" },
-  {  21, "ms1000" },
-  {  22, "ms1200" },
-  {  23, "ms1600" },
-  {  24, "spare8" },
-  {  25, "spare7" },
-  {  26, "spare6" },
-  {  27, "spare5" },
-  {  28, "spare4" },
-  {  29, "spare3" },
-  {  30, "spare2" },
-  {  31, "spare1" },
-  { 0, NULL }
-};
-
-static value_string_ext nr_rrc_T_milliSeconds_vals_ext = VALUE_STRING_EXT_INIT(nr_rrc_T_milliSeconds_vals);
-
-
-static int
-dissect_nr_rrc_T_milliSeconds(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     32, NULL, FALSE, 0, NULL);
-
-  return offset;
-}
-
-
-static const value_string nr_rrc_T_drx_onDurationTimer_vals[] = {
-  {   0, "subMilliSeconds" },
-  {   1, "milliSeconds" },
-  { 0, NULL }
-};
-
-static const per_choice_t T_drx_onDurationTimer_choice[] = {
-  {   0, &hf_nr_rrc_subMilliSeconds, ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_1_31 },
-  {   1, &hf_nr_rrc_milliSeconds , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_T_milliSeconds },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_nr_rrc_T_drx_onDurationTimer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_nr_rrc_T_drx_onDurationTimer, T_drx_onDurationTimer_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const value_string nr_rrc_T_drx_InactivityTimer_vals[] = {
-  {   0, "ms0" },
-  {   1, "ms1" },
-  {   2, "ms2" },
-  {   3, "ms3" },
-  {   4, "ms4" },
-  {   5, "ms5" },
-  {   6, "ms6" },
-  {   7, "ms8" },
-  {   8, "ms10" },
-  {   9, "ms20" },
-  {  10, "ms30" },
-  {  11, "ms40" },
-  {  12, "ms50" },
-  {  13, "ms60" },
-  {  14, "ms80" },
-  {  15, "ms100" },
-  {  16, "ms200" },
-  {  17, "ms300" },
-  {  18, "ms500" },
-  {  19, "ms750" },
-  {  20, "ms1280" },
-  {  21, "ms1920" },
-  {  22, "ms2560" },
-  {  23, "spare9" },
-  {  24, "spare8" },
-  {  25, "spare7" },
-  {  26, "spare6" },
-  {  27, "spare5" },
-  {  28, "spare4" },
-  {  29, "spare3" },
-  {  30, "spare2" },
-  {  31, "spare1" },
-  { 0, NULL }
-};
-
-static value_string_ext nr_rrc_T_drx_InactivityTimer_vals_ext = VALUE_STRING_EXT_INIT(nr_rrc_T_drx_InactivityTimer_vals);
-
-
-static int
-dissect_nr_rrc_T_drx_InactivityTimer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     32, NULL, FALSE, 0, NULL);
-
-  return offset;
-}
-
-
-
-static int
-dissect_nr_rrc_INTEGER_0_56(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
-                                                            0U, 56U, NULL, FALSE);
-
-  return offset;
-}
-
-
-static const value_string nr_rrc_T_drx_RetransmissionTimerDL_vals[] = {
-  {   0, "sl0" },
-  {   1, "sl1" },
-  {   2, "sl2" },
-  {   3, "sl4" },
-  {   4, "sl6" },
-  {   5, "sl8" },
-  {   6, "sl16" },
-  {   7, "sl24" },
-  {   8, "sl33" },
-  {   9, "sl40" },
-  {  10, "sl64" },
-  {  11, "sl80" },
-  {  12, "sl96" },
-  {  13, "sl112" },
-  {  14, "sl128" },
-  {  15, "sl160" },
-  {  16, "sl320" },
-  {  17, "spare15" },
-  {  18, "spare14" },
-  {  19, "spare13" },
-  {  20, "spare12" },
-  {  21, "spare11" },
-  {  22, "spare10" },
-  {  23, "spare9" },
-  {  24, "spare8" },
-  {  25, "spare7" },
-  {  26, "spare6" },
-  {  27, "spare5" },
-  {  28, "spare4" },
-  {  29, "spare3" },
-  {  30, "spare2" },
-  {  31, "spare1" },
-  { 0, NULL }
-};
-
-static value_string_ext nr_rrc_T_drx_RetransmissionTimerDL_vals_ext = VALUE_STRING_EXT_INIT(nr_rrc_T_drx_RetransmissionTimerDL_vals);
-
-
-static int
-dissect_nr_rrc_T_drx_RetransmissionTimerDL(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     32, NULL, FALSE, 0, NULL);
-
-  return offset;
-}
-
-
-static const value_string nr_rrc_T_drx_RetransmissionTimerUL_vals[] = {
-  {   0, "sl0" },
-  {   1, "sl1" },
-  {   2, "sl2" },
-  {   3, "sl4" },
-  {   4, "sl6" },
-  {   5, "sl8" },
-  {   6, "sl16" },
-  {   7, "sl24" },
-  {   8, "sl33" },
-  {   9, "sl40" },
-  {  10, "sl64" },
-  {  11, "sl80" },
-  {  12, "sl96" },
-  {  13, "sl112" },
-  {  14, "sl128" },
-  {  15, "sl160" },
-  {  16, "sl320" },
-  {  17, "spare15" },
-  {  18, "spare14" },
-  {  19, "spare13" },
-  {  20, "spare12" },
-  {  21, "spare11" },
-  {  22, "spare10" },
-  {  23, "spare9" },
-  {  24, "spare8" },
-  {  25, "spare7" },
-  {  26, "spare6" },
-  {  27, "spare5" },
-  {  28, "spare4" },
-  {  29, "spare3" },
-  {  30, "spare2" },
-  {  31, "spare1" },
-  { 0, NULL }
-};
-
-static value_string_ext nr_rrc_T_drx_RetransmissionTimerUL_vals_ext = VALUE_STRING_EXT_INIT(nr_rrc_T_drx_RetransmissionTimerUL_vals);
-
-
-static int
-dissect_nr_rrc_T_drx_RetransmissionTimerUL(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     32, NULL, FALSE, 0, NULL);
-
-  return offset;
-}
-
-
-static const value_string nr_rrc_T_drx_LongCycleStartOffset_01_vals[] = {
-  {   0, "ms10" },
-  {   1, "ms20" },
-  {   2, "ms32" },
-  {   3, "ms40" },
-  {   4, "ms60" },
-  {   5, "ms64" },
-  {   6, "ms70" },
-  {   7, "ms80" },
-  {   8, "ms128" },
-  {   9, "ms160" },
-  {  10, "ms256" },
-  {  11, "ms320" },
-  {  12, "ms512" },
-  {  13, "ms640" },
-  {  14, "ms1024" },
-  {  15, "ms1280" },
-  {  16, "ms2048" },
-  {  17, "ms2560" },
-  {  18, "ms5120" },
-  {  19, "ms10240" },
-  { 0, NULL }
-};
-
-static value_string_ext nr_rrc_T_drx_LongCycleStartOffset_01_vals_ext = VALUE_STRING_EXT_INIT(nr_rrc_T_drx_LongCycleStartOffset_01_vals);
-
-static const per_choice_t T_drx_LongCycleStartOffset_01_choice[] = {
-  {   0, &hf_nr_rrc_ms10         , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_9 },
-  {   1, &hf_nr_rrc_ms20         , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_19 },
-  {   2, &hf_nr_rrc_ms32         , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_31 },
-  {   3, &hf_nr_rrc_ms40         , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_39 },
-  {   4, &hf_nr_rrc_ms60         , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_59 },
-  {   5, &hf_nr_rrc_ms64         , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_63 },
-  {   6, &hf_nr_rrc_ms70         , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_69 },
-  {   7, &hf_nr_rrc_ms80         , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_79 },
-  {   8, &hf_nr_rrc_ms128        , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_127 },
-  {   9, &hf_nr_rrc_ms160        , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_159 },
-  {  10, &hf_nr_rrc_ms256        , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_255 },
-  {  11, &hf_nr_rrc_ms320        , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_319 },
-  {  12, &hf_nr_rrc_ms512        , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_511 },
-  {  13, &hf_nr_rrc_ms640        , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_639 },
-  {  14, &hf_nr_rrc_ms1024       , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_1023 },
-  {  15, &hf_nr_rrc_ms1280       , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_1279 },
-  {  16, &hf_nr_rrc_ms2048       , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_2047 },
-  {  17, &hf_nr_rrc_ms2560       , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_2559 },
-  {  18, &hf_nr_rrc_ms5120       , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_5119 },
-  {  19, &hf_nr_rrc_ms10240      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_INTEGER_0_10239 },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_nr_rrc_T_drx_LongCycleStartOffset_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_nr_rrc_T_drx_LongCycleStartOffset_01, T_drx_LongCycleStartOffset_01_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const value_string nr_rrc_T_drx_ShortCycle_01_vals[] = {
-  {   0, "ms2" },
-  {   1, "ms3" },
-  {   2, "ms4" },
-  {   3, "ms5" },
-  {   4, "ms6" },
-  {   5, "ms7" },
-  {   6, "ms8" },
-  {   7, "ms10" },
-  {   8, "ms14" },
-  {   9, "ms16" },
-  {  10, "ms20" },
-  {  11, "ms30" },
-  {  12, "ms32" },
-  {  13, "ms35" },
-  {  14, "ms40" },
-  {  15, "ms64" },
-  {  16, "ms80" },
-  {  17, "ms128" },
-  {  18, "ms160" },
-  {  19, "ms256" },
-  {  20, "ms320" },
-  {  21, "ms512" },
-  {  22, "ms640" },
-  {  23, "spare9" },
-  {  24, "spare8" },
-  {  25, "spare7" },
-  {  26, "spare6" },
-  {  27, "spare5" },
-  {  28, "spare4" },
-  {  29, "spare3" },
-  {  30, "spare2" },
-  {  31, "spare1" },
-  { 0, NULL }
-};
-
-static value_string_ext nr_rrc_T_drx_ShortCycle_01_vals_ext = VALUE_STRING_EXT_INIT(nr_rrc_T_drx_ShortCycle_01_vals);
-
-
-static int
-dissect_nr_rrc_T_drx_ShortCycle_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     32, NULL, FALSE, 0, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t T_shortDRX_01_sequence[] = {
-  { &hf_nr_rrc_drx_ShortCycle_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_drx_ShortCycle_01 },
-  { &hf_nr_rrc_drx_ShortCycleTimer, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_INTEGER_1_16 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_nr_rrc_T_shortDRX_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_shortDRX_01, T_shortDRX_01_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t DRX_Config_sequence[] = {
-  { &hf_nr_rrc_drx_onDurationTimer, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_drx_onDurationTimer },
-  { &hf_nr_rrc_drx_InactivityTimer, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_drx_InactivityTimer },
-  { &hf_nr_rrc_drx_HARQ_RTT_TimerDL, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_INTEGER_0_56 },
-  { &hf_nr_rrc_drx_HARQ_RTT_TimerUL, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_INTEGER_0_56 },
-  { &hf_nr_rrc_drx_RetransmissionTimerDL, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_drx_RetransmissionTimerDL },
-  { &hf_nr_rrc_drx_RetransmissionTimerUL, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_drx_RetransmissionTimerUL },
-  { &hf_nr_rrc_drx_LongCycleStartOffset_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_drx_LongCycleStartOffset_01 },
-  { &hf_nr_rrc_shortDRX_01  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_shortDRX_01 },
-  { &hf_nr_rrc_drx_SlotOffset, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_INTEGER_0_31 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_nr_rrc_DRX_Config(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_DRX_Config, DRX_Config_sequence);
-
-  return offset;
-}
-
-
 static const value_string nr_rrc_T_drx_Config_vals[] = {
   {   0, "release" },
   {   1, "setup" },
@@ -27658,7 +29237,7 @@ static const value_string nr_rrc_T_drx_Config_vals[] = {
 
 static const per_choice_t T_drx_Config_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_22     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_DRX_Config },
+  {   1, &hf_nr_rrc_setup_23     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_DRX_Config },
   { 0, NULL, 0, NULL }
 };
 
@@ -27926,7 +29505,7 @@ static const per_sequence_t PHR_Config_sequence[] = {
   { &hf_nr_rrc_phr_ProhibitTimer, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_phr_ProhibitTimer },
   { &hf_nr_rrc_phr_Tx_PowerFactorChange, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_phr_Tx_PowerFactorChange },
   { &hf_nr_rrc_multiplePHR  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_BOOLEAN },
-  { &hf_nr_rrc_dummy_01     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_BOOLEAN },
+  { &hf_nr_rrc_dummy_02     , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_BOOLEAN },
   { &hf_nr_rrc_phr_Type2OtherCell, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_BOOLEAN },
   { &hf_nr_rrc_phr_ModeOtherCG, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_phr_ModeOtherCG },
   { NULL, 0, 0, NULL }
@@ -27949,7 +29528,7 @@ static const value_string nr_rrc_T_phr_Config_vals[] = {
 
 static const per_choice_t T_phr_Config_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_23     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PHR_Config },
+  {   1, &hf_nr_rrc_setup_24     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PHR_Config },
   { 0, NULL, 0, NULL }
 };
 
@@ -27993,22 +29572,22 @@ dissect_nr_rrc_DataInactivityTimer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 }
 
 
-static const value_string nr_rrc_T_dataInactivityTimer_v1530_vals[] = {
+static const value_string nr_rrc_T_dataInactivityTimer_vals[] = {
   {   0, "release" },
   {   1, "setup" },
   { 0, NULL }
 };
 
-static const per_choice_t T_dataInactivityTimer_v1530_choice[] = {
+static const per_choice_t T_dataInactivityTimer_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_24     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_DataInactivityTimer },
+  {   1, &hf_nr_rrc_setup_25     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_DataInactivityTimer },
   { 0, NULL, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_dataInactivityTimer_v1530(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_dataInactivityTimer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_nr_rrc_T_dataInactivityTimer_v1530, T_dataInactivityTimer_v1530_choice,
+                                 ett_nr_rrc_T_dataInactivityTimer, T_dataInactivityTimer_choice,
                                  NULL);
 
   return offset;
@@ -28016,8 +29595,8 @@ dissect_nr_rrc_T_dataInactivityTimer_v1530(tvbuff_t *tvb _U_, int offset _U_, as
 
 
 static const per_sequence_t MAC_CellGroupConfig_eag_1_sequence[] = {
-  { &hf_nr_rrc_csi_Mask_v1530, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_BOOLEAN },
-  { &hf_nr_rrc_dataInactivityTimer_v1530, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_dataInactivityTimer_v1530 },
+  { &hf_nr_rrc_csi_Mask     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_BOOLEAN },
+  { &hf_nr_rrc_dataInactivityTimer, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_dataInactivityTimer },
   { NULL, 0, 0, NULL }
 };
 
@@ -28103,7 +29682,7 @@ static const value_string nr_rrc_T_cs_RNTI_vals[] = {
 
 static const per_choice_t T_cs_RNTI_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_37     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_RNTI_Value },
+  {   1, &hf_nr_rrc_setup_38     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_RNTI_Value },
   { 0, NULL, 0, NULL }
 };
 
@@ -28162,6 +29741,51 @@ dissect_nr_rrc_PhysicalCellGroupConfig_eag_2(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 
+
+static int
+dissect_nr_rrc_PDCCH_BlindDetection(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            1U, 15U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_pdcch_BlindDetection_vals[] = {
+  {   0, "release" },
+  {   1, "setup" },
+  { 0, NULL }
+};
+
+static const per_choice_t T_pdcch_BlindDetection_choice[] = {
+  {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
+  {   1, &hf_nr_rrc_setup_39     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PDCCH_BlindDetection },
+  { 0, NULL, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_pdcch_BlindDetection(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
+                                 ett_nr_rrc_T_pdcch_BlindDetection, T_pdcch_BlindDetection_choice,
+                                 NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t PhysicalCellGroupConfig_eag_3_sequence[] = {
+  { &hf_nr_rrc_pdcch_BlindDetection, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_pdcch_BlindDetection },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_PhysicalCellGroupConfig_eag_3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, PhysicalCellGroupConfig_eag_3_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t PhysicalCellGroupConfig_sequence[] = {
   { &hf_nr_rrc_harq_ACK_SpatialBundlingPUCCH, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_harq_ACK_SpatialBundlingPUCCH },
   { &hf_nr_rrc_harq_ACK_SpatialBundlingPUSCH, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_harq_ACK_SpatialBundlingPUSCH },
@@ -28174,6 +29798,7 @@ static const per_sequence_t PhysicalCellGroupConfig_sequence[] = {
   { &hf_nr_rrc_cs_RNTI      , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_cs_RNTI },
   { &dummy_hf_nr_rrc_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_nr_rrc_PhysicalCellGroupConfig_eag_1 },
   { &dummy_hf_nr_rrc_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_nr_rrc_PhysicalCellGroupConfig_eag_2 },
+  { &dummy_hf_nr_rrc_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_nr_rrc_PhysicalCellGroupConfig_eag_3 },
   { NULL, 0, 0, NULL }
 };
 
@@ -28255,7 +29880,7 @@ dissect_nr_rrc_FrequencyInfoUL(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 static const per_sequence_t UplinkConfigCommon_sequence[] = {
   { &hf_nr_rrc_frequencyInfoUL, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_FrequencyInfoUL },
   { &hf_nr_rrc_initialUplinkBWP_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_BWP_UplinkCommon },
-  { &hf_nr_rrc_dummy_04     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_TimeAlignmentTimer },
+  { &hf_nr_rrc_dummy_05     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_TimeAlignmentTimer },
   { NULL, 0, 0, NULL }
 };
 
@@ -28537,7 +30162,7 @@ static const value_string nr_rrc_T_lte_CRS_ToMatchAround_01_vals[] = {
 
 static const per_choice_t T_lte_CRS_ToMatchAround_01_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_46     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_RateMatchPatternLTE_CRS },
+  {   1, &hf_nr_rrc_setup_48     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_RateMatchPatternLTE_CRS },
   { 0, NULL, 0, NULL }
 };
 
@@ -28985,7 +30610,7 @@ static const value_string nr_rrc_T_rlf_TimersAndConstants_vals[] = {
 
 static const per_choice_t T_rlf_TimersAndConstants_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_16     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_RLF_TimersAndConstants },
+  {   1, &hf_nr_rrc_setup_17     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_RLF_TimersAndConstants },
   { 0, NULL, 0, NULL }
 };
 
@@ -29260,7 +30885,7 @@ static const value_string nr_rrc_T_codeBlockGroupTransmission_01_vals[] = {
 
 static const per_choice_t T_codeBlockGroupTransmission_01_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_42     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PUSCH_CodeBlockGroupTransmission },
+  {   1, &hf_nr_rrc_setup_44     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PUSCH_CodeBlockGroupTransmission },
   { 0, NULL, 0, NULL }
 };
 
@@ -29345,7 +30970,7 @@ static const value_string nr_rrc_T_pusch_ServingCellConfig_vals[] = {
 
 static const per_choice_t T_pusch_ServingCellConfig_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_47     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PUSCH_ServingCellConfig },
+  {   1, &hf_nr_rrc_setup_49     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PUSCH_ServingCellConfig },
   { 0, NULL, 0, NULL }
 };
 
@@ -29493,7 +31118,7 @@ static const value_string nr_rrc_T_carrierSwitching_vals[] = {
 
 static const per_choice_t T_carrierSwitching_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_48     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_SRS_CarrierSwitching },
+  {   1, &hf_nr_rrc_setup_50     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_SRS_CarrierSwitching },
   { 0, NULL, 0, NULL }
 };
 
@@ -29685,7 +31310,7 @@ static const value_string nr_rrc_T_slotFormatIndicator_vals[] = {
 
 static const per_choice_t T_slotFormatIndicator_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_32     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_SlotFormatIndicator },
+  {   1, &hf_nr_rrc_setup_33     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_SlotFormatIndicator },
   { 0, NULL, 0, NULL }
 };
 
@@ -29721,7 +31346,7 @@ static const value_string nr_rrc_T_pdcch_ServingCellConfig_vals[] = {
 
 static const per_choice_t T_pdcch_ServingCellConfig_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_43     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PDCCH_ServingCellConfig },
+  {   1, &hf_nr_rrc_setup_45     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PDCCH_ServingCellConfig },
   { 0, NULL, 0, NULL }
 };
 
@@ -29776,7 +31401,7 @@ static const value_string nr_rrc_T_codeBlockGroupTransmission_vals[] = {
 
 static const per_choice_t T_codeBlockGroupTransmission_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_36     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PDSCH_CodeBlockGroupTransmission },
+  {   1, &hf_nr_rrc_setup_37     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PDSCH_CodeBlockGroupTransmission },
   { 0, NULL, 0, NULL }
 };
 
@@ -29867,7 +31492,7 @@ static const value_string nr_rrc_T_pdsch_ServingCellConfig_vals[] = {
 
 static const per_choice_t T_pdsch_ServingCellConfig_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_44     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PDSCH_ServingCellConfig },
+  {   1, &hf_nr_rrc_setup_46     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_PDSCH_ServingCellConfig },
   { 0, NULL, 0, NULL }
 };
 
@@ -30343,7 +31968,7 @@ dissect_nr_rrc_SEQUENCE_SIZE_1_maxNrofCSI_SSB_ResourceSets_OF_CSI_SSB_ResourceSe
 
 
 static const per_sequence_t SEQUENCE_SIZE_1_maxNrofCSI_SSB_ResourceSets_OF_CSI_SSB_ResourceSetId_sequence_of[1] = {
-  { &hf_nr_rrc_csi_SSB_ResourceSetToAddReleaseList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_CSI_SSB_ResourceSetId },
+  { &hf_nr_rrc_csi_SSB_ResourceSetToReleaseList_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_CSI_SSB_ResourceSetId },
 };
 
 static int
@@ -31890,7 +33515,7 @@ static const per_sequence_t CSI_ReportConfig_sequence[] = {
   { &hf_nr_rrc_timeRestrictionForChannelMeasurements, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_timeRestrictionForChannelMeasurements },
   { &hf_nr_rrc_timeRestrictionForInterferenceMeasurements, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_timeRestrictionForInterferenceMeasurements },
   { &hf_nr_rrc_codebookConfig, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_CodebookConfig },
-  { &hf_nr_rrc_dummy        , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_dummy },
+  { &hf_nr_rrc_dummy_01     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_dummy },
   { &hf_nr_rrc_groupBasedBeamReporting, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_groupBasedBeamReporting },
   { &hf_nr_rrc_cqi_Table    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_cqi_Table },
   { &hf_nr_rrc_subbandSize  , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_subbandSize },
@@ -32084,7 +33709,7 @@ static const value_string nr_rrc_T_aperiodicTriggerStateList_vals[] = {
 
 static const per_choice_t T_aperiodicTriggerStateList_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_18     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_CSI_AperiodicTriggerStateList },
+  {   1, &hf_nr_rrc_setup_19     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_CSI_AperiodicTriggerStateList },
   { 0, NULL, 0, NULL }
 };
 
@@ -32134,7 +33759,7 @@ static const value_string nr_rrc_T_semiPersistentOnPUSCH_TriggerStateList_vals[]
 
 static const per_choice_t T_semiPersistentOnPUSCH_TriggerStateList_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_19     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_CSI_SemiPersistentOnPUSCH_TriggerStateList },
+  {   1, &hf_nr_rrc_setup_20     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_CSI_SemiPersistentOnPUSCH_TriggerStateList },
   { 0, NULL, 0, NULL }
 };
 
@@ -32158,7 +33783,7 @@ static const per_sequence_t CSI_MeasConfig_sequence[] = {
   { &hf_nr_rrc_csi_IM_ResourceSetToAddModList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_SEQUENCE_SIZE_1_maxNrofCSI_IM_ResourceSets_OF_CSI_IM_ResourceSet },
   { &hf_nr_rrc_csi_IM_ResourceSetToReleaseList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_SEQUENCE_SIZE_1_maxNrofCSI_IM_ResourceSets_OF_CSI_IM_ResourceSetId },
   { &hf_nr_rrc_csi_SSB_ResourceSetToAddModList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_SEQUENCE_SIZE_1_maxNrofCSI_SSB_ResourceSets_OF_CSI_SSB_ResourceSet },
-  { &hf_nr_rrc_csi_SSB_ResourceSetToAddReleaseList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_SEQUENCE_SIZE_1_maxNrofCSI_SSB_ResourceSets_OF_CSI_SSB_ResourceSetId },
+  { &hf_nr_rrc_csi_SSB_ResourceSetToReleaseList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_SEQUENCE_SIZE_1_maxNrofCSI_SSB_ResourceSets_OF_CSI_SSB_ResourceSetId },
   { &hf_nr_rrc_csi_ResourceConfigToAddModList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_SEQUENCE_SIZE_1_maxNrofCSI_ResourceConfigurations_OF_CSI_ResourceConfig },
   { &hf_nr_rrc_csi_ResourceConfigToReleaseList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_SEQUENCE_SIZE_1_maxNrofCSI_ResourceConfigurations_OF_CSI_ResourceConfigId },
   { &hf_nr_rrc_csi_ReportConfigToAddModList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_SEQUENCE_SIZE_1_maxNrofCSI_ReportConfigurations_OF_CSI_ReportConfig },
@@ -32186,7 +33811,7 @@ static const value_string nr_rrc_T_csi_MeasConfig_vals[] = {
 
 static const per_choice_t T_csi_MeasConfig_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_45     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_CSI_MeasConfig },
+  {   1, &hf_nr_rrc_setup_47     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_CSI_MeasConfig },
   { 0, NULL, 0, NULL }
 };
 
@@ -32321,7 +33946,7 @@ dissect_nr_rrc_T_dummy_02(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 
 static const value_string nr_rrc_T_pathlossReferenceLinking_vals[] = {
-  {   0, "pCell" },
+  {   0, "spCell" },
   {   1, "sCell" },
   { 0, NULL }
 };
@@ -32344,7 +33969,7 @@ static const value_string nr_rrc_T_lte_CRS_ToMatchAround_vals[] = {
 
 static const per_choice_t T_lte_CRS_ToMatchAround_choice[] = {
   {   0, &hf_nr_rrc_release      , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_NULL },
-  {   1, &hf_nr_rrc_setup_46     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_RateMatchPatternLTE_CRS },
+  {   1, &hf_nr_rrc_setup_48     , ASN1_NO_EXTENSIONS     , dissect_nr_rrc_RateMatchPatternLTE_CRS },
   { 0, NULL, 0, NULL }
 };
 
@@ -32390,7 +34015,7 @@ static const per_sequence_t ServingCellConfig_sequence[] = {
   { &hf_nr_rrc_sCellDeactivationTimer, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_sCellDeactivationTimer },
   { &hf_nr_rrc_crossCarrierSchedulingConfig, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_CrossCarrierSchedulingConfig },
   { &hf_nr_rrc_tag_Id       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_TAG_Id },
-  { &hf_nr_rrc_dummy_03     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_dummy_02 },
+  { &hf_nr_rrc_dummy_04     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_dummy_02 },
   { &hf_nr_rrc_pathlossReferenceLinking, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_pathlossReferenceLinking },
   { &hf_nr_rrc_servingCellMO, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_MeasObjectId },
   { &dummy_hf_nr_rrc_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_nr_rrc_ServingCellConfig_eag_1 },
@@ -32810,14 +34435,14 @@ dissect_nr_rrc_CA_ParametersEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 }
 
 
-static const value_string nr_rrc_T_multipleTimingAdvances_vals[] = {
+static const value_string nr_rrc_T_dummy_03_vals[] = {
   {   0, "supported" },
   { 0, NULL }
 };
 
 
 static int
-dissect_nr_rrc_T_multipleTimingAdvances(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_dummy_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, FALSE, 0, NULL);
 
@@ -32900,14 +34525,14 @@ dissect_nr_rrc_T_diffNumerologyAcrossPUCCH_Group(tvbuff_t *tvb _U_, int offset _
 }
 
 
-static const value_string nr_rrc_T_diffNumerologyWithinPUCCH_Group_vals[] = {
+static const value_string nr_rrc_T_diffNumerologyWithinPUCCH_GroupSmallerSCS_vals[] = {
   {   0, "supported" },
   { 0, NULL }
 };
 
 
 static int
-dissect_nr_rrc_T_diffNumerologyWithinPUCCH_Group(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_diffNumerologyWithinPUCCH_GroupSmallerSCS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, FALSE, 0, NULL);
 
@@ -32933,13 +34558,13 @@ dissect_nr_rrc_T_supportedNumberTAG(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 
 static const per_sequence_t CA_ParametersNR_sequence[] = {
-  { &hf_nr_rrc_multipleTimingAdvances, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_multipleTimingAdvances },
+  { &hf_nr_rrc_dummy_06     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_dummy_03 },
   { &hf_nr_rrc_parallelTxSRS_PUCCH_PUSCH, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_parallelTxSRS_PUCCH_PUSCH },
   { &hf_nr_rrc_parallelTxPRACH_SRS_PUCCH_PUSCH, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_parallelTxPRACH_SRS_PUCCH_PUSCH },
   { &hf_nr_rrc_simultaneousRxTxInterBandCA, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_simultaneousRxTxInterBandCA },
   { &hf_nr_rrc_simultaneousRxTxSUL, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_simultaneousRxTxSUL },
   { &hf_nr_rrc_diffNumerologyAcrossPUCCH_Group, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_diffNumerologyAcrossPUCCH_Group },
-  { &hf_nr_rrc_diffNumerologyWithinPUCCH_Group, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_diffNumerologyWithinPUCCH_Group },
+  { &hf_nr_rrc_diffNumerologyWithinPUCCH_GroupSmallerSCS, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_diffNumerologyWithinPUCCH_GroupSmallerSCS },
   { &hf_nr_rrc_supportedNumberTAG, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_supportedNumberTAG },
   { NULL, 0, 0, NULL }
 };
@@ -33424,7 +35049,7 @@ dissect_nr_rrc_T_supportedSRS_TxPortSwitch(tvbuff_t *tvb _U_, int offset _U_, as
 }
 
 
-static const per_sequence_t T_srs_TxSwitch_v1540_sequence[] = {
+static const per_sequence_t T_srs_TxSwitch_sequence[] = {
   { &hf_nr_rrc_supportedSRS_TxPortSwitch, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_supportedSRS_TxPortSwitch },
   { &hf_nr_rrc_txSwitchImpactToRx, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_INTEGER_1_32 },
   { &hf_nr_rrc_txSwitchWithAnotherBand, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_INTEGER_1_32 },
@@ -33432,9 +35057,9 @@ static const per_sequence_t T_srs_TxSwitch_v1540_sequence[] = {
 };
 
 static int
-dissect_nr_rrc_T_srs_TxSwitch_v1540(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_srs_TxSwitch(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_srs_TxSwitch_v1540, T_srs_TxSwitch_v1540_sequence);
+                                   ett_nr_rrc_T_srs_TxSwitch, T_srs_TxSwitch_sequence);
 
   return offset;
 }
@@ -33442,7 +35067,7 @@ dissect_nr_rrc_T_srs_TxSwitch_v1540(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 static const per_sequence_t BandParameters_v1540_sequence[] = {
   { &hf_nr_rrc_srs_CarrierSwitch, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_srs_CarrierSwitch },
-  { &hf_nr_rrc_srs_TxSwitch_v1540, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_srs_TxSwitch_v1540 },
+  { &hf_nr_rrc_srs_TxSwitch , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_srs_TxSwitch },
   { NULL, 0, 0, NULL }
 };
 
@@ -33565,14 +35190,14 @@ dissect_nr_rrc_BandCombinationList_v1540(tvbuff_t *tvb _U_, int offset _U_, asn1
 }
 
 
-static const value_string nr_rrc_T_aperiodic_CSI_diffSCS_vals[] = {
+static const value_string nr_rrc_T_dummy_04_vals[] = {
   {   0, "supported" },
   { 0, NULL }
 };
 
 
 static int
-dissect_nr_rrc_T_aperiodic_CSI_diffSCS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_dummy_04(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, FALSE, 0, NULL);
 
@@ -33581,7 +35206,7 @@ dissect_nr_rrc_T_aperiodic_CSI_diffSCS(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 
 static const per_sequence_t CA_ParametersNR_v1550_sequence[] = {
-  { &hf_nr_rrc_aperiodic_CSI_diffSCS, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_aperiodic_CSI_diffSCS },
+  { &hf_nr_rrc_dummy_07     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_dummy_04 },
   { NULL, 0, 0, NULL }
 };
 
@@ -33616,6 +35241,123 @@ static int
 dissect_nr_rrc_BandCombinationList_v1550(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
                                                   ett_nr_rrc_BandCombinationList_v1550, BandCombinationList_v1550_sequence_of,
+                                                  1, maxBandComb, FALSE);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_ne_DC_BC_vals[] = {
+  {   0, "supported" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_nr_rrc_T_ne_DC_BC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_diffNumerologyWithinPUCCH_GroupLargerSCS_vals[] = {
+  {   0, "supported" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_nr_rrc_T_diffNumerologyWithinPUCCH_GroupLargerSCS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t CA_ParametersNR_v1560_sequence[] = {
+  { &hf_nr_rrc_diffNumerologyWithinPUCCH_GroupLargerSCS, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_diffNumerologyWithinPUCCH_GroupLargerSCS },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_CA_ParametersNR_v1560(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_CA_ParametersNR_v1560, CA_ParametersNR_v1560_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t CA_ParametersNRDC_sequence[] = {
+  { &hf_nr_rrc_ca_ParametersNR_ForDC, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_CA_ParametersNR },
+  { &hf_nr_rrc_ca_ParametersNR_ForDC_v1540, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_CA_ParametersNR_v1540 },
+  { &hf_nr_rrc_ca_ParametersNR_ForDC_v1550, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_CA_ParametersNR_v1550 },
+  { &hf_nr_rrc_ca_ParametersNR_ForDC_v1560, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_CA_ParametersNR_v1560 },
+  { &hf_nr_rrc_featureSetCombinationDC, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_FeatureSetCombinationId },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_CA_ParametersNRDC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_CA_ParametersNRDC, CA_ParametersNRDC_sequence);
+
+  return offset;
+}
+
+
+
+static int
+dissect_nr_rrc_INTEGER_2_128(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
+                                                            2U, 128U, NULL, FALSE);
+
+  return offset;
+}
+
+
+static const per_sequence_t CA_ParametersEUTRA_v1560_sequence[] = {
+  { &hf_nr_rrc_totalWeightedLayers, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_INTEGER_2_128 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_CA_ParametersEUTRA_v1560(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_CA_ParametersEUTRA_v1560, CA_ParametersEUTRA_v1560_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t BandCombination_v1560_sequence[] = {
+  { &hf_nr_rrc_ne_DC_BC     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_ne_DC_BC },
+  { &hf_nr_rrc_ca_ParametersNRDC, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_CA_ParametersNRDC },
+  { &hf_nr_rrc_ca_ParametersEUTRA_v1560, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_CA_ParametersEUTRA_v1560 },
+  { &hf_nr_rrc_ca_ParametersNR_v1560, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_CA_ParametersNR_v1560 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_BandCombination_v1560(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_BandCombination_v1560, BandCombination_v1560_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t BandCombinationList_v1560_sequence_of[1] = {
+  { &hf_nr_rrc_BandCombinationList_v1560_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_BandCombination_v1560 },
+};
+
+static int
+dissect_nr_rrc_BandCombinationList_v1560(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_constrained_sequence_of(tvb, offset, actx, tree, hf_index,
+                                                  ett_nr_rrc_BandCombinationList_v1560, BandCombinationList_v1560_sequence_of,
                                                   1, maxBandComb, FALSE);
 
   return offset;
@@ -35465,7 +37207,7 @@ dissect_nr_rrc_T_maxNumberPeriodicSRS_PerBWP(tvbuff_t *tvb _U_, int offset _U_, 
 }
 
 
-static const value_string nr_rrc_T_maxNumberSemiPersitentSRS_PerBWP_vals[] = {
+static const value_string nr_rrc_T_maxNumberSemiPersistentSRS_PerBWP_vals[] = {
   {   0, "n1" },
   {   1, "n2" },
   {   2, "n4" },
@@ -35476,7 +37218,7 @@ static const value_string nr_rrc_T_maxNumberSemiPersitentSRS_PerBWP_vals[] = {
 
 
 static int
-dissect_nr_rrc_T_maxNumberSemiPersitentSRS_PerBWP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_maxNumberSemiPersistentSRS_PerBWP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      5, NULL, FALSE, 0, NULL);
 
@@ -35506,8 +37248,8 @@ static const per_sequence_t SRS_Resources_sequence[] = {
   { &hf_nr_rrc_maxNumberAperiodicSRS_PerBWP_PerSlot, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_INTEGER_1_6 },
   { &hf_nr_rrc_maxNumberPeriodicSRS_PerBWP, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_maxNumberPeriodicSRS_PerBWP },
   { &hf_nr_rrc_maxNumberPeriodicSRS_PerBWP_PerSlot, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_INTEGER_1_6 },
-  { &hf_nr_rrc_maxNumberSemiPersitentSRS_PerBWP, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_maxNumberSemiPersitentSRS_PerBWP },
-  { &hf_nr_rrc_maxNumberSP_SRS_PerBWP_PerSlot, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_INTEGER_1_6 },
+  { &hf_nr_rrc_maxNumberSemiPersistentSRS_PerBWP, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_maxNumberSemiPersistentSRS_PerBWP },
+  { &hf_nr_rrc_maxNumberSemiPersistentSRS_PerBWP_PerSlot, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_INTEGER_1_6 },
   { &hf_nr_rrc_maxNumberSRS_Ports_PerResource, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_T_maxNumberSRS_Ports_PerResource },
   { NULL, 0, 0, NULL }
 };
@@ -36095,8 +37837,37 @@ dissect_nr_rrc_T_voiceOverEUTRA_5GC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
+static const value_string nr_rrc_T_voiceOverSCG_BearerEUTRA_5GC_vals[] = {
+  {   0, "supported" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_nr_rrc_T_voiceOverSCG_BearerEUTRA_5GC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t IMS_ParametersCommon_eag_1_sequence[] = {
+  { &hf_nr_rrc_voiceOverSCG_BearerEUTRA_5GC, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_voiceOverSCG_BearerEUTRA_5GC },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_IMS_ParametersCommon_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, IMS_ParametersCommon_eag_1_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t IMS_ParametersCommon_sequence[] = {
   { &hf_nr_rrc_voiceOverEUTRA_5GC, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_voiceOverEUTRA_5GC },
+  { &dummy_hf_nr_rrc_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_nr_rrc_IMS_ParametersCommon_eag_1 },
   { NULL, 0, 0, NULL }
 };
 
@@ -36212,11 +37983,40 @@ dissect_nr_rrc_T_rs_SINR_MeasEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 }
 
 
+static const value_string nr_rrc_T_ne_DC_vals[] = {
+  {   0, "supported" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_nr_rrc_T_ne_DC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t EUTRA_ParametersCommon_eag_1_sequence[] = {
+  { &hf_nr_rrc_ne_DC        , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_ne_DC },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_EUTRA_ParametersCommon_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, EUTRA_ParametersCommon_eag_1_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t EUTRA_ParametersCommon_sequence[] = {
   { &hf_nr_rrc_mfbi_EUTRA   , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_mfbi_EUTRA },
   { &hf_nr_rrc_modifiedMPR_BehaviorEUTRA, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_BIT_STRING_SIZE_32 },
   { &hf_nr_rrc_multiNS_Pmax_EUTRA, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_multiNS_Pmax_EUTRA },
   { &hf_nr_rrc_rs_SINR_MeasEUTRA, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_rs_SINR_MeasEUTRA },
+  { &dummy_hf_nr_rrc_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_nr_rrc_EUTRA_ParametersCommon_eag_1 },
   { NULL, 0, 0, NULL }
 };
 
@@ -36303,14 +38103,14 @@ dissect_nr_rrc_T_lcp_Restriction(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 }
 
 
-static const value_string nr_rrc_T_dummy_03_vals[] = {
+static const value_string nr_rrc_T_dummy_05_vals[] = {
   {   0, "supported" },
   { 0, NULL }
 };
 
 
 static int
-dissect_nr_rrc_T_dummy_03(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_dummy_05(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, FALSE, 0, NULL);
 
@@ -36379,7 +38179,7 @@ dissect_nr_rrc_MAC_ParametersCommon_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn
 
 static const per_sequence_t MAC_ParametersCommon_sequence[] = {
   { &hf_nr_rrc_lcp_Restriction, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_lcp_Restriction },
-  { &hf_nr_rrc_dummy_05     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_dummy_03 },
+  { &hf_nr_rrc_dummy_08     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_dummy_05 },
   { &hf_nr_rrc_lch_ToSCellRestriction, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_lch_ToSCellRestriction },
   { &dummy_hf_nr_rrc_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_nr_rrc_MAC_ParametersCommon_eag_1 },
   { NULL, 0, 0, NULL }
@@ -36807,14 +38607,14 @@ dissect_nr_rrc_T_handoverInterF(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 }
 
 
-static const value_string nr_rrc_T_handoverLTE_vals[] = {
+static const value_string nr_rrc_T_handoverLTE_EPC_vals[] = {
   {   0, "supported" },
   { 0, NULL }
 };
 
 
 static int
-dissect_nr_rrc_T_handoverLTE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_handoverLTE_EPC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, FALSE, 0, NULL);
 
@@ -36822,14 +38622,14 @@ dissect_nr_rrc_T_handoverLTE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx
 }
 
 
-static const value_string nr_rrc_T_handover_eLTE_vals[] = {
+static const value_string nr_rrc_T_handoverLTE_5GC_vals[] = {
   {   0, "supported" },
   { 0, NULL }
 };
 
 
 static int
-dissect_nr_rrc_T_handover_eLTE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_handoverLTE_5GC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, FALSE, 0, NULL);
 
@@ -36839,8 +38639,8 @@ dissect_nr_rrc_T_handover_eLTE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static const per_sequence_t MeasAndMobParametersXDD_Diff_eag_1_sequence[] = {
   { &hf_nr_rrc_handoverInterF, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_handoverInterF },
-  { &hf_nr_rrc_handoverLTE  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_handoverLTE },
-  { &hf_nr_rrc_handover_eLTE, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_handover_eLTE },
+  { &hf_nr_rrc_handoverLTE_EPC, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_handoverLTE_EPC },
+  { &hf_nr_rrc_handoverLTE_5GC, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_handoverLTE_5GC },
   { NULL, 0, 0, NULL }
 };
 
@@ -36958,14 +38758,14 @@ dissect_nr_rrc_T_handoverInterF_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 }
 
 
-static const value_string nr_rrc_T_handoverLTE_01_vals[] = {
+static const value_string nr_rrc_T_handoverLTE_EPC_01_vals[] = {
   {   0, "supported" },
   { 0, NULL }
 };
 
 
 static int
-dissect_nr_rrc_T_handoverLTE_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_handoverLTE_EPC_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, FALSE, 0, NULL);
 
@@ -36973,14 +38773,14 @@ dissect_nr_rrc_T_handoverLTE_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 }
 
 
-static const value_string nr_rrc_T_handover_eLTE_01_vals[] = {
+static const value_string nr_rrc_T_handoverLTE_5GC_01_vals[] = {
   {   0, "supported" },
   { 0, NULL }
 };
 
 
 static int
-dissect_nr_rrc_T_handover_eLTE_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_handoverLTE_5GC_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, FALSE, 0, NULL);
 
@@ -36990,8 +38790,8 @@ dissect_nr_rrc_T_handover_eLTE_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t 
 
 static const per_sequence_t MeasAndMobParametersFRX_Diff_eag_1_sequence[] = {
   { &hf_nr_rrc_handoverInterF_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_handoverInterF_01 },
-  { &hf_nr_rrc_handoverLTE_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_handoverLTE_01 },
-  { &hf_nr_rrc_handover_eLTE_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_handover_eLTE_01 },
+  { &hf_nr_rrc_handoverLTE_EPC_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_handoverLTE_EPC_01 },
+  { &hf_nr_rrc_handoverLTE_5GC_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_handoverLTE_5GC_01 },
   { NULL, 0, 0, NULL }
 };
 
@@ -37213,6 +39013,49 @@ static int
 dissect_nr_rrc_MeasAndMobParametersMRDC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nr_rrc_MeasAndMobParametersMRDC, MeasAndMobParametersMRDC_sequence);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_sftd_MeasPSCell_NEDC_vals[] = {
+  {   0, "supported" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_nr_rrc_T_sftd_MeasPSCell_NEDC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t MeasAndMobParametersMRDC_XDD_Diff_v1560_sequence[] = {
+  { &hf_nr_rrc_sftd_MeasPSCell_NEDC, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_sftd_MeasPSCell_NEDC },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_MeasAndMobParametersMRDC_XDD_Diff_v1560(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_MeasAndMobParametersMRDC_XDD_Diff_v1560, MeasAndMobParametersMRDC_XDD_Diff_v1560_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t MeasAndMobParametersMRDC_v1560_sequence[] = {
+  { &hf_nr_rrc_measAndMobParametersMRDC_XDD_Diff_v1560, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_MeasAndMobParametersMRDC_XDD_Diff_v1560 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_MeasAndMobParametersMRDC_v1560(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_MeasAndMobParametersMRDC_v1560, MeasAndMobParametersMRDC_v1560_sequence);
 
   return offset;
 }
@@ -37870,14 +39713,14 @@ dissect_nr_rrc_T_aperiodicTRS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *act
 }
 
 
-static const value_string nr_rrc_T_beamCorrespondenceCA_vals[] = {
+static const value_string nr_rrc_T_dummy6_vals[] = {
   {   0, "true" },
   { 0, NULL }
 };
 
 
 static int
-dissect_nr_rrc_T_beamCorrespondenceCA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_dummy6(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, FALSE, 0, NULL);
 
@@ -38257,7 +40100,7 @@ dissect_nr_rrc_SpatialRelations(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
 
 
 static const per_sequence_t MIMO_ParametersPerBand_eag_1_sequence[] = {
-  { &hf_nr_rrc_beamCorrespondenceCA, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_beamCorrespondenceCA },
+  { &hf_nr_rrc_dummy6_01    , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_dummy6 },
   { &hf_nr_rrc_beamManagementSSB_CSI_RS, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_BeamManagementSSB_CSI_RS },
   { &hf_nr_rrc_beamSwitchTiming, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_beamSwitchTiming },
   { &hf_nr_rrc_codebookParameters, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_CodebookParameters },
@@ -38313,6 +40156,146 @@ static int
 dissect_nr_rrc_MIMO_ParametersPerBand(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nr_rrc_MIMO_ParametersPerBand, MIMO_ParametersPerBand_sequence);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_splitSRB_WithOneUL_Path_vals[] = {
+  {   0, "supported" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_nr_rrc_T_splitSRB_WithOneUL_Path(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_splitDRB_withUL_Both_MCG_SCG_vals[] = {
+  {   0, "supported" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_nr_rrc_T_splitDRB_withUL_Both_MCG_SCG(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_srb3_vals[] = {
+  {   0, "supported" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_nr_rrc_T_srb3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_v2x_EUTRA_vals[] = {
+  {   0, "supported" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_nr_rrc_T_v2x_EUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t GeneralParametersMRDC_XDD_Diff_sequence[] = {
+  { &hf_nr_rrc_splitSRB_WithOneUL_Path, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_splitSRB_WithOneUL_Path },
+  { &hf_nr_rrc_splitDRB_withUL_Both_MCG_SCG, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_splitDRB_withUL_Both_MCG_SCG },
+  { &hf_nr_rrc_srb3         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_srb3 },
+  { &hf_nr_rrc_v2x_EUTRA    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_v2x_EUTRA },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_GeneralParametersMRDC_XDD_Diff(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_GeneralParametersMRDC_XDD_Diff, GeneralParametersMRDC_XDD_Diff_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t UE_MRDC_CapabilityAddXDD_Mode_sequence[] = {
+  { &hf_nr_rrc_measAndMobParametersMRDC_XDD_Diff, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_MeasAndMobParametersMRDC_XDD_Diff },
+  { &hf_nr_rrc_generalParametersMRDC_XDD_Diff, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_GeneralParametersMRDC_XDD_Diff },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_UE_MRDC_CapabilityAddXDD_Mode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_UE_MRDC_CapabilityAddXDD_Mode, UE_MRDC_CapabilityAddXDD_Mode_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t UE_MRDC_CapabilityAddFRX_Mode_sequence[] = {
+  { &hf_nr_rrc_measAndMobParametersMRDC_FRX_Diff, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_MeasAndMobParametersMRDC_FRX_Diff },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_UE_MRDC_CapabilityAddFRX_Mode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_UE_MRDC_CapabilityAddFRX_Mode, UE_MRDC_CapabilityAddFRX_Mode_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_nonCriticalExtension_37_sequence[] = {
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_nonCriticalExtension_37(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_T_nonCriticalExtension_37, T_nonCriticalExtension_37_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t NRDC_Parameters_sequence[] = {
+  { &hf_nr_rrc_measAndMobParametersNRDC, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_MeasAndMobParametersMRDC },
+  { &hf_nr_rrc_generalParametersNRDC, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_GeneralParametersMRDC_XDD_Diff },
+  { &hf_nr_rrc_fdd_Add_UE_NRDC_Capabilities, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_UE_MRDC_CapabilityAddXDD_Mode },
+  { &hf_nr_rrc_tdd_Add_UE_NRDC_Capabilities, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_UE_MRDC_CapabilityAddXDD_Mode },
+  { &hf_nr_rrc_fr1_Add_UE_NRDC_Capabilities, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_UE_MRDC_CapabilityAddFRX_Mode },
+  { &hf_nr_rrc_fr2_Add_UE_NRDC_Capabilities, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_UE_MRDC_CapabilityAddFRX_Mode },
+  { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
+  { &hf_nr_rrc_nonCriticalExtension_50, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_37 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_NRDC_Parameters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_NRDC_Parameters, NRDC_Parameters_sequence);
 
   return offset;
 }
@@ -39038,14 +41021,14 @@ dissect_nr_rrc_T_bwp_SwitchingDelay(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 }
 
 
-static const value_string nr_rrc_T_dummy_04_vals[] = {
+static const value_string nr_rrc_T_dummy_06_vals[] = {
   {   0, "supported" },
   { 0, NULL }
 };
 
 
 static int
-dissect_nr_rrc_T_dummy_04(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_dummy_06(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, FALSE, 0, NULL);
 
@@ -39054,7 +41037,7 @@ dissect_nr_rrc_T_dummy_04(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 
 static const per_sequence_t Phy_ParametersCommon_eag_1_sequence[] = {
-  { &hf_nr_rrc_dummy_06     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_dummy_04 },
+  { &hf_nr_rrc_dummy_09     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_dummy_06 },
   { NULL, 0, 0, NULL }
 };
 
@@ -40027,6 +42010,50 @@ dissect_nr_rrc_Phy_ParametersFRX_Diff_eag_1(tvbuff_t *tvb _U_, int offset _U_, a
 }
 
 
+static const per_sequence_t T_pdcch_BlindDetectionNRDC_sequence[] = {
+  { &hf_nr_rrc_pdcch_BlindDetectionMCG_UE, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_INTEGER_1_15 },
+  { &hf_nr_rrc_pdcch_BlindDetectionSCG_UE, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_INTEGER_1_15 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_pdcch_BlindDetectionNRDC(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_T_pdcch_BlindDetectionNRDC, T_pdcch_BlindDetectionNRDC_sequence);
+
+  return offset;
+}
+
+
+static const value_string nr_rrc_T_mux_HARQ_ACK_PUSCH_DiffSymbol_vals[] = {
+  {   0, "supported" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_nr_rrc_T_mux_HARQ_ACK_PUSCH_DiffSymbol(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     1, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t Phy_ParametersFRX_Diff_eag_2_sequence[] = {
+  { &hf_nr_rrc_pdcch_BlindDetectionNRDC, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_pdcch_BlindDetectionNRDC },
+  { &hf_nr_rrc_mux_HARQ_ACK_PUSCH_DiffSymbol, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_mux_HARQ_ACK_PUSCH_DiffSymbol },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_Phy_ParametersFRX_Diff_eag_2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, Phy_ParametersFRX_Diff_eag_2_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t Phy_ParametersFRX_Diff_sequence[] = {
   { &hf_nr_rrc_dynamicSFI_01, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_dynamicSFI_01 },
   { &hf_nr_rrc_dummy1_04    , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_BIT_STRING_SIZE_2 },
@@ -40066,6 +42093,7 @@ static const per_sequence_t Phy_ParametersFRX_Diff_sequence[] = {
   { &hf_nr_rrc_tdd_MultiDL_UL_SwitchPerSlot, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_tdd_MultiDL_UL_SwitchPerSlot },
   { &hf_nr_rrc_multipleCORESET, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_multipleCORESET },
   { &dummy_hf_nr_rrc_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_nr_rrc_Phy_ParametersFRX_Diff_eag_1 },
+  { &dummy_hf_nr_rrc_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_nr_rrc_Phy_ParametersFRX_Diff_eag_2 },
   { NULL, 0, 0, NULL }
 };
 
@@ -40078,14 +42106,14 @@ dissect_nr_rrc_Phy_ParametersFRX_Diff(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 }
 
 
-static const value_string nr_rrc_T_pdcchMonitoringSingleOccasion_vals[] = {
+static const value_string nr_rrc_T_pdcch_MonitoringSingleOccasion_vals[] = {
   {   0, "supported" },
   { 0, NULL }
 };
 
 
 static int
-dissect_nr_rrc_T_pdcchMonitoringSingleOccasion(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_pdcch_MonitoringSingleOccasion(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, FALSE, 0, NULL);
 
@@ -40183,7 +42211,7 @@ dissect_nr_rrc_Phy_ParametersFR1_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 
 static const per_sequence_t Phy_ParametersFR1_sequence[] = {
-  { &hf_nr_rrc_pdcchMonitoringSingleOccasion, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_pdcchMonitoringSingleOccasion },
+  { &hf_nr_rrc_pdcch_MonitoringSingleOccasion, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_pdcch_MonitoringSingleOccasion },
   { &hf_nr_rrc_scs_60kHz_10 , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_scs_60kHz_07 },
   { &hf_nr_rrc_pdsch_256QAM_FR1, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_pdsch_256QAM_FR1 },
   { &hf_nr_rrc_pdsch_RE_MappingFR1_PerSymbol, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_pdsch_RE_MappingFR1_PerSymbol },
@@ -40200,14 +42228,14 @@ dissect_nr_rrc_Phy_ParametersFR1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *
 }
 
 
-static const value_string nr_rrc_T_dummy_05_vals[] = {
+static const value_string nr_rrc_T_dummy_07_vals[] = {
   {   0, "supported" },
   { 0, NULL }
 };
 
 
 static int
-dissect_nr_rrc_T_dummy_05(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_dummy_07(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, FALSE, 0, NULL);
 
@@ -40291,7 +42319,7 @@ dissect_nr_rrc_Phy_ParametersFR2_eag_1(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 
 
 static const per_sequence_t Phy_ParametersFR2_sequence[] = {
-  { &hf_nr_rrc_dummy_07     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_dummy_05 },
+  { &hf_nr_rrc_dummy_10     , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_dummy_07 },
   { &hf_nr_rrc_pdsch_RE_MappingFR2_PerSymbol, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_pdsch_RE_MappingFR2_PerSymbol },
   { &dummy_hf_nr_rrc_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_nr_rrc_Phy_ParametersFR2_eag_1 },
   { NULL, 0, 0, NULL }
@@ -40743,6 +42771,44 @@ dissect_nr_rrc_BandNR_eag_2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 }
 
 
+static const value_string nr_rrc_T_maxUplinkDutyCycle_FR2_vals[] = {
+  {   0, "n15" },
+  {   1, "n20" },
+  {   2, "n25" },
+  {   3, "n30" },
+  {   4, "n40" },
+  {   5, "n50" },
+  {   6, "n60" },
+  {   7, "n70" },
+  {   8, "n80" },
+  {   9, "n90" },
+  {  10, "n100" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_nr_rrc_T_maxUplinkDutyCycle_FR2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
+                                     11, NULL, FALSE, 0, NULL);
+
+  return offset;
+}
+
+
+static const per_sequence_t BandNR_eag_3_sequence[] = {
+  { &hf_nr_rrc_maxUplinkDutyCycle_FR2, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_maxUplinkDutyCycle_FR2 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_BandNR_eag_3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, BandNR_eag_3_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t BandNR_sequence[] = {
   { &hf_nr_rrc_bandNR       , ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_FreqBandIndicatorNR },
   { &hf_nr_rrc_modifiedMPR_Behaviour, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_BIT_STRING_SIZE_8 },
@@ -40761,6 +42827,7 @@ static const per_sequence_t BandNR_sequence[] = {
   { &hf_nr_rrc_channelBWs_UL_v1530, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_channelBWs_UL_v1530 },
   { &dummy_hf_nr_rrc_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_nr_rrc_BandNR_eag_1 },
   { &dummy_hf_nr_rrc_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_nr_rrc_BandNR_eag_2 },
+  { &dummy_hf_nr_rrc_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_nr_rrc_BandNR_eag_3 },
   { NULL, 0, 0, NULL }
 };
 
@@ -40829,12 +42896,26 @@ dissect_nr_rrc_RF_Parameters_eag_2(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 }
 
 
+static const per_sequence_t RF_Parameters_eag_3_sequence[] = {
+  { &hf_nr_rrc_supportedBandCombinationList_v1560, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_BandCombinationList_v1560 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_RF_Parameters_eag_3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, RF_Parameters_eag_3_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t RF_Parameters_sequence[] = {
   { &hf_nr_rrc_supportedBandListNR, ASN1_EXTENSION_ROOT    , ASN1_NOT_OPTIONAL, dissect_nr_rrc_SEQUENCE_SIZE_1_maxBands_OF_BandNR },
   { &hf_nr_rrc_supportedBandCombinationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_BandCombinationList },
   { &hf_nr_rrc_appliedFreqBandListFilter, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_FreqBandList },
   { &dummy_hf_nr_rrc_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_nr_rrc_RF_Parameters_eag_1 },
   { &dummy_hf_nr_rrc_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_nr_rrc_RF_Parameters_eag_2 },
+  { &dummy_hf_nr_rrc_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_nr_rrc_RF_Parameters_eag_3 },
   { NULL, 0, 0, NULL }
 };
 
@@ -40889,11 +42970,26 @@ dissect_nr_rrc_RF_ParametersMRDC_eag_2(tvbuff_t *tvb _U_, int offset _U_, asn1_c
 }
 
 
+static const per_sequence_t RF_ParametersMRDC_eag_3_sequence[] = {
+  { &hf_nr_rrc_supportedBandCombinationList_v1560, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_BandCombinationList_v1560 },
+  { &hf_nr_rrc_supportedBandCombinationListNEDC_Only, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_BandCombinationList },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_RF_ParametersMRDC_eag_3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence_eag(tvb, offset, actx, tree, RF_ParametersMRDC_eag_3_sequence);
+
+  return offset;
+}
+
+
 static const per_sequence_t RF_ParametersMRDC_sequence[] = {
   { &hf_nr_rrc_supportedBandCombinationList, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_BandCombinationList },
   { &hf_nr_rrc_appliedFreqBandListFilter, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_FreqBandList },
   { &dummy_hf_nr_rrc_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_nr_rrc_RF_ParametersMRDC_eag_1 },
   { &dummy_hf_nr_rrc_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_nr_rrc_RF_ParametersMRDC_eag_2 },
+  { &dummy_hf_nr_rrc_eag_field, ASN1_NOT_EXTENSION_ROOT, ASN1_NOT_OPTIONAL, dissect_nr_rrc_RF_ParametersMRDC_eag_3 },
   { NULL, 0, 0, NULL }
 };
 
@@ -41011,14 +43107,14 @@ dissect_nr_rrc_T_srs_SwitchingTimeRequest(tvbuff_t *tvb _U_, int offset _U_, asn
 }
 
 
-static const per_sequence_t T_nonCriticalExtension_34_sequence[] = {
+static const per_sequence_t T_nonCriticalExtension_38_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_nonCriticalExtension_34(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_nonCriticalExtension_38(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_nonCriticalExtension_34, T_nonCriticalExtension_34_sequence);
+                                   ett_nr_rrc_T_nonCriticalExtension_38, T_nonCriticalExtension_38_sequence);
 
   return offset;
 }
@@ -41026,7 +43122,7 @@ dissect_nr_rrc_T_nonCriticalExtension_34(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static const per_sequence_t UE_CapabilityRequestFilterNR_v1540_sequence[] = {
   { &hf_nr_rrc_srs_SwitchingTimeRequest, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_srs_SwitchingTimeRequest },
-  { &hf_nr_rrc_nonCriticalExtension_43, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_34 },
+  { &hf_nr_rrc_nonCriticalExtension_52, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_38 },
   { NULL, 0, 0, NULL }
 };
 
@@ -41041,7 +43137,7 @@ dissect_nr_rrc_UE_CapabilityRequestFilterNR_v1540(tvbuff_t *tvb _U_, int offset 
 
 static const per_sequence_t UE_CapabilityRequestFilterNR_sequence[] = {
   { &hf_nr_rrc_frequencyBandListFilter, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_FreqBandList },
-  { &hf_nr_rrc_nonCriticalExtension_42, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_UE_CapabilityRequestFilterNR_v1540 },
+  { &hf_nr_rrc_nonCriticalExtension_51, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_UE_CapabilityRequestFilterNR_v1540 },
   { NULL, 0, 0, NULL }
 };
 
@@ -41049,112 +43145,6 @@ static int
 dissect_nr_rrc_UE_CapabilityRequestFilterNR(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_nr_rrc_UE_CapabilityRequestFilterNR, UE_CapabilityRequestFilterNR_sequence);
-
-  return offset;
-}
-
-
-static const value_string nr_rrc_T_splitSRB_WithOneUL_Path_vals[] = {
-  {   0, "supported" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_nr_rrc_T_splitSRB_WithOneUL_Path(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, FALSE, 0, NULL);
-
-  return offset;
-}
-
-
-static const value_string nr_rrc_T_splitDRB_withUL_Both_MCG_SCG_vals[] = {
-  {   0, "supported" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_nr_rrc_T_splitDRB_withUL_Both_MCG_SCG(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, FALSE, 0, NULL);
-
-  return offset;
-}
-
-
-static const value_string nr_rrc_T_srb3_vals[] = {
-  {   0, "supported" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_nr_rrc_T_srb3(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, FALSE, 0, NULL);
-
-  return offset;
-}
-
-
-static const value_string nr_rrc_T_v2x_EUTRA_v1530_vals[] = {
-  {   0, "supported" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_nr_rrc_T_v2x_EUTRA_v1530(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     1, NULL, FALSE, 0, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t GeneralParametersMRDC_XDD_Diff_sequence[] = {
-  { &hf_nr_rrc_splitSRB_WithOneUL_Path, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_splitSRB_WithOneUL_Path },
-  { &hf_nr_rrc_splitDRB_withUL_Both_MCG_SCG, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_splitDRB_withUL_Both_MCG_SCG },
-  { &hf_nr_rrc_srb3         , ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_srb3 },
-  { &hf_nr_rrc_v2x_EUTRA_v1530, ASN1_EXTENSION_ROOT    , ASN1_OPTIONAL    , dissect_nr_rrc_T_v2x_EUTRA_v1530 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_nr_rrc_GeneralParametersMRDC_XDD_Diff(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_GeneralParametersMRDC_XDD_Diff, GeneralParametersMRDC_XDD_Diff_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t UE_MRDC_CapabilityAddXDD_Mode_sequence[] = {
-  { &hf_nr_rrc_measAndMobParametersMRDC_XDD_Diff, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_MeasAndMobParametersMRDC_XDD_Diff },
-  { &hf_nr_rrc_generalParametersMRDC_XDD_Diff, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_GeneralParametersMRDC_XDD_Diff },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_nr_rrc_UE_MRDC_CapabilityAddXDD_Mode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_UE_MRDC_CapabilityAddXDD_Mode, UE_MRDC_CapabilityAddXDD_Mode_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t UE_MRDC_CapabilityAddFRX_Mode_sequence[] = {
-  { &hf_nr_rrc_measAndMobParametersMRDC_FRX_Diff, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_nr_rrc_MeasAndMobParametersMRDC_FRX_Diff },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_nr_rrc_UE_MRDC_CapabilityAddFRX_Mode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_UE_MRDC_CapabilityAddFRX_Mode, UE_MRDC_CapabilityAddFRX_Mode_sequence);
 
   return offset;
 }
@@ -41174,14 +43164,56 @@ dissect_nr_rrc_SEQUENCE_SIZE_1_maxFeatureSetCombinations_OF_FeatureSetCombinatio
 }
 
 
-static const per_sequence_t T_nonCriticalExtension_35_sequence[] = {
+
+static int
+dissect_nr_rrc_T_receivedFilters(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
+                                                                NO_BOUND, NO_BOUND, FALSE, dissect_UECapabilityEnquiry_v1560_IEs_PDU);
+
+  return offset;
+}
+
+
+static const per_sequence_t UE_MRDC_CapabilityAddXDD_Mode_v1560_sequence[] = {
+  { &hf_nr_rrc_measAndMobParametersMRDC_XDD_Diff_v1560, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_MeasAndMobParametersMRDC_XDD_Diff_v1560 },
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_nonCriticalExtension_35(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_UE_MRDC_CapabilityAddXDD_Mode_v1560(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_nonCriticalExtension_35, T_nonCriticalExtension_35_sequence);
+                                   ett_nr_rrc_UE_MRDC_CapabilityAddXDD_Mode_v1560, UE_MRDC_CapabilityAddXDD_Mode_v1560_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_nonCriticalExtension_39_sequence[] = {
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_T_nonCriticalExtension_39(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_T_nonCriticalExtension_39, T_nonCriticalExtension_39_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t UE_MRDC_Capability_v1560_sequence[] = {
+  { &hf_nr_rrc_receivedFilters, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_receivedFilters },
+  { &hf_nr_rrc_measAndMobParametersMRDC_v1560, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_MeasAndMobParametersMRDC_v1560 },
+  { &hf_nr_rrc_fdd_Add_UE_MRDC_Capabilities_v1560, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_UE_MRDC_CapabilityAddXDD_Mode_v1560 },
+  { &hf_nr_rrc_tdd_Add_UE_MRDC_Capabilities_v1560, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_UE_MRDC_CapabilityAddXDD_Mode_v1560 },
+  { &hf_nr_rrc_nonCriticalExtension_54, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_39 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_UE_MRDC_Capability_v1560(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_UE_MRDC_Capability_v1560, UE_MRDC_Capability_v1560_sequence);
 
   return offset;
 }
@@ -41199,7 +43231,7 @@ static const per_sequence_t UE_MRDC_Capability_sequence[] = {
   { &hf_nr_rrc_featureSetCombinations, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_SEQUENCE_SIZE_1_maxFeatureSetCombinations_OF_FeatureSetCombination },
   { &hf_nr_rrc_pdcp_ParametersMRDC_v1530, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_PDCP_ParametersMRDC },
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_44, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_35 },
+  { &hf_nr_rrc_nonCriticalExtension_53, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_UE_MRDC_Capability_v1560 },
   { NULL, 0, 0, NULL }
 };
 
@@ -41257,14 +43289,14 @@ dissect_nr_rrc_UE_NR_CapabilityAddXDD_Mode_v1530(tvbuff_t *tvb _U_, int offset _
 }
 
 
-static const value_string nr_rrc_T_dummy_06_vals[] = {
+static const value_string nr_rrc_T_dummy_08_vals[] = {
   {   0, "supported" },
   { 0, NULL }
 };
 
 
 static int
-dissect_nr_rrc_T_dummy_06(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_dummy_08(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
                                      1, NULL, FALSE, 0, NULL);
 
@@ -41346,14 +43378,40 @@ dissect_nr_rrc_T_reducedCP_Latency(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 }
 
 
-static const per_sequence_t T_nonCriticalExtension_36_sequence[] = {
+
+static int
+dissect_nr_rrc_T_receivedFilters_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_octet_string_containing_pdu_new(tvb, offset, actx, tree, hf_index,
+                                                                NO_BOUND, NO_BOUND, FALSE, dissect_UECapabilityEnquiry_v1560_IEs_PDU);
+
+  return offset;
+}
+
+
+static const per_sequence_t T_nonCriticalExtension_40_sequence[] = {
   { NULL, 0, 0, NULL }
 };
 
 static int
-dissect_nr_rrc_T_nonCriticalExtension_36(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_nr_rrc_T_nonCriticalExtension_40(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_nr_rrc_T_nonCriticalExtension_36, T_nonCriticalExtension_36_sequence);
+                                   ett_nr_rrc_T_nonCriticalExtension_40, T_nonCriticalExtension_40_sequence);
+
+  return offset;
+}
+
+
+static const per_sequence_t UE_NR_Capability_v1560_sequence[] = {
+  { &hf_nr_rrc_nrdc_Parameters, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_NRDC_Parameters },
+  { &hf_nr_rrc_receivedFilters_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_receivedFilters_01 },
+  { &hf_nr_rrc_nonCriticalExtension_59, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_40 },
+  { NULL, 0, 0, NULL }
+};
+
+static int
+dissect_nr_rrc_UE_NR_Capability_v1560(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
+                                   ett_nr_rrc_UE_NR_Capability_v1560, UE_NR_Capability_v1560_sequence);
 
   return offset;
 }
@@ -41361,7 +43419,7 @@ dissect_nr_rrc_T_nonCriticalExtension_36(tvbuff_t *tvb _U_, int offset _U_, asn1
 
 static const per_sequence_t UE_NR_Capability_v1550_sequence[] = {
   { &hf_nr_rrc_reducedCP_Latency, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_reducedCP_Latency },
-  { &hf_nr_rrc_nonCriticalExtension_48, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_nonCriticalExtension_36 },
+  { &hf_nr_rrc_nonCriticalExtension_58, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_UE_NR_Capability_v1560 },
   { NULL, 0, 0, NULL }
 };
 
@@ -41381,7 +43439,7 @@ static const per_sequence_t UE_NR_Capability_v1540_sequence[] = {
   { &hf_nr_rrc_fr1_Add_UE_NR_Capabilities_v1540, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_UE_NR_CapabilityAddFRX_Mode_v1540 },
   { &hf_nr_rrc_fr2_Add_UE_NR_Capabilities_v1540, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_UE_NR_CapabilityAddFRX_Mode_v1540 },
   { &hf_nr_rrc_fr1_fr2_Add_UE_NR_Capabilities, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_UE_NR_CapabilityAddFRX_Mode },
-  { &hf_nr_rrc_nonCriticalExtension_47, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_UE_NR_Capability_v1550 },
+  { &hf_nr_rrc_nonCriticalExtension_57, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_UE_NR_Capability_v1550 },
   { NULL, 0, 0, NULL }
 };
 
@@ -41397,11 +43455,11 @@ dissect_nr_rrc_UE_NR_Capability_v1540(tvbuff_t *tvb _U_, int offset _U_, asn1_ct
 static const per_sequence_t UE_NR_Capability_v1530_sequence[] = {
   { &hf_nr_rrc_fdd_Add_UE_NR_Capabilities_v1530, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_UE_NR_CapabilityAddXDD_Mode_v1530 },
   { &hf_nr_rrc_tdd_Add_UE_NR_Capabilities_v1530, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_UE_NR_CapabilityAddXDD_Mode_v1530 },
-  { &hf_nr_rrc_dummy_08     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_dummy_06 },
+  { &hf_nr_rrc_dummy_11     , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_dummy_08 },
   { &hf_nr_rrc_interRAT_Parameters, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_InterRAT_Parameters },
   { &hf_nr_rrc_inactiveState, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_inactiveState },
   { &hf_nr_rrc_delayBudgetReporting, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_T_delayBudgetReporting },
-  { &hf_nr_rrc_nonCriticalExtension_46, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_UE_NR_Capability_v1540 },
+  { &hf_nr_rrc_nonCriticalExtension_56, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_UE_NR_Capability_v1540 },
   { NULL, 0, 0, NULL }
 };
 
@@ -41429,7 +43487,7 @@ static const per_sequence_t UE_NR_Capability_sequence[] = {
   { &hf_nr_rrc_featureSets  , ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_FeatureSets },
   { &hf_nr_rrc_featureSetCombinations, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_SEQUENCE_SIZE_1_maxFeatureSetCombinations_OF_FeatureSetCombination },
   { &hf_nr_rrc_lateNonCriticalExtension, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_OCTET_STRING },
-  { &hf_nr_rrc_nonCriticalExtension_45, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_UE_NR_Capability_v1530 },
+  { &hf_nr_rrc_nonCriticalExtension_55, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_nr_rrc_UE_NR_Capability_v1530 },
   { NULL, 0, 0, NULL }
 };
 
@@ -41923,10 +43981,20 @@ static int dissect_SystemInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
   offset += 7; offset >>= 3;
   return offset;
 }
+static int dissect_UECapabilityEnquiry_v1560_IEs_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  proto_item *prot_ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
+  proto_item_set_hidden(prot_ti);
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_nr_rrc_UECapabilityEnquiry_v1560_IEs(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_UECapabilityEnquiry_v1560_IEs_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 
 
 /*--- End of included file: packet-nr-rrc-fn.c ---*/
-#line 360 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 373 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 
 void
 proto_register_nr_rrc(void) {
@@ -42129,6 +44197,10 @@ proto_register_nr_rrc(void) {
       { "SystemInformation", "nr-rrc.SystemInformation_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_nr_rrc_UECapabilityEnquiry_v1560_IEs_PDU,
+      { "UECapabilityEnquiry-v1560-IEs", "nr-rrc.UECapabilityEnquiry_v1560_IEs_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_nr_rrc_criticalExtensions,
       { "criticalExtensions", "nr-rrc.criticalExtensions",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_criticalExtensions_vals), 0,
@@ -42205,6 +44277,18 @@ proto_register_nr_rrc(void) {
       { "rrcReconfiguration", "nr-rrc.rrcReconfiguration",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_nr_rrc_sourceRB_SN_Config,
+      { "sourceRB-SN-Config", "nr-rrc.sourceRB_SN_Config",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_sourceSCG_NR_Config,
+      { "sourceSCG-NR-Config", "nr-rrc.sourceSCG_NR_Config",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_sourceSCG_EUTRA_Config,
+      { "sourceSCG-EUTRA-Config", "nr-rrc.sourceSCG_EUTRA_Config",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_nr_rrc_reestablishmentInfo,
       { "reestablishmentInfo", "nr-rrc.reestablishmentInfo_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -42221,6 +44305,10 @@ proto_register_nr_rrc(void) {
       { "ueAssistanceInformation", "nr-rrc.ueAssistanceInformation",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_nr_rrc_selectedBandCombinationSN,
+      { "selectedBandCombinationSN", "nr-rrc.selectedBandCombinationSN_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "BandCombinationInfoSN", HFILL }},
     { &hf_nr_rrc_sourcePhysCellId,
       { "sourcePhysCellId", "nr-rrc.sourcePhysCellId",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -42257,6 +44345,10 @@ proto_register_nr_rrc(void) {
       { "candidateCellInfoList", "nr-rrc.candidateCellInfoList",
         FT_UINT32, BASE_DEC, NULL, 0,
         "MeasResultList2NR", HFILL }},
+    { &hf_nr_rrc_candidateCellInfoListSN_EUTRA,
+      { "candidateCellInfoListSN-EUTRA", "nr-rrc.candidateCellInfoListSN_EUTRA",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "MeasResultServFreqListEUTRA_SCG", HFILL }},
     { &hf_nr_rrc_criticalExtensions_02,
       { "criticalExtensions", "nr-rrc.criticalExtensions",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_criticalExtensions_02_vals), 0,
@@ -42297,8 +44389,8 @@ proto_register_nr_rrc(void) {
       { "measConfigSN", "nr-rrc.measConfigSN_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_selectedBandCombinationNR,
-      { "selectedBandCombinationNR", "nr-rrc.selectedBandCombinationNR_element",
+    { &hf_nr_rrc_selectedBandCombination,
+      { "selectedBandCombination", "nr-rrc.selectedBandCombination_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "BandCombinationInfoSN", HFILL }},
     { &hf_nr_rrc_fr_InfoListSCG,
@@ -42317,8 +44409,8 @@ proto_register_nr_rrc(void) {
       { "pSCellFrequency", "nr-rrc.pSCellFrequency",
         FT_UINT32, BASE_DEC, NULL, 0,
         "ARFCN_ValueNR", HFILL }},
-    { &hf_nr_rrc_reportCGI_Request,
-      { "reportCGI-Request", "nr-rrc.reportCGI_Request_element",
+    { &hf_nr_rrc_reportCGI_RequestNR,
+      { "reportCGI-RequestNR", "nr-rrc.reportCGI_RequestNR_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_nr_rrc_requestedCellInfo,
@@ -42338,6 +44430,50 @@ proto_register_nr_rrc(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "PH_TypeListSCG", HFILL }},
     { &hf_nr_rrc_nonCriticalExtension_03,
+      { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CG_Config_v1560_IEs", HFILL }},
+    { &hf_nr_rrc_pSCellFrequencyEUTRA,
+      { "pSCellFrequencyEUTRA", "nr-rrc.pSCellFrequencyEUTRA",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ARFCN_ValueEUTRA", HFILL }},
+    { &hf_nr_rrc_scg_CellGroupConfigEUTRA,
+      { "scg-CellGroupConfigEUTRA", "nr-rrc.scg_CellGroupConfigEUTRA",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_candidateCellInfoListSN_EUTRA_01,
+      { "candidateCellInfoListSN-EUTRA", "nr-rrc.candidateCellInfoListSN_EUTRA",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_candidateServingFreqListEUTRA,
+      { "candidateServingFreqListEUTRA", "nr-rrc.candidateServingFreqListEUTRA",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_needForGaps,
+      { "needForGaps", "nr-rrc.needForGaps",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_needForGaps_vals), 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_drx_ConfigSCG,
+      { "drx-ConfigSCG", "nr-rrc.drx_ConfigSCG_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DRX_Config", HFILL }},
+    { &hf_nr_rrc_reportCGI_RequestEUTRA,
+      { "reportCGI-RequestEUTRA", "nr-rrc.reportCGI_RequestEUTRA_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_requestedCellInfoEUTRA,
+      { "requestedCellInfoEUTRA", "nr-rrc.requestedCellInfoEUTRA_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_eutraFrequency,
+      { "eutraFrequency", "nr-rrc.eutraFrequency",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "ARFCN_ValueEUTRA", HFILL }},
+    { &hf_nr_rrc_cellForWhichToReportCGI_EUTRA,
+      { "cellForWhichToReportCGI-EUTRA", "nr-rrc.cellForWhichToReportCGI_EUTRA",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "EUTRA_PhysCellId", HFILL }},
+    { &hf_nr_rrc_nonCriticalExtension_04,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_02", HFILL }},
@@ -42381,6 +44517,14 @@ proto_register_nr_rrc(void) {
       { "requestedP-MaxFR1", "nr-rrc.requestedP_MaxFR1",
         FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
         "P_Max", HFILL }},
+    { &hf_nr_rrc_requestedPDCCH_BlindDetectionSCG,
+      { "requestedPDCCH-BlindDetectionSCG", "nr-rrc.requestedPDCCH_BlindDetectionSCG",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_1_15", HFILL }},
+    { &hf_nr_rrc_requestedP_MaxEUTRA,
+      { "requestedP-MaxEUTRA", "nr-rrc.requestedP_MaxEUTRA",
+        FT_INT32, BASE_DEC|BASE_UNIT_STRING, &units_dbm, 0,
+        "P_Max", HFILL }},
     { &hf_nr_rrc_bandCombinationIndex,
       { "bandCombinationIndex", "nr-rrc.bandCombinationIndex",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -42399,6 +44543,10 @@ proto_register_nr_rrc(void) {
         NULL, HFILL }},
     { &hf_nr_rrc_CandidateServingFreqListNR_item,
       { "ARFCN-ValueNR", "nr-rrc.ARFCN_ValueNR",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_CandidateServingFreqListEUTRA_item,
+      { "ARFCN-ValueEUTRA", "nr-rrc.ARFCN_ValueEUTRA",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_nr_rrc_criticalExtensions_03,
@@ -42429,8 +44577,8 @@ proto_register_nr_rrc(void) {
       { "candidateCellInfoListSN", "nr-rrc.candidateCellInfoListSN",
         FT_BYTES, BASE_NONE, NULL, 0,
         "T_candidateCellInfoListSN_01", HFILL }},
-    { &hf_nr_rrc_measResultCellListSFTD,
-      { "measResultCellListSFTD", "nr-rrc.measResultCellListSFTD",
+    { &hf_nr_rrc_measResultCellListSFTD_NR,
+      { "measResultCellListSFTD-NR", "nr-rrc.measResultCellListSFTD_NR",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
     { &hf_nr_rrc_scgFailureInfo,
@@ -42469,7 +44617,7 @@ proto_register_nr_rrc(void) {
       { "mrdc-AssistanceInfo", "nr-rrc.mrdc_AssistanceInfo_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_04,
+    { &hf_nr_rrc_nonCriticalExtension_05,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "CG_ConfigInfo_v1540_IEs", HFILL }},
@@ -42484,8 +44632,56 @@ proto_register_nr_rrc(void) {
     { &hf_nr_rrc_cgi_Info,
       { "cgi-Info", "nr-rrc.cgi_Info_element",
         FT_NONE, BASE_NONE, NULL, 0,
+        "CGI_InfoNR", HFILL }},
+    { &hf_nr_rrc_nonCriticalExtension_06,
+      { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CG_ConfigInfo_v1560_IEs", HFILL }},
+    { &hf_nr_rrc_candidateCellInfoListMN_EUTRA,
+      { "candidateCellInfoListMN-EUTRA", "nr-rrc.candidateCellInfoListMN_EUTRA",
+        FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_05,
+    { &hf_nr_rrc_candidateCellInfoListSN_EUTRA_02,
+      { "candidateCellInfoListSN-EUTRA", "nr-rrc.candidateCellInfoListSN_EUTRA",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "T_candidateCellInfoListSN_EUTRA_01", HFILL }},
+    { &hf_nr_rrc_sourceConfigSCG_EUTRA,
+      { "sourceConfigSCG-EUTRA", "nr-rrc.sourceConfigSCG_EUTRA",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_scgFailureInfoEUTRA,
+      { "scgFailureInfoEUTRA", "nr-rrc.scgFailureInfoEUTRA_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_failureTypeEUTRA,
+      { "failureTypeEUTRA", "nr-rrc.failureTypeEUTRA",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_failureTypeEUTRA_vals), 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_measResultSCG_EUTRA,
+      { "measResultSCG-EUTRA", "nr-rrc.measResultSCG_EUTRA",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
+    { &hf_nr_rrc_drx_ConfigMCG,
+      { "drx-ConfigMCG", "nr-rrc.drx_ConfigMCG_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "DRX_Config", HFILL }},
+    { &hf_nr_rrc_measResultReportCGI_EUTRA,
+      { "measResultReportCGI-EUTRA", "nr-rrc.measResultReportCGI_EUTRA_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_cgi_InfoEUTRA,
+      { "cgi-InfoEUTRA", "nr-rrc.cgi_InfoEUTRA_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_measResultCellListSFTD_EUTRA,
+      { "measResultCellListSFTD-EUTRA", "nr-rrc.measResultCellListSFTD_EUTRA",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_fr_InfoListMCG,
+      { "fr-InfoListMCG", "nr-rrc.fr_InfoListMCG",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "FR_InfoList", HFILL }},
+    { &hf_nr_rrc_nonCriticalExtension_07,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_03", HFILL }},
@@ -42521,14 +44717,30 @@ proto_register_nr_rrc(void) {
       { "upBound", "nr-rrc.upBound",
         FT_UINT32, BASE_DEC, NULL, 0,
         "ServCellIndex", HFILL }},
-    { &hf_nr_rrc_maxMeasFreqsSCG_NR,
-      { "maxMeasFreqsSCG-NR", "nr-rrc.maxMeasFreqsSCG_NR",
+    { &hf_nr_rrc_maxMeasFreqsSCG,
+      { "maxMeasFreqsSCG", "nr-rrc.maxMeasFreqsSCG",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_1_maxMeasFreqsMN", HFILL }},
     { &hf_nr_rrc_maxMeasIdentitiesSCG_NR,
       { "maxMeasIdentitiesSCG-NR", "nr-rrc.maxMeasIdentitiesSCG_NR",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_1_maxMeasIdentitiesMN", HFILL }},
+    { &hf_nr_rrc_selectedBandEntriesMN,
+      { "selectedBandEntriesMN", "nr-rrc.selectedBandEntriesMN",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_SIZE_1_maxSimultaneousBands_OF_BandEntryIndex", HFILL }},
+    { &hf_nr_rrc_selectedBandEntriesMN_item,
+      { "BandEntryIndex", "nr-rrc.BandEntryIndex",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_pdcch_BlindDetectionSCG,
+      { "pdcch-BlindDetectionSCG", "nr-rrc.pdcch_BlindDetectionSCG",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_1_15", HFILL }},
+    { &hf_nr_rrc_maxNumberROHC_ContextSessionsSN,
+      { "maxNumberROHC-ContextSessionsSN", "nr-rrc.maxNumberROHC_ContextSessionsSN",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_16384", HFILL }},
     { &hf_nr_rrc_PH_TypeListMCG_item,
       { "PH-InfoMCG", "nr-rrc.PH_InfoMCG_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -42677,6 +44889,10 @@ proto_register_nr_rrc(void) {
       { "gapPurpose", "nr-rrc.gapPurpose",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_gapPurpose_vals), 0,
         NULL, HFILL }},
+    { &hf_nr_rrc_measGapConfigFR2,
+      { "measGapConfigFR2", "nr-rrc.measGapConfigFR2",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_measGapConfigFR2_vals), 0,
+        NULL, HFILL }},
     { &hf_nr_rrc_affectedCarrierFreqCombInfoListMRDC,
       { "affectedCarrierFreqCombInfoListMRDC", "nr-rrc.affectedCarrierFreqCombInfoListMRDC",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -42757,7 +44973,7 @@ proto_register_nr_rrc(void) {
       { "measTiming", "nr-rrc.measTiming",
         FT_UINT32, BASE_DEC, NULL, 0,
         "MeasTimingList", HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_06,
+    { &hf_nr_rrc_nonCriticalExtension_08,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "MeasurementTimingConfiguration_v1550_IEs", HFILL }},
@@ -42769,7 +44985,7 @@ proto_register_nr_rrc(void) {
       { "psCellOnlyOnFirstSSB", "nr-rrc.psCellOnlyOnFirstSSB",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_07,
+    { &hf_nr_rrc_nonCriticalExtension_09,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_04", HFILL }},
@@ -42845,7 +45061,7 @@ proto_register_nr_rrc(void) {
       { "FreqBandIndicatorNR", "nr-rrc.FreqBandIndicatorNR",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_08,
+    { &hf_nr_rrc_nonCriticalExtension_10,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_05", HFILL }},
@@ -42869,7 +45085,7 @@ proto_register_nr_rrc(void) {
       { "ue-RadioAccessCapabilityInfo", "nr-rrc.ue_RadioAccessCapabilityInfo",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_09,
+    { &hf_nr_rrc_nonCriticalExtension_11,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_06", HFILL }},
@@ -43093,6 +45309,18 @@ proto_register_nr_rrc(void) {
       { "failureInformation", "nr-rrc.failureInformation_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_nr_rrc_ulInformationTransferMRDC,
+      { "ulInformationTransferMRDC", "nr-rrc.ulInformationTransferMRDC_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_scgFailureInformation,
+      { "scgFailureInformation", "nr-rrc.scgFailureInformation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_scgFailureInformationEUTRA,
+      { "scgFailureInformationEUTRA", "nr-rrc.scgFailureInformationEUTRA_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_nr_rrc_messageClassExtension_07,
       { "messageClassExtension", "nr-rrc.messageClassExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -43121,7 +45349,7 @@ proto_register_nr_rrc(void) {
       { "lateNonCriticalExtension", "nr-rrc.lateNonCriticalExtension",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING", HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_10,
+    { &hf_nr_rrc_nonCriticalExtension_12,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_07", HFILL }},
@@ -43157,7 +45385,7 @@ proto_register_nr_rrc(void) {
       { "drb-CountInfoList", "nr-rrc.drb_CountInfoList",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_11,
+    { &hf_nr_rrc_nonCriticalExtension_13,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_08", HFILL }},
@@ -43189,7 +45417,7 @@ proto_register_nr_rrc(void) {
       { "dedicatedNAS-Message", "nr-rrc.dedicatedNAS_Message",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_12,
+    { &hf_nr_rrc_nonCriticalExtension_14,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_09", HFILL }},
@@ -43209,7 +45437,7 @@ proto_register_nr_rrc(void) {
       { "failureInfoRLC-Bearer", "nr-rrc.failureInfoRLC_Bearer_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_13,
+    { &hf_nr_rrc_nonCriticalExtension_15,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_10", HFILL }},
@@ -43245,10 +45473,30 @@ proto_register_nr_rrc(void) {
       { "setup", "nr-rrc.setup",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_LocationMeasurementInfo_vals), 0,
         "LocationMeasurementInfo", HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_14,
+    { &hf_nr_rrc_nonCriticalExtension_16,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_11", HFILL }},
+    { &hf_nr_rrc_criticalExtensions_12,
+      { "criticalExtensions", "nr-rrc.criticalExtensions",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_criticalExtensions_12_vals), 0,
+        "T_criticalExtensions_12", HFILL }},
+    { &hf_nr_rrc_measurementReport_01,
+      { "measurementReport", "nr-rrc.measurementReport_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "MeasurementReport_IEs", HFILL }},
+    { &hf_nr_rrc_criticalExtensionsFuture_12,
+      { "criticalExtensionsFuture", "nr-rrc.criticalExtensionsFuture_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_criticalExtensionsFuture_12", HFILL }},
+    { &hf_nr_rrc_measResults,
+      { "measResults", "nr-rrc.measResults_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_nonCriticalExtension_17,
+      { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_nonCriticalExtension_12", HFILL }},
     { &hf_nr_rrc_systemFrameNumber,
       { "systemFrameNumber", "nr-rrc.systemFrameNumber",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -43281,26 +45529,6 @@ proto_register_nr_rrc(void) {
       { "spare", "nr-rrc.spare",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_1", HFILL }},
-    { &hf_nr_rrc_criticalExtensions_12,
-      { "criticalExtensions", "nr-rrc.criticalExtensions",
-        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_criticalExtensions_12_vals), 0,
-        "T_criticalExtensions_12", HFILL }},
-    { &hf_nr_rrc_measurementReport_01,
-      { "measurementReport", "nr-rrc.measurementReport_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "MeasurementReport_IEs", HFILL }},
-    { &hf_nr_rrc_criticalExtensionsFuture_12,
-      { "criticalExtensionsFuture", "nr-rrc.criticalExtensionsFuture_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "T_criticalExtensionsFuture_12", HFILL }},
-    { &hf_nr_rrc_measResults,
-      { "measResults", "nr-rrc.measResults_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_15,
-      { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "T_nonCriticalExtension_12", HFILL }},
     { &hf_nr_rrc_criticalExtensions_13,
       { "criticalExtensions", "nr-rrc.criticalExtensions",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_criticalExtensions_13_vals), 0,
@@ -43325,7 +45553,7 @@ proto_register_nr_rrc(void) {
       { "nas-SecurityParamFromNR", "nr-rrc.nas_SecurityParamFromNR",
         FT_BYTES, BASE_NONE, NULL, 0,
         "OCTET_STRING", HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_16,
+    { &hf_nr_rrc_nonCriticalExtension_18,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_13", HFILL }},
@@ -43333,7 +45561,7 @@ proto_register_nr_rrc(void) {
       { "pagingRecordList", "nr-rrc.pagingRecordList",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_17,
+    { &hf_nr_rrc_nonCriticalExtension_19,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_14", HFILL }},
@@ -43373,7 +45601,7 @@ proto_register_nr_rrc(void) {
       { "nextHopChainingCount", "nr-rrc.nextHopChainingCount",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_18,
+    { &hf_nr_rrc_nonCriticalExtension_20,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_15", HFILL }},
@@ -43389,7 +45617,7 @@ proto_register_nr_rrc(void) {
       { "criticalExtensionsFuture", "nr-rrc.criticalExtensionsFuture_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_criticalExtensionsFuture_15", HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_19,
+    { &hf_nr_rrc_nonCriticalExtension_21,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_16", HFILL }},
@@ -43433,7 +45661,7 @@ proto_register_nr_rrc(void) {
       { "measConfig", "nr-rrc.measConfig_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_20,
+    { &hf_nr_rrc_nonCriticalExtension_22,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RRCReconfiguration_v1530_IEs", HFILL }},
@@ -43469,7 +45697,7 @@ proto_register_nr_rrc(void) {
       { "otherConfig", "nr-rrc.otherConfig_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_21,
+    { &hf_nr_rrc_nonCriticalExtension_23,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RRCReconfiguration_v1540_IEs", HFILL }},
@@ -43477,10 +45705,46 @@ proto_register_nr_rrc(void) {
       { "otherConfig-v1540", "nr-rrc.otherConfig_v1540_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_22,
+    { &hf_nr_rrc_nonCriticalExtension_24,
+      { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "RRCReconfiguration_v1560_IEs", HFILL }},
+    { &hf_nr_rrc_mrdc_SecondaryCellGroupConfig,
+      { "mrdc-SecondaryCellGroupConfig", "nr-rrc.mrdc_SecondaryCellGroupConfig",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_mrdc_SecondaryCellGroupConfig_vals), 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_setup_02,
+      { "setup", "nr-rrc.setup_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "MRDC_SecondaryCellGroupConfig", HFILL }},
+    { &hf_nr_rrc_radioBearerConfig2,
+      { "radioBearerConfig2", "nr-rrc.radioBearerConfig2",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_sk_Counter,
+      { "sk-Counter", "nr-rrc.sk_Counter",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_nonCriticalExtension_25,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_17", HFILL }},
+    { &hf_nr_rrc_mrdc_ReleaseAndAdd,
+      { "mrdc-ReleaseAndAdd", "nr-rrc.mrdc_ReleaseAndAdd",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_mrdc_ReleaseAndAdd_vals), 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_mrdc_SecondaryCellGroup,
+      { "mrdc-SecondaryCellGroup", "nr-rrc.mrdc_SecondaryCellGroup",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_mrdc_SecondaryCellGroup_vals), 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_nr_SCG,
+      { "nr-SCG", "nr-rrc.nr_SCG",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_eutra_SCG,
+      { "eutra-SCG", "nr-rrc.eutra_SCG",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_nr_rrc_keySetChangeIndicator,
       { "keySetChangeIndicator", "nr-rrc.keySetChangeIndicator",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
@@ -43501,7 +45765,7 @@ proto_register_nr_rrc(void) {
       { "criticalExtensionsFuture", "nr-rrc.criticalExtensionsFuture_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_criticalExtensionsFuture_17", HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_23,
+    { &hf_nr_rrc_nonCriticalExtension_26,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RRCReconfigurationComplete_v1530_IEs", HFILL }},
@@ -43509,7 +45773,23 @@ proto_register_nr_rrc(void) {
       { "uplinkTxDirectCurrentList", "nr-rrc.uplinkTxDirectCurrentList",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_24,
+    { &hf_nr_rrc_nonCriticalExtension_27,
+      { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "RRCReconfigurationComplete_v1560_IEs", HFILL }},
+    { &hf_nr_rrc_scg_Response,
+      { "scg-Response", "nr-rrc.scg_Response",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_scg_Response_vals), 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_nr_SCG_Response,
+      { "nr-SCG-Response", "nr-rrc.nr_SCG_Response",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_eutra_SCG_Response,
+      { "eutra-SCG-Response", "nr-rrc.eutra_SCG_Response",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_nonCriticalExtension_28,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_18", HFILL }},
@@ -43529,7 +45809,7 @@ proto_register_nr_rrc(void) {
       { "waitTime", "nr-rrc.waitTime",
         FT_UINT32, BASE_DEC|BASE_UNIT_STRING, &units_seconds, 0,
         "RejectWaitTime", HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_25,
+    { &hf_nr_rrc_nonCriticalExtension_29,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_19", HFILL }},
@@ -43569,11 +45849,11 @@ proto_register_nr_rrc(void) {
       { "deprioritisationTimer", "nr-rrc.deprioritisationTimer",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_deprioritisationTimer_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_26,
+    { &hf_nr_rrc_nonCriticalExtension_30,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RRCRelease_v1540_IEs", HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_27,
+    { &hf_nr_rrc_nonCriticalExtension_31,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_20", HFILL }},
@@ -43585,10 +45865,6 @@ proto_register_nr_rrc(void) {
       { "eutra", "nr-rrc.eutra_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RedirectedCarrierInfo_EUTRA", HFILL }},
-    { &hf_nr_rrc_eutraFrequency,
-      { "eutraFrequency", "nr-rrc.eutraFrequency",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "ARFCN_ValueEUTRA", HFILL }},
     { &hf_nr_rrc_cnType,
       { "cnType", "nr-rrc.cnType",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_cnType_vals), 0,
@@ -43709,7 +45985,15 @@ proto_register_nr_rrc(void) {
       { "fullConfig", "nr-rrc.fullConfig",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_fullConfig_01_vals), 0,
         "T_fullConfig_01", HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_28,
+    { &hf_nr_rrc_nonCriticalExtension_32,
+      { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "RRCResume_v1560_IEs", HFILL }},
+    { &hf_nr_rrc_radioBearerConfig2_01,
+      { "radioBearerConfig2", "nr-rrc.radioBearerConfig2",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "T_radioBearerConfig2_01", HFILL }},
+    { &hf_nr_rrc_nonCriticalExtension_33,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_21", HFILL }},
@@ -43729,7 +46013,7 @@ proto_register_nr_rrc(void) {
       { "selectedPLMN-Identity", "nr-rrc.selectedPLMN_Identity",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_1_maxPLMN", HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_29,
+    { &hf_nr_rrc_nonCriticalExtension_34,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_22", HFILL }},
@@ -43773,7 +46057,7 @@ proto_register_nr_rrc(void) {
       { "masterCellGroup", "nr-rrc.masterCellGroup",
         FT_BYTES, BASE_NONE, NULL, 0,
         "T_masterCellGroup_02", HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_30,
+    { &hf_nr_rrc_nonCriticalExtension_35,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_23", HFILL }},
@@ -43813,7 +46097,7 @@ proto_register_nr_rrc(void) {
       { "ng-5G-S-TMSI-Part2", "nr-rrc.ng_5G_S_TMSI_Part2",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_9", HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_31,
+    { &hf_nr_rrc_nonCriticalExtension_36,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_24", HFILL }},
@@ -43865,58 +46149,130 @@ proto_register_nr_rrc(void) {
       { "criticalExtensions", "nr-rrc.criticalExtensions",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_criticalExtensions_25_vals), 0,
         "T_criticalExtensions_25", HFILL }},
-    { &hf_nr_rrc_securityModeCommand_01,
-      { "securityModeCommand", "nr-rrc.securityModeCommand_element",
+    { &hf_nr_rrc_scgFailureInformation_01,
+      { "scgFailureInformation", "nr-rrc.scgFailureInformation_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "SecurityModeCommand_IEs", HFILL }},
+        "SCGFailureInformation_IEs", HFILL }},
     { &hf_nr_rrc_criticalExtensionsFuture_25,
       { "criticalExtensionsFuture", "nr-rrc.criticalExtensionsFuture_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_criticalExtensionsFuture_25", HFILL }},
-    { &hf_nr_rrc_securityConfigSMC,
-      { "securityConfigSMC", "nr-rrc.securityConfigSMC_element",
+    { &hf_nr_rrc_failureReportSCG,
+      { "failureReportSCG", "nr-rrc.failureReportSCG_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_32,
+    { &hf_nr_rrc_nonCriticalExtension_37,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_25", HFILL }},
-    { &hf_nr_rrc_securityAlgorithmConfig,
-      { "securityAlgorithmConfig", "nr-rrc.securityAlgorithmConfig_element",
+    { &hf_nr_rrc_failureType_02,
+      { "failureType", "nr-rrc.failureType",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_failureType_02_vals), 0,
+        "T_failureType_02", HFILL }},
+    { &hf_nr_rrc_measResultFreqList,
+      { "measResultFreqList", "nr-rrc.measResultFreqList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_measResultSCG_Failure,
+      { "measResultSCG-Failure", "nr-rrc.measResultSCG_Failure",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_MeasResultFreqList_item,
+      { "MeasResult2NR", "nr-rrc.MeasResult2NR_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_nr_rrc_criticalExtensions_26,
       { "criticalExtensions", "nr-rrc.criticalExtensions",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_criticalExtensions_26_vals), 0,
         "T_criticalExtensions_26", HFILL }},
-    { &hf_nr_rrc_securityModeComplete_01,
-      { "securityModeComplete", "nr-rrc.securityModeComplete_element",
+    { &hf_nr_rrc_scgFailureInformationEUTRA_01,
+      { "scgFailureInformationEUTRA", "nr-rrc.scgFailureInformationEUTRA_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "SecurityModeComplete_IEs", HFILL }},
+        "SCGFailureInformationEUTRA_IEs", HFILL }},
     { &hf_nr_rrc_criticalExtensionsFuture_26,
       { "criticalExtensionsFuture", "nr-rrc.criticalExtensionsFuture_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_criticalExtensionsFuture_26", HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_33,
+    { &hf_nr_rrc_failureReportSCG_EUTRA,
+      { "failureReportSCG-EUTRA", "nr-rrc.failureReportSCG_EUTRA_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_nonCriticalExtension_38,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_26", HFILL }},
+    { &hf_nr_rrc_failureType_03,
+      { "failureType", "nr-rrc.failureType",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_failureType_03_vals), 0,
+        "T_failureType_03", HFILL }},
+    { &hf_nr_rrc_measResultFreqListMRDC,
+      { "measResultFreqListMRDC", "nr-rrc.measResultFreqListMRDC",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "MeasResultFreqListFailMRDC", HFILL }},
+    { &hf_nr_rrc_measResultSCG_FailureMRDC,
+      { "measResultSCG-FailureMRDC", "nr-rrc.measResultSCG_FailureMRDC",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_MeasResultFreqListFailMRDC_item,
+      { "MeasResult2EUTRA", "nr-rrc.MeasResult2EUTRA_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_nr_rrc_criticalExtensions_27,
       { "criticalExtensions", "nr-rrc.criticalExtensions",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_criticalExtensions_27_vals), 0,
         "T_criticalExtensions_27", HFILL }},
-    { &hf_nr_rrc_securityModeFailure_01,
-      { "securityModeFailure", "nr-rrc.securityModeFailure_element",
+    { &hf_nr_rrc_securityModeCommand_01,
+      { "securityModeCommand", "nr-rrc.securityModeCommand_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "SecurityModeFailure_IEs", HFILL }},
+        "SecurityModeCommand_IEs", HFILL }},
     { &hf_nr_rrc_criticalExtensionsFuture_27,
       { "criticalExtensionsFuture", "nr-rrc.criticalExtensionsFuture_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_criticalExtensionsFuture_27", HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_34,
+    { &hf_nr_rrc_securityConfigSMC,
+      { "securityConfigSMC", "nr-rrc.securityConfigSMC_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_nonCriticalExtension_39,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_27", HFILL }},
+    { &hf_nr_rrc_securityAlgorithmConfig,
+      { "securityAlgorithmConfig", "nr-rrc.securityAlgorithmConfig_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_criticalExtensions_28,
+      { "criticalExtensions", "nr-rrc.criticalExtensions",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_criticalExtensions_28_vals), 0,
+        "T_criticalExtensions_28", HFILL }},
+    { &hf_nr_rrc_securityModeComplete_01,
+      { "securityModeComplete", "nr-rrc.securityModeComplete_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SecurityModeComplete_IEs", HFILL }},
+    { &hf_nr_rrc_criticalExtensionsFuture_28,
+      { "criticalExtensionsFuture", "nr-rrc.criticalExtensionsFuture_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_criticalExtensionsFuture_28", HFILL }},
+    { &hf_nr_rrc_nonCriticalExtension_40,
+      { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_nonCriticalExtension_28", HFILL }},
+    { &hf_nr_rrc_criticalExtensions_29,
+      { "criticalExtensions", "nr-rrc.criticalExtensions",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_criticalExtensions_29_vals), 0,
+        "T_criticalExtensions_29", HFILL }},
+    { &hf_nr_rrc_securityModeFailure_01,
+      { "securityModeFailure", "nr-rrc.securityModeFailure_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "SecurityModeFailure_IEs", HFILL }},
+    { &hf_nr_rrc_criticalExtensionsFuture_29,
+      { "criticalExtensionsFuture", "nr-rrc.criticalExtensionsFuture_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_criticalExtensionsFuture_29", HFILL }},
+    { &hf_nr_rrc_nonCriticalExtension_41,
+      { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_nonCriticalExtension_29", HFILL }},
     { &hf_nr_rrc_cellSelectionInfo,
       { "cellSelectionInfo", "nr-rrc.cellSelectionInfo_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -44005,22 +46361,22 @@ proto_register_nr_rrc(void) {
       { "useFullResumeID", "nr-rrc.useFullResumeID",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_useFullResumeID_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_35,
+    { &hf_nr_rrc_nonCriticalExtension_42,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_nonCriticalExtension_28", HFILL }},
-    { &hf_nr_rrc_criticalExtensions_28,
+        "T_nonCriticalExtension_30", HFILL }},
+    { &hf_nr_rrc_criticalExtensions_30,
       { "criticalExtensions", "nr-rrc.criticalExtensions",
-        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_criticalExtensions_28_vals), 0,
-        "T_criticalExtensions_28", HFILL }},
-    { &hf_nr_rrc_systemInformation_r15,
-      { "systemInformation-r15", "nr-rrc.systemInformation_r15_element",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_criticalExtensions_30_vals), 0,
+        "T_criticalExtensions_30", HFILL }},
+    { &hf_nr_rrc_systemInformation_01,
+      { "systemInformation", "nr-rrc.systemInformation_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "SystemInformation_IEs", HFILL }},
-    { &hf_nr_rrc_criticalExtensionsFuture_28,
+    { &hf_nr_rrc_criticalExtensionsFuture_30,
       { "criticalExtensionsFuture", "nr-rrc.criticalExtensionsFuture_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_criticalExtensionsFuture_28", HFILL }},
+        "T_criticalExtensionsFuture_30", HFILL }},
     { &hf_nr_rrc_sib_TypeAndInfo,
       { "sib-TypeAndInfo", "nr-rrc.sib_TypeAndInfo",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -44061,27 +46417,27 @@ proto_register_nr_rrc(void) {
       { "sib9", "nr-rrc.sib9_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_36,
+    { &hf_nr_rrc_nonCriticalExtension_43,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_nonCriticalExtension_29", HFILL }},
-    { &hf_nr_rrc_criticalExtensions_29,
+        "T_nonCriticalExtension_31", HFILL }},
+    { &hf_nr_rrc_criticalExtensions_31,
       { "criticalExtensions", "nr-rrc.criticalExtensions",
-        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_criticalExtensions_29_vals), 0,
-        "T_criticalExtensions_29", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_criticalExtensions_31_vals), 0,
+        "T_criticalExtensions_31", HFILL }},
     { &hf_nr_rrc_ueAssistanceInformation_02,
       { "ueAssistanceInformation", "nr-rrc.ueAssistanceInformation_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UEAssistanceInformation_IEs", HFILL }},
-    { &hf_nr_rrc_criticalExtensionsFuture_29,
+    { &hf_nr_rrc_criticalExtensionsFuture_31,
       { "criticalExtensionsFuture", "nr-rrc.criticalExtensionsFuture_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_criticalExtensionsFuture_29", HFILL }},
+        "T_criticalExtensionsFuture_31", HFILL }},
     { &hf_nr_rrc_delayBudgetReport,
       { "delayBudgetReport", "nr-rrc.delayBudgetReport",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_DelayBudgetReport_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_37,
+    { &hf_nr_rrc_nonCriticalExtension_44,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UEAssistanceInformation_v1540_IEs", HFILL }},
@@ -44093,10 +46449,10 @@ proto_register_nr_rrc(void) {
       { "overheatingAssistance", "nr-rrc.overheatingAssistance_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_38,
+    { &hf_nr_rrc_nonCriticalExtension_45,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_nonCriticalExtension_30", HFILL }},
+        "T_nonCriticalExtension_32", HFILL }},
     { &hf_nr_rrc_reducedMaxCCs,
       { "reducedMaxCCs", "nr-rrc.reducedMaxCCs_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -44157,62 +46513,98 @@ proto_register_nr_rrc(void) {
       { "reducedMIMO-LayersFR2-UL", "nr-rrc.reducedMIMO_LayersFR2_UL",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_MIMO_LayersUL_vals), 0,
         "MIMO_LayersUL", HFILL }},
-    { &hf_nr_rrc_criticalExtensions_30,
-      { "criticalExtensions", "nr-rrc.criticalExtensions",
-        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_criticalExtensions_30_vals), 0,
-        "T_criticalExtensions_30", HFILL }},
-    { &hf_nr_rrc_ueCapabilityEnquiry_01,
-      { "ueCapabilityEnquiry", "nr-rrc.ueCapabilityEnquiry_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "UECapabilityEnquiry_IEs", HFILL }},
-    { &hf_nr_rrc_criticalExtensionsFuture_30,
-      { "criticalExtensionsFuture", "nr-rrc.criticalExtensionsFuture_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "T_criticalExtensionsFuture_30", HFILL }},
-    { &hf_nr_rrc_ue_CapabilityRAT_RequestList,
-      { "ue-CapabilityRAT-RequestList", "nr-rrc.ue_CapabilityRAT_RequestList",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_39,
-      { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "T_nonCriticalExtension_31", HFILL }},
-    { &hf_nr_rrc_criticalExtensions_31,
-      { "criticalExtensions", "nr-rrc.criticalExtensions",
-        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_criticalExtensions_31_vals), 0,
-        "T_criticalExtensions_31", HFILL }},
-    { &hf_nr_rrc_ueCapabilityInformation_01,
-      { "ueCapabilityInformation", "nr-rrc.ueCapabilityInformation_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "UECapabilityInformation_IEs", HFILL }},
-    { &hf_nr_rrc_criticalExtensionsFuture_31,
-      { "criticalExtensionsFuture", "nr-rrc.criticalExtensionsFuture_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "T_criticalExtensionsFuture_31", HFILL }},
-    { &hf_nr_rrc_ue_CapabilityRAT_ContainerList,
-      { "ue-CapabilityRAT-ContainerList", "nr-rrc.ue_CapabilityRAT_ContainerList",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_40,
-      { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "T_nonCriticalExtension_32", HFILL }},
     { &hf_nr_rrc_criticalExtensions_32,
       { "criticalExtensions", "nr-rrc.criticalExtensions",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_criticalExtensions_32_vals), 0,
         "T_criticalExtensions_32", HFILL }},
-    { &hf_nr_rrc_ulInformationTransfer_01,
-      { "ulInformationTransfer", "nr-rrc.ulInformationTransfer_element",
+    { &hf_nr_rrc_ueCapabilityEnquiry_01,
+      { "ueCapabilityEnquiry", "nr-rrc.ueCapabilityEnquiry_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "ULInformationTransfer_IEs", HFILL }},
+        "UECapabilityEnquiry_IEs", HFILL }},
     { &hf_nr_rrc_criticalExtensionsFuture_32,
       { "criticalExtensionsFuture", "nr-rrc.criticalExtensionsFuture_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_criticalExtensionsFuture_32", HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_41,
+    { &hf_nr_rrc_ue_CapabilityRAT_RequestList,
+      { "ue-CapabilityRAT-RequestList", "nr-rrc.ue_CapabilityRAT_RequestList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_ue_CapabilityEnquiryExt,
+      { "ue-CapabilityEnquiryExt", "nr-rrc.ue_CapabilityEnquiryExt",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_capabilityRequestFilterCommon,
+      { "capabilityRequestFilterCommon", "nr-rrc.capabilityRequestFilterCommon_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "UE_CapabilityRequestFilterCommon", HFILL }},
+    { &hf_nr_rrc_nonCriticalExtension_46,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_nonCriticalExtension_33", HFILL }},
+    { &hf_nr_rrc_criticalExtensions_33,
+      { "criticalExtensions", "nr-rrc.criticalExtensions",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_criticalExtensions_33_vals), 0,
+        "T_criticalExtensions_33", HFILL }},
+    { &hf_nr_rrc_ueCapabilityInformation_01,
+      { "ueCapabilityInformation", "nr-rrc.ueCapabilityInformation_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "UECapabilityInformation_IEs", HFILL }},
+    { &hf_nr_rrc_criticalExtensionsFuture_33,
+      { "criticalExtensionsFuture", "nr-rrc.criticalExtensionsFuture_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_criticalExtensionsFuture_33", HFILL }},
+    { &hf_nr_rrc_ue_CapabilityRAT_ContainerList,
+      { "ue-CapabilityRAT-ContainerList", "nr-rrc.ue_CapabilityRAT_ContainerList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_nonCriticalExtension_47,
+      { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_nonCriticalExtension_34", HFILL }},
+    { &hf_nr_rrc_criticalExtensions_34,
+      { "criticalExtensions", "nr-rrc.criticalExtensions",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_criticalExtensions_34_vals), 0,
+        "T_criticalExtensions_34", HFILL }},
+    { &hf_nr_rrc_ulInformationTransfer_01,
+      { "ulInformationTransfer", "nr-rrc.ulInformationTransfer_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ULInformationTransfer_IEs", HFILL }},
+    { &hf_nr_rrc_criticalExtensionsFuture_34,
+      { "criticalExtensionsFuture", "nr-rrc.criticalExtensionsFuture_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_criticalExtensionsFuture_34", HFILL }},
+    { &hf_nr_rrc_nonCriticalExtension_48,
+      { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_nonCriticalExtension_35", HFILL }},
+    { &hf_nr_rrc_criticalExtensions_35,
+      { "criticalExtensions", "nr-rrc.criticalExtensions",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_criticalExtensions_35_vals), 0,
+        "T_criticalExtensions_35", HFILL }},
+    { &hf_nr_rrc_c1_14,
+      { "c1", "nr-rrc.c1",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_c1_14_vals), 0,
+        "T_c1_14", HFILL }},
+    { &hf_nr_rrc_ulInformationTransferMRDC_01,
+      { "ulInformationTransferMRDC", "nr-rrc.ulInformationTransferMRDC_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ULInformationTransferMRDC_IEs", HFILL }},
+    { &hf_nr_rrc_criticalExtensionsFuture_35,
+      { "criticalExtensionsFuture", "nr-rrc.criticalExtensionsFuture_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_criticalExtensionsFuture_35", HFILL }},
+    { &hf_nr_rrc_ul_DCCH_MessageNR,
+      { "ul-DCCH-MessageNR", "nr-rrc.ul_DCCH_MessageNR",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_ul_DCCH_MessageEUTRA,
+      { "ul-DCCH-MessageEUTRA", "nr-rrc.ul_DCCH_MessageEUTRA",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_nonCriticalExtension_49,
+      { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_nonCriticalExtension_36", HFILL }},
     { &hf_nr_rrc_cellReselectionInfoCommon,
       { "cellReselectionInfoCommon", "nr-rrc.cellReselectionInfoCommon_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -44469,8 +46861,8 @@ proto_register_nr_rrc(void) {
       { "physCellId", "nr-rrc.physCellId",
         FT_UINT32, BASE_DEC, NULL, 0,
         "EUTRA_PhysCellId", HFILL }},
-    { &hf_nr_rrc_q_OffsetCell_01,
-      { "q-OffsetCell", "nr-rrc.q_OffsetCell",
+    { &hf_nr_rrc_dummy,
+      { "dummy", "nr-rrc.dummy",
         FT_UINT32, BASE_DEC|BASE_EXT_STRING, &nr_rrc_EUTRA_Q_OffsetRange_vals_ext, 0,
         "EUTRA_Q_OffsetRange", HFILL }},
     { &hf_nr_rrc_messageIdentifier,
@@ -44673,7 +47065,7 @@ proto_register_nr_rrc(void) {
       { "pdcch-ConfigCommon", "nr-rrc.pdcch_ConfigCommon",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_pdcch_ConfigCommon_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_02,
+    { &hf_nr_rrc_setup_03,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "PDCCH_ConfigCommon", HFILL }},
@@ -44681,7 +47073,7 @@ proto_register_nr_rrc(void) {
       { "pdsch-ConfigCommon", "nr-rrc.pdsch_ConfigCommon",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_pdsch_ConfigCommon_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_03,
+    { &hf_nr_rrc_setup_04,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "PDSCH_ConfigCommon", HFILL }},
@@ -44689,7 +47081,7 @@ proto_register_nr_rrc(void) {
       { "pdcch-Config", "nr-rrc.pdcch_Config",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_pdcch_Config_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_04,
+    { &hf_nr_rrc_setup_05,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "PDCCH_Config", HFILL }},
@@ -44697,7 +47089,7 @@ proto_register_nr_rrc(void) {
       { "pdsch-Config", "nr-rrc.pdsch_Config",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_pdsch_Config_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_05,
+    { &hf_nr_rrc_setup_06,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "PDSCH_Config", HFILL }},
@@ -44705,7 +47097,7 @@ proto_register_nr_rrc(void) {
       { "sps-Config", "nr-rrc.sps_Config",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_sps_Config_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_06,
+    { &hf_nr_rrc_setup_07,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "SPS_Config", HFILL }},
@@ -44713,7 +47105,7 @@ proto_register_nr_rrc(void) {
       { "radioLinkMonitoringConfig", "nr-rrc.radioLinkMonitoringConfig",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_radioLinkMonitoringConfig_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_07,
+    { &hf_nr_rrc_setup_08,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RadioLinkMonitoringConfig", HFILL }},
@@ -44729,7 +47121,7 @@ proto_register_nr_rrc(void) {
       { "rach-ConfigCommon", "nr-rrc.rach_ConfigCommon",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_rach_ConfigCommon_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_08,
+    { &hf_nr_rrc_setup_09,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RACH_ConfigCommon", HFILL }},
@@ -44737,7 +47129,7 @@ proto_register_nr_rrc(void) {
       { "pusch-ConfigCommon", "nr-rrc.pusch_ConfigCommon",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_pusch_ConfigCommon_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_09,
+    { &hf_nr_rrc_setup_10,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "PUSCH_ConfigCommon", HFILL }},
@@ -44745,7 +47137,7 @@ proto_register_nr_rrc(void) {
       { "pucch-ConfigCommon", "nr-rrc.pucch_ConfigCommon",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_pucch_ConfigCommon_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_10,
+    { &hf_nr_rrc_setup_11,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "PUCCH_ConfigCommon", HFILL }},
@@ -44753,7 +47145,7 @@ proto_register_nr_rrc(void) {
       { "pucch-Config", "nr-rrc.pucch_Config",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_pucch_Config_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_11,
+    { &hf_nr_rrc_setup_12,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "PUCCH_Config", HFILL }},
@@ -44761,7 +47153,7 @@ proto_register_nr_rrc(void) {
       { "pusch-Config", "nr-rrc.pusch_Config",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_pusch_Config_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_12,
+    { &hf_nr_rrc_setup_13,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "PUSCH_Config", HFILL }},
@@ -44769,7 +47161,7 @@ proto_register_nr_rrc(void) {
       { "configuredGrantConfig", "nr-rrc.configuredGrantConfig",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_configuredGrantConfig_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_13,
+    { &hf_nr_rrc_setup_14,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "ConfiguredGrantConfig", HFILL }},
@@ -44777,7 +47169,7 @@ proto_register_nr_rrc(void) {
       { "srs-Config", "nr-rrc.srs_Config",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_srs_Config_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_14,
+    { &hf_nr_rrc_setup_15,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "SRS_Config", HFILL }},
@@ -44785,7 +47177,7 @@ proto_register_nr_rrc(void) {
       { "beamFailureRecoveryConfig", "nr-rrc.beamFailureRecoveryConfig",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_beamFailureRecoveryConfig_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_15,
+    { &hf_nr_rrc_setup_16,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "BeamFailureRecoveryConfig", HFILL }},
@@ -44905,7 +47297,7 @@ proto_register_nr_rrc(void) {
       { "rlf-TimersAndConstants", "nr-rrc.rlf_TimersAndConstants",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_rlf_TimersAndConstants_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_16,
+    { &hf_nr_rrc_setup_17,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RLF_TimersAndConstants", HFILL }},
@@ -44953,6 +47345,42 @@ proto_register_nr_rrc(void) {
       { "sCellConfigDedicated", "nr-rrc.sCellConfigDedicated_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "ServingCellConfig", HFILL }},
+    { &hf_nr_rrc_cgi_info_EPC,
+      { "cgi-info-EPC", "nr-rrc.cgi_info_EPC_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_cgi_info_EPC_legacy,
+      { "cgi-info-EPC-legacy", "nr-rrc.cgi_info_EPC_legacy_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CellAccessRelatedInfo_EUTRA_EPC", HFILL }},
+    { &hf_nr_rrc_cgi_info_EPC_list,
+      { "cgi-info-EPC-list", "nr-rrc.cgi_info_EPC_list",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_EPC", HFILL }},
+    { &hf_nr_rrc_cgi_info_EPC_list_item,
+      { "CellAccessRelatedInfo-EUTRA-EPC", "nr-rrc.CellAccessRelatedInfo_EUTRA_EPC_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_cgi_info_5GC,
+      { "cgi-info-5GC", "nr-rrc.cgi_info_5GC",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_5GC", HFILL }},
+    { &hf_nr_rrc_cgi_info_5GC_item,
+      { "CellAccessRelatedInfo-EUTRA-5GC", "nr-rrc.CellAccessRelatedInfo_EUTRA_5GC_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_freqBandIndicator,
+      { "freqBandIndicator", "nr-rrc.freqBandIndicator",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "FreqBandIndicatorEUTRA", HFILL }},
+    { &hf_nr_rrc_multiBandInfoList,
+      { "multiBandInfoList", "nr-rrc.multiBandInfoList",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "MultiBandInfoListEUTRA", HFILL }},
+    { &hf_nr_rrc_freqBandIndicatorPriority,
+      { "freqBandIndicatorPriority", "nr-rrc.freqBandIndicatorPriority",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_freqBandIndicatorPriority_vals), 0,
+        NULL, HFILL }},
     { &hf_nr_rrc_plmn_IdentityInfoList,
       { "plmn-IdentityInfoList", "nr-rrc.plmn_IdentityInfoList",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -45225,7 +47653,7 @@ proto_register_nr_rrc(void) {
       { "uci-OnPUSCH", "nr-rrc.uci_OnPUSCH",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_uci_OnPUSCH_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_17,
+    { &hf_nr_rrc_setup_18,
       { "setup", "nr-rrc.setup",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_CG_UCI_OnPUSCH_vals), 0,
         "CG_UCI_OnPUSCH", HFILL }},
@@ -45605,11 +48033,11 @@ proto_register_nr_rrc(void) {
       { "CSI-SSB-ResourceSet", "nr-rrc.CSI_SSB_ResourceSet_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_csi_SSB_ResourceSetToAddReleaseList,
-      { "csi-SSB-ResourceSetToAddReleaseList", "nr-rrc.csi_SSB_ResourceSetToAddReleaseList",
+    { &hf_nr_rrc_csi_SSB_ResourceSetToReleaseList,
+      { "csi-SSB-ResourceSetToReleaseList", "nr-rrc.csi_SSB_ResourceSetToReleaseList",
         FT_UINT32, BASE_DEC, NULL, 0,
         "SEQUENCE_SIZE_1_maxNrofCSI_SSB_ResourceSets_OF_CSI_SSB_ResourceSetId", HFILL }},
-    { &hf_nr_rrc_csi_SSB_ResourceSetToAddReleaseList_item,
+    { &hf_nr_rrc_csi_SSB_ResourceSetToReleaseList_item,
       { "CSI-SSB-ResourceSetId", "nr-rrc.CSI_SSB_ResourceSetId",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
@@ -45653,7 +48081,7 @@ proto_register_nr_rrc(void) {
       { "aperiodicTriggerStateList", "nr-rrc.aperiodicTriggerStateList",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_aperiodicTriggerStateList_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_18,
+    { &hf_nr_rrc_setup_19,
       { "setup", "nr-rrc.setup",
         FT_UINT32, BASE_DEC, NULL, 0,
         "CSI_AperiodicTriggerStateList", HFILL }},
@@ -45661,7 +48089,7 @@ proto_register_nr_rrc(void) {
       { "semiPersistentOnPUSCH-TriggerStateList", "nr-rrc.semiPersistentOnPUSCH_TriggerStateList",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_semiPersistentOnPUSCH_TriggerStateList_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_19,
+    { &hf_nr_rrc_setup_20,
       { "setup", "nr-rrc.setup",
         FT_UINT32, BASE_DEC, NULL, 0,
         "CSI_SemiPersistentOnPUSCH_TriggerStateList", HFILL }},
@@ -45869,7 +48297,7 @@ proto_register_nr_rrc(void) {
       { "codebookConfig", "nr-rrc.codebookConfig_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_dummy,
+    { &hf_nr_rrc_dummy_01,
       { "dummy", "nr-rrc.dummy",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_dummy_vals), 0,
         NULL, HFILL }},
@@ -46317,7 +48745,7 @@ proto_register_nr_rrc(void) {
       { "phaseTrackingRS", "nr-rrc.phaseTrackingRS",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_phaseTrackingRS_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_20,
+    { &hf_nr_rrc_setup_21,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "PTRS_DownlinkConfig", HFILL }},
@@ -46333,7 +48761,7 @@ proto_register_nr_rrc(void) {
       { "phaseTrackingRS", "nr-rrc.phaseTrackingRS",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_phaseTrackingRS_01_vals), 0,
         "T_phaseTrackingRS_01", HFILL }},
-    { &hf_nr_rrc_setup_21,
+    { &hf_nr_rrc_setup_22,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "PTRS_UplinkConfig", HFILL }},
@@ -46673,7 +49101,7 @@ proto_register_nr_rrc(void) {
       { "drx-Config", "nr-rrc.drx_Config",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_drx_Config_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_22,
+    { &hf_nr_rrc_setup_23,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "DRX_Config", HFILL }},
@@ -46693,7 +49121,7 @@ proto_register_nr_rrc(void) {
       { "phr-Config", "nr-rrc.phr_Config",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_phr_Config_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_23,
+    { &hf_nr_rrc_setup_24,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "PHR_Config", HFILL }},
@@ -46701,15 +49129,15 @@ proto_register_nr_rrc(void) {
       { "skipUplinkTxDynamic", "nr-rrc.skipUplinkTxDynamic",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
-    { &hf_nr_rrc_csi_Mask_v1530,
-      { "csi-Mask-v1530", "nr-rrc.csi_Mask_v1530",
+    { &hf_nr_rrc_csi_Mask,
+      { "csi-Mask", "nr-rrc.csi_Mask",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
-    { &hf_nr_rrc_dataInactivityTimer_v1530,
-      { "dataInactivityTimer-v1530", "nr-rrc.dataInactivityTimer_v1530",
-        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_dataInactivityTimer_v1530_vals), 0,
+    { &hf_nr_rrc_dataInactivityTimer,
+      { "dataInactivityTimer", "nr-rrc.dataInactivityTimer",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_dataInactivityTimer_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_24,
+    { &hf_nr_rrc_setup_25,
       { "setup", "nr-rrc.setup",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_DataInactivityTimer_vals), 0,
         "DataInactivityTimer", HFILL }},
@@ -46801,11 +49229,15 @@ proto_register_nr_rrc(void) {
       { "mgta", "nr-rrc.mgta",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_mgta_vals), 0,
         NULL, HFILL }},
+    { &hf_nr_rrc_refServCellIndicator,
+      { "refServCellIndicator", "nr-rrc.refServCellIndicator",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_refServCellIndicator_vals), 0,
+        NULL, HFILL }},
     { &hf_nr_rrc_gapSharingFR2,
       { "gapSharingFR2", "nr-rrc.gapSharingFR2",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_gapSharingFR2_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_25,
+    { &hf_nr_rrc_setup_26,
       { "setup", "nr-rrc.setup",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_MeasGapSharingScheme_vals), 0,
         "MeasGapSharingScheme", HFILL }},
@@ -46965,7 +49397,7 @@ proto_register_nr_rrc(void) {
       { "csi-rs-ResourceConfigMobility", "nr-rrc.csi_rs_ResourceConfigMobility",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_csi_rs_ResourceConfigMobility_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_26,
+    { &hf_nr_rrc_setup_27,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "CSI_RS_ResourceConfigMobility", HFILL }},
@@ -46973,7 +49405,7 @@ proto_register_nr_rrc(void) {
       { "ssb-ToMeasure", "nr-rrc.ssb_ToMeasure",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_ssb_ToMeasure_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_27,
+    { &hf_nr_rrc_setup_28,
       { "setup", "nr-rrc.setup",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_SSB_ToMeasure_vals), 0,
         "SSB_ToMeasure", HFILL }},
@@ -47037,8 +49469,8 @@ proto_register_nr_rrc(void) {
       { "measObjectEUTRA", "nr-rrc.measObjectEUTRA_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_MeasResultCellListSFTD_item,
-      { "MeasResultCellSFTD", "nr-rrc.MeasResultCellSFTD_element",
+    { &hf_nr_rrc_MeasResultCellListSFTD_NR_item,
+      { "MeasResultCellSFTD-NR", "nr-rrc.MeasResultCellSFTD_NR_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_nr_rrc_sfn_OffsetResult,
@@ -47053,6 +49485,14 @@ proto_register_nr_rrc(void) {
       { "rsrp-Result", "nr-rrc.rsrp_Result",
         FT_UINT32, BASE_CUSTOM, CF_FUNC(nr_rrc_RSRP_Range_fmt), 0,
         "RSRP_Range", HFILL }},
+    { &hf_nr_rrc_MeasResultCellListSFTD_EUTRA_item,
+      { "MeasResultSFTD-EUTRA", "nr-rrc.MeasResultSFTD_EUTRA_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_eutra_PhysCellId,
+      { "eutra-PhysCellId", "nr-rrc.eutra_PhysCellId",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
     { &hf_nr_rrc_measResultServingMOList,
       { "measResultServingMOList", "nr-rrc.measResultServingMOList",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -47069,6 +49509,22 @@ proto_register_nr_rrc(void) {
       { "measResultListEUTRA", "nr-rrc.measResultListEUTRA",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
+    { &hf_nr_rrc_measResultServFreqListEUTRA_SCG,
+      { "measResultServFreqListEUTRA-SCG", "nr-rrc.measResultServFreqListEUTRA_SCG",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_measResultServFreqListNR_SCG,
+      { "measResultServFreqListNR-SCG", "nr-rrc.measResultServFreqListNR_SCG",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_measResultSFTD_EUTRA,
+      { "measResultSFTD-EUTRA", "nr-rrc.measResultSFTD_EUTRA_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_measResultSFTD_NR,
+      { "measResultSFTD-NR", "nr-rrc.measResultSFTD_NR_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "MeasResultCellSFTD_NR", HFILL }},
     { &hf_nr_rrc_MeasResultServMOList_item,
       { "MeasResultServMO", "nr-rrc.MeasResultServMO_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -47121,7 +49577,7 @@ proto_register_nr_rrc(void) {
       { "MeasResultEUTRA", "nr-rrc.MeasResultEUTRA_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_eutra_PhysCellId,
+    { &hf_nr_rrc_eutra_PhysCellId_01,
       { "eutra-PhysCellId", "nr-rrc.eutra_PhysCellId",
         FT_UINT32, BASE_DEC, NULL, 0,
         "PhysCellId", HFILL }},
@@ -47132,43 +49588,7 @@ proto_register_nr_rrc(void) {
     { &hf_nr_rrc_cgi_Info_01,
       { "cgi-Info", "nr-rrc.cgi_Info_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_nr_rrc_cgi_info_EPC,
-      { "cgi-info-EPC", "nr-rrc.cgi_info_EPC_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_nr_rrc_cgi_info_EPC_legacy,
-      { "cgi-info-EPC-legacy", "nr-rrc.cgi_info_EPC_legacy_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "CellAccessRelatedInfo_EUTRA_EPC", HFILL }},
-    { &hf_nr_rrc_cgi_info_EPC_list,
-      { "cgi-info-EPC-list", "nr-rrc.cgi_info_EPC_list",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_EPC", HFILL }},
-    { &hf_nr_rrc_cgi_info_EPC_list_item,
-      { "CellAccessRelatedInfo-EUTRA-EPC", "nr-rrc.CellAccessRelatedInfo_EUTRA_EPC_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_nr_rrc_cgi_info_5GC,
-      { "cgi-info-5GC", "nr-rrc.cgi_info_5GC",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_5GC", HFILL }},
-    { &hf_nr_rrc_cgi_info_5GC_item,
-      { "CellAccessRelatedInfo-EUTRA-5GC", "nr-rrc.CellAccessRelatedInfo_EUTRA_5GC_element",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_nr_rrc_freqBandIndicator,
-      { "freqBandIndicator", "nr-rrc.freqBandIndicator",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "FreqBandIndicatorEUTRA", HFILL }},
-    { &hf_nr_rrc_multiBandInfoList,
-      { "multiBandInfoList", "nr-rrc.multiBandInfoList",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "MultiBandInfoListEUTRA", HFILL }},
-    { &hf_nr_rrc_freqBandIndicatorPriority,
-      { "freqBandIndicatorPriority", "nr-rrc.freqBandIndicatorPriority",
-        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_freqBandIndicatorPriority_vals), 0,
-        NULL, HFILL }},
+        "CGI_InfoEUTRA", HFILL }},
     { &hf_nr_rrc_MultiBandInfoListEUTRA_item,
       { "FreqBandIndicatorEUTRA", "nr-rrc.FreqBandIndicatorEUTRA",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -47213,6 +49633,26 @@ proto_register_nr_rrc(void) {
       { "csi-RS-Results", "nr-rrc.csi_RS_Results_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "MeasQuantityResults", HFILL }},
+    { &hf_nr_rrc_MeasResultServFreqListEUTRA_SCG_item,
+      { "MeasResult2EUTRA", "nr-rrc.MeasResult2EUTRA_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_MeasResultServFreqListNR_SCG_item,
+      { "MeasResult2NR", "nr-rrc.MeasResult2NR_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_measResultServingCell_01,
+      { "measResultServingCell", "nr-rrc.measResultServingCell_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "MeasResultEUTRA", HFILL }},
+    { &hf_nr_rrc_measResultBestNeighCell_01,
+      { "measResultBestNeighCell", "nr-rrc.measResultBestNeighCell_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "MeasResultEUTRA", HFILL }},
+    { &hf_nr_rrc_measResultNeighCellListNR,
+      { "measResultNeighCellListNR", "nr-rrc.measResultNeighCellListNR",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "MeasResultListNR", HFILL }},
     { &hf_nr_rrc_measResultPerMOList,
       { "measResultPerMOList", "nr-rrc.measResultPerMOList",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -47221,10 +49661,6 @@ proto_register_nr_rrc(void) {
       { "MeasResult2NR", "nr-rrc.MeasResult2NR_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_measResultNeighCellListNR,
-      { "measResultNeighCellListNR", "nr-rrc.measResultNeighCellListNR",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "MeasResultListNR", HFILL }},
     { &hf_nr_rrc_t_Evaluation,
       { "t-Evaluation", "nr-rrc.t_Evaluation",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_t_Evaluation_vals), 0,
@@ -47373,7 +49809,7 @@ proto_register_nr_rrc(void) {
       { "downlinkPreemption", "nr-rrc.downlinkPreemption",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_downlinkPreemption_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_28,
+    { &hf_nr_rrc_setup_29,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "DownlinkPreemption", HFILL }},
@@ -47381,7 +49817,7 @@ proto_register_nr_rrc(void) {
       { "tpc-PUSCH", "nr-rrc.tpc_PUSCH",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_tpc_PUSCH_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_29,
+    { &hf_nr_rrc_setup_30,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "PUSCH_TPC_CommandConfig", HFILL }},
@@ -47389,7 +49825,7 @@ proto_register_nr_rrc(void) {
       { "tpc-PUCCH", "nr-rrc.tpc_PUCCH",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_tpc_PUCCH_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_30,
+    { &hf_nr_rrc_setup_31,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "PUCCH_TPC_CommandConfig", HFILL }},
@@ -47397,7 +49833,7 @@ proto_register_nr_rrc(void) {
       { "tpc-SRS", "nr-rrc.tpc_SRS",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_tpc_SRS_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_31,
+    { &hf_nr_rrc_setup_32,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "SRS_TPC_CommandConfig", HFILL }},
@@ -47477,7 +49913,7 @@ proto_register_nr_rrc(void) {
       { "slotFormatIndicator", "nr-rrc.slotFormatIndicator",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_slotFormatIndicator_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_32,
+    { &hf_nr_rrc_setup_33,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "SlotFormatIndicator", HFILL }},
@@ -47621,7 +50057,7 @@ proto_register_nr_rrc(void) {
       { "dmrs-DownlinkForPDSCH-MappingTypeA", "nr-rrc.dmrs_DownlinkForPDSCH_MappingTypeA",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_dmrs_DownlinkForPDSCH_MappingTypeA_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_33,
+    { &hf_nr_rrc_setup_34,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "DMRS_DownlinkConfig", HFILL }},
@@ -47657,7 +50093,7 @@ proto_register_nr_rrc(void) {
       { "pdsch-TimeDomainAllocationList", "nr-rrc.pdsch_TimeDomainAllocationList",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_pdsch_TimeDomainAllocationList_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_34,
+    { &hf_nr_rrc_setup_35,
       { "setup", "nr-rrc.setup",
         FT_UINT32, BASE_DEC, NULL, 0,
         "PDSCH_TimeDomainResourceAllocationList", HFILL }},
@@ -47777,7 +50213,7 @@ proto_register_nr_rrc(void) {
       { "p-ZP-CSI-RS-ResourceSet", "nr-rrc.p_ZP_CSI_RS_ResourceSet",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_p_ZP_CSI_RS_ResourceSet_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_35,
+    { &hf_nr_rrc_setup_36,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "ZP_CSI_RS_ResourceSet", HFILL }},
@@ -47801,7 +50237,7 @@ proto_register_nr_rrc(void) {
       { "codeBlockGroupTransmission", "nr-rrc.codeBlockGroupTransmission",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_codeBlockGroupTransmission_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_36,
+    { &hf_nr_rrc_setup_37,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "PDSCH_CodeBlockGroupTransmission", HFILL }},
@@ -47865,7 +50301,7 @@ proto_register_nr_rrc(void) {
       { "multiplePHR", "nr-rrc.multiplePHR",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
-    { &hf_nr_rrc_dummy_01,
+    { &hf_nr_rrc_dummy_02,
       { "dummy", "nr-rrc.dummy",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
         "BOOLEAN", HFILL }},
@@ -47913,7 +50349,7 @@ proto_register_nr_rrc(void) {
       { "cs-RNTI", "nr-rrc.cs_RNTI",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_cs_RNTI_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_37,
+    { &hf_nr_rrc_setup_38,
       { "setup", "nr-rrc.setup",
         FT_UINT32, BASE_DEC, NULL, 0,
         "RNTI_Value", HFILL }},
@@ -47929,6 +50365,14 @@ proto_register_nr_rrc(void) {
       { "xScale", "nr-rrc.xScale",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_xScale_vals), 0,
         NULL, HFILL }},
+    { &hf_nr_rrc_pdcch_BlindDetection,
+      { "pdcch-BlindDetection", "nr-rrc.pdcch_BlindDetection",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_pdcch_BlindDetection_vals), 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_setup_39,
+      { "setup", "nr-rrc.setup",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "PDCCH_BlindDetection", HFILL }},
     { &hf_nr_rrc_mcc,
       { "mcc", "nr-rrc.mcc",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -48065,7 +50509,7 @@ proto_register_nr_rrc(void) {
       { "format1", "nr-rrc.format1",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_format1_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_38,
+    { &hf_nr_rrc_setup_40,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "PUCCH_FormatConfig", HFILL }},
@@ -48369,7 +50813,7 @@ proto_register_nr_rrc(void) {
       { "dmrs-UplinkForPUSCH-MappingTypeA", "nr-rrc.dmrs_UplinkForPUSCH_MappingTypeA",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_dmrs_UplinkForPUSCH_MappingTypeA_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_39,
+    { &hf_nr_rrc_setup_41,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "DMRS_UplinkConfig", HFILL }},
@@ -48401,7 +50845,7 @@ proto_register_nr_rrc(void) {
       { "pusch-TimeDomainAllocationList", "nr-rrc.pusch_TimeDomainAllocationList",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_pusch_TimeDomainAllocationList_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_40,
+    { &hf_nr_rrc_setup_42,
       { "setup", "nr-rrc.setup",
         FT_UINT32, BASE_DEC, NULL, 0,
         "PUSCH_TimeDomainResourceAllocationList", HFILL }},
@@ -48437,7 +50881,7 @@ proto_register_nr_rrc(void) {
       { "uci-OnPUSCH", "nr-rrc.uci_OnPUSCH",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_uci_OnPUSCH_01_vals), 0,
         "T_uci_OnPUSCH_01", HFILL }},
-    { &hf_nr_rrc_setup_41,
+    { &hf_nr_rrc_setup_43,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UCI_OnPUSCH", HFILL }},
@@ -48601,7 +51045,7 @@ proto_register_nr_rrc(void) {
       { "codeBlockGroupTransmission", "nr-rrc.codeBlockGroupTransmission",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_codeBlockGroupTransmission_01_vals), 0,
         "T_codeBlockGroupTransmission_01", HFILL }},
-    { &hf_nr_rrc_setup_42,
+    { &hf_nr_rrc_setup_44,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "PUSCH_CodeBlockGroupTransmission", HFILL }},
@@ -49045,7 +51489,7 @@ proto_register_nr_rrc(void) {
       { "controlResourceSet", "nr-rrc.controlResourceSet",
         FT_UINT32, BASE_DEC, NULL, 0,
         "ControlResourceSetId", HFILL }},
-    { &hf_nr_rrc_dummy_02,
+    { &hf_nr_rrc_dummy_03,
       { "dummy", "nr-rrc.dummy",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_dummy_01_vals), 0,
         "T_dummy_01", HFILL }},
@@ -49085,10 +51529,22 @@ proto_register_nr_rrc(void) {
       { "reportCGI", "nr-rrc.reportCGI_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "ReportCGI_EUTRA", HFILL }},
+    { &hf_nr_rrc_reportSFTD,
+      { "reportSFTD", "nr-rrc.reportSFTD_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ReportSFTD_EUTRA", HFILL }},
     { &hf_nr_rrc_cellForWhichToReportCGI_01,
       { "cellForWhichToReportCGI", "nr-rrc.cellForWhichToReportCGI",
         FT_UINT32, BASE_DEC, NULL, 0,
         "EUTRA_PhysCellId", HFILL }},
+    { &hf_nr_rrc_reportSFTD_Meas,
+      { "reportSFTD-Meas", "nr-rrc.reportSFTD_Meas",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
+    { &hf_nr_rrc_reportRSRP,
+      { "reportRSRP", "nr-rrc.reportRSRP",
+        FT_BOOLEAN, BASE_NONE, NULL, 0,
+        "BOOLEAN", HFILL }},
     { &hf_nr_rrc_eventId,
       { "eventId", "nr-rrc.eventId",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_eventId_vals), 0,
@@ -49165,6 +51621,10 @@ proto_register_nr_rrc(void) {
       { "reportCGI", "nr-rrc.reportCGI_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_nr_rrc_reportSFTD_01,
+      { "reportSFTD", "nr-rrc.reportSFTD_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "ReportSFTD_NR", HFILL }},
     { &hf_nr_rrc_eventId_01,
       { "eventId", "nr-rrc.eventId",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_eventId_01_vals), 0,
@@ -49705,7 +52165,7 @@ proto_register_nr_rrc(void) {
       { "pdcch-ServingCellConfig", "nr-rrc.pdcch_ServingCellConfig",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_pdcch_ServingCellConfig_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_43,
+    { &hf_nr_rrc_setup_45,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "PDCCH_ServingCellConfig", HFILL }},
@@ -49713,7 +52173,7 @@ proto_register_nr_rrc(void) {
       { "pdsch-ServingCellConfig", "nr-rrc.pdsch_ServingCellConfig",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_pdsch_ServingCellConfig_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_44,
+    { &hf_nr_rrc_setup_46,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "PDSCH_ServingCellConfig", HFILL }},
@@ -49721,7 +52181,7 @@ proto_register_nr_rrc(void) {
       { "csi-MeasConfig", "nr-rrc.csi_MeasConfig",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_csi_MeasConfig_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_45,
+    { &hf_nr_rrc_setup_47,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "CSI_MeasConfig", HFILL }},
@@ -49737,7 +52197,7 @@ proto_register_nr_rrc(void) {
       { "tag-Id", "nr-rrc.tag_Id",
         FT_UINT32, BASE_DEC, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_dummy_03,
+    { &hf_nr_rrc_dummy_04,
       { "dummy", "nr-rrc.dummy",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_dummy_02_vals), 0,
         "T_dummy_02", HFILL }},
@@ -49753,7 +52213,7 @@ proto_register_nr_rrc(void) {
       { "lte-CRS-ToMatchAround", "nr-rrc.lte_CRS_ToMatchAround",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_lte_CRS_ToMatchAround_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_46,
+    { &hf_nr_rrc_setup_48,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "RateMatchPatternLTE_CRS", HFILL }},
@@ -49793,7 +52253,7 @@ proto_register_nr_rrc(void) {
       { "pusch-ServingCellConfig", "nr-rrc.pusch_ServingCellConfig",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_pusch_ServingCellConfig_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_47,
+    { &hf_nr_rrc_setup_49,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "PUSCH_ServingCellConfig", HFILL }},
@@ -49801,7 +52261,7 @@ proto_register_nr_rrc(void) {
       { "carrierSwitching", "nr-rrc.carrierSwitching",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_carrierSwitching_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_48,
+    { &hf_nr_rrc_setup_50,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "SRS_CarrierSwitching", HFILL }},
@@ -50053,14 +52513,6 @@ proto_register_nr_rrc(void) {
       { "sf-High", "nr-rrc.sf_High",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_sf_High_01_vals), 0,
         "T_sf_High_01", HFILL }},
-    { &hf_nr_rrc_measurementSlots,
-      { "measurementSlots", "nr-rrc.measurementSlots",
-        FT_BYTES, BASE_NONE, NULL, 0,
-        "BIT_STRING_SIZE_1_80", HFILL }},
-    { &hf_nr_rrc_endSymbol,
-      { "endSymbol", "nr-rrc.endSymbol",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_3", HFILL }},
     { &hf_nr_rrc_periodicity_01,
       { "periodicity", "nr-rrc.periodicity",
         FT_UINT32, BASE_DEC|BASE_EXT_STRING, &nr_rrc_T_periodicity_01_vals_ext, 0,
@@ -50417,6 +52869,14 @@ proto_register_nr_rrc(void) {
       { "periodicity", "nr-rrc.periodicity",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_periodicity_02_vals), 0,
         "T_periodicity_02", HFILL }},
+    { &hf_nr_rrc_measurementSlots,
+      { "measurementSlots", "nr-rrc.measurementSlots",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "BIT_STRING_SIZE_1_80", HFILL }},
+    { &hf_nr_rrc_endSymbol,
+      { "endSymbol", "nr-rrc.endSymbol",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_0_3", HFILL }},
     { &hf_nr_rrc_tag_ToReleaseList,
       { "tag-ToReleaseList", "nr-rrc.tag_ToReleaseList",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -50633,7 +53093,7 @@ proto_register_nr_rrc(void) {
       { "initialUplinkBWP", "nr-rrc.initialUplinkBWP_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "BWP_UplinkCommon", HFILL }},
-    { &hf_nr_rrc_dummy_04,
+    { &hf_nr_rrc_dummy_05,
       { "dummy", "nr-rrc.dummy",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_TimeAlignmentTimer_vals), 0,
         "TimeAlignmentTimer", HFILL }},
@@ -50654,6 +53114,14 @@ proto_register_nr_rrc(void) {
         FT_UINT32, BASE_DEC, NULL, 0,
         "SEQUENCE_SIZE_1_maxNrofBWPs_OF_UplinkTxDirectCurrentBWP", HFILL }},
     { &hf_nr_rrc_uplinkDirectCurrentBWP_item,
+      { "UplinkTxDirectCurrentBWP", "nr-rrc.UplinkTxDirectCurrentBWP_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_uplinkDirectCurrentBWP_SUL,
+      { "uplinkDirectCurrentBWP-SUL", "nr-rrc.uplinkDirectCurrentBWP_SUL",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "SEQUENCE_SIZE_1_maxNrofBWPs_OF_UplinkTxDirectCurrentBWP", HFILL }},
+    { &hf_nr_rrc_uplinkDirectCurrentBWP_SUL_item,
       { "UplinkTxDirectCurrentBWP", "nr-rrc.UplinkTxDirectCurrentBWP_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
@@ -50691,6 +53159,10 @@ proto_register_nr_rrc(void) {
         NULL, HFILL }},
     { &hf_nr_rrc_BandCombinationList_v1550_item,
       { "BandCombination-v1550", "nr-rrc.BandCombination_v1550_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_BandCombinationList_v1560_item,
+      { "BandCombination-v1560", "nr-rrc.BandCombination_v1560_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_nr_rrc_bandList,
@@ -50739,6 +53211,22 @@ proto_register_nr_rrc(void) {
         NULL, HFILL }},
     { &hf_nr_rrc_ca_ParametersNR_v1550,
       { "ca-ParametersNR-v1550", "nr-rrc.ca_ParametersNR_v1550_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_ne_DC_BC,
+      { "ne-DC-BC", "nr-rrc.ne_DC_BC",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_ne_DC_BC_vals), 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_ca_ParametersNRDC,
+      { "ca-ParametersNRDC", "nr-rrc.ca_ParametersNRDC_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_ca_ParametersEUTRA_v1560,
+      { "ca-ParametersEUTRA-v1560", "nr-rrc.ca_ParametersEUTRA_v1560_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_ca_ParametersNR_v1560,
+      { "ca-ParametersNR-v1560", "nr-rrc.ca_ParametersNR_v1560_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_nr_rrc_eutra_01,
@@ -50801,8 +53289,8 @@ proto_register_nr_rrc(void) {
       { "SRS-SwitchingTimeEUTRA", "nr-rrc.SRS_SwitchingTimeEUTRA_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_srs_TxSwitch_v1540,
-      { "srs-TxSwitch-v1540", "nr-rrc.srs_TxSwitch_v1540_element",
+    { &hf_nr_rrc_srs_TxSwitch,
+      { "srs-TxSwitch", "nr-rrc.srs_TxSwitch_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_nr_rrc_supportedSRS_TxPortSwitch,
@@ -50841,10 +53329,14 @@ proto_register_nr_rrc(void) {
       { "supportedBandwidthCombinationSetEUTRA-v1530", "nr-rrc.supportedBandwidthCombinationSetEUTRA_v1530",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_1_32", HFILL }},
-    { &hf_nr_rrc_multipleTimingAdvances,
-      { "multipleTimingAdvances", "nr-rrc.multipleTimingAdvances",
-        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_multipleTimingAdvances_vals), 0,
-        NULL, HFILL }},
+    { &hf_nr_rrc_totalWeightedLayers,
+      { "totalWeightedLayers", "nr-rrc.totalWeightedLayers",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_2_128", HFILL }},
+    { &hf_nr_rrc_dummy_06,
+      { "dummy", "nr-rrc.dummy",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_dummy_03_vals), 0,
+        "T_dummy_03", HFILL }},
     { &hf_nr_rrc_parallelTxSRS_PUCCH_PUSCH,
       { "parallelTxSRS-PUCCH-PUSCH", "nr-rrc.parallelTxSRS_PUCCH_PUSCH",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_parallelTxSRS_PUCCH_PUSCH_vals), 0,
@@ -50865,9 +53357,9 @@ proto_register_nr_rrc(void) {
       { "diffNumerologyAcrossPUCCH-Group", "nr-rrc.diffNumerologyAcrossPUCCH_Group",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_diffNumerologyAcrossPUCCH_Group_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_diffNumerologyWithinPUCCH_Group,
-      { "diffNumerologyWithinPUCCH-Group", "nr-rrc.diffNumerologyWithinPUCCH_Group",
-        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_diffNumerologyWithinPUCCH_Group_vals), 0,
+    { &hf_nr_rrc_diffNumerologyWithinPUCCH_GroupSmallerSCS,
+      { "diffNumerologyWithinPUCCH-GroupSmallerSCS", "nr-rrc.diffNumerologyWithinPUCCH_GroupSmallerSCS",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_diffNumerologyWithinPUCCH_GroupSmallerSCS_vals), 0,
         NULL, HFILL }},
     { &hf_nr_rrc_supportedNumberTAG,
       { "supportedNumberTAG", "nr-rrc.supportedNumberTAG",
@@ -50897,10 +53389,34 @@ proto_register_nr_rrc(void) {
       { "dualPA-Architecture", "nr-rrc.dualPA_Architecture",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_dualPA_Architecture_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_aperiodic_CSI_diffSCS,
-      { "aperiodic-CSI-diffSCS", "nr-rrc.aperiodic_CSI_diffSCS",
-        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_aperiodic_CSI_diffSCS_vals), 0,
+    { &hf_nr_rrc_dummy_07,
+      { "dummy", "nr-rrc.dummy",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_dummy_04_vals), 0,
+        "T_dummy_04", HFILL }},
+    { &hf_nr_rrc_diffNumerologyWithinPUCCH_GroupLargerSCS,
+      { "diffNumerologyWithinPUCCH-GroupLargerSCS", "nr-rrc.diffNumerologyWithinPUCCH_GroupLargerSCS",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_diffNumerologyWithinPUCCH_GroupLargerSCS_vals), 0,
         NULL, HFILL }},
+    { &hf_nr_rrc_ca_ParametersNR_ForDC,
+      { "ca-ParametersNR-ForDC", "nr-rrc.ca_ParametersNR_ForDC_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CA_ParametersNR", HFILL }},
+    { &hf_nr_rrc_ca_ParametersNR_ForDC_v1540,
+      { "ca-ParametersNR-ForDC-v1540", "nr-rrc.ca_ParametersNR_ForDC_v1540_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CA_ParametersNR_v1540", HFILL }},
+    { &hf_nr_rrc_ca_ParametersNR_ForDC_v1550,
+      { "ca-ParametersNR-ForDC-v1550", "nr-rrc.ca_ParametersNR_ForDC_v1550_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CA_ParametersNR_v1550", HFILL }},
+    { &hf_nr_rrc_ca_ParametersNR_ForDC_v1560,
+      { "ca-ParametersNR-ForDC-v1560", "nr-rrc.ca_ParametersNR_ForDC_v1560_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "CA_ParametersNR_v1560", HFILL }},
+    { &hf_nr_rrc_featureSetCombinationDC,
+      { "featureSetCombinationDC", "nr-rrc.featureSetCombinationDC",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "FeatureSetCombinationId", HFILL }},
     { &hf_nr_rrc_type1_02,
       { "type1", "nr-rrc.type1_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -51441,12 +53957,12 @@ proto_register_nr_rrc(void) {
       { "maxNumberPeriodicSRS-PerBWP-PerSlot", "nr-rrc.maxNumberPeriodicSRS_PerBWP_PerSlot",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_1_6", HFILL }},
-    { &hf_nr_rrc_maxNumberSemiPersitentSRS_PerBWP,
-      { "maxNumberSemiPersitentSRS-PerBWP", "nr-rrc.maxNumberSemiPersitentSRS_PerBWP",
-        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_maxNumberSemiPersitentSRS_PerBWP_vals), 0,
+    { &hf_nr_rrc_maxNumberSemiPersistentSRS_PerBWP,
+      { "maxNumberSemiPersistentSRS-PerBWP", "nr-rrc.maxNumberSemiPersistentSRS_PerBWP",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_maxNumberSemiPersistentSRS_PerBWP_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_maxNumberSP_SRS_PerBWP_PerSlot,
-      { "maxNumberSP-SRS-PerBWP-PerSlot", "nr-rrc.maxNumberSP_SRS_PerBWP_PerSlot",
+    { &hf_nr_rrc_maxNumberSemiPersistentSRS_PerBWP_PerSlot,
+      { "maxNumberSemiPersistentSRS-PerBWP-PerSlot", "nr-rrc.maxNumberSemiPersistentSRS_PerBWP_PerSlot",
         FT_UINT32, BASE_DEC, NULL, 0,
         "INTEGER_1_6", HFILL }},
     { &hf_nr_rrc_maxNumberSRS_Ports_PerResource,
@@ -51549,6 +54065,10 @@ proto_register_nr_rrc(void) {
       { "voiceOverEUTRA-5GC", "nr-rrc.voiceOverEUTRA_5GC",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_voiceOverEUTRA_5GC_vals), 0,
         NULL, HFILL }},
+    { &hf_nr_rrc_voiceOverSCG_BearerEUTRA_5GC,
+      { "voiceOverSCG-BearerEUTRA-5GC", "nr-rrc.voiceOverSCG_BearerEUTRA_5GC",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_voiceOverSCG_BearerEUTRA_5GC_vals), 0,
+        NULL, HFILL }},
     { &hf_nr_rrc_voiceOverNR,
       { "voiceOverNR", "nr-rrc.voiceOverNR",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_voiceOverNR_vals), 0,
@@ -51589,6 +54109,10 @@ proto_register_nr_rrc(void) {
       { "rs-SINR-MeasEUTRA", "nr-rrc.rs_SINR_MeasEUTRA",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_rs_SINR_MeasEUTRA_vals), 0,
         NULL, HFILL }},
+    { &hf_nr_rrc_ne_DC,
+      { "ne-DC", "nr-rrc.ne_DC",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_ne_DC_vals), 0,
+        NULL, HFILL }},
     { &hf_nr_rrc_rsrqMeasWidebandEUTRA,
       { "rsrqMeasWidebandEUTRA", "nr-rrc.rsrqMeasWidebandEUTRA",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_rsrqMeasWidebandEUTRA_vals), 0,
@@ -51605,10 +54129,10 @@ proto_register_nr_rrc(void) {
       { "lcp-Restriction", "nr-rrc.lcp_Restriction",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_lcp_Restriction_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_dummy_05,
+    { &hf_nr_rrc_dummy_08,
       { "dummy", "nr-rrc.dummy",
-        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_dummy_03_vals), 0,
-        "T_dummy_03", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_dummy_05_vals), 0,
+        "T_dummy_05", HFILL }},
     { &hf_nr_rrc_lch_ToSCellRestriction,
       { "lch-ToSCellRestriction", "nr-rrc.lch_ToSCellRestriction",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_lch_ToSCellRestriction_vals), 0,
@@ -51717,13 +54241,13 @@ proto_register_nr_rrc(void) {
       { "handoverInterF", "nr-rrc.handoverInterF",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_handoverInterF_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_handoverLTE,
-      { "handoverLTE", "nr-rrc.handoverLTE",
-        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_handoverLTE_vals), 0,
+    { &hf_nr_rrc_handoverLTE_EPC,
+      { "handoverLTE-EPC", "nr-rrc.handoverLTE_EPC",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_handoverLTE_EPC_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_handover_eLTE,
-      { "handover-eLTE", "nr-rrc.handover_eLTE",
-        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_handover_eLTE_vals), 0,
+    { &hf_nr_rrc_handoverLTE_5GC,
+      { "handoverLTE-5GC", "nr-rrc.handoverLTE_5GC",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_handoverLTE_5GC_vals), 0,
         NULL, HFILL }},
     { &hf_nr_rrc_ss_SINR_Meas,
       { "ss-SINR-Meas", "nr-rrc.ss_SINR_Meas",
@@ -51749,14 +54273,14 @@ proto_register_nr_rrc(void) {
       { "handoverInterF", "nr-rrc.handoverInterF",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_handoverInterF_01_vals), 0,
         "T_handoverInterF_01", HFILL }},
-    { &hf_nr_rrc_handoverLTE_01,
-      { "handoverLTE", "nr-rrc.handoverLTE",
-        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_handoverLTE_01_vals), 0,
-        "T_handoverLTE_01", HFILL }},
-    { &hf_nr_rrc_handover_eLTE_01,
-      { "handover-eLTE", "nr-rrc.handover_eLTE",
-        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_handover_eLTE_01_vals), 0,
-        "T_handover_eLTE_01", HFILL }},
+    { &hf_nr_rrc_handoverLTE_EPC_01,
+      { "handoverLTE-EPC", "nr-rrc.handoverLTE_EPC",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_handoverLTE_EPC_01_vals), 0,
+        "T_handoverLTE_EPC_01", HFILL }},
+    { &hf_nr_rrc_handoverLTE_5GC_01,
+      { "handoverLTE-5GC", "nr-rrc.handoverLTE_5GC",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_handoverLTE_5GC_01_vals), 0,
+        "T_handoverLTE_5GC_01", HFILL }},
     { &hf_nr_rrc_maxNumberResource_CSI_RS_RLM,
       { "maxNumberResource-CSI-RS-RLM", "nr-rrc.maxNumberResource_CSI_RS_RLM",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_maxNumberResource_CSI_RS_RLM_vals), 0,
@@ -51777,6 +54301,10 @@ proto_register_nr_rrc(void) {
       { "measAndMobParametersMRDC-FRX-Diff", "nr-rrc.measAndMobParametersMRDC_FRX_Diff_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_nr_rrc_measAndMobParametersMRDC_XDD_Diff_v1560,
+      { "measAndMobParametersMRDC-XDD-Diff-v1560", "nr-rrc.measAndMobParametersMRDC_XDD_Diff_v1560_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_nr_rrc_independentGapConfig_01,
       { "independentGapConfig", "nr-rrc.independentGapConfig",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_independentGapConfig_01_vals), 0,
@@ -51788,6 +54316,10 @@ proto_register_nr_rrc(void) {
     { &hf_nr_rrc_sftd_MeasNR_Cell,
       { "sftd-MeasNR-Cell", "nr-rrc.sftd_MeasNR_Cell",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_sftd_MeasNR_Cell_vals), 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_sftd_MeasPSCell_NEDC,
+      { "sftd-MeasPSCell-NEDC", "nr-rrc.sftd_MeasPSCell_NEDC",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_sftd_MeasPSCell_NEDC_vals), 0,
         NULL, HFILL }},
     { &hf_nr_rrc_simultaneousRxDataSSB_DiffNumerology_01,
       { "simultaneousRxDataSSB-DiffNumerology", "nr-rrc.simultaneousRxDataSSB_DiffNumerology",
@@ -51981,9 +54513,9 @@ proto_register_nr_rrc(void) {
       { "aperiodicTRS", "nr-rrc.aperiodicTRS",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_aperiodicTRS_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_beamCorrespondenceCA,
-      { "beamCorrespondenceCA", "nr-rrc.beamCorrespondenceCA",
-        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_beamCorrespondenceCA_vals), 0,
+    { &hf_nr_rrc_dummy6_01,
+      { "dummy6", "nr-rrc.dummy6",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_dummy6_vals), 0,
         NULL, HFILL }},
     { &hf_nr_rrc_beamManagementSSB_CSI_RS,
       { "beamManagementSSB-CSI-RS", "nr-rrc.beamManagementSSB_CSI_RS_element",
@@ -52261,6 +54793,34 @@ proto_register_nr_rrc(void) {
       { "ul-TimingAlignmentEUTRA-NR", "nr-rrc.ul_TimingAlignmentEUTRA_NR",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_ul_TimingAlignmentEUTRA_NR_vals), 0,
         NULL, HFILL }},
+    { &hf_nr_rrc_measAndMobParametersNRDC,
+      { "measAndMobParametersNRDC", "nr-rrc.measAndMobParametersNRDC_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "MeasAndMobParametersMRDC", HFILL }},
+    { &hf_nr_rrc_generalParametersNRDC,
+      { "generalParametersNRDC", "nr-rrc.generalParametersNRDC_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "GeneralParametersMRDC_XDD_Diff", HFILL }},
+    { &hf_nr_rrc_fdd_Add_UE_NRDC_Capabilities,
+      { "fdd-Add-UE-NRDC-Capabilities", "nr-rrc.fdd_Add_UE_NRDC_Capabilities_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "UE_MRDC_CapabilityAddXDD_Mode", HFILL }},
+    { &hf_nr_rrc_tdd_Add_UE_NRDC_Capabilities,
+      { "tdd-Add-UE-NRDC-Capabilities", "nr-rrc.tdd_Add_UE_NRDC_Capabilities_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "UE_MRDC_CapabilityAddXDD_Mode", HFILL }},
+    { &hf_nr_rrc_fr1_Add_UE_NRDC_Capabilities,
+      { "fr1-Add-UE-NRDC-Capabilities", "nr-rrc.fr1_Add_UE_NRDC_Capabilities_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "UE_MRDC_CapabilityAddFRX_Mode", HFILL }},
+    { &hf_nr_rrc_fr2_Add_UE_NRDC_Capabilities,
+      { "fr2-Add-UE-NRDC-Capabilities", "nr-rrc.fr2_Add_UE_NRDC_Capabilities_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "UE_MRDC_CapabilityAddFRX_Mode", HFILL }},
+    { &hf_nr_rrc_nonCriticalExtension_50,
+      { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_nonCriticalExtension_37", HFILL }},
     { &hf_nr_rrc_supportedROHC_Profiles,
       { "supportedROHC-Profiles", "nr-rrc.supportedROHC_Profiles_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -52461,10 +55021,10 @@ proto_register_nr_rrc(void) {
       { "bwp-SwitchingDelay", "nr-rrc.bwp_SwitchingDelay",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_bwp_SwitchingDelay_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_dummy_06,
+    { &hf_nr_rrc_dummy_09,
       { "dummy", "nr-rrc.dummy",
-        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_dummy_04_vals), 0,
-        "T_dummy_04", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_dummy_06_vals), 0,
+        "T_dummy_06", HFILL }},
     { &hf_nr_rrc_maxNumberSearchSpaces,
       { "maxNumberSearchSpaces", "nr-rrc.maxNumberSearchSpaces",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_maxNumberSearchSpaces_vals), 0,
@@ -52709,9 +55269,25 @@ proto_register_nr_rrc(void) {
       { "oneFL-DMRS-ThreeAdditionalDMRS-UL", "nr-rrc.oneFL_DMRS_ThreeAdditionalDMRS_UL",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_oneFL_DMRS_ThreeAdditionalDMRS_UL_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_pdcchMonitoringSingleOccasion,
-      { "pdcchMonitoringSingleOccasion", "nr-rrc.pdcchMonitoringSingleOccasion",
-        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_pdcchMonitoringSingleOccasion_vals), 0,
+    { &hf_nr_rrc_pdcch_BlindDetectionNRDC,
+      { "pdcch-BlindDetectionNRDC", "nr-rrc.pdcch_BlindDetectionNRDC_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_pdcch_BlindDetectionMCG_UE,
+      { "pdcch-BlindDetectionMCG-UE", "nr-rrc.pdcch_BlindDetectionMCG_UE",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_1_15", HFILL }},
+    { &hf_nr_rrc_pdcch_BlindDetectionSCG_UE,
+      { "pdcch-BlindDetectionSCG-UE", "nr-rrc.pdcch_BlindDetectionSCG_UE",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "INTEGER_1_15", HFILL }},
+    { &hf_nr_rrc_mux_HARQ_ACK_PUSCH_DiffSymbol,
+      { "mux-HARQ-ACK-PUSCH-DiffSymbol", "nr-rrc.mux_HARQ_ACK_PUSCH_DiffSymbol",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_mux_HARQ_ACK_PUSCH_DiffSymbol_vals), 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_pdcch_MonitoringSingleOccasion,
+      { "pdcch-MonitoringSingleOccasion", "nr-rrc.pdcch_MonitoringSingleOccasion",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_pdcch_MonitoringSingleOccasion_vals), 0,
         NULL, HFILL }},
     { &hf_nr_rrc_scs_60kHz_10,
       { "scs-60kHz", "nr-rrc.scs_60kHz",
@@ -52729,10 +55305,10 @@ proto_register_nr_rrc(void) {
       { "pdsch-RE-MappingFR1-PerSlot", "nr-rrc.pdsch_RE_MappingFR1_PerSlot",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_pdsch_RE_MappingFR1_PerSlot_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_dummy_07,
+    { &hf_nr_rrc_dummy_10,
       { "dummy", "nr-rrc.dummy",
-        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_dummy_05_vals), 0,
-        "T_dummy_05", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_dummy_07_vals), 0,
+        "T_dummy_07", HFILL }},
     { &hf_nr_rrc_pdsch_RE_MappingFR2_PerSymbol,
       { "pdsch-RE-MappingFR2-PerSymbol", "nr-rrc.pdsch_RE_MappingFR2_PerSymbol",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_pdsch_RE_MappingFR2_PerSymbol_vals), 0,
@@ -52813,6 +55389,10 @@ proto_register_nr_rrc(void) {
       { "supportedBandCombinationList-v1550", "nr-rrc.supportedBandCombinationList_v1550",
         FT_UINT32, BASE_DEC, NULL, 0,
         "BandCombinationList_v1550", HFILL }},
+    { &hf_nr_rrc_supportedBandCombinationList_v1560,
+      { "supportedBandCombinationList-v1560", "nr-rrc.supportedBandCombinationList_v1560",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "BandCombinationList_v1560", HFILL }},
     { &hf_nr_rrc_modifiedMPR_Behaviour,
       { "modifiedMPR-Behaviour", "nr-rrc.modifiedMPR_Behaviour",
         FT_BYTES, BASE_NONE, NULL, 0,
@@ -52917,10 +55497,18 @@ proto_register_nr_rrc(void) {
       { "powerBoosting-pi2BPSK", "nr-rrc.powerBoosting_pi2BPSK",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_powerBoosting_pi2BPSK_vals), 0,
         NULL, HFILL }},
+    { &hf_nr_rrc_maxUplinkDutyCycle_FR2,
+      { "maxUplinkDutyCycle-FR2", "nr-rrc.maxUplinkDutyCycle_FR2",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_maxUplinkDutyCycle_FR2_vals), 0,
+        NULL, HFILL }},
     { &hf_nr_rrc_srs_SwitchingTimeRequested_01,
       { "srs-SwitchingTimeRequested", "nr-rrc.srs_SwitchingTimeRequested",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_srs_SwitchingTimeRequested_01_vals), 0,
         "T_srs_SwitchingTimeRequested_01", HFILL }},
+    { &hf_nr_rrc_supportedBandCombinationListNEDC_Only,
+      { "supportedBandCombinationListNEDC-Only", "nr-rrc.supportedBandCombinationListNEDC_Only",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        "BandCombinationList", HFILL }},
     { &hf_nr_rrc_am_WithShortSN,
       { "am-WithShortSN", "nr-rrc.am_WithShortSN",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_am_WithShortSN_vals), 0,
@@ -52981,11 +55569,27 @@ proto_register_nr_rrc(void) {
       { "capabilityRequestFilter", "nr-rrc.capabilityRequestFilter",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_nr_rrc_mrdc_Request,
+      { "mrdc-Request", "nr-rrc.mrdc_Request_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_omitEN_DC,
+      { "omitEN-DC", "nr-rrc.omitEN_DC",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_omitEN_DC_vals), 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_includeNR_DC,
+      { "includeNR-DC", "nr-rrc.includeNR_DC",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_includeNR_DC_vals), 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_includeNE_DC,
+      { "includeNE-DC", "nr-rrc.includeNE_DC",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_includeNE_DC_vals), 0,
+        NULL, HFILL }},
     { &hf_nr_rrc_frequencyBandListFilter,
       { "frequencyBandListFilter", "nr-rrc.frequencyBandListFilter",
         FT_UINT32, BASE_DEC, NULL, 0,
         "FreqBandList", HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_42,
+    { &hf_nr_rrc_nonCriticalExtension_51,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UE_CapabilityRequestFilterNR_v1540", HFILL }},
@@ -52993,10 +55597,10 @@ proto_register_nr_rrc(void) {
       { "srs-SwitchingTimeRequest", "nr-rrc.srs_SwitchingTimeRequest",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_srs_SwitchingTimeRequest_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_43,
+    { &hf_nr_rrc_nonCriticalExtension_52,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_nonCriticalExtension_34", HFILL }},
+        "T_nonCriticalExtension_38", HFILL }},
     { &hf_nr_rrc_measAndMobParametersMRDC,
       { "measAndMobParametersMRDC", "nr-rrc.measAndMobParametersMRDC_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -53041,10 +55645,30 @@ proto_register_nr_rrc(void) {
       { "pdcp-ParametersMRDC-v1530", "nr-rrc.pdcp_ParametersMRDC_v1530_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "PDCP_ParametersMRDC", HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_44,
+    { &hf_nr_rrc_nonCriticalExtension_53,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_nonCriticalExtension_35", HFILL }},
+        "UE_MRDC_Capability_v1560", HFILL }},
+    { &hf_nr_rrc_receivedFilters,
+      { "receivedFilters", "nr-rrc.receivedFilters",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_measAndMobParametersMRDC_v1560,
+      { "measAndMobParametersMRDC-v1560", "nr-rrc.measAndMobParametersMRDC_v1560_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_fdd_Add_UE_MRDC_Capabilities_v1560,
+      { "fdd-Add-UE-MRDC-Capabilities-v1560", "nr-rrc.fdd_Add_UE_MRDC_Capabilities_v1560_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "UE_MRDC_CapabilityAddXDD_Mode_v1560", HFILL }},
+    { &hf_nr_rrc_tdd_Add_UE_MRDC_Capabilities_v1560,
+      { "tdd-Add-UE-MRDC-Capabilities-v1560", "nr-rrc.tdd_Add_UE_MRDC_Capabilities_v1560_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "UE_MRDC_CapabilityAddXDD_Mode_v1560", HFILL }},
+    { &hf_nr_rrc_nonCriticalExtension_54,
+      { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_nonCriticalExtension_39", HFILL }},
     { &hf_nr_rrc_generalParametersMRDC_XDD_Diff,
       { "generalParametersMRDC-XDD-Diff", "nr-rrc.generalParametersMRDC_XDD_Diff_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -53061,9 +55685,9 @@ proto_register_nr_rrc(void) {
       { "srb3", "nr-rrc.srb3",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_srb3_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_v2x_EUTRA_v1530,
-      { "v2x-EUTRA-v1530", "nr-rrc.v2x_EUTRA_v1530",
-        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_v2x_EUTRA_v1530_vals), 0,
+    { &hf_nr_rrc_v2x_EUTRA,
+      { "v2x-EUTRA", "nr-rrc.v2x_EUTRA",
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_v2x_EUTRA_vals), 0,
         NULL, HFILL }},
     { &hf_nr_rrc_accessStratumRelease,
       { "accessStratumRelease", "nr-rrc.accessStratumRelease",
@@ -53113,7 +55737,7 @@ proto_register_nr_rrc(void) {
       { "featureSets", "nr-rrc.featureSets_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_45,
+    { &hf_nr_rrc_nonCriticalExtension_55,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UE_NR_Capability_v1530", HFILL }},
@@ -53125,10 +55749,10 @@ proto_register_nr_rrc(void) {
       { "tdd-Add-UE-NR-Capabilities-v1530", "nr-rrc.tdd_Add_UE_NR_Capabilities_v1530_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UE_NR_CapabilityAddXDD_Mode_v1530", HFILL }},
-    { &hf_nr_rrc_dummy_08,
+    { &hf_nr_rrc_dummy_11,
       { "dummy", "nr-rrc.dummy",
-        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_dummy_06_vals), 0,
-        "T_dummy_06", HFILL }},
+        FT_UINT32, BASE_DEC, VALS(nr_rrc_T_dummy_08_vals), 0,
+        "T_dummy_08", HFILL }},
     { &hf_nr_rrc_interRAT_Parameters,
       { "interRAT-Parameters", "nr-rrc.interRAT_Parameters_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -53141,7 +55765,7 @@ proto_register_nr_rrc(void) {
       { "delayBudgetReporting", "nr-rrc.delayBudgetReporting",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_delayBudgetReporting_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_46,
+    { &hf_nr_rrc_nonCriticalExtension_56,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UE_NR_Capability_v1540", HFILL }},
@@ -53169,7 +55793,7 @@ proto_register_nr_rrc(void) {
       { "fr1-fr2-Add-UE-NR-Capabilities", "nr-rrc.fr1_fr2_Add_UE_NR_Capabilities_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UE_NR_CapabilityAddFRX_Mode", HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_47,
+    { &hf_nr_rrc_nonCriticalExtension_57,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "UE_NR_Capability_v1550", HFILL }},
@@ -53177,10 +55801,22 @@ proto_register_nr_rrc(void) {
       { "reducedCP-Latency", "nr-rrc.reducedCP_Latency",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_reducedCP_Latency_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_nonCriticalExtension_48,
+    { &hf_nr_rrc_nonCriticalExtension_58,
       { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
         FT_NONE, BASE_NONE, NULL, 0,
-        "T_nonCriticalExtension_36", HFILL }},
+        "UE_NR_Capability_v1560", HFILL }},
+    { &hf_nr_rrc_nrdc_Parameters,
+      { "nrdc-Parameters", "nr-rrc.nrdc_Parameters_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_receivedFilters_01,
+      { "receivedFilters", "nr-rrc.receivedFilters",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "T_receivedFilters_01", HFILL }},
+    { &hf_nr_rrc_nonCriticalExtension_59,
+      { "nonCriticalExtension", "nr-rrc.nonCriticalExtension_element",
+        FT_NONE, BASE_NONE, NULL, 0,
+        "T_nonCriticalExtension_40", HFILL }},
     { &hf_nr_rrc_EUTRA_MBSFN_SubframeConfigList_item,
       { "EUTRA-MBSFN-SubframeConfig", "nr-rrc.EUTRA_MBSFN_SubframeConfig_element",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -53253,7 +55889,7 @@ proto_register_nr_rrc(void) {
       { "delayBudgetReportingConfig", "nr-rrc.delayBudgetReportingConfig",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_delayBudgetReportingConfig_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_49,
+    { &hf_nr_rrc_setup_51,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
@@ -53265,7 +55901,7 @@ proto_register_nr_rrc(void) {
       { "overheatingAssistanceConfig", "nr-rrc.overheatingAssistanceConfig",
         FT_UINT32, BASE_DEC, VALS(nr_rrc_T_overheatingAssistanceConfig_vals), 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_setup_50,
+    { &hf_nr_rrc_setup_52,
       { "setup", "nr-rrc.setup_element",
         FT_NONE, BASE_NONE, NULL, 0,
         "OverheatingAssistanceConfig", HFILL }},
@@ -53275,7 +55911,7 @@ proto_register_nr_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-nr-rrc-hfarr.c ---*/
-#line 368 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 381 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 
     { &hf_nr_rrc_serialNumber_gs,
       { "Geographical Scope", "nr-rrc.serialNumber.gs",
@@ -53436,8 +56072,11 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_T_criticalExtensionsFuture_02,
     &ett_nr_rrc_CG_Config_IEs,
     &ett_nr_rrc_CG_Config_v1540_IEs,
-    &ett_nr_rrc_T_reportCGI_Request,
+    &ett_nr_rrc_T_reportCGI_RequestNR,
     &ett_nr_rrc_T_requestedCellInfo,
+    &ett_nr_rrc_CG_Config_v1560_IEs,
+    &ett_nr_rrc_T_reportCGI_RequestEUTRA,
+    &ett_nr_rrc_T_requestedCellInfoEUTRA,
     &ett_nr_rrc_T_nonCriticalExtension_02,
     &ett_nr_rrc_PH_TypeListSCG,
     &ett_nr_rrc_PH_InfoSCG,
@@ -53450,6 +56089,7 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_FR_InfoList,
     &ett_nr_rrc_FR_Info,
     &ett_nr_rrc_CandidateServingFreqListNR,
+    &ett_nr_rrc_CandidateServingFreqListEUTRA,
     &ett_nr_rrc_CG_ConfigInfo,
     &ett_nr_rrc_T_criticalExtensions_03,
     &ett_nr_rrc_T_c1_03,
@@ -53458,10 +56098,14 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_T_scgFailureInfo,
     &ett_nr_rrc_CG_ConfigInfo_v1540_IEs,
     &ett_nr_rrc_T_measResultReportCGI,
+    &ett_nr_rrc_CG_ConfigInfo_v1560_IEs,
+    &ett_nr_rrc_T_scgFailureInfoEUTRA,
+    &ett_nr_rrc_T_measResultReportCGI_EUTRA,
     &ett_nr_rrc_T_nonCriticalExtension_03,
     &ett_nr_rrc_ConfigRestrictInfoSCG,
     &ett_nr_rrc_T_powerCoordination_FR1,
     &ett_nr_rrc_T_servCellIndexRangeSCG,
+    &ett_nr_rrc_SEQUENCE_SIZE_1_maxSimultaneousBands_OF_BandEntryIndex,
     &ett_nr_rrc_PH_TypeListMCG,
     &ett_nr_rrc_PH_InfoMCG,
     &ett_nr_rrc_PH_UplinkCarrierMCG,
@@ -53474,6 +56118,7 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_MeasConfigMN,
     &ett_nr_rrc_SEQUENCE_SIZE_1_maxMeasFreqsMN_OF_NR_FreqInfo,
     &ett_nr_rrc_T_measGapConfig,
+    &ett_nr_rrc_T_measGapConfigFR2,
     &ett_nr_rrc_MRDC_AssistanceInfo,
     &ett_nr_rrc_SEQUENCE_SIZE_1_maxNrofCombIDC_OF_AffectedCarrierFreqCombInfoMRDC,
     &ett_nr_rrc_AffectedCarrierFreqCombInfoMRDC,
@@ -53566,12 +56211,12 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_LocationMeasurementIndication_IEs,
     &ett_nr_rrc_T_measurementIndication,
     &ett_nr_rrc_T_nonCriticalExtension_11,
-    &ett_nr_rrc_MIB,
     &ett_nr_rrc_MeasurementReport,
     &ett_nr_rrc_T_criticalExtensions_12,
     &ett_nr_rrc_T_criticalExtensionsFuture_12,
     &ett_nr_rrc_MeasurementReport_IEs,
     &ett_nr_rrc_T_nonCriticalExtension_12,
+    &ett_nr_rrc_MIB,
     &ett_nr_rrc_MobilityFromNRCommand,
     &ett_nr_rrc_T_criticalExtensions_13,
     &ett_nr_rrc_T_criticalExtensionsFuture_13,
@@ -53602,13 +56247,19 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_RRCReconfiguration_v1530_IEs,
     &ett_nr_rrc_SEQUENCE_SIZE_1_maxDRB_OF_DedicatedNAS_Message,
     &ett_nr_rrc_RRCReconfiguration_v1540_IEs,
+    &ett_nr_rrc_RRCReconfiguration_v1560_IEs,
+    &ett_nr_rrc_T_mrdc_SecondaryCellGroupConfig,
     &ett_nr_rrc_T_nonCriticalExtension_17,
+    &ett_nr_rrc_MRDC_SecondaryCellGroupConfig,
+    &ett_nr_rrc_T_mrdc_SecondaryCellGroup,
     &ett_nr_rrc_MasterKeyUpdate,
     &ett_nr_rrc_RRCReconfigurationComplete,
     &ett_nr_rrc_T_criticalExtensions_17,
     &ett_nr_rrc_T_criticalExtensionsFuture_17,
     &ett_nr_rrc_RRCReconfigurationComplete_IEs,
     &ett_nr_rrc_RRCReconfigurationComplete_v1530_IEs,
+    &ett_nr_rrc_RRCReconfigurationComplete_v1560_IEs,
+    &ett_nr_rrc_T_scg_Response,
     &ett_nr_rrc_T_nonCriticalExtension_18,
     &ett_nr_rrc_RRCReject,
     &ett_nr_rrc_T_criticalExtensions_18,
@@ -53644,6 +56295,7 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_T_criticalExtensions_20,
     &ett_nr_rrc_T_criticalExtensionsFuture_20,
     &ett_nr_rrc_RRCResume_IEs,
+    &ett_nr_rrc_RRCResume_v1560_IEs,
     &ett_nr_rrc_T_nonCriticalExtension_21,
     &ett_nr_rrc_RRCResumeComplete,
     &ett_nr_rrc_T_criticalExtensions_21,
@@ -53674,42 +56326,56 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_T_criticalExtensions_24,
     &ett_nr_rrc_T_criticalExtensionsFuture_24,
     &ett_nr_rrc_RRCSystemInfoRequest_r15_IEs,
-    &ett_nr_rrc_SecurityModeCommand,
+    &ett_nr_rrc_SCGFailureInformation,
     &ett_nr_rrc_T_criticalExtensions_25,
     &ett_nr_rrc_T_criticalExtensionsFuture_25,
-    &ett_nr_rrc_SecurityModeCommand_IEs,
+    &ett_nr_rrc_SCGFailureInformation_IEs,
     &ett_nr_rrc_T_nonCriticalExtension_25,
-    &ett_nr_rrc_SecurityConfigSMC,
-    &ett_nr_rrc_SecurityModeComplete,
+    &ett_nr_rrc_FailureReportSCG,
+    &ett_nr_rrc_MeasResultFreqList,
+    &ett_nr_rrc_SCGFailureInformationEUTRA,
     &ett_nr_rrc_T_criticalExtensions_26,
     &ett_nr_rrc_T_criticalExtensionsFuture_26,
-    &ett_nr_rrc_SecurityModeComplete_IEs,
+    &ett_nr_rrc_SCGFailureInformationEUTRA_IEs,
     &ett_nr_rrc_T_nonCriticalExtension_26,
-    &ett_nr_rrc_SecurityModeFailure,
+    &ett_nr_rrc_FailureReportSCG_EUTRA,
+    &ett_nr_rrc_MeasResultFreqListFailMRDC,
+    &ett_nr_rrc_SecurityModeCommand,
     &ett_nr_rrc_T_criticalExtensions_27,
     &ett_nr_rrc_T_criticalExtensionsFuture_27,
-    &ett_nr_rrc_SecurityModeFailure_IEs,
+    &ett_nr_rrc_SecurityModeCommand_IEs,
     &ett_nr_rrc_T_nonCriticalExtension_27,
+    &ett_nr_rrc_SecurityConfigSMC,
+    &ett_nr_rrc_SecurityModeComplete,
+    &ett_nr_rrc_T_criticalExtensions_28,
+    &ett_nr_rrc_T_criticalExtensionsFuture_28,
+    &ett_nr_rrc_SecurityModeComplete_IEs,
+    &ett_nr_rrc_T_nonCriticalExtension_28,
+    &ett_nr_rrc_SecurityModeFailure,
+    &ett_nr_rrc_T_criticalExtensions_29,
+    &ett_nr_rrc_T_criticalExtensionsFuture_29,
+    &ett_nr_rrc_SecurityModeFailure_IEs,
+    &ett_nr_rrc_T_nonCriticalExtension_29,
     &ett_nr_rrc_SIB1,
     &ett_nr_rrc_T_cellSelectionInfo,
     &ett_nr_rrc_T_uac_BarringInfo,
     &ett_nr_rrc_T_uac_AccessCategory1_SelectionAssistanceInfo,
     &ett_nr_rrc_SEQUENCE_SIZE_2_maxPLMN_OF_UAC_AccessCategory1_SelectionAssistanceInfo,
-    &ett_nr_rrc_T_nonCriticalExtension_28,
+    &ett_nr_rrc_T_nonCriticalExtension_30,
     &ett_nr_rrc_SystemInformation,
-    &ett_nr_rrc_T_criticalExtensions_28,
-    &ett_nr_rrc_T_criticalExtensionsFuture_28,
+    &ett_nr_rrc_T_criticalExtensions_30,
+    &ett_nr_rrc_T_criticalExtensionsFuture_30,
     &ett_nr_rrc_SystemInformation_IEs,
     &ett_nr_rrc_T_sib_TypeAndInfo,
     &ett_nr_rrc_T_sib_TypeAndInfo_item,
-    &ett_nr_rrc_T_nonCriticalExtension_29,
+    &ett_nr_rrc_T_nonCriticalExtension_31,
     &ett_nr_rrc_UEAssistanceInformation,
-    &ett_nr_rrc_T_criticalExtensions_29,
-    &ett_nr_rrc_T_criticalExtensionsFuture_29,
+    &ett_nr_rrc_T_criticalExtensions_31,
+    &ett_nr_rrc_T_criticalExtensionsFuture_31,
     &ett_nr_rrc_UEAssistanceInformation_IEs,
     &ett_nr_rrc_DelayBudgetReport,
     &ett_nr_rrc_UEAssistanceInformation_v1540_IEs,
-    &ett_nr_rrc_T_nonCriticalExtension_30,
+    &ett_nr_rrc_T_nonCriticalExtension_32,
     &ett_nr_rrc_OverheatingAssistance,
     &ett_nr_rrc_T_reducedMaxCCs,
     &ett_nr_rrc_T_reducedMaxBW_FR1,
@@ -53717,20 +56383,27 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_T_reducedMaxMIMO_LayersFR1,
     &ett_nr_rrc_T_reducedMaxMIMO_LayersFR2,
     &ett_nr_rrc_UECapabilityEnquiry,
-    &ett_nr_rrc_T_criticalExtensions_30,
-    &ett_nr_rrc_T_criticalExtensionsFuture_30,
-    &ett_nr_rrc_UECapabilityEnquiry_IEs,
-    &ett_nr_rrc_T_nonCriticalExtension_31,
-    &ett_nr_rrc_UECapabilityInformation,
-    &ett_nr_rrc_T_criticalExtensions_31,
-    &ett_nr_rrc_T_criticalExtensionsFuture_31,
-    &ett_nr_rrc_UECapabilityInformation_IEs,
-    &ett_nr_rrc_T_nonCriticalExtension_32,
-    &ett_nr_rrc_ULInformationTransfer,
     &ett_nr_rrc_T_criticalExtensions_32,
     &ett_nr_rrc_T_criticalExtensionsFuture_32,
-    &ett_nr_rrc_ULInformationTransfer_IEs,
+    &ett_nr_rrc_UECapabilityEnquiry_IEs,
+    &ett_nr_rrc_UECapabilityEnquiry_v1560_IEs,
     &ett_nr_rrc_T_nonCriticalExtension_33,
+    &ett_nr_rrc_UECapabilityInformation,
+    &ett_nr_rrc_T_criticalExtensions_33,
+    &ett_nr_rrc_T_criticalExtensionsFuture_33,
+    &ett_nr_rrc_UECapabilityInformation_IEs,
+    &ett_nr_rrc_T_nonCriticalExtension_34,
+    &ett_nr_rrc_ULInformationTransfer,
+    &ett_nr_rrc_T_criticalExtensions_34,
+    &ett_nr_rrc_T_criticalExtensionsFuture_34,
+    &ett_nr_rrc_ULInformationTransfer_IEs,
+    &ett_nr_rrc_T_nonCriticalExtension_35,
+    &ett_nr_rrc_ULInformationTransferMRDC,
+    &ett_nr_rrc_T_criticalExtensions_35,
+    &ett_nr_rrc_T_c1_14,
+    &ett_nr_rrc_T_criticalExtensionsFuture_35,
+    &ett_nr_rrc_ULInformationTransferMRDC_IEs,
+    &ett_nr_rrc_T_nonCriticalExtension_36,
     &ett_nr_rrc_SIB2,
     &ett_nr_rrc_T_cellReselectionInfoCommon,
     &ett_nr_rrc_T_speedStateReselectionPars,
@@ -53805,7 +56478,11 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_ReconfigurationWithSync,
     &ett_nr_rrc_T_rach_ConfigDedicated,
     &ett_nr_rrc_SCellConfig,
-    &ett_nr_rrc_CGI_Info,
+    &ett_nr_rrc_CGI_InfoEUTRA,
+    &ett_nr_rrc_T_cgi_info_EPC,
+    &ett_nr_rrc_SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_EPC,
+    &ett_nr_rrc_SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_5GC,
+    &ett_nr_rrc_CGI_InfoNR,
     &ett_nr_rrc_T_noSIB1,
     &ett_nr_rrc_CodebookConfig,
     &ett_nr_rrc_T_codebookType,
@@ -53967,7 +56644,7 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_MAC_CellGroupConfig,
     &ett_nr_rrc_T_drx_Config,
     &ett_nr_rrc_T_phr_Config,
-    &ett_nr_rrc_T_dataInactivityTimer_v1530,
+    &ett_nr_rrc_T_dataInactivityTimer,
     &ett_nr_rrc_MeasConfig,
     &ett_nr_rrc_T_s_MeasureConfig,
     &ett_nr_rrc_MeasObjectToRemoveList,
@@ -54003,8 +56680,10 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_MeasObjectToAddModList,
     &ett_nr_rrc_MeasObjectToAddMod,
     &ett_nr_rrc_T_measObject,
-    &ett_nr_rrc_MeasResultCellListSFTD,
-    &ett_nr_rrc_MeasResultCellSFTD,
+    &ett_nr_rrc_MeasResultCellListSFTD_NR,
+    &ett_nr_rrc_MeasResultCellSFTD_NR,
+    &ett_nr_rrc_MeasResultCellListSFTD_EUTRA,
+    &ett_nr_rrc_MeasResultSFTD_EUTRA,
     &ett_nr_rrc_MeasResults,
     &ett_nr_rrc_T_measResultNeighCells,
     &ett_nr_rrc_MeasResultServMOList,
@@ -54016,10 +56695,6 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_T_rsIndexResults,
     &ett_nr_rrc_MeasResultListEUTRA,
     &ett_nr_rrc_MeasResultEUTRA,
-    &ett_nr_rrc_T_cgi_Info,
-    &ett_nr_rrc_T_cgi_info_EPC,
-    &ett_nr_rrc_SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_EPC,
-    &ett_nr_rrc_SEQUENCE_SIZE_1_maxPLMN_OF_CellAccessRelatedInfo_EUTRA_5GC,
     &ett_nr_rrc_MultiBandInfoListEUTRA,
     &ett_nr_rrc_MeasQuantityResults,
     &ett_nr_rrc_MeasQuantityResultsEUTRA,
@@ -54027,9 +56702,12 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_ResultsPerSSB_Index,
     &ett_nr_rrc_ResultsPerCSI_RS_IndexList,
     &ett_nr_rrc_ResultsPerCSI_RS_Index,
+    &ett_nr_rrc_MeasResultServFreqListEUTRA_SCG,
+    &ett_nr_rrc_MeasResultServFreqListNR_SCG,
+    &ett_nr_rrc_MeasResult2EUTRA,
+    &ett_nr_rrc_MeasResult2NR,
     &ett_nr_rrc_MeasResultSCG_Failure,
     &ett_nr_rrc_MeasResultList2NR,
-    &ett_nr_rrc_MeasResult2NR,
     &ett_nr_rrc_MobilityStateParameters,
     &ett_nr_rrc_MultiFrequencyBandListNR,
     &ett_nr_rrc_MultiFrequencyBandListNR_SIB,
@@ -54102,6 +56780,7 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_PHR_Config,
     &ett_nr_rrc_PhysicalCellGroupConfig,
     &ett_nr_rrc_T_cs_RNTI,
+    &ett_nr_rrc_T_pdcch_BlindDetection,
     &ett_nr_rrc_PLMN_Identity,
     &ett_nr_rrc_MCC,
     &ett_nr_rrc_MNC,
@@ -54224,6 +56903,7 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_ReportConfigInterRAT,
     &ett_nr_rrc_T_reportType,
     &ett_nr_rrc_ReportCGI_EUTRA,
+    &ett_nr_rrc_ReportSFTD_EUTRA,
     &ett_nr_rrc_EventTriggerConfigInterRAT,
     &ett_nr_rrc_T_eventId,
     &ett_nr_rrc_T_eventB1,
@@ -54233,6 +56913,7 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_ReportConfigNR,
     &ett_nr_rrc_T_reportType_01,
     &ett_nr_rrc_ReportCGI,
+    &ett_nr_rrc_ReportSFTD_NR,
     &ett_nr_rrc_EventTriggerConfig,
     &ett_nr_rrc_T_eventId_01,
     &ett_nr_rrc_T_eventA1,
@@ -54316,7 +56997,6 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_SEQUENCE_SIZE_1_maxNrofAggregatedCellsPerCellGroup_OF_ServCellIndex,
     &ett_nr_rrc_S_NSSAI,
     &ett_nr_rrc_SpeedStateScaleFactors,
-    &ett_nr_rrc_SS_RSSI_Measurement,
     &ett_nr_rrc_SPS_Config,
     &ett_nr_rrc_SRS_CarrierSwitching,
     &ett_nr_rrc_T_srs_TPC_PDCCH_Group,
@@ -54358,6 +57038,7 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_SSB_MTC2,
     &ett_nr_rrc_SEQUENCE_SIZE_1_maxNrofPCIsPerSMTC_OF_PhysCellId,
     &ett_nr_rrc_SSB_ToMeasure,
+    &ett_nr_rrc_SS_RSSI_Measurement,
     &ett_nr_rrc_TAG_Config,
     &ett_nr_rrc_SEQUENCE_SIZE_1_maxNrofTAGs_OF_TAG_Id,
     &ett_nr_rrc_SEQUENCE_SIZE_1_maxNrofTAGs_OF_TAG,
@@ -54394,11 +57075,13 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_BandCombinationList,
     &ett_nr_rrc_BandCombinationList_v1540,
     &ett_nr_rrc_BandCombinationList_v1550,
+    &ett_nr_rrc_BandCombinationList_v1560,
     &ett_nr_rrc_BandCombination,
     &ett_nr_rrc_SEQUENCE_SIZE_1_maxSimultaneousBands_OF_BandParameters,
     &ett_nr_rrc_BandCombination_v1540,
     &ett_nr_rrc_SEQUENCE_SIZE_1_maxSimultaneousBands_OF_BandParameters_v1540,
     &ett_nr_rrc_BandCombination_v1550,
+    &ett_nr_rrc_BandCombination_v1560,
     &ett_nr_rrc_BandParameters,
     &ett_nr_rrc_T_eutra,
     &ett_nr_rrc_T_nr,
@@ -54408,12 +57091,15 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_SEQUENCE_SIZE_1_maxSimultaneousBands_OF_SRS_SwitchingTimeNR,
     &ett_nr_rrc_T_eutra_01,
     &ett_nr_rrc_SEQUENCE_SIZE_1_maxSimultaneousBands_OF_SRS_SwitchingTimeEUTRA,
-    &ett_nr_rrc_T_srs_TxSwitch_v1540,
+    &ett_nr_rrc_T_srs_TxSwitch,
     &ett_nr_rrc_CA_ParametersEUTRA,
+    &ett_nr_rrc_CA_ParametersEUTRA_v1560,
     &ett_nr_rrc_CA_ParametersNR,
     &ett_nr_rrc_CA_ParametersNR_v1540,
     &ett_nr_rrc_T_csi_RS_IM_ReceptionForFeedbackPerBandComb,
     &ett_nr_rrc_CA_ParametersNR_v1550,
+    &ett_nr_rrc_CA_ParametersNR_v1560,
+    &ett_nr_rrc_CA_ParametersNRDC,
     &ett_nr_rrc_CodebookParameters,
     &ett_nr_rrc_T_type1_02,
     &ett_nr_rrc_T_singlePanel,
@@ -54484,8 +57170,10 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_MeasAndMobParametersXDD_Diff,
     &ett_nr_rrc_MeasAndMobParametersFRX_Diff,
     &ett_nr_rrc_MeasAndMobParametersMRDC,
+    &ett_nr_rrc_MeasAndMobParametersMRDC_v1560,
     &ett_nr_rrc_MeasAndMobParametersMRDC_Common,
     &ett_nr_rrc_MeasAndMobParametersMRDC_XDD_Diff,
+    &ett_nr_rrc_MeasAndMobParametersMRDC_XDD_Diff_v1560,
     &ett_nr_rrc_MeasAndMobParametersMRDC_FRX_Diff,
     &ett_nr_rrc_MIMO_ParametersPerBand,
     &ett_nr_rrc_T_tci_StatePDSCH,
@@ -54507,6 +57195,8 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_SpatialRelations,
     &ett_nr_rrc_DummyI,
     &ett_nr_rrc_MRDC_Parameters,
+    &ett_nr_rrc_NRDC_Parameters,
+    &ett_nr_rrc_T_nonCriticalExtension_37,
     &ett_nr_rrc_PDCP_Parameters,
     &ett_nr_rrc_T_supportedROHC_Profiles,
     &ett_nr_rrc_PDCP_ParametersMRDC,
@@ -54515,6 +57205,7 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_Phy_ParametersXDD_Diff,
     &ett_nr_rrc_Phy_ParametersFRX_Diff,
     &ett_nr_rrc_T_mux_SR_HARQ_ACK_CSI_PUCCH_OncePerSlot,
+    &ett_nr_rrc_T_pdcch_BlindDetectionNRDC,
     &ett_nr_rrc_Phy_ParametersFR1,
     &ett_nr_rrc_Phy_ParametersFR2,
     &ett_nr_rrc_Phy_ParametersMRDC,
@@ -54541,20 +57232,25 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_UE_CapabilityRAT_Container,
     &ett_nr_rrc_UE_CapabilityRAT_RequestList,
     &ett_nr_rrc_UE_CapabilityRAT_Request,
+    &ett_nr_rrc_UE_CapabilityRequestFilterCommon,
+    &ett_nr_rrc_T_mrdc_Request,
     &ett_nr_rrc_UE_CapabilityRequestFilterNR,
     &ett_nr_rrc_UE_CapabilityRequestFilterNR_v1540,
-    &ett_nr_rrc_T_nonCriticalExtension_34,
+    &ett_nr_rrc_T_nonCriticalExtension_38,
     &ett_nr_rrc_UE_MRDC_Capability,
     &ett_nr_rrc_SEQUENCE_SIZE_1_maxFeatureSetCombinations_OF_FeatureSetCombination,
-    &ett_nr_rrc_T_nonCriticalExtension_35,
+    &ett_nr_rrc_UE_MRDC_Capability_v1560,
+    &ett_nr_rrc_T_nonCriticalExtension_39,
     &ett_nr_rrc_UE_MRDC_CapabilityAddXDD_Mode,
+    &ett_nr_rrc_UE_MRDC_CapabilityAddXDD_Mode_v1560,
     &ett_nr_rrc_UE_MRDC_CapabilityAddFRX_Mode,
     &ett_nr_rrc_GeneralParametersMRDC_XDD_Diff,
     &ett_nr_rrc_UE_NR_Capability,
     &ett_nr_rrc_UE_NR_Capability_v1530,
     &ett_nr_rrc_UE_NR_Capability_v1540,
     &ett_nr_rrc_UE_NR_Capability_v1550,
-    &ett_nr_rrc_T_nonCriticalExtension_36,
+    &ett_nr_rrc_UE_NR_Capability_v1560,
+    &ett_nr_rrc_T_nonCriticalExtension_40,
     &ett_nr_rrc_UE_NR_CapabilityAddXDD_Mode,
     &ett_nr_rrc_UE_NR_CapabilityAddXDD_Mode_v1530,
     &ett_nr_rrc_UE_NR_CapabilityAddFRX_Mode,
@@ -54576,7 +57272,7 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_OverheatingAssistanceConfig,
 
 /*--- End of included file: packet-nr-rrc-ettarr.c ---*/
-#line 502 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 515 "./asn1/nr-rrc/packet-nr-rrc-template.c"
     &ett_nr_rrc_DedicatedNAS_Message,
     &ett_rr_rrc_targetRAT_MessageContainer,
     &ett_nr_rrc_nas_Container,
@@ -54589,7 +57285,18 @@ proto_register_nr_rrc(void) {
     &ett_nr_rrc_sib8_fragments,
     &ett_nr_rrc_warningMessageSegment,
     &ett_nr_rrc_timeInfo,
-    &ett_nr_rrc_capabilityRequestFilter
+    &ett_nr_rrc_capabilityRequestFilter,
+    &ett_nr_rrc_sourceSCG_EUTRA_Config,
+    &ett_nr_rrc_scg_CellGroupConfigEUTRA,
+    &ett_nr_rrc_candidateCellInfoListSN_EUTRA,
+    &ett_nr_rrc_candidateCellInfoListMN_EUTRA,
+    &ett_nr_rrc_sourceConfigSCG_EUTRA,
+    &ett_nr_rrc_eutra_SCG,
+    &ett_nr_rrc_nr_SCG_Response,
+    &ett_nr_rrc_eutra_SCG_Response,
+    &ett_nr_rrc_measResultSCG_FailureMRDC,
+    &ett_nr_rrc_ul_DCCH_MessageNR,
+    &ett_nr_rrc_ul_DCCH_MessageEUTRA
   };
 
   static ei_register_info ei[] = {
@@ -54627,7 +57334,7 @@ proto_register_nr_rrc(void) {
 
 
 /*--- End of included file: packet-nr-rrc-dis-reg.c ---*/
-#line 534 "./asn1/nr-rrc/packet-nr-rrc-template.c"
+#line 558 "./asn1/nr-rrc/packet-nr-rrc-template.c"
 
   nr_rrc_etws_cmas_dcs_hash = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(),
                                                      g_direct_hash, g_direct_equal);
@@ -54643,4 +57350,6 @@ proto_reg_handoff_nr_rrc(void)
 {
   nas_5gs_handle = find_dissector("nas-5gs");
   lte_rrc_conn_reconf_handle = find_dissector("lte-rrc.rrc_conn_reconf");
+  lte_rrc_conn_reconf_compl_handle = find_dissector("lte-rrc.rrc_conn_reconf_compl");
+  lte_rrc_ul_dcch_handle = find_dissector("lte-rrc.ul.dcch");
 }
