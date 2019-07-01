@@ -26,7 +26,7 @@ void proto_register_mac_nr(void);
 void proto_reg_handoff_mac_nr(void);
 
 /* Described in:
- * 3GPP TS 38.321 NR; Medium Access Control (MAC) protocol specification v15.3.0
+ * 3GPP TS 38.321 NR; Medium Access Control (MAC) protocol specification v15.6.0
  */
 
 /* Initialize the protocol and registered fields. */
@@ -155,6 +155,7 @@ static int hf_mac_nr_control_pucch_spatial_rel_act_deact_reserved = -1;
 static int hf_mac_nr_control_pucch_spatial_rel_act_deact_serving_cell_id = -1;
 static int hf_mac_nr_control_pucch_spatial_rel_act_deact_bwp_id = -1;
 static int hf_mac_nr_control_pucch_spatial_rel_act_deact_pucch_resource_id = -1;
+static int hf_mac_nr_control_pucch_spatial_rel_act_deact_s8 = -1;
 static int hf_mac_nr_control_pucch_spatial_rel_act_deact_s7 = -1;
 static int hf_mac_nr_control_pucch_spatial_rel_act_deact_s6 = -1;
 static int hf_mac_nr_control_pucch_spatial_rel_act_deact_s5 = -1;
@@ -162,7 +163,6 @@ static int hf_mac_nr_control_pucch_spatial_rel_act_deact_s4 = -1;
 static int hf_mac_nr_control_pucch_spatial_rel_act_deact_s3 = -1;
 static int hf_mac_nr_control_pucch_spatial_rel_act_deact_s2 = -1;
 static int hf_mac_nr_control_pucch_spatial_rel_act_deact_s1 = -1;
-static int hf_mac_nr_control_pucch_spatial_rel_act_deact_s0 = -1;
 static int hf_mac_nr_control_sp_srs_act_deact_ad = -1;
 static int hf_mac_nr_control_sp_srs_act_deact_srs_resource_set_cell_id = -1;
 static int hf_mac_nr_control_sp_srs_act_deact_srs_resource_set_bwp_id = -1;
@@ -2086,6 +2086,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                     case PUCCH_SPATIAL_REL_ACT_DEACT_LCID:
                         {
                             static const int * pucch_spatial_rel_act_deact_flags[] = {
+                                &hf_mac_nr_control_pucch_spatial_rel_act_deact_s8,
                                 &hf_mac_nr_control_pucch_spatial_rel_act_deact_s7,
                                 &hf_mac_nr_control_pucch_spatial_rel_act_deact_s6,
                                 &hf_mac_nr_control_pucch_spatial_rel_act_deact_s5,
@@ -2093,7 +2094,6 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                 &hf_mac_nr_control_pucch_spatial_rel_act_deact_s3,
                                 &hf_mac_nr_control_pucch_spatial_rel_act_deact_s2,
                                 &hf_mac_nr_control_pucch_spatial_rel_act_deact_s1,
-                                &hf_mac_nr_control_pucch_spatial_rel_act_deact_s0,
                                 NULL
                             };
                             proto_tree_add_item(subheader_tree, hf_mac_nr_control_pucch_spatial_rel_act_deact_reserved,
@@ -3629,51 +3629,51 @@ void proto_register_mac_nr(void)
               NULL, HFILL
             }
         },
+        { &hf_mac_nr_control_pucch_spatial_rel_act_deact_s8,
+            { "PUCCH Spatial Relation Info 8",
+              "mac-nr.control.pucch-spatial-rel-act-deact.s8", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x80,
+              NULL, HFILL
+            }
+        },
         { &hf_mac_nr_control_pucch_spatial_rel_act_deact_s7,
             { "PUCCH Spatial Relation Info 7",
-              "mac-nr.control.pucch-spatial-rel-act-deact.s7", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x80,
+              "mac-nr.control.pucch-spatial-rel-act-deact.s7", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x40,
               NULL, HFILL
             }
         },
         { &hf_mac_nr_control_pucch_spatial_rel_act_deact_s6,
             { "PUCCH Spatial Relation Info 6",
-              "mac-nr.control.pucch-spatial-rel-act-deact.s6", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x40,
+              "mac-nr.control.pucch-spatial-rel-act-deact.s6", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x20,
               NULL, HFILL
             }
         },
         { &hf_mac_nr_control_pucch_spatial_rel_act_deact_s5,
             { "PUCCH Spatial Relation Info 5",
-              "mac-nr.control.pucch-spatial-rel-act-deact.s5", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x20,
+              "mac-nr.control.pucch-spatial-rel-act-deact.s5", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x10,
               NULL, HFILL
             }
         },
         { &hf_mac_nr_control_pucch_spatial_rel_act_deact_s4,
             { "PUCCH Spatial Relation Info 4",
-              "mac-nr.control.pucch-spatial-rel-act-deact.s4", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x10,
+              "mac-nr.control.pucch-spatial-rel-act-deact.s4", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x08,
               NULL, HFILL
             }
         },
         { &hf_mac_nr_control_pucch_spatial_rel_act_deact_s3,
             { "PUCCH Spatial Relation Info 3",
-              "mac-nr.control.pucch-spatial-rel-act-deact.s3", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x08,
+              "mac-nr.control.pucch-spatial-rel-act-deact.s3", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x04,
               NULL, HFILL
             }
         },
         { &hf_mac_nr_control_pucch_spatial_rel_act_deact_s2,
             { "PUCCH Spatial Relation Info 2",
-              "mac-nr.control.pucch-spatial-rel-act-deact.s2", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x04,
+              "mac-nr.control.pucch-spatial-rel-act-deact.s2", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x02,
               NULL, HFILL
             }
         },
         { &hf_mac_nr_control_pucch_spatial_rel_act_deact_s1,
             { "PUCCH Spatial Relation Info 1",
-              "mac-nr.control.pucch-spatial-rel-act-deact.s1", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x02,
-              NULL, HFILL
-            }
-        },
-        { &hf_mac_nr_control_pucch_spatial_rel_act_deact_s0,
-            { "PUCCH Spatial Relation Info 0",
-              "mac-nr.control.pucch-spatial-rel-act-deact.s0", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x01,
+              "mac-nr.control.pucch-spatial-rel-act-deact.s1", FT_BOOLEAN, 8, TFS(&tfs_activated_deactivated), 0x01,
               NULL, HFILL
             }
         },
