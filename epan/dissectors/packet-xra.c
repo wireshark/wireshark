@@ -192,6 +192,7 @@ static int dissect_ofdma_segment(tvbuff_t * tvb, packet_info* pinfo, proto_tree 
 #define XRA_PACKETTYPE_OFDM_DOCSIS 8
 #define XRA_PACKETTYPE_OFDM_NCP 9
 #define XRA_PACKETTYPE_OFDM_PLC 10
+#define XRA_PACKETTYPE_OFDM_PLC_MMM 11
 
 #define XRA_PACKETTYPE_TDMA_BURST 65
 #define XRA_PACKETTYPE_OFDMA_DATA_BURST 72
@@ -272,6 +273,7 @@ static const value_string packettype[] = {
   {XRA_PACKETTYPE_OFDM_DOCSIS, "OFDM DOCSIS"},
   {XRA_PACKETTYPE_OFDM_NCP, "OFDM NCP"},
   {XRA_PACKETTYPE_OFDM_PLC, "OFDM PLC"},
+  {XRA_PACKETTYPE_OFDM_PLC_MMM, "OFDM PLC MMM"},
   {XRA_PACKETTYPE_TDMA_BURST, "TDMA Burst"},
   {XRA_PACKETTYPE_OFDMA_DATA_BURST, "OFDMA Data Burst"},
   {XRA_PACKETTTYPE_OFDMA_INITIAL_RANGING, "OFDMA Initial Ranging"},
@@ -421,6 +423,7 @@ dissect_xra(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* data _
   switch(packet_type) {
     case XRA_PACKETTYPE_DS_SCQAM_DOCSIS_MACFRAME:
     case XRA_PACKETTYPE_OFDM_DOCSIS:
+    case XRA_PACKETTYPE_OFDM_PLC_MMM:
       /*Calling docsis dissector*/
       docsis_tvb = tvb_new_subset_remaining(tvb, xra_length);
       if (docsis_handle) {
@@ -680,7 +683,7 @@ dissect_xra_tlv(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, void* da
         break;
       case XRA_ESTIMATED_POWER_LEVEL:
         power_level = ((gint16) (256*tvb_get_guint8(tvb, tlv_index) + tvb_get_guint8(tvb, tlv_index+1)) )/10.0;
-        proto_tree_add_double_format_value(xra_tlv_tree, hf_xra_tlv_power_level, tvb, tlv_index, length, power_level, "%.1f dB", power_level);
+        proto_tree_add_double_format_value(xra_tlv_tree, hf_xra_tlv_power_level, tvb, tlv_index, length, power_level, "%.1f dBmV", power_level);
         break;
       case XRA_SUBSLOT_ID:
         proto_tree_add_item (xra_tlv_tree, hf_xra_tlv_subslot_id, tvb, tlv_index, length, ENC_BIG_ENDIAN);
