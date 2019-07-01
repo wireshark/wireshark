@@ -4062,13 +4062,14 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
                "read error: PacketReceivePacket failed".
 
                Newer versions of libpcap map some or all of those to just
-               "The interface went down".
+               "The interface went down" or "The interface disappeared".
 
                These should *not* be reported to the Wireshark developers. */
             char *cap_err_str;
 
             cap_err_str = pcap_geterr(pcap_src->pcap_h);
             if (strcmp(cap_err_str, "The interface went down") == 0 ||
+                strcmp(cap_err_str, "The interface disappeared") == 0 ||
                 strcmp(cap_err_str, "recvfrom: Network is down") == 0 ||
                 strcmp(cap_err_str, "read: Device not configured") == 0 ||
                 strcmp(cap_err_str, "read: I/O error") == 0 ||
