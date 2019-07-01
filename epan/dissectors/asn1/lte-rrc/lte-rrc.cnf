@@ -217,6 +217,14 @@ SI-OrPSI-GERAN TYPE_PREFIX
     dissect_nr_rrc_UE_CapabilityRequestFilterNR_PDU(ue_cap_req_filter_nr_tvb, actx->pinfo, subtree, NULL);
   }
 
+#.FN_BODY UECapabilityEnquiry-v1560-IEs/requestedCapabilityCommon-r15 VAL_PTR = &ue_cap_req_filter_common_tvb
+  tvbuff_t *ue_cap_req_filter_common_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (ue_cap_req_filter_common_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_requestedCapabilityCommon_r15);
+    dissect_nr_rrc_UE_CapabilityRequestFilterCommon_PDU(ue_cap_req_filter_common_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.FN_BODY UE-CapabilityRAT-Container
   /* Initialise to invalid value */
   private_data_set_rat_type(actx, 0xFF);
@@ -343,6 +351,14 @@ if(ue_cap_tvb){
   if(featureGroupIndRel9Add_tvb){
     /* Dissect featureGroupIndRel9Add-r9 */
     dissect_lte_rrc_featureGroupIndRel9Add(featureGroupIndRel9Add_tvb, actx);
+  }
+
+#.FN_BODY UE-EUTRA-Capability-v1560-IEs/appliedCapabilityFilterCommon-r15 VAL_PTR = &ue_cap_req_filter_common_tvb
+  tvbuff_t *ue_cap_req_filter_common_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (ue_cap_req_filter_common_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_requestedCapabilityCommon_r15);
+    dissect_nr_rrc_UE_CapabilityRequestFilterCommon_PDU(ue_cap_req_filter_common_tvb, actx->pinfo, subtree, NULL);
   }
 
 #.FN_BODY UE-EUTRA-CapabilityAddXDD-Mode-r9/featureGroupIndicators-r9 VAL_PTR = &featureGroupIndicators_tvb

@@ -71,6 +71,7 @@ SIB7_PDU
 SIB8_PDU
 SIB9_PDU
 UE-CapabilityRAT-ContainerList_PDU
+UE-CapabilityRequestFilterCommon_PDU
 UE-CapabilityRequestFilterNR_PDU
 UE-MRDC-Capability_PDU
 UE-NR-Capability_PDU
@@ -115,6 +116,7 @@ SIB7
 SIB8
 SIB9
 UE-CapabilityRAT-ContainerList
+UE-CapabilityRequestFilterCommon
 UE-CapabilityRequestFilterNR
 UE-MRDC-Capability                 @ue_mrdc_cap
 UE-NR-Capability                   @ue_nr_cap

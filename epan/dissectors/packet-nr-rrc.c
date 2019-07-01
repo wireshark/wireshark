@@ -294,6 +294,7 @@ static int hf_nr_rrc_nr_rrc_RadioBearerConfig_PDU = -1;  /* RadioBearerConfig */
 static int hf_nr_rrc_nr_rrc_UplinkTxDirectCurrentList_PDU = -1;  /* UplinkTxDirectCurrentList */
 static int hf_nr_rrc_nr_rrc_FreqBandList_PDU = -1;  /* FreqBandList */
 static int hf_nr_rrc_nr_rrc_UE_CapabilityRAT_ContainerList_PDU = -1;  /* UE_CapabilityRAT_ContainerList */
+static int hf_nr_rrc_nr_rrc_UE_CapabilityRequestFilterCommon_PDU = -1;  /* UE_CapabilityRequestFilterCommon */
 static int hf_nr_rrc_nr_rrc_UE_CapabilityRequestFilterNR_PDU = -1;  /* UE_CapabilityRequestFilterNR */
 static int hf_nr_rrc_nr_rrc_UE_MRDC_Capability_PDU = -1;  /* UE_MRDC_Capability */
 static int hf_nr_rrc_nr_rrc_UE_NR_Capability_PDU = -1;  /* UE_NR_Capability */
@@ -43931,6 +43932,16 @@ int dissect_nr_rrc_UE_CapabilityRAT_ContainerList_PDU(tvbuff_t *tvb _U_, packet_
   offset += 7; offset >>= 3;
   return offset;
 }
+int dissect_nr_rrc_UE_CapabilityRequestFilterCommon_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+  proto_item *prot_ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
+  proto_item_set_hidden(prot_ti);
+  int offset = 0;
+  asn1_ctx_t asn1_ctx;
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
+  offset = dissect_nr_rrc_UE_CapabilityRequestFilterCommon(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_nr_rrc_UE_CapabilityRequestFilterCommon_PDU);
+  offset += 7; offset >>= 3;
+  return offset;
+}
 int dissect_nr_rrc_UE_CapabilityRequestFilterNR_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   proto_item *prot_ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
   proto_item_set_hidden(prot_ti);
@@ -44176,6 +44187,10 @@ proto_register_nr_rrc(void) {
     { &hf_nr_rrc_nr_rrc_UE_CapabilityRAT_ContainerList_PDU,
       { "UE-CapabilityRAT-ContainerList", "nr-rrc.UE_CapabilityRAT_ContainerList",
         FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
+    { &hf_nr_rrc_nr_rrc_UE_CapabilityRequestFilterCommon_PDU,
+      { "UE-CapabilityRequestFilterCommon", "nr-rrc.UE_CapabilityRequestFilterCommon_element",
+        FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_nr_rrc_nr_rrc_UE_CapabilityRequestFilterNR_PDU,
       { "UE-CapabilityRequestFilterNR", "nr-rrc.UE_CapabilityRequestFilterNR_element",
