@@ -812,7 +812,7 @@ install_qt() {
                 QT_VOLUME=qt-opensource-mac-x64-clang-$QT_VERSION
                 ;;
 
-            9|10|11|12)
+            9|10|11|12|13)
                 QT_VOLUME=qt-opensource-mac-x64-$QT_VERSION
                 ;;
             esac
