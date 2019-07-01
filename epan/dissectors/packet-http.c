@@ -3431,9 +3431,11 @@ check_auth_basic(proto_item *hdr_item, tvbuff_t *tvb, packet_info *pinfo, gchar 
 			proto_tree_add_string(hdr_tree, hf_http_basic, tvb,
 			    0, 0, value);
 			tap_credential_t* auth = basic_auth_credentials(value);
-			auth->num = auth->username_num = pinfo->num;
-			auth->password_hf_id = hf_http_basic;
-			tap_queue_packet(credentials_tap, pinfo, auth);
+			if (auth) {
+				auth->num = auth->username_num = pinfo->num;
+				auth->password_hf_id = hf_http_basic;
+				tap_queue_packet(credentials_tap, pinfo, auth);
+			}
 
 			return TRUE;
 		}
