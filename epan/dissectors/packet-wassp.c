@@ -4456,7 +4456,7 @@ cos_rate_id_print(char *buf, guint8 temp)
 #define AFTER_V831_FILTER_RULE_STRUCT_SIZE 20
 static void decode_filter_rule_octext_string(proto_tree *tree, tvbuff_t *tvb, int offset, int length )
 {
-	int flag = 0, index, count, i;
+	int flag = 0, suboffset, count, i;
 	proto_tree *filter_rule_tree = proto_item_add_subtree(tree, ett_wassp_filter_rule);
 	/* there are 3 kinds of filter rule struct.
 	   before V8.31 -- 16 bytes
@@ -4477,101 +4477,101 @@ static void decode_filter_rule_octext_string(proto_tree *tree, tvbuff_t *tvb, in
 
 	if (flag & V831_FILTER_RULE_FORMAT) // display as V8.31 filter struct
 	{
-		index = offset + 4;
+		suboffset = offset + 4;
 		//proto_tree_add_debug_text(filter_rule_tree, "-----------Display Filter Rule(s) in V3 Struct  Format------------");
 		count = (length - 4) / V831_FILTER_RULE_STRUCT_SIZE;
 		for (i = 0; i < count; i++)
 		{
 			//proto_tree_add_debug_text(filter_rule_tree, " filter rule %d", i + 1);
-			proto_tree_add_item(filter_rule_tree, hf_wassp_filter_rule, tvb, index, V831_FILTER_RULE_STRUCT_SIZE, ENC_NA);
-			proto_tree_add_item(filter_rule_tree, hf_wassp_filter_flag, tvb, index, 4, ENC_BIG_ENDIAN);
-			index += 4;
-			proto_tree_add_item(filter_rule_tree, hf_wassp_ipaddress, tvb, index, 4, ENC_BIG_ENDIAN);
-			index += 4;
-			proto_tree_add_item(filter_rule_tree, hf_filter_rule_port_range, tvb, index, 4, ENC_BIG_ENDIAN);
-			index += 4;
-			proto_tree_add_item(filter_rule_tree, hf_wassp_ipprotocol, tvb, index, 4, ENC_BIG_ENDIAN);
-			index += 1;
-			proto_tree_add_item(filter_rule_tree, hf_wassp_netmasklength, tvb, index, 1, ENC_BIG_ENDIAN);
-			index += 1;
-			proto_tree_add_item(filter_rule_tree, hf_wassp_tos, tvb, index, 1, ENC_BIG_ENDIAN);
-			index += 1;
-			proto_tree_add_item(filter_rule_tree, hf_filter_tos_maskbit_priority, tvb, index, 1, ENC_BIG_ENDIAN);
-			index += 1;
-			proto_tree_add_item(filter_rule_tree, hf_cos_tos, tvb, index, 1, ENC_BIG_ENDIAN);
-			index += 1;
-			proto_tree_add_item(filter_rule_tree, hf_cos_tos_mask, tvb, index, 1, ENC_BIG_ENDIAN);
-			index += 1;
-			proto_tree_add_item(filter_rule_tree, hf_cos_priority_txq, tvb, index, 1, ENC_BIG_ENDIAN);
-			index += 1;
-			proto_tree_add_item(filter_rule_tree, hf_cos_rateid, tvb, index, 1, ENC_BIG_ENDIAN);
-			index += 1;
-			proto_tree_add_item(filter_rule_tree, hf_wassp_macaddr, tvb, index, 6, ENC_NA);
-			index += 6;
-			proto_tree_add_item(filter_rule_tree, hf_wassp_macaddr_mask, tvb, index, 6, ENC_NA);
-			index += 6;
-			proto_tree_add_item(filter_rule_tree, hf_wassp_vlanid, tvb, index, 2, ENC_BIG_ENDIAN);
-			index += 2;
-			proto_tree_add_item(filter_rule_tree, hf_wassp_ethernet_type, tvb, index, 2, ENC_BIG_ENDIAN);
-			index += 2;
+			proto_tree_add_item(filter_rule_tree, hf_wassp_filter_rule, tvb, suboffset, V831_FILTER_RULE_STRUCT_SIZE, ENC_NA);
+			proto_tree_add_item(filter_rule_tree, hf_wassp_filter_flag, tvb, suboffset, 4, ENC_BIG_ENDIAN);
+			suboffset += 4;
+			proto_tree_add_item(filter_rule_tree, hf_wassp_ipaddress, tvb, suboffset, 4, ENC_BIG_ENDIAN);
+			suboffset += 4;
+			proto_tree_add_item(filter_rule_tree, hf_filter_rule_port_range, tvb, suboffset, 4, ENC_BIG_ENDIAN);
+			suboffset += 4;
+			proto_tree_add_item(filter_rule_tree, hf_wassp_ipprotocol, tvb, suboffset, 4, ENC_BIG_ENDIAN);
+			suboffset += 1;
+			proto_tree_add_item(filter_rule_tree, hf_wassp_netmasklength, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+			suboffset += 1;
+			proto_tree_add_item(filter_rule_tree, hf_wassp_tos, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+			suboffset += 1;
+			proto_tree_add_item(filter_rule_tree, hf_filter_tos_maskbit_priority, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+			suboffset += 1;
+			proto_tree_add_item(filter_rule_tree, hf_cos_tos, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+			suboffset += 1;
+			proto_tree_add_item(filter_rule_tree, hf_cos_tos_mask, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+			suboffset += 1;
+			proto_tree_add_item(filter_rule_tree, hf_cos_priority_txq, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+			suboffset += 1;
+			proto_tree_add_item(filter_rule_tree, hf_cos_rateid, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+			suboffset += 1;
+			proto_tree_add_item(filter_rule_tree, hf_wassp_macaddr, tvb, suboffset, 6, ENC_NA);
+			suboffset += 6;
+			proto_tree_add_item(filter_rule_tree, hf_wassp_macaddr_mask, tvb, suboffset, 6, ENC_NA);
+			suboffset += 6;
+			proto_tree_add_item(filter_rule_tree, hf_wassp_vlanid, tvb, suboffset, 2, ENC_BIG_ENDIAN);
+			suboffset += 2;
+			proto_tree_add_item(filter_rule_tree, hf_wassp_ethernet_type, tvb, suboffset, 2, ENC_BIG_ENDIAN);
+			suboffset += 2;
 		}
 	}
 
 	if (flag & AFTER_V831_FILTER_RULE_FORMAT) // display as new filter struct
 	{
-		index = offset + 4;
+		suboffset = offset + 4;
 		//proto_tree_add_debug_text(filter_rule_tree, "-----------Display Filter Rule(s) in V2 Struct  Format------------");
 		count = (length - 4) / AFTER_V831_FILTER_RULE_STRUCT_SIZE;
 		for (i = 0; i < count; i++)
 		{
 			//proto_tree_add_debug_text(filter_rule_tree, " filter rule %d", i + 1);
-			proto_tree_add_item(filter_rule_tree, hf_wassp_filter_rule, tvb, index, AFTER_V831_FILTER_RULE_STRUCT_SIZE, ENC_NA);
-			proto_tree_add_item(filter_rule_tree, hf_wassp_filter_flag, tvb, index, 4, ENC_BIG_ENDIAN);
-			index += 4;
-			proto_tree_add_item(filter_rule_tree, hf_wassp_ipaddress, tvb, index, 4, ENC_BIG_ENDIAN);
-			index += 4;
-			proto_tree_add_item(filter_rule_tree, hf_filter_rule_port_range, tvb, index, 4, ENC_BIG_ENDIAN);
-			index += 4;
-			proto_tree_add_item(filter_rule_tree, hf_wassp_ipprotocol, tvb, index, 1, ENC_BIG_ENDIAN);
-			index += 1;
-			proto_tree_add_item(filter_rule_tree, hf_wassp_netmasklength, tvb, index, 1, ENC_BIG_ENDIAN);
-			index += 1;
-			proto_tree_add_item(filter_rule_tree, hf_wassp_tos, tvb, index, 1, ENC_BIG_ENDIAN);
-			index += 1;
-			proto_tree_add_item(filter_rule_tree, hf_filter_tos_maskbit_priority, tvb, index, 1, ENC_BIG_ENDIAN);
-			index += 1;
-			proto_tree_add_item(filter_rule_tree, hf_cos_tos, tvb, index, 1, ENC_BIG_ENDIAN);
-			index += 1;
-			proto_tree_add_item(filter_rule_tree, hf_cos_tos_mask, tvb, index, 1, ENC_BIG_ENDIAN);
-			index += 1;
-			proto_tree_add_item(filter_rule_tree, hf_cos_priority_txq, tvb, index, 1, ENC_BIG_ENDIAN);
-			index += 1;
-			proto_tree_add_item(filter_rule_tree, hf_cos_rateid, tvb, index, 1, ENC_BIG_ENDIAN);
-			index += 1;
+			proto_tree_add_item(filter_rule_tree, hf_wassp_filter_rule, tvb, suboffset, AFTER_V831_FILTER_RULE_STRUCT_SIZE, ENC_NA);
+			proto_tree_add_item(filter_rule_tree, hf_wassp_filter_flag, tvb, suboffset, 4, ENC_BIG_ENDIAN);
+			suboffset += 4;
+			proto_tree_add_item(filter_rule_tree, hf_wassp_ipaddress, tvb, suboffset, 4, ENC_BIG_ENDIAN);
+			suboffset += 4;
+			proto_tree_add_item(filter_rule_tree, hf_filter_rule_port_range, tvb, suboffset, 4, ENC_BIG_ENDIAN);
+			suboffset += 4;
+			proto_tree_add_item(filter_rule_tree, hf_wassp_ipprotocol, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+			suboffset += 1;
+			proto_tree_add_item(filter_rule_tree, hf_wassp_netmasklength, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+			suboffset += 1;
+			proto_tree_add_item(filter_rule_tree, hf_wassp_tos, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+			suboffset += 1;
+			proto_tree_add_item(filter_rule_tree, hf_filter_tos_maskbit_priority, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+			suboffset += 1;
+			proto_tree_add_item(filter_rule_tree, hf_cos_tos, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+			suboffset += 1;
+			proto_tree_add_item(filter_rule_tree, hf_cos_tos_mask, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+			suboffset += 1;
+			proto_tree_add_item(filter_rule_tree, hf_cos_priority_txq, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+			suboffset += 1;
+			proto_tree_add_item(filter_rule_tree, hf_cos_rateid, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+			suboffset += 1;
 		}
 	}
 
 	if (flag & BEFORE_V831_FILTER_RULE_FORMAT)
 	{
-		index = offset + 4;
+		suboffset = offset + 4;
 		//proto_tree_add_debug_text(filter_rule_tree, "-----------Display Filter Rule(s) in V1 Struct  Format------------");
 		count = (length - 4) / BEFORE_V831_FILTER_RULE_STRUCT_SIZE;
 		for (i = 0; i < count; i++)
 		{
 			//proto_tree_add_debug_text(filter_rule_tree, "      filter rule %d", i + 1);
-			proto_tree_add_item(filter_rule_tree, hf_wassp_filter_rule, tvb, index, BEFORE_V831_FILTER_RULE_STRUCT_SIZE, ENC_NA);
-			proto_tree_add_item(filter_rule_tree, hf_wassp_filter_flag, tvb, index, 4, ENC_BIG_ENDIAN);
-			index += 4;
-			proto_tree_add_item(filter_rule_tree, hf_wassp_ipaddress, tvb, index, 4, ENC_BIG_ENDIAN);
-			index += 4;
-			proto_tree_add_item(filter_rule_tree, hf_filter_rule_port_range, tvb, index, 4, ENC_BIG_ENDIAN);
-			index += 4;
-			proto_tree_add_item(filter_rule_tree, hf_wassp_ipprotocol, tvb, index, 1, ENC_BIG_ENDIAN);
-			index += 1;
-			proto_tree_add_item(filter_rule_tree, hf_wassp_netmasklength, tvb, index, 1, ENC_BIG_ENDIAN);
-			index += 1;
-			proto_tree_add_item(filter_rule_tree, hf_wassp_reserve, tvb, index, 2, ENC_BIG_ENDIAN);
-			index += 2;
+			proto_tree_add_item(filter_rule_tree, hf_wassp_filter_rule, tvb, suboffset, BEFORE_V831_FILTER_RULE_STRUCT_SIZE, ENC_NA);
+			proto_tree_add_item(filter_rule_tree, hf_wassp_filter_flag, tvb, suboffset, 4, ENC_BIG_ENDIAN);
+			suboffset += 4;
+			proto_tree_add_item(filter_rule_tree, hf_wassp_ipaddress, tvb, suboffset, 4, ENC_BIG_ENDIAN);
+			suboffset += 4;
+			proto_tree_add_item(filter_rule_tree, hf_filter_rule_port_range, tvb, suboffset, 4, ENC_BIG_ENDIAN);
+			suboffset += 4;
+			proto_tree_add_item(filter_rule_tree, hf_wassp_ipprotocol, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+			suboffset += 1;
+			proto_tree_add_item(filter_rule_tree, hf_wassp_netmasklength, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+			suboffset += 1;
+			proto_tree_add_item(filter_rule_tree, hf_wassp_reserve, tvb, suboffset, 2, ENC_BIG_ENDIAN);
+			suboffset += 2;
 		}
 	}
 }
@@ -4579,26 +4579,26 @@ static void decode_filter_rule_octext_string(proto_tree *tree, tvbuff_t *tvb, in
 
 static void decode_mu_appl_stats_block(proto_tree *tree, tvbuff_t *tvb, int offset )
 {
-	int index, count, i;
+	int suboffset, count, i;
 	proto_tree *tlv_tree = proto_item_add_subtree(tree, ett_wassp_mu_appl_stats);
 
-	index = offset;
-	count = tvb_get_ntohl(tvb, index);
-	proto_tree_add_item(tlv_tree, hf_wassp_mu, tvb, index, 4, ENC_BIG_ENDIAN);
-	index += 4;
+	suboffset = offset;
+	count = tvb_get_ntohl(tvb, suboffset);
+	proto_tree_add_item(tlv_tree, hf_wassp_mu, tvb, suboffset, 4, ENC_BIG_ENDIAN);
+	suboffset += 4;
 	for (i = 1; i <= count; i++)
 	{
 		//proto_tree_add_debug_text(tlv_tree, "MU_%d", i);
-		proto_tree_add_item(tlv_tree, hf_wassp_macaddr, tvb, index, 6, ENC_NA);
-		index += 6;
-		proto_tree_add_item(tlv_tree, hf_wassp_apprules, tvb, index, 2, ENC_BIG_ENDIAN);
-		index += 2;
-		proto_tree_add_item(tlv_tree, hf_wassp_displayid, tvb, index, 2, ENC_BIG_ENDIAN);
-		index += 2;
-		proto_tree_add_item(tlv_tree, hf_wassp_txbytes, tvb, index, 4, ENC_BIG_ENDIAN);
-		index += 4;
-		proto_tree_add_item(tlv_tree, hf_wassp_rxbytes, tvb, index, 4, ENC_BIG_ENDIAN);
-		index += 4;
+		proto_tree_add_item(tlv_tree, hf_wassp_macaddr, tvb, suboffset, 6, ENC_NA);
+		suboffset += 6;
+		proto_tree_add_item(tlv_tree, hf_wassp_apprules, tvb, suboffset, 2, ENC_BIG_ENDIAN);
+		suboffset += 2;
+		proto_tree_add_item(tlv_tree, hf_wassp_displayid, tvb, suboffset, 2, ENC_BIG_ENDIAN);
+		suboffset += 2;
+		proto_tree_add_item(tlv_tree, hf_wassp_txbytes, tvb, suboffset, 4, ENC_BIG_ENDIAN);
+		suboffset += 4;
+		proto_tree_add_item(tlv_tree, hf_wassp_rxbytes, tvb, suboffset, 4, ENC_BIG_ENDIAN);
+		suboffset += 4;
 	}
 
 }
@@ -4607,64 +4607,64 @@ static void decode_mu_appl_stats_block(proto_tree *tree, tvbuff_t *tvb, int offs
 
 static void decode_cos_struct(proto_tree *tree, tvbuff_t *tvb, int offset )
 {
-	int index = offset;
-	proto_tree_add_item(tree, hf_wassp_flag_1b, tvb, index, 1, ENC_BIG_ENDIAN);
-	index += 1;
-	proto_tree_add_item(tree, hf_wassp_tos, tvb, index, 1, ENC_BIG_ENDIAN);
-	index += 1;
-	proto_tree_add_item(tree, hf_wassp_tos_mask, tvb, index, 1, ENC_BIG_ENDIAN);
-	index += 1;
-	proto_tree_add_item(tree, hf_wassp_priority, tvb, index, 1, ENC_BIG_ENDIAN);
-	index += 1;
-	proto_tree_add_item(tree, hf_cos_rateid, tvb, index, 1, ENC_BIG_ENDIAN);
+	int suboffset = offset;
+	proto_tree_add_item(tree, hf_wassp_flag_1b, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+	suboffset += 1;
+	proto_tree_add_item(tree, hf_wassp_tos, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+	suboffset += 1;
+	proto_tree_add_item(tree, hf_wassp_tos_mask, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+	suboffset += 1;
+	proto_tree_add_item(tree, hf_wassp_priority, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+	suboffset += 1;
+	proto_tree_add_item(tree, hf_cos_rateid, tvb, suboffset, 1, ENC_BIG_ENDIAN);
 
 }
 
 static void decode_rate_limit_struct(proto_tree *tree, tvbuff_t *tvb, int offset, int length )
 {
-	int index = offset, count = length / 4, i;
+	int suboffset = offset, count = length / 4, i;
 
 	for (i = 0; i < count; i++)
 	{
-		proto_tree_add_item(tree, hf_wassp_in_cir, tvb, index, 2, ENC_BIG_ENDIAN);
-		index += 2;
-		proto_tree_add_item(tree, hf_wassp_out_cir, tvb, index, 2, ENC_BIG_ENDIAN);
-		index += 2;
+		proto_tree_add_item(tree, hf_wassp_in_cir, tvb, suboffset, 2, ENC_BIG_ENDIAN);
+		suboffset += 2;
+		proto_tree_add_item(tree, hf_wassp_out_cir, tvb, suboffset, 2, ENC_BIG_ENDIAN);
+		suboffset += 2;
 	}
 
 }
 
 static void decode_mac_list_struct(proto_tree *tree, tvbuff_t *tvb, int offset, int length )
 {
-	int index = offset, count = length / 6, i;
+	int suboffset = offset, count = length / 6, i;
 
 	for (i = 0; i < count; i++)
 	{
-		proto_tree_add_item(tree, hf_wassp_macaddr, tvb, index, 6, ENC_NA);
-		index += 6;
+		proto_tree_add_item(tree, hf_wassp_macaddr, tvb, suboffset, 6, ENC_NA);
+		suboffset += 6;
 	}
 }
 
 
 static void decode_ipv4_list_struct(proto_tree *tree, tvbuff_t *tvb, int offset, int length )
 {
-	int index = offset, count = length / 4, i;
+	int suboffset = offset, count = length / 4, i;
 
 	for (i = 0; i < count; i++)
 	{
-		proto_tree_add_item(tree, hf_wassp_ipaddress, tvb, index, 4, ENC_BIG_ENDIAN);
-		index += 4;
+		proto_tree_add_item(tree, hf_wassp_ipaddress, tvb, suboffset, 4, ENC_BIG_ENDIAN);
+		suboffset += 4;
 	}
 }
 
 static void decode_Channel_list(proto_tree *tree, tvbuff_t *tvb, int offset, int length )
 {
-	int index = offset, count = length / 2, i;
+	int suboffset = offset, count = length / 2, i;
 
 	for (i = 0; i < count; i++)
 	{
-		proto_tree_add_item(tree, hf_wassp_freq, tvb, index, 2, ENC_BIG_ENDIAN);
-		index += 2;
+		proto_tree_add_item(tree, hf_wassp_freq, tvb, suboffset, 2, ENC_BIG_ENDIAN);
+		suboffset += 2;
 	}
 }
 
@@ -4672,63 +4672,63 @@ static void decode_Channel_list(proto_tree *tree, tvbuff_t *tvb, int offset, int
 
 static int decode_lbs_tag_header(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-	int index = offset;
+	int suboffset = offset;
 	proto_item *temp;
 	proto_tree *lbs_header_tree;
 
-	temp = proto_tree_add_item(tree, hf_aeroscout_header, tvb, index, 64, ENC_NA);
+	temp = proto_tree_add_item(tree, hf_aeroscout_header, tvb, suboffset, 64, ENC_NA);
 	lbs_header_tree = proto_item_add_subtree(temp, ett_wassp_header);
-	proto_tree_add_item(lbs_header_tree, hf_aeroscout_header_magic_number, tvb, index, 2, ENC_BIG_ENDIAN);
-	index += 2;
-	proto_tree_add_item(lbs_header_tree, hf_aeroscout_request_id, tvb, index, 2, ENC_BIG_ENDIAN);
-	index += 2;
-	proto_tree_add_item(lbs_header_tree, hf_aeroscout_code, tvb, index, 1, ENC_BIG_ENDIAN);
-	index += 1;
-	proto_tree_add_item(lbs_header_tree, hf_aeroscout_sub_code, tvb, index, 1, ENC_BIG_ENDIAN);
-	index += 1;
-	proto_tree_add_item(lbs_header_tree, hf_aeroscout_datalength, tvb, index, 2, ENC_BIG_ENDIAN);
-	index += 2;
-	proto_tree_add_item(lbs_header_tree, hf_wassp_mu_mac, tvb, index, 6, ENC_NA);
-	index += 6;
-	proto_tree_add_item(lbs_header_tree, hf_lbs_vendor_id, tvb, index, 2, ENC_BIG_ENDIAN);
-	index += 2;
-	proto_tree_add_item(lbs_header_tree, hf_lbs_rsvd1, tvb, index, 2, ENC_BIG_ENDIAN);
-	index += 2;
-	proto_tree_add_item(lbs_header_tree, hf_lbs_ap_bssid, tvb, index, 6, ENC_NA);
-	index += 6;
-	proto_tree_add_item(lbs_header_tree, hf_lbs_rsvd2, tvb, index, 1, ENC_BIG_ENDIAN);
-	index += 1;
-	proto_tree_add_item(lbs_header_tree, hf_lbs_rxchan, tvb, index, 1, ENC_BIG_ENDIAN);
-	index += 1;
-	proto_tree_add_item(lbs_header_tree, hf_lsb_tstamp, tvb, index, 4, ENC_BIG_ENDIAN);
-	index += 4;
-	proto_tree_add_item(lbs_header_tree, hf_hf_lsb_rsvd3, tvb, index, 2, ENC_BIG_ENDIAN);
-	index += 2;
-	proto_tree_add_item(lbs_header_tree, hf_lsb_rssi, tvb, index, 1, ENC_BIG_ENDIAN);
-	index += 1;
-	proto_tree_add_item(lbs_header_tree, hf_lsb_rsvd, tvb, index, 1, ENC_BIG_ENDIAN);
-	index += 1;
-	proto_tree_add_item(lbs_header_tree, hf_lsb_noise_floor, tvb, index, 1, ENC_BIG_ENDIAN);
-	index += 1;
-	proto_tree_add_item(lbs_header_tree, hf_lsb_rsvd4, tvb, index, 3, ENC_BIG_ENDIAN);
-	index += 3;
-	proto_tree_add_item(lbs_header_tree, hf_lsb_chan_rate, tvb, index, 1, ENC_BIG_ENDIAN);
-	index += 1;
-	proto_tree_add_item(lbs_header_tree, hf_lsb_rsvd5, tvb, index, 1, ENC_BIG_ENDIAN);
-	index += 1;
-	proto_tree_add_item(lbs_header_tree, hf_lsb_wh_addr2, tvb, index, 6, ENC_NA);
-	index += 6;
-	proto_tree_add_item(lbs_header_tree, hf_lsb_wh_fc, tvb, index, 2, ENC_BIG_ENDIAN);
-	index += 2;
-	proto_tree_add_item(lbs_header_tree, hf_lsb_wh_seq, tvb, index, 2, ENC_BIG_ENDIAN);
-	index += 2;
-	proto_tree_add_item(lbs_header_tree, hf_lsb_rsvd6, tvb, index, 2, ENC_BIG_ENDIAN);
-	index += 2;
-	proto_tree_add_item(lbs_header_tree, hf_lsb_wh_addr3, tvb, index, 6, ENC_NA);
-	index += 6;
-	proto_tree_add_item(lbs_header_tree, hf_lsb_wh_addr4, tvb, index, 6, ENC_NA);
-	index += 6;
-	return index;
+	proto_tree_add_item(lbs_header_tree, hf_aeroscout_header_magic_number, tvb, suboffset, 2, ENC_BIG_ENDIAN);
+	suboffset += 2;
+	proto_tree_add_item(lbs_header_tree, hf_aeroscout_request_id, tvb, suboffset, 2, ENC_BIG_ENDIAN);
+	suboffset += 2;
+	proto_tree_add_item(lbs_header_tree, hf_aeroscout_code, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+	suboffset += 1;
+	proto_tree_add_item(lbs_header_tree, hf_aeroscout_sub_code, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+	suboffset += 1;
+	proto_tree_add_item(lbs_header_tree, hf_aeroscout_datalength, tvb, suboffset, 2, ENC_BIG_ENDIAN);
+	suboffset += 2;
+	proto_tree_add_item(lbs_header_tree, hf_wassp_mu_mac, tvb, suboffset, 6, ENC_NA);
+	suboffset += 6;
+	proto_tree_add_item(lbs_header_tree, hf_lbs_vendor_id, tvb, suboffset, 2, ENC_BIG_ENDIAN);
+	suboffset += 2;
+	proto_tree_add_item(lbs_header_tree, hf_lbs_rsvd1, tvb, suboffset, 2, ENC_BIG_ENDIAN);
+	suboffset += 2;
+	proto_tree_add_item(lbs_header_tree, hf_lbs_ap_bssid, tvb, suboffset, 6, ENC_NA);
+	suboffset += 6;
+	proto_tree_add_item(lbs_header_tree, hf_lbs_rsvd2, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+	suboffset += 1;
+	proto_tree_add_item(lbs_header_tree, hf_lbs_rxchan, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+	suboffset += 1;
+	proto_tree_add_item(lbs_header_tree, hf_lsb_tstamp, tvb, suboffset, 4, ENC_BIG_ENDIAN);
+	suboffset += 4;
+	proto_tree_add_item(lbs_header_tree, hf_hf_lsb_rsvd3, tvb, suboffset, 2, ENC_BIG_ENDIAN);
+	suboffset += 2;
+	proto_tree_add_item(lbs_header_tree, hf_lsb_rssi, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+	suboffset += 1;
+	proto_tree_add_item(lbs_header_tree, hf_lsb_rsvd, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+	suboffset += 1;
+	proto_tree_add_item(lbs_header_tree, hf_lsb_noise_floor, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+	suboffset += 1;
+	proto_tree_add_item(lbs_header_tree, hf_lsb_rsvd4, tvb, suboffset, 3, ENC_BIG_ENDIAN);
+	suboffset += 3;
+	proto_tree_add_item(lbs_header_tree, hf_lsb_chan_rate, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+	suboffset += 1;
+	proto_tree_add_item(lbs_header_tree, hf_lsb_rsvd5, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+	suboffset += 1;
+	proto_tree_add_item(lbs_header_tree, hf_lsb_wh_addr2, tvb, suboffset, 6, ENC_NA);
+	suboffset += 6;
+	proto_tree_add_item(lbs_header_tree, hf_lsb_wh_fc, tvb, suboffset, 2, ENC_BIG_ENDIAN);
+	suboffset += 2;
+	proto_tree_add_item(lbs_header_tree, hf_lsb_wh_seq, tvb, suboffset, 2, ENC_BIG_ENDIAN);
+	suboffset += 2;
+	proto_tree_add_item(lbs_header_tree, hf_lsb_rsvd6, tvb, suboffset, 2, ENC_BIG_ENDIAN);
+	suboffset += 2;
+	proto_tree_add_item(lbs_header_tree, hf_lsb_wh_addr3, tvb, suboffset, 6, ENC_NA);
+	suboffset += 6;
+	proto_tree_add_item(lbs_header_tree, hf_lsb_wh_addr4, tvb, suboffset, 6, ENC_NA);
+	suboffset += 6;
+	return suboffset;
 }
 
 
@@ -4748,7 +4748,7 @@ int dissect_wassp_sub_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pi
 	guint16 length = 0, org_offset = offset;
 	WASSP_SUBTLV_DECODER_INFO_t *tmp_decr = NULL;
 	guint32 i, tableNo;
-	int index;
+	int suboffset;
 
 	if (which_tab >= TAB_MAX)
 	{
@@ -4833,13 +4833,13 @@ int dissect_wassp_sub_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pi
 					proto_tree_add_item(tmp_tree, wassp_type_converter(WASSP_SUBTLV_GET_ENTRY_IDX_TYPE(tmp_decr, tlv_type)), tvb, offset + TLV_VALUE, length - 4, FALSE);
 					if ((which_tab == TAB_CONFIG_SITE) && (tlv_type == EID_SITE_TOPOLOGY_BLOCK))
 					{
-						index = offset + 4;
+						suboffset = offset + 4;
 						for (i = 0; i < (guint32)(length / 4 - 1); i++)
 						{
-							proto_tree_add_item(tmp_tree, hf_wassp_topologykey, tvb, index, 2, ENC_BIG_ENDIAN);
-							index += 2;
-							proto_tree_add_item(tmp_tree, hf_wassp_topology_mode, tvb, index, 2, ENC_BIG_ENDIAN);
-							index += 2;
+							proto_tree_add_item(tmp_tree, hf_wassp_topologykey, tvb, suboffset, 2, ENC_BIG_ENDIAN);
+							suboffset += 2;
+							proto_tree_add_item(tmp_tree, hf_wassp_topology_mode, tvb, suboffset, 2, ENC_BIG_ENDIAN);
+							suboffset += 2;
 						}
 					}
 
@@ -4879,20 +4879,20 @@ int dissect_wassp_sub_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pi
 					{
 						if (tlv_type == EID_SCAN_RSS_RSSI)
 						{
-							index = offset + 4;
-							proto_tree_add_item(tmp_tree, hf_wassp_rss, tvb, index, 2, ENC_BIG_ENDIAN);
-							index += 2;
-							proto_tree_add_item(tmp_tree, hf_wassp_rssi, tvb, index, 2, ENC_BIG_ENDIAN);
+							suboffset = offset + 4;
+							proto_tree_add_item(tmp_tree, hf_wassp_rss, tvb, suboffset, 2, ENC_BIG_ENDIAN);
+							suboffset += 2;
+							proto_tree_add_item(tmp_tree, hf_wassp_rssi, tvb, suboffset, 2, ENC_BIG_ENDIAN);
 						}
 
 						if (tlv_type == EID_PARAMS)
 						{
-							index = offset + 4;
-							proto_tree_add_item(tmp_tree, hf_wassp_threatstate, tvb, index, 1, ENC_BIG_ENDIAN);
-							index += 1;
-							proto_tree_add_item(tmp_tree, hf_wassp_radioparams, tvb, index, 1, ENC_BIG_ENDIAN);
-							index += 1;
-							proto_tree_add_item(tmp_tree, hf_wassp_channelfreq, tvb, index, 2, ENC_BIG_ENDIAN);
+							suboffset = offset + 4;
+							proto_tree_add_item(tmp_tree, hf_wassp_threatstate, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+							suboffset += 1;
+							proto_tree_add_item(tmp_tree, hf_wassp_radioparams, tvb, suboffset, 1, ENC_BIG_ENDIAN);
+							suboffset += 1;
+							proto_tree_add_item(tmp_tree, hf_wassp_channelfreq, tvb, suboffset, 2, ENC_BIG_ENDIAN);
 						}
 
 					}
@@ -4942,7 +4942,7 @@ int dissect_wassp_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pinfo,
 	guint16 tlv_type = WASSP_RU_UNUSED_0;
 	guint16 length;
 	guint32 value;
-	int index;
+	int suboffset;
 	wassp_ru_msg_t ru_msg_type = rumsg_type;
 	char *label;
 
@@ -5577,10 +5577,10 @@ int dissect_wassp_tlv(proto_tree *wassp_tree, tvbuff_t *tvb, packet_info *pinfo,
 
 		case EID_SCAN_RSS_RSSI:                            // 236
 			proto_tree_add_item(tlv_tree, hf_wassp_tlv_value_int, tvb, offset + TLV_VALUE, length - 4, ENC_NA);
-			index = offset + 4;
-			proto_tree_add_item(tlv_tree, hf_wassp_rss, tvb, index, 2, ENC_BIG_ENDIAN);
-			index += 2;
-			proto_tree_add_item(tlv_tree, hf_wassp_rssi, tvb, index, 2, ENC_BIG_ENDIAN);
+			suboffset = offset + 4;
+			proto_tree_add_item(tlv_tree, hf_wassp_rss, tvb, suboffset, 2, ENC_BIG_ENDIAN);
+			suboffset += 2;
+			proto_tree_add_item(tlv_tree, hf_wassp_rssi, tvb, suboffset, 2, ENC_BIG_ENDIAN);
 			offset += length;
 			break;
 
