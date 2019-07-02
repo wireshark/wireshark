@@ -945,7 +945,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             else if (strncmp(line, "EPRT", tokenlen) == 0)
                 is_eprt_request = TRUE;
             else if (strncmp(line, "USER", tokenlen) == 0) {
-                if (p_ftp_conv) {
+                if (p_ftp_conv && linelen - tokenlen > 1) {
                     p_ftp_conv->username = wmem_strndup(wmem_file_scope(), line + tokenlen + 1, linelen - tokenlen - 1);
                     p_ftp_conv->username_pkt_num = pinfo->num;
                 }
