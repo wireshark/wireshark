@@ -3395,7 +3395,7 @@ basic_auth_credentials(gchar* str)
 
 	tap_credential_t* auth = wmem_new0(wmem_file_scope(), tap_credential_t);
 
-	auth->username = tokens[0];
+	auth->username = wmem_strdup(wmem_file_scope(), tokens[0]);
 	auth->proto = "HTTP basic auth";
 
 	g_strfreev(tokens);
