@@ -201,6 +201,9 @@ static int hf_smb2_salt_length = -1;
 static int hf_smb2_salt = -1;
 static int hf_smb2_cipher_count = -1;
 static int hf_smb2_cipher_id = -1;
+static int hf_smb2_comp_alg_count = -1;
+static int hf_smb2_comp_alg_id = -1;
+static int hf_smb2_netname_neg_id = -1;
 static int hf_smb2_ea_size = -1;
 static int hf_smb2_ea_flags = -1;
 static int hf_smb2_ea_name_len = -1;
@@ -817,9 +820,13 @@ static const value_string smb2_find_info_levels[] = {
 
 #define SMB2_PREAUTH_INTEGRITY_CAPABILITIES 0x0001
 #define SMB2_ENCRYPTION_CAPABILITIES        0x0002
+#define SMB2_COMPRESSION_CAPABILITIES       0x0003
+#define SMB2_NETNAME_NEGOTIATE_CONTEXT_ID   0x0005
 static const value_string smb2_negotiate_context_types[] = {
 	{ SMB2_PREAUTH_INTEGRITY_CAPABILITIES,  "SMB2_PREAUTH_INTEGRITY_CAPABILITIES" },
 	{ SMB2_ENCRYPTION_CAPABILITIES,	"SMB2_ENCRYPTION_CAPABILITIES" },
+	{ SMB2_COMPRESSION_CAPABILITIES, "SMB2_COMPRESSION_CAPABILITIES" },
+	{ SMB2_NETNAME_NEGOTIATE_CONTEXT_ID, "SMB2_NETNAME_NEGOTIATE_CONTEXT_ID" },
 	{ 0, NULL }
 };
 
@@ -834,6 +841,18 @@ static const value_string smb2_hash_algorithm_types[] = {
 static const value_string smb2_cipher_types[] = {
 	{ SMB2_CIPHER_AES_128_CCM, "AES-128-CCM" },
 	{ SMB2_CIPHER_AES_128_GCM, "AES-128-GCM" },
+	{ 0, NULL }
+};
+
+#define SMB2_COMP_ALG_NONE        0x0000
+#define SMB2_COMP_ALG_LZNT1       0x0001
+#define SMB2_COMP_ALG_LZ77        0x0002
+#define SMB2_COMP_ALG_LZ77HUFF    0x0003
+static const value_string smb2_comp_alg_types[] = {
+	{ SMB2_COMP_ALG_NONE, "None" },
+	{ SMB2_COMP_ALG_LZNT1, "LZNT1" },
+	{ SMB2_COMP_ALG_LZ77, "LZ77" },
+	{ SMB2_COMP_ALG_LZ77HUFF, "LZ77+Huffman" },
 	{ 0, NULL }
 };
 
@@ -4558,7 +4577,7 @@ dissect_smb2_negotiate_context(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 {
 	guint16 type;
 	const gchar *type_str;
-	guint32 i, data_length, salt_length, hash_count, cipher_count;
+	guint32 i, data_length, salt_length, hash_count, cipher_count, comp_count;
 	proto_item *sub_item;
 	proto_tree *sub_tree;
 
@@ -4614,6 +4633,28 @@ dissect_smb2_negotiate_context(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 				proto_tree_add_item(sub_tree, hf_smb2_cipher_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				offset += 2;
 			}
+			break;
+
+		case SMB2_COMPRESSION_CAPABILITIES:
+			proto_tree_add_item_ret_uint(sub_tree, hf_smb2_comp_alg_count, tvb, offset, 2, ENC_LITTLE_ENDIAN, &comp_count);
+			offset += 2;
+
+			/* padding */
+			offset += 2;
+
+			/* reserved */
+			offset += 4;
+
+			for (i = 0; i < comp_count; i ++) {
+				proto_tree_add_item(sub_tree, hf_smb2_comp_alg_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+				offset += 2;
+			}
+			break;
+
+		case SMB2_NETNAME_NEGOTIATE_CONTEXT_ID:
+			proto_tree_add_item(sub_tree, hf_smb2_netname_neg_id, tvb, offset,
+					    data_length, ENC_UTF_16|ENC_LITTLE_ENDIAN);
+			offset += data_length;
 			break;
 
 		default:
@@ -10676,6 +10717,19 @@ proto_register_smb2(void)
 		{ &hf_smb2_cipher_id,
 			{ "CipherId", "smb2.negotiate_context.cipher_id", FT_UINT16, BASE_HEX,
 			VALS(smb2_cipher_types), 0, NULL, HFILL }},
+
+		{ &hf_smb2_comp_alg_count,
+			{ "CompressionAlgorithmCount", "smb2.negotiate_context.comp_alg_count", FT_UINT16, BASE_DEC,
+			NULL, 0, NULL, HFILL }},
+
+		{ &hf_smb2_comp_alg_id,
+			{ "CompressionAlgorithmId", "smb2.negotiate_context.comp_alg_id", FT_UINT16, BASE_HEX,
+			VALS(smb2_comp_alg_types), 0, NULL, HFILL }},
+
+		{ &hf_smb2_netname_neg_id,
+			{ "Netname", "smb2.negotiate_context.netname", FT_STRING,
+			STR_UNICODE, NULL, 0x0, NULL, HFILL }
+		},
 
 		{ &hf_smb2_current_time,
 			{ "Current Time", "smb2.current_time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL,
