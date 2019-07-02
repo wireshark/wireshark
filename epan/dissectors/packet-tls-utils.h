@@ -197,6 +197,7 @@ extern const value_string ssl_extension_curves[];
 extern const value_string ssl_extension_ec_point_formats[];
 extern const value_string ssl_curve_types[];
 extern const value_string tls_hello_ext_server_name_type_vs[];
+extern const value_string tls_hello_ext_max_fragment_length[];
 extern const value_string tls_hello_ext_psk_ke_mode[];
 extern const value_string tls13_key_update_request[];
 extern const value_string compress_certificate_algorithm_vals[];
@@ -777,6 +778,7 @@ typedef struct ssl_common_dissect {
         gint hs_ext_server_name_len;
         gint hs_ext_server_name_list_len;
         gint hs_ext_server_name_type;
+        gint hs_ext_max_fragment_length;
         gint hs_ext_padding_data;
         gint hs_ext_type;
         gint hs_sig_hash_alg;
@@ -1133,7 +1135,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1,                                     \
+        -1, -1, -1, -1, -1, -1, -1, -1,                                 \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1341,6 +1343,11 @@ ssl_common_dissect_t name = {   \
       { "Server Name", prefix ".handshake.extensions_server_name",      \
         FT_STRING, BASE_NONE, NULL, 0x0,                                \
         NULL, HFILL }                                                   \
+    },                                                                  \
+    { & name .hf.hs_ext_max_fragment_length,                            \
+      { "Maximum Fragment Length", prefix ".handshake.max_fragment_length", \
+        FT_UINT8, BASE_DEC, VALS(tls_hello_ext_max_fragment_length), 0x00, \
+        "Maximum fragment length that an endpoint is willing to receive", HFILL } \
     },                                                                  \
     { & name .hf.hs_ext_padding_data,                                   \
       { "Padding Data", prefix ".handshake.extensions_padding_data",    \

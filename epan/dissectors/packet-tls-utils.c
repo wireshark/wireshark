@@ -1180,6 +1180,15 @@ const value_string tls_hello_ext_server_name_type_vs[] = {
     { 0, NULL }
 };
 
+/* RFC 6066 Section 4 */
+const value_string tls_hello_ext_max_fragment_length[] = {
+    { 1, "512" },  // 2^9
+    { 2, "1024" }, // 2^10
+    { 3, "2048" }, // 2^11
+    { 4, "4096" }, // 2^12
+    { 0, NULL }
+};
+
 /* RFC 8446 Section 4.2.9 */
 const value_string tls_hello_ext_psk_ke_mode[] = {
     { 0, "PSK-only key establishment (psk_ke)" },
@@ -8407,6 +8416,10 @@ ssl_dissect_hnd_extension(ssl_common_dissect_t *hf, tvbuff_t *tvb, proto_tree *t
         switch (ext_type) {
         case SSL_HND_HELLO_EXT_SERVER_NAME:
             offset = ssl_dissect_hnd_hello_ext_server_name(hf, tvb, pinfo, ext_tree, offset, next_offset);
+            break;
+        case SSL_HND_HELLO_EXT_MAX_FRAGMENT_LENGTH:
+            proto_tree_add_item(ext_tree, hf->hf.hs_ext_max_fragment_length, tvb, offset, 1, ENC_NA);
+            offset += 1;
             break;
         case SSL_HND_HELLO_EXT_STATUS_REQUEST:
             if (hnd_type == SSL_HND_CLIENT_HELLO) {
