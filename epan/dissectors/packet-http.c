@@ -3169,7 +3169,7 @@ process_header(tvbuff_t *tvb, int offset, int next_offset,
 			auth = wmem_new0(wmem_file_scope(), tap_credential_t);
 			auth->num = pinfo->num;
 			auth->password_hf_id = *headers[hf_index].hf;
-			auth->proto = wmem_strdup(wmem_file_scope(), "HTTP header auth");
+			auth->proto = "HTTP header auth";
 			auth->username = wmem_strdup(wmem_file_scope(), TAP_CREDENTIALS_PLACEHOLDER);
 			tap_queue_packet(credentials_tap, pinfo, auth);
 			break;
