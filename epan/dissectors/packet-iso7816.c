@@ -101,6 +101,7 @@ typedef struct _iso7816_transaction_t {
        the response contains no channel number to compare this to
        and the spec explicitly prohibits interleaving of command-response
        pairs, regardless of logical channels */
+    dissector_handle_t handle;
 } iso7816_transaction_t;
 
 static const value_string iso7816_atr_init_char[] = {
@@ -625,6 +626,7 @@ dissect_iso7816_cmd_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             iso7816_trans->cmd_frame = pinfo->num;
             iso7816_trans->resp_frame = 0;
             iso7816_trans->cmd_ins = INS_INVALID;
+            iso7816_trans->handle = NULL;
 
             wmem_tree_insert32(transactions,
                     iso7816_trans->cmd_frame, (void *)iso7816_trans);
@@ -636,13 +638,15 @@ dissect_iso7816_cmd_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* the class byte says that the remaining APDU is not
             in ISO7816 format */
 
-        ret = dissector_try_payload_new(iso7816_apdu_pld_table,
-                tvb, pinfo, tree, TRUE, NULL);
-
-        if (ret == 0) {
-            col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
-                    "Command APDU using proprietary format");
-            return 1; /* we only dissected the class byte */
+        iso7816_trans->handle =
+            dissector_get_payload_handle(iso7816_apdu_pld_table);
+        if (iso7816_trans->handle != NULL) {
+            ret = call_dissector(iso7816_trans->handle, tvb, pinfo, tree);
+            if (ret == 0) {
+                col_append_sep_str(pinfo->cinfo, COL_INFO, NULL,
+                        "Command APDU using proprietary format");
+                return 1; /* we only dissected the class byte */
+            }
         }
 
         return ret;
@@ -722,6 +726,9 @@ dissect_iso7816_resp_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
                         "(to %s)", cmd_ins_str);
             }
+
+            if (iso7816_trans->handle != NULL)
+                call_dissector(iso7816_trans->handle, tvb, pinfo, tree);
         }
     }
 
