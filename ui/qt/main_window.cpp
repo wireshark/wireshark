@@ -484,8 +484,6 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SIGNAL(frameSelected(int)));
     connect(this, SIGNAL(frameSelected(int)),
             this, SLOT(setMenusForSelectedPacket()));
-    connect(packet_list_->packetListModel(), SIGNAL(bgColorizationProgress(int, int)),
-            main_ui_->wirelessTimelineWidget, SLOT(bgColorizationProgress(int, int)));
 
     proto_tree_ = new ProtoTree(&master_split_);
     proto_tree_->installEventFilter(this);
@@ -635,16 +633,6 @@ MainWindow::MainWindow(QWidget *parent) :
             this, SLOT(openPacketDialog()));
     connect(packet_list_, SIGNAL(packetListScrolled(bool)),
             main_ui_->actionGoAutoScroll, SLOT(setChecked(bool)));
-    connect(packet_list_->packetListModel(), SIGNAL(pushBusyStatus(QString)),
-            main_ui_->statusBar, SLOT(pushBusyStatus(QString)));
-    connect(packet_list_->packetListModel(), SIGNAL(popBusyStatus()),
-            main_ui_->statusBar, SLOT(popBusyStatus()));
-    connect(packet_list_->packetListModel(), SIGNAL(pushProgressStatus(QString, bool, bool, gboolean*)),
-            main_ui_->statusBar, SLOT(pushProgressStatus(QString, bool, bool, gboolean*)));
-    connect(packet_list_->packetListModel(), SIGNAL(updateProgressStatus(int)),
-            main_ui_->statusBar, SLOT(updateProgressStatus(int)));
-    connect(packet_list_->packetListModel(), SIGNAL(popProgressStatus()),
-            main_ui_->statusBar, SLOT(popProgressStatus()));
 
     connect(proto_tree_, SIGNAL(openPacketInNewWindow(bool)),
             this, SLOT(openPacketDialog(bool)));

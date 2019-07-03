@@ -26,6 +26,9 @@
 
 #include <ui/qt/utils/color_utils.h>
 #include "wireshark_application.h"
+#include <ui/qt/main_window.h>
+#include <ui/qt/main_status_bar.h>
+#include <ui/qt/widgets/wireless_timeline.h>
 
 #include <QColor>
 #include <QElapsedTimer>
@@ -55,6 +58,35 @@ PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
     visible_rows_.reserve(reserved_packets_);
     new_visible_rows_.reserve(1000);
     number_to_row_.reserve(reserved_packets_);
+
+    if (qobject_cast<MainWindow *>(wsApp->mainWindow()))
+    {
+            MainWindow *mw = qobject_cast<MainWindow *>(wsApp->mainWindow());
+            MainStatusBar *ms = qobject_cast<MainStatusBar *>(mw->statusBar());
+
+            if (ms)
+            {
+                connect(this, SIGNAL(pushBusyStatus(QString)),
+                        ms, SLOT(pushBusyStatus(QString)));
+                connect(this, SIGNAL(popBusyStatus()),
+                        ms, SLOT(popBusyStatus()));
+                connect(this, SIGNAL(pushProgressStatus(QString, bool, bool, gboolean*)),
+                        ms, SLOT(pushProgressStatus(QString, bool, bool, gboolean*)));
+                connect(this, SIGNAL(updateProgressStatus(int)),
+                        ms, SLOT(updateProgressStatus(int)));
+                connect(this, SIGNAL(popProgressStatus()),
+                        ms, SLOT(popProgressStatus()));
+            }
+
+            QWidget * wtWidget = mw->findChild<WirelessTimeline *>();
+            if ( wtWidget && qobject_cast<WirelessTimeline *>(wtWidget) )
+            {
+                WirelessTimeline * wt = qobject_cast<WirelessTimeline *>(wtWidget);
+                connect(this, SIGNAL(bgColorizationProgress(int, int)),
+                        wt, SLOT(bgColorizationProgress(int, int)));
+            }
+
+    }
 
     connect(this, &PacketListModel::maxLineCountChanged,
             this, &PacketListModel::emitItemHeightChanged,
@@ -693,7 +725,7 @@ void PacketListModel::dissectIdle(bool reset)
     }
 
     // report colorization progress
-    bgColorizationProgress(first+1, idle_dissection_row_+1);
+    emit bgColorizationProgress(first+1, idle_dissection_row_+1);
 }
 
 // XXX Pass in cinfo from packet_list_append so that we can fill in

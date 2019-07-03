@@ -495,9 +495,14 @@ WirelessTimeline::paintEvent(QPaintEvent *qpe)
     /* background of packets visible in packet_list is white */
     int top = packet_list->indexAt(QPoint(0,0)).row();
     int bottom = packet_list->indexAt(QPoint(0,packet_list->viewport()->height())).row();
-    PacketListModel *model = packet_list->packetListModel();
-    int x1 = top == -1 ? 0 : position(get_wlan_radio(model->getRowFdata(top)->num)->start_tsf, ratio);
-    int x2 = bottom == -1 ? width() : position(get_wlan_radio(model->getRowFdata(bottom)->num)->end_tsf, ratio);
+
+    frame_data * topData = packet_list->getFDataForRow(top);
+    frame_data * botData = packet_list->getFDataForRow(bottom);
+    if ( ! topData || ! botData )
+        return;
+
+    int x1 = top == -1 ? 0 : position(get_wlan_radio(topData->num)->start_tsf, ratio);
+    int x2 = bottom == -1 ? width() : position(get_wlan_radio(botData->num)->end_tsf, ratio);
     p.fillRect(QRectF(x1/ratio, 0, (x2-x1+1)/ratio, TIMELINE_HEIGHT), Qt::white);
 
     /* background of current packet is blue */
