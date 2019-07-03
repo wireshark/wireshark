@@ -2849,7 +2849,7 @@ if(DPKG_BUILDPACKAGE_EXECUTABLE)
 	)
 endif()
 
-if(LINUXDEPLOYQT_EXECUTABLE AND APPIMAGETOOL_EXECUTALBE)
+if(LINUXDEPLOYQT_EXECUTABLE AND APPIMAGETOOL_EXECUTABLE)
 	# The documentation at https://github.com/probonopd/linuxdeployqt
 	# says that you need to set CMAKE_BUILD_TYPE=Release and
 	# CMAKE_INSTALL_PREFIX=/usr. I (gcc) also had to set
