@@ -265,7 +265,7 @@ PacketList::PacketList(QWidget *parent) :
     setModel(packet_list_model_);
     sortByColumn(-1, Qt::AscendingOrder);
 
-    g_assert(gbl_cur_packet_list == NULL);
+    Q_ASSERT(gbl_cur_packet_list == Q_NULLPTR);
     gbl_cur_packet_list = this;
 
     connect(packet_list_model_, SIGNAL(goToPacket(int)), this, SLOT(goToPacket(int)));
@@ -987,7 +987,7 @@ void PacketList::freeze()
         frozen_row_ = -1;
     }
     selectionModel()->clear();
-    setModel(NULL);
+    setModel(Q_NULLPTR);
     // It looks like GTK+ sends a cursor-changed signal at this point but Qt doesn't
     // call selectionChanged.
     related_packet_delegate_.clear();
@@ -1543,7 +1543,7 @@ void PacketList::updateRowHeights(const QModelIndex &ih_index)
     }
 
     if (max_height > 0) {
-        packet_list_model_->setMaximiumRowHeight(max_height);
+        packet_list_model_->setMaximumRowHeight(max_height);
     }
 }
 

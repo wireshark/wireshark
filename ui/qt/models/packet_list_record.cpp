@@ -58,7 +58,7 @@ void *PacketListRecord::operator new(size_t size)
 const QByteArray PacketListRecord::columnString(capture_file *cap_file, int column, bool colorized)
 {
     // packet_list_store.c:packet_list_get_value
-    g_assert(fdata_);
+    Q_ASSERT(fdata_);
 
     if (!cap_file || column < 0 || column > cap_file->cinfo.num_cols) {
         return QByteArray();

@@ -69,7 +69,7 @@ public:
     void unsetAllFrameRefTime();
     void applyTimeShift();
 
-    void setMaximiumRowHeight(int height);
+    void setMaximumRowHeight(int height);
 
 signals:
     void goToPacket(int);

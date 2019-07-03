@@ -143,8 +143,8 @@ void PacketListModel::clear() {
 void PacketListModel::invalidateAllColumnStrings()
 {
     PacketListRecord::invalidateAllRecords();
-    dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
-    headerDataChanged(Qt::Horizontal, 0, columnCount() - 1);
+    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+    emit headerDataChanged(Qt::Horizontal, 0, columnCount() - 1);
 }
 
 void PacketListModel::resetColumns()
@@ -152,8 +152,8 @@ void PacketListModel::resetColumns()
     if (cap_file_) {
         PacketListRecord::resetColumns(&cap_file_->cinfo);
     }
-    dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
-    headerDataChanged(Qt::Horizontal, 0, columnCount() - 1);
+    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+    emit headerDataChanged(Qt::Horizontal, 0, columnCount() - 1);
 }
 
 void PacketListModel::resetColorized()
@@ -161,7 +161,7 @@ void PacketListModel::resetColorized()
     foreach (PacketListRecord *record, physical_rows_) {
         record->resetColorized();
     }
-    dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
 }
 
 void PacketListModel::toggleFrameMark(const QModelIndex &fm_index)
@@ -179,7 +179,7 @@ void PacketListModel::toggleFrameMark(const QModelIndex &fm_index)
     else
         cf_mark_frame(cap_file_, fdata);
 
-    dataChanged(fm_index, fm_index);
+    emit dataChanged(fm_index, fm_index);
 }
 
 void PacketListModel::setDisplayedFrameMark(gboolean set)
@@ -191,7 +191,7 @@ void PacketListModel::setDisplayedFrameMark(gboolean set)
             cf_unmark_frame(cap_file_, record->frameData());
         }
     }
-    dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
 }
 
 void PacketListModel::toggleFrameIgnore(const QModelIndex &i_index)
@@ -219,7 +219,7 @@ void PacketListModel::setDisplayedFrameIgnore(gboolean set)
             cf_unignore_frame(cap_file_, record->frameData());
         }
     }
-    dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
 }
 
 void PacketListModel::toggleFrameRefTime(const QModelIndex &rt_index)
@@ -244,7 +244,7 @@ void PacketListModel::toggleFrameRefTime(const QModelIndex &rt_index)
         cap_file_->displayed_count--;
     }
     record->resetColumns(&cap_file_->cinfo);
-    dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
 }
 
 void PacketListModel::unsetAllFrameRefTime()
@@ -262,22 +262,22 @@ void PacketListModel::unsetAllFrameRefTime()
     cap_file_->ref_time_count = 0;
     cf_reftime_packets(cap_file_);
     PacketListRecord::resetColumns(&cap_file_->cinfo);
-    dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
 }
 
 void PacketListModel::applyTimeShift()
 {
     resetColumns();
-    dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
+    emit dataChanged(index(0, 0), index(rowCount() - 1, columnCount() - 1));
 }
 
-void PacketListModel::setMaximiumRowHeight(int height)
+void PacketListModel::setMaximumRowHeight(int height)
 {
     max_row_height_ = height;
     // As the QTreeView uniformRowHeights documentation says,
     // "The height is obtained from the first item in the view. It is
     //  updated when the data changes on that item."
-    dataChanged(index(0, 0), index(0, columnCount() - 1));
+    emit dataChanged(index(0, 0), index(0, columnCount() - 1));
 }
 
 //void PacketListModel::setMonospaceFont(const QFont &mono_font, int row_height)
@@ -345,7 +345,7 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
     sort_column_is_numeric_ = isNumericColumn(sort_column_);
     std::sort(physical_rows_.begin(), physical_rows_.end(), recordLessThan);
 
-    beginResetModel();
+    emit beginResetModel();
     visible_rows_.resize(0);
     number_to_row_.fill(0);
     foreach (PacketListRecord *record, physical_rows_) {
@@ -359,7 +359,7 @@ void PacketListModel::sort(int column, Qt::SortOrder order)
             number_to_row_[fdata->num] = visible_rows_.count();
         }
     }
-    endResetModel();
+    emit endResetModel();
 
     if (!col_title.isEmpty()) {
         emit popBusyStatus();
@@ -649,7 +649,7 @@ void PacketListModel::flushVisibleRows()
     gint pos = visible_rows_.count();
 
     if (new_visible_rows_.count() > 0) {
-        beginInsertRows(QModelIndex(), pos, pos + new_visible_rows_.count());
+        emit beginInsertRows(QModelIndex(), pos, pos + new_visible_rows_.count());
         foreach (PacketListRecord *record, new_visible_rows_) {
             frame_data *fdata = record->frameData();
 
@@ -659,7 +659,7 @@ void PacketListModel::flushVisibleRows()
             }
             number_to_row_[fdata->num] = visible_rows_.count();
         }
-        endInsertRows();
+        emit endInsertRows();
         new_visible_rows_.resize(0);
     }
 }
