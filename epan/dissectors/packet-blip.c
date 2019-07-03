@@ -18,6 +18,7 @@
 
 #include <epan/packet.h>
 #include <epan/conversation.h>
+#include "proto_data.h"
 
 #ifdef HAVE_ZLIB
 #include <zlib.h>
@@ -35,14 +36,25 @@ typedef struct {
 	// Keep track of the largest frame number seen.  This is useful for determining whether
 	// this is the first frame in a request message or not.
 
-	// key: msgtype:srcport:messagenumber -> value: frame number for the _first_ frame in this request message
-	// Example: "MSG:23243:56" -> 12
-	// which means: "the first frame for blip message number 56, originating from source port 23243, and for message type = MSG
-	//				 ... occurred in wireshark packet #12"
+	// key: msgtype:srcport:destport:messagenumber -> value: frame number for the _first_ frame in this request message
+	// Example: "MSG:23243:4984:56" -> 12
+	// which means: "the first frame for blip message number 56, originating from source port 23243,
+	//              ... and going to port 4984 for message type = MSG occurred in wireshark packet #12"
 	wmem_map_t *blip_requests;
 
+#ifdef HAVE_ZLIB
+	// The streams used to decode a particular connection.	These are per direction and per connection.
+	wmem_map_t *decompress_streams;
+#endif
 } blip_conversation_entry_t;
 
+#ifdef HAVE_ZLIB
+typedef struct
+{
+	size_t size;
+	void* buf;
+} slice_t;
+#endif
 
 // File level variables
 static dissector_handle_t blip_handle;
@@ -55,7 +67,6 @@ static int hf_blip_message_body = -1;
 static int hf_blip_ack_size = -1;
 static int hf_blip_checksum = -1;
 static gint ett_blip = -1;
-static wmem_map_t* decompress_streams = NULL;
 
 // Compressed = 0x08
 // Urgent	  = 0x10
@@ -109,7 +120,7 @@ get_message_type(guint64 value_frame_flags)
 
 static gboolean
 is_ack_message(guint64 value_frame_flags) {
-	// Note, even though this is a 64-bit int, only the least significant byte has meaningful		 information,
+	// Note, even though this is a 64-bit int, only the least significant byte has meaningful information,
 	// since frame flags all fit into one byte at the time this code was written.
 
 	// Mask out the least significant bits: 0000 0111
@@ -202,7 +213,32 @@ handle_ack_message(tvbuff_t *tvb, _U_ packet_info *pinfo, proto_tree *blip_tree,
 	return tvb_captured_length(tvb);
 }
 
+static blip_conversation_entry_t*
+get_blip_conversation(packet_info* pinfo)
+{
+	// Create a new conversation if needed and associate the blip_conversation_entry_t with it
+	// Adapted from sample code in doc/README.dissector
+	conversation_t *conversation;
+	conversation = find_or_create_conversation(pinfo);
+	blip_conversation_entry_t *conversation_entry_ptr = (blip_conversation_entry_t*)conversation_get_proto_data(conversation, proto_blip);
+	if (conversation_entry_ptr == NULL) {
+
+		// create a new blip_conversation_entry_t
+		conversation_entry_ptr = wmem_new(wmem_file_scope(), blip_conversation_entry_t);
+
+		// create a new hash map and save a reference in blip_conversation_entry_t
+		conversation_entry_ptr->blip_requests = wmem_map_new(wmem_file_scope(), g_str_hash, g_str_equal);
 #ifdef HAVE_ZLIB
+		conversation_entry_ptr->decompress_streams = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+#endif
+		conversation_add_proto_data(conversation, proto_blip, conversation_entry_ptr);
+	}
+
+	return conversation_entry_ptr;
+}
+
+#ifdef HAVE_ZLIB
+
 static gboolean
 z_stream_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, void *user_data)
 {
@@ -211,25 +247,37 @@ z_stream_destroy_cb(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_, 
 	return FALSE;
 }
 
-static z_stream* get_decompress_stream(packet_info* pinfo)
+static z_stream*
+get_decompress_stream(packet_info* pinfo)
 {
+	const blip_conversation_entry_t* blip_convo = get_blip_conversation(pinfo);
+
 	// Store compression state per srcport/destport.
-	// XXX why not store this in the conversation?
 	guint32 hash_key = (pinfo->srcport << 16) | pinfo->destport;
-	z_stream* decompress_stream = (z_stream*)wmem_map_lookup(decompress_streams, GUINT_TO_POINTER(hash_key));
+	z_stream* decompress_stream = (z_stream *)wmem_map_lookup(blip_convo->decompress_streams, GUINT_TO_POINTER(hash_key));
 	if(decompress_stream) {
 		return decompress_stream;
 	}
 
 	decompress_stream = wmem_new0(wmem_file_scope(), z_stream);
+	wmem_map_insert(blip_convo->decompress_streams, GUINT_TO_POINTER(hash_key), decompress_stream);
 	wmem_register_callback(wmem_file_scope(), z_stream_destroy_cb, decompress_stream);
-	wmem_map_insert(decompress_streams, GUINT_TO_POINTER(hash_key), decompress_stream);
+
 	return decompress_stream;
 }
 
 static tvbuff_t*
 decompress(packet_info* pinfo, tvbuff_t* tvb, gint offset, gint length)
 {
+	if(PINFO_FD_VISITED(pinfo)) {
+		const slice_t* saved_data = (slice_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_blip, 0);
+		tvbuff_t* decompressedChild = tvb_new_child_real_data(tvb, (guint8 *)saved_data->buf,
+			(gint)saved_data->size, (gint)saved_data->size);
+		add_new_data_source(pinfo, decompressedChild, "Decompressed Payload");
+		return decompressedChild;
+	}
+
+	const guint8* buf = tvb_get_ptr(tvb, offset, length);
 	z_stream* decompress_stream = get_decompress_stream(pinfo);
 	static Byte trailer[4] = { 0x00, 0x00, 0xff, 0xff };
 	if(!decompress_stream->next_out) {
@@ -244,8 +292,7 @@ decompress(packet_info* pinfo, tvbuff_t* tvb, gint offset, gint length)
 		}
 	}
 
-	const guint8* buf = tvb_get_ptr(tvb, offset, length);
-	Bytef* decompress_buffer = (Bytef*)wmem_alloc(wmem_packet_scope(), BLIP_INFLATE_BUFFER_SIZE);
+	Bytef* decompress_buffer = (Bytef*)wmem_alloc(wmem_file_scope(), BLIP_INFLATE_BUFFER_SIZE);
 	decompress_stream->next_in = (Bytef*)buf;
 	decompress_stream->avail_in = length;
 	decompress_stream->next_out = decompress_buffer;
@@ -264,9 +311,13 @@ decompress(packet_info* pinfo, tvbuff_t* tvb, gint offset, gint length)
 	}
 
 	uLong bodyLength = decompress_stream->total_out - start;
-	guint8* poolBuffer = (guint8*)wmem_memdup(pinfo->pool, decompress_buffer, bodyLength);
-	tvbuff_t* decompressedChild = tvb_new_child_real_data(tvb, poolBuffer, (guint)bodyLength, (gint)bodyLength);
+	tvbuff_t* decompressedChild = tvb_new_child_real_data(tvb, decompress_buffer, (guint)bodyLength, (gint)bodyLength);
 	add_new_data_source(pinfo, decompressedChild, "Decompressed Payload");
+	slice_t* data_to_save = wmem_new0(wmem_file_scope(), slice_t);
+	data_to_save->size = (size_t)bodyLength;
+	data_to_save->buf = decompress_buffer;
+	p_add_proto_data(wmem_file_scope(), pinfo, proto_blip, 0, data_to_save);
+
 	return decompressedChild;
 }
 #endif /* HAVE_ZLIB */
@@ -276,7 +327,7 @@ dissect_blip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, _U_ void *data
 {
 
 	proto_tree *blip_tree;
-	gint		offset = 0;
+	gint offset = 0;
 
 	/* Set the protcol column to say BLIP */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BLIP");
@@ -338,20 +389,7 @@ dissect_blip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, _U_ void *data
 
 	// ------------------------------------- Conversation Tracking -----------------------------------------------------
 
-	// Create a new conversation if needed and associate the blip_conversation_entry_t with it
-	// Adapted from sample code in https://raw.githubusercontent.com/wireshark/wireshark/master/doc/README.dissector
-	conversation_t *conversation;
-	conversation = find_or_create_conversation(pinfo);
-	blip_conversation_entry_t *conversation_entry_ptr = (blip_conversation_entry_t*)conversation_get_proto_data(conversation, proto_blip);
-	if (conversation_entry_ptr == NULL) {
-
-		// create a new blip_conversation_entry_t
-		conversation_entry_ptr = wmem_new(wmem_file_scope(), blip_conversation_entry_t);
-
-		// create a new hash map and save a reference in blip_conversation_entry_t
-		conversation_entry_ptr->blip_requests = wmem_map_new(wmem_file_scope(), g_str_hash, g_str_equal);
-
-	}
+	blip_conversation_entry_t *conversation_entry_ptr = get_blip_conversation(pinfo);
 
 	// Is this the first frame in a blip message with multiple frames?
 	gboolean first_frame_in_msg = is_first_frame_in_msg(
@@ -361,19 +399,9 @@ dissect_blip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, _U_ void *data
 			value_message_num
 	);
 
-	// Update the conversation w/ the latest version of the blip_conversation_entry_t
-	conversation_add_proto_data(conversation, proto_blip, (void *)conversation_entry_ptr);
-
 	tvbuff_t* tvb_to_use = tvb;
 	gboolean compressed = is_compressed(value_frame_flags);
 	if(compressed) {
-		if(!tree) {
-			// This is just a preliminary pass, no protocol tree to fill in so
-			// don't waste time decompressing (it will probably mess things up
-			// anyway)
-			return tvb_reported_length(tvb);
-		}
-
 #ifdef HAVE_ZLIB
 		tvb_to_use = decompress(pinfo, tvb, offset, tvb_reported_length_remaining(tvb, offset) - BLIP_BODY_CHECKSUM_SIZE);
 		if(!tvb_to_use) {
@@ -503,9 +531,6 @@ proto_register_blip(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	blip_handle = register_dissector("blip", dissect_blip, proto_blip);
-
-	decompress_streams = wmem_map_new_autoreset(wmem_epan_scope(), wmem_file_scope(), g_direct_hash, g_direct_equal);
-
 }
 
 void
