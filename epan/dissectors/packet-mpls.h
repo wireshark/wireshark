@@ -59,6 +59,8 @@ enum {
 #define PW_ACH_TYPE_IPV6              0x0057
 /* As per RFC 6427 */
 #define PW_ACH_TYPE_MPLSTP_FM         0x0058
+/* As per RFC 6671 */
+#define PW_ACH_TYPE_MPLSTP_OAM        0x8902
 
 /* MPLS over UDP http://tools.ietf.org/html/draft-ietf-mpls-in-udp-11,
  * udp destination port as defined in
