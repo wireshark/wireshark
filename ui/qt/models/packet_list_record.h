@@ -26,8 +26,6 @@
 struct conversation;
 struct _GStringChunk;
 
-class ColumnTextList;
-
 class PacketListRecord
 {
 public:
@@ -38,7 +36,7 @@ public:
     static void operator delete(void *) {}
 
     // Return the string value for a column. Data is cached if possible.
-    const QByteArray columnString(capture_file *cap_file, int column, bool colorized = false);
+    const QString columnString(capture_file *cap_file, int column, bool colorized = false);
     frame_data *frameData() const { return fdata_; }
     // packet_list->col_to_text in gtk/packet_list_store.c
     static int textColumn(int column) { return cinfo_column_.value(column, -1); }
@@ -54,7 +52,7 @@ public:
 
 private:
     /** The column text for some columns */
-    ColumnTextList *col_text_;
+    QStringList col_text_;
 
     frame_data *fdata_;
     int lines_;

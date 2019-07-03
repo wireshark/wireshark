@@ -510,7 +510,7 @@ bool PacketListModel::recordLessThan(PacketListRecord *r1, PacketListRecord *r2)
                 cmp_val = 1;
             }
         } else {
-            cmp_val = strcmp(r1->columnString(sort_cap_file_, sort_column_).constData(), r2->columnString(sort_cap_file_, sort_column_).constData());
+            cmp_val = r1->columnString(sort_cap_file_, sort_column_).compare(r2->columnString(sort_cap_file_, sort_column_));
         }
 
         if (cmp_val == 0) {
@@ -627,7 +627,7 @@ QVariant PacketListModel::data(const QModelIndex &d_index, int role) const
     case Qt::DisplayRole:
     {
         int column = d_index.column();
-        QByteArray column_string = record->columnString(cap_file_, column, true);
+        QString column_string = record->columnString(cap_file_, column, true);
         // We don't know an item's sizeHint until we fetch its text here.
         // Assume each line count is 1. If the line count changes, emit
         // itemHeightChanged which triggers another redraw (including a
