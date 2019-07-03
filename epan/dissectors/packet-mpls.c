@@ -195,6 +195,7 @@ static const value_string mpls_pwac_types[] = {
     { 0x7FFD, "Reserved for Experimental Use"},
     { 0x7FFE, "Reserved for Experimental Use"},
     { 0x7FFF, "Reserved for Experimental Use"},
+    { 0x8902, "MPLS-TP OAM"},
     { 0, NULL }
 };
 static value_string_ext mpls_pwac_types_ext = VALUE_STRING_EXT_INIT(mpls_pwac_types);
