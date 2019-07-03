@@ -19,6 +19,8 @@
 #include "packet_list.h"
 #include <ui/tap-credentials.h>
 
+class CredentialsModel;
+
 namespace Ui {
 class CredentialsDialog;
 }
@@ -37,6 +39,10 @@ private slots:
 private:
     Ui::CredentialsDialog *ui;
     PacketList *packet_list_;
+    CredentialsModel * model_;
+
+    static void tapReset(void *tapdata);
+    static tap_packet_status tapPacket(void *tapdata, struct _packet_info *pinfo, struct epan_dissect *edt, const void *data);
 };
 
 #endif // CREDENTIALS_DIALOG_H

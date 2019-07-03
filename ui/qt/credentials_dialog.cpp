@@ -53,10 +53,10 @@ CredentialsDialog::CredentialsDialog(QWidget &parent, CaptureFile &cf, PacketLis
     ui->setupUi(this);
     packet_list_ = packet_list;
 
-    CredentialsModel* model = new CredentialsModel(this, cf);
+    model_ = new CredentialsModel(this, cf);
     QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
 
-    proxyModel->setSourceModel(model);
+    proxyModel->setSourceModel(model_);
     ui->auths->setModel(proxyModel);
 
     setWindowSubtitle(tr("Credentials"));
@@ -73,11 +73,26 @@ CredentialsDialog::CredentialsDialog(QWidget &parent, CaptureFile &cf, PacketLis
     ui->auths->sortByColumn(CredentialsModel::COL_NUM, Qt::AscendingOrder);
 
     connect(ui->auths, SIGNAL(clicked(const QModelIndex&)), this, SLOT(actionGoToPacket(const QModelIndex&)));
+
+    registerTapListener("credentials", this, "", 0, tapReset, tapPacket, Q_NULLPTR);
 }
 
 CredentialsDialog::~CredentialsDialog()
 {
     delete ui;
+}
+
+void CredentialsDialog::tapReset(void *tapdata)
+{
+    CredentialsDialog * d = (CredentialsDialog*) tapdata;
+    d->model_->clear();
+}
+
+tap_packet_status CredentialsDialog::tapPacket(void *tapdata, _packet_info *, epan_dissect *, const void *data)
+{
+    CredentialsDialog * d = (CredentialsDialog*) tapdata;
+    d->model_->addRecord((tap_credential_t*)data);
+    return TAP_PACKET_REDRAW;
 }
 
 void CredentialsDialog::actionGoToPacket(const QModelIndex& idx)

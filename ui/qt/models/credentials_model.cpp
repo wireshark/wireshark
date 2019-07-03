@@ -18,15 +18,6 @@
 CredentialsModel::CredentialsModel(QObject *parent, CaptureFile& cf)
     :QAbstractListModel(parent)
 {
-    GString* error_string = register_tap_listener("credentials", this, NULL, TL_REQUIRES_NOTHING,
-        NULL, credentialsPacket, NULL, NULL);
-    if (error_string) {
-        g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_ERROR, "Error registering credentials tap: %s", error_string->str);
-        return;
-    }
-
-    cf_retap_packets(cf.capFile());
-    remove_tap_listener(this);
 }
 
 int CredentialsModel::rowCount(const QModelIndex &) const
@@ -108,16 +99,19 @@ QVariant CredentialsModel::data(const QModelIndex &index, int role) const
 }
 
 
-tap_packet_status CredentialsModel::credentialsPacket(void *p, packet_info *, epan_dissect_t *, const void *pri)
-{
-    CredentialsModel* model = (CredentialsModel*)p;
-    model->addRecord((tap_credential_t*)pri);
-    return TAP_PACKET_REDRAW;
-}
 
 void CredentialsModel::addRecord(tap_credential_t* auth)
 {
+    emit beginInsertRows(QModelIndex(), rowCount(), rowCount() + 1);
     credentials_.append(auth);
+    emit endInsertRows();
+}
+
+void CredentialsModel::clear()
+{
+    emit beginRemoveRows(QModelIndex(), 0, rowCount());
+    credentials_.clear();
+    emit endInsertRows();
 }
 
 QVariant CredentialsModel::headerData(int section, Qt::Orientation orientation, int role) const

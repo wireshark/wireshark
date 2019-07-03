@@ -27,6 +27,9 @@ public:
     virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
 
+    void addRecord(tap_credential_t* rec);
+    void clear();
+
     enum {
         COL_NUM,
         COL_PROTO,
@@ -37,10 +40,10 @@ public:
     enum {
         ColumnHFID = Qt::UserRole + 1
     };
+
 private:
     QList<tap_credential_t*> credentials_;
-    static tap_packet_status credentialsPacket(void *p, packet_info *, epan_dissect_t *, const void *pri);
-    void addRecord(tap_credential_t* rec);
+
 };
 
 /*
