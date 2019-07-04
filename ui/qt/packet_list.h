@@ -33,7 +33,6 @@ class PacketList : public QTreeView
     Q_OBJECT
 public:
     explicit PacketList(QWidget *parent = 0);
-    PacketListModel *packetListModel() const;
     QMenu *conversationMenu() { return &conv_menu_; }
     QMenu *colorizeMenu() { return &colorize_menu_; }
     void setProtoTree(ProtoTree *proto_tree);

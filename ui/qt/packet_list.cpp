@@ -90,20 +90,6 @@ const int max_comments_to_fetch_ = 20000000; // Arbitrary
 const int tail_update_interval_ = 100; // Milliseconds.
 const int overlay_update_interval_ = 100; // 250; // Milliseconds.
 
-guint
-packet_list_append(column_info *, frame_data *fdata)
-{
-    if (!gbl_cur_packet_list)
-        return 0;
-
-    /* fdata should be filled with the stuff we need
-     * strings are built at display time.
-     */
-    guint visible_pos;
-
-    visible_pos = gbl_cur_packet_list->packetListModel()->appendPacket(fdata);
-    return visible_pos;
-}
 
 // Copied from ui/gtk/packet_list.c
 void packet_list_resize_column(gint col)
@@ -128,13 +114,18 @@ packet_list_select_first_row(void)
 gboolean
 packet_list_select_row_from_data(frame_data *fdata_needle)
 {
-    if ( !gbl_cur_packet_list )
+    if ( ! gbl_cur_packet_list || ! gbl_cur_packet_list->model())
         return FALSE;
 
-    gbl_cur_packet_list->packetListModel()->flushVisibleRows();
-    int row = gbl_cur_packet_list->packetListModel()->visibleIndexOf(fdata_needle);
+    PacketListModel * model = qobject_cast<PacketListModel *>(gbl_cur_packet_list->model());
+
+    if ( ! model )
+        return FALSE;
+
+    model->flushVisibleRows();
+    int row = model->visibleIndexOf(fdata_needle);
     if (row >= 0) {
-        gbl_cur_packet_list->setCurrentIndex(gbl_cur_packet_list->packetListModel()->index(row, 0));
+        gbl_cur_packet_list->setCurrentIndex(model->index(row, 0));
         return TRUE;
     }
 
@@ -173,19 +164,6 @@ packet_list_thaw(void)
     }
 
     packets_bar_update();
-}
-
-void
-packet_list_recreate_visible_rows(void)
-{
-    if ( !gbl_cur_packet_list )
-        return;
-
-    PacketListModel * model = qobject_cast<PacketListModel *>(gbl_cur_packet_list->model());
-
-    if (model) {
-        model->recreateVisibleRows();
-    }
 }
 
 frame_data *
@@ -402,10 +380,6 @@ void PacketList::setProtoTree (ProtoTree *proto_tree) {
     connect(proto_tree_, SIGNAL(goToPacket(int)), this, SLOT(goToPacket(int)));
     connect(proto_tree_, SIGNAL(relatedFrame(int,ft_framenum_type_t)),
             &related_packet_delegate_, SLOT(addRelatedFrame(int,ft_framenum_type_t)));
-}
-
-PacketListModel *PacketList::packetListModel() const {
-    return packet_list_model_;
 }
 
 void PacketList::selectionChanged (const QItemSelection & selected, const QItemSelection & deselected)

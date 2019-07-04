@@ -43,7 +43,27 @@
 #include <wsutil/time_util.h>
 #endif
 
+static PacketListModel * glbl_plist_model = Q_NULLPTR;
 static const int reserved_packets_ = 100000;
+
+guint
+packet_list_append(column_info *, frame_data *fdata)
+{
+    if (!glbl_plist_model)
+        return 0;
+
+    /* fdata should be filled with the stuff we need
+     * strings are built at display time.
+     */
+    return glbl_plist_model->appendPacket(fdata);
+}
+
+void
+packet_list_recreate_visible_rows(void)
+{
+    if ( glbl_plist_model )
+        glbl_plist_model->recreateVisibleRows();
+}
 
 PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
     QAbstractItemModel(parent),
@@ -52,6 +72,8 @@ PacketListModel::PacketListModel(QObject *parent, capture_file *cf) :
     max_line_count_(1),
     idle_dissection_row_(0)
 {
+    Q_ASSERT(glbl_plist_model == Q_NULLPTR);
+    glbl_plist_model = this;
     setCaptureFile(cf);
 
     physical_rows_.reserve(reserved_packets_);
