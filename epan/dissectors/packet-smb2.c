@@ -9273,6 +9273,7 @@ static smb2_function smb2_dissector[256] = {
 #define SMB3_AES128CCM_NONCE	11
 #define SMB3_AES128GCM_NONCE	12
 
+#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 static guint8*
 decrypt_smb_payload(packet_info *pinfo,
 		    tvbuff_t *tvb, int offset,
@@ -9331,13 +9332,8 @@ decrypt_smb_payload(packet_info *pinfo,
 
 	switch (sti->conv->enc_alg) {
 	case SMB2_CIPHER_AES_128_CCM:
-#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 		mode = GCRY_CIPHER_MODE_CCM;
 		iv_size = SMB3_AES128CCM_NONCE;
-#else
-		/* g_warning("GCRY: CCM decryption requires gcrypt >= 1.6.0"); */
-		return NULL;
-#endif
 		break;
 	case SMB2_CIPHER_AES_128_GCM:
 		mode = GCRY_CIPHER_MODE_GCM;
@@ -9373,7 +9369,6 @@ decrypt_smb_payload(packet_info *pinfo,
 	lengths[1] = aad_size; /* AAD length */
 	lengths[2] = 16; /* tag length (signature size) */
 
-#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 	if (mode == GCRY_CIPHER_MODE_CCM) {
 		if ((err = gcry_cipher_ctl(cipher_hd, GCRYCTL_SET_CCM_LENGTHS, lengths, sizeof(lengths)))) {
 			/* g_warning("GCRY: ctl %s/%s\n", gcry_strsource(err), gcry_strerror(err)); */
@@ -9381,7 +9376,6 @@ decrypt_smb_payload(packet_info *pinfo,
 			return NULL;
 		}
 	}
-#endif
 
 	if ((err = gcry_cipher_authenticate(cipher_hd, aad, aad_size))) {
 		/* g_warning("GCRY: auth %s/%s\n", gcry_strsource(err), gcry_strerror(err)); */
@@ -9401,6 +9395,7 @@ decrypt_smb_payload(packet_info *pinfo,
 	gcry_cipher_close(cipher_hd);
 	return data;
 }
+#endif
 
 static int
 dissect_smb2_transform_header(packet_info *pinfo, proto_tree *tree,
@@ -9453,7 +9448,11 @@ dissect_smb2_transform_header(packet_info *pinfo, proto_tree *tree,
 	sti->session = smb2_get_session(sti->conv, sti->sesid, NULL, NULL);
 	smb2_add_session_info(sesid_tree, tvb, sesid_offset, sti->session);
 
+#if GCRYPT_VERSION_NUMBER >= 0x010600 /* 1.6.0 */
 	plain_data = decrypt_smb_payload(pinfo, tvb, offset, offset_aad, sti);
+#else
+	(void) offset_aad;
+#endif
 	*enc_tvb = tvb_new_subset_length(tvb, offset, sti->size);
 
 	if (plain_data != NULL) {
