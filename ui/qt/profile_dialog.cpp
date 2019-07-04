@@ -19,6 +19,7 @@
 #include "ui/recent.h"
 
 #include <ui/qt/utils/variant_pointer.h>
+#include <ui/qt/models/profile_model.h>
 
 #include "profile_dialog.h"
 #include <ui_profile_dialog.h>
@@ -32,19 +33,20 @@
 #include <QPushButton>
 #include <QTreeWidgetItem>
 #include <QUrl>
+#include <QComboBox>
+#include <QLineEdit>
 
 ProfileDialog::ProfileDialog(QWidget *parent) :
     GeometryStateDialog(parent),
     pd_ui_(new Ui::ProfileDialog),
-    ok_button_(NULL)
+    ok_button_(Q_NULLPTR),
+    model_(Q_NULLPTR),
+    sort_model_(Q_NULLPTR)
 {
-    GList *fl_entry;
-    profile_def *profile;
-    const gchar *profile_name = get_profile_name();
-
     pd_ui_->setupUi(this);
     loadGeometry();
     setWindowTitle(wsApp->windowTitleString(tr("Configuration Profiles")));
+
     ok_button_ = pd_ui_->buttonBox->button(QDialogButtonBox::Ok);
 
     // XXX - Use NSImageNameAddTemplate and NSImageNameRemoveTemplate to set stock
@@ -60,33 +62,29 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
     pd_ui_->infoLabel->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
-    init_profile_list();
-    fl_entry = edited_profile_list();
-    pd_ui_->profileTreeWidget->blockSignals(true);
-    while (fl_entry && fl_entry->data) {
-        profile = (profile_def *) fl_entry->data;
-        QTreeWidgetItem *item = new QTreeWidgetItem(pd_ui_->profileTreeWidget);
-        item->setText(0, profile->name);
-        item->setData(0, Qt::UserRole, VariantPointer<GList>::asQVariant(fl_entry));
+    model_ = new ProfileModel(this);
+    sort_model_ = new ProfileSortModel(this);
+    sort_model_->setSourceModel(model_);
+    pd_ui_->profileTreeView->setModel(sort_model_);
 
-        if (profile->is_global || profile->status == PROF_STAT_DEFAULT) {
-            QFont ti_font = item->font(0);
-            ti_font.setItalic(true);
-            item->setFont(0, ti_font);
-        } else {
-            item->setFlags(item->flags() | Qt::ItemIsEditable);
-        }
+    connect(pd_ui_->profileTreeView, &ProfileTreeView::currentItemChanged,
+            this, &ProfileDialog::currentItemChanged);
 
-        if (!profile->is_global && strcmp(profile_name, profile->name) == 0) {
-            pd_ui_->profileTreeWidget->setCurrentItem(item);
-        }
-
-        fl_entry = g_list_next(fl_entry);
-    }
-    pd_ui_->profileTreeWidget->blockSignals(false);
-
-    connect(pd_ui_->profileTreeWidget->itemDelegate(), SIGNAL(closeEditor(QWidget*, QAbstractItemDelegate::EndEditHint)),
+    connect(pd_ui_->profileTreeView->itemDelegate(), SIGNAL(closeEditor(QWidget*, QAbstractItemDelegate::EndEditHint)),
             this, SLOT(editingFinished()));
+
+    /* Select the row for the currently selected profile or the first row if non is selected*/
+    selectProfile();
+
+    QStringList items;
+    items << tr("All Profiles") << tr("Global profiles") << tr("User-defined profiles");
+    pd_ui_->cmbProfileTypes->addItems(items);
+
+    connect (pd_ui_->cmbProfileTypes, SIGNAL(currentTextChanged(const QString &)),
+              this, SLOT(filterChanged(const QString &)));
+    connect (pd_ui_->lineProfileFilter, SIGNAL(textChanged(const QString &)),
+              this, SLOT(filterChanged(const QString &)));
+
     updateWidgets();
 }
 
@@ -96,10 +94,21 @@ ProfileDialog::~ProfileDialog()
     empty_profile_list (TRUE);
 }
 
+void ProfileDialog::selectProfile(QString profile)
+{
+    if ( profile.isEmpty() )
+        profile = QString(get_profile_name());
+
+    int row = model_->findByName(profile);
+    QModelIndex idx = sort_model_->mapFromSource(model_->index(row, ProfileModel::COL_NAME));
+    if ( idx.isValid() )
+        pd_ui_->profileTreeView->selectRow(idx.row());
+}
+
 int ProfileDialog::execAction(ProfileDialog::ProfileAction profile_action)
 {
     int ret = QDialog::Accepted;
-    QTreeWidgetItem *item;
+    QModelIndex item;
 
     switch (profile_action) {
     case ShowProfiles:
@@ -110,19 +119,16 @@ int ProfileDialog::execAction(ProfileDialog::ProfileAction profile_action)
         ret = exec();
         break;
     case EditCurrentProfile:
-        item = pd_ui_->profileTreeWidget->currentItem();
-        if (item) {
-            pd_ui_->profileTreeWidget->editItem(item, 0);
+        item = pd_ui_->profileTreeView->currentIndex();
+        if (item.isValid()) {
+            pd_ui_->profileTreeView->edit(item);
         }
         ret = exec();
         break;
     case DeleteCurrentProfile:
         if (delete_current_profile()) {
-            wsApp->setConfigurationProfile (NULL);
+            wsApp->setConfigurationProfile (Q_NULLPTR);
         }
-        break;
-    default:
-        g_assert_not_reached();
         break;
     }
     return ret;
@@ -130,239 +136,117 @@ int ProfileDialog::execAction(ProfileDialog::ProfileAction profile_action)
 
 void ProfileDialog::updateWidgets()
 {
-    QTreeWidgetItem *item = pd_ui_->profileTreeWidget->currentItem();
-    bool enable_new = false;
     bool enable_del = false;
-    bool enable_copy = false;
     bool enable_ok = true;
-    profile_def *current_profile = NULL;
 
-    if (item) {
-        current_profile = (profile_def *) VariantPointer<GList>::asPtr(item->data(0, Qt::UserRole))->data;
-        enable_new = true;
-        enable_copy = true;
-        if (!current_profile->is_global && !(item->font(0).strikeOut())) {
+    QModelIndex index = sort_model_->mapToSource(pd_ui_->profileTreeView->currentIndex());
+    if ( index.column() != ProfileModel::COL_NAME )
+        index = index.sibling(index.row(), ProfileModel::COL_NAME);
+
+    if (index.isValid()) {
+        if ( !index.data(ProfileModel::DATA_IS_GLOBAL).toBool() && ! model_->resetDefault())
             enable_del = true;
-        }
     }
 
-    if (current_profile) {
-        QString profile_path;
-        QString profile_info;
-        switch (current_profile->status) {
-        case PROF_STAT_DEFAULT:
-            if (item->font(0).strikeOut()) {
-                profile_info = tr("Will be reset to default values");
-            } else {
-                profile_path = get_persconffile_path("", FALSE);
-            }
-            break;
-        case PROF_STAT_EXISTS:
+    if (model_ && model_->rowCount() > 0)
+    {
+        for ( int row = 0; row < model_->rowCount(); row++ )
+        {
+            QModelIndex idx = model_->index(row, ProfileModel::COL_NAME);
+            QString name = idx.data().toString();
+
+            if (gchar * err_msg = profile_name_is_valid(name.toLatin1().data()))
             {
-            char* profile_dir = current_profile->is_global ? get_global_profiles_dir() : get_profiles_dir();
-            profile_path = profile_dir;
-            g_free(profile_dir);
-
-            profile_path.append(QDir::separator()).append(current_profile->name);
-            }
-            break;
-        case PROF_STAT_COPY:
-            if (current_profile->reference) {
-                bool reference_exists = false;
-                gchar *reference = current_profile->reference;
-                GList *fl_entry = edited_profile_list();
-                while (fl_entry && fl_entry->data) {
-                    profile_def *profile = (profile_def *) fl_entry->data;
-                    if (strcmp(current_profile->reference, profile->reference) == 0) {
-                        if (profile->status != PROF_STAT_COPY) {
-                            // Reference profile exists (and is not current profile)
-                            reference_exists = true;
-                        }
-                        if (profile->status == PROF_STAT_CHANGED) {
-                            // Reference profile was renamed, use the new name
-                            reference = profile->name;
-                            break;
-                        }
-                    }
-
-                    fl_entry = g_list_next(fl_entry);
-                }
-                profile_info = tr("Created from %1").arg(reference);
-                if (current_profile->from_global) {
-                    profile_info.append(QString(" %1").arg(tr("(system provided)")));
-                } else if (!reference_exists) {
-                    profile_info.append(QString(" %1").arg(tr("(deleted)")));
-                }
-                break;
-            }
-            /* Fall Through */
-        case PROF_STAT_NEW:
-            profile_info = tr("Created from default settings");
-            break;
-        case PROF_STAT_CHANGED:
-            profile_info = tr("Renamed from %1").arg(current_profile->reference);
-            break;
-        }
-        if (!profile_path.isEmpty()) {
-            pd_ui_->infoLabel->setUrl(QUrl::fromLocalFile(profile_path).toString());
-            pd_ui_->infoLabel->setText(profile_path);
-            pd_ui_->infoLabel->setToolTip(tr("Go to %1").arg(profile_path));
-        } else {
-            pd_ui_->infoLabel->clear();
-            pd_ui_->infoLabel->setText(profile_info);
-        }
-    } else {
-        pd_ui_->infoLabel->clear();
-    }
-
-    if (pd_ui_->profileTreeWidget->topLevelItemCount() > 0) {
-        profile_def *profile;
-        for (int i = 0; i < pd_ui_->profileTreeWidget->topLevelItemCount(); i++) {
-            item = pd_ui_->profileTreeWidget->topLevelItem(i);
-            profile = (profile_def *) VariantPointer<GList>::asPtr(item->data(0, Qt::UserRole))->data;
-            if (gchar *err_msg = profile_name_is_valid(profile->name)) {
-                item->setToolTip(0, err_msg);
-                item->setBackground(0, ColorUtils::fromColorT(&prefs.gui_text_invalid));
-                if (profile == current_profile) {
-                    pd_ui_->infoLabel->setText(err_msg);
-                }
-                g_free(err_msg);
+                pd_ui_->infoLabel->setText(gchar_free_to_qstring(err_msg));
                 enable_ok = false;
                 continue;
             }
-            if (profile->is_global) {
-                item->setToolTip(0, tr("This is a system provided profile."));
-                continue;
-            }
-            if (current_profile && !current_profile->is_global && profile != current_profile && strcmp(profile->name, current_profile->name) == 0) {
-                item->setToolTip(0, tr("A profile already exists with this name."));
-                item->setBackground(0, ColorUtils::fromColorT(&prefs.gui_text_invalid));
-                if (current_profile->status != PROF_STAT_DEFAULT &&
-                    current_profile->status != PROF_STAT_EXISTS)
+
+            if ( idx != index && idx.data().toString().compare(index.data().toString()) == 0 )
+            {
+                if (idx.data(ProfileModel::DATA_IS_GLOBAL).toBool() == index.data(ProfileModel::DATA_IS_GLOBAL).toBool())
                 {
-                    pd_ui_->infoLabel->setText(tr("A profile already exists with this name"));
+                    int status = index.data(ProfileModel::DATA_STATUS).toInt();
+                    if (status != PROF_STAT_DEFAULT && status != PROF_STAT_EXISTS)
+                        pd_ui_->infoLabel->setText(tr("A profile already exists with this name"));
+                    enable_ok = false;
                 }
-                enable_ok = false;
-            } else if (item->font(0).strikeOut()) {
-                item->setToolTip(0, tr("The profile will be reset to default values."));
-                item->setBackground(0, ColorUtils::fromColorT(&prefs.gui_text_deprecated));
-            } else {
-                item->setBackground(0, QBrush());
             }
         }
     }
 
-    pd_ui_->profileTreeWidget->resizeColumnToContents(0);
-    pd_ui_->newToolButton->setEnabled(enable_new);
+    pd_ui_->profileTreeView->resizeColumnToContents(0);
     pd_ui_->deleteToolButton->setEnabled(enable_del);
-    pd_ui_->copyToolButton->setEnabled(enable_copy);
     ok_button_->setEnabled(enable_ok);
 }
 
-void ProfileDialog::on_profileTreeWidget_currentItemChanged(QTreeWidgetItem *, QTreeWidgetItem *)
+void ProfileDialog::currentItemChanged()
 {
-    if (pd_ui_->profileTreeWidget->updatesEnabled()) updateWidgets();
+    updateWidgets();
 }
 
 void ProfileDialog::on_newToolButton_clicked()
 {
-    QTreeWidgetItem *item = new QTreeWidgetItem();
-    profile_def *profile;
-    const gchar *name = "New profile";
-    GList *fl_entry = add_to_profile_list(name, "", PROF_STAT_NEW, FALSE, FALSE);
+    if ( model_->findByName(tr("New profile")) >= 0 )
+        return;
 
-    profile = (profile_def *) fl_entry->data;
-    item->setText(0, profile->name);
-    item->setData(0, Qt::UserRole, VariantPointer<GList>::asQVariant(fl_entry));
-    item->setFlags(item->flags() | Qt::ItemIsEditable);
-    pd_ui_->profileTreeWidget->addTopLevelItem(item);
-    pd_ui_->profileTreeWidget->setCurrentItem(item);
-    pd_ui_->profileTreeWidget->editItem(item, 0);
+    pd_ui_->cmbProfileTypes->setCurrentIndex(ProfileSortModel::UserProfiles);
+    sort_model_->setFilterString();
+
+    QModelIndex ridx = sort_model_->mapFromSource(model_->addNewProfile(tr("New profile")));
+    if (ridx.isValid())
+    {
+        pd_ui_->profileTreeView->setCurrentIndex(ridx);
+        pd_ui_->profileTreeView->edit(ridx);
+    }
 }
 
 void ProfileDialog::on_deleteToolButton_clicked()
 {
-    QTreeWidgetItem *item = pd_ui_->profileTreeWidget->currentItem();
+    QModelIndex index = sort_model_->mapToSource(pd_ui_->profileTreeView->currentIndex());
 
-    if (item) {
-        GList *fl_entry = VariantPointer<GList>::asPtr(item->data(0, Qt::UserRole));
-        profile_def *profile = (profile_def *) fl_entry->data;
-        if (profile->is_global || item->font(0).strikeOut()) {
-            return;
-        }
-        if (profile->status == PROF_STAT_DEFAULT) {
-            QFont ti_font = item->font(0);
-            ti_font.setStrikeOut(true);
-            item->setFont(0, ti_font);
-            updateWidgets();
-        } else {
-            delete item;
-
-            // Select the default
-            pd_ui_->profileTreeWidget->setCurrentItem(pd_ui_->profileTreeWidget->topLevelItem(0));
-
-            remove_from_profile_list(fl_entry);
-        }
-    }
+    model_->deleteEntry(index);
 }
 
 void ProfileDialog::on_copyToolButton_clicked()
 {
-    QTreeWidgetItem *cur_item = pd_ui_->profileTreeWidget->currentItem();
-    if (!cur_item) return;
+    pd_ui_->cmbProfileTypes->setCurrentIndex(ProfileSortModel::AllProfiles);
+    sort_model_->setFilterString();
 
-    profile_def *cur_profile = (profile_def *) VariantPointer<GList>::asPtr(cur_item->data(0, Qt::UserRole))->data;
-    if (!cur_profile) return;
+    QModelIndex current = pd_ui_->profileTreeView->currentIndex();
+    if ( current.column() != ProfileModel::COL_NAME )
+        current = current.sibling(current.row(), ProfileModel::COL_NAME);
 
-    QTreeWidgetItem *new_item = new QTreeWidgetItem();
-    GList *fl_entry;
-    const gchar *parent;
-    gchar *new_name;
-    profile_def *new_profile;
-
-    if (cur_profile->is_global) {
-      parent = cur_profile->name;
-    } else {
-      parent = get_profile_parent (cur_profile->name);
+    QModelIndex source = sort_model_->mapToSource(current);
+    QModelIndex ridx = model_->duplicateEntry(source);
+    if (ridx.isValid())
+    {
+        pd_ui_->profileTreeView->setCurrentIndex(sort_model_->mapFromSource(ridx));
+        pd_ui_->profileTreeView->edit(sort_model_->mapFromSource(ridx));
     }
-
-    if (cur_profile->is_global && !profile_exists (parent, FALSE)) {
-      new_name = g_strdup (cur_profile->name);
-    } else {
-      new_name = g_strdup_printf ("%s (copy)", cur_profile->name);
-    }
-
-    /* Add a new entry to the profile list. */
-    fl_entry = add_to_profile_list(new_name, parent, PROF_STAT_COPY, FALSE, cur_profile->from_global);
-    new_profile = (profile_def *) fl_entry->data;
-    new_item->setText(0, new_profile->name);
-    new_item->setData(0, Qt::UserRole, VariantPointer<GList>::asQVariant(fl_entry));
-    new_item->setFlags(new_item->flags() | Qt::ItemIsEditable);
-    pd_ui_->profileTreeWidget->addTopLevelItem(new_item);
-    pd_ui_->profileTreeWidget->setCurrentItem(new_item);
-    pd_ui_->profileTreeWidget->editItem(new_item, 0);
-    g_free(new_name);
 }
 
 void ProfileDialog::on_buttonBox_accepted()
 {
-    gchar *err_msg;
-    QTreeWidgetItem *default_item = pd_ui_->profileTreeWidget->topLevelItem(0);
-    QTreeWidgetItem *item = pd_ui_->profileTreeWidget->currentItem();
-    gchar *profile_name = NULL;
+    QModelIndex default_item = sort_model_->mapFromSource(model_->index(0, ProfileModel::COL_NAME));
+    QModelIndex index = sort_model_->mapToSource(pd_ui_->profileTreeView->currentIndex());
+    if (index.column() != ProfileModel::COL_NAME)
+        index = index.sibling(index.row(), ProfileModel::COL_NAME);
+
     bool write_recent = true;
     bool item_data_removed = false;
 
-    if (default_item && default_item->font(0).strikeOut()) {
+    if (default_item.data(ProfileModel::DATA_STATUS).toInt() == PROF_STAT_DEFAULT && model_->resetDefault())
+    {
         // Reset Default profile.
-        GList *fl_entry = VariantPointer<GList>::asPtr(default_item->data(0, Qt::UserRole));
+        GList *fl_entry = model_->at(0);
         remove_from_profile_list(fl_entry);
 
         // Don't write recent file if leaving the Default profile after this has been reset.
         write_recent = !is_default_profile();
 
         // Don't fetch profile data if removed.
-        item_data_removed = (item == default_item);
+        item_data_removed = (index.row() == 0);
     }
 
     if (write_recent) {
@@ -374,17 +258,23 @@ void ProfileDialog::on_buttonBox_accepted()
         write_profile_recent();
     }
 
-    if ((err_msg = apply_profile_changes()) != NULL) {
+    gchar * err_msg = Q_NULLPTR;
+    if ((err_msg = apply_profile_changes()) != Q_NULLPTR) {
         QMessageBox::critical(this, tr("Profile Error"),
                               err_msg,
                               QMessageBox::Ok);
         g_free(err_msg);
+
+        model_->doResetModel();
         return;
     }
 
-    if (item && !item_data_removed) {
-        profile_def *profile = (profile_def *) VariantPointer<GList>::asPtr(item->data(0, Qt::UserRole))->data;
-        profile_name = profile->name;
+    model_->doResetModel();
+
+    const char * profile_name = Q_NULLPTR;
+    if (index.isValid() && !item_data_removed) {
+        QString profileName = model_->data(index).toString();
+        profile_name = profileName.toLatin1().data();
     }
 
     if (profile_exists (profile_name, FALSE) || profile_exists (profile_name, TRUE)) {
@@ -393,7 +283,7 @@ void ProfileDialog::on_buttonBox_accepted()
     } else if (!profile_exists (get_profile_name(), FALSE)) {
         // The new profile does not exist, and the previous profile has
         // been deleted.  Change to the default profile.
-        wsApp->setConfigurationProfile (NULL, FALSE);
+        wsApp->setConfigurationProfile (Q_NULLPTR, FALSE);
     }
 }
 
@@ -404,21 +294,24 @@ void ProfileDialog::on_buttonBox_helpRequested()
 
 void ProfileDialog::editingFinished()
 {
-    QTreeWidgetItem *item = pd_ui_->profileTreeWidget->currentItem();
-
-    if (item) {
-        profile_def *profile = (profile_def *) VariantPointer<GList>::asPtr(item->data(0, Qt::UserRole))->data;
-        if (item->text(0).compare(profile->name) != 0) {
-            g_free(profile->name);
-            profile->name = qstring_strdup(item->text(0));
-            if (strcmp(profile->name, profile->reference) == 0) {
-                profile->status = PROF_STAT_EXISTS;
-            } else if (profile->status == PROF_STAT_EXISTS) {
-                profile->status = PROF_STAT_CHANGED;
-            }
-        }
-    }
     updateWidgets();
+}
+
+void ProfileDialog::filterChanged(const QString &text)
+{
+    if (qobject_cast<QComboBox *>(sender()))
+    {
+        QComboBox * cmb = qobject_cast<QComboBox *>(sender());
+        sort_model_->setFilterType(static_cast<ProfileSortModel::FilterType>(cmb->currentIndex()));
+    }
+    else if (qobject_cast<QLineEdit *>(sender()))
+        sort_model_->setFilterString(text);
+
+    pd_ui_->profileTreeView->resizeColumnToContents(ProfileModel::COL_NAME);
+
+    QModelIndex active = sort_model_->mapFromSource(model_->activeProfile());
+    if (active.isValid())
+        pd_ui_->profileTreeView->setCurrentIndex(active);
 }
 
 /*

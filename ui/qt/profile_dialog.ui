@@ -7,12 +7,26 @@
     <x>0</x>
     <y>0</y>
     <width>470</width>
-    <height>300</height>
+    <height>386</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QTreeWidget" name="profileTreeWidget">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QLineEdit" name="lineProfileFilter">
+       <property name="placeholderText">
+        <string>Search for profile ...</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QComboBox" name="cmbProfileTypes"/>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="ProfileTreeView" name="profileTreeView">
      <property name="rootIsDecorated">
       <bool>false</bool>
      </property>
@@ -22,24 +36,22 @@
      <property name="itemsExpandable">
       <bool>false</bool>
      </property>
+     <property name="sortingEnabled">
+      <bool>false</bool>
+     </property>
      <property name="headerHidden">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
      <property name="expandsOnDoubleClick">
       <bool>false</bool>
      </property>
-     <property name="columnCount">
-      <number>1</number>
-     </property>
-     <column>
-      <property name="text">
-       <string>Name</string>
-      </property>
-     </column>
+     <attribute name="headerVisible">
+      <bool>true</bool>
+     </attribute>
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,1">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0">
      <item>
       <widget class="StockIconToolButton" name="newToolButton">
        <property name="toolTip">
@@ -123,6 +135,11 @@
    <class>StockIconToolButton</class>
    <extends>QToolButton</extends>
    <header>widgets/stock_icon_tool_button.h</header>
+  </customwidget>
+  <customwidget>
+   <class>ProfileTreeView</class>
+   <extends>QTreeView</extends>
+   <header>widgets/profile_tree_view.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
