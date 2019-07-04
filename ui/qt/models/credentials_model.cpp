@@ -14,6 +14,7 @@
 
 #include <file.h>
 #include <log.h>
+#include <ui/qt/utils/qt_ui_utils.h>
 
 CredentialsModel::CredentialsModel(QObject *parent)
     :QAbstractListModel(parent)
@@ -98,18 +99,30 @@ QVariant CredentialsModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
-
-
 void CredentialsModel::addRecord(tap_credential_t* auth)
 {
     emit beginInsertRows(QModelIndex(), rowCount(), rowCount() + 1);
-    credentials_.append(auth);
+
+    tap_credential_t* clone = new tap_credential_t;
+    clone->num = auth->num;
+    clone->username_num = auth->username_num;
+    clone->password_hf_id = auth->password_hf_id;
+    clone->username = qstring_strdup(auth->username);
+    clone->proto = auth->proto;
+    clone->info = qstring_strdup(auth->info);
+    credentials_.append(clone);
+
     emit endInsertRows();
 }
 
 void CredentialsModel::clear()
 {
     emit beginRemoveRows(QModelIndex(), 0, rowCount());
+    for (QList<tap_credential_t*>::iterator itr = credentials_.begin(); itr != credentials_.end(); ++itr) {
+        g_free((*itr)->username);
+        g_free((*itr)->info);
+        delete *itr;
+    }
     credentials_.clear();
     emit endInsertRows();
 }

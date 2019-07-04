@@ -945,19 +945,19 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
             else if (strncmp(line, "EPRT", tokenlen) == 0)
                 is_eprt_request = TRUE;
             else if (strncmp(line, "USER", tokenlen) == 0) {
-                if (p_ftp_conv && linelen - tokenlen > 1) {
+                if (p_ftp_conv && !p_ftp_conv->username && linelen - tokenlen > 1) {
                     p_ftp_conv->username = wmem_strndup(wmem_file_scope(), line + tokenlen + 1, linelen - tokenlen - 1);
                     p_ftp_conv->username_pkt_num = pinfo->num;
                 }
             } else if (strncmp(line, "PASS", tokenlen) == 0) {
                 if (p_ftp_conv && p_ftp_conv->username) {
-                    tap_credential_t* auth = wmem_new0(wmem_file_scope(), tap_credential_t);
+                    tap_credential_t* auth = wmem_new0(wmem_packet_scope(), tap_credential_t);
                     auth->num = pinfo->num;
                     auth->proto = "FTP";
                     auth->password_hf_id = hf_ftp_request_arg;
                     auth->username = p_ftp_conv->username;
                     auth->username_num = p_ftp_conv->username_pkt_num;
-                    auth->info = wmem_strdup_printf(wmem_file_scope(), "Username in packet: %u", p_ftp_conv->username_pkt_num);
+                    auth->info = wmem_strdup_printf(wmem_packet_scope(), "Username in packet: %u", p_ftp_conv->username_pkt_num);
                     tap_queue_packet(credentials_tap, pinfo, auth);
                 }
             }

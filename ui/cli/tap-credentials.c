@@ -28,10 +28,35 @@ void register_tap_listener_credentials(void);
 
 wmem_array_t* credentials = NULL;
 
+static tap_credential_t* tap_credential_clone(tap_credential_t* auth)
+{
+    tap_credential_t* clone = wmem_new0(NULL, tap_credential_t);
+    clone->num = auth->num;
+    clone->username_num = auth->username_num;
+    clone->password_hf_id = auth->password_hf_id;
+    if (auth->username)
+        clone->username = wmem_strdup(NULL, auth->username);
+    clone->proto = auth->proto;
+    if (auth->info)
+        clone->info = wmem_strdup(NULL, auth->info);
+    return clone;
+}
+
 static tap_packet_status credentials_packet(void *p _U_, packet_info *pinfo _U_, epan_dissect_t *edt _U_, const void *pri)
 {
-    wmem_array_append(credentials, (void*)pri, 1);
+    tap_credential_t* clone = tap_credential_clone((tap_credential_t*)pri);
+    wmem_array_append(credentials, (void*)clone, 1);
     return TAP_PACKET_REDRAW;
+}
+
+static void credentials_reset(void* p)
+{
+    if (!p)
+        return;
+    tap_credential_t* auth = (tap_credential_t*)p;
+    wmem_free(NULL, auth->username);
+    wmem_free(NULL, auth->info);
+    wmem_free(NULL, auth);
 }
 
 static void credentials_draw(void *p _U_)
@@ -51,7 +76,7 @@ static void credentials_init(const char *opt_arg _U_, void *userdata _U_)
     GString* error_string;
 
     error_string = register_tap_listener("credentials", NULL, NULL, TL_REQUIRES_NOTHING,
-        NULL, credentials_packet, credentials_draw, NULL);
+        credentials_reset, credentials_packet, credentials_draw, NULL);
 
     if (error_string) {
         /* error, we failed to attach to the tap. clean up */

@@ -19,7 +19,7 @@ typedef struct tap_credential {
     guint username_num;
     guint password_hf_id;
     gchar* username;
-    gchar* proto;
+    const gchar* proto;
     gchar* info;
 } tap_credential_t;
 
