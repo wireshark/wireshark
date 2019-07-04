@@ -96,16 +96,12 @@ packet_list_append(column_info *, frame_data *fdata)
     if (!gbl_cur_packet_list)
         return 0;
 
-    PacketListModel * model = qobject_cast<PacketListModel *>(gbl_cur_packet_list->model());
-    if ( ! model )
-        return 0;
-
     /* fdata should be filled with the stuff we need
      * strings are built at display time.
      */
     guint visible_pos;
 
-    visible_pos = model->appendPacket(fdata);
+    visible_pos = gbl_cur_packet_list->packetListModel()->appendPacket(fdata);
     return visible_pos;
 }
 
@@ -135,14 +131,10 @@ packet_list_select_row_from_data(frame_data *fdata_needle)
     if ( !gbl_cur_packet_list )
         return FALSE;
 
-    PacketListModel * model = qobject_cast<PacketListModel *>(gbl_cur_packet_list->model());
-    if ( ! model )
-        return FALSE;
-
-    model->flushVisibleRows();
-    int row = model->visibleIndexOf(fdata_needle);
+    gbl_cur_packet_list->packetListModel()->flushVisibleRows();
+    int row = gbl_cur_packet_list->packetListModel()->visibleIndexOf(fdata_needle);
     if (row >= 0) {
-        gbl_cur_packet_list->setCurrentIndex(model->index(row, 0));
+        gbl_cur_packet_list->setCurrentIndex(gbl_cur_packet_list->packetListModel()->index(row, 0));
         return TRUE;
     }
 
@@ -410,6 +402,10 @@ void PacketList::setProtoTree (ProtoTree *proto_tree) {
     connect(proto_tree_, SIGNAL(goToPacket(int)), this, SLOT(goToPacket(int)));
     connect(proto_tree_, SIGNAL(relatedFrame(int,ft_framenum_type_t)),
             &related_packet_delegate_, SLOT(addRelatedFrame(int,ft_framenum_type_t)));
+}
+
+PacketListModel *PacketList::packetListModel() const {
+    return packet_list_model_;
 }
 
 void PacketList::selectionChanged (const QItemSelection & selected, const QItemSelection & deselected)
