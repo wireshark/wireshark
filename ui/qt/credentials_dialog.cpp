@@ -75,6 +75,7 @@ CredentialsDialog::CredentialsDialog(QWidget &parent, CaptureFile &cf, PacketLis
     connect(ui->auths, SIGNAL(clicked(const QModelIndex&)), this, SLOT(actionGoToPacket(const QModelIndex&)));
 
     registerTapListener("credentials", this, "", 0, tapReset, tapPacket, Q_NULLPTR);
+    cf.retapPackets();
 }
 
 CredentialsDialog::~CredentialsDialog()
