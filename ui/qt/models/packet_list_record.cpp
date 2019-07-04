@@ -21,25 +21,26 @@
 
 #include "frame_tvbuff.h"
 
+#include <ui/qt/utils/qt_ui_utils.h>
+
 #include <QStringList>
 
 QMap<int, int> PacketListRecord::cinfo_column_;
 unsigned PacketListRecord::col_data_ver_ = 1;
 
-PacketListRecord::PacketListRecord(frame_data *frameData, struct _GStringChunk *string_cache_pool) :
+PacketListRecord::PacketListRecord(frame_data *frameData) :
     fdata_(frameData),
     lines_(1),
     line_count_changed_(false),
     data_ver_(0),
     colorized_(false),
-    conv_(NULL),
-    string_cache_pool_(string_cache_pool)
+    conv_index_(0)
 {
 }
 
-void *PacketListRecord::operator new(size_t size)
+PacketListRecord::~PacketListRecord()
 {
-    return wmem_alloc(wmem_file_scope(), size);
+    col_text_.clear();
 }
 
 // We might want to return a const char * instead. This would keep us from
@@ -177,8 +178,8 @@ void PacketListRecord::dissect(capture_file *cap_file, bool dissect_color)
     }
     data_ver_ = col_data_ver_;
 
-    packet_info *pi = &edt.pi;
-    conv_ = find_conversation_pinfo(pi, 0);
+    struct conversation * conv = find_conversation_pinfo(&edt.pi, 0);
+    conv_index_ = ! conv ? 0 : conv->conv_index;
 
     epan_dissect_cleanup(&edt);
     ws_buffer_free(&buf);
@@ -257,27 +258,21 @@ void PacketListRecord::cacheColumnStrings(column_info *cinfo)
             break;
         }
 #else // MINIMIZE_STRING_COPYING
-        const char *col_str;
+        QString col_str;
         if (!get_column_resolved(column) && cinfo->col_expr.col_expr_val[column]) {
             /* Use the unresolved value in col_expr_val */
-            col_str = cinfo->col_expr.col_expr_val[column];
+            col_str = QString(cinfo->col_expr.col_expr_val[column]);
         } else {
             int text_col = cinfo_column_.value(column, -1);
 
             if (text_col < 0) {
                 col_fill_in_frame_data(fdata_, cinfo, column, FALSE);
             }
-            col_str = cinfo->columns[column].col_data;
+            col_str = QString(cinfo->columns[column].col_data);
         }
-        // g_string_chunk_insert_const manages a hash table of pointers to
-        // strings:
-        // https://git.gnome.org/browse/glib/tree/glib/gstringchunk.c
-        // We might be better off adding the equivalent functionality to
-        // wmem_tree.
-        col_text_ << QString(g_string_chunk_insert_const(string_cache_pool_, col_str));
-        for (int i = 0; col_str[i]; i++) {
-            if (col_str[i] == '\n') col_lines++;
-        }
+
+        col_text_ << col_str;
+        col_lines = col_str.count('\n');
         if (col_lines > lines_) {
             lines_ = col_lines;
             line_count_changed_ = true;

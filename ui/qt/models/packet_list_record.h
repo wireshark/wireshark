@@ -29,11 +29,8 @@ struct _GStringChunk;
 class PacketListRecord
 {
 public:
-    PacketListRecord(frame_data *frameData, struct _GStringChunk *string_cache_pool);
-
-    // Allocate our records using wmem.
-    static void *operator new(size_t size);
-    static void operator delete(void *) {}
+    PacketListRecord(frame_data *frameData);
+    virtual ~PacketListRecord();
 
     // Return the string value for a column. Data is cached if possible.
     const QString columnString(capture_file *cap_file, int column, bool colorized = false);
@@ -41,7 +38,7 @@ public:
     // packet_list->col_to_text in gtk/packet_list_store.c
     static int textColumn(int column) { return cinfo_column_.value(column, -1); }
     bool colorized() { return colorized_; }
-    struct conversation *conversation() { return conv_; }
+    unsigned int conversation() { return conv_index_; }
 
     int columnTextSize(const char *str);
     static void invalidateAllRecords() { col_data_ver_++; }
@@ -66,12 +63,9 @@ private:
     bool colorized_;
 
     /** Conversation. Used by RelatedPacketDelegate */
-    struct conversation *conv_;
-
-    struct _GStringChunk *string_cache_pool_;
+    unsigned int conv_index_;
 
     void dissect(capture_file *cap_file, bool dissect_color = false);
-
     void cacheColumnStrings(column_info *cinfo);
 };
 

@@ -121,7 +121,7 @@ void RelatedPacketDelegate::paint(QPainter *painter, const QStyleOptionViewItem 
             painter->drawPolyline(start_line, 3);
         } else if (fd->num > setup_frame && fd->num < last_frame) {
             painter->save();
-            if (conv_ != record->conversation()) {
+            if (conv_->conv_index != record->conversation()) {
                 QPen other_pen(line_pen);
                 other_pen.setStyle(Qt::DashLine);
                 painter->setPen(other_pen);
