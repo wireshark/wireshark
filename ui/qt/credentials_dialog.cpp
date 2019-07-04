@@ -53,7 +53,7 @@ CredentialsDialog::CredentialsDialog(QWidget &parent, CaptureFile &cf, PacketLis
     ui->setupUi(this);
     packet_list_ = packet_list;
 
-    model_ = new CredentialsModel(this, cf);
+    model_ = new CredentialsModel(this);
     QSortFilterProxyModel *proxyModel = new QSortFilterProxyModel(this);
 
     proxyModel->setSourceModel(model_);

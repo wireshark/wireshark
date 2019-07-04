@@ -15,7 +15,7 @@
 #include <file.h>
 #include <log.h>
 
-CredentialsModel::CredentialsModel(QObject *parent, CaptureFile& cf)
+CredentialsModel::CredentialsModel(QObject *parent)
     :QAbstractListModel(parent)
 {
 }
