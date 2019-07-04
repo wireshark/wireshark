@@ -971,6 +971,10 @@ static struct encap_type_info encap_table_base[] = {
 
 	/* WTAP_ENCAP_IEEE802_15_4_TAP */
 	{ "wpan-tap", "IEEE 802.15.4 Wireless with TAP pseudo-header" },
+
+	/* WTAP_ENCAP_LOG_3GPP */
+	{ "log_3GPP", "3GPP Phone Log" },
+
 };
 
 WS_DLL_LOCAL

@@ -49,6 +49,7 @@ set(WIRETAP_NONGENERATED_FILES
 	k12.c
 	lanalyzer.c
 	libpcap.c
+	log3gpp.c
 	logcat.c
 	logcat_text.c
 	merge.c

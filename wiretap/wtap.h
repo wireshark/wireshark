@@ -287,6 +287,7 @@ extern "C" {
 #define WTAP_ENCAP_EBHSCR                       204
 #define WTAP_ENCAP_VPP                          205
 #define WTAP_ENCAP_IEEE802_15_4_TAP             206
+#define WTAP_ENCAP_LOG_3GPP                     207
 
 /* After adding new item here, please also add new item to encap_table_base array */
 
@@ -382,6 +383,7 @@ extern "C" {
 #define WTAP_FILE_TYPE_SUBTYPE_RFC7468                       82
 #define WTAP_FILE_TYPE_SUBTYPE_RUBY_MARSHAL                  83
 #define WTAP_FILE_TYPE_SUBTYPE_SYSTEMD_JOURNAL               84
+#define WTAP_FILE_TYPE_SUBTYPE_LOG_3GPP                      85
 
 #define WTAP_NUM_FILE_TYPES_SUBTYPES  wtap_get_num_file_types_subtypes()
 
