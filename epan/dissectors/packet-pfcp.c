@@ -10,7 +10,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref 3GPP TS 29.244 V15.3.0 (2018-09-23)
+ * Ref 3GPP TS 29.244 V15.6.0 (2019-06-13)
  */
 #include "config.h"
 
@@ -167,6 +167,8 @@ static int hf_pfcp_dst_interface = -1;
 static int hf_pfcp_redirect_address_type = -1;
 static int hf_pfcp_redirect_server_addr_len = -1;
 static int hf_pfcp_redirect_server_address = -1;
+static int hf_pfcp_other_redirect_server_addr_len = -1;
+static int hf_pfcp_other_redirect_server_address = -1;
 static int hf_pfcp_linked_urr_id = -1;
 static int hf_pfcp_outer_hdr_desc = -1;
 static int hf_pfcp_outer_hdr_creation_teid = -1;
@@ -380,8 +382,12 @@ static int hf_pfcp_node_report_type_b0_upfr = -1;
 static int hf_pfcp_remote_gtp_u_peer_flags = -1;
 static int hf_pfcp_remote_gtp_u_peer_flags_b0_v6 = -1;
 static int hf_pfcp_remote_gtp_u_peer_flags_b1_v4 = -1;
+static int hf_pfcp_remote_gtp_u_peer_flags_b2_di = -1;
+static int hf_pfcp_remote_gtp_u_peer_flags_b3_ni = -1;
 static int hf_pfcp_remote_gtp_u_peer_ipv4 = -1;
 static int hf_pfcp_remote_gtp_u_peer_ipv6 = -1;
+static int hf_pfcp_remote_gtp_u_peer_length_di = -1;
+static int hf_pfcp_remote_gtp_u_peer_length_ni = -1;
 static int hf_pfcp_ur_seqn = -1;
 
 static int hf_pfcp_oci_flags = -1;
@@ -511,6 +517,10 @@ static int hf_pfcp_event_time_stamp = -1;
 static int hf_pfcp_averaging_window = -1;
 
 static int hf_pfcp_paging_policy_indicator = -1;
+
+static int hf_pfcp_apn_dnn = -1;
+
+static int hf_pfcp_tgpp_interface_type = -1;
 
 static int ett_pfcp = -1;
 static int ett_pfcp_flags = -1;
@@ -922,7 +932,9 @@ static const value_string pfcp_ie_type[] = {
     { 156, "Event Time Stamp"},                                     /* Extendable / Subclause 8.2.114 */
     { 157, "Averaging Window"},                                     /* Extendable / Subclause 8.2.115 */
     { 158, "Paging Policy Indicator"},                              /* Extendable / Subclause 8.2.116 */
-    //159 to 32767 Spare. For future use.
+    { 159, "APN/DNN"},                                              /* Variable Length  / Subclause 8.2.117 */
+    { 160, "3GPP Interface Type"},                                  /* Extendable / Subclause 8.2.118 */
+    //161 to 32767 Spare. For future use.
     //32768 to 65535 Vendor-specific IEs.
     {0, NULL}
 };
@@ -2018,6 +2030,7 @@ static const value_string pfcp_redirect_address_type_vals[] = {
     { 1, "IPv6 address" },
     { 2, "URL" },
     { 3, "SIP URI" },
+    { 4, "IPv4 and IPv6 addresses" },
     { 0, NULL }
 };
 
@@ -2036,7 +2049,20 @@ dissect_pfcp_redirect_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     proto_tree_add_item_ret_uint(tree, hf_pfcp_redirect_server_addr_len, tvb, offset, 2, ENC_BIG_ENDIAN, &addr_len);
     offset+=2;
 
-    /* 8-(8+a)  Redirect Server Address */
+    /* 8-(8+a-1)  Redirect Server Address */
+    proto_tree_add_item(tree, hf_pfcp_redirect_server_address, tvb, offset, addr_len, ENC_UTF_8 | ENC_NA);
+    offset += addr_len;
+
+    /* If the Redirect Address type is set to "IPv4 and IPv6 address",
+     * the Redirect Information IE shall include an IPv4 address and
+     * an IPv6 address in the Redirect Server Address IE and Other Redirect Server Address.
+     */
+
+    /* p-(p+1)  Other Redirect Server Address Length=b */
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_redirect_server_addr_len, tvb, offset, 2, ENC_BIG_ENDIAN, &addr_len);
+    offset+=2;
+
+    /* (p+2)-(p+2+b-1)  Other Redirect Server Address */
     proto_tree_add_item(tree, hf_pfcp_redirect_server_address, tvb, offset, addr_len, ENC_UTF_8 | ENC_NA);
     offset += addr_len;
 
@@ -2117,10 +2143,9 @@ static const value_string pfcp_dst_interface_vals[] = {
     { 0, NULL }
 };
 
-static void
-dissect_pfcp_destination_interface(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+static int
+decode_pfcp_destination_interface(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, gint offset, int length)
 {
-    int offset = 0;
     guint32 value;
 
     /* Octet 5    Spare    Interface value*/
@@ -2133,6 +2158,15 @@ dissect_pfcp_destination_interface(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     if (offset < length) {
         proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
     }
+
+    return length;
+}
+static void
+dissect_pfcp_destination_interface(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    int offset = 0;
+
+    decode_pfcp_destination_interface(tvb, pinfo, tree, item, offset, length);
 
 }
 /*
@@ -3909,29 +3943,50 @@ dissect_pfcp_remote_gtp_u_peer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 {
     int offset = 0;
     guint64 flags;
+    guint32 length_di, length_ni;
 
     static const int * pfcp_remote_gtp_u_peer_flags[] = {
-        &hf_pfcp_spare_b7_b2,
+        &hf_pfcp_spare_b7_b4,
+        &hf_pfcp_remote_gtp_u_peer_flags_b3_ni,
+        &hf_pfcp_remote_gtp_u_peer_flags_b2_di,
         &hf_pfcp_remote_gtp_u_peer_flags_b1_v4,
         &hf_pfcp_remote_gtp_u_peer_flags_b0_v6,
         NULL
     };
-    /* Octet 5  Spare   V4  V6*/
+    /* Octet 5  Spare   NI DI V4  V6*/
     proto_tree_add_bitmask_with_flags_ret_uint64(tree, tvb, offset, hf_pfcp_remote_gtp_u_peer_flags,
         ett_pfcp_remote_gtp_u_peer, pfcp_remote_gtp_u_peer_flags, ENC_BIG_ENDIAN, BMT_NO_FALSE | BMT_NO_INT | BMT_NO_TFS, &flags);
     offset += 1;
 
     /* IPv4 address (if present)*/
-    if ((flags & 0x2) == 2) {
+    if (flags & 0x2) {
         proto_tree_add_item(tree, hf_pfcp_remote_gtp_u_peer_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
         proto_item_append_text(item, "IPv4 %s ", tvb_ip_to_str(tvb, offset));
         offset += 4;
     }
     /* IPv6 address (if present)*/
-    if ((flags & 0x1) == 1) {
+    if (flags & 0x1) {
         proto_tree_add_item(tree, hf_pfcp_remote_gtp_u_peer_ipv6, tvb, offset, 16, ENC_NA);
         proto_item_append_text(item, "IPv6 %s ", tvb_ip6_to_str(tvb, offset));
         offset += 16;
+    }
+    /* DI (if present)*/
+    if (flags & 0x4) {
+        /* Length of Destination Interface field */
+        proto_tree_add_item_ret_uint(tree, hf_pfcp_remote_gtp_u_peer_length_di, tvb, offset, 1, ENC_BIG_ENDIAN, &length_di);
+        offset += 1;
+
+        /* Destination Interface */
+        offset += decode_pfcp_destination_interface(tvb, pinfo, tree, item, offset, length_di);
+    }
+    /* NI (if present)*/
+    if (flags & 0x8) {
+        /* Length of Network Instance field */
+        proto_tree_add_item_ret_uint(tree, hf_pfcp_remote_gtp_u_peer_length_ni, tvb, offset, 1, ENC_BIG_ENDIAN, &length_ni);
+        offset += 1;
+
+        /* Network Instance */
+        offset += decode_pfcp_network_instance(tvb, pinfo, tree, item, offset, length_ni);
     }
 
     if (offset < length) {
@@ -5190,6 +5245,70 @@ dissect_pfcp_paging_policy_indicator(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     }
 }
 
+/*
+ * 8.2.117    APN/DNN
+ */
+static void
+dissect_pfcp_apn_dnn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item , guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    int      offset = 0;
+
+    /* Octet 5   APN/DNN
+     * The encoding the APN/DNN field follows 3GPP TS 23.003 [2] clause 9.1.
+     * The content of the APN/DNN field shall be the full APN/DNN with both the
+     * APN/DNN Network Identifier and APN/DNN Operator Identifier
+     */
+     /* NOTE:	The APN/DNN field is not encoded as a dotted string as commonly used in documentation. */
+
+    const guint8* string_value;
+    proto_tree_add_item_ret_string(tree, hf_pfcp_apn_dnn, tvb, offset, length, ENC_ASCII | ENC_NA, wmem_packet_scope(), &string_value);
+    proto_item_append_text(item, "%s", string_value);
+
+}
+
+/*
+ *   8.2.118   3GPP Interface Type
+ */
+
+static const value_string pfcp_tgpp_interface_type_vals[] = {
+
+    { 0, "S1-U" },
+    { 1, "S5/S8-U" },
+    { 2, "S4-U" },
+    { 3, "S11-U" },
+    { 4, "S12-U" },
+    { 5, "Gn/Gp-U" },
+    { 6, "S2a-U" },
+    { 7, "S2b-U" },
+    { 8, "eNodeB GTP-U interface for DL data forwarding" },
+    { 9, "eNodeB GTP-U interface for UL data forwarding" },
+    { 10, "SGW/UPF GTP-U interface for DL data forwarding" },
+    { 11, "N3 3GPP Access" },
+    { 12, "N3 Trusted Non-3GPP Access" },
+    { 13, "N3 Untrusted Non-3GPP Access" },
+    { 14, "N3 for data forwarding" },
+    { 15, "N9" },
+    { 0, NULL }
+};
+
+static void
+dissect_pfcp_tgpp_interface_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type _U_, pfcp_session_args_t *args _U_)
+{
+    int offset = 0;
+    guint32 tgpp_interface_type;
+
+    /* Octet 5    Spare Node ID Type*/
+    proto_tree_add_item(tree, hf_pfcp_spare_h1, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item_ret_uint(tree, hf_pfcp_tgpp_interface_type, tvb, offset, 1, ENC_BIG_ENDIAN, &tgpp_interface_type);
+    proto_item_append_text(item, "%s: ", val_to_str_const(tgpp_interface_type, pfcp_tgpp_interface_type_vals, "Unknown"));
+    offset++;
+
+    if (offset < length) {
+        proto_tree_add_expert(tree, pinfo, &ei_pfcp_ie_data_not_decoded, tvb, offset, -1);
+    }
+
+}
+
 /* Array of functions to dissect IEs
 * (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 message_type, pfcp_session_args_t *args)
 */
@@ -5357,7 +5476,9 @@ static const pfcp_ie_t pfcp_ies[] = {
 /*    156 */    { dissect_pfcp_event_time_stamp },                              /* Event Time Stamp                                Extendable / Subclause 8.2.114  */
 /*    157 */    { dissect_pfcp_averaging_window },                              /* Averaging Window                                Extendable / Subclause 8.2.115  */
 /*    158 */    { dissect_pfcp_paging_policy_indicator },                       /* Paging Policy Indicator                         Extendable / Subclause 8.2.116  */
-//159 to 32767 Spare. For future use.
+/*    159 */    { dissect_pfcp_apn_dnn },                                       /* APN/DNN                                         Variable Length / Subclause 8.2.117  */
+/*    160 */    { dissect_pfcp_tgpp_interface_type },                           /* 3GPP Interface Type                             Extendable / Subclause 8.2.118  */
+//161 to 32767 Spare. For future use.
 //32768 to 65535 Vendor-specific IEs.
     { NULL },                                                        /* End of List */
 };
@@ -6708,6 +6829,16 @@ proto_register_pfcp(void)
             FT_STRING, BASE_NONE, NULL, 0x0,
             NULL, HFILL }
         },
+        { &hf_pfcp_other_redirect_server_addr_len,
+        { "Other Redirect Server Address Length", "pfcp.other_redirect_server_addr_len",
+            FT_UINT16, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_other_redirect_server_address,
+        { "Other Redirect Server Address", "pfcp.other_redirect_server_address",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
         { &hf_pfcp_linked_urr_id,
         { "Linked URR ID", "pfcp.linked_urr_id",
             FT_UINT32, BASE_DEC, NULL, 0x0,
@@ -7651,6 +7782,16 @@ proto_register_pfcp(void)
             FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x02,
             NULL, HFILL }
         },
+        { &hf_pfcp_remote_gtp_u_peer_flags_b2_di,
+        { "DI (Destination Interface)", "pfcp.remote_gtp_u_peer_flags.di",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x04,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_remote_gtp_u_peer_flags_b3_ni,
+        { "NI (Network Instance)", "pfcp.remote_gtp_u_peer_flags.ni",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x08,
+            NULL, HFILL }
+        },
         { &hf_pfcp_remote_gtp_u_peer_ipv4,
         { "IPv4 address", "pfcp.node_id_ipv4",
             FT_IPv4, BASE_NONE, NULL, 0x0,
@@ -7659,6 +7800,16 @@ proto_register_pfcp(void)
         { &hf_pfcp_remote_gtp_u_peer_ipv6,
         { "IPv6 address", "pfcp.node_id_ipv6",
             FT_IPv6, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_remote_gtp_u_peer_length_di,
+        { "Length of Destination Interface field", "pfcp.node_id_length_di",
+            FT_UINT8, BASE_DEC, NULL, 0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_remote_gtp_u_peer_length_ni,
+        { "Length of Network Instance field", "pfcp.node_id_length_ni",
+            FT_UINT8, BASE_DEC, NULL, 0,
             NULL, HFILL }
         },
         { &hf_pfcp_ur_seqn,
@@ -8186,6 +8337,16 @@ proto_register_pfcp(void)
         { &hf_pfcp_paging_policy_indicator,
         { "Paging Policy Indicator (PPI)", "pfcp.ppi",
             FT_UINT8, BASE_DEC, NULL, 0x7,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_apn_dnn,
+        { "APN/DNN", "pfcp.apn_dnn",
+            FT_STRING, BASE_NONE, NULL, 0x0,
+            NULL, HFILL }
+        },
+        { &hf_pfcp_tgpp_interface_type,
+        { "3GPP Interface Type", "pfcp.tgpp_interface_type",
+            FT_UINT8, BASE_DEC, VALS(pfcp_tgpp_interface_type_vals), 0x3f,
             NULL, HFILL }
         },
     };
