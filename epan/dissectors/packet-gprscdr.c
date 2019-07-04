@@ -3164,6 +3164,7 @@ static const value_string gprscdr_ChangeCondition_vals[] = {
   {  18, "userPlaneToUEChange" },
   {  19, "servingPLMNRateControlChange" },
   {  20, "threeGPPPSDataOffStatusChange" },
+  {  21, "aPNRateControlChange" },
   { 0, NULL }
 };
 
@@ -3247,6 +3248,7 @@ static const value_string gprscdr_PresenceReportingAreaStatus_vals[] = {
   {   0, "insideArea" },
   {   1, "outsideArea" },
   {   2, "inactive" },
+  {   3, "unknown" },
   { 0, NULL }
 };
 
@@ -3471,6 +3473,73 @@ dissect_gprscdr_SEQUENCE_OF_PresenceReportingAreaInfo(gboolean implicit_tag _U_,
 }
 
 
+static const value_string gprscdr_AdditionalExceptionReports_vals[] = {
+  {   0, "notAllowed" },
+  {   1, "allowed" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gprscdr_AdditionalExceptionReports(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                  NULL);
+
+  return offset;
+}
+
+
+static const value_string gprscdr_RateControlTimeUnit_vals[] = {
+  {   0, "unrestricted" },
+  {   1, "minute" },
+  {   2, "hour" },
+  {   3, "day" },
+  {   4, "week" },
+  { 0, NULL }
+};
+
+
+static int
+dissect_gprscdr_RateControlTimeUnit(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                                NULL);
+
+  return offset;
+}
+
+
+static const ber_sequence_t APNRateControlParameters_sequence[] = {
+  { &hf_gprscdr_additionalExceptionReports, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_AdditionalExceptionReports },
+  { &hf_gprscdr_rateControlTimeUnit, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_RateControlTimeUnit },
+  { &hf_gprscdr_rateControlMaxRate, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_INTEGER },
+  { &hf_gprscdr_rateControlMaxMessageSize, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_DataVolumeGPRS },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_APNRateControlParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   APNRateControlParameters_sequence, hf_index, ett_gprscdr_APNRateControlParameters);
+
+  return offset;
+}
+
+
+static const ber_sequence_t APNRateControl_sequence[] = {
+  { &hf_gprscdr_aPNRateControlUplink, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_APNRateControlParameters },
+  { &hf_gprscdr_aPNRateControlDownlink, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_APNRateControlParameters },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_gprscdr_APNRateControl(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   APNRateControl_sequence, hf_index, ett_gprscdr_APNRateControl);
+
+  return offset;
+}
+
+
 static const ber_sequence_t ChangeOfCharCondition_sequence[] = {
   { &hf_gprscdr_qosRequested, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_QoSInformation },
   { &hf_gprscdr_qosNegotiated, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_QoSInformation },
@@ -3493,6 +3562,7 @@ static const ber_sequence_t ChangeOfCharCondition_sequence[] = {
   { &hf_gprscdr_servingPLMNRateControl, BER_CLASS_CON, 20, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ServingPLMNRateControl },
   { &hf_gprscdr_threeGPPPSDataOffStatus, BER_CLASS_CON, 21, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_ThreeGPPPSDataOffStatus },
   { &hf_gprscdr_listOfPresenceReportingAreaInformation, BER_CLASS_CON, 22, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_SEQUENCE_OF_PresenceReportingAreaInfo },
+  { &hf_gprscdr_aPNRateControl, BER_CLASS_CON, 23, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_APNRateControl },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -4247,73 +4317,6 @@ static int
 dissect_gprscdr_RelatedChangeOfServiceCondition(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    RelatedChangeOfServiceCondition_sequence, hf_index, ett_gprscdr_RelatedChangeOfServiceCondition);
-
-  return offset;
-}
-
-
-static const value_string gprscdr_AdditionalExceptionReports_vals[] = {
-  {   0, "notAllowed" },
-  {   1, "allowed" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_gprscdr_AdditionalExceptionReports(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                  NULL);
-
-  return offset;
-}
-
-
-static const value_string gprscdr_RateControlTimeUnit_vals[] = {
-  {   0, "unrestricted" },
-  {   1, "minute" },
-  {   2, "hour" },
-  {   3, "day" },
-  {   4, "week" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_gprscdr_RateControlTimeUnit(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
-                                                NULL);
-
-  return offset;
-}
-
-
-static const ber_sequence_t APNRateControlParameters_sequence[] = {
-  { &hf_gprscdr_additionalExceptionReports, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_AdditionalExceptionReports },
-  { &hf_gprscdr_rateControlTimeUnit, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_RateControlTimeUnit },
-  { &hf_gprscdr_rateControlMaxRate, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_INTEGER },
-  { &hf_gprscdr_rateControlMaxMessageSize, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_DataVolumeGPRS },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_gprscdr_APNRateControlParameters(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   APNRateControlParameters_sequence, hf_index, ett_gprscdr_APNRateControlParameters);
-
-  return offset;
-}
-
-
-static const ber_sequence_t APNRateControl_sequence[] = {
-  { &hf_gprscdr_aPNRateControlUplink, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_APNRateControlParameters },
-  { &hf_gprscdr_aPNRateControlDownlink, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gprscdr_APNRateControlParameters },
-  { NULL, 0, 0, 0, NULL }
-};
-
-static int
-dissect_gprscdr_APNRateControl(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
-                                   APNRateControl_sequence, hf_index, ett_gprscdr_APNRateControl);
 
   return offset;
 }

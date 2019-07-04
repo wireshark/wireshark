@@ -1,5 +1,5 @@
 --
--- 3GPP TS 32.298 v15.5.1 (2018-12-26)
+-- 3GPP TS 32.298 v15.7.0 (2019-06-12)
 --
 GPRSChargingDataTypes {itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) charging (5) gprsChargingDataTypes (2) asn1Module (0) version2 (1)}
 DEFINITIONS IMPLICIT TAGS	::=
@@ -901,7 +901,8 @@ ChangeCondition	::= ENUMERATED
 	userPlaneToUEChange				(18),	-- bearer modification. "Change of user plane to UE"	
 	servingPLMNRateControlChange	(19), 	
 -- bearer modification "Serving PLMN Rate Control Change"
-	threeGPPPSDataOffStatusChange	(20)   -- "Change of 3GPP PS DataO ff Status"
+	threeGPPPSDataOffStatusChange	(20),   -- "Change of 3GPP PS DataO ff Status"
+	aPNRateControlChange			(21)	-- bearer modification. "APN Rate ControlChange
 
 }
 
@@ -913,29 +914,31 @@ ChangeOfCharCondition	::= SEQUENCE
 -- chargingID used in PGW-CDR only when Charging per IP-CAN session is active
 -- accessAvailabilityChangeReason and relatedChangeOfCharCondition applicable only in PGW-CDR
 -- cPCIoTOptimisationIndicator is used in SGW-CDR only
+-- aPNRateControl is valid for PGW-CDR only
 --
 {
-	qosRequested					[1] QoSInformation OPTIONAL,
-	qosNegotiated					[2] QoSInformation OPTIONAL,
-	dataVolumeGPRSUplink			[3] DataVolumeGPRS OPTIONAL,
-	dataVolumeGPRSDownlink			[4] DataVolumeGPRS OPTIONAL,
-	changeCondition					[5] ChangeCondition,
-	changeTime						[6] TimeStamp,
-	userLocationInformation			[8] OCTET STRING OPTIONAL,
-	ePCQoSInformation				[9] EPCQoSInformation OPTIONAL,
-	chargingID						[10] ChargingID OPTIONAL,
-	presenceReportingAreaStatus 	[11] PresenceReportingAreaStatus OPTIONAL,
-	userCSGInformation				[12] UserCSGInformation OPTIONAL,
-	diagnostics						[13] Diagnostics OPTIONAL,
-	enhancedDiagnostics				[14] EnhancedDiagnostics OPTIONAL,
-	rATType							[15] RATType OPTIONAL,
-	accessAvailabilityChangeReason	[16] AccessAvailabilityChangeReason OPTIONAL,
-	uWANUserLocationInformation		[17] UWANUserLocationInfo OPTIONAL,
-	relatedChangeOfCharCondition	[18] RelatedChangeOfCharCondition OPTIONAL,
-	cPCIoTEPSOptimisationIndicator	[19] CPCIoTEPSOptimisationIndicator OPTIONAL,
-	servingPLMNRateControl			[20] ServingPLMNRateControl OPTIONAL,
-	threeGPPPSDataOffStatus			[21] ThreeGPPPSDataOffStatus OPTIONAL,
-	listOfPresenceReportingAreaInformation	[22] SEQUENCE OF PresenceReportingAreaInfo OPTIONAL
+	qosRequested							[1] QoSInformation OPTIONAL,
+	qosNegotiated							[2] QoSInformation OPTIONAL,
+	dataVolumeGPRSUplink					[3] DataVolumeGPRS OPTIONAL,
+	dataVolumeGPRSDownlink					[4] DataVolumeGPRS OPTIONAL,
+	changeCondition							[5] ChangeCondition,
+	changeTime								[6] TimeStamp,
+	userLocationInformation					[8] OCTET STRING OPTIONAL,
+	ePCQoSInformation						[9] EPCQoSInformation OPTIONAL,
+	chargingID								[10] ChargingID OPTIONAL,
+	presenceReportingAreaStatus 			[11] PresenceReportingAreaStatus OPTIONAL,
+	userCSGInformation						[12] UserCSGInformation OPTIONAL,
+	diagnostics								[13] Diagnostics OPTIONAL,
+	enhancedDiagnostics						[14] EnhancedDiagnostics OPTIONAL,
+	rATType									[15] RATType OPTIONAL,
+	accessAvailabilityChangeReason			[16] AccessAvailabilityChangeReason OPTIONAL,
+	uWANUserLocationInformation				[17] UWANUserLocationInfo OPTIONAL,
+	relatedChangeOfCharCondition			[18] RelatedChangeOfCharCondition OPTIONAL,
+	cPCIoTEPSOptimisationIndicator			[19] CPCIoTEPSOptimisationIndicator OPTIONAL,
+	servingPLMNRateControl					[20] ServingPLMNRateControl OPTIONAL,
+	threeGPPPSDataOffStatus					[21] ThreeGPPPSDataOffStatus OPTIONAL,
+	listOfPresenceReportingAreaInformation	[22] SEQUENCE OF PresenceReportingAreaInfo OPTIONAL,
+	aPNRateControl							[23] APNRateControl OPTIONAL
 
 }
 
@@ -1194,7 +1197,8 @@ PDPPDNTypeExtension	::= INTEGER
 
 PresenceReportingAreaElementsList ::= OCTET STRING
 --
--- See Presence-Reporting-Area-Elements-List AVP defined in TS 29.212 [220]
+-- For EPC see Presence-Reporting-Area-Elements-List AVP defined in TS 29.212 [220] 
+-- For 5GC see PresenceInfo defined in TS 29.571 [249] excluding praId and presenceState
 -- 
 
 
@@ -1220,7 +1224,8 @@ PresenceReportingAreaStatus ::= ENUMERATED
 {
 	insideArea   (0),
 	outsideArea  (1),
-	inactive 	 (2)
+	inactive     (2),
+	unknown      (3)
 
 }
 
@@ -1426,8 +1431,8 @@ TrafficSteeringPolicyIDUplink	::= OCTET STRING
 
 TWANUserLocationInfo		::= SEQUENCE
 {
-	sSID					 [0] OCTET STRING,			-- see format in IEEE Std 802.11-2012 [408]
-	bSSID					 [1] OCTET STRING OPTIONAL, 	-- see format in IEEE Std 802.11-2012 [408]
+	sSID					[0] OCTET STRING,			-- see format in IEEE Std 802.11-2012 [408]
+	bSSID					[1] OCTET STRING OPTIONAL, 	-- see format in IEEE Std 802.11-2012 [408]
 	civicAddressInformation	[2] CivicAddressInformation OPTIONAL,
 	wLANOperatorId			[3] WLANOperatorId OPTIONAL,
 	logicalAccessID			[4] OCTET STRING OPTIONAL
@@ -1445,10 +1450,10 @@ UserCSGInformation		::= SEQUENCE
 
 UWANUserLocationInfo		::= SEQUENCE
 {
-	uELocalIPAddress		 [0] IPAddress,
-	uDPSourcePort			 [1] OCTET STRING (SIZE(2)) OPTIONAL,
-	sSID					 [2] OCTET STRING OPTIONAL,	-- see format in IEEE Std 802.11-2012 [408]
-	bSSID					 [3] OCTET STRING OPTIONAL,	-- see format in IEEE Std 802.11-2012 [408]
+	uELocalIPAddress		[0] IPAddress,
+	uDPSourcePort			[1] OCTET STRING (SIZE(2)) OPTIONAL,
+	sSID					[2] OCTET STRING OPTIONAL,	-- see format in IEEE Std 802.11-2012 [408]
+	bSSID					[3] OCTET STRING OPTIONAL,	-- see format in IEEE Std 802.11-2012 [408]
 	tCPSourcePort			[4] OCTET STRING (SIZE(2)) OPTIONAL,
 	civicAddressInformation	[5] CivicAddressInformation OPTIONAL,
 	wLANOperatorId			[6] WLANOperatorId OPTIONAL,
