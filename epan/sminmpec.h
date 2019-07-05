@@ -82,6 +82,7 @@
 /* Greater than 32,767 need to be tagged unsigned. */
 #define VENDOR_NTOP                 35632u
 #define VENDOR_ERICSSON_CANADA_INC  46098u
+#define VENDOR_NIAGARA_NETWORKS     47729u
 #define VENDOR_CISCO_WIFI           4232704
 
 #endif /* __SMINMPEC_H__ */
