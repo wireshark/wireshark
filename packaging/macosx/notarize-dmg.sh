@@ -54,7 +54,7 @@ fi
 
 max_upload_wait=$(( 5 * 60))
 start=$SECONDS
-while ls "$HOME"/Library/Caches/com.apple.amp.itmstransporter/UploadTokens/*.token > /dev/null 2>&1 ; do
+while test -n "$( find "$HOME"/Library/Caches/com.apple.amp.itmstransporter/UploadTokens -iname "*.token" -mtime -4h )"  ; do
 	echo -e "Another upload in progress. Waiting 5s\xe2\x80\xa6"
 	sleep 5
 	elapsed=$(( SECONDS - start ))
