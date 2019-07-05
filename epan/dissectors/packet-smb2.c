@@ -11118,7 +11118,7 @@ proto_register_smb2(void)
 
 		{ &hf_smb2_ioctl_network_interface_capabilities,
 			{ "Interface Cababilities", "smb2.ioctl.network_interfaces.capabilities", FT_UINT32, BASE_HEX,
-			NULL, 0, "The RSS queue count", HFILL }
+			NULL, 0, "The capabilities of the network interface", HFILL }
 		},
 
 		{ &hf_smb2_ioctl_network_interface_capability_rss,
