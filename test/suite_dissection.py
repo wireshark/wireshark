@@ -199,3 +199,23 @@ class case_dissect_tls(subprocesstest.SubprocessTestCase):
         '''Verify that TCP and TLS handshake reassembly works (second pass).'''
         self.check_tls_handshake_reassembly(
             cmd_tshark, capture_file, extraArgs=['-2'])
+
+@fixtures.mark_usefixtures('test_env')
+@fixtures.uses_fixtures
+class case_decompress_smb2(subprocesstest.SubprocessTestCase):
+    def extract_compressed_payload(self, cmd_tshark, capture_file, frame_num):
+        proc = self.assertRun((cmd_tshark,
+                '-r', capture_file('smb311-lz77-lz77huff-lznt1.pcap.gz'),
+                '-Tfields', '-edata.data',
+                '-Y', 'frame.number == %d'%frame_num,
+        ))
+        self.assertEqual(b'a'*4096, bytes.fromhex(proc.stdout_str.strip()))
+
+    def test_smb311_read_lz77(self, cmd_tshark, capture_file):
+        self.extract_compressed_payload(cmd_tshark, capture_file, 1)
+
+    def test_smb311_read_lz77huff(self, cmd_tshark, capture_file):
+        self.extract_compressed_payload(cmd_tshark, capture_file, 2)
+
+    def test_smb311_read_lznt1(self, cmd_tshark, capture_file):
+        self.extract_compressed_payload(cmd_tshark, capture_file, 3)

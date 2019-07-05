@@ -657,16 +657,24 @@ wmem_test_array(void)
 
         val = *(guint32*)wmem_array_index(array, i);
         g_assert(val == i);
+        g_assert(wmem_array_try_index(array, i, &val) == 0);
+        g_assert(val == i);
+        g_assert(wmem_array_try_index(array, i+1, &val) < 0);
+
     }
     wmem_strict_check_canaries(allocator);
 
     for (i=0; i<CONTAINER_ITERS; i++) {
         val = *(guint32*)wmem_array_index(array, i);
         g_assert(val == i);
+        g_assert(wmem_array_try_index(array, i, &val) == 0);
+        g_assert(val == i);
     }
 
     array = wmem_array_sized_new(allocator, sizeof(guint32), 73);
     wmem_array_set_null_terminator(array);
+    for (i=0; i<75; i++)
+        g_assert(wmem_array_try_index(array, i, &val) < 0);
 
     for (i=0; i<CONTAINER_ITERS; i++) {
         for (j=0; j<8; j++) {
@@ -690,15 +698,21 @@ wmem_test_array(void)
         for (j=0; j<=i; j++, k++) {
             val = *(guint32*)wmem_array_index(array, k);
             g_assert(val == i);
+            g_assert(wmem_array_try_index(array, k, &val) == 0);
+            g_assert(val == i);
         }
     }
     for (j=k; k<8*(CONTAINER_ITERS+1)-j; k++) {
             val = *(guint32*)wmem_array_index(array, k);
             g_assert(val == ((k-j)/8)+8);
+            g_assert(wmem_array_try_index(array, k, &val) == 0);
+            g_assert(val == ((k-j)/8)+8);
     }
     for (i=0; i<7; i++) {
         for (j=0; j<7-i; j++, k++) {
             val = *(guint32*)wmem_array_index(array, k);
+            g_assert(val == CONTAINER_ITERS+i);
+            g_assert(wmem_array_try_index(array, k, &val) == 0);
             g_assert(val == CONTAINER_ITERS+i);
         }
     }

@@ -925,6 +925,66 @@ WS_DLL_PUBLIC tvbuff_t *tvb_uncompress_brotli(tvbuff_t *tvb, const int offset,
 WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress_brotli(tvbuff_t *parent, tvbuff_t *tvb,
     const int offset, int comprlen);
 
+/* From tvbuff_lz77.c */
+
+/**
+ * Uncompresses a Microsoft Plain LZ77 compressed payload inside a
+ * tvbuff at offset with length comprlen.  Returns an uncompressed
+ * tvbuffer if uncompression succeeded or NULL if uncompression
+ * failed.
+ */
+WS_DLL_PUBLIC tvbuff_t *tvb_uncompress_lz77(tvbuff_t *tvb,
+    const int offset, int comprlen);
+
+/**
+ * Uncompresses a Microsoft Plain LZ77 compressed payload inside a
+ * tvbuff at offset with length comprlen.  Returns an uncompressed
+ * tvbuffer attached to tvb if uncompression succeeded or NULL if
+ * uncompression failed.
+ */
+WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress_lz77(tvbuff_t *parent,
+     tvbuff_t *tvb, const int offset, int comprlen);
+
+/* From tvbuff_lz77huff.c */
+
+/**
+ * Uncompresses a Microsoft LZ77+Huffman compressed payload inside a
+ * tvbuff at offset with length comprlen.  Returns an uncompressed
+ * tvbuffer if uncompression succeeded or NULL if uncompression
+ * failed.
+ */
+WS_DLL_PUBLIC tvbuff_t *tvb_uncompress_lz77huff(tvbuff_t *tvb,
+    const int offset, int comprlen);
+
+/**
+ * Uncompresses a Microsoft LZ77+Huffman compressed payload inside a
+ * tvbuff at offset with length comprlen.  Returns an uncompressed
+ * tvbuffer attached to tvb if uncompression succeeded or NULL if
+ * uncompression failed.
+ */
+WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress_lz77huff(tvbuff_t *parent,
+    tvbuff_t *tvb, const int offset, int comprlen);
+
+/* From tvbuff_lznt1.c */
+
+/**
+ * Uncompresses a Microsoft LZNT1 compressed payload inside
+ * a tvbuff at offset with length comprlen.  Returns an uncompressed
+ * tvbuffer if uncompression succeeded or NULL if uncompression
+ * failed.
+ */
+WS_DLL_PUBLIC tvbuff_t *tvb_uncompress_lznt1(tvbuff_t *tvb,
+    const int offset, int comprlen);
+
+/**
+ * Uncompresses a Microsoft LZNT1 compressed payload inside
+ * a tvbuff at offset with length comprlen.  Returns an uncompressed
+ * tvbuffer if uncompression succeeded or NULL if uncompression
+ * failed.
+ */
+WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress_lznt1(tvbuff_t *parent,
+    tvbuff_t *tvb, const int offset, int comprlen);
+
 /* From tvbuff_base64.c */
 
 /** Return a tvb that contains the binary representation of a base64

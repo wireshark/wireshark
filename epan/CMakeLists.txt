@@ -270,6 +270,9 @@ set(LIBWIRESHARK_NONGENERATED_FILES
 	tvbuff_real.c
 	tvbuff_subset.c
 	tvbuff_zlib.c
+	tvbuff_lz77.c
+	tvbuff_lz77huff.c
+	tvbuff_lznt1.c
 	uat.c
 	value_string.c
 	unit_strings.c
