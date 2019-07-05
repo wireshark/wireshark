@@ -39,6 +39,8 @@ static dissector_handle_t eap_handle = NULL;
 static dissector_handle_t nas_eps_handle = NULL;
 static dissector_handle_t nas_eps_plain_handle = NULL;
 static dissector_handle_t lpp_handle = NULL;
+static dissector_handle_t gsm_a_dtap_handle;
+
 
 #define PNAME  "Non-Access-Stratum 5GS (NAS)PDU"
 #define PSNAME "NAS-5GS"
@@ -1589,6 +1591,13 @@ de_nas_5gs_mm_pld_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
     switch (nas5gs_data->payload_container_type) {
     case 1: /* N1 SM information */
         dissect_nas_5gs_common(tvb_new_subset_length(tvb, offset, len), pinfo, tree, 0, NULL);
+        break;
+    case 2: /* SMS */
+        if (gsm_a_dtap_handle) {
+            call_dissector(gsm_a_dtap_handle, tvb_new_subset_length(tvb, offset, len), pinfo, tree);
+        } else {
+            proto_tree_add_item(tree, hf_nas_5gs_mm_pld_cont, tvb, offset, len, ENC_NA);
+        }
         break;
     default:
         proto_tree_add_item(tree, hf_nas_5gs_mm_pld_cont, tvb, offset, len, ENC_NA);
@@ -7479,6 +7488,7 @@ proto_reg_handoff_nas_5gs(void)
     nas_eps_handle = find_dissector("nas-eps");
     nas_eps_plain_handle = find_dissector("nas-eps_plain");
     lpp_handle = find_dissector("lpp");
+    gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
     dissector_add_string("media_type", "application/vnd.3gpp.5gnas", create_dissector_handle(dissect_nas_5gs_media_type, proto_nas_5gs));
     proto_json = proto_get_id_by_filter_name("json");
 }
