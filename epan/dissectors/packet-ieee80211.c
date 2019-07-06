@@ -16725,6 +16725,12 @@ dissect_measurement_pilot_trans_ie(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     while (tag_len > 0) {
       guint8 elt_len;
 
+      if (tvb_reported_length_remaining(tvb, offset) < 2) {
+        proto_tree_add_expert_format(tree, pinfo, &ei_ieee80211_bad_length,
+             tvb, offset, tag_len - offset,
+             "Remaining data does not include the tag length");
+        break;
+      }
       elt_len = tvb_get_guint8(tvb, offset + 1);
 
       if(add_tagged_field(pinfo, tree, tvb, offset + 2, 0, ids, G_N_ELEMENTS(ids), NULL) == 0){
