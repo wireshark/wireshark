@@ -210,6 +210,8 @@ again, these *should* pass, but Pinfo silently allows it!
     test("Pinfo.desegment_len-get-1",pinfo.desegment_len == 0)
     test("Pinfo.desegment_offset-get-1",pinfo.desegment_offset == 0)
 
+    test("pinfo.p2p_dir", pinfo.p2p_dir == P2P_DIR_UNKNOWN)
+
     if pinfo.number == 1 then
         test("Pinfo.rel_ts-get-1",pinfo.rel_ts == 0)
         test("Pinfo.delta_ts-get-1",pinfo.delta_ts == 0)

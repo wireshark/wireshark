@@ -106,6 +106,12 @@ end
 
 %MENU_GROUPS%
 
+-- the possible values for Pinfo's p2p_dir attribute
+P2P_DIR_UNKNOWN = -1
+P2P_DIR_SENT    =  0
+P2P_DIR_RECV    =  1
+
+
 -- other useful constants
 -- DATA_DIR and USER_DIR have a trailing directory separator.
 GUI_ENABLED = gui_enabled()
