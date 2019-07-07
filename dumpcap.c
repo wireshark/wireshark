@@ -769,6 +769,7 @@ show_filter_code(capture_options *capture_opts)
         /* OK, try to compile the capture filter. */
         if (!compile_capture_filter(interface_opts->name, pcap_h, &fcode,
                                     interface_opts->cfilter)) {
+            g_snprintf(errmsg, sizeof(errmsg), "%s", pcap_geterr(pcap_h));
             pcap_close(pcap_h);
             report_cfilter_error(capture_opts, j, errmsg);
             return FALSE;
