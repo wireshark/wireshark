@@ -3801,8 +3801,6 @@ onehome-remote   2198/tcp # OneHome Remote Access
 onehome-remote   2198/udp # OneHome Remote Access
 onehome-help     2199/tcp # OneHome Service Port [Jim_Herman] [Jim_Herman] 2005-08
 onehome-help     2199/udp # OneHome Service Port [Jim_Herman] [Jim_Herman] 2005-08
-ici              2200/tcp # ICI [Brent_Hines] [Brent_Hines]
-ici              2200/udp # ICI [Brent_Hines] [Brent_Hines]
 ats              2201/tcp # Advanced Training System Program
 ats              2201/udp # Advanced Training System Program
 imtc-map         2202/tcp # Int. Multimedia Teleconferencing Cosortium [Pat_Galvin] [Pat_Galvin]
@@ -9230,8 +9228,8 @@ bmc-ctd-ldap     6301/tcp # BMC CONTROL-D LDAP SERVERIANA assigned this well-for
 bmc_ctd_ldap     6301/tcp # BMC CONTROL-D LDAP SERVER [Portnoy_Boxman_2] [Portnoy_Boxman_2] 2006-09 This entry is an alias to "bmc-ctd-ldap".This entry is now historic, not usable for use with manycommon service discovery mechanisms.
 bmc-ctd-ldap     6301/udp # BMC CONTROL-D LDAP SERVERIANA assigned this well-formed service name as a replacement for "bmc_ctd_ldap". [Portnoy_Boxman_2] [Portnoy_Boxman_2] 2006-09
 bmc_ctd_ldap     6301/udp # BMC CONTROL-D LDAP SERVER [Portnoy_Boxman_2] [Portnoy_Boxman_2] 2006-09 This entry is an alias to "bmc-ctd-ldap".This entry is now historic, not usable for use with manycommon service discovery mechanisms.
-ufmp             6306/tcp # Unified Fabric Management Protocol [Albert_Berlovitch] [Albert_Berlovitch] 2009-12-17
-ufmp             6306/udp # Unified Fabric Management Protocol [Albert_Berlovitch] [Albert_Berlovitch] 2009-12-17
+ufmp             6306/tcp # Unified Fabric Management Protocol [Mellanox] [Shachar_Dor] 2009-12-17 2019-07-02
+ufmp             6306/udp # Unified Fabric Management Protocol [Mellanox] [Shachar_Dor] 2009-12-17 2019-07-02
 scup             6315/tcp # Sensor Control Unit Protocol [Sven_Kopacz] [Sven_Kopacz] 2010-09-01
 scup-disc        6315/udp # Sensor Control Unit Protocol Discovery Protocol [Sven_Kopacz] [Sven_Kopacz] 2010-09-01
 abb-escp         6316/tcp # Ethernet Sensor Communications Protocol [Jaime_Antolin] [Jaime_Antolin] 2008-09-25
