@@ -1913,7 +1913,6 @@ drwcs		2193/tcp/udp	# Dr.Web Enterprise Management Service
 mnp-exchange	2197/tcp/udp	# MNP data exchange
 onehome-remote	2198/tcp/udp	# OneHome Remote Access
 onehome-help	2199/tcp/udp	# OneHome Service Port
-ici		2200/tcp/udp	# ICI
 ats		2201/tcp/udp	# Advanced Training System Program
 imtc-map	2202/tcp/udp	# Int. Multimedia Teleconferencing Cosortium
 b2-runtime	2203/tcp/udp	# b2 Runtime Protocol
