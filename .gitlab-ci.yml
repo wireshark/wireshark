@@ -125,7 +125,7 @@ rpm-centos-7:
     - ninja-build rpm-package
 rpm-opensuse-42.3:
   <<: *rpm
-  image: opensuse:42.3
+  image: opensuse/leap:42.3
   script:
     - zypper --non-interactive install update-desktop-files
     - tools/rpm-setup.sh --install-optional ruby
