@@ -309,6 +309,7 @@ QVariant ProfileModel::data(const QModelIndex &index, int role) const
     case ProfileModel::DATA_IS_DEFAULT:
         return qVariantFromValue(prof->status == PROF_STAT_DEFAULT);
 
+
     case ProfileModel::DATA_IS_GLOBAL:
         return qVariantFromValue(prof->is_global);
 
@@ -391,7 +392,7 @@ Qt::ItemFlags ProfileModel::flags(const QModelIndex &index) const
     if ( ! prof )
         return fl;
 
-    if ( index.column() == ProfileModel::COL_NAME && ! prof->is_global && prof->status != PROF_STAT_DEFAULT )
+    if ( index.column() == ProfileModel::COL_NAME && prof->status != PROF_STAT_DEFAULT  && ! prof->is_global && set_profile_.compare(prof->name) != 0 )
         fl |= Qt::ItemIsEditable;
 
     return fl;

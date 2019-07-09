@@ -8,67 +8,65 @@
  */
 
 #include <ui/qt/widgets/copy_from_profile_menu.h>
-#include <ui/profile.h>
+#include <ui/qt/models/profile_model.h>
 #include <wsutil/filesystem.h>
+
+#include <QDir>
+#include <QFileInfo>
 
 CopyFromProfileMenu::CopyFromProfileMenu(QString filename, QWidget *parent) :
     QMenu(parent),
-    filename_(filename),
     have_profiles_(false)
 {
-    const gchar *profile_name = get_profile_name();
-    bool globals_started = false;
+    ProfileModel model(this);
 
-    init_profile_list();
 
-    const GList *fl_entry = edited_profile_list();
-    while (fl_entry && fl_entry->data) {
-        profile_def *profile = (profile_def *) fl_entry->data;
-        char *profile_dir = get_profile_dir(profile->name, profile->is_global);
-        char *file_name = g_build_filename(profile_dir, filename_.toUtf8().constData(), NULL);
-        if ((strcmp(profile_name, profile->name) != 0) && config_file_exists_with_entries(file_name, '#')) {
-            if (profile->is_global && !globals_started) {
-                if (have_profiles_) {
-                    addSeparator();
-                }
-                addSystemDefault();
-                globals_started = true;
-            }
-            QAction *action = addAction(profile->name);
-            action->setData(QString(file_name));
-            if (profile->is_global) {
-                QFont ti_font = action->font();
-                ti_font.setItalic(true);
-                action->setFont(ti_font);
-            }
-            have_profiles_ = true;
-        }
-        g_free(file_name);
-        g_free(profile_dir);
-        fl_entry = g_list_next(fl_entry);
+    QActionGroup global(this);
+    QActionGroup user(this);
+
+    for(int cnt = 0; cnt < model.rowCount(); cnt++)
+    {
+        QModelIndex idx = model.index(cnt, ProfileModel::COL_NAME);
+        QModelIndex idxPath = model.index(cnt, ProfileModel::COL_PATH);
+        if ( ! idx.isValid() || ! idxPath.isValid() )
+            continue;
+
+        if ( ! idx.data(ProfileModel::DATA_PATH_IS_NOT_DESCRIPTION).toBool() || idx.data(ProfileModel::DATA_IS_SELECTED).toBool() )
+            continue;
+
+        QDir profileDir(idxPath.data().toString());
+        if ( ! profileDir.exists() )
+            continue;
+
+        QFileInfo fi = profileDir.filePath(filename);
+        if ( ! fi.exists() )
+            continue;
+
+        if ( ! config_file_exists_with_entries(fi.absoluteFilePath().toUtf8().constData(), '#') )
+            continue;
+
+        QAction * pa = Q_NULLPTR;
+        if ( idx.data(ProfileModel::DATA_IS_DEFAULT).toBool() || idx.data(ProfileModel::DATA_IS_GLOBAL).toBool() )
+            pa = global.addAction(idx.data().toString());
+        else
+            pa = user.addAction(idx.data().toString());
+
+        pa->setCheckable(true);
+        if ( idx.data(ProfileModel::DATA_IS_SELECTED).toBool() )
+            pa->setChecked(true);
+
+        pa->setFont(idx.data(Qt::FontRole).value<QFont>());
+        pa->setProperty("profile_name", idx.data());
+        pa->setProperty("profile_is_global", idx.data(ProfileModel::DATA_IS_GLOBAL));
+
+        pa->setProperty("filename", fi.absoluteFilePath());
+        pa->setData(fi.absoluteFilePath().toUtf8().constData());
     }
 
-    if (!globals_started) {
-        if (have_profiles_) {
-            addSeparator();
-        }
-        addSystemDefault();
-    }
-}
-
-// "System default" is not a profile.
-// Add a special entry for this if the filename exists.
-void CopyFromProfileMenu::addSystemDefault()
-{
-    char *file_name = g_build_filename(get_datafile_dir(), filename_.toUtf8().constData(), NULL);
-    if (file_exists(file_name)) {
-        QAction *action = addAction("System default");
-        action->setData(QString(file_name));
-        QFont ti_font = action->font();
-        ti_font.setItalic(true);
-        action->setFont(ti_font);
-    }
-    g_free(file_name);
+    addActions(global.actions());
+    if (global.actions().count() > 0)
+        addSeparator();
+    addActions(user.actions());
 }
 
 bool CopyFromProfileMenu::haveProfiles()
