@@ -1879,6 +1879,7 @@ set(DISSECTOR_SRC
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-whois.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-wifi-dpp.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-wifi-display.c
+	${CMAKE_CURRENT_SOURCE_DIR}/packet-wifi-nan.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-wifi-p2p.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-windows-common.c
 	${CMAKE_CURRENT_SOURCE_DIR}/packet-winsrepl.c
