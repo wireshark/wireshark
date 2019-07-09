@@ -74,9 +74,9 @@ static const value_string direction_vals[] = {
 /* Pseudo header functions*/
 typedef gboolean (*pseudo_hdr_func_ptr_t) (char *, packet_info *pinfo, guint16, packet_direction_t);
 
-static gboolean lte_mac_pseudo_hdr(char *, packet_info *pinfo, guint16, guint8);
-static gboolean lte_rlc_pseudo_hdr(char *, packet_info *pinfo, guint16, guint8);
-static gboolean lte_pdcp_pseudo_hdr(char *, packet_info *pinfo, guint16, guint8);
+static gboolean lte_mac_pseudo_hdr(char *, packet_info *pinfo, guint16, packet_direction_t);
+static gboolean lte_rlc_pseudo_hdr(char *, packet_info *pinfo, guint16, packet_direction_t);
+static gboolean lte_pdcp_pseudo_hdr(char *, packet_info *pinfo, guint16, packet_direction_t);
 
 typedef struct
 {
@@ -100,9 +100,9 @@ lookup_dissector_element_t dissector_lookup_table[] = {
   {"GSM.SACCH","gsm_a_sacch","gsm_a_sacch",0,0,NULL},
   {"GTP","gtp","gtp",0,0,NULL},
   {"LLC","llcgprs","llcgprs",0,0,NULL},
-  {"LTE-MAC","mac-lte","mac-lte",0,0, (pseudo_hdr_func_ptr_t)lte_mac_pseudo_hdr},
-  {"LTE-PDCP","pdcp-lte","pdcp-lte",0,0, (pseudo_hdr_func_ptr_t)lte_pdcp_pseudo_hdr},
-  {"LTE-RLC","rlc-lte","rlc-lte",0,0, (pseudo_hdr_func_ptr_t)lte_rlc_pseudo_hdr},
+  {"LTE-MAC","mac-lte","mac-lte",0,0, lte_mac_pseudo_hdr},
+  {"LTE-PDCP","pdcp-lte","pdcp-lte",0,0, lte_pdcp_pseudo_hdr},
+  {"LTE-RLC","rlc-lte","rlc-lte",0,0, lte_rlc_pseudo_hdr},
   {"LTE-RRC.BCCH.BCH",0,0,0,0,NULL}, /* Dissector set according to preferences (depending on the release) */
   {"LTE-RRC.BCCH.DL.SCH",0,0,0,0,NULL}, /* Dissector set according to preferences (depending on the release) */
   {"LTE-RRC.CCCH",0,0,0,0,NULL}, /* Dissector set according to preferences (depending on the release) */
@@ -238,7 +238,7 @@ update_dissector_name(const char* protocol_name, packet_direction_t direction, c
  * subframe number (M): "SFN" followed by the subframe number in decimal format
  */
 static gboolean
-lte_mac_pseudo_hdr(char* option_str, packet_info* pinfo, guint16 length, guint8 direction)
+lte_mac_pseudo_hdr(char* option_str, packet_info* pinfo, guint16 length, packet_direction_t direction)
 {
     struct mac_lte_info* p_mac_lte_info;
     char* par_opt_field;
@@ -328,7 +328,7 @@ lte_mac_pseudo_hdr(char* option_str, packet_info* pinfo, guint16 length, guint8 
             ws_strtoi16(par_opt_field, NULL, &p_mac_lte_info->subframeNumber);
         }
     }
-    p_mac_lte_info->direction = direction;
+    p_mac_lte_info->direction = (direction == UPLINK) ? DIRECTION_UPLINK : DIRECTION_DOWNLINK;
     p_mac_lte_info->length = length;
 
     /* Store info in packet */
@@ -344,7 +344,7 @@ lte_mac_pseudo_hdr(char* option_str, packet_info* pinfo, guint16 length, guint8 
  */
 
 static gboolean
-lte_rlc_pseudo_hdr(char* option_str, packet_info* pinfo, guint16 length, guint8 direction)
+lte_rlc_pseudo_hdr(char* option_str, packet_info* pinfo, guint16 length, packet_direction_t direction)
 {
     struct rlc_lte_info* p_rlc_lte_info;
     char* par_opt_field;
@@ -422,7 +422,7 @@ lte_rlc_pseudo_hdr(char* option_str, packet_info* pinfo, guint16 length, guint8 
             p_rlc_lte_info->sequenceNumberLength = UM_SN_LENGTH_10_BITS;
         }
     }
-    p_rlc_lte_info->direction = direction;
+    p_rlc_lte_info->direction = (direction == UPLINK) ? DIRECTION_UPLINK : DIRECTION_DOWNLINK;
     p_rlc_lte_info->priority = 0;
     p_rlc_lte_info->ueid = 0;
     p_rlc_lte_info->pduLength = length;
@@ -438,7 +438,7 @@ lte_rlc_pseudo_hdr(char* option_str, packet_info* pinfo, guint16 length, guint8 
  * Sequence number length: "SN_7b" or "SN_12b"
  */
 static gboolean
-lte_pdcp_pseudo_hdr(char* option_str, packet_info* pinfo, guint16 length _U_, guint8 direction _U_)
+lte_pdcp_pseudo_hdr(char* option_str, packet_info* pinfo, guint16 length _U_, packet_direction_t direction)
 {
     struct pdcp_lte_info* p_pdcp_lte_info;
     char* par_opt_field;
@@ -491,6 +491,7 @@ lte_pdcp_pseudo_hdr(char* option_str, packet_info* pinfo, guint16 length _U_, gu
     }
     p_pdcp_lte_info->no_header_pdu = 0;
     p_pdcp_lte_info->rohc.rohc_compression = 0;
+    p_pdcp_lte_info->direction = (direction == UPLINK) ? DIRECTION_UPLINK : DIRECTION_DOWNLINK;
 
     /* Store info in packet */
     p_add_proto_data(wmem_file_scope(), pinfo, proto_pdcp_lte, 0, p_pdcp_lte_info);
