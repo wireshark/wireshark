@@ -2572,7 +2572,7 @@ eigrp_fmt_version(gchar *result, guint32 revision )
 }
 
 /**
- *@fn void proto _ register _ eigrp (void)
+ *@fn void proto_register_eigrp (void)
  *
  * @usage
  *      you can not have the function name inside a comment or else Wireshark

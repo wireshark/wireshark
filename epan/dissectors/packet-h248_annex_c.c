@@ -614,6 +614,7 @@ static const value_string h248_pkg_annexc_addlayer3prot_values[] = {
 	{0,NULL}
 };
 
+#if 0
 static const value_string h248_pkg_annexc_nci_satellite_values[] _U_ = {
 	{0x0, "no satellite circuit"},
 	{0x1, "one satellite circuit"},
@@ -635,7 +636,7 @@ static const value_string h248_pkg_annexc_nci_echoctl_values[] _U_ = {
 	{0x1, "outgoing echo control device included"},
 	{0,NULL}
 };
-
+#endif
 
 static const value_string h248_pkg_annexc_QosClass_values[] = {
 	{0x0, "Default"},

@@ -77,10 +77,12 @@ static int hf_h248_pkg_BNCCT_prop = -1;
 
 static gint ett_h248_pkg_BNCCT = -1;
 
+#if 0
 static const value_string h248_pkg_BNCCT_parameters[] _U_ = {
     {   0x0001, "BNC Cut Through Capability" },
     { 0, NULL }
 };
+#endif
 
 static const value_string h248_pkg_BNCCT_props_vals[] = {
     {0,"Bearer Network Connection Cut Q.1950 Annex A" },
