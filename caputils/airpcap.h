@@ -588,7 +588,7 @@ gboolean AirpcapSetDecryptionState(PAirpcapHandle AdapterHandle, AirpcapDecrypti
 /*!
   \brief Tells if this open instance is configured to perform the decryption of the incoming frames with the <b>adapter-specific</b> keys.
   \param AdapterHandle Handle to the adapter.
-  \param PEnable Pointer to a user supplied variable that will contain the decryption configuration. See \ref PAirpcapDecryptionState for details.
+  \param PEnable Pointer to a user supplied variable that will contain the decryption configuration. See \ref _AirpcapDecryptionState for details.
   \return TRUE if the operation is successful. FALSE otherwise.
 
   The adapter-specific decryption keys can be configured with the \ref AirpcapSetDeviceKeys() function.
@@ -610,7 +610,7 @@ gboolean AirpcapSetDriverDecryptionState(PAirpcapHandle AdapterHandle, AirpcapDe
 /*!
   \brief Tells if this open instance is configured to perform the decryption of the incoming frames with the <b>global driver</b> set of keys.
   \param AdapterHandle Handle to the adapter.
-  \param PEnable Pointer to a user supplied variable that will contain the decryption configuration. See \ref PAirpcapDecryptionState for details.
+  \param PEnable Pointer to a user supplied variable that will contain the decryption configuration. See \ref _AirpcapDecryptionState for details.
   \return TRUE if the operation is successful. FALSE otherwise.
 
   The global decryption keys can be configured with the \ref AirpcapSetDriverKeys() function.
