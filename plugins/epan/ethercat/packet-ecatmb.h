@@ -51,7 +51,6 @@ typedef struct TETHERCAT_MBOX_HEADER
 
 #define ETHERCAT_MBOX_HEADER_LEN ((int) sizeof(ETHERCAT_MBOX_HEADER))
 
-/*/////////////////////////////////////////////////////////////////////////////*/
 /* EoE*/
 #define ETHERNET_FRAMENO_MASK         0x0000000F
 
@@ -147,7 +146,6 @@ typedef struct TETHERCAT_EOE_HEADER
 } ETHERCAT_EOE_HEADER, *PETHERCAT_EOE_HEADER;
 #define ETHERCAT_EOE_HEADER_LEN ((int) sizeof(ETHERCAT_EOE_HEADER))
 
-/*/////////////////////////////////////////////////////////////////////////////*/
 /* CANopen*/
 #define ETHERCAT_COE_TYPE_EMERGENCY 1
 #define ETHERCAT_COE_TYPE_SDOREQ    2

@@ -128,12 +128,12 @@ WS_DLL_PUBLIC void decode_clear_all(void);
  *
  * @param table_name The table name in which this dissector is found.
  *
+ * @param selector_type The type of the selector in that dissector table
+ *
  * @param key A pointer to the key for this entry in the dissector
  * hash table.  This is generally the numeric selector of the
  * protocol, i.e. the ethernet type code, IP port number, TCP port
  * number, etc.
- *
- * @param selector_type The type of the selector in that dissector table
  *
  * @param value A pointer to the value for this entry in the dissector
  * hash table.  This is an opaque pointer that can only be handed back
@@ -142,8 +142,8 @@ WS_DLL_PUBLIC void decode_clear_all(void);
  * @param user_data Unused.
  */
 WS_DLL_PUBLIC void decode_build_reset_list (const gchar *table_name, ftenum_t selector_type,
-                         gpointer key, gpointer value _U_,
-                         gpointer user_data _U_);
+                         gpointer key, gpointer value,
+                         gpointer user_data);
 
 
 #ifdef __cplusplus

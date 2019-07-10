@@ -675,7 +675,7 @@ static const value_string eigrp_metric_comm_type_vals[] = {
 
 
 /**
- *@fn void dissect_eigrp_parameter (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
+ *@fn void dissect_eigrp_parameter (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,  proto_item *ti)
  *
  *
  * @param[in,out] tree  detail dissection result

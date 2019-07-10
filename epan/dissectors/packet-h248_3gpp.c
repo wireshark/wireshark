@@ -169,7 +169,7 @@ static const value_string h248_3GCSD_properties_vals[] = {
 	{0,     NULL}
 };
 
-static const value_string h248_3GCSD_signals_vals[] _U_ = {
+static const value_string h248_3GCSD_signals_vals[] = {
 	{ 0x0001, "actprot" },
 	{0,     NULL}
 };
@@ -179,7 +179,7 @@ static const value_string h248_3GCSD_signal_actprot_vals[] = {
 	{0,     NULL}
 };
 
-static const value_string h248_3GCSD_events_vals[] _U_ = {
+static const value_string h248_3GCSD_events_vals[] = {
 	{ 0x0001, "protres"},
 	{ 0x0002, "ratechg"},
 	{0,     NULL}
