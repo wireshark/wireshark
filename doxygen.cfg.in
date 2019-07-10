@@ -798,10 +798,11 @@ INPUT                  = \
         @DOXYGEN_INPUT_DIRECTORY@/capchild \
         @DOXYGEN_INPUT_DIRECTORY@/caputils \
         @DOXYGEN_INPUT_DIRECTORY@/cmbuild \
-        @DOXYGEN_INPUT_DIRECTORY@/codecs \
         @DOXYGEN_INPUT_DIRECTORY@/epan \
         @DOXYGEN_INPUT_DIRECTORY@/extcap \
+        @DOXYGEN_INPUT_DIRECTORY@/plugins \
         @DOXYGEN_INPUT_DIRECTORY@/randpkt_core \
+        @DOXYGEN_INPUT_DIRECTORY@/speexdsp \
         @DOXYGEN_INPUT_DIRECTORY@/ui \
         @DOXYGEN_INPUT_DIRECTORY@/wiretap \
         @DOXYGEN_INPUT_DIRECTORY@/writecap \
