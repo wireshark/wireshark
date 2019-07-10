@@ -1919,7 +1919,7 @@ int dissector_try_guid(dissector_table_t sub_dissectors,
  * return the current dissector handle for that value.
  *
  * @param[in] sub_dissectors Dissector table to search.
- * @param[in] uint_val Value to match, e.g. the port number for the TCP dissector.
+ * @param[in] guid_val Value to match.
  * @return The matching dissector handle on success, NULL if no match is found.
  */
 dissector_handle_t dissector_get_guid_handle(

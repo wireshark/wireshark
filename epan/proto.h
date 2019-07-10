@@ -619,7 +619,7 @@ typedef enum {
 #define BASE_EXT_STRING           0x00000200
 #define BASE_VAL64_STRING         0x00000400
 
-#define BASE_ALLOW_ZERO           0x00000800  /**< Display <none> instead of <MISSING> for zero sized byte array */
+#define BASE_ALLOW_ZERO           0x00000800  /**< Display `<none>` instead of '<MISSING>' for zero sized byte array */
 
 #define BASE_UNIT_STRING          0x00001000  /**< Add unit text to the field value */
 
