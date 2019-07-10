@@ -63,6 +63,7 @@ set(WIRESHARK_UTILS_HEADERS
 	utils/tango_colors.h
 	utils/variant_pointer.h
 	utils/wireshark_mime_data.h
+	utils/wireshark_zip_helper.h
 )
 
 set(WIRESHARK_MODEL_HEADERS
@@ -90,7 +91,7 @@ set(WIRESHARK_MODEL_HEADERS
 	models/percent_bar_delegate.h
 	models/pref_delegate.h
 	models/pref_models.h
-        models/profile_model.h
+    models/profile_model.h
 	models/proto_tree_model.h
 	models/related_packet_delegate.h
 	models/sparkline_delegate.h
@@ -288,6 +289,7 @@ set(WIRESHARK_UTILS_SRCS
 	utils/qt_ui_utils.cpp
 	utils/stock_icon.cpp
 	utils/wireshark_mime_data.cpp
+	utils/wireshark_zip_helper.cpp
 )
 
 set(WIRESHARK_MODEL_SRCS

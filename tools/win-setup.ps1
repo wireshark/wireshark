@@ -69,8 +69,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2019-07-03"
-$Win32CurrentTag = "2019-07-03"
+$Win64CurrentTag = "2019-07-17"
+$Win32CurrentTag = "2019-07-17"
 
 # Archive file / SHA256
 $Win64Archives = @{
@@ -86,6 +86,7 @@ $Win64Archives = @{
     "lua-5.2.4-unicode-win64-vc14.zip" = "e8968d2c7871ce1ea82cbd29ac1b3a2c59d3dec25e483c5e12de85df66f5d928";
     "lz4-1.8.3-win64ws.zip" = "2634ed7c132f50e8cf6dc25e9f1b6f2a3b3e4980b812cada7ef42b20fc1fba17";
     "MaxMindDB-1.3.2-win64ws.zip" = "9025c43e9b21ff0bfbaf206b8ed96e2920ef1434107f789e4c7c0c1d8b508952";
+    "minizip-1.2.11-4-win64ws.zip" = "dd6bf24e2d946465ad19aa4f8c38e0db91da6585887935de68011982cd6fb2cb";
     "nghttp2-1.14.0-1-win64ws.zip" = "a4f15854f30b4fbb65cbf150011612e4580683dc9bbb339c632c37e414c938cb";
     "sbc-1.3-1-win64ws.zip" = "08cef6898c421277a6582ef3225d8820f74a037cbd5b6e673a4d8f4593ce80a1";
     "snappy-1.1.3-1-win64ws.zip" = "692a15e70f2cdeca621988a46e936d3651e7feb5176981f2656a5e913c394bcc";
@@ -108,6 +109,7 @@ $Win32Archives = @{
     "lua-5.2.4-unicode-win32-vc14.zip" = "ca2368a83f623674178e9441f71fb791e3c0b46f208e3dac28c6ac735f034bff";
     "lz4-1.8.3-win32ws.zip" = "6f77128f901d480ee0b82ab4fe5956e0f02fdcb2198d6d349e0b2fa1ac77c805";
     "MaxMindDB-1.3.2-win32ws.zip" = "5c8b4bf3092da8fad6edb005a5283c6a74b7e115a50da010953eed77d33c11b7";
+    "minizip-1.2.11-4-win32ws.zip" = "41e113930902c2519c4644e8307a0cc51c5855e001e1e69768c48deb376142d0";
     "nghttp2-1.14.0-1-win32ws.zip" = "939ec18c81fed2e44270dc924fad8beffe90a74300cc98360442300fb0a5c292";
     "sbc-1.3-1-win32ws.zip" = "ad37825e9ace4b849a5442c08f1ed7e30634e6b774bba4307fb86f35f82e71ba";
     "snappy-1.1.3-1-win32ws.zip" = "2508ef7c5d27655c356d7b86a00ac887fc178eab5df63595b8793953dae5c379";
@@ -167,6 +169,7 @@ $CleanupItems = @(
     "lua-5.?.?-unicode-win??-vc??"
     "lz4-*-win??ws"
     "MaxMindDB-1.3.2-win??ws"
+    "minizip-*-win??ws"
     "nghttp2-*-win??ws"
     "portaudio_v19"
     "portaudio_v19_2"

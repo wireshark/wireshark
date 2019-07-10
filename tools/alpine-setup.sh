@@ -74,6 +74,7 @@ ADDITIONAL_LIST="
 	lua5.2-dev \
 	libnl3-dev \
 	sbc-dev \
+	minizip-dev \
 	speexdsp-dev \
 	"
 

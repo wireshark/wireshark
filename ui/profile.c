@@ -262,6 +262,8 @@ empty_profile_list(gboolean edit_list)
         }
 
         g_assert(g_list_length(*flpp) == 0);
+        if ( ! edited_profiles )
+            edited_profiles = NULL;
     }
 
     flpp = &current_profiles;
@@ -271,6 +273,8 @@ empty_profile_list(gboolean edit_list)
     }
 
     g_assert(g_list_length(*flpp) == 0);
+    if ( ! current_profiles )
+        current_profiles = NULL;
 }
 
 void

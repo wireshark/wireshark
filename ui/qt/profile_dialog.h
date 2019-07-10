@@ -10,6 +10,8 @@
 #ifndef PROFILE_DIALOG_H
 #define PROFILE_DIALOG_H
 
+#include "config.h"
+
 #include <ui/qt/geometry_state_dialog.h>
 #include <ui/qt/models/profile_model.h>
 #include <ui/qt/widgets/profile_tree_view.h>
@@ -26,7 +28,7 @@ class ProfileDialog : public GeometryStateDialog
     Q_OBJECT
 
 public:
-    enum ProfileAction { ShowProfiles, NewProfile, EditCurrentProfile, DeleteCurrentProfile };
+    enum ProfileAction { ShowProfiles, NewProfile, ImportProfile, EditCurrentProfile, DeleteCurrentProfile };
 
     explicit ProfileDialog(QWidget *parent = Q_NULLPTR);
     ~ProfileDialog();
@@ -52,6 +54,9 @@ private:
 
 private slots:
     void currentItemChanged();
+#ifdef HAVE_MINIZIP
+    void on_btnImport_clicked();
+#endif
 
     void on_newToolButton_clicked();
     void on_deleteToolButton_clicked();

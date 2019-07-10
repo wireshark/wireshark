@@ -25,6 +25,7 @@
 #include <ui_profile_dialog.h>
 #include "wireshark_application.h"
 #include <ui/qt/utils/color_utils.h>
+#include <ui/qt/simple_dialog.h>
 
 #include <QBrush>
 #include <QDir>
@@ -35,6 +36,8 @@
 #include <QUrl>
 #include <QComboBox>
 #include <QLineEdit>
+#include <QFileDialog>
+#include <QStandardPaths>
 
 ProfileDialog::ProfileDialog(QWidget *parent) :
     GeometryStateDialog(parent),
@@ -59,7 +62,11 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
     pd_ui_->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     pd_ui_->deleteToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     pd_ui_->copyToolButton->setAttribute(Qt::WA_MacSmallSize, true);
-    pd_ui_->infoLabel->setAttribute(Qt::WA_MacSmallSize, true);
+    pd_ui_->btnImport->setAttribute(Qt::WA_MacSmallSize, true);
+#endif
+
+#ifndef HAVE_MINIZIP
+    pd_ui_->btnImport->setVisible(false);
 #endif
 
     model_ = new ProfileModel(this);
@@ -117,6 +124,11 @@ int ProfileDialog::execAction(ProfileDialog::ProfileAction profile_action)
     case NewProfile:
         on_newToolButton_clicked();
         ret = exec();
+        break;
+    case ImportProfile:
+#ifdef HAVE_MINIZIP
+        on_btnImport_clicked();
+#endif
         break;
     case EditCurrentProfile:
         item = pd_ui_->profileTreeView->currentIndex();
@@ -314,6 +326,30 @@ void ProfileDialog::filterChanged(const QString &text)
     if (active.isValid())
         pd_ui_->profileTreeView->setCurrentIndex(active);
 }
+
+#ifdef HAVE_MINIZIP
+void ProfileDialog::on_btnImport_clicked()
+{
+    QString docDir = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
+    QString zipFile = QFileDialog::getOpenFileName(this, tr("Select zip file for import"),
+                                                   docDir, tr("Zip File (*.zip)"));
+
+    QFileInfo fi(zipFile);
+    if ( ! fi.exists() )
+        return;
+
+    int count = 0;
+    if ( ( count = model_->unzipProfiles(zipFile) ) == 0 )
+    {
+        QString msg = tr("An error occured, while importing profiles from %1").arg(fi.fileName());
+        QMessageBox::warning(this, tr("Error importing profiles"), msg );
+    }
+    else {
+        QString msg = tr("%1 profiles have been imported").arg(QString::number(count));
+        QMessageBox::information(this, tr("Importing profiles"), msg );
+    }
+}
+#endif
 
 /*
  * Editor modelines

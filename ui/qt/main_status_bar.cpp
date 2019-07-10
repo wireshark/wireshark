@@ -591,6 +591,9 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
         QAction * action = ctx_menu_.addAction(tr("Manage Profiles" UTF8_HORIZONTAL_ELLIPSIS));
         action->setProperty("dialog_action_", (int)ProfileDialog::ShowProfiles);
         connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
+        action = ctx_menu_.addAction(tr("Import" UTF8_HORIZONTAL_ELLIPSIS));
+        action->setProperty("dialog_action_", (int)ProfileDialog::ImportProfile);
+        connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
         ctx_menu_.addSeparator();
         action = ctx_menu_.addAction(tr("New" UTF8_HORIZONTAL_ELLIPSIS));
         action->setProperty("dialog_action_", (int)ProfileDialog::NewProfile);

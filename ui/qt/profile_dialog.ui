@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>470</width>
+    <width>557</width>
     <height>386</height>
    </rect>
   </property>
@@ -51,7 +51,7 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0">
      <item>
       <widget class="StockIconToolButton" name="newToolButton">
        <property name="toolTip">
@@ -93,21 +93,9 @@
       </spacer>
      </item>
      <item>
-      <widget class="ElidedLabel" name="infoLabel">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-         <horstretch>1</horstretch>
-         <verstretch>0</verstretch>
-        </sizepolicy>
-       </property>
+      <widget class="QPushButton" name="btnImport">
        <property name="text">
-        <string/>
-       </property>
-       <property name="alignment">
-        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-       </property>
-       <property name="openExternalLinks">
-        <bool>true</bool>
+        <string>Import</string>
        </property>
       </widget>
      </item>
@@ -126,11 +114,6 @@
   </layout>
  </widget>
  <customwidgets>
-  <customwidget>
-   <class>ElidedLabel</class>
-   <extends>QLabel</extends>
-   <header>widgets/elided_label.h</header>
-  </customwidget>
   <customwidget>
    <class>StockIconToolButton</class>
    <extends>QToolButton</extends>

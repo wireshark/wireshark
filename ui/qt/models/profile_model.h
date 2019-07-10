@@ -10,6 +10,7 @@
 #ifndef PROFILE_MODEL_H
 #define PROFILE_MODEL_H
 
+#include "config.h"
 #include "glib.h"
 
 #include <ui/profile.h>
@@ -88,6 +89,10 @@ public:
 
     GList * at(int row) const;
 
+#ifdef HAVE_MINIZIP
+    int unzipProfiles(QString filename);
+#endif
+
     static bool checkNameValidity(QString name, QString *msg = Q_NULLPTR);
     QList<int> findAllByNameAndVisibility(QString name, bool isGlobal = false);
 
@@ -97,9 +102,14 @@ private:
     bool reset_default_;
 
     void loadProfiles();
+    profile_def * guard(int row) const;
     GList * entry(profile_def *) const;
 
     int findByNameAndVisibility(QString name, bool isGlobal = false);
+
+#ifdef HAVE_MINIZIP
+    static bool acceptFile(QString fileName, int fileSize);
+#endif
 };
 
 #endif

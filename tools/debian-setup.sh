@@ -78,6 +78,7 @@ ADDITIONAL_LIST="libnl-3-dev \
 	libsnappy-dev \
 	libspandsp-dev \
 	libxml2-dev \
+	libminizip-dev \
 	git \
 	ninja-build \
 	doxygen \

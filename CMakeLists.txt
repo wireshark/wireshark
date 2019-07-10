@@ -1126,6 +1126,9 @@ ws_find_package(CARES ENABLE_CARES HAVE_C_ARES "1.5.0")
 # Zlib compression
 ws_find_package(ZLIB ENABLE_ZLIB HAVE_ZLIB)
 
+# Minizip compression
+ws_find_package(Minizip ENABLE_MINIZIP HAVE_MINIZIP)
+
 # Brotli compression
 ws_find_package(BROTLI ENABLE_BROTLI HAVE_BROTLI)
 
@@ -1171,6 +1174,15 @@ endif()
 ws_find_package(CAP ENABLE_CAP HAVE_LIBCAP)
 if(NOT WIN32)
 	find_package(SETCAP)
+endif()
+
+# Include minizip include directories
+if(MINIZIP_FOUND)
+	include_directories(
+		${MINIZIP_INCLUDE_DIRS}
+	)
+else()
+	set(MINIZIP_LIBRARY "")
 endif()
 
 # Windows version updates
@@ -1607,6 +1619,11 @@ set_package_properties(SpeexDSP PROPERTIES
 	URL "https://www.speex.org/"
 	DESCRIPTION "SpeexDSP is a patent-free, Open Source/Free Software DSP library"
 	PURPOSE "RTP audio resampling"
+)
+set_package_properties(Minizip PROPERTIES
+	URL "https://www.winimage.com/zLibDll/minizip.html"
+	DESCRIPTION "C library for supporting zip/unzip functionality"
+	PURPOSE "Support for profiles import/export"
 )
 
 string(TOUPPER "${CMAKE_BUILD_TYPE}" _build_type)
@@ -2232,6 +2249,7 @@ if(BUILD_wireshark AND QT_FOUND)
 		${WINSPARKLE_LIBRARIES}
 		$<$<BOOL:${WIN32}>:UxTheme.lib>
 		${SPEEXDSP_LIBRARIES}
+		${MINIZIP_LIBRARIES}
 	)
 
 	add_executable(wireshark WIN32 MACOSX_BUNDLE ${wireshark_FILES} ${EXTRA_BUNDLE_FILES})

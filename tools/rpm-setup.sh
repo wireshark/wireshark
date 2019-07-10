@@ -59,6 +59,7 @@ ADDITIONAL_LIST="libnl3-devel \
 	sbc-devel \
 	libsmi-devel \
 	snappy-devel \
+	minizip-devel \
 	lz4 \
 	doxygen \
 	libxml2-devel \

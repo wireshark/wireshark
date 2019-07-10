@@ -7,6 +7,7 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
+#include "config.h"
 
 #include "glib.h"
 #include "ui/profile.h"
@@ -17,9 +18,11 @@
 
 #include <ui/qt/utils/color_utils.h>
 #include <ui/qt/utils/qt_ui_utils.h>
+#include <ui/qt/utils/wireshark_zip_helper.h>
 
 #include <QDir>
 #include <QFont>
+#include <QTemporaryDir>
 
 #define gxx_list_next(list) ((list) ? ((reinterpret_cast<GList *>(list))->next) : Q_NULLPTR)
 
@@ -114,14 +117,14 @@ ProfileModel::ProfileModel(QObject * parent) :
 
 void ProfileModel::loadProfiles()
 {
+    emit beginResetModel();
+
     bool refresh = profiles_.count() > 0;
 
-    if ( refresh )
-        profiles_.clear();
-    else
-        init_profile_list();
-
-    emit beginResetModel();
+     if ( refresh )
+         profiles_.clear();
+     else
+         init_profile_list();
 
     GList *fl_entry = edited_profile_list();
     while (fl_entry && fl_entry->data)
@@ -166,6 +169,20 @@ int ProfileModel::columnCount(const QModelIndex &) const
     return static_cast<int>(_LAST_ENTRY);
 }
 
+profile_def * ProfileModel::guard(int row) const
+{
+    if ( profiles_.count() <= row )
+        return Q_NULLPTR;
+
+    if ( ! edited_profile_list() )
+    {
+        static_cast<QList<profile_def *>>(profiles_).clear();
+        return Q_NULLPTR;
+    }
+
+    return profiles_.at(row);
+}
+
 QVariant ProfileModel::data(const QModelIndex &index, int role) const
 {
     QString msg;
@@ -173,7 +190,7 @@ QVariant ProfileModel::data(const QModelIndex &index, int role) const
     if ( ! index.isValid() || profiles_.count() <= index.row() )
         return QVariant();
 
-    profile_def * prof = profiles_.at(index.row());
+    profile_def * prof = guard(index.row());
     if ( ! prof )
         return QVariant();
 
@@ -225,7 +242,7 @@ QVariant ProfileModel::data(const QModelIndex &index, int role) const
 
         if ( set_profile_.compare(prof->name) == 0 )
         {
-            profile_def * act = profiles_.at(activeProfile().row());
+            profile_def * act = guard(activeProfile().row());
             if ( act->is_global == prof->is_global )
                 font.setBold(true);
         }
@@ -316,7 +333,7 @@ QVariant ProfileModel::data(const QModelIndex &index, int role) const
     case ProfileModel::DATA_IS_SELECTED:
         {
             QModelIndex selected = activeProfile();
-            profile_def * selprof = profiles_.at(selected.row());
+            profile_def * selprof = guard(selected.row());
             if ( selprof )
             {
                 if ( selprof->is_global != prof->is_global )
@@ -388,7 +405,7 @@ Qt::ItemFlags ProfileModel::flags(const QModelIndex &index) const
     if ( ! index.isValid() || profiles_.count() <= index.row() )
         return fl;
 
-    profile_def * prof = profiles_.at(index.row());
+    profile_def * prof = guard(index.row());
     if ( ! prof )
         return fl;
 
@@ -419,7 +436,7 @@ QList<int> ProfileModel::findAllByNameAndVisibility(QString name, bool isGlobal)
 
     for ( int cnt = 0; cnt < profiles_.count(); cnt++ )
     {
-        profile_def * prof = profiles_.at(cnt);
+        profile_def * prof = guard(cnt);
         if ( prof && static_cast<bool>(prof->is_global) == isGlobal && name.compare(prof->name) == 0 )
             result << cnt;
     }
@@ -441,7 +458,7 @@ QModelIndex ProfileModel::duplicateEntry(QModelIndex idx)
     if ( ! idx.isValid() || profiles_.count() <= idx.row() )
         return QModelIndex();
 
-    profile_def * prof = profiles_.at(idx.row());
+    profile_def * prof = guard(idx.row());
     if ( ! prof )
         return QModelIndex();
 
@@ -476,7 +493,7 @@ void ProfileModel::deleteEntry(QModelIndex idx)
     if ( ! idx.isValid() )
         return;
 
-    profile_def * prof = profiles_.at(idx.row());
+    profile_def * prof = guard(idx.row());
     if ( ! prof )
         return;
 
@@ -530,7 +547,7 @@ bool ProfileModel::setData(const QModelIndex &idx, const QVariant &value, int ro
     if ( ! value.isValid() || value.toString().isEmpty() )
         return false;
 
-    profile_def * prof = profiles_.at(idx.row());
+    profile_def * prof = guard(idx.row());
     if ( ! prof || prof->status == PROF_STAT_DEFAULT )
         return false;
 
@@ -551,6 +568,82 @@ bool ProfileModel::setData(const QModelIndex &idx, const QVariant &value, int ro
 
     return true;
 }
+
+#ifdef HAVE_MINIZIP
+/* This check runs BEFORE the file has been unzipped! */
+bool ProfileModel::acceptFile(QString fileName, int fileSize)
+{
+    if ( fileName.contains(".") || fileName.startsWith("_") )
+        return false;
+
+    if ( fileSize > 1024 * 512 )
+        return false;
+
+    /*  config_file_exists_with_entries cannot be used, due to the fact, that the file has not been extracted yet */
+
+    return true;
+}
+
+int ProfileModel::unzipProfiles(QString filename)
+{
+    int count = 0;
+    QDir profileDir(get_profiles_dir());
+    QTemporaryDir dir;
+#if 0
+    dir.setAutoRemove(false);
+#endif
+
+    if ( dir.isValid() )
+    {
+        WireSharkZipHelper::unzip(filename, dir.path(), &ProfileModel::acceptFile);
+
+        QDir temp(dir.path());
+        temp.setSorting(QDir::Name);
+        temp.setFilter(QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
+        QFileInfoList entries = temp.entryInfoList();
+
+        foreach ( QFileInfo fentry, entries )
+        {
+            QString profilePath = profileDir.absolutePath() + QDir::separator() + fentry.fileName();
+            QString tempPath = fentry.absoluteFilePath();
+
+            if ( QFile::exists(profilePath) )
+                continue;
+
+            QDir profileDir(profilePath);
+            if ( ! profileDir.mkpath(profilePath) || ! QFile::exists(tempPath) )
+                continue;
+
+            QDir tempProfile(tempPath);
+            tempProfile.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
+            QFileInfoList files = tempProfile.entryInfoList();
+            if ( files.count() <= 0 )
+                continue;
+
+            int created = 0;
+            foreach ( QFileInfo finfo, files)
+            {
+                QString tempFile = finfo.absoluteFilePath();
+                QString profileFile = profilePath + QDir::separator() + finfo.fileName();
+
+                if ( ! QFile::exists(tempFile) || QFile::exists(profileFile) )
+                    continue;
+
+                if ( QFile::copy(tempFile, profileFile) )
+                    created++;
+            }
+
+            if ( created > 0 )
+                count++;
+        }
+    }
+
+    if ( count > 0 )
+        loadProfiles();
+
+    return count;
+}
+#endif
 
 bool ProfileModel::checkNameValidity(QString name, QString *msg)
 {
