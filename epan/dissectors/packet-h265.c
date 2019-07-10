@@ -1210,8 +1210,8 @@ dissect_h265_video_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_in
 static void
 dissect_h265_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
 {
-	guint        bit_offset, i;
-	guint8		sps_max_sub_layers_minus1, sps_extension_4bits = 0;
+	gint        bit_offset;
+	guint8		i, sps_max_sub_layers_minus1, sps_extension_4bits = 0;
 	guint32		num_short_term_ref_pic_sets, num_long_term_ref_pics_sps, log2_max_pic_order_cnt_lsb_minus4, bit_depth_luma_minus8, bit_depth_chroma_minus8;
 	gboolean	sps_sub_layer_ordering_info_present_flag = 0, scaling_list_enabled_flag = 0, sps_scaling_list_data_present_flag = 0,
 		pcm_enabled_flag = 0, long_term_ref_pics_present_flag = 0, vui_parameters_present_flag = 0, sps_extension_present_flag = 0,
@@ -1397,7 +1397,8 @@ dissect_h265_seq_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info
 static void
 dissect_h265_pic_parameter_set_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset)
 {
-	guint bit_offset, num_tile_columns_minus1, num_tile_rows_minus1, i;
+	gint bit_offset;
+	guint num_tile_columns_minus1, num_tile_rows_minus1, i;
 	gboolean cu_qp_delta_enabled_flag, tiles_enabled_flag, uniform_spacing_flag;
 	gboolean deblocking_filter_control_present_flag, pps_deblocking_filter_disabled_flag;
 	gboolean pps_scaling_list_data_present_flag, pps_extension_present_flag;
@@ -1577,7 +1578,7 @@ dissect_h265_sei_rbsp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint 
 	proto_tree *sei_rbsp_tree;
 	sei_rbsp_tree = proto_tree_add_subtree(tree, tvb, offset, 1, ett_h265_sei_rbsp, NULL, "Supplemental enhancement information RBSP");
 
-	guint bit_offset;
+	gint bit_offset;
 
 	bit_offset = offset << 3;
 
@@ -1646,7 +1647,7 @@ dissect_h265_profile_tier_level(proto_tree* tree, tvbuff_t* tvb, packet_info* pi
 
 		proto_tree_add_item(tree, hf_h265_general_profile_compatibility_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
 
-		guint bit_offset = offset << 3;
+		gint bit_offset = offset << 3;
 		for (int j = 0; j < 32; j++)
 			general_profile_compatibility_flag[j] = tvb_get_bits8(tvb, bit_offset + j, 1);
 		bit_offset = bit_offset + 32;
@@ -1862,10 +1863,10 @@ dissect_h265_slice_segment_header(proto_tree *tree, tvbuff_t *tvb, packet_info *
 	guint MinCbLog2SizeY = log2_min_luma_coding_block_size_minus3 + 3;
 	guint CtbLog2SizeY = MinCbLog2SizeY + log2_diff_max_min_luma_coding_block_size;
 	guint CtbSizeY = 1 << CtbLog2SizeY;
-	guint PicWidthInCtbsY = (guint)ceil(pic_width_in_luma_samples / CtbSizeY);
-	guint PicHeightInCtbsY = (guint)ceil(pic_height_in_luma_samples / CtbSizeY);
-	guint PicSizeInCtbsY = PicWidthInCtbsY * PicHeightInCtbsY;
-	guint nBits = (guint)ceil(log2(PicSizeInCtbsY));
+	double PicWidthInCtbsY = ceil(pic_width_in_luma_samples / CtbSizeY);
+        double PicHeightInCtbsY = ceil(pic_height_in_luma_samples / CtbSizeY);
+        double PicSizeInCtbsY = PicWidthInCtbsY * PicHeightInCtbsY;
+	guint nBits = (guint)(ceil(log2(PicSizeInCtbsY)));
 	guint i;
 
 	first_slice_segment_in_pic_flag = tvb_get_bits8(tvb, bit_offset, 1);
@@ -2640,7 +2641,8 @@ static int
 dissect_h265_pps_range_extension(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo _U_, gint bit_offset, guint transform_skip_enabled_flag)
 {
 	gboolean chroma_qp_offset_list_enabled_flag;
-	guint offset, i, chroma_qp_offset_list_len_minus1;
+        gint offset;
+	guint i, chroma_qp_offset_list_len_minus1;
 
 	if (transform_skip_enabled_flag) {
 		offset = bit_offset >> 3;
@@ -2681,7 +2683,8 @@ dissect_h265_pps_range_extension(proto_tree* tree, tvbuff_t* tvb, packet_info* p
 static int
 dissect_h265_pps_scc_extension(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo _U_, gint bit_offset)
 {
-	guint offset, pps_num_palette_predictor_initializers, numComps, comp, i;
+	gint offset;
+	guint pps_num_palette_predictor_initializers, numComps, comp, i;
 	gboolean residual_adaptive_colour_transform_enabled_flag, pps_palette_predictor_initializers_present_flag,
 		monochrome_palette_flag;
 	guint32 luma_bit_depth_entry_minus8 = 0, chroma_bit_depth_entry_minus8 = 0;
@@ -2784,7 +2787,7 @@ dissect_h265_unescap_nal_unit(tvbuff_t *tvb, packet_info *pinfo, int offset)
 	int       length = tvb_reported_length_remaining(tvb, offset);
 	int       NumBytesInRBSP = 0;
 	int       i;
-	gchar    *buff;
+	guint8    *buff;
 
 	buff = (gchar *)wmem_alloc(pinfo->pool, length);
 	for (i = 0; i < length; i++) {
