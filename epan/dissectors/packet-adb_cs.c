@@ -245,7 +245,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         offset = tvb_captured_length(tvb);
 
     } else if (pinfo->srcport == server_port) { /* Server sent to Client */
-        guint8             *service = SERVICE_NONE;
+        gchar              *service = SERVICE_NONE;
         wmem_tree_t        *subtree;
         wmem_tree_key_t     key[5];
         client_request_t   *client_request;
@@ -293,14 +293,14 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             tvb_get_guint8(tvb, offset + 1), tvb_get_guint8(tvb, offset + 2), tvb_get_guint8(tvb, offset + 3));
             offset += 4;
 
-            if (tvb_memeql(tvb, offset - 4, "FAIL", 4) == 0) {
+            if (tvb_memeql(tvb, offset - 4, (const guint8 *) "FAIL", 4) == 0) {
                 guint32 ulength;
 
                 offset = dissect_ascii_uint32(main_tree, hf_hex_ascii_length, ett_length, hf_length, tvb, offset, &ulength);
                 length = (gint64) ulength;
 
                 status = STATUS_FAIL;
-            } else if (tvb_memeql(tvb, offset - 4, "OKAY", 4) == 0) {
+            } else if (tvb_memeql(tvb, offset - 4, (const guint8 *) "OKAY", 4) == 0) {
                 status = STATUS_OKAY;
                 length = -1;
             }

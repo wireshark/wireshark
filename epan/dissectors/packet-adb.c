@@ -73,7 +73,7 @@ typedef struct service_data_t {
     guint32  local_id;
     guint32  remote_id;
 
-    const guint8  *service;
+    const gchar  *service;
 } service_data_t;
 
 typedef struct command_data_t {
@@ -685,7 +685,7 @@ dissect_adb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             if (is_service) {
                 proto_tree_add_item(main_tree, hf_service, tvb, offset, -1, ENC_ASCII | ENC_NA);
                 if (!pinfo->fd->visited && service_data) {
-                    service_data->service = tvb_get_stringz_enc(wmem_file_scope(), tvb, offset, NULL, ENC_ASCII);
+                    service_data->service = (gchar *) tvb_get_stringz_enc(wmem_file_scope(), tvb, offset, NULL, ENC_ASCII);
                 }
                 col_append_fstr(pinfo->cinfo, COL_INFO, "Service: %s", tvb_get_stringz_enc(wmem_packet_scope(), tvb, offset, NULL, ENC_ASCII));
                 offset = tvb_captured_length(tvb);
