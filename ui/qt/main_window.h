@@ -300,6 +300,7 @@ public slots:
      * @param cf_path Path to the file.
      * @param display_filter Display filter to apply. May be empty.
      * @param type File type.
+     * @param is_tempfile TRUE/FALSE.
      * @return True on success, false on failure.
      */
     // XXX We might want to return a cf_read_status_t or a CaptureFile.

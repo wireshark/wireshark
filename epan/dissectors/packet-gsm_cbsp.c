@@ -44,7 +44,7 @@ enum tlv_type {
 /*! Definition of a single IE (Information Element) */
 struct tlv_def {
 	enum tlv_type type;	/*!< TLV type */
-	guint8 fixed_len;	/*!< length in case of \ref TLV_TYPE_FIXED */
+	guint8 fixed_len;	/*!< length in case of TLV_TYPE_FIXED */
 };
 
 /*! Definition of All 256 IE / TLV */

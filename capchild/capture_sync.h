@@ -67,6 +67,10 @@ sync_pipe_kill(ws_process_id fork_child);
  *  @param type channel type string (or NULL if not used)
  *  @param center_freq1 VHT channel center frequency (or NULL if not used)
  *  @param center_freq2 VHT channel center frequency 2 (or NULL if not used)
+ *  @param data On success, *data points to a buffer containing the dumpcap output, On failure *data is NULL
+ *  @param primary_msg On success NULL, On failure points to an error message
+ *  @param secondary_msg On success NULL, On failure either points to an additional error message or is NULL
+ *  @param update_cb
  *  @return 0 on success
  */
 extern int

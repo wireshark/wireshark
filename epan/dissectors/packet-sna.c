@@ -825,7 +825,7 @@ static void dissect_fid (tvbuff_t*, packet_info*, proto_tree*, proto_tree*);
 static void dissect_nlp (tvbuff_t*, packet_info*, proto_tree*, proto_tree*);
 static void dissect_gds (tvbuff_t*, packet_info*, proto_tree*, proto_tree*);
 static void dissect_rh (tvbuff_t*, int, proto_tree*);
-static void dissect_sna_control(tvbuff_t*, int, int, proto_tree*, int, enum parse);
+static void dissect_sna_control(tvbuff_t* parent_tvb, int offset, int control_len, proto_tree* tree, int hpr, enum parse parse);
 
 static int sna_fid_to_str_buf(const address *addr, gchar *buf, int buf_len _U_)
 {

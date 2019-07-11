@@ -270,7 +270,7 @@ prefs_pref_is_default(pref_t *pref);
  * @param unused unused
  */
 WS_DLL_PUBLIC
-guint pref_stash(pref_t *pref, gpointer unused _U_);
+guint pref_stash(pref_t *pref, gpointer unused);
 
 typedef struct pref_unstash_data
 {
@@ -303,7 +303,7 @@ guint pref_unstash(pref_t *pref, gpointer unstash_data_p);
  * @return Always returns 0.
  */
 WS_DLL_PUBLIC
-guint pref_clean_stash(pref_t *pref, gpointer unused _U_);
+guint pref_clean_stash(pref_t *pref, gpointer unused);
 
 /** Set a stashed preference to its default value.
  *
