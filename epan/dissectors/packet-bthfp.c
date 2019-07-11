@@ -218,8 +218,8 @@ typedef struct _fragment_t {
 } fragment_t;
 
 typedef struct _at_cmd_t {
-    const guint8 *name;
-    const guint8 *long_name;
+    const gchar *name;
+    const gchar *long_name;
 
     gboolean (*check_command)(gint role, guint16 type);
     gboolean (*dissect_parameter)(tvbuff_t *tvb, packet_info *pinfo,
@@ -514,9 +514,9 @@ void proto_reg_handoff_bthfp(void);
 static guint32 get_uint_parameter(guint8 *parameter_stream, gint parameter_length)
 {
     guint32      value;
-    guint8      *val;
+    gchar       *val;
 
-    val = (guint8 *) wmem_alloc(wmem_packet_scope(), parameter_length + 1);
+    val = (gchar *) wmem_alloc(wmem_packet_scope(), parameter_length + 1);
     memcpy(val, parameter_stream, parameter_length);
     val[parameter_length] = '\0';
     value = (guint32) g_ascii_strtoull(val, NULL, 10);
@@ -527,9 +527,9 @@ static guint32 get_uint_parameter(guint8 *parameter_stream, gint parameter_lengt
 static guint32 get_uint_hex_parameter(guint8 *parameter_stream, gint parameter_length)
 {
     guint32      value;
-    guint8      *val;
+    gchar       *val;
 
-    val = (guint8 *) wmem_alloc(wmem_packet_scope(), parameter_length + 1);
+    val = (gchar *) wmem_alloc(wmem_packet_scope(), parameter_length + 1);
     memcpy(val, parameter_stream, parameter_length);
     val[parameter_length] = '\0';
     value = (guint32) g_ascii_strtoull(val, NULL, 16);

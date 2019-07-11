@@ -4135,7 +4135,7 @@ static void add_string_field( proto_tree * p_tree, tvbuff_t * tvb,
                                 int hf_num )
 {
     guchar *field_stringz;
-    guint len;
+    gint len;
 
     if (max_str_len == 0)
     {
@@ -4151,7 +4151,7 @@ static void add_string_field( proto_tree * p_tree, tvbuff_t * tvb,
     }
     else
     {
-        if ( len > max_str_len )
+        if ( len > (gint)max_str_len )
         {
             field_stringz[ max_str_len - 1 ] = '\0';
         }
