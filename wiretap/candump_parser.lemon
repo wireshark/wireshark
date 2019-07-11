@@ -276,6 +276,9 @@ run_candump_parser(FILE_T fh, int *err, gchar **err_info)
     if (file_seek(fh, 0, SEEK_SET, err) == -1)
         return NULL;
 
+    *err      = 0;
+    *err_info = NULL;
+
     memset(&state, 0, sizeof(state));
     state.fh = fh;
 
