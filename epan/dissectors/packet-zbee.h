@@ -1159,6 +1159,7 @@
 #define ZBEE_PROTOABBREV_ZCL_RELHUMMEAS        "zbee_zcl_meas_sensing.relhummeas"
 #define ZBEE_PROTOABBREV_ZCL_TEMPMEAS          "zbee_zcl_meas_sensing.tempmeas"
 #define ZBEE_PROTOABBREV_ZCL_OCCSEN            "zbee_zcl_meas_sensing.occsen"
+#define ZBEE_PROTOABBREV_ZCL_ELECMES           "zbee_zcl_meas_sensing.elecmes"
 #define ZBEE_PROTOABBREV_ZCL_KEEP_ALIVE        "zbee_zcl_se.keep_alive"
 #define ZBEE_PROTOABBREV_ZCL_PRICE             "zbee_zcl_se.price"
 #define ZBEE_PROTOABBREV_ZCL_DRLC              "zbee_zcl_se.drlc"

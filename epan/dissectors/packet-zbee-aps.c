@@ -589,6 +589,7 @@ const range_string zbee_aps_cid_names[] = {
     { ZBEE_ZCL_CID_FLOW_MEASUREMENT,                ZBEE_ZCL_CID_FLOW_MEASUREMENT,                "Flow Measurement"},
     { ZBEE_ZCL_CID_REL_HUMIDITY_MEASUREMENT,        ZBEE_ZCL_CID_REL_HUMIDITY_MEASUREMENT,        "Relative Humidity Measurement"},
     { ZBEE_ZCL_CID_OCCUPANCY_SENSING,               ZBEE_ZCL_CID_OCCUPANCY_SENSING,               "Occupancy Sensing"},
+    { ZBEE_ZCL_CID_ELECTRICAL_MEASUREMENT,          ZBEE_ZCL_CID_ELECTRICAL_MEASUREMENT,          "Electrical Measurement"},
 
 /* Security and Safety */
     { ZBEE_ZCL_CID_IAS_ZONE,                        ZBEE_ZCL_CID_IAS_ZONE,                        "Intruder Alarm System Zone"},

@@ -168,6 +168,7 @@
 #define ZBEE_ZCL_CID_FLOW_MEASUREMENT               0x0404
 #define ZBEE_ZCL_CID_REL_HUMIDITY_MEASUREMENT       0x0405
 #define ZBEE_ZCL_CID_OCCUPANCY_SENSING              0x0406
+#define ZBEE_ZCL_CID_ELECTRICAL_MEASUREMENT         0x0b04
 
 /* ZCL Cluster IDs - Security and Safety */
 #define ZBEE_ZCL_CID_IAS_ZONE                       0x0500
