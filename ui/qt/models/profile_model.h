@@ -18,7 +18,7 @@
 #include <QSortFilterProxyModel>
 #include <QLoggingCategory>
 
-Q_DECLARE_LOGGING_CATEGORY(profileLogger);
+Q_DECLARE_LOGGING_CATEGORY(profileLogger)
 
 class ProfileSortModel : public QSortFilterProxyModel
 {
