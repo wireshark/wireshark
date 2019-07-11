@@ -214,9 +214,20 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
             }
 
             if (client_request) {
-                client_request->service = (guint8 *) wmem_alloc(wmem_file_scope(), (const size_t)(client_request->service_length + 1));
-                tvb_memcpy(tvb, client_request->service, offset, (size_t) client_request->service_length);
-                client_request->service[client_request->service_length] = '\0';
+                /*
+                 * I've no idea why the length is 64 bits, but that's
+                 * too big to be a field length in Wireshark; if it's
+                 * greater than the biggest possible length, clamp it
+                 * at the biggest possible length - which is probably
+                 * going to be bigger than the available data so that
+                 * you'll throw an exception.
+                 */
+                gint service_length;
+                if (client_request->service_length <= G_MAXINT)
+                    service_length = (gint)client_request->service_length;
+                else
+                    service_length = G_MAXINT;
+                client_request->service = (gchar *) tvb_get_string_enc(wmem_file_scope(), tvb, offset, service_length, ENC_ASCII);
                 client_request->service_in = pinfo->num;
             }
         }
@@ -227,9 +238,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
         } else if (tvb_reported_length_remaining(tvb, offset) > 0) {
             proto_tree_add_item(main_tree, hf_service, tvb, offset, -1, ENC_NA | ENC_ASCII);
 
-            service = (guint8 *) wmem_alloc(wmem_packet_scope(), tvb_reported_length_remaining(tvb, offset) + 1);
-            tvb_memcpy(tvb, service, offset, tvb_reported_length_remaining(tvb, offset));
-            service[tvb_reported_length_remaining(tvb, offset)] = '\0';
+            service = (gchar *) tvb_get_string_enc(wmem_packet_scope(), tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII);
             col_append_fstr(pinfo->cinfo, COL_INFO, " Service=<%s>", service);
         }
 
