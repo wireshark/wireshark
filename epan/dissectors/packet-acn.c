@@ -2298,12 +2298,12 @@ static int
 dissect_magic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   guint8 pdu_subtype;
-  guint offset = 0;
+  gint offset = 0;
   const char *pdu_subtype_string;
   proto_tree *ti, *subtype_item;
   proto_tree *magic_tree;
   guint32 command;
-  guint32 str_len;
+  gint32 str_len;
   guint32 major, minor, patch, aud, crit, build;
   gchar *buffer;
 

@@ -54,13 +54,6 @@ static int hf_stdin                                                        = -1;
 static int hf_stdout                                                       = -1;
 static int hf_pids                                                         = -1;
 static int hf_result                                                       = -1;
-static int hf_sync_id                                                      = -1;
-static int hf_sync_length                                                  = -1;
-static int hf_sync_mode                                                    = -1;
-static int hf_sync_size                                                    = -1;
-static int hf_sync_time                                                    = -1;
-static int hf_sync_unused                                                  = -1;
-static int hf_sync_data                                                    = -1;
 
 static expert_field ei_incomplete_message                             = EI_INIT;
 
@@ -116,7 +109,7 @@ dissect_ascii_uint32(proto_tree *tree, gint hf_hex_ascii, gint ett_hex_ascii,
 {
     proto_item  *sub_item;
     proto_tree  *sub_tree;
-    guint8       hex_ascii[5];
+    gchar        hex_ascii[5];
 
     DISSECTOR_ASSERT(value);
 
@@ -143,7 +136,7 @@ dissect_adb_service(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *d
     proto_tree          *sub_tree;
     gint                 offset = 0;
     adb_service_data_t  *adb_service_data = (adb_service_data_t *) data;
-    const guint8        *service;
+    const gchar         *service;
     wmem_tree_key_t      key[5];
     wmem_tree_t         *subtree;
     guint32              i_key;
@@ -736,41 +729,6 @@ proto_register_adb_service(void)
         { &hf_pids,
             { "PIDs",                            "adb_service.pids",
             FT_STRING, STR_ASCII, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_sync_id,
-            { "Id",                              "adb_service.sync.id",
-            FT_STRING, STR_ASCII, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_sync_length,
-            { "Length",                          "adb_service.sync.length",
-            FT_UINT32, BASE_DEC, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_sync_mode,
-            { "Mode",                            "adb_service.sync.mode",
-            FT_UINT32, BASE_DEC, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_sync_size,
-            { "Size",                            "adb_service.sync.size",
-            FT_UINT32, BASE_DEC, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_sync_time,
-            { "Last Modification Time",          "adb_service.sync.time",
-            FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_sync_unused,
-            { "Unused",                          "adb_service.sync.unused",
-            FT_BYTES, BASE_NONE, NULL, 0x00,
-            NULL, HFILL }
-        },
-        { &hf_sync_data,
-            { "Sync Data",                       "adb_service.sync.data",
-            FT_BYTES, BASE_NONE, NULL, 0x00,
             NULL, HFILL }
         },
     };

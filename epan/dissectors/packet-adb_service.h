@@ -17,7 +17,7 @@ typedef struct {
     guint32        session_key_length;
     guint32       *session_key;
 
-    const guint8  *service;
+    const gchar   *service;
     gint           direction;
 } adb_service_data_t;
 

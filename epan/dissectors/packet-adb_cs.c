@@ -43,7 +43,7 @@ static guint server_port = 5037;
 
 typedef struct _client_request_t {
     gint64    service_length;
-    guint8   *service;
+    gchar    *service;
     guint32   first_in;
     gint64    service_in;
     gint64    response_frame;
@@ -94,7 +94,7 @@ dissect_adb_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _
 
     if (pinfo->destport == server_port) { /* Client sent to Server */
         client_request_t  *client_request;
-        guint8            *service = SERVICE_NONE;
+        gchar             *service = SERVICE_NONE;
         wmem_tree_t       *subtree;
         wmem_tree_key_t    key[5];
 
