@@ -69,10 +69,12 @@ public:
         return childItems_.count();
     }
 
-    int row() const
+    int row()
     {
         if (parent_)
-            return parent_->childItems_.indexOf(VariantPointer<Item>::asQVariant((Item*)this));
+        {
+            return parent_->childItems_.indexOf(VariantPointer<Item>::asQVariant((Item *)this));
+        }
 
         return 0;
     }
@@ -83,91 +85,6 @@ protected:
     Item* parent_;
     QList<QVariant> childItems_;
 };
-
-//XXX - Qt 4.8 doesn't work with these types of templated classes, so save the functionality for now.
-#ifdef WIRESHARK_SUPPORTS_QT_5_0_MINIMUM
-
-//Base class to inherit basic model for tree
-template <typename Item>
-class ModelHelperTreeModel : public QAbstractItemModel
-{
-public:
-    explicit ModelHelperTreeModel(QObject * parent = Q_NULLPTR) : QAbstractItemModel(parent),
-        root_(NULL)
-    {
-    }
-
-    virtual ~ModelHelperTreeModel()
-    {
-        delete root_;
-    }
-
-    virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const
-    {
-        if (!hasIndex(row, column, parent))
-            return QModelIndex();
-
-        Item *parent_item, *child_item;
-
-        if (!parent.isValid())
-            parent_item = root_;
-        else
-            parent_item = static_cast<Item*>(parent.internalPointer());
-
-        Q_ASSERT(parent_item);
-
-        child_item = parent_item->child(row);
-        if (child_item) {
-            return createIndex(row, column, child_item);
-        }
-
-        return QModelIndex();
-    }
-
-    virtual QModelIndex parent(const QModelIndex& indexItem) const
-    {
-        if (!indexItem.isValid())
-            return QModelIndex();
-
-        Item* item = static_cast<Item*>(indexItem.internalPointer());
-        if (item != NULL) {
-            Item* parent_item = item->parentItem();
-            if (parent_item != NULL) {
-                if (parent_item == root_)
-                    return QModelIndex();
-
-                return createIndex(parent_item->row(), 0, parent_item);
-            }
-        }
-
-        return QModelIndex();
-    }
-
-    virtual int rowCount(const QModelIndex& parent = QModelIndex()) const
-    {
-        Item *parent_item;
-
-        if (parent.column() > 0)
-            return 0;
-
-        if (!parent.isValid())
-            parent_item = root_;
-        else
-            parent_item = static_cast<Item*>(parent.internalPointer());
-
-        if (parent_item == NULL)
-            return 0;
-
-        return parent_item->childCount();
-    }
-
-protected:
-    Item* root_;
-
-};
-#endif
-
-
 
 #endif // TREE_MODEL_HELPERS_H
 
