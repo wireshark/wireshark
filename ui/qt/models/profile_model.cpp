@@ -44,9 +44,9 @@ bool ProfileSortModel::lessThan(const QModelIndex &source_left, const QModelInde
     bool igL = left.data(ProfileModel::DATA_IS_GLOBAL).toBool();
     bool igR = right.data(ProfileModel::DATA_IS_GLOBAL).toBool();
 
-    if (left.data(ProfileModel::DATA_STATUS) == PROF_STAT_DEFAULT)
+    if (left.data(ProfileModel::DATA_STATUS).toInt() == PROF_STAT_DEFAULT)
         igL = true;
-    if (right.data(ProfileModel::DATA_STATUS) == PROF_STAT_DEFAULT)
+    if (right.data(ProfileModel::DATA_STATUS).toInt() == PROF_STAT_DEFAULT)
         igR = true;
 
     if ( igL && ! igR )
@@ -413,7 +413,7 @@ int ProfileModel::findByNameAndVisibility(QString name, bool isGlobal)
     for ( int cnt = 0; cnt < profiles_.count() && row < 0; cnt++ )
     {
         profile_def * prof = profiles_.at(cnt);
-        if ( prof && prof->is_global == isGlobal && name.compare(prof->name) == 0 )
+        if ( prof && static_cast<bool>(prof->is_global) == isGlobal && name.compare(prof->name) == 0 )
             row = cnt;
     }
 
@@ -422,7 +422,7 @@ int ProfileModel::findByNameAndVisibility(QString name, bool isGlobal)
 
 QModelIndex ProfileModel::addNewProfile(QString name)
 {
-    add_to_profile_list(name.toUtf8().data(), "", PROF_STAT_NEW, FALSE, FALSE);
+    add_to_profile_list(name.toUtf8().constData(), "", PROF_STAT_NEW, FALSE, FALSE);
     loadProfiles();
 
     return index(findByName(name), COL_NAME);
