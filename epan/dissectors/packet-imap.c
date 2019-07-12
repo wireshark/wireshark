@@ -71,7 +71,7 @@ typedef struct imap_state {
 } imap_state_t;
 
 typedef struct imap_request_key {
-  guint8* tag;
+  gchar* tag;
   guint32 conversation;
 } imap_request_key_t;
 

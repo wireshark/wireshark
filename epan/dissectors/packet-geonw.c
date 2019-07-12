@@ -2136,7 +2136,7 @@ dissect_geonw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U
     proto_item *top_item;
     gint hdr_len = 0;
     guint32 payload_len = 0;
-    int reserved;
+    guint32 reserved;
     guint32 timestamp;
     guint32 sequence_number = SN_MAX + 1;
     struct geonwheader *geonwh;
