@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>557</width>
-    <height>386</height>
+    <width>570</width>
+    <height>400</height>
    </rect>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
@@ -60,12 +60,20 @@
        <property name="text">
         <string/>
        </property>
+       <property name="icon">
+        <iconset resource="../../image/stock_icons.qrc">
+         <normaloff>:/stock/plus-8.png</normaloff>:/stock/plus-8.png</iconset>
+       </property>
       </widget>
      </item>
      <item>
       <widget class="StockIconToolButton" name="deleteToolButton">
        <property name="toolTip">
         <string>Remove this profile. System provided profiles cannot be removed.</string>
+       </property>
+       <property name="icon">
+        <iconset resource="../../image/stock_icons.qrc">
+         <normaloff>:/stock/minus-8.png</normaloff>:/stock/minus-8.png</iconset>
        </property>
       </widget>
      </item>
@@ -76,6 +84,17 @@
        </property>
        <property name="text">
         <string/>
+       </property>
+       <property name="icon">
+        <iconset resource="../../image/stock_icons.qrc">
+         <normaloff>:/stock/copy-8.png</normaloff>:/stock/copy-8.png</iconset>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnImport">
+       <property name="text">
+        <string>Import</string>
        </property>
       </widget>
      </item>
@@ -93,9 +112,21 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="btnImport">
+      <widget class="ElidedLabel" name="lblInfo">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <horstretch>1</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
        <property name="text">
-        <string>Import</string>
+        <string/>
+       </property>
+       <property name="alignment">
+        <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+       </property>
+       <property name="openExternalLinks">
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -124,8 +155,15 @@
    <extends>QTreeView</extends>
    <header>widgets/profile_tree_view.h</header>
   </customwidget>
+  <customwidget>
+   <class>ElidedLabel</class>
+   <extends>QLabel</extends>
+   <header>widgets/elided_label.h</header>
+  </customwidget>
  </customwidgets>
- <resources/>
+ <resources>
+  <include location="../../image/stock_icons.qrc"/>
+ </resources>
  <connections>
   <connection>
    <sender>buttonBox</sender>

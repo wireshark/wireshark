@@ -63,6 +63,11 @@ void ProfileTreeView::selectionChanged(const QItemSelection &selected, const QIt
         QItemSelection newSelection;
         newSelection << deselected.at(0);
         selectionModel()->select(newSelection, QItemSelectionModel::ClearAndSelect);
+        if (newSelection.count() > 0)
+        {
+            QModelIndexList selIndex = selectionModel()->selectedIndexes();
+            scrollTo(selIndex.at(0));
+        }
     }
     else if ( selected.count() > 1 )
     {
@@ -71,6 +76,11 @@ void ProfileTreeView::selectionChanged(const QItemSelection &selected, const QIt
         QItemSelection newSelection;
         newSelection << intersection.toList().at(0);
         selectionModel()->select(newSelection, QItemSelectionModel::ClearAndSelect);
+        if (newSelection.count() > 0)
+        {
+            QModelIndexList selIndex = selectionModel()->selectedIndexes();
+            scrollTo(selIndex.at(0));
+        }
     }
     else
         QTreeView::selectionChanged(selected, deselected);

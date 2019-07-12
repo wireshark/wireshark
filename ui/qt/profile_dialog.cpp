@@ -84,7 +84,7 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
     selectProfile();
 
     QStringList items;
-    items << tr("All Profiles") << tr("Global profiles") << tr("User-defined profiles");
+    items << tr("All Profiles") << tr("System profiles") << tr("User-defined profiles");
     pd_ui_->cmbProfileTypes->addItems(items);
 
     connect (pd_ui_->cmbProfileTypes, SIGNAL(currentTextChanged(const QString &)),
@@ -92,7 +92,9 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
     connect (pd_ui_->lineProfileFilter, SIGNAL(textChanged(const QString &)),
               this, SLOT(filterChanged(const QString &)));
 
-    updateWidgets();
+    currentItemChanged();
+
+    pd_ui_->profileTreeView->setFocus();
 }
 
 ProfileDialog::~ProfileDialog()
@@ -192,14 +194,23 @@ void ProfileDialog::updateWidgets()
 
 void ProfileDialog::currentItemChanged()
 {
+    QModelIndex idx = pd_ui_->profileTreeView->currentIndex();
+    if ( idx.isValid() )
+    {
+        QModelIndex temp = sort_model_->index(idx.row(), ProfileModel::COL_PATH);
+        if ( idx.data(ProfileModel::DATA_PATH_IS_NOT_DESCRIPTION).toBool() )
+            pd_ui_->lblInfo->setUrl(QUrl::fromLocalFile(temp.data().toString()).toString());
+        else
+            pd_ui_->lblInfo->setUrl(QString());
+        pd_ui_->lblInfo->setText(temp.data().toString());
+        pd_ui_->lblInfo->setToolTip(temp.data(Qt::ToolTipRole).toString());
+    }
+
     updateWidgets();
 }
 
 void ProfileDialog::on_newToolButton_clicked()
 {
-    if ( model_->findByName(tr("New profile")) >= 0 )
-        return;
-
     pd_ui_->cmbProfileTypes->setCurrentIndex(ProfileSortModel::UserProfiles);
     sort_model_->setFilterString();
 
@@ -207,8 +218,9 @@ void ProfileDialog::on_newToolButton_clicked()
     if (ridx.isValid())
     {
         pd_ui_->profileTreeView->setCurrentIndex(ridx);
+        pd_ui_->profileTreeView->scrollTo(ridx);
         pd_ui_->profileTreeView->edit(ridx);
-        updateWidgets();
+        currentItemChanged();
     }
 }
 
@@ -217,7 +229,8 @@ void ProfileDialog::on_deleteToolButton_clicked()
     QModelIndex index = sort_model_->mapToSource(pd_ui_->profileTreeView->currentIndex());
 
     model_->deleteEntry(index);
-    updateWidgets();
+
+    currentItemChanged();
 }
 
 void ProfileDialog::on_copyToolButton_clicked()
@@ -234,20 +247,21 @@ void ProfileDialog::on_copyToolButton_clicked()
     if (ridx.isValid())
     {
         pd_ui_->profileTreeView->setCurrentIndex(sort_model_->mapFromSource(ridx));
+        pd_ui_->profileTreeView->scrollTo(sort_model_->mapFromSource(ridx));
         pd_ui_->profileTreeView->edit(sort_model_->mapFromSource(ridx));
-        updateWidgets();
+        currentItemChanged();
     }
 }
 
 void ProfileDialog::on_buttonBox_accepted()
 {
-    QModelIndex default_item = sort_model_->mapFromSource(model_->index(0, ProfileModel::COL_NAME));
-    QModelIndex index = sort_model_->mapToSource(pd_ui_->profileTreeView->currentIndex());
-    if (index.column() != ProfileModel::COL_NAME)
-        index = index.sibling(index.row(), ProfileModel::COL_NAME);
-
     bool write_recent = true;
     bool item_data_removed = false;
+
+    QModelIndex index = sort_model_->mapToSource(pd_ui_->profileTreeView->currentIndex());
+    QModelIndex default_item = sort_model_->mapFromSource(model_->index(0, ProfileModel::COL_NAME));
+    if (index.column() != ProfileModel::COL_NAME)
+        index = index.sibling(index.row(), ProfileModel::COL_NAME);
 
     if (default_item.data(ProfileModel::DATA_STATUS).toInt() == PROF_STAT_DEFAULT && model_->resetDefault())
     {
@@ -284,16 +298,15 @@ void ProfileDialog::on_buttonBox_accepted()
 
     model_->doResetModel();
 
-    const char * profile_name = Q_NULLPTR;
+    QString profileName;
     if (index.isValid() && !item_data_removed) {
-        QString profileName = model_->data(index).toString();
-        profile_name = profileName.toLatin1().data();
+        profileName = model_->data(index).toString();
     }
 
-    if (profile_exists (profile_name, FALSE) || profile_exists (profile_name, TRUE)) {
+    if (profileName.length() > 0 && model_->findByName(profileName) >= 0) {
         // The new profile exists, change.
-        wsApp->setConfigurationProfile (profile_name, FALSE);
-    } else if (!profile_exists (get_profile_name(), FALSE)) {
+        wsApp->setConfigurationProfile (profileName.toUtf8().constData(), FALSE);
+    } else if (!model_->activeProfile().isValid()) {
         // The new profile does not exist, and the previous profile has
         // been deleted.  Change to the default profile.
         wsApp->setConfigurationProfile (Q_NULLPTR, FALSE);
@@ -307,7 +320,7 @@ void ProfileDialog::on_buttonBox_helpRequested()
 
 void ProfileDialog::editingFinished()
 {
-    updateWidgets();
+    currentItemChanged();
 }
 
 void ProfileDialog::filterChanged(const QString &text)

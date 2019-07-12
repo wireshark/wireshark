@@ -202,8 +202,10 @@ QVariant ProfileModel::data(const QModelIndex &index, int role) const
         case COL_NAME:
             return QString(prof->name);
         case COL_TYPE:
-            if ( prof->is_global || prof->status == PROF_STAT_DEFAULT )
-                return tr("Global");
+            if ( prof->status == PROF_STAT_DEFAULT )
+                return tr("Default");
+            else if ( prof->is_global )
+                return tr("System");
             else
                 return tr("User");
         case COL_PATH:
@@ -222,6 +224,9 @@ QVariant ProfileModel::data(const QModelIndex &index, int role) const
                 }
             case PROF_STAT_NEW:
                 return tr("Created from default settings");
+            case PROF_STAT_CHANGED:
+                if (prof->reference)
+                    return QString("%1 %2").arg(tr("Renamed from: ")).arg(prof->reference);
             case PROF_STAT_COPY:
                 if (prof->reference)
                     return QString("%1 %2").arg(tr("Copied from: ")).arg(prof->reference);
@@ -302,10 +307,6 @@ QVariant ProfileModel::data(const QModelIndex &index, int role) const
             break;
         case PROF_STAT_NEW:
             return tr("Created from default settings");
-        case PROF_STAT_CHANGED:
-            if ( prof->reference )
-                return tr("Renamed from %1").arg(prof->reference);
-            break;
         default:
             break;
         }
@@ -333,20 +334,22 @@ QVariant ProfileModel::data(const QModelIndex &index, int role) const
     case ProfileModel::DATA_IS_SELECTED:
         {
             QModelIndex selected = activeProfile();
-            profile_def * selprof = guard(selected.row());
-            if ( selprof )
+            if ( selected.isValid() && selected.row() < profiles_.count() )
             {
-                if ( selprof->is_global != prof->is_global )
+                profile_def * selprof = guard(selected.row());
+                if ( selprof && selprof->is_global != prof->is_global )
                     return qVariantFromValue(false);
 
-                if ( strcmp(selprof->name, prof->name) == 0 )
+                if ( selprof && strcmp(selprof->name, prof->name) == 0 )
                     return qVariantFromValue(true);
             }
             return qVariantFromValue(false);
         }
 
     case ProfileModel::DATA_PATH_IS_NOT_DESCRIPTION:
-        if ( prof->status == PROF_STAT_NEW || prof->status == PROF_STAT_COPY || ( prof->status == PROF_STAT_DEFAULT && reset_default_ ) )
+        if ( prof->status == PROF_STAT_NEW || prof->status == PROF_STAT_COPY
+             || ( prof->status == PROF_STAT_DEFAULT && reset_default_ )
+             || prof->status == PROF_STAT_CHANGED )
             return qVariantFromValue(false);
         else
             return qVariantFromValue(true);
@@ -409,7 +412,7 @@ Qt::ItemFlags ProfileModel::flags(const QModelIndex &index) const
     if ( ! prof )
         return fl;
 
-    if ( index.column() == ProfileModel::COL_NAME && prof->status != PROF_STAT_DEFAULT  && ! prof->is_global && set_profile_.compare(prof->name) != 0 )
+    if ( index.column() == ProfileModel::COL_NAME && prof->status != PROF_STAT_DEFAULT  && ! prof->is_global )
         fl |= Qt::ItemIsEditable;
 
     return fl;
@@ -447,10 +450,18 @@ QList<int> ProfileModel::findAllByNameAndVisibility(QString name, bool isGlobal)
 
 QModelIndex ProfileModel::addNewProfile(QString name)
 {
-    add_to_profile_list(name.toUtf8().constData(), "", PROF_STAT_NEW, FALSE, FALSE);
+    int cnt = 1;
+    QString newName = name;
+    while(findByNameAndVisibility(newName) >= 0)
+    {
+        newName = QString("%1 %2").arg(name).arg(QString::number(cnt));
+        cnt++;
+    }
+
+    add_to_profile_list(newName.toUtf8().constData(), "", PROF_STAT_NEW, FALSE, FALSE);
     loadProfiles();
 
-    return index(findByName(name), COL_NAME);
+    return index(findByName(newName), COL_NAME);
 }
 
 QModelIndex ProfileModel::duplicateEntry(QModelIndex idx)
@@ -473,7 +484,17 @@ QModelIndex ProfileModel::duplicateEntry(QModelIndex idx)
         new_name = QString("%1 (%2)").arg(parent).arg(tr("copy"));
 
     if ( findByNameAndVisibility(new_name) >= 0 )
-        return QModelIndex();
+    {
+        int cnt = 1;
+        QString copyName = new_name;
+        while(findByNameAndVisibility(copyName) >= 0)
+        {
+            copyName = new_name;
+            copyName = copyName.replace(tr("copy"), tr("copy").append(" %1").arg(QString::number(cnt)));
+            cnt++;
+        }
+        new_name = copyName;
+    }
 
     if ( new_name.compare(QString(new_name.toUtf8().constData())) != 0 && !prof->is_global )
         return QModelIndex();

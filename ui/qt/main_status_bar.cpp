@@ -537,6 +537,7 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
 {
     ProfileModel model;
 
+    QMenu profile_menu_;
     QActionGroup global(this);
     QActionGroup user(this);
 
@@ -548,7 +549,11 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
 
         QAction * pa = Q_NULLPTR;
         QString name = idx.data().toString();
-        if ( idx.data(ProfileModel::DATA_IS_DEFAULT).toBool() || idx.data(ProfileModel::DATA_IS_GLOBAL).toBool() )
+        if ( idx.data(ProfileModel::DATA_IS_DEFAULT).toBool() )
+        {
+            pa = profile_menu_.addAction(name);
+        }
+        else if ( idx.data(ProfileModel::DATA_IS_GLOBAL).toBool() )
         {
             /* Check if this profile does not exist as user */
             if ( cnt == model.findByName(name) )
@@ -571,10 +576,9 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
         connect(pa, &QAction::triggered, this, &MainStatusBar::switchToProfile);
     }
 
-    QMenu profile_menu_;
-    profile_menu_.addActions(global.actions());
-    profile_menu_.addSeparator();
     profile_menu_.addActions(user.actions());
+    profile_menu_.addSeparator();
+    profile_menu_.addActions(global.actions());
 
     if (button == Qt::LeftButton) {
         profile_menu_.exec(global_pos);

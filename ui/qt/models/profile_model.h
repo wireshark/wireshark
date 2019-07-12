@@ -65,7 +65,10 @@ public:
         DATA_IS_DEFAULT,
         DATA_IS_GLOBAL,
         DATA_IS_SELECTED,
-        DATA_PATH_IS_NOT_DESCRIPTION
+        DATA_PATH_IS_NOT_DESCRIPTION,
+        DATA_COL_NAME,
+        DATA_COL_TYPE,
+        DATA_COL_PATH
     } data_values_;
 
     // QAbstractItemModel interface
