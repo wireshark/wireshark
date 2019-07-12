@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V15.5.0 (2019-03)
+-- 3GPP TS 36.413 V15.6.0 (2019-06)
 -- 9.3.4	Information Element Definitions
 -- **************************************************************
 --
@@ -68,6 +68,7 @@ IMPORTS
 	id-BluetoothMeasurementConfiguration,
 	id-WLANMeasurementConfiguration,
 	id-LastNG-RANPLMNIdentity,
+	id-PSCellInformation,
 	maxnoofCSGs,
 	maxnoofE-RABs,
 	maxnoofErrors,
@@ -559,8 +560,9 @@ CNTypeRestrictions-Item-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
 }
 
 CNType ::= ENUMERATED {
-	fiveGCForbiddden,
-	...
+	fiveGCForbidden,
+	...,
+	epc-Forbiddden
 }
 
 ConcurrentWarningMessageIndicator ::= ENUMERATED {
@@ -2677,6 +2679,7 @@ UserLocationInformation ::= SEQUENCE {
 }
 
 UserLocationInformation-ExtIEs S1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-PSCellInformation	CRITICALITY ignore	EXTENSION PSCellInformation			PRESENCE optional},
 	...
 }
 

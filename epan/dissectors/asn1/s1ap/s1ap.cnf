@@ -1950,6 +1950,7 @@ BluetoothMeasurementConfiguration       N s1ap.extension id-BluetoothMeasurement
 WLANMeasurementConfiguration            N s1ap.extension id-WLANMeasurementConfiguration
 NRrestrictionin5GS                      N s1ap.extension id-NRrestrictionin5GS
 PLMNidentity                            N s1ap.extension id-LastNG-RANPLMNIdentity
+PSCellInformation                       N s1ap.extension id-PSCellInformation
 
 #S1AP-ELEMENTARY-PROCEDURE
 HandoverRequired                        N s1ap.proc.imsg id-HandoverPreparation

@@ -1,4 +1,4 @@
--- 3GPP TS 36.413 V15.5.0 (2019-03)
+-- 3GPP TS 36.413 V15.6.0 (2019-06)
 -- 9.3.3	PDU Definitions
 -- **************************************************************
 --
@@ -743,7 +743,8 @@ HandoverNotifyIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-TAI								CRITICALITY ignore	TYPE TAI					PRESENCE mandatory}|
 -- Extension for Release 11 to support BBAI -- 
 	{ ID id-Tunnel-Information-for-BBF		CRITICALITY ignore	TYPE TunnelInformation		PRESENCE optional}|
-	{ ID id-LHN-ID							CRITICALITY ignore	TYPE LHN-ID					PRESENCE optional},
+	{ ID id-LHN-ID							CRITICALITY ignore	TYPE LHN-ID					PRESENCE optional}|
+	{ ID id-PSCellInformation				CRITICALITY ignore	TYPE PSCellInformation		PRESENCE optional },
 	...
 }
 
@@ -779,7 +780,8 @@ PathSwitchRequestIEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-Tunnel-Information-for-BBF		CRITICALITY ignore	TYPE TunnelInformation			PRESENCE optional}|
 	{ ID id-LHN-ID							CRITICALITY ignore	TYPE LHN-ID						PRESENCE optional}|
 	{ ID id-RRC-Resume-Cause				CRITICALITY ignore	TYPE RRC-Establishment-Cause	PRESENCE optional }|
-	{ ID id-NRUESecurityCapabilities				CRITICALITY ignore	TYPE NRUESecurityCapabilities			PRESENCE optional},
+	{ ID id-NRUESecurityCapabilities				CRITICALITY ignore	TYPE NRUESecurityCapabilities			PRESENCE optional}|
+	{ ID id-PSCellInformation				CRITICALITY ignore	TYPE PSCellInformation			PRESENCE optional },
 	...
 }
 
@@ -1679,7 +1681,8 @@ UplinkNASTransport-IEs S1AP-PROTOCOL-IES ::= {
 	{ ID id-TAI							CRITICALITY ignore	TYPE TAI							PRESENCE mandatory}|
 	{ ID id-GW-TransportLayerAddress	CRITICALITY ignore	TYPE TransportLayerAddress			PRESENCE optional}|
 	{ ID id-SIPTO-L-GW-TransportLayerAddress	CRITICALITY ignore	TYPE TransportLayerAddress	PRESENCE optional}|
-	{ ID id-LHN-ID						CRITICALITY ignore	TYPE LHN-ID							PRESENCE optional},
+	{ ID id-LHN-ID						CRITICALITY ignore	TYPE LHN-ID							PRESENCE optional}|
+	{ ID id-PSCellInformation			CRITICALITY ignore	TYPE PSCellInformation				PRESENCE optional },
 	...
 }
 -- **************************************************************
