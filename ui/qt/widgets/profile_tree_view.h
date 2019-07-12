@@ -44,6 +44,7 @@ public:
 
 Q_SIGNALS:
     void currentItemChanged();
+    void itemUpdated();
 
     // QAbstractItemView interface
 protected slots:
@@ -51,6 +52,9 @@ protected slots:
     virtual void currentChanged(const QModelIndex &current, const QModelIndex &previous);
 
     virtual void clicked(const QModelIndex &index);
+
+private:
+    ProfileTreeEditDelegate *delegate_;
 };
 
 #endif

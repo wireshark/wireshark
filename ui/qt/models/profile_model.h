@@ -71,6 +71,7 @@ public:
     virtual int rowCount(const QModelIndex & parent = QModelIndex()) const;
     virtual int columnCount(const QModelIndex & parent = QModelIndex()) const;
     virtual QVariant data(const QModelIndex & idx, int role = Qt::DisplayRole) const;
+    virtual bool setData(const QModelIndex &index, const QVariant &value, int role);
     virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 
@@ -87,6 +88,9 @@ public:
 
     GList * at(int row) const;
 
+    static bool checkNameValidity(QString name, QString *msg = Q_NULLPTR);
+    QList<int> findAllByNameAndVisibility(QString name, bool isGlobal = false);
+
 private:
     QList<profile_def *> profiles_;
     QString set_profile_;
@@ -96,10 +100,6 @@ private:
     GList * entry(profile_def *) const;
 
     int findByNameAndVisibility(QString name, bool isGlobal = false);
-
-    // QAbstractItemModel interface
-public:
-    virtual bool setData(const QModelIndex &index, const QVariant &value, int role);
 };
 
 #endif

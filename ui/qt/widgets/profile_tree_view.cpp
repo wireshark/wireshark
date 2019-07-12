@@ -46,12 +46,14 @@ void ProfileTreeEditDelegate::setEditorData(QWidget *editor, const QModelIndex &
 ProfileTreeView::ProfileTreeView(QWidget *parent) :
     QTreeView (parent)
 {
-    setItemDelegateForColumn(ProfileModel::COL_NAME, new ProfileTreeEditDelegate());
+    delegate_ = new ProfileTreeEditDelegate();
+    setItemDelegateForColumn(ProfileModel::COL_NAME, delegate_);
     setItemDelegateForColumn(ProfileModel::COL_PATH, new ProfileUrlLinkDelegate());
 
     resizeColumnToContents(ProfileModel::COL_NAME);
 
     connect(this, &QAbstractItemView::clicked, this, &ProfileTreeView::clicked);
+    connect(delegate_, SIGNAL(commitData(QWidget *)), this, SIGNAL(itemUpdated()));
 }
 
 void ProfileTreeView::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)

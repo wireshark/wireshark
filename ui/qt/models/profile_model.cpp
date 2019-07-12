@@ -168,6 +168,8 @@ int ProfileModel::columnCount(const QModelIndex &) const
 
 QVariant ProfileModel::data(const QModelIndex &index, int role) const
 {
+    QString msg;
+
     if ( ! index.isValid() || profiles_.count() <= index.row() )
         return QVariant();
 
@@ -234,18 +236,19 @@ QVariant ProfileModel::data(const QModelIndex &index, int role) const
         return font;
     }
 
-    case Qt::BackgroundRole:
+    case Qt::BackgroundColorRole:
     {
-        QBrush bgBrush;
-
-        if ( ! profile_name_is_valid(prof->name) )
-            bgBrush.setColor(ColorUtils::fromColorT(&prefs.gui_text_invalid));
+        if ( ! ProfileModel::checkNameValidity(QString(prof->name)) )
+            return ColorUtils::fromColorT(&prefs.gui_text_invalid);
 
         if ( prof->status == PROF_STAT_DEFAULT && reset_default_ )
-            bgBrush.setColor(ColorUtils::fromColorT(&prefs.gui_text_deprecated));
+            return ColorUtils::fromColorT(&prefs.gui_text_deprecated);
 
+        QList<int> rows = const_cast<ProfileModel *>(this)->findAllByNameAndVisibility(QString(prof->name), prof->is_global);
+        if ( rows.count() > 1 )
+            return ColorUtils::fromColorT(&prefs.gui_text_invalid);
 
-        return bgBrush;
+        break;
     }
 
     case Qt::ToolTipRole:
@@ -290,11 +293,8 @@ QVariant ProfileModel::data(const QModelIndex &index, int role) const
             break;
         }
 
-        if (gchar * err_msg = profile_name_is_valid(prof->name))
-        {
-            QString msg = gchar_free_to_qstring(err_msg);
+        if ( ! ProfileModel::checkNameValidity(QString(prof->name), &msg) )
             return msg;
-        }
 
         if (prof->is_global)
             return tr("This is a system provided profile.");
@@ -409,15 +409,23 @@ int ProfileModel::findByName(QString name)
 
 int ProfileModel::findByNameAndVisibility(QString name, bool isGlobal)
 {
-    int row = -1;
-    for ( int cnt = 0; cnt < profiles_.count() && row < 0; cnt++ )
+    QList<int> result = findAllByNameAndVisibility(name, isGlobal);
+    return result.count() == 0 ? -1 : result.at(0);
+}
+
+QList<int> ProfileModel::findAllByNameAndVisibility(QString name, bool isGlobal)
+{
+    QList<int> result;
+
+    for ( int cnt = 0; cnt < profiles_.count(); cnt++ )
     {
         profile_def * prof = profiles_.at(cnt);
         if ( prof && static_cast<bool>(prof->is_global) == isGlobal && name.compare(prof->name) == 0 )
-            row = cnt;
+            result << cnt;
     }
 
-    return row;
+    return result;
+
 }
 
 QModelIndex ProfileModel::addNewProfile(QString name)
@@ -487,8 +495,8 @@ void ProfileModel::deleteEntry(QModelIndex idx)
         GList * fl_entry = entry(prof);
         emit beginRemoveRows(QModelIndex(), idx.row(), idx.row());
         remove_from_profile_list(fl_entry);
-        loadProfiles();
         emit endRemoveRows();
+        loadProfiles();
     }
 }
 
@@ -540,6 +548,32 @@ bool ProfileModel::setData(const QModelIndex &idx, const QVariant &value, int ro
     }
 
     loadProfiles();
+
+    return true;
+}
+
+bool ProfileModel::checkNameValidity(QString name, QString *msg)
+{
+    QString message;
+
+    QString invalid_dir_chars("\\/:*?\"<>|");
+    bool invalid = false;
+    for ( int cnt = 0; cnt < invalid_dir_chars.length() && ! invalid; cnt++ )
+    {
+        if ( name.contains(invalid_dir_chars[cnt]) )
+            invalid = true;
+    }
+    if ( invalid )
+        message = tr("A profile must not contain any of the following characters: %1").arg(invalid_dir_chars);
+
+    if ( message.isEmpty() && ( name.startsWith('.') || name.endsWith('.') ) )
+        message = tr("A profile must not start or end with a period (.)");
+
+    if (! message.isEmpty()) {
+        if (msg)
+            msg->append(message);
+        return false;
+    }
 
     return true;
 }

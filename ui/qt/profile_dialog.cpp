@@ -70,8 +70,8 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
     connect(pd_ui_->profileTreeView, &ProfileTreeView::currentItemChanged,
             this, &ProfileDialog::currentItemChanged);
 
-    connect(pd_ui_->profileTreeView->itemDelegate(), SIGNAL(closeEditor(QWidget*, QAbstractItemDelegate::EndEditHint)),
-            this, SLOT(editingFinished()));
+    connect(pd_ui_->profileTreeView, &ProfileTreeView::itemUpdated,
+            this, &ProfileDialog::editingFinished);
 
     /* Select the row for the currently selected profile or the first row if non is selected*/
     selectProfile();
@@ -155,9 +155,8 @@ void ProfileDialog::updateWidgets()
             QModelIndex idx = model_->index(row, ProfileModel::COL_NAME);
             QString name = idx.data().toString();
 
-            if (gchar * err_msg = profile_name_is_valid(name.toLatin1().data()))
+            if ( ! ProfileModel::checkNameValidity(name) )
             {
-                pd_ui_->infoLabel->setText(gchar_free_to_qstring(err_msg));
                 enable_ok = false;
                 continue;
             }
@@ -165,13 +164,12 @@ void ProfileDialog::updateWidgets()
             if ( idx != index && idx.data().toString().compare(index.data().toString()) == 0 )
             {
                 if (idx.data(ProfileModel::DATA_IS_GLOBAL).toBool() == index.data(ProfileModel::DATA_IS_GLOBAL).toBool())
-                {
-                    int status = index.data(ProfileModel::DATA_STATUS).toInt();
-                    if (status != PROF_STAT_DEFAULT && status != PROF_STAT_EXISTS)
-                        pd_ui_->infoLabel->setText(tr("A profile already exists with this name"));
                     enable_ok = false;
-                }
             }
+
+            QList<int> rows = model_->findAllByNameAndVisibility(name, idx.data(ProfileModel::DATA_IS_GLOBAL).toBool());
+            if ( rows.count() > 1 )
+                enable_ok = false;
         }
     }
 
@@ -198,6 +196,7 @@ void ProfileDialog::on_newToolButton_clicked()
     {
         pd_ui_->profileTreeView->setCurrentIndex(ridx);
         pd_ui_->profileTreeView->edit(ridx);
+        updateWidgets();
     }
 }
 
@@ -206,6 +205,7 @@ void ProfileDialog::on_deleteToolButton_clicked()
     QModelIndex index = sort_model_->mapToSource(pd_ui_->profileTreeView->currentIndex());
 
     model_->deleteEntry(index);
+    updateWidgets();
 }
 
 void ProfileDialog::on_copyToolButton_clicked()
@@ -223,6 +223,7 @@ void ProfileDialog::on_copyToolButton_clicked()
     {
         pd_ui_->profileTreeView->setCurrentIndex(sort_model_->mapFromSource(ridx));
         pd_ui_->profileTreeView->edit(sort_model_->mapFromSource(ridx));
+        updateWidgets();
     }
 }
 
