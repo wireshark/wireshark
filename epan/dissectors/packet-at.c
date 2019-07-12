@@ -473,8 +473,8 @@ static const value_string csq_rssi_vals[] = {
 extern value_string_ext csd_data_rate_vals_ext;
 
 typedef struct _at_cmd_t {
-    const guint8 *name;
-    const guint8 *long_name;
+    const gchar *name;
+    const gchar *long_name;
 
     gboolean (*check_command)(gint role, guint16 type);
     gboolean (*dissect_parameter)(tvbuff_t *tvb, packet_info *pinfo,
@@ -484,17 +484,12 @@ typedef struct _at_cmd_t {
 } at_cmd_t;
 
 
-static gchar* get_string_parameter(guint8 *parameter_stream, gint parameter_length)
-{
-    return wmem_strndup(wmem_packet_scope(), parameter_stream, parameter_length);
-}
-
 static guint32 get_uint_parameter(guint8 *parameter_stream, gint parameter_length)
 {
     guint32      value;
-    guint8      *val;
+    gchar       *val;
 
-    val = (guint8 *) wmem_alloc(wmem_packet_scope(), parameter_length + 1);
+    val = (gchar*) wmem_alloc(wmem_packet_scope(), parameter_length + 1);
     memcpy(val, parameter_stream, parameter_length);
     val[parameter_length] = '\0';
     value = (guint32) g_ascii_strtoull(val, NULL, 10);
@@ -1378,7 +1373,7 @@ dissect_cpin_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             proto_item_append_text(pitem, " (MT is not pending for any password)");
         }
         else {
-            pin_type = get_string_parameter(parameter_stream, parameter_length);
+            pin_type = wmem_strndup(wmem_packet_scope(), parameter_stream, parameter_length);
             proto_item_append_text(pitem, " (MT is waiting %s to be given)", pin_type);
         }
         return TRUE;
@@ -1517,7 +1512,7 @@ dissect_csim_parameter(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                     expert_add_info(pinfo, pitem, &ei_csim_invalid_hex);
                     return TRUE;
                 }
-                sscanf(pos, "%2hhx", &(final_arr[i]));
+                sscanf((char *)pos, "%2hhx", &(final_arr[i]));
                 pos += 2;
             }
             final_tvb = tvb_new_child_real_data(tvb, final_arr, bytes_count, bytes_count);
@@ -1727,8 +1722,8 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree      *parameters_item = NULL;
     proto_item      *parameters_tree = NULL;
     guint8          *col_str = NULL;
-    guint8          *at_stream;
-    guint8          *at_command = NULL;
+    gchar           *at_stream;
+    gchar           *at_command = NULL;
     gint             i_char = 0;
     guint            i_char_fix = 0;
     gint             length;
@@ -2106,9 +2101,9 @@ static gboolean is_padded(tvbuff_t *tvb, gint captured_len, gint first_pad_offse
 /* Experimental approach based upon the one used for PPP */
 static gboolean heur_dissect_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-    const gchar at_magic1[2] = {0x0d, 0x0a};
-    const gchar at_magic2[3] = {0x0d, 0x0d, 0x0a};
-    const gchar at_magic3[2] = {'A', 'T'};
+    const guint8 at_magic1[2] = {0x0d, 0x0a};
+    const guint8 at_magic2[3] = {0x0d, 0x0d, 0x0a};
+    const guint8 at_magic3[2] = {0x41, 0x54}; /* 'A' 'T' */
     gint len, allwd_chars_len;
     tvbuff_t *tvb_no_padding;
 
