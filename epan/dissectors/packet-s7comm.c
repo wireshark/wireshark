@@ -13,6 +13,7 @@
 #include "config.h"
 
 #include <epan/packet.h>
+#include <epan/reassemble.h>
 #include <stdlib.h>
 #include <wsutil/strtoi.h>
 #include <epan/expert.h>
@@ -1533,6 +1534,10 @@ static const int *s7comm_data_blockcontrol_status_fields[] = {
 
 static gint ett_s7comm_plcfilename = -1;
 static gint hf_s7comm_data_ncprg_unackcount = -1;
+static gint hf_s7comm_data_ncprg_filelength = -1;
+static gint hf_s7comm_data_ncprg_filetime = -1;
+static gint hf_s7comm_data_ncprg_filepath = -1;
+static gint hf_s7comm_data_ncprg_filedata = -1;
 
 /* Variable status */
 static gint hf_s7comm_varstat_data_type = -1;                /* Type of data, 1 byte, stringlist userdata_prog_vartab_type_names */
@@ -1554,6 +1559,7 @@ static gint hf_s7comm_cycl_jobid = -1;
 /* PBC, Programmable Block Functions */
 static gint hf_s7comm_pbc_unknown = -1;                     /* unknown, 1 byte */
 static gint hf_s7comm_pbc_r_id = -1;                        /* Request ID R_ID, 4 bytes as hex */
+static gint hf_s7comm_pbc_len = -1;
 
 /* Alarm messages */
 static gint hf_s7comm_cpu_alarm_message_item = -1;
@@ -2282,6 +2288,45 @@ static const value_string modetrans_param_subfunc_names[] = {
     { 12,                                   "UPDATE" },
     { 0,                                    NULL }
 };
+
+/* These fields used when reassembling S7COMM fragments */
+static gint hf_s7comm_fragments = -1;
+static gint hf_s7comm_fragment = -1;
+static gint hf_s7comm_fragment_overlap = -1;
+static gint hf_s7comm_fragment_overlap_conflict = -1;
+static gint hf_s7comm_fragment_multiple_tails = -1;
+static gint hf_s7comm_fragment_too_long_fragment = -1;
+static gint hf_s7comm_fragment_error = -1;
+static gint hf_s7comm_fragment_count = -1;
+static gint hf_s7comm_reassembled_in = -1;
+static gint hf_s7comm_reassembled_length = -1;
+static gint ett_s7comm_fragment = -1;
+static gint ett_s7comm_fragments = -1;
+
+static const fragment_items s7comm_frag_items = {
+    /* Fragment subtrees */
+    &ett_s7comm_fragment,
+    &ett_s7comm_fragments,
+    /* Fragment fields */
+    &hf_s7comm_fragments,
+    &hf_s7comm_fragment,
+    &hf_s7comm_fragment_overlap,
+    &hf_s7comm_fragment_overlap_conflict,
+    &hf_s7comm_fragment_multiple_tails,
+    &hf_s7comm_fragment_too_long_fragment,
+    &hf_s7comm_fragment_error,
+    &hf_s7comm_fragment_count,
+    /* Reassembled in field */
+    &hf_s7comm_reassembled_in,
+    /* Reassembled length field */
+    &hf_s7comm_reassembled_length,
+    /* Reassembled data field */
+    NULL,
+    /* Tag */
+    "S7COMM fragments"
+};
+
+static reassembly_table s7comm_reassembly_table;
 
 /* These are the ids of the subtrees that we are creating */
 static gint ett_s7comm = -1;                                        /* S7 communication tree, parent of all other subtree */
@@ -3582,7 +3627,7 @@ static guint32
 s7comm_decode_ud_prog_reqdiagdata(tvbuff_t *tvb,
                                   proto_tree *data_tree,
                                   guint8 subfunc,             /* Subfunction */
-                                  guint32 offset)             /* Offset on data part +4 */
+                                  guint32 offset)
 {
     proto_item *item = NULL;
     proto_tree *item_tree = NULL;
@@ -3850,13 +3895,46 @@ s7comm_decode_ud_prog_vartab_res_item(tvbuff_t *tvb,
 static guint32
 s7comm_decode_ud_security_subfunc(tvbuff_t *tvb,
                                   proto_tree *data_tree,
-                                  guint16 dlength,            /* length of data part given in header */
-                                  guint32 offset)             /* Offset on data part +4 */
+                                  guint32 dlength,
+                                  guint32 offset)
 {
     /* Display dataset as raw bytes. Maybe this part can be extended with further knowledge. */
-    proto_tree_add_item(data_tree, hf_s7comm_userdata_data, tvb, offset, dlength - 4, ENC_NA);
+    proto_tree_add_item(data_tree, hf_s7comm_userdata_data, tvb, offset, dlength, ENC_NA);
     offset += dlength;
 
+    return offset;
+}
+
+/*******************************************************************************************************
+ *
+ * PDU Type: User Data -> Function group 6 -> PBC, Programmable Block Functions (e.g. BSEND/BRECV), before reassembly
+ *
+ *******************************************************************************************************/
+static guint32
+s7comm_decode_ud_pbc_pre_reass(tvbuff_t *tvb,
+                               packet_info *pinfo,
+                               proto_tree *data_tree,
+                               guint8 type,                /* Type of data (request/response) */
+                               guint16 *dlength,
+                               guint32 *r_id,              /* R_ID of the PBC communication */
+                               guint32 offset)
+{
+    if ((type == S7COMM_UD_TYPE_REQ || type == S7COMM_UD_TYPE_RES) && (*dlength >= 8)) {
+        proto_tree_add_item(data_tree, hf_s7comm_item_varspec, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        proto_tree_add_item(data_tree, hf_s7comm_item_varspec_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        proto_tree_add_item(data_tree, hf_s7comm_item_syntax_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        /* 0x00 when passive partners is sending, 0xcc when active partner is sending? */
+        proto_tree_add_item(data_tree, hf_s7comm_pbc_unknown, tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset += 1;
+        proto_tree_add_item(data_tree, hf_s7comm_pbc_r_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+        *r_id = tvb_get_ntohl(tvb, offset);
+        col_append_fstr(pinfo->cinfo, COL_INFO, " R_ID=0x%X", *r_id);
+        offset += 4;
+        *dlength -= 8;
+    }
     return offset;
 }
 
@@ -3868,29 +3946,38 @@ s7comm_decode_ud_security_subfunc(tvbuff_t *tvb,
 static guint32
 s7comm_decode_ud_pbc_subfunc(tvbuff_t *tvb,
                              proto_tree *data_tree,
-                             guint16 dlength,                   /* length of data part given in header */
-                             guint32 offset)                    /* Offset on data part +4 */
+                             guint32 dlength,
+                             guint32 offset)
 {
-    proto_tree_add_item(data_tree, hf_s7comm_item_varspec, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
-    proto_tree_add_item(data_tree, hf_s7comm_item_varspec_length, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
-    proto_tree_add_item(data_tree, hf_s7comm_item_syntax_id, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
-    proto_tree_add_item(data_tree, hf_s7comm_pbc_unknown, tvb, offset, 1, ENC_BIG_ENDIAN);
-    offset += 1;
-    proto_tree_add_item(data_tree, hf_s7comm_pbc_r_id, tvb, offset, 4, ENC_BIG_ENDIAN);
-    offset += 4;
-    /* Only in the first telegram of possible several segments, an int16 of full data length is following.
-     * As the dissector can't check this, don't display the information
-     * and display the data as payload bytes.
-     */
-    dlength = dlength - 4 - 8;  /* 4 bytes data header, 8 bytes varspec */
-    if (dlength > 0) {
-        proto_tree_add_item(data_tree, hf_s7comm_userdata_data, tvb, offset, dlength, ENC_NA);
-        offset += dlength;
-    }
+    proto_tree_add_item(data_tree, hf_s7comm_pbc_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+    proto_tree_add_item(data_tree, hf_s7comm_userdata_data, tvb, offset, dlength - 2, ENC_NA);
+    offset += (dlength - 2);
 
+    return offset;
+}
+
+/*******************************************************************************************************
+ *
+ * PDU Type: User Data -> NC programming functions (file download/upload), before reassembly
+ *
+ *******************************************************************************************************/
+static guint32
+s7comm_decode_ud_ncprg_pre_reass(tvbuff_t *tvb,
+                                 proto_tree *data_tree,
+                                 guint8 type,                /* Type of data (request/response) */
+                                 guint8 subfunc,             /* Subfunction */
+                                 guint16 *dlength,
+                                 guint32 offset)
+{
+    if ((type == S7COMM_UD_TYPE_NCRES || type == S7COMM_UD_TYPE_NCPUSH) &&
+        (subfunc == S7COMM_NCPRG_FUNCDOWNLOADBLOCK ||
+         subfunc == S7COMM_NCPRG_FUNCUPLOAD ||
+         subfunc == S7COMM_NCPRG_FUNCSTARTUPLOAD)) {
+        proto_tree_add_item(data_tree, hf_s7comm_data_blockcontrol_unknown1, tvb, offset, 2, ENC_NA);
+        offset += 2;
+        *dlength -= 2;
+    }
     return offset;
 }
 
@@ -3905,12 +3992,15 @@ s7comm_decode_ud_ncprg_subfunc(tvbuff_t *tvb,
                                proto_tree *data_tree,
                                guint8 type,                /* Type of data (request/response) */
                                guint8 subfunc,             /* Subfunction */
-                               guint16 dlength,            /* length of data part given in header */
-                               guint32 offset)             /* Offset on data part +4 */
+                               guint32 dlength,
+                               guint32 offset)
 {
     const guint8 *str_filename;
+    guint32 string_end_offset;
+    guint32 string_len;
+    guint32 filelength;
+    guint32 start_offset;
 
-    dlength -= 4;   /* There are always 4 bytes header information in data part */
     if (dlength >= 2) {
         if (type == S7COMM_UD_TYPE_NCREQ && subfunc == S7COMM_NCPRG_FUNCREQUESTDOWNLOAD) {
             proto_tree_add_item_ret_string(data_tree, hf_s7comm_data_blockcontrol_filename, tvb, offset, dlength,
@@ -3936,13 +4026,33 @@ s7comm_decode_ud_ncprg_subfunc(tvbuff_t *tvb,
         } else if (type == S7COMM_UD_TYPE_NCPUSH && (subfunc == S7COMM_NCPRG_FUNCCONTUPLOAD || subfunc == S7COMM_NCPRG_FUNCCONTDOWNLOAD)) {
                 proto_tree_add_item(data_tree, hf_s7comm_data_ncprg_unackcount, tvb, offset, 1, ENC_NA);
                 offset += 1;
-                /* Guess: If 1, then this is the last telegram of up/download, otherwise 0 */
                 proto_tree_add_item(data_tree, hf_s7comm_data_blockcontrol_unknown1, tvb, offset, 1, ENC_NA);
                 offset += 1;
+        } else if ((type == S7COMM_UD_TYPE_NCRES || type == S7COMM_UD_TYPE_NCPUSH) &&
+                (subfunc == S7COMM_NCPRG_FUNCDOWNLOADBLOCK ||
+                 subfunc == S7COMM_NCPRG_FUNCUPLOAD ||
+                 subfunc == S7COMM_NCPRG_FUNCSTARTUPLOAD)) {
+            start_offset = offset;
+            /* file length may be contain only spaces when downloading a directory */
+            proto_tree_add_item(data_tree, hf_s7comm_data_ncprg_filelength, tvb, offset, 8, ENC_ASCII|ENC_NA);
+            offset += 8;
+            proto_tree_add_item(data_tree, hf_s7comm_data_ncprg_filetime, tvb, offset, 16, ENC_ASCII|ENC_NA);
+            offset += 16;
+            /* File path and file data aren't always there */
+            if (dlength > 24) {
+                if (subfunc == S7COMM_NCPRG_FUNCDOWNLOADBLOCK || subfunc == S7COMM_NCPRG_FUNCSTARTUPLOAD || subfunc == S7COMM_NCPRG_FUNCUPLOAD) {
+                    string_end_offset = tvb_find_guint8(tvb, offset, dlength-8-16, 0x0a);
+                    if (string_end_offset > 0) {
+                        string_len = string_end_offset - offset + 1;    /* include 0x0a */
+                        proto_tree_add_item(data_tree, hf_s7comm_data_ncprg_filepath, tvb, offset, string_len, ENC_ASCII|ENC_NA);
+                        offset += string_len;
+                        filelength = dlength - (offset - start_offset);
+                        proto_tree_add_item(data_tree, hf_s7comm_data_ncprg_filedata, tvb, offset, filelength, ENC_NA);
+                        offset += filelength;
+                    }
+                }
+            }
         } else {
-            /* There is always a 2 bytes header before the data.
-             * Guess: first byte is used as "data unit reference"
-             */
             proto_tree_add_item(data_tree, hf_s7comm_data_blockcontrol_unknown1, tvb, offset, 2, ENC_NA);
             offset += 2;
             dlength -= 2;
@@ -3965,8 +4075,8 @@ s7comm_decode_message_service(tvbuff_t *tvb,
                               packet_info *pinfo,
                               proto_tree *data_tree,
                               guint8 type,                /* Type of data (request/response) */
-                              guint16 dlength,            /* length of data part given in header */
-                              guint32 offset)             /* Offset on data part +4 */
+                              guint32 dlength,
+                              guint32 offset)
 {
     guint8 events;
     guint8 almtype;
@@ -4037,7 +4147,7 @@ s7comm_decode_ud_cpu_alarm_main(tvbuff_t *tvb,
                                 proto_tree *data_tree,
                                 guint8 type,                /* Type of data (request/response) */
                                 guint8 subfunc,             /* Subfunction */
-                                guint32 offset)             /* Offset on data part +4 */
+                                guint32 offset)
 {
     guint32 start_offset;
     guint32 asc_start_offset;
@@ -4217,6 +4327,7 @@ s7comm_decode_ud_cpu_alarm_main(tvbuff_t *tvb,
     proto_item_set_len(msg_item_tree, offset - start_offset);
     return offset;
 }
+
 /*******************************************************************************************************
  *
  * PDU Type: User Data -> Function group 4 -> alarm query response
@@ -4224,9 +4335,8 @@ s7comm_decode_ud_cpu_alarm_main(tvbuff_t *tvb,
  *******************************************************************************************************/
 static guint32
 s7comm_decode_ud_cpu_alarm_query_response(tvbuff_t *tvb,
-                                          packet_info *pinfo,
                                           proto_tree *data_tree,
-                                          guint32 offset)             /* Offset on data part +4 */
+                                          guint32 offset)
 {
     proto_item *msg_item = NULL;
     proto_tree *msg_item_tree = NULL;
@@ -4242,52 +4352,26 @@ s7comm_decode_ud_cpu_alarm_query_response(tvbuff_t *tvb,
     guint8 alarmtype;
     guint16 complete_length;
     gint32 remaining_length;
-    guint8 n_blocks;
-    guint8 func;
+    gboolean cont;
 
     start_offset = offset;
     msg_item = proto_tree_add_item(data_tree, hf_s7comm_cpu_alarm_message_item, tvb, offset, 0, ENC_NA);
     msg_item_tree = proto_item_add_subtree(msg_item, ett_s7comm_cpu_alarm_message);
-    /* An alarm response may take more that one response telegram. If it's split into many telegrams,
-     * then the inner telegrams begins with the dataset parts without any header.
-     * The last telegrams of this sequence has the first two bytes zero.
-     */
-    func = tvb_get_guint8(tvb, offset);
-    n_blocks = tvb_get_guint8(tvb, offset + 1);
-    if (func == 0) {
-        proto_tree_add_item(msg_item_tree, hf_s7comm_cpu_alarm_message_function, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
-        proto_tree_add_item(msg_item_tree, hf_s7comm_cpu_alarm_message_nr_objects, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
-        if (n_blocks == 0) {
-            col_append_str(pinfo->cinfo, COL_INFO, " [Last]");
-            proto_item_set_len(msg_item_tree, offset - start_offset);
-            return offset;
-        }
-    }
-    if (func > 0) {
-        col_append_str(pinfo->cinfo, COL_INFO, " [Continuation]");
-        complete_length = func;
-        remaining_length = (gint32)complete_length;
-        returncode = S7COMM_ITEM_RETVAL_DATA_OK;
-    } else {
-        returncode = tvb_get_guint8(tvb, offset);
-        proto_tree_add_uint(msg_item_tree, hf_s7comm_data_returncode, tvb, offset, 1, returncode);
-        offset += 1;
-        proto_tree_add_item(msg_item_tree, hf_s7comm_data_transport_size, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset += 1;
-        /* As with ALARM_S it's only possible to send one alarm description in a single response telegram,
-         * they are split into many telegrams. Therefore the complete length field is set to 0xffff.
-         * To reuse the following dissect-loop, the remaining length is set to zero.
-         */
-        complete_length = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_uint(msg_item_tree, hf_s7comm_cpu_alarm_query_completelen, tvb, offset, 2, complete_length);
-        remaining_length = (gint32)complete_length;
-        if (remaining_length == 0xffff) {
-            remaining_length = 0;
-        }
-        offset += 2;
-    }
+
+    /* Maybe this value here is something different, always 0x00 or 0x01 */
+    proto_tree_add_item(msg_item_tree, hf_s7comm_cpu_alarm_message_function, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    proto_tree_add_item(msg_item_tree, hf_s7comm_cpu_alarm_message_nr_objects, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    returncode = tvb_get_guint8(tvb, offset);
+    proto_tree_add_uint(msg_item_tree, hf_s7comm_data_returncode, tvb, offset, 1, returncode);
+    offset += 1;
+    proto_tree_add_item(msg_item_tree, hf_s7comm_data_transport_size, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+    complete_length = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_uint(msg_item_tree, hf_s7comm_cpu_alarm_query_completelen, tvb, offset, 2, complete_length);
+    remaining_length = (gint32)complete_length;
+    offset += 2;
 
     if (returncode == S7COMM_ITEM_RETVAL_DATA_OK) {
         do {
@@ -4344,7 +4428,13 @@ s7comm_decode_ud_cpu_alarm_query_response(tvbuff_t *tvb,
             }
             remaining_length = remaining_length - (offset - msg_obj_start_offset);
             proto_item_set_len(msg_obj_item_tree, offset - msg_obj_start_offset);
-        } while (remaining_length > 0);
+            /* when complete_length is 0xffff, then loop until terminating null */
+            if (complete_length == 0xffff) {
+                cont = (tvb_get_guint8(tvb, offset) > 0);
+            } else {
+                cont = (remaining_length > 0);
+            }
+        } while (cont);
     }
     proto_item_set_len(msg_item_tree, offset - start_offset);
 
@@ -4437,8 +4527,8 @@ s7comm_decode_ud_time_subfunc(tvbuff_t *tvb,
                               guint8 type,                /* Type of data (request/response) */
                               guint8 subfunc,             /* Subfunction */
                               guint8 ret_val,             /* Return value in data part */
-                              guint16 dlength,            /* length of data part given in header */
-                              guint32 offset)             /* Offset on data part +4 */
+                              guint32 dlength,
+                              guint32 offset)
 {
     gboolean know_data = FALSE;
 
@@ -4467,8 +4557,8 @@ s7comm_decode_ud_time_subfunc(tvbuff_t *tvb,
             break;
     }
 
-    if (know_data == FALSE && dlength > 4) {
-        proto_tree_add_item(data_tree, hf_s7comm_userdata_data, tvb, offset, dlength - 4, ENC_NA);
+    if (know_data == FALSE && dlength > 0) {
+        proto_tree_add_item(data_tree, hf_s7comm_userdata_data, tvb, offset, dlength, ENC_NA);
         offset += dlength;
     }
     return offset;
@@ -4487,12 +4577,11 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
                                guint8 subfunc,             /* Subfunction */
                                guint8 ret_val,             /* Return value in data part */
                                guint8 tsize,               /* transport size in data part */
-                               guint16 len,                /* length given in data part */
-                               guint16 dlength,            /* length of data part given in header */
-                               guint32 offset)             /* Offset on data part +4 */
+                               guint32 dlength,
+                               guint32 offset)
 {
-    guint16 count;
-    guint16 i;
+    guint32 count;
+    guint32 i;
     const guint8 *pBlocknumber;
     guint16 blocknumber;
     guint8 blocktype;
@@ -4509,12 +4598,12 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
          * List blocks
          */
         case S7COMM_UD_SUBF_BLOCK_LIST:
-            if (type == S7COMM_UD_TYPE_REQ) {                       /*** Request ***/
+            if (type == S7COMM_UD_TYPE_REQ) {
                 /* Is this a possible combination? Never seen it... */
 
-            } else if (type == S7COMM_UD_TYPE_RES) {                /*** Response ***/
-                count = len / 4;
-                for(i = 0; i < count; i++) {
+            } else if (type == S7COMM_UD_TYPE_RES) {
+                count = dlength / 4;
+                for (i = 0; i < count; i++) {
                     /* Insert a new tree of 4 byte length for every item */
                     item = proto_tree_add_item(data_tree, hf_s7comm_data_item, tvb, offset, 4, ENC_NA);
                     item_tree = proto_item_add_subtree(item, ett_s7comm_data_item);
@@ -4533,7 +4622,7 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
          * List blocks of type
          */
         case S7COMM_UD_SUBF_BLOCK_LISTTYPE:
-            if (type == S7COMM_UD_TYPE_REQ) {                       /*** Request ***/
+            if (type == S7COMM_UD_TYPE_REQ) {
                 if (tsize != S7COMM_DATA_TRANSPORT_SIZE_NULL) {
                     blocktype16 = tvb_get_ntohs(tvb, offset);
                     itemadd = proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_block_type, tvb, offset, 2, ENC_ASCII|ENC_NA);
@@ -4546,11 +4635,11 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
                 }
                 know_data = TRUE;
 
-            }else if (type == S7COMM_UD_TYPE_RES) {                 /*** Response ***/
+            } else if (type == S7COMM_UD_TYPE_RES) {
                 if (tsize != S7COMM_DATA_TRANSPORT_SIZE_NULL) {
-                    count = len / 4;
+                    count = dlength / 4;
 
-                    for(i = 0; i < count; i++) {
+                    for (i = 0; i < count; i++) {
                         /* Insert a new tree of 4 byte length for every item */
                         item = proto_tree_add_item(data_tree, hf_s7comm_data_item, tvb, offset, 4, ENC_NA);
                         item_tree = proto_item_add_subtree(item, ett_s7comm_data_item);
@@ -4572,7 +4661,7 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
          * Get block infos
          */
         case S7COMM_UD_SUBF_BLOCK_BLOCKINFO:
-            if (type == S7COMM_UD_TYPE_REQ) {                       /*** Request ***/
+            if (type == S7COMM_UD_TYPE_REQ) {
                 if (tsize != S7COMM_DATA_TRANSPORT_SIZE_NULL) {
                     gint32 num = -1;
                     gboolean num_valid;
@@ -4602,7 +4691,7 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
                 }
                 know_data = TRUE;
 
-            }else if (type == S7COMM_UD_TYPE_RES) {             /*** Response ***/
+            } else if (type == S7COMM_UD_TYPE_RES) {
                 /* 78 Bytes */
                 if (ret_val == S7COMM_ITEM_RETVAL_DATA_OK) {
                     itemadd = proto_tree_add_item(data_tree, hf_s7comm_ud_blockinfo_block_type, tvb, offset, 2, ENC_ASCII|ENC_NA);
@@ -4677,8 +4766,8 @@ s7comm_decode_ud_block_subfunc(tvbuff_t *tvb,
         default:
             break;
     }
-    if (know_data == FALSE && dlength > 4) {
-        proto_tree_add_item(data_tree, hf_s7comm_userdata_data, tvb, offset, dlength - 4, ENC_NA);
+    if (know_data == FALSE && dlength > 0) {
+        proto_tree_add_item(data_tree, hf_s7comm_userdata_data, tvb, offset, dlength, ENC_NA);
         offset += dlength;
     }
     return offset;
@@ -4696,8 +4785,8 @@ s7comm_decode_ud_cyclic_subfunc(tvbuff_t *tvb,
                                 proto_tree *data_tree,
                                 guint8 type,                /* Type of data (request/response) */
                                 guint8 subfunc,             /* Subfunction */
-                                guint16 dlength,            /* length of data part given in header */
-                                guint32 offset)             /* Offset on data part +4 */
+                                guint32 dlength,
+                                guint32 offset)
 {
     gboolean know_data = FALSE;
     guint32 offset_old;
@@ -4753,8 +4842,8 @@ s7comm_decode_ud_cyclic_subfunc(tvbuff_t *tvb,
             break;
     }
 
-    if (know_data == FALSE && dlength > 4) {
-        proto_tree_add_item(data_tree, hf_s7comm_userdata_data, tvb, offset, dlength - 4, ENC_NA);
+    if (know_data == FALSE && dlength > 0) {
+        proto_tree_add_item(data_tree, hf_s7comm_userdata_data, tvb, offset, dlength, ENC_NA);
         offset += dlength;
     }
     return offset;
@@ -4770,8 +4859,8 @@ s7comm_decode_ud_prog_subfunc(tvbuff_t *tvb,
                               proto_tree *data_tree,
                               guint8 type,                /* Type of data (request/response) */
                               guint8 subfunc,             /* Subfunction */
-                              guint16 dlength,            /* length of data part given in header */
-                              guint32 offset)             /* Offset on data part +4 */
+                              guint32 dlength,
+                              guint32 offset)
 {
     gboolean know_data = FALSE;
 
@@ -4844,9 +4933,195 @@ s7comm_decode_ud_prog_subfunc(tvbuff_t *tvb,
             }
     }
 
-    if (know_data == FALSE && dlength > 4) {
-        proto_tree_add_item(data_tree, hf_s7comm_userdata_data, tvb, offset, dlength - 4, ENC_NA);
+    if (know_data == FALSE && dlength > 0) {
+        proto_tree_add_item(data_tree, hf_s7comm_userdata_data, tvb, offset, dlength, ENC_NA);
         offset += dlength;
+    }
+    return offset;
+}
+/*******************************************************************************************************
+ *
+ * PDU Type: User Data: Data part and reassembly
+ *
+ *******************************************************************************************************/
+static guint32
+s7comm_decode_ud_data(tvbuff_t *tvb,
+                      packet_info *pinfo,
+                      proto_tree *tree,
+                      guint16 dlength,
+                      guint8 type,
+                      guint8 funcgroup,
+                      guint8 subfunc,
+                      guint8 seq_num,
+                      guint8 data_unit_ref,
+                      guint8 last_data_unit,
+                      guint32 offset)
+{
+    proto_item *item = NULL;
+    proto_tree *data_tree = NULL;
+    guint8 tsize;
+    guint16 len;
+    guint8 ret_val;
+    guint32 length_rem = 0;
+    gboolean save_fragmented;
+    guint32 frag_id = 0;
+    gboolean more_frags = FALSE;
+    gboolean is_fragmented = FALSE;
+    tvbuff_t* new_tvb = NULL;
+    tvbuff_t* next_tvb = NULL;
+    fragment_head *fd_head;
+    gchar str_fragadd[32];
+
+    /* The first 4 bytes of the data part of a userdata telegram are the same for all types.
+     * This is also the minumum length of the data part.
+     */
+    if (dlength >= 4) {
+        item = proto_tree_add_item(tree, hf_s7comm_data, tvb, offset, dlength, ENC_NA);
+        data_tree = proto_item_add_subtree(item, ett_s7comm_data);
+
+        ret_val = tvb_get_guint8(tvb, offset);
+        proto_tree_add_uint(data_tree, hf_s7comm_data_returncode, tvb, offset, 1, ret_val);
+        offset += 1;
+        /* Not definitely known part, kind of "transport size"? constant 0x09, 1 byte
+         * The position is the same as in a data response/write telegram,
+         */
+        tsize = tvb_get_guint8(tvb, offset);
+        proto_tree_add_uint(data_tree, hf_s7comm_data_transport_size, tvb, offset, 1, tsize);
+        offset += 1;
+        len = tvb_get_ntohs(tvb, offset);
+        proto_tree_add_uint(data_tree, hf_s7comm_data_length, tvb, offset, 2, len);
+        offset += 2;
+
+        if (len >= 2) {
+            more_frags = (last_data_unit == S7COMM_UD_LASTDATAUNIT_NO);
+            /* Some packets have an additional header before the payload, which must be
+             * extracted from the data before reassembly.
+             */
+            switch (funcgroup) {
+                case S7COMM_UD_FUNCGROUP_NCPRG:
+                    offset = s7comm_decode_ud_ncprg_pre_reass(tvb, data_tree, type, subfunc, &len, offset);
+                    /* Unfortunately on NC programming the first PDU is always shown as reassembled also when not fragmented,
+                     * because data_unit_ref may overflow and start again at 0 on big file transfers.
+                     */
+                    is_fragmented = TRUE;
+                    frag_id = seq_num;
+                    break;
+                case S7COMM_UD_FUNCGROUP_PBC:
+                    /* The R_ID is used for fragment identification */
+                    offset = s7comm_decode_ud_pbc_pre_reass(tvb, pinfo, data_tree, type, &len, &frag_id, offset);
+                    is_fragmented = data_unit_ref > 0 || seq_num > 0;
+                    break;
+                default:
+                    is_fragmented = (data_unit_ref > 0);
+                    frag_id = data_unit_ref;
+                    break;
+            }
+            /* Reassembly of fragmented data part */
+            save_fragmented = pinfo->fragmented;
+            if (is_fragmented) {            /* fragmented */
+                pinfo->fragmented = TRUE;
+                /* NC programming uses a different method of fragment indication. The sequence number is used as reference-id,
+                 * the data unit reference number is increased with every packet, as the sender does not need to wait for
+                 * the acknowledge of the packet. Also different in NC programming is, that also when a packet is not
+                 * fragmented, data_unit_ref is > 0 and "reassembled" would be displayed even when not fragmented (count number of fragments?)
+                 * Using fragment number does not work here, as it's only one byte. And if there are more than 255 fragments this would fail.
+                 */
+                fd_head = fragment_add_seq_next(&s7comm_reassembly_table,
+                                                tvb, offset, pinfo,
+                                                frag_id,               /* ID for fragments belonging together */
+                                                NULL,                  /* void *data */
+                                                len,                   /* fragment length - to the end */
+                                                more_frags);           /* More fragments? */
+                g_snprintf(str_fragadd, sizeof(str_fragadd), " id=%d", frag_id);
+                new_tvb = process_reassembled_data(tvb, offset, pinfo,
+                    "Reassembled S7COMM", fd_head, &s7comm_frag_items,
+                    NULL, tree);
+                if (new_tvb) { /* take it all */
+                    /* add reassembly info only when there's more than one fragment */
+                    if (fd_head && fd_head->next) {
+                        col_append_fstr(pinfo->cinfo, COL_INFO, " (S7COMM reassembled%s)", str_fragadd);
+                        proto_item_append_text(data_tree, " (S7COMM reassembled%s)", str_fragadd);
+                    }
+                    next_tvb = new_tvb;
+                    offset = 0;
+                } else { /* make a new subset */
+                    next_tvb = tvb_new_subset_length_caplen(tvb, offset, -1, -1);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, " (S7COMM fragment%s)", str_fragadd);
+                    proto_item_append_text(data_tree, " (S7COMM fragment%s)", str_fragadd);
+                    offset = 0;
+                }
+            } else { /* Not fragmented */
+                next_tvb = tvb;
+            }
+            pinfo->fragmented = save_fragmented;
+            length_rem = tvb_reported_length_remaining(next_tvb, offset);
+            /* TODO: PBC telegrams say "Last data unit = no" and data_unit_ref=0 and not fragmented */
+            if (last_data_unit == S7COMM_UD_LASTDATAUNIT_YES && length_rem > 0) {
+                switch (funcgroup) {
+                    case S7COMM_UD_FUNCGROUP_PROG:
+                        offset = s7comm_decode_ud_prog_subfunc(next_tvb, data_tree, type, subfunc, length_rem, offset);
+                        break;
+                    case S7COMM_UD_FUNCGROUP_CYCLIC:
+                        offset = s7comm_decode_ud_cyclic_subfunc(next_tvb, pinfo, seq_num, data_tree, type, subfunc, length_rem, offset);
+                        break;
+                    case S7COMM_UD_FUNCGROUP_BLOCK:
+                        offset = s7comm_decode_ud_block_subfunc(next_tvb, pinfo, data_tree, type, subfunc, ret_val, tsize, length_rem, offset);
+                        break;
+                    case S7COMM_UD_FUNCGROUP_CPU:
+                        switch (subfunc) {
+                            case S7COMM_UD_SUBF_CPU_READSZL:
+                                offset = s7comm_decode_ud_cpu_szl_subfunc(next_tvb, pinfo, data_tree, type, ret_val, length_rem, offset);
+                                break;
+                            case S7COMM_UD_SUBF_CPU_NOTIFY_IND:
+                            case S7COMM_UD_SUBF_CPU_NOTIFY8_IND:
+                            case S7COMM_UD_SUBF_CPU_ALARMSQ_IND:
+                            case S7COMM_UD_SUBF_CPU_ALARMS_IND:
+                            case S7COMM_UD_SUBF_CPU_SCAN_IND:
+                            case S7COMM_UD_SUBF_CPU_ALARMACK:
+                            case S7COMM_UD_SUBF_CPU_ALARMACK_IND:
+                            case S7COMM_UD_SUBF_CPU_ALARM8_IND:
+                            case S7COMM_UD_SUBF_CPU_ALARM8LOCK:
+                            case S7COMM_UD_SUBF_CPU_ALARM8LOCK_IND:
+                            case S7COMM_UD_SUBF_CPU_ALARM8UNLOCK:
+                            case S7COMM_UD_SUBF_CPU_ALARM8UNLOCK_IND:
+                                offset = s7comm_decode_ud_cpu_alarm_main(next_tvb, pinfo, data_tree, type, subfunc, offset);
+                                break;
+                            case S7COMM_UD_SUBF_CPU_ALARMQUERY:
+                                if (type == S7COMM_UD_TYPE_RES) {
+                                    offset = s7comm_decode_ud_cpu_alarm_query_response(next_tvb, data_tree, offset);
+                                } else {
+                                    offset = s7comm_decode_ud_cpu_alarm_main(next_tvb, pinfo, data_tree, type, subfunc, offset);
+                                }
+                                break;
+                            case S7COMM_UD_SUBF_CPU_DIAGMSG:
+                                offset = s7comm_decode_ud_cpu_diagnostic_message(next_tvb, pinfo, TRUE, data_tree, offset);
+                                break;
+                            case S7COMM_UD_SUBF_CPU_MSGS:
+                                offset = s7comm_decode_message_service(next_tvb, pinfo, data_tree, type, length_rem, offset);
+                                break;
+                            default:
+                                /* print other currently unknown data as raw bytes */
+                                proto_tree_add_item(data_tree, hf_s7comm_userdata_data, next_tvb, offset, length_rem, ENC_NA);
+                                break;
+                        }
+                        break;
+                    case S7COMM_UD_FUNCGROUP_SEC:
+                        offset = s7comm_decode_ud_security_subfunc(next_tvb, data_tree, length_rem, offset);
+                        break;
+                    case S7COMM_UD_FUNCGROUP_PBC:
+                        offset = s7comm_decode_ud_pbc_subfunc(next_tvb, data_tree, length_rem, offset);
+                        break;
+                    case S7COMM_UD_FUNCGROUP_TIME:
+                        offset = s7comm_decode_ud_time_subfunc(next_tvb, data_tree, type, subfunc, ret_val, length_rem, offset);
+                        break;
+                    case S7COMM_UD_FUNCGROUP_NCPRG:
+                        offset = s7comm_decode_ud_ncprg_subfunc(next_tvb, pinfo, data_tree, type, subfunc, length_rem, offset);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
     }
     return offset;
 }
@@ -4868,11 +5143,7 @@ s7comm_decode_ud(tvbuff_t *tvb,
 {
     proto_item *item = NULL;
     proto_tree *param_tree = NULL;
-    proto_tree *data_tree = NULL;
 
-    guint8 ret_val;
-    guint8 tsize;
-    guint16 len;
     guint32 errorcode;
     guint32 offset_temp;
     guint32 reqres2;
@@ -4887,10 +5158,7 @@ s7comm_decode_ud(tvbuff_t *tvb,
     item = proto_tree_add_item(tree, hf_s7comm_param, tvb, offset, plength, ENC_NA);
     param_tree = proto_item_add_subtree(item, ett_s7comm_param);
 
-    /* Try do decode some functions...
-     * Some functions may use data that doesn't fit one telegram
-     */
-    offset_temp = offset;   /* Save offset */
+    offset_temp = offset;
     /* 3 bytes constant head */
     proto_tree_add_item(param_tree, hf_s7comm_userdata_param_head, tvb, offset_temp, 3, ENC_BIG_ENDIAN);
     offset_temp += 3;
@@ -4996,100 +5264,9 @@ s7comm_decode_ud(tvbuff_t *tvb,
             col_append_fstr(pinfo->cinfo, COL_INFO, " -> Errorcode:[0x%04x]", errorcode);
         }
     }
+    offset += plength;
 
-    /**********************************
-     * Add data tree
-     */
-    offset += plength;          /* set offset to the beginning of the data part */
-    /* The first 4 bytes of the data part of a userdata telegram are the same for all types.
-     * This is also the minumum length of the data part.
-     */
-    if (dlength >= 4) {
-        item = proto_tree_add_item(tree, hf_s7comm_data, tvb, offset, dlength, ENC_NA);
-        data_tree = proto_item_add_subtree(item, ett_s7comm_data);
-
-        ret_val = tvb_get_guint8(tvb, offset);
-        proto_tree_add_uint(data_tree, hf_s7comm_data_returncode, tvb, offset, 1, ret_val);
-        offset += 1;
-        /* Not definitely known part, kind of "transport size"? constant 0x09, 1 byte
-         * The position is the same as in a data response/write telegram,
-         */
-        tsize = tvb_get_guint8(tvb, offset);
-        proto_tree_add_uint(data_tree, hf_s7comm_data_transport_size, tvb, offset, 1, tsize);
-        offset += 1;
-        len = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_uint(data_tree, hf_s7comm_data_length, tvb, offset, 2, len);
-        offset += 2;
-
-        /* Call function to decode the rest of the data part
-         * decode only when there is a data part length greater 4 bytes
-         */
-        if (dlength > 4) {
-            switch (funcgroup) {
-                case S7COMM_UD_FUNCGROUP_PROG:
-                    offset = s7comm_decode_ud_prog_subfunc(tvb, data_tree, type, subfunc, dlength, offset);
-                    break;
-                case S7COMM_UD_FUNCGROUP_CYCLIC:
-                    offset = s7comm_decode_ud_cyclic_subfunc(tvb, pinfo, seq_num, data_tree, type, subfunc, dlength, offset);
-                    break;
-                case S7COMM_UD_FUNCGROUP_BLOCK:
-                    offset = s7comm_decode_ud_block_subfunc(tvb, pinfo, data_tree, type, subfunc, ret_val, tsize, len, dlength, offset);
-                    break;
-                case S7COMM_UD_FUNCGROUP_CPU:
-                    switch (subfunc) {
-                        case S7COMM_UD_SUBF_CPU_READSZL:
-                            offset = s7comm_decode_ud_cpu_szl_subfunc(tvb, pinfo, data_tree, type, ret_val, len, dlength, data_unit_ref, last_data_unit, offset);
-                            break;
-                        case S7COMM_UD_SUBF_CPU_NOTIFY_IND:
-                        case S7COMM_UD_SUBF_CPU_NOTIFY8_IND:
-                        case S7COMM_UD_SUBF_CPU_ALARMSQ_IND:
-                        case S7COMM_UD_SUBF_CPU_ALARMS_IND:
-                        case S7COMM_UD_SUBF_CPU_SCAN_IND:
-                        case S7COMM_UD_SUBF_CPU_ALARMACK:
-                        case S7COMM_UD_SUBF_CPU_ALARMACK_IND:
-                        case S7COMM_UD_SUBF_CPU_ALARM8_IND:
-                        case S7COMM_UD_SUBF_CPU_ALARM8LOCK:
-                        case S7COMM_UD_SUBF_CPU_ALARM8LOCK_IND:
-                        case S7COMM_UD_SUBF_CPU_ALARM8UNLOCK:
-                        case S7COMM_UD_SUBF_CPU_ALARM8UNLOCK_IND:
-                            offset = s7comm_decode_ud_cpu_alarm_main(tvb, pinfo, data_tree, type, subfunc, offset);
-                            break;
-                        case S7COMM_UD_SUBF_CPU_ALARMQUERY:
-                            if (type == S7COMM_UD_TYPE_RES) {
-                                offset = s7comm_decode_ud_cpu_alarm_query_response(tvb, pinfo, data_tree, offset);
-                            } else {
-                                offset = s7comm_decode_ud_cpu_alarm_main(tvb, pinfo, data_tree, type, subfunc, offset);
-                            }
-                            break;
-                        case S7COMM_UD_SUBF_CPU_DIAGMSG:
-                            offset = s7comm_decode_ud_cpu_diagnostic_message(tvb, pinfo, TRUE, data_tree, offset);
-                            break;
-                        case S7COMM_UD_SUBF_CPU_MSGS:
-                            offset = s7comm_decode_message_service(tvb, pinfo, data_tree, type, dlength - 4, offset);
-                            break;
-                        default:
-                            /* print other currently unknown data as raw bytes */
-                            proto_tree_add_item(data_tree, hf_s7comm_userdata_data, tvb, offset, dlength - 4, ENC_NA);
-                            break;
-                    }
-                    break;
-                case S7COMM_UD_FUNCGROUP_SEC:
-                    offset = s7comm_decode_ud_security_subfunc(tvb, data_tree, dlength, offset);
-                    break;
-                case S7COMM_UD_FUNCGROUP_PBC:
-                    offset = s7comm_decode_ud_pbc_subfunc(tvb, data_tree, dlength, offset);
-                    break;
-                case S7COMM_UD_FUNCGROUP_TIME:
-                    offset = s7comm_decode_ud_time_subfunc(tvb, data_tree, type, subfunc, ret_val, dlength, offset);
-                    break;
-                case S7COMM_UD_FUNCGROUP_NCPRG:
-                    offset = s7comm_decode_ud_ncprg_subfunc(tvb, pinfo, data_tree, type, subfunc, dlength, offset);
-                    break;
-                default:
-                    break;
-            }
-        }
-    }
+    offset = s7comm_decode_ud_data(tvb, pinfo, tree, dlength, type, funcgroup, subfunc, seq_num, data_unit_ref, last_data_unit, offset);
 
     return offset;
 }
@@ -5362,6 +5539,16 @@ dissect_s7comm(tvbuff_t *tvb,
     /* set fence as there may be more than one S7comm PDU in one frame */
     col_set_fence(pinfo->cinfo, COL_INFO);
     return TRUE;
+}
+
+/*******************************************************************************************************
+ * Reassembly of S7COMM
+ *******************************************************************************************************/
+static void
+s7comm_defragment_init(void)
+{
+    reassembly_table_init(&s7comm_reassembly_table,
+                          &addresses_ports_reassembly_table_functions);
 }
 
 /*******************************************************************************************************
@@ -6096,6 +6283,18 @@ proto_register_s7comm (void)
         { &hf_s7comm_data_ncprg_unackcount,
         { "Number of telegrams sent without acknowledge", "s7comm.data.ncprg.unackcount", FT_UINT8, BASE_DEC, NULL, 0x0,
           NULL, HFILL }},
+        { &hf_s7comm_data_ncprg_filelength,
+        { "NC file length", "s7comm.data.ncprg.filelength", FT_STRING, BASE_NONE, NULL, 0x0,
+          "NC file length: length of file date + file path", HFILL }},
+        { &hf_s7comm_data_ncprg_filetime,
+        { "NC file timestamp", "s7comm.data.ncprg.filetime", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_data_ncprg_filepath,
+        { "NC file path", "s7comm.data.ncprg.filepath", FT_STRING, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_data_ncprg_filedata,
+        { "NC file data", "s7comm.data.ncprg.filedata", FT_BYTES, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }},
 
         /* Variable status */
         { &hf_s7comm_varstat_data_type,
@@ -6146,6 +6345,9 @@ proto_register_s7comm (void)
           NULL, HFILL }},
         { &hf_s7comm_pbc_r_id,
         { "PBC BSEND/BRECV R_ID", "s7comm.pbc.req.bsend.r_id", FT_UINT32, BASE_HEX, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_pbc_len,
+        { "PBC BSEND/BRECV LEN", "s7comm.pbc.req.bsend.len", FT_UINT32, BASE_DEC, NULL, 0x0,
           NULL, HFILL }},
 
         /* CPU alarms */
@@ -6364,6 +6566,38 @@ proto_register_s7comm (void)
         { &hf_s7comm_tia1200_item_value,
         { "Value", "s7comm.tiap.item.value", FT_UINT32, BASE_DEC, NULL, 0x0fffffff,
           NULL, HFILL }},
+
+        /* Fragment fields */
+        { &hf_s7comm_fragment_overlap,
+        { "Fragment overlap", "s7comm.fragment.overlap", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+          "Fragment overlaps with other fragments", HFILL }},
+        { &hf_s7comm_fragment_overlap_conflict,
+        { "Conflicting data in fragment overlap", "s7comm.fragment.overlap.conflict", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+          "Overlapping fragments contained conflicting data", HFILL }},
+        { &hf_s7comm_fragment_multiple_tails,
+        { "Multiple tail fragments found", "s7comm.fragment.multipletails", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+          "Several tails were found when defragmenting the packet", HFILL }},
+        { &hf_s7comm_fragment_too_long_fragment,
+        { "Fragment too long", "s7comm.fragment.toolongfragment", FT_BOOLEAN, BASE_NONE, NULL, 0x0,
+          "Fragment contained data past end of packet", HFILL }},
+        { &hf_s7comm_fragment_error,
+        { "Defragmentation error", "s7comm.fragment.error", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+          "Defragmentation error due to illegal fragments", HFILL }},
+        { &hf_s7comm_fragment_count,
+        { "Fragment count", "s7comm.fragment.count", FT_UINT32, BASE_DEC, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_reassembled_in,
+        { "Reassembled in", "s7comm.reassembled.in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+          "S7COMM fragments are reassembled in the given packet", HFILL }},
+        { &hf_s7comm_reassembled_length,
+        { "Reassembled S7COMM length", "s7comm.reassembled.length", FT_UINT32, BASE_DEC, NULL, 0x0,
+          "The total length of the reassembled payload", HFILL }},
+        { &hf_s7comm_fragment,
+        { "S7COMM Fragment", "s7comm.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }},
+        { &hf_s7comm_fragments,
+        { "S7COMM Fragments", "s7comm.fragments", FT_NONE, BASE_NONE, NULL, 0x0,
+          NULL, HFILL }},
     };
 
     static ei_register_info ei[] = {
@@ -6394,7 +6628,9 @@ proto_register_s7comm (void)
         &ett_s7comm_cpu_msgservice_subscribe_events,
         &ett_s7comm_piservice_parameterblock,
         &ett_s7comm_data_blockcontrol_status,
-        &ett_s7comm_plcfilename
+        &ett_s7comm_plcfilename,
+        &ett_s7comm_fragments,
+        &ett_s7comm_fragment,
     };
 
     proto_s7comm = proto_register_protocol (
@@ -6411,6 +6647,8 @@ proto_register_s7comm (void)
 
     expert_s7comm = expert_register_protocol(proto_s7comm);
     expert_register_field_array(expert_s7comm, ei, array_length(ei));
+
+    register_init_routine(s7comm_defragment_init);
 }
 
 /* Register this protocol */
