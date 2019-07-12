@@ -2383,7 +2383,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         break;
     case OPTION_F_DNS_HOST_NAME:
         {
-        const guchar *dns_name;
+        const gchar *dns_name;
         guint dns_name_len;
 
         get_dns_name(tvb, off, optlen, off, &dns_name, &dns_name_len);
@@ -2392,7 +2392,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         }
     case OPTION_F_DNS_ZONE_NAME:
         {
-        const guchar *dns_name;
+        const gchar *dns_name;
         guint dns_name_len;
 
         get_dns_name(tvb, off, optlen, off, &dns_name, &dns_name_len);

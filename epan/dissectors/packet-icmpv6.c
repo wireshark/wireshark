@@ -2325,7 +2325,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
             case ND_OPT_DNS_SEARCH_LIST: /* DNS Search List Option (31) */
             {
                 int dnssl_len;
-                const guchar *dnssl_name;
+                const gchar *dnssl_name;
 
                 /* Reserved */
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 2, ENC_NA);
@@ -3496,7 +3496,7 @@ dissect_nodeinfo(tvbuff_t *tvb, int ni_offset, packet_info *pinfo _U_, proto_tre
             }
             case ICMP6_NI_SUBJ_FQDN: {
                 int fqdn_len;
-                const guchar *fqdn_name;
+                const gchar *fqdn_name;
                 used_bytes = get_dns_name(tvb, ni_offset, 0, ni_offset, &fqdn_name, &fqdn_len);
                 proto_tree_add_string(tree, hf_icmpv6_ni_query_subject_fqdn, tvb, ni_offset, used_bytes,
                     format_text(wmem_packet_scope(), fqdn_name, fqdn_len));
@@ -3515,7 +3515,7 @@ dissect_nodeinfo(tvbuff_t *tvb, int ni_offset, packet_info *pinfo _U_, proto_tre
                 break;
             case NI_QTYPE_NODENAME: {
                 int node_name_len;
-                const guchar *node_name;
+                const gchar *node_name;
                 /* TTL */
                 proto_tree_add_item(tree, hf_icmpv6_ni_reply_node_ttl, tvb, ni_offset, 4, ENC_BIG_ENDIAN);
                 ni_offset += 4;

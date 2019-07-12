@@ -465,7 +465,7 @@ static void dissect_srv_records(tvbuff_t* tvb, proto_tree* tree,guint32 nrec,int
     guint16 /*len, namelen,*/ priority, weight, port;
     guint dlen;
     guint used_bytes;
-    const guchar *dname;
+    const gchar *dname;
 
     proto_item* srv_rec_tree, *rec_tree;
 
@@ -533,7 +533,7 @@ static void dissect_mx_records(tvbuff_t* tvb, proto_tree* tree, guint32 nrec, in
     guint priority;
     guint dlen;
     guint used_bytes;
-    const guchar *dname;
+    const gchar *dname;
 
     proto_tree* mx_rec_tree, *rec_tree;
 
@@ -581,7 +581,7 @@ static void dissect_ns_records(tvbuff_t* tvb, proto_tree* tree, guint32 nrec, in
 {
     guint i, curr;
     guint dlen;
-    const guchar *dname;
+    const gchar *dname;
     guint used_bytes;
 
     proto_tree* ns_rec_tree, *rec_tree;

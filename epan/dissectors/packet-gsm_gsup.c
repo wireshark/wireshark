@@ -675,7 +675,7 @@ dissect_gsup_tlvs(tvbuff_t *tvb, int base_offs, int length, packet_info *pinfo, 
 		guint8 len;
 		proto_item *ti;
 		proto_tree *att_tree;
-		const guchar *apn;
+		const gchar *apn;
 		const gchar *str;
 		guint apn_len;
 		guint32 ui32;

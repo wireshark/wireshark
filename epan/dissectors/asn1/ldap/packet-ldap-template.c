@@ -1302,7 +1302,7 @@ static void
 int dissect_mscldap_string(tvbuff_t *tvb, int offset, char *str, int max_len, gboolean prepend_dot _U_)
 {
   int compr_len;
-  const guchar *name;
+  const gchar *name;
   guint name_len;
 
   /* The name data MUST start at offset 0 of the tvb */
