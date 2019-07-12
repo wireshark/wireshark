@@ -110,6 +110,7 @@ lookup_dissector_element_t dissector_lookup_table[] = {
   {"LTE-RRC.PCCH",0,0,0,0,NULL}, /* Dissector set according to preferences (depending on the release) */
   {"NAS","gsm_a_dtap","gsm_a_dtap",0,0,NULL},
   {"NAS-EPS",0,0,0,0,NULL}, /* Dissector set according to preferences (depending on the release) */
+  {"RR","gsm_a_dtap","gsm_a_dtap",0,0,NULL},
   {"RRC.BCCH.BCH","rrc.bcch.bch","rrc.bcch.bch",0,0,NULL},
   {"RRC.BCCH.FACH","rrc.bcch.fach","rrc.bcch.fach",0,0,NULL},
   {"RRC.CCCH","rrc.ul.ccch","rrc.dl.ccch",0,0,NULL},
@@ -606,7 +607,7 @@ dissect_log3gpp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree, void* data 
     }
 
     /* Add useful details to protocol tree label */
-    protocol_name = (char*)tvb_get_string_enc(wmem_packet_scope(), tvb, protocol_name_start, protocol_name_length, ENC_UTF_8 | ENC_NA);
+    protocol_name = (char*)tvb_get_string_enc(pinfo->pool, tvb, protocol_name_start, protocol_name_length, ENC_UTF_8 | ENC_NA);
     /* Set Protocol */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, protocol_name);
     /* To know whether the data following is row byte stream or text data */
