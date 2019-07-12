@@ -266,6 +266,10 @@ lte_mac_pseudo_hdr(char* option_str, packet_info* pinfo, guint16 length, packet_
 
     /* First mandatory parameter */
     par_opt_field = strtok(option, " ");
+    if (par_opt_field == NULL)
+    {
+        return 0;
+    }
     if (strcmp(par_opt_field, "FDD") == 0)
     {
         p_mac_lte_info->radioType = FDD_RADIO;
@@ -281,6 +285,10 @@ lte_mac_pseudo_hdr(char* option_str, packet_info* pinfo, guint16 length, packet_
 
     /* Second mandatory parameter */
     par_opt_field = strtok(NULL, " ");
+    if (par_opt_field == NULL)
+    {
+        return 0;
+    }
     if (strcmp(par_opt_field, "NO_RNTI") == 0)
     {
         p_mac_lte_info->rntiType = NO_RNTI;
@@ -319,7 +327,10 @@ lte_mac_pseudo_hdr(char* option_str, packet_info* pinfo, guint16 length, packet_
     /* First optional parameter */
     p_mac_lte_info->subframeNumber = 0;
     par_opt_field = strtok(NULL, " ");
-
+    if (par_opt_field == NULL)
+    {
+        return 0;
+    }
     if (strcmp(par_opt_field, "SFN") == 0)
     {
         par_opt_field = strtok(NULL, " ");
@@ -369,7 +380,10 @@ lte_rlc_pseudo_hdr(char* option_str, packet_info* pinfo, guint16 length, packet_
     p_rlc_lte_info = (struct rlc_lte_info*) wmem_new0(wmem_packet_scope(), rlc_lte_info);
     /* First mandatory parameter */
     par_opt_field = strtok(option, " ");
-
+    if (par_opt_field == NULL)
+    {
+        return 0;
+    }
     if (strcmp(par_opt_field, "SRB") == 0)
     {
         p_rlc_lte_info->channelType = CHANNEL_TYPE_SRB;
@@ -384,10 +398,18 @@ lte_rlc_pseudo_hdr(char* option_str, packet_info* pinfo, guint16 length, packet_
     }
     /* Fill in the RB ID */
     par_opt_field = strtok(NULL, " ");
+    if (par_opt_field == NULL)
+    {
+        return 0;
+    }
     ws_strtou16(par_opt_field, NULL, &p_rlc_lte_info->channelId);
 
     /* Second mandatory parameter */
     par_opt_field = strtok(NULL, " ");
+    if (par_opt_field == NULL)
+    {
+        return 0;
+    }
     if (strcmp(par_opt_field, "TM") == 0)
     {
         p_rlc_lte_info->rlcMode = RLC_TM_MODE;
@@ -463,6 +485,10 @@ lte_pdcp_pseudo_hdr(char* option_str, packet_info* pinfo, guint16 length _U_, pa
     p_pdcp_lte_info = (struct pdcp_lte_info*) wmem_new0(wmem_packet_scope(), pdcp_lte_info);
     /* First mandatory parameter */
     par_opt_field = strtok(option, " ");
+    if (par_opt_field == NULL)
+    {
+        return 0;
+    }
     if (strcmp(par_opt_field, "SRB") == 0)
     {
         p_pdcp_lte_info->plane = SIGNALING_PLANE;
@@ -477,6 +503,10 @@ lte_pdcp_pseudo_hdr(char* option_str, packet_info* pinfo, guint16 length _U_, pa
     }
     /* Second mandatory parameter */
     par_opt_field = strtok(NULL, " ");
+    if (par_opt_field == NULL)
+    {
+        return 0;
+    }
     if (strcmp(par_opt_field, "SN_7b") == 0)
     {
         p_pdcp_lte_info->seqnum_length = PDCP_SN_LENGTH_7_BITS;
