@@ -889,7 +889,9 @@ RECURSIVE              = YES
 # Note that relative paths are relative to the directory from which doxygen is
 # run.
 
-EXCLUDE                = ui/qt/widgets/qcustomplot.cpp
+EXCLUDE                = @DOXYGEN_INPUT_DIRECTORY@/ui/qt/widgets/qcustomplot.cpp \
+                         @DOXYGEN_INPUT_DIRECTORY@/ui/qt/widgets/qcustomplot.h \
+                         @DOXYGEN_INPUT_DIRECTORY@/plugins/epan/pluginifdemo/ui/uiclasshandler.cpp
 
 # The EXCLUDE_SYMLINKS tag can be used to select whether or not files or
 # directories that are symbolic links (a Unix file system feature) are excluded
@@ -910,7 +912,8 @@ EXCLUDE_SYMLINKS       = NO
 EXCLUDE_PATTERNS       = \
         */CMakeFiles/* \
         */epan/dissectors/asn1/* \
-        */qtui_autogen/*
+        */qtui_autogen/* \
+        *.idl*
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the
