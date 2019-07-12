@@ -67,6 +67,7 @@ static gint ett_per_containing = -1;
 static gint ett_per_sequence_of_item = -1;
 static gint ett_per_External = -1;
 static gint ett_per_External_encoding = -1;
+static gint ett_per_named_bits = -1;
 
 static expert_field ei_per_size_constraint_value = EI_INIT;
 static expert_field ei_per_size_constraint_too_few = EI_INIT;
@@ -2124,7 +2125,32 @@ static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, a
 			proto_item_append_text(actx->created_item, ", %s decimal value %" G_GINT64_MODIFIER "u",
 				decode_bits_in_field(0, length, value), value);
 			if (named_bits) {
-				proto_tree_add_bitmask_list(tree, out_tvb, 0, ((length + 7) / 8), named_bits, ENC_BIG_ENDIAN);
+				const guint32 named_bits_bytelen = (num_named_bits + 7) / 8;
+				proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_per_named_bits);
+				for (guint32 i = 0; i < named_bits_bytelen; i++) {
+					// If less data is available than the number of named bits, then
+					// the trailing (right) bits are assumed to be 0.
+					value = 0;
+					const guint32 bit_offset = 8 * i;
+					if (bit_offset < length) {
+						value = tvb_get_guint8(out_tvb, i);
+					}
+
+					// Process 8 bits at a time instead of 64, each field masks a
+					// single byte.
+					const int** section_named_bits = named_bits + bit_offset;
+					int* flags[9];
+					if (num_named_bits - bit_offset > 8) {
+						memcpy(&flags[0], named_bits + bit_offset, 8 * sizeof(int*));
+						flags[8] = NULL;
+						section_named_bits = (const int** )flags;
+					}
+
+					// TODO should non-zero pad bits be masked from the value?
+					// When trailing zeroes are not present in the data, mark the
+					// last byte for the lack of a better alternative.
+					proto_tree_add_bitmask_list_value(subtree, out_tvb, offset + MIN(i, length - 1), 1, section_named_bits, value);
+				}
 			}
 		}
 		proto_item_append_text(actx->created_item, "]");
@@ -2802,6 +2828,7 @@ proto_register_per(void)
 		&ett_per_sequence_of_item,
 		&ett_per_External,
 		&ett_per_External_encoding,
+		&ett_per_named_bits,
 	};
 	static ei_register_info ei[] = {
 		{ &ei_per_size_constraint_value,
