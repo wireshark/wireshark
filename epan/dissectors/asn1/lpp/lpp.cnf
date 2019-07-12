@@ -103,32 +103,6 @@ EPDU-ID STRINGS=VALS(lpp_ePDU_ID_vals)
   }
   lpp_epdu_id = -1;
 
-#.FN_BODY AccessTypes/accessTypes VAL_PTR = &accessTypes_tvb LEN_PTR = &len
-  tvbuff_t *accessTypes_tvb = NULL;
-  int len;
-
-%(DEFAULT_BODY)s
-  if(accessTypes_tvb){
-    proto_tree *subtree;
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
-    if (len >= 1) {
-      proto_tree_add_item(subtree, hf_lpp_T_accessTypes_eutra, accessTypes_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 2) {
-      proto_tree_add_item(subtree, hf_lpp_T_accessTypes_utra, accessTypes_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 3) {
-      proto_tree_add_item(subtree, hf_lpp_T_accessTypes_gsm, accessTypes_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 4) {
-      proto_tree_add_item(subtree, hf_lpp_T_accessTypes_nb_iot, accessTypes_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 5) {
-      proto_tree_add_item(subtree, hf_lpp_T_accessTypes_nr_v1510, accessTypes_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-  }
-
 #.TYPE_ATTR
 Ellipsoid-Point/degreesLatitude DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_degreesLatitude_fmt)
 
@@ -246,69 +220,11 @@ HorizontalWithVerticalVelocityAndUncertainty/horizontalUncertaintySpeed DISPLAY=
 #.TYPE_ATTR
 HorizontalWithVerticalVelocityAndUncertainty/verticalUncertaintySpeed DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_kmh
 
-#.FN_BODY UpdateCapabilities-r15 VAL_PTR = &upd_cap_r15_tvb LEN_PTR = &len
-  tvbuff_t *upd_cap_r15_tvb = NULL;
-  int len;
-
-%(DEFAULT_BODY)s
-  if(upd_cap_r15_tvb){
-    proto_tree *subtree;
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
-    if (len >= 1) {
-      proto_tree_add_item(subtree, hf_lpp_UpdateCapabilities_r15_primaryCellID_r15, upd_cap_r15_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-  }
-
 #.TYPE_ATTR
 PolygonPoints/degreesLatitude DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_degreesLatitude_fmt)
 
 #.TYPE_ATTR
 PolygonPoints/degreesLongitude DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_degreesLongitude_fmt)
-
-#.FN_BODY PositioningModes/posModes VAL_PTR = &posModes_tvb LEN_PTR = &len
-  tvbuff_t *posModes_tvb = NULL;
-  int len;
-
-%(DEFAULT_BODY)s
-  if(posModes_tvb){
-    proto_tree *subtree;
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
-    if (len >= 1) {
-      proto_tree_add_item(subtree, hf_lpp_T_posModes_standalone, posModes_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 2) {
-      proto_tree_add_item(subtree, hf_lpp_T_posModes_ue_based, posModes_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 3) {
-      proto_tree_add_item(subtree, hf_lpp_T_posModes_ue_assisted, posModes_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-  }
-
-#.FN_BODY CommonIEsRequestCapabilities/eag_1/lpp-message-segmentation-req-r14 VAL_PTR = &segmentation_req_tvb
-  tvbuff_t *segmentation_req_tvb = NULL;
-
-%(DEFAULT_BODY)s
-  if(segmentation_req_tvb){
-    proto_tree *subtree;
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
-    proto_tree_add_item(subtree, hf_lpp_T_lpp_message_segmentation_req_r14_serverToTarget, segmentation_req_tvb, 0, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_lpp_T_lpp_message_segmentation_req_r14_targetToServer, segmentation_req_tvb, 0, 1, ENC_BIG_ENDIAN);
-  }
-
-#.FN_BODY CommonIEsProvideCapabilities/eag_1/lpp-message-segmentation-r14 VAL_PTR = &segmentation_tvb
-  tvbuff_t *segmentation_tvb = NULL;
-
-%(DEFAULT_BODY)s
-  if(segmentation_tvb){
-    proto_tree *subtree;
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
-    proto_tree_add_item(subtree, hf_lpp_T_lpp_message_segmentation_r14_serverToTarget, segmentation_tvb, 0, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_lpp_T_lpp_message_segmentation_r14_targetToServer, segmentation_tvb, 0, 1, ENC_BIG_ENDIAN);
-  }
 
 #.FN_BODY PeriodicalReportingCriteria/reportingInterval VAL_PTR=&idx
   guint32 idx;
@@ -363,35 +279,6 @@ ResponseTimeNB-r14/timeNB-r14 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_s
 #.TYPE_ATTR
 MessageSizeLimitNB-r14/measurementLimit-r14 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_measurementLimit_fmt)
 
-#.FN_BODY LocationSource-r13 VAL_PTR = &locSource_tvb LEN_PTR = &len
-  tvbuff_t *locSource_tvb = NULL;
-  int len;
-
-%(DEFAULT_BODY)s
-  if(locSource_tvb){
-    proto_tree *subtree;
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
-    if (len >= 1) {
-      proto_tree_add_item(subtree, hf_lpp_LocationSource_r13_a_gnss, locSource_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 2) {
-      proto_tree_add_item(subtree, hf_lpp_LocationSource_r13_wlan, locSource_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 3) {
-      proto_tree_add_item(subtree, hf_lpp_LocationSource_r13_bt, locSource_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 4) {
-      proto_tree_add_item(subtree, hf_lpp_LocationSource_r13_tbs, locSource_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 5) {
-      proto_tree_add_item(subtree, hf_lpp_LocationSource_r13_sensor, locSource_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 6) {
-      proto_tree_add_item(subtree, hf_lpp_LocationSource_r13_ha_gnss_v1510, locSource_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-  }
-
 #.TYPE_ATTR
 OTDOA-ReferenceCellInfo/eag_4/nr-LTE-fineTiming-Offset-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_nr_LTE_fineTiming_Offset_fmt)
 
@@ -400,24 +287,6 @@ OTDOA-NeighbourCellInfoElement/expectedRSTD DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(
 
 #.TYPE_ATTR
 OTDOA-NeighbourCellInfoElement/expectedRSTD-Uncertainty DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_expectedRSTD_Uncertainty_fmt)
-
-#.FN_BODY OTDOA-RequestAssistanceData/eag_1/adType-r14 VAL_PTR = &adType_tvb LEN_PTR = &len
-  tvbuff_t *adType_tvb = NULL;
-  int len;
-
-%(DEFAULT_BODY)s
-  if(adType_tvb){
-    proto_tree *subtree;
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
-    if (len >= 1) {
-      proto_tree_add_item(subtree, hf_lpp_T_adType_r14_prs, adType_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 2) {
-      proto_tree_add_item(subtree, hf_lpp_T_adType_r14_nprs, adType_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-  }
-
 
 #.TYPE_ATTR
 NeighbourMeasurementElement/rstd DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_rstd_fmt)
@@ -463,26 +332,6 @@ OTDOA-MeasQuality/error-NumSamples TYPE=FT_UINT8 DISPLAY=BASE_DEC STRINGS=VALS(l
 
 #.TYPE_ATTR
 AdditionalPath-r14/relativeTimeDifference-r14 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_relativeTimeDifference_fmt)
-
-#.FN_BODY OTDOA-ProvideCapabilities/otdoa-Mode VAL_PTR = &otdoa_Mode_tvb LEN_PTR = &len
-  tvbuff_t *otdoa_Mode_tvb = NULL;
-  int len;
-
-%(DEFAULT_BODY)s
-  if(otdoa_Mode_tvb){
-    proto_tree *subtree;
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
-    if (len >= 1) {
-      proto_tree_add_item(subtree, hf_lpp_T_otdoa_Mode_ue_assisted, otdoa_Mode_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 2) {
-      proto_tree_add_item(subtree, hf_lpp_T_otdoa_Mode_ue_assisted_NB_r14, otdoa_Mode_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 3) {
-      proto_tree_add_item(subtree, hf_lpp_T_otdoa_Mode_ue_assisted_NB_TDD_r15, otdoa_Mode_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-  }
 
 #.TYPE_ATTR
 GNSS-ReferenceTime/referenceTimeUnc DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_referenceTimeUnc_fmt)
@@ -1718,218 +1567,16 @@ GNSS-SatMeasElement/eag_1/adrRMSerror-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lp
 #.TYPE_ATTR
 GNSS-SatMeasElement/eag_1/delta-codePhase-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_GNSS_SatMeas_delta_codePhase_r15_fmt)
 
-#.FN_BODY A-GNSS-ProvideCapabilities/eag_2/periodicAssistanceData-r15 VAL_PTR = &periodicAssistanceData_tvb LEN_PTR = &len
-  tvbuff_t *periodicAssistanceData_tvb = NULL;
-  int len;
-
-%(DEFAULT_BODY)s
-  if(periodicAssistanceData_tvb){
-    proto_tree *subtree;
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
-    if (len >= 1) {
-      proto_tree_add_item(subtree, hf_lpp_T_periodicAssistanceData_r15_solicited, periodicAssistanceData_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 2) {
-      proto_tree_add_item(subtree, hf_lpp_T_periodicAssistanceData_r15_unsolicited, periodicAssistanceData_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-  }
-
-#.FN_BODY GNSS-IonosphericModelSupport/ionoModel VAL_PTR = &ionoModel_tvb LEN_PTR = &len
-  tvbuff_t *ionoModel_tvb = NULL;
-  int len;
-
-%(DEFAULT_BODY)s
-  if(ionoModel_tvb){
-    proto_tree *subtree;
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
-    if (len >= 1) {
-      proto_tree_add_item(subtree, hf_lpp_T_ionoModel_klobuchar, ionoModel_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 2) {
-      proto_tree_add_item(subtree, hf_lpp_T_ionoModel_neQuick, ionoModel_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-  }
-
-#.FN_BODY GNSS-NavigationModelSupport/clockModel VAL_PTR = &clockModel_tvb LEN_PTR = &len
-  tvbuff_t *clockModel_tvb = NULL;
-  int len;
-
-%(DEFAULT_BODY)s
-  if(clockModel_tvb){
-    proto_tree *subtree;
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
-    if (len >= 1) {
-      proto_tree_add_item(subtree, hf_lpp_T_clockModel_model_1, clockModel_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 2) {
-      proto_tree_add_item(subtree, hf_lpp_T_clockModel_model_2, clockModel_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 3) {
-      proto_tree_add_item(subtree, hf_lpp_T_clockModel_model_3, clockModel_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 4) {
-      proto_tree_add_item(subtree, hf_lpp_T_clockModel_model_4, clockModel_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 5) {
-      proto_tree_add_item(subtree, hf_lpp_T_clockModel_model_5, clockModel_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 6) {
-      proto_tree_add_item(subtree, hf_lpp_T_clockModel_model_6, clockModel_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-  }
-
-#.FN_BODY GNSS-NavigationModelSupport/orbitModel VAL_PTR = &orbitModel_tvb LEN_PTR = &len
-  tvbuff_t *orbitModel_tvb = NULL;
-  int len;
-
-%(DEFAULT_BODY)s
-  if(orbitModel_tvb){
-    proto_tree *subtree;
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
-    if (len >= 1) {
-      proto_tree_add_item(subtree, hf_lpp_T_orbitModel_model_1, orbitModel_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 2) {
-      proto_tree_add_item(subtree, hf_lpp_T_orbitModel_model_2, orbitModel_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 3) {
-      proto_tree_add_item(subtree, hf_lpp_T_orbitModel_model_3, orbitModel_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 4) {
-      proto_tree_add_item(subtree, hf_lpp_T_orbitModel_model_4, orbitModel_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 5) {
-      proto_tree_add_item(subtree, hf_lpp_T_orbitModel_model_5, orbitModel_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 6) {
-      proto_tree_add_item(subtree, hf_lpp_T_orbitModel_model_6, orbitModel_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-  }
-
-#.FN_BODY GNSS-AlmanacSupport/almanacModel VAL_PTR = &almanacModel_tvb LEN_PTR = &len
-  tvbuff_t *almanacModel_tvb = NULL;
-  int len;
-
-%(DEFAULT_BODY)s
-  if(almanacModel_tvb){
-    proto_tree *subtree;
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
-    if (len >= 1) {
-      proto_tree_add_item(subtree, hf_lpp_T_almanacModel_model_1, almanacModel_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 2) {
-      proto_tree_add_item(subtree, hf_lpp_T_almanacModel_model_2, almanacModel_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 3) {
-      proto_tree_add_item(subtree, hf_lpp_T_almanacModel_model_3, almanacModel_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 4) {
-      proto_tree_add_item(subtree, hf_lpp_T_almanacModel_model_4, almanacModel_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 5) {
-      proto_tree_add_item(subtree, hf_lpp_T_almanacModel_model_5, almanacModel_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 6) {
-      proto_tree_add_item(subtree, hf_lpp_T_almanacModel_model_6, almanacModel_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 7) {
-      proto_tree_add_item(subtree, hf_lpp_T_almanacModel_model_7, almanacModel_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-  }
-
-#.FN_BODY GNSS-UTC-ModelSupport/utc-Model VAL_PTR = &utc_Model_tvb LEN_PTR = &len
-  tvbuff_t *utc_Model_tvb = NULL;
-  int len;
-
-%(DEFAULT_BODY)s
-  if(utc_Model_tvb){
-    proto_tree *subtree;
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
-    if (len >= 1) {
-      proto_tree_add_item(subtree, hf_lpp_T_utc_Model_model_1, utc_Model_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 2) {
-      proto_tree_add_item(subtree, hf_lpp_T_utc_Model_model_2, utc_Model_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 3) {
-      proto_tree_add_item(subtree, hf_lpp_T_utc_Model_model_3, utc_Model_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 4) {
-      proto_tree_add_item(subtree, hf_lpp_T_utc_Model_model_4, utc_Model_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 5) {
-      proto_tree_add_item(subtree, hf_lpp_T_utc_Model_model_5, utc_Model_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-  }
-
 #.FN_BODY GNSS-ID/gnss-id VAL_PTR = &gnss_id
   guint32 gnss_id;
 %(DEFAULT_BODY)s
   actx->private_data = GUINT_TO_POINTER(gnss_id);
-
-#.FN_BODY GNSS-ID-Bitmap/gnss-ids VAL_PTR = &gnss_ids_tvb LEN_PTR = &len
-  tvbuff_t *gnss_ids_tvb = NULL;
-  int len;
-
-%(DEFAULT_BODY)s
-  if(gnss_ids_tvb){
-    proto_tree *subtree;
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
-    if (len >= 1) {
-      proto_tree_add_item(subtree, hf_lpp_T_gnss_ids_gps, gnss_ids_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 2) {
-      proto_tree_add_item(subtree, hf_lpp_T_gnss_ids_sbas, gnss_ids_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 3) {
-      proto_tree_add_item(subtree, hf_lpp_T_gnss_ids_qzss, gnss_ids_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 4) {
-      proto_tree_add_item(subtree, hf_lpp_T_gnss_ids_galileo, gnss_ids_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 5) {
-      proto_tree_add_item(subtree, hf_lpp_T_gnss_ids_glonass, gnss_ids_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 6) {
-      proto_tree_add_item(subtree, hf_lpp_T_gnss_ids_bds, gnss_ids_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-  }
 
 #.TYPE_ATTR
 GNSS-PeriodicControlParam-r15/deliveryAmount-r15 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_deliveryAmount_r15_fmt)
 
 #.TYPE_ATTR
 GNSS-PeriodicControlParam-r15/deliveryInterval-r15 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_seconds
-
-#.FN_BODY SBAS-IDs/sbas-IDs VAL_PTR = &sbas_IDs_tvb LEN_PTR = &len
-  tvbuff_t *sbas_IDs_tvb = NULL;
-  int len;
-
-%(DEFAULT_BODY)s
-  if(sbas_IDs_tvb){
-    proto_tree *subtree;
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
-    if (len >= 1) {
-      proto_tree_add_item(subtree, hf_lpp_T_sbas_IDs_waas, sbas_IDs_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 2) {
-      proto_tree_add_item(subtree, hf_lpp_T_sbas_IDs_egnos, sbas_IDs_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 3) {
-      proto_tree_add_item(subtree, hf_lpp_T_sbas_IDs_msas, sbas_IDs_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 4) {
-      proto_tree_add_item(subtree, hf_lpp_T_sbas_IDs_gagan, sbas_IDs_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-  }
 
 #.TYPE_ATTR
 MeasuredResultsElement/rsrp-Result DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_rsrp_Result_fmt)
@@ -1952,58 +1599,6 @@ MeasuredResultsElement/eag_3/rsrp-Result-v1470 DISPLAY=BASE_CUSTOM STRINGS=CF_FU
 #.TYPE_ATTR
 MeasuredResultsElement/eag_3/rsrq-Result-v1470 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_rsrq_Result_v1470_fmt)
 
-#.FN_BODY ECID-RequestLocationInformation/requestedMeasurements VAL_PTR = &requestedMeasurements_tvb LEN_PTR = &len
-  tvbuff_t *requestedMeasurements_tvb = NULL;
-  int len;
-
-%(DEFAULT_BODY)s
-  if(requestedMeasurements_tvb){
-    proto_tree *subtree;
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
-    if (len >= 1) {
-      proto_tree_add_item(subtree, hf_lpp_T_requestedMeasurements_rsrpReq, requestedMeasurements_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 2) {
-      proto_tree_add_item(subtree, hf_lpp_T_requestedMeasurements_rsrqReq, requestedMeasurements_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 3) {
-      proto_tree_add_item(subtree, hf_lpp_T_requestedMeasurements_ueRxTxReq, requestedMeasurements_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 4) {
-      proto_tree_add_item(subtree, hf_lpp_T_requestedMeasurements_nrsrpReq_r14, requestedMeasurements_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 5) {
-      proto_tree_add_item(subtree, hf_lpp_T_requestedMeasurements_nrsrqReq_r14, requestedMeasurements_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-  }
-
-#.FN_BODY ECID-ProvideCapabilities/ecid-MeasSupported VAL_PTR = &ecid_MeasSupported_tvb LEN_PTR = &len
-  tvbuff_t *ecid_MeasSupported_tvb = NULL;
-  int len;
-
-%(DEFAULT_BODY)s
-  if(ecid_MeasSupported_tvb){
-    proto_tree *subtree;
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
-    if (len >= 1) {
-      proto_tree_add_item(subtree, hf_lpp_T_ecid_MeasSupported_rsrpSup, ecid_MeasSupported_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 2) {
-      proto_tree_add_item(subtree, hf_lpp_T_ecid_MeasSupported_rsrqSup, ecid_MeasSupported_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 3) {
-      proto_tree_add_item(subtree, hf_lpp_T_ecid_MeasSupported_ueRxTxSup, ecid_MeasSupported_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 4) {
-      proto_tree_add_item(subtree, hf_lpp_T_ecid_MeasSupported_nrsrpSup_r14, ecid_MeasSupported_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 5) {
-      proto_tree_add_item(subtree, hf_lpp_T_ecid_MeasSupported_nrsrqSup_r14, ecid_MeasSupported_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-  }
-
 #.TYPE_ATTR
 MBS-BeaconMeasElement-r13/codePhase-r13 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_mbs_beaconMeasElt_codePhase_fmt)
 
@@ -2012,63 +1607,6 @@ MBS-BeaconMeasElement-r13/codePhaseRMSError-r13 DISPLAY=BASE_CUSTOM STRINGS=CF_F
 
 #.TYPE_ATTR
 MBS-BeaconMeasElement-r13/eag_1/rssi-r14 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
-
-#.FN_BODY TBS-RequestLocationInformation-r13/eag_1/mbsRequestedMeasurements-r14 VAL_PTR = &mbsRequestedMeasurements_tvb LEN_PTR = &len
-  tvbuff_t *mbsRequestedMeasurements_tvb = NULL;
-  int len;
-
-%(DEFAULT_BODY)s
-  if(mbsRequestedMeasurements_tvb){
-    proto_tree *subtree;
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
-    if (len >= 1) {
-      proto_tree_add_item(subtree, hf_lpp_T_mbsRequestedMeasurements_r14_rssi, mbsRequestedMeasurements_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-  }
-
-#.FN_BODY TBS-ProvideCapabilities-r13/tbs-Modes-r13 VAL_PTR = &tbs_Modes_tvb LEN_PTR = &len
-  tvbuff_t *tbs_Modes_tvb = NULL;
-  int len;
-
-%(DEFAULT_BODY)s
-  if(tbs_Modes_tvb){
-    proto_tree *subtree;
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
-    if (len >= 1) {
-      proto_tree_add_item(subtree, hf_lpp_T_tbs_Modes_r13_standalone, tbs_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 2) {
-      proto_tree_add_item(subtree, hf_lpp_T_tbs_Modes_r13_ue_assisted, tbs_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 3) {
-      proto_tree_add_item(subtree, hf_lpp_T_tbs_Modes_r13_ue_based, tbs_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-  }
-
-#.FN_BODY TBS-ProvideCapabilities-r13/eag_1/mbs-ConfigSupport-r14 VAL_PTR = &mbs_ConfigSupport_tvb LEN_PTR = &len
-  tvbuff_t *mbs_ConfigSupport_tvb = NULL;
-  int len;
-
-%(DEFAULT_BODY)s
-  if(mbs_ConfigSupport_tvb){
-    proto_tree *subtree;
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
-    if (len >= 1) {
-      proto_tree_add_item(subtree, hf_lpp_T_mbs_ConfigSupport_r14_tb1, mbs_ConfigSupport_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 2) {
-      proto_tree_add_item(subtree, hf_lpp_T_mbs_ConfigSupport_r14_tb2, mbs_ConfigSupport_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 3) {
-      proto_tree_add_item(subtree, hf_lpp_T_mbs_ConfigSupport_r14_tb3, mbs_ConfigSupport_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 4) {
-      proto_tree_add_item(subtree, hf_lpp_T_mbs_ConfigSupport_r14_tb4, mbs_ConfigSupport_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-  }
 
 #.TYPE_ATTR
 Sensor-MeasurementInformation-r13/uncompensatedBarometricPressure-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_pa
@@ -2139,26 +1677,6 @@ MBS-AlmanacAssistance-r14/timeCorrection-r14 DISPLAY=BASE_DEC|BASE_UNIT_STRING S
 #.TYPE_ATTR
 MBS-AcquisitionAssistance-r14/freq-r14 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_hz
 
-#.FN_BODY Sensor-ProvideCapabilities-r13/sensor-Modes-r13 VAL_PTR = &sensor_Modes_tvb LEN_PTR = &len
-  tvbuff_t *sensor_Modes_tvb = NULL;
-  int len;
-
-%(DEFAULT_BODY)s
-  if(sensor_Modes_tvb){
-    proto_tree *subtree;
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
-    if (len >= 1) {
-      proto_tree_add_item(subtree, hf_lpp_T_sensor_Modes_r13_standalone, sensor_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 2) {
-      proto_tree_add_item(subtree, hf_lpp_T_sensor_Modes_r13_ue_assisted, sensor_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 3) {
-      proto_tree_add_item(subtree, hf_lpp_T_sensor_Modes_r13_ue_based, sensor_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-  }
-
 #.TYPE_ATTR
 Sensor-AssistanceDataList-r14/refPressure-r14 DISPLAY=BASE_CUSTOM STRINGS=CF_FUNC(lpp_refPressure_fmt)
 
@@ -2201,94 +1719,6 @@ WLAN-AP-Identifier-r13/ssid-r13 TYPE=FT_STRING DISPLAY=STR_ASCII
 %(DEFAULT_BODY)s
   actx->created_item = proto_tree_add_item(tree, hf_index, ssid_tvb, 0, -1, ENC_ASCII|ENC_NA);
 
-#.FN_BODY WLAN-RequestLocationInformation-r13/requestedMeasurements-r13 VAL_PTR = &requestedMeasurements_tvb LEN_PTR = &len
-  tvbuff_t *requestedMeasurements_tvb = NULL;
-  int len;
-
-%(DEFAULT_BODY)s
-  if(requestedMeasurements_tvb){
-    proto_tree *subtree;
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
-    if (len >= 1) {
-      proto_tree_add_item(subtree, hf_lpp_T_requestedMeasurements_r13_rssi, requestedMeasurements_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 2) {
-      proto_tree_add_item(subtree, hf_lpp_T_requestedMeasurements_r13_rtt, requestedMeasurements_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-  }
-
-#.FN_BODY WLAN-ProvideCapabilities-r13/wlan-Modes-r13 VAL_PTR = &wlan_Modes_tvb LEN_PTR = &len
-  tvbuff_t *wlan_Modes_tvb = NULL;
-  int len;
-
-%(DEFAULT_BODY)s
-  if(wlan_Modes_tvb){
-    proto_tree *subtree;
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
-    if (len >= 1) {
-      proto_tree_add_item(subtree, hf_lpp_T_wlan_Modes_r13_standalone, wlan_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 2) {
-      proto_tree_add_item(subtree, hf_lpp_T_wlan_Modes_r13_ue_assisted, wlan_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 3) {
-      proto_tree_add_item(subtree, hf_lpp_T_wlan_Modes_r13_ue_based, wlan_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-  }
-
-#.FN_BODY WLAN-ProvideCapabilities-r13/wlan-MeasSupported-r13 VAL_PTR = &wlan_MeasSupported_tvb LEN_PTR = &len
-  tvbuff_t *wlan_MeasSupported_tvb = NULL;
-  int len;
-
-%(DEFAULT_BODY)s
-  if(wlan_MeasSupported_tvb){
-    proto_tree *subtree;
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
-    if (len >= 1) {
-      proto_tree_add_item(subtree, hf_lpp_T_wlan_MeasSupported_r13_rssi_r13, wlan_MeasSupported_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 2) {
-      proto_tree_add_item(subtree, hf_lpp_T_wlan_MeasSupported_r13_rtt_r13, wlan_MeasSupported_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-  }
-
-#.FN_BODY WLAN-ProvideCapabilities-r13/eag_1/wlan-AP-AD-Supported-r14 VAL_PTR = &wlan_AP_AD_Supported_tvb LEN_PTR = &len
-  tvbuff_t *wlan_AP_AD_Supported_tvb = NULL;
-  int len;
-
-%(DEFAULT_BODY)s
-  if(wlan_AP_AD_Supported_tvb){
-    proto_tree *subtree;
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
-    if (len >= 1) {
-      proto_tree_add_item(subtree, hf_lpp_T_wlan_AP_AD_Supported_r14_ap_identifier, wlan_AP_AD_Supported_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 2) {
-      proto_tree_add_item(subtree, hf_lpp_T_wlan_AP_AD_Supported_r14_ap_location, wlan_AP_AD_Supported_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-  }
-
-#.FN_BODY WLAN-RequestAssistanceData-r14/requestedAD-r14 VAL_PTR = &requestedAD_tvb LEN_PTR = &len
-  tvbuff_t *requestedAD_tvb = NULL;
-  int len;
-
-%(DEFAULT_BODY)s
-  if(requestedAD_tvb){
-    proto_tree *subtree;
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
-    if (len >= 1) {
-      proto_tree_add_item(subtree, hf_lpp_T_requestedAD_r14_ap_identifier, requestedAD_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 2) {
-      proto_tree_add_item(subtree, hf_lpp_T_requestedAD_r14_ap_location, requestedAD_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-  }
-
 #.TYPE_ATTR
 BT-MeasurementElement-r13/btAddr-r13 TYPE=FT_ETHER DISPLAY=BASE_NONE
 
@@ -2300,48 +1730,3 @@ BT-MeasurementElement-r13/btAddr-r13 TYPE=FT_ETHER DISPLAY=BASE_NONE
 
 #.TYPE_ATTR
 BT-MeasurementElement-r13/rssi-r13 DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_dbm
-
-#.FN_BODY BT-RequestLocationInformation-r13/requestedMeasurements-r13 VAL_PTR = &requestedMeasurements_tvb LEN_PTR = &len
-  tvbuff_t *requestedMeasurements_tvb = NULL;
-  int len;
-
-%(DEFAULT_BODY)s
-  if(requestedMeasurements_tvb){
-    proto_tree *subtree;
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
-    if (len >= 1) {
-      proto_tree_add_item(subtree, hf_lpp_T_requestedMeasurements_r13_01_rssi, requestedMeasurements_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-  }
-
-#.FN_BODY BT-ProvideCapabilities-r13/bt-Modes-r13 VAL_PTR = &bt_Modes_tvb LEN_PTR = &len
-  tvbuff_t *bt_Modes_tvb = NULL;
-  int len;
-
-%(DEFAULT_BODY)s
-  if(bt_Modes_tvb){
-    proto_tree *subtree;
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
-    if (len >= 1) {
-      proto_tree_add_item(subtree, hf_lpp_T_bt_Modes_r13_standalone, bt_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-    if (len >= 2) {
-      proto_tree_add_item(subtree, hf_lpp_T_bt_Modes_r13_ue_assisted, bt_Modes_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-  }
-
-#.FN_BODY BT-ProvideCapabilities-r13/bt-MeasSupported-r13 VAL_PTR = &bt_MeasSupported_tvb LEN_PTR = &len
-  tvbuff_t *bt_MeasSupported_tvb = NULL;
-  int len;
-
-%(DEFAULT_BODY)s
-  if(bt_MeasSupported_tvb){
-    proto_tree *subtree;
-
-    subtree = proto_item_add_subtree(actx->created_item, ett_lpp_bitmap);
-    if (len >= 1) {
-      proto_tree_add_item(subtree, hf_lpp_T_bt_MeasSupported_r13_rssi_r13, bt_MeasSupported_tvb, 0, 1, ENC_BIG_ENDIAN);
-    }
-  }
