@@ -111,7 +111,9 @@ candump_dump(GSList *packets, int *err, char **err_info)
     static const gchar *opt_comment = "File converted to Exported PDU format during opening";
     static const gchar *if_name     = "Fake IF";
 
+#ifdef CANDUMP_DEBUG
     ws_debug_printf("%s: Creating a temporary file\n", G_STRFUNC);
+#endif
     import_file_fd = create_tempfile(&filename, "Wireshark_PDU_candump_", NULL);
 
     /* Now open a file and dump to it */
@@ -169,14 +171,18 @@ candump_dump(GSList *packets, int *err, char **err_info)
         .idb_inf  = idb_inf,
     };
 
+#ifdef CANDUMP_DEBUG
     ws_debug_printf("%s: Opening the temporary file for writing\n", G_STRFUNC);
+#endif
     wdh = wtap_dump_fdopen(import_file_fd, WTAP_FILE_TYPE_SUBTYPE_PCAPNG,
                            WTAP_UNCOMPRESSED, &params, err);
 
     if (!wdh)
         goto error_open;
 
+#ifdef CANDUMP_DEBUG
     ws_debug_printf("%s: Writing packet data into the file\n", G_STRFUNC);
+#endif
     /* OK we've opened a new pcapng file and written the headers, time to do the packets */
     for (packet = packets; packet; packet = g_slist_next(packet))
     {
@@ -184,7 +190,9 @@ candump_dump(GSList *packets, int *err, char **err_info)
             goto error_write;
     }
 
+#ifdef CANDUMP_DEBUG
     ws_debug_printf("%s: Closing the file\n", G_STRFUNC);
+#endif
     /* Close the written file */
     if (!wtap_dump_close(wdh, err))
         goto error_write;
@@ -211,7 +219,9 @@ candump_parse(candump_priv_t **priv, wtap *wth, int *err, char **err_info)
     gchar  *filename;
     wtap   *fh;
 
+#ifdef CANDUMP_DEBUG
     ws_debug_printf("%s: Trying candump file decoder\n", G_STRFUNC);
+#endif
     packets = run_candump_parser(wth->fh, err, err_info);
 
     if (!packets)
@@ -223,7 +233,9 @@ candump_parse(candump_priv_t **priv, wtap *wth, int *err, char **err_info)
         return WTAP_OPEN_ERROR;
     }
 
+#ifdef CANDUMP_DEBUG
     ws_debug_printf("%s: Creating a PCAPNG file with data we've just read\n", G_STRFUNC);
+#endif
     /* Dump packets into a temporary file */
     filename = candump_dump(packets, err, err_info);
     g_slist_free_full(packets, g_free);
@@ -231,7 +243,9 @@ candump_parse(candump_priv_t **priv, wtap *wth, int *err, char **err_info)
     if (!filename)
         return WTAP_OPEN_ERROR;
 
+#ifdef CANDUMP_DEBUG
     ws_debug_printf("%s: Opening the newly created file\n", G_STRFUNC);
+#endif
     /* Now open the file for reading */
     fh = wtap_open_offline(filename, WTAP_TYPE_AUTO,
                            err, err_info,
@@ -248,7 +262,9 @@ candump_parse(candump_priv_t **priv, wtap *wth, int *err, char **err_info)
     (*priv)->tmp_file     = fh;
     (*priv)->tmp_filename = filename;
 
+#ifdef CANDUMP_DEBUG
     ws_debug_printf("%s: Ok\n", G_STRFUNC);
+#endif
     return WTAP_OPEN_MINE;
 }
 

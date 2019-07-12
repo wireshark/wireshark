@@ -16,6 +16,8 @@
 #include <wiretap/wtap.h>
 #include <epan/dissectors/packet-socketcan.h>
 
+//#define CANDUMP_DEBUG
+
 #define CAN_MAX_DLEN   8
 #define CANFD_MAX_DLEN 64
 
