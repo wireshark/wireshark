@@ -18,7 +18,8 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 
-#define GVCP_MIN_PACKET_SIZE     8
+#define GVCP_MIN_PACKET_SIZE          ( 8 )
+#define GVCP_MAX_STREAM_CHANNEL_COUNT ( 512 )
 
 /*
    header fields to show the relations between
@@ -44,6 +45,7 @@ wmem_array_t* gvcp_trans_array;
 */
 typedef struct _gvcp_conv_info_t {
 	wmem_map_t *pdus;
+	guint32 extended_bootstrap_address[GVCP_MAX_STREAM_CHANNEL_COUNT];
 } gvcp_conv_info_t;
 
 /*
@@ -139,17 +141,29 @@ Bootstrap registers addresses
 #define GVCP_MC_TIMEOUT (0x00000B14)
 #define GVCP_MC_RETRY_COUNT (0x00000B18)
 #define GVCP_MC_SOURCE_PORT (0x00000B1C)
+#define GVCP_MC_CONFIGURATION (0x00000B20) /* GEV 2.2 */
 #define GVCP_MANIFEST_TABLE (0x00009000)
 
-#define GVCP_SC_DESTINATION_PORT(I)  (0x0d00+(0x40*I))
-#define GVCP_SC_PACKET_SIZE(I) (0x0d04+(0x40*I))
-#define GVCP_SC_PACKET_DELAY(I) (0x0d08+(0x40*I))
-#define GVCP_SC_DESTINATION_ADDRESS(I) (0x0d18+(0x40*I))
-#define GVCP_SC_SOURCE_PORT(I) (0x0d1c+(0x40*I))
-#define GVCP_SC_CAPABILITY(I) (0x0d20+(0x40*I))
-#define GVCP_SC_CONFIGURATION(I) (0x0d24+(0x40*I))
-#define GVCP_SC_ZONE(I) (0x0d28+(0x40*I))
-#define GVCP_SC_ZONE_DIRECTION(I) (0x0d2c+(0x40*I))
+#define GVCP_SC_DESTINATION_PORT(I)           (0x0d00+(0x40*I))
+#define GVCP_SC_PACKET_SIZE(I)                (0x0d04+(0x40*I))
+#define GVCP_SC_PACKET_DELAY(I)               (0x0d08+(0x40*I))
+#define GVCP_SC_DESTINATION_ADDRESS(I)        (0x0d18+(0x40*I))
+#define GVCP_SC_SOURCE_PORT(I)                (0x0d1C+(0x40*I))
+#define GVCP_SC_CAPABILITY(I)                 (0x0d20+(0x40*I))
+#define GVCP_SC_CONFIGURATION(I)              (0x0d24+(0x40*I))
+#define GVCP_SC_ZONE(I)                       (0x0d28+(0x40*I))
+#define GVCP_SC_ZONE_DIRECTION(I)             (0x0d2C+(0x40*I))
+#define GVCP_SC_MAX_PACKET_COUNT(I)           (0x0d30+(0x40*I)) /* GEV 2.2 */
+#define GVCP_SC_MAX_BLOCK_SIZE_HIGH(I)        (0x0d34+(0x40*I)) /* GEV 2.2 */
+#define GVCP_SC_MAX_BLOCK_SIZE_LOW(I)         (0x0d38+(0x40*I)) /* GEV 2.2 */
+#define GVCP_SC_EXTENDED_BOOTSTRAP_ADDRESS(I) (0x0d3C+(0x40*I)) /* GEV 2.2 */
+
+/* Real address: GVCP_SC_EXTENDED_BOOTSTRAP_ADDRESS(I) + the values defined here */
+#define GVCP_SC_GENDC_DESCRIPTOR_ADDRESS         ( 0x0000 ) /* GEV 2.2 */
+#define GVCP_SC_GENDC_DESCRIPTOR_SIZE            ( 0x0004 ) /* GEV 2.2 */
+#define GVCP_SC_GENDC_FLOW_MAPPING_TABLE_ADDRESS ( 0x0008 ) /* GEV 2.2 */
+#define GVCP_SC_GENDC_FLOW_MAPPING_TABLE_SIZE    ( 0x000C ) /* GEV 2.2 */
+#define GVCP_SC_EXTENDED_BOOTSTRAP_ADDRESS_LAST  ( 0x000C )
 
 #define GVCP_ACTION_GROUP_KEY(I)  (0x9800+(0x10*I))
 #define GVCP_ACTION_GROUP_MASK(I) (0x9804+(0x10*I))
@@ -477,6 +491,26 @@ static int hf_gvcp_sc_large_leader_trailer_supported_v2_1 = -1;
 static int hf_gvcp_sc_multi_part_enabled_v2_1 = -1;
 static int hf_gvcp_sc_large_leader_trailer_enabled_v2_1 = -1;
 
+/* Added for 2.2 support */
+static int hf_gvcp_sccaps_scmbsx_supported_v2_2 = -1;
+static int hf_gvcp_sccaps_scebax_supported_v2_2 = -1;
+static int hf_gvcp_mcc_supported_v2_2 = -1;
+static int hf_gvcp_mcec_supported_v2_2 = -1;
+static int hf_gvcp_mcec_enabled_v2_2 = -1;
+static int hf_gvcp_sc_scmpcx_supported_v2_2 = -1;
+static int hf_gvcp_sc_gendc_supported_v2_2 = -1;
+static int hf_gvcp_sc_gendc_enabled_v2_2 = -1;
+static int hf_gvcp_sc_max_packet_count_v2_2 = -1;
+static int hf_gvcp_sc_max_block_size_high_v2_2 = -1;
+static int hf_gvcp_sc_max_block_size_low_v2_2 = -1;
+static int hf_gvcp_sc_extended_registers_address_v2_2 = -1;
+static int hf_gvcp_sc_gendc_descriptor_address_v2_2 = -1;
+static int hf_gvcp_sc_gendc_descriptor_size_v2_2 = -1;
+static int hf_gvcp_sc_gendc_flow_mapping_table_address_v2_2 = -1;
+static int hf_gvcp_sc_gendc_flow_mapping_table_size_v2_2 = -1;
+static int hf_gvcp_readregcmd_extended_bootstrap_register = -1;
+static int hf_gvcp_writeregcmd_extended_bootstrap_register = -1;
+
 /* Generated from convert_proto_tree_add_text.pl */
 static int hf_gvcp_custom_register_value = -1;
 static int hf_gvcp_custom_read_register_addr = -1;
@@ -505,7 +539,7 @@ static const value_string devicemodenames_class[] = {
 	{ GEV_DEVICEMODE_RECEIVER, "Receiver" },
 	{ GEV_DEVICEMODE_TRANSCEIVER, "Transceiver" },
 	{ GEV_DEVICEMODE_PERIPHERAL, "Peripheral" },
-	{0, NULL},
+	{ 0, NULL },
 };
 
 /*Current Link Configuration*/
@@ -514,7 +548,7 @@ static const value_string linkconfiguration_class[] = {
 	{ GEV_LINKCONFIG_MULTIPLELINKS, "Multiple Links" },
 	{ GEV_LINKCONFIG_STATICLAG, "Static LAG" },
 	{ GEV_LINKCONFIG_DYNAMICLAG, "Dynamic LAG" },
-	{0, NULL},
+	{ 0, NULL },
 };
 
 static const value_string devicemodenames_characterset[] = {
@@ -728,6 +762,7 @@ const value_string bootstrapregisternames[] = {
 	{ GVCP_MC_TIMEOUT, "[MCTT (Message Channel Transmission Timeout in ms)]" },
 	{ GVCP_MC_RETRY_COUNT, "[MCRC (Message Channel Retry Count)]" },
 	{ GVCP_MC_SOURCE_PORT, "[MCSP (Message Channel Source Port)]" },
+	{ GVCP_MC_CONFIGURATION, "[MCC (Message Channel Configuration)]" }, /* GEV 2.2 */
 	{ GVCP_SC_DESTINATION_PORT(0), "[SCP0 (Stream Channel #0 Port)]" },
 	{ GVCP_SC_PACKET_SIZE(0), "[SCPS0 (Stream Channel #0 Packet Size)]" },
 	{ GVCP_SC_PACKET_DELAY(0), "[SCPD0 (Stream Channel #0 Packet Delay)]" },
@@ -735,6 +770,12 @@ const value_string bootstrapregisternames[] = {
 	{ GVCP_SC_SOURCE_PORT(0), "[SCSP0 (Stream Channel #0 Source Port)]" },
 	{ GVCP_SC_CAPABILITY(0), "[SCC0 (Stream Channel #0 Capability)]" },
 	{ GVCP_SC_CONFIGURATION(0), "[SCCONF0 (Stream Channel #0 Configuration)]" },
+	{ GVCP_SC_ZONE(0), "[SCZ0 (Stream Channel Zone #0)]" },
+	{ GVCP_SC_ZONE_DIRECTION(0), "[SCZD0 (Stream Channel Zone Direction #0)]" },
+	{ GVCP_SC_MAX_PACKET_COUNT(0), "[SCMPC0 (Stream Channel Max Packet Count #0)]" },
+	{ GVCP_SC_MAX_BLOCK_SIZE_HIGH(0), "[SCMBSL0 (Stream Channel Max Block Size (High) #0)]" },
+	{ GVCP_SC_MAX_BLOCK_SIZE_LOW(0), "[SCMBSH0 (Stream Channel Max Block Size (Low) #0)]" },
+	{ GVCP_SC_EXTENDED_BOOTSTRAP_ADDRESS(0), "SCEBA0 (Stream Channel Extended Bootstrap Address #0)]" },
 	{ GVCP_SC_DESTINATION_PORT(1), "[SCP1 (Stream Channel #1 Port)]" },
 	{ GVCP_SC_PACKET_SIZE(1), "[SCPS1 (Stream Channel #1 Packet Size)]" },
 	{ GVCP_SC_PACKET_DELAY(1), "[SCPD1 (Stream Channel #1 Packet Delay)]" },
@@ -742,6 +783,12 @@ const value_string bootstrapregisternames[] = {
 	{ GVCP_SC_SOURCE_PORT(1), "[SCSP1 (Stream Channel #1 Source Port)]" },
 	{ GVCP_SC_CAPABILITY(1), "[SCC1 (Stream Channel #1 Capability)]" },
 	{ GVCP_SC_CONFIGURATION(1), "[SCCONF1 (Stream Channel #1 Configuration)]" },
+	{ GVCP_SC_ZONE(1), "[SCZ1 (Stream Channel Zone #1)]" },
+	{ GVCP_SC_ZONE_DIRECTION(1), "[SCZD1 (Stream Channel Zone Direction #1)]" },
+	{ GVCP_SC_MAX_PACKET_COUNT(1), "[SCMPC1 (Stream Channel Max Packet Count #1)]" },
+	{ GVCP_SC_MAX_BLOCK_SIZE_HIGH(1), "[SCMBSL1 (Stream Channel Max Block Size (High) #1)]" },
+	{ GVCP_SC_MAX_BLOCK_SIZE_LOW(1), "[SCMBSH1 (Stream Channel Max Block Size (Low) #1)]" },
+	{ GVCP_SC_EXTENDED_BOOTSTRAP_ADDRESS(1), "SCEBA1 (Stream Channel Extended Bootstrap Address #1)]" },
 	{ GVCP_SC_DESTINATION_PORT(2), "[SCP2 (Stream Channel #2 Port)]" },
 	{ GVCP_SC_PACKET_SIZE(2), "[SCPS2 (Stream Channel #2 Packet Size)]" },
 	{ GVCP_SC_PACKET_DELAY(2), "[SCPD2 (Stream Channel #2 Packet Delay)]" },
@@ -749,6 +796,12 @@ const value_string bootstrapregisternames[] = {
 	{ GVCP_SC_SOURCE_PORT(2), "[SCSP2 (Stream Channel #2 Source Port)]" },
 	{ GVCP_SC_CAPABILITY(2), "[SCC2 (Stream Channel #2 Capability)]" },
 	{ GVCP_SC_CONFIGURATION(2), "[SCCONF2 (Stream Channel #2 Configuration)]" },
+	{ GVCP_SC_ZONE(2), "[SCZ2 (Stream Channel Zone #2)]" },
+	{ GVCP_SC_ZONE_DIRECTION(2), "[SCZD2 (Stream Channel Zone Direction #2)]" },
+	{ GVCP_SC_MAX_PACKET_COUNT(2), "[SCMPC2 (Stream Channel Max Packet Count #2)]" },
+	{ GVCP_SC_MAX_BLOCK_SIZE_HIGH(2), "[SCMBSL2 (Stream Channel Max Block Size (High) #2)]" },
+	{ GVCP_SC_MAX_BLOCK_SIZE_LOW(2), "[SCMBSH2 (Stream Channel Max Block Size (Low) #2)]" },
+	{ GVCP_SC_EXTENDED_BOOTSTRAP_ADDRESS(2), "SCEBA2 (Stream Channel Extended Bootstrap Address #2)]" },
 	{ GVCP_SC_DESTINATION_PORT(3), "[SCP3 (Stream Channel #3 Port)]" },
 	{ GVCP_SC_PACKET_SIZE(3), "[SCPS3 (Stream Channel #3 Packet Size)]" },
 	{ GVCP_SC_PACKET_DELAY(3), "[SCPD3 (Stream Channel #3 Packet Delay)]" },
@@ -756,6 +809,12 @@ const value_string bootstrapregisternames[] = {
 	{ GVCP_SC_SOURCE_PORT(3), "[SCSP3 (Stream Channel #3 Source Port)]" },
 	{ GVCP_SC_CAPABILITY(3), "[SCC3 (Stream Channel #3 Capability)]" },
 	{ GVCP_SC_CONFIGURATION(3), "[SCCONF3 (Stream Channel #3 Configuration)]" },
+	{ GVCP_SC_ZONE(3), "[SCZ3 (Stream Channel Zone #3)]" },
+	{ GVCP_SC_ZONE_DIRECTION(3), "[SCZD3 (Stream Channel Zone Direction #3)]" },
+	{ GVCP_SC_MAX_PACKET_COUNT(3), "[SCMPC3 (Stream Channel Max Packet Count #3)]" },
+	{ GVCP_SC_MAX_BLOCK_SIZE_HIGH(3), "[SCMBSL3 (Stream Channel Max Block Size (High) #3)]" },
+	{ GVCP_SC_MAX_BLOCK_SIZE_LOW(3), "[SCMBSH3 (Stream Channel Max Block Size (Low) #3)]" },
+	{ GVCP_SC_EXTENDED_BOOTSTRAP_ADDRESS(3), "SCEBA3 (Stream Channel Extended Bootstrap Address #3)]" },
 	{ GVCP_MANIFEST_TABLE, "[Manifest Table]" },
 	{ GVCP_ACTION_GROUP_KEY(0), "[Action Group Key #0]" },
 	{ GVCP_ACTION_GROUP_MASK(0), "[Action Group Mask #0]" },
@@ -780,11 +839,50 @@ const value_string bootstrapregisternames[] = {
 	{ 0, NULL },
 };
 
+
+/*
+brief Extended Register name to address mappings
+*/
+
+/* GEV 2.2 */
+const value_string extendedbootstrapregisternames[] = {
+	{ GVCP_SC_GENDC_DESCRIPTOR_ADDRESS, "[GenDC Descriptor Address]" },
+	{ GVCP_SC_GENDC_DESCRIPTOR_SIZE, "[GenDC Descriptor Size]" },
+	{ GVCP_SC_GENDC_FLOW_MAPPING_TABLE_ADDRESS, "[GenDC Flow Mapping Table Address]" },
+	{ GVCP_SC_GENDC_FLOW_MAPPING_TABLE_SIZE, "[GenDC Flow Mapping Table Size]" },
+	{ 0, NULL },
+};
+
+
+/*
+\brief Check is the current register access is into one of the extended stream channel registers
+*/
+
+static gboolean is_extended_bootstrap_address(gvcp_conv_info_t *gvcp_info, guint32 addr, guint32* extended_bootstrap_address_offset)
+{
+	gint stream_channel_count = 0;
+	for (stream_channel_count = 0; stream_channel_count < GVCP_MAX_STREAM_CHANNEL_COUNT; stream_channel_count++)
+	{
+		if ((gvcp_info->extended_bootstrap_address[stream_channel_count] != 0) &&
+			(addr >= gvcp_info->extended_bootstrap_address[stream_channel_count]) &&
+			(addr <= (gvcp_info->extended_bootstrap_address[stream_channel_count] + GVCP_SC_EXTENDED_BOOTSTRAP_ADDRESS_LAST)))
+		{
+			if (extended_bootstrap_address_offset)
+			{
+				*extended_bootstrap_address_offset = gvcp_info->extended_bootstrap_address[stream_channel_count];
+			}
+			return TRUE;
+		}
+	}
+	return FALSE;
+}
+
+
 /*
 \brief Returns a register name based on its address
 */
 
-static const gchar* get_register_name_from_address(guint32 addr, gboolean* is_custom_register)
+static const gchar* get_register_name_from_address(guint32 addr, gvcp_conv_info_t *gvcp_info, gboolean* is_custom_register)
 {
 	const gchar* address_string = NULL;
 
@@ -796,16 +894,25 @@ static const gchar* get_register_name_from_address(guint32 addr, gboolean* is_cu
 	address_string = try_val_to_str(addr, bootstrapregisternames);
 	if (!address_string)
 	{
-		address_string = wmem_strdup_printf(wmem_packet_scope(),"[Addr:0x%08X]", addr);
-
-		if (is_custom_register != NULL)
+		guint32 extended_bootstrap_address_offset = 0;
+		if (is_extended_bootstrap_address(gvcp_info, addr, &extended_bootstrap_address_offset))
 		{
-			*is_custom_register = TRUE;
+			address_string = try_val_to_str(addr - extended_bootstrap_address_offset, extendedbootstrapregisternames);
+		}
+
+		if (!address_string)
+		{
+			address_string = wmem_strdup_printf(wmem_packet_scope(), "[Addr:0x%08X]", addr);
+			if (is_custom_register != NULL)
+			{
+				*is_custom_register = TRUE;
+			}
 		}
 	}
 
 	return address_string;
 }
+
 
 /*
 \brief Attempts to dissect a bootstrap register
@@ -971,10 +1078,14 @@ static int dissect_register(guint32 addr, proto_tree *branch, tvbuff_t *tvb, gin
 	case GVCP_SC_CAPS:
 		proto_tree_add_item(branch, hf_gvcp_sccaps_scspx_register_supported, tvb, offset, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(branch, hf_gvcp_sccaps_legacy_16bit_blockid_supported_v2_0, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(branch, hf_gvcp_sccaps_scmbsx_supported_v2_2, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(branch, hf_gvcp_sccaps_scebax_supported_v2_2, tvb, offset, 4, ENC_BIG_ENDIAN);
 		break;
 
 	case GVCP_MESSAGE_CHANNEL_CAPS:
 		proto_tree_add_item(branch, hf_gvcp_mcsp_supported, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(branch, hf_gvcp_mcc_supported_v2_2, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(branch, hf_gvcp_mcec_supported_v2_2, tvb, offset, 4, ENC_BIG_ENDIAN);
 		break;
 
 	case GVCP_CAPABILITY:
@@ -1124,6 +1235,10 @@ static int dissect_register(guint32 addr, proto_tree *branch, tvbuff_t *tvb, gin
 		proto_tree_add_item(branch, hf_gvcp_message_channel_source_port, tvb, offset, 4, ENC_BIG_ENDIAN);
 		break;
 
+	case GVCP_MC_CONFIGURATION:
+		proto_tree_add_item(branch, hf_gvcp_mcec_enabled_v2_2, tvb, offset, 4, ENC_BIG_ENDIAN);
+		break;
+
 	case GVCP_SC_DESTINATION_PORT(0):
 	case GVCP_SC_DESTINATION_PORT(1):
 	case GVCP_SC_DESTINATION_PORT(2):
@@ -1174,6 +1289,8 @@ static int dissect_register(guint32 addr, proto_tree *branch, tvbuff_t *tvb, gin
 	case GVCP_SC_CAPABILITY(3):
 		proto_tree_add_item(branch, hf_gvcp_sc_big_little_endian_supported, tvb, offset, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(branch, hf_gvcp_sc_ip_reassembly_supported, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(branch, hf_gvcp_sc_scmpcx_supported_v2_2, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(branch, hf_gvcp_sc_gendc_supported_v2_2, tvb, offset, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(branch, hf_gvcp_sc_multi_part_supported_v2_1, tvb, offset, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(branch, hf_gvcp_sc_large_leader_trailer_supported_v2_1, tvb, offset, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(branch, hf_gvcp_sc_multizone_supported_v2_0, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1187,6 +1304,7 @@ static int dissect_register(guint32 addr, proto_tree *branch, tvbuff_t *tvb, gin
 	case GVCP_SC_CONFIGURATION(1):
 	case GVCP_SC_CONFIGURATION(2):
 	case GVCP_SC_CONFIGURATION(3):
+		proto_tree_add_item(branch, hf_gvcp_sc_gendc_enabled_v2_2, tvb, offset, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(branch, hf_gvcp_sc_multi_part_enabled_v2_1, tvb, offset, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(branch, hf_gvcp_sc_large_leader_trailer_enabled_v2_1, tvb, offset, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(branch, hf_gvcp_sc_packet_resend_destination_option_enabled_v2_0, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -1240,6 +1358,35 @@ static int dissect_register(guint32 addr, proto_tree *branch, tvbuff_t *tvb, gin
 		proto_tree_add_item(branch, hf_gvcp_sc_zone31_direction_v2_0, tvb, offset, 4, ENC_BIG_ENDIAN);
 		break;
 
+	case GVCP_SC_MAX_PACKET_COUNT(0):
+	case GVCP_SC_MAX_PACKET_COUNT(1):
+	case GVCP_SC_MAX_PACKET_COUNT(2):
+	case GVCP_SC_MAX_PACKET_COUNT(3):
+		proto_tree_add_item(branch, hf_gvcp_sc_max_packet_count_v2_2, tvb, offset, 4, ENC_BIG_ENDIAN);
+		break;
+
+	case GVCP_SC_MAX_BLOCK_SIZE_HIGH(0):
+	case GVCP_SC_MAX_BLOCK_SIZE_HIGH(1):
+	case GVCP_SC_MAX_BLOCK_SIZE_HIGH(2):
+	case GVCP_SC_MAX_BLOCK_SIZE_HIGH(3):
+		proto_tree_add_item(branch, hf_gvcp_sc_max_block_size_high_v2_2, tvb, offset, 4, ENC_BIG_ENDIAN);
+		break;
+
+	case GVCP_SC_MAX_BLOCK_SIZE_LOW(0):
+	case GVCP_SC_MAX_BLOCK_SIZE_LOW(1):
+	case GVCP_SC_MAX_BLOCK_SIZE_LOW(2):
+	case GVCP_SC_MAX_BLOCK_SIZE_LOW(3):
+		proto_tree_add_item(branch, hf_gvcp_sc_max_block_size_low_v2_2, tvb, offset, 4, ENC_BIG_ENDIAN);
+		break;
+
+	case GVCP_SC_EXTENDED_BOOTSTRAP_ADDRESS(0):
+	case GVCP_SC_EXTENDED_BOOTSTRAP_ADDRESS(1):
+	case GVCP_SC_EXTENDED_BOOTSTRAP_ADDRESS(2):
+	case GVCP_SC_EXTENDED_BOOTSTRAP_ADDRESS(3):
+		proto_tree_add_item(branch, hf_gvcp_sc_extended_registers_address_v2_2, tvb, offset, 4, ENC_BIG_ENDIAN);
+
+		break;
+
 	case GVCP_MANIFEST_TABLE:
 		proto_tree_add_item(branch, hf_gvcp_manifest_table, tvb, 0, length, ENC_NA);
 		break;
@@ -1276,6 +1423,35 @@ static int dissect_register(guint32 addr, proto_tree *branch, tvbuff_t *tvb, gin
 
 	return 1;
 }
+
+/*
+\brief Attempts to dissect an extended bootstrap register
+*/
+
+static int dissect_extended_bootstrap_register(guint32 addr, proto_tree *branch, tvbuff_t *tvb, gint offset, gint length _U_)
+{
+	switch (addr)
+	{
+	case GVCP_SC_GENDC_DESCRIPTOR_ADDRESS:
+		proto_tree_add_item(branch, hf_gvcp_sc_gendc_descriptor_address_v2_2, tvb, offset, 4, ENC_BIG_ENDIAN);
+		break;
+	case GVCP_SC_GENDC_DESCRIPTOR_SIZE:
+		proto_tree_add_item(branch, hf_gvcp_sc_gendc_descriptor_size_v2_2, tvb, offset, 4, ENC_BIG_ENDIAN);
+		break;
+	case GVCP_SC_GENDC_FLOW_MAPPING_TABLE_ADDRESS:
+		proto_tree_add_item(branch, hf_gvcp_sc_gendc_flow_mapping_table_address_v2_2, tvb, offset, 4, ENC_BIG_ENDIAN);
+		break;
+	case GVCP_SC_GENDC_FLOW_MAPPING_TABLE_SIZE:
+		proto_tree_add_item(branch, hf_gvcp_sc_gendc_flow_mapping_table_size_v2_2, tvb, offset, 4, ENC_BIG_ENDIAN);
+		break;
+
+	default:
+		return 0;
+	}
+
+	return 1;
+}
+
 
 /* Attempts to dissect a bootstrap register (readmem context) */
 static int dissect_register_data(guint32 addr, proto_tree *branch, tvbuff_t *tvb, gint offset, gint length)
@@ -1380,8 +1556,7 @@ static void dissect_packetresend_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *t
 	guint64 block_id = 0;
 	guint32 first_packet = 0;
 	guint32 last_packet = 0;
-	gint offset;
-	offset = startoffset;
+	gint offset = startoffset;
 
 	/* Get block ID to generate summary - supports 16 and 64 bits */
 	if (extendedblockid == 0)
@@ -1447,20 +1622,18 @@ static void dissect_packetresend_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *t
 \brief DISSECT: Read register command
 */
 
-static void dissect_readreg_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, gint startoffset, gint length, gvcp_transaction_t* gvcp_trans)
+static void dissect_readreg_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, gint startoffset, gint length, gvcp_conv_info_t *gvcp_info, gvcp_transaction_t* gvcp_trans)
 {
 	proto_item *item = NULL;
 	guint32 addr = 0;
 	const gchar* address_string = NULL;
 	gboolean is_custom_register = FALSE;
-	gint offset;
+	gint offset = startoffset;
 	gint i;
-	gint num_registers;
-	offset = startoffset;
-	num_registers = length / 4;
+	gint num_registers = length / 4;
 
 	addr = tvb_get_ntohl(tvb, offset);
-	address_string = get_register_name_from_address(addr, &is_custom_register);
+	address_string = get_register_name_from_address(addr, gvcp_info, &is_custom_register);
 
 	if (num_registers > 1)
 	{
@@ -1505,11 +1678,19 @@ static void dissect_readreg_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 			}
 			else
 			{
-				/* Insert data as generic register */
-				item = proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_custom_register_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+				guint32 extended_bootstrap_address_offset = 0;
+				if (is_extended_bootstrap_address(gvcp_info, addr, &extended_bootstrap_address_offset))
+				{
+					dissect_extended_bootstrap_register(addr - extended_bootstrap_address_offset, gvcp_telegram_tree, tvb, offset, 4);
+				}
+				else
+				{
+					/* Insert data as generic register */
+					item = proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_custom_register_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
 
-				/* Use generic register name */
-				proto_item_append_text(item, " [Unknown Register]");
+					/* Use generic register name */
+					proto_item_append_text(item, " [Unknown Register]");
+				}
 			}
 		}
 		offset +=4;
@@ -1521,20 +1702,17 @@ static void dissect_readreg_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 \brief DISSECT: Write register command
 */
 
-static void dissect_writereg_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, gint startoffset, gint length, gvcp_transaction_t* gvcp_trans)
+static void dissect_writereg_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, gint startoffset, gint length, gvcp_conv_info_t *gvcp_info, gvcp_transaction_t* gvcp_trans)
 {
-	gint offset;
+	gint offset = startoffset;
 	gint i;
 	proto_item *item = NULL;
 	guint32 addr = 0;
 	guint32 value = 0;
 	const gchar *address_string = NULL;
 	gboolean is_custom_register = FALSE;
-	gint num_registers;
+	gint num_registers = length / 8; /* divide by 8 because we are counting register-value pairs */
 	proto_tree *subtree = NULL;
-
-	offset = startoffset;
-	num_registers = length / 8; /* divide by 8 because we are counting register-value pairs */
 
 	if (gvcp_trans)
 	{
@@ -1543,7 +1721,7 @@ static void dissect_writereg_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, 
 
 	addr = tvb_get_ntohl(tvb, offset);    /* first register address to be read from WRITEREG_CMD */
 	value = tvb_get_ntohl(tvb, offset+4);
-	address_string = get_register_name_from_address(addr, &is_custom_register);
+	address_string = get_register_name_from_address(addr, gvcp_info, &is_custom_register);
 
 	/* Automatically learn stream port. Dissect as external GVSP. */
 	if ((addr == GVCP_SC_DESTINATION_PORT(0)) ||
@@ -1573,16 +1751,16 @@ static void dissect_writereg_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, 
 
 	if (gvcp_telegram_tree != NULL)
 	{
-	if (num_registers > 1)
-	{
-		gvcp_telegram_tree = proto_tree_add_subtree(gvcp_telegram_tree, tvb, startoffset, length,
-								ett_gvcp_payload_cmd, &item, "WRITEREG_CMD Address List");
-	}
+		if (num_registers > 1)
+		{
+			gvcp_telegram_tree = proto_tree_add_subtree(gvcp_telegram_tree, tvb, startoffset, length,
+									ett_gvcp_payload_cmd, &item, "WRITEREG_CMD Address List");
+		}
 
-	for (i = 0; i < num_registers; i++)
-	{
-		/* For block write register request, address gets re-initialized here in the for loop */
-		addr = tvb_get_ntohl(tvb, offset);
+		for (i = 0; i < num_registers; i++)
+		{
+			/* For block write register request, address gets re-initialized here in the for loop */
+			addr = tvb_get_ntohl(tvb, offset);
 
 			if (try_val_to_str(addr, bootstrapregisternames) != NULL)
 			{
@@ -1598,13 +1776,29 @@ static void dissect_writereg_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, 
 			}
 			else
 			{
-				proto_tree* temp_tree = NULL;
+				guint32 extended_bootstrap_address_offset = 0;
+				if (is_extended_bootstrap_address(gvcp_info, addr, &extended_bootstrap_address_offset))
+				{
+					/* Read the WRITEREG_CMD requested register address */
+					item = proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_writeregcmd_extended_bootstrap_register, tvb, offset, 4, ENC_BIG_ENDIAN);
+					subtree = proto_item_add_subtree(item, ett_gvcp_payload_cmd_subtree);
 
-				item = proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_custom_register_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+					/* Skip 32bit to dissect the value to be written to the specified address */
+					offset += 4;
 
-				offset += 4;
-				temp_tree = proto_item_add_subtree(item, ett_gvcp_payload_cmd_subtree);
-				proto_tree_add_item(temp_tree, hf_gvcp_custom_register_value, tvb, offset, 4, ENC_BIG_ENDIAN);
+					/* Read the value to be written to the specified register address */
+					dissect_extended_bootstrap_register(addr - extended_bootstrap_address_offset, subtree, tvb, offset, 4);
+				}
+				else
+				{
+					proto_tree* temp_tree = NULL;
+
+					item = proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_custom_register_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+
+					offset += 4;
+					temp_tree = proto_item_add_subtree(item, ett_gvcp_payload_cmd_subtree);
+					proto_tree_add_item(temp_tree, hf_gvcp_custom_register_value, tvb, offset, 4, ENC_BIG_ENDIAN);
+				}
 			}
 			offset += 4;
 		}
@@ -1616,12 +1810,11 @@ static void dissect_writereg_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, 
 \brief DISSECT: Read memory command
 */
 
-static void dissect_readmem_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, gint startoffset)
+static void dissect_readmem_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, gint startoffset, gvcp_conv_info_t *gvcp_info)
 {
 	guint32 addr = 0;
 	guint16 count = 0;
-	gint offset;
-	offset = startoffset;
+	gint offset = startoffset;
 
 	addr = tvb_get_ntohl(tvb, offset);
 	count = tvb_get_ntohs(tvb, offset + 6);    /* Number of bytes to read from memory */
@@ -1638,8 +1831,16 @@ static void dissect_readmem_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 		}
 		else
 		{
-			item = proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_custom_memory_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
-			proto_item_append_text(item, " [Unknown Register]");
+			guint32 extended_bootstrap_address_offset = 0;
+			if (is_extended_bootstrap_address(gvcp_info, addr, &extended_bootstrap_address_offset))
+			{
+				dissect_extended_bootstrap_register(addr - extended_bootstrap_address_offset, gvcp_telegram_tree, tvb, offset, 4);
+			}
+			else
+			{
+				item = proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_custom_memory_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_item_append_text(item, " [Unknown Register]");
+			}
 		}
 		proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_readmemcmd_count, tvb, (offset + 6), 2, ENC_BIG_ENDIAN);
 	}
@@ -1650,14 +1851,14 @@ static void dissect_readmem_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 \brief DISSECT: Write memory command
 */
 
-static void dissect_writemem_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, gint startoffset, gint length, gvcp_transaction_t* gvcp_trans)
+static void dissect_writemem_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, gint startoffset, gint length, gvcp_conv_info_t *gvcp_info, gvcp_transaction_t* gvcp_trans)
 {
 	const gchar* address_string = NULL;
 	gboolean is_custom_register = FALSE;
 	guint32 addr = 0;
 
 	addr = tvb_get_ntohl(tvb, startoffset);
-	address_string = get_register_name_from_address(addr, &is_custom_register);
+	address_string = get_register_name_from_address(addr, gvcp_info, &is_custom_register);
 
 	/* fill in Info column in Wireshark GUI */
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s: %d bytes", address_string, (length - 4));
@@ -1688,8 +1889,16 @@ static void dissect_writemem_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, 
 		}
 		else
 		{
-			/* Generic, unknown value */
-			proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_writememcmd_data, tvb, offset, byte_count, ENC_NA);
+			guint32 extended_bootstrap_address_offset = 0;
+			if (is_extended_bootstrap_address(gvcp_info, addr, &extended_bootstrap_address_offset))
+			{
+				dissect_extended_bootstrap_register(addr - extended_bootstrap_address_offset, gvcp_telegram_tree, tvb, offset, byte_count);
+			}
+			else
+			{
+				/* Generic, unknown value */
+				proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_writememcmd_data, tvb, offset, byte_count, ENC_NA);
+			}
 		}
 	}
 }
@@ -1797,72 +2006,82 @@ static void dissect_eventdata_cmd(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb,
 	gint data_length = 0;
 	offset = startoffset;
 
-	/* Get event ID */
-	eventid = tvb_get_ntohs(tvb, offset + 2);
-
-	/* fill in Info column in Wireshark GUI */
-	col_append_fstr(pinfo->cinfo, COL_INFO, "[ID: 0x%04X]", eventid);
-
-	if (gvcp_telegram_tree != NULL)
+	while (tvb_captured_length_remaining(tvb, offset) > 12) /* At least enough bytes for and GEV 1.2 EVENTDATA_CMD with one byte of payload? */
 	{
-		/* If extended ID, then we have event_size here (2.1) */
-		if (extendedblockids)
-		{
-			proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_extid_length, tvb, offset, 2, ENC_BIG_ENDIAN);
-			data_length = tvb_get_ntohs(tvb, offset); // We get the data length here
-		}
+		/* Get event ID */
+		eventid = tvb_get_ntohs(tvb, offset + 2);
 
-		/* skip reserved field */
-		offset += 2;
+		/* fill in Info column in Wireshark GUI */
+		col_append_fstr(pinfo->cinfo, COL_INFO, "[ID: 0x%04X]", eventid);
 
-		/* Use range to determine type of event */
-		if ((eventid >= 0x0000) && (eventid <= 0x8000))
+		if (gvcp_telegram_tree != NULL)
 		{
-			/* Standard ID */
-			proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-		}
-		else if ((eventid >= 0x8001) && (eventid <= 0x8FFF))
-		{
-			/* Error */
-			proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_error_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-		}
-		else if ((eventid >= 0x9000) && (eventid <= 0xFFFF))
-		{
-			/* Device specific */
-			proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_device_specific_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-		}
-		offset += 2;
+			/* If extended ID, then we have event_size here (2.1) */
+			if (extendedblockids)
+			{
+				proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_extid_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+				data_length = tvb_get_ntohs(tvb, offset); // We get the data length here
+			}
 
-		/* Stream channel (possibly) associated with event */
-		proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_stream_channel_index, tvb, offset, 2, ENC_BIG_ENDIAN);
-		offset += 2;
-
-		if (extendedblockids == 0)
-		{
-			/* Block id (16 bit) associated with event */
-			proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_block_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+			/* skip reserved field */
 			offset += 2;
-		}
-		else
-		{
+
+			/* Use range to determine type of event */
+			if ((eventid >= 0x0000) && (eventid <= 0x8000))
+			{
+				/* Standard ID */
+				proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+			}
+			else if ((eventid >= 0x8001) && (eventid <= 0x8FFF))
+			{
+				/* Error */
+				proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_error_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+			}
+			else if ((eventid >= 0x9000) && (eventid <= 0xFFFF))
+			{
+				/* Device specific */
+				proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_device_specific_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+			}
 			offset += 2;
-			/* Block id (64 bit) only if reported by gvcp flag */
-			proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_block_id_64bit_v2_0, tvb, offset, 8, ENC_BIG_ENDIAN);
+
+			/* Stream channel (possibly) associated with event */
+			proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_stream_channel_index, tvb, offset, 2, ENC_BIG_ENDIAN);
+			offset += 2;
+
+			if (extendedblockids == 0)
+			{
+				/* Block id (16 bit) associated with event */
+				proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_block_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+				offset += 2;
+			}
+			else
+			{
+				offset += 2;
+				/* Block id (64 bit) only if reported by gvcp flag */
+				proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_block_id_64bit_v2_0, tvb, offset, 8, ENC_BIG_ENDIAN);
+				offset += 8;
+			}
+
+			/* Timestamp (64 bit) associated with event */
+			proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_timestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
 			offset += 8;
+
+			if (extendedblockids)
+			{
+				if (data_length > 24)
+				{
+					/* Data */
+					proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_data, tvb, offset, data_length - 24, ENC_NA);
+					offset += data_length - 24;
+				}
+			}
+			else
+			{
+				/* Data */
+				proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_data, tvb, offset, -1, ENC_NA);
+				return;
+			}
 		}
-
-		/* Timestamp (64 bit) associated with event */
-		proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_timestamp, tvb, offset, 8, ENC_BIG_ENDIAN);
-		offset += 8;
-
-		if ((data_length == 24) && (extendedblockids))
-		{
-			/* "no data" this is an ok case for extended id, eventcmd to be deprecated */
-			return;
-		}
-
-		/* Data */
-		proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_eventcmd_data, tvb, offset, -1, ENC_NA);
 	}
 }
 
@@ -1972,12 +2191,11 @@ static void dissect_discovery_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb,
 	}
 }
 
-
 /*
 \brief DISSECT: Read register acknowledge
 */
 
-static void dissect_readreg_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, gint startoffset, gint length, gvcp_transaction_t *gvcp_trans)
+static void dissect_readreg_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, gint startoffset, gint length, gvcp_conv_info_t *gvcp_info, gvcp_transaction_t *gvcp_trans)
 {
 	guint i;
 	gboolean is_custom_register = FALSE;
@@ -2006,7 +2224,7 @@ static void dissect_readreg_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 		{
 			if (addr_list_size > 0)
 			{
-				address_string = get_register_name_from_address(*((guint32*)wmem_array_index(gvcp_trans->addr_list, 0)), &is_custom_register);
+				address_string = get_register_name_from_address(*((guint32*)wmem_array_index(gvcp_trans->addr_list, 0)), gvcp_info, &is_custom_register);
 			}
 
 			if (num_registers)
@@ -2025,7 +2243,7 @@ static void dissect_readreg_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 		/* Subtree initialization for Payload Data: READREG_ACK */
 		if (num_registers > 1)
 		{
-			gvcp_telegram_tree = proto_tree_add_subtree(gvcp_telegram_tree, tvb,  offset, length,
+			gvcp_telegram_tree = proto_tree_add_subtree(gvcp_telegram_tree, tvb, offset, length,
 												ett_gvcp_payload_ack, NULL, "Register Value List");
 		}
 
@@ -2035,13 +2253,31 @@ static void dissect_readreg_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 
 			if (valid_trans && i < addr_list_size)
 			{
+				gint stream_channel_count = 0;
 				curr_register = *((guint32*)wmem_array_index(gvcp_trans->addr_list, i));
-				address_string = get_register_name_from_address(curr_register, &is_custom_register);
+				address_string = get_register_name_from_address(curr_register, gvcp_info, &is_custom_register);
+				for (; stream_channel_count < GVCP_MAX_STREAM_CHANNEL_COUNT; stream_channel_count++)
+				{
+					if (curr_register == (guint32)GVCP_SC_EXTENDED_BOOTSTRAP_ADDRESS(stream_channel_count))
+					{
+						gvcp_info->extended_bootstrap_address[stream_channel_count] = tvb_get_ntohl(tvb, offset);
+						break;
+					}
+				}
 
 				if (!is_custom_register) /* bootstrap register */
 				{
-					proto_tree_add_uint(gvcp_telegram_tree, hf_gvcp_readregcmd_bootstrap_register, tvb, 0, 4, curr_register);
-					dissect_register(curr_register, gvcp_telegram_tree, tvb, offset, length);
+					guint32 extended_bootstrap_address_offset = 0;
+					if (is_extended_bootstrap_address(gvcp_info, curr_register, &extended_bootstrap_address_offset))
+					{
+						proto_tree_add_uint_format_value(gvcp_telegram_tree, hf_gvcp_readregcmd_extended_bootstrap_register, tvb, offset, 4, curr_register, "%s (0x%08X)", address_string, curr_register);
+						dissect_extended_bootstrap_register(curr_register - extended_bootstrap_address_offset, gvcp_telegram_tree, tvb, offset, length);
+					}
+					else
+					{
+						proto_tree_add_uint(gvcp_telegram_tree, hf_gvcp_readregcmd_bootstrap_register, tvb, 0, 4, curr_register);
+						dissect_register(curr_register, gvcp_telegram_tree, tvb, offset, length);
+					}
 				}
 				else
 				{
@@ -2106,24 +2342,34 @@ static void dissect_writereg_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, 
 \brief DISSECT: Read memory acknowledge
 */
 
-static void dissect_readmem_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, gint startoffset, gint length)
+static void dissect_readmem_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, gint startoffset, gint length, gvcp_conv_info_t *gvcp_info)
 {
 	guint32 addr = 0;
 	const gchar *address_string = NULL;
 	gboolean is_custom_register = FALSE;
 
 	addr = tvb_get_ntohl(tvb, startoffset);
-	address_string = get_register_name_from_address(addr, &is_custom_register);
+	address_string = get_register_name_from_address(addr, gvcp_info, &is_custom_register);
 
 	/* Fill in Wireshark GUI Info column */
 	col_append_str(pinfo->cinfo, COL_INFO, address_string);
 
 	if (gvcp_telegram_tree != NULL)
 	{
+		gint stream_channel_count = 0;
 		guint offset;
 		guint byte_count;
 		offset = startoffset + 4;
 		byte_count = (length - 4);
+
+		for (stream_channel_count = 0; stream_channel_count < GVCP_MAX_STREAM_CHANNEL_COUNT; stream_channel_count++)
+		{
+			if (startoffset == GVCP_SC_EXTENDED_BOOTSTRAP_ADDRESS(stream_channel_count))
+			{
+				gvcp_info->extended_bootstrap_address[stream_channel_count] = tvb_get_ntohl(tvb, offset);
+				break;
+			}
+		}
 
 		/* Bootstrap register known address */
 		proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_readmemcmd_address, tvb, startoffset, 4, ENC_BIG_ENDIAN);
@@ -2134,8 +2380,16 @@ static void dissect_readmem_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 		}
 		else
 		{
-			/* Generic, unknown value */
-			proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_readmemcmd_data_read, tvb, offset, byte_count, ENC_NA);
+			guint32 extended_bootstrap_address_offset = 0;
+			if (is_extended_bootstrap_address(gvcp_info, addr, &extended_bootstrap_address_offset))
+			{
+				dissect_extended_bootstrap_register(addr - extended_bootstrap_address_offset, gvcp_telegram_tree, tvb, offset, byte_count);
+			}
+			else
+			{
+				/* Generic, unknown value */
+				proto_tree_add_item(gvcp_telegram_tree, hf_gvcp_readmemcmd_data_read, tvb, offset, byte_count, ENC_NA);
+			}
 		}
 	}
 }
@@ -2145,14 +2399,14 @@ static void dissect_readmem_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, p
 \brief DISSECT: Write memory acknowledge
 */
 
-static void dissect_writemem_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, gint startoffset, gint length, gvcp_transaction_t* gvcp_trans)
+static void dissect_writemem_ack(proto_tree *gvcp_telegram_tree, tvbuff_t *tvb, packet_info *pinfo, gint startoffset, gint length, gvcp_conv_info_t *gvcp_info, gvcp_transaction_t* gvcp_trans)
 {
 	if (gvcp_trans && gvcp_trans->addr_list)
 	{
 		if (wmem_array_get_count(gvcp_trans->addr_list) > 0)
 		{
 			const gchar *address_string = NULL;
-			address_string = get_register_name_from_address((*((guint32*)wmem_array_index(gvcp_trans->addr_list, 0))), NULL);
+			address_string = get_register_name_from_address((*((guint32*)wmem_array_index(gvcp_trans->addr_list, 0))), gvcp_info, NULL);
 			col_append_str(pinfo->cinfo, COL_INFO, address_string);
 		}
 	}
@@ -2332,8 +2586,13 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 	gvcp_info = (gvcp_conv_info_t*)conversation_get_proto_data(conversation, proto_gvcp);
 	if (!gvcp_info)
 	{
+		gint stream_channel_count = 0;
 		gvcp_info = (gvcp_conv_info_t*)wmem_alloc(wmem_file_scope(), sizeof(gvcp_conv_info_t));
 		gvcp_info->pdus = wmem_map_new(wmem_file_scope(), g_direct_hash, g_direct_equal);
+		for (; stream_channel_count < GVCP_MAX_STREAM_CHANNEL_COUNT; stream_channel_count++)
+		{
+			gvcp_info->extended_bootstrap_address[stream_channel_count] = 0;
+		}
 		conversation_add_proto_data(conversation, proto_gvcp, gvcp_info);
 	}
 
@@ -2436,19 +2695,19 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 			break;
 
 		case GVCP_READREG_CMD:
-			dissect_readreg_cmd(gvcp_telegram_tree, tvb, pinfo, offset, data_length, gvcp_trans);
+			dissect_readreg_cmd(gvcp_telegram_tree, tvb, pinfo, offset, data_length, gvcp_info, gvcp_trans);
 			break;
 
 		case GVCP_WRITEREG_CMD:
-			dissect_writereg_cmd(gvcp_telegram_tree, tvb, pinfo, offset, data_length, gvcp_trans);
+			dissect_writereg_cmd(gvcp_telegram_tree, tvb, pinfo, offset, data_length, gvcp_info, gvcp_trans);
 			break;
 
 		case GVCP_READMEM_CMD:
-			dissect_readmem_cmd(gvcp_telegram_tree, tvb, pinfo, offset);
+			dissect_readmem_cmd(gvcp_telegram_tree, tvb, pinfo, offset, gvcp_info);
 			break;
 
 		case GVCP_WRITEMEM_CMD:
-			dissect_writemem_cmd(gvcp_telegram_tree, tvb, pinfo, offset, data_length, gvcp_trans);
+			dissect_writemem_cmd(gvcp_telegram_tree, tvb, pinfo, offset, data_length, gvcp_info, gvcp_trans);
 			break;
 
 		case GVCP_EVENT_CMD:
@@ -2505,7 +2764,7 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 			break;
 
 		case GVCP_READREG_ACK:
-			dissect_readreg_ack(gvcp_telegram_tree, tvb, pinfo, offset, data_length, gvcp_trans);
+			dissect_readreg_ack(gvcp_telegram_tree, tvb, pinfo, offset, data_length, gvcp_info, gvcp_trans);
 			break;
 
 		case GVCP_WRITEREG_ACK:
@@ -2513,11 +2772,11 @@ static int dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 			break;
 
 		case GVCP_READMEM_ACK:
-			dissect_readmem_ack(gvcp_telegram_tree, tvb, pinfo, offset, data_length);
+			dissect_readmem_ack(gvcp_telegram_tree, tvb, pinfo, offset, data_length, gvcp_info);
 			break;
 
 		case GVCP_WRITEMEM_ACK:
-			dissect_writemem_ack(gvcp_telegram_tree, tvb, pinfo, offset, data_length, gvcp_trans);
+			dissect_writemem_ack(gvcp_telegram_tree, tvb, pinfo, offset, data_length, gvcp_info, gvcp_trans);
 			break;
 
 		case GVCP_PENDING_ACK:
@@ -2570,7 +2829,7 @@ void proto_register_gvcp(void)
 
 		{ &hf_gvcp_64bitid_flag_v2_0,
 		{ "64 bit ID", "gvcp.cmd.flag.64bitid",
-		FT_BOOLEAN, 8, NULL, 0x08,
+		FT_BOOLEAN, 8, NULL, 0x10,
 		NULL, HFILL }},
 
 		{ &hf_gvcp_allow_broadcast_acknowledge_flag,
@@ -2648,6 +2907,11 @@ void proto_register_gvcp(void)
 		FT_UINT32, BASE_HEX_DEC, VALS(bootstrapregisternames), 0x0,
 		NULL, HFILL }},
 
+		{ &hf_gvcp_readregcmd_extended_bootstrap_register,
+		{ "Extended Bootstrap Register", "gvcp.cmd.readreg.extendedbootstrapregister",
+		FT_UINT32, BASE_HEX_DEC, VALS(extendedbootstrapregisternames), 0x0,
+		NULL, HFILL } },
+
 		/* Write register */
 
 		{ &hf_gvcp_writeregcmd_data,
@@ -2659,6 +2923,11 @@ void proto_register_gvcp(void)
 		{ "Bootstrap Register", "gvcp.cmd.writereg.bootstrapregister",
 		FT_UINT32, BASE_HEX_DEC, VALS(bootstrapregisternames), 0x0,
 		NULL, HFILL }},
+
+		{ &hf_gvcp_writeregcmd_extended_bootstrap_register,
+		{ "Extended Bootstrap Register", "gvcp.cmd.writereg.extendedbootstrapregister",
+		FT_UINT32, BASE_HEX_DEC, VALS(extendedbootstrapregisternames), 0x0,
+		NULL, HFILL } },
 
 		{ &hf_gvcp_writeregcmd_data_index,
 		{ "Data Index", "gvcp.cmd.writereg.dataindex",
@@ -3079,6 +3348,18 @@ void proto_register_gvcp(void)
 		NULL, HFILL
 		}},
 
+		{ &hf_gvcp_sccaps_scmbsx_supported_v2_2,
+		{ "Stream Channel Max. Block Size Supported", "gvcp.bootstrap.sccaps.scmbssupported",
+		FT_BOOLEAN, 32, NULL, 0x20000000,
+		NULL, HFILL
+		} },
+
+		{ &hf_gvcp_sccaps_scebax_supported_v2_2,
+		{ "Stream Channel Extended Bootstrap Address Supported", "gvcp.bootstrap.sccaps.scebasupported",
+		FT_BOOLEAN, 32, NULL, 0x10000000,
+		NULL, HFILL
+		} },
+
 		/* GVCP_MESSAGE_CHANNEL_CAPS */
 
 		{& hf_gvcp_mcsp_supported,
@@ -3086,6 +3367,18 @@ void proto_register_gvcp(void)
 		FT_BOOLEAN, 32, NULL, 0x80000000,
 		NULL, HFILL
 		}},
+
+		{ &hf_gvcp_mcc_supported_v2_2,
+		{ "MCC Supported", "gvcp.bootstrap.mccaps.mccsupported",
+		FT_BOOLEAN, 32, NULL, 0x40000000,
+		NULL, HFILL
+		} },
+
+		{ &hf_gvcp_mcec_supported_v2_2,
+		{ "MCEC Supported", "gvcp.bootstrap.mccaps.mcecsupported",
+		FT_BOOLEAN, 32, NULL, 0x20000000,
+		NULL, HFILL
+		} },
 
 		/* GVCP_IEEE_1588_EXTENDED_CAPABILITY */
 
@@ -3503,6 +3796,14 @@ void proto_register_gvcp(void)
 		NULL, HFILL
 		}},
 
+		/* GVCP_MC_CONFIGURATION */
+
+		{ &hf_gvcp_mcec_enabled_v2_2,
+		{ "MCEC Enabled", "gvcp.bootstrap.mcconfig.mcecenabled",
+		FT_BOOLEAN, 32, NULL, 0x80000000,
+		NULL, HFILL
+		} },
+
 		/* GVCP_SC_DESTINATION_PORT(0), 1, 2, 3 */
 
 		{& hf_gvcp_sc_direction,
@@ -3587,6 +3888,18 @@ void proto_register_gvcp(void)
 		NULL, HFILL
 		}},
 
+		{ &hf_gvcp_sc_scmpcx_supported_v2_2,
+		{ "Stream Channel Maximum Packet Count Supported", "gvcp.bootstrap.sccx.scmpcxsupported",
+		FT_BOOLEAN, 32, NULL, 0x00000100,
+		NULL, HFILL
+		} },
+
+		{ &hf_gvcp_sc_gendc_supported_v2_2,
+		{ "GenDC Supported", "gvcp.bootstrap.sccx.gendcsupported",
+		FT_BOOLEAN, 32, NULL, 0x00000080,
+		NULL, HFILL
+		} },
+
 		{& hf_gvcp_sc_multi_part_supported_v2_1,
 		{ "Multi-part Supported", "gvcp.bootstrap.sccx.multipartsupported",
 		FT_BOOLEAN, 32, NULL, 0x00000040,
@@ -3630,6 +3943,12 @@ void proto_register_gvcp(void)
 		}},
 
 		/* GVCP_SC_CONFIGURATION(0), 1, 2, 3 */
+
+		{ &hf_gvcp_sc_gendc_enabled_v2_2,
+		{ "GenDC Enabled", "gvcp.bootstrap.sccfgx.gendcenabled",
+		FT_BOOLEAN, 32, NULL, 0x80,
+		NULL, HFILL
+		} },
 
 		{& hf_gvcp_sc_multi_part_enabled_v2_1,
 		{ "Multi-part Enabled", "gvcp.bootstrap.sccfgx.multipartenabled",
@@ -3868,6 +4187,70 @@ void proto_register_gvcp(void)
 		FT_BOOLEAN, 32, TFS(&zonedirectionnames), 0x00000001,
 		NULL, HFILL
 		}},
+
+		/* GVCP_SC_MAX_PACKET_COUNT(0), 1, 2, 3 */
+
+		{ &hf_gvcp_sc_max_packet_count_v2_2,
+		{ "Max. Packet Count", "gvcp.bootstrap.scmpcx.maxpacketcount",
+		FT_UINT32, BASE_DEC, NULL, 0x0,
+		NULL, HFILL
+		} },
+
+		/* GVCP_SC_MAX_BLOCK_SIZE_HIGH(0), 1, 2, 3 */
+
+		{ &hf_gvcp_sc_max_block_size_high_v2_2,
+		{ "Max. Block Size (High)", "gvcp.bootstrap.maxblocksizehigh",
+		FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
+		NULL, HFILL
+		} },
+
+		/* GVCP_SC_MAX_BLOCK_SIZE_LOW(0), 1, 2, 3 */
+
+		{ &hf_gvcp_sc_max_block_size_low_v2_2,
+		{ "Max. Payload Size (Low)", "gvcp.bootstrap.maxblocksizelow",
+		FT_UINT32, BASE_DEC_HEX, NULL, 0x0,
+		NULL, HFILL
+		} },
+
+		/* GVCP_SC_EXTENDED_BOOTSTRAP_ADDRESS(0), 1, 2, 3 */
+
+		{ &hf_gvcp_sc_extended_registers_address_v2_2,
+		{ "Stream Channel Extended Bootstrap Address", "gvcp.bootstrap.extendedbootstrapaddress",
+		FT_UINT32, BASE_HEX, NULL, 0x0,
+		NULL, HFILL
+		} },
+
+		/* GVCP_SC_GENDC_DESCRIPTOR_ADDRESS(0), 1, 2, 3 */
+
+		{ &hf_gvcp_sc_gendc_descriptor_address_v2_2,
+		{ "Stream Channel GenDC Descriptor Address", "gvcp.bootstrap.gendc.descriptoraddress",
+		FT_UINT32, BASE_HEX, NULL, 0x0,
+		NULL, HFILL
+		} },
+
+		/* GVCP_SC_GENDC_DESCRIPTOR_SIZE(0), 1, 2, 3 */
+
+		{ &hf_gvcp_sc_gendc_descriptor_size_v2_2,
+		{ "Stream Channel GenDC Descriptor Size", "gvcp.bootstrap.gedc.descriptorsize",
+		FT_UINT32, BASE_HEX, NULL, 0x0,
+		NULL, HFILL
+		} },
+
+		/* GVCP_SC_GENDC_FLOW_MAPPING_TABLE_ADDRESS(0), 1, 2, 3 */
+
+		{ &hf_gvcp_sc_gendc_flow_mapping_table_address_v2_2,
+		{ "Stream Channel GenDC Flow Mapping Table Address", "gvcp.bootstrap.gendc.flowmappingtablesize",
+		FT_UINT32, BASE_HEX, NULL, 0x0,
+		NULL, HFILL
+		} },
+
+		/* GVCP_SC_GENDC_FLOW_MAPPING_TABLE_SIZE(0), 1, 2, 3 */
+
+		{ &hf_gvcp_sc_gendc_flow_mapping_table_size_v2_2,
+		{ "Stream Channel GenDC Flow Mapping Table Size", "gvcp.bootstrap.gendc.flowmappingtablesize",
+		FT_UINT32, BASE_HEX, NULL, 0x0,
+		NULL, HFILL
+		} },
 
 		/* GVCP_ACTION_GROUP_KEY(0), 1, 2, 3, 4, 5, 6, 7, 8, 9 */
 
