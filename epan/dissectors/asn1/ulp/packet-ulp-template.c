@@ -64,7 +64,6 @@ static gint ett_ulp = -1;
 static gint ett_ulp_setid = -1;
 static gint ett_ulp_thirdPartyId = -1;
 static gint ett_ulp_ganssTimeModels = -1;
-static gint ett_ulp_addPosMode = -1;
 #include "packet-ulp-ett.c"
 
 static dissector_handle_t ulp_tcp_handle;
@@ -394,7 +393,6 @@ void proto_register_ulp(void) {
     &ett_ulp_setid,
     &ett_ulp_thirdPartyId,
     &ett_ulp_ganssTimeModels,
-    &ett_ulp_addPosMode,
 #include "packet-ulp-ettarr.c"
   };
 
