@@ -93,7 +93,6 @@ StockIcon::StockIcon(const QString icon_name) :
             foreach(QSize sz, mask_icon.availableSizes()) {
                 QPixmap mask_pm = mask_icon.pixmap(sz);
                 QImage normal_img(sz, QImage::Format_ARGB32);
-                normal_img.setDevicePixelRatio(mask_pm.devicePixelRatio());
                 QPainter painter(&normal_img);
                 QBrush br(wsApp->palette().color(QPalette::Active, QPalette::WindowText));
                 painter.fillRect(0, 0, sz.width(), sz.height(), br);
