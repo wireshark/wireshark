@@ -60,12 +60,7 @@ static gint ett_nxap_container = -1;
 static gint ett_xnap_PLMN_Identity = -1;
 static gint ett_xnap_measurementTimingConfiguration = -1;
 static gint ett_xnap_TransportLayerAddress = -1;
-static gint ett_xnap_nr_EncyptionAlgorithms = -1;
-static gint ett_xnap_nr_IntegrityProtectionAlgorithms = -1;
-static gint ett_xnap_e_utra_EncyptionAlgorithms = -1;
-static gint ett_xnap_e_utra_IntegrityProtectionAlgorithms = -1;
 static gint ett_xnap_ng_ran_TraceID = -1;
-static gint ett_xnap_interfaces_to_trace = -1;
 static gint ett_xnap_LastVisitedEUTRANCellInformation = -1;
 static gint ett_xnap_LastVisitedNGRANCellInformation = -1;
 static gint ett_xnap_LastVisitedUTRANCellInformation = -1;
@@ -269,12 +264,7 @@ void proto_register_xnap(void) {
     &ett_xnap_PLMN_Identity,
     &ett_xnap_measurementTimingConfiguration,
     &ett_xnap_TransportLayerAddress,
-    &ett_xnap_nr_EncyptionAlgorithms,
-    &ett_xnap_nr_IntegrityProtectionAlgorithms,
-    &ett_xnap_e_utra_EncyptionAlgorithms,
-    &ett_xnap_e_utra_IntegrityProtectionAlgorithms,
     &ett_xnap_ng_ran_TraceID,
-    &ett_xnap_interfaces_to_trace,
     &ett_xnap_LastVisitedEUTRANCellInformation,
     &ett_xnap_LastVisitedNGRANCellInformation,
     &ett_xnap_LastVisitedUTRANCellInformation,

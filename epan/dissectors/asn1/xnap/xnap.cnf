@@ -341,75 +341,6 @@ MaximumDataBurstVolume DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_byte_byt
      proto_tree_add_item(subtree, hf_xnap_transportLayerAddressIPv6, parameter_tvb, 4, 16, ENC_NA);
   }
 
-#.FN_BODY UESecurityCapabilities/nr-EncyptionAlgorithms VAL_PTR=&parameter_tvb
-  tvbuff_t *parameter_tvb = NULL;
-%(DEFAULT_BODY)s
-  if (parameter_tvb) {
-    const gint *fields[] = {
-      &hf_xnap_T_nr_EncyptionAlgorithms_nea1_128,
-      &hf_xnap_T_nr_EncyptionAlgorithms_nea2_128,
-      &hf_xnap_T_nr_EncyptionAlgorithms_nea3_128,
-      NULL
-    };
-    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_nr_EncyptionAlgorithms);
-    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 2, fields, ENC_BIG_ENDIAN);
-  }
-
-#.FN_BODY UESecurityCapabilities/nr-IntegrityProtectionAlgorithms VAL_PTR=&parameter_tvb
-  tvbuff_t *parameter_tvb = NULL;
-%(DEFAULT_BODY)s
-  if (parameter_tvb) {
-    const gint *fields[] = {
-      &hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia1_128,
-      &hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia2_128,
-      &hf_xnap_T_nr_IntegrityProtectionAlgorithms_nia3_128,
-      NULL
-    };
-    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_nr_IntegrityProtectionAlgorithms);
-    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 2, fields, ENC_BIG_ENDIAN);
-  }
-
-#.FN_BODY UESecurityCapabilities/e-utra-EncyptionAlgorithms VAL_PTR=&parameter_tvb
-  tvbuff_t *parameter_tvb = NULL;
-%(DEFAULT_BODY)s
-  if (parameter_tvb) {
-    const gint *fields[] = {
-      &hf_xnap_T_e_utra_EncyptionAlgorithms_eea1_128,
-      &hf_xnap_T_e_utra_EncyptionAlgorithms_eea2_128,
-      &hf_xnap_T_e_utra_EncyptionAlgorithms_eea3_128,
-      NULL
-    };
-    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_e_utra_EncyptionAlgorithms);
-    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 2, fields, ENC_BIG_ENDIAN);
-  }
-
-#.FN_BODY UESecurityCapabilities/e-utra-IntegrityProtectionAlgorithms VAL_PTR=&parameter_tvb
-  tvbuff_t *parameter_tvb = NULL;
-%(DEFAULT_BODY)s
-  if (parameter_tvb) {
-    const gint *fields[] = {
-      &hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_eia1_128,
-      &hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_eia2_128,
-      &hf_xnap_T_e_utra_IntegrityProtectionAlgorithms_eia3_128,
-      NULL
-    };
-    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_e_utra_IntegrityProtectionAlgorithms);
-    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 2, fields, ENC_BIG_ENDIAN);
-  }
-
-#.FN_BODY RAT-RestrictionInformation VAL_PTR=&parameter_tvb
-  tvbuff_t *parameter_tvb = NULL;
-%(DEFAULT_BODY)s
-  if (parameter_tvb) {
-    const gint *fields[] = {
-      &hf_xnap_RAT_RestrictionInformation_e_UTRA,
-      &hf_xnap_RAT_RestrictionInformation_nR,
-      NULL
-    };
-    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_RAT_RestrictionInformation);
-    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
-  }
-
 #.FN_BODY TraceActivation/ng-ran-TraceID VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb;
   proto_tree *subtree = NULL;
@@ -420,22 +351,6 @@ MaximumDataBurstVolume DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_byte_byt
   dissect_e212_mcc_mnc(parameter_tvb, actx->pinfo, subtree, 0, E212_NONE, FALSE);
   proto_tree_add_item(subtree, hf_xnap_ng_ran_TraceID_TraceID, parameter_tvb, 3, 3, ENC_BIG_ENDIAN);
   proto_tree_add_item(subtree, hf_xnap_ng_ran_TraceID_TraceRecordingSessionReference, parameter_tvb, 6, 2, ENC_BIG_ENDIAN);
-
-#.FN_BODY TraceActivation/interfaces-to-trace VAL_PTR = &parameter_tvb
-  tvbuff_t *parameter_tvb = NULL;
-%(DEFAULT_BODY)s
-  if (parameter_tvb) {
-    const gint *fields[] = {
-      &hf_xnap_T_interfaces_to_trace_ng_c,
-      &hf_xnap_T_interfaces_to_trace_x_nc,
-      &hf_xnap_T_interfaces_to_trace_uu,
-      &hf_xnap_T_interfaces_to_trace_f1_c,
-      &hf_xnap_T_interfaces_to_trace_e1,
-      NULL
-    };
-    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_interfaces_to_trace);
-    proto_tree_add_bitmask_list(subtree, parameter_tvb, 0, 1, fields, ENC_BIG_ENDIAN);
-  }
 
 #.FN_BODY LastVisitedNGRANCellInformation VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb = NULL;
