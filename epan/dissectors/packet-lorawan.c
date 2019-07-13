@@ -1396,6 +1396,7 @@ proto_reg_handoff_lorawan(void)
 	static dissector_handle_t lorawan_handle;
 	lorawan_handle = create_dissector_handle(dissect_lorawan, proto_lorawan);
 	dissector_add_uint("loratap.syncword", 0x34, lorawan_handle);
+	dissector_add_for_decode_as("udp.port", lorawan_handle);
 }
 
 /*
