@@ -1721,7 +1721,6 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item      *command_tree = NULL;
     proto_tree      *parameters_item = NULL;
     proto_item      *parameters_tree = NULL;
-    guint8          *col_str = NULL;
     gchar           *at_stream;
     gchar           *at_command = NULL;
     gint             i_char = 0;
@@ -1745,9 +1744,6 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (!command_number) {
         proto_tree_add_item(tree, hf_data, tvb, offset, length, ENC_NA | ENC_ASCII);
-        col_str = (guint8 *) wmem_alloc(wmem_packet_scope(), length + 1);
-        tvb_memcpy(tvb, col_str, offset, length);
-        col_str[length] = '\0';
     }
 
     at_stream = (guint8 *) wmem_alloc(wmem_packet_scope(), length + 1);
@@ -1756,10 +1752,6 @@ dissect_at_command(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     while (at_stream[i_char]) {
         at_stream[i_char] = g_ascii_toupper(at_stream[i_char]);
-        if (!command_number) {
-            col_str[i_char] = g_ascii_toupper(col_str[i_char]);
-            if (!g_ascii_isgraph(col_str[i_char])) col_str[i_char] = ' ';
-        }
         i_char += 1;
     }
 
