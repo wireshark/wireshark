@@ -818,6 +818,7 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 
 #.FN_BODY PLMN-Identity
   wmem_strbuf_t* mcc_mnc_strbuf;
+  wmem_strbuf_t* mcc_strbuf;
   guint32 string_len;
   gchar* mcc_mnc_string;
   tvbuff_t* mcc_mnc_tvb;
@@ -839,6 +840,17 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   string_len = (guint32)wmem_strbuf_get_len(mcc_mnc_strbuf);
   mcc_mnc_string = wmem_strbuf_finalize(mcc_mnc_strbuf);
 
+  if(string_len >= 3)
+  {
+    /* 3 MCC digits were found, keep for later in case MCC is missing in other PLMN ids*/
+    mcc_strbuf = wmem_strbuf_sized_new(actx->pinfo->pool,4,4);
+    wmem_strbuf_append_c(mcc_strbuf,mcc_mnc_string[0]);
+    wmem_strbuf_append_c(mcc_strbuf,mcc_mnc_string[1]);
+    wmem_strbuf_append_c(mcc_strbuf,mcc_mnc_string[2]);
+    wmem_strbuf_append_c(mcc_strbuf,'\0');
+    private_data_set_last_mcc_strbuf(actx,mcc_strbuf);
+  }
+
   /* Creating TVB from extracted string*/
   mcc_mnc_tvb = tvb_new_child_real_data(tvb, (guint8*)mcc_mnc_string, string_len, string_len);
   add_new_data_source(actx->pinfo, mcc_mnc_tvb, "MCC-MNC");
@@ -848,6 +860,8 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 
 #.FN_BODY PLMN-IdentityWithOptionalMCC-r6
   wmem_strbuf_t* mcc_mnc_strbuf;
+  wmem_strbuf_t* temp_strbuf;
+  wmem_strbuf_t* last_mcc_strbuf;
   guint32 string_len;
   gchar* mcc_mnc_string;
   tvbuff_t* mcc_mnc_tvb;
@@ -867,10 +881,35 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 
   /* Extracting the string collected in the strbuf */
   string_len = (guint32)wmem_strbuf_get_len(mcc_mnc_strbuf);
+  mcc_mnc_string = wmem_strbuf_finalize(mcc_mnc_strbuf);
+  if (string_len > 3) {
+      /* 3 MCC digits and at least 1 MNC digit were found, keep MCC for later
+         in case it's missing in other PLMN ids*/
+    temp_strbuf = wmem_strbuf_sized_new(actx->pinfo->pool,4,4);
+    wmem_strbuf_append_c(temp_strbuf,mcc_mnc_string[0]);
+    wmem_strbuf_append_c(temp_strbuf,mcc_mnc_string[1]);
+    wmem_strbuf_append_c(temp_strbuf,mcc_mnc_string[2]);
+    wmem_strbuf_append_c(temp_strbuf,'\0');
+    private_data_set_last_mcc_strbuf(actx,temp_strbuf);
+  }
+  else {
+      /* mcc_mnc_strbuf Probably only has 3/2 digits of MNC */
+      /* Try to fill MCC form "last MCC" if we have it stored */
+      last_mcc_strbuf = private_data_get_last_mcc_strbuf(actx);
+      if(last_mcc_strbuf)
+      {
+        /* Concat MCC and MNC in temp buffer */
+        temp_strbuf = wmem_strbuf_sized_new(actx->pinfo->pool,7,7);
+        wmem_strbuf_append_printf(temp_strbuf,"%%s",wmem_strbuf_get_str(last_mcc_strbuf));
+        wmem_strbuf_append_printf(temp_strbuf,"%%s",wmem_strbuf_get_str(mcc_mnc_strbuf));
+        /* Update length of recovered MCC-MNC pair */
+        string_len = (guint32)wmem_strbuf_get_len(temp_strbuf);
+        mcc_mnc_string = wmem_strbuf_finalize(temp_strbuf);
+      }
+  }
+
   if (string_len >= 5) {
-    /* optional MCC was present, we can call E.212 dissector */
-    /* if not present, we could apply the algorithm in 25.331 chapter 8.1.1.5 */
-    mcc_mnc_string = wmem_strbuf_finalize(mcc_mnc_strbuf);
+    /* optional MCC was present (or restored above), we can call E.212 dissector */
 
     /* Creating TVB from extracted string*/
     mcc_mnc_tvb = tvb_new_child_real_data(tvb, (guint8*)mcc_mnc_string, string_len, string_len);
