@@ -45,6 +45,7 @@
  * draft-ietf-idr-bgp-prefix-sid-05
  * http://www.iana.org/assignments/bgp-parameters/ (last updated 2012-04-26)
  * RFC8538 Notification Message Support for BGP Graceful Restart
+ * draft-ietf-bess-evpn-igmp-mld-proxy-03
 
  * TODO:
  * Destination Preference Attribute for BGP (work in progress)
@@ -239,6 +240,15 @@ static dissector_handle_t bgp_handle;
 #define EVPN_INC_MCAST_TREE     3
 #define EVPN_ETH_SEGMENT_ROUTE  4
 #define EVPN_IP_PREFIX_ROUTE    5 /* draft-rabadan-l2vpn-evpn-prefix-advertisement */
+#define EVPN_MC_ETHER_TAG_ROUTE 6 /* draft-ietf-bess-evpn-igmp-mld-proxy-03 */
+#define EVPN_IGMP_JOIN_ROUTE    7 /* draft-ietf-bess-evpn-igmp-mld-proxy-03 */
+#define EVPN_IGMP_LEAVE_ROUTE   8 /* draft-ietf-bess-evpn-igmp-mld-proxy-03 */
+
+#define EVPN_IGMP_MC_FLAG_V1                0x01
+#define EVPN_IGMP_MC_FLAG_V2                0x02
+#define EVPN_IGMP_MC_FLAG_V3                0x04
+#define EVPN_IGMP_MC_FLAG_IE                0x08
+#define EVPN_IGMP_MC_FLAG_RESERVED          0xF0
 
 /* NLRI type as define in BGP flow spec RFC */
 #define BGPNLRI_FSPEC_DST_PFIX      1 /* RFC 5575         */
@@ -322,6 +332,11 @@ static dissector_handle_t bgp_handle;
 #define BGP_EXT_COM_STYPE_EVPN_MMAC         0x00    /* MAC Mobility [draft-ietf-l2vpn-pbb-evpn] */
 #define BGP_EXT_COM_STYPE_EVPN_LABEL        0x01    /* ESI MPLS Label [draft-ietf-l2vpn-evpn] */
 #define BGP_EXT_COM_STYPE_EVPN_IMP          0x02    /* ES Import [draft-sajassi-l2vpn-evpn-segment-route] */
+#define BGP_EXT_COM_STYPE_EVPN_MCFLAGS      0x09    /* draft-ietf-bess-evpn-igmp-mld-proxy */
+#define BGP_EXT_COM_STYPE_EVPN_EVIRT0       0x0a    /* draft-ietf-bess-evpn-igmp-mld-proxy */
+#define BGP_EXT_COM_STYPE_EVPN_EVIRT1       0x0b    /* draft-ietf-bess-evpn-igmp-mld-proxy */
+#define BGP_EXT_COM_STYPE_EVPN_EVIRT2       0x0c    /* draft-ietf-bess-evpn-igmp-mld-proxy */
+#define BGP_EXT_COM_STYPE_EVPN_EVIRT3       0x0d    /* draft-ietf-bess-evpn-igmp-mld-proxy */
 
 /* RFC 7432 Flag single active mode */
 #define BGP_EXT_COM_ESI_LABEL_FLAGS         0x01    /* bitmask: set for single active multi-homing site */
@@ -807,7 +822,10 @@ static const value_string evpnrtypevals[] = {
     { EVPN_MAC_ROUTE,          "MAC Advertisement Route" },
     { EVPN_INC_MCAST_TREE,     "Inclusive Multicast Route" },
     { EVPN_ETH_SEGMENT_ROUTE,  "Ethernet Segment Route" },
-    { EVPN_IP_PREFIX_ROUTE,    "IP Prefix route"},
+    { EVPN_IP_PREFIX_ROUTE,    "IP Prefix route" },
+    { EVPN_MC_ETHER_TAG_ROUTE, "Selective Multicast Ethernet Tag Route" },
+    { EVPN_IGMP_JOIN_ROUTE,    "IGMP Join Synch Route" },
+    { EVPN_IGMP_LEAVE_ROUTE,   "IGMP Leave Synch Route" },
     { 0, NULL }
 };
 
@@ -1075,9 +1093,14 @@ static const value_string bgpext_com_stype_tr_exp_fs_as4[] = {
 };
 
 static const value_string bgpext_com_stype_tr_evpn[] = {
-    { BGP_EXT_COM_STYPE_EVPN_MMAC,  "MAC Mobility" },
-    { BGP_EXT_COM_STYPE_EVPN_LABEL, "ESI MPLS Label" },
-    { BGP_EXT_COM_STYPE_EVPN_IMP,   "ES Import" },
+    { BGP_EXT_COM_STYPE_EVPN_MMAC,    "MAC Mobility" },
+    { BGP_EXT_COM_STYPE_EVPN_LABEL,   "ESI MPLS Label" },
+    { BGP_EXT_COM_STYPE_EVPN_IMP,     "ES Import" },
+    { BGP_EXT_COM_STYPE_EVPN_MCFLAGS, "Multicast Flags Extended Community" },
+    { BGP_EXT_COM_STYPE_EVPN_EVIRT0,  "EVI-RT Type 0 Extended Community" },
+    { BGP_EXT_COM_STYPE_EVPN_EVIRT1,  "EVI-RT Type 1 Extended Community" },
+    { BGP_EXT_COM_STYPE_EVPN_EVIRT2,  "EVI-RT Type 2 Extended Community" },
+    { BGP_EXT_COM_STYPE_EVPN_EVIRT3,  "EVI-RT Type 3 Extended Community" },
     { 0, NULL}
 };
 
@@ -1460,6 +1483,7 @@ static const true_false_string tfs_esi_label_flag = { "Single-Active redundancy"
 static const true_false_string tfs_ospf_rt_mt = { "Type-2", "Type-1" };
 static const true_false_string tfs_eigrp_rtype = { "Internal" , "External" };
 static const true_false_string tfs_cost_replace = { "Replaces the original attribute value", "Evaluated after the original attribute value" };
+static const true_false_string tfs_exclude_include = { "Exclude", "Include" };
 
 /* Maximal size of an IP address string */
 #define MAX_SIZE_OF_IP_ADDR_STRING      16
@@ -1657,6 +1681,24 @@ static int hf_bgp_evpn_nlri_ip_addr = -1;
 static int hf_bgp_evpn_nlri_ipv6_addr = -1;
 static int hf_bgp_evpn_nlri_ipv4_gtw = -1;
 static int hf_bgp_evpn_nlri_ipv6_gtw = -1;
+static int hf_bgp_evpn_nlri_igmp_mc_or_length = -1;
+static int hf_bgp_evpn_nlri_igmp_mc_or_addr_ipv4 = -1;
+static int hf_bgp_evpn_nlri_igmp_mc_or_addr_ipv6 = -1;
+static int hf_bgp_evpn_nlri_igmp_mc_flags = -1;
+static int hf_bgp_evpn_nlri_igmp_mc_flags_v1 = -1;
+static int hf_bgp_evpn_nlri_igmp_mc_flags_v2 = -1;
+static int hf_bgp_evpn_nlri_igmp_mc_flags_v3 = -1;
+static int hf_bgp_evpn_nlri_igmp_mc_flags_ie = -1;
+static int hf_bgp_evpn_nlri_igmp_mc_flags_reserved = -1;
+
+static const int *evpn_nlri_igmp_mc_flags[] = {
+       &hf_bgp_evpn_nlri_igmp_mc_flags_v1,
+       &hf_bgp_evpn_nlri_igmp_mc_flags_v2,
+       &hf_bgp_evpn_nlri_igmp_mc_flags_v3,
+       &hf_bgp_evpn_nlri_igmp_mc_flags_ie,
+       &hf_bgp_evpn_nlri_igmp_mc_flags_reserved,
+       NULL
+       };
 
 /* BGP update tunnel encaps attribute RFC 5512 */
 
@@ -2171,6 +2213,7 @@ static gint ett_bgp_tunnel_subtlv_subtree = -1;
 static gint ett_bgp_link_state = -1;
 static gint ett_bgp_evpn_nlri = -1;
 static gint ett_bgp_evpn_nlri_esi = -1;
+static gint ett_bgp_evpn_nlri_mc = -1;
 static gint ett_bgp_mpls_labels = -1;
 static gint ett_bgp_pmsi_tunnel_id = -1;
 static gint ett_bgp_aigp_attr = -1;
@@ -2573,34 +2616,40 @@ decode_mcast_vpn_nlri_addresses(proto_tree *tree, tvbuff_t *tvb,
     proto_tree_add_item(tree, hf_bgp_mcast_vpn_nlri_source_length, tvb, offset,
                         1, ENC_BIG_ENDIAN);
     addr_len = tvb_get_guint8(tvb, offset);
-    if (addr_len != 32 && addr_len != 128)
+    if (addr_len != 0 && addr_len != 32 && addr_len != 128)
         return -1;
     offset++;
-    if (addr_len == 32) {
-        proto_tree_add_item(tree, hf_bgp_mcast_vpn_nlri_source_addr_ipv4, tvb,
-                            offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
-    } else {
-        proto_tree_add_item(tree, hf_bgp_mcast_vpn_nlri_source_addr_ipv6, tvb,
-                            offset, 16, ENC_NA);
-        offset += 16;
+    switch (addr_len) {
+        case 32:
+            proto_tree_add_item(tree, hf_bgp_mcast_vpn_nlri_source_addr_ipv4, tvb,
+                                offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            break;
+        case 128:
+             proto_tree_add_item(tree, hf_bgp_mcast_vpn_nlri_source_addr_ipv6, tvb,
+                                 offset, 16, ENC_NA);
+             offset += 16;
+             break;
     }
 
     /* Multicast Group Address */
     proto_tree_add_item(tree, hf_bgp_mcast_vpn_nlri_group_length, tvb, offset,
                         1, ENC_BIG_ENDIAN);
     addr_len = tvb_get_guint8(tvb, offset);
-    if (addr_len != 32 && addr_len != 128)
+    if (addr_len != 0 && addr_len != 32 && addr_len != 128)
         return -1;
     offset++;
-    if (addr_len == 32) {
-        proto_tree_add_item(tree, hf_bgp_mcast_vpn_nlri_group_addr_ipv4, tvb,
-                            offset, 4, ENC_BIG_ENDIAN);
-        offset += 4;
-    } else {
-        proto_tree_add_item(tree, hf_bgp_mcast_vpn_nlri_group_addr_ipv6, tvb,
-                            offset, 16, ENC_NA);
-        offset += 16;
+    switch(addr_len) {
+        case 32:
+            proto_tree_add_item(tree, hf_bgp_mcast_vpn_nlri_group_addr_ipv4, tvb,
+                                offset, 4, ENC_BIG_ENDIAN);
+            offset += 4;
+            break;
+        case 128:
+            proto_tree_add_item(tree, hf_bgp_mcast_vpn_nlri_group_addr_ipv6, tvb,
+                                offset, 16, ENC_NA);
+            offset += 16;
+            break;
     }
 
     return offset;
@@ -4700,7 +4749,9 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
     guint8 nlri_len;
     guint8 ip_len;
     guint32 total_length = 0;
+    guint32 or_length;
     proto_item *item;
+    int ret;
 
     route_type = tvb_get_guint8(tvb, offset);
 
@@ -5043,6 +5094,101 @@ static int decode_evpn_nlri(proto_tree *tree, tvbuff_t *tvb, gint offset, packet
                 return -1;
         }
         break;
+
+    case EVPN_MC_ETHER_TAG_ROUTE:
+    case EVPN_IGMP_JOIN_ROUTE:
+    case EVPN_IGMP_LEAVE_ROUTE:
+/*
+          +---------------------------------------+
+          |  RD (8 octets)                        |
+          +---------------------------------------+
+          |  Ethernet Tag ID (4 octets)           |
+          +---------------------------------------+
+          |  Multicast Source Length (1 octet)    |
+          +---------------------------------------+
+          |  Multicast Source Address (variable)  |
+          +---------------------------------------+
+          |  Multicast Group Length (1 octet)     |
+          +---------------------------------------+
+          |  Multicast Group Address (Variable)   |
+          +---------------------------------------+
+          |  Originator Router Length (1 octet)   |
+          +---------------------------------------+
+          |  Originator Router Address (variable) |
+          +---------------------------------------+
+          |  Flags (1 octets) (optional)          |
+          +---------------------------------------+
+
+          +--------------------------------------------------+
+          |  RD (8 octets)                                   |
+          +--------------------------------------------------+
+          | Ethernet Segment Identifier (10 octets)          |
+          +--------------------------------------------------+
+          |  Ethernet Tag ID  (4 octets)                     |
+          +--------------------------------------------------+
+          |  Multicast Source Length (1 octet)               |
+          +--------------------------------------------------+
+          |  Multicast Source Address (variable)             |
+          +--------------------------------------------------+
+          |  Multicast Group Length (1 octet)                |
+          +--------------------------------------------------+
+          |  Multicast Group Address (Variable)              |
+          +--------------------------------------------------+
+          |  Originator Router Length (1 octet)              |
+          +--------------------------------------------------+
+          |  Originator Router Address (variable)            |
+          +--------------------------------------------------+
+          |  Flags (1 octet)                                 |
+          +--------------------------------------------------+
+*/
+
+        if (nlri_len < 15) {
+            expert_add_info_format(pinfo, prefix_tree, &ei_bgp_evpn_nlri_rt_len_err,
+                                   "Invalid length (%u) of EVPN NLRI Route Type 6 (Selective Multicast Ethernet Tag Route)", nlri_len);
+            return -1;
+        }
+        item = proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_rd, tvb, reader_offset,
+                                   8, ENC_NA);
+        proto_item_append_text(item, " (%s)", decode_bgp_rd(tvb, reader_offset));
+        reader_offset += 8;
+
+        if (route_type == EVPN_IGMP_JOIN_ROUTE || route_type == EVPN_IGMP_LEAVE_ROUTE) {
+            decode_evpn_nlri_esi(prefix_tree, tvb, reader_offset, pinfo);
+            reader_offset += 10;
+        }
+
+        proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_etag, tvb, reader_offset,
+                            4, ENC_BIG_ENDIAN);
+        reader_offset += 4;
+
+        ret = decode_mcast_vpn_nlri_addresses(prefix_tree, tvb, reader_offset);
+        if (ret < 0)
+            return -1;
+
+        reader_offset = ret;
+        proto_tree_add_item_ret_uint(prefix_tree, hf_bgp_evpn_nlri_igmp_mc_or_length, tvb,
+                                     reader_offset, 1, ENC_BIG_ENDIAN, &or_length);
+        reader_offset += 1;
+        switch(or_length) {
+            case 32:
+                proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_igmp_mc_or_addr_ipv4, tvb,
+                                    reader_offset, 4, ENC_BIG_ENDIAN);
+                reader_offset += 4;
+                break;
+            case 128:
+                 proto_tree_add_item(prefix_tree, hf_bgp_evpn_nlri_igmp_mc_or_addr_ipv6, tvb,
+                                     reader_offset, 16, ENC_NA);
+                 offset += 16;
+                 break;
+        }
+        if (reader_offset - start_offset < nlri_len) {
+            proto_tree_add_bitmask(prefix_tree, tvb, offset, hf_bgp_evpn_nlri_igmp_mc_flags,
+                                   ett_bgp_evpn_nlri_mc, evpn_nlri_igmp_mc_flags, ENC_BIG_ENDIAN);
+            reader_offset += 1;
+        }
+        total_length = reader_offset - offset;
+        break;
+
     default:
         expert_add_info_format(pinfo, tree, &ei_bgp_evpn_nlri_rt_type_err,
                                "Invalid EVPN Route Type (%u)", route_type);
@@ -10221,7 +10367,34 @@ proto_register_bgp(void)
           BASE_DEC, NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_ls_igp_te_metric_reserved,
         { "Reserved", "bgp.ls.igp_te_metric.reserved", FT_UINT8,
-          BASE_HEX, NULL, 0x0, NULL, HFILL}}
+          BASE_HEX, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_evpn_nlri_igmp_mc_or_length,
+       { "Originator Router Length", "bgp.evpn.nlri.or_length", FT_UINT8,
+          BASE_DEC, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_evpn_nlri_igmp_mc_or_addr_ipv4,
+       { "Originator Router Address IPv4", "bgp.evpn.nlri.or_addr_ipv4", FT_IPv4,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_evpn_nlri_igmp_mc_or_addr_ipv6,
+       { "Originator Router Address IPv6", "bgp.evpn.nlri.or_addr_ipv6", FT_IPv6,
+          BASE_NONE, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_evpn_nlri_igmp_mc_flags,
+       { "Flags", "bgp.evpn.nlri.igmp_mc_flags", FT_UINT8,
+          BASE_HEX, NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_evpn_nlri_igmp_mc_flags_v1,
+        { "IGMP Version 1", "bgp.evpn.nlri.igmp_mc_flags.v1", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), EVPN_IGMP_MC_FLAG_V1, NULL, HFILL}},
+      { &hf_bgp_evpn_nlri_igmp_mc_flags_v2,
+        { "IGMP Version 2", "bgp.evpn.nlri.igmp_mc_flags.v2", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), EVPN_IGMP_MC_FLAG_V2, NULL, HFILL}},
+      { &hf_bgp_evpn_nlri_igmp_mc_flags_v3,
+        { "IGMP Version 3", "bgp.evpn.nlri.igmp_mc_flags.v3", FT_BOOLEAN,
+          8, TFS(&tfs_set_notset), EVPN_IGMP_MC_FLAG_V3, NULL, HFILL}},
+      { &hf_bgp_evpn_nlri_igmp_mc_flags_ie,
+        { "Group Type", "bgp.evpn.nlri.igmp_mc_flags.ie", FT_BOOLEAN,
+          8, TFS(&tfs_exclude_include), EVPN_IGMP_MC_FLAG_IE, NULL, HFILL}},
+      { &hf_bgp_evpn_nlri_igmp_mc_flags_reserved,
+        { "Reserved", "bgp.evpn.nlri.igmp_mc_flags.reserved", FT_UINT8,
+          BASE_HEX, NULL, EVPN_IGMP_MC_FLAG_RESERVED, NULL, HFILL}}
 };
 
     static gint *ett[] = {
@@ -10276,6 +10449,7 @@ proto_register_bgp(void)
       &ett_bgp_link_state,
       &ett_bgp_evpn_nlri,
       &ett_bgp_evpn_nlri_esi,
+      &ett_bgp_evpn_nlri_mc,
       &ett_bgp_mpls_labels,
       &ett_bgp_pmsi_tunnel_id,
       &ett_bgp_aigp_attr,
