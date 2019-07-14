@@ -1640,8 +1640,6 @@ dissect_zpas_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
     if (parameter_number > 1) return FALSE;
 
-    /* CME Error might work in 2 modes: Numeric error codes or Verbose error messages */
-    /* if the parameter stream contains anything but digits and whitespaces, assume verbose */
     switch(parameter_number)
     {
         case 0:
