@@ -8504,7 +8504,11 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <name>ProfileDialog</name>
     <message>
         <source>Name</source>
-        <translation>Nom</translation>
+        <translation type="vanished">Nom</translation>
+    </message>
+    <message>
+        <source>Search for profile ...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Create a new profile using default settings.</source>
@@ -8524,12 +8528,83 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Profils de configuration</translation>
     </message>
     <message>
+        <source>All Profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Global profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>User-defined profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Created from %1</source>
+        <translation type="vanished">Créé à partir de %1</translation>
+    </message>
+    <message>
+        <source>Created from default settings</source>
+        <translation type="vanished">Créé à partir des paramètres par défaut</translation>
+    </message>
+    <message>
+        <source>Renamed from %1</source>
+        <translation type="vanished">Renomé à partir de %1</translation>
+    </message>
+    <message>
+        <source>Go to %1</source>
+        <translation type="vanished">Aller à %1</translation>
+    </message>
+    <message>
+        <source>This is a system provided profile.</source>
+        <translation type="vanished">Ceci est un profile fournit par le système.</translation>
+    </message>
+    <message>
+        <source>A profile already exists with this name.</source>
+        <translation type="vanished">Un profil existe déjà avec ce nom.</translation>
+    </message>
+    <message>
+        <source>A profile already exists with this name</source>
+        <translation type="vanished">Un profil existe déjà avec ce nom.</translation>
+    </message>
+    <message>
+        <source>Profile Error</source>
+        <translation>Erreur de Profil</translation>
+    </message>
+</context>
+<context>
+    <name>ProfileModel</name>
+    <message>
+        <source>Global</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>User</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resetting to default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Created from default settings</source>
+        <translation type="unfinished">Créé à partir des paramètres par défaut</translation>
+    </message>
+    <message>
+        <source>Copied from: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Will be reset to default values</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Created from %1</source>
-        <translation>Créé à partir de %1</translation>
+        <translation type="unfinished">Créé à partir de %1</translation>
     </message>
     <message>
         <source>(system provided)</source>
@@ -8540,36 +8615,48 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Created from default settings</source>
-        <translation>Créé à partir des paramètres par défaut</translation>
-    </message>
-    <message>
         <source>Renamed from %1</source>
-        <translation>Renomé à partir de %1</translation>
-    </message>
-    <message>
-        <source>Go to %1</source>
-        <translation>Aller à %1</translation>
+        <translation type="unfinished">Renomé à partir de %1</translation>
     </message>
     <message>
         <source>This is a system provided profile.</source>
-        <translation>Ceci est un profile fournit par le système.</translation>
-    </message>
-    <message>
-        <source>A profile already exists with this name.</source>
-        <translation>Un profil existe déjà avec ce nom.</translation>
-    </message>
-    <message>
-        <source>A profile already exists with this name</source>
-        <translation>Un profil existe déjà avec ce nom.</translation>
+        <translation type="unfinished">Ceci est un profile fournit par le système.</translation>
     </message>
     <message>
         <source>The profile will be reset to default values.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Profile Error</source>
-        <translation>Erreur de Profil</translation>
+        <source>A profile already exists with this name.</source>
+        <translation type="unfinished">Un profil existe déjà avec ce nom.</translation>
+    </message>
+    <message>
+        <source>A profile already exists with this name</source>
+        <translation type="unfinished">Un profil existe déjà avec ce nom.</translation>
+    </message>
+    <message>
+        <source>Profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Type</translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A profile must not contain any of the following characters: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A profile must not start or end with a period (.)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

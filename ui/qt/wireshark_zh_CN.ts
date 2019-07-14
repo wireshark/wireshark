@@ -8509,7 +8509,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ProfileDialog</name>
     <message>
         <source>Name</source>
-        <translation>名称</translation>
+        <translation type="vanished">名称</translation>
+    </message>
+    <message>
+        <source>Search for profile ...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Create a new profile using default settings.</source>
@@ -8529,52 +8533,147 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>配置文件</translation>
     </message>
     <message>
+        <source>All Profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Global profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>User-defined profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Will be reset to default values</source>
-        <translation>将重置为默认值</translation>
+        <translation type="vanished">将重置为默认值</translation>
     </message>
     <message>
         <source>Created from %1</source>
-        <translation>创建自 %1</translation>
+        <translation type="vanished">创建自 %1</translation>
     </message>
     <message>
         <source>(system provided)</source>
-        <translation>(系统提供)</translation>
+        <translation type="vanished">(系统提供)</translation>
+    </message>
+    <message>
+        <source>Created from default settings</source>
+        <translation type="vanished">根据默认设置创建</translation>
+    </message>
+    <message>
+        <source>Renamed from %1</source>
+        <translation type="vanished">重命名自 %1</translation>
+    </message>
+    <message>
+        <source>Go to %1</source>
+        <translation type="vanished">转到 %1</translation>
+    </message>
+    <message>
+        <source>This is a system provided profile.</source>
+        <translation type="vanished">这是一个系统提供的配置文件。</translation>
+    </message>
+    <message>
+        <source>A profile already exists with this name.</source>
+        <translation type="vanished">已存在该名称的配置文件。</translation>
+    </message>
+    <message>
+        <source>A profile already exists with this name</source>
+        <translation type="vanished">已存在该名称的配置文件。</translation>
+    </message>
+    <message>
+        <source>The profile will be reset to default values.</source>
+        <translation type="vanished">此配置文件将重置为默认值。</translation>
+    </message>
+    <message>
+        <source>Profile Error</source>
+        <translation>配置文件错误</translation>
+    </message>
+</context>
+<context>
+    <name>ProfileModel</name>
+    <message>
+        <source>Global</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>User</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resetting to default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Created from default settings</source>
+        <translation type="unfinished">根据默认设置创建</translation>
+    </message>
+    <message>
+        <source>Copied from: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Will be reset to default values</source>
+        <translation type="unfinished">将重置为默认值</translation>
+    </message>
+    <message>
+        <source>Created from %1</source>
+        <translation type="unfinished">创建自 %1</translation>
+    </message>
+    <message>
+        <source>(system provided)</source>
+        <translation type="unfinished">(系统提供)</translation>
     </message>
     <message>
         <source>(deleted)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Created from default settings</source>
-        <translation>根据默认设置创建</translation>
-    </message>
-    <message>
         <source>Renamed from %1</source>
-        <translation>重命名自 %1</translation>
-    </message>
-    <message>
-        <source>Go to %1</source>
-        <translation>转到 %1</translation>
+        <translation type="unfinished">重命名自 %1</translation>
     </message>
     <message>
         <source>This is a system provided profile.</source>
-        <translation>这是一个系统提供的配置文件。</translation>
-    </message>
-    <message>
-        <source>A profile already exists with this name.</source>
-        <translation>已存在该名称的配置文件。</translation>
-    </message>
-    <message>
-        <source>A profile already exists with this name</source>
-        <translation>已存在该名称的配置文件。</translation>
+        <translation type="unfinished">这是一个系统提供的配置文件。</translation>
     </message>
     <message>
         <source>The profile will be reset to default values.</source>
-        <translation>此配置文件将重置为默认值。</translation>
+        <translation type="unfinished">此配置文件将重置为默认值。</translation>
     </message>
     <message>
-        <source>Profile Error</source>
-        <translation>配置文件错误</translation>
+        <source>A profile already exists with this name.</source>
+        <translation type="unfinished">已存在该名称的配置文件。</translation>
+    </message>
+    <message>
+        <source>A profile already exists with this name</source>
+        <translation type="unfinished">已存在该名称的配置文件。</translation>
+    </message>
+    <message>
+        <source>Profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">类型</translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation type="unfinished">路径</translation>
+    </message>
+    <message>
+        <source>copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A profile must not contain any of the following characters: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A profile must not start or end with a period (.)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

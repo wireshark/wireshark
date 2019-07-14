@@ -8542,7 +8542,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ProfileDialog</name>
     <message>
         <source>Name</source>
-        <translation>Nazwa</translation>
+        <translation type="vanished">Nazwa</translation>
+    </message>
+    <message>
+        <source>Search for profile ...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Create a new profile using default settings.</source>
@@ -8562,52 +8566,147 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Konfiguracja profili</translation>
     </message>
     <message>
+        <source>All Profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Global profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>User-defined profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Will be reset to default values</source>
-        <translation>Będzie zresetowany do wartości domyślnych.</translation>
+        <translation type="vanished">Będzie zresetowany do wartości domyślnych.</translation>
     </message>
     <message>
         <source>Created from %1</source>
-        <translation>Utworzono z %1</translation>
+        <translation type="vanished">Utworzono z %1</translation>
     </message>
     <message>
         <source>(system provided)</source>
-        <translation>(dostarczone przez system)</translation>
+        <translation type="vanished">(dostarczone przez system)</translation>
+    </message>
+    <message>
+        <source>Created from default settings</source>
+        <translation type="vanished">Utworzono z domyślnych ustawień</translation>
+    </message>
+    <message>
+        <source>Renamed from %1</source>
+        <translation type="vanished">Przemianowano z %1</translation>
+    </message>
+    <message>
+        <source>Go to %1</source>
+        <translation type="vanished">Przejdź do %1</translation>
+    </message>
+    <message>
+        <source>This is a system provided profile.</source>
+        <translation type="vanished">To jest profil dostarczony z tym oprogramowaniem.</translation>
+    </message>
+    <message>
+        <source>A profile already exists with this name.</source>
+        <translation type="vanished">Profil o tej nazwie już istnieje.</translation>
+    </message>
+    <message>
+        <source>A profile already exists with this name</source>
+        <translation type="vanished">Profil o tej nazwie już istnieje</translation>
+    </message>
+    <message>
+        <source>The profile will be reset to default values.</source>
+        <translation type="vanished">Profil będzie zresetowany do wartości domyślnych.</translation>
+    </message>
+    <message>
+        <source>Profile Error</source>
+        <translation>Błąd w profilu</translation>
+    </message>
+</context>
+<context>
+    <name>ProfileModel</name>
+    <message>
+        <source>Global</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>User</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resetting to default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Created from default settings</source>
+        <translation type="unfinished">Utworzono z domyślnych ustawień</translation>
+    </message>
+    <message>
+        <source>Copied from: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Will be reset to default values</source>
+        <translation type="unfinished">Będzie zresetowany do wartości domyślnych.</translation>
+    </message>
+    <message>
+        <source>Created from %1</source>
+        <translation type="unfinished">Utworzono z %1</translation>
+    </message>
+    <message>
+        <source>(system provided)</source>
+        <translation type="unfinished">(dostarczone przez system)</translation>
     </message>
     <message>
         <source>(deleted)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Created from default settings</source>
-        <translation>Utworzono z domyślnych ustawień</translation>
-    </message>
-    <message>
         <source>Renamed from %1</source>
-        <translation>Przemianowano z %1</translation>
-    </message>
-    <message>
-        <source>Go to %1</source>
-        <translation>Przejdź do %1</translation>
+        <translation type="unfinished">Przemianowano z %1</translation>
     </message>
     <message>
         <source>This is a system provided profile.</source>
-        <translation>To jest profil dostarczony z tym oprogramowaniem.</translation>
-    </message>
-    <message>
-        <source>A profile already exists with this name.</source>
-        <translation>Profil o tej nazwie już istnieje.</translation>
-    </message>
-    <message>
-        <source>A profile already exists with this name</source>
-        <translation>Profil o tej nazwie już istnieje</translation>
+        <translation type="unfinished">To jest profil dostarczony z tym oprogramowaniem.</translation>
     </message>
     <message>
         <source>The profile will be reset to default values.</source>
-        <translation>Profil będzie zresetowany do wartości domyślnych.</translation>
+        <translation type="unfinished">Profil będzie zresetowany do wartości domyślnych.</translation>
     </message>
     <message>
-        <source>Profile Error</source>
-        <translation>Błąd w profilu</translation>
+        <source>A profile already exists with this name.</source>
+        <translation type="unfinished">Profil o tej nazwie już istnieje.</translation>
+    </message>
+    <message>
+        <source>A profile already exists with this name</source>
+        <translation type="unfinished">Profil o tej nazwie już istnieje</translation>
+    </message>
+    <message>
+        <source>Profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation type="unfinished">Ścieżka</translation>
+    </message>
+    <message>
+        <source>copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A profile must not contain any of the following characters: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A profile must not start or end with a period (.)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

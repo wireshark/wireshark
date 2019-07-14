@@ -8534,7 +8534,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <name>ProfileDialog</name>
     <message>
         <source>Name</source>
-        <translation>Namn</translation>
+        <translation type="vanished">Namn</translation>
+    </message>
+    <message>
+        <source>Search for profile ...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Create a new profile using default settings.</source>
@@ -8554,52 +8558,151 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Konfigurationsprofiler</translation>
     </message>
     <message>
+        <source>All Profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Global profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>User-defined profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Will be reset to default values</source>
-        <translation>Kommer att återställas till standardvärden</translation>
+        <translation type="vanished">Kommer att återställas till standardvärden</translation>
     </message>
     <message>
         <source>Created from %1</source>
-        <translation>Skapad från %1</translation>
+        <translation type="vanished">Skapad från %1</translation>
     </message>
     <message>
         <source>(system provided)</source>
-        <translation>(tillhandahålls av systemet)</translation>
+        <translation type="vanished">(tillhandahålls av systemet)</translation>
     </message>
     <message>
         <source>(deleted)</source>
-        <translation>(borttagen)</translation>
+        <translation type="vanished">(borttagen)</translation>
     </message>
     <message>
         <source>Created from default settings</source>
-        <translation>Skapad från standardinställningarna</translation>
+        <translation type="vanished">Skapad från standardinställningarna</translation>
     </message>
     <message>
         <source>Renamed from %1</source>
-        <translation>Bytt namn från %1</translation>
+        <translation type="vanished">Bytt namn från %1</translation>
     </message>
     <message>
         <source>Go to %1</source>
-        <translation>Gå till %1</translation>
+        <translation type="vanished">Gå till %1</translation>
     </message>
     <message>
         <source>This is a system provided profile.</source>
-        <translation>Detta är en profil systemet tillhandahåller.</translation>
+        <translation type="vanished">Detta är en profil systemet tillhandahåller.</translation>
     </message>
     <message>
         <source>A profile already exists with this name.</source>
-        <translation>Det finns redan en profil med det namnet.</translation>
+        <translation type="vanished">Det finns redan en profil med det namnet.</translation>
     </message>
     <message>
         <source>A profile already exists with this name</source>
-        <translation>Det finns redan en profil med det namnet</translation>
+        <translation type="vanished">Det finns redan en profil med det namnet</translation>
     </message>
     <message>
         <source>The profile will be reset to default values.</source>
-        <translation>Profilen kommer att återställas till standardvärden.</translation>
+        <translation type="vanished">Profilen kommer att återställas till standardvärden.</translation>
     </message>
     <message>
         <source>Profile Error</source>
         <translation>Profilfel</translation>
+    </message>
+</context>
+<context>
+    <name>ProfileModel</name>
+    <message>
+        <source>Global</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>User</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resetting to default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Created from default settings</source>
+        <translation type="unfinished">Skapad från standardinställningarna</translation>
+    </message>
+    <message>
+        <source>Copied from: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Will be reset to default values</source>
+        <translation type="unfinished">Kommer att återställas till standardvärden</translation>
+    </message>
+    <message>
+        <source>Created from %1</source>
+        <translation type="unfinished">Skapad från %1</translation>
+    </message>
+    <message>
+        <source>(system provided)</source>
+        <translation type="unfinished">(tillhandahålls av systemet)</translation>
+    </message>
+    <message>
+        <source>(deleted)</source>
+        <translation type="unfinished">(borttagen)</translation>
+    </message>
+    <message>
+        <source>Renamed from %1</source>
+        <translation type="unfinished">Bytt namn från %1</translation>
+    </message>
+    <message>
+        <source>This is a system provided profile.</source>
+        <translation type="unfinished">Detta är en profil systemet tillhandahåller.</translation>
+    </message>
+    <message>
+        <source>The profile will be reset to default values.</source>
+        <translation type="unfinished">Profilen kommer att återställas till standardvärden.</translation>
+    </message>
+    <message>
+        <source>A profile already exists with this name.</source>
+        <translation type="unfinished">Det finns redan en profil med det namnet.</translation>
+    </message>
+    <message>
+        <source>A profile already exists with this name</source>
+        <translation type="unfinished">Det finns redan en profil med det namnet</translation>
+    </message>
+    <message>
+        <source>Profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Typ</translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation type="unfinished">Sökväg</translation>
+    </message>
+    <message>
+        <source>copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A profile must not contain any of the following characters: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A profile must not start or end with a period (.)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

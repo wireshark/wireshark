@@ -8516,7 +8516,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ProfileDialog</name>
     <message>
         <source>Name</source>
-        <translation>名前</translation>
+        <translation type="vanished">名前</translation>
+    </message>
+    <message>
+        <source>Search for profile ...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Create a new profile using default settings.</source>
@@ -8536,12 +8540,83 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>設定プロファイル</translation>
     </message>
     <message>
+        <source>All Profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Global profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>User-defined profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Created from %1</source>
+        <translation type="vanished">%1 から作成</translation>
+    </message>
+    <message>
+        <source>Created from default settings</source>
+        <translation type="vanished">デフォルト設定から作成</translation>
+    </message>
+    <message>
+        <source>Renamed from %1</source>
+        <translation type="vanished">%1 の名前を変更</translation>
+    </message>
+    <message>
+        <source>Go to %1</source>
+        <translation type="vanished">%1 に移動</translation>
+    </message>
+    <message>
+        <source>This is a system provided profile.</source>
+        <translation type="vanished">これはシステム提供プロファイルです</translation>
+    </message>
+    <message>
+        <source>A profile already exists with this name.</source>
+        <translation type="vanished">この名前のプロファイルは既に存在します</translation>
+    </message>
+    <message>
+        <source>A profile already exists with this name</source>
+        <translation type="vanished">既存プロファイル名</translation>
+    </message>
+    <message>
+        <source>Profile Error</source>
+        <translation>プロファイルエラー</translation>
+    </message>
+</context>
+<context>
+    <name>ProfileModel</name>
+    <message>
+        <source>Global</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>User</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resetting to default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Created from default settings</source>
+        <translation type="unfinished">デフォルト設定から作成</translation>
+    </message>
+    <message>
+        <source>Copied from: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Will be reset to default values</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Created from %1</source>
-        <translation>%1 から作成</translation>
+        <translation type="unfinished">%1 から作成</translation>
     </message>
     <message>
         <source>(system provided)</source>
@@ -8552,36 +8627,48 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Created from default settings</source>
-        <translation>デフォルト設定から作成</translation>
-    </message>
-    <message>
         <source>Renamed from %1</source>
-        <translation>%1 の名前を変更</translation>
-    </message>
-    <message>
-        <source>Go to %1</source>
-        <translation>%1 に移動</translation>
+        <translation type="unfinished">%1 の名前を変更</translation>
     </message>
     <message>
         <source>This is a system provided profile.</source>
-        <translation>これはシステム提供プロファイルです</translation>
-    </message>
-    <message>
-        <source>A profile already exists with this name.</source>
-        <translation>この名前のプロファイルは既に存在します</translation>
-    </message>
-    <message>
-        <source>A profile already exists with this name</source>
-        <translation>既存プロファイル名</translation>
+        <translation type="unfinished">これはシステム提供プロファイルです</translation>
     </message>
     <message>
         <source>The profile will be reset to default values.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Profile Error</source>
-        <translation>プロファイルエラー</translation>
+        <source>A profile already exists with this name.</source>
+        <translation type="unfinished">この名前のプロファイルは既に存在します</translation>
+    </message>
+    <message>
+        <source>A profile already exists with this name</source>
+        <translation type="unfinished">既存プロファイル名</translation>
+    </message>
+    <message>
+        <source>Profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">種別</translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A profile must not contain any of the following characters: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A profile must not start or end with a period (.)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -8553,7 +8553,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>ProfileDialog</name>
     <message>
         <source>Name</source>
-        <translation>Имя</translation>
+        <translation type="vanished">Имя</translation>
+    </message>
+    <message>
+        <source>Search for profile ...</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Create a new profile using default settings.</source>
@@ -8573,52 +8577,151 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Конфигурационные Профили</translation>
     </message>
     <message>
+        <source>All Profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Global profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>User-defined profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>New profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Will be reset to default values</source>
-        <translation>Будет сброшено до значений по умолчанию</translation>
+        <translation type="vanished">Будет сброшено до значений по умолчанию</translation>
     </message>
     <message>
         <source>Created from %1</source>
-        <translation>Создано из %1</translation>
+        <translation type="vanished">Создано из %1</translation>
     </message>
     <message>
         <source>(system provided)</source>
-        <translation>(системный)</translation>
+        <translation type="vanished">(системный)</translation>
     </message>
     <message>
         <source>(deleted)</source>
-        <translation>(удалено)</translation>
+        <translation type="vanished">(удалено)</translation>
     </message>
     <message>
         <source>Created from default settings</source>
-        <translation>Создан из настроек по умолчанию</translation>
+        <translation type="vanished">Создан из настроек по умолчанию</translation>
     </message>
     <message>
         <source>Renamed from %1</source>
-        <translation>Переименовано из %1</translation>
+        <translation type="vanished">Переименовано из %1</translation>
     </message>
     <message>
         <source>Go to %1</source>
-        <translation>Перейти к %1</translation>
+        <translation type="vanished">Перейти к %1</translation>
     </message>
     <message>
         <source>This is a system provided profile.</source>
-        <translation>Это системный профиль.</translation>
+        <translation type="vanished">Это системный профиль.</translation>
     </message>
     <message>
         <source>A profile already exists with this name.</source>
-        <translation>Профиль с таким именем уже существует.</translation>
+        <translation type="vanished">Профиль с таким именем уже существует.</translation>
     </message>
     <message>
         <source>A profile already exists with this name</source>
-        <translation>Профиль с таким именем уже существует</translation>
+        <translation type="vanished">Профиль с таким именем уже существует</translation>
     </message>
     <message>
         <source>The profile will be reset to default values.</source>
-        <translation>Профиль будет сброшен до значений по умолчанию.</translation>
+        <translation type="vanished">Профиль будет сброшен до значений по умолчанию.</translation>
     </message>
     <message>
         <source>Profile Error</source>
         <translation>Ошибка Профиля</translation>
+    </message>
+</context>
+<context>
+    <name>ProfileModel</name>
+    <message>
+        <source>Global</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>User</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Resetting to default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Created from default settings</source>
+        <translation type="unfinished">Создан из настроек по умолчанию</translation>
+    </message>
+    <message>
+        <source>Copied from: </source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Will be reset to default values</source>
+        <translation type="unfinished">Будет сброшено до значений по умолчанию</translation>
+    </message>
+    <message>
+        <source>Created from %1</source>
+        <translation type="unfinished">Создано из %1</translation>
+    </message>
+    <message>
+        <source>(system provided)</source>
+        <translation type="unfinished">(системный)</translation>
+    </message>
+    <message>
+        <source>(deleted)</source>
+        <translation type="unfinished">(удалено)</translation>
+    </message>
+    <message>
+        <source>Renamed from %1</source>
+        <translation type="unfinished">Переименовано из %1</translation>
+    </message>
+    <message>
+        <source>This is a system provided profile.</source>
+        <translation type="unfinished">Это системный профиль.</translation>
+    </message>
+    <message>
+        <source>The profile will be reset to default values.</source>
+        <translation type="unfinished">Профиль будет сброшен до значений по умолчанию.</translation>
+    </message>
+    <message>
+        <source>A profile already exists with this name.</source>
+        <translation type="unfinished">Профиль с таким именем уже существует.</translation>
+    </message>
+    <message>
+        <source>A profile already exists with this name</source>
+        <translation type="unfinished">Профиль с таким именем уже существует</translation>
+    </message>
+    <message>
+        <source>Profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Type</source>
+        <translation type="unfinished">Тип</translation>
+    </message>
+    <message>
+        <source>Path</source>
+        <translation type="unfinished">Путь</translation>
+    </message>
+    <message>
+        <source>copy</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A profile must not contain any of the following characters: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A profile must not start or end with a period (.)</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
