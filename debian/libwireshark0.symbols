@@ -477,6 +477,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  dissector_get_default_string_handle@Base 1.12.0~rc1
  dissector_get_default_uint_handle@Base 1.12.0~rc1
  dissector_get_guid_handle@Base 2.1.0
+ dissector_get_payload_handle@Base 3.1.0
  dissector_get_string_handle@Base 1.9.1
  dissector_get_uint_handle@Base 1.9.1
  dissector_handle_get_dissector_name@Base 1.12.0~rc1

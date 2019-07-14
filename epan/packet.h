@@ -391,6 +391,12 @@ WS_DLL_PUBLIC void dissector_change_payload(const char *abbrev, dissector_handle
 /* Reset payload (FT_NONE) dissector table to its initial value. */
 WS_DLL_PUBLIC void dissector_reset_payload(const char *name);
 
+/* Given a payload dissector table (type FT_NONE), return the handle of
+   the dissector that is currently active, i.e. that was selected via
+   Decode As. */
+WS_DLL_PUBLIC dissector_handle_t dissector_get_payload_handle(
+        dissector_table_t const dissector_table);
+
 /* Add a handle to the list of handles that *could* be used with this
    table.  That list is used by the "Decode As"/"-d" code in the UI. */
 WS_DLL_PUBLIC void dissector_add_for_decode_as(const char *name,
