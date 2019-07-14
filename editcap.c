@@ -21,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
+#include <math.h>
 
 /*
  * Just make sure we include the prototype for strptime as well
@@ -88,6 +89,7 @@
 #define CANT_EXTRACT_PREFIX 2
 #define WRITE_ERROR 2
 #define DUMP_ERROR 2
+#define NANOSECS_PER_SEC 1000000000
 
 /*
  * Some globals so we can pass things to various routines
@@ -1046,9 +1048,9 @@ main(int argc, char *argv[])
     int           written_count      = 0;
     char         *filename           = NULL;
     gboolean      ts_okay;
-    guint32       secs_per_block     = 0;
+    nstime_t      secs_per_block     = NSTIME_INIT_UNSET;
     int           block_cnt          = 0;
-    nstime_t      block_start;
+    nstime_t      block_next         = NSTIME_INIT_UNSET;
     gchar        *fprefix            = NULL;
     gchar        *fsuffix            = NULL;
     guint32       change_offset      = 0;
@@ -1312,7 +1314,19 @@ main(int argc, char *argv[])
             break;
 
         case 'i': /* break capture file based on time interval */
-            secs_per_block = get_nonzero_guint32(optarg, "time interval");
+        {
+            double spb = get_positive_double(optarg, "time interval");
+            if (spb == 0.0) {
+              cmdarg_err("The specified interval is zero");
+              ret = INVALID_OPTION;
+              goto clean_exit;
+            }
+
+            double spb_int, spb_frac;
+            spb_frac = modf(spb, &spb_int);
+            secs_per_block.secs = (time_t) spb_int;
+            secs_per_block.nsecs = (int) (NANOSECS_PER_SEC * spb_frac);
+        }
             break;
 
         case 'I': /* ignored_bytes at the beginning of the frame for duplications removal */
@@ -1438,15 +1452,13 @@ main(int argc, char *argv[])
         stoptime = mktime(&stoptm);
     }
 
-    nstime_set_unset(&block_start);
-
     if (starttime > stoptime) {
         fprintf(stderr, "editcap: start time is after the stop time\n");
         ret = INVALID_OPTION;
         goto clean_exit;
     }
 
-    if (split_packet_count != 0 && secs_per_block != 0) {
+    if (split_packet_count != 0 && !nstime_is_unset(&secs_per_block)) {
         fprintf(stderr, "editcap: can't split on both packet count and time interval\n");
         fprintf(stderr, "editcap: at the same time\n");
         ret = INVALID_OPTION;
@@ -1581,7 +1593,7 @@ main(int argc, char *argv[])
 
         /* Extra actions for the first packet */
         if (read_count == 1) {
-            if (split_packet_count != 0 || secs_per_block != 0) {
+            if (split_packet_count != 0 || !nstime_is_unset(&secs_per_block)) {
                 if (!fileset_extract_prefix_suffix(argv[optind+1], &fprefix, &fsuffix)) {
                     ret = CANT_EXTRACT_PREFIX;
                     goto clean_exit;
@@ -1617,20 +1629,19 @@ main(int argc, char *argv[])
          * stamp if we have one.
          */
         if (rec->presence_flags & WTAP_HAS_TS) {
-            if (nstime_is_unset(&block_start)) {
-                block_start = rec->ts;
-            }
-            if (secs_per_block != 0) {
-                while (((guint32)(rec->ts.secs - block_start.secs) >  secs_per_block)
-                       || ((guint32)(rec->ts.secs - block_start.secs) == secs_per_block
-                           && rec->ts.nsecs >= block_start.nsecs )) { /* time for the next file */
+            if (!nstime_is_unset(&secs_per_block)) {
+                if (nstime_is_unset(&block_next)) {
+                    block_next = rec->ts;
+                    nstime_add(&block_next, &secs_per_block);
+                }
+                while (nstime_cmp(&rec->ts, &block_next) > 0) { /* time for the next file */
 
                     if (!wtap_dump_close(pdh, &write_err)) {
                         cfile_close_failure_message(filename, write_err);
                         ret = WRITE_ERROR;
                         goto clean_exit;
                     }
-                    block_start.secs = block_start.secs +  secs_per_block; /* reset for next interval */
+                    nstime_add(&block_next, &secs_per_block); /* reset for next interval */
                     g_free(filename);
                     filename = fileset_get_filename_by_pattern(block_cnt++, rec, fprefix, fsuffix);
                     g_assert(filename);

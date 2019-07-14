@@ -178,9 +178,10 @@ Prints the version and options and exits.
 
 =item -i  E<lt>seconds per fileE<gt>
 
-Splits the packet output to different files based on uniform time intervals
-using a maximum interval of <seconds per file> each. Each output file will
-be created with a suffix -nnnnn, starting with 00000. If packets for the specified
+Splits the packet output to different files based on uniform time
+intervals using a maximum interval of <seconds per file> each. Floating
+point values (e.g. 0.5) are allowed. Each output file will be created
+with a suffix -nnnnn, starting with 00000. If packets for the specified
 time interval are written to the output file, the next output file is
 opened. The default is to use a single output file.
 

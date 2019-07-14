@@ -44,6 +44,7 @@ since version 3.0.0:
 * A new tap for extracting credentials from the capture file has been added.
   It can be accessed through the "-z credentials" option in tshark or from the
   "tools" menu in Wireshark.
+* Editcap can now split files on floating point intervals.
 
 // === Removed Features and Support
 

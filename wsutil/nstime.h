@@ -34,6 +34,9 @@ typedef struct {
 /* Initialize to zero */
 #define NSTIME_INIT_ZERO {0, 0}
 
+/* Initialize to unset */
+#define NSTIME_INIT_UNSET {0, G_MAXINT}
+
 /* Initialize to a specified number of seconds and nanoseconds */
 #define NSTIME_INIT_SECS_NSECS(secs, nsecs)	{secs, nsecs}
 
