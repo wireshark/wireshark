@@ -169,7 +169,7 @@ void ProfileDialog::updateWidgets()
                 GList *fl_entry = edited_profile_list();
                 while (fl_entry && fl_entry->data) {
                     profile_def *profile = (profile_def *) fl_entry->data;
-                    if (strcmp(current_profile->reference, profile->reference) == 0) {
+                    if (profile->reference && strcmp(current_profile->reference, profile->reference) == 0) {
                         if (profile->status != PROF_STAT_COPY) {
                             // Reference profile exists (and is not current profile)
                             reference_exists = true;
@@ -265,7 +265,7 @@ void ProfileDialog::on_newToolButton_clicked()
     QTreeWidgetItem *item = new QTreeWidgetItem();
     profile_def *profile;
     const gchar *name = "New profile";
-    GList *fl_entry = add_to_profile_list(name, "", PROF_STAT_NEW, FALSE, FALSE);
+    GList *fl_entry = add_to_profile_list(name, NULL, PROF_STAT_NEW, FALSE, FALSE);
 
     profile = (profile_def *) fl_entry->data;
     item->setText(0, profile->name);
@@ -406,7 +406,7 @@ void ProfileDialog::editingFinished()
         if (item->text(0).compare(profile->name) != 0) {
             g_free(profile->name);
             profile->name = qstring_strdup(item->text(0));
-            if (strcmp(profile->name, profile->reference) == 0) {
+            if (profile->reference && strcmp(profile->name, profile->reference) == 0) {
                 profile->status = PROF_STAT_EXISTS;
             } else if (profile->status == PROF_STAT_EXISTS) {
                 profile->status = PROF_STAT_CHANGED;
