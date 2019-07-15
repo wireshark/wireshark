@@ -7114,7 +7114,7 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
                     hf_pn_io_number_of_ars, &u16NumberOfARs);
     /* BlockversionLow:  0 */
     if (u8BlockVersionLow == 0) {
-    while (u16NumberOfARs--) {
+        while (u16NumberOfARs--) {
             ar_item = proto_tree_add_item(tree, hf_pn_io_ar_data, tvb, offset, 0, ENC_NA);
             ar_tree = proto_item_add_subtree(ar_item, ett_pn_io_ar_data);
             u32ARDataStart = offset;
@@ -7124,108 +7124,108 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
             offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
                         hf_pn_io_ar_type, &u16ARType);
             offset = dissect_ARProperties(tvb, offset, pinfo, ar_tree, item, drep);
-        offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, ar_tree, drep,
+            offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, ar_tree, drep,
                          hf_pn_io_cminitiator_objectuuid, &uuid);
             offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
-                        hf_pn_io_station_name_length, &u16NameLength);
-        pStationName = (char *)wmem_alloc(wmem_packet_scope(), u16NameLength+1);
-        tvb_memcpy(tvb, (guint8 *) pStationName, offset, u16NameLength);
-        pStationName[u16NameLength] = '\0';
+                         hf_pn_io_station_name_length, &u16NameLength);
+            pStationName = (char *)wmem_alloc(wmem_packet_scope(), u16NameLength+1);
+            tvb_memcpy(tvb, (guint8 *) pStationName, offset, u16NameLength);
+            pStationName[u16NameLength] = '\0';
             proto_tree_add_string (ar_tree, hf_pn_io_cminitiator_station_name, tvb, offset, u16NameLength, pStationName);
-        offset += u16NameLength;
+            offset += u16NameLength;
 
             offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
                         hf_pn_io_number_of_iocrs, &u16NumberOfIOCRs);
 
-        while (u16NumberOfIOCRs--) {
-            iocr_item = proto_tree_add_item(ar_tree, hf_pn_io_iocr_tree, tvb, offset, 0, ENC_NA);
-            iocr_tree = proto_item_add_subtree(iocr_item, ett_pn_io_iocr);
-            u32IOCRStart = offset;
+            while (u16NumberOfIOCRs--) {
+                iocr_item = proto_tree_add_item(ar_tree, hf_pn_io_iocr_tree, tvb, offset, 0, ENC_NA);
+                iocr_tree = proto_item_add_subtree(iocr_item, ett_pn_io_iocr);
+                u32IOCRStart = offset;
 
-        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, iocr_tree, drep,
-                            hf_pn_io_iocr_type, &u16IOCRType);
-            offset = dissect_IOCRProperties(tvb, offset, pinfo, iocr_tree, drep);
-        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, iocr_tree, drep,
-                            hf_pn_io_frame_id, &u16FrameID);
+                offset = dissect_dcerpc_uint16(tvb, offset, pinfo, iocr_tree, drep,
+                                hf_pn_io_iocr_type, &u16IOCRType);
+                offset = dissect_IOCRProperties(tvb, offset, pinfo, iocr_tree, drep);
+                offset = dissect_dcerpc_uint16(tvb, offset, pinfo, iocr_tree, drep,
+                                hf_pn_io_frame_id, &u16FrameID);
 
-            proto_item_append_text(iocr_item, ": FrameID:0x%x", u16FrameID);
+                proto_item_append_text(iocr_item, ": FrameID:0x%x", u16FrameID);
 
-            /* add cycle counter */
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, iocr_tree, drep,
-                            hf_pn_io_cycle_counter, &u16CycleCounter);
+                /* add cycle counter */
+                offset = dissect_dcerpc_uint16(tvb, offset, pinfo, iocr_tree, drep,
+                                hf_pn_io_cycle_counter, &u16CycleCounter);
 
-        u8DataStatus = tvb_get_guint8(tvb, offset);
-        u8TransferStatus = tvb_get_guint8(tvb, offset+1);
+                u8DataStatus = tvb_get_guint8(tvb, offset);
+                u8TransferStatus = tvb_get_guint8(tvb, offset+1);
 
-            /* add data status subtree */
-            ds_item = proto_tree_add_uint_format(iocr_tree, hf_pn_io_data_status,
-                tvb, offset, 1, u8DataStatus,
-                "DataStatus: 0x%02x (Frame: %s and %s, Provider: %s and %s)",
-                u8DataStatus,
-                (u8DataStatus & 0x04) ? "Valid" : "Invalid",
-                (u8DataStatus & 0x01) ? "Primary" : "Backup",
-                (u8DataStatus & 0x20) ? "Ok" : "Problem",
-                (u8DataStatus & 0x10) ? "Run" : "Stop");
-            ds_tree = proto_item_add_subtree(ds_item, ett_pn_io_data_status);
-            proto_tree_add_uint(ds_tree, hf_pn_io_data_status_res67, tvb, offset, 1, u8DataStatus);
-            proto_tree_add_uint(ds_tree, hf_pn_io_data_status_ok, tvb, offset, 1, u8DataStatus);
-            proto_tree_add_uint(ds_tree, hf_pn_io_data_status_operate, tvb, offset, 1, u8DataStatus);
-            proto_tree_add_uint(ds_tree, hf_pn_io_data_status_res3, tvb, offset, 1, u8DataStatus);
-            proto_tree_add_uint(ds_tree, hf_pn_io_data_status_valid, tvb, offset, 1, u8DataStatus);
-            proto_tree_add_uint(ds_tree, hf_pn_io_data_status_res1, tvb, offset, 1, u8DataStatus);
-            proto_tree_add_uint(ds_tree, hf_pn_io_data_status_primary, tvb, offset, 1, u8DataStatus);
+                /* add data status subtree */
+                ds_item = proto_tree_add_uint_format(iocr_tree, hf_pn_io_data_status,
+                    tvb, offset, 1, u8DataStatus,
+                    "DataStatus: 0x%02x (Frame: %s and %s, Provider: %s and %s)",
+                    u8DataStatus,
+                    (u8DataStatus & 0x04) ? "Valid" : "Invalid",
+                    (u8DataStatus & 0x01) ? "Primary" : "Backup",
+                    (u8DataStatus & 0x20) ? "Ok" : "Problem",
+                    (u8DataStatus & 0x10) ? "Run" : "Stop");
+                ds_tree = proto_item_add_subtree(ds_item, ett_pn_io_data_status);
+                proto_tree_add_uint(ds_tree, hf_pn_io_data_status_res67, tvb, offset, 1, u8DataStatus);
+                proto_tree_add_uint(ds_tree, hf_pn_io_data_status_ok, tvb, offset, 1, u8DataStatus);
+                proto_tree_add_uint(ds_tree, hf_pn_io_data_status_operate, tvb, offset, 1, u8DataStatus);
+                proto_tree_add_uint(ds_tree, hf_pn_io_data_status_res3, tvb, offset, 1, u8DataStatus);
+                proto_tree_add_uint(ds_tree, hf_pn_io_data_status_valid, tvb, offset, 1, u8DataStatus);
+                proto_tree_add_uint(ds_tree, hf_pn_io_data_status_res1, tvb, offset, 1, u8DataStatus);
+                proto_tree_add_uint(ds_tree, hf_pn_io_data_status_primary, tvb, offset, 1, u8DataStatus);
 
-            offset++;
+                offset++;
 
-            /* add transfer status */
-            if (u8TransferStatus) {
-                proto_tree_add_uint_format(iocr_tree, hf_pn_io_transfer_status, tvb,
-                offset, 1, u8TransferStatus,
-                "TransferStatus: 0x%02x (ignore this frame)", u8TransferStatus);
-            } else {
-                proto_tree_add_uint_format(iocr_tree, hf_pn_io_transfer_status, tvb,
-                offset, 1, u8TransferStatus,
-                "TransferStatus: 0x%02x (OK)", u8TransferStatus);
+                /* add transfer status */
+                if (u8TransferStatus) {
+                    proto_tree_add_uint_format(iocr_tree, hf_pn_io_transfer_status, tvb,
+                        offset, 1, u8TransferStatus,
+                        "TransferStatus: 0x%02x (ignore this frame)", u8TransferStatus);
+                } else {
+                    proto_tree_add_uint_format(iocr_tree, hf_pn_io_transfer_status, tvb,
+                        offset, 1, u8TransferStatus,
+                        "TransferStatus: 0x%02x (OK)", u8TransferStatus);
+                }
+
+                offset++;
+
+                offset = dissect_dcerpc_uint16(tvb, offset, pinfo, iocr_tree, drep,
+                                hf_pn_io_cminitiator_udprtport, &u16UDPRTPort);
+                offset = dissect_dcerpc_uint16(tvb, offset, pinfo, iocr_tree, drep,
+                                hf_pn_io_cmresponder_udprtport, &u16UDPRTPort);
+
+                proto_item_set_len(iocr_item, offset - u32IOCRStart);
             }
 
-            offset++;
-
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, iocr_tree, drep,
-                            hf_pn_io_cminitiator_udprtport, &u16UDPRTPort);
-            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, iocr_tree, drep,
-                            hf_pn_io_cmresponder_udprtport, &u16UDPRTPort);
-
-            proto_item_set_len(iocr_item, offset - u32IOCRStart);
-        }
-
-        /* AlarmCRType */
+            /* AlarmCRType */
             offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
                         hf_pn_io_alarmcr_type, &u16AlarmCRType);
-        /* LocalAlarmReference */
+            /* LocalAlarmReference */
             offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
                         hf_pn_io_localalarmref, &u16LocalAlarmReference);
-        /* RemoteAlarmReference */
+            /* RemoteAlarmReference */
             offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
                         hf_pn_io_remotealarmref, &u16RemoteAlarmReference);
-        /* ParameterServerObjectUUID */
+            /* ParameterServerObjectUUID */
             offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, ar_tree, drep,
                             hf_pn_io_parameter_server_objectuuid, &uuid);
-        /* StationNameLength */
+            /* StationNameLength */
             offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
                         hf_pn_io_station_name_length, &u16NameLength);
-        /* ParameterServerStationName */
-        pStationName = (char *)wmem_alloc(wmem_packet_scope(), u16NameLength+1);
-        tvb_memcpy(tvb, (guint8 *) pStationName, offset, u16NameLength);
-        pStationName[u16NameLength] = '\0';
+            /* ParameterServerStationName */
+            pStationName = (char *)wmem_alloc(wmem_packet_scope(), u16NameLength+1);
+            tvb_memcpy(tvb, (guint8 *) pStationName, offset, u16NameLength);
+            pStationName[u16NameLength] = '\0';
             proto_tree_add_string (ar_tree, hf_pn_io_parameter_server_station_name, tvb, offset, u16NameLength, pStationName);
-        offset += u16NameLength;
-        /* NumberOfAPIs */
+            offset += u16NameLength;
+            /* NumberOfAPIs */
             offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
                         hf_pn_io_number_of_apis, &u16NumberOfAPIs);
-        /* API */
-        if (u16NumberOfAPIs > 0) {
+            /* API */
+            if (u16NumberOfAPIs > 0) {
                 offset = dissect_dcerpc_uint32(tvb, offset, pinfo, ar_tree, drep,
-                hf_pn_io_api, &u32Api);
+                    hf_pn_io_api, &u32Api);
             }
             proto_item_set_len(ar_item, offset - u32ARDataStart);
         }
