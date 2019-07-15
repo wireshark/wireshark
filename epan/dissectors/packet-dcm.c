@@ -1428,6 +1428,11 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
     const char   *abort_source_desc = "";
     const char   *abort_reason_desc = "";
 
+    const guint8 *ae_called;
+    const guint8 *ae_calling;
+    const guint8 *ae_called_resp;
+    const guint8 *ae_calling_resp;
+
     guint8  reject_result;
     guint8  reject_source;
     guint8  reject_reason;
@@ -1444,14 +1449,27 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 
         offset += 2;                            /* Two reserved bytes*/
 
-        tvb_memcpy(tvb, assoc->ae_called, offset, 16);
-        assoc->ae_called[AEEND] = 0;
-        proto_tree_add_string(assoc_header_ptree, hf_dcm_assoc_called, tvb, offset, 16, assoc->ae_called);
+        /*
+         * XXX - this is in "the ISO 646:1990-Basic G0 Set"; ISO/IEC 646:1991
+         * claims to be the third edition of the standard, with the second
+         * version being ISO 646:1983, so I'm not sure what happened to
+         * ISO 646:1990.  ISO/IEC 646:1991 speaks of "the basic 7-bit code
+         * table", which leaves positions 2/3 (0x23) and 2/4 (0x24) as
+         * being either NUMBER SIGN or POUND SIGN and either DOLLAR SIGN or
+         * CURRENCY SIGN, respectively, and positions 4/0 (0x40), 5/11 (0x5b),
+         * 5/12 (0x5c), 5/13 (0x5d), 5/14 (0x5e), 6/0 (0x60), 7/11 (0x7b),
+         * 7/12 (0x7c), 7/13 (0x7d), and 7/14 (0x7e) as being "available for
+         * national or application-oriented use", so I'm *guessing* that
+         * "the ISO 646:1990-Basic G0 Set" means "those positions aren't
+         * specified" and thus should probably be treated as not valid
+         * in that "Basic" set.
+         */
+        proto_tree_add_item_ret_string(assoc_header_ptree, hf_dcm_assoc_called, tvb, offset, 16, ENC_ISO_646_BASIC|ENC_NA, wmem_packet_scope(), &ae_called);
+        g_strlcpy(assoc->ae_called, (const gchar *) ae_called, sizeof assoc->ae_called);
         offset += 16;
 
-        tvb_memcpy(tvb, assoc->ae_calling, offset, 16);
-        assoc->ae_calling[AEEND] = 0;
-        proto_tree_add_string(assoc_header_ptree, hf_dcm_assoc_calling, tvb, offset, 16, assoc->ae_calling);
+        proto_tree_add_item_ret_string(assoc_header_ptree, hf_dcm_assoc_calling, tvb, offset, 16, ENC_ISO_646_BASIC|ENC_NA, wmem_packet_scope(), &ae_calling);
+        g_strlcpy(assoc->ae_calling, (const gchar *) ae_calling, sizeof assoc->ae_calling);
         offset += 16;
 
         offset += 32;                           /* 32 reserved bytes */
@@ -1469,14 +1487,12 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 
         offset += 2;                            /* Two reserved bytes*/
 
-        tvb_memcpy(tvb, assoc->ae_called_resp, offset, 16);
-        assoc->ae_called_resp[AEEND] = 0;
-        proto_tree_add_string(assoc_header_ptree, hf_dcm_assoc_called, tvb, offset, 16, assoc->ae_called_resp);
+        proto_tree_add_item_ret_string(assoc_header_ptree, hf_dcm_assoc_called, tvb, offset, 16, ENC_ISO_646_BASIC|ENC_NA, wmem_packet_scope(), &ae_called_resp);
+        g_strlcpy(assoc->ae_called_resp, (const gchar *) ae_called_resp, sizeof assoc->ae_called_resp);
         offset += 16;
 
-        tvb_memcpy(tvb, assoc->ae_calling_resp, offset, 16);
-        assoc->ae_calling_resp[AEEND] = 0;
-        proto_tree_add_string(assoc_header_ptree, hf_dcm_assoc_calling, tvb, offset, 16, assoc->ae_calling_resp);
+        proto_tree_add_item_ret_string(assoc_header_ptree, hf_dcm_assoc_calling, tvb, offset, 16, ENC_ISO_646_BASIC|ENC_NA, wmem_packet_scope(), &ae_calling_resp);
+        g_strlcpy(assoc->ae_calling_resp, (const gchar *) ae_calling_resp, sizeof assoc->ae_calling_resp);
         offset += 16;
 
         offset += 32;                           /* 32 reserved bytes */
