@@ -2485,7 +2485,7 @@ tvb_format_stringzpad_wsp(wmem_allocator_t* allocator, tvbuff_t *tvb, const gint
  */
 
 /*
- * Given a wmem scope, tvbuff, an offset, and a length, treat the string
+ * Given a wmem scope, a tvbuff, an offset, and a length, treat the string
  * of bytes referred to by the tvbuff, offset, and length as an ASCII string,
  * with all bytes with the high-order bit set being invalid, and return a
  * pointer to a UTF-8 string, allocated using the wmem scope.
@@ -2522,7 +2522,7 @@ tvb_get_utf_8_string(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, 
 }
 
 /*
- * Given a wmem scope, tvbuff, an offset, and a length, treat the string
+ * Given a wmem scope, a tvbuff, an offset, and a length, treat the string
  * of bytes referred to by the tvbuff, the offset, and the length as a
  * raw string, and return a pointer to that string, allocated using the
  * wmem scope. This means a null is appended at the end, but no replacement
@@ -3214,6 +3214,14 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, g
 
 	case ENC_CP437:
 		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_cp437);
+		break;
+
+	case ENC_CP855:
+		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_cp855);
+		break;
+
+	case ENC_CP866:
+		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_cp866);
 		break;
 
 	case ENC_3GPP_TS_23_038_7BITS:
