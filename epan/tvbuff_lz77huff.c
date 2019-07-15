@@ -78,8 +78,8 @@ struct bitstring {
 };
 
 struct hf_tree {
-	struct prefix_code_node nodes[TREE_SIZE];
 	struct prefix_code_node *root;
+	struct prefix_code_node nodes[TREE_SIZE];
 };
 
 static gboolean is_node_valid(struct hf_tree *tree, struct prefix_code_node *node)
