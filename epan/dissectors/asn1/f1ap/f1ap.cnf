@@ -133,6 +133,8 @@ id-PWSRestartIndication             ProcedureCode
 id-PWSFailureIndication             ProcedureCode
 id-GNBDUStatusIndication            ProcedureCode
 id-RRCDeliveryReport                ProcedureCode
+id-F1Removal                        ProcedureCode
+id-NetworkAccessRateReduction       ProcedureCode
 
 # ProtocolIE-ID
 id-Cause                                             ProtocolIE-ID
@@ -342,6 +344,23 @@ id-IgnoreResourceCoordinationContainer               ProtocolIE-ID
 id-UEAssistanceInformation                           ProtocolIE-ID
 id-NeedforGap                                        ProtocolIE-ID
 id-PagingOrigin                                      ProtocolIE-ID
+id-new-gNB-CU-UE-F1AP-ID                             ProtocolIE-ID
+id-RedirectedRRCmessage                              ProtocolIE-ID
+id-new-gNB-DU-UE-F1AP-ID                             ProtocolIE-ID
+id-NotificationInformation                           ProtocolIE-ID
+id-PLMNAssistanceInfoForNetShar                      ProtocolIE-ID
+id-UEContextNotRetrievable                           ProtocolIE-ID
+id-BPLMN-ID-Info-List                                ProtocolIE-ID
+id-SelectedPLMNID                                    ProtocolIE-ID
+id-UAC-Assistance-Info                               ProtocolIE-ID
+id-RANUEID                                           ProtocolIE-ID
+id-GNB-DU-TNL-Association-To-Remove-Item             ProtocolIE-ID
+id-GNB-DU-TNL-Association-To-Remove-List             ProtocolIE-ID
+id-TNLAssociationTransportLayerAddressgNBDU          ProtocolIE-ID
+id-portNumber                                        ProtocolIE-ID
+id-AdditionalSIBMessageList                          ProtocolIE-ID
+id-Cell-Type                                         ProtocolIE-ID
+id-IgnorePRACHConfiguration                          ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -520,6 +539,16 @@ SRBs-Modified-Item                                N f1ap.ies id-SRBs-Modified-It
 IgnoreResourceCoordinationContainer               N f1ap.ies id-IgnoreResourceCoordinationContainer
 NeedforGap                                        N f1ap.ies id-NeedforGap
 PagingOrigin                                      N f1ap.ies id-PagingOrigin
+GNB-CU-UE-F1AP-ID                                 N f1ap.ies id-new-gNB-CU-UE-F1AP-ID
+RedirectedRRCmessage                              N f1ap.ies id-RedirectedRRCmessage
+GNB-DU-UE-F1AP-ID                                 N f1ap.ies id-new-gNB-DU-UE-F1AP-ID
+PLMN-Identity                                     N f1ap.ies id-PLMNAssistanceInfoForNetShar
+UEContextNotRetrievable                           N f1ap.ies id-UEContextNotRetrievable
+PLMN-Identity                                     N f1ap.ies id-SelectedPLMNID
+UAC-Assistance-Info                               N f1ap.ies id-UAC-Assistance-Info
+RANUEID                                           N f1ap.ies id-RANUEID
+GNB-DU-TNL-Association-To-Remove-Item             N f1ap.ies id-GNB-DU-TNL-Association-To-Remove-Item
+GNB-DU-TNL-Association-To-Remove-List             N f1ap.ies id-GNB-DU-TNL-Association-To-Remove-List
 
 #F1AP-PROTOCOL-EXTENSION
 GNB-CUSystemInformation                           N f1ap.extension id-gNB-CUSystemInformation
@@ -555,6 +584,13 @@ RequestedFeatureSetEntryIndex                     N f1ap.extension id-RequestedF
 RequestedP-MaxFR2                                 N f1ap.extension id-RequestedP-MaxFR2
 DRX-Config                                        N f1ap.extension id-DRX-Config
 UEAssistanceInformation                           N f1ap.extension id-UEAssistanceInformation
+NotificationInformation                           N f1ap.extension id-NotificationInformation
+BPLMN-ID-Info-List                                N f1ap.extension id-BPLMN-ID-Info-List
+CP-TransportLayerAddress                          N f1ap.extension id-TNLAssociationTransportLayerAddressgNBDU
+PortNumber                                        N f1ap.extension id-portNumber
+AdditionalSIBMessageList                          N f1ap.extension id-AdditionalSIBMessageList
+CellType                                          N f1ap.extension id-Cell-Type
+IgnorePRACHConfiguration                          N f1ap.extension id-IgnorePRACHConfiguration
 
 #F1AP-ELEMENTARY-PROCEDURE
 Reset                               N f1ap.proc.imsg id-Reset
@@ -616,6 +652,8 @@ Paging                              N f1ap.proc.imsg id-Paging
 
 Notify                              N f1ap.proc.imsg id-Notify
 
+NetworkAccessRateReduction          N f1ap.proc.imsg id-NetworkAccessRateReduction
+
 PWSRestartIndication                N f1ap.proc.imsg id-PWSRestartIndication
 
 PWSFailureIndication                N f1ap.proc.imsg id-PWSFailureIndication
@@ -623,6 +661,31 @@ PWSFailureIndication                N f1ap.proc.imsg id-PWSFailureIndication
 GNBDUStatusIndication               N f1ap.proc.imsg id-GNBDUStatusIndication
 
 RRCDeliveryReport                   N f1ap.proc.imsg id-RRCDeliveryReport
+
+F1RemovalRequest                    N f1ap.proc.imsg id-F1Removal
+F1RemovalResponse                   N f1ap.proc.sout id-F1Removal
+F1RemovalFailure                    N f1ap.proc.uout id-F1Removal
+
+#.FN_BODY AdditionalSIBMessageList-Item/additionalSIB VAL_PTR = &param_tvb
+  tvbuff_t *param_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (param_tvb) {
+    f1ap_private_data_t *f1ap_data = f1ap_get_private_data(actx->pinfo);
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_sIBmessage);
+    switch (f1ap_data->sib_type) {
+    case 6:
+      dissect_nr_rrc_SIB6_PDU(param_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 7:
+      dissect_nr_rrc_SIB7_PDU(param_tvb, actx->pinfo, subtree, NULL);
+      break;
+    case 8:
+      dissect_nr_rrc_SIB8_PDU(param_tvb, actx->pinfo, subtree, NULL);
+      break;
+    default:
+      break;
+    }
+  }
 
 #.FN_BODY EUTRA-NR-CellResourceCoordinationReq-Container VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
@@ -725,6 +788,16 @@ RRCDeliveryReport                   N f1ap.proc.imsg id-RRCDeliveryReport
   if (param_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_f1ap_PLMN_Identity);
     dissect_e212_mcc_mnc(param_tvb, actx->pinfo, subtree, 0, E212_NONE, FALSE);
+  }
+
+#.TYPE_ATTR
+PortNumber TYPE = FT_UINT16 DISPLAY = BASE_DEC
+
+#.FN_BODY PortNumber VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
   }
 
 #.FN_BODY MIB-message VAL_PTR = &param_tvb
@@ -952,6 +1025,9 @@ MaximumDataBurstVolume DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_byte_byt
     }
   }
 
+#.TYPE_ATTR
+UACReductionIndication DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_percent
+
 #.FN_BODY DRX-Config VAL_PTR = &param_tvb
   tvbuff_t *param_tvb = NULL;
 %(DEFAULT_BODY)s
@@ -1076,6 +1152,8 @@ MaximumDataBurstVolume DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_byte_byt
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Paging");
 #.FN_HDR Notify
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Notify");
+#.FN_HDR NetworkAccessRateReduction
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "NetworkAccessRateReduction");
 #.FN_HDR PWSRestartIndication
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "PWSRestartIndication");
 #.FN_HDR PWSFailureIndication
@@ -1084,6 +1162,15 @@ MaximumDataBurstVolume DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_byte_byt
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "GNBDUStatusIndication");
 #.FN_HDR RRCDeliveryReport
   col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "RRCDeliveryReport");
+#.END
+#.FN_HDR F1RemovalRequest
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "F1RemovalRequest");
+#.END
+#.FN_HDR F1RemovalResponse
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "F1RemovalResponse");
+#.END
+#.FN_HDR F1RemovalFailure
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "F1RemovalFailure");
 #.END
 
 #

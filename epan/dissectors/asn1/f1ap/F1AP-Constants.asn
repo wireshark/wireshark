@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V15.5.0 (2019-03)
+-- 3GPP TS 38.473 V15.6.0 (2019-06)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -54,11 +54,13 @@ id-SystemInformationDeliveryCommand			ProcedureCode ::= 17
 id-Paging									ProcedureCode ::= 18
 id-Notify									ProcedureCode ::= 19
 id-WriteReplaceWarning						ProcedureCode ::= 20
-id-PWSCancel									ProcedureCode ::= 21
+id-PWSCancel								ProcedureCode ::= 21
 id-PWSRestartIndication						ProcedureCode ::= 22
 id-PWSFailureIndication						ProcedureCode ::= 23
 id-GNBDUStatusIndication 					ProcedureCode ::= 24
-id-RRCDeliveryReport		 					ProcedureCode ::= 25
+id-RRCDeliveryReport		 				ProcedureCode ::= 25
+id-F1Removal								ProcedureCode ::= 26
+id-NetworkAccessRateReduction				ProcedureCode ::= 27
 
 
 -- **************************************************************
@@ -98,6 +100,10 @@ maxnoofSliceItems						INTEGER ::= 1024
 maxCellineNB							INTEGER ::= 256
 maxnoofExtendedBPLMNs					INTEGER ::= 6
 maxnoofUEIDs							INTEGER ::= 65536
+maxnoofBPLMNsNRminus1					INTEGER ::= 11
+maxnoofUACPLMNs							INTEGER ::= 12
+maxnoofUACperPLMN						INTEGER ::= 64
+maxnoofAdditionalSIBs					INTEGER ::= 63
 
 -- **************************************************************
 --
@@ -213,7 +219,7 @@ id-Unknown-103										ProtocolIE-ID ::= 103
 id-Unknown-104										ProtocolIE-ID ::= 104
 id-Protected-EUTRA-Resources-List					ProtocolIE-ID ::= 105
 id-RequestType 										ProtocolIE-ID ::= 106
-id-ServCellIndex										ProtocolIE-ID ::= 107 
+id-ServCellIndex									ProtocolIE-ID ::= 107 
 id-RAT-FrequencyPriorityInformation					ProtocolIE-ID ::= 108
 id-ExecuteDuplication								ProtocolIE-ID ::= 109
 -- WS extension
@@ -229,7 +235,7 @@ id-gNB-CUSystemInformation							ProtocolIE-ID ::= 118
 id-HandoverPreparationInformation					ProtocolIE-ID ::= 119
 id-GNB-CU-TNL-Association-To-Add-Item				ProtocolIE-ID ::= 120
 id-GNB-CU-TNL-Association-To-Add-List				ProtocolIE-ID ::= 121
-id-GNB-CU-TNL-Association-To-Remove-Item		ProtocolIE-ID ::= 122
+id-GNB-CU-TNL-Association-To-Remove-Item			ProtocolIE-ID ::= 122
 id-GNB-CU-TNL-Association-To-Remove-List			ProtocolIE-ID ::= 123
 id-GNB-CU-TNL-Association-To-Update-Item			ProtocolIE-ID ::= 124
 id-GNB-CU-TNL-Association-To-Update-List			ProtocolIE-ID ::= 125
@@ -327,5 +333,22 @@ id-IgnoreResourceCoordinationContainer				ProtocolIE-ID ::= 213
 id-UEAssistanceInformation							ProtocolIE-ID ::= 214
 id-NeedforGap										ProtocolIE-ID ::= 215
 id-PagingOrigin										ProtocolIE-ID ::= 216
+id-new-gNB-CU-UE-F1AP-ID							ProtocolIE-ID ::= 217
+id-RedirectedRRCmessage								ProtocolIE-ID ::= 218
+id-new-gNB-DU-UE-F1AP-ID							ProtocolIE-ID ::= 219
+id-NotificationInformation							ProtocolIE-ID ::= 220
+id-PLMNAssistanceInfoForNetShar						ProtocolIE-ID ::= 221
+id-UEContextNotRetrievable							ProtocolIE-ID ::= 222
+id-BPLMN-ID-Info-List								ProtocolIE-ID ::= 223
+id-SelectedPLMNID									ProtocolIE-ID ::= 224
+id-UAC-Assistance-Info								ProtocolIE-ID ::= 225
+id-RANUEID											ProtocolIE-ID ::= 226
+id-GNB-DU-TNL-Association-To-Remove-Item			ProtocolIE-ID ::= 227
+id-GNB-DU-TNL-Association-To-Remove-List			ProtocolIE-ID ::= 228
+id-TNLAssociationTransportLayerAddressgNBDU			ProtocolIE-ID ::= 229
+id-portNumber										ProtocolIE-ID ::= 230
+id-AdditionalSIBMessageList							ProtocolIE-ID ::= 231
+id-Cell-Type										ProtocolIE-ID ::= 232
+id-IgnorePRACHConfiguration							ProtocolIE-ID ::= 233
 
 END

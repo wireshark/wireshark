@@ -1,4 +1,4 @@
--- 3GPP TS 38.473 V15.5.0 (2019-03)
+-- 3GPP TS 38.473 V15.6.0 (2019-06)
 -- 9.4.3	Elementary Procedure Definitions
 -- **************************************************************
 --
@@ -66,7 +66,12 @@ FROM F1AP-CommonDataTypes
 	PWSFailureIndication,
 	GNBDUStatusIndication,
 	RRCDeliveryReport,
-	UEContextModificationRefuse
+	UEContextModificationRefuse,
+	F1RemovalRequest,
+	F1RemovalResponse,
+	F1RemovalFailure,
+	NetworkAccessRateReduction
+
 
 FROM F1AP-PDU-Contents
 	id-Reset,
@@ -93,7 +98,10 @@ FROM F1AP-PDU-Contents
 	id-PWSRestartIndication,
 	id-PWSFailureIndication,
 	id-GNBDUStatusIndication,
-	id-RRCDeliveryReport
+	id-RRCDeliveryReport,
+	id-F1Removal,
+	id-NetworkAccessRateReduction
+
 
 
 FROM F1AP-Constants
@@ -182,13 +190,14 @@ F1AP-ELEMENTARY-PROCEDURES-CLASS-1 F1AP-ELEMENTARY-PROCEDURE ::= {
 	uEContextRelease				|
 	uEContextModification			|
 	uEContextModificationRequired	|
-	writeReplaceWarning			|
+	writeReplaceWarning				|
 	pWSCancel					|
-	gNBDUResourceCoordination		,
+	gNBDUResourceCoordination		|
+	f1Removal					,
 	...
 }
 
- F1AP-ELEMENTARY-PROCEDURES-CLASS-2 F1AP-ELEMENTARY-PROCEDURE ::= {	
+F1AP-ELEMENTARY-PROCEDURES-CLASS-2 F1AP-ELEMENTARY-PROCEDURE ::= {	
 	errorIndication					|
 	uEContextReleaseRequest			|
 	dLRRCMessageTransfer			|
@@ -199,10 +208,11 @@ F1AP-ELEMENTARY-PROCEDURES-CLASS-1 F1AP-ELEMENTARY-PROCEDURE ::= {
 	systemInformationDelivery		|
 	paging							|
 	notify							|
-	pWSRestartIndication				|
+	pWSRestartIndication			|
 	pWSFailureIndication			|
 	gNBDUStatusIndication			|
-	rRCDeliveryReport				,
+	rRCDeliveryReport				|
+	networkAccessRateReduction		,
 	...
 }
 -- **************************************************************
@@ -229,7 +239,7 @@ f1Setup F1AP-ELEMENTARY-PROCEDURE ::= {
 gNBDUConfigurationUpdate F1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		GNBDUConfigurationUpdate
 	SUCCESSFUL OUTCOME		GNBDUConfigurationUpdateAcknowledge
-	UNSUCCESSFUL OUTCOME		GNBDUConfigurationUpdateFailure
+	UNSUCCESSFUL OUTCOME	GNBDUConfigurationUpdateFailure
 	PROCEDURE CODE			id-gNBDUConfigurationUpdate
 	CRITICALITY				reject
 }
@@ -237,7 +247,7 @@ gNBDUConfigurationUpdate F1AP-ELEMENTARY-PROCEDURE ::= {
 gNBCUConfigurationUpdate F1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		GNBCUConfigurationUpdate
 	SUCCESSFUL OUTCOME		GNBCUConfigurationUpdateAcknowledge
-	UNSUCCESSFUL OUTCOME		GNBCUConfigurationUpdateFailure
+	UNSUCCESSFUL OUTCOME	GNBCUConfigurationUpdateFailure
 	PROCEDURE CODE			id-gNBCUConfigurationUpdate
 	CRITICALITY				reject
 }
@@ -245,7 +255,7 @@ gNBCUConfigurationUpdate F1AP-ELEMENTARY-PROCEDURE ::= {
 uEContextSetup F1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		UEContextSetupRequest
 	SUCCESSFUL OUTCOME		UEContextSetupResponse
-	UNSUCCESSFUL OUTCOME		UEContextSetupFailure
+	UNSUCCESSFUL OUTCOME	UEContextSetupFailure
 	PROCEDURE CODE			id-UEContextSetup
 	CRITICALITY				reject
 }
@@ -260,7 +270,7 @@ uEContextRelease F1AP-ELEMENTARY-PROCEDURE ::= {
 uEContextModification F1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		UEContextModificationRequest
 	SUCCESSFUL OUTCOME		UEContextModificationResponse
-	UNSUCCESSFUL OUTCOME		UEContextModificationFailure
+	UNSUCCESSFUL OUTCOME	UEContextModificationFailure
 	PROCEDURE CODE			id-UEContextModification
 	CRITICALITY				reject
 }
@@ -268,7 +278,7 @@ uEContextModification F1AP-ELEMENTARY-PROCEDURE ::= {
 uEContextModificationRequired F1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		UEContextModificationRequired
 	SUCCESSFUL OUTCOME		UEContextModificationConfirm
-	UNSUCCESSFUL OUTCOME		UEContextModificationRefuse
+	UNSUCCESSFUL OUTCOME	UEContextModificationRefuse
 	PROCEDURE CODE			id-UEContextModificationRequired
 	CRITICALITY				reject
 }
@@ -357,6 +367,13 @@ notify F1AP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY				ignore
 }
 
+networkAccessRateReduction F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		NetworkAccessRateReduction
+	PROCEDURE CODE			id-NetworkAccessRateReduction
+	CRITICALITY				ignore
+}
+
+
 pWSRestartIndication F1AP-ELEMENTARY-PROCEDURE ::= {
 	INITIATING MESSAGE		PWSRestartIndication
 	PROCEDURE CODE			id-PWSRestartIndication
@@ -382,6 +399,13 @@ rRCDeliveryReport F1AP-ELEMENTARY-PROCEDURE ::= {
 	CRITICALITY				ignore
 }
 
+f1Removal F1AP-ELEMENTARY-PROCEDURE ::= {
+	INITIATING MESSAGE		F1RemovalRequest
+	SUCCESSFUL OUTCOME		F1RemovalResponse
+	UNSUCCESSFUL OUTCOME	F1RemovalFailure
+	PROCEDURE CODE			id-F1Removal
+	CRITICALITY				reject
+}
 
 
 END
