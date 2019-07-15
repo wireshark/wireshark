@@ -455,6 +455,7 @@ void proto_report_dissector_bug(const char *format, ...)
  */
 #define ENC_CHARENCODING_MASK    0x3FFFFFFE  /* mask out byte-order bits and Zigbee bits */
 #define ENC_ASCII                0x00000000
+#define ENC_ISO_646_IRV          ENC_ASCII   /* ISO 646 International Reference Version = ASCII */
 #define ENC_UTF_8                0x00000002
 #define ENC_UTF_16               0x00000004
 #define ENC_UCS_2                0x00000006
@@ -487,6 +488,7 @@ void proto_report_dissector_bug(const char *format, ...)
 #define ENC_WINDOWS_1251         0x0000003C
 #define ENC_CP855                0x0000003E
 #define ENC_CP866                0x00000040
+#define ENC_ISO_646_BASIC        0x00000042
 /*
  * TODO:
  *

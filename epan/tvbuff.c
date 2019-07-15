@@ -2503,6 +2503,28 @@ tvb_get_ascii_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint l
 }
 
 /*
+ * Given a wmem scope, a tvbuff, an offset, a length, and a translation table,
+ * treat the string of bytes referred to by the tvbuff, offset, and length
+ * as a string encoded using one octet per character, with octets with the
+ * high-order bit clear being mapped by the translation table to 2-byte
+ * Unicode Basic Multilingual Plane characters (including REPLACEMENT
+ * CHARACTER) and octets with the high-order bit set being mapped to
+ * REPLACEMENT CHARACTER, and return a pointer to a UTF-8 string,
+ * allocated using the wmem scope.
+ *
+ * Octets with the highest bit set will be converted to the Unicode
+ * REPLACEMENT CHARACTER.
+ */
+static guint8 *
+tvb_get_iso_646_string(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint length, const gunichar2 table[0x80])
+{
+	const guint8  *ptr;
+
+	ptr = ensure_contiguous(tvb, offset, length);
+	return get_iso_646_string(scope, ptr, length, table);
+}
+
+/*
  * Given a wmem scope, a tvbuff, an offset, and a length, treat the string
  * of bytes referred to by the tvbuff, the offset. and the length as a UTF-8
  * string, and return a pointer to that string, allocated using the wmem scope.
@@ -2870,6 +2892,10 @@ tvb_get_string_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset,
 		strptr = tvb_get_string_unichar2(scope, tvb, offset, length, charset_table_cp866);
 		break;
 
+	case ENC_ISO_646_BASIC:
+		strptr = tvb_get_iso_646_string(scope, tvb, offset, length, charset_table_iso_646_basic);
+		break;
+
 	case ENC_3GPP_TS_23_038_7BITS:
 		{
 			gint bit_offset  = offset << 3;
@@ -2948,6 +2974,20 @@ tvb_get_ascii_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint 
 	if (lengthp)
 		*lengthp = size;
 	return get_ascii_string(scope, ptr, size);
+}
+
+static guint8 *
+tvb_get_iso_646_stringz(wmem_allocator_t *scope, tvbuff_t *tvb, gint offset, gint *lengthp, const gunichar2 table[0x80])
+{
+	guint	       size;
+	const guint8  *ptr;
+
+	size = tvb_strsize(tvb, offset);
+	ptr  = ensure_contiguous(tvb, offset, size);
+	/* XXX, conversion between signed/unsigned integer */
+	if (lengthp)
+		*lengthp = size;
+	return get_iso_646_string(scope, ptr, size, table);
 }
 
 static guint8 *
@@ -3234,6 +3274,10 @@ tvb_get_stringz_enc(wmem_allocator_t *scope, tvbuff_t *tvb, const gint offset, g
 
 	case ENC_CP866:
 		strptr = tvb_get_stringz_unichar2(scope, tvb, offset, lengthp, charset_table_cp866);
+		break;
+
+	case ENC_ISO_646_BASIC:
+		strptr = tvb_get_iso_646_stringz(scope, tvb, offset, lengthp, charset_table_iso_646_basic);
 		break;
 
 	case ENC_3GPP_TS_23_038_7BITS:
