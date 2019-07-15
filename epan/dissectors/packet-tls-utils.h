@@ -877,10 +877,6 @@ typedef struct ssl_common_dissect {
         gint hs_ext_record_size_limit;
 
         /* QUIC Transport Parameters */
-        gint hs_ext_quictp_negotiated_version;
-        gint hs_ext_quictp_initial_version;
-        gint hs_ext_quictp_supported_versions_len;
-        gint hs_ext_quictp_supported_versions;
         gint hs_ext_quictp_len;
         gint hs_ext_quictp_parameter;
         gint hs_ext_quictp_parameter_type;
@@ -1135,7 +1131,7 @@ ssl_common_dissect_t name = {   \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
-        -1, -1, -1, -1, -1, -1, -1, -1,                                 \
+        -1, -1, -1, -1,                                                 \
     },                                                                  \
     /* ett */ {                                                         \
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, \
@@ -1890,26 +1886,6 @@ ssl_common_dissect_t name = {   \
       { "Record Size Limit", prefix ".record_size_limit",               \
         FT_UINT16, BASE_DEC, NULL, 0x00,                                \
         "Maximum record size that an endpoint is willing to receive", HFILL } \
-    },                                                                  \
-    { & name .hf.hs_ext_quictp_negotiated_version,                      \
-      { "Negotiated Version", prefix ".quic.negotiated_version",        \
-        FT_UINT32, BASE_HEX, VALS(quic_version_vals), 0x00,             \
-        NULL, HFILL }                                                   \
-    },                                                                  \
-    { & name .hf.hs_ext_quictp_initial_version,                         \
-      { "Initial Version", prefix ".quic.initial_version",              \
-        FT_UINT32, BASE_HEX, VALS(quic_version_vals), 0x00,             \
-        NULL, HFILL }                                                   \
-    },                                                                  \
-    { & name .hf.hs_ext_quictp_supported_versions_len,                  \
-      { "Supported Versions Length", prefix ".quic.supported_versions.len", \
-        FT_UINT16, BASE_DEC, NULL, 0x00,                                \
-        NULL, HFILL }                                                   \
-    },                                                                  \
-    { & name .hf.hs_ext_quictp_supported_versions,                      \
-      { "Supported Versions", prefix ".quic.supported_versions",        \
-        FT_UINT32, BASE_HEX, VALS(quic_version_vals), 0x00,             \
-        NULL, HFILL }                                                   \
     },                                                                  \
     { & name .hf.hs_ext_quictp_len,                                     \
       { "Parameters Length", prefix ".quic.len",                        \

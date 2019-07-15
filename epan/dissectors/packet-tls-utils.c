@@ -6589,11 +6589,11 @@ ssl_dissect_hnd_hello_ext_compress_certificate(ssl_common_dissect_t *hf, tvbuff_
 static guint32
 ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tvbuff_t *tvb, packet_info *pinfo,
                                                     proto_tree *tree, guint32 offset, guint32 offset_end,
-                                                    guint8 hnd_type, SslDecryptSession *ssl _U_)
+                                                    guint8 hnd_type _U_, SslDecryptSession *ssl _U_)
 {
-    guint32 quic_length, parameter_length, supported_versions_length, next_offset;
+    guint32 quic_length, parameter_length, next_offset;
 
-    /* https://tools.ietf.org/html/draft-ietf-quic-transport-17#section-18
+    /* https://tools.ietf.org/html/draft-ietf-quic-transport-22#section-18
     *  uint32 QuicVersion;
      *  enum {
      *     original_connection_id(0),
@@ -6618,32 +6618,8 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
      *     opaque value<0..2^16-1>;
      *  } TransportParameter;
      *
-     *  // draft -18 and before
-     *  struct {
-     *      select (Handshake.msg_type) {
-     *          case client_hello:
-     *              QuicVersion initial_version;
-     *
-     *         case encrypted_extensions:
-     *              QuicVersion negotiated_version;
-     *              QuicVersion supported_versions<4..2^8-4>;
-     *      };
-     *      TransportParameter parameters<0..2^16-1>;
-     *  } TransportParameters;
-     *
-     *  // since draft 19
      *  TransportParameter TransportParameters<0..2^16-1>;
      *
-     *  // draft -17 and before
-     *  struct {
-     *    enum { IPv4(4), IPv6(6), (15) } ipVersion;
-     *    opaque ipAddress<4..2^8-1>;
-     *    uint16 port;
-     *    opaque connectionId<0..18>;
-     *    opaque statelessResetToken[16];
-     *  } PreferredAddress;
-     *
-     *  // Since draft -18
      *  struct {
      *    opaque ipv4Address[4];
      *    uint16 ipv4Port;
@@ -6653,42 +6629,6 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
      *    opaque statelessResetToken[16];
      *  } PreferredAddress;
      */
-    // Heuristically detect draft -18 vs draft -19.
-    if (offset_end - offset >= 4 && tvb_get_ntohs(tvb, offset) != offset_end - offset - 2) {
-        // Draft -18 and before start with a (draft) version field. For CH, this
-        // can be an arbitrary number that triggers a Version Negotiation
-        // packet. Draft -19 always begins with a vector, so assume that
-        // anything that does not have a vector length is an older draft.
-        switch (hnd_type) {
-        case SSL_HND_CLIENT_HELLO:
-            proto_tree_add_item(tree, hf->hf.hs_ext_quictp_initial_version,
-                                tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
-            break;
-        case SSL_HND_ENCRYPTED_EXTENSIONS:
-            proto_tree_add_item(tree, hf->hf.hs_ext_quictp_negotiated_version,
-                                tvb, offset, 4, ENC_BIG_ENDIAN);
-            offset += 4;
-            /* QuicVersion supported_versions<4..2^8-4>;*/
-            if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &supported_versions_length,
-                                hf->hf.hs_ext_quictp_supported_versions_len, 4, G_MAXUINT8-3)) {
-                return offset_end;
-            }
-            offset += 1;
-            next_offset = offset + supported_versions_length;
-
-            while (offset < next_offset) {
-                proto_tree_add_item(tree, hf->hf.hs_ext_quictp_supported_versions,
-                                    tvb, offset, 4, ENC_BIG_ENDIAN);
-                offset += 4;
-            }
-            break;
-        case SSL_HND_NEWSESSION_TICKET:
-            break;
-        default:
-            return offset;
-        }
-    }
 
     /* TransportParameter TransportParameters<0..2^16-1>; */
     if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &quic_length,
@@ -6802,52 +6742,21 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                 /* No Payload */
             break;
             case SSL_HND_QUIC_TP_PREFERRED_ADDRESS: {
-                guint32 ipversion, ipaddress_length, connectionid_length;
-                // Heuristically detect draft -17 vs draft -18.
-                ipversion = tvb_get_guint8(tvb, offset);
-                if (ipversion == 4 || ipversion == 6) {
-                    // Draft -17 and earlier.
-                    proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_ipversion,
-                                        tvb, offset, 1, ENC_BIG_ENDIAN);
-                    offset += 1;
-                    if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &ipaddress_length,
-                                        hf->hf.hs_ext_quictp_parameter_pa_ipaddress_length, 4, G_MAXUINT8-1)) {
-                        break;
-                    }
-                    offset += 1;
-                    switch (ipversion) {
-                    case 4:
-                        proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_ipv4address,
-                                            tvb, offset, 4, ENC_BIG_ENDIAN);
-                        offset += 4;
-                        proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_ipv4port,
-                                            tvb, offset, 2, ENC_BIG_ENDIAN);
-                        offset += 2;
-                        break;
-                    case 6:
-                        proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_ipv6address,
-                                            tvb, offset, 16, ENC_NA);
-                        offset += 16;
-                        proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_ipv6port,
-                                            tvb, offset, 2, ENC_BIG_ENDIAN);
-                        offset += 2;
-                        break;
-                    }
-                } else {
-                    // Since draft -18
-                    proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_ipv4address,
-                                        tvb, offset, 4, ENC_BIG_ENDIAN);
-                    offset += 4;
-                    proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_ipv4port,
-                                        tvb, offset, 2, ENC_BIG_ENDIAN);
-                    offset += 2;
-                    proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_ipv6address,
-                                        tvb, offset, 16, ENC_NA);
-                    offset += 16;
-                    proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_ipv6port,
-                                        tvb, offset, 2, ENC_BIG_ENDIAN);
-                    offset += 2;
-                }
+                guint32 connectionid_length;
+
+                // Since draft -18
+                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_ipv4address,
+                                    tvb, offset, 4, ENC_BIG_ENDIAN);
+                offset += 4;
+                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_ipv4port,
+                                    tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
+                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_ipv6address,
+                                    tvb, offset, 16, ENC_NA);
+                offset += 16;
+                proto_tree_add_item(parameter_tree, hf->hf.hs_ext_quictp_parameter_pa_ipv6port,
+                                    tvb, offset, 2, ENC_BIG_ENDIAN);
+                offset += 2;
 
                 if (!ssl_add_vector(hf, tvb, pinfo, tree, offset, offset_end, &connectionid_length,
                                     hf->hf.hs_ext_quictp_parameter_pa_connectionid_length, 0, 18)) {

@@ -12,9 +12,9 @@
 
 /*
  * See https://quicwg.org
- * https://tools.ietf.org/html/draft-ietf-quic-transport-20
- * https://tools.ietf.org/html/draft-ietf-quic-tls-20
- * https://tools.ietf.org/html/draft-ietf-quic-invariants-04
+ * https://tools.ietf.org/html/draft-ietf-quic-transport-22
+ * https://tools.ietf.org/html/draft-ietf-quic-tls-22
+ * https://tools.ietf.org/html/draft-ietf-quic-invariants-05
  */
 
 #include <config.h>
@@ -186,7 +186,7 @@ typedef struct quic_cipher {
     // TODO hp_cipher does not change after KeyUpdate, but is still tied to the
     //      current encryption level (initial, 0rtt, handshake, appdata).
     //      Maybe move this into quic_info_data (2x) and quic_pp_state?
-    //      See https://tools.ietf.org/html/draft-ietf-quic-tls-17#section-5.4
+    //      See https://tools.ietf.org/html/draft-ietf-quic-tls-22#section-5.4
     gcry_cipher_hd_t    hp_cipher;  /**< Header protection cipher. */
     gcry_cipher_hd_t    pp_cipher;  /**< Packet protection cipher. */
     guint8              pp_iv[TLS13_AEAD_NONCE_LENGTH];
@@ -422,7 +422,6 @@ static const range_string quic_transport_error_code_vals[] = {
     { 0x0006, 0x0006, "FINAL_SIZE_ERROR" },
     { 0x0007, 0x0007, "FRAME_ENCODING_ERROR" },
     { 0x0008, 0x0008, "TRANSPORT_PARAMETER_ERROR" },
-    { 0x0009, 0x0009, "VERSION_NEGOTIATION_ERROR" }, // removed in draft -19
     { 0x000A, 0x000A, "PROTOCOL_VIOLATION" },
     { 0x000C, 0x000C, "INVALID_MIGRATION" },
     { 0x000D, 0x000D, "CRYPTO_BUFFER_EXCEEDED" },
@@ -489,7 +488,7 @@ quic_decrypt_header(tvbuff_t *tvb, guint pn_offset, gcry_cipher_hd_t hp_cipher, 
     }
 
     // Sample is always 16 bytes and starts after PKN (assuming length 4).
-    // https://tools.ietf.org/html/draft-ietf-quic-tls-17#section-5.4.2
+    // https://tools.ietf.org/html/draft-ietf-quic-tls-22#section-5.4.2
     guint8 sample[16];
     tvb_memcpy(tvb, sample, pn_offset + 4, 16);
 
@@ -520,7 +519,7 @@ quic_decrypt_header(tvbuff_t *tvb, guint pn_offset, gcry_cipher_hd_t hp_cipher, 
         return FALSE;
     }
 
-    // https://tools.ietf.org/html/draft-ietf-quic-tls-17#section-5.4.1
+    // https://tools.ietf.org/html/draft-ietf-quic-tls-22#section-5.4.1
     guint8 packet0 = tvb_get_guint8(tvb, 0);
     if ((packet0 & 0x80) == 0x80) {
         // Long header: 4 bits masked
@@ -652,7 +651,7 @@ quic_cids_is_known_length(const quic_cid_t *cid)
 static quic_info_data_t *
 quic_connection_find_dcid(packet_info *pinfo, const quic_cid_t *dcid, gboolean *from_server)
 {
-    /* https://tools.ietf.org/html/draft-ietf-quic-transport-13#section-6.2
+    /* https://tools.ietf.org/html/draft-ietf-quic-transport-22#section-5.2
      *
      * "If the packet has a Destination Connection ID corresponding to an
      * existing connection, QUIC processes that packet accordingly."
@@ -1257,7 +1256,7 @@ quic_cipher_init(quic_cipher *cipher, int hash_algo, guint8 key_length, guint8 *
  * the (encrypted) packet number length is also included.
  *
  * The actual packet number must be constructed according to
- * https://tools.ietf.org/html/draft-ietf-quic-transport-13#section-4.8
+ * https://tools.ietf.org/html/draft-ietf-quic-transport-22#section-12.3
  */
 static void
 quic_decrypt_message(quic_cipher *cipher, tvbuff_t *head, guint header_length,
@@ -1397,7 +1396,7 @@ quic_derive_initial_secrets(const quic_cid_t *cid,
 
 /**
  * Maps a Packet Protection cipher to the Packet Number protection cipher.
- * See https://tools.ietf.org/html/draft-ietf-quic-tls-17#section-5.4.3
+ * See https://tools.ietf.org/html/draft-ietf-quic-tls-22#section-5.4.3
  */
 static gboolean
 quic_get_pn_cipher_algo(int cipher_algo, int *hp_cipher_mode)
@@ -2471,7 +2470,7 @@ proto_register_quic(void)
             FT_UINT32, BASE_HEX, VALS(quic_version_vals), 0x0,
             NULL, HFILL }
         },
-        { &hf_quic_vn_unused, /* <= draft-07 */
+        { &hf_quic_vn_unused,
           { "Unused", "quic.vn.unused",
             FT_UINT8, BASE_HEX, NULL, 0x7F,
             NULL, HFILL }
