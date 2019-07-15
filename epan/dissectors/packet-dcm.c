@@ -630,11 +630,10 @@ typedef struct dcm_state_assoc {
 
     guint32 packet_no;                  /* Wireshark packet number, where association starts */
 
-#define AEEND 16
-    gchar ae_called[1+AEEND];           /* Called  AE title in A-ASSOCIATE RQ */
-    gchar ae_calling[1+AEEND];          /* Calling AE title in A-ASSOCIATE RQ */
-    gchar ae_called_resp[1+AEEND];      /* Called  AE title in A-ASSOCIATE RP */
-    gchar ae_calling_resp[1+AEEND];     /* Calling AE title in A-ASSOCIATE RP */
+    char *ae_called;                    /* Called  AE title in A-ASSOCIATE RQ */
+    char *ae_calling;                   /* Calling AE title in A-ASSOCIATE RQ */
+    char *ae_called_resp;               /* Called  AE title in A-ASSOCIATE RP */
+    char *ae_calling_resp;              /* Calling AE title in A-ASSOCIATE RP */
 
 } dcm_state_assoc_t;
 
@@ -1428,10 +1427,10 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
     const char   *abort_source_desc = "";
     const char   *abort_reason_desc = "";
 
-    const guint8 *ae_called;
-    const guint8 *ae_calling;
-    const guint8 *ae_called_resp;
-    const guint8 *ae_calling_resp;
+    char  *ae_called;
+    char  *ae_calling;
+    char  *ae_called_resp;
+    char  *ae_calling_resp;
 
     guint8  reject_result;
     guint8  reject_source;
@@ -1464,18 +1463,18 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
          * specified" and thus should probably be treated as not valid
          * in that "Basic" set.
          */
-        proto_tree_add_item_ret_string(assoc_header_ptree, hf_dcm_assoc_called, tvb, offset, 16, ENC_ISO_646_BASIC|ENC_NA, wmem_packet_scope(), &ae_called);
-        g_strlcpy(assoc->ae_called, (const gchar *) ae_called, sizeof assoc->ae_called);
+        proto_tree_add_item_ret_display_string(assoc_header_ptree, hf_dcm_assoc_called, tvb, offset, 16, ENC_ISO_646_BASIC|ENC_NA, wmem_packet_scope(), &ae_called);
+        assoc->ae_called = wmem_strdup(wmem_file_scope(), g_strstrip(ae_called));
         offset += 16;
 
-        proto_tree_add_item_ret_string(assoc_header_ptree, hf_dcm_assoc_calling, tvb, offset, 16, ENC_ISO_646_BASIC|ENC_NA, wmem_packet_scope(), &ae_calling);
-        g_strlcpy(assoc->ae_calling, (const gchar *) ae_calling, sizeof assoc->ae_calling);
+        proto_tree_add_item_ret_display_string(assoc_header_ptree, hf_dcm_assoc_calling, tvb, offset, 16, ENC_ISO_646_BASIC|ENC_NA, wmem_packet_scope(), &ae_calling);
+        assoc->ae_calling = wmem_strdup(wmem_file_scope(), g_strstrip(ae_calling));
         offset += 16;
 
         offset += 32;                           /* 32 reserved bytes */
 
         buf_desc = wmem_strdup_printf(pinfo->pool, "A-ASSOCIATE request %s --> %s",
-            g_strstrip(assoc->ae_calling), g_strstrip(assoc->ae_called));
+            assoc->ae_calling, assoc->ae_called);
 
         offset = dissect_dcm_assoc_detail(tvb, pinfo, assoc_header_ptree, assoc, offset, pdu_len-offset);
 
@@ -1487,18 +1486,18 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 
         offset += 2;                            /* Two reserved bytes*/
 
-        proto_tree_add_item_ret_string(assoc_header_ptree, hf_dcm_assoc_called, tvb, offset, 16, ENC_ISO_646_BASIC|ENC_NA, wmem_packet_scope(), &ae_called_resp);
-        g_strlcpy(assoc->ae_called_resp, (const gchar *) ae_called_resp, sizeof assoc->ae_called_resp);
+        proto_tree_add_item_ret_display_string(assoc_header_ptree, hf_dcm_assoc_called, tvb, offset, 16, ENC_ISO_646_BASIC|ENC_NA, wmem_packet_scope(), &ae_called_resp);
+        assoc->ae_called_resp = wmem_strdup(wmem_file_scope(), g_strstrip(ae_called_resp));
         offset += 16;
 
-        proto_tree_add_item_ret_string(assoc_header_ptree, hf_dcm_assoc_calling, tvb, offset, 16, ENC_ISO_646_BASIC|ENC_NA, wmem_packet_scope(), &ae_calling_resp);
-        g_strlcpy(assoc->ae_calling_resp, (const gchar *) ae_calling_resp, sizeof assoc->ae_calling_resp);
+        proto_tree_add_item_ret_display_string(assoc_header_ptree, hf_dcm_assoc_calling, tvb, offset, 16, ENC_ISO_646_BASIC|ENC_NA, wmem_packet_scope(), &ae_calling_resp);
+        assoc->ae_calling_resp = wmem_strdup(wmem_file_scope(), g_strstrip(ae_calling_resp));
         offset += 16;
 
         offset += 32;                           /* 32 reserved bytes */
 
         buf_desc = wmem_strdup_printf(pinfo->pool, "A-ASSOCIATE accept  %s <-- %s",
-            g_strstrip(assoc->ae_calling_resp), g_strstrip(assoc->ae_called_resp));
+            assoc->ae_calling_resp, assoc->ae_called_resp);
 
         offset = dissect_dcm_assoc_detail(tvb, pinfo, assoc_header_ptree, assoc, offset, pdu_len-offset);
 
@@ -1556,7 +1555,7 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 
         /* Provider aborted */
         buf_desc = wmem_strdup_printf(pinfo->pool, "A-ASSOCIATE reject  %s <-- %s (%s)",
-            g_strstrip(assoc->ae_calling), g_strstrip(assoc->ae_called), reject_reason_desc);
+            assoc->ae_calling, assoc->ae_called, reject_reason_desc);
 
         expert_add_info(pinfo, assoc_header_pitem, &ei_dcm_assoc_rejected);
 
@@ -1613,12 +1612,12 @@ dissect_dcm_assoc_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
         if (abort_source == 0) {
             /* User aborted */
             buf_desc = wmem_strdup_printf(pinfo->pool, "ABORT %s --> %s",
-                g_strstrip(assoc->ae_calling), g_strstrip(assoc->ae_called));
+                assoc->ae_calling, assoc->ae_called);
         }
         else {
             /* Provider aborted, slightly more information */
             buf_desc = wmem_strdup_printf(pinfo->pool, "ABORT %s <-- %s (%s)",
-                g_strstrip(assoc->ae_calling), g_strstrip(assoc->ae_called), abort_reason_desc);
+                assoc->ae_calling, assoc->ae_called, abort_reason_desc);
         }
 
         expert_add_info(pinfo, assoc_header_pitem, &ei_dcm_assoc_aborted);
