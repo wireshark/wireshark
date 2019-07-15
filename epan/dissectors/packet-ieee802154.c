@@ -2075,30 +2075,8 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         }
     }
 
-    address src_addr;
-    address dst_addr;
-    if (packet->src_addr_mode == IEEE802154_FCF_ADDR_NONE) {
-        set_address(&src_addr, AT_NONE, 0, NULL);
-    }
-    else if (packet->src_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
-        set_address(&src_addr, AT_EUI64, 2, &packet->src16);
-    }
-    else {
-        set_address(&src_addr, AT_EUI64, 8, &packet->src64);
-    }
-
-    if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_NONE) {
-        set_address(&dst_addr, AT_NONE, 0, NULL);
-    }
-    else if (packet->dst_addr_mode == IEEE802154_FCF_ADDR_SHORT) {
-        set_address(&dst_addr, AT_EUI64, 2, &packet->dst16);
-    }
-    else {
-        set_address(&dst_addr, AT_EUI64, 8, &packet->dst64);
-    }
-
     if ((packet->src_addr_mode != IEEE802154_FCF_ADDR_NONE) && (packet->dst_addr_mode != IEEE802154_FCF_ADDR_NONE)) {
-        _find_or_create_conversation(pinfo, &src_addr, &dst_addr);
+        _find_or_create_conversation(pinfo, &pinfo->dl_src, &pinfo->dl_dst);
     }
 
     if (ieee802154_ack_tracking && fcs_ok && (packet->ack_request || packet->frame_type == IEEE802154_FCF_ACK)) {
@@ -2110,10 +2088,10 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         }
 
         if (packet->ack_request) {
-            transaction_start(pinfo, ieee802154_tree, &src_addr, &dst_addr, key);
+            transaction_start(pinfo, ieee802154_tree, &pinfo->dl_src, &pinfo->dl_dst, key);
         }
         else {
-            transaction_end(pinfo, ieee802154_tree, &src_addr, &dst_addr, key);
+            transaction_end(pinfo, ieee802154_tree, &pinfo->dl_src, &pinfo->dl_dst, key);
         }
     }
 
