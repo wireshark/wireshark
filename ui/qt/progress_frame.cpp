@@ -54,7 +54,7 @@ create_progress_dlg(gpointer top_level_window, const gchar *, const gchar *,
 progdlg_t *
 delayed_create_progress_dlg(gpointer top_level_window, const gchar *task_title, const gchar *item_title,
                             gboolean terminate_is_stop, gboolean *stop_flag,
-                            const GTimeVal *, gfloat progress)
+                            gfloat progress)
 {
     progdlg_t *progress_dialog = create_progress_dlg(top_level_window, task_title, item_title, terminate_is_stop, stop_flag);
     update_progress_dlg(progress_dialog, progress, item_title);

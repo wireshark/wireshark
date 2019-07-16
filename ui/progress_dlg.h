@@ -59,14 +59,11 @@ progdlg_t *create_progress_dlg(gpointer top_level_window, const gchar *task_titl
  *   anything already done), FALSE if it can
  * @param stop_flag A pointer to a Boolean variable that will be
  *   set to TRUE if the user hits that button
- * @param start_time A pointer to a GTimeVal structure which holds
- *   the time at which the caller started to process the data
  * @param progress The current progress (0..1)
  * @return The newly created progress dialog
  */
 progdlg_t *delayed_create_progress_dlg(gpointer top_level_window, const gchar *task_title, const gchar *item_title,
-    gboolean terminate_is_stop, gboolean *stop_flag,
-    const GTimeVal *start_time, gfloat progress);
+    gboolean terminate_is_stop, gboolean *stop_flag, gfloat progress);
 
 /**
  * Update the progress information of the progress dialog box.

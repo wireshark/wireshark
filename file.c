@@ -201,19 +201,9 @@ cf_get_computed_elapsed(capture_file *cf)
   return cf->computed_elapsed;
 }
 
-/*
- * GLIB_CHECK_VERSION(2,28,0) adds g_get_real_time which could minimize or
- * replace this
- */
-static void compute_elapsed(capture_file *cf, GTimeVal *start_time)
+static void compute_elapsed(capture_file *cf, gint64 start_time)
 {
-  gdouble  delta_time;
-  GTimeVal time_now;
-
-  g_get_current_time(&time_now);
-
-  delta_time = (time_now.tv_sec - start_time->tv_sec) * 1e6 +
-    time_now.tv_usec - start_time->tv_usec;
+  gint64 delta_time = g_get_monotonic_time() - start_time;
 
   cf->computed_elapsed = (gulong) (delta_time / 1000); /* ms */
 }
@@ -496,7 +486,7 @@ cf_read(capture_file *cf, gboolean reloading)
   progdlg_t           *volatile progbar = NULL;
   GTimer              *prog_timer = g_timer_new();
   gint64               size;
-  GTimeVal             start_time;
+  gint64               start_time;
   epan_dissect_t       edt;
   wtap_rec             rec;
   Buffer               buf;
@@ -563,7 +553,7 @@ cf_read(capture_file *cf, gboolean reloading)
   packet_list_freeze();
 
   cf->stop_flag = FALSE;
-  g_get_current_time(&start_time);
+  start_time = g_get_monotonic_time();
 
   epan_dissect_init(&edt, cf->epan, create_proto_tree, FALSE);
 
@@ -598,10 +588,10 @@ cf_read(capture_file *cf, gboolean reloading)
           progbar_val = calc_progbar_val(cf, size, file_pos, status_str, sizeof(status_str));
           if (reloading)
             progbar = delayed_create_progress_dlg(cf->window, "Reloading", name_ptr,
-                TRUE, &cf->stop_flag, &start_time, progbar_val);
+                TRUE, &cf->stop_flag, progbar_val);
           else
             progbar = delayed_create_progress_dlg(cf->window, "Loading", name_ptr,
-                TRUE, &cf->stop_flag, &start_time, progbar_val);
+                TRUE, &cf->stop_flag, progbar_val);
         }
 
         /*
@@ -615,7 +605,7 @@ cf_read(capture_file *cf, gboolean reloading)
           progbar_val = calc_progbar_val(cf, size, file_pos, status_str, sizeof(status_str));
           /* update the packet bar content on the first run or frequently on very large files */
           update_progress_dlg(progbar, progbar_val, status_str);
-          compute_elapsed(cf, &start_time);
+          compute_elapsed(cf, start_time);
           packets_bar_update();
           g_timer_start(prog_timer);
         }
@@ -686,7 +676,7 @@ cf_read(capture_file *cf, gboolean reloading)
   postseq_cleanup_all_protocols();
 
   /* compute the time it took to load the file */
-  compute_elapsed(cf, &start_time);
+  compute_elapsed(cf, start_time);
 
   /* Set the file encapsulation type now; we don't know what it is until
      we've looked at all the packets, as we don't know until then whether
@@ -1287,7 +1277,6 @@ read_record(capture_file *cf, wtap_rec *rec, Buffer *buf, dfilter_t *dfcode,
 typedef struct _callback_data_t {
   gpointer         pd_window;
   gint64           f_len;
-  GTimeVal         start_time;
   progdlg_t       *progbar;
   GTimer          *prog_timer;
   gboolean         stop_flag;
@@ -1321,8 +1310,6 @@ merge_callback(merge_event event, int num _U_,
 
       cb_data->prog_timer = g_timer_new();
       g_timer_start(cb_data->prog_timer);
-
-      g_get_current_time(&cb_data->start_time);
       break;
 
     case MERGE_EVENT_RECORD_WAS_READ:
@@ -1334,7 +1321,7 @@ merge_callback(merge_event event, int num _U_,
            time in order to get to the next progress bar step). */
         if (cb_data->progbar == NULL) {
           cb_data->progbar = delayed_create_progress_dlg(cb_data->pd_window, "Merging", "files",
-            FALSE, &cb_data->stop_flag, &cb_data->start_time, 0.0f);
+            FALSE, &cb_data->stop_flag, 0.0f);
         }
 
         /*
@@ -1472,7 +1459,6 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
   const char *filter_old = cf->dfilter ? cf->dfilter : "";
   dfilter_t  *dfcode;
   gchar      *err_msg;
-  GTimeVal    start_time;
 
   /* if new filter equals old one, do nothing unless told to do so */
   if (!force && strcmp(filter_new, filter_old) == 0) {
@@ -1513,7 +1499,6 @@ cf_filter_packets(capture_file *cf, gchar *dftext, gboolean force)
   /* We have a valid filter.  Replace the current filter. */
   g_free(cf->dfilter);
   cf->dfilter = dftext;
-  g_get_current_time(&start_time);
 
 
   /* Now rescan the packet list, applying the new filter, but not
@@ -1613,7 +1598,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
   int         selected_frame_num, preceding_frame_num, following_frame_num, prev_frame_num;
   gboolean    selected_frame_seen;
   float       progbar_val;
-  GTimeVal    start_time;
+  gint64      start_time;
   gchar       status_str[100];
   epan_dissect_t  edt;
   dfilter_t  *dfcode;
@@ -1735,7 +1720,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
   progbar_val = 0.0f;
 
   cf->stop_flag = FALSE;
-  g_get_current_time(&start_time);
+  start_time = g_get_monotonic_time();
 
   /* no previous row yet */
   prev_frame_num = -1;
@@ -1775,7 +1760,6 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
     if (progbar == NULL)
       progbar = delayed_create_progress_dlg(cf->window, action, action_item, TRUE,
                                             &cf->stop_flag,
-                                            &start_time,
                                             progbar_val);
 
     /*
@@ -1907,7 +1891,7 @@ rescan_packets(capture_file *cf, const char *action, const char *action_item, gb
     packet_list_recreate_visible_rows();
 
   /* Compute the time it took to filter the file */
-  compute_elapsed(cf, &start_time);
+  compute_elapsed(cf, start_time);
 
   packet_list_thaw();
 
@@ -2094,7 +2078,6 @@ process_specified_records(capture_file *cf, packet_range_t *range,
   GTimer          *prog_timer = g_timer_new();
   int              progbar_count;
   float            progbar_val;
-  GTimeVal         progbar_start_time;
   gchar            progbar_status_str[100];
   range_process_e  process_this;
 
@@ -2114,7 +2097,6 @@ process_specified_records(capture_file *cf, packet_range_t *range,
   cf->read_lock = TRUE;
 
   cf->stop_flag = FALSE;
-  g_get_current_time(&progbar_start_time);
 
   if (range != NULL)
     packet_range_process_init(range);
@@ -2133,7 +2115,6 @@ process_specified_records(capture_file *cf, packet_range_t *range,
       progbar = delayed_create_progress_dlg(cf->window, string1, string2,
                                             terminate_is_stop,
                                             &cf->stop_flag,
-                                            &progbar_start_time,
                                             progbar_val);
 
     /*
@@ -3593,7 +3574,6 @@ find_packet(capture_file *cf, ws_match_function match_function,
   int          count;
   gboolean     succeeded;
   float        progbar_val;
-  GTimeVal     start_time;
   gchar        status_str[100];
   const char  *title;
   match_result result;
@@ -3619,7 +3599,6 @@ find_packet(capture_file *cf, ws_match_function match_function,
   progbar_val = 0.0f;
 
   cf->stop_flag = FALSE;
-  g_get_current_time(&start_time);
 
   title = cf->sfilter?cf->sfilter:"";
   for (;;) {
@@ -3630,7 +3609,7 @@ find_packet(capture_file *cf, ws_match_function match_function,
        time in order to get to the next progress bar step). */
     if (progbar == NULL)
        progbar = delayed_create_progress_dlg(cf->window, "Searching", title,
-         FALSE, &cf->stop_flag, &start_time, progbar_val);
+         FALSE, &cf->stop_flag, progbar_val);
 
     /*
      * Update the progress bar, but do it only after PROGBAR_UPDATE_INTERVAL
@@ -4261,7 +4240,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile)
   GTimer              *prog_timer = g_timer_new();
   gint64               size;
   float                progbar_val;
-  GTimeVal             start_time;
+  gint64               start_time;
   gchar                status_str[100];
   guint32              framenum;
   frame_data          *fdata;
@@ -4316,7 +4295,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile)
   g_timer_start(prog_timer);
 
   cf->stop_flag = FALSE;
-  g_get_current_time(&start_time);
+  start_time = g_get_monotonic_time();
 
   framenum = 0;
   wtap_rec_init(&rec);
@@ -4334,7 +4313,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile)
       if (progress_is_slow(progbar, prog_timer, size, cf->f_datalen)) {
         progbar_val = calc_progbar_val(cf, size, cf->f_datalen, status_str, sizeof(status_str));
         progbar = delayed_create_progress_dlg(cf->window, "Rescanning", name_ptr,
-                                              TRUE, &cf->stop_flag, &start_time, progbar_val);
+                                              TRUE, &cf->stop_flag, progbar_val);
       }
 
       /*
@@ -4347,7 +4326,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile)
         progbar_val = calc_progbar_val(cf, size, cf->f_datalen, status_str, sizeof(status_str));
         /* update the packet bar content on the first run or frequently on very large files */
         update_progress_dlg(progbar, progbar_val, status_str);
-        compute_elapsed(cf, &start_time);
+        compute_elapsed(cf, start_time);
         packets_bar_update();
         g_timer_start(prog_timer);
       }
@@ -4388,7 +4367,7 @@ rescan_file(capture_file *cf, const char *fname, gboolean is_tempfile)
   wtap_sequential_close(cf->provider.wth);
 
   /* compute the time it took to load the file */
-  compute_elapsed(cf, &start_time);
+  compute_elapsed(cf, start_time);
 
   /* Set the file encapsulation type now; we don't know what it is until
      we've looked at all the packets, as we don't know until then whether

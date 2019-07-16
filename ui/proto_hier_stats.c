@@ -196,7 +196,6 @@ ph_stats_new(capture_file *cf)
     wtap_rec	rec;
     Buffer	buf;
     float	progbar_val;
-    GTimeVal	start_time;
     gchar	status_str[100];
     int		progbar_nextstep;
     int		progbar_quantum;
@@ -224,7 +223,6 @@ ph_stats_new(capture_file *cf)
     progbar_val = 0.0f;
 
     stop_flag = FALSE;
-    g_get_current_time(&start_time);
 
     tot_packets = 0;
     tot_bytes = 0;
@@ -245,7 +243,7 @@ ph_stats_new(capture_file *cf)
             progbar = delayed_create_progress_dlg(
                     cf->window, "Computing",
                     "protocol hierarchy statistics",
-                    TRUE, &stop_flag, &start_time, progbar_val);
+                    TRUE, &stop_flag, progbar_val);
 
         /* Update the progress bar, but do it only N_PROGBAR_UPDATES
            times; when we update it, we have to run the GTK+ main
