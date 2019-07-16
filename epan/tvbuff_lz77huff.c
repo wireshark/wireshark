@@ -25,6 +25,7 @@
 
 #define TREE_SIZE 1024
 #define ENCODED_TREE_SIZE 256
+#define SYMBOL_INFO_SIZE (2*ENCODED_TREE_SIZE)
 
 struct input {
 	tvbuff_t *tvb;
@@ -40,11 +41,14 @@ struct prefix_code_node {
 	guint16 symbol;
 
 	/* Indicates whether this node is a leaf in the tree */
-	gboolean leaf;
+	guint8 leaf;
 
-	/* Points to the node’s two children. The value NIL is used to
-	 * indicate that a particular child does not exist */
-	struct prefix_code_node *child[2];
+	/*
+	 * Points to the node's two children. Values are indexes in
+	 * the tree node array. The value -1 is used to indicate that
+	 * a particular child does not exist
+	 */
+	gint16 child[2];
 };
 
 /**
@@ -107,19 +111,19 @@ static int prefix_code_tree_add_leaf(struct hf_tree *tree,
 	while (bits > 1) {
 		bits = bits - 1;
 		child_index = (mask >> bits) & 1;
-		if (node->child[child_index] == NULL) {
+		if (node->child[child_index] < 0) {
 			if (i >= TREE_SIZE)
 				return -1;
-			node->child[child_index] = &tree->nodes[i];
+			node->child[child_index] = i;
 			tree->nodes[i].leaf = FALSE;
 			i = i + 1;
 		}
-		node = node->child[child_index];
+		node = tree->nodes + node->child[child_index];
 		if (!is_node_valid(tree, node))
 			return -1;
 	}
 
-	node->child[mask & 1] = &tree->nodes[leaf_index];
+	node->child[mask & 1] = leaf_index;
 
 	*out_index = i;
 	return 0;
@@ -152,15 +156,15 @@ static int compare_symbols(const void *ve1, const void *ve2)
 static int PrefixCodeTreeRebuild( struct hf_tree *tree,
 				 const struct input *input)
 {
-	struct prefix_code_symbol symbolInfo[512];
+	struct prefix_code_symbol symbolInfo[SYMBOL_INFO_SIZE];
 	guint32 i, j, mask, bits;
 	int rc;
 
 	for (i = 0; i < TREE_SIZE; i++) {
 		tree->nodes[i].symbol = 0;
 		tree->nodes[i].leaf = FALSE;
-		tree->nodes[i].child[0] = NULL;
-		tree->nodes[i].child[1] = NULL;
+		tree->nodes[i].child[0] = -1;
+		tree->nodes[i].child[1] = -1;
 	}
 
 	if (input->size < ENCODED_TREE_SIZE)
@@ -173,10 +177,10 @@ static int PrefixCodeTreeRebuild( struct hf_tree *tree,
 		symbolInfo[2*i+1].length = tvb_get_guint8(input->tvb, input->offset+i) >> 4;
 	}
 
-	qsort(symbolInfo, 512, sizeof(symbolInfo[0]), compare_symbols);
+	qsort(symbolInfo, SYMBOL_INFO_SIZE, sizeof(symbolInfo[0]), compare_symbols);
 
 	i = 0;
-	while (i < 512 && symbolInfo[i].length == 0) {
+	while (i < SYMBOL_INFO_SIZE && symbolInfo[i].length == 0) {
 		i = i + 1;
 	}
 
@@ -261,7 +265,7 @@ static int prefix_code_tree_decode_symbol(struct hf_tree *tree,
 	do {
 		bit = bitstring_lookup(bstr, 1);
 		bitstring_skip(bstr, 1);
-		node = node->child[bit];
+		node = tree->nodes + node->child[bit];
 		if (!is_node_valid(tree, node))
 			return -1;
 	} while (node->leaf == FALSE);
