@@ -403,13 +403,10 @@ tvb_arpproaddr_to_str(tvbuff_t *tvb, gint offset, int ad_len, guint16 type)
     return arpproaddr_to_str(tvb_get_ptr(tvb, offset, ad_len), ad_len, type);
 }
 
-#define MAX_E164_STR_LEN                20
-
 static const gchar *
 atmarpnum_to_str(tvbuff_t *tvb, int offset, int ad_tl)
 {
   int    ad_len = ad_tl & ATMARP_LEN_MASK;
-  gchar *cur;
 
   if (ad_len == 0)
     return "<No address>";
@@ -418,16 +415,7 @@ atmarpnum_to_str(tvbuff_t *tvb, int offset, int ad_tl)
     /*
      * I'm assuming this means it's an ASCII (IA5) string.
      */
-    cur = (gchar *)wmem_alloc(wmem_packet_scope(), MAX_E164_STR_LEN+3+1);
-    if (ad_len > MAX_E164_STR_LEN) {
-      /* Can't show it all. */
-      tvb_memcpy(tvb, cur, offset, MAX_E164_STR_LEN);
-      g_snprintf(&cur[MAX_E164_STR_LEN], 3+1, "...");
-    } else {
-      tvb_memcpy(tvb, cur, offset, ad_len);
-      cur[ad_len + 1] = '\0';
-    }
-    return cur;
+    return (gchar *) tvb_get_string_enc(wmem_packet_scope(), tvb, offset, ad_len, ENC_ASCII|ENC_NA);
   } else {
     /*
      * NSAP.

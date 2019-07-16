@@ -953,7 +953,6 @@ zdp_parse_complex_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *of
 
     proto_tree  *field_tree;
 
-    gchar   *str = (gchar *)wmem_alloc(wmem_packet_scope(), length);
     gchar   *complex = (gchar *)wmem_alloc(wmem_packet_scope(), max_len);
     guint8  tag;
 
@@ -983,8 +982,9 @@ zdp_parse_complex_desc(proto_tree *tree, gint ettindex, tvbuff_t *tvb, guint *of
         g_snprintf(complex, max_len, "<%s>FixMe</%s>", tag_name[tag_icon], tag_name[tag_icon]);
     }
     else {
-        tvb_memcpy(tvb, str, *offset+1, length-1);
-        str[length-1] = '\0';
+        gchar *str;
+
+        str = (gchar *) tvb_get_string_enc(wmem_packet_scope(), tvb, *offset+1, length-1, ENC_ASCII|ENC_NA);
         /* Handles all string type XML tags. */
         if (tag <= tag_icon_url) {
             g_snprintf(complex, max_len, "<%s>%s</%s>", tag_name[tag], str, tag_name[tag]);
