@@ -1238,6 +1238,10 @@ id-LocationInformationSgNBReporting				ProtocolIE-ID
 id-LocationInformationSgNB					ProtocolIE-ID
 id-LastNG-RANPLMNIdentity					ProtocolIE-ID
 id-EUTRANTraceID						ProtocolIE-ID
+id-additionalPLMNs-Item						ProtocolIE-ID
+id-InterfaceInstanceIndication					ProtocolIE-ID
+id-BPLMN-ID-Info-EUTRA						ProtocolIE-ID
+id-BPLMN-ID-Info-NR						ProtocolIE-ID
 
 #.REGISTER
 
@@ -1472,6 +1476,7 @@ DesiredActNotificationLevel					N x2ap.ies id-DesiredActNotificationLevel
 LocationInformationSgNBReporting				N x2ap.ies id-LocationInformationSgNBReporting
 LocationInformationSgNB						N x2ap.ies id-LocationInformationSgNB
 EUTRANTraceID							N x2ap.ies id-EUTRANTraceID
+InterfaceInstanceIndication					N x2ap.ies id-InterfaceInstanceIndication
 
 #X2AP-PROTOCOL-EXTENSION
 Number-of-Antennaports						N x2ap.extension id-Number-of-Antennaports
@@ -1566,6 +1571,9 @@ NewDRBIDrequest							N x2ap.extension id-new-drb-ID-req
 NRNeighbour-Information						N x2ap.extension id-NRNeighbourInfoToAdd
 NRNeighbour-Information						N x2ap.extension id-NRNeighbourInfoToModify
 PLMN-Identity							N x2ap.extension id-LastNG-RANPLMNIdentity
+AdditionalPLMNs-Item						N x2ap.extension id-additionalPLMNs-Item
+BPLMN-ID-Info-EUTRA						N x2ap.extension id-BPLMN-ID-Info-EUTRA
+BPLMN-ID-Info-NR						N x2ap.extension id-BPLMN-ID-Info-NR
 
 # X2AP-PDU-Descriptions.asn  Interface Elementary Procedures
 #X2AP-ELEMENTARY-PROCEDURE

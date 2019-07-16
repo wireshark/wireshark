@@ -1,4 +1,4 @@
--- 3GPP TS 36.423 V15.5.0 (2019-03)
+-- 3GPP TS 36.423 V15.6.0 (2019-06)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -15,9 +15,6 @@ DEFINITIONS AUTOMATIC TAGS ::=
 BEGIN
 
 IMPORTS
-NRNeighbour-Information
-
-FROM X2AP-PDU-Contents
 
 	id-E-RAB-Item,
 	id-Number-of-Antennaports,
@@ -77,7 +74,7 @@ FROM X2AP-PDU-Contents
 	id-SgNBCoordinationAssistanceInformation,
 	id-NRNeighbourInfoToAdd,
 	id-LastNG-RANPLMNIdentity,
-
+	id-BPLMN-ID-Info-EUTRA,
 
 	maxnoofBearers,
 	maxCellineNB,
@@ -88,6 +85,7 @@ FROM X2AP-PDU-Contents
 
 	maxnoofBands,
 	maxnoofBPLMNs,
+	maxnoofAdditionalPLMNs,
 	maxnoofCells,
 	maxnoofEPLMNs,
 	maxnoofEPLMNsPlusOne,
@@ -119,7 +117,11 @@ FROM X2AP-PDU-Contents
 	maxnoNRcellsSpectrumSharingWithE-UTRA,
 	maxnoofNrCellBands,
 	maxnoofBluetoothName,
-	maxnoofWLANName
+	maxnoofWLANName,
+	maxofNRNeighbours,
+	maxnoofextBPLMNs,
+	maxnoofextBPLMNsminus1,
+	maxnoofBPLMNsminus1
 
 FROM X2AP-Constants
 
@@ -270,6 +272,8 @@ AS-SecurityInformation-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+AdditionalPLMNs-Item ::= SEQUENCE (SIZE(1..maxnoofAdditionalPLMNs)) OF PLMN-Identity
+
 
 -- B
 
@@ -305,6 +309,36 @@ BluetoothMeasConfigNameList ::= SEQUENCE (SIZE(1..maxnoofBluetoothName)) OF Blue
 BluetoothMeasConfig::= ENUMERATED {setup,...}
 
 BluetoothName ::= OCTET STRING (SIZE (1..248))
+
+BPLMN-ID-Info-EUTRA ::= SEQUENCE (SIZE(1..maxnoofBPLMNsminus1)) OF BPLMN-ID-Info-EUTRA-Item
+
+BPLMN-ID-Info-EUTRA-Item ::= SEQUENCE {
+	broadcastPLMNs					BroadcastPLMNs-Item,
+	tac								TAC,
+	e-utraCI						EUTRANCellIdentifier,
+	iE-Extension					ProtocolExtensionContainer { {BPLMN-ID-Info-EUTRA-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+BPLMN-ID-Info-EUTRA-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+BPLMN-ID-Info-NR ::= SEQUENCE (SIZE(1..maxnoofextBPLMNsminus1)) OF BPLMN-ID-Info-NR-Item
+
+BPLMN-ID-Info-NR-Item ::= SEQUENCE {
+	broadcastPLMNs					BroadcastextPLMNs,
+	fiveGStac						FiveGS-TAC		OPTIONAL,
+	nr-CI							NRCellIdentifier,
+	iE-Extension					ProtocolExtensionContainer { {BPLMN-ID-Info-NR-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+BPLMN-ID-Info-NR-Item-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+BroadcastextPLMNs ::= SEQUENCE (SIZE(1..maxnoofextBPLMNs)) OF PLMN-Identity
 
 -- C
 
@@ -378,7 +412,7 @@ CauseRadioNetwork ::= ENUMERATED {
 	target-not-allowed,
 	no-radio-resources-available,
 	invalid-QoS-combination,
-	encryption-algorithms-not-aupported,
+	encryption-algorithms-not-supported,
 	procedure-cancelled,
 	rRM-purpose,
 	improve-user-bit-rate,
@@ -457,7 +491,7 @@ CNTypeRestrictions ::= SEQUENCE (SIZE(1.. maxnoofEPLMNsPlusOne)) OF CNTypeRestri
 
 CNTypeRestrictionsItem ::= SEQUENCE {
 	plmn-Id				PLMN-Identity,
-	cn-type				ENUMERATED {fiveGC-forbidden, ...},
+	cn-type				ENUMERATED {fiveGC-forbidden, ... , epc-forbidden},
 	iE-Extensions		ProtocolExtensionContainer { {CNTypeRestrictionsItem-ExtIEs} } OPTIONAL,
 	...
 }
@@ -964,6 +998,17 @@ FDD-Info-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+FDD-InfoNeighbourServedNRCell-Information ::= SEQUENCE {
+	ul-NRFreqInfo			NRFreqInfo,
+	dl-NRFreqInfo			NRFreqInfo,
+	iE-Extensions			ProtocolExtensionContainer { {FDD-InfoNeighbourServedNRCell-Information-ExtIEs} }		OPTIONAL,
+	...
+}
+
+FDD-InfoNeighbourServedNRCell-Information-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 ForbiddenInterRATs ::= ENUMERATED {
 	all,
 	geran,
@@ -1165,6 +1210,8 @@ HWLoadIndicator-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 -- I
 
 IntegrityProtectionAlgorithms ::= BIT STRING (SIZE (16, ...))
+
+InterfaceInstanceIndication ::= INTEGER (0..255, ...)
 
 InterfacesToTrace ::= BIT STRING (SIZE (8))
 
@@ -1543,6 +1590,25 @@ NRCGI-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+NRNeighbour-Information ::= SEQUENCE (SIZE (1.. maxofNRNeighbours))OF SEQUENCE {
+	nrpCI							NRPCI,
+	nrCellID						NRCGI,
+	fiveGS-TAC						FiveGS-TAC	OPTIONAL,
+	configured-TAC					TAC			OPTIONAL,
+	measurementTimingConfiguration	OCTET STRING,
+	nRNeighbourModeInfo				CHOICE {
+		fdd		FDD-InfoNeighbourServedNRCell-Information,
+		tdd		TDD-InfoNeighbourServedNRCell-Information,
+		...
+	},
+	iE-Extensions						ProtocolExtensionContainer { {NRNeighbour-Information-ExtIEs} } OPTIONAL,
+	...
+}
+
+NRNeighbour-Information-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
 NRPCI ::= INTEGER (0..1007)
 
 NRrestrictioninEPSasSecondaryRAT ::= ENUMERATED {
@@ -1802,7 +1868,6 @@ RadioResourceStatus	::= SEQUENCE {
 
 RadioResourceStatus-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	{ID id-DL-scheduling-PDCCH-CCE-usage		CRITICALITY ignore	EXTENSION DL-scheduling-PDCCH-CCE-usage		PRESENCE optional}|
-
 	{ID id-UL-scheduling-PDCCH-CCE-usage		CRITICALITY ignore	EXTENSION UL-scheduling-PDCCH-CCE-usage		PRESENCE optional},
 	...
 }
@@ -2054,7 +2119,8 @@ ServedCell-Information-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-MultibandInfoList					CRITICALITY ignore	EXTENSION MultibandInfoList							PRESENCE optional}|
 	{ ID id-FreqBandIndicatorPriority			CRITICALITY ignore	EXTENSION FreqBandIndicatorPriority				PRESENCE optional}|
 	{ ID id-BandwidthReducedSI					CRITICALITY ignore	EXTENSION BandwidthReducedSI						PRESENCE optional}|
-	{ ID id-ProtectedEUTRAResourceIndication	CRITICALITY ignore	EXTENSION ProtectedEUTRAResourceIndication	PRESENCE optional},
+	{ ID id-ProtectedEUTRAResourceIndication	CRITICALITY ignore	EXTENSION ProtectedEUTRAResourceIndication	PRESENCE optional}|
+	{ ID id-BPLMN-ID-Info-EUTRA					CRITICALITY ignore 	EXTENSION BPLMN-ID-Info-EUTRA						PRESENCE optional},
 	...
 }
 
@@ -2164,7 +2230,7 @@ Subscription-Based-UE-DifferentiationInfo-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 ScheduledCommunicationTime ::= SEQUENCE {
 	dayofWeek				BIT STRING (SIZE(7))									OPTIONAL,
 	timeofDayStart			INTEGER (0..86399, ...) 								OPTIONAL,
-	timeofDayEnd				INTEGER (0..86399, ...) 								OPTIONAL,
+	timeofDayEnd			INTEGER (0..86399, ...) 								OPTIONAL,
 	iE-Extensions			ProtocolExtensionContainer { { ScheduledCommunicationTime-ExtIEs}}	OPTIONAL,
 	...
 }
@@ -2348,6 +2414,16 @@ TDD-Info-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	{ ID id-AdditionalSpecialSubframe-Info			CRITICALITY ignore	EXTENSION AdditionalSpecialSubframe-Info				PRESENCE optional}|
 	{ ID id-eARFCNExtension							CRITICALITY reject	EXTENSION EARFCNExtension									PRESENCE optional}|
 	{ ID id-AdditionalSpecialSubframeExtension-Info	CRITICALITY ignore	EXTENSION AdditionalSpecialSubframeExtension-Info	PRESENCE optional},
+	...
+}
+
+TDD-InfoNeighbourServedNRCell-Information ::= SEQUENCE {
+	nRFreqInfo				NRFreqInfo,
+	iE-Extensions			ProtocolExtensionContainer { {TDD-InfoNeighbourServedNRCell-Information-ExtIEs} }		OPTIONAL,
+	...
+}
+
+TDD-InfoNeighbourServedNRCell-Information-ExtIEs X2AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
