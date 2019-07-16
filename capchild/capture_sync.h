@@ -70,7 +70,7 @@ sync_pipe_kill(ws_process_id fork_child);
  *  @param data On success, *data points to a buffer containing the dumpcap output, On failure *data is NULL
  *  @param primary_msg On success NULL, On failure points to an error message
  *  @param secondary_msg On success NULL, On failure either points to an additional error message or is NULL
- *  @param update_cb
+ *  @param update_cb update callback
  *  @return 0 on success
  */
 extern int
