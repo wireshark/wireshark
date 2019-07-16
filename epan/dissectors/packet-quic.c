@@ -177,9 +177,15 @@ typedef struct quic_decrypt_result {
     guint           data_len;   /**< Size of decrypted data. */
 } quic_decrypt_result_t;
 
+/*
+ * Although the QUIC SCID/DCID length field can store at most 255, v1 limits the
+ * CID length to 20.
+ */
+#define QUIC_MAX_CID_LENGTH  20
+
 typedef struct quic_cid {
     guint8      len;
-    guint8      cid[18];
+    guint8      cid[QUIC_MAX_CID_LENGTH];
 } quic_cid_t;
 
 /** QUIC decryption context. */
@@ -306,6 +312,7 @@ const value_string quic_version_vals[] = {
     { 0xff000013, "draft-19" },
     { 0xff000014, "draft-20" },
     { 0xff000015, "draft-21" },
+    { 0xff000016, "draft-22" },
     { 0, NULL }
 };
 
@@ -316,26 +323,6 @@ static const value_string quic_short_long_header_vals[] = {
 };
 
 #define SH_KP       0x04
-
-static const value_string quic_cid_len_vals[] = {
-    { 0,    "0 octets" },
-    { 1,    "4 octets" },
-    { 2,    "5 octets" },
-    { 3,    "6 octets" },
-    { 4,    "7 octets" },
-    { 5,    "8 octets" },
-    { 6,    "9 octets" },
-    { 7,    "10 octets" },
-    { 8,    "11 octets" },
-    { 9,    "12 octets" },
-    { 10,   "13 octets" },
-    { 11,   "14 octets" },
-    { 12,   "15 octets" },
-    { 13,   "16 octets" },
-    { 14,   "17 octets" },
-    { 15,   "18 octets" },
-    { 0, NULL }
-};
 
 #define QUIC_LPT_INITIAL    0x0
 #define QUIC_LPT_0RTT       0x1
@@ -634,13 +621,14 @@ quic_cids_insert(quic_cid_t *cid, quic_info_data_t *conn, gboolean from_server)
     // Replace any previous CID key with the new one.
     wmem_map_remove(connections, cid);
     wmem_map_insert(connections, cid, conn);
-    quic_cid_lengths |= (1 << cid->len);
+    G_STATIC_ASSERT(QUIC_MAX_CID_LENGTH <= 8 * sizeof(quic_cid_lengths));
+    quic_cid_lengths |= (1ULL << cid->len);
 }
 
 static inline gboolean
 quic_cids_is_known_length(const quic_cid_t *cid)
 {
-    return (quic_cid_lengths & (1 << cid->len)) != 0;
+    return (quic_cid_lengths & (1ULL << cid->len)) != 0;
 }
 
 /**
@@ -1161,10 +1149,10 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             ti = proto_tree_add_item_ret_uint(ft_tree, hf_quic_nci_connection_id_length, tvb, offset, 1, ENC_BIG_ENDIAN, &nci_length);
             offset++;
 
-            valid_cid = nci_length >= 4 && nci_length <= 18;
+            valid_cid = nci_length >= 1 && nci_length <= QUIC_MAX_CID_LENGTH;
             if (!valid_cid) {
                 expert_add_info_format(pinfo, ti, &ei_quic_protocol_violation,
-                            "Connection ID Length must be between 4 and 18 bytes");
+                            "Connection ID Length must be between 1 and %d bytes", QUIC_MAX_CID_LENGTH);
             }
 
             proto_tree_add_item(ft_tree, hf_quic_nci_connection_id, tvb, offset, nci_length, ENC_NA);
@@ -1800,11 +1788,8 @@ dissect_quic_long_header_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *q
     offset += 4;
 
     proto_tree_add_item_ret_uint(quic_tree, hf_quic_dcil, tvb, offset, 1, ENC_BIG_ENDIAN, &dcil);
-    proto_tree_add_item_ret_uint(quic_tree, hf_quic_scil, tvb, offset, 1, ENC_BIG_ENDIAN, &scil);
     offset++;
-
     if (dcil) {
-        dcil += 3;
         proto_tree_add_item(quic_tree, hf_quic_dcid, tvb, offset, dcil, ENC_NA);
         // TODO expert info on CID mismatch with connection
         tvb_memcpy(tvb, dcid->cid, offset, dcil);
@@ -1812,8 +1797,9 @@ dissect_quic_long_header_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *q
         offset += dcil;
     }
 
+    proto_tree_add_item_ret_uint(quic_tree, hf_quic_scil, tvb, offset, 1, ENC_BIG_ENDIAN, &scil);
+    offset++;
     if (scil) {
-        scil += 3;
         proto_tree_add_item(quic_tree, hf_quic_scid, tvb, offset, scil, ENC_NA);
         // TODO expert info on CID mismatch with connection
         tvb_memcpy(tvb, scid->cid, offset, scil);
@@ -1842,15 +1828,13 @@ dissect_quic_retry_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tr
     guint       retry_token_len;
 
     proto_tree_add_item(quic_tree, hf_quic_long_packet_type, tvb, offset, 1, ENC_NA);
-    proto_tree_add_item_ret_uint(quic_tree, hf_quic_odcil, tvb, offset, 1, ENC_NA, &odcil);
-    if (odcil) {
-        odcil += 3;
-    }
     offset += 1;
     col_set_str(pinfo->cinfo, COL_INFO, "Retry");
 
     offset = dissect_quic_long_header_common(tvb, pinfo, quic_tree, offset, quic_packet, &version, &dcid, &scid);
 
+    proto_tree_add_item_ret_uint(quic_tree, hf_quic_odcil, tvb, offset, 1, ENC_NA, &odcil);
+    offset++;
     proto_tree_add_item(quic_tree, hf_quic_odcid, tvb, offset, odcil, ENC_NA);
     offset += odcil;
     retry_token_len = tvb_reported_length_remaining(tvb, offset);
@@ -1913,7 +1897,8 @@ dissect_quic_long_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tre
         if (!error) {
             guint32 pkn32 = 0;
             int hp_cipher_algo = long_packet_type != QUIC_LPT_INITIAL && conn ? conn->cipher_algo : GCRY_CIPHER_AES128;
-            guint pn_offset = 6 + dcid.len + scid.len;
+            // PKN is after type(1) + version(4) + DCIL+DCID + SCIL+SCID
+            guint pn_offset = 1 + 4 + 1 + dcid.len + 1 + scid.len;
             if (long_packet_type == QUIC_LPT_INITIAL) {
                 pn_offset += tvb_get_varint(tvb, pn_offset, 8, &token_length, ENC_VARINT_QUIC);
                 pn_offset += (guint)token_length;
@@ -2127,16 +2112,9 @@ quic_get_message_tvb(tvbuff_t *tvb, const guint offset)
         // If this is not a VN packet but a valid long form, extract a subset.
         // TODO check for valid QUIC versions as future versions might change the format.
         if (version != 0) {
-            guint8 cid_lengths = tvb_get_guint8(tvb, offset + 5);
-            guint8 dcil = cid_lengths >> 4;
-            guint8 scil = cid_lengths & 0xf;
-            guint length = 6;
-            if (dcil) {
-                length += 3 + dcil;
-            }
-            if (scil) {
-                length += 3 + scil;
-            }
+            guint length = 5;   // flag (1 byte) + version (4 bytes)
+            length += 1 + tvb_get_guint8(tvb, offset + length); // DCID
+            length += 1 + tvb_get_guint8(tvb, offset + length); // SCID
             if (long_packet_type == QUIC_LPT_INITIAL) {
                 length += tvb_get_varint(tvb, offset + length, 8, &token_length, ENC_VARINT_QUIC);
                 length += (guint)token_length;
@@ -2182,21 +2160,19 @@ quic_extract_header(tvbuff_t *tvb, guint8 *long_packet_type, guint32 *version,
         // skip version
         offset += 4;
 
-        // read DCIL/SCIL (Connection ID Lengths).
-        guint8 cid_lengths = tvb_get_guint8(tvb, offset);
-        guint8 dcil = cid_lengths >> 4;
-        guint8 scil = cid_lengths & 0xf;
+        // read DCID and SCID (both are prefixed by a length byte).
+        guint8 dcil = tvb_get_guint8(tvb, offset);
         offset++;
 
         if (dcil) {
-            dcil += 3;
             tvb_memcpy(tvb, dcid->cid, offset, dcil);
             dcid->len = dcil;
             offset += dcil;
         }
 
+        guint8 scil = tvb_get_guint8(tvb, offset);
+        offset++;
         if (scil) {
-            scil += 3;
             tvb_memcpy(tvb, scid->cid, offset, scil);
             scid->len = scil;
         }
@@ -2204,10 +2180,10 @@ quic_extract_header(tvbuff_t *tvb, guint8 *long_packet_type, guint32 *version,
         // Definitely not draft -10, set version to dummy value.
         *version = 0;
         // For short headers, the DCID length is unknown and could be 0 or
-        // anything from 4 to 18 bytes. Copy the maximum possible and let the
+        // anything from 1 to 20 bytes. Copy the maximum possible and let the
         // consumer truncate it as necessary.
-        tvb_memcpy(tvb, dcid->cid, offset, 18);
-        dcid->len = 18;
+        tvb_memcpy(tvb, dcid->cid, offset, QUIC_MAX_CID_LENGTH);
+        dcid->len = QUIC_MAX_CID_LENGTH;
     }
 }
 
@@ -2310,15 +2286,15 @@ dissect_quic_short_header_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
         return FALSE;
     }
 
-    // Is this a SH packet after connection migration? SH (draft -14):
-    // Flag (1) + DCID (4-18) + PKN (1/2/4) + encrypted payload (>= 16).
-    if (tvb_captured_length(tvb) < 1 + 4 + 1 + 16) {
+    // Is this a SH packet after connection migration? SH (since draft -22):
+    // Flag (1) + DCID (1-20) + PKN (1/2/4) + encrypted payload (>= 16).
+    if (tvb_captured_length(tvb) < 1 + 1 + 1 + 16) {
         return FALSE;
     }
 
     // DCID length is unknown, so extract the maximum and look for a match.
-    quic_cid_t dcid = {.len=18};
-    tvb_memcpy(tvb, dcid.cid, 1, 18);
+    quic_cid_t dcid = {.len=QUIC_MAX_CID_LENGTH};
+    tvb_memcpy(tvb, dcid.cid, 1, QUIC_MAX_CID_LENGTH);
     gboolean from_server;
     if (!quic_connection_find(pinfo, QUIC_SHORT_PACKET, &dcid, &from_server)) {
         return FALSE;
@@ -2333,12 +2309,12 @@ dissect_quic_short_header_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 static gboolean dissect_quic_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
     /*
-     * Since draft -12:
-     * Flag (1 byte) + Version (4 bytes) + DCIL/SCIL (1 byte) +
-     * Destination Connection ID (0/4..18 based on DCIL) +
-     * Source Connection ID (0/4..18 based on SCIL) +
+     * Since draft -22:
+     * Flag (1 byte) + Version (4 bytes) +
+     * Length (1 byte) + Destination Connection ID (0..255) +
+     * Length (1 byte) + Source Connection ID (0..255) +
      * Payload length (1/2/4/8) + Packet number (1/2/4 bytes) + Payload.
-     * (absolute minimum: 8 + payload)
+     * (absolute minimum: 9 + payload)
      * (for Version Negotiation, payload len + PKN + payload is replaced by
      * Supported Version (multiple of 4 bytes.)
      */
@@ -2442,13 +2418,13 @@ proto_register_quic(void)
         },
         { &hf_quic_dcil,
           { "Destination Connection ID Length", "quic.dcil",
-            FT_UINT8, BASE_DEC, VALS(quic_cid_len_vals), 0xf0,
-            "Destination Connection ID Length (for non-zero lengths, add 3 for actual length)", HFILL }
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
         },
         { &hf_quic_scil,
           { "Source Connection ID Length", "quic.scil",
-            FT_UINT8, BASE_DEC, VALS(quic_cid_len_vals), 0x0f,
-            "Source Connection ID Length (for non-zero lengths, add 3 for actual length)", HFILL }
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            NULL, HFILL }
         },
         { &hf_quic_token_length,
           { "Token Length", "quic.token_length",
@@ -2525,7 +2501,7 @@ proto_register_quic(void)
 
         { &hf_quic_odcil,
           { "Original Destination Connection ID Length", "quic.odcil",
-            FT_UINT8, BASE_DEC, VALS(quic_cid_len_vals), 0x0f,
+            FT_UINT8, BASE_DEC, NULL, 0x0,
             NULL, HFILL }
         },
         { &hf_quic_odcid,
