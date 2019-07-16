@@ -97,22 +97,26 @@ void log3gpp_close(wtap* wth)
     wth->priv = NULL;
 }
 
+#if 0
 static gboolean
 log3gpp_dump(wtap_dumper* wdh _U_, const wtap_rec* rec _U_,
     const guchar* buf _U_, int* err _U_, gchar** err_info _U_)
 {
     return TRUE;
 }
+#endif
 
 
 /******************************************************/
 /* Close a file we've been writing to.                */
 /******************************************************/
+#if 0
 static gboolean
 log3gpp_dump_finish(wtap_dumper* wdh _U_, int* err _U_)
 {
     return TRUE;
 }
+#endif
 
 /********************************************/
 /* Open file (for reading)                 */
@@ -456,6 +460,7 @@ log3gpp_seek_read(wtap *wth, gint64 seek_off,
 /* The file that we are writing to has been opened.  */
 /* Set other dump callbacks.                         */
 /*****************************************************/
+#if 0
 gboolean log3gpp_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err _U_)
 {
     /* Fill in other dump callbacks */
@@ -464,6 +469,7 @@ gboolean log3gpp_dump_open(wtap_dumper *wdh, gboolean cant_seek _U_, int *err _U
 
     return TRUE;
 }
+#endif
 
 /*****************************************/
 /* Write a single packet out to the file */
