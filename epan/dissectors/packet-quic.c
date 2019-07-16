@@ -108,6 +108,7 @@ static int hf_quic_db_stream_data_limit = -1;
 static int hf_quic_sdb_stream_id = -1;
 static int hf_quic_sdb_stream_data_limit = -1;
 static int hf_quic_sb_stream_limit = -1;
+static int hf_quic_nci_retire_prior_to = -1;
 static int hf_quic_nci_sequence = -1;
 static int hf_quic_nci_connection_id_length = -1;
 static int hf_quic_nci_connection_id = -1;
@@ -304,6 +305,7 @@ const value_string quic_version_vals[] = {
     { 0xff000012, "draft-18" },
     { 0xff000013, "draft-19" },
     { 0xff000014, "draft-20" },
+    { 0xff000015, "draft-21" },
     { 0, NULL }
 };
 
@@ -1145,6 +1147,7 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         break;
         case FT_NEW_CONNECTION_ID:{
             guint32 len_sequence;
+            guint32 len_retire_prior_to;
             guint32 nci_length;
             gboolean valid_cid = FALSE;
 
@@ -1152,6 +1155,9 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_nci_sequence, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_sequence);
             offset += len_sequence;
+
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_nci_retire_prior_to, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_retire_prior_to);
+            offset += len_retire_prior_to;
 
             ti = proto_tree_add_item_ret_uint(ft_tree, hf_quic_nci_connection_id_length, tvb, offset, 1, ENC_BIG_ENDIAN, &nci_length);
             offset++;
@@ -1352,9 +1358,9 @@ quic_derive_initial_secrets(const quic_cid_t *cid,
                             const gchar **error)
 {
     /*
-     * https://tools.ietf.org/html/draft-ietf-quic-tls-17#section-5.2
+     * https://tools.ietf.org/html/draft-ietf-quic-tls-22#section-5.2
      *
-     * initial_salt = 0xef4fb0abb47470c41befcf8031334fae485e09a0
+     * initial_salt = 0x7fbcdb0e7c66bbe9193a96cd21519ebd7a02644a
      * initial_secret = HKDF-Extract(initial_salt, client_dst_connection_id)
      *
      * client_initial_secret = HKDF-Expand-Label(initial_secret,
@@ -1365,8 +1371,8 @@ quic_derive_initial_secrets(const quic_cid_t *cid,
      * Hash for handshake packets is SHA-256 (output size 32).
      */
     static const guint8 handshake_salt[20] = {
-        0xef, 0x4f, 0xb0, 0xab, 0xb4, 0x74, 0x70, 0xc4, 0x1b, 0xef,
-        0xcf, 0x80, 0x31, 0x33, 0x4f, 0xae, 0x48, 0x5e, 0x09, 0xa0
+        0x7f, 0xbc, 0xdb, 0x0e, 0x7c, 0x66, 0xbb, 0xe9, 0x19, 0x3a,
+        0x96, 0xcd, 0x21, 0x51, 0x9e, 0xbd, 0x7a, 0x02, 0x64, 0x4a
     };
     gcry_error_t    err;
     guint8          secret[HASH_SHA2_256_LENGTH];
@@ -2728,6 +2734,11 @@ proto_register_quic(void)
               "Indicating the stream limit at the time the frame was sent", HFILL }
         },
         /* NEW_CONNECTION_ID */
+        { &hf_quic_nci_retire_prior_to,
+            { "Retire Prior To", "quic.nci.retire_prior_to",
+              FT_UINT64, BASE_DEC, NULL, 0x0,
+              "A variable-length integer indicating which connection IDs should be retired", HFILL }
+        },
         { &hf_quic_nci_sequence,
             { "Sequence", "quic.nci.sequence",
               FT_UINT64, BASE_DEC, NULL, 0x0,

@@ -1387,6 +1387,7 @@ const value_string quic_transport_parameter_id[] = {
     { SSL_HND_QUIC_TP_MAX_ACK_DELAY, "max_ack_delay" },
     { SSL_HND_QUIC_TP_DISABLE_MIGRATION, "disable_migration" },
     { SSL_HND_QUIC_TP_PREFERRED_ADDRESS, "preferred_address" },
+    { SSL_HND_QUIC_TP_ACTIVE_CONNECTION_ID_LIMIT, "active_connection_id_limit" },
     { 0, NULL }
 };
 
@@ -6610,6 +6611,7 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
      *     max_ack_delay(11),
      *     disable_migration(12),
      *     preferred_address(13),
+     *     active_connection_id_limit(14),
      *     (65535)
      *  } TransportParameterId;
      *
@@ -6772,6 +6774,12 @@ ssl_dissect_hnd_hello_ext_quic_transport_parameters(ssl_common_dissect_t *hf, tv
                                     tvb, offset, 16, ENC_NA);
                 offset += 16;
             }
+            break;
+            case SSL_HND_QUIC_TP_ACTIVE_CONNECTION_ID_LIMIT:
+                proto_tree_add_item_ret_varint(parameter_tree, hf->hf.hs_ext_quictp_parameter_active_connection_id_limit,
+                                               tvb, offset, -1, ENC_VARINT_QUIC, &value, &len);
+                proto_item_append_text(parameter_tree, " %" G_GINT64_MODIFIER "u", value);
+                offset += len;
             break;
             default:
                 offset += parameter_length;
