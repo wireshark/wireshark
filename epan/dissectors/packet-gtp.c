@@ -5490,6 +5490,14 @@ decode_apn(tvbuff_t * tvb, int offset, guint16 length, proto_tree * tree, proto_
     guint8   str[MAX_APN_LENGTH+1];
     guint    curr_len;
 
+    /*
+     * This is "a domain name represented as a sequence of labels, where
+     * each label consists of a length octet followed by that number of
+     * octets.", DNS-style.
+     *
+     * XXX - does it involve compression?
+     */
+
     /* init buffer and copy it */
     memset(str, 0, MAX_APN_LENGTH+1);
     tvb_memcpy(tvb, str, offset, length<MAX_APN_LENGTH?length:MAX_APN_LENGTH);
