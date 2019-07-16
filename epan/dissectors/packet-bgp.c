@@ -10390,8 +10390,8 @@ proto_register_bgp(void)
         { "IGMP Version 3", "bgp.evpn.nlri.igmp_mc_flags.v3", FT_BOOLEAN,
           8, TFS(&tfs_set_notset), EVPN_IGMP_MC_FLAG_V3, NULL, HFILL}},
       { &hf_bgp_evpn_nlri_igmp_mc_flags_ie,
-        { "Group Type", "bgp.evpn.nlri.igmp_mc_flags.ie", FT_BOOLEAN,
-          8, TFS(&tfs_exclude_include), EVPN_IGMP_MC_FLAG_IE, NULL, HFILL}},
+        { "Group Type (IE Flag)", "bgp.evpn.nlri.igmp_mc_flags.ie", FT_BOOLEAN,
+          8, TFS(&tfs_exclude_include), EVPN_IGMP_MC_FLAG_IE, "Group Type (Include/Exclude Flag)", HFILL}},
       { &hf_bgp_evpn_nlri_igmp_mc_flags_reserved,
         { "Reserved", "bgp.evpn.nlri.igmp_mc_flags.reserved", FT_UINT8,
           BASE_HEX, NULL, EVPN_IGMP_MC_FLAG_RESERVED, NULL, HFILL}}
