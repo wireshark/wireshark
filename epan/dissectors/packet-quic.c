@@ -415,6 +415,7 @@ static const range_string quic_frame_type_vals[] = {
 #define FTFLAGS_STREAM_OFF 0x04
 
 static const range_string quic_transport_error_code_vals[] = {
+    /* 0x00 - 0x3f Assigned via Standards Action or IESG Review policies. */
     { 0x0000, 0x0000, "NO_ERROR" },
     { 0x0001, 0x0001, "INTERNAL_ERROR" },
     { 0x0002, 0x0002, "SERVER_BUSY" },
@@ -428,12 +429,8 @@ static const range_string quic_transport_error_code_vals[] = {
     { 0x000C, 0x000C, "INVALID_MIGRATION" },
     { 0x000D, 0x000D, "CRYPTO_BUFFER_EXCEEDED" },
     { 0x0100, 0x01FF, "CRYPTO_ERROR" },
+    /* 0x40 - 0x3fff Assigned via Specification Required policy. */
     { 0, 0, NULL }
-};
-
-static const value_string quic_application_error_code_vals[] = {
-    { 0x0000, "STOPPING" },
-    { 0, NULL }
 };
 
 static const value_string quic_packet_number_lengths[] = {
@@ -970,35 +967,37 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         }
         break;
         case FT_RESET_STREAM:{
-            guint64 stream_id;
-            guint32 error_code, len_streamid = 0, len_finalsize = 0;
+            guint64 stream_id, error_code;
+            guint32 len_streamid = 0, len_finalsize = 0, len_error_code = 0;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", RS");
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_rsts_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, &stream_id, &len_streamid);
             offset += len_streamid;
 
-            proto_tree_add_item_ret_uint(ft_tree, hf_quic_rsts_application_error_code, tvb, offset, 2, ENC_BIG_ENDIAN, &error_code);
-            offset += 2;
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_rsts_application_error_code, tvb, offset, -1, ENC_VARINT_QUIC, &error_code, &len_error_code);
+            offset += len_error_code;
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_rsts_final_size, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_finalsize);
             offset += len_finalsize;
 
-            proto_item_append_text(ti_ft, " Stream ID: %" G_GINT64_MODIFIER "u, Error code: %s", stream_id, val_to_str(error_code, quic_application_error_code_vals, "0x%04x"));
+            proto_item_append_text(ti_ft, " Stream ID: %" G_GINT64_MODIFIER "u, Error code: %#" G_GINT64_MODIFIER "x", stream_id, error_code);
         }
         break;
         case FT_STOP_SENDING:{
-            guint32 len_streamid, error_code;
+            guint32 len_streamid;
+            guint64 error_code;
+            guint32 len_error_code = 0;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", SS");
 
             proto_tree_add_item_ret_varint(ft_tree, hf_quic_ss_stream_id, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_streamid);
             offset += len_streamid;
 
-            proto_tree_add_item_ret_uint(ft_tree, hf_quic_ss_application_error_code, tvb, offset, 2, ENC_BIG_ENDIAN, &error_code);
-            offset += 2;
+            proto_tree_add_item_ret_varint(ft_tree, hf_quic_ss_application_error_code, tvb, offset, -1, ENC_VARINT_QUIC, &error_code, &len_error_code);
+            offset += len_error_code;
 
-            proto_item_append_text(ti_ft, " Error code: 0x%04x", error_code);
+            proto_item_append_text(ti_ft, " Error code: %#" G_GINT64_MODIFIER "x", error_code);
         }
         break;
         case FT_CRYPTO: {
@@ -1203,27 +1202,28 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
         break;
         case FT_CONNECTION_CLOSE_TPT:
         case FT_CONNECTION_CLOSE_APP:{
-            guint32 len_reasonphrase, len_frametype, error_code;
+            guint32 len_reasonphrase, len_frametype, len_error_code;
             guint64 len_reason = 0;
+            guint64 error_code;
             const char *tls_alert = NULL;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, ", CC");
 
             if (frame_type == FT_CONNECTION_CLOSE_TPT) {
-                proto_tree_add_item_ret_uint(ft_tree, hf_quic_cc_error_code, tvb, offset, 2, ENC_BIG_ENDIAN, &error_code);
-                if ((error_code & 0xff00) == 0x0100) {  // CRYPTO_ERROR
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_cc_error_code, tvb, offset, -1, ENC_VARINT_QUIC, &error_code, &len_error_code);
+                if ((error_code >> 8) == 1) {  // CRYPTO_ERROR (0x1XX)
                     tls_alert = try_val_to_str(error_code & 0xff, ssl_31_alert_description);
                     if (tls_alert) {
-                        proto_tree_add_item(ft_tree, hf_quic_cc_error_code_tls_alert, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(ft_tree, hf_quic_cc_error_code_tls_alert, tvb, offset + len_error_code - 1, 1, ENC_BIG_ENDIAN);
                     }
                 }
-                offset += 2;
+                offset += len_error_code;
 
                 proto_tree_add_item_ret_varint(ft_tree, hf_quic_cc_frame_type, tvb, offset, -1, ENC_VARINT_QUIC, NULL, &len_frametype);
                 offset += len_frametype;
             } else { /* FT_CONNECTION_CLOSE_APP) */
-                proto_tree_add_item_ret_uint(ft_tree, hf_quic_cc_error_code_app, tvb, offset, 2, ENC_BIG_ENDIAN, &error_code);
-                offset += 2;
+                proto_tree_add_item_ret_varint(ft_tree, hf_quic_cc_error_code_app, tvb, offset, -1, ENC_VARINT_QUIC, &error_code, &len_error_code);
+                offset += len_error_code;
             }
 
 
@@ -1233,7 +1233,12 @@ dissect_quic_frame_type(tvbuff_t *tvb, packet_info *pinfo, proto_tree *quic_tree
             proto_tree_add_item(ft_tree, hf_quic_cc_reason_phrase, tvb, offset, (guint32)len_reason, ENC_ASCII|ENC_NA);
             offset += (guint32)len_reason;
 
-            proto_item_append_text(ti_ft, " Error code: %s", rval_to_str(error_code, quic_transport_error_code_vals, "Unknown (%d)"));
+            // Transport Error codes higher than 0x3fff are for Private Use.
+            if (frame_type == FT_CONNECTION_CLOSE_TPT && error_code <= 0x3fff) {
+                proto_item_append_text(ti_ft, " Error code: %s", rval_to_str((guint32)error_code, quic_transport_error_code_vals, "Unknown (%d)"));
+            } else {
+                proto_item_append_text(ti_ft, " Error code: %#" G_GINT64_MODIFIER "x", error_code);
+            }
             if (tls_alert) {
                 proto_item_append_text(ti_ft, " (%s)", tls_alert);
             }
@@ -2605,7 +2610,7 @@ proto_register_quic(void)
         },
         { &hf_quic_rsts_application_error_code,
             { "Application Error code", "quic.rsts.application_error_code",
-              FT_UINT16, BASE_DEC, VALS(quic_application_error_code_vals), 0x0,
+              FT_UINT64, BASE_DEC, NULL, 0x0,
               "Indicates why the stream is being closed", HFILL }
         },
         { &hf_quic_rsts_final_size,
@@ -2621,7 +2626,7 @@ proto_register_quic(void)
         },
         { &hf_quic_ss_application_error_code,
             { "Application Error code", "quic.ss.application_error_code",
-              FT_UINT16, BASE_DEC, NULL, 0x0,
+              FT_UINT64, BASE_DEC, NULL, 0x0,
               "Indicates why the sender is ignoring the stream", HFILL }
         },
         /* CRYPTO */
@@ -2780,12 +2785,12 @@ proto_register_quic(void)
         /* CONNECTION_CLOSE */
         { &hf_quic_cc_error_code,
             { "Error code", "quic.cc.error_code",
-              FT_UINT16, BASE_DEC|BASE_RANGE_STRING, RVALS(quic_transport_error_code_vals), 0x0,
+              FT_UINT64, BASE_DEC|BASE_RANGE_STRING, RVALS(quic_transport_error_code_vals), 0x0,
               "Indicates the reason for closing this connection", HFILL }
         },
         { &hf_quic_cc_error_code_app,
             { "Application Error code", "quic.cc.error_code.app",
-              FT_UINT16, BASE_DEC, VALS(quic_application_error_code_vals), 0x0,
+              FT_UINT64, BASE_DEC, NULL, 0x0,
               "Indicates the reason for closing this application", HFILL }
         },
         { &hf_quic_cc_error_code_tls_alert,
