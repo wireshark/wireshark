@@ -14,7 +14,7 @@
  * See https://quicwg.org
  * https://tools.ietf.org/html/draft-ietf-quic-transport-22
  * https://tools.ietf.org/html/draft-ietf-quic-tls-22
- * https://tools.ietf.org/html/draft-ietf-quic-invariants-05
+ * https://tools.ietf.org/html/draft-ietf-quic-invariants-06
  */
 
 #include <config.h>
