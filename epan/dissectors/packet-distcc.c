@@ -112,9 +112,8 @@ dissect_distcc_argc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 static int
 dissect_distcc_argv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint parameter)
 {
-    char argv[256];
-    int argv_len;
     gint len=(gint)parameter;
+    char *argv;
     proto_item* ti;
 
     CHECK_PDU_LEN("ARGV");
@@ -122,11 +121,12 @@ dissect_distcc_argv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
     /* see if we need to desegment the PDU */
     DESEGMENT_TCP("ARGV");
 
-    argv_len=len>255?255:len;
-    tvb_memcpy(tvb, argv, offset, argv_len);
-    argv[argv_len]=0;
-
-    ti = proto_tree_add_item(tree, hf_distcc_argv, tvb, offset, len, ENC_ASCII|ENC_NA);
+    /*
+     * XXX - we have no idea what encoding is being used, other than
+     * it being some flavor of "extended ASCII"; these days, it's
+     * *probably* UTF-8, but it could conceivably be something else.
+     */
+    ti = proto_tree_add_item_ret_display_string(tree, hf_distcc_argv, tvb, offset, len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &argv);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", argv);
 
@@ -139,9 +139,8 @@ dissect_distcc_argv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 static int
 dissect_distcc_serr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint parameter)
 {
-    char argv[256];
-    int argv_len;
     gint len=(gint)parameter;
+    char *serr;
     proto_item* ti;
 
     CHECK_PDU_LEN("SERR");
@@ -149,13 +148,14 @@ dissect_distcc_serr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
     /* see if we need to desegment the PDU */
     DESEGMENT_TCP("SERR");
 
-    argv_len=len>255?255:len;
-    tvb_memcpy(tvb, argv, offset, argv_len);
-    argv[argv_len]=0;
+    /*
+     * XXX - we have no idea what encoding is being used, other than
+     * it being some flavor of "extended ASCII"; these days, it's
+     * *probably* UTF-8, but it could conceivably be something else.
+     */
+    ti = proto_tree_add_item_ret_display_string(tree, hf_distcc_serr, tvb, offset, len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &serr);
 
-    ti = proto_tree_add_item(tree, hf_distcc_serr, tvb, offset, len, ENC_ASCII|ENC_NA);
-
-    col_append_fstr(pinfo->cinfo, COL_INFO, "SERR:%s ", argv);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "SERR:%s ", serr);
 
     if(len!=(gint)parameter){
         expert_add_info_format(pinfo, ti, &ei_distcc_short_pdu, "[Short SERR PDU]");
@@ -166,9 +166,8 @@ dissect_distcc_serr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 static int
 dissect_distcc_sout(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint parameter)
 {
-    char argv[256];
-    int argv_len;
     gint len=(gint)parameter;
+    char *sout;
     proto_item* ti;
 
     CHECK_PDU_LEN("SOUT");
@@ -176,13 +175,14 @@ dissect_distcc_sout(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
     /* see if we need to desegment the PDU */
     DESEGMENT_TCP("SOUT");
 
-    argv_len=len>255?255:len;
-    tvb_memcpy(tvb, argv, offset, argv_len);
-    argv[argv_len]=0;
+    /*
+     * XXX - we have no idea what encoding is being used, other than
+     * it being some flavor of "extended ASCII"; these days, it's
+     * *probably* UTF-8, but it could conceivably be something else.
+     */
+    ti = proto_tree_add_item_ret_display_string(tree, hf_distcc_sout, tvb, offset, len, ENC_ASCII|ENC_NA, wmem_packet_scope(), &sout);
 
-    ti = proto_tree_add_item(tree, hf_distcc_sout, tvb, offset, len, ENC_ASCII|ENC_NA);
-
-    col_append_fstr(pinfo->cinfo, COL_INFO, "SOUT:%s ", argv);
+    col_append_fstr(pinfo->cinfo, COL_INFO, "SOUT:%s ", sout);
 
     if(len!=(gint)parameter){
         expert_add_info_format(pinfo, ti, &ei_distcc_short_pdu, "[Short SOUT PDU]");
