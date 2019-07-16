@@ -425,13 +425,12 @@ scan_local_interfaces(void (*update_cb)(void))
 void
 fill_in_local_interfaces(void(*update_cb)(void))
 {
-    GTimeVal start_time;
-    GTimeVal end_time;
-    float elapsed;
+    gint64 start_time;
+    double elapsed;
     static gboolean initialized = FALSE;
 
     /* record the time we started, so we can log total time later */
-    g_get_current_time(&start_time);
+    start_time = g_get_monotonic_time();
     g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "fill_in_local_interfaces() starts");
 
     if (!initialized) {
@@ -440,9 +439,7 @@ fill_in_local_interfaces(void(*update_cb)(void))
         initialized = TRUE;
     }
     /* log how long it took */
-    g_get_current_time(&end_time);
-    elapsed = (float) ((end_time.tv_sec - start_time.tv_sec) +
-                       ((end_time.tv_usec - start_time.tv_usec) / 1e6));
+    elapsed = (g_get_monotonic_time() - start_time) / 1e6;
 
     g_log(LOG_DOMAIN_MAIN, G_LOG_LEVEL_INFO, "fill_in_local_interfaces() ends, taking %.3fs", elapsed);
 }

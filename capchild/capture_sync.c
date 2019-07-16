@@ -1064,15 +1064,14 @@ sync_pipe_run_command(char* const argv[], gchar **data, gchar **primary_msg,
                       gchar **secondary_msg, void (*update_cb)(void))
 {
     int ret, i;
-    GTimeVal start_time;
-    GTimeVal end_time;
-    float elapsed;
+    gint64 start_time;
+    double elapsed;
     int logging_enabled;
 
     /* check if logging is actually enabled, otherwise don't expend the CPU generating logging */
     logging_enabled=( (G_LOG_LEVEL_DEBUG | G_LOG_LEVEL_INFO) & G_LOG_LEVEL_MASK & prefs.console_log_level);
     if(logging_enabled){
-        g_get_current_time(&start_time);
+        start_time = g_get_monotonic_time();
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_INFO, "sync_pipe_run_command() starts");
         for(i=0; argv[i] != 0; i++) {
             g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "  argv[%d]: %s", i, argv[i]);
@@ -1082,9 +1081,7 @@ sync_pipe_run_command(char* const argv[], gchar **data, gchar **primary_msg,
     ret=sync_pipe_run_command_actual(argv, data, primary_msg, secondary_msg, update_cb);
 
     if(logging_enabled){
-        g_get_current_time(&end_time);
-        elapsed = (float) ((end_time.tv_sec - start_time.tv_sec) +
-                           ((end_time.tv_usec - start_time.tv_usec) / 1e6));
+        elapsed = (g_get_monotonic_time() - start_time) / 1e6;
 
         g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_INFO, "sync_pipe_run_command() ends, taking %.3fs, result=%d", elapsed, ret);
 
@@ -1752,15 +1749,10 @@ sync_pipe_wait_for_child(ws_process_id fork_child, gchar **msgp)
     int retry_waitpid = 3;
 #endif
     int ret = -1;
-    GTimeVal start_time;
-    GTimeVal end_time;
-    float elapsed;
+    gint64 start_time;
+    double elapsed;
 
-    /*
-     * GLIB_CHECK_VERSION(2,28,0) adds g_get_real_time which could minimize or
-     * replace this
-     */
-    g_get_current_time(&start_time);
+    start_time = g_get_monotonic_time();
 
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_wait_for_child: wait till child closed");
     g_assert(fork_child != WS_INVALID_PID);
@@ -1850,9 +1842,7 @@ sync_pipe_wait_for_child(ws_process_id fork_child, gchar **msgp)
     }
 #endif
 
-    g_get_current_time(&end_time);
-    elapsed = (float) ((end_time.tv_sec - start_time.tv_sec) +
-                       ((end_time.tv_usec - start_time.tv_usec) / 1e6));
+    elapsed = (g_get_monotonic_time() - start_time) / 1e6;
     g_log(LOG_DOMAIN_CAPTURE, G_LOG_LEVEL_DEBUG, "sync_pipe_wait_for_child: capture child closed after %.3fs", elapsed);
     return ret;
 }
