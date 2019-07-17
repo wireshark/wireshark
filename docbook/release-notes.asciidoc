@@ -17,14 +17,13 @@ used for troubleshooting, analysis, development and education.
 
 The following vulnerabilities have been fixed:
 
-* wssalink:2019-20[]
-ASN.1 BER and related dissectors crash.
-wsbuglink:15870[].
-cveidlink:2019-13619[].
-// Fixed in master: 45a3d0787f
-// Fixed in master-3.0: 650fb1f786
-// Fixed in master-2.6: 7e90aed666
-// Fixed in master-2.4: 0d74e50d9a
+* wssalink:2019-21[]
+A dissector went awry.
+// wsbuglink:XXXXX[].
+// cveidlink:2019-XXXXX[].
+// Fixed in master: XXXXX
+// Fixed in master-3.0: XXXXX
+// Fixed in master-2.6: XXXXX
 
 The following bugs have been fixed:
 
@@ -32,23 +31,7 @@ The following bugs have been fixed:
 //* wsbuglink:6000[Wireshark bug]
 //* cveidlink:2014-2486[]
 //* Wireshark convinced you to switch seats on the plane while neglecting to tell you that its seat was noticeably moist.
-// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.10rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* Wireshark 2.6.3 crashes in QIcon destructor on closing the main window on Ubuntu 14.04 and 16.04. wsbuglink:15241[].
-
-* RSL dissector bugs in presence of optional IEs. wsbuglink:15789[].
-
-* The "Media Attribute Value" field is missed in rtcp SDP dissection (packet-sdp.c). wsbuglink:15791[].
-
-* BTLE doesn't properly detect start fragment of L2CAP PDUs. wsbuglink:15807[].
-
-* tshark: Display filter error message references "-d" when it should reference "-Y". wsbuglink:15825[].
-
-* Open "protocol" preferences ... does not work for protocol in subtree. wsbuglink:15836[].
-
-* Problems with sshdump "Error by extcap pipe: sh: sudo: command not found". wsbuglink:15845[].
-
-* editcap won't change encapsulation type when writing pcap format. wsbuglink:15873[].
+// cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.6.11rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
 
 
 === New and Updated Features
@@ -68,31 +51,15 @@ There are no new protocols in this release.
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
-ASN.1
-BTLE
-CUPS
-DNS
-DPNSS
-GSM RLC/MAC
-HiQnet
-ISObus VT
-MAC LTE
-MIME multipart
-MQ
-RSL
-SDP
-SMB
-TNEF
 --
 
 === New and Updated Capture File Support
 
-// There is no new or updated capture file support in this release.
+There is no new or updated capture file support in this release.
 // Add one file type per line between the -- delimiters.
-[commaize]
---
-Ascend
---
+// [commaize]
+// --
+// --
 
 === New and Updated Capture Interfaces support
 
