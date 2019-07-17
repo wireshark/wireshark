@@ -13,8 +13,14 @@ used for troubleshooting, analysis, development and education.
 
 == What’s New
 
-* The Windows and macOS installers now ship with Qt 5.12.4. They
-previously shipped with Qt 5.12.3.
+* The Windows installers now ship with Qt 5.12.4. They previously
+  shipped with Qt 5.12.3.
+
+* The Windows installers now ship with Npcap 0.996. They previously
+  shipped with Npcap 0.995.
+
+* The macOS installer now ships with Qt 5.12.4. It previously
+  shipped with Qt 5.12.1.
 
 === Bug Fixes
 
@@ -23,7 +29,7 @@ The following vulnerabilities have been fixed:
 * wssalink:2019-20[]
 ASN.1 BER and related dissectors crash.
 wsbuglink:15870[].
-// cveidlink:2019-XXXXX[].
+cveidlink:2019-13619[].
 // Fixed in master: 45a3d0787f
 // Fixed in master-3.0: 650fb1f786
 // Fixed in master-2.6: 7e90aed666
