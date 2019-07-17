@@ -2,6 +2,7 @@
  *
  * Routines for Couchbase Protocol
  *
+ * Copyright 2019, Trond Norbye <trond@couchbase.com>
  * Copyright 2018, Jim Walker <jim@couchbase.com>
  * Copyright 2015-2016, Dave Rigby <daver@couchbase.com>
  * Copyright 2011, Sergey Avseyev <sergey.avseyev@gmail.com>
@@ -1449,8 +1450,6 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 1;
         proto_tree_add_item(extras_tree, hf_extras_deleted, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
-        proto_tree_add_item(extras_tree, hf_flex_frame_durability_timeout, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
         proto_tree_add_item(extras_tree, hf_flex_frame_durability_req, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
       } else {
