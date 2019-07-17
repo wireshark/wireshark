@@ -82,6 +82,7 @@ static int hf_zbee_nwk_ext_src = -1;
 static int hf_zbee_nwk_end_device_initiator = -1;
 static int hf_zbee_nwk_dst = -1;
 static int hf_zbee_nwk_src = -1;
+static int hf_zbee_nwk_addr = -1;
 static int hf_zbee_nwk_radius = -1;
 static int hf_zbee_nwk_seqno = -1;
 static int hf_zbee_nwk_mcast = -1;
@@ -90,6 +91,7 @@ static int hf_zbee_nwk_mcast_radius = -1;
 static int hf_zbee_nwk_mcast_max_radius = -1;
 static int hf_zbee_nwk_dst64 = -1;
 static int hf_zbee_nwk_src64 = -1;
+static int hf_zbee_nwk_addr64 = -1;
 static int hf_zbee_nwk_src64_origin = -1;
 static int hf_zbee_nwk_relay_count = -1;
 static int hf_zbee_nwk_relay_index = -1;
@@ -522,7 +524,9 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         /* Get the destination address. */
         packet.dst = tvb_get_letohs(tvb, offset);
         proto_tree_add_uint(nwk_tree, hf_zbee_nwk_dst, tvb, offset, 2, packet.dst);
-
+        ti = proto_tree_add_uint(nwk_tree, hf_zbee_nwk_addr, tvb, offset, 2, packet.dst);
+        proto_item_set_generated(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         /* Display the destination address. */
@@ -547,6 +551,9 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         if (nwk_hints)
             nwk_hints->src = packet.src;
         proto_tree_add_uint(nwk_tree, hf_zbee_nwk_src, tvb, offset, 2, packet.src);
+        ti = proto_tree_add_uint(nwk_tree, hf_zbee_nwk_addr, tvb, offset, 2, packet.src);
+        proto_item_set_generated(ti);
+        proto_item_set_hidden(ti);
         offset += 2;
 
         /* Display the source address. */
@@ -582,6 +589,9 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
         if ((packet.version >= ZBEE_VERSION_2007) && packet.ext_dst) {
             packet.dst64 = tvb_get_letoh64(tvb, offset);
             proto_tree_add_item(nwk_tree, hf_zbee_nwk_dst64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+            ti = proto_tree_add_eui64(nwk_tree, hf_zbee_nwk_addr64, tvb, offset, 8, packet.dst64);
+            proto_item_set_generated(ti);
+            proto_item_set_hidden(ti);
             offset += 8;
         }
 
@@ -592,6 +602,9 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
             if (packet.ext_src) {
                 packet.src64 = tvb_get_letoh64(tvb, offset);
                 proto_tree_add_item(nwk_tree, hf_zbee_nwk_src64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
+                ti = proto_tree_add_eui64(nwk_tree, hf_zbee_nwk_addr64, tvb, offset, 8, packet.src64);
+                proto_item_set_generated(ti);
+                proto_item_set_hidden(ti);
                 offset += 8;
 
                 if (!pinfo->fd->visited && nwk_hints) {
@@ -628,6 +641,9 @@ dissect_zbee_nwk_full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void 
                         ti = proto_tree_add_eui64(nwk_tree, hf_zbee_nwk_src64, tvb, offset, 0,
                                                   nwk_hints->map_rec->addr64);
                         proto_item_set_generated(ti);
+                        ti = proto_tree_add_eui64(nwk_tree, hf_zbee_nwk_addr64, tvb, offset, 0, nwk_hints->map_rec->addr64);
+                        proto_item_set_generated(ti);
+                        proto_item_set_hidden(ti);
 
                         if ( nwk_hints->map_rec->start_fnum ) {
                             ti = proto_tree_add_uint(nwk_tree, hf_zbee_nwk_src64_origin, tvb, 0, 0,
@@ -1815,6 +1831,10 @@ void proto_register_zbee_nwk(void)
             { "Source",                 "zbee_nwk.src", FT_UINT16, BASE_HEX, NULL, 0x0,
                 NULL, HFILL }},
 
+            { &hf_zbee_nwk_addr,
+            { "Address",                 "zbee_nwk.addr", FT_UINT16, BASE_HEX, NULL, 0x0,
+                NULL, HFILL }},
+
             { &hf_zbee_nwk_radius,
             { "Radius",                 "zbee_nwk.radius", FT_UINT8, BASE_DEC, NULL, 0x0,
                 "Number of hops remaining for a range-limited broadcast packet.", HFILL }},
@@ -1846,6 +1866,10 @@ void proto_register_zbee_nwk(void)
 
             { &hf_zbee_nwk_src64,
             { "Extended Source",        "zbee_nwk.src64", FT_EUI64, BASE_NONE, NULL, 0x0,
+                NULL, HFILL }},
+
+            { &hf_zbee_nwk_addr64,
+            { "Extended Address",        "zbee_nwk.addr64", FT_EUI64, BASE_NONE, NULL, 0x0,
                 NULL, HFILL }},
 
             { &hf_zbee_nwk_src64_origin,
