@@ -3334,8 +3334,6 @@ dissect_IandM0_block(tvbuff_t *tvb, int offset,
 {
     guint8   u8VendorIDHigh;
     guint8   u8VendorIDLow;
-    char    *pOrderID;
-    char    *pIMSerialNumber;
     guint16  u16IMHardwareRevision;
     guint8   u8SWRevisionPrefix;
     guint8   u8IMSWRevisionFunctionalEnhancement;
@@ -3362,17 +3360,11 @@ dissect_IandM0_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
                     hf_pn_io_vendor_id_low, &u8VendorIDLow);
     /* c8[20] OrderID */
-    pOrderID = (char *)wmem_alloc(wmem_packet_scope(), 20+1);
-    tvb_memcpy(tvb, (guint8 *) pOrderID, offset, 20);
-    pOrderID[20] = '\0';
-    proto_tree_add_string (tree, hf_pn_io_order_id, tvb, offset, 20, pOrderID);
+    proto_tree_add_item (tree, hf_pn_io_order_id, tvb, offset, 20, ENC_ASCII|ENC_NA);
     offset += 20;
 
     /* c8[16] IM_Serial_Number */
-    pIMSerialNumber = (char *)wmem_alloc(wmem_packet_scope(), 16+1);
-    tvb_memcpy(tvb, (guint8 *) pIMSerialNumber, offset, 16);
-    pIMSerialNumber[16] = '\0';
-    proto_tree_add_string (tree, hf_pn_io_im_serial_number, tvb, offset, 16, pIMSerialNumber);
+    proto_tree_add_item (tree, hf_pn_io_im_serial_number, tvb, offset, 16, ENC_ASCII|ENC_NA);
     offset += 16;
 
     /* x16 IM_Hardware_Revision */
@@ -3427,17 +3419,15 @@ dissect_IandM1_block(tvbuff_t *tvb, int offset,
     }
 
     /* IM_Tag_Function [32] */
-    pTagFunction = (char *)wmem_alloc(wmem_packet_scope(), 32+1);
-    tvb_memcpy(tvb, (guint8 *) pTagFunction, offset, 32);
-    pTagFunction[32] = '\0';
-    proto_tree_add_string (tree, hf_pn_io_im_tag_function, tvb, offset, 32, pTagFunction);
+    /* XXX - VisibleString; is that ASCII (ISO 646 IRV) or just the "Basic"
+       part of ISO 646 (the stuff that's the same in all variants)? */
+    proto_tree_add_item_ret_display_string (tree, hf_pn_io_im_tag_function, tvb, offset, 32, ENC_ASCII|ENC_NA, wmem_packet_scope(), &pTagFunction);
     offset += 32;
 
     /* IM_Tag_Location [22] */
-    pTagLocation = (char *)wmem_alloc(wmem_packet_scope(), 22+1);
-    tvb_memcpy(tvb, (guint8 *) pTagLocation, offset, 22);
-    pTagLocation[22] = '\0';
-    proto_tree_add_string (tree, hf_pn_io_im_tag_location, tvb, offset, 22, pTagLocation);
+    /* XXX - VisibleString; is that ASCII (ISO 646 IRV) or just the "Basic"
+       part of ISO 646 (the stuff that's the same in all variants)? */
+    proto_tree_add_item_ret_display_string (tree, hf_pn_io_im_tag_location, tvb, offset, 22, ENC_ASCII|ENC_NA, wmem_packet_scope(), &pTagLocation);
     offset += 22;
 
     proto_item_append_text(item, ": TagFunction:\"%s\", TagLocation:\"%s\"", pTagFunction, pTagLocation);
@@ -3459,10 +3449,9 @@ dissect_IandM2_block(tvbuff_t *tvb, int offset,
     }
 
     /* IM_Date [16] */
-    pDate = (char *)wmem_alloc(wmem_packet_scope(), 16+1);
-    tvb_memcpy(tvb, (guint8 *) pDate, offset, 16);
-    pDate[16] = '\0';
-    proto_tree_add_string (tree, hf_pn_io_im_date, tvb, offset, 16, pDate);
+    /* XXX - VisibleString; is that ASCII (ISO 646 IRV) or just the "Basic"
+       part of ISO 646 (the stuff that's the same in all variants)? */
+    proto_tree_add_item_ret_display_string (tree, hf_pn_io_im_date, tvb, offset, 16, ENC_ASCII|ENC_NA, wmem_packet_scope(), &pDate);
     offset += 16;
 
     proto_item_append_text(item, ": Date:\"%s\"", pDate);
@@ -3484,10 +3473,9 @@ dissect_IandM3_block(tvbuff_t *tvb, int offset,
     }
 
     /* IM_Descriptor [54] */
-    pDescriptor = (char *)wmem_alloc(wmem_packet_scope(), 54+1);
-    tvb_memcpy(tvb, (guint8 *) pDescriptor, offset, 54);
-    pDescriptor[54] = '\0';
-    proto_tree_add_string (tree, hf_pn_io_im_descriptor, tvb, offset, 54, pDescriptor);
+    /* XXX - VisibleString; is that ASCII (ISO 646 IRV) or just the "Basic"
+       part of ISO 646 (the stuff that's the same in all variants)? */
+    proto_tree_add_item_ret_display_string (tree, hf_pn_io_im_descriptor, tvb, offset, 54, ENC_ASCII|ENC_NA, wmem_packet_scope(), &pDescriptor);
     offset += 54;
 
     proto_item_append_text(item, ": Descriptor:\"%s\"", pDescriptor);
@@ -3616,11 +3604,8 @@ static int
 dissect_IandM5Data_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep)
 {
-    char       *pIMAnnotation;
-    char       *pIMOrderID;
     guint8     u8VendorIDHigh;
     guint8     u8VendorIDLow;
-    char       *pIMSerialNumber;
     guint16    u16IMHardwareRevision;
     guint8     u8SWRevisionPrefix;
     guint8     u8IMSWRevisionFunctionalEnhancement;
@@ -3628,17 +3613,11 @@ dissect_IandM5Data_block(tvbuff_t *tvb, int offset,
     guint8     u8IMSWRevisionInternalChange;
 
     /* c8[64] IM Annotation */
-    pIMAnnotation = (char *)wmem_alloc(wmem_packet_scope(), 64+1);
-    tvb_memcpy(tvb, (guint8 *) pIMAnnotation, offset, 64);
-    pIMAnnotation[64] = '\0';
-    proto_tree_add_string(tree, hf_pn_io_im_annotation, tvb, offset, 64, pIMAnnotation);
+    proto_tree_add_item(tree, hf_pn_io_im_annotation, tvb, offset, 64, ENC_ASCII|ENC_NA);
     offset += 64;
 
     /* c8[64] IM Order ID */
-    pIMOrderID = (char *)wmem_alloc(wmem_packet_scope(), 64+1);
-    tvb_memcpy(tvb, (guint8 *) pIMOrderID, offset, 64);
-    pIMOrderID[64] = '\0';
-    proto_tree_add_string(tree, hf_pn_io_im_order_id, tvb, offset, 64, pIMOrderID);
+    proto_tree_add_item(tree, hf_pn_io_im_order_id, tvb, offset, 64, ENC_ASCII|ENC_NA);
     offset += 64;
 
     /* x8 VendorIDHigh */
@@ -3649,10 +3628,7 @@ dissect_IandM5Data_block(tvbuff_t *tvb, int offset,
                     hf_pn_io_vendor_id_low, &u8VendorIDLow);
 
     /* c8[16] IM Serial Number */
-    pIMSerialNumber = (char *)wmem_alloc(wmem_packet_scope(), 16+1);
-    tvb_memcpy(tvb, (guint8 *) pIMSerialNumber, offset, 16);
-    pIMSerialNumber[16] = '\0';
-    proto_tree_add_string(tree, hf_pn_io_im_serial_number, tvb, offset, 16, pIMSerialNumber);
+    proto_tree_add_item(tree, hf_pn_io_im_serial_number, tvb, offset, 16, ENC_ASCII|ENC_NA);
     offset += 16;
 
     /* x16 IM_Hardware_Revision */
@@ -4927,9 +4903,7 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
     guint8   u8NumberOfPeers;
     guint8   u8I;
     guint8   u8LengthPeerPortID;
-    char    *pPeerPortID;
     guint8   u8LengthPeerChassisID;
-    char    *pPeerChassisID;
     guint8   mac[6];
     guint16  u16MAUType;
     guint32  u32DomainBoundary;
@@ -4958,10 +4932,7 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_length_own_port_id, &u8LengthOwnPortID);
     /* OwnPortID */
-    pOwnPortID = (char *)wmem_alloc(wmem_packet_scope(), u8LengthOwnPortID+1);
-    tvb_memcpy(tvb, (guint8 *) pOwnPortID, offset, u8LengthOwnPortID);
-    pOwnPortID[u8LengthOwnPortID] = '\0';
-    proto_tree_add_string (tree, hf_pn_io_own_port_id, tvb, offset, u8LengthOwnPortID, pOwnPortID);
+    proto_tree_add_item_ret_display_string (tree, hf_pn_io_own_port_id, tvb, offset, u8LengthOwnPortID, ENC_ASCII|ENC_NA, wmem_packet_scope(), &pOwnPortID);
     offset += u8LengthOwnPortID;
 
     /* NumberOfPeers */
@@ -4976,20 +4947,14 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
         offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
                             hf_pn_io_length_peer_port_id, &u8LengthPeerPortID);
         /* PeerPortID */
-        pPeerPortID = (char *)wmem_alloc(wmem_packet_scope(), u8LengthPeerPortID+1);
-        tvb_memcpy(tvb, (guint8 *) pPeerPortID, offset, u8LengthPeerPortID);
-        pPeerPortID[u8LengthPeerPortID] = '\0';
-        proto_tree_add_string (tree, hf_pn_io_peer_port_id, tvb, offset, u8LengthPeerPortID, pPeerPortID);
+        proto_tree_add_item (tree, hf_pn_io_peer_port_id, tvb, offset, u8LengthPeerPortID, ENC_ASCII|ENC_NA);
         offset += u8LengthPeerPortID;
 
         /* LengthPeerChassisID */
         offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
                             hf_pn_io_length_peer_chassis_id, &u8LengthPeerChassisID);
         /* PeerChassisID */
-        pPeerChassisID = (char *)wmem_alloc(wmem_packet_scope(), u8LengthPeerChassisID+1);
-        tvb_memcpy(tvb, (guint8 *) pPeerChassisID, offset, u8LengthPeerChassisID);
-        pPeerChassisID[u8LengthPeerChassisID] = '\0';
-        proto_tree_add_string (tree, hf_pn_io_peer_chassis_id, tvb, offset, u8LengthPeerChassisID, pPeerChassisID);
+        proto_tree_add_item (tree, hf_pn_io_peer_chassis_id, tvb, offset, u8LengthPeerChassisID, ENC_ASCII|ENC_NA);
         offset += u8LengthPeerChassisID;
 
         /* Padding */
@@ -5048,7 +5013,6 @@ dissect_PDInterfaceMrpDataAdjust_block(tvbuff_t *tvb, int offset,
     guint16   u16Role;
     guint8    u8LengthDomainName;
     guint8    u8NumberOfMrpInstances;
-    char     *pDomainName;
     int       iStartOffset = offset;
 
 
@@ -5075,10 +5039,26 @@ dissect_PDInterfaceMrpDataAdjust_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
                     hf_pn_io_mrp_length_domain_name, &u8LengthDomainName);
     /* MRP_DomainName */
-    pDomainName = (char *)wmem_alloc(wmem_packet_scope(), u8LengthDomainName+1);
-    tvb_memcpy(tvb, (guint8 *) pDomainName, offset, u8LengthDomainName);
-    pDomainName[u8LengthDomainName] = '\0';
-    proto_tree_add_string (tree, hf_pn_io_mrp_domain_name, tvb, offset, u8LengthDomainName, pDomainName);
+    /* XXX - IEC 61158-6-10 Edition 4.0 says,in section 5.2.17.2.4 "Coding
+       of the field MRP_DomainName", that "This field shall be coded as
+       data type OctetString with 1 to 240 octets according to Table 702
+       and 4.3.1.4.15.2."
+
+       It then says, in subsection 4.3.1.4.15.2 "Encoding" of section
+       4.3.1.4.15 "Coding of the field NameOfStationValue", that "This
+       field shall be coded as data type OctetString with 1 to 240
+       octets. The definition of IETF RFC 5890 and the following syntax
+       applies: ..."
+
+       RFC 5890 means Punycode; should we translate the domain name to
+       UTF-8 and show both the untranslated and translated domain name?
+
+       They don't mention anything about the RFC 1035 encoding of
+       domain names as mentioned in section 3.1 "Name space definitions",
+       with the labels being counted strings; does that mean that this
+       is just an ASCII string to be interpreted as a Punycode Unicode
+       domain name? */
+    proto_tree_add_item (tree, hf_pn_io_mrp_domain_name, tvb, offset, u8LengthDomainName, ENC_ASCII|ENC_NA);
     offset += u8LengthDomainName;
 
     /* Padding */
@@ -5118,7 +5098,6 @@ dissect_PDInterfaceMrpDataReal_block(tvbuff_t *tvb, int offset,
     guint16   u16Version;
     guint8    u8LengthDomainName;
     guint8    u8NumberOfMrpInstances;
-    char     *pDomainName;
     int       endoffset = offset + u16BodyLength;
 
     /* added blockversion 1 */
@@ -5149,10 +5128,8 @@ dissect_PDInterfaceMrpDataReal_block(tvbuff_t *tvb, int offset,
         offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
                 hf_pn_io_mrp_length_domain_name, &u8LengthDomainName);
         /* MRP_DomainName */
-        pDomainName = (char *)wmem_alloc(wmem_packet_scope(), u8LengthDomainName+1);
-        tvb_memcpy(tvb, (guint8 *) pDomainName, offset, u8LengthDomainName);
-        pDomainName[u8LengthDomainName] = '\0';
-        proto_tree_add_string (tree, hf_pn_io_mrp_domain_name, tvb, offset, u8LengthDomainName, pDomainName);
+        /* XXX - see comment earlier about MRP_DomainName */
+        proto_tree_add_item (tree, hf_pn_io_mrp_domain_name, tvb, offset, u8LengthDomainName, ENC_ASCII|ENC_NA);
         offset += u8LengthDomainName;
 
         if (u8BlockVersionLow == 0) {
@@ -5707,9 +5684,7 @@ dissect_CheckPeers_block(tvbuff_t *tvb, int offset,
     guint8  u8NumberOfPeers;
     guint8  u8I;
     guint8  u8LengthPeerPortID;
-    char   *pPeerPortID;
     guint8  u8LengthPeerChassisID;
-    char   *pPeerChassisID;
 
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
@@ -5728,20 +5703,14 @@ dissect_CheckPeers_block(tvbuff_t *tvb, int offset,
         offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
                             hf_pn_io_length_peer_port_id, &u8LengthPeerPortID);
         /* PeerPortID */
-        pPeerPortID = (char *)wmem_alloc(wmem_packet_scope(), u8LengthPeerPortID+1);
-        tvb_memcpy(tvb, (guint8 *) pPeerPortID, offset, u8LengthPeerPortID);
-        pPeerPortID[u8LengthPeerPortID] = '\0';
-        proto_tree_add_string (tree, hf_pn_io_peer_port_id, tvb, offset, u8LengthPeerPortID, pPeerPortID);
+        proto_tree_add_item (tree, hf_pn_io_peer_port_id, tvb, offset, u8LengthPeerPortID, ENC_ASCII|ENC_NA);
         offset += u8LengthPeerPortID;
 
         /* LengthPeerChassisID */
         offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
                             hf_pn_io_length_peer_chassis_id, &u8LengthPeerChassisID);
         /* PeerChassisID */
-        pPeerChassisID = (char *)wmem_alloc(wmem_packet_scope(), u8LengthPeerChassisID+1);
-        tvb_memcpy(tvb, (guint8 *) pPeerChassisID, offset, u8LengthPeerChassisID);
-        pPeerChassisID[u8LengthPeerChassisID] = '\0';
-        proto_tree_add_string (tree, hf_pn_io_peer_chassis_id, tvb, offset, u8LengthPeerChassisID, pPeerChassisID);
+        proto_tree_add_item (tree, hf_pn_io_peer_chassis_id, tvb, offset, u8LengthPeerChassisID, ENC_ASCII|ENC_NA);
         offset += u8LengthPeerChassisID;
     }
 
@@ -6089,7 +6058,6 @@ dissect_MrpInstanceDataAdjust_block(tvbuff_t *tvb, int offset,
     e_guid_t uuid;
     guint16 u16Role;
     guint8  u8LengthDomainName;
-    char*   pDomainName;
     int endoffset = offset + u16BodyLength;
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
@@ -6114,10 +6082,8 @@ dissect_MrpInstanceDataAdjust_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
                     hf_pn_io_mrp_length_domain_name, &u8LengthDomainName);
     /* MRP_DomainName */
-    pDomainName = (char *)wmem_alloc(wmem_packet_scope(), u8LengthDomainName+1);
-    tvb_memcpy(tvb, (guint8 *) pDomainName, offset, u8LengthDomainName);
-    pDomainName[u8LengthDomainName] = '\0';
-    proto_tree_add_string (tree, hf_pn_io_mrp_domain_name, tvb, offset, u8LengthDomainName, pDomainName);
+    /* XXX - see comment earlier about MRP_DomainName */
+    proto_tree_add_item (tree, hf_pn_io_mrp_domain_name, tvb, offset, u8LengthDomainName, ENC_ASCII|ENC_NA);
     offset += u8LengthDomainName;
     /* Padding */
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
@@ -6138,7 +6104,6 @@ dissect_MrpInstanceDataReal_block(tvbuff_t *tvb, int offset,
     guint16 u16Role;
     guint16 u16Version;
     guint8  u8LengthDomainName;
-    char*   pDomainName;
     int     endoffset = offset + u16BodyLength;
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
@@ -6164,10 +6129,8 @@ dissect_MrpInstanceDataReal_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
                     hf_pn_io_mrp_length_domain_name, &u8LengthDomainName);
     /* MRP_DomainName */
-    pDomainName = (char *)wmem_alloc(wmem_packet_scope(), u8LengthDomainName+1);
-    tvb_memcpy(tvb, (guint8 *) pDomainName, offset, u8LengthDomainName);
-    pDomainName[u8LengthDomainName] = '\0';
-    proto_tree_add_string (tree, hf_pn_io_mrp_domain_name, tvb, offset, u8LengthDomainName, pDomainName);
+    /* XXX - see comment earlier about MRP_DomainName */
+    proto_tree_add_item (tree, hf_pn_io_mrp_domain_name, tvb, offset, u8LengthDomainName, ENC_ASCII|ENC_NA);
     offset += u8LengthDomainName;
     /* Padding */
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
@@ -6314,7 +6277,6 @@ dissect_PDInterfaceDataReal_block(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
 {
     guint8   u8LengthOwnChassisID;
-    char    *pOwnChassisID;
     guint8   mac[6];
     guint32  ip;
 
@@ -6329,10 +6291,7 @@ dissect_PDInterfaceDataReal_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_length_own_chassis_id, &u8LengthOwnChassisID);
     /* OwnChassisID */
-    pOwnChassisID = (char *)wmem_alloc(wmem_packet_scope(), u8LengthOwnChassisID+1);
-    tvb_memcpy(tvb, (guint8 *) pOwnChassisID, offset, u8LengthOwnChassisID);
-    pOwnChassisID[u8LengthOwnChassisID] = '\0';
-    proto_tree_add_string (tree, hf_pn_io_own_chassis_id, tvb, offset, u8LengthOwnChassisID, pOwnChassisID);
+    proto_tree_add_item (tree, hf_pn_io_own_chassis_id, tvb, offset, u8LengthOwnChassisID, ENC_ASCII|ENC_NA);
     offset += u8LengthOwnChassisID;
 
     /* Padding */
@@ -6382,7 +6341,6 @@ dissect_PDSyncData_block(tvbuff_t *tvb, int offset,
     guint8    u8MasterPriority1;
     guint8    u8MasterPriority2;
     guint8    u8LengthSubdomainName;
-    char     *pSubdomainName;
 
 
     if (u8BlockVersionHigh != 1) {
@@ -6477,10 +6435,8 @@ dissect_PDSyncData_block(tvbuff_t *tvb, int offset,
         offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
                             hf_pn_io_ptcp_length_subdomain_name, &u8LengthSubdomainName);
         /* PTCPSubdomainName */
-        pSubdomainName = (char *)wmem_alloc(wmem_packet_scope(), u8LengthSubdomainName+1);
-        tvb_memcpy(tvb, (guint8 *) pSubdomainName, offset, u8LengthSubdomainName);
-        pSubdomainName[u8LengthSubdomainName] = '\0';
-        proto_tree_add_string (tree, hf_pn_io_ptcp_subdomain_name, tvb, offset, u8LengthSubdomainName, pSubdomainName);
+        /* XXX - another Punycode string */
+        proto_tree_add_item (tree, hf_pn_io_ptcp_subdomain_name, tvb, offset, u8LengthSubdomainName, ENC_ASCII|ENC_NA);
         offset += u8LengthSubdomainName;
 
         /* Padding */
@@ -7076,7 +7032,6 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
     e_guid_t    aruuid;
     e_guid_t    uuid;
     guint16     u16ARType;
-    char       *pStationName;
     guint16     u16NameLength;
     guint16     u16NumberOfIOCRs;
     guint16     u16IOCRType;
@@ -7125,10 +7080,7 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
                          hf_pn_io_cminitiator_objectuuid, &uuid);
             offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
                          hf_pn_io_station_name_length, &u16NameLength);
-            pStationName = (char *)wmem_alloc(wmem_packet_scope(), u16NameLength+1);
-            tvb_memcpy(tvb, (guint8 *) pStationName, offset, u16NameLength);
-            pStationName[u16NameLength] = '\0';
-            proto_tree_add_string (ar_tree, hf_pn_io_cminitiator_station_name, tvb, offset, u16NameLength, pStationName);
+            proto_tree_add_item (ar_tree, hf_pn_io_cminitiator_station_name, tvb, offset, u16NameLength, ENC_ASCII|ENC_NA);
             offset += u16NameLength;
 
             offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
@@ -7211,10 +7163,7 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
             offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
                         hf_pn_io_station_name_length, &u16NameLength);
             /* ParameterServerStationName */
-            pStationName = (char *)wmem_alloc(wmem_packet_scope(), u16NameLength+1);
-            tvb_memcpy(tvb, (guint8 *) pStationName, offset, u16NameLength);
-            pStationName[u16NameLength] = '\0';
-            proto_tree_add_string (ar_tree, hf_pn_io_parameter_server_station_name, tvb, offset, u16NameLength, pStationName);
+            proto_tree_add_item (ar_tree, hf_pn_io_parameter_server_station_name, tvb, offset, u16NameLength, ENC_ASCII|ENC_NA);
             offset += u16NameLength;
             /* NumberOfAPIs */
             offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep,
@@ -7256,10 +7205,7 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
             offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_cmresponder_udprtport, &u16UDPRTPort);
             /* CMInitiatorStationName*/
             offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_station_name_length, &u16NameLength);
-            pStationName = (char *)wmem_alloc(wmem_packet_scope(), u16NameLength+1);
-            tvb_memcpy(tvb, (guint8 *) pStationName, offset, u16NameLength);
-            pStationName[u16NameLength] = '\0';
-            proto_tree_add_string (ar_tree, hf_pn_io_cminitiator_station_name, tvb, offset, u16NameLength, pStationName);
+            proto_tree_add_item (ar_tree, hf_pn_io_cminitiator_station_name, tvb, offset, u16NameLength, ENC_ASCII|ENC_NA);
             offset += u16NameLength;
             /** align padding! **/
             offset = dissect_pn_align4(tvb, offset, pinfo, ar_tree);
@@ -7268,10 +7214,7 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
             offset = dissect_dcerpc_uint16(tvb, offset, pinfo, ar_tree, drep, hf_pn_io_station_name_length, &u16NameLength);
             if (u16NameLength != 0) {
                 /* ParameterServerStationName */
-                pStationName = (char *)wmem_alloc(wmem_packet_scope(), u16NameLength+1);
-                tvb_memcpy(tvb, (guint8 *) pStationName, offset, u16NameLength);
-                pStationName[u16NameLength] = '\0';
-                proto_tree_add_string (ar_tree, hf_pn_io_parameter_server_station_name, tvb, offset, u16NameLength, pStationName);
+                proto_tree_add_item (ar_tree, hf_pn_io_parameter_server_station_name, tvb, offset, u16NameLength, ENC_ASCII|ENC_NA);
                 offset += u16NameLength;
             }
             else
@@ -7733,10 +7676,7 @@ dissect_ARBlockReq_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_station_name_length, &u16NameLength);
 
-    pStationName = (char *)wmem_alloc(wmem_packet_scope(), u16NameLength+1);
-    tvb_memcpy(tvb, (guint8 *) pStationName, offset, u16NameLength);
-    pStationName[u16NameLength] = '\0';
-    proto_tree_add_string (tree, hf_pn_io_cminitiator_station_name, tvb, offset, u16NameLength, pStationName);
+    proto_tree_add_item_ret_display_string (tree, hf_pn_io_cminitiator_station_name, tvb, offset, u16NameLength, ENC_ASCII|ENC_NA, wmem_packet_scope(), &pStationName);
     offset += u16NameLength;
 
     proto_item_append_text(item, ": %s, Session:%u, MAC:%02x:%02x:%02x:%02x:%02x:%02x, Port:0x%x, Station:%s",
@@ -8207,7 +8147,6 @@ static int
 dissect_ARServerBlock(tvbuff_t *tvb, int offset,
     packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow, guint16 u16BodyLength)
 {
-    char    *pStationName;
     guint16  u16NameLength, u16padding;
 
     if (u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
@@ -8219,10 +8158,7 @@ dissect_ARServerBlock(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_station_name_length, &u16NameLength);
 
-    pStationName = (char *)wmem_alloc(wmem_packet_scope(), u16NameLength+1);
-    tvb_memcpy(tvb, (guint8 *) pStationName, offset, u16NameLength);
-    pStationName[u16NameLength] = '\0';
-    proto_tree_add_string (tree, hf_pn_io_cminitiator_station_name, tvb, offset, u16NameLength, pStationName);
+    proto_tree_add_item (tree, hf_pn_io_cminitiator_station_name, tvb, offset, u16NameLength, ENC_ASCII|ENC_NA);
     offset += u16NameLength;
     /* Padding to next 4 byte alignment in this block */
     u16padding = u16BodyLength - (2 + u16NameLength);
@@ -8315,10 +8251,7 @@ dissect_MCRBlockReq_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_station_name_length, &u16NameLength);
 
-    pStationName = (char *)wmem_alloc(wmem_packet_scope(), u16NameLength+1);
-    tvb_memcpy(tvb, (guint8 *) pStationName, offset, u16NameLength);
-    pStationName[u16NameLength] = '\0';
-    proto_tree_add_string (tree, hf_pn_io_provider_station_name, tvb, offset, u16NameLength, pStationName);
+    proto_tree_add_item_ret_display_string (tree, hf_pn_io_provider_station_name, tvb, offset, u16NameLength, ENC_ASCII|ENC_NA, wmem_packet_scope(), &pStationName);
     offset += u16NameLength;
 
     proto_item_append_text(item, ", CRRef:%u, Properties:0x%x, TFactor:%u, Station:%s",
