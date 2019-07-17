@@ -378,9 +378,9 @@ tvb_uncompress_lz77huff(tvbuff_t *tvb,
 	if (ok) {
 		/*
 		 * Cannot pass a tvb free callback that frees the wmem
-		 * pool, so we make an make an extra copy that uses
-		 * bare pointers. This could be optimized if tvb API
-		 * had a free pool callback of some sort.
+		 * pool, so we make an extra copy that uses bare
+		 * pointers. This could be optimized if tvb API had a
+		 * free pool callback of some sort.
 		 */
 		guint size = wmem_array_get_count(obuf);
 		guint8 *p = (guint8 *)g_malloc(size);
