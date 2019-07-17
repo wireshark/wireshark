@@ -1,0 +1,645 @@
+commit bfc1302643
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Tue Jul 16 11:01:15 2019 -0700
+
+    Prep for 2.4.16.
+    
+    Change-Id: I16026626b670e75a9cd97b68717fb2caf1683b8f
+    Reviewed-on: https://code.wireshark.org/review/33969
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 8a33826791
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon Jul 15 01:01:25 2019 -0700
+
+    Fix whitespace.
+    
+    Change-Id: Ic30151ee08d4561740f8a27ca5f57c695dd0e19b
+    Reviewed-on: https://code.wireshark.org/review/33943
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 1d4d43c2d88e039986b2b966caf2118cba2caa17)
+    Reviewed-on: https://code.wireshark.org/review/33946
+
+commit 8a5ca873fb
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 14 08:53:02 2019 +0000
+
+    [Automatic update for 2019-07-14]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I6de56f0a33a33b3b449bb8ec256141a11c2e2c42
+    Reviewed-on: https://code.wireshark.org/review/33932
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 8f710adc85
+Author: Peter Wu <peter@lekensteyn.nl>
+Date:   Sun Jul 7 13:18:06 2019 +0200
+
+    dumpcap: fix uninitialized memory read on dumpcap -d errors
+    
+    Reproduce with: dumpcap -pdf bad
+    
+    Change-Id: I8c1f80c9d88262bc57651e886740083ea8e6ad52
+    Fixes: 4d6cb744df ("Add a "-d" flag to dumpcap")
+    Reviewed-on: https://code.wireshark.org/review/33863
+    Petri-Dish: Peter Wu <peter@lekensteyn.nl>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 1f527124444eca32623d1b7a5303afd7b46e322e)
+    Reviewed-on: https://code.wireshark.org/review/33876
+    Reviewed-by: Peter Wu <peter@lekensteyn.nl>
+
+commit 99a704724a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jul 7 08:51:03 2019 +0000
+
+    [Automatic update for 2019-07-07]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: If26620c9ed2c6195eddf12f0659408508260b68c
+    Reviewed-on: https://code.wireshark.org/review/33862
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 9eb3ca6292
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon Jul 1 12:27:12 2019 -0700
+
+    Pass the correct value to ascendlex_destroy().
+    
+    It takes a yyscan_t as an argument, not a pointer to a yyscan_t; a
+    yyscan_t is a pointer to the scanner state.  (A pointer to it is passed
+    to the init routine so that it can be set to point to the allocated
+    state, not because it's a structure itself.)
+    
+    Change-Id: If80ca1caaa07d8a966df8d07f989b722869ac58b
+    Reviewed-on: https://code.wireshark.org/review/33814
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 58cc932d2f3d7dcb55685c32a02bb7e8fec81b82)
+    Reviewed-on: https://code.wireshark.org/review/33817
+
+commit 8885d39a34
+Author: Maksim Salau <maksim.salau@gmail.com>
+Date:   Thu Jun 27 21:19:33 2019 +0300
+
+    wiretap: ascend: Destroy lexer state after parsing
+    
+    Lexer private structure is initialized but never destroyed or reused.
+    
+    Change-Id: I61d43b4cb14a2d3b3706267eb393e4562adb00f9
+    Reviewed-on: https://code.wireshark.org/review/33809
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit bd5ba2ba7a6aa3fdc12d48bf9f84c2fe5f784dbb)
+    Reviewed-on: https://code.wireshark.org/review/33813
+
+commit a1dd68ac87
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Mon Jul 1 18:57:43 2019 +0200
+
+    MAC LTE: implement 3GPP 36.321 CR 1450
+    
+    The NB-IoT DPR MAC CE is not included in the L field of the CCCH MAC CE.
+    
+    Change-Id: I497176dfc722f0080e544bbc73845cfce2064e2d
+    Reviewed-on: https://code.wireshark.org/review/33805
+    Petri-Dish: Pascal Quantin <pascal@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+    (cherry picked from commit 3f7e6f5a7d8866d8f3f4a1ca18a7db360eab5216)
+    Reviewed-on: https://code.wireshark.org/review/33808
+
+commit 6e2e1ac682
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon Jul 1 00:12:40 2019 -0700
+
+    Distinguish "Interface went down" from "Interface disappeared".
+    
+    Have separate errors for "the interface went down" on Linux and "the
+    interface no longer exists" on *BSD/Darwin/Windows.
+    
+    Change-Id: I1951c647e88eb7ebeb20a72d9e03a2072168c8e5
+    Reviewed-on: https://code.wireshark.org/review/33794
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 37ff9dacb9e27bdf7b6b296bebad11694c6ba167)
+    Reviewed-on: https://code.wireshark.org/review/33797
+
+commit da46e3b13f
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun Jun 30 19:29:21 2019 -0700
+
+    Libpcap may now say "The interface disappeared" if it did.
+    
+    A recent change to libpcap means that the error message if an interface
+    disappears (e.g., removing a hot-pluggable device, or shutting down a
+    PPP connection that was dynamically set up) is "The interface
+    disappeared" rather than "The interface went down" - on FreeBSD,
+    DragonFly BSD, OpenBSD, and Darwin-based OSes, capturing continues with
+    no error if the interface is configured down, but either ENXIO or EIO
+    (depending on the OS) is delivered if the interface disappears.
+    
+    Treat that error as another one to show the user without the "report
+    this to the Wireshark developers" note.
+    
+    Change-Id: I477d87957ce30a52385f07f4b47a7824e3fca2c7
+    Reviewed-on: https://code.wireshark.org/review/33790
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 8a4ce74ac9a3be8c752c1b405349d6083f76e657)
+    Reviewed-on: https://code.wireshark.org/review/33793
+
+commit e629a7e3f3
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun Jun 30 15:58:22 2019 -0700
+
+    Update a comment, and shuffle tests.
+    
+    Linux isn't the only platform where libpcap may return "The interface
+    went down".
+    
+    Put the test for "The interface went down" first.
+    
+    Change-Id: I5241f0744bd12eb5e090b8e1717268bdf8392ea7
+    Reviewed-on: https://code.wireshark.org/review/33785
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 03517b692b8b5cb934675da282d2452157b1aba3)
+    Reviewed-on: https://code.wireshark.org/review/33789
+
+commit f9aae2a12b
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 30 08:54:26 2019 +0000
+
+    [Automatic update for 2019-06-30]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I357da7410cab9280633bd5de79f327fff4ef7d2e
+    Reviewed-on: https://code.wireshark.org/review/33779
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 414fbc5a58
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed Jun 26 13:08:51 2019 -0700
+
+    With -T, change the packet's encapsulation type as well.
+    
+    Bug: 15873
+    Change-Id: I8d36b0fba42481b5e27e9ad9643d3603486c3645
+    Reviewed-on: https://code.wireshark.org/review/33745
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit dc7b757c914761b5114954d1573aca0f6d03baae)
+    Reviewed-on: https://code.wireshark.org/review/33748
+
+commit 0d74e50d9a
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Mon Jun 24 23:36:15 2019 +0200
+
+    asn1: don't increment a buffer beyond its end.
+    
+    Bug: 15870
+    Change-Id: I04cbb822f0e77c8e0ac8513e3a5c13116920ca6e
+    Reviewed-on: https://code.wireshark.org/review/33731
+    Petri-Dish: Anders Broman <a.broman58@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 45a3d0787f3c9f6f5fb5b53a8c29771b3f28e406)
+    Reviewed-on: https://code.wireshark.org/review/33737
+    Petri-Dish: Dario Lombardo <lomato@gmail.com>
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 2520b8f353
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 23 08:53:09 2019 +0000
+
+    [Automatic update for 2019-06-23]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: Ieb8a0f290706451afe6cac33389f393c314d15e9
+    Reviewed-on: https://code.wireshark.org/review/33717
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit ae1105547f
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed Jun 19 16:57:40 2019 -0700
+
+    Fix error message for an unknown pcapng version number.
+    
+    We were using fields in the pcapng_t that weren't set yet to report the
+    version number in question; use the variables we were checking.
+    
+    Change-Id: Ib03bafe62d8c7b1aa54b2ef22640e3b00722142a
+    Ping-Bug: 15862
+    Reviewed-on: https://code.wireshark.org/review/33671
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit d6472862c5a21b82986fd6f56730c49a886fe2f5)
+    Reviewed-on: https://code.wireshark.org/review/33674
+
+commit 8165b0a99c
+Author: Dario Lombardo <lomato@gmail.com>
+Date:   Wed Jun 19 14:15:34 2019 +0200
+
+    sshdump: fix bug in --remote-sudo.
+    
+    Fix documentation as well.
+    
+    Bug: 15845
+    Change-Id: I1b4e50c21887afa6a60b76de6cc169a1d0b5067a
+    Reviewed-on: https://code.wireshark.org/review/33658
+    Petri-Dish: Dario Lombardo <lomato@gmail.com>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit ed34c3de14fbaed36ce3243668b28af411dfb085)
+    Reviewed-on: https://code.wireshark.org/review/33664
+
+commit 92f45b58e6
+Author: Pascal Quantin <pascal@wireshark.org>
+Date:   Tue Jun 18 20:21:00 2019 +0200
+
+    GSM RLC/MAC: fix dissection of SI Message List IE
+    
+    Change-Id: Ia3a4255ecd78e480135bbbbeccd9c0268c105400
+    Reviewed-on: https://code.wireshark.org/review/33648
+    Petri-Dish: Pascal Quantin <pascal@wireshark.org>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Pascal Quantin <pascal@wireshark.org>
+    Reviewed-on: https://code.wireshark.org/review/33651
+
+commit d53c2e86a8
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 16 08:56:56 2019 +0000
+
+    [Automatic update for 2019-06-16]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: Iea32747129a76d013666094fc171bce79008f213
+    Reviewed-on: https://code.wireshark.org/review/33619
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit dc006e62bc
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 9 08:57:11 2019 +0000
+
+    [Automatic update for 2019-06-09]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: Ibbaf60ea0d44520a211193d33ccb6991f3b3f160
+    Reviewed-on: https://code.wireshark.org/review/33529
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 2cd40589d8
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Jun 4 15:54:42 2019 -0700
+
+    Don't assume padding is present at the end of UNIX Info2.
+    
+    Check whether the byte count includes the padding before skipping it; it
+    may not be present (at least not if this is at the end of the byte
+    parameters).
+    
+    Change-Id: I4385a4713cb6813a6e8519005288d6ef5a28f028
+    Reviewed-on: https://code.wireshark.org/review/33493
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 338ce1b67217e5e5f9ee81540748e34766fd85c2)
+    Reviewed-on: https://code.wireshark.org/review/33496
+
+commit 4fe658b27f
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Jun 4 15:14:30 2019 -0700
+
+    Fix the dissection of Find First2 Query EA Info information.
+    
+    The file name doesn't appear to be padded, and may have a 1-byte null
+    terminator (yes, 1 byte, according to MS-CIFS) at the end, not included
+    in the file name length.
+    
+    Change-Id: I8510434b3b5aec092290697c336924d6ff6be763
+    Reviewed-on: https://code.wireshark.org/review/33486
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 782c4e496bc6d3610f504b06690e7848abd4453a)
+    Reviewed-on: https://code.wireshark.org/review/33492
+
+commit 864583349e
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Jun 4 14:27:12 2019 -0700
+
+    Handle some weirdness with the primary domain field in NegProt replies.
+    
+    Sometimes there appears to be an extra byte before that field; try to
+    catch some of those cases.
+    
+    Expand comments discussing various weirdness with that field, including
+    a note that clients might not pay any attention to it, so maybe we just
+    have buggy servers talking to clients that don't care about those
+    particular bugs.
+    
+    Change-Id: I4d35d2e2c475d4da37debedfed31b891e6f3cfa8
+    Reviewed-on: https://code.wireshark.org/review/33481
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 021e994293449ac263b0b234660847e27363a660)
+    Reviewed-on: https://code.wireshark.org/review/33489
+
+commit 3c99be0ed2
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Jun 4 14:44:19 2019 -0700
+
+    Fix the dissection of create temporary file responses.
+    
+    According to MS-CIFS:
+    
+            1) the file name is not one of those "buffer format followed by
+               a string" fields, it's just a string, so there's no buffer
+               format field;
+    
+            2) it's always in ASCII, so ignore the "Unicode strings" flag.
+    
+    Note that, for the *request*, the *directory* name isn't claimed to
+    always be ASCII, so honor the "Unicode strings" flag there.
+    
+    Change-Id: I495b7be8257d941ccf4b45126a44d25cf0ab2c12
+    Reviewed-on: https://code.wireshark.org/review/33482
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 6259b79d257fac11cda823b7bf0e4f291d68186b)
+    Reviewed-on: https://code.wireshark.org/review/33485
+
+commit 3c38cf2c67
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Jun 4 13:02:39 2019 -0700
+
+    Add some comments indicating what protocol was selected.
+    
+    Note, for all of the different word count values, what protocol or
+    protocols it represents.
+    
+    (If we have the Negotiate request, and can thus determine which protocol
+    was selected based on the set of protocols the client was willing to
+    accept, should we verify that the server selected a protocol for which
+    the given word count value was used, and add an expert info if it
+    didn't?)
+    
+    Change-Id: I95ad4b1245bf2a04fdef4746815352967d8ac0a6
+    Reviewed-on: https://code.wireshark.org/review/33475
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit cdaa04cc30669cb0a9272b692cf5a152ef6612c4)
+    Reviewed-on: https://code.wireshark.org/review/33478
+
+commit c32f150713
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Jun 4 12:46:44 2019 -0700
+
+    Register the "missing word parameters" expert info.
+    
+    Change-Id: I6dbd8af61bf8ee4e55264116c1838d7bdf1b1a67
+    Reviewed-on: https://code.wireshark.org/review/33468
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit c591049194a39415ea3bc25935d48b72bd7a53fb)
+    Reviewed-on: https://code.wireshark.org/review/33474
+
+commit 161baacb02
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue Jun 4 12:44:09 2019 -0700
+
+    Don't assume an NT Create AndX request has all the word parameters.
+    
+    It *should*, but a malicious or otherwise malformed packet might not
+    have them.  One of them is the file name length; if it's missing, we
+    can't dissect the file name, as we don't know how long it is.
+    
+    Change-Id: Ie259e2d8ec65f5d53d466382d89889902495d2c8
+    Reviewed-on: https://code.wireshark.org/review/33467
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit f0c13af7d3862f11b47cfcb12ccc80341122395d)
+    Reviewed-on: https://code.wireshark.org/review/33473
+
+commit 9e7664c93a
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun Jun 2 08:54:49 2019 +0000
+
+    [Automatic update for 2019-06-02]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: Icf6e389f52236aa2aeb4fa5d1794219a66e268f9
+    Reviewed-on: https://code.wireshark.org/review/33446
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit 32bc023c50
+Author: Jonas Jonsson <jonas@ludd.ltu.se>
+Date:   Thu May 30 21:18:19 2019 +0200
+
+    btle: Correctly detect l2cap fragment start
+    
+    The first L2CAP PDU fragment starts with the 4 octet long L2CAP header
+    consisting of the Length and the CID fields. The Length field doesn't
+    include the header itself. Thus the Length field in the BLE Data header
+    will be 4 octets larger than the L2CAP PDU header Length field if the
+    packet wouldn't be fragmented.
+    
+    The current implementation doesn't correctly detect the start fragment
+    causing reassembly to fail as it compares the BLE Data Length with the
+    L2CAP Length without compensating for the header.
+    
+    By increasing the L2CAP PDU Length field with the header length the
+    reassembly works.
+    
+    Rename the variable to better reflect what length it actually
+    represents.
+    
+    Bug: 15807
+    Change-Id: Idcb6bdccc4daae756a63a9bae0839fe25ae99f23
+    Reviewed-on: https://code.wireshark.org/review/33428
+    Petri-Dish: Stig Bjørlykke <stig@bjorlykke.org>
+    Reviewed-by: Stig Bjørlykke <stig@bjorlykke.org>
+    (cherry picked from commit 49b6523c6cd4f8c56f428797283e150e63a52aad)
+    Reviewed-on: https://code.wireshark.org/review/33429
+    (cherry picked from commit 7b70ef08a0f9403c287177018c8d21a7e558cccf)
+    Reviewed-on: https://code.wireshark.org/review/33430
+    (cherry picked from commit 9997eef374dfe91b5376c3e59159eaeeb05beb23)
+    Reviewed-on: https://code.wireshark.org/review/33431
+
+commit f0d43d3138
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Wed May 29 10:31:13 2019 -0700
+
+    Fix handling of headers in body part.
+    
+    Check whether the unfolded-and-compacted header has only printable
+    characters, not whether the full header does - the full header may
+    include LWSP, which includes HT, CR, and LF, none of which are
+    considered "printable", so valid headers were being treated as not being
+    headers, causing mis-dissection of some packets.
+    
+    We don't need to split the header name from the value -
+    is_known_multipart_header() stops comparison at the end of the header
+    name.
+    
+    Change-Id: I96e4ac0b69df726b984ee7faeea19eda18be223c
+    Reviewed-on: https://code.wireshark.org/review/33417
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    Petri-Dish: Guy Harris <guy@alum.mit.edu>
+    Tested-by: Petri Dish Buildbot
+    (cherry picked from commit 78a106dc2a5516b9b9cf42cf973d990828cac54e)
+    Reviewed-on: https://code.wireshark.org/review/33420
+
+commit d9141179d8
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Tue May 28 11:03:11 2019 -0700
+
+    Clean up indentation.
+    
+    Change-Id: Idfa3e15eaa1d764f66d630878f1c44561169d8bf
+    Reviewed-on: https://code.wireshark.org/review/33409
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 4997002458e5262aa88c3b0d8a132d2237f909d4)
+    Reviewed-on: https://code.wireshark.org/review/33412
+
+commit 33f0af8b70
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon May 27 18:27:44 2019 -0700
+
+    Clean up some ASCII vs. EBCDIC string handling.
+    
+    In at least one capture, structure IDs are in ASCII even though the code
+    page in the header is an EBCDIC code page.  Determine the structure ID's
+    character encoding based on whether it's the ASCII or EBCDIC version of
+    the ID value, not on the global character encoding.
+    
+    We were using the *integer* encoding, not the *string* encoding, for the
+    "qprotect" field, which is a string; fix that.
+    
+    Use STR_UNICODE for strings, as they're not guaranteed to consist of
+    characters that can be mapped to ASCII characters (even the common
+    subset of EBCDIC, not counting code page-dependent code points, has
+    non-ASCII printable characters in it).
+    
+    Change-Id: I971dd7ae55617c27ebe88f31089b2495374593bf
+    Reviewed-on: https://code.wireshark.org/review/33399
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (backported from commit b9c69d6ef8b2c759bb1b4be05240bba42038a051)
+    Reviewed-on: https://code.wireshark.org/review/33402
+
+commit 1250425ead
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon May 27 17:46:59 2019 -0700
+
+    Strings in mDNS TXT records are UTF-8.
+    
+    Change-Id: Iedde17155aae71e9bc7ad3cc5185ea33e34e209c
+    Reviewed-on: https://code.wireshark.org/review/33391
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 0ac699d621ab1e033cd7b3d576b2e746932e82b8)
+    Reviewed-on: https://code.wireshark.org/review/33397
+
+commit 7232383104
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Mon May 27 17:43:23 2019 -0700
+
+    Strings in the CUPS browsing protocol are UTF-8.
+    
+    Change-Id: I594a22acf9202f7b7ca2e4ee3c58c308c2cd7019
+    Reviewed-on: https://code.wireshark.org/review/33390
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 1d88e9b25fd40a692777c9ab7fb503584afacf0d)
+    Reviewed-on: https://code.wireshark.org/review/33394
+
+commit 6030d61987
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Sun May 26 11:43:07 2019 -0700
+
+    *Always* pair ENC_UTF_16 and ENC_UCS_2 with a byte order.
+    
+    Big-endian and little-endian UTF-16 and UCS-2 aren't the same; always
+    associate them with a byte order ENC_ flag, to clarify what byte order
+    is being used.  Yes, for big-endian, omitting the ENC_ flag, or using
+    ENC_NA, *happens* to work, because ENC_BIG_ENDIAN and ENC_NA *happen* to
+    be 0, but omitting ENC_BIG_ENDIAN doesn't make it sufficiently clear
+    that it's UTF-16BE or UCS-2BE.
+    
+    Change-Id: Iecf7375763ce4922bd1b0676c9dc5a01731c2fec
+    Reviewed-on: https://code.wireshark.org/review/33374
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 38dec96c656e438e1f09f7dda6327b85ffd0c479)
+    Reviewed-on: https://code.wireshark.org/review/33377
+
+commit 7615658129
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Sun May 26 08:54:27 2019 +0000
+
+    [Automatic update for 2019-05-26]
+    
+    Update manuf, services enterprise numbers, translations, and other items.
+    
+    Change-Id: I6c41b007ee39b1a9a50ca98661397b156ae64db9
+    Reviewed-on: https://code.wireshark.org/review/33367
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>
+
+commit bd5bd28aab
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri May 24 19:32:46 2019 -0700
+
+    *Little-endian* UTF-16.
+    
+    ENC_UTF_16 does *not* go with ENC_NA; ENC_NA is for cases where the byte
+    order is "not applicable", such as a 1-byte number or a character
+    encoding where every character is encoded in 1 byte, but UTF-16 isn't
+    one of those cases, as a character is encoded in either 1 or 2 2-byte
+    values.  This being a Windows thing, the byte order is little-endian.
+    
+    Change-Id: Iab0db3fa2c5d2c25be209e4ed0ebd57827edbcd8
+    Reviewed-on: https://code.wireshark.org/review/33347
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit 2114dba1effebba50cdb611b2650b0a4a37761e4)
+    Reviewed-on: https://code.wireshark.org/review/33350
+
+commit cc525e40a0
+Author: Guy Harris <guy@alum.mit.edu>
+Date:   Fri May 24 18:51:01 2019 -0700
+
+    "OEM Codepage" appears to mean "code page number"; show it in decimal.
+    
+    Code page numbers are generally referred to by their number in decimal,
+    not hex.
+    
+    Change-Id: I1dee3df09cf7b5efaca2f4144ee5fcbc8d3ee44c
+    Reviewed-on: https://code.wireshark.org/review/33343
+    Reviewed-by: Guy Harris <guy@alum.mit.edu>
+    (cherry picked from commit cf89939a1966c37348ca14620c0afa9ca3a23c01)
+    Reviewed-on: https://code.wireshark.org/review/33346
+
+commit 63f0457208
+Author: Jaap Keuter <jaap.keuter@xs4all.nl>
+Date:   Wed May 22 22:56:04 2019 +0200
+
+    DPNSS: dissect Service Indicator Code synch/asynch info
+    
+    The DPNSS specification for the Service Indicator Code
+    Synch/Asynchronous Information field states that the lower three bits of
+    this field define the Data Type. This requires a filter of three bits,
+    in this case 0x7, instead of 0x3 which is two bits.
+    
+    CID 1159107
+    
+    Change-Id: I38eec252c771adf085f98c3be077c9de102a37d2
+    Reviewed-on: https://code.wireshark.org/review/33317
+    Reviewed-by: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Petri-Dish: Jaap Keuter <jaap.keuter@xs4all.nl>
+    Tested-by: Petri Dish Buildbot
+    Reviewed-by: Anders Broman <a.broman58@gmail.com>
+    (cherry picked from commit 6cb990ccb03e3fa4154e080d8592f64ca45a9c7b)
+    Reviewed-on: https://code.wireshark.org/review/33325
+
+commit e8aef2e658
+Author: Gerald Combs <gerald@wireshark.org>
+Date:   Wed May 22 14:35:53 2019 -0700
+
+    2.4.15 → 2.4.16.
+    
+    Change-Id: I84bc0756baa2bd3dfc16ad30b59f3d77ded03dd8
+    Reviewed-on: https://code.wireshark.org/review/33320
+    Reviewed-by: Gerald Combs <gerald@wireshark.org>

@@ -21,7 +21,7 @@ The following vulnerabilities have been fixed:
 * wssalink:2019-20[]
 ASN.1 BER and related dissectors crash.
 wsbuglink:15870[].
-// cveidlink:2019-XXXXX[].
+cveidlink:2019-13619[].
 // Fixed in master: 45a3d0787f
 // Fixed in master-3.0: 650fb1f786
 // Fixed in master-2.6: 7e90aed666
