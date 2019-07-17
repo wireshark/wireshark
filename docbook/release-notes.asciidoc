@@ -18,14 +18,13 @@ official end of life on July 19, 2019. If you are still using Wireshark
 
 The following vulnerabilities have been fixed:
 
-* wssalink:2019-20[]
-ASN.1 BER and related dissectors crash.
-wsbuglink:15870[].
-cveidlink:2019-13619[].
-// Fixed in master: 45a3d0787f
-// Fixed in master-3.0: 650fb1f786
-// Fixed in master-2.6: 7e90aed666
-// Fixed in master-2.4: 0d74e50d9a
+* wssalink:2019-21[]
+A dissector went awry.
+// wsbuglink:XXXXX[].
+// cveidlink:2019-XXXXX[].
+// Fixed in master: XXXXX
+// Fixed in master-3.0: XXXXX
+// Fixed in master-2.6: XXXXX
 
 
 The following bugs have been fixed:
@@ -35,12 +34,6 @@ The following bugs have been fixed:
 //* cveidlink:2014-2486[]
 //* Wireshark keeps leaving voicemails advertising timeshare condominiums in Fresno. (wsbuglink:0000[])
 // cp /dev/null /tmp/buglist.txt ; for bugnumber in `git log --stat v2.4.17rc0..| grep ' Bug:' | awk '{print $2}' | sort -n -u ` ; do "$(git rev-parse --show-toplevel)/tools/gen-bugnote" $bugnumber; pbpaste >> /tmp/buglist.txt; done
-
-* BTLE doesn't properly detect start fragment of L2CAP PDUs. wsbuglink:15807[].
-
-* Problems with sshdump "Error by extcap pipe: sh: sudo: command not found". wsbuglink:15845[].
-
-* editcap won't change encapsulation type when writing pcap format. wsbuglink:15873[].
 
 === New and Updated Features
 
@@ -57,27 +50,13 @@ There are no new protocols in this release.
 === Updated Protocol Support
 
 --sort-and-group--
-ASN.1
-BTLE
-CUPS
-DNS
-DPNSS
-GSM RLC/MAC
-HiQnet
-MAC LTE
-MIME multipart
-MQ
-SMB
-TNEF
 --sort-and-group--
 
 === New and Updated Capture File Support
 
-// There is no new or updated capture file support in this release.
---sort-and-group--
-Ascend
-pcapng
---sort-and-group--
+There is no new or updated capture file support in this release.
+// --sort-and-group--
+// --sort-and-group--
 
 === New and Updated Capture Interfaces support
 
