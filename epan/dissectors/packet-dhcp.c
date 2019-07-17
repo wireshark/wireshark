@@ -3245,8 +3245,6 @@ dissect_dhcpopt_avaya_ip_telephone(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	proto_tree *o242avaya_v_tree;
 	proto_item *avaya_ti;
 	const guint8 *avaya_option = NULL;
-	guint8 *avaya_copy;
-	const gchar *field = NULL;
 	wmem_strbuf_t *avaya_param_buf = NULL;
 
 	/* minimum length is 5 bytes */
@@ -3257,8 +3255,9 @@ dissect_dhcpopt_avaya_ip_telephone(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	avaya_ti = proto_tree_add_item_ret_string(tree, hf_dhcp_option242_avaya, tvb, offset, tvb_reported_length(tvb), ENC_ASCII|ENC_NA, wmem_packet_scope(), &avaya_option);
 	o242avaya_v_tree = proto_item_add_subtree(avaya_ti, ett_dhcp_option242_suboption);
 	avaya_param_buf = wmem_strbuf_new(wmem_packet_scope(), "");
-	avaya_copy = g_strdup(avaya_option);
-	for ( field = strtok(avaya_copy, ","); field; field = strtok(NULL, ",") ) {
+	gchar **fields = wmem_strsplit(wmem_packet_scope(), avaya_option, ",", -1);
+	for (int i = 0; fields[i]; i++) {
+		const gchar *field = fields[i];
 		if (!strchr(field, '=')) {
 			if (wmem_strbuf_get_len(avaya_param_buf) == 0) {
 				expert_add_info_format(pinfo, avaya_ti, &hf_dhcp_subopt_unknown_type, "ERROR, Unknown parameter %s", field);
@@ -3276,7 +3275,6 @@ dissect_dhcpopt_avaya_ip_telephone(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 			wmem_strbuf_append(avaya_param_buf, field);
 		}
 	}
-	g_free(avaya_copy);
 	if (wmem_strbuf_get_len(avaya_param_buf) > 0) {
 		dissect_vendor_avaya_param(o242avaya_v_tree, pinfo, avaya_ti, tvb, offset, avaya_param_buf);
 	}
