@@ -2,6 +2,8 @@
  * Routines for PN-DCP (PROFINET Discovery and basic Configuration Protocol)
  * packet dissection.
  *
+ * IEC 61158-6-10 section 4.3
+ *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1999 Gerald Combs
@@ -633,10 +635,20 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     switch (suboption) {
     case PNDCP_SUBOPTION_DEVICE_MANUF:
-        typeofstation = (char *)wmem_alloc(wmem_packet_scope(), block_length+1);
-        tvb_memcpy(tvb, (guint8 *) typeofstation, offset, block_length);
-        typeofstation[block_length] = '\0';
-        proto_tree_add_string (tree, hf_pn_dcp_suboption_device_typeofstation, tvb, offset, block_length, typeofstation);
+        /*
+         * XXX - IEC 61158-6-10 Edition 4.0, section 4.3, says this field
+         * "shall be coded as data type VisibleString", and that VisibleString
+         * is "ISO/IEC 646 - International Reference Version without the "del"
+         * (coding 0x7F) character", i.e. ASCII.
+         *
+         * However, at least one capture has a packet where 0xAE is used in
+         * a place where a registered trademark symbol would be appropriate,
+         * so the host sending it apparently extended ASCII to ISO 8859-n
+         * for some value of n.  That may have just been an error on their
+         * part, not realizing that they should have done "(R)" or something
+         * such as that.
+         */
+        proto_tree_add_item_ret_display_string (tree, hf_pn_dcp_suboption_device_typeofstation, tvb, offset, block_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &typeofstation);
         pn_append_info(pinfo, dcp_item, ", DeviceVendorValue");
         proto_item_append_text(block_item, "Device/Manufacturer specific");
         if (have_block_qualifier) {
@@ -678,10 +690,22 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
         break;
 
     case PNDCP_SUBOPTION_DEVICE_NAMEOFSTATION:
-        nameofstation = (char *)wmem_alloc(wmem_packet_scope(), block_length+1);
-        tvb_memcpy(tvb, (guint8 *) nameofstation, offset, block_length);
-        nameofstation[block_length] = '\0';
-        proto_tree_add_string (tree, hf_pn_dcp_suboption_device_nameofstation, tvb, offset, block_length, nameofstation);
+        /*
+         * XXX - IEC 61158-6-10 Edition 4.0 says, in section 4.3.1.4.15
+         * "Coding of the field NameOfStationValue", that "This field shall
+         * be coded as data type OctetString with 1 to 240 octets.  The
+         * definition of IETF RFC 5890 and the following syntax applies: ..."
+         *
+         * RFC 5890 means Punycode; should we translate the domain name to
+         * UTF-8 and show both the untranslated and translated domain name?
+         *
+         * They don't mention anything about the RFC 1035 encoding of
+         * domain names as mentioned in section 3.1 "Name space definitions",
+         * with the labels being counted strings; does that mean that this
+         * is just an ASCII string to be interpreted as a Punycode Unicode
+         * domain name?
+         */
+        proto_tree_add_item_ret_display_string (tree, hf_pn_dcp_suboption_device_nameofstation, tvb, offset, block_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &nameofstation);
         pn_append_info(pinfo, dcp_item, wmem_strdup_printf(wmem_packet_scope(), ", NameOfStation:\"%s\"", nameofstation));
         proto_item_append_text(block_item, "Device/NameOfStation");
         if (have_block_qualifier) {
@@ -803,10 +827,33 @@ dissect_PNDCP_Suboption_Device(tvbuff_t *tvb, int offset, packet_info *pinfo,
         }
         break;
     case PNDCP_SUBOPTION_DEVICE_ALIAS_NAME:
-        aliasname = (char *)wmem_alloc(wmem_packet_scope(), block_length+1);
-        tvb_memcpy(tvb, (guint8 *) aliasname, offset, block_length);
-        aliasname[block_length] = '\0';
-        proto_tree_add_string (tree, hf_pn_dcp_suboption_device_aliasname, tvb, offset, block_length, aliasname);
+        /*
+         * XXX - IEC 61158-6-10 Edition 4.0, section 4.3.1.4.17 "Coding of
+         * the field AliasNameValue", says this field "shall be coded as
+         * OctetString. The content shall be the concatenation of the content
+         * of the fields NameOfPort and NameOfStation.
+         *
+         *    AliasNameValue = NameOfPort + "." + NameOfStation
+         *
+         * " and:
+         *
+         *   It says in section 4.3.1.4.16 "Coding of the field NameOfPort"
+         *   that "This field shall be coded as OctetString[8] or
+         *   OctetString[14] as "port-xyz" or "port-xyz-rstuv" where x, y,
+         *   z is in the range "0"-"9" from 001 up to 255 and r, s, t, u, v
+         *   is in the range "0"-"9" from 00000 up to 65535. ...
+         *   Furthermore, the definition of IETF RFC 5890 shall be applied."
+         *
+         *   That suggests that the Octets are probably just ASCII characters;
+         *   IETF RFC 5890 means Punycode, but there isn't anything in those
+         *   string formats that requires non-ASCII characters - they're
+         *   just literally "port-" followed by numbers and hyphens.
+         *
+         *   It says in section 4.3.1.4.15 "Coding of the field
+         *   NameOfStationValue" that it's a domain name, complete with
+         *   RFC 5890 Punycode.
+         */
+        proto_tree_add_item_ret_display_string (tree, hf_pn_dcp_suboption_device_aliasname, tvb, offset, block_length, ENC_ASCII|ENC_NA, wmem_packet_scope(), &aliasname);
         pn_append_info(pinfo, dcp_item, wmem_strdup_printf(wmem_packet_scope(), ", AliasName:\"%s\"", aliasname));
         proto_item_append_text(block_item, "Device/AliasName");
         if (have_block_qualifier) {
@@ -873,7 +920,6 @@ dissect_PNDCP_Suboption_DHCP(tvbuff_t *tvb, int offset, packet_info *pinfo,
     guint8   dhcpparameterlength = 0;
     guint8   dhcpparameterdata = 0;
     guint8   dhcpcontrolparameterdata = 0;
-    char     *arbitraryclientID;
     gboolean have_block_info      = FALSE;
     gboolean have_block_qualifier = FALSE;
 
@@ -922,10 +968,18 @@ dissect_PNDCP_Suboption_DHCP(tvbuff_t *tvb, int offset, packet_info *pinfo,
             }
             else {
                 proto_item_append_text(block_item, ", Client-ID: Arbitrary");
-                arbitraryclientID = (char *)wmem_alloc(wmem_packet_scope(), dhcpparameterlength);
-                tvb_memcpy(tvb, (guint8 *)arbitraryclientID, offset, dhcpparameterlength - 1);
-                arbitraryclientID[dhcpparameterlength - 1] = '\0';
-                proto_tree_add_string(tree, hf_pn_dcp_suboption_dhcp_arbitrary_client_id, tvb, offset, dhcpparameterlength - 1, arbitraryclientID);
+                /*
+                 * XXX - IEC 61158-6-10 Edition 4.0, section 4.3.1.4.21.5
+                 * "Use of arbitrary client identifier", that this is an
+                 * OctetString to be used as a client identifier with DHCP.
+                 *
+                 * Does that mean it should be FT_BYTES, possibly with
+                 * the BASE_SHOW_ASCII_PRINTABLE flag to show it as ASCII
+                 * iff it's printable?  Or should packet-dhcp.c export
+                 * dissect_dhcpopt_client_identifier(), so that we can
+                 * use its heuristics?
+                 */
+                proto_tree_add_item(tree, hf_pn_dcp_suboption_dhcp_arbitrary_client_id, tvb, offset, dhcpparameterlength - 1, ENC_ASCII|ENC_NA);
                 offset += dhcpparameterlength;
             }
         }
