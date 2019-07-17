@@ -201,6 +201,40 @@ fuzz_init(int argc _U_, char **argv)
 		"snort"
 	};
 
+#if !defined(FUZZ_DISSECTOR_TABLE) && !defined(FUZZ_DISSECTOR_TARGET)
+	const char *fuzz_table = getenv("FUZZSHARK_TABLE");
+
+	if (!fuzz_table && !fuzz_target) {
+		fprintf(stderr,
+"Missing environment variables!\n"
+"\n"
+"Modes of operation:\n"
+"\n"
+" 1. Call a dissector directly by its name:\n"
+"      FUZZSHARK_TARGET=dns %s input-file\n"
+"    Calls dissect_x from register_dissector(NAME, dissect_x, proto_x)\n"
+"\n"
+" 2. Call a dissector by its filter name in a dissector table:\n"
+"      FUZZSHARK_TABLE=ip.proto FUZZSHARK_TARGET=ospf %s input-file\n"
+"    The filter name is from proto_register_protocol(., ., FILTER_NAME)\n"
+"    Selects dissectors from dissector_add_uint* or dissector_add_for_decode_as.\n"
+"\n"
+"Either mode runs the selected dissector once and can hopefully reproduce a\n"
+"crash. Mode (2) can be used if a dissector (such as 'ospf') is not available\n"
+"through (1).\n"
+"\n"
+"For best results, build dedicated fuzzshark_* targets with:\n"
+"    cmake -GNinja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++\\\n"
+"      -DENABLE_FUZZER=1 -DENABLE_ASAN=1 -DENABLE_UBSAN=1\n"
+"    ninja all-fuzzers\n"
+"These options enable LibFuzzer which makes fuzzing possible as opposed to\n"
+"running dissectors only once with a sample (as is the case with this fuzzshark"
+"binary). These fuzzshark_* targets are also used by oss-fuzz.\n",
+			argv[0], argv[0]);
+		return 1;
+	}
+#endif
+
 	dissector_handle_t fuzz_handle = NULL;
 
 	/* In oss-fuzz running environment g_get_home_dir() fails:
@@ -297,12 +331,16 @@ fuzz_init(int argc _U_, char **argv)
 
 #else
 # define FUZZ_EPAN 3
-	fprintf(stderr, "oss-fuzzshark: env for dissector: %s\n", fuzz_target);
-	fuzz_handle = get_dissector_handle(getenv("FUZZSHARK_TABLE"), fuzz_target);
+	if (fuzz_table) {
+		fprintf(stderr, "oss-fuzzshark: requested dissector: %s in table %s\n", fuzz_target, fuzz_table);
+	} else {
+		fprintf(stderr, "oss-fuzzshark: requested dissector: %s\n", fuzz_target);
+	}
+	fuzz_handle = get_dissector_handle(fuzz_table, fuzz_target);
 #endif
 
 #ifdef FUZZ_EPAN
-	g_assert(fuzz_handle != NULL);
+	g_assert(fuzz_handle != NULL && "Requested dissector is not found!");
 	register_postdissector(fuzz_handle);
 #endif
 
