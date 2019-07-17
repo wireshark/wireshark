@@ -1792,8 +1792,10 @@ dissect_quic_long_header_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *q
     if (dcil) {
         proto_tree_add_item(quic_tree, hf_quic_dcid, tvb, offset, dcil, ENC_NA);
         // TODO expert info on CID mismatch with connection
-        tvb_memcpy(tvb, dcid->cid, offset, dcil);
-        dcid->len = dcil;
+        if (dcil <= QUIC_MAX_CID_LENGTH) {
+            tvb_memcpy(tvb, dcid->cid, offset, dcil);
+            dcid->len = dcil;
+        }
         offset += dcil;
     }
 
@@ -1802,8 +1804,10 @@ dissect_quic_long_header_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *q
     if (scil) {
         proto_tree_add_item(quic_tree, hf_quic_scid, tvb, offset, scil, ENC_NA);
         // TODO expert info on CID mismatch with connection
-        tvb_memcpy(tvb, scid->cid, offset, scil);
-        scid->len = scil;
+        if (scil <= QUIC_MAX_CID_LENGTH) {
+            tvb_memcpy(tvb, scid->cid, offset, scil);
+            scid->len = scil;
+        }
         offset += scil;
     }
 
@@ -2164,15 +2168,15 @@ quic_extract_header(tvbuff_t *tvb, guint8 *long_packet_type, guint32 *version,
         guint8 dcil = tvb_get_guint8(tvb, offset);
         offset++;
 
-        if (dcil) {
+        if (dcil && dcil <= QUIC_MAX_CID_LENGTH) {
             tvb_memcpy(tvb, dcid->cid, offset, dcil);
             dcid->len = dcil;
-            offset += dcil;
         }
+        offset += dcil;
 
         guint8 scil = tvb_get_guint8(tvb, offset);
         offset++;
-        if (scil) {
+        if (scil && scil <= QUIC_MAX_CID_LENGTH) {
             tvb_memcpy(tvb, scid->cid, offset, scil);
             scid->len = scil;
         }
