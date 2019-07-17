@@ -516,7 +516,6 @@ static int hf_gsm_a_rr_start_mode = -1;
 static int hf_gsm_a_rr_timing_adv = -1;
 static int hf_gsm_a_rr_time_diff = -1;
 static int hf_gsm_a_rr_tlli = -1;
-static int hf_gsm_a_rr_tmsi_ptmsi = -1;
 static int hf_gsm_a_rr_target_mode = -1;
 static int hf_gsm_a_rr_wait_indication = -1;
 static int hf_gsm_a_rr_seq_code = -1;
@@ -8631,7 +8630,7 @@ de_rr_tmsi_ptmsi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
     subtree = proto_tree_add_subtree(tree, tvb, curr_offset, 3, ett_gsm_rr_elem[DE_RR_TMSI_PTMSI], NULL,
                                val_to_str_ext_const(DE_RR_TMSI_PTMSI, &gsm_rr_elem_strings_ext, ""));
 
-    proto_tree_add_item(subtree, hf_gsm_a_rr_tmsi_ptmsi, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_gsm_a_tmsi, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
     curr_offset = curr_offset + 4;
 
     return(curr_offset - offset);
@@ -11623,7 +11622,7 @@ dtap_rr_ec_paging_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
     }
     else
     { /* P-TMSI*/
-        proto_tree_add_bits_item(tree, hf_gsm_a_rr_tmsi_ptmsi, tvb, curr_bit_offset, 32, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(tree, hf_gsm_a_tmsi, tvb, curr_bit_offset, 32, ENC_BIG_ENDIAN);
         curr_bit_offset += 32;
     }
 
@@ -11635,7 +11634,7 @@ dtap_rr_ec_paging_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
         }
         else
         { /* P-TMSI*/
-            proto_tree_add_bits_item(tree, hf_gsm_a_rr_tmsi_ptmsi, tvb, curr_bit_offset, 32, ENC_BIG_ENDIAN);
+            proto_tree_add_bits_item(tree, hf_gsm_a_tmsi, tvb, curr_bit_offset, 32, ENC_BIG_ENDIAN);
         }
     }
 
@@ -12457,11 +12456,6 @@ proto_register_gsm_a_rr(void)
             },
             { &hf_gsm_a_rr_tlli,
               { "TLLI","gsm_a.rr.tlli",
-                FT_UINT32,BASE_HEX,  NULL, 0x0,
-                NULL, HFILL }
-            },
-            { &hf_gsm_a_rr_tmsi_ptmsi,
-              { "TMSI/P-TMSI Value","gsm_a.rr.tmsi_ptmsi",
                 FT_UINT32,BASE_HEX,  NULL, 0x0,
                 NULL, HFILL }
             },
