@@ -3419,14 +3419,10 @@ dissect_IandM1_block(tvbuff_t *tvb, int offset,
     }
 
     /* IM_Tag_Function [32] */
-    /* XXX - VisibleString; is that ASCII (ISO 646 IRV) or just the "Basic"
-       part of ISO 646 (the stuff that's the same in all variants)? */
     proto_tree_add_item_ret_display_string (tree, hf_pn_io_im_tag_function, tvb, offset, 32, ENC_ASCII|ENC_NA, wmem_packet_scope(), &pTagFunction);
     offset += 32;
 
     /* IM_Tag_Location [22] */
-    /* XXX - VisibleString; is that ASCII (ISO 646 IRV) or just the "Basic"
-       part of ISO 646 (the stuff that's the same in all variants)? */
     proto_tree_add_item_ret_display_string (tree, hf_pn_io_im_tag_location, tvb, offset, 22, ENC_ASCII|ENC_NA, wmem_packet_scope(), &pTagLocation);
     offset += 22;
 
@@ -3449,8 +3445,6 @@ dissect_IandM2_block(tvbuff_t *tvb, int offset,
     }
 
     /* IM_Date [16] */
-    /* XXX - VisibleString; is that ASCII (ISO 646 IRV) or just the "Basic"
-       part of ISO 646 (the stuff that's the same in all variants)? */
     proto_tree_add_item_ret_display_string (tree, hf_pn_io_im_date, tvb, offset, 16, ENC_ASCII|ENC_NA, wmem_packet_scope(), &pDate);
     offset += 16;
 
@@ -3473,8 +3467,6 @@ dissect_IandM3_block(tvbuff_t *tvb, int offset,
     }
 
     /* IM_Descriptor [54] */
-    /* XXX - VisibleString; is that ASCII (ISO 646 IRV) or just the "Basic"
-       part of ISO 646 (the stuff that's the same in all variants)? */
     proto_tree_add_item_ret_display_string (tree, hf_pn_io_im_descriptor, tvb, offset, 54, ENC_ASCII|ENC_NA, wmem_packet_scope(), &pDescriptor);
     offset += 54;
 
@@ -5039,7 +5031,7 @@ dissect_PDInterfaceMrpDataAdjust_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
                     hf_pn_io_mrp_length_domain_name, &u8LengthDomainName);
     /* MRP_DomainName */
-    /* XXX - IEC 61158-6-10 Edition 4.0 says,in section 5.2.17.2.4 "Coding
+    /* XXX - IEC 61158-6-10 Edition 4.0 says, in section 5.2.17.2.4 "Coding
        of the field MRP_DomainName", that "This field shall be coded as
        data type OctetString with 1 to 240 octets according to Table 702
        and 4.3.1.4.15.2."
