@@ -108,19 +108,16 @@ DIAG_OFF(unreachable-code)
 %type data48 { msg_data_t }
 %type data64 { msg_data_t }
 
-%start_symbol log
-
-log ::= lines .
-
-lines ::= line .
-lines ::= lines ENDL line .
+%start_symbol line
 
 line ::= maybe_spaces msg(M) .
 {
 #ifdef CANDUMP_DEBUG
     ws_debug_printf("%s: read message\n", G_STRFUNC);
 #endif
-    state->packets = g_slist_append(state->packets, g_memdup(&(M), sizeof(M)));
+
+    state->msg          = M;
+    state->is_msg_valid = TRUE;
 }
 
 line ::= maybe_spaces .
@@ -273,29 +270,23 @@ DIAG_ON(unreachable-code)
 #include "candump_scanner_lex.h"
 #include "candump_parser.h"
 
-GSList *
-run_candump_parser(FILE_T fh, int *err, gchar **err_info)
+gboolean
+run_candump_parser(candump_state_t *state, int *err, gchar **err_info)
 {
-    candump_state_t  state;
     int              lex_code;
     yyscan_t         scanner;
     void            *parser;
 
-    if (file_seek(fh, 0, SEEK_SET, err) == -1)
-        return NULL;
+    state->err         = 0;
+    state->err_info    = NULL;
+    state->parse_error = NULL;
 
-    *err      = 0;
-    *err_info = NULL;
-
-    memset(&state, 0, sizeof(state));
-    state.fh = fh;
-
-    if (candump_lex_init_extra(&state, &scanner) != 0)
+    if (candump_lex_init_extra(state, &scanner) != 0)
     {
         *err      = errno;
         *err_info = g_strdup(g_strerror(errno));
 
-        return NULL;
+        return FALSE;
     }
 
     parser = CandumpParserAlloc(g_malloc);
@@ -311,7 +302,7 @@ run_candump_parser(FILE_T fh, int *err, gchar **err_info)
         lex_code = candump_lex(scanner);
 
 #ifdef CANDUMP_DEBUG
-        if (lex_code && lex_code != TOKEN_ENDL)
+        if (lex_code)
             ws_debug_printf("%s: Feeding %s '%s'\n",
                             G_STRFUNC, yyTokenName[lex_code],
                             candump_get_text(scanner));
@@ -320,9 +311,9 @@ run_candump_parser(FILE_T fh, int *err, gchar **err_info)
                             G_STRFUNC, yyTokenName[lex_code]);
 #endif
 
-        CandumpParser(parser, lex_code, state.token, &state);
+        CandumpParser(parser, lex_code, state->token, state);
 
-        if (state.err || state.err_info || state.parse_error)
+        if (state->err || state->err_info || state->parse_error)
             break;
     }
     while (lex_code);
@@ -334,25 +325,27 @@ run_candump_parser(FILE_T fh, int *err, gchar **err_info)
     CandumpParserFree(parser, g_free);
     candump_lex_destroy(scanner);
 
-    if (state.err || state.err_info || state.parse_error)
+    if (state->err || state->err_info || state->parse_error)
     {
-        if (state.err_info)
+        if (state->err_info)
         {
-            *err_info = state.err_info;
-            g_free(state.parse_error);
+            *err_info = state->err_info;
+            g_free(state->parse_error);
         }
         else
         {
-            *err_info = state.parse_error;
+            *err_info = state->parse_error;
         }
 
-        if (state.err)
-            *err = state.err;
+        if (state->err)
+            *err = state->err;
         else
             *err = WTAP_ERR_BAD_FILE;
+
+        return FALSE;
     }
 
-    return state.packets;
+    return TRUE;
 }
 
 }

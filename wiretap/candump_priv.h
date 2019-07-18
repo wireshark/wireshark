@@ -63,9 +63,12 @@ typedef struct {
 } candump_priv_t;
 
 typedef struct {
-    GSList *packets;
+    gboolean is_msg_valid;
+    msg_t    msg;
 
     FILE_T  fh;
+    guint64 file_bytes_read;
+
     int     err;
     gchar  *err_info;
     gchar  *parse_error;
@@ -73,8 +76,8 @@ typedef struct {
     token_t token;
 } candump_state_t;
 
-GSList *
-run_candump_parser(FILE_T fh, int *err, gchar **err_info);
+gboolean
+run_candump_parser(candump_state_t *state, int *err, gchar **err_info);
 
 #include <wsutil/ws_printf.h>
 

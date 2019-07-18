@@ -48,22 +48,28 @@
 #define YY_NO_UNISTD_H
 #endif
 
-static int candump_yyinput(void *buf, unsigned int max_size,
-                           candump_state_t *state)
+static int candump_yyinput(void *buf, candump_state_t *state)
 {
-    int result = file_read(buf, max_size, state->fh);
+    int c = file_getc(state->fh);
 
-    if (result == EOF)
+    if (c == EOF)
     {
         state->err = file_error(state->fh, &state->err_info);
-        result     = YY_NULL;
+        return YY_NULL;
     }
 
-    return result;
+    *(char *)buf = c;
+
+    return 1;
 }
 
 #define YY_INPUT(buf, result, max_size) \
-    do { (result) = candump_yyinput((buf), (max_size), yyextra); } while (0)
+    do { (result) = candump_yyinput((buf), yyextra); } while (0)
+
+/* Count bytes read. This is required in order to rewind the file
+ * to the beginning of the next packet, since flex reads more bytes
+ * before executing the action that does yyterminate(). */
+#define YY_USER_ACTION do { yyextra->file_bytes_read += yyleng; } while (0);
 
 /*
  * Sleazy hack to suppress compiler warnings in yy_fatal_error().
@@ -87,7 +93,7 @@ HEX [0-9A-Fa-f]
 %%
 
 [ \t]                   { return TOKEN_SPACE; };
-[\r\n]                  { return TOKEN_ENDL; }
+[\r\n][ \t\r\n]*        { yyterminate(); }
 
 \({INT}+\.{INT}+\)      {
                             yyextra->token.v0 = strtoul(yytext + 1, NULL, 10);
