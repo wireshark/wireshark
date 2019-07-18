@@ -120,6 +120,7 @@ typedef struct {
 	void (*cleanup)(void);
 	void (*register_all_protocols)(register_cb, gpointer);
 	void (*register_all_handoffs)(register_cb, gpointer);
+	void (*register_all_tap_listeners)(void);
 } epan_plugin;
 
 WS_DLL_PUBLIC void epan_register_plugin(const epan_plugin *plugin);

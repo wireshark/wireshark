@@ -178,6 +178,13 @@ void epan_register_plugin(const epan_plugin *plug)
 	if (plug->register_all_handoffs)
 		epan_plugin_register_all_handoffs = g_slist_prepend(epan_plugin_register_all_handoffs, plug->register_all_handoffs);
 }
+
+void epan_plugin_register_all_tap_listeners(gpointer data, gpointer user_data _U_)
+{
+	epan_plugin *plug = (epan_plugin *)data;
+	if (plug->register_all_tap_listeners)
+		plug->register_all_tap_listeners();
+}
 #endif
 
 gboolean
@@ -242,6 +249,9 @@ epan_init(register_cb cb, gpointer client_data, gboolean load_plugins)
 		g_slist_foreach(epan_plugins, epan_plugin_init, NULL);
 #endif
 		proto_init(epan_plugin_register_all_procotols, epan_plugin_register_all_handoffs, cb, client_data);
+#ifdef HAVE_PLUGINS
+		g_slist_foreach(epan_plugins, epan_plugin_register_all_tap_listeners, NULL);
+#endif
 		packet_cache_proto_handles();
 		dfilter_init();
 		final_registration_all_protocols();
