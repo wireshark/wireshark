@@ -88,20 +88,21 @@ static const value_string vals_ttype_short[] = {
 /*
  * Method Code
  * Response Code
+ * "c.dd" denotes (c << 5) | dd
  */
 static const value_string vals_code[] = {
 	{ 0, "Empty Message" },
 
-	/* method code */
+	/* Method Codes */
 	{ 1, "GET" },
 	{ 2, "POST" },
 	{ 3, "PUT" },
 	{ 4, "DELETE" },
-	{ 5, "FETCH" },		/* RFC8132 */
-	{ 6, "PATCH" },		/* RFC8132 */
-	{ 7, "iPATCH" },	/* RFC8132 */
+	{ 5, "FETCH" },		/* RFC 8132 */
+	{ 6, "PATCH" },		/* RFC 8132 */
+	{ 7, "iPATCH" },	/* RFC 8132 */
 
-	/* response code */
+	/* Response Codes */
 	{  65, "2.01 Created" },
 	{  66, "2.02 Deleted" },
 	{  67, "2.03 Valid" },
@@ -115,19 +116,26 @@ static const value_string vals_code[] = {
 	{ 132, "4.04 Not Found" },
 	{ 133, "4.05 Method Not Allowed" },
 	{ 134, "4.06 Not Acceptable" },
-	{ 136, "4.08 Request Entity Incomplete" },	/* core-block-10 */
-	{ 137, "4.09 Conflict" },			/* RFC8132 */
+	{ 136, "4.08 Request Entity Incomplete" },	/* RFC 7959 */
+	{ 137, "4.09 Conflict" },			/* RFC 8132 */
 	{ 140, "4.12 Precondition Failed" },
 	{ 141, "4.13 Request Entity Too Large" },
 	{ 143, "4.15 Unsupported Content-Format" },
-	{ 150, "4.22 Unprocessable Entity" },		/* RFC8132 */
-	{ 157, "4.29 Too Many Requests" },		/* RFC8516 */
+	{ 150, "4.22 Unprocessable Entity" },		/* RFC 8132 */
+	{ 157, "4.29 Too Many Requests" },		/* RFC 8516 */
 	{ 160, "5.00 Internal Server Error" },
 	{ 161, "5.01 Not Implemented" },
 	{ 162, "5.02 Bad Gateway" },
 	{ 163, "5.03 Service Unavailable" },
 	{ 164, "5.04 Gateway Timeout" },
 	{ 165, "5.05 Proxying Not Supported" },
+
+	/* Signalling Codes */
+	{ 225, "7.01 CSM" },				/* RFC 8323 */
+	{ 226, "7.02 Ping" },				/* RFC 8323 */
+	{ 227, "7.03 Pong" },				/* RFC 8323 */
+	{ 228, "7.04 Release" },			/* RFC 8323 */
+	{ 229, "7.05 Abort" },				/* RFC 8323 */
 
 	{ 0, NULL },
 };
@@ -158,9 +166,9 @@ const value_string coap_vals_observe_options[] = {
 #define COAP_OPT_ACCEPT			17
 #define COAP_OPT_LOCATION_QUERY		20
 #define COAP_OPT_OBJECT_SECURITY	21	/* value used in OSCORE plugtests */
-#define COAP_OPT_BLOCK2			23	/* core-block-10 */
-#define COAP_OPT_BLOCK_SIZE		28	/* core-block-10 */
-#define COAP_OPT_BLOCK1			27	/* core-block-10 */
+#define COAP_OPT_BLOCK2			23	/* RFC 7959 / RFC 8323 */
+#define COAP_OPT_BLOCK1			27	/* RFC 7959 / RFC 8323 */
+#define COAP_OPT_SIZE2			28	/* RFC 7959 */
 #define COAP_OPT_PROXY_URI		35
 #define COAP_OPT_PROXY_SCHEME		39
 #define COAP_OPT_SIZE1			60
@@ -185,7 +193,7 @@ static const value_string vals_opt_type[] = {
 	{ COAP_OPT_OBSERVE,        "Observe" },
 	{ COAP_OPT_BLOCK2,         "Block2" },
 	{ COAP_OPT_BLOCK1,         "Block1" },
-	{ COAP_OPT_BLOCK_SIZE,     "Block Size" },
+	{ COAP_OPT_SIZE2,          "Size2" },
 	{ 0, NULL },
 };
 
@@ -213,7 +221,7 @@ struct coap_option_range_t {
 	{ COAP_OPT_OBSERVE,         0,   3 },
 	{ COAP_OPT_BLOCK2,          0,   3 },
 	{ COAP_OPT_BLOCK1,          0,   3 },
-	{ COAP_OPT_BLOCK_SIZE,      0,   4 },
+	{ COAP_OPT_SIZE2,           0,   4 },
 };
 
 static const value_string vals_ctype[] = {
@@ -860,7 +868,7 @@ dissect_coap_options_main(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tr
 		break;
 	case COAP_OPT_IF_NONE_MATCH:
 		break;
-	case COAP_OPT_BLOCK_SIZE:
+	case COAP_OPT_SIZE2:
 		dissect_coap_opt_uint(tvb, item, subtree, offset,
 		    opt_length, dissect_hf->hf.opt_block_size);
 		break;
