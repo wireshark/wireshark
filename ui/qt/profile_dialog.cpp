@@ -38,6 +38,7 @@
 #include <QLineEdit>
 #include <QFileDialog>
 #include <QStandardPaths>
+#include <QKeyEvent>
 
 ProfileDialog::ProfileDialog(QWidget *parent) :
     GeometryStateDialog(parent),
@@ -100,6 +101,13 @@ ProfileDialog::~ProfileDialog()
 {
     delete pd_ui_;
     empty_profile_list (TRUE);
+}
+
+void ProfileDialog::keyPressEvent(QKeyEvent *evt)
+{
+    if( pd_ui_->lineProfileFilter->hasFocus() && (evt->key() == Qt::Key_Enter || evt->key() == Qt::Key_Return) )
+        return;
+    QDialog::keyPressEvent(evt);
 }
 
 void ProfileDialog::selectProfile(QString profile)

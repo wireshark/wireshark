@@ -44,6 +44,9 @@ public:
      */
     void selectProfile(QString profile = QString());
 
+protected:
+    virtual void keyPressEvent(QKeyEvent *event);
+
 private:
     Ui::ProfileDialog *pd_ui_;
     QPushButton *ok_button_;
@@ -66,6 +69,8 @@ private slots:
     void editingFinished();
 
     void filterChanged(const QString &);
+
+    // QWidget interface
 };
 
 #endif // PROFILE_DIALOG_H
