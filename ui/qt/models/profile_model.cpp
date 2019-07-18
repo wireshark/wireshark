@@ -475,7 +475,7 @@ QModelIndex ProfileModel::duplicateEntry(QModelIndex idx)
         return QModelIndex();
 
     QString parent = prof->name;
-    if (!prof->is_global)
+    if ( ! prof->is_global && prof->status != PROF_STAT_CHANGED )
         parent = get_profile_parent (prof->name);
 
     QString new_name;
