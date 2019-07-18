@@ -141,8 +141,13 @@ GList * ProfileModel::entry(profile_def *ref) const
     GList *fl_entry = edited_profile_list();
     while (fl_entry && fl_entry->data) {
         profile_def *profile = reinterpret_cast<profile_def *>(fl_entry->data);
-        if (strcmp(ref->reference, profile->reference) == 0 && ref->is_global == profile->is_global)
-            return fl_entry;
+        if (strcmp(ref->name, profile->name) == 0 && ref->is_global == profile->is_global)
+        {
+            if ( ( ref->reference == Q_NULLPTR && profile->reference == Q_NULLPTR )
+                 || ( ( ref->reference != Q_NULLPTR && profile->reference != Q_NULLPTR )
+                      && (strcmp(ref->reference, profile->reference) == 0) ) )
+                return fl_entry;
+        }
 
         fl_entry = gxx_list_next(fl_entry);
     }
@@ -532,10 +537,11 @@ void ProfileModel::deleteEntry(QModelIndex idx)
     else
     {
         GList * fl_entry = entry(prof);
-        emit beginRemoveRows(QModelIndex(), idx.row(), idx.row());
-        remove_from_profile_list(fl_entry);
-        emit endRemoveRows();
-        loadProfiles();
+        if ( fl_entry )
+        {
+            remove_from_profile_list(fl_entry);
+            loadProfiles();
+        }
     }
 }
 
