@@ -62,7 +62,6 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
     pd_ui_->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     pd_ui_->deleteToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     pd_ui_->copyToolButton->setAttribute(Qt::WA_MacSmallSize, true);
-    pd_ui_->btnImport->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
 #ifndef HAVE_MINIZIP
@@ -354,7 +353,7 @@ void ProfileDialog::on_btnImport_clicked()
     int count = 0;
     if ( ( count = model_->unzipProfiles(zipFile) ) == 0 )
     {
-        QString msg = tr("An error occured, while importing profiles from %1").arg(fi.fileName());
+        QString msg = tr("An error occurred while importing profiles from %1").arg(fi.fileName());
         QMessageBox::warning(this, tr("Error importing profiles"), msg );
     }
     else {
