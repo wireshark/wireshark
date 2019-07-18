@@ -227,6 +227,7 @@ QVariant ProfileModel::data(const QModelIndex &index, int role) const
             case PROF_STAT_CHANGED:
                 if (prof->reference)
                     return QString("%1 %2").arg(tr("Renamed from: ")).arg(prof->reference);
+                break;
             case PROF_STAT_COPY:
                 if (prof->reference)
                     return QString("%1 %2").arg(tr("Copied from: ")).arg(prof->reference);
