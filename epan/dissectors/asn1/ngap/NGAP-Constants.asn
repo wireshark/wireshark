@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V15.3.0 (2019-03)
+-- 3GPP TS 38.413 V15.4.0 (2019-07)
 -- 9.4.7	Constant Definitions
 -- **************************************************************
 --
@@ -170,7 +170,7 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-Cause												ProtocolIE-ID ::= 15
 	id-CellIDListForRestart									ProtocolIE-ID ::= 16
 	id-ConcurrentWarningMessageInd							ProtocolIE-ID ::= 17
-	id-CoreNetworkAssistanceInformation						ProtocolIE-ID ::= 18
+	id-CoreNetworkAssistanceInformationForInactive			ProtocolIE-ID ::= 18
 	id-CriticalityDiagnostics								ProtocolIE-ID ::= 19
 	id-DataCodingScheme										ProtocolIE-ID ::= 20
 	id-DefaultPagingDRX										ProtocolIE-ID ::= 21
@@ -312,5 +312,14 @@ maxProtocolIEs							INTEGER ::= 65535
 	id-SecurityResult										ProtocolIE-ID ::= 156
 	id-ENDC-SONConfigurationTransferDL						ProtocolIE-ID ::= 157
 	id-ENDC-SONConfigurationTransferUL						ProtocolIE-ID ::= 158
+	id-OldAssociatedQosFlowList-ULendmarkerexpected			ProtocolIE-ID ::= 159
+	id-CNTypeRestrictionsForEquivalent						ProtocolIE-ID ::= 160
+	id-CNTypeRestrictionsForServing							ProtocolIE-ID ::= 161
+	id-NewGUAMI												ProtocolIE-ID ::= 162
+	id-ULForwarding											ProtocolIE-ID ::= 163
+	id-ULForwardingUP-TNLInformation						ProtocolIE-ID ::= 164
+	id-CNAssistedRANTuning									ProtocolIE-ID ::= 165
+	id-CommonNetworkInstance								ProtocolIE-ID ::= 166
+
 
 END

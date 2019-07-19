@@ -1,4 +1,4 @@
--- 3GPP TS 38.413 V15.3.0 (2019-03)
+-- 3GPP TS 38.413 V15.4.0 (2019-07)
 -- 9.4.4	PDU Definitions
 -- **************************************************************
 --
@@ -36,8 +36,9 @@ IMPORTS
 	CancelAllWarningMessages,
 	Cause,
 	CellIDListForRestart,
+	CNAssistedRANTuning,
 	ConcurrentWarningMessageInd,
-	CoreNetworkAssistanceInformation,
+	CoreNetworkAssistanceInformationForInactive,
 	CPTransportLayerInformation,
 	CriticalityDiagnostics,
 	DataCodingScheme,
@@ -152,6 +153,7 @@ IMPORTS
 	WarningMessageContents,
 	WarningSecurityInfo,
 	WarningType
+
 FROM NGAP-IEs
 
 	PrivateIE-Container{},
@@ -183,8 +185,9 @@ FROM NGAP-Containers
 	id-CancelAllWarningMessages,
 	id-Cause,
 	id-CellIDListForRestart,
+	id-CNAssistedRANTuning,
 	id-ConcurrentWarningMessageInd,
-	id-CoreNetworkAssistanceInformation,
+	id-CoreNetworkAssistanceInformationForInactive,
 	id-CriticalityDiagnostics,
 	id-DataCodingScheme,
 	id-DefaultPagingDRX,
@@ -210,6 +213,7 @@ FROM NGAP-Containers
 	id-NASC,
 	id-NASSecurityParametersFromNGRAN,
 	id-NewAMF-UE-NGAP-ID,
+	id-NewGUAMI,
 	id-NewSecurityContextInd,
 	id-NGAP-Message,
 	id-NGRAN-CGI,
@@ -254,7 +258,6 @@ FROM NGAP-Containers
 	id-PDUSessionResourceToReleaseListHOCmd,
 	id-PDUSessionResourceToReleaseListRelCmd,
 	id-PLMNSupportList,
-	id-PSCellInformation,
 	id-PWSFailedCellIDList,
 	id-RANNodeName,
 	id-RANPagingPriority,
@@ -551,7 +554,7 @@ InitialContextSetupRequestIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-RAN-UE-NGAP-ID							CRITICALITY reject	TYPE RAN-UE-NGAP-ID										PRESENCE mandatory	}|
 	{ ID id-OldAMF									CRITICALITY reject	TYPE AMFName											PRESENCE optional		}|
 	{ ID id-UEAggregateMaximumBitRate				CRITICALITY reject	TYPE UEAggregateMaximumBitRate						PRESENCE conditional	}|
-	{ ID id-CoreNetworkAssistanceInformation		CRITICALITY ignore	TYPE CoreNetworkAssistanceInformation				PRESENCE optional		}|
+	{ ID id-CoreNetworkAssistanceInformationForInactive		CRITICALITY ignore	TYPE CoreNetworkAssistanceInformationForInactive		PRESENCE optional		}|
 	{ ID id-GUAMI									CRITICALITY reject	TYPE GUAMI												PRESENCE mandatory	}|
 	{ ID id-PDUSessionResourceSetupListCxtReq		CRITICALITY reject	TYPE PDUSessionResourceSetupListCxtReq			PRESENCE optional		}|
 	{ ID id-AllowedNSSAI							CRITICALITY reject	TYPE AllowedNSSAI										PRESENCE mandatory	}|
@@ -566,7 +569,9 @@ InitialContextSetupRequestIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-EmergencyFallbackIndicator				CRITICALITY reject	TYPE EmergencyFallbackIndicator						PRESENCE optional		}|
 	{ ID id-RRCInactiveTransitionReportRequest		CRITICALITY ignore	TYPE RRCInactiveTransitionReportRequest			PRESENCE optional		}|
 	{ ID id-UERadioCapabilityForPaging				CRITICALITY ignore	TYPE UERadioCapabilityForPaging						PRESENCE optional		}|
-	{ ID id-RedirectionVoiceFallback				CRITICALITY ignore	TYPE RedirectionVoiceFallback						PRESENCE optional		},
+	{ ID id-RedirectionVoiceFallback				CRITICALITY ignore	TYPE RedirectionVoiceFallback						PRESENCE optional		}|
+	{ ID id-LocationReportingRequestType			CRITICALITY ignore	TYPE LocationReportingRequestType					PRESENCE optional		}|
+	{ ID id-CNAssistedRANTuning						CRITICALITY ignore	TYPE CNAssistedRANTuning								PRESENCE optional		},
 	...
 }
 
@@ -705,10 +710,12 @@ UEContextModificationRequestIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-IndexToRFSP								CRITICALITY ignore	TYPE IndexToRFSP									PRESENCE optional		}|
 	{ ID id-UEAggregateMaximumBitRate				CRITICALITY ignore	TYPE UEAggregateMaximumBitRate					PRESENCE optional		}|
 	{ ID id-UESecurityCapabilities					CRITICALITY reject	TYPE UESecurityCapabilities						PRESENCE optional		}|
-	{ ID id-CoreNetworkAssistanceInformation		CRITICALITY ignore	TYPE CoreNetworkAssistanceInformation			PRESENCE optional		}|
+	{ ID id-CoreNetworkAssistanceInformationForInactive		CRITICALITY ignore	TYPE CoreNetworkAssistanceInformationForInactive			PRESENCE optional		}|
 	{ ID id-EmergencyFallbackIndicator				CRITICALITY reject	TYPE EmergencyFallbackIndicator					PRESENCE optional		}|
-	{ ID id-NewAMF-UE-NGAP-ID						CRITICALITY ignore	TYPE AMF-UE-NGAP-ID									PRESENCE optional		}|
-	{ ID id-RRCInactiveTransitionReportRequest		CRITICALITY ignore	TYPE RRCInactiveTransitionReportRequest		PRESENCE optional		},
+	{ ID id-NewAMF-UE-NGAP-ID						CRITICALITY reject	TYPE AMF-UE-NGAP-ID									PRESENCE optional		}|
+	{ ID id-RRCInactiveTransitionReportRequest		CRITICALITY ignore	TYPE RRCInactiveTransitionReportRequest		PRESENCE optional		}|
+	{ ID id-NewGUAMI								CRITICALITY reject	TYPE GUAMI											PRESENCE optional		}|
+	{ ID id-CNAssistedRANTuning						CRITICALITY ignore	TYPE CNAssistedRANTuning							PRESENCE optional		},
 	...
 }
 
@@ -822,7 +829,7 @@ HandoverCommandIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-HandoverType								CRITICALITY reject	TYPE HandoverType											PRESENCE mandatory	}|
 	{ ID id-NASSecurityParametersFromNGRAN				CRITICALITY reject	TYPE NASSecurityParametersFromNGRAN					PRESENCE conditional	}|
 	-- This IE shall be present if HandoverType IE is set to value "5GStoEPPS" --
-	{ ID id-PDUSessionResourceHandoverList				CRITICALITY ignore	TYPE PDUSessionResourceHandoverList					PRESENCE mandatory	}|
+	{ ID id-PDUSessionResourceHandoverList				CRITICALITY ignore	TYPE PDUSessionResourceHandoverList					PRESENCE optional	}|
 	{ ID id-PDUSessionResourceToReleaseListHOCmd		CRITICALITY ignore	TYPE PDUSessionResourceToReleaseListHOCmd			PRESENCE optional		}|
 	{ ID id-TargetToSource-TransparentContainer			CRITICALITY reject	TYPE TargetToSource-TransparentContainer			PRESENCE mandatory	}|
 	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics								PRESENCE optional		},
@@ -871,7 +878,7 @@ HandoverRequestIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-HandoverType							CRITICALITY reject	TYPE HandoverType									PRESENCE mandatory	}|
 	{ ID id-Cause									CRITICALITY ignore	TYPE Cause											PRESENCE mandatory	}|
 	{ ID id-UEAggregateMaximumBitRate				CRITICALITY reject	TYPE UEAggregateMaximumBitRate					PRESENCE mandatory	}|
-	{ ID id-CoreNetworkAssistanceInformation		CRITICALITY ignore	TYPE CoreNetworkAssistanceInformation			PRESENCE optional		}|
+	{ ID id-CoreNetworkAssistanceInformationForInactive		CRITICALITY ignore	TYPE CoreNetworkAssistanceInformationForInactive			PRESENCE optional		}|
 	{ ID id-UESecurityCapabilities					CRITICALITY reject	TYPE UESecurityCapabilities						PRESENCE mandatory	}|
 	{ ID id-SecurityContext							CRITICALITY reject	TYPE SecurityContext								PRESENCE mandatory	}|
 	{ ID id-NewSecurityContextInd					CRITICALITY reject	TYPE NewSecurityContextInd						PRESENCE optional		}|
@@ -885,7 +892,8 @@ HandoverRequestIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-LocationReportingRequestType			CRITICALITY ignore	TYPE LocationReportingRequestType				PRESENCE optional		}|
 	{ ID id-RRCInactiveTransitionReportRequest		CRITICALITY ignore	TYPE RRCInactiveTransitionReportRequest		PRESENCE optional		}|
 	{ ID id-GUAMI									CRITICALITY reject	TYPE GUAMI											PRESENCE mandatory	}|
-	{ ID id-RedirectionVoiceFallback				CRITICALITY ignore	TYPE RedirectionVoiceFallback					PRESENCE optional		},
+	{ ID id-RedirectionVoiceFallback				CRITICALITY ignore	TYPE RedirectionVoiceFallback					PRESENCE optional		}|
+	{ ID id-CNAssistedRANTuning						CRITICALITY ignore	TYPE CNAssistedRANTuning							PRESENCE optional		},
 	...
 }
 
@@ -1001,10 +1009,11 @@ PathSwitchRequestAcknowledgeIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-PDUSessionResourceSwitchedList				CRITICALITY ignore	TYPE PDUSessionResourceSwitchedList				PRESENCE mandatory	}|
 	{ ID id-PDUSessionResourceReleasedListPSAck			CRITICALITY ignore	TYPE PDUSessionResourceReleasedListPSAck		PRESENCE optional		}|
 	{ ID id-AllowedNSSAI								CRITICALITY reject	TYPE AllowedNSSAI										PRESENCE mandatory	}|
-	{ ID id-CoreNetworkAssistanceInformation			CRITICALITY ignore	TYPE CoreNetworkAssistanceInformation			PRESENCE optional		}|
+	{ ID id-CoreNetworkAssistanceInformationForInactive			CRITICALITY ignore	TYPE CoreNetworkAssistanceInformationForInactive			PRESENCE optional		}|
 	{ ID id-RRCInactiveTransitionReportRequest			CRITICALITY ignore	TYPE RRCInactiveTransitionReportRequest			PRESENCE optional		}|
 	{ ID id-CriticalityDiagnostics						CRITICALITY ignore	TYPE CriticalityDiagnostics							PRESENCE optional		}|
-	{ ID id-RedirectionVoiceFallback					CRITICALITY ignore	TYPE RedirectionVoiceFallback						PRESENCE optional		},
+	{ ID id-RedirectionVoiceFallback					CRITICALITY ignore	TYPE RedirectionVoiceFallback						PRESENCE optional		}|
+	{ ID id-CNAssistedRANTuning							CRITICALITY ignore	TYPE CNAssistedRANTuning								PRESENCE optional		},
 	...
 }
 
@@ -1351,10 +1360,10 @@ RANConfigurationUpdate ::= SEQUENCE {
 }
 
 RANConfigurationUpdateIEs NGAP-PROTOCOL-IES ::= {
-	{ ID id-RANNodeName				CRITICALITY ignore	TYPE RANNodeName			PRESENCE optional	}|
-	{ ID id-SupportedTAList			CRITICALITY reject	TYPE SupportedTAList		PRESENCE optional	}|
-	{ ID id-DefaultPagingDRX		CRITICALITY ignore	TYPE PagingDRX				PRESENCE optional	}|
-	{ ID id-GlobalRANNodeID			CRITICALITY ignore	TYPE GlobalRANNodeID		PRESENCE optional	},
+	{ ID id-RANNodeName								CRITICALITY ignore	TYPE RANNodeName												PRESENCE optional	}|
+	{ ID id-SupportedTAList							CRITICALITY reject	TYPE SupportedTAList											PRESENCE optional	}|
+	{ ID id-DefaultPagingDRX						CRITICALITY ignore	TYPE PagingDRX													PRESENCE optional	}|
+	{ ID id-GlobalRANNodeID							CRITICALITY ignore	TYPE GlobalRANNodeID											PRESENCE optional	},
 	...
 }
 
@@ -1982,8 +1991,7 @@ LocationReportIEs NGAP-PROTOCOL-IES ::= {
 	{ ID id-RAN-UE-NGAP-ID						CRITICALITY reject	TYPE RAN-UE-NGAP-ID							PRESENCE mandatory	}|
 	{ ID id-UserLocationInformation				CRITICALITY ignore	TYPE UserLocationInformation				PRESENCE mandatory	}|
 	{ ID id-UEPresenceInAreaOfInterestList		CRITICALITY ignore	TYPE UEPresenceInAreaOfInterestList		PRESENCE optional		}|
-	{ ID id-LocationReportingRequestType		CRITICALITY ignore	TYPE LocationReportingRequestType		PRESENCE mandatory	}|
-	{ ID id-PSCellInformation					CRITICALITY ignore	TYPE NGRAN-CGI								PRESENCE optional 	},
+	{ ID id-LocationReportingRequestType		CRITICALITY ignore	TYPE LocationReportingRequestType		PRESENCE mandatory	},
 	...
 }
 
