@@ -49,7 +49,7 @@ CopyFromProfileMenu::CopyFromProfileMenu(QString filename, QWidget *parent) :
             continue;
 
         QString name = idx.data().toString();
-        pa = new QAction(name);
+        pa = new QAction(name, this);
         if ( idx.data(ProfileModel::DATA_IS_DEFAULT).toBool() )
             addAction(pa);
         else if ( idx.data(ProfileModel::DATA_IS_GLOBAL).toBool() )
@@ -91,7 +91,7 @@ QAction * CopyFromProfileMenu::systemDefault(QString filename)
     QString path = dataDir.filePath(filename);
     if ( QFile::exists(path) )
     {
-        data = new QAction(tr("System default"));
+        data = new QAction(tr("System default"), this);
         data->setData(path);
         QFont font = data->font();
         font.setItalic(true);
