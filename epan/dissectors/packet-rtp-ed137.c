@@ -655,7 +655,7 @@ dissect_rtp_hdr_ext_ed137(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, v
 
 #define NSTIME_INIT_USEC(nstime, usecs) \
     nstime.secs = usecs / 1000000; \
-    nstime.nsecs = (usecs % 1000000) / 1000;
+    nstime.nsecs = (usecs % 1000000) * 1000;
 
 /* Decodes and calculates relative/absolute time item */
 static void process_time_value(tvbuff_t *tvb, proto_tree *tree, int time_item, unsigned int hdrext_offset, gboolean time_relative _U_, unsigned int time_value)
@@ -1473,7 +1473,7 @@ proto_register_rtp_ed137(void)
             {
                 "CLIMAX-Time Delay Absolute",
                 "rtp.ext.ed137a.ft.climax_delay.absolute_value",
-                FT_UINT32,
+                FT_UINT8,
                 BASE_DEC,
                 NULL,
                 0x7F,
