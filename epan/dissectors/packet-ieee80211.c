@@ -5105,6 +5105,15 @@ static int hf_ieee80211_aruba_mtu = -1;
 static int hf_ieee80211_tag_vendor_oui_type = -1;
 static int hf_ieee80211_tag_vendor_data = -1;
 
+static int hf_ieee80211_symbp_extreme_assoc_clients = -1;
+static int hf_ieee80211_symbp_extreme_load_kbps = -1;
+static int hf_ieee80211_symbp_extreme_load_pps = -1;
+static int hf_ieee80211_symbp_extreme_client_tx_power = -1;
+static int hf_ieee80211_symbp_extreme_timestamp = -1;
+
+static int hf_ieee80211_tag_symbol_proprietary_oui = -1;
+static int hf_ieee80211_tag_symbol_proprietary_data = -1;
+
 /* IEEE Std 802.11z-2010 7.3.2.62 */
 static int hf_ieee80211_tag_link_id_bssid = -1;
 static int hf_ieee80211_tag_link_id_init_sta = -1;
@@ -20117,6 +20126,60 @@ ieee80211_tag_vendor_specific_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   return tvb_captured_length(tvb);
 }
 
+static void
+dissect_symbol_proprietary_ie_extreme(proto_item *item _U_, proto_tree *ietree,
+                                      tvbuff_t *tvb, int offset, guint32 tag_len _U_,
+                                      packet_info *pinfo _U_)
+{
+  proto_tree_add_item(ietree, hf_ieee80211_symbp_extreme_assoc_clients, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(ietree, hf_ieee80211_symbp_extreme_load_kbps, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(ietree, hf_ieee80211_symbp_extreme_load_pps, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(ietree, hf_ieee80211_symbp_extreme_client_tx_power, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(ietree, hf_ieee80211_symbp_extreme_timestamp, tvb, offset, 4, ENC_TIME_SECS|ENC_LITTLE_ENDIAN);
+}
+
+static int
+ieee80211_tag_symbol_proprietary_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
+{
+  int tag_len = tvb_reported_length(tvb);
+  ieee80211_tagged_field_data_t* field_data = (ieee80211_tagged_field_data_t*)data;
+  int offset = 0;
+  guint32 tag_vs_len = tag_len;
+  guint32       oui;
+
+  if (tag_len < 3)
+  {
+    expert_add_info_format(pinfo, field_data->item_tag_length, &ei_ieee80211_tag_length, "Tag Length %u wrong, must be >= 3", tag_len);
+    return tvb_captured_length(tvb);
+  }
+
+  proto_tree_add_item_ret_uint(tree, hf_ieee80211_tag_symbol_proprietary_oui, tvb, offset, 3, ENC_BIG_ENDIAN, &oui);
+  proto_item_append_text(field_data->item_tag, ": %s", uint_get_manuf_name_if_known(oui));
+
+  offset += 3;
+  tag_vs_len -= 3;
+
+  switch (oui) {
+    /* 802.11 specific vendor ids */
+    case OUI_ZEBRA_EXTREME:
+      dissect_symbol_proprietary_ie_extreme(field_data->item_tag, tree, tvb, offset, tag_vs_len, pinfo);
+      break;
+    default:
+      proto_tree_add_item(tree, hf_ieee80211_tag_symbol_proprietary_data, tvb, offset, tag_vs_len, ENC_NA);
+      break;
+  }
+
+  return tvb_captured_length(tvb);
+}
+
 #define HE_HTC_HE_SUPPORT                0x00000001
 #define HE_FRAGMENTATION_SUPPORT         0x00000018
 #define HE_ALL_ACK_SUPPORT               0x00000200
@@ -30373,6 +30436,41 @@ proto_register_ieee80211(void)
       FT_BYTES, BASE_NONE, NULL, 0,
       "Unknown/undecoded Vendor Specific Data", HFILL }},
 
+    {&hf_ieee80211_symbp_extreme_assoc_clients,
+     {"Associated clients", "wlan.tag.symbol_proprietary.extreme.assoc_clients",
+      FT_UINT16, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_symbp_extreme_load_kbps,
+     {"Load", "wlan.tag.symbol_proprietary.extreme.load_kbps",
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_kbps, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_symbp_extreme_load_pps,
+     {"Load", "wlan.tag.symbol_proprietary.extreme.load_pps",
+      FT_UINT16, BASE_DEC|BASE_UNIT_STRING, &units_pkts_per_sec, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_symbp_extreme_client_tx_power,
+     {"Desired client Tx power", "wlan.tag.symbol_proprietary.extreme.client_txpower",
+      FT_UINT16, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_symbp_extreme_timestamp,
+     {"Timestamp", "wlan.tag.symbol_proprietary.extreme.timestamp",
+      FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_symbol_proprietary_oui,
+     {"Symbol Propritary OUI", "wlan.tag.symbol_proprietary.oui",
+      FT_UINT24, BASE_OUI, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_symbol_proprietary_data,
+     {"Symbol Proprietary Data", "wlan.tag.symbol_proprietary.data",
+      FT_BYTES, BASE_NONE, NULL, 0,
+      "Unknown/undecoded Symbol Proprietary Data", HFILL }},
+
     {&hf_ieee80211_tim_dtim_count,
      {"DTIM count", "wlan.tim.dtim_count",
       FT_UINT8, BASE_DEC, NULL, 0,
@@ -37920,8 +38018,7 @@ proto_reg_handoff_ieee80211(void)
   dissector_add_uint("wlan.tag.number", TAG_VENDOR_SPECIFIC_IE, create_dissector_handle(ieee80211_tag_vendor_specific_ie, -1));
   /* This Cisco proprietary IE seems to mimic 221 */
   dissector_add_uint("wlan.tag.number", TAG_CISCO_VENDOR_SPECIFIC, create_dissector_handle(ieee80211_tag_vendor_specific_ie, -1));
-  /* This Symbol proprietary IE seems to mimic 221 */
-  dissector_add_uint("wlan.tag.number", TAG_SYMBOL_PROPRIETARY, create_dissector_handle(ieee80211_tag_vendor_specific_ie, -1));
+  dissector_add_uint("wlan.tag.number", TAG_SYMBOL_PROPRIETARY, create_dissector_handle(ieee80211_tag_symbol_proprietary_ie, -1));
   dissector_add_uint("wlan.tag.number", TAG_MOBILITY_DOMAIN, create_dissector_handle(dissect_mobility_domain, -1));
   dissector_add_uint("wlan.tag.number", TAG_FAST_BSS_TRANSITION, create_dissector_handle(dissect_fast_bss_transition, -1));
   dissector_add_uint("wlan.tag.number", TAG_MMIE, create_dissector_handle(dissect_mmie, -1));

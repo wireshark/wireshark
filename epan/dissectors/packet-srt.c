@@ -101,11 +101,6 @@ static expert_field ei_srt_hs_ext_type = EI_INIT;
 static dissector_handle_t srt_udp_handle;
 
 
-/* Base Unit Strings Definitions */
-const unit_name_string units_pkts         = { " pkts", NULL };
-const unit_name_string units_pkts_per_sec = { " pkts/s", NULL };
-
-
 /* This defines the firstmost bit of the packet, so it can stay this way. */
 #define SRT_TYPE_DATA            0
 #define SRT_TYPE_CONTROL        1

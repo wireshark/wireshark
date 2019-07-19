@@ -1924,6 +1924,8 @@ libwireshark.so.0 libwireshark0 #MINVER#
  units_newton_metre@Base 2.3.0
  units_octet_octets@Base 2.3.0
  units_percent@Base 2.3.0
+ units_pkts@Base 3.1.0
+ units_pkts_per_sec@Base 3.1.0
  units_revolutions_per_minute@Base 2.3.0
  units_second_seconds@Base 2.3.0
  units_seconds@Base 2.3.0
