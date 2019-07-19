@@ -779,14 +779,6 @@ dissect_wlan_radio_phdr(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree, 
                 proto_item_append_text(it, " (%s %s)",
                   ieee80211_vhtinfo[info_ac->mcs[i]].modulation,
                   ieee80211_vhtinfo[info_ac->mcs[i]].coding_rate);
-
-                  /*
-                   * If we can calculate the data rate for this user, do so.
-                   */
-                  if (can_calculate_rate) {
-                    data_rate = ieee80211_vhtrate(info_ac->mcs[i], bandwidth, info_ac->short_gi) * info_ac->nss[i];
-                    have_data_rate = TRUE;
-                  }
               }
 
               proto_tree_add_uint(user_tree, hf_wlan_radio_11ac_nss, tvb, 0, 0, info_ac->nss[i]);
