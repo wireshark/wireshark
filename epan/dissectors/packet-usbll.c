@@ -16,6 +16,7 @@
 #include "config.h"
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/crc16-tvb.h>
 
 static int proto_usbll = -1;
 
@@ -26,6 +27,7 @@ static int hf_usbll_endp = -1;
 static int hf_usbll_crc5 = -1;
 static int hf_usbll_data = -1;
 static int hf_usbll_data_crc = -1;
+static int hf_usbll_data_crc_status = -1;
 static int hf_usbll_sof_framenum = -1;
 static int hf_usbll_split_hub_addr = -1;
 static int hf_usbll_split_sc = -1;
@@ -40,6 +42,7 @@ static int ett_usbll = -1;
 
 static expert_field ei_invalid_pid = EI_INIT;
 static expert_field ei_undecoded = EI_INIT;
+static expert_field ei_wrong_crc16 = EI_INIT;
 
 static dissector_handle_t usbll_handle;
 
@@ -174,7 +177,10 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
             proto_tree_add_item(tree, hf_usbll_data, tvb, offset, data_size, ENC_NA);
             offset += data_size;
         }
-        proto_tree_add_item(tree, hf_usbll_data_crc, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_checksum(tree, tvb, offset,
+            hf_usbll_data_crc, hf_usbll_data_crc_status, &ei_wrong_crc16, pinfo,
+            crc16_usb_tvb_offset(tvb, 1, offset - 1),
+            ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
         offset += 2;
         break;
     }
@@ -278,6 +284,10 @@ proto_register_usbll(void)
             { "CRC", "usbll.crc16",
               FT_UINT16, BASE_HEX, NULL, 0x0000,
               NULL, HFILL }},
+        { &hf_usbll_data_crc_status,
+            { "CRC Status", "usbll.crc16.status",
+              FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0,
+              NULL, HFILL }},
         { &hf_usbll_sof_framenum,
             { "Frame Number", "usbll.frame_num",
               FT_UINT16, BASE_DEC, NULL, 0x07FF,
@@ -320,6 +330,7 @@ proto_register_usbll(void)
     static ei_register_info ei[] = {
         { &ei_invalid_pid, { "usbll.invalid_pid", PI_MALFORMED, PI_ERROR, "Invalid USB Packet ID", EXPFILL }},
         { &ei_undecoded, { "usbll.undecoded", PI_UNDECODED, PI_WARN, "Not dissected yet (report to wireshark.org)", EXPFILL }},
+        { &ei_wrong_crc16, { "usbll.crc16.wrong", PI_PROTOCOL, PI_WARN, "Wrong CRC", EXPFILL }},
     };
 
     static gint *ett[] = {
