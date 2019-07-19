@@ -18,6 +18,7 @@
 #include <QAbstractTableModel>
 #include <QSortFilterProxyModel>
 #include <QLoggingCategory>
+#include <QFileInfoList>
 
 Q_DECLARE_LOGGING_CATEGORY(profileLogger)
 
@@ -93,7 +94,9 @@ public:
     GList * at(int row) const;
 
 #ifdef HAVE_MINIZIP
-    int unzipProfiles(QString filename);
+    int unzipProfiles(QString filename, int *skippedCnt = Q_NULLPTR);
+    bool copyTempToProfile(QString tempPath, QString profilePath);
+    QFileInfoList filterProfilePath(QString, QFileInfoList ent);
 #endif
 
     static bool checkNameValidity(QString name, QString *msg = Q_NULLPTR);
@@ -113,6 +116,7 @@ private:
 #ifdef HAVE_MINIZIP
     static bool acceptFile(QString fileName, int fileSize);
 #endif
+
 };
 
 #endif

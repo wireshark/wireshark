@@ -612,9 +612,74 @@ bool ProfileModel::acceptFile(QString fileName, int fileSize)
     return true;
 }
 
-int ProfileModel::unzipProfiles(QString filename)
+bool ProfileModel::copyTempToProfile(QString tempPath, QString profilePath)
+{
+    QDir profileDir(profilePath);
+    if ( ! profileDir.mkpath(profilePath) || ! QFile::exists(tempPath) )
+        return false;
+
+    QDir tempProfile(tempPath);
+    tempProfile.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
+    QFileInfoList files = tempProfile.entryInfoList();
+    if ( files.count() <= 0 )
+        return false;
+
+    int created = 0;
+    foreach ( QFileInfo finfo, files)
+    {
+        QString tempFile = finfo.absoluteFilePath();
+        QString profileFile = profilePath + QDir::separator() + finfo.fileName();
+
+        if ( ! QFile::exists(tempFile) || QFile::exists(profileFile) )
+            continue;
+
+        if ( QFile::copy(tempFile, profileFile) )
+            created++;
+    }
+
+    if ( created > 0 )
+        return true;
+
+    return false;
+}
+
+QFileInfoList ProfileModel::filterProfilePath(QString path, QFileInfoList ent)
+{
+    QFileInfoList result = ent;
+
+    QDir temp(path);
+    temp.setSorting(QDir::Name);
+    temp.setFilter(QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
+    QFileInfoList entries = temp.entryInfoList();
+    foreach ( QFileInfo entry, entries )
+    {
+        QDir fPath(entry.absoluteFilePath());
+        fPath.setSorting(QDir::Name);
+        fPath.setFilter(QDir::Files | QDir::NoSymLinks);
+        QFileInfoList fEntries = fPath.entryInfoList();
+        bool found = false;
+        for ( int cnt = 0; cnt < fEntries.count() && ! found; cnt++)
+        {
+            QFileInfo fEntry = fEntries[cnt];
+            if ( config_file_exists_with_entries(fEntry.absoluteFilePath().toUtf8().constData(), '#') )
+            {
+                 found = true;
+            }
+        }
+
+        if ( found )
+            result.append(entry);
+        else
+            result.append(filterProfilePath(entry.absoluteFilePath(), result));
+    }
+
+    return result;
+}
+
+int ProfileModel::unzipProfiles(QString filename, int * skippedCnt)
 {
     int count = 0;
+    int skipped = 0;
     QDir profileDir(get_profiles_dir());
     QTemporaryDir dir;
 #if 0
@@ -625,49 +690,33 @@ int ProfileModel::unzipProfiles(QString filename)
     {
         WireSharkZipHelper::unzip(filename, dir.path(), &ProfileModel::acceptFile);
 
-        QDir temp(dir.path());
-        temp.setSorting(QDir::Name);
-        temp.setFilter(QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
-        QFileInfoList entries = temp.entryInfoList();
+        QFileInfoList entries = filterProfilePath(dir.path(), QFileInfoList());
 
+        int entryCount = 0;
         foreach ( QFileInfo fentry, entries )
         {
+            entryCount++;
+
             QString profilePath = profileDir.absolutePath() + QDir::separator() + fentry.fileName();
             QString tempPath = fentry.absoluteFilePath();
 
-            if ( QFile::exists(profilePath) )
-                continue;
-
-            QDir profileDir(profilePath);
-            if ( ! profileDir.mkpath(profilePath) || ! QFile::exists(tempPath) )
-                continue;
-
-            QDir tempProfile(tempPath);
-            tempProfile.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
-            QFileInfoList files = tempProfile.entryInfoList();
-            if ( files.count() <= 0 )
-                continue;
-
-            int created = 0;
-            foreach ( QFileInfo finfo, files)
+            if ( fentry.fileName().compare(DEFAULT_PROFILE, Qt::CaseInsensitive) == 0 || QFile::exists(profilePath) )
             {
-                QString tempFile = finfo.absoluteFilePath();
-                QString profileFile = profilePath + QDir::separator() + finfo.fileName();
-
-                if ( ! QFile::exists(tempFile) || QFile::exists(profileFile) )
-                    continue;
-
-                if ( QFile::copy(tempFile, profileFile) )
-                    created++;
+                skipped++;
+                continue;
             }
 
-            if ( created > 0 )
+            if ( copyTempToProfile(tempPath, profilePath) )
                 count++;
         }
+
     }
 
     if ( count > 0 )
         loadProfiles();
+
+    if ( skippedCnt )
+        *skippedCnt = skipped;
 
     return count;
 }

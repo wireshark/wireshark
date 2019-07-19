@@ -350,22 +350,33 @@ void ProfileDialog::filterChanged(const QString &text)
 #ifdef HAVE_MINIZIP
 void ProfileDialog::on_btnImport_clicked()
 {
-    QString docDir = QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation);
-    QString zipFile = QFileDialog::getOpenFileName(this, tr("Select zip file for import"),
-                                                   docDir, tr("Zip File (*.zip)"));
+    QString zipFile = QFileDialog::getOpenFileName(this, tr("Select zip file for import"), QString(), tr("Zip File (*.zip)"));
 
     QFileInfo fi(zipFile);
     if ( ! fi.exists() )
         return;
 
     int count = 0;
-    if ( ( count = model_->unzipProfiles(zipFile) ) == 0 )
+    int skipped = 0;
+    if ( ( count = model_->unzipProfiles(zipFile, &skipped) ) == 0 )
     {
-        QString msg = tr("An error occurred while importing profiles from %1").arg(fi.fileName());
-        QMessageBox::warning(this, tr("Error importing profiles"), msg );
+        QString msg = tr("No profiles found for import in %1").arg(fi.fileName());
+        if ( skipped > 0 )
+            msg.append(tr(", %1 profile(s) skipped").arg(QString::number(skipped)));
+
+        QMessageBox::warning(this, tr("Importing profiles"), msg );
+
     }
     else {
-        QString msg = tr("%1 profiles have been imported").arg(QString::number(count));
+        QString msg;
+        if ( count == 1 )
+            msg = tr("One profile has been imported");
+        else
+            msg = tr("%1 profiles have been imported").arg(QString::number(count));
+
+        if ( skipped > 0 )
+            msg.append(tr(", %1 profile(s) skipped").arg(QString::number(skipped)));
+
         QMessageBox::information(this, tr("Importing profiles"), msg );
     }
 }
