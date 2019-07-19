@@ -241,7 +241,7 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
     gfloat float_value;
     gint64 int64_value;
     gint32 int32_value;
-    guint8* buf;
+    char*  buf;
     gboolean add_datatype = TRUE;
 
     gchar* prepend_text;
@@ -294,9 +294,7 @@ protobuf_dissect_field_value(proto_tree *value_tree, tvbuff_t *tvb, guint offset
         break;
 
     case PROTOBUF_TYPE_STRING:
-        buf = (guint8*) wmem_alloc(wmem_packet_scope(), length + 1);
-        tvb_get_nstringz0(tvb, offset, length + 1, buf);
-        proto_tree_add_string(value_tree, hf_protobuf_value_string, tvb, offset, length, buf);
+        proto_tree_add_item_ret_display_string(value_tree, hf_protobuf_value_string, tvb, offset, length, ENC_UTF_8|ENC_NA, wmem_packet_scope(), &buf);
         proto_item_append_text(ti_field, "%s %s", prepend_text, buf);
         break;
 
