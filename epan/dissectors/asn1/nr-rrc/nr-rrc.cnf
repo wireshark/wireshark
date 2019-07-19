@@ -76,6 +76,7 @@ UE-CapabilityRequestFilterNR_PDU
 UE-MRDC-Capability_PDU
 UE-NR-Capability_PDU
 UEAssistanceInformation_PDU
+UERadioPagingInformation_PDU
 UL-DCCH-Message_PDU
 UplinkTxDirectCurrentList_PDU
 

@@ -55,6 +55,7 @@ SCG-Config-r12_PDU
 SCG-ConfigInfo-r12_PDU
 UEPagingCoverageInformation_PDU
 UEPagingCoverageInformation-NB_PDU
+UERadioPagingInformation_PDU
 UE-EUTRA-Capability_PDU
 VisitedCellInfo-r12_PDU
 VisitedCellInfoList-r12_PDU

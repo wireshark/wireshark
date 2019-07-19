@@ -261,7 +261,7 @@ static int hf_nr_rrc_nr_rrc_CG_ConfigInfo_PDU = -1;  /* CG_ConfigInfo */
 static int hf_nr_rrc_nr_rrc_ConfigRestrictInfoSCG_PDU = -1;  /* ConfigRestrictInfoSCG */
 static int hf_nr_rrc_nr_rrc_FeatureSetEntryIndex_PDU = -1;  /* FeatureSetEntryIndex */
 static int hf_nr_rrc_nr_rrc_MeasurementTimingConfiguration_PDU = -1;  /* MeasurementTimingConfiguration */
-static int hf_nr_rrc_UERadioPagingInformation_PDU = -1;  /* UERadioPagingInformation */
+static int hf_nr_rrc_nr_rrc_UERadioPagingInformation_PDU = -1;  /* UERadioPagingInformation */
 static int hf_nr_rrc_UERadioAccessCapabilityInformation_PDU = -1;  /* UERadioAccessCapabilityInformation */
 static int hf_nr_rrc_BCCH_BCH_Message_PDU = -1;   /* BCCH_BCH_Message */
 static int hf_nr_rrc_BCCH_DL_SCH_Message_PDU = -1;  /* BCCH_DL_SCH_Message */
@@ -43602,13 +43602,13 @@ int dissect_nr_rrc_MeasurementTimingConfiguration_PDU(tvbuff_t *tvb _U_, packet_
   offset += 7; offset >>= 3;
   return offset;
 }
-static int dissect_UERadioPagingInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
+int dissect_nr_rrc_UERadioPagingInformation_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_, void *data _U_) {
   proto_item *prot_ti = proto_tree_add_item(tree, proto_nr_rrc, tvb, 0, -1, ENC_NA);
   proto_item_set_hidden(prot_ti);
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
-  offset = dissect_nr_rrc_UERadioPagingInformation(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_UERadioPagingInformation_PDU);
+  offset = dissect_nr_rrc_UERadioPagingInformation(tvb, offset, &asn1_ctx, tree, hf_nr_rrc_nr_rrc_UERadioPagingInformation_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -44056,7 +44056,7 @@ proto_register_nr_rrc(void) {
       { "MeasurementTimingConfiguration", "nr-rrc.MeasurementTimingConfiguration_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_nr_rrc_UERadioPagingInformation_PDU,
+    { &hf_nr_rrc_nr_rrc_UERadioPagingInformation_PDU,
       { "UERadioPagingInformation", "nr-rrc.UERadioPagingInformation_element",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
@@ -57333,7 +57333,7 @@ proto_register_nr_rrc(void) {
 
 /*--- Included file: packet-nr-rrc-dis-reg.c ---*/
 #line 1 "./asn1/nr-rrc/packet-nr-rrc-dis-reg.c"
-  register_dissector("nr-rrc.ue_radio_paging_info", dissect_UERadioPagingInformation_PDU, proto_nr_rrc);
+  register_dissector("nr-rrc.ue_radio_paging_info", dissect_nr_rrc_UERadioPagingInformation_PDU, proto_nr_rrc);
   register_dissector("nr-rrc.ue_radio_access_cap_info", dissect_UERadioAccessCapabilityInformation_PDU, proto_nr_rrc);
   register_dissector("nr-rrc.bcch.bch", dissect_BCCH_BCH_Message_PDU, proto_nr_rrc);
   register_dissector("nr-rrc.bcch.dl.sch", dissect_BCCH_DL_SCH_Message_PDU, proto_nr_rrc);

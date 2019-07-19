@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V15.3.0 (2019-03)
+-- 3GPP TS 38.423 V15.4.0 (2019-07)
 -- 9.3.7	Constant definitions
 -- **************************************************************
 --
@@ -64,7 +64,7 @@ id-secondaryRATDataUsageReport									ProcedureCode ::= 26
 
 maxEARFCN									INTEGER ::= 262143
 maxnoofAllowedAreas							INTEGER ::= 16
-maxnoofAMFSets								INTEGER ::= 16
+maxnoofAMFRegions							INTEGER ::= 16
 maxnoofAoIs									INTEGER ::= 64
 maxnoofBPLMNs								INTEGER ::= 12
 maxnoofCellsinAoI							INTEGER ::= 256
@@ -74,6 +74,7 @@ maxnoofCellsinRNA							INTEGER ::= 32
 maxnoofCellsUEMovingTrajectory				INTEGER ::= 16
 maxnoofDRBs									INTEGER ::= 32
 maxnoofEUTRABands							INTEGER ::= 16
+maxnoofEUTRABPLMNs							INTEGER ::= 6
 maxnoofEPLMNs								INTEGER ::= 15
 maxnoofForbiddenTACs							INTEGER ::= 4096
 maxnoofMBSFNEUTRA							INTEGER ::= 8
@@ -110,7 +111,7 @@ id-ActivatedServedCells																				ProtocolIE-ID ::= 0
 id-ActivationIDforCellActivation																	ProtocolIE-ID ::= 1
 id-admittedSplitSRB																					ProtocolIE-ID ::= 2
 id-admittedSplitSRBrelease																			ProtocolIE-ID ::= 3
-id-AMF-Set-Information																				ProtocolIE-ID ::= 4
+id-AMF-Region-Information																			ProtocolIE-ID ::= 4
 id-AssistanceDataForRANPaging																		ProtocolIE-ID ::= 5
 id-BearersSubjectToCounterCheck																		ProtocolIE-ID ::= 6
 id-Cause																							ProtocolIE-ID ::= 7
@@ -134,7 +135,7 @@ id-MN-to-SN-Container																				ProtocolIE-ID ::= 24
 id-MobilityRestrictionList																			ProtocolIE-ID ::= 25
 id-new-NG-RAN-Cell-Identity																			ProtocolIE-ID ::= 26
 id-newNG-RANnodeUEXnAPID																			ProtocolIE-ID ::= 27
-id-UEReportRRCTransfer																			ProtocolIE-ID ::= 28
+id-UEReportRRCTransfer																				ProtocolIE-ID ::= 28
 id-oldNG-RANnodeUEXnAPID																			ProtocolIE-ID ::= 29
 id-OldtoNewNG-RANnodeResumeContainer																ProtocolIE-ID ::= 30
 id-PagingDRX																						ProtocolIE-ID ::= 31
@@ -212,7 +213,8 @@ id-TNLA-Setup-List																					ProtocolIE-ID ::= 102
 id-TNLA-Failed-To-Setup-List																		ProtocolIE-ID ::= 103
 id-PDUSessionToBeReleased-RelReqAck																	ProtocolIE-ID ::= 104
 id-S-NG-RANnodeMaxIPDataRate-UL																		ProtocolIE-ID ::= 105
-id-PDUSession-List-withDataForwardingRequest														ProtocolIE-ID ::= 106
+-- WS extension
+id-Unknown-106																						ProtocolIE-ID ::= 106
 id-PDUSessionResourceSecondaryRATUsageList															ProtocolIE-ID ::= 107
 id-Additional-UL-NG-U-TNLatUPF-List																	ProtocolIE-ID ::= 108
 id-SecondarydataForwardingInfoFromTarget-List														ProtocolIE-ID ::= 109
@@ -224,5 +226,18 @@ id-MaxIPrate-DL																						ProtocolIE-ID ::= 114
 id-SecurityResult																					ProtocolIE-ID ::= 115
 id-S-NSSAI																							ProtocolIE-ID ::= 116
 id-MR-DC-ResourceCoordinationInfo																	ProtocolIE-ID ::= 117
+id-AMF-Region-Information-To-Add																	ProtocolIE-ID ::= 118
+id-AMF-Region-Information-To-Delete																	ProtocolIE-ID ::= 119
+id-OldQoSFlowMap-ULendmarkerexpected																ProtocolIE-ID ::= 120
+id-RANPagingFailure																					ProtocolIE-ID ::= 121
+id-UERadioCapabilityForPaging																		ProtocolIE-ID ::= 122
+id-PDUSessionDataForwarding-SNModResponse															ProtocolIE-ID ::= 123
+id-DRBsNotAdmittedSetupModifyList																	ProtocolIE-ID ::= 124
+id-Secondary-MN-Xn-U-TNLInfoatM																		ProtocolIE-ID ::= 125
+id-NE-DC-TDM-Pattern																				ProtocolIE-ID ::= 126
+id-PDUSessionCommonNetworkInstance																	ProtocolIE-ID ::= 127
+id-BPLMN-ID-Info-EUTRA																				ProtocolIE-ID ::= 128
+id-BPLMN-ID-Info-NR																					ProtocolIE-ID ::= 129
+id-InterfaceInstanceIndication																		ProtocolIE-ID ::= 130
 
 END

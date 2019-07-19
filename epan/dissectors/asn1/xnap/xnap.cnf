@@ -421,6 +421,24 @@ VolumeTimedReport-Item/usageCountUL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&u
 #.TYPE_ATTR
 VolumeTimedReport-Item/usageCountDL DISPLAY=BASE_DEC|BASE_UNIT_STRING STRINGS=&units_octet_octets
 
+#.FN_BODY UERadioCapabilityForPagingOfNR VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_UERadioCapabilityForPagingOfNR);
+    dissect_nr_rrc_UERadioPagingInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
+#.FN_BODY UERadioCapabilityForPagingOfEUTRA VAL_PTR = &parameter_tvb
+  tvbuff_t *parameter_tvb = NULL;
+
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_xnap_UERadioCapabilityForPagingOfEUTRA);
+    dissect_lte_rrc_UERadioPagingInformation_PDU(parameter_tvb, actx->pinfo, subtree, NULL);
+  }
+
 #.END
 
 #.FN_HDR HandoverRequest
@@ -563,7 +581,7 @@ id-ActivatedServedCells                       ProtocolIE-ID
 id-ActivationIDforCellActivation              ProtocolIE-ID
 id-admittedSplitSRB                           ProtocolIE-ID
 id-admittedSplitSRBrelease                    ProtocolIE-ID
-id-AMF-Set-Information                        ProtocolIE-ID
+id-AMF-Region-Information                     ProtocolIE-ID
 id-AssistanceDataForRANPaging                 ProtocolIE-ID
 id-BearersSubjectToCounterCheck               ProtocolIE-ID
 id-Cause                                      ProtocolIE-ID
@@ -665,7 +683,6 @@ id-TNLA-Setup-List                            ProtocolIE-ID
 id-TNLA-Failed-To-Setup-List                  ProtocolIE-ID
 id-PDUSessionToBeReleased-RelReqAck           ProtocolIE-ID
 id-S-NG-RANnodeMaxIPDataRate-UL               ProtocolIE-ID
-id-PDUSession-List-withDataForwardingRequest  ProtocolIE-ID
 id-PDUSessionResourceSecondaryRATUsageList    ProtocolIE-ID
 id-Additional-UL-NG-U-TNLatUPF-List           ProtocolIE-ID
 id-SecondarydataForwardingInfoFromTarget-List ProtocolIE-ID
@@ -677,6 +694,19 @@ id-MaxIPrate-DL                               ProtocolIE-ID
 id-SecurityResult                             ProtocolIE-ID
 id-S-NSSAI                                    ProtocolIE-ID
 id-MR-DC-ResourceCoordinationInfo             ProtocolIE-ID
+id-AMF-Region-Information-To-Add              ProtocolIE-ID
+id-AMF-Region-Information-To-Delete           ProtocolIE-ID
+id-OldQoSFlowMap-ULendmarkerexpected          ProtocolIE-ID
+id-RANPagingFailure                           ProtocolIE-ID
+id-UERadioCapabilityForPaging                 ProtocolIE-ID
+id-PDUSessionDataForwarding-SNModResponse     ProtocolIE-ID
+id-DRBsNotAdmittedSetupModifyList             ProtocolIE-ID
+id-Secondary-MN-Xn-U-TNLInfoatM               ProtocolIE-ID
+id-NE-DC-TDM-Pattern                          ProtocolIE-ID
+id-PDUSessionCommonNetworkInstance            ProtocolIE-ID
+id-BPLMN-ID-Info-EUTRA                        ProtocolIE-ID
+id-BPLMN-ID-Info-NR                           ProtocolIE-ID
+id-InterfaceInstanceIndication                ProtocolIE-ID
 
 #.REGISTER
 
@@ -685,7 +715,7 @@ ActivatedServedCells                              N xnap.ies id-ActivatedServedC
 ActivationIDforCellActivation                     N xnap.ies id-ActivationIDforCellActivation
 SplitSRBsTypes                                    N xnap.ies id-admittedSplitSRB
 SplitSRBsTypes                                    N xnap.ies id-admittedSplitSRBrelease
-AMF-Set-Information                               N xnap.ies id-AMF-Set-Information
+AMF-Region-Information                            N xnap.ies id-AMF-Region-Information
 AssistanceDataForRANPaging                        N xnap.ies id-AssistanceDataForRANPaging
 BearersSubjectToCounterCheck-List                 N xnap.ies id-BearersSubjectToCounterCheck
 Cause                                             N xnap.ies id-Cause
@@ -787,12 +817,18 @@ TNLA-Setup-List                                   N xnap.ies id-TNLA-Setup-List
 TNLA-Failed-To-Setup-List                         N xnap.ies id-TNLA-Failed-To-Setup-List
 PDUSessionToBeReleasedList-RelReqAck              N xnap.ies id-PDUSessionToBeReleased-RelReqAck
 BitRate                                           N xnap.ies id-S-NG-RANnodeMaxIPDataRate-UL
-PDUSession-List-withDataForwardingRequest         N xnap.ies id-PDUSession-List-withDataForwardingRequest
 PDUSessionResourceSecondaryRATUsageList           N xnap.ies id-PDUSessionResourceSecondaryRATUsageList
 LocationInformationSNReporting                    N xnap.ies id-LocationInformationSNReporting
 Target-CGI                                        N xnap.ies id-LocationInformationSN
 BitRate                                           N xnap.ies id-S-NG-RANnodeMaxIPDataRate-DL
 MR-DC-ResourceCoordinationInfo                    N xnap.ies id-MR-DC-ResourceCoordinationInfo
+AMF-Region-Information                            N xnap.ies id-AMF-Region-Information-To-Add
+AMF-Region-Information                            N xnap.ies id-AMF-Region-Information-To-Delete
+RANPagingFailure                                  N xnap.ies id-RANPagingFailure
+UERadioCapabilityForPaging                        N xnap.ies id-UERadioCapabilityForPaging
+PDUSessionDataForwarding-SNModResponse            N xnap.ies id-PDUSessionDataForwarding-SNModResponse
+NE-DC-TDM-Pattern                                 N xnap.ies id-NE-DC-TDM-Pattern
+InterfaceInstanceIndication                       N xnap.ies id-InterfaceInstanceIndication
 
 #XNAP-PROTOCOL-EXTENSION
 Additional-UL-NG-U-TNLatUPF-List                  N xnap.extension id-Additional-UL-NG-U-TNLatUPF-List
@@ -801,6 +837,12 @@ PLMN-Identity                                     N xnap.extension id-LastE-UTRA
 MaxIPrate                                         N xnap.extension id-MaxIPrate-DL
 SecurityResult                                    N xnap.extension id-SecurityResult
 S-NSSAI                                           N xnap.extension id-S-NSSAI
+QoSFlows-List                                     N xnap.extension id-OldQoSFlowMap-ULendmarkerexpected
+DRB-List-withCause                                N xnap.extension id-DRBsNotAdmittedSetupModifyList
+UPTransportLayerInformation                       N xnap.extension id-Secondary-MN-Xn-U-TNLInfoatM
+PDUSessionCommonNetworkInstance                   N xnap.extension id-PDUSessionCommonNetworkInstance
+BPLMN-ID-Info-EUTRA                               N xnap.extension id-BPLMN-ID-Info-EUTRA
+BPLMN-ID-Info-NR                                  N xnap.extension id-BPLMN-ID-Info-NR
 
 #XNAP-ELEMENTARY-PROCEDURE
 HandoverRequest                            N xnap.proc.imsg id-handoverPreparation

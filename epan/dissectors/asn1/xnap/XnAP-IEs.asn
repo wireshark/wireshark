@@ -1,4 +1,4 @@
--- 3GPP TS 38.423 V15.3.0 (2019-03)
+-- 3GPP TS 38.423 V15.4.0 (2019-07)
 -- 9.3.5	Information Element definitions
 -- **************************************************************
 --
@@ -22,9 +22,15 @@ IMPORTS
 	id-LastE-UTRANPLMNIdentity,
 	id-MaxIPrate-DL,
 	id-SecurityResult,
+	id-OldQoSFlowMap-ULendmarkerexpected,
+	id-PDUSessionCommonNetworkInstance,
+	id-BPLMN-ID-Info-EUTRA,
+	id-BPLMN-ID-Info-NR,
+	id-DRBsNotAdmittedSetupModifyList,
+	id-Secondary-MN-Xn-U-TNLInfoatM,
 	maxEARFCN,
 	maxnoofAllowedAreas,
-	maxnoofAMFSets,
+	maxnoofAMFRegions,
 	maxnoofAoIs,
 	maxnoofBPLMNs,
 	maxnoofCellsinAoI,
@@ -35,6 +41,7 @@ IMPORTS
 	maxnoofDRBs,
 	maxnoofEPLMNs,
 	maxnoofEUTRABands,
+	maxnoofEUTRABPLMNs,
 	maxnoofForbiddenTACs,
 	maxnoofMBSFNEUTRA,
 	maxnoofMultiConnectivityMinusOne,
@@ -109,17 +116,16 @@ AllocationandRetentionPriority-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 ActivationSFN ::= INTEGER (0..1023)
 
 
-AMF-Set-Information ::= SEQUENCE (SIZE (1..maxnoofAMFSets)) OF GlobalAMF-Set-Information
+AMF-Region-Information ::= SEQUENCE (SIZE (1..maxnoofAMFRegions)) OF GlobalAMF-Region-Information
 
-GlobalAMF-Set-Information ::= SEQUENCE {
+GlobalAMF-Region-Information ::= SEQUENCE {
 	plmn-ID				PLMN-Identity,
 	amf-region-id		BIT STRING (SIZE (8)),
-	amf-set-id			BIT STRING (SIZE (10)),
-	iE-Extensions					ProtocolExtensionContainer { {GlobalAMF-Set-Information-ExtIEs} } OPTIONAL,
+	iE-Extensions					ProtocolExtensionContainer { {GlobalAMF-Region-Information-ExtIEs} } OPTIONAL,
 	...
 }
 
-GlobalAMF-Set-Information-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+GlobalAMF-Region-Information-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -171,11 +177,42 @@ AveragingWindow ::= INTEGER (0..4095, ...)
 
 -- B
 
+BPLMN-ID-Info-EUTRA ::= SEQUENCE (SIZE(1..maxnoofEUTRABPLMNs)) OF BPLMN-ID-Info-EUTRA-Item
+
+BPLMN-ID-Info-EUTRA-Item ::= SEQUENCE {
+	broadcastPLMNs					BroadcastEUTRAPLMNs,
+	tac								TAC,
+	e-utraCI						E-UTRA-Cell-Identity,
+	ranac							RANAC OPTIONAL, 
+	iE-Extension					ProtocolExtensionContainer { {BPLMN-ID-Info-EUTRA-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+BPLMN-ID-Info-EUTRA-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+BPLMN-ID-Info-NR ::= SEQUENCE (SIZE(1..maxnoofBPLMNs)) OF BPLMN-ID-Info-NR-Item
+
+BPLMN-ID-Info-NR-Item ::= SEQUENCE {
+	broadcastPLMNs					BroadcastPLMNs,
+	tac								TAC,
+	nr-CI							NR-Cell-Identity,
+	ranac							RANAC OPTIONAL, 
+	iE-Extension					ProtocolExtensionContainer { {BPLMN-ID-Info-NR-Item-ExtIEs} } OPTIONAL,
+	...
+}
+
+BPLMN-ID-Info-NR-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 BitRate	::= INTEGER (0..4000000000000,...)
 
 
 BroadcastPLMNs ::= SEQUENCE (SIZE(1..maxnoofBPLMNs)) OF PLMN-Identity
+
+BroadcastEUTRAPLMNs ::= SEQUENCE (SIZE(1..maxnoofEUTRABPLMNs)) OF PLMN-Identity
 
 
 BroadcastPLMNinTAISupport-Item ::= SEQUENCE {
@@ -543,6 +580,7 @@ DRBsSubjectToStatusTransfer-Item ::= SEQUENCE {
 }
 
 DRBsSubjectToStatusTransfer-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-OldQoSFlowMap-ULendmarkerexpected	CRITICALITY reject		EXTENSION QoSFlows-List					PRESENCE optional },
 	...
 }
 
@@ -587,7 +625,6 @@ DRBToQoSFlowMapping-List ::= SEQUENCE (SIZE (1..maxnoofDRBs)) OF DRBToQoSFlowMap
 DRBToQoSFlowMapping-Item ::= SEQUENCE {
 	drb-ID							DRB-ID,
 	qosFlows-List					QoSFlows-List,
-	qosFlowMappingIndication		QoSFlowMappingIndication			OPTIONAL,
 	rLC-Mode						RLCMode								OPTIONAL,
 	iE-Extension		ProtocolExtensionContainer { {DRBToQoSFlowMapping-Item-ExtIEs} }	OPTIONAL,
 	...
@@ -862,6 +899,7 @@ GUAMI-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 
 -- I
 
+InterfaceInstanceIndication ::= INTEGER (0..255, ...)
 
 I-RNTI ::= CHOICE {
 	i-RNTI-full			BIT STRING (SIZE(40)), 
@@ -1147,6 +1185,16 @@ NR-CoordinationAssistanceInfo ::= ENUMERATED {coordination-not-required, ...}
 
 -- N
 
+NE-DC-TDM-Pattern ::= SEQUENCE {
+		subframeAssignment			ENUMERATED {sa0,sa1,sa2,sa3,sa4,sa5,sa6},
+		harqOffset					INTEGER (0..9),
+		iE-Extension				ProtocolExtensionContainer { {NE-DC-TDM-Pattern-ExtIEs}}	OPTIONAL,
+		...
+}
+
+NE-DC-TDM-Pattern-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+...
+}
 
 NeighbourInformation-E-UTRA ::= SEQUENCE (SIZE(1..maxnoofNeighbours)) OF NeighbourInformation-E-UTRA-Item
 
@@ -1497,7 +1545,7 @@ PDUSession-List-withDataForwardingRequest ::= SEQUENCE (SIZE (1.. maxnoofPDUSess
 
 PDUSession-List-withDataForwardingRequest-Item ::= SEQUENCE {
 	pduSessionId							PDUSession-ID,
-	dataforwardingInfofromSource			DataforwardingandOffloadingInfofromSource,
+	dataforwardingInfofromSource			DataforwardingandOffloadingInfofromSource					OPTIONAL,
 	dRBtoBeReleasedList						DRBToQoSFlowMapping-List									OPTIONAL,
 	iE-Extension		ProtocolExtensionContainer { {PDUSession-List-withDataForwardingRequest-Item-ExtIEs} }	OPTIONAL,
 	...
@@ -1598,7 +1646,8 @@ PDUSessionResourcesToBeSetup-Item ::= SEQUENCE {
 }
 
 PDUSessionResourcesToBeSetup-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
-{ ID id-Additional-UL-NG-U-TNLatUPF-List	CRITICALITY ignore	EXTENSION Additional-UL-NG-U-TNLatUPF-List 	PRESENCE optional},
+{ ID id-Additional-UL-NG-U-TNLatUPF-List	CRITICALITY ignore	EXTENSION Additional-UL-NG-U-TNLatUPF-List 	PRESENCE optional}|
+{ ID id-PDUSessionCommonNetworkInstance		CRITICALITY ignore	EXTENSION PDUSessionCommonNetworkInstance		PRESENCE optional},
 	...
 }
 
@@ -1622,7 +1671,8 @@ PDUSessionResourceSetupInfo-SNterminated ::= SEQUENCE {
 }
 
 PDUSessionResourceSetupInfo-SNterminated-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-SecurityResult		CRITICALITY reject	EXTENSION SecurityResult		PRESENCE optional},
+	{ ID id-SecurityResult						CRITICALITY reject	EXTENSION SecurityResult							PRESENCE optional}|
+	{ ID id-PDUSessionCommonNetworkInstance		CRITICALITY ignore	EXTENSION PDUSessionCommonNetworkInstance		PRESENCE optional},
 	...
 }
 
@@ -1649,10 +1699,10 @@ QoSFlowsToBeSetup-List-Setup-SNterminated-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::
 
 PDUSessionResourceSetupResponseInfo-SNterminated ::= SEQUENCE {
 	dL-NG-U-TNLatNG-RAN				UPTransportLayerInformation,
-	dRBsToBeSetup					DRBsToBeSetupList-SetupResponse-SNterminated,
-	dataforwardinginfoTarget		DataForwardingInfoFromTargetNGRANnode		OPTIONAL,
-	qosFlowsNotAdmittedList			QoSFlows-List-withCause						OPTIONAL,
-	securityResult					SecurityResult								OPTIONAL,
+	dRBsToBeSetup					DRBsToBeSetupList-SetupResponse-SNterminated 	OPTIONAL,
+	dataforwardinginfoTarget		DataForwardingInfoFromTargetNGRANnode			OPTIONAL,
+	qosFlowsNotAdmittedList			QoSFlows-List-withCause							OPTIONAL,
+	securityResult					SecurityResult									OPTIONAL,
 	iE-Extensions					ProtocolExtensionContainer { {PDUSessionResourceSetupResponseInfo-SNterminated-ExtIEs} } 	OPTIONAL,
 	...
 }
@@ -1764,6 +1814,7 @@ PDUSessionResourceSetupResponseInfo-MNterminated ::= SEQUENCE {
 }
 
 PDUSessionResourceSetupResponseInfo-MNterminated-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	{ID id-DRBsNotAdmittedSetupModifyList	CRITICALITY ignore	EXTENSION DRB-List-withCause		PRESENCE optional},
 	...
 }
 
@@ -1804,6 +1855,8 @@ PDUSessionResourceModificationInfo-SNterminated ::= SEQUENCE {
 }
 
 PDUSessionResourceModificationInfo-SNterminated-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-PDUSessionCommonNetworkInstance		CRITICALITY ignore	EXTENSION PDUSessionCommonNetworkInstance		PRESENCE optional},
+
 	...
 }
 
@@ -1846,7 +1899,7 @@ DRBsToBeModified-List-Modified-SNterminated-Item-ExtIEs XNAP-PROTOCOL-EXTENSION 
 
 
 PDUSessionResourceModificationResponseInfo-SNterminated ::= SEQUENCE {
-	dL-NG-U-TNLatNG-RAN				UPTransportLayerInformation,
+	dL-NG-U-TNLatNG-RAN				UPTransportLayerInformation								OPTIONAL,
 	dRBsToBeSetup					DRBsToBeSetupList-SetupResponse-SNterminated			OPTIONAL,
 	dataforwardinginfoTarget		DataForwardingInfoFromTargetNGRANnode					OPTIONAL,
 	dRBsToBeModified				DRBsToBeModifiedList-ModificationResponse-SNterminated	OPTIONAL,
@@ -1869,7 +1922,6 @@ DRBsToBeModifiedList-ModificationResponse-SNterminated-Item ::= SEQUENCE {
 	drb-ID													DRB-ID,
 	sN-UL-PDCP-UP-TNLInfo									UPTransportParameters									OPTIONAL,
 	dRB-QoS													QoSFlowLevelQoSParameters								OPTIONAL,
-	pDCP-SNLength											PDCPSNLength											OPTIONAL,
 	qoSFlowsMappedtoDRB-SetupResponse-SNterminated			QoSFlowsMappedtoDRB-SetupResponse-SNterminated		OPTIONAL,
 	iE-Extensions		ProtocolExtensionContainer { {DRBsToBeModifiedList-ModificationResponse-SNterminated-Item-ExtIEs} } 	OPTIONAL,
 	...
@@ -1907,7 +1959,6 @@ DRBsToBeModifiedList-Modification-MNterminated-Item ::= SEQUENCE {
 	drb-ID													DRB-ID,
 	mN-UL-PDCP-UP-TNLInfo									UPTransportParameters						OPTIONAL,
 	dRB-QoS													QoSFlowLevelQoSParameters					OPTIONAL,
-	pDCP-SNLength											PDCPSNLength								OPTIONAL,
 	secondary-MN-UL-PDCP-UP-TNLInfo							UPTransportParameters						OPTIONAL,
 	uL-Configuration										ULConfiguration								OPTIONAL,
 	pdcpDuplicationConfiguration							PDCPDuplicationConfiguration 				OPTIONAL,
@@ -2231,6 +2282,7 @@ DRBsToBeSetupList-BearerSetupComplete-SNterminated-Item ::= SEQUENCE {
 }
 
 DRBsToBeSetupList-BearerSetupComplete-SNterminated-Item-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	{ID id-Secondary-MN-Xn-U-TNLInfoatM	CRITICALITY ignore	EXTENSION UPTransportLayerInformation		PRESENCE optional},
 	...
 }
 
@@ -2269,6 +2321,8 @@ PDUSessionType ::= ENUMERATED {ipv4, ipv6, ipv4v6, ethernet, unstructured, ...}
 PDUSession-ID	::= INTEGER (0..255)
 
 PDUSessionNetworkInstance	::= INTEGER (1..256, ...)
+
+PDUSessionCommonNetworkInstance	::= OCTET STRING
 
 PLMN-Identity ::= OCTET STRING (SIZE(3))
 
@@ -2373,7 +2427,8 @@ QoSFlowNotificationControlIndicationInfo-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 QoSFlows-List ::= SEQUENCE (SIZE (1..maxnoofQoSFlows)) OF QoSFlow-Item
 
 QoSFlow-Item ::= SEQUENCE {
-	qfi					QoSFlowIdentifier,
+	qfi								QoSFlowIdentifier,
+	qosFlowMappingIndication		QoSFlowMappingIndication					OPTIONAL,
 	iE-Extension		ProtocolExtensionContainer { {QoSFlow-Item-ExtIEs} }	OPTIONAL,
 	...
 }
@@ -2414,7 +2469,6 @@ QoSFlowsToBeSetup-List ::= SEQUENCE (SIZE (1..maxnoofQoSFlows)) OF QoSFlowsToBeS
 
 QoSFlowsToBeSetup-Item ::= SEQUENCE {
 	qfi								QoSFlowIdentifier,
-	dlDataForwarding				DLForwarding										OPTIONAL,
 	qosFlowLevelQoSParameters		QoSFlowLevelQoSParameters,
 	e-RAB-ID						E-RAB-ID											OPTIONAL,
 	iE-Extension		ProtocolExtensionContainer { {QoSFlowsToBeSetup-Item-ExtIEs} }	OPTIONAL,
@@ -2494,6 +2548,10 @@ RANPagingAttemptInfo-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
+RANPagingFailure		::= 	ENUMERATED {
+	true,
+	...
+}
 
 ReferenceID ::= INTEGER (1..64, ...) -- This IE may need to be refined.
 
@@ -2726,6 +2784,7 @@ ServedCellInformation-E-UTRA ::= SEQUENCE {
 }
 
 ServedCellInformation-E-UTRA-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-BPLMN-ID-Info-EUTRA		CRITICALITY ignore	EXTENSION BPLMN-ID-Info-EUTRA		PRESENCE optional },
 	...
 }
 
@@ -2842,6 +2901,7 @@ ServedCellInformation-NR ::= SEQUENCE {
 }
 
 ServedCellInformation-NR-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	{ ID id-BPLMN-ID-Info-NR		CRITICALITY ignore	EXTENSION BPLMN-ID-Info-NR		PRESENCE optional },
 	...
 }
 
@@ -3276,6 +3336,20 @@ UEIdentityIndexValue-ExtIEs XNAP-PROTOCOL-IES ::= {
 	...
 }
 
+UERadioCapabilityForPaging ::= SEQUENCE {
+	uERadioCapabilityForPagingOfNR			UERadioCapabilityForPagingOfNR			OPTIONAL,
+	uERadioCapabilityForPagingOfEUTRA		UERadioCapabilityForPagingOfEUTRA		OPTIONAL,
+	iE-Extensions		ProtocolExtensionContainer { {UERadioCapabilityForPaging-ExtIEs} }	OPTIONAL,
+	...
+}
+
+UERadioCapabilityForPaging-ExtIEs XNAP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+UERadioCapabilityForPagingOfNR ::= OCTET STRING
+
+UERadioCapabilityForPagingOfEUTRA ::= OCTET STRING
 
 UERANPagingIdentity ::= CHOICE {
 	i-RNTI-full			BIT STRING ( SIZE (40)),
