@@ -49,9 +49,9 @@ gone offline.
 
 More information on the name change can be found here:
 
-* http://www.prweb.com/releases/2006/6/prweb396098.htm[Original press
+* https://www.prweb.com/releases/2006/6/prweb396098.htm[Original press
 release]
-* http://archive09.linux.com/articles/54968[NewsForge article]
+* https://www.linux.com/news/ethereal-changes-name-wireshark[NewsForge article]
 * Many other articles in https://www.wireshark.org/bibliography.html[our
 bibliography]
 
@@ -65,7 +65,7 @@ An IRC channel dedicated to Wireshark can be found at
 irc://irc.freenode.net/wireshark[irc://irc.freenode.net/wireshark].
 
 Self-paced and instructor-led training is available at
-http://www.wiresharktraining.com[Wireshark University]. Wireshark
+https://www.wiresharktraining.com[Wireshark University]. Wireshark
 University also offers certification via the Wireshark Certified Network
 Analyst program.
 
@@ -470,8 +470,8 @@ although the device doesn't necessarily have to be running as an IP
 interface in order to support traffic capture.
 
 On Linux and FreeBSD, libpcap 0.8 and later support the API for
-http://www.endace.com/products.htm[Endace Measurement Systems' DAG
-cards], so that a system with one of those cards, and its driver and
+Endace Measurement Systems' DAG
+cards, so that a system with one of those cards, and its driver and
 libraries, installed can capture traffic with those cards with
 libpcap-based applications. You would either have to have a version of
 Wireshark built with that version of libpcap, or a dynamically-linked

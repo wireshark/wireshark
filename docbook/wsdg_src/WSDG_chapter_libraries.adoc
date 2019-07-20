@@ -127,14 +127,15 @@ and its dependencies.
 
 The GLib library is available for most Linux distributions and UNIX
 flavors. If it isn't already installed and isn't available as a package
-for your platform, you can get it at http://www.gtk.org[].
+for your platform, you can get it at https://wiki.gnome.org/Projects/GLib[].
 
 [[ChLibsWin32GLib]]
 
 [discrete]
 ==== Windows
 
-You can get the latest version at http://www.gtk.org[].
+Part of our vcpkg-export bundle at
+https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
 
 [[ChLibsSMI]]
 
@@ -149,7 +150,7 @@ LibSMI is used for MIB and PIB parsing and for OID resolution.
 
 If this library isn't already installed or available as a
 package for your platform, you can get it at
-http://www.ibr.cs.tu-bs.de/projects/libsmi/[].
+https://www.ibr.cs.tu-bs.de/projects/libsmi/[].
 
 [[ChLibsWin32SMI]]
 
@@ -157,7 +158,7 @@ http://www.ibr.cs.tu-bs.de/projects/libsmi/[].
 ==== Windows
 
 Wireshark uses the source libSMI distribution at
-http://www.ibr.cs.tu-bs.de/projects/libsmi/[].
+https://www.ibr.cs.tu-bs.de/projects/libsmi/[].
 LibSMI is cross-compiled using MinGW32. It’s stored in the libsmi zip archive at
 https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
 
@@ -174,7 +175,7 @@ resolution library in Wireshark.
 ==== Unix
 
 If this library isn't already installed or available as a package for your
-platform, you can get it at http://c-ares.haxx.se/[].
+platform, you can get it at https://c-ares.haxx.se/[].
 
 [[ChLibsWin32Cares]]
 
@@ -188,10 +189,10 @@ https://anonsvn.wireshark.org/wireshark-win32-libs/trunk/packages/[].
 
 === zlib (Optional)
 
-[quote, The zlib web site, http://www.zlib.net/]
+[quote, The zlib web site, https://www.zlib.net/]
 ____
 zlib is designed to be a
-http://www.gzip.org/zlib/zlib_license.html[free],
+https://www.gzip.org/zlib/zlib_license.html[free],
 general-purpose, legally unencumbered -- that is, not covered by any
 patents -- lossless data-compression library for use on virtually any computer
 hardware and operating system.
@@ -204,7 +205,7 @@ ____
 
 This library is almost certain to be installed on your system. If it isn't or
 you don't want to use the default library you can download it from
-http://www.zlib.net/[].
+https://www.zlib.net/[].
 
 [[ChLibsWin32Zlib]]
 
@@ -317,7 +318,7 @@ secureLDAP protocols.
 
 If this library isn't already installed or available as a
 package for your platform, you can get it at
-http://web.mit.edu/Kerberos/dist/[].
+https://web.mit.edu/Kerberos/dist/[].
 
 [[ChLibsWin32Kerberos]]
 
@@ -340,7 +341,7 @@ The LUA library is used to add scripting support to Wireshark.
 
 If this library isn't already installed or available as a
 package for your platform, you can get it at
-http://www.lua.org/download.html[].
+https://www.lua.org/download.html[].
 
 [[ChLibsWin32Lua]]
 

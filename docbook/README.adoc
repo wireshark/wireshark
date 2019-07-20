@@ -12,8 +12,8 @@ all_guides` or `msbuild all_guides.vcxproj`. Requirements are listed
 below.
 
 The guides and release notes are written in
-http://asciidoctor.org/docs/asciidoc-syntax-quick-reference/[Asciidoctor syntax].
-For more information see http://asciidoctor.org.
+https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/[Asciidoctor syntax].
+For more information see https://asciidoctor.org.
 
 Conversions from Asciidoctor markup to each of our supported output
 formats is done via the following steps:
@@ -34,7 +34,7 @@ on installing required packages for your platform.
 == AsciidoctorJ (recommended) or Asciidoctor
 
 Text markup format and publishing toolchain:
-http://asciidoctor.org/
+https://asciidoctor.org/
 
 AsciidoctorJ is a self-contained bundle which includes Asciidoctor and
 JRuby. It can be installed via Chocolatey on Windows, Homebrew on macOS,
@@ -60,16 +60,16 @@ most Linux distributions.
 == HTML Help Workshop (Windows only)
 
 The HTML Help compiler is part of the
-http://www.microsoft.com/en-us/download/details.aspx?id=21138[HTML Help Workshop]
+https://www.microsoft.com/en-us/download/details.aspx?id=21138[HTML Help Workshop]
 from Microsoft. It is used to generate the documentation shipped with
 the Windows installers.
 
 = Asciidoctor Markup
 
 The User’s and Developer’s Guides were originally written in DocBook and
-were later converted to http://asciidoc.org/[AsciiDoc]. We subsequently
+were later converted to https://asciidoc.org/[AsciiDoc]. We subsequently
 switched from AsciiDoc to Asciidoctor. As a result we currently use
-http://asciidoctor.org/docs/migration/[compat mode], but may switch
+https://asciidoctor.org/docs/migration/[compat mode], but may switch
 to Asciidoctor’s modern markup at a later date.
 
 Please use the following conventions when writing documentation:
@@ -149,7 +149,7 @@ works in Firefox & Chrome, but not in Safari, Preview, or Internet Explorer.
 
 == Qt Help
 
-Qt provides an extensive http://doc.qt.io/qt-5/qthelp-framework.html[help system].
+Qt provides an extensive https://doc.qt.io/qt-5/qthelp-framework.html[help system].
 However, to use it we need to generate a Qt Help Project (.qhp) file,
 which isn't currently supported by Asciidoctor or via DocBook XSL.
 

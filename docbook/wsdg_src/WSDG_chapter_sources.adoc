@@ -25,7 +25,7 @@ such as where to find specific functionality. This is done in
 
 === The Wireshark Git repository
 
-http://git-scm.com/[Git] is used to keep track of the changes made to the
+https://git-scm.com/[Git] is used to keep track of the changes made to the
 Wireshark source code. The code is stored inside Wireshark project’s Git
 repository located at a server at the wireshark.org domain.
 
@@ -50,8 +50,8 @@ command line and is integrated with many popular tools.
 .Git is our *third* revision control system
 [NOTE]
 ====
-Wireshark originally used http://www.nongnu.org/cvs/[Concurrent Versions System]
-(CVS) and migrated to http://subversion.apache.org/[Subversion] in July 2004.
+Wireshark originally used https://www.nongnu.org/cvs/[Concurrent Versions System]
+(CVS) and migrated to https://subversion.apache.org/[Subversion] in July 2004.
 The Subversion repository was subsequently migrated to Git in January 2014.
 ====
 
@@ -80,7 +80,7 @@ https://code.wireshark.org/review/gitweb?p=wireshark.git
 ==== Git Naming Conventions
 
 Like most revision control systems, Git uses
-http://en.wikipedia.org/wiki/Branching_%28revision_control%29[branching] to
+https://en.wikipedia.org/wiki/Branching_%28revision_control%29[branching] to
 manage different copies of the source code and allow parallel development.
 Wireshark uses the following branch naming conventions:
 
@@ -571,7 +571,7 @@ as described at <<ChSrcGit>>.
 
 // ==== What is a diff file (a patch)?
 //
-// A http://en.wikipedia.org/wiki/Diff[diff file]is a plain text file containing the differences between a pair of files
+// A https://en.wikipedia.org/wiki/Diff[diff file]is a plain text file containing the differences between a pair of files
 // (or a multiple of such file pairs).
 //
 // .A diff file is often also called a patch.
@@ -1207,7 +1207,7 @@ If you have a question not addressed here, please contact
 
 The Debian Package is built using dpkg-buildpackage, based on information
 found in the source tree under _debian_. See
-http://www.debian-administration.org/articles/336 for a
+https://www.debian.org/doc/manuals/maint-guide/build.en.html for a
 more in-depth discussion of the build process.
 
 
@@ -1215,7 +1215,7 @@ In the wireshark directory, type:
 
 [source,sh]
 ----
-$ dpkg-buildpackage -rfakeroot -us -uc
+$ dpkg-buildpackage -b -us -uc -jauto
 ----
 
 to build the Debian Package.
@@ -1228,7 +1228,7 @@ You can build an RPM package using the `rpm-package` target. The package
 version is derived from the current git HEAD, so you must build from a
 git checkout.
 
-The package is built using http://www.rpm.org/[rpmbuild], which comes as
+The package is built using https://rpm.org/[rpmbuild], which comes as
 standard on many flavours of Linux, including Red Hat, Fedora, and
 openSUSE. The process creates a clean build environment in
 _$\{CMAKE_BINARY_DIR}/packaging/rpm/BUILD_ each time the RPM is built.

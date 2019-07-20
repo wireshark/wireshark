@@ -3,9 +3,9 @@ include::attributes.adoc[]
 :linkcss:
 
 = Wireshark {wireshark-version} Release Notes
-// AsciiDoc quick reference: http://powerman.name/doc/asciidoc
+// AsciiDoc quick reference: https://powerman.name/doc/asciidoc
 // Asciidoctor Syntax Quick Reference:
-// http://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
+// https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/
 
 This is an experimental release intended to test new features for
 Wireshark 3.2.
@@ -125,7 +125,7 @@ Bugs and feature requests can be reported on
 https://bugs.wireshark.org/[the bug tracker].
 
 Official Wireshark training and certification are available from
-http://www.wiresharktraining.com/[Wireshark University].
+https://www.wiresharktraining.com/[Wireshark University].
 
 == Frequently Asked Questions
 

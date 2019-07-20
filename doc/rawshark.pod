@@ -114,7 +114,7 @@ B<encap>:I<name> Packet data should be dissected using the
 libpcap/Npcap/WinPcap data link type (DLT) I<name>, e.g. B<encap:EN10MB> for
 Ethernet.  Names are converted using pcap_datalink_name_to_val().
 A complete list of DLTs can be found at
-L<http://www.tcpdump.org/linktypes.html>.
+L<https://www.tcpdump.org/linktypes.html>.
 
 B<encap>:I<number> Packet data should be dissected using the
 libpcap/Npcap/WinPcap LINKTYPE_ I<number>, e.g. B<encap:105> for raw IEEE

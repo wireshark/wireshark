@@ -288,11 +288,11 @@ Lrexlib PCRE implementation, with a few differences as follows:
 Since: 1.11.3
 
 This page is based on the full documentation for Lrexlib at
-link:http://rrthomas.github.io/lrexlib/manual.html[http://rrthomas.github.io/lrexlib/manual.html]
+https://rrthomas.github.io/lrexlib/manual.html[]
 
 The GLib Regular expression syntax (which is essentially PCRE syntax) can be
 found at
-link:https://developer.gnome.org/glib/2.38/glib-regex-syntax.html[https://developer.gnome.org/glib/2.38/glib-regex-syntax.html]
+https://developer.gnome.org/glib/2.38/glib-regex-syntax.html[]
 
 [[lua_class_GRegex]]
 
@@ -546,7 +546,7 @@ GRegex object previously compiled with GRegex.new().
 Since: 1.11.3
 
 For details see:
-link:http://rrthomas.github.io/lrexlib/manual.html#gsub[http://rrthomas.github.io/lrexlib/manual.html#gsub]
+https://rrthomas.github.io/lrexlib/manual.html#gsub[]
 
 [float]
 ===== Arguments

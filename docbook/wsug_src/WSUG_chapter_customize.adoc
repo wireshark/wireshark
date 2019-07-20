@@ -851,7 +851,7 @@ The replacement text for the macro it uses $1, $2, $3, ... as the input argument
 
 === ESS Category Attributes
 
-Wireshark uses this table to map ESS Security Category attributes to textual representations.  The values to put in this table are usually found in a link:$$http://www.xmlspif.org/$$[XML SPIF], which is used for defining security labels.
+Wireshark uses this table to map ESS Security Category attributes to textual representations.  The values to put in this table are usually found in a http://www.xmlspif.org/[XML SPIF], which is used for defining security labels.
 
 This table is a user table, as described in <<ChUserTable>>, with the
 following fields:
@@ -870,12 +870,12 @@ The textual representation for the value.
 === MaxMind Database Paths
 
 If your copy of Wireshark supports
-link:http://www.maxmind.com/[MaxMind’s] MaxMindDB library, you can use
+https://www.maxmind.com/[MaxMind’s] MaxMindDB library, you can use
 their databases to match IP addresses to countries, cites, autonomous
 system numbers, and other bits of information. Some databases are
-link:https://dev.maxmind.com/geoip/geoip2/downloadable/[available at no
+https://dev.maxmind.com/geoip/geoip2/downloadable/[available at no
 cost], while others require a licensing fee. See
-link:http://www.maxmind.com/[the MaxMind web site] for more information.
+https://www.maxmind.com/[the MaxMind web site] for more information.
 
 The configuration for the MaxMind database is a user table, as described
 in <<ChUserTable>>, with the following fields:

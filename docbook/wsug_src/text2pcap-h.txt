@@ -33,7 +33,7 @@ Input:
 
 Output:
   -l <typenum>           link-layer type number; default is 1 (Ethernet).  See
-                         http://www.tcpdump.org/linktypes.html for a list of
+                         https://www.tcpdump.org/linktypes.html for a list of
                          numbers.  Use this option if your dump is a complete
                          hex dump of an encapsulated packet and you wish to
                          specify the exact type of encapsulation.

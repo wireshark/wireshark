@@ -170,9 +170,9 @@ your code.
 
 Sometimes we have to call {cpp} functions from one of
 Wireshark’s C callbacks and pass {cpp} objects to or from C. Tap
-listeners are a common example. The {cpp} FAQ link:http://www.
-parashift.com/c++-faq/mixing-c-and-cpp.html:[describes how to do this
-safely].
+listeners are a common example. The {cpp} FAQ
+https://www.parashift.com/c++-faq/mixing-c-and-cpp.html[describes how to do
+this safely].
 
 Tapping usually involves declaring static methods for callbacks, passing `this`
 as the tap data.
@@ -210,7 +210,7 @@ directory in the Wireshark user configuration directory
 UNIX).
 
 For more information about Qt Linguist see
-http://qt-project.org/doc/qt-4.8/linguist-manual.html[its manual].
+https://doc.qt.io/qt-5/qtlinguist-index.html[its manual].
 
 You can also manage translations online with
 https://www.transifex.com/projects/p/wireshark/[Transifex].
@@ -225,7 +225,7 @@ code through the following steps:
 
 ===== Colors And Themes
 
-Qt provides a number of colors via the http://doc.qt.io/qt-5/qpalette.html[QPalette]
+Qt provides a number of colors via the https://doc.qt.io/qt-5/qpalette.html[QPalette]
 class. Use this class when you need a standard color provided by the
 underlying operating system.
 
@@ -255,7 +255,7 @@ around this by using `ColorUtils::themeLinkBrush()` and
 The main window has many QActions which are shared with child widgets. See
 _ui/qt/proto_tree.cpp_ for an example of this.
 
-http://www.kdab.com/kdab-products/gammaray/[GammaRay] lets you inspect
+https://www.kdab.com/development-resources/qt-tools/gammaray/[GammaRay] lets you inspect
 the internals of a running Qt application similar to $$Spy++$$ on Windows.
 
 [[ChUIGUIDocs]]

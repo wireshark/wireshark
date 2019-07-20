@@ -39,7 +39,7 @@
 :wireshark-users-guide-url: {wireshark-docs-url}wsug_html_chunked/
 
 // External URLs
-:tcpdump-main-url: http://www.tcpdump.org/
+:tcpdump-main-url: https://www.tcpdump.org/
 :pcap-filter-man-page-url: {tcpdump-main-url}manpages/pcap-filter.7.html
 :tcpdump-man-page-url: {tcpdump-main-url}manpages/tcpdump.1.html
 
@@ -53,8 +53,8 @@
 :wikipedia-main-url: https://en.wikipedia.org/wiki/
 :pcre2pattern-url: https://www.pcre.org/current/doc/html/pcre2pattern.html
 
-:greenwichmeantime-main-url: http://wwp.greenwichmeantime.com/
-:timeanddate-main-url: http://www.timeanddate.com/worldclock/
+:greenwichmeantime-main-url: https://wwp.greenwichmeantime.com/
+:timeanddate-main-url: https://www.timeanddate.com/worldclock/
 :ntp-main-url: http://www.ntp.org/
 
 :gplv2-url: https://www.gnu.org/licenses/gpl-2.0.html

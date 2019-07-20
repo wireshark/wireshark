@@ -20,7 +20,7 @@ available in different "flavours":
   on the supported UNIX and UNIX-like platforms. Cygwin is unsupported.
 * Windows native: Some tools are available as native Windows tools, no
   special emulation is required.  Many of these tools can be installed
-  (and updated) using http://chocolatey.org[Chocolatey], a Windows
+  (and updated) using https://chocolatey.org[Chocolatey], a Windows
   package manager similar to the Linux package managers apt-get or yum.
 
 [WARNING]
@@ -48,7 +48,7 @@ development tasks in <<ChapterSources>>.
 
 Chocolatey is a Windows package manager that can be used to install (and update)
 many of the packages required for Wireshark development. Chocolatey can be
-obtained from the http://chocolatey.org[website] or from a Command Prompt:
+obtained from the https://chocolatey.org[website] or from a Command Prompt:
 
 [source,cmd]
 ----
@@ -135,20 +135,11 @@ The home page of the CMake project: https://cmake.org/
 
 Official documentation: https://cmake.org/documentation/
 
-About CMake in general and why KDE4 uses it: http://lwn.net/Articles/188693/
+About CMake in general and why KDE4 uses it: https://lwn.net/Articles/188693/
 
-Introductory tutorial/presentation:
-http://ait.web.psi.ch/services/linux/hpc/hpc_user_cookbook/tools/cmake/docs/Cmake_VM_2007.pdf
+Useful variables: https://gitlab.kitware.com/cmake/community/wikis/doc/cmake/Useful-Variables
 
-Introductory article in the Linux Journal:
-http://www.linuxjournal.com/node/6700/print
-
-Useful variables: http://www.cmake.org/Wiki/CMake_Useful_Variables
-
-Frequently Asked Questions: http://www.cmake.org/Wiki/CMake_FAQ
-
-// 2017-08-04 dead
-//Additional cmake modules: http://code.google.com/p/cmake-modules/
+Frequently Asked Questions: https://gitlab.kitware.com/cmake/community/wikis/FAQ
 
 [[ChToolsGNUChain]]
 
@@ -163,7 +154,7 @@ systems.
 
 If GCC isn't already installed or available
 as a package for your platform, you can get it at:
-http://gcc.gnu.org/[].
+https://gcc.gnu.org/[].
 
 After correct installation, typing at the
 bash command line prompt:
@@ -197,7 +188,7 @@ available], including Qt Creator, CLion, and Eclipse.
 
 If gdb isn't already installed or available
 as a package for your platform, you can get it at:
-http://www.gnu.org/software/gdb/gdb.html[].
+https://www.gnu.org/software/gdb/gdb.html[].
 
 After correct installation:
 
@@ -209,20 +200,11 @@ $ gdb --version
 should result in something like:
 
 ----
-GNU gdb (Ubuntu 7.8-1ubuntu4) 7.8.0.20141001-cvs
-Copyright (C) 2014 Free Software Foundation, Inc.
+GNU gdb (GDB) 8.3
+Copyright (C) 2019 Free Software Foundation, Inc.
 License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
 This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.  Type "show copying"
-and "show warranty" for details.
-This GDB was configured as "x86_64-linux-gnu".
-Type "show configuration" for configuration details.
-For bug reporting instructions, please see:
-<http://www.gnu.org/software/gdb/bugs/>.
-Find the GDB manual and other documentation resources online at:
-<http://www.gnu.org/software/gdb/documentation/>.
-For help, type "help".
-Type "apropos word" to search for commands related to "word".
+There is NO WARRANTY, to the extent permitted by law.
 ----
 
 Your version string may vary, of course.
@@ -239,7 +221,7 @@ platforms.
 
 If GNU Make isn't already installed or
 available as a package for your platform, you can get it at:
-http://www.gnu.org/software/make/[].
+https://www.gnu.org/software/make/[].
 
 After correct installation:
 
@@ -615,7 +597,7 @@ The bash shell is needed to run several shell scripts.
 Bash (the GNU Bourne-Again SHell) is available for most UNIX and
 UNIX-like platforms. If it isn't already installed or available as a
 package for your platform, you can get it at
-http://www.gnu.org/software/bash/bash.html[].
+https://www.gnu.org/software/bash/bash.html[].
 
 After correct installation, typing at the bash command line prompt:
 
@@ -686,7 +668,7 @@ Your version string may vary of course.
 
 Perl is an interpreted programming language. The
 homepage of the Perl project is
-http://www.perl.com[]. Perl is used to convert
+https://www.perl.org[]. Perl is used to convert
 various text files into usable source code. Perl version 5.6
 and above should work fine.
 
@@ -697,7 +679,7 @@ and above should work fine.
 
 Perl is available for most UNIX and UNIX-like platforms. If perl isn't
 already installed or available as a package for your platform, you can
-get it at http://www.perl.com/[].
+get it at https://www.perl.org/[].
 
 After correct installation, typing at the
 bash command line prompt:
@@ -732,7 +714,7 @@ However, the version string may vary.
 
 A native Windows Perl package can be obtained from
 http://strawberryperl.com/[Strawberry Perl] or
-http://www.ActiveState.com[Active State]. The installation should be
+https://www.activestate.com[Active State]. The installation should be
 straightforward.
 
 You may also use Chocolatey to install either package:
@@ -787,7 +769,7 @@ Bison is available for most UNIX and UNIX-like platforms. See the next
 section for native Windows options.
 
 If GNU Bison isn't already installed or available as a package for your
-platform you can get it at: http://www.gnu.org/software/bison/bison.html[].
+platform you can get it at: https://www.gnu.org/software/bison/bison.html[].
 
 After correct installation running the following
 
@@ -838,7 +820,7 @@ Flex is available for most UNIX and UNIX-like platforms. See the next
 section for native Windows options.
 
 If GNU flex isn't already installed or available as a package for your platform
-you can get it at http://www.gnu.org/software/flex/[].
+you can get it at https://www.gnu.org/software/flex/[].
 
 After correct installation running the following
 
@@ -896,7 +878,7 @@ client.
 
 Git is available for most UNIX and UNIX-like platforms. If Git isn't
 already installed or available as a package for your platform, you can
-get it at: http://git-scm.com/[].
+get it at: https://git-scm.com/[].
 
 After correct installation, typing at the bash command line prompt:
 
@@ -919,7 +901,7 @@ Your version will likely be different.
 ==== Windows
 
 The Git command line tools for Windows can be found at
-http://git-scm.com/download/win[] and can also be installed using Chocolatey:
+https://git-scm.com/download/win[] and can also be installed using Chocolatey:
 
 [source,cmd]
 ----
@@ -961,7 +943,7 @@ PS:\>choco install poshgit
 
 Along with the traditional command-line client, several
 GUI clients are available for a number of platforms. See
-http://git-scm.com/downloads/guis[] for details.
+https://git-scm.com/downloads/guis[] for details.
 
 // [[ChToolsUnixGitGUI]]
 // XXX Add Gui client section
@@ -988,7 +970,7 @@ tool.
 
 Patch is available for most UNIX and UNIX-like platforms. If GNU patch
 isn't already installed or available as a package for your platform, you
-can get it at http://www.gnu.org/software/patch/patch.html[].
+can get it at https://www.gnu.org/software/patch/patch.html[].
 
 After correct installation, typing at the
 bash command line prompt:
@@ -1049,7 +1031,7 @@ You can find more instructions on using NSIS in <<ChSrcNSIS>>.
 === Windows: WiX Toolset (Optional)
 
 The Wix Toolset can be used to generate Windows Installer (_.msi_)
-packages. You can download it from the link:http://wixtoolset.org/[WiX
+packages. You can download it from the link:https://wixtoolset.org/[WiX
 web site] or install it using Chocolatey:
 
 [source,cmd]
@@ -1071,7 +1053,7 @@ files.
 To install it, do the following:
 
 * Download the latest PortableApps.com Platform release from
-  http://portableapps.com/[].
+  https://portableapps.com/[].
 
 * Install the following applications in the PortableApps.com environment:
 

@@ -67,9 +67,7 @@ There are some ways to circumvent this.
 
 Many vendor’s switches support a feature known as “port spanning” or “port
 mirroring” in which all of the traffic to and from port A are also sent out
-port B. An excellent reference on the “port spanning” feature of Cisco
-switches can be found at
-link:$$http://www.cisco.com/warp/public/473/41.html$$[Configuring the Catalyst Switched Port Analyzer (SPAN) Feature]
+port B.
 
 === Examples of troubleshooting
 

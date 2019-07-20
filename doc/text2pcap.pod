@@ -146,13 +146,13 @@ of an IP packet (i.e. has complete L4 information) but does not have
 an IP header with each packet. Note that an appropriate Ethernet header
 is automatically included with each packet as well.
 Example: I<-i 46> to specify an RSVP packet (IP protocol 46).  See
-L<http://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml> for
+L<https://www.iana.org/assignments/protocol-numbers/protocol-numbers.xhtml> for
 the complete list of assigned internet protocol numbers.
 
 =item -l
 
 Specify the link-layer header type of this packet.  Default is Ethernet
-(1).  See L<http://www.tcpdump.org/linktypes.html> for the complete list
+(1).  See L<https://www.tcpdump.org/linktypes.html> for the complete list
 of possible encapsulations.  Note that this option should be used if
 your dump is a complete hex dump of an encapsulated packet and you wish
 to specify the exact type of encapsulation.  Example: I<-l 7> for ARCNet

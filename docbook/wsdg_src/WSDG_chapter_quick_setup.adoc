@@ -154,7 +154,7 @@ Chocolatey installs Python in _C:\Python37_ by default.
 ==== Install Perl
 
 Get a Perl installer from http://strawberryperl.com/
-http://www.ActiveState.com/ and install Perl into the default location.
+https://www.activestate.com/ and install Perl into the default location.
 
 Alternatively you can install Perl using Chocolatey:
 
@@ -234,7 +234,7 @@ Chocolatey ensures cmake.exe is on your path.
 
 ==== Install Asciidoctor, Xsltproc, And DocBook
 
-http://asciidoctor.org/[Asciidoctor] can be run directly as a Ruby
+https://asciidoctor.org/[Asciidoctor] can be run directly as a Ruby
 script or via a Java wrapper (AsciidoctorJ). It is used in conjunction
 with Xsltproc and DocBook to generate the documenation you're reading
 and the User’s Guide.

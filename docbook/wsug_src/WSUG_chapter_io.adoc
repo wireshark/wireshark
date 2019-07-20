@@ -713,7 +713,7 @@ Export packet bytes into C arrays so you can import the stream data into your ow
 
 Export packet data into PSML. This is an XML based format including only the
 packet summary. The PSML file specification is available at:
-link:http://www.nbee.org/doku.php?id=netpdl:psml_specification[].
+https://web.archive.org/web/20141115200425/http://www.nbee.org/doku.php?id=netpdl:psml_specification[].
 
 .The “Export as PSML File” dialog box
 image::wsug_graphics/ws-export-psml.png[{screenshot-attrs}]
@@ -731,7 +731,7 @@ format is defined by the PSML specification.
 
 Export packet data into PDML. This is an XML based format including the packet
 details. The PDML file specification is available at:
-link:http://www.nbee.org/doku.php?id=netpdl:pdml_specification[].
+https://web.archive.org/web/20140416072301/http://www.nbee.org/doku.php?id=netpdl:pdml_specification[].
 
 [NOTE]
 ====
