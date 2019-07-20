@@ -285,14 +285,22 @@ sint_from_unparsed(fvalue_t *fv, const char *s, gboolean allow_partial_value _U_
 		   gint32 max, gint32 min)
 {
 	long value;
+	unsigned long charvalue;
 	char *endptr;
 
 	if (s[0] == '\'') {
 		/*
 		 * Represented as a C-style character constant.
 		 */
-		if (!parse_charconst(s, &value, err_msg))
+		if (!parse_charconst(s, &charvalue, err_msg))
 			return FALSE;
+
+		/*
+		 * The FT_CHAR type is defined to be signed, regardless
+		 * of whether char is signed or unsigned, so cast the value
+		 * to "signed char".
+		 */
+		value = (signed char)charvalue;
 	} else {
 		/*
 		 * Try to parse it as a number.
