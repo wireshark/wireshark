@@ -20,13 +20,13 @@ get_copyright_info(void)
 {
 	return
 		"Copyright 1998-2019 Gerald Combs <gerald@wireshark.org> and contributors.\n"
-		"License GPLv2+: GNU GPL version 2 or later <http://www.gnu.org/licenses/old-licenses/gpl-2.0.html>\n"
+		"License GPLv2+: GNU GPL version 2 or later <https://www.gnu.org/licenses/gpl-2.0.html>\n"
 		"This is free software; see the source for copying conditions. There is NO\n"
 		"warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\n";
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8
