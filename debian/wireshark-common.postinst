@@ -3,7 +3,7 @@
 set -e
 
 . /usr/share/debconf/confmodule
-PROGRAM=/usr/bin/dumpcap
+PROGRAM=$(dpkg-divert --truename /usr/bin/dumpcap)
 GROUP=wireshark
 
 if ! dpkg-statoverride --list $PROGRAM > /dev/null; then
