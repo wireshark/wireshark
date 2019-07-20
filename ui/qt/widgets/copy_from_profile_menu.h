@@ -26,6 +26,9 @@ public:
     bool haveProfiles();
 
 private:
+
+    QAction * systemDefault(QString filename);
+
     bool have_profiles_;
 };
 

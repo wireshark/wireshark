@@ -20,9 +20,12 @@ CopyFromProfileMenu::CopyFromProfileMenu(QString filename, QWidget *parent) :
 {
     ProfileModel model(this);
 
+    QList<QAction *> global;
+    QList<QAction *> user;
 
-    QActionGroup global(this);
-    QActionGroup user(this);
+    QAction * pa = systemDefault(filename);
+    if ( pa )
+        global << pa;
 
     for(int cnt = 0; cnt < model.rowCount(); cnt++)
     {
@@ -45,31 +48,55 @@ CopyFromProfileMenu::CopyFromProfileMenu(QString filename, QWidget *parent) :
         if ( ! config_file_exists_with_entries(fi.absoluteFilePath().toUtf8().constData(), '#') )
             continue;
 
-        QAction * pa = Q_NULLPTR;
-        if ( idx.data(ProfileModel::DATA_IS_DEFAULT).toBool() || idx.data(ProfileModel::DATA_IS_GLOBAL).toBool() )
-            pa = global.addAction(idx.data().toString());
+        QString name = idx.data().toString();
+        pa = new QAction(name);
+        if ( idx.data(ProfileModel::DATA_IS_DEFAULT).toBool() )
+            addAction(pa);
+        else if ( idx.data(ProfileModel::DATA_IS_GLOBAL).toBool() )
+            global << pa;
         else
-            pa = user.addAction(idx.data().toString());
-
-        pa->setCheckable(true);
-        if ( idx.data(ProfileModel::DATA_IS_SELECTED).toBool() )
-            pa->setChecked(true);
+            user << pa;
 
         pa->setFont(idx.data(Qt::FontRole).value<QFont>());
-        pa->setProperty("profile_name", idx.data());
+        pa->setProperty("profile_name", name);
         pa->setProperty("profile_is_global", idx.data(ProfileModel::DATA_IS_GLOBAL));
 
         pa->setProperty("filename", fi.absoluteFilePath());
         pa->setData(fi.absoluteFilePath().toUtf8().constData());
     }
 
-    addActions(global.actions());
-    if (global.actions().count() > 0)
-        addSeparator();
-    addActions(user.actions());
+    addActions(user);
+    if (global.count() > 0)
+    {
+        if ( actions().count() > 0 )
+            addSeparator();
+        addActions(global);
+    }
+
+    have_profiles_ = actions().count() > 0;
 }
 
 bool CopyFromProfileMenu::haveProfiles()
 {
     return have_profiles_;
+}
+
+// "System default" is not a profile.
+// Add a special entry for this if the filename exists.
+QAction * CopyFromProfileMenu::systemDefault(QString filename)
+{
+    QAction * data = Q_NULLPTR;
+
+    QDir dataDir(get_datafile_dir());
+    QString path = dataDir.filePath(filename);
+    if ( QFile::exists(path) )
+    {
+        data = new QAction(tr("System default"));
+        data->setData(path);
+        QFont font = data->font();
+        font.setItalic(true);
+        data->setFont(font);
+    }
+
+    return data;
 }

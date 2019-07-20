@@ -248,7 +248,7 @@ QVariant ProfileModel::data(const QModelIndex &index, int role) const
     {
         QFont font;
 
-        if ( prof->is_global || prof->status == PROF_STAT_DEFAULT )
+        if ( prof->is_global )
             font.setItalic(true);
 
         if ( set_profile_.compare(prof->name) == 0 )
