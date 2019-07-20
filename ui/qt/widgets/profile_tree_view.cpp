@@ -86,9 +86,10 @@ void ProfileTreeView::selectionChanged(const QItemSelection &selected, const QIt
         QTreeView::selectionChanged(selected, deselected);
 }
 
-void ProfileTreeView::currentChanged(const QModelIndex &, const QModelIndex &)
+void ProfileTreeView::currentChanged(const QModelIndex &current, const QModelIndex &previous)
 {
     emit currentItemChanged();
+    QTreeView::currentChanged(current, previous);
 }
 
 void ProfileTreeView::clicked(const QModelIndex &index)
