@@ -81,6 +81,8 @@
 #include <epan/addr_resolv.h>
 #include <epan/address_types.h>
 #include <epan/conversation.h>
+#include <epan/conversation_table.h>
+#include <epan/dissector_filters.h>
 #include <epan/prefs.h>
 #include <epan/uat.h>
 #include <epan/strutil.h>
@@ -89,6 +91,7 @@
 #include <epan/proto_data.h>
 #include <epan/etypes.h>
 #include <epan/oui.h>
+#include <epan/tap.h>
 #include <wsutil/pint.h>
 
 /* Use libgcrypt for cipher libraries. */
@@ -772,6 +775,8 @@ static dissector_handle_t  ieee802154_handle;
 static dissector_handle_t  ieee802154_nonask_phy_handle;
 static dissector_handle_t  ieee802154_nofcs_handle;
 static dissector_handle_t  ieee802154_tap_handle;
+
+static int ieee802154_tap = -1;
 
 /* Handles for MPX-IE the Multiplex ID */
 static dissector_table_t ethertype_table;
@@ -2095,6 +2100,7 @@ dissect_ieee802154_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
         }
     }
 
+    tap_queue_packet(ieee802154_tap, pinfo, NULL);
 }
 
 guint
@@ -5276,6 +5282,90 @@ static gpointer ieee802154_da_value(packet_info *pinfo _U_)
         return NULL;
 } /* iee802154_da_value */
 
+static const char* ieee802154_conv_get_filter_type(conv_item_t* conv, conv_filter_type_e filter)
+{
+    if (filter == CONV_FT_SRC_ADDRESS) {
+        if (conv->src_address.type == ieee802_15_4_short_address_type)
+            return "wpan.src16";
+        else if (conv->src_address.type == AT_EUI64)
+            return "wpan.src64";
+    }
+
+    if (filter == CONV_FT_DST_ADDRESS) {
+        if (conv->dst_address.type == ieee802_15_4_short_address_type)
+            return "wpan.dst16";
+        else if (conv->dst_address.type == AT_EUI64)
+            return "wpan.dst64";
+    }
+
+    if (filter == CONV_FT_ANY_ADDRESS) {
+        if (conv->src_address.type == ieee802_15_4_short_address_type)
+            return "wpan.addr16";
+        else if (conv->src_address.type == AT_EUI64)
+            return "wpan.addr64";
+    }
+
+    return CONV_FILTER_INVALID;
+}
+
+static ct_dissector_info_t ieee802154_ct_dissector_info = {&ieee802154_conv_get_filter_type };
+
+static tap_packet_status ieee802154_conversation_packet(void *pct, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip _U_)
+{
+    conv_hash_t *hash = (conv_hash_t*)pct;
+
+    add_conversation_table_data(hash, &pinfo->dl_src, &pinfo->dl_dst, 0, 0, 1,
+            pinfo->fd->pkt_len, &pinfo->rel_ts, &pinfo->abs_ts,
+            &ieee802154_ct_dissector_info, ENDPOINT_NONE);
+
+    return TAP_PACKET_REDRAW;
+}
+
+static const char* ieee802154_host_get_filter_type(hostlist_talker_t* host, conv_filter_type_e filter)
+{
+    if (filter == CONV_FT_ANY_ADDRESS) {
+        if (host->myaddress.type == ieee802_15_4_short_address_type)
+            return "wpan.addr16";
+        else if (host->myaddress.type == AT_EUI64)
+            return "wpan.addr64";
+    }
+
+    return CONV_FILTER_INVALID;
+}
+
+static hostlist_dissector_info_t ieee802154_host_dissector_info = {&ieee802154_host_get_filter_type };
+
+static tap_packet_status ieee802154_hostlist_packet(void *pit, packet_info *pinfo, epan_dissect_t *edt _U_, const void *vip _U_)
+{
+    conv_hash_t *hash = (conv_hash_t*)pit;
+
+    /* Take two "add" passes per packet, adding for each direction, ensures that all
+     packets are counted properly (even if address is sending to itself)
+     XXX - this could probably be done more efficiently inside hostlist_table */
+    add_hostlist_table_data(hash, &pinfo->dl_src, 0, TRUE, 1,
+            pinfo->fd->pkt_len, &ieee802154_host_dissector_info, ENDPOINT_NONE);
+    add_hostlist_table_data(hash, &pinfo->dl_dst, 0, FALSE, 1,
+            pinfo->fd->pkt_len, &ieee802154_host_dissector_info, ENDPOINT_NONE);
+
+    return TAP_PACKET_REDRAW;
+}
+
+static gboolean ieee802154_filter_valid(packet_info *pinfo)
+{
+    return proto_is_frame_protocol(pinfo->layers, "wpan")
+            && ((pinfo->dl_src.type == ieee802_15_4_short_address_type) || (pinfo->dl_src.type == AT_EUI64))
+            && ((pinfo->dl_dst.type == ieee802_15_4_short_address_type) || (pinfo->dl_dst.type == AT_EUI64));
+}
+
+static gchar* ieee802154_build_filter(packet_info *pinfo)
+{
+    return g_strdup_printf("wpan.%s eq %s and wpan.%s eq %s",
+            (pinfo->dl_src.type == ieee802_15_4_short_address_type) ? "addr16" : "addr64",
+            address_to_str(pinfo->pool, &pinfo->dl_src),
+            (pinfo->dl_dst.type == ieee802_15_4_short_address_type) ? "addr16" : "addr64",
+            address_to_str(pinfo->pool, &pinfo->dl_dst));
+}
+
 /**
  * IEEE 802.15.4 protocol registration routine.
  */
@@ -6573,6 +6663,11 @@ void proto_register_ieee802154(void)
     /* Create trees for transactions */
     transaction_unmatched_pdus = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
     transaction_matched_pdus = wmem_tree_new_autoreset(wmem_epan_scope(), wmem_file_scope());
+
+    ieee802154_tap = register_tap(IEEE802154_PROTOABBREV_WPAN);
+
+    register_conversation_table(proto_ieee802154, TRUE, ieee802154_conversation_packet, ieee802154_hostlist_packet);
+    register_conversation_filter(IEEE802154_PROTOABBREV_WPAN, "IEEE 802.15.4", ieee802154_filter_valid, ieee802154_build_filter);
 } /* proto_register_ieee802154 */
 
 
