@@ -593,7 +593,7 @@ static void register_mibs(void) {
 				report_failure("Stopped processing module %s due to "
 					"error(s) to prevent potential crash in libsmi.\n"
 					"Module's conformance level: %d.\n"
-					"See details at: http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=560325\n",
+					"See details at: https://bugs.debian.org/560325\n",
 					 smiModule->name, smiModule->conformance);
 			}
 			continue;

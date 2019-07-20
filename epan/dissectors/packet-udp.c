@@ -77,7 +77,7 @@ static header_field_info hfi_udp_length UDP_HFI_INIT =
 
 static header_field_info hfi_udp_checksum UDP_HFI_INIT =
 { "Checksum", "udp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
-  "Details at: http://www.wireshark.org/docs/wsug_html_chunked/ChAdvChecksums.html", HFILL };
+  "Details at: https://www.wireshark.org/docs/wsug_html_chunked/ChAdvChecksums.html", HFILL };
 
 static header_field_info hfi_udp_checksum_calculated UDP_HFI_INIT =
 { "Calculated Checksum", "udp.checksum_calculated", FT_UINT16, BASE_HEX, NULL, 0x0,
@@ -1392,7 +1392,7 @@ proto_reg_handoff_udp(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 2

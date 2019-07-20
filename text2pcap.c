@@ -389,7 +389,7 @@ static char tempbuf[64];
  * Stuff for writing a PCap file
  */
 
-/* Link-layer type; see http://www.tcpdump.org/linktypes.html for details */
+/* Link-layer type; see https://www.tcpdump.org/linktypes.html for details */
 static guint32 pcap_link_type = 1;   /* Default is LINKTYPE_ETHERNET */
 
 /*----------------------------------------------------------------------
@@ -1387,7 +1387,7 @@ print_usage (FILE *output)
             "\n"
             "Output:\n"
             "  -l <typenum>           link-layer type number; default is 1 (Ethernet).  See\n"
-            "                         http://www.tcpdump.org/linktypes.html for a list of\n"
+            "                         https://www.tcpdump.org/linktypes.html for a list of\n"
             "                         numbers.  Use this option if your dump is a complete\n"
             "                         hex dump of an encapsulated packet and you wish to\n"
             "                         specify the exact type of encapsulation.\n"
@@ -1925,7 +1925,7 @@ clean_exit:
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -4364,7 +4364,7 @@ get_or_create_mptcpd_from_key(struct tcp_analysis* tcpd, tcp_flow_t *fwd, guint6
  * The TCP Extensions for Multipath Operation with Multiple Addresses
  * are defined in RFC 6824
  *
- * <http://http://tools.ietf.org/html/rfc6824>
+ * https://tools.ietf.org/html/rfc6824
  *
  * Author: Andrei Maruseac <andrei.maruseac@intel.com>
  *         Matthieu Coudron <matthieu.coudron@lip6.fr>
@@ -6897,7 +6897,7 @@ proto_register_tcp(void)
 
         { &hf_tcp_checksum,
         { "Checksum",           "tcp.checksum", FT_UINT16, BASE_HEX, NULL, 0x0,
-            "Details at: http://www.wireshark.org/docs/wsug_html_chunked/ChAdvChecksums.html", HFILL }},
+            "Details at: https://www.wireshark.org/docs/wsug_html_chunked/ChAdvChecksums.html", HFILL }},
 
         { &hf_tcp_checksum_status,
         { "Checksum Status",      "tcp.checksum.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,

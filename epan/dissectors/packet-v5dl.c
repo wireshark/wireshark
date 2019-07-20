@@ -377,7 +377,7 @@ proto_register_v5dl(void)
 #if 0
 	{ &hf_v5dl_checksum,
 	  { "Checksum", "v5dl.checksum", FT_UINT16, BASE_HEX,
-		NULL, 0x0, "Details at: http://www.wireshark.org/docs/wsug_html_chunked/ChAdvChecksums.html", HFILL }},
+		NULL, 0x0, "Details at: https://www.wireshark.org/docs/wsug_html_chunked/ChAdvChecksums.html", HFILL }},
 
 	{ &hf_v5dl_checksum_status,
 	  { "Checksum Status", "v5dl.checksum.status", FT_UINT8, BASE_NONE,
@@ -414,7 +414,7 @@ proto_reg_handoff_v5dl(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

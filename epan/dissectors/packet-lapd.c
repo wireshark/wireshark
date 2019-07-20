@@ -662,7 +662,7 @@ proto_register_lapd(void)
 
 		{ &hf_lapd_checksum,
 		  { "Checksum", "lapd.checksum", FT_UINT16, BASE_HEX,
-		    NULL, 0x0, "Details at: http://www.wireshark.org/docs/wsug_html_chunked/ChAdvChecksums.html", HFILL }},
+		    NULL, 0x0, "Details at: https://www.wireshark.org/docs/wsug_html_chunked/ChAdvChecksums.html", HFILL }},
 
 		{ &hf_lapd_checksum_status,
 		  { "Checksum Status", "lapd.checksum.status", FT_UINT8, BASE_NONE,
@@ -754,7 +754,7 @@ proto_reg_handoff_lapd(void)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8
