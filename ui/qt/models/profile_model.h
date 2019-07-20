@@ -57,7 +57,6 @@ public:
     enum {
         COL_NAME,
         COL_TYPE,
-        COL_PATH,
         _LAST_ENTRY
     } columns_;
 
@@ -66,10 +65,8 @@ public:
         DATA_IS_DEFAULT,
         DATA_IS_GLOBAL,
         DATA_IS_SELECTED,
-        DATA_PATH_IS_NOT_DESCRIPTION,
-        DATA_COL_NAME,
-        DATA_COL_TYPE,
-        DATA_COL_PATH
+        DATA_PATH,
+        DATA_PATH_IS_NOT_DESCRIPTION
     } data_values_;
 
     // QAbstractItemModel interface
@@ -117,6 +114,12 @@ private:
 #ifdef HAVE_MINIZIP
     static bool acceptFile(QString fileName, int fileSize);
 #endif
+
+    QVariant dataDisplay(const QModelIndex & idx) const;
+    QVariant dataFontRole(const QModelIndex & idx) const;
+    QVariant dataBackgroundRole(const QModelIndex & idx) const;
+    QVariant dataToolTipRole(const QModelIndex & idx) const;
+    QVariant dataPath(const QModelIndex & idx) const;
 
 };
 

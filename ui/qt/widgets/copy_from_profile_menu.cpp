@@ -30,14 +30,14 @@ CopyFromProfileMenu::CopyFromProfileMenu(QString filename, QWidget *parent) :
     for(int cnt = 0; cnt < model.rowCount(); cnt++)
     {
         QModelIndex idx = model.index(cnt, ProfileModel::COL_NAME);
-        QModelIndex idxPath = model.index(cnt, ProfileModel::COL_PATH);
-        if ( ! idx.isValid() || ! idxPath.isValid() )
+        QString profilePath = idx.data(ProfileModel::DATA_PATH).toString();
+        if ( ! idx.isValid() || ! profilePath.isEmpty() )
             continue;
 
         if ( ! idx.data(ProfileModel::DATA_PATH_IS_NOT_DESCRIPTION).toBool() || idx.data(ProfileModel::DATA_IS_SELECTED).toBool() )
             continue;
 
-        QDir profileDir(idxPath.data().toString());
+        QDir profileDir(profilePath);
         if ( ! profileDir.exists() )
             continue;
 

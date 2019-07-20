@@ -188,6 +188,174 @@ profile_def * ProfileModel::guard(int row) const
     return profiles_.at(row);
 }
 
+QVariant ProfileModel::dataDisplay(const QModelIndex &index) const
+{
+    if ( ! index.isValid() || profiles_.count() <= index.row() )
+        return QVariant();
+
+    profile_def * prof = guard(index.row());
+    if ( ! prof )
+        return QVariant();
+
+    switch (index.column())
+    {
+    case COL_NAME:
+        return QString(prof->name);
+    case COL_TYPE:
+        if ( prof->status == PROF_STAT_DEFAULT )
+            return tr("Default");
+        else if ( prof->is_global )
+            return tr("System");
+        else
+            return tr("User");
+    default:
+        break;
+    }
+
+    return QVariant();
+}
+
+QVariant ProfileModel::dataFontRole(const QModelIndex &index) const
+{
+    if ( ! index.isValid() || profiles_.count() <= index.row() )
+        return QVariant();
+
+    profile_def * prof = guard(index.row());
+    if ( ! prof )
+        return QVariant();
+
+    QFont font;
+
+        if ( prof->is_global )
+        font.setItalic(true);
+
+        if ( set_profile_.compare(prof->name) == 0 && ! prof->is_global )
+            font.setBold(true);
+
+    if ( prof->status == PROF_STAT_DEFAULT && reset_default_ )
+        font.setStrikeOut(true);
+
+    return font;
+}
+
+QVariant ProfileModel::dataBackgroundRole(const QModelIndex &index) const
+{
+    if ( ! index.isValid() || profiles_.count() <= index.row() )
+        return QVariant();
+
+    profile_def * prof = guard(index.row());
+    if ( ! prof )
+        return QVariant();
+
+    if ( ! ProfileModel::checkNameValidity(QString(prof->name)) )
+        return ColorUtils::fromColorT(&prefs.gui_text_invalid);
+
+    if ( prof->status == PROF_STAT_DEFAULT && reset_default_ )
+        return ColorUtils::fromColorT(&prefs.gui_text_deprecated);
+
+    QList<int> rows = const_cast<ProfileModel *>(this)->findAllByNameAndVisibility(QString(prof->name), prof->is_global);
+    if ( rows.count() > 1 )
+        return ColorUtils::fromColorT(&prefs.gui_text_invalid);
+
+    return QVariant();
+}
+
+QVariant ProfileModel::dataToolTipRole(const QModelIndex &idx) const
+{
+    if ( ! idx.isValid() || profiles_.count() <= idx.row() )
+        return QVariant();
+
+    profile_def * prof = guard(idx.row());
+    if ( ! prof )
+        return QVariant();
+
+    QString msg;
+
+    switch (prof->status)
+    {
+    case PROF_STAT_DEFAULT:
+        if (reset_default_)
+            return tr("Will be reset to default values");
+        break;
+    case PROF_STAT_COPY:
+        if (prof->reference) {
+            QString reference = prof->reference;
+            GList *fl_entry = entry(prof);
+            if (fl_entry)
+            {
+                profile_def *profile = reinterpret_cast<profile_def *>(fl_entry->data);
+                if (strcmp(prof->reference, profile->reference) == 0) {
+                    if (profile->status == PROF_STAT_CHANGED) {
+                        // Reference profile was renamed, use the new name
+                        reference = profile->name;
+                        break;
+                    }
+                }
+            }
+
+            QString profile_info = tr("Created from %1").arg(reference);
+            if (prof->from_global) {
+                profile_info.append(QString(" %1").arg(tr("(system provided)")));
+            } else if (!reference.isEmpty()) {
+                profile_info.append(QString(" %1").arg(tr("(deleted)")));
+            }
+            return profile_info;
+        }
+        break;
+    case PROF_STAT_NEW:
+        return tr("Created from default settings");
+    default:
+        break;
+    }
+
+    if ( ! ProfileModel::checkNameValidity(QString(prof->name), &msg) )
+        return msg;
+
+    if (prof->is_global)
+        return tr("This is a system provided profile.");
+    if ( prof->status == PROF_STAT_DEFAULT && reset_default_ )
+        return tr("The profile will be reset to default values.");
+
+    return QVariant();
+}
+
+QVariant ProfileModel::dataPath(const QModelIndex &index) const
+{
+    if ( ! index.isValid() || profiles_.count() <= index.row() )
+        return QVariant();
+
+    profile_def * prof = guard(index.row());
+    if ( ! prof )
+        return QVariant();
+
+    switch (prof->status)
+    {
+    case PROF_STAT_DEFAULT:
+        if (!reset_default_)
+            return get_persconffile_path("", FALSE);
+        else
+            return tr("Resetting to default");
+    case PROF_STAT_EXISTS:
+        {
+            QString profile_path = prof->is_global ? get_global_profiles_dir() : get_profiles_dir();
+            profile_path.append(QDir::separator()).append(prof->name);
+            return profile_path;
+        }
+    case PROF_STAT_NEW:
+        return tr("Created from default settings");
+    case PROF_STAT_CHANGED:
+        if (prof->reference)
+            return QString("%1 %2").arg(tr("Renamed from: ")).arg(prof->reference);
+        break;
+    case PROF_STAT_COPY:
+        if (prof->reference)
+            return QString("%1 %2").arg(tr("Copied from: ")).arg(prof->reference);
+        break;
+    }
+
+    return QVariant();
+}
+
 QVariant ProfileModel::data(const QModelIndex &index, int role) const
 {
     QString msg;
@@ -202,137 +370,23 @@ QVariant ProfileModel::data(const QModelIndex &index, int role) const
     switch ( role )
     {
     case Qt::DisplayRole:
-        switch (index.column())
-        {
-        case COL_NAME:
-            return QString(prof->name);
-        case COL_TYPE:
-            if ( prof->status == PROF_STAT_DEFAULT )
-                return tr("Default");
-            else if ( prof->is_global )
-                return tr("System");
-            else
-                return tr("User");
-        case COL_PATH:
-            switch (prof->status)
-            {
-            case PROF_STAT_DEFAULT:
-                if (!reset_default_)
-                    return get_persconffile_path("", FALSE);
-                else
-                    return tr("Resetting to default");
-            case PROF_STAT_EXISTS:
-                {
-                    QString profile_path = prof->is_global ? get_global_profiles_dir() : get_profiles_dir();
-                    profile_path.append(QDir::separator()).append(prof->name);
-                    return profile_path;
-                }
-            case PROF_STAT_NEW:
-                return tr("Created from default settings");
-            case PROF_STAT_CHANGED:
-                if (prof->reference)
-                    return QString("%1 %2").arg(tr("Renamed from: ")).arg(prof->reference);
-                break;
-            case PROF_STAT_COPY:
-                if (prof->reference)
-                    return QString("%1 %2").arg(tr("Copied from: ")).arg(prof->reference);
-                break;
-            }
-            break;
-        default:
-            break;
-        }
+        return dataDisplay(index);
         break;
-
     case Qt::FontRole:
-    {
-        QFont font;
-
-        if ( prof->is_global )
-            font.setItalic(true);
-
-        if ( set_profile_.compare(prof->name) == 0 && ! prof->is_global )
-            font.setBold(true);
-
-        if ( prof->status == PROF_STAT_DEFAULT && reset_default_ )
-            font.setStrikeOut(true);
-
-        return font;
-    }
-
+        return dataFontRole(index);
+        break;
     case Qt::BackgroundColorRole:
-    {
-        if ( ! ProfileModel::checkNameValidity(QString(prof->name)) )
-            return ColorUtils::fromColorT(&prefs.gui_text_invalid);
-
-        if ( prof->status == PROF_STAT_DEFAULT && reset_default_ )
-            return ColorUtils::fromColorT(&prefs.gui_text_deprecated);
-
-        QList<int> rows = const_cast<ProfileModel *>(this)->findAllByNameAndVisibility(QString(prof->name), prof->is_global);
-        if ( rows.count() > 1 )
-            return ColorUtils::fromColorT(&prefs.gui_text_invalid);
-
+        return dataBackgroundRole(index);
         break;
-    }
-
     case Qt::ToolTipRole:
-        switch (prof->status)
-        {
-        case PROF_STAT_DEFAULT:
-            if (reset_default_)
-                return tr("Will be reset to default values");
-            break;
-        case PROF_STAT_COPY:
-            if (prof->reference) {
-                QString reference = prof->reference;
-                GList *fl_entry = entry(prof);
-                if (fl_entry)
-                {
-                    profile_def *profile = reinterpret_cast<profile_def *>(fl_entry->data);
-                    if (strcmp(prof->reference, profile->reference) == 0) {
-                        if (profile->status == PROF_STAT_CHANGED) {
-                            // Reference profile was renamed, use the new name
-                            reference = profile->name;
-                            break;
-                        }
-                    }
-                }
-
-                QString profile_info = tr("Created from %1").arg(reference);
-                if (prof->from_global) {
-                    profile_info.append(QString(" %1").arg(tr("(system provided)")));
-                } else if (!reference.isEmpty()) {
-                    profile_info.append(QString(" %1").arg(tr("(deleted)")));
-                }
-                return profile_info;
-            }
-            break;
-        case PROF_STAT_NEW:
-            return tr("Created from default settings");
-        default:
-            break;
-        }
-
-        if ( ! ProfileModel::checkNameValidity(QString(prof->name), &msg) )
-            return msg;
-
-        if (prof->is_global)
-            return tr("This is a system provided profile.");
-        if ( prof->status == PROF_STAT_DEFAULT && reset_default_ )
-            return tr("The profile will be reset to default values.");
-
+        return dataToolTipRole(index);
         break;
-
     case ProfileModel::DATA_STATUS:
         return qVariantFromValue(prof->status);
-
     case ProfileModel::DATA_IS_DEFAULT:
         return qVariantFromValue(prof->status == PROF_STAT_DEFAULT);
-
-
     case ProfileModel::DATA_IS_GLOBAL:
         return qVariantFromValue(prof->is_global);
-
     case ProfileModel::DATA_IS_SELECTED:
         {
             QModelIndex selected = activeProfile();
@@ -347,6 +401,10 @@ QVariant ProfileModel::data(const QModelIndex &index, int role) const
             }
             return qVariantFromValue(false);
         }
+        break;
+    case ProfileModel::DATA_PATH:
+        return dataPath(index);
+        break;
 
     case ProfileModel::DATA_PATH_IS_NOT_DESCRIPTION:
         if ( prof->status == PROF_STAT_NEW || prof->status == PROF_STAT_COPY
@@ -359,26 +417,6 @@ QVariant ProfileModel::data(const QModelIndex &index, int role) const
     default:
         break;
     }
-
-#if 0
-    if (pd_ui_->profileTreeView->topLevelItemCount() > 0) {
-        profile_def *profile;
-        for (int i = 0; i < pd_ui_->profileTreeView->topLevelItemCount(); i++) {
-            item = pd_ui_->profileTreeView->topLevelItem(i);
-            profile = (profile_def *) VariantPointer<GList>::asPtr(item->data(0, Qt::UserRole))->data;
-            if (current_profile && !current_profile->is_global && profile != current_profile && strcmp(profile->name, current_profile->name) == 0) {
-                item->setToolTip(0, tr("A profile already exists with this name."));
-                item->setBackground(0, ColorUtils::fromColorT(&prefs.gui_text_invalid));
-                if (current_profile->status != PROF_STAT_DEFAULT &&
-                    current_profile->status != PROF_STAT_EXISTS)
-                {
-                    pd_ui_->infoLabel->setText(tr("A profile already exists with this name"));
-                }
-                enable_ok = false;
-            }
-        }
-    }
-#endif
 
     return QVariant();
 }
@@ -393,8 +431,6 @@ QVariant ProfileModel::headerData(int section, Qt::Orientation orientation, int 
             return tr("Profile");
         case COL_TYPE:
             return tr("Type");
-        case COL_PATH:
-            return tr("Path");
         default:
             break;
         }

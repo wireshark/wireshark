@@ -83,6 +83,13 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
     sort_model_ = new ProfileSortModel(this);
     sort_model_->setSourceModel(model_);
     pd_ui_->profileTreeView->setModel(sort_model_);
+    if ( sort_model_->columnCount() <= 1 )
+        pd_ui_->profileTreeView->header()->hide();
+    else
+    {
+        pd_ui_->profileTreeView->header()->setStretchLastSection(false);
+        pd_ui_->profileTreeView->header()->setSectionResizeMode(ProfileModel::COL_NAME, QHeaderView::Stretch);
+    }
 
     connect(pd_ui_->profileTreeView, &ProfileTreeView::currentItemChanged,
             this, &ProfileDialog::currentItemChanged);
@@ -217,13 +224,13 @@ void ProfileDialog::currentItemChanged()
     QModelIndex idx = pd_ui_->profileTreeView->currentIndex();
     if ( idx.isValid() )
     {
-        QModelIndex temp = sort_model_->index(idx.row(), ProfileModel::COL_PATH);
+        QString temp = idx.data(ProfileModel::DATA_PATH).toString();
         if ( idx.data(ProfileModel::DATA_PATH_IS_NOT_DESCRIPTION).toBool() )
-            pd_ui_->lblInfo->setUrl(QUrl::fromLocalFile(temp.data().toString()).toString());
+            pd_ui_->lblInfo->setUrl(QUrl::fromLocalFile(temp).toString());
         else
             pd_ui_->lblInfo->setUrl(QString());
-        pd_ui_->lblInfo->setText(temp.data().toString());
-        pd_ui_->lblInfo->setToolTip(temp.data(Qt::ToolTipRole).toString());
+        pd_ui_->lblInfo->setText(temp);
+        pd_ui_->lblInfo->setToolTip(idx.data(Qt::ToolTipRole).toString());
     }
 
     updateWidgets();
@@ -250,7 +257,8 @@ void ProfileDialog::on_deleteToolButton_clicked()
 
     model_->deleteEntry(index);
 
-    currentItemChanged();
+    QModelIndex newIdx = sort_model_->mapFromSource(model_->index(0, 0));
+    pd_ui_->profileTreeView->setCurrentIndex(newIdx);
 }
 
 void ProfileDialog::on_copyToolButton_clicked()

@@ -21,9 +21,6 @@ ProfileUrlLinkDelegate::ProfileUrlLinkDelegate(QObject *parent) : UrlLinkDelegat
 
 void ProfileUrlLinkDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    if ( index.column() != ProfileModel::COL_PATH )
-        QStyledItemDelegate::paint(painter, option, index);
-
     /* Only paint links for valid paths */
     if ( index.data(ProfileModel::DATA_PATH_IS_NOT_DESCRIPTION).toBool() )
         UrlLinkDelegate::paint(painter, option, index);
@@ -48,9 +45,6 @@ ProfileTreeView::ProfileTreeView(QWidget *parent) :
 {
     delegate_ = new ProfileTreeEditDelegate();
     setItemDelegateForColumn(ProfileModel::COL_NAME, delegate_);
-    setItemDelegateForColumn(ProfileModel::COL_PATH, new ProfileUrlLinkDelegate());
-
-    resizeColumnToContents(ProfileModel::COL_NAME);
 
     connect(this, &QAbstractItemView::clicked, this, &ProfileTreeView::clicked);
     connect(delegate_, SIGNAL(commitData(QWidget *)), this, SIGNAL(itemUpdated()));
@@ -94,7 +88,7 @@ void ProfileTreeView::currentChanged(const QModelIndex &current, const QModelInd
 
 void ProfileTreeView::clicked(const QModelIndex &index)
 {
-    if ( !index.isValid() || index.column() != ProfileModel::COL_PATH )
+    if ( !index.isValid() )
         return;
 
     /* Only paint links for valid paths */
