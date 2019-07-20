@@ -124,8 +124,6 @@ static expert_field ei_lua_proto_deprecated_note    = EI_INIT;
 static expert_field ei_lua_proto_deprecated_warn    = EI_INIT;
 static expert_field ei_lua_proto_deprecated_error   = EI_INIT;
 
-dissector_handle_t lua_data_handle;
-
 static gboolean
 lua_pinfo_end(wmem_allocator_t *allocator _U_, wmem_cb_event_t event _U_,
         void *user_data _U_)
@@ -1036,8 +1034,6 @@ void wslua_init(register_cb cb, gpointer client_data) {
     lua_pinfo = NULL;
     lua_tree = NULL;
     lua_tvb = NULL;
-
-    lua_data_handle = find_dissector("data");
 
     Proto_commit(L);
 
