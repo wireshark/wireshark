@@ -18,6 +18,7 @@
 #include <epan/expert.h>
 #include <epan/crc16-tvb.h>
 #include <wsutil/crc5.h>
+#include "packet-usb.h"
 
 static int proto_usbll = -1;
 
@@ -126,6 +127,13 @@ static const value_string usb_endpoint_type_vals[] = {
     {0, NULL}
 };
 
+#define TOKEN_BITS_GET_ADDRESS(bits) (bits & 0x007F)
+#define TOKEN_BITS_GET_ENDPOINT(bits) ((bits & 0x0780) >> 7)
+
+#define SPLIT_BITS_GET_HUB_ADDRESS(bits) (bits & 0x007F)
+#define SPLIT_BITS_GET_ENDPOINT_TYPE(bits) ((bits & 0x060000) >> 17)
+#define SPLIT_BIT_START_COMPLETE 0x0080
+
 static int
 dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
 {
@@ -134,6 +142,13 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     gint              offset = 0;
     guint32           pid;
     const gchar      *str;
+    /* USB address has bus id as when capturing at URB level there are usually multiple root hubs
+     * to select from. Until someone has specific need to connect multiple hardware sniffers at
+     * the same time and analyze that in Wireshark, this code simply sets the bus id to 0.
+     */
+    const guint16     bus_id = 0;
+    guint16           device_address;
+    int               endpoint;
 
     tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_usbll, &item, "USB Packet");
 
@@ -167,6 +182,10 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
         };
 
         address_bits = tvb_get_letohs(tvb, offset);
+        device_address = TOKEN_BITS_GET_ADDRESS(address_bits);
+        endpoint = TOKEN_BITS_GET_ENDPOINT(address_bits);
+        usb_set_addr(tree, tvb, pinfo, bus_id, device_address, endpoint, TRUE);
+
         proto_tree_add_bitmask_list_value(tree, tvb, offset, 2, address_fields, address_bits);
         proto_tree_add_checksum(tree, tvb, offset,
             hf_usbll_crc5, hf_usbll_crc5_status, &ei_wrong_crc5, pinfo,
@@ -202,6 +221,8 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     case USB_PID_TOKEN_SOF:
     {
         guint32 frame;
+
+        /* TODO: How to mark that it is sent by host to all devices on the bus? */
         proto_tree_add_item_ret_uint(tree, hf_usbll_sof_framenum, tvb, offset, 2, ENC_LITTLE_ENDIAN, &frame);
         proto_tree_add_checksum(tree, tvb, offset,
             hf_usbll_crc5, hf_usbll_crc5_status, &ei_wrong_crc5, pinfo,
@@ -232,7 +253,14 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
             NULL
         };
 
-        if (((tmp & 0x060000) >> 17) == USB_EP_TYPE_ISOCHRONOUS)
+        device_address = SPLIT_BITS_GET_HUB_ADDRESS(tmp);
+        /* There is no endpoint information in the packet, show it as endpoint 0 */
+        endpoint = 0;
+        usb_set_addr(tree, tvb, pinfo, bus_id, device_address, endpoint, TRUE);
+
+        col_append_str(pinfo->cinfo, COL_INFO, (tmp & SPLIT_BIT_START_COMPLETE) ? " Complete" : " Start");
+
+        if (SPLIT_BITS_GET_ENDPOINT_TYPE(tmp) == USB_EP_TYPE_ISOCHRONOUS)
         {
             proto_tree_add_bitmask_list(tree, tvb, offset, 3, split_iso_fields, ENC_LITTLE_ENDIAN);
         }
