@@ -63,6 +63,7 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
     pd_ui_->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     pd_ui_->deleteToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     pd_ui_->copyToolButton->setAttribute(Qt::WA_MacSmallSize, true);
+    pd_ui_->lblInfo->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
 #ifndef HAVE_MINIZIP
