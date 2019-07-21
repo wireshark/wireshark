@@ -8532,9 +8532,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>No profiles found for import in %1</source>
         <translation type="unfinished"></translation>
     </message>
-    <message>
-        <source>, %1 profile(s) skipped</source>
-        <translation type="unfinished"></translation>
+    <message numerus="yes">
+        <source>%Ln profile(s) imported</source>
+        <translation>
+            <numerusform>%Ln profile imported</numerusform>
+            <numerusform>%Ln profiles imported</numerusform>
+	</translation>
+    </message>
+    <message numerus="yes">
+        <source>, %Ln profile(s) skipped</source>
+        <translation>
+            <numerusform>, %Ln profile skipped</numerusform>
+            <numerusform>, %Ln profiles skipped</numerusform>
+	</translation>
     </message>
     <message>
         <source>Importing profiles</source>

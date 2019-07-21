@@ -371,15 +371,23 @@ void ProfileDialog::importFromZip()
 
     int skipped = 0;
     int count = model_->importProfilesFromZip(zipFile, &skipped);
+    QString msg;
+    QMessageBox::Icon icon;
 
-    QString msg = tr("%n profile(s) have been imported", "", count);
-    if ( count < 0 )
+    if ( count == 0 && skipped == 0 )
+    {
+        icon = QMessageBox::Warning;
         msg = tr("No profiles found for import in %1").arg(fi.fileName());
-    if ( skipped > 0 )
-        msg.append(tr(", %n profile(s) skipped", "", skipped));
+    }
+    else
+    {
+        icon = QMessageBox::Information;
+        msg = tr("%Ln profile(s) imported", "", count);
+        if ( skipped > 0 )
+            msg.append(tr(", %Ln profile(s) skipped", "", skipped));
+    }
 
-    QMessageBox msgBox(count < 0 ? QMessageBox::Warning : QMessageBox::Information,
-                       tr("Importing profiles"), msg, QMessageBox::Ok, this);
+    QMessageBox msgBox(icon, tr("Importing profiles"), msg, QMessageBox::Ok, this);
     msgBox.exec();
 }
 #endif
@@ -394,15 +402,23 @@ void ProfileDialog::importFromDirectory()
 
     int skipped = 0;
     int count = model_->importProfilesFromDir(importDir, &skipped);
+    QString msg;
+    QMessageBox::Icon icon;
 
-    QString msg = tr("%n profile(s) have been imported", "", count);
-    if ( count < 0 )
+    if ( count == 0 && skipped == 0 )
+    {
+        icon = QMessageBox::Warning;
         msg = tr("No profiles found for import in %1").arg(fi.fileName());
-    if ( skipped > 0 )
-        msg.append(tr(", %n profile(s) skipped", "", skipped));
+    }
+    else
+    {
+        icon = QMessageBox::Information;
+        msg = tr("%Ln profile(s) imported", "", count);
+        if ( skipped > 0 )
+            msg.append(tr(", %Ln profile(s) skipped", "", skipped));
+    }
 
-    QMessageBox msgBox(count < 0 ? QMessageBox::Warning : QMessageBox::Information,
-                       tr("Importing profiles"), msg, QMessageBox::Ok, this);
+    QMessageBox msgBox(icon, tr("Importing profiles"), msg, QMessageBox::Ok, this);
     msgBox.exec();
 }
 

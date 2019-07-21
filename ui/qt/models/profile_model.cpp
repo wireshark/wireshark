@@ -699,7 +699,6 @@ int ProfileModel::importProfilesFromDir(QString dirname, int * skippedCnt, bool 
 {
     int count = 0;
     int skipped = 0;
-    bool found = false;
     QDir profileDir(get_profiles_dir());
     QDir dir(dirname);
     if ( dir.exists() )
@@ -722,15 +721,11 @@ int ProfileModel::importProfilesFromDir(QString dirname, int * skippedCnt, bool 
 
             if ( copyTempToProfile(tempPath, profilePath) )
             {
-                found = true;
                 count++;
             }
         }
 
     }
-
-    if ( ! found )
-        return -1;
 
     if ( count > 0 )
         loadProfiles();
