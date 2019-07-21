@@ -597,21 +597,6 @@ bool ProfileModel::setData(const QModelIndex &idx, const QVariant &value, int ro
     return true;
 }
 
-#ifdef HAVE_MINIZIP
-/* This check runs BEFORE the file has been unzipped! */
-bool ProfileModel::acceptFile(QString fileName, int fileSize)
-{
-    if ( fileName.contains(".") || fileName.startsWith("_") )
-        return false;
-
-    if ( fileSize > 1024 * 512 )
-        return false;
-
-    /*  config_file_exists_with_entries cannot be used, due to the fact, that the file has not been extracted yet */
-
-    return true;
-}
-
 bool ProfileModel::copyTempToProfile(QString tempPath, QString profilePath)
 {
     QDir profileDir(profilePath);
@@ -643,7 +628,7 @@ bool ProfileModel::copyTempToProfile(QString tempPath, QString profilePath)
     return false;
 }
 
-QFileInfoList ProfileModel::filterProfilePath(QString path, QFileInfoList ent)
+QFileInfoList ProfileModel::filterProfilePath(QString path, QFileInfoList ent, bool fromZip)
 {
     QFileInfoList result = ent;
 
@@ -651,6 +636,8 @@ QFileInfoList ProfileModel::filterProfilePath(QString path, QFileInfoList ent)
     temp.setSorting(QDir::Name);
     temp.setFilter(QDir::Dirs | QDir::NoSymLinks | QDir::NoDotAndDotDot);
     QFileInfoList entries = temp.entryInfoList();
+    if ( ! fromZip )
+        entries << QFileInfo(path);
     foreach ( QFileInfo entry, entries )
     {
         QDir fPath(entry.absoluteFilePath());
@@ -660,37 +647,62 @@ QFileInfoList ProfileModel::filterProfilePath(QString path, QFileInfoList ent)
         bool found = false;
         for ( int cnt = 0; cnt < fEntries.count() && ! found; cnt++)
         {
-            QFileInfo fEntry = fEntries[cnt];
-            if ( config_file_exists_with_entries(fEntry.absoluteFilePath().toUtf8().constData(), '#') )
-            {
+            if ( config_file_exists_with_entries(fEntries[cnt].absoluteFilePath().toUtf8().constData(), '#') )
                  found = true;
-            }
         }
 
         if ( found )
             result.append(entry);
         else
-            result.append(filterProfilePath(entry.absoluteFilePath(), result));
+            result.append(filterProfilePath(entry.absoluteFilePath(), result, fromZip));
     }
 
     return result;
 }
 
-int ProfileModel::unzipProfiles(QString filename, int * skippedCnt)
+#ifdef HAVE_MINIZIP
+/* This check runs BEFORE the file has been unzipped! */
+bool ProfileModel::acceptFile(QString fileName, int fileSize)
 {
-    int count = 0;
-    int skipped = 0;
-    QDir profileDir(get_profiles_dir());
+    if ( fileName.contains(".") || fileName.startsWith("_") )
+        return false;
+
+    if ( fileSize > 1024 * 512 )
+        return false;
+
+    /*  config_file_exists_with_entries cannot be used, due to the fact, that the file has not been extracted yet */
+
+    return true;
+}
+
+int ProfileModel::importProfilesFromZip(QString filename, int * skippedCnt)
+{
     QTemporaryDir dir;
 #if 0
     dir.setAutoRemove(false);
 #endif
 
+    int cnt = 0;
     if ( dir.isValid() )
     {
         WireSharkZipHelper::unzip(filename, dir.path(), &ProfileModel::acceptFile);
+        cnt = importProfilesFromDir(dir.path(), skippedCnt, true);
+    }
 
-        QFileInfoList entries = filterProfilePath(dir.path(), QFileInfoList());
+    return cnt;
+}
+#endif
+
+int ProfileModel::importProfilesFromDir(QString dirname, int * skippedCnt, bool fromZip)
+{
+    int count = 0;
+    int skipped = 0;
+    bool found = false;
+    QDir profileDir(get_profiles_dir());
+    QDir dir(dirname);
+    if ( dir.exists() )
+    {
+        QFileInfoList entries = filterProfilePath(dirname, QFileInfoList(), fromZip);
 
         int entryCount = 0;
         foreach ( QFileInfo fentry, entries )
@@ -707,10 +719,16 @@ int ProfileModel::unzipProfiles(QString filename, int * skippedCnt)
             }
 
             if ( copyTempToProfile(tempPath, profilePath) )
+            {
+                found = true;
                 count++;
+            }
         }
 
     }
+
+    if ( ! found )
+        return -1;
 
     if ( count > 0 )
         loadProfiles();
@@ -720,7 +738,6 @@ int ProfileModel::unzipProfiles(QString filename, int * skippedCnt)
 
     return count;
 }
-#endif
 
 bool ProfileModel::checkNameValidity(QString name, QString *msg)
 {

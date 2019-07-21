@@ -595,9 +595,20 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
         QAction * action = ctx_menu_.addAction(tr("Manage Profiles" UTF8_HORIZONTAL_ELLIPSIS));
         action->setProperty("dialog_action_", (int)ProfileDialog::ShowProfiles);
         connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
-        action = ctx_menu_.addAction(tr("Import" UTF8_HORIZONTAL_ELLIPSIS));
-        action->setProperty("dialog_action_", (int)ProfileDialog::ImportProfile);
+#ifdef HAVE_MINIZIP
+        QMenu * importMenu = new QMenu(tr("Import"));
+        action = importMenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS" from Zip"));
+        action->setProperty("dialog_action_", (int)ProfileDialog::ImportZipProfile);
         connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
+        action = importMenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS" from Directory"));
+        action->setProperty("dialog_action_", (int)ProfileDialog::ImportDirProfile);
+        connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
+        ctx_menu_.addMenu(importMenu);
+#else
+        action = ctx_menu_.addAction(tr("Import" UTF8_HORIZONTAL_ELLIPSIS));
+        action->setProperty("dialog_action_", (int)ProfileDialog::ImportDirProfile);
+        connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
+#endif
         ctx_menu_.addSeparator();
         action = ctx_menu_.addAction(tr("New" UTF8_HORIZONTAL_ELLIPSIS));
         action->setProperty("dialog_action_", (int)ProfileDialog::NewProfile);

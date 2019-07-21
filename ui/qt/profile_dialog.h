@@ -28,7 +28,7 @@ class ProfileDialog : public GeometryStateDialog
     Q_OBJECT
 
 public:
-    enum ProfileAction { ShowProfiles, NewProfile, ImportProfile, EditCurrentProfile, DeleteCurrentProfile };
+    enum ProfileAction { ShowProfiles, NewProfile, ImportZipProfile, ImportDirProfile, EditCurrentProfile, DeleteCurrentProfile };
 
     explicit ProfileDialog(QWidget *parent = Q_NULLPTR);
     ~ProfileDialog();
@@ -58,8 +58,9 @@ private:
 private slots:
     void currentItemChanged();
 #ifdef HAVE_MINIZIP
-    void on_btnImport_clicked();
+    void importFromZip();
 #endif
+    void importFromDirectory();
 
     void on_newToolButton_clicked();
     void on_deleteToolButton_clicked();
@@ -71,6 +72,7 @@ private slots:
     void filterChanged(const QString &);
 
     // QWidget interface
+
 };
 
 #endif // PROFILE_DIALOG_H

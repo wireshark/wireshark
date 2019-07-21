@@ -11,6 +11,7 @@
 #include <glib.h>
 
 #include "wsutil/filesystem.h"
+#include "wsutil/utf8_entities.h"
 #include "epan/prefs.h"
 
 #include <ui/qt/utils/qt_ui_utils.h>
@@ -39,6 +40,7 @@
 #include <QFileDialog>
 #include <QStandardPaths>
 #include <QKeyEvent>
+#include <QMenu>
 
 ProfileDialog::ProfileDialog(QWidget *parent) :
     GeometryStateDialog(parent),
@@ -66,8 +68,15 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
     pd_ui_->lblInfo->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
-#ifndef HAVE_MINIZIP
-    pd_ui_->btnImport->setVisible(false);
+#ifdef HAVE_MINIZIP
+    QMenu * importMenu = new QMenu(pd_ui_->btnImport);
+    QAction * entry = importMenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS " from Zip"));
+    connect( entry, &QAction::triggered, this, &ProfileDialog::importFromZip);
+    entry = importMenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS " from Directory"));
+    connect( entry, &QAction::triggered, this, &ProfileDialog::importFromDirectory);
+    pd_ui_->btnImport->setMenu(importMenu);
+#else
+    connect( pd_ui_->btnImport, &QPushButton::clicked, this, &ProfileDialog::importFromDirectory);
 #endif
 
     model_ = new ProfileModel(this);
@@ -135,10 +144,13 @@ int ProfileDialog::execAction(ProfileDialog::ProfileAction profile_action)
         on_newToolButton_clicked();
         ret = exec();
         break;
-    case ImportProfile:
+    case ImportZipProfile:
 #ifdef HAVE_MINIZIP
-        on_btnImport_clicked();
+        importFromZip();
 #endif
+        break;
+    case ImportDirProfile:
+        importFromDirectory();
         break;
     case EditCurrentProfile:
         item = pd_ui_->profileTreeView->currentIndex();
@@ -349,7 +361,7 @@ void ProfileDialog::filterChanged(const QString &text)
 }
 
 #ifdef HAVE_MINIZIP
-void ProfileDialog::on_btnImport_clicked()
+void ProfileDialog::importFromZip()
 {
     QString zipFile = QFileDialog::getOpenFileName(this, tr("Select zip file for import"), QString(), tr("Zip File (*.zip)"));
 
@@ -357,31 +369,42 @@ void ProfileDialog::on_btnImport_clicked()
     if ( ! fi.exists() )
         return;
 
-    int count = 0;
     int skipped = 0;
-    if ( ( count = model_->unzipProfiles(zipFile, &skipped) ) == 0 )
-    {
-        QString msg = tr("No profiles found for import in %1").arg(fi.fileName());
-        if ( skipped > 0 )
-            msg.append(tr(", %1 profile(s) skipped").arg(QString::number(skipped)));
+    int count = model_->importProfilesFromZip(zipFile, &skipped);
 
-        QMessageBox::warning(this, tr("Importing profiles"), msg );
+    QString msg = tr("%n profile(s) have been imported", "", count);
+    if ( count < 0 )
+        msg = tr("No profiles found for import in %1").arg(fi.fileName());
+    if ( skipped > 0 )
+        msg.append(tr(", %n profile(s) skipped", "", skipped));
 
-    }
-    else {
-        QString msg;
-        if ( count == 1 )
-            msg = tr("One profile has been imported");
-        else
-            msg = tr("%1 profiles have been imported").arg(QString::number(count));
-
-        if ( skipped > 0 )
-            msg.append(tr(", %1 profile(s) skipped").arg(QString::number(skipped)));
-
-        QMessageBox::information(this, tr("Importing profiles"), msg );
-    }
+    QMessageBox msgBox(count < 0 ? QMessageBox::Warning : QMessageBox::Information,
+                       tr("Importing profiles"), msg, QMessageBox::Ok, this);
+    msgBox.exec();
 }
 #endif
+
+void ProfileDialog::importFromDirectory()
+{
+    QString importDir = QFileDialog::getExistingDirectory(this, tr("Select directory for import"), QString());
+
+    QFileInfo fi(importDir);
+    if ( ! fi.isDir() )
+        return;
+
+    int skipped = 0;
+    int count = model_->importProfilesFromDir(importDir, &skipped);
+
+    QString msg = tr("%n profile(s) have been imported", "", count);
+    if ( count < 0 )
+        msg = tr("No profiles found for import in %1").arg(fi.fileName());
+    if ( skipped > 0 )
+        msg.append(tr(", %n profile(s) skipped", "", skipped));
+
+    QMessageBox msgBox(count < 0 ? QMessageBox::Warning : QMessageBox::Information,
+                       tr("Importing profiles"), msg, QMessageBox::Ok, this);
+    msgBox.exec();
+}
 
 /*
  * Editor modelines

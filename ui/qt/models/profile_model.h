@@ -94,10 +94,11 @@ public:
     GList * at(int row) const;
 
 #ifdef HAVE_MINIZIP
-    int unzipProfiles(QString filename, int *skippedCnt = Q_NULLPTR);
-    bool copyTempToProfile(QString tempPath, QString profilePath);
-    QFileInfoList filterProfilePath(QString, QFileInfoList ent);
+    int importProfilesFromZip(QString filename, int *skippedCnt = Q_NULLPTR);
 #endif
+    int importProfilesFromDir(QString filename, int *skippedCnt = Q_NULLPTR, bool fromZip = false);
+    bool copyTempToProfile(QString tempPath, QString profilePath);
+    QFileInfoList filterProfilePath(QString, QFileInfoList ent, bool fromZip);
 
     static bool checkNameValidity(QString name, QString *msg = Q_NULLPTR);
     QList<int> findAllByNameAndVisibility(QString name, bool isGlobal = false);
