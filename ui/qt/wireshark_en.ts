@@ -8537,14 +8537,14 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>
             <numerusform>%Ln profile imported</numerusform>
             <numerusform>%Ln profiles imported</numerusform>
-	</translation>
+        </translation>
     </message>
     <message numerus="yes">
         <source>, %Ln profile(s) skipped</source>
         <translation>
             <numerusform>, %Ln profile skipped</numerusform>
             <numerusform>, %Ln profiles skipped</numerusform>
-	</translation>
+        </translation>
     </message>
     <message>
         <source>Importing profiles</source>
