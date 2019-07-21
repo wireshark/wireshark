@@ -87,7 +87,7 @@ bool ProfileSortModel::filterAcceptsRow(int source_row, const QModelIndex &) con
 
     if ( ft_ != ProfileSortModel::AllProfiles )
     {
-        bool gl = idx.data(ProfileModel::DATA_IS_GLOBAL).toBool() || idx.data(ProfileModel::DATA_IS_DEFAULT).toBool();
+        bool gl = idx.data(ProfileModel::DATA_IS_GLOBAL).toBool();
         if ( ft_ == ProfileSortModel::UserProfiles && gl )
             accept = false;
         else if ( ft_ == ProfileSortModel::GlobalProfiles && ! gl )
@@ -251,12 +251,8 @@ QVariant ProfileModel::data(const QModelIndex &index, int role) const
         if ( prof->is_global )
             font.setItalic(true);
 
-        if ( set_profile_.compare(prof->name) == 0 )
-        {
-            profile_def * act = guard(activeProfile().row());
-            if ( act->is_global == prof->is_global )
-                font.setBold(true);
-        }
+        if ( set_profile_.compare(prof->name) == 0 && ! prof->is_global )
+            font.setBold(true);
 
         if ( prof->status == PROF_STAT_DEFAULT && reset_default_ )
             font.setStrikeOut(true);
@@ -562,7 +558,13 @@ QModelIndex ProfileModel::activeProfile() const
     QString sel_profile = get_profile_name();
     int row = temp->findByName(sel_profile);
     if ( row >= 0 )
+    {
+        profile_def * prof = profiles_.at(row);
+        if ( prof->is_global )
+            return QModelIndex();
+
         return index(row, ProfileModel::COL_NAME);
+    }
 
     return QModelIndex();
 }
