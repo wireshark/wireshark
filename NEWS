@@ -1,4 +1,4 @@
-Wireshark 3.0.3 Release Notes
+Wireshark 3.0.4 Release Notes
 
  What is Wireshark?
 
@@ -7,59 +7,13 @@ Wireshark 3.0.3 Release Notes
 
  What’s New
 
-    • The Windows installers now ship with Qt 5.12.4. They previously
-      shipped with Qt 5.12.3.
-
-    • The Windows installers now ship with Npcap 0.996. They previously
-      shipped with Npcap 0.995.
-
-    • The macOS installer now ships with Qt 5.12.4. It previously
-      shipped with Qt 5.12.1.
-
   Bug Fixes
 
    The following vulnerabilities have been fixed:
 
-     • wnpa-sec-2019-20[1] ASN.1 BER and related dissectors crash. Bug
-       15870[2]. CVE-2019-13619[3].
+     • wnpa-sec-2019-21[1] A dissector went awry.
 
    The following bugs have been fixed:
-
-     • "ninja install" installs help/faq.py instead of help/faq.txt. Bug
-       15543[4].
-
-     • In Wireshark 3.0, encrypted DOCSIS PDU packets no longer match
-       the filter "eth.dst". Bug 15731[5].
-
-     • Developer’s Guide section 3.9 "Contribute your changes" should
-       incorporate or link "Writing a good commit message" from the
-       Wiki. Bug 15752[6].
-
-     • RSL dissector bugs in presence of optional IEs. Bug 15789[7].
-
-     • The "Media Attribute Value" field is missed in rtcp SDP
-       dissection (packet-sdp.c). Bug 15791[8].
-
-     • BTLE doesn’t properly detect start fragment of L2CAP PDUs. Bug
-       15807[9].
-
-     • Wi-SUN FAN decoder error, Channel Spacing and Reserved fields are
-       swapped. Bug 15821[10].
-
-     • tshark: Display filter error message references "-d" when it
-       should reference "-Y". Bug 15825[11].
-
-     • Open "protocol" preferences …​ does not work for protocol in
-       subtree. Bug 15836[12].
-
-     • Problems with sshdump "Error by extcap pipe: sh: sudo: command
-       not found". Bug 15845[13].
-
-     • editcap won’t change encapsulation type when writing pcap format.
-       Bug 15873[14].
-
-     • ITU-T G.8113.1 MPLS-TP OAM CC,LMM,LMR,DMM and DMR are not seen in
-       the 3.0.2. Bug 15887[15].
 
   New and Updated Features
 
@@ -71,13 +25,9 @@ Wireshark 3.0.3 Release Notes
 
   Updated Protocol Support
 
-   AERON, ASN.1, BTLE, CUPS, DNS, DOCSIS, DPNSS, GSM RLC/MAC, HiQnet,
-   ISO 14443, ISObus VT, LDAP, MAC LTE, MIME multipart, MPLS, MQ, RSL,
-   SDP, SMB, TNEF, and Wi-SUN
-
   New and Updated Capture File Support
 
-   Ascend
+   There is no new or updated capture file support in this release.
 
   New and Updated Capture Interfaces support
 
@@ -86,14 +36,14 @@ Wireshark 3.0.3 Release Notes
  Getting Wireshark
 
   Wireshark source code and installation packages are available from
-  https://www.wireshark.org/download.html[16].
+  https://www.wireshark.org/download.html[2].
 
   Vendor-supplied Packages
 
    Most Linux and Unix vendors supply their own Wireshark packages. You
    can usually install or upgrade Wireshark using the package management
    system specific to that platform. A list of third-party packages can
-   be found on the download page[17] on the Wireshark web site.
+   be found on the download page[3] on the Wireshark web site.
 
  File Locations
 
@@ -105,45 +55,31 @@ Wireshark 3.0.3 Release Notes
  Getting Help
 
   The User’s Guide, manual pages and various other documentation can be
-  found at https://www.wireshark.org/docs/[18]
+  found at https://www.wireshark.org/docs/[4]
 
-  Community support is available on Wireshark’s Q&A site[19] and on the
+  Community support is available on Wireshark’s Q&A site[5] and on the
   wireshark-users mailing list. Subscription information and archives
-  for all of Wireshark’s mailing lists can be found on the web site[20].
+  for all of Wireshark’s mailing lists can be found on the web site[6].
 
-  Bugs and feature requests can be reported on the bug tracker[21].
+  Bugs and feature requests can be reported on the bug tracker[7].
 
   Official Wireshark training and certification are available from
-  Wireshark University[22].
+  Wireshark University[8].
 
  Frequently Asked Questions
 
-  A complete FAQ is available on the Wireshark web site[23].
+  A complete FAQ is available on the Wireshark web site[9].
 
-  Last updated 2019-07-17 17:04:39 UTC
+  Last updated 2019-07-21 08:25:28 UTC
 
  References
 
-   1. https://www.wireshark.org/security/wnpa-sec-2019-20
-   2. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15870
-   3. https://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2019-13619
-   4. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15543
-   5. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15731
-   6. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15752
-   7. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15789
-   8. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15791
-   9. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15807
-  10. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15821
-  11. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15825
-  12. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15836
-  13. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15845
-  14. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15873
-  15. https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15887
-  16. https://www.wireshark.org/download.html
-  17. https://www.wireshark.org/download.html#thirdparty
-  18. https://www.wireshark.org/docs/
-  19. https://ask.wireshark.org/
-  20. https://www.wireshark.org/lists/
-  21. https://bugs.wireshark.org/
-  22. http://www.wiresharktraining.com/
-  23. https://www.wireshark.org/faq.html
+   1. https://www.wireshark.org/security/wnpa-sec-2019-21
+   2. https://www.wireshark.org/download.html
+   3. https://www.wireshark.org/download.html#thirdparty
+   4. https://www.wireshark.org/docs/
+   5. https://ask.wireshark.org/
+   6. https://www.wireshark.org/lists/
+   7. https://bugs.wireshark.org/
+   8. http://www.wiresharktraining.com/
+   9. https://www.wireshark.org/faq.html
