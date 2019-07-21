@@ -366,6 +366,10 @@ dissect_genl_ctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _U_, v
 
 	offset = dissect_genl_header(tvb, genl_info, &hfi_genl_ctrl_cmd);
 
+	/* Return if command has no payload */
+	if (!tvb_reported_length_remaining(tvb, offset))
+	    return offset;
+
 	dissect_netlink_attributes(tvb, &hfi_genl_ctrl_attr, ett_genl_ctrl_attr, &info, info.data, genl_info->genl_tree, offset, -1, dissect_genl_ctrl_attrs);
 
 	/*
@@ -445,15 +449,12 @@ dissect_netlink_generic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 	/* Optional user-specific message header and optional message payload. */
 	next_tvb = tvb_new_subset_remaining(tvb, offset);
-	/* Try subdissector if there is a payload. */
-	if (tvb_reported_length_remaining(tvb, offset + 4)) {
-		if (family_name) {
-			int ret;
-			/* Invoke subdissector with genlmsghdr present. */
-			ret = dissector_try_string(genl_dissector_table, family_name, next_tvb, pinfo, tree, &info);
-			if (ret) {
-				return ret;
-			}
+	if (family_name) {
+		int ret;
+		/* Invoke subdissector with genlmsghdr present. */
+		ret = dissector_try_string(genl_dissector_table, family_name, next_tvb, pinfo, tree, &info);
+		if (ret) {
+			return ret;
 		}
 	}
 

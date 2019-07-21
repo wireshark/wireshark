@@ -2901,6 +2901,10 @@ dissect_netlink_nl80211(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
     offset = dissect_genl_header(tvb, genl_info, &hfi_nl80211_commands);
 
+    /* Return if command has no payload */
+    if (!tvb_reported_length_remaining(tvb, offset))
+            return offset;
+
     pi = proto_tree_add_item(tree, proto_registrar_get_nth(proto_netlink_nl80211), tvb, offset, -1, ENC_NA);
     nlmsg_tree = proto_item_add_subtree(pi, ett_nl80211);
 
