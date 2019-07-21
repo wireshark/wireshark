@@ -5685,6 +5685,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Zarządzaj profilami</translation>
     </message>
     <message>
+        <source>Import</source>
+        <translation type="unfinished">Importuj</translation>
+    </message>
+    <message>
         <source>New</source>
         <oldsource>New...</oldsource>
         <translation>Nowy</translation>
@@ -8541,10 +8545,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>ProfileDialog</name>
     <message>
-        <source>Name</source>
-        <translation type="vanished">Nazwa</translation>
-    </message>
-    <message>
         <source>Search for profile ...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8562,6 +8562,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Kopiuj ten profil.</translation>
     </message>
     <message>
+        <source>Import</source>
+        <translation type="unfinished">Importuj</translation>
+    </message>
+    <message>
         <source>Configuration Profiles</source>
         <translation>Konfiguracja profili</translation>
     </message>
@@ -8570,11 +8574,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Global profiles</source>
+        <source>User-defined profiles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>User-defined profiles</source>
+        <source>System profiles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8582,56 +8586,40 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Will be reset to default values</source>
-        <translation type="vanished">Będzie zresetowany do wartości domyślnych.</translation>
-    </message>
-    <message>
-        <source>Created from %1</source>
-        <translation type="vanished">Utworzono z %1</translation>
-    </message>
-    <message>
-        <source>(system provided)</source>
-        <translation type="vanished">(dostarczone przez system)</translation>
-    </message>
-    <message>
-        <source>Created from default settings</source>
-        <translation type="vanished">Utworzono z domyślnych ustawień</translation>
-    </message>
-    <message>
-        <source>Renamed from %1</source>
-        <translation type="vanished">Przemianowano z %1</translation>
-    </message>
-    <message>
-        <source>Go to %1</source>
-        <translation type="vanished">Przejdź do %1</translation>
-    </message>
-    <message>
-        <source>This is a system provided profile.</source>
-        <translation type="vanished">To jest profil dostarczony z tym oprogramowaniem.</translation>
-    </message>
-    <message>
-        <source>A profile already exists with this name.</source>
-        <translation type="vanished">Profil o tej nazwie już istnieje.</translation>
-    </message>
-    <message>
-        <source>A profile already exists with this name</source>
-        <translation type="vanished">Profil o tej nazwie już istnieje</translation>
-    </message>
-    <message>
-        <source>The profile will be reset to default values.</source>
-        <translation type="vanished">Profil będzie zresetowany do wartości domyślnych.</translation>
-    </message>
-    <message>
         <source>Profile Error</source>
         <translation>Błąd w profilu</translation>
+    </message>
+    <message>
+        <source>Select zip file for import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zip File (*.zip)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No profiles found for import in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>, %1 profile(s) skipped</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Importing profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>One profile has been imported</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 profiles have been imported</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ProfileModel</name>
-    <message>
-        <source>Global</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>User</source>
         <translation type="unfinished"></translation>
@@ -8642,7 +8630,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Created from default settings</source>
-        <translation type="unfinished">Utworzono z domyślnych ustawień</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copied from: </source>
@@ -8650,39 +8638,47 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Will be reset to default values</source>
-        <translation type="unfinished">Będzie zresetowany do wartości domyślnych.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Created from %1</source>
-        <translation type="unfinished">Utworzono z %1</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>(system provided)</source>
-        <translation type="unfinished">(dostarczone przez system)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>(deleted)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Renamed from %1</source>
-        <translation type="unfinished">Przemianowano z %1</translation>
+        <source>Default</source>
+        <translation type="unfinished">Domyślnie</translation>
+    </message>
+    <message>
+        <source>System</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Renamed from: </source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>This is a system provided profile.</source>
-        <translation type="unfinished">To jest profil dostarczony z tym oprogramowaniem.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The profile will be reset to default values.</source>
-        <translation type="unfinished">Profil będzie zresetowany do wartości domyślnych.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>A profile already exists with this name.</source>
-        <translation type="unfinished">Profil o tej nazwie już istnieje.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>A profile already exists with this name</source>
-        <translation type="unfinished">Profil o tej nazwie już istnieje</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Profile</source>

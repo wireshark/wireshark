@@ -36,6 +36,8 @@ Wireshark 3.1.0 Release Notes
        been added. It can be accessed through the "-z credentials"
        option in tshark or from the "tools" menu in Wireshark.
 
+     • Editcap can now split files on floating point intervals.
+
   New Protocol Support
 
    CableLabs Layer-3 Protocol IEEE EtherType 0xb4e3 (CL3), Distributed
@@ -89,7 +91,7 @@ Wireshark 3.1.0 Release Notes
 
   A complete FAQ is available on the Wireshark web site[9].
 
-  Last updated 2019-07-14 08:08:24 UTC
+  Last updated 2019-07-21 08:08:38 UTC
 
  References
 
@@ -100,5 +102,5 @@ Wireshark 3.1.0 Release Notes
    5. https://ask.wireshark.org/
    6. https://www.wireshark.org/lists/
    7. https://bugs.wireshark.org/
-   8. http://www.wiresharktraining.com/
+   8. https://www.wiresharktraining.com/
    9. https://www.wireshark.org/faq.html

@@ -5679,6 +5679,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Hantera profiler</translation>
     </message>
     <message>
+        <source>Import</source>
+        <translation type="unfinished">Importera</translation>
+    </message>
+    <message>
         <source>New</source>
         <oldsource>New...</oldsource>
         <translation>Ny</translation>
@@ -8533,10 +8537,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
 <context>
     <name>ProfileDialog</name>
     <message>
-        <source>Name</source>
-        <translation type="vanished">Namn</translation>
-    </message>
-    <message>
         <source>Search for profile ...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8554,6 +8554,10 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Kopiera denna profil.</translation>
     </message>
     <message>
+        <source>Import</source>
+        <translation type="unfinished">Importera</translation>
+    </message>
+    <message>
         <source>Configuration Profiles</source>
         <translation>Konfigurationsprofiler</translation>
     </message>
@@ -8562,11 +8566,11 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Global profiles</source>
+        <source>User-defined profiles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>User-defined profiles</source>
+        <source>System profiles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8574,60 +8578,40 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Will be reset to default values</source>
-        <translation type="vanished">Kommer att återställas till standardvärden</translation>
-    </message>
-    <message>
-        <source>Created from %1</source>
-        <translation type="vanished">Skapad från %1</translation>
-    </message>
-    <message>
-        <source>(system provided)</source>
-        <translation type="vanished">(tillhandahålls av systemet)</translation>
-    </message>
-    <message>
-        <source>(deleted)</source>
-        <translation type="vanished">(borttagen)</translation>
-    </message>
-    <message>
-        <source>Created from default settings</source>
-        <translation type="vanished">Skapad från standardinställningarna</translation>
-    </message>
-    <message>
-        <source>Renamed from %1</source>
-        <translation type="vanished">Bytt namn från %1</translation>
-    </message>
-    <message>
-        <source>Go to %1</source>
-        <translation type="vanished">Gå till %1</translation>
-    </message>
-    <message>
-        <source>This is a system provided profile.</source>
-        <translation type="vanished">Detta är en profil systemet tillhandahåller.</translation>
-    </message>
-    <message>
-        <source>A profile already exists with this name.</source>
-        <translation type="vanished">Det finns redan en profil med det namnet.</translation>
-    </message>
-    <message>
-        <source>A profile already exists with this name</source>
-        <translation type="vanished">Det finns redan en profil med det namnet</translation>
-    </message>
-    <message>
-        <source>The profile will be reset to default values.</source>
-        <translation type="vanished">Profilen kommer att återställas till standardvärden.</translation>
-    </message>
-    <message>
         <source>Profile Error</source>
         <translation>Profilfel</translation>
+    </message>
+    <message>
+        <source>Select zip file for import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zip File (*.zip)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No profiles found for import in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>, %1 profile(s) skipped</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Importing profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>One profile has been imported</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 profiles have been imported</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ProfileModel</name>
-    <message>
-        <source>Global</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>User</source>
         <translation type="unfinished"></translation>
@@ -8638,7 +8622,7 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Created from default settings</source>
-        <translation type="unfinished">Skapad från standardinställningarna</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copied from: </source>
@@ -8646,39 +8630,47 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>Will be reset to default values</source>
-        <translation type="unfinished">Kommer att återställas till standardvärden</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Created from %1</source>
-        <translation type="unfinished">Skapad från %1</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>(system provided)</source>
-        <translation type="unfinished">(tillhandahålls av systemet)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>(deleted)</source>
-        <translation type="unfinished">(borttagen)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Renamed from %1</source>
-        <translation type="unfinished">Bytt namn från %1</translation>
+        <source>Default</source>
+        <translation type="unfinished">Standard</translation>
+    </message>
+    <message>
+        <source>System</source>
+        <translation type="unfinished">System</translation>
+    </message>
+    <message>
+        <source>Renamed from: </source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>This is a system provided profile.</source>
-        <translation type="unfinished">Detta är en profil systemet tillhandahåller.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The profile will be reset to default values.</source>
-        <translation type="unfinished">Profilen kommer att återställas till standardvärden.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>A profile already exists with this name.</source>
-        <translation type="unfinished">Det finns redan en profil med det namnet.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>A profile already exists with this name</source>
-        <translation type="unfinished">Det finns redan en profil med det namnet</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Profile</source>

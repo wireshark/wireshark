@@ -5655,6 +5655,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Gérer des Profils</translation>
     </message>
     <message>
+        <source>Import</source>
+        <translation type="unfinished">Importer</translation>
+    </message>
+    <message>
         <source>New</source>
         <oldsource>New...</oldsource>
         <translation>Nouveau</translation>
@@ -8503,10 +8507,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
 <context>
     <name>ProfileDialog</name>
     <message>
-        <source>Name</source>
-        <translation type="vanished">Nom</translation>
-    </message>
-    <message>
         <source>Search for profile ...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8524,6 +8524,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Copier ce profil.</translation>
     </message>
     <message>
+        <source>Import</source>
+        <translation type="unfinished">Importer</translation>
+    </message>
+    <message>
         <source>Configuration Profiles</source>
         <translation>Profils de configuration</translation>
     </message>
@@ -8532,11 +8536,11 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Global profiles</source>
+        <source>User-defined profiles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>User-defined profiles</source>
+        <source>System profiles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8544,44 +8548,40 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Created from %1</source>
-        <translation type="vanished">Créé à partir de %1</translation>
-    </message>
-    <message>
-        <source>Created from default settings</source>
-        <translation type="vanished">Créé à partir des paramètres par défaut</translation>
-    </message>
-    <message>
-        <source>Renamed from %1</source>
-        <translation type="vanished">Renomé à partir de %1</translation>
-    </message>
-    <message>
-        <source>Go to %1</source>
-        <translation type="vanished">Aller à %1</translation>
-    </message>
-    <message>
-        <source>This is a system provided profile.</source>
-        <translation type="vanished">Ceci est un profile fournit par le système.</translation>
-    </message>
-    <message>
-        <source>A profile already exists with this name.</source>
-        <translation type="vanished">Un profil existe déjà avec ce nom.</translation>
-    </message>
-    <message>
-        <source>A profile already exists with this name</source>
-        <translation type="vanished">Un profil existe déjà avec ce nom.</translation>
-    </message>
-    <message>
         <source>Profile Error</source>
         <translation>Erreur de Profil</translation>
+    </message>
+    <message>
+        <source>Select zip file for import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zip File (*.zip)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No profiles found for import in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>, %1 profile(s) skipped</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Importing profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>One profile has been imported</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 profiles have been imported</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ProfileModel</name>
-    <message>
-        <source>Global</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>User</source>
         <translation type="unfinished"></translation>
@@ -8592,7 +8592,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Created from default settings</source>
-        <translation type="unfinished">Créé à partir des paramètres par défaut</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copied from: </source>
@@ -8604,7 +8604,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>Created from %1</source>
-        <translation type="unfinished">Créé à partir de %1</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>(system provided)</source>
@@ -8615,12 +8615,20 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Renamed from %1</source>
-        <translation type="unfinished">Renomé à partir de %1</translation>
+        <source>Default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>System</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Renamed from: </source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>This is a system provided profile.</source>
-        <translation type="unfinished">Ceci est un profile fournit par le système.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The profile will be reset to default values.</source>
@@ -8628,11 +8636,11 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>A profile already exists with this name.</source>
-        <translation type="unfinished">Un profil existe déjà avec ce nom.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>A profile already exists with this name</source>
-        <translation type="unfinished">Un profil existe déjà avec ce nom.</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Profile</source>

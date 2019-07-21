@@ -5658,6 +5658,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>管理配置文件</translation>
     </message>
     <message>
+        <source>Import</source>
+        <translation type="unfinished">导入</translation>
+    </message>
+    <message>
         <source>New</source>
         <oldsource>New...</oldsource>
         <translation>新建</translation>
@@ -8508,10 +8512,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
 <context>
     <name>ProfileDialog</name>
     <message>
-        <source>Name</source>
-        <translation type="vanished">名称</translation>
-    </message>
-    <message>
         <source>Search for profile ...</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8529,6 +8529,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>复制该配置文件。</translation>
     </message>
     <message>
+        <source>Import</source>
+        <translation type="unfinished">导入</translation>
+    </message>
+    <message>
         <source>Configuration Profiles</source>
         <translation>配置文件</translation>
     </message>
@@ -8537,11 +8541,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Global profiles</source>
+        <source>User-defined profiles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>User-defined profiles</source>
+        <source>System profiles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8549,56 +8553,40 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Will be reset to default values</source>
-        <translation type="vanished">将重置为默认值</translation>
-    </message>
-    <message>
-        <source>Created from %1</source>
-        <translation type="vanished">创建自 %1</translation>
-    </message>
-    <message>
-        <source>(system provided)</source>
-        <translation type="vanished">(系统提供)</translation>
-    </message>
-    <message>
-        <source>Created from default settings</source>
-        <translation type="vanished">根据默认设置创建</translation>
-    </message>
-    <message>
-        <source>Renamed from %1</source>
-        <translation type="vanished">重命名自 %1</translation>
-    </message>
-    <message>
-        <source>Go to %1</source>
-        <translation type="vanished">转到 %1</translation>
-    </message>
-    <message>
-        <source>This is a system provided profile.</source>
-        <translation type="vanished">这是一个系统提供的配置文件。</translation>
-    </message>
-    <message>
-        <source>A profile already exists with this name.</source>
-        <translation type="vanished">已存在该名称的配置文件。</translation>
-    </message>
-    <message>
-        <source>A profile already exists with this name</source>
-        <translation type="vanished">已存在该名称的配置文件。</translation>
-    </message>
-    <message>
-        <source>The profile will be reset to default values.</source>
-        <translation type="vanished">此配置文件将重置为默认值。</translation>
-    </message>
-    <message>
         <source>Profile Error</source>
         <translation>配置文件错误</translation>
+    </message>
+    <message>
+        <source>Select zip file for import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zip File (*.zip)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No profiles found for import in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>, %1 profile(s) skipped</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Importing profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>One profile has been imported</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 profiles have been imported</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ProfileModel</name>
-    <message>
-        <source>Global</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>User</source>
         <translation type="unfinished"></translation>
@@ -8609,7 +8597,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Created from default settings</source>
-        <translation type="unfinished">根据默认设置创建</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copied from: </source>
@@ -8617,39 +8605,47 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Will be reset to default values</source>
-        <translation type="unfinished">将重置为默认值</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Created from %1</source>
-        <translation type="unfinished">创建自 %1</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>(system provided)</source>
-        <translation type="unfinished">(系统提供)</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>(deleted)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Renamed from %1</source>
-        <translation type="unfinished">重命名自 %1</translation>
+        <source>Default</source>
+        <translation type="unfinished">默认</translation>
+    </message>
+    <message>
+        <source>System</source>
+        <translation type="unfinished">系统</translation>
+    </message>
+    <message>
+        <source>Renamed from: </source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>This is a system provided profile.</source>
-        <translation type="unfinished">这是一个系统提供的配置文件。</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>The profile will be reset to default values.</source>
-        <translation type="unfinished">此配置文件将重置为默认值。</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>A profile already exists with this name.</source>
-        <translation type="unfinished">已存在该名称的配置文件。</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>A profile already exists with this name</source>
-        <translation type="unfinished">已存在该名称的配置文件。</translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Profile</source>

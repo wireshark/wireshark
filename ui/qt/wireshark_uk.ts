@@ -5612,6 +5612,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Управління Профілями</translation>
     </message>
     <message>
+        <source>Import</source>
+        <translation type="unfinished">Імпортувати</translation>
+    </message>
+    <message>
         <source>New</source>
         <oldsource>New...</oldsource>
         <translation type="unfinished"></translation>
@@ -8475,6 +8479,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Скопіювати цей профіль.</translation>
     </message>
     <message>
+        <source>Import</source>
+        <translation type="unfinished">Імпортувати</translation>
+    </message>
+    <message>
         <source>Configuration Profiles</source>
         <translation>Профілі Конфігурації</translation>
     </message>
@@ -8483,11 +8491,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Global profiles</source>
+        <source>User-defined profiles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>User-defined profiles</source>
+        <source>System profiles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8498,13 +8506,37 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>Profile Error</source>
         <translation>Помилка Профілю</translation>
     </message>
+    <message>
+        <source>Select zip file for import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zip File (*.zip)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No profiles found for import in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>, %1 profile(s) skipped</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Importing profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>One profile has been imported</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 profiles have been imported</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>ProfileModel</name>
-    <message>
-        <source>Global</source>
-        <translation type="unfinished"></translation>
-    </message>
     <message>
         <source>User</source>
         <translation type="unfinished"></translation>
@@ -8538,7 +8570,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Renamed from %1</source>
+        <source>Default</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>System</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Renamed from: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>

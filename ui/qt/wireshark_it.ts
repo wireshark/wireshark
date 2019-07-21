@@ -5679,6 +5679,10 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Gestisci i profili</translation>
     </message>
     <message>
+        <source>Import</source>
+        <translation type="unfinished">Importa</translation>
+    </message>
+    <message>
         <source>New</source>
         <oldsource>New...</oldsource>
         <translation>Nuovo</translation>
@@ -8533,12 +8537,8 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
 <context>
     <name>ProfileDialog</name>
     <message>
-        <source>Name</source>
-        <translation type="vanished">Nome</translation>
-    </message>
-    <message>
         <source>Search for profile ...</source>
-        <translation type="unfinished"></translation>
+        <translation>Cerca profilo...</translation>
     </message>
     <message>
         <source>Create a new profile using default settings.</source>
@@ -8554,155 +8554,159 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Copia questo profilo.</translation>
     </message>
     <message>
+        <source>Import</source>
+        <translation type="unfinished">Importa</translation>
+    </message>
+    <message>
         <source>Configuration Profiles</source>
         <translation>Profili di configurazione</translation>
     </message>
     <message>
         <source>All Profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Tutti i profili</translation>
     </message>
     <message>
         <source>Global profiles</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Profili globali</translation>
     </message>
     <message>
         <source>User-defined profiles</source>
+        <translation>Profili definiti dall&apos;utente</translation>
+    </message>
+    <message>
+        <source>System profiles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>New profile</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Will be reset to default values</source>
-        <translation type="vanished">Sarà ripristinato ai valori predefiniti</translation>
-    </message>
-    <message>
-        <source>Created from %1</source>
-        <translation type="vanished">Creato da %1</translation>
-    </message>
-    <message>
-        <source>(system provided)</source>
-        <translation type="vanished">(fornito dal sistema)</translation>
-    </message>
-    <message>
-        <source>(deleted)</source>
-        <translation type="vanished">(eliminato)</translation>
-    </message>
-    <message>
-        <source>Created from default settings</source>
-        <translation type="vanished">Creato dalle impostazioni predefinite</translation>
-    </message>
-    <message>
-        <source>Renamed from %1</source>
-        <translation type="vanished">Rinominato da %1</translation>
-    </message>
-    <message>
-        <source>Go to %1</source>
-        <translation type="vanished">Vai a %1</translation>
-    </message>
-    <message>
-        <source>This is a system provided profile.</source>
-        <translation type="vanished">Questo è un profilo fornito dal sistema.</translation>
-    </message>
-    <message>
-        <source>A profile already exists with this name.</source>
-        <translation type="vanished">Un profilo con questo nome esiste già.</translation>
-    </message>
-    <message>
-        <source>A profile already exists with this name</source>
-        <translation type="vanished">Un profilo con questo nome esiste già</translation>
-    </message>
-    <message>
-        <source>The profile will be reset to default values.</source>
-        <translation type="vanished">Il profilo sarà ripristinato ai valori predefiniti.</translation>
+        <translation>Nuon profilo</translation>
     </message>
     <message>
         <source>Profile Error</source>
         <translation>Errore di profilo</translation>
+    </message>
+    <message>
+        <source>Select zip file for import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zip File (*.zip)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No profiles found for import in %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>, %1 profile(s) skipped</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Importing profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>One profile has been imported</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>%1 profiles have been imported</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
     <name>ProfileModel</name>
     <message>
         <source>Global</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Globale</translation>
     </message>
     <message>
         <source>User</source>
-        <translation type="unfinished"></translation>
+        <translation>Utente</translation>
     </message>
     <message>
         <source>Resetting to default</source>
-        <translation type="unfinished"></translation>
+        <translation>Ripristino dei valori predefiniti</translation>
     </message>
     <message>
         <source>Created from default settings</source>
-        <translation type="unfinished">Creato dalle impostazioni predefinite</translation>
+        <translation>Creato dalle impostazioni predefinite</translation>
     </message>
     <message>
         <source>Copied from: </source>
-        <translation type="unfinished"></translation>
+        <translation>Copiato da:</translation>
     </message>
     <message>
         <source>Will be reset to default values</source>
-        <translation type="unfinished">Sarà ripristinato ai valori predefiniti</translation>
+        <translation>Sarà ripristinato ai valori predefiniti</translation>
     </message>
     <message>
         <source>Created from %1</source>
-        <translation type="unfinished">Creato da %1</translation>
+        <translation>Creato da %1</translation>
     </message>
     <message>
         <source>(system provided)</source>
-        <translation type="unfinished">(fornito dal sistema)</translation>
+        <translation>(fornito dal sistema)</translation>
     </message>
     <message>
         <source>(deleted)</source>
-        <translation type="unfinished">(eliminato)</translation>
+        <translation>(eliminato)</translation>
     </message>
     <message>
         <source>Renamed from %1</source>
-        <translation type="unfinished">Rinominato da %1</translation>
+        <translation type="vanished">Rinominato da %1</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation type="unfinished">Predefinito</translation>
+    </message>
+    <message>
+        <source>System</source>
+        <translation type="unfinished">Sistema</translation>
+    </message>
+    <message>
+        <source>Renamed from: </source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>This is a system provided profile.</source>
-        <translation type="unfinished">Questo è un profilo fornito dal sistema.</translation>
+        <translation>Questo è un profilo fornito dal sistema.</translation>
     </message>
     <message>
         <source>The profile will be reset to default values.</source>
-        <translation type="unfinished">Il profilo sarà ripristinato ai valori predefiniti.</translation>
+        <translation>Il profilo sarà ripristinato ai valori predefiniti.</translation>
     </message>
     <message>
         <source>A profile already exists with this name.</source>
-        <translation type="unfinished">Un profilo con questo nome esiste già.</translation>
+        <translation>Un profilo con questo nome esiste già.</translation>
     </message>
     <message>
         <source>A profile already exists with this name</source>
-        <translation type="unfinished">Un profilo con questo nome esiste già</translation>
+        <translation>Un profilo con questo nome esiste già</translation>
     </message>
     <message>
         <source>Profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Profilo</translation>
     </message>
     <message>
         <source>Type</source>
-        <translation type="unfinished">Tipo</translation>
+        <translation>Tipo</translation>
     </message>
     <message>
         <source>Path</source>
-        <translation type="unfinished">Percorso</translation>
+        <translation>Percorso</translation>
     </message>
     <message>
         <source>copy</source>
-        <translation type="unfinished"></translation>
+        <translation>copia</translation>
     </message>
     <message>
         <source>A profile must not contain any of the following characters: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Un profilo non deve contenere uno dei seguenti caratteri: %1</translation>
     </message>
     <message>
         <source>A profile must not start or end with a period (.)</source>
-        <translation type="unfinished"></translation>
+        <translation>Un profilo non deve iniziare o finire con un punto (.)</translation>
     </message>
 </context>
 <context>
