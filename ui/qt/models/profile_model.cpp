@@ -776,6 +776,7 @@ bool ProfileModel::checkNameValidity(QString name, QString *msg)
 {
     QString message;
     bool invalid = false;
+    QString msgChars;
 
 #ifdef _WIN32
     /* According to https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file */
@@ -786,11 +787,12 @@ bool ProfileModel::checkNameValidity(QString name, QString *msg)
 
     for ( int cnt = 0; cnt < invalid_dir_chars.length() && ! invalid; cnt++ )
     {
+        msgChars += invalid_dir_chars[cnt] + " ";
         if ( name.contains(invalid_dir_chars[cnt]) )
             invalid = true;
     }
     if ( invalid )
-        message = tr("A profile must not contain any of the following characters: %1").arg(invalid_dir_chars);
+        message = tr("A profile must not contain any of the following characters: %1").arg(msgChars);
 
     if ( message.isEmpty() && ( name.startsWith('.') || name.endsWith('.') ) )
         message = tr("A profile must not start or end with a period (.)");
