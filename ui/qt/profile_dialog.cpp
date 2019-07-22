@@ -180,6 +180,8 @@ void ProfileDialog::updateWidgets()
     bool enable_del = false;
     bool enable_ok = true;
 
+    pd_ui_->btnImport->setEnabled( ! model_->changesPending() );
+
     QModelIndex index = sort_model_->mapToSource(pd_ui_->profileTreeView->currentIndex());
     if ( index.column() != ProfileModel::COL_NAME )
         index = index.sibling(index.row(), ProfileModel::COL_NAME);
@@ -249,6 +251,8 @@ void ProfileDialog::on_newToolButton_clicked()
         pd_ui_->profileTreeView->edit(ridx);
         currentItemChanged();
     }
+    else
+        updateWidgets();
 }
 
 void ProfileDialog::on_deleteToolButton_clicked()
@@ -259,6 +263,8 @@ void ProfileDialog::on_deleteToolButton_clicked()
 
     QModelIndex newIdx = sort_model_->mapFromSource(model_->index(0, 0));
     pd_ui_->profileTreeView->setCurrentIndex(newIdx);
+
+    updateWidgets();
 }
 
 void ProfileDialog::on_copyToolButton_clicked()
@@ -279,6 +285,8 @@ void ProfileDialog::on_copyToolButton_clicked()
         pd_ui_->profileTreeView->edit(sort_model_->mapFromSource(ridx));
         currentItemChanged();
     }
+    else
+        updateWidgets();
 }
 
 void ProfileDialog::on_buttonBox_accepted()

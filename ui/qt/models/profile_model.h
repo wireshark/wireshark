@@ -90,6 +90,8 @@ public:
 
     GList * at(int row) const;
 
+    bool changesPending() const;
+
 #ifdef HAVE_MINIZIP
     int importProfilesFromZip(QString filename, int *skippedCnt = Q_NULLPTR);
 #endif

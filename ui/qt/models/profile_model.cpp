@@ -164,6 +164,25 @@ GList *ProfileModel::at(int row) const
     return entry(prof);
 }
 
+bool ProfileModel::changesPending() const
+{
+    if ( reset_default_ )
+        return true;
+
+    if ( g_list_length(edited_profile_list()) != g_list_length(current_profile_list()) )
+        return true;
+
+    bool pending = false;
+    GList *fl_entry = edited_profile_list();
+    while (fl_entry && fl_entry->data && ! pending) {
+        profile_def *profile = reinterpret_cast<profile_def *>(fl_entry->data);
+        pending = ( profile->status == PROF_STAT_NEW || profile->status == PROF_STAT_CHANGED || profile->status == PROF_STAT_COPY );
+        fl_entry = gxx_list_next(fl_entry);
+    }
+
+    return pending;
+}
+
 int ProfileModel::rowCount(const QModelIndex &) const
 {
     return profiles_.count();
