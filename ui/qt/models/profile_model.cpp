@@ -775,9 +775,15 @@ int ProfileModel::importProfilesFromDir(QString dirname, int * skippedCnt, bool 
 bool ProfileModel::checkNameValidity(QString name, QString *msg)
 {
     QString message;
-
-    QString invalid_dir_chars("\\/:*?\"<>|");
     bool invalid = false;
+
+#ifdef _WIN32
+    /* According to https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file */
+    QString invalid_dir_chars = "<>:\"/\\\|?*";
+#else
+    QString invalid_dir_chars = QDir::separator();
+#endif
+
     for ( int cnt = 0; cnt < invalid_dir_chars.length() && ! invalid; cnt++ )
     {
         if ( name.contains(invalid_dir_chars[cnt]) )
