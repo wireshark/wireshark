@@ -79,17 +79,7 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
     connect( pd_ui_->btnImport, &QPushButton::clicked, this, &ProfileDialog::importFromDirectory);
 #endif
 
-    model_ = new ProfileModel(this);
-    sort_model_ = new ProfileSortModel(this);
-    sort_model_->setSourceModel(model_);
-    pd_ui_->profileTreeView->setModel(sort_model_);
-    if ( sort_model_->columnCount() <= 1 )
-        pd_ui_->profileTreeView->header()->hide();
-    else
-    {
-        pd_ui_->profileTreeView->header()->setStretchLastSection(false);
-        pd_ui_->profileTreeView->header()->setSectionResizeMode(ProfileModel::COL_NAME, QHeaderView::Stretch);
-    }
+    resetTreeView();
 
     connect(pd_ui_->profileTreeView, &ProfileTreeView::currentItemChanged,
             this, &ProfileDialog::currentItemChanged);
@@ -180,6 +170,10 @@ void ProfileDialog::updateWidgets()
     bool enable_del = false;
     bool enable_ok = true;
 
+    QString msg = "";
+    if ( model_->changesPending() )
+        msg = tr("An import of profiles is not allowed, while changes are pending.");
+    pd_ui_->btnImport->setToolTip(msg);
     pd_ui_->btnImport->setEnabled( ! model_->changesPending() );
 
     QModelIndex index = sort_model_->mapToSource(pd_ui_->profileTreeView->currentIndex());
@@ -405,6 +399,9 @@ void ProfileDialog::importFromZip()
 
     QMessageBox msgBox(icon, tr("Importing profiles"), msg, QMessageBox::Ok, this);
     msgBox.exec();
+
+    if ( count > 0 )
+        resetTreeView();
 }
 #endif
 
@@ -436,6 +433,32 @@ void ProfileDialog::importFromDirectory()
 
     QMessageBox msgBox(icon, tr("Importing profiles"), msg, QMessageBox::Ok, this);
     msgBox.exec();
+    if ( count > 0 )
+        resetTreeView();
+}
+
+void ProfileDialog::resetTreeView()
+{
+    if ( model_ )
+    {
+        pd_ui_->profileTreeView->setModel(Q_NULLPTR);
+        sort_model_->setSourceModel(Q_NULLPTR);
+        delete sort_model_;
+        delete model_;
+    }
+
+    model_ = new ProfileModel(this);
+    sort_model_ = new ProfileSortModel(this);
+    sort_model_->setSourceModel(model_);
+    pd_ui_->profileTreeView->setModel(sort_model_);
+
+    if ( sort_model_->columnCount() <= 1 )
+        pd_ui_->profileTreeView->header()->hide();
+    else
+    {
+        pd_ui_->profileTreeView->header()->setStretchLastSection(false);
+        pd_ui_->profileTreeView->header()->setSectionResizeMode(ProfileModel::COL_NAME, QHeaderView::Stretch);
+    }
 }
 
 /*

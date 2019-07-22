@@ -54,6 +54,7 @@ private:
     ProfileSortModel *sort_model_;
 
     void updateWidgets();
+    void resetTreeView();
 
 private slots:
     void currentItemChanged();
