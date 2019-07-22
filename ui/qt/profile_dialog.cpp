@@ -46,6 +46,7 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
     GeometryStateDialog(parent),
     pd_ui_(new Ui::ProfileDialog),
     ok_button_(Q_NULLPTR),
+    import_button_(Q_NULLPTR),
     model_(Q_NULLPTR),
     sort_model_(Q_NULLPTR)
 {
@@ -68,15 +69,17 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
     pd_ui_->lblInfo->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
+    import_button_ = pd_ui_->buttonBox->addButton(tr("Import"), QDialogButtonBox::ActionRole);
+
 #ifdef HAVE_MINIZIP
-    QMenu * importMenu = new QMenu(pd_ui_->btnImport);
+    QMenu * importMenu = new QMenu(import_button_);
     QAction * entry = importMenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS " from Zip"));
     connect( entry, &QAction::triggered, this, &ProfileDialog::importFromZip);
     entry = importMenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS " from Directory"));
     connect( entry, &QAction::triggered, this, &ProfileDialog::importFromDirectory);
-    pd_ui_->btnImport->setMenu(importMenu);
+    import_button_->setMenu(importMenu);
 #else
-    connect( pd_ui_->btnImport, &QPushButton::clicked, this, &ProfileDialog::importFromDirectory);
+    connect( import_button_, &QPushButton::clicked, this, &ProfileDialog::importFromDirectory);
 #endif
 
     resetTreeView();
@@ -173,15 +176,15 @@ void ProfileDialog::updateWidgets()
     QString msg = "";
     if ( model_->changesPending() )
         msg = tr("An import of profiles is not allowed, while changes are pending.");
-    pd_ui_->btnImport->setToolTip(msg);
-    pd_ui_->btnImport->setEnabled( ! model_->changesPending() );
+    import_button_->setToolTip(msg);
+    import_button_->setEnabled( ! model_->changesPending() );
 
     QModelIndex index = sort_model_->mapToSource(pd_ui_->profileTreeView->currentIndex());
     if ( index.column() != ProfileModel::COL_NAME )
         index = index.sibling(index.row(), ProfileModel::COL_NAME);
 
     if (index.isValid()) {
-        if ( !index.data(ProfileModel::DATA_IS_GLOBAL).toBool() && ! model_->resetDefault())
+        if ( !index.data(ProfileModel::DATA_IS_GLOBAL).toBool() || ! model_->resetDefault())
             enable_del = true;
     }
 
@@ -234,7 +237,8 @@ void ProfileDialog::currentItemChanged()
 
 void ProfileDialog::on_newToolButton_clicked()
 {
-    pd_ui_->cmbProfileTypes->setCurrentIndex(ProfileSortModel::UserProfiles);
+    pd_ui_->lineProfileFilter->setText("");
+    pd_ui_->cmbProfileTypes->setCurrentIndex(ProfileSortModel::AllProfiles);
     sort_model_->setFilterString();
 
     QModelIndex ridx = sort_model_->mapFromSource(model_->addNewProfile(tr("New profile")));
@@ -263,6 +267,7 @@ void ProfileDialog::on_deleteToolButton_clicked()
 
 void ProfileDialog::on_copyToolButton_clicked()
 {
+    pd_ui_->lineProfileFilter->setText("");
     pd_ui_->cmbProfileTypes->setCurrentIndex(ProfileSortModel::AllProfiles);
     sort_model_->setFilterString();
 
@@ -350,6 +355,8 @@ void ProfileDialog::on_buttonBox_helpRequested()
 
 void ProfileDialog::editingFinished()
 {
+    pd_ui_->lineProfileFilter->setText("");
+    pd_ui_->cmbProfileTypes->setCurrentIndex(ProfileSortModel::AllProfiles);
     currentItemChanged();
 }
 

@@ -51,7 +51,7 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0,0">
+    <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,0,0,0,0">
      <item>
       <widget class="StockIconToolButton" name="newToolButton">
        <property name="toolTip">
@@ -61,7 +61,7 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../image/stock_icons.qrc">
+        <iconset>
          <normaloff>:/stock/plus-8.png</normaloff>:/stock/plus-8.png</iconset>
        </property>
       </widget>
@@ -72,7 +72,7 @@
         <string>Remove this profile. System provided profiles cannot be removed.</string>
        </property>
        <property name="icon">
-        <iconset resource="../../image/stock_icons.qrc">
+        <iconset>
          <normaloff>:/stock/minus-8.png</normaloff>:/stock/minus-8.png</iconset>
        </property>
       </widget>
@@ -86,15 +86,8 @@
         <string/>
        </property>
        <property name="icon">
-        <iconset resource="../../image/stock_icons.qrc">
+        <iconset>
          <normaloff>:/stock/copy-8.png</normaloff>:/stock/copy-8.png</iconset>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="btnImport">
-       <property name="text">
-        <string>Import</string>
        </property>
       </widget>
      </item>
@@ -161,9 +154,7 @@
    <header>widgets/elided_label.h</header>
   </customwidget>
  </customwidgets>
- <resources>
-  <include location="../../image/stock_icons.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>

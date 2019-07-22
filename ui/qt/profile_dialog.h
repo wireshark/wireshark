@@ -50,6 +50,7 @@ protected:
 private:
     Ui::ProfileDialog *pd_ui_;
     QPushButton *ok_button_;
+    QPushButton *import_button_;
     ProfileModel *model_;
     ProfileSortModel *sort_model_;
 
