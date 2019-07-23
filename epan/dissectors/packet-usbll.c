@@ -17,6 +17,7 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/crc16-tvb.h>
+#include <wsutil/crc5.h>
 
 static int proto_usbll = -1;
 
@@ -25,6 +26,7 @@ static int hf_usbll_pid = -1;
 static int hf_usbll_addr = -1;
 static int hf_usbll_endp = -1;
 static int hf_usbll_crc5 = -1;
+static int hf_usbll_crc5_status = -1;
 static int hf_usbll_data = -1;
 static int hf_usbll_data_crc = -1;
 static int hf_usbll_data_crc_status = -1;
@@ -37,11 +39,14 @@ static int hf_usbll_split_e = -1;
 static int hf_usbll_split_iso_se = -1;
 static int hf_usbll_split_et = -1;
 static int hf_usbll_split_crc5 = -1;
+static int hf_usbll_split_crc5_status = -1;
 
 static int ett_usbll = -1;
 
 static expert_field ei_invalid_pid = EI_INIT;
 static expert_field ei_undecoded = EI_INIT;
+static expert_field ei_wrong_crc5 = EI_INIT;
+static expert_field ei_wrong_split_crc5 = EI_INIT;
 static expert_field ei_wrong_crc16 = EI_INIT;
 
 static dissector_handle_t usbll_handle;
@@ -154,14 +159,19 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     case USB_PID_TOKEN_IN:
     case USB_PID_SPECIAL_PING:
     {
+        guint16 address_bits;
         static const int *address_fields[] = {
             &hf_usbll_addr,
             &hf_usbll_endp,
-            &hf_usbll_crc5,
             NULL
         };
 
-        proto_tree_add_bitmask_list(tree, tvb, offset, 2, address_fields, ENC_LITTLE_ENDIAN);
+        address_bits = tvb_get_letohs(tvb, offset);
+        proto_tree_add_bitmask_list_value(tree, tvb, offset, 2, address_fields, address_bits);
+        proto_tree_add_checksum(tree, tvb, offset,
+            hf_usbll_crc5, hf_usbll_crc5_status, &ei_wrong_crc5, pinfo,
+            crc5_usb_11bit_input(address_bits),
+            ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
         offset += 2;
         break;
     }
@@ -191,13 +201,12 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
         break;
     case USB_PID_TOKEN_SOF:
     {
-        static const int *sof_fields[] = {
-            &hf_usbll_sof_framenum,
-            &hf_usbll_crc5,
-            NULL
-        };
-
-        proto_tree_add_bitmask_list(tree, tvb, offset, 2, sof_fields, ENC_LITTLE_ENDIAN);
+        guint32 frame;
+        proto_tree_add_item_ret_uint(tree, hf_usbll_sof_framenum, tvb, offset, 2, ENC_LITTLE_ENDIAN, &frame);
+        proto_tree_add_checksum(tree, tvb, offset,
+            hf_usbll_crc5, hf_usbll_crc5_status, &ei_wrong_crc5, pinfo,
+            crc5_usb_11bit_input(frame),
+            ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
         offset += 2;
         break;
     }
@@ -212,7 +221,6 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
             &hf_usbll_split_s,
             &hf_usbll_split_e,
             &hf_usbll_split_et,
-            &hf_usbll_split_crc5,
             NULL
         };
         static const int *split_iso_fields[] = {
@@ -221,7 +229,6 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
             &hf_usbll_split_port,
             &hf_usbll_split_iso_se,
             &hf_usbll_split_et,
-            &hf_usbll_split_crc5,
             NULL
         };
 
@@ -233,6 +240,10 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
         {
             proto_tree_add_bitmask_list(tree, tvb, offset, 3, split_fields, ENC_LITTLE_ENDIAN);
         }
+        proto_tree_add_checksum(tree, tvb, offset,
+            hf_usbll_split_crc5, hf_usbll_split_crc5_status, &ei_wrong_split_crc5, pinfo,
+            crc5_usb_19bit_input(tmp),
+            ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
         offset += 3;
         break;
     }
@@ -275,6 +286,10 @@ proto_register_usbll(void)
         { &hf_usbll_crc5,
             { "CRC5", "usbll.crc5",
               FT_UINT16, BASE_HEX, NULL, 0xF800,
+              NULL, HFILL }},
+        { &hf_usbll_crc5_status,
+            { "CRC5 Status", "usbll.crc5.status",
+              FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0,
               NULL, HFILL }},
         { &hf_usbll_data,
             { "Data", "usbll.data",
@@ -325,11 +340,17 @@ proto_register_usbll(void)
             { "CRC5", "usbll.split_crc5",
               FT_UINT24, BASE_HEX, NULL, 0xF80000,
               NULL, HFILL }},
+        { &hf_usbll_split_crc5_status,
+            { "CRC5 Status", "usbll.split_crc5.status",
+              FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0,
+              NULL, HFILL }},
     };
 
     static ei_register_info ei[] = {
         { &ei_invalid_pid, { "usbll.invalid_pid", PI_MALFORMED, PI_ERROR, "Invalid USB Packet ID", EXPFILL }},
         { &ei_undecoded, { "usbll.undecoded", PI_UNDECODED, PI_WARN, "Not dissected yet (report to wireshark.org)", EXPFILL }},
+        { &ei_wrong_crc5, { "usbll.crc5.wrong", PI_PROTOCOL, PI_WARN, "Wrong CRC", EXPFILL }},
+        { &ei_wrong_split_crc5, { "usbll.split_crc5.wrong", PI_PROTOCOL, PI_WARN, "Wrong CRC", EXPFILL }},
         { &ei_wrong_crc16, { "usbll.crc16.wrong", PI_PROTOCOL, PI_WARN, "Wrong CRC", EXPFILL }},
     };
 

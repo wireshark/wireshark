@@ -40,6 +40,8 @@ libwsutil.so.0 libwsutil0 #MINVER#
  crc32c_calculate@Base 1.10.0
  crc32c_calculate_no_swap@Base 1.10.0
  crc32c_table_lookup@Base 1.10.0
+ crc5_usb_11bit_input@Base 3.1.1
+ crc5_usb_19bit_input@Base 3.1.1
  crc6_0X6F@Base 1.12.0~rc1
  crc7update@Base 1.10.0
  crc8_0x2F@Base 1.10.0

@@ -23,6 +23,7 @@ set(WSUTIL_PUBLIC_HEADERS
 	copyright_info.h
 	cpu_info.h
 	crash_info.h
+	crc5.h
 	crc6.h
 	crc7.h
 	crc8.h
@@ -85,6 +86,7 @@ set(WSUTIL_COMMON_FILES
 	crc16.c
 	crc16-plain.c
 	crc32.c
+	crc5.c
 	crc6.c
 	crc7.c
 	crc8.c
