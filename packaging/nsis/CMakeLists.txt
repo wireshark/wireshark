@@ -82,7 +82,10 @@ endif()
 # 1913 = VS2017 15.6        / 14.13
 # 1914 = VS2017 15.7        / 14.14
 set(_vcredist_name "vcredist_${TARGET_MACHINE}.exe")
-if(MSVC_VERSION GREATER_EQUAL 1910)
+if(MSVC_VERSION GREATER_EQUAL 1920)
+	set(_ws_vcredist_subdir "vcredist_MSVC2019")
+	set(_msvs_version 15.0) # Doesn't appear to be set
+elseif(MSVC_VERSION GREATER_EQUAL 1910)
 	set(_ws_vcredist_subdir "vcredist_MSVC2017")
 	set(_msvs_version 15.0)
 elseif(MSVC_VERSION GREATER_EQUAL 1900)
