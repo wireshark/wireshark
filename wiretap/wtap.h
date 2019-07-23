@@ -288,6 +288,7 @@ extern "C" {
 #define WTAP_ENCAP_VPP                          205
 #define WTAP_ENCAP_IEEE802_15_4_TAP             206
 #define WTAP_ENCAP_LOG_3GPP                     207
+#define WTAP_ENCAP_USB_2_0                      208
 
 /* After adding new item here, please also add new item to encap_table_base array */
 

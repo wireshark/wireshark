@@ -472,6 +472,9 @@ static const struct {
 
 	/* IEEE 802.15.4 TAP */
 	{ 283,		WTAP_ENCAP_IEEE802_15_4_TAP },
+
+	/* USB 2.0/1.1/1.0 packets as transmitted over the cable */
+	{ 288,		WTAP_ENCAP_USB_2_0 },
 	/*
 	 * To repeat:
 	 *

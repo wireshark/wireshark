@@ -975,6 +975,8 @@ static struct encap_type_info encap_table_base[] = {
 	/* WTAP_ENCAP_LOG_3GPP */
 	{ "log_3GPP", "3GPP Phone Log" },
 
+	/* WTAP_ENCAP_USB_2_0 */
+	{ "usb-20", "USB 2.0/1.1/1.0 packets" },
 };
 
 WS_DLL_LOCAL
