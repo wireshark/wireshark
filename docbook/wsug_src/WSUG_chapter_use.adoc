@@ -322,23 +322,23 @@ This menu item tries to find the previous packet matching the settings from
 This menu item marks the currently selected packet. See
 <<ChWorkMarkPacketSection>> for details.
 
-|menu:Mark All Displayed Packets[]            |kbd:[Shift+Ctrl+M]|
+|menu:Mark All Displayed Packets[]            |kbd:[Ctrl+Shift+M]|
 This menu item marks all displayed packets.
 
 |menu:Unmark All Displayed Packets[]          |kbd:[Ctrl+Alt+M]  |
 This menu item unmarks all displayed packets.
 
-|menu:Next Mark[]                             |kbd:[Shift+Alt+N] |
+|menu:Next Mark[]                             |kbd:[Ctrl+Shift+N] |
 Find the next marked packet.
 
-|menu:Previous Mark[]                         |kbd:[Shift+Alt+B] |
+|menu:Previous Mark[]                         |kbd:[Ctrl+Shift+B] |
 Find the previous marked packet.
 
 |menu:Ignore/Unignore Packet[]                |kbd:[Ctrl+D]      |
 This menu item marks the currently selected packet as ignored. See
 <<ChWorkIgnorePacketSection>> for details.
 
-|menu:Ignore All Displayed[]                  |kbd:[Shift+Ctrl+D]|
+|menu:Ignore All Displayed[]                  |kbd:[Ctrl+Shift+D]|
 This menu item marks all displayed packets as ignored.
 
 |menu:Unignore All Displayed[]                |kbd:[Ctrl+Alt+D]  |
@@ -358,25 +358,25 @@ This menu item tries to find the next time referenced packet.
 |menu:Previous Time Reference[]               |kbd:[Ctrl+Alt+B]  |
 This menu item tries to find the previous time referenced packet.
 
-|menu:Time Shift[]               |kbd:[Ctrl+Shift+T]  |
+|menu:Time Shift...[]                         |kbd:[Ctrl+Shift+T]|
 Opens the “Time Shift” dialog, which allows you to adjust the timestamps
 of some or all packets.
 
-|menu:Packet Comment...[]               ||
+|menu:Packet Comment...[]                      |kbd:[Ctrl+Alt+C] |
 Opens the “Packet Comment” dialog, which lets you add a comment to a
 single packet. Note that the ability to save packet comments depends on
 your file format. E.g. pcapng supports comments, pcap does not.
 
-|menu:Capture Comment...[]               ||
-This will let you add a capture comment. Note that the ability to save
+|menu:Delete All Packet Comments[]             ||
+This will delete all comments from all packets. Note that the ability to save
 capture comments depends on your file format. E.g. pcapng supports
 comments, pcap does not.
 
-|menu:Configuration Profiles...[]             |kbd:[Shift+Ctrl+A]|
+|menu:Configuration Profiles...[]             |kbd:[Ctrl+Shift+A]|
 This menu item brings up a dialog box for handling configuration profiles.  More
 detail is provided in <<ChCustConfigProfilesSection>>.
 
-|menu:Preferences...[]                        |kbd:[Shift+Ctrl+P] or kbd:[Cmd+,] (macOS)|
+|menu:Preferences...[]                        |kbd:[Ctrl+Shift+P] or kbd:[Cmd+,] (macOS)|
 This menu item brings up a dialog box that allows you to set preferences for
 many parameters that control Wireshark.  You can also save your preferences so
 Wireshark will use them the next time you start it. More detail is provided in
