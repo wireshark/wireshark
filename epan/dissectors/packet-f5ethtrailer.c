@@ -384,6 +384,7 @@ static const int *hf_flags__fields[] = {
 
 /** Table containing subdissectors for different providers */
 static dissector_table_t provider_subdissector_table;
+static dissector_table_t noise_subdissector_table;
 
 
 /*-----------------------------------------------------------------------------------------------*/
@@ -2134,6 +2135,7 @@ dissect_dpt_trailer_noise_high(
 	render_f5dptv1_tlvhdr(tvb, tree, 0);
 
 	o = F5_DPT_V1_TLV_HDR_LEN;
+	tdata->noise_high = 1;
 
 	/* If there was no peer id in the medium trailer, then there is no peer flow information to
 	 * render; skip it all.
@@ -2265,6 +2267,7 @@ dissect_dpt_trailer_noise_med(
 	render_f5dptv1_tlvhdr(tvb, tree, 0);
 
 	o = F5_DPT_V1_TLV_HDR_LEN;
+	tdata->noise_med = 1;
 	rstcauselen = F5TRL_MEDV4_RSTCLEN(tvb,o);
 	/* Check for an invalid reset cause length and do not try to reference any of the data if it is
 	 * bad
@@ -2421,6 +2424,7 @@ dissect_dpt_trailer_noise_low(
 	render_f5dptv1_tlvhdr(tvb, tree, 0);
 
 	o = F5_DPT_V1_TLV_HDR_LEN;
+	tdata->noise_low = 1;
 
 	/* Direction */
 	flags = tvb_get_guint8(tvb, o);
@@ -2515,32 +2519,9 @@ dissect_dpt_trailer_noise(
 	proto_tree *tree,
 	void *data
 ) {
-	f5eth_tap_data_t   *tdata = (f5eth_tap_data_t *)data;
-	int                 processed;
-
-	switch(tvb_get_ntohs(tvb, F5_DPT_V1_TLV_TYPE_OFF)) {
-		case F5TYPE_LOW:
-			processed = dissect_dpt_trailer_noise_low(tvb, pinfo, tree, data);
-			if(processed > 0) {
-				tdata->noise_low = 1;
-			}
-			break;
-		case F5TYPE_MED:
-			processed = dissect_dpt_trailer_noise_med(tvb, pinfo, tree, data);
-			if(processed > 0)
-				tdata->noise_med = 1;
-			break;
-		case F5TYPE_HIGH:
-			processed = dissect_dpt_trailer_noise_high(tvb, pinfo, tree, data);
-			if(processed > 0)
-				tdata->noise_high = 1;
-			break;
-		default:
-			/* Skip unknown TLV types */
-			processed = 0;
-			break;
-	}
-	return(processed);
+	guint32 pattern;
+	pattern = tvb_get_ntohs(tvb, F5_DPT_V1_TLV_TYPE_OFF) << 16 | tvb_get_ntohs(tvb, F5_DPT_V1_TLV_VERSION_OFF);
+	return(dissector_try_uint_new(noise_subdissector_table, pattern,tvb, pinfo, tree, FALSE, data));
 } /* dissect_dpt_trailer_noise() */
 
 
@@ -3285,6 +3266,7 @@ void proto_register_f5ethtrailer (void)
 	proto_f5ethtrailer_dpt_noise = proto_register_protocol_in_name_only(
 			"F5 Ethernet trailer provider - Noise", "Noise", "f5ethtrailer.provider.noise",
 			proto_f5ethtrailer, FT_BYTES);
+	noise_subdissector_table = register_dissector_table("f5ethtrailer.noise_type_ver", "F5 Ethernet Trailer Noise", proto_f5ethtrailer, FT_UINT16, BASE_DEC);
 
 	/* Analyze Menu Items */
 	register_conversation_filter("f5ethtrailer", "F5 TCP", f5_tcp_conv_valid, f5_tcp_conv_filter);
@@ -3315,6 +3297,10 @@ void proto_reg_handoff_f5ethtrailer(void)
 	/* Register helper dissectors */
 	h = create_dissector_handle(dissect_dpt_trailer_noise, proto_f5ethtrailer_dpt_noise);
 	dissector_add_uint("f5ethtrailer.provider", F5_DPT_PROVIDER_NOISE, h);
+	dissector_add_uint("f5ethtrailer.noise_type_ver", F5TYPE_LOW << 16 | 2, create_dissector_handle(dissect_dpt_trailer_noise_low, -1));
+	dissector_add_uint("f5ethtrailer.noise_type_ver", F5TYPE_LOW << 16 | 3, create_dissector_handle(dissect_dpt_trailer_noise_low, -1));
+	dissector_add_uint("f5ethtrailer.noise_type_ver", F5TYPE_MED << 16 | 4, create_dissector_handle(dissect_dpt_trailer_noise_med, -1));
+	dissector_add_uint("f5ethtrailer.noise_type_ver", F5TYPE_HIGH << 16 | 1, create_dissector_handle(dissect_dpt_trailer_noise_high, -1));
 #ifdef F5_POP_OTHERFIELDS
 	/* These fields are duplicates of other, well-known fields so that
 	 * filtering on these fields will also pick up data out of the
