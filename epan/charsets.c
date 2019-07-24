@@ -711,10 +711,7 @@ get_ucs_2_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const 
  *
  * Specify length in bytes.
  *
- * XXX - should map surrogate errors to REPLACEMENT CHARACTERs (0xFFFD).
- * XXX - should map code points > 10FFFF to REPLACEMENT CHARACTERs.
- * XXX - if there are an odd number of bytes, should put a
- * REPLACEMENT CHARACTER at the end.
+ * XXX - should map invalid Unicode characters to REPLACEMENT CHARACTERs.
  */
 guint8 *
 get_utf_16_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const guint encoding)
@@ -741,11 +738,11 @@ get_utf_16_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const
             if (i + 1 >= length) {
                 /*
                  * Oops, string ends with a lead surrogate.
-                 * Ignore this for now.
-                 * XXX - insert "substitute" character?
-                 * Report the error in some other
-                 * fashion?
+                 *
+                 * Insert a REPLACEMENT CHARACTER to mark the error,
+                 * and quit.
                  */
+                wmem_strbuf_append_unichar(strbuf, UNREPL);
                 break;
             }
             lead_surrogate = uchar2;
@@ -760,23 +757,22 @@ get_utf_16_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const
             } else {
                 /*
                  * Not a trail surrogate.
-                 * Ignore the entire pair.
-                 * XXX - insert "substitute" character?
-                 * Report the error in some other
-                 * fashion?
+                 *
+                 * Insert a REPLACEMENT CHARACTER to mark the error,
+                 * and continue;
                  */
-                 ;
+                wmem_strbuf_append_unichar(strbuf, UNREPL);
             }
         } else {
             if (IS_TRAIL_SURROGATE(uchar2)) {
                 /*
                  * Trail surrogate without a preceding
-                 * lead surrogate.  Ignore it.
-                 * XXX - insert "substitute" character?
-                 * Report the error in some other
-                 * fashion?
+                 * lead surrogate.
+                 *
+                 * Insert a REPLACEMENT CHARACTER to mark the error,
+                 * and continue;
                  */
-                ;
+                wmem_strbuf_append_unichar(strbuf, UNREPL);
             } else {
                 /*
                  * Non-surrogate; just append it.
@@ -787,9 +783,12 @@ get_utf_16_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const
     }
 
     /*
-     * XXX - if i < length, this means we were handed an odd
-     * number of bytes, so we're not a valid UTF-16 string.
+     * If i < length, this means we were handed an odd number of bytes,
+     * so we're not a valid UTF-16 string; insert a REPLACEMENT CHARACTER
+     * to mark the error.
      */
+    if (i < length)
+        wmem_strbuf_append_unichar(strbuf, UNREPL);
     return (guint8 *) wmem_strbuf_finalize(strbuf);
 }
 
