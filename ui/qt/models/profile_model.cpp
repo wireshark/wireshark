@@ -799,7 +799,7 @@ bool ProfileModel::checkNameValidity(QString name, QString *msg)
 
 #ifdef _WIN32
     /* According to https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file */
-    QString invalid_dir_chars = "<>:\"/\\\|?*";
+    QString invalid_dir_chars = "<>:\"/\\|?*";
 #else
     QString invalid_dir_chars = QDir::separator();
 #endif
