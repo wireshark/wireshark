@@ -732,6 +732,14 @@ WS_DLL_PUBLIC gint tvb_get_nstringz(tvbuff_t *tvb, const gint offset,
 WS_DLL_PUBLIC gint tvb_get_nstringz0(tvbuff_t *tvb, const gint offset,
     const guint bufsize, guint8 *buffer);
 
+/*
+ * Given a tvbuff, an offset into the tvbuff, a buffer, and a buffer size,
+ * extract as many raw bytes from the tvbuff, starting at the offset,
+ * as 1) are available in the tvbuff and 2) will fit in the buffer, leaving
+ * room for a terminating NUL.
+ */
+WS_DLL_PUBLIC gint tvb_get_raw_bytes_as_string(tvbuff_t *tvb, const gint offset, char *buffer, size_t bufsize);
+
 /** Iterates over the provided portion of the tvb checking that each byte
 * is an ascii printable character.
 * Returns TRUE if all bytes are printable, FALSE otherwise

@@ -3443,6 +3443,38 @@ tvb_get_nstringz0(tvbuff_t *tvb, const gint offset, const guint bufsize, guint8*
 	}
 }
 
+/*
+ * Given a tvbuff, an offset into the tvbuff, a buffer, and a buffer size,
+ * extract as many raw bytes from the tvbuff, starting at the offset,
+ * as 1) are available in the tvbuff and 2) will fit in the buffer, leaving
+ * room for a terminating NUL.
+ */
+gint
+tvb_get_raw_bytes_as_string(tvbuff_t *tvb, const gint offset, char *buffer, size_t bufsize)
+{
+	gint     len = 0;
+
+	DISSECTOR_ASSERT(tvb && tvb->initialized);
+
+	/* There must be room for the string and the terminating NUL. */
+	DISSECTOR_ASSERT(bufsize > 0);
+
+	DISSECTOR_ASSERT(bufsize - 1 < G_MAXINT);
+
+	len = tvb_captured_length_remaining(tvb, offset);
+	if (len <= 0) {
+		buffer[0] = '\0';
+		return 0;
+	}
+	if (len > (gint)(bufsize - 1))
+		len = (gint)(bufsize - 1);
+
+	/* Copy the string to buffer */
+	tvb_memcpy(tvb, buffer, offset, len);
+	buffer[len] = '\0';
+	return len;
+}
+
 gboolean tvb_ascii_isprint(tvbuff_t *tvb, const gint offset, const gint length)
 {
 	const guint8* buf = tvb_get_ptr(tvb, offset, length);
