@@ -1,4 +1,4 @@
--- 3GPP TS 38.463 V15.3.0 (2019-03)
+-- 3GPP TS 38.463 V15.4.0 (2019-07)
 -- **************************************************************
 --
 -- PDU definitions for E1AP
@@ -75,6 +75,7 @@ IMPORTS
 	GNB-CU-CP-TNLA-To-Add-Item,
 	GNB-CU-CP-TNLA-To-Remove-Item,
 	GNB-CU-CP-TNLA-To-Update-Item,
+	GNB-CU-UP-TNLA-To-Remove-Item,
 	TransactionID,
 	Inactivity-Timer,
 	DRBs-Subject-To-Counter-Check-List-EUTRAN,
@@ -83,7 +84,9 @@ IMPORTS
 	GNB-CU-UP-Capacity,
 	GNB-CU-UP-OverloadInformation,
 	DataDiscardRequired,
-	PDU-Session-Resource-Data-Usage-List
+	PDU-Session-Resource-Data-Usage-List,
+	RANUEID,
+	GNB-DU-ID
 
 
 FROM E1AP-IEs
@@ -132,6 +135,7 @@ FROM E1AP-Containers
 	id-GNB-CU-CP-TNLA-To-Add-List,
 	id-GNB-CU-CP-TNLA-To-Remove-List,
 	id-GNB-CU-CP-TNLA-To-Update-List,
+	id-GNB-CU-UP-TNLA-To-Remove-List,
 	id-DRB-To-Setup-List-EUTRAN,
 	id-DRB-To-Modify-List-EUTRAN,
 	id-DRB-To-Remove-List-EUTRAN,
@@ -170,6 +174,8 @@ FROM E1AP-Containers
 	id-UEDLMaximumIntegrityProtectedDataRate,
 	id-DataDiscardRequired,
 	id-PDU-Session-Resource-Data-Usage-List,
+	id-RANUEID,
+	id-GNB-DU-ID,
 
 	maxnoofErrors,
 	maxnoofSPLMNs,
@@ -438,9 +444,12 @@ GNB-CU-UP-ConfigurationUpdateIEs E1AP-PROTOCOL-IES ::= {
 	{ ID id-gNB-CU-UP-ID						CRITICALITY reject	TYPE GNB-CU-UP-ID					PRESENCE mandatory }|
 	{ ID id-gNB-CU-UP-Name						CRITICALITY ignore	TYPE GNB-CU-UP-Name					PRESENCE optional	}|
 	{ ID id-SupportedPLMNs						CRITICALITY reject	TYPE SupportedPLMNs-List			PRESENCE optional	}|
-	{ ID id-gNB-CU-UP-Capacity					CRITICALITY ignore	TYPE GNB-CU-UP-Capacity			   PRESENCE optional	},
+	{ ID id-gNB-CU-UP-Capacity					CRITICALITY ignore	TYPE GNB-CU-UP-Capacity			   PRESENCE optional	}|
+	{ ID id-GNB-CU-UP-TNLA-To-Remove-List		CRITICALITY reject	TYPE GNB-CU-UP-TNLA-To-Remove-List	PRESENCE optional	},
 	...
 } 
+
+GNB-CU-UP-TNLA-To-Remove-List 	::= SEQUENCE (SIZE(1.. maxnoofTNLAssociations))	OF GNB-CU-UP-TNLA-To-Remove-Item
 
 -- **************************************************************
 --
@@ -617,7 +626,9 @@ BearerContextSetupRequestIEs E1AP-PROTOCOL-IES ::= {
 	{ ID id-ActivityNotificationLevel			CRITICALITY reject	TYPE ActivityNotificationLevel					PRESENCE mandatory }|
 	{ ID id-UE-Inactivity-Timer					CRITICALITY reject	TYPE Inactivity-Timer								PRESENCE optional  }|
 	{ ID id-BearerContextStatusChange			CRITICALITY reject	TYPE BearerContextStatusChange					PRESENCE optional  }|
-	{ ID id-System-BearerContextSetupRequest	CRITICALITY reject	TYPE System-BearerContextSetupRequest				PRESENCE mandatory },
+	{ ID id-System-BearerContextSetupRequest	CRITICALITY reject	TYPE System-BearerContextSetupRequest				PRESENCE mandatory }|
+	{ ID id-RANUEID								CRITICALITY ignore	TYPE RANUEID										PRESENCE optional }|
+	{ ID id-GNB-DU-ID							CRITICALITY ignore	TYPE GNB-DU-ID										PRESENCE optional },
 	...
 } 
 
@@ -731,7 +742,10 @@ BearerContextModificationRequestIEs E1AP-PROTOCOL-IES ::= {
 	{ ID id-New-UL-TNL-Information-Required			CRITICALITY reject	TYPE New-UL-TNL-Information-Required					PRESENCE optional  }|
 	{ ID id-UE-Inactivity-Timer						CRITICALITY reject	TYPE Inactivity-Timer										PRESENCE optional  }|
 	{ ID id-DataDiscardRequired					CRITICALITY ignore	TYPE DataDiscardRequired											PRESENCE optional  }|
-	{ ID id-System-BearerContextModificationRequest	CRITICALITY reject	TYPE System-BearerContextModificationRequest		PRESENCE optional  },
+	{ ID id-System-BearerContextModificationRequest	CRITICALITY reject	TYPE System-BearerContextModificationRequest		PRESENCE optional  }|
+	{ ID id-RANUEID										CRITICALITY ignore	TYPE RANUEID												PRESENCE optional }|
+	{ ID id-GNB-DU-ID									CRITICALITY ignore	TYPE GNB-DU-ID												PRESENCE optional }|
+	{ ID id-ActivityNotificationLevel					CRITICALITY ignore	TYPE ActivityNotificationLevel							PRESENCE optional },
 	...
 } 
 
@@ -975,7 +989,8 @@ BearerContextReleaseRequest ::= SEQUENCE {
 BearerContextReleaseRequestIEs E1AP-PROTOCOL-IES ::= {
 	{ ID id-gNB-CU-CP-UE-E1AP-ID			CRITICALITY reject	TYPE GNB-CU-CP-UE-E1AP-ID			PRESENCE mandatory }|
 	{ ID id-gNB-CU-UP-UE-E1AP-ID			CRITICALITY reject	TYPE GNB-CU-UP-UE-E1AP-ID			PRESENCE mandatory }|
-	{ ID id-DRB-Status-List					CRITICALITY ignore	TYPE DRB-Status-List				PRESENCE optional  },	
+	{ ID id-DRB-Status-List					CRITICALITY ignore	TYPE DRB-Status-List				PRESENCE optional  }|
+	{ ID id-Cause							CRITICALITY ignore	TYPE Cause							PRESENCE mandatory },	
 	...
 } 
 

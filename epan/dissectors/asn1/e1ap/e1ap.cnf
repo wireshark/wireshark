@@ -212,7 +212,16 @@ id-PDU-Session-To-Notify-List                   ProtocolIE-ID
 id-PDU-Session-Resource-Data-Usage-List         ProtocolIE-ID
 id-SNSSAI                                       ProtocolIE-ID
 id-DataDiscardRequired                          ProtocolIE-ID
-
+id-OldQoSFlowMap-ULendmarkerexpected            ProtocolIE-ID
+id-DRB-QoS                                      ProtocolIE-ID
+id-GNB-CU-UP-TNLA-To-Remove-List                ProtocolIE-ID
+id-endpoint-IP-Address-and-Port                 ProtocolIE-ID
+id-TNLAssociationTransportLayerAddressgNBCUUP   ProtocolIE-ID
+id-RANUEID                                      ProtocolIE-ID
+id-GNB-DU-ID                                    ProtocolIE-ID
+id-CommonNetworkInstance                        ProtocolIE-ID
+id-NetworkInstance                              ProtocolIE-ID
+id-QoSFlowMappingIndication                     ProtocolIE-ID
 #.END
 
 #.REGISTER
@@ -288,9 +297,19 @@ BitRate                                      N e1ap.ies id-UEDLMaximumIntegrityP
 PDU-Session-To-Notify-List                   N e1ap.ies id-PDU-Session-To-Notify-List
 PDU-Session-Resource-Data-Usage-List         N e1ap.ies id-PDU-Session-Resource-Data-Usage-List
 DataDiscardRequired                          N e1ap.ies id-DataDiscardRequired
+GNB-CU-UP-TNLA-To-Remove-List                N e1ap.ies id-GNB-CU-UP-TNLA-To-Remove-List
+Endpoint-IP-address-and-port                 N e1ap.ies id-endpoint-IP-Address-and-Port
+RANUEID                                      N e1ap.ies id-RANUEID
+GNB-DU-ID                                    N e1ap.ies id-GNB-DU-ID
 
 #E1AP-PROTOCOL-EXTENSION
 SNSSAI                                       N e1ap.extension id-SNSSAI
+QoS-Flow-List                                N e1ap.extension id-OldQoSFlowMap-ULendmarkerexpected
+QoSFlowLevelQoSParameters                    N e1ap.extension id-DRB-QoS
+CP-TNL-Information                           N e1ap.extension id-TNLAssociationTransportLayerAddressgNBCUUP
+CommonNetworkInstance                        N e1ap.extension id-CommonNetworkInstance
+NetworkInstance                              N e1ap.extension id-NetworkInstance
+QoS-Flow-Mapping-Indication                  N e1ap.extension id-QoSFlowMappingIndication
 
 #E1AP-ELEMENTARY-PROCEDURE
 Reset                                    N e1ap.proc.imsg id-reset
@@ -355,6 +374,16 @@ MRDC-DataUsageReport                     N e1ap.proc.imsg id-mRDC-DataUsageRepor
   if (param_tvb) {
     proto_tree *subtree = proto_item_add_subtree(actx->created_item, ett_e1ap_PLMN_Identity);
     dissect_e212_mcc_mnc(param_tvb, actx->pinfo, subtree, 0, E212_NONE, FALSE);
+  }
+
+#.TYPE_ATTR
+PortNumber TYPE = FT_UINT16 DISPLAY = BASE_DEC
+
+#.FN_BODY PortNumber VAL_PTR = &parameter_tvb HF_INDEX = -1
+  tvbuff_t *parameter_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (parameter_tvb) {
+    actx->created_item = proto_tree_add_item(tree, hf_index, parameter_tvb, 0, 2, ENC_BIG_ENDIAN);
   }
 
 #.TYPE_ATTR

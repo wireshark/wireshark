@@ -1,4 +1,4 @@
--- 3GPP TS 38.463 V15.3.0 (2019-03)
+-- 3GPP TS 38.463 V15.4.0 (2019-07)
 -- **************************************************************
 --
 -- Information Element Definitions
@@ -15,7 +15,15 @@ BEGIN
 
 IMPORTS	
 	
+	id-CommonNetworkInstance,
 	id-SNSSAI,
+	id-OldQoSFlowMap-ULendmarkerexpected,
+	id-DRB-QoS,
+	id-endpoint-IP-Address-and-Port,
+	id-NetworkInstance,
+	id-QoSFlowMappingIndication,
+	id-TNLAssociationTransportLayerAddressgNBCUUP,
+	id-Cause,
 	maxnoofErrors,
 	maxnoofSliceItems,
 	maxnoofEUTRANQOSParameters,
@@ -152,7 +160,7 @@ CauseTransport ::= ENUMERATED {
 Cell-Group-Information	::= SEQUENCE (SIZE(1.. maxnoofCellGroups)) OF Cell-Group-Information-Item
 
 Cell-Group-Information-Item	::=	SEQUENCE {
-	cell-Group-ID							Cell-Gorup-ID,
+	cell-Group-ID							Cell-Group-ID,
 	uL-Configuration						UL-Configuration		OPTIONAL,
 	dL-TX-Stop								DL-TX-Stop				OPTIONAL,
 	rAT-Type								RAT-Type				OPTIONAL,
@@ -165,7 +173,7 @@ Cell-Group-Information-Item-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
 }
 
 
-Cell-Gorup-ID	::=		INTEGER (0..3, ...)
+Cell-Group-ID	::=		INTEGER (0..3, ...)
 
 CipheringAlgorithm	::=	ENUMERATED {
 	nEA0,
@@ -181,6 +189,8 @@ CNSupport ::= ENUMERATED {
 	both,
 	...
 }
+
+CommonNetworkInstance ::= OCTET STRING
 
 ConfidentialityProtectionIndication ::= ENUMERATED {
 	required,
@@ -203,6 +213,7 @@ CP-TNL-Information		::= 	CHOICE {
 }
 
 CP-TNL-Information-ExtIEs E1AP-PROTOCOL-IES ::= {
+	{ ID id-endpoint-IP-Address-and-Port	CRITICALITY reject	TYPE Endpoint-IP-address-and-port 	PRESENCE mandatory},
 	...
 }
 
@@ -248,14 +259,14 @@ Data-Forwarding-Information-Request-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
-Data-Forwarding-Information-Response	::=	SEQUENCE {
+Data-Forwarding-Information	::=	SEQUENCE {
 	uL-Data-Forwarding						UP-TNL-Information		OPTIONAL,
 	dL-Data-Forwarding						UP-TNL-Information		OPTIONAL,
-	iE-Extensions							ProtocolExtensionContainer { { Data-Forwarding-Information-Response-ExtIEs } }	OPTIONAL,
+	iE-Extensions							ProtocolExtensionContainer { { Data-Forwarding-Information-ExtIEs } }	OPTIONAL,
 	...
 }
 
-Data-Forwarding-Information-Response-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
+Data-Forwarding-Information-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -511,7 +522,7 @@ DRB-Setup-List-EUTRAN	::= SEQUENCE (SIZE(1.. maxnoofDRBs)) OF DRB-Setup-Item-EUT
 DRB-Setup-Item-EUTRAN	::=	SEQUENCE {
 	dRB-ID									DRB-ID,
 	s1-DL-UP-TNL-Information				UP-TNL-Information,
-	data-Forwarding-Information-Response	Data-Forwarding-Information-Response		OPTIONAL,
+	data-Forwarding-Information-Response	Data-Forwarding-Information		OPTIONAL,
 	uL-UP-Transport-Parameters				UP-Parameters,
 	s1-DL-UP-Unchanged						ENUMERATED {true, ...}		OPTIONAL,
 	iE-Extensions							ProtocolExtensionContainer { { DRB-Setup-Item-EUTRAN-ExtIEs } }	OPTIONAL,
@@ -527,7 +538,7 @@ DRB-Setup-Mod-List-EUTRAN	::= SEQUENCE (SIZE(1.. maxnoofDRBs)) OF DRB-Setup-Mod-
 DRB-Setup-Mod-Item-EUTRAN	::=	SEQUENCE {
 	dRB-ID									DRB-ID,
 	s1-DL-UP-TNL-Information				UP-TNL-Information,
-	data-Forwarding-Information-Response	Data-Forwarding-Information-Response		OPTIONAL,
+	data-Forwarding-Information-Response	Data-Forwarding-Information		OPTIONAL,
 	uL-UP-Transport-Parameters				UP-Parameters,
 	iE-Extensions							ProtocolExtensionContainer { { DRB-Setup-Mod-Item-EUTRAN-ExtIEs } }	OPTIONAL,
 	...
@@ -541,7 +552,7 @@ DRB-Setup-List-NG-RAN	::= SEQUENCE (SIZE(1.. maxnoofDRBs)) OF DRB-Setup-Item-NG-
 
 DRB-Setup-Item-NG-RAN	::=	SEQUENCE {
 	dRB-ID										DRB-ID,
-	dRB-data-Forwarding-Information-Response	Data-Forwarding-Information-Response		OPTIONAL,
+	dRB-data-Forwarding-Information-Response	Data-Forwarding-Information		OPTIONAL,
 	uL-UP-Transport-Parameters					UP-Parameters,
 	flow-Setup-List								QoS-Flow-List,
 	flow-Failed-List							QoS-Flow-Failed-List	OPTIONAL,
@@ -557,7 +568,7 @@ DRB-Setup-Mod-List-NG-RAN	::= SEQUENCE (SIZE(1.. maxnoofDRBs)) OF DRB-Setup-Mod-
 
 DRB-Setup-Mod-Item-NG-RAN	::=	SEQUENCE {
 	dRB-ID										DRB-ID,
-	dRB-data-Forwarding-Information-Response	Data-Forwarding-Information-Response		OPTIONAL,
+	dRB-data-Forwarding-Information-Response	Data-Forwarding-Information		OPTIONAL,
 	uL-UP-Transport-Parameters					UP-Parameters,
 	flow-Setup-List								QoS-Flow-List,
 	flow-Failed-List							QoS-Flow-Failed-List	OPTIONAL,
@@ -618,7 +629,7 @@ DRB-To-Modify-Item-EUTRAN	::=	SEQUENCE {
 	pDCP-Configuration						PDCP-Configuration						OPTIONAL,	
 	eUTRAN-QoS								EUTRAN-QoS								OPTIONAL,
 	s1-UL-UP-TNL-Information				UP-TNL-Information						OPTIONAL,	
-	data-Forwarding-Information-Request		Data-Forwarding-Information-Request		OPTIONAL,
+	data-Forwarding-Information		Data-Forwarding-Information		OPTIONAL,
 	pDCP-SN-Status-Request					PDCP-SN-Status-Request						OPTIONAL,
 	pDCP-SN-Status-Information				PDCP-SN-Status-Information				OPTIONAL,
 	dL-UP-Parameters						UP-Parameters							OPTIONAL,
@@ -640,7 +651,7 @@ DRB-To-Modify-Item-NG-RAN	::=	SEQUENCE {
 	dRB-ID										DRB-ID,
 	sDAP-Configuration							SDAP-Configuration						OPTIONAL,	
 	pDCP-Configuration							PDCP-Configuration						OPTIONAL,
-	dRB-Data-Forwarding-Information-Response		Data-Forwarding-Information-Response		OPTIONAL,
+	dRB-Data-Forwarding-Information		Data-Forwarding-Information		OPTIONAL,
 	pDCP-SN-Status-Request							PDCP-SN-Status-Request						OPTIONAL,
 	pdcp-SN-Status-Information					PDCP-SN-Status-Information				OPTIONAL,
 	dL-UP-Parameters							UP-Parameters							OPTIONAL,
@@ -654,6 +665,8 @@ DRB-To-Modify-Item-NG-RAN	::=	SEQUENCE {
 }
 
 DRB-To-Modify-Item-NG-RAN-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
+	{ID id-OldQoSFlowMap-ULendmarkerexpected	CRITICALITY reject	EXTENSION QoS-Flow-List	PRESENCE optional}|
+	{ID id-DRB-QoS	CRITICALITY ignore	EXTENSION QoSFlowLevelQoSParameters	PRESENCE optional},
 	...
 }
 
@@ -762,6 +775,7 @@ DRB-To-Setup-Item-NG-RAN	::=	SEQUENCE {
 }
 
 DRB-To-Setup-Item-NG-RAN-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
+		{ID id-DRB-QoS	CRITICALITY ignore	EXTENSION QoSFlowLevelQoSParameters	PRESENCE optional},
 	...
 }
 
@@ -775,13 +789,13 @@ DRB-To-Setup-Mod-Item-NG-RAN	::=	SEQUENCE {
 	flow-Mapping-Information					QoS-Flow-QoS-Parameter-List,
 	dRB-Data-Forwarding-Information-Request		Data-Forwarding-Information-Request		OPTIONAL,
 	dRB-Inactivity-Timer						Inactivity-Timer					OPTIONAL,
-	pDCP-UL-Count								PDCP-Count							OPTIONAL,
-	pDCP-DL-Count								PDCP-Count							OPTIONAL,
+	pDCP-SN-Status-Information				PDCP-SN-Status-Information					OPTIONAL,
 	iE-Extensions								ProtocolExtensionContainer { { DRB-To-Setup-Mod-Item-NG-RAN-ExtIEs } }	OPTIONAL,
 	...
 }
 
 DRB-To-Setup-Mod-Item-NG-RAN-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
+	{ID id-DRB-QoS	CRITICALITY ignore	EXTENSION QoSFlowLevelQoSParameters	PRESENCE optional},
 	...
 }
 
@@ -830,6 +844,16 @@ DataDiscardRequired	::= 	ENUMERATED {
 -- E
 
 EncryptionKey	::=	OCTET STRING
+
+Endpoint-IP-address-and-port::= SEQUENCE {
+	endpoint-IP-Address			TransportLayerAddress,
+	portNumber					PortNumber,
+	iE-Extensions							ProtocolExtensionContainer { { Endpoint-IP-address-and-port-ExtIEs} } OPTIONAL
+}
+
+Endpoint-IP-address-and-port-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
 
 EUTRANAllocationAndRetentionPriority ::= SEQUENCE {
 	priorityLevel				PriorityLevel,
@@ -880,7 +904,7 @@ GNB-CU-UP-Capacity				::= INTEGER (0..255)
 GNB-CU-UP-CellGroupRelatedConfiguration	 ::= SEQUENCE (SIZE(1.. maxnoofUPParameters)) OF GNB-CU-UP-CellGroupRelatedConfiguration-Item	
 
 GNB-CU-UP-CellGroupRelatedConfiguration-Item ::= SEQUENCE {
-	cell-Group-ID				Cell-Gorup-ID,
+	cell-Group-ID				Cell-Group-ID,
 	uP-TNL-Information			UP-TNL-Information,
 	uL-Configuration			UL-Configuration		OPTIONAL,
 	iE-Extensions				ProtocolExtensionContainer { {GNB-CU-UP-CellGroupRelatedConfiguration-Item-ExtIEs } }	OPTIONAL
@@ -932,6 +956,7 @@ GNB-CU-CP-TNLA-To-Remove-Item::= SEQUENCE {
 }
 
 GNB-CU-CP-TNLA-To-Remove-Item-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
+	{ID id-TNLAssociationTransportLayerAddressgNBCUUP	CRITICALITY reject	EXTENSION CP-TNL-Information	PRESENCE optional},
 	...
 }
 
@@ -942,6 +967,16 @@ GNB-CU-CP-TNLA-To-Update-Item::= SEQUENCE {
 }
 
 GNB-CU-CP-TNLA-To-Update-Item-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
+	...
+}
+
+GNB-CU-UP-TNLA-To-Remove-Item::= SEQUENCE {
+	tNLAssociationTransportLayerAddress			CP-TNL-Information,
+	tNLAssociationTransportLayerAddressgNBCUCP	CP-TNL-Information		OPTIONAL,
+	iE-Extensions							ProtocolExtensionContainer { { GNB-CU-UP-TNLA-To-Remove-Item-ExtIEs} } OPTIONAL
+}
+
+GNB-CU-UP-TNLA-To-Remove-Item-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
 	...
 }
 
@@ -987,6 +1022,8 @@ GTPTunnel-ExtIEs E1AP-PROTOCOL-EXTENSION ::= {
 }
 
 GNB-CU-UP-OverloadInformation ::= ENUMERATED {overloaded, not-overloaded}
+
+GNB-DU-ID	::= INTEGER (0..68719476735)
 
 
 -- H
@@ -1298,7 +1335,7 @@ PDU-Session-Resource-Failed-List	::= SEQUENCE (SIZE(1.. maxnoofPDUSessionResourc
 
 PDU-Session-Resource-Failed-Item	::=	SEQUENCE {
 	pDU-Session-ID							PDU-Session-ID,
-	casue									Cause,
+	cause									Cause,
 	iE-Extensions							ProtocolExtensionContainer	{ { PDU-Session-Resource-Failed-Item-ExtIEs } }	OPTIONAL,
 	...
 }
@@ -1311,7 +1348,7 @@ PDU-Session-Resource-Failed-Mod-List	::= SEQUENCE (SIZE(1.. maxnoofPDUSessionRes
 
 PDU-Session-Resource-Failed-Mod-Item	::=	SEQUENCE {
 	pDU-Session-ID							PDU-Session-ID,
-	casue									Cause,
+	cause									Cause,
 	iE-Extensions							ProtocolExtensionContainer	{ { PDU-Session-Resource-Failed-Mod-Item-ExtIEs } }	OPTIONAL,
 	...
 }
@@ -1324,7 +1361,7 @@ PDU-Session-Resource-Failed-To-Modify-List	::= SEQUENCE (SIZE(1.. maxnoofPDUSess
 
 PDU-Session-Resource-Failed-To-Modify-Item	::=	SEQUENCE {
 	pDU-Session-ID							PDU-Session-ID,
-	casue									Cause,
+	cause									Cause,
 	iE-Extensions							ProtocolExtensionContainer	{ { PDU-Session-Resource-Failed-To-Modify-Item-ExtIEs } }	OPTIONAL,
 	...
 }
@@ -1339,7 +1376,7 @@ PDU-Session-Resource-Modified-Item	::=	SEQUENCE {
 	pDU-Session-ID							PDU-Session-ID,
 	nG-DL-UP-TNL-Information				UP-TNL-Information						OPTIONAL,
 	securityResult							SecurityResult							OPTIONAL,
-	pDU-Session-Data-Forwarding-Information-Response		Data-Forwarding-Information-Response		OPTIONAL,
+	pDU-Session-Data-Forwarding-Information-Response		Data-Forwarding-Information		OPTIONAL,
 	dRB-Setup-List-NG-RAN					DRB-Setup-List-NG-RAN					OPTIONAL,
 	dRB-Failed-List-NG-RAN				DRB-Failed-List-NG-RAN				OPTIONAL,
 	dRB-Modified-List-NG-RAN				DRB-Modified-List-NG-RAN				OPTIONAL,
@@ -1373,7 +1410,7 @@ PDU-Session-Resource-Setup-Item	::=	SEQUENCE {
 	pDU-Session-ID							PDU-Session-ID,
 	securityResult							SecurityResult				OPTIONAL,
 	nG-DL-UP-TNL-Information				UP-TNL-Information,
-	pDU-Session-Data-Forwarding-Information-Response		Data-Forwarding-Information-Response		OPTIONAL,
+	pDU-Session-Data-Forwarding-Information-Response		Data-Forwarding-Information		OPTIONAL,
 	nG-DL-UP-Unchanged						ENUMERATED {true, ...}		OPTIONAL,
 	dRB-Setup-List-NG-RAN					DRB-Setup-List-NG-RAN,
 	dRB-Failed-List-NG-RAN					DRB-Failed-List-NG-RAN		OPTIONAL,
@@ -1391,7 +1428,7 @@ PDU-Session-Resource-Setup-Mod-Item	::=	SEQUENCE {
 	pDU-Session-ID											PDU-Session-ID,
 	securityResult											SecurityResult								OPTIONAL,
 	nG-DL-UP-TNL-Information								UP-TNL-Information,
-	pDU-Session-Data-Forwarding-Information-Response		Data-Forwarding-Information-Response		OPTIONAL,
+	pDU-Session-Data-Forwarding-Information-Response		Data-Forwarding-Information		OPTIONAL,
 	dRB-Setup-Mod-List-NG-RAN								DRB-Setup-Mod-List-NG-RAN,
 	dRB-Failed-Mod-List-NG-RAN								DRB-Failed-Mod-List-NG-RAN					OPTIONAL,
 	iE-Extensions											ProtocolExtensionContainer	{ { PDU-Session-Resource-Setup-Mod-Item-ExtIEs } }	OPTIONAL,
@@ -1410,7 +1447,7 @@ PDU-Session-Resource-To-Modify-Item	::=	SEQUENCE {
 	pDU-Session-Resource-DL-AMBR						BitRate									OPTIONAL,
 	nG-UL-UP-TNL-Information							UP-TNL-Information						OPTIONAL,
 	pDU-Session-Data-Forwarding-Information-Request		Data-Forwarding-Information-Request		OPTIONAL,
-	pDU-Session-Data-Forwarding-Information-Response	Data-Forwarding-Information-Response	OPTIONAL,
+	pDU-Session-Data-Forwarding-Information	Data-Forwarding-Information	OPTIONAL,
 	pDU-Session-Inactivity-Timer						Inactivity-Timer						OPTIONAL,
 	networkInstance										NetworkInstance							OPTIONAL,
 	dRB-To-Setup-List-NG-RAN							DRB-To-Setup-List-NG-RAN				OPTIONAL,
@@ -1421,7 +1458,8 @@ PDU-Session-Resource-To-Modify-Item	::=	SEQUENCE {
 }
 
 PDU-Session-Resource-To-Modify-Item-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
-	{ID id-SNSSAI		CRITICALITY reject	EXTENSION SNSSAI		PRESENCE optional},
+	{ID id-SNSSAI		CRITICALITY reject	EXTENSION SNSSAI		PRESENCE optional}|
+	{ ID id-CommonNetworkInstance						CRITICALITY ignore	EXTENSION CommonNetworkInstance								PRESENCE optional	},
 	...
 }
 
@@ -1434,6 +1472,7 @@ PDU-Session-Resource-To-Remove-Item	::=	SEQUENCE {
 }
 
 PDU-Session-Resource-To-Remove-Item-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
+	{ID id-Cause		CRITICALITY ignore	EXTENSION Cause		PRESENCE optional},
 	...
 }
 
@@ -1456,6 +1495,7 @@ PDU-Session-Resource-To-Setup-Item	::=	SEQUENCE {
 }
 
 PDU-Session-Resource-To-Setup-Item-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
+	{ ID id-CommonNetworkInstance						CRITICALITY ignore	EXTENSION CommonNetworkInstance								PRESENCE optional	},
 	...
 }
 
@@ -1476,6 +1516,8 @@ PDU-Session-Resource-To-Setup-Mod-Item	::=	SEQUENCE {
 }
 
 PDU-Session-Resource-To-Setup-Mod-Item-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
+	{ID id-NetworkInstance		CRITICALITY ignore	EXTENSION NetworkInstance		PRESENCE optional}|
+	{ID id-CommonNetworkInstance	CRITICALITY ignore	EXTENSION CommonNetworkInstance	PRESENCE optional},
 	...
 }
 
@@ -1501,7 +1543,9 @@ PDU-Session-Type ::= ENUMERATED {
 	...
 }
 
-PLMN-Identity ::= OCTET STRING (SIZE(3))
+PLMN-Identity ::= OCTET STRING (SIZE(3)) 
+
+PortNumber ::= BIT STRING (SIZE(16))
 
 PPI ::= INTEGER (0..7, ...)
 
@@ -1542,6 +1586,7 @@ QoS-Flow-Item	::=	SEQUENCE {
 }
 
 QoS-Flow-Item-ExtIEs		E1AP-PROTOCOL-EXTENSION ::= {
+	{ID id-QoSFlowMappingIndication		CRITICALITY ignore	EXTENSION QoS-Flow-Mapping-Indication		PRESENCE optional},
 	...
 }
 
@@ -1549,7 +1594,7 @@ QoS-Flow-Failed-List	::= SEQUENCE (SIZE(1.. maxnoofQoSFlows)) OF QoS-Flow-Failed
 
 QoS-Flow-Failed-Item	::=	SEQUENCE {
 	qoS-Flow-Identifier						QoS-Flow-Identifier,
-	casue									Cause,
+	cause									Cause,
 	iE-Extensions							ProtocolExtensionContainer	{ { QoS-Flow-Failed-Item-ExtIEs } }	OPTIONAL,
 	...
 }
@@ -1617,6 +1662,8 @@ QoSFlowLevelQoSParameters-ExtIEs 	E1AP-PROTOCOL-EXTENSION ::= {
 }
 
 -- R
+
+RANUEID ::= OCTET STRING (SIZE (8))
 
 RAT-Type	::=	ENUMERATED	{
 	e-UTRA,
@@ -1815,7 +1862,7 @@ UP-Parameters ::= SEQUENCE (SIZE(1.. maxnoofUPParameters)) OF UP-Parameters-Item
 
 UP-Parameters-Item ::= SEQUENCE {
 	uP-TNL-Information			UP-TNL-Information,
-	cell-Group-ID				Cell-Gorup-ID,
+	cell-Group-ID				Cell-Group-ID,
 	iE-Extensions				ProtocolExtensionContainer { { UP-Parameters-Item-ExtIEs } }	OPTIONAL,
 	...
 }

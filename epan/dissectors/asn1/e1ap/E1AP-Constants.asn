@@ -1,4 +1,4 @@
--- 3GPP TS 38.463 V15.3.0 (2019-03)
+-- 3GPP TS 38.463 V15.4.0 (2019-07)
 -- **************************************************************
 --
 -- Constant definitions
@@ -147,5 +147,16 @@ id-PDU-Session-To-Notify-List									ProtocolIE-ID ::= 67
 id-PDU-Session-Resource-Data-Usage-List							ProtocolIE-ID ::= 68
 id-SNSSAI														ProtocolIE-ID ::= 69
 id-DataDiscardRequired										ProtocolIE-ID ::= 70
+id-OldQoSFlowMap-ULendmarkerexpected							ProtocolIE-ID ::= 71
+id-DRB-QoS															ProtocolIE-ID ::= 72
+id-GNB-CU-UP-TNLA-To-Remove-List								ProtocolIE-ID ::= 73
+id-endpoint-IP-Address-and-Port									ProtocolIE-ID ::= 74
+id-TNLAssociationTransportLayerAddressgNBCUUP					ProtocolIE-ID ::= 75
+id-RANUEID													ProtocolIE-ID ::= 76
+id-GNB-DU-ID													ProtocolIE-ID ::= 77
+id-CommonNetworkInstance											ProtocolIE-ID ::= 78
+id-NetworkInstance												ProtocolIE-ID ::= 79
+id-QoSFlowMappingIndication									ProtocolIE-ID ::= 80
+
 
 END
