@@ -684,7 +684,7 @@ static gboolean is_mgcp_verb(tvbuff_t *tvb, gint offset, gint maxlength, const g
 		return FALSE;
 
 	/* Read the string into 'word' and see if it looks like the start of a verb */
-	if ((maxlength >= 4) && tvb_get_nstringz0(tvb, offset, sizeof(word), word))
+	if ((maxlength >= 4) && tvb_get_raw_bytes_as_string(tvb, offset, word, sizeof word))
 	{
 		if (((g_ascii_strncasecmp(word, "EPCF", 4) == 0) && (*verb_name = "EndpointConfiguration")) ||
 		    ((g_ascii_strncasecmp(word, "CRCX", 4) == 0) && (*verb_name = "CreateConnection")) ||
@@ -733,7 +733,7 @@ static gboolean is_mgcp_verb(tvbuff_t *tvb, gint offset, gint maxlength, const g
 static gboolean is_mgcp_rspcode(tvbuff_t *tvb, gint offset, gint maxlength)
 {
 	gboolean returnvalue = FALSE;
-	guint8 word[4];
+	char word[4];
 
 	/* see the comment in is_mgcp_verb() */
 	if (tvb_captured_length_remaining(tvb, offset) < (gint)sizeof(word))
@@ -742,7 +742,7 @@ static gboolean is_mgcp_rspcode(tvbuff_t *tvb, gint offset, gint maxlength)
 	/* Do 1st 3 characters look like digits? */
 	if (maxlength >= 3)
 	{
-		tvb_get_nstringz0(tvb, offset, sizeof(word), word);
+		tvb_get_raw_bytes_as_string(tvb, offset, word, sizeof word);
 		if (g_ascii_isdigit(word[0]) && g_ascii_isdigit(word[1]) && g_ascii_isdigit(word[2]))
 		{
 			returnvalue = TRUE;
