@@ -20,6 +20,9 @@ used for troubleshooting, analysis, development and education.
 Many improvements have been made. See the “New and Updated Features”
 section below for more details.
 
+Windows .msi packages are now https://support.microsoft.com/en-us/help/4472027/2019-sha-2-code-signing-support-requirement-for-windows-and-wsus[signed using SHA-2].
+\.exe installers are still dual-signed using SHA-1 and SHA-2.
+
 // === Bug Fixes
 
 // The following bugs have been fixed:
@@ -66,16 +69,29 @@ since version 3.0.0:
 // Add one protocol per line between the -- delimiters.
 [commaize]
 --
-evolved Common Public Radio Interface (eCPRI)
-Distributed Replicated Block Device (DRBD)
-GSM/3GPP CBSP (Cell Broadcast Service Protocol)
-NVM Express over Fabrics for TCP (nvme-tcp)
-Graylog Extended Log Format over UDP (GELF)
-FTDI FT USB Bridging Devices (FTDI FT)
+3GPP BICC MST (BICC-MST)
+3GPP/GSM Cell Broadcast Service Protocol (cbsp)
+3GPP log packet (LOG3GPP)
+Bluetooth Mesh Beacon
+Bluetooth Mesh PB-ADV
+Bluetooth Mesh Provisioning PDU
+Bluetooth Mesh Proxy
 CableLabs Layer-3 Protocol IEEE EtherType 0xb4e3 (CL3)
+DCOM IProvideClassInfo
+DCOM ITypeInfo
+Distributed Replicated Block Device (DRBD)
 Dual Channel Wi-Fi (CL3DCW)
-NR Positioning Protocol A (NRPPa) TS 38.455
+EBHSCR Protocol (EBHSCR)
+EERO Protocol (EERO)
+evolved Common Public Radio Interface (eCPRI)
+File Server Remote VSS Protocol (FSRVP)
+FTDI FT USB Bridging Devices (FTDI FT)
+Graylog Extended Log Format over UDP (GELF)
+GSM/3GPP CBSP (Cell Broadcast Service Protocol)
+MIDI System Exclusive DigiTech (SYSEX DigiTech)
 Network Controller Sideband Interface (NCSI)
+NR Positioning Protocol A (NRPPa) TS 38.455
+NVM Express over Fabrics for TCP (nvme-tcp)
 --
 
 === Updated Protocol Support
@@ -84,10 +100,18 @@ Too many protocols have been updated to list here.
 
 === New and Updated Capture File Support
 
-//_Non-empty section placeholder._
-// Add one file type per line between the --sort-and-group-- delimiters.
+// There is no new or updated capture file support in this release.
+// Add one file type per line between the -- delimiters.
 [commaize]
 --
+3gpp phone
+Android Logcat Text
+Ascend
+Candump
+Endace ERF
+NetScaler
+pcapng
+Savvius \*Peek
 --
 
 // === New and Updated Capture Interfaces support
