@@ -1002,7 +1002,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
              * One-line reply, or first or last line
              * of a multi-line reply.
              */
-            tvb_get_nstringz0(tvb, 0, sizeof(code_str), code_str);
+            tvb_get_raw_bytes_as_string(tvb, 0, code_str, sizeof code_str);
             code_valid = ws_strtou32(code_str, NULL, &code);
 
             pi = proto_tree_add_uint(reqresp_tree,
