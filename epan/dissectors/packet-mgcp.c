@@ -407,7 +407,6 @@ mgcpstat_packet(void *pms, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
  */
 static gint tvb_find_null_line(tvbuff_t* tvb, gint offset, gint len, gint* next_offset);
 static gint tvb_find_dot_line(tvbuff_t* tvb, gint offset, gint len, gint* next_offset);
-static gboolean is_rfc2234_alpha(guint8 c);
 
 static dissector_handle_t sdp_handle;
 static dissector_handle_t mgcp_handle;
@@ -697,8 +696,8 @@ static gboolean is_mgcp_verb(tvbuff_t *tvb, gint offset, gint maxlength, const g
 		    ((g_ascii_strncasecmp(word, "AUCX", 4) == 0) && (*verb_name = "AuditConnection")) ||
 		    ((g_ascii_strncasecmp(word, "RSIP", 4) == 0) && (*verb_name = "RestartInProgress")) ||
 		    ((g_ascii_strncasecmp(word, "MESG", 4) == 0) && (*verb_name = "Message")) ||
-		    (word[0] == 'X' && is_rfc2234_alpha(word[1]) && is_rfc2234_alpha(word[2]) &&
-		                       is_rfc2234_alpha(word[3]) && (*verb_name = "*Experimental*")))
+		    (word[0] == 'X' && g_ascii_isalpha(word[1]) && g_ascii_isalpha(word[2]) &&
+		                       g_ascii_isalpha(word[3]) && (*verb_name = "*Experimental*")))
 		{
 			returnvalue = TRUE;
 		}
@@ -762,24 +761,6 @@ static gboolean is_mgcp_rspcode(tvbuff_t *tvb, gint offset, gint maxlength)
 
 	return returnvalue;
 }
-
-/*
- * is_rfc2234_alpha - Indicates whether the character c is an alphabetical
- *                    character.  This function is used instead of
- *                    isalpha because isalpha may deviate from the rfc2234
- *                    definition of ALPHA in some locales.
- *
- * Parameter:
- * c - The character being checked for being an alphabetical character.
- *
- * Return: TRUE if c is an upper or lower case alphabetical character,
- *         FALSE otherwise.
- */
-static gboolean is_rfc2234_alpha(guint8 c)
-{
-	return ((c <= 'Z' && c >= 'A' ) || (c <= 'z' && c >= 'a'));
-}
-
 
 /*
  * tvb_parse_param - Parse the MGCP param into a type and a value.
@@ -902,7 +883,7 @@ static gint tvb_parse_param(tvbuff_t* tvb, gint offset, gint len, int** hf, mgcp
 					/* Keep going, through possible vendor param name */
 					for (counter = 1;
 					    ((len > (counter + tvb_current_offset-offset)) &&
-					    (is_rfc2234_alpha(tempchar = tvb_get_guint8(tvb, tvb_current_offset+counter)) ||
+					    (g_ascii_isalpha(tempchar = tvb_get_guint8(tvb, tvb_current_offset+counter)) ||
 					     g_ascii_isdigit(tempchar))) ;
 					     counter++);
 
