@@ -830,7 +830,7 @@ get_ucs_4_string(wmem_allocator_t *scope, const guint8 *ptr, gint length, const 
      * of bytes that's not a multiple of 4, so we're not a valid
      * UCS-4 string.
      */
-    return (gchar *)wmem_strbuf_finalize(strbuf);
+    return (guint8 *)wmem_strbuf_finalize(strbuf);
 }
 
 /*
