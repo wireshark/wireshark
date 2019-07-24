@@ -700,6 +700,54 @@ QFileInfoList ProfileModel::filterProfilePath(QString path, QFileInfoList ent, b
 }
 
 #ifdef HAVE_MINIZIP
+QStringList ProfileModel::exportFileList(QModelIndexList items)
+{
+    QStringList result;
+
+    foreach(QModelIndex idx, items)
+    {
+        profile_def * prof = guard(idx.row());
+        if ( prof->is_global || QString(prof->name).compare(DEFAULT_PROFILE) == 0 )
+            continue;
+
+        if ( ! idx.data(ProfileModel::DATA_PATH_IS_NOT_DESCRIPTION).toBool() )
+            continue;
+
+        QString path = idx.data(ProfileModel::DATA_PATH).toString();
+        QDir temp(path);
+        temp.setSorting(QDir::Name);
+        temp.setFilter(QDir::Files | QDir::NoSymLinks | QDir::NoDotAndDotDot);
+        QFileInfoList entries = temp.entryInfoList();
+        foreach ( QFileInfo fi, entries )
+            result << fi.absoluteFilePath();
+    }
+
+    return result;
+}
+
+bool ProfileModel::exportProfiles(QString filename, QModelIndexList items, QString *err)
+{
+    if ( changesPending() )
+    {
+        if ( err )
+            err->append(tr("Exporting profiles while changes are pending is not allowed"));
+        return false;
+    }
+
+    QStringList files = exportFileList(items);
+    if ( files.count() == 0 )
+    {
+        if ( err )
+            err->append((tr("No profiles found to export")));
+        return false;
+    }
+
+    if ( WireSharkZipHelper::zip(filename, files, QString(get_profiles_dir()) + QDir::separator() ) )
+        return true;
+
+    return false;
+}
+
 /* This check runs BEFORE the file has been unzipped! */
 bool ProfileModel::acceptFile(QString fileName, int fileSize)
 {

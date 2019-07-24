@@ -41,6 +41,11 @@
 #include <QStandardPaths>
 #include <QKeyEvent>
 #include <QMenu>
+#include <QMessageBox>
+
+#define PROFILE_EXPORT_PROPERTY "export"
+#define PROFILE_EXPORT_ALL "all"
+#define PROFILE_EXPORT_SELECTED "selected"
 
 ProfileDialog::ProfileDialog(QWidget *parent) :
     GeometryStateDialog(parent),
@@ -69,15 +74,26 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
     pd_ui_->lblInfo->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
-    import_button_ = pd_ui_->buttonBox->addButton(tr("Import"), QDialogButtonBox::ActionRole);
+    import_button_ = pd_ui_->buttonBox->addButton(tr("Import", "noun"), QDialogButtonBox::ActionRole);
 
 #ifdef HAVE_MINIZIP
+    export_button_ = pd_ui_->buttonBox->addButton(tr("Export", "noun"), QDialogButtonBox::ActionRole);
+
     QMenu * importMenu = new QMenu(import_button_);
     QAction * entry = importMenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS " from Zip"));
     connect( entry, &QAction::triggered, this, &ProfileDialog::importFromZip);
     entry = importMenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS " from Directory"));
     connect( entry, &QAction::triggered, this, &ProfileDialog::importFromDirectory);
     import_button_->setMenu(importMenu);
+
+    QMenu * exportMenu = new QMenu(export_button_);
+    export_selected_entry_ = exportMenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS " selected entry"));
+    export_selected_entry_->setProperty(PROFILE_EXPORT_PROPERTY, PROFILE_EXPORT_SELECTED);
+    connect( export_selected_entry_, &QAction::triggered, this, &ProfileDialog::exportProfiles);
+    entry = exportMenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS " all user profiles"));
+    entry->setProperty(PROFILE_EXPORT_PROPERTY, PROFILE_EXPORT_ALL);
+    connect( entry, &QAction::triggered, this, &ProfileDialog::exportProfiles);
+    export_button_->setMenu(exportMenu);
 #else
     connect( import_button_, &QPushButton::clicked, this, &ProfileDialog::importFromDirectory);
 #endif
@@ -151,6 +167,16 @@ int ProfileDialog::execAction(ProfileDialog::ProfileAction profile_action)
         break;
     case ImportDirProfile:
         importFromDirectory();
+        break;
+    case ExportSingleProfile:
+#ifdef HAVE_MINIZIP
+        exportProfiles();
+#endif
+        break;
+    case ExportAllProfiles:
+#ifdef HAVE_MINIZIP
+        exportProfiles(true);
+#endif
         break;
     case EditCurrentProfile:
         item = pd_ui_->profileTreeView->currentIndex();
@@ -378,6 +404,42 @@ void ProfileDialog::filterChanged(const QString &text)
 }
 
 #ifdef HAVE_MINIZIP
+void ProfileDialog::exportProfiles(bool exportAll)
+{
+    QAction * action = qobject_cast<QAction *>(sender());
+    if ( action && action->property(PROFILE_EXPORT_PROPERTY).isValid() )
+        exportAll = action->property(PROFILE_EXPORT_PROPERTY).toString().compare(PROFILE_EXPORT_ALL) == 0;
+
+    QModelIndexList items;
+
+    if ( ! exportAll && pd_ui_->profileTreeView->currentIndex().isValid() )
+        items << sort_model_->mapToSource(pd_ui_->profileTreeView->currentIndex());
+    else if ( exportAll )
+    {
+        for ( int cnt = 0; cnt < sort_model_->rowCount(); cnt++ )
+        {
+            QModelIndex idx = sort_model_->index(cnt, ProfileModel::COL_NAME);
+            if ( ! idx.data(ProfileModel::DATA_IS_GLOBAL).toBool() && ! idx.data(ProfileModel::DATA_IS_DEFAULT).toBool() )
+            {
+                items << sort_model_->mapToSource(idx);
+            }
+        }
+    }
+    if ( items.count() == 0 )
+    {
+        QMessageBox::warning(this, tr("Exporting profiles"), tr("No profiles found for export"));
+        return;
+    }
+
+    QString zipFile = QFileDialog::getSaveFileName(this, tr("Select zip file for export"), QString(), tr("Zip File (*.zip)"));
+
+    QString err;
+    if ( model_->exportProfiles(zipFile, items, &err) )
+        QMessageBox::information(this, tr("Exporting profiles"), tr("%Ln profile(s) have been exported", "", items.count()));
+    else
+        QMessageBox::warning(this, tr("Exporting profiles"), QString("%1\n\n%2: %3").arg(tr("An error has occured while exporting profiles")).arg("Error").arg(err));
+}
+
 void ProfileDialog::importFromZip()
 {
     QString zipFile = QFileDialog::getOpenFileName(this, tr("Select zip file for import"), QString(), tr("Zip File (*.zip)"));

@@ -604,6 +604,17 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
         action->setProperty("dialog_action_", (int)ProfileDialog::ImportDirProfile);
         connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
         ctx_menu_.addMenu(importMenu);
+
+        QMenu * exportMenu = new QMenu(tr("Export"));
+        action = exportMenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS" selected entry"));
+        action->setProperty("dialog_action_", (int)ProfileDialog::ExportSingleProfile);
+        action->setEnabled(enable_edit);
+        connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
+        action = exportMenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS" all user profiles"));
+        action->setProperty("dialog_action_", (int)ProfileDialog::ExportAllProfiles);
+        connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
+        ctx_menu_.addMenu(exportMenu);
+
 #else
         action = ctx_menu_.addAction(tr("Import" UTF8_HORIZONTAL_ELLIPSIS));
         action->setProperty("dialog_action_", (int)ProfileDialog::ImportDirProfile);

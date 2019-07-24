@@ -93,6 +93,8 @@ public:
     bool changesPending() const;
 
 #ifdef HAVE_MINIZIP
+    QStringList exportFileList(QModelIndexList items);
+    bool exportProfiles(QString filename, QModelIndexList items, QString * err = Q_NULLPTR);
     int importProfilesFromZip(QString filename, int *skippedCnt = Q_NULLPTR);
 #endif
     int importProfilesFromDir(QString filename, int *skippedCnt = Q_NULLPTR, bool fromZip = false);
