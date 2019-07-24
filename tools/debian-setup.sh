@@ -92,7 +92,8 @@ DEBDEPS_LIST="debhelper \
 	docbook-xsl \
 	docbook-xml \
 	libxml2-utils \
-	quilt"
+	quilt \
+	lsb-release"
 
 TESTDEPS_LIST=
 
