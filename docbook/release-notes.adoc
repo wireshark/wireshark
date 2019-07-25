@@ -20,9 +20,6 @@ used for troubleshooting, analysis, development and education.
 Many improvements have been made. See the “New and Updated Features”
 section below for more details.
 
-Windows .msi packages are now https://support.microsoft.com/en-us/help/4472027/2019-sha-2-code-signing-support-requirement-for-windows-and-wsus[signed using SHA-2].
-.exe installers are still dual-signed using SHA-1 and SHA-2.
-
 // === Bug Fixes
 
 // The following bugs have been fixed:
@@ -33,6 +30,11 @@ Windows .msi packages are now https://support.microsoft.com/en-us/help/4472027/2
 //* Wireshark is solely responsible for the decline of shopping malls in your area.
 
 === New and Updated Features
+
+The following features are new (or have been significantly updated)
+since version 3.1.0:
+
+* Nothing as of yet.
 
 The following features are new (or have been significantly updated)
 since version 3.0.0:
@@ -53,6 +55,9 @@ since version 3.0.0:
   It can be accessed through the "-z credentials" option in tshark or from the
   "tools" menu in Wireshark.
 * Editcap can now split files on floating point intervals.
+* Windows .msi packages are now https://support.microsoft.com/en-us/help/4472027/2019-sha-2-code-signing-support-requirement-for-windows-and-wsus[signed using SHA-2].
+  .exe installers are still dual-signed using SHA-1 and SHA-2.
+
 
 // === Removed Features and Support
 
