@@ -46,7 +46,7 @@ Description: network traffic analyzer - common files
 
 Package: wireshark
 Architecture: any
-Depends: wireshark-qt, ${misc:Depends}
+Depends: wireshark-qt (= ${binary:Version}), ${misc:Depends}
 Replaces: ethereal (<< 1.0.0-3)
 Conflicts: ethereal (<< 1.0.0-3)
 Description: network traffic analyzer - meta-package
