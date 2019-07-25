@@ -339,7 +339,7 @@ QVariant ProfileModel::dataPath(const QModelIndex &index) const
         {
             QString msg = QString("%1 %2").arg(tr("Copied from: ")).arg(prof->reference);
 
-            if ( profile_exists(prof->reference, TRUE) )
+            if ( profile_exists(prof->reference, TRUE) && prof->from_global )
                 msg.append(QString(" (%1)").arg(tr("system provided")));
             else
             {
