@@ -18,6 +18,7 @@
 #include <wsutil/utf8_entities.h>
 
 #include "wsutil/filesystem.h"
+#include "epan/dfilter/dfilter.h"
 
 #include "wireshark_application.h"
 #include "ui/qt/utils/qt_ui_utils.h"
@@ -78,6 +79,7 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter) :
             this, SLOT(invalidField(const QModelIndex&, const QString&)));
     connect(&colorRuleDelegate_, SIGNAL(validField(const QModelIndex&)),
             this, SLOT(validField(const QModelIndex&)));
+    connect(ui->coloringRulesTreeView, &QTreeView::clicked, this, &ColoringRulesDialog::treeItemClicked );
     connect(&colorRuleModel_, SIGNAL(rowsInserted(const QModelIndex &, int, int)), this, SLOT(rowCountChanged()));
     connect(&colorRuleModel_, SIGNAL(rowsRemoved(const QModelIndex &, int, int)), this, SLOT(rowCountChanged()));
 
@@ -169,20 +171,82 @@ void ColoringRulesDialog::rowCountChanged()
     ui->clearToolButton->setEnabled(colorRuleModel_.rowCount() > 0);
 }
 
+bool ColoringRulesDialog::isValidFilter(QString filter, QString * error)
+{
+    dfilter_t *dfp = NULL;
+    gchar *err_msg;
+    if (dfilter_compile(filter.toUtf8().constData(), &dfp, &err_msg)) {
+        GPtrArray *depr = NULL;
+        if (dfp) {
+            depr = dfilter_deprecated_tokens(dfp);
+        }
+        if (! depr) {
+            return true;
+        }
+    }
+    dfilter_free(dfp);
+
+    if ( err_msg )
+    {
+        error->append(err_msg);
+        g_free(err_msg);
+    }
+
+    return false;
+}
+
+void ColoringRulesDialog::treeItemClicked(const QModelIndex &index)
+{
+    QModelIndex idx = ui->coloringRulesTreeView->model()->index(index.row(), ColoringRulesModel::colFilter);
+    QString filter = idx.data(Qt::DisplayRole).toString();
+    QString err;
+    if (! isValidFilter(filter, &err) && index.data(Qt::CheckStateRole).toInt() == Qt::Checked)
+    {
+        errors_.insert(index, err);
+        updateHint(index);
+    }
+    else
+    {
+        QList<QModelIndex> keys = errors_.keys();
+        bool update = false;
+        foreach ( QModelIndex key, keys )
+        {
+            if ( key.row() == index.row() )
+            {
+                errors_.remove(key);
+                update = true;
+            }
+        }
+
+        if ( update )
+            updateHint(index);
+    }
+}
+
 void ColoringRulesDialog::invalidField(const QModelIndex &index, const QString& errMessage)
 {
     errors_.insert(index, errMessage);
-    updateHint();
+    updateHint(index);
 }
 
 void ColoringRulesDialog::validField(const QModelIndex &index)
 {
-    if (errors_.remove(index) > 0) {
-        updateHint();
+    QList<QModelIndex> keys = errors_.keys();
+    bool update = false;
+    foreach ( QModelIndex key, keys )
+    {
+        if ( key.row() == index.row() )
+        {
+            errors_.remove(key);
+            update = true;
+        }
     }
+
+    if ( update )
+        updateHint(index);
 }
 
-void ColoringRulesDialog::updateHint()
+void ColoringRulesDialog::updateHint(QModelIndex idx)
 {
     QString hint = "<small><i>";
     QString error_text;
@@ -205,7 +269,14 @@ void ColoringRulesDialog::updateHint()
         hint += tr("Double click to edit. Drag to move. Rules are processed in order until a match is found.");
     } else {
         hint += error_text;
-        enable_save = false;
+        if ( idx.isValid() )
+        {
+            QModelIndex fiIdx = ui->coloringRulesTreeView->model()->index(idx.row(), ColoringRulesModel::colName);
+            if ( fiIdx.data(Qt::CheckStateRole).toInt() == Qt::Checked )
+                enable_save = false;
+        }
+        else
+            enable_save = false;
     }
 
     hint += "</i></small>";
