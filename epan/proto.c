@@ -1016,8 +1016,7 @@ hfinfo_format_text(wmem_allocator_t *scope, const header_field_info *hfinfo,
 			return format_text_wsp(string, strlen(string));
  */
 		case STR_UNICODE:
-			/* XXX, format_unicode_text() */
-			return wmem_strdup(scope, string);
+			return format_text(scope, string, strlen(string));
 	}
 
 	return format_text(scope, string, strlen(string));
