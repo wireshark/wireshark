@@ -51,6 +51,7 @@ private slots:
     void on_buttonBox_helpRequested();
     void invalidField(const QModelIndex &index, const QString& errMessage);
     void validField(const QModelIndex &index);
+    void treeItemClicked(const QModelIndex &index);
 
 private:
     Ui::ColoringRulesDialog *ui;
@@ -62,10 +63,12 @@ private:
     QMap<QModelIndex, QString> errors_;
 
     void setColorButtons(QModelIndex &index);
-    void updateHint();
+    void updateHint(QModelIndex idx = QModelIndex());
 
     void addRule(bool copy_from_current = false);
     void changeColor(bool foreground = true);
+
+    bool isValidFilter(QString filter, QString *error);
 };
 
 #endif // COLORING_RULES_DIALOG_H
