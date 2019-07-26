@@ -619,7 +619,7 @@ gboolean logcat_text_long_dump_open(wtap_dumper *wdh, int *err) {
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -177,7 +177,7 @@ int ws_ascii_strnatcasecmp(nat_char const *a, nat_char const *b)
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

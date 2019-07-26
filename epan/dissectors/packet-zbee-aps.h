@@ -316,7 +316,7 @@ extern const range_string zbee_aps_apid_names[];
 #endif /* PACKET_ZBEE_APS_H*/
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

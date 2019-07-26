@@ -141,7 +141,7 @@ guint32 crc32_0x0AA725CF_tvb_offset_seed(tvbuff_t *tvb,
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

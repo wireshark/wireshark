@@ -9651,7 +9651,7 @@ proto_reg_handoff_btcommon(void)
     btmesh_beacon_handle = find_dissector("btmesh.beacon");
 }
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

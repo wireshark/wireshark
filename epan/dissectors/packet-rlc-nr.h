@@ -100,7 +100,7 @@ void set_rlc_nr_drb_pdcp_seqnum_length(packet_info *pinfo, guint16 ueid, guint8 
 #endif
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

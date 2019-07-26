@@ -1317,7 +1317,7 @@ md5_xor( guint8 *data, const char *key, int data_len, guint8 *session_id, guint8
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

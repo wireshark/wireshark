@@ -186,7 +186,7 @@ void set_pdcp_lte_rrc_integrity_key(guint16 ueid, const char *key);
 void set_pdcp_lte_up_ciphering_key(guint16 ueid, const char *key);
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -358,7 +358,7 @@ void packet_range_convert_str(packet_range_t *range, const gchar *es)
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

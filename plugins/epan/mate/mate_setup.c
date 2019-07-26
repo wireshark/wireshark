@@ -652,7 +652,7 @@ extern mate_config* mate_make_config(const gchar* filename, int mate_hfid) {
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

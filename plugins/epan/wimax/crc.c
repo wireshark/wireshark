@@ -185,7 +185,7 @@ guint8 wimax_mac_calc_crc8(const guint8 *data, guint data_len)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

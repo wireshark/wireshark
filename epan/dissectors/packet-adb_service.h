@@ -24,7 +24,7 @@ typedef struct {
 #endif /* __PACKET_ADB_SERVICE_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

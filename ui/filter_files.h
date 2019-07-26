@@ -96,7 +96,7 @@ void free_filter_lists(void);
 #endif /* __UI_FILTERS_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

@@ -92,7 +92,7 @@ sync_pipe_errmsg_to_parent(int pipe_fd, const char *error_msg,
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

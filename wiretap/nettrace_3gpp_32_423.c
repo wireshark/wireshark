@@ -1242,7 +1242,7 @@ nettrace_3gpp_32_423_file_open(wtap *wth, int *err, gchar **err_info)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

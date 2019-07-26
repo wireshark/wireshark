@@ -98,7 +98,7 @@ setup_enabled_and_disabled_protocols(void);
 #endif /* dissect_opts.h */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

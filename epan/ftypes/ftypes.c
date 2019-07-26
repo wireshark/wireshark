@@ -761,7 +761,7 @@ fvalue_matches(const fvalue_t *a, const fvalue_t *b)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

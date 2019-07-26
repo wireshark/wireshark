@@ -4945,7 +4945,7 @@ proto_reg_handoff_enip(void)
 } /* end of proto_reg_handoff_enip() */
 
 /*
-* Editor modelines - http://www.wireshark.org/tools/modelines.html
+* Editor modelines - https://www.wireshark.org/tools/modelines.html
 *
 * Local variables:
 * c-basic-offset: 3

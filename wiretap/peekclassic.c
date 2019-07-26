@@ -648,7 +648,7 @@ static gboolean peekclassic_read_packet_v56(wtap *wth, FILE_T fh,
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

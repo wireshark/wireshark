@@ -74,7 +74,7 @@ tvb_get_guintvar (tvbuff_t *tvb, guint offset,
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

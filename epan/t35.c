@@ -383,7 +383,7 @@ const value_string H221ManufacturerCode_vals[] = {
 /* Ref 3 http://www.regtp.de/reg_tele/start/in_05-06-03-11-00_m/index.html 	*/
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

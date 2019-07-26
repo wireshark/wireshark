@@ -293,7 +293,7 @@ CHECKAPI(
 set_source_files_properties(jsmn.c PROPERTIES COMPILE_DEFINITIONS "JSMN_STRICT")
 
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 8

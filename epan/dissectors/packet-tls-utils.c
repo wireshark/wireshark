@@ -9042,7 +9042,7 @@ ssl_calculate_handshake_hash(SslDecryptSession *ssl_session, tvbuff_t *tvb, guin
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

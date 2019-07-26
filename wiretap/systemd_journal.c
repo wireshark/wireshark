@@ -220,7 +220,7 @@ systemd_journal_read_export_entry(FILE_T fh, wtap_rec *rec, Buffer *buf, int *er
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

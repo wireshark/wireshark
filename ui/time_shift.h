@@ -89,7 +89,7 @@ const gchar * time_shift_undo(capture_file *cf);
 #endif /* __TIME_SHIFT_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -884,7 +884,7 @@ WSLUA_FUNCTION wslua_browser_open_data_file(lua_State* L) { /* Open a file in a 
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

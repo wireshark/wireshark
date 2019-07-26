@@ -3593,7 +3593,7 @@ prime_epan_dissect_with_postdissector_wanted_hfids(epan_dissect_t *edt)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

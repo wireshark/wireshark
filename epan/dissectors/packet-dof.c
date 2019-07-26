@@ -12582,7 +12582,7 @@ static int dof_dissect_dnp_length(tvbuff_t *tvb, packet_info *pinfo, guint8 vers
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

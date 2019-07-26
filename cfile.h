@@ -141,7 +141,7 @@ void cap_file_provider_set_user_comment(struct packet_provider_data *prov, frame
 #endif /* cfile.h */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

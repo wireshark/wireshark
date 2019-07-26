@@ -631,7 +631,7 @@ void copy_filter_list(filter_list_type_t dest_type, filter_list_type_t src_type)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

@@ -363,7 +363,7 @@ rsa_private_key_free(gpointer key _U_)
 #endif /* HAVE_LIBGNUTLS */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

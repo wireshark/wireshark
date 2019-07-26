@@ -180,7 +180,7 @@ show_reported_bounds_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

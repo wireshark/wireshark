@@ -239,7 +239,7 @@ static const ain_err_t ain_err_tab[] = {
 #.END
 
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 2

@@ -97,7 +97,7 @@ extern void iax2_packet_analyse(tap_iax2_stat_t *statinfo,
 #endif /* __TAP_IAX2_ANALYSIS_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

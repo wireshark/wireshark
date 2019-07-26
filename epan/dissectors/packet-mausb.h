@@ -61,7 +61,7 @@ void mausb_set_usb_conv_info(usb_conv_info_t *usb_conv_info,
 #endif
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

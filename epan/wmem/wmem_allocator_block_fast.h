@@ -27,7 +27,7 @@ wmem_block_fast_allocator_init(wmem_allocator_t *allocator);
 #endif /* __WMEM_ALLOCATOR_BLOCK_FAST_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

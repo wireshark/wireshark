@@ -77,7 +77,7 @@ void capture_info_new_packets(int to_read, wtap *wth, info_data_t* cap_info)
 #endif /* HAVE_LIBPCAP */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

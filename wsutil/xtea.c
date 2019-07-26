@@ -57,7 +57,7 @@ void decrypt_xtea_le_ecb(guint8 plaintext[8], const guint8 ciphertext[8], const 
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

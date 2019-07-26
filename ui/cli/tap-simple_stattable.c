@@ -147,7 +147,7 @@ register_simple_stat_tables(const void *key, void *value, void *userdata _U_)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

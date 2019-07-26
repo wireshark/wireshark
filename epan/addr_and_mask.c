@@ -81,7 +81,7 @@ tvb_get_ipv6_addr_with_prefix_len(tvbuff_t *tvb, int offset, ws_in6_addr *addr,
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

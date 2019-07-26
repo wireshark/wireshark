@@ -1348,7 +1348,7 @@ dissect_zbee_zdp_rsp_ext_active_ep(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 } /* dissect_zbee_zdp_rsp_ext_active_ep */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

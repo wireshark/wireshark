@@ -2048,7 +2048,7 @@ dtls_dissector_delete(guint port, dissector_handle_t handle)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

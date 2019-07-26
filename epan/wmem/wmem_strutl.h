@@ -111,7 +111,7 @@ wmem_ascii_strdown(wmem_allocator_t *allocator, const gchar *str, gssize len);
 #endif /* __WMEM_STRUTL_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

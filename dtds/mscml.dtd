@@ -6,9 +6,9 @@
 
 <!--
     DTD for MSCML - draft 07
-		http://ietfreport.isoc.org/all-ids/draft-vandyke-mscml-07.txt
+		https://tools.ietf.org/html/draft-vandyke-mscml-07
 		See this for current limitations: 
-		http://wireshark.org/lists/ethereal-dev/200605/msg02351.html
+		https://wireshark.org/lists/ethereal-dev/200605/msg02351.html
 		
 		(c)Copyright 2006 Hewlett-Packard Development Company, LP.
 		   Contact: olivier.jacques@hp.com

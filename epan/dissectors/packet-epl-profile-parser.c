@@ -759,7 +759,7 @@ epl_wmem_print_iarr(epl_wmem_iarray_t *iarr)
 #endif
 
 /*
- * Editor modelines  -	http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -	https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

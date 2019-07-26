@@ -163,7 +163,7 @@ extern GString *get_iface_list_string(capture_options *capture_opts, guint32 sty
 #endif /* __CAPTURE_UI_UTILS_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 4

@@ -477,7 +477,7 @@ parse_single_hex_dump_line(char* rec, guint8 *buf, guint byte_offset)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

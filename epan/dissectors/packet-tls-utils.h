@@ -2155,7 +2155,7 @@ ssl_debug_printf(const gchar* fmt _U_,...)
 #endif /* __PACKET_TLS_UTILS_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

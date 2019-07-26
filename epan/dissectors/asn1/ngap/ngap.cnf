@@ -1523,7 +1523,7 @@ UERadioCapability                   S ngap.n2_ie_type "UE_RADIO_CAPABILITY"
 
 
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 2

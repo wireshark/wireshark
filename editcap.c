@@ -2238,7 +2238,7 @@ handle_chopping(chop_t chop, wtap_packet_header *out_phdr,
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

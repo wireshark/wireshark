@@ -1078,7 +1078,7 @@ void wslua_cleanup(void) {
 lua_State* wslua_state(void) { return L; }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

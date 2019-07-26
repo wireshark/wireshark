@@ -63,7 +63,7 @@ capture_info    *cinfo);
 #endif /* capture_info.h */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

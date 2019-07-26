@@ -252,7 +252,7 @@ WS_DLL_PUBLIC int stats_tree_manip_node_float(manip_node_mode mode,
 #endif /* __STATS_TREE_H */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

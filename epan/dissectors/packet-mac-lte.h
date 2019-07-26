@@ -381,7 +381,7 @@ gboolean dissect_mac_lte_context_fields(struct mac_lte_info  *p_mac_lte_info, tv
                                         packet_info *pinfo, proto_tree *tree, gint *p_offset);
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

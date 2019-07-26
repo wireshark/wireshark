@@ -152,7 +152,7 @@ guint16 crc16_0x3D65_tvb_offset_seed(tvbuff_t *tvb, guint offset, guint len, gui
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -1242,7 +1242,7 @@ extern guint zbee_get_bit_field(guint input, guint mask);
 #endif /* PACKET_ZBEE_H */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -99,7 +99,7 @@ pcapng_write_enhanced_packet_block(FILE* pfile,
                                    int *err);
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

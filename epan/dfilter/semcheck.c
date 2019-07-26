@@ -453,7 +453,7 @@ struct check_drange_sanity_args {
  *    The macro which creates them, STTYPE_ACCESSOR, is defined in
  *    epan/dfilter/syntax-tree.h.
  *
- * From http://www.wireshark.org/lists/ethereal-dev/200308/msg00070.html
+ * From https://www.wireshark.org/lists/ethereal-dev/200308/msg00070.html
  */
 
 static void
@@ -1534,7 +1534,7 @@ dfw_semcheck(dfwork_t *dfw, GPtrArray *deprecated)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

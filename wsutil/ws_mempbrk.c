@@ -73,7 +73,7 @@ ws_mempbrk_exec(const guint8* haystack, size_t haystacklen, const ws_mempbrk_pat
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

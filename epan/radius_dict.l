@@ -803,7 +803,7 @@ gboolean radius_load_dictionary (radius_dictionary_t* d, gchar* dir, const gchar
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

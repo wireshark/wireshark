@@ -35,7 +35,7 @@ typedef void (*register_cb)(register_action_e action, const char *message, gpoin
 #endif /* __REGISTER_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 4

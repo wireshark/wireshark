@@ -209,7 +209,7 @@ hkdf_expand(int hashalgo, const guint8 *prk, guint prk_len, const guint8 *info, 
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

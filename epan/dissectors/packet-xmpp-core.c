@@ -728,7 +728,7 @@ xmpp_proceed(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     xmpp_display_elems(proceed_tree, packet, pinfo, tvb, NULL, 0);
 }
 /*
-* Editor modelines - http://www.wireshark.org/tools/modelines.html
+* Editor modelines - https://www.wireshark.org/tools/modelines.html
 *
 * Local variables:
 * c-basic-offset: 4

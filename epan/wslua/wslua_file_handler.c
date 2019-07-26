@@ -1045,7 +1045,7 @@ int wslua_deregister_filehandlers(lua_State* L _U_) {
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

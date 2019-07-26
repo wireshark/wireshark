@@ -616,7 +616,7 @@ void wslua_register_class(lua_State *L, const wslua_class *cls_def)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -315,7 +315,7 @@ extern void save_local_device_name_from_eir_ad(tvbuff_t *tvb, gint offset,
 #endif
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

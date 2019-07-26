@@ -141,7 +141,7 @@ void set_mac_nr_bearer_mapping(nr_drb_mapping_t *drb_mapping);
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

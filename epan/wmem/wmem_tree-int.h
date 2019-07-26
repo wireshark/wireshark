@@ -71,7 +71,7 @@ wmem_itree_range_overlap(const wmem_range_t *r1, const wmem_range_t *r2);
 #endif /* __WMEM_TREE__INTERNALS_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

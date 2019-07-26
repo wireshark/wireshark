@@ -4110,7 +4110,7 @@ tvb_get_varint(tvbuff_t *tvb, guint offset, guint maxlen, guint64 *value, const 
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

@@ -689,7 +689,7 @@ proto_tree_add_expert_format(proto_tree *tree, packet_info *pinfo, expert_field 
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

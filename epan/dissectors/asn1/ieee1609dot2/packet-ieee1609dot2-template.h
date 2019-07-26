@@ -32,7 +32,7 @@ void ieee1609dot2_set_next_default_psid(packet_info *pinfo, guint32 psid);
 #endif /* _IEEE1609DOT2_H_ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

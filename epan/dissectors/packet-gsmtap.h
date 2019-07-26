@@ -150,7 +150,7 @@ struct gsmtap_hdr {
 #endif /* _PACKET_GSMTAP_H */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

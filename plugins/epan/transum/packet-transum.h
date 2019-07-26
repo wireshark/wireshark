@@ -176,7 +176,7 @@ extern gboolean is_dcerpc_req_pkt_type(guint32 pkt_type);
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

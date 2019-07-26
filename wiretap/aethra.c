@@ -329,7 +329,7 @@ aethra_read_rec_header(wtap *wth, FILE_T fh, struct aethrarec_hdr *hdr,
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

@@ -38,7 +38,7 @@
 -- HOW TO RUN THIS SCRIPT:
 -- Wireshark and Tshark support multiple ways of loading Lua scripts: through a dofile() call in init.lua,
 -- through the file being in either the global or personal plugins directories, or via the command line.
--- See the Wireshark USer's Guide chapter on Lua (http://www.wireshark.org/docs/wsug_html_chunked/wsluarm.html).
+-- See the Wireshark User's Guide chapter on Lua (https://www.wireshark.org/docs/wsdg_html_chunked/wsluarm_modules.html).
 -- Once the script is loaded, it creates a new protocol named "MyDNS" (or "MYDNS" in some places).  If you have
 -- a capture file with DNS packets in it, simply select one in the Packet List pane, right-click on it, and
 -- select "Decode As ...", and then in the dialog box that shows up scroll down the list of protocols to one

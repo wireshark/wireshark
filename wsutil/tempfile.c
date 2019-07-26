@@ -177,7 +177,7 @@ create_tempfile(char **namebuf, const char *pfx, const char *sfx)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

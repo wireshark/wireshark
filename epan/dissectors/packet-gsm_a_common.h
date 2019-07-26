@@ -1782,7 +1782,7 @@ nas_5gs_mm_elem_idx_t;
 #endif /* __PACKET_GSM_A_COMMON_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

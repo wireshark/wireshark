@@ -29,13 +29,13 @@
  *    the frame-structure, a pseudo-header or use PPI."  See the
  *    message at
  *
- *        http://www.wireshark.org/lists/wireshark-dev/200708/msg00029.html
+ *        https://www.wireshark.org/lists/wireshark-dev/200708/msg00029.html
  *
  *    to see whether any further discussion is still needed. I suspect
  *    it doesn't; pcapng existed at the time, as per the final
  *    message in that thread:
  *
- *        http://www.wireshark.org/lists/wireshark-dev/200708/msg00039.html
+ *        https://www.wireshark.org/lists/wireshark-dev/200708/msg00039.html
  *
  *    but I don't think we fully *supported* it at that point.  Now
  *    that we do, we have the infrastructure to support this, except
@@ -447,7 +447,7 @@ parse_single_hex_dump_line(char* rec, guint8 *buf, guint byte_offset)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

@@ -1067,7 +1067,7 @@ printf_elements(xmpp_element_t *root)
 #endif
 
 /*
-* Editor modelines - http://www.wireshark.org/tools/modelines.html
+* Editor modelines - https://www.wireshark.org/tools/modelines.html
 *
 * Local variables:
 * c-basic-offset: 4

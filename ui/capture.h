@@ -94,7 +94,7 @@ void capture_stat_stop(if_stat_cache_t *sc);
 #endif /* capture.h */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 4

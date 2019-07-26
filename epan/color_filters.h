@@ -194,7 +194,7 @@ WS_DLL_PUBLIC void color_filter_list_delete(GSList **cfl);
 #endif
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

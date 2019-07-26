@@ -4623,7 +4623,7 @@ ssl_dissector_delete(guint port, dissector_handle_t handle)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

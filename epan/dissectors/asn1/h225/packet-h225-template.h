@@ -70,7 +70,7 @@ typedef struct _h225_packet_info {
 #endif  /* PACKET_H225_H */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

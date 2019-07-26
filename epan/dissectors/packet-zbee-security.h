@@ -73,7 +73,7 @@ extern void zbee_sec_add_key_to_keyring(packet_info *, const guint8 *);
 #endif /* PACKET_ZBEE_SECURITY_H */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

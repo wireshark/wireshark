@@ -850,7 +850,7 @@ dissect_zbee_zdp_not_mgmt_unsolicited_nwkupdate(tvbuff_t *tvb, packet_info *pinf
 } /* dissect_zbee_zdp_not_mgmt_unsolicited_nwkupdate */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

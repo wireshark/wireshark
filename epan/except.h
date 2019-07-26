@@ -187,7 +187,7 @@ WS_DLL_PUBLIC void except_free(void *);
 #endif /* XCEPT_H */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

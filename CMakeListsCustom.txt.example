@@ -30,7 +30,7 @@ foreach(  _plugin_dir ${_OPTIONAL_CUSTOM_PLUGIN_SRC_DIR} )
 endforeach()
 
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 8

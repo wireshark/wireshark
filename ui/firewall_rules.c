@@ -268,7 +268,7 @@ static void sf_netsh_ipv4_port(GString *rtxt, gchar *addr, guint32 port, port_ty
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

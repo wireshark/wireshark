@@ -13,7 +13,7 @@ dissect_bicc_mst_lcls_gcr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint
 #endif
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

@@ -2816,7 +2816,7 @@ ng_file_seek_rand(wtap *wth, gint64 offset, int *err, gchar **err_info)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

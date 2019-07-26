@@ -1026,7 +1026,7 @@ WS_DLL_PUBLIC guint tvb_get_varint(tvbuff_t *tvb, guint offset, guint maxlen, gu
 #endif /* __TVBUFF_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

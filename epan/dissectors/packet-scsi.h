@@ -310,7 +310,7 @@ WS_DLL_PUBLIC guint scsistat_param(register_srt_t* srt, const char* opt_arg, cha
 #endif
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

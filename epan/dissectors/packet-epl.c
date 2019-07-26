@@ -6568,7 +6568,7 @@ nodeid_profile_list_uats_nodeid_set_cb(void *_rec, const char *str, unsigned len
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

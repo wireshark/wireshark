@@ -10517,7 +10517,7 @@ proto_reg_handoff_ceph(void)
 }
 
 /*
- * Editor modelines  -	http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -	https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

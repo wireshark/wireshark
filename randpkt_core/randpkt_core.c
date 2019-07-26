@@ -729,7 +729,7 @@ void randpkt_example_list(char*** abbrev_list, char*** longname_list)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

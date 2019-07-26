@@ -113,7 +113,7 @@ tvb_new_child_real_data(tvbuff_t *parent, const guint8* data, const guint length
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

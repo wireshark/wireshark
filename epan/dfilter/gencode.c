@@ -662,7 +662,7 @@ dfw_interesting_fields(dfwork_t *dfw, int *caller_num_fields)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

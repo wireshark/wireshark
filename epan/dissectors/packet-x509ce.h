@@ -94,7 +94,7 @@ void x509ce_disable_ciplus(void);
 #endif  /* PACKET_X509CE_H */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

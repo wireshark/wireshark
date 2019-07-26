@@ -278,7 +278,7 @@ WSLUA_FUNCTION wslua_register_stat_cmd_arg(lua_State* L) {
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

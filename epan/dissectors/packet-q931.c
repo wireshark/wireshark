@@ -4000,7 +4000,7 @@ static void reset_q931_packet_info(q931_packet_info *pi)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

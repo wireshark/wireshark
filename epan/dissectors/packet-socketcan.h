@@ -50,7 +50,7 @@ typedef struct can_identifier can_identifier_t;
 #endif /* __PACKET_SOCKETCAN_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

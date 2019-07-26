@@ -472,7 +472,7 @@ guint16 crc16_0x080F_seed(const guint8 *buf, guint len, guint16 seed)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

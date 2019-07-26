@@ -70,7 +70,7 @@ void dvb_add_chartbl(proto_tree *tree, int hf,
 #endif /* __DVB_CHARTBL_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

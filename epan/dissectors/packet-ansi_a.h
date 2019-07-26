@@ -99,7 +99,7 @@ WS_DLL_PUBLIC const ext_value_string_t *ansi_a_elem_1_strings;
 void dissect_cdma2000_a1_elements(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 offset, guint len);
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

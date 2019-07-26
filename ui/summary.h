@@ -86,7 +86,7 @@ summary_fill_in_capture(capture_file *cf, capture_options *capture_opts, summary
 #endif /* summary.h */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

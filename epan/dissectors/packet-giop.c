@@ -5882,7 +5882,7 @@ static void decode_SystemExceptionReplyBody (tvbuff_t *tvb, proto_tree *tree, gi
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 2

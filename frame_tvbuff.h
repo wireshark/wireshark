@@ -38,7 +38,7 @@ extern tvbuff_t *file_tvbuff_new_buffer(const struct packet_provider_data *prov,
 #endif /* __FRAME_TVBUFF_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

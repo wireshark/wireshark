@@ -236,7 +236,7 @@ void AesEncrypt(unsigned char msg[EAX_SIZEOF_KEY], unsigned char key[EAX_SIZEOF_
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

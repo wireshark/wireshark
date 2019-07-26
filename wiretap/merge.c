@@ -1152,7 +1152,7 @@ merge_files_to_stdout(const int file_type, const char *const *in_filenames,
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 4

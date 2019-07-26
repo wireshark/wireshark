@@ -198,7 +198,7 @@ extern service_info_t* btsdp_get_service_info(wmem_tree_key_t* key);
 #endif
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

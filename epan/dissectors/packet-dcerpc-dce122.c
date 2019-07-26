@@ -4420,7 +4420,7 @@ static const value_string dce_error_vals[] = {
 value_string_ext dce_error_vals_ext = VALUE_STRING_EXT_INIT(dce_error_vals);
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

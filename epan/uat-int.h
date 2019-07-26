@@ -154,7 +154,7 @@ char *uat_fld_tostr(void *rec, uat_field_t *f);
 #endif /* __UAT_INT_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

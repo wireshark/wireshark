@@ -757,7 +757,7 @@ proto_reg_handoff_zbee_zcl_ias_wd(void)
 } /*proto_reg_handoff_zbee_zcl_ias_wd*/
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

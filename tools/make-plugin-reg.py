@@ -170,7 +170,7 @@ except OSError:
     sys.exit('Unable to write ' + final_filename + '.\n')
 
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 4

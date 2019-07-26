@@ -71,7 +71,7 @@ WS_DLL_PUBLIC size_t codec_decode(codec_handle_t codec, void *context, const voi
 #endif /* _CODECS_H_ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

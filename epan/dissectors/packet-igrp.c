@@ -286,7 +286,7 @@ If the Delay is 0xFFFFFF then the network is unreachable
 */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

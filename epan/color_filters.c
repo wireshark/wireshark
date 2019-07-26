@@ -832,7 +832,7 @@ color_filters_export(const gchar *path, GSList *cfl, gboolean only_marked, gchar
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

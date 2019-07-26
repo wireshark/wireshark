@@ -640,7 +640,7 @@ typedef gint16 (*CsnCallBackFcn_t)(void* pv ,...);
 #endif /*_PACKET_CSN1_H_*/
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

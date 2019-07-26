@@ -594,7 +594,7 @@ get_iface_list_string(capture_options *capture_opts, guint32 style)
 #endif /* HAVE_LIBPCAP */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 4

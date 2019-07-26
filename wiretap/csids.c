@@ -198,7 +198,7 @@ csids_read_packet(FILE_T fh, csids_t *csids, wtap_rec *rec,
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

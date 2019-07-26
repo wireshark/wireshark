@@ -557,7 +557,7 @@ get_runtime_caplibs_version(GString *str _U_)
 #endif /* HAVE_LIBPCAP */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

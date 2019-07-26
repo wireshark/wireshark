@@ -2354,7 +2354,7 @@ static gboolean nstrace_dump(wtap_dumper *wdh, const wtap_rec *rec,
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

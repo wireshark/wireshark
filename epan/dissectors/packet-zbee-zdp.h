@@ -439,7 +439,7 @@ extern const value_string zbee_zdp_rtg_status_vals[];
 #endif /* PACKET_ZBEE_ZDP_H */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -903,7 +903,7 @@ build_column_format_array(column_info *cinfo, const gint num_cols, const gboolea
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 2

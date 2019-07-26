@@ -826,7 +826,7 @@ wmem_print_tree(wmem_tree_t *tree, wmem_printer_func key_printer, wmem_printer_f
     wmem_print_subtree(tree, 0, key_printer, data_printer);
 }
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

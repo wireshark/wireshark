@@ -77,7 +77,7 @@ Description: GIOP dissector for CORBA interface %s
             """This package has been created automatically by idl2deb on
 %s for Debian GNU/Linux.
 
-Wireshark: http://www.wireshark.org/
+Wireshark: https://www.wireshark.org/
 
 Copyright:
 

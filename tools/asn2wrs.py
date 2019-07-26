@@ -8104,7 +8104,7 @@ if __name__ == '__main__':
 
 #------------------------------------------------------------------------------
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # c-basic-offset: 4; tab-width: 8; indent-tabs-mode: nil
 # vi: set shiftwidth=4 tabstop=8 expandtab:

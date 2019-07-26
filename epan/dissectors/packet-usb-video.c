@@ -3256,7 +3256,7 @@ proto_reg_handoff_usb_vid(void)
     dissector_add_uint("usb.interrupt", IF_CLASS_VIDEO, usb_vid_interrupt_handle);
 }
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

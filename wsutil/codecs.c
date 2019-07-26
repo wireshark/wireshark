@@ -155,7 +155,7 @@ size_t codec_decode(codec_handle_t codec, void *context, const void *input, size
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

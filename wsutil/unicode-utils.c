@@ -158,7 +158,7 @@ arg_list_utf_16to8(int argc, wchar_t *wc_argv[]) {
 #endif
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

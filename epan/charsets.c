@@ -1568,7 +1568,7 @@ get_t61_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

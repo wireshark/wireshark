@@ -203,7 +203,7 @@ guint8 EBCDIC_to_ASCII1(guint8 c);
 #endif /* __CHARSETS_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

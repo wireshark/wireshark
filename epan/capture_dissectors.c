@@ -183,7 +183,7 @@ void capture_dissector_increment_count(capture_packet_info_t *cpinfo, const int 
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

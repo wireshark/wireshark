@@ -123,7 +123,7 @@ fclctl_get_paramstr (guint32 linkctl_type, guint32 param)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

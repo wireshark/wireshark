@@ -78,7 +78,7 @@ tvbuff_t *btmesh_network_find_key_and_decrypt(tvbuff_t *tvb, packet_info *pinfo,
 #endif /* __PACKET_BTMESH_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

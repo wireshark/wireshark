@@ -978,7 +978,7 @@ tvb_address_with_resolution_to_str(wmem_allocator_t *scope, tvbuff_t *tvb, int t
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -261,7 +261,7 @@ wmem_list_foreach(wmem_list_t *list, GFunc foreach_func, gpointer user_data)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

@@ -97,7 +97,7 @@ dissect_diffserv_mpls_common(tvbuff_t *tvb, proto_tree *tree, int type,
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

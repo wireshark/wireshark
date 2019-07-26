@@ -384,7 +384,7 @@ capture_opts_free_interface_t(interface_t *device);
 #endif /* capture_opts.h */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

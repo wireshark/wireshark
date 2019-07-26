@@ -265,7 +265,7 @@ OCLC-UserInformation B "1.2.840.10003.10.1000.17.1" "OCLC-UserInfo-1"
     diaginfo_data->diagcondition = diag_condition;
   }
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 2

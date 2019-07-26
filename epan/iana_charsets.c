@@ -385,7 +385,7 @@ static const value_string mibenum_vals_character_sets[] = {
 value_string_ext mibenum_vals_character_sets_ext = VALUE_STRING_EXT_INIT(mibenum_vals_character_sets);
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

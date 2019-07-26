@@ -105,7 +105,7 @@ gboolean rtpstream_id_equal_pinfo_rtp_info(const rtpstream_id_t *id, const packe
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

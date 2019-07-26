@@ -1030,7 +1030,7 @@ iseries_parse_hex_string (const char * ascii, guint8 * buf, size_t len)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 2

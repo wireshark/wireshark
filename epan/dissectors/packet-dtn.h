@@ -155,7 +155,7 @@ int evaluate_sdnv32(tvbuff_t *tvb, int offset, int *bytecount, guint32 *value);
 int evaluate_sdnv64(tvbuff_t *tvb, int offset, int *bytecount, guint64 *value);
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

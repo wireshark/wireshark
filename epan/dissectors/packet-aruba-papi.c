@@ -924,7 +924,7 @@ proto_reg_handoff_papi(void)
     dissector_add_uint_with_preference("udp.port", UDP_PORT_PAPI, papi_handle);
 }
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

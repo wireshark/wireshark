@@ -71,7 +71,7 @@ macro(pod2manhtml _sourcefile _manext)
 endmacro(pod2manhtml)
 
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 8

@@ -42,7 +42,7 @@ WS_DLL_PUBLIC expert_field ei_btatt_invalid_usage;
 #endif
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

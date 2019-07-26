@@ -1300,7 +1300,7 @@ if (scalar @apiSummaryGroups > 0) {
 exit($errorCount > 120 ? 120 : $errorCount);
 
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 8

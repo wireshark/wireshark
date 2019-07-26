@@ -324,7 +324,7 @@ wmem_ascii_strdown(wmem_allocator_t *allocator, const gchar *str, gssize len)
     return result;
 }
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

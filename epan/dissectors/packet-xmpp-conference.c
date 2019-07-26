@@ -244,7 +244,7 @@ xmpp_conf_media(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, xmpp_elemen
     xmpp_display_elems(media_tree, element, pinfo, tvb, NULL, 0);
 }
 /*
-* Editor modelines - http://www.wireshark.org/tools/modelines.html
+* Editor modelines - https://www.wireshark.org/tools/modelines.html
 *
 * Local variables:
 * c-basic-offset: 4

@@ -1054,7 +1054,7 @@ val64_string_ext_match_type_str(const val64_string_ext *vse)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

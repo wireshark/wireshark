@@ -466,7 +466,7 @@ guint32 stream_get_pdu_no( const stream_pdu_fragment_t *frag)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

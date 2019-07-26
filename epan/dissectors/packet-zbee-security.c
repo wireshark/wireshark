@@ -1242,7 +1242,7 @@ void zbee_sec_add_key_to_keyring(packet_info *pinfo, const guint8 *key)
 } /* nwk_add_key_to_keyring */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

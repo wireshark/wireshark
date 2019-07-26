@@ -115,7 +115,7 @@ extern void isis_dissect_metric(tvbuff_t *tvb, proto_tree *tree, int offset,
 #endif /* _PACKET_ISIS_CLV_H */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

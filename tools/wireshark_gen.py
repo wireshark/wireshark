@@ -11,7 +11,7 @@
 #  is "C". It will generate code to use the GIOP/IIOP get_CDR_XXX API.
 #
 #  Please see packet-giop.h in Wireshark distro for API description.
-#  Wireshark is available at http://www.wireshark.org/
+#  Wireshark is available at https://www.wireshark.org/
 #
 #  Omniidl is part of the OmniOrb distribution, and is available at
 #  http://omniorb.sourceforge.net
@@ -2646,7 +2646,7 @@ decode_@name@_un(tvb, pinfo, tree, offset, header, operation, stream_is_big_endi
 """
 
 #
-# Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+# Editor modelines  -  https://www.wireshark.org/tools/modelines.html
 #
 # Local variables:
 # c-basic-offset: 4

@@ -334,7 +334,7 @@ tvb_child_uncompress(tvbuff_t *parent, tvbuff_t *tvb, const int offset, int comp
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

@@ -33,7 +33,7 @@ extern const gulong tap_reg_listener_count;
 #endif /* __TAP_REGISTER_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 4

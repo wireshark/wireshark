@@ -115,7 +115,7 @@ wmem_destroy_list(wmem_list_t *list);
 #endif /* __WMEM_LIST_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

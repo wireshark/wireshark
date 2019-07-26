@@ -128,7 +128,7 @@ WS_DLL_PUBLIC void frame_data_set_after_dissect(frame_data *fdata,
 #endif  /* __FRAME_DATA__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 2

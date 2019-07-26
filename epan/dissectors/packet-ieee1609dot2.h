@@ -120,7 +120,7 @@ WS_DLL_PUBLIC const val64_string ieee1609dot2_Psid_vals[];
 #endif /* _IEEE1609DOT2_H_ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

@@ -128,7 +128,7 @@ int dissect_ms_compressed_string(tvbuff_t *tvb, proto_tree *tree, int offset, in
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

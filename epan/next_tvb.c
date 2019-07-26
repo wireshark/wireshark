@@ -111,7 +111,7 @@ void next_tvb_call(next_tvb_list_t *list, packet_info *pinfo, proto_tree *tree, 
 
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2

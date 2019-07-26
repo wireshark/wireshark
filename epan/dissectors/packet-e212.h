@@ -72,7 +72,7 @@ const gchar * dissect_e212_utf8_imsi(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 #endif /* __PACKET_E212_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

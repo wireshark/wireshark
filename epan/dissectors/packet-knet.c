@@ -779,7 +779,7 @@ proto_reg_handoff_knet(void)
     dissector_add_uint("sctp.port", current_sctp_port, knet_handle_sctp);
 }
 /*
-* Editor modelines - http://www.wireshark.org/tools/modelines.html
+* Editor modelines - https://www.wireshark.org/tools/modelines.html
 *
 * Local variables:
 * c-basic-offset: 4

@@ -383,7 +383,7 @@ fvalue_slice(fvalue_t *fv, drange_t *dr);
 #endif /* __FTYPES_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

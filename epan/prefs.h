@@ -643,7 +643,7 @@ WS_DLL_PUBLIC gboolean prefs_has_layout_pane_content (layout_pane_content_e layo
 #endif /* prefs.h */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

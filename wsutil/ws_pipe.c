@@ -929,7 +929,7 @@ ws_read_string_from_pipe(ws_pipe_handle read_pipe, gchar *buffer,
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

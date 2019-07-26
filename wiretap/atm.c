@@ -121,7 +121,7 @@ atm_guess_lane_type(wtap_rec *rec, const guint8 *pd)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 8

@@ -3358,7 +3358,7 @@ vwr_process_rec_data(FILE_T fh, int rec_size,
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

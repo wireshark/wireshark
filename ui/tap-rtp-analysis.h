@@ -120,7 +120,7 @@ extern void rtppacket_analyse(tap_rtp_stat_t *statinfo,
 #endif /* __TAP_RTP_ANALYSIS_H__ */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

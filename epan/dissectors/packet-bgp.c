@@ -10524,7 +10524,7 @@ proto_reg_handoff_bgp(void)
     dissector_add_uint_with_preference("tcp.port", BGP_TCP_PORT, bgp_handle);
 }
 /*
-* Editor modelines - http://www.wireshark.org/tools/modelines.html
+* Editor modelines - https://www.wireshark.org/tools/modelines.html
 *
 * Local variables:
 * c-basic-offset: 4

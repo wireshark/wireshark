@@ -125,7 +125,7 @@ iax2_packet_analyse(tap_iax2_stat_t *statinfo,
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

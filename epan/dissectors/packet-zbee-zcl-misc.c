@@ -1020,7 +1020,7 @@ proto_register_zbee_zcl_ias_zone(void)
 } /*proto_register_zbee_zcl_ias_zone*/
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

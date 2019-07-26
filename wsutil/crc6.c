@@ -70,7 +70,7 @@ guint16 crc6_0X6F(guint16 crc, const guint8 *data, int data_len)
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

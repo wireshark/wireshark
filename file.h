@@ -729,7 +729,7 @@ gboolean cf_add_ip_name_from_string(capture_file *cf, const char *addr, const ch
 #endif /* file.h */
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local variables:
  * c-basic-offset: 4

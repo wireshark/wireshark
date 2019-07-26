@@ -12029,7 +12029,7 @@ static void ras_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 }
 
 /*
- * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ * Editor modelines  -  https://www.wireshark.org/tools/modelines.html
  *
  * Local Variables:
  * c-basic-offset: 2
