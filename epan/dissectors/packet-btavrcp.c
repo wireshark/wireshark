@@ -180,6 +180,8 @@ static int hf_btavrcp_feature_only_browsable_when_addressed                = -1;
 static int hf_btavrcp_feature_only_searchable_when_addressed               = -1;
 static int hf_btavrcp_feature_nowplaying                                   = -1;
 static int hf_btavrcp_feature_uid_persistency                              = -1;
+static int hf_btavrcp_feature_number_of_items                              = -1;
+static int hf_btavrcp_feature_cover_art                                    = -1;
 static int hf_btavrcp_reassembled                                          = -1;
 static int hf_btavrcp_currect_path                                         = -1;
 static int hf_btavrcp_response_time                                        = -1;
@@ -788,10 +790,10 @@ dissect_item_mediaplayer(tvbuff_t *tvb, proto_tree *tree, gint offset)
     proto_tree_add_item((feature_octet & (1 << 0)) ? features_tree : features_not_set_tree, hf_btavrcp_feature_only_searchable_when_addressed, tvb, offset + 8, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item((feature_octet & (1 << 1)) ? features_tree : features_not_set_tree, hf_btavrcp_feature_nowplaying, tvb, offset + 8, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item((feature_octet & (1 << 2)) ? features_tree : features_not_set_tree, hf_btavrcp_feature_uid_persistency, tvb, offset + 8, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item((feature_octet & (1 << 3)) ? features_tree : features_not_set_tree, hf_btavrcp_feature_number_of_items, tvb, offset + 8, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item((feature_octet & (1 << 4)) ? features_tree : features_not_set_tree, hf_btavrcp_feature_cover_art, tvb, offset + 8, 1, ENC_BIG_ENDIAN);
 
     /* reserved */
-    proto_tree_add_item((feature_octet & (1 << 3)) ? features_tree : features_not_set_tree, hf_btavrcp_feature_reserved_3, tvb, offset + 8, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item((feature_octet & (1 << 4)) ? features_tree : features_not_set_tree, hf_btavrcp_feature_reserved_4, tvb, offset + 8, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item((feature_octet & (1 << 5)) ? features_tree : features_not_set_tree, hf_btavrcp_feature_reserved_5, tvb, offset + 8, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item((feature_octet & (1 << 6)) ? features_tree : features_not_set_tree, hf_btavrcp_feature_reserved_6, tvb, offset + 8, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item((feature_octet & (1 << 7)) ? features_tree : features_not_set_tree, hf_btavrcp_feature_reserved_7, tvb, offset + 8, 1, ENC_BIG_ENDIAN);
@@ -3080,6 +3082,16 @@ proto_register_btavrcp(void)
         { &hf_btavrcp_feature_uid_persistency,
             { "UID Persistency",                 "btavrcp.feature.uid_persistency",
             FT_UINT8, BASE_HEX, NULL, 0x04,
+            NULL, HFILL }
+        },
+        { &hf_btavrcp_feature_number_of_items,
+            { "Number of Items",                 "btavrcp.feature.number_of_items",
+            FT_UINT8, BASE_HEX, NULL, 0x08,
+            NULL, HFILL }
+        },
+        { &hf_btavrcp_feature_cover_art,
+            { "Cover Art",                       "btavrcp.feature.cover_art",
+            FT_UINT8, BASE_HEX, NULL, 0x10,
             NULL, HFILL }
         },
         /* end of features */
