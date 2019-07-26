@@ -127,14 +127,18 @@ static gint hf_a2dp_source_supported_features_microphone                   = -1;
 static gint hf_a2dp_source_supported_features_player                       = -1;
 static gint hf_synch_supported_data_store                                  = -1;
 static gint hf_ctp_external_network                                        = -1;
-static gint hf_avrcp_ct_supported_features_reserved_7_15                   = -1;
+static gint hf_avrcp_ct_supported_features_reserved_10_15                  = -1;
+static gint hf_avrcp_ct_supported_features_cover_art_get_linked_thumbnail  = -1;
+static gint hf_avrcp_ct_supported_features_cover_art_get_image             = -1;
+static gint hf_avrcp_ct_supported_features_cover_art_get_image_properties  = -1;
 static gint hf_avrcp_ct_supported_features_browsing                        = -1;
 static gint hf_avrcp_ct_supported_features_reserved_4_5                    = -1;
 static gint hf_avrcp_ct_supported_features_category_4                      = -1;
 static gint hf_avrcp_ct_supported_features_category_3                      = -1;
 static gint hf_avrcp_ct_supported_features_category_2                      = -1;
 static gint hf_avrcp_ct_supported_features_category_1                      = -1;
-static gint hf_avrcp_tg_supported_features_reserved_8_15                   = -1;
+static gint hf_avrcp_tg_supported_features_reserved_9_15                   = -1;
+static gint hf_avrcp_tg_supported_features_cover_art                       = -1;
 static gint hf_avrcp_tg_supported_features_multiple_player                 = -1;
 static gint hf_avrcp_tg_supported_features_browsing                        = -1;
 static gint hf_avrcp_tg_supported_features_group_navigation                = -1;
@@ -2289,7 +2293,10 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         case BTSDP_AVRCP_CT_SERVICE_UUID:
             switch (attribute) {
                 case 0x311:
-                    proto_tree_add_item(next_tree, hf_avrcp_ct_supported_features_reserved_7_15, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(next_tree, hf_avrcp_ct_supported_features_reserved_10_15, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(next_tree, hf_avrcp_ct_supported_features_cover_art_get_linked_thumbnail, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(next_tree, hf_avrcp_ct_supported_features_cover_art_get_image, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(next_tree, hf_avrcp_ct_supported_features_cover_art_get_image_properties, tvb, offset, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(next_tree, hf_avrcp_ct_supported_features_browsing, tvb, offset, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(next_tree, hf_avrcp_ct_supported_features_reserved_4_5, tvb, offset, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(next_tree, hf_avrcp_ct_supported_features_category_4, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2299,12 +2306,15 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 
                     supported_features = tvb_get_ntohs(tvb, offset);
 
-                    wmem_strbuf_append_printf(info_buf, "%s%s%s%s%s",
+                    wmem_strbuf_append_printf(info_buf, "%s%s%s%s%s%s%s%s",
                             (supported_features & 0x01) ? "Category1(Player/Recorder) " : "",
                             (supported_features & 0x02) ? "Category2(Monitor/Amplifier) " : "",
                             (supported_features & 0x04) ? "Category3(Tuner) " : "",
                             (supported_features & 0x08) ? "Category4(Menu) " : "",
-                            (supported_features & 0x40) ? "Browsing " : "");
+                            (supported_features & 0x40) ? "Browsing " : "",
+                            (supported_features & 0x80) ? "CoverArt/GetImageProperties) " : "",
+                            (supported_features & 0x100) ? "CoverArt/GetImage) " : "",
+                            (supported_features & 0x200) ? "CoverArt/GetLinkedThumbnail) " : "");
                 break;
                 default:
                     found = FALSE;
@@ -2313,7 +2323,8 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
         case BTSDP_AVRCP_TG_SERVICE_UUID:
             switch (attribute) {
                 case 0x311:
-                    proto_tree_add_item(next_tree, hf_avrcp_tg_supported_features_reserved_8_15, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(next_tree, hf_avrcp_tg_supported_features_reserved_9_15, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(next_tree, hf_avrcp_tg_supported_features_cover_art, tvb, offset, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(next_tree, hf_avrcp_tg_supported_features_multiple_player, tvb, offset, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(next_tree, hf_avrcp_tg_supported_features_browsing, tvb, offset, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(next_tree, hf_avrcp_tg_supported_features_group_navigation, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -2325,7 +2336,7 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 
                     supported_features = tvb_get_ntohs(tvb, offset);
 
-                    wmem_strbuf_append_printf(info_buf, "%s%s%s%s%s%s%s%s",
+                    wmem_strbuf_append_printf(info_buf, "%s%s%s%s%s%s%s%s%s",
                             (supported_features & 0x01) ? "Category1(Player/Recorder) " : "",
                             (supported_features & 0x02) ? "Category2(Monitor/Amplifier) " : "",
                             (supported_features & 0x04) ? "Category3(Tuner) " : "",
@@ -2333,7 +2344,8 @@ dissect_sdp_type(proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
                             (supported_features & 0x10) ? "PlayerApplicationSettings " : "",
                             (supported_features & 0x20) ? "GroupNavigation " : "",
                             (supported_features & 0x40) ? "Browsing " : "",
-                            (supported_features & 0x80) ? "MultiplePlayers " : "");
+                            (supported_features & 0x80) ? "MultiplePlayers " : "",
+                            (supported_features & 0x100) ? "CoverArt " : "");
                 break;
                 default:
                     found = FALSE;
@@ -5023,9 +5035,24 @@ proto_register_btsdp(void)
             FT_UINT8, BASE_HEX, VALS(ctp_external_network_vals), 0,
             NULL, HFILL }
         },
-        { &hf_avrcp_ct_supported_features_reserved_7_15,
+        { &hf_avrcp_ct_supported_features_reserved_10_15,
             { "Supported Features: Reserved",      "btsdp.service.avrcp.ct.supported_features.reserved",
-            FT_UINT16, BASE_HEX, NULL, 0xFF80,
+            FT_UINT16, BASE_HEX, NULL, 0xFC00,
+            NULL, HFILL }
+        },
+        { &hf_avrcp_ct_supported_features_cover_art_get_linked_thumbnail,
+            { "Supported Features: Cover Art - Get Linked Thumbnail",      "btsdp.service.avrcp.ct.supported_features.cover_art_get_linked_thumbnail",
+            FT_BOOLEAN, 16, NULL, 0x0200,
+            NULL, HFILL }
+        },
+        { &hf_avrcp_ct_supported_features_cover_art_get_image,
+            { "Supported Features: Cover Art - Get Image",      "btsdp.service.avrcp.ct.supported_features.cover_art_get_image",
+            FT_BOOLEAN, 16, NULL, 0x0100,
+            NULL, HFILL }
+        },
+        { &hf_avrcp_ct_supported_features_cover_art_get_image_properties,
+            { "Supported Features: Cover Art - Get Image Properties",      "btsdp.service.avrcp.ct.supported_features.cover_art_get_linked_thumbnail",
+            FT_BOOLEAN, 16, NULL, 0x0080,
             NULL, HFILL }
         },
         { &hf_avrcp_ct_supported_features_browsing,
@@ -5058,9 +5085,14 @@ proto_register_btsdp(void)
             FT_BOOLEAN, 16, NULL, 0x0001,
             NULL, HFILL }
         },
-        { &hf_avrcp_tg_supported_features_reserved_8_15,
+        { &hf_avrcp_tg_supported_features_reserved_9_15,
             { "Supported Features: Reserved",                        "btsdp.service.avrcp.tg.supported_features.reserved",
-            FT_UINT16, BASE_HEX, NULL, 0xFF00,
+            FT_UINT16, BASE_HEX, NULL, 0xFE00,
+            NULL, HFILL }
+        },
+        { &hf_avrcp_tg_supported_features_cover_art,
+            { "Supported Features: Cover Art",                 "btsdp.service.avrcp.tg.supported_features.cover_art",
+            FT_BOOLEAN, 16, NULL, 0x0100,
             NULL, HFILL }
         },
         { &hf_avrcp_tg_supported_features_multiple_player,
