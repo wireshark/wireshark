@@ -1505,13 +1505,21 @@ include(gmxTestLargeFiles)
 gmx_test_large_files(GMX_LARGEFILES)
 
 set( VERSION ${PROJECT_VERSION} )
-add_custom_target(version
-	BYPRODUCTS version.h
-	COMMAND ${PERL_EXECUTABLE}
-		${CMAKE_SOURCE_DIR}/tools/make-version.pl
-		${CMAKE_SOURCE_DIR}
-)
-set_target_properties(version PROPERTIES FOLDER "Auxiliary")
+if(VCSVERSION_OVERRIDE)
+	# Allow distributors to override detection of the Git tag and version.
+	string(CONFIGURE "#define VCSVERSION \"@VCSVERSION_OVERRIDE@\"\n"
+		_version_h_contents ESCAPE_QUOTES)
+	file(WRITE "${CMAKE_BINARY_DIR}/version.h" "${_version_h_contents}")
+	message(STATUS "VCSVERSION_OVERRIDE: ${VCSVERSION_OVERRIDE}")
+else()
+	add_custom_target(version
+		BYPRODUCTS version.h
+		COMMAND ${PERL_EXECUTABLE}
+			${CMAKE_SOURCE_DIR}/tools/make-version.pl
+			${CMAKE_SOURCE_DIR}
+	)
+	set_target_properties(version PROPERTIES FOLDER "Auxiliary")
+endif()
 
 set( configure_input "Built with CMake ${CMAKE_VERSION}" )
 configure_file(${CMAKE_SOURCE_DIR}/cmakeconfig.h.in ${CMAKE_BINARY_DIR}/config.h)
@@ -2119,7 +2127,9 @@ set_target_properties(copy_data_files PROPERTIES FOLDER "Copy Tasks")
 # Shared code, build object files once for all users.
 add_library(version_info OBJECT version_info.c)
 target_include_directories(version_info SYSTEM PRIVATE ${VERSION_INFO_INCLUDE_DIRS})
-add_dependencies(version_info version)
+if(NOT VCSVERSION_OVERRIDE)
+	add_dependencies(version_info version)
+endif()
 # sources common for wireshark, tshark, rawshark and sharkd
 add_library(shark_common OBJECT
 	cfile.c

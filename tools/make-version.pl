@@ -14,6 +14,12 @@
 # CMakeLists.txt will have the version_extra template appended to the
 # version number. version.h will _not_ be generated if either argument is
 # present.
+#
+# make-version.pl is called during the build to update version.h in the build
+# directory. To set a fixed version, use something like:
+#
+#   cmake -DVCSVERSION_OVERRIDE="Git v3.1.0 packaged as 3.1.0-1"
+#
 
 # XXX - We're pretty dumb about the "{vcsinfo}" substitution, and about having
 # spaces in the package format.
