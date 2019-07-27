@@ -1287,7 +1287,7 @@ HTML_INDEX_NUM_ENTRIES = 100
 # Makefile in the HTML output directory. Running make will produce the docset in
 # that directory and running make install will install the docset in
 # ~/Library/Developer/Shared/Documentation/DocSets so that Xcode will find it at
-# startup. See https://developer.apple.com/tools/creatingdocsetswithdoxygen.html
+# startup. See https://web.archive.org/web/20110308172046/http://developer.apple.com/tools/creatingdocsetswithdoxygen.html
 # for more information.
 # The default value is: NO.
 # This tag requires that the tag GENERATE_HTML is set to YES.
