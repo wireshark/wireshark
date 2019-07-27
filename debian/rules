@@ -27,6 +27,8 @@ override_dh_auto_configure:
 	dh_auto_configure -- -DBUILD_xxx2deb=ON
 
 override_dh_auto_build:
+	# Ignore warnings from asn2wrs.py about duplicate field names.
+	PYTHONWARNINGS='ignore:The same:UserWarning::0' \
 	$(MAKE) -C $(CURDIR)/obj-* asn1
 	dh_auto_build
 	$(MAKE) -C $(CURDIR)/obj-* user_guide_html developer_guide_html
