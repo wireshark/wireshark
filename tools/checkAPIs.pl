@@ -43,9 +43,9 @@ my %APIs = (
                 # Microsoft provides lists of unsafe functions and their
                 # recommended replacements in "Security Development Lifecycle
                 # (SDL) Banned Function Calls"
-                # https://msdn.microsoft.com/en-us/library/bb288454.aspx
+                # https://docs.microsoft.com/en-us/previous-versions/bb288454(v=msdn.10)
                 # and "Deprecated CRT Functions"
-                # https://msdn.microsoft.com/en-us/library/ms235384.aspx
+                # https://docs.microsoft.com/en-us/previous-versions/ms235384(v=vs.100)
                 #
                 'atoi', # use wsutil/strtoi.h functions
                 'gets',
@@ -1018,7 +1018,7 @@ my $debug = 0;
 }  # block end
 
 # The below Regexp are based on those from:
-# http://aspn.activestate.com/ASPN/Cookbook/Rx/Recipe/59811
+# https://web.archive.org/web/20080614012925/http://aspn.activestate.com/ASPN/Cookbook/Rx/Recipe/59811
 # They are in the public domain.
 
 # 2. A regex which matches double-quoted strings.

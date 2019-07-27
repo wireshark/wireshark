@@ -384,9 +384,9 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 		#                                   versions should always call this function as GetProcessMemoryInfo. To ensure correct
 		#                                   resolution of symbols, add Psapi.lib to the TARGETLIBS macro and compile the program
 		#                                   with -DPSAPI_VERSION=1.To use run-time dynamic linking, load Psapi.dll.
-		#                                   http://msdn.microsoft.com/en-us/library/windows/desktop/ms683219(v=vs.85).aspx
+		#                                   https://docs.microsoft.com/en-us/windows/win32/api/psapi/nf-psapi-getprocessmemoryinfo
 		# -D_ALLOW_KEYWORD_MACROS           For VS2012 onwards the, C++ STL does not permit macro redefinitions of keywords
-		#                                   (see http://msdn.microsoft.com/en-us/library/bb531344(v=vs.110).aspx)
+		#                                   (see https://docs.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-2012/bb531344(v=vs.110))
 		#                                   This definition prevents the complaint about the redefinition of inline by WinPCap
 		#                                   in pcap-stdinc.h when compiling C++ files, e.g. the Qt UI
 		/DPSAPI_VERSION=1
@@ -403,17 +403,17 @@ if( CMAKE_C_COMPILER_ID MATCHES "MSVC")
 
 	set(WS_LINK_FLAGS "/LARGEADDRESSAWARE /MANIFEST:NO /INCREMENTAL:NO /RELEASE")
 
-	# To do: Add /external:... See https://blogs.msdn.microsoft.com/vcblog/2017/12/13/broken-warnings-theory/
+	# To do: Add /external:... See https://devblogs.microsoft.com/cppblog/broken-warnings-theory/
 	#
 	# /Zo                               Enhanced debugging of optimised code
 	# /utf-8                            Set Source and Executable character sets to UTF-8
 	#                                   VS2015(MSVC14): On by default when /Zi or /Z7 used.
 	# /guard:cf                         Control Flow Guard (compile and link).
-	#                                   See https://msdn.microsoft.com/en-us/library/windows/desktop/mt637065.aspx
+	#                                   See https://docs.microsoft.com/en-us/windows/win32/secbp/control-flow-guard
 	#                                   Note: This requires CMake 3.9.0 or newer.
 	#                                   https://gitlab.kitware.com/cmake/cmake/commit/f973d49ab9d4c59b93f6dac812a94bb130200836
 	# /Qspectre                         Speculative execution attack mitigation
-	#                                   See https://blogs.msdn.microsoft.com/vcblog/2018/01/15/spectre-mitigations-in-msvc/
+	#                                   See https://devblogs.microsoft.com/cppblog/spectre-mitigations-in-msvc/
 	list(APPEND LOCAL_CFLAGS /Zo /utf-8 /guard:cf)
 	set(WS_LINK_FLAGS "${WS_LINK_FLAGS} /guard:cf")
 	# /Qspectre is not available for VS2015 or older VS2017. Test for its availability.
@@ -1320,7 +1320,7 @@ include(ConfigureChecks.cmake)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 if(ENABLE_CCACHE AND (CMAKE_COMPILER_IS_GNUCC OR CMAKE_C_COMPILER_ID MATCHES "Clang"))
-	# http://stackoverflow.com/a/24305849/82195
+	# https://stackoverflow.com/questions/1815688/how-to-use-ccache-with-cmake/24305849#24305849
 	find_program(CCACHE_EXECUTABLE ccache)
 	if(CCACHE_EXECUTABLE)
 		set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE "${CCACHE_EXECUTABLE}")
@@ -1558,7 +1558,7 @@ set_package_properties(SBC PROPERTIES
 )
 set_package_properties(SPANDSP PROPERTIES
 	DESCRIPTION "a library of many DSP functions for telephony"
-	URL "http://www.soft-switch.org/"
+	URL "https://www.soft-switch.org"
 	PURPOSE "Support for G.722 and G.726 codecs in RTP player"
 )
 set_package_properties(BCG729 PROPERTIES
@@ -1583,7 +1583,7 @@ set_package_properties(LZ4 PROPERTIES
 )
 set_package_properties(SNAPPY PROPERTIES
 	DESCRIPTION "A fast compressor/decompressor from Google"
-	URL "http://google.github.io/snappy/"
+	URL "https://google.github.io/snappy/"
 	PURPOSE "Snappy decompression in CQL and Kafka dissectors"
 )
 set_package_properties(NGHTTP2 PROPERTIES

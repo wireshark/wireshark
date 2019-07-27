@@ -143,7 +143,7 @@ packet_dcm_h = """/* packet-dcm.h
  * Copyright 2003, Rich Coe <richcoe2@gmail.com>
  * Copyright 2008-2018, David Aggeler <david_aggeler@hispeed.ch>
  *
- * DICOM communication protocol: http://www.dicomstandard.org/current/
+ * DICOM communication protocol: https://www.dicomstandard.org/current/
  *
  * Generated automatically by """ + os.path.basename(sys.argv[0]) + """ from the following sources:
  *

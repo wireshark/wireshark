@@ -25,7 +25,7 @@
 /*
  * See
  *
- *     http://www.dgtech.com/gryphon/sys/www/docs/html/
+ *     https://www.dgtech.com/product/gryphon/manual/html/GCprotocol/
  */
 
 void proto_register_gryphon(void);

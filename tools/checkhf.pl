@@ -244,7 +244,7 @@ sub remove_comments {
     my ($code_ref, $filename) = @_;
 
     # The below Regexp is based on one from:
-    # http://aspn.activestate.com/ASPN/Cookbook/Rx/Recipe/59811
+    # https://web.archive.org/web/20080614012925/http://aspn.activestate.com/ASPN/Cookbook/Rx/Recipe/59811
     # It is in the public domain.
     # A complicated regex which matches C-style comments.
     my $c_comment_regex = qr{ / [*] [^*]* [*]+ (?: [^/*] [^*]* [*]+ )* / }xmso;

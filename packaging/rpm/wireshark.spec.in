@@ -384,7 +384,7 @@ cd -
 %if %{with qt5}
 %if 0%{?suse_version}
 # SUSE's packaging conventions
-# (http://en.opensuse.org/openSUSE:Packaging_Conventions_RPM_Macros#.25suse_update_desktop_file)
+# (https://en.opensuse.org/openSUSE:Packaging_Conventions_RPM_Macros#.25suse_update_desktop_file)
 # require this:
 install -Dm 0644 %{buildroot}/usr/local/share/applications/wireshark.desktop %{buildroot}/usr/share/applications/wireshark.desktop
 %suse_update_desktop_file %{name}

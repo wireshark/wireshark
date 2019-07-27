@@ -28,7 +28,7 @@
 # As a result, none of the distributions that produce Windows applications
 # and libraries have any sort of hardening flags enabled:
 #
-#   http://mingw-w64.org/doku.php/download
+#   https://mingw-w64.org/doku.php/download
 #
 
 <#

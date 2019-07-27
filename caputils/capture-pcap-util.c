@@ -428,7 +428,7 @@ if_info_new(const char *name, const char *description, gboolean loopback)
 	 * Much digging failed to reveal any obvious way to get something
 	 * such as the SNMP MIB-II ifType value for an interface:
 	 *
-	 *    http://www.iana.org/assignments/ianaiftype-mib
+	 *    https://www.iana.org/assignments/ianaiftype-mib/ianaiftype-mib
 	 *
 	 * by making some NDIS request.  And even if there were such
 	 * a way, there's no guarantee that the ifType reflects an

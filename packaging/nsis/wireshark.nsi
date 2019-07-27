@@ -17,7 +17,7 @@ SetCompressorDictSize 64 ; MB
 
 ${StrRep}
 
-; See http://nsis.sourceforge.net/Check_if_a_file_exists_at_compile_time for documentation
+; See https://nsis.sourceforge.io/Check_if_a_file_exists_at_compile_time for documentation
 !macro !defineifexist _VAR_NAME _FILE_NAME
   !tempfile _TEMPFILE
   !ifdef NSIS_WIN32_MAKENSIS
@@ -105,7 +105,7 @@ Page custom DisplayUSBPcapPage
   ;Things that need to be extracted on first (keep these lines before any File command!)
   ;Only useful for BZIP2 compression
 
-  ; Old Modern 1 UI: http://nsis.sourceforge.net/Docs/Modern%20UI/Readme.html
+  ; Old Modern 1 UI: https://nsis.sourceforge.io/Docs/Modern%20UI/Readme.html
   ; To do: Upgrade to the Modern 2 UI:
   ;ReserveFile "AdditionalTasksPage.ini"
   ReserveFile "NpcapPage.ini"
@@ -113,8 +113,8 @@ Page custom DisplayUSBPcapPage
   ReserveFile /plugin InstallOptions.dll
 
   ; Modern UI 2 / nsDialog pages.
-  ; http://nsis.sourceforge.net/Docs/Modern%20UI%202/Readme.html
-  ; http://nsis.sourceforge.net/Docs/nsDialogs/Readme.html
+  ; https://nsis.sourceforge.io/Docs/Modern%20UI%202/Readme.html
+  ; https://nsis.sourceforge.io/Docs/nsDialogs/Readme.html
   !ifdef QT_DIR
   !include "AdditionalTasksPage.nsdinc"
   !endif
@@ -195,7 +195,7 @@ ShowInstDetails show
 ; ============================================================================
 
 Var EXTENSION
-; https://msdn.microsoft.com/en-us/library/windows/desktop/cc144148.aspx
+; https://docs.microsoft.com/en-us/windows/win32/shell/fa-file-types
 Function Associate
   Push $R0
   !insertmacro PushFileExtensions
@@ -317,7 +317,7 @@ lbl_winversion_supported:
   StrCpy $QUICK_LAUNCH_STATE ${BST_CHECKED}
   StrCpy $FILE_ASSOCIATE_STATE ${BST_CHECKED}
 
-  ; Copied from http://nsis.sourceforge.net/Auto-uninstall_old_before_installing_new
+  ; Copied from https://nsis.sourceforge.io/Auto-uninstall_old_before_installing_new
   ReadRegStr $OLD_UNINSTALLER HKLM \
     "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROGRAM_NAME}" \
     "UninstallString"
@@ -842,9 +842,9 @@ File "${STAGING_DIR}\wimaxasncp\dictionary.dtd"
 SetOutPath $INSTDIR
 
 ; Write the uninstall keys for Windows
-; http://nsis.sourceforge.net/Add_uninstall_information_to_Add/Remove_Programs
-; https://msdn.microsoft.com/en-us/library/ms954376.aspx
-; https://msdn.microsoft.com/en-us/library/windows/desktop/aa372105.aspx
+; https://nsis.sourceforge.io/Add_uninstall_information_to_Add/Remove_Programs
+; https://docs.microsoft.com/en-us/previous-versions/ms954376(v=msdn.10)
+; https://docs.microsoft.com/en-us/windows/win32/msi/uninstall-registry-key
 !define UNINSTALL_PATH "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PROGRAM_NAME}"
 
 WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "Comments" "${DISPLAY_NAME}"
@@ -867,7 +867,7 @@ WriteRegDWORD HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "VersionMinor" ${VERSION_MI
 WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "UninstallString" '"$INSTDIR\${UNINSTALLER_NAME}"'
 WriteRegStr HKEY_LOCAL_MACHINE "${UNINSTALL_PATH}" "QuietUninstallString" '"$INSTDIR\${UNINSTALLER_NAME}" /S'
 
-; To quote "http://download.microsoft.com/download/0/4/6/046bbd36-0812-4c22-a870-41911c6487a6/WindowsUserExperience.pdf"
+; To quote https://web.archive.org/web/20150911221413/http://download.microsoft.com/download/0/4/6/046bbd36-0812-4c22-a870-41911c6487a6/WindowsUserExperience.pdf:
 ; "Do not include Readme, Help, or Uninstall entries on the Programs menu."
 Delete "$SMPROGRAMS\${PROGRAM_NAME}\Wireshark Web Site.lnk"
 

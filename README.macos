@@ -8,7 +8,7 @@ available on the install DVD; Xcode 4 is available for download from
 developer.apple.com and, for Lion and later releases, from the Mac App
 Store.  See
 
-	http://guide.macports.org/chunked/installing.xcode.html
+	https://guide.macports.org/#installing.xcode
 
 for details.  For Xcode 4, you will need to install the command-line
 tools; select Preferences from the Xcode menu, select Downloads in the
@@ -18,7 +18,7 @@ You must also have GLib and, if you want to build Wireshark as well as
 TShark, you must have also Qt installed.  You can download precompiled
 Qt packages and source code from
 
-	https://www.qt.io/download-open-source/
+	https://www.qt.io/download
 
 or use the tools/macos-setup.sh script described below.
 

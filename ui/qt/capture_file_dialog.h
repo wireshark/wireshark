@@ -42,7 +42,7 @@ class CaptureFileDialog : public QFileDialog
     //
     // You can subclass QFileDialog (which we've done here) and add widgets as
     // described at
-    // http://developer.qt.nokia.com/faq/answer/how_can_i_add_widgets_to_my_qfiledialog_instance
+    // https://web.archive.org/web/20100528190736/http://developer.qt.nokia.com/faq/answer/how_can_i_add_widgets_to_my_qfiledialog_instance
     // However, Qt's idea of what a file dialog looks like isn't what Microsoft
     // and Apple think a file dialog looks like.
     //

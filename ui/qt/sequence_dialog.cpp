@@ -46,7 +46,7 @@
 //     this easier.
 // - For general flows, let the user show columns other than COL_INFO.
 // - Add UTF8 to text dump
-// - Save to XMI? http://www.umlgraph.org/
+// - Save to XMI? https://www.spinellis.gr/umlgraph/
 // - Time: abs vs delta
 // - Hide nodes
 // - Clickable time + comments?

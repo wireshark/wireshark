@@ -83,9 +83,12 @@ void WiresharkDialog::setWindowTitleFromSubtitle()
 // we were deep in the bowels of a routine that retaps packets. Track our
 // tapping state using retap_depth_ and our closed state using dialog_closed_.
 //
-// The Delta Object Rules (http://delta.affinix.com/dor/) page on nested
-// event loops effectively says "don't do that." However, we don't really
-// have a choice if we want to have a usable application that retaps packets.
+// The Delta Object Rules page on nested event loops:
+//
+//    https://jblog.andbit.net/2007/04/28/delta-object-rules/
+//
+// effectively says "don't do that." However, we don't really have a choice
+// if we want to have a usable application that retaps packets.
 
 void WiresharkDialog::tryDeleteLater()
 {

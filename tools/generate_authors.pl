@@ -50,7 +50,7 @@ http://www.kylheku.com/~kaz/kazlib.html
 
 We use Lua BitOp, written by Mike Pall, for bitwise operations
 on numbers in Lua. The Lua BitOp home page can be found at
-http://bitop.luajit.org/
+https://bitop.luajit.org
 
 snax <snax[AT]shmoo.com> gave permission to use his(?) weak key
 detection code from Airsnort.

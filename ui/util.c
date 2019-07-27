@@ -320,7 +320,7 @@ const gchar *get_conn_cfilter(void) {
         g_free(phostname);
 #ifdef _WIN32
     } else if (GetSystemMetrics(SM_REMOTESESSION)) {
-        /* We have a remote session: http://msdn.microsoft.com/en-us/library/aa380798%28VS.85%29.aspx */
+        /* We have a remote session: https://docs.microsoft.com/en-us/windows/win32/termserv/detecting-the-terminal-services-environment */
         g_string_printf(filter_str, "not port 3389");
 #endif /* _WIN32 */
     } else {

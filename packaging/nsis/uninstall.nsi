@@ -3,7 +3,7 @@
 ;
 
 ; Create an installer that only writes an uninstaller.
-; http://nsis.sourceforge.net/Signing_an_Uninstaller
+; https://nsis.sourceforge.io/Signing_an_Uninstaller
 
 !include "common.nsh"
 !include 'LogicLib.nsh'

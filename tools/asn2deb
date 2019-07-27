@@ -84,7 +84,7 @@ Description: ASN.1/BER dissector for %s
             """This package has been created automatically be asn2deb on
 %s for Debian GNU/Linux.
 
-Wireshark: http://www.wireshark.com/
+Wireshark: https://www.wireshark.com/
 
 Copyright:
 

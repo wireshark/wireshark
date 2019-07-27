@@ -126,7 +126,7 @@ test("basic_pack5", lib.pack(fmt2_be, lib.unpack(fmt1_be, val1)) == lib.pack(">!
 
 ----------------------------------
 -- following comes from:
--- http://www.inf.puc-rio.br/~roberto/struct/teststruct
+-- https://github.com/LuaDist/struct/blob/master/teststruct.lua
 -- unfortunately many of his tests assumed a local machine word
 -- size of 4 bytes for long and such, so I had to muck with this
 -- to make it handle 64-bit compiles.

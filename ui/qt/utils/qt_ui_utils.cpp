@@ -194,7 +194,7 @@ bool qStringCaseLessThan(const QString &s1, const QString &s2)
     return s1.compare(s2, Qt::CaseInsensitive) < 0;
 }
 
-// http://stackoverflow.com/questions/3490336/how-to-reveal-in-finder-or-show-in-explorer-with-qt
+// https://stackoverflow.com/questions/3490336/how-to-reveal-in-finder-or-show-in-explorer-with-qt
 void desktop_show_in_folder(const QString file_path)
 {
     bool success = false;

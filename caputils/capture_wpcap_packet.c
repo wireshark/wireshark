@@ -41,6 +41,8 @@ gboolean has_wpacket = FALSE;
  * Unfortunately, the definitions required for this are not available through the usual windows header files,
  * but require the Windows "Device Driver Kit" which is not available for free :-(
  *
+ *
+ *
  * Fortunately, the definitions needed to access the various NDIS values are available from various OSS projects:
  * - WinPcap in Ntddndis.h
  * - Ndiswrapper in driver/ndis.h and driver/iw_ndis.h
@@ -48,13 +50,12 @@ gboolean has_wpacket = FALSE;
  * - FreeBSD (netperf)
  */
 
-/* The MSDN description of the NDIS driver API is available at:
-/* MSDN Home >  MSDN Library >  Win32 and COM Development >  Driver Development Kit >  Network Devices and Protocols >  Reference */
-/* "NDIS Objects" */
-/* http://msdn.microsoft.com/library/default.asp?url=/library/en-us/network/hh/network/21oidovw_d55042e5-0b8a-4439-8ef2-be7331e98464.xml.asp */
+/* The description of the NDIS driver API is available at:
+ * https://docs.microsoft.com/en-us/windows-hardware/drivers/network/ndis-core-functionality2
+ */
 
 /* Some more interesting links:
- * http://sourceforge.net/projects/ndiswrapper/
+ * https://sourceforge.net/projects/ndiswrapper/
  * http://www.osronline.com/lists_archive/windbg/thread521.html
  * http://cvs.sourceforge.net/viewcvs.py/mingw/w32api/include/ddk/ndis.h?view=markup
  * http://cvs.sourceforge.net/viewcvs.py/mingw/w32api/include/ddk/ntddndis.h?view=markup

@@ -617,7 +617,7 @@ void RtpAnalysisDialog::on_actionSaveGraph_triggered()
 
     if (!file_name.isEmpty()) {
         bool save_ok = false;
-        // http://www.qcustomplot.com/index.php/support/forum/63
+        // https://www.qcustomplot.com/index.php/support/forum/63
 //        ui->streamGraph->legend->setVisible(true);
         if (extension.compare(pdf_filter) == 0) {
             save_ok = ui->streamGraph->savePdf(file_name);
@@ -1157,7 +1157,7 @@ gboolean RtpAnalysisDialog::saveAudioAU(StreamDirection direction, QFile *save_f
     size_t rev_total_len;
     size_t total_len;
 
-    /* http://pubs.opengroup.org/external/auformat.html */
+    /* https://pubs.opengroup.org/external/auformat.html */
     /* First we write the .au header.  All values in the header are
      * 4-byte big-endian values, so we use pntoh32() to copy them
      * to a 4-byte buffer, in big-endian order, and then write out

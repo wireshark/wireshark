@@ -352,7 +352,7 @@ sub find_hf_array_entries {
     my ($fileContentsRef, $fileName) = @_;
 
     # The below Regexp is based on one from:
-    # http://aspn.activestate.com/ASPN/Cookbook/Rx/Recipe/59811
+    # https://web.archive.org/web/20080614012925/http://aspn.activestate.com/ASPN/Cookbook/Rx/Recipe/59811
     # It is in the public domain.
     # A complicated regex which matches C-style comments.
     my $CCommentRegEx = qr{ / [*] [^*]* [*]+ (?: [^/*] [^*]* [*]+ )* / }xo;

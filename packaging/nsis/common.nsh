@@ -71,7 +71,7 @@ UpdateIcons.quit_${UPDATEICONS_UNIQUE}:
     Pop $R0
 
 ; Force the icon cache to refresh
-; http://superuser.com/questions/499078/refresh-icon-cache-without-rebooting
+; https://superuser.com/questions/499078/refresh-icon-cache-without-rebooting
 IfFileExists "$SYSDIR\ie4uinit.exe" 0 +2
 Exec '"$SYSDIR\ie4uinit.exe" -ClearIconCache'
 
@@ -122,7 +122,7 @@ Exec '"$SYSDIR\ie4uinit.exe" -ClearIconCache'
 
 !macro IsWiresharkRunning
 ; See if Wireshark is running
-; http://nsis.sourceforge.net/Check_whether_your_application_is_running
+; https://nsis.sourceforge.io/Check_whether_your_application_is_running
 ${Do}
 
     System::Call 'kernel32::OpenMutex(i 0x100000, b 0, t "Global\${PROGRAM_NAME}-is-running-{9CA78EEA-EA4D-4490-9240-FC01FCEF464B}") i .R0'

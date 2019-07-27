@@ -352,7 +352,7 @@ static const value_string AdsErrorMode[] =
 
 
 /* AMS Command Id
- * http://infosys.beckhoff.com/english.php?content=../content/1033/tcadsamsspec/html/tcadsamsspec_adscmd_readstate.htm&id=10652
+ * https://infosys.beckhoff.com/english.php?content=../content/1033/tcadsamsspec/html/tcadsamsspec_adscmd_readstate.htm&id=10652
  */
 static const value_string AMS_CommandId_vals[] =
 {

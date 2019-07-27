@@ -18,15 +18,17 @@
 
 // References:
 //
-// http://standards.freedesktop.org/icon-theme-spec/icon-theme-spec-latest.html
-// http://standards.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html
+// https://specifications.freedesktop.org/icon-theme-spec/icon-theme-spec-latest.html
+// https://specifications.freedesktop.org/icon-naming-spec/icon-naming-spec-latest.html
 //
-// http://mithatkonar.com/wiki/doku.php/qt/icons
+// https://mithatkonar.com/wiki/doku.php/qt/icons
 //
-// https://developer.apple.com/library/mac/documentation/userexperience/conceptual/applehiguidelines/IconsImages/IconsImages.html#//apple_ref/doc/uid/20000967-TPXREF102
-// http://msdn.microsoft.com/en-us/library/windows/desktop/dn742485.aspx
-// https://developer.gnome.org/hig-book/stable/icons-types.html.en
-// http://msdn.microsoft.com/en-us/library/ms246582.aspx
+// https://web.archive.org/web/20140829010224/https://developer.apple.com/library/mac/documentation/userexperience/conceptual/applehiguidelines/IconsImages/IconsImages.html
+// https://developer.apple.com/design/human-interface-guidelines/macos/icons-and-images/image-size-and-resolution/
+// https://developer.apple.com/design/human-interface-guidelines/macos/icons-and-images/app-icon/
+// https://docs.microsoft.com/en-us/windows/win32/uxguide/vis-icons
+// https://developer.gnome.org/hig/stable/icons-and-artwork.html.en
+// https://docs.microsoft.com/en-us/visualstudio/designers/the-visual-studio-image-library
 
 // To do:
 // - 32x32, 48x48, 64x64, and unscaled (.svg) icons.

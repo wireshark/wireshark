@@ -154,7 +154,7 @@ set_last_open_dir(const char *dirname)
  */
 /*
  * XXX - We might want to call SHAddToRecentDocs under Windows 7:
- * http://stackoverflow.com/questions/437212/how-do-you-register-a-most-recently-used-list-with-windows-in-preparation-for-win
+ * https://stackoverflow.com/questions/437212/how-do-you-register-a-most-recently-used-list-with-windows-in-preparation-for-win
  */
 extern "C" void
 add_menu_recent_capture_file(const gchar *cf_name) {
@@ -304,7 +304,7 @@ void WiresharkApplication::setMonospaceFont(const char *font_string) {
         }
     }
 
-    // http://en.wikipedia.org/wiki/Category:Monospaced_typefaces
+    // https://en.wikipedia.org/wiki/Category:Monospaced_typefaces
     const char *win_default_font = "Consolas";
     const char *win_alt_font = "Lucida Console";
     // SF Mono might be a system font someday. Right now (Oct 2016) it appears
@@ -315,7 +315,7 @@ void WiresharkApplication::setMonospaceFont(const char *font_string) {
     const QStringList osx_alt_fonts = QStringList() << "Menlo" << "Monaco";
     // XXX Detect Ubuntu systems (e.g. via /etc/os-release and/or
     // /etc/lsb_release) and add "Ubuntu Mono Regular" there.
-    // http://font.ubuntu.com/
+    // https://design.ubuntu.com/font/
     const char *x11_default_font = "Liberation Mono";
     const QStringList x11_alt_fonts = QStringList() << "DejaVu Sans Mono" << "Bitstream Vera Sans Mono";
     const QStringList fallback_fonts = QStringList() << "Lucida Sans Typewriter" << "Inconsolata" << "Droid Sans Mono" << "Andale Mono" << "Courier New" << "monospace";
@@ -525,11 +525,11 @@ void WiresharkApplication::storeCustomColorsInRecent()
 // Dell Backup and Recovery is awful and terrible.
 // https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=12036
 // https://bugreports.qt.io/browse/QTBUG-41416
-// http://en.community.dell.com/support-forums/software-os/f/3526/t/19634253
-// http://stackoverflow.com/a/33697140/82195
+// https://www.dell.com/community/Productivity-Software/Backup-and-Recovery-causing-applications-using-Qt5-DLLs-to-crash/m-p/4590325
+// https://stackoverflow.com/questions/30833889/dll-hell-with-sqlite/33697140#33697140
 //
 // According to https://www.portraitprofessional.com/support/?qid=79 , which
-// points to http://cloudfront.portraitprofessional.com/Tools/unregister_dell_backup.cmd
+// points to https://cloudfrontsecure.anthropics.com/Tools/unregister_dell_backup.cmd
 // DBAR's shell extension DLLs are named DBROverlayIconBackuped.dll,
 // DBROverlayIconNotBackuped.dll, and DBRShellExtension.dll.
 //
@@ -573,7 +573,7 @@ void WiresharkApplication::checkForDbar()
         << "DBRShellExtension.dll";
     // List of HKCR subkeys in which to look for "shellex\ContextMenuHandlers".
     // This may be incomplete.
-    // https://msdn.microsoft.com/en-us/library/windows/desktop/cc144110
+    // https://docs.microsoft.com/en-us/windows/win32/shell/reg-shell-exts
     QStringList hkcr_subkeys = QStringList()
         << "*"
         << "AllFileSystemObjects"

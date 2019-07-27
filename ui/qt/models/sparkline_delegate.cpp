@@ -77,7 +77,7 @@ void SparkLineDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt
 
     // As a general rule, aliased painting renders to pixels and
     // antialiased painting renders to mathematical coordinates:
-    // http://doc.qt.io/qt-5/coordsys.html
+    // https://doc.qt.io/qt-5/coordsys.html
     // Shift our coordinates by 0.5 pixels, otherwise our lines end
     // up blurry.
     painter->setRenderHint(QPainter::Antialiasing, true);

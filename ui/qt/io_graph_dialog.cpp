@@ -47,7 +47,7 @@
 // Bugs and uncertainties:
 // - Regular (non-stacked) bar graphs are drawn on top of each other on the Z axis.
 //   The QCP forum suggests drawing them side by side:
-//   http://www.qcustomplot.com/index.php/support/forum/62
+//   https://www.qcustomplot.com/index.php/support/forum/62
 // - We retap and redraw more than we should.
 // - Smoothing doesn't seem to match GTK+
 // - Closing the color picker on macOS sends the dialog to the background.
@@ -911,7 +911,7 @@ void IOGraphDialog::updateLegend()
     }
 
     // Differing labels. Create a legend with a Title label at top.
-    // Legend Title thanks to: http://www.qcustomplot.com/index.php/support/forum/443
+    // Legend Title thanks to: https://www.qcustomplot.com/index.php/support/forum/443
     QCPStringLegendItem* legendTitle = qobject_cast<QCPStringLegendItem*>(iop->legend->elementAt(0));
     if (legendTitle == NULL) {
         legendTitle = new QCPStringLegendItem(iop->legend, QString(""));

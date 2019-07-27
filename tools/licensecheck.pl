@@ -159,7 +159,7 @@ Adam D. Barratt <adam@adam-barratt.org.uk>
 
 =cut
 
-# see http://stackoverflow.com/questions/6162484/why-does-modern-perl-avoid-utf-8-by-default/6163129#6163129
+# see https://stackoverflow.com/questions/6162484/why-does-modern-perl-avoid-utf-8-by-default/6163129#6163129
 use v5.14;
 use utf8;
 
@@ -781,7 +781,7 @@ sub parselicense {
 		}
 
 		if ($licensetext =~ /distributed under the terms of the FreeType project/i) {
-			$license = "FreeType $license"; # aka FTL see http://www.freetype.org/license.html
+			$license = "FreeType $license"; # aka FTL see https://www.freetype.org/license.html
 		}
 
 		if ($licensetext =~ /This source file is subject to version ([^ ]+) of the PHP license/) {

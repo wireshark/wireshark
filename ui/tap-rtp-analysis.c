@@ -39,7 +39,7 @@ typedef struct _key_value {
 
 
 /* RTP sampling clock rates for fixed payload types as defined in
- http://www.iana.org/assignments/rtp-parameters */
+ https://www.iana.org/assignments/rtp-parameters/rtp-parameters.xhtml */
 static const key_value clock_map[] = {
     {PT_PCMU,       8000},
     {PT_1016,       8000},
@@ -94,8 +94,8 @@ typedef struct _mimetype_and_clock {
   Payload Types table, there are additional payload formats that do not
   have static RTP payload types assigned but instead use dynamic payload
   type number assignment.  Each payload format is named by a registered
-  MIME subtype"
-  http://www.iana.org/assignments/rtp-parameters.
+  media subtype"
+  https://www.iana.org/assignments/rtp-parameters/rtp-parameters.xhtml.
 
   NOTE: Please keep the mimetypes in case insensitive alphabetical order.
 */

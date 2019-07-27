@@ -10,7 +10,7 @@ set(_PF86 "PROGRAMFILES(x86)")
 # According to
 # https://stackoverflow.com/questions/2375322/variable-for-wix-bin-directory-path
 # and
-# http://weblogs.sqlteam.com/mladenp/archive/2010/02/23/WiX-3-Tutorial-Generating-filedirectory-fragments-with-Heat.exe.aspx
+# https://weblogs.sqlteam.com/mladenp/2010/02/23/wix-3-tutorial-generating-filedirectory-fragments-with-heat.exe/
 # WiX binaries are in $ENV{WIX}/bin.
 
 # Find candle

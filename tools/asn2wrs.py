@@ -14,11 +14,11 @@
 # Compiler from ASN.1 specification to the Wireshark dissector
 #
 # Based on ASN.1 to Python compiler from Aaron S. Lav's PyZ3950 package licensed under the X Consortium license
-# http://www.pobox.com/~asl2/software/PyZ3950/
+# https://www.pobox.com/~asl2/software/PyZ3950/
 # (ASN.1 to Python compiler functionality is broken but not removed, it could be revived if necessary)
 #
 # It requires Dave Beazley's PLY parsing package licensed under the LGPL (tested with version 2.3)
-# http://www.dabeaz.com/ply/
+# https://www.dabeaz.com/ply/
 #
 #
 # ITU-T Recommendation X.680 (07/2002),

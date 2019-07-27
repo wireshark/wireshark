@@ -216,7 +216,7 @@ Peter Torvals           <petertv[AT]xoommail.com> {
 }
 
 Christophe Tronche      <ch.tronche[AT]computer.org> {
-	http://tronche.com/
+	https://tronche.com
 	BPDU (spanning tree protocol) support
 	X11 requests support
 }
@@ -3471,7 +3471,7 @@ Guy Martin		<gmsoft[AT]tuxicoman.be> {
 
 Deepti Ragha		<dlragha[AT]ncsu.edu> {
 	Additions to ARP dissector to support opcodes as specified by IANA in
-http://www.iana.org/assignments/arp-parameters/arp-parameters.xml
+https://www.iana.org/assignments/arp-parameters/arp-parameters.xml
 }
 
 Niels de Vos		<ndevos[AT]redhat.com> {

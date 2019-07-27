@@ -32,7 +32,11 @@
  * This plugin dissects infrared data transmissions as defined by the IrDA
  * specification (www.irda.org).  See
  *
- *      http://www.irda.org/standards/specifications.asp
+ *      http://www.irdajp.info/specifications.php
+ *
+ * or
+ *
+ *      https://web.archive.org/web/20040405053146/http://www.irda.org/standards/specifications.asp
  *
  * for various IrDA specifications.
  *

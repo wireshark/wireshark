@@ -38,7 +38,7 @@ README.windows for those instructions.
 3. If you want to capture packets, make sure you have libpcap
    installed.  The latest "official" version can be found at
 
-        http://www.tcpdump.org .
+        https://www.tcpdump.org .
 
    If you installed libpcap from a binary package, you may have to
    install a "development" package; for example, there's

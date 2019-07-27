@@ -420,9 +420,9 @@ private slots:
     // Automatically connected slots ("on_<object>_<signal>").
     //
     // The slots below follow the naming conventaion described in
-    // http://doc.qt.io/qt-4.8/qmetaobject.html#connectSlotsByName and are
-    // automatically connected at initialization time via main_ui_->setupUi,
-    // which in turn calls connectSlotsByName.
+    // https://doc.qt.io/archives/qt-4.8/qmetaobject.html#connectSlotsByName
+    // and are automatically connected at initialization time via
+    // main_ui_->setupUi, which in turn calls connectSlotsByName.
     //
     // If you're manually connecting a signal to a slot, don't prefix its name
     // with "on_". Otherwise you'll get runtime warnings.

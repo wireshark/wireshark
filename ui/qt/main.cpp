@@ -571,8 +571,8 @@ int main(int argc, char *qt_argv[])
     // in Info.plist.
     // Note that this enables Windows 8.1-style Per-monitor DPI
     // awareness but not Windows 10-style Per-monitor v2 awareness.
-    // http://doc.qt.io/qt-5/scalability.html
-    // http://doc.qt.io/qt-5/highdpi.html
+    // https://doc.qt.io/qt-5/scalability.html
+    // https://doc.qt.io/qt-5/highdpi.html
     // https://bugreports.qt.io/browse/QTBUG-53022 - The device pixel ratio is pretty much bogus on Windows.
     // https://bugreports.qt.io/browse/QTBUG-55510 - Windows have wrong size
 #if defined(Q_OS_WIN) && QT_VERSION >= QT_VERSION_CHECK(5, 6, 0)

@@ -24,7 +24,7 @@
 const int max_comment_em_width_ = 20;
 
 // UML-like network node sequence diagrams.
-// http://www.ibm.com/developerworks/rational/library/3101.html
+// https://developer.ibm.com/articles/the-sequence-diagram/
 
 WSCPSeqData::WSCPSeqData() :
   key(0),

@@ -155,7 +155,7 @@ static char *g_dfilter_str = NULL;
 static unsigned int g_format_type = WTAP_TYPE_AUTO;
 
 /*
- * According to http://msdn.microsoft.com/en-us/library/bb776913.aspx
+ * According to https://docs.microsoft.com/en-us/previous-versions/windows/desktop/legacy/bb776913(v=vs.85)
  * we should use IFileOpenDialog and IFileSaveDialog on Windows Vista
  * and later.
  */
@@ -251,15 +251,15 @@ win32_check_save_as_with_comments(HWND parent, capture_file *cf, int file_type)
            XXX - given that we no longer support releases prior to
            Windows Vista, we should use a task dialog:
 
-               https://msdn.microsoft.com/en-us/library/windows/desktop/ff486057(v=vs.85).aspx
+               https://docs.microsoft.com/en-us/windows/win32/controls/bumper-task-dialog-task-dialogs-reference
 
            created with TaskDialogIndirect():
 
-               https://msdn.microsoft.com/en-us/library/windows/desktop/bb760544(v=vs.85).aspx
+               https://docs.microsoft.com/en-us/windows/win32/api/commctrl/nf-commctrl-taskdialogindirect
 
            because the TASKDIALOGCONFIG structure
 
-               https://msdn.microsoft.com/en-us/library/windows/desktop/bb787473(v=vs.85).aspx
+               https://docs.microsoft.com/en-us/windows/win32/api/commctrl/ns-commctrl-taskdialogconfig
 
            supports adding custom buttons, with custom labels, unlike
            a MessageBox(), which doesn't appear to offer a clean way to

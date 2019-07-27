@@ -3,7 +3,7 @@
  * Copyright 2003, Rich Coe <richcoe2@gmail.com>
  * Copyright 2008-2018, David Aggeler <david_aggeler@hispeed.ch>
  *
- * DICOM communication protocol: http://www.dicomstandard.org/current/
+ * DICOM communication protocol: https://www.dicomstandard.org/current/
  *
  * Generated automatically by make-packet-dcm.py from the following sources:
  *

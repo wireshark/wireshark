@@ -99,7 +99,7 @@ later versions do.  You should install the latest version.
 The source code is also available from the official home of libpcap and
 tcpdump, at
 
-	http://www.tcpdump.org/
+	https://www.tcpdump.org/
 
 if you want a version later than the version available from the Software
 Porting And Archive Centre; however, the versions available from
@@ -115,7 +115,7 @@ installed.
 
 Some articles on groups.google.com discussing this are:
 
-	http://groups.google.com/groups?selm=82ld3v%2480i%241%40mamenchi.zrz.TU-Berlin.DE
+	https://groups.google.com/forum/#!msg/comp.sys.hp.hpux/HRiDV1oLps0/fPz4gsZNvmMJ
 
 which says:
 
@@ -147,7 +147,7 @@ echo 'lanc_outbound_promisc_flag/W1' | /usr/bin/adb -w /stand/vmunix /dev/kmem
 
 and
 
-	http://groups.google.com/groups?selm=88cf4t%24p03%241%40web1.cup.hp.com
+	https://groups.google.com/d/msg/comp.sys.hp.hpux/p_Z7GlZ_A7Q/RW2jDa6gB7kJ
 
 which says:
 
@@ -176,7 +176,7 @@ which says:
 
 and
 
-	http://groups.google.com/groups?selm=38AA973E.96BE7DF7%40cc.uit.no
+	https://groups.google.com/d/msg/comp.sys.hp.hpux/p_Z7GlZ_A7Q/Q3Jg6069KB0J
 
 which says:
 
@@ -225,7 +225,7 @@ And another message to tcpdump-workers@tcpdump.org, from Rick Jones:
 
 Another posting:
 
-	http://groups.google.com/groups?selm=7d6gvn%24b3%241%40ocean.cup.hp.com
+	https://groups.google.com/d/msg/comp.sys.hp.hpux/5x0bKAUDCeM/Xufd5Xx05iUJ
 
 indicates that you need to install the optional STREAMS product to do
 captures on HP-UX 9.x:

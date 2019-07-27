@@ -581,7 +581,7 @@ void Iax2AnalysisDialog::on_actionSaveGraph_triggered()
 
     if (!file_name.isEmpty()) {
         bool save_ok = false;
-        // http://www.qcustomplot.com/index.php/support/forum/63
+        // https://www.qcustomplot.com/index.php/support/forum/63
 //        ui->streamGraph->legend->setVisible(true);
         if (extension.compare(pdf_filter) == 0) {
             save_ok = ui->streamGraph->savePdf(file_name);
@@ -922,7 +922,7 @@ void Iax2AnalysisDialog::saveAudio(Iax2AnalysisDialog::StreamDirection direction
     ui->hintLabel->setText(tr("Saving %1" UTF8_HORIZONTAL_ELLIPSIS).arg(save_file.fileName()));
     ui->progressFrame->showProgress(true, true, &stop_flag);
 
-    if	(save_format == save_audio_au_) { /* au format; http://pubs.opengroup.org/external/auformat.html */
+    if	(save_format == save_audio_au_) { /* au format; https://pubs.opengroup.org/external/auformat.html */
         /* First we write the .au header.  All values in the header are
          * 4-byte big-endian values, so we use pntoh32() to copy them
          * to a 4-byte buffer, in big-endian order, and then write out

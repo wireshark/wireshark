@@ -2,7 +2,7 @@
  *
  * Routines for WiMAX ASN Control Plane packet dissection dissection
  *
- * Copyright 2007, Mobile Metrics - http://mobilemetrics.net/
+ * Copyright 2007, Mobile Metrics - http://www.mobilemetrics.net
  *
  * Author: Stephen Croll <croll@mobilemetrics.net>
  *
