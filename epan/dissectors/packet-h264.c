@@ -9,11 +9,11 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * References:
- * http://www.ietf.org/rfc/rfc3984.txt?number=3984      Obsolete
- * http://www.ietf.org/rfc/rfc6184.txt?number=6184
- * http://www.ietf.org/rfc/rfc6190.txt?number=6190
- * http://www.itu.int/rec/T-REC-H.264/en
- * MS-H264PF http://msdn.microsoft.com/en-us/library/hh659565.aspx
+ * https://tools.ietf.org/html/rfc3984      Obsolete
+ * https://tools.ietf.org/html/rfc6184
+ * https://tools.ietf.org/html/rfc6190
+ * https://www.itu.int/rec/T-REC-H.264/en
+ * MS-H264PF https://docs.microsoft.com/en-us/openspecs/office_protocols/ms-h264pf
  */
 
 #include "config.h"

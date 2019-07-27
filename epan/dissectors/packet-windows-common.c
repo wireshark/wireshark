@@ -122,7 +122,11 @@ value_string_ext DOS_errors_ext = VALUE_STRING_EXT_INIT(DOS_errors);
  *
  * From
  *
- *	http://www.wildpackets.com/elements/misc/SMB_NT_Status_Codes.txt
+ *	https://web.archive.org/web/20100503121824/http://www.wildpackets.com/elements/misc/SMB_NT_Status_Codes.txt
+ *
+ * See also MS-ERREF section 2.3.1 "NTSTATUS Values":
+ *
+ *	https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-erref/596a1078-e883-4972-9bbc-49e60bebca55
  */
 const value_string NT_errors[] = {
 	{ 0x00000000, "STATUS_SUCCESS" },
@@ -997,7 +1001,7 @@ value_string_ext NT_errors_ext = VALUE_STRING_EXT_INIT(NT_errors);
 
 /* These are the MS country codes from
 
-	http://www.unicode.org/unicode/onlinedat/countries.html
+	https://web.archive.org/web/20081224015707/http://www.unicode.org/unicode/onlinedat/countries.html
 
    For countries that share the same number, I choose to use only the
    name of the largest country. Apologies for this. If this offends you,
@@ -1220,8 +1224,10 @@ dissect_nt_64bit_time(tvbuff_t *tvb, proto_tree *tree, int offset, int hf_date)
 	return dissect_nt_64bit_time_opt(tvb, tree, offset, hf_date, FALSE);
 }
 
-/* Well-known SIDs defined in http://support.microsoft.com/kb/243330 */
+/* Well-known SIDs defined in
 
+     https://support.microsoft.com/en-us/help/243330/well-known-security-identifiers-in-windows-operating-systems
+*/
 static const sid_strings well_known_sids[] = {
 	{"S-1-0",          "Null Authority"},
 	{"S-1-0-0",        "Nobody"},
@@ -1320,8 +1326,10 @@ match_wkwn_sids(const char* sid) {
 /* For SIDs in the form 'S-1-5-21-X-Y-Z-<RID>', '21-X-Y-Z' is referred to
    as the "domain SID" (NT domain) or "machine SID" (local machine).
    The following are well-known RIDs which are appended to domain/machine SIDs
-   as defined in http://support.microsoft.com/kb/243330. */
+   as defined in
 
+     https://support.microsoft.com/en-us/help/243330/well-known-security-identifiers-in-windows-operating-systems
+*/
 static const value_string wkwn_S_1_5_21_rids[] = {
 	{498,   "Enterprise Read-only Domain Controllers"},
 	{500,	"Administrator"},
@@ -1612,12 +1620,11 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	return offset;
 }
 
-/* Dissect an access mask.  All this stuff is kind of explained at MSDN:
+/* Dissect an access mask.  All this stuff is kind of explained at
 
-http://msdn.microsoft.com/library/default.asp?url=/library/en-us/security/security/windows_2000_windows_nt_access_mask_format.asp
+     https://docs.microsoft.com/en-us/windows/win32/secauthz/access-mask-format
 
 */
-
 static gint ett_nt_access_mask = -1;
 static gint ett_nt_access_mask_generic = -1;
 static gint ett_nt_access_mask_standard = -1;
@@ -2140,7 +2147,7 @@ dissect_nt_acl(tvbuff_t *tvb, int offset_a, packet_info *pinfo,
 	/*
 	 * XXX - is this *really* 2 bytes?  The page at
 	 *
-	 *	http://msdn.microsoft.com/library/default.asp?url=/library/en-us/secauthz/security/acl.asp
+	 *	https://docs.microsoft.com/en-us/windows/win32/api/winnt/ns-winnt-_acl
 	 *
 	 * indicates that it's one byte of revision and one byte of
 	 * zero padding, which means the code that used to be here

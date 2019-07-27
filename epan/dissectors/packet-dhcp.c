@@ -61,28 +61,27 @@
  * RFC 7618: Dynamic Allocation of Shared IPv4 Addresses
  * RFC 7710: Captive-Portal Identification Using DHCP or Router Advertisements (RAs)
  * draft-ietf-dhc-fqdn-option-07.txt
- * TFTP Server Address Option for DHCPv4 [draft-raj-dhc-tftp-addr-option-06.txt: http://tools.ietf.org/html/draft-raj-dhc-tftp-addr-option-06]
+ * TFTP Server Address Option for DHCPv4 [draft-raj-dhc-tftp-addr-option-06.txt: https://tools.ietf.org/html/draft-raj-dhc-tftp-addr-option-06]
  * BOOTP and DHCP Parameters
- *     http://www.iana.org/assignments/bootp-dhcp-parameters
+ *     https://www.iana.org/assignments/bootp-dhcp-parameters
  * DOCSIS(TM) 2.0 Radio Frequency Interface Specification
- *     http://www.cablelabs.com/specifications/CM-SP-RFI2.0-I11-060602.pdf
+ *     https://specification-search.cablelabs.com/radio-frequency-interface-specification-2
  * DOCSIS(TM) 3.0 MAC and Upper Layer Protocols Interface Specification
- *     http://www.cablelabs.com/specifications/CM-SP-MULPIv3.0-I20-121113.pdf
+ *     https://specification-search.cablelabs.com/CM-SP-MULPIv3.0
  * PacketCable(TM) 1.0 MTA Device Provisioning Specification
- *     http://www.cablelabs.com/packetcable/downloads/specs/PKT-SP-PROV-I11-050812.pdf
- *     http://www.cablelabs.com/specifications/archives/PKT-SP-PROV-I05-021127.pdf (superseded by above)
+ *     https://specification-search.cablelabs.com/packetcable-mta-device-provisioning-specification
  * PacketCable(TM) 1.5 MTA Device Provisioning Specification
- *     http://www.cablelabs.com/packetcable/downloads/specs/PKT-SP-PROV1.5-I02-050812.pdf
- * PacketCable(TM) 2.0 EUE Device Provisioning Specification
- *     http://www.cablelabs.com/specifications/PKT-SP-EUE-DATA-I03-090528.pdf
+ *     https://specification-search.cablelabs.com/packetcable-1-5-mta-device-provisioning-specification
+ * PacketCable(TM) 2.0 E-UE Device Provisioning Data Model Specification
+ *     https://specification-search.cablelabs.com/e-ue-provisioning-data-model-specification
  * Business Services over DOCSIS(R) Layer 2 Virtual Private Networks
- *     http://www.cablelabs.com/specifications/CM-SP-L2VPN-I09-100611.pdf
+ *     https://specification-search.cablelabs.com/business-services-over-docsis-layer-2-virtual-private-networks
  * CableHome(TM) 1.1 Specification
- *     http://www.cablelabs.com/projects/cablehome/downloads/specs/CH-SP-CH1.1-I11-060407.pdf
+ *     https://web.archive.org/web/20060628173459/http://www.cablelabs.com/projects/cablehome/downloads/specs/CH-SP-CH1.1-I11-060407.pdf
  * Broadband Forum TR-111
- *     http://www.broadband-forum.org/technical/download/TR-111.pdf
+ *     https://web.archive.org/web/20150307135117/http://www.broadband-forum.org/technical/download/TR-111.pdf
  * Boot Server Discovery Protocol (BSDP)
- *     http://opensource.apple.com/source/bootp/bootp-198.1/Documentation/BSDP.doc
+ *     https://opensource.apple.com/source/bootp/bootp-198.1/Documentation/BSDP.doc
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -1120,7 +1119,7 @@ static void dissect_docsis_cm_cap(proto_tree *v_tree, tvbuff_t *tvb,
 #define ARUBA_AP "ArubaAP"
 
 #define OPT53_DISCOVER "Discover"
-/* http://www.iana.org/assignments/bootp-dhcp-parameters */
+/* https://www.iana.org/assignments/bootp-dhcp-parameters */
 static const value_string opt53_text[] = {
 	{  1,	OPT53_DISCOVER },
 	{  2,	"Offer" },
@@ -1176,7 +1175,7 @@ static const value_string dhcp_nbnt_vals[] = {
 /*
  * There is confusion around some Client Architecture IDs: RFC 4578 section 2.1
  * lists *requested* architecture IDs, however the actual assigned IDs
- * (http://www.ietf.org/assignments/dhcpv6-parameters/dhcpv6-parameters.xml#processor-architecture)
+ * (https://www.ietf.org/assignments/dhcpv6-parameters/dhcpv6-parameters.xml#processor-architecture)
  * differ.  Specifically,
  *
  *    EFI Byte Code (EFI BC, EBC) was 7 in RFC 4578, but is assigned 9 by IETF.
@@ -2247,7 +2246,7 @@ dissect_dhcpopt_client_identifier(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	/* We *MAY* use hwtype/hwaddr. If we have 7 bytes, I'll
 		guess that the first is the hwtype, and the last 6
 		are the hw addr */
-	/* See http://www.iana.org/assignments/arp-parameters */
+	/* See https://www.iana.org/assignments/arp-parameters */
 	/* RFC2132 9.14 Client-identifier has the following to say:
 		A hardware type of 0 (zero) should be used when the value
 		field contains an identifier other than a hardware address
@@ -2360,7 +2359,10 @@ dissect_dhcpopt_user_class_information(tvbuff_t *tvb, packet_info *pinfo, proto_
 		o77_v_tree = proto_item_add_subtree(vtix, ett_dhcp_option77_instance);
 
 		if (!tvb_strneql(tvb, offset, "RRAS.Microsoft", 14)) {
-			/* MS have this non-conformant option https://msdn.microsoft.com/en-us/library/dd358019.aspx?f=255&MSPPError=-2147217396 */
+			/* MS have this non-conformant option:
+			 *
+			 *   https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-dhcpe/a7be26f5-659d-4912-b715-0481b9d84e95
+			 */
 			class_length = 14;
 			proto_item *expert_ti = proto_tree_add_item(o77_v_tree, hf_dhcp_option77_user_class_text, tvb, offset, class_length, ENC_ASCII|ENC_NA);
 			expert_add_info(pinfo, expert_ti, &ei_dhcp_nonstd_option_data);
@@ -2662,7 +2664,7 @@ dissect_dhcpopt_client_identifier_uuid(tvbuff_t *tvb, packet_info *pinfo _U_, pr
 	/* We *MAY* use hwtype/hwaddr. If we have 7 bytes, I'll
 		guess that the first is the hwtype, and the last 6
 		are the hw addr */
-	/* See http://www.iana.org/assignments/arp-parameters */
+	/* See https://www.iana.org/assignments/arp-parameters */
 	/* RFC2132 9.14 Client-identifier has the following to say:
 		A hardware type of 0 (zero) should be used when the value
 		field contains an identifier other than a hardware address
@@ -3963,7 +3965,12 @@ dissect_vendor_avaya_param(proto_tree *tree, packet_info *pinfo, proto_item *vti
 	}
 }
 
-/* RFC3825Decoder: http://www.enum.at/rfc3825encoder.529.0.html */
+/* RFC3825Decoder:
+ *
+ * https://web.archive.org/web/20100312054301/http://www.enum.at/rfc3825encoder.529.0.html
+ *
+ * The code is no longer available.
+ */
 static void
 rfc3825_lci_to_fixpoint(const unsigned char lci[16], struct rfc3825_location_fixpoint_t *fixpoint)
 {
@@ -4011,7 +4018,12 @@ rfc3825_lci_to_fixpoint(const unsigned char lci[16], struct rfc3825_location_fix
 
 }
 
-/* RFC3825Decoder: http://www.enum.at/rfc3825encoder.529.0.html */
+/* RFC3825Decoder:
+ *
+ * https://web.archive.org/web/20100312054301/http://www.enum.at/rfc3825encoder.529.0.html
+ *
+ * The code is no longer available.
+ */
 static int
 rfc3825_fixpoint_to_decimal(struct rfc3825_location_fixpoint_t *fixpoint, struct rfc3825_location_decimal_t *decimal)
 {

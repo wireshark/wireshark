@@ -37,7 +37,7 @@ static mmdb_lookup_t mmdb_not_found;
 
 // To do:
 // - Add RBL lookups? Along with the "is this a spammer" information that most RBL databases
-//   provide, you can also fetch AS information: http://www.team-cymru.org/IP-ASN-mapping.html
+//   provide, you can also fetch AS information: https://www.team-cymru.com/IP-ASN-mapping.html
 // - Switch to a different format? I was going to use g_key_file_* to parse
 //   the mmdbresolve output, but it was easier to just parse it directly.
 
@@ -52,7 +52,7 @@ static char mmdbr_stop_sentinel[] = "\x04"; // ASCII EOT. Could be anything.
 //   https://gitlab.gnome.org/GNOME/glib/blob/master/glib/gthread-win32.c#L206
 // and SRW locks "cannot be acquired recursively"
 //   https://docs.microsoft.com/en-us/windows/desktop/Sync/slim-reader-writer--srw--locks
-//   https://blogs.msdn.microsoft.com/oldnewthing/20160506-00/?p=93416
+//   https://devblogs.microsoft.com/oldnewthing/?p=93416
 static GRWLock mmdbr_pipe_mtx;
 
 // Hashes of mmdb_lookup_t

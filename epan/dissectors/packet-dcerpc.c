@@ -11,14 +11,15 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  */
 
-/* The DCE RPC specification can be found at:
+/* The DCE RPC 1.1 specification can be found at:
  *
- *    http://www.opengroup.org/dce/
- *    https://www2.opengroup.org/ogsys/catalog/c706
+ *    https://publications.opengroup.org/c706
+ *    https://pubs.opengroup.org/onlinepubs/009629399/
  *
  * Microsoft extensions can be found at:
  *
- *    https://msdn.microsoft.com/en-us/library/jj652470.aspx
+ *    MS-WPO section 7.3.1 "RPC":
+ *      https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-wpo/7d2df784-557e-4fde-9281-9509653a0f17
  */
 
 #include "config.h"
@@ -54,7 +55,7 @@ static e_guid_t uuid_data_repr_proto        = { 0x8a885d04, 0x1ceb, 0x11c9,
 static e_guid_t uuid_ndr64                  = { 0x71710533, 0xbeba, 0x4937,
                                                 { 0x83, 0x19, 0xb5, 0xdb, 0xef, 0x9c, 0xcc, 0x36 } };
 
-/* see [MS-OXRPC] Appendix A: Full IDL, http://msdn.microsoft.com/en-us/library/ee217991%28v=exchg.80%29.aspx */
+/* see [MS-OXRPC] Appendix A: Full IDL, https://docs.microsoft.com/en-us/openspecs/exchange_server_protocols/ms-oxcrpc/70adbb71-85a1-4023-bfdb-41e32ff37bf1 */
 static e_guid_t uuid_asyncemsmdb            = { 0x5261574a, 0x4572, 0x206e,
                                                 { 0xb2, 0x68, 0x6b, 0x19, 0x92, 0x13, 0xb4, 0xe4 } };
 
@@ -301,9 +302,9 @@ static const value_string reject_status_vals[] = {
     { 0x1c010014, "nca_server_too_busy" },
     { 0x1c010017, "nca_unsupported_type" },
     /* MS Windows specific values
-     * see: http://msdn.microsoft.com/library/default.asp?url=/library/en-us/debug/base/system_error_codes__1700-3999_.asp
-     * and: http://msdn.microsoft.com/library/default.asp?url=/library/en-us/seccrypto/security/common_hresult_values.asp
-     * and: http://www.megos.ch/support/doserrors.txt
+     * see: https://docs.microsoft.com/en-us/windows/win32/debug/system-error-codes--1700-3999-
+     * and: https://docs.microsoft.com/en-us/windows/win32/seccrypto/common-hresult-values
+     * and: https://web.archive.org/web/20150825015741/http://www.megos.ch/support/doserrors.txt
      *
      * XXX - we might need a way to dynamically add entries here, as higher layer protocols use these values too,
      * at least MS protocols (like DCOM) do it that way ... */

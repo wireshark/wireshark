@@ -1119,7 +1119,7 @@ static const value_string dce_mode_vals[] = {
 #define CI_COMPOUND_FRAMES      15  /* DEPRECATED (Compound Frames) [RFC1570] */
 #define CI_NOMDATAENCAP         16  /* DEPRECATED (Nominal Data Encapsulation) */
 /* NOTE: IANA lists CI_NOMDATAENCAP as 16, but it is listed as 14 in
- *       http://tools.ietf.org/html/draft-ietf-pppext-dataencap-03.
+ *       https://tools.ietf.org/html/draft-ietf-pppext-dataencap-03.
  *       Which is correct is anyone's guess. */
 #define CI_MULTILINK_MRRU       17  /* Multilink MRRU [RFC1990] */
 #define CI_MULTILINK_SSNH       18  /* Multilink Short Sequence Number Header
@@ -1411,12 +1411,12 @@ static const range_string chap_alg_rvals[] = {
 
 /*
  * Options.  (IPCP)
- * http://tools.ietf.org/html/rfc1172
- * http://tools.ietf.org/html/rfc1332
- * http://tools.ietf.org/html/rfc1877
- * http://tools.ietf.org/html/rfc2290
- * http://tools.ietf.org/html/rfc3241
- * http://tools.ietf.org/html/rfc3545
+ * https://tools.ietf.org/html/rfc1172
+ * https://tools.ietf.org/html/rfc1332
+ * https://tools.ietf.org/html/rfc1877
+ * https://tools.ietf.org/html/rfc2290
+ * https://tools.ietf.org/html/rfc3241
+ * https://tools.ietf.org/html/rfc3545
  */
 #define CI_ADDRS            1       /* IP Addresses (deprecated) (RFC 1172) */
 #define CI_COMPRESS_PROTO   2       /* Compression Protocol (RFC 1332) */
@@ -1487,7 +1487,7 @@ static const value_string ipcp_iphc_parameter_vals[] = {
 /* ROHC suboptions */
 #define IPCP_ROHC_PROFILES      1
 
-/* From http://tools.ietf.org/html/rfc3095 */
+/* From https://tools.ietf.org/html/rfc3095 */
 static const value_string ipcp_rohc_profile_vals[] = {
     {0x0000, "ROHC uncompressed -- no compression"},
     {0x0002, "ROHC UDP -- non-RTP UDP/IP compression"},
@@ -1546,7 +1546,7 @@ static int hf_osinlcp_opt_alignment = -1;
 #define CI_CCP_MVRCA    24      /* MVRCA (Magnalink) (RFC1975) */
 #define CI_CCP_DCE      25      /* DCE (RFC1976) */
 #define CI_CCP_DEFLATE  26      /* Deflate (RFC1979) */
-#define CI_CCP_V44LZJH  27      /* V.44/LZJH (http://www.watersprings.org/pub/id/draft-heath-ppp-v44-01.txt) */
+#define CI_CCP_V44LZJH  27      /* V.44/LZJH (https://tools.ietf.org/html/draft-heath-ppp-v44-01) */
 #define CI_CCP_RESERVED 255     /* Reserved (RFC1962) */
 
 static int hf_ccp_opt_type = -1;
@@ -2121,12 +2121,12 @@ dissect_lcp_numbered_mode_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     return tvb_captured_length(tvb);
 }
 
-/* http://tools.ietf.org/html/rfc1570#section-2.3 only lists 0-4, but
- * http://tools.ietf.org/html/draft-ietf-pppext-callback-ds-02 lists 5 as
+/* https://tools.ietf.org/html/rfc1570#section-2.3 only lists 0-4, but
+ * https://tools.ietf.org/html/draft-ietf-pppext-callback-ds-02 lists 5 as
  * "E.165 number", rather than "unassigned", and
- * http://msdn.microsoft.com/en-us/library/ff632847%28v=prot.10%29.aspx does
- * indicate 6 as below.  Since 5 is only mentioned in the draft, leave it as
- * "unassigned"?
+ * https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-cbcp/efee6372-3251-471e-a141-71d1e7fef21f
+ * does indicate 6 as below.  Since 5 is only mentioned in the draft, leave it
+ * as "unassigned"?
  */
 static const value_string callback_op_vals[] = {
     {0, "Location is determined by user authentication"},
@@ -2175,7 +2175,7 @@ dissect_lcp_nomdataencap_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     return dissect_lcp_simple_opt(tvb, pinfo, tree, proto_lcp_option_nomdataencap, ett_lcp_nomdataencap_opt);
 }
 
-/* http://tools.ietf.org/html/rfc1990#section-5.1.1 */
+/* https://tools.ietf.org/html/rfc1990#section-5.1.1 */
 static int
 dissect_lcp_multilink_mrru_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -2359,7 +2359,7 @@ dissect_lcp_bacp_link_discriminator_opt(tvbuff_t *tvb, packet_info *pinfo, proto
 }
 
 /* Assuming it's this one:
- * http://tools.ietf.org/html/draft-ietf-pppext-link-negot-00
+ * https://tools.ietf.org/html/draft-ietf-pppext-link-negot-00
  */
 static int
 dissect_lcp_auth_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -2390,7 +2390,7 @@ dissect_lcp_auth_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
 }
 
 /* Assuming it's this one:
- * http://tools.ietf.org/html/draft-ietf-pppext-cobs-00
+ * https://tools.ietf.org/html/draft-ietf-pppext-cobs-00
  */
 static int
 dissect_lcp_cobs_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -2474,7 +2474,7 @@ dissect_lcp_multilink_hdr_fmt_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 }
 
 
-/* Character sets from http://www.iana.org/assignments/character-sets. */
+/* Character sets from https://www.iana.org/assignments/character-sets. */
 static const value_string charset_vals[] = {
     {3,    "ANSI_X3.4-1968"},
     {4,    "ISO_8859-1:1987"},
@@ -2789,7 +2789,7 @@ dissect_ipcp_fixed_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     return TRUE;
 }
 
-/* http://tools.ietf.org/html/rfc1172#section-5.1 */
+/* https://tools.ietf.org/html/rfc1172#section-5.1 */
 static int
 dissect_ipcp_addrs_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -2813,7 +2813,7 @@ static const true_false_string tfs_comp_slot_id = {
     "The slot identifier must not be compressed"
 };
 
-/* http://tools.ietf.org/html/rfc1332#section-3.2 */
+/* https://tools.ietf.org/html/rfc1332#section-3.2 */
 static int
 dissect_ipcp_compress_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -3507,7 +3507,7 @@ dissect_ccp_var_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 }
 
 
-/* http://tools.ietf.org/html/rfc1962 */
+/* https://tools.ietf.org/html/rfc1962 */
 static int dissect_ccp_oui_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
@@ -3531,7 +3531,7 @@ static int dissect_ccp_oui_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 }
 
 /* The following configuration option types are mentioned at
- * http://www.iana.org/assignments/ppp-numbers as referencing RFC1962; however,
+ * https://www.iana.org/assignments/ppp-numbers as referencing RFC1962; however,
  * RFC1962 only mentions Proprietary Compression OUI in section 4.1.  These
  * others are therefore being treated as section 4.2 "Other Compression Types",
  * in terms of how they are dissected:
@@ -3581,7 +3581,7 @@ static int dissect_ccp_hpppc_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     return dissect_ccp_other_opt(tvb, pinfo, tree, proto_ccp_option_hpppc, ett_ccp_hpppc_opt);
 }
 
-/* http://tools.ietf.org/html/rfc1974 */
+/* https://tools.ietf.org/html/rfc1974 */
 static int
 dissect_ccp_stac_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -3654,8 +3654,8 @@ static const true_false_string ccp_mppe_c_tfs = {
     "No desire to negotiate MPPC"
 };
 
-/* http://tools.ietf.org/html/rfc2118,
- * http://tools.ietf.org/html/rfc3078 */
+/* https://tools.ietf.org/html/rfc2118,
+ * https://tools.ietf.org/html/rfc3078 */
 static int
 dissect_ccp_mppe_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -3682,7 +3682,7 @@ dissect_ccp_mppe_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* 
     return tvb_captured_length(tvb);
 }
 
-/* http://tools.ietf.org/html/rfc1993 */
+/* https://tools.ietf.org/html/rfc1993 */
 static int dissect_ccp_gfza_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
@@ -3709,7 +3709,7 @@ static int dissect_ccp_v42bis_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     return dissect_ccp_other_opt(tvb, pinfo, tree, proto_ccp_option_v42bis, ett_ccp_v42bis_opt);
 }
 
-/* http://tools.ietf.org/html/rfc1977 */
+/* https://tools.ietf.org/html/rfc1977 */
 static int
 dissect_ccp_bsdcomp_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -3731,7 +3731,7 @@ dissect_ccp_bsdcomp_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
     return tvb_captured_length(tvb);
 }
 
-/* http://tools.ietf.org/html/rfc1967 */
+/* https://tools.ietf.org/html/rfc1967 */
 static int
 dissect_ccp_lzsdcp_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -3752,7 +3752,7 @@ dissect_ccp_lzsdcp_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void
     return tvb_captured_length(tvb);
 }
 
-/* http://tools.ietf.org/html/rfc1975 */
+/* https://tools.ietf.org/html/rfc1975 */
 static int
 dissect_ccp_mvrca_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -3773,7 +3773,7 @@ dissect_ccp_mvrca_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void*
     return tvb_captured_length(tvb);
 }
 
-/* http://tools.ietf.org/html/rfc1976 */
+/* https://tools.ietf.org/html/rfc1976 */
 static int
 dissect_ccp_dce_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -3800,7 +3800,7 @@ static const value_string deflate_chk_vals[] = {
     {0, NULL}
 };
 
-/* http://tools.ietf.org/html/rfc1979 */
+/* https://tools.ietf.org/html/rfc1979 */
 static int
 dissect_ccp_deflate_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
@@ -3835,7 +3835,7 @@ static const range_string v44lzjh_mode_dict_rvals[] = {
     {0, 0, NULL}
 };
 
-/* http://www.watersprings.org/pub/id/draft-heath-ppp-v44-01.txt */
+/* https://tools.ietf.org/html/draft-heath-ppp-v44-01 */
 static int dissect_ccp_v44lzjh_opt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 {
     proto_tree *field_tree;
@@ -5057,7 +5057,7 @@ dissect_ccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 /*
  * Callback Control Protocol - see
  *
- * http://www.linet.gr.jp/~manabe/PPxP/doc/Standards/draft-gidwani-ppp-callback-cp-00.txt
+ * https://tools.ietf.org/html/draft-gidwani-ppp-callback-cp-00
  */
 static int
 dissect_cbcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
@@ -6025,7 +6025,7 @@ dissect_ppp_usb( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
      * In some cases, the 0x03 normally in byte 3 is escaped so we must look
      * for the 2 byte sequence of 0x7d23 instead of 0x03.  The 0x23 is
      * generated by 0x20^0x03 per section 4.2 of:
-     * http://tools.ietf.org/html/rfc1662.html.
+     * https://tools.ietf.org/html/rfc1662.html.
      */
     const guchar buf1[3] = {0x7e, 0xff, 0x03};
     const guchar buf2[4] = {0x7e, 0xff, 0x7d, 0x23};
@@ -6056,7 +6056,7 @@ dissect_ppp_usb( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
     } else if (tvb_get_guint8(tvb, 0) == 0x7e) {
         /* Well, let's guess that since the 1st byte is 0x7e that it really is
          * a PPP frame, and the address and control bytes are compressed (NULL)
-         * per http://tools.ietf.org/html/rfc1662, section 3.2, which means
+         * per https://tools.ietf.org/html/rfc1662, section 3.2, which means
          * that they're omitted from the packet. */
         next_tvb = tvb_new_subset_remaining(tvb, 1);
         dissect_ppp_hdlc_common(next_tvb, pinfo, tree);

@@ -155,7 +155,7 @@ static char *g_dfilter_str = NULL;
 static unsigned int g_format_type = WTAP_TYPE_AUTO;
 
 /*
- * According to https://docs.microsoft.com/en-us/previous-versions/windows/desktop/legacy/bb776913(v=vs.85)
+ * According to https://docs.microsoft.com/en-us/windows/win32/shell/common-file-dialog
  * we should use IFileOpenDialog and IFileSaveDialog on Windows Vista
  * and later.
  */

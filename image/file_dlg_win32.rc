@@ -3,7 +3,7 @@
 #include "../ui/win32/file_dlg_win32.h"
 
 // We should probably ensure that we're meeting the MS layout guidelines:
-// https://msdn.microsoft.com/en-us/library/windows/desktop/dn742486.aspx
+// https://docs.microsoft.com/en-us/windows/win32/uxguide/vis-layout
 // Outer margin: 11px
 
 WIRESHARK_OPENFILENAME_TEMPLATE DIALOGEX 0, 0, 425, 47

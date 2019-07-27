@@ -19,15 +19,15 @@
  * See RFC 1510, and various I-Ds and other documents showing additions,
  * e.g. ones listed under
  *
- *	http://www.isi.edu/people/bcn/krb-revisions/
+ *	http://clifford.neuman.name/krb-revisions/
  *
  * and
  *
- *	http://www.ietf.org/internet-drafts/draft-ietf-krb-wg-kerberos-clarifications-07.txt
+ *	https://tools.ietf.org/html/draft-ietf-krb-wg-kerberos-clarifications-07
  *
  * and
  *
- *      http://www.ietf.org/internet-drafts/draft-ietf-krb-wg-kerberos-referrals-05.txt
+ *      https://tools.ietf.org/html/draft-ietf-krb-wg-kerberos-referrals-05
  *
  * Some structures from RFC2630
  *
@@ -1133,7 +1133,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 /*
  * For KERB_ENCTYPE_RC4_HMAC and KERB_ENCTYPE_RC4_HMAC_EXP, see
  *
- *	http://www.ietf.org/internet-drafts/draft-brezak-win2k-krb-rc4-hmac-04.txt
+ *	https://tools.ietf.org/html/draft-brezak-win2k-krb-rc4-hmac-04
  *
  * unless it's expired.
  */
@@ -4611,7 +4611,7 @@ dissect_kerberos_EncryptedChallenge(gboolean implicit_tag _U_, tvbuff_t *tvb _U_
 
 
 /*--- End of included file: packet-kerberos-fn.c ---*/
-#line 1878 "./asn1/kerberos/packet-kerberos-template.c"
+#line 1876 "./asn1/kerberos/packet-kerberos-template.c"
 
 /* Make wrappers around exported functions for now */
 int
@@ -5813,7 +5813,7 @@ void proto_register_kerberos(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-kerberos-hfarr.c ---*/
-#line 2259 "./asn1/kerberos/packet-kerberos-template.c"
+#line 2257 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	/* List of subtrees */
@@ -5903,7 +5903,7 @@ void proto_register_kerberos(void) {
     &ett_kerberos_KrbFastArmoredRep,
 
 /*--- End of included file: packet-kerberos-ettarr.c ---*/
-#line 2275 "./asn1/kerberos/packet-kerberos-template.c"
+#line 2273 "./asn1/kerberos/packet-kerberos-template.c"
 	};
 
 	static ei_register_info ei[] = {

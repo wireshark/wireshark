@@ -334,7 +334,11 @@ dissect_RSVD_TUNNEL_SCSI(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_t
         offset += cdb_length;
         if (cdb_length < 16) {
             /*
-             * CDBBuffer is always 16 bytes - see https://msdn.microsoft.com/en-us/library/dn393496.aspx
+             * CDBBuffer is always 16 bytes - see MS-RSVD section 2.2.4.7
+             * "SVHDX_TUNNEL_SCSI_REQUEST Structure":
+             *
+             *     https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-rsvd/e8bcb003-97b3-41ef-9689-cd2d1668a9cc
+             *
              * If CDB is actually smaller, we need to define padding bytes
              */
             guint32 cdb_padding_length = 16 - cdb_length;

@@ -476,7 +476,7 @@ WS_DLL_PUBLIC void dcerpc_set_transport_salt(guint64 dcetransportsalt, packet_in
 /*
  * For MS-specific SSPs (Security Service Provider), see
  *
- * http://msdn.microsoft.com/library/en-us/rpc/rpc/authentication_level_constants.asp
+ *     https://docs.microsoft.com/en-us/windows/win32/rpc/authentication-level-constants
  */
 
 #define DCE_C_RPC_AUTHN_PROTOCOL_NONE		0

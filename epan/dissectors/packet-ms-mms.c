@@ -4,7 +4,7 @@
  *
  * See
  *
- *    http://msdn.microsoft.com/en-us/library/cc234711.aspx
+ *    https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-mmsp
  *
  * for the [MS-MMSP] specification.
  *

@@ -24,14 +24,14 @@
 #define UNREPL 0xFFFD
 
 /*
- * Wikipedia's "Character encoding" template, giving a pile of character encodings and
- * Wikipedia pages for them:
+ * Wikipedia's "Character encoding" template, giving a pile of character
+ * encodings and Wikipedia pages for them:
  *
  *    http://en.wikipedia.org/wiki/Template:Character_encoding
  *
  * Unicode character encoding model:
  *
- *    http://www.unicode.org/reports/tr17/
+ *    https://www.unicode.org/reports/tr17/
  *
  * International Components for Unicode character set mapping tables:
  *
@@ -39,7 +39,7 @@
  *
  * MSDN information on code pages:
  *
- *    http://msdn.microsoft.com/en-us/library/dd317752(v=VS.85).aspx
+ *    https://docs.microsoft.com/en-us/windows/win32/intl/code-pages
  *
  * ASCII-based code pages, from IBM:
  *
@@ -48,6 +48,10 @@
  * EBCDIC code pages, from IBM:
  *
  *    http://www-03.ibm.com/systems/i/software/globalization/codepages.html
+ *
+ * The IBM pages are no longer available; the versions archived on the
+ * Wayback Machine are, but the links to the PDF and text versions of
+ * the code pages don't all work (do *any* work?).
  */
 
 /*
@@ -172,7 +176,7 @@ get_8859_1_string(wmem_allocator_t *scope, const guint8 *ptr, gint length)
  * Basic Multilingual Plane.
  */
 
-/* ISO-8859-2 (http://en.wikipedia.org/wiki/ISO/IEC_8859-2#Code_page_layout) */
+/* ISO-8859-2 (https://en.wikipedia.org/wiki/ISO/IEC_8859-2#Code_page_layout) */
 const gunichar2 charset_table_iso_8859_2[0x80] = {
     0x0080, 0x0081, 0x0082, 0x0083, 0x0084, 0x0085, 0x0086, 0x0087,        /* 0x80 -      */
     0x0088, 0x0089, 0x008a, 0x008b, 0x008c, 0x008d, 0x008e, 0x008f,        /*      - 0x8F */
@@ -232,7 +236,7 @@ const gunichar2 charset_table_iso_8859_4[0x80] = {
     0x00f8, 0x0173, 0x00fa, 0x00fb, 0x00fc, 0x0169, 0x016b, 0x02d9,        /*      - 0xFF */
 };
 
-/* ISO-8859-5 (http://en.wikipedia.org/wiki/ISO/IEC_8859-5#Code_page_layout) */
+/* ISO-8859-5 (https://en.wikipedia.org/wiki/ISO/IEC_8859-5#Code_page_layout) */
 const gunichar2 charset_table_iso_8859_5[0x80] = {
     0x0080, 0x0081, 0x0082, 0x0083, 0x0084, 0x0085, 0x0086, 0x0087,        /* 0x80 -      */
     0x0088, 0x0089, 0x008a, 0x008b, 0x008c, 0x008d, 0x008e, 0x008f,        /*      - 0x8F */
@@ -312,7 +316,7 @@ const gunichar2 charset_table_iso_8859_8[0x80] = {
     0x05e8, 0x05e9, 0x05ea, UNREPL, UNREPL, 0x200e, 0x200f, UNREPL,        /*      - 0xFF */
 };
 
-/* ISO-8859-9 (http://en.wikipedia.org/wiki/ISO/IEC_8859-9#Code_page_layout) */
+/* ISO-8859-9 (https://en.wikipedia.org/wiki/ISO/IEC_8859-9#Code_page_layout) */
 const gunichar2 charset_table_iso_8859_9[0x80] = {
     0x0080, 0x0081, 0x0082, 0x0083, 0x0084, 0x0085, 0x0086, 0x0087,        /* 0x80 -      */
     0x0088, 0x0089, 0x008a, 0x008b, 0x008c, 0x008d, 0x008e, 0x008f,        /*      - 0x8F */
@@ -456,7 +460,7 @@ const gunichar2 charset_table_iso_8859_16[0x80] = {
  * Windows-1250
  *
  * See:
- *     https://en.wikipedia.org/wiki/Windows-1250)
+ *     httpss://en.wikipedia.org/wiki/Windows-1250)
  *     https://www.unicode.org/Public/MAPPINGS/VENDORS/MICSFT/WINDOWS/CP1250.TXT
  */
 const gunichar2 charset_table_cp1250[0x80] = {
@@ -1058,7 +1062,7 @@ get_ascii_7bits_string(wmem_allocator_t *scope, const guint8 *ptr,
 }
 
 /* ASCII/EBCDIC conversion tables from
- * http://www.room42.com/store/computer_center/code_tables.shtml
+ * https://web.archive.org/web/20060813174742/http://www.room42.com/store/computer_center/code_tables.shtml
  */
 #if 0
 static const guint8 ASCII_translate_EBCDIC [ 256 ] = {
@@ -1274,7 +1278,7 @@ get_nonascii_unichar2_string(wmem_allocator_t *scope, const guint8 *ptr, gint le
 }
 
 /* T.61 to UTF-8 conversion table from OpenLDAP project
- * http://www.openldap.org/devel/gitweb.cgi?p=openldap.git;a=blob;f=libraries/libldap/t61.c;hb=HEAD
+ * https://www.openldap.org/devel/gitweb.cgi?p=openldap.git;a=blob;f=libraries/libldap/t61.c;hb=HEAD
  */
 static const gunichar2 t61_tab[] = {
     0x000, 0x001, 0x002, 0x003, 0x004, 0x005, 0x006, 0x007,

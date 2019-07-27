@@ -111,7 +111,7 @@ eo_massage_str(const gchar *in_str, gsize maxlen, int dupn)
 {
     gchar *tmp_ptr;
     /* The characters in "reject" come from:
-     * http://msdn.microsoft.com/en-us/library/aa365247%28VS.85%29.aspx.
+     * https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions.
      * Add to the list as necessary for other OS's.
      */
     const gchar *reject = "<>:\"/\\|?*"

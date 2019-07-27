@@ -11,15 +11,15 @@
  * See RFC 1510, and various I-Ds and other documents showing additions,
  * e.g. ones listed under
  *
- *	http://www.isi.edu/people/bcn/krb-revisions/
+ *	http://clifford.neuman.name/krb-revisions/
  *
  * and
  *
- *	http://www.ietf.org/internet-drafts/draft-ietf-krb-wg-kerberos-clarifications-07.txt
+ *	https://tools.ietf.org/html/draft-ietf-krb-wg-kerberos-clarifications-07
  *
  * and
  *
- *      http://www.ietf.org/internet-drafts/draft-ietf-krb-wg-kerberos-referrals-05.txt
+ *      https://tools.ietf.org/html/draft-ietf-krb-wg-kerberos-referrals-05
  *
  * Some structures from RFC2630
  *
@@ -825,7 +825,7 @@ decrypt_krb5_data(proto_tree *tree, packet_info *pinfo,
 /*
  * For KERB_ENCTYPE_RC4_HMAC and KERB_ENCTYPE_RC4_HMAC_EXP, see
  *
- *	http://www.ietf.org/internet-drafts/draft-brezak-win2k-krb-rc4-hmac-04.txt
+ *	https://tools.ietf.org/html/draft-brezak-win2k-krb-rc4-hmac-04
  *
  * unless it's expired.
  */

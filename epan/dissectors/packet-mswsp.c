@@ -3050,7 +3050,10 @@ static int parse_guid(tvbuff_t *tvb, int offset, proto_tree *tree, e_guid_t *gui
 	return offset;
 }
 
-/*Language Code ID: http://msdn.microsoft.com/en-us/library/cc233968(v=prot.20).aspx */
+/* Language Code ID - MS-LCID section 2.2 "LCID Structure":
+ *
+ *  https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-lcid/63d3d639-7fd2-4afb-abbe-0d5b5551eef8
+ */
 static int parse_lcid(tvbuff_t *tvb, int offset, proto_tree *parent_tree, const char *text)
 {
 	proto_item *item;

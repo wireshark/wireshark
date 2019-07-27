@@ -616,8 +616,8 @@ ldap_info_equal_unmatched(gconstpointer k1, gconstpointer k2)
 }
 
 
- /* These are the NtVer flags
-  http://msdn.microsoft.com/en-us/library/cc201035.aspx
+/* These are the NtVer flags from MS-ADTS section 6.3.1.1
+ * https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-adts
  */
 
 static const true_false_string tfs_ntver_v1 = {
@@ -810,7 +810,7 @@ attribute_types_reset_cb(void)
   deregister_attribute_types();
 }
 
-/* MS-ADTS specification, section 7.3.1.1, NETLOGON_NT_VERSION Options Bits */
+/* MS-ADTS specification, section 6.3.1.1, NETLOGON_NT_VERSION Options Bits */
 static int dissect_mscldap_ntver_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 {
   static const int * flags[] = {
@@ -4404,7 +4404,7 @@ static int dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
       break;
 
     case LOGON_SAM_LOGON_RESPONSE_EX:
-      /* MS-ADTS 7.3.1.9 */
+      /* MS-ADTS 6.3.1.9 */
       offset += 2; /* Skip over "Sbz" field (MUST be set to 0) */
 
       /* Flags */
@@ -4505,7 +4505,7 @@ static int dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
   offset = len - 8;
 
-  /* NETLOGON_NT_VERISON Options (MS-ADTS 7.3.1.1) */
+  /* NETLOGON_NT_VERISON Options (MS-ADTS 6.3.1.1) */
   offset = dissect_mscldap_ntver_flags(tree, tvb, offset);
 
   /* LM Token */
@@ -4914,43 +4914,43 @@ void proto_register_ldap(void) {
 
     { &hf_mscldap_ntver_flags_v1,
       { "V1", "mscldap.ntver.searchflags.v1", FT_BOOLEAN, 32,
-        TFS(&tfs_ntver_v1), 0x00000001, "See section 7.3.1.1 of MS-ADTS specification", HFILL }},
+        TFS(&tfs_ntver_v1), 0x00000001, "See section 6.3.1.1 of MS-ADTS specification", HFILL }},
 
     { &hf_mscldap_ntver_flags_v5,
       { "V5", "mscldap.ntver.searchflags.v5", FT_BOOLEAN, 32,
-        TFS(&tfs_ntver_v5), 0x00000002, "See section 7.3.1.1 of MS-ADTS specification", HFILL }},
+        TFS(&tfs_ntver_v5), 0x00000002, "See section 6.3.1.1 of MS-ADTS specification", HFILL }},
 
     { &hf_mscldap_ntver_flags_v5ex,
       { "V5EX", "mscldap.ntver.searchflags.v5ex", FT_BOOLEAN, 32,
-        TFS(&tfs_ntver_v5ex), 0x00000004, "See section 7.3.1.1 of MS-ADTS specification", HFILL }},
+        TFS(&tfs_ntver_v5ex), 0x00000004, "See section 6.3.1.1 of MS-ADTS specification", HFILL }},
 
     { &hf_mscldap_ntver_flags_v5ep,
       { "V5EP", "mscldap.ntver.searchflags.v5ep", FT_BOOLEAN, 32,
-        TFS(&tfs_ntver_v5ep), 0x00000008, "See section 7.3.1.1 of MS-ADTS specification", HFILL }},
+        TFS(&tfs_ntver_v5ep), 0x00000008, "See section 6.3.1.1 of MS-ADTS specification", HFILL }},
 
     { &hf_mscldap_ntver_flags_vcs,
       { "VCS", "mscldap.ntver.searchflags.vcs", FT_BOOLEAN, 32,
-        TFS(&tfs_ntver_vcs), 0x00000010, "See section 7.3.1.1 of MS-ADTS specification", HFILL }},
+        TFS(&tfs_ntver_vcs), 0x00000010, "See section 6.3.1.1 of MS-ADTS specification", HFILL }},
 
     { &hf_mscldap_ntver_flags_vnt4,
       { "VNT4", "mscldap.ntver.searchflags.vnt4", FT_BOOLEAN, 32,
-        TFS(&tfs_ntver_vnt4), 0x01000000, "See section 7.3.1.1 of MS-ADTS specification", HFILL }},
+        TFS(&tfs_ntver_vnt4), 0x01000000, "See section 6.3.1.1 of MS-ADTS specification", HFILL }},
 
     { &hf_mscldap_ntver_flags_vpdc,
       { "VPDC", "mscldap.ntver.searchflags.vpdc", FT_BOOLEAN, 32,
-        TFS(&tfs_ntver_vpdc), 0x10000000, "See section 7.3.1.1 of MS-ADTS specification", HFILL }},
+        TFS(&tfs_ntver_vpdc), 0x10000000, "See section 6.3.1.1 of MS-ADTS specification", HFILL }},
 
     { &hf_mscldap_ntver_flags_vip,
       { "VIP", "mscldap.ntver.searchflags.vip", FT_BOOLEAN, 32,
-        TFS(&tfs_ntver_vip), 0x20000000, "See section 7.3.1.1 of MS-ADTS specification", HFILL }},
+        TFS(&tfs_ntver_vip), 0x20000000, "See section 6.3.1.1 of MS-ADTS specification", HFILL }},
 
     { &hf_mscldap_ntver_flags_vl,
       { "VL", "mscldap.ntver.searchflags.vl", FT_BOOLEAN, 32,
-        TFS(&tfs_ntver_vl), 0x40000000, "See section 7.3.1.1 of MS-ADTS specification", HFILL }},
+        TFS(&tfs_ntver_vl), 0x40000000, "See section 6.3.1.1 of MS-ADTS specification", HFILL }},
 
     { &hf_mscldap_ntver_flags_vgc,
       { "VGC", "mscldap.ntver.searchflags.vgc", FT_BOOLEAN, 32,
-        TFS(&tfs_ntver_vgc), 0x80000000, "See section 7.3.1.1 of MS-ADTS specification", HFILL }},
+        TFS(&tfs_ntver_vgc), 0x80000000, "See section 6.3.1.1 of MS-ADTS specification", HFILL }},
 
 
     { &hf_mscldap_netlogon_flags_pdc,
@@ -5636,7 +5636,7 @@ void proto_register_ldap(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-ldap-hfarr.c ---*/
-#line 2167 "./asn1/ldap/packet-ldap-template.c"
+#line 2161 "./asn1/ldap/packet-ldap-template.c"
   };
 
   /* List of subtrees */
@@ -5710,7 +5710,7 @@ void proto_register_ldap(void) {
     &ett_ldap_T_warning,
 
 /*--- End of included file: packet-ldap-ettarr.c ---*/
-#line 2181 "./asn1/ldap/packet-ldap-template.c"
+#line 2175 "./asn1/ldap/packet-ldap-template.c"
   };
   /* UAT for header fields */
   static uat_field_t custom_attribute_types_uat_fields[] = {
@@ -5899,7 +5899,7 @@ proto_reg_handoff_ldap(void)
 
 
 /*--- End of included file: packet-ldap-dis-tab.c ---*/
-#line 2353 "./asn1/ldap/packet-ldap-template.c"
+#line 2347 "./asn1/ldap/packet-ldap-template.c"
 
  dissector_add_uint_range_with_preference("tcp.port", TCP_PORT_RANGE_LDAP, ldap_handle);
 }

@@ -4,7 +4,8 @@
     <UI>
       <!--
         Recommended control sizing and spacing:
-        https://msdn.microsoft.com/en-us/library/windows/desktop/dn742486.aspx#sizingandspacing
+        https://docs.microsoft.com/en-us/windows/win32/uxguide/vis-layout#control-sizing
+        https://docs.microsoft.com/en-us/windows/win32/uxguide/vis-layout#spacing
         The recommended spacing between unrelated controls is 7, but 10 looks better.
         -->
       <Dialog Id="WiresharkOptionsDlg" Width="370" Height="270" Title="!(loc.LicenseAgreementDlg_Title)">

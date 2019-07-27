@@ -255,7 +255,7 @@ get_compiler_info(GString *str)
   #define COMPILER_BUILD_NUMBER		 (_MSC_FULL_VER % 100000)
 
 	/*
-	 * From https://blogs.msdn.microsoft.com/vcblog/2014/11/17/c111417-features-in-vs-2015-preview/
+	 * From https://web.archive.org/web/20190125151548/https://blogs.msdn.microsoft.com/vcblog/2014/11/17/c111417-features-in-vs-2015-preview/
          *
 	 *  Bakersfield: DevDiv's upper management determines the scheduling
 	 *  of new major versions.  They also decided to increment the product
@@ -271,7 +271,7 @@ get_compiler_info(GString *str)
 
   #if VCPP_MAJOR_VERSION == 14
 	/*
-	 * From https://blogs.msdn.microsoft.com/vcblog/2017/11/15/side-by-side-minor-version-msvc-toolsets-in-visual-studio-2017/:
+	 * From https://devblogs.microsoft.com/cppblog/side-by-side-minor-version-msvc-toolsets-in-visual-studio-2017/
 	 *
 	 *  We've been delivering improvements to Visual Studio 2017 more
 	 *  frequently than ever before. Since its first release in March
@@ -420,7 +420,7 @@ get_runtime_version_info(void (*additional_info)(GString *))
 	 *
 	 * On Windows get_locale returns the full language, country
 	 * name, and code page, e.g. "English_United States.1252":
-	 * https://msdn.microsoft.com/en-us/library/x99tb11d.aspx
+	 * https://docs.microsoft.com/en-us/cpp/c-runtime-library/reference/setlocale-wsetlocale?view=vs-2019
 	 */
 	if ((lang = get_locale()) != NULL) {
 		g_string_append_printf(str, ", with locale %s", lang);

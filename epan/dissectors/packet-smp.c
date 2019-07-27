@@ -11,9 +11,10 @@
 
 /*
  * References:
- * https://web.archive.org/web/20171009015219/https://msdn.microsoft.com/en-us/library/cc219643.aspx
- * https://web.archive.org/web/20171223021159/https://msdn.microsoft.com/en-us/library/dd304523.aspx
- * https://web.archive.org/web/20171005092351/https://docs.microsoft.com/en-us/sql/relational-databases/native-client/features/using-multiple-active-result-sets-mars
+ *
+ *    MC-SMP - https://docs.microsoft.com/en-us/openspecs/windows_protocols/mc-smp
+ *    MS-TDS - https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-tds
+ *    https://docs.microsoft.com/en-us/sql/relational-databases/native-client/features/using-multiple-active-result-sets-mars
  *
  *     0                   1                   2                   3
  *     0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1

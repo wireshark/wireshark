@@ -77,7 +77,7 @@ foreach ($src_file in Get-ChildItem $SourceFiles) {
         $contents = Get-Content -Encoding UTF8 $src_file
         # We might want to write this out with a BOM in order to improve
         # the chances of Notepad's UTF-8 heuristics.
-        # https://blogs.msdn.microsoft.com/oldnewthing/20070417-00/?p=27223
+        # https://devblogs.microsoft.com/oldnewthing/?p=27223
         [System.IO.File]::WriteAllLines($dst_file, $contents, $no_bom_encoding)
         Write-Host "Textified $src_file to $dst_file"
     } else {

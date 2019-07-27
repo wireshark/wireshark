@@ -14,12 +14,12 @@
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
  * References for "media-type multipart/mixed :
- * http://www.iana.org/assignments/media-types/index.html
- * http://www.ietf.org/rfc/rfc2045.txt?number=2045
- * http://www.rfc-editor.org/rfc/rfc2046.txt
- * http://www.rfc-editor.org/rfc/rfc2047.txt
- * http://www.rfc-editor.org/rfc/rfc2048.txt
- * http://www.rfc-editor.org/rfc/rfc2049.txt
+ * https://www.iana.org/assignments/media-types/index.html
+ * https://tools.ietf.org/html/rfc2045
+ * https://tools.ietf.org/html/rfc2046
+ * https://tools.ietf.org/html/rfc2047
+ * https://tools.ietf.org/html/rfc2048
+ * https://tools.ietf.org/html/rfc2049
  *
  * Part of the code is modeled from the SIP and HTTP dissectors
  *
@@ -725,9 +725,16 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb,
     {
         gint body_len = boundary_start - body_start;
         tvbuff_t *tmp_tvb = tvb_new_subset_length(tvb, body_start, body_len);
-        /* if multipart subtype is encrypted the protcol string was set */
-        /* see: https://msdn.microsoft.com/en-us/library/cc251581.aspx */
-        /* there are only 2 body parts possible and each part has specific content types */
+        /*
+         * If multipart subtype is encrypted the protcol string was set.
+         *
+         * See MS-WSMV section 2.2.9.1.2.1 "HTTP Headers":
+         *
+         *  https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-wsmv/b79927c2-96be-4801-aa68-180db95593f9
+         *
+         * There are only 2 body parts possible, and each part has specific
+         * content types.
+         */
         if(m_info->protocol && idx == 1 && is_raw_data)
         {
             gssapi_encrypt_info_t  encrypt;

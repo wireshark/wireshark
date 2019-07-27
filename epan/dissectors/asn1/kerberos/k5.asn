@@ -159,7 +159,7 @@ CKSUMTYPE ::= INTEGER {
 	cKSUMTYPE-HMAC-MD5-ENC(-1138)	-- even more unofficial
 }
 
---enctypes http://www.iana.org/assignments/kerberos-parameters/kerberos-parameters.xhtml#kerberos-parameters-1
+--enctypes https://www.iana.org/assignments/kerberos-parameters/kerberos-parameters.xhtml#kerberos-parameters-1
 ENCTYPE ::= INTEGER {
 	eTYPE-NULL(0),
 	eTYPE-DES-CBC-CRC(1),
@@ -828,15 +828,15 @@ PA-ServerReferralData ::= SEQUENCE {
 	referral-valid-until     [3] KerberosTime OPTIONAL,
 	...
 }
--- WS put extensions found elsewere here
--- http://msdn.microsoft.com/en-us/library/cc206948.aspx
---
+-- WS put extensions found elsewhere here
+-- MS-KILE: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-kile
+-- MS-SFU: https://docs.microsoft.com/en-us/openspecs/windows_protocols/ms-sfu
+
 KERB-PA-PAC-REQUEST ::= SEQUENCE { 
 include-pac[0] BOOLEAN --If TRUE, and no pac present, include PAC. 
                        --If FALSE, and PAC present, remove PAC 
 }
 
--- based on MS-KILE and MS-SFU
 PAC-OPTIONS-FLAGS ::= BIT STRING {
 	claims(0),
 	branch-aware(1),

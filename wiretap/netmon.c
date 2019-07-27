@@ -170,7 +170,7 @@ typedef struct {
  *
  * See
  *
- *    https://msdn.microsoft.com/en-us/library/windows/desktop/aa365247%28v=vs.85%29.aspx?f=255&MSPPError=-2147217396#maxpath
+ *    https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file#maximum-path-length-limitation
  *
  * The NetMon 3.4 "Capture File Format" documentation says "PathSize must be
  * greater than 0, and less than MAX_PATH (260 characters)", but, as per that
@@ -1300,7 +1300,7 @@ netmon_process_record(wtap *wth, FILE_T fh, wtap_rec *rec,
 				/*
 				 * Event Tracing event.
 				 *
-				 * http://msdn.microsoft.com/en-us/library/aa363759(VS.85).aspx
+				 * https://docs.microsoft.com/en-us/windows/win32/api/evntcons/ns-evntcons-event_header
 				 */
 				pkt_encap = WTAP_ENCAP_NETMON_NET_NETEVENT;
 				break;

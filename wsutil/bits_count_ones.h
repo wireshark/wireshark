@@ -17,7 +17,7 @@
  * The variable-precision SWAR algorithm is an interesting way to count
  * the number of bits set in an integer:
  *
- *     http://playingwithpointers.com/swar.html
+ *     https://www.playingwithpointers.com/blog/swar.html
  *
  * See
  *
@@ -28,7 +28,7 @@
  *
  * See
  *
- *     https://msdn.microsoft.com/en-us/library/bb385231.aspx
+ *     https://docs.microsoft.com/en-us/cpp/intrinsics/popcnt16-popcnt-popcnt64
  *
  * for MSVC's population count intrinsics.
  *

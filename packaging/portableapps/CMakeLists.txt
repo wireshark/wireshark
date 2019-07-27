@@ -36,7 +36,7 @@ macro( ADD_PORTABLEAPPS_PACKAGE_TARGET )
 
 	add_custom_target(portableapps_app_dir
 		# We "Deploy using XCopy," which is described at
-		# https://msdn.microsoft.com/en-us/library/ms235291.aspx
+		# https://docs.microsoft.com/en-us/previous-versions/visualstudio/visual-studio-2008/ms235291(v=vs.90)
 		# We also assume that the project has been built at this point.
 		COMMAND ${CMAKE_COMMAND} -E remove_directory ${_portableapps_app_dir}
 		COMMAND ${CMAKE_COMMAND} -E make_directory ${_portableapps_app_dir}

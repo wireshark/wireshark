@@ -23,10 +23,10 @@
  * - RFC 6544
  *
  * From MS (Lync)
- * MS-TURN: Traversal Using Relay NAT (TURN) Extensions http://msdn.microsoft.com/en-us/library/cc431507.aspx
- * MS-ICE2BWN: Interactive Connectivity Establishment (ICE) 2.0 Bandwidth Management Extensions http://msdn.microsoft.com/en-us/library/ff595756.aspx
- * MS-TURNBWM:  Traversal using Relay NAT (TURN) Bandwidth Management Extensions http://msdn.microsoft.com/en-us/library/ff595670.aspx
- * MS-ICE2:  Interactive Connectivity Establishment ICE Extensions 2.0 http://msdn.microsoft.com/en-us/library/office/cc431504.aspx
+ * MS-TURN: Traversal Using Relay NAT (TURN) Extensions https://docs.microsoft.com/en-us/openspecs/office_protocols/ms-turn
+ * MS-ICE2BWN: Interactive Connectivity Establishment (ICE) 2.0 Bandwidth Management Extensions https://docs.microsoft.com/en-us/openspecs/office_protocols/ms-ice2bwm
+ * MS-TURNBWM:  Traversal using Relay NAT (TURN) Bandwidth Management Extensions https://docs.microsoft.com/en-us/openspecs/office_protocols/ms-turnbwm
+ * MS-ICE2:  Interactive Connectivity Establishment ICE Extensions 2.0 https://docs.microsoft.com/en-us/openspecs/office_protocols/ms-ice2
  */
 
 #include "config.h"
@@ -377,7 +377,7 @@ static const value_string attributes_family[] = {
     {0x0002, "IPv6"},
     {0x00, NULL}
 };
-/* http://www.iana.org/assignments/stun-parameters/stun-parameters.xhtml#stun-parameters-6 (2015-06-12)*/
+/* https://www.iana.org/assignments/stun-parameters/stun-parameters.xhtml#stun-parameters-6 (2015-06-12)*/
 
 static const value_string error_code[] = {
     {274, "Disable Candidate"},               /* MS-ICE2BWN */

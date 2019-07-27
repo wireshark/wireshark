@@ -26,7 +26,7 @@ get_cpu_info(GString *str)
     char CPUBrandString[0x40];
     unsigned nExIds;
 
-    /* http://msdn.microsoft.com/en-us/library/hskdteyh(v=vs.100).aspx */
+    /* https://docs.microsoft.com/en-us/cpp/intrinsics/cpuid-cpuidex */
 
     /* Calling __cpuid with 0x80000000 as the InfoType argument */
     /* gets the number of valid extended IDs. */
