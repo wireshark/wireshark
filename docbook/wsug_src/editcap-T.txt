@@ -173,6 +173,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     tzsp - Tazmen sniffer protocol
     unknown - Unknown
     unknown-nettl - Unknown link-layer type with nettl headers
+    usb-20 - USB 2.0/1.1/1.0 packets
     usb-darwin - USB packets with Darwin (macOS, etc.) headers
     usb-freebsd - USB packets with FreeBSD header
     usb-linux - USB packets with Linux header

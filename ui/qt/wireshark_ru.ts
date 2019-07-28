@@ -1775,6 +1775,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
 </context>
 <context>
+    <name>CopyFromProfileMenu</name>
+    <message>
+        <source>System default</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>CredentialsDialog</name>
     <message>
         <source>Wireshark - Credentials</source>
@@ -5699,6 +5706,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished">Импорт</translation>
     </message>
     <message>
+        <source>Export</source>
+        <translation type="unfinished">Экспорт</translation>
+    </message>
+    <message>
         <source>New</source>
         <oldsource>New...</oldsource>
         <translation>Новый</translation>
@@ -8573,12 +8584,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Копировать этот профиль.</translation>
     </message>
     <message>
+        <source>Configuration Profiles</source>
+        <translation>Конфигурационные Профили</translation>
+    </message>
+    <message>
         <source>Import</source>
+        <comment>noun</comment>
         <translation type="unfinished">Импорт</translation>
     </message>
     <message>
-        <source>Configuration Profiles</source>
-        <translation>Конфигурационные Профили</translation>
+        <source>Export</source>
+        <comment>noun</comment>
+        <translation type="unfinished">Экспорт</translation>
     </message>
     <message>
         <source>All Profiles</source>
@@ -8593,6 +8610,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>An import of profiles is not allowed, while changes are pending.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>New profile</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8601,7 +8622,51 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>Ошибка Профиля</translation>
     </message>
     <message>
+        <source>Exporting profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No profiles found for export</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select zip file for export</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln profile(s) have been exported</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>An error has occured while exporting profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Select zip file for import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln profile(s) imported</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>, %Ln profile(s) skipped</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Select directory for import</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8613,19 +8678,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>, %1 profile(s) skipped</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Importing profiles</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>One profile has been imported</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1 profiles have been imported</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -8648,19 +8701,36 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Will be reset to default values</source>
+        <source>system provided</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Created from %1</source>
+        <source>deleted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>(system provided)</source>
+        <source>copy</source>
+        <comment>noun</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>(deleted)</source>
+        <source>Exporting profiles while changes are pending is not allowed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No profiles found to export</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A profile name cannot contain the following characters: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A profile name cannot contain the &apos;/&apos; character.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A profile cannot start or end with a period (.)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8680,15 +8750,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The profile will be reset to default values.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>A profile already exists with this name.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A profile already exists with this name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8698,22 +8760,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Type</source>
         <translation type="unfinished">Тип</translation>
-    </message>
-    <message>
-        <source>Path</source>
-        <translation type="unfinished">Путь</translation>
-    </message>
-    <message>
-        <source>copy</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A profile must not contain any of the following characters: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A profile must not start or end with a period (.)</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

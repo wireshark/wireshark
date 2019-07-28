@@ -1330,7 +1330,7 @@
     <message>
         <source>Switch to the next file when the (wall clock) time is an even multiple of the specified interval.
 For example, use 1 hour to have a new file created every hour on the hour.</source>
-        <translation type="unfinished"></translation>
+        <translation>(時計の)時刻が特定の間隔になったら次のファイルに切り替えます。例えば、1時間に設定すると毎時１時間ごとに新しいファイルが作成されます</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;After capturing has switched to the next file and the given number of files has exceeded, the oldest file will be removed.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1456,16 +1456,16 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Multiple files: Requested filesize too large. The filesize cannot be greater than 2 GiB.</source>
         <oldsource>Multiple files: Requested filesize too large! The filesize cannot be greater than 2 GiB.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>複数ファイル:要求されたファイルサイズが大きすぎます。ファイルサイズは2GBより大きくできません</translation>
     </message>
     <message>
         <source>Multiple files: No capture file name given. You must specify a filename if you want to use multiple files.</source>
         <oldsource>Multiple files: No capture file name given! You must specify a filename if you want to use multiple files.</oldsource>
-        <translation type="unfinished"></translation>
+        <translation>複数ファイル:キャプチャファイル名がありません。服すファイルを用いたいのならファイル名を指定しなければなりません</translation>
     </message>
     <message>
         <source>Multiple files: No file limit given. You must specify a file size, interval, or number of packets for each file.</source>
-        <translation type="unfinished"></translation>
+        <translation>複数ファイル:ファイル制限がありません。各ファイルのファイルサイズ、間隔、またはパケット数を指定しなければなりません。</translation>
     </message>
 </context>
 <context>
@@ -1492,7 +1492,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Capture packets in pcapng format</source>
-        <translation type="unfinished"></translation>
+        <translation>pcapng形式でパケットをキャプチャします</translation>
     </message>
     <message>
         <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Update the list of packets while capture is in progress. This can result in dropped packets on high-speed networks.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
@@ -1512,18 +1512,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Don&apos;t load interfaces on startup</source>
-        <translation type="unfinished"></translation>
+        <translation>起動時にインタフェースを読み込みません</translation>
     </message>
     <message>
         <source>Disable external capture interfaces</source>
-        <translation type="unfinished"></translation>
+        <translation>外部キャプチャインタフェースを無効にします</translation>
     </message>
 </context>
 <context>
     <name>ColoringRulesDelegate</name>
     <message>
         <source>the &quot;@&quot; symbol will be ignored.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;@&quot; シンボルは無視されます</translation>
     </message>
 </context>
 <context>
@@ -1550,7 +1550,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Clear all coloring rules.</source>
-        <translation type="unfinished"></translation>
+        <translation>全ての色付けルールをクリアします</translation>
     </message>
     <message>
         <source>Set the foreground color for this rule.</source>
@@ -1570,11 +1570,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Set the display filter using this rule.</source>
-        <translation type="unfinished"></translation>
+        <translation>このルールを用いる表示フィルタを設定します</translation>
     </message>
     <message>
         <source>Apply as filter</source>
-        <translation type="unfinished"></translation>
+        <translation>フィルタとして適用</translation>
     </message>
     <message>
         <source>Import</source>
@@ -1594,19 +1594,19 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Coloring Rules %1</source>
-        <translation type="unfinished"></translation>
+        <translation>色付けルール %1</translation>
     </message>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished"></translation>
+        <translation>からコピー</translation>
     </message>
     <message>
         <source>Copy coloring rules from another profile.</source>
-        <translation type="unfinished"></translation>
+        <translation>別のプロファイルから色付けルールをコピーします</translation>
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished">開く </translation>
+        <translation>開く</translation>
     </message>
     <message>
         <source>Double click to edit. Drag to move. Rules are processed in order until a match is found.</source>
@@ -1626,22 +1626,22 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Wireshark doesn&apos;t recognize one or more of your coloring rules. They have been disabled.</source>
-        <translation type="unfinished"></translation>
+        <translation>Wiresharkは１つかそれ以上の色分けルールを認識しません。それらは無効とされました。</translation>
     </message>
 </context>
 <context>
     <name>ColoringRulesModel</name>
     <message>
         <source>Unable to save coloring rules: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>色付けルール %1 を保存できません</translation>
     </message>
     <message>
         <source>Name</source>
-        <translation type="unfinished">名前</translation>
+        <translation>名前</translation>
     </message>
     <message>
         <source>Filter</source>
-        <translation type="unfinished">フィルタ</translation>
+        <translation>フィルタ</translation>
     </message>
 </context>
 <context>
@@ -1672,15 +1672,15 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Missing fields.</source>
-        <translation type="unfinished"></translation>
+        <translation>見つからないフィールド</translation>
     </message>
     <message>
         <source>Invalid fields.</source>
-        <translation type="unfinished"></translation>
+        <translation>無効なフィールド</translation>
     </message>
     <message>
         <source>Invalid occurrence value.</source>
-        <translation type="unfinished"></translation>
+        <translation>無効なオカレンス値</translation>
     </message>
 </context>
 <context>
@@ -1756,6 +1756,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Conversation Hash Tables</source>
+        <translation>対話ハッシュ表</translation>
+    </message>
+</context>
+<context>
+    <name>CopyFromProfileMenu</name>
+    <message>
+        <source>System default</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -1763,11 +1770,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <name>CredentialsDialog</name>
     <message>
         <source>Wireshark - Credentials</source>
-        <translation type="unfinished"></translation>
+        <translation>ワイヤーシャーク - 証明書</translation>
     </message>
     <message>
         <source>Credentials</source>
-        <translation type="unfinished"></translation>
+        <translation>証明書</translation>
     </message>
 </context>
 <context>
@@ -1856,7 +1863,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished">開く </translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -2577,7 +2584,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished">開く </translation>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>New filter</source>
@@ -3591,7 +3598,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">からコピー</translation>
     </message>
     <message>
         <source>Copy graphs from another profile.</source>
@@ -5668,6 +5675,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished">インポート</translation>
     </message>
     <message>
+        <source>Export</source>
+        <translation type="unfinished">エクスポート</translation>
+    </message>
+    <message>
         <source>New</source>
         <oldsource>New...</oldsource>
         <translation>新規</translation>
@@ -6893,7 +6904,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Credentials</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">証明書</translation>
     </message>
     <message>
         <source>&amp;Options…</source>
@@ -8536,12 +8547,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>このプロファイルをコピーします</translation>
     </message>
     <message>
+        <source>Configuration Profiles</source>
+        <translation>設定プロファイル</translation>
+    </message>
+    <message>
         <source>Import</source>
+        <comment>noun</comment>
         <translation type="unfinished">インポート</translation>
     </message>
     <message>
-        <source>Configuration Profiles</source>
-        <translation>設定プロファイル</translation>
+        <source>Export</source>
+        <comment>noun</comment>
+        <translation type="unfinished">エクスポート</translation>
     </message>
     <message>
         <source>All Profiles</source>
@@ -8556,6 +8573,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>An import of profiles is not allowed, while changes are pending.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>New profile</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8564,7 +8585,45 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation>プロファイルエラー</translation>
     </message>
     <message>
+        <source>Exporting profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No profiles found for export</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select zip file for export</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln profile(s) have been exported</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>An error has occured while exporting profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Select zip file for import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln profile(s) imported</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>, %Ln profile(s) skipped</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Select directory for import</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8576,19 +8635,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>, %1 profile(s) skipped</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Importing profiles</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>One profile has been imported</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>%1 profiles have been imported</source>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -8611,19 +8658,36 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Will be reset to default values</source>
+        <source>system provided</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Created from %1</source>
+        <source>deleted</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>(system provided)</source>
+        <source>copy</source>
+        <comment>noun</comment>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>(deleted)</source>
+        <source>Exporting profiles while changes are pending is not allowed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No profiles found to export</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A profile name cannot contain the following characters: %1</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A profile name cannot contain the &apos;/&apos; character.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A profile cannot start or end with a period (.)</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8643,15 +8707,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>The profile will be reset to default values.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>A profile already exists with this name.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A profile already exists with this name</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8661,22 +8717,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Type</source>
         <translation type="unfinished">種別</translation>
-    </message>
-    <message>
-        <source>Path</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>copy</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A profile must not contain any of the following characters: %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A profile must not start or end with a period (.)</source>
-        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -12682,7 +12722,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">からコピー</translation>
     </message>
     <message>
         <source>Copy entries from another profile.</source>
@@ -12729,7 +12769,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Copy from</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished">からコピー</translation>
     </message>
     <message>
         <source>Unknown User Accessible Table</source>
@@ -12737,7 +12777,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     </message>
     <message>
         <source>Open </source>
-        <translation type="unfinished">開く </translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
