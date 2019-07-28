@@ -14,6 +14,8 @@
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/export_object_ui.h>
 
+#include <QDir>
+
 extern "C" {
 
 static void
@@ -157,6 +159,7 @@ void ExportObjectModel::saveAllEntries(QString path)
     if (path.isEmpty())
         return;
 
+    QDir save_dir(path);
     export_object_entry_t *entry;
 
     for (QList<QVariant>::iterator it = objects_.begin(); it != objects_.end(); ++it)
@@ -166,12 +169,11 @@ void ExportObjectModel::saveAllEntries(QString path)
             continue;
 
         int count = 0;
-        gchar *save_as_fullpath = NULL;
+        QString filename;
 
         do {
             GString *safe_filename;
 
-            g_free(save_as_fullpath);
             if (entry->filename)
                 safe_filename = eo_massage_str(entry->filename,
                     EXPORT_OBJECT_MAXFILELEN, count);
@@ -185,13 +187,10 @@ void ExportObjectModel::saveAllEntries(QString path)
                 safe_filename = eo_massage_str(generic_name,
                     EXPORT_OBJECT_MAXFILELEN, count);
             }
-            save_as_fullpath = g_build_filename(path.toUtf8().constData(),
-                                                safe_filename->str, NULL);
+            filename = QString::fromUtf8(safe_filename->str);
             g_string_free(safe_filename, TRUE);
-        } while (g_file_test(save_as_fullpath, G_FILE_TEST_EXISTS) && ++count < 1000);
-        eo_save_entry(save_as_fullpath, entry);
-        g_free(save_as_fullpath);
-        save_as_fullpath = NULL;
+        } while (save_dir.exists(filename) && ++count < 1000);
+        eo_save_entry(save_dir.filePath(filename).toUtf8().constData(), entry);
     }
 }
 
