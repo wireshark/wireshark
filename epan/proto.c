@@ -11027,8 +11027,7 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 			    gboolean use_parent_tree,
 			    proto_tree* tree, guint64 value)
 {
-	guint              bitshift;
-	guint64            available_bits = 0;
+	guint64            available_bits = G_MAXUINT64;
 	guint64            tmpval;
 	header_field_info *hf;
 	guint32            integer32;
@@ -11036,8 +11035,14 @@ proto_item_add_bitmask_tree(proto_item *item, tvbuff_t *tvb, const int offset,
 
 	if (len < 0 || len > 8)
 		g_assert_not_reached();
-	bitshift = (8 - (guint)len)*8;
-	available_bits = G_GUINT64_CONSTANT(0xFFFFFFFFFFFFFFFF) >> bitshift;
+	/**
+	 * packet-frame.c uses len=0 since the value is taken from the packet
+	 * metadata, not the packet bytes. In that case, assume that all bits
+	 * in the provided value are valid.
+	 */
+	if (len > 0) {
+		available_bits >>= (8 - (guint)len)*8;
+	}
 
 	if (use_parent_tree == FALSE)
 		tree = proto_item_add_subtree(item, ett);
