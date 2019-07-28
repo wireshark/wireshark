@@ -9,7 +9,7 @@
 
 #include <stdio.h>
 
-#include "proto_tree.h"
+#include <ui/qt/proto_tree.h>
 #include <ui/qt/models/proto_tree_model.h>
 
 #include <epan/ftypes/ftypes.h>
@@ -19,6 +19,11 @@
 #include <ui/qt/utils/variant_pointer.h>
 #include <ui/qt/utils/wireshark_mime_data.h>
 #include <ui/qt/widgets/drag_label.h>
+#include <ui/qt/widgets/wireshark_file_dialog.h>
+#include <ui/qt/show_packet_bytes_dialog.h>
+#include <ui/all_files_wildcard.h>
+#include <ui/alert_box.h>
+#include "wireshark_application.h"
 
 #include <QApplication>
 #include <QContextMenuEvent>
@@ -28,8 +33,9 @@
 #include <QScrollBar>
 #include <QStack>
 #include <QUrl>
-
+#include <QClipboard>
 #include <QWindow>
+#include <QMessageBox>
 
 // To do:
 // - Fix "apply as filter" behavior.
@@ -99,11 +105,205 @@ void ProtoTree::closeContextMenu()
     ctx_menu_.close();
 }
 
+void ProtoTree::protoTreeContextMenu(QContextMenuEvent * event)
+{
+    QMenu ctxMenu(this);
+    QAction * action;
+
+    bool have_subtree = false;
+#if 0
+    bool have_packet_bytes = false;
+#endif
+
+    QModelIndex index = indexAt(event->pos());
+    if ( index.isValid() )
+    {
+        FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode());
+        field_info * fi = finfo.fieldInfo();
+
+        bool is_selected = false;
+
+        if (cap_file_ && cap_file_->finfo_selected == fi)
+            is_selected = true;
+        else if (! window()->findChild<QAction *>("actionViewExpandSubtrees"))
+            is_selected = true;
+
+        if ( is_selected )
+        {
+            if (fi && fi->tree_type != -1) {
+                have_subtree = true;
+            }
+#if 0
+            if (fi && fi->ds_tvb) {
+                have_packet_bytes = true;
+            }
+#endif
+        }
+    }
+
+
+    action = ctxMenu.addAction(tr("Expand Subtrees"), this, SLOT(expandSubtrees()));
+    action->setEnabled(have_subtree);
+    action = ctxMenu.addAction(tr("Collapse Subtrees"), this, SLOT(collapseSubtrees()));
+    action->setEnabled(have_subtree);
+    ctxMenu.addAction(tr("Expand All"), this, SLOT(expandAll()));
+    ctxMenu.addAction(tr("Collapse All"), this, SLOT(collapseAll()));
+    ctxMenu.addSeparator();
+
+    QMenu *submenu = ctxMenu.addMenu(tr("Copy"));
+    submenu->addAction(tr("All Visible Items"), this, SLOT(ctxCopyVisibleItems()));
+    action = submenu->addAction(tr("All Visible Selected Tree Items"), this, SLOT(ctxCopyVisibleItems()));
+    action->setProperty("selected_tree", qVariantFromValue(true));
+    action = submenu->addAction(tr("Desription"), this, SLOT(ctxCopySelectedInfo()));
+    action->setProperty("field_type", ProtoTree::Description);
+    action = submenu->addAction(tr("Field Name"), this, SLOT(ctxCopySelectedInfo()));
+    action->setProperty("field_type", ProtoTree::Name);
+    action = submenu->addAction(tr("Value"), this, SLOT(ctxCopySelectedInfo()));
+    action->setProperty("field_type", ProtoTree::Value);
+    submenu->addSeparator();
+    submenu->addAction(tr("As Filter"), this, SLOT(ctxCopyAsFilter()));
+
+    ctxMenu.addSeparator();
+
+    ctxMenu.addAction(tr("Wiki Protocol Page"), this, SLOT(ctxOpenUrlWiki()));
+    action = ctxMenu.addAction(tr("Filter Field Reference"), this, SLOT(ctxOpenUrlWiki()));
+    action->setProperty("field_reference", qVariantFromValue(true));
+    ctxMenu.addMenu(&proto_prefs_menu_);
+
+    QModelIndex idx = indexAt(event->pos());
+    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(idx).protoNode());
+    QActionGroup * copyEntries = DataPrinter::copyActions(this, &finfo);
+    submenu->addActions(copyEntries->actions());
+
+
+    // The "text only" header field will not give preferences for the selected protocol.
+    // Use parent in this case.
+    proto_node *node = proto_tree_model_->protoNodeFromIndex(idx).protoNode();
+    while (node && node->finfo && node->finfo->hfinfo && node->finfo->hfinfo->id == hf_text_only)
+        node = node->parent;
+
+    FieldInformation pref_finfo(node);
+    proto_prefs_menu_.setModule(pref_finfo.moduleName());
+
+
+    ctxMenu.exec(event->globalPos());
+}
+
+void ProtoTree::ctxCopyVisibleItems()
+{
+    bool selected_tree = false;
+
+    QAction * send = qobject_cast<QAction *>(sender());
+    if ( send && send->property("selected_tree").isValid() )
+        selected_tree = true;
+
+    QString clip = toString();
+    if ( selected_tree && selectionModel()->hasSelection() )
+        clip = toString(selectionModel()->selectedIndexes().first());
+
+    if ( clip.length() > 0 )
+        wsApp->clipboard()->setText(clip);
+}
+
+void ProtoTree::ctxCopyAsFilter()
+{
+    QModelIndex idx = selectionModel()->selectedIndexes().first();
+    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(idx).protoNode());
+    if ( finfo.isValid() )
+    {
+        epan_dissect_t *edt = cap_file_ ? cap_file_->edt : edt_;
+        char *field_filter = proto_construct_match_selected_string(finfo.fieldInfo(), edt);
+        QString filter(field_filter);
+        wmem_free(Q_NULLPTR, field_filter);
+
+        if ( filter.length() > 0 )
+            wsApp->clipboard()->setText(filter);
+    }
+}
+
+void ProtoTree::ctxCopySelectedInfo()
+{
+    int val = -1;
+    QString clip;
+    QAction * send = qobject_cast<QAction *>(sender());
+    if ( send && send->property("field_type").isValid() )
+        val = send->property("field_type").toInt();
+
+    QModelIndex idx = selectionModel()->selectedIndexes().first();
+    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(idx).protoNode());
+    if ( ! finfo.isValid() )
+        return;
+
+    switch (val)
+    {
+    case ProtoTree::Name:
+        clip.append(finfo.headerInfo().abbreviation);
+        break;
+
+    case ProtoTree::Description:
+        if ( finfo.fieldInfo()->rep && strlen(finfo.fieldInfo()->rep->representation) > 0 )
+            clip.append(finfo.fieldInfo()->rep->representation);
+        break;
+
+    case ProtoTree::Value:
+        if ( edt_ )
+        {
+            gchar* field_str = get_node_field_value(finfo.fieldInfo(), edt_);
+            clip.append(field_str);
+            g_free(field_str);
+        }
+        break;
+    default:
+        break;
+    }
+
+    if ( clip.length() > 0 )
+        wsApp->clipboard()->setText(clip);
+}
+
+void ProtoTree::ctxOpenUrlWiki()
+{
+    QUrl url;
+    bool is_field_reference = false;
+    QAction * send = qobject_cast<QAction *>(sender());
+    if ( send && send->property("field_reference").isValid() )
+        is_field_reference = send->property("field_reference").toBool();
+    QModelIndex idx = selectionModel()->selectedIndexes().first();
+    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(idx).protoNode());
+
+    const QString proto_abbrev = proto_registrar_get_abbrev(finfo.headerInfo().id);
+
+    if ( ! is_field_reference )
+    {
+        int ret = QMessageBox::question(this, wsApp->windowTitleString(tr("Wiki Page for %1").arg(proto_abbrev)),
+                                        tr("<p>The Wireshark Wiki is maintained by the community.</p>"
+                                        "<p>The page you are about to load might be wonderful, "
+                                        "incomplete, wrong, or nonexistent.</p>"
+                                        "<p>Proceed to the wiki?</p>"),
+                                        QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+
+        if (ret != QMessageBox::Yes) return;
+
+        url = QString("https://wiki.wireshark.org/Protocols/%1").arg(proto_abbrev);
+    }
+    else
+    {
+        url = QString("https://www.wireshark.org/docs/dfref/%1/%2")
+                .arg(proto_abbrev[0])
+                .arg(proto_abbrev);
+    }
+
+    QDesktopServices::openUrl(url);
+}
+
 void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
 {
     // We're in a PacketDialog
     if (! window()->findChild<QAction *>("actionViewExpandSubtrees"))
+    {
+        protoTreeContextMenu(event);
         return;
+    }
 
     ctx_menu_.clear();
 

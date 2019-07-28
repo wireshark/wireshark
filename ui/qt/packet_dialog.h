@@ -33,6 +33,10 @@ public:
     explicit PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata);
     ~PacketDialog();
 
+signals:
+    void showProtocolPreferences(const QString module_name);
+    void editProtocolPreference(struct preference *pref, struct pref_module *module);
+
 private slots:
     void on_buttonBox_helpRequested();
 

@@ -2508,6 +2508,11 @@ void MainWindow::openPacketDialog(bool from_reference)
     if (fdata) {
         PacketDialog *packet_dialog = new PacketDialog(*this, capture_file_, fdata);
 
+        connect(packet_dialog, SIGNAL(showProtocolPreferences(QString)),
+                this, SLOT(showPreferencesDialog(QString)));
+        connect(packet_dialog, SIGNAL(editProtocolPreference(preference*, pref_module*)),
+                main_ui_->preferenceEditorFrame, SLOT(editPreference(preference*, pref_module*)));
+
         connect(this, SIGNAL(closePacketDialogs()),
                 packet_dialog, SLOT(close()));
         zoomText(); // Emits wsApp->zoomMonospaceFont(QFont)

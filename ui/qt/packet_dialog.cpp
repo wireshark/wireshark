@@ -98,6 +98,10 @@ PacketDialog::PacketDialog(QWidget &parent, CaptureFile &cf, frame_data *fdata) 
     connect(byte_view_tab_, SIGNAL(fieldHighlight(FieldInformation *)),
             this, SLOT(setHintText(FieldInformation *)));
 
+    connect(proto_tree_, SIGNAL(showProtocolPreferences(QString)),
+            this, SIGNAL(showProtocolPreferences(QString)));
+    connect(proto_tree_, SIGNAL(editProtocolPreference(preference*,pref_module*)),
+            this, SIGNAL(editProtocolPreference(preference*,pref_module*)));
 }
 
 PacketDialog::~PacketDialog()

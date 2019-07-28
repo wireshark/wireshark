@@ -41,7 +41,15 @@ public:
     QString toString(const QModelIndex &start_idx = QModelIndex()) const;
 
 protected:
+
+    enum {
+        Name = 0,
+        Description,
+        Value
+    } CopyInfos;
+
     virtual void contextMenuEvent(QContextMenuEvent *event);
+    void protoTreeContextMenu(QContextMenuEvent * event);
     virtual void timerEvent(QTimerEvent *event);
     virtual void keyReleaseEvent(QKeyEvent *event);
     virtual bool eventFilter(QObject * obj, QEvent * ev);
@@ -93,6 +101,14 @@ public slots:
 
 protected slots:
     void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+#if 0
+    void ctxShowPacketBytes();
+    void ctxExportPacketBytes();
+#endif
+    void ctxCopyVisibleItems();
+    void ctxCopyAsFilter();
+    void ctxCopySelectedInfo();
+    void ctxOpenUrlWiki();
 
 private slots:
     void updateContentWidth();
