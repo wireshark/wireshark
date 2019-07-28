@@ -274,27 +274,27 @@ or Linux:
 +
 --
 ----
-$ tar xaf wireshark-2.9.0.tar.xz
+tar xJf wireshark-2.9.0.tar.xz
 ----
 In other cases you will have to use the following commands:
 ----
-$ xz -d wireshark-2.9.0.tar.xz
-$ tar xf wireshark-2.9.0.tar
+xz -d wireshark-2.9.0.tar.xz
+tar xf wireshark-2.9.0.tar
 ----
 --
 
 . Create a directory to build Wireshark in and change to it.
 +
 ----
-$ mkdir build
-$ cd build
+mkdir build
+cd build
 ----
 
 . Configure your source so it will build correctly for your version of UNIX. You
   can do this with the following command:
 +
 ----
-$ cmake ../wireshark-2.9.0
+cmake ../wireshark-2.9.0
 ----
 +
 If this step fails you will have to look into the logs and rectify the problems,
@@ -304,7 +304,7 @@ Troubleshooting hints are provided in <<ChBuildInstallUnixTrouble>>.
 . Build the sources.
 +
 ----
-$ make
+make
 ----
 +
 Once you have build Wireshark with `make` above, you should be able to run it
@@ -313,7 +313,7 @@ by entering `run/wireshark`.
 . Install the software in its final destination.
 +
 ----
-$ make install
+make install
 ----
 
 Once you have installed Wireshark with `make install` above, you should be able
@@ -362,19 +362,10 @@ dependencies first, and then retry the step above.
 If you can just install from the repository then use
 
 ----
-$ aptitude install wireshark
+apt install wireshark
 ----
 
-Aptitude should take care of all of the dependency issues for you.
-
-Use the following command to install downloaded Wireshark debs under Debian:
-
-----
-$ dpkg -i wireshark-common_2.0.5.0-1_i386.deb wireshark_wireshark-2.0.5.0-1_i386.deb
-----
-
-dpkg doesn’t take care of all dependencies, but reports what’s missing.
-
+Apt should take care of all of the dependency issues for you.
 
 [NOTE]
 .Capturing requires privileges
@@ -391,7 +382,7 @@ Use the following command to install Wireshark under Gentoo Linux with all of
 the extra features:
 
 ----
-$ USE="c-ares ipv6 snmp ssl kerberos threads selinux" emerge wireshark
+USE="c-ares ipv6 snmp ssl kerberos threads selinux" emerge wireshark
 ----
 
 ==== Installing from packages under FreeBSD
@@ -399,7 +390,7 @@ $ USE="c-ares ipv6 snmp ssl kerberos threads selinux" emerge wireshark
 Use the following command to install Wireshark under FreeBSD:
 
 ----
-$ pkg_add -r wireshark
+pkg_add -r wireshark
 ----
 
 pkg_add should take care of all of the dependency issues for you.
