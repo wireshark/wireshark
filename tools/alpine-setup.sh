@@ -76,6 +76,7 @@ ADDITIONAL_LIST="
 	sbc-dev \
 	minizip-dev \
 	speexdsp-dev \
+	brotli-dev \
 	"
 
 # Adds package $2 to list variable $1 if the package is found.
