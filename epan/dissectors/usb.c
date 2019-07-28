@@ -19872,6 +19872,7 @@ static const value_string usb_products_vals[] = {
     { 0x23570101, "RTL8812AU Archer T4U 802.11ac" },
     { 0x23570103, "Archer T4UH wireless Realtek 8812AU" },
     { 0x23570105, "Archer T1U 802.11a/n/ac Wireless Adapter [MediaTek MT7610U]" },
+    { 0x23570106, "Archer T9UH v1 [Realtek RTL8814AU]" },
     { 0x23570107, "TL-WN821N Version 5 RTL8192EU" },
     { 0x23570108, "TL-WN822N Version 4 RTL8192EU" },
     { 0x23570109, "TL WN823N RTL8192EU" },
