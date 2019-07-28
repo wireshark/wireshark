@@ -12,8 +12,8 @@
 
 /* File format reference:
  *   RFC 5655 and 5101
- *   http://tools.ietf.org/rfc/rfc5655
- *   http://tools.ietf.org/rfc/rfc5101
+ *   https://tools.ietf.org/rfc/rfc5655
+ *   https://tools.ietf.org/rfc/rfc5101
  *
  * This wiretap is for an ipfix file format reader, per RFC 5655/5101.
  * All "records" in the file are IPFIX messages, beginning with an IPFIX

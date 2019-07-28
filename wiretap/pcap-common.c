@@ -48,7 +48,7 @@
  * values to be used in capture files, and have libpcap map between
  * those values in capture file headers and the DLT_ values that the
  * pcap_datalink() and pcap_open_dead() APIs use.  See
- * http://www.tcpdump.org/linktypes.html for a list of LINKTYPE_ values.
+ * https://www.tcpdump.org/linktypes.html for a list of LINKTYPE_ values.
  *
  * In most cases, the corresponding LINKTYPE_ and DLT_ values are the
  * same.  In the cases where the same link-layer header type was given
@@ -1830,7 +1830,7 @@ struct linux_usb_isodesc {
 /*
  * USB setup header as defined in USB specification
  * See usb_20.pdf, Chapter 9.3 'USB Device Requests' for details.
- * http://www.usb.org/developers/docs/usb_20_122909-2.zip
+ * https://www.usb.org/document-library/usb-20-specification
  *
  * This structure is 8 bytes long.
  */

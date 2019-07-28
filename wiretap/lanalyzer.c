@@ -17,7 +17,7 @@
 /* The LANalyzer format is documented (at least in part) in Novell document
    TID022037, which can be found at, among other places:
 
-     http://www.windowsecurity.com/whitepapers/Description_of_the_LANalysers_output_file.html
+     http://www.blacksheepnetworks.com/security/info/nw/lan/trace.txt
  */
 
 /*    Record header format */

@@ -5,7 +5,7 @@
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * Ref: http://www.3gpp.org/DynaReport/32423.htm
+ * Ref: https://portal.3gpp.org/desktopmodules/Specifications/SpecificationDetails.aspx?specificationId=2010
  */
 
 #include "config.h"

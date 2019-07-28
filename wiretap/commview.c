@@ -12,7 +12,7 @@
  */
 
 /* A brief description of this file format is available at:
- *    http://www.tamos.com/htmlhelp/commview/logformat.htm
+ *    https://www.tamos.com/htmlhelp/commview/logformat.htm
  *
  * Use
  *

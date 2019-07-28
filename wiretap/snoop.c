@@ -88,14 +88,14 @@ static gboolean snoop_dump(wtap_dumper *wdh, const wtap_rec *rec,
 /*
  * See
  *
- *	http://www.opengroup.org/onlinepubs/9638599/apdxf.htm
+ *	https://pubs.opengroup.org/onlinepubs/9638599/apdxf.htm
  *
  * for the "dlpi.h" header file specified by The Open Group, which lists
  * the DL_ values for various protocols; Solaris 7 uses the same values.
  *
  * See
  *
- *	http://www.iana.org/assignments/snoop-datalink-types/snoop-datalink-types.xml
+ *	https://www.iana.org/assignments/snoop-datalink-types
  *
  * for the IETF list of snoop datalink types.
  *
@@ -155,7 +155,7 @@ static gboolean snoop_dump(wtap_dumper *wdh, const wtap_rec *rec,
  * if it can't, this may be useful reference information for anybody doing
  * code to use DLPI to do raw packet captures on those network types.
  *
- *	http://web.archive.org/web/20010906213807/http://www.shomiti.com/support/TNCapFileFormat.htm
+ *	https://web.archive.org/web/20010906213807/http://www.shomiti.com/support/TNCapFileFormat.htm
  *
  * gives information on Shomiti's mutant flavor of snoop.  For some unknown
  * reason, they decided not to just Go With The DLPI Flow, and instead used

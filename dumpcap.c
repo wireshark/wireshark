@@ -2407,7 +2407,7 @@ pcap_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t er
              */
             new_bufsize = pcap_info->rechdr.hdr.incl_len;
             /*
-             * http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
+             * https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
              */
             new_bufsize--;
             new_bufsize |= new_bufsize >> 1;
@@ -2633,7 +2633,7 @@ pcapng_pipe_dispatch(loop_data *ld, capture_src *pcap_src, char *errmsg, size_t 
             */
             new_bufsize = bh->block_total_length;
             /*
-            * http://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
+            * https://graphics.stanford.edu/~seander/bithacks.html#RoundUpPowerOf2
             */
             new_bufsize--;
             new_bufsize |= new_bufsize >> 1;

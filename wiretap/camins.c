@@ -100,7 +100,7 @@ typedef enum {
 #define SIZE_ADD_HIGH \
 { size_stat = (size_stat==SIZE_HAVE_LOW ? SIZE_HAVE_ALL : SIZE_HAVE_HIGH); }
 
-/* PCAP DVB-CI pseudo-header, see http://www.kaiser.cx/pcap-dvbci.html */
+/* PCAP DVB-CI pseudo-header, see https://www.kaiser.cx/pcap-dvbci.html */
 #define DVB_CI_PSEUDO_HDR_VER 0
 #define DVB_CI_PSEUDO_HDR_LEN 4
 #define DVB_CI_PSEUDO_HDR_CAM_TO_HOST 0xFF

@@ -214,7 +214,7 @@ struct _mpeg_magic {
 	{ 3, "TAG" }, /* ID3v1 */
 	{ 3, "ID3" }, /* ID3v2 */
 	{ 3, "\0\0\1" }, /* MPEG PES */
-	{ 2, "\xff\xfb" }, /* MP3, taken from http://en.wikipedia.org/wiki/MP3#File_structure */
+	{ 2, "\xff\xfb" }, /* MP3, taken from https://en.wikipedia.org/wiki/MP3#File_structure */
 	{ 0, NULL }
 };
 

@@ -193,7 +193,7 @@ wtap_open_return_val visual_open(wtap *wth, int *err, gchar **err_info)
     }
 
     /* Translate the encapsulation type; these values are SNMP ifType
-       values, as found in http://www.iana.org/assignments/smi-numbers.
+       values, as found in https://www.iana.org/assignments/smi-numbers.
 
        Note that a file with media type 22 ("propPointToPointSerial") may
        contain Cisco HDLC or PPP over HDLC.  This will get sorted out after

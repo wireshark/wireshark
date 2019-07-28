@@ -42,10 +42,15 @@ typedef struct {
 /*
  * Written by Marton Nemeth <nm127@freemail.hu>
  * Copyright 2009 Marton Nemeth
- * The JPEG and JFIF specification can be found at:
+ * The JPEG specification can be found at:
  *
- * http://www.jpeg.org/public/jfif.pdf
- * http://www.w3.org/Graphics/JPEG/itu-t81.pdf
+ * https://www.w3.org/Graphics/JPEG/itu-t81.pdf
+ * https://www.itu.int/rec/T-REC-T.81/en (but you have to pay for it)
+ *
+ * and the JFIF specification can be found at:
+ *
+ * https://www.itu.int/rec/T-REC-T.871-201105-I/en
+ * https://www.w3.org/Graphics/JPEG/jfif3.pdf
  */
 static const guint8 jpeg_jfif_magic[] = { 0xFF, 0xD8, /* SOF */
 					  0xFF        /* start of the next marker */

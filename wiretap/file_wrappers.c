@@ -36,11 +36,11 @@
  *
  * Some other compressed file formats we might want to support:
  *
- *      XZ format: http://tukaani.org/xz/
+ *      XZ format: https://tukaani.org/xz/
  *
- *      Bzip2 format: http://bzip.org/
+ *      Bzip2 format: https://www.sourceware.org/bzip2/
  *
- *      Lzip format: http://www.nongnu.org/lzip/
+ *      Lzip format: https://www.nongnu.org/lzip/
  */
 
 /*

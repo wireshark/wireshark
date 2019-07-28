@@ -5,7 +5,7 @@
  *
  * This software and documentation has been developed by Endace Technology Ltd.
  * along with the DAG PCI network capture cards. For further information please
- * visit http://www.endace.com/.
+ * visit https://www.endace.com/.
  *
  * SPDX-License-Identifier: BSD-3-Clause
  */
