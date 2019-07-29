@@ -52,7 +52,10 @@ ADDITIONAL_LIST="\
 	doxygen \
 	libssh \
 	libmaxminddb \
-	libsmi"
+	libsmi \
+	brotli \
+	speexdsp \
+	"
 
 # Guess which package manager we will use
 PM=`which pkgin 2> /dev/null || which pkg 2> /dev/null || which pkg_add 2> /dev/null`
