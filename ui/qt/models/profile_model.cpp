@@ -309,12 +309,17 @@ QVariant ProfileModel::dataPath(const QModelIndex &index) const
     {
     case PROF_STAT_DEFAULT:
         if (!reset_default_)
-            return get_persconffile_path("", FALSE);
+            return gchar_free_to_qstring(get_persconffile_path("", FALSE));
         else
             return tr("Resetting to default");
     case PROF_STAT_EXISTS:
         {
-            QString profile_path = prof->is_system ? get_system_profiles_dir() : get_profiles_dir();
+            QString profile_path;
+            if (prof->is_system) {
+                profile_path = gchar_free_to_qstring(get_system_profiles_dir());
+            } else {
+                profile_path = gchar_free_to_qstring(get_profiles_dir());
+            }
             profile_path.append(QDir::separator()).append(prof->name);
             return profile_path;
         }
@@ -742,7 +747,7 @@ bool ProfileModel::exportProfiles(QString filename, QModelIndexList items, QStri
         return false;
     }
 
-    if ( WireSharkZipHelper::zip(filename, files, QString(get_profiles_dir()) + QDir::separator() ) )
+    if ( WireSharkZipHelper::zip(filename, files, gchar_free_to_qstring(get_profiles_dir()) + QDir::separator() ) )
         return true;
 
     return false;
@@ -784,7 +789,7 @@ int ProfileModel::importProfilesFromDir(QString dirname, int * skippedCnt, bool 
 {
     int count = 0;
     int skipped = 0;
-    QDir profileDir(get_profiles_dir());
+    QDir profileDir(gchar_free_to_qstring(get_profiles_dir()));
     QDir dir(dirname);
     if ( dir.exists() )
     {
