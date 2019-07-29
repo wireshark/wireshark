@@ -2867,11 +2867,12 @@ See above in the description of the About:Plugins page.
 
 =over 4
 
-=item WIRESHARK_APPDATA
+=item WIRESHARK_CONFIG_DIR
 
-On Windows, Wireshark normally stores all application data in %APPDATA% or
-%USERPROFILE%.  You can override the default location by exporting this
-environment variable to specify an alternate location.
+This environment variable overrides the location of personal configuration
+files. It defaults to F<$XDG_CONFIG_HOME/wireshark> (or F<$HOME/.wireshark> if
+the former is missing while the latter exists). On Windows,
+F<%APPDATA%\Wireshark> is used instead. Available since Wireshark 3.0.
 
 =item WIRESHARK_DEBUG_WMEM_OVERRIDE
 
