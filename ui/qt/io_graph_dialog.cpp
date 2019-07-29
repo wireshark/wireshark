@@ -860,7 +860,7 @@ void IOGraphDialog::getGraphInfo()
                     bars->moveBelow(prev_bars);
                     prev_bars = bars;
                 }
-                if (iog->visible()) {
+                if (iog->visible() && iog->maxInterval() >= 0) {
                     double iog_start = iog->startOffset();
                     if (start_time_ == 0.0 || iog_start < start_time_) {
                         start_time_ = iog_start;
