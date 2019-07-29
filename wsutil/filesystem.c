@@ -775,7 +775,7 @@ get_progfile_dir(void)
 }
 
 /*
- * Get the directory in which the global configuration and data files are
+ * Get the directory in which the system configuration and data files are
  * stored.
  *
  * On Windows, we use the directory in which the executable for this
@@ -1135,7 +1135,7 @@ running_in_build_directory(void)
 /*
  * Get the directory in which files that, at least on UNIX, are
  * system files (such as "/etc/ethers") are stored; on Windows,
- * there's no "/etc" directory, so we get them from the global
+ * there's no "/etc" directory, so we get them from the system
  * configuration and data file directory.
  */
 const char *
@@ -1179,22 +1179,22 @@ is_default_profile(void)
 }
 
 gboolean
-has_global_profiles(void)
+has_system_profiles(void)
 {
     WS_DIR *dir;
     WS_DIRENT *file;
-    gchar *global_dir = get_global_profiles_dir();
+    gchar *system_dir = get_system_profiles_dir();
     gchar *filename;
-    gboolean has_global = FALSE;
+    gboolean has_system = FALSE;
 
-    if ((test_for_directory(global_dir) == EISDIR) &&
-        ((dir = ws_dir_open(global_dir, 0, NULL)) != NULL))
+    if ((test_for_directory(system_dir) == EISDIR) &&
+        ((dir = ws_dir_open(system_dir, 0, NULL)) != NULL))
     {
         while ((file = ws_dir_read_name(dir)) != NULL) {
-            filename = g_strdup_printf ("%s%s%s", global_dir, G_DIR_SEPARATOR_S,
+            filename = g_strdup_printf ("%s%s%s", system_dir, G_DIR_SEPARATOR_S,
                             ws_dir_get_name(file));
             if (test_for_directory(filename) == EISDIR) {
-                has_global = TRUE;
+                has_system = TRUE;
                 g_free (filename);
                 break;
             }
@@ -1202,8 +1202,8 @@ has_global_profiles(void)
         }
         ws_dir_close(dir);
     }
-    g_free(global_dir);
-    return has_global;
+    g_free(system_dir);
+    return has_system;
 }
 
 void
@@ -1400,7 +1400,7 @@ create_profiles_dir(char **pf_dir_path_return)
 }
 
 char *
-get_global_profiles_dir(void)
+get_system_profiles_dir(void)
 {
     return g_strdup_printf ("%s%s%s", get_datafile_dir(),
                                G_DIR_SEPARATOR_S, PROFILES_DIR);
@@ -1425,17 +1425,17 @@ get_persconffile_dir(const gchar *profilename)
 }
 
 char *
-get_profile_dir(const char *profilename, gboolean is_global)
+get_profile_dir(const char *profilename, gboolean is_system)
 {
     gchar *profile_dir;
 
-    if (is_global) {
+    if (is_system) {
         if (profilename && strlen(profilename) > 0 &&
             strcmp(profilename, DEFAULT_PROFILE) != 0)
         {
-            gchar *global_path = get_global_profiles_dir();
-            profile_dir = g_build_filename(global_path, profilename, NULL);
-            g_free(global_path);
+            gchar *system_path = get_system_profiles_dir();
+            profile_dir = g_build_filename(system_path, profilename, NULL);
+            g_free(system_path);
         } else {
             profile_dir = g_strdup(get_datafile_dir());
         }
@@ -1451,19 +1451,19 @@ get_profile_dir(const char *profilename, gboolean is_global)
 }
 
 gboolean
-profile_exists(const gchar *profilename, gboolean global)
+profile_exists(const gchar *profilename, gboolean system)
 {
     gchar *path = NULL;
     gboolean exists;
 
     /*
-     * If we're looking up a global profile, we must have a
+     * If we're looking up a system profile, we must have a
      * profile name.
      */
-    if (global && !profilename)
+    if (system && !profilename)
         return FALSE;
 
-    path = get_profile_dir(profilename, global);
+    path = get_profile_dir(profilename, system);
     exists = (test_for_directory(path) == EISDIR) ? TRUE : FALSE;
 
     g_free(path);
@@ -1683,7 +1683,7 @@ create_persconffile_dir(char **pf_dir_path_return)
 }
 
 int
-copy_persconffile_profile(const char *toname, const char *fromname, gboolean from_global,
+copy_persconffile_profile(const char *toname, const char *fromname, gboolean from_system,
               char **pf_filename_return, char **pf_to_dir_path_return, char **pf_from_dir_path_return)
 {
     gchar *from_dir;
@@ -1691,7 +1691,7 @@ copy_persconffile_profile(const char *toname, const char *fromname, gboolean fro
     gchar *filename, *from_file, *to_file;
     GList *files, *file;
 
-    from_dir = get_profile_dir(fromname, from_global);
+    from_dir = get_profile_dir(fromname, from_system);
 
     files = g_hash_table_get_keys(profile_files);
     file = g_list_first(files);
@@ -1852,7 +1852,7 @@ get_persconffile_path(const char *filename, gboolean from_profile)
 }
 
 /*
- * Construct the path name of a global configuration file, given the
+ * Construct the path name of a system configuration file, given the
  * file name.
  *
  * The returned file name was g_malloc()'d so it must be g_free()d when the

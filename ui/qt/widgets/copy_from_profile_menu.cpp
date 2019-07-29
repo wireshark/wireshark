@@ -52,14 +52,14 @@ CopyFromProfileMenu::CopyFromProfileMenu(QString filename, QWidget *parent) :
         pa = new QAction(name, this);
         if ( idx.data(ProfileModel::DATA_IS_DEFAULT).toBool() )
             addAction(pa);
-        else if ( idx.data(ProfileModel::DATA_IS_GLOBAL).toBool() )
+        else if ( idx.data(ProfileModel::DATA_IS_SYSTEM).toBool() )
             global << pa;
         else
             user << pa;
 
         pa->setFont(idx.data(Qt::FontRole).value<QFont>());
         pa->setProperty("profile_name", name);
-        pa->setProperty("profile_is_global", idx.data(ProfileModel::DATA_IS_GLOBAL));
+        pa->setProperty("profile_is_system", idx.data(ProfileModel::DATA_IS_SYSTEM));
 
         pa->setProperty("filename", fi.absoluteFilePath());
         pa->setData(fi.absoluteFilePath().toUtf8().constData());

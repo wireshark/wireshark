@@ -210,7 +210,7 @@ void ProfileDialog::updateWidgets()
         index = index.sibling(index.row(), ProfileModel::COL_NAME);
 
     if (index.isValid()) {
-        if ( !index.data(ProfileModel::DATA_IS_GLOBAL).toBool() || ! model_->resetDefault())
+        if ( !index.data(ProfileModel::DATA_IS_SYSTEM).toBool() || ! model_->resetDefault())
             enable_del = true;
     }
 
@@ -229,11 +229,11 @@ void ProfileDialog::updateWidgets()
 
             if ( idx != index && idx.data().toString().compare(index.data().toString()) == 0 )
             {
-                if (idx.data(ProfileModel::DATA_IS_GLOBAL).toBool() == index.data(ProfileModel::DATA_IS_GLOBAL).toBool())
+                if (idx.data(ProfileModel::DATA_IS_SYSTEM).toBool() == index.data(ProfileModel::DATA_IS_SYSTEM).toBool())
                     enable_ok = false;
             }
 
-            QList<int> rows = model_->findAllByNameAndVisibility(name, idx.data(ProfileModel::DATA_IS_GLOBAL).toBool());
+            QList<int> rows = model_->findAllByNameAndVisibility(name, idx.data(ProfileModel::DATA_IS_SYSTEM).toBool());
             if ( rows.count() > 1 )
                 enable_ok = false;
         }
@@ -419,7 +419,7 @@ void ProfileDialog::exportProfiles(bool exportAll)
         for ( int cnt = 0; cnt < sort_model_->rowCount(); cnt++ )
         {
             QModelIndex idx = sort_model_->index(cnt, ProfileModel::COL_NAME);
-            if ( ! idx.data(ProfileModel::DATA_IS_GLOBAL).toBool() && ! idx.data(ProfileModel::DATA_IS_DEFAULT).toBool() )
+            if ( ! idx.data(ProfileModel::DATA_IS_SYSTEM).toBool() && ! idx.data(ProfileModel::DATA_IS_DEFAULT).toBool() )
             {
                 items << sort_model_->mapToSource(idx);
             }

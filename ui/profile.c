@@ -41,7 +41,7 @@ GList * edited_profile_list(void) {
 
 static GList *
 add_profile_entry(GList *fl, const char *profilename, const char *reference, int status,
-        gboolean is_global, gboolean from_global)
+                  gboolean is_system, gboolean from_system)
 {
     profile_def *profile;
 
@@ -49,8 +49,8 @@ add_profile_entry(GList *fl, const char *profilename, const char *reference, int
     profile->name = g_strdup(profilename);
     profile->reference = g_strdup(reference);
     profile->status = status;
-    profile->is_global = is_global;
-    profile->from_global = from_global;
+    profile->is_system = is_system;
+    profile->from_system = from_system;
     return g_list_append(fl, profile);
 }
 
@@ -138,7 +138,7 @@ gchar *apply_profile_changes(void)
             profile1->status = PROF_STAT_EXISTS;
 
             if (profile1->reference) {
-                if (copy_persconffile_profile(profile1->name, profile1->reference, profile1->from_global,
+                if (copy_persconffile_profile(profile1->name, profile1->reference, profile1->from_system,
                             &pf_filename, &pf_dir_path, &pf_dir_path2) == -1) {
                     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                             "Can't copy file \"%s\" in directory\n\"%s\" to\n\"%s\":\n%s.",
@@ -203,7 +203,7 @@ gchar *apply_profile_changes(void)
         fl2 = edited_profile_list();
         while (fl2) {
             profile2 = (profile_def *) fl2->data;
-            if (!profile2->is_global) {
+            if (!profile2->is_system) {
                 if (strcmp(profile1->name, profile2->name)==0) {
                     /* Profile exists in both lists */
                     found = TRUE;
@@ -235,10 +235,10 @@ gchar *apply_profile_changes(void)
 
 GList *
 add_to_profile_list(const char *name, const char *expression, int status,
-        gboolean is_global, gboolean from_global)
+                    gboolean is_system, gboolean from_system)
 {
     edited_profiles = add_profile_entry(edited_profiles, name, expression, status,
-            is_global, from_global);
+                                        is_system, from_system);
 
     return g_list_last(edited_profiles);
 }
@@ -294,7 +294,7 @@ copy_profile_list(void)
 
         current_profiles = add_profile_entry(current_profiles, profile->name,
                 profile->reference, profile->status,
-                profile->is_global, profile->from_global);
+                profile->is_system, profile->from_system);
         flp_src = g_list_next(flp_src);
     }
 }
@@ -306,7 +306,7 @@ init_profile_list(void)
     WS_DIRENT     *file;            /* current file */
     const gchar   *name;
     GList         *local_profiles = NULL;
-    GList         *global_profiles = NULL;
+    GList         *system_profiles = NULL;
     GList         *iter;
     gchar         *profiles_dir, *filename;
 
@@ -338,15 +338,15 @@ init_profile_list(void)
     }
     g_list_free_full(local_profiles, g_free);
 
-    /* Global profiles */
-    profiles_dir = get_global_profiles_dir();
+    /* System profiles */
+    profiles_dir = get_system_profiles_dir();
     if ((dir = ws_dir_open(profiles_dir, 0, NULL)) != NULL) {
         while ((file = ws_dir_read_name(dir)) != NULL) {
             name = ws_dir_get_name(file);
             filename = g_strdup_printf ("%s%s%s", profiles_dir, G_DIR_SEPARATOR_S, name);
 
             if (test_for_directory(filename) == EISDIR) {
-                global_profiles = g_list_prepend(global_profiles, g_strdup(name));
+                system_profiles = g_list_prepend(system_profiles, g_strdup(name));
             }
             g_free (filename);
         }
@@ -354,12 +354,12 @@ init_profile_list(void)
     }
     g_free(profiles_dir);
 
-    global_profiles = g_list_sort(global_profiles, (GCompareFunc)g_ascii_strcasecmp);
-    for (iter = g_list_first(global_profiles); iter; iter = g_list_next(iter)) {
+    system_profiles = g_list_sort(system_profiles, (GCompareFunc)g_ascii_strcasecmp);
+    for (iter = g_list_first(system_profiles); iter; iter = g_list_next(iter)) {
         name = (gchar *)iter->data;
         add_to_profile_list(name, name, PROF_STAT_EXISTS, TRUE, TRUE);
     }
-    g_list_free_full(global_profiles, g_free);
+    g_list_free_full(system_profiles, g_free);
 
     /* Make the current list and the edited list equal */
     copy_profile_list ();

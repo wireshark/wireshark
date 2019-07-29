@@ -30,7 +30,7 @@ public:
 
     enum FilterType {
         AllProfiles = 0,
-        GlobalProfiles,
+        SystemProfiles,
         UserProfiles
     };
 
@@ -63,7 +63,7 @@ public:
     enum {
         DATA_STATUS = Qt::UserRole,
         DATA_IS_DEFAULT,
-        DATA_IS_GLOBAL,
+        DATA_IS_SYSTEM,
         DATA_IS_SELECTED,
         DATA_PATH,
         DATA_PATH_IS_NOT_DESCRIPTION
