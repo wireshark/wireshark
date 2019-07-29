@@ -8554,10 +8554,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
-        <source>%Ln profile(s) have been exported</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <source>%Ln profile(s) exported</source>
+        <translation>
+            <numerusform>%Ln profile exported</numerusform>
+            <numerusform>%Ln profiles exported</numerusform>
         </translation>
     </message>
     <message>

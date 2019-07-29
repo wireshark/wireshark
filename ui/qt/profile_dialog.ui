@@ -16,7 +16,7 @@
      <item>
       <widget class="QLineEdit" name="lineProfileFilter">
        <property name="placeholderText">
-        <string>Search for profile ...</string>
+        <string>Search for profile …</string>
        </property>
       </widget>
      </item>

@@ -110,7 +110,7 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
     selectProfile();
 
     QStringList items;
-    items << tr("All Profiles") << tr("System profiles") << tr("User-defined profiles");
+    items << tr("All profiles") << tr("System profiles") << tr("User profiles");
     pd_ui_->cmbProfileTypes->addItems(items);
 
     connect (pd_ui_->cmbProfileTypes, SIGNAL(currentTextChanged(const QString &)),
@@ -435,7 +435,7 @@ void ProfileDialog::exportProfiles(bool exportAll)
 
     QString err;
     if ( model_->exportProfiles(zipFile, items, &err) )
-        QMessageBox::information(this, tr("Exporting profiles"), tr("%Ln profile(s) have been exported", "", items.count()));
+        QMessageBox::information(this, tr("Exporting profiles"), tr("%Ln profile(s) exported", "", items.count()));
     else
         QMessageBox::warning(this, tr("Exporting profiles"), QString("%1\n\n%2: %3").arg(tr("An error has occured while exporting profiles")).arg("Error").arg(err));
 }
