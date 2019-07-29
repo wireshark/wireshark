@@ -71,7 +71,7 @@ ProfileDialog::ProfileDialog(QWidget *parent) :
     pd_ui_->newToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     pd_ui_->deleteToolButton->setAttribute(Qt::WA_MacSmallSize, true);
     pd_ui_->copyToolButton->setAttribute(Qt::WA_MacSmallSize, true);
-    pd_ui_->lblInfo->setAttribute(Qt::WA_MacSmallSize, true);
+    pd_ui_->hintLabel->setAttribute(Qt::WA_MacSmallSize, true);
 #endif
 
     import_button_ = pd_ui_->buttonBox->addButton(tr("Import", "noun"), QDialogButtonBox::ActionRole);
@@ -251,11 +251,11 @@ void ProfileDialog::currentItemChanged()
     {
         QString temp = idx.data(ProfileModel::DATA_PATH).toString();
         if ( idx.data(ProfileModel::DATA_PATH_IS_NOT_DESCRIPTION).toBool() )
-            pd_ui_->lblInfo->setUrl(QUrl::fromLocalFile(temp).toString());
+            pd_ui_->hintLabel->setUrl(QUrl::fromLocalFile(temp).toString());
         else
-            pd_ui_->lblInfo->setUrl(QString());
-        pd_ui_->lblInfo->setText(temp);
-        pd_ui_->lblInfo->setToolTip(idx.data(Qt::ToolTipRole).toString());
+            pd_ui_->hintLabel->setUrl(QString());
+        pd_ui_->hintLabel->setText(temp);
+        pd_ui_->hintLabel->setToolTip(idx.data(Qt::ToolTipRole).toString());
     }
 
     updateWidgets();

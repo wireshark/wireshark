@@ -105,7 +105,7 @@
       </spacer>
      </item>
      <item>
-      <widget class="ElidedLabel" name="lblInfo">
+      <widget class="ElidedLabel" name="hintLabel">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
          <horstretch>1</horstretch>
