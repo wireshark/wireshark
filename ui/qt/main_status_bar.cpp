@@ -292,10 +292,8 @@ void MainStatusBar::selectedFieldChanged(FieldInformation * finfo)
             item_info.append(" (" + hInfo.abbreviation + ")");
 
         finfo_length = finfo->position().length + finfo->appendix().length;
-        if (finfo_length == 1) {
-            item_info.append(tr(", 1 byte"));
-        } else if (finfo_length > 1) {
-            item_info.append(QString(tr(", %1 bytes")).arg(finfo_length));
+        if (finfo_length > 0) {
+            item_info.append(", " + tr("%Ln byte(s)", "", finfo_length));
         }
     }
 
