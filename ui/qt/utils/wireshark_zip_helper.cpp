@@ -84,6 +84,7 @@ bool WireSharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCh
                             file.close();
                         }
                         unzCloseCurrentFile(uf);
+                        free(buf);
 
                         files++;
                     }
@@ -198,6 +199,7 @@ void WireSharkZipHelper::addFileToZip(zipFile zf, QString filepath, QString file
                 err = zipWriteInFileInZip(zf, buf, (unsigned int) bytesIn);
             }
         }
+        free(buf);
         fh.close();
     }
 
