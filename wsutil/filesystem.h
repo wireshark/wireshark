@@ -149,7 +149,7 @@ WS_DLL_PUBLIC void profile_store_persconffiles(gboolean store);
 /*
  * Check if given configuration profile exists.
  */
-WS_DLL_PUBLIC gboolean profile_exists(const gchar *profilename, gboolean system);
+WS_DLL_PUBLIC gboolean profile_exists(const gchar *profilename, gboolean is_system);
 
 /*
  * Create a directory for the given configuration profile.

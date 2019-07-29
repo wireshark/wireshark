@@ -1451,7 +1451,7 @@ get_profile_dir(const char *profilename, gboolean is_system)
 }
 
 gboolean
-profile_exists(const gchar *profilename, gboolean system)
+profile_exists(const gchar *profilename, gboolean is_system)
 {
     gchar *path = NULL;
     gboolean exists;
@@ -1460,10 +1460,10 @@ profile_exists(const gchar *profilename, gboolean system)
      * If we're looking up a system profile, we must have a
      * profile name.
      */
-    if (system && !profilename)
+    if (is_system && !profilename)
         return FALSE;
 
-    path = get_profile_dir(profilename, system);
+    path = get_profile_dir(profilename, is_system);
     exists = (test_for_directory(path) == EISDIR) ? TRUE : FALSE;
 
     g_free(path);
