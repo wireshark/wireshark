@@ -27,6 +27,9 @@
    </item>
    <item>
     <widget class="ProfileTreeView" name="profileTreeView">
+     <property name="selectionMode">
+      <enum>QAbstractItemView::ExtendedSelection</enum>
+     </property>
      <property name="rootIsDecorated">
       <bool>false</bool>
      </property>
@@ -69,7 +72,7 @@
      <item>
       <widget class="StockIconToolButton" name="deleteToolButton">
        <property name="toolTip">
-        <string>Remove this profile. System provided profiles cannot be removed.</string>
+        <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be resetted upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
        </property>
        <property name="icon">
         <iconset>

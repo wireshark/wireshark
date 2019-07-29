@@ -545,6 +545,7 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
         if ( ! idx.isValid() )
             continue;
 
+
         QAction * pa = Q_NULLPTR;
         QString name = idx.data().toString();
         if ( idx.data(ProfileModel::DATA_IS_DEFAULT).toBool() )
@@ -590,46 +591,46 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
 
         profile_menu_.setTitle(tr("Switch to"));
         QMenu ctx_menu_;
-        QAction * action = ctx_menu_.addAction(tr("Manage Profiles" UTF8_HORIZONTAL_ELLIPSIS));
+        QAction * action = ctx_menu_.addAction(tr("Manage Profiles" UTF8_HORIZONTAL_ELLIPSIS), this, SLOT(manageProfile()));
         action->setProperty("dialog_action_", (int)ProfileDialog::ShowProfiles);
-        connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
-#ifdef HAVE_MINIZIP
-        QMenu * importMenu = new QMenu(tr("Import"));
-        action = importMenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS" from Zip"));
-        action->setProperty("dialog_action_", (int)ProfileDialog::ImportZipProfile);
-        connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
-        action = importMenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS" from Directory"));
-        action->setProperty("dialog_action_", (int)ProfileDialog::ImportDirProfile);
-        connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
-        ctx_menu_.addMenu(importMenu);
 
-        QMenu * exportMenu = new QMenu(tr("Export"));
-        action = exportMenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS" selected entry"));
-        action->setProperty("dialog_action_", (int)ProfileDialog::ExportSingleProfile);
-        action->setEnabled(enable_edit);
-        connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
-        action = exportMenu->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS" all user profiles"));
-        action->setProperty("dialog_action_", (int)ProfileDialog::ExportAllProfiles);
-        connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
-        ctx_menu_.addMenu(exportMenu);
-
-#else
-        action = ctx_menu_.addAction(tr("Import" UTF8_HORIZONTAL_ELLIPSIS));
-        action->setProperty("dialog_action_", (int)ProfileDialog::ImportDirProfile);
-        connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
-#endif
         ctx_menu_.addSeparator();
-        action = ctx_menu_.addAction(tr("New" UTF8_HORIZONTAL_ELLIPSIS));
+        action = ctx_menu_.addAction(tr("New" UTF8_HORIZONTAL_ELLIPSIS), this, SLOT(manageProfile()));
         action->setProperty("dialog_action_", (int)ProfileDialog::NewProfile);
-        connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
-        action = ctx_menu_.addAction(tr("Edit" UTF8_HORIZONTAL_ELLIPSIS));
+        action = ctx_menu_.addAction(tr("Edit" UTF8_HORIZONTAL_ELLIPSIS), this, SLOT(manageProfile()));
         action->setProperty("dialog_action_", (int)ProfileDialog::EditCurrentProfile);
         action->setEnabled(enable_edit);
-        connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
-        action = ctx_menu_.addAction(tr("Delete"));
+        action = ctx_menu_.addAction(tr("Delete"), this, SLOT(manageProfile()));
         action->setProperty("dialog_action_", (int)ProfileDialog::DeleteCurrentProfile);
         action->setEnabled(enable_edit);
-        connect(action, SIGNAL(triggered()), this, SLOT(manageProfile()));
+        ctx_menu_.addSeparator();
+
+#ifdef HAVE_MINIZIP
+        QMenu * importMenu = new QMenu(tr("Import"));
+        action = importMenu->addAction(tr("from zip file"), this, SLOT(manageProfile()));
+        action->setProperty("dialog_action_", (int)ProfileDialog::ImportZipProfile);
+        action = importMenu->addAction(tr("from directory"), this, SLOT(manageProfile()));
+        action->setProperty("dialog_action_", (int)ProfileDialog::ImportDirProfile);
+        ctx_menu_.addMenu(importMenu);
+
+        if ( model.userProfilesExist() )
+        {
+            QMenu * exportMenu = new QMenu(tr("Export"));
+            if ( enable_edit )
+            {
+                action = exportMenu->addAction(tr("selected personal profile"), this, SLOT(manageProfile()));
+                action->setProperty("dialog_action_", (int)ProfileDialog::ExportSingleProfile);
+                action->setEnabled(enable_edit);
+            }
+            action = exportMenu->addAction(tr("all personal profiles"), this, SLOT(manageProfile()));
+            action->setProperty("dialog_action_", (int)ProfileDialog::ExportAllProfiles);
+            ctx_menu_.addMenu(exportMenu);
+        }
+
+#else
+        action = ctx_menu_.addAction(tr("Import"), this, SLOT(manageProfile()));
+        action->setProperty("dialog_action_", (int)ProfileDialog::ImportDirProfile);
+#endif
         ctx_menu_.addSeparator();
 
         ctx_menu_.addMenu(&profile_menu_);

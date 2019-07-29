@@ -30,12 +30,14 @@ public:
 
     enum FilterType {
         AllProfiles = 0,
-        GlobalProfiles,
-        PersonalProfiles
+        PersonalProfiles,
+        GlobalProfiles
     };
 
     void setFilterType(FilterType ft);
     void setFilterString(QString txt = QString());
+
+    static QStringList filterTypes();
 
 protected:
     virtual bool lessThan(const QModelIndex &source_left, const QModelIndex &source_right) const;
@@ -44,7 +46,6 @@ protected:
 private:
     FilterType ft_;
     QString ftext_;
-
 };
 
 class ProfileModel : public QAbstractTableModel
@@ -66,7 +67,8 @@ public:
         DATA_IS_GLOBAL,
         DATA_IS_SELECTED,
         DATA_PATH,
-        DATA_PATH_IS_NOT_DESCRIPTION
+        DATA_PATH_IS_NOT_DESCRIPTION,
+        DATA_INDEX_VALUE_IS_URL
     } data_values_;
 
     // QAbstractItemModel interface
@@ -78,12 +80,13 @@ public:
     virtual Qt::ItemFlags flags(const QModelIndex &index) const;
 
     void deleteEntry(QModelIndex idx);
+    void deleteEntries(QModelIndexList idcs);
 
     int findByName(QString name);
     QModelIndex addNewProfile(QString name);
-    QModelIndex duplicateEntry(QModelIndex idx);
+    QModelIndex duplicateEntry(QModelIndex idx, int new_status = PROF_STAT_COPY);
 
-    void doResetModel();
+    void doResetModel(bool reset_import = false);
     bool resetDefault() const;
 
     QModelIndex activeProfile() const;
@@ -91,29 +94,39 @@ public:
     GList * at(int row) const;
 
     bool changesPending() const;
+    bool importPending() const;
+
+    bool userProfilesExist() const;
 
 #ifdef HAVE_MINIZIP
-    QStringList exportFileList(QModelIndexList items);
     bool exportProfiles(QString filename, QModelIndexList items, QString * err = Q_NULLPTR);
-    int importProfilesFromZip(QString filename, int *skippedCnt = Q_NULLPTR);
+    int importProfilesFromZip(QString filename, int *skippedCnt = Q_NULLPTR, QStringList *result = Q_NULLPTR);
 #endif
-    int importProfilesFromDir(QString filename, int *skippedCnt = Q_NULLPTR, bool fromZip = false);
-    bool copyTempToProfile(QString tempPath, QString profilePath);
-    QFileInfoList filterProfilePath(QString, QFileInfoList ent, bool fromZip);
+    int importProfilesFromDir(QString filename, int *skippedCnt = Q_NULLPTR, bool fromZip = false, QStringList *result = Q_NULLPTR);
 
     static bool checkNameValidity(QString name, QString *msg = Q_NULLPTR);
-    QList<int> findAllByNameAndVisibility(QString name, bool isGlobal = false);
+    QList<int> findAllByNameAndVisibility(QString name, bool isGlobal = false, bool searchReference = false);
+    void markAsImported(QStringList importedItems);
+    bool clearImported(QString *msg = Q_NULLPTR);
+
+    int lastSetRow() const;
+
+Q_SIGNALS:
+    void itemChanged(const QModelIndex &idx);
 
 private:
     QList<profile_def *> profiles_;
     QString set_profile_;
     bool reset_default_;
+    bool profiles_imported_;
+
+    int last_set_row_;
 
     void loadProfiles();
     profile_def * guard(int row) const;
     GList * entry(profile_def *) const;
 
-    int findByNameAndVisibility(QString name, bool isGlobal = false);
+    int findByNameAndVisibility(QString name, bool isGlobal = false, bool searchReference = false);
 
 #ifdef HAVE_MINIZIP
     static bool acceptFile(QString fileName, int fileSize);
@@ -124,6 +137,13 @@ private:
     QVariant dataBackgroundRole(const QModelIndex & idx) const;
     QVariant dataToolTipRole(const QModelIndex & idx) const;
     QVariant dataPath(const QModelIndex & idx) const;
+
+#ifdef HAVE_MINIZIP
+    QStringList exportFileList(QModelIndexList items);
+#endif
+    bool copyTempToProfile(QString tempPath, QString profilePath);
+    QFileInfoList filterProfilePath(QString, QFileInfoList ent, bool fromZip);
+    QFileInfoList uniquePaths(QFileInfoList lst);
 
 };
 

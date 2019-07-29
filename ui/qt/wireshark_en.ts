@@ -8554,6 +8554,20 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
+        <source>… %Ln selected personal profile(s)</source>
+        <translation>
+            <numerusform>… %Ln selected personal profile</numerusform>
+            <numerusform>… %Ln selected personal profiles</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln selected personal profile(s)</source>
+        <translation>
+            <numerusform>%Ln selected personal profile</numerusform>
+            <numerusform>%Ln selected personal profiles</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
         <source>%Ln profile(s) exported</source>
         <translation>
             <numerusform>%Ln profile exported</numerusform>
@@ -8597,6 +8611,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Importing profiles</source>
         <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln profile(s) selected</source>
+        <translation type="unfinished">
+            <numerusform>%Ln profile selected</numerusform>
+            <numerusform>%Ln profiles selected</numerusform>
+        </translation>
     </message>
 </context>
 <context>

@@ -31,7 +31,12 @@ class ProfileTreeEditDelegate : public QItemDelegate
 public:
     ProfileTreeEditDelegate(QWidget *parent = Q_NULLPTR);
 
+    // QAbstractItemDelegate interface
     virtual void setEditorData(QWidget *editor, const QModelIndex &index) const;
+
+private:
+    QWidget * editor_;
+    QModelIndex index_;
 };
 
 class ProfileTreeView : public QTreeView
@@ -41,20 +46,23 @@ public:
     ProfileTreeView(QWidget *parent = nullptr);
 
     void selectRow(int row);
+    bool activeEdit();
 
 Q_SIGNALS:
-    void currentItemChanged();
     void itemUpdated();
+
+    // QWidget interface
+protected:
+    virtual void mouseDoubleClickEvent(QMouseEvent *event);
 
     // QAbstractItemView interface
 protected slots:
     virtual void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
-    virtual void currentChanged(const QModelIndex &current, const QModelIndex &previous);
-
     virtual void clicked(const QModelIndex &index);
 
 private:
     ProfileTreeEditDelegate *delegate_;
+
 };
 
 #endif

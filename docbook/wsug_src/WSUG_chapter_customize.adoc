@@ -784,6 +784,16 @@ are common to all profiles.
 .The configuration profiles dialog box
 image::wsug_graphics/ws-gui-config-profiles.png[{medium-screenshot-attrs}]
 
+Search for profile ...::
+The list of profiles can be filtered by entering part of the profile's name
+into the search box.
+
+Type selection::
+Profiles can be filtered between displaying "All profiles", "Personal profiles"
+and "Global profiles"
+* Personal profiles - these are profiles stored in the user's configuration dirctory
+* Global profiles - these are profiles provided with Wireshark
+
 New (+)::
 Create a new profile. The name of the created profile is “New profile”
 and is highlighted so that you can more easily change it.
@@ -791,13 +801,25 @@ and is highlighted so that you can more easily change it.
 Delete (-)::
 Deletes the selected profile. This includes all configuration files used
 in this profile. It is not possible to delete the “Default” profile or global
-profiles.
+profiles. Multiple profiles can be selected and deleted at the same time, if global
+profiles are selected they will be skipped, a selected "Default" profile will be
+resetted.
 
 Copy::
 Copies the selected profile. This copies the configuration of the
 profile currently selected in the list. The name of the created profile
 is the same as the copied profile, with the text “(copy)” and is
 highlighted so that you can more easily change it.
+
+btn:[Import]::
+Profiles can be imported from zip-archives as well as directly from directory
+structures. Profiles, which already exist by name will be skipped, as well as
+profiles named "Default".
+
+btn:[Export]::
+Profiles can be exported to a zip-archive. Global profiles, as well as the default
+profile will be skipped during export. Profiles can be selected in the list individually
+and only the selected profiles will be exported
 
 btn:[OK]::
 This button saves all changes, applies the selected profile and closes the

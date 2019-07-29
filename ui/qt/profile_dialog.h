@@ -64,10 +64,14 @@ private:
     void updateWidgets();
     void resetTreeView();
 
+    QString lastOpenDir();
+    void storeLastDir(QString dir);
+    void finishImport(QFileInfo fi, int count, int skipped, QStringList import);
+
 private slots:
-    void currentItemChanged();
+    void currentItemChanged(const QModelIndex & c = QModelIndex(), const QModelIndex & p = QModelIndex());
 #ifdef HAVE_MINIZIP
-    void exportProfiles(bool exportAll = false);
+    void exportProfiles(bool exportAllPersonalProfiles = false);
     void importFromZip();
 #endif
     void importFromDirectory();
@@ -76,10 +80,14 @@ private slots:
     void on_deleteToolButton_clicked();
     void on_copyToolButton_clicked();
     void on_buttonBox_accepted();
+    void on_buttonBox_rejected();
     void on_buttonBox_helpRequested();
-    void editingFinished();
+    void dataChanged(const QModelIndex &);
 
     void filterChanged(const QString &);
+
+    void selectionChanged();
+    QModelIndexList selectedProfiles();
 
     // QWidget interface
 

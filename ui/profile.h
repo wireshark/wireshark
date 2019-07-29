@@ -26,6 +26,7 @@ extern "C" {
 #define PROF_STAT_NEW      3
 #define PROF_STAT_CHANGED  4
 #define PROF_STAT_COPY     5
+#define PROF_STAT_IMPORT   6
 
 typedef struct {
     char     *name;             /* profile name */
