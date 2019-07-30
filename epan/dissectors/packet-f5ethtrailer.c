@@ -347,6 +347,8 @@ static gboolean pop_other_fields = FALSE;
 #endif
 /** Wireshark preference to perform analysis */
 static gboolean pref_perform_analysis = TRUE;
+/** Wireshark preference to generate keylog entries from f5ethtrailer TLS data */
+static gboolean generate_keylog = TRUE;
 
 /** Identifiers for taps (when enabled), only the address is important, the
  * values are unused. */
@@ -1597,6 +1599,7 @@ render_f5_legacy_hdr(
 	proto_tree_add_item(tree, hf_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	proto_tree_add_item(tree, hf_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+	/*  offset += 1; */
 	return 3;
 
 } /* render_f5_legacy_hdr() */
@@ -2562,6 +2565,10 @@ dissect_dpt_trailer_unknown(
 /*---------------------------------------------------------------------------*/
 /* \brief Render the data for DPT block
  *
+ *   There is no predetermined or guaranteed order the DPT TLVs will be
+ *   attached to the frame.  Use conversation data to coalesce information
+ *   across TLVs and frames.
+ *
  *   @param tvb    The tvbuff containing the packet data for this DPT block
  *   @param pinfo  The pinfo structure for the frame
  *   @param tree   The tree to render the DPT block in
@@ -2833,10 +2840,27 @@ dissect_f5ethtrailer(
  *  decisions about RFC compliance or functional correctness of the TLS
  *  data here.  If data is there, we will render it.  If a keylog entry
  *  can be generated we will generate it even if it is wrong.
+ *
+ *  The diagnostic information provided in F5 Ethernet trailers is state information
+ *  inteded for troubleshooting and diagnostics.  This data is not sent on the wire.
+ *  It is only appended to frames captured on the BIG-IP, if explicitly requested.  As
+ *  such if the data exists in the context, it will be appended to each packet with a
+ *  TLS layer.  Filtering of duplicate / appropriate data and interpretation is left
+ *  to the dissector.
+ *
+ *  This will result in things like the TLS dissector displaying the client random
+ *  in the CLIENT HELLO packet, while the F5 Ethtrailer TLS shows all zeros for the
+ *  client random.  Then the F5 Ethtrailer will provide the client random in the
+ *  ACK to the CLIENT HELLO.  It will also result in the same information being
+ *  provided on multiple packets.
+ *
+ *  All the necessary parts to create a valid keylog record needed for decryption
+ *  may not be available in the same frame.
  */
 
 #define F5_DPT_PROVIDER_TLS    4
 
+/* PRE13 in this context indicates pre TLS-v1.3, not pre-standard (draft) TLS-v1.3.  i.e. TLS-v1.2 and earlier */
 #define F5_DPT_TLS_PRE13_STD   0
 #define F5_DPT_TLS_PRE13_EXT   1
 #define F5_DPT_TLS_13_STD      2
@@ -2848,6 +2872,43 @@ dissect_f5ethtrailer(
 #define F5TLS_HASH_LEN        64
 #define F5TLS_ZEROS_LEN      256
 
+typedef struct _F5TLS_ELEMENT {
+	guchar *data;           /* Pointer to a string of bytes wmem_file_scope allocated as needed. */
+	gint len;               /* length of the item stored. */
+} f5tls_element_t;
+
+/*
+ *  As we come across the initial crypto data, store it in a struct on the conversation.
+ */
+typedef struct _F5TLS_CONVERSATION_DATA {
+	f5tls_element_t master_secret;
+	f5tls_element_t client_random;
+	/* added by TLS 1.3 */
+	f5tls_element_t clnt_hs_sec;
+	f5tls_element_t srvr_hs_sec;
+	f5tls_element_t clnt_ap_sec;
+	f5tls_element_t srvr_ap_sec;
+} f5tls_conversation_data_t;
+
+/*
+ * As we collect enough information to create a keylog entry in the conversation data create
+ * a field with the keylog entry on the first frame and store on the frame.  This should limit
+ * keylog entries to a unique list.
+ */
+typedef struct _F5TLS_PACKET_DATA {
+	gchar *cr_ms;
+	/* TLS 1.3 keylogs */
+	gchar *cr_clnt_app;
+	gchar *cr_srvr_app;
+	gchar *cr_clnt_hs;
+	gchar *cr_srvr_hs;
+} f5tls_packet_data_t;
+
+typedef struct _F5TLS_DATA {
+	f5tls_conversation_data_t *conv;
+	f5tls_packet_data_t *pkt;
+} f5tls_data_t;
+
 static int proto_f5ethtrailer_dpt_tls = -1;
 
 static gint hf_f5tls_tls = -1;
@@ -2857,19 +2918,13 @@ static gint hf_f5tls_secret_len = -1;
 static gint hf_f5tls_mstr_sec = -1;
 static gint hf_f5tls_clnt_rand = -1;
 static gint hf_f5tls_srvr_rand = -1;
-static gint hf_f5tls_sess_id = -1;
 
 /* TLS 1.3 fields */
 static gint hf_f5tls_clnt_hs_sec = -1;
 static gint hf_f5tls_srvr_hs_sec = -1;
-static gint hf_f5tls_hs_sec = -1;
 static gint hf_f5tls_clnt_app_sec = -1;
 static gint hf_f5tls_srvr_app_sec = -1;
-static gint hf_f5tls_early_sec = -1;
-static gint hf_f5tls_exp_sec = -1;
-static gint hf_f5tls_clnt_fin_sec = -1;
-static gint hf_f5tls_srvr_fin_sec = -1;
-static gint hf_f5tls_res_sec = -1;
+static gint hf_f5tls_keylog = -1;
 
 static gint ett_f5tls = -1;
 static gint ett_f5tls_std = -1;
@@ -2877,6 +2932,108 @@ static gint ett_f5tls_ext = -1;
 
 static dissector_table_t tls_subdissector_table;
 
+/* The types of keylog entries that could be created */
+typedef enum {
+	CLIENT_RANDOM,
+	CLIENT_TRAFFIC_SECRET_0,
+	SERVER_TRAFFIC_SECRET_0,
+	CLIENT_HANDSHAKE_TRAFFIC_SECRET,
+	SERVER_HANDSHAKE_TRAFFIC_SECRET,
+} keylog_t;
+
+/* Create a field of zeros.  We need to check if the secrets, randoms, etc are all zeros and memcmp
+ * looks like the best way to do it.  So, create a single, global field of zeros at file scope.  That
+ * should cut down on some overhead...
+ */
+static guchar f5tls_zeros[F5TLS_ZEROS_LEN];
+
+/*-----------------------------------------------------------------------*/
+/** Get a null terminated hexstring of a byte array
+ *
+ * @param scope   scope of the wmem allocate buffer
+ * @param ba      The byte aray to convert to a hexstring
+ * @param ba_len  Number of bytes to convert
+ * @return        Null terminated gchar* wmem allocated - no need to free
+ */
+static gchar *
+f5eth_bytes_to_hexstrnz(wmem_allocator_t *scope, const guchar *ba, gint ba_len)
+{
+	gchar *hexstr;
+	gchar *end;
+
+	hexstr = (gchar *)wmem_alloc(scope, ba_len * 2 + 1);
+	end = bytes_to_hexstr(hexstr, ba, ba_len);
+	*end = '\0';
+	return hexstr;
+} /* f5eth_bytes_to_hexstrnz */
+
+/*-----------------------------------------------------------------------------------------------*/
+/** \brief Create a keylog entry and add it to the packet info
+ *
+ * Keylog entries will be created as described in the tls dissector.
+ * packet-tls-utils.c:  tls_keylog_process_lines()
+ *
+ * @param keylog_type  Type of keylog record to generate
+ * @param xxxx         First crypto element in for keylog record (see above)
+ * @param yyyy         Second crypto element in the keylog record (see above)
+ * @return             Null terminated keylog record wmem allocated with file scope
+ */
+static gchar *
+f5eth_add_tls_keylog(keylog_t keylog_type, f5tls_element_t *xxxx, f5tls_element_t *yyyy)
+{
+	gchar *xxxx_hex;
+	gchar *yyyy_hex;
+
+	xxxx_hex = f5eth_bytes_to_hexstrnz(wmem_packet_scope(), xxxx->data, xxxx->len);
+	yyyy_hex = f5eth_bytes_to_hexstrnz(wmem_packet_scope(), yyyy->data, yyyy->len);
+
+	switch (keylog_type) {
+		case CLIENT_RANDOM:
+			return wmem_strdup_printf(wmem_file_scope(), "CLIENT_RANDOM %s %s", xxxx_hex, yyyy_hex);
+		case CLIENT_TRAFFIC_SECRET_0:
+			return wmem_strdup_printf(wmem_file_scope(), "CLIENT_TRAFFIC_SECRET_0 %s %s", xxxx_hex, yyyy_hex);
+		case SERVER_TRAFFIC_SECRET_0:
+			return wmem_strdup_printf(wmem_file_scope(), "SERVER_TRAFFIC_SECRET_0 %s %s", xxxx_hex, yyyy_hex);
+		case CLIENT_HANDSHAKE_TRAFFIC_SECRET:
+			return wmem_strdup_printf(wmem_file_scope(), "CLIENT_HANDSHAKE_TRAFFIC_SECRET %s %s", xxxx_hex, yyyy_hex);
+		case SERVER_HANDSHAKE_TRAFFIC_SECRET:
+			return wmem_strdup_printf(wmem_file_scope(), "SERVER_HANDSHAKE_TRAFFIC_SECRET %s %s", xxxx_hex, yyyy_hex);
+		default:
+			DISSECTOR_ASSERT_NOT_REACHED();
+	}
+} /* f5eth_add_tls_keylog() */
+
+/*-----------------------------------------------------------------------------------------------*/
+/** \brief Process the data entries
+ *
+ * @param element   Pointer to crypto element
+ * @param pinfo     Packet info pointer (unused)
+ * @param tvb       tvb
+ * @param offset    Offset into the tvb to pull the entry
+ * @param len       Length of byte string to convert from the tvb
+ * @return          Is the entry different than previously seen
+ */
+static gboolean
+f5eth_add_tls_element(f5tls_element_t *element, packet_info *pinfo _U_, tvbuff_t *tvb, guint offset, gint len)
+{
+
+	if (element == NULL || len <= 0 || tvb_memeql(tvb, offset, f5tls_zeros, len) == 0) {
+		/* Nothing to do */
+		return FALSE;
+	}
+
+	if (element->len == len && tvb_memeql(tvb, offset, element->data, len) == 0) {
+		/* unchanged */
+		return FALSE;
+	}
+
+	/* Populate the element structure */
+	element->data = (guchar *) wmem_realloc(wmem_file_scope(), element->data, len);
+	element->len = len;
+	tvb_memcpy(tvb, element->data, offset, len);
+	return TRUE;
+
+} /* f5eth_add_tls_element() */
 
 /*----------------------------------------------------------------------*/
 /** TLS <= 1.2 trailer
@@ -2884,16 +3041,18 @@ static dissector_table_t tls_subdissector_table;
  * @param tvb    The tvbuff containing the DPT TLV block (header and data).
  * @param pinfo  The pinfo structure for the frame.
  * @param tree   The tree to render the DPT TLV under.
- * @param data   Data passed (tap data) (unused).
+ * @param data   Structure pointing to conversation and packet proto data.
  * @return       Number of bytes decoded.
  */
 static int
-dissect_dpt_trailer_tls_type0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_dpt_trailer_tls_type0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	proto_item *pi;
 	gint len;
 	gint ver;
 	gint o;
+	f5tls_conversation_data_t *conv_data = NULL;
+	f5tls_packet_data_t *pdata = NULL;
 
 	len = tvb_get_ntohs(tvb, F5_DPT_V1_TLV_LENGTH_OFF);
 	ver = tvb_get_ntohs(tvb, F5_DPT_V1_TLV_VERSION_OFF);
@@ -2916,6 +3075,33 @@ dissect_dpt_trailer_tls_type0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 			proto_tree_add_item(tree, hf_f5tls_srvr_rand, tvb, o, F5TLS_RANDOM_LEN, ENC_NA);
 			/* o += F5TLS_RANDOM_LEN; */
 
+			if (!generate_keylog || data == NULL) {
+				break;
+			}
+
+			pdata = ((f5tls_data_t *)data)->pkt;
+			conv_data = ((f5tls_data_t *)data)->conv;
+
+			/* If this is our first pass through, add protocol data and build keylog entries.
+			   Assume that by the time the master secret is processed, the client random is available
+			   on the conversation data. */
+			if (!pinfo->fd->visited) {
+				gboolean ms_changed;
+
+				ms_changed = f5eth_add_tls_element(&conv_data->master_secret, pinfo, tvb, F5_DPT_V1_TLV_HDR_LEN, F5TLS_SECRET_LEN);
+				f5eth_add_tls_element(&conv_data->client_random, pinfo, tvb, F5_DPT_V1_TLV_HDR_LEN + F5TLS_SECRET_LEN, F5TLS_RANDOM_LEN);
+
+				if (conv_data->client_random.len != 0 && ms_changed) {
+					pdata->cr_ms = f5eth_add_tls_keylog(CLIENT_RANDOM, &conv_data->client_random,
+										 &conv_data->master_secret);
+				}
+			}
+
+			/* Display any keylog entries we have in our packet data */
+			if (pdata->cr_ms != NULL) {
+				pi = proto_tree_add_string(tree, hf_f5tls_keylog, tvb, 0, 0, pdata->cr_ms);
+				proto_item_set_generated(pi);
+			}
 			break;
 		default:
 			/* Unknown version */
@@ -2926,66 +3112,24 @@ dissect_dpt_trailer_tls_type0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 } /* dissect_dpt_trailer_tls_type0() */
 
 /*----------------------------------------------------------------------*/
-/** TLS <= 1.2 extended trailer
- *
- * @param tvb    The tvbuff containing the DPT TLV block (header and data).
- * @param pinfo  The pinfo structure for the frame.
- * @param tree   The tree to render the DPT TLV under.
- * @param data   Data passed (tap data) (unused).
- * @return       Number of bytes decoded.
- */
-static int
-dissect_dpt_trailer_tls_type1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
-{
-	proto_item *pi;
-	gint len;
-	gint ver;
-	gint o;
-
-	len = tvb_get_ntohs(tvb, F5_DPT_V1_TLV_LENGTH_OFF);
-	ver = tvb_get_ntohs(tvb, F5_DPT_V1_TLV_VERSION_OFF);
-
-	switch (ver) {
-		case 0:
-			/* Create a subtree and render a header */
-			pi = proto_tree_add_item(tree, hf_f5tls_tls, tvb, 0, len, ENC_NA);
-			proto_item_append_text(pi, ", Extended Info");
-			tree = proto_item_add_subtree(pi, ett_f5tls_ext);
-
-			render_f5dptv1_tlvhdr(tvb, tree, 0);
-
-			o = F5_DPT_V1_TLV_HDR_LEN;
-
-			/* Add our fields */
-			proto_tree_add_item(tree, hf_f5tls_sess_id, tvb, o, F5TLS_SESS_ID_LEN, ENC_NA);
-			/* o += F5TLS_SESS_ID_LEN; */
-
-			break;
-		default:
-			/* Unknown version */
-			len = 0;
-			break;
-	}
-	return len;
-} /* dissect_dpt_trailer_tls_type1() */
-
-/*----------------------------------------------------------------------*/
 /** TLS 1.3 trailer
  *
  * @param tvb    The tvbuff containing the DPT TLV block (header and data).
  * @param pinfo  The pinfo structure for the frame.
  * @param tree   The tree to render the DPT TLV under.
- * @param data   Data passed (tap data) (unused).
+ * @param data   Structure pointing to conversation and packet proto data.
  * @return       Number of bytes decoded.
  */
 static int
-dissect_dpt_trailer_tls_type2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_dpt_trailer_tls_type2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
 	proto_item *pi;
 	gint len;
 	gint ver;
 	gint o;
 	gint secret_len;
+	f5tls_conversation_data_t *conv_data = NULL;
+	f5tls_packet_data_t *pdata = NULL;
 
 	len = tvb_get_ntohs(tvb, F5_DPT_V1_TLV_LENGTH_OFF);
 	ver = tvb_get_ntohs(tvb, F5_DPT_V1_TLV_VERSION_OFF);
@@ -3004,10 +3148,13 @@ dissect_dpt_trailer_tls_type2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 			/* Add our fields */
 			pi = proto_tree_add_item(tree, hf_f5tls_secret_len, tvb, o, 1, ENC_NA);
 			o += 1;
-			if (secret_len > F5TLS_HASH_LEN) {
+			if (secret_len == 0) {
+				/* nothing to render */
+				break; /* switch (ver) */
+			} else if (secret_len > F5TLS_HASH_LEN) {
 				expert_add_info(pinfo, pi, &ei_f5eth_badlen);
 				break; /* switch (ver) */
-			} else if (secret_len > 0) {
+			} else {
 				proto_tree_add_item(tree, hf_f5tls_clnt_hs_sec, tvb, o, secret_len, ENC_NA);
 				o += F5TLS_HASH_LEN;
 				proto_tree_add_item(tree, hf_f5tls_srvr_hs_sec, tvb, o, secret_len, ENC_NA);
@@ -3021,6 +3168,73 @@ dissect_dpt_trailer_tls_type2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 				proto_tree_add_item(tree, hf_f5tls_srvr_rand, tvb, o, F5TLS_RANDOM_LEN, ENC_NA);
 				/* o += F5TLS_RANDOM_LEN; */
 			}
+
+
+			if (!generate_keylog || data == NULL) {
+				break;
+			}
+
+			pdata = ((f5tls_data_t *)data)->pkt;
+			conv_data = ((f5tls_data_t *)data)->conv;
+
+			/* If this is our first pass through, add protocol data and build keylog entries.
+			   Assume that if a CRand exists on the conversation that it is the one that matches
+			   up with the newly set / changed secret. */
+			if (!pinfo->fd->visited) {
+				gboolean chs_changed;
+				gboolean shs_changed;
+				gboolean cap_changed;
+				gboolean sap_changed;
+
+				o = F5_DPT_V1_TLV_HDR_LEN + 1;
+
+				chs_changed = f5eth_add_tls_element(&conv_data->clnt_hs_sec, pinfo, tvb, o, secret_len);
+				o += F5TLS_HASH_LEN;
+				shs_changed = f5eth_add_tls_element(&conv_data->srvr_hs_sec, pinfo, tvb, o, secret_len);
+				o += F5TLS_HASH_LEN;
+				cap_changed = f5eth_add_tls_element(&conv_data->clnt_ap_sec, pinfo, tvb, o, secret_len);
+				o += F5TLS_HASH_LEN;
+				sap_changed = f5eth_add_tls_element(&conv_data->srvr_ap_sec, pinfo, tvb, o, secret_len);
+				o += F5TLS_HASH_LEN;
+				f5eth_add_tls_element(&conv_data->client_random, pinfo, tvb, o, F5TLS_RANDOM_LEN);
+
+				if (conv_data->client_random.len != 0) {
+					if (cap_changed) {
+						pdata->cr_clnt_app = f5eth_add_tls_keylog(
+							CLIENT_TRAFFIC_SECRET_0, &conv_data->client_random, &conv_data->clnt_ap_sec);
+					}
+					if (sap_changed) {
+						pdata->cr_srvr_app = f5eth_add_tls_keylog(
+							SERVER_TRAFFIC_SECRET_0, &conv_data->client_random, &conv_data->srvr_ap_sec);
+					}
+					if (chs_changed) {
+						pdata->cr_clnt_app = f5eth_add_tls_keylog(
+							CLIENT_HANDSHAKE_TRAFFIC_SECRET, &conv_data->client_random, &conv_data->clnt_hs_sec);
+					}
+					if (shs_changed) {
+						pdata->cr_srvr_hs = f5eth_add_tls_keylog(
+							SERVER_HANDSHAKE_TRAFFIC_SECRET, &conv_data->client_random, &conv_data->srvr_hs_sec);
+					}
+				}
+			}
+
+			/* Display any keylog entries we have in our packet data */
+			if (pdata->cr_clnt_app != NULL) {
+				pi = proto_tree_add_string(tree, hf_f5tls_keylog, tvb, 0, 0, pdata->cr_clnt_app);
+				proto_item_set_generated(pi);
+			}
+			if (pdata->cr_srvr_app != NULL) {
+				pi = proto_tree_add_string(tree, hf_f5tls_keylog, tvb, 0, 0, pdata->cr_srvr_app);
+				proto_item_set_generated(pi);
+			}
+			if (pdata->cr_clnt_hs != NULL) {
+				pi = proto_tree_add_string(tree, hf_f5tls_keylog, tvb, 0, 0, pdata->cr_clnt_hs);
+				proto_item_set_generated(pi);
+			}
+			if (pdata->cr_srvr_hs != NULL) {
+				pi = proto_tree_add_string(tree, hf_f5tls_keylog, tvb, 0, 0, pdata->cr_srvr_hs);
+				proto_item_set_generated(pi);
+			}
 			break;
 		default:
 			/* Unknown version */
@@ -3031,67 +3245,34 @@ dissect_dpt_trailer_tls_type2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 } /* dissect_dpt_trailer_tls_type2() */
 
 /*----------------------------------------------------------------------*/
-/** TLS 1.3 extended trailer
+/** TLS extended trailer
+ *
+ *  Render as <DATA> - No dissection
  *
  * @param tvb    The tvbuff containing the DPT TLV block (header and data).
- * @param pinfo  The pinfo structure for the frame.
+ * @param pinfo  The pinfo structure for the frame (unused).
  * @param tree   The tree to render the DPT TLV under.
- * @param data   Data passed (tap data) (unused).
+ * @param data   Data passed (unused).
  * @return       Number of bytes decoded.
  */
 static int
-dissect_dpt_trailer_tls_type3(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
+dissect_dpt_trailer_tls_extended(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, void *data _U_)
 {
 	proto_item *pi;
 	gint len;
-	gint ver;
-	gint o;
-	gint secret_len;
 
 	len = tvb_get_ntohs(tvb, F5_DPT_V1_TLV_LENGTH_OFF);
-	ver = tvb_get_ntohs(tvb, F5_DPT_V1_TLV_VERSION_OFF);
 
-	switch (ver) {
-		case 0:
-			/* Create a subtree and render a header */
-			pi = proto_tree_add_item(tree, hf_f5tls_tls, tvb, 0, len, ENC_NA);
-			proto_item_append_text(pi, ", Extended Info");
-			tree = proto_item_add_subtree(pi, ett_f5tls_ext);
+	/* Create a subtree and render a header */
+	pi = proto_tree_add_item(tree, hf_f5tls_tls, tvb, 0, len, ENC_NA);
+	proto_item_append_text(pi, ", Extended Info");
+	tree = proto_item_add_subtree(pi, ett_f5tls_ext);
 
-			render_f5dptv1_tlvhdr(tvb, tree, 0);
+	render_f5dptv1_tlvhdr(tvb, tree, 0);
 
-			o = F5_DPT_V1_TLV_HDR_LEN;
-
-			secret_len = tvb_get_guint8(tvb, o);
-			/* Add our fields */
-			proto_tree_add_item(tree, hf_f5tls_secret_len, tvb, o, 1, ENC_NA);
-			o += 1;
-			if (secret_len > F5TLS_HASH_LEN) {
-				expert_add_info(pinfo, pi, &ei_f5eth_badlen);
-				/* o += (6*F5TLS_HASH_LEN); */
-				break;
-			} else if (secret_len > 0) {
-				proto_tree_add_item(tree, hf_f5tls_early_sec, tvb, o, secret_len, ENC_NA);
-				o += F5TLS_HASH_LEN;
-				proto_tree_add_item(tree, hf_f5tls_exp_sec, tvb, o, secret_len, ENC_NA);
-				o += F5TLS_HASH_LEN;
-				proto_tree_add_item(tree, hf_f5tls_hs_sec, tvb, o, secret_len, ENC_NA);
-				o += F5TLS_HASH_LEN;
-				proto_tree_add_item(tree, hf_f5tls_clnt_fin_sec, tvb, o, secret_len, ENC_NA);
-				o += F5TLS_HASH_LEN;
-				proto_tree_add_item(tree, hf_f5tls_srvr_fin_sec, tvb, o, secret_len, ENC_NA);
-				o += F5TLS_HASH_LEN;
-				proto_tree_add_item(tree, hf_f5tls_res_sec, tvb, o, secret_len, ENC_NA);
-				/* o += F5TLS_HASH_LEN; */
-			}
-			break;
-		default:
-			/* Unknown version */
-			len = 0;
-			break;
-	}
+	proto_tree_add_item(tree, hf_data, tvb, F5_DPT_V1_TLV_HDR_LEN, len - F5_DPT_V1_TLV_HDR_LEN, ENC_NA);
 	return len;
-} /* dissect_dpt_trailer_tls_type3() */
+} /* dissect_dpt_trailer_tls_extended() */
 
 /*-----------------------------------------------------------------------------------------------*/
 /** \brief Dissector for the TLS DPT provider
@@ -3107,8 +3288,32 @@ static int
 dissect_dpt_trailer_tls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
 	guint32 pattern;
+	conversation_t *conv = NULL;
+	f5tls_data_t *tls_data = NULL;
+
+	/* We only need the conversation to bring data parts together that arrive on
+	   different frames.  After the first pass, the keylog entries are stored
+	   on the individual packet's data */
+	if (generate_keylog) {
+		tls_data = wmem_new0(wmem_packet_scope(), f5tls_data_t);
+		if (!pinfo->fd->visited) {
+			conv = find_or_create_conversation(pinfo);
+			tls_data->conv = (f5tls_conversation_data_t *)conversation_get_proto_data(conv, proto_f5ethtrailer_dpt_tls);
+			if (tls_data->conv == NULL) {
+				tls_data->conv = wmem_new0(wmem_file_scope(), f5tls_conversation_data_t);
+				conversation_add_proto_data(conv, proto_f5ethtrailer_dpt_tls, tls_data->conv);
+			}
+		}
+		tls_data->pkt = (f5tls_packet_data_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_f5ethtrailer_dpt_tls, 0);
+		if (tls_data->pkt == NULL) {
+			tls_data->pkt = wmem_new0(wmem_file_scope(), f5tls_packet_data_t);
+			p_add_proto_data(wmem_file_scope(), pinfo, proto_f5ethtrailer_dpt_tls, 0, tls_data->pkt);
+		}
+	}
+
+	/* Combine 2 byte TYPE with 2 byte VERSION into guint32 for the subdissector table lookup */
 	pattern = tvb_get_ntohs(tvb, F5_DPT_V1_TLV_TYPE_OFF) << 16 | tvb_get_ntohs(tvb, F5_DPT_V1_TLV_VERSION_OFF);
-	return(dissector_try_uint_new(tls_subdissector_table, pattern, tvb, pinfo, tree, FALSE, NULL));
+	return(dissector_try_uint_new(tls_subdissector_table, pattern, tvb, pinfo, tree, FALSE, tls_data));
 } /* dissect_f5dpt_tls() */
 
 /*-----------------------------------------------------------------------------------------------*/
@@ -3471,20 +3676,12 @@ void proto_register_f5ethtrailer (void)
 		  { "Server Random", "f5ethtrailer.tls.server_random", FT_BYTES, BASE_NONE, NULL,
 		    0x0, NULL, HFILL }
 		},
-		{ &hf_f5tls_sess_id,
-		  { "Session ID", "f5ethtrailer.tls.session_id", FT_BYTES, BASE_NONE, NULL,
-		    0x0, NULL, HFILL }
-		},
 		{ &hf_f5tls_clnt_hs_sec,
 		  { "Client Handshake Traffic Secret", "f5ethtrailer.tls.client_hs_secret", FT_BYTES, BASE_NONE, NULL,
 		    0x0, NULL, HFILL }
 		},
 		{ &hf_f5tls_srvr_hs_sec,
 		  { "Server Handshake Traffic Secret", "f5ethtrailer.tls.server_hs_secret", FT_BYTES, BASE_NONE, NULL,
-		    0x0, NULL, HFILL }
-		},
-		{ &hf_f5tls_hs_sec,
-		  { "Handshake Secret", "f5ethtrailer.tls.hs_secret", FT_BYTES, BASE_NONE, NULL,
 		    0x0, NULL, HFILL }
 		},
 		{ &hf_f5tls_clnt_app_sec,
@@ -3495,24 +3692,8 @@ void proto_register_f5ethtrailer (void)
 		  { "Server Application Traffic Secret", "f5ethtrailer.tls.server_app_secret", FT_BYTES, BASE_NONE, NULL,
 		    0x0, NULL, HFILL }
 		},
-		{ &hf_f5tls_clnt_fin_sec,
-		  { "Client Handshake Finished Secret", "f5ethtrailer.tls.client_finished_secret", FT_BYTES, BASE_NONE, NULL,
-		    0x0, NULL, HFILL }
-		},
-		{ &hf_f5tls_srvr_fin_sec,
-		  { "Server Handshake Finished Secret", "f5ethtrailer.tls.server_finished_secret", FT_BYTES, BASE_NONE, NULL,
-		    0x0, NULL, HFILL }
-		},
-		{ &hf_f5tls_early_sec,
-		  { "Early Secret", "f5ethtrailer.tls.early_secret", FT_BYTES, BASE_NONE, NULL,
-		    0x0, NULL, HFILL }
-		},
-		{ &hf_f5tls_exp_sec,
-		  { "Exporter Secret", "f5ethtrailer.tls.exporter_secret", FT_BYTES, BASE_NONE, NULL,
-		    0x0, NULL, HFILL }
-		},
-		{ &hf_f5tls_res_sec,
-		  { "Resumption Secret", "f5ethtrailer.tls.resumption_secret", FT_BYTES, BASE_NONE, NULL,
+		{ &hf_f5tls_keylog,
+		  { "Keylog entry", "f5ethtrailer.tls.keylog", FT_STRINGZ, BASE_NONE, NULL,
 		    0x0, NULL, HFILL }
 		},
 	};
@@ -3613,6 +3794,13 @@ void proto_register_f5ethtrailer (void)
 		"\"info\" column of the packet list pane.",
 		&rstcause_in_info);
 
+	prefs_register_bool_preference(f5ethtrailer_module, "generate_keylog",
+		"Generate KEYLOG records from TLS f5ethtrailer",
+		"If enabled, KEYLOG entires will be added to the TLS decode"
+		" in the f5ethtrailer protocol tree.  It will populate the"
+		" f5ethtrailer.tls.keylog field.",
+		&generate_keylog);
+
 	register_init_routine(proto_init_f5ethtrailer);
 	register_cleanup_routine(f5ethtrailer_cleanup);
 
@@ -3668,9 +3856,9 @@ void proto_reg_handoff_f5ethtrailer(void)
 	f5dpt_tls_handle = create_dissector_handle(dissect_dpt_trailer_tls, proto_f5ethtrailer_dpt_tls);
 	dissector_add_uint("f5ethtrailer.provider", F5_DPT_PROVIDER_TLS, f5dpt_tls_handle);
 	dissector_add_uint("f5ethtrailer.tls_type_ver", F5_DPT_TLS_PRE13_STD << 16 | 0, create_dissector_handle(dissect_dpt_trailer_tls_type0, -1));
-	dissector_add_uint("f5ethtrailer.tls_type_ver", F5_DPT_TLS_PRE13_EXT << 16 | 0, create_dissector_handle(dissect_dpt_trailer_tls_type1, -1));
+	dissector_add_uint("f5ethtrailer.tls_type_ver", F5_DPT_TLS_PRE13_EXT << 16 | 0, create_dissector_handle(dissect_dpt_trailer_tls_extended, -1));
 	dissector_add_uint("f5ethtrailer.tls_type_ver", F5_DPT_TLS_13_STD << 16 | 0, create_dissector_handle(dissect_dpt_trailer_tls_type2, -1));
-	dissector_add_uint("f5ethtrailer.tls_type_ver", F5_DPT_TLS_13_EXT << 16 | 0, create_dissector_handle(dissect_dpt_trailer_tls_type3, -1));
+	dissector_add_uint("f5ethtrailer.tls_type_ver", F5_DPT_TLS_13_EXT << 16 | 0, create_dissector_handle(dissect_dpt_trailer_tls_extended, -1));
 
 #ifdef F5_POP_OTHERFIELDS
 	/* These fields are duplicates of other, well-known fields so that
