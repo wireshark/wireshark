@@ -31,8 +31,8 @@ typedef struct {
     char     *name;             /* profile name */
     char     *reference;        /* profile reference */
     int       status;
-    gboolean  is_system;
-    gboolean  from_system;
+    gboolean  is_global;
+    gboolean  from_global;
 } profile_def;
 
 /** @file
@@ -49,13 +49,13 @@ void init_profile_list(void);
  * @param name Profile name
  * @param parent Parent profile name
  * @param status Current status
- * @param is_system Profile is in the system configuration directory
- * @param from_system Profile is copied from the system configuration directory
+ * @param is_global Profile is in the global configuration directory
+ * @param from_global Profile is copied from the global configuration directory
  *
  * @return A pointer to the new profile list
  */
 GList *add_to_profile_list(const char *name, const char *parent, int status,
-                           gboolean is_system, gboolean from_system);
+                           gboolean is_global, gboolean from_global);
 
 /** Refresh the current (non-edited) profile list.
  */

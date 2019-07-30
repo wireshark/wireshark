@@ -72,13 +72,13 @@ WS_DLL_PUBLIC const char *get_extcap_dir(void);
 WS_DLL_PUBLIC gboolean running_in_build_directory(void);
 
 /*
- * Get the directory in which system configuration files are
+ * Get the directory in which global configuration files are
  * stored.
  */
 WS_DLL_PUBLIC const char *get_datafile_dir(void);
 
 /*
- * Construct the path name of a system configuration file, given the
+ * Construct the path name of a global configuration file, given the
  * file name.
  *
  * The returned file name was g_malloc()'d so it must be g_free()d when the
@@ -90,7 +90,7 @@ WS_DLL_PUBLIC char *get_datafile_path(const char *filename);
  * Get the directory in which files that, at least on UNIX, are
  * system files (such as "/etc/ethers") are stored; on Windows,
  * there's no "/etc" directory, so we get them from the Wireshark
- * system configuration and data file directory.
+ * global configuration and data file directory.
  */
 WS_DLL_PUBLIC const char *get_systemfile_dir(void);
 
@@ -112,9 +112,9 @@ WS_DLL_PUBLIC const char *get_profile_name(void);
 WS_DLL_PUBLIC gboolean is_default_profile(void);
 
 /*
- * Check if we have system profiles.
+ * Check if we have global profiles.
  */
-WS_DLL_PUBLIC gboolean has_system_profiles(void);
+WS_DLL_PUBLIC gboolean has_global_profiles(void);
 
 /*
  * Get the directory used to store configuration profile directories.
@@ -126,7 +126,7 @@ WS_DLL_PUBLIC char *get_profiles_dir(void);
  * Get the directory used to store configuration files for a given profile.
  * Caller must free the returned string.
  */
-WS_DLL_PUBLIC char *get_profile_dir(const char *profilename, gboolean is_system);
+WS_DLL_PUBLIC char *get_profile_dir(const char *profilename, gboolean is_global);
 
 /*
  * Create the directory used to store configuration profile directories.
@@ -134,10 +134,10 @@ WS_DLL_PUBLIC char *get_profile_dir(const char *profilename, gboolean is_system)
 WS_DLL_PUBLIC int create_profiles_dir(char **pf_dir_path_return);
 
 /*
- * Get the directory used to store system configuration profile directories.
+ * Get the directory used to store global configuration profile directories.
  * Caller must free the returned string
  */
-WS_DLL_PUBLIC char *get_system_profiles_dir(void);
+WS_DLL_PUBLIC char *get_global_profiles_dir(void);
 
 
 /*
@@ -149,7 +149,7 @@ WS_DLL_PUBLIC void profile_store_persconffiles(gboolean store);
 /*
  * Check if given configuration profile exists.
  */
-WS_DLL_PUBLIC gboolean profile_exists(const gchar *profilename, gboolean is_system);
+WS_DLL_PUBLIC gboolean profile_exists(const gchar *profilename, gboolean global);
 
 /*
  * Create a directory for the given configuration profile.
@@ -182,7 +182,7 @@ WS_DLL_PUBLIC int rename_persconffile_profile(const char *fromname, const char *
  * Copy files in one profile to the other.
  */
 WS_DLL_PUBLIC int copy_persconffile_profile(const char *toname, const char *fromname,
-				     gboolean from_system,
+				     gboolean from_global,
 				     char **pf_filename_return,
 				     char **pf_to_dir_path_return,
 				     char **pf_from_dir_path_return);

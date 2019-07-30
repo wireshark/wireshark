@@ -551,7 +551,7 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
         {
             pa = profile_menu_.addAction(name);
         }
-        else if ( idx.data(ProfileModel::DATA_IS_SYSTEM).toBool() )
+        else if ( idx.data(ProfileModel::DATA_IS_GLOBAL).toBool() )
         {
             /* Check if this profile does not exist as user */
             if ( cnt == model.findByName(name) )
@@ -569,7 +569,7 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
 
         pa->setFont(idx.data(Qt::FontRole).value<QFont>());
         pa->setProperty("profile_name", idx.data());
-        pa->setProperty("profile_is_system", idx.data(ProfileModel::DATA_IS_SYSTEM));
+        pa->setProperty("profile_is_global", idx.data(ProfileModel::DATA_IS_GLOBAL));
 
         connect(pa, &QAction::triggered, this, &MainStatusBar::switchToProfile);
     }
@@ -585,7 +585,7 @@ void MainStatusBar::showProfileMenu(const QPoint &global_pos, Qt::MouseButton bu
         bool enable_edit = false;
 
         QModelIndex idx = model.activeProfile();
-        if ( ! idx.data(ProfileModel::DATA_IS_DEFAULT).toBool() && ! idx.data(ProfileModel::DATA_IS_SYSTEM).toBool() )
+        if ( ! idx.data(ProfileModel::DATA_IS_DEFAULT).toBool() && ! idx.data(ProfileModel::DATA_IS_GLOBAL).toBool() )
             enable_edit = true;
 
         profile_menu_.setTitle(tr("Switch to"));

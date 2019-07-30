@@ -44,19 +44,19 @@ bool ProfileSortModel::lessThan(const QModelIndex &source_left, const QModelInde
     if ( source_right.column() != ProfileModel::COL_NAME )
         right = source_right.sibling(source_right.row(), ProfileModel::COL_NAME);
 
-    bool isL = left.data(ProfileModel::DATA_IS_SYSTEM).toBool();
-    bool isR = right.data(ProfileModel::DATA_IS_SYSTEM).toBool();
+    bool igL = left.data(ProfileModel::DATA_IS_GLOBAL).toBool();
+    bool igR = right.data(ProfileModel::DATA_IS_GLOBAL).toBool();
 
     if (left.data(ProfileModel::DATA_STATUS).toInt() == PROF_STAT_DEFAULT)
-        isL = true;
+        igL = true;
     if (right.data(ProfileModel::DATA_STATUS).toInt() == PROF_STAT_DEFAULT)
-        isR = true;
+        igR = true;
 
-    if ( isL && ! isR )
+    if ( igL && ! igR )
         return true;
-    else if ( ! isL && isR )
+    else if ( ! igL && igR )
         return false;
-    else if ( isL && isR )
+    else if ( igL && igR )
     {
         if (left.data(ProfileModel::DATA_STATUS) == PROF_STAT_DEFAULT)
             return true;
@@ -87,10 +87,10 @@ bool ProfileSortModel::filterAcceptsRow(int source_row, const QModelIndex &) con
 
     if ( ft_ != ProfileSortModel::AllProfiles )
     {
-        bool gl = idx.data(ProfileModel::DATA_IS_SYSTEM).toBool();
-        if ( ft_ == ProfileSortModel::UserProfiles && gl )
+        bool gl = idx.data(ProfileModel::DATA_IS_GLOBAL).toBool();
+        if ( ft_ == ProfileSortModel::PersonalProfiles && gl )
             accept = false;
-        else if ( ft_ == ProfileSortModel::SystemProfiles && ! gl )
+        else if ( ft_ == ProfileSortModel::GlobalProfiles && ! gl )
             accept = false;
     }
 
@@ -141,7 +141,7 @@ GList * ProfileModel::entry(profile_def *ref) const
     GList *fl_entry = edited_profile_list();
     while (fl_entry && fl_entry->data) {
         profile_def *profile = reinterpret_cast<profile_def *>(fl_entry->data);
-        if (strcmp(ref->name, profile->name) == 0 && ref->is_system == profile->is_system)
+        if (strcmp(ref->name, profile->name) == 0 && ref->is_global == profile->is_global)
         {
             if ( ( ref->reference == Q_NULLPTR && profile->reference == Q_NULLPTR )
                  || ( ( ref->reference != Q_NULLPTR && profile->reference != Q_NULLPTR )
@@ -223,10 +223,10 @@ QVariant ProfileModel::dataDisplay(const QModelIndex &index) const
     case COL_TYPE:
         if ( prof->status == PROF_STAT_DEFAULT )
             return tr("Default");
-        else if ( prof->is_system )
-            return tr("System");
+        else if ( prof->is_global )
+            return tr("Global");
         else
-            return tr("User");
+            return tr("Personal");
     default:
         break;
     }
@@ -245,10 +245,10 @@ QVariant ProfileModel::dataFontRole(const QModelIndex &index) const
 
     QFont font;
 
-        if ( prof->is_system )
+        if ( prof->is_global )
         font.setItalic(true);
 
-        if ( set_profile_.compare(prof->name) == 0 && ! prof->is_system )
+        if ( set_profile_.compare(prof->name) == 0 && ! prof->is_global )
             font.setBold(true);
 
     if ( prof->status == PROF_STAT_DEFAULT && reset_default_ )
@@ -272,7 +272,7 @@ QVariant ProfileModel::dataBackgroundRole(const QModelIndex &index) const
     if ( prof->status == PROF_STAT_DEFAULT && reset_default_ )
         return ColorUtils::fromColorT(&prefs.gui_text_deprecated);
 
-    QList<int> rows = const_cast<ProfileModel *>(this)->findAllByNameAndVisibility(QString(prof->name), prof->is_system);
+    QList<int> rows = const_cast<ProfileModel *>(this)->findAllByNameAndVisibility(QString(prof->name), prof->is_global);
     if ( rows.count() > 1 )
         return ColorUtils::fromColorT(&prefs.gui_text_invalid);
 
@@ -290,7 +290,7 @@ QVariant ProfileModel::dataToolTipRole(const QModelIndex &idx) const
 
     QString msg;
 
-    if (prof->is_system)
+    if (prof->is_global)
         return tr("This is a system provided profile.");
     else
         return dataPath(idx);
@@ -315,8 +315,8 @@ QVariant ProfileModel::dataPath(const QModelIndex &index) const
     case PROF_STAT_EXISTS:
         {
             QString profile_path;
-            if (prof->is_system) {
-                profile_path = gchar_free_to_qstring(get_system_profiles_dir());
+            if (prof->is_global) {
+                profile_path = gchar_free_to_qstring(get_global_profiles_dir());
             } else {
                 profile_path = gchar_free_to_qstring(get_profiles_dir());
             }
@@ -344,7 +344,7 @@ QVariant ProfileModel::dataPath(const QModelIndex &index) const
         {
             QString msg = QString("%1 %2").arg(tr("Copied from: ")).arg(prof->reference);
 
-            if ( profile_exists(prof->reference, TRUE) && prof->from_system )
+            if ( profile_exists(prof->reference, TRUE) && prof->from_global )
                 msg.append(QString(" (%1)").arg(tr("system provided")));
             else
             {
@@ -391,15 +391,15 @@ QVariant ProfileModel::data(const QModelIndex &index, int role) const
         return qVariantFromValue(prof->status);
     case ProfileModel::DATA_IS_DEFAULT:
         return qVariantFromValue(prof->status == PROF_STAT_DEFAULT);
-    case ProfileModel::DATA_IS_SYSTEM:
-        return qVariantFromValue(prof->is_system);
+    case ProfileModel::DATA_IS_GLOBAL:
+        return qVariantFromValue(prof->is_global);
     case ProfileModel::DATA_IS_SELECTED:
         {
             QModelIndex selected = activeProfile();
             if ( selected.isValid() && selected.row() < profiles_.count() )
             {
                 profile_def * selprof = guard(selected.row());
-                if ( selprof && selprof->is_system != prof->is_system )
+                if ( selprof && selprof->is_global != prof->is_global )
                     return qVariantFromValue(false);
 
                 if ( selprof && strcmp(selprof->name, prof->name) == 0 )
@@ -456,7 +456,7 @@ Qt::ItemFlags ProfileModel::flags(const QModelIndex &index) const
     if ( ! prof )
         return fl;
 
-    if ( index.column() == ProfileModel::COL_NAME && prof->status != PROF_STAT_DEFAULT  && ! prof->is_system )
+    if ( index.column() == ProfileModel::COL_NAME && prof->status != PROF_STAT_DEFAULT  && ! prof->is_global )
         fl |= Qt::ItemIsEditable;
 
     return fl;
@@ -471,20 +471,20 @@ int ProfileModel::findByName(QString name)
     return row;
 }
 
-int ProfileModel::findByNameAndVisibility(QString name, bool isSystem)
+int ProfileModel::findByNameAndVisibility(QString name, bool isGlobal)
 {
-    QList<int> result = findAllByNameAndVisibility(name, isSystem);
+    QList<int> result = findAllByNameAndVisibility(name, isGlobal);
     return result.count() == 0 ? -1 : result.at(0);
 }
 
-QList<int> ProfileModel::findAllByNameAndVisibility(QString name, bool isSystem)
+QList<int> ProfileModel::findAllByNameAndVisibility(QString name, bool isGlobal)
 {
     QList<int> result;
 
     for ( int cnt = 0; cnt < profiles_.count(); cnt++ )
     {
         profile_def * prof = guard(cnt);
-        if ( prof && static_cast<bool>(prof->is_system) == isSystem && name.compare(prof->name) == 0 )
+        if ( prof && static_cast<bool>(prof->is_global) == isGlobal && name.compare(prof->name) == 0 )
             result << cnt;
     }
 
@@ -518,11 +518,11 @@ QModelIndex ProfileModel::duplicateEntry(QModelIndex idx)
         return QModelIndex();
 
     QString parent = prof->name;
-    if ( ! prof->is_system && prof->status != PROF_STAT_CHANGED && prof->status != PROF_STAT_NEW )
+    if ( ! prof->is_global && prof->status != PROF_STAT_CHANGED && prof->status != PROF_STAT_NEW )
         parent = get_profile_parent (prof->name);
 
     QString new_name;
-    if (prof->is_system && ! profile_exists (parent.toUtf8().constData(), FALSE))
+    if (prof->is_global && ! profile_exists (parent.toUtf8().constData(), FALSE))
         new_name = QString(prof->name);
     else
         new_name = QString("%1 (%2)").arg(parent).arg(tr("copy", "noun"));
@@ -540,10 +540,10 @@ QModelIndex ProfileModel::duplicateEntry(QModelIndex idx)
         new_name = copyName;
     }
 
-    if ( new_name.compare(QString(new_name.toUtf8().constData())) != 0 && !prof->is_system )
+    if ( new_name.compare(QString(new_name.toUtf8().constData())) != 0 && !prof->is_global )
         return QModelIndex();
 
-    add_to_profile_list(new_name.toUtf8().constData(), parent.toUtf8().constData(), PROF_STAT_COPY, FALSE, prof->from_system);
+    add_to_profile_list(new_name.toUtf8().constData(), parent.toUtf8().constData(), PROF_STAT_COPY, FALSE, prof->from_global);
     loadProfiles();
 
     int row = findByNameAndVisibility(new_name, false);
@@ -562,7 +562,7 @@ void ProfileModel::deleteEntry(QModelIndex idx)
     if ( ! prof )
         return;
 
-    if ( prof->is_system )
+    if ( prof->is_global )
         return;
 
     if ( prof->status == PROF_STAT_DEFAULT )
@@ -602,7 +602,7 @@ QModelIndex ProfileModel::activeProfile() const
     if ( row >= 0 )
     {
         profile_def * prof = profiles_.at(row);
-        if ( prof->is_system )
+        if ( prof->is_global )
             return QModelIndex();
 
         return index(row, ProfileModel::COL_NAME);
@@ -712,7 +712,7 @@ QStringList ProfileModel::exportFileList(QModelIndexList items)
     foreach(QModelIndex idx, items)
     {
         profile_def * prof = guard(idx.row());
-        if ( prof->is_system || QString(prof->name).compare(DEFAULT_PROFILE) == 0 )
+        if ( prof->is_global || QString(prof->name).compare(DEFAULT_PROFILE) == 0 )
             continue;
 
         if ( ! idx.data(ProfileModel::DATA_PATH_IS_NOT_DESCRIPTION).toBool() )
