@@ -72,7 +72,7 @@ struct bitstring {
 
 	/* The index in source from which the next set of bits will be pulled
          * when the bits in mask have been consumed */
-	guint32 index;
+	guint32 bitstring_index;
 
 	/* Stores the next bits to be consumed in the bit string */
 	guint32 mask;
@@ -210,18 +210,18 @@ static int PrefixCodeTreeRebuild( struct hf_tree *tree,
  */
 static void bitstring_init(struct bitstring *bstr,
 			   const struct input *input,
-			   guint32 index)
+			   guint32 bitstring_index)
 {
-	bstr->mask = tvb_get_letohs(input->tvb, input->offset+index);
+	bstr->mask = tvb_get_letohs(input->tvb, input->offset+bitstring_index);
 	bstr->mask <<= sizeof(bstr->mask) * 8 - 16;
-	index += 2;
+	bitstring_index += 2;
 
-	bstr->mask += tvb_get_letohs(input->tvb, input->offset+index);
-	index += 2;
+	bstr->mask += tvb_get_letohs(input->tvb, input->offset+bitstring_index);
+	bitstring_index += 2;
 
 	bstr->bits = 32;
 	bstr->input = input;
-	bstr->index = index;
+	bstr->bitstring_index = bitstring_index;
 }
 
 /**
@@ -245,9 +245,9 @@ static void bitstring_skip(struct bitstring *bstr, guint32 n)
 
 	if (bstr->bits < 16) {
 		bstr->mask += tvb_get_letohs(bstr->input->tvb,
-					     bstr->input->offset + bstr->index)
+					     bstr->input->offset + bstr->bitstring_index)
 			<< (16 - bstr->bits);
-		bstr->index = bstr->index + 2;
+		bstr->bitstring_index = bstr->bitstring_index + 2;
 		bstr->bits = bstr->bits + 16;
 	}
 }
@@ -307,7 +307,7 @@ static gboolean do_uncompress(struct input *input,
 		} else {
 			if (symbol == 256) {
 				/* EOF symbol */
-				return bstr.index == bstr.input->size;
+				return bstr.bitstring_index == bstr.input->size;
 			}
 			symbol = symbol - 256;
 			length = symbol & 0xF;
@@ -317,17 +317,17 @@ static gboolean do_uncompress(struct input *input,
 			match_offset *= -1;
 
 			if (length == 15) {
-				if (bstr.index >= bstr.input->size)
+				if (bstr.bitstring_index >= bstr.input->size)
 					return FALSE;
 				length = tvb_get_guint8(bstr.input->tvb,
-							bstr.input->offset+bstr.index) + 15;
-				bstr.index += 1;
+							bstr.input->offset+bstr.bitstring_index) + 15;
+				bstr.bitstring_index += 1;
 
 				if (length == 270) {
-					if (bstr.index+1 >= bstr.input->size)
+					if (bstr.bitstring_index+1 >= bstr.input->size)
 						return FALSE;
-					length = tvb_get_letohs(bstr.input->tvb, bstr.input->offset+bstr.index);
-					bstr.index += 2;
+					length = tvb_get_letohs(bstr.input->tvb, bstr.input->offset+bstr.bitstring_index);
+					bstr.bitstring_index += 2;
 				}
 			}
 
@@ -336,11 +336,9 @@ static gboolean do_uncompress(struct input *input,
 			length += 3;
 			do {
 				guint8 byte;
-				int index = wmem_array_get_count(obuf)+match_offset;
+				guint elem_count = wmem_array_get_count(obuf)+match_offset;
 
-				if (index < 0)
-					return FALSE;
-				if (wmem_array_try_index(obuf, index, &byte))
+				if (wmem_array_try_index(obuf, elem_count, &byte))
 					return FALSE;
 				wmem_array_append_one(obuf, byte);
 				length--;
