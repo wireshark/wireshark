@@ -502,7 +502,7 @@ QModelIndex ProfileModel::addNewProfile(QString name)
         cnt++;
     }
 
-    add_to_profile_list(newName.toUtf8().constData(), "", PROF_STAT_NEW, FALSE, FALSE);
+    add_to_profile_list(newName.toUtf8().constData(), Q_NULLPTR, PROF_STAT_NEW, FALSE, FALSE);
     loadProfiles();
 
     return index(findByName(newName), COL_NAME);
@@ -629,7 +629,7 @@ bool ProfileModel::setData(const QModelIndex &idx, const QVariant &value, int ro
         g_free(prof->name);
         prof->name = qstring_strdup(value.toString());
 
-        if (strcmp(prof->name, prof->reference) == 0) {
+        if (prof->reference && strcmp(prof->name, prof->reference) == 0) {
             prof->status = PROF_STAT_EXISTS;
         } else if (prof->status == PROF_STAT_EXISTS) {
             prof->status = PROF_STAT_CHANGED;
