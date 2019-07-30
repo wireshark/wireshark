@@ -86,6 +86,9 @@ InterfaceFrame::InterfaceFrame(QWidget * parent)
 
     ui->interfaceTree->setItemDelegateForColumn(proxyModel.mapSourceToColumn(IFTREE_COL_STATS), new SparkLineDelegate(this));
 
+    ui->interfaceTree->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(ui->interfaceTree, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showContextMenu(QPoint)));
+
     connect(wsApp, SIGNAL(appInitialized()), this, SLOT(interfaceListChanged()));
     connect(wsApp, SIGNAL(localInterfaceListChanged()), this, SLOT(interfaceListChanged()));
 
@@ -376,6 +379,14 @@ void InterfaceFrame::getPoints(int idx, PointList * pts)
 void InterfaceFrame::showRunOnFile(void)
 {
     ui->lblNoInterfaces->setText("Interfaces not loaded on startup (run on capture file). Go to Capture -> Refresh Interfaces to load.");
+}
+
+void InterfaceFrame::showContextMenu(QPoint pos)
+{
+    QMenu ctx_menu;
+
+    ctx_menu.addAction(tr("Start capture"), this, SIGNAL(startCapture()));
+    ctx_menu.exec(ui->interfaceTree->mapToGlobal(pos));
 }
 
 /*

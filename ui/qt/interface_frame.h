@@ -59,6 +59,7 @@ public slots:
 #endif
     void getPoints(int idx, PointList *pts);
     void showRunOnFile();
+    void showContextMenu(QPoint pos);
 
 protected:
     void hideEvent(QHideEvent *evt);
