@@ -11,3 +11,9 @@ Replace `ninja test-programs` by `make test-programs` as needed.
 
 See the “Wireshark Tests” chapter of the Developer's Guide for details:
 https://www.wireshark.org/docs/wsdg_html_chunked/ChapterTests.html
+
+If you need to update the baseline files use the following commands (on a Linux system)
+mkdir ~/.config/wireshark/profiles/ctest
+TZ=UTC WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1 build/run/tshark -C ctest -T ek -r test/captures/dhcp.pcap > test/baseline/dhcp.ek
+TZ=UTC WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1 build/run/tshark -C ctest -T json -r test/captures/dhcp.pcap > test/baseline/dhcp.json
+TZ=UTC WIRESHARK_RUN_FROM_BUILD_DIRECTORY=1 build/run/tshark -C ctest -T jsonraw -r test/captures/dhcp.pcap > test/baseline/dhcp.jsonraw

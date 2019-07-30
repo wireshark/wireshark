@@ -64,6 +64,10 @@ static int hf_eth_type = -1;
 static int hf_eth_invalid_lentype = -1;
 static int hf_eth_addr = -1;
 static int hf_eth_addr_resolved = -1;
+static int hf_eth_dst_lg = -1;
+static int hf_eth_dst_ig = -1;
+static int hf_eth_src_lg = -1;
+static int hf_eth_src_ig = -1;
 static int hf_eth_lg = -1;
 static int hf_eth_ig = -1;
 static int hf_eth_padding = -1;
@@ -385,8 +389,12 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
         dst_addr_name);
     proto_item_set_generated(addr_item);
     proto_item_set_hidden(addr_item);
-    proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 0, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 0, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(addr_tree, hf_eth_dst_lg, tvb, 0, 3, ENC_BIG_ENDIAN);
+    addr_item = proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 0, 3, ENC_BIG_ENDIAN);
+    proto_item_set_hidden(addr_item);
+    proto_tree_add_item(addr_tree, hf_eth_dst_ig, tvb, 0, 3, ENC_BIG_ENDIAN);
+    addr_item = proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 0, 3, ENC_BIG_ENDIAN);
+    proto_item_set_hidden(addr_item);
 
     addr_item = proto_tree_add_ether(fh_tree, hf_eth_src, tvb, 6, 6, src_addr);
     addr_tree = proto_item_add_subtree(addr_item, ett_addr);
@@ -399,8 +407,12 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
         src_addr_name);
     proto_item_set_generated(addr_item);
     proto_item_set_hidden(addr_item);
-    proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 6, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 6, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(addr_tree, hf_eth_src_lg, tvb, 6, 3, ENC_BIG_ENDIAN);
+    addr_item = proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 6, 3, ENC_BIG_ENDIAN);
+    proto_item_set_hidden(addr_item);
+    proto_tree_add_item(addr_tree, hf_eth_src_ig, tvb, 6, 3, ENC_BIG_ENDIAN);
+    addr_item = proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 6, 3, ENC_BIG_ENDIAN);
+    proto_item_set_hidden(addr_item);
 
     ti = proto_tree_add_item(fh_tree, hf_eth_invalid_lentype, tvb, 12, 2, ENC_BIG_ENDIAN);
     expert_add_info_format(pinfo, ti, &ei_eth_invalid_lentype,
@@ -443,8 +455,12 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
         dst_addr_name);
     proto_item_set_generated(addr_item);
     proto_item_set_hidden(addr_item);
-    proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 0, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 0, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(addr_tree, hf_eth_dst_lg, tvb, 0, 3, ENC_BIG_ENDIAN);
+    addr_item = proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 0, 3, ENC_BIG_ENDIAN);
+    proto_item_set_hidden(addr_item);
+    proto_tree_add_item(addr_tree, hf_eth_dst_ig, tvb, 0, 3, ENC_BIG_ENDIAN);
+    addr_item = proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 0, 3, ENC_BIG_ENDIAN);
+    proto_item_set_hidden(addr_item);
 
     addr_item = proto_tree_add_ether(fh_tree, hf_eth_src, tvb, 6, 6, src_addr);
     addr_tree = proto_item_add_subtree(addr_item, ett_addr);
@@ -457,8 +473,12 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
         src_addr_name);
     proto_item_set_generated(addr_item);
     proto_item_set_hidden(addr_item);
-    proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 6, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 6, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(addr_tree, hf_eth_src_lg, tvb, 6, 3, ENC_BIG_ENDIAN);
+    addr_item = proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 6, 3, ENC_BIG_ENDIAN);
+    proto_item_set_hidden(addr_item);
+    proto_tree_add_item(addr_tree, hf_eth_src_ig, tvb, 6, 3, ENC_BIG_ENDIAN);
+    addr_item = proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 6, 3, ENC_BIG_ENDIAN);
+    proto_item_set_hidden(addr_item);
 
     dissect_802_3(ehdr->type, is_802_2, tvb, ETH_HEADER_SIZE, pinfo,
         parent_tree, fh_tree, hf_eth_len, hf_eth_trailer, &ei_eth_len, fcs_len);
@@ -497,8 +517,12 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
         dst_addr_name);
     proto_item_set_generated(addr_item);
     proto_item_set_hidden(addr_item);
-    proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 0, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 0, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(addr_tree, hf_eth_dst_lg, tvb, 0, 3, ENC_BIG_ENDIAN);
+    addr_item = proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 0, 3, ENC_BIG_ENDIAN);
+    proto_item_set_hidden(addr_item);
+    proto_tree_add_item(addr_tree, hf_eth_dst_ig, tvb, 0, 3, ENC_BIG_ENDIAN);
+    addr_item = proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 0, 3, ENC_BIG_ENDIAN);
+    proto_item_set_hidden(addr_item);
 
     addr_item = proto_tree_add_ether(fh_tree, hf_eth_src, tvb, 6, 6, src_addr);
     addr_tree = proto_item_add_subtree(addr_item, ett_addr);
@@ -514,8 +538,12 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
         src_addr_name);
     proto_item_set_generated(addr_item);
     proto_item_set_hidden(addr_item);
-    proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 6, 3, ENC_BIG_ENDIAN);
-    proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 6, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(addr_tree, hf_eth_src_lg, tvb, 6, 3, ENC_BIG_ENDIAN);
+    addr_item = proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 6, 3, ENC_BIG_ENDIAN);
+    proto_item_set_hidden(addr_item);
+    proto_tree_add_item(addr_tree, hf_eth_src_ig, tvb, 6, 3, ENC_BIG_ENDIAN);
+    addr_item = proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 6, 3, ENC_BIG_ENDIAN);
+    proto_item_set_hidden(addr_item);
 
     ethertype_data.etype = ehdr->type;
     ethertype_data.offset_after_ethertype = ETH_HEADER_SIZE;
@@ -888,6 +916,26 @@ proto_register_eth(void)
     { &hf_eth_fcs_status,
       { "FCS Status", "eth.fcs.status", FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0x0,
         NULL, HFILL }},
+
+    { &hf_eth_dst_lg,
+      { "LG bit", "eth.dst.lg", FT_BOOLEAN, 24,
+        TFS(&lg_tfs), 0x020000,
+        "Specifies if this is a locally administered or globally unique (IEEE assigned) address", HFILL }},
+
+    { &hf_eth_dst_ig,
+      { "IG bit", "eth.dst.ig", FT_BOOLEAN, 24,
+        TFS(&ig_tfs), 0x010000,
+        "Specifies if this is an individual (unicast) or group (broadcast/multicast) address", HFILL }},
+
+    { &hf_eth_src_lg,
+      { "LG bit", "eth.src.lg", FT_BOOLEAN, 24,
+        TFS(&lg_tfs), 0x020000,
+        "Specifies if this is a locally administered or globally unique (IEEE assigned) address", HFILL }},
+
+    { &hf_eth_src_ig,
+      { "IG bit", "eth.src.ig", FT_BOOLEAN, 24,
+        TFS(&ig_tfs), 0x010000,
+        "Specifies if this is an individual (unicast) or group (broadcast/multicast) address", HFILL }},
 
     { &hf_eth_lg,
       { "LG bit", "eth.lg", FT_BOOLEAN, 24,

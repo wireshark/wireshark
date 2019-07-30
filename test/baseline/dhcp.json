@@ -26,7 +26,9 @@
             "eth.dst_resolved": "Broadcast",
             "eth.addr": "ff:ff:ff:ff:ff:ff",
             "eth.addr_resolved": "Broadcast",
+            "eth.dst.lg": "1",
             "eth.lg": "1",
+            "eth.dst.ig": "1",
             "eth.ig": "1"
           },
           "eth.src": "00:0b:82:01:fc:42",
@@ -34,7 +36,9 @@
             "eth.src_resolved": "Grandstr_01:fc:42",
             "eth.addr": "00:0b:82:01:fc:42",
             "eth.addr_resolved": "Grandstr_01:fc:42",
+            "eth.src.lg": "0",
             "eth.lg": "0",
+            "eth.src.ig": "0",
             "eth.ig": "0"
           },
           "eth.type": "0x00000800"
@@ -168,7 +172,9 @@
             "eth.dst_resolved": "Grandstr_01:fc:42",
             "eth.addr": "00:0b:82:01:fc:42",
             "eth.addr_resolved": "Grandstr_01:fc:42",
+            "eth.dst.lg": "0",
             "eth.lg": "0",
+            "eth.dst.ig": "0",
             "eth.ig": "0"
           },
           "eth.src": "00:08:74:ad:f1:9b",
@@ -176,7 +182,9 @@
             "eth.src_resolved": "Dell_ad:f1:9b",
             "eth.addr": "00:08:74:ad:f1:9b",
             "eth.addr_resolved": "Dell_ad:f1:9b",
+            "eth.src.lg": "0",
             "eth.lg": "0",
+            "eth.src.ig": "0",
             "eth.ig": "0"
           },
           "eth.type": "0x00000800"
@@ -318,7 +326,9 @@
             "eth.dst_resolved": "Broadcast",
             "eth.addr": "ff:ff:ff:ff:ff:ff",
             "eth.addr_resolved": "Broadcast",
+            "eth.dst.lg": "1",
             "eth.lg": "1",
+            "eth.dst.ig": "1",
             "eth.ig": "1"
           },
           "eth.src": "00:0b:82:01:fc:42",
@@ -326,7 +336,9 @@
             "eth.src_resolved": "Grandstr_01:fc:42",
             "eth.addr": "00:0b:82:01:fc:42",
             "eth.addr_resolved": "Grandstr_01:fc:42",
+            "eth.src.lg": "0",
             "eth.lg": "0",
+            "eth.src.ig": "0",
             "eth.ig": "0"
           },
           "eth.type": "0x00000800"
@@ -466,7 +478,9 @@
             "eth.dst_resolved": "Grandstr_01:fc:42",
             "eth.addr": "00:0b:82:01:fc:42",
             "eth.addr_resolved": "Grandstr_01:fc:42",
+            "eth.dst.lg": "0",
             "eth.lg": "0",
+            "eth.dst.ig": "0",
             "eth.ig": "0"
           },
           "eth.src": "00:08:74:ad:f1:9b",
@@ -474,7 +488,9 @@
             "eth.src_resolved": "Dell_ad:f1:9b",
             "eth.addr": "00:08:74:ad:f1:9b",
             "eth.addr_resolved": "Dell_ad:f1:9b",
+            "eth.src.lg": "0",
             "eth.lg": "0",
+            "eth.src.ig": "0",
             "eth.ig": "0"
           },
           "eth.type": "0x00000800"
