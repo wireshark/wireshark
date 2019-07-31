@@ -69,7 +69,6 @@ WelcomePage::WelcomePage(QWidget *parent) :
     welcome_ui_->openFrame->hide();
     recent_files_->setTextElideMode(Qt::ElideLeft);
 
-    recent_ctx_menu_ = new QMenu(this);
     welcome_ui_->recentList->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(recent_files_, SIGNAL(customContextMenuRequested(QPoint)),
             this, SLOT(showRecentContextMenu(QPoint)));
@@ -362,25 +361,25 @@ void WelcomePage::showRecentContextMenu(QPoint pos)
     QListWidgetItem *li = recent_files_->itemAt(pos);
     if (!li) return;
 
-    recent_ctx_menu_->clear();
+    QMenu recent_ctx_menu;
 
     QString cf_path = li->data(Qt::UserRole).toString();
 
-    QAction *show_action = recent_ctx_menu_->addAction(show_in_str_);
+    QAction *show_action = recent_ctx_menu.addAction(show_in_str_);
     show_action->setData(cf_path);
     connect(show_action, SIGNAL(triggered(bool)), this, SLOT(showRecentFolder()));
 
-    QAction *copy_action = recent_ctx_menu_->addAction(tr("Copy file path"));
+    QAction *copy_action = recent_ctx_menu.addAction(tr("Copy file path"));
     copy_action->setData(cf_path);
     connect(copy_action, SIGNAL(triggered(bool)), this, SLOT(copyRecentPath()));
 
-    recent_ctx_menu_->addSeparator();
+    recent_ctx_menu.addSeparator();
 
-    QAction *remove_action = recent_ctx_menu_->addAction(tr("Remove from list"));
+    QAction *remove_action = recent_ctx_menu.addAction(tr("Remove from list"));
     remove_action->setData(cf_path);
     connect(remove_action, SIGNAL(triggered(bool)), this, SLOT(removeRecentPath()));
 
-    recent_ctx_menu_->exec(recent_files_->mapToGlobal(pos));
+    recent_ctx_menu.exec(recent_files_->mapToGlobal(pos));
 }
 
 void WelcomePage::showRecentFolder()
