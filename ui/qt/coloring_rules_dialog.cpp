@@ -435,6 +435,8 @@ void ColoringRulesDialog::on_buttonBox_clicked(QAbstractButton *button)
             if (!colorRuleModel_.importColors(file_name, err)) {
                 simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err.toUtf8().constData());
             }
+
+            checkUnknownColorfilters();
         }
     } else if (button == export_button_) {
         int num_items = ui->coloringRulesTreeView->selectionModel()->selectedIndexes().count()/colorRuleModel_.columnCount();
