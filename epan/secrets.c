@@ -366,8 +366,18 @@ uat_pkcs11_libs_load_all(void)
     for (guint i = 0; i < uat_num_pkcs11_libs; i++) {
         const pkcs11_lib_record_t *rec = &uat_pkcs11_libs[i];
         const char *libname = rec->library_path;
+#ifdef WIN32
+        // Work around a bug in p11-kit < 0.23.16 on Windows
+        HMODULE provider_lib = LoadLibraryA(libname);
+        if (! provider_lib || ! GetProcAddress(provider_lib, "C_GetFunctionList")) {
+            ret = GNUTLS_E_PKCS11_LOAD_ERROR;
+        } else {
+#endif
         /* Note: should return success for already loaded libraries.  */
         ret = gnutls_pkcs11_add_provider(libname, NULL);
+#ifdef WIN32
+        }
+#endif
         if (ret) {
             if (!err) {
                 err = g_string_new("Error loading PKCS #11 libraries:");
