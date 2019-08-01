@@ -3953,7 +3953,7 @@ static void rtps_add_zlib_compressed_typeobject(proto_tree *tree _U_, packet_inf
       decompressed_data_child_tvb, 0, encoding, decompressed_size);
   }
   else {
-    decompressed_type_object_subtree = proto_tree_add_subtree(tree, compressed_type_object_subset,
+    proto_tree_add_subtree(tree, compressed_type_object_subset,
       0, 0, ett_rtps_decompressed_type_object, NULL, "[Failed to decompress type object]");
   }
 #endif
