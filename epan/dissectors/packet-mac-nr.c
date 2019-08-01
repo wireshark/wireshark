@@ -339,6 +339,9 @@ static dissector_handle_t nr_rrc_ul_ccch1_handle;
 /* By default try to decode transparent data (BCCH, PCCH and CCCH) data using NR RRC dissector */
 static gboolean global_mac_nr_attempt_rrc_decode = TRUE;
 
+/* Whether should attempt to decode lcid 1-3 SDUs as srb1-3 (i.e. AM RLC) */
+static gboolean global_mac_nr_attempt_srb_decode = TRUE;
+
 /* Which layer info to show in the info column */
 enum layer_to_show {
     ShowPHYLayer, ShowMACLayer, ShowRLCLayer
@@ -1690,8 +1693,16 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         /* Nothing to do! */
                         break;
                 }
-            } else if (lcid == 1 || lcid == 2) {
-                /* SRB, TODO: call RLC dissector */
+            } else if (lcid >= 1 && lcid <= 3) {
+                if (global_mac_nr_attempt_srb_decode) {
+                    /* SRB, call RLC dissector */
+                    /* These are defaults (38.331, 9.2.1) - only priority may be overridden, but not passing in yet. */
+                    call_rlc_dissector(tvb, pinfo, tree, pdu_ti, offset, SDU_length,
+                                       RLC_AM_MODE, p_mac_nr_info->direction, p_mac_nr_info->ueid,
+                                       BEARER_TYPE_SRB, lcid, 12,
+                                       (lcid == 2) ? 3 : 1);
+                    dissected_by_upper_layer = TRUE;
+                }
             } else if (global_mac_nr_attempt_rrc_decode) {
                 dissector_handle_t protocol_handle;
                 tvbuff_t *rrc_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -4470,6 +4481,11 @@ void proto_register_mac_nr(void)
         "Attempt to decode BCCH, PCCH and CCCH data using NR RRC dissector",
         "Attempt to decode BCCH, PCCH and CCCH data using NR RRC dissector",
         &global_mac_nr_attempt_rrc_decode);
+
+    prefs_register_bool_preference(mac_nr_module, "attempt_to_dissect_srb_sdus",
+        "Attempt to dissect LCID 1-3 as srb1-3",
+        "Will call NR RLC dissector with standard settings as per RRC spec",
+        &global_mac_nr_attempt_srb_decode);
 
     prefs_register_enum_preference(mac_nr_module, "lcid_to_drb_mapping_source",
         "Source of LCID -> drb channel settings",
