@@ -172,6 +172,7 @@ static int hf_mac_nr_control_sp_srs_act_deact_sul = -1;
 static int hf_mac_nr_control_sp_srs_act_deact_sp_srs_resource_set_id = -1;
 static int hf_mac_nr_control_sp_srs_act_deact_f = -1;
 static int hf_mac_nr_control_sp_srs_act_deact_resource_id = -1;
+static int hf_mac_nr_control_sp_srs_act_deact_resource_id_ssb = -1;
 static int hf_mac_nr_control_sp_srs_act_deact_resource_serving_cell_id = -1;
 static int hf_mac_nr_control_sp_srs_act_deact_resource_bwp_id = -1;
 static int hf_mac_nr_control_sp_csi_report_on_pucch_act_deact_reserved = -1;
@@ -2129,6 +2130,9 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         {
                             gboolean ad, c;
                             guint32 start_offset = offset;
+                            guint resources = 0;
+
+                            /* Header */
                             proto_tree_add_item_ret_boolean(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_ad,
                                                             tvb, offset, 1, ENC_NA, &ad);
                             proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_srs_resource_set_cell_id,
@@ -2136,6 +2140,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_srs_resource_set_bwp_id,
                                                 tvb, offset, 1, ENC_NA);
                             offset++;
+
                             proto_tree_add_bits_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_reserved,
                                                      tvb, offset<<3, 2, ENC_NA);
                             proto_tree_add_item_ret_boolean(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_c,
@@ -2145,18 +2150,39 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                             proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_sp_srs_resource_set_id,
                                                 tvb, offset, 1, ENC_NA);
                             offset++;
+
                             if (ad) {
+                                /* Activating - show info for resources */
                                 guint length = c ? (SDU_length-2) / 2 + 2: SDU_length;
                                 while (offset - start_offset < length) {
-                                    proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_f,
-                                                        tvb, offset, 1, ENC_NA);
-                                    proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_resource_id,
-                                                        tvb, offset, 1, ENC_NA);
+                                    gboolean f;
+                                    proto_tree_add_item_ret_boolean(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_f,
+                                                        tvb, offset, 1, ENC_NA, &f);
+                                    guint32 resource_id = tvb_get_guint8(tvb, offset) & 0x7f;
+                                    proto_item *resource_id_ti;
+                                    if (!f && (resource_id & 0x40)) {
+                                        /* SSB case - first bit just indicates type */
+                                        resource_id_ti = proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_resource_id_ssb,
+                                                                             tvb, offset, 1, ENC_NA);
+                                        proto_item_append_text(resource_id_ti, " (SSB)");
+                                    }
+                                    else {
+                                        resource_id_ti = proto_tree_add_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_resource_id,
+                                                                             tvb, offset, 1, ENC_NA);
+                                        if (f) {
+                                            proto_item_append_text(resource_id_ti, " (NZP-CSI-RS)");
+                                        }
+                                        else {
+                                            proto_item_append_text(resource_id_ti, " (SRS)");
+                                        }
+                                    }
                                     offset++;
+                                    resources++;
                                 }
 
                             }
                             if (c) {
+                                /* Deactivating (no resources) */
                                 while (offset - start_offset < SDU_length) {
                                     proto_tree_add_bits_item(subheader_tree, hf_mac_nr_control_sp_srs_act_deact_reserved,
                                                              tvb, offset<<3, 1, ENC_NA);
@@ -2167,8 +2193,14 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                                     offset++;
                                 }
                             }
-                            write_pdu_label_and_info_literal(pdu_ti, subheader_ti, pinfo,
-                                                             "(SP SRS Act/Deact) ");
+
+                            /* Add summary to Info column */
+                            if (ad) {
+                                write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo, "(SP SRS Act/Deact) Activate (%d resources)", resources);
+                            }
+                            else {
+                                write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo, "(SP SRS Act/Deact) Deactivate");
+                            }
                         }
                         break;
                     case SP_CSI_REPORT_ON_PUCCH_ACT_DEACT_LCID:
@@ -3738,10 +3770,17 @@ void proto_register_mac_nr(void)
         },
         { &hf_mac_nr_control_sp_srs_act_deact_resource_id,
             { "Resource ID",
-              "mac-nr.control.sp-srs-act-deact.sp-srs-resource-set-id", FT_UINT8, BASE_DEC, NULL, 0x7f,
+              "mac-nr.control.sp-srs-act-deact.resource-id", FT_UINT8, BASE_DEC, NULL, 0x7f,
               NULL, HFILL
             }
         },
+        { &hf_mac_nr_control_sp_srs_act_deact_resource_id_ssb,
+            { "Resource ID",
+              "mac-nr.control.sp-srs-act-deact.resource-id", FT_UINT8, BASE_DEC, NULL, 0x3f,
+              NULL, HFILL
+            }
+        },
+
         { &hf_mac_nr_control_sp_srs_act_deact_resource_serving_cell_id,
             { "Resource Serving Cell ID",
               "mac-nr.control.sp-srs-act-deact.resource-serving-cell-id", FT_UINT8, BASE_DEC, NULL, 0x7c,
