@@ -115,6 +115,10 @@ add_package() {
 	eval "${list}=\"\${${list}} \${pkgname}\""
 }
 
+# apt-get update must be called before calling add_package
+# otherwise available packages appear as unavailable
+apt-get update || exit 2
+
 # cmake3 3.5.1: Ubuntu 14.04
 # cmake >= 3.5: Debian >= jessie-backports, Ubuntu >= 16.04
 add_package BASIC_LIST cmake3 ||
@@ -174,7 +178,6 @@ then
 	ACTUAL_LIST="$ACTUAL_LIST $TESTDEPS_LIST"
 fi
 
-apt-get update || exit 2
 # shellcheck disable=SC2086
 apt-get install $ACTUAL_LIST $OPTIONS || exit 2
 
