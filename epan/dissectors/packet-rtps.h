@@ -109,6 +109,7 @@ typedef struct _rtps_dissector_data {
 
 #define RTPS_MAGIC_NUMBER   0x52545053 /* RTPS */
 #define RTPX_MAGIC_NUMBER   0x52545058 /* RTPX */
+#define RTPS_SEQUENCENUMBER_UNKNOWN     0xffffffff00000000 /* {-1,0} as uint64 */
 
 /* Traffic type */
 #define PORT_BASE                       (7400)
