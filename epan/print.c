@@ -1276,6 +1276,9 @@ ek_write_field_value(field_info *fi, write_json_data* pdata)
 {
     gchar label_str[ITEM_LABEL_LENGTH];
     char *dfilter_string;
+    const nstime_t *t;
+    struct tm tm_time;
+    char time_string[sizeof("YYYY-MM-DDTHH:MM:SS")];
 
     /* Text label */
     if (fi->hfinfo->id == hf_text_only && fi->rep) {
@@ -1301,6 +1304,16 @@ ek_write_field_value(field_info *fi, write_json_data* pdata)
                 json_dumper_value_anyf(pdata->dumper, "true");
             else
                 json_dumper_value_anyf(pdata->dumper, "false");
+            break;
+        case FT_ABSOLUTE_TIME:
+            t = (const nstime_t *)fvalue_get(&fi->value);
+#ifdef _WIN32
+            gmtime_s(&tm_time, &t->secs);
+#else
+            gmtime_r(&t->secs, &tm_time);
+#endif
+            strftime(time_string, sizeof(time_string), "%FT%T", &tm_time);
+            json_dumper_value_anyf(pdata->dumper, "\"%s.%uZ\"", time_string, t->nsecs);
             break;
         default:
             dfilter_string = fvalue_to_string_repr(NULL, &fi->value, FTREPR_DISPLAY, fi->hfinfo->display);
