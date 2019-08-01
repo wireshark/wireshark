@@ -300,7 +300,7 @@ if_info_get(const char *name)
 		 */
 		for (;;) {
 			g_free(description);
-			if ((description = g_malloc(descrlen)) != NULL) {
+			if ((description = (char*)g_malloc(descrlen)) != NULL) {
 				ifrdesc.ifr_buffer.buffer = description;
 				ifrdesc.ifr_buffer.length = descrlen;
 				if (ioctl(s, SIOCGIFDESCR, &ifrdesc) == 0) {
@@ -327,7 +327,7 @@ if_info_get(const char *name)
 		 * to get the description length - it's clamped
 		 * to a maximum of IFDESCRSIZE.
 		 */
-		if ((description = g_malloc(descrlen)) != NULL) {
+		if ((description = (char*)g_malloc(descrlen)) != NULL) {
 			ifrdesc.ifr_data = (caddr_t)description;
 			if (ioctl(s, SIOCGIFDESCR, &ifrdesc) != 0) {
 				/*
