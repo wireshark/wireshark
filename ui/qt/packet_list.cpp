@@ -635,6 +635,14 @@ void PacketList::mousePressEvent (QMouseEvent *event)
 
     QModelIndex curIndex = indexAt(event->pos());
     mouse_pressed_at_ = curIndex;
+
+    bool midButton = ( event->buttons() & Qt::MidButton ) == Qt::MidButton;
+    if (midButton && cap_file_ && packet_list_model_)
+    {
+        packet_list_model_->toggleFrameMark(curIndex);
+        create_far_overlay_ = true;
+        packets_bar_update();
+    }
 }
 
 void PacketList::mouseReleaseEvent(QMouseEvent *event) {
