@@ -65,7 +65,6 @@ private:
     QPushButton *sequence_button_;
     QPushButton *player_button_;
     QPushButton *copy_button_;
-    QMenu ctx_menu_;
 
     // Tap callbacks
 //    static void tapReset(void *tapinfo_ptr);
@@ -81,13 +80,13 @@ private:
 
 private slots:
     void captureFileClosing();
+    void selectAll();
+    void copyAsCSV();
+    void copyAsYAML();
+    void switchTimeOfDay();
     void on_callTreeView_activated(const QModelIndex &index);
-    void on_actionSelect_All_triggered();
-    void on_actionCopyAsCsv_triggered();
-    void on_actionCopyAsYaml_triggered();
     void on_buttonBox_clicked(QAbstractButton *button);
     void on_buttonBox_helpRequested();
-    void on_todCheckBox_stateChanged(int state);
     void updateWidgets();
 };
 

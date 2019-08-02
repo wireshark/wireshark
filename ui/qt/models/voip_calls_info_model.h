@@ -31,6 +31,7 @@ public:
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
     void setTimeOfDay(bool timeOfDay);
+    bool timeOfDay() const;
     void updateCalls(GQueue *callsinfos);
 
     static voip_calls_info_t *indexToCallInfo(const QModelIndex &index);

@@ -176,6 +176,11 @@ void VoipCallsInfoModel::setTimeOfDay(bool timeOfDay)
     }
 }
 
+bool VoipCallsInfoModel::timeOfDay() const
+{
+    return mTimeOfDay_;
+}
+
 void VoipCallsInfoModel::updateCalls(GQueue *callsinfos)
 {
     if (callsinfos) {

@@ -63,24 +63,19 @@ VoipCallsDialog::VoipCallsDialog(QWidget &parent, CaptureFile &cf, bool all_flow
     ui->callTreeView->sortByColumn(VoipCallsInfoModel::StartTime, Qt::AscendingOrder);
     setWindowSubtitle(all_flows ? tr("SIP Flows") : tr("VoIP Calls"));
 
-    ctx_menu_.addAction(ui->actionSelect_All);
-    ctx_menu_.addSeparator();
-    ctx_menu_.addAction(ui->actionCopyAsCsv);
-    ctx_menu_.addAction(ui->actionCopyAsYaml);
-
     prepare_button_ = ui->buttonBox->addButton(tr("Prepare Filter"), QDialogButtonBox::ApplyRole);
     sequence_button_ = ui->buttonBox->addButton(tr("Flow Sequence"), QDialogButtonBox::ApplyRole);
     player_button_ = RtpPlayerDialog::addPlayerButton(ui->buttonBox);
+
+    connect ( ui->todCheckBox, &QAbstractButton::toggled, this, &VoipCallsDialog::switchTimeOfDay);
 
     copy_button_ = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ApplyRole);
     QMenu *copy_menu = new QMenu(copy_button_);
     QAction *ca;
     ca = copy_menu->addAction(tr("as CSV"));
-    ca->setToolTip(ui->actionCopyAsCsv->toolTip());
-    connect(ca, SIGNAL(triggered()), this, SLOT(on_actionCopyAsCsv_triggered()));
+    connect(ca, SIGNAL(triggered()), this, SLOT(copyAsCSV()));
     ca = copy_menu->addAction(tr("as YAML"));
-    ca->setToolTip(ui->actionCopyAsYaml->toolTip());
-    connect(ca, SIGNAL(triggered()), this, SLOT(on_actionCopyAsYaml_triggered()));
+    connect(ca, SIGNAL(triggered()), this, SLOT(copyAsYAML()));
     copy_button_->setMenu(copy_menu);
 
     memset (&tapinfo_, 0, sizeof(tapinfo_));
@@ -133,7 +128,26 @@ void VoipCallsDialog::captureFileClosing()
 
 void VoipCallsDialog::contextMenuEvent(QContextMenuEvent *event)
 {
-    ctx_menu_.exec(event->globalPos());
+    bool selected = ui->callTreeView->selectionModel()->hasSelection();
+
+    if ( ! selected )
+        return;
+
+    QMenu popupMenu;
+
+    QAction * action = popupMenu.addAction(tr("Select &All"), this, SLOT(selectAll()));
+    action->setToolTip(tr("Select all calls"));
+    popupMenu.addSeparator();
+    action = popupMenu.addAction(tr("Display time as time of day"), this, SLOT(switchTimeOfDay()));
+    action->setCheckable(true);
+    action->setChecked(call_infos_model_->timeOfDay());
+    popupMenu.addSeparator();
+    action = popupMenu.addAction(tr("Copy as CSV"), this, SLOT(copyAsCSV()));
+    action->setToolTip(tr("Copy stream list as CSV."));
+    action = popupMenu.addAction(tr("Copy as YAML"), this, SLOT(copyAsYAML()));
+    action->setToolTip(tr("Copy stream list as YAML."));
+
+    popupMenu.exec(event->globalPos());
 }
 
 void VoipCallsDialog::changeEvent(QEvent *event)
@@ -220,9 +234,6 @@ void VoipCallsDialog::updateWidgets()
         have_ga_items = true;
     }
 
-    foreach (QMenu *submenu, ctx_menu_.findChildren<QMenu*>()) {
-        submenu->setEnabled(selected);
-    }
     prepare_button_->setEnabled(selected && have_ga_items);
     sequence_button_->setEnabled(selected && have_ga_items);
 #if defined(QT_MULTIMEDIA_LIB)
@@ -438,12 +449,12 @@ void VoipCallsDialog::on_callTreeView_activated(const QModelIndex &index)
     emit goToPacket(call_info->start_fd->num);
 }
 
-void VoipCallsDialog::on_actionSelect_All_triggered()
+void VoipCallsDialog::selectAll()
 {
     ui->callTreeView->selectAll();
 }
 
-void VoipCallsDialog::on_actionCopyAsCsv_triggered()
+void VoipCallsDialog::copyAsCSV()
 {
     QString csv;
     QTextStream stream(&csv, QIODevice::Text);
@@ -459,7 +470,7 @@ void VoipCallsDialog::on_actionCopyAsCsv_triggered()
     wsApp->clipboard()->setText(stream.readAll());
 }
 
-void VoipCallsDialog::on_actionCopyAsYaml_triggered()
+void VoipCallsDialog::copyAsYAML()
 {
     QString yaml;
     QTextStream stream(&yaml, QIODevice::Text);
@@ -489,9 +500,12 @@ void VoipCallsDialog::on_buttonBox_helpRequested()
     wsApp->helpTopicAction(HELP_TELEPHONY_VOIP_CALLS_DIALOG);
 }
 
-void VoipCallsDialog::on_todCheckBox_stateChanged(int state)
+void VoipCallsDialog::switchTimeOfDay()
 {
-    call_infos_model_->setTimeOfDay(state == Qt::Checked);
+    bool checked = ! call_infos_model_->timeOfDay();
+
+    ui->todCheckBox->setChecked(checked);
+    call_infos_model_->setTimeOfDay(checked);
     ui->callTreeView->resizeColumnToContents(VoipCallsInfoModel::StartTime);
     ui->callTreeView->resizeColumnToContents(VoipCallsInfoModel::StopTime);
 }
