@@ -294,7 +294,9 @@ void ProfileDialog::updateWidgets()
         msg = tr("%Ln selected personal profile(s)", "", user_profiles);
         pd_ui_->hintLabel->setText(msg);
         pd_ui_->hintLabel->setUrl(QString());
+#ifdef HAVE_MINIZIP
         export_selected_entry_->setText(msg);
+#endif
     }
     else
     {
@@ -314,7 +316,9 @@ void ProfileDialog::updateWidgets()
         }
 
         pd_ui_->copyToolButton->setEnabled(true);
+#ifdef HAVE_MINIZIP
         export_selected_entry_->setText(msg);
+#endif
     }
 
     /* Ensure, that the ok button is disabled, if an invalid name is used or if duplicate global profiles exist */
