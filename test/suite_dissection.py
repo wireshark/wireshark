@@ -13,6 +13,7 @@ import os.path
 import subprocesstest
 import unittest
 import fixtures
+import sys
 
 @fixtures.mark_usefixtures('test_env')
 @fixtures.uses_fixtures
@@ -218,4 +219,6 @@ class case_decompress_smb2(subprocesstest.SubprocessTestCase):
         self.extract_compressed_payload(cmd_tshark, capture_file, 2)
 
     def test_smb311_read_lznt1(self, cmd_tshark, capture_file):
+        if sys.byteorder == 'big':
+            fixtures.skip('this test is supported on little endian only')
         self.extract_compressed_payload(cmd_tshark, capture_file, 3)

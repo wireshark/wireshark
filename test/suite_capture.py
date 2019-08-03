@@ -576,16 +576,24 @@ class case_dumpcap_ringbuffer(subprocesstest.SubprocessTestCase):
 class case_dumpcap_pcapng_sections(subprocesstest.SubprocessTestCase):
     def test_dumpcap_pcapng_single_in_single_out(self, check_dumpcap_pcapng_sections):
         '''Capture from a single pcapng source using Dumpcap and write a single file'''
+        if sys.byteorder == 'big':
+            fixtures.skip('this test is supported on little endian only')
         check_dumpcap_pcapng_sections(self)
 
     def test_dumpcap_pcapng_single_in_multi_out(self, check_dumpcap_pcapng_sections):
         '''Capture from a single pcapng source using Dumpcap and write two files'''
+        if sys.byteorder == 'big':
+            fixtures.skip('this test is supported on little endian only')
         check_dumpcap_pcapng_sections(self, multi_output=True)
 
     def test_dumpcap_pcapng_multi_in_single_out(self, check_dumpcap_pcapng_sections):
         '''Capture from two pcapng sources using Dumpcap and write a single file'''
+        if sys.byteorder == 'big':
+            fixtures.skip('this test is supported on little endian only')
         check_dumpcap_pcapng_sections(self, multi_input=True)
 
     def test_dumpcap_pcapng_multi_in_multi_out(self, check_dumpcap_pcapng_sections):
         '''Capture from two pcapng sources using Dumpcap and write two files'''
+        if sys.byteorder == 'big':
+            fixtures.skip('this test is supported on little endian only')
         check_dumpcap_pcapng_sections(self, multi_input=True, multi_output=True)
