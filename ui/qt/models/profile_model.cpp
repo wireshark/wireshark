@@ -13,6 +13,7 @@
 
 #include "glib.h"
 #include "ui/profile.h"
+#include "ui/recent.h"
 #include "wsutil/filesystem.h"
 #include "epan/prefs.h"
 
@@ -882,6 +883,9 @@ bool ProfileModel::exportProfiles(QString filename, QModelIndexList items, QStri
             err->append(tr("Exporting profiles while changes are pending is not allowed"));
         return false;
     }
+
+    /* Write recent file for current profile before exporting */
+    write_profile_recent();
 
     QStringList files = exportFileList(items);
     if ( files.count() == 0 )
