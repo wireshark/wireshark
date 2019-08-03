@@ -44,6 +44,7 @@ void proto_register_quic(void);
 /* Initialize the protocol and registered fields */
 static int proto_quic = -1;
 static int hf_quic_connection_number = -1;
+static int hf_quic_packet_length = -1;
 static int hf_quic_header_form = -1;
 static int hf_quic_long_packet_type = -1;
 static int hf_quic_long_reserved = -1;
@@ -2195,7 +2196,7 @@ static int
 dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         void *data _U_)
 {
-    proto_item *quic_ti;
+    proto_item *quic_ti, *ti;
     proto_tree *quic_tree;
     guint       offset = 0;
     guint32     header_form;
@@ -2255,6 +2256,8 @@ dissect_quic(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
         tvbuff_t *next_tvb = quic_get_message_tvb(tvb, offset);
         proto_item_set_len(quic_ti, tvb_reported_length(next_tvb));
+        ti = proto_tree_add_uint(quic_tree, hf_quic_packet_length, next_tvb, 0, 0, tvb_reported_length(next_tvb));
+        proto_item_set_generated(ti);
         proto_tree_add_item_ret_uint(quic_tree, hf_quic_header_form, next_tvb, 0, 1, ENC_NA, &header_form);
         guint new_offset = 0;
         if (header_form) {
@@ -2387,6 +2390,12 @@ proto_register_quic(void)
           { "Connection Number", "quic.connection.number",
             FT_UINT32, BASE_DEC, NULL, 0x0,
             "Connection identifier within this capture file", HFILL }
+        },
+
+        { &hf_quic_packet_length,
+          { "Packet Length", "quic.packet_length",
+            FT_UINT32, BASE_DEC, NULL, 0x0,
+            "Size of the QUIC packet", HFILL }
         },
 
         { &hf_quic_header_form,
