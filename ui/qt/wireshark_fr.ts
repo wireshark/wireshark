@@ -2462,7 +2462,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Save parameter on capture start</source>
+        <source>Save parameter(s) on capture start</source>
+        <oldsource>Save parameter on capture start</oldsource>
         <translation type="unfinished"></translation>
     </message>
 </context>
@@ -4235,6 +4236,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <source>External capture interfaces disabled.</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Start capture</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InterfaceSortFilterModel</name>
@@ -5666,8 +5671,24 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished">Importer</translation>
     </message>
     <message>
+        <source>from zip file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>from directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Export</source>
         <translation type="unfinished">Exporter</translation>
+    </message>
+    <message>
+        <source>selected personal profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>all personal profiles</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>New</source>
@@ -5713,13 +5734,13 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <oldsource>No expert info</oldsource>
         <translation>Pas d&apos;information expert</translation>
     </message>
-    <message>
-        <source>, 1 byte</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>, %1 bytes</source>
-        <translation type="unfinished"></translation>
+    <message numerus="yes">
+        <source>%Ln byte(s)</source>
+        <oldsource>, 1 byte</oldsource>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <source>Byte %1</source>
@@ -8518,7 +8539,8 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
 <context>
     <name>ProfileDialog</name>
     <message>
-        <source>Search for profile ...</source>
+        <source>Search for profile …</source>
+        <oldsource>Search for profile ...</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8526,8 +8548,7 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation>Crée un nouveau profil en utilisant les paramètres par défaut.</translation>
     </message>
     <message>
-        <source>Remove this profile. System provided profiles cannot be removed.</source>
-        <oldsource>Remove this profile. The Default profile and system provided profiles cannot be removed.</oldsource>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be resetted upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8547,18 +8568,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <source>Export</source>
         <comment>noun</comment>
         <translation type="unfinished">Exporter</translation>
-    </message>
-    <message>
-        <source>All Profiles</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>User-defined profiles</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>System profiles</source>
-        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>An import of profiles is not allowed, while changes are pending.</source>
@@ -8584,19 +8593,66 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <source>Select zip file for export</source>
         <translation type="unfinished"></translation>
     </message>
+    <message>
+        <source>Select zip file for import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Select directory for import</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Zip File (*.zip)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>from zip file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>from directory</source>
+        <translation type="unfinished"></translation>
+    </message>
     <message numerus="yes">
-        <source>%Ln profile(s) have been exported</source>
+        <source>%Ln selected personal profile(s)</source>
         <translation type="unfinished">
             <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
     </message>
     <message>
-        <source>An error has occured while exporting profiles</source>
+        <source>all personal profiles</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Select zip file for import</source>
+        <source>An import is pending to be saved. Additional imports are not allowed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An export of profiles is only allowed for personal profiles.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An export of profiles is not allowed, while changes are pending.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">Erreur</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln profile(s) exported</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>An error has occurred while exporting profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>No profiles found for import in %1</source>
         <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
@@ -8614,18 +8670,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         </translation>
     </message>
     <message>
-        <source>Select directory for import</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Zip File (*.zip)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>No profiles found for import in %1</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Importing profiles</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8633,11 +8677,11 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
 <context>
     <name>ProfileModel</name>
     <message>
-        <source>User</source>
+        <source>Resetting to default</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Resetting to default</source>
+        <source>Imported profile</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8650,6 +8694,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>system provided</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>renamed to</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8670,6 +8718,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Can&apos;t delete profile directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>A profile name cannot contain the following characters: %1</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8686,15 +8738,19 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>System</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Renamed from: </source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>This is a system provided profile.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Global</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Personal</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8711,6 +8767,21 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
 </context>
 <context>
+    <name>ProfileSortModel</name>
+    <message>
+        <source>All profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Personal profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Global profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
+<context>
     <name>ProgressFrame</name>
     <message>
         <source>Frame</source>
@@ -8722,6 +8793,68 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Packet details</source>
         <translation>Détail du paquet</translation>
+    </message>
+    <message>
+        <source>Expand Subtrees</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Collapse Subtrees</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Expand All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Collapse All</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">Copier</translation>
+    </message>
+    <message>
+        <source>All Visible Items</source>
+        <translation type="unfinished">Tous les Éléments Visibles</translation>
+    </message>
+    <message>
+        <source>All Visible Selected Tree Items</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Desription</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Field Name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation type="unfinished">Valeur</translation>
+    </message>
+    <message>
+        <source>As Filter</source>
+        <translation type="unfinished">Comme un Filtre</translation>
+    </message>
+    <message>
+        <source>Wiki Protocol Page</source>
+        <translation type="unfinished">Page Wiki </translation>
+    </message>
+    <message>
+        <source>Filter Field Reference</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Wiki Page for %1</source>
+        <translation type="unfinished">Page Wiki pour %1</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
+        <translation type="unfinished">&lt;p&gt;Le Wiki Wireshark est maintenu par la communauté&lt;/p&gt;
+&lt;p&gt;La page que vous vous apprêtez à charger peut être magnifique, incomplète, fausse ou inexistante&lt;/p&gt;
+&lt;p&gt;Poursuivre vers le wiki?&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Colorize with Filter</source>
@@ -12787,6 +12920,10 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Select all calls</source>
         <translation>Sélectionner tous les appels</translation>
+    </message>
+    <message>
+        <source>Display time as time of day</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy as CSV</source>

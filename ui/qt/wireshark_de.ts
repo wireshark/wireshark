@@ -1771,7 +1771,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <name>CopyFromProfileMenu</name>
     <message>
         <source>System default</source>
-        <translation type="unfinished"></translation>
+        <translation>Standard</translation>
     </message>
 </context>
 <context>
@@ -2488,8 +2488,9 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Die Hifle für Extcap-Schnittstelle %1 kann nicht gefunden werden. Angegebene Datei: %2</translation>
     </message>
     <message>
-        <source>Save parameter on capture start</source>
-        <translation>Parameter beim Starten des Mitschnitts speichern</translation>
+        <source>Save parameter(s) on capture start</source>
+        <oldsource>Save parameter on capture start</oldsource>
+        <translation type="unfinished">Parameter beim Starten des Mitschnitts speichern</translation>
     </message>
 </context>
 <context>
@@ -4259,6 +4260,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <source>External capture interfaces disabled.</source>
         <translation>Externe Mitschnittschnittstellen deaktiviert.</translation>
     </message>
+    <message>
+        <source>Start capture</source>
+        <translation type="unfinished"></translation>
+    </message>
 </context>
 <context>
     <name>InterfaceSortFilterModel</name>
@@ -5690,8 +5695,24 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Importieren</translation>
     </message>
     <message>
+        <source>from zip file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>from directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Export</source>
-        <translation type="unfinished">Exportieren</translation>
+        <translation>Exportieren</translation>
+    </message>
+    <message>
+        <source>selected personal profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>all personal profiles</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>New</source>
@@ -5737,13 +5758,17 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <oldsource>No expert info</oldsource>
         <translation>Keine Experten-Informationen</translation>
     </message>
-    <message>
-        <source>, 1 byte</source>
-        <translation>, 1 Byte</translation>
+    <message numerus="yes">
+        <source>%Ln byte(s)</source>
+        <oldsource>, 1 byte</oldsource>
+        <translation type="unfinished">
+            <numerusform>, 1 Byte</numerusform>
+            <numerusform></numerusform>
+        </translation>
     </message>
     <message>
         <source>, %1 bytes</source>
-        <translation>, %1 Bytes</translation>
+        <translation type="vanished">, %1 Bytes</translation>
     </message>
     <message>
         <source>Byte %1</source>
@@ -8548,25 +8573,26 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
 <context>
     <name>ProfileDialog</name>
     <message>
-        <source>Search for profile ...</source>
-        <translation>Nach Profil suchen ...</translation>
+        <source>Search for profile …</source>
+        <oldsource>Search for profile ...</oldsource>
+        <translation type="unfinished">Nach Profil suchen ...</translation>
     </message>
     <message>
         <source>Create a new profile using default settings.</source>
         <translation>Ein neues Profil mit den Standardeinstellungen erstellen.</translation>
     </message>
     <message>
+        <source>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;Remove this profile. System provided profiles cannot be removed. The default profile will be resetted upon deletion.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Remove this profile. System provided profiles cannot be removed.</source>
         <oldsource>Remove this profile. The Default profile and system provided profiles cannot be removed.</oldsource>
-        <translation>Dieses Profil entfernen. Das Standardprofil und vorgegebene Profile können nicht entfernt werden.</translation>
+        <translation type="vanished">Dieses Profil entfernen. Das Standardprofil und vorgegebene Profile können nicht entfernt werden.</translation>
     </message>
     <message>
         <source>Copy this profile.</source>
         <translation>Dieses Profil kopieren.</translation>
-    </message>
-    <message>
-        <source>Import</source>
-        <translation type="vanished">Importieren</translation>
     </message>
     <message>
         <source>Configuration Profiles</source>
@@ -8575,28 +8601,28 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Import</source>
         <comment>noun</comment>
-        <translation type="unfinished">Importieren</translation>
+        <translation>Importieren</translation>
     </message>
     <message>
         <source>Export</source>
         <comment>noun</comment>
-        <translation type="unfinished">Exportieren</translation>
+        <translation>Exportieren</translation>
     </message>
     <message>
         <source>All Profiles</source>
-        <translation>Alle Profile</translation>
+        <translation type="vanished">Alle Profile</translation>
     </message>
     <message>
         <source>User-defined profiles</source>
-        <translation>Benutzerdefinierte Profile</translation>
+        <translation type="vanished">Benutzerdefinierte Profile</translation>
     </message>
     <message>
         <source>System profiles</source>
-        <translation>Systemprofile</translation>
+        <translation type="vanished">Systemprofile</translation>
     </message>
     <message>
         <source>An import of profiles is not allowed, while changes are pending.</source>
-        <translation type="unfinished"></translation>
+        <translation>Solange Änderungen noch anstehen können Profile nicht importiert werden.</translation>
     </message>
     <message>
         <source>New profile</source>
@@ -8608,83 +8634,121 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>Exporting profiles</source>
-        <translation type="unfinished"></translation>
+        <translation>Profile exportieren</translation>
     </message>
     <message>
         <source>No profiles found for export</source>
-        <translation type="unfinished"></translation>
+        <translation>Keine Profile zum Exportieren gefunden</translation>
     </message>
     <message>
         <source>Select zip file for export</source>
-        <translation type="unfinished"></translation>
+        <translation>Zum Exportieren eine Zipdatei auswählen</translation>
     </message>
     <message numerus="yes">
         <source>%Ln profile(s) have been exported</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
+        <translation type="vanished">
+            <numerusform>%Ln Profil wurde exportiert</numerusform>
+            <numerusform>%Ln Profile wurden exportiert</numerusform>
         </translation>
     </message>
     <message>
         <source>An error has occured while exporting profiles</source>
-        <translation type="unfinished"></translation>
+        <translation type="vanished">Ein Fehler ist beim exportieren der Profile aufgetreten</translation>
     </message>
     <message>
         <source>Select zip file for import</source>
         <translation>Zum Importieren eine Zipdatei auswählen</translation>
     </message>
-    <message numerus="yes">
-        <source>%Ln profile(s) imported</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
-    <message numerus="yes">
-        <source>, %Ln profile(s) skipped</source>
-        <translation type="unfinished">
-            <numerusform></numerusform>
-            <numerusform></numerusform>
-        </translation>
-    </message>
     <message>
         <source>Select directory for import</source>
-        <translation type="unfinished"></translation>
+        <translation>Zum Importieren ein Verzeichnis auswählen</translation>
     </message>
     <message>
         <source>Zip File (*.zip)</source>
         <translation>Zipdatei (*.zip)</translation>
     </message>
     <message>
+        <source>from zip file</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>from directory</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln selected personal profile(s)</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>all personal profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An import is pending to be saved. Additional imports are not allowed.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An export of profiles is only allowed for personal profiles.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An export of profiles is not allowed, while changes are pending.</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Error</source>
+        <translation type="unfinished">Fehler</translation>
+    </message>
+    <message numerus="yes">
+        <source>%Ln profile(s) exported</source>
+        <translation type="unfinished">
+            <numerusform></numerusform>
+            <numerusform></numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>An error has occurred while exporting profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>No profiles found for import in %1</source>
         <translation>Keine Profile unter %1 zum Importieren gefunden</translation>
     </message>
-    <message>
-        <source>, %1 profile(s) skipped</source>
-        <translation type="vanished">, %1 Profil(e) übersprungen</translation>
+    <message numerus="yes">
+        <source>%Ln profile(s) imported</source>
+        <translation>
+            <numerusform>%Ln Profil importiert</numerusform>
+            <numerusform>%Ln Profile importiert</numerusform>
+        </translation>
+    </message>
+    <message numerus="yes">
+        <source>, %Ln profile(s) skipped</source>
+        <translation>
+            <numerusform>, %1 Profil übersprungen</numerusform>
+            <numerusform>, %1 Profile übersprungen</numerusform>
+        </translation>
     </message>
     <message>
         <source>Importing profiles</source>
         <translation>Profile importieren</translation>
-    </message>
-    <message>
-        <source>One profile has been imported</source>
-        <translation type="vanished">Ein Profil wurde importiert</translation>
-    </message>
-    <message>
-        <source>%1 profiles have been imported</source>
-        <translation type="vanished">%1 Profile wurden importiert</translation>
     </message>
 </context>
 <context>
     <name>ProfileModel</name>
     <message>
         <source>User</source>
-        <translation>Benutzer</translation>
+        <translation type="vanished">Benutzer</translation>
     </message>
     <message>
         <source>Resetting to default</source>
         <translation>Auf Standard zurücksetzen</translation>
+    </message>
+    <message>
+        <source>Imported profile</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Created from default settings</source>
@@ -8696,52 +8760,44 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>system provided</source>
+        <translation>vom System vorgegeben</translation>
+    </message>
+    <message>
+        <source>renamed to</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>deleted</source>
-        <translation type="unfinished"></translation>
+        <translation>gelöscht</translation>
     </message>
     <message>
         <source>copy</source>
         <comment>noun</comment>
-        <translation type="unfinished">Kopieren</translation>
+        <translation>kopieren</translation>
     </message>
     <message>
         <source>Exporting profiles while changes are pending is not allowed</source>
-        <translation type="unfinished"></translation>
+        <translation>Solange Änderungen noch anstehen können Profile nicht exportiert werden.</translation>
     </message>
     <message>
         <source>No profiles found to export</source>
+        <translation>Keine Profile zum Exportieren gefunden</translation>
+    </message>
+    <message>
+        <source>Can&apos;t delete profile directory</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>A profile name cannot contain the following characters: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Profilname darf keines der folgenden Zeichen enthalten: %1</translation>
     </message>
     <message>
         <source>A profile name cannot contain the &apos;/&apos; character.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Profilname darf kein &apos;/&apos; Zeichen enthalten.</translation>
     </message>
     <message>
         <source>A profile cannot start or end with a period (.)</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Will be reset to default values</source>
-        <translation type="vanished">Auf Ausgangswerte zurücksetzen</translation>
-    </message>
-    <message>
-        <source>Created from %1</source>
-        <translation type="vanished">Erstellt von %1</translation>
-    </message>
-    <message>
-        <source>(system provided)</source>
-        <translation type="vanished">(vom System vorgegeben)</translation>
-    </message>
-    <message>
-        <source>(deleted)</source>
-        <translation type="vanished">(gelöscht)</translation>
+        <translation>Ein Profil darf nicht mit einem Punkt (.) starten oder enden</translation>
     </message>
     <message>
         <source>Default</source>
@@ -8749,7 +8805,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>System</source>
-        <translation>System</translation>
+        <translation type="vanished">System</translation>
     </message>
     <message>
         <source>Renamed from: </source>
@@ -8760,16 +8816,16 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Dies ist ein vorgegebenes Profil.</translation>
     </message>
     <message>
-        <source>The profile will be reset to default values.</source>
-        <translation type="vanished">Das Profil wird auf den Ausgangswert zurückgesetzt.</translation>
+        <source>Global</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Personal</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>A profile already exists with this name.</source>
         <translation>Ein Profil mit diesem Namen existiert bereits.</translation>
-    </message>
-    <message>
-        <source>A profile already exists with this name</source>
-        <translation type="vanished">Ein Profil mit diesem Namen existiert bereits</translation>
     </message>
     <message>
         <source>Profile</source>
@@ -8779,21 +8835,20 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <source>Type</source>
         <translation>Typ</translation>
     </message>
+</context>
+<context>
+    <name>ProfileSortModel</name>
     <message>
-        <source>Path</source>
-        <translation type="vanished">Pfad</translation>
+        <source>All profiles</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>copy</source>
-        <translation type="vanished">Kopieren</translation>
+        <source>Personal profiles</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>A profile must not contain any of the following characters: %1</source>
-        <translation type="vanished">Ein Profil darf keines der folgenden Zeichen enthalten: %1</translation>
-    </message>
-    <message>
-        <source>A profile must not start or end with a period (.)</source>
-        <translation type="vanished">Ein Profil darf nicht mit einem Punkt (.) beginnen oder enden</translation>
+        <source>Global profiles</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
@@ -8808,6 +8863,66 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Packet details</source>
         <translation>Paketdetails</translation>
+    </message>
+    <message>
+        <source>Expand Subtrees</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Collapse Subtrees</source>
+        <translation type="unfinished">Teilbauch einklappen</translation>
+    </message>
+    <message>
+        <source>Expand All</source>
+        <translation type="unfinished">Alles aufklappen</translation>
+    </message>
+    <message>
+        <source>Collapse All</source>
+        <translation type="unfinished">Alles einklappen</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation type="unfinished">Kopieren</translation>
+    </message>
+    <message>
+        <source>All Visible Items</source>
+        <translation type="unfinished">Alle sichtbaren Elemente</translation>
+    </message>
+    <message>
+        <source>All Visible Selected Tree Items</source>
+        <translation type="unfinished">Alle sichtbare ausgewählten Elemente</translation>
+    </message>
+    <message>
+        <source>Desription</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Field Name</source>
+        <translation type="unfinished">Feldname</translation>
+    </message>
+    <message>
+        <source>Value</source>
+        <translation type="unfinished">Wert</translation>
+    </message>
+    <message>
+        <source>As Filter</source>
+        <translation type="unfinished">Als Filter</translation>
+    </message>
+    <message>
+        <source>Wiki Protocol Page</source>
+        <translation type="unfinished">Wikiseite Protokolle (en)</translation>
+    </message>
+    <message>
+        <source>Filter Field Reference</source>
+        <translation type="unfinished">Referenz Filterfelder</translation>
+    </message>
+    <message>
+        <source>Wiki Page for %1</source>
+        <translation type="unfinished">Wikiseite für &amp;1</translation>
+    </message>
+    <message>
+        <source>&lt;p&gt;The Wireshark Wiki is maintained by the community.&lt;/p&gt;&lt;p&gt;The page you are about to load might be wonderful, incomplete, wrong, or nonexistent.&lt;/p&gt;&lt;p&gt;Proceed to the wiki?&lt;/p&gt;</source>
+        <translation type="unfinished">&lt;p&gt;Das Wireshark Wiki wird durch die Community gepflegt.&lt;/p&gt;&lt;p&gt;Die Seite, die aufgerufen werden soll, kann wundervoll, unvollständig, falsch oder gar nicht vorhanden sein.&lt;/p&gt;&lt;p&gt;Zum Wiki gehen?&lt;/p&gt;</translation>
     </message>
     <message>
         <source>Colorize with Filter</source>
@@ -12901,6 +13016,10 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Select all calls</source>
         <translation>Alle Anrufe auswählen</translation>
+    </message>
+    <message>
+        <source>Display time as time of day</source>
+        <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Copy as CSV</source>
