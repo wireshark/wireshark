@@ -127,12 +127,13 @@ busmaster_gen_packet(wtap_rec               *rec, Buffer *buf,
     {
         struct tm tm;
 
-        tm.tm_year = priv_entry->start_date.year - 1900;
-        tm.tm_mon  = priv_entry->start_date.month - 1;
-        tm.tm_mday = priv_entry->start_date.day;
-        tm.tm_hour = msg->timestamp.hours;
-        tm.tm_min  = msg->timestamp.minutes;
-        tm.tm_sec  = msg->timestamp.seconds;
+        tm.tm_year  = priv_entry->start_date.year - 1900;
+        tm.tm_mon   = priv_entry->start_date.month - 1;
+        tm.tm_mday  = priv_entry->start_date.day;
+        tm.tm_hour  = msg->timestamp.hours;
+        tm.tm_min   = msg->timestamp.minutes;
+        tm.tm_sec   = msg->timestamp.seconds;
+        tm.tm_isdst = -1;
 
         secs   = mktime(&tm);
         nsecs  = msg->timestamp.micros * 1000u;
@@ -143,12 +144,13 @@ busmaster_gen_packet(wtap_rec               *rec, Buffer *buf,
         struct tm tm;
         guint32   micros;
 
-        tm.tm_year = priv_entry->start_date.year - 1900;
-        tm.tm_mon  = priv_entry->start_date.month - 1;
-        tm.tm_mday = priv_entry->start_date.day;
-        tm.tm_hour = priv_entry->start_time.hours;
-        tm.tm_min  = priv_entry->start_time.minutes;
-        tm.tm_sec  = priv_entry->start_time.seconds;
+        tm.tm_year  = priv_entry->start_date.year - 1900;
+        tm.tm_mon   = priv_entry->start_date.month - 1;
+        tm.tm_mday  = priv_entry->start_date.day;
+        tm.tm_hour  = priv_entry->start_time.hours;
+        tm.tm_min   = priv_entry->start_time.minutes;
+        tm.tm_sec   = priv_entry->start_time.seconds;
+        tm.tm_isdst = -1;
 
         secs = mktime(&tm);
 
