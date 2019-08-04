@@ -216,7 +216,6 @@ void ProfileDialog::updateWidgets()
     bool enable_del = true;
     bool enable_ok = true;
     bool multiple = false;
-    bool contains_user = false;
     bool enable_import = true;
     int user_profiles = 0;
 
@@ -238,8 +237,6 @@ void ProfileDialog::updateWidgets()
         if ( ! profiles[cnt].data(ProfileModel::DATA_IS_GLOBAL).toBool() && ! profiles[cnt].data(ProfileModel::DATA_IS_DEFAULT).toBool() )
             user_profiles++;
     }
-    if ( user_profiles > 0 )
-        contains_user = true;
     if ( model_->changesPending() )
     {
         enable_import = false;
@@ -254,7 +251,11 @@ void ProfileDialog::updateWidgets()
     import_button_->setEnabled( enable_import );
 
 #ifdef HAVE_MINIZIP
+    bool contains_user = false;
     bool enable_export = false;
+
+    if ( user_profiles > 0 )
+        contains_user = true;
 
     /* enable export if no changes are pending */
     if ( ! model_->changesPending() )
