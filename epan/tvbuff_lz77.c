@@ -2,6 +2,8 @@
  * Decompression code for Plain LZ77. This encoding is used by
  * Microsoft in various file formats and protocols including SMB3.
  *
+ * See MS-XCA.
+ *
  * Copyright (C) 2019  Aurélien Aptel
  *
  * SPDX-License-Identifier: GPL-2.0-or-later

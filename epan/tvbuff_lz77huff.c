@@ -2,6 +2,8 @@
  * Decompression code for LZ77+Huffman. This encoding is used by
  * Microsoft in various file formats and protocols including SMB3.
  *
+ * See MS-XCA.
+ *
  * Initial code from Samba re-licensed with Samuel's permission.
  * Copyright (C) Samuel Cabrero 2017
  *

@@ -1,6 +1,8 @@
 /*
- * Decompression code for LZ77+Huffman. This encoding is used by
+ * Decompression code for LZNT1. This encoding is used by
  * Microsoft in various file formats and protocols including SMB3.
+ *
+ * See MS-XCA.
  *
  * Copyright (C) 2019  Aurélien Aptel
  *
