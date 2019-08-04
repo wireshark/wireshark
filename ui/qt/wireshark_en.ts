@@ -2228,10 +2228,6 @@ PLEASE NOTE: One option MUST be selected.</source>
 <context>
     <name>ExtcapOptionsDialog</name>
     <message>
-        <source>Save parameter on capture start</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Interface Options</source>
         <translation type="unfinished"></translation>
     </message>
@@ -2245,6 +2241,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>The help for the extcap interface %1 cannot be found. Given file: %2</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>Save parameters on capture start</source>
         <translation type="unfinished"></translation>
     </message>
 </context>

@@ -2208,7 +2208,8 @@ NOTE: Une option DOIT être sélectionnée.</translation>
 <context>
     <name>ExtcapOptionsDialog</name>
     <message>
-        <source>Save parameter on capture start</source>
+        <source>Save parameters on capture start</source>
+        <oldsource>Save parameter on capture start</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

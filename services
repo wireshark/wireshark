@@ -5849,6 +5849,7 @@ athand-mmp	20999/tcp/udp	# At Hand MMP
 irtrans		21000/tcp/udp	# IRTrans Control
 notezilla-lan	21010/tcp	# Notezilla.Lan Server
 trinket-agent	21212/tcp	# Distributed artificial intelligence
+cohesity-agent	21213/tcp	# Cohesity backup agents
 aigairserver	21221/tcp	# Services for Air Server
 rdm-tfs		21553/tcp	# Raima RDM TFS
 dfserver	21554/tcp/udp	# MineScape Design File Server

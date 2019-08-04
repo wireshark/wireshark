@@ -2210,8 +2210,9 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
 <context>
     <name>ExtcapOptionsDialog</name>
     <message>
-        <source>Save parameter on capture start</source>
-        <translation>Zapisz parametry przy starcie przechwytywania</translation>
+        <source>Save parameters on capture start</source>
+        <oldsource>Save parameter on capture start</oldsource>
+        <translation type="unfinished">Zapisz parametry przy starcie przechwytywania</translation>
     </message>
     <message>
         <source>Interface Options</source>

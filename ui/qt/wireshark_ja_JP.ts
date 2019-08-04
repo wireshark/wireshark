@@ -2226,8 +2226,9 @@ PLEASE NOTE: One option MUST be selected.</source>
 <context>
     <name>ExtcapOptionsDialog</name>
     <message>
-        <source>Save parameter on capture start</source>
-        <translation>キャプチャ開始時にパラメタを保存します</translation>
+        <source>Save parameters on capture start</source>
+        <oldsource>Save parameter on capture start</oldsource>
+        <translation type="unfinished">キャプチャ開始時にパラメタを保存します</translation>
     </message>
     <message>
         <source>Interface Options</source>
