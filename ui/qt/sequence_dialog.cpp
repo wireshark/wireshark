@@ -133,7 +133,8 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
 
     ctx_menu_.addAction(ui->actionZoomIn);
     ctx_menu_.addAction(ui->actionZoomOut);
-    ctx_menu_.addAction(ui->actionReset);
+    QAction * action = ctx_menu_.addAction(tr("Reset Diagram"), this, SLOT(resetView()));
+    action->setToolTip(tr("Reset the diagram to its initial state."));
     ctx_menu_.addSeparator();
     ctx_menu_.addAction(ui->actionMoveRight10);
     ctx_menu_.addAction(ui->actionMoveLeft10);
@@ -149,6 +150,10 @@ SequenceDialog::SequenceDialog(QWidget &parent, CaptureFile &cf, SequenceInfo *i
     ctx_menu_.addAction(ui->actionGoToPreviousPacket);
 
     ui->addressComboBox->setCurrentIndex(0);
+
+    QPushButton * btn = ui->buttonBox->addButton(tr("Reset Diagram"), QDialogButtonBox::ActionRole);
+    btn->setToolTip(tr("Reset the diagram to its initial state."));
+    connect(btn, &QPushButton::clicked, this, &SequenceDialog::resetView);
 
     sequence_items_t item_data;
 
@@ -537,7 +542,7 @@ void SequenceDialog::resetAxes(bool keep_lower)
     sp->replot(QCustomPlot::rpHint);
 }
 
-void SequenceDialog::on_resetButton_clicked()
+void SequenceDialog::resetView()
 {
     resetAxes();
 }
@@ -627,11 +632,6 @@ void SequenceDialog::on_addressComboBox_activated(int index)
         info_->sainfo()->any_addr = FALSE;
     }
     fillDiagram();
-}
-
-void SequenceDialog::on_actionReset_triggered()
-{
-    on_resetButton_clicked();
 }
 
 void SequenceDialog::on_actionMoveRight10_triggered()

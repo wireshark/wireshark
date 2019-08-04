@@ -67,16 +67,15 @@ private slots:
     void mouseWheeled(QWheelEvent *event);
 
     void fillDiagram();
+    void resetView();
 
     void on_buttonBox_accepted();
-    void on_resetButton_clicked();
     void on_actionGoToPacket_triggered();
     void on_actionGoToNextPacket_triggered() { goToAdjacentPacket(true); }
     void on_actionGoToPreviousPacket_triggered() { goToAdjacentPacket(false); }
     void on_displayFilterCheckBox_toggled(bool checked);
     void on_flowComboBox_activated(int index);
     void on_addressComboBox_activated(int index);
-    void on_actionReset_triggered();
     void on_actionMoveRight10_triggered();
     void on_actionMoveLeft10_triggered();
     void on_actionMoveUp10_triggered();
