@@ -2420,8 +2420,9 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
         <translation>Die Hifle für Extcap-Schnittstelle %1 kann nicht gefunden werden. Angegebene Datei: %2</translation>
     </message>
     <message>
-        <source>Save parameter on capture start</source>
-        <translation>Parameter beim Starten des Mitschnitts speichern</translation>
+        <source>Save parameters on capture start</source>
+        <oldsource>Save parameter on capture start</oldsource>
+        <translation type="unfinished">Parameter beim Starten des Mitschnitts speichern</translation>
     </message>
 </context>
 <context>

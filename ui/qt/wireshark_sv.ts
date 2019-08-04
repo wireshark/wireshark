@@ -2412,8 +2412,9 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
         <translation>Hjälpen för extcap-gränssnittet %1 kan inte hittas.  Angiven fil: %2</translation>
     </message>
     <message>
-        <source>Save parameter on capture start</source>
-        <translation>Spara parametrarna vid fångststart</translation>
+        <source>Save parameters on capture start</source>
+        <oldsource>Save parameter on capture start</oldsource>
+        <translation type="unfinished">Spara parametrarna vid fångststart</translation>
     </message>
 </context>
 <context>

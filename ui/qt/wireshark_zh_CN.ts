@@ -2410,8 +2410,9 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>无法找到 extcap接口 %1 的帮助。文件：%2</translation>
     </message>
     <message>
-        <source>Save parameter on capture start</source>
-        <translation>捕获开始时保存参数</translation>
+        <source>Save parameters on capture start</source>
+        <oldsource>Save parameter on capture start</oldsource>
+        <translation type="unfinished">捕获开始时保存参数</translation>
     </message>
 </context>
 <context>

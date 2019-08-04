@@ -2427,8 +2427,9 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>Справка для extcap-интерфейса %1 не найдена. Указанный файл: %2</translation>
     </message>
     <message>
-        <source>Save parameter on capture start</source>
-        <translation>Сохранить параметр при старте захвата</translation>
+        <source>Save parameters on capture start</source>
+        <oldsource>Save parameter on capture start</oldsource>
+        <translation type="unfinished">Сохранить параметр при старте захвата</translation>
     </message>
 </context>
 <context>

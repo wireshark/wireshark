@@ -2420,8 +2420,9 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
         <translation>La guida per l&apos;interfaccia %1 non è disponibile. File specificato: %2</translation>
     </message>
     <message>
-        <source>Save parameter on capture start</source>
-        <translation>Salva parametro all&apos;avvio della cattura</translation>
+        <source>Save parameters on capture start</source>
+        <oldsource>Save parameter on capture start</oldsource>
+        <translation type="unfinished">Salva parametro all&apos;avvio della cattura</translation>
     </message>
 </context>
 <context>

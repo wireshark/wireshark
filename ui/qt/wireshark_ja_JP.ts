@@ -2413,8 +2413,9 @@ PLEASE NOTE: One option MUST be selected.</source>
         <translation>extcap インターフェース %1 のヘルプを見つけることができません。与えられたファイル: %2</translation>
     </message>
     <message>
-        <source>Save parameter on capture start</source>
-        <translation>キャプチャ開始時にパラメタを保存します</translation>
+        <source>Save parameters on capture start</source>
+        <oldsource>Save parameter on capture start</oldsource>
+        <translation type="unfinished">キャプチャ開始時にパラメタを保存します</translation>
     </message>
 </context>
 <context>
