@@ -605,7 +605,14 @@ QModelIndex ProfileModel::duplicateEntry(QModelIndex idx, int new_status)
         parent = prof->reference;
 
     QString parentName = parent;
-    if ( prof->status == PROF_STAT_CHANGED )
+    if ( prof->status == PROF_STAT_COPY )
+    {
+        int row = findByNameAndVisibility(parentName, false, true);
+        profile_def * par = guard(row);
+        if ( par && par->status == PROF_STAT_CHANGED )
+            parentName = par->name;
+    }
+    else if ( prof->status == PROF_STAT_CHANGED )
         parentName = prof->name;
 
     if ( parent.length() == 0 )
