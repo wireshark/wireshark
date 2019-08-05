@@ -1007,48 +1007,47 @@ You can mark packets in the “Packet List” pane. A marked packet will be show
 with black background, regardless of the coloring rules set. Marking a packet
 can be useful to find it later while analyzing in a large capture file.
 
-The packet marks are not stored in the capture file or anywhere else. All
-packet marks will be lost when the capture file is closed.
+Marked packet information is not stored in the capture file or anywhere
+else. It will be lost when the capture file is closed.
 
 You can use packet marking to control the output of packets when saving,
 exporting, or printing. To do so, an option in the packet range is available,
 see <<ChIOPacketRangeSection>>.
 
-There are three functions to manipulate the marked state of a packet:
+There are several ways to mark and unmark packets. From the menu:Edit[] menu
+you can select from the following:
 
-* _Mark packet (toggle)_ toggles the marked state of a single packet.
+* menu:Mark/Unmark Packet[] toggles the marked state of a single packet.
+  This option is also available in the packet list context menu.
 
-* _Mark all displayed packets_ set the mark state of all displayed packets.
+* menu:Mark All Displayed[] set the mark state of all displayed packets.
 
-* _Unmark all packets_ reset the mark state of all packets.
+* menu:Unmark All Displayed[] reset the mark state of all packets.
 
-These mark functions are available from the “Edit” menu, and the “Mark packet
-(toggle)” function is also available from the pop-up menu of the “Packet
-List” pane.
+You can also mark and unmark a packet by clicking on it in the packet list
+with the middle mouse button.
 
 [[ChWorkIgnorePacketSection]]
 
 === Ignoring Packets
 
-You can ignore packets in the “Packet List” pane. Wireshark will then pretend
-that this packets does not exist in the capture file. An ignored packet will be
-shown with white background and gray foreground, regardless of the coloring
-rules set.
+You can ignore packets in the “Packet List” pane. Wireshark will then
+pretend that they not exist in the capture file. An ignored packet will
+be shown with white background and gray foreground, regardless of the
+coloring rules set.
 
-The packet ignored marks are not stored in the capture file or anywhere else.
-All “packet ignored” marks will be lost when you close the capture file.
+Ignored packet information is not stored in the capture file or anywhere
+else. It will be lost when the capture file is closed.
 
-There are three functions to manipulate the ignored state of a packet:
+There are several ways to ignore and unignore packets. From the
+menu:Edit[] menu you can select from the following:
 
-* _Ignore packet (toggle)_ toggles the ignored state of a single packet.
+* menu:Ignore/Unignore Packet[] toggles the ignored state of a single
+  packet. This option is also available in the packet list context menu.
 
-* _Ignore all displayed packets_ set the ignored state of all displayed packets.
+* menu:Ignore All Displayed[] set the ignored state of all displayed packets.
 
-* _Un-Ignore all packets_ reset the ignored state of all packets.
-
-These ignore functions are available from the “Edit” menu, and the “Ignore
-packet (toggle)” function is also available from the pop-up menu of the
-“Packet List” pane.
+* menu:Unignore All Displayed[] reset the ignored state of all packets.
 
 [[ChWorkTimeFormatsSection]]
 
@@ -1065,34 +1064,35 @@ chosen using the View menu, see <<ChUseWiresharkViewMenu>>.
 
 The available presentation formats are:
 
-* _Date and Time of Day: 1970-01-01 01:02:03.123456_ The absolute date and time
+* menu:Date and Time of Day: 1970-01-01 01:02:03.123456[] The absolute date and time
   of the day when the packet was captured.
 
-* _Time of Day: 01:02:03.123456_ The absolute time of the day when the packet
+* menu:Time of Day: 01:02:03.123456[] The absolute time of the day when the packet
   was captured.
 
-* _Seconds Since Beginning of Capture: 123.123456_ The time relative to the
+* menu:Seconds Since Beginning of Capture: 123.123456[] The time relative to the
   start of the capture file or the first “Time Reference” before this packet
   (see <<ChWorkTimeReferencePacketSection>>).
 
-* _Seconds Since Previous Captured Packet: 1.123456_ The time relative to the
+* menu:Seconds Since Previous Captured Packet: 1.123456[] The time relative to the
   previous captured packet.
 
-* _Seconds Since Previous Displayed Packet: 1.123456_ The time relative to the
+* menu:Seconds Since Previous Displayed Packet: 1.123456[] The time relative to the
   previous displayed packet.
 
-* _Seconds Since Epoch (1970-01-01): 1234567890.123456_ The time relative to
+* menu:Seconds Since Epoch (1970-01-01): 1234567890.123456[] The time relative to
   epoch (midnight UTC of January 1, 1970).
 
 The available precisions (aka. the number of displayed decimal places) are:
 
-* _Automatic_ The timestamp precision of the loaded capture file format will be
+* menu:Automatic (from capture file)[] The timestamp precision of the loaded capture file format will be
   used (the default).
 
-* _Seconds, Deciseconds, Centiseconds, Milliseconds, Microseconds or
-  Nanoseconds_ The timestamp precision will be forced to the given setting. If
-  the actually available precision is smaller, zeros will be appended. If the
-  precision is larger, the remaining decimal places will be cut off.
+* menu:Seconds[], menu:Tenths of a second[], menu:Hundredths of a second[],
+  menu:Milliseconds[], menu:Microseconds[] or menu:Nanoseconds[] The
+  timestamp precision will be forced to the given setting. If the
+  actually available precision is smaller, zeros will be appended. If
+  the precision is larger, the remaining decimal places will be cut off.
 
 Precision example: If you have a timestamp and it’s displayed using, “Seconds
 Since Previous Packet” the value might be 1.123456. This will be displayed
@@ -1120,12 +1120,12 @@ To work with time references, choose one of the menu:Time Reference[] items in
 the menu:[Edit] menu or from the pop-up menu of the “Packet List” pane. See
 <<ChUseEditMenuSection>>.
 
-* _Set Time Reference (toggle)_ Toggles the time reference state of the
+* menu:Set Time Reference (toggle)[] Toggles the time reference state of the
   currently selected packet to on or off.
 
-* _Find Next_ Find the next time referenced packet in the “Packet List” pane.
+* menu:Find Next[] Find the next time referenced packet in the “Packet List” pane.
 
-* _Find Previous_ Find the previous time referenced packet in the “Packet
+* menu:Find Previous[] Find the previous time referenced packet in the “Packet
   List” pane.
 
 [[ChWorkTimeReference]]
