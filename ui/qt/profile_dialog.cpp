@@ -666,9 +666,9 @@ void ProfileDialog::finishImport(QFileInfo fi, int count, int skipped, QStringLi
         msg = tr("%Ln profile(s) imported", "", count);
         if ( skipped > 0 )
             msg.append(tr(", %Ln profile(s) skipped", "", skipped));
-
-        storeLastDir(fi.absolutePath());
     }
+
+    storeLastDir(fi.absolutePath());
 
     if ( count > 0 )
     {
