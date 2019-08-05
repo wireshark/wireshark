@@ -41,7 +41,7 @@ GList * edited_profile_list(void) {
 
 static GList *
 add_profile_entry(GList *fl, const char *profilename, const char *reference, int status,
-        gboolean is_global, gboolean from_global)
+        gboolean is_global, gboolean from_global, gboolean is_import)
 {
     profile_def *profile;
 
@@ -51,6 +51,7 @@ add_profile_entry(GList *fl, const char *profilename, const char *reference, int
     profile->status = status;
     profile->is_global = is_global;
     profile->from_global = from_global;
+    profile->is_import = is_import;
     return g_list_append(fl, profile);
 }
 
@@ -164,7 +165,7 @@ gchar *apply_profile_changes(void)
         g_strstrip(profile1->name);
         if (profile1->status == PROF_STAT_NEW) {
             /* We do not create a directory for the default profile */
-            if (strcmp(profile1->name, DEFAULT_PROFILE)!=0) {
+            if (strcmp(profile1->name, DEFAULT_PROFILE)!=0  && ! profile1->is_import) {
                 if (create_persconffile_profile(profile1->name, &pf_dir_path) == -1) {
                     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                             "Can't create directory\n\"%s\":\n%s.",
@@ -176,6 +177,12 @@ gchar *apply_profile_changes(void)
 
                 g_free (profile1->reference);
                 profile1->reference = g_strdup(profile1->name);
+            /* correctly apply imports as existing profiles */
+            } else if (profile1->is_import) {
+                profile1->status = PROF_STAT_EXISTS;
+                g_free (profile1->reference);
+                profile1->reference = g_strdup(profile1->name);
+                profile1->is_import = FALSE;
             }
         } else if (profile1->status == PROF_STAT_CHANGED) {
             if (strcmp(profile1->reference, profile1->name)!=0) {
@@ -235,10 +242,10 @@ gchar *apply_profile_changes(void)
 
 GList *
 add_to_profile_list(const char *name, const char *expression, int status,
-        gboolean is_global, gboolean from_global)
+        gboolean is_global, gboolean from_global, gboolean is_imported)
 {
     edited_profiles = add_profile_entry(edited_profiles, name, expression, status,
-            is_global, from_global);
+            is_global, from_global, is_imported);
 
     return g_list_last(edited_profiles);
 }
@@ -294,7 +301,7 @@ copy_profile_list(void)
 
         current_profiles = add_profile_entry(current_profiles, profile->name,
                 profile->reference, profile->status,
-                profile->is_global, profile->from_global);
+                profile->is_global, profile->from_global, FALSE);
         flp_src = g_list_next(flp_src);
     }
 }
@@ -313,7 +320,7 @@ init_profile_list(void)
     empty_profile_list(TRUE);
 
     /* Default entry */
-    add_to_profile_list(DEFAULT_PROFILE, DEFAULT_PROFILE, PROF_STAT_DEFAULT, FALSE, FALSE);
+    add_to_profile_list(DEFAULT_PROFILE, DEFAULT_PROFILE, PROF_STAT_DEFAULT, FALSE, FALSE, FALSE);
 
     /* Local (user) profiles */
     profiles_dir = get_profiles_dir();
@@ -334,7 +341,7 @@ init_profile_list(void)
     local_profiles = g_list_sort(local_profiles, (GCompareFunc)g_ascii_strcasecmp);
     for (iter = g_list_first(local_profiles); iter; iter = g_list_next(iter)) {
         name = (gchar *)iter->data;
-        add_to_profile_list(name, name, PROF_STAT_EXISTS, FALSE, FALSE);
+        add_to_profile_list(name, name, PROF_STAT_EXISTS, FALSE, FALSE, FALSE);
     }
     g_list_free_full(local_profiles, g_free);
 
@@ -357,7 +364,7 @@ init_profile_list(void)
     global_profiles = g_list_sort(global_profiles, (GCompareFunc)g_ascii_strcasecmp);
     for (iter = g_list_first(global_profiles); iter; iter = g_list_next(iter)) {
         name = (gchar *)iter->data;
-        add_to_profile_list(name, name, PROF_STAT_EXISTS, TRUE, TRUE);
+        add_to_profile_list(name, name, PROF_STAT_EXISTS, TRUE, TRUE, FALSE);
     }
     g_list_free_full(global_profiles, g_free);
 

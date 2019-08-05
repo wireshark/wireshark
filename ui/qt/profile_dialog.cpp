@@ -240,12 +240,12 @@ void ProfileDialog::updateWidgets()
     if ( model_->changesPending() )
     {
         enable_import = false;
-        msg = tr("An import of profiles is not allowed, while changes are pending.");
+        msg = tr("An import of profiles is not allowed, while changes are pending");
     }
     else if ( model_->importPending() )
     {
         enable_import = false;
-        msg = tr("An import is pending to be saved. Additional imports are not allowed.");
+        msg = tr("An import is pending to be saved. Additional imports are not allowed");
     }
     import_button_->setToolTip( msg );
     import_button_->setEnabled( enable_import );
@@ -265,9 +265,9 @@ void ProfileDialog::updateWidgets()
     if ( ! enable_export )
     {
         if ( ! contains_user )
-            export_button_->setToolTip(tr("An export of profiles is only allowed for personal profiles."));
+            export_button_->setToolTip(tr("An export of profiles is only allowed for personal profiles"));
         else
-            export_button_->setToolTip(tr("An export of profiles is not allowed, while changes are pending."));
+            export_button_->setToolTip(tr("An export of profiles is not allowed, while changes are pending"));
     }
     export_selected_entry_->setVisible(contains_user);
 #endif
@@ -286,6 +286,7 @@ void ProfileDialog::updateWidgets()
             enable_del = false;
     }
 
+    QString hintUrl;
     msg.clear();
     if ( multiple )
     {
@@ -294,7 +295,6 @@ void ProfileDialog::updateWidgets()
 
         msg = tr("%Ln selected personal profile(s)", "", user_profiles);
         pd_ui_->hintLabel->setText(msg);
-        pd_ui_->hintLabel->setUrl(QString());
 #ifdef HAVE_MINIZIP
         export_selected_entry_->setText(msg);
 #endif
@@ -305,10 +305,8 @@ void ProfileDialog::updateWidgets()
         if ( index.isValid() )
         {
             QString temp = index.data(ProfileModel::DATA_PATH).toString();
-            if ( index.data(ProfileModel::DATA_PATH_IS_NOT_DESCRIPTION).toBool() )
-                pd_ui_->hintLabel->setUrl(QUrl::fromLocalFile(temp).toString());
-            else
-                pd_ui_->hintLabel->setUrl(QString());
+            if ( index.data(ProfileModel::DATA_PATH_IS_NOT_DESCRIPTION).toBool() && QFileInfo(temp).isDir() )
+                hintUrl = QUrl::fromLocalFile(temp).toString();
             pd_ui_->hintLabel->setText(temp);
             pd_ui_->hintLabel->setToolTip(index.data(Qt::ToolTipRole).toString());
 
@@ -333,9 +331,20 @@ void ProfileDialog::updateWidgets()
 
             if ( ! ProfileModel::checkNameValidity(name, &msg) )
             {
-                pd_ui_->hintLabel->setText(msg);
-                pd_ui_->hintLabel->setUrl(QString());
+                if ( idx == index || selectedProfiles().contains(idx) )
+                {
+                    hintUrl.clear();
+                    pd_ui_->hintLabel->setText(msg);
+                }
 
+                enable_ok = false;
+                continue;
+            }
+
+            if ( model_->checkInvalid(idx) || model_->checkIfDeleted(idx) )
+            {
+                if ( idx == index )
+                    hintUrl.clear();
                 enable_ok = false;
                 continue;
             }
@@ -351,6 +360,8 @@ void ProfileDialog::updateWidgets()
                 enable_ok = false;
         }
     }
+
+    pd_ui_->hintLabel->setUrl(hintUrl);
 
     /* ensure the name column is resized to it's content */
     pd_ui_->profileTreeView->resizeColumnToContents(ProfileModel::COL_NAME);

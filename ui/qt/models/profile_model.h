@@ -111,6 +111,11 @@ public:
 
     int lastSetRow() const;
 
+    bool checkInvalid(const QModelIndex &index) const;
+    bool checkIfDeleted(const QModelIndex &index) const;
+    bool checkIfDeleted(int row) const;
+    bool checkDuplicate(const QModelIndex &index, bool isOriginalToDuplicate = false) const;
+
 Q_SIGNALS:
     void itemChanged(const QModelIndex &idx);
 
@@ -129,6 +134,7 @@ private:
     GList * entry(profile_def *) const;
 
     int findByNameAndVisibility(QString name, bool isGlobal = false, bool searchReference = false);
+    int findAsReference(QString reference);
 
 #ifdef HAVE_MINIZIP
     static bool acceptFile(QString fileName, int fileSize);

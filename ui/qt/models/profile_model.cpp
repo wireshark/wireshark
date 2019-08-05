@@ -164,14 +164,15 @@ void ProfileModel::loadProfiles()
 GList * ProfileModel::entry(profile_def *ref) const
 {
     GList *fl_entry = edited_profile_list();
-    while (fl_entry && fl_entry->data) {
+    while (fl_entry && fl_entry->data)
+    {
         profile_def *profile = reinterpret_cast<profile_def *>(fl_entry->data);
-        if (strcmp(ref->name, profile->name) == 0 && ref->is_global == profile->is_global)
+        if ( QString(ref->name).compare(profile->name) == 0 &&
+             QString(ref->reference).compare(profile->reference) == 0 &&
+             ref->is_global == profile->is_global &&
+             ref->status == profile->status )
         {
-            if ( ( ref->reference == Q_NULLPTR && profile->reference == Q_NULLPTR )
-                 || ( ( ref->reference != Q_NULLPTR && profile->reference != Q_NULLPTR )
-                      && (strcmp(ref->reference, profile->reference) == 0) ) )
-                return fl_entry;
+            return fl_entry;
         }
 
         fl_entry = gxx_list_next(fl_entry);
@@ -305,6 +306,105 @@ QVariant ProfileModel::dataFontRole(const QModelIndex &index) const
     return font;
 }
 
+bool ProfileModel::checkIfDeleted(int row) const
+{
+    QModelIndex idx = index(row, ProfileModel::COL_NAME);
+    return checkIfDeleted(idx);
+}
+
+bool ProfileModel::checkIfDeleted(const QModelIndex &index) const
+{
+    profile_def * prof = guard(index);
+    if ( ! prof )
+        return false;
+
+    QStringList deletedNames;
+
+    GList * current = current_profile_list();
+
+    /* search the current list as long as we have not found anything */
+    while ( current )
+    {
+        bool found = false;
+        GList * edited = edited_profile_list();
+        profile_def * profcurr = static_cast<profile_def *>(current->data);
+
+        if ( ! profcurr->is_global && profcurr->status != PROF_STAT_DEFAULT )
+        {
+            while ( edited && ! found )
+            {
+                profile_def * profed = static_cast<profile_def *>(edited->data);
+                if ( ! profed->is_global && profed->status != PROF_STAT_DEFAULT )
+                {
+                    if ( g_strcmp0(profcurr->name, profed->name) == 0 || g_strcmp0(profcurr->name, profed->reference) == 0 )
+                    {
+                        if ( profed->status == profcurr->status && prof->status != PROF_STAT_NEW && prof->status != PROF_STAT_COPY )
+                            found = true;
+                    }
+                }
+
+                edited = gxx_list_next(edited);
+            }
+
+            /* profile has been deleted, check if it has the name we ask for */
+            if ( ! found )
+                deletedNames << profcurr->name;
+        }
+
+        current = gxx_list_next(current);
+    }
+
+    if ( deletedNames.contains(prof->name) )
+        return true;
+
+    return false;
+}
+
+bool ProfileModel::checkInvalid(const QModelIndex &index) const
+{
+    profile_def * prof = guard(index);
+    if ( ! prof )
+        return false;
+
+    int ref = const_cast<ProfileModel *>(this)->findAsReference(prof->name);
+    if ( ref == index.row() )
+        return false;
+
+    profile_def * pg = guard(ref);
+    if ( pg && pg->status == PROF_STAT_CHANGED && g_strcmp0(pg->name, pg->reference) != 0 )
+        return true;
+
+    return false;
+}
+
+bool ProfileModel::checkDuplicate(const QModelIndex &index, bool isOriginalToDuplicate) const
+{
+    profile_def * prof = guard(index);
+    if ( ! prof || ( ! isOriginalToDuplicate && prof->status == PROF_STAT_EXISTS ) )
+        return false;
+
+    QList<int> rows = const_cast<ProfileModel *>(this)->findAllByNameAndVisibility(prof->name, prof->is_global, false);
+    int found = 0;
+    profile_def * check = Q_NULLPTR;
+    for(int cnt = 0; cnt < rows.count(); cnt++)
+    {
+        int row = rows.at(cnt);
+
+        if ( row == index.row() )
+            continue;
+
+        check = guard(row);
+        if ( ! check || ( isOriginalToDuplicate && check->status == PROF_STAT_EXISTS ) )
+            continue;
+
+        found++;
+    }
+
+    if ( found > 0 )
+        return true;
+    return false;
+}
+
 QVariant ProfileModel::dataBackgroundRole(const QModelIndex &index) const
 {
     if ( ! index.isValid() || profiles_.count() <= index.row() )
@@ -314,15 +414,19 @@ QVariant ProfileModel::dataBackgroundRole(const QModelIndex &index) const
     if ( ! prof )
         return QVariant();
 
-    if ( ! ProfileModel::checkNameValidity(QString(prof->name)) )
-        return ColorUtils::fromColorT(&prefs.gui_text_invalid);
-
     if ( prof->status == PROF_STAT_DEFAULT && reset_default_ )
         return ColorUtils::fromColorT(&prefs.gui_text_deprecated);
 
-    QList<int> rows = const_cast<ProfileModel *>(this)->findAllByNameAndVisibility(QString(prof->name), prof->is_global);
-    if ( rows.count() > 1 )
-        return ColorUtils::fromColorT(&prefs.gui_text_invalid);
+    if ( prof->status != PROF_STAT_DEFAULT && ! prof->is_global )
+    {
+        /* Highlights errorneous line */
+        if ( checkInvalid(index) || checkIfDeleted(index) || checkDuplicate(index) || ! checkNameValidity(prof->name) )
+            return ColorUtils::fromColorT(&prefs.gui_text_invalid);
+
+        /* Highlights line, which has been duplicated by another index */
+        if ( checkDuplicate(index, true) )
+            return ColorUtils::fromColorT(&prefs.gui_text_valid);
+    }
 
     return QVariant();
 }
@@ -337,7 +441,7 @@ QVariant ProfileModel::dataToolTipRole(const QModelIndex &idx) const
         return QVariant();
 
     if (prof->is_global)
-        return tr("This is a system provided profile.");
+        return tr("This is a system provided profile");
     else
         return dataPath(idx);
 }
@@ -351,6 +455,32 @@ QVariant ProfileModel::dataPath(const QModelIndex &index) const
     if ( ! prof )
         return QVariant();
 
+    if ( checkInvalid(index) )
+    {
+        int ref = const_cast<ProfileModel *>(this)->findAsReference(prof->name);
+        if ( ref != index.row() && ref >= 0 )
+        {
+            profile_def * prof = guard(ref);
+            QString msg = tr("A profile change for this name is pending");
+            if ( prof )
+                msg.append(tr(" (See: %1)").arg(prof->name));
+            return msg;
+        }
+
+        return tr("This is an invalid profile definition");
+    }
+
+    if ( ( prof->status == PROF_STAT_NEW || prof->status == PROF_STAT_CHANGED || prof->status == PROF_STAT_COPY ) && checkDuplicate(index) )
+        return tr("A profile already exists with this name");
+
+    if ( checkIfDeleted(index) )
+    {
+        return tr("A profile with this name is being deleted");
+    }
+
+    if ( prof->is_import )
+        return tr("Imported profile");
+
     switch (prof->status)
     {
     case PROF_STAT_DEFAULT:
@@ -358,8 +488,6 @@ QVariant ProfileModel::dataPath(const QModelIndex &index) const
             return gchar_free_to_qstring(get_persconffile_path("", FALSE));
         else
             return tr("Resetting to default");
-    case PROF_STAT_IMPORT:
-        return tr("Imported profile");
     case PROF_STAT_EXISTS:
         {
             QString profile_path;
@@ -373,12 +501,9 @@ QVariant ProfileModel::dataPath(const QModelIndex &index) const
         }
     case PROF_STAT_NEW:
         {
-            QList<int> entries = const_cast<ProfileModel *>(this)->findAllByNameAndVisibility(prof->name);
             QString errMsg;
 
-            if ( entries.count() > 1 )
-                return tr("A profile already exists with this name.");
-            else if ( ! checkNameValidity(prof->name, &errMsg) )
+            if ( ! checkNameValidity(prof->name, &errMsg) )
                 return errMsg;
             else
                 return tr("Created from default settings");
@@ -410,23 +535,25 @@ QVariant ProfileModel::dataPath(const QModelIndex &index) const
                 /* A default model as reference can neither be deleted or renamed, so skip if the reference was one */
                 else  if ( ! index.data(ProfileModel::DATA_IS_DEFAULT).toBool() )
                 {
-                    /* find all non-global, non-default profiles which are referenced by this one. Those are the only
+                    /* find a non-global, non-default profile which could be referenced by this one. Those are the only
                      * ones which could be renamed or deleted */
                     int row = const_cast<ProfileModel *>(this)->findByNameAndVisibility(prof->reference, false, true);
-                    if ( row > 0 && row != index.row() )
+                    profile_def * ref = guard(row);
+
+                    /* The reference is itself a copy of the original, therefore it is not accepted */
+                    if ( ref && ( ref->status == PROF_STAT_COPY || ref->status == PROF_STAT_NEW ) && QString(ref->name).compare(prof->reference) != 0 )
+                        ref = Q_NULLPTR;
+
+                    /* found no other profile, original one had to be deleted */
+                    if ( ! ref || row == index.row() || checkIfDeleted(row) )
                     {
-                        /* found another profile, so the reference had been renamed, it the status is changed */
-                        profile_def * ref = guard(row);
-                        if ( ref && ref->status == PROF_STAT_CHANGED )
-                            appendix = tr("renamed to %1").arg(ref->name);
-                    }
-                    else
-                    {
-                        /* found no other profile, original one had to be deleted */
                         appendix = tr("deleted");
                     }
-
-
+                    /* found another profile, so the reference had been renamed, it the status is changed */
+                    else if ( ref && ref->status == PROF_STAT_CHANGED )
+                    {
+                        appendix = tr("renamed to %1").arg(ref->name);
+                    }
                 }
 
                 if ( appendix.length() > 0 )
@@ -485,7 +612,7 @@ QVariant ProfileModel::data(const QModelIndex &index, int role) const
     case ProfileModel::DATA_PATH_IS_NOT_DESCRIPTION:
         if ( prof->status == PROF_STAT_NEW || prof->status == PROF_STAT_COPY
              || ( prof->status == PROF_STAT_DEFAULT && reset_default_ )
-             || prof->status == PROF_STAT_CHANGED || prof->status == PROF_STAT_IMPORT )
+             || prof->status == PROF_STAT_CHANGED || prof->is_import )
             return qVariantFromValue(false);
         else
             return qVariantFromValue(true);
@@ -538,6 +665,22 @@ int ProfileModel::findByName(QString name)
     return row;
 }
 
+int ProfileModel::findAsReference(QString reference)
+{
+    int found = -1;
+    if ( reference.length() <= 0 )
+        return found;
+
+    for ( int cnt = 0; cnt < profiles_.count() && found < 0; cnt++ )
+    {
+        profile_def * prof = guard(cnt);
+        if ( prof && reference.compare(prof->reference) == 0 )
+            found = cnt;
+    }
+
+    return found;
+}
+
 int ProfileModel::findByNameAndVisibility(QString name, bool isGlobal, bool searchReference)
 {
     QList<int> result = findAllByNameAndVisibility(name, isGlobal, searchReference);
@@ -572,7 +715,7 @@ QModelIndex ProfileModel::addNewProfile(QString name)
         cnt++;
     }
 
-    add_to_profile_list(newName.toUtf8().constData(), Q_NULLPTR, PROF_STAT_NEW, FALSE, FALSE);
+    add_to_profile_list(newName.toUtf8().constData(), newName.toUtf8().constData(), PROF_STAT_NEW, FALSE, FALSE, FALSE);
     loadProfiles();
 
     return index(findByName(newName), COL_NAME);
@@ -645,7 +788,7 @@ QModelIndex ProfileModel::duplicateEntry(QModelIndex idx, int new_status)
         new_status = PROF_STAT_NEW;
 
     /* add element */
-    add_to_profile_list(new_name.toUtf8().constData(), parent.toUtf8().constData(), new_status, FALSE, prof->from_global ? prof->from_global : prof->is_global);
+    add_to_profile_list(new_name.toUtf8().constData(), parent.toUtf8().constData(), new_status, FALSE, prof->from_global ? prof->from_global : prof->is_global, FALSE);
 
     /* reload profile list in model */
     loadProfiles();
@@ -755,6 +898,7 @@ bool ProfileModel::setData(const QModelIndex &idx, const QVariant &value, int ro
     if ( role != Qt::EditRole ||  ! value.isValid() || value.toString().isEmpty() )
         return false;
 
+    QString newValue = value.toString();
     profile_def * prof = guard(idx);
     if ( ! prof || prof->status == PROF_STAT_DEFAULT )
         return false;
@@ -762,12 +906,12 @@ bool ProfileModel::setData(const QModelIndex &idx, const QVariant &value, int ro
     last_set_row_ = idx.row();
 
     QString current(prof->name);
-    if ( current.compare(value.toString()) != 0 )
+    if ( current.compare(newValue) != 0 )
     {
         g_free(prof->name);
-        prof->name = qstring_strdup(value.toString());
+        prof->name = qstring_strdup(newValue);
 
-        if (prof->reference && strcmp(prof->name, prof->reference) == 0) {
+        if (prof->reference && g_strcmp0(prof->name, prof->reference) == 0 && ! ( prof->status == PROF_STAT_NEW || prof->status == PROF_STAT_COPY )) {
             prof->status = PROF_STAT_EXISTS;
         } else if (prof->status == PROF_STAT_EXISTS) {
             prof->status = PROF_STAT_CHANGED;
@@ -1003,7 +1147,10 @@ int ProfileModel::importProfilesFromDir(QString dirname, int * skippedCnt, bool 
 
             success = copyTempToProfile(tempPath, profilePath, &wasEmpty);
             if ( success )
+            {
                 count++;
+                add_to_profile_list(fentry.fileName().toUtf8().constData(), fentry.fileName().toUtf8().constData(), PROF_STAT_NEW, FALSE, FALSE, TRUE);
+            }
             else if ( ! wasEmpty && QFile::exists(profilePath) )
             {
                 QDir dh(profilePath);
@@ -1038,8 +1185,7 @@ void ProfileModel::markAsImported(QStringList importedItems)
         if ( ! prof )
             continue;
 
-        prof->status = PROF_STAT_IMPORT;
-        prof->from_global = true;
+        prof->is_import = true;
     }
 }
 
@@ -1050,7 +1196,7 @@ bool ProfileModel::clearImported(QString *msg)
     for ( int cnt = 0; cnt < rowCount(); cnt++ )
     {
         profile_def * prof = guard(cnt);
-        if ( prof && prof->status == PROF_STAT_IMPORT && ! rows.contains(cnt) )
+        if ( prof && prof->is_import && ! rows.contains(cnt) )
             rows << cnt;
     }
     /* Security blanket. This ensures, that we start deleting from the end and do not get any issues iterating the list */
@@ -1064,7 +1210,7 @@ bool ProfileModel::clearImported(QString *msg)
         {
             if ( msg )
             {
-                QString errmsg = QString("%1\n\"%2\":\n%3.").arg(tr("Can't delete profile directory")).arg(ret_path).arg(g_strerror(errno));
+                QString errmsg = QString("%1\n\"%2\":\n%3").arg(tr("Can't delete profile directory")).arg(ret_path).arg(g_strerror(errno));
                 msg->append(errmsg);
             }
 
@@ -1104,7 +1250,7 @@ bool ProfileModel::checkNameValidity(QString name, QString *msg)
         message = tr("A profile cannot start or end with a period (.)");
 #else
     if ( invalid )
-        message = tr("A profile name cannot contain the '/' character.");
+        message = tr("A profile name cannot contain the '/' character");
 #endif
 
     if (! message.isEmpty()) {
