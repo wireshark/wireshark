@@ -1529,8 +1529,7 @@ static const value_string gtpv2_cause_vals[] = {
     { 12, "PGW not responding"},
     { 13, "Network Failure"},
     { 14, "QoS parameter mismatch"},
-    /* 15 Spare. This value range is reserved for Cause values in a request message */
-    { 15, "Spare"},
+    { 15, "EPS to 5GS Mobility"},
     /* Acceptance in a Response / triggered message */
     { 16, "Request accepted"},
     { 17, "Request accepted partially"},
@@ -1628,7 +1627,7 @@ static const value_string gtpv2_cause_vals[] = {
     {107, "Invalid reply from remote peer"},
     {108, "Fallback to GTPv1"},
     {109, "Invalid peer"},
-    {110, "Temporarily rejected due to handover procedure in progress"},
+    {110, "Temporarily rejected due to handover/TAU/RAU procedure in progress"},
     {111, "Modifications not limited to S1-U bearers"},
     {112, "Request rejected for a PMIPv6 reason "},
     {113, "APN Congestion"},
@@ -1646,8 +1645,10 @@ static const value_string gtpv2_cause_vals[] = {
     {125, "UE not authorised by OCS or external AAA Server"},
     {126, "Multiple accesses to a PDN connection not allowed"},
     {127, "Request rejected due to UE capability"},
+    {128, "S1-U Path Failure" },
+    {129, "5GC not allowed" },
 
-    /* 128-239 Spare. For future use in a triggered/response message  */
+    /* 130-239 Spare. For future use in a triggered/response message  */
     /* 240-255 Spare. For future use in an initial/request message */
     {0, NULL}
 };
@@ -1677,10 +1678,15 @@ dissect_gtpv2_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pro
     offset += 1;
 
     /* Octet 6 Spare PCE BCE CS */
-    proto_tree_add_bits_item(tree, hf_gtpv2_spare_bits, tvb, offset << 3, 5, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_cause_pce, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_cause_bce, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_gtpv2_cause_cs, tvb, offset,  1, ENC_BIG_ENDIAN);
+    static const int* oct6_flags[] = {
+        &hf_gtpv2_spare_bits,
+        & hf_gtpv2_cause_pce,
+        & hf_gtpv2_cause_bce,
+        & hf_gtpv2_cause_cs,
+        NULL
+    };
+
+    proto_tree_add_bitmask_list(tree, tvb, offset, 1, oct6_flags, ENC_NA);
     offset += 1;
 
     /* If n = 2, a = 0 and the Cause IE shall be 6 octets long.
