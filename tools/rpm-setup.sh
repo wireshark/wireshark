@@ -50,8 +50,7 @@ BASIC_LIST="cmake \
 	libpcap-devel \
 	zlib-devel"
 
-ADDITIONAL_LIST="libnl3-devel \
-	libcap-devel \
+ADDITIONAL_LIST="libcap-devel \
 	libgcrypt-devel \
 	libssh-devel \
 	krb5-devel \
@@ -218,6 +217,9 @@ echo "git-review is unavailabe" >&2
 
 add_package ADDITIONAL_LIST speexdsp-devel || add_package ADDITIONAL_LIST speex-devel ||
 echo "speex is unavailable" >&2
+
+add_package ADDITIONAL_LIST libnl3-devel || add_package ADDITIONAL_LIST libnl-devel ||
+echo "libnl3/libnl are unavailable" >&2
 
 ACTUAL_LIST=$BASIC_LIST
 
