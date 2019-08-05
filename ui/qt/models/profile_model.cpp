@@ -387,7 +387,7 @@ QVariant ProfileModel::dataPath(const QModelIndex &index) const
                 return msg;
 
             if (prof->reference)
-                return QString("%1 %2").arg(tr("Renamed from: ")).arg(prof->reference);
+                return tr("Renamed from: %1").arg(prof->reference);
 
             return QVariant();
         }
@@ -406,14 +406,18 @@ QVariant ProfileModel::dataPath(const QModelIndex &index) const
             if ( ! prof->reference )
                 return tr("Created from default settings");
 
-            QString msg = QString("%1 %2").arg(tr("Copied from: ")).arg(prof->reference);
+            QString msg = tr("Copied from: %1").arg(prof->reference);
 
+            QString appendix;
             if ( profile_exists(prof->reference, TRUE) && prof->from_global )
-                msg.append(QString(" (%1)").arg(tr("system provided")));
+                appendix = tr("system provided");
             else if ( row > 0 && ref && QString(ref->name).compare(prof->reference) != 0 )
-                msg.append(QString(" (%1 %2)").arg(tr("renamed to")).arg(ref->name));
+                appendix = tr("renamed to %1").arg(ref->name);
             else if ( row < 0 )
-                msg.append(QString(" (%1)").arg(tr("deleted")));
+                appendix = tr("deleted");
+
+            if ( appendix.length() > 0 )
+                msg.append(QString(" (%1)").arg(appendix));
 
             return msg;
         }
