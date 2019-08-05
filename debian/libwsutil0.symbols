@@ -4,6 +4,7 @@ libwsutil.so.0 libwsutil0 #MINVER#
  adler32_bytes@Base 1.12.0~rc1
  adler32_str@Base 1.12.0~rc1
  alaw2linear@Base 1.12.0~rc1
+ allowed_profile_filenames@Base 3.1.1
  ascii_strdown_inplace@Base 1.10.0
  ascii_strup_inplace@Base 1.10.0
  bitswap_buf_inplace@Base 1.12.0~rc1

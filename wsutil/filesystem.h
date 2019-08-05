@@ -162,6 +162,11 @@ WS_DLL_PUBLIC int create_persconffile_profile(const char *profilename,
 				       char **pf_dir_path_return);
 
 /*
+ * Returns the list of known profile config filesnames
+ */
+WS_DLL_PUBLIC const GHashTable * allowed_profile_filenames(void);
+
+/*
  * Delete the directory for the given configuration profile.
  * If we attempted to delete it, and failed, return -1 and
  * set "*pf_dir_path_return" to the pathname of the directory we failed

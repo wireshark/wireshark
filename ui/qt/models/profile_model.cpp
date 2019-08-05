@@ -128,6 +128,15 @@ ProfileModel::ProfileModel(QObject * parent) :
 
     last_set_row_ = 0;
 
+    /* Set filenames for profiles */
+    GList *files, *file;
+    files = g_hash_table_get_keys(const_cast<GHashTable *>(allowed_profile_filenames()));
+    file = g_list_first(files);
+    while (file) {
+        profile_files_ << static_cast<char *>(file->data);
+        file = gxx_list_next(file);
+    }
+
     loadProfiles();
 }
 
@@ -762,8 +771,10 @@ int ProfileModel::lastSetRow() const
     return last_set_row_;
 }
 
-bool ProfileModel::copyTempToProfile(QString tempPath, QString profilePath)
+bool ProfileModel::copyTempToProfile(QString tempPath, QString profilePath, bool * wasEmpty)
 {
+    bool was_empty = true;
+
     QDir profileDir(profilePath);
     if ( ! profileDir.mkpath(profilePath) || ! QFile::exists(tempPath) )
         return false;
@@ -780,12 +791,21 @@ bool ProfileModel::copyTempToProfile(QString tempPath, QString profilePath)
         QString tempFile = finfo.absoluteFilePath();
         QString profileFile = profilePath + QDir::separator() + finfo.fileName();
 
+        if ( ! profile_files_.contains(finfo.fileName()) )
+        {
+            was_empty = false;
+            continue;
+        }
+
         if ( ! QFile::exists(tempFile) || QFile::exists(profileFile) )
             continue;
 
         if ( QFile::copy(tempFile, profileFile) )
             created++;
     }
+
+    if ( wasEmpty )
+        *wasEmpty = was_empty;
 
     if ( created > 0 )
         return true;
@@ -938,14 +958,21 @@ int ProfileModel::importProfilesFromDir(QString dirname, int * skippedCnt, bool 
     int skipped = 0;
     QDir profileDir(gchar_free_to_qstring(get_profiles_dir()));
     QDir dir(dirname);
+
+    if ( *skippedCnt)
+        *skippedCnt = 0;
+
     if ( dir.exists() )
     {
         QFileInfoList entries = uniquePaths(filterProfilePath(dirname, QFileInfoList(), fromZip));
-        *skippedCnt = 0;
 
         int entryCount = 0;
         foreach ( QFileInfo fentry, entries )
         {
+            Q_ASSERT(fentry.fileName().length() > 0);
+            bool wasEmpty = true;
+            bool success = false;
+
             entryCount++;
 
             QString profilePath = profileDir.absolutePath() + QDir::separator() + fentry.fileName();
@@ -960,9 +987,13 @@ int ProfileModel::importProfilesFromDir(QString dirname, int * skippedCnt, bool 
             if ( result )
                 *result << fentry.fileName();
 
-            if ( copyTempToProfile(tempPath, profilePath) )
-            {
+            success = copyTempToProfile(tempPath, profilePath, &wasEmpty);
+            if ( success )
                 count++;
+            else if ( ! wasEmpty && QFile::exists(profilePath) )
+            {
+                QDir dh(profilePath);
+                dh.rmdir(profilePath);
             }
         }
 

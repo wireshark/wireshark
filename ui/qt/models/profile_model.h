@@ -116,6 +116,7 @@ Q_SIGNALS:
 
 private:
     QList<profile_def *> profiles_;
+    QStringList profile_files_;
     QString set_profile_;
     bool reset_default_;
     bool profiles_imported_;
@@ -141,7 +142,7 @@ private:
 #ifdef HAVE_MINIZIP
     QStringList exportFileList(QModelIndexList items);
 #endif
-    bool copyTempToProfile(QString tempPath, QString profilePath);
+    bool copyTempToProfile(QString tempPath, QString profilePath, bool *wasEmpty = Q_NULLPTR);
     QFileInfoList filterProfilePath(QString, QFileInfoList ent, bool fromZip);
     QFileInfoList uniquePaths(QFileInfoList lst);
 

@@ -1676,6 +1676,12 @@ create_persconffile_profile(const char *profilename, char **pf_dir_path_return)
     return ret;
 }
 
+const GHashTable *
+allowed_profile_filenames(void)
+{
+    return profile_files;
+}
+
 int
 create_persconffile_dir(char **pf_dir_path_return)
 {
