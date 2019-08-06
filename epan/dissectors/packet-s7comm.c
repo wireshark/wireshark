@@ -4157,7 +4157,6 @@ s7comm_decode_ud_tis_param(tvbuff_t *tvb,
                     proto_tree_add_item(tp_tree, hf_s7comm_tis_register_db1_nr, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
                     proto_tree_add_item(tp_tree, hf_s7comm_tis_register_db2_nr, tvb, offset, 2, ENC_BIG_ENDIAN);
-                    offset += 2;
                 } else {
                     proto_tree_add_item(tp_tree, hf_s7comm_tis_p_callcond_blocktype, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
@@ -4165,7 +4164,6 @@ s7comm_decode_ud_tis_param(tvbuff_t *tvb,
                     offset += 2;
                     if (tp_size >= 38) {
                         proto_tree_add_item(tp_tree, hf_s7comm_tis_p_callcond_address, tvb, offset, 2, ENC_BIG_ENDIAN);
-                        offset += 2;
                     }
                 }
             }
@@ -4173,7 +4171,6 @@ s7comm_decode_ud_tis_param(tvbuff_t *tvb,
             proto_tree_add_item(tp_tree, hf_s7comm_tis_res_param1, tvb, offset, 2, ENC_NA);
             offset += 2;
             proto_tree_add_item(tp_tree, hf_s7comm_tis_res_param2, tvb, offset, 2, ENC_NA);
-            offset += 2;
         }
     }
     /* May be we don't know all values when here, so set offset to the given length */
@@ -4922,7 +4919,6 @@ s7comm_decode_ud_tis_bstack(tvbuff_t *tvb,
                     } else {
                         proto_tree_add_item(item_tree, hf_s7comm_tis_bstack_reserved, tvb, offset, rem, ENC_NA);
                         offset += rem;
-                        rem = 0;
                         break;
                     }
                 }
