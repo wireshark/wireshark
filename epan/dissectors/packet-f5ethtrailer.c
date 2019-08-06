@@ -1597,7 +1597,6 @@ render_f5_legacy_hdr(
 	proto_tree_add_item(tree, hf_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	proto_tree_add_item(tree, hf_version, tvb, offset, 1, ENC_BIG_ENDIAN);
-	offset += 1;
 	return 3;
 
 } /* render_f5_legacy_hdr() */
