@@ -156,11 +156,11 @@ void ProfileDialog::updateWidgets()
             break;
         case PROF_STAT_EXISTS:
             {
-            char* profile_dir = current_profile->is_global ? get_global_profiles_dir() : get_profiles_dir();
-            profile_path = profile_dir;
-            g_free(profile_dir);
+                char *profile_dir = current_profile->is_global ? get_global_profiles_dir() : get_profiles_dir();
+                profile_path = profile_dir;
+                g_free(profile_dir);
 
-            profile_path.append(QDir::separator()).append(current_profile->name);
+                profile_path.append(QDir::separator()).append(current_profile->name);
             }
             break;
         case PROF_STAT_COPY:
@@ -318,15 +318,15 @@ void ProfileDialog::on_copyToolButton_clicked()
     profile_def *new_profile;
 
     if (cur_profile->is_global) {
-      parent = cur_profile->name;
+        parent = cur_profile->name;
     } else {
-      parent = get_profile_parent (cur_profile->name);
+        parent = get_profile_parent (cur_profile->name);
     }
 
     if (cur_profile->is_global && !profile_exists (parent, FALSE)) {
-      new_name = g_strdup (cur_profile->name);
+        new_name = g_strdup (cur_profile->name);
     } else {
-      new_name = g_strdup_printf ("%s (copy)", cur_profile->name);
+        new_name = g_strdup_printf ("%s (copy)", cur_profile->name);
     }
 
     /* Add a new entry to the profile list. */
