@@ -49,6 +49,7 @@ static int hf_gtpv2_response_in = -1;
 static int hf_gtpv2_response_to = -1;
 static int hf_gtpv2_response_time = -1;
 static int hf_gtpv2_spare_half_octet = -1;
+static int hf_gtpv2_spare_b7_b3 = -1;
 static int hf_gtpv2_spare_bits = -1;
 static int hf_gtpv2_flags = -1;
 static int hf_gtpv2_version = -1;
@@ -1679,10 +1680,10 @@ dissect_gtpv2_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pro
 
     /* Octet 6 Spare PCE BCE CS */
     static const int* oct6_flags[] = {
-        &hf_gtpv2_spare_bits,
-        & hf_gtpv2_cause_pce,
-        & hf_gtpv2_cause_bce,
-        & hf_gtpv2_cause_cs,
+        &hf_gtpv2_spare_b7_b3,
+        &hf_gtpv2_cause_pce,
+        &hf_gtpv2_cause_bce,
+        &hf_gtpv2_cause_cs,
         NULL
     };
 
@@ -8511,6 +8512,11 @@ void proto_register_gtpv2(void)
         { &hf_gtpv2_spare_half_octet,
           {"Spare half octet", "gtpv2.spare_half_octet",
            FT_UINT8, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }
+        },
+        { &hf_gtpv2_spare_b7_b3,
+          {"Spare bit(s)", "gtpv2.spare_b7_b3",
+           FT_UINT8, BASE_DEC, NULL, 0xf8,
            NULL, HFILL }
         },
         { &hf_gtpv2_spare_bits,
