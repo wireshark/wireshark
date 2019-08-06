@@ -288,11 +288,11 @@ QVariant ProfileModel::dataFontRole(const QModelIndex &index) const
 
     QFont font;
 
-        if ( prof->is_global )
+    if ( prof->is_global )
         font.setItalic(true);
 
-        if ( set_profile_.compare(prof->name) == 0 && ! prof->is_global )
-            font.setBold(true);
+    if ( set_profile_.compare(prof->name) == 0 && ! prof->is_global )
+        font.setBold(true);
 
     if ( prof->status == PROF_STAT_DEFAULT && reset_default_ )
         font.setStrikeOut(true);
@@ -330,8 +330,6 @@ QVariant ProfileModel::dataToolTipRole(const QModelIndex &idx) const
     profile_def * prof = guard(idx.row());
     if ( ! prof )
         return QVariant();
-
-    QString msg;
 
     if (prof->is_global)
         return tr("This is a system provided profile.");
@@ -402,10 +400,6 @@ QVariant ProfileModel::dataPath(const QModelIndex &index) const
             else
                 row = -1;
 
-            /* Security blanket. It should not happen with PROF_STAT_COPY, but just in case */
-            if ( ! prof->reference )
-                return tr("Created from default settings");
-
             QString msg = tr("Copied from: %1").arg(prof->reference);
 
             QString appendix;
@@ -429,8 +423,6 @@ QVariant ProfileModel::dataPath(const QModelIndex &index) const
 
 QVariant ProfileModel::data(const QModelIndex &index, int role) const
 {
-    QString msg;
-
     if ( ! index.isValid() || profiles_.count() <= index.row() )
         return QVariant();
 
