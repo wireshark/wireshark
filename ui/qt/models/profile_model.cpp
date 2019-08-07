@@ -395,32 +395,46 @@ QVariant ProfileModel::dataPath(const QModelIndex &index) const
             return QVariant();
         }
     case PROF_STAT_COPY:
-        if (prof->reference)
         {
-            ProfileModel * nthis = const_cast<ProfileModel *>(this);
-            int row = nthis->findByNameAndVisibility(prof->reference, false, true);
-            profile_def * ref = Q_NULLPTR;
-            if ( row > 0 && row != index.row() )
-                ref = guard(row);
-            else
-                row = -1;
+            QString msg;
 
-            QString msg = tr("Copied from: %1").arg(prof->reference);
+            /* this should always be the case, but just as a precaution it is checked */
+            if (prof->reference)
+            {
+                msg = tr("Copied from: %1").arg(prof->reference);
+                QString appendix;
 
-            QString appendix;
-            if ( profile_exists(prof->reference, TRUE) && prof->from_global )
-                appendix = tr("system provided");
-            else if ( row > 0 && ref && QString(ref->name).compare(prof->reference) != 0 )
-                appendix = tr("renamed to %1").arg(ref->name);
-            else if ( row < 0 )
-                appendix = tr("deleted");
+                /* A global profile is neither deleted or removed, only system provided is allowed as appendix */
+                if ( profile_exists(prof->reference, TRUE) && prof->from_global )
+                    appendix = tr("system provided");
+                /* A default model as reference can neither be deleted or renamed, so skip if the reference was one */
+                else  if ( ! index.data(ProfileModel::DATA_IS_DEFAULT).toBool() )
+                {
+                    /* find all non-global, non-default profiles which are referenced by this one. Those are the only
+                     * ones which could be renamed or deleted */
+                    int row = const_cast<ProfileModel *>(this)->findByNameAndVisibility(prof->reference, false, true);
+                    if ( row > 0 && row != index.row() )
+                    {
+                        /* found another profile, so the reference had been renamed, it the status is changed */
+                        profile_def * ref = guard(row);
+                        if ( ref && ref->status == PROF_STAT_CHANGED )
+                            appendix = tr("renamed to %1").arg(ref->name);
+                    }
+                    else
+                    {
+                        /* found no other profile, original one had to be deleted */
+                        appendix = tr("deleted");
+                    }
 
-            if ( appendix.length() > 0 )
-                msg.append(QString(" (%1)").arg(appendix));
+
+                }
+
+                if ( appendix.length() > 0 )
+                    msg.append(QString(" (%1)").arg(appendix));
+            }
 
             return msg;
         }
-        break;
     }
 
     return QVariant();
