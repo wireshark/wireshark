@@ -236,9 +236,17 @@ int ProfileModel::columnCount(const QModelIndex &) const
     return static_cast<int>(_LAST_ENTRY);
 }
 
+profile_def * ProfileModel::guard(const QModelIndex &index) const
+{
+    if ( ! index.isValid() )
+        return Q_NULLPTR;
+
+    return guard(index.row());
+}
+
 profile_def * ProfileModel::guard(int row) const
 {
-    if ( profiles_.count() <= row )
+    if ( row < 0 || profiles_.count() <= row )
         return Q_NULLPTR;
 
     if ( ! edited_profile_list() )
@@ -252,10 +260,7 @@ profile_def * ProfileModel::guard(int row) const
 
 QVariant ProfileModel::dataDisplay(const QModelIndex &index) const
 {
-    if ( ! index.isValid() || profiles_.count() <= index.row() )
-        return QVariant();
-
-    profile_def * prof = guard(index.row());
+    profile_def * prof = guard(index);
     if ( ! prof )
         return QVariant();
 
@@ -423,10 +428,7 @@ QVariant ProfileModel::dataPath(const QModelIndex &index) const
 
 QVariant ProfileModel::data(const QModelIndex &index, int role) const
 {
-    if ( ! index.isValid() || profiles_.count() <= index.row() )
-        return QVariant();
-
-    profile_def * prof = guard(index.row());
+    profile_def * prof = guard(index);
     if ( ! prof )
         return QVariant();
 
@@ -449,9 +451,9 @@ QVariant ProfileModel::data(const QModelIndex &index, int role) const
     case ProfileModel::DATA_IS_SELECTED:
         {
             QModelIndex selected = activeProfile();
-            if ( selected.isValid() && selected.row() < profiles_.count() )
+            profile_def * selprof = guard(selected);
+            if ( selprof )
             {
-                profile_def * selprof = guard(selected.row());
                 if ( selprof && selprof->is_global != prof->is_global )
                     return qVariantFromValue(false);
 
@@ -503,10 +505,7 @@ Qt::ItemFlags ProfileModel::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags fl = QAbstractTableModel::flags(index);
 
-    if ( ! index.isValid() || profiles_.count() <= index.row() )
-        return fl;
-
-    profile_def * prof = guard(index.row());
+    profile_def * prof = guard(index);
     if ( ! prof )
         return fl;
 
@@ -567,10 +566,7 @@ QModelIndex ProfileModel::addNewProfile(QString name)
 
 QModelIndex ProfileModel::duplicateEntry(QModelIndex idx, int new_status)
 {
-    if ( ! idx.isValid() )
-        return QModelIndex();
-
-    profile_def * prof = guard(idx.row());
+    profile_def * prof = guard(idx);
     if ( ! prof )
         return QModelIndex();
 
@@ -738,13 +734,10 @@ bool ProfileModel::setData(const QModelIndex &idx, const QVariant &value, int ro
 {
     last_set_row_ = -1;
 
-    if ( role != Qt::EditRole || ! idx.isValid() )
+    if ( role != Qt::EditRole ||  ! value.isValid() || value.toString().isEmpty() )
         return false;
 
-    if ( ! value.isValid() || value.toString().isEmpty() )
-        return false;
-
-    profile_def * prof = guard(idx.row());
+    profile_def * prof = guard(idx);
     if ( ! prof || prof->status == PROF_STAT_DEFAULT )
         return false;
 
@@ -879,8 +872,8 @@ QStringList ProfileModel::exportFileList(QModelIndexList items)
 
     foreach(QModelIndex idx, items)
     {
-        profile_def * prof = guard(idx.row());
-        if ( prof->is_global || QString(prof->name).compare(DEFAULT_PROFILE) == 0 )
+        profile_def * prof = guard(idx);
+        if ( ! prof || prof->is_global || QString(prof->name).compare(DEFAULT_PROFILE) == 0 )
             continue;
 
         if ( ! idx.data(ProfileModel::DATA_PATH_IS_NOT_DESCRIPTION).toBool() )

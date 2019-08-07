@@ -124,6 +124,7 @@ private:
     int last_set_row_;
 
     void loadProfiles();
+    profile_def * guard(const QModelIndex &index) const;
     profile_def * guard(int row) const;
     GList * entry(profile_def *) const;
 
