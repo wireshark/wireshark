@@ -82,7 +82,6 @@ iface_mon_handler2(struct nl_object *obj, void *arg)
         return;
     }
 
-    int msg_type = nl_object_get_msgtype(obj);
     link_obj = (struct rtnl_link *) obj;
     flags = rtnl_link_get_flags (link_obj);
     ifname = rtnl_link_get_name(link_obj);
@@ -100,6 +99,11 @@ iface_mon_handler2(struct nl_object *obj, void *arg)
      */
     up = (flags & IFF_UP) ? 1 : 0;
 
+#ifdef HAVE_LIBNL1
+    cb(ifname, 0, up);
+#else
+    int msg_type = nl_object_get_msgtype(obj);
+
     switch (msg_type) {
     case RTM_NEWLINK:
         cb(ifname, 1, up);
@@ -111,6 +115,8 @@ iface_mon_handler2(struct nl_object *obj, void *arg)
         /* Ignore other events */
         break;
     }
+#endif
+
     rtnl_link_put(filter);
 
     return;
