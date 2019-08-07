@@ -124,16 +124,13 @@ dissect_lsd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 static gboolean
 dissect_lsd_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
-  if (pinfo->dst.type != AT_IPv4)
-      return FALSE;
+  if (pinfo->dst.type == AT_IPv4 && pntoh32(pinfo->dst.data) == LSD_MULTICAST_ADDRESS && pinfo->destport == LSD_PORT)
+      return (dissect_lsd(tvb, pinfo, tree, data) != 0);
 
-  if (pntoh32(pinfo->dst.data) != LSD_MULTICAST_ADDRESS)
-      return FALSE;
+  if (pinfo->dst.type == AT_IPv6 && pinfo->destport == LSD_PORT)
+      return (dissect_lsd(tvb, pinfo, tree, data) != 0);
 
-  if (pinfo->destport != LSD_PORT)
-      return FALSE;
-
-  return (dissect_lsd(tvb, pinfo, tree, data) != 0);
+  return FALSE;
 }
 
 void
