@@ -35,6 +35,7 @@ all: $(PNG_FILES)
 
 $(PNG_FILES): FORCE
 	@echo Compressing $@
+	@hash oxipng 2>/dev/null  && oxipng -o 4 --strip safe "$@"
 	@hash optipng 2>/dev/null  && optipng -o3 -quiet "$@"
 	@hash advpng 2>/dev/null   && advpng -z -4 "$@"
 	@hash advdef 2>/dev/null   && advdef -z -4 "$@"
