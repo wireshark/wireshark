@@ -584,9 +584,13 @@ QModelIndex ProfileModel::duplicateEntry(QModelIndex idx, int new_status)
     if ( ! prof )
         return QModelIndex();
 
-    if ( new_status < 0 || new_status > PROF_STAT_COPY )
+    /* only new and copied stati can be set */
+    if ( new_status != PROF_STAT_NEW || new_status != PROF_STAT_COPY )
         new_status = PROF_STAT_COPY;
 
+    /* this is a copy from a personal profile, check if the original has been a
+     * new profile or a preexisting one. In the case of a new profile, restart
+     * with the state PROF_STAT_NEW */
     if ( prof->status == PROF_STAT_COPY && ! prof->from_global )
     {
         int row = findByNameAndVisibility(prof->reference, false);
@@ -595,63 +599,63 @@ QModelIndex ProfileModel::duplicateEntry(QModelIndex idx, int new_status)
             return duplicateEntry(index(row, ProfileModel::COL_NAME), PROF_STAT_NEW);
     }
 
+    /* Rules for figuring out the name to copy from:
+     *
+     * General, use copy name
+     * If status of copy is new or changed => use copy reference
+     * If copy is non global and status of copy is != changed, use original parent name
+     */
     QString parent = prof->name;
-    if ( prof->status == PROF_STAT_NEW )
-    {
-        if ( QString(prof->reference).length() > 0 )
-            parent = QString(prof->reference);
-    }
-    else if ( ! prof->is_global && prof->status != PROF_STAT_CHANGED )
-        parent = get_profile_parent (prof->name);
-    else if ( prof->status == PROF_STAT_CHANGED )
+    if ( prof->status == PROF_STAT_CHANGED )
         parent = prof->reference;
-
-    QString parentName = parent;
-    if ( prof->status == PROF_STAT_COPY )
-    {
-        int row = findByNameAndVisibility(parentName, false, true);
-        profile_def * par = guard(row);
-        if ( par && par->status == PROF_STAT_CHANGED )
-            parentName = par->name;
-    }
-    else if ( prof->status == PROF_STAT_CHANGED )
-        parentName = prof->name;
+    else if ( ! prof->is_global && prof->status != PROF_STAT_NEW && prof->status != PROF_STAT_CHANGED )
+        parent = get_profile_parent (prof->name);
 
     if ( parent.length() == 0 )
         return QModelIndex();
 
+    /* parent references the parent profile to be used, parentName is the base for the new name */
+    QString parentName = parent;
+    /* the user has changed the profile name, therefore this is also the name to be used */
+    if ( prof->status != PROF_STAT_EXISTS )
+        parentName = prof->name;
+
+    /* check to ensure we do not end up with (copy) (copy) (copy) ... */
+    QRegExp rx("\\s+(\\(\\s*" + tr("copy", "noun") + "\\s*\\d*\\))");
+    if ( rx.indexIn(parentName) >= 0 )
+        parentName.replace(rx, "");
+
     QString new_name;
-    if (prof->is_global && ! profile_exists (parent.toUtf8().constData(), FALSE))
+    /* if copy is global and name has not been used before, use that, else create first copy */
+    if (prof->is_global && findByNameAndVisibility(parentName) < 0)
         new_name = QString(prof->name);
     else
         new_name = QString("%1 (%2)").arg(parentName).arg(tr("copy", "noun"));
 
-    if ( findByNameAndVisibility(new_name) >= 0 && new_name.length() > 0 )
+    /* check if copy already exists and iterate, until an unused version is found */
+    int cnt = 1;
+    while(findByNameAndVisibility(new_name) >= 0)
     {
-        int cnt = 1;
-        QString copyName = new_name;
-        while(findByNameAndVisibility(copyName) >= 0)
-        {
-            copyName = new_name;
-            copyName = copyName.replace(tr("copy", "noun"), tr("copy", "noun").append(" %1").arg(QString::number(cnt)));
-            cnt++;
-        }
-        new_name = copyName;
+        new_name = QString("%1 (%2 %3)").arg(parentName).arg(tr("copy", "noun")).arg(QString::number(cnt));
+        cnt++;
     }
 
-    if ( new_name.compare(QString(new_name.toUtf8().constData())) != 0 && !prof->is_global )
-        return QModelIndex();
-
+    /* if this would be a copy, but the original is already a new one, this is a copy as well */
     if ( new_status == PROF_STAT_COPY && prof->status == PROF_STAT_NEW )
         new_status = PROF_STAT_NEW;
 
-    add_to_profile_list(new_name.toUtf8().constData(), parent.toUtf8().constData(), new_status, FALSE, prof->from_global);
+    /* add element */
+    add_to_profile_list(new_name.toUtf8().constData(), parent.toUtf8().constData(), new_status, FALSE, prof->from_global ? prof->from_global : prof->is_global);
+
+    /* reload profile list in model */
     loadProfiles();
 
     int row = findByNameAndVisibility(new_name, false);
+    /* sanity check, if adding the profile went correctly */
     if ( row < 0 || row == idx.row() )
         return QModelIndex();
 
+    /* return the index of the profile */
     return index(row, COL_NAME);
 }
 
