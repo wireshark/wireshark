@@ -28,6 +28,7 @@ static int hf_lsd_header = -1;
 static int hf_lsd_host = -1;
 static int hf_lsd_port = -1;
 static int hf_lsd_infohash = -1;
+static int hf_lsd_cookie = -1;
 
 static gint ett_lsd = -1;
 
@@ -118,6 +119,17 @@ dissect_lsd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
   if (!parse_string_field(lsd_tree, hf_lsd_infohash, pinfo, tvb, offset, &next_offset, &linelen))
       return offset+linelen;
 
+  offset = next_offset;
+  linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+  if (linelen < 0)
+      return offset+linelen;
+  /* Cookie is optionnal */
+  if (tvb_strncaseeql(tvb, offset, "cookie", strlen("cookie") == 0))
+  {
+    if (!parse_string_field(lsd_tree, hf_lsd_cookie, pinfo, tvb, offset, &next_offset, &linelen))
+      return offset+linelen;
+  }
+
   return tvb_captured_length(tvb);
 }
 
@@ -151,6 +163,10 @@ proto_register_lsd(void)
     },
     { &hf_lsd_infohash,
       { "Infohash", "lsd.infohash",
+        FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
+    },
+    { &hf_lsd_cookie,
+      { "cookie", "lsd.cookie",
         FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }
     },
   };
