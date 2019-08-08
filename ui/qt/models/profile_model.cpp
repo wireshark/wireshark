@@ -297,8 +297,12 @@ QVariant ProfileModel::dataFontRole(const QModelIndex &index) const
     if ( prof->is_global )
         font.setItalic(true);
 
-    if ( set_profile_.compare(prof->name) == 0 && ! prof->is_global )
-        font.setBold(true);
+    if ( ! prof->is_global && ! checkDuplicate(index) )
+    {
+        if ( ( set_profile_.compare(prof->name) == 0 &&  prof->status == PROF_STAT_EXISTS ) ||
+             ( set_profile_.compare(prof->reference) == 0 &&  prof->status == PROF_STAT_CHANGED ) )
+            font.setBold(true);
+    }
 
     if ( prof->status == PROF_STAT_DEFAULT && reset_default_ )
         font.setStrikeOut(true);
@@ -876,16 +880,16 @@ void ProfileModel::doResetModel(bool reset_import)
 
 QModelIndex ProfileModel::activeProfile() const
 {
-    ProfileModel * temp = const_cast<ProfileModel *>(this);
-    QString sel_profile = get_profile_name();
-    int row = temp->findByName(sel_profile);
-    if ( row >= 0 )
+    QList<int> rows = const_cast<ProfileModel *>(this)->findAllByNameAndVisibility(set_profile_, false, true);
+    foreach ( int row, rows )
     {
         profile_def * prof = profiles_.at(row);
-        if ( prof->is_global )
+        if ( prof->is_global || checkDuplicate(index(row, ProfileModel::COL_NAME) ) )
             return QModelIndex();
 
-        return index(row, ProfileModel::COL_NAME);
+        if ( ( set_profile_.compare(prof->name) == 0 &&  prof->status == PROF_STAT_EXISTS ) ||
+             ( set_profile_.compare(prof->reference) == 0 &&  prof->status == PROF_STAT_CHANGED ) )
+            return index(row, ProfileModel::COL_NAME);
     }
 
     return QModelIndex();
