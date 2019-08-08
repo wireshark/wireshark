@@ -496,6 +496,7 @@ MainWindow::MainWindow(QWidget *parent) :
     main_ui_->mainStack->addWidget(&master_split_);
 
     empty_pane_.setObjectName("emptyPane");
+    empty_pane_.setVisible(false);
 
     packet_list_ = new PacketList(&master_split_);
     main_ui_->wirelessTimelineWidget->setPacketList(packet_list_);
@@ -2011,7 +2012,6 @@ void MainWindow::initShowHideMainWidgets()
     foreach (QAction *shmwa, shmw_actions.keys()) {
         shmwa->setData(QVariant::fromValue(shmw_actions[shmwa]));
         show_hide_actions_->addAction(shmwa);
-        showHideMainWidgets(shmwa);
     }
 
     // Initial hide the Interface Toolbar submenu
