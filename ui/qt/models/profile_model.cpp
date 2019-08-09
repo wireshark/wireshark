@@ -585,7 +585,7 @@ QModelIndex ProfileModel::duplicateEntry(QModelIndex idx, int new_status)
         return QModelIndex();
 
     /* only new and copied stati can be set */
-    if ( new_status != PROF_STAT_NEW || new_status != PROF_STAT_COPY )
+    if ( new_status != PROF_STAT_NEW && new_status != PROF_STAT_COPY )
         new_status = PROF_STAT_COPY;
 
     /* this is a copy from a personal profile, check if the original has been a
@@ -1019,8 +1019,7 @@ int ProfileModel::importProfilesFromDir(QString dirname, int * skippedCnt, bool 
         loadProfiles();
     }
 
-    if ( skippedCnt )
-        *skippedCnt = skipped;
+    *skippedCnt = skipped;
 
     return count;
 }
