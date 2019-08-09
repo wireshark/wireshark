@@ -62,8 +62,9 @@ Wireshark development community!
 
 === About this document
 
-This book was developed by mailto:{wsdg-author-email}[Ulf Lamping]
-and updated for VS2013 by mailto:{wsdg-author-email2}[Graham Bloice]
+This book was developed by mailto:{wsdg-author-email}[Ulf Lamping],
+updated for VS2013 by mailto:{wsdg-author-email2}[Graham Bloice],
+and updated for later versions of Visual Studio by various contributors.
 
 It is written in AsciiDoc.
 

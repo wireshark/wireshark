@@ -299,17 +299,17 @@ console logfile, to get additional information.
 The Buildbot runs on a platform collection that represents the different
 "platform specialties" quite well:
 
-* Windows 8.1 x86 (Win32, little endian, Visual Studio 2013)
+* Windows Server 2019 x86 (Win32, little endian, Visual Studio 2017)
 
-* Windows Server 2012 R2 x86-64 (Win64, little endian, Visual Studio 2013)
+* Windows Server 2016 x86-64 (Win64, little endian, Visual Studio 2017)
 
-* Ubuntu x86-64 (Linux, little endian, gcc, Clang)
+* Ubuntu 18.04 x86-64 (Linux, little endian, gcc, Clang)
 
-* macOS x86-64 (BSD, little endian, Clang)
+* macOS 10.14 x86-64 (BSD, little endian, Clang)
 
 and two buildslaves that run static code analysis to help spot coding issues:
 
-* Visual Studio Code Analysis (Win64, little endian, VS 2013)
+* Visual Studio Code Analysis (Win64, little endian, VS 2017)
 
 * Clang Code Analysis (Linux, little endian, Clang)
 
