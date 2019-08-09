@@ -250,9 +250,10 @@ PacketList::PacketList(QWidget *parent) :
     overlay_sb_ = new OverlayScrollBar(Qt::Vertical, this);
     setVerticalScrollBar(overlay_sb_);
 
+    header()->setSortIndicator(-1, Qt::AscendingOrder);
+
     packet_list_model_ = new PacketListModel(this, cap_file_);
     setModel(packet_list_model_);
-    sortByColumn(-1, Qt::AscendingOrder);
 
     initHeaderContextMenu();
 
