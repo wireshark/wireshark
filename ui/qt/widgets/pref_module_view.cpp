@@ -14,7 +14,7 @@
 #include <QHeaderView>
 
 PrefModuleTreeView::PrefModuleTreeView(QWidget *parent) : QTreeView(parent),
-    appearanceName_(PrefsModel::APPEARANCE_PREFERENCE_TREE_NAME)
+    appearanceName_(PrefsModel::typeToString(PrefsModel::Appearance))
 {
 }
 

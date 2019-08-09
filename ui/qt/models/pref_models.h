@@ -55,17 +55,17 @@ public:
     explicit PrefsModel(QObject * parent = Q_NULLPTR);
     virtual ~PrefsModel();
 
-    //Names of special preferences handled by the GUI
-    //Names used as keys to determine correct pan displayed
-    static const char* ADVANCED_PREFERENCE_TREE_NAME;
-    static const char* APPEARANCE_PREFERENCE_TREE_NAME;
-    static const char* LAYOUT_PREFERENCE_TREE_NAME;
-    static const char* COLUMNS_PREFERENCE_TREE_NAME;
-    static const char* FONT_AND_COLORS_PREFERENCE_TREE_NAME;
-    static const char* CAPTURE_PREFERENCE_TREE_NAME;
-    static const char* EXPERT_PREFERENCE_TREE_NAME;
-    static const char* FILTER_BUTTONS_PREFERENCE_TREE_NAME;
-    static const char* RSA_KEYS_PREFERENCE_TREE_NAME;
+    enum PrefsModelType {
+        Advanced = Qt::UserRole,
+        Appearance,
+        Layout,
+        Columns,
+        FontAndColors,
+        Capture,
+        Expert,
+        FilterButtons,
+        RSAKeys
+    };
 
     enum PrefsModelColumn {
         colName = 0,
@@ -82,6 +82,8 @@ public:
 
     int rowCount(const QModelIndex &parent = QModelIndex()) const;
     int columnCount(const QModelIndex &parent = QModelIndex()) const;
+
+    static QString typeToString(int type);
 
 private:
     void populate();

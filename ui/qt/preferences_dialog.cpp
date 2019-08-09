@@ -113,15 +113,15 @@ PreferencesDialog::PreferencesDialog(QWidget *parent) :
 
 
     // PreferencesPane, prefsView, and stackedWidget must all correspond to each other.
-    prefs_pane_to_item_[PrefsModel::APPEARANCE_PREFERENCE_TREE_NAME] = pd_ui_->appearanceFrame;
-    prefs_pane_to_item_[PrefsModel::LAYOUT_PREFERENCE_TREE_NAME] = pd_ui_->layoutFrame;
-    prefs_pane_to_item_[PrefsModel::COLUMNS_PREFERENCE_TREE_NAME] = pd_ui_->columnFrame;
-    prefs_pane_to_item_[PrefsModel::FONT_AND_COLORS_PREFERENCE_TREE_NAME] = pd_ui_->fontandcolorFrame;
-    prefs_pane_to_item_[PrefsModel::CAPTURE_PREFERENCE_TREE_NAME] = pd_ui_->captureFrame;
-    prefs_pane_to_item_[PrefsModel::EXPERT_PREFERENCE_TREE_NAME] = pd_ui_->expertFrame;
-    prefs_pane_to_item_[PrefsModel::FILTER_BUTTONS_PREFERENCE_TREE_NAME] = pd_ui_->filterExpressonsFrame;
-    prefs_pane_to_item_[PrefsModel::RSA_KEYS_PREFERENCE_TREE_NAME] = pd_ui_->rsaKeysFrame;
-    prefs_pane_to_item_[PrefsModel::ADVANCED_PREFERENCE_TREE_NAME] = pd_ui_->advancedFrame;
+    prefs_pane_to_item_[PrefsModel::typeToString(PrefsModel::Appearance)] = pd_ui_->appearanceFrame;
+    prefs_pane_to_item_[PrefsModel::typeToString(PrefsModel::Layout)] = pd_ui_->layoutFrame;
+    prefs_pane_to_item_[PrefsModel::typeToString(PrefsModel::Columns)] = pd_ui_->columnFrame;
+    prefs_pane_to_item_[PrefsModel::typeToString(PrefsModel::FontAndColors)] = pd_ui_->fontandcolorFrame;
+    prefs_pane_to_item_[PrefsModel::typeToString(PrefsModel::Capture)] = pd_ui_->captureFrame;
+    prefs_pane_to_item_[PrefsModel::typeToString(PrefsModel::Expert)] = pd_ui_->expertFrame;
+    prefs_pane_to_item_[PrefsModel::typeToString(PrefsModel::FilterButtons)] = pd_ui_->filterExpressonsFrame;
+    prefs_pane_to_item_[PrefsModel::typeToString(PrefsModel::RSAKeys)] = pd_ui_->rsaKeysFrame;
+    prefs_pane_to_item_[PrefsModel::typeToString(PrefsModel::Advanced)] = pd_ui_->advancedFrame;
     prefs_pane_to_item_[MODULES_NAME] = NULL;
 
     pd_ui_->filterExpressonsFrame->setUat(uat_get_table_by_name("Display expressions"));

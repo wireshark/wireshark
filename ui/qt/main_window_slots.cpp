@@ -1630,7 +1630,7 @@ void MainWindow::onFilterSelected(QString filterText, bool prepare)
 
 void MainWindow::onFilterPreferences()
 {
-    emit showPreferencesDialog(PrefsModel::FILTER_BUTTONS_PREFERENCE_TREE_NAME);
+    emit showPreferencesDialog(PrefsModel::typeToString(PrefsModel::FilterButtons));
 }
 
 void MainWindow::onFilterEdit(int uatIndex)
@@ -2164,7 +2164,7 @@ void MainWindow::showPreferencesDialog(QString pane_name)
 
 void MainWindow::on_actionEditPreferences_triggered()
 {
-    showPreferencesDialog(PrefsModel::APPEARANCE_PREFERENCE_TREE_NAME);
+    showPreferencesDialog(PrefsModel::typeToString(PrefsModel::Appearance));
 }
 
 // View Menu

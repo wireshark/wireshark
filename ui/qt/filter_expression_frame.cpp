@@ -106,7 +106,7 @@ void FilterExpressionFrame::updateWidgets()
 void FilterExpressionFrame::on_filterExpressionPreferencesPushButton_clicked()
 {
     on_buttonBox_rejected();
-    emit showPreferencesDialog(PrefsModel::FILTER_BUTTONS_PREFERENCE_TREE_NAME);
+    emit showPreferencesDialog(PrefsModel::typeToString(PrefsModel::FilterButtons));
 }
 
 void FilterExpressionFrame::on_labelLineEdit_textChanged(const QString)

@@ -514,7 +514,7 @@ void DisplayFilterEdit::showFilters()
 
 void DisplayFilterEdit::showExpressionPrefs()
 {
-    emit showPreferencesDialog(PrefsModel::FILTER_BUTTONS_PREFERENCE_TREE_NAME);
+    emit showPreferencesDialog(PrefsModel::typeToString(PrefsModel::FilterButtons));
 }
 
 void DisplayFilterEdit::applyOrPrepareFilter()

@@ -124,18 +124,6 @@ void PrefsItem::setChanged(bool changed)
     changed_ = changed;
 }
 
-//: Names of special preferences handled by the GUI
-const char* PrefsModel::ADVANCED_PREFERENCE_TREE_NAME = QT_TR_NOOP("Advanced");
-const char* PrefsModel::APPEARANCE_PREFERENCE_TREE_NAME = QT_TR_NOOP("Appearance");
-const char* PrefsModel::LAYOUT_PREFERENCE_TREE_NAME = QT_TR_NOOP("Layout");
-const char* PrefsModel::COLUMNS_PREFERENCE_TREE_NAME = QT_TR_NOOP("Columns");
-const char* PrefsModel::FONT_AND_COLORS_PREFERENCE_TREE_NAME = QT_TR_NOOP("Font and Colors");
-const char* PrefsModel::CAPTURE_PREFERENCE_TREE_NAME = QT_TR_NOOP("Capture");
-const char* PrefsModel::EXPERT_PREFERENCE_TREE_NAME = QT_TR_NOOP("Expert");
-const char* PrefsModel::FILTER_BUTTONS_PREFERENCE_TREE_NAME = QT_TR_NOOP("Filter Buttons");
-const char* PrefsModel::RSA_KEYS_PREFERENCE_TREE_NAME = QT_TR_NOOP("RSA Keys");
-
-
 PrefsModel::PrefsModel(QObject *parent) :
     QAbstractItemModel(parent),
     root_(new PrefsItem(QString("ROOT"), NULL))
@@ -306,33 +294,49 @@ void PrefsModel::populate()
     //Add the "specially handled" preferences
     PrefsItem *appearance_item, *appearance_subitem, *special_item;
 
-    appearance_item = new PrefsItem(APPEARANCE_PREFERENCE_TREE_NAME, root_);
+    appearance_item = new PrefsItem(typeToString(PrefsModel::Appearance), root_);
     root_->prependChild(appearance_item);
 
-    appearance_subitem = new PrefsItem(LAYOUT_PREFERENCE_TREE_NAME, appearance_item);
+    appearance_subitem = new PrefsItem(typeToString(PrefsModel::Layout), appearance_item);
     appearance_item->prependChild(appearance_subitem);
-    appearance_subitem = new PrefsItem(COLUMNS_PREFERENCE_TREE_NAME, appearance_item);
+    appearance_subitem = new PrefsItem(typeToString(PrefsModel::Columns), appearance_item);
     appearance_item->prependChild(appearance_subitem);
-    appearance_subitem = new PrefsItem(FONT_AND_COLORS_PREFERENCE_TREE_NAME, appearance_item);
+    appearance_subitem = new PrefsItem(typeToString(PrefsModel::FontAndColors), appearance_item);
     appearance_item->prependChild(appearance_subitem);
 
-    special_item = new PrefsItem(CAPTURE_PREFERENCE_TREE_NAME, root_);
+    special_item = new PrefsItem(typeToString(PrefsModel::Capture), root_);
     root_->prependChild(special_item);
-    special_item = new PrefsItem(EXPERT_PREFERENCE_TREE_NAME, root_);
+    special_item = new PrefsItem(typeToString(PrefsModel::Expert), root_);
     root_->prependChild(special_item);
-    special_item = new PrefsItem(FILTER_BUTTONS_PREFERENCE_TREE_NAME, root_);
+    special_item = new PrefsItem(typeToString(PrefsModel::FilterButtons), root_);
     root_->prependChild(special_item);
 #ifdef HAVE_LIBGNUTLS
-    special_item = new PrefsItem(RSA_KEYS_PREFERENCE_TREE_NAME, root_);
+    special_item = new PrefsItem(typeToString(PrefsModel::RSAKeys), root_);
     root_->prependChild(special_item);
 #endif
-    special_item = new PrefsItem(ADVANCED_PREFERENCE_TREE_NAME, root_);
+    special_item = new PrefsItem(typeToString(PrefsModel::Advanced), root_);
     root_->prependChild(special_item);
 }
 
+QString PrefsModel::typeToString(int type)
+{
+    QString typeStr;
 
+    switch(type)
+    {
+        case Advanced: typeStr = tr("Advanced"); break;
+        case Appearance: typeStr = tr("Appearance"); break;
+        case Layout: typeStr = tr("Layout"); break;
+        case Columns: typeStr = tr("Columns"); break;
+        case FontAndColors: typeStr = tr("Font and Colors"); break;
+        case Capture: typeStr = tr("Capture"); break;
+        case Expert: typeStr = tr("Expert"); break;
+        case FilterButtons: typeStr = tr("Filter Buttons"); break;
+        case RSAKeys: typeStr = tr("RSA Keys"); break;
+    }
 
-
+    return typeStr;
+}
 
 AdvancedPrefsModel::AdvancedPrefsModel(QObject * parent)
 : QSortFilterProxyModel(parent),
@@ -637,7 +641,7 @@ void AdvancedPrefsModel::setFilter(const QString& filter)
 
 ModulePrefsModel::ModulePrefsModel(QObject* parent)
     : QSortFilterProxyModel(parent)
-    , advancedPrefName_(PrefsModel::ADVANCED_PREFERENCE_TREE_NAME)
+    , advancedPrefName_(PrefsModel::typeToString(PrefsModel::Advanced))
 {
 }
 
@@ -698,7 +702,7 @@ Qt::ItemFlags ModulePrefsModel::flags(const QModelIndex &index) const
         if (item == NULL)
             return flags;
 
-        if (item->getName().compare(PrefsModel::CAPTURE_PREFERENCE_TREE_NAME) == 0) {
+        if (item->getName().compare(PrefsModel::typeToString(PrefsModel::Capture)) == 0) {
             flags &= (~Qt::ItemIsEnabled);
         }
     }

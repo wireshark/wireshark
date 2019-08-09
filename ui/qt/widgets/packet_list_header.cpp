@@ -252,7 +252,7 @@ void PacketListHeader::setAlignment(QAction *action)
 
 void PacketListHeader::showColumnPrefs()
 {
-    emit showColumnPreferences(PrefsModel::COLUMNS_PREFERENCE_TREE_NAME);
+    emit showColumnPreferences(PrefsModel::typeToString(PrefsModel::Columns));
 }
 
 void PacketListHeader::doEditColumn()
