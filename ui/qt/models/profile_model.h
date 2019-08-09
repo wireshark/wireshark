@@ -119,6 +119,9 @@ public:
 Q_SIGNALS:
     void itemChanged(const QModelIndex &idx);
 
+protected:
+    static QString illegalCharacters();
+
 private:
     QList<profile_def *> profiles_;
     QStringList profile_files_;
@@ -138,6 +141,7 @@ private:
 
 #ifdef HAVE_MINIZIP
     static bool acceptFile(QString fileName, int fileSize);
+    static QString cleanName(QString fileName);
 #endif
 
     QVariant dataDisplay(const QModelIndex & idx) const;

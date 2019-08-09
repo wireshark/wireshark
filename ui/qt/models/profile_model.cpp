@@ -1095,6 +1095,14 @@ bool ProfileModel::acceptFile(QString fileName, int fileSize)
     return true;
 }
 
+QString ProfileModel::cleanName(QString fileName)
+{
+    QStringList parts = fileName.split(QDir::separator());
+    QString temp = parts[parts.count() - 1].replace( QRegExp( "[" + QRegExp::escape( illegalCharacters() ) + "]" ), QString( "_" ) );
+    temp = parts.join(QDir::separator());
+    return temp;
+}
+
 int ProfileModel::importProfilesFromZip(QString filename, int * skippedCnt, QStringList *result)
 {
     QTemporaryDir dir;
@@ -1106,7 +1114,7 @@ int ProfileModel::importProfilesFromZip(QString filename, int * skippedCnt, QStr
     int cnt = 0;
     if ( dir.isValid() )
     {
-        WireSharkZipHelper::unzip(filename, dir.path(), &ProfileModel::acceptFile);
+        WireSharkZipHelper::unzip(filename, dir.path(), &ProfileModel::acceptFile, &ProfileModel::cleanName);
         cnt = importProfilesFromDir(dir.path(), skippedCnt, true, result);
     }
 
@@ -1225,18 +1233,24 @@ bool ProfileModel::clearImported(QString *msg)
     return result;
 }
 
+QString ProfileModel::illegalCharacters()
+{
+#ifdef _WIN32
+    /* According to https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions */
+    return QString("<>:\"/\\|?*");
+#else
+    return QDir::separator();
+#endif
+
+}
+
 bool ProfileModel::checkNameValidity(QString name, QString *msg)
 {
     QString message;
     bool invalid = false;
     QString msgChars;
 
-#ifdef _WIN32
-    /* According to https://docs.microsoft.com/en-us/windows/win32/fileio/naming-a-file#naming-conventions */
-    QString invalid_dir_chars = "<>:\"/\\|?*";
-#else
-    QString invalid_dir_chars = QDir::separator();
-#endif
+    QString invalid_dir_chars = illegalCharacters();
 
     for ( int cnt = 0; cnt < invalid_dir_chars.length() && ! invalid; cnt++ )
     {

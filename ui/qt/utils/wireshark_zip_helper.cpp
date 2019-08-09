@@ -29,8 +29,9 @@
 #include <QFile>
 #include <QFileInfo>
 #include <QDateTime>
+#include <QMap>
 
-bool WireSharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCheck)(QString, int))
+bool WireSharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCheck)(QString, int), QString (*cleanName)(QString))
 {
     unzFile uf = Q_NULLPTR;
     QFileInfo fi(zipFile);
@@ -49,6 +50,8 @@ bool WireSharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCh
     if (nmbr <= 0)
         return false;
 
+    QMap<QString, QString> cleanPaths;
+
     for ( unsigned int cnt = 0; cnt < nmbr; cnt++ )
     {
         char filename_inzip[256];
@@ -59,10 +62,42 @@ bool WireSharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCh
         {
             QString fileInZip(filename_inzip);
             int fileSize = static_cast<int>(file_info.uncompressed_size);
-            /* Sanity check for the filenames as well as the file size (max 512kb) */
-            if ( fileCheck && fileCheck(fileInZip, fileSize) && di.exists() )
+
+            /* Sanity check for the filen */
+            if ( fileInZip.length() == 0 || ( fileCheck && ! fileCheck(fileInZip, fileSize) ) )
+                continue;
+
+            if ( di.exists() )
             {
-                QFileInfo fi(di.path() + QDir::separator() + fileInZip);
+                QString fullPath = di.path() + QDir::separator() + fileInZip;
+                QFileInfo fi(fullPath);
+                QString dirPath = fi.absolutePath();
+
+                /* clean up name from import. e.g. illegal characters in name */
+                if ( cleanName )
+                {
+                    if ( ! cleanPaths.keys().contains(dirPath) )
+                    {
+                        QString tempPath = cleanName(dirPath);
+                        int cnt = 1;
+                        while ( QFile::exists(tempPath) )
+                        {
+                            tempPath = cleanName(dirPath) + QString::number(cnt);
+                            cnt++;
+                        }
+                        cleanPaths.insert(dirPath, tempPath);
+                    }
+
+                    dirPath = cleanPaths[dirPath];
+                    if ( dirPath.length() == 0 )
+                        continue;
+
+                    fi = QFileInfo(dirPath + QDir::separator() + fi.fileName());
+                    fullPath = fi.absoluteFilePath();
+                }
+                if ( fullPath.length() == 0 )
+                    continue;
+
                 QDir tP(fi.absolutePath());
                 if ( ! tP.exists() )
                     di.mkpath(fi.absolutePath());
@@ -70,23 +105,25 @@ bool WireSharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCh
                 if ( fileInZip.contains("/") )
                 {
                     QString filePath = fi.absoluteFilePath();
-
-                    err = unzOpenCurrentFile(uf);
-                    if ( err == UNZ_OK )
+                    QFile file(filePath);
+                    if ( ! file.exists() )
                     {
-                        char * buf = static_cast<char *>(malloc(IO_BUF_SIZE));
-                        QFile file(filePath);
-                        if ( file.open(QIODevice::WriteOnly) )
+                        err = unzOpenCurrentFile(uf);
+                        if ( err == UNZ_OK )
                         {
-                            while ( ( err = unzReadCurrentFile(uf, buf, IO_BUF_SIZE) ) != UNZ_EOF )
-                                file.write(buf, err);
+                            char * buf = static_cast<char *>(malloc(IO_BUF_SIZE));
+                            if ( file.open(QIODevice::WriteOnly) )
+                            {
+                                while ( ( err = unzReadCurrentFile(uf, buf, IO_BUF_SIZE) ) != UNZ_EOF )
+                                    file.write(buf, err);
 
-                            file.close();
+                                file.close();
+                            }
+                            unzCloseCurrentFile(uf);
+                            free(buf);
+
+                            files++;
                         }
-                        unzCloseCurrentFile(uf);
-                        free(buf);
-
-                        files++;
                     }
                 }
             }
