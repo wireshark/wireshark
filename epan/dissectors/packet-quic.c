@@ -15,6 +15,15 @@
  * https://tools.ietf.org/html/draft-ietf-quic-transport-22
  * https://tools.ietf.org/html/draft-ietf-quic-tls-22
  * https://tools.ietf.org/html/draft-ietf-quic-invariants-06
+ *
+ * Currently supported QUIC version(s): draft -21, draft -22.
+ * For a table of supported QUIC versions per Wireshark version, see
+ * https://github.com/quicwg/base-drafts/wiki/Tools#wireshark
+ *
+ * Decryption is supported via TLS 1.3 secrets in the "TLS Key Log File",
+ * configured either at the TLS Protocol preferences, or embedded in a pcapng
+ * file. Sample captures and secrets can be found at:
+ * https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=13881
  */
 
 #include <config.h>
