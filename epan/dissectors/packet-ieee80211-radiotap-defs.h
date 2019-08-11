@@ -162,14 +162,21 @@ struct ieee80211_radiotap_header {
  *	Contains the AMPDU information for the subframe.
  *
  * IEEE80211_RADIOTAP_HE		u16, u16, u16, u16, u16, u16 unitless
+ *	Contains some information for HE frames.
  *
  * IEEE80211_RADIOTAP_HE_MU		U16, U16, u8[4] unitless
  *
- *	Contains some information for HE frames.
- *	NOTE: this is a suggested field, not an assigned field, so
- *	the type value and format of this field is subject to change,
- *	although an experimental Linux patch uses bit 23 and the
- *	current format on radiotap.org.
+ * IEEE80211_RADIOTAP_HE_MU_USER
+ *
+ * IEEE80211_RADIOTAP_0_LENGTH_PSDU
+ *
+ * IEEE80211_RADIOTAP_L_SIG
+ *
+ * IEEE80211_RADIOTAP_TLVS_PRESENT
+ *
+ * THERE ARE NO MORE BITS FREE! If you need a new radiotap header you must
+ * ask for a TLV value. See www.radiotap.org.
+ *
  */
 enum ieee80211_radiotap_type {
 	IEEE80211_RADIOTAP_TSFT = 0,
@@ -200,6 +207,7 @@ enum ieee80211_radiotap_type {
 	IEEE80211_RAFIOTAP_HE_MU_USER = 25,
 	IEEE80211_RADIOTAP_0_LENGTH_PSDU = 26,
 	IEEE80211_RADIOTAP_L_SIG = 27,
+	IEEE80211_RADIOTAP_TLVS_PRESENT = 28,
 
 	/* valid in every it_present bitmap, even vendor namespaces */
 	IEEE80211_RADIOTAP_RADIOTAP_NAMESPACE = 29,
