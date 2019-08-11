@@ -1,57 +1,36 @@
 /* packet-tls.c
  * Routines for TLS dissection
  * Copyright (c) 2000-2001, Scott Renfro <scott@renfro.org>
+ * Copyright 2013-2019, Peter Wu <peter@lekensteyn.nl>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
  * SPDX-License-Identifier: GPL-2.0-or-later
+ */
+
+/*
+ * Supported protocol versions:
  *
- * See
+ *  TLS 1.3, 1.2, 1.0, and SSL 3.0. SSL 2.0 is no longer supported, except for
+ *  the SSL 2.0-compatible Client Hello.
  *
- *    http://www.mozilla.org/projects/security/pki/nss/ssl/draft02.html
+ * Primary protocol specifications:
  *
- * for SSL 2.0 specs.
+ *  https://tools.ietf.org/html/draft-hickman-netscape-ssl-00 - SSL 2.0
+ *  https://tools.ietf.org/html/rfc6101 - SSL 3.0
+ *  https://tools.ietf.org/html/rfc2246 - TLS 1.0
+ *  https://tools.ietf.org/html/rfc4346 - TLS 1.1
+ *  https://tools.ietf.org/html/rfc5246 - TLS 1.2
+ *  https://tools.ietf.org/html/rfc8446 - TLS 1.3
  *
- * See
+ * Important IANA registries:
  *
- *    http://www.mozilla.org/projects/security/pki/nss/ssl/draft302.txt
- *
- * for SSL 3.0 specs.
- *
- * See RFC 2246 for SSL 3.1/TLS 1.0 specs.
- *
- * See
- *
- *    http://research.sun.com/projects/crypto/draft-ietf-tls-ecc-05.txt
- *
- * for Elliptic Curve Cryptography cipher suites.
- *
- * See
- *
- *    http://www.ietf.org/internet-drafts/draft-ietf-tls-camellia-04.txt
- *
- * for Camellia-based cipher suites.
+ *  https://www.iana.org/assignments/tls-parameters/
+ *  https://www.iana.org/assignments/tls-extensiontype-values/
  *
  * Notes:
- *
- *   - Does not support dissection
- *     of frames that would require state maintained between frames
- *     (e.g., single ssl records spread across multiple tcp frames)
- *
- *   - Identifies, but does not fully dissect the following messages:
- *
- *     - SSLv3/TLS (These need more state from previous handshake msgs)
- *       - Certificate Verify
- *
- *     - SSLv2 (These don't appear in the clear)
- *       - Error
- *       - Client Finished
- *       - Server Verify
- *       - Server Finished
- *       - Request Certificate
- *       - Client Certificate
  *
  *    - Decryption needs to be performed 'sequentially', so it's done
  *      at packet reception time. This may cause a significant packet capture
@@ -60,6 +39,11 @@
  *      available
  *
  *     We are at Packet reception if time pinfo->fd->visited == 0
+ *
+ *    - Many dissection and decryption operations are implemented in
+ *      epan/dissectors/packet-tls-utils.c and
+ *      epan/dissectors/packet-tls-utils.h due to an overlap of functionality
+ *      with DTLS (epan/dissectors/packet-dtls.c).
  *
  */
 
