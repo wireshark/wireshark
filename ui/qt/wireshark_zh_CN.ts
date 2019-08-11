@@ -2411,8 +2411,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Save parameters on capture start</source>
-        <oldsource>Save parameter on capture start</oldsource>
-        <translation type="unfinished">捕获开始时保存参数</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

@@ -2414,8 +2414,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Save parameters on capture start</source>
-        <oldsource>Save parameter on capture start</oldsource>
-        <translation type="unfinished">キャプチャ開始時にパラメタを保存します</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

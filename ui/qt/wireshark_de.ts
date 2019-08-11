@@ -2421,8 +2421,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Save parameters on capture start</source>
-        <oldsource>Save parameter on capture start</oldsource>
-        <translation type="unfinished">Parameter beim Starten des Mitschnitts speichern</translation>
+        <translation>Parameter beim Starten des Mitschnitts speichern</translation>
     </message>
 </context>
 <context>
@@ -6201,7 +6200,7 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     </message>
     <message>
         <source>Collapse Subtrees</source>
-        <translation>Teilbauch einklappen</translation>
+        <translation>Teilbaum einklappen</translation>
     </message>
     <message>
         <source>Collapse the current packet detail</source>

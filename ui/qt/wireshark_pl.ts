@@ -2400,8 +2400,7 @@ UWAGA: Przynajmniej jedna opcja MUSI zostać zaznaczona.</translation>
     </message>
     <message>
         <source>Save parameters on capture start</source>
-        <oldsource>Save parameter on capture start</oldsource>
-        <translation type="unfinished">Zapisz parametry przy starcie przechwytywania</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>

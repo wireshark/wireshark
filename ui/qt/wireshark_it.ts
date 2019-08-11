@@ -2421,8 +2421,7 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     </message>
     <message>
         <source>Save parameters on capture start</source>
-        <oldsource>Save parameter on capture start</oldsource>
-        <translation type="unfinished">Salva parametro all&apos;avvio della cattura</translation>
+        <translation>Salva parametri all&apos;avvio della cattura</translation>
     </message>
 </context>
 <context>

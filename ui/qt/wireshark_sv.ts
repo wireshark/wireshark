@@ -2413,8 +2413,7 @@ OBSERVERA: Någon flagga MÅSTE väljas.</translation>
     </message>
     <message>
         <source>Save parameters on capture start</source>
-        <oldsource>Save parameter on capture start</oldsource>
-        <translation type="unfinished">Spara parametrarna vid fångststart</translation>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
