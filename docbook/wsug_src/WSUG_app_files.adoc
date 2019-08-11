@@ -163,6 +163,7 @@ _/usr/local/etc_.
 |_recent_|Recent GUI settings (e.g. recent files lists).
 |_cfilters_|Capture filters.
 |_dfilters_|Display filters.
+|_+++dfilter_macros+++_|Display filter macros.
 |_colorfilters_|Coloring rules.
 |_+++disabled_protos+++_|Disabled protocols.
 |_ethers_|Ethernet name resolution.
@@ -245,8 +246,30 @@ the personal configuration folder, then, if there is a _dfilters_ file
 in the global configuration folder, it is read.
 
 When you press the Save button in the “Display Filters” dialog box,
-all the current capture filters are written to the personal display
+all the current display filters are written to the personal display
 filters file.
+--
+
+_+++dfilter_macros+++_::
+This file contains all the display filter macros that you have defined and saved.
+It consists of one or more lines, where each line has the following format:
++
+--
+----
+"<macro name>" <filter string>
+----
+
+At program start, if there is a _+++dfilter_macros+++_ file in the personal
+configuration folder, it is read. If there isn’t a _+++dfilter_macros+++_ file
+in the personal configuration folder, then, if there is a _+++dfilter_macros+++_
+file in the global configuration folder, it is read.
+
+When you press the Save button in the "Display Filter Macros" dialog box,
+all the current display filter macors are written to the personal display
+filter macros file.
+
+More information about Display Filter Macros is available in
+<<ChDisplayFilterMacrosSection>>
 --
 
 _colorfilters_::
@@ -263,7 +286,7 @@ configuration folder, it is read.  If there isn’t a _colorfilters_ file
 in the personal configuration folder, then, if there is a _colorfilters_
 file in the global configuration folder, it is read.
 
-Wwhen you press the Save button in the “Coloring Rules” dialog box,
+When you press the Save button in the “Coloring Rules” dialog box,
 all the current color filters are written to the personal color filters
 file.
 --
