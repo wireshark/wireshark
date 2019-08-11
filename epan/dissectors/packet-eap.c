@@ -1156,8 +1156,8 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                                        size,
                                        more_fragments, 0);
 
-            if (fd_head != NULL)            /* Reassembled  */
-            {
+            if (fd_head != NULL && fd_head->reassembled_in == pinfo->num) {
+              /* Reassembled  */
               proto_item *frag_tree_item;
 
               next_tvb = tvb_new_chain(tvb, fd_head->tvb_data);
