@@ -2233,11 +2233,6 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
 <context>
     <name>ExtcapOptionsDialog</name>
     <message>
-        <source>Save parameters on capture start</source>
-        <oldsource>Save parameter on capture start</oldsource>
-        <translation type="unfinished">Parameter beim Starten des Mitschnitts speichern</translation>
-    </message>
-    <message>
         <source>Interface Options</source>
         <translation>Schnittstellenoptionen</translation>
     </message>
@@ -2252,6 +2247,10 @@ Achtung: Eine Option MUSS ausgewählt sein.</translation>
     <message>
         <source>The help for the extcap interface %1 cannot be found. Given file: %2</source>
         <translation>Die Hifle für Extcap-Schnittstelle %1 kann nicht gefunden werden. Angegebene Datei: %2</translation>
+    </message>
+    <message>
+        <source>Save parameters on capture start</source>
+        <translation>Parameter beim Starten des Mitschnitts speichern</translation>
     </message>
 </context>
 <context>
@@ -6135,7 +6134,7 @@ text-decoration: underline;
     </message>
     <message>
         <source>Collapse Subtrees</source>
-        <translation>Teilbauch einklappen</translation>
+        <translation>Teilbaum einklappen</translation>
     </message>
     <message>
         <source>Collapse the current packet detail</source>

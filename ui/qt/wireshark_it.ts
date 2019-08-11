@@ -2233,11 +2233,6 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
 <context>
     <name>ExtcapOptionsDialog</name>
     <message>
-        <source>Save parameters on capture start</source>
-        <oldsource>Save parameter on capture start</oldsource>
-        <translation type="unfinished">Salva parametro all&apos;avvio della cattura</translation>
-    </message>
-    <message>
         <source>Interface Options</source>
         <translation>Opzioni interfaccia</translation>
     </message>
@@ -2252,6 +2247,10 @@ NOTA: un&apos;opzione DEVE essere selezionata.</translation>
     <message>
         <source>The help for the extcap interface %1 cannot be found. Given file: %2</source>
         <translation>La guida per l&apos;interfaccia extcap %1 non è disponibile. File specificato: %2</translation>
+    </message>
+    <message>
+        <source>Save parameters on capture start</source>
+        <translation>Salva parametri all&apos;avvio della cattura</translation>
     </message>
 </context>
 <context>

@@ -2169,7 +2169,7 @@ wago-io-system	2455/tcp/udp	# WAGO-IO-SYSTEM
 altav-remmgt	2456/tcp/udp
 rapido-ip	2457/tcp/udp	# Rapido_IP
 griffin		2458/tcp/udp
-community	2459/tcp/udp	# Community
+xrpl		2459/tcp/udp	# Community
 ms-theater	2460/tcp/udp
 qadmifoper	2461/tcp/udp
 qadmifevent	2462/tcp/udp
@@ -5182,6 +5182,7 @@ http-alt	8080/tcp/udp	# HTTP Alternate (see port 80)
 sunproxyadmin	8081/tcp/udp	# Sun Proxy Admin Service
 us-cli		8082/tcp/udp	# Utilistor (Client)
 us-srv		8083/tcp/udp	# Utilistor (Server)
+websnp		8084/tcp	# Snarl Network Protocol over HTTP
 d-s-n		8086/tcp/udp	# Distributed SCADA Networking Rendezvous Port
 simplifymedia	8087/tcp/udp	# Simplify Media SPP Protocol
 radan-http	8088/tcp/udp	# Radan HTTP

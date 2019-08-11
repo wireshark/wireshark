@@ -2226,11 +2226,6 @@ PLEASE NOTE: One option MUST be selected.</source>
 <context>
     <name>ExtcapOptionsDialog</name>
     <message>
-        <source>Save parameters on capture start</source>
-        <oldsource>Save parameter on capture start</oldsource>
-        <translation type="unfinished">捕获开始时保存参数</translation>
-    </message>
-    <message>
         <source>Interface Options</source>
         <translation>接口选项</translation>
     </message>
@@ -2245,6 +2240,10 @@ PLEASE NOTE: One option MUST be selected.</source>
     <message>
         <source>The help for the extcap interface %1 cannot be found. Given file: %2</source>
         <translation>无法找到 extcap接口 %1 的帮助。文件：%2</translation>
+    </message>
+    <message>
+        <source>Save parameters on capture start</source>
+        <translation type="unfinished"></translation>
     </message>
 </context>
 <context>
