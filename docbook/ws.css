@@ -722,6 +722,10 @@ p, pre { margin-bottom: 1.25rem; }
 
 .guimenu { padding: 0.1em; border: 0.5px rgba(0, 0, 0, 0.5) solid; }
 
+.guibutton { padding: 0.1em; border: 0.5px rgba(0, 0, 0, 0.5) solid; border-radius: 4px; }
+
+.keycap { padding: 0.1em; border: 0.5px rgba(0, 0, 0, 0.5) solid; box-shadow: 1px 1px rgba(0, 0, 0, 0.2); border-radius: 4px; }
+
 .print-only { display: none !important; }
 
 @page { margin: 1.25cm 0.75cm; }
