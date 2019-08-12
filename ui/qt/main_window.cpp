@@ -950,6 +950,12 @@ void MainWindow::closeEvent(QCloseEvent *event) {
 // order to set DROPDESCRIPTION.
 void MainWindow::dragEnterEvent(QDragEnterEvent *event)
 {
+    if (!event->mimeData()->hasUrls())
+    {
+        event->ignore();
+        return;
+    }
+
     if (!main_ui_->actionFileOpen->isEnabled()) {
         // We could alternatively call setAcceptDrops(!capture_in_progress)
         // in setMenusForCaptureInProgress but that wouldn't provide feedback.
@@ -975,6 +981,12 @@ void MainWindow::dragEnterEvent(QDragEnterEvent *event)
 
 void MainWindow::dropEvent(QDropEvent *event)
 {
+    if (!event->mimeData()->hasUrls())
+    {
+        event->ignore();
+        return;
+    }
+
     QList<QByteArray> local_files;
     int max_dropped_files = 100; // Arbitrary
 
