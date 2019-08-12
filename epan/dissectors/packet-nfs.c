@@ -155,6 +155,12 @@ static int hf_nfs4_fh_pd_flags_reserved = -1;
 static int hf_nfs4_fh_pd_flags_version = -1;
 static int hf_nfs4_fh_pd_container = -1;
 static int hf_nfs4_fh_pd_inum = -1;
+static int hf_nfs4_fh_pd_sites = -1;
+static int hf_nfs4_fh_pd_sites_inum = -1;
+static int hf_nfs4_fh_pd_sites_siteid = -1;
+static int hf_nfs4_fh_pd_spaces = -1;
+static int hf_nfs4_fh_pd_spaces_snapid = -1;
+static int hf_nfs4_fh_pd_spaces_container = -1;
 static int hf_nfs_full_name = -1;
 static int hf_nfs_name = -1;
 static int hf_nfs_data = -1;
@@ -736,6 +742,8 @@ static gint ett_nfs3_gxfh_utlfield = -1;
 static gint ett_nfs3_gxfh_sfhfield = -1;
 static gint ett_nfs3_gxfh_sfhflags = -1;
 static gint ett_nfs4_fh_pd_flags = -1;
+static gint ett_nfs4_fh_pd_sites = -1;
+static gint ett_nfs4_fh_pd_spaces = -1;
 
 static gint ett_nfs4_compound_call = -1;
 static gint ett_nfs4_request_op = -1;
@@ -2075,8 +2083,12 @@ dissect_fhandle_data_DCACHE(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *t
 	return tvb_captured_length(tvb);
 }
 
-#define PD_VERSION_MASK  0xF0000000
-#define PD_RESERVED_MASK 0x0FFFFFFF
+#define PD_VERSION_MASK   0xf0000000
+#define PD_RESERVED_MASK  0x0ffffffF
+#define PD_INUM_MASK      G_GUINT64_CONSTANT(0x0007ffffffffffff)
+#define PD_SITEID_MASK    G_GUINT64_CONSTANT(0xfff8000000000000)
+#define PD_SNAPID_MASK    G_GUINT64_CONSTANT(0x0000000000001fff)
+#define PD_CONTAINER_MASK G_GUINT64_CONSTANT(0xffffffffffffe000)
 
 static int
 dissect_fhandle_data_PRIMARY_DATA(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *tree, void* data _U_)
@@ -2090,12 +2102,25 @@ dissect_fhandle_data_PRIMARY_DATA(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
 		NULL
 	};
 
+	static const int *fh_sites[] = {
+		&hf_nfs4_fh_pd_sites_inum,
+		&hf_nfs4_fh_pd_sites_siteid,
+		NULL
+	};
+
+	static const int *fh_spaces[] = {
+		&hf_nfs4_fh_pd_spaces_snapid,
+		&hf_nfs4_fh_pd_spaces_container,
+		NULL
+	};
+
+
 	if (!tree)
 		return tvb_captured_length(tvb);
 
 
 	version = (tvb_get_letohl(tvb, offset + 4) & PD_VERSION_MASK) >> 28;
-	if (version > 1) {
+	if (version > 2) {
 		return 0;
 	}
 
@@ -2107,6 +2132,9 @@ dissect_fhandle_data_PRIMARY_DATA(tvbuff_t* tvb, packet_info *pinfo _U_, proto_t
 	} else if (version == 1) {
 		proto_tree_add_item(tree, hf_nfs4_fh_pd_container, tvb, offset + 8, 8, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(tree, hf_nfs4_fh_pd_inum, tvb, offset + 16, 8, ENC_LITTLE_ENDIAN);
+	} else if (version == 2) {
+		proto_tree_add_bitmask(tree, tvb, offset + 8, hf_nfs4_fh_pd_spaces, ett_nfs4_fh_pd_spaces, fh_spaces, ENC_LITTLE_ENDIAN);
+		proto_tree_add_bitmask(tree, tvb, offset + 16, hf_nfs4_fh_pd_sites, ett_nfs4_fh_pd_sites, fh_sites, ENC_LITTLE_ENDIAN);
 	}
 
 	return tvb_captured_length(tvb);
@@ -11872,6 +11900,24 @@ proto_register_nfs(void)
 		{ &hf_nfs4_fh_pd_flags_version, {
 			"version", "nfs.fh.pd.flags.version", FT_UINT32, BASE_DEC,
 			NULL, PD_VERSION_MASK, NULL, HFILL }},
+		{ &hf_nfs4_fh_pd_sites, {
+			"sites", "nfs.fh.pd.sites", FT_UINT64, BASE_HEX,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_nfs4_fh_pd_sites_inum, {
+			"inum", "nfs.fh.pd.sites.inum", FT_UINT64, BASE_HEX,
+			NULL, PD_INUM_MASK, NULL, HFILL }},
+		{ &hf_nfs4_fh_pd_sites_siteid, {
+			"siteid", "nfs.fh.pd.sites.siteid", FT_UINT16, BASE_DEC,
+			NULL, PD_SITEID_MASK, NULL, HFILL }},
+		{ &hf_nfs4_fh_pd_spaces, {
+			"spaces", "nfs.fh.pd.spaces", FT_UINT64, BASE_HEX,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_nfs4_fh_pd_spaces_snapid, {
+			"snapid", "nfs.fh.pd.spaces.snapid", FT_UINT16, BASE_HEX,
+			NULL, PD_SNAPID_MASK, NULL, HFILL }},
+		{ &hf_nfs4_fh_pd_spaces_container, {
+			"container", "nfs.fh.pd.spaces.container", FT_UINT64, BASE_DEC,
+			NULL, PD_CONTAINER_MASK, NULL, HFILL }},
 		{ &hf_nfs4_fh_pd_container, {
 			"container", "nfs.fh.pd.container", FT_UINT64, BASE_DEC,
 			NULL, 0, NULL, HFILL }},
@@ -14300,6 +14346,8 @@ proto_register_nfs(void)
 		&ett_nfs4_read_plus_content_sub,
 		&ett_nfs4_write_same,
 		&ett_nfs4_fh_pd_flags,
+		&ett_nfs4_fh_pd_sites,
+		&ett_nfs4_fh_pd_spaces,
 		&ett_nfs4_listxattr_names
 
 	};
