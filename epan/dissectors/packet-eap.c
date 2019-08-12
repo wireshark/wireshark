@@ -97,6 +97,7 @@ static expert_field ei_eap_mitm_attacks = EI_INIT;
 static expert_field ei_eap_md5_value_size_overflow = EI_INIT;
 static expert_field ei_eap_dictionary_attacks = EI_INIT;
 static expert_field ei_eap_identity_invalid = EI_INIT;
+static expert_field ei_eap_retransmission = EI_INIT;
 
 static dissector_table_t eap_expanded_type_dissector_table;
 
@@ -308,6 +309,8 @@ typedef struct {
   int     eap_tls_seq;
   guint32 eap_reass_cookie;
   int     leap_state;
+  gint16  last_eap_id_req;  /* Last ID of the request from the authenticator. */
+  gint16  last_eap_id_resp; /* Last ID of the response from the peer. */
 } conv_state_t;
 
 typedef struct {
@@ -767,7 +770,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   conv_state_t   *conversation_state;
   frame_state_t  *packet_state;
   int             leap_state;
-  proto_tree     *ti;
+  proto_tree     *ti, *ti_id;
   proto_tree     *eap_tree;
   proto_tree     *eap_tls_flags_tree;
   proto_item     *eap_type_item;
@@ -820,6 +823,8 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
     conversation_state->eap_tls_seq      = -1;
     conversation_state->eap_reass_cookie =  0;
     conversation_state->leap_state       = -1;
+    conversation_state->last_eap_id_req  = -1;
+    conversation_state->last_eap_id_resp = -1;
     conversation_add_proto_data(conversation, proto_eap, conversation_state);
   }
 
@@ -836,9 +841,33 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   ti = proto_tree_add_item(tree, proto_eap, tvb, 0, len, ENC_NA);
   eap_tree = proto_item_add_subtree(ti, ett_eap);
 
-  proto_tree_add_item(eap_tree, hf_eap_code,       tvb, 0, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item(eap_tree, hf_eap_identifier, tvb, 1, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item(eap_tree, hf_eap_len,        tvb, 2, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(eap_tree, hf_eap_code, tvb, 0, 1, ENC_BIG_ENDIAN);
+  ti_id = proto_tree_add_item(eap_tree, hf_eap_identifier, tvb, 1, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(eap_tree, hf_eap_len, tvb, 2, 2, ENC_BIG_ENDIAN);
+
+  /* Detect message retransmissions. Since the protocol proceeds in lock-step,
+   * reordering is not expected. If retransmissions somehow occur, we would have
+   * to detect retransmissions via a bitmap. */
+  gboolean is_duplicate_id = FALSE;
+  if (eap_code == EAP_REQUEST || eap_code == EAP_RESPONSE ||
+      eap_code == EAP_INITIATE || eap_code == EAP_FINISH) {
+    if (!PINFO_FD_VISITED(pinfo)) {
+      gint16 *last_eap_id = eap_code == EAP_REQUEST || eap_code == EAP_INITIATE ?
+        &conversation_state->last_eap_id_req :
+        &conversation_state->last_eap_id_resp;
+      is_duplicate_id = *last_eap_id == eap_identifier;
+      *last_eap_id = eap_identifier;
+      if (is_duplicate_id) {
+        // Use a dummy value to remember that this packet is a duplicate.
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_eap, 1, GINT_TO_POINTER(1));
+      }
+    } else {
+      is_duplicate_id = !!p_get_proto_data(wmem_file_scope(), pinfo, proto_eap, 1);
+    }
+    if (is_duplicate_id) {
+      expert_add_info(pinfo, ti_id, &ei_eap_retransmission);
+    }
+  }
 
   switch (eap_code) {
 
@@ -966,6 +995,13 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
           tvb_len = tvb_captured_length_remaining(tvb, offset);
           if (size < tvb_len)
             tvb_len = size;
+
+          /* If this is a retransmission, do not save the fragment. */
+          if (is_duplicate_id) {
+            next_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_len, size);
+            call_data_dissector(next_tvb, pinfo, eap_tree);
+            break;
+          }
 
           /*
             EAP/TLS is weird protocol (it comes from
@@ -1170,6 +1206,9 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
         /* Data    (byte*Count) */
         /* This part is state-dependent. */
+
+        /* XXX - are duplicates possible (is_duplicate_id)?
+         * If so, should we stop here to avoid modifying conversation_state? */
 
         /* See if we've already remembered the state. */
         packet_state = (frame_state_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_eap, 0);
@@ -1654,7 +1693,8 @@ proto_register_eap(void)
      { &ei_eap_dictionary_attacks, { "eap.dictionary_attacks", PI_SECURITY, PI_WARN,
                                "Vulnerable to dictionary attacks. If possible, change EAP type."
                                " See http://www.cisco.com/warp/public/cc/pd/witc/ao350ap/prodlit/2331_pp.pdf", EXPFILL }},
-     { &ei_eap_identity_invalid, { "eap.identity.invalid", PI_PROTOCOL, PI_WARN, "Invalid identity code", EXPFILL }}
+     { &ei_eap_identity_invalid, { "eap.identity.invalid", PI_PROTOCOL, PI_WARN, "Invalid identity code", EXPFILL }},
+     { &ei_eap_retransmission, { "eap.retransmission", PI_SEQUENCE, PI_NOTE, "This packet is a retransmission", EXPFILL }},
   };
 
   expert_module_t* expert_eap;
