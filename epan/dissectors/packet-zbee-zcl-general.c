@@ -9780,10 +9780,18 @@ void proto_reg_handoff_zbee_zcl_part(void)
 #define ZBEE_ZCL_OTA_FILE_VERS_STACK_RELEASE            0x0000FF00  /* Stack Release */
 #define ZBEE_ZCL_OTA_FILE_VERS_STACK_BUILD              0x000000FF  /* Stack Build */
 
-/* Field Control bitmask field list */
-#define ZBEE_ZCL_OTA_FIELD_CTRL_HW_VER_PRESENT                0x01  /* bit     0 */
-#define ZBEE_ZCL_OTA_FIELD_CTRL_RESERVED                      0xfe  /* bit   1-7 */
-#define ZBEE_ZCL_OTA_FIELD_CTRL_IEEE_ADDR_PRESENT             0x01  /* bit     0 - Request nodes IEEE address Present  */
+/* Field Control bitmask field list for Query Next Image Request */
+#define ZBEE_ZCL_OTA_QUERY_NEXT_IMAGE_REQ_FIELD_CTRL_HW_VER_PRESENT         0x01  /* bit 0 */
+#define ZBEE_ZCL_OTA_QUERY_NEXT_IMAGE_REQ_FIELD_CTRL_RESERVED               0xfe  /* bit 1-7 */
+
+/* Field Control bitmask field list for Image Block Request */
+#define ZBEE_ZCL_OTA_IMAGE_BLOCK_REQ_FIELD_CTRL_REQUEST_NODE_ADDR_PRESENT   0x01  /* bit 0 - Request node IEEE address Present */
+#define ZBEE_ZCL_OTA_IMAGE_BLOCK_REQ_FIELD_CTRL_MIN_BLOCK_PERIOD_PRESENT    0x02  /* bit 1 - Minimum block period Present */
+#define ZBEE_ZCL_OTA_IMAGE_BLOCK_REQ_FIELD_CTRL_RESERVED                    0xfc  /* bit 2-7 */
+
+/* Field Control bitmask field list for Image Page Request */
+#define ZBEE_ZCL_OTA_IMAGE_PAGE_REQ_FIELD_CTRL_REQUEST_NODE_ADDR_PRESENT    0x01  /* bit 0 - Request node IEEE address Present */
+#define ZBEE_ZCL_OTA_IMAGE_PAGE_REQ_FIELD_CTRL_RESERVED                     0xfe  /* bit 1-7 */
 
 /* OTA Time */
 #define ZBEE_ZCL_OTA_TIME_NOW                           0x00000000  /* Now */
@@ -9819,13 +9827,21 @@ static int hf_zbee_zcl_ota_file_version_appl_release = -1;
 static int hf_zbee_zcl_ota_file_version_appl_build = -1;
 static int hf_zbee_zcl_ota_file_version_stack_release = -1;
 static int hf_zbee_zcl_ota_file_version_stack_build = -1;
-static int hf_zbee_zcl_ota_field_ctrl = -1;
-static int hf_zbee_zcl_ota_field_ctrl_hw_ver_present = -1;
-static int hf_zbee_zcl_ota_field_ctrl_reserved = -1;
+static int hf_zbee_zcl_ota_query_next_image_req_field_ctrl = -1;
+static int hf_zbee_zcl_ota_query_next_image_req_field_ctrl_hw_ver_present = -1;
+static int hf_zbee_zcl_ota_query_next_image_req_field_ctrl_reserved = -1;
+static int hf_zbee_zcl_ota_image_block_req_field_ctrl = -1;
+static int hf_zbee_zcl_ota_image_block_req_field_ctrl_ieee_addr_present = -1;
+static int hf_zbee_zcl_ota_image_block_req_field_ctrl_min_block_period_present = -1;
+static int hf_zbee_zcl_ota_image_block_req_field_ctrl_reserved = -1;
+static int hf_zbee_zcl_ota_image_page_req_field_ctrl = -1;
+static int hf_zbee_zcl_ota_image_page_req_field_ctrl_ieee_addr_present = -1;
+static int hf_zbee_zcl_ota_image_page_req_field_ctrl_reserved = -1;
 static int hf_zbee_zcl_ota_hw_version = -1;
 static int hf_zbee_zcl_ota_status = -1;
 static int hf_zbee_zcl_ota_image_size = -1;
 static int hf_zbee_zcl_ota_max_data_size = -1;
+static int hf_zbee_zcl_ota_min_block_period = -1;
 static int hf_zbee_zcl_ota_req_node_addr = -1;
 static int hf_zbee_zcl_ota_current_time = -1;
 static int hf_zbee_zcl_ota_request_time = -1;
@@ -9837,7 +9853,9 @@ static int hf_zbee_zcl_ota_rsp_spacing = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_zbee_zcl_ota = -1;
-static gint ett_zbee_zcl_ota_field_ctrl = -1;
+static gint ett_zbee_zcl_ota_query_next_image_req_field_ctrl = -1;
+static gint ett_zbee_zcl_ota_image_block_req_field_ctrl = -1;
+static gint ett_zbee_zcl_ota_image_page_req_field_ctrl = -1;
 static gint ett_zbee_zcl_ota_file_version = -1;
 
 /* Attributes */
@@ -10058,23 +10076,21 @@ dissect_zcl_ota_file_version_field(tvbuff_t *tvb, proto_tree *tree, guint *offse
  *      tvbuff_t *tvb       - pointer to buffer containing raw packet.
  *      proto_tree *tree    - pointer to data tree Wireshark uses to display packet.
  *      guint *offset       - pointer to buffer offset
+ *      int hf_hdr          - hf_hdr
+ *      gint ett            - ett subtree index
+ *      const int** fields  - fields an array of pointers to int that lists all the fields of the bitmask
  *  RETURNS
- *      none
+ *      guint8              - field ctrl value
  *---------------------------------------------------------------
  */
 static guint8
-dissect_zcl_ota_field_ctrl_field(tvbuff_t *tvb, proto_tree *tree, guint *offset)
+dissect_zcl_ota_field_ctrl_field(tvbuff_t *tvb, proto_tree *tree, guint *offset, int hf_hdr, gint ett, const int **fields)
 {
     guint8      field;
-    static const int * field_ctrl[] = {
-        &hf_zbee_zcl_ota_field_ctrl_hw_ver_present,
-        &hf_zbee_zcl_ota_field_ctrl_reserved,
-        NULL
-    };
 
     /* Retrieve 'Field Control' field */
     field = tvb_get_guint8(tvb, *offset);
-    proto_tree_add_bitmask(tree, tvb, *offset, hf_zbee_zcl_ota_field_ctrl, ett_zbee_zcl_ota_field_ctrl, field_ctrl, ENC_NA);
+    proto_tree_add_bitmask(tree, tvb, *offset, hf_hdr, ett, fields, ENC_NA);
     *offset += 1;
 
     return field;
@@ -10144,10 +10160,16 @@ dissect_zcl_ota_imagenotify(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 static void
 dissect_zcl_ota_querynextimagereq(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
+    static const int * fields[] = {
+        &hf_zbee_zcl_ota_query_next_image_req_field_ctrl_hw_ver_present,
+        &hf_zbee_zcl_ota_query_next_image_req_field_ctrl_reserved,
+        NULL
+    };
+
     guint8  field_ctrl;
 
     /* Retrieve 'Field Control' field */
-    field_ctrl = dissect_zcl_ota_field_ctrl_field(tvb, tree, offset);
+    field_ctrl = dissect_zcl_ota_field_ctrl_field(tvb, tree, offset, hf_zbee_zcl_ota_query_next_image_req_field_ctrl, ett_zbee_zcl_ota_query_next_image_req_field_ctrl, fields);
 
     /* Retrieve 'Manufacturer Code' field */
     proto_tree_add_item(tree, hf_zbee_zcl_ota_manufacturer_code, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
@@ -10161,13 +10183,11 @@ dissect_zcl_ota_querynextimagereq(tvbuff_t *tvb, proto_tree *tree, guint *offset
     dissect_zcl_ota_file_version_field(tvb, tree, offset);
 
     /* Check if there are optional fields */
-
-    if (field_ctrl & ZBEE_ZCL_OTA_FIELD_CTRL_HW_VER_PRESENT) {
+    if (field_ctrl & ZBEE_ZCL_OTA_QUERY_NEXT_IMAGE_REQ_FIELD_CTRL_HW_VER_PRESENT) {
         /* 'Hardware Version' field present, retrieves it */
         proto_tree_add_item(tree, hf_zbee_zcl_ota_hw_version, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
         *offset += 2;
     }
-
 } /*dissect_zcl_ota_querynextimagereq*/
 
 /*FUNCTION:------------------------------------------------------
@@ -10229,10 +10249,17 @@ dissect_zcl_ota_querynextimagersp(tvbuff_t *tvb, proto_tree *tree, guint *offset
 static void
 dissect_zcl_ota_imageblockreq(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
+    static const int * fields[] = {
+        &hf_zbee_zcl_ota_image_block_req_field_ctrl_ieee_addr_present,
+        &hf_zbee_zcl_ota_image_block_req_field_ctrl_min_block_period_present,
+        &hf_zbee_zcl_ota_image_block_req_field_ctrl_reserved,
+        NULL
+    };
+
     guint8  field_ctrl;
 
     /* Retrieve 'Field Control' field */
-    field_ctrl = dissect_zcl_ota_field_ctrl_field(tvb, tree, offset);
+    field_ctrl = dissect_zcl_ota_field_ctrl_field(tvb, tree, offset, hf_zbee_zcl_ota_image_block_req_field_ctrl, ett_zbee_zcl_ota_image_block_req_field_ctrl, fields);
 
     /* Retrieve 'Manufacturer Code' field */
     proto_tree_add_item(tree, hf_zbee_zcl_ota_manufacturer_code, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
@@ -10254,13 +10281,16 @@ dissect_zcl_ota_imageblockreq(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += 1;
 
     /* Check if there are optional fields */
-
-    if (field_ctrl & ZBEE_ZCL_OTA_FIELD_CTRL_IEEE_ADDR_PRESENT) {
-        /* 'Request Node Address' field present, retrieves it */
+    if (field_ctrl & ZBEE_ZCL_OTA_IMAGE_BLOCK_REQ_FIELD_CTRL_REQUEST_NODE_ADDR_PRESENT) {
+        /* 'Request Node Address' field present, retrieve it */
         proto_tree_add_item(tree, hf_zbee_zcl_ota_req_node_addr, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
         *offset += 8;
     }
-
+    if (field_ctrl & ZBEE_ZCL_OTA_IMAGE_BLOCK_REQ_FIELD_CTRL_MIN_BLOCK_PERIOD_PRESENT) {
+        /* 'Minimum Block Period' field present, retrieve it */
+        proto_tree_add_item(tree, hf_zbee_zcl_ota_min_block_period, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
+        *offset += 2;
+    }
 } /*dissect_zcl_ota_imageblockreq*/
 
 /*FUNCTION:------------------------------------------------------
@@ -10279,10 +10309,16 @@ dissect_zcl_ota_imageblockreq(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 static void
 dissect_zcl_ota_imagepagereq(tvbuff_t *tvb, proto_tree *tree, guint *offset)
 {
+    static const int * fields[] = {
+        &hf_zbee_zcl_ota_image_page_req_field_ctrl_ieee_addr_present,
+        &hf_zbee_zcl_ota_image_page_req_field_ctrl_reserved,
+        NULL
+    };
+
     guint8  field_ctrl;
 
     /* Retrieve 'Field Control' field */
-    field_ctrl = dissect_zcl_ota_field_ctrl_field(tvb, tree, offset);
+    field_ctrl = dissect_zcl_ota_field_ctrl_field(tvb, tree, offset, hf_zbee_zcl_ota_image_page_req_field_ctrl, ett_zbee_zcl_ota_image_page_req_field_ctrl, fields);
 
     /* Retrieve 'Manufacturer Code' field */
     proto_tree_add_item(tree, hf_zbee_zcl_ota_manufacturer_code, tvb, *offset, 2, ENC_LITTLE_ENDIAN);
@@ -10312,13 +10348,11 @@ dissect_zcl_ota_imagepagereq(tvbuff_t *tvb, proto_tree *tree, guint *offset)
     *offset += 2;
 
     /* Check if there are optional fields */
-
-    if (field_ctrl & ZBEE_ZCL_OTA_FIELD_CTRL_IEEE_ADDR_PRESENT) {
+    if (field_ctrl & ZBEE_ZCL_OTA_IMAGE_PAGE_REQ_FIELD_CTRL_REQUEST_NODE_ADDR_PRESENT) {
         /* 'Request Node Address' field present, retrieves it */
         proto_tree_add_item(tree, hf_zbee_zcl_ota_req_node_addr, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
         *offset += 8;
     }
-
 } /*dissect_zcl_ota_imagepagereq*/
 
 /*FUNCTION:------------------------------------------------------
@@ -10765,7 +10799,6 @@ void proto_register_zbee_zcl_ota(void)
             RVALS(zbee_zcl_ota_image_type_names), 0x0, NULL, HFILL } },
 
 /* Begin FileVersion fields */
-
         { &hf_zbee_zcl_ota_file_version,
             { "File Version", "zbee_zcl_general.ota.file.version", FT_UINT32, BASE_HEX, NULL,
             0x0, NULL, HFILL } },
@@ -10787,20 +10820,51 @@ void proto_register_zbee_zcl_ota(void)
             ZBEE_ZCL_OTA_FILE_VERS_STACK_BUILD, NULL, HFILL } },
 /* End FileVersion fields */
 
-/* Begin FieldControl fields */
-
-        { &hf_zbee_zcl_ota_field_ctrl,
-            { "Field Control", "zbee_zcl_general.ota.field_ctrl",
+/* Begin FieldControl fields Query Next Image Request */
+        { &hf_zbee_zcl_ota_query_next_image_req_field_ctrl,
+            { "Field Control", "zbee_zcl_general.ota.query_next_image_req.field_ctrl",
             FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
 
-        { &hf_zbee_zcl_ota_field_ctrl_hw_ver_present,
-            { "Hardware Version", "zbee_zcl_general.ota.field_ctrl_hw_ver_present",
-            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), ZBEE_ZCL_OTA_FIELD_CTRL_HW_VER_PRESENT, NULL, HFILL } },
+        { &hf_zbee_zcl_ota_query_next_image_req_field_ctrl_hw_ver_present,
+            { "Hardware Version", "zbee_zcl_general.ota.query_next_image_req.field_ctrl.hw_ver_present",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), ZBEE_ZCL_OTA_QUERY_NEXT_IMAGE_REQ_FIELD_CTRL_HW_VER_PRESENT, NULL, HFILL } },
 
-        { &hf_zbee_zcl_ota_field_ctrl_reserved,
-            { "Reserved", "zbee_zcl_general.ota.field_ctrl_reserved", FT_UINT8, BASE_HEX, NULL,
-            ZBEE_ZCL_OTA_FIELD_CTRL_RESERVED, NULL, HFILL } },
-/* End FieldControl fields */
+        { &hf_zbee_zcl_ota_query_next_image_req_field_ctrl_reserved,
+            { "Reserved", "zbee_zcl_general.ota.query_next_image_req.field_ctrl.reserved", FT_UINT8, BASE_HEX, NULL,
+            ZBEE_ZCL_OTA_QUERY_NEXT_IMAGE_REQ_FIELD_CTRL_RESERVED, NULL, HFILL } },
+/* End FieldControl fields Query Next Image Request */
+
+/* Begin FieldControl fields Image Block Request */
+        { &hf_zbee_zcl_ota_image_block_req_field_ctrl,
+            { "Field Control", "zbee_zcl_general.ota.image_block_req.field_ctrl",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_ota_image_block_req_field_ctrl_ieee_addr_present,
+            { "Request Node Address", "zbee_zcl_general.ota.image_block_req.field_ctrl.request_node_addr_present",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), ZBEE_ZCL_OTA_IMAGE_BLOCK_REQ_FIELD_CTRL_REQUEST_NODE_ADDR_PRESENT, NULL, HFILL } },
+
+        { &hf_zbee_zcl_ota_image_block_req_field_ctrl_min_block_period_present,
+            { "Minimum Block Period", "zbee_zcl_general.ota.image_block_req.field_ctrl.min_block_period",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), ZBEE_ZCL_OTA_IMAGE_BLOCK_REQ_FIELD_CTRL_MIN_BLOCK_PERIOD_PRESENT, NULL, HFILL } },
+
+        { &hf_zbee_zcl_ota_image_block_req_field_ctrl_reserved,
+            { "Reserved", "zbee_zcl_general.ota.query_next_image_req.field_ctrl.reserved", FT_UINT8, BASE_HEX, NULL,
+            ZBEE_ZCL_OTA_IMAGE_BLOCK_REQ_FIELD_CTRL_RESERVED, NULL, HFILL } },
+/* End FieldControl fields Image Block Request */
+
+/* Begin FieldControl fields Image Page Request */
+        { &hf_zbee_zcl_ota_image_page_req_field_ctrl,
+            { "Field Control", "zbee_zcl_general.ota.image_page_req.field_ctrl",
+            FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_ota_image_page_req_field_ctrl_ieee_addr_present,
+            { "Request Node Address", "zbee_zcl_general.ota.query_next_image_req.field_ctrl.request_node_addr_present",
+            FT_BOOLEAN, 8, TFS(&tfs_present_not_present), ZBEE_ZCL_OTA_IMAGE_PAGE_REQ_FIELD_CTRL_REQUEST_NODE_ADDR_PRESENT, NULL, HFILL } },
+
+        { &hf_zbee_zcl_ota_image_page_req_field_ctrl_reserved,
+            { "Reserved", "zbee_zcl_general.ota.image_page_req.field_ctrl.reserved", FT_UINT8, BASE_HEX, NULL,
+            ZBEE_ZCL_OTA_IMAGE_PAGE_REQ_FIELD_CTRL_RESERVED, NULL, HFILL } },
+/* End FieldControl fields Image Page Request */
 
         { &hf_zbee_zcl_ota_hw_version,
             { "Hardware Version", "zbee_zcl_general.ota.hw_ver", FT_UINT16, BASE_HEX, NULL,
@@ -10820,6 +10884,10 @@ void proto_register_zbee_zcl_ota(void)
 
         { &hf_zbee_zcl_ota_max_data_size,
             { "Max Data Size", "zbee_zcl_general.ota.max_data_size", FT_UINT8, BASE_DEC, NULL,
+            0x0, NULL, HFILL } },
+
+        { &hf_zbee_zcl_ota_min_block_period,
+            { "Minimum Block Period", "zbee_zcl_general.ota.min_block_period", FT_UINT16, BASE_DEC, NULL,
             0x0, NULL, HFILL } },
 
         { &hf_zbee_zcl_ota_req_node_addr,
@@ -10858,7 +10926,9 @@ void proto_register_zbee_zcl_ota(void)
     /* ZCL OTA subtrees */
     gint *ett[] = {
         &ett_zbee_zcl_ota,
-        &ett_zbee_zcl_ota_field_ctrl,
+        &ett_zbee_zcl_ota_query_next_image_req_field_ctrl,
+        &ett_zbee_zcl_ota_image_block_req_field_ctrl,
+        &ett_zbee_zcl_ota_image_page_req_field_ctrl,
         &ett_zbee_zcl_ota_file_version
     };
 
