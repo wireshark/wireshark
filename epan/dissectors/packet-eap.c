@@ -755,35 +755,6 @@ dissect_eap_aka(proto_tree *eap_tree, tvbuff_t *tvb, packet_info* pinfo, int off
   }
 }
 
-static gboolean eap_maybe_from_server(packet_info *pinfo, guint8 eap_code, gboolean default_assume_server)
-{
-  switch (eap_code) {
-  /* Packets which can only be sent by the peer. */
-  case EAP_REQUEST:
-    return FALSE;
-
-  /* Packets which can only be sent by the authenticator. */
-  case EAP_RESPONSE:
-  case EAP_SUCCESS:
-  case EAP_FAILURE:
-    return TRUE;
-  }
-
-  /* EAP_INITIATE and EAP_FINISH can be sent to/from a server (see Figure 2 in
-   * RFC 5296), so an additional heuristic is needed (does not work for EAPOL
-   * which has no ports). */
-  if (pinfo->ptype != PT_NONE) {
-    if (pinfo->match_uint == pinfo->destport) {
-      return FALSE;
-    } else if (pinfo->match_uint == pinfo->srcport) {
-      return TRUE;
-    }
-  }
-
-  /* No idea if this is a server or client, fallback to requested guess. */
-  return default_assume_server;
-}
-
 static int
 dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
@@ -814,52 +785,26 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   /*
    * Find a conversation to which we belong; create one if we don't find it.
    *
-   * We use the source and destination addresses, and the server's port
-   * number, because if this is running over RADIUS, there's no guarantee
-   * that the source port number for request and the destination port
-   * number for replies will be the same in all messages - the client
-   * may use different port numbers for each request.
+   * EAP runs over RADIUS (which runs over UDP), EAPOL (802.1X Authentication)
+   * or other transports. In case of RADIUS, a single "session" can have consist
+   * of two UDP associations (one for authorization, one for accounting) which
+   * results in two separate conversations. This wastes memory, but won't affect
+   * the use cases below. In case of EAPOL, there are no ports. In any case,
+   * force a new conversation when the EAP-Request/Identity message is found.
    *
-   * To figure out whether we are the server (authenticator) or client (peer)
-   * side, use heuristics. First try to exclude the side based on a guess using
-   * the EAP code. For example, a Response always come from the server and not
-   * the client so we could exclude the server side in this case.
-   *
-   * If that yields no match, then try to guess based on the port number. This
-   * could possibly give no (or a false) match with a heuristics dissector
-   * though since the match_uint field is not set (or not overwritten). Assume a
-   * client if the destination port matches and assume a server otherwise.
-   *
-   * If EAP runs over EAPOL (802.1X Authentication), then note that we have no
-   * concept of a port so the port number will always be zero for both sides.
-   * Therefore try to find conversations in both directions unless we are really
-   * sure (based on the EAP Code for example). If no existing conversation
-   * exists, the client side is assumed in case of doubt.
-   *
-   * XXX - what if we have a capture file with captures on multiple
-   * PPP interfaces, with LEAP traffic on all of them?  How can we
-   * keep them separate?  (Or is that not going to happen?)
+   * Conversation tracking is required for 1) EAP-TLS reassembly and 2) tracking
+   * the stage in the LEAP protocol. In both cases, the protocol starts with an
+   * EAP-Request/Identity message which cannot be found in the middle of the
+   * session. Use it as a signal to start a new conversation. This ensures that
+   * the TLS dissector associates new TLS messages with a unique TLS session.
    */
-  if (!eap_maybe_from_server(pinfo, eap_code, FALSE)) {
-    conversation = find_conversation(pinfo->num, &pinfo->dst, &pinfo->src,
-                                     conversation_pt_to_endpoint_type(pinfo->ptype), pinfo->destport,
-                                     0, NO_PORT_B);
-  }
-  if (conversation == NULL && eap_maybe_from_server(pinfo, eap_code, TRUE)) {
-    conversation = find_conversation(pinfo->num, &pinfo->src, &pinfo->dst,
-                                     conversation_pt_to_endpoint_type(pinfo->ptype), pinfo->srcport,
-                                     0, NO_PORT_B);
+  if (PINFO_FD_VISITED(pinfo) || !(eap_code == EAP_REQUEST && tvb_get_guint8(tvb, 4) == EAP_TYPE_ID)) {
+    conversation = find_conversation_pinfo(pinfo, 0);
   }
   if (conversation == NULL) {
-    if (!eap_maybe_from_server(pinfo, eap_code, FALSE)) {
-      conversation = conversation_new(pinfo->num, &pinfo->dst, &pinfo->src,
-                                      conversation_pt_to_endpoint_type(pinfo->ptype), pinfo->destport,
-                                      0, NO_PORT2);
-    } else {
-      conversation = conversation_new(pinfo->num, &pinfo->src, &pinfo->dst,
-                                      conversation_pt_to_endpoint_type(pinfo->ptype), pinfo->srcport,
-                                      0, NO_PORT2);
-    }
+    conversation = conversation_new(pinfo->num, &pinfo->src,
+                                    &pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype),
+                                    pinfo->srcport, pinfo->destport, 0);
   }
 
   /*
@@ -1201,7 +1146,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
       /*********************************************************************
         Cisco's Lightweight EAP (LEAP)
-        http://www.missl.cs.umd.edu/wireless/ethereal/leap.txt
+        https://web.archive.org/web/20070623090417if_/http://www.missl.cs.umd.edu/wireless/ethereal/leap.txt
       **********************************************************************/
       case EAP_TYPE_LEAP:
       {
