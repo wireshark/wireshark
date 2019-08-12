@@ -720,11 +720,11 @@ p, pre { margin-bottom: 1.25rem; }
 
 .exampleblock > .content { background-color: #fffef7; border-color: #e0e0dc; -webkit-box-shadow: 0 1px 4px #e0e0dc; box-shadow: 0 1px 4px #e0e0dc; }
 
-.guimenu, .guimenuitem { padding: 0.1em; border: 0.5px rgba(0, 0, 0, 0.5) solid; }
+.guimenu, .guimenuitem { padding: .1em .3em .1em .3em; border: 0.5px rgba(0, 0, 0, 0.5) solid; }
 
-.guibutton { padding: 0.1em; border: 0.5px rgba(0, 0, 0, 0.5) solid; border-radius: 4px; }
+.guibutton { padding: .1em .3em .1em .3em; border: 0.5px rgba(0, 0, 0, 0.5) solid; border-radius: 4px; }
 
-.keycap { padding: 0.1em; border: 0.5px rgba(0, 0, 0, 0.5) solid; box-shadow: 1px 1px rgba(0, 0, 0, 0.2); border-radius: 4px; }
+.keycap { padding: .1em .3em .1em .3em; border: 0.5px rgba(0, 0, 0, 0.5) solid; box-shadow: 1px 1px rgba(0, 0, 0, 0.2); border-radius: 4px; display: inline-block; min-width: 1.5em; text-align: center; }
 
 .print-only { display: none !important; }
 
