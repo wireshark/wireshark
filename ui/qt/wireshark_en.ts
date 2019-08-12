@@ -5626,8 +5626,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Manage Profiles</source>
-        <oldsource>Manage Profiles...</oldsource>
+        <source>Manage Profiles…</source>
+        <oldsource>Manage Profiles</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -5647,13 +5647,13 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>New</source>
-        <oldsource>New...</oldsource>
+        <source>New…</source>
+        <oldsource>New</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Edit</source>
-        <oldsource>Edit...</oldsource>
+        <source>Edit…</source>
+        <oldsource>Edit</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
