@@ -540,7 +540,7 @@ typedef struct _dns_conv_info_t {
 #define T_SINK          40              /* SINK */
 #define T_OPT           41              /* OPT pseudo-RR (RFC 2671) */
 #define T_APL           42              /* Lists of Address Prefixes (APL RR) (RFC 3123) */
-#define T_DS            43              /* Delegation Signature (RFC 4034) */
+#define T_DS            43              /* Delegation Signer (RFC 4034) */
 #define T_SSHFP         44              /* Using DNS to Securely Publish SSH Key Fingerprints (RFC 4255) */
 #define T_IPSECKEY      45              /* RFC 4025 */
 #define T_RRSIG         46              /* RFC 4034 */
@@ -998,12 +998,12 @@ static const value_string dns_types_description_vals[] = {
   { T_SINK,       "SINK" },
   { T_OPT,        "OPT" },
   { T_APL,        "APL" },
-  { T_DS,         "DS(Delegation Signer)" },
+  { T_DS,         "DS (Delegation Signer)" },
   { T_SSHFP,      "SSHFP (SSH Key Fingerprint)" },
   { T_IPSECKEY,   "IPSECKEY" },
-  { T_RRSIG,      "RRSIG" },
-  { T_NSEC,       "NSEC" },
-  { T_DNSKEY,     "DNSKEY" },
+  { T_RRSIG,      "RRSIG (Resource Record Signature)" },
+  { T_NSEC,       "NSEC (Next Secure)" },
+  { T_DNSKEY,     "DNSKEY (DNS Public Key)" },
   { T_DHCID,      "DHCID" },
   { T_NSEC3,      "NSEC3" },
   { T_NSEC3PARAM, "NSEC3PARAM" },
