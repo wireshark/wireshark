@@ -94,6 +94,7 @@ $Win64Archives = @{
     "vcpkg-export-20190318-win64ws.zip" = "72c2c43594b0581de2bc86517870a561cc40df294662502536b2a6c06cace87e";
     "WinSparkle-0.5.7.zip" = "56d396ef0c4e8b0589ea74134e484376ca6459d972cd1ab1da6b9624d82e6d04";
     "WpdPack_4_1_2.zip" = "ea799cf2f26e4afb1892938070fd2b1ca37ce5cf75fec4349247df12b784edbd";
+    "zstd-1.4.0-win64ws.zip" = "154199227bdfdfa608972bcdcea38e20768937085e5a59a8fa06c72d07b00d6b";
 }
 
 $Win32Archives = @{
@@ -117,6 +118,7 @@ $Win32Archives = @{
     "vcpkg-export-20190318-win32ws.zip" = "5f9eb78b1ea9e6762c2a4104e0126f1f5453919dc9df66fef2b1e0be8d8c5829";
     "WinSparkle-0.5.7.zip" = "56d396ef0c4e8b0589ea74134e484376ca6459d972cd1ab1da6b9624d82e6d04";
     "WpdPack_4_1_2.zip" = "ea799cf2f26e4afb1892938070fd2b1ca37ce5cf75fec4349247df12b784edbd";
+    "zstd-1.4.0-win32ws.zip" = "9141716d4d749e67dad40d4aab6bbb3206085bf68e5acb03baf1e5667aa0b6f5";
 }
 
 # Subdirectory to extract an archive to
@@ -183,6 +185,7 @@ $CleanupItems = @(
     "zlib-1.2.5"
     "zlib-1.2.8"
     "zlib-1.2.*-ws"
+    "zstd-*-win??ws"
     "AirPcap_Devpack_4_1_0_1622"
     "GeoIP-1.*-win??ws"
     "WinSparkle-0.3-44-g2c8d9d3-win??ws"

@@ -799,6 +799,14 @@ epan_get_compiled_version_info(GString *str)
 	g_string_append(str, "without LZ4");
 #endif /* HAVE_LZ4 */
 
+	/* Zstandard */
+	g_string_append(str, ", ");
+#ifdef HAVE_ZSTD
+	g_string_append(str, "with Zstandard");
+#else
+	g_string_append(str, "without Zstandard");
+#endif /* HAVE_ZSTD */
+
 	/* Snappy */
 	g_string_append(str, ", ");
 #ifdef HAVE_SNAPPY

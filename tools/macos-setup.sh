@@ -151,6 +151,7 @@ fi
 # features present in all three versions)
 LUA_VERSION=5.2.4
 SNAPPY_VERSION=1.1.4
+ZSTD_VERSION=1.4.2
 LIBXML2_VERSION=2.9.9
 LZ4_VERSION=1.7.5
 SBC_VERSION=1.3
@@ -1241,6 +1242,41 @@ uninstall_snappy() {
     fi
 }
 
+install_zstd() {
+    if [ "$ZSTD_VERSION" -a ! -f zstd-$ZSTD_VERSION-done ] ; then
+        echo "Downloading, building, and installing zstd:"
+        [ -f zstd-$ZSTD_VERSION.tar.gz ] || curl -L -O https://github.com/facebook/zstd/releases/download/v$ZSTD_VERSION/zstd-$ZSTD_VERSION.tar.gz || exit 1
+        $no_build && echo "Skipping installation" && return
+        gzcat zstd-$ZSTD_VERSION.tar.gz | tar xf - || exit 1
+        cd zstd-$ZSTD_VERSION
+        make $MAKE_BUILD_OPTS || exit 1
+        $DO_MAKE_INSTALL || exit 1
+        cd ..
+        touch zstd-$ZSTD_VERSION-done
+    fi
+}
+
+uninstall_zstd() {
+    if [ ! -z "$installed_zstd_version" ] ; then
+        echo "Uninstalling zstd:"
+        cd zstd-$installed_zstd_version
+        $DO_MAKE_UNINSTALL || exit 1
+        make distclean || exit 1
+        cd ..
+        rm zstd-$installed_zstd_version-done
+
+        if [ "$#" -eq 1 -a "$1" = "-r" ] ; then
+            #
+            # Get rid of the previously downloaded and unpacked version.
+            #
+            rm -rf zstd-$installed_zstd_version
+            rm -rf zstd-$installed_zstd_version.tar.gz
+        fi
+
+        installed_zstd_version=""
+    fi
+}
+
 install_libxml2() {
     if [ "$LIBXML2_VERSION" -a ! -f libxml2-$LIBXML2_VERSION-done ] ; then
         echo "Downloading, building, and installing libxml2:"
@@ -2227,6 +2263,8 @@ install_all() {
 
     install_snappy
 
+    install_zstd
+
     install_libxml2
 
     install_lz4
@@ -2285,6 +2323,8 @@ uninstall_all() {
         uninstall_maxminddb
 
         uninstall_snappy
+
+        uninstall_zstd
 
         uninstall_libxml2
 
@@ -2459,6 +2499,7 @@ then
     installed_gnutls_version=`ls gnutls-*-done 2>/dev/null | sed 's/gnutls-\(.*\)-done/\1/'`
     installed_lua_version=`ls lua-*-done 2>/dev/null | sed 's/lua-\(.*\)-done/\1/'`
     installed_snappy_version=`ls snappy-*-done 2>/dev/null | sed 's/snappy-\(.*\)-done/\1/'`
+    installed_zstd_version=`ls zstd-*-done 2>/dev/null | sed 's/zstd-\(.*\)-done/\1/'`
     installed_libxml2_version=`ls libxml2-*-done 2>/dev/null | sed 's/libxml2-\(.*\)-done/\1/'`
     installed_lz4_version=`ls lz4-*-done 2>/dev/null | sed 's/lz4-\(.*\)-done/\1/'`
     installed_sbc_version=`ls sbc-*-done 2>/dev/null | sed 's/sbc-\(.*\)-done/\1/'`

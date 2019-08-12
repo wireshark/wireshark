@@ -27,6 +27,7 @@ include_directories(
 		${SMI_INCLUDE_DIRS}
 		${SNAPPY_INCLUDE_DIRS}
 		${ZLIB_INCLUDE_DIRS}
+		${ZSTD_INCLUDE_DIRS}
 		${LIBXML2_INCLUDE_DIRS}
 )
 
@@ -352,6 +353,7 @@ target_link_libraries(epan
 		${WIN_PSAPI_LIBRARY}
 		${LIBXML2_LIBRARIES}
 		${ZLIB_LIBRARIES}
+		${ZSTD_LIBRARIES}
 )
 
 target_include_directories(epan

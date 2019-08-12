@@ -26,6 +26,9 @@
 #include <lz4.h>
 #include <lz4frame.h>
 #endif
+#ifdef HAVE_ZSTD
+#include <zstd.h>
+#endif
 #include "packet-tcp.h"
 #include "packet-tls.h"
 
@@ -1522,12 +1525,51 @@ decompress_snappy(tvbuff_t *tvb _U_, packet_info *pinfo, int offset _U_, int len
 }
 #endif /* HAVE_SNAPPY */
 
+#ifdef HAVE_ZSTD
+static int
+decompress_zstd(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, tvbuff_t **decompressed_tvb, int *decompressed_offset)
+{
+    ZSTD_inBuffer input = { tvb_memdup(wmem_packet_scope(), tvb, offset, length), length, 0 };
+    ZSTD_DStream *zds = ZSTD_createDStream();
+    size_t rc = 0;
+    tvbuff_t *composite_tvb = tvb_new_composite();
+    int ret = 0;
+
+    do {
+        ZSTD_outBuffer output = { wmem_alloc(pinfo->pool, ZSTD_DStreamOutSize()), ZSTD_DStreamOutSize(), 0 };
+        rc = ZSTD_decompressStream(zds, &output, &input);
+        // rc holds either the number of decompressed offsets or the error code.
+        // Both values are positive, one has to use ZSTD_isError to determine if the call succeeded.
+        if (ZSTD_isError(rc)) {
+            goto end;
+        }
+        tvb_composite_append(composite_tvb,
+                             tvb_new_child_real_data(tvb, (guint8*)output.dst, (guint)output.pos, (gint)output.pos));
+        // rc == 0 means there is nothing more to decompress, but there could be still something in the data
+    } while (rc > 0);
+    tvb_composite_finalize(composite_tvb);
+    *decompressed_tvb = composite_tvb;
+    *decompressed_offset = 0;
+    composite_tvb = NULL;
+    ret = 1;
+end:
+    ZSTD_freeDStream(zds);
+    if (composite_tvb != NULL) {
+        tvb_free_chain(composite_tvb);
+    }
+    if (ret == 0) {
+        col_append_str(pinfo->cinfo, COL_INFO, " [zstd decompression failed]");
+    }
+    return ret;
+}
+#else
 static int
 decompress_zstd(tvbuff_t *tvb _U_, packet_info *pinfo, int offset _U_, int length _U_, tvbuff_t **decompressed_tvb _U_, int *decompressed_offset _U_)
 {
     col_append_str(pinfo->cinfo, COL_INFO, " [zstd compression unsupported]");
     return 0;
 }
+#endif /* HAVE_ZSTD */
 
 static int
 decompress(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, int codec, tvbuff_t **decompressed_tvb, int *decompressed_offset)

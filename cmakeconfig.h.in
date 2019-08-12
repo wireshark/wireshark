@@ -151,6 +151,9 @@
 /* Define to use snappy library */
 #cmakedefine HAVE_SNAPPY 1
 
+/* Define to use zstd library */
+#cmakedefine HAVE_ZSTD 1
+
 /* Define to 1 if you have the <linux/sockios.h> header file. */
 #cmakedefine HAVE_LINUX_SOCKIOS_H 1
 

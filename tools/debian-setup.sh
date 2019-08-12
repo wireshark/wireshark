@@ -76,6 +76,7 @@ ADDITIONAL_LIST="libnl-3-dev \
 	libcap-dev \
 	liblz4-dev \
 	libsnappy-dev \
+	libzstd-dev \
 	libspandsp-dev \
 	libxml2-dev \
 	libminizip-dev \

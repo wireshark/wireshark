@@ -20,7 +20,7 @@
 %bcond_with	sdjournal
 %bcond_with	guides
 %bcond_with	brotli
-
+%bcond_with	zstd
 
 # Set at most one of these two:
 # Note that setcap requires rpmbuild 4.7.0 or later.
@@ -158,6 +158,15 @@ Requires:	libbrotlidec1
 %else
 BuildRequires:	brotli-devel
 Requires:	brotli
+%endif
+%endif
+
+%if %{with zstd}
+BuildRequires:	libzstd-devel
+%if 0%{?suse_version}
+Requires:	libzstd1
+%else
+Requires:	libzstd
 %endif
 %endif
 
@@ -497,6 +506,9 @@ update-mime-database %{_datadir}/mime &> /dev/null || :
 %{_libdir}/pkgconfig/wireshark.pc
 
 %changelog
+* Wed Aug 15 2019 Gerald Combs
+- Add zstd
+
 * Mon Apr 22 2019 Daniel Bakai
 - Added brotli (as an option, defaulting to not required).
 

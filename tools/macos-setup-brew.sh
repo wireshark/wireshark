@@ -13,7 +13,7 @@
 brew update
 
 #install some libs needed by Wireshark
-brew install c-ares glib libgcrypt gnutls lua@5.1 cmake python nghttp2 snappy lz4 libxml2 ninja libmaxminddb doxygen libsmi spandsp brotli minizip
+brew install c-ares glib libgcrypt gnutls lua@5.1 cmake python nghttp2 snappy lz4 libxml2 ninja libmaxminddb doxygen libsmi spandsp brotli minizip zstd
 
 #install Qt5
 brew install qt5

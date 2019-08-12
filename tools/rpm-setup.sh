@@ -183,6 +183,8 @@ echo "nghttp2 is unavailable" >&2
 add_package ADDITIONAL_LIST snappy || add_package ADDITIONAL_LIST libsnappy1 ||
 echo "snappy is unavailable" >&2
 
+add_package ADDITIONAL_LIST libzstd-devel || echo "zstd is unavailable" >&2
+
 add_package ADDITIONAL_LIST lz4-devel || add_package ADDITIONAL_LIST liblz4-devel ||
 echo "lz4 devel is unavailable" >&2
 
