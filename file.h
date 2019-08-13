@@ -663,7 +663,7 @@ void cf_unignore_frame(capture_file *cf, frame_data *frame);
  */
 cf_status_t
 cf_merge_files_to_tempfile(gpointer pd_window, char **out_filenamep,
-                           int in_file_count, char *const *in_filenames,
+                           int in_file_count, const char *const *in_filenames,
                            int file_type, gboolean do_append);
 
 

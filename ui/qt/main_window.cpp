@@ -1017,11 +1017,11 @@ void MainWindow::dropEvent(QDropEvent *event)
         return;
     }
 
-    char **in_filenames = (char **)g_malloc(sizeof(char*) * local_files.size());
+    const char **in_filenames = g_new(const char *, local_files.size());
     char *tmpname = NULL;
 
     for (int i = 0; i < local_files.size(); i++) {
-        in_filenames[i] = const_cast<char *>(local_files.at(i).constData());
+        in_filenames[i] = local_files.at(i).constData();
     }
 
     /* merge the files in chronological order */
@@ -1035,7 +1035,6 @@ void MainWindow::dropEvent(QDropEvent *event)
 
     g_free(tmpname);
     g_free(in_filenames);
-
 }
 
 // Apply recent settings to the main window geometry.

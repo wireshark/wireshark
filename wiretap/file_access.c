@@ -2450,7 +2450,7 @@ wtap_dump_open_tempfile(char **filenamep, const char *pfx,
 		g_free(wdh);
 		return NULL;	/* can't create file */
 	}
-	*filenamep = tmpname;
+	*filenamep = g_strdup(tmpname);
 
 	/* In case "fopen()" fails but doesn't set "errno", set "errno"
 	   to a generic "the open failed" error. */
