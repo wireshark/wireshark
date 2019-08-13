@@ -412,13 +412,14 @@ dissect_mbtcp_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item    *mi;
     proto_tree    *mbtcp_tree;
-    int           offset, packet_type;
+    int           offset;
     tvbuff_t      *next_tvb;
     const char    *func_string = "";
     const char    *pkt_type_str = "";
     const char    *err_str = "";
     guint16       transaction_id, protocol_id, len;
     guint8        unit_id, function_code, exception_code, subfunction_code;
+    modbus_data_t modbus_data;
 
     transaction_id = tvb_get_ntohs(tvb, 0);
     protocol_id = tvb_get_ntohs(tvb, 2);
@@ -430,9 +431,12 @@ dissect_mbtcp_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
     offset = 0;
 
     /* "Request" or "Response" */
-    packet_type = classify_mbtcp_packet(pinfo, port);
+    modbus_data.packet_type = classify_mbtcp_packet(pinfo, port);
+    /* Save the transaction and unit id to find the request to a response */
+    modbus_data.mbtcp_transid = transaction_id;
+    modbus_data.unit_id = unit_id;
 
-    switch ( packet_type ) {
+    switch ( modbus_data.packet_type ) {
         case QUERY_PACKET :
             pkt_type_str="Query";
             break;
@@ -505,7 +509,7 @@ dissect_mbtcp_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
     mi = proto_tree_add_item(tree, proto, tvb, offset, len+6, ENC_NA);
     mbtcp_tree = proto_item_add_subtree(mi, ett_mbtcp);
 
-    if (packet_type == CANNOT_CLASSIFY)
+    if (modbus_data.packet_type == CANNOT_CLASSIFY)
         expert_add_info(pinfo, mi, &ei_mbtcp_cannot_classify);
 
     /* Add items to protocol tree specific to Modbus/TCP */
@@ -519,7 +523,7 @@ dissect_mbtcp_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
     /* Continue with dissection of Modbus data payload following Modbus/TCP frame */
     if( tvb_reported_length_remaining(tvb, offset) > 0 )
-        call_dissector_with_data(modbus_handle, next_tvb, pinfo, tree, &packet_type);
+        call_dissector_with_data(modbus_handle, next_tvb, pinfo, tree, &modbus_data);
 
     return tvb_captured_length(tvb);
 }
@@ -541,13 +545,14 @@ dissect_mbrtu_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item    *mi;
     proto_tree    *mbrtu_tree;
-    int           offset, packet_type;
+    int           offset;
     tvbuff_t      *next_tvb;
     const char    *func_string = "";
     const char    *pkt_type_str = "";
     const char    *err_str = "";
     guint16       len, calc_crc16;
     guint8        unit_id, function_code, exception_code, subfunction_code;
+    modbus_data_t modbus_data;
 
     /* Make entries in Protocol column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "Modbus RTU");
@@ -561,9 +566,12 @@ dissect_mbrtu_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
     offset = 0;
 
     /* "Request" or "Response" */
-    packet_type = classify_mbrtu_packet(pinfo, tvb, port);
+    modbus_data.packet_type = classify_mbrtu_packet(pinfo, tvb, port);
+    /* Transaction ID is available only in Modbus TCP */
+    modbus_data.mbtcp_transid = 0;
+    modbus_data.unit_id = unit_id;
 
-    switch ( packet_type ) {
+    switch ( modbus_data.packet_type ) {
         case QUERY_PACKET :
             pkt_type_str="Query";
             break;
@@ -659,7 +667,7 @@ dissect_mbrtu_pdu_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gu
 
     /* Continue with dissection of Modbus data payload following Modbus RTU frame */
     if( tvb_reported_length_remaining(tvb, offset) > 0 )
-        call_dissector_with_data(modbus_handle, next_tvb, pinfo, tree, &packet_type);
+        call_dissector_with_data(modbus_handle, next_tvb, pinfo, tree, &modbus_data);
 
     return tvb_captured_length(tvb);
 }
@@ -1526,13 +1534,14 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_tree          *modbus_tree;
     proto_item          *mi;
     int                 offset = 0;
-    int*                packet_type = (int*)data;
+    modbus_data_t       *modbus_data = (modbus_data_t*)data;
     gint                payload_start, payload_len, len;
     guint8              function_code, exception_code;
     modbus_pkt_info_t   *pkt_info;
+    guint32             conv_key;
 
     /* Reject the packet if data passed from the mbrtu or mbtcp dissector is NULL */
-    if (packet_type == NULL)
+    if (modbus_data == NULL)
         return 0;
 
     len = tvb_captured_length(tvb);
@@ -1549,6 +1558,8 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     proto_tree_add_item(modbus_tree, hf_modbus_functioncode, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Conversation support */
+    /* Use a combination of unit and transaction-id as key for identifying a request to a response*/
+    conv_key = (guint32)modbus_data->mbtcp_transid | ((guint32)modbus_data->unit_id << 16);
     if (!pinfo->fd->visited) {
         conversation_t       *conversation = NULL;
         modbus_conversation  *modbus_conv_data = NULL;
@@ -1567,7 +1578,7 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
         pkt_info->register_format = modbus_conv_data->register_format;
 
-        if (*packet_type == QUERY_PACKET) {
+        if (modbus_data->packet_type == QUERY_PACKET) {
             /*create the modbus_request frame. It holds the request information.*/
             modbus_request_info_t    *frame_ptr = wmem_new0(wmem_file_scope(), modbus_request_info_t);
             gint captured_length = tvb_captured_length(tvb);
@@ -1575,6 +1586,8 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
             /* load information into the modbus request frame */
             frame_ptr->fnum = pinfo->num;
             frame_ptr->function_code = function_code;
+            frame_ptr->mbtcp_transid = modbus_data->mbtcp_transid;
+            frame_ptr->unit_id = modbus_data->unit_id;
             if (captured_length >= 3) {
                 pkt_info->reg_base = frame_ptr->base_address = tvb_get_ntohs(tvb, 1);
                 if (captured_length >= 5)
@@ -1584,19 +1597,25 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
             wmem_list_prepend(modbus_conv_data->modbus_request_frame_data, frame_ptr);
         }
-        else if (*packet_type == RESPONSE_PACKET) {
+        else if (modbus_data->packet_type == RESPONSE_PACKET) {
             guint8                req_function_code;
+            guint16               req_transaction_id;
+            guint8                req_unit_id;
             guint32               req_frame_num;
             modbus_request_info_t *request_data;
 
             wmem_list_frame_t *frame = wmem_list_head(modbus_conv_data->modbus_request_frame_data);
             /* Step backward through all logged instances of request frames, looking for a request frame number that
-            occurred immediately prior to current frame number that has a matching function code */
+            occurred immediately prior to current frame number that has a matching function code,
+            unit-id and transaction identifier */
             while (frame && !pkt_info->request_found) {
                 request_data = (modbus_request_info_t *)wmem_list_frame_data(frame);
                 req_frame_num = request_data->fnum;
                 req_function_code = request_data->function_code;
-                if ((pinfo->num > req_frame_num) && (req_function_code == function_code)) {
+                req_transaction_id = request_data->mbtcp_transid;
+                req_unit_id = request_data->unit_id;
+                if ((pinfo->num > req_frame_num) && (req_function_code == function_code) &&
+                    (req_transaction_id == modbus_data->mbtcp_transid) && (req_unit_id == modbus_data->unit_id)) {
                     pkt_info->reg_base = request_data->base_address;
                     pkt_info->num_reg = request_data->num_reg;
                     pkt_info->request_found = TRUE;
@@ -1608,11 +1627,11 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 
 
         }
-        p_add_proto_data(wmem_file_scope(), pinfo, proto_modbus, 0, pkt_info);
+        p_add_proto_data(wmem_file_scope(), pinfo, proto_modbus, conv_key, pkt_info);
 
     }
     else { /* !visited */
-        pkt_info = (modbus_pkt_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_modbus, 0);
+        pkt_info = (modbus_pkt_info_t *)p_get_proto_data(wmem_file_scope(), pinfo, proto_modbus, conv_key);
     }
 
 
@@ -1640,10 +1659,10 @@ dissect_modbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
     else {
 
         /* Follow different dissection path depending on whether packet is query or response */
-        if (*packet_type == QUERY_PACKET) {
+        if (modbus_data->packet_type == QUERY_PACKET) {
             dissect_modbus_request(tvb, pinfo, modbus_tree, function_code, payload_start, payload_len, pkt_info);
         }
-        else if (*packet_type == RESPONSE_PACKET) {
+        else if (modbus_data->packet_type == RESPONSE_PACKET) {
             dissect_modbus_response(tvb, pinfo, modbus_tree, function_code, payload_start, payload_len, pkt_info);
         }
 

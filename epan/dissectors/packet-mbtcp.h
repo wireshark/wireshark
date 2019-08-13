@@ -95,10 +95,18 @@
 typedef struct {
     guint32 fnum;
     guint8  function_code;
+    guint16 mbtcp_transid;
+    guint8  unit_id;
     guint16 base_address;
     guint16 num_reg;
     nstime_t req_time;
 } modbus_request_info_t;
+
+typedef struct {
+    int     packet_type;
+    guint16 mbtcp_transid;      /* Set to zero if not available */
+    guint8  unit_id;            /* Set to zero if not available */
+} modbus_data_t;
 
 /* List contains request data  */
 typedef struct {

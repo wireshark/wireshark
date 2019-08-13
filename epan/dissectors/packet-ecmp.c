@@ -2573,7 +2573,7 @@ static void modbus_pdu(int offset, gboolean request, tvbuff_t *tvb, packet_info*
 
 	tvbuff_t*		next_tvb;
 	guint16			size = 0; /* from Modbus TCP/IP spec: number of bytes that follow */
-	int packet_type;
+	modbus_data_t   modbus_data;
 
 	/* differentiate between ECMP query and response  */
 	if (request) {
@@ -2583,9 +2583,11 @@ static void modbus_pdu(int offset, gboolean request, tvbuff_t *tvb, packet_info*
 		offset += 2;
 
 		/* keep packet context */
-		packet_type = QUERY_PACKET;
+		modbus_data.packet_type = QUERY_PACKET;
+		modbus_data.mbtcp_transid = 0;
+		modbus_data.unit_id = 0;
 		next_tvb = tvb_new_subset_length(tvb, offset, size);
-		call_dissector_with_data(modbus_handle, next_tvb, pinfo, ecmp_tree, &packet_type);
+		call_dissector_with_data(modbus_handle, next_tvb, pinfo, ecmp_tree, &modbus_data);
 
 	} else {
 		/* read and display the Size  */
@@ -2593,9 +2595,11 @@ static void modbus_pdu(int offset, gboolean request, tvbuff_t *tvb, packet_info*
 		proto_tree_add_item(ecmp_tree, hf_ecmp_modbus_pdu_size, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		packet_type = RESPONSE_PACKET;
+		modbus_data.packet_type = RESPONSE_PACKET;
+		modbus_data.mbtcp_transid = 0;
+		modbus_data.unit_id = 0;
 		next_tvb = tvb_new_subset_length(tvb, offset, size);
-		call_dissector_with_data(modbus_handle, next_tvb, pinfo, ecmp_tree, &packet_type);
+		call_dissector_with_data(modbus_handle, next_tvb, pinfo, ecmp_tree, &modbus_data);
 	}
 }
 

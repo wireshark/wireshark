@@ -7298,13 +7298,16 @@ dissect_cip_mb_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
                /* Passthrough response (Success) */
                if( tvb_reported_length_remaining(tvb, offset) > 0 )
                {
-                  int packet_type = RESPONSE_PACKET;
+                  modbus_data_t modbus_data;
+                  modbus_data.packet_type = RESPONSE_PACKET;
+                  modbus_data.mbtcp_transid = 0;
+                  modbus_data.unit_id = 0;
 
                   /* dissect the Modbus PDU */
                   next_tvb = tvb_new_subset_length( tvb, offset+4+add_stat_size, item_length-4-add_stat_size);
 
                   /* Call Modbus Dissector */
-                  call_dissector_with_data(modbus_handle, next_tvb, pinfo, cmd_data_tree, &packet_type );
+                  call_dissector_with_data(modbus_handle, next_tvb, pinfo, cmd_data_tree, &modbus_data);
 
                }
                break;
@@ -7381,13 +7384,16 @@ dissect_cip_mb_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
             /* Passthrough Request */
             if( tvb_reported_length_remaining(tvb, offset) > 0 )
             {
-               int packet_type = QUERY_PACKET;
+               modbus_data_t modbus_data;
+               modbus_data.packet_type = QUERY_PACKET;
+               modbus_data.mbtcp_transid = 0;
+               modbus_data.unit_id = 0;
 
                /* dissect the Modbus PDU */
                next_tvb = tvb_new_subset_length( tvb, offset+2+req_path_size, item_length-req_path_size-2);
 
                /* Call Modbus Dissector */
-               call_dissector_with_data(modbus_handle, next_tvb, pinfo, cmd_data_tree, &packet_type);
+               call_dissector_with_data(modbus_handle, next_tvb, pinfo, cmd_data_tree, &modbus_data);
             }
             break;
 
