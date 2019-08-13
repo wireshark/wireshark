@@ -18,13 +18,15 @@
 #include <epan/expert.h>
 #include <epan/crc16-tvb.h>
 #include <wsutil/crc5.h>
+#include <epan/address_types.h>
+#include <epan/to_str.h>
 #include "packet-usb.h"
 
 static int proto_usbll = -1;
 
 /* Fields defined by USB 2.0 standard */
 static int hf_usbll_pid = -1;
-static int hf_usbll_addr = -1;
+static int hf_usbll_device_addr = -1;
 static int hf_usbll_endp = -1;
 static int hf_usbll_crc5 = -1;
 static int hf_usbll_crc5_status = -1;
@@ -41,6 +43,10 @@ static int hf_usbll_split_iso_se = -1;
 static int hf_usbll_split_et = -1;
 static int hf_usbll_split_crc5 = -1;
 static int hf_usbll_split_crc5_status = -1;
+static int hf_usbll_src = -1;
+static int hf_usbll_dst = -1;
+static int hf_usbll_addr = -1;
+
 
 static int ett_usbll = -1;
 
@@ -49,6 +55,8 @@ static expert_field ei_undecoded = EI_INIT;
 static expert_field ei_wrong_crc5 = EI_INIT;
 static expert_field ei_wrong_split_crc5 = EI_INIT;
 static expert_field ei_wrong_crc16 = EI_INIT;
+
+static int usbll_address_type = -1;
 
 static dissector_handle_t usbll_handle;
 
@@ -131,9 +139,111 @@ static const value_string usb_endpoint_type_vals[] = {
 #define TOKEN_BITS_GET_ADDRESS(bits) (bits & 0x007F)
 #define TOKEN_BITS_GET_ENDPOINT(bits) ((bits & 0x0780) >> 7)
 
-#define SPLIT_BITS_GET_HUB_ADDRESS(bits) (bits & 0x007F)
+#define SPLIT_BITS_GET_HUB_ADDRESS(bits) (guint8)(bits & 0x007F)
+#define SPLIT_BITS_GET_HUB_PORT(bits) (guint8)((bits & 0x7F00) >> 8)
 #define SPLIT_BITS_GET_ENDPOINT_TYPE(bits) ((bits & 0x060000) >> 17)
 #define SPLIT_BIT_START_COMPLETE 0x0080
+
+#define USBLL_ADDRESS_STANDARD 0
+#define USBLL_ADDRESS_HOST 0x01
+#define USBLL_ADDRESS_HUB_PORT 0x02
+#define USBLL_ADDRESS_HOST_TO_DEV 0
+#define USBLL_ADDRESS_DEV_TO_HOST 0x04
+
+#define USBLL_ADDRESS_IS_DEV_TO_HOST(flags) \
+    (flags & USBLL_ADDRESS_DEV_TO_HOST)
+
+#define USBLL_ADDRESS_IS_HOST_TO_DEV(flags) \
+    (!USBLL_ADDRESS_IS_DEV_TO_HOST(flags))
+
+typedef struct {
+    guint8 flags;
+    guint8 device;
+    guint8 endpoint;
+} usbll_address_t;
+
+static int usbll_addr_to_str(const address* addr, gchar *buf, int buf_len)
+{
+    const usbll_address_t *addrp = (const usbll_address_t *)addr->data;
+
+    if (addrp->flags & USBLL_ADDRESS_HOST) {
+        g_strlcpy(buf, "host", buf_len);
+    } else if (addrp->flags & USBLL_ADDRESS_HUB_PORT) {
+        /*
+         * in split transaction we use : to mark that the last part is port not
+         * endpoint
+         */
+        g_snprintf(buf, buf_len, "%d:%d", addrp->device,
+                       addrp->endpoint);
+    } else {
+        /* Just a standard address.endpoint notation */
+        g_snprintf(buf, buf_len, "%d.%d", addrp->device,
+                       addrp->endpoint);
+    }
+
+    return (int)(strlen(buf)+1);
+}
+
+static int usbll_addr_str_len(const address* addr _U_)
+{
+    return 50; /* The same as for usb */
+}
+
+static void usbll_set_address(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, guint8 device, guint8 endpoint, guint8 flags)
+{
+    proto_item     *sub_item;
+    usbll_address_t *src_addr, *dst_addr;
+    guint8 *str_src_addr, *str_dst_addr;
+
+    src_addr = wmem_new0(wmem_file_scope(), usbll_address_t);
+    dst_addr = wmem_new0(wmem_file_scope(), usbll_address_t);
+
+    if (USBLL_ADDRESS_IS_HOST_TO_DEV(flags)) {
+        src_addr->flags = USBLL_ADDRESS_HOST;
+
+        dst_addr->device = device;
+        dst_addr->endpoint = endpoint;
+        if (flags & USBLL_ADDRESS_HUB_PORT) {
+            dst_addr->flags = USBLL_ADDRESS_HUB_PORT;
+            pinfo->ptype = PT_NONE;
+        } else {
+            pinfo->ptype = PT_USB;
+            pinfo->destport = dst_addr->endpoint;
+        }
+    } else {
+        dst_addr->flags = USBLL_ADDRESS_HOST;
+        src_addr->device = device;
+        src_addr->endpoint = endpoint;
+
+        pinfo->ptype = PT_USB;
+        pinfo->srcport = src_addr->endpoint;
+        pinfo->destport = NO_ENDPOINT;
+
+    }
+
+    pinfo->p2p_dir = USBLL_ADDRESS_IS_HOST_TO_DEV(flags) ? P2P_DIR_SENT : P2P_DIR_RECV;
+
+    set_address(&pinfo->net_src, usbll_address_type, sizeof(usbll_address_t), (char *)src_addr);
+    copy_address_shallow(&pinfo->src, &pinfo->net_src);
+
+    set_address(&pinfo->net_dst, usbll_address_type, sizeof(usbll_address_t), (char *)dst_addr);
+    copy_address_shallow(&pinfo->dst, &pinfo->net_dst);
+
+    str_src_addr = address_to_str(wmem_packet_scope(), &pinfo->src);
+    str_dst_addr = address_to_str(wmem_packet_scope(), &pinfo->dst);
+
+    sub_item = proto_tree_add_string(tree, hf_usbll_src, tvb, 0, 0, str_src_addr);
+    proto_item_set_generated(sub_item);
+
+    sub_item = proto_tree_add_string(tree, hf_usbll_addr, tvb, 0, 0, str_src_addr);
+    proto_item_set_hidden(sub_item);
+
+    sub_item = proto_tree_add_string(tree, hf_usbll_dst, tvb, 0, 0, str_dst_addr);
+    proto_item_set_generated(sub_item);
+
+    sub_item = proto_tree_add_string(tree, hf_usbll_addr, tvb, 0, 0, str_dst_addr);
+    proto_item_set_hidden(sub_item);
+}
 
 static gint
 dissect_usbll_sof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
@@ -154,17 +264,12 @@ dissect_usbll_sof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offs
 static gint
 dissect_usbll_token(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
-    /* USB address has bus id as when capturing at URB level there are usually multiple root hubs
-     * to select from. Until someone has specific need to connect multiple hardware sniffers at
-     * the same time and analyze that in Wireshark, this code simply sets the bus id to 0.
-     */
-    const guint16     bus_id = 0;
-    guint16           device_address;
-    int               endpoint;
-    guint16           address_bits;
+    guint8           device_address;
+    guint8           endpoint;
+    guint16          address_bits;
 
     static const int *address_fields[] = {
-        &hf_usbll_addr,
+        &hf_usbll_device_addr,
         &hf_usbll_endp,
         NULL
     };
@@ -172,7 +277,7 @@ dissect_usbll_token(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
     address_bits = tvb_get_letohs(tvb, offset);
     device_address = TOKEN_BITS_GET_ADDRESS(address_bits);
     endpoint = TOKEN_BITS_GET_ENDPOINT(address_bits);
-    usb_set_addr(tree, tvb, pinfo, bus_id, device_address, endpoint, TRUE);
+    usbll_set_address(tree, tvb, pinfo, device_address, endpoint, USBLL_ADDRESS_HOST_TO_DEV);
 
     proto_tree_add_bitmask_list_value(tree, tvb, offset, 2, address_fields, address_bits);
     proto_tree_add_checksum(tree, tvb, offset,
@@ -207,13 +312,8 @@ dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
 static gint
 dissect_usbll_split(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
 {
-    /* USB address has bus id as when capturing at URB level there are usually multiple root hubs
-     * to select from. Until someone has specific need to connect multiple hardware sniffers at
-     * the same time and analyze that in Wireshark, this code simply sets the bus id to 0.
-     */
-    const guint16     bus_id = 0;
-    guint16           device_address;
-    int               endpoint;
+    guint8           hub_address;
+    guint8           hub_port;
 
     /* S/E fields have special meaning for Isochronous transfers */
     gint32 tmp = tvb_get_gint24(tvb, offset, ENC_LITTLE_ENDIAN);
@@ -235,10 +335,10 @@ dissect_usbll_split(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint of
         NULL
     };
 
-    device_address = SPLIT_BITS_GET_HUB_ADDRESS(tmp);
-    /* There is no endpoint information in the packet, show it as endpoint 0 */
-    endpoint = 0;
-    usb_set_addr(tree, tvb, pinfo, bus_id, device_address, endpoint, TRUE);
+    hub_address = SPLIT_BITS_GET_HUB_ADDRESS(tmp);
+    hub_port = SPLIT_BITS_GET_HUB_PORT(tmp);
+
+    usbll_set_address(tree, tvb, pinfo, hub_address, hub_port, USBLL_ADDRESS_HOST_TO_DEV | USBLL_ADDRESS_HUB_PORT);
 
     col_append_str(pinfo->cinfo, COL_INFO, (tmp & SPLIT_BIT_START_COMPLETE) ? " Complete" : " Start");
 
@@ -335,8 +435,8 @@ proto_register_usbll(void)
               FT_UINT8, BASE_HEX|BASE_EXT_STRING, &usb_packetid_vals_ext, 0x00,
               "USB Packet ID", HFILL }},
 
-        { &hf_usbll_addr,
-            { "Address", "usbll.addr",
+        { &hf_usbll_device_addr,
+            { "Address", "usbll.device_addr",
               FT_UINT16, BASE_DEC, NULL, 0x007F,
               NULL, HFILL }},
         { &hf_usbll_endp,
@@ -404,6 +504,18 @@ proto_register_usbll(void)
             { "CRC5 Status", "usbll.split_crc5.status",
               FT_UINT8, BASE_NONE, VALS(proto_checksum_vals), 0,
               NULL, HFILL }},
+        { &hf_usbll_src,
+            { "Source", "usbll.src",
+            FT_STRING, STR_ASCII, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_usbll_dst,
+            { "Destination", "usbll.dst",
+            FT_STRING, STR_ASCII, NULL, 0x0,
+            NULL, HFILL }},
+        { &hf_usbll_addr,
+            { "Source or Destination", "usbll.addr",
+            FT_STRING, STR_ASCII, NULL, 0x0,
+            NULL, HFILL }}
     };
 
     static ei_register_info ei[] = {
@@ -426,6 +538,11 @@ proto_register_usbll(void)
     expert_register_field_array(expert_module, ei, array_length(ei));
 
     register_dissector("usbll", dissect_usbll_packet, proto_usbll);
+
+    usbll_address_type = address_type_dissector_register("AT_USBLL", "USBLL Address",
+                                                         usbll_addr_to_str, usbll_addr_str_len,
+                                                         NULL, NULL, NULL, NULL, NULL);
+
 }
 
 void
