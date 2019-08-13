@@ -1379,7 +1379,7 @@ merge_callback(merge_event event, int num _U_,
 
 cf_status_t
 cf_merge_files_to_tempfile(gpointer pd_window, char **out_filenamep,
-                           int in_file_count, char *const *in_filenames,
+                           int in_file_count, const char *const *in_filenames,
                            int file_type, gboolean do_append)
 {
   int                        err      = 0;
@@ -1399,7 +1399,7 @@ cf_merge_files_to_tempfile(gpointer pd_window, char **out_filenamep,
 
   /* merge the files */
   status = merge_files_to_tempfile(out_filenamep, "wireshark", file_type,
-                                   (const char *const *) in_filenames,
+                                   in_filenames,
                                    in_file_count, do_append,
                                    IDB_MERGE_MODE_ALL_SAME, 0 /* snaplen */,
                                    "Wireshark", &cb, &err, &err_info,
