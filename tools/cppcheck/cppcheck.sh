@@ -82,7 +82,7 @@ if [ $# -gt 0 ]; then
     TARGET="$TARGET $*"
 fi
 
-if [ -z "TARGET" ] ; then
+if [ -z "$TARGET" ] ; then
     TARGET=.
 fi
 
