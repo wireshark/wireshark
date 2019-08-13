@@ -127,12 +127,134 @@ static const value_string usb_endpoint_type_vals[] = {
     {0, NULL}
 };
 
+
 #define TOKEN_BITS_GET_ADDRESS(bits) (bits & 0x007F)
 #define TOKEN_BITS_GET_ENDPOINT(bits) ((bits & 0x0780) >> 7)
 
 #define SPLIT_BITS_GET_HUB_ADDRESS(bits) (bits & 0x007F)
 #define SPLIT_BITS_GET_ENDPOINT_TYPE(bits) ((bits & 0x060000) >> 17)
 #define SPLIT_BIT_START_COMPLETE 0x0080
+
+static gint
+dissect_usbll_sof(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+    guint32 frame;
+
+    /* TODO: How to mark that it is sent by host to all devices on the bus? */
+    proto_tree_add_item_ret_uint(tree, hf_usbll_sof_framenum, tvb, offset, 2, ENC_LITTLE_ENDIAN, &frame);
+    proto_tree_add_checksum(tree, tvb, offset,
+                            hf_usbll_crc5, hf_usbll_crc5_status, &ei_wrong_crc5, pinfo,
+                            crc5_usb_11bit_input(frame),
+                            ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+    offset += 2;
+
+    return offset;
+}
+
+static gint
+dissect_usbll_token(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+    /* USB address has bus id as when capturing at URB level there are usually multiple root hubs
+     * to select from. Until someone has specific need to connect multiple hardware sniffers at
+     * the same time and analyze that in Wireshark, this code simply sets the bus id to 0.
+     */
+    const guint16     bus_id = 0;
+    guint16           device_address;
+    int               endpoint;
+    guint16           address_bits;
+
+    static const int *address_fields[] = {
+        &hf_usbll_addr,
+        &hf_usbll_endp,
+        NULL
+    };
+
+    address_bits = tvb_get_letohs(tvb, offset);
+    device_address = TOKEN_BITS_GET_ADDRESS(address_bits);
+    endpoint = TOKEN_BITS_GET_ENDPOINT(address_bits);
+    usb_set_addr(tree, tvb, pinfo, bus_id, device_address, endpoint, TRUE);
+
+    proto_tree_add_bitmask_list_value(tree, tvb, offset, 2, address_fields, address_bits);
+    proto_tree_add_checksum(tree, tvb, offset,
+                            hf_usbll_crc5, hf_usbll_crc5_status, &ei_wrong_crc5, pinfo,
+                            crc5_usb_11bit_input(address_bits),
+                            ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+    offset += 2;
+
+    return offset;
+}
+
+static gint
+dissect_usbll_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
+{
+    /* TODO: How to determine the expected DATA size? */
+    gint data_size = tvb_reported_length_remaining(tvb, offset) - 2;
+
+    if (data_size > 0) {
+        proto_tree_add_item(tree, hf_usbll_data, tvb, offset, data_size, ENC_NA);
+        offset += data_size;
+    }
+
+    proto_tree_add_checksum(tree, tvb, offset,
+                            hf_usbll_data_crc, hf_usbll_data_crc_status, &ei_wrong_crc16, pinfo,
+                            crc16_usb_tvb_offset(tvb, 1, offset - 1),
+                            ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+    offset += 2;
+
+    return offset;
+}
+
+static gint
+dissect_usbll_split(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset)
+{
+    /* USB address has bus id as when capturing at URB level there are usually multiple root hubs
+     * to select from. Until someone has specific need to connect multiple hardware sniffers at
+     * the same time and analyze that in Wireshark, this code simply sets the bus id to 0.
+     */
+    const guint16     bus_id = 0;
+    guint16           device_address;
+    int               endpoint;
+
+    /* S/E fields have special meaning for Isochronous transfers */
+    gint32 tmp = tvb_get_gint24(tvb, offset, ENC_LITTLE_ENDIAN);
+    static const int *split_fields[] = {
+        &hf_usbll_split_hub_addr,
+        &hf_usbll_split_sc,
+        &hf_usbll_split_port,
+        &hf_usbll_split_s,
+        &hf_usbll_split_e,
+        &hf_usbll_split_et,
+        NULL
+    };
+    static const int *split_iso_fields[] = {
+        &hf_usbll_split_hub_addr,
+        &hf_usbll_split_sc,
+        &hf_usbll_split_port,
+        &hf_usbll_split_iso_se,
+        &hf_usbll_split_et,
+        NULL
+    };
+
+    device_address = SPLIT_BITS_GET_HUB_ADDRESS(tmp);
+    /* There is no endpoint information in the packet, show it as endpoint 0 */
+    endpoint = 0;
+    usb_set_addr(tree, tvb, pinfo, bus_id, device_address, endpoint, TRUE);
+
+    col_append_str(pinfo->cinfo, COL_INFO, (tmp & SPLIT_BIT_START_COMPLETE) ? " Complete" : " Start");
+
+    if (SPLIT_BITS_GET_ENDPOINT_TYPE(tmp) == USB_EP_TYPE_ISOCHRONOUS)
+        proto_tree_add_bitmask_list(tree, tvb, offset, 3, split_iso_fields, ENC_LITTLE_ENDIAN);
+    else
+        proto_tree_add_bitmask_list(tree, tvb, offset, 3, split_fields, ENC_LITTLE_ENDIAN);
+
+    proto_tree_add_checksum(tree, tvb, offset,
+                            hf_usbll_split_crc5, hf_usbll_split_crc5_status, &ei_wrong_split_crc5, pinfo,
+                            crc5_usb_19bit_input(tmp),
+                            ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
+    offset += 3;
+
+    return offset;
+}
 
 static int
 dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* data _U_)
@@ -142,13 +264,6 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     gint              offset = 0;
     guint32           pid;
     const gchar      *str;
-    /* USB address has bus id as when capturing at URB level there are usually multiple root hubs
-     * to select from. Until someone has specific need to connect multiple hardware sniffers at
-     * the same time and analyze that in Wireshark, this code simply sets the bus id to 0.
-     */
-    const guint16     bus_id = 0;
-    guint16           device_address;
-    int               endpoint;
 
     tree = proto_tree_add_subtree(parent_tree, tvb, offset, -1, ett_usbll, &item, "USB Packet");
 
@@ -157,12 +272,9 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "USBLL");
     str = try_val_to_str(pid, usb_packetid_vals);
-    if (str)
-    {
+    if (str) {
         col_set_str(pinfo->cinfo, COL_INFO, str);
-    }
-    else
-    {
+    } else {
         col_add_fstr(pinfo->cinfo, COL_INFO, "Invalid Packet ID (0x%02x)", pid);
         expert_add_info(pinfo, item, &ei_invalid_pid);
     }
@@ -173,108 +285,29 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     case USB_PID_TOKEN_OUT:
     case USB_PID_TOKEN_IN:
     case USB_PID_SPECIAL_PING:
-    {
-        guint16 address_bits;
-        static const int *address_fields[] = {
-            &hf_usbll_addr,
-            &hf_usbll_endp,
-            NULL
-        };
-
-        address_bits = tvb_get_letohs(tvb, offset);
-        device_address = TOKEN_BITS_GET_ADDRESS(address_bits);
-        endpoint = TOKEN_BITS_GET_ENDPOINT(address_bits);
-        usb_set_addr(tree, tvb, pinfo, bus_id, device_address, endpoint, TRUE);
-
-        proto_tree_add_bitmask_list_value(tree, tvb, offset, 2, address_fields, address_bits);
-        proto_tree_add_checksum(tree, tvb, offset,
-            hf_usbll_crc5, hf_usbll_crc5_status, &ei_wrong_crc5, pinfo,
-            crc5_usb_11bit_input(address_bits),
-            ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
-        offset += 2;
+        offset = dissect_usbll_token(tvb, pinfo, tree, offset);
         break;
-    }
+
     case USB_PID_DATA_DATA0:
     case USB_PID_DATA_DATA1:
     case USB_PID_DATA_DATA2:
     case USB_PID_DATA_MDATA:
-    {
-        /* TODO: How to determine the expected DATA size? */
-        gint data_size = tvb_reported_length_remaining(tvb, offset) - 2;
-        if (data_size > 0)
-        {
-            proto_tree_add_item(tree, hf_usbll_data, tvb, offset, data_size, ENC_NA);
-            offset += data_size;
-        }
-        proto_tree_add_checksum(tree, tvb, offset,
-            hf_usbll_data_crc, hf_usbll_data_crc_status, &ei_wrong_crc16, pinfo,
-            crc16_usb_tvb_offset(tvb, 1, offset - 1),
-            ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
-        offset += 2;
+        offset = dissect_usbll_data(tvb, pinfo, tree, offset);
         break;
-    }
+
     case USB_PID_HANDSHAKE_ACK:
     case USB_PID_HANDSHAKE_NAK:
     case USB_PID_HANDSHAKE_NYET:
     case USB_PID_HANDSHAKE_STALL:
         break;
+
     case USB_PID_TOKEN_SOF:
-    {
-        guint32 frame;
-
-        /* TODO: How to mark that it is sent by host to all devices on the bus? */
-        proto_tree_add_item_ret_uint(tree, hf_usbll_sof_framenum, tvb, offset, 2, ENC_LITTLE_ENDIAN, &frame);
-        proto_tree_add_checksum(tree, tvb, offset,
-            hf_usbll_crc5, hf_usbll_crc5_status, &ei_wrong_crc5, pinfo,
-            crc5_usb_11bit_input(frame),
-            ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
-        offset += 2;
+        offset = dissect_usbll_sof(tvb, pinfo, tree, offset);
         break;
-    }
+
     case USB_PID_SPECIAL_SPLIT:
-    {
-        /* S/E fields have special meaning for Isochronous transfers */
-        gint32 tmp = tvb_get_gint24(tvb, offset, ENC_LITTLE_ENDIAN);
-        static const int *split_fields[] = {
-            &hf_usbll_split_hub_addr,
-            &hf_usbll_split_sc,
-            &hf_usbll_split_port,
-            &hf_usbll_split_s,
-            &hf_usbll_split_e,
-            &hf_usbll_split_et,
-            NULL
-        };
-        static const int *split_iso_fields[] = {
-            &hf_usbll_split_hub_addr,
-            &hf_usbll_split_sc,
-            &hf_usbll_split_port,
-            &hf_usbll_split_iso_se,
-            &hf_usbll_split_et,
-            NULL
-        };
-
-        device_address = SPLIT_BITS_GET_HUB_ADDRESS(tmp);
-        /* There is no endpoint information in the packet, show it as endpoint 0 */
-        endpoint = 0;
-        usb_set_addr(tree, tvb, pinfo, bus_id, device_address, endpoint, TRUE);
-
-        col_append_str(pinfo->cinfo, COL_INFO, (tmp & SPLIT_BIT_START_COMPLETE) ? " Complete" : " Start");
-
-        if (SPLIT_BITS_GET_ENDPOINT_TYPE(tmp) == USB_EP_TYPE_ISOCHRONOUS)
-        {
-            proto_tree_add_bitmask_list(tree, tvb, offset, 3, split_iso_fields, ENC_LITTLE_ENDIAN);
-        }
-        else
-        {
-            proto_tree_add_bitmask_list(tree, tvb, offset, 3, split_fields, ENC_LITTLE_ENDIAN);
-        }
-        proto_tree_add_checksum(tree, tvb, offset,
-            hf_usbll_split_crc5, hf_usbll_split_crc5_status, &ei_wrong_split_crc5, pinfo,
-            crc5_usb_19bit_input(tmp),
-            ENC_LITTLE_ENDIAN, PROTO_CHECKSUM_VERIFY);
-        offset += 3;
+        offset = dissect_usbll_split(tvb, pinfo, tree, offset);
         break;
-    }
     case USB_PID_SPECIAL_PRE_OR_ERR:
         break;
     case USB_PID_SPECIAL_RESERVED:
@@ -283,8 +316,7 @@ dissect_usbll_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
         break;
     }
 
-    if (tvb_reported_length_remaining(tvb, offset) > 0)
-    {
+    if (tvb_reported_length_remaining(tvb, offset) > 0) {
         proto_tree_add_expert(tree, pinfo, &ei_undecoded, tvb, offset, -1);
         offset += tvb_captured_length_remaining(tvb, offset);
     }
