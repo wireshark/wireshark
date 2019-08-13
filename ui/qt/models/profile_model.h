@@ -105,7 +105,7 @@ public:
     int importProfilesFromDir(QString filename, int *skippedCnt = Q_NULLPTR, bool fromZip = false, QStringList *result = Q_NULLPTR);
 
     static bool checkNameValidity(QString name, QString *msg = Q_NULLPTR);
-    QList<int> findAllByNameAndVisibility(QString name, bool isGlobal = false, bool searchReference = false);
+    QList<int> findAllByNameAndVisibility(QString name, bool isGlobal = false, bool searchReference = false) const;
     void markAsImported(QStringList importedItems);
     bool clearImported(QString *msg = Q_NULLPTR);
 
@@ -136,8 +136,8 @@ private:
     profile_def * guard(int row) const;
     GList * entry(profile_def *) const;
 
-    int findByNameAndVisibility(QString name, bool isGlobal = false, bool searchReference = false);
-    int findAsReference(QString reference);
+    int findByNameAndVisibility(QString name, bool isGlobal = false, bool searchReference = false) const;
+    int findAsReference(QString reference) const;
 
 #ifdef HAVE_MINIZIP
     static bool acceptFile(QString fileName, int fileSize);

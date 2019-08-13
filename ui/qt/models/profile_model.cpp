@@ -370,7 +370,7 @@ bool ProfileModel::checkInvalid(const QModelIndex &index) const
     if ( ! prof )
         return false;
 
-    int ref = const_cast<ProfileModel *>(this)->findAsReference(prof->name);
+    int ref = this->findAsReference(prof->name);
     if ( ref == index.row() )
         return false;
 
@@ -387,7 +387,7 @@ bool ProfileModel::checkDuplicate(const QModelIndex &index, bool isOriginalToDup
     if ( ! prof || ( ! isOriginalToDuplicate && prof->status == PROF_STAT_EXISTS ) )
         return false;
 
-    QList<int> rows = const_cast<ProfileModel *>(this)->findAllByNameAndVisibility(prof->name, prof->is_global, false);
+    QList<int> rows = this->findAllByNameAndVisibility(prof->name, prof->is_global, false);
     int found = 0;
     profile_def * check = Q_NULLPTR;
     for(int cnt = 0; cnt < rows.count(); cnt++)
@@ -461,7 +461,7 @@ QVariant ProfileModel::dataPath(const QModelIndex &index) const
 
     if ( checkInvalid(index) )
     {
-        int ref = const_cast<ProfileModel *>(this)->findAsReference(prof->name);
+        int ref = this->findAsReference(prof->name);
         if ( ref != index.row() && ref >= 0 )
         {
             profile_def * prof = guard(ref);
@@ -541,7 +541,7 @@ QVariant ProfileModel::dataPath(const QModelIndex &index) const
                 {
                     /* find a non-global, non-default profile which could be referenced by this one. Those are the only
                      * ones which could be renamed or deleted */
-                    int row = const_cast<ProfileModel *>(this)->findByNameAndVisibility(prof->reference, false, true);
+                    int row = this->findByNameAndVisibility(prof->reference, false, true);
                     profile_def * ref = guard(row);
 
                     /* The reference is itself a copy of the original, therefore it is not accepted */
@@ -669,7 +669,7 @@ int ProfileModel::findByName(QString name)
     return row;
 }
 
-int ProfileModel::findAsReference(QString reference)
+int ProfileModel::findAsReference(QString reference) const
 {
     int found = -1;
     if ( reference.length() <= 0 )
@@ -685,13 +685,13 @@ int ProfileModel::findAsReference(QString reference)
     return found;
 }
 
-int ProfileModel::findByNameAndVisibility(QString name, bool isGlobal, bool searchReference)
+int ProfileModel::findByNameAndVisibility(QString name, bool isGlobal, bool searchReference) const
 {
     QList<int> result = findAllByNameAndVisibility(name, isGlobal, searchReference);
     return result.count() == 0 ? -1 : result.at(0);
 }
 
-QList<int> ProfileModel::findAllByNameAndVisibility(QString name, bool isGlobal, bool searchReference)
+QList<int> ProfileModel::findAllByNameAndVisibility(QString name, bool isGlobal, bool searchReference) const
 {
     QList<int> result;
 
@@ -880,7 +880,7 @@ void ProfileModel::doResetModel(bool reset_import)
 
 QModelIndex ProfileModel::activeProfile() const
 {
-    QList<int> rows = const_cast<ProfileModel *>(this)->findAllByNameAndVisibility(set_profile_, false, true);
+    QList<int> rows = this->findAllByNameAndVisibility(set_profile_, false, true);
     foreach ( int row, rows )
     {
         profile_def * prof = profiles_.at(row);
