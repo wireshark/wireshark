@@ -1129,7 +1129,7 @@ int ProfileModel::importProfilesFromDir(QString dirname, int * skippedCnt, bool 
     QDir profileDir(gchar_free_to_qstring(get_profiles_dir()));
     QDir dir(dirname);
 
-    if ( *skippedCnt)
+    if ( skippedCnt )
         *skippedCnt = 0;
 
     if ( dir.exists() )
@@ -1178,7 +1178,8 @@ int ProfileModel::importProfilesFromDir(QString dirname, int * skippedCnt, bool 
         loadProfiles();
     }
 
-    *skippedCnt = skipped;
+    if ( skippedCnt )
+        *skippedCnt = skipped;
 
     return count;
 }
