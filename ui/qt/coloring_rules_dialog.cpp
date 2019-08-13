@@ -22,7 +22,7 @@
 
 #include "wireshark_application.h"
 #include "ui/qt/utils/qt_ui_utils.h"
-#include "ui/qt/widgets/copy_from_profile_menu.h"
+#include "ui/qt/widgets/copy_from_profile_button.h"
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include <QColorDialog>
@@ -90,12 +90,9 @@ ColoringRulesDialog::ColoringRulesDialog(QWidget *parent, QString add_filter) :
     export_button_ = ui->buttonBox->addButton(tr("Export" UTF8_HORIZONTAL_ELLIPSIS), QDialogButtonBox::ApplyRole);
     export_button_->setToolTip(tr("Save filters in a file."));
 
-    QPushButton *copy_button = ui->buttonBox->addButton(tr("Copy from"), QDialogButtonBox::ActionRole);
-    CopyFromProfileMenu *copy_from_menu = new CopyFromProfileMenu(COLORFILTERS_FILE_NAME, copy_button);
-    copy_button->setMenu(copy_from_menu);
-    copy_button->setToolTip(tr("Copy coloring rules from another profile."));
-    copy_button->setEnabled(copy_from_menu->haveProfiles());
-    connect(copy_from_menu, SIGNAL(triggered(QAction *)), this, SLOT(copyFromProfile(QAction *)));
+    CopyFromProfileButton * copy_button = new CopyFromProfileButton(this, COLORFILTERS_FILE_NAME, tr("Copy coloring rules from another profile."));
+    ui->buttonBox->addButton(copy_button, QDialogButtonBox::ActionRole);
+    connect(copy_button, &CopyFromProfileButton::copyProfile, this, &ColoringRulesDialog::copyFromProfile);
 
     QString abs_path = gchar_free_to_qstring(get_persconffile_path(COLORFILTERS_FILE_NAME, TRUE));
     if (file_exists(abs_path.toUtf8().constData())) {
@@ -141,9 +138,8 @@ void ColoringRulesDialog::checkUnknownColorfilters()
     }
 }
 
-void ColoringRulesDialog::copyFromProfile(QAction *action)
+void ColoringRulesDialog::copyFromProfile(QString filename)
 {
-    QString filename = action->data().toString();
     QString err;
 
     if (!colorRuleModel_.importColors(filename, err)) {

@@ -18,7 +18,7 @@
 #include <ui/qt/widgets/display_filter_edit.h>
 #include "wireshark_application.h"
 
-#include <ui/qt/widgets/copy_from_profile_menu.h>
+#include <ui/qt/widgets/copy_from_profile_button.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 #include <wsutil/report_message.h>
 
@@ -91,10 +91,8 @@ void UatFrame::setUat(epan_uat *uat)
         }
 
         if (uat->from_profile) {
-            CopyFromProfileMenu *copy_from_menu = new CopyFromProfileMenu(uat_->filename, ui->copyFromProfileButton);
-            ui->copyFromProfileButton->setMenu(copy_from_menu);
-            ui->copyFromProfileButton->setEnabled(copy_from_menu->haveProfiles());
-            connect(copy_from_menu, SIGNAL(triggered(QAction *)), this, SLOT(copyFromProfile(QAction *)));
+            ui->copyFromProfileButton->setFilename(uat->filename);
+            connect(ui->copyFromProfileButton, &CopyFromProfileButton::copyProfile, this, &UatFrame::copyFromProfile);
         }
 
         QString abs_path = gchar_free_to_qstring(uat_get_actual_filename(uat_, FALSE));
@@ -119,10 +117,8 @@ void UatFrame::setUat(epan_uat *uat)
     setWindowTitle(title);
 }
 
-void UatFrame::copyFromProfile(QAction *action)
+void UatFrame::copyFromProfile(QString filename)
 {
-    QString filename = action->data().toString();
-
     gchar *err = NULL;
     if (uat_load(uat_, filename.toUtf8().constData(), &err)) {
         uat_->changed = TRUE;

@@ -16,7 +16,7 @@
 #include "ui/help_url.h"
 #include <wsutil/report_message.h>
 
-#include <ui/qt/widgets/copy_from_profile_menu.h>
+#include <ui/qt/widgets/copy_from_profile_button.h>
 #include <ui/qt/utils/qt_ui_utils.h>
 
 #include <QDesktopServices>
@@ -101,12 +101,9 @@ void UatDialog::setUat(epan_uat *uat)
         }
 
         if (uat->from_profile) {
-            QPushButton *copy_button = ui->buttonBox->addButton(tr("Copy from"), QDialogButtonBox::ActionRole);
-            CopyFromProfileMenu *copy_from_menu = new CopyFromProfileMenu(uat->filename, copy_button);
-            copy_button->setMenu(copy_from_menu);
-            copy_button->setToolTip(tr("Copy entries from another profile."));
-            copy_button->setEnabled(copy_from_menu->haveProfiles());
-            connect(copy_from_menu, SIGNAL(triggered(QAction *)), this, SLOT(copyFromProfile(QAction *)));
+            CopyFromProfileButton * copy_button = new CopyFromProfileButton(this, uat->filename);
+            ui->buttonBox->addButton(copy_button, QDialogButtonBox::ActionRole);
+            connect(copy_button, &CopyFromProfileButton::copyProfile, this, &UatDialog::copyFromProfile);
         }
 
         QString abs_path = gchar_free_to_qstring(uat_get_actual_filename(uat_, FALSE));
@@ -140,10 +137,8 @@ void UatDialog::setUat(epan_uat *uat)
     setWindowTitle(title);
 }
 
-void UatDialog::copyFromProfile(QAction *action)
+void UatDialog::copyFromProfile(QString filename)
 {
-    QString filename = action->data().toString();
-
     gchar *err = NULL;
     if (uat_load(uat_, filename.toUtf8().constData(), &err)) {
         uat_->changed = TRUE;

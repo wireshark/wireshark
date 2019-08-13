@@ -16,7 +16,7 @@ set(WIRESHARK_WIDGET_HEADERS
 	widgets/capture_filter_combo.h
 	widgets/capture_filter_edit.h
 	widgets/clickable_label.h
-	widgets/copy_from_profile_menu.h
+	widgets/copy_from_profile_button.h
 	widgets/display_filter_combo.h
 	widgets/display_filter_edit.h
 	widgets/dissector_tables_view.h
@@ -245,7 +245,7 @@ set(WIRESHARK_WIDGET_SRCS
 	widgets/capture_filter_combo.cpp
 	widgets/capture_filter_edit.cpp
 	widgets/clickable_label.cpp
-	widgets/copy_from_profile_menu.cpp
+	widgets/copy_from_profile_button.cpp
 	widgets/display_filter_combo.cpp
 	widgets/display_filter_edit.cpp
 	widgets/dissector_tables_view.cpp

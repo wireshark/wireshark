@@ -29,7 +29,7 @@
 #include <wsutil/report_message.h>
 
 #include <ui/qt/utils/tango_colors.h> //provides some default colors
-#include <ui/qt/widgets/copy_from_profile_menu.h>
+#include <ui/qt/widgets/copy_from_profile_button.h>
 #include "ui/qt/widgets/wireshark_file_dialog.h"
 
 #include <QClipboard>
@@ -326,12 +326,9 @@ IOGraphDialog::IOGraphDialog(QWidget &parent, CaptureFile &cf) :
     QPushButton *copy_bt = ui->buttonBox->addButton(tr("Copy"), QDialogButtonBox::ActionRole);
     connect (copy_bt, SIGNAL(clicked()), this, SLOT(copyAsCsvClicked()));
 
-    QPushButton *copy_from_bt = ui->buttonBox->addButton(tr("Copy from"), QDialogButtonBox::ActionRole);
-    CopyFromProfileMenu *copy_from_menu = new CopyFromProfileMenu("io_graphs", copy_from_bt);
-    copy_from_bt->setMenu(copy_from_menu);
-    copy_from_bt->setToolTip(tr("Copy graphs from another profile."));
-    copy_from_bt->setEnabled(copy_from_menu->haveProfiles());
-    connect(copy_from_menu, SIGNAL(triggered(QAction *)), this, SLOT(copyFromProfile(QAction *)));
+    CopyFromProfileButton * copy_button = new CopyFromProfileButton(this, "io_graphs", tr("Copy graphs from another profile."));
+    ui->buttonBox->addButton(copy_button, QDialogButtonBox::ActionRole);
+    connect(copy_button, &CopyFromProfileButton::copyProfile, this, &IOGraphDialog::copyFromProfile);
 
     QPushButton *close_bt = ui->buttonBox->button(QDialogButtonBox::Close);
     if (close_bt) {
@@ -430,9 +427,8 @@ IOGraphDialog::~IOGraphDialog()
     ui = NULL;
 }
 
-void IOGraphDialog::copyFromProfile(QAction *action)
+void IOGraphDialog::copyFromProfile(QString filename)
 {
-    QString filename = action->data().toString();
     guint orig_data_len = iog_uat_->raw_data->len;
 
     gchar *err = NULL;

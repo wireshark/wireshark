@@ -200,7 +200,7 @@ private:
     bool graphIsEnabled(int row) const;
 
 private slots:
-    void copyFromProfile(QAction *action);
+    void copyFromProfile(QString filename);
     void updateWidgets();
     void graphClicked(QMouseEvent *event);
     void mouseMoved(QMouseEvent *event);

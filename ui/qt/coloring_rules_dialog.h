@@ -39,7 +39,7 @@ protected:
     void showEvent(QShowEvent *);
 
 private slots:
-    void copyFromProfile(QAction *action);
+    void copyFromProfile(QString fileName);
     void colorRuleSelectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
     void on_fGPushButton_clicked();
     void on_bGPushButton_clicked();

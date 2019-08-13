@@ -49,7 +49,7 @@ private:
     void applyChanges();
 
 private slots:
-    void copyFromProfile(QAction *action);
+    void copyFromProfile(QString filename);
     void modelDataChanged(const QModelIndex &topLeft);
     void modelRowsRemoved();
     void modelRowsReset();

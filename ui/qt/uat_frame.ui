@@ -102,7 +102,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="copyFromProfileButton">
+      <widget class="CopyFromProfileButton" name="copyFromProfileButton">
        <property name="toolTip">
         <string>Copy entries from another profile.</string>
        </property>
@@ -149,6 +149,11 @@
    <class>StockIconToolButton</class>
    <extends>QToolButton</extends>
    <header>widgets/stock_icon_tool_button.h</header>
+  </customwidget>
+  <customwidget>
+   <class>CopyFromProfileButton</class>
+   <extends>QPushButton</extends>
+   <header>widgets/copy_from_profile_button.h</header>
   </customwidget>
  </customwidgets>
  <resources/>
