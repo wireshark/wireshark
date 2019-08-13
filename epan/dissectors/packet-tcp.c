@@ -2339,6 +2339,12 @@ finished_checking_retransmission_type:
                 tcp_analyze_get_acked_struct(pinfo->num, seq, ack, TRUE, tcpd);
             }
             tcpd->ta->bytes_in_flight = in_flight;
+            /* Decrement in_flight bytes by one when we have a SYN or FIN bit
+             * flag set as it is only virtual.
+             */
+            if (flags&(TH_SYN|TH_FIN))  {
+                tcpd->ta->bytes_in_flight -= 1;
+		}
         }
 
         if((flags & TH_PUSH) && !tcpd->fwd->push_set_last) {
@@ -6298,9 +6304,6 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
 
             /* Compute the sequence number of next octet after this segment. */
             nxtseq = tcph->th_seq + tcph->th_seglen;
-            if ((tcph->th_flags&(TH_SYN|TH_FIN)) && (tcph->th_seglen > 0)) {
-                nxtseq += 1;
-            }
         }
     } else
         tcph->th_have_seglen = FALSE;
@@ -6358,9 +6361,17 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
     proto_item_set_len(ti, tcph->th_hlen);
     if (tcph->th_have_seglen) {
         if(tcp_relative_seq) {
-            tf=proto_tree_add_uint_format_value(tcp_tree, hf_tcp_nxtseq, tvb, offset, 0, nxtseq, "%u    (relative sequence number)", nxtseq);
+            if (tcph->th_flags&(TH_SYN|TH_FIN))  {
+                tf=proto_tree_add_uint_format_value(tcp_tree, hf_tcp_nxtseq, tvb, offset, 0, nxtseq + 1, "%u    (relative sequence number)", nxtseq + 1);
+            } else  {
+                tf=proto_tree_add_uint_format_value(tcp_tree, hf_tcp_nxtseq, tvb, offset, 0, nxtseq, "%u    (relative sequence number)", nxtseq);
+            }
         } else {
-            tf=proto_tree_add_uint(tcp_tree, hf_tcp_nxtseq, tvb, offset, 0, nxtseq);
+            if (tcph->th_flags&(TH_SYN|TH_FIN))  {
+                tf=proto_tree_add_uint(tcp_tree, hf_tcp_nxtseq, tvb, offset, 0, nxtseq + 1);
+            } else  {
+                tf=proto_tree_add_uint(tcp_tree, hf_tcp_nxtseq, tvb, offset, 0, nxtseq);
+            }
         }
         proto_item_set_generated(tf);
     }
@@ -6844,16 +6855,16 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data _U_)
              */
             proto_tree_add_item(tcp_tree, hf_tcp_reset_cause, tvb, offset, captured_length_remaining, ENC_NA|ENC_ASCII);
         } else {
-            /*
-             * XXX - dissect_tcp_payload() expects the payload length, however
-             * SYN and FIN increments the nxtseq by one without having
-             * the data.
-             */
-            if ((tcph->th_flags&(TH_FIN|TH_SYN)) && (tcph->th_seglen > 0)) {
-                nxtseq -= 1;
+        /* When we have a frame with TCP SYN bit set and segmented TCP payload we need
+         * to increment seq and nxtseq to detect the overlapping byte(s). This is to fix Bug 9882.
+         */
+            if(tcph->th_flags & TH_SYN) {
+                dissect_tcp_payload(tvb, pinfo, offset, tcph->th_seq + 1, nxtseq + 1,
+                                    tcph->th_sport, tcph->th_dport, tree, tcp_tree, tcpd, &tcpinfo);
+            } else {
+                dissect_tcp_payload(tvb, pinfo, offset, tcph->th_seq, nxtseq,
+                                    tcph->th_sport, tcph->th_dport, tree, tcp_tree, tcpd, &tcpinfo);
             }
-            dissect_tcp_payload(tvb, pinfo, offset, tcph->th_seq, nxtseq,
-                                tcph->th_sport, tcph->th_dport, tree, tcp_tree, tcpd, &tcpinfo);
         }
     }
     return tvb_captured_length(tvb);
