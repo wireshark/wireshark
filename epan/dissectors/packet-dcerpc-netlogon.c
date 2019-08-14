@@ -7651,7 +7651,7 @@ static int get_seal_key(const guint8 *session_key,int key_len,guint64 sequence,g
 
 }
 
-static guint64 uncrypt_sequence(guint8* session_key,guint64 checksum,guint64 enc_seq,unsigned char is_server _U_)
+static guint64 uncrypt_sequence_strong(guint8* session_key,guint64 checksum,guint64 enc_seq,unsigned char is_server _U_)
 {
     guint8 zeros[4] = { 0 };
     guint8 buf[HASH_MD5_LENGTH];
@@ -7683,6 +7683,20 @@ static guint64 uncrypt_sequence(guint8* session_key,guint64 checksum,guint64 enc
      }
     */
     return enc_seq;
+}
+
+static guint64 uncrypt_sequence(guint32 flags, guint8* session_key,guint64 checksum,guint64 enc_seq,unsigned char is_server _U_)
+{
+    if (flags & NETLOGON_FLAG_AES) {
+        /* TODO */
+        return 0;
+    }
+
+    if (flags & NETLOGON_FLAG_STRONGKEY) {
+        return uncrypt_sequence_strong(session_key, checksum, enc_seq, is_server);
+    }
+
+    return 0;
 }
 
 static tvbuff_t *
@@ -7813,7 +7827,7 @@ dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo,
         else {
             if(update_vars) {
                 vars->confounder = confounder;
-                vars->seq = uncrypt_sequence(vars->session_key,digest,encrypted_seq,is_server);
+                vars->seq = uncrypt_sequence(vars->flags,vars->session_key,digest,encrypted_seq,is_server);
             }
 
             if(get_seal_key(vars->session_key,16,vars->seq,vars->encryption_key))
