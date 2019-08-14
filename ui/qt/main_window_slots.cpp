@@ -1522,7 +1522,7 @@ void MainWindow::addStatsPluginsToMenu() {
     bool            first_item = true;
 
     while (iter) {
-        stats_tree_cfg *cfg = (stats_tree_cfg*)iter->data;
+        stats_tree_cfg *cfg = gxx_list_data(stats_tree_cfg *, iter);
         if (cfg->plugin) {
             if (first_item) {
                 main_ui_->menuStatistics->addSeparator();
@@ -1545,7 +1545,7 @@ void MainWindow::addStatsPluginsToMenu() {
             parent_menu->addAction(stats_tree_action);
             connect(stats_tree_action, SIGNAL(triggered()), this, SLOT(actionStatisticsPlugin_triggered()));
         }
-        iter = g_list_next(iter);
+        iter = gxx_list_next(iter);
     }
     g_list_free(cfg_list);
 }

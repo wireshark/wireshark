@@ -60,7 +60,7 @@ const sctp_assoc_info_t* SCTPAssocAnalyseDialog::findAssocForPacket(capture_file
     list = g_list_first(sctp_stat_get_info()->assoc_info_list);
 
     while (list) {
-        assoc = (const sctp_assoc_info_t*)(list->data);
+        assoc = gxx_list_data(const sctp_assoc_info_t*, list);
 
         framelist = g_list_first(assoc->frame_numbers);
         guint32 fn;
@@ -70,12 +70,12 @@ const sctp_assoc_info_t* SCTPAssocAnalyseDialog::findAssocForPacket(capture_file
                 frame_found = TRUE;
                 break;
             }
-            framelist = g_list_next(framelist);
+            framelist = gxx_list_next(framelist);
         }
         if (frame_found) {
             return assoc;
         } else {
-            list = g_list_next(list);
+            list = gxx_list_next(list);
         }
     }
 
@@ -84,7 +84,7 @@ const sctp_assoc_info_t* SCTPAssocAnalyseDialog::findAssocForPacket(capture_file
         msgBox.setText(tr("No Association found for this packet."));
         msgBox.exec();
     }
-    return NULL;
+    return Q_NULLPTR;
 }
 
 const _sctp_assoc_info* SCTPAssocAnalyseDialog::findAssoc(QWidget *parent, guint16 assoc_id)
@@ -118,20 +118,20 @@ void SCTPAssocAnalyseDialog::fillTabs(const sctp_assoc_info_t* selected_assoc)
         else
             ui->labelEP1->setText(QString(tr("List of used IP-Addresses")));
 
-    if (selected_assoc->addr1 != NULL) {
+    if (selected_assoc->addr1 != Q_NULLPTR) {
         GList *list;
 
         list = g_list_first(selected_assoc->addr1);
         while (list) {
             address *store;
 
-            store = (address *)(list->data);
+            store = gxx_list_data(address *, list);
             if (store->type != AT_NONE) {
                 if ((store->type == AT_IPv4) || (store->type == AT_IPv6)) {
                     ui->listWidgetEP1->addItem(address_to_qstring(store));
                 }
             }
-            list = g_list_next(list);
+            list = gxx_list_next(list);
         }
     } else {
         return;
@@ -170,20 +170,20 @@ void SCTPAssocAnalyseDialog::fillTabs(const sctp_assoc_info_t* selected_assoc)
     else
         ui->labelEP2->setText(QString(tr("List of used IP-Addresses")));
 
-    if (selected_assoc->addr2 != NULL) {
+    if (selected_assoc->addr2 != Q_NULLPTR) {
         GList *list;
 
         list = g_list_first(selected_assoc->addr2);
         while (list) {
             address     *store;
 
-            store = (address *)(list->data);
+            store = gxx_list_data(address *, list);
             if (store->type != AT_NONE) {
                 if ((store->type == AT_IPv4) || (store->type == AT_IPv6)) {
                     ui->listWidgetEP2->addItem(address_to_qstring(store));
                 }
             }
-            list = g_list_next(list);
+            list = gxx_list_next(list);
         }
     } else {
         return;

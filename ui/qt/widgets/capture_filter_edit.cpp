@@ -325,9 +325,9 @@ void CaptureFilterEdit::checkFilter(const QString& filter)
     if (bookmark_button_) {
         bool match = false;
 
-        for (GList *cf_item = get_filter_list_first(CFILTER_LIST); cf_item; cf_item = g_list_next(cf_item)) {
+        for (GList *cf_item = get_filter_list_first(CFILTER_LIST); cf_item; cf_item = gxx_list_next(cf_item)) {
             if (!cf_item->data) continue;
-            filter_def *cf_def = (filter_def *) cf_item->data;
+            filter_def *cf_def = gxx_list_data(filter_def *, cf_item);
             if (!cf_def->name || !cf_def->strval) continue;
 
             if (filter.compare(cf_def->strval) == 0) {
@@ -390,9 +390,9 @@ void CaptureFilterEdit::updateBookmarkMenu()
     connect(manage_action, &QAction::triggered, this, &CaptureFilterEdit::showFilters);
     bb_menu->addSeparator();
 
-    for (GList *cf_item = get_filter_list_first(CFILTER_LIST); cf_item; cf_item = g_list_next(cf_item)) {
+    for (GList *cf_item = get_filter_list_first(CFILTER_LIST); cf_item; cf_item = gxx_list_next(cf_item)) {
         if (!cf_item->data) continue;
-        filter_def *cf_def = (filter_def *) cf_item->data;
+        filter_def *cf_def = gxx_list_data(filter_def *, cf_item);
         if (!cf_def->name || !cf_def->strval) continue;
 
         int one_em = bb_menu->fontMetrics().height();
@@ -463,8 +463,8 @@ void CaptureFilterEdit::buildCompletionList(const QString &primitive_word)
             }
         }
     }
-    for (const GList *cf_item = get_filter_list_first(CFILTER_LIST); cf_item; cf_item = g_list_next(cf_item)) {
-        const filter_def *cf_def = (filter_def *) cf_item->data;
+    for (const GList *cf_item = get_filter_list_first(CFILTER_LIST); cf_item; cf_item = gxx_constlist_next(cf_item)) {
+        const filter_def *cf_def = gxx_list_data(const filter_def *, cf_item);
         if (!cf_def || !cf_def->strval) continue;
         QString saved_filter = cf_def->strval;
 
@@ -504,9 +504,9 @@ void CaptureFilterEdit::removeFilter()
 
     QString remove_filter = ra->data().toString();
 
-    for (GList *cf_item = get_filter_list_first(CFILTER_LIST); cf_item; cf_item = g_list_next(cf_item)) {
+    for (GList *cf_item = get_filter_list_first(CFILTER_LIST); cf_item; cf_item = gxx_list_next(cf_item)) {
         if (!cf_item->data) continue;
-        filter_def *cf_def = (filter_def *) cf_item->data;
+        filter_def *cf_def = gxx_list_data(filter_def *, cf_item);
         if (!cf_def->name || !cf_def->strval) continue;
 
         if (remove_filter.compare(cf_def->strval) == 0) {

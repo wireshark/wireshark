@@ -54,7 +54,7 @@ AdditionalToolBar * AdditionalToolBar::create(QWidget * parent, ext_toolbar_t * 
 
     while ( walker && walker->data )
     {
-        ext_toolbar_t * item = (ext_toolbar_t *)walker->data;
+        ext_toolbar_t * item = gxx_list_data(ext_toolbar_t *, walker);
         if ( item->type == EXT_TOOLBAR_ITEM )
         {
             if ( item->item_type == EXT_TOOLBAR_STRING )
@@ -69,11 +69,11 @@ AdditionalToolBar * AdditionalToolBar::create(QWidget * parent, ext_toolbar_t * 
             }
         }
 
-        walker = g_list_next ( walker );
+        walker = gxx_list_next ( walker );
     }
 
     if ( result->children().count() == 0 )
-        return NULL;
+        return Q_NULLPTR;
 
     if ( spacerNeeded )
     {
@@ -369,13 +369,13 @@ toolbar_selector_cb(gpointer item, gpointer item_data, gpointer user_data)
 
         while ( walker && walker->data )
         {
-            ext_toolbar_value_t * listvalue = (ext_toolbar_value_t *)walker->data;
+            ext_toolbar_value_t * listvalue = gxx_list_data(ext_toolbar_value_t *, walker);
 
             QStandardItem * si = new QStandardItem(listvalue->display);
             si->setData(VariantPointer<ext_toolbar_value_t>::asQVariant(listvalue), Qt::UserRole);
             sourceModel->appendRow(si);
 
-            walker = g_list_next(walker);
+            walker = gxx_list_next(walker);
         }
     }
     else if ( update_entry->type == EXT_TOOLBAR_UPDATE_DATABYINDEX ||
@@ -454,7 +454,7 @@ QWidget * AdditionalToolbarWidgetAction::createSelector(ext_toolbar_t * item, QW
     int selIndex = 0;
     while ( walker && walker->data )
     {
-        ext_toolbar_value_t * listvalue = (ext_toolbar_value_t *)walker->data;
+        ext_toolbar_value_t * listvalue = gxx_list_data(ext_toolbar_value_t *, walker);
 
         QStandardItem * si = new QStandardItem(listvalue->display);
         si->setData(VariantPointer<ext_toolbar_value_t>::asQVariant(listvalue), Qt::UserRole);
@@ -463,7 +463,7 @@ QWidget * AdditionalToolbarWidgetAction::createSelector(ext_toolbar_t * item, QW
         if ( listvalue->is_default )
             selIndex = sourceModel->rowCount();
 
-        walker = g_list_next(walker);
+        walker = gxx_list_next(walker);
     }
 
     myBox->setModel(sourceModel);

@@ -352,13 +352,13 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
 
 //    register_tap_listener_rtpstream(&tapinfo, NULL);
     /* Scan for RTP streams (redissect all packets) */
-    rtpstream_scan(&tapinfo, cap_file_.capFile(), NULL);
+    rtpstream_scan(&tapinfo, cap_file_.capFile(), Q_NULLPTR);
 
     int num_streams = 0;
     // TODO: Not used
     //GList *filtered_list = NULL;
-    for (GList *strinfo_list = g_list_first(tapinfo.strinfo_list); strinfo_list; strinfo_list = g_list_next(strinfo_list)) {
-        rtpstream_info_t * strinfo = (rtpstream_info_t*)(strinfo_list->data);
+    for (GList *strinfo_list = g_list_first(tapinfo.strinfo_list); strinfo_list; strinfo_list = gxx_list_next(strinfo_list)) {
+        rtpstream_info_t * strinfo = gxx_list_data(rtpstream_info_t*, strinfo_list);
         if (rtpstream_id_equal(&(strinfo->id), &(fwd_id_),RTPSTREAM_ID_EQUAL_NONE))
         {
             ++num_streams;
@@ -393,7 +393,7 @@ Iax2AnalysisDialog::Iax2AnalysisDialog(QWidget &parent, CaptureFile &cf) :
             this, SLOT(captureEvent(CaptureEvent)));
     updateWidgets();
 
-    registerTapListener("IAX2", this, NULL, 0, tapReset, tapPacket, tapDraw);
+    registerTapListener("IAX2", this, Q_NULLPTR, 0, tapReset, tapPacket, tapDraw);
     cap_file_.retapPackets();
     removeTapListeners();
 

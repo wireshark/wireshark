@@ -59,7 +59,7 @@ SCTPGraphArwndDialog::~SCTPGraphArwndDialog()
 
 void SCTPGraphArwndDialog::drawArwndGraph(const sctp_assoc_info_t *selected_assoc)
 {
-    GList *listSACK = NULL, *tlist;
+    GList *listSACK = Q_NULLPTR, *tlist;
     struct sack_chunk_header *sack_header;
     struct nr_sack_chunk_header *nr_sack_header;
     tsn_t *tsn;
@@ -76,15 +76,15 @@ void SCTPGraphArwndDialog::drawArwndGraph(const sctp_assoc_info_t *selected_asso
     bool detect_max_arwnd = (startArwnd == 0) ? true : false;
 
     while (listSACK) {
-        tsn = (tsn_t*) (listSACK->data);
+        tsn = gxx_list_data(tsn_t*, listSACK);
         tlist = g_list_first(tsn->tsns);
         while (tlist) {
-            type = ((struct chunk_header *)tlist->data)->type;
+            type = gxx_list_data(struct chunk_header *, tlist)->type;
             if (type == SCTP_SACK_CHUNK_ID) {
-                sack_header =(struct sack_chunk_header *)tlist->data;
+                sack_header = gxx_list_data(struct sack_chunk_header *, tlist);
                 arwnd = g_ntohl(sack_header->a_rwnd);
             } else if (type == SCTP_NR_SACK_CHUNK_ID) {
-                nr_sack_header =(struct nr_sack_chunk_header *)tlist->data;
+                nr_sack_header = gxx_list_data(struct nr_sack_chunk_header *, tlist);
                 arwnd = g_ntohl(nr_sack_header->a_rwnd);
             }
             if (detect_max_arwnd && startArwnd < arwnd) {
@@ -93,9 +93,9 @@ void SCTPGraphArwndDialog::drawArwndGraph(const sctp_assoc_info_t *selected_asso
             ya.append(arwnd);
             xa.append(tsn->secs + tsn->usecs/1000000.0);
             fa.append(tsn->frame_number);
-            tlist = g_list_next(tlist);
+            tlist = gxx_list_next(tlist);
         }
-        listSACK = g_list_previous(listSACK);
+        listSACK = gxx_list_previous(listSACK);
     }
 
     QCPScatterStyle myScatter;

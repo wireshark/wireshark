@@ -114,9 +114,9 @@ void FilterDialog::showEvent(QShowEvent *event)
     } else {
         filter_list = get_filter_list_first(DFILTER_LIST);
     }
-    for (GList *fl_item = filter_list; fl_item; fl_item = g_list_next(fl_item)) {
+    for (GList *fl_item = filter_list; fl_item; fl_item = gxx_list_next(fl_item)) {
         if (!fl_item->data) continue;
-        filter_def *fl_data = (filter_def *) fl_item->data;
+        filter_def *fl_data = gxx_list_data(filter_def *, fl_item);
         if (!fl_data->name || !fl_data->strval) continue;
 
         addFilter(fl_data->name, fl_data->strval);

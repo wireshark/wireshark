@@ -27,8 +27,6 @@
 #include <QFont>
 #include <QTemporaryDir>
 
-#define gxx_list_next(list) ((list) ? ((reinterpret_cast<GList *>(list))->next) : Q_NULLPTR)
-
 Q_LOGGING_CATEGORY(profileLogger, "wireshark.profiles")
 
 ProfileSortModel::ProfileSortModel(QObject * parent):

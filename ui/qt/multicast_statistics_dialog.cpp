@@ -281,8 +281,8 @@ void MulticastStatisticsDialog::tapDraw(mcaststream_tapinfo_t *tapinfo)
 
     // Add missing rows and update stats
     int cur_row = 0;
-    for (GList *cur = g_list_first(tapinfo->strinfo_list); cur; cur = g_list_next(cur)) {
-        mcast_stream_info_t *stream_info = (mcast_stream_info_t *) cur->data;
+    for (GList *cur = g_list_first(tapinfo->strinfo_list); cur; cur = gxx_list_next(cur)) {
+        mcast_stream_info_t *stream_info = gxx_list_data(mcast_stream_info_t *, cur);
         if (!stream_info) continue;
 
         MulticastStatTreeWidgetItem *ms_ti;

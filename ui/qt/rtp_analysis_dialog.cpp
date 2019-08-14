@@ -1609,10 +1609,10 @@ void RtpAnalysisDialog::findStreams()
 
 //    register_tap_listener_rtpstream(&tapinfo_, NULL);
     /* Scan for RTP streams (redissect all packets) */
-    rtpstream_scan(&tapinfo_, cap_file_.capFile(), NULL);
+    rtpstream_scan(&tapinfo_, cap_file_.capFile(), Q_NULLPTR);
 
-    for (GList *strinfo_list = g_list_first(tapinfo_.strinfo_list); strinfo_list; strinfo_list = g_list_next(strinfo_list)) {
-        rtpstream_info_t * strinfo = (rtpstream_info_t*)(strinfo_list->data);
+    for (GList *strinfo_list = g_list_first(tapinfo_.strinfo_list); strinfo_list; strinfo_list = gxx_list_next(strinfo_list)) {
+        rtpstream_info_t * strinfo = gxx_list_data(rtpstream_info_t*, strinfo_list);
         if (rtpstream_id_equal(&(strinfo->id), &(fwd_statinfo_.id),RTPSTREAM_ID_EQUAL_NONE))
         {
             fwd_statinfo_.packet_count = strinfo->packet_count;

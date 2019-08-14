@@ -189,9 +189,9 @@ void VoipCallsInfoModel::updateCalls(GQueue *callsinfos)
         if (extra > 0) {
             beginInsertRows(QModelIndex(), rowCount(), rowCount() + extra - 1);
             while (cur_call && cur_call->data) {
-                voip_calls_info_t *call_info = (voip_calls_info_t*) cur_call->data;
+                voip_calls_info_t *call_info = gxx_list_data(voip_calls_info_t*, cur_call);
                 callinfos_.push_back(call_info);
-                cur_call = g_list_next(cur_call);
+                cur_call = gxx_list_next(cur_call);
             }
             endInsertRows();
         }

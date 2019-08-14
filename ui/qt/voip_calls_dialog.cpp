@@ -183,17 +183,17 @@ tap_packet_status VoipCallsDialog::tapPacket(void *, packet_info *, epan_dissect
 
 void VoipCallsDialog::tapDraw(void *tapinfo_ptr)
 {
-    voip_calls_tapinfo_t *tapinfo = (voip_calls_tapinfo_t *) tapinfo_ptr;
+    voip_calls_tapinfo_t *tapinfo = static_cast<voip_calls_tapinfo_t *>(tapinfo_ptr);
 
     if (!tapinfo || !tapinfo->redraw) {
         return;
     }
 
     GList *graph_item = g_queue_peek_nth_link(tapinfo->graph_analysis->items, 0);
-    for (; graph_item; graph_item = g_list_next(graph_item)) {
-        for (GList *rsi_entry = g_list_first(tapinfo->rtpstream_list); rsi_entry; rsi_entry = g_list_next(rsi_entry)) {
-            seq_analysis_item_t * sai = (seq_analysis_item_t *)graph_item->data;
-            rtpstream_info_t *rsi = (rtpstream_info_t *)rsi_entry->data;
+    for (; graph_item; graph_item = gxx_list_next(graph_item)) {
+        for (GList *rsi_entry = g_list_first(tapinfo->rtpstream_list); rsi_entry; rsi_entry = gxx_list_next(rsi_entry)) {
+            seq_analysis_item_t * sai = gxx_list_data(seq_analysis_item_t *, graph_item);
+            rtpstream_info_t *rsi = gxx_list_data(rtpstream_info_t *, rsi_entry);
 
             if (rsi->start_fd->num == sai->frame_number) {
                 rsi->call_num = sai->conv_num;
@@ -265,11 +265,11 @@ void VoipCallsDialog::prepareFilter()
 
     GList *cur_ga_item = g_queue_peek_nth_link(tapinfo_.graph_analysis->items, 0);
     while (cur_ga_item && cur_ga_item->data) {
-        seq_analysis_item_t *ga_item = (seq_analysis_item_t*) cur_ga_item->data;
+        seq_analysis_item_t *ga_item = gxx_list_data(seq_analysis_item_t*, cur_ga_item);
         if (selected_calls.contains(ga_item->conv_num)) {
             frame_numbers += QString("%1 ").arg(ga_item->frame_number);
         }
-        cur_ga_item = g_list_next(cur_ga_item);
+        cur_ga_item = gxx_list_next(cur_ga_item);
     }
 
     if (!frame_numbers.isEmpty()) {
@@ -299,7 +299,7 @@ void VoipCallsDialog::prepareFilter()
         /* Build a new filter based on protocol fields */
         lista = g_queue_peek_nth_link(voip_calls_get_info()->callsinfos, 0);
         while (lista) {
-            listinfo = (voip_calls_info_t *)lista->data;
+            listinfo = gxx_list_data(voip_calls_info_t *, lista);
             if (listinfo->selected) {
                 if (!is_first)
                     g_string_append_printf(filter_string_fwd, " or ");
@@ -335,11 +335,11 @@ void VoipCallsDialog::prepareFilter()
                     listb = g_list_first(h323info->h245_list);
 					wmem_free(NULL, guid_str);
                     while (listb) {
-                        h245_add = (h245_address_t *)listb->data;
+                        h245_add = gxx_list_data(h245_address_t *, listb);
                         g_string_append_printf(filter_string_fwd,
                             " || (ip.addr == %s && tcp.port == %d && h245)",
                             address_to_qstring(&h245_add->h245_address), h245_add->h245_port);
-                        listb = g_list_next(listb);
+                        listb = gxx_list_next(listb);
                     }
                     g_string_append_printf(filter_string_fwd, ")");
                 }
@@ -357,7 +357,7 @@ void VoipCallsDialog::prepareFilter()
                 }
                 is_first = FALSE;
             }
-            lista = g_list_next(lista);
+            lista = gxx_list_next(lista);
         }
 
         g_string_append_printf(filter_string_fwd, ")");
@@ -384,9 +384,9 @@ void VoipCallsDialog::showSequence()
     sequence_analysis_list_sort(tapinfo_.graph_analysis);
     GList *cur_ga_item = g_queue_peek_nth_link(tapinfo_.graph_analysis->items, 0);
     while (cur_ga_item && cur_ga_item->data) {
-        seq_analysis_item_t *ga_item = (seq_analysis_item_t*) cur_ga_item->data;
+        seq_analysis_item_t *ga_item = gxx_list_data(seq_analysis_item_t*, cur_ga_item);
         ga_item->display = selected_calls.contains(ga_item->conv_num);
-        cur_ga_item = g_list_next(cur_ga_item);
+        cur_ga_item = gxx_list_next(cur_ga_item);
     }
 
     SequenceDialog *sequence_dialog = new SequenceDialog(parent_, cap_file_, sequence_info_);
@@ -402,14 +402,14 @@ void VoipCallsDialog::showPlayer()
         voip_calls_info_t *vci = VoipCallsInfoModel::indexToCallInfo(index);
         if (!vci) continue;
 
-        for (GList *rsi_entry = g_list_first(tapinfo_.rtpstream_list); rsi_entry; rsi_entry = g_list_next(rsi_entry)) {
-            rtpstream_info_t *rsi = (rtpstream_info_t *)rsi_entry->data;
+        for (GList *rsi_entry = g_list_first(tapinfo_.rtpstream_list); rsi_entry; rsi_entry = gxx_list_next(rsi_entry)) {
+            rtpstream_info_t *rsi = gxx_list_data(rtpstream_info_t *, rsi_entry);
             if (!rsi) continue;
 
             //VOIP_CALLS_DEBUG("checking call %u, start frame %u == stream call %u, start frame %u, setup frame %u",
             //                vci->call_num, vci->start_fd->num,
             //                rsi->call_num, rsi->start_fd->num, rsi->setup_frame_number);
-            if (vci->call_num == (guint)rsi->call_num) {
+            if (vci->call_num == static_cast<guint>(rsi->call_num)) {
                 //VOIP_CALLS_DEBUG("adding call number %u", vci->call_num);
                 rtp_player_dialog.addRtpStream(rsi);
             }

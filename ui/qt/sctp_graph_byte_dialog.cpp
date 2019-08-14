@@ -59,8 +59,8 @@ SCTPGraphByteDialog::~SCTPGraphByteDialog()
 
 void SCTPGraphByteDialog::drawBytesGraph(const sctp_assoc_info_t *selected_assoc)
 {
-    GList *listTSN = NULL,*tlist;
-    tsn_t *tsn;
+    GList *listTSN = Q_NULLPTR, *tlist = Q_NULLPTR;
+    tsn_t *tsn = Q_NULLPTR;
     guint8 type;
     guint32 maxBytes;
     guint64 sumBytes = 0;
@@ -75,14 +75,14 @@ void SCTPGraphByteDialog::drawBytesGraph(const sctp_assoc_info_t *selected_assoc
 
 
     while (listTSN) {
-        tsn = (tsn_t*) (listTSN->data);
+        tsn = gxx_list_data(tsn_t*, listTSN);
         tlist = g_list_first(tsn->tsns);
         guint16 length;
         while (tlist)
         {
-            type = ((struct chunk_header *)tlist->data)->type;
+            type = gxx_list_data(struct chunk_header *, tlist)->type;
             if (type == SCTP_DATA_CHUNK_ID || type == SCTP_I_DATA_CHUNK_ID) {
-                length = g_ntohs(((struct data_chunk_header *)tlist->data)->length);
+                length = g_ntohs(gxx_list_data(struct data_chunk_header *, tlist)->length);
                 if (type == SCTP_DATA_CHUNK_ID)
                     length -= DATA_CHUNK_HEADER_LENGTH;
                 else
@@ -92,9 +92,9 @@ void SCTPGraphByteDialog::drawBytesGraph(const sctp_assoc_info_t *selected_assoc
                 xb.append(tsn->secs + tsn->usecs/1000000.0);
                 fb.append(tsn->frame_number);
             }
-            tlist = g_list_next(tlist);
+            tlist = gxx_list_next(tlist);
         }
-        listTSN = g_list_previous(listTSN);
+        listTSN = gxx_list_previous(listTSN);
     }
 
 

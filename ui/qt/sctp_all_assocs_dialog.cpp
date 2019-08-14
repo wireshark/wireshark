@@ -61,19 +61,19 @@ void SCTPAllAssocsDialog::fillTable()
         cf_retap_packets(cap_file_);
     }
     numAssocs = 0;
-    ui->assocList->setRowCount(g_list_length(sctp_assocs->assoc_info_list));
+    ui->assocList->setRowCount(static_cast<int>(g_list_length(sctp_assocs->assoc_info_list)));
 
     list = g_list_first(sctp_assocs->assoc_info_list);
 
     while (list) {
-        assinfo = (const sctp_assoc_info_t*)(list->data);
+        assinfo = gxx_list_data(const sctp_assoc_info_t*, list);
         ui->assocList->setItem(numAssocs, 0, new QTableWidgetItem(QString("%1").arg(assinfo->assoc_id)));
         ui->assocList->setItem(numAssocs, 1, new QTableWidgetItem(QString("%1").arg(assinfo->port1)));
         ui->assocList->setItem(numAssocs, 2, new QTableWidgetItem(QString("%1").arg(assinfo->port2)));
         ui->assocList->setItem(numAssocs, 3, new QTableWidgetItem(QString("%1").arg(assinfo->n_packets)));
         ui->assocList->setItem(numAssocs, 4, new QTableWidgetItem(QString("%1").arg(assinfo->n_data_chunks)));
         ui->assocList->setItem(numAssocs, 5, new QTableWidgetItem(QString("%1").arg(assinfo->n_data_bytes)));
-        list = g_list_next(list);
+        list = gxx_list_next(list);
         numAssocs++;
     }
     ui->analyseButton->setEnabled(false);

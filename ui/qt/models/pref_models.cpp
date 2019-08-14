@@ -252,8 +252,8 @@ fill_prefs(module_t *module, gpointer root_ptr)
     PrefsItem* module_item = new PrefsItem(module, NULL, root_item);
     root_item->prependChild(module_item);
 
-    for (GList *pref_l = module->prefs; pref_l && pref_l->data; pref_l = g_list_next(pref_l)) {
-        pref_t *pref = (pref_t *) pref_l->data;
+    for (GList *pref_l = module->prefs; pref_l && pref_l->data; pref_l = gxx_list_next(pref_l)) {
+        pref_t *pref = gxx_list_data(pref_t *, pref_l);
 
         if (prefs_get_type(pref) == PREF_OBSOLETE || prefs_get_type(pref) == PREF_STATIC_TEXT)
             continue;

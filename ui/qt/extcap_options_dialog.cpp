@@ -188,27 +188,27 @@ void ExtcapOptionsDialog::anyValueChanged()
 
 void ExtcapOptionsDialog::loadArguments()
 {
-    GList * arguments = NULL, * walker = NULL, * item = NULL;
-    ExtcapArgument * argument = NULL;
+    GList * arguments = Q_NULLPTR, * walker = Q_NULLPTR, * item = Q_NULLPTR;
+    ExtcapArgument * argument = Q_NULLPTR;
 
     if ( device_name.length() == 0  )
         return;
 
     extcapArguments.clear();
 
-    arguments = g_list_first(extcap_get_if_configuration((const char *)( device_name.toStdString().c_str() ) ));
+    arguments = g_list_first(extcap_get_if_configuration(device_name.toUtf8().constData()));
 
     ExtcapArgumentList required;
     ExtcapArgumentList optional;
 
     walker = arguments;
-    while ( walker != NULL )
+    while ( walker != Q_NULLPTR )
     {
-        item = g_list_first((GList *)(walker->data));
-        while ( item != NULL )
+        item = g_list_first(gxx_list_data(GList *, walker));
+        while ( item != Q_NULLPTR )
         {
-            argument = ExtcapArgument::create((extcap_arg *)(item->data), this);
-            if ( argument != NULL )
+            argument = ExtcapArgument::create(gxx_list_data(extcap_arg *, item), this);
+            if ( argument != Q_NULLPTR )
             {
                 if ( argument->isRequired() )
                     required << argument;
@@ -218,7 +218,7 @@ void ExtcapOptionsDialog::loadArguments()
             }
             item = item->next;
         }
-        walker = g_list_next(walker);
+        walker = gxx_list_next(walker);
     }
 
     if ( required.length() > 0 )

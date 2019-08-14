@@ -22,6 +22,7 @@
 #include <ui/qt/widgets/stock_icon_tool_button.h>
 #include <ui/qt/widgets/syntax_line_edit.h>
 #include <ui/qt/utils/wireshark_mime_data.h>
+#include <ui/qt/utils/qt_ui_utils.h>
 #include <ui/qt/models/pref_models.h>
 #include <ui/qt/filter_action.h>
 #include "wireshark_application.h"
@@ -281,9 +282,9 @@ void DisplayFilterEdit::checkFilter(const QString& filter_text)
         bool enable_save_action = false;
         bool match = false;
 
-        for (GList *df_item = get_filter_list_first(DFILTER_LIST); df_item; df_item = g_list_next(df_item)) {
+        for (GList *df_item = get_filter_list_first(DFILTER_LIST); df_item; df_item = gxx_list_next(df_item)) {
             if (!df_item->data) continue;
-            filter_def *df_def = (filter_def *) df_item->data;
+            filter_def *df_def = gxx_list_data(filter_def *, df_item);
             if (!df_def->name || !df_def->strval) continue;
 
             if (filter_text.compare(df_def->strval) == 0) {
@@ -334,9 +335,9 @@ void DisplayFilterEdit::updateBookmarkMenu()
     connect(expr_action, &QAction::triggered, this, &DisplayFilterEdit::showExpressionPrefs);
     bb_menu->addSeparator();
 
-    for (GList *df_item = get_filter_list_first(DFILTER_LIST); df_item; df_item = g_list_next(df_item)) {
+    for (GList *df_item = get_filter_list_first(DFILTER_LIST); df_item; df_item = gxx_list_next(df_item)) {
         if (!df_item->data) continue;
-        filter_def *df_def = (filter_def *) df_item->data;
+        filter_def *df_def = gxx_list_data(filter_def *, df_item);
         if (!df_def->name || !df_def->strval) continue;
 
         int one_em = bb_menu->fontMetrics().height();
@@ -397,8 +398,8 @@ void DisplayFilterEdit::buildCompletionList(const QString &field_word)
             }
         }
     }
-    for (const GList *df_item = get_filter_list_first(DFILTER_LIST); df_item; df_item = g_list_next(df_item)) {
-        const filter_def *df_def = (filter_def *) df_item->data;
+    for (const GList *df_item = get_filter_list_first(DFILTER_LIST); df_item; df_item = gxx_constlist_next(df_item)) {
+        const filter_def *df_def = gxx_list_data(const filter_def *, df_item);
         if (!df_def || !df_def->strval) continue;
         QString saved_filter = df_def->strval;
 
@@ -492,9 +493,9 @@ void DisplayFilterEdit::removeFilter()
 
     QString remove_filter = ra->data().toString();
 
-    for (GList *df_item = get_filter_list_first(DFILTER_LIST); df_item; df_item = g_list_next(df_item)) {
+    for (GList *df_item = get_filter_list_first(DFILTER_LIST); df_item; df_item = gxx_list_next(df_item)) {
         if (!df_item->data) continue;
-        filter_def *df_def = (filter_def *) df_item->data;
+        filter_def *df_def = gxx_list_data(filter_def *, df_item);
         if (!df_def->name || !df_def->strval) continue;
 
         if (remove_filter.compare(df_def->strval) == 0) {

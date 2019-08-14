@@ -2138,9 +2138,9 @@ void MainWindow::initConversationMenus()
             << main_ui_->actionViewColorizeConversation7 << main_ui_->actionViewColorizeConversation8
             << main_ui_->actionViewColorizeConversation9 << main_ui_->actionViewColorizeConversation10;
 
-    for (GList *conv_filter_list_entry = conv_filter_list; conv_filter_list_entry; conv_filter_list_entry = g_list_next(conv_filter_list_entry)) {
+    for (GList *conv_filter_list_entry = conv_filter_list; conv_filter_list_entry; conv_filter_list_entry = gxx_list_next(conv_filter_list_entry)) {
         // Main menu items
-        conversation_filter_t* conv_filter = (conversation_filter_t *)conv_filter_list_entry->data;
+        conversation_filter_t* conv_filter = gxx_list_data(conversation_filter_t *, conv_filter_list_entry);
         ConversationAction *conv_action = new ConversationAction(main_ui_->menuConversationFilter, conv_filter);
         main_ui_->menuConversationFilter->addAction(conv_action);
 
@@ -2717,20 +2717,20 @@ void MainWindow::reloadDynamicMenus()
 
 void MainWindow::externalMenuHelper(ext_menu_t * menu, QMenu  * subMenu, gint depth)
 {
-    QAction * itemAction = NULL;
-    ext_menubar_t * item = NULL;
-    GList * children = NULL;
+    QAction * itemAction = Q_NULLPTR;
+    ext_menubar_t * item = Q_NULLPTR;
+    GList * children = Q_NULLPTR;
 
     /* There must exists an xpath parent */
-    g_assert(subMenu != NULL);
+    Q_ASSERT(subMenu != NULL);
 
     /* If the depth counter exceeds, something must have gone wrong */
-    g_assert(depth < EXT_MENUBAR_MAX_DEPTH);
+    Q_ASSERT(depth < EXT_MENUBAR_MAX_DEPTH);
 
     children = menu->children;
     /* Iterate the child entries */
     while (children && children->data) {
-        item = (ext_menubar_t *)children->data;
+        item = gxx_list_data(ext_menubar_t *, children);
 
         if (item->type == EXT_MENUBAR_MENU) {
             /* Handle Submenu entry */
@@ -2739,14 +2739,14 @@ void MainWindow::externalMenuHelper(ext_menu_t * menu, QMenu  * subMenu, gint de
             subMenu->addSeparator();
         } else if (item->type == EXT_MENUBAR_ITEM || item->type == EXT_MENUBAR_URL) {
             itemAction = subMenu->addAction(item->name);
-            itemAction->setData(QVariant::fromValue((void *)item));
+            itemAction->setData(QVariant::fromValue(static_cast<void *>(item)));
             itemAction->setText(item->label);
             connect(itemAction, SIGNAL(triggered()),
                     this, SLOT(externalMenuItem_triggered()));
         }
 
         /* Iterate Loop */
-        children = g_list_next(children);
+        children = gxx_list_next(children);
     }
 }
 
@@ -2772,13 +2772,13 @@ void MainWindow::addPluginIFStructures()
     GList *user_menu = ext_menubar_get_entries();
 
     while (user_menu && user_menu->data) {
-        QMenu *subMenu = NULL;
-        ext_menu_t *menu = (ext_menu_t *)user_menu->data;
+        QMenu *subMenu = Q_NULLPTR;
+        ext_menu_t *menu = gxx_list_data(ext_menu_t *, user_menu);
 
         /* On this level only menu items should exist. Not doing an assert here,
          * as it could be an honest mistake */
         if (menu->type != EXT_MENUBAR_MENU) {
-            user_menu = g_list_next(user_menu);
+            user_menu = gxx_list_next(user_menu);
             continue;
         }
 
@@ -2797,7 +2797,7 @@ void MainWindow::addPluginIFStructures()
         this->externalMenuHelper(menu, subMenu, 0);
 
         /* Iterate Loop */
-        user_menu = g_list_next(user_menu);
+        user_menu = gxx_list_next(user_menu);
     }
 
     int cntToolbars = 0;
@@ -2805,14 +2805,14 @@ void MainWindow::addPluginIFStructures()
     QMenu *tbMenu = main_ui_->menuAdditionalToolbars;
     GList *if_toolbars = ext_toolbar_get_entries();
     while (if_toolbars && if_toolbars->data) {
-        ext_toolbar_t *toolbar = (ext_toolbar_t*)if_toolbars->data;
+        ext_toolbar_t *toolbar = gxx_list_data(ext_toolbar_t*, if_toolbars);
 
         if (toolbar->type != EXT_TOOLBAR_BAR) {
-            if_toolbars = g_list_next(if_toolbars);
+            if_toolbars = gxx_list_next(if_toolbars);
             continue;
         }
 
-        bool visible = g_list_find_custom(recent.gui_additional_toolbars, toolbar->name, (GCompareFunc)strcmp) ? true : false;
+        bool visible = g_list_find_custom(recent.gui_additional_toolbars, toolbar->name, reinterpret_cast<GCompareFunc>(strcmp)) ? true : false;
 
         AdditionalToolBar *ifToolBar = AdditionalToolBar::create(this, toolbar);
 
@@ -2827,7 +2827,7 @@ void MainWindow::addPluginIFStructures()
             iftbAction->setToolTip(tr("Show or hide the toolbar"));
             iftbAction->setData(VariantPointer<ext_toolbar_t>::asQVariant(toolbar));
 
-            QAction *before = 0;
+            QAction *before = Q_NULLPTR;
 
             foreach(QAction *action, tbMenu->actions()) {
                 /* Ensure we add the menu entries in sorted order */
@@ -2848,7 +2848,7 @@ void MainWindow::addPluginIFStructures()
             cntToolbars++;
         }
 
-        if_toolbars = g_list_next(if_toolbars);
+        if_toolbars = gxx_list_next(if_toolbars);
     }
 
     if (cntToolbars)
@@ -2865,7 +2865,7 @@ void MainWindow::removeAdditionalToolbar(QString toolbarName)
         AdditionalToolBar *ifToolBar = dynamic_cast<AdditionalToolBar *>(tb);
 
         if (ifToolBar && ifToolBar->menuName().compare(toolbarName)) {
-            GList *entry = g_list_find_custom(recent.gui_additional_toolbars, qUtf8Printable(ifToolBar->menuName()), (GCompareFunc)strcmp);
+            GList *entry = g_list_find_custom(recent.gui_additional_toolbars, qUtf8Printable(ifToolBar->menuName()), reinterpret_cast<GCompareFunc>(strcmp));
             if (entry) {
                 recent.gui_additional_toolbars = g_list_remove(recent.gui_additional_toolbars, entry->data);
             }

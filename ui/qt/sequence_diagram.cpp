@@ -150,8 +150,8 @@ void SequenceDiagram::setData(_seq_analysis_info *sainfo)
     int elide_w = com_fm.height() * max_comment_em_width_;
     char* addr_str;
 
-    for (GList *cur = g_queue_peek_nth_link(sainfo->items, 0); cur; cur = g_list_next(cur)) {
-        seq_analysis_item_t *sai = (seq_analysis_item_t *) cur->data;
+    for (GList *cur = g_queue_peek_nth_link(sainfo->items, 0); cur; cur = gxx_list_next(cur)) {
+        seq_analysis_item_t *sai = gxx_list_data(seq_analysis_item_t *, cur);
         if (sai->display) {
             WSCPSeqData new_data;
 
@@ -170,13 +170,13 @@ void SequenceDiagram::setData(_seq_analysis_info *sainfo)
 
     for (unsigned int i = 0; i < sainfo_->num_nodes; i++) {
         val_ticks.append(i);
-        addr_str = address_to_display(NULL, &(sainfo_->nodes[i]));
+        addr_str = address_to_display(Q_NULLPTR, &(sainfo_->nodes[i]));
         val_labels.append(addr_str);
         if (i % 2 == 0) {
             val_labels.last().append("\n");
         }
 
-        wmem_free(NULL, addr_str);
+        wmem_free(Q_NULLPTR, addr_str);
     }
     keyAxis()->setTickVector(key_ticks);
     keyAxis()->setTickVectorLabels(key_labels);

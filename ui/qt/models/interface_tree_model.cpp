@@ -170,8 +170,8 @@ QVariant InterfaceTreeModel::data(const QModelIndex &index, int role) const
                     linkname = "Unknown";
                 else {
                     linkname = QObject::tr("DLT %1").arg(device->active_dlt);
-                    for (GList *list = device->links; list != NULL; list = g_list_next(list)) {
-                        link_row *linkr = (link_row*)(list->data);
+                    for (GList *list = device->links; list != Q_NULLPTR; list = gxx_list_next(list)) {
+                        link_row *linkr = gxx_list_data(link_row *, list);
                         if (linkr->dlt == device->active_dlt) {
                             linkname = linkr->name;
                             break;

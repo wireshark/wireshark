@@ -65,13 +65,13 @@ SCTPGraphDialog::~SCTPGraphDialog()
 
 void SCTPGraphDialog::drawNRSACKGraph(const sctp_assoc_info_t* selected_assoc)
 {
-    tsn_t *sack;
-    GList *list=NULL, *tlist;
+    tsn_t *sack = Q_NULLPTR;
+    GList *list = Q_NULLPTR, *tlist = Q_NULLPTR;
     guint16 gap_start=0, gap_end=0, i, numberOf_gaps, numberOf_nr_gaps;
     guint8 type;
     guint32 tsnumber, j = 0, min_tsn, rel = 0;
-    struct nr_sack_chunk_header *nr_sack_header;
-    struct gaps *nr_gap;
+    struct nr_sack_chunk_header *nr_sack_header = Q_NULLPTR;
+    struct gaps *nr_gap = Q_NULLPTR;
     /* This holds the sum of gap acks and nr gap acks */
     guint16 total_gaps = 0;
 
@@ -86,12 +86,12 @@ void SCTPGraphDialog::drawNRSACKGraph(const sctp_assoc_info_t* selected_assoc)
         rel = min_tsn;
     }
     while (list) {
-        sack = (tsn_t*) (list->data);
+        sack = gxx_list_data(tsn_t*, list);
         tlist = g_list_first(sack->tsns);
         while (tlist) {
-            type = ((struct chunk_header *)tlist->data)->type;
+            type = gxx_list_data(struct chunk_header *, tlist)->type;
             if (type == SCTP_NR_SACK_CHUNK_ID) {
-                nr_sack_header =(struct nr_sack_chunk_header *)tlist->data;
+                nr_sack_header = gxx_list_data(struct nr_sack_chunk_header *, tlist);
                 numberOf_nr_gaps=g_ntohs(nr_sack_header->nr_of_nr_gaps);
                 numberOf_gaps=g_ntohs(nr_sack_header->nr_of_gaps);
                 tsnumber = g_ntohl(nr_sack_header->cum_tsn_ack);
@@ -124,23 +124,23 @@ void SCTPGraphDialog::drawNRSACKGraph(const sctp_assoc_info_t* selected_assoc)
                     }
                 }
             }
-            tlist = g_list_next(tlist);
+            tlist = gxx_list_next(tlist);
         }
-        list = g_list_previous(list);
+        list = gxx_list_previous(list);
     }
 }
 
 void SCTPGraphDialog::drawSACKGraph(const sctp_assoc_info_t* selected_assoc)
 {
-    GList *listSACK = NULL, *tlist;
+    GList *listSACK = Q_NULLPTR, *tlist = Q_NULLPTR;
     guint16 gap_start=0, gap_end=0, nr, dup_nr;
-    struct sack_chunk_header *sack_header;
-    struct gaps *gap;
-    tsn_t *tsn;
+    struct sack_chunk_header *sack_header = Q_NULLPTR;
+    struct gaps *gap = Q_NULLPTR;
+    tsn_t *tsn = Q_NULLPTR;
     guint8 type;
     guint32 tsnumber=0, rel = 0;
     guint32 minTSN;
-    guint32 *dup_list;
+    guint32 *dup_list = Q_NULLPTR;
     int i, j;
 
     if (direction == 1) {
@@ -154,12 +154,12 @@ void SCTPGraphDialog::drawSACKGraph(const sctp_assoc_info_t* selected_assoc)
         rel = minTSN;
     }
     while (listSACK) {
-        tsn = (tsn_t*) (listSACK->data);
+        tsn = gxx_list_data(tsn_t*, listSACK);
         tlist = g_list_first(tsn->tsns);
         while (tlist) {
-            type = ((struct chunk_header *)tlist->data)->type;
+            type = gxx_list_data(struct chunk_header *, tlist)->type;
             if (type == SCTP_SACK_CHUNK_ID) {
-                sack_header =(struct sack_chunk_header *)tlist->data;
+                sack_header = gxx_list_data(struct sack_chunk_header *, tlist);
                 nr=g_ntohs(sack_header->nr_of_gaps);
                 tsnumber = g_ntohl(sack_header->cum_tsn_ack);
                 dup_nr=g_ntohs(sack_header->nr_of_dups);
@@ -194,9 +194,9 @@ void SCTPGraphDialog::drawSACKGraph(const sctp_assoc_info_t* selected_assoc)
                     }
                 }
             }
-            tlist = g_list_next(tlist);
+            tlist = gxx_list_next(tlist);
         }
-        listSACK = g_list_previous(listSACK);
+        listSACK = gxx_list_previous(listSACK);
     }
 
     QCPScatterStyle myScatter;
@@ -260,8 +260,8 @@ void SCTPGraphDialog::drawSACKGraph(const sctp_assoc_info_t* selected_assoc)
 
 void SCTPGraphDialog::drawTSNGraph(const sctp_assoc_info_t* selected_assoc)
 {
-    GList *listTSN = NULL,*tlist;
-    tsn_t *tsn;
+    GList *listTSN = Q_NULLPTR,*tlist = Q_NULLPTR;
+    tsn_t *tsn = Q_NULLPTR;
     guint8 type;
     guint32 tsnumber=0, rel = 0, minTSN;
 
@@ -278,20 +278,20 @@ void SCTPGraphDialog::drawTSNGraph(const sctp_assoc_info_t* selected_assoc)
      }
 
     while (listTSN) {
-        tsn = (tsn_t*) (listTSN->data);
+        tsn = gxx_list_data(tsn_t*, listTSN);
         tlist = g_list_first(tsn->tsns);
         while (tlist)
         {
-            type = ((struct chunk_header *)tlist->data)->type;
+            type = gxx_list_data(struct chunk_header *, tlist)->type;
             if (type == SCTP_DATA_CHUNK_ID || type == SCTP_I_DATA_CHUNK_ID || type == SCTP_FORWARD_TSN_CHUNK_ID) {
-                tsnumber = g_ntohl(((struct data_chunk_header *)tlist->data)->tsn);
+                tsnumber = g_ntohl(gxx_list_data(struct data_chunk_header *, tlist)->tsn);
                 yt.append(tsnumber - rel);
                 xt.append(tsn->secs + tsn->usecs/1000000.0);
                 ft.append(tsn->frame_number);
             }
-            tlist = g_list_next(tlist);
+            tlist = gxx_list_next(tlist);
         }
-        listTSN = g_list_previous(listTSN);
+        listTSN = gxx_list_previous(listTSN);
     }
 
     QCPScatterStyle myScatter;

@@ -47,6 +47,16 @@ struct epan_range;
 #define qUtf8Printable(str) str.toUtf8().constData()
 #endif
 
+/*
+ * Helper macro, to prevent old-style-cast warnings, when using GList in c++ code
+ */
+#define gxx_list_next(list) ((list) ? ((reinterpret_cast<GList *>(list))->next) : Q_NULLPTR)
+#define gxx_constlist_next(list) ((list) ? ((reinterpret_cast<const GList *>(list))->next) : Q_NULLPTR)
+#define gxx_list_previous(list) ((list) ? ((reinterpret_cast<GList *>(list))->prev) : Q_NULLPTR)
+#define gxx_constlist_previous(list) ((list) ? ((reinterpret_cast<const GList *>(list))->prev) : Q_NULLPTR)
+
+#define gxx_list_data(type, list) ((list) ? ((reinterpret_cast<type>(list->data))) : Q_NULLPTR)
+
 /** Create a glib-compatible copy of a QString.
  *
  * @param q_string A QString.

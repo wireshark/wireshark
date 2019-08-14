@@ -116,8 +116,8 @@ public:
             linkname = "Unknown";
         else {
             linkname = QObject::tr("DLT %1").arg(device->active_dlt);
-            for (GList *list = device->links; list != NULL; list = g_list_next(list)) {
-                link_row *linkr = (link_row*)(list->data);
+            for (GList *list = device->links; list != NULL; list = gxx_list_next(list)) {
+                link_row *linkr = gxx_list_data(link_row *, list);
                 if (linkr->dlt == device->active_dlt) {
                     linkname = linkr->name;
                     break;
@@ -415,10 +415,10 @@ void CaptureInterfacesDialog::interfaceItemChanged(QTreeWidgetItem *item, int co
         caps = capture_get_if_capabilities(device->name, monitor_mode, auth_str, NULL, main_window_update);
         g_free(auth_str);
 
-        if (caps != NULL) {
+        if (caps != Q_NULLPTR) {
 
-            for (int i = (gint)g_list_length(device->links)-1; i >= 0; i--) {
-                GList* rem = g_list_nth(device->links, i);
+            for (int i = static_cast<int>(g_list_length(device->links)) - 1; i >= 0; i--) {
+                GList* rem = g_list_nth(device->links, static_cast<guint>(i));
                 device->links = g_list_remove_link(device->links, rem);
                 g_list_free_1(rem);
             }
@@ -426,16 +426,16 @@ void CaptureInterfacesDialog::interfaceItemChanged(QTreeWidgetItem *item, int co
             device->monitor_mode_supported = caps->can_set_rfmon;
             device->monitor_mode_enabled = monitor_mode;
 
-            for (GList *lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
-                link_row *linkr = (link_row *)g_malloc(sizeof(link_row));
-                data_link_info_t *data_link_info = (data_link_info_t *)lt_entry->data;
+            for (GList *lt_entry = caps->data_link_types; lt_entry != Q_NULLPTR; lt_entry = gxx_list_next(lt_entry)) {
+                link_row *linkr = new link_row();
+                data_link_info_t *data_link_info = gxx_list_data(data_link_info_t *, lt_entry);
                 /*
                  * For link-layer types libpcap/WinPcap doesn't know about, the
                  * name will be "DLT n", and the description will be null.
                  * We mark those as unsupported, and don't allow them to be
                  * used - capture filters won't work on them, for example.
                  */
-                if (data_link_info->description != NULL) {
+                if (data_link_info->description != Q_NULLPTR) {
                     linkr->dlt = data_link_info->dlt;
                     if (active_dlt_name.isEmpty()) {
                         device->active_dlt = data_link_info->dlt;
@@ -1238,8 +1238,8 @@ QWidget* InterfaceTreeDelegate::createEditor(QWidget *parent, const QStyleOption
             // types we'll have to jump through the hoops necessary to disable
             // QComboBox items.
 
-            for (list = links; list != NULL; list = g_list_next(list)) {
-                linkr = (link_row*)(list->data);
+            for (list = links; list != Q_NULLPTR; list = gxx_list_next(list)) {
+                linkr = gxx_list_data(link_row*, list);
                 if (linkr->dlt >= 0) {
                     valid_link_types << linkr->name;
                 }
@@ -1322,8 +1322,8 @@ void InterfaceTreeDelegate::linkTypeChanged(QString selected_link_type)
     if (!device) {
         return;
     }
-    for (list = device->links; list != NULL; list = g_list_next(list)) {
-        temp = (link_row*) (list->data);
+    for (list = device->links; list != Q_NULLPTR; list = gxx_list_next(list)) {
+        temp = gxx_list_data(link_row*, list);
         if (!selected_link_type.compare(temp->name)) {
             device->active_dlt = temp->dlt;
         }
