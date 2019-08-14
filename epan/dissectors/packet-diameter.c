@@ -691,7 +691,7 @@ call_avp_subdissector(guint32 vendorid, guint32 code, tvbuff_t *subtvb, packet_i
 
 /* Dissect an AVP at offset */
 static int
-dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *diam_sub_dis_inf)
+dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *diam_sub_dis_inf, gboolean update_col_info)
 {
 	guint32 code           = tvb_get_ntohl(tvb,offset);
 	guint32 len            = tvb_get_ntohl(tvb,offset+4);
@@ -781,6 +781,9 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 	offset += 4;
 
 	proto_item_set_text(avp_item,"AVP: %s(%u) l=%u f=%s", code_str, code, len, avpflags_str[flags_bits_idx]);
+	if (update_col_info) {
+		col_append_fstr(c->pinfo->cinfo, COL_INFO, " %s", code_str);
+	}
 
 	/* Flags */
 	{
@@ -1225,7 +1228,7 @@ grouped_avp(diam_ctx_t *c, diam_avp_t *a, tvbuff_t *tvb, diam_sub_dis_t *diam_su
 	/* Set the flag that we are dissecting a grouped AVP */
 	diam_sub_dis_inf->dis_gouped = TRUE;
 	while (offset < len) {
-		offset += dissect_diameter_avp(c, tvb, offset, diam_sub_dis_inf);
+		offset += dissect_diameter_avp(c, tvb, offset, diam_sub_dis_inf, FALSE);
 	}
 	/* Clear info collected in grouped AVP */
 	diam_sub_dis_inf->vendor_id  = 0;
@@ -1477,7 +1480,7 @@ dissect_diameter_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, voi
 
 	/* Dissect AVPs until the end of the packet is reached */
 	while (offset < packet_len) {
-		offset += dissect_diameter_avp(c, tvb, offset, diam_sub_dis_inf);
+		offset += dissect_diameter_avp(c, tvb, offset, diam_sub_dis_inf, FALSE);
 	}
 
 	/* Handle requests for which no answers were found and
@@ -1584,6 +1587,34 @@ dissect_diameter_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *
 	return tvb_reported_length(tvb);
 }
 
+static int
+dissect_diameter_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+{
+	proto_item *pi;
+	proto_tree *diam_tree;
+	int offset = 0;
+	diam_ctx_t *c = (diam_ctx_t *)wmem_alloc0(wmem_packet_scope(), sizeof(diam_ctx_t));
+	diam_sub_dis_t *diam_sub_dis_inf = wmem_new0(wmem_packet_scope(), diam_sub_dis_t);
+
+	/* Load header fields if not already done */
+	if (hf_diameter_code == -1)
+		proto_registrar_get_byname("diameter.code");
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DIAMETER");
+	col_set_str(pinfo->cinfo, COL_INFO, "AVPs:");
+
+	pi = proto_tree_add_item(tree, proto_diameter, tvb, 0, -1, ENC_NA);
+	diam_tree = proto_item_add_subtree(pi, ett_diameter);
+	c->tree = diam_tree;
+	c->pinfo = pinfo;
+	c->version_rfc = TRUE;
+
+	/* Dissect AVPs until the end of the packet is reached */
+	while (tvb_reported_length_remaining(tvb, offset)) {
+		offset += dissect_diameter_avp(c, tvb, offset, diam_sub_dis_inf, TRUE);
+	}
+	return tvb_reported_length(tvb);
+}
 
 static char *
 alnumerize(char *name)
@@ -2407,6 +2438,8 @@ proto_register_diameter(void)
 
 	/* Allow dissector to find be found by name. */
 	diameter_sctp_handle = register_dissector("diameter", dissect_diameter, proto_diameter);
+	/* Diameter AVPs without Diameter header, for EAP-TTLS (RFC 5281, Section 10) */
+	register_dissector("diameter_avps", dissect_diameter_avps, proto_diameter);
 
 	/* Delay registration of Diameter fields */
 	proto_register_prefix("diameter", register_diameter_fields);
@@ -2477,6 +2510,9 @@ proto_reg_handoff_diameter(void)
 
 		/* AVP Code: 1 User-Name */
 		dissector_add_uint("diameter.base", 1, create_dissector_handle(dissect_diameter_user_name, proto_diameter));
+
+		/* AVP Code: 79 EAP-Message (defined in RFC 2869, but used for EAP-TTLS, RFC 5281) */
+		dissector_add_uint("diameter.base", 79, create_dissector_handle(dissect_diameter_eap_payload, proto_diameter));
 
 		/* AVP Code: 97 Framed-IPv6-Address */
 		dissector_add_uint("diameter.base", 97, create_dissector_handle(dissect_diameter_base_framed_ipv6_prefix, proto_diameter));

@@ -24,6 +24,7 @@
 #include "packet-eapol.h"
 #include "packet-wps.h"
 #include "packet-e212.h"
+#include "packet-tls-utils.h"
 
 void proto_register_eap(void);
 void proto_reg_handoff_eap(void);
@@ -768,7 +769,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   guint8          eap_type;
   gint            len;
   conversation_t *conversation       = NULL;
-  conv_state_t   *conversation_state;
+  conv_state_t   *conversation_state = NULL;
   frame_state_t  *packet_state;
   int             leap_state;
   proto_tree     *ti, *ti_id, *ti_len;
@@ -789,6 +790,10 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   /*
    * Find a conversation to which we belong; create one if we don't find it.
    *
+   * If this is an EAP-Message (RFC 2869) encapsulated in Tunneled TLS EAP
+   * (EAP-TTLS), then we should not attempt to create a conversation to detect
+   * retransmitted messages, try TLS reassembly and so on.
+   *
    * EAP runs over RADIUS (which runs over UDP), EAPOL (802.1X Authentication)
    * or other transports. In case of RADIUS, a single "session" can have consist
    * of two UDP associations (one for authorization, one for accounting) which
@@ -802,39 +807,41 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
    * session. Use it as a signal to start a new conversation. This ensures that
    * the TLS dissector associates new TLS messages with a unique TLS session.
    */
-  if (PINFO_FD_VISITED(pinfo) || !(eap_code == EAP_REQUEST && tvb_get_guint8(tvb, 4) == EAP_TYPE_ID)) {
-    conversation = find_conversation_pinfo(pinfo, 0);
-  }
-  if (conversation == NULL) {
-    conversation = conversation_new(pinfo->num, &pinfo->src,
-                                    &pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype),
-                                    pinfo->srcport, pinfo->destport, 0);
-  }
+  if (!proto_is_frame_protocol(pinfo->layers, "tls")) {
+    if (PINFO_FD_VISITED(pinfo) || !(eap_code == EAP_REQUEST && tvb_get_guint8(tvb, 4) == EAP_TYPE_ID)) {
+      conversation = find_conversation_pinfo(pinfo, 0);
+    }
+    if (conversation == NULL) {
+      conversation = conversation_new(pinfo->num, &pinfo->src,
+                                      &pinfo->dst, conversation_pt_to_endpoint_type(pinfo->ptype),
+                                      pinfo->srcport, pinfo->destport, 0);
+    }
 
-  /*
-   * Get the state information for the conversation; attach some if
-   * we don't find it.
-   */
-  conversation_state = (conv_state_t *)conversation_get_proto_data(conversation, proto_eap);
-  if (conversation_state == NULL) {
     /*
-     * Attach state information to the conversation.
+     * Get the state information for the conversation; attach some if
+     * we don't find it.
      */
-    conversation_state = wmem_new(wmem_file_scope(), conv_state_t);
-    conversation_state->eap_tls_seq      = -1;
-    conversation_state->eap_reass_cookie =  0;
-    conversation_state->leap_state       = -1;
-    conversation_state->last_eap_id_req  = -1;
-    conversation_state->last_eap_id_resp = -1;
-    conversation_add_proto_data(conversation, proto_eap, conversation_state);
-  }
+    conversation_state = (conv_state_t *)conversation_get_proto_data(conversation, proto_eap);
+    if (conversation_state == NULL) {
+      /*
+       * Attach state information to the conversation.
+       */
+      conversation_state = wmem_new(wmem_file_scope(), conv_state_t);
+      conversation_state->eap_tls_seq      = -1;
+      conversation_state->eap_reass_cookie =  0;
+      conversation_state->leap_state       = -1;
+      conversation_state->last_eap_id_req  = -1;
+      conversation_state->last_eap_id_resp = -1;
+      conversation_add_proto_data(conversation, proto_eap, conversation_state);
+    }
 
-  /*
-   * Set this now, so that it gets remembered even if we throw an exception
-   * later.
-   */
-  if (eap_code == EAP_FAILURE)
-    conversation_state->leap_state = -1;
+    /*
+     * Set this now, so that it gets remembered even if we throw an exception
+     * later.
+     */
+    if (eap_code == EAP_FAILURE)
+      conversation_state->leap_state = -1;
+  }
 
   eap_len = tvb_get_ntohs(tvb, 2);
   len     = eap_len;
@@ -853,23 +860,25 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
    * reordering is not expected. If retransmissions somehow occur, we would have
    * to detect retransmissions via a bitmap. */
   gboolean is_duplicate_id = FALSE;
-  if (eap_code == EAP_REQUEST || eap_code == EAP_RESPONSE ||
-      eap_code == EAP_INITIATE || eap_code == EAP_FINISH) {
-    if (!PINFO_FD_VISITED(pinfo)) {
-      gint16 *last_eap_id = eap_code == EAP_REQUEST || eap_code == EAP_INITIATE ?
-        &conversation_state->last_eap_id_req :
-        &conversation_state->last_eap_id_resp;
-      is_duplicate_id = *last_eap_id == eap_identifier;
-      *last_eap_id = eap_identifier;
-      if (is_duplicate_id) {
-        // Use a dummy value to remember that this packet is a duplicate.
-        p_add_proto_data(wmem_file_scope(), pinfo, proto_eap, 1, GINT_TO_POINTER(1));
+  if (conversation_state) {
+    if (eap_code == EAP_REQUEST || eap_code == EAP_RESPONSE ||
+        eap_code == EAP_INITIATE || eap_code == EAP_FINISH) {
+      if (!PINFO_FD_VISITED(pinfo)) {
+        gint16 *last_eap_id = eap_code == EAP_REQUEST || eap_code == EAP_INITIATE ?
+          &conversation_state->last_eap_id_req :
+          &conversation_state->last_eap_id_resp;
+        is_duplicate_id = *last_eap_id == eap_identifier;
+        *last_eap_id = eap_identifier;
+        if (is_duplicate_id) {
+          // Use a dummy value to remember that this packet is a duplicate.
+          p_add_proto_data(wmem_file_scope(), pinfo, proto_eap, 1, GINT_TO_POINTER(1));
+        }
+      } else {
+        is_duplicate_id = !!p_get_proto_data(wmem_file_scope(), pinfo, proto_eap, 1);
       }
-    } else {
-      is_duplicate_id = !!p_get_proto_data(wmem_file_scope(), pinfo, proto_eap, 1);
-    }
-    if (is_duplicate_id) {
-      expert_add_info(pinfo, ti_id, &ei_eap_retransmission);
+      if (is_duplicate_id) {
+        expert_add_info(pinfo, ti_id, &ei_eap_retransmission);
+      }
     }
   }
 
@@ -900,7 +909,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
           eap_identity_item = proto_tree_add_item(eap_tree, hf_eap_identity, tvb, offset, size, ENC_ASCII|ENC_NA);
           dissect_eap_identity(tvb, pinfo, eap_identity_item, offset, size);
         }
-        if(!pinfo->fd->visited) {
+        if (conversation_state && !PINFO_FD_VISITED(pinfo)) {
           conversation_state->leap_state  =  0;
           conversation_state->eap_tls_seq = -1;
         }
@@ -962,6 +971,12 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         guint32  eap_reass_cookie =  0;
         gboolean needs_reassembly =  FALSE;
 
+        if (!conversation_state) {
+          // XXX expert info? There cannot be another EAP-TTLS message within
+          // the EAP-Message inside EAP-TTLS.
+          break;
+        }
+
         more_fragments = test_flag(flags,EAP_TLS_FLAG_M);
         has_length     = test_flag(flags,EAP_TLS_FLAG_L);
         is_start       = test_flag(flags,EAP_TLS_FLAG_S);
@@ -992,7 +1007,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
         if (size > 0) {
 
-          tvbuff_t *next_tvb;
+          tvbuff_t *next_tvb = NULL;
           gint      tvb_len;
           gboolean  save_fragmented;
 
@@ -1164,8 +1179,6 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
               show_fragment_seq_tree(fd_head, &eap_tls_frag_items,
                                      eap_tree, pinfo, next_tvb, &frag_tree_item);
 
-              call_dissector(tls_handle, next_tvb, pinfo, eap_tree);
-
               /*
                * We're finished reassembing this frame.
                * Reinitialize the reassembly state.
@@ -1178,7 +1191,16 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
           } else { /* this data is NOT fragmented */
             next_tvb = tvb_new_subset_length_caplen(tvb, offset, tvb_len, size);
-            call_dissector(tls_handle, next_tvb, pinfo, eap_tree);
+          }
+
+          if (next_tvb) {
+            const char *dissector_name = NULL;
+            switch (eap_type) {
+              case EAP_TYPE_TTLS:
+                dissector_name = "diameter_avps";
+                break;
+            }
+            call_dissector_with_data(tls_handle, next_tvb, pinfo, eap_tree, (void *)dissector_name);
           }
         }
       }
@@ -1211,6 +1233,10 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         /* Data    (byte*Count) */
         /* This part is state-dependent. */
 
+        if (!conversation_state) {
+          // XXX expert info? LEAP is not expected within the EAP-Message within EAP-TTLS.
+          break;
+        }
         /* XXX - are duplicates possible (is_duplicate_id)?
          * If so, should we stop here to avoid modifying conversation_state? */
 
@@ -1730,6 +1756,7 @@ proto_reg_handoff_eap(void)
    * Get a handle for the SSL/TLS dissector.
    */
   tls_handle = find_dissector_add_dependency("tls", proto_eap);
+  find_dissector_add_dependency("diameter_avps", proto_eap);
 
   dissector_add_uint("ppp.protocol", PPP_EAP, eap_handle);
   dissector_add_uint("eapol.type", EAPOL_EAP, eap_handle);
