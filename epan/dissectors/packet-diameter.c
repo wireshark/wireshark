@@ -297,6 +297,7 @@ static expert_field ei_diameter_avp_no_data = EI_INIT;
 static expert_field ei_diameter_application_id = EI_INIT;
 static expert_field ei_diameter_version = EI_INIT;
 static expert_field ei_diameter_avp_pad = EI_INIT;
+static expert_field ei_diameter_avp_pad_missing = EI_INIT;
 static expert_field ei_diameter_code = EI_INIT;
 static expert_field ei_diameter_avp_code = EI_INIT;
 static expert_field ei_diameter_avp_vendor_id = EI_INIT;
@@ -762,6 +763,13 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 		return tvb_reported_length(tvb);
 	}
 
+	/*
+	 * Workaround for a MS-CHAPv2 capture from Bug 15603 that lacks padding.
+	 */
+	if (tvb_reported_length_remaining(tvb, offset + len) < pad_len) {
+		pad_len = (guint32)tvb_reported_length_remaining(tvb, offset + len);
+	}
+
 	/* Add root of tree for this AVP */
 	avp_item = proto_tree_add_item(c->tree, hf_diameter_avp, tvb, offset, len + pad_len, ENC_NA);
 	avp_tree = proto_item_add_subtree(avp_item, a->ett);
@@ -890,6 +898,9 @@ dissect_diameter_avp(diam_ctx_t *c, tvbuff_t *tvb, int offset, diam_sub_dis_t *d
 				break;
 			}
 		}
+	}
+	if ((len + pad_len) % 4) {
+		proto_tree_add_expert(avp_tree, c->pinfo, &ei_diameter_avp_pad_missing, tvb, offset, pad_len);
 	}
 
 	return len+pad_len;
@@ -2390,6 +2401,7 @@ real_register_diameter_fields(void)
 		{ &ei_diameter_avp_vendor_id, { "diameter.unknown_vendor", PI_UNDECODED, PI_WARN, "Unknown Vendor, if you know whose this is you can add it to dictionary.xml", EXPFILL }},
 		{ &ei_diameter_avp_no_data, { "diameter.avp.no_data", PI_UNDECODED, PI_WARN, "Data is empty", EXPFILL }},
 		{ &ei_diameter_avp_pad, { "diameter.avp.pad.non_zero", PI_MALFORMED, PI_NOTE, "Padding is non-zero", EXPFILL }},
+		{ &ei_diameter_avp_pad_missing, { "diameter.avp.pad.missing", PI_MALFORMED, PI_NOTE, "Padding is missing", EXPFILL }},
 		{ &ei_diameter_avp_len, { "diameter.avp.invalid-len", PI_MALFORMED, PI_WARN, "Wrong length", EXPFILL }},
 		{ &ei_diameter_application_id, { "diameter.applicationId.unknown", PI_UNDECODED, PI_WARN, "Unknown Application Id, if you know what this is you can add it to dictionary.xml", EXPFILL }},
 		{ &ei_diameter_version, { "diameter.version.unknown", PI_UNDECODED, PI_WARN, "Unknown Diameter Version (decoding as RFC 3588)", EXPFILL }},

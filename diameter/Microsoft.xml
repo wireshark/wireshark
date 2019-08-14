@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Microsoft vendor-specific AVPs as specified in RFC 2548 for RADIUS.
+     These are not defined for Diameter, but were converted anyway to enable
+     use with EAP-TTLS (RFC 5281). -->
+
+<vendor vendor-id="Microsoft" code="311" name="Microsoft">
+    <avp name="MS-CHAP-Response" code="1" vendor-id="Microsoft">
+        <type type-name="OctetString" />
+    </avp>
+    <avp name="MS-CHAP-Error" code="2" vendor-id="Microsoft">
+        <type type-name="UTF8String" />
+    </avp>
+    <avp name="MS-CHAP-NT-Enc-PW" code="6" vendor-id="Microsoft">
+        <type type-name="OctetString" />
+    </avp>
+    <avp name="MS-CHAP-Domain" code="10" vendor-id="Microsoft">
+        <type type-name="UTF8String" />
+    </avp>
+    <avp name="MS-CHAP-Challenge" code="11" vendor-id="Microsoft">
+        <type type-name="OctetString" />
+    </avp>
+    <avp name="MS-CHAP2-Response" code="25" vendor-id="Microsoft">
+        <type type-name="OctetString" />
+    </avp>
+    <avp name="MS-CHAP2-Success" code="26" vendor-id="Microsoft">
+        <type type-name="OctetString" />
+    </avp>
+    <avp name="MS-CHAP2-CPW" code="27" vendor-id="Microsoft">
+        <type type-name="OctetString" />
+    </avp>
+</vendor>

@@ -32,6 +32,7 @@
 	<!ENTITY VerizonWireless	SYSTEM "VerizonWireless.xml">
 	<!ENTITY Telefonica		SYSTEM "Telefonica.xml">
 	<!ENTITY Siemens		SYSTEM "Siemens.xml">
+	<!ENTITY Microsoft		SYSTEM "Microsoft.xml">
 	<!ENTITY Custom			SYSTEM "Custom.xml">
 ]>
 <dictionary>
@@ -8839,5 +8840,6 @@
 	&VerizonWireless;
 	&Telefonica;
 	&Siemens;
+	&Microsoft;
 	&Custom;
 </dictionary>
