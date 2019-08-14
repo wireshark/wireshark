@@ -2420,10 +2420,10 @@ netlogon_dissect_netrserverreqchallenge_rqst(tvbuff_t *tvb, int offset,
         cb_wstr_postprocess,
         GINT_TO_POINTER(CB_STR_COL_INFO |CB_STR_SAVE | 1));
 
-    debugprintf("1)Len %d offset %d txt %s\n",(int) strlen(dcv->private_data),offset,(char*)dcv->private_data);
+    debugprintf("1)Len %d offset %d txt %s\n",(int) strlen((char *)dcv->private_data),offset,(char*)dcv->private_data);
     vars = wmem_new0(wmem_file_scope(), netlogon_auth_vars);
     vars->client_name = wmem_strdup(wmem_file_scope(), (const guint8 *)dcv->private_data);
-    debugprintf("2)Len %d offset %d txt %s\n",(int) strlen(dcv->private_data),offset,vars->client_name);
+    debugprintf("2)Len %d offset %d txt %s\n",(int) strlen((char *)dcv->private_data),offset,vars->client_name);
 
     offset = dissect_dcerpc_8bytes(tvb, offset, pinfo, tree, drep,
                                    hf_client_challenge,&vars->client_challenge);
