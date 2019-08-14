@@ -6650,7 +6650,78 @@ netlogon_dissect_netrserverauthenticate23_reply(tvbuff_t *tvb, int offset,
             list_size = get_keytab_as_list(&pass_list,gbl_nt_password);
             debugprintf("Found %d passwords \n",list_size);
 #endif
-            if( flags & NETLOGON_FLAG_STRONGKEY ) {
+            if( flags & NETLOGON_FLAG_AES )
+            {
+#ifdef HAVE_KERBEROS
+                guint8 salt_buf[16] = { 0 };
+                guint8 sha256[HASH_SHA2_256_LENGTH];
+                guint64 calculated_cred;
+
+                memcpy(&salt_buf[0], (guint8*)&vars->client_challenge, 8);
+                memcpy(&salt_buf[8], (guint8*)&vars->server_challenge, 8);
+
+                printnbyte((guint8*)&vars->client_challenge,8,"Client challenge:","\n");
+                printnbyte((guint8*)&vars->server_challenge,8,"Server challenge:","\n");
+                printnbyte((guint8*)&server_cred,8,"Server creds:","\n");
+                for(i=0;i<list_size;i++)
+                {
+                    password = pass_list[i];
+                    printnbyte((guint8*)&password, 16,"NTHASH:","\n");
+                    if (!ws_hmac_buffer(GCRY_MD_SHA256, sha256, salt_buf, sizeof(salt_buf), (guint8*) &password, 16)) {
+                        gcry_error_t err;
+                        gcry_cipher_hd_t cipher_hd = NULL;
+                        guint8 iv[16] = { 0 };
+
+                        /* truncate the session key to 16 bytes */
+                        memcpy(session_key, sha256, 16);
+                        printnbyte((guint8*)session_key, 16,"Session Key","\n");
+
+                        /* Open the cipher */
+                        err = gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CFB8, 0);
+                        if (err != 0) {
+                            g_warning("GCRY: chiper open %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+                            break;
+                        }
+
+                        /* Set the initial value */
+                        err = gcry_cipher_setiv(cipher_hd, iv, sizeof(iv));
+                        if (err != 0) {
+                            g_warning("GCRY: setiv %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+                            gcry_cipher_close(cipher_hd);
+                            break;
+                        }
+
+                        /* Set the key */
+                        err = gcry_cipher_setkey(cipher_hd, session_key, 16);
+                        if (err != 0) {
+                            g_warning("GCRY: setkey %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+                            gcry_cipher_close(cipher_hd);
+                            break;
+                        }
+
+                        calculated_cred = 0x1234567812345678;
+                        err = gcry_cipher_encrypt(cipher_hd,
+                                                  (guint8 *)&calculated_cred, 8,
+                                                  (const guint8 *)&vars->server_challenge, 8);
+                        if (err != 0) {
+                            g_warning("GCRY: encrypt %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+                            gcry_cipher_close(cipher_hd);
+                            break;
+                        }
+
+                        /* Done with the cipher */
+                        gcry_cipher_close(cipher_hd);
+
+                        printnbyte((guint8*)&calculated_cred,8,"Calculated creds:","\n");
+
+                        if(calculated_cred==server_cred) {
+                            found = 1;
+                            break;
+                        }
+                    }
+                }
+#endif
+            } else if ( flags & NETLOGON_FLAG_STRONGKEY ) {
 #ifdef HAVE_KERBEROS
                 guint8 zeros[4] = { 0 };
                 guint8 md5[HASH_MD5_LENGTH];
@@ -6686,14 +6757,6 @@ netlogon_dissect_netrserverauthenticate23_reply(tvbuff_t *tvb, int offset,
                 }
 #endif
             }
-#if 0 /* Fix -Wduplicated-branches */
-            else if( flags&NETLOGON_FLAG_AES)
-            {
-                /* Not implemented */
-                debugprintf("AES not supported yet\n");
-                memset(session_key,0,16);
-            }
-#endif
             else
             {
                 /*Not implemented*/
@@ -7642,6 +7705,49 @@ static int get_seal_key(const guint8 *session_key,int key_len,guint8* seal_key)
 
 }
 
+static guint64 uncrypt_sequence_aes(guint8* session_key,guint64 checksum,guint64 enc_seq,unsigned char is_server _U_)
+{
+    gcry_error_t err;
+    gcry_cipher_hd_t cipher_hd = NULL;
+    guint8 iv[16] = { 0 };
+
+    memcpy(&iv[0], (guint8*)&checksum, 8);
+    memcpy(&iv[8], (guint8*)&checksum, 8);
+
+    /* Open the cipher */
+    err = gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CFB8, 0);
+    if (err != 0) {
+        g_warning("GCRY: chiper open %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        return 0;
+    }
+
+    /* Set the initial value */
+    err = gcry_cipher_setiv(cipher_hd, iv, sizeof(iv));
+    if (err != 0) {
+        g_warning("GCRY: setiv %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        gcry_cipher_close(cipher_hd);
+        return 0;
+    }
+
+    /* Set the key */
+    err = gcry_cipher_setkey(cipher_hd, session_key, 16);
+    if (err != 0) {
+        g_warning("GCRY: setkey %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        gcry_cipher_close(cipher_hd);
+        return 0;
+    }
+
+    err = gcry_cipher_decrypt(cipher_hd, (guint8*) &enc_seq, 8, NULL, 0);
+    if (err != 0) {
+        g_warning("GCRY: encrypt %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        gcry_cipher_close(cipher_hd);
+        return 0;
+    }
+    /* Done with the cipher */
+    gcry_cipher_close(cipher_hd);
+    return enc_seq;
+}
+
 static guint64 uncrypt_sequence_strong(guint8* session_key,guint64 checksum,guint64 enc_seq,unsigned char is_server _U_)
 {
     guint8 zeros[4] = { 0 };
@@ -7679,14 +7785,52 @@ static guint64 uncrypt_sequence_strong(guint8* session_key,guint64 checksum,guin
 static guint64 uncrypt_sequence(guint32 flags, guint8* session_key,guint64 checksum,guint64 enc_seq,unsigned char is_server _U_)
 {
     if (flags & NETLOGON_FLAG_AES) {
-        /* TODO */
-        return 0;
+        return uncrypt_sequence_aes(session_key, checksum, enc_seq, is_server);
     }
 
     if (flags & NETLOGON_FLAG_STRONGKEY) {
         return uncrypt_sequence_strong(session_key, checksum, enc_seq, is_server);
     }
 
+    return 0;
+}
+
+static gcry_error_t prepare_decryption_cipher_aes(netlogon_auth_vars *vars,
+                                                  gcry_cipher_hd_t *_cipher_hd)
+{
+    gcry_error_t err;
+    gcry_cipher_hd_t cipher_hd = NULL;
+    guint64 sequence = vars->seq;
+
+    guint8 iv[16] = { 0 };
+
+    memcpy(&iv[0], (guint8*)&sequence, 8);
+    memcpy(&iv[8], (guint8*)&sequence, 8);
+
+    /* Open the cipher */
+    err = gcry_cipher_open(&cipher_hd, GCRY_CIPHER_AES128, GCRY_CIPHER_MODE_CFB8, 0);
+    if (err != 0) {
+        g_warning("GCRY: chiper open %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        return 0;
+    }
+
+    /* Set the initial value */
+    err = gcry_cipher_setiv(cipher_hd, iv, sizeof(iv));
+    if (err != 0) {
+        g_warning("GCRY: setiv %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        gcry_cipher_close(cipher_hd);
+        return 0;
+    }
+
+    /* Set the key */
+    err = gcry_cipher_setkey(cipher_hd, vars->encryption_key, 16);
+    if (err != 0) {
+        g_warning("GCRY: setkey %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        gcry_cipher_close(cipher_hd);
+        return 0;
+    }
+
+    *_cipher_hd = cipher_hd;
     return 0;
 }
 
@@ -7736,8 +7880,7 @@ static gcry_error_t prepare_decryption_cipher(netlogon_auth_vars *vars,
     *_cipher_hd = NULL;
 
     if (vars->flags & NETLOGON_FLAG_AES) {
-        /* TODO */
-        return GPG_ERR_UNSUPPORTED_ALGORITHM;
+        return prepare_decryption_cipher_aes(vars, _cipher_hd);
     }
 
     if (vars->flags & NETLOGON_FLAG_STRONGKEY) {
@@ -7788,7 +7931,9 @@ dissect_packet_data(tvbuff_t *tvb ,tvbuff_t *auth_tvb _U_,
                 }
                 gcry_cipher_decrypt(cipher_hd, (guint8*)&copyconfounder, 8, NULL, 0);
                 decrypted = (guint8*)tvb_memdup(pinfo->pool, tvb, offset,data_len);
-                gcry_cipher_reset(cipher_hd);
+                if (!(vars->flags & NETLOGON_FLAG_AES)) {
+                    gcry_cipher_reset(cipher_hd);
+                }
                 gcry_cipher_decrypt(cipher_hd, decrypted, data_len, NULL, 0);
                 gcry_cipher_close(cipher_hd);
                 buf = tvb_new_child_real_data(tvb, decrypted, data_len, data_len);
