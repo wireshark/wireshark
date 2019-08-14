@@ -60,9 +60,9 @@ static void printnbyte(const guint8* tab _U_,int nb _U_,const char* txt _U_,cons
 #define NETLOGON_FLAG_8000000   0x8000000
 #define NETLOGON_FLAG_4000000   0x4000000
 #define NETLOGON_FLAG_2000000   0x2000000
-#define NETLOGON_FLAG_1000000   0x1000000
+#define NETLOGON_FLAG_AES       0x1000000
 #define NETLOGON_FLAG_800000     0x800000
-#define NETLOGON_FLAG_USEAES     0x400000
+#define NETLOGON_FLAG_400000     0x400000
 #define NETLOGON_FLAG_200000     0x200000
 #define NETLOGON_FLAG_100000     0x100000
 #define NETLOGON_FLAG_80000       0x80000
@@ -136,7 +136,7 @@ static int hf_netlogon_neg_flags_20000000 = -1;
 /* static int hf_netlogon_neg_flags_2000000 = -1; */
 static int hf_netlogon_neg_flags_1000000 = -1;
 /* static int hf_netlogon_neg_flags_800000 = -1; */
-static int hf_netlogon_neg_flags_400000 = -1;
+/* static int hf_netlogon_neg_flags_400000 = -1; */
 static int hf_netlogon_neg_flags_200000 = -1;
 static int hf_netlogon_neg_flags_100000 = -1;
 static int hf_netlogon_neg_flags_80000 = -1;
@@ -6440,9 +6440,9 @@ static int netlogon_dissect_neg_options(tvbuff_t *tvb,proto_tree *tree,guint32 f
         &hf_netlogon_neg_flags_4000000,
         &hf_netlogon_neg_flags_2000000,
         &hf_netlogon_neg_flags_800000,
+        &hf_netlogon_neg_flags_400000,
 #endif
         &hf_netlogon_neg_flags_1000000,
-        &hf_netlogon_neg_flags_400000,
         &hf_netlogon_neg_flags_200000,
         &hf_netlogon_neg_flags_100000,
         &hf_netlogon_neg_flags_80000,
@@ -6687,7 +6687,7 @@ netlogon_dissect_netrserverauthenticate23_reply(tvbuff_t *tvb, int offset,
 #endif
             }
 #if 0 /* Fix -Wduplicated-branches */
-            else if( flags&NETLOGON_FLAG_USEAES)
+            else if( flags&NETLOGON_FLAG_AES)
             {
                 /* Not implemented */
                 debugprintf("AES not supported yet\n");
@@ -8579,15 +8579,17 @@ proto_register_dcerpc_netlogon(void)
 #endif
 
         { &hf_netlogon_neg_flags_1000000,
-          { "AES supported", "ntlmssp.neg_flags.na100000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_1000000, "AES", HFILL }},
+          { "AES supported", "ntlmssp.neg_flags.na100000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_AES, "AES", HFILL }},
 
 #if 0
         { &hf_netlogon_neg_flags_800000,
-          { "Not used 800000", "ntlmssp.neg_flags.na8000000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_800000, "Not used", HFILL }},
+          { "Not used 800000", "ntlmssp.neg_flags.na800000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_800000, "Not used", HFILL }},
 #endif
 
+#if 0
         { &hf_netlogon_neg_flags_400000,
-          { "AES & SHA2 supported", "ntlmssp.neg_flags.na400000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_USEAES, "AES&SHA2", HFILL }},
+          { "Not used 400000", "ntlmssp.neg_flags.na400000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_400000, "AES&SHA2", HFILL }},
+#endif
 
         { &hf_netlogon_neg_flags_200000,
           { "RODC pass-through", "ntlmssp.neg_flags.na200000", FT_BOOLEAN, 32, TFS(&tfs_set_notset), NETLOGON_FLAG_200000, "rodc pt", HFILL }},
