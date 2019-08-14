@@ -98,6 +98,7 @@ static expert_field ei_eap_md5_value_size_overflow = EI_INIT;
 static expert_field ei_eap_dictionary_attacks = EI_INIT;
 static expert_field ei_eap_identity_invalid = EI_INIT;
 static expert_field ei_eap_retransmission = EI_INIT;
+static expert_field ei_eap_bad_length = EI_INIT;
 
 static dissector_table_t eap_expanded_type_dissector_table;
 
@@ -770,7 +771,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
   conv_state_t   *conversation_state;
   frame_state_t  *packet_state;
   int             leap_state;
-  proto_tree     *ti, *ti_id;
+  proto_tree     *ti, *ti_id, *ti_len;
   proto_tree     *eap_tree;
   proto_tree     *eap_tls_flags_tree;
   proto_item     *eap_type_item;
@@ -843,7 +844,10 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 
   proto_tree_add_item(eap_tree, hf_eap_code, tvb, 0, 1, ENC_BIG_ENDIAN);
   ti_id = proto_tree_add_item(eap_tree, hf_eap_identifier, tvb, 1, 1, ENC_BIG_ENDIAN);
-  proto_tree_add_item(eap_tree, hf_eap_len, tvb, 2, 2, ENC_BIG_ENDIAN);
+  ti_len = proto_tree_add_item(eap_tree, hf_eap_len, tvb, 2, 2, ENC_BIG_ENDIAN);
+  if (len < 4 || (guint)len > tvb_reported_length(tvb)) {
+    expert_add_info(pinfo, ti_len, &ei_eap_bad_length);
+  }
 
   /* Detect message retransmissions. Since the protocol proceeds in lock-step,
    * reordering is not expected. If retransmissions somehow occur, we would have
@@ -1695,6 +1699,7 @@ proto_register_eap(void)
                                " See http://www.cisco.com/warp/public/cc/pd/witc/ao350ap/prodlit/2331_pp.pdf", EXPFILL }},
      { &ei_eap_identity_invalid, { "eap.identity.invalid", PI_PROTOCOL, PI_WARN, "Invalid identity code", EXPFILL }},
      { &ei_eap_retransmission, { "eap.retransmission", PI_SEQUENCE, PI_NOTE, "This packet is a retransmission", EXPFILL }},
+     { &ei_eap_bad_length, { "eap.bad_length", PI_PROTOCOL, PI_WARN, "Bad length (too small or too large)", EXPFILL }},
   };
 
   expert_module_t* expert_eap;
