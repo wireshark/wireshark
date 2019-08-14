@@ -174,8 +174,7 @@ dissect_lsc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
 
   /* Display the op code in the summary */
   col_add_fstr(pinfo->cinfo, COL_INFO, "%s, session %.8u",
-                 val_to_str(op_code, op_code_vals, "Unknown op code (0x%x)"),
-                 stream);
+          val_to_str(op_code, op_code_vals, "Unknown op code (0x%x)"), stream);
 
   if (tvb_reported_length(tvb) < expected_len)
     col_append_str(pinfo->cinfo, COL_INFO, " [Too short]");
@@ -187,26 +186,27 @@ dissect_lsc_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* da
     ti = proto_tree_add_item(tree, proto_lsc, tvb, 0, -1, ENC_NA);
     lsc_tree = proto_item_add_subtree(ti, ett_lsc);
 
-    /* Add already fetched items to the tree */
+    /* LSC Version */
+    proto_tree_add_item(lsc_tree, hf_lsc_version, tvb, 0, 1, ENC_BIG_ENDIAN);
+
+    /* Transaction ID */
+    proto_tree_add_item(lsc_tree, hf_lsc_trans_id, tvb, 1, 1, ENC_BIG_ENDIAN);
+
+    /* Op Code */
     proto_tree_add_uint(lsc_tree, hf_lsc_op_code, tvb, 2, 1, op_code);
-    proto_tree_add_uint_format_value(lsc_tree, hf_lsc_stream_handle, tvb, 4, 4,
-                                     stream, "%.8u", stream);
 
-    /* Add rest of LSC header */
-    proto_tree_add_item(lsc_tree, hf_lsc_version, tvb, 0, 1, ENC_NA);
-    proto_tree_add_item(lsc_tree, hf_lsc_trans_id, tvb, 1, 1, ENC_NA);
+    /* Only replies and LSC_DONE contain a status code */
+    if (isReply(op_code) || op_code==LSC_DONE)
+      proto_tree_add_item(lsc_tree, hf_lsc_status_code, tvb, 3, 1, ENC_BIG_ENDIAN);
 
-    /* Only replies contain a status code */
-    if (isReply(op_code))
-      proto_tree_add_item(lsc_tree, hf_lsc_status_code, tvb, 3, 1,
-                          ENC_NA);
+    /* Stream Handle */
+    proto_tree_add_uint_format_value(lsc_tree, hf_lsc_stream_handle, tvb, 4, 4, stream, "%.8u", stream);
 
     /* Add op code specific parts */
     switch (op_code)
       {
         case LSC_PAUSE:
-          proto_tree_add_item(lsc_tree, hf_lsc_stop_npt, tvb, 8, 4,
-                             ENC_BIG_ENDIAN);
+          proto_tree_add_item(lsc_tree, hf_lsc_stop_npt, tvb, 8, 4, ENC_BIG_ENDIAN);
           break;
         case LSC_RESUME:
           proto_tree_add_item(lsc_tree, hf_lsc_start_npt, tvb, 8, 4, ENC_BIG_ENDIAN);
