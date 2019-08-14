@@ -7625,24 +7625,15 @@ static const value_string seal_algs[] = {
     { 0, NULL}
 };
 
-static int get_seal_key(const guint8 *session_key,int key_len,guint64 sequence,guint8* seal_key)
+static int get_seal_key(const guint8 *session_key,int key_len,guint8* seal_key)
 {
-    guint8 zeros[4] = { 0 };
-    guint8 *buf = (guint8 *)wmem_alloc(wmem_packet_scope(), key_len);
-    guint8 buf2[HASH_MD5_LENGTH];
-    guint8 zero_sk[16];
+    guint8 zero_sk[16] = { 0 };
     int i = 0;
-    memset(zero_sk,0,16);
+
     memset(seal_key,0,16);
     if(memcmp(session_key,zero_sk,16)) {
         for(i=0;i<key_len;i++) {
-            buf[i] = session_key[i] ^ 0xF0;
-        }
-        if (ws_hmac_buffer(GCRY_MD_MD5, buf2, zeros, 4, buf, key_len)) {
-            return 0;
-        }
-        if (ws_hmac_buffer(GCRY_MD_MD5, seal_key, (guint8*)&sequence, 8, buf2, HASH_MD5_LENGTH)) {
-            return 0;
+            seal_key[i] = session_key[i] ^ 0xF0;
         }
         return 1;
     } else {
@@ -7699,11 +7690,26 @@ static guint64 uncrypt_sequence(guint32 flags, guint8* session_key,guint64 check
     return 0;
 }
 
-static gcry_error_t prepare_decryption_cipher_strong(const guint8* decryption_key,
+static gcry_error_t prepare_decryption_cipher_strong(netlogon_auth_vars *vars,
                                                      gcry_cipher_hd_t *_cipher_hd)
 {
     gcry_error_t err;
     gcry_cipher_hd_t cipher_hd = NULL;
+    guint8 zeros[4] = { 0 };
+    guint64 sequence = vars->seq;
+    guint8 tmp[HASH_MD5_LENGTH] = { 0 };
+    guint8 seal_key[16] = { 0 };
+
+    err = ws_hmac_buffer(GCRY_MD_MD5, tmp, zeros, 4, vars->encryption_key, 16);
+    if (err != 0) {
+        g_warning("GCRY: GCRY_MD_MD5 %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        return err;
+    }
+    err = ws_hmac_buffer(GCRY_MD_MD5, seal_key, (guint8*)&sequence, 8, tmp, HASH_MD5_LENGTH);
+    if (err != 0) {
+        g_warning("GCRY: GCRY_MD_MD5 %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        return err;
+    }
 
     /* Open the cipher */
     err = gcry_cipher_open(&cipher_hd, GCRY_CIPHER_ARCFOUR, GCRY_CIPHER_MODE_STREAM, 0);
@@ -7713,7 +7719,7 @@ static gcry_error_t prepare_decryption_cipher_strong(const guint8* decryption_ke
     }
 
     /* Set the key */
-    err = gcry_cipher_setkey(cipher_hd, decryption_key, 16);
+    err = gcry_cipher_setkey(cipher_hd, seal_key, 16);
     if (err != 0) {
         g_warning("GCRY: setkey %s/%s\n", gcry_strsource(err), gcry_strerror(err));
         gcry_cipher_close(cipher_hd);
@@ -7724,19 +7730,18 @@ static gcry_error_t prepare_decryption_cipher_strong(const guint8* decryption_ke
     return 0;
 }
 
-static gcry_error_t prepare_decryption_cipher(guint32 flags,
-                                              const guint8* decryption_key,
+static gcry_error_t prepare_decryption_cipher(netlogon_auth_vars *vars,
                                               gcry_cipher_hd_t *_cipher_hd)
 {
     *_cipher_hd = NULL;
 
-    if (flags & NETLOGON_FLAG_AES) {
+    if (vars->flags & NETLOGON_FLAG_AES) {
         /* TODO */
         return GPG_ERR_UNSUPPORTED_ALGORITHM;
     }
 
-    if (flags & NETLOGON_FLAG_STRONGKEY) {
-        return prepare_decryption_cipher_strong(decryption_key, _cipher_hd);
+    if (vars->flags & NETLOGON_FLAG_STRONGKEY) {
+        return prepare_decryption_cipher_strong(vars, _cipher_hd);
     }
 
     return GPG_ERR_UNSUPPORTED_ALGORITHM;
@@ -7775,9 +7780,7 @@ dissect_packet_data(tvbuff_t *tvb ,tvbuff_t *auth_tvb _U_,
                 if (data_len < 0) {
                     return NULL;
                 }
-                err = prepare_decryption_cipher(vars->flags,
-                                                vars->encryption_key,
-                                                &cipher_hd);
+                err = prepare_decryption_cipher(vars, &cipher_hd);
                 if (err != 0) {
                     g_warning("GCRY: prepare_decryption_cipher %s/%s\n",
                               gcry_strsource(err), gcry_strerror(err));
@@ -7875,7 +7878,7 @@ dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo,
                 vars->seq = uncrypt_sequence(vars->flags,vars->session_key,digest,encrypted_seq,is_server);
             }
 
-            if(get_seal_key(vars->session_key,16,vars->seq,vars->encryption_key))
+            if(get_seal_key(vars->session_key,16,vars->encryption_key))
             {
                 vars->can_decrypt = TRUE;
             }
