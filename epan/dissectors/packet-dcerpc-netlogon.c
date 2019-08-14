@@ -7699,6 +7699,49 @@ static guint64 uncrypt_sequence(guint32 flags, guint8* session_key,guint64 check
     return 0;
 }
 
+static gcry_error_t prepare_decryption_cipher_strong(const guint8* decryption_key,
+                                                     gcry_cipher_hd_t *_cipher_hd)
+{
+    gcry_error_t err;
+    gcry_cipher_hd_t cipher_hd = NULL;
+
+    /* Open the cipher */
+    err = gcry_cipher_open(&cipher_hd, GCRY_CIPHER_ARCFOUR, GCRY_CIPHER_MODE_STREAM, 0);
+    if (err != 0) {
+        g_warning("GCRY: chiper open %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        return err;
+    }
+
+    /* Set the key */
+    err = gcry_cipher_setkey(cipher_hd, decryption_key, 16);
+    if (err != 0) {
+        g_warning("GCRY: setkey %s/%s\n", gcry_strsource(err), gcry_strerror(err));
+        gcry_cipher_close(cipher_hd);
+        return err;
+    }
+
+    *_cipher_hd = cipher_hd;
+    return 0;
+}
+
+static gcry_error_t prepare_decryption_cipher(guint32 flags,
+                                              const guint8* decryption_key,
+                                              gcry_cipher_hd_t *_cipher_hd)
+{
+    *_cipher_hd = NULL;
+
+    if (flags & NETLOGON_FLAG_AES) {
+        /* TODO */
+        return GPG_ERR_UNSUPPORTED_ALGORITHM;
+    }
+
+    if (flags & NETLOGON_FLAG_STRONGKEY) {
+        return prepare_decryption_cipher_strong(decryption_key, _cipher_hd);
+    }
+
+    return GPG_ERR_UNSUPPORTED_ALGORITHM;
+}
+
 static tvbuff_t *
 dissect_packet_data(tvbuff_t *tvb ,tvbuff_t *auth_tvb _U_,
                     int offset , packet_info *pinfo ,dcerpc_auth_info *auth_info _U_,unsigned char is_server)
@@ -7723,7 +7766,8 @@ dissect_packet_data(tvbuff_t *tvb ,tvbuff_t *auth_tvb _U_,
         }
         else {
             if(vars->can_decrypt == TRUE) {
-                gcry_cipher_hd_t rc4_handle;
+                gcry_error_t err;
+                gcry_cipher_hd_t cipher_hd = NULL;
                 int data_len;
                 guint64 copyconfounder = vars->confounder;
 
@@ -7731,18 +7775,19 @@ dissect_packet_data(tvbuff_t *tvb ,tvbuff_t *auth_tvb _U_,
                 if (data_len < 0) {
                     return NULL;
                 }
-                if (gcry_cipher_open (&rc4_handle, GCRY_CIPHER_ARCFOUR, GCRY_CIPHER_MODE_STREAM, 0)) {
-                  return NULL;
+                err = prepare_decryption_cipher(vars->flags,
+                                                vars->encryption_key,
+                                                &cipher_hd);
+                if (err != 0) {
+                    g_warning("GCRY: prepare_decryption_cipher %s/%s\n",
+                              gcry_strsource(err), gcry_strerror(err));
+                    return NULL;
                 }
-                if (gcry_cipher_setkey(rc4_handle, vars->encryption_key, 16)) {
-                  gcry_cipher_close(rc4_handle);
-                  return NULL;
-                }
-                gcry_cipher_decrypt(rc4_handle, (guint8*)&copyconfounder, 8, NULL, 0);
+                gcry_cipher_decrypt(cipher_hd, (guint8*)&copyconfounder, 8, NULL, 0);
                 decrypted = (guint8*)tvb_memdup(pinfo->pool, tvb, offset,data_len);
-                gcry_cipher_reset(rc4_handle);
-                gcry_cipher_decrypt(rc4_handle, decrypted, data_len, NULL, 0);
-                gcry_cipher_close(rc4_handle);
+                gcry_cipher_reset(cipher_hd);
+                gcry_cipher_decrypt(cipher_hd, decrypted, data_len, NULL, 0);
+                gcry_cipher_close(cipher_hd);
                 buf = tvb_new_child_real_data(tvb, decrypted, data_len, data_len);
                 /* Note: caller does add_new_data_source(...) */
             }
