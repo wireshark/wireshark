@@ -1359,12 +1359,12 @@ proto_register_eap(void)
       NULL, HFILL }},
 
     { &hf_eap_identity_pseudo, {
-      "Identity (Pseudonym)", "eap.identity",
+      "Identity (Pseudonym)", "eap.identity.pseudo",
       FT_STRING, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
     { &hf_eap_identity_reauth, {
-      "Identity (Reauth)", "eap.identity",
+      "Identity (Reauth)", "eap.identity.reauth",
       FT_STRING, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
