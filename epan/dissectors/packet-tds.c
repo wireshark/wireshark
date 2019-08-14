@@ -142,6 +142,9 @@
 #include <epan/prefs.h>
 #include <epan/expert.h>
 #include <epan/proto_data.h>
+
+#include <math.h>
+
 #include "packet-tcp.h"
 
 #define TDS_QUERY_PKT        1 /* SQLBatch in MS-TDS revision 18.0 */
@@ -2574,16 +2577,29 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                         guint8 data_array[8];
                         guint j;
                         gint64 int64_value = 0;
+                        /*
+                         * XXX - this actually falls down if we have more than
+                         * 53 bits of significance. (Assuming IEEE 754 floating-piont.)
+                         * This isn't likely to happen in practice.
+                         * Decimal/numeric fields are intended to be used
+                         * for precise integers/scaled integers. They would not
+                         * be typically be used for high dynamic range quantities.
+                         */
 
                         (void) tvb_memcpy(tvb, data_array, *offset, length);
                         for (j = 0; j < length; j++) {
                             int64_value = (int64_value << 8) | data_array[j];
                         }
-                        proto_item_append_text(numericitem,
-                            " (%" G_GINT64_MODIFIER "d)",
-                            (sign ? -int64_value : int64_value));
-                        if(scale != 0) {
-                            proto_item_append_text(numericitem, " x 10^-%u", scale);
+                        if(scale == 0) {
+                            proto_item_append_text(numericitem,
+                                " (%" G_GINT64_MODIFIER "d)",
+                                (sign ? -int64_value : int64_value));
+                        }
+                        else {
+                            proto_item_append_text(numericitem,
+                                " (%.*f)", scale,
+                                (double)(sign ? -int64_value
+                                              : int64_value)/pow(10.0, (double)(scale)));
                         }
                     }
                     *offset += length;
@@ -2615,16 +2631,35 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                         guint8 data_array[8];
                         gint j;
                         gint64 int64_value = 0;
+                        /*
+                         * XXX - this actually falls down if we have more than
+                         * 53 bits of significance. (Assuming IEEE 754 floating-piont.)
+                         * This isn't likely to happen in practice.
+                         * Decimal/numeric fields are intended to be used
+                         * for precise integers/scaled integers. They would not
+                         * be typically be used for high dynamic range quantities.
+                         *
+                         * We could change the "length <= 8" criterion above,
+                         * but Microsoft appears to only use length values which
+                         * are multiples of 4. Any numeric/decimal with a
+                         * precision between 9 and 19 will be stored as an
+                         * 8-byte integer.
+                         */
 
                         (void) tvb_memcpy(tvb, data_array, *offset, length);
                         for (j = length - 1; j >= 0; j--) {
                             int64_value = (int64_value << 8) | data_array[j];
                         }
-                        proto_item_append_text(numericitem,
-                            " (%" G_GINT64_MODIFIER "d)",
-                            (sign ? int64_value : -int64_value));
-                        if(scale != 0) {
-                            proto_item_append_text(numericitem, " x 10^-%u", scale);
+                        if(scale == 0) {
+                            proto_item_append_text(numericitem,
+                                " (%" G_GINT64_MODIFIER "d)",
+                                (sign ? -int64_value : int64_value));
+                        }
+                        else {
+                            proto_item_append_text(numericitem,
+                                " (%.*f)", scale,
+                                (double)(sign ? int64_value
+                                              : -int64_value)/pow(10.0, (double)(scale)));
                         }
                     }
                     *offset += length;
@@ -4829,8 +4864,13 @@ dissect_tds_rowfmt_token(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
         }
 
         if (is_numeric_type_tds(nl_data->columns[col]->ctype)) {
-            proto_tree_add_item(col_tree, hf_tds_rowfmt_precision, tvb, cur, 1, ENC_NA);
-            proto_tree_add_item(col_tree, hf_tds_rowfmt_scale, tvb, cur + 1, 1, ENC_NA);
+            guint col_precision, col_scale;
+            proto_tree_add_item_ret_uint(col_tree, hf_tds_rowfmt_precision,
+                tvb, cur, 1, ENC_NA, &col_precision);
+            proto_tree_add_item_ret_uint(col_tree, hf_tds_rowfmt_scale,
+                tvb, cur + 1, 1, ENC_NA, &col_scale);
+            nl_data->columns[col]->precision = col_precision;
+            nl_data->columns[col]->scale     = col_scale;
             cur += 2;
         }
 
