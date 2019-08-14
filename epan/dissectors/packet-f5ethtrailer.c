@@ -3810,12 +3810,12 @@ void proto_register_f5ethtrailer (void)
 	proto_f5ethtrailer_dpt_noise = proto_register_protocol_in_name_only(
 			"F5 Ethernet trailer provider - Noise", "Noise", "f5ethtrailer.provider.noise",
 			proto_f5ethtrailer, FT_BYTES);
-	noise_subdissector_table = register_dissector_table("f5ethtrailer.noise_type_ver", "F5 Ethernet Trailer Noise", proto_f5ethtrailer, FT_UINT16, BASE_DEC);
+	noise_subdissector_table = register_dissector_table("f5ethtrailer.noise_type_ver", "F5 Ethernet Trailer Noise", proto_f5ethtrailer, FT_UINT32, BASE_DEC);
 	proto_f5ethtrailer_dpt_tls = proto_register_protocol_in_name_only(
 			"F5 Ethernet Trailer Protocol - TLS Provider", "F5 TLS", "f5ethtrailer.tls",
 			proto_f5ethtrailer, FT_BYTES);
 	tls_subdissector_table = register_dissector_table(
-			"f5ethtrailer.tls_type_ver", "F5 Ethernet Trailer TLS", proto_f5ethtrailer, FT_UINT16, BASE_DEC);
+			"f5ethtrailer.tls_type_ver", "F5 Ethernet Trailer TLS", proto_f5ethtrailer, FT_UINT32, BASE_DEC);
 
 	/* Analyze Menu Items */
 	register_conversation_filter("f5ethtrailer", "F5 TCP", f5_tcp_conv_valid, f5_tcp_conv_filter);
