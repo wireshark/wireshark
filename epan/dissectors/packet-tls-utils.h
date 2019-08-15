@@ -509,38 +509,49 @@ gchar* ssl_association_info(const char* dissector_table_name, const char* table_
 
 /** Retrieve a SslSession, creating it if it did not already exist.
  * @param conversation The SSL conversation.
- * @param ssl_handle The dissector handle for SSL or DTLS.
+ * @param tls_handle The dissector handle for SSL or DTLS.
  */
 extern SslDecryptSession *
-ssl_get_session(conversation_t *conversation, dissector_handle_t ssl_handle);
+ssl_get_session(conversation_t *conversation, dissector_handle_t tls_handle);
 
 /** Set server address and port */
 extern void
 ssl_set_server(SslSession *session, address *addr, port_type ptype, guint32 port);
 
-/** Marks this packet as the last one before switching to SSL that is supposed
- * to encapsulate this protocol.
- * @param ssl_handle The dissector handle for SSL or DTLS.
+/** Sets the application data protocol dissector. Intended to be called by
+ * protocols that encapsulate TLS instead of switching to it using STARTTLS.
+ * @param tls_handle The dissector handle for TLS or DTLS.
  * @param pinfo Packet Info.
  * @param app_handle Dissector handle for the protocol inside the decrypted
  * Application Data record.
- * @return 0 for the first STARTTLS acknowledgement (success) or if ssl_handle
+ */
+WS_DLL_PUBLIC void
+tls_set_appdata_dissector(dissector_handle_t tls_handle, packet_info *pinfo,
+                 dissector_handle_t app_handle);
+
+/** Marks this packet as the last one before switching to SSL that is supposed
+ * to encapsulate this protocol.
+ * @param tls_handle The dissector handle for SSL or DTLS.
+ * @param pinfo Packet Info.
+ * @param app_handle Dissector handle for the protocol inside the decrypted
+ * Application Data record.
+ * @return 0 for the first STARTTLS acknowledgement (success) or if tls_handle
  * is NULL. >0 if STARTTLS was started before.
  */
 WS_DLL_PUBLIC guint32
-ssl_starttls_ack(dissector_handle_t ssl_handle, packet_info *pinfo,
+ssl_starttls_ack(dissector_handle_t tls_handle, packet_info *pinfo,
                  dissector_handle_t app_handle);
 
 /** Marks this packet as belonging to an SSL conversation started with STARTTLS.
- * @param ssl_handle The dissector handle for SSL or DTLS.
+ * @param tls_handle The dissector handle for SSL or DTLS.
  * @param pinfo Packet Info.
  * @param app_handle Dissector handle for the protocol inside the decrypted
  * Application Data record.
- * @return 0 for the first STARTTLS acknowledgement (success) or if ssl_handle
+ * @return 0 for the first STARTTLS acknowledgement (success) or if tls_handle
  * is NULL. >0 if STARTTLS was started before.
  */
 WS_DLL_PUBLIC guint32
-ssl_starttls_post_ack(dissector_handle_t ssl_handle, packet_info *pinfo,
+ssl_starttls_post_ack(dissector_handle_t tls_handle, packet_info *pinfo,
                  dissector_handle_t app_handle);
 
 extern dissector_handle_t

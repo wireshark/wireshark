@@ -1646,6 +1646,7 @@ libwireshark.so.0 libwireshark0 #MINVER#
  timestamp_set_precision@Base 1.9.1
  timestamp_set_seconds_type@Base 1.9.1
  timestamp_set_type@Base 1.9.1
+ tls_set_appdata_dissector@Base 3.1.1
  tmp_color_filters_used@Base 2.1.0
  trans2_cmd_vals_ext@Base 1.9.1
  tree_expanded@Base 1.12.0~rc1

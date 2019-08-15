@@ -4441,6 +4441,22 @@ static void ssl_reset_session(SslSession *session, SslDecryptSession *ssl, gbool
     }
 }
 
+void
+tls_set_appdata_dissector(dissector_handle_t tls_handle, packet_info *pinfo,
+                          dissector_handle_t app_handle)
+{
+    conversation_t  *conversation;
+    SslSession      *session;
+
+    /* Ignore if the TLS or other dissector is disabled. */
+    if (!tls_handle || !app_handle)
+        return;
+
+    conversation = find_or_create_conversation(pinfo);
+    session = &ssl_get_session(conversation, tls_handle)->session;
+    session->app_handle = app_handle;
+}
+
 static guint32
 ssl_starttls(dissector_handle_t tls_handle, packet_info *pinfo,
                  dissector_handle_t app_handle, guint32 last_nontls_frame)
@@ -4477,9 +4493,9 @@ ssl_starttls(dissector_handle_t tls_handle, packet_info *pinfo,
     /* TLS starts after this frame. */
     session->last_nontls_frame = last_nontls_frame;
     return 0;
-} /* }}} */
+}
 
-/* ssl_starttls_ack: mark future frames as encrypted. {{{ */
+/* ssl_starttls_ack: mark future frames as encrypted. */
 guint32
 ssl_starttls_ack(dissector_handle_t tls_handle, packet_info *pinfo,
                  dissector_handle_t app_handle)
