@@ -1199,6 +1199,9 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
               case EAP_TYPE_TTLS:
                 dissector_name = "diameter_avps";
                 break;
+              case EAP_TYPE_PEAP:
+                dissector_name = "eap";
+                break;
             }
             call_dissector_with_data(tls_handle, next_tvb, pinfo, eap_tree, (void *)dissector_name);
           }
