@@ -720,7 +720,7 @@ p, pre { margin-bottom: 1.25rem; }
 
 .exampleblock > .content { background-color: #fffef7; border-color: #e0e0dc; -webkit-box-shadow: 0 1px 4px #e0e0dc; box-shadow: 0 1px 4px #e0e0dc; }
 
-.guimenu, .guimenuitem { padding: .1em .3em .1em .3em; border: 0.5px rgba(0, 0, 0, 0.5) solid; }
+.guimenu, .guisubmenu, .guimenuitem { padding: .1em .3em .1em .3em; border: 0.5px rgba(0, 0, 0, 0.5) solid; }
 
 .guibutton { padding: .1em .3em .1em .3em; border: 0.5px rgba(0, 0, 0, 0.5) solid; border-radius: 4px; }
 
