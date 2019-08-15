@@ -583,9 +583,9 @@ static gint  ssl_looks_like_valid_v2_handshake(tvbuff_t *tvb,
  * Code to actually dissect the packets
  */
 static int
-dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
+dissect_tls(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
 {
-
+    const char        *appdata_dissector_name = (const char *)data;
     conversation_t    *conversation;
     proto_item        *ti;
     proto_tree        *ssl_tree;
@@ -643,6 +643,16 @@ dissect_ssl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         /* This conversation started at a different protocol and STARTTLS was
          * used, but this packet comes too early. */
         return 0;
+    }
+
+    /* If the subdissector is provided by the caller, remember it. */
+    if (appdata_dissector_name && !session->app_handle) {
+        session->app_handle = find_dissector(appdata_dissector_name);
+        if (!session->app_handle) {
+            ssl_debug_printf("Requested appdata dissector \"%s\" not found!\n", appdata_dissector_name);
+        } else {
+            ssl_debug_printf("Setting appdata dissector to \"%s\"\n", appdata_dissector_name);
+        }
     }
 
     /* try decryption only the first time we see this packet
@@ -961,7 +971,7 @@ is_sslv2_clienthello(tvbuff_t *tvb)
 }
 
 static int
-dissect_ssl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data)
+dissect_ssl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
 {
     conversation_t     *conversation;
 
@@ -971,7 +981,7 @@ dissect_ssl_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data
 
     conversation = find_or_create_conversation(pinfo);
     conversation_set_dissector(conversation, tls_handle);
-    return dissect_ssl(tvb, pinfo, tree, data);
+    return dissect_tls(tvb, pinfo, tree, NULL);
 }
 
 static void
@@ -4526,7 +4536,7 @@ proto_register_tls(void)
         "SSL/TLS Application-Layer Protocol Negotiation (ALPN) Protocol IDs",
         proto_tls);
 
-    tls_handle = register_dissector("tls", dissect_ssl, proto_tls);
+    tls_handle = register_dissector("tls", dissect_tls, proto_tls);
     register_dissector("tls13-handshake", dissect_tls13_handshake, proto_tls);
 
     register_init_routine(ssl_init);
