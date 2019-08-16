@@ -25,6 +25,11 @@
 CPPCHECK=$(type -p cppcheck)
 CPPCHECK_DIR=$(dirname "$0")
 
+if [ -z "$CPPCHECK" ] ; then
+    echo "cppcheck not found"
+    exit 1
+fi
+
 THREADS=4
 LAST_COMMITS=0
 TARGET=""
