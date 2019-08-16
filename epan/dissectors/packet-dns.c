@@ -1489,11 +1489,11 @@ dissect_dns_query(tvbuff_t *tvb, int offset, int dns_data_offset,
     /* The number of used bytes for qname is the total used bytes minus 2 bytes for qtype and 2 bytes for qclass */
     proto_tree_add_string(q_tree, hf_dns_qry_name, tvb, offset, used_bytes - 4, name_out);
 
-    tq = proto_tree_add_uint(q_tree, hf_dns_qry_name_len, tvb, offset, name_len, name_len > 1 ? name_len : 0);
+    tq = proto_tree_add_uint(q_tree, hf_dns_qry_name_len, tvb, offset, used_bytes - 4, name_len > 1 ? name_len : 0);
     PROTO_ITEM_SET_GENERATED(tq);
 
     labels = qname_labels_count(name, name_len);
-    tq = proto_tree_add_uint(q_tree, hf_dns_count_labels, tvb, offset, name_len, labels);
+    tq = proto_tree_add_uint(q_tree, hf_dns_count_labels, tvb, offset, used_bytes - 4, labels);
     PROTO_ITEM_SET_GENERATED(tq);
 
     offset += used_bytes - 4;
