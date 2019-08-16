@@ -54,7 +54,13 @@ function(AddWSWinDLL _PKG_NAME _PKG_HINTS _DLL_GLOB)
     set ( ${_PKG_VAR}_DLL ${_pkg_dll}
       CACHE STRING "${_PKG_NAME} DLL file name"
     )
-    mark_as_advanced( ${_PKG_VAR}_DLL_DIR ${_PKG_VAR}_DLL )
+    file( GLOB _pkg_pdb RELATIVE "${${_PKG_VAR}_DLL_DIR}"
+      "${${_PKG_VAR}_DLL_DIR}/${_DLL_GLOB}.pdb"
+    )
+    set ( ${_PKG_VAR}_PDB ${_pkg_pdb}
+      CACHE STRING "${_PKG_NAME} PDB file name"
+    )
+    mark_as_advanced( ${_PKG_VAR}_DLL_DIR ${_PKG_VAR}_DLL ${_PKG_VAR}_PDB )
   else()
     set( ${_PKG_VAR}_DLL_DIR )
     set( ${_PKG_VAR}_DLL )
