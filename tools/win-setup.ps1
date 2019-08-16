@@ -69,8 +69,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2019-07-17"
-$Win32CurrentTag = "2019-07-17"
+$Win64CurrentTag = "2019-08-16"
+$Win32CurrentTag = "2019-08-16"
 
 # Archive file / SHA256
 $Win64Archives = @{
@@ -87,7 +87,7 @@ $Win64Archives = @{
     "lz4-1.8.3-win64ws.zip" = "2634ed7c132f50e8cf6dc25e9f1b6f2a3b3e4980b812cada7ef42b20fc1fba17";
     "MaxMindDB-1.3.2-win64ws.zip" = "9025c43e9b21ff0bfbaf206b8ed96e2920ef1434107f789e4c7c0c1d8b508952";
     "minizip-1.2.11-4-win64ws.zip" = "dd6bf24e2d946465ad19aa4f8c38e0db91da6585887935de68011982cd6fb2cb";
-    "nghttp2-1.14.0-1-win64ws.zip" = "a4f15854f30b4fbb65cbf150011612e4580683dc9bbb339c632c37e414c938cb";
+    "nghttp2-1.39.2-win64ws.zip" = "a53f4074bffd919539d90c8d0cde2ea6a10a383f14e38b706e7e70e55476e6bf";
     "sbc-1.3-1-win64ws.zip" = "08cef6898c421277a6582ef3225d8820f74a037cbd5b6e673a4d8f4593ce80a1";
     "snappy-1.1.3-1-win64ws.zip" = "692a15e70f2cdeca621988a46e936d3651e7feb5176981f2656a5e913c394bcc";
     "spandsp-0.0.6-1-win64ws.zip" = "0e46c61a5a8dca562c36e88a8962a50c1ec1a9fcf89dd05996dac5a79e454527";
@@ -110,7 +110,7 @@ $Win32Archives = @{
     "lz4-1.8.3-win32ws.zip" = "6f77128f901d480ee0b82ab4fe5956e0f02fdcb2198d6d349e0b2fa1ac77c805";
     "MaxMindDB-1.3.2-win32ws.zip" = "5c8b4bf3092da8fad6edb005a5283c6a74b7e115a50da010953eed77d33c11b7";
     "minizip-1.2.11-4-win32ws.zip" = "41e113930902c2519c4644e8307a0cc51c5855e001e1e69768c48deb376142d0";
-    "nghttp2-1.14.0-1-win32ws.zip" = "939ec18c81fed2e44270dc924fad8beffe90a74300cc98360442300fb0a5c292";
+    "nghttp2-1.39.2-win32ws.zip" = "b511260befc210c1d6d0e920e5f5c47b9e6a21baee6e9874ef12a92093abd245";
     "sbc-1.3-1-win32ws.zip" = "ad37825e9ace4b849a5442c08f1ed7e30634e6b774bba4307fb86f35f82e71ba";
     "snappy-1.1.3-1-win32ws.zip" = "2508ef7c5d27655c356d7b86a00ac887fc178eab5df63595b8793953dae5c379";
     "spandsp-0.0.6-1-win32ws.zip" = "3c25f2f4d641d4257ec9922f6db77346a8eed2e360e7d0e27b828ade19c4705b";
@@ -127,13 +127,13 @@ $ArchivesSubDirectory = @{
 # Plain file downloads
 
 $Win32Files = @{
-    "npcap-0.996.exe" = "1493e5cdefb5d7f9bac8c38f0b1dc33af02f3f54f8c536e5713acdaeeda0dafd";
-    "USBPcapSetup-1.5.2.0.exe" = "2c5a453789e53ac218afaaa7287545d8c6ccc63fdd1b286b4c9202c0e5138e8d";
+    "npcap-0.9982.exe" = "212206ea9bbad487205aacc2dab293735963cbf73b94863aa304bd07a6858ef5";
+    "USBPcapSetup-1.5.3.0.exe" = "1ef63c1f8ebd0d8b9a660cd875c03d42771b81bff5879673beb80ab2a1c3aa8d";
 }
 
 $Win64Files = @{
-    "npcap-0.996.exe" = "1493e5cdefb5d7f9bac8c38f0b1dc33af02f3f54f8c536e5713acdaeeda0dafd";
-    "USBPcapSetup-1.5.2.0.exe" = "2c5a453789e53ac218afaaa7287545d8c6ccc63fdd1b286b4c9202c0e5138e8d";
+    "npcap-0.9982.exe" = "212206ea9bbad487205aacc2dab293735963cbf73b94863aa304bd07a6858ef5";
+    "USBPcapSetup-1.5.3.0.exe" = "1ef63c1f8ebd0d8b9a660cd875c03d42771b81bff5879673beb80ab2a1c3aa8d";
 }
 
 $Archives = $Win64Archives;

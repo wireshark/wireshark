@@ -41,7 +41,7 @@ if( NGHTTP2_FOUND )
       CACHE PATH "Path to nghttp2 DLL"
     )
     file( GLOB _nghttp2_dll RELATIVE "${NGHTTP2_DLL_DIR}"
-      "${NGHTTP2_DLL_DIR}/libnghttp2-*.dll"
+      "${NGHTTP2_DLL_DIR}/nghttp2.dll"
     )
     set ( NGHTTP2_DLL ${_nghttp2_dll}
       # We're storing filenames only. Should we use STRING instead?
