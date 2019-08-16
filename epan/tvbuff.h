@@ -998,7 +998,7 @@ WS_DLL_PUBLIC tvbuff_t *tvb_child_uncompress_lznt1(tvbuff_t *parent,
 /** Return a tvb that contains the binary representation of a base64
  *  string as a child of the indicated tvb.
  *
- * @param tvb The parent tvbuff.
+ * @param parent The parent tvbuff.
  * @param base64 The base64 encoded string which binary representation will be
  *               returned in the child tvb.
  *
