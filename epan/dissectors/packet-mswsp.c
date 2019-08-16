@@ -8019,7 +8019,7 @@ static int dissect_mswsp_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		dcerpc_fetch_polhnd_data(&si->saved->policy_hnd, &fid_name, NULL, &open_frame, &close_frame, pinfo->num);
 	}
 
-	if (!fid_name || strcmp(fid_name, "File: MsFteWds") != 0) {
+	if (!fid_name || g_ascii_strcasecmp(fid_name, "File: MsFteWds") != 0) {
 		return 0;
 	}
 
