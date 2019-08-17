@@ -1752,8 +1752,9 @@ if(WIN32)
 		WORKING_DIRECTORY "${GLIB2_DLL_DIR}"
 	)
 
-	# Optional DLLs.
+	# Optional DLLs and PDBs.
 	set (OPTIONAL_DLLS)
+	set (OPTIONAL_PDBS)
 	if (AIRPCAP_FOUND)
 		list (APPEND OPTIONAL_DLLS "${AIRPCAP_DLL_DIR}/${AIRPCAP_DLL}")
 	endif(AIRPCAP_FOUND)
@@ -1783,6 +1784,7 @@ if(WIN32)
 	endif(LZ4_FOUND)
 	if (NGHTTP2_FOUND)
 		list (APPEND OPTIONAL_DLLS "${NGHTTP2_DLL_DIR}/${NGHTTP2_DLL}")
+		list (APPEND OPTIONAL_PDBS "${NGHTTP2_DLL_DIR}/${NGHTTP2_PDB}")
 	endif(NGHTTP2_FOUND)
 	if (SBC_FOUND)
 		list (APPEND OPTIONAL_DLLS "${SBC_DLL_DIR}/${SBC_DLL}")
@@ -1854,6 +1856,15 @@ if(WIN32)
 			VERBATIM
 		)
 	endif(OPTIONAL_DLLS)
+
+	if (OPTIONAL_PDBS)
+		add_custom_command(TARGET copy_cli_dlls PRE_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different
+				${OPTIONAL_PDBS}
+				"${_dll_output_dir}"
+			VERBATIM
+		)
+	endif(OPTIONAL_PDBS)
 
 	add_dependencies(epan copy_cli_dlls)
 

@@ -69,8 +69,8 @@ Param(
 # trouble instead of trying to catch exceptions everywhere.
 $ErrorActionPreference = "Stop"
 
-$Win64CurrentTag = "2019-01-18-2.6"
-$Win32CurrentTag = "2019-01-18-2.6"
+$Win64CurrentTag = "2019-08-17-2.6"
+$Win32CurrentTag = "2019-08-17-2.6"
 
 # Archive file / SHA256
 $Win64Archives = @{
@@ -87,7 +87,7 @@ $Win64Archives = @{
     "lua-5.2.4-unicode-win64-vc14.zip" = "e8968d2c7871ce1ea82cbd29ac1b3a2c59d3dec25e483c5e12de85df66f5d928";
     "lz4-1.7.5-win64ws.zip" = "dc946b68238c25cbc216901332d608d7f4b084be2d401210f74ce68b9b93207f";
     "MaxMindDB-1.3.2-win64ws.zip" = "9025c43e9b21ff0bfbaf206b8ed96e2920ef1434107f789e4c7c0c1d8b508952";
-    "nghttp2-1.14.0-1-win64ws.zip" = "a4f15854f30b4fbb65cbf150011612e4580683dc9bbb339c632c37e414c938cb";
+    "nghttp2-1.39.2-win64ws.zip" = "a53f4074bffd919539d90c8d0cde2ea6a10a383f14e38b706e7e70e55476e6bf";
     "portaudio_v19_2.zip" = "70e3ef7d0e59e2b434f2462125ff0aa8490862707a3e4f42c69e084044cf424a";
     "sbc-1.3-1-win64ws.zip" = "08cef6898c421277a6582ef3225d8820f74a037cbd5b6e673a4d8f4593ce80a1";
     "snappy-1.1.3-1-win64ws.zip" = "692a15e70f2cdeca621988a46e936d3651e7feb5176981f2656a5e913c394bcc";
@@ -111,7 +111,7 @@ $Win32Archives = @{
     "lua-5.2.4-unicode-win32-vc14.zip" = "ca2368a83f623674178e9441f71fb791e3c0b46f208e3dac28c6ac735f034bff";
     "lz4-1.7.5-win32ws.zip" = "1b2e4b509163bc5039c0694369b9e40ba27cdbf4c4c88fcd454ba6a34c79b41b";
     "MaxMindDB-1.3.2-win32ws.zip" = "5c8b4bf3092da8fad6edb005a5283c6a74b7e115a50da010953eed77d33c11b7";
-    "nghttp2-1.14.0-1-win32ws.zip" = "939ec18c81fed2e44270dc924fad8beffe90a74300cc98360442300fb0a5c292";
+    "nghttp2-1.39.2-win32ws.zip" = "b511260befc210c1d6d0e920e5f5c47b9e6a21baee6e9874ef12a92093abd245";
     "portaudio_v19_2.zip" = "70e3ef7d0e59e2b434f2462125ff0aa8490862707a3e4f42c69e084044cf424a";
     "sbc-1.3-1-win32ws.zip" = "ad37825e9ace4b849a5442c08f1ed7e30634e6b774bba4307fb86f35f82e71ba";
     "snappy-1.1.3-1-win32ws.zip" = "2508ef7c5d27655c356d7b86a00ac887fc178eab5df63595b8793953dae5c379";
