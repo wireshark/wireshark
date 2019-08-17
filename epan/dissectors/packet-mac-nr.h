@@ -42,8 +42,9 @@ typedef struct mac_nr_info
     guint8          phr_type2_othercell;
 
     /* Timing info */
+    gboolean        sfnSlotInfoPresent;
     guint16         sysframeNumber;
-    guint8          subframeNumber;
+    guint16         slotNumber;
 
     /* Length of DL PDU or UL grant size in bytes */
     guint16         length;
@@ -51,7 +52,7 @@ typedef struct mac_nr_info
 } mac_nr_info;
 
 
-/* Functions to be called from outside this module (e.g. in a plugin, where mac_lte_info
+/* Functions to be called from outside this module (e.g. in a plugin, where mac_nr_info
    isn't available) to get/set per-packet data */
 WS_DLL_PUBLIC
 mac_nr_info *get_mac_nr_proto_data(packet_info *pinfo);
@@ -95,7 +96,7 @@ void set_mac_nr_proto_data(packet_info *pinfo, mac_nr_info *p_mac_nr_info);
 /* 2 bytes, network order */
 
 #define MAC_NR_FRAME_SUBFRAME_TAG      0x04
-/* 2 bytes, network order, SFN is stored in 12 MSB and SF in 4 LSB */
+/* 2 bytes, deprecated, do not use it */
 
 #define MAC_NR_PHR_TYPE2_OTHERCELL_TAG 0x05
 /* 1 byte, TRUE/FALSE */
@@ -103,10 +104,12 @@ void set_mac_nr_proto_data(packet_info *pinfo, mac_nr_info *p_mac_nr_info);
 #define MAC_NR_HARQID                  0x06
 /* 1 byte */
 
+#define MAC_NR_FRAME_SLOT_TAG          0x07
+/* 4 bytes, network order, SFN is stored in the 2 first bytes and slot number in the 2 last bytes */
 
 /* MAC PDU. Following this tag comes the actual MAC PDU (there is no length, the PDU
    continues until the end of the frame) */
-#define MAC_NR_PAYLOAD_TAG         0x01
+#define MAC_NR_PAYLOAD_TAG             0x01
 
 
 /* Type to store parameters for configuring LCID->RLC channel settings for DRB */

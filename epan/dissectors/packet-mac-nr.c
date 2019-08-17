@@ -41,6 +41,8 @@ static int hf_mac_nr_context_direction = -1;
 static int hf_mac_nr_context_rnti = -1;
 static int hf_mac_nr_context_rnti_type = -1;
 static int hf_mac_nr_context_ueid = -1;
+static int hf_mac_nr_context_sysframe_number = -1;
+static int hf_mac_nr_context_slot_number = -1;
 static int hf_mac_nr_context_harqid = -1;
 static int hf_mac_nr_context_bcch_transport_channel = -1;
 static int hf_mac_nr_context_phr_type2_othercell = -1;
@@ -1162,7 +1164,7 @@ static void dissect_bcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *ti;
 
     write_pdu_label_and_info(pdu_ti, NULL, pinfo,
-                             "BCCH PDU (%u bytes, on %s transport)  ",
+                             "BCCH PDU (%u bytes, on %s transport) ",
                              tvb_reported_length_remaining(tvb, offset),
                              val_to_str_const(p_mac_nr_info->rntiType,
                                               bcch_transport_channel_vals,
@@ -1205,7 +1207,7 @@ static void dissect_pcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item *ti;
 
     write_pdu_label_and_info(pdu_ti, NULL, pinfo,
-                             "PCCH PDU (%u bytes)  ",
+                             "PCCH PDU (%u bytes) ",
                              tvb_reported_length_remaining(tvb, offset));
 
     /****************************************/
@@ -1233,8 +1235,8 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                         mac_nr_info *p_mac_nr_info _U_)
 {
     write_pdu_label_and_info(pdu_ti, NULL, pinfo,
-                             "RAR (RA-RNTI=%u, SFN=%-4u, SF=%u) ",
-                             p_mac_nr_info->rnti, p_mac_nr_info->sysframeNumber, p_mac_nr_info->subframeNumber);
+                             "RAR (RA-RNTI=%u) ",
+                             p_mac_nr_info->rnti);
 
     /* Create hidden 'virtual root' so can filter on mac-nr.rar */
     proto_item *ti = proto_tree_add_item(tree, hf_mac_nr_rar, tvb, offset, -1, ENC_NA);
@@ -1265,7 +1267,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             offset++;
 
             write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo,
-                                     "BI=%u ", BI);
+                                     "(BI=%u) ", BI);
         }
         else {
             /* RAPID */
@@ -1581,6 +1583,10 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 {
     gboolean ces_seen = FALSE;
     gboolean data_seen = FALSE;
+
+    write_pdu_label_and_info(pdu_ti, NULL, pinfo,
+                             "%s ",
+                             (p_mac_nr_info->direction == DIRECTION_UPLINK) ? "UL-SCH" : "DL-SCH");
 
     /************************************************************************/
     /* Dissect each sub-pdu.                                             */
@@ -2196,10 +2202,10 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
                             /* Add summary to Info column */
                             if (ad) {
-                                write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo, "(SP SRS Act/Deact) Activate (%d resources)", resources);
+                                write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo, "(SP SRS Act/Deact Activate %d resources)", resources);
                             }
                             else {
-                                write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo, "(SP SRS Act/Deact) Deactivate");
+                                write_pdu_label_and_info(pdu_ti, subheader_ti, pinfo, "(SP SRS Act/Deact Deactivate)");
                             }
                         }
                         break;
@@ -2557,6 +2563,15 @@ static int dissect_mac_nr(tvbuff_t *tvb, packet_info *pinfo,
         proto_item_set_generated(ti);
     }
 
+    if (p_mac_nr_info->sfnSlotInfoPresent) {
+        ti = proto_tree_add_uint(context_tree, hf_mac_nr_context_sysframe_number,
+                                 tvb, 0, 0, p_mac_nr_info->sysframeNumber);
+        proto_item_set_generated(ti);
+        ti = proto_tree_add_uint(context_tree, hf_mac_nr_context_slot_number,
+                                 tvb, 0, 0, p_mac_nr_info->slotNumber);
+        proto_item_set_generated(ti);
+    }
+
     if (p_mac_nr_info->rntiType == C_RNTI || p_mac_nr_info->rntiType == CS_RNTI) {
         /* Harqid */
         ti = proto_tree_add_uint(context_tree, hf_mac_nr_context_harqid,
@@ -2664,13 +2679,18 @@ static gboolean dissect_mac_nr_heur(tvbuff_t *tvb, packet_info *pinfo,
                     offset++;
                     break;
                 case MAC_NR_FRAME_SUBFRAME_TAG:
-                    p_mac_nr_info->sysframeNumber = tvb_get_bits16(tvb, offset<<3, 12, ENC_BIG_ENDIAN);
-                    p_mac_nr_info->subframeNumber = tvb_get_bits8(tvb, ((offset+1)<<3)+4, 4);
+                    /* deprecated */
                     offset += 2;
                     break;
                 case MAC_NR_PHR_TYPE2_OTHERCELL_TAG:
                     p_mac_nr_info->phr_type2_othercell = tvb_get_guint8(tvb, offset);
                     offset++;
+                    break;
+                case MAC_NR_FRAME_SLOT_TAG:
+                    p_mac_nr_info->sfnSlotInfoPresent = TRUE;
+                    p_mac_nr_info->sysframeNumber = tvb_get_ntohs(tvb, offset);
+                    p_mac_nr_info->slotNumber = tvb_get_ntohs(tvb, offset+2);
+                    offset += 4;
                     break;
                 case MAC_NR_PAYLOAD_TAG:
                     /* Have reached data, so set payload length and get out of loop */
@@ -2887,6 +2907,18 @@ void proto_register_mac_nr(void)
             { "UEId",
               "mac-nr.ueid", FT_UINT16, BASE_DEC, NULL, 0x0,
               "User Equipment Identifier associated with message", HFILL
+            }
+        },
+        { &hf_mac_nr_context_sysframe_number,
+            { "System Frame Number",
+              "mac-nr.sfn", FT_UINT16, BASE_DEC, NULL, 0x0,
+              "System Frame Number associated with message", HFILL
+            }
+        },
+        { &hf_mac_nr_context_slot_number,
+            { "Slot",
+              "mac-nr.slot", FT_UINT16, BASE_DEC, NULL, 0x0,
+              "Slot number associated with message", HFILL
             }
         },
         { &hf_mac_nr_context_harqid,
