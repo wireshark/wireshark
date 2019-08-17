@@ -106,6 +106,7 @@ static dissector_table_t eap_expanded_type_dissector_table;
 static dissector_handle_t eap_handle;
 
 static dissector_handle_t tls_handle;
+static dissector_handle_t diameter_avps_handle;
 
 const value_string eap_code_vals[] = {
   { EAP_REQUEST,  "Request" },
@@ -1194,16 +1195,15 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
           }
 
           if (next_tvb) {
-            const char *dissector_name = NULL;
             switch (eap_type) {
               case EAP_TYPE_TTLS:
-                dissector_name = "diameter_avps";
+                tls_set_appdata_dissector(tls_handle, pinfo, diameter_avps_handle);
                 break;
               case EAP_TYPE_PEAP:
-                dissector_name = "eap";
+                tls_set_appdata_dissector(tls_handle, pinfo, eap_handle);
                 break;
             }
-            call_dissector_with_data(tls_handle, next_tvb, pinfo, eap_tree, (void *)dissector_name);
+            call_dissector(tls_handle, next_tvb, pinfo, eap_tree);
           }
         }
       }
@@ -1759,7 +1759,7 @@ proto_reg_handoff_eap(void)
    * Get a handle for the SSL/TLS dissector.
    */
   tls_handle = find_dissector_add_dependency("tls", proto_eap);
-  find_dissector_add_dependency("diameter_avps", proto_eap);
+  diameter_avps_handle = find_dissector_add_dependency("diameter_avps", proto_eap);
 
   dissector_add_uint("ppp.protocol", PPP_EAP, eap_handle);
   dissector_add_uint("eapol.type", EAPOL_EAP, eap_handle);
