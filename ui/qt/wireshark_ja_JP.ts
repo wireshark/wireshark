@@ -2243,7 +2243,7 @@ PLEASE NOTE: One option MUST be selected.</source>
     </message>
     <message>
         <source>Save parameters on capture start</source>
-        <translation type="unfinished"></translation>
+        <translation>キャプチャ開始時にパラメタを保存します</translation>
     </message>
 </context>
 <context>
