@@ -70,8 +70,9 @@ Wireshark 3.1.1 Release Notes
    (FTDI FT), Graylog Extended Log Format over UDP (GELF), GSM/3GPP CBSP
    (Cell Broadcast Service Protocol), MIDI System Exclusive DigiTech
    (SYSEX DigiTech), Network Controller Sideband Interface (NCSI), NR
-   Positioning Protocol A (NRPPa) TS 38.455, and NVM Express over
-   Fabrics for TCP (nvme-tcp)
+   Positioning Protocol A (NRPPa) TS 38.455, NVM Express over Fabrics
+   for TCP (nvme-tcp), and OsmoTRX Protocol (GSM Transceiver control and
+   data)
 
   Updated Protocol Support
 
@@ -119,7 +120,7 @@ Wireshark 3.1.1 Release Notes
 
   A complete FAQ is available on the Wireshark web site[10].
 
-  Last updated 2019-08-11 08:07:18 UTC
+  Last updated 2019-08-18 08:07:40 UTC
 
  References
 

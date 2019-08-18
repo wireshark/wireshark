@@ -8597,8 +8597,9 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Esporta</translation>
     </message>
     <message>
-        <source>An import of profiles is not allowed, while changes are pending.</source>
-        <translation>Non è consentito importare profili mentre ci sono modifiche in corso.</translation>
+        <source>An import of profiles is not allowed, while changes are pending</source>
+        <oldsource>An import of profiles is not allowed, while changes are pending.</oldsource>
+        <translation type="unfinished">Non è consentito importare profili mentre ci sono modifiche in corso.</translation>
     </message>
     <message>
         <source>New profile</source>
@@ -8666,16 +8667,19 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>tutti i profili personali</translation>
     </message>
     <message>
-        <source>An import is pending to be saved. Additional imports are not allowed.</source>
-        <translation>Un&apos;importazione è in fase di salvataggio. Non sono consentite importazioni aggiuntive.</translation>
+        <source>An import is pending to be saved. Additional imports are not allowed</source>
+        <oldsource>An import is pending to be saved. Additional imports are not allowed.</oldsource>
+        <translation type="unfinished">Un&apos;importazione è in fase di salvataggio. Non sono consentite importazioni aggiuntive.</translation>
     </message>
     <message>
-        <source>An export of profiles is only allowed for personal profiles.</source>
-        <translation>Un&apos;esportazione di profili è consentita solo per i profili personali.</translation>
+        <source>An export of profiles is only allowed for personal profiles</source>
+        <oldsource>An export of profiles is only allowed for personal profiles.</oldsource>
+        <translation type="unfinished">Un&apos;esportazione di profili è consentita solo per i profili personali.</translation>
     </message>
     <message>
-        <source>An export of profiles is not allowed, while changes are pending.</source>
-        <translation>Un&apos;esportazione di profili non è consentita mentre ci sono modifiche in corso.</translation>
+        <source>An export of profiles is not allowed, while changes are pending</source>
+        <oldsource>An export of profiles is not allowed, while changes are pending.</oldsource>
+        <translation type="unfinished">Un&apos;esportazione di profili non è consentita mentre ci sono modifiche in corso.</translation>
     </message>
     <message>
         <source>Error</source>
@@ -8726,20 +8730,36 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Profilo importato</translation>
     </message>
     <message>
+        <source>This is a system provided profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A profile change for this name is pending</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> (See: %1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This is an invalid profile definition</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A profile already exists with this name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A profile with this name is being deleted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Created from default settings</source>
         <translation>Creato dalle impostazioni predefinite</translation>
     </message>
     <message>
-        <source>Copied from: </source>
-        <translation type="vanished">Copiato da:</translation>
-    </message>
-    <message>
         <source>system provided</source>
         <translation>fornito dal sistema</translation>
-    </message>
-    <message>
-        <source>renamed to</source>
-        <translation type="vanished">rinominato in</translation>
     </message>
     <message>
         <source>deleted</source>
@@ -8767,8 +8787,12 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Il nome di un profilo non può contenere i seguenti caratteri: %1</translation>
     </message>
     <message>
+        <source>A profile name cannot contain the &apos;/&apos; character</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>A profile name cannot contain the &apos;/&apos; character.</source>
-        <translation>Il nome di un profilo non può contenere il carattere &apos;/&apos;. </translation>
+        <translation type="vanished">Il nome di un profilo non può contenere il carattere &apos;/&apos;. </translation>
     </message>
     <message>
         <source>A profile cannot start or end with a period (.)</source>
@@ -8779,12 +8803,8 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
         <translation>Predefinito</translation>
     </message>
     <message>
-        <source>Renamed from: </source>
-        <translation type="vanished">Rinominato da:</translation>
-    </message>
-    <message>
         <source>This is a system provided profile.</source>
-        <translation>Questo è un profilo fornito dal sistema.</translation>
+        <translation type="vanished">Questo è un profilo fornito dal sistema.</translation>
     </message>
     <message>
         <source>Global</source>
@@ -8796,19 +8816,19 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     </message>
     <message>
         <source>A profile already exists with this name.</source>
-        <translation>Un profilo con questo nome esiste già.</translation>
+        <translation type="vanished">Un profilo con questo nome esiste già.</translation>
     </message>
     <message>
         <source>Renamed from: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Rinominato da: %1</translation>
     </message>
     <message>
         <source>Copied from: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Copiato da: %1</translation>
     </message>
     <message>
         <source>renamed to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>rinominato in %1</translation>
     </message>
     <message>
         <source>Profile</source>
@@ -11695,10 +11715,6 @@ Ad esempio, usa 1 ora per fare in modo che un nuovo file sia creato ogni ora.</t
     <message>
         <source>Network</source>
         <translation>Rete</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation type="vanished">Ripristina</translation>
     </message>
     <message>
         <source>Reset Diagram</source>

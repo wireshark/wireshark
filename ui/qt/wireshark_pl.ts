@@ -8606,7 +8606,8 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished">Eksportuj</translation>
     </message>
     <message>
-        <source>An import of profiles is not allowed, while changes are pending.</source>
+        <source>An import of profiles is not allowed, while changes are pending</source>
+        <oldsource>An import of profiles is not allowed, while changes are pending.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8670,15 +8671,18 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>An import is pending to be saved. Additional imports are not allowed.</source>
+        <source>An import is pending to be saved. Additional imports are not allowed</source>
+        <oldsource>An import is pending to be saved. Additional imports are not allowed.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>An export of profiles is only allowed for personal profiles.</source>
+        <source>An export of profiles is only allowed for personal profiles</source>
+        <oldsource>An export of profiles is only allowed for personal profiles.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>An export of profiles is not allowed, while changes are pending.</source>
+        <source>An export of profiles is not allowed, while changes are pending</source>
+        <oldsource>An export of profiles is not allowed, while changes are pending.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8733,6 +8737,30 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>This is a system provided profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A profile change for this name is pending</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> (See: %1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This is an invalid profile definition</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A profile already exists with this name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A profile with this name is being deleted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Created from default settings</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8766,7 +8794,7 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>A profile name cannot contain the &apos;/&apos; character.</source>
+        <source>A profile name cannot contain the &apos;/&apos; character</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -8778,19 +8806,11 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished">Domyślnie</translation>
     </message>
     <message>
-        <source>This is a system provided profile.</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>Global</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
         <source>Personal</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A profile already exists with this name.</source>
         <translation type="unfinished"></translation>
     </message>
     <message>
@@ -11692,10 +11712,6 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
     <message>
         <source>Network</source>
         <translation>Sieciowy</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation type="vanished">Resetuj</translation>
     </message>
     <message>
         <source>Reset Diagram</source>

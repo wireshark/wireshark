@@ -8597,8 +8597,9 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Exportieren</translation>
     </message>
     <message>
-        <source>An import of profiles is not allowed, while changes are pending.</source>
-        <translation>Solange Änderungen noch anstehen können Profile nicht importiert werden.</translation>
+        <source>An import of profiles is not allowed, while changes are pending</source>
+        <oldsource>An import of profiles is not allowed, while changes are pending.</oldsource>
+        <translation type="unfinished">Solange Änderungen noch anstehen können Profile nicht importiert werden.</translation>
     </message>
     <message>
         <source>New profile</source>
@@ -8666,16 +8667,19 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Alle persönlichen Profile</translation>
     </message>
     <message>
-        <source>An import is pending to be saved. Additional imports are not allowed.</source>
-        <translation>Ein Import steht zum sichern aus. Weitere Importe sind nicht erlaubt.</translation>
+        <source>An import is pending to be saved. Additional imports are not allowed</source>
+        <oldsource>An import is pending to be saved. Additional imports are not allowed.</oldsource>
+        <translation type="unfinished">Ein Import steht zum sichern aus. Weitere Importe sind nicht erlaubt.</translation>
     </message>
     <message>
-        <source>An export of profiles is only allowed for personal profiles.</source>
-        <translation>Es können nur persönliche Profile exportiert werden.</translation>
+        <source>An export of profiles is only allowed for personal profiles</source>
+        <oldsource>An export of profiles is only allowed for personal profiles.</oldsource>
+        <translation type="unfinished">Es können nur persönliche Profile exportiert werden.</translation>
     </message>
     <message>
-        <source>An export of profiles is not allowed, while changes are pending.</source>
-        <translation>Solange Änderungen noch ausstehen dürfen Profile nicht exportiert werden.</translation>
+        <source>An export of profiles is not allowed, while changes are pending</source>
+        <oldsource>An export of profiles is not allowed, while changes are pending.</oldsource>
+        <translation type="unfinished">Solange Änderungen noch ausstehen dürfen Profile nicht exportiert werden.</translation>
     </message>
     <message>
         <source>Error</source>
@@ -8726,20 +8730,36 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Importierte Profile</translation>
     </message>
     <message>
+        <source>This is a system provided profile</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A profile change for this name is pending</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source> (See: %1)</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>This is an invalid profile definition</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A profile already exists with this name</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>A profile with this name is being deleted</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Created from default settings</source>
         <translation>Erstellt aus den Standardeinstellungen</translation>
     </message>
     <message>
-        <source>Copied from: </source>
-        <translation type="vanished">Kopiert von:</translation>
-    </message>
-    <message>
         <source>system provided</source>
         <translation>vom System vorgegeben</translation>
-    </message>
-    <message>
-        <source>renamed to</source>
-        <translation type="vanished">Umbenannt nach</translation>
     </message>
     <message>
         <source>deleted</source>
@@ -8767,8 +8787,12 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Ein Profilname darf keines der folgenden Zeichen enthalten: %1</translation>
     </message>
     <message>
+        <source>A profile name cannot contain the &apos;/&apos; character</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>A profile name cannot contain the &apos;/&apos; character.</source>
-        <translation>Ein Profilname darf kein &apos;/&apos; Zeichen enthalten.</translation>
+        <translation type="vanished">Ein Profilname darf kein &apos;/&apos; Zeichen enthalten.</translation>
     </message>
     <message>
         <source>A profile cannot start or end with a period (.)</source>
@@ -8779,12 +8803,8 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Standard</translation>
     </message>
     <message>
-        <source>Renamed from: </source>
-        <translation type="vanished">Umbenannt von:</translation>
-    </message>
-    <message>
         <source>This is a system provided profile.</source>
-        <translation>Dies ist ein vorgegebenes Profil.</translation>
+        <translation type="vanished">Dies ist ein vorgegebenes Profil.</translation>
     </message>
     <message>
         <source>Global</source>
@@ -8796,19 +8816,19 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>A profile already exists with this name.</source>
-        <translation>Ein Profil mit diesem Namen existiert bereits.</translation>
+        <translation type="vanished">Ein Profil mit diesem Namen existiert bereits.</translation>
     </message>
     <message>
         <source>Renamed from: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Umbenannt von: %1</translation>
     </message>
     <message>
         <source>Copied from: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kopiert von: %1</translation>
     </message>
     <message>
         <source>renamed to %1</source>
-        <translation type="unfinished"></translation>
+        <translation>umbenannt zu %1</translation>
     </message>
     <message>
         <source>Profile</source>
@@ -11695,10 +11715,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Network</source>
         <translation>Netzwerk</translation>
-    </message>
-    <message>
-        <source>Reset</source>
-        <translation type="vanished">Zurücksetzen</translation>
     </message>
     <message>
         <source>Reset Diagram</source>
