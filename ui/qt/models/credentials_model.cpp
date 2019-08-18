@@ -117,14 +117,16 @@ void CredentialsModel::addRecord(tap_credential_t* auth)
 
 void CredentialsModel::clear()
 {
-    emit beginRemoveRows(QModelIndex(), 0, rowCount());
-    for (QList<tap_credential_t*>::iterator itr = credentials_.begin(); itr != credentials_.end(); ++itr) {
-        g_free((*itr)->username);
-        g_free((*itr)->info);
-        delete *itr;
+    if (!credentials_.isEmpty()) {
+        emit beginRemoveRows(QModelIndex(), 0, rowCount() - 1);
+        for (QList<tap_credential_t*>::iterator itr = credentials_.begin(); itr != credentials_.end(); ++itr) {
+            g_free((*itr)->username);
+            g_free((*itr)->info);
+            delete *itr;
+        }
+        credentials_.clear();
+        emit endRemoveRows();
     }
-    credentials_.clear();
-    emit endInsertRows();
 }
 
 QVariant CredentialsModel::headerData(int section, Qt::Orientation orientation, int role) const
