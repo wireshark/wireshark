@@ -28,7 +28,9 @@
 
 PacketListHeader::PacketListHeader(Qt::Orientation orientation, capture_file * cap_file, QWidget *parent) :
     QHeaderView(orientation, parent),
-    cap_file_(cap_file)
+    cap_file_(cap_file),
+    sectionIdx(-1),
+    lastSize(-1)
 {
     setAcceptDrops(true);
     setSectionsMovable(true);
