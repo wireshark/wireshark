@@ -381,6 +381,7 @@ static int hf_extras_opaque = -1;
 static int hf_extras_reserved = -1;
 static int hf_extras_start_seqno = -1;
 static int hf_extras_end_seqno = -1;
+static int hf_extras_high_completed_seqno = -1;
 static int hf_extras_vbucket_uuid = -1;
 static int hf_extras_snap_start_seqno = -1;
 static int hf_extras_snap_end_seqno = -1;
@@ -481,7 +482,6 @@ static int hf_flex_frame_len = -1;
 static int hf_flex_frame_len_esc = -1;
 static int hf_flex_frame_tracing_duration = -1;
 static int hf_flex_frame_durability_req = -1;
-static int hf_flex_frame_durability_timeout = -1;
 static int hf_flex_frame_dcp_stream_id = -1;
 
 static expert_field ef_warn_shall_not_have_value = EI_INIT;
@@ -1301,6 +1301,10 @@ dissect_extras(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 8;
         proto_tree_add_bitmask(extras_tree, tvb, offset, hf_extras_flags, ett_extras_flags, extra_flags, ENC_BIG_ENDIAN);
         offset += 4;
+        if (extlen == 28) {
+          proto_tree_add_item(extras_tree, hf_extras_high_completed_seqno, tvb, offset, 8, ENC_BIG_ENDIAN);
+          offset += 8;
+        }
       } else {
         illegal = TRUE;
       }
@@ -2386,10 +2390,6 @@ static void flex_frame_durability_dissect(tvbuff_t* tvb,
     return;
   }
   proto_tree_add_item(frame_tree, hf_flex_frame_durability_req, tvb, offset, 1, ENC_BIG_ENDIAN);
-  if (length == 3) {
-    offset++;
-    proto_tree_add_item(frame_tree, hf_flex_frame_durability_timeout, tvb, offset, 2, ENC_BIG_ENDIAN);
-  }
 }
 
 static void flex_frame_dcp_stream_id_dissect(tvbuff_t* tvb,
@@ -2813,7 +2813,6 @@ proto_register_couchbase(void)
 
     { &hf_flex_frame_tracing_duration, {"Server Recv->Send duration", "couchbase.flex_frame.frame.duration", FT_DOUBLE, BASE_NONE|BASE_UNIT_STRING, &units_microseconds, 0, NULL, HFILL } },
     { &hf_flex_frame_durability_req, {"Durability Requirement", "couchbase.flex_frame.frame.durability_req", FT_UINT8, BASE_DEC, VALS(flex_frame_durability_req), 0, NULL, HFILL } },
-    { &hf_flex_frame_durability_timeout, {"Durability Timeout", "couchbase.flex_frame.frame.durability_timeout", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
     { &hf_flex_frame_dcp_stream_id, {"DCP Stream Identifier", "couchbase.flex_frame.frame.dcp_stream_id", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
 
     { &hf_extras, { "Extras", "couchbase.extras", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL } },
@@ -2856,7 +2855,8 @@ proto_register_couchbase(void)
     { &hf_extras_opaque, { "Opaque (vBucket identifier)", "couchbase.extras.opaque", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_reserved, { "Reserved", "couchbase.extras.reserved", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_start_seqno, { "Start Sequence Number", "couchbase.extras.start_seqno", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
-    { &hf_extras_end_seqno, { "End Sequence Number", "couchbase.extras.start_seqno", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+    { &hf_extras_end_seqno, { "End Sequence Number", "couchbase.extras.end_seqno", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
+    { &hf_extras_high_completed_seqno, { "High Completed Sequence Number", "couchbase.extras.high_completed_seqno", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_vbucket_uuid, { "VBucket UUID", "couchbase.extras.vbucket_uuid", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_snap_start_seqno, { "Snapshot Start Sequence Number", "couchbase.extras.snap_start_seqno", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
     { &hf_extras_snap_end_seqno, { "Snapshot End Sequence Number", "couchbase.extras.snap_start_seqno", FT_UINT64, BASE_DEC, NULL, 0x0, NULL, HFILL } },
