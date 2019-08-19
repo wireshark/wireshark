@@ -1029,7 +1029,7 @@ dissect_dsmcc_adaptation_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         }
         offset += 1;
         sub_sub_tree = proto_tree_add_subtree(sub_tree, tvb, offset, 20, ett_dsmcc_heading, NULL, "User ID");
-        offset += dissect_dsmcc_un_session_nsap(tvb, offset, pinfo, sub_sub_tree);
+        dissect_dsmcc_un_session_nsap(tvb, offset, pinfo, sub_sub_tree);
     } else {
         sub_tree = proto_tree_add_subtree(tree, tvb, offset, -1, ett_dsmcc_adaptation_header, NULL, "Unknown Adaptation Header");
         proto_tree_add_item(sub_tree, hf_dsmcc_adaptation_type, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1387,7 +1387,7 @@ dissect_dsmcc_un_session_resources(
             /* Table 4-75 ATM Connection */
             case RSRC_ATM_CONN:
                 rsrc_tree = proto_tree_add_subtree(sub_sub_sub_tree, tvb, offset, 0, ett_dsmcc_heading, NULL, "ATM Address:");
-                offset += dissect_dsmcc_un_session_resource_value(tvb, offset, pinfo, sub_sub_sub_tree, 20);
+                offset += dissect_dsmcc_un_session_resource_value(tvb, offset, pinfo, rsrc_tree, 20);
                 rsrc_tree = proto_tree_add_subtree(sub_sub_sub_tree, tvb, offset, 0, ett_dsmcc_heading, NULL, "ATM VCI:");
                 offset += dissect_dsmcc_un_session_resource_value(tvb, offset, pinfo, rsrc_tree, 2);
                 rsrc_tree = proto_tree_add_subtree(sub_sub_sub_tree, tvb, offset, 0, ett_dsmcc_heading, NULL, "ATM VPI:");
