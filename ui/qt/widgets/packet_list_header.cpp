@@ -272,9 +272,15 @@ void PacketListHeader::doEditColumn()
 void PacketListHeader::doResolveNames()
 {
     QAction * action = qobject_cast<QAction *>(sender());
+    if (!action)
+        return;
+
     QMenu * menu = qobject_cast<QMenu *>(action->parent());
+    if (!menu)
+        return;
+
     PacketListModel * plmModel = qobject_cast<PacketListModel *>(model());
-    if ( ! action || ! menu || ! plmModel )
+    if (!plmModel)
         return;
 
     int section = menu->property("column").toInt();
@@ -288,8 +294,11 @@ void PacketListHeader::doResolveNames()
 void PacketListHeader::resizeToContent()
 {
     QAction * action = qobject_cast<QAction *>(sender());
+    if (!action)
+        return;
+
     QMenu * menu = qobject_cast<QMenu *>(action->parent());
-    if (! action || ! menu)
+    if (!menu)
         return;
 
     int section = menu->property("column").toInt();
@@ -301,8 +310,11 @@ void PacketListHeader::resizeToContent()
 void PacketListHeader::removeColumn()
 {
     QAction * action = qobject_cast<QAction *>(sender());
+    if (!action)
+        return;
+
     QMenu * menu = qobject_cast<QMenu *>(action->parent());
-    if (! action || ! menu)
+    if (!menu)
         return;
 
     int section = menu->property("column").toInt();
@@ -317,8 +329,11 @@ void PacketListHeader::removeColumn()
 void PacketListHeader::resizeToWidth()
 {
     QAction * action = qobject_cast<QAction *>(sender());
+    if (!action)
+        return;
+
     QMenu * menu = qobject_cast<QMenu *>(action->parent());
-    if (! action || ! menu)
+    if (!menu)
         return;
 
     bool ok = false;
