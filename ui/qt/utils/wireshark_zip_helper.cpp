@@ -45,7 +45,8 @@ bool WireSharkZipHelper::unzip(QString zipFile, QString directory, bool (*fileCh
         return false;
 
     unz_global_info64 gi;
-    int err = unzGetGlobalInfo64(uf,&gi);
+    int err;
+    unzGetGlobalInfo64(uf,&gi);
     unsigned int nmbr = static_cast<unsigned int>(gi.number_entry);
     if (nmbr <= 0)
         return false;
