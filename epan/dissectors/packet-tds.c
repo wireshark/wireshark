@@ -2602,7 +2602,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                      */
                     gboolean sign = TRUE;
 
-                    numericitem = proto_tree_add_item_ret_boolean(sub_tree,
+                    proto_tree_add_item_ret_boolean(sub_tree,
                         hf_tds_type_varbyte_data_sign, tvb, *offset, 1,
                         ENC_NA, &sign);
                     length -= 1;
