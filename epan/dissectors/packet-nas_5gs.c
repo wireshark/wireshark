@@ -1620,6 +1620,13 @@ de_nas_5gs_mm_pld_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo,
             proto_tree_add_item(tree, hf_nas_5gs_mm_pld_cont, tvb, offset, len, ENC_NA);
         }
         break;
+    case 3: /* LPP */
+        if (lpp_handle) {
+            call_dissector(lpp_handle, tvb_new_subset_length(tvb, offset, len), pinfo, tree);
+        } else {
+            proto_tree_add_item(tree, hf_nas_5gs_mm_pld_cont, tvb, offset, len, ENC_NA);
+        }
+        break;
     case 5: /* UE policy container */
         disect_nas_5gs_updp(tvb_new_subset_length(tvb, offset, len), pinfo, tree, 0);
         break;
