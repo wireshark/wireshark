@@ -1850,16 +1850,20 @@ dissect_kafka_offset_time(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
                           kafka_api_version_t api_version _U_)
 {
     proto_item *ti;
-    gint64 time;
+    gint64 message_offset_time;
 
-    time = tvb_get_ntoh64(tvb, offset);
+    message_offset_time = tvb_get_ntoh64(tvb, offset);
 
     ti = proto_tree_add_item(tree, hf_kafka_offset_time, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
-    if (time == -1) {
+    // The query for offset at given time takes the time in milliseconds since epoch.
+    // It has two additional special values:
+    // * -1 - the latest offset (to consume new messages only)
+    // * -2 - the oldest offset (to consume all available messages)
+    if (message_offset_time == -1) {
         proto_item_append_text(ti, " (latest)");
-    } else if (time == -2) {
+    } else if (message_offset_time == -2) {
         proto_item_append_text(ti, " (earliest)");
     }
 
