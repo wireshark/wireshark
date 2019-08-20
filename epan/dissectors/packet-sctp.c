@@ -457,11 +457,12 @@ static const value_string sctp_payload_proto_id_values[] = {
 #define ASSOC_NOT_FOUND                    5
 
 /* Default values for preferences */
-static gboolean show_port_numbers          = TRUE;
-static gint sctp_checksum                  = SCTP_CHECKSUM_NONE;
-static gboolean enable_tsn_analysis        = TRUE;
-static gboolean enable_ulp_dissection      = TRUE;
-static gboolean use_reassembly             = TRUE;
+static gboolean show_port_numbers           = TRUE;
+static gint sctp_checksum                   = SCTP_CHECKSUM_NONE;
+static gboolean enable_tsn_analysis         = TRUE;
+static gboolean enable_association_indexing = FALSE;
+static gboolean enable_ulp_dissection       = TRUE;
+static gboolean use_reassembly              = TRUE;
 /* FIXME
 static gboolean show_chunk_types           = TRUE;
 */
@@ -4582,37 +4583,43 @@ dissect_sctp_chunks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_i
       else
         sctp_info.incomplete = TRUE;
     }
-
-    tmpinfo.assoc_index = -1;
-    tmpinfo.sport = sctp_info.sport;
-    tmpinfo.dport = sctp_info.dport;
-    tmpinfo.vtag_reflected = FALSE;
-    if (tvb_get_guint8(chunk_tvb, CHUNK_TYPE_OFFSET) == SCTP_ABORT_CHUNK_ID) {
-      if ((tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_ABORT_CHUNK_T_BIT) != 0) {
-        tmpinfo.vtag_reflected = TRUE;
+    if (enable_association_indexing) {
+      tmpinfo.assoc_index = -1;
+      tmpinfo.sport = sctp_info.sport;
+      tmpinfo.dport = sctp_info.dport;
+      tmpinfo.vtag_reflected = FALSE;
+      if (tvb_get_guint8(chunk_tvb, CHUNK_TYPE_OFFSET) == SCTP_ABORT_CHUNK_ID) {
+        if ((tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_ABORT_CHUNK_T_BIT) != 0) {
+          tmpinfo.vtag_reflected = TRUE;
+        }
       }
-    }
-    if (tvb_get_guint8(chunk_tvb, CHUNK_TYPE_OFFSET) == SCTP_SHUTDOWN_COMPLETE_CHUNK_ID) {
-      if ((tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_SHUTDOWN_COMPLETE_CHUNK_T_BIT) != 0){
-        tmpinfo.vtag_reflected = TRUE;
+      if (tvb_get_guint8(chunk_tvb, CHUNK_TYPE_OFFSET) == SCTP_SHUTDOWN_COMPLETE_CHUNK_ID) {
+        if ((tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_SHUTDOWN_COMPLETE_CHUNK_T_BIT) != 0) {
+          tmpinfo.vtag_reflected = TRUE;
+        }
       }
-    }
-    if (tmpinfo.vtag_reflected) {
-      tmpinfo.verification_tag2 = sctp_info.verification_tag;
-      tmpinfo.verification_tag1 = 0;
-    } else {
-      tmpinfo.verification_tag1 = sctp_info.verification_tag;
-      tmpinfo.verification_tag2 = 0;
-    }
-    if (tvb_get_guint8(chunk_tvb, CHUNK_TYPE_OFFSET) == SCTP_INIT_CHUNK_ID) {
-      tmpinfo.initiate_tag = tvb_get_ntohl(sctp_info.tvb[0], 4);
-    } else {
-      tmpinfo.initiate_tag = 0;
-    }
+      if (tmpinfo.vtag_reflected) {
+        tmpinfo.verification_tag2 = sctp_info.verification_tag;
+        tmpinfo.verification_tag1 = 0;
+      }
+      else {
+        tmpinfo.verification_tag1 = sctp_info.verification_tag;
+        tmpinfo.verification_tag2 = 0;
+      }
+      if (tvb_get_guint8(chunk_tvb, CHUNK_TYPE_OFFSET) == SCTP_INIT_CHUNK_ID) {
+        tmpinfo.initiate_tag = tvb_get_ntohl(sctp_info.tvb[0], 4);
+      }
+      else {
+        tmpinfo.initiate_tag = 0;
+      }
 
-    id_dir = find_assoc_index(&tmpinfo, PINFO_FD_VISITED(pinfo));
-    sctp_info.assoc_index = id_dir.assoc_index;
-    sctp_info.direction = id_dir.direction;
+      id_dir = find_assoc_index(&tmpinfo, PINFO_FD_VISITED(pinfo));
+      sctp_info.assoc_index = id_dir.assoc_index;
+      sctp_info.direction = id_dir.direction;
+    } else {
+      sctp_info.assoc_index = -1;
+      sctp_info.direction = ASSOC_NOT_FOUND;
+    }
 
     /* call dissect_sctp_chunk for the actual work */
     if (dissect_sctp_chunk(chunk_tvb, pinfo, tree, sctp_tree, ha, !encapsulated) && (tree)) {
@@ -5125,6 +5132,10 @@ proto_register_sctp(void)
                          "Enable TSN analysis",
                          "Match TSNs and their SACKs",
                          &enable_tsn_analysis);
+  prefs_register_bool_preference(sctp_module, "association_index",
+                         "Enable Association indexing(Can be CPU intense)",
+                         "Match verification tags(CPU intense)",
+                         &enable_association_indexing);
   prefs_register_bool_preference(sctp_module, "ulp_dissection",
                          "Dissect upper layer protocols",
                          "Dissect upper layer protocols",
