@@ -737,25 +737,30 @@ wtap_wtap_encap_to_pcap_encap(int encap)
  * that should be enough for most link-layer types, and shouldn't be
  * too big.
  *
- * For D-Bus, we use WTAP_MAX_PACKET_SIZE_DBUS, because the maximum
- * D-Bus message size is 128MB, which is bigger than we'd want for
- * all link-layer types - files with that snapshot length might cause
- * some programs reading them to allocate a huge and wasteful buffer
- * and, at least on 32-bit platforms, run the risk of running out of
- * memory.
- * For EBHSCR, we use WTAP_MAX_PACKET_SIZE_EBHSCR, because the maximum
- * EBHSCR message size is 8MB
+ * For some link-layer types, we use larger types, because, for each
+ * of them, the maximum packet size is larger than the standard
+ * maximum, and is bigger than we'd want for all link-layer types - files
+ * with that snapshot length might cause some programs reading them to
+ * allocate a huge and wasteful buffer and, at least on 32-bit platforms,
+ * run the risk of running out of memory.
  */
 guint
 wtap_max_snaplen_for_encap(int wtap_encap)
 {
-	if (wtap_encap == WTAP_ENCAP_DBUS)
-		return WTAP_MAX_PACKET_SIZE_DBUS;
-	else if (wtap_encap == WTAP_ENCAP_EBHSCR)
-		return WTAP_MAX_PACKET_SIZE_EBHSCR;
-	else
-		return WTAP_MAX_PACKET_SIZE_STANDARD;
+	switch (wtap_encap) {
 
+	case WTAP_ENCAP_DBUS:
+		return WTAP_MAX_PACKET_SIZE_DBUS;
+
+	case WTAP_ENCAP_EBHSCR:
+		return WTAP_MAX_PACKET_SIZE_EBHSCR;
+
+	case WTAP_ENCAP_USBPCAP:
+		return WTAP_MAX_PACKET_SIZE_USBPCAP;
+
+	default:
+		return WTAP_MAX_PACKET_SIZE_STANDARD;
+	}
 }
 
 /*

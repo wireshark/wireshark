@@ -400,19 +400,29 @@ extern "C" {
 /* if you add to the above, update wtap_tsprec_string() */
 
 /*
- * We support one maximum packet size for most link-layer header types
- * and another for D-Bus, because the maximum packet size for D-Bus
- * is 128MB, as per
+ * Maximum packet sizes.
+ *
+ * For most link-layer types, we use 262144, which is currently
+ * libpcap's MAXIMUM_SNAPLEN.
+ *
+ * For WTAP_ENCAP_DBUS, the maximum is 128MiB, as per
  *
  *    https://dbus.freedesktop.org/doc/dbus-specification.html#message-protocol-messages
  *
- * and that's a lot bigger than the 256KB that we use elsewhere.
+ * For WTAP_ENCAP_EBHSCR, the maximum is 8MiB, as per
  *
- * We don't want to write out files that specify a maximum packet size of
- * 128MB if we don't have to, as software reading those files might
- * allocate a buffer much larger than necessary, wasting memory.
+ *    https://www.elektrobit.com/ebhscr
+ *
+ * For WTAP_ENCAP_USBPCAP, the maximum is 1MiB, as per
+ *
+ *    https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=15985
+ *
+ * We don't want to write out files that specify a maximum packet size
+ * greater than 262144 if we don't have to, as software reading those
+ * files might allocate a buffer much larger than necessary, wasting memory.
  */
 #define WTAP_MAX_PACKET_SIZE_STANDARD    262144
+#define WTAP_MAX_PACKET_SIZE_USBPCAP     (1024*1024)
 #define WTAP_MAX_PACKET_SIZE_EBHSCR      (8*1024*1024)
 #define WTAP_MAX_PACKET_SIZE_DBUS        (128*1024*1024)
 
