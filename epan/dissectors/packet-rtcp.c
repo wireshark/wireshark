@@ -5884,8 +5884,8 @@ proto_register_rtcp(void)
             {
                 "Reference Time",
                 "rtcp.rtpfb.transportcc.reftime",
-                FT_UINT24,
-                BASE_DEC_HEX,
+                FT_INT24,
+                BASE_DEC,
                 NULL,
                 0x0,
                 NULL, HFILL
