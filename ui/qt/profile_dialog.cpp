@@ -341,7 +341,7 @@ void ProfileDialog::updateWidgets()
                 continue;
             }
 
-            if ( model_->checkInvalid(idx) || model_->checkIfDeleted(idx) )
+            if ( model_->checkInvalid(idx) || ( ! idx.data(ProfileModel::DATA_IS_GLOBAL).toBool() && model_->checkIfDeleted(idx) ) )
             {
                 if ( idx == index )
                     hintUrl.clear();
