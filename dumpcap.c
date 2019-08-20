@@ -1979,24 +1979,24 @@ pcap_pipe_open_live(int fd,
         hdr->network = GUINT32_SWAP_LE_BE(hdr->network);
     }
     pcap_src->linktype = hdr->network;
-#ifdef DLT_DBUS
-    if (pcap_src->linktype == DLT_DBUS) {
-        /*
-         * The maximum D-Bus message size is 128MB, so allow packets up
-         * to that size.
-         */
+    /* Pick the appropriate maximum packet size for the link type */
+    switch (pcap_src->linktype) {
+
+    case 231: /* DLT_DBUS */
         pcap_src->cap_pipe_max_pkt_size = WTAP_MAX_PACKET_SIZE_DBUS;
-    } else
-#endif
-    if (pcap_src->linktype == 279) {             /* DLT_EBHSCR */
-        /*
-         * The maximum EBHSCR message size is 8MB, so allow packets up
-         * to that size.
-         */
+        break;
+
+    case 279: /* DLT_EBHSCR */
         pcap_src->cap_pipe_max_pkt_size = WTAP_MAX_PACKET_SIZE_EBHSCR;
-    }
-    else {
+        break;
+
+    case 249: /* DLT_USBPCAP */
+        pcap_src->cap_pipe_max_pkt_size = WTAP_MAX_PACKET_SIZE_USBPCAP;
+        break;
+
+    default:
         pcap_src->cap_pipe_max_pkt_size = WTAP_MAX_PACKET_SIZE_STANDARD;
+        break;
     }
 
     if (hdr->version_major < 2) {
