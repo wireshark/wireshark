@@ -542,9 +542,9 @@ image::wsug_graphics/ws-analyze-menu.png[{screenshot-attrs}]
 |menu:Apply as Column[]             ||This menu item adds the selected protocol item in the packet details pane as a column to the packet list.
 |menu:Apply as Filter[...]          ||These menu items will change the current display filter and apply the changed filter immediately. Depending on the chosen menu item, the current display filter string will be replaced or appended to by the selected protocol field in the packet details pane.
 |menu:Prepare a Filter[...]         ||These menu items will change the current display filter but won’t apply the changed filter. Depending on the chosen menu item, the current display filter string will be replaced or appended to by the selected protocol field in the packet details pane.
+|menu:Conversation Filter[...]      ||In this menu you will find conversation filter for various protocols.
 |menu:Enabled Protocols...[]        |kbd:[Shift+Ctrl+E]|This menu item allows the user to enable/disable protocol dissectors, see <<ChAdvEnabledProtocols>>
 |menu:Decode As...[]                ||This menu item allows the user to force Wireshark to decode certain packets as a particular protocol, see <<ChAdvDecodeAs>>
-|menu:User Specified Decodes...[]   ||This menu item allows the user to force Wireshark to decode certain packets as a particular protocol, see <<ChAdvDecodeAsShow>>
 
 |menu:Follow[TCP Stream]            ||
 This menu item brings up a separate window and displays all the TCP
@@ -563,7 +563,6 @@ on providing TLS keys.
 Same functionality as “Follow TCP Stream” but for HTTP streams.
 
 |menu:Expert Info[]                 ||Open a dialog showing some expert information about the captured packets. The amount of information will depend on the protocol and varies from  very detailed to non-existent. XXX - add a new section about this and link from here
-|menu:Conversation Filter[...]      ||In this menu you will find conversation filter for various protocols.
 |===============
 
 [[ChUseStatisticsMenuSection]]
