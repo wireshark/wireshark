@@ -29,6 +29,7 @@
 #define TCP_CONVERGENCE_REFUSE_BUNDLE   0x30
 #define TCP_CONVERGENCE_KEEP_ALIVE      0x40
 #define TCP_CONVERGENCE_SHUTDOWN        0x50
+#define TCP_CONVERGENCE_LENGTH          0x60
 
 /* TCP Convergence Layer - Contact Header Flags */
 #define TCP_CONV_BUNDLE_ACK_FLAG        0x01
@@ -44,6 +45,14 @@
 #define TCP_CONVERGENCE_SHUTDOWN_FLAGS  0x03
 #define TCP_CONVERGENCE_SHUTDOWN_REASON 0x02
 #define TCP_CONVERGENCE_SHUTDOWN_DELAY  0x01
+
+/* REFUSE-BUNDLE Reason-Codes */
+#define TCP_REFUSE_BUNDLE_REASON_UNKNOWN       0x00
+#define TCP_REFUSE_BUNDLE_REASON_RX_COMPLETE   0x01
+#define TCP_REFUSE_BUNDLE_REASON_RX_EXHAUSTED  0x02
+#define TCP_REFUSE_BUNDLE_REASON_RX_RETRANSMIT 0x03
+/* 0x4-0x7 - Unassigned
+ * 0x8-0xf - Reserved for future Use */
 
 /*
  * TCP Convergence Layer - Minimum buffer sizes

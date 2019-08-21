@@ -47,6 +47,15 @@
 static int dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, packet_info *pinfo,
                                 int offset, int payload_length, gboolean* success);
 
+extern void
+dissect_cfdp_as_subtree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
+
+extern void
+dissect_amp_as_subtree(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
+
+int add_sdnv_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_sdnv_time);
+
+
 /* For Reassembling TCP Convergence Layer segments */
 static reassembly_table msg_reassembly_table;
 
@@ -58,6 +67,9 @@ static int hf_bundle_pdu_version = -1;
 
 /* TCP Convergence Header Variables */
 static int hf_tcp_convergence_pkt_type = -1;
+
+/* Refuse-Bundle reason code */
+static int hf_dtn_refuse_bundle_reason_code = -1;
 
 static int hf_contact_hdr_version = -1;
 static int hf_contact_hdr_flags = -1;
@@ -332,6 +344,16 @@ static const value_string packet_type_vals[] = {
     {((TCP_CONVERGENCE_REFUSE_BUNDLE>>4) & 0x0F), "Refuse Bundle"},
     {((TCP_CONVERGENCE_KEEP_ALIVE>>4)    & 0x0F), "Keep Alive"},
     {((TCP_CONVERGENCE_SHUTDOWN>>4)      & 0x0F), "Shutdown"},
+    {((TCP_CONVERGENCE_LENGTH>>4)      & 0x0F), "Length"},
+    {0, NULL}
+};
+
+/* Refuse-Bundle Reason-Code Flags as per RFC-7242: Section-5.4 */
+static const value_string refuse_bundle_reason_code[] = {
+    {((TCP_REFUSE_BUNDLE_REASON_UNKNOWN>>4)         & 0x0F), "Reason for refusal is unknown"},
+    {((TCP_REFUSE_BUNDLE_REASON_RX_COMPLETE>>4)     & 0x0F), "Complete Bundle Received"},
+    {((TCP_REFUSE_BUNDLE_REASON_RX_EXHAUSTED>>4)    & 0x0F), "Receiver's resources exhausted"},
+    {((TCP_REFUSE_BUNDLE_REASON_RX_RETRANSMIT>>4)   & 0x0F), "Receiver expects re-transmission of bundle"},
     {0, NULL}
 };
 
@@ -480,7 +502,7 @@ add_dtn_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_dtn_tim
  * Adds the result of SDNV which is a time since 2000 to tree.
  * Returns bytes in SDNV or 0 if something goes wrong.
  */
-static int
+int
 add_sdnv_time_to_tree(proto_tree *tree, tvbuff_t *tvb, int offset, int hf_sdnv_time)
 {
     nstime_t dtn_time;
@@ -883,6 +905,9 @@ dissect_version_4_primary_header(packet_info *pinfo, proto_tree *primary_tree, t
  * header, starting right after version number.
  */
 
+static int src_ssp;
+static int dst_ssp;
+
 static int
 dissect_version_5_and_6_primary_header(packet_info *pinfo,
                                        proto_tree *primary_tree, tvbuff_t *tvb,
@@ -993,6 +1018,7 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
     /* -- dest_ssp -- */
     dict_data.dest_ssp_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
     dict_data.dst_ssp_len = sdnv_length;
+    dst_ssp = dict_data.dest_ssp_offset;
 
     ti_dst_ssp_offset = proto_tree_add_int(primary_tree, hf_bundle_dest_ssp_offset_i32, tvb, offset, sdnv_length,
                             dict_data.dest_ssp_offset);
@@ -1010,6 +1036,7 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
     /* -- source_ssp -- */
     dict_data.source_ssp_offset = evaluate_sdnv(tvb, offset, &sdnv_length);
     dict_data.src_ssp_len = sdnv_length;
+    src_ssp = dict_data.source_ssp_offset;
 
     ti_src_ssp_offset = proto_tree_add_int(primary_tree, hf_bundle_source_ssp_offset_i32, tvb, offset, sdnv_length,
                             dict_data.source_ssp_offset);
@@ -1230,7 +1257,26 @@ dissect_payload_header(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, int 
             return offset;
         }
     } else {
-        proto_tree_add_item(payload_block_tree, hf_bundle_payload_data, tvb, offset, payload_length, ENC_ASCII);
+        /* If Source SSP Offset is 64 and Destination SSP offset is 65, then
+           interpret the payload-data part as CFDP. */
+        if (src_ssp == 0x40 &&
+            dst_ssp == 0x41)
+          {
+            dissect_cfdp_as_subtree (tvb, pinfo, payload_block_tree, offset);
+          }
+        /* If Source SSP Offset is 5 and Destination SSP offset is 6, then
+           interpret the payload-data part as AMP. */
+        else if ((src_ssp == 0x5 && dst_ssp == 0x6) ||
+                 (dst_ssp == 0x5 && src_ssp == 0x6))
+          {
+            dissect_amp_as_subtree (tvb, pinfo, payload_block_tree, offset);
+          }
+        else
+          {
+            proto_tree_add_string(payload_block_tree, hf_bundle_payload_data, tvb, offset, payload_length,
+                                  wmem_strdup_printf(wmem_packet_scope(), "<%d bytes>",payload_length));
+          }
+
         offset += payload_length;
     }
 
@@ -2210,6 +2256,14 @@ get_tcpcl_pdu_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset, void *data 
         }
 
         return len;
+
+    case TCP_CONVERGENCE_LENGTH:
+        /* get length from sdnv */
+        len = evaluate_sdnv(tvb, offset+1, &bytecount);
+        if (len < 0)
+            return 0;
+        return bytecount+1;
+
     }
 
     /* This probably isn't a TCPCL/Bundle packet, so just stop dissection */
@@ -2220,6 +2274,7 @@ static int
 dissect_tcpcl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
 {
     guint8         conv_hdr;
+    guint8         refuse_bundle_hdr;
     int            offset = 0;
     int            sdnv_length, segment_length, convergence_hdr_size;
     proto_item    *ci, *sub_item;
@@ -2409,6 +2464,11 @@ dissect_tcpcl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* dat
         } else {
             col_set_str(pinfo->cinfo, COL_INFO, "TCPL REFUSE_BUNDLE Segment");
         }
+
+        refuse_bundle_hdr = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(conv_tree, hf_dtn_refuse_bundle_reason_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+        col_add_str(pinfo->cinfo, COL_INFO, val_to_str_const((refuse_bundle_hdr>>4)&0xF, refuse_bundle_reason_code, "Unknown"));
+
         /*No valid flags*/
         processed_length = tvb_captured_length(tvb);
         break;
@@ -3139,6 +3199,10 @@ proto_register_bundle(void)
         {&hf_tcp_convergence_pkt_type,
          {"Pkt Type", "tcpcl.pkt_type",
           FT_UINT8, BASE_DEC, VALS(packet_type_vals), 0xF0, NULL, HFILL}
+        },
+        {&hf_dtn_refuse_bundle_reason_code,
+         {"Reason-Code", "tcpcl.refuse.reason_code",
+          FT_UINT8, BASE_DEC, VALS(refuse_bundle_reason_code), 0xF0, NULL, HFILL}
         },
         {&hf_tcp_convergence_data_procflags,
          {"TCP Convergence Data Flags", "tcpcl.data.proc.flag",
