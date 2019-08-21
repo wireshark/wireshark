@@ -353,8 +353,15 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, void* 
 				    cap_len * 8);
 			}
 			if (pinfo->rec->presence_flags & WTAP_HAS_INTERFACE_ID) {
-				proto_item_append_text(ti, " on interface %u",
+				const char *interface_name = epan_get_interface_name(pinfo->epan,
 				    pinfo->rec->rec_header.packet_header.interface_id);
+				if (interface_name != NULL) {
+					proto_item_append_text(ti, " on interface %s, id %u",
+					    interface_name, pinfo->rec->rec_header.packet_header.interface_id);
+				} else {
+					proto_item_append_text(ti, " on unnamed interface, id %u",
+					    pinfo->rec->rec_header.packet_header.interface_id);
+				}
 			}
 			if (pinfo->rec->presence_flags & WTAP_HAS_PACK_FLAGS) {
 				switch (PACK_FLAGS_DIRECTION(pinfo->rec->rec_header.packet_header.pack_flags)) {
