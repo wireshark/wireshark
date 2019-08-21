@@ -7133,6 +7133,8 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void* data)
         (*dtap_msg_fcn)(tvb, dtap_tree, pinfo, offset, len - offset);
     }
 
+    sccp_assoc = NULL;
+
     return len;
 }
 
