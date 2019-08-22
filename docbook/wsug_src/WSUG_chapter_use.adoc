@@ -514,12 +514,31 @@ image::wsug_graphics/ws-capture-menu.png[{screenshot-attrs}]
 [options="header",cols="3,2,5"]
 |===============
 |Menu Item                  |Accelerator    |Description
-|menu:Interfaces...[]       |kbd:[Ctrl+I]   |This menu item brings up a dialog box that shows what’s going on at the network interfaces Wireshark knows of, see <<ChCapInterfaceSection>>) .
-|menu:Options...[]          |kbd:[Ctrl+K]   |This menu item brings up the Capture Options dialog box (discussed further in <<ChCapCaptureOptions>>) and allows you to start capturing packets.
-|menu:Start[]               |kbd:[Ctrl+E]   |Immediately start capturing packets with the same settings than the last time.
-|menu:Stop[]                |kbd:[Ctrl+E]   |This menu item stops the currently running capture, see <<ChCapStopSection>>) .
-|menu:Restart[]             |kbd:[Ctrl+R]   |This menu item stops the currently running capture and starts again with the same options, this is just for convenience.
-|menu:Capture Filters...[]  |               |This menu item brings up a dialog box that allows you to create and edit capture filters. You can name filters, and you can save them for future use. More detail on this subject is provided in <<ChWorkDefineFilterSection>>
+
+|menu:Options...[]          |kbd:[Ctrl+K]   |
+Shows the Capture Options dialog box, which allows you to configure
+interfaces and capture options.
+See <<ChCapCaptureOptions>>.
+
+|menu:Start[]               |kbd:[Ctrl+E]   |
+Immediately starts capturing packets with the same settings as the last
+time.
+
+|menu:Stop[]                |kbd:[Ctrl+E]   |
+Stops the currently running capture. See <<ChCapStopSection>>.
+
+|menu:Restart[]             |kbd:[Ctrl+R]   |
+Stops the currently running capture and starts it again with the same
+options.
+
+|menu:Capture Filters...[]  |               |
+Shows a dialog box that allows you to create and edit capture filters.
+You can name filters and save them for future use.
+See <<ChWorkDefineFilterSection>>.
+
+|menu:Refresh Interfaces[]  |kbd:[F5]       |
+Clear and recreate the interface list.
+
 |===============
 
 [[ChUseAnalyzeMenuSection]]
@@ -537,32 +556,65 @@ image::wsug_graphics/ws-analyze-menu.png[{screenshot-attrs}]
 [options="header",cols="3,2,5"]
 |===============
 |Menu Item|Accelerator|Description
-|menu:Display Filters...[]          ||This menu item displays a dialog box that allows you to create and edit display filters. You can name filters, and you can save them for future use. More detail on this subject is provided in <<ChWorkDefineFilterSection>>
-|menu:Display Filter Macros...[]    ||This menu item brings up a dialog box that allows you to create and edit display filter macros. You can name filter macros, and you can save them for future use. More detail on this subject is provided in <<ChWorkDefineFilterMacrosSection>>
-|menu:Apply as Column[]             ||This menu item adds the selected protocol item in the packet details pane as a column to the packet list.
-|menu:Apply as Filter[...]          ||These menu items will change the current display filter and apply the changed filter immediately. Depending on the chosen menu item, the current display filter string will be replaced or appended to by the selected protocol field in the packet details pane.
-|menu:Prepare a Filter[...]         ||These menu items will change the current display filter but won’t apply the changed filter. Depending on the chosen menu item, the current display filter string will be replaced or appended to by the selected protocol field in the packet details pane.
-|menu:Conversation Filter[...]      ||In this menu you will find conversation filter for various protocols.
-|menu:Enabled Protocols...[]        |kbd:[Shift+Ctrl+E]|This menu item allows the user to enable/disable protocol dissectors, see <<ChAdvEnabledProtocols>>
-|menu:Decode As...[]                ||This menu item allows the user to force Wireshark to decode certain packets as a particular protocol, see <<ChAdvDecodeAs>>
+|menu:Display Filters...[]          ||
+Displays a dialog box that allows you to create and edit display
+filters. You can name filters, and you can save them for future use.
+See <<ChWorkDefineFilterSection>>.
+
+|menu:Display Filter Macros...[]    ||
+Shows a dialog box that allows you to create and edit display filter
+macros. You can name filter macros, and you can save them for future
+use.
+See <<ChWorkDefineFilterMacrosSection>>.
+
+|menu:Apply as Column[]             |kbd:[Shift+Ctrl+I]|
+Adds the selected protocol item in the packet details pane as a column
+to the packet list.
+
+|menu:Apply as Filter[]             ||
+Change the current display filter and apply it immediately. Depending on
+the chosen menu item, the current display filter string will be replaced
+or appended to by the selected protocol field in the packet details
+pane.
+
+|menu:Prepare a Filter[]            ||
+Change the current display filter but won’t apply it. Depending on the
+chosen menu item, the current display filter string will be replaced or
+appended to by the selected protocol field in the packet details pane.
+
+|menu:Conversation Filter[]         ||
+Apply a conversation filter for various protocols.
+
+|menu:Enabled Protocols...[]        |kbd:[Shift+Ctrl+E]|
+Enable or disable various protocol dissectors. See <<ChAdvEnabledProtocols>>.
+
+|menu:Decode As...[]                ||
+Decode certain packets as a particular protocol. See <<ChAdvDecodeAs>>.
 
 |menu:Follow[TCP Stream]            ||
-This menu item brings up a separate window and displays all the TCP
-segments captured that are on the same TCP connection as a selected
-packet, see <<ChAdvFollowStreamSection>>
+Open a window that displays all the TCP segments captured that are on
+the same TCP connection as a selected packet.
+See <<ChAdvFollowStreamSection>>.
 
 |menu:Follow[UDP Stream]            ||
 Same functionality as “Follow TCP Stream” but for UDP “streams”.
 
 |menu:Follow[TLS Stream]            ||
 Same functionality as “Follow TCP Stream” but for TLS or SSL streams.
-See the wiki page on link:{wireshark-wiki-url}SSL[SSL] for instructions
+See the wiki page on link:{wireshark-wiki-url}TLS[TLS] for instructions
 on providing TLS keys.
 
 |menu:Follow[HTTP Stream]           ||
 Same functionality as “Follow TCP Stream” but for HTTP streams.
 
-|menu:Expert Info[]                 ||Open a dialog showing some expert information about the captured packets. The amount of information will depend on the protocol and varies from  very detailed to non-existent. XXX - add a new section about this and link from here
+|menu:Expert Info[]                 ||
+Open a window showing expert information found in the capture.
+Some protocol dissectors add packet detail items for notable or unusual
+behavior, such as invalid checksums or retransmissions.
+Those items are shown here.
+See <<ChAdvExpert>> for more information.
+
+The amount of information will vary depend on the protocol
 |===============
 
 [[ChUseStatisticsMenuSection]]
