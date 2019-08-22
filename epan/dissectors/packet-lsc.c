@@ -64,6 +64,9 @@ static const value_string op_code_vals[] = {
 
 static const value_string status_code_vals[] = {
   { 0x00,       "LSC_OK" },
+  { 0x01,       "TRICK_PLAY_NO_LONGER_CONSTRAINED" },
+  { 0x04,       "TRICK_PLAY_CONSTRAINED" },
+  { 0x05,       "SKIPPED_PLAYLIST_ITEM" },
   { 0x10,       "LSC_BAD_REQUEST" },
   { 0x11,       "LSC_BAD_STREAM" },
   { 0x12,       "LSC_WRONG_STATE" },
