@@ -4452,6 +4452,8 @@ months [] = {
     {  10, "October" },
     {  11, "November" },
     {  12, "December" },
+    {  13, "odd month" },
+    {  14, "even month" },
     { 255, "any month" },
     { 0,   NULL }
 };
@@ -4528,6 +4530,7 @@ BACnetEventType [] = {
     {  9, "extended" },
     { 10, "buffer-ready" },
     { 11, "unsigned-range" },
+    { 13, "access-event" },
     { 14, "double-out-of-range"},     /* added with addenda 135-2008w */
     { 15, "signed-out-of-range"},
     { 16, "unsigned-out-of-range"},
@@ -6877,8 +6880,8 @@ fEnumeratedTagSplit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (fUnsigned32(tvb, offset+tag_len, lvt, &val)) {
         if (vs)
             subtree = proto_tree_add_subtree_format(tree, tvb, offset, lvt+tag_len,
-                ett_bacapp_tag, NULL, "%s %s", label, val_to_split_str(val, split_val, vs,
-                ASHRAE_Reserved_Fmt, Vendor_Proprietary_Fmt));
+                ett_bacapp_tag, NULL, "%s %s (%u)", label, val_to_split_str(val, split_val, vs,
+                ASHRAE_Reserved_Fmt, Vendor_Proprietary_Fmt), val);
         else
             subtree = proto_tree_add_subtree_format(tree, tvb, offset, lvt+tag_len,
                 ett_bacapp_tag, NULL, "%s %u", label, val);
@@ -10453,6 +10456,42 @@ fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
         break;
         /* 12 reserved */
     case 13: /* access-event */
+        while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
+            lastoffset = offset;
+            switch (fTagNo(tvb, offset)) {
+            case 0:
+                offset = fEnumeratedTagSplit(tvb, pinfo, subtree, offset,
+                                              "access event: ", BACnetAccessEvent, 512);
+                break;
+            case 1:
+                offset = fBitStringTagVS(tvb, pinfo, subtree, offset,
+                    "status-flags: ", BACnetStatusFlags);
+                break;
+            case 2:
+                offset = fUnsignedTag(tvb, pinfo, subtree, offset,
+                    "access-event-tag: ");
+                break;
+            case 3:
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                offset  = fTimeStamp(tvb, pinfo, subtree, offset, "access-event-time: ");
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                break;
+            case 4:
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                offset  = fDeviceObjectReference(tvb, pinfo, subtree, offset);
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                break;
+            case 5: /* optional authentication-factor */
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                offset  = fAuthenticationFactor(tvb, pinfo, subtree, offset);
+                offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
+                lastoffset = offset;
+                break;
+            default:
+                break;
+            }
+            if (offset <= lastoffset) break;     /* nothing happened, exit loop */
+        }
         break;
     case 14: /* double-out-of-range */
         while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
@@ -10556,7 +10595,15 @@ fNotificationParameters(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
             switch (fTagNo(tvb, offset)) {
             case 0:
                 offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
-                offset = fPresentValue(tvb, pinfo, tree, offset, BACnetStatusFlags, 0, BACAPP_PRESENT_VALUE_ENUM);
+
+                fTagHeader(tvb, pinfo, offset, &tag_no, &tag_info, &lvt);
+                if (tag_is_context_specific(tag_info)) {
+                    propertyIdentifier = 85; /* suppose present-value here */
+                    offset = fAbstractSyntaxNType(tvb, pinfo, subtree, offset);
+                } else {
+                    offset = fPresentValue(tvb, pinfo, tree, offset, BACnetStatusFlags, 0, BACAPP_PRESENT_VALUE_ENUM);
+                }
+
                 offset += fTagHeaderTree(tvb, pinfo, subtree, offset, &tag_no, &tag_info, &lvt);
                 break;
             case 1:
@@ -12283,6 +12330,7 @@ fLogRecord(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
     guint   lastoffset = 0;
     guint8  tag_no, tag_info;
     guint32 lvt;
+    gint32  save_propertyIdentifier;
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
         lastoffset = offset;
@@ -12330,7 +12378,13 @@ fLogRecord(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
                 break;
             case 10:    /* any Value */
                 offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+                /* this ASN-1 construction may contain also an property identifier, so
+                   save the one we have got and restore it later and invalidate current
+                   one to avoid misinterpretations */
+                save_propertyIdentifier = propertyIdentifier;
+                propertyIdentifier = -1;
                 offset  = fAbstractSyntaxNType(tvb, pinfo, tree, offset);
+                propertyIdentifier = save_propertyIdentifier;
                 offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
                 break;
             default:
@@ -12356,6 +12410,7 @@ fLogMultipleRecord(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
     guint   lastoffset = 0;
     guint8  tag_no, tag_info;
     guint32 lvt;
+    gint32  save_propertyIdentifier;
 
     while (tvb_reported_length_remaining(tvb, offset) > 0) {  /* exit loop if nothing happens inside */
         lastoffset = offset;
@@ -12410,7 +12465,13 @@ fLogMultipleRecord(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
                         break;
                     case 8: /* any Value */
                         offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
+                        /* this ASN-1 construction may contain also an property identifier, so
+                           save the one we have got and restore it later and invalidate current
+                           one to avoid misinterpretations */
+                        save_propertyIdentifier = propertyIdentifier;
+                        propertyIdentifier = -1;
                         offset  = fAbstractSyntaxNType(tvb, pinfo, tree, offset);
+                        propertyIdentifier = save_propertyIdentifier;
                         offset += fTagHeaderTree(tvb, pinfo, tree, offset, &tag_no, &tag_info, &lvt);
                         break;
                     default:
