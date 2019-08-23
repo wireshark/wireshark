@@ -518,7 +518,7 @@ static const range_string dsmcc_un_sess_message_discriminator_vals[] = {
     { 0x01, 0x01, "Client and Network" },
     { 0x02, 0x02, "Server and Network" },
     { 0x03, 0x0f, "ISO/IEC 13818-6 Reserved" },
-    { 0x04, 0xff, "Invalid"},
+    { 0x10, 0xff, "Invalid"},
     {    0,    0, NULL }
 };
 
@@ -748,7 +748,7 @@ static const range_string dsmcc_un_sess_rsrc_attribute_vals[] = {
     { 0x02, 0x02, "Non-Mandatory Non-Negotiable" },
     { 0x03, 0x03, "Non-Mandatory Negotiable" },
     { 0x04, 0x0f, "Reserved"},
-    { 0x05, 0xff, "Invalid"},
+    { 0x10, 0xff, "Invalid"},
     {    0,    0,  NULL }
 };
 
