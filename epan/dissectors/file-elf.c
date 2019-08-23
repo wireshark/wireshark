@@ -1,14 +1,14 @@
 /* file-elf.c
  * Routines for Executable and Linkable Format
  * Based on: SYSTEM V APPLICATION BINARY INTERFACE Edition 4.1
- * http://www.sco.com/developers/devspecs/
- * http://www.sco.com/developers/gabi/latest/contents.html
- * http://refspecs.linuxfoundation.org/
- * http://refspecs.linuxfoundation.org/LSB_4.1.0/LSB-Core-generic/LSB-Core-generic/ehframechpt.html
+ * https://www.sco.com/developers/devspecs/
+ * https://www.sco.com/developers/gabi/latest/contents.html
+ * https://refspecs.linuxfoundation.org/
+ * https://refspecs.linuxfoundation.org/LSB_4.1.0/LSB-Core-generic/LSB-Core-generic/ehframechpt.html
  * http://dwarfstd.org/doc/DWARF4.pdf
- * http://www.sco.com/developers/devspecs/
  *
  * Copyright 2013, Michal Labedzki for Tieto Corporation
+ * Copyright (C) 2019 Peter Wu <peter@lekensteyn.nl>
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
@@ -232,6 +232,7 @@ static const value_string type_vals[] = {
     { 0, NULL }
 };
 
+/* From https://www.sco.com/developers/gabi/latest/ch4.eheader.html */
 static const value_string machine_vals[] = {
     {   0,  "No machine" },
     {   1,  "AT&T WE 32100" },
@@ -239,8 +240,8 @@ static const value_string machine_vals[] = {
     {   3,  "Intel 80386" },
     {   4,  "Motorola 68000" },
     {   5,  "Motorola 88000" },
+    {   6,  "Intel MCU" },
     {   7,  "Intel 80860" },
-    /* From Draft */
     {   8,  "MIPS I Architecture" },
     {   9,  "IBM System/370 Processor" },
     {  10,  "MIPS RS3000 Little-endian" },
@@ -349,6 +350,8 @@ static const value_string machine_vals[] = {
     { 140,  "The Texas Instruments TMS320C6000 DSP family" },
     { 141,  "The Texas Instruments TMS320C2000 DSP family" },
     { 142,  "The Texas Instruments TMS320C55x DSP family" },
+    { 143,  "Texas Instruments Application Specific RISC Processor, 32bit fetch" },
+    { 144,  "Texas Instruments Programmable Realtime Unit" },
     { 160,  "STMicroelectronics 64bit VLIW Data Signal Processor" },
     { 161,  "Cypress M8C microprocessor" },
     { 162,  "Renesas R32C series microprocessors" },
@@ -395,6 +398,29 @@ static const value_string machine_vals[] = {
     { 202,  "Beyond BA2 CPU architecture" },
     { 203,  "XMOS xCORE processor family" },
     { 204,  "Microchip 8-bit PIC(r) family" },
+    { 205,  "Reserved by Intel" },
+    { 206,  "Reserved by Intel" },
+    { 207,  "Reserved by Intel" },
+    { 208,  "Reserved by Intel" },
+    { 209,  "Reserved by Intel" },
+    { 210,  "KM211 KM32 32-bit processor" },
+    { 211,  "KM211 KMX32 32-bit processor" },
+    { 212,  "KM211 KMX16 16-bit processor" },
+    { 213,  "KM211 KMX8 8-bit processor" },
+    { 214,  "KM211 KVARC processor" },
+    { 215,  "Paneve CDP architecture family" },
+    { 216,  "Cognitive Smart Memory Processor" },
+    { 217,  "Bluechip Systems CoolEngine" },
+    { 218,  "Nanoradio Optimized RISC" },
+    { 219,  "CSR Kalimba architecture family" },
+    { 220,  "Zilog Z80" },
+    { 221,  "Controls and Data Services VISIUMcore processor" },
+    { 222,  "FTDI Chip FT32 high performance 32-bit RISC architecture" },
+    { 223,  "Moxie processor family" },
+    { 224,  "AMD GPU architecture" },
+    { 243,  "RISC-V" },
+    { 247,  "Linux kernel bpf virtual machine" }, /* From LLVM / glibc 2.24 */
+    { 252,  "C-SKY" },  /* from glibc 2.30 elf/elf.h commit 5fbcd76351ee */
     { 0, NULL }
 };
 static value_string_ext machine_vals_ext = VALUE_STRING_EXT_INIT(machine_vals);
@@ -450,7 +476,7 @@ static const value_string sh_type_vals[] = {
     { 16,  "SHT_PREINIT_ARRAY" },
     { 17,  "SHT_GROUP" },
     { 18,  "SHT_SYMTAB_SHNDX" },
-    /* TODO: http://www.sco.com/developers/gabi/latest/ch4.sheader.html range_string? */
+    /* TODO: https://www.sco.com/developers/gabi/latest/ch4.sheader.html range_string? */
     { 0, NULL }
 };
 static value_string_ext sh_type_vals_ext = VALUE_STRING_EXT_INIT(sh_type_vals);
