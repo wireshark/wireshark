@@ -1626,7 +1626,7 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
         }
         offset += register_size;
 
-        if (segment_size > 0 && sh_type != 8) {
+        if (segment_size > 0 && sh_type != 8) { /* ! SHT_NOBITS */
             file_size += segment_size;
 
             segment_info[area_counter].offset = segment_offset;
@@ -1687,7 +1687,9 @@ dissect_elf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, void *data _U_)
                         i += 1;
                     }
             } else {
-                if (sh_entsize > 0) {
+                /* .debug_str sections have sh_entsize 1, displaying every byte
+                 * individually can explode the tree size, so require > 1. */
+                if (sh_entsize > 1) {
                     next_offset = value_guard(segment_offset);
                     for  (i = 1; i < (segment_size / sh_entsize) + 1; i += 1) {
                         proto_tree_add_bytes_format(segment_tree, hf_elf_entry_bytes, tvb, next_offset,
