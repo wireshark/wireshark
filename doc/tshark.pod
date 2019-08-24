@@ -22,8 +22,9 @@ S<[ B<-g> ]>
 S<[ B<-h> ]>
 S<[ B<-H> E<lt>input hosts fileE<gt> ]>
 S<[ B<-i> E<lt>capture interfaceE<gt>|- ]>
-S<[ B<-j> E<lt>protocol match filterE<gt> ]>
 S<[ B<-I> ]>
+S<[ B<-j> E<lt>protocol match filterE<gt> ]>
+S<[ B<-J> E<lt>protocol match filterE<gt> ]>
 S<[ B<-K> E<lt>keytabE<gt> ]>
 S<[ B<-l> ]>
 S<[ B<-L> ]>
