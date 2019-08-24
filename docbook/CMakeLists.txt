@@ -141,7 +141,6 @@ set(WSUG_GRAPHICS
 	wsug_graphics/ws-coloring-fields.png
 	wsug_graphics/ws-coloring-rules-dialog.png
 	wsug_graphics/ws-column-header-popup-menu.png
-	wsug_graphics/ws-decode-as-show.png
 	wsug_graphics/ws-decode-as.png
 	wsug_graphics/ws-details-pane-popup-menu.png
 	wsug_graphics/ws-details-pane.png
