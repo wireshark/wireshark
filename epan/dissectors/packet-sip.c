@@ -273,6 +273,7 @@ static expert_field ei_sip_content_length_invalid = EI_INIT;
 static expert_field ei_sip_retry_after_invalid = EI_INIT;
 static expert_field ei_sip_Status_Code_invalid = EI_INIT;
 static expert_field ei_sip_authorization_invalid = EI_INIT;
+static expert_field ei_sip_session_id_sess_id = EI_INIT;
 
 /* patterns used for tvb_ws_mempbrk_pattern_guint8 */
 static ws_mempbrk_pattern pbrk_comma_semi;
@@ -2868,7 +2869,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
  *                         *( SEMI generic-param )
  * sess-id              =  32(DIGIT / %x61-66)  ; 32 chars of [0-9a-f]
  */
-static void dissect_sip_session_id_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gint line_end_offset)
+static void dissect_sip_session_id_header(tvbuff_t *tvb, proto_tree *tree, gint start_offset, gint line_end_offset, packet_info *pinfo)
 {
     gint current_offset, semi_colon_offset, equals_offset, length;
     GByteArray *bytes;
@@ -2882,9 +2883,15 @@ static void dissect_sip_session_id_header(tvbuff_t *tvb, proto_tree *tree, gint 
 
     length = semi_colon_offset-current_offset;
     bytes = g_byte_array_sized_new(16);
-    pi = proto_tree_add_bytes_item(tree, hf_sip_session_id_sess_id, tvb,
-                              start_offset, length, ENC_UTF_8|ENC_STR_HEX|ENC_SEP_NONE,
-                              bytes, NULL, NULL);
+    if (length != 0) {
+        pi = proto_tree_add_bytes_item(tree, hf_sip_session_id_sess_id, tvb,
+                                  start_offset, length, ENC_UTF_8|ENC_STR_HEX|ENC_SEP_NONE,
+                                  bytes, NULL, NULL);
+    } else {
+        pi = proto_tree_add_item(tree, hf_sip_session_id_sess_id, tvb,
+            start_offset, length, ENC_UTF_8 | ENC_STR_HEX | ENC_SEP_NONE);
+        expert_add_info(pinfo, pi, &ei_sip_session_id_sess_id);
+    }
 
     current_offset = current_offset + length + 1;
 
@@ -4504,7 +4511,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, int remaining_length, packet_info 
                                                             value_offset, value_len);
                             sip_proto_set_format_text(hdr_tree, sip_element_item, tvb, offset, linelen);
                             session_id_tree = proto_item_add_subtree(sip_element_item, ett_sip_session_id);
-                            dissect_sip_session_id_header(tvb, session_id_tree, value_offset, line_end_offset);
+                            dissect_sip_session_id_header(tvb, session_id_tree, value_offset, line_end_offset, pinfo);
                         }
                         break;
                     case POS_P_ACCESS_NETWORK_INFO:
@@ -7291,7 +7298,8 @@ void proto_register_sip(void)
         { &ei_sip_content_length_invalid, { "sip.content_length.invalid", PI_MALFORMED, PI_NOTE, "Invalid content_length", EXPFILL }},
         { &ei_sip_retry_after_invalid, { "sip.retry_after.invalid", PI_MALFORMED, PI_NOTE, "Invalid retry_after value", EXPFILL }},
         { &ei_sip_Status_Code_invalid, { "sip.Status-Code.invalid", PI_MALFORMED, PI_NOTE, "Invalid Status-Code", EXPFILL }},
-        { &ei_sip_authorization_invalid, { "sip.authorization.invalid", PI_PROTOCOL, PI_WARN, "Invalid authorization response for known credentials", EXPFILL }}
+        { &ei_sip_authorization_invalid, { "sip.authorization.invalid", PI_PROTOCOL, PI_WARN, "Invalid authorization response for known credentials", EXPFILL }},
+        { &ei_sip_session_id_sess_id,{ "sip.Session-ID.sess_id.invalid", PI_PROTOCOL, PI_WARN, "Session ID cannot be empty", EXPFILL }}
     };
 
     module_t *sip_module;
