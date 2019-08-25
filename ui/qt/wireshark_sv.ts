@@ -5685,11 +5685,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation>Profil: %1</translation>
     </message>
     <message>
-        <source>Manage Profiles</source>
-        <oldsource>Manage Profiles...</oldsource>
-        <translation>Hantera profiler</translation>
-    </message>
-    <message>
         <source>Import</source>
         <translation type="unfinished">Importera</translation>
     </message>
@@ -5704,16 +5699,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>Export</source>
         <translation type="unfinished">Exportera</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <oldsource>New...</oldsource>
-        <translation>Ny</translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <oldsource>Edit...</oldsource>
-        <translation>Redigera</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -5794,6 +5779,18 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     <message>
         <source>No Packets</source>
         <translation>Inga paket</translation>
+    </message>
+    <message>
+        <source>Manage Profiles</source>
+        <translation>Hantera profiler</translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation>Ny</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation>Redigera</translation>
     </message>
     <message>
         <source>selected personal profile</source>
@@ -8597,11 +8594,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
         <translation type="unfinished">Exportera</translation>
     </message>
     <message>
-        <source>An import of profiles is not allowed, while changes are pending</source>
-        <oldsource>An import of profiles is not allowed, while changes are pending.</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>New profile</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8627,6 +8619,22 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
             <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
+    </message>
+    <message>
+        <source>An import of profiles is not allowed, while changes are pending</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An import is pending to be saved. Additional imports are not allowed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An export of profiles is only allowed for personal profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An export of profiles is not allowed, while changes are pending</source>
+        <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
         <source>%Ln profile(s) exported</source>
@@ -8657,21 +8665,6 @@ Till exempel, använd 1 timma för att en ny fil skall skapas varje timma vid he
     </message>
     <message>
         <source>all personal profiles</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>An import is pending to be saved. Additional imports are not allowed</source>
-        <oldsource>An import is pending to be saved. Additional imports are not allowed.</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>An export of profiles is only allowed for personal profiles</source>
-        <oldsource>An export of profiles is only allowed for personal profiles.</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>An export of profiles is not allowed, while changes are pending</source>
-        <oldsource>An export of profiles is not allowed, while changes are pending.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

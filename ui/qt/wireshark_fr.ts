@@ -5661,11 +5661,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished"></translation>
     </message>
     <message>
-        <source>Manage Profiles</source>
-        <oldsource>Manage Profiles...</oldsource>
-        <translation>Gérer des Profils</translation>
-    </message>
-    <message>
         <source>Import</source>
         <translation type="unfinished">Importer</translation>
     </message>
@@ -5680,16 +5675,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>Export</source>
         <translation type="unfinished">Exporter</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <oldsource>New...</oldsource>
-        <translation>Nouveau</translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <oldsource>Edit...</oldsource>
-        <translation>Editer</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -5770,6 +5755,18 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     <message>
         <source>No Packets</source>
         <translation>Pas de paquets</translation>
+    </message>
+    <message>
+        <source>Manage Profiles</source>
+        <translation>Gérer des Profils</translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation>Nouveau</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation>Editer</translation>
     </message>
     <message>
         <source>selected personal profile</source>
@@ -8567,11 +8564,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
         <translation type="unfinished">Exporter</translation>
     </message>
     <message>
-        <source>An import of profiles is not allowed, while changes are pending</source>
-        <oldsource>An import of profiles is not allowed, while changes are pending.</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
         <source>New profile</source>
         <translation type="unfinished"></translation>
     </message>
@@ -8597,6 +8589,22 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
             <numerusform></numerusform>
             <numerusform></numerusform>
         </translation>
+    </message>
+    <message>
+        <source>An import of profiles is not allowed, while changes are pending</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An import is pending to be saved. Additional imports are not allowed</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An export of profiles is only allowed for personal profiles</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
+        <source>An export of profiles is not allowed, while changes are pending</source>
+        <translation type="unfinished"></translation>
     </message>
     <message numerus="yes">
         <source>%Ln profile(s) exported</source>
@@ -8627,21 +8635,6 @@ Changer la direction de la connexion (voir le flux inverse).&lt;/p&gt;&lt;/body&
     </message>
     <message>
         <source>all personal profiles</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>An import is pending to be saved. Additional imports are not allowed</source>
-        <oldsource>An import is pending to be saved. Additional imports are not allowed.</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>An export of profiles is only allowed for personal profiles</source>
-        <oldsource>An export of profiles is only allowed for personal profiles.</oldsource>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>An export of profiles is not allowed, while changes are pending</source>
-        <oldsource>An export of profiles is not allowed, while changes are pending.</oldsource>
         <translation type="unfinished"></translation>
     </message>
     <message>

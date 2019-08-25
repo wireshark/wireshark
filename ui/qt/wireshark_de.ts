@@ -5685,11 +5685,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Profil: %1</translation>
     </message>
     <message>
-        <source>Manage Profiles</source>
-        <oldsource>Manage Profiles...</oldsource>
-        <translation>Profile verwalten</translation>
-    </message>
-    <message>
         <source>Import</source>
         <translation>Importieren</translation>
     </message>
@@ -5704,16 +5699,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>Export</source>
         <translation>Exportieren</translation>
-    </message>
-    <message>
-        <source>New</source>
-        <oldsource>New...</oldsource>
-        <translation>Neu</translation>
-    </message>
-    <message>
-        <source>Edit</source>
-        <oldsource>Edit...</oldsource>
-        <translation>Editieren</translation>
     </message>
     <message>
         <source>Delete</source>
@@ -5794,6 +5779,18 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>No Packets</source>
         <translation>Keine Pakete</translation>
+    </message>
+    <message>
+        <source>Manage Profiles</source>
+        <translation>Profile verwalten</translation>
+    </message>
+    <message>
+        <source>New</source>
+        <translation>Neu</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation>Editieren</translation>
     </message>
     <message>
         <source>selected personal profile</source>
@@ -8597,11 +8594,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Exportieren</translation>
     </message>
     <message>
-        <source>An import of profiles is not allowed, while changes are pending</source>
-        <oldsource>An import of profiles is not allowed, while changes are pending.</oldsource>
-        <translation type="unfinished">Solange Änderungen noch anstehen können Profile nicht importiert werden.</translation>
-    </message>
-    <message>
         <source>New profile</source>
         <translation>Neues Profil</translation>
     </message>
@@ -8635,6 +8627,22 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
             <numerusform>%Ln ausgewählte persönliche Profile</numerusform>
         </translation>
     </message>
+    <message>
+        <source>An import of profiles is not allowed, while changes are pending</source>
+        <translation>Solange Änderungen noch anstehen können Profile nicht importiert werden</translation>
+    </message>
+    <message>
+        <source>An import is pending to be saved. Additional imports are not allowed</source>
+        <translation>Ein Import steht zum sichern aus. Weitere Importe sind nicht erlaubt</translation>
+    </message>
+    <message>
+        <source>An export of profiles is only allowed for personal profiles</source>
+        <translation>Es können nur persönliche Profile exportiert werden</translation>
+    </message>
+    <message>
+        <source>An export of profiles is not allowed, while changes are pending</source>
+        <translation>Solange Änderungen noch ausstehen dürfen Profile nicht exportiert werden</translation>
+    </message>
     <message numerus="yes">
         <source>%Ln profile(s) exported</source>
         <translation>
@@ -8665,21 +8673,6 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     <message>
         <source>all personal profiles</source>
         <translation>Alle persönlichen Profile</translation>
-    </message>
-    <message>
-        <source>An import is pending to be saved. Additional imports are not allowed</source>
-        <oldsource>An import is pending to be saved. Additional imports are not allowed.</oldsource>
-        <translation type="unfinished">Ein Import steht zum sichern aus. Weitere Importe sind nicht erlaubt.</translation>
-    </message>
-    <message>
-        <source>An export of profiles is only allowed for personal profiles</source>
-        <oldsource>An export of profiles is only allowed for personal profiles.</oldsource>
-        <translation type="unfinished">Es können nur persönliche Profile exportiert werden.</translation>
-    </message>
-    <message>
-        <source>An export of profiles is not allowed, while changes are pending</source>
-        <oldsource>An export of profiles is not allowed, while changes are pending.</oldsource>
-        <translation type="unfinished">Solange Änderungen noch ausstehen dürfen Profile nicht exportiert werden.</translation>
     </message>
     <message>
         <source>Error</source>
@@ -8731,27 +8724,27 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>This is a system provided profile</source>
-        <translation type="unfinished"></translation>
+        <translation>Dies ist ein vorgegebenes Profil</translation>
     </message>
     <message>
         <source>A profile change for this name is pending</source>
-        <translation type="unfinished"></translation>
+        <translation>Eine Namensänderung für dieses Profil ist ausstehend</translation>
     </message>
     <message>
         <source> (See: %1)</source>
-        <translation type="unfinished"></translation>
+        <translation>(Siehe: %1)</translation>
     </message>
     <message>
         <source>This is an invalid profile definition</source>
-        <translation type="unfinished"></translation>
+        <translation>Profildefinition ist nicht gültig</translation>
     </message>
     <message>
         <source>A profile already exists with this name</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Profil mit diesem Namen existiert bereits</translation>
     </message>
     <message>
         <source>A profile with this name is being deleted</source>
-        <translation type="unfinished"></translation>
+        <translation>Ein Profil mit diesem Namen wird gelöscht</translation>
     </message>
     <message>
         <source>Created from default settings</source>
@@ -8788,11 +8781,7 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
     </message>
     <message>
         <source>A profile name cannot contain the &apos;/&apos; character</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>A profile name cannot contain the &apos;/&apos; character.</source>
-        <translation type="vanished">Ein Profilname darf kein &apos;/&apos; Zeichen enthalten.</translation>
+        <translation>Ein Profilname darf kein &apos;/&apos; Zeichen enthalten</translation>
     </message>
     <message>
         <source>A profile cannot start or end with a period (.)</source>
@@ -8803,20 +8792,12 @@ Um zum Beispiel eine neue Datei zu jeder vollen Stunde zu haben, 1 Stunde angebe
         <translation>Standard</translation>
     </message>
     <message>
-        <source>This is a system provided profile.</source>
-        <translation type="vanished">Dies ist ein vorgegebenes Profil.</translation>
-    </message>
-    <message>
         <source>Global</source>
         <translation>Global</translation>
     </message>
     <message>
         <source>Personal</source>
         <translation>Persönliche</translation>
-    </message>
-    <message>
-        <source>A profile already exists with this name.</source>
-        <translation type="vanished">Ein Profil mit diesem Namen existiert bereits.</translation>
     </message>
     <message>
         <source>Renamed from: %1</source>
