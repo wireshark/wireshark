@@ -1964,6 +1964,10 @@ For example, use 1 hour to have a new file created every hour on the hour.</sour
         <translation type="unfinished"></translation>
     </message>
     <message>
+        <source>Clear display filter</source>
+        <translation type="unfinished"></translation>
+    </message>
+    <message>
         <source>Apply a read filter %1</source>
         <translation type="unfinished"></translation>
     </message>

@@ -98,7 +98,7 @@ DisplayFilterEdit::DisplayFilterEdit(QWidget *parent, DisplayFilterEditType type
     if (type_ == DisplayFilterToApply) {
         clear_button_ = new StockIconToolButton(this, "x-filter-clear");
         clear_button_->setCursor(Qt::ArrowCursor);
-        clear_button_->setToolTip(QString());
+        clear_button_->setToolTip(tr("Clear display filter"));
         clear_button_->setIconSize(QSize(14, 14));
         clear_button_->setStyleSheet(
                 "QToolButton {"
