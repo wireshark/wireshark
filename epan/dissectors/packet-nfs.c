@@ -1196,7 +1196,7 @@ nfs_name_snoop_add_fh(int xid, tvbuff_t *tvb, int fh_offset, int fh_length)
 	key->fh = nns->fh;
 
 	g_hash_table_steal(nfs_name_snoop_unmatched, GINT_TO_POINTER(xid));
-	g_hash_table_insert(nfs_name_snoop_matched, key, nns);
+	g_hash_table_replace(nfs_name_snoop_matched, key, nns);
 }
 
 
