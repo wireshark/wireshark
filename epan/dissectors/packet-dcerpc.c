@@ -2945,8 +2945,13 @@ dissect_deferred_pointers(packet_info *pinfo, tvbuff_t *tvb, int offset, dcerpc_
     int          len;
     GSList      *current_ndr_pointer_list;
 
-    /* The list is assumed to be non-empty, otherwise this should not be called. */
-    DISSECTOR_ASSERT(list_ndr_pointer_list);
+    /*
+     * pidl has a difficiency of unconditionally emitting calls
+     * dissect_deferred_pointers() to the generated dissectors.
+     */
+    if (list_ndr_pointer_list == NULL) {
+        return offset;
+    }
 
     /* Probably not necessary, it is supposed to prevent more pointers from
      * being added to the list. */
