@@ -182,7 +182,15 @@ const QString FilterAction::actionDirectionName(ActionDirection direction) {
 QActionGroup * FilterAction::createFilterGroup(QString filter, bool prepare, bool enabled, QWidget * parent)
 {
     if ( filter.isEmpty() )
-        return Q_NULLPTR;
+        enabled = false;
+
+    bool filterEmpty = false;
+    if ( wsApp )
+    {
+        QWidget * mainWin = wsApp->mainWindow();
+        if ( qobject_cast<MainWindow *>(mainWin) )
+            filterEmpty = qobject_cast<MainWindow *>(mainWin)->getFilter().isEmpty();
+    }
 
     FilterAction * filterAction = new FilterAction(parent, prepare ? FilterAction::ActionPrepare : FilterAction::ActionApply);
 
@@ -195,14 +203,19 @@ QActionGroup * FilterAction::createFilterGroup(QString filter, bool prepare, boo
     action->setProperty("filterType", FilterAction::ActionTypeNot);
     action = group->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "and Selected"));
     action->setProperty("filterType", FilterAction::ActionTypeAnd);
+    action->setEnabled(!filterEmpty);
     action = group->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "or Selected"));
     action->setProperty("filterType", FilterAction::ActionTypeOr);
+    action->setEnabled(!filterEmpty);
     action = group->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "and not Selected"));
     action->setProperty("filterType", FilterAction::ActionTypeAndNot);
+    action->setEnabled(!filterEmpty);
     action = group->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "or not Selected"));
     action->setProperty("filterType", FilterAction::ActionTypeOrNot);
+    action->setEnabled(!filterEmpty);
     group->setEnabled(enabled);
-    connect(group, &QActionGroup::triggered, filterAction, &FilterAction::groupTriggered);
+    if ( ! filter.isEmpty() )
+        connect(group, &QActionGroup::triggered, filterAction, &FilterAction::groupTriggered);
 
     return group;
 }

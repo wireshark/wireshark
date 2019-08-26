@@ -51,6 +51,7 @@
 #include <ui/qt/widgets/packet_list_header.h>
 #include <ui/qt/utils/wireshark_mime_data.h>
 #include <ui/qt/widgets/drag_label.h>
+#include <ui/qt/filter_action.h>
 
 #include <QAction>
 #include <QActionGroup>
@@ -500,28 +501,26 @@ void PacketList::contextMenuEvent(QContextMenuEvent *event)
     ctx_menu.addAction(window()->findChild<QAction *>("actionViewEditResolvedName"));
     ctx_menu.addSeparator();
 
-    QMenu *main_menu_item = window()->findChild<QMenu *>("menuApplyAsFilter");
-    QMenu *submenu = new QMenu(main_menu_item->title(), &ctx_menu);
-    ctx_menu.addMenu(submenu);
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFNotSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFAndSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFOrSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFAndNotSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFOrNotSelected"));
+    QString selectedfilter = getFilterFromRowAndColumn(currentIndex());
 
-    main_menu_item = window()->findChild<QMenu *>("menuPrepareAFilter");
-    submenu = new QMenu(main_menu_item->title(), &ctx_menu);
+    if ( ! hasFocus() && cap_file_ && cap_file_->finfo_selected) {
+        char *tmp_field = proto_construct_match_selected_string(cap_file_->finfo_selected, cap_file_->edt);
+        selectedfilter = QString(tmp_field);
+        wmem_free(NULL, tmp_field);
+    }
+
+    bool have_filter_expr = !selectedfilter.isEmpty();
+    QMenu * submenu = new QMenu(tr("Apply as Filter"), &ctx_menu);
+    QActionGroup * group = FilterAction::createFilterGroup(selectedfilter, false, have_filter_expr, &ctx_menu);
+    submenu->addActions(group->actions());
     ctx_menu.addMenu(submenu);
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFNotSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFAndSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFOrSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFAndNotSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFOrNotSelected"));
+    submenu = new QMenu(tr("Prepare as Filter"), &ctx_menu);
+    group = FilterAction::createFilterGroup(selectedfilter, true, have_filter_expr, &ctx_menu);
+    submenu->addActions(group->actions());
+    ctx_menu.addMenu(submenu);
 
     const char *conv_menu_name = "menuConversationFilter";
-    main_menu_item = window()->findChild<QMenu *>(conv_menu_name);
+    QMenu * main_menu_item = window()->findChild<QMenu *>(conv_menu_name);
     conv_menu_.setTitle(main_menu_item->title());
     conv_menu_.setObjectName(conv_menu_name);
     ctx_menu.addMenu(&conv_menu_);
