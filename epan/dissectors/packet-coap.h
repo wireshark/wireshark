@@ -44,12 +44,16 @@ typedef struct {
 
 /* CoAP Transaction tracking information */
 typedef struct {
-	guint32  req_frame;
-	guint32  rsp_frame;
-	nstime_t req_time;
+	wmem_map_t    *req_rsp;
 	wmem_strbuf_t *uri_str_strbuf;
 	oscore_info_t *oscore_info;		/* OSCORE transaction to decrypt response */
 } coap_transaction;
+
+typedef struct {
+	guint32  req_frame;
+	guint32  rsp_frame;
+	nstime_t req_time;
+} coap_request_response;
 
 /* common header fields, subtrees and expert info for SSL and DTLS dissectors */
 typedef struct coap_common_dissect {
