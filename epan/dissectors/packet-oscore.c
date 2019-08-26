@@ -733,7 +733,7 @@ oscore_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (coinfo) {
         dissect_coap_code(tvb_decrypted, oscore_tree, &offset, &dissect_oscore_hf, &code_class);
-        offset = dissect_coap_options(tvb_decrypted, pinfo, oscore_tree, offset, oscore_length, coinfo, &dissect_oscore_hf);
+        offset = dissect_coap_options(tvb_decrypted, pinfo, oscore_tree, offset, oscore_length, code_class, coinfo, &dissect_oscore_hf);
         if (oscore_length > offset) {
             dissect_coap_payload(tvb_decrypted, pinfo, oscore_tree, tree, offset, oscore_length, code_class, coinfo, &dissect_oscore_hf, TRUE);
         }

@@ -85,7 +85,8 @@ typedef struct coap_common_dissect {
 		int opt_location_query;
 		int opt_uri_path;
 		int opt_uri_path_recon;
-		int opt_observe;
+		int opt_observe_req;
+		int opt_observe_rsp;
 		int opt_accept;
 		int opt_if_match;
 		int opt_block_number;
@@ -126,7 +127,7 @@ typedef struct coap_common_dissect {
 } coap_common_dissect_t;
 
 guint8 dissect_coap_code(tvbuff_t *tvb, proto_tree *coap_tree, gint *offset, coap_common_dissect_t *dissect_hf, guint8 *code_class);
-int dissect_coap_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, gint offset, gint offset_end, coap_info *coinfo, coap_common_dissect_t *dissect_hf);
+int dissect_coap_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, gint offset, gint offset_end, guint8 code_class, coap_info *coinfo, coap_common_dissect_t *dissect_hf);
 void dissect_coap_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, proto_tree *parent_tree, gint offset, gint offset_end, guint8 code_class, coap_info *coinfo, coap_common_dissect_t *dissect_hf, gboolean oscore);
 
 extern const value_string coap_vals_observe_options[];
@@ -140,7 +141,7 @@ coap_common_dissect_t name = {							\
 		-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,				\
 		-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,				\
 		-1, -1, -1, -1, -1, -1, -1, -1, -1, -1,				\
-		-1,								\
+		-1, -1,								\
 		},								\
 	/* ett */ {								\
 		-1, -1,								\
@@ -318,9 +319,14 @@ coap_common_dissect_t name = {							\
 	    FT_STRING, BASE_NONE, NULL, 0x0,					\
 	    NULL, HFILL }							\
 	},									\
-	{ & name .hf.opt_observe,						\
+	{ & name .hf.opt_observe_req,						\
 	  { "Observe",  prefix ".opt.observe",					\
 	    FT_UINT32, BASE_DEC, VALS(coap_vals_observe_options), 0x0,		\
+	    NULL, HFILL }							\
+	},									\
+	{ & name .hf.opt_observe_rsp,						\
+	  { "Observe sequence number",  prefix ".opt.observe",			\
+	    FT_UINT32, BASE_DEC, NULL, 0x0,					\
 	    NULL, HFILL }							\
 	},									\
 	{ & name .hf.opt_accept,						\
