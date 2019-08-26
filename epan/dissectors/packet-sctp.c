@@ -3359,7 +3359,7 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
   volatile guint32 payload_proto_id;
   tvbuff_t *payload_tvb;
   proto_tree *flags_tree;
-  guint8 e_bit, b_bit, u_bit;
+  guint8 oct, e_bit, b_bit, u_bit;
   guint16 stream_id;
   guint32 tsn, ppid, stream_seq_num = 0;
   proto_item *tsn_item = NULL;
@@ -3367,6 +3367,14 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
   gboolean is_retransmission;
   guint16 header_length;
   guint16 payload_offset;
+
+  static const int* chunk_flags[] = {
+    &hf_data_chunk_i_bit,
+    &hf_data_chunk_u_bit,
+    &hf_data_chunk_b_bit,
+    &hf_data_chunk_e_bit,
+    NULL
+  };
 
   if (is_idata) {
     if (chunk_length < I_DATA_CHUNK_HEADER_LENGTH) {
@@ -3392,9 +3400,10 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
   if ((number_of_ppid < MAX_NUMBER_OF_PPIDS) && (ppid == LAST_PPID))
     p_add_proto_data(pinfo->pool, pinfo, proto_sctp, number_of_ppid, GUINT_TO_POINTER(payload_proto_id));
 
-  e_bit = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_DATA_CHUNK_E_BIT;
-  b_bit = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_DATA_CHUNK_B_BIT;
-  u_bit = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_DATA_CHUNK_U_BIT;
+  oct = tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET);
+  e_bit = oct & SCTP_DATA_CHUNK_E_BIT;
+  b_bit = oct & SCTP_DATA_CHUNK_B_BIT;
+  u_bit = oct & SCTP_DATA_CHUNK_U_BIT;
   tsn = tvb_get_ntohl(chunk_tvb, DATA_CHUNK_TSN_OFFSET);
 
   if (chunk_tree) {
@@ -3402,11 +3411,9 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
       proto_item_set_len(chunk_item, I_DATA_CHUNK_HEADER_LENGTH);
     else
       proto_item_set_len(chunk_item, DATA_CHUNK_HEADER_LENGTH);
+
     flags_tree  = proto_item_add_subtree(flags_item, ett_sctp_data_chunk_flags);
-    proto_tree_add_item(flags_tree, hf_data_chunk_e_bit,             chunk_tvb, CHUNK_FLAGS_OFFSET,                    CHUNK_FLAGS_LENGTH,                    ENC_BIG_ENDIAN);
-    proto_tree_add_item(flags_tree, hf_data_chunk_b_bit,             chunk_tvb, CHUNK_FLAGS_OFFSET,                    CHUNK_FLAGS_LENGTH,                    ENC_BIG_ENDIAN);
-    proto_tree_add_item(flags_tree, hf_data_chunk_u_bit,             chunk_tvb, CHUNK_FLAGS_OFFSET,                    CHUNK_FLAGS_LENGTH,                    ENC_BIG_ENDIAN);
-    proto_tree_add_item(flags_tree, hf_data_chunk_i_bit,             chunk_tvb, CHUNK_FLAGS_OFFSET,                    CHUNK_FLAGS_LENGTH,                    ENC_BIG_ENDIAN);
+    proto_tree_add_bitmask_list(flags_tree, chunk_tvb, CHUNK_FLAGS_OFFSET, CHUNK_FLAGS_LENGTH, chunk_flags, ENC_NA);
     tsn_item = proto_tree_add_item(chunk_tree, hf_data_chunk_tsn,    chunk_tvb, DATA_CHUNK_TSN_OFFSET,                 DATA_CHUNK_TSN_LENGTH,                 ENC_BIG_ENDIAN);
     proto_tree_add_item(chunk_tree, hf_data_chunk_stream_id,         chunk_tvb, DATA_CHUNK_STREAM_ID_OFFSET,           DATA_CHUNK_STREAM_ID_LENGTH,           ENC_BIG_ENDIAN);
     if (is_idata) {
@@ -3436,20 +3443,20 @@ dissect_data_chunk(tvbuff_t *chunk_tvb,
     if (is_idata) {
       if (b_bit)
         proto_item_append_text(chunk_item, " segment, TSN: %u, SID: %u, MID: %u, payload length: %u byte%s)",
-                               tvb_get_ntohl(chunk_tvb, DATA_CHUNK_TSN_OFFSET),
+                               tsn,
                                tvb_get_ntohs(chunk_tvb, DATA_CHUNK_STREAM_ID_OFFSET),
                                tvb_get_ntohl(chunk_tvb, I_DATA_CHUNK_MID_OFFSET),
                                chunk_length - I_DATA_CHUNK_HEADER_LENGTH, plurality(chunk_length - I_DATA_CHUNK_HEADER_LENGTH, "", "s"));
       else
         proto_item_append_text(chunk_item, " segment, TSN: %u, SID: %u, MID: %u, FSN: %u, payload length: %u byte%s)",
-                               tvb_get_ntohl(chunk_tvb, DATA_CHUNK_TSN_OFFSET),
+                               tsn,
                                tvb_get_ntohs(chunk_tvb, DATA_CHUNK_STREAM_ID_OFFSET),
                                tvb_get_ntohl(chunk_tvb, I_DATA_CHUNK_MID_OFFSET),
                                tvb_get_ntohl(chunk_tvb, I_DATA_CHUNK_FSN_OFFSET),
                                chunk_length - I_DATA_CHUNK_HEADER_LENGTH, plurality(chunk_length - I_DATA_CHUNK_HEADER_LENGTH, "", "s"));
     } else
       proto_item_append_text(chunk_item, " segment, TSN: %u, SID: %u, SSN: %u, PPID: %u, payload length: %u byte%s)",
-                             tvb_get_ntohl(chunk_tvb, DATA_CHUNK_TSN_OFFSET),
+                             tsn,
                              tvb_get_ntohs(chunk_tvb, DATA_CHUNK_STREAM_ID_OFFSET),
                              tvb_get_ntohs(chunk_tvb, DATA_CHUNK_STREAM_SEQ_NUMBER_OFFSET),
                              payload_proto_id,
