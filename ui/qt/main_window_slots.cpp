@@ -2609,7 +2609,12 @@ void MainWindow::matchFieldFilter(FilterAction::Action action, FilterAction::Act
         return;
     }
 
-    emit filterAction(field_filter, action, filter_type);
+    setDisplayFilter(field_filter, action, filter_type);
+}
+
+void MainWindow::setDisplayFilter(QString filter, FilterAction::Action action, FilterAction::ActionType filterType)
+{
+    emit filterAction(filter, action, filterType);
 }
 
 void MainWindow::on_actionAnalyzeDisplayFilters_triggered()

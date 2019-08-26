@@ -307,6 +307,7 @@ public slots:
     bool openCaptureFile(QString cf_path, QString display_filter, unsigned int type, gboolean is_tempfile = FALSE);
     bool openCaptureFile(QString cf_path = QString(), QString display_filter = QString()) { return openCaptureFile(cf_path, display_filter, WTAP_TYPE_AUTO); }
     void filterPackets(QString new_filter = QString(), bool force = false);
+    void setDisplayFilter(QString filter, FilterAction::Action action, FilterAction::ActionType filterType);
     void updateForUnsavedChanges();
     void layoutPanes();
     void applyRecentPaneGeometry();

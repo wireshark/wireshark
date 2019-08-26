@@ -21,6 +21,7 @@
 #include <ui/qt/widgets/drag_label.h>
 #include <ui/qt/widgets/wireshark_file_dialog.h>
 #include <ui/qt/show_packet_bytes_dialog.h>
+#include <ui/qt/filter_action.h>
 #include <ui/all_files_wildcard.h>
 #include <ui/alert_box.h>
 #include "wireshark_application.h"
@@ -320,25 +321,22 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
     ctx_menu_.addAction(action);
     ctx_menu_.addSeparator();
 
-    main_menu_item = window()->findChild<QMenu *>("menuApplyAsFilter");
-    submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
-    ctx_menu_.addMenu(submenu);
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFNotSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFAndSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFOrSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFAndNotSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzeAAFOrNotSelected"));
+    QModelIndex index = indexAt(event->pos());
+    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode());
 
-    main_menu_item = window()->findChild<QMenu *>("menuPrepareAFilter");
-    submenu = new QMenu(main_menu_item->title(), &ctx_menu_);
-    ctx_menu_.addMenu(submenu);
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFNotSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFAndSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFOrSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFAndNotSelected"));
-    submenu->addAction(window()->findChild<QAction *>("actionAnalyzePAFOrNotSelected"));
+    epan_dissect_t *edt = cap_file_ ? cap_file_->edt : edt_;
+    char * selectedfilter = proto_construct_match_selected_string(finfo.fieldInfo(), edt);
+    bool can_match_selected = proto_can_match_selected(finfo.fieldInfo(), edt);
+    main_menu_item = new QMenu(tr("Apply as Filter"), &ctx_menu_);
+    QActionGroup * group = FilterAction::createFilterGroup(selectedfilter, false, can_match_selected, &ctx_menu_);
+    main_menu_item->addActions(group->actions());
+    ctx_menu_.addMenu(main_menu_item);
+    main_menu_item = new QMenu(tr("Prepare as Filter"), &ctx_menu_);
+    group = FilterAction::createFilterGroup(selectedfilter, true, can_match_selected, &ctx_menu_);
+    main_menu_item->addActions(group->actions());
+    ctx_menu_.addMenu(main_menu_item);
+    if ( selectedfilter )
+        wmem_free(Q_NULLPTR, selectedfilter);
 
     QMenu *main_conv_menu = window()->findChild<QMenu *>("menuConversationFilter");
     conv_menu_.setTitle(main_conv_menu->title());
@@ -374,8 +372,6 @@ void ProtoTree::contextMenuEvent(QContextMenuEvent *event)
     submenu->addAction(window()->findChild<QAction *>("actionEditCopyAsFilter"));
     submenu->addSeparator();
 
-    QModelIndex index = indexAt(event->pos());
-    FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode());
     QActionGroup * copyEntries = DataPrinter::copyActions(this, &finfo);
     submenu->addActions(copyEntries->actions());
 

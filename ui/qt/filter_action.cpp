@@ -9,6 +9,9 @@
 
 #include "filter_action.h"
 
+#include <ui/qt/wireshark_application.h>
+#include <ui/qt/main_window.h>
+
 FilterAction::FilterAction(QObject *parent, FilterAction::Action action, FilterAction::ActionType type, FilterAction::ActionDirection direction) :
     QAction(parent),
     action_(action),
@@ -173,6 +176,55 @@ const QString FilterAction::actionDirectionName(ActionDirection direction) {
     default:
         return QObject::tr("UNKNOWN");
         break;
+    }
+}
+
+QActionGroup * FilterAction::createFilterGroup(QString filter, bool prepare, bool enabled, QWidget * parent)
+{
+    if ( filter.isEmpty() )
+        return Q_NULLPTR;
+
+    FilterAction * filterAction = new FilterAction(parent, prepare ? FilterAction::ActionPrepare : FilterAction::ActionApply);
+
+    QActionGroup * group = new QActionGroup(parent);
+    group->setProperty("filter", filter);
+    group->setProperty("filterAction", prepare ? FilterAction::ActionPrepare : FilterAction::ActionApply);
+    QAction * action = group->addAction(tr("Selected"));
+    action->setProperty("filterType", FilterAction::ActionTypePlain);
+    action = group->addAction(tr("Not Selected"));
+    action->setProperty("filterType", FilterAction::ActionTypeNot);
+    action = group->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "and Selected"));
+    action->setProperty("filterType", FilterAction::ActionTypeAnd);
+    action = group->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "or Selected"));
+    action->setProperty("filterType", FilterAction::ActionTypeOr);
+    action = group->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "and not Selected"));
+    action->setProperty("filterType", FilterAction::ActionTypeAndNot);
+    action = group->addAction(tr(UTF8_HORIZONTAL_ELLIPSIS "or not Selected"));
+    action->setProperty("filterType", FilterAction::ActionTypeOrNot);
+    group->setEnabled(enabled);
+    connect(group, &QActionGroup::triggered, filterAction, &FilterAction::groupTriggered);
+
+    return group;
+}
+
+void FilterAction::groupTriggered(QAction * action)
+{
+    if ( action && wsApp )
+    {
+        if ( action->property("filterType").canConvert<FilterAction::ActionType>() &&
+            sender()->property("filterAction").canConvert<FilterAction::Action>() )
+        {
+            FilterAction::Action act = sender()->property("filterAction").value<FilterAction::Action>();
+            FilterAction::ActionType type = action->property("filterType").value<FilterAction::ActionType>();
+            QString filter = sender()->property("filter").toString();
+
+            QWidget * mainWin = wsApp->mainWindow();
+            if ( qobject_cast<MainWindow *>(mainWin) )
+            {
+                MainWindow * mw = qobject_cast<MainWindow *>(mainWin);
+                mw->setDisplayFilter(filter, act, type);
+            }
+        }
     }
 }
 
