@@ -112,10 +112,11 @@ void ProtoTree::protoTreeContextMenu(QContextMenuEvent * event)
 #endif
 
     QModelIndex index = indexAt(event->pos());
+    field_info * fi = Q_NULLPTR;
     if ( index.isValid() )
     {
         FieldInformation finfo(proto_tree_model_->protoNodeFromIndex(index).protoNode());
-        field_info * fi = finfo.fieldInfo();
+        fi = finfo.fieldInfo();
 
         bool is_selected = false;
 
@@ -145,6 +146,24 @@ void ProtoTree::protoTreeContextMenu(QContextMenuEvent * event)
     ctxMenu.addAction(tr("Expand All"), this, SLOT(expandAll()));
     ctxMenu.addAction(tr("Collapse All"), this, SLOT(collapseAll()));
     ctxMenu.addSeparator();
+
+    epan_dissect_t *edt = cap_file_ ? cap_file_->edt : edt_;
+    if ( fi && edt )
+    {
+        char * selectedfilter = proto_construct_match_selected_string(fi, edt);
+        bool can_match_selected = proto_can_match_selected(fi, edt);
+        QMenu * main_menu_item = new QMenu(tr("Apply as Filter"), &ctxMenu);
+        QActionGroup * group = FilterAction::createFilterGroup(selectedfilter, false, can_match_selected, &ctxMenu);
+        main_menu_item->addActions(group->actions());
+        ctxMenu.addMenu(main_menu_item);
+        main_menu_item = new QMenu(tr("Prepare as Filter"), &ctxMenu);
+        group = FilterAction::createFilterGroup(selectedfilter, true, can_match_selected, &ctxMenu);
+        main_menu_item->addActions(group->actions());
+        ctxMenu.addMenu(main_menu_item);
+        if ( selectedfilter )
+            wmem_free(Q_NULLPTR, selectedfilter);
+        ctxMenu.addSeparator();
+    }
 
     QMenu *submenu = ctxMenu.addMenu(tr("Copy"));
     submenu->addAction(tr("All Visible Items"), this, SLOT(ctxCopyVisibleItems()));
